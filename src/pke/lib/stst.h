@@ -94,7 +94,7 @@ public:
 	 * @param depth depth which is set to 1.
 	 */
 	LPCryptoParametersStehleSteinfeld(
-			shared_ptr<ElemParams> params,
+			shared_ptr<typename Element::Params> params,
 			const BigBinaryInteger &plaintextModulus,
 			float distributionParameter,
 			float assuranceMeasure,
@@ -230,12 +230,11 @@ public:
 
 		const shared_ptr<LPCryptoParametersStehleSteinfeld<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersStehleSteinfeld<Element>>(cc.GetCryptoParameters());
 
-		const shared_ptr<ElemParams> elementParams = cryptoParams->GetElementParams();
 		const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
 		const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGeneratorStSt();
 
-		Element f(dgg, elementParams, Format::COEFFICIENT);
+		Element f(dgg, cryptoParams->GetElementParams(), Format::COEFFICIENT);
 
 		f = p*f;
 
@@ -247,7 +246,7 @@ public:
 		while (!f.InverseExists())
 		{
 			//std::cout << "inverse does not exist" << std::endl;
-			Element temp(dgg, elementParams, Format::COEFFICIENT);
+			Element temp(dgg, cryptoParams->GetElementParams(), Format::COEFFICIENT);
 			f = temp;
 			f = p*f;
 			f = f + BigBinaryInteger::ONE;
@@ -256,7 +255,7 @@ public:
 
 		kp.secretKey->SetPrivateElement(f);
 
-		Element g(dgg, elementParams, Format::COEFFICIENT);
+		Element g(dgg, cryptoParams->GetElementParams(), Format::COEFFICIENT);
 
 		g.SwitchFormat();
 

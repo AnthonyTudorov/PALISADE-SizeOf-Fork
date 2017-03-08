@@ -67,28 +67,28 @@ namespace lbcrypto {
 			 *
 			 * @param elemParams the parameters being used.
 			 */
-			explicit ObfuscatedLWEConjunctionPatternV3(shared_ptr<ElemParams> elemParams);
+			explicit ObfuscatedLWEConjunctionPatternV3(shared_ptr<typename Element::Params> elemParams);
 
 			/**
 			 * Constructor with element params and chunk size
 			 *
 			 * @param elemParams the parameters being used.
 			 */
-			explicit ObfuscatedLWEConjunctionPatternV3(shared_ptr<ElemParams> elemParams, usint chunkSize);
+			explicit ObfuscatedLWEConjunctionPatternV3(shared_ptr<typename Element::Params> elemParams, usint chunkSize);
 
 			/**
 			 * Sets elements params.
 			 *
 			 * @param elemParams parameters.
 			 */
-			void SetParameters(shared_ptr<ElemParams> elemParams) { m_elemParams = elemParams;}
+			void SetParameters(shared_ptr<typename Element::Params> elemParams) { m_elemParams = elemParams;}
 
 			/**
 			 * Gets element params.
 			 *
 			 * @return parameters.
 			 */
-			const shared_ptr<ElemParams> GetParameters() const { return m_elemParams;}
+			const shared_ptr<typename Element::Params> GetParameters() const { return m_elemParams;}
 
 			/**
 			 * Gets the ring dimension
@@ -233,7 +233,7 @@ namespace lbcrypto {
 
 			//length of the pattern
 			usint m_length;
-			shared_ptr<ElemParams> m_elemParams;
+			shared_ptr<typename Element::Params> m_elemParams;
 
 			//lattice security parameter
 			double m_rootHermiteFactor;

@@ -42,16 +42,11 @@ namespace lbcrypto {
 	ILVectorArray2n::ILVectorArray2n() : m_format(EVALUATION), m_cyclotomicOrder(0), m_modulus(1){
 	}
 
-	ILVectorArray2n::ILVectorArray2n(const shared_ptr<ElemParams> params, Format format, bool initializeElementToZero)
+	ILVectorArray2n::ILVectorArray2n(const shared_ptr<ILDCRTParams> dcrtParams, Format format, bool initializeElementToZero)
 	{
-		const shared_ptr<ILDCRTParams> dcrtParams = std::dynamic_pointer_cast<ILDCRTParams>(params);
-
-		if( dcrtParams == 0 )
-			throw std::logic_error("ILVectorArray2n must be constructed with an ILDCRTParams");
-
-		m_cyclotomicOrder = params->GetCyclotomicOrder();
+		m_cyclotomicOrder = dcrtParams->GetCyclotomicOrder();
 		m_format = format;
-		m_modulus = params->GetModulus();
+		m_modulus = dcrtParams->GetModulus();
 
 		size_t vecSize = dcrtParams->GetModuli().size();
 		m_vectors.reserve(vecSize);
@@ -118,13 +113,8 @@ namespace lbcrypto {
 	}
 
 	/*The dgg will be the seed to populate the towers of the ILVectorArray2n with random numbers. The algorithm to populate the towers can be seen below.*/
-	ILVectorArray2n::ILVectorArray2n(const DiscreteGaussianGenerator & dgg, const shared_ptr<ElemParams> params, Format format)
+	ILVectorArray2n::ILVectorArray2n(const DiscreteGaussianGenerator & dgg, const shared_ptr<ILDCRTParams> dcrtParams, Format format)
 	{
-		const shared_ptr<ILDCRTParams> dcrtParams = std::dynamic_pointer_cast<ILDCRTParams>(params);
-
-		if( dcrtParams == 0 )
-			throw std::logic_error("ILVectorArray2n must be constructed with an ILDCRTParams");
-
 		m_modulus = dcrtParams->GetModulus();
 		m_cyclotomicOrder= dcrtParams->GetCyclotomicOrder();
 		m_format = format;
@@ -134,7 +124,7 @@ namespace lbcrypto {
 
 		//dgg generating random values
 		
-		std::shared_ptr<sint> dggValues = dgg.GenerateIntVector(params->GetCyclotomicOrder()/2);
+		std::shared_ptr<sint> dggValues = dgg.GenerateIntVector(dcrtParams->GetCyclotomicOrder()/2);
 
 		BigBinaryInteger modulus;
 		BigBinaryInteger rootOfUnity;
@@ -145,12 +135,12 @@ namespace lbcrypto {
 			modulus = dcrtParams->GetModuli()[i];
 			rootOfUnity = dcrtParams->GetRootsOfUnity()[i];
 
-			shared_ptr<ILParams> ilVectorDggValuesParams( new ILParams(params->GetCyclotomicOrder(), modulus, rootOfUnity) );
+			shared_ptr<ILParams> ilVectorDggValuesParams( new ILParams(dcrtParams->GetCyclotomicOrder(), modulus, rootOfUnity) );
 			ILVector2n ilvector(ilVectorDggValuesParams);
 
-			BigBinaryVector ilDggValues(params->GetCyclotomicOrder()/2,modulus);
+			BigBinaryVector ilDggValues(dcrtParams->GetCyclotomicOrder()/2,modulus);
 
-			for(usint j = 0; j < params->GetCyclotomicOrder()/2; j++){
+			for(usint j = 0; j < dcrtParams->GetCyclotomicOrder()/2; j++){
 				// if the random generated value is less than zero, then multiply it by (-1) and subtract the modulus of the current tower to set the coefficient
 				int k = (dggValues.get())[j];
 				if(k < 0){
@@ -174,9 +164,8 @@ namespace lbcrypto {
 		}
 	}
 
-	ILVectorArray2n::ILVectorArray2n(const DiscreteUniformGenerator &dug, const shared_ptr<ElemParams> params, Format format) {
+	ILVectorArray2n::ILVectorArray2n(const DiscreteUniformGenerator &dug, const shared_ptr<ILDCRTParams> dcrtParams, Format format) {
 
-		const shared_ptr<ILDCRTParams> dcrtParams = std::dynamic_pointer_cast<ILDCRTParams>(params);
 		m_modulus = dcrtParams->GetModulus();
 		m_cyclotomicOrder = dcrtParams->GetCyclotomicOrder();
 		m_format = format;

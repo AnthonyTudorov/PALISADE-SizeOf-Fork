@@ -1178,7 +1178,7 @@ namespace lbcrypto {
 	 * @brief main implementation class to capture essential cryptoparameters of any LBC system
 	 * @tparam Element a ring element.
 	 */
-	template <class Element>
+	template <typename Element>
 	class LPCryptoParameters : public Serializable
 	{		
 	public:
@@ -1196,7 +1196,7 @@ namespace lbcrypto {
 			*
 			* @return the ring element parameters.
 			*/
-		const shared_ptr<ElemParams> GetElementParams() const { return m_params; }
+		const shared_ptr<typename Element::Params> GetElementParams() const { return m_params; }
 			
 		/**
 		* Sets the value of plaintext modulus p
@@ -1208,7 +1208,7 @@ namespace lbcrypto {
 		/**
 		 * Sets the reference to element params
 		 */
-		void SetElementParams(shared_ptr<ElemParams> params) { m_params = params; }
+		void SetElementParams(shared_ptr<typename Element::Params> params) { m_params = params; }
 
 		virtual const DiscreteGaussianGenerator& GetDiscreteGaussianGenerator() const {
 			throw std::logic_error("These parameters do not use a DGG");
@@ -1220,18 +1220,18 @@ namespace lbcrypto {
 
 		LPCryptoParameters(const BigBinaryInteger &plaintextModulus) : m_plaintextModulus(plaintextModulus) {}
 
-		LPCryptoParameters(shared_ptr<ElemParams> params, const BigBinaryInteger &plaintextModulus) : m_plaintextModulus(plaintextModulus) {
+		LPCryptoParameters(shared_ptr<typename Element::Params> params, const BigBinaryInteger &plaintextModulus) : m_plaintextModulus(plaintextModulus) {
 			m_params = params;
 		}
 
-		LPCryptoParameters(LPCryptoParameters<Element> *from, shared_ptr<ElemParams> newElemParms) {
+		LPCryptoParameters(LPCryptoParameters<Element> *from, shared_ptr<typename Element::Params> newElemParms) {
 			*this = *from;
 			m_params = newElemParms;
 		}
 
 	private:
 		//element-specific parameters
-		shared_ptr<ElemParams>	m_params;
+		shared_ptr<typename Element::Params>	m_params;
 
 		//plaintext modulus p
 		BigBinaryInteger		m_plaintextModulus;

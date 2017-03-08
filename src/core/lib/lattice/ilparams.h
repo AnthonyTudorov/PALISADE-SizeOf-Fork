@@ -45,11 +45,10 @@
  */
 namespace lbcrypto {
 
-// Parameters for ideal lattice: cyclotomic order and modulus
 /**
  * @brief Parameters for ideal lattice: cyclotomic order and modulus.
  */
-class ILParams : public ElemParams
+class ILParams : public ElemParams<BigBinaryInteger>
 {
 public:
 
@@ -57,10 +56,8 @@ public:
 	 * Constructor that initializes nothing.
 	 * All of the private members will be initialised to zero.
 	 */
-	ILParams(): m_modulus(0), m_order(0), m_rootOfUnity(0) {
-	}//no need of writing this as all of the private members will be initialised to zero
+	ILParams(): m_modulus(0), m_order(0), m_rootOfUnity(0) {}
 
-	// constructor for the pre-computed case;
 	/**
 	 * Constructor for the pre-computed case.
 	 *

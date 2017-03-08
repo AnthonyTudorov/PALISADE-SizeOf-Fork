@@ -86,7 +86,7 @@ public:
 	 * @param depth depth which defaults to 1.
 	 */
 	LPCryptoParametersRLWE(
-			shared_ptr<ElemParams> params,
+			shared_ptr<typename Element::Params> params,
 			const BigBinaryInteger &plaintextModulus,
 			float distributionParameter,
 			float assuranceMeasure,
@@ -231,8 +231,8 @@ protected:
 	bool SerializeRLWE(Serialized* serObj, SerialItem& cryptoParamsMap) const {
 
 		Serialized pser(rapidjson::kObjectType, &serObj->GetAllocator());
-		const ElemParams& ep = *this->GetElementParams();
-		if( !ep.Serialize(&pser) )
+
+		if( !this->GetElementParams()->Serialize(&pser) )
 			return false;
 
 		cryptoParamsMap.AddMember("ElemParams", pser.Move(), serObj->GetAllocator());
@@ -257,21 +257,21 @@ protected:
 		SerialItem val( pIt->value.MemberBegin()->value, oneItem.GetAllocator() );
 		oneItem.AddMember(key, val, oneItem.GetAllocator());
 
-		ElemParams *json_ilParams;
-		if( typeid(Element) == typeid(ILVector2n) )
-			json_ilParams = new ILParams();
-		else if( typeid(Element) == typeid(ILVectorArray2n) )
-			json_ilParams = new ILDCRTParams();
-		else {
-			throw std::logic_error("Unrecognized element type");
-		}
+		typename Element::Params *json_ilParams = new typename Element::Params();
+//		if( typeid(Element) == typeid(ILVector2n) )
+//			json_ilParams = new ILParams();
+//		else if( typeid(Element) == typeid(ILVectorArray2n) )
+//			json_ilParams = new ILDCRTParams();
+//		else {
+//			throw std::logic_error("Unrecognized element type");
+//		}
 
 		if( !json_ilParams->Deserialize(oneItem) ) {
 			delete json_ilParams;
 			return false;
 		}
 
-		shared_ptr<ElemParams> ep( json_ilParams );
+		shared_ptr<typename Element::Params> ep( json_ilParams );
 		this->SetElementParams( ep );
 
 		if( (pIt = mIter->value.FindMember("PlaintextModulus")) == mIter->value.MemberEnd() )

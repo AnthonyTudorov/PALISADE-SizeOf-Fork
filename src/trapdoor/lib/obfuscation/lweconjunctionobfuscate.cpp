@@ -69,7 +69,7 @@ ObfuscatedLWEConjunctionPattern<Element>::~ObfuscatedLWEConjunctionPattern() {
 }
 
 template <class Element>
-ObfuscatedLWEConjunctionPattern<Element>::ObfuscatedLWEConjunctionPattern(shared_ptr<ElemParams> elemParams) {
+ObfuscatedLWEConjunctionPattern<Element>::ObfuscatedLWEConjunctionPattern(shared_ptr<typename Element::Params> elemParams) {
 	this->m_elemParams = elemParams;
 
 	this->m_length = 0;
@@ -209,7 +209,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(DiscreteGaussianGenerat
 	DEBUG("BitLength in KeyGen: " << k);
 
 	usint l = obfuscatedPattern->GetLength();
-	const shared_ptr<ElemParams> params = obfuscatedPattern->GetParameters();
+	const shared_ptr<typename Element::Params> params = obfuscatedPattern->GetParameters();
 	usint stddev = dgg.GetStd(); 
 	//double s = 1000;
 	//double s = 600;
@@ -326,7 +326,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 	usint n = obfuscatedPattern->GetRingDimension();
 	BigBinaryInteger q(obfuscatedPattern->GetModulus());
 	usint m = obfuscatedPattern->GetLogModulus() + 2;
-	const shared_ptr<ElemParams> params = obfuscatedPattern->GetParameters();
+	const shared_ptr<typename Element::Params> params = obfuscatedPattern->GetParameters();
 	//usint stddev = dgg.GetStd(); 
 
 	const std::vector<Matrix<Element>> &Pk_vector = obfuscatedPattern->GetPublicKeys();
@@ -580,7 +580,7 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 
 	const std::vector<Matrix<Element>> &Pk_vector = obfuscatedPattern.GetPublicKeys();
 
-	const shared_ptr<ElemParams> params = obfuscatedPattern.GetParameters();
+	const shared_ptr<typename Element::Params> params = obfuscatedPattern.GetParameters();
 
 	auto zero_alloc = Element::MakeAllocator(params, EVALUATION);
 

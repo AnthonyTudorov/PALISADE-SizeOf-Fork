@@ -121,21 +121,21 @@ namespace lbcrypto {
 			 *
 			 * @param &elemParams the parameters being used.
 			 */
-			explicit ObfuscatedLWEConjunctionPattern(shared_ptr<ElemParams> elemParams);
+			explicit ObfuscatedLWEConjunctionPattern(shared_ptr<typename Element::Params> elemParams);
 
 			/**
 			 * Sets elements params.
 			 *
 			 * @param *elemParams parameters.
 			 */
-			void SetParameters(ElemParams &elemParams) { m_elemParams = &elemParams;}
+			void SetParameters(typename Element::Params &elemParams) { m_elemParams = &elemParams;}
 
 			/**
 			 * Gets element params.
 			 *
 			 * @return parameters.
 			 */
-			const shared_ptr<ElemParams> GetParameters() const { return m_elemParams; }
+			const shared_ptr<typename Element::Params> GetParameters() const { return m_elemParams; }
 
 			/**
 			 * Gets the ring dimension
@@ -264,7 +264,7 @@ namespace lbcrypto {
 		private:
 
 			usint m_length;
-			shared_ptr<ElemParams> m_elemParams;
+			shared_ptr<typename Element::Params> m_elemParams;
 
 			vector<Matrix<Element>> *m_S0_vec;
 			vector<Matrix<Element>> *m_S1_vec;

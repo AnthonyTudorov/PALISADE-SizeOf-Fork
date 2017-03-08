@@ -50,7 +50,7 @@ template <class Element>
 ObfuscatedLWEConjunctionPatternV3<Element>::~ObfuscatedLWEConjunctionPatternV3() {}
 
 template <class Element>
-ObfuscatedLWEConjunctionPatternV3<Element>::ObfuscatedLWEConjunctionPatternV3(shared_ptr<ElemParams> elemParams, usint chunkSize) {
+ObfuscatedLWEConjunctionPatternV3<Element>::ObfuscatedLWEConjunctionPatternV3(shared_ptr<typename Element::Params> elemParams, usint chunkSize) {
 
 	this->m_elemParams = elemParams;
 
@@ -69,7 +69,7 @@ ObfuscatedLWEConjunctionPatternV3<Element>::ObfuscatedLWEConjunctionPatternV3(sh
 }
 
 template <class Element>
-ObfuscatedLWEConjunctionPatternV3<Element>::ObfuscatedLWEConjunctionPatternV3(shared_ptr<ElemParams> elemParams) :
+ObfuscatedLWEConjunctionPatternV3<Element>::ObfuscatedLWEConjunctionPatternV3(shared_ptr<typename Element::Params> elemParams) :
 	ObfuscatedLWEConjunctionPatternV3(elemParams,1) {};
 
 template <class Element>
@@ -237,7 +237,7 @@ void LWEConjunctionObfuscationAlgorithmV3<Element>::KeyGen(DiscreteGaussianGener
 	//std::cout << "BitLength in KeyGen: " << k << std::endl;
 
 	usint l = obfuscatedPattern->GetLength();
-	const shared_ptr<ElemParams> params = obfuscatedPattern->GetParameters();
+	const shared_ptr<typename Element::Params> params = obfuscatedPattern->GetParameters();
 	usint chunkSize = obfuscatedPattern->GetChunkSize();
 	usint adjustedLength = l/chunkSize;
 	usint stddev = dgg.GetStd(); 
@@ -364,7 +364,7 @@ void LWEConjunctionObfuscationAlgorithmV3<Element>::Obfuscate(
 	usint chunkSize = obfuscatedPattern->GetChunkSize();
 	usint adjustedLength = l/chunkSize;
 	usint chunkExponent = 1 << chunkSize;
-	const shared_ptr<ElemParams> params = obfuscatedPattern->GetParameters();
+	const shared_ptr<typename Element::Params> params = obfuscatedPattern->GetParameters();
 
 	double c = 2 * SIGMA;
 	double s = SPECTRAL_BOUND(n, m - 2);
@@ -582,7 +582,7 @@ bool LWEConjunctionObfuscationAlgorithmV3<Element>::EvaluateV2(
 
 	const std::vector<Matrix<Element>> &Pk_vector = obfuscatedPattern.GetPublicKeys();
 
-	const shared_ptr<ElemParams> params = obfuscatedPattern.GetParameters();
+	const shared_ptr<typename Element::Params> params = obfuscatedPattern.GetParameters();
 
 	auto zero_alloc = Element::MakeAllocator(params, EVALUATION);
 
@@ -693,7 +693,7 @@ bool LWEConjunctionObfuscationAlgorithmV3<Element>::EvaluateACS(
 
 	const std::vector<Matrix<Element>> &Pk_vector = obfuscatedPattern.GetPublicKeys();
 
-	const shared_ptr<ElemParams> params = obfuscatedPattern.GetParameters();
+	const shared_ptr<typename Element::Params> params = obfuscatedPattern.GetParameters();
 
 	auto zero_alloc = Element::MakeAllocator(params, EVALUATION);
 
@@ -815,7 +815,7 @@ bool LWEConjunctionObfuscationAlgorithmV3<Element>::Evaluate(
 
 	const std::vector<Matrix<Element>> &Pk_vector = obfuscatedPattern.GetPublicKeys();
 
-	const shared_ptr<ElemParams> params = obfuscatedPattern.GetParameters();
+	const shared_ptr<typename Element::Params> params = obfuscatedPattern.GetParameters();
 
 	auto zero_alloc = Element::MakeAllocator(params, EVALUATION);
 

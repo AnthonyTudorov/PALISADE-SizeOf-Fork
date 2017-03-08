@@ -773,8 +773,6 @@ public:
 				throw std::logic_error("bit string must contain only 0 or 1");
 			}
 
-			std::cout << i << "," << n << ":" << v << std::endl;
-
 			v <<= 1;
 			v |= n;
 		}

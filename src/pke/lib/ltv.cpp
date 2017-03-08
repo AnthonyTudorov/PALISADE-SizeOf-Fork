@@ -64,7 +64,7 @@ void LPCryptoParametersLTV<Element>::ParameterSelection(LPCryptoParametersLTV<IL
 		rootsOfUnity.push_back(rootOfUnity);
 	}
 
-	shared_ptr<ElemParams> newElemParams(new ILDCRTParams(m, moduli, rootsOfUnity));
+	shared_ptr<typename ILVectorArray2n::Params> newElemParams(new typename ILVectorArray2n::Params(m, moduli, rootsOfUnity));
 	cryptoParams->SetElementParams(newElemParams);
 
 }
@@ -135,7 +135,7 @@ LPKeyPair<Element> LPAlgorithmLTV<Element>::KeyGen(const CryptoContext<Element> 
 
 	const shared_ptr<LPCryptoParametersLTV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersLTV<Element>>(cc.GetCryptoParameters());
 
-	const shared_ptr<ElemParams> elementParams = cryptoParams->GetElementParams();
+	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
 	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
@@ -184,7 +184,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmLTV<Element>::Encrypt(const shared_pt
 
 	shared_ptr<Ciphertext<Element>> ciphertext(new Ciphertext<Element>(publicKey->GetCryptoContext()));
 
-	const shared_ptr<ElemParams> elementParams = cryptoParams->GetElementParams();
+	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 
@@ -496,7 +496,7 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmPRELTV<Element>::ReKeyGen(const shared
 	const shared_ptr<LPCryptoParametersRLWE<Element>> cryptoParamsLWE =
 		std::dynamic_pointer_cast<LPCryptoParametersRLWE<Element>>(newPK->GetCryptoParameters());
 
-	const shared_ptr<ElemParams> elementParams = cryptoParamsLWE->GetElementParams();
+	const shared_ptr<typename Element::Params> elementParams = cryptoParamsLWE->GetElementParams();
 	const BigBinaryInteger &p = cryptoParamsLWE->GetPlaintextModulus();
 	const Element &f = origPrivateKey->GetPrivateElement();
 
@@ -533,7 +533,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmPRELTV<Element>::ReEncrypt(const shar
 	const shared_ptr<LPCryptoParametersRLWE<Element>> cryptoParamsLWE =
 		std::dynamic_pointer_cast<LPCryptoParametersRLWE<Element>>(evalKey->GetCryptoParameters());
 
-	const shared_ptr<ElemParams> elementParams = cryptoParamsLWE->GetElementParams();
+	const shared_ptr<typename Element::Params> elementParams = cryptoParamsLWE->GetElementParams();
 	const BigBinaryInteger &p = cryptoParamsLWE->GetPlaintextModulus();
 
 	const std::vector<Element> &proxy = evalKey->GetAVector();

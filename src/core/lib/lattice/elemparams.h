@@ -46,19 +46,18 @@
 */
 namespace lbcrypto {
 
-	// Interface for element params; all these methods have to be supported by any element parameters class
 	/**
 	* @brief Interface for element params; all these methods have to be supported by any element parameters class
 	*/
-	//JSON FACILITY
+
+	template <typename IntegerType>
 	class ElemParams : public Serializable
 	{
 	public:
-		//each element params should give the effective modulus regardless of the representation
 		/**
 		* Each element params should give the effective modulus regardless of the representation
 		*/
-		virtual const BigBinaryInteger &GetModulus() const = 0;
+		virtual const IntegerType &GetModulus() const = 0;
 
 		/**
 		* Get method of the order.
@@ -67,7 +66,12 @@ namespace lbcrypto {
 		*/
 		virtual const usint GetCyclotomicOrder() const = 0;
 
-		virtual const BigBinaryInteger &GetRootOfUnity() const { return BigBinaryInteger::ZERO; }
+		/**
+		 * Get Root of Unity
+		 * @return default of 0 if not implemented; should be =0?
+		 * FIXME: =0
+		 */
+		virtual const IntegerType &GetRootOfUnity() const { return IntegerType::ZERO; }
 
 	    friend std::ostream& operator<<(std::ostream& out, const ElemParams &item) {
 	    	return item.doprint(out);

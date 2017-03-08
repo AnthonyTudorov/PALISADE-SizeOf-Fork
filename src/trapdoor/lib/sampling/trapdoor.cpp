@@ -365,7 +365,7 @@ namespace lbcrypto {
 		// k is the bit length
 		size_t k = Tprime0.GetCols();
 
-		const shared_ptr<ElemParams> params = Tprime0(0, 0).GetParams();
+		const shared_ptr<typename ILVector2n::Params> params = Tprime0(0, 0).GetParams();
 
 		// all three polynomials are initialized with "0" coefficients
 		ILVector2n va(params, EVALUATION, 1);

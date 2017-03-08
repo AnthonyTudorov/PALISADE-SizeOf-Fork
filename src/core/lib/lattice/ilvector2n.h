@@ -63,6 +63,8 @@ class ILVector2n : public ILElement<ILVector2n>
 {
 public:
 
+	typedef ILParams Params;
+
 	/**
 	 * Default constructor
 	 */
@@ -74,7 +76,7 @@ public:
 	 * @param format - EVALUATION or COEFFICIENT
 	 * @param initializeElementToZero - if true, allocates an empty vector set to all 0s
 	 */
-	ILVector2n(const shared_ptr<ElemParams> params, Format format = EVALUATION, bool initializeElementToZero = false);
+	ILVector2n(const shared_ptr<ILParams> params, Format format = EVALUATION, bool initializeElementToZero = false);
 
 	/**
 	 * Construct given parameters and format
@@ -82,7 +84,7 @@ public:
 	 * @param params - element parameters
 	 * @param format - EVALUATION or COEFFICIENT
 	 */
-    	ILVector2n(bool initializeElementToMax, const shared_ptr<ElemParams> params, Format format);
+    	ILVector2n(bool initializeElementToMax, const shared_ptr<ILParams> params, Format format);
 
 	/**
 	 * Construct with a vector from a given generator
@@ -91,7 +93,7 @@ public:
 	 * @param &params the input params.
 	 * @param format - EVALUATION or COEFFICIENT
 	 */
-	ILVector2n(const DiscreteGaussianGenerator &dgg, const shared_ptr<ElemParams> params, Format format = EVALUATION);
+	ILVector2n(const DiscreteGaussianGenerator &dgg, const shared_ptr<ILParams> params, Format format = EVALUATION);
 
 	/**
 	 * Construct with a vector from a given generator
@@ -100,7 +102,7 @@ public:
 	 * @param &params the input params.
 	 * @param format - EVALUATION or COEFFICIENT
 	 */
-	ILVector2n(const BinaryUniformGenerator &bug, const shared_ptr<ElemParams> params, Format format = EVALUATION);
+	ILVector2n(const BinaryUniformGenerator &bug, const shared_ptr<ILParams> params, Format format = EVALUATION);
 
 	/**
 	 * Construct with a vector from a given generator
@@ -109,7 +111,7 @@ public:
 	 * @param &params the input params.
 	 * @param format - EVALUATION or COEFFICIENT
 	 */
-	ILVector2n(const TernaryUniformGenerator &tug, const shared_ptr<ElemParams> params, Format format = EVALUATION);
+	ILVector2n(const TernaryUniformGenerator &tug, const shared_ptr<ILParams> params, Format format = EVALUATION);
 
 	/**
 	 * Construct with a vector from a given generator
@@ -118,17 +120,14 @@ public:
 	 * @param &params the input params.
 	 * @param format - EVALUATION or COEFFICIENT
 	 */
-	ILVector2n(const DiscreteUniformGenerator &dug, const shared_ptr<ElemParams> params, Format format = EVALUATION);
+	ILVector2n(const DiscreteUniformGenerator &dug, const shared_ptr<ILParams> params, Format format = EVALUATION);
 
 	/**
 	 *  Create lambda that allocates a zeroed element for the case when it is called from a templated class
 	 */
-	inline static function<unique_ptr<ILVector2n>()> MakeAllocator(const shared_ptr<ElemParams> params, Format format) {
+	inline static function<unique_ptr<ILVector2n>()> MakeAllocator(const shared_ptr<ILParams> params, Format format) {
 		return [=]() {
-			shared_ptr<ILParams> ip = std::dynamic_pointer_cast<ILParams>(params);
-			if (ip == 0)
-				throw std::logic_error("MakeAllocator was not passed an ILParams");
-			return lbcrypto::make_unique<ILVector2n>(ip, format, true);
+			return lbcrypto::make_unique<ILVector2n>(params, format, true);
 		};
 	}
 

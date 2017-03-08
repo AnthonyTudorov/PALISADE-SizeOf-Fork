@@ -55,7 +55,7 @@ namespace lbcrypto {
 
 		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersBV<Element>>(cc.GetCryptoParameters());
 
-		const shared_ptr<ElemParams> elementParams = cryptoParams->GetElementParams();
+		const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 
 		const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
@@ -106,7 +106,7 @@ namespace lbcrypto {
 
 		shared_ptr<Ciphertext<Element>> ciphertext(new Ciphertext<Element>(publicKey->GetCryptoContext()));
 
-		const shared_ptr<ElemParams> elementParams = cryptoParams->GetElementParams();
+		const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 		const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 		const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 
@@ -312,7 +312,7 @@ namespace lbcrypto {
 
 		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(originalPrivateKey->GetCryptoParameters());
 
-		const shared_ptr<ElemParams> originalKeyParams = cryptoParams->GetElementParams();
+		const shared_ptr<typename Element::Params> originalKeyParams = cryptoParams->GetElementParams();
 
 		const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
@@ -435,7 +435,7 @@ namespace lbcrypto {
 			throw std::logic_error("Secret Key crypto parameters have incorrect type in LPAlgorithmPREBV<Element>::ReKeyGen");
 		}
 
-		const shared_ptr<ElemParams> elementParams = cryptoParamsLWE->GetElementParams();
+		const shared_ptr<typename Element::Params> elementParams = cryptoParamsLWE->GetElementParams();
 		const BigBinaryInteger &p = cryptoParamsLWE->GetPlaintextModulus();
 		const Element &s = origPrivateKey->GetPrivateElement();
 

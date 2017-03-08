@@ -77,20 +77,19 @@ public:
 	* @param sttdev distribution parameter used in sampling noise polynomials of the trapdoor
 	* @return the trapdoor pair including the public key (matrix of rings) and trapdoor itself
 	*/
-	static inline std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> TrapdoorGen(shared_ptr<ILParams> params, int stddev);
+	static inline std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> TrapdoorGen(shared_ptr<typename ILVector2n::Params> params, int stddev);
 
-	/**
-	* Wrapper for TrapdoorGen(ILParams params, int stddev) - currently supports only ILVector2n, support for other rings will be added later
-	*
-	* @param params ring element parameters
-	* @param sttdev distribution parameter used in sampling noise polynomials of the trapdoor
-	* @return the trapdoor pair including the public key (matrix of rings) and trapdoor itself
-	*/
-	static inline std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> TrapdoorGen(const shared_ptr<ElemParams> params, int stddev)
-	{
-		shared_ptr<ILParams> ip = std::dynamic_pointer_cast<ILParams>(params);
-		return TrapdoorGen(ip, stddev);
-	}
+//	/**
+//	* Wrapper for TrapdoorGen(ILParams params, int stddev) - currently supports only ILVector2n, support for other rings will be added later
+//	*
+//	* @param params ring element parameters
+//	* @param sttdev distribution parameter used in sampling noise polynomials of the trapdoor
+//	* @return the trapdoor pair including the public key (matrix of rings) and trapdoor itself
+//	*/
+//	static inline std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> TrapdoorGen(const shared_ptr<typename ILVector2n::Params> params, int stddev)
+//	{
+//		return TrapdoorGen(params, stddev);
+//	}
 
 	/**
 	* Gaussian sampling introduced in https://eprint.iacr.org/2011/501.pdf and described 

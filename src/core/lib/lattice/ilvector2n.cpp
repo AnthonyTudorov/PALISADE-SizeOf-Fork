@@ -41,21 +41,16 @@ namespace lbcrypto {
 	ILVector2n::ILVector2n() : m_values(NULL), m_format(EVALUATION) {
 	}
 
-	ILVector2n::ILVector2n(const shared_ptr<ElemParams> params, Format format, bool initializeElementToZero) : m_values(NULL), m_format(format) {
-		m_params = std::dynamic_pointer_cast<ILParams>(params);
-		if (!m_params)
-			throw std::logic_error("Params in ILVector2n constructor must be of type ILParams");
+	ILVector2n::ILVector2n(const shared_ptr<ILParams> params, Format format, bool initializeElementToZero) : m_values(NULL), m_format(format) {
+		m_params = params;
 
 		if (initializeElementToZero) {
 			this->SetValuesToZero();
 		}
 	}
 
-	ILVector2n::ILVector2n(bool initializeElementToMax, const shared_ptr<ElemParams> params, Format format) : m_values(NULL), m_format(format) {
-		if( typeid(*params) != typeid(ILParams) )
-			throw std::logic_error("Params in ILVector2n constructor must be of type ILParams");
-
-		m_params = std::static_pointer_cast<ILParams>(params);
+	ILVector2n::ILVector2n(bool initializeElementToMax, const shared_ptr<ILParams> params, Format format) : m_values(NULL), m_format(format) {
+		m_params = params;
 
 		if(initializeElementToMax) {
 			this->SetValuesToMax();
@@ -64,12 +59,9 @@ namespace lbcrypto {
 	}
 
 
-	ILVector2n::ILVector2n(const DiscreteGaussianGenerator &dgg, const shared_ptr<ElemParams> params, Format format) {
+	ILVector2n::ILVector2n(const DiscreteGaussianGenerator &dgg, const shared_ptr<ILParams> params, Format format) {
 
-		m_params = std::dynamic_pointer_cast<ILParams>(params);
-		if (!m_params)
-			throw std::logic_error("Params in ILVector2n constructor must be of type ILParams");
-
+		m_params = params;
 
 		if (format == COEFFICIENT)
 		{
@@ -92,11 +84,9 @@ namespace lbcrypto {
 	}
 
 
-	ILVector2n::ILVector2n(const DiscreteUniformGenerator &dug, const shared_ptr<ElemParams> params, Format format) {
+	ILVector2n::ILVector2n(const DiscreteUniformGenerator &dug, const shared_ptr<ILParams> params, Format format) {
 
-		m_params = std::dynamic_pointer_cast<ILParams>(params);
-		if (!m_params)
-			throw std::logic_error("Params in ILVector2n constructor must be of type ILParams");
+		m_params = params;
 
 		usint vectorSize = params->GetCyclotomicOrder() / 2;
 		m_values = new BigBinaryVector(dug.GenerateVector(vectorSize));
@@ -109,11 +99,9 @@ namespace lbcrypto {
 
 	}
 
-	ILVector2n::ILVector2n(const BinaryUniformGenerator &bug, const shared_ptr<ElemParams> params, Format format) {
+	ILVector2n::ILVector2n(const BinaryUniformGenerator &bug, const shared_ptr<ILParams> params, Format format) {
 
-		m_params = std::dynamic_pointer_cast<ILParams>(params);
-		if (!m_params)
-			throw std::logic_error("Params in ILVector2n constructor must be of type ILParams");
+		m_params = params;
 
 		usint vectorSize = params->GetCyclotomicOrder() / 2;
 		m_values = new BigBinaryVector(bug.GenerateVector(vectorSize, params->GetModulus()));
@@ -125,11 +113,9 @@ namespace lbcrypto {
 			this->SwitchFormat();
 	}
 
-	ILVector2n::ILVector2n(const TernaryUniformGenerator &tug, const shared_ptr<ElemParams> params, Format format) {
+	ILVector2n::ILVector2n(const TernaryUniformGenerator &tug, const shared_ptr<ILParams> params, Format format) {
 
-		m_params = std::dynamic_pointer_cast<ILParams>(params);
-		if (!m_params)
-			throw std::logic_error("Params in ILVector2n constructor must be of type ILParams");
+		m_params = params;
 
 		if (format == COEFFICIENT)
 		{
