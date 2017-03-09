@@ -169,22 +169,6 @@ std::vector<BigBinaryInteger> RootsOfUnity(usint m, const std::vector<BigBinaryI
 }
 
 
-/*
-	This method can be used to convert int to BigBinaryInteger
-*/
-BigBinaryInteger UintToBigBinaryInteger(usint m)
-{
-	/*
-	std::ostringstream s;
-	s << m;
-	BigBinaryInteger result(s.str());
-	return result;
-	*/
-	
-	return BigBinaryInteger(m);
-	
-}
-
 /* Function to reverse bits of num */
 usint ReverseBits(usint num, usint msb)
 {

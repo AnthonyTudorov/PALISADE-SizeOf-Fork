@@ -17,5 +17,5 @@ template class BigBinaryVector<native64::NativeInteger<uint64_t>>;
 
 namespace lbcrypto {
 template class ILVectorImpl<BigBinaryInteger,BigBinaryVector,ILParams>;
-template class ILVectorImpl<native64::BigBinaryInteger,native64::BigBinaryVector,ILNativeParams>;
+//template class ILVectorImpl<native64::BigBinaryInteger,native64::BigBinaryVector,ILNativeParams>;
 }

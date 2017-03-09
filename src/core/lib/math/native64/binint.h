@@ -217,15 +217,7 @@ public:
 	 * @param str is the initial integer represented as a string.
 	 */
 	NativeInteger(const std::string& str) {
-		m_value = 0;
-		for( int i=0; i<str.length(); i++ ) {
-			int v = str[i] - '0';
-			if( v < 0 || v > 9 ) {
-				throw std::logic_error("string contains a non-digit");
-			}
-			m_value *= 10;
-			m_value += v;
-		}
+		AssignVal(str);
 	}
 
 	/**
@@ -331,14 +323,18 @@ public:
 	 *
 	 * @param str is the string representation of the big binary integer to be copied.
 	 */
-	void SetValue(const std::string& str);
+	void SetValue(const std::string& str) {
+		AssignVal(str);
+	}
 
 	/**
 	 * Basic set method for setting the value of a big binary integer
 	 *
 	 * @param a is the big binary integer representation of the big binary integer to be assigned.
 	 */
-	void SetValue(const NativeInteger& a);
+	void SetValue(const NativeInteger& a) {
+		m_value = a.m_value;
+	}
 
 
 	/**
@@ -467,7 +463,9 @@ public:
 	 * @param mu is the Barrett value.
 	 * @return is the result of the modulus operation.
 	 */
-	NativeInteger ModBarrett(const NativeInteger& modulus, const NativeInteger& mu) const;
+	NativeInteger ModBarrett(const NativeInteger& modulus, const NativeInteger& mu) const {
+		return this->m_value%modulus.m_value;
+	}
 
 	/**
 	 * returns the modulus with respect to the input value.
@@ -478,7 +476,9 @@ public:
 	 * @param mu_arr is an array of the Barrett values of length BARRETT_LEVELS.
 	 * @return result of the modulus operation.
 	 */
-	NativeInteger ModBarrett(const NativeInteger& modulus, const NativeInteger mu_arr[BARRETT_LEVELS+1]) const;
+	NativeInteger ModBarrett(const NativeInteger& modulus, const NativeInteger mu_arr[BARRETT_LEVELS+1]) const {
+		return this->m_value%modulus.m_value;
+	}
 
 	/**
 	 * returns the modulus inverse with respect to the input value.
@@ -624,7 +624,9 @@ public:
 	 * @param mu is the Barrett value.
 	 * @return is the result of the modulus subtraction operation.
 	 */
-	NativeInteger ModBarrettSub(const NativeInteger& b, const NativeInteger& modulus,const NativeInteger& mu) const;
+	NativeInteger ModBarrettSub(const NativeInteger& b, const NativeInteger& modulus, const NativeInteger& mu) const {
+		return this->ModSub(b,modulus);
+	}
 
 	/**
 	 * Scalar modular subtraction where Barrett modular reduction is used.
@@ -634,7 +636,9 @@ public:
 	 * @param mu_arr is an array of the Barrett values of length BARRETT_LEVELS.
 	 * @return is the result of the modulus subtraction operation.
 	 */
-	NativeInteger ModBarrettSub(const NativeInteger& b, const NativeInteger& modulus,const NativeInteger mu_arr[BARRETT_LEVELS]) const;
+	NativeInteger ModBarrettSub(const NativeInteger& b, const NativeInteger& modulus,const NativeInteger mu_arr[BARRETT_LEVELS]) const {
+		return this->ModSub(b,modulus);
+	}
 
 	/**
 	 * Scalar modulus multiplication.
@@ -753,7 +757,17 @@ public:
 	 * @param base is the base with which to determine length in.
 	 * @return the length of the representation in a specific base.
 	 */
-	usint GetDigitAtIndexForBase(usint index, usint base) const;
+	usint GetDigitAtIndexForBase(usint index, usint base) const {
+
+			usint digit = 0;
+			usint newIndex = index;
+			for (usint i = 1; i < base; i = i*2)
+			{
+				digit += GetBitAtIndex(newIndex)*i;
+				newIndex++;
+			}
+			return digit;
+	}
 
 	/**
 	 * Convert a string representation of a binary number to a decimal BigBinaryInt.
@@ -803,7 +817,10 @@ public:
 	 * @param q is the denominator to be divided.
 	 * @return the result of multiply and round.
 	 */
-	NativeInteger MultiplyAndRound(const NativeInteger &p, const NativeInteger &q) const;
+	NativeInteger MultiplyAndRound(const NativeInteger &p, const NativeInteger &q) const {
+		NativeInteger ans = m_value*p.m_value;
+		return ans.DivideAndRound(q);
+	}
 
 	/**
 	 * Divide and Rounding operation on a bigBinaryInteger x. Returns [x/q] where [] is the rounding operation.
@@ -934,7 +951,14 @@ public:
 	 * @param index is the index of the bit to get.
 	 * @return resulting bit.
 	 */
-	uschar GetBitAtIndex(usint index) const;
+	uschar GetBitAtIndex(usint index) const {
+		if(index<=0){
+			std::cout<<"Invalid index \n";
+			return 0;
+		}
+
+		return m_value & (1<<index);
+	}
 
 
 	/**
@@ -1007,7 +1031,17 @@ protected:
 	 *
 	 * @param v The input string
 	 */
-	void AssignVal(const std::string& v);
+	void AssignVal(const std::string& str) {
+		m_value = 0;
+		for( int i=0; i<str.length(); i++ ) {
+			int v = str[i] - '0';
+			if( v < 0 || v > 9 ) {
+				throw std::logic_error("string contains a non-digit");
+			}
+			m_value *= 10;
+			m_value += v;
+		}
+	}
 
 private:
 

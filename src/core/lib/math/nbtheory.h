@@ -77,15 +77,6 @@ namespace lbcrypto {
 	std::vector<BigBinaryInteger> RootsOfUnity(usint m, const std::vector<BigBinaryInteger> moduli);
 
 	/**
-	 * This method can be used to convert an unsigned int to BigBinaryInteger
-	 *
-	 * @param m an unsigned int
-	 * 
-	 * @return a big binary integer with the correct representation.	  
-	 */
-	BigBinaryInteger UintToBigBinaryInteger(usint m);
-
-	/**
 	 * Method to reverse bits of num and return an unsigned int, for all bits up to an including the designated most significant bit.
 	 *
 	 * @param input an unsigned int

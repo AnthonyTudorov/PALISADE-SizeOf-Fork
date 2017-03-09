@@ -704,7 +704,7 @@ namespace lbcrypto {
 
 		for (usint i = 0; i < nWindows; ++i)
 		{
-			IntType pI(IntType::TWO.ModExp(UintToBigBinaryInteger(i*baseBits), m_params->GetModulus()));
+			IntType pI(IntType::TWO.ModExp(BigBinaryInteger(i*baseBits), m_params->GetModulus()));
 			result.push_back(pI*(*this));
 		}
 
