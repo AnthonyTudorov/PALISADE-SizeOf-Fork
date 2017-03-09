@@ -209,8 +209,8 @@ void LWEConjunctionObfuscationAlgorithmV3<Element>::ParamsGen(DiscreteGaussianGe
 		}
 	}
 
-	BigBinaryInteger qPrime = FindPrimeModulus(2 * n, floor(log2(q) + 1) + 1);
-	BigBinaryInteger rootOfUnity = RootOfUnity(2 * n, qPrime);
+	BigBinaryInteger qPrime = FindPrimeModulus<BigBinaryInteger>(2 * n, floor(log2(q) + 1) + 1);
+	BigBinaryInteger rootOfUnity = RootOfUnity<BigBinaryInteger>(2 * n, qPrime);
 
 	//Prepare for parameters.
 	shared_ptr<ILParams> ilParams(new ILParams(2*n, qPrime, rootOfUnity));

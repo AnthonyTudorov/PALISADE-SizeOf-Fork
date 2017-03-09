@@ -154,7 +154,7 @@ TEST(UTNbTheory, method_prime_modulus) {
 
     BigBinaryInteger expectedResult("536881153");
 
-    EXPECT_EQ(expectedResult, lbcrypto::FindPrimeModulus(m, nBits))
+    EXPECT_EQ(expectedResult, lbcrypto::FindPrimeModulus<BigBinaryInteger>(m, nBits))
       <<"Failure foundPrimeModulus";
   }
   {
@@ -162,7 +162,7 @@ TEST(UTNbTheory, method_prime_modulus) {
     usint m=4096; 
     usint nBits=49;
 	
-    BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus(m, nBits);
+    BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus<BigBinaryInteger>(m, nBits);
     BigBinaryInteger expectedResult("281474976768001");
     EXPECT_EQ(expectedResult, primeModulus)
       <<"Failure returns_higher_bit_length";
@@ -176,7 +176,7 @@ TEST(UTNbTheory, method_primitive_root_of_unity_LONG){
     usint m=4096; 
     usint nBits=33;
 	
-    BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus(m, nBits);
+    BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus<BigBinaryInteger>(m, nBits);
     BigBinaryInteger primitiveRootOfUnity = lbcrypto::RootOfUnity<BigBinaryInteger>(m, primeModulus);
 
     BigBinaryInteger M(std::to_string(m)), MbyTwo(M.DividedBy(BigBinaryInteger::TWO));
@@ -199,7 +199,7 @@ TEST(UTNbTheory, method_primitive_root_of_unity_LONG){
 
     BigBinaryInteger M(std::to_string(m)), MbyTwo(M.DividedBy(BigBinaryInteger::TWO)), MbyFour(MbyTwo.DividedBy(BigBinaryInteger::TWO));
 
-    BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus(m, nBits);
+    BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus<BigBinaryInteger>(m, nBits);
 
     for(int i=0; i<ITERATIONS; i++) {
       BigBinaryInteger primitiveRootOfUnity = lbcrypto::RootOfUnity<BigBinaryInteger>(m, primeModulus);
@@ -262,7 +262,7 @@ TEST(UTNbTheory, method_primitive_root_of_unity_LONG){
 
 		// start = currentDateTime();
 		// fout << "m=" << m << ", qBits=" << qBits << ", M=" << M << ", MbyTwo=" << MbyTwo << endl;
-		BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus(m, qBits);
+		BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus<BigBinaryInteger>(m, qBits);
 		// fout << "Prime modulus for n = " << n << " and qbits = " << qBits << " is " << primeModulus << endl;
 
 		BigBinaryInteger primitiveRootOfUnity(lbcrypto::RootOfUnity<BigBinaryInteger>(m, primeModulus));

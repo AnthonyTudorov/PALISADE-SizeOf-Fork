@@ -78,9 +78,6 @@ int main() {
 	std::cout << "ENDED FV SCHEME EXPERIMENTS " << std::endl;
 	std::cout << "====================================================== " << std::endl;
 
-	ChineseRemainderTransformFTT::GetInstance().Destroy();
-	NumberTheoreticTransform::GetInstance().Destroy();
-
 	std::cin.get();
 
 	return 0;

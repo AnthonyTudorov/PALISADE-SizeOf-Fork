@@ -78,9 +78,6 @@ int main() {
 	NTRU_DCRT();
 
 	std::cin.get();
-	ChineseRemainderTransformFTT::GetInstance().Destroy();
-	NumberTheoreticTransform::GetInstance().Destroy();
-
 	return 0;
 }
 

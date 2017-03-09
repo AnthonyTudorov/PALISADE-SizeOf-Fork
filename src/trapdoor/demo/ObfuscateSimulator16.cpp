@@ -231,7 +231,7 @@ bool CONJOBF(bool dbg_flag, int n_evals, int dataset) {
 	//This code is run only when performing execution time measurements
 
 	//Precomputations for FTT
-	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
+	ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(rootOfUnity, m, modulus);
 
 	//Precomputations for DGG
 	TIC(t1);

@@ -82,9 +82,6 @@ int main() {
 	//NTRUPRE(3);
 
 	std::cin.get();
-	ChineseRemainderTransformFTT::GetInstance().Destroy();
-	NumberTheoreticTransform::GetInstance().Destroy();
-
 	return 0;
 }
 

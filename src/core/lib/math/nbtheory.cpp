@@ -56,19 +56,44 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 namespace lbcrypto {
 
+template BigBinaryInteger RootOfUnity<BigBinaryInteger>(usint m, const BigBinaryInteger& modulo);
+template native64::BigBinaryInteger RootOfUnity<native64::BigBinaryInteger>(usint m, const native64::BigBinaryInteger& modulo);
+
+template std::vector<BigBinaryInteger> RootsOfUnity(usint m, const std::vector<BigBinaryInteger> moduli);
+template std::vector<native64::BigBinaryInteger> RootsOfUnity(usint m, const std::vector<native64::BigBinaryInteger> moduli);
+
+template BigBinaryInteger GreatestCommonDivisor(const BigBinaryInteger& a, const BigBinaryInteger& b);
+template native64::BigBinaryInteger GreatestCommonDivisor(const native64::BigBinaryInteger& a, const native64::BigBinaryInteger& b);
+
+template bool MillerRabinPrimalityTest(const BigBinaryInteger& p);
+template bool MillerRabinPrimalityTest(const native64::BigBinaryInteger& p);
+
+template const BigBinaryInteger PollardRhoFactorization(const BigBinaryInteger &n);
+template const native64::BigBinaryInteger PollardRhoFactorization(const native64::BigBinaryInteger &n);
+
+template void PrimeFactorize(const BigBinaryInteger &n, std::set<BigBinaryInteger> &primeFactors);
+template void PrimeFactorize(const native64::BigBinaryInteger &n, std::set<native64::BigBinaryInteger> &primeFactors);
+
+template BigBinaryInteger FindPrimeModulus(usint m, usint nBits);
+template native64::BigBinaryInteger FindPrimeModulus(usint m, usint nBits);
+
+template void NextQ(BigBinaryInteger &q, const BigBinaryInteger &plainTextModulus, const usint &ringDimension, const BigBinaryInteger &sigma, const BigBinaryInteger &alpha);
+template void NextQ(native64::BigBinaryInteger &q, const native64::BigBinaryInteger &plainTextModulus, const usint &ringDimension, const native64::BigBinaryInteger &sigma, const native64::BigBinaryInteger &alpha);
+
 /*
 	Generates a random number between 0 and n.
 	Input: BigBinaryInteger n.
 	Output: Randomly generated BigBinaryInteger between 0 and n.
 */
- static BigBinaryInteger RNG(const BigBinaryInteger& n)
+template<typename IntType>
+static IntType RNG(const IntType& n)
  {
 	// std::cout << " \n********WARNING: This code is calling an incorrect random number generator that is intended for temporary use ONLY!!!!!  This function, RNG(const BigBinaryInteger& n), is in nbtheory.cpp*********" << std::endl;
 
 	std::string rand1 = std::to_string(rand());
 	std::string rand2 = std::to_string(rand());
 	std::string randstr = rand1 + rand2;
-	return BigBinaryInteger(randstr).Mod(n);
+	return IntType(randstr).Mod(n);
 }
 
 /*
@@ -79,19 +104,20 @@ namespace lbcrypto {
 	Output: true if p is composite,
 			false if p is likely prime
 */
-static bool WitnessFunction(const BigBinaryInteger& a, const BigBinaryInteger& d, usint s, const BigBinaryInteger& p)
+template<typename IntType>
+static bool WitnessFunction(const IntType& a, const IntType& d, usint s, const IntType& p)
 {
-	BigBinaryInteger mod = a.ModExp(d, p);
+	IntType mod = a.ModExp(d, p);
 	bool prevMod = false;
 	for(int i=1; i<s+1; i++) {
-		if(mod != BigBinaryInteger::ONE && mod != p-BigBinaryInteger::ONE)
+		if(mod != IntType::ONE && mod != p-IntType::ONE)
 			prevMod = true;
 		else
 			prevMod = false;
-		mod = mod.ModExp(BigBinaryInteger::TWO, p);
-		if(mod == BigBinaryInteger::ONE && prevMod) return true;
+		mod = mod.ModExp(IntType::TWO, p);
+		if(mod == IntType::ONE && prevMod) return true;
 	}
-	return (mod != BigBinaryInteger::ONE);
+	return (mod != IntType::ONE);
 }
 
 /*
@@ -105,7 +131,7 @@ static IntType FindGenerator(const IntType& q)
 	bool dbg_flag = false;
  	std::set<IntType> primeFactors;
 	DEBUG("calling PrimeFactorize");
- 	PrimeFactorize(q-IntType::ONE, primeFactors);
+ 	PrimeFactorize<IntType>(q-IntType::ONE, primeFactors);
 	DEBUG("done");
  	bool generatorFound = false;
  	IntType gen;
@@ -118,7 +144,7 @@ static IntType FindGenerator(const IntType& q)
 		  DEBUG("divide "<< (q-IntType::ONE).ToString()
 			<<" by "<< (*it).ToString()); 
 
- 			BigBinaryInteger exponent = (q-IntType::ONE).DividedBy(*it);
+ 			IntType exponent = (q-IntType::ONE).DividedBy(*it);
 			DEBUG("calling modexp "<<gen.ToString()
 			      <<" exponent "<<exponent.ToString()
 			      <<" q "<<q.ToString());
@@ -233,14 +259,15 @@ usint GetMSB32(usint x)
  //	return GreatestCommonDivisor(m_rkminus1, m_rk);
  //}
 
-  BigBinaryInteger GreatestCommonDivisor(const BigBinaryInteger& a, const BigBinaryInteger& b)
+template<typename IntType>
+IntType GreatestCommonDivisor(const IntType& a, const IntType& b)
  {
    bool dbg_flag = false;
- 	BigBinaryInteger m_a, m_b, m_t;
+   IntType m_a, m_b, m_t;
  	m_a = a;
  	m_b = b;
 	DEBUG("GCD a "<<a.ToString()<<" b "<< b.ToString());
-	while (m_b != BigBinaryInteger::ZERO) {
+	while (m_b != IntType::ZERO) {
 		m_t = m_b;
 		DEBUG("GCD m_a.Mod(b) "<<m_a.ToString() <<"( "<<m_b.ToString()<<")");
 		m_b = m_a.Mod(m_b);
@@ -258,21 +285,22 @@ usint GetMSB32(usint x)
 	Output: true if p is prime,
 			false if p is not prime
 */
- bool MillerRabinPrimalityTest(const BigBinaryInteger& p)
+template<typename IntType>
+bool MillerRabinPrimalityTest(const IntType& p)
  {
- 	if(p < BigBinaryInteger::TWO || ((p != BigBinaryInteger::TWO) && (p.Mod(BigBinaryInteger::TWO) == BigBinaryInteger::ZERO)))
+ 	if(p < IntType::TWO || ((p != IntType::TWO) && (p.Mod(IntType::TWO) == IntType::ZERO)))
  		return false;
- 	if(p == BigBinaryInteger::TWO || p == BigBinaryInteger::THREE || p == BigBinaryInteger::FIVE)
+ 	if(p == IntType::TWO || p == IntType::THREE || p == IntType::FIVE)
  		return true;
- 	BigBinaryInteger d = p-BigBinaryInteger::ONE;
+ 	IntType d = p-IntType::ONE;
  	usint s = 0;
- 	while(d.Mod(BigBinaryInteger::TWO) == BigBinaryInteger::ZERO) {
- 		d = d.DividedBy(BigBinaryInteger::TWO);
+ 	while(d.Mod(IntType::TWO) == IntType::ZERO) {
+ 		d = d.DividedBy(IntType::TWO);
  		s++;
  	}
  	bool composite = true;
  	for(int i=0; i<PRIMALITY_NO_OF_ITERATIONS; i++) {
- 		BigBinaryInteger a = RNG(p-BigBinaryInteger::THREE).ModAdd(BigBinaryInteger::TWO, p);
+ 		IntType a = RNG(p-IntType::THREE).ModAdd(IntType::TWO, p);
  		composite = (WitnessFunction(a, d, s, p));
 		if(composite)
 			break;
@@ -285,27 +313,28 @@ usint GetMSB32(usint x)
 	Input: n the number to be factorized.
 	Output: a factor of n.
 */
- const BigBinaryInteger PollardRhoFactorization(const BigBinaryInteger &n)
+template<typename IntType>
+const IntType PollardRhoFactorization(const IntType &n)
  {
    bool dbg_flag = false;
- 	BigBinaryInteger divisor(BigBinaryInteger::ONE);
+   IntType divisor(IntType::ONE);
  	
- 	BigBinaryInteger c(RNG(n));
- 	BigBinaryInteger x(RNG(n));
- 	BigBinaryInteger xx(x);
+   IntType c(RNG(n));
+   IntType x(RNG(n));
+   IntType xx(x);
  	
  	//check divisibility by 2
- 	if(n.Mod(BigBinaryInteger::TWO) == BigBinaryInteger::ZERO)
- 		return BigBinaryInteger(BigBinaryInteger::TWO);
+ 	if(n.Mod(IntType::TWO) == IntType::ZERO)
+ 		return IntType(IntType::TWO);
 
  	do {
  		x = (x.ModMul(x, n) + c).Mod(n);
  		xx = (xx.ModMul(xx, n) + c).Mod(n);
  		xx = (xx.ModMul(xx, n) + c).Mod(n);
- 		divisor = GreatestCommonDivisor(((x-xx) > BigBinaryInteger::ZERO) ? x-xx : xx-x, n);
+ 		divisor = GreatestCommonDivisor(((x-xx) > IntType::ZERO) ? x-xx : xx-x, n);
 		DEBUG("PRF divisor "<<divisor.ToString());
 		
- 	} while (divisor == BigBinaryInteger::ONE);
+ 	} while (divisor == IntType::ONE);
  	
  	return divisor;
  }
@@ -315,7 +344,8 @@ usint GetMSB32(usint x)
 	Input: n is the number to be prime factorized,
 		   primeFactors is a set of prime factors of n. All initial values are cleared.
 */
- void PrimeFactorize(const BigBinaryInteger &n, std::set<BigBinaryInteger> &primeFactors)
+template<typename IntType>
+void PrimeFactorize(const IntType &n, std::set<IntType> &primeFactors)
  {
    bool dbg_flag = false;
 
@@ -323,22 +353,22 @@ usint GetMSB32(usint x)
         DEBUG("In PrimeFactorize ");
 	DEBUG("n " <<n.ToString());
 	DEBUG("set size "<< primeFactors.size());
- 	if(n == BigBinaryInteger::ONE) return;
+ 	if(n == IntType::ONE) return;
  	if(MillerRabinPrimalityTest(n)) {
 	        DEBUG("Miller true");
  		primeFactors.insert(n);
  		return;
  	}
 	DEBUG("calling PrFact "<<n.ToString());
- 	BigBinaryInteger tmp2(PollardRhoFactorization(n));
+	IntType tmp2(PollardRhoFactorization(n));
 	DEBUG("tmp2  "<<tmp2.ToString());
-	BigBinaryInteger divisor(tmp2);
+	IntType divisor(tmp2);
 	DEBUG("calling PF "<<divisor.ToString());
  	PrimeFactorize(divisor, primeFactors);
 	DEBUG("calling div "<<divisor.ToString());
-	BigBinaryInteger tmp = n.DividedBy(divisor);
+	IntType tmp = n.DividedBy(divisor);
 	DEBUG("result tmp "<<tmp.ToString());
- 	BigBinaryInteger reducedN(tmp);
+	IntType reducedN(tmp);
 	DEBUG("calling PF "<<reducedN.ToString());
 	PrimeFactorize(reducedN, primeFactors);
  }
@@ -347,17 +377,18 @@ usint GetMSB32(usint x)
 	Finds a Prime Modulus Corresponding to a Given Cyclotomic Number
 	Assuming that "GreatestCommonDivisor(twoTonBitsminusone, M) == M"
 */
-BigBinaryInteger FindPrimeModulus(usint m, usint nBits)
+template<typename IntType>
+IntType FindPrimeModulus(usint m, usint nBits)
 {
-	BigBinaryInteger twoTonBitsminusone("1"), M(std::to_string(m)), q;
+	IntType twoTonBitsminusone("1"), M(std::to_string(m)), q;
 	
 	for(usint i=0; i<nBits-1; i++)	// Iterating until initial search condition.
-		twoTonBitsminusone = twoTonBitsminusone * BigBinaryInteger::TWO;
+		twoTonBitsminusone = twoTonBitsminusone * IntType::TWO;
 	
-	q = twoTonBitsminusone + M + BigBinaryInteger::ONE;
+	q = twoTonBitsminusone + M + IntType::ONE;
 	bool found = false;
 	while(!found) {  //Looping over invariant until test condition satisfied.
-		if((q-BigBinaryInteger::ONE).Mod(M) != BigBinaryInteger::ZERO) {
+		if((q-IntType::ONE).Mod(M) != IntType::ZERO) {
 			q += M;
 			continue;
 		}
@@ -370,40 +401,41 @@ BigBinaryInteger FindPrimeModulus(usint m, usint nBits)
 	return q;
 }
 
-void NextQ(BigBinaryInteger &q, const BigBinaryInteger &plainTextModulus, const usint &ringDimension, const BigBinaryInteger &sigma, const BigBinaryInteger &alpha) {
-	BigBinaryInteger bigSixteen("16");
-	BigBinaryInteger lowerBound;
-	BigBinaryInteger ringDimensions(ringDimension);
+template<typename IntType>
+void NextQ(IntType &q, const IntType &plainTextModulus, const usint &ringDimension, const IntType &sigma, const IntType &alpha) {
+	IntType bigSixteen("16");
+	IntType lowerBound;
+	IntType ringDimensions(ringDimension);
 
 	lowerBound = bigSixteen * ringDimensions * sigma  * sigma * alpha;
 	if (!(q >= lowerBound)) {
 		q = lowerBound;
 	}
 	else {
-		q = q + BigBinaryInteger::ONE;
+		q = q + IntType::ONE;
 	}
 
-	while (q.Mod(plainTextModulus) != BigBinaryInteger::ONE) {
-		q = q + BigBinaryInteger::ONE;
+	while (q.Mod(plainTextModulus) != IntType::ONE) {
+		q = q + IntType::ONE;
 	}
 
-	BigBinaryInteger cyclotomicOrder = ringDimensions * BigBinaryInteger::TWO;
+	IntType cyclotomicOrder = ringDimensions * IntType::TWO;
 
-	while (q.Mod(cyclotomicOrder) != BigBinaryInteger::ONE) {
+	while (q.Mod(cyclotomicOrder) != IntType::ONE) {
 		q = q + plainTextModulus;
 	}
 
-	BigBinaryInteger productValue = cyclotomicOrder * plainTextModulus;
+	IntType productValue = cyclotomicOrder * plainTextModulus;
 
 	while (!MillerRabinPrimalityTest(q)) {
 		q = q + productValue;
 	}
 
-	BigBinaryInteger gcd;
-	gcd = GreatestCommonDivisor(q - BigBinaryInteger::ONE, cyclotomicOrder);
+	IntType gcd;
+	gcd = GreatestCommonDivisor(q - IntType::ONE, cyclotomicOrder);
 
 	if(!(cyclotomicOrder == gcd)){
-		q = q + BigBinaryInteger::ONE;
+		q = q + IntType::ONE;
 	  	NextQ(q, plainTextModulus, ringDimension, sigma, alpha);
 	}
 		

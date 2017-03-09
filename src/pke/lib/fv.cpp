@@ -143,12 +143,12 @@ bool LPAlgorithmParamsGenFV<Element>::ParamsGen(shared_ptr<LPCryptoParameters<El
 
 	}
 
-	BigBinaryInteger qPrime = FindPrimeModulus(2 * n, ceil(log2(q))+1);
-	BigBinaryInteger rootOfUnity = RootOfUnity(2 * n, qPrime);
+	BigBinaryInteger qPrime = FindPrimeModulus<BigBinaryInteger>(2 * n, ceil(log2(q))+1);
+	BigBinaryInteger rootOfUnity = RootOfUnity<BigBinaryInteger>(2 * n, qPrime);
 
 	//reserves enough digits to avoid wrap-around when evaluating p*(c1*c2+c3*c4)
-	BigBinaryInteger qPrime2 = FindPrimeModulus(2 * n, 2*(ceil(log2(q)) + 1) + ceil(log2(p)) + 3);
-	BigBinaryInteger rootOfUnity2 = RootOfUnity(2 * n, qPrime2);
+	BigBinaryInteger qPrime2 = FindPrimeModulus<BigBinaryInteger>(2 * n, 2*(ceil(log2(q)) + 1) + ceil(log2(p)) + 3);
+	BigBinaryInteger rootOfUnity2 = RootOfUnity<BigBinaryInteger>(2 * n, qPrime2);
 
 	cryptoParamsFV->SetBigModulus(qPrime2);
 	cryptoParamsFV->SetBigRootOfUnity(rootOfUnity2);

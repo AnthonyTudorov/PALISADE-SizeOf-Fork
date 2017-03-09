@@ -5,8 +5,12 @@
  *      Author: gwryan
  */
 
+#include "ilparams.cpp"
 #include "ilvector2n.cpp"
 #include "math/discretegaussiangenerator.cpp"
+#include "math/discreteuniformgenerator.cpp"
+#include "math/binaryuniformgenerator.cpp"
+#include "math/ternaryuniformgenerator.cpp"
 
 
 namespace native64 {
@@ -32,6 +36,7 @@ template class TernaryUniformGeneratorImpl<BigBinaryInteger,BigBinaryVector>;
 template class TernaryUniformGeneratorImpl<native64::BigBinaryInteger,native64::BigBinaryVector>;
 template class DiscreteUniformGeneratorImpl<BigBinaryInteger,BigBinaryVector>;
 template class DiscreteUniformGeneratorImpl<native64::BigBinaryInteger,native64::BigBinaryVector>;
+
 }
 
 namespace lbcrypto {

@@ -89,14 +89,14 @@ namespace lbcrypto {
 	usint ReverseBits(usint input, usint msb);
 
 //	/*
-//	 * Method that converts signed char to BigBinaryInteger
+//	 * Method that converts signed char to IntType
 //	 *
 //	 * @param input an unsigned int
 //	 * @param msb the most significant bit.  All larger bits are disregarded.
 //	 * 
 //	 * @return an unsigned integer that represents the reversed bits.	  
 //	 */
-//	BigBinaryInteger scharToBigBinaryInteger(schar, const BigBinaryInteger &modulus);
+//	IntType scharToBigBinaryInteger(schar, const IntType &modulus);
 
 	/**
 	 * Get MSB of an unisigned integer.
@@ -115,27 +115,30 @@ namespace lbcrypto {
 	 * 
 	 * @return the greatest common divisor.	  
 	 */
-	BigBinaryInteger GreatestCommonDivisor(const BigBinaryInteger& a, const BigBinaryInteger& b);
+	template<typename IntType>
+	IntType GreatestCommonDivisor(const IntType& a, const IntType& b);
 
 	/**
-	 * Return result of MillerRabin primality test of a BigBinaryInteger.
+	 * Return result of MillerRabin primality test of a IntType.
 	 * This approach to primality testing is iterative and randomized.  It returns false if evidence of non-primality is found, and true if no evidence is found after multiple rounds of testing.  The const parameter PRIMALITY_NO_OF_ITERATIONS determines how many rounds are used.
 	 *
 	 * @param p the candidate prime to test.
 	 * 
 	 * @return false if evidence of non-primality is found.  True is no evidence of non-primality is found.	  
 	 */
-	bool MillerRabinPrimalityTest(const BigBinaryInteger& p);
+	template<typename IntType>
+	bool MillerRabinPrimalityTest(const IntType& p);
 
 	/**
-	 * Return result of PollardRho factorization of a BigBinaryInteger.
-	 * Returns BigBinaryInteger::ONE if no factorization is found.
+	 * Return result of PollardRho factorization of a IntType.
+	 * Returns IntType::ONE if no factorization is found.
 	 *
 	 * @param n the value to perform a factorization on.
 	 * 
-	 * @return a factor of n, and BigBinaryInteger::ONE if no other factor is found.	  
+	 * @return a factor of n, and IntType::ONE if no other factor is found.
 	 */
-	const BigBinaryInteger PollardRhoFactorization(const BigBinaryInteger &n);
+	template<typename IntType>
+	const IntType PollardRhoFactorization(const IntType &n);
 
 	/**
 	 * Recursively factorizes and find the distinct primefactors of a number.
@@ -144,7 +147,8 @@ namespace lbcrypto {
 	 * @param &n the value to factorize.
 	 * @param &primeFactors the input set which is cleared and then results are returned in.  
 	 */
-	void PrimeFactorize(const BigBinaryInteger &n, std::set<BigBinaryInteger> &primeFactors);
+	template<typename IntType>
+	void PrimeFactorize(const IntType &n, std::set<IntType> &primeFactors);
 
 	/**
 	 * Finds a Prime Modulus Corresponding to a Given Cyclotomic Number.
@@ -155,7 +159,8 @@ namespace lbcrypto {
 	 *
 	 * @return the candidate prime modulus.  
 	 */
-	BigBinaryInteger FindPrimeModulus(usint m, usint nBits);
+	template<typename IntType>
+	IntType FindPrimeModulus(usint m, usint nBits);
 
 	/**
 	 * Finds the next number that is a prime number matching the methods criteria. Sigma and alpha are required to calculate a minimum bound. The prime number generated will equal to one modulus the cyclotomic order and the plaintext modulus.
@@ -169,7 +174,8 @@ namespace lbcrypto {
 	 * @return the next prime modulus.  
 	 */
 
-	void NextQ(BigBinaryInteger &q, const BigBinaryInteger &plainTextModulus, const usint &ringDimension, const BigBinaryInteger &sigma, const BigBinaryInteger &alpha);
+	template<typename IntType>
+	void NextQ(IntType &q, const IntType &plainTextModulus, const usint &ringDimension, const IntType &sigma, const IntType &alpha);
 
 	/**
 	 * Multiplicative inverse for primitive unsigned integer data types
@@ -180,16 +186,6 @@ namespace lbcrypto {
 	 * @return the multiplicative inverse  
 	 */
 	usint ModInverse(usint a, usint b);
-
-
-//private:
-//
-//	BigBinaryInteger RNG(const BigBinaryInteger& n);
-//
-//	bool WitnessFunction(const BigBinaryInteger& a, const BigBinaryInteger& d, usint s, const BigBinaryInteger& p);
-//
-//	BigBinaryInteger FindGenerator(const BigBinaryInteger& q);
-
 } // namespace lbcrypto ends
 
 #endif
