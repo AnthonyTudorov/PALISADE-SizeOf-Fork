@@ -174,14 +174,14 @@ public:
 	 *
 	 * @param &element the copied element.
 	 */
-	ILVectorImpl(const ILVectorImpl &element);
+	ILVectorImpl(const ILVectorType &element);
 
 	/**
 	 * Move constructor.
 	 *
 	 * @param &&element the copied element.
 	 */
-	ILVectorImpl(ILVectorImpl &&element);
+	ILVectorImpl(ILVectorType &&element);
 
 	/**
 	 * Clone the object by making a copy of it and returning the copy
@@ -223,7 +223,7 @@ public:
 	 * @param &rhs the ILVectorImpl to be copied.
 	 * @return the resulting ILVectorImpl.
 	 */
-	const ILVectorImpl& operator=(const ILVectorImpl &rhs);
+	const ILVectorType& operator=(const ILVectorType &rhs);
 
 	/**
 	 * Move Assignment.
@@ -231,7 +231,7 @@ public:
 	 * @param &rhs the ILVectorImpl to be copied.
 	 * @return the resulting ILVectorImpl.
 	 */
-	const ILVectorImpl& operator=(ILVectorImpl &&rhs);
+	const ILVectorType& operator=(ILVectorType &&rhs);
 
 	/**
 	 * Initalizer list
@@ -239,7 +239,7 @@ public:
 	 * @param &rhs the list to set the ILVectorImpl to.
 	 * @return the resulting ILVectorImpl.
 	 */
-	const ILVectorImpl& operator=(std::initializer_list<sint> rhs);
+	const ILVectorType& operator=(std::initializer_list<sint> rhs);
 
 	/**
 	 * Assignment Operator. The usint val will be set at index zero and all other indices will be set to zero.
@@ -247,7 +247,7 @@ public:
 	 * @param val is the usint to assign to index zero.
 	 * @return the resulting vector.
 	 */
-	const ILVectorImpl& operator=(usint val);
+	const ILVectorType& operator=(usint val);
 
 	//GETTERS
 	/**

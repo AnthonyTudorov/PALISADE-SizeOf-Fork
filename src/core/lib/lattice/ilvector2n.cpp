@@ -32,10 +32,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 namespace lbcrypto {
 
-//template class ILVectorImpl<BigBinaryInteger,BigBinaryVector,ILParams>;
-//template class ILVectorImpl<native64::BigBinaryInteger,native64::BigBinaryVector,ILNativeParams>;
-
-
 	// static members
 	template<typename IntType, typename VecType, typename ParmType>
 	std::vector<ILVectorImpl<IntType,VecType,ParmType>> ILVectorImpl<IntType,VecType,ParmType>::m_dggSamples;
