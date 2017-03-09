@@ -39,32 +39,38 @@
 
 namespace lbcrypto {
 
+template<typename IntType, typename VecType>
+class DiscreteUniformGeneratorImpl;
+
+typedef DiscreteUniformGeneratorImpl<BigBinaryInteger,BigBinaryVector> DiscreteUniformGenerator;
+
 /**
 * @brief The class for Discrete Uniform Distribution generator over Zq.
 */
-class DiscreteUniformGenerator : protected DistributionGenerator {
+template<typename IntType, typename VecType>
+class DiscreteUniformGeneratorImpl : protected DistributionGenerator {
 public:
 	/**
 	* @brief         Constructs a new DiscreteUniformGenerator with the given modulus.
 	* @param modulus The modulus to be used when generating discrete values.
 	*/
-	DiscreteUniformGenerator (const BigBinaryInteger & modulus);
+	DiscreteUniformGeneratorImpl (const IntType & modulus);
 
 	/**
 	* @brief         Sets the modulus. Overrides parent function
 	* @param modulus The new modulus.
 	*/
-	void SetModulus (const BigBinaryInteger & modulus);
+	void SetModulus (const IntType & modulus);
 
 	/**
 	* @brief Required by DistributionGenerator.
 	*/
-	BigBinaryInteger GenerateInteger () const;
+	IntType GenerateInteger () const;
 
 	/**
 	* @brief Required by DistributionGenerator.
 	*/
-	BigBinaryVector GenerateVector (const usint size) const;
+	VecType GenerateVector (const usint size) const;
 
 private:
 	static const usint CHUNK_MIN = 0;
@@ -83,7 +89,7 @@ private:
 	/**
 	* The modulus value that should be used to generate discrete values.
 	*/
-	BigBinaryInteger m_modulus;
+	IntType m_modulus;
 
 };
 

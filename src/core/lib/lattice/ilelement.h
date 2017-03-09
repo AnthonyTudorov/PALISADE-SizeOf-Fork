@@ -76,7 +76,7 @@ public:
 	 * @param format
 	 * @return new Element
 	 */
-	virtual Element CloneWithNoise(const DiscreteGaussianGenerator &dgg, Format format = EVALUATION) const = 0;
+	virtual Element CloneWithNoise(const DiscreteGaussianGeneratorImpl<IntType,VecType> &dgg, Format format = EVALUATION) const = 0;
 
 	/**
 	 * destructor

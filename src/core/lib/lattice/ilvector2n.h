@@ -109,7 +109,7 @@ public:
 	 * @param &params the input params.
 	 * @param format - EVALUATION or COEFFICIENT
 	 */
-	ILVectorImpl(const BinaryUniformGenerator &bug, const shared_ptr<ParmType> params, Format format = EVALUATION);
+	ILVectorImpl(const BinaryUniformGeneratorImpl<IntType,VecType> &bug, const shared_ptr<ParmType> params, Format format = EVALUATION);
 
 	/**
 	 * Construct with a vector from a given generator
@@ -118,7 +118,7 @@ public:
 	 * @param &params the input params.
 	 * @param format - EVALUATION or COEFFICIENT
 	 */
-	ILVectorImpl(const TernaryUniformGenerator &tug, const shared_ptr<ParmType> params, Format format = EVALUATION);
+	ILVectorImpl(const TernaryUniformGeneratorImpl<IntType,VecType> &tug, const shared_ptr<ParmType> params, Format format = EVALUATION);
 
 	/**
 	 * Construct with a vector from a given generator
@@ -127,7 +127,7 @@ public:
 	 * @param &params the input params.
 	 * @param format - EVALUATION or COEFFICIENT
 	 */
-	ILVectorImpl(const DiscreteUniformGenerator &dug, const shared_ptr<ParmType> params, Format format = EVALUATION);
+	ILVectorImpl(const DiscreteUniformGeneratorImpl<IntType,VecType> &dug, const shared_ptr<ParmType> params, Format format = EVALUATION);
 
 	/**
 	 *  Create lambda that allocates a zeroed element for the case when it is called from a templated class
@@ -164,7 +164,7 @@ public:
 	 */
 	inline static function<unique_ptr<ILVectorType>()> MakeDiscreteUniformAllocator(shared_ptr<ParmType> params, Format format) {
 		return [=]() {
-			DiscreteUniformGenerator dug(params->GetModulus());
+			DiscreteUniformGeneratorImpl<IntType,VecType> dug(params->GetModulus());
 			return lbcrypto::make_unique<ILVectorType>(dug, params, format);
 		};
 	}
@@ -255,7 +255,7 @@ public:
 	 *
 	 * @return the ring element params.
 	 */
-	inline const shared_ptr<ILParams> GetParams() const { return m_params; }
+	inline const shared_ptr<ParmType> GetParams() const { return m_params; }
 
 	/**
 	 * Get format of the element
@@ -669,7 +669,7 @@ public:
 	 * @param &tug the ternary uniform generator.
 	 * @param &params are the relevant ring parameters.
 	 */
-	static void PreComputeTugSamples(const TernaryUniformGenerator &tug, const shared_ptr<ParmType> params);
+	static void PreComputeTugSamples(const TernaryUniformGeneratorImpl<IntType,VecType> &tug, const shared_ptr<ParmType> params);
 
 	/**
 	 * Clear the pre-computed discrete Gaussian samples.

@@ -141,15 +141,7 @@ TEST(UTLTV, ILVector2n_Encrypt_Decrypt) {
 	cc.Enable(SHE);
 	cc.Enable(PRE);
 
-	//Precomputations for FTT
-	ChineseRemainderTransformFTT::GetInstance().PreCompute(RootOfUnity(m,q), m, q);
-
-	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
-
 	UnitTestEncryption<ILVector2n>(cc);
-
-	ILVector2n::DestroyPreComputedSamples();
 }
 
 /*Simple Encrypt-Decrypt check for ILVector2n with a short ring dimension. The assumption is this test case is that everything with respect to lattice and math
@@ -181,12 +173,6 @@ TEST(UTLTV, ILVector2n_Encrypt_Decrypt_Short_Ring) {
 	cc.Enable(ENCRYPTION);
 	cc.Enable(PRE);
 
-	//Precomputations for FTT
-	ChineseRemainderTransformFTT::GetInstance().PreCompute(RootOfUnity(m,q), m, q);
-
-	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
-
 	// Initialize the public key containers.
 	LPKeyPair<ILVector2n> kp = cc.KeyGen();
 
@@ -201,8 +187,6 @@ TEST(UTLTV, ILVector2n_Encrypt_Decrypt_Short_Ring) {
 	EXPECT_EQ(plaintextNew, plaintext);
 
 	UnitTestEncryption<ILVector2n>(cc);
-
-	ILVector2n::DestroyPreComputedSamples();
 }
 
 /*Simple Proxy re-encryption test for ILVector2n. The assumption is this test case is that everything with respect to the lattice
@@ -228,14 +212,5 @@ TEST(UTLTV, ILVector2n_Encrypt_Decrypt_PRE) {
 	cc.Enable(ENCRYPTION);
 	cc.Enable(PRE);
 
-	//Precomputations for FTT
-	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
-
-	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
-
 	UnitTestReEncryption<ILVector2n>(cc);
-
-	ILVector2n::DestroyPreComputedSamples();
-
 }

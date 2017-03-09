@@ -87,7 +87,7 @@ public:
 	ILParamsImpl(const usint order, const IntType &modulus) {
 		m_order = order;
 		m_modulus = modulus;
-		m_rootOfUnity = RootOfUnity(order, modulus);
+		m_rootOfUnity = RootOfUnity<IntType>(order, modulus);
 	}
 
 	//copy constructor
@@ -96,7 +96,7 @@ public:
 	 *
 	 * @param &rhs the input set of parameters which is copied.
 	 */
-	ILParamsImpl(const ILParams &rhs) {
+	ILParamsImpl(const ILParamsImpl &rhs) {
 		m_order = rhs.m_order;
 		m_modulus = rhs.m_modulus;
 		m_rootOfUnity = rhs.m_rootOfUnity;
@@ -115,7 +115,7 @@ public:
 	 *
 	 * @param &rhs the input set of parameters which is copied.
 	 */
-	ILParamsImpl(const ILParams &&rhs) {
+	ILParamsImpl(const ILParamsImpl &&rhs) {
 		m_order = rhs.m_order;
 		m_modulus = std::move(rhs.m_modulus);
 		m_rootOfUnity = std::move(rhs.m_rootOfUnity);
@@ -195,7 +195,7 @@ public:
 	 *
 	 * @param &rootOfUnity the root of unity.
 	 */
-	void SetRootOfUnity(const BigBinaryInteger &rootOfUnity) {
+	void SetRootOfUnity(const IntType &rootOfUnity) {
 		m_rootOfUnity = rootOfUnity;
 	}
 
@@ -204,7 +204,7 @@ public:
 	 *
 	 * @param &modulus the modulus.
 	 */
-	void SetModulus(const BigBinaryInteger &modulus) {
+	void SetModulus(const IntType &modulus) {
 		m_modulus = modulus;
 	}
 	/**

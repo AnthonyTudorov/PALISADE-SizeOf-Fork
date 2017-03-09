@@ -51,6 +51,7 @@
 #include <memory>
 #include "../../utils/inttypes.h"
 #include "../../utils/memory.h"
+#include "../native64/binint.h"
 
 /**
 *@namespace cpu_int
@@ -237,7 +238,7 @@ namespace cpu_int{
     * @param &&bigInteger is the big binary integer to be moved from.
     */
     BigBinaryInteger(BigBinaryInteger &&bigInteger);
-    
+
     /**
     * Destructor.
     */

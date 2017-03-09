@@ -136,7 +136,7 @@ namespace lbcrypto {
 
 															   //Do the precomputation if not initialized
 		if (this->initRoot.GetMSB() == 0) {
-			this->initRoot = RootOfUnity(n << 1, modulus);
+			this->initRoot = RootOfUnity<BigBinaryInteger>(n << 1, modulus);
 		}
 
 		//initRoot = BigBinaryInteger::TWO;
@@ -149,7 +149,7 @@ namespace lbcrypto {
 
 		packedVector.SetModulus(modulus);
 
-		packedVector = ChineseRemainderTransformFTT::GetInstance().InverseTransform(packedVector, initRoot, n << 1);
+		packedVector = ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().InverseTransform(packedVector, initRoot, n << 1);
 
 		//std::cout << packedVector << std::endl;
 
@@ -171,7 +171,7 @@ namespace lbcrypto {
 
 		packedVector.SetModulus(modulus);
 
-		packedVector = ChineseRemainderTransformFTT::GetInstance().ForwardTransform(packedVector, initRoot, n << 1);
+		packedVector = ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().ForwardTransform(packedVector, initRoot, n << 1);
 
 		packedVector.SetModulus(qMod);
 

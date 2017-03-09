@@ -1367,7 +1367,7 @@ TEST(UTILVectorArray2n, arithmetic_operations_element) {
 
     ILVectorArray2n ilvaS(ilvector2nVectorS);
     BigBinaryInteger modulus2("113");
-    BigBinaryInteger rootOfUnity2(lbcrypto::RootOfUnity(m, modulus2));
+    BigBinaryInteger rootOfUnity2(lbcrypto::RootOfUnity<BigBinaryInteger>(m, modulus2));
 
     ilvaS.SwitchModulus(modulus2, rootOfUnity2);
 
@@ -1400,7 +1400,7 @@ TEST(UTILVectorArray2n, arithmetic_operations_element) {
   {
     ILVectorArray2n ilvaCopy(ilva);
     BigBinaryInteger modulus2("113");
-    BigBinaryInteger rootOfUnity2(lbcrypto::RootOfUnity(m, modulus2));
+    BigBinaryInteger rootOfUnity2(lbcrypto::RootOfUnity<BigBinaryInteger>(m, modulus2));
     ilvaCopy.SwitchModulusAtIndex(0, modulus2, rootOfUnity2);
 
     for (usint i = 0; i < ilvaCopy.GetNumOfElements(); ++i)
@@ -1439,7 +1439,7 @@ TEST(UTILVectorArray2n, decompose_test) {
   for(usint i=0; i < towersize;i++){
       lbcrypto::NextQ(q, BigBinaryInteger::TWO, order, BigBinaryInteger("4"), BigBinaryInteger("4"));
       moduli[i] = q;
-      rootsOfUnity[i] = RootOfUnity(order,moduli[i]);
+      rootsOfUnity[i] = RootOfUnity<BigBinaryInteger>(order,moduli[i]);
       modulus = modulus* moduli[i];
   }
 
@@ -1473,7 +1473,7 @@ TEST(UTILVector2n, ensures_mod_operation_during_operations_on_two_ILVector2ns){
   usint nBits = 7;
   
   BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus(order, nBits);
-  BigBinaryInteger primitiveRootOfUnity = lbcrypto::RootOfUnity(order, primeModulus);
+  BigBinaryInteger primitiveRootOfUnity = lbcrypto::RootOfUnity<BigBinaryInteger>(order, primeModulus);
 
   shared_ptr<ILParams> ilparams( new ILParams(order, primeModulus, primitiveRootOfUnity) );
 
@@ -1526,7 +1526,7 @@ TEST(UTILVectorArray2n, ensures_mod_operation_during_operations_on_two_ILVectorA
   for(usint i=0; i < towersize;i++){
       lbcrypto::NextQ(q, BigBinaryInteger::TWO, order, BigBinaryInteger("4"), BigBinaryInteger("4"));
       moduli[i] = q;
-      rootsOfUnity[i] = RootOfUnity(order,moduli[i]);
+      rootsOfUnity[i] = RootOfUnity<BigBinaryInteger>(order,moduli[i]);
       modulus = modulus* moduli[i];
       
       shared_ptr<ILParams> ilparamsi( new ILParams(order, moduli[i], rootsOfUnity[i]) );

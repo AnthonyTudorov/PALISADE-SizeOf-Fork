@@ -95,7 +95,7 @@ namespace lbcrypto {
 
 
 	template<typename IntType, typename VecType, typename ParmType>
-	ILVectorImpl<IntType,VecType,ParmType>::ILVectorImpl(const DiscreteUniformGenerator &dug, const shared_ptr<ParmType> params, Format format) {
+	ILVectorImpl<IntType,VecType,ParmType>::ILVectorImpl(const DiscreteUniformGeneratorImpl<IntType,VecType> &dug, const shared_ptr<ParmType> params, Format format) {
 
 		m_params = params;
 
@@ -111,7 +111,7 @@ namespace lbcrypto {
 	}
 
 	template<typename IntType, typename VecType, typename ParmType>
-	ILVectorImpl<IntType,VecType,ParmType>::ILVectorImpl(const BinaryUniformGenerator &bug, const shared_ptr<ParmType> params, Format format) {
+	ILVectorImpl<IntType,VecType,ParmType>::ILVectorImpl(const BinaryUniformGeneratorImpl<IntType,VecType> &bug, const shared_ptr<ParmType> params, Format format) {
 
 		m_params = params;
 
@@ -126,7 +126,7 @@ namespace lbcrypto {
 	}
 
 	template<typename IntType, typename VecType, typename ParmType>
-	ILVectorImpl<IntType,VecType,ParmType>::ILVectorImpl(const TernaryUniformGenerator &tug, const shared_ptr<ParmType> params, Format format) {
+	ILVectorImpl<IntType,VecType,ParmType>::ILVectorImpl(const TernaryUniformGeneratorImpl<IntType,VecType> &tug, const shared_ptr<ParmType> params, Format format) {
 
 		m_params = params;
 
@@ -543,12 +543,12 @@ namespace lbcrypto {
 		if (m_format == COEFFICIENT) {
 			m_format = EVALUATION;
 			if (m_values != NULL)
-				*m_values = ChineseRemainderTransformFTT::GetInstance().ForwardTransform(*m_values, m_params->GetRootOfUnity(), m_params->GetCyclotomicOrder());
+				*m_values = ChineseRemainderTransformFTT<IntType,VecType>::GetInstance().ForwardTransform(*m_values, m_params->GetRootOfUnity(), m_params->GetCyclotomicOrder());
 		}
 		else {
 			m_format = COEFFICIENT;
 			if (m_values != NULL)
-				*m_values = ChineseRemainderTransformFTT::GetInstance().InverseTransform(*m_values, m_params->GetRootOfUnity(), m_params->GetCyclotomicOrder());
+				*m_values = ChineseRemainderTransformFTT<IntType,VecType>::GetInstance().InverseTransform(*m_values, m_params->GetRootOfUnity(), m_params->GetCyclotomicOrder());
 		}
 	}
 
@@ -704,7 +704,7 @@ namespace lbcrypto {
 
 		for (usint i = 0; i < nWindows; ++i)
 		{
-			IntType pI(IntType::TWO.ModExp(BigBinaryInteger(i*baseBits), m_params->GetModulus()));
+			IntType pI(IntType::TWO.ModExp(IntType(i*baseBits), m_params->GetModulus()));
 			result.push_back(pI*(*this));
 		}
 
@@ -746,7 +746,7 @@ namespace lbcrypto {
 	}
 
 	template<typename IntType, typename VecType, typename ParmType>
-	void ILVectorImpl<IntType,VecType,ParmType>::PreComputeTugSamples(const TernaryUniformGenerator &tug, const shared_ptr<ParmType> params) {
+	void ILVectorImpl<IntType,VecType,ParmType>::PreComputeTugSamples(const TernaryUniformGeneratorImpl<IntType,VecType> &tug, const shared_ptr<ParmType> params) {
 		if (m_tugSamples.size() == 0 || m_tugSamples_params != params)
 		{
 			DestroyPreComputedTugSamples();

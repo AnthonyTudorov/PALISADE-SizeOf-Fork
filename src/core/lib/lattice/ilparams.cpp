@@ -48,8 +48,8 @@ namespace lbcrypto {
 		* @param serObj stores this object's serialized attribute name value pairs.
 		* @return map updated with the attribute name value pairs required to serialize this object.
 		*/
-		template<>
-		bool ILParams::Serialize(Serialized* serObj) const {
+		template<typename IntType>
+		bool ILParamsImpl<IntType>::Serialize(Serialized* serObj) const {
 
 			if( !serObj->IsObject() )
 				return false;
@@ -70,8 +70,8 @@ namespace lbcrypto {
 		*
 		* @param serObj stores this object's serialized attribute name value pairs.
 		*/
-		template<>
-		bool ILParams::Deserialize(const Serialized& serObj) {
+		template<typename IntType>
+		bool ILParamsImpl<IntType>::Deserialize(const Serialized& serObj) {
 
 			Serialized::ConstMemberIterator mIter = serObj.FindMember("ILParams");
 			if( mIter == serObj.MemberEnd() ) {
@@ -82,7 +82,7 @@ namespace lbcrypto {
 
 			if( (oIt = mIter->value.FindMember("Modulus")) == mIter->value.MemberEnd() )
 				return false;
-			BigBinaryInteger bbiModulus(oIt->value.GetString());
+			IntType bbiModulus(oIt->value.GetString());
 
 			if( (oIt = mIter->value.FindMember("Order")) == mIter->value.MemberEnd() )
 				return false;
@@ -90,7 +90,7 @@ namespace lbcrypto {
 
 			if( (oIt = mIter->value.FindMember("RootOfUnity")) == mIter->value.MemberEnd() )
 				return false;
-			BigBinaryInteger bbiRootOfUnity(oIt->value.GetString());
+			IntType bbiRootOfUnity(oIt->value.GetString());
 
 			this->SetModulus(bbiModulus);
 			this->SetCyclotomicOrder(order);

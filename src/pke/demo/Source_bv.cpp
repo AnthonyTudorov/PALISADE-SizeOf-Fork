@@ -168,12 +168,6 @@ void NTRUPRE(int input) {
 	cc.Enable(PRE);
 	cc.Enable(SHE);
 
-	//Precomputations for FTT
-	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
-
-	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), std::static_pointer_cast<ILParams>(cc.GetCryptoParameters()->GetElementParams()));
-
 	finish = currentDateTime();
 	diff = finish - start;
 

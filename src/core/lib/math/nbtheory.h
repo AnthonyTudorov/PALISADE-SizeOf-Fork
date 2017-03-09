@@ -63,7 +63,8 @@ namespace lbcrypto {
 	 * 
 	 * @return a root of unity.  	  
 	 */
-	BigBinaryInteger RootOfUnity(usint m, const BigBinaryInteger &modulo);
+	template<typename IntType>
+	IntType RootOfUnity(usint m, const IntType &modulo);
 
 	/**
 	 * Finds roots of unity for given input.  Assumes the the input cyclotomicorder is a power of two. 
@@ -74,7 +75,8 @@ namespace lbcrypto {
 	 * 
 	 * @returns a vector of roots of unity corresponding to each modulus.  	  
 	 */
-	std::vector<BigBinaryInteger> RootsOfUnity(usint m, const std::vector<BigBinaryInteger> moduli);
+	template<typename IntType>
+	std::vector<IntType> RootsOfUnity(usint m, const std::vector<IntType> moduli);
 
 	/**
 	 * Method to reverse bits of num and return an unsigned int, for all bits up to an including the designated most significant bit.

@@ -38,6 +38,7 @@
 #define LBCRYPTO_MATH_NATIVE_BININT_H
 
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
 #include <string>
@@ -973,32 +974,32 @@ public:
 	/**
 	 * Constant zero.
 	 */
-	static const uint_type ZERO = 0;
+	static const NativeInteger ZERO;
 
 	/**
 	 * Constant one.
 	 */
-	static const uint_type ONE = 1;
+	static const NativeInteger ONE;
 
 	/**
 	 * Constant two.
 	 */
-	static const uint_type TWO = 2;
+	static const NativeInteger TWO;
 
 	/**
 	 * Constant three.
 	 */
-	static const uint_type THREE = 3;
+	static const NativeInteger THREE;
 
 	/**
 	 * Constant four.
 	 */
-	static const uint_type FOUR = 4;
+	static const NativeInteger FOUR;
 
 	/**
 	 * Constant five.
 	 */
-	static const uint_type FIVE = 5;
+	static const NativeInteger FIVE;
 
 	/**
 	 * Compares the current NativeInteger to NativeInteger a.

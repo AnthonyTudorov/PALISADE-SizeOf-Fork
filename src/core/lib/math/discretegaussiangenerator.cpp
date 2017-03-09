@@ -10,9 +10,6 @@
 
 namespace lbcrypto {
 
-template class DiscreteGaussianGeneratorImpl<BigBinaryInteger,BigBinaryVector>;
-template class DiscreteGaussianGeneratorImpl<native64::BigBinaryInteger,native64::BigBinaryVector>;
-
 	template<typename IntType, typename VecType>
 	DiscreteGaussianGeneratorImpl<IntType,VecType>::DiscreteGaussianGeneratorImpl() : DistributionGenerator() {
 

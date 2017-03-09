@@ -232,7 +232,7 @@ void test_NTT () {
 
   //  NextQ(modulus, BigBinaryInteger("2"), m1, BigBinaryInteger("4"), BigBinaryInteger("4"));
 #ifdef TEST1 
-  BigBinaryInteger rootOfUnity1(RootOfUnity(m, q1));
+  BigBinaryInteger rootOfUnity1(RootOfUnity<BigBinaryInteger>(m, q1));
   ILParams params1(m, q1, rootOfUnity1);
   shared_ptr<ILParams> x1p(new ILParams(params1));
 
@@ -250,7 +250,7 @@ void test_NTT () {
   ILVector2n x1bClone(x1b);
 #endif
 #ifdef TEST2
-  BigBinaryInteger rootOfUnity2(RootOfUnity(m, q2));
+  BigBinaryInteger rootOfUnity2(RootOfUnity<BigBinaryInteger>(m, q2));
   ILParams params2(m, q2, rootOfUnity2);
   shared_ptr<ILParams> x2p(new ILParams(params2));
 
@@ -271,7 +271,7 @@ void test_NTT () {
   NextQ(q3, BigBinaryInteger("2"), m, BigBinaryInteger("4"), BigBinaryInteger("4"));
   cout << "q3 : "<<q3.ToString()<<endl;
 
-  BigBinaryInteger rootOfUnity3(RootOfUnity(m, q3));
+  BigBinaryInteger rootOfUnity3(RootOfUnity<BigBinaryInteger>(m, q3));
   cout << "rootOfUnity3 : "<<rootOfUnity3.ToString()<<endl;
   ILParams params3(m, q3, rootOfUnity3);
   shared_ptr<ILParams> x3p(new ILParams(params3));

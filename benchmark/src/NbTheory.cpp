@@ -260,7 +260,7 @@ static string PROU_equals_m_not_equals_mbytwo(void){
   usint nBits=33;
 	
   BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus(m, nBits);
-  BigBinaryInteger primitiveRootOfUnity = lbcrypto::RootOfUnity(m, primeModulus);
+  BigBinaryInteger primitiveRootOfUnity = lbcrypto::RootOfUnity<BigBinaryInteger><BigBinaryInteger>(m, primeModulus);
 
   BigBinaryInteger M(std::to_string(m)), MbyTwo(M.DividedBy(BigBinaryInteger::TWO));
 
@@ -303,7 +303,7 @@ static string PROU_equals_m_not_equals_mbytwo_mbyfour_single_input(void){
   BigBinaryInteger wpowermbyfour("0");
 
   for(int i=0; i<ITERATIONS; i++) {
-    BigBinaryInteger primitiveRootOfUnity = lbcrypto::RootOfUnity(m, primeModulus);
+    BigBinaryInteger primitiveRootOfUnity = lbcrypto::RootOfUnity<BigBinaryInteger>(m, primeModulus);
 
     wpowerm = primitiveRootOfUnity.ModExp(M, primeModulus);
     wpowermbytwo = primitiveRootOfUnity.ModExp(MbyTwo, primeModulus);
@@ -373,7 +373,7 @@ static string PROU_equals_m_not_equals_mbytwo_mbyfour_multiple_inputs(void){
     BigBinaryInteger M(std::to_string(m)), MbyTwo(M.DividedBy(BigBinaryInteger::TWO)), MbyFour(MbyTwo.DividedBy(BigBinaryInteger::TWO));
 
     BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus(m, qBits);
-    BigBinaryInteger primitiveRootOfUnity(lbcrypto::RootOfUnity(m, primeModulus));
+    BigBinaryInteger primitiveRootOfUnity(lbcrypto::RootOfUnity<BigBinaryInteger>(m, primeModulus));
     wpowerm = primitiveRootOfUnity.ModExp(M, primeModulus);
     wpowermbytwo = primitiveRootOfUnity.ModExp(MbyTwo, primeModulus);
     wpowermbyfour = primitiveRootOfUnity.ModExp(MbyFour, primeModulus);
