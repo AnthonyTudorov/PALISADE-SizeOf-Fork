@@ -51,18 +51,26 @@
 #include "BBVhelper.h"
 #include "ElementParmsHelper.h"
 
+#include "lattice/ilparams.cpp"
+#include "lattice/ilvector2n.cpp"
+#include "math/transfrm.cpp"
+#include "math/discretegaussiangenerator.cpp"
+#include "math/discreteuniformgenerator.cpp"
+#include "math/binaryuniformgenerator.cpp"
+#include "math/ternaryuniformgenerator.cpp"
+
 using namespace std;
 using namespace lbcrypto;
 
 typedef native64::BigBinaryInteger  nativeInt;
 
 typedef cpu_int::BigBinaryInteger<uint32_t,64>  smallInt32_64;
+template class cpu_int::BigBinaryInteger<uint32_t,64>;
+template class cpu_int::BigBinaryVector<smallInt32_64>;
 
 typedef cpu_int::BigBinaryInteger<uint32_t,128>  smallInt32_128;
-
-typedef cpu_int::BigBinaryInteger<uint64_t,64>  smallInt64_64;
-
-typedef cpu_int::BigBinaryInteger<uint64_t,128>  smallInt64_128;
+template class cpu_int::BigBinaryInteger<uint32_t,128>;
+template class cpu_int::BigBinaryVector<smallInt32_128>;
 
 map<int,map<int,string>> primes;
 map<int,map<int,string>> roots;
@@ -73,10 +81,10 @@ loadprimes()
 {
 	if( ranloadprimes ) return;
 	ranloadprimes = true;
-	for( int n = 1024; n <=8192; n *= 2 ) {
-		for( int mbits = 30; mbits <= 60; mbits *= 2 ) {
-			primes[mbits][n] = FindPrimeModulus<nativeInt>(n, mbits).ToString();
-			roots[mbits][n] = RootOfUnity<nativeInt>(n, primes[mbits][n]).ToString();
+	for( int mbits = 30; mbits <= 60; mbits *= 2 ) {
+		for( int n = 1024; n <=8192; n *= 2 ) {
+			primes[n][mbits] = FindPrimeModulus<BigBinaryInteger>(n, mbits).ToString();
+			roots[n][mbits] = RootOfUnity<BigBinaryInteger>(n, BigBinaryInteger(primes[n][mbits])).ToString();
 		}
 	}
 }
@@ -120,6 +128,8 @@ static void BM_add_LATTICE(benchmark::State& state) { // benchmark
 }
 
 BENCHMARK_TEMPLATE(BM_add_LATTICE,nativeInt)->Apply(CustomArguments);
+BENCHMARK_TEMPLATE(BM_add_LATTICE,smallInt32_64)->Apply(CustomArguments);
+BENCHMARK_TEMPLATE(BM_add_LATTICE,smallInt32_128)->Apply(CustomArguments);
 
 #ifdef OUT
 template <class E>
