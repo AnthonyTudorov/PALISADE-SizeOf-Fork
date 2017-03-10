@@ -74,7 +74,17 @@ public:
 	* @param stddev standard deviation.
 	* @param *perturbationVector perturbation vector (2+k)n
 	*/
-	static inline void NonSphericalSample(size_t n, const Matrix<LargeFloat> &sigmaSqrt, double stddev, Matrix<int32_t> *perturbationVector);
+	static inline void NonSphericalSample(size_t n, size_t k, const Matrix<LargeFloat> &sigmaSqrt, double stddev, Matrix<int32_t> *perturbationVector);
+
+	/**
+	* Nonspherical sampling that is used to generate perturbation vectors (for spherically distributed premimages in GaussSample)
+	*
+	* @param sigmaP covariance matrix of dimension (2+k)n * (2+k)n.
+	* @param stddev standard deviation.
+	* @param *perturbationVector perturbation vector (2+k)n
+	*/
+	static inline void NonSphericalSampleBB13(size_t n, size_t k, const Matrix<LargeFloat> &sigmaSqrt, double stddev, 
+		DiscreteGaussianGenerator &dggLargeSigma, Matrix<int32_t> *perturbationVector);
 
 	/**
 	* Generates a vector using continuous Guassian distribution with mean = 0 and std = 1; uses Box-Muller method
@@ -134,9 +144,16 @@ public:
 	* @param *perturbationVector non-spherical perturbation vector; output of the function
 	*/
 	static inline void RandomizeRound(size_t n, const Matrix<LargeFloat> &p, const LargeFloat &sigma, Matrix<int32_t> *perturbationVector) {
+#if defined(_MSC_VER)
 		for (size_t i = 0; i < p.GetRows(); i++) {
-			(*perturbationVector)(i,0) = DiscreteGaussianGenerator::GenerateInteger(p(i,0), sigma, n);
+			(*perturbationVector)(i,0) = DiscreteGaussianGenerator::GenerateInteger(p(i,0).convert_to<double>(), sigma.convert_to<double>(), n);
 		}
+#else
+		for (size_t i = 0; i < p.GetRows(); i++) {
+			(*perturbationVector)(i, 0) = DiscreteGaussianGenerator::GenerateInteger((double)p(i, 0), (double)sigma, n);
+		}
+#endif
+		
 	};
 
 	/**

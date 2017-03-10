@@ -122,6 +122,7 @@ void NTRUPRE(int input) {
 
 	//Precomputations for FTT
 	ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(rootOfUnity, m, modulus);
+	DiscreteFourierTransform::GetInstance().PreComputeTable(m);
 
 	//Precomputations for DGG
 	ILVector2n::PreComputeDggSamples(dgg, ilParams);
@@ -213,7 +214,7 @@ void NTRUPRE(int input) {
 	std::cout << " \nObfuscated pattern evaluation of: " << inputStr3 << " is " << result << "." <<std::endl;
 
 	//system("pause");
-
+	DiscreteFourierTransform::GetInstance().Destroy();
 }
 
 

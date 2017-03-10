@@ -145,6 +145,7 @@ TEST(UTField2n, times) {
 
 //TEST FOR MULTIPLICATION OPERATION WITH SWITCH FORMAT
 TEST(UTField2n, times_with_switch) {
+	DiscreteFourierTransform::GetInstance().PreComputeTable(8);
 	bool dbg_flag = false;
 	DEBUG("Step 1");
 	Field2n a(4, COEFFICIENT, true);
@@ -172,6 +173,7 @@ TEST(UTField2n, times_with_switch) {
 	for (int i = 0;i < 4;i++) {
 		EXPECT_LE(abs(d.at(i).real() - c.at(i).real()),pow(10,-12));
 	}
+	DiscreteFourierTransform::GetInstance().Destroy();
 }
 
 //TEST FOR SHIFT RIGHT OPERATION
@@ -214,6 +216,7 @@ TEST(UTField2n, transpose) {
 
 //TEST FOR TRANSPOSE OPERATION
 TEST(UTField2n, transpose_eval) {
+	DiscreteFourierTransform::GetInstance().PreComputeTable(8);
 	bool dbg_flag = false;
 	DEBUG("Step 1");
 	Field2n a(4, COEFFICIENT, true);
@@ -236,10 +239,12 @@ TEST(UTField2n, transpose_eval) {
 	for (int i = 0; i < 4; i++) {
 		EXPECT_LE(abs(b.at(i).real() - a.at(i).real()), abs(b.at(i).real())*0.0001);
 	}
+	DiscreteFourierTransform::GetInstance().Destroy();
 }
 
 //TEST FOR AUTOMORPHISM OPERATION
 TEST(UTField2n, automorphism) {
+	DiscreteFourierTransform::GetInstance().PreComputeTable(8);
 	bool dbg_flag = false;
 	DEBUG("Step 1");
 	Field2n a(4, COEFFICIENT, true);
@@ -260,6 +265,7 @@ TEST(UTField2n, automorphism) {
 	for (int i = 0; i < 4; i++) {
 		EXPECT_LE(abs(b.at(i).real() - a.at(i).real()), abs(b.at(i).real())*0.0001);
 	}
+	DiscreteFourierTransform::GetInstance().Destroy();
 }
 
 //TEST FOR EXTRACT ODD OPERATION
@@ -355,6 +361,7 @@ TEST(UTField2n, scalar_mult) {
 
 //TEST FOR COEFFICIENT TO EVALUATION FORMAT CHANGE
 TEST(UTField2n, coefficient_evaluation) {
+	DiscreteFourierTransform::GetInstance().PreComputeTable(16);
 	bool dbg_flag = false;
 	DEBUG("Step 1");
 	Field2n a(8, COEFFICIENT, true);
@@ -382,10 +389,12 @@ TEST(UTField2n, coefficient_evaluation) {
 		EXPECT_LE(abs(a.at(i).real() - b.at(i).real()), abs(b.at(i).real())*0.0001);
 		EXPECT_LE(abs(a.at(i).imag() - b.at(i).imag()), abs(b.at(i).imag())*0.0001);
 	}
+	DiscreteFourierTransform::GetInstance().Destroy();
 }
 
 //TEST FOR EVALUATION TO COEFFICIENT FORMAT CHANGE
 TEST(UTField2n, evaluation_coefficient) {
+	DiscreteFourierTransform::GetInstance().PreComputeTable(16);
 	bool dbg_flag = false;
 	DEBUG("Step 1");
 	Field2n b(8, EVALUATION, true);
@@ -413,6 +422,7 @@ TEST(UTField2n, evaluation_coefficient) {
 	for (int i = 0;i < 8;i++) {
 		EXPECT_LE(abs(a.at(i).real() - b.at(i).real()), abs(a.at(i).real())*0.0001);
 	}
+	DiscreteFourierTransform::GetInstance().Destroy();
 }
 
 

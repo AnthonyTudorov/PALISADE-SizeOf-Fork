@@ -133,7 +133,7 @@ public:
 	* @param n is ring dimension
 	* @return A random value within this Discrete Gaussian Distribution.
 	*/
-	int32_t GenerateInteger (double mean, double stddev, size_t n) const;
+	static int32_t GenerateInteger (double mean, double stddev, size_t n);
 
 	/**
 	* @brief  Returns a generated integer. Uses rejection method. Works with large floating numbers.
@@ -184,8 +184,25 @@ private:
 		return pow(M_E, -pow(x - mean, 2)/(2. * sigma * sigma));
 	}
 
-	static inline LargeFloat UnnormalizedGaussianPDF(const LargeFloat &mean, const LargeFloat &sigma, int32_t x) {
-		return pow(M_E, -pow(x - mean, 2)/(2. * sigma * sigma));
+	static double UnnormalizedGaussianPDFOptimized(const double &mean, const double &sigmaFactor, int32_t x) {
+		return pow(M_E, sigmaFactor*(x - mean)*(x - mean));
+	}
+
+	//static inline LargeFloat UnnormalizedGaussianPDF(const LargeFloat &mean, const LargeFloat &sigma, int32_t x) {
+	//#if defined(_MSC_VER)	
+	//	return pow(M_E, -pow(x - mean, 2)/(2. * sigma * sigma));
+	//#else
+	//	return pow(M_E, -pow((long double)x - mean, (long double)2)/(2. * sigma * sigma));
+	//#endif
+	//}
+
+	static inline LargeFloat UnnormalizedGaussianPDF(const LargeFloat &mean, int32_t x, const LargeFloat &sigmaFactor) {
+		//#if defined(_MSC_VER)	
+
+		return pow(M_E, sigmaFactor*(x - mean)*(x - mean));
+		//#else
+		//	return pow(M_E, -pow((long double)x - mean, (long double)2)/(2. * sigma * sigma));
+		//#endif
 	}
 
 	// Gyana to add precomputation methods and data members

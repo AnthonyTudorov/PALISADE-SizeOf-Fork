@@ -306,9 +306,24 @@ public:
 	* @return is the output result of the inverse transform.
 	*/
 	std::vector<std::complex<double>> InverseTransform(std::vector<std::complex<double>> A);
-private:
-};
 
+
+	std::vector<std::complex<double>> FFTForwardTransformAlt(std::vector<std::complex<double>> & A);
+	std::vector<std::complex<double>> FFTInverseTransformAlt(std::vector<std::complex<double>> & A);
+	std::vector<std::complex<double>> ForwardTransformAlt(std::vector<std::complex<double>> A);
+	std::vector<std::complex<double>> InverseTransformAlt(std::vector<std::complex<double>> A);
+
+
+	void Destroy();
+	void PreComputeTable(uint32_t s);
+	static DiscreteFourierTransform& GetInstance();
+
+private:
+	static DiscreteFourierTransform* m_onlyInstance;
+	static std::complex<double>* rootOfUnityTable;
+	uint32_t size;
+};
+	
 
 } // namespace lbcrypto ends
 

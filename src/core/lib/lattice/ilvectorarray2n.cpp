@@ -763,7 +763,7 @@ namespace lbcrypto {
 			
 				chineseRemainderMultiplier = m_towersize_cri_factors->at(m_modulus).at(j);
 
-				multiplyValue = (m_vectors[j].GetValAtIndex(i)).Times(chineseRemainderMultiplier); // M (r, i) * qt/qj * [(qt/qj)(-1) mod qj]
+				multiplyValue = m_vectors[j].GetValAtIndex(i)*chineseRemainderMultiplier; // M (r, i) * qt/qj * [(qt/qj)(-1) mod qj]
 
 				interpolateValue += multiplyValue;
 
@@ -870,7 +870,7 @@ namespace lbcrypto {
 
 			modularInverse = divideBigModulusByIndexModulus.Mod(qj).ModInverse(qj); // (qt/qj)^(-1) mod qj
 
-			chineseRemainderMultiplier = divideBigModulusByIndexModulus.Times(modularInverse);
+			chineseRemainderMultiplier = divideBigModulusByIndexModulus * modularInverse;
 
 			tower_number_to_cri_value_map[j] = chineseRemainderMultiplier;
 		}

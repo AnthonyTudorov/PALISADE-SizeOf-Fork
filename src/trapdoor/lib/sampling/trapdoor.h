@@ -108,7 +108,26 @@ public:
 	static inline RingMat GaussSamp(size_t n, size_t k, const RingMat& A, const RLWETrapdoorPair<ILVector2n>& T, 
 
 			const Matrix<LargeFloat> &SigmaP, const ILVector2n &u,
-			double sigma, DiscreteGaussianGenerator &dgg); 
+			double sigma, DiscreteGaussianGenerator &dgg);
+
+	/**
+	* Gaussian sampling introduced in https://eprint.iacr.org/2011/501.pdf and described
+	* in a simple manner in https://eprint.iacr.org/2013/297.pdf
+	*
+	* @param n ring dimension
+	* @param k matrix sample dimension; k = logq + 2
+	* @param &A public key of the trapdoor pair
+	* @param &T trapdoor itself
+	* @param &SigmaP Cholesky decomposition matrix for the trapdoor
+	* @param &u syndrome vector where gaussian that Gaussian sampling is centered around
+	* @param sigma noise distriubution parameter
+	* @param &dgg discrete Gaussian generator for integers
+	* @return the sampled vector (matrix)
+	*/
+	static inline RingMat GaussSampBB13(size_t n, size_t k, const RingMat& A, const RLWETrapdoorPair<ILVector2n>& T,
+
+		const Matrix<LargeFloat> &SigmaP, const ILVector2n &u,
+		double sigma, DiscreteGaussianGenerator &dgg, DiscreteGaussianGenerator &dggLargeSigma);
 
 	/**
 	* Gaussian sampling introduced - UCSD version
@@ -154,6 +173,20 @@ public:
 	* @param *sigmaSqrt Choleskry decomposition matrix - output of the function
 	*/
 	static inline void PerturbationMatrixGenAlt(size_t n,size_t k, const RingMat& A,
+		const RLWETrapdoorPair<ILVector2n>& T, double s, Matrix<LargeFloat> *sigmaSqrt);
+
+	/**
+	* Alternate method for generation of perturbation matrix based on Cholesky decomposition
+	* see Section 3.2 of https://eprint.iacr.org/2013/297.pdf for base implementation, Section 4.4 for improvements
+	*
+	* @param n ring dimension
+	* @param k matrix sample dimension; k = logq + 2
+	* @param &A public key of the trapdoor pair
+	* @param &T trapdoor itself
+	* @param s parameter s needed for Cholesky decomposition to succeed; see https://eprint.iacr.org/2011/501.pdf for more details
+	* @param *sigmaSqrt Choleskry decomposition matrix - output of the function
+	*/
+	static inline void PerturbationMatrixGenOptimized(size_t n, size_t k, const RingMat& A,
 		const RLWETrapdoorPair<ILVector2n>& T, double s, Matrix<LargeFloat> *sigmaSqrt);
 
 	/**

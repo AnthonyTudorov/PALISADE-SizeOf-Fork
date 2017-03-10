@@ -309,7 +309,7 @@ TEST(UTBinInt,basic_math){
     BigBinaryInteger a("1967");
     BigBinaryInteger b("654");
 
-    calculatedResult = a.Times(b);
+    calculatedResult = a*b;
     expectedResult = 1286418;
 
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())

@@ -190,6 +190,18 @@ namespace cpu_int{
 		typedef uint64_t T;
 	};
 
+#if !defined(_MSC_VER)
+    /**
+    * @brief Struct to determine a datatype that is twice as big(bitwise) as utype.
+    * sets T as of type unsigned integer 128 bit if integral datatype is 64bit
+    */
+	template<>
+	struct DoubleDataType<uint64_t>{
+		typedef __uint128_t T;
+	};
+#endif
+
+
 
     const double LOG2_10 = 3.32192809;	//!< @brief A pre-computed constant of Log base 2 of 10.
     const usint BARRETT_LEVELS = 8;		//!< @brief The number of levels (precomputed values) used in the Barrett reductions.
@@ -230,15 +242,16 @@ namespace cpu_int{
     *
     * @param bigInteger is the big binary integer to be copied.
     */
-    explicit BigBinaryInteger(const BigBinaryInteger& bigInteger);
+    BigBinaryInteger(const BigBinaryInteger& bigInteger);
 
     /**
     * Basic constructor for move copying a big binary integer
     *
     * @param &&bigInteger is the big binary integer to be moved from.
     */
-    BigBinaryInteger(BigBinaryInteger &&bigInteger);
-
+//FIXME
+    //BigBinaryInteger(BigBinaryInteger &&bigInteger);
+    
     /**
     * Destructor.
     */
@@ -269,7 +282,7 @@ namespace cpu_int{
     * @param &&rhs is the big binary integer to move.
     * @return object of type BigBinaryInteger.
     */
-    const BigBinaryInteger&  operator=(BigBinaryInteger &&rhs);
+    //const BigBinaryInteger&  operator=(BigBinaryInteger &&rhs);
 
 //Shift Operators
    
@@ -344,7 +357,7 @@ namespace cpu_int{
     *
     * @return the int representation of the value as usint.
     */
-    usint ConvertToInt() const;
+    uint64_t ConvertToInt() const;
     
 	/**
     * Converts the value to an double.
@@ -404,7 +417,7 @@ namespace cpu_int{
     * @param b of type Big Binary Integer is the value to multiply with.
     * @return result of the multiplication operation.
     */
-    BigBinaryInteger Times(const BigBinaryInteger& b) const;
+    void Times(const BigBinaryInteger& b, BigBinaryInteger *ans) const;
 
     /**
     * Division operation.
@@ -434,6 +447,17 @@ namespace cpu_int{
     * @return is the result of the modulus operation.
     */
     BigBinaryInteger ModBarrett(const BigBinaryInteger& modulus, const BigBinaryInteger& mu) const;
+
+	/**
+	* returns the modulus with respect to the input value - In place version.
+	* Implements generalized Barrett modular reduction algorithm. Uses one precomputed value of mu.
+	* See the cpp file for details of the implementation.
+	*
+	* @param modulus is the modulus to perform.
+	* @param mu is the Barrett value.
+	* @return is the result of the modulus operation.
+	*/
+	void ModBarrettInPlace(const BigBinaryInteger& modulus, const BigBinaryInteger& mu);
 
     /**
     * returns the modulus with respect to the input value.
@@ -533,6 +557,19 @@ namespace cpu_int{
     * @return is the result of the modulus multiplication operation.
     */
     BigBinaryInteger ModBarrettMul(const BigBinaryInteger& b, const BigBinaryInteger& modulus,const BigBinaryInteger& mu) const;
+
+	/**
+	* Scalar modular multiplication where Barrett modular reduction is used - In-place version
+	* Implements generalized Barrett modular reduction algorithm (no interleaving between multiplication and modulo).
+	* Uses one precomputed value \mu.
+	* See the cpp file for details of the implementation.
+	*
+	* @param b is the scalar to multiply.
+	* @param modulus is the modulus to perform operations with.
+	* @param mu is the precomputed Barrett value.
+	* @return is the result of the modulus multiplication operation.
+	*/
+	void ModBarrettMulInPlace(const BigBinaryInteger& b, const BigBinaryInteger& modulus, const BigBinaryInteger& mu);
 
     /**
     * Scalar modular multiplication where Barrett modular reduction is used.
@@ -693,7 +730,7 @@ namespace cpu_int{
     * @param a is the value to multiply with.
     * @return is the result of the multiplication operation.
     */
-    inline BigBinaryInteger operator*(const BigBinaryInteger &a) const {return this->Times(a);}
+	inline BigBinaryInteger operator*(const BigBinaryInteger &a) const;
 
     /**
     * Modulo operation. Classical modular reduction algorithm is used.
@@ -847,7 +884,7 @@ namespace cpu_int{
 		* @return the MSB position in the 32 bit number x.
 		*/
 		
-		static uint64_t GetMSB32(uint64_t x);
+		static usint GetMSB32(uint64_t x);
 		/**
 		* function to return the MSB of number.
 		* @param x is the number.
@@ -860,9 +897,9 @@ namespace cpu_int{
 		typedef typename DoubleDataType<uint_type>::T Duint_type;
 
 		//enum defination to represent the state of the big binary integer.
-		enum State{
-			INITIALIZED,GARBAGE
-		};
+		//enum State{
+		//	INITIALIZED,GARBAGE
+		//};
 
 		/**
 		* function to return the MSB of number that is of type Duint_type.
@@ -872,7 +909,7 @@ namespace cpu_int{
 		static usint GetMSBDUint_type(Duint_type x);
 		
 		//enum to store the state of the 
-		State m_state;
+		//State m_state;
 
 		/**
 		* function that returns the BigBinaryInteger after multiplication by b.
@@ -880,6 +917,13 @@ namespace cpu_int{
 		* @return the BigBinaryInteger after the multiplication.
 		*/
         BigBinaryInteger MulIntegerByChar(uint_type b) const;
+
+		/**
+		* function that returns the BigBinaryInteger after multiplication by b.
+		* @param b is the number to be multiplied.
+		* @return the BigBinaryInteger after the multiplication.
+		*/
+		void MulIntegerByCharInPlace(uint_type b, BigBinaryInteger *ans) const;
 		
 		/**
 		* function that returns the decimal value from the binary array a.

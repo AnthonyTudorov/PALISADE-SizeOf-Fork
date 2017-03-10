@@ -40,12 +40,14 @@ namespace lbcrypto {
 
 	// Nonspherical sampling that is used to generate perturbation vectors (for spherically distributed premimages in GaussSample)
 
-	void LatticeGaussSampUtility::NonSphericalSample(size_t n, const Matrix<LargeFloat> &sigmaSqrt, double stddev, 
+	void LatticeGaussSampUtility::NonSphericalSample(size_t n, size_t k, const Matrix<LargeFloat> &sigmaSqrt, double stddev, 
 		Matrix<int32_t> *perturbationVector)
 	{
 		double a(stddev / 2);
 
-		double s = 40 * std::sqrt(perturbationVector->GetRows());
+		//double s = 40 * std::sqrt(perturbationVector->GetRows());
+
+		double s = SPECTRAL_BOUND(n, k);
 
 		double b = s*s - 5*a*a;
 
@@ -66,6 +68,48 @@ namespace lbcrypto {
 		
 		for (int i = 0;i < perturbationVector2.GetRows();i++) {
 			(*perturbationVector)(2 * n + i, 0) = perturbationVector2(i, 0);
+		}
+
+	}
+
+	void LatticeGaussSampUtility::NonSphericalSampleBB13(size_t n, size_t k, const Matrix<LargeFloat> &sigmaSqrt, double stddev,
+		DiscreteGaussianGenerator &dggLargeSigma, Matrix<int32_t> *perturbationVector)
+	{
+		double a(stddev / 2);
+
+		//double s = 40 * std::sqrt(perturbationVector->GetRows());
+
+		double s = SPECTRAL_BOUND(n, k);
+
+		double b = s*s - 5 * a*a;
+
+		Matrix<LargeFloat> sample([]() { return make_unique<LargeFloat>(); }, sigmaSqrt.GetRows(), 1);
+		ContinuousGaussianGenerator(&sample);
+
+		//Matrix<LargeFloat> sample2([]() { return make_unique<LargeFloat>(); }, perturbationVector->GetRows() - 2 * n, 1);
+		//ContinuousGaussianGenerator(&sample2);
+
+		//Matrix<LargeFloat> p2([]() { return make_unique<LargeFloat>(); }, perturbationVector->GetRows() - 2 * n, 1);
+		//p2 = sample2.ScalarMult(sqrt(b));
+
+		//Matrix<int32_t> perturbationVector2([]() { return make_unique<int32_t>(); }, perturbationVector->GetRows() - 2 * n, 1);
+		const Matrix<LargeFloat> &p = sigmaSqrt.Mult(sample);
+
+		RandomizeRound(n, p, a, perturbationVector);
+		//RandomizeRound(n, p2, a, &perturbationVector2);
+
+		//Matrix<int32_t> perturbationVector2([]() { return make_unique<int32_t>(); }, n*k, 1);
+
+		//Peikert's inversion method is used
+		//YSP replace with smart pointers later
+		std::shared_ptr<sint> dggVector = dggLargeSigma.GenerateIntVector(n*k);
+
+		//for (size_t i = 0; i < n * k; i++) {
+		//	perturbationVector2(i, 0) = (dggVector.get())[i];
+		//}
+
+		for (int i = 0; i < n*k; i++) {
+			(*perturbationVector)(2 * n + i, 0) = (dggVector.get())[i];
 		}
 
 	}

@@ -262,6 +262,7 @@ void NTRUPRE(int input) {
 
 	//Precomputations for FTT
 	ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(rootOfUnity, m, modulus);
+	DiscreteFourierTransform::GetInstance().PreComputeTable(m);
 
 	//Precomputations for DGG
 	ILVector2n::PreComputeDggSamples(dgg, ilParams);
@@ -376,7 +377,7 @@ void NTRUPRE(int input) {
 	std::cout << "Obfuscation execution time: " << "\t" << diffObf << " ms" << std::endl;
 	std::cout << "Evaluation execution time: " << "\t" << diffEval << " ms" << std::endl;
 
-
+	DiscreteFourierTransform::GetInstance().Destroy();
 	//system("pause");
 
 }

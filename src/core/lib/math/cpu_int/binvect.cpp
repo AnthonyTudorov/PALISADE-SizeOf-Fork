@@ -379,7 +379,7 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModMul(const IntegerT
 
 	for(usint i=0;i<this->m_length;i++){
 		//std::cout<< "before data: "<< ans.m_data[i]<< std::endl;
-		ans.m_data[i] = ans.m_data[i].ModBarrettMul(b,this->m_modulus,mu);
+		ans.m_data[i].ModBarrettMulInPlace(b,this->m_modulus,mu);
 		//std::cout<< "after data: "<< ans.m_data[i]<< std::endl;
 	}
 
@@ -551,7 +551,7 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModMul(const BigBinar
 
 	for(usint i=0;i<ans.m_length;i++){
 		//ans.m_data[i] = ans.m_data[i].ModMul(b.m_data[i],this->m_modulus);
-		ans.m_data[i] = ans.m_data[i].ModBarrettMul(b.m_data[i],this->m_modulus,mu);
+		ans.m_data[i].ModBarrettMulInPlace(b.m_data[i],this->m_modulus,mu);
 	}
 	return ans;
 }

@@ -168,6 +168,7 @@ bool NTRUPRE(bool dbg_flag, int n_evals) {
 
 	//Precomputations for FTT
 	ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(rootOfUnity, m, modulus);
+	DiscreteFourierTransform::GetInstance().PreComputeTable(m);
 
 	//Precomputations for DGG
 	TIC(t1);
@@ -289,6 +290,8 @@ bool NTRUPRE(bool dbg_flag, int n_evals) {
 	} else {
 		std::cout << "SUCCESS " << std::endl;
 	}
+
+	DiscreteFourierTransform::GetInstance().Destroy();
 
 	return (errorflag);
 }
