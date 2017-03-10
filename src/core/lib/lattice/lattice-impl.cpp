@@ -15,12 +15,12 @@
 
 namespace native64 {
 template class NativeInteger<uint64_t>;
-template<typename T> const NativeInteger<T> NativeInteger<T>::ZERO = NativeInteger(0);
-template<typename T> const NativeInteger<T> NativeInteger<T>::ONE = NativeInteger(1);
-template<typename T> const NativeInteger<T> NativeInteger<T>::TWO = NativeInteger(2);
-template<typename T> const NativeInteger<T> NativeInteger<T>::THREE = NativeInteger(3);
-template<typename T> const NativeInteger<T> NativeInteger<T>::FOUR = NativeInteger(4);
-template<typename T> const NativeInteger<T> NativeInteger<T>::FIVE = NativeInteger(5);
+template<> const NativeInteger<uint64_t> NativeInteger<uint64_t>::ZERO = NativeInteger<uint64_t>(0);
+template<> const NativeInteger<uint64_t> NativeInteger<uint64_t>::ONE = NativeInteger<uint64_t>(1);
+template<> const NativeInteger<uint64_t> NativeInteger<uint64_t>::TWO = NativeInteger<uint64_t>(2);
+template<> const NativeInteger<uint64_t> NativeInteger<uint64_t>::THREE = NativeInteger<uint64_t>(3);
+template<> const NativeInteger<uint64_t> NativeInteger<uint64_t>::FOUR = NativeInteger<uint64_t>(4);
+template<> const NativeInteger<uint64_t> NativeInteger<uint64_t>::FIVE = NativeInteger<uint64_t>(5);
 }
 
 namespace cpu_int {

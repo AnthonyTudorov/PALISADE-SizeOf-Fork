@@ -1017,8 +1017,9 @@ public:
 
 	/**
 	 *  Set this int to 1.
+	 *  Note some compilers don't like using the ONE constant, above :(
 	 */
-	inline void SetIdentity() { *this = NativeInteger::ONE; };
+	inline void SetIdentity() { *this = NativeInteger<uint_type>(1); };
 
 	/**
 	 * A zero allocator that is called by the Matrix class. It is used to initialize a Matrix of NativeInteger objects.
