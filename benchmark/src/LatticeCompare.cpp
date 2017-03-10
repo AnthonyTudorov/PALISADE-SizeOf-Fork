@@ -128,7 +128,6 @@ static void BM_add_LATTICE(benchmark::State& state) { // benchmark
 }
 
 BENCHMARK_TEMPLATE(BM_add_LATTICE,nativeInt)->Apply(CustomArguments);
-BENCHMARK_TEMPLATE(BM_add_LATTICE,smallInt32_64)->Apply(CustomArguments);
 BENCHMARK_TEMPLATE(BM_add_LATTICE,smallInt32_128)->Apply(CustomArguments);
 
 template <class IntType>
@@ -150,7 +149,6 @@ static void BM_mult_LATTICE(benchmark::State& state) { // benchmark
 }
 
 BENCHMARK_TEMPLATE(BM_mult_LATTICE,nativeInt)->Apply(CustomArguments);
-BENCHMARK_TEMPLATE(BM_mult_LATTICE,smallInt32_64)->Apply(CustomArguments);
 BENCHMARK_TEMPLATE(BM_mult_LATTICE,smallInt32_128)->Apply(CustomArguments);
 
 template <class IntType>
@@ -171,11 +169,7 @@ static void BM_switchformat_LATTICE(benchmark::State& state) { // benchmark
 }
 
 BENCHMARK_TEMPLATE(BM_switchformat_LATTICE,nativeInt)->Apply(CustomArguments);
-BENCHMARK_TEMPLATE(BM_switchformat_LATTICE,smallInt32_64)->Apply(CustomArguments);
 BENCHMARK_TEMPLATE(BM_switchformat_LATTICE,smallInt32_128)->Apply(CustomArguments);
 
 //execute the benchmarks
 BENCHMARK_MAIN()
-
-
-
