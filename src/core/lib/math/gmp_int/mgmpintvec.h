@@ -559,6 +559,7 @@ namespace NTL {
       }else if(this->size()!=b.size()){
 	throw std::logic_error(fname +" vectors of different lengths");
       }
+      
       ZZ_p::init(this->m_modulus); //set global modulus to this 
     };
     
