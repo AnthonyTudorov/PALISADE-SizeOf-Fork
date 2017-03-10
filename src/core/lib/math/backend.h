@@ -66,7 +66,7 @@
 //#define MATHBACKEND 4 //64 bit (currently works for ubuntu, not tested otherwise
 //#define MATHBACKEND 5 // njit and GMP coexistance backend
 
-#define MATHBACKEND 6 // njit BBI and BBV use GMP backend
+//#define MATHBACKEND 6 // njit BBI and BBV use GMP backend
 
 #if MATHBACKEND == 1
 #include "cpu8bit/binint8bit.h"

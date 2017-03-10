@@ -28,6 +28,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "../../utils/serializable.h"
 #include "../cpu_int/binvect.h"
 //#include "../nbtheory.h"
+#include "../../utils/debug.h"
 
 namespace cpu_int {
 
@@ -193,38 +194,39 @@ void BigBinaryVector<IntegerType>::SetModulus(const IntegerType& value){
 */	
 template<class IntegerType>
 void BigBinaryVector<IntegerType>::SwitchModulus(const IntegerType& newModulus) {	
-  std::cout<<"Switch modulus old mod :"<<this->m_modulus<<std::endl;
-  std::cout<<"Switch modulus old this :"<<*this<<std::endl;
+  bool dbg_flag = false;
+  DEBUG("Switch modulus old mod :"<<this->m_modulus);
+  DEBUG("Switch modulus old this :"<<*this);
 	IntegerType oldModulus(this->m_modulus);
-	IntegerType n;
+	IntegerType n; 
 	IntegerType oldModulusByTwo(oldModulus>>1);
 	IntegerType diff ((oldModulus > newModulus) ? (oldModulus-newModulus) : (newModulus - oldModulus));
-	std::cout<<"Switch modulus diff :"<<diff<<std::endl;
+	DEBUG("Switch modulus diff :"<<diff);
 	for(usint i=0; i< this->m_length; i++) {
 		n = this->GetValAtIndex(i);
-		std::cout<<"i,n "<<i<<" "<< n<<std::endl;
+		DEBUG("i,n "<<i<<" "<< n);
 		if(oldModulus < newModulus) {
 			if(n > oldModulusByTwo) {
-			  std::cout<<"s1 "<<n.ModAdd(diff, newModulus)<<std::endl;
+			  DEBUG("s1 "<<n.ModAdd(diff, newModulus));
 				this->SetValAtIndex(i, n.ModAdd(diff, newModulus));
 			} else {
-			  std::cout<<"s2 "<<n.Mod(newModulus)<<std::endl;
+			  DEBUG("s2 "<<n.Mod(newModulus));
 			        this->SetValAtIndex(i, n.Mod(newModulus));
 			}
 		} else {
 			if(n > oldModulusByTwo) {
-			  std::cout<<"s3 "<<n.ModSub(diff, newModulus)<<std::endl;				
+			  DEBUG("s3 "<<n.ModSub(diff, newModulus));				
 			        this->SetValAtIndex(i, n.ModSub(diff, newModulus));
 			} else {
-			  std::cout<<"s4 "<<n.Mod(newModulus)<<std::endl;
+			  DEBUG("s4 "<<n.Mod(newModulus));
 				this->SetValAtIndex(i, n.Mod(newModulus));
 			}
 		}
 	}
-	std::cout<<"Switch modulus this before set :"<<*this<<std::endl;
+	DEBUG("Switch modulus this before set :"<<*this);
 	this->SetModulus(newModulus);
-	std::cout<<"Switch modulus new modulus :"<<this->m_modulus<<std::endl;
-	std::cout<<"Switch modulus new this :"<<*this<<std::endl;
+	DEBUG("Switch modulus new modulus :"<<this->m_modulus);
+	DEBUG("Switch modulus new this :"<<*this);
 
 }
 

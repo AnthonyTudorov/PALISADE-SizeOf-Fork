@@ -596,7 +596,7 @@ namespace lbcrypto {
     if (m_values == nullptr) {
       std::string errMsg = "ILVector2n switch format to empty values";
       throw std::runtime_error(errMsg);
-    }
+   }
     
     if (m_format == COEFFICIENT) {
       m_format = EVALUATION;

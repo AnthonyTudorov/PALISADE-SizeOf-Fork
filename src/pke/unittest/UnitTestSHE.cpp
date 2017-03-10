@@ -519,6 +519,7 @@ TEST(UTSHE, canringreduce) {
 }
 
 TEST(UTSHE, decomposeMult) {
+  bool dbg_flag = false;
 	usint m1 = 16;
 
 	BigBinaryInteger modulus("1");
@@ -526,8 +527,10 @@ TEST(UTSHE, decomposeMult) {
 	BigBinaryInteger rootOfUnity(RootOfUnity(m1, modulus));
 	shared_ptr<ILParams> params( new ILParams(m1, modulus, rootOfUnity) );
 	shared_ptr<ILParams> params2( new ILParams(m1 / 2, modulus, rootOfUnity) );
+	DEBUG("1");
 
 	ILVector2n x1(params, Format::COEFFICIENT);
+	DEBUG("x1 format "<<x1.GetFormat());
 	x1 = { 0,0,0,0,0,0,1,0 };
 
 	ILVector2n x2(params, Format::COEFFICIENT);
@@ -537,21 +540,32 @@ TEST(UTSHE, decomposeMult) {
 	x2.SwitchFormat();
 	x1.SwitchFormat();
 	x2.SwitchFormat();
-
+	DEBUG("2");
 	x1.Decompose();
 	x2.Decompose();
 
 	ILVector2n resultsEval(params2, Format::EVALUATION);
-
+	DEBUG("resultsEval format "<<resultsEval.GetFormat());
 	x1.SwitchFormat();
 	x2.SwitchFormat();
-
+	DEBUG("x1 format "<<x1.GetFormat());
+	DEBUG("x2 format "<<x2.GetFormat());
+	DEBUG("3");
 	resultsEval = x1*x2;
 
 	resultsEval.SwitchFormat();
+	DEBUG("4");
+
+	//note now need to do this or else x3 has not data, and when SetFormat is called it tries to switch from EVALUATION and calls CRT on empty vector
+	x1.SwitchFormat();
 
 	ILVector2n x3(x1.CloneParametersOnly());
+
+
+	DEBUG("x1 format "<<x1.GetFormat());
+	DEBUG("x3 format "<<x3.GetFormat());
 	x3.SetFormat(Format::COEFFICIENT);
+	DEBUG("x3 format "<<x3.GetFormat());
 	x3 = { 0,0,0,1 };
 
 	ILVector2n x4(x1.CloneParametersOnly());
@@ -560,10 +574,11 @@ TEST(UTSHE, decomposeMult) {
 
 	x3.SwitchFormat();
 	x4.SwitchFormat();
-
+	DEBUG("5");
 	ILVector2n resultsTest(x4.CloneParametersOnly());
 
 	resultsTest = x3 * x4;
 
 	resultsTest.SwitchFormat();
+	DEBUG("6");
 }

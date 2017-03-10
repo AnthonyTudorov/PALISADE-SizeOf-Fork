@@ -55,8 +55,6 @@
 #include "../../utils/inttypes.h"
 #include "../../utils/memory.h"
 
-#include "time.h"
-#include <chrono>
 #include "../../utils/debug.h"
 
 #include <NTL/ZZ.h>
