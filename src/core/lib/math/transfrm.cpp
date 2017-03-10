@@ -178,14 +178,14 @@ ChineseRemainderTransform<IntType,VecType>& ChineseRemainderTransform<IntType,Ve
 	return *m_onlyInstance;
 }
 
-template<typename IntType, typename VecType>
-ChineseRemainderTransformFTT<IntType,VecType>& ChineseRemainderTransformFTT<IntType,VecType>::GetInstance() {
-	if (m_onlyInstance == NULL) {
-		m_onlyInstance = new ChineseRemainderTransformFTT<IntType,VecType>();
-	}
-
-	return *m_onlyInstance;
-}
+//template<typename IntType, typename VecType>
+//ChineseRemainderTransformFTT<IntType,VecType>& ChineseRemainderTransformFTT<IntType,VecType>::GetInstance() {
+//	if (m_onlyInstance == NULL) {
+//		m_onlyInstance = new ChineseRemainderTransformFTT<IntType,VecType>();
+//	}
+//
+//	return *m_onlyInstance;
+//}
 
 
 //main CRT Transform - uses iterative FFT as a subroutine

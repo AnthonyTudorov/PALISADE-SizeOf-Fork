@@ -204,7 +204,13 @@ public:
 	 *
 	 * @return is this object.	  	  
 	 */
-	static ChineseRemainderTransformFTT& GetInstance();
+	static ChineseRemainderTransformFTT& GetInstance() {
+		if (m_onlyInstance == NULL) {
+			m_onlyInstance = new ChineseRemainderTransformFTT<IntType,VecType>();
+		}
+
+		return *m_onlyInstance;
+	}
 
 	/**
 	 * Virtual forward transform.

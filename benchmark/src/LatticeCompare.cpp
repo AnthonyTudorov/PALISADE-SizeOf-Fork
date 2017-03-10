@@ -131,34 +131,33 @@ BENCHMARK_TEMPLATE(BM_add_LATTICE,nativeInt)->Apply(CustomArguments);
 BENCHMARK_TEMPLATE(BM_add_LATTICE,smallInt32_64)->Apply(CustomArguments);
 BENCHMARK_TEMPLATE(BM_add_LATTICE,smallInt32_128)->Apply(CustomArguments);
 
-#ifdef OUT
-template <class E>
-static void mult_LATTICE(benchmark::State& state, shared_ptr<ILParams>& params) {	// function
+template <class IntType>
+static void mult_LATTICE(benchmark::State& state) {	// function
 	state.PauseTiming();
-	E			a = makeElement<E>(state, params);
-	E			b = makeElement<E>(state, params);
+	loadprimes();
+	ILVectorImpl<IntType,cpu_int::BigBinaryVector<IntType>,ILParamsImpl<IntType>>			a = makeElement<IntType>(state);
+	ILVectorImpl<IntType,cpu_int::BigBinaryVector<IntType>,ILParamsImpl<IntType>>			b = makeElement<IntType>(state);
 	state.ResumeTiming();
 
-	E c1 = a*b;
+	ILVectorImpl<IntType,cpu_int::BigBinaryVector<IntType>,ILParamsImpl<IntType>> c1 = a*b;
 }
 
 template <class E>
 static void BM_mult_LATTICE(benchmark::State& state) { // benchmark
-	if( state.thread_index == 0 ) {
-		;
-	}
-
 	while (state.KeepRunning()) {
-		mult_LATTICE<E>(state, parmArray[state.range(0)]);
+		mult_LATTICE<E>(state);
 	}
 }
 
-DO_PARM_BENCHMARK_TEMPLATE(BM_mult_LATTICE,ILVector2n)
+BENCHMARK_TEMPLATE(BM_mult_LATTICE,nativeInt)->Apply(CustomArguments);
+BENCHMARK_TEMPLATE(BM_mult_LATTICE,smallInt32_64)->Apply(CustomArguments);
+BENCHMARK_TEMPLATE(BM_mult_LATTICE,smallInt32_128)->Apply(CustomArguments);
 
-template <class E>
-static void switchformat_LATTICE(benchmark::State& state, shared_ptr<ILParams>& params) {
+template <class IntType>
+static void switchformat_LATTICE(benchmark::State& state) {
 	state.PauseTiming();
-	E			a = makeElement<E>(state, params);
+	loadprimes();
+	ILVectorImpl<IntType,cpu_int::BigBinaryVector<IntType>,ILParamsImpl<IntType>>			a = makeElement<IntType>(state);
 	state.ResumeTiming();
 
 	a.SwitchFormat();
@@ -166,17 +165,14 @@ static void switchformat_LATTICE(benchmark::State& state, shared_ptr<ILParams>& 
 
 template <class E>
 static void BM_switchformat_LATTICE(benchmark::State& state) { // benchmark
-	if( state.thread_index == 0 ) {
-		;
-	}
-
 	while (state.KeepRunning()) {
-		switchformat_LATTICE<E>(state, parmArray[state.range(0)]);
+		switchformat_LATTICE<E>(state);
 	}
 }
 
-DO_PARM_BENCHMARK_TEMPLATE(BM_switchformat_LATTICE,ILVector2n)
-#endif
+BENCHMARK_TEMPLATE(BM_switchformat_LATTICE,nativeInt)->Apply(CustomArguments);
+BENCHMARK_TEMPLATE(BM_switchformat_LATTICE,smallInt32_64)->Apply(CustomArguments);
+BENCHMARK_TEMPLATE(BM_switchformat_LATTICE,smallInt32_128)->Apply(CustomArguments);
 
 //execute the benchmarks
 BENCHMARK_MAIN()
