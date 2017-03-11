@@ -29,7 +29,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <iostream>
 #include <functional>
-#include <math.h>
+#include <cmath>
 #include <stdexcept>
 #include <omp.h>
 //using std::function;

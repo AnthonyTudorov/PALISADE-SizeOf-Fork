@@ -33,6 +33,9 @@ namespace lbcrypto {
 template class ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>;
 template class ChineseRemainderTransformFTT<native64::BigBinaryInteger,native64::BigBinaryVector>;
 
+template class NumberTheoreticTransform<BigBinaryInteger,BigBinaryVector>;
+template class NumberTheoreticTransform<native64::BigBinaryInteger,native64::BigBinaryVector>;
+
 //static Initializations
 template<typename IntType, typename VecType>
 NumberTheoreticTransform<IntType,VecType>* NumberTheoreticTransform<IntType,VecType>::m_onlyInstance = 0;
@@ -54,6 +57,9 @@ std::map<IntType, VecType> ChineseRemainderTransformFTT<IntType,VecType>::m_root
 
 template<typename IntType, typename VecType>
 std::map<IntType, VecType> ChineseRemainderTransformFTT<IntType,VecType>::m_rootOfUnityInverseTableByModulus;
+
+DiscreteFourierTransform* DiscreteFourierTransform::m_onlyInstance = 0;
+std::complex<double>* DiscreteFourierTransform::rootOfUnityTable = 0;
 
 template<typename IntType, typename VecType>
 NumberTheoreticTransform<IntType,VecType>& NumberTheoreticTransform<IntType,VecType>::GetInstance() {

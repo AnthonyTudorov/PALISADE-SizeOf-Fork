@@ -35,7 +35,7 @@
 
 #define _USE_MATH_DEFINES // added for Visual Studio support
 
-#include <math.h>
+#include <cmath>
 #include <random>
 #include <memory>
 

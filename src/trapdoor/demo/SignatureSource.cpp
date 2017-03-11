@@ -54,7 +54,7 @@ void MultiThreadedRun() {
 	std::cout << "m: " << sm << " q: " << smodulus << " rootOfUnity: " << srootOfUnity << std::endl;
 	std::cout << "Signature precomputations" << std::endl;
 	start = currentDateTime();
-	ChineseRemainderTransformFTT::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
+	ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
 	DiscreteFourierTransform::GetInstance().PreComputeTable(sm);
 	ILVector2n::PreComputeDggSamples(dgg, silParams);
 	finish = currentDateTime();
@@ -131,8 +131,8 @@ void MultiThreadedRun() {
 	std::cout << "Verification counter : " << "\t" << verifyCounter << "\n" << std::endl;
 
 	std::cout << "Execution completed" << std::endl;
-	ChineseRemainderTransformFTT::GetInstance().Destroy();
-	NumberTheoreticTransform::GetInstance().Destroy();
+	ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().Destroy();
+	NumberTheoreticTransform<BigBinaryInteger,BigBinaryVector>::GetInstance().Destroy();
 	DiscreteFourierTransform::GetInstance().Destroy();
 
 }
@@ -151,7 +151,7 @@ void SingleThreadedRun() {
 		std::cout << "m: " << sm << " q: " << smodulus << " rootOfUnity: " << srootOfUnity << std::endl;
 		finish = currentDateTime();
 		std::cout << "Signature precomputations" << std::endl;
-		ChineseRemainderTransformFTT::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
+		ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
 		DiscreteFourierTransform::GetInstance().PreComputeTable(sm);
 		ILVector2n::PreComputeDggSamples(dgg, silParams);
 		std::cout << "Precomputation time: " << finish - start << " ms" << std::endl;
@@ -219,7 +219,7 @@ void SingleThreadedRun() {
 		std::cout << "m: " << sm << " q: " << smodulus << " rootOfUnity: " << srootOfUnity << std::endl;
 		std::cout << "Signature precomputations" << std::endl;
 		start = currentDateTime();
-		ChineseRemainderTransformFTT::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
+		ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
 		ILVector2n::PreComputeDggSamples(dgg, silParams);
 		finish = currentDateTime();
 		std::cout << "Precomputation time: " << finish - start << " ms" << std::endl;
@@ -273,7 +273,7 @@ void SingleThreadedRun() {
 		std::cout << "m: " << sm << " q: " << smodulus << " rootOfUnity: " << srootOfUnity << std::endl;
 		std::cout << "Signature precomputations" << std::endl;
 		start = currentDateTime();
-		ChineseRemainderTransformFTT::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
+		ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
 		DiscreteFourierTransform::GetInstance().PreComputeTable(sm);
 		ILVector2n::PreComputeDggSamples(dgg, silParams);
 		finish = currentDateTime();
@@ -347,7 +347,7 @@ void SingleThreadedRun() {
 		std::cout << "m: " << sm << " q: " << smodulus << " rootOfUnity: " << srootOfUnity << std::endl;
 		std::cout << "Signature precomputations" << std::endl;
 		start = currentDateTime();
-		ChineseRemainderTransformFTT::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
+		ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
 		ILVector2n::PreComputeDggSamples(dgg, silParams);
 		DiscreteFourierTransform::GetInstance().PreComputeTable(sm);
 		finish = currentDateTime();
@@ -422,7 +422,7 @@ void SingleThreadedRun() {
 		std::cout << "m: " << sm << " q: " << smodulus << " rootOfUnity: " << srootOfUnity << std::endl;
 		std::cout << "Signature precomputations" << std::endl;
 		start = currentDateTime();
-		ChineseRemainderTransformFTT::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
+		ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
 		ILVector2n::PreComputeDggSamples(dgg, silParams);
 		DiscreteFourierTransform::GetInstance().PreComputeTable(sm);
 		finish = currentDateTime();
@@ -489,8 +489,8 @@ void SingleThreadedRun() {
 		std::cout << "Verification counter : " << "\t" << verifyCounter << "\n" << std::endl;
 
 		std::cout << "Execution completed" << std::endl;
-		ChineseRemainderTransformFTT::GetInstance().Destroy();
-		NumberTheoreticTransform::GetInstance().Destroy();
+		ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().Destroy();
+		NumberTheoreticTransform<BigBinaryInteger,BigBinaryVector>::GetInstance().Destroy();
 		DiscreteFourierTransform::GetInstance().Destroy();
 
 		//std::cin.ignore();

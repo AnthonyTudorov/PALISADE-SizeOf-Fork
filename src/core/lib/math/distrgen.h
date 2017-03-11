@@ -35,7 +35,7 @@
 #define LBCRYPTO_MATH_DISTRGEN_H_
 
 #define _USE_MATH_DEFINES 
-#include <math.h>
+#include <cmath>
 #include <random>
 #include <bitset>
 #include <string>

@@ -52,7 +52,7 @@ CPPFLAGS += -g -Wall -O3 $(CPPSTD) -w -fopenmp ##undefine for parallel best perf
 #CPPFLAGS += -Wall $(CPPSTD) -w  -m64 -Ofast -flto -march=native -funroll-loops -fopenmp ##undefine for multithread really best performance operation
 
 
-TEST_LIB := -pthread -lgomp -lmpfr -lgmp
+TEST_LIB := -pthread -lgomp -lquadmath #-lmpfr -lgmp
 
 
 #build directory
@@ -73,7 +73,7 @@ HDREXT := h
 $(objects) : %.o : %.cpp
 
 
-EXTLIB := -L$(EXTLIBDIR) -lpthread -lgomp -lmpfr -lgmp -pg #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt -lgmp ## include profiling
+EXTLIB := -L$(EXTLIBDIR) $(TEST_LIB) -pg #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt ## include profiling
 INC := -I src/core/lib -I src/pke/lib -I src/trapdoor/lib -I test $(OMPINCLUDE) $(BOOSTINCLUDE)
 
 

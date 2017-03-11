@@ -473,7 +473,7 @@ namespace lbcrypto {
 		// k is the bit length
 //		size_t k = Tprime0.GetCols();
 
-		const shared_ptr<ElemParams> params = Tprime0(0, 0).GetParams();
+		const auto params = Tprime0(0, 0).GetParams();
 
 		auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
 

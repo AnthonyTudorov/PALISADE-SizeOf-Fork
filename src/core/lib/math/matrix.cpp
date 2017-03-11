@@ -504,7 +504,7 @@ Matrix<LargeFloat> Cholesky(const Matrix<int32_t> &input) {
     }
 
     for (size_t k = 0; k < rows; ++k) {
-        result(k, k) = sqrt(result(k, k));
+        result(k, k) = sqrtq(result(k, k));
         //result(k, k) = sqrt(input(k, k));
         for (size_t i = k+1; i < rows; ++i) {
             //result(i, k) = input(i, k) / result(k, k);
@@ -536,7 +536,7 @@ void Cholesky(const Matrix<int32_t> &input, Matrix<LargeFloat> &result) {
 	}
 
 	for (size_t k = 0; k < rows; ++k) {
-		result(k, k) = sqrt(result(k, k));
+		result(k, k) = sqrtq(result(k, k));
 		//result(k, k) = sqrt(input(k, k));
 		for (size_t i = k + 1; i < rows; ++i) {
 			//result(i, k) = input(i, k) / result(k, k);

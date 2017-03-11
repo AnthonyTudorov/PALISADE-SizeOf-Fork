@@ -189,6 +189,17 @@ struct DoubleDataType<uint32_t>{
 	typedef uint64_t T;
 };
 
+#if !defined(_MSC_VER)
+/**
+* @brief Struct to determine a datatype that is twice as big(bitwise) as utype.
+* sets T as of type unsigned integer 128 bit if integral datatype is 64bit
+*/
+template<>
+struct DoubleDataType<uint64_t>{
+	typedef __uint128_t T;
+};
+#endif
+
 
 const double LOG2_10 = 3.32192809;	//!< @brief A pre-computed constant of Log base 2 of 10.
 const usint BARRETT_LEVELS = 8;		//!< @brief The number of levels (precomputed values) used in the Barrett reductions.
@@ -246,16 +257,16 @@ public:
 		return *this;
 	}
 
-	/**
-	 * Assignment operator
-	 *
-	 * @param &rhs is the big binary integer to be assigned from.
-	 * @return assigned BigBinaryIntegr ref.
-	 */
-	const NativeInteger&  operator=(const NativeInteger &&rhs) {
-		this->m_value = rhs.m_value;
-		return *this;
-	}
+//	/**
+//	 * Assignment operator
+//	 *
+//	 * @param &rhs is the big binary integer to be assigned from.
+//	 * @return assigned BigBinaryIntegr ref.
+//	 */
+//	const NativeInteger&  operator=(const NativeInteger &&rhs) {
+//		this->m_value = rhs.m_value;
+//		return *this;
+//	}
 
 	/**
 	 * Assignment operator from unsigned integer
@@ -350,7 +361,7 @@ public:
 	 *
 	 * @return the int representation of the value as usint.
 	 */
-	usint ConvertToInt() const {
+	uint64_t ConvertToInt() const {
 		return m_value;
 	}
 
@@ -466,6 +477,38 @@ public:
 	 */
 	NativeInteger ModBarrett(const NativeInteger& modulus, const NativeInteger& mu) const {
 		return this->m_value%modulus.m_value;
+	}
+
+	/**
+	* returns the modulus with respect to the input value - In place version.
+	* Implements generalized Barrett modular reduction algorithm. Uses one precomputed value of mu.
+	* See the cpp file for details of the implementation.
+	*
+	* @param modulus is the modulus to perform.
+	* @param mu is the Barrett value.
+	* @return is the result of the modulus operation.
+	*/
+	void ModBarrettInPlace(const NativeInteger& modulus, const NativeInteger& mu) {
+		if (*this<modulus) {
+			return;
+		}
+
+		NativeInteger q(*this);
+
+		usint n = modulus.GetMSB();
+		usint alpha = n + 3;
+		sint beta = -2;
+
+		q >>= n + beta;
+		q = q*mu;
+		q >>= alpha - beta;
+		*this -= q*modulus;
+
+		if (!(*this<modulus))
+			*this -= modulus;
+
+		return;
+
 	}
 
 	/**
@@ -672,6 +715,39 @@ public:
 	NativeInteger ModBarrettMul(const NativeInteger& b, const NativeInteger& modulus,const NativeInteger& mu) const {
 		return this->ModMul(b,modulus);
 	}
+
+	/**
+	* Scalar modular multiplication where Barrett modular reduction is used - In-place version
+	* Implements generalized Barrett modular reduction algorithm (no interleaving between multiplication and modulo).
+	* Uses one precomputed value \mu.
+	* See the cpp file for details of the implementation.
+	*
+	* @param b is the scalar to multiply.
+	* @param modulus is the modulus to perform operations with.
+	* @param mu is the precomputed Barrett value.
+	* @return is the result of the modulus multiplication operation.
+	*/
+	void ModBarrettMulInPlace(const NativeInteger& b, const NativeInteger& modulus, const NativeInteger& mu) {
+
+		NativeInteger* bb = const_cast<NativeInteger*>(&b);
+
+		//if a is greater than q reduce a to its mod value
+		if (*this>modulus)
+			this->ModBarrettInPlace(modulus, mu);
+
+
+		//if b is greater than q reduce b to its mod value
+		if (b>modulus)
+			*bb = b.ModBarrett(modulus, mu);
+
+		*this = *this**bb;
+
+		this->ModBarrettInPlace(modulus, mu);
+
+		return;
+
+	}
+
 
 	/**
 	 * Scalar modular multiplication where Barrett modular reduction is used.
@@ -1068,10 +1144,10 @@ private:
 		//mask to perform bitwise AND
 		static uint_type mask = m_uintBitLength-1;
 
-		if(Number == 0 )
-			return 1;
 		if((Number&mask)!=0)
 			return (Number>>m_logUintBitLength)+1;
+		else if(!Number)
+			return 1;
 		else
 			return Number>>m_logUintBitLength;
 	}
@@ -1112,6 +1188,13 @@ private:
 	 * @return the NativeInteger after the multiplication.
 	 */
 	NativeInteger MulIntegerByChar(uint_type b) const;
+
+	/**
+	* function that returns the NativeInteger after multiplication by b.
+	* @param b is the number to be multiplied.
+	* @return the NativeInteger after the multiplication.
+	*/
+	void MulIntegerByCharInPlace(uint_type b, NativeInteger *ans);
 
 	/**
 	 * function that returns the decimal value from the binary array a.

@@ -229,7 +229,7 @@ namespace lbcrypto {
 	}
 
 	template<typename IntType, typename VecType>
-	int32_t DiscreteGaussianGeneratorImpl<IntType,VecType>::GenerateInteger(double mean, double stddev, size_t n) const {
+	int32_t DiscreteGaussianGeneratorImpl<IntType,VecType>::GenerateInteger(double mean, double stddev, size_t n) {
 
 		double t = 0.5*log2(2*n)*stddev;  //this representation of log_2 is used for Visual Studio
 

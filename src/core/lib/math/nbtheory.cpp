@@ -46,7 +46,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 
 #define _USE_MATH_DEFINES 
-#include <math.h>
+#include <cmath>
 #include <time.h>
 #include <sstream>
 
