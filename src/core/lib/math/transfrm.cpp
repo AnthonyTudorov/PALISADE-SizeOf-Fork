@@ -30,6 +30,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 namespace lbcrypto {
 
+template class ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>;
+
+template class NumberTheoreticTransform<BigBinaryInteger,BigBinaryVector>;
+
 //static Initializations
 template<typename IntType, typename VecType>
 NumberTheoreticTransform<IntType,VecType>* NumberTheoreticTransform<IntType,VecType>::m_onlyInstance = 0;
