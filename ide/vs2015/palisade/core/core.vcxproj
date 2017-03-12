@@ -187,6 +187,7 @@
     <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\hashutil.cpp" />
     <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\serializablehelper.cpp" />
     <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\utilities.cpp" />
+    <ClCompile Include="..\..\..\..\src\core\lib\lattice\lattice-impl.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\math\matrixser.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\math\matrixstrassen.cpp" />
   </ItemGroup>
@@ -261,6 +262,7 @@
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\serializablehelper.h" />
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\utilities.h" />
     <ClInclude Include="..\..\..\..\src\core\lib\math\matrixstrassen.h" />
+    <ClInclude Include="..\..\..\..\src\core\lib\math\native64\binint.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
