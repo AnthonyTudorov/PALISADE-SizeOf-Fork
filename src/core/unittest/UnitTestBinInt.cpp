@@ -1034,3 +1034,31 @@ TEST(UTBinInt,method_ConvertToDouble) {
 
   EXPECT_EQ(xInDouble, x.ConvertToDouble());
 }
+
+TEST(UTBinInt,method_getDigitAtIndex) {
+	BigBinaryInteger x(0x1F);
+
+	std::cout << x << ":" << std::endl;
+	for( int i=1; i<6; i++ )
+		std::cout << i << " " << x.GetDigitAtIndexForBase(i,2) << std::endl;
+
+	x = 0;
+	std::cout << x << ":" << std::endl;
+	for( int i=1; i<6; i++ )
+		std::cout << i << " " << x.GetDigitAtIndexForBase(i,2) << std::endl;
+
+	x = 0x15;
+	std::cout << x << ":" << std::endl;
+	for( int i=1; i<6; i++ )
+		std::cout << i << " " << x.GetDigitAtIndexForBase(i,2) << std::endl;
+
+	x = 0xa;
+	std::cout << x << ":" << std::endl;
+	for( int i=1; i<6; i++ )
+		std::cout << i << " " << x.GetDigitAtIndexForBase(i,2) << std::endl;
+
+	EXPECT_EQ(x.GetDigitAtIndexForBase(1,2), 0);
+	EXPECT_EQ(x.GetDigitAtIndexForBase(2,2), 1);
+	EXPECT_EQ(x.GetDigitAtIndexForBase(3,2), 0);
+	EXPECT_EQ(x.GetDigitAtIndexForBase(4,2), 1);
+}
