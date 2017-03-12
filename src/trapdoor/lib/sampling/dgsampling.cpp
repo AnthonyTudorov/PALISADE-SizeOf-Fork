@@ -254,19 +254,12 @@ namespace lbcrypto {
 			h[i] = sqrt(base*(1 - 1 / (k - (i - 1))));
 
 		// c can be pre-computed as it only depends on the modulus
-		//std::cout << ":::::" << modulus << "," << base << 
-		//	"," << modulus.GetDigitAtIndexForBase(1, base) << std::endl;
 		c(0, 0) = modulus.GetDigitAtIndexForBase(1, base) / base;
 
 		for (size_t i = 1; i < k; i++)
 		{
 			c(i, 0) = (c(i - 1, 0) + modulus.GetDigitAtIndexForBase(i + 1, base)) / base;
-			//std::cout << ":::::" << modulus << "," << base <<
-			//	"," << modulus.GetDigitAtIndexForBase(i+1, base) << std::endl;
 		}
-
-		//std::cout << modulus << ":" << k << ":" << base << std::endl;
-		//std::cout << "c=" << c << std::endl;
 
 		for (size_t j = 0; j < u.GetLength(); j++)
 		{
@@ -283,7 +276,6 @@ namespace lbcrypto {
 			for (size_t i = 1; i < k; i++)
 				a(i, 0) = (a(i - 1, 0) + (int32_t)(v.GetDigitAtIndexForBase(i + 1, base)) - p[i]) / base;
 
-			//std::cout << "a=" << a << std::endl;
 			vector<int32_t> zj(k);
 
 			LatticeGaussSampUtility::SampleC(c, k, u.GetLength(), sigma, dgg, &a, &zj);
@@ -329,7 +321,6 @@ namespace lbcrypto {
 	void LatticeGaussSampUtility::SampleC(const Matrix<double> &c, size_t k, size_t n,
 		double sigma, DiscreteGaussianGenerator &dgg, Matrix<double> *a, vector<int32_t> *z)
 	{
-//std::cout << "SampleC(" << k << "," << n << "," << sigma << ") " << (*a)(k-1,0) << "," << c(k-1,0) << std::endl;
 		(*z)[k - 1] = dgg.GenerateInteger(-(*a)(k - 1, 0) / c(k - 1, 0), sigma / c(k - 1, 0), n);
 		*a = *a - ((double)((*z)[k - 1]))*c;
 

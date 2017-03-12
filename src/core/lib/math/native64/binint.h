@@ -995,12 +995,11 @@ public:
 	 * @return resulting bit.
 	 */
 	uschar GetBitAtIndex(usint index) const {
-		if(index<=0){
-			std::cout<<"Invalid index \n";
-			return 0;
+		if(index==0) {
+			throw std::logic_error("Zero index in GetBitAtIndex");
 		}
 
-		return (m_value & (1<<(index-1)) == 1 << (index-1));
+		return (m_value >> (index-1)) & 0x01;
 	}
 
 
