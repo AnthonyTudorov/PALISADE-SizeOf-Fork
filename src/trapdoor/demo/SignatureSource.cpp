@@ -13,7 +13,7 @@ void SingleThreadedRun();
 void MultiThreadedRun();
 
 int main() {
-	SingleThreadedRun();
+	//SingleThreadedRun();
 	MultiThreadedRun();
 	return 0;
 }
