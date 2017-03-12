@@ -31,10 +31,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 namespace lbcrypto {
 
 template class ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>;
-template class ChineseRemainderTransformFTT<native64::BigBinaryInteger,native64::BigBinaryVector>;
+//template class ChineseRemainderTransformFTT<native64::BigBinaryInteger,native64::BigBinaryVector>;
 
 template class NumberTheoreticTransform<BigBinaryInteger,BigBinaryVector>;
-template class NumberTheoreticTransform<native64::BigBinaryInteger,native64::BigBinaryVector>;
+//template class NumberTheoreticTransform<native64::BigBinaryInteger,native64::BigBinaryVector>;
 
 //static Initializations
 template<typename IntType, typename VecType>

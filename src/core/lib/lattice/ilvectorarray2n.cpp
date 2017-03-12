@@ -31,7 +31,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <fstream>
 #include <memory>
 using std::shared_ptr;
+using std::string;
 #include "../utils/serializablehelper.h"
+#include "../utils/debug.h"
 
 namespace lbcrypto {
 

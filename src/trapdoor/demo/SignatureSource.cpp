@@ -12,7 +12,7 @@ void SingleThreadedRun();
 void MultiThreadedRun();
 
 int main() {
-	//SingleThreadedRun();
+	SingleThreadedRun();
 	MultiThreadedRun();
 	return 0;
 }
@@ -39,7 +39,7 @@ void MultiThreadedRun() {
 
 	size_t counter = 50;
 	double start, finish;
-	DiscreteGaussianGenerator dgg(SIGMA);
+	DiscreteGaussianGeneratorImpl<BigBinaryInteger,BigBinaryVector> dgg(SIGMA);
 
 	usint sm = 2048;
 	BigBinaryInteger smodulus("67127297");

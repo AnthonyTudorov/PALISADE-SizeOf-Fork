@@ -50,11 +50,13 @@
 // 3- new dynamicly allocated backend and support uint32_t and uint64_t on linux
 // 4- new dynamicly allocated backend and supports  uint64_t on linux
 
+// 7- BBI is based on native
+
 //Please UNCOMMENT the approproate line rather than changing the number on the 
 //uncommented line (and breaking the documentation of the line)
 
 //#define MATHBACKEND 2 //side by side comparison of old and new libraries
-#define MATHBACKEND 2 //32 bit should work with all OS
+//#define MATHBACKEND 2 //32 bit should work with all OS
 
 //NOTE currently MATHBACKEND 4 has issues with the following unit tests
 //stemming from poor run time performance of 128 bit intrinsic divide
@@ -63,6 +65,8 @@
 //UTSHEAdvanced.test_eval_add_double_crt takes extremely long (86 sec)
 
 //#define MATHBACKEND 4 //64 bit (currently works for ubuntu, not tested otherwise
+
+#define MATHBACKEND 7	// jerry's native
 
 #if MATHBACKEND == 1
 #include "cpu8bit/binint8bit.h"
@@ -100,6 +104,19 @@
 
 #endif
 
+#if MATHBACKEND == 7
+
+#include "cpu_int/binint.cpp"
+#include "cpu_int/binvect.cpp"
+#include <initializer_list>
+
+#define UBINT_32
+#include "exp_int/ubint.cpp" //experimental dbc unsigned big integers or ubints
+#include "exp_int/ubintvec.cpp" //vectors of experimental ubints
+#include "exp_int/mubintvec.cpp" //rings of ubints
+
+#endif
+
 #include "native64/binint.h"
 
 namespace native64 {
@@ -113,8 +130,10 @@ typedef cpu_int::BigBinaryVector<NativeInteger<uint64_t>> BigBinaryVector;
  */
 namespace lbcrypto {
 
-#if MATHBACKEND == 1
+template<typename IntType> class ILParamsImpl;
+template<typename IntType, typename VecType, typename ParmType> class ILVectorImpl;
 
+#if MATHBACKEND == 1
 
 	/** Define the mapping for BigBinaryInteger */
 	typedef cpu8bit::BigBinaryInteger BigBinaryInteger;
@@ -122,6 +141,7 @@ namespace lbcrypto {
 	typedef cpu8bit::BigBinaryVector BigBinaryVector;
 	/** Define the mapping for BigBinaryMatrix */
 	//typedef cpu8bit::BigBinaryMatrix BigBinaryMatrix;
+
 #endif
 
 #if MATHBACKEND == 2
@@ -155,7 +175,6 @@ namespace lbcrypto {
 
 	/** Define the mapping for modulo Big Integer Vector */
 	typedef exp_int::mubintvec<ubint> mubintvec;
-
 
 #endif
 
@@ -210,8 +229,31 @@ namespace lbcrypto {
 	/** Define the mapping for modulo Big Integer Vector */
 	typedef exp_int::mubintvec<ubint> mubintvec;
 
+#endif
+
+#if MATHBACKEND == 7
+
+	typedef uint32_t integral_dtype;
+	typedef uint32_t integral_dtype2;
+
+	#define BigBinaryIntegerBitLength 0 // zero indicates unused
+
+	typedef native64::NativeInteger<uint64_t> BigBinaryInteger;
+	typedef cpu_int::BigBinaryVector<BigBinaryInteger> BigBinaryVector;
+
+	/** Define the mapping for ExpBigBinaryInteger (experimental) */
+	typedef exp_int::ubint<integral_dtype> ubint;
+
+	/** Define the mapping for Big Integer Vector */
+	typedef exp_int::ubintvec<ubint> ubintvec;
+
+	/** Define the mapping for modulo Big Integer Vector */
+	typedef exp_int::mubintvec<ubint> mubintvec;
 
 #endif
+
+	typedef ILParamsImpl<BigBinaryInteger> ILParams;
+	typedef ILVectorImpl<BigBinaryInteger, BigBinaryVector, ILParams> ILVector2n;
 
 
 } // namespace lbcrypto ends

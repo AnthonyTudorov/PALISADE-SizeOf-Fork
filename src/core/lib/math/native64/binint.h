@@ -489,26 +489,8 @@ public:
 	* @return is the result of the modulus operation.
 	*/
 	void ModBarrettInPlace(const NativeInteger& modulus, const NativeInteger& mu) {
-		if (*this<modulus) {
-			return;
-		}
-
-		NativeInteger q(*this);
-
-		usint n = modulus.GetMSB();
-		usint alpha = n + 3;
-		sint beta = -2;
-
-		q >>= n + beta;
-		q = q*mu;
-		q >>= alpha - beta;
-		*this -= q*modulus;
-
-		if (!(*this<modulus))
-			*this -= modulus;
-
+		this->m_value %= modulus.m_value;
 		return;
-
 	}
 
 	/**
@@ -728,26 +710,9 @@ public:
 	* @return is the result of the modulus multiplication operation.
 	*/
 	void ModBarrettMulInPlace(const NativeInteger& b, const NativeInteger& modulus, const NativeInteger& mu) {
-
-		NativeInteger* bb = const_cast<NativeInteger*>(&b);
-
-		//if a is greater than q reduce a to its mod value
-		if (*this>modulus)
-			this->ModBarrettInPlace(modulus, mu);
-
-
-		//if b is greater than q reduce b to its mod value
-		if (b>modulus)
-			*bb = b.ModBarrett(modulus, mu);
-
-		*this = *this**bb;
-
-		this->ModBarrettInPlace(modulus, mu);
-
+		*this = this->ModMul(b,modulus);
 		return;
-
 	}
-
 
 	/**
 	 * Scalar modular multiplication where Barrett modular reduction is used.
@@ -1100,7 +1065,7 @@ public:
 	/**
 	 * A zero allocator that is called by the Matrix class. It is used to initialize a Matrix of NativeInteger objects.
 	 */
-	static std::function<unique_ptr<NativeInteger>()> Allocator;
+	static std::function<unique_ptr<NativeInteger<uint_type>>()> Allocator;
 
 protected:
 

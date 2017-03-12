@@ -45,12 +45,6 @@
  */
 namespace lbcrypto {
 
-template<typename IntType>
-class ILParamsImpl;
-
-typedef ILParamsImpl<BigBinaryInteger> ILParams;
-typedef ILParamsImpl<native64::BigBinaryInteger> ILNativeParams;
-
 /**
  * @brief Parameters for ideal lattice: cyclotomic order and modulus.
  */

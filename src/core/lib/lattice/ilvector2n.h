@@ -55,9 +55,6 @@ namespace lbcrypto {
 
 template<typename IntType, typename VecType, typename ParmType> class ILVectorImpl;
 
-typedef ILVectorImpl<BigBinaryInteger, BigBinaryVector, ILParams> ILVector2n;
-typedef ILVectorImpl<native64::BigBinaryInteger, native64::BigBinaryVector, ILNativeParams> ILVectorNative2n;
-
 const usint SAMPLE_SIZE = 30; //!< @brief The maximum number of samples used for random variable sampling.
 
 /**

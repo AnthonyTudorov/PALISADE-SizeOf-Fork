@@ -8,6 +8,8 @@
 #include <boost/multiprecision/cpp_int.hpp>
 #include <boost/multiprecision/cpp_dec_float.hpp>
 
+#include <execinfo.h>
+
 namespace lbcrypto {
 
 	template<typename IntType, typename VecType>
@@ -242,6 +244,9 @@ namespace lbcrypto {
 
 		bool flagSuccess = false;
 		int32_t x;
+
+//std::cout << t << "::" << mean << ":" << stddev << ":" << n << "::::" << sigmaFactor << std::endl;
+//std::cout << uniform_int(GetPRNG()) << std::endl;
 
 		while (!flagSuccess) {
 			//  pick random int
