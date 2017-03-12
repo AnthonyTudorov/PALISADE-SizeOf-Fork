@@ -805,6 +805,7 @@ public:
 			usint newIndex = index;
 			for (usint i = 1; i < base; i = i*2)
 			{
+				//std::cout << m_value << ", " << newIndex  << ", " << " " << (uint8_t)GetBitAtIndex(newIndex) << std::endl;
 				digit += GetBitAtIndex(newIndex)*i;
 				newIndex++;
 			}
@@ -999,7 +1000,7 @@ public:
 			return 0;
 		}
 
-		return m_value & (1<<index);
+		return (m_value & (1<<(index-1)) == 1 << (index-1));
 	}
 
 
