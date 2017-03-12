@@ -107,6 +107,8 @@ namespace lbcrypto {
 			h[i] = sqrt(base*(1 - 1 / (k - (i - 1))));
 
 		// c can be pre-computed as it only depends on the modulus
+		std::cout << ":::::" << modulus << "," << base << 
+			"," << modulus.GetDigitAtIndexForBase(1, base) << std::endl;
 		c(0, 0) = modulus.GetDigitAtIndexForBase(1, base) / base;
 
 		for (size_t i = 1; i < k; i++)
@@ -132,6 +134,7 @@ namespace lbcrypto {
 			for (size_t i = 1; i < k; i++)
 				a(i, 0) = (a(i - 1, 0) + (int32_t)(v.GetDigitAtIndexForBase(i + 1, base)) - p[i]) / base;
 
+			std::cout << "a=" << a << std::endl;
 			vector<int32_t> zj(k);
 
 			LatticeGaussSampUtility::SampleC(c, k, u.GetLength(), sigma, dgg, &a, &zj);
