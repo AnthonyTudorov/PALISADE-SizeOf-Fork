@@ -639,10 +639,39 @@ std::vector<std::complex<double>> DiscreteFourierTransform::InverseTransform(std
 		}
 	}
 
+	
+	static std::vector<std::complex<double>>
+	ZZ /*DiscreteFourierTransform::FFTForwardTransformAlt*/(std::vector<std::complex<double>> & A, usint size) {
+	}
+
 	std::vector<std::complex<double>> DiscreteFourierTransform::FFTForwardTransformAlt(std::vector<std::complex<double>> & A) {
 		int m = A.size();
 		int step = size / m;
 		std::vector<std::complex<double>> P(m, 0);
+
+#ifdef OUT
+		for( int siz = m; siz > 0; siz /= 2 ) {
+		}
+		return P;
+
+		if( m == 4 ) {
+			std::complex<double> x;
+			x = rootOfUnityTable[0] * A[2];
+			P[0] = A[0] + x;
+			P[1] = A[0] - x;
+			x = rootOfUnityTable[0] * A[3];
+			P[2] = A[1] + x;
+			P[3] = A[1] - x;
+
+			x = rootOfUnityTable[step] * P[2];
+			P[0] = P[0] + x;
+			P[2] = P[0] - x;
+			x = rootOfUnityTable[step] * P[3];
+			P[1] = P[1] + x;
+			P[3] = A[1] - x;
+			return P;
+		}
+#endif
 
 		// for the very bottom of the recursion, handle vector of size 2
 		// without the extra allocates
