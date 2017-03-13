@@ -269,45 +269,6 @@ namespace NTL {
     return result.str();
   }	
 
-  // friend or inherit this? it is the same as gmpint
-  usint myZZ_p::GetDigitAtIndexForBase(usint index, usint base) const{
-
-    usint digit = 0;
-    usint newIndex = index; 
-    for (usint i = 1; i < base; i = i*2)
-      {
-	digit += GetBitAtIndex(newIndex)*i;
-	newIndex++;
-      }
-    return digit;
-
-  }
-  // friend or inherit this? it is the same as gmpint  
-  // returns the bit at the index into the binary format of the big integer, 
-  // note that msb is 1 like all other indicies. 
-  //TODO: this code could be massively simplified
-  uschar myZZ_p::GetBitAtIndex(usint index) const{
-    if(index<=0){
-      std::cout<<"Invalid index \n";
-      return 0;
-    }
-    else if (index > m_MSB)
-      return 0;
-    ZZ_limb_t result;
-    const ZZ_limb_t *zlp = ZZ_limbs_get(this->_ZZ_p__rep); //get access to limb array
-    sint idx =ceilIntByUInt(index)-1;//idx is the index of the limb array
-    ZZ_limb_t temp = zlp[idx]; // point to correct limb
-    ZZ_limb_t bmask_counter = index%NTL_ZZ_NBITS==0? NTL_ZZ_NBITS:index%NTL_ZZ_NBITS;//bmask is the bit number in the limb
-    ZZ_limb_t bmask = 1;
-    for(sint i=1;i<bmask_counter;i++)
-      bmask<<=1;//generate the bitmask number
-    result = temp&bmask;//finds the bit in  bit format
-    result>>=bmask_counter-1;//shifting operation gives bit either 1 or 0
-    return (uschar)result;
-
-  }
-
-
 
   //optimized ceiling function after division by number of bits in the limb data type.
   usint myZZ_p::ceilIntByUInt( const ZZ_limb_t Number) const{

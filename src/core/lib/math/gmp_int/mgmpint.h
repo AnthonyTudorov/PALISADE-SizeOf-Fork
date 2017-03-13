@@ -392,8 +392,6 @@ namespace NTL{
 
     //TODO: is there a real need for these in higher level crypto operations?
 
-    usint GetDigitAtIndexForBase(usint index, usint base) const ;
-    uschar GetBitAtIndex(usint index) const;
     usint ceilIntByUInt( const ZZ_limb_t Number) const;
 
     //Serialization functions

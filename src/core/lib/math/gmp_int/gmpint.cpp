@@ -327,6 +327,12 @@ namespace NTL {
     ZZ_limb_t result;
     const ZZ_limb_t *zlp = ZZ_limbs_get(*this); //get access to limb array
     sint idx =ceilIntByUInt(index)-1;//idx is the index of the limb array
+
+    if (idx >= (this->size())){
+      //std::cout <<"myZZ::GetBitAtIndex Warning idx > length"<<std::endl;
+      return (uschar)0;
+    }
+
     ZZ_limb_t temp = zlp[idx]; // point to correct limb
     ZZ_limb_t bmask_counter = index%NTL_ZZ_NBITS==0? NTL_ZZ_NBITS:index%NTL_ZZ_NBITS;//bmask is the bit number in the limb
     ZZ_limb_t bmask = 1;

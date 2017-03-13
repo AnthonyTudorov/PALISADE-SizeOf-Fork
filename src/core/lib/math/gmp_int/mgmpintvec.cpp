@@ -791,7 +791,7 @@ namespace NTL {
   {
     myVecP ans(*this);
     for(usint i=0; i < this->size(); i++){
-      ans[i] = myT(ans[i].GetDigitAtIndexForBase(index,base));
+      ans[i] = myZZ_p(myZZ(ans[i]).GetDigitAtIndexForBase(index,base));
     }
 
     return ans;

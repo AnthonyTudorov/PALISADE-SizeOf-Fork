@@ -121,7 +121,7 @@ TEST(UTBVDCRT, ILVector2n_bv_Encrypt_Decrypt_DCRT) {
 
 
 TEST(UTBVDCRT, ILVector2n_bv_PRE_DCRT) {
-
+  bool dbg_flag = false;
 	usint m = 8;
 
 	usint numOfTower = 3;
@@ -135,7 +135,7 @@ TEST(UTBVDCRT, ILVector2n_bv_PRE_DCRT) {
 	BigBinaryInteger q("50000");
 	BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
-
+	DEBUG("1");
 	for (int j = 0; j < numOfTower; j++) {
 		lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
 		moduli[j] = q;
@@ -153,6 +153,7 @@ TEST(UTBVDCRT, ILVector2n_bv_PRE_DCRT) {
 	cryptoParams.SetRelinWindow(8);				// Set the relinearization window
 	cryptoParams.SetElementParams(params);			// Set the initialization parameters.
 
+	DEBUG("2");
 	//Precomputations for FTT
 	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootsOfUnity, m, moduli);
 
@@ -170,6 +171,7 @@ TEST(UTBVDCRT, ILVector2n_bv_PRE_DCRT) {
 	////////////////////////////////////////////////////////////
 	//Perform the key generation operation.
 	////////////////////////////////////////////////////////////
+	DEBUG("3");
 	LPKeyPair<ILVectorArray2n> kp = cc.KeyGen();
 
 	////////////////////////////////////////////////////////////
@@ -179,7 +181,7 @@ TEST(UTBVDCRT, ILVector2n_bv_PRE_DCRT) {
 		cc.Encrypt(kp.publicKey, intArray1,false);
 
 	//PRE SCHEME
-
+	DEBUG("4");
 	////////////////////////////////////////////////////////////
 	//Perform the second key generation operation.
 	// This generates the keys which should be able to decrypt the ciphertext after the re-encryption operation.
@@ -198,7 +200,7 @@ TEST(UTBVDCRT, ILVector2n_bv_PRE_DCRT) {
 	// This generates the keys which are used to perform the key switching.
 	////////////////////////////////////////////////////////////
 	
-	
+	DEBUG("5");	
 	////////////////////////////////////////////////////////////
 	//Perform the proxy re-encryption operation.
 	// This switches the keys which are used to perform the key switching.
@@ -210,7 +212,7 @@ TEST(UTBVDCRT, ILVector2n_bv_PRE_DCRT) {
 	////////////////////////////////////////////////////////////
 	//Decryption
 	////////////////////////////////////////////////////////////
-
+	DEBUG("6");
 	IntPlaintextEncoding intArrayNew;
 
 

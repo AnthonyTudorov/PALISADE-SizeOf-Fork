@@ -369,11 +369,23 @@ namespace lbcrypto {
   void ILVector2n::SetValues(const BigBinaryVector& values, Format format) 
   {
     bool dbg_flag = false;
-    if (m_params->GetRootOfUnity() == BigBinaryInteger::ZERO || m_params->GetCyclotomicOrder() / 2 != values.GetLength() || m_params->GetModulus() != values.GetModulus())
-      throw std::logic_error("Exisiting m_params do not match with the input parameter BigBinaryVector& values.\n");
+    if (m_params->GetRootOfUnity() == BigBinaryInteger::ZERO || m_params->GetCyclotomicOrder() / 2 != values.GetLength() || m_params->GetModulus() != values.GetModulus()) {
+      std::cout<<"ILVector2n::SetValues warning, mismatch in parameters"<<std::endl;
+      if (m_params->GetRootOfUnity() == BigBinaryInteger::ZERO){
+	std::cout<<"m_params->GetRootOfUnity "<<m_params->GetRootOfUnity()<<std::endl;}
+      if (m_params->GetCyclotomicOrder() / 2 != values.GetLength()){
+	std::cout<<"m_params->GetCyclotomicOrder/2 "<<m_params->GetCyclotomicOrder()/2<<std::endl;
+	std::cout<<"!= values.GetLength()"<< values.GetLength() <<std::endl;
+      }
+      if ( m_params->GetModulus() != values.GetModulus()) {
+	std::cout<<"m_params->GetModulus() "<<m_params->GetModulus()<<std::endl;
+	std::cout<<"values->GetModulus() "<<values.GetModulus()<<std::endl;
+      }
+      //throw std::logic_error("Exisiting m_params do not match with the input parameter BigBinaryVector& values.\n");
     // if (m_values != nullptr) { //dbc no need with smart pointers
     //   delete m_values;
     // }
+    }
     unique_ptr<BigBinaryVector> sp(new BigBinaryVector(values));
     m_values = std::move(sp);
     DEBUG("in SetValues m_values: "<< *m_values);
@@ -709,8 +721,11 @@ namespace lbcrypto {
   // baseBits is the number of bits in the base, i.e., base = 2^baseBits
 
   std::vector<ILVector2n> ILVector2n::BaseDecompose(usint baseBits) const {
-		
+    bool dbg_flag = false;
     usint nBits = m_params->GetModulus().GetLengthForBase(2);
+    DEBUG("ILVector2n::BaseDecompose()");
+    DEBUG("baseBits= "<<baseBits);
+    DEBUG("nBits= "<<nBits);
 
     usint nWindows = nBits / baseBits;
     if (nBits % baseBits > 0)
@@ -718,6 +733,7 @@ namespace lbcrypto {
 
     ILVector2n xDigit(m_params);
 
+    DEBUG("nWindows "<<nWindows);
     std::vector<ILVector2n> result;
     result.reserve(nWindows);
     // convert the polynomial to coefficient representation
@@ -727,6 +743,7 @@ namespace lbcrypto {
 
     for (usint i = 0; i < nWindows; ++i)
       {
+	DEBUG("i "<<i<<" GetDigitAtIndexForBase("<<i*baseBits + 1<<", "<<( 1 << baseBits)<<")");
 	xDigit = x.GetDigitAtIndexForBase(i*baseBits + 1, 1 << baseBits);
 	// convert the polynomial back to evaluation representation
 	xDigit.SwitchFormat();
