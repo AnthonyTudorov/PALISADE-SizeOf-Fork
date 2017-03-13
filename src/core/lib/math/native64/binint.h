@@ -327,7 +327,11 @@ public:
 	 * @return result of the addition operation of type BigBinary Integer.
 	 */
 	NativeInteger Plus(const NativeInteger& b) const {
-		return m_value + b.m_value;
+		uint_type newv = m_value + b.m_value;
+		if( newv < m_value || newv < b.m_value ) {
+			throw std::logic_error("Overflow");
+		}
+		return newv;
 	}
 
 
@@ -338,7 +342,11 @@ public:
 	 * @return result of the addition operation of type Big Binary Integer.
 	 */
 	const NativeInteger& operator+=(const NativeInteger &b) {
+		uint_type oldv = m_value;
 		m_value += b.m_value;
+		if( m_value < oldv ) {
+			throw std::logic_error("Overflow");
+		}
 		return *this;
 	}
 
@@ -378,7 +386,7 @@ public:
 		uint_type prod = m_value * b.m_value;
 		if( prod < m_value || prod < b.m_value )
 			throw std::logic_error("native64 overflow in multiply");
-		return m_value * b.m_value;
+		return prod;
 	}
 
 	/**
@@ -1059,6 +1067,7 @@ protected:
 	 * @param v The input string
 	 */
 	void AssignVal(const std::string& str) {
+		uint_type test_value = 0;
 		m_value = 0;
 		for( int i=0; i<str.length(); i++ ) {
 			int v = str[i] - '0';
@@ -1067,6 +1076,11 @@ protected:
 			}
 			m_value *= 10;
 			m_value += v;
+
+			if( m_value < test_value ) {
+				throw std::logic_error(str + " is too large to fit in this native integer object");
+			}
+			test_value = m_value;
 		}
 	}
 

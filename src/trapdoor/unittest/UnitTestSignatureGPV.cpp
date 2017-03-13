@@ -49,6 +49,7 @@ TEST(UTSignatureGPV,simple_sign_verify) {
 	usint sm = 16;
 	BigBinaryInteger smodulus("1152921504606847009");
 	BigBinaryInteger srootOfUnity("405107564542978792");
+
 	shared_ptr<ILParams> silParams( new ILParams(sm, smodulus, srootOfUnity) );
   DEBUG("Step 2");
 	ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
