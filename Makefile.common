@@ -36,13 +36,13 @@
 # most code is checked into git with the first line active
 
 #CPPFLAGS += -Wall $(CPPSTD) -w -g ## undefine for single thread debug NO OPTIMIZATION operation
-CPPFLAGS += -Wall -O3 $(CPPSTD) -w #undefine for single thread debug operation
+CPPFLAGS += -Wall -Ofast $(CPPSTD) -w #-g #undefine for single thread debug operation
 #CPPFLAGS += -Wall -O3 $(CPPSTD) -w -fopenmp  ##undefine for parallel debug operation
 #CPPFLAGS += -Wall -O3 $(CPPSTD) -w  -DNDEBUG  -pg ##undefine for single thread best performance operation with gprof profiling 
 
 
 #main best performance configuration for parallel operation - cross-platform
-CPPFLAGS += -g -Wall -O3 $(CPPSTD) -w -fopenmp ##undefine for parallel best performance operation with debug
+#CPPFLAGS += -g -Wall -O3 $(CPPSTD) -w -fopenmp ##undefine for parallel best performance operation with debug
 #CPPFLAGS += -Wall -O3 $(CPPSTD) -w -fopenmp -m64 -DNDEBUG  ##undefine for parallel best performance operation with no debug
 
 #THE OPTIONS BELOW SHOULD BE USED WITH CARE AS THEY USE A LOT OF AGGRESSIVE OPTIMIZATION OPTIONS
