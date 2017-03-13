@@ -202,7 +202,14 @@ public:
 	 * @param index is the index from the vector entries.
 	 * @return value at the index.
 	 */
-	const IntegerType& GetValAtIndex(usint index) const;
+	const IntegerType& GetValAtIndex(usint index) const {
+		if(!this->IndexCheck(index)){
+			throw std::logic_error("Invalid index input to GetValAtIndex for index "
+					+ std::to_string(index) + " for vector of length " + std::to_string(m_length));
+		}
+		return this->m_data[index];
+	}
+
 
 	/**
 	* operators to get a value at an index.
@@ -428,8 +435,13 @@ private:
 	usint m_length;
 	//m_modulus stores the internal modulus of the vector.
 	IntegerType m_modulus;
+
 	//function to check if the index is a valid index.
-	bool IndexCheck(usint) const;
+	bool IndexCheck(usint length) const {
+		if(length>this->m_length)
+			return false;
+		return true;
+	}
 };
 
 //BINARY OPERATORS

@@ -171,15 +171,6 @@ void BigBinaryVector<IntegerType>::SetValAtIndex(usint index, const std::string&
 }
 
 template<class IntegerType>
-const IntegerType& BigBinaryVector<IntegerType>::GetValAtIndex(usint index) const{
-	if(!this->IndexCheck(index)){
-		throw std::logic_error("Invalid index input to GetValAtIndex for index "
-				+ std::to_string(index) + " for vector of length " + std::to_string(m_length));
-	}
-	return this->m_data[index];
-}
-
-template<class IntegerType>
 void BigBinaryVector<IntegerType>::SetModulus(const IntegerType& value){
 	this->m_modulus = value;
 }
@@ -662,14 +653,6 @@ bool BigBinaryVector<IntegerType>::Deserialize(const lbcrypto::Serialized& serOb
 			vp++;
 	}
 
-	return true;
-}
-
-//Private functions
-template<class IntegerType>
-bool BigBinaryVector<IntegerType>::IndexCheck(usint length) const{
-	if(length>this->m_length)
-		return false;
 	return true;
 }
 
