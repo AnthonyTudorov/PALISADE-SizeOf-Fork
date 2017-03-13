@@ -640,33 +640,39 @@ std::vector<std::complex<double>> DiscreteFourierTransform::InverseTransform(std
 	}
 
 	std::vector<std::complex<double>> DiscreteFourierTransform::FFTForwardTransformAlt(std::vector<std::complex<double>> & A) {
-		if (A.size() == 1) {
-			return A;
-		}
-		else {
-			int m = A.size();
-			int step = size / m;
-			std::vector<std::complex<double>> A_even(m / 2);
-			std::vector<std::complex<double>> A_odd(m / 2);
-			for (int i = 0;i<m;i++) {
-				if (i % 2 == 0) {
-					A_even[i / 2] = A[i];
-				}
-				else {
-					A_odd[(i - 1) / 2] = A[i];
-				}
-			}
-			std::vector<std::complex<double>> P_even = DiscreteFourierTransform::FFTForwardTransformAlt(A_even);
-			std::vector<std::complex<double>> P_odd = DiscreteFourierTransform::FFTForwardTransformAlt(A_odd);
-			std::vector<std::complex<double>> P(m, 0);
+		int m = A.size();
+		int step = size / m;
+		std::vector<std::complex<double>> P(m, 0);
 
-			for (int j = 0;j<m / 2;j++) {
-				std::complex<double> x = rootOfUnityTable[j*step] * P_odd[j];
-				P[j] = P_even[j] + x;
-				P[j + m / 2] = P_even[j] - x;
-			}
+		// for the very bottom of the recursion, handle vector of size 2
+		// without the extra allocates
+		if( m == 2 ) {
+			std::complex<double> x = rootOfUnityTable[0] * A[1];
+			P[0] = A[0] + x;
+			P[1] = A[0] - x;
 			return P;
 		}
+
+		std::vector<std::complex<double>> A_even(m / 2);
+		std::vector<std::complex<double>> A_odd(m / 2);
+		for (int i = 0;i<m;i++) {
+			if (i % 2 == 0) {
+				A_even[i / 2] = A[i];
+			}
+			else {
+				A_odd[(i - 1) / 2] = A[i];
+			}
+		}
+
+		std::vector<std::complex<double>> P_even = DiscreteFourierTransform::FFTForwardTransformAlt(A_even);
+		std::vector<std::complex<double>> P_odd = DiscreteFourierTransform::FFTForwardTransformAlt(A_odd);
+
+		for (int j = 0;j<m / 2;j++) {
+			std::complex<double> x = rootOfUnityTable[j*step] * P_odd[j];
+			P[j] = P_even[j] + x;
+			P[j + m / 2] = P_even[j] - x;
+		}
+		return P;
 	}
 	std::vector<std::complex<double>> DiscreteFourierTransform::FFTInverseTransformAlt(std::vector<std::complex<double>> & A) {
 
