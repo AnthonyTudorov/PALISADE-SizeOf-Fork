@@ -54,6 +54,11 @@ using std::shared_ptr;
 namespace lbcrypto {
 
 template<typename IntType, typename VecType, typename ParmType> class ILVectorImpl;
+typedef ILVectorImpl<BigBinaryInteger, BigBinaryVector, ILParams> ILVector2n;
+
+}
+
+namespace lbcrypto {
 
 const usint SAMPLE_SIZE = 30; //!< @brief The maximum number of samples used for random variable sampling.
 

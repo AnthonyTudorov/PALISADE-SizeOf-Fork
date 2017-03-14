@@ -45,6 +45,9 @@
  */
 namespace lbcrypto {
 
+template<typename IntType> class ILParamsImpl;
+typedef ILParamsImpl<BigBinaryInteger> ILParams;
+
 /**
  * @brief Parameters for ideal lattice: cyclotomic order and modulus.
  */
@@ -118,31 +121,7 @@ public:
 	/**
 	 * Destructor.
 	 */
-	virtual ~ILParamsImpl() {
-	}
-
-	/**
-	 * Initialize the values - used with default constructor; the values are computed
-	 *
-	 * @param m the cyclotimic order.
-	 * @param bitLength minimum bit length for ciphertext modulus.
-	 */
-	virtual bool Initialize(usint m, usint bitLength) {
-		//add a code that selects a modulus and computes a root of unity
-		return false;
-	}
-
-	/**
-	 * Initialize the values - used with default constructor; the values are imported from a pre-computed taxt file.
-	 *
-	 * @param m the cyclotimic order.
-	 * @param bitLength minimum bit length for ciphertext modulus.
-	 * @param &inputFile the full path to the text file containing the ciphertext modulues and root of unity for a given set of m and bitLength
-	 */
-	virtual bool Initialize(usint m, usint bitLength, const std::string &inputFile) {
-		//add a code that sets all parameters using an entry in the text file with pre-computed values
-		return false;
-	}
+	virtual ~ILParamsImpl() {}
 
 	// ACCESSORS
 
@@ -201,6 +180,7 @@ public:
 	void SetModulus(const IntType &modulus) {
 		m_modulus = modulus;
 	}
+
 	/**
 	 * Equal operator compares this ILVector2n to the specified ElemParams (which will be dynamic casted)
 	 *
@@ -208,10 +188,8 @@ public:
 	 * @return true if this ILVector2n represents the same values as the specified ILVectorArray2n, false otherwise
 	 */
 	bool operator==(const ElemParams<IntType>& rhs) const {
-//		const ILParamsImpl *ip = dynamic_cast<const ILParamsImpl *>(&rhs);
-//
-//		if( ip == 0 )
-//			return false;
+		if( dynamic_cast<const ILParamsImpl<IntType> *>(&rhs) == 0 )
+			return false;
 
 		if (m_modulus != rhs.GetModulus()) {
 			return false;
@@ -223,16 +201,6 @@ public:
 			return false;
 		}
 		return true;
-	}
-
-	/**
-	 * Not equal operator compares this ILParams to the specified ILParams
-	 *
-	 * @param &rhs is the specified ILParams to be compared with this ILParams.
-	 * @return true if this ILParams represents the same values as the specified ILParams, false otherwise
-	 */
-	inline bool operator!=(ILParamsImpl const &rhs) {
-		return !(*this == rhs);
 	}
 
 private:

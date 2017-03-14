@@ -253,7 +253,6 @@ template<typename IntType, typename VecType, typename ParmType> class ILVectorIm
 	typedef ILParamsImpl<native64::BigBinaryInteger> ILNativeParams;
 	typedef ILVectorImpl<native64::BigBinaryInteger, native64::BigBinaryVector, ILNativeParams> ILVectorNative2n;
 
-
 } // namespace lbcrypto ends
 
 #endif

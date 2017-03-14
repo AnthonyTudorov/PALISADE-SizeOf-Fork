@@ -21,6 +21,7 @@ template<> const NativeInteger<uint64_t> NativeInteger<uint64_t>::TWO = NativeIn
 template<> const NativeInteger<uint64_t> NativeInteger<uint64_t>::THREE = NativeInteger<uint64_t>(3);
 template<> const NativeInteger<uint64_t> NativeInteger<uint64_t>::FOUR = NativeInteger<uint64_t>(4);
 template<> const NativeInteger<uint64_t> NativeInteger<uint64_t>::FIVE = NativeInteger<uint64_t>(5);
+
 template<> std::function<unique_ptr<NativeInteger<uint64_t>>()> NativeInteger<uint64_t>::Allocator = [](){
 	return lbcrypto::make_unique<NativeInteger<uint64_t>>();
 };

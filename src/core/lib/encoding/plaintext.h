@@ -39,6 +39,9 @@
 #include <iostream>
 #include "../utils/inttypes.h"
 #include "../math/backend.h"
+#include "../lattice/elemparams.h"
+#include "../lattice/ilparams.h"
+#include "../lattice/ildcrtparams.h"
 #include "../lattice/ilvector2n.h"
 #include "../lattice/ilvectorarray2n.h"
 

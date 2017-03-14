@@ -70,8 +70,8 @@ ILDCRTParams::Serialize(Serialized* serObj) const
 	Serialized ser(rapidjson::kObjectType, &serObj->GetAllocator());
 	ser.AddMember("Modulus", this->GetModulus().ToString(), serObj->GetAllocator());
 	ser.AddMember("Order", std::to_string(this->GetCyclotomicOrder()), serObj->GetAllocator());
-	SerializeBBIVector("Moduli", this->GetModuli(), &ser);
-	SerializeBBIVector("RootsOfUnity", this->GetRootsOfUnity(), &ser);
+//	SerializeBBIVector("Moduli", this->GetModuli(), &ser);
+//	SerializeBBIVector("RootsOfUnity", this->GetRootsOfUnity(), &ser);
 
 	serObj->AddMember("ILDCRTParams", ser, serObj->GetAllocator());
 

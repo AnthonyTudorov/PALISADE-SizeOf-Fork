@@ -49,15 +49,13 @@ namespace lbcrypto {
 		m_cyclotomicOrder = dcrtParams->GetCyclotomicOrder();
 		m_format = format;
 		m_modulus = dcrtParams->GetModulus();
+		m_params = dcrtParams;
 
-		size_t vecSize = dcrtParams->GetModuli().size();
+		size_t vecSize = dcrtParams->GetParams().size();
 		m_vectors.reserve(vecSize);
 		
 		for (usint i = 0; i < vecSize; i++) {
-			BigBinaryInteger modulus(dcrtParams->GetModuli()[i]);
-			BigBinaryInteger rootOfUnity(dcrtParams->GetRootsOfUnity()[i]);
-			shared_ptr<ILParams> ip( new ILParams(m_cyclotomicOrder, modulus, rootOfUnity) );
-			m_vectors.push_back(std::move(ILVector2n(ip,format,initializeElementToZero)));
+			m_vectors.push_back(std::move(native64::ILVector2n(dcrtParams->GetParams()[i],format,initializeElementToZero)));
 		}
 	}
 
@@ -66,8 +64,11 @@ namespace lbcrypto {
 		m_vectors = element.m_vectors;
 		m_modulus = element.m_modulus;
 		m_cyclotomicOrder = element.m_cyclotomicOrder;
+		m_params = element.m_params;
 	}
 	
+	// I am not sure what this means so let's ifdef it out for now...
+#ifdef OUT
 	/* Construct using a single ILVector2n. The format is derived from the passed in ILVector2n.*/
 	ILVectorArray2n::ILVectorArray2n(const ILVector2n &element, const shared_ptr<ILDCRTParams> params)
 	{
@@ -82,65 +83,70 @@ namespace lbcrypto {
 		m_format = format;
 		m_modulus = params->GetModulus();
 		m_cyclotomicOrder = params->GetCyclotomicOrder();
+		m_params = params;
 
-		size_t vecSize = params->GetModuli().size();
+		size_t vecSize = params->GetParams().size();
 		m_vectors.reserve(vecSize);
 
 		ILVector2n ilvector2n(element);
 
 		for (usint i = 0; i < vecSize; i++) {
 			ILVector2n ilvector2nSwitchModulus(ilvector2n);
-			ilvector2nSwitchModulus.SwitchModulus(params->GetModuli()[i], params->GetRootsOfUnity()[i]);
+			ilvector2nSwitchModulus.SwitchModulus(params->GetParams()[i]->GetModulus(), params->GetParams()[i]->GetRootOfUnity());
 			m_vectors.push_back(std::move(ilvector2nSwitchModulus));
 		}
 	}
+#endif
 
 	/* Construct using an tower of ILVectro2ns. The params and format for the ILVectorArray2n will be derived from the towers.*/
-	ILVectorArray2n::ILVectorArray2n(const std::vector<ILVector2n> &towers)
+	ILVectorArray2n::ILVectorArray2n(const std::vector<native64::ILVector2n> &towers)
 	{
 		usint ringDimension = towers.at(0).GetCyclotomicOrder() / 2;
 		for (usint i = 1; i < towers.size(); i++) {
 			if (!(towers.at(i).GetCyclotomicOrder() / 2 == ringDimension)) {
-				throw std::logic_error(std::string("ILVectors provided to ILVectorArray2n must have the same parameters"));
+				throw std::logic_error(std::string("ILVectors provided to ILVectorArray2n must have the same ring dimension"));
 			}
 		}
 
-		m_vectors = towers; // once all the params are correct, set ILVectorArray2n's towers to the passed value
-		m_format = m_vectors[0].GetFormat();
-		m_cyclotomicOrder = m_vectors[0].GetCyclotomicOrder();
+		shared_ptr<ILDCRTParams> p = new(ILDCRTParams(towers.size()));
+		p->SetCyclotomicOrder(m_vectors[0].GetCyclotomicOrder());
+
 		m_modulus = 1;
 
-		for (usint i = 0; i<towers.size(); i++)
+		for (usint i = 0; i<towers.size(); i++) {
+			(*p)[i] = towers.at(i).GetParams();
 			m_modulus = m_modulus*m_vectors.at(i).GetModulus();
+		}
+
+		m_params = p;
+		m_vectors = towers;
+		m_format = m_vectors[0].GetFormat();
+		m_cyclotomicOrder = m_vectors[0].GetCyclotomicOrder();
 	}
 
 	/*The dgg will be the seed to populate the towers of the ILVectorArray2n with random numbers. The algorithm to populate the towers can be seen below.*/
-	ILVectorArray2n::ILVectorArray2n(const DiscreteGaussianGenerator & dgg, const shared_ptr<ILDCRTParams> dcrtParams, Format format)
+	ILVectorArray2n::ILVectorArray2n(const native64::DiscreteGaussianGenerator & dgg, const shared_ptr<ILDCRTParams> dcrtParams, Format format)
 	{
 		m_modulus = dcrtParams->GetModulus();
 		m_cyclotomicOrder= dcrtParams->GetCyclotomicOrder();
 		m_format = format;
+		m_params = dcrtParams;
 
-		size_t vecSize = dcrtParams->GetModuli().size();
+		size_t vecSize = dcrtParams->GetParams().size();
 		m_vectors.reserve(vecSize);
 
 		//dgg generating random values
 		
 		std::shared_ptr<sint> dggValues = dgg.GenerateIntVector(dcrtParams->GetCyclotomicOrder()/2);
 
-		BigBinaryInteger modulus;
-		BigBinaryInteger rootOfUnity;
-		BigBinaryInteger temp;
+		native64::BigBinaryInteger temp;
 
 		for(usint i = 0; i < vecSize; i++){
 			
-			modulus = dcrtParams->GetModuli()[i];
-			rootOfUnity = dcrtParams->GetRootsOfUnity()[i];
+			native64::BigBinaryVector ilDggValues(dcrtParams->GetCyclotomicOrder()/2, dcrtParams->GetParams()[i]->GetModulus());
 
-			shared_ptr<ILParams> ilVectorDggValuesParams( new ILParams(dcrtParams->GetCyclotomicOrder(), modulus, rootOfUnity) );
-			ILVector2n ilvector(ilVectorDggValuesParams);
+			native64::ILVector2n ilvector(dcrtParams->GetParams()[i]);
 
-			BigBinaryVector ilDggValues(dcrtParams->GetCyclotomicOrder()/2,modulus);
 
 			for(usint j = 0; j < dcrtParams->GetCyclotomicOrder()/2; j++){
 				// if the random generated value is less than zero, then multiply it by (-1) and subtract the modulus of the current tower to set the coefficient
@@ -148,7 +154,7 @@ namespace lbcrypto {
 				if(k < 0){
 					k *= (-1);
 					temp = k;
-					temp = dcrtParams->GetModuli()[i] - temp;
+					temp = dcrtParams->GetParams()[i]->GetModulus() - temp;
 					ilDggValues.SetValAtIndex(j,temp);
 				}
 				//if greater than or equal to zero, set it the value generated
@@ -166,32 +172,28 @@ namespace lbcrypto {
 		}
 	}
 
-	ILVectorArray2n::ILVectorArray2n(const DiscreteUniformGenerator &dug, const shared_ptr<ILDCRTParams> dcrtParams, Format format) {
+	ILVectorArray2n::ILVectorArray2n(const native64::DiscreteUniformGenerator &dug, const shared_ptr<ILDCRTParams> dcrtParams, Format format) {
 
 		m_modulus = dcrtParams->GetModulus();
 		m_cyclotomicOrder = dcrtParams->GetCyclotomicOrder();
 		m_format = format;
+		m_params = dcrtParams;
 
-		size_t numberOfTowers = dcrtParams->GetModuli().size();
+		size_t numberOfTowers = dcrtParams->GetParams().size();
 		m_vectors.reserve(numberOfTowers);
 
 		//dgg generating random values
-		BigBinaryVector vals(dug.GenerateVector(m_cyclotomicOrder / 2));
+		// FIXME should this be in the for loop? or should the generator in the previous one NOT be??
+		native64::BigBinaryVector vals(dug.GenerateVector(m_cyclotomicOrder / 2));
 
-		BigBinaryInteger modulus;
-		BigBinaryInteger rootOfUnity;
-		BigBinaryInteger temp;
+		native64::BigBinaryInteger temp;
 
 		for (usint i = 0; i < numberOfTowers; i++) {
 
-			modulus = dcrtParams->GetModuli()[i];
-			rootOfUnity = dcrtParams->GetRootsOfUnity()[i];
-
-			shared_ptr<ILParams> ilParams(new ILParams(dcrtParams->GetCyclotomicOrder(), modulus, rootOfUnity));
-			ILVector2n ilvector(ilParams);
+			native64::ILVector2n ilvector(dcrtParams->GetParams()[i]);
 
 			//BigBinaryVector ilDggValues(params.GetCyclotomicOrder() / 2, modulus);
-			vals.SwitchModulus(modulus);
+			vals.SwitchModulus(dcrtParams->GetParams()[i]->GetModulus());
 			
 			ilvector.SetValues(vals , Format::COEFFICIENT); // the random values are set in coefficient format
 			if (m_format == Format::EVALUATION) {  // if the input format is evaluation, then once random values are set in coefficient format, switch the format to achieve what the caller asked for.
@@ -210,11 +212,12 @@ namespace lbcrypto {
 		m_modulus = std::move(element.m_modulus);
 		m_cyclotomicOrder = element.m_cyclotomicOrder;
 		m_vectors = std::move(element.m_vectors);
+		m_params = std::move(element.m_params);
 	}
 
 	ILVectorArray2n ILVectorArray2n::CloneParametersOnly() const{
 		
-		std::vector<ILVector2n> result;
+		std::vector<native64::ILVector2n> result;
 		result.reserve(m_vectors.size());
 		
 		for(usint i=0;i<m_vectors.size();i++){
@@ -227,7 +230,7 @@ namespace lbcrypto {
 	}
 
 	ILVectorArray2n ILVectorArray2n::CloneWithNoise(const DiscreteGaussianGenerator &dgg, Format format) const{
-		std::vector<ILVector2n> result;
+		std::vector<native64::ILVector2n> result;
 		result.reserve(m_vectors.size());
 		
 		for(usint i=0;i<m_vectors.size();i++){

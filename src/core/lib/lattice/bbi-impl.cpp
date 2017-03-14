@@ -12,6 +12,7 @@
 #include "../math/binaryuniformgenerator.cpp"
 #include "../math/ternaryuniformgenerator.cpp"
 
+// This creates all the necessary class implementations for BigBinaryInteger
 
 namespace lbcrypto {
 template class DiscreteGaussianGeneratorImpl<BigBinaryInteger,BigBinaryVector>;

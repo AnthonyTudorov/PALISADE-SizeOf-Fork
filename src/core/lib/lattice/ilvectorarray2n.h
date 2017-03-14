@@ -105,7 +105,7 @@ namespace lbcrypto {
 		* @param params parameter set required for ILVectorArray2n. 
 		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
-		ILVectorArray2n(const DiscreteGaussianGenerator &dgg, const shared_ptr<ILDCRTParams> params, Format format = EVALUATION);
+		ILVectorArray2n(const native64::DiscreteGaussianGenerator &dgg, const shared_ptr<ILDCRTParams> params, Format format = EVALUATION);
 
 		/**
 		* Constructor based on binary Gaussian generator. This is not implemented. Will throw a logic_error.
@@ -136,7 +136,7 @@ namespace lbcrypto {
 		* @param params the input params.
 		* @param &format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
-		ILVectorArray2n(const DiscreteUniformGenerator &dug, const shared_ptr<ILDCRTParams> params, Format format = EVALUATION);
+		ILVectorArray2n(const native64::DiscreteUniformGenerator &dug, const shared_ptr<ILDCRTParams> params, Format format = EVALUATION);
 
 		/**
 		* Construct using a single ILVector2n. The ILVector2n is copied into every tower. Each tower will be reduced to it's corresponding modulus  via GetModuli(at tower index). The format is derived from the passed in ILVector2n. 
@@ -151,7 +151,7 @@ namespace lbcrypto {
 		*
 		* @param &towers vector of ILVector2ns which correspond to each tower of ILVectorArray2n.
 		*/
-		ILVectorArray2n(const std::vector<ILVector2n> &elements);
+		ILVectorArray2n(const std::vector<native64::ILVector2n> &elements);
 
 		/**
 		* Copy constructor.
@@ -607,8 +607,10 @@ namespace lbcrypto {
 		bool Deserialize(const Serialized& serObj);
 
 	private:
+		shared_ptr<ILDCRTParams> m_params;
+
 		// array of vectors used for double-CRT presentation
-		std::vector<ILVector2n> m_vectors;
+		std::vector<native64::ILVector2n> m_vectors;
 
 		// Either Format::EVALUATION (0) or Format::COEFFICIENT (1)
 		Format m_format;
