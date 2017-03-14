@@ -595,8 +595,7 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 		}
 	}
 
-
-	std::vector<std::complex<double>> DiscreteFourierTransform::FFTForwardTransform(std::vector<std::complex<double>> & A) {
+	std::vector<std::complex<double>> DiscreteFourierTransform::FFTForwardTransformAlt(std::vector<std::complex<double>> & A) {
 		int m = A.size();
 		std::vector<std::complex<double>> B(A);
 		int levels = floor(log2(m));
@@ -648,6 +647,123 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 
 		return B;
 	}
+
+#define NEWIMPL
+#ifdef NEWIMPL
+	std::vector<std::complex<double>> DiscreteFourierTransform::FFTForwardTransformAlt(std::vector<std::complex<double>> & A) {
+		int m = A.size();
+		std::vector<std::complex<double>> B(A);
+		int levels = floor(log2(m));
+
+		static int cachedM;
+		static std::vector<double> cosTable;
+		static std::vector<double> sinTable;
+
+		if( m != cachedM ) {
+			cachedM = m;
+			sinTable.resize(m/2);
+			cosTable.resize(m/2);
+			for (int i = 0; i < m / 2; i++) {
+				cosTable[i] = cos(2 * M_PI * i / m);
+				sinTable[i] = sin(2 * M_PI * i / m);
+			}
+		}
+
+		// Bit-reversed addressing permutation
+		for (int i = 0; i < m; i++) {
+			int j = ReverseBits(i,32) >> (32-levels);
+			if (j > i) {
+				double temp = B[i].real();
+				B[i].real( B[j].real() );
+				B[j].real( temp );
+				temp = B[i].imag();
+				B[i].imag( B[j].imag() );
+				B[j].imag( temp );
+			}
+		}
+
+		// Cooley-Tukey decimation-in-time radix-2 FFT
+		for (int size = 2; size <= m; size *= 2) {
+			int halfsize = size / 2;
+			int tablestep = m / size;
+			for (int i = 0; i < m; i += size) {
+				for (int j = i, k = 0; j < i + halfsize; j++, k += tablestep) {
+					double tpre =  B[j+halfsize].real() * cosTable[k] + B[j+halfsize].imag() * sinTable[k];
+					double tpim = -B[j+halfsize].real() * sinTable[k] + B[j+halfsize].imag() * cosTable[k];
+					B[j + halfsize].real( B[j].real() - tpre );
+					B[j + halfsize].imag( B[j].imag() - tpim );
+					B[j].real( B[j].real() + tpre );
+					B[j].imag( B[j].imag() + tpim );
+				}
+			}
+			if (size == m)  // Prevent overflow in 'size *= 2'
+				break;
+		}
+
+		return B;
+	}
+#else
+	std::vector<std::complex<double>> DiscreteFourierTransform::FFTForwardTransformAlt(std::vector<std::complex<double>> & A) {
+		int m = A.size();
+		int step = size / m;
+		std::vector<std::complex<double>> P(m, 0);
+
+#ifdef OUT
+		for( int siz = m; siz > 0; siz /= 2 ) {
+		}
+		return P;
+
+		if( m == 4 ) {
+			std::complex<double> x;
+			x = rootOfUnityTable[0] * A[2];
+			P[0] = A[0] + x;
+			P[1] = A[0] - x;
+			x = rootOfUnityTable[0] * A[3];
+			P[2] = A[1] + x;
+			P[3] = A[1] - x;
+
+			x = rootOfUnityTable[step] * P[2];
+			P[0] = P[0] + x;
+			P[2] = P[0] - x;
+			x = rootOfUnityTable[step] * P[3];
+			P[1] = P[1] + x;
+			P[3] = A[1] - x;
+			return P;
+		}
+#endif
+
+		// for the very bottom of the recursion, handle vector of size 2
+		// without the extra allocates
+		if( m == 2 ) {
+			std::complex<double> x = rootOfUnityTable[0] * A[1];
+			P[0] = A[0] + x;
+			P[1] = A[0] - x;
+			return P;
+		}
+
+		std::vector<std::complex<double>> A_even(m / 2);
+		std::vector<std::complex<double>> A_odd(m / 2);
+		for (int i = 0;i<m;i++) {
+			if (i % 2 == 0) {
+				A_even[i / 2] = A[i];
+			}
+			else {
+				A_odd[(i - 1) / 2] = A[i];
+			}
+		}
+
+		std::vector<std::complex<double>> P_even = DiscreteFourierTransform::FFTForwardTransformAlt(A_even);
+		std::vector<std::complex<double>> P_odd = DiscreteFourierTransform::FFTForwardTransformAlt(A_odd);
+
+		for (int j = 0;j<m / 2;j++) {
+			std::complex<double> x = rootOfUnityTable[j*step] * P_odd[j];
+			P[j] = P_even[j] + x;
+			P[j + m / 2] = P_even[j] - x;
+		}
+		return P;
+	}
+#endif
+>>>>>>> iterative FFT
 
 	std::vector<std::complex<double>> DiscreteFourierTransform::FFTInverseTransform(std::vector<std::complex<double>> & A) {
 
