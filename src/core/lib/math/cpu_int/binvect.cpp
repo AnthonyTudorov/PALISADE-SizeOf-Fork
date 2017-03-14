@@ -329,9 +329,12 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModMul(const IntegerT
 	//Precompute the Barrett mu parameter
 	IntegerType temp(IntegerType::ONE);
 
-	temp<<=2*this->GetModulus().GetMSB()+3;
-
+#if MATHBACKEND > 6
+	IntegerType mu(IntegerType::ONE);
+#else
+	temp <<= 2 * this->GetModulus().GetMSB() + 3;
 	IntegerType mu = temp.DividedBy(m_modulus);
+#endif
 
 	//Precompute the Barrett mu values
 	/*BigBinaryInteger temp;
@@ -502,8 +505,13 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModMul(const BigBinar
 
 	//Precompute the Barrett mu parameter
 	IntegerType temp(IntegerType::ONE);
-	temp<<=2*this->GetModulus().GetMSB()+3;
+
+#if MATHBACKEND > 6
+	IntegerType mu(IntegerType::ONE);
+#else
+	temp <<= 2 * this->GetModulus().GetMSB() + 3;
 	IntegerType mu = temp.DividedBy(this->GetModulus());
+#endif
 
 	//Precompute the Barrett mu values
 	/*BigBinaryInteger temp;

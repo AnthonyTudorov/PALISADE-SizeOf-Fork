@@ -93,8 +93,13 @@ VecType NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(con
 
 	//Precompute the Barrett mu parameter
 	IntType temp(IntType::ONE);
+
+#if MATHBACKEND > 6
+	IntType mu(IntType::ONE);
+#else
 	temp <<= 2 * element.GetModulus().GetMSB() + 3;
 	IntType mu = temp.DividedBy(element.GetModulus());
+#endif
 
 	for (usint m = 2; m <= n; m = 2 * m)
 	{
@@ -308,10 +313,15 @@ VecType ChineseRemainderTransformFTT<IntType,VecType>::ForwardTransform(const Ve
 		throw std::logic_error(errMsg);
 	}
 
-	//Pre-compute mu for Barrett function
+	//Precompute the Barrett mu parameter
 	IntType temp(IntType::ONE);
+
+#if MATHBACKEND > 6
+	IntType mu(IntType::ONE);
+#else
 	temp <<= 2 * element.GetModulus().GetMSB() + 3;
 	IntType mu = temp.DividedBy(element.GetModulus());
+#endif
 
 	VecType *rootOfUnityTable = NULL;
 
@@ -374,8 +384,13 @@ VecType ChineseRemainderTransformFTT<IntType,VecType>::InverseTransform(const Ve
 
 	//Pre-compute mu for Barrett function
 	IntType temp(IntType::ONE);
+
+#if MATHBACKEND > 6
+	IntType mu(IntType::ONE);
+#else
 	temp <<= 2 * element.GetModulus().GetMSB() + 3;
 	IntType mu = temp.DividedBy(element.GetModulus());
+#endif
 
 	VecType *rootOfUnityITable = NULL;
 
@@ -432,10 +447,15 @@ VecType ChineseRemainderTransformFTT<IntType,VecType>::InverseTransform(const Ve
 template<typename IntType, typename VecType>
 void ChineseRemainderTransformFTT<IntType,VecType>::PreCompute(const IntType& rootOfUnity, const usint CycloOrder, const IntType &modulus) {
 
-	//Pre-compute mu for Barrett function
+	//Precompute the Barrett mu parameter
 	IntType temp(IntType::ONE);
+
+#if MATHBACKEND > 6
+	IntType mu(IntType::ONE);
+#else
 	temp <<= 2 * modulus.GetMSB() + 3;
 	IntType mu = temp.DividedBy(modulus);
+#endif
 
 	IntType x(IntType::ONE);
 
@@ -490,10 +510,15 @@ void ChineseRemainderTransformFTT<IntType,VecType>::PreCompute(std::vector<IntTy
 		IntType currentRoot(rootOfUnity[i]);
 		IntType currentMod(moduliiChain[i]);
 
-		//Pre-compute mu for Barrett function
+		//Precompute the Barrett mu parameter
 		IntType temp(IntType::ONE);
+
+#if MATHBACKEND > 6
+		IntType mu(IntType::ONE);
+#else
 		temp <<= 2 * currentMod.GetMSB() + 3;
 		IntType mu = temp.DividedBy(currentMod);
+#endif
 
 		if (this->m_rootOfUnityTableByModulus[moduliiChain[i]].GetLength() != 0)
 			continue;

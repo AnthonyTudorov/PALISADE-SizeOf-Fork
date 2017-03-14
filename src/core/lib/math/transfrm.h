@@ -265,8 +265,8 @@ private:
 	//static VecType *m_phiInverseTable;
 	ChineseRemainderTransformFTT(){}
 	~ChineseRemainderTransformFTT(){}
-	ChineseRemainderTransformFTT(const ChineseRemainderTransform<IntType,VecType>&){}
-	ChineseRemainderTransformFTT& operator=(ChineseRemainderTransform<IntType,VecType> const&){};
+	ChineseRemainderTransformFTT(const ChineseRemainderTransformFTT<IntType, VecType>&) {}
+	//ChineseRemainderTransformFTT& operator=(ChineseRemainderTransformFTT<IntType,VecType> const&){};
 };
 
 /**
