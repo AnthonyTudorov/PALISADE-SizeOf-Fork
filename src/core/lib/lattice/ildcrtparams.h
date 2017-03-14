@@ -298,7 +298,7 @@ private:
 	//This method 'pre-computes' the modulus based on the multiplication of moduli
 	void calculateModulus(){
 
-		m_modulus = BigBinaryInteger::ONE;
+		m_modulus = BigBinaryInteger(1);
 
 		for(usint i = 0; i < m_moduli.size(); i++){
 			m_modulus = m_modulus * m_moduli[i];
