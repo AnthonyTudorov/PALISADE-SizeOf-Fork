@@ -148,29 +148,6 @@ std::ostream& operator<<(std::ostream& os, const BigBinaryVector<IntegerType_c> 
 }
 
 template<class IntegerType>
-void BigBinaryVector<IntegerType>::SetValAtIndex(usint index, const IntegerType& value){
-
-	if(!this->IndexCheck(index)) {
-		throw std::logic_error("Invalid index input to SetValAtIndex for index "
-				+ std::to_string(index) + " for vector of length " + std::to_string(m_length));
-	}
-	else{
-		this->m_data[index] = value;
-	}
-}
-
-template<class IntegerType>
-void BigBinaryVector<IntegerType>::SetValAtIndex(usint index, const std::string& str){
-	if(!this->IndexCheck(index)){
-		throw std::logic_error("Invalid index input to SetValAtIndex for index "
-				+ std::to_string(index) + " for vector of length " + std::to_string(m_length));
-	}
-	else{
-		this->m_data[index].SetValue(str);
-	}
-}
-
-template<class IntegerType>
 void BigBinaryVector<IntegerType>::SetModulus(const IntegerType& value){
 	this->m_modulus = value;
 }

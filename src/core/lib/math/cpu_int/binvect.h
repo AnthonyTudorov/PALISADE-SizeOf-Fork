@@ -186,7 +186,14 @@ public:
 	 * @param index is the index to set a value at.
 	 * @param value is the int value to set at the index.
 	 */
-	void SetValAtIndex(usint index, const IntegerType& value);
+	void SetValAtIndex(usint index, const IntegerType& value) {
+		if(!this->IndexCheck(index)) {
+			throw std::logic_error("Invalid index input to SetValAtIndex for index "
+					+ std::to_string(index) + " for vector of length " + std::to_string(m_length));
+		}
+
+		this->m_data[index] = value;
+	}
 
 	/**
 	 * Sets a value at an index.
@@ -194,7 +201,14 @@ public:
 	 * @param index is the index to set a value at.
 	 * @param str is the string representation of the value to set at the index.
 	 */
-	void SetValAtIndex(usint index, const std::string& str);
+	void SetValAtIndex(usint index, const std::string& str){
+		if(!this->IndexCheck(index)){
+			throw std::logic_error("Invalid index input to SetValAtIndex for index "
+					+ std::to_string(index) + " for vector of length " + std::to_string(m_length));
+		}
+
+		this->m_data[index].SetValue(str);
+	}
 
 	/**
 	 * Gets a value stored at an index.
