@@ -57,7 +57,7 @@ void MultiThreadedRun(int index) {
 		{ 16384, "13164036458569648337239753460458804039861886925068638906789969921", "146488057101847996735943188821846167958454591207690706445995891"} 
 	};
 
-	size_t counter = 50;
+	size_t counter = 20;
 	double start, finish;
 	DiscreteGaussianGeneratorImpl<BigBinaryInteger,BigBinaryVector> dgg(SIGMA);
 

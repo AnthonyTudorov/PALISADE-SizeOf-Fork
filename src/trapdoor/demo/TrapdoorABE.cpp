@@ -18,7 +18,7 @@ void MultiThreadedRun(int index);
 
 int main() {
 
-	for (usint i = 4; i < 5; i++) {
+	for (usint i = 7; i < 8; i++) {
 		MultiThreadedRun(i);
 	}
 
@@ -50,14 +50,19 @@ void MultiThreadedRun(int index) {
 	}
 
 	SecureParams const SECURE_PARAMS[] = {
-		{ 1024, "8399873", "824894"}, 
-		{ 2048, "67127297", "19715182"},
-		{ 4096, "18014398509506561", "5194839201355896"},
-		{ 8192, "162259276829213363391578010402817", "66396805305014513556659676765098"},
-		{ 16384, "13164036458569648337239753460458804039861886925068638906789969921", "146488057101847996735943188821846167958454591207690706445995891"} 
+		{ 4096, "1125899906949121", "395927927481109"}, 
+		{ 4096, "576460752303439873", "324227211372304498"},
+		{ 4096, "295147905179352850433", "38059604470202023702"},
+		{ 8192, "2417851639229258349469697", "1609369582361334250296874"},
+		{ 8192, "2475880078570760549798338561", "468603779894314640604009508"},
+		{ 8192, "2535301200456458802993406697473", "2254011826592167418090798449257"},
+		{ 8192, "2596148429267413814265248164724737", "527359281404164400933330593019541"},
+		{ 8192, "2658455991569831745807614120560893953", "286795907251575358753455600791011050"},
+		{ 8192, "2722258935367507707706996859454146142209", "1426115470453457649704739287701063827541"},
 	};
 
-	size_t counter = 16;
+
+	size_t counter = 24;
 	double start, finish;
 	DiscreteGaussianGeneratorImpl<BigBinaryInteger,BigBinaryVector> dgg(SIGMA);
 
@@ -110,7 +115,7 @@ void MultiThreadedRun(int index) {
 	double signTime = 0;
 	double verifyTime = 0;
 	size_t verifyCounter = 0;
-	//bool verifyBool = false;
+	bool verifyBool = false;
 
 	std::vector<BytePlaintextEncoding> text{
 		"1 Let's spice things up",
@@ -131,7 +136,6 @@ void MultiThreadedRun(int index) {
 
 	start = currentDateTime();
 
-#pragma omp parallel for
 	for (usint i = 0; i < counter; i++) {
 
 		scheme_gm.Sign(s_k_gm, text[i % 10], &(signature[i]));
@@ -146,10 +150,13 @@ void MultiThreadedRun(int index) {
 
 	start = currentDateTime();
 
-#pragma omp parallel for
-	for (usint i = 0; i < counter; i++) {		
-		if(scheme_gm.Verify(v_k_gm, signature[i], text[i % 10])==false)
-			std::cout << "Error in verification" << std::endl;
+	for (usint i = 0; i < counter; i++) {
+
+		verifyBool = scheme_gm.Verify(v_k_gm, signature[i], text[i % 10]);
+
+		if (verifyBool)
+			verifyCounter++;
+
 	}
 
 	finish = currentDateTime();
@@ -158,7 +165,7 @@ void MultiThreadedRun(int index) {
 
 
 	std::cout << "Verifying - New : " << "\t" << verifyTime / counter << " ms" << std::endl;
-	//std::cout << "Verification counter : " << "\t" << verifyCounter << "\n" << std::endl;
+	std::cout << "Verification counter : " << "\t" << verifyCounter << "\n" << std::endl;
 
 	std::cout << "Execution completed" << std::endl;
 
