@@ -68,6 +68,7 @@ namespace lbcrypto {
 		RingMat A(zero_alloc, 1, k+2);
 		A(0,0) = 1;
 		A(0,1) = *a;
+
 		for (size_t i = 0; i < k; ++i) {
 			A(0, i+2) = g(0, i) - (*a*r(0, i) + e(0, i));
 		}

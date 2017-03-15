@@ -348,6 +348,7 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModMul(const IntegerT
 		mu_arr[i] = temp.DividedBy(this->GetModulus());
 	}*/
 
+
 	for(usint i=0;i<this->m_length;i++){
 		//std::cout<< "before data: "<< ans.m_data[i]<< std::endl;
 		ans.m_data[i].ModBarrettMulInPlace(b,this->m_modulus,mu);

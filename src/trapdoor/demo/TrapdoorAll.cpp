@@ -18,7 +18,7 @@ void MultiThreadedRun(int index);
 
 int main() {
 
-	for (usint i = 1; i < 2; i++) {
+	for (usint i = 3; i < 4; i++) {
 		MultiThreadedRun(i);
 	}
 
@@ -57,7 +57,7 @@ void MultiThreadedRun(int index) {
 		{ 16384, "13164036458569648337239753460458804039861886925068638906789969921", "146488057101847996735943188821846167958454591207690706445995891"} 
 	};
 
-	size_t counter = 50;
+	size_t counter = 20;
 	double start, finish;
 	DiscreteGaussianGeneratorImpl<BigBinaryInteger,BigBinaryVector> dgg(SIGMA);
 
@@ -131,7 +131,7 @@ void MultiThreadedRun(int index) {
 
 	start = currentDateTime();
 
-//#pragma omp parallel for
+#pragma omp parallel for
 	for (usint i = 0; i < counter; i++) {
 
 		scheme_gm.Sign(s_k_gm, text[i % 10], &(signature[i]));
@@ -146,13 +146,10 @@ void MultiThreadedRun(int index) {
 
 	start = currentDateTime();
 
-	for (usint i = 0; i < counter; i++) {
-
-		bool verifyBool = scheme_gm.Verify(v_k_gm, signature[i], text[i % 10]);
-
-		if (verifyBool)
-			verifyCounter++;
-
+#pragma omp parallel for
+	for (usint i = 0; i < counter; i++) {		
+		if(scheme_gm.Verify(v_k_gm, signature[i], text[i % 10])==false)
+			std::cout << "Error in verification" << std::endl;
 	}
 
 	finish = currentDateTime();
@@ -161,7 +158,7 @@ void MultiThreadedRun(int index) {
 
 
 	std::cout << "Verifying - New : " << "\t" << verifyTime / counter << " ms" << std::endl;
-	std::cout << "Verification counter : " << "\t" << verifyCounter << "\n" << std::endl;
+	//std::cout << "Verification counter : " << "\t" << verifyCounter << "\n" << std::endl;
 
 	std::cout << "Execution completed" << std::endl;
 

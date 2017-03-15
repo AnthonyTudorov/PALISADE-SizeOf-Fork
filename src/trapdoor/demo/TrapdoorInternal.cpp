@@ -18,7 +18,7 @@ void MultiThreadedRun(int index);
 
 int main() {
 
-	for (usint i = 2; i < 3; i++) {
+	for (usint i = 1; i < 2; i++) {
 		MultiThreadedRun(i);
 	}
 
