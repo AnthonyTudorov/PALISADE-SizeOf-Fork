@@ -18,7 +18,7 @@ void MultiThreadedRun(int index);
 
 int main() {
 
-	for (usint i = 0; i < 3; i++) {
+	for (usint i = 3; i < 4; i++) {
 		MultiThreadedRun(i);
 	}
 
@@ -96,9 +96,16 @@ void MultiThreadedRun(int index) {
 	scheme_gm.KeyGen(&s_k_gm, &v_k_gm);
 
 	start = currentDateTime();
-	scheme_gm.KeyGen(&s_k_gm, &v_k_gm);
+
+	for (usint i = 0; i < 10; i++) {
+
+		scheme_gm.KeyGen(&s_k_gm, &v_k_gm);
+
+	}
+		
 	finish = currentDateTime();
-	std::cout << "Key generation - New : " << "\t" << finish - start << " ms" << std::endl;
+
+	std::cout << "Key generation - New : " << "\t" << (finish - start)/10 << " ms" << std::endl;
 
 	double signTime = 0;
 	double verifyTime = 0;
@@ -124,7 +131,6 @@ void MultiThreadedRun(int index) {
 
 	start = currentDateTime();
 
-#pragma omp parallel for
 	for (usint i = 0; i < counter; i++) {
 
 		scheme_gm.Sign(s_k_gm, text[i % 10], &(signature[i]));
@@ -139,7 +145,6 @@ void MultiThreadedRun(int index) {
 
 	start = currentDateTime();
 
-#pragma omp parallel for
 	for (usint i = 0; i < counter; i++) {
 
 		verifyBool = scheme_gm.Verify(v_k_gm, signature[i], text[i % 10]);

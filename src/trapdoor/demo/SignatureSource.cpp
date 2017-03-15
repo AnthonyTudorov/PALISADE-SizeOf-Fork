@@ -62,6 +62,7 @@ void MultiThreadedRun() {
 
 	silParams = std::make_shared<ILParams>(ilParams);
 	LPSignatureParameters signParams(silParams, dgg);
+signParams.SetElemParams(silParams);
 	std::cout << signParams.GetILParams()->GetCyclotomicOrder() << std::endl << std::endl;
 
 	LPSignKeyGPVGM<ILVector2n> s_k_gm(signParams);
