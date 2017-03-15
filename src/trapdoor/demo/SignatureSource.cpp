@@ -83,10 +83,30 @@ signParams.SetElemParams(silParams);
 	std::cout << "serializing matrix in LPSignKeyGPVGM" << std::endl;
 	Serialized ser;
 	std::string stringSer;
-	s_k_gm.GetPrivateElement().first.Serialize(&ser);
+
+Matrix<ILVector2n> publicKey = s_k_gm.GetPrivateElement().first;
+publicKey.SwitchFormat();
+
+	publicKey.Serialize(&ser);
 	SerializableHelper::SerializationToString(ser,stringSer);
 	//std::cout << stringSer << std::endl;
-	std::cout << "Length of serialization is " << stringSer.length() << std::endl;
+	std::cout << "Length of public key is " << stringSer.length() << std::endl;
+
+Matrix<ILVector2n> privateKey1 = s_k_gm.GetPrivateElement().second.m_e;
+privateKey1.SwitchFormat();
+
+	privateKey1.Serialize(&ser);
+	SerializableHelper::SerializationToString(ser,stringSer);
+	//std::cout << stringSer << std::endl;
+	std::cout << "Length of private key 1 is " << stringSer.length() << std::endl;
+
+Matrix<ILVector2n> privateKey2 = s_k_gm.GetPrivateElement().second.m_r;
+privateKey2.SwitchFormat();
+
+	privateKey2.Serialize(&ser);
+	SerializableHelper::SerializationToString(ser,stringSer);
+	//std::cout << stringSer << std::endl;
+	std::cout << "Length of private key 2 is " << stringSer.length() << std::endl;
 
 	double signTime = 0;
 	double verifyTime = 0;
