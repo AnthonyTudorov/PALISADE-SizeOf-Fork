@@ -1,6 +1,7 @@
 #include "signature/lwesign.h"
 #include "signature/lwesign.cpp"
 #include "encoding/byteplaintextencoding.h"
+#include "utils/serializablehelper.h"
 
 #include <omp.h> //open MP header
 
@@ -77,6 +78,15 @@ signParams.SetElemParams(silParams);
 	scheme_gm.KeyGen(&s_k_gm, &v_k_gm);
 	finish = currentDateTime();
 	std::cout << "Key generation - New : " << "\t" << finish - start << " ms" << std::endl;
+
+	/////////////////////////////// FOR YURIY
+	std::cout << "serializing matrix in LPSignKeyGPVGM" << std::endl;
+	Serialized ser;
+	std::string stringSer;
+	s_k_gm.GetPrivateElement().first.Serialize(&ser);
+	SerializableHelper::SerializationToString(ser,stringSer);
+	//std::cout << stringSer << std::endl;
+	std::cout << "Length of serialization is " << stringSer.length() << std::endl;
 
 	double signTime = 0;
 	double verifyTime = 0;

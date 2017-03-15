@@ -549,6 +549,15 @@ const std::string BigBinaryInteger<uint_type,BITLENGTH>::Serialize() const {
 	return ans;
 }
 
+//template<typename uint_type,usint BITLENGTH>
+//const std::string BigBinaryInteger<uint_type,BITLENGTH>::Serialize() const {
+//	std::string answer;
+//	unsigned char mask = 0x7f;
+//	const int mwidth = 7;
+//	sint totbits = m_MSB;
+//	sint initialPos = x
+//}
+
 /**
  * This function is only used for deserialization
  */
@@ -2207,6 +2216,28 @@ uschar BigBinaryInteger<uint_type,BITLENGTH>::GetBitAtIndex(usint index) const{
 	result>>=bmask_counter-1;//shifting operation gives bit either 1 or 0
 	return (uschar)result;
 }
+
+// FIXME NOT DONE
+template<typename uint_type,usint BITLENGTH>
+uschar BigBinaryInteger<uint_type,BITLENGTH>::Get6BitsAtIndex(usint index) const{
+	if(index<=0){
+		std::cout<<"Invalid index \n";
+		return 0;
+	}
+	else if (index > m_MSB)
+		return 0;
+	uint_type result;
+	sint idx = m_nSize - ceilIntByUInt(index);//idx is the index of the first bit
+	uint_type temp = this->m_value[idx];
+	uint_type bmask_counter = index%m_uintBitLength==0? m_uintBitLength:index%m_uintBitLength;//bmask is the bit number in the 8 bit array
+	uint_type bmask = 0x3f;
+	std::cout << index << ":" << idx << ":" << bmask_counter << std::endl;
+	bmask <<= (bmask_counter-1);
+	result = temp&bmask;//finds the bit in  bit format
+	result>>=bmask_counter-1;//shifting operation gives bit either 1 or 0
+	return (uschar)result;
+}
+
 
 template<typename uint_type, usint BITLENGTH>
 void BigBinaryInteger<uint_type, BITLENGTH>::SetIntAtIndex(usint idx, uint_type value){

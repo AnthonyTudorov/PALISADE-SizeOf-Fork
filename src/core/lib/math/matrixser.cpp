@@ -67,7 +67,21 @@ bool Matrix<BigBinaryVector>::Deserialize(const Serialized& serObj) {
 
 template<>
 bool Matrix<ILVector2n>::Serialize(Serialized* serObj) const {
-	return false;
+	serObj->SetObject();
+std::cout << "SERIALIZING " << rows << ":" << cols << std::endl;
+std::cout << data.size() << std::endl;
+std::cout << data[0].size() << std::endl;
+	//SerializeVectorOfVector("Matrix", elementName<Element>(), this->data, serObj);
+
+	//std::cout << typeid(Element).name() << std::endl;
+
+	for( int r=0; r<rows; r++ ) {
+		for( int c=0; c<cols; c++ ) {
+			data[r][c]->Serialize(serObj);
+		}
+	}
+
+	return true;
 }
 
 template<>

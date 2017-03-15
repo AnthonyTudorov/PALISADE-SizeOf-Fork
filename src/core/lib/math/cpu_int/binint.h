@@ -767,6 +767,13 @@ namespace cpu_int{
     */
     uschar GetBitAtIndex(usint index) const;
 
+	/**
+    * Gets the 6 bits at the specified index. Right fill with 0
+    *
+    * @param index is the index of the bit to get.
+    * @return resulting bit.
+    */
+    uschar Get6BitsAtIndex(usint index) const;
 
 	/**
 	* Sets the int value at the specified index.

@@ -598,7 +598,6 @@ bool BigBinaryVector<IntegerType>::Serialize(lbcrypto::Serialized* serObj) const
 	if( pkVectorLength > 0 ) {
 		std::string pkBufferString = GetValAtIndex(0).Serialize();
 		for (int i = 1; i < pkVectorLength; i++) {
-			pkBufferString += "|";
 			pkBufferString += GetValAtIndex(i).Serialize();
 		}
 		bbvMap.AddMember("VectorValues", pkBufferString, serObj->GetAllocator());
@@ -634,9 +633,6 @@ bool BigBinaryVector<IntegerType>::Deserialize(const lbcrypto::Serialized& serOb
 	while( *vp != '\0' ) {
 		vp = vectorElem.Deserialize(vp);
 		this->SetValAtIndex(ePos++, vectorElem);
-
-		if( *vp == '|' )
-			vp++;
 	}
 
 	return true;

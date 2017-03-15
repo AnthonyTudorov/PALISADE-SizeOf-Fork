@@ -734,9 +734,6 @@ bool Matrix<Element>::Deserialize(const Serialized& serObj) {
 }
 #endif
 
-
-
-
 /*
  * Multiply the matrix by a vector of 1's, which is the same as adding all the
  * elements in the row together.

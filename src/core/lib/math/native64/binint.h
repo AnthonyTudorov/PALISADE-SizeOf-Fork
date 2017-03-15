@@ -216,7 +216,6 @@ class NativeInteger
 
 public:
 	// FIXME overflows in string constructor and in the various ops
-	// FIXME serialize/deserialize
 
 	/**
 	 * Default constructor.
@@ -772,8 +771,43 @@ public:
 		return ss.str();
 	}
 
-	const std::string Serialize() const { return ToString(); }
-	const char * Deserialize(const char * str) { return str; }
+	const std::string Serialize() const {
+		static char to_base64_char[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+		std::string ser = "";
+		usint len = GetMSB();
+		ser += to_base64_char[len];
+		for( int i=len; i>0; i-=6 )
+			ser += to_base64_char[Get6BitsAtIndex(i)];
+		return ser;
+	}
+
+	static inline unsigned char base64_to_value(unsigned char b64) {
+		if( isupper(b64) )
+			return b64 - 'A';
+		else if( islower(b64) )
+			return b64 - 'a' + 26;
+		else if( isdigit(b64) )
+			return b64 - '0' + 52;
+		else if( b64 == '+' )
+			return 62;
+		else
+			return 63;
+	}
+
+	const char * Deserialize(const char * str) {
+		usint len = base64_to_value(*str);
+		std::cout << "length is" << len << std::endl;
+		uint64_t value = 0;
+
+		for( ; len > 6 ; len -= 6 )
+			value = (value<<6)|base64_to_value(*++str);
+
+		if( len )
+			value = (value<<len) | (base64_to_value(*++str) >> (6-len));
+
+		m_value = value;
+		return str;
+	}
 
 
 	/**
@@ -1000,6 +1034,24 @@ public:
 		}
 
 		return (m_value >> (index-1)) & 0x01;
+	}
+
+	/**
+	 * Gets the bit at the specified index.
+	 *
+	 * @param index is the index of the bit to get.
+	 * @return resulting bit.
+	 */
+	uschar Get6BitsAtIndex(usint index) const {
+
+		if(index==0) {
+			throw std::logic_error("Zero index in GetBitAtIndex");
+		}
+		if( index<=6 ) {
+			return (m_value << (index-6))&0x3f;
+		}
+
+		return (m_value >> (index-6)) & 0x3f;
 	}
 
 
