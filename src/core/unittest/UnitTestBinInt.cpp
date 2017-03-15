@@ -77,12 +77,19 @@ TEST(UTBinInt,basic_math){
   // TEST CASE WHEN FIRST NUMBER IS GREATER THAN SECOND NUMBER AND MSB
   // HAS NO OVERFLOW
   {
+	  BigBinaryInteger mod("9949"); // prime modulus
+	  BigBinaryInteger sn(mod - 1);
+	  BigBinaryInteger snd;
+	  std::cout << mod.Serialize() << std::endl;
+	  std::cout << sn.Serialize(mod) << std::endl;
+	  snd.Deserialize(sn.Serialize(mod).c_str(), mod);
+	  std::cout << sn << "==?" << snd << std::endl;
 
     BigBinaryInteger a("203450");
     BigBinaryInteger b("2034");
 
     std::cout << "new: " << a.GetMSB() << ":" << std::hex << a.ConvertToInt() << std::dec << std::endl;
-    for( int i = a.GetMSB(); i>0; i-=7 )
+    for( int i = a.GetMSB(); i>0; i-=6 )
     	std::cout << i << ":" << std::hex << (int)a.Get6BitsAtIndex(i) << std::dec << std::endl;
     std::cout << "a:" << a.Serialize() << std::endl;
     std::cout << "b:" <<b.Serialize() << std::endl;
@@ -91,10 +98,6 @@ TEST(UTBinInt,basic_math){
     BigBinaryInteger m;
     m.Deserialize(ff.c_str());
     std::cout << a << ":" << ff << std::endl;
-
-    std::cout << BigBinaryInteger("19").Serialize() << std::endl;
-    std::cout << BigBinaryInteger("327193").Serialize() << std::endl;
-    std::cout << BigBinaryInteger("431836492").Serialize() << std::endl;
 
     calculatedResult = a.Plus(b);
     expectedResult = 205484;

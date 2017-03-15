@@ -530,7 +530,7 @@ static inline unsigned int base64_to_value(char b64) {
  * and the code is implemented as unrolled loops
  */
 template<typename uint_type,usint BITLENGTH>
-const std::string BigBinaryInteger<uint_type,BITLENGTH>::Serialize() const {
+const std::string BigBinaryInteger<uint_type,BITLENGTH>::Serialize(const BigBinaryInteger& modulus) const {
 
 	std::string ans = "";
 	const uint_type *fromP;
@@ -562,7 +562,7 @@ const std::string BigBinaryInteger<uint_type,BITLENGTH>::Serialize() const {
  * This function is only used for deserialization
  */
 template<typename uint_type, usint BITLENGTH>
-const char *BigBinaryInteger<uint_type, BITLENGTH>::Deserialize(const char *cp){
+const char *BigBinaryInteger<uint_type, BITLENGTH>::Deserialize(const char *cp, const BigBinaryInteger& modulus){
 
 	sint i = m_nSize-1;
 	uint_type *msbInt = &m_value[i];

@@ -771,13 +771,26 @@ public:
 		return ss.str();
 	}
 
-	const std::string Serialize() const {
+	// Serialize using the modulus; convert value to signed, the serialize
+	const std::string Serialize(const NativeInteger& modulus = 0) const {
 		static char to_base64_char[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+		// numbers go from high to low -1, -2, ... +modulus/2, modulus/2 - 1, ... ,1, 0
+		bool isneg = false;
+		NativeInteger signedVal;
+		if( modulus.m_value == 0 || m_value < modulus.m_value/2 )
+			signedVal = m_value;
+		else {
+			signedVal = modulus.m_value - m_value;
+			isneg = true;
+		}
+
 		std::string ser = "";
-		usint len = GetMSB();
+		if( isneg ) ser += "-";
+		usint len = signedVal.GetMSB();
 		ser += to_base64_char[len];
 		for( int i=len; i>0; i-=6 )
-			ser += to_base64_char[Get6BitsAtIndex(i)];
+			ser += to_base64_char[signedVal.Get6BitsAtIndex(i)];
 		return ser;
 	}
 
@@ -794,16 +807,23 @@ public:
 			return 63;
 	}
 
-	const char * Deserialize(const char * str) {
+	const char * Deserialize(const char * str, const NativeInteger& modulus = 0) {
+		bool isneg = false;
+		if( *str == '-' ) {
+			++str;
+			isneg = true;
+		}
 		usint len = base64_to_value(*str);
-		std::cout << "length is" << len << std::endl;
 		uint64_t value = 0;
 
 		for( ; len > 6 ; len -= 6 )
 			value = (value<<6)|base64_to_value(*++str);
 
 		if( len )
-			value = (value<<len) | (base64_to_value(*++str) >> (6-len));
+			value = (value<<len) | (base64_to_value(*++str));// >> (6-len));
+
+		if( isneg )
+			value = (modulus.m_value - value);
 
 		m_value = value;
 		return str;
@@ -1043,12 +1063,13 @@ public:
 	 * @return resulting bit.
 	 */
 	uschar Get6BitsAtIndex(usint index) const {
+		static unsigned char smallmask[] = { 0, 0x1, 0x3, 0x7, 0xf, 0x1f, 0x3f };
 
 		if(index==0) {
 			throw std::logic_error("Zero index in GetBitAtIndex");
 		}
 		if( index<=6 ) {
-			return (m_value << (index-6))&0x3f;
+			return m_value & smallmask[index];
 		}
 
 		return (m_value >> (index-6)) & 0x3f;

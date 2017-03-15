@@ -596,9 +596,9 @@ bool BigBinaryVector<IntegerType>::Serialize(lbcrypto::Serialized* serObj) const
 
 	usint pkVectorLength = GetLength();
 	if( pkVectorLength > 0 ) {
-		std::string pkBufferString = GetValAtIndex(0).Serialize();
-		for (int i = 1; i < pkVectorLength; i++) {
-			pkBufferString += GetValAtIndex(i).Serialize();
+		std::string pkBufferString = "";
+		for (int i = 0; i < pkVectorLength; i++) {
+			pkBufferString += GetValAtIndex(i).Serialize(this->GetModulus());
 		}
 		bbvMap.AddMember("VectorValues", pkBufferString, serObj->GetAllocator());
 	}
@@ -631,7 +631,7 @@ bool BigBinaryVector<IntegerType>::Deserialize(const lbcrypto::Serialized& serOb
 	usint ePos = 0;
 	const char *vp = vIt->value.GetString();
 	while( *vp != '\0' ) {
-		vp = vectorElem.Deserialize(vp);
+		vp = vectorElem.Deserialize(vp, bbiModulus);
 		this->SetValAtIndex(ePos++, vectorElem);
 	}
 

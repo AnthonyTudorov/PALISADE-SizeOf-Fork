@@ -597,8 +597,8 @@ namespace cpu_int{
     */
     const std::string ToString() const;		
 
-    const std::string Serialize() const;
-    const char * Deserialize(const char * str);
+    const std::string Serialize(const BigBinaryInteger& mod = BigBinaryInteger::ZERO) const;
+    const char * Deserialize(const char * str, const BigBinaryInteger& mod = BigBinaryInteger::ZERO);
 
 
     /**
