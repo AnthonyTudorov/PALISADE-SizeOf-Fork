@@ -241,7 +241,7 @@ namespace lbcrypto {
 		//upper diagonal of matrix L
 		std::vector<double> h(k);
 
-		Matrix<double> a([]() { return make_unique<double>(); }, k, 1);
+		//Matrix<double> a([]() { return make_unique<double>(); }, k, 1);
 		Matrix<double> c([]() { return make_unique<double>(); }, k, 1);
 
 		//  set the values of matrix L
@@ -261,6 +261,7 @@ namespace lbcrypto {
 			c(i, 0) = (c(i - 1, 0) + modulus.GetDigitAtIndexForBase(i + 1, base)) / base;
 		}
 
+#pragma omp parallel for
 		for (size_t j = 0; j < u.GetLength(); j++)
 		{
 			BigBinaryInteger v(u.GetValAtIndex(j));
@@ -268,6 +269,8 @@ namespace lbcrypto {
 			vector<int32_t> p(k);
 
 			LatticeGaussSampUtility::Perturb(stddev, k, u.GetLength(), l, h, base, dgg, &p);
+
+			Matrix<double> a([]() { return make_unique<double>(); }, k, 1);
 
 			// int32_t cast is needed here as GetDigitAtIndexForBase returns an unsigned int
 			// when the result is negative, a(0,0) gets values close to 2^32 if the cast is not used
