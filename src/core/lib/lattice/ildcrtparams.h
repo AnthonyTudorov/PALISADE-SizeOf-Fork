@@ -60,6 +60,12 @@
 #include "../lattice/ilparams.h"
 #include "../lattice/ilvector2n.h"
 
+namespace lbcrypto {
+
+template<typename IntType, typename VecType, typename ParmType> class ILVectorImpl;
+
+}
+
 namespace native64 {
 
 typedef lbcrypto::ILParamsImpl<native64::BigBinaryInteger> ILParams;

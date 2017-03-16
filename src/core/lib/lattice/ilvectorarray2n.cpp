@@ -254,7 +254,7 @@ namespace lbcrypto {
 	ILVectorArray2n::~ILVectorArray2n() {}
 
 	// GET ACCESSORS
-	const ILVector2n& ILVectorArray2n::GetElementAtIndex (usint i) const
+	const native64::ILVector2n& ILVectorArray2n::GetElementAtIndex (usint i) const
 	{
 		if(m_vectors.empty())
 			throw std::logic_error("ILVectorArray2n's towers are not initialized. Throwing error now.");
@@ -267,7 +267,7 @@ namespace lbcrypto {
 		return m_vectors.size();
 	}
 
-	const std::vector<ILVector2n>& ILVectorArray2n::GetAllElements() const
+	const std::vector<native64::ILVector2n>& ILVectorArray2n::GetAllElements() const
 	{
 		return m_vectors;
 	}
