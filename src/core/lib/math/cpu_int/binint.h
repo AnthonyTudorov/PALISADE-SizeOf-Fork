@@ -51,6 +51,7 @@
 #include <memory>
 #include "../../utils/inttypes.h"
 #include "../../utils/memory.h"
+#include "../../utils/palisadebase64.h"
 #include "../native64/binint.h"
 
 /**

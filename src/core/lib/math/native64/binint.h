@@ -52,6 +52,7 @@
 #include <memory>
 #include "../../utils/inttypes.h"
 #include "../../utils/memory.h"
+#include "../../utils/palisadebase64.h"
 
 /**
  *@namespace native64
@@ -771,10 +772,8 @@ public:
 		return ss.str();
 	}
 
-	// Serialize using the modulus; convert value to signed, the serialize
+	// Serialize using the modulus; convert value to signed, then serialize
 	const std::string Serialize(const NativeInteger& modulus = 0) const {
-		static char to_base64_char[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
 		// numbers go from high to low -1, -2, ... +modulus/2, modulus/2 - 1, ... ,1, 0
 		bool isneg = false;
 		NativeInteger signedVal;
@@ -787,24 +786,11 @@ public:
 
 		std::string ser = "";
 		if( isneg ) ser += "-";
-		usint len = signedVal.GetMSB();
-		ser += to_base64_char[len];
+		unsigned char len = signedVal.GetMSB();
+		ser += lbcrypto::value_to_base64(len);
 		for( int i=len; i>0; i-=6 )
-			ser += to_base64_char[signedVal.Get6BitsAtIndex(i)];
+			ser += lbcrypto::value_to_base64(signedVal.Get6BitsAtIndex(i));
 		return ser;
-	}
-
-	static inline unsigned char base64_to_value(unsigned char b64) {
-		if( isupper(b64) )
-			return b64 - 'A';
-		else if( islower(b64) )
-			return b64 - 'a' + 26;
-		else if( isdigit(b64) )
-			return b64 - '0' + 52;
-		else if( b64 == '+' )
-			return 62;
-		else
-			return 63;
 	}
 
 	const char * Deserialize(const char * str, const NativeInteger& modulus = 0) {
@@ -813,14 +799,14 @@ public:
 			++str;
 			isneg = true;
 		}
-		usint len = base64_to_value(*str);
+		usint len = lbcrypto::base64_to_value(*str);
 		uint64_t value = 0;
 
 		for( ; len > 6 ; len -= 6 )
-			value = (value<<6)|base64_to_value(*++str);
+			value = (value<<6)|lbcrypto::base64_to_value(*++str);
 
 		if( len )
-			value = (value<<len) | (base64_to_value(*++str));// >> (6-len));
+			value = (value<<len) | (lbcrypto::base64_to_value(*++str));
 
 		if( isneg )
 			value = (modulus.m_value - value);
@@ -1063,16 +1049,7 @@ public:
 	 * @return resulting bit.
 	 */
 	uschar Get6BitsAtIndex(usint index) const {
-		static unsigned char smallmask[] = { 0, 0x1, 0x3, 0x7, 0xf, 0x1f, 0x3f };
-
-		if(index==0) {
-			throw std::logic_error("Zero index in GetBitAtIndex");
-		}
-		if( index<=6 ) {
-			return m_value & smallmask[index];
-		}
-
-		return (m_value >> (index-6)) & 0x3f;
+		return lbcrypto::get_6bits_atoffset(m_value, index);
 	}
 
 

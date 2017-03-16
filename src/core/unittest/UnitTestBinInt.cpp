@@ -78,7 +78,7 @@ TEST(UTBinInt,basic_math){
   // HAS NO OVERFLOW
   {
 	  BigBinaryInteger mod("9949"); // prime modulus
-	  BigBinaryInteger sn(mod - 1);
+	  BigBinaryInteger sn(mod - BigBinaryInteger::ONE);
 	  BigBinaryInteger snd;
 	  std::cout << mod.Serialize() << std::endl;
 	  std::cout << sn.Serialize(mod) << std::endl;

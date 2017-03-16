@@ -504,77 +504,92 @@ void BigBinaryInteger<uint_type,BITLENGTH>::PrintValueInDec() const{
 static const usint b64_shifts[] = { 0, 6, 12, 18, 24, 30 };
 static const usint B64MASK = 0x3F;
 
-// this for encoding...
-static char to_base64_char[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
-// and this for decoding...
-static inline unsigned int base64_to_value(char b64) {
-	if( isupper(b64) )
-		return b64 - 'A';
-	else if( islower(b64) )
-		return b64 - 'a' + 26;
-	else if( isdigit(b64) )
-		return b64 - '0' + 52;
-	else if( b64 == '+' )
-		return 62;
-	else
-		return 63;
-}
-
 /**
  * This function is only used for serialization
  *
- * The scheme here is to take each of the uint_types in the BigBinaryInteger
- * and turn it into 6 ascii characters. It's basically Base64 encoding: 6 bits per character
- * times 5 is the first 30 bits. For efficiency's sake, the last two bits are encoded as A,B,C, or D
- * and the code is implemented as unrolled loops
+ * The scheme here is to take the integer 6 bits at a time and encode it into a Base64 encoding
+ * For efficiency's sake, we convert to a signed number and put in a - for negative numbers
+ * We preface with a base64 encoding of the length, followed by a sign (to delineate length from number)
  */
 template<typename uint_type,usint BITLENGTH>
 const std::string BigBinaryInteger<uint_type,BITLENGTH>::Serialize(const BigBinaryInteger& modulus) const {
 
-	std::string ans = "";
-	const uint_type *fromP;
-
-	sint siz = (m_MSB%m_uintBitLength==0&&m_MSB!=0) ? (m_MSB/m_uintBitLength) : ((sint)m_MSB/m_uintBitLength +1);
-	int i;
-	for(i=m_nSize-1, fromP=m_value+i ; i>=m_nSize-siz ; i--,fromP--) {
-		ans += to_base64_char[((*fromP) >> b64_shifts[0]) & B64MASK];
-		ans += to_base64_char[((*fromP) >> b64_shifts[1]) & B64MASK];
-		ans += to_base64_char[((*fromP) >> b64_shifts[2]) & B64MASK];
-		ans += to_base64_char[((*fromP) >> b64_shifts[3]) & B64MASK];
-		ans += to_base64_char[((*fromP) >> b64_shifts[4]) & B64MASK];
-		ans += (((*fromP) >> b64_shifts[5])&0x3) + 'A';
+	// numbers go from high to low -1, -2, ... +modulus/2, modulus/2 - 1, ... ,1, 0
+	bool isneg = false;
+	BigBinaryInteger signedVal;
+	if( modulus == BigBinaryInteger::ZERO || *this < modulus>>1 ) // divide by 2
+		signedVal = *this;
+	else {
+		signedVal = modulus - *this;
+		isneg = true;
 	}
 
-	return ans;
-}
+	std::string ser = "";
+	unsigned short len = signedVal.GetMSB();
 
-//template<typename uint_type,usint BITLENGTH>
-//const std::string BigBinaryInteger<uint_type,BITLENGTH>::Serialize() const {
-//	std::string answer;
-//	unsigned char mask = 0x7f;
-//	const int mwidth = 7;
-//	sint totbits = m_MSB;
-//	sint initialPos = x
-//}
+	// encode len
+	bool foundNum = false;
+	for(int i=sizeof(unsigned short)*8; i>0; i-=6) {
+		unsigned char b = lbcrypto::get_6bits_atoffset(len,i);
+		if( b == 0 && !foundNum ) continue;
+		foundNum = true;
+		ser += lbcrypto::value_to_base64( b );
+	}
+	if( !foundNum )
+		ser += lbcrypto::value_to_base64(0);
+
+	ser += isneg ? "-" : "*"; // separate encoded len from encoded number
+	for( int i=len; i>0; i-=6 )
+		ser += lbcrypto::value_to_base64(signedVal.Get6BitsAtIndex(i));
+	return ser;
+}
 
 /**
  * This function is only used for deserialization
  */
 template<typename uint_type, usint BITLENGTH>
-const char *BigBinaryInteger<uint_type, BITLENGTH>::Deserialize(const char *cp, const BigBinaryInteger& modulus){
+const char *BigBinaryInteger<uint_type, BITLENGTH>::Deserialize(const char *str, const BigBinaryInteger& modulus){
 
+	// first decode the length
+	unsigned short len = 0;
+
+	while(true) {
+		unsigned char ch = lbcrypto::base64_to_value(*str);
+		if( ch == '-' || ch == '*' ) break;
+		len = len<<6 | lbcrypto::base64_to_value(ch);
+		++str;
+	}
+
+	bool isneg = false;
+	if( *str++ == '-' ) {
+		isneg = true;
+	}
+
+	BigBinaryInteger value(0);
+
+	for( ; len > 6 ; len -= 6 )
+		value = (value<<6) + BigBinaryInteger(lbcrypto::base64_to_value(*++str));
+
+	if( len )
+		value = (value<<len) + BigBinaryInteger(lbcrypto::base64_to_value(*++str));
+
+	if( isneg )
+		value = (modulus - value);
+
+	return str;
+
+#ifdef OUT
 	sint i = m_nSize-1;
 	uint_type *msbInt = &m_value[i];
 
 	usint counter = 0;
 
 	while( *cp != '\0' && *cp != '|' ) {
-		uint_type converted =  base64_to_value(*cp++) << b64_shifts[0];
-		converted |= base64_to_value(*cp++) << b64_shifts[1];
-		converted |= base64_to_value(*cp++) << b64_shifts[2];
-		converted |= base64_to_value(*cp++) << b64_shifts[3];
-		converted |= base64_to_value(*cp++) << b64_shifts[4];
+		uint_type converted = lbcrypto:: base64_to_value(*cp++) << b64_shifts[0];
+		converted |= lbcrypto::base64_to_value(*cp++) << b64_shifts[1];
+		converted |= lbcrypto::base64_to_value(*cp++) << b64_shifts[2];
+		converted |= lbcrypto::base64_to_value(*cp++) << b64_shifts[3];
+		converted |= lbcrypto::base64_to_value(*cp++) << b64_shifts[4];
 		converted |= ((*cp++ - 'A')&0x3) << b64_shifts[5];
 		m_value[i] = converted;
 		counter++;
@@ -584,6 +599,7 @@ const char *BigBinaryInteger<uint_type, BITLENGTH>::Deserialize(const char *cp, 
 	m_MSB = GetMSB32(m_value[i+1])+(counter-1)*32; // 32 should be something better: (sizeof(uint_type)*8 ??
 
 	return cp;
+#endif
 }
 
 
@@ -2227,14 +2243,14 @@ uschar BigBinaryInteger<uint_type,BITLENGTH>::Get6BitsAtIndex(usint index) const
 	else if (index > m_MSB)
 		return 0;
 	uint_type result;
-	sint idx = m_nSize - ceilIntByUInt(index);//idx is the index of the first bit
+	sint idx = m_nSize - ceilIntByUInt(index);	//idx is the slot holding the first bit
 	uint_type temp = this->m_value[idx];
 	uint_type bmask_counter = index%m_uintBitLength==0? m_uintBitLength:index%m_uintBitLength;//bmask is the bit number in the 8 bit array
 	uint_type bmask = 0x3f;
-	std::cout << index << ":" << idx << ":" << bmask_counter << std::endl;
-	bmask <<= (bmask_counter-1);
-	result = temp&bmask;//finds the bit in  bit format
-	result>>=bmask_counter-1;//shifting operation gives bit either 1 or 0
+	bmask <<= (bmask_counter-6);
+	result = temp&bmask;
+	result >>= (bmask_counter-6); //shift the answer all the way back over
+	std::cout << index << ":::" << std::hex << temp << std::dec << ":" << idx << ":" << bmask_counter << " = " << std::hex<< result << std::dec << std::endl;
 	return (uschar)result;
 }
 

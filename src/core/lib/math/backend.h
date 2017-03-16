@@ -56,7 +56,7 @@
 //uncommented line (and breaking the documentation of the line)
 
 //#define MATHBACKEND 2 //side by side comparison of old and new libraries
-//#define MATHBACKEND 2 //32 bit should work with all OS
+#define MATHBACKEND 2 //32 bit should work with all OS
 
 //NOTE currently MATHBACKEND 4 has issues with the following unit tests
 //stemming from poor run time performance of 128 bit intrinsic divide
@@ -66,7 +66,7 @@
 
 //#define MATHBACKEND 4 //64 bit (currently works for ubuntu, not tested otherwise
 
-#define MATHBACKEND 2	// jerry's native
+//#define MATHBACKEND 7	// jerry's native
 
 #if MATHBACKEND == 1
 #include "cpu8bit/binint8bit.h"
