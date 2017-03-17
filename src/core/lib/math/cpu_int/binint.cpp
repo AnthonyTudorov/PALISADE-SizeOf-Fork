@@ -555,10 +555,9 @@ const char *BigBinaryInteger<uint_type, BITLENGTH>::Deserialize(const char *str,
 	unsigned char ch;
 
 	while(true) {
-		ch = lbcrypto::base64_to_value(*str);
-		if( ch == '-' || ch == '*' ) break;
-		len = len<<6 | lbcrypto::base64_to_value(ch);
-		++str;
+		if( *str == '-' || *str == '*' ) break;
+		len = len<<6 | lbcrypto::base64_to_value(*str++);
+		std::cout << "char is " << lbcrypto::base64_to_value(*str) << ", len now " << len << std::endl;
 	}
 
 	std::cout << "len in Deser is " << len << ch << std::endl;
@@ -2247,7 +2246,8 @@ uschar BigBinaryInteger<uint_type,BITLENGTH>::Get6BitsAtIndex(usint index) const
 	uint_type result;
 	sint idx = m_nSize - ceilIntByUInt(index);	//idx is the slot holding the first bit
 	uint_type temp = this->m_value[idx];
-	uint_type bmask_counter = index%m_uintBitLength==0? m_uintBitLength:index%m_uintBitLength;//bmask is the bit number in the 8 bit array
+	std::cout << m_MSB << "<< msb " << idx << std::hex << temp << std::dec << std::endl;
+	uint_type bmask_counter = index%m_uintBitLength==0? m_uintBitLength:index%m_uintBitLength; //bmask is the bit number in the 8 bit array
 	uint_type bmask = 0x3f;
 	bmask <<= (bmask_counter-6);
 	result = temp&bmask;
