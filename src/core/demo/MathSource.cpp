@@ -30,14 +30,21 @@ using namespace lbcrypto;
 
 //define the main sections of the test
 
-void test_BigBinaryVector(void); // test old version of big int vector
-void test_ubintvec(void);	 // test new vector version
+void test_BigBinaryVector(int nloop); // test old version of big int vector
+void test_ubintvec(int nloop);	 // test new vector version
 
 
 //main()   need this for Kurts' makefile to ignore this.
 int main(int argc, char* argv[]){
-  test_BigBinaryVector();
-  test_ubintvec();
+  usint nloop = 10;
+  if (argc >1)
+    nloop = atoi(argv[1]);
+
+  if (nloop < 1) nloop = 1;
+  cout <<"running "<<argv[0]<<" nloop = "<<nloop<<endl;
+
+  test_BigBinaryVector(nloop);
+  test_ubintvec(nloop);
   return 0;
 }
 
@@ -89,9 +96,8 @@ void vec_diff(BigBinaryVector &a, BigBinaryVector &b) {
 
 
 //main BigBinaryVector test suite. tests math
-void test_BigBinaryVector () {
+void test_BigBinaryVector (int nloop) {
   cout<<"testing BigBinaryVector"<<endl;
-  int nloop = 1000; //number of times to run each test for timing.
 
   bool dbg_flag = 1;		// if true then print dbg output
 
@@ -428,10 +434,8 @@ void vec_diff(mubintvec &a, mubintvec &b) {
 
 
 // Code to test ubintvec at three different numbers of limbs.
-void test_ubintvec() {
+void test_ubintvec(int nloop) {
   #if MATHBACKEND == 2 ||  MATHBACKEND ==5
-
-  int nloop = 1000; //number of times to run each test for timing.
 
   bool dbg_flag = 1;		// if true then print dbg output
  

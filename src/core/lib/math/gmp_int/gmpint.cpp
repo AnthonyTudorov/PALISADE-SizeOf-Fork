@@ -85,6 +85,7 @@ namespace NTL {
     DEBUG("this "<<*this);
   };
 
+#if 0
   myZZ::myZZ(NTL::ZZ &&a) : ZZ(a) {}
   //  myZZ::myZZ(const NTL::myZZ_p &&a): ZZ(){*this = a._ZZ_p__rep;}
   myZZ::myZZ(const NTL::myZZ_p &&a)
@@ -95,7 +96,13 @@ namespace NTL {
     DEBUG("a "<<a);
     DEBUG("arep "<<a._ZZ_p__rep);
   };
-  
+#else
+  myZZ::myZZ(NTL::ZZ &&a) : ZZ() {this->swap(a);}
+  myZZ::myZZ(NTL::myZZ_p &&a): ZZ(){
+    this->swap(a._ZZ_p__rep);
+  }
+
+#endif  
 
   void myZZ::SetValue(const std::string& str) 
   {

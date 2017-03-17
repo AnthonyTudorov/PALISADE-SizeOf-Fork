@@ -114,7 +114,7 @@ public:
   myZZ(const NTL::myZZ_p &a);
 
   myZZ(NTL::ZZ &&a);
-  myZZ(const NTL::myZZ_p &&a);
+  myZZ(NTL::myZZ_p &&a);
 
 //  myZZ& operator=(const myZZ &rhs);
   //myZZ( ZZ && zzin) : ZZ(zzin), m_MSB(5){};
@@ -181,7 +181,7 @@ public:
 
  inline myZZ operator-(const myZZ &b) const {
     if (*this < b) { // should return 0
-      return ZZ(0);
+      return myZZ(0);
     }
     myZZ tmp;
     sub(tmp, *this, b);

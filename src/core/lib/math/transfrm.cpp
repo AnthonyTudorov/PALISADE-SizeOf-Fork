@@ -69,14 +69,18 @@ BigBinaryVector NumberTheoreticTransform::ForwardTransformIterative(const BigBin
 		  for lower cyclotomic orders is smaller. This trick only works for powers of two cyclotomics.*/ 
 	usint ringDimensionFactor = (rootOfUnityTable.GetLength()) / cycloOrder;
 
+#if MATHBACKEND <6
 	//Precompute the Barrett mu parameter
 	BigBinaryInteger temp(BigBinaryInteger::ONE);
 	temp <<= 2 * element.GetModulus().GetMSB() + 3;
 	BigBinaryInteger mu = temp.DividedBy(element.GetModulus());
 
+#else
+	BigBinaryInteger modulus = element.GetModulus();
+#endif
+
 	for (usint m = 2; m <= n; m = 2 * m)
 	{
-
 		for (usint j = 0; j<n; j = j + m)
 		{
 			for (usint i = 0; i <= m / 2 - 1; i++)
@@ -88,7 +92,6 @@ BigBinaryVector NumberTheoreticTransform::ForwardTransformIterative(const BigBin
 
 				usint indexEven = j + i;
 				usint indexOdd = j + i + m / 2;
-
 				if (result.GetValAtIndex(indexOdd).GetMSB()>0)
 				{
 
@@ -96,11 +99,15 @@ BigBinaryVector NumberTheoreticTransform::ForwardTransformIterative(const BigBin
 						omegaFactor = omega;
 					else
 					{
+#if MATHBACKEND <6
 						product = omega*result.GetValAtIndex(indexOdd);
 						//omegaFactor = product.ModBarrett(element.GetModulus(),mu_arr);
 						omegaFactor = product.ModBarrett(element.GetModulus(), mu);
+#else
+						omegaFactor = omega.ModMul(result.GetValAtIndex(indexOdd),modulus);
+#endif
 					}
-
+#if MATHBACKEND <6
 					butterflyPlus = result.GetValAtIndex(indexEven);
 					butterflyPlus += omegaFactor;
 					if (butterflyPlus >= element.GetModulus())
@@ -113,10 +120,15 @@ BigBinaryVector NumberTheoreticTransform::ForwardTransformIterative(const BigBin
 
 					result.SetValAtIndex(indexEven, butterflyPlus);
 					result.SetValAtIndex(indexOdd, butterflyMinus);
-
+#else
+					//result[indexOdd] = result[indexEven].ModSub(omegaFactor,modulus);					
+					result[indexOdd] = result[indexEven]-omegaFactor;
+					result[indexEven]=result[indexEven]+omegaFactor;
+#endif
 				}
 				else
-					result.SetValAtIndex(indexOdd, result.GetValAtIndex(indexEven));
+				  //result.SetValAtIndex(indexOdd, result.GetValAtIndex(indexEven));
+				  result[indexOdd] = result[indexEven];
 
 			}
 
@@ -133,7 +145,7 @@ BigBinaryVector NumberTheoreticTransform::InverseTransformIterative(const BigBin
 	BigBinaryVector ans = NumberTheoreticTransform::GetInstance().ForwardTransformIterative(element, rootOfUnityInverseTable, cycloOrder);
 
 	ans.SetModulus(element.GetModulus());
-
+	//note this could be stored
 	ans = ans.ModMul(UintToBigBinaryInteger(cycloOrder).ModInverse(element.GetModulus()));
 
 	return ans;
@@ -363,7 +375,7 @@ BigBinaryVector ChineseRemainderTransformFTT::InverseTransform(const BigBinaryVe
 	BigBinaryVector *rootOfUnityITable = NULL;
 #endif
 	BigBinaryInteger rootofUnityInverse;
-
+	//TODO: is there a reason this isn't checked once when the table is made? 
 	try {
 		rootofUnityInverse = rootOfUnity.ModInverse(element.GetModulus());
 	} catch ( std::exception& e ) {

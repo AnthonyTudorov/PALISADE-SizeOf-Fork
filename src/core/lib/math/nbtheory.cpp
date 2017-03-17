@@ -331,7 +331,7 @@ usint GetMSB32(usint x)
  void PrimeFactorize(const BigBinaryInteger &n, std::set<BigBinaryInteger> &primeFactors)
  {
    bool dbg_flag = false;
-
+#if 1 //I am suspecting this blows the stack for big numbers
 	// primeFactors.clear();
         DEBUG("In PrimeFactorize ");
 	DEBUG("n " <<n.ToString());
@@ -354,6 +354,7 @@ usint GetMSB32(usint x)
  	BigBinaryInteger reducedN(tmp);
 	DEBUG("calling PF "<<reducedN.ToString());
 	PrimeFactorize(reducedN, primeFactors);
+#endif
  }
 
 /*
