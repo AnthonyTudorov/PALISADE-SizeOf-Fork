@@ -5,12 +5,13 @@
  *      Author: gwryan
  */
 
-#include "ilparams.cpp"
-#include "ilvector2n.cpp"
+#include "../math/backend.h"
 #include "../math/discretegaussiangenerator.cpp"
 #include "../math/discreteuniformgenerator.cpp"
 #include "../math/binaryuniformgenerator.cpp"
 #include "../math/ternaryuniformgenerator.cpp"
+#include "ilparams.cpp"
+#include "ilvector2n.cpp"
 
 
 namespace native64 {
