@@ -77,9 +77,9 @@ namespace lbcrypto {
 #if LARGEFLOATBACKEND == 1
 
 	//defined for floats with 50 significant decimal digits; can be increased to 100 if needed
-	using boost::multiprecision::cpp_dec_float_30;
+	using boost::multiprecision::cpp_dec_float_50;
 
-	typedef boost::multiprecision::cpp_dec_float_30 LargeFloat;
+	typedef boost::multiprecision::cpp_dec_float_50 LargeFloat;
 
 #endif
 
@@ -94,7 +94,6 @@ namespace lbcrypto {
 
 #if LARGEFLOATBACKEND == 3
 
-	//defined for floats with 50 significant decimal digits; can be increased to 100 if needed
 	//using boost::multiprecision::float128;
 	
 	//typedef boost::multiprecision::float128 LargeFloat;

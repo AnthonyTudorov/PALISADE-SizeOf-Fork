@@ -526,7 +526,7 @@ const std::string BigBinaryInteger<uint_type,BITLENGTH>::Serialize(const BigBina
 
 	std::string ser = "";
 	unsigned short len = signedVal.GetMSB();
-
+std::cout << "len of " << this->ConvertToInt() << " is " << len << std::endl;
 	// encode len
 	bool foundNum = false;
 	for(int i=sizeof(unsigned short)*8; i>0; i-=6) {
@@ -552,14 +552,16 @@ const char *BigBinaryInteger<uint_type, BITLENGTH>::Deserialize(const char *str,
 
 	// first decode the length
 	unsigned short len = 0;
+	unsigned char ch;
 
 	while(true) {
-		unsigned char ch = lbcrypto::base64_to_value(*str);
+		ch = lbcrypto::base64_to_value(*str);
 		if( ch == '-' || ch == '*' ) break;
 		len = len<<6 | lbcrypto::base64_to_value(ch);
 		++str;
 	}
 
+	std::cout << "len in Deser is " << len << ch << std::endl;
 	bool isneg = false;
 	if( *str++ == '-' ) {
 		isneg = true;
@@ -2249,7 +2251,14 @@ uschar BigBinaryInteger<uint_type,BITLENGTH>::Get6BitsAtIndex(usint index) const
 	uint_type bmask = 0x3f;
 	bmask <<= (bmask_counter-6);
 	result = temp&bmask;
-	result >>= (bmask_counter-6); //shift the answer all the way back over
+	if( bmask_counter >= 6 || bmask_counter <= index ) {
+		result >>= (bmask_counter-6); //shift the answer all the way back over
+	} else {
+		result <<= (6-bmask_counter);
+		// get bits from the next slot
+		uint_type otherbits = this->m_value[idx+1];
+		uint_type oresult = otherbits>>(m_uintBitLength-6-bmask_counter);
+	}
 	std::cout << index << ":::" << std::hex << temp << std::dec << ":" << idx << ":" << bmask_counter << " = " << std::hex<< result << std::dec << std::endl;
 	return (uschar)result;
 }
