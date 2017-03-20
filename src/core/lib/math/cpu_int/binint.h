@@ -331,6 +331,7 @@ namespace cpu_int{
     */
     void SetValue(const std::string& str);
         
+	//FIXME this is not implemented
     /**
     * Basic set method for setting the value of a big binary integer
     *

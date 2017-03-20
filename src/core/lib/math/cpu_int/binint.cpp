@@ -525,11 +525,17 @@ const std::string BigBinaryInteger<uint_type,BITLENGTH>::Serialize(const BigBina
 	}
 
 	std::string ser = "";
-	unsigned short len = signedVal.GetMSB();
-std::cout << "len of " << this->ConvertToInt() << " is " << len << std::endl;
+	uint32_t len = signedVal.GetMSB();
+
 	// encode len
 	bool foundNum = false;
-	for(int i=sizeof(unsigned short)*8; i>0; i-=6) {
+	// first two bits
+	int first = len>>30;
+	if( first != 0 ) {
+		foundNum = true;
+		ser += lbcrypto::value_to_base64( first );
+	}
+	for(int i=30; i>0; i-=6) {
 		unsigned char b = lbcrypto::get_6bits_atoffset(len,i);
 		if( b == 0 && !foundNum ) continue;
 		foundNum = true;
@@ -544,23 +550,18 @@ std::cout << "len of " << this->ConvertToInt() << " is " << len << std::endl;
 	return ser;
 }
 
-/**
- * This function is only used for deserialization
- */
 template<typename uint_type, usint BITLENGTH>
 const char *BigBinaryInteger<uint_type, BITLENGTH>::Deserialize(const char *str, const BigBinaryInteger& modulus){
 
 	// first decode the length
-	unsigned short len = 0;
+	uint32_t len = 0;
 	unsigned char ch;
 
 	while(true) {
 		if( *str == '-' || *str == '*' ) break;
 		len = len<<6 | lbcrypto::base64_to_value(*str++);
-		std::cout << "char is " << lbcrypto::base64_to_value(*str) << ", len now " << len << std::endl;
 	}
 
-	std::cout << "len in Deser is " << len << ch << std::endl;
 	bool isneg = false;
 	if( *str++ == '-' ) {
 		isneg = true;
@@ -568,39 +569,19 @@ const char *BigBinaryInteger<uint_type, BITLENGTH>::Deserialize(const char *str,
 
 	BigBinaryInteger value(0);
 
-	for( ; len > 6 ; len -= 6 )
-		value = (value<<6) + BigBinaryInteger(lbcrypto::base64_to_value(*++str));
+	for( ; len > 6 ; len -= 6 ) {
+		value = (value<<6) + BigBinaryInteger(lbcrypto::base64_to_value(*str++));
+	}
 
 	if( len )
-		value = (value<<len) + BigBinaryInteger(lbcrypto::base64_to_value(*++str));
+		value = (value<<len) + BigBinaryInteger(lbcrypto::base64_to_value(*str++));
 
 	if( isneg )
 		value = (modulus - value);
 
+	*this = value;
+
 	return str;
-
-#ifdef OUT
-	sint i = m_nSize-1;
-	uint_type *msbInt = &m_value[i];
-
-	usint counter = 0;
-
-	while( *cp != '\0' && *cp != '|' ) {
-		uint_type converted = lbcrypto:: base64_to_value(*cp++) << b64_shifts[0];
-		converted |= lbcrypto::base64_to_value(*cp++) << b64_shifts[1];
-		converted |= lbcrypto::base64_to_value(*cp++) << b64_shifts[2];
-		converted |= lbcrypto::base64_to_value(*cp++) << b64_shifts[3];
-		converted |= lbcrypto::base64_to_value(*cp++) << b64_shifts[4];
-		converted |= ((*cp++ - 'A')&0x3) << b64_shifts[5];
-		m_value[i] = converted;
-		counter++;
-		i--;
-	}
-
-	m_MSB = GetMSB32(m_value[i+1])+(counter-1)*32; // 32 should be something better: (sizeof(uint_type)*8 ??
-
-	return cp;
-#endif
 }
 
 
@@ -2234,32 +2215,38 @@ uschar BigBinaryInteger<uint_type,BITLENGTH>::GetBitAtIndex(usint index) const{
 	return (uschar)result;
 }
 
-// FIXME NOT DONE
 template<typename uint_type,usint BITLENGTH>
 uschar BigBinaryInteger<uint_type,BITLENGTH>::Get6BitsAtIndex(usint index) const{
-	if(index<=0){
-		std::cout<<"Invalid index \n";
+	if(index == 0 || index > m_MSB ) {
 		return 0;
 	}
-	else if (index > m_MSB)
-		return 0;
+
 	uint_type result;
 	sint idx = m_nSize - ceilIntByUInt(index);	//idx is the slot holding the first bit
 	uint_type temp = this->m_value[idx];
-	std::cout << m_MSB << "<< msb " << idx << std::hex << temp << std::dec << std::endl;
-	uint_type bmask_counter = index%m_uintBitLength==0? m_uintBitLength:index%m_uintBitLength; //bmask is the bit number in the 8 bit array
+
+	uint_type bmask_counter = index%m_uintBitLength==0? m_uintBitLength:index%m_uintBitLength;
 	uint_type bmask = 0x3f;
-	bmask <<= (bmask_counter-6);
-	result = temp&bmask;
-	if( bmask_counter >= 6 || bmask_counter <= index ) {
+
+	if( bmask_counter >= 6 ) {
+		result = temp&(bmask<<(bmask_counter-6));
 		result >>= (bmask_counter-6); //shift the answer all the way back over
 	} else {
-		result <<= (6-bmask_counter);
-		// get bits from the next slot
-		uint_type otherbits = this->m_value[idx+1];
-		uint_type oresult = otherbits>>(m_uintBitLength-6-bmask_counter);
+		// some bits are in here, some bits are in the next guy...
+		if( index <= bmask_counter ) {
+			// i just want the last index bits
+			result = this->m_value[idx] & (bmask >> (6-index));
+		}
+		else {
+			result = temp&(bmask>>(6-bmask_counter));
+			result <<= (6-bmask_counter);
+			// get bits from the next slot
+			uint_type otherbits = this->m_value[idx+1];
+			uint_type oresult = (otherbits>>(m_uintBitLength-6+bmask_counter)) & bmask;
+			result |= oresult;
+		}
 	}
-	std::cout << index << ":::" << std::hex << temp << std::dec << ":" << idx << ":" << bmask_counter << " = " << std::hex<< result << std::dec << std::endl;
+
 	return (uschar)result;
 }
 
