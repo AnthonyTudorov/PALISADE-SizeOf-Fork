@@ -84,6 +84,7 @@ public:
 	* @param  *ilVector encoded plaintext - output argument.
 	*/
 	void Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector, size_t start_from=0, size_t length=0) const;
+	void Encode(const BigBinaryInteger &modulus, native64::ILVector2n *ilVector, size_t start_from=0, size_t length=0) const;
 
 	/** Interface for the operation of converting from ILVector2n to current plaintext encoding.
 	*

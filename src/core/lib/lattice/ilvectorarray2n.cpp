@@ -108,14 +108,14 @@ namespace lbcrypto {
 			}
 		}
 
-		shared_ptr<ILDCRTParams> p = new(ILDCRTParams(towers.size()));
+		shared_ptr<ILDCRTParams> p( new ILDCRTParams(towers.size()) );
 		p->SetCyclotomicOrder(m_vectors[0].GetCyclotomicOrder());
 
 		m_modulus = 1;
 
 		for (usint i = 0; i<towers.size(); i++) {
 			(*p)[i] = towers.at(i).GetParams();
-			m_modulus = m_modulus*m_vectors.at(i).GetModulus();
+			m_modulus = m_modulus * BigBinaryInteger(m_vectors.at(i).GetModulus().ConvertToInt());
 		}
 
 		m_params = p;
@@ -229,7 +229,9 @@ namespace lbcrypto {
 		return std::move(res);
 	}
 
-	ILVectorArray2n ILVectorArray2n::CloneWithNoise(const DiscreteGaussianGenerator &dgg, Format format) const{
+	ILVectorArray2n ILVectorArray2n::CloneWithNoise(const DiscreteGaussianGenerator &dgg, Format format) const {
+		throw std::logic_error("Cannot clone this object with noise");
+#ifdef OUT
 		std::vector<native64::ILVector2n> result;
 		result.reserve(m_vectors.size());
 		
@@ -239,6 +241,7 @@ namespace lbcrypto {
 
 		ILVectorArray2n res(result);
 		return std::move(res);
+#endif
 	}
 
 	const usint ILVectorArray2n::GetCyclotomicOrder() const {
@@ -257,7 +260,7 @@ namespace lbcrypto {
 	const native64::ILVector2n& ILVectorArray2n::GetElementAtIndex (usint i) const
 	{
 		if(m_vectors.empty())
-			throw std::logic_error("ILVectorArray2n's towers are not initialized. Throwing error now.");
+			throw std::logic_error("ILVectorArray2n's towers are not initialized.");
 		if(i > m_vectors.size()-1)
 			throw std::logic_error("Index: " + std::to_string(i) + " is out of range.");
 		return m_vectors[i];
@@ -288,7 +291,7 @@ namespace lbcrypto {
 
 	std::vector<ILVectorArray2n> ILVectorArray2n::BaseDecompose(usint baseBits) const {
 		
-		std::vector< std::vector<ILVector2n> > baseDecomposeElementWise;
+		std::vector< std::vector<native64::ILVector2n> > baseDecomposeElementWise;
 
 		std::vector<ILVectorArray2n> result;
 
@@ -320,7 +323,7 @@ namespace lbcrypto {
 
 		std::vector<ILVectorArray2n> result;
 
-		std::vector< std::vector<ILVector2n> > towerVals;
+		std::vector< std::vector<native64::ILVector2n> > towerVals;
 
 		ILVectorArray2n zero(this->CloneParametersOnly());
 		zero = {0,0};
@@ -368,7 +371,7 @@ namespace lbcrypto {
 		return std::move(tmp);
 	}
 
-	ILVectorArray2n ILVectorArray2n::SignedMod(const BigBinaryInteger & modulus) const
+	ILVectorArray2n ILVectorArray2n::SignedMod(const native64::BigBinaryInteger & modulus) const
 	{
 		ILVectorArray2n tmp(*this);
 
@@ -495,7 +498,7 @@ namespace lbcrypto {
 		}
 		else{
 			for(usint i=0;i<m_vectors.size();i++){
-				BigBinaryVector temp(m_cyclotomicOrder/2);
+				native64::BigBinaryVector temp(m_cyclotomicOrder/2);
 				temp.SetModulus(m_vectors.at(i).GetModulus());
 				temp = rhs;
 				m_vectors.at(i).SetValues(std::move(temp),m_format);
@@ -507,7 +510,7 @@ namespace lbcrypto {
 
 	/*SCALAR OPERATIONS*/
 
-	ILVectorArray2n ILVectorArray2n::Plus(const BigBinaryInteger &element) const
+	ILVectorArray2n ILVectorArray2n::Plus(const native::BigBinaryInteger &element) const
 	{
 		ILVectorArray2n tmp(*this);
 

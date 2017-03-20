@@ -53,8 +53,8 @@ using std::shared_ptr;
 
 namespace lbcrypto {
 
-template<typename IntType, typename VecType, typename ParmType> class ILVectorImpl;
-typedef ILVectorImpl<BigBinaryInteger, BigBinaryVector, ILParams> ILVector2n;
+template<typename ModType, typename IntType, typename VecType, typename ParmType> class ILVectorImpl;
+typedef ILVectorImpl<BigBinaryInteger, BigBinaryInteger, BigBinaryVector, ILParams> ILVector2n;
 
 }
 
@@ -66,13 +66,13 @@ const usint SAMPLE_SIZE = 30; //!< @brief The maximum number of samples used for
  * @brief Ideal lattice using a vector representation
  */
 
-template<typename IntType, typename VecType, typename ParmType>
-class ILVectorImpl : public ILElement<ILVectorImpl<IntType,VecType,ParmType>,IntType,VecType>
+template<typename ModType, typename IntType, typename VecType, typename ParmType>
+class ILVectorImpl : public ILElement<ILVectorImpl<ModType,IntType,VecType,ParmType>,ModType,IntType,VecType>
 {
 public:
 
 	typedef ParmType Params;
-	typedef ILVectorImpl<IntType,VecType,ParmType> ILVectorType;
+	typedef ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorType;
 
 	/**
 	 * Default constructor

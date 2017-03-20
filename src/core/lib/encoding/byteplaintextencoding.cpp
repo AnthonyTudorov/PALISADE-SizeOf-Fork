@@ -81,7 +81,8 @@ BytePlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVec
 
 	usint p = ceil((float)log((double)255) / log((double)mod));
 
-	BigBinaryVector temp(p*(length+padlen)); //todo: warning conversion from size_t
+	size_t vsize = p*(length+padlen);
+	BigBinaryVector temp(vsize);
 	temp.SetModulus(ilVector->GetModulus());
 	Format format = COEFFICIENT;
 
@@ -135,7 +136,6 @@ BytePlaintextEncoding::Decode(const BigBinaryInteger &modulus, ILVector2n *ilVec
 void
 BytePlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVectorArray2n *element, size_t startFrom, size_t length) const
 {
-	//TODO - OPTIMIZE CODE. Please take a look at line 114 temp.SetModulus
 	native64::ILVector2n encodedSingleCrt = element->GetElementAtIndex(0);
 
 	Encode(modulus, &encodedSingleCrt, startFrom, length);
@@ -162,7 +162,7 @@ void
 BytePlaintextEncoding::Decode(const BigBinaryInteger &modulus, ILVectorArray2n *ilVectorArray2n)
 {
 
-	const ILVector2n &ilVector = ilVectorArray2n->GetElementAtIndex(0);
+	const native64::ILVector2n &ilVector = ilVectorArray2n->GetElementAtIndex(0);
 	usint mod = modulus.ConvertToInt();
 	usint p = ceil((float)log((double)255) / log((double)mod));
 	usint resultant_char;

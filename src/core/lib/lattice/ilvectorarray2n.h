@@ -76,7 +76,7 @@ namespace lbcrypto {
 	/**
 	* @brief Ideal lattice in the double-CRT representation.  This is not fully implemented and is currently only stubs.
 	*/
-	class ILVectorArray2n : public ILElement<ILVectorArray2n,BigBinaryInteger,BigBinaryVector>
+	class ILVectorArray2n : public ILElement<ILVectorArray2n,BigBinaryInteger,native64::BigBinaryInteger,native64::BigBinaryVector>
 	{
 	public:
 
@@ -380,7 +380,7 @@ namespace lbcrypto {
 		* @param &element is the element to add entry-wise.
 		* @return is the result of the addition operation.
 		*/
-		ILVectorArray2n Plus(const BigBinaryInteger &element) const;
+		ILVectorArray2n Plus(const native64::BigBinaryInteger &element) const;
 
 		/**
 		* Scalar subtraction - subtract an element to all entries.
@@ -388,7 +388,7 @@ namespace lbcrypto {
 		* @param &element is the element to subtract entry-wise.
 		* @return is the return value of the minus operation.
 		*/
-		ILVectorArray2n Minus(const BigBinaryInteger &element) const;
+		ILVectorArray2n Minus(const native64::BigBinaryInteger &element) const;
 
 		/**
 		* Scalar multiplication - multiply all entries.
@@ -396,7 +396,7 @@ namespace lbcrypto {
 		* @param &element is the element to multiply entry-wise.
 		* @return is the return value of the times operation.
 		*/
-		ILVectorArray2n Times(const BigBinaryInteger &element) const;
+		ILVectorArray2n Times(const native64::BigBinaryInteger &element) const;
 
 		/**
 		* Scalar multiplication followed by division and rounding operation - operation on all entries.
@@ -405,7 +405,7 @@ namespace lbcrypto {
 		* @param &q is the element to divide entry-wise.
 		* @return is the return value of the multiply, divide and followed by rounding operation.
 		*/
-		ILVectorArray2n MultiplyAndRound(const BigBinaryInteger &p, const BigBinaryInteger &q) const;
+		ILVectorArray2n MultiplyAndRound(const native64::BigBinaryInteger &p, const native64::BigBinaryInteger &q) const;
 
 		/**
 		* Scalar division followed by rounding operation - operation on all entries.
@@ -413,7 +413,7 @@ namespace lbcrypto {
 		* @param &q is the element to divide entry-wise.
 		* @return is the return value of the divide, followed by rounding operation.
 		*/
-		ILVectorArray2n DivideAndRound(const BigBinaryInteger &q) const;
+		ILVectorArray2n DivideAndRound(const native64::BigBinaryInteger &q) const;
 		
 		/**
 		*Performs a negation operation and returns the result.
@@ -422,7 +422,7 @@ namespace lbcrypto {
 		*/
 		ILVectorArray2n Negate() const;
 
-		const ILVectorArray2n& operator+=(const BigBinaryInteger &element) {
+		const ILVectorArray2n& operator+=(const native64::BigBinaryInteger &element) {
 			return *this = Plus(element);
 		}
 		
@@ -432,7 +432,7 @@ namespace lbcrypto {
 		* @param &element is the element to subtract from.
 		* @return is the result of the subtraction.
 		*/
-		const ILVectorArray2n& operator-=(const BigBinaryInteger &element) {
+		const ILVectorArray2n& operator-=(const native64::BigBinaryInteger &element) {
 			return *this = Minus(element);
 		}
 
@@ -442,7 +442,7 @@ namespace lbcrypto {
 		* @param &element is the element to multiply by.
 		* @return is the result of the subtraction.
 		*/
-		const ILVectorArray2n& operator*=(const BigBinaryInteger &element);
+		const ILVectorArray2n& operator*=(const native64::BigBinaryInteger &element);
 
 		/**
 		* Performs an multiplication operation and returns the result.
@@ -473,7 +473,7 @@ namespace lbcrypto {
 		* @param modulus is the modulus to use.
 		* @return is the return value of the modulus.
 		*/
-		ILVectorArray2n SignedMod(const BigBinaryInteger &modulus) const;
+		ILVectorArray2n SignedMod(const native64::BigBinaryInteger &modulus) const;
 
 		// OTHER FUNCTIONS AND UTILITIES 
 
@@ -482,7 +482,7 @@ namespace lbcrypto {
 		*
 		* @return will throw a logic_error
 		*/
-		const BigBinaryVector &GetValues() const {
+		const native64::BigBinaryVector &GetValues() const {
 			throw std::logic_error("GetValues not implemented on ILVectorArray2n");
 		}
 		/**
@@ -491,7 +491,7 @@ namespace lbcrypto {
 		* @param &values
 		* @param format
 		*/
-		void SetValues(const BigBinaryVector &values, Format format) {
+		void SetValues(const native64::BigBinaryVector &values, Format format) {
 			throw std::logic_error("SetValues not implemented on ILVectorArray2n");
 		}
 
@@ -630,13 +630,13 @@ namespace lbcrypto {
 
 	// overloaded operators
 	inline ILVectorArray2n operator+(const ILVectorArray2n &a, const ILVectorArray2n &b) { return a.Plus(b); }
-	inline ILVectorArray2n operator+(const ILVectorArray2n &a, const BigBinaryInteger &b) { return a.Plus(b); }
-	inline ILVectorArray2n operator+(const BigBinaryInteger &a, const ILVectorArray2n &b) { return b.Plus(a); }
+	inline ILVectorArray2n operator+(const ILVectorArray2n &a, const native64::BigBinaryInteger &b) { return a.Plus(b); }
+	inline ILVectorArray2n operator+(const native64::BigBinaryInteger &a, const ILVectorArray2n &b) { return b.Plus(a); }
 	inline ILVectorArray2n operator-(const ILVectorArray2n &a, const ILVectorArray2n &b) { return a.Minus(b); }
-	inline ILVectorArray2n operator-(const ILVectorArray2n &a, const BigBinaryInteger &b) { return a.Minus(b); }
+	inline ILVectorArray2n operator-(const ILVectorArray2n &a, const native64::BigBinaryInteger &b) { return a.Minus(b); }
 	inline ILVectorArray2n operator*(const ILVectorArray2n &a, const ILVectorArray2n &b) { return a.Times(b); }
-	inline ILVectorArray2n operator*(const ILVectorArray2n &a, const BigBinaryInteger &b) { return a.Times(b); }
-	inline ILVectorArray2n operator*(const BigBinaryInteger &a, const ILVectorArray2n &b) { return b.Times(a); }
+	inline ILVectorArray2n operator*(const ILVectorArray2n &a, const native64::BigBinaryInteger &b) { return a.Times(b); }
+	inline ILVectorArray2n operator*(const BigBinaryInative64::BigBinaryIntegernteger &a, const ILVectorArray2n &b) { return b.Times(a); }
 
 } // namespace lbcrypto ends
 

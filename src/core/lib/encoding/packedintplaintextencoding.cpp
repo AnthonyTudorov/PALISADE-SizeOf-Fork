@@ -42,17 +42,16 @@ namespace lbcrypto {
 	std::vector<usint> PackedIntPlaintextEncoding::rootOfUnityTable = std::vector<usint>();
 
 	void PackedIntPlaintextEncoding::Encode(const BigBinaryInteger& modulus, ILVectorArray2n *element, size_t startFrom, size_t length) const {
-		//TODO - OPTIMIZE CODE. Please take a look at line 114 temp.SetModulus
-		ILVector2n encodedSingleCrt = element->GetElementAtIndex(0);
+		native64::ILVector2n encodedSingleCrt = element->GetElementAtIndex(0);
 
 		Encode(modulus, &encodedSingleCrt, startFrom, length);
-		BigBinaryVector tempBBV(encodedSingleCrt.GetValues());
+		native64::BigBinaryVector tempBBV(encodedSingleCrt.GetValues());
 
-		std::vector<ILVector2n> encodeValues;
+		std::vector<native64::ILVector2n> encodeValues;
 		encodeValues.reserve(element->GetNumOfElements());
 
 		for (usint i = 0; i<element->GetNumOfElements(); i++) {
-			ILVector2n temp(element->GetElementAtIndex(i).GetParams());
+			native64::ILVector2n temp(element->GetElementAtIndex(i).GetParams());
 			tempBBV = encodedSingleCrt.GetValues();
 			tempBBV.SetModulus(temp.GetModulus());
 			temp.SetValues(tempBBV, encodedSingleCrt.GetFormat());
@@ -68,7 +67,7 @@ namespace lbcrypto {
 
 	void PackedIntPlaintextEncoding::Decode(const BigBinaryInteger& modulus, ILVectorArray2n *ilVectorArray2n) {
 
-		const ILVector2n &ilVector = ilVectorArray2n->GetElementAtIndex(0);
+		const native64::ILVector2n &ilVector = ilVectorArray2n->GetElementAtIndex(0);
 		for (usint i = 0; i<ilVector.GetValues().GetLength(); i++) {
 			this->push_back(ilVector.GetValues().GetValAtIndex(i).ConvertToInt());
 		}

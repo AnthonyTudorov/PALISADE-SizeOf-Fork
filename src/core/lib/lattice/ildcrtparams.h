@@ -62,7 +62,7 @@
 
 namespace lbcrypto {
 
-template<typename IntType, typename VecType, typename ParmType> class ILVectorImpl;
+template<typename ModType, typename IntType, typename VecType, typename ParmType> class ILVectorImpl;
 
 }
 
@@ -71,6 +71,7 @@ namespace native64 {
 typedef lbcrypto::ILParamsImpl<native64::BigBinaryInteger> ILParams;
 
 typedef lbcrypto::ILVectorImpl<native64::BigBinaryInteger,
+		native64::BigBinaryInteger,
 		cpu_int::BigBinaryVector<native64::BigBinaryInteger>,
 		native64::ILParams> ILVector2n;
 

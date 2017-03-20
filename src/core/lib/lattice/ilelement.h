@@ -46,7 +46,7 @@ namespace lbcrypto {
  *
  * Every lattice must implement these pure virtuals in order to properly interoperate with PALISADE PKE
  */
-template <typename Element, typename IntType, typename VecType>
+template <typename Element, typename ModType, typename IntType, typename VecType>
 class ILElement : public Serializable
 {
 public:
@@ -108,7 +108,7 @@ public:
 	 *
 	 * @return the modulus.
 	 */
-	virtual const IntType &GetModulus() const = 0;
+	virtual const ModType &GetModulus() const = 0;
 
 	/**
 	 * Get the values for the element
