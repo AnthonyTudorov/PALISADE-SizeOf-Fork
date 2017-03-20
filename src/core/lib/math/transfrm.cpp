@@ -121,9 +121,8 @@ BigBinaryVector NumberTheoreticTransform::ForwardTransformIterative(const BigBin
 					result.SetValAtIndex(indexEven, butterflyPlus);
 					result.SetValAtIndex(indexOdd, butterflyMinus);
 #else
-					//result[indexOdd] = result[indexEven].ModSub(omegaFactor,modulus);					
 					result[indexOdd] = result[indexEven]-omegaFactor;
-					result[indexEven]=result[indexEven]+omegaFactor;
+					result[indexEven]+=omegaFactor;
 #endif
 				}
 				else

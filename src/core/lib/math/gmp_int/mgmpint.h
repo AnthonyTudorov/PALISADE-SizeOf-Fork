@@ -232,6 +232,16 @@ namespace NTL{
       return tmp ;
     };
 
+    inline myZZ_p& operator+=(const myZZ_p &a) {
+#if 0
+      *this = *this+a;
+#else
+      add(*this, *this, a);
+#endif
+      return *this;
+
+    };
+
     inline myZZ_p Add(const myZZ_p& b) const {return *this+b;};
     inline myZZ_p Plus(const myZZ_p& b) const {return *this+b;}; //to be deprecated
 
@@ -243,7 +253,11 @@ namespace NTL{
       return tmp ;
     };
     inline myZZ_p& operator-=(const myZZ_p &a) {
+#if 0
       *this = *this-a;
+#else
+      sub(*this, *this, a);
+#endif
       return *this;
     };
 
@@ -255,7 +269,11 @@ namespace NTL{
       return tmp ;
     };
     inline myZZ_p& operator*=(const myZZ_p &a) {
+#if 0
       *this = *this*a;
+#else
+      mul(*this, *this, a);
+#endif
       return *this;
     };
 
@@ -467,8 +485,9 @@ namespace NTL{
   { return b.Compare(a) <= 0; }
 #endif
 
-
 }//namespace ends
+
+
 
 #endif //LBCRYPTO_MATH_MGMPINT_MGMPINT_H
 
