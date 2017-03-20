@@ -121,16 +121,9 @@ namespace NTL {
 
 
   //move copy constructors
-  //myZZ_p::myZZ_p(NTL::ZZ &&a) : ZZ_p() {this->_ZZ_p__rep=a;}
   myZZ_p::myZZ_p(NTL::ZZ &&a) : ZZ_p() {this->_ZZ_p__rep.swap(a);}
-  //  myZZ_p::myZZ_p(NTL::ZZ_p &&a) : ZZ_p(a) {}
-  myZZ_p::myZZ_p(NTL::ZZ_p &&a) : ZZ_p() {
-    //this->swap(this->_ZZ_p__rep, a._ZZ_p__rep);
-    this->swap(a);}
+  myZZ_p::myZZ_p(NTL::ZZ_p &&a) : ZZ_p() {this->swap(a);}
     
-
-
-
 
   myZZ_p  myZZ_p::MultiplyAndRound(const myZZ &p, const myZZ &q) const
   {

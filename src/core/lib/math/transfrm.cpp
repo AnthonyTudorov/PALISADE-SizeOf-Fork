@@ -104,7 +104,7 @@ BigBinaryVector NumberTheoreticTransform::ForwardTransformIterative(const BigBin
 						//omegaFactor = product.ModBarrett(element.GetModulus(),mu_arr);
 						omegaFactor = product.ModBarrett(element.GetModulus(), mu);
 #else
-						omegaFactor = omega.ModMul(result.GetValAtIndex(indexOdd),modulus);
+						omegaFactor = omega.ModMulFast(result.GetValAtIndex(indexOdd),modulus);
 #endif
 					}
 #if MATHBACKEND <6

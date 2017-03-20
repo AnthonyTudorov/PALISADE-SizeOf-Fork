@@ -60,9 +60,13 @@ namespace NTL {
     DEBUG("input vector "<<a);
     DEBUG("input modulus "<<a.GetModulus());
     this->CopyModulus(a);
+#if 0
     for (auto i=0; i< a.length(); i++) {
       (*this)[i]=a[i];
     }
+#else
+    *this=a;
+#endif
     DEBUG("output vector "<<*this);
     DEBUG("output modulus "<<this->GetModulus());
 
@@ -85,7 +89,6 @@ namespace NTL {
     DEBUG("in myVecP copymove, myvecP<myT> alength "<<a.length());
     this->CopyModulus(a);
     this->move(a);
-
   }
 
   //movecopy ctor
@@ -631,7 +634,8 @@ namespace NTL {
     res.CopyModulus(*this);
     long i;
     for (i = 0; i < n; i++)
-      res[i] = (*this)[i]+b%m_modulus;
+      //res[i] = (*this)[i]+b%m_modulus;
+      res[i] = (*this)[i]+b;
     return(res);
   }
   
@@ -706,7 +710,8 @@ namespace NTL {
     res.CopyModulus(*this);
     long i;
     for (i = 0; i < n; i++)
-      res[i] = (*this)[i]*b%m_modulus;
+      //res[i] = (*this)[i]*b%m_modulus;
+      res[i] = (*this)[i]*b;
     return(res);
   }
 

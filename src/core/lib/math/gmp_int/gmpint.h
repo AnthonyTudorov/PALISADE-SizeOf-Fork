@@ -1,5 +1,5 @@
 /**
-* @file
+ * @file
  * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
  * Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu
  * <grs22@njit.edu>
@@ -72,7 +72,7 @@ namespace NTL{
   class myZZ_p; //forward declaration
 
 
-  //log2 cruft
+  //log2 constants
   /**
    * @brief  Struct to find log value of N.
    *Needed in the preprocessing step of ubint to determine bitwidth.
@@ -80,203 +80,205 @@ namespace NTL{
    * @tparam N bitwidth.
    */
   template <usint N>
-  struct Log2{
-    const static usint value = 1 + Log2<N/2>::value;
-  };
+    struct Log2{
+      const static usint value = 1 + Log2<N/2>::value;
+    };
   /**
    * @brief Struct to find log 2 value of N.
    *Base case for recursion.
    *Needed in the preprocessing step of ubint to determine bitwidth.
    */
   template<>
-  struct Log2<2>{
+    struct Log2<2>{
     const static usint value = 1;
   }; 
-  
 
-class myZZ : public NTL::ZZ {
+  class myZZ : public NTL::ZZ {
 
-  
+  public:
 
-public:
+    myZZ();
+    myZZ(int a);
+    myZZ(long a);
+    myZZ(unsigned long a);
+    myZZ(const unsigned int &a);
+    myZZ(unsigned int &a);
+    myZZ(INIT_SIZE_TYPE, long k);
+    myZZ(std::string s);
+    myZZ(const char * s);
+    myZZ(NTL::ZZ &a);
+    myZZ(const NTL::ZZ &a);
+    myZZ(const NTL::myZZ_p &a);
 
-  myZZ();
-  myZZ(int a);
-  myZZ(long a);
-  myZZ(unsigned long a);
-  myZZ(const unsigned int &a);
-  myZZ(unsigned int &a);
-  myZZ(INIT_SIZE_TYPE, long k);
-  myZZ(std::string s);
-  myZZ(const char * s);
-  myZZ(NTL::ZZ &a);
-  myZZ(const NTL::ZZ &a);
-  myZZ(const NTL::myZZ_p &a);
+    //movecopy allocators (very important for efficiency)
+    myZZ(NTL::ZZ &&a);
+    myZZ(NTL::myZZ_p &&a);
 
-  myZZ(NTL::ZZ &&a);
-  myZZ(NTL::myZZ_p &&a);
+    //  myZZ& operator=(const myZZ &rhs);
+    //myZZ( ZZ && zzin) : ZZ(zzin), m_MSB(5){};
 
-//  myZZ& operator=(const myZZ &rhs);
-  //myZZ( ZZ && zzin) : ZZ(zzin), m_MSB(5){};
-
-  static const myZZ ZERO;
-  static const myZZ ONE;
-  static const myZZ TWO;
-  static const myZZ THREE;
-  static const myZZ FOUR; 
-  static const myZZ FIVE;
-
-
+    static const myZZ ZERO;
+    static const myZZ ONE;
+    static const myZZ TWO;
+    static const myZZ THREE;
+    static const myZZ FOUR; 
+    static const myZZ FIVE;
 
     /**
      * A zero allocator that is called by the Matrix class. It is used to initialize a Matrix of ubint objects.
      */
-  static std::function<unique_ptr<myZZ>()> Allocator;
+    static std::function<unique_ptr<myZZ>()> Allocator;
 
-  //adapter kit
-  usint GetMSB() const ;
-  static const myZZ& zero();
+    //adapter kit
+    usint GetMSB() const ;
+    static const myZZ& zero();
 
-  //palisade conversion methods 
-  usint ConvertToUsint() const;
-  usint ConvertToInt() const;
-  uint32_t ConvertToUint32() const;
-  uint64_t ConvertToUint64() const;
-  float ConvertToFloat() const;
-  double ConvertToDouble() const;
-  long double ConvertToLongDouble() const;
+    //palisade conversion methods 
+    usint ConvertToUsint() const;
+    usint ConvertToInt() const;
+    uint32_t ConvertToUint32() const;
+    uint64_t ConvertToUint64() const;
+    float ConvertToFloat() const;
+    double ConvertToDouble() const;
+    long double ConvertToLongDouble() const;
 
-  //comparison method inline for speed
-  inline sint Compare(const myZZ& a) const {
-    bool dbg_flag = false;
-    DEBUG("in myZZ unmixed Compare");
-    DEBUG("this "<< *this);
-    DEBUG("a "<< a);
-    return compare(*this,a); };
+    //comparison method inline for speed
+    inline sint Compare(const myZZ& a) const { return compare(*this,a); };
+
+    //associated comparison operators
+    inline long operator==(const myZZ& b) const {return this->Compare(b)==0;};
+    inline long operator!=(const myZZ& b) const {return this->Compare(b)!= 0;};
+
   
-  //palisade arithmetic methods all inline for speed
-  inline myZZ Add(const myZZ& b) const {return *this+b;};
-  inline myZZ Plus(const myZZ& b) const {return *this+b;}; //to be deprecated
+    //palisade arithmetic methods all inline for speed
+    inline myZZ Add(const myZZ& b) const {return *this+b;};
+    inline myZZ Plus(const myZZ& b) const {return *this+b;}; //to be deprecated
 
-  inline myZZ Sub(const myZZ& b) const  {return((*this<b)? ZZ(0):( *this-b));};  
-  inline myZZ Minus(const myZZ& b) const  {return((*this<b)? ZZ(0):( *this-b));}; //to be deprecated
+    inline myZZ Sub(const myZZ& b) const  {return((*this<b)? ZZ(0):( *this-b));};  
+    inline myZZ Minus(const myZZ& b) const  {return((*this<b)? ZZ(0):( *this-b));}; //to be deprecated
 
- inline myZZ operator+(const myZZ &b) const {
-    myZZ tmp;
-    add(tmp, *this, b);
-    return tmp ;
-  };
+    inline myZZ operator+(const myZZ &b) const {
+      myZZ tmp;
+      add(tmp, *this, b);
+      return tmp ;
+    };
 
- inline myZZ operator+(const ZZ &b) const {
-    myZZ tmp;
-    add(tmp, *this, b);
-    return tmp ;
-  };
+    inline myZZ operator+(const ZZ &b) const {
+      myZZ tmp;
+      add(tmp, *this, b);
+      return tmp ;
+    };
 
-  inline myZZ& operator +=(const myZZ &a) {
-    *this = *this+a;
-    return *this;
-  };
-
-
- inline myZZ operator-(const myZZ &b) const {
-    if (*this < b) { // should return 0
-      return myZZ(0);
-    }
-    myZZ tmp;
-    sub(tmp, *this, b);
-    return tmp ;
-  };
-
-  inline myZZ& operator -=(const myZZ &a) {
-    if (*this<a) { // note b>a should return 0
-      *this = ZZ(0);
+    inline myZZ& operator +=(const myZZ &a) {
+      *this = *this+a;
       return *this;
-    }
-    *this = *this-a;
-    return *this;
-  };// note this<a should return 0
+    };
 
 
-  myZZ operator*(const myZZ_p &b) const; 
+    inline myZZ operator-(const myZZ &b) const {
+      if (*this < b) { // should return 0
+	return myZZ(0);
+      }
+      myZZ tmp;
+      sub(tmp, *this, b);
+      return tmp ;
+    };
 
-  myZZ& operator*=(const myZZ &a);
-  myZZ& operator*=(const myZZ_p &a);
+    inline myZZ& operator -=(const myZZ &a) {
+      if (*this<a) { // note b>a should return 0
+	*this = ZZ(0);
+	return *this;
+      }
+      *this = *this-a;
+      return *this;
+    };// note this<a should return 0
+
+
+    myZZ operator*(const myZZ_p &b) const; 
+
+    myZZ& operator*=(const myZZ &a);
+    myZZ& operator*=(const myZZ_p &a);
 
   
 
-  inline myZZ operator*(const myZZ& b) const {
-    myZZ tmp;
-    mul(tmp, *this, b);
-    return tmp ;
-  }
-  inline myZZ Mul(const myZZ& b) const {return *this*b;};
-  inline myZZ Times(const myZZ& b) const {return *this*b;}; //to be deprecated
-  inline myZZ Div(const myZZ& b) const {return *this/b;};
-  inline myZZ DividedBy(const myZZ& b) const {return *this/b;};
-  inline myZZ Exp(const usint p) const {return power(*this,p);};
+    inline myZZ operator*(const myZZ& b) const {
+      myZZ tmp;
+      mul(tmp, *this, b);
+      return tmp ;
+    }
+    inline myZZ Mul(const myZZ& b) const {return *this*b;};
+    inline myZZ Times(const myZZ& b) const {return *this*b;}; //to be deprecated
+    inline myZZ Div(const myZZ& b) const {return *this/b;};
+    inline myZZ DividedBy(const myZZ& b) const {return *this/b;};
+    inline myZZ Exp(const usint p) const {return power(*this,p);};
 
-  myZZ MultiplyAndRound(const myZZ &p, const myZZ &q) const;
-  myZZ DivideAndRound(const myZZ &q) const;
+    //palisade modular arithmetic methods all inline for speed
 
-  //palisade modular arithmetic methods all inline for speed
-  inline myZZ Mod(const myZZ& modulus) const {return *this%modulus;};
-  inline myZZ ModBarrett(const myZZ& modulus, const myZZ& mu) const {return *this%modulus;};
-inline    myZZ ModBarrett(const myZZ& modulus, const myZZ mu_arr[BARRETT_LEVELS+1]) const  {return *this%modulus;};
-   inline myZZ ModInverse(const myZZ& modulus) const {return InvMod(*this%modulus, modulus);};
-   inline myZZ ModAdd(const myZZ& b, const myZZ& modulus) const {return myZZ(AddMod(*this%modulus, b%modulus, modulus));};
-   inline myZZ ModSub(const myZZ& b, const myZZ& modulus) const
-  {
-    ZZ newthis(*this%modulus);
-    ZZ newb(b%modulus);
-    //if (newthis<newb){
-    //  return ZZ(0);
-    //}
-    return SubMod(newthis, newb, modulus);      
-  };
+    inline myZZ Mod(const myZZ& modulus) const {return *this%modulus;};
+    inline myZZ ModBarrett(const myZZ& modulus, const myZZ& mu) const {return *this%modulus;};
+    inline    myZZ ModBarrett(const myZZ& modulus, const myZZ mu_arr[BARRETT_LEVELS+1]) const  {return *this%modulus;};
+    inline myZZ ModInverse(const myZZ& modulus) const {return InvMod(*this%modulus, modulus);};
+    inline myZZ ModAdd(const myZZ& b, const myZZ& modulus) const {return myZZ(AddMod(*this%modulus, b%modulus, modulus));};
+    //Fast version does not check for modulus bounds.
+    inline myZZ ModAddFast(const myZZ& b, const myZZ& modulus) const {return AddMod(*this, b, modulus);};
+    inline myZZ ModSub(const myZZ& b, const myZZ& modulus) const
+    {
+      ZZ newthis(*this%modulus);
+      ZZ newb(b%modulus);
+      return SubMod(newthis, newb, modulus);      
+    };
+    //Fast version does not check for modulus bounds.
+    inline myZZ ModSubFast(const myZZ& b, const myZZ& modulus) const
+    {
+    return SubMod(*this, b, modulus);
+    };
 
-   inline myZZ ModMul(const myZZ& b, const myZZ& modulus) const {return myZZ(MulMod(*this%modulus, b%modulus, modulus));};
-   inline myZZ ModBarrettMul(const myZZ& b, const myZZ& modulus,const myZZ& mu) const {return MulMod(*this%modulus, b%modulus, modulus);};
-   inline myZZ ModBarrettMul(const myZZ& b, const myZZ& modulus,const myZZ mu_arr[BARRETT_LEVELS]) const  {return MulMod(*this%modulus, b%modulus, modulus);};
 
-   inline myZZ ModExp(const myZZ& b, const myZZ& modulus) const {
-     bool dbg_flag = false;
-     myZZ res(*this); 
-     DEBUG("ModExp this :"<< *this);
-     DEBUG("ModExp b:"<< b);
-     DEBUG("ModExp modulus:"<< modulus);
+    inline myZZ ModMul(const myZZ& b, const myZZ& modulus) const {return myZZ(MulMod(*this%modulus, b%modulus, modulus));};
+    //Fast version does not check for modulus bounds.
+    inline myZZ ModMulFast(const myZZ& b, const myZZ& modulus) const {return MulMod(*this, b, modulus);};
 
-     PowerMod (res, res%modulus, b%modulus, modulus); 
-     DEBUG("ModExp res:"<< res);
-     return res;
+    //    inline myZZ ModBarrettMul(const myZZ& b, const myZZ& modulus,const myZZ& mu) const {return MulMod(*this%modulus, b%modulus, modulus);};
+    inline myZZ ModBarrettMul(const myZZ& b, const myZZ& modulus,const myZZ& mu) const {return MulMod(*this, b, modulus);};
+    //    inline myZZ ModBarrettMul(const myZZ& b, const myZZ& modulus,const myZZ mu_arr[BARRETT_LEVELS]) const  {return MulMod(*this%modulus, b%modulus, modulus);};
+    inline myZZ ModBarrettMul(const myZZ& b, const myZZ& modulus,const myZZ mu_arr[BARRETT_LEVELS]) const  {return MulMod(*this, b, modulus);};
+
+    inline myZZ ModExp(const myZZ& b, const myZZ& modulus) const {
+      bool dbg_flag = false;
+      myZZ res(*this); 
+      DEBUG("ModExp this :"<< *this);
+      DEBUG("ModExp b:"<< b);
+      DEBUG("ModExp modulus:"<< modulus);
+
+      PowerMod (res, res%modulus, b%modulus, modulus); 
+      DEBUG("ModExp res:"<< res);
+      return res;
     }; //(this^b)%modulus
 
-   inline myZZ operator>>(long n) const {return RightShift(*this, n);};
-   inline myZZ operator<<(long n) const {return LeftShift(*this, n);};
+    myZZ MultiplyAndRound(const myZZ &p, const myZZ &q) const;
+    myZZ DivideAndRound(const myZZ &q) const;
+
+
+    //left and right shift operators
+    inline myZZ operator>>(long n) const {return RightShift(*this, n);};
+    inline myZZ operator<<(long n) const {return LeftShift(*this, n);};
 
 #if 0
-   // comparison operators to myZZ_p
-   inline long operator<(const myZZ_p& b) const; 
-   inline long operator>(const myZZ_p& b) const;  
-   inline long operator<=(const myZZ_p& b) const; 
-   inline long operator>=( const myZZ_p& b) const; 
-   inline long operator==(const myZZ_p& b) const; 
-   inline long operator!=(const myZZ_p& b) const; 
+    // comparison operators to myZZ_p
+    inline long operator<(const myZZ_p& b) const; 
+    inline long operator>(const myZZ_p& b) const;  
+    inline long operator<=(const myZZ_p& b) const; 
+    inline long operator>=( const myZZ_p& b) const; 
+    inline long operator==(const myZZ_p& b) const; 
+    inline long operator!=(const myZZ_p& b) const; 
 #endif
    
-   friend std::ostream& operator<<(std::ostream& os, const myZZ&ptr_obj);
+    //big integer stream output
+    friend std::ostream& operator<<(std::ostream& os, const myZZ&ptr_obj);
 
-  //palisade string conversion
-  const std::string ToString() const;	
+    //palisade string conversion
+    const std::string ToString() const;	
   
-  
-    inline long operator==(const myZZ& b) const
-    {  return this->Compare(b) == 0; }
-
-  
-    inline long operator!=(const myZZ& b) const
-    { return this->Compare(b) != 0; }
-
     /**
      * Basic set method for setting the value of a myZZ
      *
@@ -293,8 +295,7 @@ inline    myZZ ModBarrett(const myZZ& modulus, const myZZ mu_arr[BARRETT_LEVELS+
     void SetValue(const myZZ& a);
 
     //helper functions
-
-        /**
+    /**
      * Convert a string representation of a binary number to a myZZ.
      * Note: needs renaming to a generic form since the variable type name is
      * embedded in the function name. Suggest FromBinaryString()
@@ -305,15 +306,17 @@ inline    myZZ ModBarrett(const myZZ& modulus, const myZZ mu_arr[BARRETT_LEVELS+
     static myZZ BinaryStringToBigBinaryInt(const std::string& bitString);
 
     /**
-     * Get the number of digits using a specific base - support for arbitrary base may be needed.
+     * Get the number of digits using a specific base - support for
+     * arbitrary base may be needed.
      *
      * @param base is the base with which to determine length in.
      * @return the length of the representation in a specific base.
      */
     usint GetLengthForBase(usint base) const {return GetMSB();};
 
-   /**
-     * Get the number of digits using a specific base - only power-of-2 bases are currently supported.
+    /**
+     * Get the number of digits using a specific base - only
+     * power-of-2 bases are currently supported.
      *
      * @param index is the location to return value from in the specific base.
      * @param base is the base with which to determine length in.
@@ -321,17 +324,17 @@ inline    myZZ ModBarrett(const myZZ& modulus, const myZZ mu_arr[BARRETT_LEVELS+
      */
     usint GetDigitAtIndexForBase(usint index, usint base) const;
 
-    //variable to store the log(base 2) of the number of bits in the limb data type.
+    //variable to store the log(base 2) of the number of bits in the
+    //limb data type.
     static const usint m_log2LimbBitLength;
 
     //Serialization functions
-
     const std::string Serialize() const;
     const char * Deserialize(const char * str);
 
-private:
+  private:
     //adapter kits
-  void SetMSB();
+    void SetMSB();
 
     /**
      * Gets the bit at the specified index.
@@ -339,7 +342,7 @@ private:
      * @param index is the index of the bit to get.
      * @return resulting bit.
      */
-  uschar GetBitAtIndex(usint index) const;
+    uschar GetBitAtIndex(usint index) const;
     /**
      * function to return the ceiling of the input number divided by
      * the number of bits in the limb data type.  DBC this is to
@@ -347,14 +350,12 @@ private:
      * @param Number is the number to be divided. 
      * @return the ceiling of Number/(bits in the limb data type)
      */
-    static usint ceilIntByUInt(const ZZ_limb_t Number); //todo: rename to MSB2NLimbs()
+    //todo: rename to MSB2NLimbs()
+    static usint ceilIntByUInt(const ZZ_limb_t Number); 
 
-
-
-  size_t m_MSB;
-
-  usint GetMSBLimb_t( ZZ_limb_t x) const;
-}; //class ends
+    size_t m_MSB;
+    usint GetMSBLimb_t( ZZ_limb_t x) const;
+  }; //class ends
 
 
 }//namespace ends

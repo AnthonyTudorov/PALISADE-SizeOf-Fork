@@ -58,10 +58,8 @@
 #include <NTL/vec_ZZ_p.h>
 #endif
 
-#define FORCE_NORMALIZATION //defining this forces modulo when you write to the vector.
-
-
-
+//defining this forces modulo when you write to the vector (except with SetValAtIndexWithoutMod)
+#define FORCE_NORMALIZATION 
 
 /**
  * @namespace NTL
@@ -226,7 +224,12 @@ namespace NTL {
     { 
       ModulusCheck("Warning: myVecP::op+=");
       for (unsigned int i = 0; i < this->length(); i++){
-	(*this)[i]=(*this)[i]+a%m_modulus; //+= not defined yet
+#ifdef FORCE_NORMALIZATION	
+	//(*this)[i]=(*this)[i]+a%m_modulus; //+= not defined yet
+	AddMod((*this)[i]._ZZ_p__rep,(*this)[i]._ZZ_p__rep, a, m_modulus); 
+#else
+	AddMod((*this)[i]._ZZ_p__rep,(*this)[i]._ZZ_p__rep, a, m_modulus); 
+#endif
       }
       return *this;
     };
@@ -257,7 +260,8 @@ namespace NTL {
     { 
       ModulusCheck("Warning: myVecP::op-=");
       for (auto i = 0; i < this->length(); i++){
-	(*this)[i]-=a%m_modulus;
+	SubMod((*this)[i]._ZZ_p__rep,(*this)[i]._ZZ_p__rep, a, m_modulus); 	
+	//(*this)[i]-=a%m_modulus;
       }
       return *this;
     };
@@ -293,7 +297,8 @@ namespace NTL {
     { 
       ModulusCheck("Warning: myVecP::op-=");
       for (auto i = 0; i < this->length(); i++){
-	(*this)[i] = (*this)[i]*a%m_modulus; //try this for now. *= seems undefined
+	MulMod((*this)[i]._ZZ_p__rep,(*this)[i]._ZZ_p__rep, a, m_modulus); 
+	//
       }
       return *this;
     };

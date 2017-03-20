@@ -340,7 +340,7 @@ namespace NTL{
 
     inline myZZ_p ModMul(const myZZ& b, const myZZ& q) const {
       myZZ newthis(*this);
-      newthis.ModMul(b, q);
+      newthis.ModMulFast(b, q);
       myZZ_p ans(newthis);
       return(ans);
     };
