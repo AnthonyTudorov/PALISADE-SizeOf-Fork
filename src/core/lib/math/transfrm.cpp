@@ -91,12 +91,12 @@ VecType NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(con
 		  for lower cyclotomic orders is smaller. This trick only works for powers of two cyclotomics.*/ 
 	usint ringDimensionFactor = (rootOfUnityTable.GetLength()) / cycloOrder;
 
-	//Precompute the Barrett mu parameter
-	IntType temp(IntType::ONE);
-
+	//YSP mu is not needed for native data types
 #if MATHBACKEND > 6
 	IntType mu(IntType::ONE);
 #else
+	//Precompute the Barrett mu parameter
+	IntType temp(IntType::ONE);
 	temp <<= 2 * element.GetModulus().GetMSB() + 3;
 	IntType mu = temp.DividedBy(element.GetModulus());
 #endif
@@ -313,12 +313,12 @@ VecType ChineseRemainderTransformFTT<IntType,VecType>::ForwardTransform(const Ve
 		throw std::logic_error(errMsg);
 	}
 
-	//Precompute the Barrett mu parameter
-	IntType temp(IntType::ONE);
-
+	//YSP mu is not needed for native data types
 #if MATHBACKEND > 6
 	IntType mu(IntType::ONE);
 #else
+	//Precompute the Barrett mu parameter
+	IntType temp(IntType::ONE);
 	temp <<= 2 * element.GetModulus().GetMSB() + 3;
 	IntType mu = temp.DividedBy(element.GetModulus());
 #endif
@@ -382,12 +382,12 @@ VecType ChineseRemainderTransformFTT<IntType,VecType>::InverseTransform(const Ve
 		throw std::logic_error(errMsg);
 	}
 
-	//Pre-compute mu for Barrett function
-	IntType temp(IntType::ONE);
-
+	//YSP mu is not needed for native data types
 #if MATHBACKEND > 6
 	IntType mu(IntType::ONE);
 #else
+	//Pre-compute mu for Barrett function
+	IntType temp(IntType::ONE);
 	temp <<= 2 * element.GetModulus().GetMSB() + 3;
 	IntType mu = temp.DividedBy(element.GetModulus());
 #endif
@@ -447,12 +447,12 @@ VecType ChineseRemainderTransformFTT<IntType,VecType>::InverseTransform(const Ve
 template<typename IntType, typename VecType>
 void ChineseRemainderTransformFTT<IntType,VecType>::PreCompute(const IntType& rootOfUnity, const usint CycloOrder, const IntType &modulus) {
 
-	//Precompute the Barrett mu parameter
-	IntType temp(IntType::ONE);
-
+	//YSP mu is not needed for native data types
 #if MATHBACKEND > 6
 	IntType mu(IntType::ONE);
 #else
+	//Precompute the Barrett mu parameter
+	IntType temp(IntType::ONE);
 	temp <<= 2 * modulus.GetMSB() + 3;
 	IntType mu = temp.DividedBy(modulus);
 #endif
@@ -510,12 +510,12 @@ void ChineseRemainderTransformFTT<IntType,VecType>::PreCompute(std::vector<IntTy
 		IntType currentRoot(rootOfUnity[i]);
 		IntType currentMod(moduliiChain[i]);
 
-		//Precompute the Barrett mu parameter
-		IntType temp(IntType::ONE);
-
+		//mu is not needed for native data types
 #if MATHBACKEND > 6
 		IntType mu(IntType::ONE);
 #else
+		//Precompute the Barrett mu parameter
+		IntType temp(IntType::ONE);
 		temp <<= 2 * currentMod.GetMSB() + 3;
 		IntType mu = temp.DividedBy(currentMod);
 #endif

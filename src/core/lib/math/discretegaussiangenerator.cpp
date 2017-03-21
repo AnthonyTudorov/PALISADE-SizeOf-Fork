@@ -2,10 +2,6 @@
 #include "nbtheory.h"
 #include "backend.h"
 
-#ifdef __linux__
-#include <execinfo.h>
-#endif
-
 namespace lbcrypto {
 
 	template<typename IntType, typename VecType>
@@ -193,7 +189,7 @@ namespace lbcrypto {
 	template<typename IntType, typename VecType>
 	IntType DiscreteGaussianGeneratorImpl<IntType,VecType>::GenerateInteger(double mean, double stddev, size_t n, const IntType &modulus) const {
 
-		double t = log(n) / log(2)*stddev;  //this representation of log_2 is used for Visual Studio
+		double t = log2(n)*stddev;
 
 		IntType result;
 
@@ -229,7 +225,7 @@ namespace lbcrypto {
 	template<typename IntType, typename VecType>
 	int32_t DiscreteGaussianGeneratorImpl<IntType,VecType>::GenerateInteger(double mean, double stddev, size_t n) {
 
-		double t = 0.5*log2(2*n)*stddev;  //this representation of log_2 is used for Visual Studio
+		double t = log2(n)*stddev;  //this representation of log_2 is used for Visual Studio
 
 		IntType result;
 
@@ -240,9 +236,6 @@ namespace lbcrypto {
 
 		bool flagSuccess = false;
 		int32_t x;
-
-//std::cout << t << "::" << mean << ":" << stddev << ":" << n << "::::" << sigmaFactor << std::endl;
-//std::cout << uniform_int(GetPRNG()) << std::endl;
 
 		while (!flagSuccess) {
 			//  pick random int

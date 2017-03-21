@@ -326,28 +326,15 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModMul(const IntegerT
 
 	BigBinaryVector ans(*this);
 
-	//Precompute the Barrett mu parameter
-	IntegerType temp(IntegerType::ONE);
-
+// YSP mu is not needed for native data types
 #if MATHBACKEND > 6
 	IntegerType mu(IntegerType::ONE);
 #else
+	//Precompute the Barrett mu parameter
+	IntegerType temp(IntegerType::ONE);
 	temp <<= 2 * this->GetModulus().GetMSB() + 3;
 	IntegerType mu = temp.DividedBy(m_modulus);
 #endif
-
-	//Precompute the Barrett mu values
-	/*BigBinaryInteger temp;
-	uschar gamma;
-	uschar modulusLength = this->GetModulus().GetMSB() ;
-	BigBinaryInteger mu_arr[BARRETT_LEVELS+1];
-	for(usint i=0;i<BARRETT_LEVELS+1;i++) {
-		temp = BigBinaryInteger::ONE;
-		gamma = modulusLength*i/BARRETT_LEVELS;
-		temp<<=modulusLength+gamma+3;
-		mu_arr[i] = temp.DividedBy(this->GetModulus());
-	}*/
-
 
 	for(usint i=0;i<this->m_length;i++){
 		//std::cout<< "before data: "<< ans.m_data[i]<< std::endl;
@@ -504,27 +491,15 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModMul(const BigBinar
 
 	BigBinaryVector ans(*this);
 
-	//Precompute the Barrett mu parameter
-	IntegerType temp(IntegerType::ONE);
-
+//YSP mu is not needed for native data types
 #if MATHBACKEND > 6
 	IntegerType mu(IntegerType::ONE);
 #else
+	//Precompute the Barrett mu parameter
+	IntegerType temp(IntegerType::ONE);
 	temp <<= 2 * this->GetModulus().GetMSB() + 3;
 	IntegerType mu = temp.DividedBy(this->GetModulus());
 #endif
-
-	//Precompute the Barrett mu values
-	/*BigBinaryInteger temp;
-	uschar gamma;
-	uschar modulusLength = this->GetModulus().GetMSB() ;
-	BigBinaryInteger mu_arr[BARRETT_LEVELS+1];
-	for(usint i=0;i<BARRETT_LEVELS+1;i++) {
-		temp = BigBinaryInteger::ONE;
-		gamma = modulusLength*i/BARRETT_LEVELS;
-		temp<<=modulusLength+gamma+3;
-		mu_arr[i] = temp.DividedBy(this->GetModulus());
-	}*/
 
 	for(usint i=0;i<ans.m_length;i++){
 		//ans.m_data[i] = ans.m_data[i].ModMul(b.m_data[i],this->m_modulus);
@@ -549,29 +524,6 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::MultWithOutMod(const 
 	return ans;
 }
 
-
-/*
-template<class IntegerType>
-BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::ModMatrixMul(const BigBinaryMatrix &a) const{
-	if(a.GetColumnSize()!=this->m_length){
-		std::cout<<" Invalid arguements \n";
-		return (BigBinaryVector)NULL;
-	}
-	BigBinaryVector ans(a.GetRowSize());
-	IntegerType mid_ans("0");
-	for(usint i=0;i<a.GetRowSize();i++){
-		mid_ans.SetValue("0");
-		for(usint j=0;j<this->m_length;j++){
-			mid_ans = mid_ans + a.GetValAtIndex(i,j)* this->m_data[j];
-		}
-		ans.m_data[i] = mid_ans.Mod(m_modulus);
-	}
-
-	return ans;
-
-}
-*/
-
 //Gets the ind
 template<class IntegerType>
 BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::GetDigitAtIndexForBase(usint index, usint base) const{
@@ -583,7 +535,7 @@ BigBinaryVector<IntegerType> BigBinaryVector<IntegerType>::GetDigitAtIndexForBas
 	return ans;
 }
 
-// JSON FACILITY - Serialize Operation
+// Serialize Operation
 template<class IntegerType>
 bool BigBinaryVector<IntegerType>::Serialize(lbcrypto::Serialized* serObj) const {
 
@@ -608,7 +560,7 @@ bool BigBinaryVector<IntegerType>::Serialize(lbcrypto::Serialized* serObj) const
 	return true;
 }
 
-// JSON FACILITY - Deserialize Operation
+// Deserialize Operation
 template<class IntegerType>
 bool BigBinaryVector<IntegerType>::Deserialize(const lbcrypto::Serialized& serObj) {
 

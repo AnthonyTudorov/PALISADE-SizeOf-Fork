@@ -151,16 +151,6 @@ BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger(const BigBinaryInteger& 
 	}
 }
 
-//template<typename uint_type,usint BITLENGTH>
-//BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger(BigBinaryInteger &&bigInteger){
-//	//copy MSB
-//	m_MSB = bigInteger.m_MSB;
-//	//copy array values
-//	for (size_t i=0; i < m_nSize; ++i) {
-//		m_value[i] = bigInteger.m_value[i];
-//	}
-//}
-
 template<typename uint_type,usint BITLENGTH>
 std::function<unique_ptr<BigBinaryInteger<uint_type,BITLENGTH>>()> BigBinaryInteger<uint_type,BITLENGTH>::Allocator = [](){
 	return lbcrypto::make_unique<cpu_int::BigBinaryInteger<uint_type,BITLENGTH>>();
@@ -208,19 +198,6 @@ const BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENG
 	
 	return *this;
 }
-
-//template<typename uint_type,usint BITLENGTH>
-//const BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENGTH>::operator=(BigBinaryInteger &&rhs){
-//
-//	if(this!=&rhs){
-//        this->m_MSB = rhs.m_MSB;
-//		for (size_t i=0; i < m_nSize; ++i) {
-//			m_value[i] = rhs.m_value[i];
-//		}
-//    }
-//
-//    return *this;
-//}
 
 /**
 *	Left Shift is done by splitting the number of shifts into
@@ -853,6 +830,7 @@ const BigBinaryInteger<uint_type,BITLENGTH>& BigBinaryInteger<uint_type,BITLENGT
 
 template<typename uint_type, usint BITLENGTH>
 BigBinaryInteger<uint_type, BITLENGTH> BigBinaryInteger<uint_type, BITLENGTH>::operator*(const BigBinaryInteger &a) const{
+// the use of pointer variable for result in Times reduces the number of BigBinaryInteger instantiations (by one)
 	BigBinaryInteger result;
 	this->Times(a, &result);
 	return result;
@@ -893,7 +871,7 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mul
 	return ans;
 }
 
-/** Times operation:
+/** Times operation: Optimized version (with reduced number of BigBinaryInteger instantiations)
 *  Algorithm used is usual school book multiplication.
 *  This function is used in the Multiplication of two BigBinaryInteger objects
 */
@@ -1228,6 +1206,7 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 }
 
 /**
+In-place version of ModBarrett
 Source: http://homes.esat.kuleuven.be/~fvercaut/papers/bar_mont.pdf
 @article{knezevicspeeding,
 title={Speeding Up Barrett and Montgomery Modular Multiplications},
@@ -1551,6 +1530,7 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 
 
 /*
+In-place version of ModBarrettMul
 Source: http://homes.esat.kuleuven.be/~fvercaut/papers/bar_mont.pdf
 @article{knezevicspeeding,
 title={Speeding Up Barrett and Montgomery Modular Multiplications},
@@ -1856,16 +1836,22 @@ usint BigBinaryInteger<uint_type,BITLENGTH>::GetMSB32(uint64_t x)
 {
 
 	if (x != 0) {
+// hardware instructions for finding MSB are used are used;
+// a wrapper for VC++
 #if defined(_MSC_VER)
 		unsigned long msb;
 		_BitScanReverse64(&msb, x);
 		return msb + 1;
 #else
+// a wrapper for GCC
 		return  64 - __builtin_clzl(x);
 #endif
 	}
 	else
 		return 0;
+
+	//this code can be extended to support uint128_t
+	//in contrast to hardware instructions above 
 
 	//static const usint bval[] =
 	//{ 0,1,2,2,3,3,3,3,4,4,4,4,4,4,4,4 };

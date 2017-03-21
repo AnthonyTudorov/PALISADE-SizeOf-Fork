@@ -410,14 +410,6 @@ public:
 	//matrix product - used in FFT and IFFT; new_vector = A*this_vector
 
 	/**
-	 * Matrix by Vector modulus multiplication.  If this vector is x and the matrix is A, this method returns A*x.
-	 *
-	 * @param &a is the matrix to left-multiply with.
-	 * @return is the result of the modulus multiplication operation.
-	 */
-	//BigBinaryVector ModMatrixMul(const BigBinaryMatrix &a) const;
-
-	/**
 	 * Returns a vector of digit at a specific index for all entries for a given number base.
 	 *
 	 * @param index is the index to return the digit from in all entries.
@@ -427,7 +419,6 @@ public:
 	BigBinaryVector GetDigitAtIndexForBase(usint index, usint base) const;
 
 
-	//JSON FACILITY
 	/**
 	* Serialize the object into a Serialized
 	* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
