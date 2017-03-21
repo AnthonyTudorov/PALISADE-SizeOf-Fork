@@ -513,38 +513,39 @@ inline std::ostream& operator<<(std::ostream& os, const Matrix<Element>& m){
 // discrete gaussians e and s; this implies int32_t can be used
 // This algorithm can be further improved - see the Darmstadt paper section 4.4
 Matrix<LargeFloat> Cholesky(const Matrix<int32_t> &input) {
-    //  http://eprint.iacr.org/2013/297.pdf
-    if (input.GetRows() != input.GetCols()) {
-        throw invalid_argument("not square");
-    }
-    size_t rows = input.GetRows();
-    Matrix<LargeFloat> result([](){ return make_unique<LargeFloat>(); }, rows, rows);
+	//  http://eprint.iacr.org/2013/297.pdf
+	if (input.GetRows() != input.GetCols()) {
+		throw invalid_argument("not square");
+	}
+	size_t rows = input.GetRows();
+	Matrix<LargeFloat> result([]() { return make_unique<LargeFloat>(); }, rows, rows);
 
-    for (size_t i = 0; i < rows; ++i) {
-        for (size_t j = 0; j < rows; ++j) {
-            result(i,j) = input(i,j);
-        }
-    }
+	for (size_t i = 0; i < rows; ++i) {
+		for (size_t j = 0; j < rows; ++j) {
+			result(i, j) = input(i, j);
+		}
+	}
 
-    for (size_t k = 0; k < rows; ++k) {
-#ifdef __linux__
-        result(k, k) = sqrtq(result(k, k));
-#else
-        result(k, k) = sqrt(input(k, k));
-#endif
-        for (size_t i = k+1; i < rows; ++i) {
-            //result(i, k) = input(i, k) / result(k, k);
-            result(i, k) = result(i, k) / result(k, k);
-            //  zero upper-right triangle
-            result(k, i) = 0.0;
-        }
-        for (size_t j = k+1; j < rows; ++j) {
-            for (size_t i = j; i < rows; ++i) {
+	for (size_t k = 0; k < rows; ++k) {
+		result(k, k) = sqrt(result(k, k));
+		//result(k, k) = sqrt(input(k, k));
+		for (size_t i = k + 1; i < rows; ++i) {
+			//result(i, k) = input(i, k) / result(k, k);
+			result(i, k) = result(i, k) / result(k, k);
+			//  zero upper-right triangle
+			result(k, i) = 0;
+		}
+		for (size_t j = k + 1; j < rows; ++j) {
+			for (size_t i = j; i < rows; ++i) {
+				if (result(i, k) != 0 && result(j, k) != 0) {
 					result(i, j) = result(i, j) - result(i, k) * result(j, k);
+					//result(i, j) = input(i, j) - result(i, k) * result(j, k);
+
+				}
 			}
-        }
-    }
-    return result;
+		}
+	}
+	return result;
 }
 
 void Cholesky(const Matrix<int32_t> &input, Matrix<LargeFloat> &result) {

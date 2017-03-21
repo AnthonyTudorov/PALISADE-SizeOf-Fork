@@ -190,6 +190,7 @@
     <ClCompile Include="..\..\..\..\src\core\lib\lattice\lattice-impl.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\math\matrixser.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\math\matrixstrassen.cpp" />
+    <ClCompile Include="..\..\..\..\src\core\lib\utils\palisadebase64.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\encoding\byteplaintextencoding.h" />
@@ -263,6 +264,7 @@
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\utilities.h" />
     <ClInclude Include="..\..\..\..\src\core\lib\math\matrixstrassen.h" />
     <ClInclude Include="..\..\..\..\src\core\lib\math\native64\binint.h" />
+    <ClInclude Include="..\..\..\..\src\core\lib\utils\palisadebase64.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
