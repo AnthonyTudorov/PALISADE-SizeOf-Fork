@@ -167,10 +167,6 @@
     <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\lattice\ilvector2n.cpp" />
     <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\lattice\ilvectorarray2n.cpp" />
     <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\binaryuniformgenerator.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\cpu8bit\binint8bit.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\cpu8bit\binvect8bit.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\cpu8bit\dtstruct8bit.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\cpu8bit\mempool8bit.cpp" />
     <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\cpu_int\binint.cpp" />
     <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\cpu_int\binvect.cpp" />
     <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\discretegaussiangenerator.cpp" />
@@ -206,10 +202,6 @@
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\lattice\ilvectorarray2n.h" />
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\backend.h" />
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\binaryuniformgenerator.h" />
-    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\cpu8bit\binint8bit.h" />
-    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\cpu8bit\binvect8bit.h" />
-    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\cpu8bit\dtstruct8bit.h" />
-    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\cpu8bit\mempool8bit.h" />
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\cpu_int\binint.h" />
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\cpu_int\binvect.h" />
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\cpu_int\dtstruct.h" />

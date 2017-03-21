@@ -170,7 +170,7 @@ TEST(UTNbTheory, method_prime_modulus) {
 }
 
 
-TEST(UTNbTheory, method_primitive_root_of_unity_LONG){
+TEST(UTNbTheory, method_primitive_root_of_unity_VERY_LONG){
   {	
     //TEST CASE TO ENSURE THE ROOT OF UNITY THAT IS FOUND IS A PRIMITIVE ROOT OF UNTIY
     usint m=4096; 

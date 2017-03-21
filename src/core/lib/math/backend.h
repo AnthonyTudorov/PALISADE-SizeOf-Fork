@@ -38,12 +38,10 @@
 #define LBCRYPTO_MATH_BACKEND_H
  
 /*! Define the library being used via the MATHBACKEND macro. */
-// 1 - DEPRECATED DO NOT USE: old implementation based on 8-bit character arrays (bytes),
-// uses a memory pool for storing character arrays
 
 // 2 -side by side comparison of main math backend supporting
 // arbitrary bitwidths; no memory pool is used; can grow up to RAM
-// limit currently supports uint32_t; uint32_t is recommended for 32-
+// limitation: currently supports uint32_t; uint32_t is recommended for 32-
 // and 64-bit and new backend that has dynamic allocation and support
 // uint32_t and uint64_t on linux
 
@@ -55,8 +53,9 @@
 //Please UNCOMMENT the approproate line rather than changing the number on the 
 //uncommented line (and breaking the documentation of the line)
 
-//#define MATHBACKEND 2 //side by side comparison of old and new libraries
 #define MATHBACKEND 2 //32 bit should work with all OS
+
+//#define MATHBACKEND 3 //dynamicly allocated backend and support uint32_t and uint64_t on linux
 
 //NOTE currently MATHBACKEND 4 has issues with the following unit tests
 //stemming from poor run time performance of 128 bit intrinsic divide
@@ -67,12 +66,6 @@
 //#define MATHBACKEND 4 //64 bit (currently works for ubuntu, not tested otherwise
 
 //#define MATHBACKEND 7	// jerry's native
-
-#if MATHBACKEND == 1
-#include "cpu8bit/binint8bit.h"
-#include "cpu8bit/binvect8bit.h"
-
-#endif
 
 #if MATHBACKEND == 2
 
@@ -132,17 +125,6 @@ namespace lbcrypto {
 
 template<typename IntType> class ILParamsImpl;
 template<typename IntType, typename VecType, typename ParmType> class ILVectorImpl;
-
-#if MATHBACKEND == 1
-
-	/** Define the mapping for BigBinaryInteger */
-	typedef cpu8bit::BigBinaryInteger BigBinaryInteger;
-	/** Define the mapping for BigBinaryVector */
-	typedef cpu8bit::BigBinaryVector BigBinaryVector;
-	/** Define the mapping for BigBinaryMatrix */
-	//typedef cpu8bit::BigBinaryMatrix BigBinaryMatrix;
-
-#endif
 
 #if MATHBACKEND == 2
 	/** integral_dtype specifies the native data type used for the BigBinaryInteger implementation 
