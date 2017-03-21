@@ -1,7 +1,10 @@
 ## for mac OSx
 
 BOOSTINCLUDE := -I /boost_1_61_0
+#BOOSTINCLUDE :=
 BOOSTLIB := -L /boost_1_61_0/stage/lib/
+#BOOSTLIB :=
+
 OMPINCLUDE := -I /opt/local/include/libomp -fopenmp
 CC := clang #gcc-mp-6
 CPPSTD := -std=gnu++11 -stdlib=libc++

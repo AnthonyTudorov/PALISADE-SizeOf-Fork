@@ -52,7 +52,7 @@ CPPFLAGS += -Wall -Ofast $(CPPSTD) -w -fopenmp  ##undefine for parallel debug op
 #CPPFLAGS += -Wall $(CPPSTD) -w  -m64 -Ofast -flto -march=native -funroll-loops -fopenmp ##undefine for multithread really best performance operation
 
 
-TEST_LIB := -pthread -lgomp -lquadmath #-lmpfr -lgmp
+TEST_LIB := -pthread -lgomp #-lquadmath -lmpfr -lgmp
 
 
 #build directory

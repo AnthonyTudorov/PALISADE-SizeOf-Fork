@@ -563,11 +563,9 @@ void Cholesky(const Matrix<int32_t> &input, Matrix<double> &result) {
 	}
 
 	for (size_t k = 0; k < rows; ++k) {
-#ifdef __linux__
-		result(k, k) = sqrtq(result(k, k));
-#else
+
 		result(k, k) = sqrt(input(k, k));
-#endif
+
 		for (size_t i = k + 1; i < rows; ++i) {
 			//result(i, k) = input(i, k) / result(k, k);
 			result(i, k) = result(i, k) / result(k, k);

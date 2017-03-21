@@ -3,8 +3,8 @@
 
 #include <iostream>
 #include <fstream>
-#include "obfuscation/lweconjunctionobfuscate.h"
-#include "obfuscation/lweconjunctionobfuscate.cpp"
+#include "obfuscation/lweconjunctionobfuscatev3.h"
+#include "obfuscation/lweconjunctionobfuscatev3.cpp"
 #include "time.h"
 #include <chrono>
 #include "utils/debug.h"

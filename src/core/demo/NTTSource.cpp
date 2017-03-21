@@ -22,8 +22,6 @@
 #include "lattice/ildcrtparams.h"
 #include "lattice/ilelement.h"
 //#include/crypto/lwecrypt.h"
-#include "obfuscation/lweconjunctionobfuscate.h"
-#include "obfuscation/lweconjunctionobfuscate.cpp"
 #include "obfuscation/obfuscatelp.h"
 #endif
 #include "time.h"

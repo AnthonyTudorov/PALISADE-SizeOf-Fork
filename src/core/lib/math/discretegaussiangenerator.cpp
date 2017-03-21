@@ -301,7 +301,7 @@ namespace lbcrypto {
 	int32_t DiscreteGaussianGeneratorImpl<IntType,VecType>::GenerateIntegerKnuthYao() {
 		int32_t S = 0;
 		bool discard = true;
-		std::uniform_int_distribution<int32_t> uniform_int(INT_MIN, INT_MAX);
+		std::uniform_int_distribution<int32_t> uniform_int(std::numeric_limits<int32_t>::min(), std::numeric_limits<int32_t>::max());
 		uint32_t seed;
 		char counter = 0;
 		int32_t MAX_ROW = probMatrixSize - 1;
