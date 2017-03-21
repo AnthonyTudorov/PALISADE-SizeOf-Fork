@@ -139,13 +139,17 @@ BigBinaryVector NumberTheoreticTransform::ForwardTransformIterative(const BigBin
 }
 
 //Number Theoretic Transform - ITERATIVE IMPLEMENTATION -  twiddle factor table precomputed
-BigBinaryVector NumberTheoreticTransform::InverseTransformIterative(const BigBinaryVector& element, const BigBinaryVector& rootOfUnityInverseTable, const usint cycloOrder) {
+  BigBinaryVector NumberTheoreticTransform::InverseTransformIterative(const BigBinaryVector& element, const BigBinaryVector& rootOfUnityInverseTable, const usint cycloOrder) {
 
 	BigBinaryVector ans = NumberTheoreticTransform::GetInstance().ForwardTransformIterative(element, rootOfUnityInverseTable, cycloOrder);
 
 	ans.SetModulus(element.GetModulus());
-	//note this could be stored
+	//TODO:: note this could be stored
+#if MATHBACKEND <6
 	ans = ans.ModMul(UintToBigBinaryInteger(cycloOrder).ModInverse(element.GetModulus()));
+#else
+	ans *= (UintToBigBinaryInteger(cycloOrder).ModInverse(element.GetModulus()));
+#endif
 
 	return ans;
 }
@@ -261,6 +265,7 @@ BigBinaryVector ChineseRemainderTransform::InverseTransform(const BigBinaryVecto
 
 	if (!IsPowerOfTwo(element.GetLength())) {
 		std::cout << "Input to IFFT is not a power of two\n ERROR BEFORE FFT\n";
+		//HERE IS WHERE WE NEED ADD additional table of modinverse etc.
 		OpIFFT = NumberTheoreticTransform::GetInstance().InverseTransformIterative(InputToFFT, *m_rootOfUnityInverseTable, CycloOrder);
 	}
 	else {
@@ -268,7 +273,7 @@ BigBinaryVector ChineseRemainderTransform::InverseTransform(const BigBinaryVecto
 	}
 
 	BigBinaryVector ans(CycloOrder / 2);
-
+	//TODO:: can this be done quicker?
 	for (usint i = 0; i<CycloOrder / 2; i++)
 		ans.SetValAtIndex(i, (OpIFFT).GetValAtIndex(i).ModMul(BigBinaryInteger::TWO, (OpIFFT).GetModulus()));
 
