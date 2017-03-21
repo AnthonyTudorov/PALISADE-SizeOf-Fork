@@ -174,7 +174,16 @@ namespace lbcrypto {
 		*@param params Parameters used in ILVector construction
 		*@param dgg DiscreteGaussianGenerator used in sampling
 		*/
-		LPSignatureParameters(shared_ptr<ILParams> params, DiscreteGaussianGenerator dgg) : m_params(params), dgg(dgg) {}
+		LPSignatureParameters(shared_ptr<ILParams> params, DiscreteGaussianGenerator dgg) : dgg(dgg) {
+			m_params = params;
+			const BigBinaryInteger & q = params->GetModulus();
+			size_t n = params->GetCyclotomicOrder() / 2;
+			double logTwo = log(q.ConvertToDouble() - 1.0) / log(2) + 1.0;
+			size_t k = (usint)floor(logTwo);
+			double c = 2 * SIGMA;
+			double s = SPECTRAL_BOUND(n, k);
+			dggLargeSigma = DiscreteGaussianGenerator(sqrt(s * s - c * c));
+		}
 
 
 	private:
@@ -182,176 +191,7 @@ namespace lbcrypto {
 		DiscreteGaussianGenerator dgg;
 		DiscreteGaussianGenerator dggLargeSigma;
 	};
-	/**
-	*  @brief Class holding signing key for Ring LWE variant of GPV signing algorithm. The values held in this class are trapdoor, public key of the trapdoor and the perturbation matrix
-	*  @tparam is the ring element
-	*/
-	template <class Element>
-	class LPSignKeyGPV {
-	public:
-		/**
-		* Default constructor
-		*/
-		LPSignKeyGPV() { m_sk = nullptr; }
 
-		/**Constructor
-		*
-		* @param signParams parameters used in signing process
-		*/
-		LPSignKeyGPV(LPSignatureParameters&signParams) {
-			this->SetSignatureParameters(signParams);
-			m_sk = nullptr;
-		}
-
-		/**
-		*Destructor
-		*/
-		~LPSignKeyGPV() {
-			delete m_sk;
-		}
-
-		/**
-		*Method for accessing parameters used in signing process
-		*
-		*@return Parameters used in signing
-		*/
-		LPSignatureParameters & GetSignatureParameters() { return m_signParameters; }
-
-		/**
-		*Method for accessing key in signing process
-		*
-		*@return Key used in signing
-		*/
-		const std::pair<Matrix<LargeFloat>, std::pair<Matrix<Element>, RLWETrapdoorPair<Element>>> & GetPrivateElement() const { return *m_sk; }
-		/**
-		*Method for setting parameters used in signing process
-		*
-		*@param signParams Parameters used in signing
-		*/
-		void SetSignatureParameters(const LPSignatureParameters & signParams) { m_signParameters = signParams; }
-		/**
-		*Method for setting the private key used in the signing process
-		*
-		*@param &x a pair of public key, trapdoor and perturbation matrix used for signing
-		*/
-		void SetPrivateElement(const std::pair<Matrix<LargeFloat>, std::pair<Matrix<Element>, RLWETrapdoorPair<Element>>>& x) {
-			if (m_sk != nullptr) {
-				delete m_sk;
-			}
-			m_sk = new std::pair<Matrix<LargeFloat>, std::pair<Matrix<Element>, RLWETrapdoorPair<Element>>>(x);
-		}
-	private:
-		LPSignatureParameters m_signParameters;
-		std::pair<Matrix<LargeFloat>, std::pair<Matrix<Element>, RLWETrapdoorPair<Element>>>* m_sk;
-	};
-	/**
-	* @brief Class holding verification key for Ring LWE variant of GPV signing algorithm. The value held in this class is the  public key of the trapdoor
-	* @tparam is the ring element
-	*/
-	template <class Element>
-	class LPVerificationKeyGPV {
-	public:
-
-		/**
-		*  Default constructor
-		*/
-		LPVerificationKeyGPV() { m_vk = nullptr; }
-
-		/**
-		* Constructor
-		* @param signParams parameters used in verification process
-		*/
-		LPVerificationKeyGPV(LPSignatureParameters &signParams) {
-			this->SetSignatureParameters(signParams);
-			m_vk = nullptr;
-		}
-
-		/**
-		*  Destructor
-		*/
-		~LPVerificationKeyGPV() {
-			delete m_vk;
-		}
-
-		/**
-		*Method for accessing parameters used in verification process
-		*
-		*@return Parameters used in verification
-		*/
-		LPSignatureParameters & GetSignatureParameters() { return m_signParameters; }
-
-		/**
-		*Method for accessing key in verification process
-		*
-		*@return Key used in verification
-		*/
-		const Matrix<Element> & GetPublicElement() const { return *m_vk; }
-
-		/**
-		* Method for setting parameters used in verification process
-		*
-		* @param &signParams Parameters used in verification
-		*/
-		void SetSignatureParameters(const LPSignatureParameters & signParams) { m_signParameters = signParams; }
-
-		/**
-		* Method for setting key used in verification process
-		*
-		* @param x Key used in verification
-		*/
-		void SetPublicElement(const Matrix<Element>& x) {
-			if (m_vk != nullptr) {
-				delete m_vk;
-			}
-			m_vk = new Matrix<Element>(x);
-		}
-	private:
-		LPSignatureParameters m_signParameters;
-		Matrix<Element>* m_vk;
-	};
-	/**
-	*@brief Implementation of Ring LWE variant of GPV signature scheme. Currently it supports only one type of vectors, therefore it is not templated
-	*  @tparam is the ring element
-	*/
-	template <class Element>
-	class LPSignatureSchemeGPV {
-	public:
-		/**
-		* Default constructor
-		*/
-		LPSignatureSchemeGPV() {}
-
-		/**
-		*Method for signing given text
-		*@param signKey private signing key
-		*@param plainText encoding of the text to be signed
-		*@param signatureText signature generated after the signing process - output of the function
-		*/
-		void Sign(LPSignKeyGPV<Element> &signKey, const BytePlaintextEncoding &plainText,
-			Signature<Matrix<Element>>*signatureText);
-
-		/**
-		*Method for verifying given text & signature
-		*
-		*@param verificationKey public verification key
-		*@param signatureText signature to be verified
-		*@param plainText encoding of the text to be verified
-		*@return result of the verification process
-		*/
-		bool Verify(LPVerificationKeyGPV<Element> &verificationKey,
-			const Signature<Matrix<Element>> &signatureText,
-			const BytePlaintextEncoding & plainText);
-
-		/**
-		*
-		*Method for generating signing and verification keys
-		*
-		*@param signKey private signing key generated after trapdoor & perturbation matrix - output of the function
-		*@param verificationKey public verification key generated after trapdoor - output of the function
-		*/
-		void KeyGen(LPSignKeyGPV<Element> *signKey,
-			LPVerificationKeyGPV<Element> *verificationKey);
-	};
 	/**
 	*  @brief Class holding signing key for Ring LWE variant of GPV signing algorithm with GM17 improvements. The values held in this class are trapdoor and public key
 	*  @tparam is the ring element
@@ -414,6 +254,7 @@ namespace lbcrypto {
 		LPSignatureParameters m_signParameters;
 		std::pair<Matrix<Element>, RLWETrapdoorPair<Element>>* m_sk;
 	};
+
 	/**
 	* @brief Class holding verification key for Ring LWE variant of GPV signing algorithm with GM17 improvements. The value held in this class is the  public key of the trapdoor
 	* @tparam is the ring element
@@ -479,6 +320,7 @@ namespace lbcrypto {
 		LPSignatureParameters m_signParameters;
 		Matrix<Element>* m_vk;
 	};
+	
 	/**
 	*@brief Implementation of Ring LWE variant of GPV signature scheme. Currently it supports only one type of vectors, therefore it is not templated
 	*  @tparam is the ring element

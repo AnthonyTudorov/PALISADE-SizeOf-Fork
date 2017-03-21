@@ -2,12 +2,6 @@
 #include "nbtheory.h"
 #include "backend.h"
 
-#include <boost/multiprecision/random.hpp>
-#include <boost/random.hpp>
-#include <boost/random/uniform_int_distribution.hpp>
-#include <boost/multiprecision/cpp_int.hpp>
-#include <boost/multiprecision/cpp_dec_float.hpp>
-
 #ifdef __linux__
 #include <execinfo.h>
 #endif
@@ -266,43 +260,6 @@ namespace lbcrypto {
 	}
 
 	/**
-		*  int32_t is used here as the components are relatively small
-		*  this is a simple inefficient implementation as noted in DG14; will need to be improved
-		*/
-	template<typename IntType, typename VecType>
-	int32_t DiscreteGaussianGeneratorImpl<IntType,VecType>::GenerateInteger(const LargeFloat &mean, const LargeFloat &stddev, size_t n) {
-
-		LargeFloat t = 0.5*log2(2*n)*stddev;
-
-		//YSP this double conversion is necessary for uniform_int to work properly; the use of double is justified in this case
-#if defined(_MSC_VER)
-		double dbmean = mean.convert_to<double>();
-		double dbt = t.convert_to<double>();
-#else
-		double dbmean = (double)mean;
-		double dbt = (double)t;
-#endif
-		int count = 0;
-		std::uniform_int_distribution<int32_t> uniform_int(floor(dbmean - dbt), ceil(dbmean + dbt));
-		boost::random::uniform_real_distribution<LargeFloat> uniform_real(0.0, 1.0);
-
-		LargeFloat sigmaFactor = -1 / (2. * stddev * stddev);
-
-		while (true) {
-			count++;
-			//  pick random int
-			int32_t x = uniform_int(GetPRNG());
-			//  roll the uniform dice
-			LargeFloat dice = uniform_real(GetPRNG());
-			//  check if dice land below pdf
-			if (dice <= UnnormalizedGaussianPDF(mean, x, sigmaFactor)) {
-				// std::cout << "Count: " << count << std::endl;
-				return x;
-			}
-		}
-	}
-
-	/**
 		*Generates the probability matrix of given distribution, which is used in Knuth-Yao method
 	*/
 	template<typename IntType, typename VecType>
@@ -333,48 +290,6 @@ namespace lbcrypto {
 		/*
 		for (int k = 0;k< 32;k++) {
 			hammingWeights[k] += ((probMatrix[probMatrixSize - 1] >> (31 - k)) & 1);
-		}
-		*/
-	}
-
-	/**
-	*Generates the probability matrix of given distribution, which is used in Knuth-Yao method (Large Float Version)
-	*/
-	template<typename IntType, typename VecType>
-	void DiscreteGaussianGeneratorImpl<IntType,VecType>::GenerateProbMatrix(const LargeFloat & stddev, const LargeFloat & mean) {
-		if (probMatrix != nullptr) {
-			delete[] probMatrix;
-		}
-#if defined(_MSC_VER)
-		double dbmean = mean.convert_to<double>();
-		double dbstddev = stddev.convert_to<double>();
-#else
-		double dbmean = (double)mean;
-		double dbstddev = (double)stddev;
-#endif
-		probMean = dbmean;
-		probMatrixSize = 10 * dbstddev + 2;
-		probMatrix = new uint32_t[probMatrixSize];
-		double error = 1;
-		for (int i = -5 * dbstddev + dbmean;i <= 5 * dbstddev + dbmean;i++) {
-			double prob = pow(M_E, -pow(i - dbmean, 2) / (2. * dbstddev * dbstddev)) / (dbstddev * sqrt(2.*M_PI));
-
-			error -= prob;
-			probMatrix[int(i + 5 * dbstddev - dbmean)] = prob * pow(2, 32);
-			//Hamming weights are disabled for now
-			/*
-			for (int j = 0;j < 32;j++) {
-			hammingWeights[j] += ((probMatrix[int(i + m / 2)] >> (31 - j)) & 1);
-
-			}
-			*/
-		}
-		//std::cout << "Error probability: " << error << std::endl;
-		probMatrix[probMatrixSize - 1] = error * pow(2, 32);
-		//Hamming weights are disabled for now
-		/*
-		for (int k = 0;k< 32;k++) {
-		hammingWeights[k] += ((probMatrix[probMatrixSize - 1] >> (31 - k)) & 1);
 		}
 		*/
 	}

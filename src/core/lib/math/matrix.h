@@ -34,7 +34,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <omp.h>
 //using std::function;
 
-#include "largefloat.h"
 #include "../math/backend.h"
 #include "../math/nbtheory.h"
 #include "../math/distrgen.h"
@@ -575,9 +574,9 @@ namespace lbcrypto {
 	* @param &input the matrix for which the Cholesky decomposition is to be computed
 	* @return the resulting matrix of floating-point numbers
     */ 
-    inline Matrix<LargeFloat> Cholesky(const Matrix<int32_t> &input); 
+    inline Matrix<double> Cholesky(const Matrix<int32_t> &input); 
 
-	inline void Cholesky(const Matrix<int32_t> &input, Matrix<LargeFloat> &result);
+	inline void Cholesky(const Matrix<int32_t> &input, Matrix<double> &result);
 
 	/**
     * Convert a matrix of integers from BigBinaryInteger to int32_t

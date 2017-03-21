@@ -53,19 +53,23 @@
 //Please UNCOMMENT the approproate line rather than changing the number on the 
 //uncommented line (and breaking the documentation of the line)
 
-#define MATHBACKEND 2 //32 bit should work with all OS
+//32 bit should work with all OS
+#define MATHBACKEND 2 
 
-//#define MATHBACKEND 3 //dynamicly allocated backend and support uint32_t and uint64_t on linux
+//dynamicly allocated backend and support uint32_t and uint64_t on linux
+//#define MATHBACKEND 3 
 
+//64 bit (currently works for ubuntu, not tested otherwise
 //NOTE currently MATHBACKEND 4 has issues with the following unit tests
 //stemming from poor run time performance of 128 bit intrinsic divide
 //UTSHE.keyswitch_ModReduce_DCRT takes incredibly rediculously long (9637 sec)
 //UTSHEAdvanced.test_eval_mult_double_crt takes extremely long (89 sec)
 //UTSHEAdvanced.test_eval_add_double_crt takes extremely long (86 sec)
+//#define MATHBACKEND 4 
 
-//#define MATHBACKEND 4 //64 bit (currently works for ubuntu, not tested otherwise
+// jerry's native
+//#define MATHBACKEND 7	
 
-//#define MATHBACKEND 7	// jerry's native
 
 #if MATHBACKEND == 2
 

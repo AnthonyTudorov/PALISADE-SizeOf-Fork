@@ -57,11 +57,11 @@ TEST(UTSignatureGPV,simple_sign_verify) {
   DEBUG("Step 4");
 	LPSignatureParameters signParams(silParams, dgg);
   DEBUG("Step 5");
-	LPSignKeyGPV<ILVector2n> s_k(signParams);
+	LPSignKeyGPVGM<ILVector2n> s_k(signParams);
   DEBUG("Step 6");
-	LPVerificationKeyGPV<ILVector2n> v_k(signParams);
+	LPVerificationKeyGPVGM<ILVector2n> v_k(signParams);
   DEBUG("Step 7");
-	LPSignatureSchemeGPV<ILVector2n> scheme;
+	LPSignatureSchemeGPVGM<ILVector2n> scheme;
   DEBUG("Step 8");
 	scheme.KeyGen(&s_k, &v_k);
   DEBUG("Step 9");
@@ -89,10 +89,10 @@ TEST(UTSignatureGPV, sign_verify_multiple_texts) {
 	ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
 	ILVector2n::PreComputeDggSamples(dgg, silParams);
 	LPSignatureParameters signParams(silParams, dgg);
-	LPSignKeyGPV<ILVector2n> s_k(signParams);
-	LPVerificationKeyGPV<ILVector2n> v_k(signParams);
+	LPSignKeyGPVGM<ILVector2n> s_k(signParams);
+	LPVerificationKeyGPVGM<ILVector2n> v_k(signParams);
 	
-	LPSignatureSchemeGPV<ILVector2n> scheme;
+	LPSignatureSchemeGPVGM<ILVector2n> scheme;
 	scheme.KeyGen(&s_k, &v_k);
 
 	Signature<Matrix<ILVector2n>> signature, signature2;
@@ -127,10 +127,10 @@ TEST(UTSignatureGPV, sign_verify_multiple_keys) {
 	ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
 	ILVector2n::PreComputeDggSamples(dgg, silParams);
 	LPSignatureParameters signParams(silParams, dgg);
-	LPSignKeyGPV<ILVector2n> s_k(signParams),s_k2(signParams);
-	LPVerificationKeyGPV<ILVector2n> v_k(signParams),v_k2(signParams);
+	LPSignKeyGPVGM<ILVector2n> s_k(signParams),s_k2(signParams);
+	LPVerificationKeyGPVGM<ILVector2n> v_k(signParams),v_k2(signParams);
 
-	LPSignatureSchemeGPV<ILVector2n> scheme;
+	LPSignatureSchemeGPVGM<ILVector2n> scheme;
 	scheme.KeyGen(&s_k, &v_k);
 	scheme.KeyGen(&s_k2, &v_k2);
 

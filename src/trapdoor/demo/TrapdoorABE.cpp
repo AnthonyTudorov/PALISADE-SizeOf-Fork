@@ -18,7 +18,7 @@ void MultiThreadedRun(int index);
 
 int main() {
 
-	for (usint i = 7; i < 8; i++) {
+	for (usint i = 0; i < 1; i++) {
 		MultiThreadedRun(i);
 	}
 
@@ -87,7 +87,7 @@ void MultiThreadedRun(int index) {
 
 	silParams = std::make_shared<ILParams>(ilParams);
 	LPSignatureParameters signParams(silParams, dgg);
-	signParams.SetElemParams(silParams);
+	//signParams.SetElemParams(silParams);
 	std::cout << signParams.GetILParams()->GetCyclotomicOrder() << std::endl << std::endl;
 
 	//std::cout << "std = " << signParams.GetDiscreteGaussianGenerator().GetStd() << std::endl;

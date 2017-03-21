@@ -30,7 +30,28 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 namespace lbcrypto {
 
 template <class Element>
-ObfuscatedLWEConjunctionPatternV3<Element>::ObfuscatedLWEConjunctionPatternV3() {
+ClearLWEConjunctionPattern<Element>::ClearLWEConjunctionPattern(const std::string patternString) {
+	m_patternString = patternString;
+};
+
+template <class Element>
+std::string ClearLWEConjunctionPattern<Element>::GetPatternString() const {
+	return m_patternString;
+};
+
+// Gets the ring at a specific location
+template <class Element>
+char ClearLWEConjunctionPattern<Element>::GetIndex(usint loc) const {
+	return (char)m_patternString[loc];
+};
+
+template <class Element>
+usint ClearLWEConjunctionPattern<Element>::GetLength() const {
+	return m_patternString.length();
+};
+
+template <class Element>
+ObfuscatedLWEConjunctionPattern<Element>::ObfuscatedLWEConjunctionPattern() {
 
 	this->m_length = 0;
 	this->m_chunkSize = 1;
@@ -47,10 +68,10 @@ ObfuscatedLWEConjunctionPatternV3<Element>::ObfuscatedLWEConjunctionPatternV3() 
 }
 
 template <class Element>
-ObfuscatedLWEConjunctionPatternV3<Element>::~ObfuscatedLWEConjunctionPatternV3() {}
+ObfuscatedLWEConjunctionPattern<Element>::~ObfuscatedLWEConjunctionPattern() {}
 
 template <class Element>
-ObfuscatedLWEConjunctionPatternV3<Element>::ObfuscatedLWEConjunctionPatternV3(shared_ptr<typename Element::Params> elemParams, usint chunkSize) {
+ObfuscatedLWEConjunctionPattern<Element>::ObfuscatedLWEConjunctionPattern(shared_ptr<typename Element::Params> elemParams, usint chunkSize) {
 
 	this->m_elemParams = elemParams;
 
@@ -69,28 +90,28 @@ ObfuscatedLWEConjunctionPatternV3<Element>::ObfuscatedLWEConjunctionPatternV3(sh
 }
 
 template <class Element>
-ObfuscatedLWEConjunctionPatternV3<Element>::ObfuscatedLWEConjunctionPatternV3(shared_ptr<typename Element::Params> elemParams) :
-	ObfuscatedLWEConjunctionPatternV3(elemParams,1) {};
+ObfuscatedLWEConjunctionPattern<Element>::ObfuscatedLWEConjunctionPattern(shared_ptr<typename Element::Params> elemParams) :
+	ObfuscatedLWEConjunctionPattern(elemParams,1) {};
 
 template <class Element>
-void ObfuscatedLWEConjunctionPatternV3<Element>::SetLength(usint length) {
+void ObfuscatedLWEConjunctionPattern<Element>::SetLength(usint length) {
 	m_length = length;
 };
 
 template <class Element>
-const BigBinaryInteger ObfuscatedLWEConjunctionPatternV3<Element>::GetModulus() const{
+const BigBinaryInteger ObfuscatedLWEConjunctionPattern<Element>::GetModulus() const{
 	BigBinaryInteger q(m_elemParams->GetModulus());
 	return q;
 };
 
 template <class Element>
-usint ObfuscatedLWEConjunctionPatternV3<Element>::GetRingDimension() const{
+usint ObfuscatedLWEConjunctionPattern<Element>::GetRingDimension() const{
 	return (this->m_elemParams->GetCyclotomicOrder())/2;
 };
 
 // Gets the log of the modulus
 template <class Element>
-usint ObfuscatedLWEConjunctionPatternV3<Element>::GetLogModulus() const{
+usint ObfuscatedLWEConjunctionPattern<Element>::GetLogModulus() const{
 	double val = this->m_elemParams->GetModulus().ConvertToDouble();
 	//std::cout << "val : " << val << std::endl;
 	double logTwo = log(val-1.0)/log(2)+1.0;
@@ -100,13 +121,13 @@ usint ObfuscatedLWEConjunctionPatternV3<Element>::GetLogModulus() const{
 };
 
 template <class Element>
-void ObfuscatedLWEConjunctionPatternV3<Element>::SetModulus(BigBinaryInteger &modulus) {
+void ObfuscatedLWEConjunctionPattern<Element>::SetModulus(BigBinaryInteger &modulus) {
 	this->m_elemParams.SetModulus(modulus);
 };
 
 // Sets the matrices that define the obfuscated pattern.
 template <class Element>
-void ObfuscatedLWEConjunctionPatternV3<Element>::SetMatrices(shared_ptr<vector<vector<shared_ptr<Matrix<Element>>>>> S_vec,
+void ObfuscatedLWEConjunctionPattern<Element>::SetMatrices(shared_ptr<vector<vector<shared_ptr<Matrix<Element>>>>> S_vec,
 	shared_ptr<vector<vector<shared_ptr<Matrix<Element>>>>> R_vec, shared_ptr<Matrix<Element>> Sl, shared_ptr<Matrix<Element>> Rl) {
 
 	this->m_S_vec = S_vec;
@@ -117,7 +138,7 @@ void ObfuscatedLWEConjunctionPatternV3<Element>::SetMatrices(shared_ptr<vector<v
 }
 
 template <class Element>
-shared_ptr<Matrix<Element>>  ObfuscatedLWEConjunctionPatternV3<Element>::GetR(usint i, const std::string &testVal) const {
+shared_ptr<Matrix<Element>>  ObfuscatedLWEConjunctionPattern<Element>::GetR(usint i, const std::string &testVal) const {
 
 	//extract the string corresponding to chunk size
 	int value = std::stoi(testVal,nullptr,2);
@@ -128,7 +149,7 @@ shared_ptr<Matrix<Element>>  ObfuscatedLWEConjunctionPatternV3<Element>::GetR(us
 
 
 template <class Element>
-shared_ptr<Matrix<Element>>  ObfuscatedLWEConjunctionPatternV3<Element>::GetS(usint i, const std::string &testVal) const {
+shared_ptr<Matrix<Element>>  ObfuscatedLWEConjunctionPattern<Element>::GetS(usint i, const std::string &testVal) const {
 
 	//extract the string corresponding to chunk size
 	int value = std::stoi(testVal,nullptr,2);
@@ -137,8 +158,8 @@ shared_ptr<Matrix<Element>>  ObfuscatedLWEConjunctionPatternV3<Element>::GetS(us
 }
 
 template <class Element>
-void LWEConjunctionObfuscationAlgorithmV3<Element>::ParamsGen(DiscreteGaussianGenerator &dgg,
-	ObfuscatedLWEConjunctionPatternV3<Element> *obfuscatedPattern, uint32_t n) const {
+void LWEConjunctionObfuscationAlgorithm<Element>::ParamsGen(DiscreteGaussianGenerator &dgg,
+	ObfuscatedLWEConjunctionPattern<Element> *obfuscatedPattern, uint32_t n) const {
 
 	//smoothing parameter - also standard deviation for noise polynomials
 	double sigma = SIGMA;
@@ -223,8 +244,8 @@ void LWEConjunctionObfuscationAlgorithmV3<Element>::ParamsGen(DiscreteGaussianGe
 }
 
 template <class Element>
-void LWEConjunctionObfuscationAlgorithmV3<Element>::KeyGen(DiscreteGaussianGenerator &dgg,
-				ObfuscatedLWEConjunctionPatternV3<Element> *obfuscatedPattern) const {
+void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(DiscreteGaussianGenerator &dgg,
+				ObfuscatedLWEConjunctionPattern<Element> *obfuscatedPattern) const {
 	TimeVar t1,t2; // for TIC TOC
 	bool dbg_flag = false;
 	TIC(t1);
@@ -286,7 +307,7 @@ void LWEConjunctionObfuscationAlgorithmV3<Element>::KeyGen(DiscreteGaussianGener
 }
 
 template <class Element>
-shared_ptr<Matrix<Element>> LWEConjunctionObfuscationAlgorithmV3<Element>::Encode(
+shared_ptr<Matrix<Element>> LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 				const Matrix<Element> &Ai,
 				const Matrix<Element> &Aj,
 				const RLWETrapdoorPair<ILVector2n> &Ti,
@@ -328,7 +349,7 @@ shared_ptr<Matrix<Element>> LWEConjunctionObfuscationAlgorithmV3<Element>::Encod
 	for(int32_t i=0; i<m; i++) {
 
 	  // the following takes approx 250 msec
-		Matrix<Element> gaussj = RLWETrapdoorUtility::GaussSampV3(n,k,Ai,Ti,bj(0,i),dgg.GetStd(), dgg, dggLargeSigma);
+		Matrix<Element> gaussj = RLWETrapdoorUtility::GaussSamp(n,k,Ai,Ti,bj(0,i),dgg.GetStd(), dgg, dggLargeSigma);
 //		gaussj(0, 0).PrintValues();
 //		gaussj(1, 0).PrintValues();
 		// the following takes no time
@@ -347,11 +368,11 @@ shared_ptr<Matrix<Element>> LWEConjunctionObfuscationAlgorithmV3<Element>::Encod
 };
 
 template <class Element>
-void LWEConjunctionObfuscationAlgorithmV3<Element>::Obfuscate(
+void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 				const ClearLWEConjunctionPattern<Element> &clearPattern,
 				DiscreteGaussianGenerator &dgg,
 				TernaryUniformGenerator &tug,
-				ObfuscatedLWEConjunctionPatternV3<Element> *obfuscatedPattern) const {
+				ObfuscatedLWEConjunctionPattern<Element> *obfuscatedPattern) const {
 
 	TimeVar t1; // for TIC TOC
 	bool dbg_flag = 0;
@@ -535,7 +556,7 @@ void LWEConjunctionObfuscationAlgorithmV3<Element>::Obfuscate(
 
 
 template <class Element>
-bool LWEConjunctionObfuscationAlgorithmV3<Element>::Evaluate(
+bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 				const ClearLWEConjunctionPattern<Element> &clearPattern,
 				const std::string &testString) const {
 	//Evaluation of Clear Conjunction Pattern
@@ -564,8 +585,8 @@ bool LWEConjunctionObfuscationAlgorithmV3<Element>::Evaluate(
 };
 
 template <class Element>
-bool LWEConjunctionObfuscationAlgorithmV3<Element>::EvaluateV2(
-				const ObfuscatedLWEConjunctionPatternV3<Element> &obfuscatedPattern,
+bool LWEConjunctionObfuscationAlgorithm<Element>::EvaluateV2(
+				const ObfuscatedLWEConjunctionPattern<Element> &obfuscatedPattern,
 				const std::string &testString) const {
 	//Evaluation of Obfuscated Conjunction Pattern
 	TimeVar t1; // for TIC TOC
@@ -674,8 +695,8 @@ bool LWEConjunctionObfuscationAlgorithmV3<Element>::EvaluateV2(
 
 
 template <class Element>
-bool LWEConjunctionObfuscationAlgorithmV3<Element>::EvaluateACS(
-				const ObfuscatedLWEConjunctionPatternV3<Element> &obfuscatedPattern,
+bool LWEConjunctionObfuscationAlgorithm<Element>::EvaluateACS(
+				const ObfuscatedLWEConjunctionPattern<Element> &obfuscatedPattern,
 				const std::string &testString, const int useRandomVector) const {
 	//Evaluation of Obfuscated Conjunction Pattern
 	TimeVar t1; // for TIC TOC
@@ -796,8 +817,8 @@ bool LWEConjunctionObfuscationAlgorithmV3<Element>::EvaluateACS(
 
 
 template <class Element>
-bool LWEConjunctionObfuscationAlgorithmV3<Element>::Evaluate(
-				const ObfuscatedLWEConjunctionPatternV3<Element> &obfuscatedPattern,
+bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
+				const ObfuscatedLWEConjunctionPattern<Element> &obfuscatedPattern,
 				const std::string &testString) const {
 
 	//Evaluation of Obfuscated Conjunction Pattern

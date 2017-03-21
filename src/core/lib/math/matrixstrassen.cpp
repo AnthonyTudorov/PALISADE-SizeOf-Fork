@@ -506,13 +506,13 @@ inline std::ostream& operator<<(std::ostream& os, const MatrixStrassen<Element>&
 // the assumption is that covariance matrix does not have large coefficients because it is formed by
 // discrete gaussians e and s; this implies int32_t can be used
 // This algorithm can be further improved - see the Darmstadt paper section 4.4
-MatrixStrassen<LargeFloat> Cholesky(const MatrixStrassen<int32_t> &input) {
+MatrixStrassen<double> Cholesky(const MatrixStrassen<int32_t> &input) {
     //  http://eprint.iacr.org/2013/297.pdf
     if (input.GetRows() != input.GetCols()) {
         throw invalid_argument("not square");
     }
     size_t rows = input.GetRows();
-    MatrixStrassen<LargeFloat> result([](){ return make_unique<LargeFloat>(); }, rows, rows);
+    MatrixStrassen<double> result([](){ return make_unique<double>(); }, rows, rows);
 
     for (size_t i = 0; i < rows; ++i) {
         for (size_t j = 0; j < rows; ++j) {

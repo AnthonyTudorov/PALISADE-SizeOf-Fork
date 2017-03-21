@@ -56,7 +56,6 @@
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\exp_int\ubint.h" />
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\exp_int\ubintvec.h" />
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\interface.h" />
-    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\largefloat.h" />
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\matrix.h" />
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\nbtheory.h" />
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\ternaryuniformgenerator.h" />

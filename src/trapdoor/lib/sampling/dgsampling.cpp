@@ -38,99 +38,6 @@
 
 namespace lbcrypto {
 
-	// Nonspherical sampling that is used to generate perturbation vectors (for spherically distributed premimages in GaussSample)
-
-	void LatticeGaussSampUtility::NonSphericalSample(size_t n, size_t k, const Matrix<LargeFloat> &sigmaSqrt, double stddev, 
-		Matrix<int32_t> *perturbationVector)
-	{
-		double a(stddev / 2);
-
-		//double s = 40 * std::sqrt(perturbationVector->GetRows());
-
-		double s = SPECTRAL_BOUND(n, k);
-
-		double b = s*s - 5*a*a;
-
-		Matrix<LargeFloat> sample([]() { return make_unique<LargeFloat>(); }, sigmaSqrt.GetRows(), 1);
-		ContinuousGaussianGenerator(&sample);
-
-		Matrix<LargeFloat> sample2([]() { return make_unique<LargeFloat>(); }, perturbationVector->GetRows() - 2 * n, 1);
-		ContinuousGaussianGenerator(&sample2);
-		
-		Matrix<LargeFloat> p2([]() { return make_unique<LargeFloat>(); }, perturbationVector->GetRows() - 2 * n, 1);
-		p2 = sample2.ScalarMult(sqrt(b));
-		
-		Matrix<int32_t> perturbationVector2([]() { return make_unique<int32_t>(); }, perturbationVector->GetRows() - 2 * n, 1);
-		Matrix<LargeFloat> p = sigmaSqrt.Mult(sample);
-		
-		RandomizeRound(n, p, a, perturbationVector);
-		RandomizeRound(n, p2, a, &perturbationVector2);
-		
-		for (int i = 0;i < perturbationVector2.GetRows();i++) {
-			(*perturbationVector)(2 * n + i, 0) = perturbationVector2(i, 0);
-		}
-
-	}
-
-	void LatticeGaussSampUtility::NonSphericalSampleBB13(size_t n, size_t k, const Matrix<LargeFloat> &sigmaSqrt, double stddev,
-		DiscreteGaussianGenerator &dggLargeSigma, Matrix<int32_t> *perturbationVector)
-	{
-		double a(stddev / 2);
-
-		//double s = 40 * std::sqrt(perturbationVector->GetRows());
-
-		double s = SPECTRAL_BOUND(n, k);
-
-		double b = s*s - 5 * a*a;
-
-		Matrix<LargeFloat> sample([]() { return make_unique<LargeFloat>(); }, sigmaSqrt.GetRows(), 1);
-		ContinuousGaussianGenerator(&sample);
-
-		//Matrix<LargeFloat> sample2([]() { return make_unique<LargeFloat>(); }, perturbationVector->GetRows() - 2 * n, 1);
-		//ContinuousGaussianGenerator(&sample2);
-
-		//Matrix<LargeFloat> p2([]() { return make_unique<LargeFloat>(); }, perturbationVector->GetRows() - 2 * n, 1);
-		//p2 = sample2.ScalarMult(sqrt(b));
-
-		//Matrix<int32_t> perturbationVector2([]() { return make_unique<int32_t>(); }, perturbationVector->GetRows() - 2 * n, 1);
-		const Matrix<LargeFloat> &p = sigmaSqrt.Mult(sample);
-
-		RandomizeRound(n, p, a, perturbationVector);
-		//RandomizeRound(n, p2, a, &perturbationVector2);
-
-		//Matrix<int32_t> perturbationVector2([]() { return make_unique<int32_t>(); }, n*k, 1);
-
-		//Peikert's inversion method is used
-		//YSP replace with smart pointers later
-		std::shared_ptr<sint> dggVector = dggLargeSigma.GenerateIntVector(n*k);
-
-		//for (size_t i = 0; i < n * k; i++) {
-		//	perturbationVector2(i, 0) = (dggVector.get())[i];
-		//}
-
-		for (int i = 0; i < n*k; i++) {
-			(*perturbationVector)(2 * n + i, 0) = (dggVector.get())[i];
-		}
-
-	}
-
-	// Generates a vector using continuous Guassian distribution with mean = 0 and std = 1; uses Box-Muller method
-
-	void LatticeGaussSampUtility::ContinuousGaussianGenerator(Matrix<LargeFloat> *randomVector)
-	{
-
-		//namespace mp = boost::multiprecision;
-
-		// YSP we use Box-Muller method for generating continuous gaussians included with Boost
-		// please note that <> is used; boost::random::normal_distribution<LargeFloat> was causing a compilation error in Linux
-		boost::random::normal_distribution<> dgg(0.0, 1.0);
-
-		// gen is a static variable (defined in this file only through #include to largefloat.h)
-		for (size_t i = 0; i < randomVector->GetRows(); i++) {
-			(*randomVector)(i, 0) = dgg(DistributionGenerator::GetPRNG());
-		}
-	}
-
 	// Gaussian sampling from lattice for gagdet matrix G and syndrome u ONLY FOR A POWER-OF-TWO MODULUS; Has not been fully tested
 
 	void LatticeGaussSampUtility::GaussSampG(const ILVector2n &u, double sttdev, size_t k,
@@ -171,65 +78,11 @@ namespace lbcrypto {
 
 	}
 
-	// Gaussian sampling from lattice for gagdet matrix G and syndrome u and ARBITRARY MODULUS q
-	// Algorithm was provided in a personal communication by Daniele Micciancio
-
-	void LatticeGaussSampUtility::GaussSampGq(const ILVector2n &u, double stddev, size_t k, const BigBinaryInteger &q,
-		DiscreteGaussianGenerator &dgg, Matrix<int32_t> *z)
-	{
-
-		std::vector<double> a(k);  /* can be precomputed, depends only on k */
-		std::vector<double> x(k);  /* not essential, used only for clarity */
-		std::vector<double> c(k);  /* not essential, used only for clarity */
-		std::vector<int32_t> d(k);  /* not essential, used only for clarity */
-		std::vector<double> y(k);
-
-		double std3 = stddev / 3;
-		std::normal_distribution<double> dggstd3(0.0, std3);
-
-		double stdk = std3 * (pow(2, k) / q.ConvertToDouble());
-
-		a[0] = sqrt(3 + 2.0 / k);
-		for (size_t i = 1; i < k; i++)
-			a[i] = sqrt(2 + 2.0 / (k - i));
-
-		for (size_t i = 0; i < u.GetLength(); i++) {
-
-			BigBinaryInteger v(u.GetValAtIndex(i));
-			int32_t zk, zj;
-
-			for (size_t i = 0; i < k; i++)
-				x[i] = dggstd3(DistributionGenerator::GetPRNG());
-
-			y[0] = a[0] * x[0] / 2 + x[1] / a[1];
-			for (size_t j = 1; j < k - 1; j++)
-				y[j] = y[j - 1] / 2 + a[j] * x[j] / 2 + x[j + 1] / a[j + 1];
-			y[k - 1] = y[k - 2] / 2 + a[k - 1] * x[k - 1] / 2;
-
-			zk = dgg.GenerateInteger((pow(2, k) / q.ConvertToDouble())*y[k - 1] - (v.ConvertToDouble() / q.ConvertToDouble()), stdk, u.GetLength()); /* FIX: compute (2^k / q) and  v/q as doubles */;
-
-			for (size_t j = 0; j < k; j++) {
-				d[j] = v.GetDigitAtIndexForBase(j + 1, 2) + zk*q.GetDigitAtIndexForBase(j + 1, 2);
-				/* How efficient is GetDigitIndexForBase? Implement using left shifts? */
-				(*z)(j, i) = d[j];
-			}
-			c[0] = d[0] / 2.0;
-
-			for (size_t j = 0; j < k - 1; j++) {
-				c[j + 1] = (c[j] + d[j + 1]) / 2;
-				zj = dgg.GenerateInteger(y[j] - c[j], std3, u.GetLength()); /* generate discrete gaussian sample with mean y[j]-c[j] and standard deviation std3 */
-				(*z)(j, i) += zj * 2; //multiplication by 2
-				(*z)(j + 1, i) -= zj;
-			}
-		}
-
-	}
-
 	// Gaussian sampling from lattice for gagdet matrix G and syndrome u and ARBITRARY MODULUS q - Improved algorithm
 	// Algorithm was provided in a personal communication by Daniele Micciancio
 	// It will be published in GM17 (EuroCrypt)
 
-	void LatticeGaussSampUtility::GaussSampGqV2(const ILVector2n &u, double stddev, size_t k, const BigBinaryInteger &q, int32_t base,
+	void LatticeGaussSampUtility::GaussSampGq(const ILVector2n &u, double stddev, size_t k, const BigBinaryInteger &q, int32_t base,
 		DiscreteGaussianGenerator &dgg, Matrix<int32_t> *z)
 	{
 		const BigBinaryInteger& modulus = u.GetParams()->GetModulus();

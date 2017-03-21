@@ -35,13 +35,12 @@
 
 #define _USE_MATH_DEFINES // added for Visual Studio support
 
-#include <cmath>
+#include <math.h>
 #include <random>
 #include <memory>
 
 #include "backend.h"
 #include "distributiongenerator.h"
-#include "largefloat.h"
 
 namespace lbcrypto {
 
@@ -136,15 +135,6 @@ public:
 	static int32_t GenerateInteger (double mean, double stddev, size_t n);
 
 	/**
-	* @brief  Returns a generated integer. Uses rejection method. Works with large floating numbers.
-	* @param mean center of discrete Gaussian distribution.
-	* @param stddev standard deviatin of discrete Gaussian distribution.
-	* @param n is ring dimension
-	* @return A random value within this Discrete Gaussian Distribution.
-	*/
-	static int32_t GenerateInteger (const LargeFloat &mean, const LargeFloat &stddev, size_t n);
-
-	/**
 	* @brief  Returns a generated integer (int32_t). Uses rejection method.
 	* @param mean center of discrecte Gaussian distribution.
 	* @param stddev standard deviatin of discrete Gaussian distribution.
@@ -159,13 +149,6 @@ public:
 	* @param mean Center of the distribution
 	*/
 	void GenerateProbMatrix(double stddev, double mean);
-
-	/**
-	* @brief Generates the probability matrix of given distribution, which is used in Knuth-Yao method (Large Float Version)
-	* @param sttdev standard deviation of Discrete Gaussian Distribution
-	* @param mean Center of the distribution
-	*/
-	void GenerateProbMatrix(const LargeFloat & stddev, const LargeFloat & mean);
 
 	/**
 	* @ brief Returns a generated integer. Uses Knuth-Yao method defined as Algorithm 1 in http://link.springer.com/chapter/10.1007%2F978-3-662-43414-7_19#page-1
@@ -188,22 +171,6 @@ private:
 		return pow(M_E, sigmaFactor*(x - mean)*(x - mean));
 	}
 
-	//static inline LargeFloat UnnormalizedGaussianPDF(const LargeFloat &mean, const LargeFloat &sigma, int32_t x) {
-	//#if defined(_MSC_VER)	
-	//	return pow(M_E, -pow(x - mean, 2)/(2. * sigma * sigma));
-	//#else
-	//	return pow(M_E, -pow((long double)x - mean, (long double)2)/(2. * sigma * sigma));
-	//#endif
-	//}
-
-	static inline LargeFloat UnnormalizedGaussianPDF(const LargeFloat &mean, int32_t x, const LargeFloat &sigmaFactor) {
-		//#if defined(_MSC_VER)	
-
-		return pow(M_E, sigmaFactor*(x - mean)*(x - mean));
-		//#else
-		//	return pow(M_E, -pow((long double)x - mean, (long double)2)/(2. * sigma * sigma));
-		//#endif
-	}
 
 	// Gyana to add precomputation methods and data members
 	// all parameters are set as int because it is assumed that they are used for generating "small" polynomials only

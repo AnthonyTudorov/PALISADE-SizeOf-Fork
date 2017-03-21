@@ -36,16 +36,6 @@ bool Matrix<double>::Deserialize(const Serialized& serObj) {
 }
 
 template<>
-bool Matrix<LargeFloat>::Serialize(Serialized* serObj) const {
-	return false;
-}
-
-template<>
-bool Matrix<LargeFloat>::Deserialize(const Serialized& serObj) {
-	return false;
-}
-
-template<>
 bool Matrix<BigBinaryInteger>::Serialize(Serialized* serObj) const {
 	return false;
 }

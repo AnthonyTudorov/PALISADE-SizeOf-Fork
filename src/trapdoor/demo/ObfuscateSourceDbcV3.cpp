@@ -138,12 +138,12 @@ bool CONJOBF(bool dbg_flag, int n_evals) {
 	std::string inputPattern = "1?10?1";
 	ClearLWEConjunctionPattern<ILVector2n> clearPattern(inputPattern);
 
-	ObfuscatedLWEConjunctionPatternV3<ILVector2n> obfuscatedPattern;
+	ObfuscatedLWEConjunctionPattern<ILVector2n> obfuscatedPattern;
 	obfuscatedPattern.SetChunkSize(chunkSize);
 	obfuscatedPattern.SetLength(clearPattern.GetLength());
 	obfuscatedPattern.SetRootHermiteFactor(1.006);
 
-	LWEConjunctionObfuscationAlgorithmV3<ILVector2n> algorithm;
+	LWEConjunctionObfuscationAlgorithm<ILVector2n> algorithm;
 
 	//Variables for timing
 	double timeDGGSetup(0.0), timeKeyGen(0.0), timeObf(0.0), timeEval1(0.0), 

@@ -187,11 +187,11 @@ void SingleThreadedRun() {
 		ILVector2n::PreComputeDggSamples(dgg, silParams);
 		std::cout << "Precomputation time: " << finish - start << " ms" << std::endl;
 		LPSignatureParameters signParams(silParams, dgg);
-		LPSignKeyGPV<ILVector2n> s_k(signParams);
-		LPVerificationKeyGPV<ILVector2n> v_k(signParams);
-		LPSignatureSchemeGPV<ILVector2n> scheme;
+		//LPSignKeyGPV<ILVector2n> s_k(signParams);
+		//LPVerificationKeyGPV<ILVector2n> v_k(signParams);
+		//LPSignatureSchemeGPV<ILVector2n> scheme;
 		start = currentDateTime();
-		scheme.KeyGen(&s_k, &v_k);
+		//scheme.KeyGen(&s_k, &v_k);
 		finish = currentDateTime();
 		std::cout << "Key generation - Old : " << "\t" << finish - start << " ms" << std::endl;
 
@@ -212,12 +212,12 @@ void SingleThreadedRun() {
 		};
 
 		start = currentDateTime();
-		scheme.Sign(s_k, text[0], &signature);
+		//scheme.Sign(s_k, text[0], &signature);
 		finish = currentDateTime();
 		std::cout << "Signing - Old : " << "\t" << finish - start << " ms" << std::endl;
 
 		start = currentDateTime();
-		std::cout << "Signature 1-Text 1 verification:" << scheme.Verify(v_k, signature, text[0]) << std::endl;
+		//std::cout << "Signature 1-Text 1 verification:" << scheme.Verify(v_k, signature, text[0]) << std::endl;
 		finish = currentDateTime();
 		std::cout << "Verifying - Old : " << "\t" << finish - start << " ms" << std::endl << std::endl;
 
@@ -313,8 +313,8 @@ void SingleThreadedRun() {
 		silParams = std::make_shared<ILParams>(ilParams);
 		signParams.SetElemParams(silParams);
 		std::cout << signParams.GetILParams()->GetCyclotomicOrder() << std::endl << std::endl;
-		s_k.SetSignatureParameters(signParams);
-		v_k.SetSignatureParameters(signParams);
+		//s_k.SetSignatureParameters(signParams);
+		//v_k.SetSignatureParameters(signParams);
 
 		//start = currentDateTime();
 		//scheme.KeyGen(&s_k, &v_k);
@@ -388,8 +388,8 @@ void SingleThreadedRun() {
 		silParams = std::make_shared<ILParams>(ilParams);
 		signParams.SetElemParams(silParams);
 		std::cout << signParams.GetILParams()->GetCyclotomicOrder() << std::endl << std::endl;
-		s_k.SetSignatureParameters(signParams);
-		v_k.SetSignatureParameters(signParams);
+		//s_k.SetSignatureParameters(signParams);
+		//v_k.SetSignatureParameters(signParams);
 
 		//start = currentDateTime();
 		//scheme.KeyGen(&s_k, &v_k);
@@ -462,8 +462,8 @@ void SingleThreadedRun() {
 		silParams = std::make_shared<ILParams>(ilParams);
 		signParams.SetElemParams(silParams);
 		std::cout << signParams.GetILParams()->GetCyclotomicOrder() << std::endl << std::endl;
-		s_k.SetSignatureParameters(signParams);
-		v_k.SetSignatureParameters(signParams);
+		//s_k.SetSignatureParameters(signParams);
+		//v_k.SetSignatureParameters(signParams);
 
 		//start = currentDateTime();
 		//scheme.KeyGen(&s_k, &v_k);

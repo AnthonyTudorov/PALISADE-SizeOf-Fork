@@ -61,12 +61,12 @@ void Run() {
 	std::string inputPattern = "1?10?1";
 	ClearLWEConjunctionPattern<ILVector2n> clearPattern(inputPattern);
 
-	ObfuscatedLWEConjunctionPatternV3<ILVector2n> obfuscatedPattern;
+	ObfuscatedLWEConjunctionPattern<ILVector2n> obfuscatedPattern;
 	obfuscatedPattern.SetChunkSize(chunkSize);
 	obfuscatedPattern.SetLength(clearPattern.GetLength());
 	obfuscatedPattern.SetRootHermiteFactor(1.006);
 
-	LWEConjunctionObfuscationAlgorithmV3<ILVector2n> algorithm;
+	LWEConjunctionObfuscationAlgorithm<ILVector2n> algorithm;
 
 	double stdDev = SIGMA;
 
