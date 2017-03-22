@@ -54,10 +54,10 @@
 //uncommented line (and breaking the documentation of the line)
 
 //32 bit should work with all OS
-#define MATHBACKEND 2 
+//#define MATHBACKEND 2 
 
 //dynamicly allocated backend and support uint32_t and uint64_t on linux
-//#define MATHBACKEND 3 
+#define MATHBACKEND 3 
 
 //64 bit (currently works for ubuntu, not tested otherwise
 //NOTE currently MATHBACKEND 4 has issues with the following unit tests

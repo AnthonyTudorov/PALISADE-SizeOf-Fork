@@ -317,7 +317,7 @@ VecType ChineseRemainderTransformFTT<IntType,VecType>::ForwardTransform(const Ve
 	IntType mu = temp.DividedBy(element.GetModulus());
 #endif
 
-	VecType *rootOfUnityTable = NULL;
+	const VecType *rootOfUnityTable = NULL;
 
 	// check to see if the modulus is in the table, and add it if it isn't
 #pragma omp critical
@@ -386,7 +386,7 @@ VecType ChineseRemainderTransformFTT<IntType,VecType>::InverseTransform(const Ve
 	IntType mu = temp.DividedBy(element.GetModulus());
 #endif
 
-	VecType *rootOfUnityITable = NULL;
+	const VecType *rootOfUnityITable = NULL;
 
 	IntType rootofUnityInverse;
 
