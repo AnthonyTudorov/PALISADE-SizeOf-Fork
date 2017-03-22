@@ -30,12 +30,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 namespace lbcrypto {
 
-template class ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>;
-//template class ChineseRemainderTransformFTT<native64::BigBinaryInteger,native64::BigBinaryVector>;
-
-template class NumberTheoreticTransform<BigBinaryInteger,BigBinaryVector>;
-//template class NumberTheoreticTransform<native64::BigBinaryInteger,native64::BigBinaryVector>;
-
 //static Initializations
 template<typename IntType, typename VecType>
 NumberTheoreticTransform<IntType,VecType>* NumberTheoreticTransform<IntType,VecType>::m_onlyInstance = 0;
@@ -666,66 +660,7 @@ std::vector<std::complex<double>> DiscreteFourierTransform::InverseTransform(std
 		}
 	}
 
-	
-#ifdef JAVA
 
-
-	/* 
-	 * Computes the discrete Fourier transform (DFT) of the given complex vector, storing the result back into the vector.
-	 * The vector's length must be a power of 2. Uses the Cooley-Tukey decimation-in-time radix-2 algorithm.
-	 */
-	public static void transformRadix2(double[] real, double[] imag) {
-		// Initialization
-		if (real.length != imag.length)
-			throw new IllegalArgumentException("Mismatched lengths");
-		int n = real.length;
-		int levels = 31 - Integer.numberOfLeadingZeros(n);  // Equal to floor(log2(n))
-		if (1 << levels != n)
-			throw new IllegalArgumentException("Length is not a power of 2");
-		double[] cosTable = new double[n / 2];
-		double[] sinTable = new double[n / 2];
-		for (int i = 0; i < n / 2; i++) {
-			cosTable[i] = Math.cos(2 * Math.PI * i / n);
-			sinTable[i] = Math.sin(2 * Math.PI * i / n);
-		}
-		
-		// Bit-reversed addressing permutation
-		for (int i = 0; i < n; i++) {
-			int j = Integer.reverse(i) >>> (32 - levels);
-			if (j > i) {
-				double temp = real[i];
-				real[i] = real[j];
-				real[j] = temp;
-				temp = imag[i];
-				imag[i] = imag[j];
-				imag[j] = temp;
-			}
-		}
-		
-		// Cooley-Tukey decimation-in-time radix-2 FFT
-		for (int size = 2; size <= n; size *= 2) {
-			int halfsize = size / 2;
-			int tablestep = n / size;
-			for (int i = 0; i < n; i += size) {
-				for (int j = i, k = 0; j < i + halfsize; j++, k += tablestep) {
-					double tpre =  real[j+halfsize] * cosTable[k] + imag[j+halfsize] * sinTable[k];
-					double tpim = -real[j+halfsize] * sinTable[k] + imag[j+halfsize] * cosTable[k];
-					real[j + halfsize] = real[j] - tpre;
-					imag[j + halfsize] = imag[j] - tpim;
-					real[j] += tpre;
-					imag[j] += tpim;
-				}
-			}
-			if (size == n)  // Prevent overflow in 'size *= 2'
-				break;
-		}
-	}
-
-
-#endif
-
-#define NEWIMPL
-#ifdef NEWIMPL
 	std::vector<std::complex<double>> DiscreteFourierTransform::FFTForwardTransformAlt(std::vector<std::complex<double>> & A) {
 		int m = A.size();
 		std::vector<std::complex<double>> B(A);
@@ -778,67 +713,6 @@ std::vector<std::complex<double>> DiscreteFourierTransform::InverseTransform(std
 
 		return B;
 	}
-#else
-	std::vector<std::complex<double>> DiscreteFourierTransform::FFTForwardTransformAlt(std::vector<std::complex<double>> & A) {
-		int m = A.size();
-		int step = size / m;
-		std::vector<std::complex<double>> P(m, 0);
-
-#ifdef OUT
-		for( int siz = m; siz > 0; siz /= 2 ) {
-		}
-		return P;
-
-		if( m == 4 ) {
-			std::complex<double> x;
-			x = rootOfUnityTable[0] * A[2];
-			P[0] = A[0] + x;
-			P[1] = A[0] - x;
-			x = rootOfUnityTable[0] * A[3];
-			P[2] = A[1] + x;
-			P[3] = A[1] - x;
-
-			x = rootOfUnityTable[step] * P[2];
-			P[0] = P[0] + x;
-			P[2] = P[0] - x;
-			x = rootOfUnityTable[step] * P[3];
-			P[1] = P[1] + x;
-			P[3] = A[1] - x;
-			return P;
-		}
-#endif
-
-		// for the very bottom of the recursion, handle vector of size 2
-		// without the extra allocates
-		if( m == 2 ) {
-			std::complex<double> x = rootOfUnityTable[0] * A[1];
-			P[0] = A[0] + x;
-			P[1] = A[0] - x;
-			return P;
-		}
-
-		std::vector<std::complex<double>> A_even(m / 2);
-		std::vector<std::complex<double>> A_odd(m / 2);
-		for (int i = 0;i<m;i++) {
-			if (i % 2 == 0) {
-				A_even[i / 2] = A[i];
-			}
-			else {
-				A_odd[(i - 1) / 2] = A[i];
-			}
-		}
-
-		std::vector<std::complex<double>> P_even = DiscreteFourierTransform::FFTForwardTransformAlt(A_even);
-		std::vector<std::complex<double>> P_odd = DiscreteFourierTransform::FFTForwardTransformAlt(A_odd);
-
-		for (int j = 0;j<m / 2;j++) {
-			std::complex<double> x = rootOfUnityTable[j*step] * P_odd[j];
-			P[j] = P_even[j] + x;
-			P[j + m / 2] = P_even[j] - x;
-		}
-		return P;
-	}
-#endif
 
 	std::vector<std::complex<double>> DiscreteFourierTransform::FFTInverseTransformAlt(std::vector<std::complex<double>> & A) {
 
@@ -889,4 +763,12 @@ std::vector<std::complex<double>> DiscreteFourierTransform::InverseTransform(std
 		}
 		return *m_onlyInstance;
 	}
+
+	template class ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>;
+	//template class ChineseRemainderTransformFTT<native64::BigBinaryInteger,native64::BigBinaryVector>;
+
+	template class NumberTheoreticTransform<BigBinaryInteger,BigBinaryVector>;
+	//template class NumberTheoreticTransform<native64::BigBinaryInteger,native64::BigBinaryVector>;
+
+
 }//namespace ends here
