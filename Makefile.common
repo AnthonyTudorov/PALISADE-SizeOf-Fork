@@ -74,7 +74,7 @@ $(objects) : %.o : %.cpp
 
 
 EXTLIB := -L$(EXTLIBDIR) $(TEST_LIB) -pg #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt ## include profiling
-INC := -I src/core/lib -I src/pke/lib -I src/trapdoor/lib -I test $(OMPINCLUDE) $(BOOSTINCLUDE)
+INC := -I src/core/lib -I src/pke/lib -I src/trapdoor/lib -I test $(OMPINCLUDE)
 
 
 #the name of the shared object library for palisade objects.  
@@ -86,7 +86,9 @@ PALISADEPYLIB := pycrypto$(LIBSUFFIX)
 # run make for all components. you can run any individual component separately
 #  by invoking   "make alltargets"  for example
 # each corresponding makefile will make the allxxxx target
-all: allcore allpke alltrapdoor apidocs 
+all: allcore allpke alltrapdoor 
+
+docs: apidocs
 
 alljava: allcore allpke jwrapper
 

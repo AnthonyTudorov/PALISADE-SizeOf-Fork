@@ -69,7 +69,7 @@ BENCHMARK_BIN =  $(BENCHMARK_SRC:$(BENCHMARK_SRC_DIR)%.cpp=$(BENCHMARK_BIN_DIR)%
 
 
 #this is is the Include directive for the palisade code being benchmarked
-BENCHMARK_INC = -Isrc/core/lib -Isrc/pke/lib $(BM_IFLAGS) $(BOOSTINCLUDE)
+BENCHMARK_INC = -Isrc/core/lib -Isrc/pke/lib $(BM_IFLAGS)
 
 # this builds objects from sources for benchmarks
 $(BENCHMARK_BUILD_DIR)/%.o: $(BENCHMARK_SRC_DIR)/%.cpp
