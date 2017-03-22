@@ -67,7 +67,7 @@
 //UTSHEAdvanced.test_eval_add_double_crt takes extremely long (86 sec)
 //#define MATHBACKEND 4 
 
-// jerry's native
+// native64 native
 //#define MATHBACKEND 7	
 
 
