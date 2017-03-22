@@ -85,9 +85,6 @@ TEST(UTBVDCRT, ILVector2n_bv_Encrypt_Decrypt_DCRT) {
 	cryptoParams.SetRelinWindow(8);				// Set the relinearization window
 	cryptoParams.SetElementParams(params);			// Set the initialization parameters.
 
-	//Precomputations for FTT
-	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootsOfUnity, m, moduli);
-
 	std::vector<usint> vectorOfInts1 = { 4,0,0,0 };
 
 	IntPlaintextEncoding intArray1(vectorOfInts1);
@@ -153,9 +150,6 @@ TEST(UTBVDCRT, ILVector2n_bv_PRE_DCRT) {
 	cryptoParams.SetRelinWindow(8);				// Set the relinearization window
 	cryptoParams.SetElementParams(params);			// Set the initialization parameters.
 
-	//Precomputations for FTT
-	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootsOfUnity, m, moduli);
-
 	std::vector<usint> vectorOfInts1 = { 1,0,1,0 };
 
 	IntPlaintextEncoding intArray1(vectorOfInts1);
@@ -193,12 +187,6 @@ TEST(UTBVDCRT, ILVector2n_bv_PRE_DCRT) {
 		cc.KeySwitchGen(kp.secretKey, newKp.secretKey);
 
 
-	////////////////////////////////////////////////////////////
-	//Perform the proxy re-encryption key generation operation.
-	// This generates the keys which are used to perform the key switching.
-	////////////////////////////////////////////////////////////
-	
-	
 	////////////////////////////////////////////////////////////
 	//Perform the proxy re-encryption operation.
 	// This switches the keys which are used to perform the key switching.
@@ -260,11 +248,6 @@ TEST(UTBVDCRT, ILVector2n_bv_EVALADD_DCRT) {
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 
-	//This code is run only when performing execution time measurements
-
-	//Precomputations for FTT
-	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootsOfUnity, m, moduli);
-
 	std::vector<usint> vectorOfInts1(4);
 	vectorOfInts1 = { 2,3,1,4 };
 	IntPlaintextEncoding intArray1(vectorOfInts1);
@@ -317,16 +300,11 @@ TEST(UTBVDCRT, ILVector2n_bv_EVALMULT) {
 	BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
 	shared_ptr<ILParams> params(new ILParams(m, q, rootOfUnity));
 
-	//	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
-
 	LPCryptoParametersBV<ILVector2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger::FIVE); // Set plaintext modulus.
 	cryptoParams.SetDistributionParameter(stdDev);          // Set the noise parameters.
 	cryptoParams.SetRelinWindow(8);						   // Set the relinearization window
 	cryptoParams.SetElementParams(params);                // Set the initialization parameters.
-
-	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(cryptoParams.GetDiscreteGaussianGenerator(), params);
 
 	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(&cryptoParams, MODE::RLWE);
 	cc.Enable(ENCRYPTION);
@@ -395,10 +373,6 @@ TEST(UTBVDCRT, ILVector2n_bv_EVALMULT_DCRT) {
 	}
 
 	shared_ptr<ILDCRTParams> params(new ILDCRTParams(init_m, init_moduli, init_rootsOfUnity));
-
-	//	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
-
-	//Precomputations for DGG
 
 	LPCryptoParametersBV<ILVectorArray2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger::FIVE); // Set plaintext modulus.
@@ -493,13 +467,6 @@ TEST(UTBVDCRT, ILVector2n_bv_DCRT_MODREDUCE) {
 	cc.Enable(SHE);
 	cc.Enable(LEVELEDSHE);
 
-	//Precomputations for FTT
-	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootsOfUnity, m, moduli);
-
-	//Precomputations for DGG
-	//ILVector2n::PreComputeDggSamples(dgg, params);
-
-
 	// Initialize the public key containers.
 	LPKeyPair<ILVectorArray2n> kp = cc.KeyGen();
 
@@ -569,10 +536,6 @@ TEST(UTBVDCRT, ILVector2n_bv_DCRT_MULT_MODREDUCE) {//TO ADD MODREDUCE
 
 	shared_ptr<ILDCRTParams> params(new ILDCRTParams(init_m, init_moduli, init_rootsOfUnity));
 
-
-	//	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
-
-	//Precomputations for DGG
 
 	LPCryptoParametersBV<ILVectorArray2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger::FIVE); // Set plaintext modulus.

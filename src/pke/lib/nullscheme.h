@@ -20,7 +20,7 @@ private:
 public:
 	LPCryptoParametersNull() : LPCryptoParameters<Element>() {}
 
-	LPCryptoParametersNull(const shared_ptr<ElemParams> ep, const BigBinaryInteger &plaintextModulus)
+	LPCryptoParametersNull(const shared_ptr<typename Element::Params> ep, const BigBinaryInteger &plaintextModulus)
 		: LPCryptoParameters<Element>(ep, plaintextModulus) {}
 
 	LPCryptoParametersNull(const LPCryptoParametersNull& rhs) : LPCryptoParameters<Element>(rhs) {}
@@ -36,8 +36,8 @@ public:
 		SerialItem cryptoParamsMap(rapidjson::kObjectType);
 
 		Serialized pser(rapidjson::kObjectType, &serObj->GetAllocator());
-		const ElemParams& ep = *this->GetElementParams();
-		if( !ep.Serialize(&pser) )
+
+		if( !this->GetElementParams()->Serialize(&pser) )
 			return false;
 
 		cryptoParamsMap.AddMember("ElemParams", pser.Move(), serObj->GetAllocator());
@@ -67,22 +67,14 @@ public:
 		SerialItem val( pIt->value.MemberBegin()->value, oneItem.GetAllocator() );
 		oneItem.AddMember(key, val, oneItem.GetAllocator());
 
-		ElemParams *json_ilParams;
-		if( typeid(Element) == typeid(ILVector2n) )
-			json_ilParams = new ILParams();
-		else if( typeid(Element) == typeid(ILVectorArray2n) )
-			json_ilParams = new ILDCRTParams();
-		else {
-			throw std::logic_error("Unrecognized element type");
-		}
+		typename Element::Params *json_ilParams = new typename Element::Params();
 
 		if( !json_ilParams->Deserialize(oneItem) ) {
 			delete json_ilParams;
 			return false;
 		}
 
-		shared_ptr<ElemParams> ep( json_ilParams );
-		this->SetElementParams( ep );
+		this->SetElementParams( shared_ptr<typename Element::Params>(json_ilParams) );
 
 		if( (pIt = mIter->value.FindMember("PlaintextModulus")) == mIter->value.MemberEnd() )
 			return false;

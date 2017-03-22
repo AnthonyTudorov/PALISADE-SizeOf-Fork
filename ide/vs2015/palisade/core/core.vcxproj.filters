@@ -10,10 +10,6 @@
     <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\lattice\ilvector2n.cpp" />
     <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\lattice\ilvectorarray2n.cpp" />
     <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\binaryuniformgenerator.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\cpu8bit\binint8bit.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\cpu8bit\binvect8bit.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\cpu8bit\dtstruct8bit.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\cpu8bit\mempool8bit.cpp" />
     <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\cpu_int\binint.cpp" />
     <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\cpu_int\binvect.cpp" />
     <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\discretegaussiangenerator.cpp" />
@@ -32,6 +28,8 @@
     <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\utilities.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\math\matrixser.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\math\matrixstrassen.cpp" />
+    <ClCompile Include="..\..\..\..\src\core\lib\lattice\lattice-impl.cpp" />
+    <ClCompile Include="..\..\..\..\src\core\lib\utils\palisadebase64.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\encoding\byteplaintextencoding.h" />
@@ -47,10 +45,6 @@
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\lattice\ilvectorarray2n.h" />
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\backend.h" />
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\binaryuniformgenerator.h" />
-    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\cpu8bit\binint8bit.h" />
-    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\cpu8bit\binvect8bit.h" />
-    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\cpu8bit\dtstruct8bit.h" />
-    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\cpu8bit\mempool8bit.h" />
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\cpu_int\binint.h" />
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\cpu_int\binvect.h" />
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\cpu_int\dtstruct.h" />
@@ -62,7 +56,6 @@
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\exp_int\ubint.h" />
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\exp_int\ubintvec.h" />
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\interface.h" />
-    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\largefloat.h" />
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\matrix.h" />
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\nbtheory.h" />
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\math\ternaryuniformgenerator.h" />
@@ -104,5 +97,7 @@
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\serializablehelper.h" />
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\lib\utils\utilities.h" />
     <ClInclude Include="..\..\..\..\src\core\lib\math\matrixstrassen.h" />
+    <ClInclude Include="..\..\..\..\src\core\lib\math\native64\binint.h" />
+    <ClInclude Include="..\..\..\..\src\core\lib\utils\palisadebase64.h" />
   </ItemGroup>
 </Project>

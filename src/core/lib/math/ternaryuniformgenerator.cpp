@@ -3,27 +3,30 @@
 
 namespace lbcrypto {
 
-std::uniform_int_distribution<int> TernaryUniformGenerator::m_distribution = std::uniform_int_distribution<int>(-1,1);
+template<typename IntType, typename VecType>
+std::uniform_int_distribution<int> TernaryUniformGeneratorImpl<IntType,VecType>::m_distribution = std::uniform_int_distribution<int>(-1,1);
 
-BigBinaryVector TernaryUniformGenerator::GenerateVector (const usint size, const BigBinaryInteger &modulus) const {
+template<typename IntType, typename VecType>
+VecType TernaryUniformGeneratorImpl<IntType,VecType>::GenerateVector (const usint size, const IntType &modulus) const {
 	
-	BigBinaryVector v(size);
+	VecType v(size);
 	v.SetModulus(modulus);
 	int32_t randomNumber;
 
 	for (usint i = 0; i < size; i++) {
 		randomNumber = m_distribution(GetPRNG());
 		if (randomNumber < 0)
-			v[i] = modulus - BigBinaryInteger::ONE;
+			v[i] = modulus - IntType::ONE;
 		else
-			v[i] = BigBinaryInteger(randomNumber);
+			v[i] = IntType(randomNumber);
 	}
 
 	return v;
 }
 
 
-TernaryUniformGenerator::~TernaryUniformGenerator(){
+template<typename IntType, typename VecType>
+TernaryUniformGeneratorImpl<IntType,VecType>::~TernaryUniformGeneratorImpl(){
 	// defied since there is a virtual member
 
 }

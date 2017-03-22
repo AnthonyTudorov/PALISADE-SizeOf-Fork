@@ -92,7 +92,7 @@ namespace lbcrypto {
 			 * @param depth depth which is set to 1.
 			 */
 			LPCryptoParametersBV(
-				shared_ptr<ElemParams> params,
+				shared_ptr<typename Element::Params> params,
 				const BigBinaryInteger &plaintextModulus, 
 				float distributionParameter, 
 				float assuranceMeasure, 

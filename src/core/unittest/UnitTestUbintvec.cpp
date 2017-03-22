@@ -55,6 +55,7 @@
 #include "lattice/ilvector2n.h"
 #include "lattice/ilvectorarray2n.h"
 #include "utils/utilities.h"
+#include "utils/debug.h"
 
 using namespace std;
 using namespace lbcrypto;

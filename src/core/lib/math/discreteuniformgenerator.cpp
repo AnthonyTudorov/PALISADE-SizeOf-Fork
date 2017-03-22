@@ -6,8 +6,9 @@
 
 namespace lbcrypto {
 
-DiscreteUniformGenerator::DiscreteUniformGenerator (
-	const BigBinaryInteger & modulus)
+template<typename IntType, typename VecType>
+DiscreteUniformGeneratorImpl<IntType,VecType>::DiscreteUniformGeneratorImpl (
+	const IntType & modulus)
 	: DistributionGenerator () {
 
 	// Set default values for properties.
@@ -20,7 +21,8 @@ DiscreteUniformGenerator::DiscreteUniformGenerator (
 	SetModulus(modulus);
 }
 
-void DiscreteUniformGenerator::SetModulus (const BigBinaryInteger & modulus) {
+template<typename IntType, typename VecType>
+void DiscreteUniformGeneratorImpl<IntType,VecType>::SetModulus (const IntType & modulus) {
 
 	m_modulus = modulus;
 
@@ -30,13 +32,14 @@ void DiscreteUniformGenerator::SetModulus (const BigBinaryInteger & modulus) {
 	m_remainingWidth = modulusWidth % CHUNK_WIDTH;
 }
 
-BigBinaryInteger DiscreteUniformGenerator::GenerateInteger () const {
+template<typename IntType, typename VecType>
+IntType DiscreteUniformGeneratorImpl<IntType,VecType>::GenerateInteger () const {
 
 	//if (modulus != m_modulus) {
 	//	this->SetModulus(modulus);
 	//}
 
-	BigBinaryInteger result;
+	IntType result;
 	
 	std::uniform_int_distribution<usint> distribution(CHUNK_MIN, CHUNK_MAX);
 
@@ -57,22 +60,23 @@ BigBinaryInteger DiscreteUniformGenerator::GenerateInteger () const {
 
 		// Convert the binary into a BBI.
 		std::string str = buffer.str();
-		result = BigBinaryInteger::BinaryStringToBigBinaryInt(str);
+		result = IntType::BinaryStringToBigBinaryInt(str);
 	} while (result > m_modulus);
 
 	return result;
 }
 
-BigBinaryVector DiscreteUniformGenerator::GenerateVector(const usint size) const {
+template<typename IntType, typename VecType>
+VecType DiscreteUniformGeneratorImpl<IntType,VecType>::GenerateVector(const usint size) const {
 
 	//if (modulus != m_modulus) {
 	//	this->SetModulus(modulus);
 	//}
 
-	BigBinaryVector v(size,m_modulus);
+	VecType v(size,m_modulus);
 
 	for (usint i = 0; i < size; i++) {
-	BigBinaryInteger temp(this->GenerateInteger());
+	IntType temp(this->GenerateInteger());
 		v.SetValAtIndex(i, temp);
 	}
 

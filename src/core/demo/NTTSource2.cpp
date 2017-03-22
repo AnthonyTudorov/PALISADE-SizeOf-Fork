@@ -19,8 +19,6 @@
 #include "lattice/ildcrtparams.h"
 #include "lattice/ilelement.h"
 //#include/crypto/lwecrypt.h"
-#include "obfuscation/lweconjunctionobfuscate.h"
-#include "obfuscation/lweconjunctionobfuscate.cpp"
 #include "obfuscation/obfuscatelp.h"
 #endif
 #include "time.h"
@@ -98,7 +96,7 @@ void test_NTT () {
   usint m = 2048;
   cout << "m=" << m << endl;
 
-  BigBinaryInteger rootOfUnity1(RootOfUnity(m, q1));
+  BigBinaryInteger rootOfUnity1(RootOfUnity<BigBinaryInteger>(m, q1));
   cout << "q1 = " << q1 << endl;
   cout << "rootOfUnity1 = " << rootOfUnity1 << endl;
 
@@ -126,7 +124,7 @@ void test_NTT () {
   ILVector2n x1bClone(x1b);
 
   //repeat for q2;
-  BigBinaryInteger rootOfUnity2(RootOfUnity(m, q2));
+  BigBinaryInteger rootOfUnity2(RootOfUnity<BigBinaryInteger>(m, q2));
   cout << "q2 = " << q2 << endl;
   cout << "rootOfUnity2 = " << rootOfUnity2 << endl;
 
@@ -167,10 +165,10 @@ void test_NTT () {
 #endif
 
   //Precomputations for FTT
-  ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity1, m, q1);
-  ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity2, m, q2);
+  ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(rootOfUnity1, m, q1);
+  ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(rootOfUnity2, m, q2);
 #ifdef TEST3
-  ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity3, m, q3);
+  ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(rootOfUnity3, m, q3);
 #endif
 
   time1af = 0.0;

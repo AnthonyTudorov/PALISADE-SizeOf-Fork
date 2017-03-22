@@ -16,4 +16,11 @@ inline BigBinaryVector makeVector(shared_ptr<ILParams> p) {
 	return std::move(vec);
 }
 
+inline native64::BigBinaryVector makeNativeVector(shared_ptr<ILParams> p) {
+	uint64_t mod = p->GetModulus().ConvertToInt();
+	native64::BigBinaryVector vec(p->GetCyclotomicOrder()/2, mod);
+
+	return std::move(vec);
+}
+
 #endif

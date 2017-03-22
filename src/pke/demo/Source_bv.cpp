@@ -82,9 +82,6 @@ int main() {
 	//NTRUPRE(3);
 
 	std::cin.get();
-	ChineseRemainderTransformFTT::GetInstance().Destroy();
-	NumberTheoreticTransform::GetInstance().Destroy();
-
 	return 0;
 }
 
@@ -167,12 +164,6 @@ void NTRUPRE(int input) {
 	cc.Enable(ENCRYPTION);
 	cc.Enable(PRE);
 	cc.Enable(SHE);
-
-	//Precomputations for FTT
-	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
-
-	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), std::static_pointer_cast<ILParams>(cc.GetCryptoParameters()->GetElementParams()));
 
 	finish = currentDateTime();
 	diff = finish - start;

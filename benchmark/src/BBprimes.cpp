@@ -25,8 +25,8 @@ int main( int argc, char *argv[] ) {
 	for( int o=8; o<=8192; o *= 2 ) {
 		for( int s = 0; s < sizeof(shifts)/sizeof(shifts[0]); s++ ) {
 			string pname = "parm_" + std::to_string(o) + "_" + std::to_string(shifts[s]);
-			mod = FindPrimeModulus(o, shifts[s]);
-			rootUnity = RootOfUnity(o, mod);
+			mod = FindPrimeModulus<BigBinaryInteger>(o, shifts[s]);
+			rootUnity = RootOfUnity<BigBinaryInteger>(o, mod);
 
 			macrocode1 << "BENCHMARK(X)->ArgName(\"" << pname << "\")->Arg(" << parmindex << "); \\" << endl;
 			macrocode2 << "BENCHMARK_TEMPLATE(X,Y)->ArgName(\"" << pname << "\")->Arg(" << parmindex << "); \\" << endl;

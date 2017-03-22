@@ -36,13 +36,13 @@
 # most code is checked into git with the first line active
 
 #CPPFLAGS += -Wall $(CPPSTD) -w -g ## undefine for single thread debug NO OPTIMIZATION operation
-#CPPFLAGS += -Wall -O3 $(CPPSTD) -w -g ## undefine for single thread debug operation
-#CPPFLAGS += -Wall -O3 $(CPPSTD) -w -g -fopenmp  ##undefine for parallel debug operation
+#CPPFLAGS += -Wall -Ofast $(CPPSTD) -w #-g #undefine for single thread debug operation
+CPPFLAGS += -Wall -Ofast $(CPPSTD) -w -fopenmp  -g ##undefine for parallel debug operation
 #CPPFLAGS += -Wall -O3 $(CPPSTD) -w  -DNDEBUG  -pg ##undefine for single thread best performance operation with gprof profiling 
 
 
 #main best performance configuration for parallel operation - cross-platform
-CPPFLAGS += -g -Wall -O3 $(CPPSTD) -w -fopenmp ##undefine for parallel best performance operation with debug
+#CPPFLAGS += -g -Wall -O3 $(CPPSTD) -w -fopenmp ##undefine for parallel best performance operation with debug
 #CPPFLAGS += -Wall -O3 $(CPPSTD) -w -fopenmp -m64 -DNDEBUG  ##undefine for parallel best performance operation with no debug
 
 #THE OPTIONS BELOW SHOULD BE USED WITH CARE AS THEY USE A LOT OF AGGRESSIVE OPTIMIZATION OPTIONS
@@ -52,7 +52,7 @@ CPPFLAGS += -g -Wall -O3 $(CPPSTD) -w -fopenmp ##undefine for parallel best perf
 #CPPFLAGS += -Wall $(CPPSTD) -w  -m64 -Ofast -flto -march=native -funroll-loops -fopenmp ##undefine for multithread really best performance operation
 
 
-TEST_LIB := -pthread -lgomp 
+TEST_LIB := -pthread -lgomp #-lquadmath -lmpfr -lgmp
 
 
 #build directory
@@ -73,8 +73,8 @@ HDREXT := h
 $(objects) : %.o : %.cpp
 
 
-EXTLIB := -L$(EXTLIBDIR) -lpthread -lgomp -pg #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt ## include profiling
-INC := -I src/core/lib -I src/pke/lib -I src/trapdoor/lib -I test $(OMPINCLUDE) $(BOOSTINCLUDE)
+EXTLIB := -L$(EXTLIBDIR) $(TEST_LIB) -pg #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt ## include profiling
+INC := -I src/core/lib -I src/pke/lib -I src/trapdoor/lib -I test $(OMPINCLUDE)
 
 
 #the name of the shared object library for palisade objects.  
@@ -86,7 +86,9 @@ PALISADEPYLIB := pycrypto$(LIBSUFFIX)
 # run make for all components. you can run any individual component separately
 #  by invoking   "make alltargets"  for example
 # each corresponding makefile will make the allxxxx target
-all: allcore allpke alltrapdoor apidocs 
+all: allcore allpke alltrapdoor 
+
+docs: apidocs
 
 alljava: allcore allpke jwrapper
 

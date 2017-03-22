@@ -143,17 +143,17 @@ bool LPAlgorithmParamsGenFV<Element>::ParamsGen(shared_ptr<LPCryptoParameters<El
 
 	}
 
-	BigBinaryInteger qPrime = FindPrimeModulus(2 * n, ceil(log2(q))+1);
-	BigBinaryInteger rootOfUnity = RootOfUnity(2 * n, qPrime);
+	BigBinaryInteger qPrime = FindPrimeModulus<BigBinaryInteger>(2 * n, ceil(log2(q))+1);
+	BigBinaryInteger rootOfUnity = RootOfUnity<BigBinaryInteger>(2 * n, qPrime);
 
 	//reserves enough digits to avoid wrap-around when evaluating p*(c1*c2+c3*c4)
-	BigBinaryInteger qPrime2 = FindPrimeModulus(2 * n, 2*(ceil(log2(q)) + 1) + ceil(log2(p)) + 3);
-	BigBinaryInteger rootOfUnity2 = RootOfUnity(2 * n, qPrime2);
+	BigBinaryInteger qPrime2 = FindPrimeModulus<BigBinaryInteger>(2 * n, 2*(ceil(log2(q)) + 1) + ceil(log2(p)) + 3);
+	BigBinaryInteger rootOfUnity2 = RootOfUnity<BigBinaryInteger>(2 * n, qPrime2);
 
 	cryptoParamsFV->SetBigModulus(qPrime2);
 	cryptoParamsFV->SetBigRootOfUnity(rootOfUnity2);
 
-	shared_ptr<ILParams> ilParams( new ILParams(2*n, qPrime, rootOfUnity) );
+	shared_ptr<typename Element::Params> ilParams( new typename Element::Params(2*n, qPrime, rootOfUnity) );
 	cryptoParamsFV->SetElementParams(ilParams);
 
 	cryptoParamsFV->SetDelta(qPrime.DividedBy(cryptoParamsFV->GetPlaintextModulus()));
@@ -172,7 +172,7 @@ LPKeyPair<Element> LPAlgorithmFV<Element>::KeyGen(const CryptoContext<Element> c
 
 	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(cc.GetCryptoParameters());
 
-	const shared_ptr<ElemParams> elementParams = cryptoParams->GetElementParams();
+	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
 	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
@@ -220,7 +220,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr
 
 	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(publicKey->GetCryptoParameters());
 
-	const shared_ptr<ElemParams> elementParams = cryptoParams->GetElementParams();
+	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 	const BigBinaryInteger &delta = cryptoParams->GetDelta();
@@ -261,7 +261,7 @@ DecryptResult LPAlgorithmFV<Element>::Decrypt(const shared_ptr<LPPrivateKey<Elem
 		Element *plaintext) const
 {
 	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
-	const shared_ptr<ElemParams> elementParams = cryptoParams->GetElementParams();
+	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 	const BigBinaryInteger &q = elementParams->GetModulus();
 
@@ -353,7 +353,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared
 	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParamsLWE = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(ek->GetCryptoParameters());
 	usint relinWindow = cryptoParamsLWE->GetRelinWindow();
 
-	const shared_ptr<ElemParams> elementParams = cryptoParamsLWE->GetElementParams();
+	const shared_ptr<typename Element::Params> elementParams = cryptoParamsLWE->GetElementParams();
 	const BigBinaryInteger &p = cryptoParamsLWE->GetPlaintextModulus();
 	const BigBinaryInteger &q = elementParams->GetModulus();
 
@@ -431,7 +431,7 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmSHEFV<Element>::EvalMultKeyGen(
 	shared_ptr<LPEvalKeyRelin<Element>> ek(new LPEvalKeyRelin<Element>(k1->GetCryptoContext()));
 
 	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParamsLWE = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(k1->GetCryptoParameters());
-	const shared_ptr<ElemParams> elementParams = cryptoParamsLWE->GetElementParams();
+	const shared_ptr<typename Element::Params> elementParams = cryptoParamsLWE->GetElementParams();
 	const BigBinaryInteger &p = cryptoParamsLWE->GetPlaintextModulus();
 	const Element &s = k1->GetPrivateElement();
 

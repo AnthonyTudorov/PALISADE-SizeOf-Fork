@@ -63,14 +63,21 @@ public:
 	*
 	* For now, this constructor should be blank. Classes extending this class should also extend this constructor.
 	*/
-	DistributionGenerator ();
+	DistributionGenerator () {}
 
 //protected:
 	/**
 	* @brief  Returns the singleton PRNG. This should be used to generate all random numbers in implementing classes.
 	* @return The singleton PRNG.
 	*/
-	static std::mt19937 &GetPRNG ();
+	static std::mt19937 &GetPRNG () {
+		std::call_once(m_flag, [] () {
+			std::random_device rd;
+			DistributionGenerator::m_prng.reset(new std::mt19937(rd()));
+		});
+
+		return *m_prng;
+	}
 
 private:
 	/**

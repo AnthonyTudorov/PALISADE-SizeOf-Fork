@@ -73,12 +73,12 @@ TEST(UTTransform, CRT_polynomial_multiplication){
 	a.SetValAtIndex(3, "1");
 	BigBinaryVector b(a);
 
-	BigBinaryVector A = ChineseRemainderTransformFTT::GetInstance().ForwardTransform(a, primitiveRootOfUnity, cycloOrder);
-	BigBinaryVector B = ChineseRemainderTransformFTT::GetInstance().ForwardTransform(b, primitiveRootOfUnity, cycloOrder);
+	BigBinaryVector A = ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().ForwardTransform(a, primitiveRootOfUnity, cycloOrder);
+	BigBinaryVector B = ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().ForwardTransform(b, primitiveRootOfUnity, cycloOrder);
 
 	BigBinaryVector AB = A*B;
 
-	BigBinaryVector InverseFFTAB = ChineseRemainderTransformFTT::GetInstance().InverseTransform(AB, primitiveRootOfUnity, cycloOrder);
+	BigBinaryVector InverseFFTAB = ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().InverseTransform(AB, primitiveRootOfUnity, cycloOrder);
 
 	BigBinaryVector expectedResult(4, primeModulus);
 	expectedResult.SetValAtIndex(0, "94");

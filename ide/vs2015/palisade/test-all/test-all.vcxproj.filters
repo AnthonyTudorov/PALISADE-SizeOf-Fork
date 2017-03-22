@@ -5,7 +5,6 @@
     <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestBinVect.cpp" />
     <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestDistrGen.cpp" />
     <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestField2n.cpp" />
-    <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestLargeFloat.cpp" />
     <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestLatticeElements.cpp" />
     <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestMatrix.cpp" />
     <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestMubintvec.cpp" />

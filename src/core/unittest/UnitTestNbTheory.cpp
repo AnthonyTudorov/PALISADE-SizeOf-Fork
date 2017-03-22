@@ -154,7 +154,7 @@ TEST(UTNbTheory, method_prime_modulus) {
 
     BigBinaryInteger expectedResult("536881153");
 
-    EXPECT_EQ(expectedResult, lbcrypto::FindPrimeModulus(m, nBits))
+    EXPECT_EQ(expectedResult, lbcrypto::FindPrimeModulus<BigBinaryInteger>(m, nBits))
       <<"Failure foundPrimeModulus";
   }
   {
@@ -162,7 +162,7 @@ TEST(UTNbTheory, method_prime_modulus) {
     usint m=4096; 
     usint nBits=49;
 	
-    BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus(m, nBits);
+    BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus<BigBinaryInteger>(m, nBits);
     BigBinaryInteger expectedResult("281474976768001");
     EXPECT_EQ(expectedResult, primeModulus)
       <<"Failure returns_higher_bit_length";
@@ -170,14 +170,14 @@ TEST(UTNbTheory, method_prime_modulus) {
 }
 
 
-TEST(UTNbTheory, method_primitive_root_of_unity_LONG){
+TEST(UTNbTheory, method_primitive_root_of_unity_VERY_LONG){
   {	
     //TEST CASE TO ENSURE THE ROOT OF UNITY THAT IS FOUND IS A PRIMITIVE ROOT OF UNTIY
     usint m=4096; 
     usint nBits=33;
 	
-    BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus(m, nBits);
-    BigBinaryInteger primitiveRootOfUnity = lbcrypto::RootOfUnity(m, primeModulus);
+    BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus<BigBinaryInteger>(m, nBits);
+    BigBinaryInteger primitiveRootOfUnity = lbcrypto::RootOfUnity<BigBinaryInteger>(m, primeModulus);
 
     BigBinaryInteger M(std::to_string(m)), MbyTwo(M.DividedBy(BigBinaryInteger::TWO));
 
@@ -199,10 +199,10 @@ TEST(UTNbTheory, method_primitive_root_of_unity_LONG){
 
     BigBinaryInteger M(std::to_string(m)), MbyTwo(M.DividedBy(BigBinaryInteger::TWO)), MbyFour(MbyTwo.DividedBy(BigBinaryInteger::TWO));
 
-    BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus(m, nBits);
+    BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus<BigBinaryInteger>(m, nBits);
 
     for(int i=0; i<ITERATIONS; i++) {
-      BigBinaryInteger primitiveRootOfUnity = lbcrypto::RootOfUnity(m, primeModulus);
+      BigBinaryInteger primitiveRootOfUnity = lbcrypto::RootOfUnity<BigBinaryInteger>(m, primeModulus);
 
       BigBinaryInteger wpowerm = primitiveRootOfUnity.ModExp(M, primeModulus);
       EXPECT_EQ(wpowerm, BigBinaryInteger::ONE)
@@ -262,10 +262,10 @@ TEST(UTNbTheory, method_primitive_root_of_unity_LONG){
 
 		// start = currentDateTime();
 		// fout << "m=" << m << ", qBits=" << qBits << ", M=" << M << ", MbyTwo=" << MbyTwo << endl;
-		BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus(m, qBits);
+		BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus<BigBinaryInteger>(m, qBits);
 		// fout << "Prime modulus for n = " << n << " and qbits = " << qBits << " is " << primeModulus << endl;
 
-		BigBinaryInteger primitiveRootOfUnity(lbcrypto::RootOfUnity(m, primeModulus));
+		BigBinaryInteger primitiveRootOfUnity(lbcrypto::RootOfUnity<BigBinaryInteger>(m, primeModulus));
 
 		// fout << "The primitiveRootOfUnity is " << primitiveRootOfUnity << endl;
 
@@ -315,7 +315,7 @@ TEST(UTNbTheory, method_primitive_root_of_unity_LONG){
 	//the first way is to catch the error and expect the result. 
 	int caught_error = 0;
 	try{
-	  primitiveRootOfUnity1 = lbcrypto::RootOfUnity(m, modulus1); 
+	  primitiveRootOfUnity1 = lbcrypto::RootOfUnity<BigBinaryInteger>(m, modulus1);
 	}
 	catch(...) {
 	  caught_error = 1;
@@ -324,12 +324,12 @@ TEST(UTNbTheory, method_primitive_root_of_unity_LONG){
 	
 	// the second way is to directly expect the throw. 
 	EXPECT_ANY_THROW(	// this call should throw 
-	  primitiveRootOfUnity1 = lbcrypto::RootOfUnity(m, modulus1); 
+	  primitiveRootOfUnity1 = lbcrypto::RootOfUnity<BigBinaryInteger>(m, modulus1);
 	)<<"RootOfUnity did not throw an error and should have";
 
 	BigBinaryInteger primitiveRootOfUnity2;
 	EXPECT_NO_THROW(	// this call should NOT throw 
-	  primitiveRootOfUnity2 = lbcrypto::RootOfUnity(m, modulus2); 
+	  primitiveRootOfUnity2 = lbcrypto::RootOfUnity<BigBinaryInteger>(m, modulus2);
 	)<<"RootOfUnity threw an error and should not have";
 
 	DEBUG("RootOfUnity for " << modulus1 << " is " << primitiveRootOfUnity1);

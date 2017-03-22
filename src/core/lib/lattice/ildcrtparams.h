@@ -58,17 +58,13 @@
 #include "../utils/serializable.h"
 #include "../lattice/elemparams.h"
 
-/**
- * @namespace lbcrypto
- * The namespace of lbcrypto
- */
 namespace lbcrypto {
 
-// Parameters for an array of ideal lattices (used for Double-CRT)
 /**
  * @brief Parameters for array of ideal lattices (used for Double-CRT)
  */
-class ILDCRTParams : public ElemParams {
+class ILDCRTParams : public ElemParams<BigBinaryInteger>
+{
 public:
 
 
@@ -76,6 +72,22 @@ public:
 	 * Constructor that initializes nothing.
 	 */
 	ILDCRTParams() : m_cyclotomicOrder(0) {}
+
+	/**
+	 * Constructor with all parameters provided except the multiplied values of the chain of moduli. That value is automatically calculated. Root of unity of the modulus is also calculated.
+	 *
+	 * @param rootsOfUnity the roots of unity for the chain of moduli
+	 * @param cyclotomic_order the order of the ciphertext
+	 * @param &moduli is the tower of moduli
+	 */
+	// FIXME: placeholder
+	ILDCRTParams(const usint cyclotomic_order, const BigBinaryInteger &moduli, const BigBinaryInteger& rootsOfUnity) {
+		m_cyclotomicOrder = cyclotomic_order;
+		m_moduli.push_back(moduli);
+		m_rootsOfUnity.push_back(rootsOfUnity);
+		calculateModulus();
+	}
+
 	/**
 	 * Constructor with all parameters provided except the multiplied values of the chain of moduli. That value is automatically calculated. Root of unity of the modulus is also calculated.
 	 *

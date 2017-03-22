@@ -34,9 +34,18 @@
 #ifndef LBCRYPTO_OBFUSCATE_LWECONJUNCTIONOBFUSCATEV3_H
 #define LBCRYPTO_OBFUSCATE_LWECONJUNCTIONOBFUSCATEV3_H
 
-//Includes Section
-#include "lweconjunctionobfuscate.h"
-#include "lweconjunctionobfuscate.cpp"
+#include <cmath>
+#include <vector>
+#include "obfuscatelp.h"
+#include "utils/inttypes.h"
+#include "math/distrgen.h"
+#include "math/backend.h"
+#include "lattice/elemparams.h"
+#include "lattice/ilparams.h"
+#include "lattice/ildcrtparams.h"
+#include "lattice/ilelement.h"
+#include "../sampling/trapdoor.h"
+#include "../sampling/trapdoor.cpp"
 
 /**
  * @namespace lbcrypto
@@ -45,50 +54,95 @@
 namespace lbcrypto {
 
 	/**
+	* @brief Class for cleartext patterns
+	* @tparam Element a ring element.
+	*/
+	template <class Element>
+	class ClearLWEConjunctionPattern : public ClearPattern<Element>, public ConjunctionPattern<Element> {
+	public:
+
+		/**
+		* Default constructor
+		*/
+		ClearLWEConjunctionPattern() : m_patternString("") {};
+
+		/**
+		* Method to define conjunction pattern.
+		*
+		* @param patternString the string the plaintext pattern.
+		*/
+		explicit ClearLWEConjunctionPattern(const std::string patternString);
+
+		/**
+		* Method to return the pattern's string representation.
+		*
+		* @return the string representation.
+		*/
+		std::string GetPatternString() const;
+
+		/**
+		* Gets character at a specific location
+		* @param index the index of the pattern to return a value for.
+		* @return the character at an index
+		*/
+		char GetIndex(usint index) const;
+
+		/**
+		* Gets the pattern length.
+		* @return the length of the pattern.
+		*/
+		usint GetLength() const;
+	private:
+		// stores the local instance of the pattern string
+		std::string m_patternString;
+	};
+
+
+	/**
 	 * @brief Class for obfuscated patterns
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
-	class ObfuscatedLWEConjunctionPatternV3 : public ObfuscatedPattern<Element>, public ConjunctionPattern<Element>{
+	class ObfuscatedLWEConjunctionPattern : public ObfuscatedPattern<Element>, public ConjunctionPattern<Element>{
 		public:
 
 			/**
 			 * Constructor
 			 */
-			explicit ObfuscatedLWEConjunctionPatternV3(); 
+			explicit ObfuscatedLWEConjunctionPattern(); 
 
 			/**
 			 * Destructor
 			 */
-			~ObfuscatedLWEConjunctionPatternV3(); 
+			~ObfuscatedLWEConjunctionPattern(); 
 
 			/**
 			 * Method to define conjunction pattern.
 			 *
 			 * @param elemParams the parameters being used.
 			 */
-			explicit ObfuscatedLWEConjunctionPatternV3(shared_ptr<ElemParams> elemParams);
+			explicit ObfuscatedLWEConjunctionPattern(shared_ptr<typename Element::Params> elemParams);
 
 			/**
 			 * Constructor with element params and chunk size
 			 *
 			 * @param elemParams the parameters being used.
 			 */
-			explicit ObfuscatedLWEConjunctionPatternV3(shared_ptr<ElemParams> elemParams, usint chunkSize);
+			explicit ObfuscatedLWEConjunctionPattern(shared_ptr<typename Element::Params> elemParams, usint chunkSize);
 
 			/**
 			 * Sets elements params.
 			 *
 			 * @param elemParams parameters.
 			 */
-			void SetParameters(shared_ptr<ElemParams> elemParams) { m_elemParams = elemParams;}
+			void SetParameters(shared_ptr<typename Element::Params> elemParams) { m_elemParams = elemParams;}
 
 			/**
 			 * Gets element params.
 			 *
 			 * @return parameters.
 			 */
-			const shared_ptr<ElemParams> GetParameters() const { return m_elemParams;}
+			const shared_ptr<typename Element::Params> GetParameters() const { return m_elemParams;}
 
 			/**
 			 * Gets the ring dimension
@@ -233,7 +287,7 @@ namespace lbcrypto {
 
 			//length of the pattern
 			usint m_length;
-			shared_ptr<ElemParams> m_elemParams;
+			shared_ptr<typename Element::Params> m_elemParams;
 
 			//lattice security parameter
 			double m_rootHermiteFactor;
@@ -257,7 +311,7 @@ namespace lbcrypto {
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
-	class LWEConjunctionObfuscationAlgorithmV3 { // : public ObfuscationAlgorithm<Element>{
+	class LWEConjunctionObfuscationAlgorithm { // : public ObfuscationAlgorithm<Element>{
 		public:
 
 			/**
@@ -282,7 +336,7 @@ namespace lbcrypto {
 				const ClearLWEConjunctionPattern<Element> &clearPattern,
 				DiscreteGaussianGenerator &dgg,
 				TernaryUniformGenerator &tug,
-				ObfuscatedLWEConjunctionPatternV3<Element> *obfuscatedPattern) const;
+				ObfuscatedLWEConjunctionPattern<Element> *obfuscatedPattern) const;
 
 			/**
 			* Method to generate parameters.
@@ -291,7 +345,7 @@ namespace lbcrypto {
 			* @param &obfuscatedPattern the obfuscated pattern.
 			*/
 			void ParamsGen(DiscreteGaussianGenerator &dgg,
-				ObfuscatedLWEConjunctionPatternV3<Element> *obfuscatedPattern, uint32_t n = 0) const;
+				ObfuscatedLWEConjunctionPattern<Element> *obfuscatedPattern, uint32_t n = 0) const;
 
 			/**
 			 * Method to generate keys.
@@ -300,7 +354,7 @@ namespace lbcrypto {
 			 * @param &obfuscatedPattern the obfuscated pattern.
 			 */
 			void KeyGen(DiscreteGaussianGenerator &dgg,
-				ObfuscatedLWEConjunctionPatternV3<Element> *obfuscatedPattern) const;
+				ObfuscatedLWEConjunctionPattern<Element> *obfuscatedPattern) const;
 
 			/**
 			 * Method to obfuscate the cleartext pattern into an obfuscated pattern.
@@ -327,7 +381,7 @@ namespace lbcrypto {
 			 * @param &testString cleartext pattern to test for.
 			 * @return true if the string matches the pattern and false otherwise.
 			 */
-			bool EvaluateV2(const ObfuscatedLWEConjunctionPatternV3<Element> &obfuscatedPattern,
+			bool EvaluateV2(const ObfuscatedLWEConjunctionPattern<Element> &obfuscatedPattern,
 				 const std::string &testString) const;
 
 			/**
@@ -341,7 +395,7 @@ namespace lbcrypto {
 			 * @param useLargeConstraint means that the contraint q/8 should be multiplied by the sqrt of m.
 			 * @return true if the string matches the pattern and false otherwise.
 			 */
-			bool EvaluateACS(const ObfuscatedLWEConjunctionPatternV3<Element> &obfuscatedPattern,
+			bool EvaluateACS(const ObfuscatedLWEConjunctionPattern<Element> &obfuscatedPattern,
 					const std::string &testString, const int useRandomVector) const;
 
 			/**
@@ -351,7 +405,7 @@ namespace lbcrypto {
 			* @param &testString cleartext pattern to test for.
 			* @return true if the string matches the pattern and false otherwise.
 			*/
-			bool Evaluate(const ObfuscatedLWEConjunctionPatternV3<Element> &obfuscatedPattern,
+			bool Evaluate(const ObfuscatedLWEConjunctionPattern<Element> &obfuscatedPattern,
 				 const std::string &testString) const;
 
 	};
