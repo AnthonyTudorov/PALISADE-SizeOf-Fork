@@ -54,14 +54,22 @@
 #include "../../utils/memory.h"
 #include "../../utils/palisadebase64.h"
 
-/**
- *@namespace native64
- */
 namespace native64 {
 
 /**The following structs are needed for initialization of NativeInteger at the preprocessing stage.
  *The structs compute certain values using template metaprogramming approach and mostly follow recursion to calculate value(s).
  */
+
+#ifdef _MSC_VER
+	// NOTE large 64 bit numbers will overflow in Visual Studio until they implement an __int128
+	// generate a runtime message that only gets printed one time
+#pragma message ("Operations on native64 integers may overflow and not be detected in this version of Visual Studio")
+
+class UsageMessage {
+public:
+	UsageMessage();
+};
+#endif
 
 /**
  * @brief  Struct to find log value of N.
@@ -133,7 +141,7 @@ struct DoubleDataType<uint32_t>{
 template<>
 struct DoubleDataType<uint64_t>{
 #ifdef _MSC_VER
-#pragma message ("Warning, native64 integers not fully implemented for large numbers")
+	// NOTE large 64 bit numbers will overflow in Visual Studio until they implement an __int128
 	typedef uint64_t T;
 #else
 	typedef unsigned __int128 T;
@@ -673,10 +681,11 @@ public:
 	 * @param modulus is the modulus to perform operations with.
 	 * @return is the result of the modulus exponentiation operation.
 	 */
-	NativeInteger ModExp(const NativeInteger& b, const NativeInteger& modulus) const {
-		NativeInteger exp = b;
-		NativeInteger product = 1;
-		NativeInteger mid = *this%modulus;
+	NativeInteger ModExp(const NativeInteger& b, const NativeInteger& mod) const {
+		Duint_type exp = b.m_value;
+		Duint_type product = 1;
+		Duint_type modulus = mod.m_value;
+		Duint_type mid = m_value % modulus;
 
 		while( true ) {
 			if( exp%2 == 1 )
@@ -697,7 +706,7 @@ public:
 
 			mid = mid % modulus;
 		}
-		return product;
+		return (uint_type)product;
 	}
 
 	/**

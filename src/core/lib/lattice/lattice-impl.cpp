@@ -33,20 +33,19 @@ namespace cpu_int {
 
 namespace lbcrypto {
 template class DiscreteGaussianGeneratorImpl<BigBinaryInteger,BigBinaryVector>;
-//template class DiscreteGaussianGeneratorImpl<native64::BigBinaryInteger,native64::BigBinaryVector>;
+template class DiscreteGaussianGeneratorImpl<native64::BigBinaryInteger,native64::BigBinaryVector>;
 template class BinaryUniformGeneratorImpl<BigBinaryInteger,BigBinaryVector>;
-//template class BinaryUniformGeneratorImpl<native64::BigBinaryInteger,native64::BigBinaryVector>;
+template class BinaryUniformGeneratorImpl<native64::BigBinaryInteger,native64::BigBinaryVector>;
 template class TernaryUniformGeneratorImpl<BigBinaryInteger,BigBinaryVector>;
-//template class TernaryUniformGeneratorImpl<native64::BigBinaryInteger,native64::BigBinaryVector>;
+template class TernaryUniformGeneratorImpl<native64::BigBinaryInteger,native64::BigBinaryVector>;
 template class DiscreteUniformGeneratorImpl<BigBinaryInteger,BigBinaryVector>;
-//template class DiscreteUniformGeneratorImpl<native64::BigBinaryInteger,native64::BigBinaryVector>;
-
+template class DiscreteUniformGeneratorImpl<native64::BigBinaryInteger,native64::BigBinaryVector>;
 }
 
 namespace lbcrypto {
 template class ILParamsImpl<BigBinaryInteger>;
-//template class ILParamsImpl<native64::BigBinaryInteger>;
+template class ILParamsImpl<native64::BigBinaryInteger>;
 
 template class ILVectorImpl<BigBinaryInteger,BigBinaryVector,ILParams>;
-//template class ILVectorImpl<native64::BigBinaryInteger,native64::BigBinaryVector,ILNativeParams>;
+template class ILVectorImpl<native64::BigBinaryInteger,native64::BigBinaryVector,ILNativeParams>;
 }
