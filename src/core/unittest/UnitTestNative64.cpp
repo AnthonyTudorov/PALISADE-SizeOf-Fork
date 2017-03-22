@@ -669,7 +669,7 @@ TEST(UTNative64Int,mod_inverse){
 
 TEST(UTNative64Int,mod_arithmetic){
   native64::BigBinaryInteger calculatedResult;
-  int expectedResult;
+  uint64_t expectedResult;
   /************************************************/
   /* TESTING METHOD MODADD FOR ALL CONDITIONS     */
   /************************************************/
@@ -729,6 +729,30 @@ TEST(UTNative64Int,mod_arithmetic){
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
       << "Failure testing both_numbers_greater_than_modulus";
+  }
+
+  {
+	native64::BigBinaryInteger m( "4611686019217177693" );
+	native64::BigBinaryInteger n( "2305843009213700738" );
+	native64::BigBinaryInteger q( "4611686019217177861" );
+
+	calculatedResult = m.ModAdd(n,q);
+	expectedResult = 2305843009213700570;
+
+    EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
+      << "Failure testing really big numbers";
+  }
+
+  {
+	native64::BigBinaryInteger m( "13835058055282163712" );
+	native64::BigBinaryInteger n( "13835058055282163719" );
+	native64::BigBinaryInteger q( "13835058055282163729" );
+
+	calculatedResult = m.ModAdd(n,q);
+	expectedResult = 13835058055282163702;
+
+    EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
+      << "Failure testing really super big numbers";
   }
 
   /************************************************/
@@ -828,6 +852,30 @@ TEST(UTNative64Int,mod_arithmetic){
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
       << "Failure testing mod_exp_test";
+  }
+
+  {
+	native64::BigBinaryInteger m( "4611686019217177693" );
+	native64::BigBinaryInteger n( "2305843009213700738" );
+	native64::BigBinaryInteger q( "4611686019217177861" );
+
+	calculatedResult = m.ModMul(n,q);
+	expectedResult = 66341216340;
+
+    EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
+      << "Failure testing really big numbers";
+  }
+
+  {
+	native64::BigBinaryInteger m( "13835058055282163712" );
+	native64::BigBinaryInteger n( "13835058055282163719" );
+	native64::BigBinaryInteger q( "13835058055282163729" );
+
+	calculatedResult = m.ModMul(n,q);
+	expectedResult = 170;
+
+    EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
+      << "Failure testing really super big numbers";
   }
 }
 
