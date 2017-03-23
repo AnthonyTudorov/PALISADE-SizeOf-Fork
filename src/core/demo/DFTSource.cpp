@@ -79,7 +79,7 @@ int main() {
 	std::cout << "Without table: " << end - start << " ms" << std::endl;
 
 	start = currentDateTime();
-	std::vector<std::complex<double>> dftVec3 = DiscreteFourierTransform::GetInstance().ForwardTransformAlt(dftVec);
+	std::vector<std::complex<double>> dftVec3 = DiscreteFourierTransform::GetInstance().ForwardTransform(dftVec);
 	end = currentDateTime();
 	std::cout << "With table: " << end - start << " ms" << std::endl<<std::endl;
 
