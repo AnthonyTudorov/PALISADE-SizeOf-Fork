@@ -1,7 +1,7 @@
 /**
  * @file
  * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
- *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>
+ *	Programmers: Jerry Ryan <gwryan@njit.edu>
  * @version 00_03
  *
  * @section LICENSE
@@ -54,14 +54,22 @@
 #include "../../utils/memory.h"
 #include "../../utils/palisadebase64.h"
 
-/**
- *@namespace native64
- */
 namespace native64 {
 
 /**The following structs are needed for initialization of NativeInteger at the preprocessing stage.
  *The structs compute certain values using template metaprogramming approach and mostly follow recursion to calculate value(s).
  */
+
+#ifdef _MSC_VER
+	// NOTE large 64 bit numbers will overflow in Visual Studio until they implement an __int128
+	// generate a runtime message that only gets printed one time
+#pragma message ("Operations on native64 integers may overflow and not be detected in this version of Visual Studio")
+
+class UsageMessage {
+public:
+	UsageMessage();
+};
+#endif
 
 /**
  * @brief  Struct to find log value of N.
@@ -96,52 +104,6 @@ struct LogDtype {
 };
 
 /**
- * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t}
- *
- * @tparam Dtype primitive datatype.
- */
-template<typename Dtype>
-struct DataTypeChecker {
-	const static bool value = false ;
-};
-
-/**
- * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t}.
- * sets value true if datatype is unsigned integer 8 bit.
- */
-template<>
-struct DataTypeChecker<uint8_t>{
-	const static bool value = true ;
-};
-
-/**
- * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t}.
- * sets value true if datatype is unsigned integer 16 bit.
- */
-template<>
-struct DataTypeChecker<uint16_t>{
-	const static bool value = true ;
-};
-
-/**
- * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t}.
- * sets value true if datatype is unsigned integer 32 bit.
- */
-template<>
-struct DataTypeChecker<uint32_t>{
-	const static bool value = true ;
-};
-
-/**
- * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t}.
- * sets value true if datatype is unsigned integer 64 bit.
- */
-template<>
-struct DataTypeChecker<uint64_t>{
-	const static bool value = true ;
-};
-
-/**
  * @brief Struct for calculating bit width from data type.
  * Sets value to the bitwidth of uint_type
  *
@@ -165,24 +127,6 @@ struct DoubleDataType{
 
 /**
  * @brief Struct to determine a datatype that is twice as big(bitwise) as utype.
- * Sets T as of type unsigned integer 16 bit if integral datatype is 8bit
- */
-template<>
-struct DoubleDataType<uint8_t>{
-	typedef uint16_t T;
-};
-
-/**
- * @brief Struct to determine a datatype that is twice as big(bitwise) as utype.
- * sets T as of type unsigned integer 32 bit if integral datatype is 16bit
- */
-template<>
-struct DoubleDataType<uint16_t>{
-	typedef uint32_t T;
-};
-
-/**
- * @brief Struct to determine a datatype that is twice as big(bitwise) as utype.
  * sets T as of type unsigned integer 64 bit if integral datatype is 32bit
  */
 template<>
@@ -190,17 +134,19 @@ struct DoubleDataType<uint32_t>{
 	typedef uint64_t T;
 };
 
-#if !defined(_MSC_VER)
 /**
 * @brief Struct to determine a datatype that is twice as big(bitwise) as utype.
 * sets T as of type unsigned integer 128 bit if integral datatype is 64bit
 */
 template<>
 struct DoubleDataType<uint64_t>{
-	typedef __uint128_t T;
-};
+#ifdef _MSC_VER
+	// NOTE large 64 bit numbers will overflow in Visual Studio until they implement an __int128
+	typedef uint64_t T;
+#else
+	typedef unsigned __int128 T;
 #endif
-
+};
 
 const double LOG2_10 = 3.32192809;	//!< @brief A pre-computed constant of Log base 2 of 10.
 const usint BARRETT_LEVELS = 8;		//!< @brief The number of levels (precomputed values) used in the Barrett reductions.
@@ -216,8 +162,6 @@ class NativeInteger
 {
 
 public:
-	// FIXME overflows in string constructor and in the various ops
-
 	/**
 	 * Default constructor.
 	 */
@@ -233,18 +177,29 @@ public:
 	}
 
 	/**
-	 * Basic constructor for initializing big binary integer from an unsigned integer.
+	 * Basic constructor for initializing from an unsigned integer.
 	 *
 	 * @param init is the initial integer.
 	 */
 	NativeInteger(const uint_type& init) : m_value(init) {}
 
 	/**
-	 * Basic constructor for copying a big binary integer
+	 * Basic constructor for copying 
 	 *
-	 * @param bigInteger is the big binary integer to be copied.
+	 * @param bigInteger is the integer to be copied.
 	 */
 	NativeInteger(const NativeInteger& bigInteger) : m_value(bigInteger.m_value) {}
+
+	/**
+	 * Assignment operator
+	 *
+	 * @param &rhs is the integer to be assigned from.
+	 * @return assigned ref.
+	 */
+	const NativeInteger&  operator=(const NativeInteger &rhs) {
+		this->m_value = rhs.m_value;
+		return *this;
+	}
 
 	/**
 	 * Assignment operator
@@ -252,21 +207,10 @@ public:
 	 * @param &rhs is the big binary integer to be assigned from.
 	 * @return assigned BigBinaryIntegr ref.
 	 */
-	const NativeInteger&  operator=(const NativeInteger &rhs) {
+	const NativeInteger&  operator=(const NativeInteger &&rhs) {
 		this->m_value = rhs.m_value;
 		return *this;
 	}
-
-//	/**
-//	 * Assignment operator
-//	 *
-//	 * @param &rhs is the big binary integer to be assigned from.
-//	 * @return assigned BigBinaryIntegr ref.
-//	 */
-//	const NativeInteger&  operator=(const NativeInteger &&rhs) {
-//		this->m_value = rhs.m_value;
-//		return *this;
-//	}
 
 	/**
 	 * Assignment operator from unsigned integer
@@ -291,7 +235,7 @@ public:
 	}
 
 	/**
-	 * Left shift operator uses in-place algorithm and operates on the same variable. It is used to reduce the copy constructor call.
+	 * Left shift operator uses in-place algorithm and operates on the same variable.
 	 *
 	 * @param shift is the amount to shift of type usshort.
 	 * @return the object of type NativeInteger
@@ -311,7 +255,7 @@ public:
 	}
 
 	/**
-	 * Right shift operator uses in-place algorithm and operates on the same variable. It is used to reduce the copy constructor call.
+	 * Right shift operator uses in-place algorithm and operates on the same variable.
 	 *
 	 * @param shift is the amount to shift of type usshort.
 	 * @return the object of type NativeInteger
@@ -324,7 +268,7 @@ public:
 	//Auxillary Functions
 
 	/**
-	 * Prints the value to console in base-r format where r is equal to 2^bitwidth of the integral datatype.
+	 * Prints the value to console
 	 */
 	void PrintValueInDec() const {
 		std::cout << std::dec << m_value << std::endl;
@@ -372,16 +316,6 @@ public:
 	 */
 	double ConvertToDouble() const {
 		return m_value;
-	}
-
-	/**
-	 * Convert a value from an int to a BigBinaryInt.
-	 *
-	 * @param m the value to convert from.
-	 * @return int represented as a big binary int.
-	 */
-	static NativeInteger intToNativeInteger(usint m) {
-		return NativeInteger(m);
 	}
 
 	//Arithemetic Operations
@@ -441,7 +375,10 @@ public:
 	 * @return result of the multiplication operation.
 	 */
 	NativeInteger Times(const NativeInteger& b) const {
-		return this->m_value * b.m_value;
+		uint_type prod = m_value * b.m_value;
+		if( prod < m_value || prod < b.m_value )
+			throw std::logic_error("native64 overflow in multiply");
+		return m_value * b.m_value;
 	}
 
 	/**
@@ -451,6 +388,8 @@ public:
 	 * @return result of the division operation.
 	 */
 	NativeInteger DividedBy(const NativeInteger& b) const {
+		if( b.m_value == 0 )
+			throw std::logic_error("Native64 integer divide by zero");
 		return this->m_value / b.m_value;
 	}
 
@@ -586,7 +525,13 @@ public:
 	 * @return result of the modulus addition operation.
 	 */
 	NativeInteger ModAdd(const NativeInteger& b, const NativeInteger& modulus) const {
-		return this->Plus(b).Mod(modulus);
+		Duint_type modsum = (Duint_type)m_value;
+		modsum += b.m_value;
+		modsum %= modulus.m_value;
+		
+		if( modsum > m_uintMax )
+			throw std::logic_error("Overflow in ModAdd");
+		return (uint_type)modsum;
 	}
 
 	/**
@@ -620,25 +565,25 @@ public:
 	 * @param modulus is the modulus to perform operations with.
 	 * @return result of the modulus subtraction operation.
 	 */
-	NativeInteger ModSub(const NativeInteger& b, const NativeInteger& mod) const {
-		uint_type av = this->m_value;
+	NativeInteger ModSub(const NativeInteger& b, const NativeInteger& modulus) const {
+		uint_type av = m_value;
 		uint_type bv = b.m_value;
-		uint_type modulus = mod.m_value;
+		uint_type mod = modulus.m_value;
 
 		//reduce this to a value lower than modulus
-		if(av > modulus) {
-			av %= modulus;
+		if(av > mod) {
+			av %= mod;
 		}
 		//reduce b to a value lower than modulus
-		if(bv > modulus){
-			bv %= modulus;
+		if(bv > mod){
+			bv %= mod;
 		}
 
 		if(av >= bv){
-			return (av-bv)%modulus;
+			return (av-bv)%mod;
 		}
 		else{
-			return (av + modulus) - bv;
+			return (av + mod) - bv;
 		}
 	}
 
@@ -674,13 +619,16 @@ public:
 	 * @return is the result of the modulus multiplication operation.
 	 */
 	NativeInteger ModMul(const NativeInteger& b, const NativeInteger& modulus) const {
-		uint_type av = this->m_value;
-		uint_type bv = b.m_value;
+		Duint_type av = m_value;
+		Duint_type bv = b.m_value;
+
+		Duint_type modsum = (Duint_type)m_value;
+		modsum += b.m_value;
 
 		if( av > modulus.m_value ) av = av%modulus.m_value;
 		if( bv > modulus.m_value ) bv = bv%modulus.m_value;
 
-		return NativeInteger((av*bv)%modulus.m_value);
+		return (uint_type)((av*bv)%modulus.m_value);
 	}
 
 	/**
@@ -734,18 +682,18 @@ public:
 	 * @return is the result of the modulus exponentiation operation.
 	 */
 	NativeInteger ModExp(const NativeInteger& b, const NativeInteger& mod) const {
-		uint_type modulus = mod.m_value;
-		uint_type exp = b.m_value;
-		uint_type product = 1;
-		uint_type mid = m_value%modulus;
+		Duint_type exp = b.m_value;
+		Duint_type product = 1;
+		Duint_type modulus = mod.m_value;
+		Duint_type mid = m_value % modulus;
 
 		while( true ) {
 			if( exp%2 == 1 )
-				product *= mid;
+				product = product * mid;
 
 			//running product is calculated
 			if(product>modulus){
-				product %= modulus;
+				product = product % modulus;
 			}
 
 			//divide by 2 and check even to odd to find bit value
@@ -756,9 +704,9 @@ public:
 			//mid calculates mid^2%q
 			mid = mid*mid;
 
-			mid %= modulus;
+			mid = mid % modulus;
 		}
-		return product;
+		return (uint_type)product;
 	}
 
 	/**
@@ -817,14 +765,6 @@ public:
 
 
 	/**
-	 * Tests whether the NativeInteger is a power of 2.
-	 *
-	 * @param m_numToCheck is the value to check.
-	 * @return true if the input is a power of 2, false otherwise.
-	 */
-	bool CheckIfPowerOfTwo(const NativeInteger& m_numToCheck);
-
-	/**
 	 * Get the number of digits using a specific base - support for arbitrary base may be needed.
 	 *
 	 * @param base is the base with which to determine length in.
@@ -845,7 +785,6 @@ public:
 			usint newIndex = index;
 			for (usint i = 1; i < base; i = i*2)
 			{
-				//std::cout << m_value << ", " << newIndex  << ", " << " " << (uint8_t)GetBitAtIndex(newIndex) << std::endl;
 				digit += GetBitAtIndex(newIndex)*i;
 				newIndex++;
 			}
@@ -860,14 +799,14 @@ public:
 	 */
 	static NativeInteger BinaryStringToBigBinaryInt(const std::string& bitString) {
 		if( bitString.length() > m_uintBitLength ) {
-			throw std::logic_error("bit string is too long to fit");
+			throw std::logic_error("Bit string is too long to fit in a native64");
 		}
 
 		uint_type v = 0;
 		for( int i=0 ; i < bitString.length() ; i++ ) {
 			int n = bitString[i] - '0';
 			if( n < 0 || n > 1 ) {
-				throw std::logic_error("bit string must contain only 0 or 1");
+				throw std::logic_error("Bit string must contain only 0 or 1");
 			}
 
 			v <<= 1;
@@ -885,12 +824,11 @@ public:
 	 */
 	NativeInteger Exp(usint p) const {
 		if (p == 0) return 1;
-		NativeInteger x = this->m_value;
-		if (p == 1) return x;
+		if (p == 1) return *this;
 
-		NativeInteger tmp = x.Exp(p/2);
+		NativeInteger tmp = (*this).Exp(p/2);
 		if (p%2 == 0) return tmp * tmp;
-		else return tmp * tmp * x;
+		else return tmp * tmp * (*this);
 	}
 
 	/**
@@ -913,11 +851,13 @@ public:
 	 */
 	NativeInteger DivideAndRound(const NativeInteger &q) const {
 
+		if( q == 0 )
+			throw std::logic_error("native64 divide by zero");
+
 		uint_type ans = m_value/q.m_value;
 		uint_type rem = m_value%q.m_value;
 		uint_type halfQ = q.m_value >> 1;
 
-		//Rounding operation from running remainder
 		if (!(rem <= halfQ)) {
 			ans += 1;
 		}
@@ -1043,22 +983,15 @@ public:
 	}
 
 	/**
-	 * Gets the bit at the specified index.
+	 * Gets the 6 bits at the specified index.
 	 *
 	 * @param index is the index of the bit to get.
-	 * @return resulting bit.
+	 * @return 6 bit pattern
 	 */
 	uschar Get6BitsAtIndex(usint index) const {
 		return lbcrypto::get_6bits_atoffset(m_value, index);
 	}
 
-
-	/**
-	 * Sets the int value at the specified index.
-	 *
-	 * @param index is the index of the int to set in the uint array.
-	 */
-	void SetIntAtIndex(usint idx, uint_type value);
 
 	//constant definations
 
@@ -1110,10 +1043,11 @@ public:
 	 *  Set this int to 1.
 	 *  Note some compilers don't like using the ONE constant, above :(
 	 */
-	inline void SetIdentity() { *this = NativeInteger<uint_type>(1); };
+	inline void SetIdentity() { this->m_value = 1; };
 
 	/**
-	 * A zero allocator that is called by the Matrix class. It is used to initialize a Matrix of NativeInteger objects.
+	 * A zero allocator that is called by the Matrix class.
+	 * It is used to initialize a Matrix of NativeInteger objects.
 	 */
 	static std::function<unique_ptr<NativeInteger<uint_type>>()> Allocator;
 
@@ -1129,7 +1063,7 @@ protected:
 		for( int i=0; i<str.length(); i++ ) {
 			int v = str[i] - '0';
 			if( v < 0 || v > 9 ) {
-				throw std::logic_error("string contains a non-digit");
+				throw std::logic_error("String contains a non-digit");
 			}
 			m_value *= 10;
 			m_value += v;
@@ -1180,56 +1114,14 @@ private:
 
 	    uint64_t r = 0;
 		if (x & 0xFFFFFFFF00000000) { r += 32/1; x >>= 32/1; }
-	    if (x & 0x00000000FFFF0000) { r += 32/2; x >>= 32/2; }
-	    if (x & 0x000000000000FF00) { r += 32/4; x >>= 32/4; }
+		if (x & 0x00000000FFFF0000) { r += 32/2; x >>= 32/2; }
+		if (x & 0x000000000000FF00) { r += 32/4; x >>= 32/4; }
 		if (x & 0x00000000000000F0) { r += 32/8; x >>= 32/8; }
 	    return r + bval[x];
 	}
 
-	/**
-	 * function to return the MSB of number.
-	 * @param x is the number.
-	 * @return the MSB position in the number x.
-	 */
-
-	static uint_type GetMSBUint_type(uint_type x) { return GetMSB32(x); }
-
-	//Duint_type is the data type that has twice as many bits in the integral data type.
+	// Duint_type has double the bits in the integral data type.
 	typedef typename DoubleDataType<uint_type>::T Duint_type;
-
-	/**
-	 * function that returns the NativeInteger after multiplication by b.
-	 * @param b is the number to be multiplied.
-	 * @return the NativeInteger after the multiplication.
-	 */
-	NativeInteger MulIntegerByChar(uint_type b) const;
-
-	/**
-	* function that returns the NativeInteger after multiplication by b.
-	* @param b is the number to be multiplied.
-	* @return the NativeInteger after the multiplication.
-	*/
-	void MulIntegerByCharInPlace(uint_type b, NativeInteger *ans);
-
-	/**
-	 * function that returns the decimal value from the binary array a.
-	 * @param a is a pointer to the binary array.
-	 * @return the decimal value.
-	 */
-	static uint_type UintInBinaryToDecimal(uschar *a);
-
-	/**
-	 * function that mutiplies by 2 to the binary array.
-	 * @param a is a pointer to the binary array.
-	 */
-	static void double_bitVal(uschar *a);
-
-	/**
-	 * function that adds bit b to the binary array.
-	 * @param a is a pointer to the binary array.
-	 * @param b is a bit value to be added.
-	 */
-	static void add_bitVal(uschar* a,uschar b);
 };
 
 }//namespace ends

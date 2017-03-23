@@ -47,6 +47,8 @@
 using namespace std;
 using namespace lbcrypto;
 
+typedef ILParamsImpl<native64::BigBinaryInteger> ILNativeParams;
+
 template <class E>
 static void make_NATIVELATTICE_empty(shared_ptr<ILParams>& params) {
 	shared_ptr<ILNativeParams> nparams(

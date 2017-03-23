@@ -162,6 +162,7 @@
     <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestLatticeElements.cpp" />
     <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestMatrix.cpp" />
     <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestMubintvec.cpp" />
+    <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestNative64.cpp" />
     <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestNbTheory.cpp" />
     <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestNTT.cpp" />
     <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestTransform.cpp" />

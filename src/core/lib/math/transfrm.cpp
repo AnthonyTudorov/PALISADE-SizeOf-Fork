@@ -765,10 +765,10 @@ std::vector<std::complex<double>> DiscreteFourierTransform::InverseTransform(std
 	}
 
 	template class ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>;
-	//template class ChineseRemainderTransformFTT<native64::BigBinaryInteger,native64::BigBinaryVector>;
+	template class ChineseRemainderTransformFTT<native64::BigBinaryInteger,native64::BigBinaryVector>;
 
 	template class NumberTheoreticTransform<BigBinaryInteger,BigBinaryVector>;
-	//template class NumberTheoreticTransform<native64::BigBinaryInteger,native64::BigBinaryVector>;
+	template class NumberTheoreticTransform<native64::BigBinaryInteger,native64::BigBinaryVector>;
 
 
 }//namespace ends here
