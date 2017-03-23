@@ -136,7 +136,8 @@ BytePlaintextEncoding::Decode(const BigBinaryInteger &modulus, ILVector2n *ilVec
 void
 BytePlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVectorArray2n *element, size_t startFrom, size_t length) const
 {
-	native64::ILVector2n encodedSingleCrt = element->GetElementAtIndex(0);
+	const vector<native64::ILVector2n> allElements = element->GetAllElements();
+	native64::ILVector2n encodedSingleCrt = allElements[0]; //element->GetElementAtIndex(0);
 
 	Encode(modulus, &encodedSingleCrt, startFrom, length);
 	native64::BigBinaryVector tempBBV(encodedSingleCrt.GetValues());

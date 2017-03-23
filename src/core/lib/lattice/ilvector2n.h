@@ -53,13 +53,6 @@ using std::shared_ptr;
 
 namespace lbcrypto {
 
-template<typename ModType, typename IntType, typename VecType, typename ParmType> class ILVectorImpl;
-typedef ILVectorImpl<BigBinaryInteger, BigBinaryInteger, BigBinaryVector, ILParams> ILVector2n;
-
-}
-
-namespace lbcrypto {
-
 const usint SAMPLE_SIZE = 30; //!< @brief The maximum number of samples used for random variable sampling.
 
 /**
@@ -278,7 +271,7 @@ public:
 	 *
 	 * @return the modulus.
 	 */
-	const IntType &GetModulus() const;
+	const ModType &GetModulus() const;
 
 	/**
 	 * Get the values for the element
@@ -747,6 +740,21 @@ private:
 	static const ILVectorImpl GetPrecomputedTugVector();
 };
 
-} // namespace lbcrypto ends
+}
+
+namespace lbcrypto {
+
+template<typename ModType, typename IntType, typename VecType, typename ParmType> class ILVectorImpl;
+typedef ILVectorImpl<BigBinaryInteger, BigBinaryInteger, BigBinaryVector, ILParams> ILVector2n;
+
+}
+
+namespace native64 {
+
+typedef lbcrypto::ILVectorImpl<lbcrypto::BigBinaryInteger, native64::BigBinaryInteger, native64::BigBinaryVector, native64::ILParams> ILVector2n;
+
+}
+
+
 
 #endif

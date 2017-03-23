@@ -235,7 +235,7 @@ namespace lbcrypto {
 		* @param i index of tower to be returned.
 		* @returns a reference to the ILVector2n at index i.
 		*/
-		const VecType &GetElementAtIndex(usint i) const;
+		const ILVectorType &GetElementAtIndex(usint i) const;
 
 		/**
 		* Get method of the tower length.
@@ -249,7 +249,7 @@ namespace lbcrypto {
 		*
 		* @returns values.
 		*/
-		const std::vector<VecType>& GetAllElements() const;
+		const std::vector<ILVectorType>& GetAllElements() const;
 
 		/**
 		* Get method of the format.
