@@ -751,8 +751,8 @@ TEST(UTNative64Int,mod_arithmetic){
 	calculatedResult = m.ModAdd(n,q);
 	expectedResult = 13835058055282163702;
 
-    EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
-      << "Failure testing really super big numbers";
+	EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
+		<< "Failure testing really super big numbers (causing overflow in 64-bit arithmetic); this test is expected to fail in Visual Studio";
   }
 
   /************************************************/
@@ -862,8 +862,8 @@ TEST(UTNative64Int,mod_arithmetic){
 	calculatedResult = m.ModMul(n,q);
 	expectedResult = 66341216340;
 
-    EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
-      << "Failure testing really big numbers";
+	EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
+		<< "Failure testing really super big numbers (causing overflow in 64-bit arithmetic);  this test is expected to fail in Visual Studio";
   }
 
   {
@@ -874,8 +874,8 @@ TEST(UTNative64Int,mod_arithmetic){
 	calculatedResult = m.ModMul(n,q);
 	expectedResult = 170;
 
-    EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
-      << "Failure testing really super big numbers";
+	EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
+		<< "Failure testing really super big numbers (causing overflow in 64-bit arithmetic);  this test is expected to fail in Visual Studio";
   }
 }
 
