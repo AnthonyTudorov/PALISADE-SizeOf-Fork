@@ -186,6 +186,7 @@
     <ClCompile Include="..\..\..\..\src\core\lib\lattice\lattice-impl.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\math\matrixser.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\math\matrixstrassen.cpp" />
+    <ClCompile Include="..\..\..\..\src\core\lib\math\native64\binint.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\utils\palisadebase64.cpp" />
   </ItemGroup>
   <ItemGroup>

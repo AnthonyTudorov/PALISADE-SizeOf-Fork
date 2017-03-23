@@ -16,6 +16,7 @@
     <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\unittest\UnitTestUbint.cpp" />
     <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\unittest\UnitTestUbintvec.cpp" />
     <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\test\include\gtest\gtest-all.cc" />
+    <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestNative64.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\test\include\gtest\gtest.h" />
