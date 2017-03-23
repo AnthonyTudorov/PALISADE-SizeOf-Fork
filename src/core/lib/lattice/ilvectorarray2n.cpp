@@ -38,13 +38,18 @@ using std::string;
 namespace lbcrypto {
 
 	/*CONSTRUCTORS*/
-	std::map<BigBinaryInteger, std::map<usint, BigBinaryInteger>> *ILVectorArray2n::m_towersize_cri_factors = 0;
-	usint ILVectorArray2n::m_cyclotomicOrder_precompute = 0;
+	template<typename IntType, typename VecType, typename ParmType>
+	std::map<BigBinaryInteger, std::map<usint, BigBinaryInteger>> *ILVectorArrayImpl<IntType,VecType,ParmType>::m_towersize_cri_factors = 0;
 
-	ILVectorArray2n::ILVectorArray2n() : m_format(EVALUATION), m_cyclotomicOrder(0), m_modulus(1){
+	template<typename IntType, typename VecType, typename ParmType>
+	usint ILVectorArrayImpl<IntType,VecType,ParmType>::m_cyclotomicOrder_precompute = 0;
+
+	template<typename IntType, typename VecType, typename ParmType>
+	ILVectorArrayImpl<IntType,VecType,ParmType>::ILVectorArray2n() : m_format(EVALUATION), m_cyclotomicOrder(0), m_modulus(1){
 	}
 
-	ILVectorArray2n::ILVectorArray2n(const shared_ptr<ILDCRTParams> dcrtParams, Format format, bool initializeElementToZero)
+	template<typename IntType, typename VecType, typename ParmType>
+	ILVectorArrayImpl<IntType,VecType,ParmType>::ILVectorArray2n(const shared_ptr<ILDCRTParams> dcrtParams, Format format, bool initializeElementToZero)
 	{
 		m_cyclotomicOrder = dcrtParams->GetCyclotomicOrder();
 		m_format = format;
@@ -59,7 +64,8 @@ namespace lbcrypto {
 		}
 	}
 
-	ILVectorArray2n::ILVectorArray2n(const ILVectorArray2n &element)  {
+	template<typename IntType, typename VecType, typename ParmType>
+	ILVectorArrayImpl<IntType,VecType,ParmType>::ILVectorArray2n(const ILVectorArray2n &element)  {
 		m_format = element.m_format;
 		m_vectors = element.m_vectors;
 		m_modulus = element.m_modulus;
@@ -70,7 +76,7 @@ namespace lbcrypto {
 	// I am not sure what this means so let's ifdef it out for now...
 #ifdef OUT
 	/* Construct using a single ILVector2n. The format is derived from the passed in ILVector2n.*/
-	ILVectorArray2n::ILVectorArray2n(const ILVector2n &element, const shared_ptr<ILDCRTParams> params)
+	ILVectorArrayImpl<IntType,VecType,ParmType>::ILVectorArray2n(const ILVector2n &element, const shared_ptr<ILDCRTParams> params)
 	{
 		Format format;
 		try{
@@ -99,7 +105,8 @@ namespace lbcrypto {
 #endif
 
 	/* Construct using an tower of ILVectro2ns. The params and format for the ILVectorArray2n will be derived from the towers.*/
-	ILVectorArray2n::ILVectorArray2n(const std::vector<native64::ILVector2n> &towers)
+	template<typename IntType, typename VecType, typename ParmType>
+	ILVectorArrayImpl<IntType,VecType,ParmType>::ILVectorArray2n(const std::vector<native64::ILVector2n> &towers)
 	{
 		usint ringDimension = towers.at(0).GetCyclotomicOrder() / 2;
 		for (usint i = 1; i < towers.size(); i++) {
@@ -125,7 +132,8 @@ namespace lbcrypto {
 	}
 
 	/*The dgg will be the seed to populate the towers of the ILVectorArray2n with random numbers. The algorithm to populate the towers can be seen below.*/
-	ILVectorArray2n::ILVectorArray2n(const native64::DiscreteGaussianGenerator & dgg, const shared_ptr<ILDCRTParams> dcrtParams, Format format)
+	template<typename IntType, typename VecType, typename ParmType>
+	ILVectorArrayImpl<IntType,VecType,ParmType>::ILVectorArray2n(const native64::DiscreteGaussianGenerator & dgg, const shared_ptr<ILDCRTParams> dcrtParams, Format format)
 	{
 		m_modulus = dcrtParams->GetModulus();
 		m_cyclotomicOrder= dcrtParams->GetCyclotomicOrder();
@@ -172,7 +180,8 @@ namespace lbcrypto {
 		}
 	}
 
-	ILVectorArray2n::ILVectorArray2n(const native64::DiscreteUniformGenerator &dug, const shared_ptr<ILDCRTParams> dcrtParams, Format format) {
+	template<typename IntType, typename VecType, typename ParmType>
+	ILVectorArrayImpl<IntType,VecType,ParmType>::ILVectorArray2n(const native64::DiscreteUniformGenerator &dug, const shared_ptr<ILDCRTParams> dcrtParams, Format format) {
 
 		m_modulus = dcrtParams->GetModulus();
 		m_cyclotomicOrder = dcrtParams->GetCyclotomicOrder();
@@ -207,7 +216,8 @@ namespace lbcrypto {
 	}
 
 	/*Move constructor*/
-	ILVectorArray2n::ILVectorArray2n(const ILVectorArray2n &&element){
+	template<typename IntType, typename VecType, typename ParmType>
+	ILVectorArrayImpl<IntType,VecType,ParmType>::ILVectorArray2n(const ILVectorArray2n &&element){
 		m_format = element.m_format;
 		m_modulus = std::move(element.m_modulus);
 		m_cyclotomicOrder = element.m_cyclotomicOrder;
@@ -215,7 +225,8 @@ namespace lbcrypto {
 		m_params = std::move(element.m_params);
 	}
 
-	ILVectorArray2n ILVectorArray2n::CloneParametersOnly() const{
+	template<typename IntType, typename VecType, typename ParmType>
+	ILVectorArray2n ILVectorArrayImpl<IntType,VecType,ParmType>::CloneParametersOnly() const{
 		
 		std::vector<native64::ILVector2n> result;
 		result.reserve(m_vectors.size());
@@ -229,7 +240,8 @@ namespace lbcrypto {
 		return std::move(res);
 	}
 
-	ILVectorArray2n ILVectorArray2n::CloneWithNoise(const DiscreteGaussianGenerator &dgg, Format format) const {
+	template<typename IntType, typename VecType, typename ParmType>
+	ILVectorArray2n ILVectorArrayImpl<IntType,VecType,ParmType>::CloneWithNoise(const DiscreteGaussianGenerator &dgg, Format format) const {
 		throw std::logic_error("Cannot clone this object with noise");
 #ifdef OUT
 		std::vector<native64::ILVector2n> result;
@@ -244,20 +256,24 @@ namespace lbcrypto {
 #endif
 	}
 
-	const usint ILVectorArray2n::GetCyclotomicOrder() const {
+	template<typename IntType, typename VecType, typename ParmType>
+	const usint ILVectorArrayImpl<IntType,VecType,ParmType>::GetCyclotomicOrder() const {
 		return m_cyclotomicOrder;
 	}
 
-	const BigBinaryInteger &ILVectorArray2n::GetModulus() const {
+	template<typename IntType, typename VecType, typename ParmType>
+	const BigBinaryInteger &ILVectorArrayImpl<IntType,VecType,ParmType>::GetModulus() const {
 		return m_modulus;
 	}
 
 	// DESTRUCTORS
 
-	ILVectorArray2n::~ILVectorArray2n() {}
+	template<typename IntType, typename VecType, typename ParmType>
+	ILVectorArrayImpl<IntType,VecType,ParmType>::~ILVectorArray2n() {}
 
 	// GET ACCESSORS
-	const native64::ILVector2n& ILVectorArray2n::GetElementAtIndex (usint i) const
+	template<typename IntType, typename VecType, typename ParmType>
+	const native64::ILVector2n& ILVectorArrayImpl<IntType,VecType,ParmType>::GetElementAtIndex (usint i) const
 	{
 		if(m_vectors.empty())
 			throw std::logic_error("ILVectorArray2n's towers are not initialized.");
@@ -266,21 +282,25 @@ namespace lbcrypto {
 		return m_vectors[i];
 	}
 
-	usint ILVectorArray2n::GetNumOfElements() const {
+	template<typename IntType, typename VecType, typename ParmType>
+	usint ILVectorArrayImpl<IntType,VecType,ParmType>::GetNumOfElements() const {
 		return m_vectors.size();
 	}
 
-	const std::vector<native64::ILVector2n>& ILVectorArray2n::GetAllElements() const
+	template<typename IntType, typename VecType, typename ParmType>
+	const std::vector<native64::ILVector2n>& ILVectorArrayImpl<IntType,VecType,ParmType>::GetAllElements() const
 	{
 		return m_vectors;
 	}
 
-	Format ILVectorArray2n::GetFormat() const
+	template<typename IntType, typename VecType, typename ParmType>
+	Format ILVectorArrayImpl<IntType,VecType,ParmType>::GetFormat() const
 	{
 		return m_format;
 	}
 
-	ILVectorArray2n ILVectorArray2n::GetDigitAtIndexForBase(usint index, usint base) const{
+	template<typename IntType, typename VecType, typename ParmType>
+	ILVectorArray2n ILVectorArrayImpl<IntType,VecType,ParmType>::GetDigitAtIndexForBase(usint index, usint base) const{
 		ILVectorArray2n tmp(*this);
 
 		for (usint i = 0; i < m_vectors.size(); i++) {
@@ -289,7 +309,8 @@ namespace lbcrypto {
 		return tmp;
 	}
 
-	std::vector<ILVectorArray2n> ILVectorArray2n::BaseDecompose(usint baseBits) const {
+	template<typename IntType, typename VecType, typename ParmType>
+	std::vector<ILVectorArray2n> ILVectorArrayImpl<IntType,VecType,ParmType>::BaseDecompose(usint baseBits) const {
 		
 		std::vector< std::vector<native64::ILVector2n> > baseDecomposeElementWise;
 
@@ -319,7 +340,8 @@ namespace lbcrypto {
 
 	}
 
-	std::vector<ILVectorArray2n> ILVectorArray2n::PowersOfBase(usint baseBits) const {
+	template<typename IntType, typename VecType, typename ParmType>
+	std::vector<ILVectorArray2n> ILVectorArrayImpl<IntType,VecType,ParmType>::PowersOfBase(usint baseBits) const {
 
 		std::vector<ILVectorArray2n> result;
 
@@ -351,7 +373,8 @@ namespace lbcrypto {
 
 	/*VECTOR OPERATIONS*/
 
-	ILVectorArray2n ILVectorArray2n::MultiplicativeInverse() const
+	template<typename IntType, typename VecType, typename ParmType>
+	ILVectorArray2n ILVectorArrayImpl<IntType,VecType,ParmType>::MultiplicativeInverse() const
 	{
 		ILVectorArray2n tmp(*this);
 
@@ -361,7 +384,8 @@ namespace lbcrypto {
 		return std::move(tmp);
 	}
 
-	ILVectorArray2n ILVectorArray2n::ModByTwo() const
+	template<typename IntType, typename VecType, typename ParmType>
+	ILVectorArray2n ILVectorArrayImpl<IntType,VecType,ParmType>::ModByTwo() const
 	{
 		ILVectorArray2n tmp(*this);
 
@@ -371,7 +395,8 @@ namespace lbcrypto {
 		return std::move(tmp);
 	}
 
-	ILVectorArray2n ILVectorArray2n::SignedMod(const native64::BigBinaryInteger & modulus) const
+	template<typename IntType, typename VecType, typename ParmType>
+	ILVectorArray2n ILVectorArrayImpl<IntType,VecType,ParmType>::SignedMod(const native64::BigBinaryInteger & modulus) const
 	{
 		ILVectorArray2n tmp(*this);
 
@@ -381,7 +406,8 @@ namespace lbcrypto {
 		return std::move(tmp);
 	}
 
-	ILVectorArray2n ILVectorArray2n::Plus(const ILVectorArray2n &element) const
+	template<typename IntType, typename VecType, typename ParmType>
+	ILVectorArray2n ILVectorArrayImpl<IntType,VecType,ParmType>::Plus(const ILVectorArray2n &element) const
 	{
 		ILVectorArray2n tmp(*this);
 
@@ -391,7 +417,8 @@ namespace lbcrypto {
 		return std::move(tmp);
 	}
 
-	ILVectorArray2n ILVectorArray2n::Negate() const {
+	template<typename IntType, typename VecType, typename ParmType>
+	ILVectorArray2n ILVectorArrayImpl<IntType,VecType,ParmType>::Negate() const {
 		ILVectorArray2n tmp(this->CloneParametersOnly());
 		tmp.m_vectors.clear();
 
@@ -402,7 +429,8 @@ namespace lbcrypto {
 		return std::move(tmp);
 	}
 
-	ILVectorArray2n ILVectorArray2n::Minus(const ILVectorArray2n &element) const
+	template<typename IntType, typename VecType, typename ParmType>
+	ILVectorArray2n ILVectorArrayImpl<IntType,VecType,ParmType>::Minus(const ILVectorArray2n &element) const
 	{
 		ILVectorArray2n tmp(*this);
 
@@ -412,7 +440,8 @@ namespace lbcrypto {
 		return std::move(tmp);
 	}
 
-	const ILVectorArray2n& ILVectorArray2n::operator+=(const ILVectorArray2n &rhs)
+	template<typename IntType, typename VecType, typename ParmType>
+	const ILVectorArray2n& ILVectorArrayImpl<IntType,VecType,ParmType>::operator+=(const ILVectorArray2n &rhs)
 	{
 		for (usint i = 0; i < this->GetNumOfElements(); i++) {
 			this->m_vectors.at(i) += rhs.GetElementAtIndex(i);
@@ -421,7 +450,8 @@ namespace lbcrypto {
 
 	}
 
-	const ILVectorArray2n& ILVectorArray2n::operator-=(const ILVectorArray2n &rhs) {
+	template<typename IntType, typename VecType, typename ParmType>
+	const ILVectorArray2n& ILVectorArrayImpl<IntType,VecType,ParmType>::operator-=(const ILVectorArray2n &rhs) {
 		for (usint i = 0; i < this->GetNumOfElements(); i++) {
 			this->m_vectors.at(i) -= rhs.GetElementAtIndex(i);
 		}
@@ -429,7 +459,8 @@ namespace lbcrypto {
 
 	}
 
-	const ILVectorArray2n& ILVectorArray2n::operator*=(const ILVectorArray2n &element) {
+	template<typename IntType, typename VecType, typename ParmType>
+	const ILVectorArray2n& ILVectorArrayImpl<IntType,VecType,ParmType>::operator*=(const ILVectorArray2n &element) {
 		for (usint i = 0; i < this->m_vectors.size(); i++) {
 			this->m_vectors.at(i) *= element.m_vectors.at(i);
 		}
@@ -438,7 +469,8 @@ namespace lbcrypto {
 
 	}
 
-	bool ILVectorArray2n::operator==(const ILVectorArray2n &rhs) const {
+	template<typename IntType, typename VecType, typename ParmType>
+	bool ILVectorArrayImpl<IntType,VecType,ParmType>::operator==(const ILVectorArray2n &rhs) const {
 		//check if the format's are the same
 		if (m_format != rhs.m_format) {
                 return false;
@@ -460,7 +492,8 @@ namespace lbcrypto {
 		else return (m_vectors == rhs.GetAllElements());
 	}
 
-	const ILVectorArray2n & ILVectorArray2n::operator=(const ILVectorArray2n & rhs)
+	template<typename IntType, typename VecType, typename ParmType>
+	const ILVectorArray2n & ILVectorArrayImpl<IntType,VecType,ParmType>::operator=(const ILVectorArray2n & rhs)
 	{
 		if (this != &rhs) {
 			m_vectors = rhs.m_vectors;			
@@ -471,7 +504,8 @@ namespace lbcrypto {
 		return *this;
 	}
 
-	const ILVectorArray2n & ILVectorArray2n::operator=(ILVectorArray2n&& rhs)
+	template<typename IntType, typename VecType, typename ParmType>
+	const ILVectorArray2n & ILVectorArrayImpl<IntType,VecType,ParmType>::operator=(ILVectorArray2n&& rhs)
 	{
 		if (this != &rhs) {
 			m_vectors = std::move(rhs.m_vectors);
@@ -482,7 +516,8 @@ namespace lbcrypto {
 		return *this;
 	}
 
-	ILVectorArray2n& ILVectorArray2n::operator=(std::initializer_list<sint> rhs){
+	template<typename IntType, typename VecType, typename ParmType>
+	ILVectorArray2n& ILVectorArrayImpl<IntType,VecType,ParmType>::operator=(std::initializer_list<sint> rhs){
 		usint len = rhs.size();
 		if(!IsEmpty()){
 			usint vectorLength = this->m_vectors[0].GetLength();
@@ -510,7 +545,8 @@ namespace lbcrypto {
 
 	/*SCALAR OPERATIONS*/
 
-	ILVectorArray2n ILVectorArray2n::Plus(const native::BigBinaryInteger &element) const
+	template<typename IntType, typename VecType, typename ParmType>
+	ILVectorArray2n ILVectorArrayImpl<IntType,VecType,ParmType>::Plus(const native::BigBinaryInteger &element) const
 	{
 		ILVectorArray2n tmp(*this);
 
@@ -520,7 +556,8 @@ namespace lbcrypto {
 		return std::move(tmp);
 	}
 
-	ILVectorArray2n ILVectorArray2n::Minus(const BigBinaryInteger &element) const {
+	template<typename IntType, typename VecType, typename ParmType>
+	ILVectorArray2n ILVectorArrayImpl<IntType,VecType,ParmType>::Minus(const BigBinaryInteger &element) const {
 		ILVectorArray2n tmp(*this);
 
 		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
@@ -529,7 +566,8 @@ namespace lbcrypto {
 		return std::move(tmp);
 	}
 
-	ILVectorArray2n ILVectorArray2n::Times(const ILVectorArray2n & element) const
+	template<typename IntType, typename VecType, typename ParmType>
+	ILVectorArray2n ILVectorArrayImpl<IntType,VecType,ParmType>::Times(const ILVectorArray2n & element) const
 	{
 		ILVectorArray2n tmp(*this);
 
@@ -541,7 +579,8 @@ namespace lbcrypto {
 		return std::move(tmp);
 	}
 
-	ILVectorArray2n ILVectorArray2n::Times(const BigBinaryInteger &element) const
+	template<typename IntType, typename VecType, typename ParmType>
+	ILVectorArray2n ILVectorArrayImpl<IntType,VecType,ParmType>::Times(const BigBinaryInteger &element) const
 	{
 		ILVectorArray2n tmp(*this);
 
@@ -551,21 +590,24 @@ namespace lbcrypto {
 		return std::move(tmp);
 	}
 
-	ILVectorArray2n ILVectorArray2n::MultiplyAndRound(const BigBinaryInteger &p, const BigBinaryInteger &q) const
+	template<typename IntType, typename VecType, typename ParmType>
+	ILVectorArray2n ILVectorArrayImpl<IntType,VecType,ParmType>::MultiplyAndRound(const BigBinaryInteger &p, const BigBinaryInteger &q) const
 	{
 		std::string errMsg = "Operation not implemented yet";
 		throw std::runtime_error(errMsg);
 		return *this;
 	}
 
-	ILVectorArray2n ILVectorArray2n::DivideAndRound(const BigBinaryInteger &q) const
+	template<typename IntType, typename VecType, typename ParmType>
+	ILVectorArray2n ILVectorArrayImpl<IntType,VecType,ParmType>::DivideAndRound(const BigBinaryInteger &q) const
 	{
 		std::string errMsg = "Operation not implemented yet";
 		throw std::runtime_error(errMsg);
 		return *this;
 	}
 
-	const ILVectorArray2n& ILVectorArray2n::operator*=(const BigBinaryInteger &element) {
+	template<typename IntType, typename VecType, typename ParmType>
+	const ILVectorArray2n& ILVectorArrayImpl<IntType,VecType,ParmType>::operator*=(const BigBinaryInteger &element) {
 		for (usint i = 0; i < this->m_vectors.size(); i++) {
 			this->m_vectors.at(i) *= element;
 		}
@@ -575,7 +617,8 @@ namespace lbcrypto {
 
 	/*OTHER FUNCTIONS*/
 	
-	void ILVectorArray2n::PrintValues() const{
+	template<typename IntType, typename VecType, typename ParmType>
+	void ILVectorArrayImpl<IntType,VecType,ParmType>::PrintValues() const{
 		std::cout<<"---START PRINT DOUBLE CRT-- WITH SIZE" <<m_vectors.size() << std::endl;
 		 for(usint i = 0; i < m_vectors.size();i++){
 			std::cout<<"VECTOR " << i << std::endl;
@@ -584,22 +627,25 @@ namespace lbcrypto {
 		 std::cout<<"---END PRINT DOUBLE CRT--" << std::endl;
 	}
 
-	void ILVectorArray2n::AddILElementOne() {
+	template<typename IntType, typename VecType, typename ParmType>
+	void ILVectorArrayImpl<IntType,VecType,ParmType>::AddILElementOne() {
 		if(m_format != Format::EVALUATION)
-			throw std::runtime_error("ILVectorArray2n::AddILElementOne cannot be called on a ILVectorArray2n in COEFFICIENT format.");
+			throw std::runtime_error("ILVectorArrayImpl<IntType,VecType,ParmType>::AddILElementOne cannot be called on a ILVectorArray2n in COEFFICIENT format.");
 		for(usint i = 0; i < m_vectors.size(); i++){
 			m_vectors[i].AddILElementOne();
 		}
 	}
 
-	void ILVectorArray2n::MakeSparse(const BigBinaryInteger &wFactor){
+	template<typename IntType, typename VecType, typename ParmType>
+	void ILVectorArrayImpl<IntType,VecType,ParmType>::MakeSparse(const BigBinaryInteger &wFactor){
 		for(usint i = 0; i < m_vectors.size(); i++){
 			m_vectors[i].MakeSparse(wFactor);
 		}
 	}
 
 	// This function modifies ILVectorArray2n to keep all the even indices in the tower. It reduces the ring dimension of the tower by half.
-	void ILVectorArray2n::Decompose() {
+	template<typename IntType, typename VecType, typename ParmType>
+	void ILVectorArrayImpl<IntType,VecType,ParmType>::Decompose() {
 		
 		if(m_format != Format::COEFFICIENT) {
 			std::string errMsg = "ILVectorArray2n not in COEFFICIENT format to perform Decompose.";
@@ -612,7 +658,8 @@ namespace lbcrypto {
 		m_cyclotomicOrder = m_cyclotomicOrder / 2;
 	}
 
-	bool ILVectorArray2n::IsEmpty() const{
+	template<typename IntType, typename VecType, typename ParmType>
+	bool ILVectorArrayImpl<IntType,VecType,ParmType>::IsEmpty() const{
 		for(usint i=0;i<m_vectors.size();i++){
 			if(!m_vectors.at(i).IsEmpty())
 				return false;
@@ -620,7 +667,8 @@ namespace lbcrypto {
 		return true;
 	}
 
-	void ILVectorArray2n::DropLastElement(){
+	template<typename IntType, typename VecType, typename ParmType>
+	void ILVectorArrayImpl<IntType,VecType,ParmType>::DropLastElement(){
 		if(m_vectors.size() == 0){
 			throw std::out_of_range("Last element being removed from empty list");
 		}
@@ -641,7 +689,8 @@ namespace lbcrypto {
 	* 3. let d′ = c + delta mod q. By construction, d′ is divisible by q′.
 	* 4. output (d′/q′) in R(q/q′).
 	*/
-	void ILVectorArray2n::ModReduce(const BigBinaryInteger &plaintextModulus) {
+	template<typename IntType, typename VecType, typename ParmType>
+	void ILVectorArrayImpl<IntType,VecType,ParmType>::ModReduce(const BigBinaryInteger &plaintextModulus) {
 	  bool dbg_flag = false;
 		if(m_format != Format::EVALUATION) {
 			throw std::logic_error("Mod Reduce function expects EVAL Formatted ILVectorArray2n. It was passed COEFF Formatted ILVectorArray2n.");
@@ -700,7 +749,8 @@ namespace lbcrypto {
 	*
 	* Once we have the V values, we construct an ILVector2n from V, use qt as it's modulus and calculate a root of unity for parameter selection of the ILVector2n.
 	*/
-	ILVectorArray2n ILVectorArray2n::CRTInterpolate() const
+	template<typename IntType, typename VecType, typename ParmType>
+	ILVectorArray2n ILVectorArrayImpl<IntType,VecType,ParmType>::CRTInterpolate() const
 	{
 	  bool dbg_flag = false;
 	  DEBUG("in InterpolateIlArrayVector2n");
@@ -809,7 +859,8 @@ namespace lbcrypto {
 	}
 
 	/*Switch format calls IlVector2n's switchformat*/
-	void ILVectorArray2n::SwitchFormat() {
+	template<typename IntType, typename VecType, typename ParmType>
+	void ILVectorArrayImpl<IntType,VecType,ParmType>::SwitchFormat() {
 		if (m_format == COEFFICIENT) {
 
 			m_format = EVALUATION;
@@ -823,7 +874,8 @@ namespace lbcrypto {
 		}
 	}
 
-	void ILVectorArray2n::SwitchModulus(const BigBinaryInteger &modulus, const BigBinaryInteger &rootOfUnity) {
+	template<typename IntType, typename VecType, typename ParmType>
+	void ILVectorArrayImpl<IntType,VecType,ParmType>::SwitchModulus(const BigBinaryInteger &modulus, const BigBinaryInteger &rootOfUnity) {
 		m_modulus = BigBinaryInteger::ONE;
 		for (usint i = 0; i < m_vectors.size(); ++i)
 		{
@@ -832,7 +884,8 @@ namespace lbcrypto {
 		}
 	}
 
-	void ILVectorArray2n::SwitchModulusAtIndex(usint index, const BigBinaryInteger &modulus, const BigBinaryInteger &rootOfUnity) {
+	template<typename IntType, typename VecType, typename ParmType>
+	void ILVectorArrayImpl<IntType,VecType,ParmType>::SwitchModulusAtIndex(usint index, const BigBinaryInteger &modulus, const BigBinaryInteger &rootOfUnity) {
 		if(index > m_vectors.size()-1) {
 			std::string errMsg;
 			errMsg = "ILVectorArray2n is of size = " + std::to_string(m_vectors.size()) + " but SwitchModulus for tower at index " + std::to_string(index) + "is called.";
@@ -843,14 +896,17 @@ namespace lbcrypto {
 		m_vectors[index].SwitchModulus(modulus, rootOfUnity);
 	}
 
-	bool ILVectorArray2n::InverseExists() const
+	template<typename IntType, typename VecType, typename ParmType>
+	bool ILVectorArrayImpl<IntType,VecType,ParmType>::InverseExists() const
 	{
 		for (usint i = 0; i < m_vectors.size(); i++) {
 			if (!m_vectors[i].InverseExists()) return false;
 		}
 		return true;
 	}
-	void ILVectorArray2n::PreComputeCRIFactors(const std::vector<BigBinaryInteger>& moduli, const usint cyclotomicOrder)
+
+	template<typename IntType, typename VecType, typename ParmType>
+	void ILVectorArrayImpl<IntType,VecType,ParmType>::PreComputeCRIFactors(const std::vector<BigBinaryInteger>& moduli, const usint cyclotomicOrder)
 	{
 
 		if (m_towersize_cri_factors == 0) {
@@ -887,7 +943,8 @@ namespace lbcrypto {
 		m_cyclotomicOrder_precompute = cyclotomicOrder;
 	}
 
-	void ILVectorArray2n::DestroyPrecomputedCRIFactors()
+	template<typename IntType, typename VecType, typename ParmType>
+	void ILVectorArrayImpl<IntType,VecType,ParmType>::DestroyPrecomputedCRIFactors()
 	{
 		if (m_towersize_cri_factors != 0) {
 			m_towersize_cri_factors->clear();
@@ -898,7 +955,8 @@ namespace lbcrypto {
 	//JSON FACILITY
 
 	// JSON FACILITY - Serialize Operation
-	bool ILVectorArray2n::Serialize(Serialized* serObj) const {
+	template<typename IntType, typename VecType, typename ParmType>
+	bool ILVectorArrayImpl<IntType,VecType,ParmType>::Serialize(Serialized* serObj) const {
 		if( !serObj->IsObject() )
 			return false;
 
@@ -915,7 +973,8 @@ namespace lbcrypto {
 	}
 
 	// JSON FACILITY - Deserialize Operation
-	bool ILVectorArray2n::Deserialize(const Serialized& serObj) {
+	template<typename IntType, typename VecType, typename ParmType>
+	bool ILVectorArrayImpl<IntType,VecType,ParmType>::Deserialize(const Serialized& serObj) {
 		SerialItem::ConstMemberIterator it = serObj.FindMember("ILVectorArray2n");
 
 		if( it == serObj.MemberEnd() )

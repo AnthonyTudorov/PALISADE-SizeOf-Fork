@@ -137,7 +137,7 @@ typedef cpu_int::BigBinaryVectorImpl<NativeInteger<uint64_t>> BigBinaryVector;
 namespace lbcrypto {
 
 template<typename IntType> class ILParamsImpl;
-template<typename IntType, typename VecType, typename ParmType> class ILVectorImpl;
+template<typename ModType, typename IntType, typename VecType, typename ParmType> class ILVectorImpl;
 
 #if MATHBACKEND == 2
 	/** integral_dtype specifies the native data type used for the BigBinaryInteger implementation 
