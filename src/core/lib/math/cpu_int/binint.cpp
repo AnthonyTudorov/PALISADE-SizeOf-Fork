@@ -1884,10 +1884,9 @@ usint BigBinaryInteger<uint_type,BITLENGTH>::GetDigitAtIndexForBase(usint index,
 
 }
 
-//Splits the binary string to equi sized chunks and then populates the internal array values.
-template<typename uint_type,usint BITLENGTH>
-BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::BinaryStringToBigBinaryInt(const std::string& bitString){
-	
+template<typename uint_type, usint BITLENGTH>
+BigBinaryInteger<uint_type, BITLENGTH> BigBinaryInteger<uint_type, BITLENGTH>::BinaryStringToBigBinaryInt(const std::string& bitString) {
+
 	BigBinaryInteger value;
 	usint len = bitString.length();
 	usint cntr = ceilIntByUInt(len);
@@ -1895,12 +1894,12 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Bin
 	Duint_type partial_value = 0;
 	for (usint i = 0; i < cntr; i++)
 	{
-
-		if (len>((i + 1)*m_uintBitLength))
+		//if (len >((i + 1)*m_uintBitLength)) // before the fix
+		if (len >= ((i + 1)*m_uintBitLength)) // modified -- the fix by ES
 			val = bitString.substr((len - (i + 1)*m_uintBitLength), m_uintBitLength);
 		else
 			val = bitString.substr(0, len%m_uintBitLength);
-		for (usint j = 0; j < val.length(); j++){
+		for (usint j = 0; j < val.length(); j++) {
 			partial_value += std::stoi(val.substr(j, 1));
 			partial_value <<= 1;
 		}
@@ -1908,11 +1907,22 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Bin
 		value.m_value[m_nSize - 1 - i] = (uint_type)partial_value;
 		partial_value = 0;
 	}
-	value.m_MSB = (cntr - 1)*m_uintBitLength;
-	value.m_MSB += GetMSBUint_type(value.m_value[m_nSize - cntr]);
-	return value;
+	/* Fix by ES */
+	usint i = m_nSize - cntr;
+	while (GetMSBUint_type(value.m_value[i]) == 0 && i<m_nSize - 1)
+		i++;
+	value.m_MSB = GetMSBUint_type(value.m_value[i]);
+	value.m_MSB += (m_uintBitLength*(m_nSize - i - 1));
+	/* ES fix ends here */
 
+	/* Original code */
+	/*value.m_MSB = (cntr - 1)*m_uintBitLength;
+	value.m_MSB += GetMSBUint_type(value.m_value[m_nSize - cntr]);*/
+	/* Ends here */
+
+	return value;
 }
+
 
 //Recursive Exponentiation function
 template<typename uint_type,usint BITLENGTH>
