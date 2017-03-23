@@ -306,8 +306,10 @@ namespace lbcrypto {
 
 	template<typename IntType, typename VecType, typename ParmType>
 	void ILVectorImpl<IntType,VecType,ParmType>::SetValues(const VecType& values, Format format) {
-		if (m_params->GetRootOfUnity() == IntType::ZERO || m_params->GetCyclotomicOrder() / 2 != values.GetLength() || m_params->GetModulus() != values.GetModulus())
+		if (m_params->GetRootOfUnity() == IntType::ZERO || m_params->GetCyclotomicOrder() / 2 != values.GetLength() || m_params->GetModulus() != values.GetModulus()) {
+			std::cout << *(m_params.get()) << ":::" << values.GetLength() << ":" << values.GetModulus() << std::endl;
 			throw std::logic_error("Exisiting m_params do not match with the input parameter VecType& values.\n");
+		}
 		if (m_values != NULL) {
 			delete m_values;
 		}
