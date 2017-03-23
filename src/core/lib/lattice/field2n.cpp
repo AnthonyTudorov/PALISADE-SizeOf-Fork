@@ -240,7 +240,7 @@ namespace lbcrypto {
 	//Method for switching format of the field elements
 	void Field2n::SwitchFormat() {
 		if (format == COEFFICIENT) {
-			std::vector<std::complex<double>> r = DiscreteFourierTransform::GetInstance().ForwardTransformAlt(*this);
+			std::vector<std::complex<double>> r = DiscreteFourierTransform::GetInstance().ForwardTransform(*this);
 			//std::vector<std::complex<double>> r = DiscreteFourierTransform::GetInstance().ForwardTransform(*this);
 			for (int i = 0;i < r.size();i++) {
 				this->at(i) = r.at(i);
@@ -249,7 +249,7 @@ namespace lbcrypto {
 			format = EVALUATION;
 		}
 		else {
-			std::vector<std::complex<double>> r = DiscreteFourierTransform::GetInstance().InverseTransformAlt(*this);
+			std::vector<std::complex<double>> r = DiscreteFourierTransform::GetInstance().InverseTransform(*this);
 			//std::vector<std::complex<double>> r = DiscreteFourierTransform::GetInstance().InverseTransform(*this);
 			for (int i = 0;i < r.size();i++) {
 				this->at(i) = r.at(i);

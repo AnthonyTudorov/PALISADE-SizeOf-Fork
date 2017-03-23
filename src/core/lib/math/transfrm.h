@@ -307,13 +307,6 @@ public:
 	*/
 	std::vector<std::complex<double>> InverseTransform(std::vector<std::complex<double>> A);
 
-
-	std::vector<std::complex<double>> FFTForwardTransformAlt(std::vector<std::complex<double>> & A);
-	std::vector<std::complex<double>> FFTInverseTransformAlt(std::vector<std::complex<double>> & A);
-	std::vector<std::complex<double>> ForwardTransformAlt(std::vector<std::complex<double>> A);
-	std::vector<std::complex<double>> InverseTransformAlt(std::vector<std::complex<double>> A);
-
-
 	void Destroy();
 	void PreComputeTable(uint32_t s);
 	static DiscreteFourierTransform& GetInstance();
