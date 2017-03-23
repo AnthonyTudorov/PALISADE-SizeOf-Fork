@@ -273,7 +273,7 @@ namespace lbcrypto {
 
 	// GET ACCESSORS
 	template<typename IntType, typename VecType, typename ParmType>
-	const native64::ILVector2n& ILVectorArrayImpl<IntType,VecType,ParmType>::GetElementAtIndex (usint i) const
+	const VecType& ILVectorArrayImpl<IntType,VecType,ParmType>::GetElementAtIndex (usint i) const
 	{
 		if(m_vectors.empty())
 			throw std::logic_error("ILVectorArray2n's towers are not initialized.");
