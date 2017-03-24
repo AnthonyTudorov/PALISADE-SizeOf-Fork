@@ -24,5 +24,5 @@ template class DiscreteUniformGeneratorImpl<BigBinaryInteger,BigBinaryVector>;
 
 namespace lbcrypto {
 template class ILParamsImpl<BigBinaryInteger>;
-template class ILVectorImpl<BigBinaryInteger,BigBinaryVector,ILParams>;
+template class ILVectorImpl<BigBinaryInteger,BigBinaryInteger,BigBinaryVector,ILParams>;
 }

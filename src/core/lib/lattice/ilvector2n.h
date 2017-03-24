@@ -751,7 +751,7 @@ typedef ILVectorImpl<BigBinaryInteger, BigBinaryInteger, BigBinaryVector, ILPara
 
 namespace native64 {
 
-typedef lbcrypto::ILVectorImpl<lbcrypto::BigBinaryInteger, native64::BigBinaryInteger, native64::BigBinaryVector, native64::ILParams> ILVector2n;
+typedef lbcrypto::ILVectorImpl<native64::BigBinaryInteger, native64::BigBinaryInteger, native64::BigBinaryVector, native64::ILParams> ILVector2n;
 
 }
 

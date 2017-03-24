@@ -149,7 +149,7 @@ namespace lbcrypto {
 		*
 		* @param &towers vector of ILVector2ns which correspond to each tower of ILVectorArray2n.
 		*/
-		ILVectorArrayImpl(const std::vector<VecType> &elements);
+		ILVectorArrayImpl(const std::vector<native64::ILVector2n> &elements);
 
 		/**
 		* Copy constructor.
@@ -235,7 +235,7 @@ namespace lbcrypto {
 		* @param i index of tower to be returned.
 		* @returns a reference to the ILVector2n at index i.
 		*/
-		const ILVectorType &GetElementAtIndex(usint i) const;
+		const native64::ILVector2n &GetElementAtIndex(usint i) const;
 
 		/**
 		* Get method of the tower length.
@@ -249,7 +249,7 @@ namespace lbcrypto {
 		*
 		* @returns values.
 		*/
-		const std::vector<ILVectorType>& GetAllElements() const;
+		const std::vector<native64::ILVector2n>& GetAllElements() const;
 
 		/**
 		* Get method of the format.
@@ -265,7 +265,7 @@ namespace lbcrypto {
 		* @param base is the base the result should be in.
 		* @return is the result.
 		*/
-		ILVectorType GetDigitAtIndexForBase(usint index, usint base) const;
+		native64::ILVector2n GetDigitAtIndexForBase(usint index, usint base) const;
 
 		/**
 		* Write vector x (current value of the ILVector2n object) as \sum\limits{i=0}^{\lfloor {\log q/base} \rfloor} {(base^i u_i)} and

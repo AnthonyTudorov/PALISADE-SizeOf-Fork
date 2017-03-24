@@ -45,40 +45,6 @@ IntPlaintextEncoding::IntPlaintextEncoding(uint32_t value)
 		this->push_back((value >> i) & 1);
 	}
 }
-	
-void IntPlaintextEncoding::Encode(const BigBinaryInteger& modulus, ILVectorArray2n *element, size_t startFrom, size_t length) const{
-	native64::ILVector2n encodedSingleCrt = element->GetElementAtIndex(0);
-
-	Encode(modulus, &encodedSingleCrt, startFrom, length);
-	native64::BigBinaryVector tempBBV(encodedSingleCrt.GetValues());
-
-	std::vector<native64::ILVector2n> encodeValues;
-	encodeValues.reserve(element->GetNumOfElements());
-
-	for (usint i = 0; i<element->GetNumOfElements(); i++) {
-		native64::ILVector2n temp(element->GetElementAtIndex(i).GetParams());
-		tempBBV = encodedSingleCrt.GetValues();
-		tempBBV.SetModulus(temp.GetModulus());
-		temp.SetValues(tempBBV, encodedSingleCrt.GetFormat());
-		temp.SignedMod(temp.GetModulus());
-		encodeValues.push_back(temp);
-	}
-
-	ILVectorArray2n elementNew(encodeValues);
-	*element = elementNew;
-
-}
-
-
-void IntPlaintextEncoding::Decode(const BigBinaryInteger& modulus, ILVectorArray2n *ilVectorArray2n){
-
-	const native64::ILVector2n &ilVector = ilVectorArray2n->GetElementAtIndex(0);
-	for (usint i = 0; i<ilVector.GetValues().GetLength(); i++) {
-		this->push_back(ilVector.GetValues().GetValAtIndex(i).ConvertToInt());
-	}
-
-}
-
 
 void IntPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector, size_t startFrom, size_t length) const
 {

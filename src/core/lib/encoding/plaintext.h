@@ -51,27 +51,13 @@ class Plaintext {
 public:
 	virtual ~Plaintext() {}
 
-	/** Interface for the operation of converting from current plaintext encoding to ilVectorArray2n.
-	 *
-	 * @param  modulus - used for encoding.
-	 * @param  *ilVectorArray2n encoded plaintext - output argument.
-	 */
-	virtual void Encode(const BigBinaryInteger &modulus, ILVectorArray2n *iLVectorArray2n, size_t start_from=0, size_t length=0) const = 0;
-
-	/** Interface for the operation of converting from ILVector2n to current plaintext encoding.
-	 *
-	 * @param  modulus - used for encoding.
-	 * @param  *ilVectorArray2n encoded plaintext - input argument.
-	 */
-	virtual void Decode(const BigBinaryInteger &modulus, ILVectorArray2n *iLVectorArray2n) = 0;
-
 	/** Interface for the operation of converting from current plaintext encoding to ILVector2n.
 	 *
 	 * @param  modulus - used for encoding.
 	 * @param  *ilVector encoded plaintext - output argument.
 	 */
 	virtual void Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector, size_t start_from=0, size_t length=0) const = 0;
-	virtual void Encode(const BigBinaryInteger &modulus, native64::ILVector2n *ilVector, size_t start_from=0, size_t length=0) const = 0;
+	virtual void Encode(const native64::BigBinaryInteger &modulus, native64::ILVector2n *ilVector, size_t start_from=0, size_t length=0) const = 0;
 
 	/** Interface for the operation of converting from ILVector2n to current plaintext encoding.
 	 *
@@ -79,6 +65,7 @@ public:
 	 * @param  *ilVector encoded plaintext - input argument.
 	 */
 	virtual void Decode(const BigBinaryInteger &modulus, ILVector2n *ilVector) = 0;
+	virtual void Decode(const native64::BigBinaryInteger &modulus, native64::ILVector2n *ilVector) = 0;
 
 	virtual void Unpad(const BigBinaryInteger &modulus) = 0;
 

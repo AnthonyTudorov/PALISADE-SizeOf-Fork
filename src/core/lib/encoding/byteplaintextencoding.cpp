@@ -59,17 +59,18 @@ BytePlaintextEncoding& BytePlaintextEncoding::operator=(const char* cstr) {
 	return *this;
 }
 
-void
-BytePlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector, size_t startFrom, size_t length) const
+template<typename IntType, typename VecType, typename ElementType>
+static void
+doEncode(const BytePlaintextEncoding& item, const IntType &modulus, ElementType *ilVector, size_t startFrom, size_t length)
 {
-	int		padlen = 0;	
+	size_t		padlen = 0;
 
 	// default values mean "do it all"
-	if( length == 0 ) length = this->size();
+	if( length == 0 ) length = item.size();
 
 	// length is usually chunk size; if start + length would go past the end of the item, add padding
-	if( (startFrom + length) > this->size() ) {
-		padlen = (startFrom + length) - this->size(); //todo: warning conversion from size_t
+	if( (startFrom + length) > item.size() ) {
+		padlen = (startFrom + length) - item.size();
 		length = length - padlen;
 	}
 
@@ -81,31 +82,31 @@ BytePlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVec
 
 	usint p = ceil((float)log((double)255) / log((double)mod));
 
-	size_t vsize = p*(length+padlen);
-	BigBinaryVector temp(vsize);
+	usint vsize = p*(length+padlen);
+	VecType temp(vsize);
 	temp.SetModulus(ilVector->GetModulus());
 	Format format = COEFFICIENT;
 
 	for (usint i = 0; i<length; i++) {
-		usint actualPos = i + startFrom; //todo: warning conversion from size_t
-		usint actualPosP = i * p;
-		usint Num = this->at(actualPos);
-		usint exp = mod, Rem = 0;
-		for (usint j = 0; j<p; j++) {
+		size_t actualPos = i + startFrom;
+		size_t actualPosP = i * p;
+		size_t Num = item.at(actualPos);
+		size_t exp = mod, Rem = 0;
+		for (size_t j = 0; j<p; j++) {
 			Rem = Num%exp;
-			temp.SetValAtIndex(actualPosP + j, BigBinaryInteger((Rem / (exp / mod))));
+			temp.SetValAtIndex(actualPosP + j, IntType((Rem / (exp / mod))));
 			Num -= Rem;
 			exp *= mod;
 		}
 	}
 
-	usint Num = 0x80;
-	for( usint i=0; i<padlen; i++ ) { //todo: signed unsinged mismatch
-		usint actualPos = (i + length) * p; //todo: warning conversion from size_t
-		usint exp = mod, Rem = 0;
+	size_t Num = 0x80;
+	for( size_t i=0; i<padlen; i++ ) {
+		size_t actualPos = (i + length) * p;
+		size_t exp = mod, Rem = 0;
 		for (usint j = 0; j<p; j++) {
 			Rem = Num%exp;
-			temp.SetValAtIndex(actualPos + j, BigBinaryInteger((Rem / (exp / mod))));
+			temp.SetValAtIndex(actualPos + j, IntType((Rem / (exp / mod))));
 			Num -= Rem;
 			exp *= mod;
 		}
@@ -115,12 +116,13 @@ BytePlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVec
 	ilVector->SetValues(temp,format);
 }
 
-void
-BytePlaintextEncoding::Decode(const BigBinaryInteger &modulus, ILVector2n *ilVector)
+template<typename IntType, typename ElementType>
+static void
+doDecode(BytePlaintextEncoding& item, const IntType &modulus, ElementType *ilVector)
 {
     usint mod = modulus.ConvertToInt();
 	usint p = ceil((float)log((double)255) / log((double)mod));
-	usint resultant_char;
+	unsigned char resultant_char;
 
 	for (usint i = 0; i<ilVector->GetValues().GetLength(); i = i + p) {
 	  usint exp = 1;
@@ -129,55 +131,25 @@ BytePlaintextEncoding::Decode(const BigBinaryInteger &modulus, ILVector2n *ilVec
 			resultant_char += ilVector->GetValues().GetValAtIndex(i + j).ConvertToInt()*exp;
 			exp *= mod;
 		}
-		this->push_back(resultant_char);
+		item.push_back(resultant_char);
 	}
 }
 
-void
-BytePlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVectorArray2n *element, size_t startFrom, size_t length) const
-{
-	const vector<native64::ILVector2n> allElements = element->GetAllElements();
-	native64::ILVector2n encodedSingleCrt = allElements[0]; //element->GetElementAtIndex(0);
-
-	Encode(modulus, &encodedSingleCrt, startFrom, length);
-	native64::BigBinaryVector tempBBV(encodedSingleCrt.GetValues());
-
-	std::vector<native64::ILVector2n> encodeValues;
-	encodeValues.reserve(element->GetNumOfElements());
-
-	for (usint i = 0; i<element->GetNumOfElements(); i++) {
-		native64::ILVector2n temp(element->GetElementAtIndex(i).GetParams());
-		tempBBV = encodedSingleCrt.GetValues();
-		tempBBV.SetModulus(temp.GetModulus());
-		temp.SetValues(tempBBV, encodedSingleCrt.GetFormat());
-		temp.SignedMod(temp.GetModulus());
-		encodeValues.push_back(temp);
-	}
-
-	ILVectorArray2n elementNew(encodeValues);
-	*element = elementNew;
-
+// these 4 methods use the templated implementations, above
+void BytePlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector, size_t start_from, size_t length) const {
+	doEncode<BigBinaryInteger,BigBinaryVector,ILVector2n>(*this, modulus, ilVector, start_from, length);
 }
 
-void
-BytePlaintextEncoding::Decode(const BigBinaryInteger &modulus, ILVectorArray2n *ilVectorArray2n)
-{
+void BytePlaintextEncoding::Encode(const native64::BigBinaryInteger &modulus, native64::ILVector2n *ilVector, size_t start_from, size_t length) const {
+	doEncode<native64::BigBinaryInteger,native64::BigBinaryVector,native64::ILVector2n>(*this, modulus, ilVector, start_from, length);
+}
 
-	const native64::ILVector2n &ilVector = ilVectorArray2n->GetElementAtIndex(0);
-	usint mod = modulus.ConvertToInt();
-	usint p = ceil((float)log((double)255) / log((double)mod));
-	usint resultant_char;
+void BytePlaintextEncoding::Decode(const BigBinaryInteger &modulus, ILVector2n *ilVector) {
+	doDecode(*this, modulus, ilVector);
+}
 
-	for (usint i = 0; i < ilVector.GetValues().GetLength(); i = i + p) {
-		usint exp = 1;
-		resultant_char = 0;
-		for (usint j = 0; j < p; j++) {
-			resultant_char += ilVector.GetValues().GetValAtIndex(i + j).ConvertToInt()*exp;
-			exp *= mod;
-		}
-		this->push_back(resultant_char);
-	}
-
+void BytePlaintextEncoding::Decode(const native64::BigBinaryInteger &modulus, native64::ILVector2n *ilVector) {
+	doDecode(*this, modulus, ilVector);
 }
 
 void
