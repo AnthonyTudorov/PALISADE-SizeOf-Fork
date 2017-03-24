@@ -14,7 +14,7 @@ List of Authors:
     Dr. David Bruce Cousins BBN
 Description:
 
-  This code tests the transform feature of the PALISADE lattice
+  This code tests the ideal lattice array (2n) feature of the PALISADE lattice
   encryption library.
 
 License Information:
@@ -234,7 +234,6 @@ TEST(UTILVectorArray2n, constructors_test) {
 
 }
 
-void testILVectorArray2nConstructorNegative(std::vector<ILVector2n> &towers);
 
 /*--------------------------------------- TESTING METHODS OF LATTICE ELEMENTS    --------------------------------------------*/
 
@@ -436,6 +435,7 @@ TEST(UTILVectorArray2n, arithmetic_operations_element) {
   ilvector2nVector1[2] = ilvect2;
 
   ILVectorArray2n ilva1(ilvector2nVector1);
+
   {
     ILVectorArray2n ilvaCopy(ilva.Plus(ilva1));
     // ilvaCopy = ilvaCopy + ilva1;
@@ -627,7 +627,7 @@ TEST(UTILVectorArray2n, arithmetic_operations_element) {
 
     ILVectorArray2n ilvaS(ilvector2nVectorS);
     BigBinaryInteger modulus2("113");
-    BigBinaryInteger rootOfUnity2(lbcrypto::RootOfUnity(m, modulus2));
+    BigBinaryInteger rootOfUnity2(lbcrypto::RootOfUnity<BigBinaryInteger>(m, modulus2));
 
     ilvaS.SwitchModulus(modulus2, rootOfUnity2);
 
@@ -674,10 +674,11 @@ TEST(UTILVectorArray2n, arithmetic_operations_element) {
     EXPECT_EQ(rootOfUnity2, ilvectS2.GetRootOfUnity())
       <<"Failure S2 rootOfUnity";
   }
+
   {
     ILVectorArray2n ilvaCopy(ilva);
     BigBinaryInteger modulus2("113");
-    BigBinaryInteger rootOfUnity2(lbcrypto::RootOfUnity(m, modulus2));
+    BigBinaryInteger rootOfUnity2(lbcrypto::RootOfUnity<BigBinaryInteger>(m, modulus2));
     ilvaCopy.SwitchModulusAtIndex(0, modulus2, rootOfUnity2);
 
     for (usint i = 0; i < ilvaCopy.GetNumOfElements(); ++i)
@@ -721,7 +722,7 @@ TEST(UTILVectorArray2n, decompose_test) {
   for(usint i=0; i < towersize;i++){
       lbcrypto::NextQ(q, BigBinaryInteger::TWO, order, BigBinaryInteger("4"), BigBinaryInteger("4"));
       moduli[i] = q;
-      rootsOfUnity[i] = RootOfUnity(order,moduli[i]);
+      rootsOfUnity[i] = RootOfUnity<BigBinaryInteger>(order,moduli[i]);
       modulus = modulus* moduli[i];
   }
 
@@ -771,7 +772,7 @@ TEST(UTILVectorArray2n, ensures_mod_operation_during_operations_on_two_ILVectorA
   for(usint i=0; i < towersize;i++){
       lbcrypto::NextQ(q, BigBinaryInteger::TWO, order, BigBinaryInteger("4"), BigBinaryInteger("4"));
       moduli[i] = q;
-      rootsOfUnity[i] = RootOfUnity(order,moduli[i]);
+      rootsOfUnity[i] = RootOfUnity<BigBinaryInteger>(order,moduli[i]);
       modulus = modulus* moduli[i];
       
       shared_ptr<ILParams> ilparamsi( new ILParams(order, moduli[i], rootsOfUnity[i]) );

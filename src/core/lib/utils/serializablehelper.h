@@ -111,6 +111,7 @@ public:
 	 * @return success or failure
 	 */
 	static bool ReadSerializationFromFile(const std::string jsonFileName, Serialized* map);
+
 };
 
 template <class Element>

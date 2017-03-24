@@ -63,7 +63,7 @@ CryptoContextFactory<T>::genCryptoContextLTV(
 		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
 		usint relinWindow, float stDev, int depth)
 {
-	shared_ptr<ElemParams> ep( new ILParams(ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
+	shared_ptr<typename T::Params> ep( new typename T::Params(ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
 
 	shared_ptr<LPCryptoParametersLTV<T>> params( new LPCryptoParametersLTV<T>(
 			ep,
@@ -87,7 +87,7 @@ CryptoContextFactory<T>::genCryptoContextFV(
 		usint relinWindow, float stDev, const std::string& delta,
 		MODE mode, const std::string& bigmodulus, const std::string& bigrootofunity, int depth, int assuranceMeasure, float securityLevel)
 {
-	shared_ptr<ElemParams> ep( new ILParams(ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
+	shared_ptr<typename T::Params> ep( new typename T::Params(ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
 
 	shared_ptr<LPCryptoParametersFV<T>> params(
 			new LPCryptoParametersFV<T>(ep,
@@ -122,7 +122,7 @@ CryptoContextFactory<T>::genCryptoContextFV(
 	if( nonZeroCount > 1 )
 		throw std::logic_error("only one of (numAdds,numMults,numKeyswitches) can be nonzero in FV context constructor");
 
-	shared_ptr<ElemParams> ep( new ILParams(0, BigBinaryInteger::ZERO, BigBinaryInteger::ZERO) );
+	shared_ptr<typename T::Params> ep( new typename T::Params(0, BigBinaryInteger::ZERO, BigBinaryInteger::ZERO) );
 
 	shared_ptr<LPCryptoParametersFV<T>> params( new LPCryptoParametersFV<T>() );
 
@@ -150,7 +150,7 @@ CryptoContextFactory<T>::genCryptoContextBV(
 		usint relinWindow, float stDev,
 		MODE mode, const std::string& bigmodulus, const std::string& bigrootofunity, int depth)
 {
-	shared_ptr<ElemParams> ep( new ILParams(ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
+	shared_ptr<typename T::Params> ep( new typename T::Params(ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
 
 	shared_ptr<LPCryptoParametersBV<T>> params( new LPCryptoParametersBV<T>(
 		ep,
@@ -200,7 +200,7 @@ CryptoContextFactory<T>::genCryptoContextStehleSteinfeld(
 		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
 		usint relinWindow, float stDev, float stDevStSt)
 {
-	shared_ptr<ElemParams> ep( new ILParams(ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
+	shared_ptr<typename T::Params> ep( new typename T::Params(ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
 
 	shared_ptr<LPCryptoParametersStehleSteinfeld<T>> params( new LPCryptoParametersStehleSteinfeld<T>(
 			ep,
@@ -221,7 +221,7 @@ CryptoContext<T>
 CryptoContextFactory<T>::getCryptoContextNull(
 		const std::string& ptModulus, usint ringdim, const std::string& modulus, const std::string& rootOfUnity)
 {
-	shared_ptr<ElemParams> ep( new ILParams(ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
+	shared_ptr<typename T::Params> ep( new typename T::Params(ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
 
 	shared_ptr<LPCryptoParametersNull<T>> params( new LPCryptoParametersNull<T>(ep, BigBinaryInteger(ptModulus)) );
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeNull<T>() );

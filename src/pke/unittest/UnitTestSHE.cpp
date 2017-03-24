@@ -88,12 +88,6 @@ TEST(UTSHE, keyswitch_sparse_key_SingleCRT_byteplaintext) {
 	cc.Enable(SHE);
 	cc.Enable(LEVELEDSHE);
 
-	//Precomputations for FTT
-	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
-
-	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
-
 	LPKeyPair<ILVector2n> kp = cc.KeyGen();
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext = cc.Encrypt(kp.publicKey, plaintext);
@@ -112,8 +106,6 @@ TEST(UTSHE, keyswitch_sparse_key_SingleCRT_byteplaintext) {
 	cc.Decrypt(kp2.secretKey, newCiphertext, &plaintextNew);
 
 	EXPECT_EQ(plaintext, plaintextNew);
-
-	ILVector2n::DestroyPreComputedSamples();
 }
 
 TEST(UTSHE, keyswitch_sparse_key_SingleCRT_intArray) {
@@ -136,12 +128,6 @@ TEST(UTSHE, keyswitch_sparse_key_SingleCRT_intArray) {
 	cc.Enable(ENCRYPTION);
 	cc.Enable(LEVELEDSHE);
 	cc.Enable(SHE);
-
-	//Precomputations for FTT
-	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
-
-	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
 
 	LPKeyPair<ILVector2n> kp = cc.KeyGen();
 
@@ -169,9 +155,6 @@ TEST(UTSHE, keyswitch_sparse_key_SingleCRT_intArray) {
 	intArrayNew.resize(intArray.size());
 
 	EXPECT_EQ(intArray, intArrayNew);
-
-	ILVector2n::DestroyPreComputedSamples();
-
 }
 
 TEST(UTSHE, keyswitch_SingleCRT) {
@@ -195,12 +178,6 @@ TEST(UTSHE, keyswitch_SingleCRT) {
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 
-	//Precomputations for FTT
-	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
-
-	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
-
 	LPKeyPair<ILVector2n> kp = cc.KeyGen();
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext =
@@ -220,9 +197,6 @@ TEST(UTSHE, keyswitch_SingleCRT) {
 	cc.Decrypt(kp2.secretKey, newCiphertext, &plaintextNew);
 
 	EXPECT_EQ(plaintext, plaintextNew);
-	 
-    ILVector2n::DestroyPreComputedSamples();
-	 
 }
 
 TEST(UTSHE, sparsekeygen_single_crt_encrypt_decrypt) {
@@ -247,12 +221,6 @@ TEST(UTSHE, sparsekeygen_single_crt_encrypt_decrypt) {
 	cc.Enable(LEVELEDSHE);
 	cc.Enable(SHE);
 
-	//Precomputations for FTT
-	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
-
-	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
-
 	LPKeyPair<ILVector2n> kp = cc.SparseKeyGen();
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext =
@@ -269,7 +237,6 @@ TEST(UTSHE, sparsekeygen_single_crt_encrypt_decrypt) {
 	for (usint i = 1; i < privateElement.GetLength(); i += 2) {
 		EXPECT_EQ(BigBinaryInteger::ZERO, privateElement.GetValAtIndex(i));
 	}
-	ILVector2n::DestroyPreComputedSamples();
 }
 
 TEST(UTSHE, keyswitch_ModReduce_DCRT) {
@@ -370,12 +337,6 @@ TEST(UTSHE, ringreduce_single_crt) {
 	cc.Enable(LEVELEDSHE);
 	cc.Enable(SHE);
 
-	//Precomputations for FTT
-	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
-
-	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
-
 	LPKeyPair<ILVector2n> kp = cc.KeyGen();
 
 	std::vector<usint> vectorOfInts = { 1,1,1,1,1,1,1,1 };
@@ -413,8 +374,6 @@ TEST(UTSHE, ringreduce_single_crt) {
 	IntPlaintextEncoding intArrayExpected = {1,1,1,1};
 
 	EXPECT_EQ(intArrayNewRR, intArrayExpected);
-
-	ILVector2n::DestroyPreComputedSamples();
 }
 
 TEST(UTSHE, ringreduce_double_crt) {

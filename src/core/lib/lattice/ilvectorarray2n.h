@@ -76,9 +76,11 @@ namespace lbcrypto {
 	/**
 	* @brief Ideal lattice in the double-CRT representation.  This is not fully implemented and is currently only stubs.
 	*/
-	class ILVectorArray2n : public ILElement<ILVectorArray2n>
+	class ILVectorArray2n : public ILElement<ILVectorArray2n,BigBinaryInteger,BigBinaryVector>
 	{
 	public:
+
+		typedef ILDCRTParams Params;
 
 		// CONSTRUCTORS
 
@@ -94,7 +96,7 @@ namespace lbcrypto {
 		*@param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*@param initializeElementToZero
 		*/
-		ILVectorArray2n(const shared_ptr<ElemParams> params, Format format = EVALUATION, bool initializeElementToZero = false);
+		ILVectorArray2n(const shared_ptr<ILDCRTParams> params, Format format = EVALUATION, bool initializeElementToZero = false);
 
 		/**
 		* Constructor based on discrete Gaussian generator. 
@@ -103,7 +105,7 @@ namespace lbcrypto {
 		* @param params parameter set required for ILVectorArray2n. 
 		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
-		ILVectorArray2n(const DiscreteGaussianGenerator &dgg, const shared_ptr<ElemParams> params, Format format = EVALUATION);
+		ILVectorArray2n(const DiscreteGaussianGenerator &dgg, const shared_ptr<ILDCRTParams> params, Format format = EVALUATION);
 
 		/**
 		* Constructor based on binary Gaussian generator. This is not implemented. Will throw a logic_error.
@@ -112,7 +114,7 @@ namespace lbcrypto {
 		* @param params parameter set required for ILVectorArray2n.
 		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
-		ILVectorArray2n(const BinaryUniformGenerator &bug, const shared_ptr<ElemParams> params, Format format = EVALUATION) {
+		ILVectorArray2n(const BinaryUniformGenerator &bug, const shared_ptr<ILDCRTParams> params, Format format = EVALUATION) {
 			throw std::logic_error("Cannot use BinaryUniformGenerator with ILVectorArray2n; not implemented");
 		}
 
@@ -123,7 +125,7 @@ namespace lbcrypto {
 		* @param params parameter set required for ILVectorArray2n.
 		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
-		ILVectorArray2n(const TernaryUniformGenerator &tug, const shared_ptr<ElemParams> params, Format format = EVALUATION) {
+		ILVectorArray2n(const TernaryUniformGenerator &tug, const shared_ptr<ILDCRTParams> params, Format format = EVALUATION) {
 			throw std::logic_error("Cannot use TernaryUniformGenerator with ILVectorArray2n; not implemented");
 		}
 
@@ -134,7 +136,7 @@ namespace lbcrypto {
 		* @param params the input params.
 		* @param &format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
-		ILVectorArray2n(const DiscreteUniformGenerator &dug, const shared_ptr<ElemParams> params, Format format = EVALUATION);
+		ILVectorArray2n(const DiscreteUniformGenerator &dug, const shared_ptr<ILDCRTParams> params, Format format = EVALUATION);
 
 		/**
 		* Construct using a single ILVector2n. The ILVector2n is copied into every tower. Each tower will be reduced to it's corresponding modulus  via GetModuli(at tower index). The format is derived from the passed in ILVector2n. 

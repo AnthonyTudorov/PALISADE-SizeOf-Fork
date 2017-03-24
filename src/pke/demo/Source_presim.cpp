@@ -135,12 +135,6 @@ void EncryptionSchemeSimulation(usint count){
 	// Create crypto context
 	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(2,m,data[i].modulus,data[i].rootOfUnity,relWindow,stdDev);
 
-	//Precomputations for FTT
-	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
-
-	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), ilParams);
-
 	//prepare the plaintext
 	BytePlaintextEncoding plaintext;
 	ifstream txt("n_sample.txt");
@@ -203,10 +197,6 @@ void EncryptionSchemeSimulation(usint count){
 
 	//}
 	ptextFile.close();
-
-	ChineseRemainderTransformFTT::GetInstance().Destroy();
-	NumberTheoreticTransform::GetInstance().Destroy();
-
 }
 
 
@@ -283,12 +273,6 @@ void PRESimulation(usint count, usint dataset){
 	int stdDev = 4;
 
 	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(2,m,data[i].modulus,data[i].rootOfUnity,data[i].relinWindow,stdDev, depth);
-
-	// Precomputations for FTT
-	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
-
-	// Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), std::static_pointer_cast<ILParams>(cc.GetCryptoParameters()->GetElementParams()));
 
 	// prepare the plaintext
 	BytePlaintextEncoding plaintext;
@@ -520,10 +504,6 @@ void PRESimulation(usint count, usint dataset){
 	ILVector2n::DestroyPreComputedSamples();
 
 	ptextFile.close();
-
-	ChineseRemainderTransformFTT::GetInstance().Destroy();
-	NumberTheoreticTransform::GetInstance().Destroy();
-
 }
 
 // double currentDateTime()

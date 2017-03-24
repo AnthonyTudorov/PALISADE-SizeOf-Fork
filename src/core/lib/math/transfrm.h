@@ -64,6 +64,7 @@ class Transform
 /**
  * @brief Generic linear transform class.
  */
+template<typename IntType, typename VecType>
 class LinearTransform : public Transform
 {
 public:
@@ -75,7 +76,7 @@ public:
 	 * @param CycloOrder is the cyclotomic order.
 	 * @return is the output result of the transform.	  	  
 	 */
-	virtual BigBinaryVector ForwardTransform(const BigBinaryVector& element, const BigBinaryInteger& rootOfUnity, const usint CycloOrder) = 0;
+	virtual VecType ForwardTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder) = 0;
 
 	/**
 	 * Virtual inverse transform.
@@ -85,13 +86,14 @@ public:
 	 * @param CycloOrder is the cyclotomic order.
 	 * @return is the output result of the inverse transform.	  	  
 	 */
-	virtual BigBinaryVector InverseTransform(const BigBinaryVector& element, const BigBinaryInteger& rootOfUnity, const usint CycloOrder) = 0;
-	//static BigBinaryVector& ZeroPadd(const BigBinaryVector&,usint);
+	virtual VecType InverseTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder) = 0;
+	//static VecType& ZeroPadd(const VecType&,usint);
 };
 
 /**
  * @brief Number Theoretic Transform implemetation 
  */
+template<typename IntType, typename VecType>
 class NumberTheoreticTransform 
 {
 public:
@@ -110,7 +112,7 @@ public:
 	 * @param cycloOrder is the cyclotomic order.
 	 * @return is the output result of the transform.	  	  
 	 */
-	BigBinaryVector ForwardTransformIterative(const BigBinaryVector& element, const BigBinaryVector& rootOfUnityTable,const usint cycloOrder) ;
+	VecType ForwardTransformIterative(const VecType& element, const VecType& rootOfUnityTable,const usint cycloOrder) ;
 
 	/**
 	 * Inverse transform.
@@ -120,14 +122,14 @@ public:
 	 * @param cycloOrder is the cyclotomic order.
 	 * @return is the output result of the transform.	  	  
 	 */
-	BigBinaryVector InverseTransformIterative(const BigBinaryVector& element,const BigBinaryVector& rootOfUnityInverseTable,const usint cycloOrder) ;
+	VecType InverseTransformIterative(const VecType& element,const VecType& rootOfUnityInverseTable,const usint cycloOrder) ;
 
 	/**
 	 * Set the ring element.
 	 *
 	 * @param &element is the element to set.	  	  
 	 */
-	void SetElement(const BigBinaryVector &element);
+	void SetElement(const VecType &element);
 
 	/**
 	 * Destructor.	 
@@ -139,13 +141,14 @@ private:
 	~NumberTheoreticTransform(){}
 	NumberTheoreticTransform(const NumberTheoreticTransform&): m_element(0) {}
 //	NumberTheoreticTransform& operator=(NumberTheoreticTransform const&) {}
-	const BigBinaryVector *m_element;
+	const VecType *m_element;
 };
 
 /**
  * @brief Chinese Remainder Transform implemetation.  This is a refined, higher performance implementation.
  */
-class ChineseRemainderTransform : public LinearTransform
+template<typename IntType, typename VecType>
+class ChineseRemainderTransform : public LinearTransform<IntType,VecType>
 {
 public:
 	/**
@@ -163,7 +166,7 @@ public:
 	 * @param CycloOrder is the cyclotomic order.
 	 * @return is the output result of the transform.	  	  
 	 */
-	BigBinaryVector ForwardTransform(const BigBinaryVector& element, const BigBinaryInteger& rootOfUnity, const usint CycloOrder) ;
+	VecType ForwardTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder) ;
 
 	/**
 	 * Virtual inverse transform.
@@ -173,7 +176,7 @@ public:
 	 * @param CycloOrder is the cyclotomic order.
 	 * @return is the output result of the inverse transform.	  	  
 	 */
-	BigBinaryVector InverseTransform(const BigBinaryVector& element, const BigBinaryInteger& rootOfUnity, const usint CycloOrder) ;
+	VecType InverseTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder) ;
 
 	/**
 	 * Destructor.	 
@@ -181,8 +184,8 @@ public:
 	void Destroy();
 private:
 	static ChineseRemainderTransform *m_onlyInstance;
-	static BigBinaryVector *m_rootOfUnityTable;
-	static BigBinaryVector *m_rootOfUnityInverseTable;
+	static VecType *m_rootOfUnityTable;
+	static VecType *m_rootOfUnityInverseTable;
 	ChineseRemainderTransform(){}
 	~ChineseRemainderTransform(){}
 	ChineseRemainderTransform(const ChineseRemainderTransform&){}
@@ -192,7 +195,8 @@ private:
 /**
  * @brief Golden Chinese Remainder Transform FFT implemetation.
  */
-class ChineseRemainderTransformFTT : public LinearTransform
+template<typename IntType, typename VecType>
+class ChineseRemainderTransformFTT : public LinearTransform<IntType,VecType>
 {
 public:
 	/**
@@ -200,7 +204,13 @@ public:
 	 *
 	 * @return is this object.	  	  
 	 */
-	static ChineseRemainderTransformFTT& GetInstance();
+	static ChineseRemainderTransformFTT& GetInstance() {
+		if (m_onlyInstance == NULL) {
+			m_onlyInstance = new ChineseRemainderTransformFTT<IntType,VecType>();
+		}
+
+		return *m_onlyInstance;
+	}
 
 	/**
 	 * Virtual forward transform.
@@ -210,7 +220,7 @@ public:
 	 * @param CycloOrder is the cyclotomic order.
 	 * @return is the output result of the transform.	  	  
 	 */
-	BigBinaryVector ForwardTransform(const BigBinaryVector& element, const BigBinaryInteger& rootOfUnity, const usint CycloOrder) ;
+	VecType ForwardTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder) ;
 
 	/**
 	 * Virtual inverse transform.
@@ -220,7 +230,7 @@ public:
 	 * @param CycloOrder is the cyclotomic order.
 	 * @return is the output result of the inverse transform.	  	  
 	 */
-	BigBinaryVector InverseTransform(const BigBinaryVector& element, const BigBinaryInteger& rootOfUnity, const usint CycloOrder) ;
+	VecType InverseTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder) ;
 
 	/**
 	* Precomputation of root of unity tables.
@@ -229,7 +239,7 @@ public:
 	* @param CycloOrder is the cyclotomic order.
 	* @param modulus is the modulus
 	*/
-	void PreCompute(const BigBinaryInteger& rootOfUnity, const usint CycloOrder, const BigBinaryInteger &modulus);
+	void PreCompute(const IntType& rootOfUnity, const usint CycloOrder, const IntType &modulus);
 
 	/**
 	* Precomputation of root of unity tables.
@@ -238,7 +248,7 @@ public:
 	* @param CycloOrder is the cyclotomic order.
 	* @param &moduliiChain is the modulus
 	*/
-	void PreCompute(std::vector<BigBinaryInteger> &rootOfUnity, const usint CycloOrder, std::vector<BigBinaryInteger> &moduliiChain);
+	void PreCompute(std::vector<IntType> &rootOfUnity, const usint CycloOrder, std::vector<IntType> &moduliiChain);
 	/**
 	 * Destructor.	 
 	 */
@@ -246,17 +256,17 @@ public:
 	
 private:
 	static ChineseRemainderTransformFTT *m_onlyInstance;
-	static std::map<BigBinaryInteger,BigBinaryVector > m_rootOfUnityTableByModulus;
-	static std::map<BigBinaryInteger,BigBinaryVector> m_rootOfUnityInverseTableByModulus;
-	//static BigBinaryVector *m_rootOfUnityTable;
+	static std::map<IntType,VecType> m_rootOfUnityTableByModulus;
+	static std::map<IntType,VecType> m_rootOfUnityInverseTableByModulus;
+	//static VecType *m_rootOfUnityTable;
 	
-	//static BigBinaryVector *m_rootOfUnityInverseTable;
-	//static BigBinaryVector *m_phiTable;
-	//static BigBinaryVector *m_phiInverseTable;
+	//static VecType *m_rootOfUnityInverseTable;
+	//static VecType *m_phiTable;
+	//static VecType *m_phiInverseTable;
 	ChineseRemainderTransformFTT(){}
 	~ChineseRemainderTransformFTT(){}
-	ChineseRemainderTransformFTT(const ChineseRemainderTransform&){}
-	ChineseRemainderTransformFTT& operator=(ChineseRemainderTransform const&){};
+	ChineseRemainderTransformFTT(const ChineseRemainderTransformFTT<IntType, VecType>&) {}
+	//ChineseRemainderTransformFTT& operator=(ChineseRemainderTransformFTT<IntType,VecType> const&){};
 };
 
 /**
@@ -296,9 +306,17 @@ public:
 	* @return is the output result of the inverse transform.
 	*/
 	std::vector<std::complex<double>> InverseTransform(std::vector<std::complex<double>> A);
-private:
-};
 
+	void Destroy();
+	void PreComputeTable(uint32_t s);
+	static DiscreteFourierTransform& GetInstance();
+
+private:
+	static DiscreteFourierTransform* m_onlyInstance;
+	static std::complex<double>* rootOfUnityTable;
+	uint32_t size;
+};
+	
 
 } // namespace lbcrypto ends
 

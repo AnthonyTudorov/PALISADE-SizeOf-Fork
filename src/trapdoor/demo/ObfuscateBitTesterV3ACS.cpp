@@ -42,8 +42,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 //using namespace std;
 using namespace lbcrypto;
 
-double CONOBF_run_ACS(TimeVar t1, LWEConjunctionObfuscationAlgorithmV3<ILVector2n> algorithm, ObfuscatedLWEConjunctionPatternV3<ILVector2n> obfuscatedPattern, std::string inputStr, bool expectedResult, int evalNum, bool *errorflag); //defined later
-double CONOBF_run(TimeVar t1, LWEConjunctionObfuscationAlgorithmV3<ILVector2n> algorithm, ObfuscatedLWEConjunctionPatternV3<ILVector2n> obfuscatedPattern, std::string inputStr, bool expectedResult, int evalNum, bool *errorflag); //defined later
+double CONOBF_run_ACS(TimeVar t1, LWEConjunctionObfuscationAlgorithm<ILVector2n> algorithm, ObfuscatedLWEConjunctionPattern<ILVector2n> obfuscatedPattern, std::string inputStr, bool expectedResult, int evalNum, bool *errorflag); //defined later
+double CONOBF_run(TimeVar t1, LWEConjunctionObfuscationAlgorithm<ILVector2n> algorithm, ObfuscatedLWEConjunctionPattern<ILVector2n> obfuscatedPattern, std::string inputStr, bool expectedResult, int evalNum, bool *errorflag); //defined later
 bool CONJOBF(bool dbg_flag, int n_evals, int n, bool use_ACS); //defined later
 
 
@@ -120,7 +120,7 @@ int main(int argc, char* argv[]){
 
 }
 //////////////////////////////////////////////////////////////////////
-double CONOBF_run_ACS(TimeVar t, LWEConjunctionObfuscationAlgorithmV3<ILVector2n> algorithm, ObfuscatedLWEConjunctionPatternV3<ILVector2n> obfuscatedPattern, std::string inputStr, bool expectedResult, int evalNum, bool *errorflag, bool dbg_flag){
+double CONOBF_run_ACS(TimeVar t, LWEConjunctionObfuscationAlgorithm<ILVector2n> algorithm, ObfuscatedLWEConjunctionPattern<ILVector2n> obfuscatedPattern, std::string inputStr, bool expectedResult, int evalNum, bool *errorflag, bool dbg_flag){
 	double timeEval(0.0), runTime(0.0);
 	bool result = false;
 
@@ -147,7 +147,7 @@ double CONOBF_run_ACS(TimeVar t, LWEConjunctionObfuscationAlgorithmV3<ILVector2n
 }
 
 //////////////////////////////////////////////////////////////////////
-double CONOBF_run(TimeVar t, LWEConjunctionObfuscationAlgorithmV3<ILVector2n> algorithm, ObfuscatedLWEConjunctionPatternV3<ILVector2n> obfuscatedPattern, std::string inputStr, bool expectedResult, int evalNum, bool *errorflag, bool dbg_flag){
+double CONOBF_run(TimeVar t, LWEConjunctionObfuscationAlgorithm<ILVector2n> algorithm, ObfuscatedLWEConjunctionPattern<ILVector2n> obfuscatedPattern, std::string inputStr, bool expectedResult, int evalNum, bool *errorflag, bool dbg_flag){
 	double timeEval(0.0), runTime(0.0);
 	bool result = false;
 
@@ -201,12 +201,12 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n, bool use_ACS) {
 	std::string inputPattern = "1?10";
 	ClearLWEConjunctionPattern<ILVector2n> clearPattern(inputPattern);
 
-	ObfuscatedLWEConjunctionPatternV3<ILVector2n> obfuscatedPattern;
+	ObfuscatedLWEConjunctionPattern<ILVector2n> obfuscatedPattern;
 	obfuscatedPattern.SetChunkSize(chunkSize);
 	obfuscatedPattern.SetLength(clearPattern.GetLength());
 	obfuscatedPattern.SetRootHermiteFactor(1.006);
 
-	LWEConjunctionObfuscationAlgorithmV3<ILVector2n> algorithm;
+	LWEConjunctionObfuscationAlgorithm<ILVector2n> algorithm;
 
 	//Variables for timing
 	double timeDGGSetup(0.0), timeKeyGen(0.0), timeObf(0.0), timeEval1(0.0), 
@@ -241,7 +241,8 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n, bool use_ACS) {
 	//This code is run only when performing execution time measurements
 
 	//Precomputations for FTT
-	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
+	ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(rootOfUnity, m, modulus);
+	DiscreteFourierTransform::GetInstance().PreComputeTable(m);
 
 	//Precomputations for DGG
 	TIC(t1);
@@ -370,6 +371,7 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n, bool use_ACS) {
 	}
 
 	ILVector2n::DestroyPreComputedSamples();
+	DiscreteFourierTransform::GetInstance().Destroy();
 
 	return (errorflag);
 }

@@ -21,7 +21,7 @@ namespace lbcrypto {
 		*@param initializeElementToZero flag for initializing values to zero
 		*/
 		Field2n(int size, Format f = EVALUATION, bool initializeElementToZero = false)
-			:std::vector<std::complex<double>>(size, initializeElementToZero ? 0 : -DBL_MAX) {
+			:std::vector<std::complex<double>>(size, initializeElementToZero ? 0 : -std::numeric_limits<double>::max()) {
 			this->format = f;
 		}
 

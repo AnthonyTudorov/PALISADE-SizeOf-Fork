@@ -77,39 +77,19 @@ public:
 	* @param sttdev distribution parameter used in sampling noise polynomials of the trapdoor
 	* @return the trapdoor pair including the public key (matrix of rings) and trapdoor itself
 	*/
-	static inline std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> TrapdoorGen(shared_ptr<ILParams> params, int stddev);
+	static inline std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> TrapdoorGen(shared_ptr<typename ILVector2n::Params> params, int stddev);
 
-	/**
-	* Wrapper for TrapdoorGen(ILParams params, int stddev) - currently supports only ILVector2n, support for other rings will be added later
-	*
-	* @param params ring element parameters
-	* @param sttdev distribution parameter used in sampling noise polynomials of the trapdoor
-	* @return the trapdoor pair including the public key (matrix of rings) and trapdoor itself
-	*/
-	static inline std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> TrapdoorGen(const shared_ptr<ElemParams> params, int stddev)
-	{
-		shared_ptr<ILParams> ip = std::dynamic_pointer_cast<ILParams>(params);
-		return TrapdoorGen(ip, stddev);
-	}
-
-	/**
-	* Gaussian sampling introduced in https://eprint.iacr.org/2011/501.pdf and described 
-	* in a simple manner in https://eprint.iacr.org/2013/297.pdf
-	*
-	* @param n ring dimension
-	* @param k matrix sample dimension; k = logq + 2
-	* @param &A public key of the trapdoor pair
-	* @param &T trapdoor itself
-	* @param &SigmaP Cholesky decomposition matrix for the trapdoor
-	* @param &u syndrome vector where gaussian that Gaussian sampling is centered around
-	* @param sigma noise distriubution parameter
-	* @param &dgg discrete Gaussian generator for integers
-	* @return the sampled vector (matrix)
-	*/
-	static inline RingMat GaussSamp(size_t n, size_t k, const RingMat& A, const RLWETrapdoorPair<ILVector2n>& T, 
-
-			const Matrix<LargeFloat> &SigmaP, const ILVector2n &u,
-			double sigma, DiscreteGaussianGenerator &dgg); 
+//	/**
+//	* Wrapper for TrapdoorGen(ILParams params, int stddev) - currently supports only ILVector2n, support for other rings will be added later
+//	*
+//	* @param params ring element parameters
+//	* @param sttdev distribution parameter used in sampling noise polynomials of the trapdoor
+//	* @return the trapdoor pair including the public key (matrix of rings) and trapdoor itself
+//	*/
+//	static inline std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> TrapdoorGen(const shared_ptr<typename ILVector2n::Params> params, int stddev)
+//	{
+//		return TrapdoorGen(params, stddev);
+//	}
 
 	/**
 	* Gaussian sampling introduced - UCSD version
@@ -125,37 +105,9 @@ public:
 	* @param &dggLargeSigma discrete Gaussian generator for perturbation vector sampling
 	* @return the sampled vector (matrix)
 	*/
-	static inline RingMat GaussSampV3(size_t n, size_t k, const RingMat& A, 
+	static inline RingMat GaussSamp(size_t n, size_t k, const RingMat& A, 
 		const RLWETrapdoorPair<ILVector2n>& T, const ILVector2n &u,
 		double sigma, DiscreteGaussianGenerator &dgg, DiscreteGaussianGenerator &dggLargeSigma);
-
-	/**
-	* Generation of perturbation matrix based on Cholesky decomposition 
-	* see Section 3.2 of https://eprint.iacr.org/2013/297.pdf for details
-	*
-	* @param n ring dimension
-	* @param k matrix sample dimension; k = logq + 2
-	* @param &A public key of the trapdoor pair
-	* @param &T trapdoor itself
-	* @param s parameter s needed for Cholesky decomposition to succeed; see https://eprint.iacr.org/2011/501.pdf for more details
-	* @param *sigmaSqrt Choleskry decomposition matrix - output of the function
-	*/
-	static inline void PerturbationMatrixGen(size_t n, size_t k, const RingMat& A, 
-			const RLWETrapdoorPair<ILVector2n>& T, double s, Matrix<LargeFloat> *sigmaSqrt); 
-
-	/**
-	* Alternate method for generation of perturbation matrix based on Cholesky decomposition
-	* see Section 3.2 of https://eprint.iacr.org/2013/297.pdf for base implementation, Section 4.4 for improvements
-	*
-	* @param n ring dimension
-	* @param k matrix sample dimension; k = logq + 2
-	* @param &A public key of the trapdoor pair
-	* @param &T trapdoor itself
-	* @param s parameter s needed for Cholesky decomposition to succeed; see https://eprint.iacr.org/2011/501.pdf for more details
-	* @param *sigmaSqrt Choleskry decomposition matrix - output of the function
-	*/
-	static inline void PerturbationMatrixGenAlt(size_t n,size_t k, const RingMat& A,
-		const RLWETrapdoorPair<ILVector2n>& T, double s, Matrix<LargeFloat> *sigmaSqrt);
 
 	/**
 	* New method for perturbation generation based by the new paper

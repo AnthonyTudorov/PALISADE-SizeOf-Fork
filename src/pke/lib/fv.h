@@ -87,7 +87,7 @@ namespace lbcrypto {
 			 * @param bigRootOfUnity root of unity for bigModulus
 			 * @param depth depth which is set to 1.
 			 */
-			LPCryptoParametersFV(shared_ptr<ElemParams> params,
+			LPCryptoParametersFV(shared_ptr<typename Element::Params> params,
 				const BigBinaryInteger &plaintextModulus, 
 				float distributionParameter, 
 				float assuranceMeasure, 

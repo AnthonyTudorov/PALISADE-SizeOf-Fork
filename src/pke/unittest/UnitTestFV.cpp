@@ -102,12 +102,6 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 
-	//Precomputations for FTT
-	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
-
-	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
-
 	// Initialize the public key containers.
 	LPKeyPair<ILVector2n> kp;
 

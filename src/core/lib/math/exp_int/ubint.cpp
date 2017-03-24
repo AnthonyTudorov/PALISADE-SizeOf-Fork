@@ -2092,6 +2092,12 @@ return result;
 #endif
   }
 
+  template<typename limb_t>
+  void  ubint<limb_t>::ModBarrettInPlace(const ubint& modulus, const ubint& mu) {
+	  *this %= modulus;
+	  return;
+  }
+
 
   //Extended Euclid algorithm used to find the multiplicative inverse
   template<typename limb_t>

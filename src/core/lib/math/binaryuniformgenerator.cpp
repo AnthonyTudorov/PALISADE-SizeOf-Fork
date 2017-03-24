@@ -3,14 +3,17 @@
 
 namespace lbcrypto {
 
-std::bernoulli_distribution BinaryUniformGenerator::m_distribution = std::bernoulli_distribution(0.5);
+template<typename IntType, typename VecType>
+std::bernoulli_distribution BinaryUniformGeneratorImpl<IntType,VecType>::m_distribution = std::bernoulli_distribution(0.5);
 
-BigBinaryInteger BinaryUniformGenerator::GenerateInteger () const {
-	return (m_distribution(GetPRNG()) ? BigBinaryInteger(BigBinaryInteger::ONE) : BigBinaryInteger(BigBinaryInteger::ZERO));
+template<typename IntType, typename VecType>
+IntType BinaryUniformGeneratorImpl<IntType,VecType>::GenerateInteger () const {
+	return (m_distribution(GetPRNG()) ? IntType(IntType::ONE) : IntType(IntType::ZERO));
 }
 
-BigBinaryVector BinaryUniformGenerator::GenerateVector (const usint size, const BigBinaryInteger &modulus) const {
-	BigBinaryVector v(size);
+template<typename IntType, typename VecType>
+VecType BinaryUniformGeneratorImpl<IntType,VecType>::GenerateVector (const usint size, const IntType &modulus) const {
+	VecType v(size);
 	v.SetModulus(modulus);
 
 	for (usint i = 0; i < size; i++) {
@@ -20,7 +23,8 @@ BigBinaryVector BinaryUniformGenerator::GenerateVector (const usint size, const 
 }
 
 
-BinaryUniformGenerator::~BinaryUniformGenerator(){
+template<typename IntType, typename VecType>
+BinaryUniformGeneratorImpl<IntType,VecType>::~BinaryUniformGeneratorImpl(){
 	// defied since there is a virtual member
 
 }

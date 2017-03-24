@@ -65,7 +65,7 @@ void BM_keygen(benchmark::State& state) { // benchmark
 		cc.Enable(PRE);
 
 		try {
-		ChineseRemainderTransformFTT::GetInstance().PreCompute(cc.GetElementParams()->GetRootOfUnity(),
+		ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(cc.GetElementParams()->GetRootOfUnity(),
 				cc.GetElementParams()->GetCyclotomicOrder(),
 				cc.GetElementParams()->GetModulus());
 		} catch( ... ) {}
@@ -107,7 +107,7 @@ void BM_encrypt(benchmark::State& state) { // benchmark
 		cc.Enable(PRE);
 
 		try {
-		ChineseRemainderTransformFTT::GetInstance().PreCompute(cc.GetElementParams()->GetRootOfUnity(),
+		ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(cc.GetElementParams()->GetRootOfUnity(),
 				cc.GetElementParams()->GetCyclotomicOrder(),
 				cc.GetElementParams()->GetModulus());
 		} catch( ... ) {}
@@ -168,7 +168,7 @@ void BM_decrypt(benchmark::State& state) { // benchmark
 		cc.Enable(PRE);
 
 		try {
-		ChineseRemainderTransformFTT::GetInstance().PreCompute(cc.GetElementParams()->GetRootOfUnity(),
+		ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(cc.GetElementParams()->GetRootOfUnity(),
 				cc.GetElementParams()->GetCyclotomicOrder(),
 				cc.GetElementParams()->GetModulus());
 		} catch( ... ) {}
@@ -230,7 +230,7 @@ void BM_rekeygen(benchmark::State& state) { // benchmark
 		cc.Enable(PRE);
 
 		try {
-		ChineseRemainderTransformFTT::GetInstance().PreCompute(cc.GetElementParams()->GetRootOfUnity(),
+		ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(cc.GetElementParams()->GetRootOfUnity(),
 				cc.GetElementParams()->GetCyclotomicOrder(),
 				cc.GetElementParams()->GetModulus());
 		} catch( ... ) {}
@@ -294,7 +294,7 @@ void BM_reencrypt(benchmark::State& state) { // benchmark
 		cc.Enable(PRE);
 
 		try {
-		ChineseRemainderTransformFTT::GetInstance().PreCompute(cc.GetElementParams()->GetRootOfUnity(),
+		ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(cc.GetElementParams()->GetRootOfUnity(),
 				cc.GetElementParams()->GetCyclotomicOrder(),
 				cc.GetElementParams()->GetModulus());
 		} catch( ... ) {}
@@ -364,7 +364,7 @@ static void BM_SOURCE(benchmark::State& state) {
 	  NTRUPRE(state.range_x());
 
 	  //std::cin.get();
-	  ChineseRemainderTransformFTT::GetInstance().Destroy();
+	  ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().Destroy();
 	  NumberTheoreticTransform::GetInstance().Destroy();
 	}
 
@@ -437,7 +437,7 @@ void NTRUPRE(int input) {
 
 	//This code is run only when performing execution time measurements
 	//Precomputations for FTT
-	ChineseRemainderTransformFTT::GetInstance().PreCompute(BigBinaryInteger(rootOfUnity), m, BigBinaryInteger(modulus));
+	ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(BigBinaryInteger(rootOfUnity), m, BigBinaryInteger(modulus));
 
 	//Precomputations for DGG
 	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());

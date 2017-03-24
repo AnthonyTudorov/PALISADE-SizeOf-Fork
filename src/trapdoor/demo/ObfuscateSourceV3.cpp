@@ -61,12 +61,12 @@ void Run() {
 	std::string inputPattern = "1?10?1";
 	ClearLWEConjunctionPattern<ILVector2n> clearPattern(inputPattern);
 
-	ObfuscatedLWEConjunctionPatternV3<ILVector2n> obfuscatedPattern;
+	ObfuscatedLWEConjunctionPattern<ILVector2n> obfuscatedPattern;
 	obfuscatedPattern.SetChunkSize(chunkSize);
 	obfuscatedPattern.SetLength(clearPattern.GetLength());
 	obfuscatedPattern.SetRootHermiteFactor(1.006);
 
-	LWEConjunctionObfuscationAlgorithmV3<ILVector2n> algorithm;
+	LWEConjunctionObfuscationAlgorithm<ILVector2n> algorithm;
 
 	double stdDev = SIGMA;
 
@@ -105,7 +105,8 @@ void Run() {
 	//This code is run only when performing execution time measurements
 
 	//Precomputations for FTT
-	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
+	ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(rootOfUnity, m, modulus);
+	DiscreteFourierTransform::GetInstance().PreComputeTable(m);
 
 	//Precomputations for DGG
 	ILVector2n::PreComputeDggSamples(dgg, ilParams);
@@ -197,6 +198,7 @@ void Run() {
 	std::cout << " \nObfuscated pattern evaluation of : " << inputStr3 << " is " << result << "." <<std::endl;
 	//system("pause");
 
+	DiscreteFourierTransform::GetInstance().Destroy();
 }
 
 

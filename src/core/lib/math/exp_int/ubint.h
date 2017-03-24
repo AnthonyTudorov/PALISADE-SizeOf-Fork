@@ -694,6 +694,17 @@ namespace exp_int{
     */
     ubint ModBarrett(const ubint& modulus, const ubint& mu) const;
 
+	/**
+	* returns the modulus with respect to the input value. In-place version.
+	* Implements generalized Barrett modular reduction algorithm. Uses one precomputed value of mu.
+	* Deprecated mu is ignored, calls Mod()
+	*
+	* @param modulus is the modulus to perform.
+	* @param mu is the Barrett value.
+	*/
+	void ModBarrettInPlace(const ubint& modulus, const ubint& mu);
+
+
     /**
     * returns the modulus with respect to the input value.
 	* Implements generalized Barrett modular reduction algorithm. Uses an array of precomputed values \mu.

@@ -92,7 +92,7 @@ BytePlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVec
 		usint exp = mod, Rem = 0;
 		for (usint j = 0; j<p; j++) {
 			Rem = Num%exp;
-			temp.SetValAtIndex(actualPosP + j, UintToBigBinaryInteger((Rem / (exp / mod))));
+			temp.SetValAtIndex(actualPosP + j, BigBinaryInteger((Rem / (exp / mod))));
 			Num -= Rem;
 			exp *= mod;
 		}
@@ -104,7 +104,7 @@ BytePlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVec
 		usint exp = mod, Rem = 0;
 		for (usint j = 0; j<p; j++) {
 			Rem = Num%exp;
-			temp.SetValAtIndex(actualPos + j, UintToBigBinaryInteger((Rem / (exp / mod))));
+			temp.SetValAtIndex(actualPos + j, BigBinaryInteger((Rem / (exp / mod))));
 			Num -= Rem;
 			exp *= mod;
 		}

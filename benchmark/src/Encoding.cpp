@@ -106,7 +106,7 @@ void BM_encoding_Int(benchmark::State& state) { // benchmark
 		plaintextInt.Encode(ptm, &pt, 0, chunkSize);
 	}
 
-	//	ChineseRemainderTransformFTT::GetInstance().Destroy();
+	//	ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().Destroy();
 	//	NumberTheoreticTransform::GetInstance().Destroy();
 	//	ILVector2n::DestroyPreComputedSamples();
 }

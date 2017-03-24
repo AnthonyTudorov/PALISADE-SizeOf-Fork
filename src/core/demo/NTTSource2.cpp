@@ -3,10 +3,6 @@
 
 #define PROFILE //need to define in order to turn on timing
 
-//#define TEST3
-
-
-
 #include <iostream>
 #include <fstream>
 #include "utils/inttypes.h"
@@ -19,8 +15,6 @@
 #include "lattice/ildcrtparams.h"
 #include "lattice/ilelement.h"
 //#include/crypto/lwecrypt.h"
-#include "obfuscation/lweconjunctionobfuscate.h"
-#include "obfuscation/lweconjunctionobfuscate.cpp"
 #include "obfuscation/obfuscatelp.h"
 #endif
 #include "time.h"
@@ -101,7 +95,7 @@ void test_NTT (const usint level, const usint nloop) {
   double time2br, time2bf;
   double time3br, time3bf;
 
-  cout<<"testing NTT backend set to "<<MATHBACKEND;
+  cout<<"testing NTT backend "<<MATHBACKEND;
   if (BigBinaryIntegerBitLength >0)
     cout<<" BITLENGTH "<< BigBinaryIntegerBitLength;
   cout <<endl;
@@ -115,7 +109,7 @@ void test_NTT (const usint level, const usint nloop) {
   usint m = 2048;
   cout << "m=" << m << endl;
 
-  BigBinaryInteger rootOfUnity1(RootOfUnity(m, q1));
+  BigBinaryInteger rootOfUnity1(RootOfUnity<BigBinaryInteger>(m, q1));
   cout << "q1 = " << q1 << endl;
   cout << "rootOfUnity1 = " << rootOfUnity1 << endl;
 
@@ -146,7 +140,7 @@ void test_NTT (const usint level, const usint nloop) {
   //repeat for q2;
   BigBinaryInteger q2 ("4503599627446273");   //test case 2 32 > x> 64 bits
 
-  BigBinaryInteger rootOfUnity2(RootOfUnity(m, q2));
+  BigBinaryInteger rootOfUnity2(RootOfUnity<BigBinaryInteger>(m, q2));
   cout << "q2 = " << q2 << endl;
   cout << "rootOfUnity2 = " << rootOfUnity2 << endl;
 
@@ -191,13 +185,11 @@ void test_NTT (const usint level, const usint nloop) {
 
   //Precomputations for FTT
   TIC(t_setup);
-  ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity1, m, q1);
-  cout<<"CRT 1 setup time "<<TOC_US(t_setup)<<" usec"<<endl;
-  TIC(t_setup);
-  ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity2, m, q2);
+  ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(rootOfUnity1, m, q1);
+  ChineseRemainderTransformFTT:<BigBinaryInteger,BigBinaryVector>:GetInstance().PreCompute(rootOfUnity2, m, q2);
   cout<<"CRT 2 setup time "<<TOC_US(t_setup)<<" usec"<<endl;
   TIC(t_setup);
-  ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity3, m, q3);
+  ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(rootOfUnity3, m, q3);
   cout<<"CRT 3 setup time "<<TOC_US(t_setup)<<" usec"<<endl;
 
   time1af = 0.0;
@@ -228,72 +220,72 @@ void test_NTT (const usint level, const usint nloop) {
     
     //forward transforms
     if (level>0) {
-      TIC(t1);
-      x1a.SwitchFormat();
-      time1af += TOC_US(t1);
+    TIC(t1);
+    x1a.SwitchFormat();
+    time1af += TOC_US(t1);
 
-      TIC(t1);
-      x1b.SwitchFormat();
-      time1bf += TOC_US(t1);
+    TIC(t1);
+    x1b.SwitchFormat();
+    time1bf += TOC_US(t1);
     }
     if (level>1) {
-      TIC(t1);
-      x2a.SwitchFormat();
-      time2af += TOC_US(t1);
+    TIC(t1);
+    x2a.SwitchFormat();
+    time2af += TOC_US(t1);
 
-      TIC(t1);
-      x2b.SwitchFormat();
-      time2bf += TOC_US(t1);
+    TIC(t1);
+    x2b.SwitchFormat();
+    time2bf += TOC_US(t1);
     }
     if (level>2) {
-      TIC(t1);
-      x3a.SwitchFormat();
-      time3af += TOC_US(t1);
+    TIC(t1);
+    x3a.SwitchFormat();
+    time3af += TOC_US(t1);
 
-      TIC(t1);
-      x3b.SwitchFormat();
-      time3bf += TOC_US(t1);
+    TIC(t1);
+    x3b.SwitchFormat();
+    time3bf += TOC_US(t1);
     }
     //reverse transforms
     if (level>0) {
-      TIC(t1);
-      x1a.SwitchFormat();
-      time1ar += TOC_US(t1);
+    TIC(t1);
+    x1a.SwitchFormat();
+    time1ar += TOC_US(t1);
 
-      TIC(t1);
-      x1b.SwitchFormat();
-      time1br += TOC_US(t1);
+    TIC(t1);
+    x1b.SwitchFormat();
+    time1br += TOC_US(t1);
     }
     if (level>1) {
-      TIC(t1);
-      x2a.SwitchFormat();
-      time2ar += TOC_US(t1);
+    TIC(t1);
+    x2a.SwitchFormat();
+    time2ar += TOC_US(t1);
 
-      TIC(t1);
-      x2b.SwitchFormat();
-      time2br += TOC_US(t1);
+    TIC(t1);
+    x2b.SwitchFormat();
+    time2br += TOC_US(t1);
     }
     if (level>2) {
 
-      TIC(t1);
-      x3a.SwitchFormat();
-      time3ar += TOC_US(t1);
+    TIC(t1);
+    x3a.SwitchFormat();
+    time3ar += TOC_US(t1);
 
-      TIC(t1);
-      x3b.SwitchFormat();
-      time3br += TOC_US(t1);
+    TIC(t1);
+    x3b.SwitchFormat();
+    time3br += TOC_US(t1);
     }
     if (level>0) {
-      failed |= clonetest(x1a, x1aClone, "x1a");
-      failed |= clonetest(x1b, x1bClone, "x1b");
+    failed |= clonetest(x1a, x1aClone, "x1a");
+    failed |= clonetest(x1b, x1bClone, "x1b");
     }
     if (level>1) {
-      failed |= clonetest(x2a, x2aClone, "x2a");
-      failed |= clonetest(x2b, x2bClone, "x2b");
+    failed |= clonetest(x2a, x2aClone, "x2a");
+    failed |= clonetest(x2b, x2bClone, "x2b");
     }
     if (level>2) {
-      failed |= clonetest(x3a, x3aClone, "x3a");
-      failed |= clonetest(x3b, x3bClone, "x3b");
+    failed |= clonetest(x3a, x3aClone, "x3a");
+    failed |= clonetest(x3b, x3bClone, "x3b");
     }
 
   }
@@ -319,14 +311,14 @@ void test_NTT (const usint level, const usint nloop) {
     
     cout << nloop << " loops"<<endl;
     if (level >0) {
-      cout << "t1af: "  << "\t" << time1af << " us"<< endl;
-      cout << "t1bf: " << "\t" << time1bf << " us"<< endl;
+    cout << "t1af: "  << "\t" << time1af << " us"<< endl;
+    cout << "t1bf: " << "\t" << time1bf << " us"<< endl;
       cout << "t1ar: " << "\t" << time1ar << " us"<< endl;
       cout << "t1br: " << "\t" << time1br << " us"<< endl;
     }
     if (level >1) {
-      cout << "t2af: " << "\t" << time2af << " us"<< endl;
-      cout << "t2bf: " << "\t" << time2bf << " us"<< endl;
+    cout << "t2af: " << "\t" << time2af << " us"<< endl;
+    cout << "t2bf: " << "\t" << time2bf << " us"<< endl;
       cout << "t2ar: " << "\t" << time2ar << " us"<< endl;
       cout << "t2br: " << "\t" << time2br << " us"<< endl;
     }

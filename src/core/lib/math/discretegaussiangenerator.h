@@ -41,27 +41,32 @@
 
 #include "backend.h"
 #include "distributiongenerator.h"
-#include "largefloat.h"
 
 namespace lbcrypto {
+
+template<typename IntType, typename VecType>
+class DiscreteGaussianGeneratorImpl;
+
+typedef DiscreteGaussianGeneratorImpl<BigBinaryInteger,BigBinaryVector> DiscreteGaussianGenerator;
 
 /**
 * @brief The class for Discrete Gaussion Distribution generator.
 */
-class DiscreteGaussianGenerator : DistributionGenerator {
+template<typename IntType, typename VecType>
+class DiscreteGaussianGeneratorImpl : DistributionGenerator {
 
 public:
 	/**
 	* Default constructor.
 	*/
-	DiscreteGaussianGenerator();
+	DiscreteGaussianGeneratorImpl();
 
 	/**
 	* @brief         Basic constructor for specifying distribution parameter and modulus.
 	* @param modulus The modulus to use to generate discrete values.
 	* @param std     The standard deviation for this Gaussian Distribution.
 	*/
-	DiscreteGaussianGenerator (float std);
+	DiscreteGaussianGeneratorImpl (float std);
 
 	/**
 	* @brief Initializes the generator.
@@ -99,7 +104,7 @@ public:
 	* @brief  Returns a generated integer. Uses Peikert's inversion method.
 	* @return A random value within this Discrete Gaussian Distribution.
 	*/
-	BigBinaryInteger GenerateInteger (const BigBinaryInteger &modulus) const;
+	IntType GenerateInteger (const IntType &modulus) const;
 
 	/**
 	* @brief           Generates a vector of random values within this Discrete Gaussian Distribution. Uses Peikert's inversion method.
@@ -108,7 +113,7 @@ public:
 	* @param  modulus  modulus of the polynomial ring.
 	* @return          The vector of values within this Discrete Gaussian Distribution.
 	*/
-	BigBinaryVector GenerateVector (usint size, const BigBinaryInteger &modulus) const;
+	VecType GenerateVector (usint size, const IntType &modulus) const;
 
 	/**
 	* @brief  Returns a generated integer. Uses rejection method.
@@ -118,7 +123,7 @@ public:
 	* param modulus modulus
 	* @return A random value within this Discrete Gaussian Distribution.
 	*/
-	BigBinaryInteger GenerateInteger (double mean, double stddev, size_t n, const BigBinaryInteger &modulus) const;
+	IntType GenerateInteger (double mean, double stddev, size_t n, const IntType &modulus) const;
 
 	/**
 	* @brief  Returns a generated integer. Uses rejection method.
@@ -127,16 +132,7 @@ public:
 	* @param n is ring dimension
 	* @return A random value within this Discrete Gaussian Distribution.
 	*/
-	int32_t GenerateInteger (double mean, double stddev, size_t n) const;
-
-	/**
-	* @brief  Returns a generated integer. Uses rejection method. Works with large floating numbers.
-	* @param mean center of discrete Gaussian distribution.
-	* @param stddev standard deviatin of discrete Gaussian distribution.
-	* @param n is ring dimension
-	* @return A random value within this Discrete Gaussian Distribution.
-	*/
-	static int32_t GenerateInteger (const LargeFloat &mean, const LargeFloat &stddev, size_t n);
+	static int32_t GenerateInteger (double mean, double stddev, size_t n);
 
 	/**
 	* @brief  Returns a generated integer (int32_t). Uses rejection method.
@@ -155,13 +151,6 @@ public:
 	void GenerateProbMatrix(double stddev, double mean);
 
 	/**
-	* @brief Generates the probability matrix of given distribution, which is used in Knuth-Yao method (Large Float Version)
-	* @param sttdev standard deviation of Discrete Gaussian Distribution
-	* @param mean Center of the distribution
-	*/
-	void GenerateProbMatrix(const LargeFloat & stddev, const LargeFloat & mean);
-
-	/**
 	* @ brief Returns a generated integer. Uses Knuth-Yao method defined as Algorithm 1 in http://link.springer.com/chapter/10.1007%2F978-3-662-43414-7_19#page-1
 	* @ return A random value within the Discrete Gaussian Distribution
 	*/
@@ -169,7 +158,7 @@ public:
 	/**
 	* @brief Destructor
 	*/
-	~DiscreteGaussianGenerator() { if (probMatrix != nullptr) { delete[] probMatrix;} }
+	~DiscreteGaussianGeneratorImpl() { if (probMatrix != nullptr) { delete[] probMatrix;} }
 
 private:
 	usint FindInVector (const std::vector<double> &S, double search) const;
@@ -178,9 +167,10 @@ private:
 		return pow(M_E, -pow(x - mean, 2)/(2. * sigma * sigma));
 	}
 
-	static inline LargeFloat UnnormalizedGaussianPDF(const LargeFloat &mean, const LargeFloat &sigma, int32_t x) {
-		return pow(M_E, -pow(x - mean, 2)/(2. * sigma * sigma));
+	static double UnnormalizedGaussianPDFOptimized(const double &mean, const double &sigmaFactor, int32_t x) {
+		return pow(M_E, sigmaFactor*(x - mean)*(x - mean));
 	}
+
 
 	// Gyana to add precomputation methods and data members
 	// all parameters are set as int because it is assumed that they are used for generating "small" polynomials only

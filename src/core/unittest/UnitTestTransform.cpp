@@ -59,28 +59,26 @@ class UnitTestTransform : public ::testing::Test {
 // TEST CASE TO TEST POLYNOMIAL MULTIPLICATION USING CHINESE REMAINDER THEOREM
 
 TEST(UTTransform, CRT_polynomial_multiplication){
-  bool dbg_flag = false;
+
 	BigBinaryInteger primeModulus("113"); //65537
 	usint cycloOrder = 8;
 	usint n = cycloOrder / 2;
-	DEBUG("1");
+
 	BigBinaryInteger primitiveRootOfUnity = lbcrypto::RootOfUnity(cycloOrder, primeModulus);
-	DEBUG("2");
+
 	BigBinaryVector a(4, primeModulus);
 	a.SetValAtIndex(0, "1");
 	a.SetValAtIndex(1, "2");
 	a.SetValAtIndex(2, "4");
 	a.SetValAtIndex(3, "1");
-	DEBUG("3");
 	BigBinaryVector b(a);
-	DEBUG("4");
-	BigBinaryVector A = ChineseRemainderTransformFTT::GetInstance().ForwardTransform(a, primitiveRootOfUnity, cycloOrder);
-	DEBUG("5");
-	BigBinaryVector B = ChineseRemainderTransformFTT::GetInstance().ForwardTransform(b, primitiveRootOfUnity, cycloOrder);
-	DEBUG("6");
+
+	BigBinaryVector A = ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().ForwardTransform(a, primitiveRootOfUnity, cycloOrder);
+	BigBinaryVector B = ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().ForwardTransform(b, primitiveRootOfUnity, cycloOrder);
+
 	BigBinaryVector AB = A*B;
-	DEBUG("7");
-	BigBinaryVector InverseFFTAB = ChineseRemainderTransformFTT::GetInstance().InverseTransform(AB, primitiveRootOfUnity, cycloOrder);
+
+	BigBinaryVector InverseFFTAB = ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().InverseTransform(AB, primitiveRootOfUnity, cycloOrder);
 
 	BigBinaryVector expectedResult(4, primeModulus);
 	expectedResult.SetValAtIndex(0, "94");

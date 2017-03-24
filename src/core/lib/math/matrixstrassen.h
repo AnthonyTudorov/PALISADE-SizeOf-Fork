@@ -620,7 +620,7 @@ namespace lbcrypto {
 	* @param &input the matrix for which the Cholesky decomposition is to be computed
 	* @return the resulting matrix of floating-point numbers
     */ 
-    inline MatrixStrassen<LargeFloat> Cholesky(const MatrixStrassen<int32_t> &input);
+    inline MatrixStrassen<double> Cholesky(const MatrixStrassen<int32_t> &input);
 
 	/**
     * Convert a matrix of integers from BigBinaryInteger to int32_t

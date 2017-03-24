@@ -186,7 +186,14 @@ public:
 	 * @param index is the index to set a value at.
 	 * @param value is the int value to set at the index.
 	 */
-	void SetValAtIndex(usint index, const IntegerType& value);
+	void SetValAtIndex(usint index, const IntegerType& value) {
+		if(!this->IndexCheck(index)) {
+			throw std::logic_error("Invalid index input to SetValAtIndex for index "
+					+ std::to_string(index) + " for vector of length " + std::to_string(m_length));
+		}
+
+		this->m_data[index] = value;
+	}
 
 	/**
 	 * Sets a value at an index.
@@ -194,7 +201,14 @@ public:
 	 * @param index is the index to set a value at.
 	 * @param str is the string representation of the value to set at the index.
 	 */
-	void SetValAtIndex(usint index, const std::string& str);
+	void SetValAtIndex(usint index, const std::string& str){
+		if(!this->IndexCheck(index)){
+			throw std::logic_error("Invalid index input to SetValAtIndex for index "
+					+ std::to_string(index) + " for vector of length " + std::to_string(m_length));
+		}
+
+		this->m_data[index].SetValue(str);
+	}
 
 	/**
 	 * Gets a value stored at an index.
@@ -202,7 +216,14 @@ public:
 	 * @param index is the index from the vector entries.
 	 * @return value at the index.
 	 */
-	const IntegerType& GetValAtIndex(usint index) const;
+	const IntegerType& GetValAtIndex(usint index) const {
+		if(!this->IndexCheck(index)){
+			throw std::logic_error("Invalid index input to GetValAtIndex for index "
+					+ std::to_string(index) + " for vector of length " + std::to_string(m_length));
+		}
+		return this->m_data[index];
+	}
+
 
 	/**
 	* operators to get a value at an index.
@@ -389,14 +410,6 @@ public:
 	//matrix product - used in FFT and IFFT; new_vector = A*this_vector
 
 	/**
-	 * Matrix by Vector modulus multiplication.  If this vector is x and the matrix is A, this method returns A*x.
-	 *
-	 * @param &a is the matrix to left-multiply with.
-	 * @return is the result of the modulus multiplication operation.
-	 */
-	//BigBinaryVector ModMatrixMul(const BigBinaryMatrix &a) const;
-
-	/**
 	 * Returns a vector of digit at a specific index for all entries for a given number base.
 	 *
 	 * @param index is the index to return the digit from in all entries.
@@ -406,7 +419,6 @@ public:
 	BigBinaryVector GetDigitAtIndexForBase(usint index, usint base) const;
 
 
-	//JSON FACILITY
 	/**
 	* Serialize the object into a Serialized
 	* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
@@ -428,8 +440,13 @@ private:
 	usint m_length;
 	//m_modulus stores the internal modulus of the vector.
 	IntegerType m_modulus;
+
 	//function to check if the index is a valid index.
-	bool IndexCheck(usint) const;
+	bool IndexCheck(usint length) const {
+		if(length>this->m_length)
+			return false;
+		return true;
+	}
 };
 
 //BINARY OPERATORS

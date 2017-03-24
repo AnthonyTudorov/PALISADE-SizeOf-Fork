@@ -114,8 +114,6 @@ int main() {
 //	BenchMarking_DCRT_Eval_Mult();
 
 	std::cin.get();
-	ChineseRemainderTransformFTT::GetInstance().Destroy();
-	NumberTheoreticTransform::GetInstance().Destroy();
 
 	return 0;
 }
@@ -980,7 +978,7 @@ void BenchMarking_DCRT_Eval_Mult() {
 //			//This code is run only when performing execution time measurements
 //
 //			//Precomputations for FTT
-//			ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
+//			ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(rootOfUnity, m, q);
 //
 //			//Precomputations for DGG
 //			ILVector2n::PreComputeDggSamples(dgg, params);
@@ -1089,7 +1087,7 @@ void BenchMarking_DCRT_Eval_Mult() {
 //			//This code is run only when performing execution time measurements
 //
 //			//Precomputations for FTT
-//			ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, q);
+//			ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(rootOfUnity, m, q);
 //
 //			//Precomputations for DGG
 //			ILVector2n::PreComputeDggSamples(dgg, params);

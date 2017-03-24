@@ -145,12 +145,12 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 	std::string inputPattern = "1?10";
 	ClearLWEConjunctionPattern<ILVector2n> clearPattern(inputPattern);
 
-	ObfuscatedLWEConjunctionPatternV3<ILVector2n> obfuscatedPattern;
+	ObfuscatedLWEConjunctionPattern<ILVector2n> obfuscatedPattern;
 	obfuscatedPattern.SetChunkSize(chunkSize);
 	obfuscatedPattern.SetLength(clearPattern.GetLength());
 	obfuscatedPattern.SetRootHermiteFactor(1.006);
 
-	LWEConjunctionObfuscationAlgorithmV3<ILVector2n> algorithm;
+	LWEConjunctionObfuscationAlgorithm<ILVector2n> algorithm;
 
 	//Variables for timing
 	double timeDGGSetup(0.0), timeKeyGen(0.0), timeObf(0.0), timeEval1(0.0),
@@ -185,7 +185,8 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 	//This code is run only when performing execution time measurements
 
 	//Precomputations for FTT
-	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
+	ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(rootOfUnity, m, modulus);
+	DiscreteFourierTransform::GetInstance().PreComputeTable(m);
 
 	//Precomputations for DGG
 	TIC(t1);
@@ -302,6 +303,7 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 	}
 
 	ILVector2n::DestroyPreComputedSamples();
+	DiscreteFourierTransform::GetInstance().Destroy();
 
 	return (errorflag);
 }

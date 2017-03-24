@@ -21,7 +21,7 @@ using namespace lbcrypto;
 int main(int argc, char **argv) {
 
   ::testing::InitGoogleTest(&argc, argv);
-  //::testing::GTEST_FLAG(filter) = "UTMatrix*";
+  ::testing::GTEST_FLAG(filter) = "-*_VERY_LONG";
   RUN_ALL_TESTS();
 
   std::cout << "Press any key to continue..." << std::endl;

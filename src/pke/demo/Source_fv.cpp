@@ -78,9 +78,6 @@ int main() {
 	std::cout << "Execution Completed. Press any key to continue." << std::endl;
 
 	std::cin.get();
-	ChineseRemainderTransformFTT::GetInstance().Destroy();
-	NumberTheoreticTransform::GetInstance().Destroy();
-
 	return 0;
 }
 

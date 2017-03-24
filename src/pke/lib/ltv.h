@@ -69,7 +69,7 @@ public:
 	 * @param depth depth which is set to 1.
 	 */
 	LPCryptoParametersLTV(
-			shared_ptr<ElemParams> params,
+			shared_ptr<typename Element::Params> params,
 			const BigBinaryInteger &plaintextModulus,
 			float distributionParameter,
 			float assuranceMeasure,

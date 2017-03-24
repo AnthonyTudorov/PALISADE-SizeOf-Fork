@@ -758,8 +758,8 @@ TEST(UTILVector2n, ensures_mod_operation_during_operations_on_two_ILVector2ns){
   usint order = 8; 
   usint nBits = 7;
   
-  BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus(order, nBits);
-  BigBinaryInteger primitiveRootOfUnity = lbcrypto::RootOfUnity(order, primeModulus);
+  BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus<BigBinaryInteger>(order, nBits);
+  BigBinaryInteger primitiveRootOfUnity = lbcrypto::RootOfUnity<BigBinaryInteger>(order, primeModulus);
 
   shared_ptr<ILParams> ilparams( new ILParams(order, primeModulus, primitiveRootOfUnity) );
 

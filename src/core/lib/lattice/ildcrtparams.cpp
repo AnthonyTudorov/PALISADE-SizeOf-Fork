@@ -3,6 +3,8 @@
 
 namespace lbcrypto {
 
+//FIXME
+#ifdef OUT
 // utility to serialize and deserialize vectors of BBIs
 static void
 SerializeBBIVector(const std::string& vectorName, const std::vector<BigBinaryInteger>& inVector, Serialized* serObj)
@@ -54,11 +56,14 @@ DeSerializeBBIVector(const std::string& vectorName, const SerialItem& serObj, st
 
 	return true;
 }
-
+#endif
 
 bool
 ILDCRTParams::Serialize(Serialized* serObj) const
 {
+#ifndef OUT
+	return false;
+#else
 	if( !serObj->IsObject() )
 		return false;
 
@@ -71,12 +76,16 @@ ILDCRTParams::Serialize(Serialized* serObj) const
 	serObj->AddMember("ILDCRTParams", ser, serObj->GetAllocator());
 
 	return true;
+#endif
 }
 
 //JSON FACILITY
 bool
 ILDCRTParams::Deserialize(const Serialized& serObj)
 {
+#ifndef OUT
+	return false;
+#else
 	Serialized::ConstMemberIterator rIt = serObj.FindMember("ILDCRTParams");
 	if( rIt == serObj.MemberEnd() ) return false;
 
@@ -93,6 +102,7 @@ ILDCRTParams::Deserialize(const Serialized& serObj)
 
 	return DeSerializeBBIVector("Moduli", arr, &this->m_moduli) &&
 			DeSerializeBBIVector("RootsOfUnity", arr, &this->m_rootsOfUnity);
+#endif
 }
 
 

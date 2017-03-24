@@ -75,13 +75,6 @@ TEST(UTLTVBATCHING, ILVector2n_Encrypt_Decrypt) {
 
 	cc.Enable(ENCRYPTION);
 
-	//Precomputations for FTT
-	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
-
-	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
-
-
 	//Regular LWE-NTRU encryption algorithm
 
 	////////////////////////////////////////////////////////////
@@ -113,8 +106,6 @@ TEST(UTLTVBATCHING, ILVector2n_Encrypt_Decrypt) {
 	}
 
 	EXPECT_EQ(intArrayNew, vectorOfInts1);
-
-	
 }
 
 
@@ -155,13 +146,6 @@ TEST(UTLTVBATCHING, ILVector2n_EVALADD) {
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 
-	//Precomputations for FTT
-	ChineseRemainderTransformFTT::GetInstance().PreCompute(rootOfUnity, m, modulus);
-
-	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
-
-
 	//Regular LWE-NTRU encryption algorithm
 
 	////////////////////////////////////////////////////////////
@@ -199,7 +183,6 @@ TEST(UTLTVBATCHING, ILVector2n_EVALADD) {
 	}
 
 	EXPECT_EQ(intArrayNew, vectorOfIntsExpected);
-
 }
 
 TEST(UTLTVBATCHING, ILVector2n_EVALMULT) {

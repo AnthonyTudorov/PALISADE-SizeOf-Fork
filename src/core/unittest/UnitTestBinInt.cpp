@@ -309,7 +309,7 @@ TEST(UTBinInt,basic_math){
     BigBinaryInteger a("1967");
     BigBinaryInteger b("654");
 
-    calculatedResult = a.Times(b);
+    calculatedResult = a*b;
     expectedResult = 1286418;
 
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
@@ -1033,4 +1033,13 @@ TEST(UTBinInt,method_ConvertToDouble) {
   double xInDouble = 104037585658683683;
 
   EXPECT_EQ(xInDouble, x.ConvertToDouble());
+}
+
+TEST(UTBinInt,method_getDigitAtIndex) {
+	BigBinaryInteger x(0xa);
+
+	EXPECT_EQ(x.GetDigitAtIndexForBase(1,2), 0);
+	EXPECT_EQ(x.GetDigitAtIndexForBase(2,2), 1);
+	EXPECT_EQ(x.GetDigitAtIndexForBase(3,2), 0);
+	EXPECT_EQ(x.GetDigitAtIndexForBase(4,2), 1);
 }

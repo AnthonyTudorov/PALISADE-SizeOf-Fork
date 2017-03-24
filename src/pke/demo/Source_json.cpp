@@ -372,13 +372,6 @@ main(int argc, char *argv[])
 
 	NTRUPRE(ctx, input, doJson);
 
-	try {
-		ChineseRemainderTransformFTT::GetInstance().Destroy();
-		NumberTheoreticTransform::GetInstance().Destroy();
-	} catch (...) {
-		// ok if this fails...
-	}
-
 	return 0;
 }
 
