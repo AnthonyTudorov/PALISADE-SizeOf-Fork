@@ -506,9 +506,9 @@ namespace exp_int {
 				ans.m_data[i] = ans.m_data[i].Mod(modulus);
 			}
 		}
-		ans.m_modulus = modulus;
-		ans.m_modulus_state = INITIALIZED;
-		return ans;
+		//ans.m_modulus = modulus;
+		//ans.m_modulus_state = INITIALIZED;
+		return std::move(ans);
 
 	}
 
@@ -545,7 +545,7 @@ namespace exp_int {
       }
       
     }
-    return ans;
+    return std::move(ans);
   }
 
   // method to add scalar to vector element at index i
@@ -558,7 +558,7 @@ namespace exp_int {
     }
     mubintvec ans(*this);
     ans.m_data[i] = ans.m_data[i].ModAdd(b, this->m_modulus);
-    return ans;
+    return std::move(ans);
   }
 
   // method to add scalar to vector
@@ -568,14 +568,14 @@ namespace exp_int {
     for(usint i=0;i<this->m_data.size();i++){
       ans.m_data[i] = ans.m_data[i].ModAdd(b, ans.m_modulus);
     }
-    return ans;
+    return std::move(ans);
     }
     
     template<class ubint_el_t>
   mubintvec<ubint_el_t> mubintvec<ubint_el_t>::Add(const ubint_el_t &b) const{ //overload of ModAdd
     mubintvec ans(*this);
     ans = ans.ModAdd(b);
-    return ans;
+    return std::move(ans);
   }
 
 
@@ -596,7 +596,7 @@ namespace exp_int {
     for(usint i=0;i<this->m_data.size();i++){
       ans.m_data[i] = ans.m_data[i].ModSub(b, ans.m_modulus);
     }
-    return ans;
+    return std::move(ans);
   }
 
   // method to subtract scalar from vector
@@ -604,7 +604,7 @@ namespace exp_int {
   mubintvec<ubint_el_t> mubintvec<ubint_el_t>::Sub(const ubint_el_t &b) const{ //overload of Modsub()
     mubintvec ans(*this);
     ans = ans.ModSub(b);
-    return ans;
+    return std::move(ans);
   }
 
   // -=  operator to subtract scalar from vector
@@ -624,7 +624,7 @@ namespace exp_int {
     for(usint i=0;i<this->m_data.size();i++){
       ans.m_data[i] = ans.m_data[i].ModMul(b, ans.m_modulus);
     }
-    return ans;
+    return std::move(ans);
 #else
 
     mubintvec ans(*this);
@@ -666,7 +666,7 @@ namespace exp_int {
   mubintvec<ubint_el_t> mubintvec<ubint_el_t>::Mul(const ubint_el_t &b) const{ //overload of ModMul()
     mubintvec ans(*this);
     ans = ans.ModMul(b);
-    return ans;
+    return std::move(ans);
   }
 
 
@@ -686,7 +686,7 @@ template<class ubint_el_t>
     for(usint i=0;i<this->m_data.size();i++){
       ans.m_data[i] = ans.m_data[i].ModExp(b, ans.m_modulus);
     }
-    return ans;
+    return std::move(ans);
   }
 
 
@@ -700,7 +700,7 @@ template<class ubint_el_t>
       //ans.m_data[i].PrintValueInDec();
       ans.m_data[i] = ans.m_data[i].ModInverse(this->m_modulus);
     }
-    return ans;
+    return std::move(ans);
 
 }
 
@@ -710,7 +710,7 @@ template<class ubint_el_t>
   mubintvec<ubint_el_t> mubintvec<ubint_el_t>::Exp(const ubint_el_t &b) const{ //overload of ModExp()
     mubintvec ans(*this);
     ans = ans.ModExp(b);
-    return ans;
+    return std::move(ans);
   }
 
   // vector elementwise add
@@ -726,7 +726,7 @@ template<class ubint_el_t>
       for(usint i=0;i<ans.m_data.size();i++){
 	ans.m_data[i] = ans.m_data[i].ModAdd(b.m_data[i], ans.m_modulus);
       }
-      return ans;
+      return std::move(ans);
     }
   }
 
@@ -734,7 +734,7 @@ template<class ubint_el_t>
   mubintvec<ubint_el_t> mubintvec<ubint_el_t>::Add(const mubintvec &b) const{ //overload of ModAdd
     mubintvec ans(*this);
     ans = ans.ModAdd(b);
-    return ans;
+    return std::move(ans);
   }
 
   // vector elementwise subtract
@@ -751,7 +751,7 @@ template<class ubint_el_t>
       for(usint i=0;i<ans.m_data.size();i++){
 	ans.m_data[i] = ans.m_data[i].ModSub(b.m_data[i],ans.m_modulus);
       }
-      return ans;
+      return std::move(ans);
     }
   }
 
@@ -759,7 +759,7 @@ template<class ubint_el_t>
   mubintvec<ubint_el_t> mubintvec<ubint_el_t>::Sub(const mubintvec &b) const{ //overload of ModSub
     mubintvec ans(*this);
     ans = ans.ModSub(b);
-    return ans;
+    return std::move(ans);
   }
 
 
@@ -776,7 +776,7 @@ template<class ubint_el_t>
       for(usint i=0;i<ans.m_data.size();i++){
         ans.m_data[i] = ans.m_data[i].ModMul(b.m_data[i],ans.m_modulus);
       }
-      return ans;
+      return std::move(ans);
     }
 
 #else // bartett way
@@ -818,7 +818,7 @@ template<class ubint_el_t>
   mubintvec<ubint_el_t> mubintvec<ubint_el_t>::Mul(const mubintvec &b) const{ //overload of ModMul
     mubintvec ans(*this);
     ans = ans.ModMul(b);
-    return ans;
+    return std::move(ans);
   }
 
   template<class ubint_el_t>
@@ -834,7 +834,7 @@ template<class ubint_el_t>
 		  else
 			  ans.m_data[i] = ans.m_data[i].MultiplyAndRound(p, q).Mod(this->m_modulus);
 	  }
-	  return ans;
+	    return std::move(ans);
   }
 
   template<class ubint_el_t>
@@ -843,7 +843,7 @@ template<class ubint_el_t>
 	  for (usint i = 0; i<this->m_data.size(); i++) {
 		  ans.m_data[i] = ans.m_data[i].DivideAndRound(q);
 	  }
-	  return ans;
+	    return std::move(ans);
   }
 
   // assignment operators
@@ -892,7 +892,7 @@ template<class ubint_el_t>
       ans.m_data[i] = ubint_el_t(ans.m_data[i].GetDigitAtIndexForBase(index,base));
     }
 
-    return ans;
+    return std::move(ans);
   }
 
 

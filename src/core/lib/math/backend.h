@@ -1,7 +1,7 @@
 /**
  * @file
  * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
- *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>
+ *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>, Jerry Ryan <gwryan@njit.edu>
  * @version 00_03
  *
  * @section LICENSE
@@ -39,16 +39,30 @@
  
 /*! Define the library being used via the MATHBACKEND macro. */
 
-// 2 -side by side comparison of main math backend supporting
-// arbitrary bitwidths; no memory pool is used; can grow up to RAM
-// limitation: currently supports uint32_t; uint32_t is recommended for 32-
-// and 64-bit and new backend that has dynamic allocation and support
-// uint32_t and uint64_t on linux
+// Selecting a math backend means defining which underlying implementation
+// is the default BigBinaryInteger and BigBinaryVector
 
-// 3- new dynamicly allocated backend and support uint32_t and uint64_t on linux
-// 4- new dynamicly allocated backend and supports  uint64_t on linux
+// It's possible (perhaps even desirable) to have multiple backends
+// available at once
 
-// 7- BBI is based on native
+// MATH BACKEND 2
+// Uses cpu_int definition as defaults
+// Also provides exp_int backend with underlying element size of 32 bits
+// 	this allows side by side comparison of cpu_int and exp_int math backend
+
+// MATH BACKEND 3
+// Uses exp_int definition with uint32_t underlying size as defaults
+// new dynamicly allocated backend and support uint32_t and uint64_t on linux
+// This backend supports arbitrary bitwidths; no memory pool is used; can grow up to RAM
+// limitation
+
+// MATH BACKEND 4
+// Uses exp_int definition with uint64_t underlying size as defaults
+
+// MATH BACKEND 7
+// uses native64 as the default
+// This backend provides a maximum size of 64 bits
+// This backend ALSO enables exp_int with uint64_t
 
 //Please UNCOMMENT the approproate line rather than changing the number on the 
 //uncommented line (and breaking the documentation of the line)
@@ -68,14 +82,20 @@
 //#define MATHBACKEND 4 
 
 // native64 native
-//#define MATHBACKEND 7	
+// #define MATHBACKEND 7	
 
-
-#if MATHBACKEND == 2
-
+// note we always want to include these
 #include "cpu_int/binint.cpp"
 #include "cpu_int/binvect.cpp"
+#include "native64/binint.h"
 #include <initializer_list>
+
+namespace native64 {
+typedef NativeInteger<uint64_t> BigBinaryInteger;
+typedef cpu_int::BigBinaryVectorImpl<NativeInteger<uint64_t>> BigBinaryVector;
+}
+
+#if MATHBACKEND == 2
 
 #define UBINT_32
 #include "exp_int/ubint.cpp" //experimental dbc unsigned big integers or ubints
@@ -103,23 +123,12 @@
 
 #if MATHBACKEND == 7
 
-#include "cpu_int/binint.cpp"
-#include "cpu_int/binvect.cpp"
-#include <initializer_list>
-
-#define UBINT_32
+#define UBINT_64
 #include "exp_int/ubint.cpp" //experimental dbc unsigned big integers or ubints
 #include "exp_int/ubintvec.cpp" //vectors of experimental ubints
 #include "exp_int/mubintvec.cpp" //rings of ubints
 
 #endif
-
-#include "native64/binint.h"
-
-namespace native64 {
-typedef NativeInteger<uint64_t> BigBinaryInteger;
-typedef cpu_int::BigBinaryVector<NativeInteger<uint64_t>> BigBinaryVector;
-}
 
 /**
  * @namespace lbcrypto
@@ -143,12 +152,12 @@ template<typename IntType, typename VecType, typename ParmType> class ILVectorIm
 	    1500 is the maximum bit width supported by BigBinaryIntegers, large enough for most use cases
 		The bitwidth can be decreased to the least value still supporting BBI multiplications for a specific application - to achieve smaller runtimes**/
 
-        #define BigBinaryIntegerBitLength 1000 //for documentation on tests
+        #define BigBinaryIntegerBitLength 1500 //for documentation on tests
 	typedef cpu_int::BigBinaryInteger<integral_dtype,BigBinaryIntegerBitLength> BigBinaryInteger;
 
 	
 	/** Define the mapping for BigBinaryVector */
-	typedef cpu_int::BigBinaryVector<BigBinaryInteger> BigBinaryVector;
+	typedef cpu_int::BigBinaryVectorImpl<BigBinaryInteger> BigBinaryVector;
 	
 	/** Define the mapping for BigBinaryMatrix */
 	//typedef cpu8bit::BigBinaryMatrix BigBinaryMatrix;
@@ -225,7 +234,7 @@ template<typename IntType, typename VecType, typename ParmType> class ILVectorIm
 	#define BigBinaryIntegerBitLength 0 // zero indicates unused
 
 	typedef native64::NativeInteger<uint64_t> BigBinaryInteger;
-	typedef cpu_int::BigBinaryVector<BigBinaryInteger> BigBinaryVector;
+	typedef cpu_int::BigBinaryVectorImpl<BigBinaryInteger> BigBinaryVector;
 
 	/** Define the mapping for ExpBigBinaryInteger (experimental) */
 	typedef exp_int::ubint<integral_dtype> ubint;
