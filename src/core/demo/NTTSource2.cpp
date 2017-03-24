@@ -186,7 +186,7 @@ void test_NTT (const usint level, const usint nloop) {
   //Precomputations for FTT
   TIC(t_setup);
   ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(rootOfUnity1, m, q1);
-  ChineseRemainderTransformFTT:<BigBinaryInteger,BigBinaryVector>:GetInstance().PreCompute(rootOfUnity2, m, q2);
+  ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(rootOfUnity2, m, q2);
   cout<<"CRT 2 setup time "<<TOC_US(t_setup)<<" usec"<<endl;
   TIC(t_setup);
   ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(rootOfUnity3, m, q3);

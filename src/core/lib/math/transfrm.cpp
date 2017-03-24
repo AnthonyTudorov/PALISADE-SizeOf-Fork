@@ -404,9 +404,9 @@ VecType ChineseRemainderTransformFTT<IntType,VecType>::InverseTransform(const Ve
 #endif
 
 #if MATHBACKEND !=6
-	VecType *rootOfUnityTable = NULL;
+	VecType *rootOfUnityITable = NULL;
 #else
-	const VecType *rootOfUnityTable = NULL;
+	const VecType *rootOfUnityITable = NULL;
 #endif
 
 	IntType rootofUnityInverse;

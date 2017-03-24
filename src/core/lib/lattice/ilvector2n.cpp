@@ -44,7 +44,6 @@ All rights reserved.
 #include <fstream>
 #include <cmath>
 
-//TODO: change NULL to nullptr throughout file
 
 namespace lbcrypto {
 
@@ -62,11 +61,11 @@ namespace lbcrypto {
 	shared_ptr<ParmType> ILVectorImpl<IntType,VecType,ParmType>::m_tugSamples_params;
 
 	template<typename IntType, typename VecType, typename ParmType>
-	ILVectorImpl<IntType,VecType,ParmType>::ILVectorImpl() : m_values(NULL), m_format(EVALUATION) {
+	ILVectorImpl<IntType,VecType,ParmType>::ILVectorImpl() : m_values(nullptr), m_format(EVALUATION) {
 	}
 
 	template<typename IntType, typename VecType, typename ParmType>
-	ILVectorImpl<IntType,VecType,ParmType>::ILVectorImpl(const shared_ptr<ParmType> params, Format format, bool initializeElementToZero) : m_values(NULL), m_format(format) {
+	ILVectorImpl<IntType,VecType,ParmType>::ILVectorImpl(const shared_ptr<ParmType> params, Format format, bool initializeElementToZero) : m_values(nullptr), m_format(format) {
 		m_params = params;
 
 		if (initializeElementToZero) {
@@ -75,7 +74,7 @@ namespace lbcrypto {
 	}
 
 	template<typename IntType, typename VecType, typename ParmType>
-	ILVectorImpl<IntType,VecType,ParmType>::ILVectorImpl(bool initializeElementToMax, const shared_ptr<ParmType> params, Format format) : m_values(NULL), m_format(format) {
+	ILVectorImpl<IntType,VecType,ParmType>::ILVectorImpl(bool initializeElementToMax, const shared_ptr<ParmType> params, Format format) : m_values(nullptr), m_format(format) {
 		m_params = params;
 
 		if(initializeElementToMax) {
@@ -119,8 +118,8 @@ namespace lbcrypto {
 		m_params = params;
 
 		usint vectorSize = params->GetCyclotomicOrder() / 2;
-		unique_ptr<VecType> sp(new VecType(dug.GenerateVector(vectorSize));
-    	m_values = std::move(sp);
+		unique_ptr<VecType> sp(new VecType(dug.GenerateVector(vectorSize)));
+		m_values = std::move(sp);
 		(*m_values).SetModulus(params->GetModulus());
 
 		m_format = COEFFICIENT;
@@ -185,7 +184,7 @@ namespace lbcrypto {
 		     DEBUG("in ctor & m_values copy nullptr ");      
 			 m_values = nullptr;
     	} else {
-      		unique_ptr<Vectype> sp(new VecType(*element.m_values)); //this is a copy
+	  unique_ptr<VecType> sp(new VecType(*element.m_values)); //this is a copy
       		m_values = std::move(sp);
       		DEBUG("in ctor & m_values now "<<*m_values);
 		}
@@ -195,7 +194,7 @@ namespace lbcrypto {
 	template<typename IntType, typename VecType, typename ParmType>
 	ILVectorImpl<IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&element)
 	 : m_params(element.m_params), 
-	   m_format(element.m_format),
+	   m_format(element.m_format)
 	   //m_values(element.m_values) //note this becomes move below
 {
    bool dbg_flag = false;
@@ -292,7 +291,7 @@ namespace lbcrypto {
 	template<typename IntType, typename VecType, typename ParmType>
 	const ILVectorImpl<IntType,VecType,ParmType>& ILVectorImpl<IntType,VecType,ParmType>::operator=(usint val) {
 		m_format = EVALUATION;
-		if (m_values == NULL){
+		if (m_values = nullptr){
 		  unique_ptr<VecType> sp(new VecType(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus()));
           m_values = std::move(sp);
         }
@@ -396,7 +395,7 @@ namespace lbcrypto {
 		//if (m_values != NULL) { //dbc no need with smart pointers
 		//	delete m_values;
 		//}
-		unique_ptr<VecType> sp(new VecType(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus());
+	  unique_ptr<VecType> sp(new VecType(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus()));
     	m_values = std::move(sp);
 	}
 
@@ -502,8 +501,8 @@ namespace lbcrypto {
 		if (!(*this->m_params == *element.m_params))
 			throw std::logic_error("operator+= called on ILVectorImpl's with different params.");
 
-		if (m_values == NULL) {
-			unique_ptr<VecType> sp(new VecType(*element.m_values);
+		if (m_values == nullptr) {
+		  unique_ptr<VecType> sp(new VecType(*element.m_values));
       		m_values = std::move(sp);
 			return *this;
 		}
@@ -517,9 +516,9 @@ namespace lbcrypto {
 	const ILVectorImpl<IntType,VecType,ParmType>& ILVectorImpl<IntType,VecType,ParmType>::operator-=(const ILVectorImpl &element) {
 		if (!(*this->m_params == *element.m_params))
 			throw std::logic_error("operator-= called on ILVectorImpl's with different params.");
-		if (m_values == NULL) {
-			unique_ptr<VecType> sp(new VecType(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus()));
-			values = std::move(sp);
+		if (m_values == nullptr) {
+		  unique_ptr<VecType> sp(new VecType(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus()));
+			m_values = std::move(sp);
       //TODO:: is this a bug? it is not the same as +=
     
 		}
@@ -536,7 +535,7 @@ namespace lbcrypto {
 		if (!(*this->m_params == *element.m_params))
 			throw std::logic_error("operator*= called on ILVectorImpl's with different params.");
 
-		if (m_values == NULL){
+		if (m_values == nullptr){
 			unique_ptr<VecType> sp(new VecType(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus()));
       		m_values = std::move(sp);
 		}
@@ -647,11 +646,11 @@ namespace lbcrypto {
 
 	template<typename IntType, typename VecType, typename ParmType>
 	void ILVectorImpl<IntType,VecType,ParmType>::PrintValues() const {
-		if (m_values != NULL) {
+		if (m_values != nullptr) {
 			std::cout << *m_values;
 			std::cout << " mod:" << m_values->GetModulus() << std::endl;
 		}
-		if (m_params.get() != NULL) {
+		if (m_params.get() != nullptr) {
 			std::cout << " rootOfUnity: " << this->GetRootOfUnity() << std::endl;
 		}
 		else {
@@ -702,7 +701,7 @@ namespace lbcrypto {
 
 	template<typename IntType, typename VecType, typename ParmType>
 	bool ILVectorImpl<IntType,VecType,ParmType>::IsEmpty() const {
-		if (m_values == NULL)
+		if (m_values == nullptr)
 			return true;
 
 		return false;

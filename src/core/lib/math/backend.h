@@ -92,6 +92,7 @@
 #include "exp_int/ubint.cpp" //experimental dbc unsigned big integers or ubints
 #include "exp_int/ubintvec.cpp" //vectors of experimental ubints
 #include "exp_int/mubintvec.cpp" //rings of ubints
+#endif
 
 #if MATHBACKEND == 5
 #include "cpu_int/binint.cpp"
