@@ -288,15 +288,6 @@ public:
 	const usint GetCyclotomicOrder() const;
 
 	/**
-	 * Get digit for a specific base.  Gets a binary polynomial from a given polynomial.  From every coefficient, it extracts the same digit.  Used in bit decomposition/relinearization operations.
-	 *
-	 * @param index is the index to get.
-	 * @param base is the base the result should be in.
-	 * @return is the result.
-	 */
-	ILVectorImpl GetDigitAtIndexForBase(usint index, usint base) const;
-
-	/**
 	 * Get the root of unity.
 	 *
 	 * @return the root of unity.

@@ -370,6 +370,9 @@ namespace lbcrypto {
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::Times(const IntType &element) const {
+		if (m_format != Format::EVALUATION)
+			throw std::logic_error("operator* for ILVectorImpl is supported only in EVALUATION format.\n");
+
 		ILVectorImpl<ModType,IntType,VecType,ParmType> tmp = CloneParametersOnly();
 		tmp.SetValues( GetValues().ModMul(element), this->m_format );
 		return std::move( tmp );
@@ -391,6 +394,9 @@ namespace lbcrypto {
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::Negate() const {
+		if (m_format != Format::EVALUATION)
+			throw std::logic_error("operator* for ILVectorImpl is supported only in EVALUATION format.\n");
+
 		ILVectorImpl<ModType,IntType,VecType,ParmType> tmp( *this );
 		*tmp.m_values = m_values->ModMul(this->m_params->GetModulus() - IntType::ONE);
 		return std::move( tmp );
@@ -414,6 +420,12 @@ namespace lbcrypto {
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::Times(const ILVectorImpl &element) const {
+		if (m_format != Format::EVALUATION || element.m_format != Format::EVALUATION)
+			throw std::logic_error("operator* for ILVectorImpl is supported only in EVALUATION format.\n");
+
+		if (!(*this->m_params == *element.m_params))
+			throw std::logic_error("operator* called on ILVectorImpl's with different params.");
+
 		ILVectorImpl<ModType,IntType,VecType,ParmType> tmp = CloneParametersOnly();
 		tmp.SetValues( GetValues().ModMul(*element.m_values), this->m_format );
 		return std::move( tmp );
@@ -644,13 +656,6 @@ namespace lbcrypto {
 		return retVal;
 	}
 
-	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::GetDigitAtIndexForBase(usint index, usint base) const {
-		ILVectorImpl tmp(*this);
-		*tmp.m_values = GetValues().GetDigitAtIndexForBase(index, base);
-		return tmp;
-	}
-
 	// Write vector x(current value of the ILVectorImpl object) as \sum\limits{ i = 0 }^{\lfloor{ \log q / base } \rfloor} {(base^i u_i)} and
 	// return the vector of{ u_0, u_1,...,u_{ \lfloor{ \log q / base } \rfloor } } \in R_base^{ \lceil{ \log q / base } \rceil };
 	// used as a subroutine in the relinearization procedure
@@ -669,6 +674,7 @@ namespace lbcrypto {
 
 		std::vector<ILVectorImpl<ModType,IntType,VecType,ParmType>> result;
 		result.reserve(nWindows);
+
 		// convert the polynomial to coefficient representation
 		ILVectorImpl<ModType,IntType,VecType,ParmType> x(*this);
 		if (x.GetFormat() == EVALUATION)
@@ -676,7 +682,7 @@ namespace lbcrypto {
 
 		for (usint i = 0; i < nWindows; ++i)
 		{
-			xDigit = x.GetDigitAtIndexForBase(i*baseBits + 1, 1 << baseBits);
+			xDigit.SetValues( x.GetValues().GetDigitAtIndexForBase(i*baseBits + 1, 1 << baseBits), x.GetFormat() );
 			// convert the polynomial back to evaluation representation
 			xDigit.SwitchFormat();
 			result.push_back(xDigit);

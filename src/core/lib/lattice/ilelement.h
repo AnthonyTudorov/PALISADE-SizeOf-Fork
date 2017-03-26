@@ -45,6 +45,8 @@ namespace lbcrypto {
  * @brief Interface for ideal lattices
  *
  * Every lattice must implement these pure virtuals in order to properly interoperate with PALISADE PKE
+ *
+ * Element is the return type for all of these virtual functions
  */
 template <typename Element, typename ModType, typename IntType, typename VecType>
 class ILElement : public Serializable
@@ -123,15 +125,6 @@ public:
 	 * @return order
 	 */
 	virtual const usint GetCyclotomicOrder() const = 0;
-
-	/**
-	 * Get digit for a specific base.  Gets a binary polynomial from a given polynomial.  From every coefficient, it extracts the same digit.  Used in bit decomposition/relinearization operations.
-	 *
-	 * @param index is the index to get.
-	 * @param base is the base the result should be in.
-	 * @return is the result.
-	 */
-	virtual Element GetDigitAtIndexForBase(usint index, usint base) const = 0;
 
 	/**
 	 * Gets the Value in the Element that is At Index and returns it

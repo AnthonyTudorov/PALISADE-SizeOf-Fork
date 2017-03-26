@@ -1,5 +1,5 @@
 /*
- * lattice-impl.cpp
+ * lvector2n-impl.cpp
  *
  *  Created on: Mar 8, 2017
  *      Author: gwryan
@@ -12,7 +12,7 @@
 #include "../math/binaryuniformgenerator.cpp"
 #include "../math/ternaryuniformgenerator.cpp"
 
-// This creates all the necessary class implementations for BigBinaryInteger
+// This creates all the necessary class implementations for ILVector2n
 
 namespace lbcrypto {
 template class DiscreteGaussianGeneratorImpl<BigBinaryInteger,BigBinaryVector>;

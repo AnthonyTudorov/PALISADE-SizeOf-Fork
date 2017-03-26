@@ -78,7 +78,8 @@ namespace lbcrypto {
 	public:
 
 		typedef ParmType Params;
-		typedef ILVectorArrayImpl<ModType,IntType,VecType,ParmType> ILVectorType;
+		typedef ILVectorArrayImpl<ModType,IntType,VecType,ParmType> ILVectorArrayType;
+		typedef ILVectorImpl<IntType,IntType,VecType,native64::ILParams> ILVectorType;
 
 		// CONSTRUCTORS
 
@@ -94,7 +95,7 @@ namespace lbcrypto {
 		*@param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*@param initializeElementToZero
 		*/
-		ILVectorArrayImpl(const shared_ptr<Params> params, Format format = EVALUATION, bool initializeElementToZero = false);
+		ILVectorArrayImpl(const shared_ptr<ParmType> params, Format format = EVALUATION, bool initializeElementToZero = false);
 
 		/**
 		* Constructor based on discrete Gaussian generator. 
@@ -103,7 +104,7 @@ namespace lbcrypto {
 		* @param params parameter set required for ILVectorArray2n. 
 		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
-		ILVectorArrayImpl(const DiscreteGaussianGeneratorImpl<IntType,VecType> &dgg, const shared_ptr<Params> params, Format format = EVALUATION);
+		ILVectorArrayImpl(const DiscreteGaussianGeneratorImpl<IntType,VecType> &dgg, const shared_ptr<ParmType> params, Format format = EVALUATION);
 
 		/**
 		* Constructor based on binary Gaussian generator. This is not implemented. Will throw a logic_error.
@@ -112,7 +113,7 @@ namespace lbcrypto {
 		* @param params parameter set required for ILVectorArray2n.
 		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
-		ILVectorArrayImpl(const BinaryUniformGeneratorImpl<IntType,VecType> &bug, const shared_ptr<Params> params, Format format = EVALUATION) {
+		ILVectorArrayImpl(const BinaryUniformGeneratorImpl<IntType,VecType> &bug, const shared_ptr<ParmType> params, Format format = EVALUATION) {
 			throw std::logic_error("Cannot use BinaryUniformGenerator with ILVectorArray2n; not implemented");
 		}
 
@@ -123,7 +124,7 @@ namespace lbcrypto {
 		* @param params parameter set required for ILVectorArray2n.
 		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
-		ILVectorArrayImpl(const TernaryUniformGeneratorImpl<IntType,VecType> &tug, const shared_ptr<Params> params, Format format = EVALUATION) {
+		ILVectorArrayImpl(const TernaryUniformGeneratorImpl<IntType,VecType> &tug, const shared_ptr<ParmType> params, Format format = EVALUATION) {
 			throw std::logic_error("Cannot use TernaryUniformGenerator with ILVectorArray2n; not implemented");
 		}
 
@@ -134,7 +135,7 @@ namespace lbcrypto {
 		* @param params the input params.
 		* @param &format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
-		ILVectorArrayImpl(const DiscreteUniformGeneratorImpl<IntType,VecType> &dug, const shared_ptr<Params> params, Format format = EVALUATION);
+		ILVectorArrayImpl(const DiscreteUniformGeneratorImpl<IntType,VecType> &dug, const shared_ptr<ParmType> params, Format format = EVALUATION);
 
 		/**
 		* Construct using a single ILVector2n. The ILVector2n is copied into every tower. Each tower will be reduced to it's corresponding modulus  via GetModuli(at tower index). The format is derived from the passed in ILVector2n. 
@@ -142,7 +143,7 @@ namespace lbcrypto {
 		* @param &element ILVector2n to build other towers from.
 		* @param params parameter set required for ILVectorArray2n.
 		*/
-		ILVectorArrayImpl(const VecType &element, const shared_ptr<Params> params);
+		ILVectorArrayImpl(const native64::ILVector2n &element, const shared_ptr<ParmType> params);
 
 		/**
 		* Construct using an tower of ILVectro2ns. The params and format for the ILVectorArray2n will be derived from the towers.
@@ -156,34 +157,34 @@ namespace lbcrypto {
 		*
 		* @param &element ILVectorArray2n to copy from
 		*/
-		ILVectorArrayImpl(const ILVectorType &element);
+		ILVectorArrayImpl(const ILVectorArrayType &element);
 
 		/**
 		* Move constructor.
 		*
 		* @param &&element ILVectorArray2n to move from
 		*/
-		ILVectorArrayImpl(const ILVectorType &&element);
+		ILVectorArrayImpl(const ILVectorArrayType &&element);
 
 		//CLONE OPERATIONS
 		/**
 		 * Clone the object by making a copy of it and returning the copy
 		 * @return new Element
 		 */
-		ILVectorType Clone() const { return std::move(ILVectorArrayImpl(*this)); }
+		ILVectorArrayType Clone() const { return std::move(ILVectorArrayImpl(*this)); }
 
 		/**
 		 * Clone the object, but have it contain nothing
 		 * @return new Element
 		 */
-		ILVectorType CloneEmpty() const { return std::move( ILVectorArrayImpl() ); }
+		ILVectorArrayType CloneEmpty() const { return std::move( ILVectorArrayImpl() ); }
 
  		/**
 		* Clone
 		*
 		* Creates a new ILVectorArray2n and clones only the params. The tower values are empty. The tower values can be filled by another process/function or initializer list.
 		*/
-		ILVectorType CloneParametersOnly() const;
+		ILVectorArrayType CloneParametersOnly() const;
 
 		/**
 		* Clone with noise
@@ -193,7 +194,7 @@ namespace lbcrypto {
 		* @param &dgg the input discrete Gaussian generator. The dgg will be the seed to populate the towers of the ILVectorArray2n with random numbers.
 		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
-		ILVectorType CloneWithNoise(const DiscreteGaussianGeneratorImpl<IntType,VecType> &dgg, Format format = EVALUATION) const;
+		ILVectorArrayType CloneWithNoise(const DiscreteGaussianGeneratorImpl<IntType,VecType> &dgg, Format format = EVALUATION) const;
 
 		/**
 		* Destructor.
@@ -259,15 +260,6 @@ namespace lbcrypto {
 		Format GetFormat() const;
 		
 		/**
-		* Get digit for a specific base.  Gets a binary polynomial from a given polynomial.  From every coefficient, it extracts the same digit.  This function only supports power of two operations. Used in bit decomposition/relinearization operations.
-		*
-		* @param index is the index to get.
-		* @param base is the base the result should be in.
-		* @return is the result.
-		*/
-		native64::ILVector2n GetDigitAtIndexForBase(usint index, usint base) const;
-
-		/**
 		* Write vector x (current value of the ILVector2n object) as \sum\limits{i=0}^{\lfloor {\log q/base} \rfloor} {(base^i u_i)} and
 		* return the vector of {u_0, u_1,...,u_{\lfloor {\log q/base} \rfloor}} \in R_base^{\lceil {\log q/base} \rceil};
 		* used as a subroutine in the relinearization procedure
@@ -275,7 +267,7 @@ namespace lbcrypto {
 		* @param baseBits is the number of bits in the base, i.e., base = 2^baseBits
 		* @result is the pointer where the base decomposition vector is stored
 		*/
-		std::vector<ILVectorType> BaseDecompose(usint baseBits) const ;
+		std::vector<ILVectorArrayType> BaseDecompose(usint baseBits) const ;
 
 		/**
 		* Generate a vector of ILVector2n's as {x, base*x, base^2*x, ..., base^{\lfloor {\log q/base} \rfloor}*x, where x is the current ILVector2n object;
@@ -285,7 +277,7 @@ namespace lbcrypto {
 		* @result is the pointer where the base decomposition vector is stored
 		* @return true if operation is successful
 		*/
-		std::vector<ILVectorType> PowersOfBase(usint baseBits) const ;
+		std::vector<ILVectorArrayType> PowersOfBase(usint baseBits) const ;
 
 
 		//VECTOR OPERATIONS
@@ -296,7 +288,7 @@ namespace lbcrypto {
 		* @param &rhs the copied ILVectorArray2n.
 		* @return the resulting ILVectorArray2n.
 		*/
-		const ILVectorType& operator=(const ILVectorType &rhs);
+		const ILVectorArrayType& operator=(const ILVectorArrayType &rhs);
 
 		/**
 		* Move Assignment Operator.
@@ -304,7 +296,7 @@ namespace lbcrypto {
 		* @param &rhs the copied ILVectorArray2n.
 		* @return the resulting ILVectorArray2n.
 		*/
-		const ILVectorType& operator=(ILVectorType &&rhs);
+		const ILVectorArrayType& operator=(ILVectorArrayType &&rhs);
 
 		/**
 		* Initalizer list
@@ -312,7 +304,7 @@ namespace lbcrypto {
 		* @param &rhs the list to initalized the ILVectorArray2n
 		* @return the resulting ILVectorArray2n.
 		*/
-		ILVectorType& operator=(std::initializer_list<sint> rhs);
+		ILVectorArrayType& operator=(std::initializer_list<sint> rhs);
 
 		/**
 		* Equal operator.
@@ -320,7 +312,7 @@ namespace lbcrypto {
 		* @param &rhs is the specified ILVectorArray2n to be compared with this ILVectorArray2n.
 		* @return true if this ILVectorArray2n represents the same values as the specified ILVectorArray2n, false otherwise
 		*/
-		bool operator==(const ILVectorType &rhs) const;
+		bool operator==(const ILVectorArrayType &rhs) const;
 
 		/**
 		* Performs an entry-wise addition over all elements of each tower with the towers of the ILVectorArray2n on the right hand side.
@@ -328,7 +320,7 @@ namespace lbcrypto {
 		* @param &rhs is the element to add with.
 		* @return is the result of the addition.
 		*/
-		const ILVectorType& operator+=(const ILVectorType &rhs);
+		const ILVectorArrayType& operator+=(const ILVectorArrayType &rhs);
 
 		/**
 		* Performs an entry-wise subtraction over all elements of each tower with the towers of the ILVectorArray2n on the right hand side.
@@ -336,7 +328,7 @@ namespace lbcrypto {
 		* @param &rhs is the element to subtract from.
 		* @return is the result of the addition.
 		*/
-		const ILVectorType& operator-=(const ILVectorType &rhs);
+		const ILVectorArrayType& operator-=(const ILVectorArrayType &rhs);
 
 		/**
 		* Permutes coefficients in a polynomial. Moves the ith index to the first one, it only supports odd indices. 
@@ -344,7 +336,7 @@ namespace lbcrypto {
 		* @param &i is the element to perform the automorphism transform with.
 		* @return is the result of the automorphism transform.
 		*/
-		ILVectorType AutomorphismTransform(const usint &i) const {return ILVectorType(*this);};
+		ILVectorArrayType AutomorphismTransform(const usint &i) const { return ILVectorArrayType(*this); }
 
 		/**
 		* Performs an addition operation and returns the result.
@@ -352,7 +344,7 @@ namespace lbcrypto {
 		* @param &element is the element to add with.
 		* @return is the result of the addition.
 		*/
-		ILVectorType Plus(const ILVectorType &element) const;
+		ILVectorArrayType Plus(const ILVectorArrayType &element) const;
 
 		/**
 		* Performs a multiplication operation and returns the result.
@@ -360,7 +352,7 @@ namespace lbcrypto {
 		* @param &element is the element to multiply with.
 		* @return is the result of the multiplication.
 		*/
-		ILVectorType Times(const ILVectorType &element) const;
+		ILVectorArrayType Times(const ILVectorArrayType &element) const;
 
 		/**
 		* Performs a subtraction operation and returns the result.
@@ -368,7 +360,7 @@ namespace lbcrypto {
 		* @param &element is the element to subtract from.
 		* @return is the result of the subtraction.
 		*/
-		ILVectorType Minus(const ILVectorType &element) const;
+		ILVectorArrayType Minus(const ILVectorArrayType &element) const;
 
 		//SCALAR OPERATIONS
 
@@ -378,7 +370,7 @@ namespace lbcrypto {
 		* @param &element is the element to add entry-wise.
 		* @return is the result of the addition operation.
 		*/
-		ILVectorType Plus(const IntType &element) const;
+		ILVectorArrayType Plus(const IntType &element) const;
 
 		/**
 		* Scalar subtraction - subtract an element to all entries.
@@ -386,7 +378,7 @@ namespace lbcrypto {
 		* @param &element is the element to subtract entry-wise.
 		* @return is the return value of the minus operation.
 		*/
-		ILVectorType Minus(const IntType &element) const;
+		ILVectorArrayType Minus(const IntType &element) const;
 
 		/**
 		* Scalar multiplication - multiply all entries.
@@ -394,7 +386,7 @@ namespace lbcrypto {
 		* @param &element is the element to multiply entry-wise.
 		* @return is the return value of the times operation.
 		*/
-		ILVectorType Times(const IntType &element) const;
+		ILVectorArrayType Times(const IntType &element) const;
 
 		/**
 		* Scalar multiplication followed by division and rounding operation - operation on all entries.
@@ -403,7 +395,7 @@ namespace lbcrypto {
 		* @param &q is the element to divide entry-wise.
 		* @return is the return value of the multiply, divide and followed by rounding operation.
 		*/
-		ILVectorType MultiplyAndRound(const IntType &p, const IntType &q) const;
+		ILVectorArrayType MultiplyAndRound(const IntType &p, const IntType &q) const;
 
 		/**
 		* Scalar division followed by rounding operation - operation on all entries.
@@ -411,16 +403,16 @@ namespace lbcrypto {
 		* @param &q is the element to divide entry-wise.
 		* @return is the return value of the divide, followed by rounding operation.
 		*/
-		ILVectorType DivideAndRound(const IntType &q) const;
+		ILVectorArrayType DivideAndRound(const IntType &q) const;
 		
 		/**
 		*Performs a negation operation and returns the result.
 		*
 		* @return is the result of the negation.
 		*/
-		ILVectorType Negate() const;
+		ILVectorArrayType Negate() const;
 
-		const ILVectorType& operator+=(const IntType &element) {
+		const ILVectorArrayType& operator+=(const IntType &element) {
 			return *this = Plus(element);
 		}
 		
@@ -430,7 +422,7 @@ namespace lbcrypto {
 		* @param &element is the element to subtract from.
 		* @return is the result of the subtraction.
 		*/
-		const ILVectorType& operator-=(const IntType &element) {
+		const ILVectorArrayType& operator-=(const IntType &element) {
 			return *this = Minus(element);
 		}
 
@@ -440,7 +432,7 @@ namespace lbcrypto {
 		* @param &element is the element to multiply by.
 		* @return is the result of the subtraction.
 		*/
-		const ILVectorType& operator*=(const IntType &element);
+		const ILVectorArrayType& operator*=(const IntType &element);
 
 		/**
 		* Performs an multiplication operation and returns the result.
@@ -448,7 +440,7 @@ namespace lbcrypto {
 		* @param &element is the element to multiply with.
 		* @return is the result of the multiplication.
 		*/
-		const ILVectorType& operator*=(const ILVectorType &element);
+		const ILVectorArrayType& operator*=(const ILVectorArrayType &element);
 
 		// multiplicative inverse operation
 		/**
@@ -456,14 +448,14 @@ namespace lbcrypto {
 		*
 		* @return is the result of the multiplicative inverse.
 		*/
-		ILVectorType MultiplicativeInverse() const;
+		ILVectorArrayType MultiplicativeInverse() const;
 
 		/**
 		* Perform a modulus by 2 operation.  Returns the least significant bit.
 		*
 		* @return is the resulting value.
 		*/
-		ILVectorType ModByTwo() const;
+		ILVectorArrayType ModByTwo() const;
 
 		/**
 		* Modulus - perform a modulus operation. Does proper mapping of [-modulus/2, modulus/2) to [0, modulus)
@@ -471,7 +463,7 @@ namespace lbcrypto {
 		* @param modulus is the modulus to use.
 		* @return is the return value of the modulus.
 		*/
-		ILVectorType SignedMod(const IntType &modulus) const;
+		ILVectorArrayType SignedMod(const IntType &modulus) const;
 
 		// OTHER FUNCTIONS AND UTILITIES 
 
@@ -539,7 +531,7 @@ namespace lbcrypto {
 		*
 		* @return the interpolated ring element embeded into ILVectorArray2n.
 		*/
-		ILVectorType CRTInterpolate() const;
+		ILVectorArrayType CRTInterpolate() const;
 
 		/**
 		* Convert from Coefficient to CRT or vice versa; calls FFT and inverse FFT.
@@ -604,20 +596,20 @@ namespace lbcrypto {
 		*/
 		bool Deserialize(const Serialized& serObj);
 
-		friend inline ILVectorType operator+(const ILVectorType &a, const ILVectorType &b) { return a.Plus(b); }
-		friend inline ILVectorType operator+(const ILVectorType &a, const IntType &b) { return a.Plus(b); }
-		friend inline ILVectorType operator+(const IntType &a, const ILVectorType &b) { return b.Plus(a); }
-		friend inline ILVectorType operator-(const ILVectorType &a, const ILVectorType &b) { return a.Minus(b); }
-		friend inline ILVectorType operator-(const ILVectorType &a, const IntType &b) { return a.Minus(b); }
-		friend inline ILVectorType operator*(const ILVectorType &a, const ILVectorType &b) { return a.Times(b); }
-		friend inline ILVectorType operator*(const ILVectorType &a, const IntType &b) { return a.Times(b); }
-		friend inline ILVectorType operator*(const IntType &a, const ILVectorType &b) { return b.Times(a); }
+		friend inline ILVectorArrayType operator+(const ILVectorArrayType &a, const ILVectorArrayType &b) { return a.Plus(b); }
+		friend inline ILVectorArrayType operator+(const ILVectorArrayType &a, const IntType &b) { return a.Plus(b); }
+		friend inline ILVectorArrayType operator+(const IntType &a, const ILVectorArrayType &b) { return b.Plus(a); }
+		friend inline ILVectorArrayType operator-(const ILVectorArrayType &a, const ILVectorArrayType &b) { return a.Minus(b); }
+		friend inline ILVectorArrayType operator-(const ILVectorArrayType &a, const IntType &b) { return a.Minus(b); }
+		friend inline ILVectorArrayType operator*(const ILVectorArrayType &a, const ILVectorArrayType &b) { return a.Times(b); }
+		friend inline ILVectorArrayType operator*(const ILVectorArrayType &a, const IntType &b) { return a.Times(b); }
+		friend inline ILVectorArrayType operator*(const IntType &a, const ILVectorArrayType &b) { return b.Times(a); }
 
 	private:
-		shared_ptr<Params> m_params;
+		shared_ptr<ParmType> m_params;
 
 		// array of vectors used for double-CRT presentation
-		std::vector<VecType> m_vectors;
+		std::vector<ILVectorType> m_vectors;
 
 		// Either Format::EVALUATION (0) or Format::COEFFICIENT (1)
 		Format m_format;
@@ -628,7 +620,7 @@ namespace lbcrypto {
 		usint m_cyclotomicOrder;
 
 		//This table stores constant interpolation values. The map maps a moduli to a each tower of the moduli's CRI factor.
-		static std::map<IntType, std::map<usint, IntType>> *m_towersize_cri_factors;
+		static std::map<ModType, std::map<usint, IntType>> *m_towersize_cri_factors;
 
 		//This variable holds the cyclotomic order that the precomputed values are set for
 		static usint m_cyclotomicOrder_precompute;
@@ -639,7 +631,7 @@ namespace lbcrypto {
 
 namespace lbcrypto {
 
-typedef ILVectorArrayImpl<BigBinaryInteger, native64::BigBinaryInteger, native64::BigBinaryVector, native64::ILParams> ILVectorArray2n;
+typedef ILVectorArrayImpl<BigBinaryInteger, native64::BigBinaryInteger, native64::BigBinaryVector, ILDCRTParams> ILVectorArray2n;
 
 }
 
