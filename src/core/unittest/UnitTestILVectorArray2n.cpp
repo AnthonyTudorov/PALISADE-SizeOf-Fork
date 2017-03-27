@@ -601,7 +601,7 @@ TEST(UTILVectorArray2n, arithmetic_operations_element) {
     BigBinaryVector bbvS0(m/2, moduli[0]);
     //DEBUG("bbvS0 Modulus:"<<moduli[0]);
 
-#if MATHBACKEND < 6
+#if MATHBACKEND != 6
     bbvS0.SetValAtIndex(0, "23462");
     bbvS0.SetValAtIndex(1, "467986");
     bbvS0.SetValAtIndex(2, "33863");

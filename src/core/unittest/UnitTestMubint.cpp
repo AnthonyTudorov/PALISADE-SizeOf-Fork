@@ -73,7 +73,7 @@ protected:
 
     //TODO: (dbc) do I need this here?
     // any calls to mubint may fail otherwise.
-#if MATHBACKEND > 4 //mubint not defined before this. 
+#if (MATHBACKEND == 5) || (MATHBACKEND ==6) //mubint not defined before this. 
     NTL::ZZ_p::init(NTL::ZZ(1));
 #endif
   }
@@ -113,8 +113,7 @@ protected:
 /*	TESTING BASIC METHODS OF mubint CLASS        */
 /************************************************/
 
-#if MATHBACKEND > 4  //mubint not defined before this. 
-
+#if (MATHBACKEND == 5) || (MATHBACKEND ==6) //mubint not defined before this. 
 TEST(UTmubint,ctor_access_eq_neq){
   //note this is the same code as the ubintvec, just to confirm it works
   //as inherited

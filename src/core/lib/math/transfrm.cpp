@@ -95,6 +95,8 @@ VecType NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(con
 	IntType mu = temp.DividedBy(element.GetModulus());
 #else
 	IntType mu(IntType::ONE);
+#endif
+#if MATHBACKEND == 6
 	IntType modulus = element.GetModulus();
 #endif
 

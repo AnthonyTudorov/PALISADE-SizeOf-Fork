@@ -311,7 +311,7 @@ public:
 	 *
 	 * @return value at index i.
 	 */
-#if MATHBACKEND !=7
+#if MATHBACKEND !=6
 	const IntType& GetValAtIndex(usint i) const;
 #else
     const IntType GetValAtIndex(usint i) const;//DBC changed from returning reference because it broke several functions otherwise. changed back for merge with master... since this is a virtual function.
@@ -329,7 +329,7 @@ public:
     }
 
     inline void SetValAtIndexWithoutMod(size_t index, int val) {
-#if MATHBACKEND <6
+#if MATHBACKEND !=6
       m_values->SetValAtIndex(index, IntType(val));
 #else
       m_values->SetValAtIndexWithoutMod(index, IntType(val));
@@ -346,7 +346,7 @@ public:
 		m_values->SetValAtIndex(index, val);
 	}
     inline void SetValAtIndexWithoutMod(size_t index, const IntType& val) {
-#if MATHBACKEND <6
+#if MATHBACKEND !=6
       m_values->SetValAtIndex(index, val);
 #else
       m_values->SetValAtIndexWithoutMod(index, val);
