@@ -54,7 +54,9 @@ std::map<IntType, VecType> ChineseRemainderTransformFTT<IntType,VecType>::m_root
 
 DiscreteFourierTransform* DiscreteFourierTransform::m_onlyInstance = 0;
 std::complex<double>* DiscreteFourierTransform::rootOfUnityTable = 0;
-
+}
+//TODO: why is this namespace split like this? 
+namespace lbcrypto {
 template<typename IntType, typename VecType>
 NumberTheoreticTransform<IntType,VecType>& NumberTheoreticTransform<IntType,VecType>::GetInstance() {
 	if (m_onlyInstance == NULL) {
@@ -331,11 +333,8 @@ VecType ChineseRemainderTransformFTT<IntType,VecType>::ForwardTransform(const Ve
 	IntType mu = temp.DividedBy(element.GetModulus());
 #endif
 
-#if MATHBACKEND !=6
-	VecType *rootOfUnityTable = NULL;
-#else
 	const VecType *rootOfUnityTable = NULL;
-#endif
+
 	// check to see if the modulus is in the table, and add it if it isn't
 #pragma omp critical
 	{
@@ -403,11 +402,7 @@ VecType ChineseRemainderTransformFTT<IntType,VecType>::InverseTransform(const Ve
 	IntType mu = temp.DividedBy(element.GetModulus());
 #endif
 
-#if MATHBACKEND !=6
-	VecType *rootOfUnityITable = NULL;
-#else
 	const VecType *rootOfUnityITable = NULL;
-#endif
 
 	IntType rootofUnityInverse;
 
@@ -608,10 +603,10 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 		for (int j = 0;j < s;j++) {
 			rootOfUnityTable[j] = std::polar(1.0, -2 * M_PI * j / s);
 		}
-}
+	}
 
 
-std::vector<std::complex<double>> DiscreteFourierTransform::FFTForwardTransform(std::vector<std::complex<double>> & A) {
+	std::vector<std::complex<double>> DiscreteFourierTransform::FFTForwardTransform(std::vector<std::complex<double>> & A) {
 		int m = A.size();
 		std::vector<std::complex<double>> B(A);
 		int levels = floor(log2(m));
@@ -627,11 +622,11 @@ std::vector<std::complex<double>> DiscreteFourierTransform::FFTForwardTransform(
 			for (int i = 0; i < m / 2; i++) {
 				cosTable[i] = cos(2 * M_PI * i / m);
 				sinTable[i] = sin(2 * M_PI * i / m);
-	}
+			}
 		}
 
 		// Bit-reversed addressing permutation
-		for (int i = 0;i<m;i++) {
+		for (int i = 0; i < m; i++) {
 			int j = ReverseBits(i,32) >> (32-levels);
 			if (j > i) {
 				double temp = B[i].real();
@@ -641,7 +636,7 @@ std::vector<std::complex<double>> DiscreteFourierTransform::FFTForwardTransform(
 				B[i].imag( B[j].imag() );
 				B[j].imag( temp );
 			}
-			}
+		}
 
 		// Cooley-Tukey decimation-in-time radix-2 FFT
 		for (int size = 2; size <= m; size *= 2) {
@@ -655,57 +650,57 @@ std::vector<std::complex<double>> DiscreteFourierTransform::FFTForwardTransform(
 					B[j + halfsize].imag( B[j].imag() - tpim );
 					B[j].real( B[j].real() + tpre );
 					B[j].imag( B[j].imag() + tpim );
-		}
-	}
+				}
+			}
 			if (size == m)  // Prevent overflow in 'size *= 2'
 				break;
 		}
 
 		return B;
-}
-
-std::vector<std::complex<double>> DiscreteFourierTransform::FFTInverseTransform(std::vector<std::complex<double>> & A) {
-
-	std::vector<std::complex<double>> result = DiscreteFourierTransform::FFTForwardTransform(A);
-	double n = result.size()/2;
-	for(int i=0;i < n;i++) {
-		result[i] = std::complex<double>(result[i].real() / n, result[i].imag() / n);
-		//result[i] =std::complex<double>(result[i].real()/(2*n), result[i].imag()/(2*n));
 	}
-	return result;
-}
-std::vector<std::complex<double>> DiscreteFourierTransform::ForwardTransform(std::vector<std::complex<double>> A) {
-	int n = A.size();
-	for (int i = 0;i < n;i++) {
-		A.push_back(0);
+
+	std::vector<std::complex<double>> DiscreteFourierTransform::FFTInverseTransform(std::vector<std::complex<double>> & A) {
+
+		std::vector<std::complex<double>> result = DiscreteFourierTransform::FFTForwardTransform(A);
+		double n = result.size() / 2;
+		for (int i = 0;i < n;i++) {
+			result[i] = std::complex<double>(result[i].real() / n, result[i].imag() / n);
+			//result[i] =std::complex<double>(result[i].real()/(2*n), result[i].imag()/(2*n));
+		}
+		return result;
 	}
+	std::vector<std::complex<double>> DiscreteFourierTransform::ForwardTransform(std::vector<std::complex<double>> A) {
+		int n = A.size();
+		for (int i = 0;i < n;i++) {
+			A.push_back(0);
+		}
 		if (rootOfUnityTable == NULL) {
 			PreComputeTable(2 * n);
 		}
-	std::vector<std::complex<double>> dft = FFTForwardTransform(A);
-	std::vector<std::complex<double>> dftRemainder;
-	for (int i = dft.size() - 1;i > 0;i--) {
-		if (i % 2 != 0) {
-			dftRemainder.push_back(dft.at(i));
-			//dftRemainder.push_back(std::complex<double>(2*dft.at(i).real(), 2 * dft.at(i).imag()));
+		std::vector<std::complex<double>> dft = FFTForwardTransform(A);
+		std::vector<std::complex<double>> dftRemainder;
+		for (int i = dft.size() - 1;i > 0;i--) {
+			if (i % 2 != 0) {
+				dftRemainder.push_back(dft.at(i));
+				//dftRemainder.push_back(std::complex<double>(2*dft.at(i).real(), 2 * dft.at(i).imag()));
+			}
 		}
+		return dftRemainder;
 	}
-	return dftRemainder;
-}
-std::vector<std::complex<double>> DiscreteFourierTransform::InverseTransform(std::vector<std::complex<double>> A) {
-	int n = A.size();
-	std::vector<std::complex<double>> dft;
-	for (int i = 0;i < n;i++) {
-		dft.push_back(0);
-		dft.push_back(A.at(i));
+	std::vector<std::complex<double>> DiscreteFourierTransform::InverseTransform(std::vector<std::complex<double>> A) {
+		int n = A.size();
+		std::vector<std::complex<double>> dft;
+		for (int i = 0;i < n;i++) {
+			dft.push_back(0);
+			dft.push_back(A.at(i));
+		}
+		std::vector<std::complex<double>> invDft = FFTInverseTransform(dft);
+		std::vector<std::complex<double>> invDftRemainder;
+		for (int i = 0;i<invDft.size() / 2;i++) {
+			invDftRemainder.push_back(invDft.at(i));
+		}
+		return invDftRemainder;
 	}
-	std::vector<std::complex<double>> invDft = FFTInverseTransform(dft);
-	std::vector<std::complex<double>> invDftRemainder;
-	for (int i = 0;i<invDft.size()/2;i++) {
-		invDftRemainder.push_back(invDft.at(i));
-	}
-	return invDftRemainder;
-}
 
 	DiscreteFourierTransform& DiscreteFourierTransform::GetInstance() {
 		if (m_onlyInstance == NULL) {
@@ -715,10 +710,15 @@ std::vector<std::complex<double>> DiscreteFourierTransform::InverseTransform(std
 	}
 
 	template class ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>;
+	template class NumberTheoreticTransform<BigBinaryInteger,BigBinaryVector>;
+
+// FIXME the MATH_BACKEND check is a hack and needs to go away
+
+#if MATHBACKEND != 7
 	template class ChineseRemainderTransformFTT<native64::BigBinaryInteger,native64::BigBinaryVector>;
 
-	template class NumberTheoreticTransform<BigBinaryInteger,BigBinaryVector>;
 	template class NumberTheoreticTransform<native64::BigBinaryInteger,native64::BigBinaryVector>;
+#endif
 
 
 }//namespace ends here

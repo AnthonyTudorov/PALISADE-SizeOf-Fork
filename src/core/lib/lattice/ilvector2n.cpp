@@ -100,7 +100,7 @@ namespace lbcrypto {
 			m_format = COEFFICIENT;
 		}
 		else
-		{ 
+		{
 			PreComputeDggSamples(dgg, m_params);
 
 			const ILVectorImpl randomElement = GetPrecomputedVector();
@@ -211,7 +211,7 @@ namespace lbcrypto {
       DEBUG("in ctor && m_values remains empty");
     }      
     //element.m_values = nullptr; //remove the reference (actually unnecessary with smart pointers now.
-  }
+	}
 
 	template<typename IntType, typename VecType, typename ParmType>
 	const ILVectorImpl<IntType,VecType,ParmType>& ILVectorImpl<IntType,VecType,ParmType>::operator=(const ILVectorImpl &rhs) {
@@ -375,7 +375,7 @@ namespace lbcrypto {
       if (m_params->GetCyclotomicOrder() / 2 != values.GetLength()){
 	std::cout<<"m_params->GetCyclotomicOrder/2 "<<m_params->GetCyclotomicOrder()/2<<std::endl;
 	std::cout<<"!= values.GetLength()"<< values.GetLength() <<std::endl;
-      }
+		}
       if ( m_params->GetModulus() != values.GetModulus()) {
 	std::cout<<"m_params->GetModulus() "<<m_params->GetModulus()<<std::endl;
 	std::cout<<"values->GetModulus() "<<values.GetModulus()<<std::endl;
