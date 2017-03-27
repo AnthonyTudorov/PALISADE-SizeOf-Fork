@@ -86,10 +86,14 @@
 //UTSHE.keyswitch_ModReduce_DCRT takes incredibly rediculously long (9637 sec)
 //UTSHEAdvanced.test_eval_mult_double_crt takes extremely long (89 sec)
 //UTSHEAdvanced.test_eval_add_double_crt takes extremely long (86 sec)
+
+
 //#define MATHBACKEND 4 
+//#define MATHBACKEND 5 
+//#define MATHBACKEND 6 
 
 // native64 native
-#define MATHBACKEND 7	
+//#define MATHBACKEND 7	
 
 // note we always want to include these
 #include "cpu_int/binint.cpp"
