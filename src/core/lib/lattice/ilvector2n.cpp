@@ -291,7 +291,7 @@ namespace lbcrypto {
 	template<typename IntType, typename VecType, typename ParmType>
 	const ILVectorImpl<IntType,VecType,ParmType>& ILVectorImpl<IntType,VecType,ParmType>::operator=(usint val) {
 		m_format = EVALUATION;
-		if (m_values = nullptr){
+		if (m_values == nullptr){
 		  unique_ptr<VecType> sp(new VecType(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus()));
           m_values = std::move(sp);
         }
