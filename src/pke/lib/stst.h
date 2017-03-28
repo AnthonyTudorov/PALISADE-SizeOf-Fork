@@ -28,7 +28,8 @@
  *
  * @section DESCRIPTION
  *
- * This code provides the core proxy re-encryption functionality.
+ * Our Stehle-Steinfeld scheme implementation is described in http://dx.doi.org/10.1016/j.future.2016.10.013
+ * It is based on the subfield lattice attack immunity condition proposed in the Conclusions of http://eprint.iacr.org/2016/127.pdf
  */
 
 #ifndef LBCRYPTO_CRYPTO_STST_H
@@ -50,12 +51,6 @@ namespace lbcrypto {
 
 	template <class Element>
 	class LPAlgorithmSHELTV;
-
-	template <class Element>
-	class LPAlgorithmFHELTV;
-
-	template <class Element>
-	class LPLeveledSHEAlgorithmLTV;
 
 
 /**
@@ -289,10 +284,6 @@ public:
 			this->m_algorithmPRE = new LPAlgorithmPRELTV<Element>();
 		if (mask[SHE])
 			this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>();
-		if (mask[FHE])
-			this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>();
-		if (mask[LEVELEDSHE])
-			this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmLTV<Element>();
 	}
 
 	/**
@@ -314,14 +305,6 @@ public:
 		case SHE:
 			if (this->m_algorithmSHE == NULL)
 				this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>();
-			break;
-		case FHE:
-			if (this->m_algorithmFHE == NULL)
-				this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>();
-			break;
-		case LEVELEDSHE:
-			if (this->m_algorithmLeveledSHE == NULL)
-				this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmLTV<Element>();
 			break;
 		}
 	}

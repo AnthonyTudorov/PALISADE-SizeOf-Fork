@@ -423,6 +423,32 @@ namespace lbcrypto {
 		}
 
 		/**
+		* Method for KeySwitching based on RLWE relinearization.
+		* Function to generate 1..log(q) encryptions for each bit of the original private key
+		*
+		* @param &newPublicKey encryption key for the new ciphertext.
+		* @param origPrivateKey original private key used for decryption.
+		*/
+		shared_ptr<LPEvalKey<Element>> KeySwitchRelinGen(const shared_ptr<LPKey<Element>> newPublicKey,
+			const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const {
+			std::string errMsg = "LPAlgorithmSHEFV:KeySwitchRelinGen is not needed for this scheme as relinearization is the default technique.";
+			throw std::runtime_error(errMsg);
+		}
+
+		/**
+		* Method for KeySwitching based on RLWE relinearization
+		*
+		* @param evalKey the evaluation key.
+		* @param ciphertext the input ciphertext.
+		* @return the resulting Ciphertext
+		*/
+		shared_ptr<Ciphertext<Element>> KeySwitchRelin(const shared_ptr<LPEvalKey<Element>> evalKey,
+			const shared_ptr<Ciphertext<Element>> ciphertext) const {
+			std::string errMsg = "LPAlgorithmSHEFV:KeySwitchRelin is not needed for this scheme as relinearization is the default technique.";
+			throw std::runtime_error(errMsg);
+		}
+
+		/**
 		* Function to generate 1..log(q) encryptions for each bit of the square of the original private key
 		*
 		* @param k1 private key.

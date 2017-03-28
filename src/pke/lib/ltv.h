@@ -306,7 +306,7 @@ public:
 	shared_ptr<Ciphertext<Element>> EvalNegate(const shared_ptr<Ciphertext<Element>> ct) const;
 														 
 	/**
-	* Method for generating a KeySwitchHint
+	* Method for generating a KeySwitchHint (uses the NTRU method)
 	*
 	* @param &k1 Original private key used for encryption.
 	* @param &k2 New private key to generate the keyswitch hint.
@@ -317,7 +317,7 @@ public:
 		const shared_ptr<LPPrivateKey<Element>> k2) const;
 
 	/**
-	* Method for KeySwitching based on a KeySwitchHint
+	* Method for KeySwitching based on a KeySwitchHint (uses the NTRU method)
 	*
 	* @param keySwitchHint Hint required to perform the ciphertext switching.
 	* @param cipherText Original ciphertext to perform switching on.
@@ -328,7 +328,27 @@ public:
 		const shared_ptr<Ciphertext<Element>> cipherText) const;
 
 	/**
-	* Function to generate key switch hint on a ciphertext for depth 2.
+	* Method for KeySwitching based on RLWE relinearization.
+	* Function to generate 1..log(q) encryptions for each bit of the original private key
+	*
+	* @param &newPublicKey encryption key for the new ciphertext.
+	* @param origPrivateKey original private key used for decryption.
+	*/
+	shared_ptr<LPEvalKey<Element>> KeySwitchRelinGen(const shared_ptr<LPKey<Element>> newPublicKey,
+		const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const;
+
+	/**
+	* Method for KeySwitching based on RLWE relinearization
+	*
+	* @param evalKey the evaluation key.
+	* @param ciphertext the input ciphertext.
+	* @return the resulting Ciphertext
+	*/
+	shared_ptr<Ciphertext<Element>> KeySwitchRelin(const shared_ptr<LPEvalKey<Element>> evalKey,
+		const shared_ptr<Ciphertext<Element>> ciphertext) const;
+
+	/**
+	* Function to generate key switch hint on a ciphertext for depth 2 (uses the NTRU method).
 	*
 	* @param &newPrivateKey private key for the new ciphertext.
 	* @param *keySwitchHint the key switch hint.
@@ -349,7 +369,7 @@ public:
 		const std::vector<shared_ptr<LPEvalKey<Element>>> &evalKeys) const;
 
 	/**
-	* Generate automophism keys for a given private key; works only with odd indices in the ciphertext
+	* Generate automophism keys for a given private key; works only with odd indices in the ciphertext (uses the RLWE relinerarization method)
 	*
 	* @param &publicKey original public key.
 	* @param &origPrivateKey original private key.
@@ -425,30 +445,6 @@ public:
 	*/
 	bool CanRingReduce(usint ringDimension, const std::vector<BigBinaryInteger> &moduli, const double rootHermiteFactor) const;
 };
-
-/**
-* @brief Template for crypto PRE.
-* @tparam Element a ring element.
-*/
-template <class Element>
-class LPAlgorithmFHELTV : public LPFHEAlgorithm<Element> {
-public:
-
-	/**
-	* Default constructor
-	*/
-	LPAlgorithmFHELTV() {}
-
-	/**
-	* Virtual function to define the interface for evaluation addition on ciphertext.
-	*
-	* @param &ciphertext the input ciphertext.
-	* @param *newCiphertext the new ciphertext.
-	*/
-	void Bootstrap(const Ciphertext<Element> &ciphertext,
-		Ciphertext<Element> *newCiphertext)  const;
-};
-
 
 /**
 * @brief Main public key encryption scheme for LTV implementation,

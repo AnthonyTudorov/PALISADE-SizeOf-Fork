@@ -211,6 +211,7 @@ TEST(UTLTV, ILVector2n_Encrypt_Decrypt_PRE) {
 	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(2, m, q.ToString(), rootOfUnity.ToString(), 1, stdDev);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(PRE);
+	cc.Enable(SHE);
 
 	UnitTestReEncryption<ILVector2n>(cc);
 }

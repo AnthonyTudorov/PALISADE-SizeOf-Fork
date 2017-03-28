@@ -1123,6 +1123,26 @@ namespace lbcrypto {
 				const shared_ptr<Ciphertext<Element>> cipherText) const = 0;
 
 			/**
+			* Method for KeySwitching based on RLWE relinearization (used only for the LTV scheme).
+			* Function to generate 1..log(q) encryptions for each bit of the original private key
+			*
+			* @param &newPublicKey encryption key for the new ciphertext.
+			* @param origPrivateKey original private key used for decryption.
+			*/
+			virtual shared_ptr<LPEvalKey<Element>> KeySwitchRelinGen(const shared_ptr<LPKey<Element>> newPublicKey,
+				const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const = 0;
+
+			/**
+			* Method for KeySwitching based on RLWE relinearization (used only for the LTV scheme).
+			*
+			* @param evalKey the evaluation key.
+			* @param ciphertext the input ciphertext.
+			* @return the resulting Ciphertext
+			*/
+			virtual shared_ptr<Ciphertext<Element>> KeySwitchRelin(const shared_ptr<LPEvalKey<Element>> evalKey,
+				const shared_ptr<Ciphertext<Element>> ciphertext) const = 0;
+
+			/**
 			* Virtual function to define the interface for generating a evaluation key which is used after each multiplication.
 			*
 			* @param &ciphertext1 first input ciphertext.
@@ -1455,6 +1475,23 @@ namespace lbcrypto {
 			}
 			else {
 				throw std::logic_error("KeySwitch operation has not been enabled");
+			}
+		}
+
+		shared_ptr<LPEvalKey<Element>> KeySwitchRelinGen(const shared_ptr<LPKey<Element>> newKey, const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const {
+			if (this->m_algorithmSHE)
+				return this->m_algorithmSHE->KeySwitchRelinGen(newKey, origPrivateKey);
+			else {
+				throw std::logic_error("KeySwitchRelinGen operation has not been enabled");
+			}
+		}
+
+		shared_ptr<Ciphertext<Element>> KeySwitchRelin(const shared_ptr<LPEvalKey<Element>> evalKey,
+			const shared_ptr<Ciphertext<Element>> ciphertext) const {
+			if (this->m_algorithmSHE)
+				return this->m_algorithmSHE->KeySwitchRelin(evalKey, ciphertext);
+			else {
+				throw std::logic_error("KeySwitchRelin operation has not been enabled");
 			}
 		}
 

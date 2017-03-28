@@ -441,7 +441,30 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 			return ans;
 		}
 
+		/**
+		* Method for KeySwitching based on RLWE relinearization.
+		* Function to generate 1..log(q) encryptions for each bit of the original private key
+		*
+		* @param &newPublicKey encryption key for the new ciphertext.
+		* @param origPrivateKey original private key used for decryption.
+		*/
+		shared_ptr<LPEvalKey<Element>> KeySwitchRelinGen(const shared_ptr<LPKey<Element>> newPublicKey,
+			const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const {
+			return shared_ptr<LPEvalKey<Element>>();
+		}
 
+		/**
+		* Method for KeySwitching based on RLWE relinearization
+		*
+		* @param evalKey the evaluation key.
+		* @param ciphertext the input ciphertext.
+		* @return the resulting Ciphertext
+		*/
+		shared_ptr<Ciphertext<Element>> KeySwitchRelin(const shared_ptr<LPEvalKey<Element>> evalKey,
+			const shared_ptr<Ciphertext<Element>> ciphertext) const {
+			shared_ptr<Ciphertext<Element>> ans(new Ciphertext<Element>());
+			return ans;
+		}
 
 		/**
 		 * Function to generate key switch hint on a ciphertext for depth 2.
