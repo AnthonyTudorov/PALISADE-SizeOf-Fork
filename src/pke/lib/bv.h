@@ -38,9 +38,6 @@
  */
 
 
-
-
-
 #ifndef LBCRYPTO_CRYPTO_BV_H
 #define LBCRYPTO_CRYPTO_BV_H
 
@@ -66,8 +63,6 @@ namespace lbcrypto {
 			 */
 			LPCryptoParametersBV() : LPCryptoParametersRLWE<Element>() {
 				m_mode = RLWE;
-				m_bigModulus = BigBinaryInteger::ZERO;
-				m_bigRootOfUnity = BigBinaryInteger::ZERO;
 			}
 
 			/**
@@ -76,8 +71,6 @@ namespace lbcrypto {
 			 */
 			LPCryptoParametersBV(const LPCryptoParametersBV &rhs) : LPCryptoParametersRLWE<Element>(rhs) {
 				m_mode = rhs.m_mode;
-				m_bigModulus = rhs.m_bigModulus;
-				m_bigRootOfUnity = rhs.m_bigRootOfUnity;
 			}
 
 			/**
@@ -89,6 +82,7 @@ namespace lbcrypto {
 			 * @param assuranceMeasure assurance level.
 			 * @param securityLevel security level.
 			 * @param relinWindow the size of the relinearization window.
+			 * @param mode sets the mode of operation: RLWE or OPTIMIZED
 			 * @param depth depth which is set to 1.
 			 */
 			LPCryptoParametersBV(
@@ -99,8 +93,6 @@ namespace lbcrypto {
 				float securityLevel, 
 				usint relinWindow,
 				MODE mode,
-				const BigBinaryInteger &bigModulus,
-				const BigBinaryInteger &bigRootOfUnity,
 				int depth = 1)
 					: LPCryptoParametersRLWE<Element>(
 						params,
@@ -110,9 +102,7 @@ namespace lbcrypto {
 						securityLevel,
 						relinWindow,
 						depth) {
-				m_mode = mode;
-				m_bigModulus = bigModulus;
-				m_bigRootOfUnity = bigRootOfUnity;			
+				m_mode = mode;		
 			}
 
 			/**
@@ -125,55 +115,14 @@ namespace lbcrypto {
 			* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
 			* @return true if successfully serialized
 			*/
-			bool Serialize(Serialized* serObj) const {
-				if( !serObj->IsObject() )
-					return false;
-
-				SerialItem cryptoParamsMap(rapidjson::kObjectType);
-				if( this->SerializeRLWE(serObj, cryptoParamsMap) == false )
-					return false;
-
-				serObj->AddMember("LPCryptoParametersBV", cryptoParamsMap.Move(), serObj->GetAllocator());
-				serObj->AddMember("LPCryptoParametersType", "LPCryptoParametersBV", serObj->GetAllocator());
-				serObj->AddMember("mode", std::to_string(m_mode), serObj->GetAllocator());
-				serObj->AddMember("bigmodulus", m_bigModulus.Serialize(), serObj->GetAllocator());
-				serObj->AddMember("bigrootofunity", m_bigRootOfUnity.Serialize(), serObj->GetAllocator());
-
-				return true;
-			}
+			bool Serialize(Serialized* serObj) const;
 
 			/**
 			* Populate the object from the deserialization of the Serialized
 			* @param serObj contains the serialized object
 			* @return true on success
 			*/
-			bool Deserialize(const Serialized& serObj) {
-				Serialized::ConstMemberIterator mIter = serObj.FindMember("LPCryptoParametersBV");
-				if (mIter == serObj.MemberEnd()) return false;
-
-				if (this->DeserializeRLWE(mIter) == false)
-					return false;
-
-				SerialItem::ConstMemberIterator pIt;
-
-				if ((pIt = mIter->value.FindMember("mode")) == mIter->value.MemberEnd())
-					return false;
-				MODE mode = (MODE)atoi(pIt->value.GetString());
-
-				if ((pIt = mIter->value.FindMember("bigmodulus")) == mIter->value.MemberEnd())
-					return false;
-				BigBinaryInteger bigmodulus(pIt->value.GetString());
-
-				if ((pIt = mIter->value.FindMember("bigrootofunity")) == mIter->value.MemberEnd())
-					return false;
-				BigBinaryInteger bigrootofunity(pIt->value.GetString());
-
-				this->SetBigModulus(bigmodulus);
-				this->SetBigRootOfUnity(bigrootofunity);
-				this->SetMode(mode);
-
-				return true;
-			}
+			bool Deserialize(const Serialized& serObj);
 
 			/**
 			* Gets the mode setting: RLWE or OPTIMIZED.
@@ -183,33 +132,9 @@ namespace lbcrypto {
 			MODE GetMode() const { return m_mode; }
 
 			/**
-			* Gets the modulus used for polynomial multiplications in EvalMult
-			*
-			* @return the modulus value.
-			*/
-			const BigBinaryInteger& GetBigModulus() const { return m_bigModulus; }
-
-			/**
-			* Gets the primitive root of unity used for polynomial multiplications in EvalMult
-			*
-			* @return the primitive root of unity value.
-			*/
-			const BigBinaryInteger& GetBigRootOfUnity() const { return m_bigRootOfUnity; }
-
-			/**
 			* Configures the mode for generating the secret key polynomial
 			*/
 			void SetMode(MODE mode) { m_mode = mode; }
-
-			/**
-			* Sets the modulus used for polynomial multiplications in EvalMult
-			*/
-			void SetBigModulus(const BigBinaryInteger &bigModulus) { m_bigModulus = bigModulus; }
-
-			/**
-			* Sets primitive root of unity used for polynomial multiplications in EvalMult
-			*/
-			void SetBigRootOfUnity(const BigBinaryInteger &bigRootOfUnity) { m_bigRootOfUnity = bigRootOfUnity; }
 
 			/**
 			* == operator to compare to this instance of LPCryptoParametersBV object.
@@ -222,8 +147,6 @@ namespace lbcrypto {
 				if (el == 0) return false;
 
 				if (m_mode != el->m_mode) return false;
-				if (m_bigModulus != el->m_bigModulus) return false;
-				if (m_bigRootOfUnity != el->m_bigRootOfUnity) return false;
 
 				return  LPCryptoParametersRLWE<Element>::operator==(rhs);
 			}
@@ -233,37 +156,8 @@ namespace lbcrypto {
 		// Gaussian distribution or ternary distribution with the norm of unity
 		MODE m_mode;
 
-		// larger modulus that is used in polynomial multiplications within EvalMult (before rounding is done)
-		BigBinaryInteger m_bigModulus;
-
-		// primitive root of unity for m_bigModulus
-		BigBinaryInteger m_bigRootOfUnity;
 	};
 
-
-	/**
-	* @brief Parameter generation for FV.
-	* @tparam Element a ring element.
-	*/
-	//template <class Element>
-	//class LPAlgorithmParamsGenBV : public LPParameterGenerationAlgorithm<Element> { //public LPSHEAlgorithm<Element>,
-	//public:
-
-	//	//inherited constructors
-	//	LPAlgorithmParamsGenBV() {}
-
-	//	/**
-	//	* Method for computing all derived parameters based on chosen primitive parameters
-	//	*
-	//	* @param *cryptoParams the crypto parameters object to be populated with parameters.
-	//	* @param evalAddCount number of EvalAdds assuming no EvalMult and KeySwitch operations are performed.
-	//	* @param evalMultCount number of EvalMults assuming no EvalAdd and KeySwitch operations are performed.
-	//	* @param keySwitchCount number of KeySwitch operations assuming no EvalAdd and EvalMult operations are performed.
-	//	*/
-	//	bool ParamsGen(LPCryptoParameters<Element> *cryptoParams, int32_t evalAddCount = 0,
-	//		int32_t evalMultCount = 0, int32_t keySwitchCount = 0) const;
-
-	//};
 
 	/**
 	* @brief Encryption algorithm implementation template for BV-based schemes,

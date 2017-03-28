@@ -44,6 +44,41 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 namespace lbcrypto {
 
+	template <class Element>
+	bool LPCryptoParametersBV<Element>::Serialize(Serialized* serObj) const {
+		if (!serObj->IsObject())
+			return false;
+
+		SerialItem cryptoParamsMap(rapidjson::kObjectType);
+		if (this->SerializeRLWE(serObj, cryptoParamsMap) == false)
+			return false;
+
+		serObj->AddMember("LPCryptoParametersBV", cryptoParamsMap.Move(), serObj->GetAllocator());
+		serObj->AddMember("LPCryptoParametersType", "LPCryptoParametersBV", serObj->GetAllocator());
+		serObj->AddMember("mode", std::to_string(m_mode), serObj->GetAllocator());
+
+		return true;
+	}
+
+
+	template <class Element>
+	bool LPCryptoParametersBV<Element>::Deserialize(const Serialized& serObj) {
+		Serialized::ConstMemberIterator mIter = serObj.FindMember("LPCryptoParametersBV");
+		if (mIter == serObj.MemberEnd()) return false;
+
+		if (this->DeserializeRLWE(mIter) == false)
+			return false;
+
+		SerialItem::ConstMemberIterator pIt;
+
+		if ((pIt = mIter->value.FindMember("mode")) == mIter->value.MemberEnd())
+			return false;
+		MODE mode = (MODE)atoi(pIt->value.GetString());
+
+		this->SetMode(mode);
+
+		return true;
+	}
 
 	template <class Element>
 	LPKeyPair<Element> LPAlgorithmBV<Element>::KeyGen(const CryptoContext<Element> cc, bool makeSparse) const

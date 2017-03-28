@@ -921,14 +921,14 @@ public:
 	* @param rootOfUnity
 	* @param relinWindow
 	* @param stDev
+	* @param mode
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextBV(
 		const usint plaintextmodulus,
 		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
 		usint relinWindow, float stDev,
-		MODE mode = RLWE, const std::string& bigmodulus = "0", const std::string& bigrootofunity = "0",
-		int depth = 1);
+		MODE mode = RLWE, int depth = 1);
 
 	/**
 	* FIXME temp function written by GRS
