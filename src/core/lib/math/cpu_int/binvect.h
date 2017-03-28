@@ -196,6 +196,24 @@ public:
 	}
 
 	/**
+	 * Sets a value at an index. guarrentees that mod is not taken
+	 * some backends have automatic mod of this class.
+	 *
+	 * @param index is the index to set a value at.
+	 * @param value is the int value to set at the index sans intrinsic modulus.
+	 */
+	//TODO: change SetValAtIndex() to always take mod.
+
+	void SetValAtIndexWithoutMod(usint index, const IntegerType& value) {
+		if(!this->IndexCheck(index)) {
+			throw std::logic_error("Invalid index input to SetValAtIndex for index "
+					+ std::to_string(index) + " for vector of length " + std::to_string(m_length));
+		}
+
+		this->m_data[index] = value;
+	}
+
+	/**
 	 * Sets a value at an index.
 	 *
 	 * @param index is the index to set a value at.
@@ -324,6 +342,18 @@ public:
 	 * @return a new vector which is the result of the modulus inverse operation.
 	 */
 	BigBinaryVectorImpl ModInverse() const;
+
+	/**
+	 * Modulus scalar multiplication assignment.
+	 *
+	 * @param &a is the input vector to multiply.
+	 * @param &i is the input integer to multiply at all entries.
+	 * @return a new vector which is the result of the modulus multiplication operation.
+	 */
+	  inline BigBinaryVectorImpl &operator*=(const IntegerType &i) {
+	    *this=this->ModMul(i);
+	    return *this;
+	  }
 
 	//Vector Operations
 

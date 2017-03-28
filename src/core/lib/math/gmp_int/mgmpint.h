@@ -233,13 +233,8 @@ namespace NTL{
     };
 
     inline myZZ_p& operator+=(const myZZ_p &a) {
-#if 0
-      *this = *this+a;
-#else
       add(*this, *this, a);
-#endif
       return *this;
-
     };
 
     inline myZZ_p Add(const myZZ_p& b) const {return *this+b;};
@@ -253,11 +248,7 @@ namespace NTL{
       return tmp ;
     };
     inline myZZ_p& operator-=(const myZZ_p &a) {
-#if 0
-      *this = *this-a;
-#else
       sub(*this, *this, a);
-#endif
       return *this;
     };
 
@@ -269,11 +260,7 @@ namespace NTL{
       return tmp ;
     };
     inline myZZ_p& operator*=(const myZZ_p &a) {
-#if 0
-      *this = *this*a;
-#else
       mul(*this, *this, a);
-#endif
       return *this;
     };
 

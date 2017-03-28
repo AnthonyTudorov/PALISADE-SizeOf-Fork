@@ -366,8 +366,18 @@ public:
 	NativeInteger Minus(const NativeInteger& b) const {
 		return m_value <= b.m_value ? 0 : m_value - b.m_value;
 	}
-
-
+#if 0 //dbc not sure we need this
+	/**
+	 * Multiplication accumulator.
+	 *
+	 * @param &b is the value to multiply of type Big Binary Integer.
+	 * @return result of the muliplyaccumulate operation of type Big Binary Integer.
+	 */
+	const NativeInteger& operator*=(const NativeInteger &b) {
+	        m_value *= b.m_value;
+		return *this;
+	}
+#endif
 	/**
 	 * Multiplication operation.
 	 *
@@ -628,6 +638,20 @@ public:
 		if( av > modulus.m_value ) av = av%modulus.m_value;
 		if( bv > modulus.m_value ) bv = bv%modulus.m_value;
 
+		return (uint_type)((av*bv)%modulus.m_value);
+	}
+
+	/**
+	 * Scalar modulus multiplication. Fast version, assumes inputs are
+	 * already < modulus. 
+	 *
+	 * @param &b is the scalar to multiply.
+	 * @param modulus is the modulus to perform operations with.
+	 * @return is the result of the modulus multiplication operation.
+	 */
+	NativeInteger ModMulFast(const NativeInteger& b, const NativeInteger& modulus) const {
+		Duint_type av = m_value;
+		Duint_type bv = b.m_value;
 		return (uint_type)((av*bv)%modulus.m_value);
 	}
 

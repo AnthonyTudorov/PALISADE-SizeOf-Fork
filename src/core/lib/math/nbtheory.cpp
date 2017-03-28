@@ -64,6 +64,7 @@ template BigBinaryInteger FindPrimeModulus(usint m, usint nBits);
 template void NextQ(BigBinaryInteger &q, const BigBinaryInteger &plainTextModulus, const usint &ringDimension, const BigBinaryInteger &sigma, const BigBinaryInteger &alpha);
 
 // FIXME the MATH_BACKEND check is a hack and needs to go away
+//#if MATHBACKEND != 7 && MATHBACKEND !=6
 #if MATHBACKEND != 7
 template native64::BigBinaryInteger RootOfUnity<native64::BigBinaryInteger>(usint m, const native64::BigBinaryInteger& modulo);
 template std::vector<native64::BigBinaryInteger> RootsOfUnity(usint m, const std::vector<native64::BigBinaryInteger> moduli);
