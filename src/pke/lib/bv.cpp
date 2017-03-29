@@ -150,9 +150,6 @@ namespace lbcrypto {
 		const Element &a = publicKey->GetPublicElements().at(0);
 		const Element &b = publicKey->GetPublicElements().at(1);
 
-
-
-		//Element v(dgg, elementParams, Format::EVALUATION);
 		Element v;
 
 		//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
@@ -228,7 +225,6 @@ namespace lbcrypto {
 
 	}
 
-	//TODO: CHECK IMPLEMENTATION
 	template <class Element>
 	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext1,
 		const shared_ptr<Ciphertext<Element>> ciphertext2) const {
@@ -451,7 +447,7 @@ namespace lbcrypto {
 
 		originalPrivateKeySquared->SetPrivateElement(std::move(sSquare));
 
-		return this->KeySwitchGen(originalPrivateKeySquared , originalPrivateKey);
+		return this->KeySwitchGen(originalPrivateKeySquared, originalPrivateKey);
 
 	}
 
@@ -541,36 +537,10 @@ namespace lbcrypto {
 			cipherTextElement.ModReduce(plaintextModulus);// this is being done at the lattice layer. The ciphertext is mod reduced.
 		}
 
-
 		newcipherText->SetElements(cipherTextElements);
 
 		return newcipherText;
 	}
-
-	template <class Element>
-	shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmBV<Element>::RingReduce(shared_ptr<Ciphertext<Element>> cipherText, const shared_ptr<LPEvalKey<Element>> keySwitchHint) const {
-		return cipherText;
-	}
-
-	template <class Element>
-	shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmBV<Element>::ComposedEvalMult(
-		const shared_ptr<Ciphertext<Element>> cipherText1,
-		const shared_ptr<Ciphertext<Element>> cipherText2,
-		const shared_ptr<LPEvalKey<Element>> quadKeySwitchHint) const {
-		return cipherText1;
-	}
-
-	template <class Element>
-	shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmBV<Element>::LevelReduce(const shared_ptr<Ciphertext<Element>> cipherText1,
-		const shared_ptr<LPEvalKey<Element>> linearKeySwitchHint) const {
-		return cipherText1;
-	}
-
-	template <class Element>
-	bool LPLeveledSHEAlgorithmBV<Element>::CanRingReduce(usint ringDimension, const std::vector<BigBinaryInteger> &moduli, const double rootHermiteFactor) const {
-		return false;
-	}
-
 
 	// Constructor for LPPublicKeyEncryptionSchemeBV
 	template <class Element>
@@ -586,8 +556,6 @@ namespace lbcrypto {
 		if (mask[SHE])
 			this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>();
 
-		/*		if (mask[FHE])
-		this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>(); */
 		if (mask[LEVELEDSHE])
 			this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmLTV<Element>();
 	}
@@ -613,12 +581,6 @@ namespace lbcrypto {
 			if (this->m_algorithmLeveledSHE == NULL)
 				this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmBV<Element>();
 			break;
-			/*
-			case FHE:
-			if (this->m_algorithmFHE == NULL)
-			this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>();
-			break;
-			*/
 		}
 	}
 
