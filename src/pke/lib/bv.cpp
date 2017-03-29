@@ -276,50 +276,15 @@ namespace lbcrypto {
 
 	}
 
-
 	template <class Element>
 	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
 		const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const {
-
-		if (ciphertext1->GetElements()[0].GetFormat() == Format::COEFFICIENT || ciphertext2->GetElements()[0].GetFormat() == Format::COEFFICIENT) {
-			throw std::runtime_error("EvalMult cannot multiply in COEFFICIENT domain.");
-		}
-
-		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParamsLWE = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(ek->GetCryptoParameters());
-
-		usint relinWindow = cryptoParamsLWE->GetRelinWindow();
 
 		const shared_ptr<LPEvalKeyRelin<Element>> ekRelin = std::dynamic_pointer_cast<LPEvalKeyRelin<Element>>(ek);
 
 		shared_ptr<Ciphertext<Element>> newCiphertext = this->EvalMult(ciphertext1, ciphertext2);
 
-		const Element &c0 = newCiphertext->GetElements().at(0);
-
-		const Element &c1 = newCiphertext->GetElements().at(1);
-
-		const Element &c2 = newCiphertext->GetElements().at(2);
-
-		std::vector<Element> finalElements;
-
-		finalElements.push_back(std::move(c0));
-
-		finalElements.push_back(std::move(c1));
-
-		const std::vector<Element> &b = ekRelin->GetBVector();
-
-		const std::vector<Element> &a = ekRelin->GetAVector();
-
-		std::vector<Element> c2Decomposed(c2.BaseDecompose(relinWindow));
-
-		for (usint i = 0; i < c2Decomposed.size(); i++) {
-			finalElements.at(0) += c2Decomposed.at(i)*b.at(i);
-
-			finalElements.at(1) += c2Decomposed.at(i)*a.at(i);
-		}
-
-		newCiphertext->SetElements(std::move(finalElements));
-
-		return newCiphertext;
+		return this->KeySwitch(ekRelin, newCiphertext);
 
 	}
 	
@@ -408,11 +373,18 @@ namespace lbcrypto {
 
 		const std::vector<Element> &c = cipherText->GetElements();
 
-		std::vector<Element> digitsC1(c[1].BaseDecompose(relinWindow));
+		if (c.size == 2) //case of PRE or automorphism
+		{
+			std::vector<Element> digitsC1(c[1].BaseDecompose(relinWindow));
+			Element ct1(std::move(digitsC1[0] * a[0]));
+		}
+		else //case of EvalMult
+		{
+			std::vector<Element> digitsC1(c[2].BaseDecompose(relinWindow));
+			Element ct1(std::move(c[1] + digitsC1[0] * a[0]));
+		}
 
-
-		Element ct0(c[0] + digitsC1[0] * b[0]);
-		Element ct1(digitsC1[0] * a[0]);
+		Element ct0(std::move(c[0] + digitsC1[0] * b[0]));
 
 		//Relinearization Step.
 		for (usint i = 1; i < digitsC1.size(); ++i)
