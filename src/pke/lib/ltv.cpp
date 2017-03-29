@@ -41,7 +41,7 @@ void LPCryptoParametersLTV<Element>::ParameterSelection(LPCryptoParametersLTV<IL
 {
 
 	//defining moduli outside of recursive call for efficiency
-	std::vector<BigBinaryInteger> moduli(this->m_depth + 1);
+	std::vector<native64::BigBinaryInteger> moduli(this->m_depth + 1);
 	moduli.reserve(this->m_depth + 1);
 
 	usint n = this->GetElementParams()->GetCyclotomicOrder() / 2;
@@ -54,10 +54,10 @@ void LPCryptoParametersLTV<Element>::ParameterSelection(LPCryptoParametersLTV<IL
 	cryptoParams->SetDistributionParameter(this->m_distributionParameter);
 	cryptoParams->SetPlaintextModulus(this->GetPlaintextModulus());
 
-	std::vector<BigBinaryInteger> rootsOfUnity;
+	std::vector<native64::BigBinaryInteger> rootsOfUnity;
 	rootsOfUnity.reserve(this->m_depth + 1);
 	usint m = n * 2; //cyclotomic order
-	BigBinaryInteger rootOfUnity;
+	native64::BigBinaryInteger rootOfUnity;
 
 	for (usint i = 0; i < this->m_depth + 1; i++) {
 		rootOfUnity = RootOfUnity(m, moduli.at(i));
@@ -70,11 +70,11 @@ void LPCryptoParametersLTV<Element>::ParameterSelection(LPCryptoParametersLTV<IL
 }
 
 template <class Element>
-void LPCryptoParametersLTV<Element>::ParameterSelection(usint& n, vector<BigBinaryInteger> &moduli) {
+void LPCryptoParametersLTV<Element>::ParameterSelection(usint& n, vector<native64::BigBinaryInteger> &moduli) {
 	int t = this->m_depth + 1;
 	int d = this->m_depth;
 
-	BigBinaryInteger pBigBinaryInteger(this->GetPlaintextModulus());
+	native64::BigBinaryInteger pBigBinaryInteger(this->GetPlaintextModulus().ConvertToInt());
 	int p = pBigBinaryInteger.ConvertToInt(); // what if this does not fit in an int? (unlikely)
 	double w = this->m_assuranceMeasure;
 	double r = this->m_distributionParameter;
@@ -104,12 +104,12 @@ void LPCryptoParametersLTV<Element>::ParameterSelection(usint& n, vector<BigBina
 		sum = 0.0;
 		for (int i = 0; i<t; i++) {
 			if (i == 0 || i == 1) {
-				moduli[i] = BigBinaryInteger(split(std::to_string(q[i]), c));
+				moduli[i] = native64::BigBinaryInteger(split(std::to_string(q[i]), c));
 			}
 			else {
 				moduli[i] = moduli[i - 1];
 			}
-			NextQ(moduli[i], pBigBinaryInteger, n, BigBinaryInteger("4"), BigBinaryInteger("4"));
+			NextQ(moduli[i], pBigBinaryInteger, n, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
 			q[i] = moduli[i].ConvertToDouble();
 			sum += log(q[i]);
 		}
@@ -147,7 +147,7 @@ LPKeyPair<Element> LPAlgorithmLTV<Element>::KeyGen(const CryptoContext<Element> 
 	f = f + BigBinaryInteger::ONE;
 
 	if( makeSparse )
-		f.MakeSparse(BigBinaryInteger::TWO);
+		f.MakeSparse(2);
 
 	f.SwitchFormat();
 
@@ -159,7 +159,7 @@ LPKeyPair<Element> LPAlgorithmLTV<Element>::KeyGen(const CryptoContext<Element> 
 		f = p*f;
 		f = f + BigBinaryInteger::ONE;
 		if( makeSparse )
-			f.MakeSparse(BigBinaryInteger::TWO);
+			f.MakeSparse(2);
 		f.SwitchFormat();
 	}
 

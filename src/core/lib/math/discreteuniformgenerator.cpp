@@ -33,7 +33,7 @@ void DiscreteUniformGeneratorImpl<IntType,VecType>::SetModulus (const IntType & 
 }
 
 template<typename IntType, typename VecType>
-IntType DiscreteUniformGeneratorImpl<IntType,VecType>::GenerateInteger () const {
+IntType DiscreteUniformGeneratorImpl<IntType,VecType>::GenerateInteger (const IntType&) const {
 
 	// result is initialized to 0
 	IntType result;
@@ -89,7 +89,7 @@ IntType DiscreteUniformGeneratorImpl<IntType,VecType>::GenerateInteger () const 
 }
 
 template<typename IntType, typename VecType>
-VecType DiscreteUniformGeneratorImpl<IntType,VecType>::GenerateVector(const usint size) const {
+VecType DiscreteUniformGeneratorImpl<IntType,VecType>::GenerateVector(const usint size, const IntType &) const {
 
 	VecType v(size,m_modulus);
 

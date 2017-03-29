@@ -70,16 +70,22 @@
 namespace lbcrypto {
 
 	/**
-	* @brief Ideal lattice in the double-CRT representation.  This is not fully implemented and is currently only stubs.
+	* @brief Ideal lattice for the double-CRT representation.
+	* The implementation contains a vector of underlying native-integer lattices
+	* The
 	*/
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	class ILVectorArrayImpl : public ILElement<ILVectorArrayImpl<ModType,IntType,VecType,ParmType>,ModType,IntType,VecType>
 	{
 	public:
-
 		typedef ParmType Params;
+		typedef IntType Integer;
+		typedef VecType Vector;
+
 		typedef ILVectorArrayImpl<ModType,IntType,VecType,ParmType> ILVectorArrayType;
-		typedef ILVectorImpl<IntType,IntType,VecType,native64::ILParams> ILVectorType;
+
+		// this class contains an array of these:
+		typedef ILVectorImpl<native64::BigBinaryInteger,native64::BigBinaryInteger,native64::BigBinaryVector,native64::ILParams> ILVectorType;
 
 		// CONSTRUCTORS
 
@@ -96,6 +102,11 @@ namespace lbcrypto {
 		*@param initializeElementToZero
 		*/
 		ILVectorArrayImpl(const shared_ptr<ParmType> params, Format format = EVALUATION, bool initializeElementToZero = false);
+
+		ILVectorArrayImpl(DistributionGeneratorType gtype, const shared_ptr<ParmType> params, Format format = EVALUATION);
+
+		// FIXME should be private?
+		void fillVectorArrayFromBigVector(const ILVector2n& element, const shared_ptr<ParmType> params);
 
 		/**
 		* Constructor based on discrete Gaussian generator. 
@@ -135,7 +146,7 @@ namespace lbcrypto {
 		* @param params the input params.
 		* @param &format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
-		ILVectorArrayImpl(const DiscreteUniformGeneratorImpl<IntType,VecType> &dug, const shared_ptr<ParmType> params, Format format = EVALUATION);
+		ILVectorArrayImpl(DiscreteUniformGeneratorImpl<IntType,VecType> &dug, const shared_ptr<ParmType> params, Format format = EVALUATION);
 
 		/**
 		* Construct using a single ILVector2n. The ILVector2n is copied into every tower. Each tower will be reduced to it's corresponding modulus  via GetModuli(at tower index). The format is derived from the passed in ILVector2n. 
@@ -143,14 +154,22 @@ namespace lbcrypto {
 		* @param &element ILVector2n to build other towers from.
 		* @param params parameter set required for ILVectorArray2n.
 		*/
-		ILVectorArrayImpl(const native64::ILVector2n &element, const shared_ptr<ParmType> params);
+		ILVectorArrayImpl(const ILVector2n &element, const shared_ptr<ParmType> params);
+
+		/**
+		* Construct using a single Native ILVector2n. The ILVector2n is copied into every tower. Each tower will be reduced to it's corresponding modulus  via GetModuli(at tower index). The format is derived from the passed in ILVector2n.
+		*
+		* @param &element ILVector2n to build other towers from.
+		* @param params parameter set required for ILVectorArray2n.
+		*/
+		ILVectorArrayImpl(const ILVectorType &element, const shared_ptr<ParmType> params);
 
 		/**
 		* Construct using an tower of ILVectro2ns. The params and format for the ILVectorArray2n will be derived from the towers.
 		*
 		* @param &towers vector of ILVector2ns which correspond to each tower of ILVectorArray2n.
 		*/
-		ILVectorArrayImpl(const std::vector<native64::ILVector2n> &elements);
+		ILVectorArrayImpl(const std::vector<ILVectorType> &elements);
 
 		/**
 		* Copy constructor.
@@ -236,7 +255,7 @@ namespace lbcrypto {
 		* @param i index of tower to be returned.
 		* @returns a reference to the ILVector2n at index i.
 		*/
-		const native64::ILVector2n &GetElementAtIndex(usint i) const;
+		const ILVectorType &GetElementAtIndex(usint i) const;
 
 		/**
 		* Get method of the tower length.
@@ -250,7 +269,7 @@ namespace lbcrypto {
 		*
 		* @returns values.
 		*/
-		const std::vector<native64::ILVector2n>& GetAllElements() const;
+		const std::vector<ILVectorType>& GetAllElements() const;
 
 		/**
 		* Get method of the format.
@@ -463,7 +482,10 @@ namespace lbcrypto {
 		* @param modulus is the modulus to use.
 		* @return is the return value of the modulus.
 		*/
-		ILVectorArrayType SignedMod(const IntType &modulus) const;
+		ILVectorArrayType SignedMod(const IntType &modulus) const {
+			// FIXME
+			throw std::logic_error("SignedMod of an IntType not implemented on ILVectorArray2n");
+		}
 
 		// OTHER FUNCTIONS AND UTILITIES 
 
@@ -475,6 +497,7 @@ namespace lbcrypto {
 		const VecType &GetValues() const {
 			throw std::logic_error("GetValues not implemented on ILVectorArray2n");
 		}
+
 		/**
 		* Set method that should not be used, will throw an error.
 		*
@@ -500,7 +523,7 @@ namespace lbcrypto {
 		*
 		* @param &wFactor ratio between the sparse and none-sparse values. 
 		*/
-		void MakeSparse(const IntType &wFactor);
+		void MakeSparse(const uint32_t &wFactor);
 
 		/**
 		* Performs ILVector2n::Decompose on each tower and adjusts the ILVectorArray2n.m_parameters accordingly. This method also reduces the ring dimension by half.
@@ -545,7 +568,10 @@ namespace lbcrypto {
 		* @param &rootOfUnity is the corresponding root of unity for the modulus
 		* ASSUMPTION: This method assumes that the caller provides the correct rootOfUnity for the modulus
 		*/
-		void SwitchModulus(const IntType &modulus, const IntType &rootOfUnity);
+		void SwitchModulus(const IntType &modulus, const IntType &rootOfUnity) {
+			throw std::logic_error("SwitchModulus not implemented on ILVectorArray2n");
+		}
+
 
 		/**
 		* Switch modulus at tower i and adjust the values
@@ -570,7 +596,7 @@ namespace lbcrypto {
 		*
 		* @param &moduli is the chain of moduli to construct the CRI factors from
 		*/
-		static void PreComputeCRIFactors(const std::vector<IntType> &moduli, const usint cyclotomicOrder);
+		static void PreComputeCRIFactors(const std::vector<native64::BigBinaryInteger> &moduli, const usint cyclotomicOrder);
 
 		/**
 		* Deletes the static pointer CRI factors pointer
@@ -615,7 +641,7 @@ namespace lbcrypto {
 		Format m_format;
 
 		//Big Modulus, multiplied value of all tower moduli
-		BigBinaryInteger m_modulus;
+		ModType m_modulus;
 
 		usint m_cyclotomicOrder;
 
@@ -631,7 +657,7 @@ namespace lbcrypto {
 
 namespace lbcrypto {
 
-typedef ILVectorArrayImpl<BigBinaryInteger, native64::BigBinaryInteger, native64::BigBinaryVector, ILDCRTParams> ILVectorArray2n;
+typedef ILVectorArrayImpl<BigBinaryInteger, BigBinaryInteger, BigBinaryVector, ILDCRTParams> ILVectorArray2n;
 
 }
 

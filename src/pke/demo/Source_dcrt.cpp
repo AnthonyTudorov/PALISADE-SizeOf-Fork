@@ -120,21 +120,20 @@ void NTRU_DCRT() {
 
 	BytePlaintextEncoding ctxtd;
 
-	vector<BigBinaryInteger> moduli(size);
+	vector<native64::BigBinaryInteger> moduli(size);
 
-	vector<BigBinaryInteger> rootsOfUnity(size);
+	vector<native64::BigBinaryInteger> rootsOfUnity(size);
 
-	BigBinaryInteger q("1");
-	BigBinaryInteger temp;
+	native64::BigBinaryInteger q("1");
+	native64::BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
 
 	for(int i=0; i < size;i++){
-		lbcrypto::NextQ(q, BigBinaryInteger::TWO,m,BigBinaryInteger("4"), BigBinaryInteger("4"));
+		lbcrypto::NextQ(q, native64::BigBinaryInteger::TWO, m, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
 		moduli[i] = q;
 		cout << q << endl;
 		rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
-	//	cout << rootsOfUnity[i] << endl;
-		modulus = modulus* moduli[i];
+		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
 
 	}
 
@@ -314,20 +313,19 @@ void TestParameterSelection(){
 
 	// BytePlaintextEncoding ctxtd;
 
-	vector<BigBinaryInteger> moduli(size);
+	vector<native64::BigBinaryInteger> moduli(size);
 
-	vector<BigBinaryInteger> rootsOfUnity(size);
+	vector<native64::BigBinaryInteger> rootsOfUnity(size);
 
-	BigBinaryInteger q("1");
-	BigBinaryInteger temp;
+	native64::BigBinaryInteger q("1");
+	native64::BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
 
 	for(int i=0; i < size;i++){
-		lbcrypto::NextQ(q, BigBinaryInteger::TWO,m,BigBinaryInteger("4"), BigBinaryInteger("4"));
+		lbcrypto::NextQ(q, native64::BigBinaryInteger::TWO, m, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
 		moduli[i] = q;
 		rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
-		modulus = modulus* moduli[i];
-
+		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
 	}
 
 	cout << "big modulus: " << modulus << endl;
@@ -355,44 +353,43 @@ void TestParameterSelection(){
 	cout << cryptoParams2.GetAssuranceMeasure() << endl;
 
 	const shared_ptr<ILDCRTParams> dcrtParams = std::static_pointer_cast<ILDCRTParams>(cryptoParams2.GetElementParams());
-	std::vector<BigBinaryInteger> moduli2 = dcrtParams->GetModuli();
+	const std::vector<shared_ptr<native64::ILParams>>& allparams = dcrtParams->GetParams();
 
-	for(usint i =0; i < moduliV.size();i++){
-		cout<< moduli2[i] << endl;
+	for(usint i =0; i < allparams.size();i++){
+		cout<< allparams[i]->GetModulus() << endl;
 	}
 }
 
 void FinalLeveledComputation(){
 
-	usint init_m = 16;
+	usint m = 16;
 
 	float init_stdDev = 4;
 
-	usint init_size = 3;
+	usint size = 3;
 
-	std::cout << "tower size: " << init_size << std::endl;
+	std::cout << "tower size: " << size << std::endl;
 
 	BytePlaintextEncoding ctxtd;
 
-	vector<BigBinaryInteger> init_moduli(init_size);
+	vector<native64::BigBinaryInteger> moduli(size);
 
-	vector<BigBinaryInteger> init_rootsOfUnity(init_size);
+	vector<native64::BigBinaryInteger> rootsOfUnity(size);
 
-	BigBinaryInteger q("1");
-	BigBinaryInteger temp;
+	native64::BigBinaryInteger q("1");
+	native64::BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
 
-	for(int i=0; i < init_size;i++){
-		lbcrypto::NextQ(q, BigBinaryInteger::FIVE,init_m,BigBinaryInteger("4"), BigBinaryInteger("4"));
-		init_moduli[i] = q;
-		init_rootsOfUnity[i] = RootOfUnity(init_m,init_moduli[i]);
-		modulus = modulus* init_moduli[i];
-
+	for(int i=0; i < size;i++){
+		lbcrypto::NextQ(q, native64::BigBinaryInteger::TWO, m, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
+		moduli[i] = q;
+		rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
+		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
 	}
 
 	cout << "big modulus: " << modulus << endl;
 
-	shared_ptr<ILDCRTParams> params( new ILDCRTParams(init_m, init_moduli, init_rootsOfUnity) );
+	shared_ptr<ILDCRTParams> params( new ILDCRTParams(m, moduli, rootsOfUnity) );
 
 	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger::THREE);
@@ -400,26 +397,17 @@ void FinalLeveledComputation(){
 	cryptoParams.SetRelinWindow(1);
 	cryptoParams.SetElementParams(params);
 	cryptoParams.SetAssuranceMeasure(6);
-	cryptoParams.SetDepth(init_size-1);
+	cryptoParams.SetDepth(size-1);
 	cryptoParams.SetSecurityLevel(1.006);
 
 	usint n = 16;
 
-	std::vector<BigBinaryInteger> moduliV(init_size);
+	std::vector<BigBinaryInteger> moduliV(size);
 	LPCryptoParametersLTV<ILVectorArray2n> finalParams;
 
 	cryptoParams.ParameterSelection(&finalParams);
 
 	const shared_ptr<ILDCRTParams> dcrtParams = std::static_pointer_cast<ILDCRTParams>( finalParams.GetElementParams() ) ;
-
-	usint m = dcrtParams->GetCyclotomicOrder();
-	usint size = finalParams.GetDepth()+1;
-	const BigBinaryInteger &plainTextModulus = finalParams.GetPlaintextModulus();
-
-	vector<BigBinaryInteger> moduli(size);
-	moduli = dcrtParams->GetModuli();
-	vector<BigBinaryInteger> rootsOfUnity(size);
-	rootsOfUnity = dcrtParams->GetRootsOfUnity();
 
 	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::getCryptoContextDCRT(&finalParams);
 	//scheme initialization: LTV Scheme
@@ -509,29 +497,28 @@ void FinalLeveledComputation(){
 }
 
 void ComposedEvalMultTest(){
-	usint init_m = 16;
+	usint m = 16;
 
 	float init_stdDev = 4;
 
-	usint init_size = 3;
+	usint size = 3;
 
-	vector<BigBinaryInteger> init_moduli(init_size);
+	vector<native64::BigBinaryInteger> moduli(size);
 
-	vector<BigBinaryInteger> init_rootsOfUnity(init_size);
+	vector<native64::BigBinaryInteger> rootsOfUnity(size);
 
-	BigBinaryInteger q("1");
-	BigBinaryInteger temp;
+	native64::BigBinaryInteger q("1");
+	native64::BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
 
-	for (int i = 0; i < init_size; i++) {
-		lbcrypto::NextQ(q, BigBinaryInteger::FIVE, init_m, BigBinaryInteger("4"), BigBinaryInteger("4"));
-		init_moduli[i] = q;
-		init_rootsOfUnity[i] = RootOfUnity(init_m, init_moduli[i]);
-		modulus = modulus* init_moduli[i];
-
+	for(int i=0; i < size; i++){
+		lbcrypto::NextQ(q, native64::BigBinaryInteger::TWO, m, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
+		moduli[i] = q;
+		rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
+		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
 	}
 
-	shared_ptr<ILDCRTParams> params( new ILDCRTParams(init_m, init_moduli, init_rootsOfUnity) );
+	shared_ptr<ILDCRTParams> params( new ILDCRTParams(m, moduli, rootsOfUnity) );
 
 	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams(params,
 			BigBinaryInteger::FIVE,
@@ -539,7 +526,7 @@ void ComposedEvalMultTest(){
 			6,
 			1.006,
 			1,
-			init_size - 1);
+			size - 1);
 
 	LPCryptoParametersLTV<ILVectorArray2n> finalParamsThreeTowers;
 

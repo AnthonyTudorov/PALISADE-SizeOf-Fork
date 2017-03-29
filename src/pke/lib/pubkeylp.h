@@ -1222,7 +1222,7 @@ namespace lbcrypto {
 			*
 			* @return the plaintext modulus.
 			*/
-		const BigBinaryInteger &GetPlaintextModulus() const { return  m_plaintextModulus; }
+		const typename Element::Integer &GetPlaintextModulus() const { return  m_plaintextModulus; }
 
 		/**
 			* Returns the reference to IL params
@@ -1234,7 +1234,7 @@ namespace lbcrypto {
 		/**
 		* Sets the value of plaintext modulus p
 		*/
-		virtual void SetPlaintextModulus(const BigBinaryInteger &plaintextModulus) { m_plaintextModulus = plaintextModulus; }
+		void SetPlaintextModulus(const typename Element::Integer &plaintextModulus) { m_plaintextModulus = plaintextModulus; }
 			
 		virtual bool operator==(const LPCryptoParameters<Element>& cmp) const = 0;
 
@@ -1249,9 +1249,9 @@ namespace lbcrypto {
 
 
 	protected:
-		LPCryptoParameters() : m_plaintextModulus(BigBinaryInteger::TWO) {}
+		LPCryptoParameters() : m_plaintextModulus(Element::Integer::TWO) {}
 
-		LPCryptoParameters(const BigBinaryInteger &plaintextModulus) : m_plaintextModulus(plaintextModulus) {}
+		LPCryptoParameters(const typename Element::Integer &plaintextModulus) : m_plaintextModulus(plaintextModulus) {}
 
 		LPCryptoParameters(shared_ptr<typename Element::Params> params, const BigBinaryInteger &plaintextModulus) : m_plaintextModulus(plaintextModulus) {
 			m_params = params;
@@ -1267,7 +1267,7 @@ namespace lbcrypto {
 		shared_ptr<typename Element::Params>	m_params;
 
 		//plaintext modulus p
-		BigBinaryInteger		m_plaintextModulus;
+		typename Element::Integer		m_plaintextModulus;
 	};
 
 	

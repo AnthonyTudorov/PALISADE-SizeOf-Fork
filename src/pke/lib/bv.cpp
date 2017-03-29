@@ -91,16 +91,10 @@ namespace lbcrypto {
 
 		const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 
-		const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
-
-		const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
-
-		const DiscreteUniformGenerator dug(elementParams->GetModulus());
-
-		TernaryUniformGenerator tug;
+		const typename Element::Integer &p = cryptoParams->GetPlaintextModulus();
 
 		//Generate the element "a" of the public key
-		Element a(dug, elementParams, Format::EVALUATION);
+		Element a(DiscreteUniformGen, elementParams, Format::EVALUATION);
 		
 		//Generate the secret key
 		Element s;
@@ -108,15 +102,16 @@ namespace lbcrypto {
 		//Done in two steps not to use a random polynomial from a pre-computed pool
 		//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
 		if (cryptoParams->GetMode() == RLWE) {
-			s = Element(dgg, elementParams, Format::COEFFICIENT);
+			s = Element(DiscreteGaussianGen, elementParams, Format::EVALUATION);
 		}
 		else {
-			s = Element(tug, elementParams, Format::COEFFICIENT);
+			s = Element(TernaryUniformGen, elementParams, Format::EVALUATION);
 		}
 		s.SwitchFormat();
 
 		//public key is generated and set
-		Element e(dgg, elementParams, Format::COEFFICIENT);
+		//privateKey->MakePublicKey(a, publicKey);
+		Element e(DiscreteGaussianGen, elementParams, Format::COEFFICIENT);
 		e.SwitchFormat();
 
 		Element b = a*s + p*e;
@@ -140,10 +135,7 @@ namespace lbcrypto {
 		shared_ptr<Ciphertext<Element>> ciphertext(new Ciphertext<Element>(publicKey->GetCryptoContext()));
 
 		const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
-		const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
-		const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
-
-		TernaryUniformGenerator tug;
+		const typename Element::Integer &p = cryptoParams->GetPlaintextModulus();
 
 		const Element &a = publicKey->GetPublicElements().at(0);
 		const Element &b = publicKey->GetPublicElements().at(1);
@@ -152,12 +144,12 @@ namespace lbcrypto {
 
 		//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
 		if (cryptoParams->GetMode() == RLWE)
-			v = Element(dgg, elementParams, Format::EVALUATION);
+			v = Element(DiscreteGaussianGen, elementParams, Format::EVALUATION);
 		else
-			v = Element(tug, elementParams, Format::EVALUATION);
+			v = Element(TernaryUniformGen, elementParams, Format::EVALUATION);
 
-		Element e0(dgg, elementParams, Format::EVALUATION);
-		Element e1(dgg, elementParams, Format::EVALUATION);
+		Element e0(DiscreteGaussianGen, elementParams, Format::EVALUATION);
+		Element e1(DiscreteGaussianGen, elementParams, Format::EVALUATION);
 
 		plaintext.SwitchFormat();
 
@@ -184,7 +176,7 @@ namespace lbcrypto {
 
 		const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
 
-		const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
+		const typename Element::Integer &p = cryptoParams->GetPlaintextModulus();
 
 		const std::vector<Element> &c = ciphertext->GetElements();
 
@@ -315,11 +307,11 @@ namespace lbcrypto {
 		//Getting a reference to the polynomials of original private key.
 		const Element &s = originalPrivateKey->GetPrivateElement();
 
-		//Getting a refernce to discrete gaussian distribution generator.
-		const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
-
-		//Getting a reference to ternary distribution generator.
-		const DiscreteUniformGenerator dug(originalKeyParams->GetModulus());
+//		//Getting a refernce to discrete gaussian distribution generator.
+//		const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
+//
+//		//Getting a refernce to ternary distribution generator.
+//		const DiscreteUniformGenerator dug(originalKeyParams->GetModulus());
 
 		//Relinearizaiton window is used to calculate the base exponent.
 		usint relinWindow = cryptoParams->GetRelinWindow();
@@ -333,12 +325,12 @@ namespace lbcrypto {
 		for (usint i = 0; i < (evalKeyElements.size()); i++)
 		{
 			// Generate a_i vectors
-			Element a(dug, originalKeyParams, Format::EVALUATION);
+			Element a(DiscreteUniformGen, originalKeyParams, Format::EVALUATION);
 
 			evalKeyElementsGenerated.push_back(a); //alpha's of i
 
 			// Generate a_i * newSK + p * e - PowerOfBase(oldSK)
-			Element e(dgg, originalKeyParams, Format::EVALUATION);
+			Element e(DiscreteGaussianGen, originalKeyParams, Format::EVALUATION);
 
 			evalKeyElements.at(i) = (a*sNew + p*e) - evalKeyElements.at(i);
 

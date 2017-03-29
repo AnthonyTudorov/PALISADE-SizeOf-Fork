@@ -63,8 +63,9 @@ template<typename ModType, typename IntType, typename VecType, typename ParmType
 class ILVectorImpl : public ILElement<ILVectorImpl<ModType,IntType,VecType,ParmType>,ModType,IntType,VecType>
 {
 public:
-
 	typedef ParmType Params;
+	typedef IntType Integer;
+	typedef VecType Vector;
 	typedef ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorType;
 
 	/**
@@ -87,6 +88,8 @@ public:
 	 * @param format - EVALUATION or COEFFICIENT
 	 */
 	ILVectorImpl(bool initializeElementToMax, const shared_ptr<ParmType> params, Format format);
+
+	ILVectorImpl(DistributionGeneratorType gtype, const shared_ptr<ParmType> params, Format format = EVALUATION);
 
 	/**
 	 * Construct with a vector from a given generator
@@ -572,7 +575,7 @@ public:
 	 *
 	 * @param &wFactor ratio between the original ILVectorArray2n's ring dimension and the new ring dimension.
 	 */
-	void MakeSparse(const IntType &wFactor);
+	void MakeSparse(const uint32_t &wFactor);
 
 	/**
 	 * Interleaves values in the ILVectorImpl with odd indices being all zeros.
@@ -647,7 +650,7 @@ public:
 	 * @param &dgg the discrete Gaussian Generator.
 	 * @param &params are the relevant ring parameters.
 	 */
-	static void PreComputeDggSamples(const DiscreteGaussianGeneratorImpl<IntType,VecType> &dgg, const shared_ptr<ParmType> params);
+	static void PreComputeDggSamples(const DistributionGenerator<IntType,VecType> &dgg, const shared_ptr<ParmType> params);
 
 	/**
 	 * Pre computes the Tug samples.
@@ -655,7 +658,7 @@ public:
 	 * @param &tug the ternary uniform generator.
 	 * @param &params are the relevant ring parameters.
 	 */
-	static void PreComputeTugSamples(const TernaryUniformGeneratorImpl<IntType,VecType> &tug, const shared_ptr<ParmType> params);
+	static void PreComputeTugSamples(const DistributionGenerator<IntType,VecType> &tug, const shared_ptr<ParmType> params);
 
 	/**
 	 * Clear the pre-computed discrete Gaussian samples.
@@ -699,6 +702,12 @@ public:
 	friend inline ILVectorImpl operator*(const ILVectorImpl &a, const IntType &b) { return a.Times(b); }
 	friend inline ILVectorImpl operator*(const IntType &a, const ILVectorImpl &b) { return b.Times(a); }
 
+	// gets a random discrete Gaussian polynomial
+	static const ILVectorImpl GetPrecomputedVector();
+
+	// gets a random polynomial generated using ternary uniform distribution
+	static const ILVectorImpl GetPrecomputedTugVector();
+
 private:
 
 	// stores either coefficient or evaluation representation
@@ -723,12 +732,6 @@ private:
 
 	// static variable to store the sample size for each set of ILParams
 	static const usint m_sampleSize = SAMPLE_SIZE;
-
-	// gets a random discrete Gaussian polynomial
-	static const ILVectorImpl GetPrecomputedVector();
-
-	// gets a random polynomial generated using ternary uniform distribution
-	static const ILVectorImpl GetPrecomputedTugVector();
 };
 
 }

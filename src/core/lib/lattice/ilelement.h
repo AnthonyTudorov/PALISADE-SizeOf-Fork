@@ -338,7 +338,7 @@ public:
 	 *
 	 * @param &wFactor ratio between the original element's ring dimension and the new ring dimension.
 	 */
-	virtual void MakeSparse(const IntType &wFactor) = 0;
+	virtual void MakeSparse(const uint32_t &wFactor) = 0;
 
 	/**
 	 * ModByTwo operation on the Element

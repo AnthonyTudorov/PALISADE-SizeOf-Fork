@@ -49,13 +49,13 @@ typedef DiscreteUniformGeneratorImpl<BigBinaryInteger,BigBinaryVector> DiscreteU
 * @brief The class for Discrete Uniform Distribution generator over Zq.
 */
 template<typename IntType, typename VecType>
-class DiscreteUniformGeneratorImpl : protected DistributionGenerator {
+class DiscreteUniformGeneratorImpl : public DistributionGenerator<IntType,VecType> {
 public:
 	/**
 	* @brief         Constructs a new DiscreteUniformGenerator with the given modulus.
 	* @param modulus The modulus to be used when generating discrete values.
 	*/
-	DiscreteUniformGeneratorImpl (const IntType & modulus);
+	DiscreteUniformGeneratorImpl (const IntType & modulus = IntType::ZERO);
 
 	/**
 	* @brief         Sets the modulus. Overrides parent function
@@ -67,12 +67,12 @@ public:
 	* @brief Generates a random integer based on the modulus set for the Discrete Unform Generator object. 
 	* Required by DistributionGenerator.
 	*/
-	IntType GenerateInteger () const;
+	IntType GenerateInteger (const IntType &m = IntType::ZERO) const;
 
 	/**
 	* @brief Generates a vector of random integers using GenerateInteger()
 	*/
-	VecType GenerateVector (const usint size) const;
+	VecType GenerateVector (const usint size, const IntType &m = IntType::ZERO) const;
 
 private:
 	// discrete uniform generator relies on the built-in C++ generator for 32-bit unsigned integers

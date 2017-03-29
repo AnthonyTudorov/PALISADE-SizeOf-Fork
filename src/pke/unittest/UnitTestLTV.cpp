@@ -68,20 +68,20 @@ TEST(UTLTV, ILVectorArray2n_Encrypt_Decrypt) {
 
 	BytePlaintextEncoding ctxtd;
 
-	vector<BigBinaryInteger> moduli(size);
+	vector<native64::BigBinaryInteger> moduli(size);
 
-	vector<BigBinaryInteger> rootsOfUnity(size);
+	vector<native64::BigBinaryInteger> rootsOfUnity(size);
 
-	BigBinaryInteger q("1");
-	BigBinaryInteger temp;
+	native64::BigBinaryInteger q("1");
+	native64::BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
 
 	DEBUG("1");
 	for (int i = 0; i < size; i++) {
-		lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
+		lbcrypto::NextQ(q, native64::BigBinaryInteger::TWO, m, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
 		moduli[i] = q;
 		rootsOfUnity[i] = RootOfUnity(m, moduli[i]);
-		modulus = modulus* moduli[i];
+		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
 		DEBUG("2 i "<<i);
 	}
 	DEBUG("3");	

@@ -227,12 +227,12 @@ LPKeyPair<Element> LPAlgorithmFV<Element>::KeyGen(const CryptoContext<Element> c
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
-	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
-	const DiscreteUniformGenerator dug(elementParams->GetModulus());
-	TernaryUniformGenerator tug;
+//	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
+//	const DiscreteUniformGenerator dug(elementParams->GetModulus());
+//	TernaryUniformGenerator tug;
 
 	//Generate the element "a" of the public key
-	Element a(dug, elementParams, Format::EVALUATION);
+	Element a(DiscreteUniformGen, elementParams, Format::EVALUATION);
 
 	//Generate the secret key
 	Element s;
@@ -240,18 +240,18 @@ LPKeyPair<Element> LPAlgorithmFV<Element>::KeyGen(const CryptoContext<Element> c
 	//Done in two steps not to use a random polynomial from a pre-computed pool
 	//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
 	if (cryptoParams->GetMode() == RLWE) {
-		s = Element(dgg, elementParams, Format::COEFFICIENT);
+		s = Element(DiscreteGaussianGen, elementParams, Format::COEFFICIENT);
 		s.SwitchFormat();
 	}
 	else {
-		s = Element(tug, elementParams, Format::COEFFICIENT);
+		s = Element(TernaryUniformGen, elementParams, Format::COEFFICIENT);
 		s.SwitchFormat();
 	}
 
 	kp.secretKey->SetPrivateElement(s);
 
 	//Done in two steps not to use a discrete Gaussian polynomial from a pre-computed pool
-	Element e(dgg, elementParams, Format::COEFFICIENT);
+	Element e(DiscreteGaussianGen, elementParams, Format::COEFFICIENT);
 	e.SwitchFormat();
 
 	Element b(elementParams, Format::EVALUATION, true);
@@ -527,8 +527,8 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmSHEFV<Element>::KeySwitchGen(const sha
 	const BigBinaryInteger &p = cryptoParamsLWE->GetPlaintextModulus();
 	const Element &s = newPrivateKey->GetPrivateElement();
 
-	const DiscreteGaussianGenerator &dgg = cryptoParamsLWE->GetDiscreteGaussianGenerator();
-	const DiscreteUniformGenerator dug(elementParams->GetModulus());
+//	const DiscreteGaussianGenerator &dgg = cryptoParamsLWE->GetDiscreteGaussianGenerator();
+//	const DiscreteUniformGenerator dug(elementParams->GetModulus());
 
 	usint relinWindow = cryptoParamsLWE->GetRelinWindow();
 
@@ -538,11 +538,11 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmSHEFV<Element>::KeySwitchGen(const sha
 	for (usint i = 0; i < (evalKeyElements.size()); i++)
 	{
 		// Generate a_i vectors
-		Element a(dug, elementParams, Format::EVALUATION);
+		Element a(DiscreteUniformGen, elementParams, Format::EVALUATION);
 		evalKeyElementsGenerated.push_back(a);
 
-		// Generate  PowerOfBase(oldkey) -(a_i * s + e)
-		Element e(dgg, elementParams, Format::EVALUATION);
+		// Generate a_i * s + e - PowerOfBase(s^2)
+		Element e(DiscreteGaussianGen, elementParams, Format::EVALUATION);
 		evalKeyElements.at(i) -= (a*s + e);
 	}
 

@@ -630,9 +630,6 @@ public:
 		Duint_type av = m_value;
 		Duint_type bv = b.m_value;
 
-		Duint_type modsum = (Duint_type)m_value;
-		modsum += b.m_value;
-
 		if( av > modulus.m_value ) av = av%modulus.m_value;
 		if( bv > modulus.m_value ) bv = bv%modulus.m_value;
 

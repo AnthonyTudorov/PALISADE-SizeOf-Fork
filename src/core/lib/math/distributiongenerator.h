@@ -55,6 +55,8 @@ namespace lbcrypto {
 * It also holds the single PRNG, which should be called by all child class when generating a random number is required.
 *
 */
+
+template<typename IntType, typename VecType>
 class DistributionGenerator {
 public:
 
@@ -64,13 +66,13 @@ public:
 	* For now, this constructor should be blank. Classes extending this class should also extend this constructor.
 	*/
 	DistributionGenerator () {}
+	virtual ~DistributionGenerator() {}
 
-//protected:
 	/**
 	* @brief  Returns the singleton PRNG. This should be used to generate all random numbers in implementing classes.
 	* @return The singleton PRNG.
 	*/
-	static std::mt19937 &GetPRNG () {
+	std::mt19937 &GetPRNG () const {
 		std::call_once(m_flag, [] () {
 			std::random_device rd;
 			DistributionGenerator::m_prng.reset(new std::mt19937(rd()));
@@ -78,6 +80,17 @@ public:
 
 		return *m_prng;
 	}
+
+	virtual IntType GenerateInteger(const IntType &modulus = IntType::ZERO) const = 0;
+
+	virtual VecType GenerateVector(usint size, const IntType& modulus = IntType::ZERO) const = 0;
+
+	/**
+	* @brief         Sets the modulus. Overrides parent function
+	* @param modulus The new modulus.
+	*/
+	virtual void SetModulus (const IntType & modulus) {}
+
 
 private:
 	/**

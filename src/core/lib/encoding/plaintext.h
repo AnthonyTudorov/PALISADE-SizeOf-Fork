@@ -58,6 +58,7 @@ public:
 	 */
 	virtual void Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector, size_t start_from=0, size_t length=0) const = 0;
 	virtual void Encode(const native64::BigBinaryInteger &modulus, native64::ILVector2n *ilVector, size_t start_from=0, size_t length=0) const = 0;
+	virtual void Encode(const BigBinaryInteger &modulus, ILVectorArray2n *ilVector, size_t start_from=0, size_t length=0) const = 0;
 
 	/** Interface for the operation of converting from ILVector2n to current plaintext encoding.
 	 *
@@ -66,6 +67,7 @@ public:
 	 */
 	virtual void Decode(const BigBinaryInteger &modulus, ILVector2n *ilVector) = 0;
 	virtual void Decode(const native64::BigBinaryInteger &modulus, native64::ILVector2n *ilVector) = 0;
+	virtual void Decode(const BigBinaryInteger &modulus, ILVectorArray2n *ilVector) = 0;
 
 	virtual void Unpad(const BigBinaryInteger &modulus) = 0;
 

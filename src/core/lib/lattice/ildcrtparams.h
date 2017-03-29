@@ -66,12 +66,12 @@ template<typename ModType, typename IntType, typename VecType, typename ParmType
 
 }
 
-namespace native64 {
-
-typedef lbcrypto::DiscreteGaussianGeneratorImpl<native64::BigBinaryInteger,native64::BigBinaryVector> DiscreteGaussianGenerator;
-typedef lbcrypto::DiscreteUniformGeneratorImpl<native64::BigBinaryInteger,native64::BigBinaryVector> DiscreteUniformGenerator;
-
-}
+//namespace native64 {
+//
+//typedef lbcrypto::DiscreteGaussianGeneratorImpl<native64::BigBinaryInteger,native64::BigBinaryVector> DiscreteGaussianGenerator;
+//typedef lbcrypto::DiscreteUniformGeneratorImpl<native64::BigBinaryInteger,native64::BigBinaryVector> DiscreteUniformGenerator;
+//
+//}
 
 namespace lbcrypto {
 
@@ -85,7 +85,7 @@ public:
 	/**
 	 * Constructor that initializes nothing.
 	 */
-	ILDCRTParams(usint depth) : m_cyclotomicOrder(0) {
+	ILDCRTParams(usint depth = 0) : m_cyclotomicOrder(0) {
 		m_parms.resize(depth);
 	}
 
@@ -115,14 +115,13 @@ public:
 	/**
 	 * Constructor with all parameters provided except the multiplied values of the chain of moduli. That value is automatically calculated. Root of unity of the modulus is also calculated.
 	 *
-	 * @param rootsOfUnity the roots of unity for the chain of moduli
 	 * @param cyclotomic_order the order of the ciphertext
-	 * @param &moduli is the tower of moduli
+	 * @param &modulus is the modulus for the entire tower
+	 * @param rootsOfUnity is unused
 	 */
-	ILDCRTParams(const usint cyclotomic_order, const native64::BigBinaryInteger &moduli, const native64::BigBinaryInteger& rootsOfUnity) {
+	ILDCRTParams(const usint cyclotomic_order, const BigBinaryInteger &modulus, const BigBinaryInteger& rootsOfUnity) {
 		m_cyclotomicOrder = cyclotomic_order;
-		m_parms.push_back( shared_ptr<native64::ILParams>( new native64::ILParams(cyclotomic_order, moduli, rootsOfUnity) ) );
-		m_modulus = moduli.ConvertToInt();
+		m_modulus = modulus;
 	}
 
 	/**

@@ -531,7 +531,7 @@ TEST(UTILVector2n, other_methods) {
 
   {
 	  native64::ILVector2n ilv(ilvector2n);
-    ilv.MakeSparse(native64::BigBinaryInteger::TWO);
+    ilv.MakeSparse(2);
 
     EXPECT_EQ(native64::BigBinaryInteger::TWO, ilv.GetValAtIndex(0));
     EXPECT_EQ(native64::BigBinaryInteger::ZERO, ilv.GetValAtIndex(1));
@@ -539,7 +539,7 @@ TEST(UTILVector2n, other_methods) {
     EXPECT_EQ(native64::BigBinaryInteger::ZERO, ilv.GetValAtIndex(3));
 
     native64::ILVector2n ilv1(ilvector2n);
-    ilv1.MakeSparse(native64::BigBinaryInteger::THREE);
+    ilv1.MakeSparse(3);
 
     EXPECT_EQ(native64::BigBinaryInteger::TWO, ilv1.GetValAtIndex(0));
     EXPECT_EQ(native64::BigBinaryInteger::ZERO, ilv1.GetValAtIndex(1));
@@ -813,8 +813,8 @@ TEST(UTILVectorArray2n, constructors_test) {
   ilvector2nVector.push_back(ilv2);
 
   DEBUG("1");
-  float stdDev = 4.0;
-  DiscreteGaussianGeneratorImpl<native64::BigBinaryInteger,native64::BigBinaryVector> dgg(stdDev);
+//  float stdDev = 4.0;
+//  DiscreteGaussianGeneratorImpl<native64::BigBinaryInteger,native64::BigBinaryVector> dgg(stdDev);
 
   {
     ILVectorArray2n ilva(ildcrtparams);
@@ -906,7 +906,7 @@ TEST(UTILVectorArray2n, constructors_test) {
 
   DEBUG("5");
   {
-    ILVectorArray2n ilva(dgg, ildcrtparams);
+    ILVectorArray2n ilva(DiscreteGaussianGen, ildcrtparams);
 
     EXPECT_EQ(Format::EVALUATION, ilva.GetFormat());
     EXPECT_EQ(modulus, ilva.GetModulus());
@@ -1283,7 +1283,7 @@ TEST(UTILVectorArray2n, arithmetic_operations_element) {
   {
     ILVectorArray2n ilvaCopy(ilva);
 
-    ilvaCopy.MakeSparse(native64::BigBinaryInteger::TWO);
+    ilvaCopy.MakeSparse(2);
 
     for (usint i = 0; i < ilvaCopy.GetNumOfElements(); ++i)
     {
@@ -1320,8 +1320,8 @@ TEST(UTILVectorArray2n, arithmetic_operations_element) {
     ilvector2nVectorS[2] = ilvS2;
 
     ILVectorArray2n ilvaS(ilvector2nVectorS);
-    native64::BigBinaryInteger modulus2("113");
-    native64::BigBinaryInteger rootOfUnity2(lbcrypto::RootOfUnity<native64::BigBinaryInteger>(m, modulus2));
+    BigBinaryInteger modulus2("113");
+    BigBinaryInteger rootOfUnity2(lbcrypto::RootOfUnity<BigBinaryInteger>(m, modulus2));
 
     ilvaS.SwitchModulus(modulus2, rootOfUnity2);
 
@@ -1334,27 +1334,27 @@ TEST(UTILVectorArray2n, arithmetic_operations_element) {
     EXPECT_EQ(native64::BigBinaryInteger("85"), ilvectS0.GetValAtIndex(2));
     EXPECT_EQ(native64::BigBinaryInteger("79"), ilvectS0.GetValAtIndex(3));
     EXPECT_EQ(native64::BigBinaryInteger("113"), ilvectS0.GetModulus());
-    EXPECT_EQ(rootOfUnity2, ilvectS0.GetRootOfUnity());
+    EXPECT_EQ(rootOfUnity2.ConvertToInt(), ilvectS0.GetRootOfUnity().ConvertToInt());
 
     EXPECT_EQ(native64::BigBinaryInteger("66"), ilvectS1.GetValAtIndex(0));
     EXPECT_EQ(native64::BigBinaryInteger("16"), ilvectS1.GetValAtIndex(1));
     EXPECT_EQ(native64::BigBinaryInteger("64"), ilvectS1.GetValAtIndex(2));
     EXPECT_EQ(native64::BigBinaryInteger("79"), ilvectS1.GetValAtIndex(3));
     EXPECT_EQ(native64::BigBinaryInteger("113"), ilvectS1.GetModulus());
-    EXPECT_EQ(rootOfUnity2, ilvectS1.GetRootOfUnity());
+    EXPECT_EQ(rootOfUnity2.ConvertToInt(), ilvectS1.GetRootOfUnity().ConvertToInt());
 
     EXPECT_EQ(native64::BigBinaryInteger::FOUR, ilvectS2.GetValAtIndex(0));
     EXPECT_EQ(native64::BigBinaryInteger("44"), ilvectS2.GetValAtIndex(1));
     EXPECT_EQ(native64::BigBinaryInteger("84"), ilvectS2.GetValAtIndex(2));
     EXPECT_EQ(native64::BigBinaryInteger("79"), ilvectS2.GetValAtIndex(3));
     EXPECT_EQ(native64::BigBinaryInteger("113"), ilvectS2.GetModulus());
-    EXPECT_EQ(rootOfUnity2, ilvectS2.GetRootOfUnity());
+    EXPECT_EQ(rootOfUnity2.ConvertToInt(), ilvectS2.GetRootOfUnity().ConvertToInt());
   }
 
   {
     ILVectorArray2n ilvaCopy(ilva);
-    native64::BigBinaryInteger modulus2("113");
-    native64::BigBinaryInteger rootOfUnity2(lbcrypto::RootOfUnity<native64::BigBinaryInteger>(m, modulus2));
+    BigBinaryInteger modulus2("113");
+    BigBinaryInteger rootOfUnity2(lbcrypto::RootOfUnity<BigBinaryInteger>(m, modulus2));
     ilvaCopy.SwitchModulusAtIndex(0, modulus2, rootOfUnity2);
 
     for (usint i = 0; i < ilvaCopy.GetNumOfElements(); ++i)
@@ -1367,8 +1367,8 @@ TEST(UTILVectorArray2n, arithmetic_operations_element) {
       EXPECT_EQ(native64::BigBinaryInteger::TWO, ilv.GetValAtIndex(3));
 
       if(i==0){
-        EXPECT_EQ(modulus2, ilv.GetModulus());
-        EXPECT_EQ(rootOfUnity2, ilv.GetRootOfUnity());
+        EXPECT_EQ(modulus2.ConvertToInt(), ilv.GetModulus().ConvertToInt());
+        EXPECT_EQ(rootOfUnity2.ConvertToInt(), ilv.GetRootOfUnity().ConvertToInt());
       }
     }
   }
@@ -1397,11 +1397,11 @@ TEST(UTILVectorArray2n, decompose_test) {
       modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
   }
 
-  float stdDev = 4;
-  DiscreteGaussianGeneratorImpl<native64::BigBinaryInteger,native64::BigBinaryVector> dgg(stdDev);
+//  float stdDev = 4;
+//  DiscreteGaussianGeneratorImpl<native64::BigBinaryInteger,native64::BigBinaryVector> dgg(stdDev);
 
   shared_ptr<ILDCRTParams> params( new ILDCRTParams(order, moduli, rootsOfUnity) );
-  ILVectorArray2n ilVectorArray2n(dgg, params, Format::COEFFICIENT);
+  ILVectorArray2n ilVectorArray2n(DiscreteGaussianGen, params, Format::COEFFICIENT);
 
   ILVectorArray2n ilvectorarray2nOriginal(ilVectorArray2n);
   ilVectorArray2n.Decompose();

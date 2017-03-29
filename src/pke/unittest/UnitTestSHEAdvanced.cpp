@@ -82,19 +82,19 @@ TEST_F(UTSHEAdvanced, ParameterSelection) {
 
 	usint size = 11; // tower size, equal to depth of operation + 1
 
-	vector<BigBinaryInteger> moduli(size);
+	vector<native64::BigBinaryInteger> moduli(size);
 
-	vector<BigBinaryInteger> rootsOfUnity(size);
+	vector<native64::BigBinaryInteger> rootsOfUnity(size);
 
-	BigBinaryInteger q("1");
-	BigBinaryInteger temp;
+	native64::BigBinaryInteger q("1");
+	native64::BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
 
 	for (int i = 0; i < size; i++) {
-		lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
+		lbcrypto::NextQ(q, native64::BigBinaryInteger::TWO, m, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
 		moduli[i] = q;
 		rootsOfUnity[i] = RootOfUnity(m, moduli[i]);
-		modulus = modulus* moduli[i];
+		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
 
 	}
 
@@ -115,17 +115,17 @@ TEST_F(UTSHEAdvanced, ParameterSelection) {
 	cryptoParams.ParameterSelection(&cryptoParams2);
 
 	shared_ptr<ILDCRTParams> dcrtParams = std::dynamic_pointer_cast<ILDCRTParams>(cryptoParams2.GetElementParams());
-	std::vector<BigBinaryInteger> finalModuli = dcrtParams->GetModuli();
+	std::vector<shared_ptr<native64::ILParams>> finalParams = dcrtParams->GetParams();
 	//threshold for the first modulus
 	double q1Threshold = 4 * pow(cryptoParams2.GetPlaintextModulus().ConvertToDouble(), 2) * pow(cryptoParams2.GetElementParams()->GetCyclotomicOrder() / 2, 0.5) * cryptoParams2.GetAssuranceMeasure();
 	//test for the first modulus
-	EXPECT_LT(q1Threshold, finalModuli[0].ConvertToDouble());
+	EXPECT_LT(q1Threshold, finalParams[0]->GetModulus().ConvertToDouble());
 	//threshold for all but the first modulus
 	double q2Threshold = 4 * pow(cryptoParams2.GetPlaintextModulus().ConvertToDouble(), 2) * pow(cryptoParams2.GetDistributionParameter(), 5) * pow(cryptoParams2.GetElementParams()->GetCyclotomicOrder() / 2, 1.5) * pow(cryptoParams2.GetAssuranceMeasure(), 5);
 
 	//test for all but the first modulus
-	for (usint i = 1; i < finalModuli.size(); i++) {
-		EXPECT_LT(q2Threshold, finalModuli[i].ConvertToDouble());
+	for (usint i = 1; i < finalParams.size(); i++) {
+		EXPECT_LT(q2Threshold, finalParams[i]->GetModulus().ConvertToDouble());
 	}
 }
 
@@ -209,19 +209,19 @@ TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 
 	usint init_size = 2;
 
-	vector<BigBinaryInteger> init_moduli(init_size);
+	vector<native64::BigBinaryInteger> init_moduli(init_size);
 
-	vector<BigBinaryInteger> init_rootsOfUnity(init_size);
+	vector<native64::BigBinaryInteger> init_rootsOfUnity(init_size);
 
-	BigBinaryInteger q("1");
-	BigBinaryInteger temp;
+	native64::BigBinaryInteger q("1");
+	native64::BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
 
 	for (int i = 0; i < init_size; i++) {
-		lbcrypto::NextQ(q, BigBinaryInteger::FIVE, init_m, BigBinaryInteger("4"), BigBinaryInteger("4"));
+		lbcrypto::NextQ(q, native64::BigBinaryInteger::FIVE, init_m, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
 		init_moduli[i] = q;
 		init_rootsOfUnity[i] = RootOfUnity(init_m, init_moduli[i]);
-		modulus = modulus* init_moduli[i];
+		modulus = modulus * BigBinaryInteger(init_moduli[i].ConvertToInt());
 
 	}
 
@@ -393,20 +393,20 @@ TEST_F(UTSHEAdvanced, test_eval_add_double_crt) {
 
 	usint init_size = 2;
 
-	vector<BigBinaryInteger> init_moduli(init_size);
+	vector<native64::BigBinaryInteger> init_moduli(init_size);
 
-	vector<BigBinaryInteger> init_rootsOfUnity(init_size);
+	vector<native64::BigBinaryInteger> init_rootsOfUnity(init_size);
 
-	BigBinaryInteger q("1");
-	BigBinaryInteger temp;
+	native64::BigBinaryInteger q("1");
+	native64::BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
 	DEBUG("1");
 
 	for (int i = 0; i < init_size; i++) {
-		lbcrypto::NextQ(q, BigBinaryInteger::FIVE, init_m, BigBinaryInteger("4"), BigBinaryInteger("4"));
+		lbcrypto::NextQ(q, native64::BigBinaryInteger::FIVE, init_m, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
 		init_moduli[i] = q;
 		init_rootsOfUnity[i] = RootOfUnity(init_m, init_moduli[i]);
-		modulus = modulus* init_moduli[i];
+		modulus = modulus * BigBinaryInteger(init_moduli[i].ConvertToInt());
 
 	}
 	DEBUG("2");
@@ -493,19 +493,19 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 
 	usint init_size = 2;
 
-	vector<BigBinaryInteger> init_moduli(init_size);
+	vector<native64::BigBinaryInteger> init_moduli(init_size);
 
-	vector<BigBinaryInteger> init_rootsOfUnity(init_size);
+	vector<native64::BigBinaryInteger> init_rootsOfUnity(init_size);
 
-	BigBinaryInteger q("1");
-	BigBinaryInteger temp;
+	native64::BigBinaryInteger q("1");
+	native64::BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
 
 	for (int i = 0; i < init_size; i++) {
-		lbcrypto::NextQ(q, BigBinaryInteger::FIVE, init_m, BigBinaryInteger("4"), BigBinaryInteger("4"));
+		lbcrypto::NextQ(q, native64::BigBinaryInteger::FIVE, init_m, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
 		init_moduli[i] = q;
 		init_rootsOfUnity[i] = RootOfUnity(init_m, init_moduli[i]);
-		modulus = modulus* init_moduli[i];
+		modulus = modulus * BigBinaryInteger(init_moduli[i].ConvertToInt());
 
 	}
 

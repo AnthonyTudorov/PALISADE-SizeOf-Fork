@@ -45,4 +45,37 @@
 #include "binaryuniformgenerator.h"
 #include "ternaryuniformgenerator.h"
 
+namespace lbcrypto {
+
+enum DistributionGeneratorType {
+	BinaryUniformGen,
+	DiscreteGaussianGen,
+	DiscreteUniformGen,
+	TernaryUniformGen
+};
+
+template<typename IntType, typename VecType>
+class GeneratorContainer {
+private:
+	static BinaryUniformGeneratorImpl<IntType,VecType>		bug;
+	static DiscreteGaussianGeneratorImpl<IntType,VecType>	dgg;
+	static DiscreteUniformGeneratorImpl<IntType,VecType>	dug;
+	static TernaryUniformGeneratorImpl<IntType,VecType>		tug;
+
+public:
+	static DiscreteGaussianGeneratorImpl<IntType,VecType>& GetDiscreteGaussianGenerator() { return dgg; }
+
+	static DistributionGenerator<IntType,VecType>& GetGenerator(DistributionGeneratorType gt) {
+		switch( gt ) {
+		case BinaryUniformGen:		return bug;
+		case DiscreteGaussianGen:	return dgg;
+		case DiscreteUniformGen:	return dug;
+		case TernaryUniformGen:		return tug;
+		default: throw std::logic_error("unrecognized generator type");
+		}
+	}
+};
+
+}
+
 #endif // LBCRYPTO_MATH_DISTRGEN_H_

@@ -70,14 +70,17 @@ public:
 	* @param  *ilVector encoded plaintext - output argument.
 	*/
 	void Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector, size_t start_from=0, size_t length=0) const;
-	void Encode(const BigBinaryInteger &modulus, native64::ILVector2n *ilVector, size_t start_from=0, size_t length=0) const;
+	void Encode(const native64::BigBinaryInteger &modulus, native64::ILVector2n *ilVector, size_t start_from=0, size_t length=0) const;
+	void Encode(const BigBinaryInteger &modulus, ILVectorArray2n *ilVector, size_t start_from=0, size_t length=0) const;
 
 	/** Interface for the operation of converting from ILVector2n to current plaintext encoding.
 	*
 	* @param  modulus - used for encoding.
 	* @param  *ilVector encoded plaintext - input argument.
 	*/
-	void Decode(const BigBinaryInteger &modulus,  ILVector2n *ilVector);
+	void Decode(const BigBinaryInteger &modulus, ILVector2n *ilVector);
+	void Decode(const native64::BigBinaryInteger &modulus, native64::ILVector2n *ilVector);
+	void Decode(const BigBinaryInteger &modulus, ILVectorArray2n *ilVector);
 
 	void Unpad(const BigBinaryInteger &modulus) {} // a null op; no padding in int
 

@@ -60,19 +60,19 @@ TEST(UTBVDCRT, ILVector2n_bv_Encrypt_Decrypt_DCRT) {
 
 	float stdDev = 4;
 
-	std::vector<BigBinaryInteger> moduli(numOfTower);
+	std::vector<native64::BigBinaryInteger> moduli(numOfTower);
 
-	std::vector<BigBinaryInteger> rootsOfUnity(numOfTower);
+	std::vector<native64::BigBinaryInteger> rootsOfUnity(numOfTower);
 
-	BigBinaryInteger q("50000");
-	BigBinaryInteger temp;
+	native64::BigBinaryInteger q("50000");
+	native64::BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
 
 	for (int j = 0; j < numOfTower; j++) {
-		lbcrypto::NextQ(q, BigBinaryInteger::FIVE, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
+		lbcrypto::NextQ(q, native64::BigBinaryInteger::FIVE, m, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
 		moduli[j] = q;
 		rootsOfUnity[j] = RootOfUnity(m, moduli[j]);
-		modulus = modulus* moduli[j];
+		modulus = modulus * BigBinaryInteger(moduli[j].ConvertToInt());
 	}
 
 	//Prepare for parameters.
@@ -125,19 +125,19 @@ TEST(UTBVDCRT, ILVector2n_bv_PRE_DCRT) {
 
 	float stdDev = 4;
 
-	std::vector<BigBinaryInteger> moduli(numOfTower);
+	std::vector<native64::BigBinaryInteger> moduli(numOfTower);
 
-	std::vector<BigBinaryInteger> rootsOfUnity(numOfTower);
+	std::vector<native64::BigBinaryInteger> rootsOfUnity(numOfTower);
 
-	BigBinaryInteger q("50000");
-	BigBinaryInteger temp;
+	native64::BigBinaryInteger q("50000");
+	native64::BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
 
 	for (int j = 0; j < numOfTower; j++) {
-		lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
+		lbcrypto::NextQ(q, native64::BigBinaryInteger::FIVE, m, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
 		moduli[j] = q;
 		rootsOfUnity[j] = RootOfUnity(m, moduli[j]);
-		modulus = modulus* moduli[j];
+		modulus = modulus * BigBinaryInteger(moduli[j].ConvertToInt());
 	}
 
 	//Prepare for parameters.
@@ -215,21 +215,19 @@ TEST(UTBVDCRT, ILVector2n_bv_EVALADD_DCRT) {
 
 	float stdDev = 4;
 
-	std::vector<BigBinaryInteger> moduli(numOfTower);
+	std::vector<native64::BigBinaryInteger> moduli(numOfTower);
 
-	std::vector<BigBinaryInteger> rootsOfUnity(numOfTower);
+	std::vector<native64::BigBinaryInteger> rootsOfUnity(numOfTower);
 
-	BytePlaintextEncoding ctxtd;
-
-	BigBinaryInteger q("1");
-	BigBinaryInteger temp;
+	native64::BigBinaryInteger q("50000");
+	native64::BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
 
 	for (int j = 0; j < numOfTower; j++) {
-		lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
+		lbcrypto::NextQ(q, native64::BigBinaryInteger::FIVE, m, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
 		moduli[j] = q;
 		rootsOfUnity[j] = RootOfUnity(m, moduli[j]);
-		modulus = modulus* moduli[j];
+		modulus = modulus * BigBinaryInteger(moduli[j].ConvertToInt());
 	}
 
 	//Prepare for parameters.
@@ -355,19 +353,19 @@ TEST(UTBVDCRT, ILVector2n_bv_EVALMULT_DCRT) {
 
 	usint init_size = 5;
 
-	vector<BigBinaryInteger> init_moduli(init_size);
+	vector<native64::BigBinaryInteger> init_moduli(init_size);
 
-	vector<BigBinaryInteger> init_rootsOfUnity(init_size);
+	vector<native64::BigBinaryInteger> init_rootsOfUnity(init_size);
 
-	BigBinaryInteger q("21990232");
-	BigBinaryInteger temp;
+	native64::BigBinaryInteger q("21990232");
+	native64::BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
 
 	for (int i = 0; i < init_size; i++) {
-		lbcrypto::NextQ(q, BigBinaryInteger::FIVE, init_m, BigBinaryInteger("4"), BigBinaryInteger("4"));
+		lbcrypto::NextQ(q, native64::BigBinaryInteger::FIVE, init_m, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
 		init_moduli[i] = q;
 		init_rootsOfUnity[i] = RootOfUnity(init_m, init_moduli[i]);
-		modulus = modulus* init_moduli[i];
+		modulus = modulus * BigBinaryInteger(init_moduli[i].ConvertToInt());
 	}
 
 	shared_ptr<ILDCRTParams> params(new ILDCRTParams(init_m, init_moduli, init_rootsOfUnity));
@@ -429,23 +427,20 @@ TEST(UTBVDCRT, ILVector2n_bv_DCRT_MODREDUCE) {
 
 	float stdDev = 4;
 
-	std::vector<BigBinaryInteger> moduli(numOfTower);
+	std::vector<native64::BigBinaryInteger> moduli(numOfTower);
 
-	std::vector<BigBinaryInteger> rootsOfUnity(numOfTower);
+	std::vector<native64::BigBinaryInteger> rootsOfUnity(numOfTower);
 
-	BigBinaryInteger q("50000");
-	BigBinaryInteger temp;
+	native64::BigBinaryInteger q("50000");
+	native64::BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
 
 	for (int j = 0; j < numOfTower; j++) {
-		lbcrypto::NextQ(q, BigBinaryInteger::FIVE, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
+		lbcrypto::NextQ(q, native64::BigBinaryInteger::FIVE, m, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
 		moduli[j] = q;
 		rootsOfUnity[j] = RootOfUnity(m, moduli[j]);
-		modulus = modulus* moduli[j];
-		//std::cout << "modulus is: " << moduli[j] << std::endl;
-		//std::cout << "rootsOfUnity is: " << rootsOfUnity[j] << std::endl;
+		modulus = modulus * BigBinaryInteger(moduli[j].ConvertToInt());
 	}
-
 
 	//std::cout << " \nCryptosystem initialization: Performing precomputations..." << std::endl;
 

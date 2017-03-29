@@ -82,12 +82,21 @@ void IntPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *i
 	ilVector->SetValues(temp,format);
 }
 
+void IntPlaintextEncoding::Encode(const native64::BigBinaryInteger &modulus, native64::ILVector2n *ilVector, size_t start_from, size_t length) const {}
+
+void IntPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVectorArray2n *ilVector, size_t start_from, size_t length) const {}
+
+
 void IntPlaintextEncoding::Decode(const BigBinaryInteger &modulus,  ILVector2n *ilVector) {
 
 	for (usint i = 0; i<ilVector->GetValues().GetLength(); i++) {
 		this->push_back( ilVector->GetValues().GetValAtIndex(i).ConvertToInt() );
 	}
 }
+
+void IntPlaintextEncoding::Decode(const native64::BigBinaryInteger &modulus, native64::ILVector2n *ilVector) {}
+void IntPlaintextEncoding::Decode(const BigBinaryInteger &modulus, ILVectorArray2n *ilVector) {}
+
 
 size_t
 IntPlaintextEncoding::GetChunksize(const usint cyc, const BigBinaryInteger&) const

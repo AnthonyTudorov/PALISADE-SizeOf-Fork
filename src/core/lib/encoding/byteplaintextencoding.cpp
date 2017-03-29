@@ -59,9 +59,9 @@ BytePlaintextEncoding& BytePlaintextEncoding::operator=(const char* cstr) {
 	return *this;
 }
 
-template<typename IntType, typename VecType, typename ElementType>
+template<typename ModType, typename IntType, typename VecType, typename ElementType>
 static void
-doEncode(const BytePlaintextEncoding& item, const IntType &modulus, ElementType *ilVector, size_t startFrom, size_t length)
+doEncode(const BytePlaintextEncoding& item, const ModType &modulus, ElementType *ilVector, size_t startFrom, size_t length)
 {
 	size_t		padlen = 0;
 
@@ -137,11 +137,15 @@ doDecode(BytePlaintextEncoding& item, const IntType &modulus, ElementType *ilVec
 
 // these 4 methods use the templated implementations, above
 void BytePlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector, size_t start_from, size_t length) const {
-	doEncode<BigBinaryInteger,BigBinaryVector,ILVector2n>(*this, modulus, ilVector, start_from, length);
+	doEncode<BigBinaryInteger,BigBinaryInteger,BigBinaryVector,ILVector2n>(*this, modulus, ilVector, start_from, length);
 }
 
 void BytePlaintextEncoding::Encode(const native64::BigBinaryInteger &modulus, native64::ILVector2n *ilVector, size_t start_from, size_t length) const {
-	doEncode<native64::BigBinaryInteger,native64::BigBinaryVector,native64::ILVector2n>(*this, modulus, ilVector, start_from, length);
+	doEncode<native64::BigBinaryInteger,native64::BigBinaryInteger,native64::BigBinaryVector,native64::ILVector2n>(*this, modulus, ilVector, start_from, length);
+}
+
+void BytePlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVectorArray2n *ilVector, size_t start_from, size_t length) const {
+	doEncode<BigBinaryInteger,BigBinaryInteger,BigBinaryVector,ILVectorArray2n>(*this, modulus, ilVector, start_from, length);
 }
 
 void BytePlaintextEncoding::Decode(const BigBinaryInteger &modulus, ILVector2n *ilVector) {
@@ -149,6 +153,10 @@ void BytePlaintextEncoding::Decode(const BigBinaryInteger &modulus, ILVector2n *
 }
 
 void BytePlaintextEncoding::Decode(const native64::BigBinaryInteger &modulus, native64::ILVector2n *ilVector) {
+	doDecode(*this, modulus, ilVector);
+}
+
+void BytePlaintextEncoding::Decode(const BigBinaryInteger &modulus, ILVectorArray2n *ilVector) {
 	doDecode(*this, modulus, ilVector);
 }
 

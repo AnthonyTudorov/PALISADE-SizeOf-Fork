@@ -247,22 +247,22 @@ TEST(UTSHE, keyswitch_ModReduce_DCRT) {
 	float stdDev = 4;
 	usint size = 4;
 
-	vector<BigBinaryInteger> moduli(size);
+	vector<native64::BigBinaryInteger> moduli(size);
 	moduli.reserve(4);
-	vector<BigBinaryInteger> rootsOfUnity(size);
+	vector<native64::BigBinaryInteger> rootsOfUnity(size);
 	rootsOfUnity.reserve(4);
 
-	BigBinaryInteger q("1");
-	BigBinaryInteger temp;
+	native64::BigBinaryInteger q("1");
+	native64::BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
 
-	lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("40"), BigBinaryInteger("4"));
+	lbcrypto::NextQ(q, native64::BigBinaryInteger::TWO, m, native64::BigBinaryInteger("40"), native64::BigBinaryInteger("4"));
 
 	for (int i = 0; i < size; i++) {
-		lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
+		lbcrypto::NextQ(q, native64::BigBinaryInteger::TWO, m, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
 		moduli[i] = q;
 		rootsOfUnity[i] = RootOfUnity(m, moduli[i]);
-		modulus = modulus* moduli[i];
+		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
 	}
 
 	ILVectorArray2n::PreComputeCRIFactors(moduli, m);
@@ -382,22 +382,22 @@ TEST(UTSHE, ringreduce_double_crt) {
 	float stdDev = 4;
 	usint size = 3;
 
-	vector<BigBinaryInteger> moduli(size);
+	vector<native64::BigBinaryInteger> moduli(size);
 	moduli.reserve(4);
-	vector<BigBinaryInteger> rootsOfUnity(size);
+	vector<native64::BigBinaryInteger> rootsOfUnity(size);
 	rootsOfUnity.reserve(4);
 
-	BigBinaryInteger q("1");
-	BigBinaryInteger temp;
+	native64::BigBinaryInteger q("1");
+	native64::BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
 
-	lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("40"), BigBinaryInteger("4"));
+	lbcrypto::NextQ(q, native64::BigBinaryInteger::TWO, m, native64::BigBinaryInteger("40"), native64::BigBinaryInteger("4"));
 
 	for (int i = 0; i < size; i++) {
-		lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
+		lbcrypto::NextQ(q, native64::BigBinaryInteger::TWO, m, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
 		moduli[i] = q;
 		rootsOfUnity[i] = RootOfUnity(m, moduli[i]);
-		modulus = modulus* moduli[i];
+		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
 	}
 	ILVectorArray2n::PreComputeCRIFactors(moduli, m);
 

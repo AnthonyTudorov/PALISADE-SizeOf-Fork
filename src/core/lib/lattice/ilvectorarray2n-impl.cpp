@@ -18,7 +18,7 @@
 
 namespace lbcrypto {
 
-template class ILVectorArrayImpl<BigBinaryInteger,native64::BigBinaryInteger,native64::BigBinaryVector,ILDCRTParams>;
+template class ILVectorArrayImpl<BigBinaryInteger,BigBinaryInteger,BigBinaryVector,ILDCRTParams>;
 
 }
 
