@@ -194,18 +194,34 @@ public:
 
 	/**
 	* ReKeyGen produces an Eval Key that PALISADE can use for Proxy Re Encryption
-	* @param PublicKey
-	* @param PrivateKey
+	* @param newKey (public)
+	* @param oldKey (private)
 	* @return new evaluation key
 	*/
 	shared_ptr<LPEvalKey<Element>> ReKeyGen(
-		const shared_ptr<LPPublicKey<Element>> PublicKey,
-		const shared_ptr<LPPrivateKey<Element>> PrivateKey) const {
+		const shared_ptr<LPPublicKey<Element>> newKey,
+		const shared_ptr<LPPrivateKey<Element>> oldKey) const {
 
-		if( PublicKey == NULL || PrivateKey == NULL || PublicKey->GetCryptoContext() != *this || PrivateKey->GetCryptoContext() != *this )
+		if( newKey == NULL || oldKey == NULL || newKey->GetCryptoContext() != *this || oldKey->GetCryptoContext() != *this )
 			throw std::logic_error("Keys passed to ReKeyGen were not generated with this crypto context");
 
-		return GetEncryptionAlgorithm()->ReKeyGen(PublicKey, PrivateKey);
+		return GetEncryptionAlgorithm()->ReKeyGen(newKey, oldKey);
+	}
+
+	/**
+	* ReKeyGen produces an Eval Key that PALISADE can use for Proxy Re Encryption
+	* @param newKey (private)
+	* @param oldKey (private)
+	* @return new evaluation key
+	*/
+	shared_ptr<LPEvalKey<Element>> ReKeyGen(
+		const shared_ptr<LPPrivateKey<Element>> newKey,
+		const shared_ptr<LPPrivateKey<Element>> oldKey) const {
+
+		if (newKey == NULL || oldKey == NULL || newKey->GetCryptoContext() != *this || oldKey->GetCryptoContext() != *this)
+			throw std::logic_error("Keys passed to ReKeyGen were not generated with this crypto context");
+
+		return GetEncryptionAlgorithm()->ReKeyGen(newKey, oldKey);
 	}
 
 	/**

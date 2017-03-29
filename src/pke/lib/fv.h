@@ -429,7 +429,7 @@ namespace lbcrypto {
 		* @param &newPublicKey encryption key for the new ciphertext.
 		* @param origPrivateKey original private key used for decryption.
 		*/
-		shared_ptr<LPEvalKey<Element>> KeySwitchRelinGen(const shared_ptr<LPKey<Element>> newPublicKey,
+		shared_ptr<LPEvalKey<Element>> KeySwitchRelinGen(const shared_ptr<LPPublicKey<Element>> newPublicKey,
 			const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const {
 			std::string errMsg = "LPAlgorithmSHEFV:KeySwitchRelinGen is not needed for this scheme as relinearization is the default technique.";
 			throw std::runtime_error(errMsg);

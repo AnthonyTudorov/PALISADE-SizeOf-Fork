@@ -176,16 +176,40 @@ public:
 
 	/**
 	* Function to generate 1..log(q) encryptions for each bit of the original private key
+	* Variant that uses the public key for the new secret key.
 	*
 	* @param &newPrivateKey encryption key for the new ciphertext.
 	* @param &origPrivateKey original private key used for decryption.
 	* @param &ddg discrete Gaussian generator.
 	* @param *evalKey the evaluation key.
 	*/
-	shared_ptr<LPEvalKey<Element>> ReKeyGen(const shared_ptr<LPKey<Element>> newPrivateKey,
+	shared_ptr<LPEvalKey<Element>> ReKeyGen(const shared_ptr<LPPublicKey<Element>> newPrivateKey,
 		const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const {
 		// create a new ReKey of the proper type, in this context
 		shared_ptr<LPEvalKeyNTRURelin<Element>> EK( new LPEvalKeyNTRURelin<Element>(newPrivateKey->GetCryptoContext()) );
+
+		Element a(newPrivateKey->GetCryptoContext().GetCryptoParameters()->GetElementParams(), Format::EVALUATION, true);
+		vector<Element> evalKeyElements;
+		evalKeyElements.push_back(std::move(a));
+
+		EK->SetAVector(std::move(evalKeyElements));
+
+		return EK;
+	}
+
+	/**
+	* Function to generate 1..log(q) encryptions for each bit of the original private key
+	* Variant that uses the new secret key directly.
+	*
+	* @param &newPrivateKey encryption key for the new ciphertext.
+	* @param &origPrivateKey original private key used for decryption.
+	* @param &ddg discrete Gaussian generator.
+	* @param *evalKey the evaluation key.
+	*/
+	shared_ptr<LPEvalKey<Element>> ReKeyGen(const shared_ptr<LPPrivateKey<Element>> newPrivateKey,
+		const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const {
+		// create a new ReKey of the proper type, in this context
+		shared_ptr<LPEvalKeyNTRURelin<Element>> EK(new LPEvalKeyNTRURelin<Element>(newPrivateKey->GetCryptoContext()));
 
 		Element a(newPrivateKey->GetCryptoContext().GetCryptoParameters()->GetElementParams(), Format::EVALUATION, true);
 		vector<Element> evalKeyElements;
@@ -448,7 +472,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		* @param &newPublicKey encryption key for the new ciphertext.
 		* @param origPrivateKey original private key used for decryption.
 		*/
-		shared_ptr<LPEvalKey<Element>> KeySwitchRelinGen(const shared_ptr<LPKey<Element>> newPublicKey,
+		shared_ptr<LPEvalKey<Element>> KeySwitchRelinGen(const shared_ptr<LPPublicKey<Element>> newPublicKey,
 			const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const {
 			return shared_ptr<LPEvalKey<Element>>();
 		}

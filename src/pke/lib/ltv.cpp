@@ -418,23 +418,21 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmSHELTV<Element>::EvalMultKeyGen(const 
 
 //Function to generate 1..log(q) encryptions for each bit of the original private key
 template <class Element>
-shared_ptr<LPEvalKey<Element>> LPAlgorithmSHELTV<Element>::KeySwitchRelinGen(const shared_ptr<LPKey<Element>> newPK,
+shared_ptr<LPEvalKey<Element>> LPAlgorithmSHELTV<Element>::KeySwitchRelinGen(const shared_ptr<LPPublicKey<Element>> newPublicKey,
 	const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const
 {
 
 	// create a new EvalKey of the proper type, in this context
-	shared_ptr<LPEvalKeyNTRURelin<Element>> ek(new LPEvalKeyNTRURelin<Element>(newPK->GetCryptoContext()));
+	shared_ptr<LPEvalKeyNTRURelin<Element>> ek(new LPEvalKeyNTRURelin<Element>(newPublicKey->GetCryptoContext()));
 
 	// the wrapper checked to make sure that the input keys were created in the proper context
 
 	const shared_ptr<LPCryptoParametersRLWE<Element>> cryptoParamsLWE =
-		std::dynamic_pointer_cast<LPCryptoParametersRLWE<Element>>(newPK->GetCryptoParameters());
+		std::dynamic_pointer_cast<LPCryptoParametersRLWE<Element>>(newPublicKey->GetCryptoParameters());
 
 	const shared_ptr<typename Element::Params> elementParams = cryptoParamsLWE->GetElementParams();
 	const BigBinaryInteger &p = cryptoParamsLWE->GetPlaintextModulus();
 	const Element &f = origPrivateKey->GetPrivateElement();
-
-	const shared_ptr<LPPublicKey<Element>> newPublicKey = std::dynamic_pointer_cast<LPPublicKey<Element>>(newPK);
 
 	const Element &hn = newPublicKey->GetPublicElements().at(0);
 
@@ -538,7 +536,7 @@ bool LPAlgorithmSHELTV<Element>::EvalAutomorphismKeyGen(const shared_ptr<LPPubli
 
 //Function to generate 1..log(q) encryptions for each bit of the original private key
 template <class Element>
-shared_ptr<LPEvalKey<Element>> LPAlgorithmPRELTV<Element>::ReKeyGen(const shared_ptr<LPKey<Element>> newPK,
+shared_ptr<LPEvalKey<Element>> LPAlgorithmPRELTV<Element>::ReKeyGen(const shared_ptr<LPPublicKey<Element>> newPK,
 	const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const
 {
 	return origPrivateKey->GetCryptoContext().GetEncryptionAlgorithm()->KeySwitchRelinGen(newPK, origPrivateKey);

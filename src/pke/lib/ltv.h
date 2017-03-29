@@ -221,12 +221,28 @@ public:
 	LPAlgorithmPRELTV() {}
 
 	/**
-	* Function to generate 1..log(q) encryptions for each bit of the original private key
+	* Function to generate a re-encryption key as 1..log(q) encryptions for each bit of the original private key
+	* Variant that uses the new secret key directly.
 	*
-	* @param &newPublicKey encryption key for the new ciphertext.
+	* @param newKey new private key for the new ciphertext.
 	* @param origPrivateKey original private key used for decryption.
+	* @return evalKey the evaluation key for switching the ciphertext to be decryptable by new private key.
 	*/
-	shared_ptr<LPEvalKey<Element>> ReKeyGen(const shared_ptr<LPKey<Element>> newPublicKey,
+	shared_ptr<LPEvalKey<Element>> ReKeyGen(const shared_ptr<LPPrivateKey<Element>> newKey,
+		const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const {
+		std::string errMsg = "LPAlgorithmPRELTV::ReKeyGen using the new secret key is not implemented for the LTV Scheme.";
+		throw std::runtime_error(errMsg);
+	}
+
+	/**
+	* Function to generate a re-encryption key as 1..log(q) encryptions for each bit of the original private key
+	* Variant that uses the public key for the new secret key.
+	*
+	* @param newKey public key for the new private key.
+	* @param origPrivateKey original private key used for decryption.
+	* @return evalKey the evaluation key for switching the ciphertext to be decryptable by new private key.
+	*/
+	shared_ptr<LPEvalKey<Element>> ReKeyGen(const shared_ptr<LPPublicKey<Element>> newKey,
 		const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const;
 
 	/**
@@ -334,7 +350,7 @@ public:
 	* @param &newPublicKey encryption key for the new ciphertext.
 	* @param origPrivateKey original private key used for decryption.
 	*/
-	shared_ptr<LPEvalKey<Element>> KeySwitchRelinGen(const shared_ptr<LPKey<Element>> newPublicKey,
+	shared_ptr<LPEvalKey<Element>> KeySwitchRelinGen(const shared_ptr<LPPublicKey<Element>> newPublicKey,
 		const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const;
 
 	/**
