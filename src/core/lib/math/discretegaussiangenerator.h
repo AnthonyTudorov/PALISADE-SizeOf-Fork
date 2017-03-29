@@ -56,17 +56,17 @@ template<typename IntType, typename VecType>
 class DiscreteGaussianGeneratorImpl : public DistributionGenerator<IntType,VecType> {
 
 public:
-	/**
-	* Default constructor.
-	*/
-	DiscreteGaussianGeneratorImpl() ;
+//	/**
+//	* Default constructor.
+//	*/
+//	DiscreteGaussianGeneratorImpl() ;
 
 	/**
 	* @brief         Basic constructor for specifying distribution parameter and modulus.
 	* @param modulus The modulus to use to generate discrete values.
 	* @param std     The standard deviation for this Gaussian Distribution.
 	*/
-	DiscreteGaussianGeneratorImpl (float std);
+	DiscreteGaussianGeneratorImpl (float std = 4.0);
 
 	/**
 	* @brief Initializes the generator.

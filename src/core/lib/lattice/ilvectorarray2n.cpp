@@ -94,7 +94,7 @@ namespace lbcrypto {
 		// copy each coefficient mod the new modulus
 		for(usint p = 0; p < element.GetLength(); p++ ) {
 			for( usint v = 0; v < vecCount; v++ ) {
-				m_vectors[v].SetValAtIndex(p, (element.GetValAtIndex(p) % bigmods[p]).ConvertToInt());
+				m_vectors[v].SetValAtIndex(p, (element.GetValAtIndex(p) % bigmods[v]).ConvertToInt());
 			}
 		}
 	}
@@ -143,7 +143,7 @@ namespace lbcrypto {
 		m_cyclotomicOrder = params->GetCyclotomicOrder();
 		m_params = params;
 
-		for( int i=0; i < m_cyclotomicOrder; i++ ) {
+		for( int i=0; i < params->GetParams().size(); i++ ) {
 			m_vectors.push_back( element );
 			m_vectors[i].SwitchModulus( (*params)[i]->GetModulus(), (*params)[i]->GetRootOfUnity() );
 		}
@@ -180,9 +180,11 @@ namespace lbcrypto {
 	ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::ILVectorArrayImpl(DistributionGeneratorType gtype, const shared_ptr<ParmType> params, Format format) {
 
 		// create a dummy parm to use in the ILVector2n world
-		shared_ptr<ILParams> parm( new ILParams(params->GetCyclotomicOrder(), params->GetModulus(), BigBinaryInteger::ONE) );
+		shared_ptr<ILParams> parm( new ILParams(params->GetCyclotomicOrder(), params->GetModulus()) );
 
 		m_params = params;
+		m_cyclotomicOrder = params->GetCyclotomicOrder();
+		m_modulus = params->GetModulus();
 		VecType randVec;
 
 		// FIXME some things make random Vectors and some make random Elements. pick one.
@@ -202,10 +204,11 @@ namespace lbcrypto {
 			m_format = COEFFICIENT;
 		}
 		else {
-			if( gtype == DiscreteGaussianGen )
+			if( gtype == DiscreteGaussianGen ) {
 				ILVector2n::PreComputeDggSamples(GeneratorContainer<ModType,VecType>::GetGenerator(gtype), parm);
-			else
+			} else {
 				ILVector2n::PreComputeTugSamples(GeneratorContainer<ModType,VecType>::GetGenerator(gtype), parm);
+			}
 
 			ILVector2n randomElement =
 					( gtype == DiscreteGaussianGen ) ? ILVector2n::GetPrecomputedVector() : ILVector2n::GetPrecomputedTugVector();

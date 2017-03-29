@@ -4,12 +4,12 @@
 
 namespace lbcrypto {
 
-	template<typename IntType, typename VecType>
-	DiscreteGaussianGeneratorImpl<IntType,VecType>::DiscreteGaussianGeneratorImpl() : DistributionGenerator<IntType,VecType>() {
-
-		SetStd(1);
-		Initialize();
-	}
+//	template<typename IntType, typename VecType>
+//	DiscreteGaussianGeneratorImpl<IntType,VecType>::DiscreteGaussianGeneratorImpl() : DistributionGenerator<IntType,VecType>() {
+//
+//		SetStd(1);
+//		Initialize();
+//	}
 
 	template<typename IntType, typename VecType>
 	DiscreteGaussianGeneratorImpl<IntType,VecType>::DiscreteGaussianGeneratorImpl(float std) : DistributionGenerator<IntType,VecType>() {

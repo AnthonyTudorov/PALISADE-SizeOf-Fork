@@ -489,6 +489,7 @@ TEST(UTILVector2n, arithmetic_operations_element) {
 }
 
 TEST(UTILVector2n, other_methods) {
+	  bool dbg_flag = false;
   usint m = 8;
   native64::BigBinaryInteger primeModulus("73");
   native64::BigBinaryInteger primitiveRootOfUnity("22");
@@ -508,6 +509,7 @@ TEST(UTILVector2n, other_methods) {
   bbv1.SetValAtIndex(3, "2");
   ilvector2n.SetValues(bbv1, Format::EVALUATION);
 
+  DEBUG("1");
   {
 	  native64::ILVector2n ilv(ilvector2n);
 
@@ -519,6 +521,7 @@ TEST(UTILVector2n, other_methods) {
     EXPECT_EQ(native64::BigBinaryInteger::THREE, ilv.GetValAtIndex(3));
   }
 
+  DEBUG("2");
   {
 	  native64::ILVector2n ilv(ilvector2n);
     ilv = ilv.ModByTwo();
@@ -529,6 +532,7 @@ TEST(UTILVector2n, other_methods) {
     EXPECT_EQ(native64::BigBinaryInteger::ZERO, ilv.GetValAtIndex(3));
   }
 
+  DEBUG("3");
   {
 	  native64::ILVector2n ilv(ilvector2n);
     ilv.MakeSparse(2);
@@ -547,6 +551,7 @@ TEST(UTILVector2n, other_methods) {
     EXPECT_EQ(native64::BigBinaryInteger::TWO, ilv1.GetValAtIndex(3));
   }
 
+  DEBUG("4");
   {
 	  native64::ILVector2n ilv(ilparams);
 	  native64::BigBinaryVector bbv(m/2, primeModulus);
@@ -564,6 +569,7 @@ TEST(UTILVector2n, other_methods) {
     EXPECT_EQ(native64::BigBinaryInteger::THREE, ilv.GetValAtIndex(1)) << "ILVector2n_decompose: Values do not match between original and decomposed elements.";
   }
 
+  DEBUG("5");
   {
 	  native64::ILVector2n ilv(ilparams);
 	  native64::BigBinaryVector bbv(m/2, primeModulus);
@@ -603,6 +609,7 @@ TEST(UTILVector2n, other_methods) {
     EXPECT_EQ(native64::BigBinaryInteger::THREE, ilv1.GetValAtIndex(3));
   }
 
+  DEBUG("6");
   {
 	  native64::ILVector2n ilv(ilparams);
 	  native64::BigBinaryVector bbv(m/2, primeModulus);
@@ -629,6 +636,7 @@ TEST(UTILVector2n, other_methods) {
     EXPECT_EQ(false, ilvector2n6.IsEmpty());
   }
 
+  DEBUG("7");
   {
 	  native64::ILVector2n ilv(ilparams);
 	  native64::BigBinaryVector bbv(m/2, primeModulus);
@@ -667,6 +675,7 @@ TEST(UTILVector2n, other_methods) {
     EXPECT_EQ(native64::BigBinaryInteger("28"), ilv1.GetValAtIndex(3));
   }
 
+  DEBUG("8");
   {
 	  native64::ILVector2n ilv(ilparams);
 	  native64::BigBinaryVector bbv(m/2, primeModulus);
@@ -697,22 +706,25 @@ TEST(UTILVector2n, other_methods) {
     EXPECT_EQ(false, ilv1.InverseExists());
   }
 
+  DEBUG("9");
    {
-	   native64::ILVector2n ilv(ilparams);
-	   native64::BigBinaryVector bbv(m/2, primeModulus);
-    bbv.SetValAtIndex(0, "2");
-    bbv.SetValAtIndex(1, "4");
-    bbv.SetValAtIndex(2, "3");
-    bbv.SetValAtIndex(3, "2");
-    ilv.SetValues(bbv, Format::COEFFICIENT);
+//	  Multiply is only supposed to work in EVALUATION
 
-    native64::ILVector2n ilvInverse = ilv.MultiplicativeInverse();
-    native64::ILVector2n ilvProduct = ilv * ilvInverse;
-
-    for (usint i = 0; i < m/2; ++i)
-    {
-      EXPECT_EQ(native64::BigBinaryInteger::ONE, ilvProduct.GetValAtIndex(i));
-    }
+//	   native64::ILVector2n ilv(ilparams);
+//	   native64::BigBinaryVector bbv(m/2, primeModulus);
+//    bbv.SetValAtIndex(0, "2");
+//    bbv.SetValAtIndex(1, "4");
+//    bbv.SetValAtIndex(2, "3");
+//    bbv.SetValAtIndex(3, "2");
+//    ilv.SetValues(bbv, Format::COEFFICIENT);
+//
+//    native64::ILVector2n ilvInverse = ilv.MultiplicativeInverse();
+//    native64::ILVector2n ilvProduct = ilv * ilvInverse;
+//
+//    for (usint i = 0; i < m/2; ++i)
+//    {
+//      EXPECT_EQ(native64::BigBinaryInteger::ONE, ilvProduct.GetValAtIndex(i));
+//    }
 
     native64::ILVector2n ilv1(ilparams);
     native64::BigBinaryVector bbv1(m/2, primeModulus);
@@ -732,6 +744,7 @@ TEST(UTILVector2n, other_methods) {
 
   }
 
+   DEBUG("A");
   {
 	  native64::ILVector2n ilv(ilparams);
 	  native64::BigBinaryVector bbv(m/2, primeModulus);
@@ -744,6 +757,7 @@ TEST(UTILVector2n, other_methods) {
     EXPECT_EQ(36, ilv.Norm());
   }
 
+  DEBUG("B");
   {
 	  native64::ILVector2n ilv(ilparams);
 	  native64::BigBinaryVector bbv(m/2, primeModulus);
@@ -906,6 +920,7 @@ TEST(UTILVectorArray2n, constructors_test) {
 
   DEBUG("5");
   {
+	  DEBUG("ild mod " << ildcrtparams->GetModulus());
     ILVectorArray2n ilva(DiscreteGaussianGen, ildcrtparams);
 
     EXPECT_EQ(Format::EVALUATION, ilva.GetFormat());

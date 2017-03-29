@@ -298,7 +298,7 @@ private:
 
 		m_modulus = BigBinaryInteger(1);
 
-		for(usint i = 0; i < m_parms.size(); i++){
+		for(usint i = 0; i < m_parms.size(); i++) {
 			m_modulus = m_modulus * BigBinaryInteger(m_parms[i]->GetModulus().ConvertToInt());
 		}
 	}
