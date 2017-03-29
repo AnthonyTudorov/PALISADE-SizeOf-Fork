@@ -217,9 +217,7 @@ public:
 	* @param &privateKey private key used for decryption.
 	* @return function ran correctly.
 	*/
-	LPKeyPair<Element> KeyGen(const CryptoContext<Element> cc, bool makeSparse=false) const {
-		if( makeSparse )
-			return LPKeyPair<Element>();
+	LPKeyPair<Element> KeyGen(const CryptoContext<Element> cc, bool makeSparse=false) const { 		//makeSparse is not used
 
 		LPKeyPair<Element>	kp(new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc));
 

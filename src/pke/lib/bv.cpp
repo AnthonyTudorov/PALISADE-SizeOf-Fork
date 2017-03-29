@@ -80,11 +80,10 @@ namespace lbcrypto {
 		return true;
 	}
 
+	//makeSparse is not used by this scheme
 	template <class Element>
 	LPKeyPair<Element> LPAlgorithmBV<Element>::KeyGen(const CryptoContext<Element> cc, bool makeSparse) const
 	{
-		if( makeSparse )
-			return LPKeyPair<Element>();
 
 		LPKeyPair<Element>	kp(new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc));
 
@@ -373,15 +372,18 @@ namespace lbcrypto {
 
 		const std::vector<Element> &c = cipherText->GetElements();
 
-		if (c.size == 2) //case of PRE or automorphism
+		std::vector<Element> digitsC1;
+		Element ct1;
+
+		if (c.size() == 2) //case of PRE or automorphism
 		{
-			std::vector<Element> digitsC1(c[1].BaseDecompose(relinWindow));
-			Element ct1(std::move(digitsC1[0] * a[0]));
+			digitsC1 = c[1].BaseDecompose(relinWindow);
+			ct1 = std::move(digitsC1[0] * a[0]);
 		}
 		else //case of EvalMult
 		{
-			std::vector<Element> digitsC1(c[2].BaseDecompose(relinWindow));
-			Element ct1(std::move(c[1] + digitsC1[0] * a[0]));
+			digitsC1 = c[2].BaseDecompose(relinWindow);
+			ct1 = std::move(c[1] + digitsC1[0] * a[0]);
 		}
 
 		Element ct0(std::move(c[0] + digitsC1[0] * b[0]));

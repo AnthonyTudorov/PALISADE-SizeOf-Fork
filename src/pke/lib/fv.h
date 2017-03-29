@@ -29,22 +29,20 @@
  * @section DESCRIPTION
  *
  * This code implements the Fan-Vercauteren (FV) homomorphic encryption scheme.
- * The scheme is described at http://www.wisdom.weizmann.ac.il/~zvikab/localpapers/IdealHom.pdf 
- * (or alternative Internet source:
- * http://dx.doi.org/10.1007/978-3-642-22792-9_29). Implementation details are provided in
- * {the link to the ACM TISSEC manuscript to be added}.
+ * The scheme was introduced in https://eprint.iacr.org/2012/144.pdf. Our implementation is based on
+ * the correctness constraints derived in https://eprint.iacr.org/2014/062.pdf. 
+ * Both papers contain detailed description of the scheme.
  */
 
 #ifndef LBCRYPTO_CRYPTO_FV_H
 #define LBCRYPTO_CRYPTO_FV_H
 
-//Includes Section
 #include "palisade.h"
 
 namespace lbcrypto {
 
 	/**
-	 * @brief Crypto parameters class for RLWE-based schemes.
+	 * @brief Crypto parameters class for FV.
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
@@ -79,7 +77,7 @@ namespace lbcrypto {
 			 * @param &plaintextModulus plaintext modulus.
 			 * @param distributionParameter noise distribution parameter.
 			 * @param assuranceMeasure assurance level.
-			 * @param securityLevel security level.
+			 * @param securityLevel security level (root Hermite factor).
 			 * @param relinWindow the size of the relinearization window.
 			 * @param delta FV-specific factor that is multiplied by the plaintext polynomial.
 			 * @param mode optimization setting (RLWE vs OPTIMIZED)
@@ -117,65 +115,18 @@ namespace lbcrypto {
 			virtual ~LPCryptoParametersFV() {}
 			
 			/**
-			* Serialize the object into a Serialized
+			* Serialize the object
 			* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
 			* @return true if successfully serialized
 			*/
-			bool Serialize(Serialized* serObj) const {
-				if( !serObj->IsObject() )
-					return false;
-
-				SerialItem cryptoParamsMap(rapidjson::kObjectType);
-				if( this->SerializeRLWE(serObj, cryptoParamsMap) == false )
-					return false;
-
-				cryptoParamsMap.AddMember("delta", m_delta.ToString(), serObj->GetAllocator());
-				cryptoParamsMap.AddMember("mode", std::to_string(m_mode), serObj->GetAllocator());
-				cryptoParamsMap.AddMember("bigmodulus", m_bigModulus.ToString(), serObj->GetAllocator());
-				cryptoParamsMap.AddMember("bigrootofunity", m_bigRootOfUnity.ToString(), serObj->GetAllocator());
-
-				serObj->AddMember("LPCryptoParametersFV", cryptoParamsMap.Move(), serObj->GetAllocator());
-				serObj->AddMember("LPCryptoParametersType", "LPCryptoParametersFV", serObj->GetAllocator());
-
-				return true;
-			}
+			bool Serialize(Serialized* serObj) const;
 
 			/**
-			* Populate the object from the deserialization of the Setialized
+			* Populate the object from the deserialization of the Serialized
 			* @param serObj contains the serialized object
 			* @return true on success
 			*/
-			bool Deserialize(const Serialized& serObj) {
-				Serialized::ConstMemberIterator mIter = serObj.FindMember("LPCryptoParametersFV");
-				if( mIter == serObj.MemberEnd() ) return false;
-
-				if( this->DeserializeRLWE(mIter) == false )
-					return false;
-
-				SerialItem::ConstMemberIterator pIt;
-				if( (pIt = mIter->value.FindMember("delta")) == mIter->value.MemberEnd() )
-					return false;
-				BigBinaryInteger delta(pIt->value.GetString());
-
-				if( (pIt = mIter->value.FindMember("mode")) == mIter->value.MemberEnd() )
-					return false;
-				MODE mode = (MODE)atoi(pIt->value.GetString());
-
-				if( (pIt = mIter->value.FindMember("bigmodulus")) == mIter->value.MemberEnd() )
-					return false;
-				BigBinaryInteger bigmodulus(pIt->value.GetString());
-
-				if( (pIt = mIter->value.FindMember("bigrootofunity")) == mIter->value.MemberEnd() )
-					return false;
-				BigBinaryInteger bigrootofunity(pIt->value.GetString());
-
-				this->SetBigModulus(bigmodulus);
-				this->SetBigRootOfUnity(bigrootofunity);
-				this->SetMode(mode);
-				this->SetDelta(delta);
-
-				return true;
-			}
+			bool Deserialize(const Serialized& serObj);
 
 			/**
 			* Gets the value of the delta factor.
@@ -309,10 +260,10 @@ namespace lbcrypto {
 			Element &plaintext) const;
 
 		/**
-		* Method for decrypting plaintext using FV
+		* Method for decrypting using FV
 		*
 		* @param privateKey private key used for decryption.
-		* @param &ciphertext ciphertext id decrypted.
+		* @param ciphertext ciphertext to be decrypted.
 		* @param *plaintext the plaintext output.
 		* @return the decrypted plaintext returned.
 		*/

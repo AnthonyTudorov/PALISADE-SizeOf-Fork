@@ -41,6 +41,59 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 namespace lbcrypto {
 
 template <class Element>
+bool LPCryptoParametersFV<Element>::Serialize(Serialized* serObj) const {
+	if (!serObj->IsObject())
+		return false;
+
+	SerialItem cryptoParamsMap(rapidjson::kObjectType);
+	if (this->SerializeRLWE(serObj, cryptoParamsMap) == false)
+		return false;
+
+	cryptoParamsMap.AddMember("delta", m_delta.ToString(), serObj->GetAllocator());
+	cryptoParamsMap.AddMember("mode", std::to_string(m_mode), serObj->GetAllocator());
+	cryptoParamsMap.AddMember("bigmodulus", m_bigModulus.ToString(), serObj->GetAllocator());
+	cryptoParamsMap.AddMember("bigrootofunity", m_bigRootOfUnity.ToString(), serObj->GetAllocator());
+
+	serObj->AddMember("LPCryptoParametersFV", cryptoParamsMap.Move(), serObj->GetAllocator());
+	serObj->AddMember("LPCryptoParametersType", "LPCryptoParametersFV", serObj->GetAllocator());
+
+	return true;
+}
+
+template <class Element>
+bool LPCryptoParametersFV<Element>::Deserialize(const Serialized& serObj) {
+	Serialized::ConstMemberIterator mIter = serObj.FindMember("LPCryptoParametersFV");
+	if (mIter == serObj.MemberEnd()) return false;
+
+	if (this->DeserializeRLWE(mIter) == false)
+		return false;
+
+	SerialItem::ConstMemberIterator pIt;
+	if ((pIt = mIter->value.FindMember("delta")) == mIter->value.MemberEnd())
+		return false;
+	BigBinaryInteger delta(pIt->value.GetString());
+
+	if ((pIt = mIter->value.FindMember("mode")) == mIter->value.MemberEnd())
+		return false;
+	MODE mode = (MODE)atoi(pIt->value.GetString());
+
+	if ((pIt = mIter->value.FindMember("bigmodulus")) == mIter->value.MemberEnd())
+		return false;
+	BigBinaryInteger bigmodulus(pIt->value.GetString());
+
+	if ((pIt = mIter->value.FindMember("bigrootofunity")) == mIter->value.MemberEnd())
+		return false;
+	BigBinaryInteger bigrootofunity(pIt->value.GetString());
+
+	this->SetBigModulus(bigmodulus);
+	this->SetBigRootOfUnity(bigrootofunity);
+	this->SetMode(mode);
+	this->SetDelta(delta);
+
+	return true;
+}
+
+template <class Element>
 bool LPAlgorithmParamsGenFV<Element>::ParamsGen(shared_ptr<LPCryptoParameters<Element>> cryptoParams, int32_t evalAddCount,
 	int32_t evalMultCount, int32_t keySwitchCount) const
 {
@@ -162,11 +215,10 @@ bool LPAlgorithmParamsGenFV<Element>::ParamsGen(shared_ptr<LPCryptoParameters<El
 	
 }
 
+//makeSparse is not used by this scheme
 template <class Element>
 LPKeyPair<Element> LPAlgorithmFV<Element>::KeyGen(const CryptoContext<Element> cc, bool makeSparse) const
 {
-	if( makeSparse )
-		return LPKeyPair<Element>();
 
 	LPKeyPair<Element>	kp( new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc) );
 
