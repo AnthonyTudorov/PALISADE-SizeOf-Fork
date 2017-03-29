@@ -93,9 +93,7 @@ namespace lbcrypto {
 		{
 			//usint vectorSize = EulerPhi(params.GetCyclotomicOrder());
 			usint vectorSize = params->GetCyclotomicOrder() / 2;
-			//TODO: use make_unique() throughout file;			
-			unique_ptr<VecType> sp(new VecType(dgg.GenerateVector(vectorSize, params->GetModulus())));
-            m_values = std::move(sp);
+			m_values = make_unique<VecType>(dgg.GenerateVector(vectorSize, params->GetModulus()));
 			(*m_values).SetModulus(params->GetModulus());
 			m_format = COEFFICIENT;
 		}
@@ -104,8 +102,7 @@ namespace lbcrypto {
 			PreComputeDggSamples(dgg, m_params);
 
 			const ILVectorImpl randomElement = GetPrecomputedVector();
-			unique_ptr<VecType> sp(new VecType(*randomElement.m_values));
-      		m_values = std::move(sp);
+			m_values = make_unique<VecType>(*randomElement.m_values);
 			(*m_values).SetModulus(params->GetModulus());
 			m_format = EVALUATION;
 		}
@@ -118,8 +115,7 @@ namespace lbcrypto {
 		m_params = params;
 
 		usint vectorSize = params->GetCyclotomicOrder() / 2;
-		unique_ptr<VecType> sp(new VecType(dug.GenerateVector(vectorSize)));
-		m_values = std::move(sp);
+		m_values = make_unique<VecType>(dug.GenerateVector(vectorSize));
 		(*m_values).SetModulus(params->GetModulus());
 
 		m_format = COEFFICIENT;
@@ -135,10 +131,9 @@ namespace lbcrypto {
 		m_params = params;
 
 		usint vectorSize = params->GetCyclotomicOrder() / 2;
-		unique_ptr<VecType> sp(new VecType(bug.GenerateVector(vectorSize, params->GetModulus())));
-    	m_values = std::move(sp);
+		m_values = make_unique<VecType>(bug.GenerateVector(vectorSize, params->GetModulus()));
 		//(*m_values).SetModulus(ilParams.GetModulus());
-    	DEBUG("why does this have no modulus");
+		DEBUG("why does this have no modulus");
 		m_format = COEFFICIENT;
 
 		if (format == EVALUATION)
@@ -154,8 +149,7 @@ namespace lbcrypto {
 		{
 			//usint vectorSize = EulerPhi(params.GetCyclotomicOrder());
 			usint vectorSize = params->GetCyclotomicOrder() / 2;
-			unique_ptr<VecType> sp(new VecType(tug.GenerateVector(vectorSize, params->GetModulus())));
-			m_values = std::move(sp);
+			m_values = make_unique<VecType>(tug.GenerateVector(vectorSize, params->GetModulus()));
 			(*m_values).SetModulus(params->GetModulus());
 			m_format = COEFFICIENT;
 		}
@@ -164,8 +158,7 @@ namespace lbcrypto {
 			PreComputeTugSamples(tug, m_params);
 
 			const ILVectorImpl randomElement = GetPrecomputedTugVector();
-			unique_ptr<VecType> sp(new VecType(*randomElement.m_values));
-      		m_values = std::move(sp);
+			m_values = make_unique<VecType>(*randomElement.m_values);
 			(*m_values).SetModulus(params->GetModulus());
 			m_format = EVALUATION;
 		}
@@ -184,8 +177,8 @@ namespace lbcrypto {
 		     DEBUG("in ctor & m_values copy nullptr ");      
 			 m_values = nullptr;
     	} else {
-	  unique_ptr<VecType> sp(new VecType(*element.m_values)); //this is a copy
-      		m_values = std::move(sp);
+	        
+  		m_values = make_unique<VecType>(*element.m_values); //this is a copy
       		DEBUG("in ctor & m_values now "<<*m_values);
 		}
 	}
@@ -218,8 +211,7 @@ namespace lbcrypto {
 
 		if (this != &rhs) {
    		   if (m_values == nullptr && rhs.m_values != nullptr) {
-			unique_ptr<VecType> sp(new VecType(*rhs.m_values)); 
-			m_values = std::move(sp);
+			m_values = make_unique<VecType>(*rhs.m_values); 
 	      } else if (rhs.m_values != nullptr) {
 			*this->m_values = *rhs.m_values; //this is a BBV copy
 			}
@@ -292,15 +284,12 @@ namespace lbcrypto {
 	const ILVectorImpl<IntType,VecType,ParmType>& ILVectorImpl<IntType,VecType,ParmType>::operator=(usint val) {
 		m_format = EVALUATION;
 		if (m_values == nullptr){
-		  unique_ptr<VecType> sp(new VecType(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus()));
-          m_values = std::move(sp);
-        }
+	                 m_values = make_unique<VecType>(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus());
+                }
 		for (size_t i = 0; i < m_values->GetLength(); ++i) {
 			this->SetValAtIndex(i, val);
 		}
-
 		return *this;
-
 	}
 
 	template<typename IntType, typename VecType, typename ParmType>
@@ -368,25 +357,24 @@ namespace lbcrypto {
 
 	template<typename IntType, typename VecType, typename ParmType>
 	void ILVectorImpl<IntType,VecType,ParmType>::SetValues(const VecType& values, Format format) {
-  if (m_params->GetRootOfUnity() == IntType::ZERO || m_params->GetCyclotomicOrder() / 2 != values.GetLength() || m_params->GetModulus() != values.GetModulus()) {
-      std::cout<<"ILVectorImpl::SetValues warning, mismatch in parameters"<<std::endl;
-      if (m_params->GetRootOfUnity() == IntType::ZERO){
-	std::cout<<"m_params->GetRootOfUnity "<<m_params->GetRootOfUnity()<<std::endl;}
-      if (m_params->GetCyclotomicOrder() / 2 != values.GetLength()){
-	std::cout<<"m_params->GetCyclotomicOrder/2 "<<m_params->GetCyclotomicOrder()/2<<std::endl;
-	std::cout<<"!= values.GetLength()"<< values.GetLength() <<std::endl;
+	        if (m_params->GetRootOfUnity() == IntType::ZERO || m_params->GetCyclotomicOrder() / 2 != values.GetLength() || m_params->GetModulus() != values.GetModulus()) {
+		  std::cout<<"ILVectorImpl::SetValues warning, mismatch in parameters"<<std::endl;
+		  if (m_params->GetRootOfUnity() == IntType::ZERO){
+		    std::cout<<"m_params->GetRootOfUnity "<<m_params->GetRootOfUnity()<<std::endl;}
+		  if (m_params->GetCyclotomicOrder() / 2 != values.GetLength()){
+		    std::cout<<"m_params->GetCyclotomicOrder/2 "<<m_params->GetCyclotomicOrder()/2<<std::endl;
+		    std::cout<<"!= values.GetLength()"<< values.GetLength() <<std::endl;
+		  }
+		  if ( m_params->GetModulus() != values.GetModulus()) {
+		    std::cout<<"m_params->GetModulus() "<<m_params->GetModulus()<<std::endl;
+		    std::cout<<"values->GetModulus() "<<values.GetModulus()<<std::endl;
+		  }
+		  //throw std::logic_error("Exisiting m_params do not match with the input parameter IntType& values.\n");
+		  // if (m_values != nullptr) { //dbc no need with smart pointers
+		  //   delete m_values;
+		  // }
 		}
-      if ( m_params->GetModulus() != values.GetModulus()) {
-	std::cout<<"m_params->GetModulus() "<<m_params->GetModulus()<<std::endl;
-	std::cout<<"values->GetModulus() "<<values.GetModulus()<<std::endl;
-      }
-      //throw std::logic_error("Exisiting m_params do not match with the input parameter IntType& values.\n");
-    // if (m_values != nullptr) { //dbc no need with smart pointers
-    //   delete m_values;
-    // }
-    }
-		unique_ptr<VecType> sp(new VecType(values));
-    	m_values = std::move(sp);
+		m_values = make_unique<VecType>(values);
 		m_format = format;
 	}
 
@@ -395,8 +383,7 @@ namespace lbcrypto {
 		//if (m_values != NULL) { //dbc no need with smart pointers
 		//	delete m_values;
 		//}
-	  unique_ptr<VecType> sp(new VecType(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus()));
-    	m_values = std::move(sp);
+	        m_values = make_unique<VecType>(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus());
 	}
 
 	template<typename IntType, typename VecType, typename ParmType>
@@ -407,9 +394,7 @@ namespace lbcrypto {
 
 		IntType max = m_params->GetModulus() - IntType::ONE;
 		usint size = m_params->GetCyclotomicOrder()/2;
-		unique_ptr<VecType> sp(new VecType(m_params->GetCyclotomicOrder()/2, m_params->GetModulus()));
-    	m_values = std::move(sp);
-
+		m_values = make_unique<VecType>(m_params->GetCyclotomicOrder()/2, m_params->GetModulus());
 		for (usint i = 0; i < size; i++) {
 			IntType temp(max);
 			//IntType temp("2475880078570760549798268928");
@@ -502,13 +487,10 @@ namespace lbcrypto {
 			throw std::logic_error("operator+= called on ILVectorImpl's with different params.");
 
 		if (m_values == nullptr) {
-		  unique_ptr<VecType> sp(new VecType(*element.m_values));
-      		m_values = std::move(sp);
+		        m_values = make_unique<VecType>(*element.m_values);
 			return *this;
 		}
-
 		SetValues( m_values->ModAdd(*element.m_values), this->m_format );
-
 		return *this;
 	}
 
@@ -517,10 +499,9 @@ namespace lbcrypto {
 		if (!(*this->m_params == *element.m_params))
 			throw std::logic_error("operator-= called on ILVectorImpl's with different params.");
 		if (m_values == nullptr) {
-		  unique_ptr<VecType> sp(new VecType(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus()));
-			m_values = std::move(sp);
-      //TODO:: is this a bug? it is not the same as +=
-    
+
+		        m_values = make_unique<VecType>(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus());
+			//TODO:: is this a bug? it is not the same as +=
 		}
 		SetValues( m_values->ModSub(*element.m_values), this->m_format );
 		return *this;
@@ -536,11 +517,9 @@ namespace lbcrypto {
 			throw std::logic_error("operator*= called on ILVectorImpl's with different params.");
 
 		if (m_values == nullptr){
-			unique_ptr<VecType> sp(new VecType(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus()));
-      		m_values = std::move(sp);
+                        m_values = make_unique<VecType>(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus());
 		}
 		SetValues( m_values->ModMul(*element.m_values), this->m_format );
-
 		return *this;
 	}
 
@@ -625,25 +604,27 @@ namespace lbcrypto {
 	template<typename IntType, typename VecType, typename ParmType>
 	void ILVectorImpl<IntType,VecType,ParmType>::SwitchFormat() {
 
-    bool dbg_flag = false;
-    if (m_values == nullptr) {
-      std::string errMsg = "ILVector2n switch format to empty values";
-      throw std::runtime_error(errMsg);
-   }
+	        bool dbg_flag = false;
+		if (m_values == nullptr) {
+		  std::string errMsg = "ILVector2n switch format to empty values";
+		  throw std::runtime_error(errMsg);
+		}
     
 		if (m_format == COEFFICIENT) {
 			m_format = EVALUATION;
 			//todo:: does this have an extra copy? 
-			unique_ptr<VecType> sp(new VecType(ChineseRemainderTransformFTT<IntType,VecType>::GetInstance().ForwardTransform(*m_values, m_params->GetRootOfUnity(), m_params->GetCyclotomicOrder())));
-     		m_values = std::move(sp);		
+			m_values = make_unique<VecType>(ChineseRemainderTransformFTT<IntType,VecType>::GetInstance()
+							.ForwardTransform(*m_values, m_params->GetRootOfUnity(), 
+									  m_params->GetCyclotomicOrder()));
 		}
 		else {
 			m_format = COEFFICIENT;
-			unique_ptr<VecType> sp(new VecType(ChineseRemainderTransformFTT<IntType,VecType>::GetInstance().InverseTransform(*m_values, m_params->GetRootOfUnity(), m_params->GetCyclotomicOrder())));
-      		m_values = std::move(sp);
+
+			m_values = make_unique<VecType>(ChineseRemainderTransformFTT<IntType,VecType>::GetInstance()
+							.InverseTransform(*m_values, m_params->GetRootOfUnity(), 
+									  m_params->GetCyclotomicOrder()));
 		}
 	}
-
 	template<typename IntType, typename VecType, typename ParmType>
 	void ILVectorImpl<IntType,VecType,ParmType>::PrintValues() const {
 		if (m_values != nullptr) {
@@ -814,8 +795,7 @@ namespace lbcrypto {
 			{
 				ILVectorImpl current(m_dggSamples_params);
 				usint vectorSize = m_dggSamples_params->GetCyclotomicOrder() / 2;
-				unique_ptr<VecType> sp(new VecType(dgg.GenerateVector(vectorSize, m_dggSamples_params->GetModulus())));
-	    		current.m_values = std::move(sp);
+				current.m_values = make_unique<VecType>(dgg.GenerateVector(vectorSize, m_dggSamples_params->GetModulus()));
 				current.m_values->SetModulus(m_dggSamples_params->GetModulus());
 				current.m_format = COEFFICIENT;
 
@@ -848,8 +828,7 @@ namespace lbcrypto {
 			{
 				ILVectorImpl current(m_tugSamples_params);
 				usint vectorSize = m_tugSamples_params->GetCyclotomicOrder() / 2;
-				unique_ptr<VecType> sp(new VecType(tug.GenerateVector(vectorSize, m_tugSamples_params->GetModulus())));
-	    		current.m_values = std::move(sp);
+				current.m_values = make_unique<VecType>(tug.GenerateVector(vectorSize, m_tugSamples_params->GetModulus()));
 				current.m_values->SetModulus(m_tugSamples_params->GetModulus());
 				current.m_format = COEFFICIENT;
 
