@@ -302,7 +302,7 @@ TEST(UTBVDCRT, ILVector2n_bv_EVALMULT) {
 	LPCryptoParametersBV<ILVector2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger::FIVE); // Set plaintext modulus.
 	cryptoParams.SetDistributionParameter(stdDev);          // Set the noise parameters.
-	cryptoParams.SetRelinWindow(8);						   // Set the relinearization window
+	cryptoParams.SetRelinWindow(1);						   // Set the relinearization window
 	cryptoParams.SetElementParams(params);                // Set the initialization parameters.
 
 	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(&cryptoParams, MODE::RLWE);

@@ -376,15 +376,15 @@ namespace lbcrypto {
 		if (c.size() == 2) //case of PRE or automorphism
 		{
 			digitsC1 = c[1].BaseDecompose(relinWindow);
-			ct1 = std::move(digitsC1[0] * a[0]);
+			ct1 = digitsC1[0] * a[0];
 		}
 		else //case of EvalMult
 		{
 			digitsC1 = c[2].BaseDecompose(relinWindow);
-			ct1 = std::move(c[1] + digitsC1[0] * a[0]);
+			ct1 = c[1] + digitsC1[0] * a[0];
 		}
 
-		Element ct0(std::move(c[0] + digitsC1[0] * b[0]));
+		Element ct0(c[0] + digitsC1[0] * b[0]);
 
 		//Relinearization Step.
 		for (usint i = 1; i < digitsC1.size(); ++i)
