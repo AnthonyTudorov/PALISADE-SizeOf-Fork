@@ -12,6 +12,7 @@
 #include <map>
 using namespace std;
 
+#define _USE_MATH_DEFINES
 #include "utils/serializable.h"
 #include "utils/serializablehelper.h"
 using namespace lbcrypto;
@@ -129,7 +130,7 @@ int main( int argc, char *argv[] )
 
 		double dpc = (diff * 100.0) / ov;
 		if( dpc > 1.0 )
-			cout << op.first << ": " << dpc << endl;
+			cout << op.first << ": " << dpc << " or " << dpc*ov << " ns." << endl;
 	}
 
 	return 0;

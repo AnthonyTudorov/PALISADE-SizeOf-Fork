@@ -29,6 +29,11 @@ public:
 
 	const DiscreteGaussianGenerator &GetDiscreteGaussianGenerator() const {return m_dgg;}
 
+	virtual void SetPlaintextModulus(const BigBinaryInteger &plaintextModulus) {
+		LPCryptoParameters<Element>::SetPlaintextModulus(plaintextModulus);
+		std::dynamic_pointer_cast<ILParams>(this->GetElementParams())->SetModulus( plaintextModulus );
+	}
+
 	bool Serialize(Serialized* serObj) const {
 		if( !serObj->IsObject() )
 			return false;
@@ -538,23 +543,59 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 };
 
 /**
+* @brief Parameter generation for FV.
+* @tparam Element a ring element.
+*/
+template <class Element>
+class LPAlgorithmParamsGenNull : public LPParameterGenerationAlgorithm<Element> {
+public:
+
+	/**
+	 * Default constructor
+	 */
+	LPAlgorithmParamsGenNull() {}
+
+	/**
+	* Method for computing all derived parameters based on chosen primitive parameters
+	*
+	* @param cryptoParams the crypto parameters object to be populated with parameters.
+	* @param evalAddCount number of EvalAdds assuming no EvalMult and KeySwitch operations are performed.
+	* @param evalMultCount number of EvalMults assuming no EvalAdd and KeySwitch operations are performed.
+	* @param keySwitchCount number of KeySwitch operations assuming no EvalAdd and EvalMult operations are performed.
+	*/
+	bool ParamsGen(shared_ptr<LPCryptoParameters<Element>> cryptoParams, int32_t evalAddCount = 0,
+		int32_t evalMultCount = 0, int32_t keySwitchCount = 0) const {
+		return true;
+	}
+
+};
+
+
+/**
 * @brief Main public key encryption scheme for Null implementation,
 * @tparam Element a ring element.
 */
 template <class Element>
 class LPPublicKeyEncryptionSchemeNull : public LPPublicKeyEncryptionScheme<Element> {
 public:
-	LPPublicKeyEncryptionSchemeNull() : LPPublicKeyEncryptionScheme<Element>() {}
+	LPPublicKeyEncryptionSchemeNull() : LPPublicKeyEncryptionScheme<Element>() {
+		this->m_algorithmParamsGen = new LPAlgorithmParamsGenNull<Element>();
+	}
 
 	LPPublicKeyEncryptionSchemeNull(std::bitset<FEATURESETSIZE> mask) {
 
 		if (mask[ENCRYPTION])
-			this->m_algorithmEncryption = new LPAlgorithmNull<Element>();
+			if (this->m_algorithmEncryption == NULL)
+				this->m_algorithmEncryption = new LPAlgorithmNull<Element>();
 
 		if (mask[PRE])
-			this->m_algorithmPRE = new LPAlgorithmPRENull<Element>();
+			if (this->m_algorithmPRE == NULL)
+				this->m_algorithmPRE = new LPAlgorithmPRENull<Element>();
+
 		if (mask[SHE])
-			this->m_algorithmSHE = new LPAlgorithmSHENull<Element>();
+			if (this->m_algorithmSHE == NULL)
+				this->m_algorithmSHE = new LPAlgorithmSHENull<Element>();
+
 		//	if (mask[FHE])
 		//		this->m_algorithmFHE = new LPAlgorithmFHENull<Element>();
 		//	if (mask[LEVELEDSHE])

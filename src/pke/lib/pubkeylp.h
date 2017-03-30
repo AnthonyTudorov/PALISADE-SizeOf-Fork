@@ -1234,7 +1234,7 @@ namespace lbcrypto {
 		/**
 		* Sets the value of plaintext modulus p
 		*/
-		void SetPlaintextModulus(const BigBinaryInteger &plaintextModulus) { m_plaintextModulus = plaintextModulus; }
+		virtual void SetPlaintextModulus(const BigBinaryInteger &plaintextModulus) { m_plaintextModulus = plaintextModulus; }
 			
 		virtual bool operator==(const LPCryptoParameters<Element>& cmp) const = 0;
 
