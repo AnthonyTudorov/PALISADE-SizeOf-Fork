@@ -418,6 +418,7 @@ TEST(UTFV, ILVector2n_FV_Optimized_Eval_Operations) {
 
 }
 
+// This test is currently disabled as FV.PRE functionality has not been enabled
 /*Simple Proxy re-encryption test for ILVector2n. The assumption is this test case is that everything with respect to the lattice
 * layer and cryptoparameters work. This test case is only testing if the resulting plaintext from an encrypt/decrypt returns the same
 * plaintext
@@ -434,22 +435,22 @@ TEST(UTFV, ILVector2n_FV_Optimized_Eval_Operations) {
 //	BigBinaryInteger bigModulus("1237940039285380274899136513");
 //	BigBinaryInteger bigRootOfUnity("1067388930511360414468370668");
 //
-//	BigBinaryInteger plaintextModulus("64");
+//	BigBinaryInteger plaintextModulus("2");
 //
 //	float stdDev = 4;
 //
 //	//Set crypto parametes
 //	BigBinaryInteger delta(modulus.DividedBy(plaintextModulus));
 //	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
-//		64, m, modulus.ToString(), rootOfUnity.ToString(),
-//		1, stdDev, delta.ToString(), OPTIMIZED, bigModulus.ToString(),
+//		2, m, modulus.ToString(), rootOfUnity.ToString(),
+//		1, stdDev, delta.ToString(), RLWE, bigModulus.ToString(),
 //		bigRootOfUnity.ToString(), 0, 9, 1.006);
 //
 //	cc.Enable(ENCRYPTION);
 //	cc.Enable(PRE);
 //	cc.Enable(SHE);
 //
-//	std::vector<usint> vectorOfInts1 = { 1,0,1,0 };
+//	std::vector<usint> vectorOfInts1 = { 1,1,0,1 };
 //
 //	IntPlaintextEncoding intArray1(vectorOfInts1);
 //
@@ -494,7 +495,9 @@ TEST(UTFV, ILVector2n_FV_Optimized_Eval_Operations) {
 //
 //	IntPlaintextEncoding intArrayNew;
 //
-//	DecryptResult result1 = cc.Decrypt(newKp.secretKey, newCiphertext, &intArrayNew, false);
+//	//DecryptResult result1 = cc.Decrypt(newKp.secretKey, newCiphertext, &intArrayNew, true);
+//
+//	DecryptResult result1 = cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew, true);
 //
 //	EXPECT_EQ(intArray1, intArrayNew);
 //

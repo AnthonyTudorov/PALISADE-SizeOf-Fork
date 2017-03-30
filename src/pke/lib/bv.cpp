@@ -483,6 +483,8 @@ namespace lbcrypto {
 		case PRE:
 			if (this->m_algorithmPRE == NULL)
 				this->m_algorithmPRE = new LPAlgorithmPREBV<Element>();
+			if (this->m_algorithmSHE == NULL)
+				this->m_algorithmSHE = new LPAlgorithmSHEBV<Element>();
 			break;
 		case SHE:
 			if (this->m_algorithmSHE == NULL)
