@@ -124,8 +124,6 @@ TEST(UTNTT, switch_format_simple_double_crt) {
 
 	}
 
-	DiscreteGaussianGeneratorImpl<native64::BigBinaryInteger,native64::BigBinaryVector> dgg(init_stdDev);
-
 	shared_ptr<ILDCRTParams> params( new ILDCRTParams(init_m, init_moduli, init_rootsOfUnity) );
 
 	ILVectorArray2n x1(params, Format::COEFFICIENT);
@@ -206,8 +204,6 @@ TEST(UTNTT, decomposeMult_double_crt) {
 	for (int i = 0; i < init_size; i++) {
 		init_rootsOfUnity[i] = RootOfUnity(init_m, init_moduli[i]);
 	}
-
-	DiscreteGaussianGeneratorImpl<native64::BigBinaryInteger,native64::BigBinaryVector> dgg(init_stdDev);
 
 	shared_ptr<ILDCRTParams> params( new ILDCRTParams(init_m, init_moduli, init_rootsOfUnity) );
 

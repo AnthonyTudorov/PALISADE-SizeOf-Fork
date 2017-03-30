@@ -236,6 +236,8 @@ namespace lbcrypto {
 		*/
 		const ModType &GetModulus() const;
 		
+		const IntType &GetRootOfUnity() const { return IntType::ZERO; }
+
 		/**
 		* Get method for the number of towers of the ILVectorArray2n.
 		*
