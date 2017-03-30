@@ -184,8 +184,7 @@ TEST(UTBVDCRT, ILVector2n_bv_PRE_DCRT) {
 	/*shared_ptr<LPEvalKey<ILVectorArray2n>> evalKey =
 		cc.ReKeyGen(newKp.secretKey, kp.secretKey);*/
 	shared_ptr<LPEvalKey<ILVectorArray2n>> evalKey =
-		cc.KeySwitchGen(kp.secretKey, newKp.secretKey);
-
+		cc.ReKeyGen(newKp.secretKey, kp.secretKey);
 
 	////////////////////////////////////////////////////////////
 	//Perform the proxy re-encryption operation.

@@ -990,14 +990,27 @@ namespace lbcrypto {
 		public:
 
 			/**
-			 * Virtual function to generate 1..log(q) encryptions for each bit of the original private key
+			 * Virtual function to generate 1..log(q) encryptions for each bit of the original private key.
+			 * Variant that uses the new secret key directly.
 			 *
-			 * @param &newKey new key (private or public depending on the scheme) for the new ciphertext.
+			 * @param &newKey new private key for the new ciphertext.
 			 * @param &origPrivateKey original private key used for decryption.
 			 * @param *evalKey the evaluation key.
 			 * @return the re-encryption key.
 			 */
-			virtual shared_ptr<LPEvalKey<Element>> ReKeyGen(const shared_ptr<LPKey<Element>> newKey,
+			virtual shared_ptr<LPEvalKey<Element>> ReKeyGen(const shared_ptr<LPPrivateKey<Element>> newKey,
+				const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const = 0;
+
+			/**
+			* Virtual function to generate 1..log(q) encryptions for each bit of the original private key
+			* Variant that uses the public key for the new secret key.
+			*
+			* @param &newKey public key for the new secret key.
+			* @param &origPrivateKey original private key used for decryption.
+			* @param *evalKey the evaluation key.
+			* @return the re-encryption key.
+			*/
+			virtual shared_ptr<LPEvalKey<Element>> ReKeyGen(const shared_ptr<LPPublicKey<Element>> newKey,
 				const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const = 0;
 						
 			/**
@@ -1121,6 +1134,26 @@ namespace lbcrypto {
 			virtual shared_ptr<Ciphertext<Element>> KeySwitch(
 				const shared_ptr<LPEvalKey<Element>> keySwitchHint,
 				const shared_ptr<Ciphertext<Element>> cipherText) const = 0;
+
+			/**
+			* Method for KeySwitching based on RLWE relinearization (used only for the LTV scheme).
+			* Function to generate 1..log(q) encryptions for each bit of the original private key
+			*
+			* @param &newPublicKey encryption key for the new ciphertext.
+			* @param origPrivateKey original private key used for decryption.
+			*/
+			virtual shared_ptr<LPEvalKey<Element>> KeySwitchRelinGen(const shared_ptr<LPPublicKey<Element>> newPublicKey,
+				const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const = 0;
+
+			/**
+			* Method for KeySwitching based on RLWE relinearization (used only for the LTV scheme).
+			*
+			* @param evalKey the evaluation key.
+			* @param ciphertext the input ciphertext.
+			* @return the resulting Ciphertext
+			*/
+			virtual shared_ptr<Ciphertext<Element>> KeySwitchRelin(const shared_ptr<LPEvalKey<Element>> evalKey,
+				const shared_ptr<Ciphertext<Element>> ciphertext) const = 0;
 
 			/**
 			* Virtual function to define the interface for generating a evaluation key which is used after each multiplication.
@@ -1342,15 +1375,24 @@ namespace lbcrypto {
 		}
 
 		/////////////////////////////////////////
-		// the two functions below are wrappers for things in LPPREAlgorithm (PRE)
+		// the three functions below are wrappers for things in LPPREAlgorithm (PRE)
 		//
 
-		shared_ptr<LPEvalKey<Element>> ReKeyGen(const shared_ptr<LPKey<Element>> newKey, const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const{
+		shared_ptr<LPEvalKey<Element>> ReKeyGen(const shared_ptr<LPPublicKey<Element>> newKey, const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const{
 				if(this->m_algorithmPRE)
 					return this->m_algorithmPRE->ReKeyGen(newKey,origPrivateKey);
 				else {
 					throw std::logic_error("ReKeyGen operation has not been enabled");
 				}
+		}
+
+
+		shared_ptr<LPEvalKey<Element>> ReKeyGen(const shared_ptr<LPPrivateKey<Element>> newKey, const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const {
+			if (this->m_algorithmPRE)
+				return this->m_algorithmPRE->ReKeyGen(newKey, origPrivateKey);
+			else {
+				throw std::logic_error("ReKeyGen operation has not been enabled");
+			}
 		}
 
 		//wrapper for ReEncrypt method
@@ -1455,6 +1497,23 @@ namespace lbcrypto {
 			}
 			else {
 				throw std::logic_error("KeySwitch operation has not been enabled");
+			}
+		}
+
+		shared_ptr<LPEvalKey<Element>> KeySwitchRelinGen(const shared_ptr<LPPublicKey<Element>> newKey, const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const {
+			if (this->m_algorithmSHE)
+				return this->m_algorithmSHE->KeySwitchRelinGen(newKey, origPrivateKey);
+			else {
+				throw std::logic_error("KeySwitchRelinGen operation has not been enabled");
+			}
+		}
+
+		shared_ptr<Ciphertext<Element>> KeySwitchRelin(const shared_ptr<LPEvalKey<Element>> evalKey,
+			const shared_ptr<Ciphertext<Element>> ciphertext) const {
+			if (this->m_algorithmSHE)
+				return this->m_algorithmSHE->KeySwitchRelin(evalKey, ciphertext);
+			else {
+				throw std::logic_error("KeySwitchRelin operation has not been enabled");
 			}
 		}
 
