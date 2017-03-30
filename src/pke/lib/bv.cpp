@@ -116,7 +116,6 @@ namespace lbcrypto {
 		s.SwitchFormat();
 
 		//public key is generated and set
-		//privateKey->MakePublicKey(a, publicKey);
 		Element e(dgg, elementParams, Format::COEFFICIENT);
 		e.SwitchFormat();
 
@@ -267,7 +266,7 @@ namespace lbcrypto {
 
 		cNew.push_back(std::move(c1[0] * c2[1] + c1[1] * c2[0]));
 
-		cNew.push_back(std::move(c1[1] * c2[1]));
+		cNew.push_back(std::move((c1[1] * c2[1]).Negate()));
 
 		newCiphertext->SetElements(std::move(cNew));
 
@@ -484,6 +483,8 @@ namespace lbcrypto {
 		case PRE:
 			if (this->m_algorithmPRE == NULL)
 				this->m_algorithmPRE = new LPAlgorithmPREBV<Element>();
+			if (this->m_algorithmSHE == NULL)
+				this->m_algorithmSHE = new LPAlgorithmSHEBV<Element>();
 			break;
 		case SHE:
 			if (this->m_algorithmSHE == NULL)
