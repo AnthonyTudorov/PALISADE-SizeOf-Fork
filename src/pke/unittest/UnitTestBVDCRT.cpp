@@ -310,7 +310,6 @@ TEST(UTBVDCRT, ILVector2n_bv_EVALMULT) {
 	cc.Enable(SHE);
 	cc.Enable(LEVELEDSHE);
 
-
 	std::vector<usint> vectorOfInts1 = { 4,0,0,0 };
 
 	IntPlaintextEncoding intArray1(vectorOfInts1);
