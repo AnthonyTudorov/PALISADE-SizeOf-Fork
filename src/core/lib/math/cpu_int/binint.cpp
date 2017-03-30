@@ -1112,7 +1112,6 @@ void BigBinaryInteger<uint_type, BITLENGTH>::SetValue(const std::string& str){
 //Complexity: O(log(*this)-log(modulus))
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod(const BigBinaryInteger& modulus) const{
-
 	//return the same value if value is less than modulus
 	if(*this<modulus){
 		return BigBinaryInteger(*this);
@@ -1849,7 +1848,7 @@ usint BigBinaryInteger<uint_type,BITLENGTH>::GetMSB32(uint64_t x)
 		return msb + 1;
 #else
 // a wrapper for GCC
-		return  64 - __builtin_clzl(x);
+		return  64 - (sizeof(unsigned long) == 8 ? __builtin_clzl(x) : __builtin_clzll(x));
 #endif
 	}
 	else

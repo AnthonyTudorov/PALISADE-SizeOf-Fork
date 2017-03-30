@@ -154,9 +154,9 @@ TEST(UTILNativeVector2n, ops_tests) {
 	operators_tests<native64::BigBinaryInteger, native64::BigBinaryVector, native64::ILParams, native64::ILVector2n>();
 }
 
-TEST(UTILVectorArray2n, ops_tests) {
-	operators_tests<BigBinaryInteger, BigBinaryVector, ILDCRTParams, ILVectorArray2n>();
-}
+//TEST(UTILVectorArray2n, ops_tests) {
+//	operators_tests<BigBinaryInteger, BigBinaryVector, ILDCRTParams, ILVectorArray2n>();
+//}
 
 template<typename IntType, typename VecType, typename ParmType, typename Element>
 void rounding_operations() {
@@ -226,9 +226,9 @@ TEST(UTILNativeVector2n, rounding_operations) {
 	rounding_operations<native64::BigBinaryInteger, native64::BigBinaryVector, native64::ILParams, native64::ILVector2n>();
 }
 
-TEST(UTILVectorArray2n, rounding_operations) {
-	rounding_operations<BigBinaryInteger, BigBinaryVector, ILDCRTParams, ILVectorArray2n>();
-}
+//TEST(UTILVectorArray2n, rounding_operations) {
+//	rounding_operations<BigBinaryInteger, BigBinaryVector, ILDCRTParams, ILVectorArray2n>();
+//}
 
 template<typename IntType, typename VecType, typename ParmType, typename Element>
 void setters_tests() {
@@ -384,9 +384,9 @@ TEST(UTILNativeVector2n, binary_operations) {
 	binary_operations<native64::BigBinaryInteger, native64::BigBinaryVector, native64::ILParams, native64::ILVector2n>();
 }
 
-TEST(UTILVectorArray2n, binary_operations) {
-	binary_operations<BigBinaryInteger, BigBinaryVector, ILDCRTParams, ILVectorArray2n>();
-}
+//TEST(UTILVectorArray2n, binary_operations) {
+//	binary_operations<BigBinaryInteger, BigBinaryVector, ILDCRTParams, ILVectorArray2n>();
+//}
 
 template<typename IntType, typename VecType, typename ParmType, typename Element>
 void clone_operations() {
@@ -444,9 +444,9 @@ TEST(UTILNativeVector2n, clone_operations) {
 	clone_operations<native64::BigBinaryInteger, native64::BigBinaryVector, native64::ILParams, native64::ILVector2n>();
 }
 
-TEST(UTILVectorArray2n, clone_operations) {
-	clone_operations<BigBinaryInteger, BigBinaryVector, ILDCRTParams, ILVectorArray2n>();
-}
+//TEST(UTILVectorArray2n, clone_operations) {
+//	clone_operations<BigBinaryInteger, BigBinaryVector, ILDCRTParams, ILVectorArray2n>();
+//}
 
 template<typename IntType, typename VecType, typename ParmType, typename Element>
 void arithmetic_operations_element() {
@@ -548,9 +548,9 @@ TEST(UTILNativeVector2n, arithmetic_operations_element) {
 	arithmetic_operations_element<native64::BigBinaryInteger, native64::BigBinaryVector, native64::ILParams, native64::ILVector2n>();
 }
 
-TEST(UTILVectorArray2n, arithmetic_operations_element) {
-	arithmetic_operations_element<BigBinaryInteger, BigBinaryVector, ILDCRTParams, ILVectorArray2n>();
-}
+//TEST(UTILVectorArray2n, arithmetic_operations_element) {
+//	arithmetic_operations_element<BigBinaryInteger, BigBinaryVector, ILDCRTParams, ILVectorArray2n>();
+//}
 
 template<typename IntType, typename VecType, typename ParmType, typename Element>
 void other_methods() {
@@ -836,9 +836,9 @@ TEST(UTILNativeVector2n, other_methods) {
 	other_methods<native64::BigBinaryInteger, native64::BigBinaryVector, native64::ILParams, native64::ILVector2n>();
 }
 
-TEST(UTILVectorArray2n, other_methods) {
-	other_methods<BigBinaryInteger, BigBinaryVector, ILDCRTParams, ILVectorArray2n>();
-}
+//TEST(UTILVectorArray2n, other_methods) {
+//	other_methods<BigBinaryInteger, BigBinaryVector, ILDCRTParams, ILVectorArray2n>();
+//}
 
 template<typename IntType, typename VecType, typename ParmType, typename Element>
 void cyclotomicOrder_test() {
@@ -849,15 +849,15 @@ void cyclotomicOrder_test() {
 }
 
 TEST(UTILVector2n, cyclotomicOrder_test) {
-	other_methods<BigBinaryInteger, BigBinaryVector, ILParams, ILVector2n>();
+	cyclotomicOrder_test<BigBinaryInteger, BigBinaryVector, ILParams, ILVector2n>();
 }
 
 TEST(UTILNativeVector2n, cyclotomicOrder_test) {
-	other_methods<native64::BigBinaryInteger, native64::BigBinaryVector, native64::ILParams, native64::ILVector2n>();
+	cyclotomicOrder_test<native64::BigBinaryInteger, native64::BigBinaryVector, native64::ILParams, native64::ILVector2n>();
 }
 
 TEST(UTILVectorArray2n, cyclotomicOrder_test) {
-	other_methods<BigBinaryInteger, BigBinaryVector, ILDCRTParams, ILVectorArray2n>();
+	cyclotomicOrder_test<BigBinaryInteger, BigBinaryVector, ILDCRTParams, ILVectorArray2n>();
 }
 
 // this test is only for ILVector2n so isn't templated
@@ -1069,9 +1069,9 @@ TEST(UTILNativeVector2n, signed_mod_tests) {
 	signed_mod_tests<native64::BigBinaryInteger, native64::BigBinaryVector, native64::ILParams, native64::ILVector2n>();
 }
 
-TEST(UTILVectorArray2n, signed_mod_tests) {
-	signed_mod_tests<BigBinaryInteger, BigBinaryVector, ILDCRTParams, ILVectorArray2n>();
-}
+//TEST(UTILVectorArray2n, signed_mod_tests) {
+//	signed_mod_tests<BigBinaryInteger, BigBinaryVector, ILDCRTParams, ILVectorArray2n>();
+//}
 
 template<typename IntType, typename VecType, typename ParmType, typename Element>
 void transposition_test() {
