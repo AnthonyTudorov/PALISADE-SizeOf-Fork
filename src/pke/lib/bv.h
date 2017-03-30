@@ -240,7 +240,8 @@ namespace lbcrypto {
 			const shared_ptr<Ciphertext<Element>> ciphertext2) const;
 
 		/**
-		* Function for homomorphic multiplication of ciphertexts without key switching.
+		* Function for homomorphic multiplication of ciphertexts without key switching. 
+		* Currently it assumes that the input arguments are fresh ciphertexts (of depth 1). Support for the input ciphertexts of higher depths will be added later.
 		*
 		* @param ciphertext1 first input ciphertext.
 		* @param ciphertext2 second input ciphertext.
@@ -251,6 +252,7 @@ namespace lbcrypto {
 
 		/**
 		* Function for homomorphic multiplication of ciphertexts followed by key switching operation.
+		* Currently it assumes that the input arguments are fresh ciphertexts (of depth 1). Support for the input ciphertexts of higher depths will be added later.
 		*
 		* @param ciphertext1 first input ciphertext.
 		* @param ciphertext2 second input ciphertext.

@@ -279,11 +279,9 @@ namespace lbcrypto {
 	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
 		const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const {
 
-		const shared_ptr<LPEvalKeyRelin<Element>> ekRelin = std::dynamic_pointer_cast<LPEvalKeyRelin<Element>>(ek);
-
 		shared_ptr<Ciphertext<Element>> newCiphertext = this->EvalMult(ciphertext1, ciphertext2);
 
-		return this->KeySwitch(ekRelin, newCiphertext);
+		return this->KeySwitch(ek, newCiphertext);
 
 	}
 	
@@ -321,7 +319,7 @@ namespace lbcrypto {
 		//Getting a refernce to discrete gaussian distribution generator.
 		const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 
-		//Getting a refernce to ternary distribution generator.
+		//Getting a reference to ternary distribution generator.
 		const DiscreteUniformGenerator dug(originalKeyParams->GetModulus());
 
 		//Relinearizaiton window is used to calculate the base exponent.
@@ -410,13 +408,10 @@ namespace lbcrypto {
 	template <class Element>
 	shared_ptr<LPEvalKey<Element>> LPAlgorithmSHEBV<Element>::EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const
 	{
-		shared_ptr<LPEvalKeyRelin<Element>> quadraticKeySwitchHint(new LPEvalKeyRelin<Element>(originalPrivateKey->GetCryptoContext()));
 
 		shared_ptr<LPPrivateKey<Element>> originalPrivateKeySquared = std::shared_ptr<LPPrivateKey<Element>>(new LPPrivateKey<Element>(originalPrivateKey->GetCryptoContext()));
 
 		Element sSquare(originalPrivateKey->GetPrivateElement()*originalPrivateKey->GetPrivateElement());
-
-		sSquare = sSquare.Negate();
 
 		originalPrivateKeySquared->SetPrivateElement(std::move(sSquare));
 
