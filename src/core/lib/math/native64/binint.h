@@ -1113,22 +1113,27 @@ private:
 	}
 
 	/**
-	 * function to return the MSB of a 32 bit number.
-	 * @param x is the 32 bit integer.
-	 * @return the MSB position in the 32 bit number x.
+	 * function to return the MSB of a 64 bit number.
+	 * @param x is the 64 bit integer.
+	 * @return the MSB position in the 64 bit number x.
 	 */
 
 	static uint64_t GetMSB32(uint64_t x)
 	{
-	    static const usint bval[] =
-	    {0,1,2,2,3,3,3,3,4,4,4,4,4,4,4,4};
-
-	    uint64_t r = 0;
-		if (x & 0xFFFFFFFF00000000) { r += 32/1; x >>= 32/1; }
-		if (x & 0x00000000FFFF0000) { r += 32/2; x >>= 32/2; }
-		if (x & 0x000000000000FF00) { r += 32/4; x >>= 32/4; }
-		if (x & 0x00000000000000F0) { r += 32/8; x >>= 32/8; }
-	    return r + bval[x];
+		if (x != 0) {
+	// hardware instructions for finding MSB are used are used;
+	// a wrapper for VC++
+	#if defined(_MSC_VER)
+			unsigned long msb;
+			_BitScanReverse64(&msb, x);
+			return msb + 1;
+	#else
+	// a wrapper for GCC
+			return  64 - (sizeof(unsigned long) == 8 ? __builtin_clzl(x) : __builtin_clzll(x));
+	#endif
+		}
+		else
+			return 0;
 	}
 
 	// Duint_type has double the bits in the integral data type.

@@ -389,9 +389,6 @@ namespace lbcrypto {
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::Plus(const IntType &element) const {
-		if (m_format != Format::COEFFICIENT)
-			throw std::logic_error("ILVectorImpl::Plus can only be called in COEFFICIENT format.\n");
-
 		ILVectorImpl<ModType,IntType,VecType,ParmType> tmp = CloneParametersOnly();
 		tmp.SetValues( GetValues().ModAddAtIndex(0, element), this->m_format );
 		return std::move( tmp );
@@ -406,9 +403,6 @@ namespace lbcrypto {
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::Times(const IntType &element) const {
-		if (m_format != Format::EVALUATION)
-			throw std::logic_error("operator* for ILVectorImpl is supported only in EVALUATION format.\n");
-
 		ILVectorImpl<ModType,IntType,VecType,ParmType> tmp = CloneParametersOnly();
 		tmp.SetValues( GetValues().ModMul(element), this->m_format );
 		return std::move( tmp );
@@ -431,7 +425,7 @@ namespace lbcrypto {
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::Negate() const {
 		if (m_format != Format::EVALUATION)
-			throw std::logic_error("operator* for ILVectorImpl is supported only in EVALUATION format.\n");
+			throw std::logic_error("Negate for ILVectorImpl is supported only in EVALUATION format.\n");
 
 		ILVectorImpl<ModType,IntType,VecType,ParmType> tmp( *this );
 		*tmp.m_values = m_values->ModMul(this->m_params->GetModulus() - IntType::ONE);
@@ -511,8 +505,6 @@ namespace lbcrypto {
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	void ILVectorImpl<ModType,IntType,VecType,ParmType>::AddILElementOne() {
-		if (m_format != Format::EVALUATION)
-			throw std::runtime_error("ILVectorImpl::AddILElementOne cannot be called on a ILVectorImpl in COEFFICIENT format.");
 		IntType tempValue;
 		for (usint i = 0; i < m_params->GetCyclotomicOrder() / 2; i++) {
 			tempValue = GetValues().GetValAtIndex(i) + IntType::ONE;

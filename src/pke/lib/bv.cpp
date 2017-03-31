@@ -107,12 +107,10 @@ namespace lbcrypto {
 		else {
 			s = Element(TernaryUniformGen, elementParams, Format::EVALUATION);
 		}
-		s.SwitchFormat();
 
 		//public key is generated and set
 		//privateKey->MakePublicKey(a, publicKey);
-		Element e(DiscreteGaussianGen, elementParams, Format::COEFFICIENT);
-		e.SwitchFormat();
+		Element e(DiscreteGaussianGen, elementParams, Format::EVALUATION);
 
 		Element b = a*s + p*e;
 
