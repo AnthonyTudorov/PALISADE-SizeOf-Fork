@@ -336,7 +336,7 @@ namespace cpu_int{
     /**
     * Converts the value to an int.
     *
-    * @return the int representation of the value as usint.
+    * @return the int representation of the value as uint64_t.
     */
     uint64_t ConvertToInt() const;
     
