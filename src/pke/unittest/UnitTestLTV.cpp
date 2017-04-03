@@ -160,7 +160,6 @@ TEST(UTLTV, ILVector2n_Encrypt_Decrypt_Short_Ring) {
 
 	//lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
 
-	DiscreteGaussianGenerator dgg(stdDev);
 	//BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
 	ILParams params(m, q, rootOfUnity);
 

@@ -325,7 +325,6 @@ TEST(UTSHE, ringreduce_single_crt) {
 
 	lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("40"), BigBinaryInteger("4"));
 
-	DiscreteGaussianGenerator dgg(stdDev);
 	BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
 
 	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(2, m,

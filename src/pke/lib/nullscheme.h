@@ -354,13 +354,6 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		 */
 		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
 			const shared_ptr<Ciphertext<Element>> ciphertext2) const {
-			if (typeid(Element) != typeid(ILVector2n)) {
-				throw std::runtime_error("EvalMult only implemented for Null Scheme and element ILVector2n.");
-			}
-
-			if (ciphertext1->GetElement().GetFormat() == Format::COEFFICIENT || ciphertext2->GetElement().GetFormat() == Format::COEFFICIENT) {
-				throw std::runtime_error("EvalMult cannot multiply in COEFFICIENT domain.");
-			}
 
 			shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext2->GetCryptoContext()));
 

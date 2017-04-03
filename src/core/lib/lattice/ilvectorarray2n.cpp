@@ -172,49 +172,47 @@ namespace lbcrypto {
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::ILVectorArrayImpl(DistributionGeneratorType gtype, const shared_ptr<ParmType> params, Format format) {
 
+		if( gtype == BinaryUniformGen || gtype == TernaryUniformGen )
+			throw std::logic_error("Generator not supported");
+
 		// create a dummy parm to use in the ILVector2n world
 		shared_ptr<ILParams> parm( new ILParams(params->GetCyclotomicOrder(), params->GetModulus()) );
 
 		m_params = params;
 		m_cyclotomicOrder = params->GetCyclotomicOrder();
 		m_modulus = params->GetModulus();
-		VecType randVec;
 
-		// FIXME some things make random Vectors and some make random Elements. pick one.
-		if( gtype == BinaryUniformGen || gtype == DiscreteUniformGen ) {
-			GeneratorContainer<ModType,VecType>::GetGenerator(gtype).SetModulus(params->GetModulus());
-			usint vectorSize = params->GetCyclotomicOrder() / 2;
+		ILVector2n randomElement( parm );
+		VecType randVec;
+		usint vectorSize = params->GetCyclotomicOrder() / 2;
+
+		if( gtype == DiscreteUniformGen ) {
 			randVec = VecType(GeneratorContainer<ModType,VecType>::GetGenerator(gtype).GenerateVector(vectorSize, params->GetModulus()));
+			randVec.SetModulus(m_modulus);
 			m_format = COEFFICIENT;
 
 			if( format == EVALUATION )
 				this->SwitchFormat();
-		}
 
-		if( format == COEFFICIENT ) {
-			usint vectorSize = params->GetCyclotomicOrder() / 2;
-			randVec = VecType(GeneratorContainer<ModType,VecType>::GetGenerator(gtype).GenerateVector(vectorSize, params->GetModulus()));
-			m_format = COEFFICIENT;
+			randomElement.SetValues( randVec, m_format );
 		}
 		else {
-			if( gtype == DiscreteGaussianGen ) {
-				ILVector2n::PreComputeDggSamples(GeneratorContainer<ModType,VecType>::GetGenerator(gtype), parm);
-			} else {
-				ILVector2n::PreComputeTugSamples(GeneratorContainer<ModType,VecType>::GetGenerator(gtype), parm);
+			if( format == COEFFICIENT ) {
+				randVec = VecType(GeneratorContainer<ModType,VecType>::GetGenerator(gtype).GenerateVector(vectorSize, params->GetModulus()));
+				m_format = COEFFICIENT;
+				randomElement.SetValues( randVec, m_format );
 			}
+			else {
+				if( gtype == DiscreteGaussianGen ) {
+					ILVector2n::PreComputeDggSamples(GeneratorContainer<ModType,VecType>::GetGenerator(gtype), parm);
+				}
 
-			ILVector2n randomElement =
-					( gtype == DiscreteGaussianGen ) ? ILVector2n::GetPrecomputedVector() : ILVector2n::GetPrecomputedTugVector();
-			randVec = VecType(randomElement.GetValues());
-			m_format = EVALUATION;
+				randomElement = ILVector2n::GetPrecomputedVector();
+				m_format = EVALUATION;
+			}
 		}
 
-		// create an Element to pull from
-		ILVector2n element( parm );
-		element.SetValues( randVec, m_format );
-
-		fillVectorArrayFromBigVector(element, params);
-
+		fillVectorArrayFromBigVector(randomElement, params);
 	}
 
 
@@ -841,7 +839,7 @@ namespace lbcrypto {
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	ILVector2n ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::CRTInterpolate() const
 	{
-	  bool dbg_flag = true;
+	  bool dbg_flag = false;
 
 		usint ringDimension = m_cyclotomicOrder / 2;
 		usint nTowers = m_vectors.size();
@@ -873,7 +871,7 @@ namespace lbcrypto {
 
 		// now, compute the values for the vector
 		for( usint ri = 0; ri < ringDimension; ri++ ) {
-			std::cout << ri << std::endl;
+			DEBUG( ri );
 			coefficients[ri] = 0;
 			for( usint vi = 0; vi < nTowers; vi++ ) {
 				coefficients[ri] += (BigBinaryInteger(m_vectors[vi].GetValues()[ri].ConvertToInt()) * multiplier[vi]);
