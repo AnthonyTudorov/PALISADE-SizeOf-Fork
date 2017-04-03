@@ -84,7 +84,7 @@ void RunUniform() {
 //Main simulator
 void RunParamsGen() {
 
-	usint m = 2048;
+	usint m = 4096;
 	//54 bits
 	//BigBinaryInteger modulus("9007199254741169");
 	//BigBinaryInteger rootOfUnity("7629104920968175");

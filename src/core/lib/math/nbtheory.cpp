@@ -171,7 +171,7 @@ static bool WitnessFunction(const IntType& a, const IntType& d, usint s, const I
 			prevMod = true;
 		else
 			prevMod = false;
-		mod = mod.ModExp(IntType::TWO, p);
+		mod = (mod*mod).Mod(p);
 		if(mod == IntType::ONE && prevMod) return true;
 	}
 	return (mod != IntType::ONE);
@@ -405,10 +405,19 @@ const IntType PollardRhoFactorization(const IntType &n)
  	if(n.Mod(IntType::TWO) == IntType::ZERO)
  		return IntType(IntType::TWO);
 
+#if MATHBACKEND > 6
+	IntType mu(IntType::ONE);
+#else
+	//Precompute the Barrett mu parameter
+	IntType temp(IntType::ONE);
+	temp <<= 2 * n.GetMSB() + 3;
+	IntType mu = temp.DividedBy(n);
+#endif
+
  	do {
- 		x = (x.ModMul(x, n) + c).Mod(n);
- 		xx = (xx.ModMul(xx, n) + c).Mod(n);
- 		xx = (xx.ModMul(xx, n) + c).Mod(n);
+		x = (x*x + c).ModBarrett(n,mu);
+		xx = (xx*xx + c).ModBarrett(n,mu);
+		xx = (xx*xx + c).ModBarrett(n,mu);
  		divisor = GreatestCommonDivisor(((x-xx) > IntType::ZERO) ? x-xx : xx-x, n);
 		DEBUG("PRF divisor "<<divisor.ToString());
 		

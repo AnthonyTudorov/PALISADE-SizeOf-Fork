@@ -170,7 +170,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\src\trapdoor\demo\ObfuscateParamsGen.cpp" />
+    <ClCompile Include="..\..\..\..\src\trapdoor\demo\TrapdoorInternal.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
