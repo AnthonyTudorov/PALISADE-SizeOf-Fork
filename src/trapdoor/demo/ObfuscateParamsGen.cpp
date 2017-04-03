@@ -42,11 +42,11 @@ void RunUniform();
 
 int main(){
 
-	//RunParamsGen();
+	RunParamsGen();
 
 	RunUniform();
 
-	//std::cin.get();
+	std::cin.get();
 
 	return 0;
 }

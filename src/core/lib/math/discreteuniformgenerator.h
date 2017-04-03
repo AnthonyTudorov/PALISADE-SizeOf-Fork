@@ -64,12 +64,13 @@ public:
 	void SetModulus (const IntType & modulus);
 
 	/**
-	* @brief Required by DistributionGenerator.
+	* @brief Generates a random integer based on the modulus set for the Discrete Unform Generator object. 
+	* Required by DistributionGenerator.
 	*/
 	IntType GenerateInteger () const;
 
 	/**
-	* @brief Required by DistributionGenerator.
+	* @brief Generates a vector of random integers using GenerateInteger()
 	*/
 	VecType GenerateVector (const usint size) const;
 
@@ -80,8 +81,10 @@ private:
 	static const usint CHUNK_WIDTH = std::numeric_limits<uint32_t>::digits;
 	static const usint CHUNK_MAX = std::numeric_limits<uint32_t>::max();
 
+	// number of 32-bit chunks in the modulus set for the discrete uniform generator object
 	usint m_chunksPerValue;
 	
+	// built-in generator for 32-bit unsigned integers
 	static std::uniform_int_distribution<uint32_t> m_distribution;
 
 	/**

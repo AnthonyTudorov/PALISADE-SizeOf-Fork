@@ -45,6 +45,9 @@
 #include <vector>
 #include <set>
 #include <string>
+#include <random>
+
+#include "distributiongenerator.h"
 
 /**
  * @namespace lbcrypto
