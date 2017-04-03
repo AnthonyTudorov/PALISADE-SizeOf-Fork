@@ -40,11 +40,17 @@ template class TernaryUniformGeneratorImpl<BigBinaryInteger,BigBinaryVector>;
 template class DiscreteUniformGeneratorImpl<BigBinaryInteger,BigBinaryVector>;
 }
 
-//namespace lbcrypto {
-//template class ILParamsImpl<BigBinaryInteger>;
-//
-//template class ILVectorImpl<BigBinaryInteger,BigBinaryInteger,BigBinaryVector,ILParams>;
-//}
+namespace lbcrypto {
+template class ILParamsImpl<BigBinaryInteger>;
+
+template class ILVectorImpl<BigBinaryInteger,BigBinaryInteger,BigBinaryVector,ILParams>;
+
+template<>
+ILVectorImpl<native64::BigBinaryInteger,native64::BigBinaryInteger,native64::BigBinaryVector,native64::ILParams>::ILVectorImpl(const shared_ptr<ILDCRTParams> params, Format format, bool initializeElementToZero) : m_values(NULL), m_format(format) {
+	throw std::logic_error("cannot use this constructor with a native vector");
+}
+
+}
 
 // FIXME the MATH_BACKEND check is a hack and needs to go away
 #if MATHBACKEND != 7

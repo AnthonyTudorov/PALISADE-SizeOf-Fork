@@ -80,8 +80,7 @@ namespace lbcrypto {
 
 	}
 
-	void PackedIntPlaintextEncoding::Encode(const native64::BigBinaryInteger &modulus, native64::ILVector2n *ilVector, size_t start_from, size_t length) const {}
-	void PackedIntPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVectorArray2n *ilVector, size_t start_from, size_t length) const {}
+	void PackedIntPlaintextEncoding::Encode(const BigBinaryInteger &modulus, native64::ILVector2n *ilVector, size_t start_from, size_t length) const {}
 
 
 	void PackedIntPlaintextEncoding::Decode(const BigBinaryInteger &modulus, ILVector2n *ilVector) {
@@ -94,8 +93,7 @@ namespace lbcrypto {
 
 	}
 
-	void PackedIntPlaintextEncoding::Decode(const native64::BigBinaryInteger &modulus, native64::ILVector2n *ilVector) {}
-	void PackedIntPlaintextEncoding::Decode(const BigBinaryInteger &modulus, ILVectorArray2n *ilVector) {}
+	void PackedIntPlaintextEncoding::Decode(const BigBinaryInteger &modulus, native64::ILVector2n *ilVector) {}
 
 	size_t PackedIntPlaintextEncoding::GetChunksize(const usint cyc, const BigBinaryInteger& ptm) const
 	{

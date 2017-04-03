@@ -39,14 +39,7 @@ namespace lbcrypto {
 
 	/*CONSTRUCTORS*/
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	std::map<ModType, std::map<usint, IntType>> *ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::m_towersize_cri_factors = 0;
-
-	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	usint ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::m_cyclotomicOrder_precompute = 0;
-
-	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::ILVectorArrayImpl() : m_format(EVALUATION), m_cyclotomicOrder(0), m_modulus(1){
-	}
+	ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::ILVectorArrayImpl() : m_format(EVALUATION), m_cyclotomicOrder(0), m_modulus(1) {}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::ILVectorArrayImpl(const shared_ptr<ParmType> dcrtParams, Format format, bool initializeElementToZero)
@@ -832,140 +825,87 @@ namespace lbcrypto {
 		SwitchFormat();
 	}
 
-	// FIXME: this needs to be better defined
-	/*This method applies the Chinese Remainder Interpolation on an ILVectoArray2n and produces an ILVector2n embedded into ILVectorArrayImpl.
-	* The ILVector2n is the ILVectorArrayImpl's representation
-	* with one single coefficient vector.
+	/*
+	 * This method applies the Chinese Remainder Interpolation on an ILVectoArray2n and produces an ILVector2n
 	* How the Algorithm works:
-	* Consider the ILVectorArrayImpl as a 2-dimensional matrix, denoted as M, with dimension ringDimension * Number of Towers. For brevity , lets say this is r * t
+	* Consider the ILVectorArrayImpl as a 2-dimensional matrix M, with dimension ringDimension * Number of Towers.
+	* For brevity , lets say this is r * t
 	* Let qt denote the bigModulus (all the towers' moduli multiplied together) and qi denote the modulus of a particular tower. 
 	* Let V be a BigBinaryVector of size tower (tower size). Each coefficient of V is calculated as follows:
 	* for every r
-	*   calculate: V[j]= {Sigma(i = 0 --> t-1) ValueOf M(r,i) * qt/qi *[ (qt/qi)^(-1) mod qi ]}modqt 
+	*   calculate: V[j]= {Sigma(i = 0 --> t-1) ValueOf M(r,i) * qt/qi *[ (qt/qi)^(-1) mod qi ]}mod qt
 	*
-	* Once we have the V values, we construct an ILVector2n from V, use qt as it's modulus and calculate a root of unity for parameter selection of the ILVector2n.
+	* Once we have the V values, we construct an ILVector2n from V, use qt as it's modulus, and calculate a root of unity
+	* for parameter selection of the ILVector2n.
 	*/
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorArrayImpl<ModType,IntType,VecType,ParmType> ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::CRTInterpolate() const
+	ILVector2n ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::CRTInterpolate() const
 	{
-	  bool dbg_flag = false;
-	  DEBUG("in InterpolateIlArrayVector2n");
-		if(m_vectors.size() == 1) return *this;
+	  bool dbg_flag = true;
 
-		/*initializing variables for effciency*/
 		usint ringDimension = m_cyclotomicOrder / 2;
+		usint nTowers = m_vectors.size();
 
-		IntType qj; //qj
+		DEBUG("in InterpolateIlArrayVector2n ring " << ringDimension << " towers " << nTowers);
 
-		ModType bigModulus(m_modulus); //qt
+		for( usint vi = 0; vi < nTowers; vi++ )
+			DEBUG("tower " << vi << " is " << m_vectors[vi]);
 
-		//IntType divideBigModulusByIndexModulus; //qt/qj
+		BigBinaryInteger bigModulus(m_modulus); // qT
 
-		//IntType modularInverse; // (qt/qj)^(-1) mod qj
+		DEBUG("bigModulus " << bigModulus);
 
-		native64::BigBinaryInteger chineseRemainderMultiplier; // qt/qj * [(qt/qj)(-1) mod qj]
+		// this is the resulting vector of coefficients
+		BigBinaryVector coefficients(ringDimension, m_modulus);
 
-		native64::BigBinaryInteger multiplyValue;// M (r, i) * qt/qj * [(qt/qj)(-1) mod qj]
-
-		// FIXME: what modulus should I be using in this???
-		native64::BigBinaryVector coefficients(ringDimension,1);    //m_modulus); // V vector
-
-		native64::BigBinaryInteger interpolateValue(0); // this will finally be  V[j]= {Sigma(i = 0 --> t-1) ValueOf M(r,i) * qt/qj *[ (qt/qj)^(-1) mod qj ]}modqt
+		// this will finally be  V[j]= {Sigma(i = 0 --> t-1) ValueOf M(r,i) * qt/qj *[ (qt/qj)^(-1) mod qj ]}modqt
 		
-		/*With respect to precomputing CRI Factors, 
-		* in this case, the CRI map has either not been initialized or not calcualted for this moduli.
-		* the assumption is that the lower the moduli, the lower the tower number. This case will also take
-		* care of mod reduce.
-		**/
+		// first, precompute qt/qj factors
+		vector<BigBinaryInteger> multiplier(nTowers);
+		for( usint vi = 0 ; vi < nTowers; vi++ ) {
+			BigBinaryInteger qj(m_vectors[vi].GetModulus().ConvertToInt());
+			BigBinaryInteger divBy = bigModulus / qj;
+			BigBinaryInteger modInv = (divBy % qj).ModInverse(qj);
+			multiplier[vi] = divBy * modInv;
 
-		// this code is awful, it repeats stuff in both clauses
-		// FIXME dammit
-		if (m_towersize_cri_factors == 0 || m_towersize_cri_factors->find(this->m_modulus) == m_towersize_cri_factors->end()) {
-			// FIXME: why not just pass the vector of params in and pluck out the moduli in PreCompute??
-			std::vector<native64::BigBinaryInteger> moduli;
-			moduli.reserve(m_vectors.size());
-			
-			for (usint i = 0; i < m_vectors.size(); i++) {
-				moduli.push_back(m_vectors.at(i).GetModulus());
-			}
-
-			PreComputeCRIFactors(moduli, m_cyclotomicOrder);
-			m_cyclotomicOrder_precompute = m_cyclotomicOrder;
-		}
-		/* In case there is ring reduction, the moduli values do not change, however the cyclotomic order changes.
-		** However, when both moduli and cyclotomic order change, then it means that it was not a ring reduction only
-		*/
-		else if (m_cyclotomicOrder_precompute != this->m_cyclotomicOrder && bigModulus != this->m_modulus) {
-
-			DestroyPrecomputedCRIFactors(); //destroy precomputed values because there is a new cyclotomic order
-
-			std::vector<native64::BigBinaryInteger> moduli;
-			moduli.reserve(m_vectors.size());
-
-			for (usint i = 0; i < m_vectors.size(); i++) {
-				moduli.push_back(m_vectors.at(i).GetModulus());
-			}
-
-			PreComputeCRIFactors(moduli, m_cyclotomicOrder);
-			m_cyclotomicOrder_precompute = m_cyclotomicOrder;
-		} //This will ensure that the cyclotomic order of the precomputed values is updated due to ring reduction.
-		  // note that reverting back to a non ring-reduce will create a problem if the precomputed values are not destroyed.
-		else {
-			m_cyclotomicOrder_precompute = m_cyclotomicOrder;
+			DEBUG(vi << " " << qj << " " << multiplier[vi]);
 		}
 
-		/*This loop calculates every coefficient of the interpolated valued.*/
-		for (usint i = 0; i < ringDimension; i++) {
-		/*This for loops to calculate V[j]= {Sigma(i = 0 --> t-1) ValueOf M(r,i) * qt/qi *[ (qt/qi)^(-1) mod qi ]}mod qt, the loop is basically the sigma.
-		Mod qt is done outside the loop*/
-			for (usint j = 0; j < m_vectors.size(); j++) {
-			
-				chineseRemainderMultiplier = m_towersize_cri_factors->at(m_modulus).at(j).ConvertToInt();
-
-				multiplyValue = m_vectors[j].GetValAtIndex(i) * chineseRemainderMultiplier; // M (r, i) * qt/qj * [(qt/qj)(-1) mod qj]
-
-				interpolateValue += multiplyValue;
-
+		// now, compute the values for the vector
+		for( usint ri = 0; ri < ringDimension; ri++ ) {
+			std::cout << ri << std::endl;
+			coefficients[ri] = 0;
+			for( usint vi = 0; vi < nTowers; vi++ ) {
+				coefficients[ri] += (BigBinaryInteger(m_vectors[vi].GetValues()[ri].ConvertToInt()) * multiplier[vi]);
+				DEBUG( coefficients[ri] << ":::" << BigBinaryInteger(m_vectors[vi].GetValues()[ri].ConvertToInt()) << ":::" << multiplier[vi] );
 			}
-
-			// FIXME interpolate mod m_modulus is a mismatch of types
-			//interpolateValue = interpolateValue.Mod(m_modulus);
-			coefficients.SetValAtIndex(i, interpolateValue); // This Calculates V[j]
-			interpolateValue = 0;
+			DEBUG( coefficients[ri] << ":::" << bigModulus );
+			coefficients[ri] = coefficients[ri] % bigModulus;
+			DEBUG( coefficients[ri] );
 		}
+
 		DEBUG("passed loops");
+		DEBUG(coefficients);
 
-		/*Intializing and setting the params of the resulting ILVector2n*/
-		IntType modulus(1);
+		// Create an ILVector2n for this BigBinaryVector
 
-		// FIXME what's the modulus
-		//modulus = m_modulus;
-
-		DEBUG("X");
-		DEBUG("m_cyclotomicOrder "<<m_cyclotomicOrder);
-		DEBUG("modulus "<< modulus.ToString());
+		DEBUG("elementing after vectoring");
+		DEBUG("m_cyclotomicOrder " << m_cyclotomicOrder);
+		DEBUG("modulus "<< bigModulus);
 
 		// Setting the root of unity to ONE as the calculation is expensive and not required.
-		// FIXME this is wrong wrong wrong what's the modulus???
-		ILVectorType polynomialReconstructed( shared_ptr<native64::ILParams>( new native64::ILParams(m_cyclotomicOrder, 1, 1) ) );
+		ILVector2n polynomialReconstructed( shared_ptr<ILParams>( new ILParams(m_cyclotomicOrder, bigModulus, BigBinaryInteger::ONE) ) );
 		polynomialReconstructed.SetValues(coefficients,m_format);
+
 		DEBUG("Z");
 
-		ILVectorArrayImpl interpolatedIL2n;
-		interpolatedIL2n.m_format = this->m_format;
-		interpolatedIL2n.m_cyclotomicOrder = this->m_cyclotomicOrder;
-		interpolatedIL2n.m_modulus = ModType(1); // modulus;  // FIXME modulus stuff
-		interpolatedIL2n.m_vectors.push_back(polynomialReconstructed);
-
-		return interpolatedIL2n;
-
+		return std::move( polynomialReconstructed );
 	}
 
 	/*Switch format calls IlVector2n's switchformat*/
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	void ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::SwitchFormat() {
 		if (m_format == COEFFICIENT) {
-
 			m_format = EVALUATION;
 		}
 		else {
@@ -1014,56 +954,6 @@ namespace lbcrypto {
 		}
 		return true;
 	}
-
-	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	void ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::PreComputeCRIFactors(const std::vector<native64::BigBinaryInteger>& moduli, const usint cyclotomicOrder)
-	{
-#ifdef OUT
-		if (m_towersize_cri_factors == 0) {
-			m_towersize_cri_factors = new std::map<ModType, std::map<usint, IntType>>();
-		}
-
-		std::map<usint, IntType> tower_number_to_cri_value_map;
-
-		IntType qj;
-		IntType divideBigModulusByIndexModulus;
-		IntType modularInverse;
-		IntType chineseRemainderMultiplier;
-
-		ModType bigModulus("1");
-
-		for (usint i = 0; i < moduli.size(); i++) {
-			bigModulus = bigModulus * ModType(moduli[i].ConvertToInt());
-		}
-
-		for (usint j = 0; j < moduli.size(); j++) {
-
-			qj = moduli[j]; //qj
-
-			divideBigModulusByIndexModulus = bigModulus.DividedBy(qj); //qt/qj
-
-			modularInverse = divideBigModulusByIndexModulus.Mod(qj).ModInverse(qj); // (qt/qj)^(-1) mod qj
-
-			chineseRemainderMultiplier = divideBigModulusByIndexModulus * modularInverse;
-
-			tower_number_to_cri_value_map[j] = chineseRemainderMultiplier;
-		}
-
-		m_towersize_cri_factors->insert(std::make_pair(bigModulus, tower_number_to_cri_value_map));
-		m_cyclotomicOrder_precompute = cyclotomicOrder;
-#endif
-	}
-
-	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	void ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::DestroyPrecomputedCRIFactors()
-	{
-		if (m_towersize_cri_factors != 0) {
-			m_towersize_cri_factors->clear();
-			delete m_towersize_cri_factors;
-			m_towersize_cri_factors = NULL;
-		}
-	}
-	//JSON FACILITY
 
 	// JSON FACILITY - Serialize Operation
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>

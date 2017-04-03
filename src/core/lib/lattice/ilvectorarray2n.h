@@ -75,7 +75,7 @@ namespace lbcrypto {
 	* The
 	*/
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	class ILVectorArrayImpl : public ILElement<ILVectorArrayImpl<ModType,IntType,VecType,ParmType>,ModType,IntType,VecType>
+	class ILVectorArrayImpl : public ILElement< ILVectorArrayImpl<ModType,IntType,VecType,ParmType>,ModType,IntType,VecType>
 	{
 	public:
 		typedef ParmType Params;
@@ -86,6 +86,7 @@ namespace lbcrypto {
 
 		// this class contains an array of these:
 		typedef ILVectorImpl<native64::BigBinaryInteger,native64::BigBinaryInteger,native64::BigBinaryVector,native64::ILParams> ILVectorType;
+		typedef ILVectorImpl<ModType,IntType,VecType,ILParams> ILVectorLargeType;
 
 		// CONSTRUCTORS
 
@@ -221,6 +222,12 @@ namespace lbcrypto {
 		~ILVectorArrayImpl();
 
 		//GETTERS
+
+		/**
+		 * GetParams gets
+		 * @return
+		 */
+		const shared_ptr<ParmType> GetParams() const { return m_params; }
 
 		/**
 		* Get method of the cyclotomic order
@@ -485,7 +492,6 @@ namespace lbcrypto {
 		* @return is the return value of the modulus.
 		*/
 		ILVectorArrayType SignedMod(const IntType &modulus) const {
-			// FIXME
 			throw std::logic_error("SignedMod of an IntType not implemented on ILVectorArray2n");
 		}
 
@@ -556,7 +562,11 @@ namespace lbcrypto {
 		*
 		* @return the interpolated ring element embeded into ILVectorArray2n.
 		*/
-		ILVectorArrayType CRTInterpolate() const;
+		ILVector2n CRTInterpolate() const;
+		ILVectorArrayType CRIDecompose(const ILVector2n& invec) const {
+			return std::move( ILVectorArrayType(invec, this->m_params) );
+		}
+		ILVectorArrayType CRIDecompose(const ILVectorNative2n& invec) const { throw std::logic_error("not supported"); }
 
 		/**
 		* Convert from Coefficient to CRT or vice versa; calls FFT and inverse FFT.
@@ -591,21 +601,6 @@ namespace lbcrypto {
 		* @return is the Boolean representation of the existence of multiplicative inverse.
 		*/
 		bool InverseExists() const;
-
-		/**
-		* Pre computes the CRI factors. CRI factors are used in the chinese remainder interpolation.
-		* Note that different vector of moduli can co-exist as precomputed values.
-		*
-		* @param &moduli is the chain of moduli to construct the CRI factors from
-		*/
-		static void PreComputeCRIFactors(const std::vector<native64::BigBinaryInteger> &moduli, const usint cyclotomicOrder);
-
-		/**
-		* Deletes the static pointer CRI factors pointer
-		*
-		* @param &moduli is the chain of moduli to construct the CRI factors from
-		*/
-		static void DestroyPrecomputedCRIFactors();
 
 		//JSON FACILITY
 		/**
@@ -646,13 +641,6 @@ namespace lbcrypto {
 		ModType m_modulus;
 
 		usint m_cyclotomicOrder;
-
-		//This table stores constant interpolation values. The map maps a moduli to a each tower of the moduli's CRI factor.
-		static std::map<ModType, std::map<usint, IntType>> *m_towersize_cri_factors;
-
-		//This variable holds the cyclotomic order that the precomputed values are set for
-		static usint m_cyclotomicOrder_precompute;
-
 	};
 
 } // namespace lbcrypto ends

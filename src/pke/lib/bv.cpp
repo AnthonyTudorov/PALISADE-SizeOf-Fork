@@ -93,6 +93,8 @@ namespace lbcrypto {
 
 		const typename Element::Integer &p = cryptoParams->GetPlaintextModulus();
 
+		GeneratorContainer<BigBinaryInteger,BigBinaryVector>::SetUniformModulus(p);
+
 		//Generate the element "a" of the public key
 		Element a(DiscreteUniformGen, elementParams, Format::EVALUATION);
 		
@@ -125,7 +127,7 @@ namespace lbcrypto {
 
 	template <class Element>
 	shared_ptr<Ciphertext<Element>> LPAlgorithmBV<Element>::Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
-		Element &plaintext) const
+		ILVector2n &ptxt) const
 	{
 
 		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(publicKey->GetCryptoParameters());
@@ -149,6 +151,8 @@ namespace lbcrypto {
 		Element e0(DiscreteGaussianGen, elementParams, Format::EVALUATION);
 		Element e1(DiscreteGaussianGen, elementParams, Format::EVALUATION);
 
+		Element plaintext(ptxt, elementParams);
+
 		plaintext.SwitchFormat();
 
 		Element c0( b*v + p*e0 + plaintext );
@@ -169,7 +173,7 @@ namespace lbcrypto {
 	template <class Element>
 	DecryptResult LPAlgorithmBV<Element>::Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const shared_ptr<Ciphertext<Element>> ciphertext,
-		Element *plaintext) const
+		ILVector2n *plaintext) const
 	{
 
 		const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
@@ -184,7 +188,10 @@ namespace lbcrypto {
 
 		b.SwitchFormat();
 
-		*plaintext = b.SignedMod(p);
+		// Interpolation is needed in the case of Double-CRT interpolation, for example, ILVectorArray2n
+		// CRTInterpolate does nothing when dealing with single-CRT ring elements, such as ILVector2n
+		ILVector2n interpolatedElement = b.CRTInterpolate();
+		*plaintext = interpolatedElement.SignedMod(p);
 
 		return DecryptResult(plaintext->GetLength());
 
@@ -305,11 +312,7 @@ namespace lbcrypto {
 		//Getting a reference to the polynomials of original private key.
 		const Element &s = originalPrivateKey->GetPrivateElement();
 
-//		//Getting a refernce to discrete gaussian distribution generator.
-//		const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
-//
-//		//Getting a refernce to ternary distribution generator.
-//		const DiscreteUniformGenerator dug(originalKeyParams->GetModulus());
+		GeneratorContainer<BigBinaryInteger,BigBinaryVector>::SetUniformModulus(originalKeyParams->GetModulus());
 
 		//Relinearizaiton window is used to calculate the base exponent.
 		usint relinWindow = cryptoParams->GetRelinWindow();

@@ -384,7 +384,7 @@ public:
 	 */
 	NativeInteger Times(const NativeInteger& b) const {
 		uint_type prod = m_value * b.m_value;
-		if( prod < m_value || prod < b.m_value )
+		if( prod > 0 && (prod < m_value || prod < b.m_value) )
 			throw std::logic_error("native64 overflow in multiply");
 		return prod;
 	}

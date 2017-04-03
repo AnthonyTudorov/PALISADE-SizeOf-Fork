@@ -227,9 +227,7 @@ LPKeyPair<Element> LPAlgorithmFV<Element>::KeyGen(const CryptoContext<Element> c
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
-//	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
-//	const DiscreteUniformGenerator dug(elementParams->GetModulus());
-//	TernaryUniformGenerator tug;
+	GeneratorContainer<BigBinaryInteger,BigBinaryVector>::SetUniformModulus(elementParams->GetModulus());
 
 	//Generate the element "a" of the public key
 	Element a(DiscreteUniformGen, elementParams, Format::EVALUATION);
@@ -266,7 +264,7 @@ LPKeyPair<Element> LPAlgorithmFV<Element>::KeyGen(const CryptoContext<Element> c
 
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
-		Element &plaintext) const
+		ILVector2n &ptxt) const
 {
 	shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(publicKey->GetCryptoContext()) );
 
@@ -274,10 +272,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr
 
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
-	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 	const BigBinaryInteger &delta = cryptoParams->GetDelta();
-
-	TernaryUniformGenerator tug;
 
 	const Element &p0 = publicKey->GetPublicElements().at(0);
 	const Element &p1 = publicKey->GetPublicElements().at(1);
@@ -286,16 +281,17 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr
 
 	//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
 	if (cryptoParams->GetMode()==RLWE)
-		u = Element(dgg, elementParams, Format::EVALUATION);
+		u = Element(DiscreteGaussianGen, elementParams, Format::EVALUATION);
 	else
-		u = Element(tug, elementParams, Format::EVALUATION);
+		u = Element(TernaryUniformGen, elementParams, Format::EVALUATION);
 
-	Element e1(dgg, elementParams, Format::EVALUATION);
-	Element e2(dgg, elementParams, Format::EVALUATION);
+	Element e1(DiscreteGaussianGen, elementParams, Format::EVALUATION);
+	Element e2(DiscreteGaussianGen, elementParams, Format::EVALUATION);
 
 	Element c0(elementParams);
 	Element c1(elementParams);
 
+	Element plaintext(ptxt, elementParams);
 	plaintext.SwitchFormat();
 
 	c0 = p0*u + e1 + delta*plaintext;
@@ -310,7 +306,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr
 template <class Element>
 DecryptResult LPAlgorithmFV<Element>::Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const shared_ptr<Ciphertext<Element>> ciphertext,
-		Element *plaintext) const
+		ILVector2n *plaintext) const
 {
 	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
@@ -325,7 +321,8 @@ DecryptResult LPAlgorithmFV<Element>::Decrypt(const shared_ptr<LPPrivateKey<Elem
 
 	b.SwitchFormat();
 	
-	*plaintext = b.MultiplyAndRound(p, q).SignedMod(p);
+	Element ans = b.MultiplyAndRound(p, q).SignedMod(p);
+	*plaintext = ans.CRTInterpolate();
 
 	return DecryptResult(plaintext->GetLength());
 }
@@ -527,8 +524,7 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmSHEFV<Element>::KeySwitchGen(const sha
 	const BigBinaryInteger &p = cryptoParamsLWE->GetPlaintextModulus();
 	const Element &s = newPrivateKey->GetPrivateElement();
 
-//	const DiscreteGaussianGenerator &dgg = cryptoParamsLWE->GetDiscreteGaussianGenerator();
-//	const DiscreteUniformGenerator dug(elementParams->GetModulus());
+	GeneratorContainer<BigBinaryInteger,BigBinaryVector>::SetUniformModulus(elementParams->GetModulus());
 
 	usint relinWindow = cryptoParamsLWE->GetRelinWindow();
 

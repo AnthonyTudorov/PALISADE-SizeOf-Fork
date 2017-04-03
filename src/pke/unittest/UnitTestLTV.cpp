@@ -55,7 +55,7 @@ public:
 * plaintext
 * The cyclotomic order is set 2048
 *tower size is set to 3*/
-TEST(UTLTV, ILVectorArray2n_Encrypt_Decrypt) {
+TEST(UTLTVDCRT, ILVectorArray2n_Encrypt_Decrypt) {
   bool dbg_flag = false;
 
 	usint m = 2048;
@@ -86,8 +86,6 @@ TEST(UTLTV, ILVectorArray2n_Encrypt_Decrypt) {
 	}
 	DEBUG("3");	
 
-	ILVectorArray2n::PreComputeCRIFactors(moduli, m);
-
 	shared_ptr<ILDCRTParams> params( new ILDCRTParams(m, moduli, rootsOfUnity) );
 	DEBUG("4");	
 
@@ -114,9 +112,6 @@ TEST(UTLTV, ILVectorArray2n_Encrypt_Decrypt) {
 //	DEBUG("Done");
 
 	UnitTestEncryption<ILVectorArray2n>(cc);
-
-	ILVectorArray2n::DestroyPrecomputedCRIFactors();
-
 }
 
 /*Simple Encrypt-Decrypt check for ILVector2n. The assumption is this test case is that everything with respect to lattice and math

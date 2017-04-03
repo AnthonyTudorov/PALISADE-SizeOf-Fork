@@ -14,9 +14,6 @@ namespace lbcrypto {
 
 template <class Element>
 class LPCryptoParametersNull : public LPCryptoParameters<Element> {
-private:
-	DiscreteGaussianGenerator	m_dgg;
-
 public:
 	LPCryptoParametersNull() : LPCryptoParameters<Element>() {}
 
@@ -26,8 +23,6 @@ public:
 	LPCryptoParametersNull(const LPCryptoParametersNull& rhs) : LPCryptoParameters<Element>(rhs) {}
 
 	virtual ~LPCryptoParametersNull() {}
-
-	const DiscreteGaussianGenerator &GetDiscreteGaussianGenerator() const {return m_dgg;}
 
 	virtual void SetPlaintextModulus(const BigBinaryInteger &plaintextModulus) {
 		LPCryptoParameters<Element>::SetPlaintextModulus(plaintextModulus);
@@ -121,13 +116,15 @@ public:
 	* @param *ciphertext ciphertext which results from encryption.
 	*/
 	shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> pubKey,
-		Element &plaintext) const {
+		ILVector2n &ptxt) const {
 		shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(pubKey->GetCryptoContext()) );
 
-		Element copyPlain(pubKey->GetCryptoContext().GetCryptoParameters()->GetElementParams());
-		copyPlain.SetValues(plaintext.GetValues(), Format::EVALUATION);
+		Element plaintext(ptxt, pubKey->GetCryptoContext().GetCryptoParameters()->GetElementParams());
 
-		ciphertext->SetElement(copyPlain);
+//		Element copyPlain(pubKey->GetCryptoContext().GetCryptoParameters()->GetElementParams());
+//		copyPlain.SetValues(plaintext.GetValues(), Format::EVALUATION);
+
+		ciphertext->SetElement(plaintext);
 
 		return ciphertext;
 	}
@@ -142,8 +139,10 @@ public:
 	*/
 	DecryptResult Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const shared_ptr<Ciphertext<Element>> ciphertext,
-		Element *plaintext) const {
-		*plaintext = ciphertext->GetElement();
+		ILVector2n *plaintext) const {
+		Element b = ciphertext->GetElement();
+		ILVector2n interpolatedElement = b.CRTInterpolate();
+		*plaintext = interpolatedElement;
 		return DecryptResult(plaintext->GetLength());
 	}
 

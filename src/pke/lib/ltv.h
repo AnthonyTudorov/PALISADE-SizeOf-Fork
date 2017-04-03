@@ -181,7 +181,7 @@ public:
 	 * @param plaintext - plaintext to be encrypted
 	 * @return a shared pointer to the encrypted Cyphertext
 	 */
-	shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, Element &plaintext) const;
+	shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, ILVector2n &plaintext) const;
 
 	/**
 	 * Decrypt method for LTV Scheme
@@ -193,7 +193,7 @@ public:
 	 */
 	DecryptResult Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const shared_ptr<Ciphertext<Element>> ciphertext,
-		Element *plaintext) const;
+		ILVector2n *plaintext) const;
 
 	/**
 	 * KeyGen

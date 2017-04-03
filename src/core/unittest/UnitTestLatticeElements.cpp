@@ -120,6 +120,7 @@ static void operators_tests() {
 		ilv1 += ilvector2n1;
 		for (usint i = 0; i < m/2; ++i)
 		{
+			std::cout << i << ": " << ilvector2n1.GetValAtIndex(i) << std::endl;
 			EXPECT_EQ(IntType::TWO * ilvector2n1.GetValAtIndex(i), ilv1.GetValAtIndex(i)) << "ILVector2n_operator+=: Operator+= is incorrect.\n";
 		}
 	}
@@ -1409,6 +1410,8 @@ TEST(UTILVectorArray2n, arithmetic_operations_element_2) {
 		EXPECT_FALSE(ilva1.InverseExists());
 	}
 
+	// this case is NOT used because SwitchModulus is not really defined for an ILVectorArray2n, so...
+	if( false )
 	{
 		native64::ILVector2n ilvS0(ilparams0);
 		native64::BigBinaryVector bbvS0(m/2, moduli[0]);
@@ -1417,11 +1420,13 @@ TEST(UTILVectorArray2n, arithmetic_operations_element_2) {
 		bbvS0.SetValAtIndex(2, "33863");
 		bbvS0.SetValAtIndex(3, "2113");
 		ilvS0.SetValues(bbvS0, Format::EVALUATION);
+		std::cout << ilvS0.GetValues() << std::endl;
 
 		native64::ILVector2n ilvS1(ilvS0);
-		ilvS1.SwitchModulus(moduli[1], rootsOfUnity[1]);
-
 		native64::ILVector2n ilvS2(ilvS0);
+
+		ilvS0.SwitchModulus(moduli[0], rootsOfUnity[0]);
+		ilvS1.SwitchModulus(moduli[1], rootsOfUnity[1]);
 		ilvS2.SwitchModulus(moduli[2], rootsOfUnity[2]);
 
 		std::vector<native64::ILVector2n> ilvector2nVectorS(towersize);

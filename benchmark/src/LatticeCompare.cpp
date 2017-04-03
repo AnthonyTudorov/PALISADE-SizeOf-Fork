@@ -65,12 +65,12 @@ using namespace lbcrypto;
 typedef native64::BigBinaryInteger  nativeInt;
 
 typedef cpu_int::BigBinaryInteger<uint32_t,64>  smallInt32_64;
-template class cpu_int::BigBinaryInteger<uint32_t,64>;
-template class cpu_int::BigBinaryVector<smallInt32_64>;
+//template class cpu_int::BigBinaryInteger<uint32_t,64>;
+template class cpu_int::BigBinaryVectorImpl<smallInt32_64>;
 
 typedef cpu_int::BigBinaryInteger<uint32_t,128>  smallInt32_128;
-template class cpu_int::BigBinaryInteger<uint32_t,128>;
-template class cpu_int::BigBinaryVector<smallInt32_128>;
+//template class cpu_int::BigBinaryInteger<uint32_t,128>;
+template class cpu_int::BigBinaryVectorImpl<smallInt32_128>;
 
 map<int,map<int,string>> primes;
 map<int,map<int,string>> roots;
@@ -98,12 +98,12 @@ static void CustomArguments(benchmark::internal::Benchmark* b) {
 }
 
 template <typename IntType>
-static ILVectorImpl<IntType,cpu_int::BigBinaryVector<IntType>,ILParamsImpl<IntType>> makeElement(benchmark::State& state) {
+static ILVectorImpl<IntType,IntType,cpu_int::BigBinaryVectorImpl<IntType>,ILParamsImpl<IntType>> makeElement(benchmark::State& state) {
 	int n = state.range(0);
 	int w = state.range(1);
 	shared_ptr<ILParamsImpl<IntType>> params( new ILParamsImpl<IntType>(n, IntType(primes[n][w]), IntType(roots[n][w])) );
-	cpu_int::BigBinaryVector<IntType> vec(params->GetCyclotomicOrder()/2, params->GetModulus());
-	ILVectorImpl<IntType,cpu_int::BigBinaryVector<IntType>,ILParamsImpl<IntType>>	elem(params);
+	cpu_int::BigBinaryVectorImpl<IntType> vec(params->GetCyclotomicOrder()/2, params->GetModulus());
+	ILVectorImpl<IntType,IntType,cpu_int::BigBinaryVectorImpl<IntType>,ILParamsImpl<IntType>>	elem(params);
 	elem.SetValues(vec, elem.GetFormat());
 	return std::move(elem);
 }
@@ -113,11 +113,11 @@ template <typename IntType>
 static void add_LATTICE(benchmark::State& state) {
 	state.PauseTiming();
 	loadprimes();
-	ILVectorImpl<IntType,cpu_int::BigBinaryVector<IntType>,ILParamsImpl<IntType>>			a = makeElement<IntType>(state);
-	ILVectorImpl<IntType,cpu_int::BigBinaryVector<IntType>,ILParamsImpl<IntType>>			b = makeElement<IntType>(state);
+	ILVectorImpl<IntType,IntType,cpu_int::BigBinaryVectorImpl<IntType>,ILParamsImpl<IntType>>			a = makeElement<IntType>(state);
+	ILVectorImpl<IntType,IntType,cpu_int::BigBinaryVectorImpl<IntType>,ILParamsImpl<IntType>>			b = makeElement<IntType>(state);
 	state.ResumeTiming();
 
-	ILVectorImpl<IntType,cpu_int::BigBinaryVector<IntType>,ILParamsImpl<IntType>> c1 = a+b;
+	ILVectorImpl<IntType,IntType,cpu_int::BigBinaryVectorImpl<IntType>,ILParamsImpl<IntType>> c1 = a+b;
 }
 
 template <class E>
@@ -134,11 +134,11 @@ template <class IntType>
 static void mult_LATTICE(benchmark::State& state) {	// function
 	state.PauseTiming();
 	loadprimes();
-	ILVectorImpl<IntType,cpu_int::BigBinaryVector<IntType>,ILParamsImpl<IntType>>			a = makeElement<IntType>(state);
-	ILVectorImpl<IntType,cpu_int::BigBinaryVector<IntType>,ILParamsImpl<IntType>>			b = makeElement<IntType>(state);
+	ILVectorImpl<IntType,IntType,cpu_int::BigBinaryVectorImpl<IntType>,ILParamsImpl<IntType>>			a = makeElement<IntType>(state);
+	ILVectorImpl<IntType,IntType,cpu_int::BigBinaryVectorImpl<IntType>,ILParamsImpl<IntType>>			b = makeElement<IntType>(state);
 	state.ResumeTiming();
 
-	ILVectorImpl<IntType,cpu_int::BigBinaryVector<IntType>,ILParamsImpl<IntType>> c1 = a*b;
+	ILVectorImpl<IntType,IntType,cpu_int::BigBinaryVectorImpl<IntType>,ILParamsImpl<IntType>> c1 = a*b;
 }
 
 template <class E>
@@ -155,7 +155,7 @@ template <class IntType>
 static void switchformat_LATTICE(benchmark::State& state) {
 	state.PauseTiming();
 	loadprimes();
-	ILVectorImpl<IntType,cpu_int::BigBinaryVector<IntType>,ILParamsImpl<IntType>>			a = makeElement<IntType>(state);
+	ILVectorImpl<IntType,IntType,cpu_int::BigBinaryVectorImpl<IntType>,ILParamsImpl<IntType>>			a = makeElement<IntType>(state);
 	state.ResumeTiming();
 
 	a.SwitchFormat();

@@ -32,7 +32,7 @@ static std::vector<uint32_t> makeVector(int siz, int ptmi) {
 }
 
 static void setup_SHE(CryptoContext<ILVector2n>& cc, shared_ptr<Ciphertext<ILVector2n>>& ct1, shared_ptr<Ciphertext<ILVector2n>>& ct2) {
-	int nel = cc.GetElementParams()->GetCyclotomicOrder()/2;
+	int nel = cc.GetCyclotomicOrder()/2;
 	const BigBinaryInteger& ptm = cc.GetCryptoParameters()->GetPlaintextModulus();
 	uint32_t ptmi = ptm.ConvertToInt();
 

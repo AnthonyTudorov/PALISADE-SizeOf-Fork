@@ -21,9 +21,6 @@ DiscreteUniformGeneratorImpl<IntType,VecType>	GeneratorContainer<IntType,VecType
 template<typename IntType,typename VecType>
 TernaryUniformGeneratorImpl<IntType,VecType>	GeneratorContainer<IntType,VecType>::tug;
 
-GeneratorContainer<BigBinaryInteger,BigBinaryVector> globalCpuInt;
-GeneratorContainer<native64::BigBinaryInteger,native64::BigBinaryVector> globalNativeInt;
-
 template class GeneratorContainer<BigBinaryInteger,BigBinaryVector>;
 template class GeneratorContainer<native64::BigBinaryInteger,native64::BigBinaryVector>;
 

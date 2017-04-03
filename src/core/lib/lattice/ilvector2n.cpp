@@ -72,20 +72,21 @@ namespace lbcrypto {
 	ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(DistributionGeneratorType gtype, const shared_ptr<ParmType> params, Format format) {
 
 		m_params = params;
+		usint vectorSize = params->GetCyclotomicOrder() / 2;
 
 		if( gtype == BinaryUniformGen || gtype == DiscreteUniformGen ) {
-			GeneratorContainer<IntType,VecType>::GetGenerator(gtype).SetModulus(params->GetModulus());
-			usint vectorSize = params->GetCyclotomicOrder() / 2;
 			m_values = new VecType(GeneratorContainer<IntType,VecType>::GetGenerator(gtype).GenerateVector(vectorSize, params->GetModulus()));
-			(*m_values).SetModulus(params->GetModulus());
+			if( gtype == DiscreteUniformGen )
+				(*m_values).SetModulus(params->GetModulus());
 			m_format = COEFFICIENT;
 
 			if( format == EVALUATION )
 				this->SwitchFormat();
+
+			return;
 		}
 
 		if( format == COEFFICIENT ) {
-			usint vectorSize = params->GetCyclotomicOrder() / 2;
 			m_values = new VecType(GeneratorContainer<IntType,VecType>::GetGenerator(gtype).GenerateVector(vectorSize, params->GetModulus()));
 			(*m_values).SetModulus(params->GetModulus());
 			m_format = COEFFICIENT;
@@ -187,7 +188,7 @@ namespace lbcrypto {
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(const ILVectorImpl &element) : m_params(element.m_params), m_format(element.m_format)
+	ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(const ILVectorImpl &element, shared_ptr<ParmType>) : m_params(element.m_params), m_format(element.m_format)
 	{
 		if (element.m_values == NULL) {
 			m_values = NULL;
@@ -198,7 +199,7 @@ namespace lbcrypto {
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&element) : m_params(element.m_params), m_format(element.m_format),
+	ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&element, shared_ptr<ParmType>) : m_params(element.m_params), m_format(element.m_format),
 		m_values(element.m_values) {
 		element.m_values = NULL;
 	}

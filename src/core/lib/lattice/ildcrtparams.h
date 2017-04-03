@@ -52,26 +52,17 @@
 #ifndef LBCRYPTO_LATTICE_ILDCRTELEMENT_H
 #define LBCRYPTO_LATTICE_ILDCRTELEMENT_H
 
+#include "../lattice/elemparams.h"
 #include "../math/backend.h"
 #include "../utils/inttypes.h"
 #include "../math/nbtheory.h"
-#include "../utils/serializable.h"
-#include "../lattice/elemparams.h"
 #include "../lattice/ilparams.h"
-#include "../lattice/ilvector2n.h"
 
 namespace lbcrypto {
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType> class ILVectorImpl;
 
 }
-
-//namespace native64 {
-//
-//typedef lbcrypto::DiscreteGaussianGeneratorImpl<native64::BigBinaryInteger,native64::BigBinaryVector> DiscreteGaussianGenerator;
-//typedef lbcrypto::DiscreteUniformGeneratorImpl<native64::BigBinaryInteger,native64::BigBinaryVector> DiscreteUniformGenerator;
-//
-//}
 
 namespace lbcrypto {
 
@@ -89,28 +80,7 @@ public:
 		m_parms.resize(depth);
 	}
 
-	ILDCRTParams(usint order, usint depth) {
-		m_cyclotomicOrder = order;
-		m_parms.resize(depth);
-
-		native64::BigBinaryInteger q("50000");
-		native64::BigBinaryInteger temp;
-		BigBinaryInteger modulus(BigBinaryInteger::ONE);
-
-		native64::BigBinaryInteger mod, root;
-
-		for (int j = 0; j < depth; j++) {
-			lbcrypto::NextQ<native64::BigBinaryInteger>(q, native64::BigBinaryInteger::FIVE, order, native64::BigBinaryInteger::FOUR, native64::BigBinaryInteger::FOUR);
-			mod = q;
-			root = RootOfUnity<native64::BigBinaryInteger>(order, mod);
-
-			std::shared_ptr<native64::ILParams> p( new native64::ILParams(order, mod, root) );
-			m_parms[j] = p;
-			modulus = modulus * BigBinaryInteger(mod.ConvertToInt());
-		}
-
-		this->m_modulus = modulus;
-	}
+	ILDCRTParams(usint order, usint depth);
 
 	/**
 	 * Constructor with all parameters provided except the multiplied values of the chain of moduli. That value is automatically calculated. Root of unity of the modulus is also calculated.
@@ -137,7 +107,7 @@ public:
 		m_cyclotomicOrder = cyclotomic_order;
 		m_modulus = BigBinaryInteger::ONE;
 		for( int i=0; i<moduli.size(); i++ ) {
-			m_parms.push_back( shared_ptr<native64::ILParams>( new native64::ILParams(cyclotomic_order, moduli[i], rootsOfUnity[i]) ) );
+			m_parms.push_back( std::shared_ptr<native64::ILParams>( new native64::ILParams(cyclotomic_order, moduli[i], rootsOfUnity[i]) ) );
 		}
 		calculateModulus();
 	}
@@ -151,7 +121,7 @@ public:
 	ILDCRTParams(const usint cyclotomic_order, const std::vector<native64::BigBinaryInteger> &moduli) {
 		m_cyclotomicOrder = cyclotomic_order;
 		for( int i=0; i<moduli.size(); i++ ) {
-			m_parms.push_back( shared_ptr<native64::ILParams>( new native64::ILParams(cyclotomic_order, moduli[i]) ) );
+			m_parms.push_back( std::shared_ptr<native64::ILParams>( new native64::ILParams(cyclotomic_order, moduli[i]) ) );
 		}
 		calculateModulus();
 	}

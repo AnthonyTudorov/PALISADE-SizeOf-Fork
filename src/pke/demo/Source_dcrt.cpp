@@ -138,7 +138,6 @@ void NTRU_DCRT() {
 	}
 
 	cout << "big modulus: " << modulus << endl;
-	ILVectorArray2n::PreComputeCRIFactors(moduli, m);
 	shared_ptr<ILDCRTParams> params( new ILDCRTParams(m, moduli, rootsOfUnity) );
 
 	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
@@ -279,21 +278,6 @@ void NTRU_DCRT() {
 	}
 
 	std::cout << "Execution completed." << std::endl;
-	ILVectorArray2n::DestroyPrecomputedCRIFactors();
-
-
-//	cout << "Running serialization testing:" << endl;
-//
-//	TestJsonParms<ILVectorArray2n> tjp;
-//	BytePlaintextEncoding newPlaintext("1) SERIALIZE CRYPTO-OBJS TO FILE AS NESTED JSON STRUCTURES\n2) DESERIALIZE JSON FILES INTO CRYPTO-OBJS USED FOR CRYPTO-APIS\n3) Profit!!!!!");
-//
-//	tjp.ctx = ctx;
-//	tjp.pk = &pk;
-//	tjp.sk = &sk;
-//	tjp.evalKey = &evalKey;
-//	tjp.newSK = &newSK;
-//
-//	testJson<ILVectorArray2n>("DCRT", newPlaintext, &tjp, true);
 }
 
 
@@ -456,39 +440,37 @@ void FinalLeveledComputation(){
 	shared_ptr<LPEvalKey<ILVectorArray2n>> linearKeySwitchHint2;
 	
 	linearKeySwitchHint1 = cc.KeySwitchGen(kp.secretKey, levelPairs[0].secretKey);
-	//UNUSED cc.EvalMultKeyGen(kp.secretKey);
 	auto e = levelPairs[0].secretKey->GetPrivateElement();
 	e.DropLastElement();
 	levelPairs[0].secretKey->SetPrivateElement(e);
 
 	linearKeySwitchHint2 = cc.KeySwitchGen(levelPairs[0].secretKey, levelPairs[1].secretKey);
-	//UNUSED cc.EvalMultKeyGen(levelPairs[0].secretKey);
 	e = levelPairs[1].secretKey->GetPrivateElement();
 	e.DropLastElement();
 	levelPairs[1].secretKey->SetPrivateElement(e);
 
 	//create the ciphertexts for computation
-	ILVectorArray2n element1(dcrtParams);
+	ILVector2n element1(dcrtParams);
 	element1.SwitchFormat();
 	element1 = {1};
 	shared_ptr<Ciphertext<ILVectorArray2n>> cipherText1 = cc.GetEncryptionAlgorithm()->Encrypt(kp.publicKey,element1);
 
-	ILVectorArray2n element2(dcrtParams);
+	ILVector2n element2(dcrtParams);
 	element2.SwitchFormat();
 	element2 = {2};
 	shared_ptr<Ciphertext<ILVectorArray2n>> cipherText2 = cc.GetEncryptionAlgorithm()->Encrypt(kp.publicKey,element2);
 
-	ILVectorArray2n element3(dcrtParams);
+	ILVector2n element3(dcrtParams);
 	element3.SwitchFormat();
 	element3 = {3};
 	shared_ptr<Ciphertext<ILVectorArray2n>> cipherText3 = cc.GetEncryptionAlgorithm()->Encrypt(kp.publicKey,element3);
 
-	ILVectorArray2n element4(dcrtParams);
+	ILVector2n element4(dcrtParams);
 	element4.SwitchFormat();
 	element4 = {4};
 	shared_ptr<Ciphertext<ILVectorArray2n>> cipherText4 = cc.GetEncryptionAlgorithm()->Encrypt(kp.publicKey,element4);
 
-	ILVectorArray2n element5(dcrtParams);
+	ILVector2n element5(dcrtParams);
 	element5.SwitchFormat();
 	element5 = {5};
 	shared_ptr<Ciphertext<ILVectorArray2n>> cipherText5 = cc.GetEncryptionAlgorithm()->Encrypt(kp.publicKey,element5);

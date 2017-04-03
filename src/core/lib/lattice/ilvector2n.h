@@ -81,6 +81,8 @@ public:
 	 */
 	ILVectorImpl(const shared_ptr<ParmType> params, Format format = EVALUATION, bool initializeElementToZero = false);
 
+	ILVectorImpl(const shared_ptr<ILDCRTParams> params, Format format = EVALUATION, bool initializeElementToZero = false);
+
 	/**
 	 * Construct given parameters and format
 	 * @param initializeElementToMax - if true, initializes entries in the vector to the maximum value
@@ -172,14 +174,24 @@ public:
 	 *
 	 * @param &element the copied element.
 	 */
-	ILVectorImpl(const ILVectorType &element);
+	ILVectorImpl(const ILVectorType &element, shared_ptr<ParmType> parms = 0);
 
 	/**
 	 * Move constructor.
 	 *
 	 * @param &&element the copied element.
 	 */
-	ILVectorImpl(ILVectorType &&element);
+	ILVectorImpl(ILVectorType &&element, shared_ptr<ParmType> parms = 0);
+
+//	/**
+//	 * Construct from an existing vector2n and parms
+//	 *
+//	 * A kind of copy constructor used in encrypt
+//	 *
+//	 * @param element
+//	 * @param parms
+//	 */
+//	ILVectorImpl(const ILVector2n &element, shared_ptr<ParmType> parms);
 
 	/**
 	 * Clone the object by making a copy of it and returning the copy
@@ -253,7 +265,7 @@ public:
 	 *
 	 * @return the ring element params.
 	 */
-	inline const shared_ptr<ParmType> GetParams() const { return m_params; }
+	const shared_ptr<ParmType> GetParams() const { return m_params; }
 
 	/**
 	 * Get format of the element
@@ -516,11 +528,13 @@ public:
 
 	/**
 	 * Interpolates based on the Chinese Remainder Transform Interpolation.
-	 * Does nothing for ILVectorImpl. Needed to support the linear CRT interpolation in ILVectorArray2n.
+	 * Does nothing for ILVectorImpl.
 	 *
 	 * @return the original ring element.
 	 */
-	ILVectorImpl CRTInterpolate() const { return *this; }
+	ILVector2n CRTInterpolate() const;
+	ILVectorImpl CRIDecompose(const ILVector2n& invec) const;
+	ILVectorImpl CRIDecompose(const ILVectorNative2n& invec) const;
 
 	/**
 	 * Transpose the ring element using the automorphism operation
@@ -736,6 +750,12 @@ private:
 
 }
 
+namespace native64 {
+
+typedef lbcrypto::ILVectorImpl<native64::BigBinaryInteger, native64::BigBinaryInteger, native64::BigBinaryVector, native64::ILParams> ILVector2n;
+
+}
+
 namespace lbcrypto {
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType> class ILVectorImpl;
@@ -743,9 +763,61 @@ typedef ILVectorImpl<BigBinaryInteger, BigBinaryInteger, BigBinaryVector, ILPara
 
 }
 
-namespace native64 {
+// this little nugget of code lets an ILVector2n return a big-int ILVector2n for CRTInterpolate
 
-typedef lbcrypto::ILVectorImpl<native64::BigBinaryInteger, native64::BigBinaryInteger, native64::BigBinaryVector, native64::ILParams> ILVector2n;
+namespace lbcrypto {
+
+inline ILVector2n VectorConvert(const ILVector2n& v) { return v; }
+
+inline ILVector2n VectorConvert(const native64::ILVector2n& v) {
+	ILVector2n newvec( shared_ptr<ILParams>(new ILParams(v.GetCyclotomicOrder(),
+							BigBinaryInteger(v.GetModulus().ConvertToInt()),
+							BigBinaryInteger(v.GetRootOfUnity().ConvertToInt()))),
+						v.GetFormat() );
+
+	for( usint i = 0; i < v.GetCyclotomicOrder(); i++ ) {
+		newvec.SetValAtIndex(i, v.GetValAtIndex(i).ConvertToInt());
+	}
+
+	return newvec;
+}
+
+template<typename ModType, typename IntType, typename VecType, typename ParmType>
+inline ILVector2n ILVectorImpl<ModType,IntType,VecType,ParmType>::CRTInterpolate() const { return VectorConvert(*this); }
+
+//template<typename ModType, typename IntType, typename VecType, typename ParmType>
+//inline ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(const ILVector2n &element, shared_ptr<ParmType> parms) {
+//	m_format = element.GetFormat();
+//	m_params.reset(&element.GetParams());
+//	ILVectorImpl<ModType,IntType,VecType,ParmType> answer = CRIDecompose(element);
+//	m_values = new VecType(answer.GetValues());
+//
+//}
+
+template<>
+inline ILVectorImpl<BigBinaryInteger,BigBinaryInteger,BigBinaryVector,ILParams>
+ILVectorImpl<BigBinaryInteger,BigBinaryInteger,BigBinaryVector,ILParams>::CRIDecompose(const ILVector2n& invec) const {
+	return invec;
+}
+
+template<>
+inline ILVectorImpl<BigBinaryInteger,BigBinaryInteger,BigBinaryVector,ILParams>
+ILVectorImpl<BigBinaryInteger,BigBinaryInteger,BigBinaryVector,ILParams>::CRIDecompose(const ILVectorNative2n& invec) const {
+	throw std::logic_error("not implemented");
+}
+
+template<>
+inline ILVectorImpl<native64::BigBinaryInteger,native64::BigBinaryInteger,native64::BigBinaryVector,native64::ILParams>
+ILVectorImpl<native64::BigBinaryInteger,native64::BigBinaryInteger,native64::BigBinaryVector,native64::ILParams>::CRIDecompose(const ILVector2n& invec) const {
+	throw std::logic_error("not implemented");
+}
+
+template<>
+inline ILVectorImpl<native64::BigBinaryInteger,native64::BigBinaryInteger,native64::BigBinaryVector,native64::ILParams>
+ILVectorImpl<native64::BigBinaryInteger,native64::BigBinaryInteger,native64::BigBinaryVector,native64::ILParams>::CRIDecompose(const ILVectorNative2n& invec) const {
+	return invec;
+}
+
 
 }
 

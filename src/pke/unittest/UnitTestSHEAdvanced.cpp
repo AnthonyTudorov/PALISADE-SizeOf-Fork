@@ -148,9 +148,6 @@ TEST_F(UTSHEAdvanced, test_eval_mult_single_crt) {
 	cc.Enable(SHE);
 	cc.Enable(LEVELEDSHE);
 
-	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
-
 	//Initialize the public key containers.
 	LPKeyPair<ILVector2n> kp;
 
@@ -195,8 +192,6 @@ TEST_F(UTSHEAdvanced, test_eval_mult_single_crt) {
 	cc.Decrypt(newKp.secretKey, ciphertextResults, &results, false);
 
 	EXPECT_EQ(results.at(0), 6);
-
-	ILVector2n::DestroyPreComputedSamples();
 }
 
 
@@ -325,9 +320,6 @@ TEST_F(UTSHEAdvanced, test_eval_add_single_crt) {
 	// relinWindow // 1,
 	//stdDev);
 
-	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
-
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 	cc.Enable(LEVELEDSHE);
@@ -379,8 +371,6 @@ TEST_F(UTSHEAdvanced, test_eval_add_single_crt) {
 	EXPECT_EQ(1, results.at(1));
 	EXPECT_EQ(4, results.at(2));
 	EXPECT_EQ(5, results.at(3));
-
-	ILVector2n::DestroyPreComputedSamples();
 }
 
 

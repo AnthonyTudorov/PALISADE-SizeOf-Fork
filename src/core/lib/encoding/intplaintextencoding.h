@@ -70,8 +70,7 @@ public:
 	* @param  *ilVector encoded plaintext - output argument.
 	*/
 	void Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector, size_t start_from=0, size_t length=0) const;
-	void Encode(const native64::BigBinaryInteger &modulus, native64::ILVector2n *ilVector, size_t start_from=0, size_t length=0) const;
-	void Encode(const BigBinaryInteger &modulus, ILVectorArray2n *ilVector, size_t start_from=0, size_t length=0) const;
+	void Encode(const BigBinaryInteger &modulus, native64::ILVector2n *ilVector, size_t start_from=0, size_t length=0) const;
 
 	/** Interface for the operation of converting from ILVector2n to current plaintext encoding.
 	*
@@ -79,8 +78,7 @@ public:
 	* @param  *ilVector encoded plaintext - input argument.
 	*/
 	void Decode(const BigBinaryInteger &modulus, ILVector2n *ilVector);
-	void Decode(const native64::BigBinaryInteger &modulus, native64::ILVector2n *ilVector);
-	void Decode(const BigBinaryInteger &modulus, ILVectorArray2n *ilVector);
+	void Decode(const BigBinaryInteger &modulus, native64::ILVector2n *ilVector);
 
 	void Unpad(const BigBinaryInteger &modulus) {} // a null op; no padding in int
 
@@ -106,6 +104,14 @@ public:
 			out << "\t" << item.at(i);
 		return out;
 	}
+
+private:
+    template <typename IntType, typename VecType, typename Element>
+	void doEncode(const BigBinaryInteger &modulus, Element *ilVector, size_t start_from, size_t length) const;
+
+    template <typename IntType, typename VecType, typename Element>
+	void doDecode(const BigBinaryInteger &modulus, Element *ilVector);
+
 };
 
 }

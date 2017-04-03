@@ -233,8 +233,8 @@ template<typename ModType, typename IntType, typename VecType, typename ParmType
 
 	#define BigBinaryIntegerBitLength 0 // zero indicates unused
 
-	typedef native64::NativeInteger<uint64_t> BigBinaryInteger;
-	typedef cpu_int::BigBinaryVectorImpl<BigBinaryInteger> BigBinaryVector;
+	typedef native64::BigBinaryInteger BigBinaryInteger;
+	typedef native64::BigBinaryVector BigBinaryVector;
 
 	/** Define the mapping for ExpBigBinaryInteger (experimental) */
 	typedef exp_int::ubint<integral_dtype> ubint;

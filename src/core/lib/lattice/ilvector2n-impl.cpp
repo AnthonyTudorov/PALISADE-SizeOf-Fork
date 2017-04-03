@@ -25,4 +25,15 @@ template class DiscreteUniformGeneratorImpl<BigBinaryInteger,BigBinaryVector>;
 namespace lbcrypto {
 template class ILParamsImpl<BigBinaryInteger>;
 template class ILVectorImpl<BigBinaryInteger,BigBinaryInteger,BigBinaryVector,ILParams>;
+
+template<>
+ILVectorImpl<BigBinaryInteger,BigBinaryInteger,BigBinaryVector,ILParams>::ILVectorImpl(const shared_ptr<ILDCRTParams> params, Format format, bool initializeElementToZero) : m_values(NULL), m_format(format) {
+	// construct a local params out of the stuff from the DCRT Params
+	m_params.reset( new ILParams(params->GetCyclotomicOrder(), params->GetModulus(), BigBinaryInteger::ONE));
+
+	if (initializeElementToZero) {
+		this->SetValuesToZero();
+	}
+}
+
 }
