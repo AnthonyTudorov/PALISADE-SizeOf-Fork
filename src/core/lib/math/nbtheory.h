@@ -45,6 +45,9 @@
 #include <vector>
 #include <set>
 #include <string>
+#include <random>
+
+#include "distributiongenerator.h"
 
 /**
  * @namespace lbcrypto
@@ -56,7 +59,6 @@ namespace lbcrypto {
 
 	/**
 	 * Finds roots of unity for given input.  Assumes the the input is a power of two. 
-	 * Mostly likely does not give correct results otherwise.
 	 *
 	 * @param m as number which is cyclotomic(in format of int).
 	 * @param &modulo which is used to find generator.
@@ -68,7 +70,6 @@ namespace lbcrypto {
 
 	/**
 	 * Finds roots of unity for given input.  Assumes the the input cyclotomicorder is a power of two. 
-	 * Mostly likely does not give correct results otherwise.
 	 *
 	 * @param m as number which is cyclotomic(in format of int).
 	 * @param moduli vector of modulus
@@ -87,16 +88,6 @@ namespace lbcrypto {
 	 * @return an unsigned integer that represents the reversed bits.	  
 	 */
 	usint ReverseBits(usint input, usint msb);
-
-//	/*
-//	 * Method that converts signed char to IntType
-//	 *
-//	 * @param input an unsigned int
-//	 * @param msb the most significant bit.  All larger bits are disregarded.
-//	 * 
-//	 * @return an unsigned integer that represents the reversed bits.	  
-//	 */
-//	IntType scharToBigBinaryInteger(schar, const IntType &modulus);
 
 	/**
 	 * Get MSB of an unisigned integer.
@@ -120,7 +111,9 @@ namespace lbcrypto {
 
 	/**
 	 * Return result of MillerRabin primality test of a IntType.
-	 * This approach to primality testing is iterative and randomized.  It returns false if evidence of non-primality is found, and true if no evidence is found after multiple rounds of testing.  The const parameter PRIMALITY_NO_OF_ITERATIONS determines how many rounds are used.
+	 * This approach to primality testing is iterative and randomized.  
+	 * It returns false if evidence of non-primality is found, and true if no evidence is found after multiple rounds of testing.  
+	 * The const parameter PRIMALITY_NO_OF_ITERATIONS determines how many rounds are used.
 	 *
 	 * @param p the candidate prime to test.
 	 * 
@@ -163,7 +156,8 @@ namespace lbcrypto {
 	IntType FindPrimeModulus(usint m, usint nBits);
 
 	/**
-	 * Finds the next number that is a prime number matching the methods criteria. Sigma and alpha are required to calculate a minimum bound. The prime number generated will equal to one modulus the cyclotomic order and the plaintext modulus.
+	 * Finds the next number that is a prime number matching the methods criteria. Sigma and alpha are required to calculate a minimum bound. 
+	 * The prime number generated will equal to one modulus the cyclotomic order and the plaintext modulus.
 	 *
 	 * @param &q is the place holder for the new prime. The original value of q will be set a minimum unless it is less than the minimum bound which is dependant on sigma and alpha.
 	 * @param &plainTextModulus is the plaintext modulus the prime number will be used on.
@@ -173,7 +167,6 @@ namespace lbcrypto {
 	 *
 	 * @return the next prime modulus.  
 	 */
-
 	template<typename IntType>
 	void NextQ(IntType &q, const IntType &plainTextModulus, const usint &ringDimension, const IntType &sigma, const IntType &alpha);
 

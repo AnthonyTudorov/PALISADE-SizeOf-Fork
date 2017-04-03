@@ -1633,6 +1633,11 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 		std::cout<<Exp<<"  Exp"<<std::endl;
 	#endif
 
+	//Precompute the Barrett mu parameter
+	BigBinaryInteger temp(BigBinaryInteger::ONE);
+	temp <<= 2 * modulus.GetMSB() + 3;
+	BigBinaryInteger mu = temp.DividedBy(modulus);
+
 	while(true){
 
 		
@@ -1643,7 +1648,7 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 
 		//running product is calculated
 		if(product>modulus){
-			product = product.Mod(modulus);
+			product.ModBarrettInPlace(modulus,mu);
 		}
 
 		#ifdef DEBUG_MODEXP
@@ -1660,7 +1665,7 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 		//mid calculates mid^2%q
 		mid = mid*mid;
 		
-		mid = (mid.Mod(modulus));
+		mid.ModBarrettInPlace(modulus,mu);
 
 		#ifdef DEBUG_MODEXP
 				std::cout<<mid<<std::endl;

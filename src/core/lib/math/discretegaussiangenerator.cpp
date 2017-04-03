@@ -31,6 +31,8 @@ namespace lbcrypto {
 	template<typename IntType, typename VecType>
 	void DiscreteGaussianGeneratorImpl<IntType,VecType>::Initialize() {
 
+		m_vals.clear();
+
 		//weightDiscreteGaussian
 		double acc = 1e-15;
 		double variance = m_std * m_std;
