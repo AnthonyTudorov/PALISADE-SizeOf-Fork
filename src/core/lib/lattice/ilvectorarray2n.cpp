@@ -615,32 +615,32 @@ namespace lbcrypto {
 		return *this;
 	}
 
-//	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-//	ILVectorArrayImpl<ModType,IntType,VecType,ParmType>& ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::operator=(std::initializer_list<sint> rhs){
-//		usint len = rhs.size();
-//		if(!IsEmpty()){
-//			usint vectorLength = this->m_vectors[0].GetLength();
-//			for(usint i = 0;i < m_vectors.size(); ++i){ // this loops over each tower
-//				for(usint j = 0; j < vectorLength; ++j) { // loops within a tower
-//					if(j<len) {
-//						this->m_vectors[i].SetValAtIndex(j, *(rhs.begin()+j));
-//					} else {
-//						this->m_vectors[i].SetValAtIndex(j,0);
-//					}
-//				}
-//			}
-//		}
-//		else{
-//			for(usint i=0;i<m_vectors.size();i++){
-//				native64::BigBinaryVector temp(m_cyclotomicOrder/2);
-//				temp.SetModulus(m_vectors.at(i).GetModulus());
-//				temp = rhs;
-//				m_vectors.at(i).SetValues(std::move(temp),m_format);
-//			}
-//
-//		}
-//		return *this;
-//	}
+	template<typename ModType, typename IntType, typename VecType, typename ParmType>
+	ILVectorArrayImpl<ModType,IntType,VecType,ParmType>& ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::operator=(std::initializer_list<sint> rhs){
+		usint len = rhs.size();
+		if(!IsEmpty()){
+			usint vectorLength = this->m_vectors[0].GetLength();
+			for(usint i = 0;i < m_vectors.size(); ++i){ // this loops over each tower
+				for(usint j = 0; j < vectorLength; ++j) { // loops within a tower
+					if(j<len) {
+						this->m_vectors[i].SetValAtIndex(j, *(rhs.begin()+j));
+					} else {
+						this->m_vectors[i].SetValAtIndex(j,0);
+					}
+				}
+			}
+		}
+		else{
+			for(usint i=0;i<m_vectors.size();i++){
+				native64::BigBinaryVector temp(m_cyclotomicOrder/2);
+				temp.SetModulus(m_vectors.at(i).GetModulus());
+				temp = rhs;
+				m_vectors.at(i).SetValues(std::move(temp),m_format);
+			}
+
+		}
+		return *this;
+	}
 
 	/*SCALAR OPERATIONS*/
 
