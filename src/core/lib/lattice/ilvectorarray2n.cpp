@@ -79,16 +79,28 @@ namespace lbcrypto {
 		}
 
 		// need big ints out of the little ints for the modulo operations, below
-		std::vector<IntType> bigmods;
+		std::vector<ModType> bigmods;
 		bigmods.reserve(vecCount);
 		for( usint i = 0; i < vecCount; i++ )
-			bigmods.push_back( IntType(params->GetParams()[i]->GetModulus().ConvertToInt()) );
+			bigmods.push_back( ModType(params->GetParams()[i]->GetModulus().ConvertToInt()) );
 
 		// copy each coefficient mod the new modulus
 		for(usint p = 0; p < element.GetLength(); p++ ) {
 			for( usint v = 0; v < vecCount; v++ ) {
 				m_vectors[v].SetValAtIndex(p, (element.GetValAtIndex(p) % bigmods[v]).ConvertToInt());
 			}
+		}
+
+		std::cout << "Large vector: " << element.GetModulus() << std::endl;
+		for( int r=0; r<element.GetLength(); r++ )
+			std::cout << "   " << element.GetValAtIndex(r);
+		std::cout << std::endl;
+		std::cout << "New vector: " << this->GetModulus() << std::endl;
+		for( int v = 0; v < m_vectors.size(); v++ ) {
+			std::cout << "tower " << v << " modulus " << m_vectors[v].GetModulus() << std::endl;
+			for( int r=0; r<m_vectors[v].GetLength(); r++ )
+				std::cout << "   " << m_vectors[v].GetValAtIndex(r);
+			std::cout << std::endl;
 		}
 	}
 
@@ -318,16 +330,18 @@ namespace lbcrypto {
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	ILVectorArrayImpl<ModType,IntType,VecType,ParmType> ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::CloneParametersOnly() const{
 		
-		std::vector<ILVectorType> result;
-		result.reserve(m_vectors.size());
-		
-		for(usint i=0;i<m_vectors.size();i++){
-			result.push_back(std::move(m_vectors.at(i).CloneParametersOnly()));
-		}
-
-		ILVectorArrayImpl res(result);
-
+		ILVectorArrayImpl res(this->m_params, this->m_format);
 		return std::move(res);
+//		std::vector<ILVectorType> result;
+//		result.reserve(m_vectors.size());
+//
+//		for(usint i=0;i<m_vectors.size();i++){
+//			result.push_back(std::move(m_vectors.at(i).CloneParametersOnly()));
+//		}
+//
+//		ILVectorArrayImpl res(result);
+//
+//		return std::move(res);
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
@@ -583,6 +597,7 @@ namespace lbcrypto {
 			m_format = rhs.m_format;	
 			m_modulus = rhs.m_modulus;
 			m_cyclotomicOrder = rhs.m_cyclotomicOrder;
+			m_params = rhs.m_params;
 		}
 		return *this;
 	}
@@ -595,36 +610,37 @@ namespace lbcrypto {
 			m_format = std::move(rhs.m_format);
 			m_modulus = std::move(rhs.m_modulus);
 			m_cyclotomicOrder = std::move(rhs.m_cyclotomicOrder);
+			m_params = std::move(rhs.m_params);
 		}
 		return *this;
 	}
 
-	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorArrayImpl<ModType,IntType,VecType,ParmType>& ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::operator=(std::initializer_list<sint> rhs){
-		usint len = rhs.size();
-		if(!IsEmpty()){
-			usint vectorLength = this->m_vectors[0].GetLength();
-			for(usint i = 0;i < m_vectors.size(); ++i){ // this loops over each tower
-				for(usint j = 0; j < vectorLength; ++j) { // loops within a tower
-					if(j<len) {
-						this->m_vectors[i].SetValAtIndex(j, *(rhs.begin()+j));
-					} else {
-						this->m_vectors[i].SetValAtIndex(j,0);
-					}
-				}
-			}
-		}
-		else{
-			for(usint i=0;i<m_vectors.size();i++){
-				native64::BigBinaryVector temp(m_cyclotomicOrder/2);
-				temp.SetModulus(m_vectors.at(i).GetModulus());
-				temp = rhs;
-				m_vectors.at(i).SetValues(std::move(temp),m_format);
-			}
-			
-		}
-		return *this;
-	}
+//	template<typename ModType, typename IntType, typename VecType, typename ParmType>
+//	ILVectorArrayImpl<ModType,IntType,VecType,ParmType>& ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::operator=(std::initializer_list<sint> rhs){
+//		usint len = rhs.size();
+//		if(!IsEmpty()){
+//			usint vectorLength = this->m_vectors[0].GetLength();
+//			for(usint i = 0;i < m_vectors.size(); ++i){ // this loops over each tower
+//				for(usint j = 0; j < vectorLength; ++j) { // loops within a tower
+//					if(j<len) {
+//						this->m_vectors[i].SetValAtIndex(j, *(rhs.begin()+j));
+//					} else {
+//						this->m_vectors[i].SetValAtIndex(j,0);
+//					}
+//				}
+//			}
+//		}
+//		else{
+//			for(usint i=0;i<m_vectors.size();i++){
+//				native64::BigBinaryVector temp(m_cyclotomicOrder/2);
+//				temp.SetModulus(m_vectors.at(i).GetModulus());
+//				temp = rhs;
+//				m_vectors.at(i).SetValues(std::move(temp),m_format);
+//			}
+//
+//		}
+//		return *this;
+//	}
 
 	/*SCALAR OPERATIONS*/
 
@@ -635,7 +651,7 @@ namespace lbcrypto {
 		ILVectorArrayImpl<ModType,IntType,VecType,ParmType> tmp(*this);
 
 		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
-			tmp.m_vectors[i] += (element % IntType((*m_params)[i]->GetModulus().ConvertToInt())).ConvertToInt();
+			tmp.m_vectors[i] += element.ConvertToInt(); // (element % IntType((*m_params)[i]->GetModulus().ConvertToInt())).ConvertToInt();
 		}
 		return std::move(tmp);
 	}
@@ -645,7 +661,7 @@ namespace lbcrypto {
 		ILVectorArrayImpl<ModType,IntType,VecType,ParmType> tmp(*this);
 
 		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
-			tmp.m_vectors[i] -= (element % IntType((*m_params)[i]->GetModulus().ConvertToInt())).ConvertToInt();
+			tmp.m_vectors[i] -= element.ConvertToInt(); //(element % IntType((*m_params)[i]->GetModulus().ConvertToInt())).ConvertToInt();
 		}
 		return std::move(tmp);
 	}
@@ -669,7 +685,7 @@ namespace lbcrypto {
 		ILVectorArrayImpl<ModType,IntType,VecType,ParmType> tmp(*this);
 
 		for (usint i = 0; i < m_vectors.size(); i++) {
-			tmp.m_vectors[i] = tmp.m_vectors[i] * (element % IntType((*m_params)[i]->GetModulus().ConvertToInt())).ConvertToInt();
+			tmp.m_vectors[i] = tmp.m_vectors[i] * element.ConvertToInt(); // (element % IntType((*m_params)[i]->GetModulus().ConvertToInt())).ConvertToInt();
 		}
 		return std::move(tmp);
 	}
@@ -693,7 +709,7 @@ namespace lbcrypto {
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	const ILVectorArrayImpl<ModType,IntType,VecType,ParmType>& ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::operator*=(const IntType &element) {
 		for (usint i = 0; i < this->m_vectors.size(); i++) {
-			this->m_vectors.at(i) = this->m_vectors.at(i) * (element % IntType((*m_params)[i]->GetModulus().ConvertToInt())).ConvertToInt();
+			this->m_vectors.at(i) *= element.ConvertToInt(); //this->m_vectors.at(i) * (element % IntType((*m_params)[i]->GetModulus().ConvertToInt())).ConvertToInt();
 		}
 
 		return *this;
@@ -863,16 +879,17 @@ namespace lbcrypto {
 		for( usint vi = 0 ; vi < nTowers; vi++ ) {
 			BigBinaryInteger qj(m_vectors[vi].GetModulus().ConvertToInt());
 			BigBinaryInteger divBy = bigModulus / qj;
-			BigBinaryInteger modInv = (divBy % qj).ModInverse(qj);
+			//BigBinaryInteger modInv = (divBy % qj).ModInverse(qj);
+			BigBinaryInteger modInv = divBy.ModInverse(qj).Mod(qj);
 			multiplier[vi] = divBy * modInv;
 
-			DEBUG(vi << " " << qj << " " << multiplier[vi]);
+			DEBUG("multiplier " << vi << " " << qj << " " << multiplier[vi]);
 		}
 
 		// now, compute the values for the vector
 		for( usint ri = 0; ri < ringDimension; ri++ ) {
 			DEBUG( ri );
-			coefficients[ri] = 0;
+			coefficients[ri] = BigBinaryInteger::ZERO;
 			for( usint vi = 0; vi < nTowers; vi++ ) {
 				coefficients[ri] += (BigBinaryInteger(m_vectors[vi].GetValues()[ri].ConvertToInt()) * multiplier[vi]);
 				DEBUG( coefficients[ri] << ":::" << BigBinaryInteger(m_vectors[vi].GetValues()[ri].ConvertToInt()) << ":::" << multiplier[vi] );

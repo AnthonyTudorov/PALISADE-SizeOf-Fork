@@ -332,7 +332,9 @@ namespace lbcrypto {
 		* @param &rhs the list to initalized the ILVectorArray2n
 		* @return the resulting ILVectorArray2n.
 		*/
-		ILVectorArrayType& operator=(std::initializer_list<sint> rhs);
+		ILVectorArrayType& operator=(std::initializer_list<sint> rhs) {
+			throw std::logic_error("not impl");
+		}
 
 		/**
 		* Equal operator.
