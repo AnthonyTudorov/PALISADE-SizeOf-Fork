@@ -839,7 +839,7 @@ namespace lbcrypto {
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	ILVector2n ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::CRTInterpolate() const
 	{
-	  bool dbg_flag = false;
+	  bool dbg_flag = true;
 
 		usint ringDimension = m_cyclotomicOrder / 2;
 		usint nTowers = m_vectors.size();

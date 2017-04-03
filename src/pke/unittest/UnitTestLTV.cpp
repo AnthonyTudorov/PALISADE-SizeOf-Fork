@@ -49,6 +49,53 @@ protected:
 public:
 };
 
+TEST(UTLTVDCRT, ILVectorArray2n_small) {
+  bool dbg_flag = false;
+
+	usint m = 8;
+
+	IntPlaintextEncoding plaintext({8,3,2,7});
+
+	float stdDev = 4;
+
+	usint size = 2;
+
+	BytePlaintextEncoding ctxtd;
+
+	vector<native64::BigBinaryInteger> moduli(size);
+
+	vector<native64::BigBinaryInteger> rootsOfUnity(size);
+
+	native64::BigBinaryInteger q("1");
+	native64::BigBinaryInteger temp;
+	BigBinaryInteger modulus("1");
+
+	DEBUG("1");
+	for (int i = 0; i < size; i++) {
+		lbcrypto::NextQ(q, native64::BigBinaryInteger::TWO, m, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
+		moduli[i] = q;
+		rootsOfUnity[i] = RootOfUnity(m, moduli[i]);
+		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
+		DEBUG("2 i "<<i);
+	}
+	DEBUG("3");
+
+	shared_ptr<ILDCRTParams> params( new ILDCRTParams(m, moduli, rootsOfUnity) );
+	DEBUG("4");
+
+	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
+	cryptoParams.SetPlaintextModulus(BigBinaryInteger(9));
+	cryptoParams.SetDistributionParameter(stdDev);
+	cryptoParams.SetRelinWindow(1);
+	cryptoParams.SetElementParams(params);
+
+	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::getCryptoContextDCRT(&cryptoParams);
+	cc.Enable(ENCRYPTION);
+
+	UnitTestEncryption<ILVectorArray2n>(cc);
+}
+
+
 
 /*Simple Encrypt-Decrypt check for ILVectorArray2n. The assumption is this test case is that everything with respect to lattice and math
 * layers and cryptoparameters work. This test case is only testing if the resulting plaintext from an encrypt/decrypt returns the same

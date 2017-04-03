@@ -88,7 +88,7 @@ UnitTestEncryption(const CryptoContext<Element>& cc) {
 	////////////////////////////////////////////////////////////
 
 	if( plaintextShort.size() == 0 ) {
-		std::cout << "This set of test parameters generated zero-length test strings, skipping..." << std::endl;
+		std::cout << "This set of test parameters generated zero-length test strings, skipping string cases" << std::endl;
 	} else {
 		vector<shared_ptr<Ciphertext<Element>>> ciphertext = cc.Encrypt(kp.publicKey, plaintextShort, true);
 		BytePlaintextEncoding plaintextShortNew;
