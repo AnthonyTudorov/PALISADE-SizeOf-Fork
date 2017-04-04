@@ -75,7 +75,12 @@ namespace lbcrypto {
 		usint vectorSize = params->GetCyclotomicOrder() / 2;
 
 		if( gtype == BinaryUniformGen || gtype == DiscreteUniformGen ) {
-			m_values = new VecType(GeneratorContainer<IntType,VecType>::GetGenerator(gtype).GenerateVector(vectorSize, params->GetModulus()));
+			if( gtype == BinaryUniformGen )
+				m_values = new VecType(
+					GeneratorContainer<IntType,VecType>::GetBinaryUniformGenerator().GenerateVector(vectorSize, params->GetModulus()));
+			else
+				m_values = new VecType(
+					GeneratorContainer<IntType,VecType>::GetDiscreteUniformGenerator().GenerateVector(vectorSize, params->GetModulus()));
 			if( gtype == DiscreteUniformGen )
 				(*m_values).SetModulus(params->GetModulus());
 			m_format = COEFFICIENT;
@@ -87,15 +92,19 @@ namespace lbcrypto {
 		}
 
 		if( format == COEFFICIENT ) {
-			m_values = new VecType(GeneratorContainer<IntType,VecType>::GetGenerator(gtype).GenerateVector(vectorSize, params->GetModulus()));
+			if( gtype == DiscreteGaussianGen )
+				m_values = new VecType(GeneratorContainer<IntType,VecType>::GetDiscreteGaussianGenerator().GenerateVector(vectorSize, params->GetModulus()));
+			else
+				m_values = new VecType(GeneratorContainer<IntType,VecType>::GetTernaryUniformGenerator().GenerateVector(vectorSize, params->GetModulus()));
+
 			(*m_values).SetModulus(params->GetModulus());
 			m_format = COEFFICIENT;
 		}
 		else {
 			if( gtype == DiscreteGaussianGen )
-				PreComputeDggSamples(GeneratorContainer<IntType,VecType>::GetGenerator(gtype), m_params);
+				PreComputeDggSamples(GeneratorContainer<IntType,VecType>::GetDiscreteGaussianGenerator(), m_params);
 			else
-				PreComputeTugSamples(GeneratorContainer<IntType,VecType>::GetGenerator(gtype), m_params);
+				PreComputeTugSamples(GeneratorContainer<IntType,VecType>::GetTernaryUniformGenerator(), m_params);
 
 			const ILVectorImpl<ModType,IntType,VecType,ParmType> randomElement =
 					( gtype == DiscreteGaussianGen ) ? GetPrecomputedVector() : GetPrecomputedTugVector();
@@ -745,7 +754,7 @@ namespace lbcrypto {
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	void ILVectorImpl<ModType,IntType,VecType,ParmType>::PreComputeDggSamples(const DistributionGenerator<IntType,VecType> &dgg, const shared_ptr<ParmType> params) {
+	void ILVectorImpl<ModType,IntType,VecType,ParmType>::PreComputeDggSamples(const DiscreteGaussianGeneratorImpl<IntType,VecType> &dgg, const shared_ptr<ParmType> params) {
 		if (m_dggSamples.size() == 0 || m_dggSamples_params != params)
 		{
 			DestroyPreComputedSamples();
@@ -778,7 +787,7 @@ namespace lbcrypto {
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	void ILVectorImpl<ModType,IntType,VecType,ParmType>::PreComputeTugSamples(const DistributionGenerator<IntType,VecType> &tug, const shared_ptr<ParmType> params) {
+	void ILVectorImpl<ModType,IntType,VecType,ParmType>::PreComputeTugSamples(const TernaryUniformGeneratorImpl<IntType,VecType> &tug, const shared_ptr<ParmType> params) {
 		if (m_tugSamples.size() == 0 || m_tugSamples_params != params)
 		{
 			DestroyPreComputedTugSamples();

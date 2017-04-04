@@ -14,7 +14,7 @@ VecType TernaryUniformGeneratorImpl<IntType,VecType>::GenerateVector (const usin
 	int32_t randomNumber;
 
 	for (usint i = 0; i < size; i++) {
-		randomNumber = m_distribution(this->GetPRNG());
+		randomNumber = m_distribution(PseudoRandomNumberGenerator::GetPRNG());
 		if (randomNumber < 0)
 			v[i] = modulus - IntType::ONE;
 		else

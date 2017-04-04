@@ -664,7 +664,7 @@ public:
 	 * @param &dgg the discrete Gaussian Generator.
 	 * @param &params are the relevant ring parameters.
 	 */
-	static void PreComputeDggSamples(const DistributionGenerator<IntType,VecType> &dgg, const shared_ptr<ParmType> params);
+	static void PreComputeDggSamples(const DiscreteGaussianGeneratorImpl<IntType,VecType> &dgg, const shared_ptr<ParmType> params);
 
 	/**
 	 * Pre computes the Tug samples.
@@ -672,7 +672,7 @@ public:
 	 * @param &tug the ternary uniform generator.
 	 * @param &params are the relevant ring parameters.
 	 */
-	static void PreComputeTugSamples(const DistributionGenerator<IntType,VecType> &tug, const shared_ptr<ParmType> params);
+	static void PreComputeTugSamples(const TernaryUniformGeneratorImpl<IntType,VecType> &tug, const shared_ptr<ParmType> params);
 
 	/**
 	 * Clear the pre-computed discrete Gaussian samples.

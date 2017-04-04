@@ -227,7 +227,7 @@ LPKeyPair<Element> LPAlgorithmFV<Element>::KeyGen(const CryptoContext<Element> c
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
-	GeneratorContainer<BigBinaryInteger,BigBinaryVector>::SetUniformModulus(elementParams->GetModulus());
+	GeneratorContainer<BigBinaryInteger,BigBinaryVector>::GetDiscreteUniformGenerator().SetModulus(elementParams->GetModulus());
 
 	//Generate the element "a" of the public key
 	Element a(DiscreteUniformGen, elementParams, Format::EVALUATION);
@@ -524,7 +524,7 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmSHEFV<Element>::KeySwitchGen(const sha
 	const BigBinaryInteger &p = cryptoParamsLWE->GetPlaintextModulus();
 	const Element &s = newPrivateKey->GetPrivateElement();
 
-	GeneratorContainer<BigBinaryInteger,BigBinaryVector>::SetUniformModulus(elementParams->GetModulus());
+	GeneratorContainer<BigBinaryInteger,BigBinaryVector>::GetDiscreteUniformGenerator().SetModulus(elementParams->GetModulus());
 
 	usint relinWindow = cryptoParamsLWE->GetRelinWindow();
 

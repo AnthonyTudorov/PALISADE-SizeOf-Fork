@@ -201,14 +201,12 @@ namespace lbcrypto {
 		usint vectorSize = params->GetCyclotomicOrder() / 2;
 
 		if( gtype == DiscreteUniformGen ) {
-			native64::BigBinaryVector vals(GeneratorContainer<native64::BigBinaryInteger,native64::BigBinaryVector>::GetDiscreteUniformGenerator().GenerateVector(m_cyclotomicOrder / 2));
+
 
 			for (usint i = 0; i < numberOfTowers; i++) {
-
+				GeneratorContainer<native64::BigBinaryInteger,native64::BigBinaryVector>::GetDiscreteUniformGenerator().SetModulus(m_params->GetParams()[i]->GetModulus());
+				native64::BigBinaryVector vals(GeneratorContainer<native64::BigBinaryInteger,native64::BigBinaryVector>::GetDiscreteUniformGenerator().GenerateVector(m_cyclotomicOrder / 2));
 				ILVectorType ilvector(m_params->GetParams()[i]);
-
-				//BigBinaryVector ilDggValues(params.GetCyclotomicOrder() / 2, modulus);
-				vals.SwitchModulus(m_params->GetParams()[i]->GetModulus());
 
 				ilvector.SetValues(vals , Format::COEFFICIENT);
 				if (m_format == Format::EVALUATION) {
@@ -317,13 +315,10 @@ namespace lbcrypto {
 		size_t numberOfTowers = dcrtParams->GetParams().size();
 		m_vectors.reserve(numberOfTowers);
 
-		native64::BigBinaryVector vals(GeneratorContainer<native64::BigBinaryInteger,native64::BigBinaryVector>::GetDiscreteUniformGenerator().GenerateVector(m_cyclotomicOrder / 2));
-
-		IntType temp;
-
 		for (usint i = 0; i < numberOfTowers; i++) {
 
-
+			GeneratorContainer<native64::BigBinaryInteger,native64::BigBinaryVector>::GetDiscreteUniformGenerator().SetModulus(m_params->GetParams()[i]->GetModulus());
+			native64::BigBinaryVector vals(GeneratorContainer<native64::BigBinaryInteger,native64::BigBinaryVector>::GetDiscreteUniformGenerator().GenerateVector(m_cyclotomicOrder / 2));
 			ILVectorType ilvector(dcrtParams->GetParams()[i]);
 
 			//BigBinaryVector ilDggValues(params.GetCyclotomicOrder() / 2, modulus);

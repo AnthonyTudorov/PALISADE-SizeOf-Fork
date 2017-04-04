@@ -115,7 +115,7 @@ static IntType RNG(const IntType& modulus)
 		// Generate random uint32_t "limbs" of the BigBinaryInteger
 		for (usint i = 0; i < chunksPerValue; i++) {
 			//Generate an unsigned long integer
-			value = distribution(DistributionGenerator::GetPRNG());
+			value = distribution(PseudoRandomNumberGenerator::GetPRNG());
 			// converts value into IntType
 			temp = value;
 			//Move it to the appropriate chunk of the big integer
@@ -136,7 +136,7 @@ static IntType RNG(const IntType& modulus)
 			// default generator for the most significant chunk of the multiprecision number
 			std::uniform_int_distribution<uint32_t>  distribution2 = std::uniform_int_distribution<uint32_t>(chunk_min, bound);
 
-			value = distribution2(DistributionGenerator::GetPRNG());
+			value = distribution2(PseudoRandomNumberGenerator::GetPRNG());
 			// converts value into IntType
 			temp = value;
 			//Move it to the appropriate chunk of the big integer

@@ -100,6 +100,7 @@ public:
 		m_relinWindow = relinWindow;
 		SetDistributionParameter(m_distributionParameter);
 		m_depth = depth;
+		GeneratorContainer<BigBinaryInteger,BigBinaryVector>::GetDiscreteUniformGenerator().SetModulus(params->GetModulus());
 					}
 
 	/**
@@ -150,7 +151,7 @@ public:
 	 */
 	void SetDistributionParameter(float distributionParameter) {
 		m_distributionParameter = distributionParameter;
-		GeneratorContainer<BigBinaryInteger,BigBinaryVector>::SetDiscreteGaussianParm(m_distributionParameter);
+		GeneratorContainer<BigBinaryInteger,BigBinaryVector>::GetDiscreteGaussianGenerator().SetStd(m_distributionParameter);
 	}
 
 	/**

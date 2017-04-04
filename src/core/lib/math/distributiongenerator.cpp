@@ -4,13 +4,8 @@
 
 namespace lbcrypto {
 
-template<typename IntType, typename VecType>
-std::once_flag DistributionGenerator<IntType,VecType>::m_flag;
+std::once_flag PseudoRandomNumberGenerator::m_flag;
 
-template<typename IntType, typename VecType>
-std::shared_ptr<std::mt19937> DistributionGenerator<IntType,VecType>::m_prng = nullptr;
-
-template class DistributionGenerator<BigBinaryInteger,BigBinaryVector>;
-template class DistributionGenerator<native64::BigBinaryInteger,native64::BigBinaryVector>;
+std::shared_ptr<std::mt19937> PseudoRandomNumberGenerator::m_prng = nullptr;
 
 } // namespace lbcrypto

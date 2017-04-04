@@ -102,7 +102,7 @@ namespace lbcrypto {
 						securityLevel,
 						relinWindow,
 						depth) {
-				m_mode = mode;		
+				m_mode = mode;
 			}
 
 			/**

@@ -64,10 +64,10 @@ public:
 	void SetModulus (const IntType & modulus);
 
 	/**
-	* @brief Generates a random integer based on the modulus set for the Discrete Unform Generator object. 
+	* @brief Generates a random integer based on the modulus set for the Discrete Uniform Generator object.
 	* Required by DistributionGenerator.
 	*/
-	IntType GenerateInteger (const IntType &m = IntType::ZERO) const;
+	IntType GenerateInteger () const;
 
 	/**
 	* @brief Generates a vector of random integers using GenerateInteger()

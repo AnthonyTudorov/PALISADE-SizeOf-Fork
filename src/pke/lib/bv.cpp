@@ -93,7 +93,7 @@ namespace lbcrypto {
 
 		const typename Element::Integer &p = cryptoParams->GetPlaintextModulus();
 
-		GeneratorContainer<BigBinaryInteger,BigBinaryVector>::SetUniformModulus(p);
+		GeneratorContainer<BigBinaryInteger,BigBinaryVector>::GetDiscreteUniformGenerator().SetModulus(p);
 
 		//Generate the element "a" of the public key
 		Element a(DiscreteUniformGen, elementParams, Format::EVALUATION);
@@ -312,9 +312,9 @@ namespace lbcrypto {
 		//Getting a reference to the polynomials of original private key.
 		const Element &s = originalPrivateKey->GetPrivateElement();
 
-		GeneratorContainer<BigBinaryInteger,BigBinaryVector>::SetUniformModulus(originalKeyParams->GetModulus());
+		GeneratorContainer<BigBinaryInteger,BigBinaryVector>::GetDiscreteUniformGenerator().SetModulus(originalKeyParams->GetModulus());
 
-		//Relinearizaiton window is used to calculate the base exponent.
+		//Relinearization window is used to calculate the base exponent.
 		usint relinWindow = cryptoParams->GetRelinWindow();
 
 		//Pushes the powers of base exponent of original key polynomial onto evalKeyElements.

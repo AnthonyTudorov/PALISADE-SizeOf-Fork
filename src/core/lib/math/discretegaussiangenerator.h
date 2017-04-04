@@ -104,7 +104,7 @@ public:
 	* @brief  Returns a generated integer. Uses Peikert's inversion method.
 	* @return A random value within this Discrete Gaussian Distribution.
 	*/
-	IntType GenerateInteger (const IntType &modulus) const;
+	IntType GenerateInteger (const IntType& modulus) const;
 
 	/**
 	* @brief           Generates a vector of random values within this Discrete Gaussian Distribution. Uses Peikert's inversion method.

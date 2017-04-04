@@ -120,7 +120,6 @@ static void operators_tests() {
 		ilv1 += ilvector2n1;
 		for (usint i = 0; i < m/2; ++i)
 		{
-			std::cout << i << ": " << ilvector2n1.GetValAtIndex(i) << std::endl;
 			EXPECT_EQ(IntType::TWO * ilvector2n1.GetValAtIndex(i), ilv1.GetValAtIndex(i)) << "ILVector2n_operator+=: Operator+= is incorrect.\n";
 		}
 	}
@@ -1546,9 +1545,8 @@ void ensures_mod_operation_during_operations_on_two_ILVector2ns() {
 	IntType primitiveRootOfUnity = lbcrypto::RootOfUnity<IntType>(order, primeModulus);
 
 	shared_ptr<ParmType> ilparams( new ParmType(order, primeModulus, primitiveRootOfUnity) );
-//
-//	DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(primeModulus);
-//
+
+	GeneratorContainer<IntType,VecType>::GetDiscreteUniformGenerator().SetModulus(primeModulus);
 
 	Element ilv1(DiscreteUniformGen, ilparams);
 	VecType bbv1 (ilv1.GetValues());

@@ -406,25 +406,6 @@ NTRUPRE(CryptoContext<ILVector2n>& ctx, string& parmset, bool doJson) {
 
 	double diff, start, finish;
 
-	start = currentDateTime();
-
-	//This code is run only when performing execution time measurements
-
-	try {
-		//Precomputations for TUG
-		ILVector2n::PreComputeTugSamples(GeneratorContainer<BigBinaryInteger,BigBinaryVector>::GetGenerator(TernaryUniformGen), ctx.GetElementParams());
-	} catch (...) {
-		// ignore if this fails... which it will in some cases, like if there is no generator in use
-	}
-
-	finish = currentDateTime();
-	diff = finish - start;
-
-	cout << "Precomputation time: " << "\t" << diff << " ms" << endl;
-	fout << "Precomputation time: " << "\t" << diff << " ms" << endl;
-
-	//Regular LWE-NTRU encryption algorithm
-
 	////////////////////////////////////////////////////////////
 	//Perform the key generation operation.
 	////////////////////////////////////////////////////////////

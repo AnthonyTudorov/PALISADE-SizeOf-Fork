@@ -59,7 +59,7 @@ public:
 	* @brief  Generates a random value within the Binary Uniform Distribution.
 	* @return A random value within this Binary Uniform Distribution.
 	*/
-	IntType GenerateInteger(const IntType &mod = IntType::ZERO) const;
+	IntType GenerateInteger() const;
 
 	/**
 	* @brief  Generates a vector of random values within the Binary Uniform Distribution.

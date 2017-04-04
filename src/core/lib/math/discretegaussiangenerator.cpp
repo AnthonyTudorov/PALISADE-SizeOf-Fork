@@ -83,7 +83,7 @@ namespace lbcrypto {
 		sint ans;
 
 
-		seed = distribution(this->GetPRNG()) - 0.5; //we need to use the binary uniform generator rather than regular continuous distribution; see DG14 for details
+		seed = distribution(PseudoRandomNumberGenerator::GetPRNG()) - 0.5; //we need to use the binary uniform generator rather than regular continuous distribution; see DG14 for details
 		if (std::abs(seed) <= m_a / 2) {
 			val = 0;
 		}
@@ -108,7 +108,7 @@ namespace lbcrypto {
 		std::shared_ptr<sint> ans( new sint[size], std::default_delete<int[]>() );
 
 		for (usint i = 0; i < size; i++) {
-			seed = distribution(this->GetPRNG()) - 0.5; //we need to use the binary uniform generator rathen than regular continuous distribution; see DG14 for details
+			seed = distribution(PseudoRandomNumberGenerator::GetPRNG()) - 0.5; //we need to use the binary uniform generator rathen than regular continuous distribution; see DG14 for details
 			if (std::abs(seed) <= m_a / 2) {
 				val = 0;
 			}
@@ -135,14 +135,14 @@ namespace lbcrypto {
 	}
 
 	template<typename IntType, typename VecType>
-	IntType DiscreteGaussianGeneratorImpl<IntType,VecType>::GenerateInteger(const IntType &modulus) const {
+	IntType DiscreteGaussianGeneratorImpl<IntType,VecType>::GenerateInteger(const IntType& modulus) const {
 
 		int32_t val = 0;
 		double seed;
 		IntType ans;
 		std::uniform_real_distribution<double> distribution(0.0, 1.0);
 
-		seed = distribution(this->GetPRNG()) - 0.5;
+		seed = distribution(PseudoRandomNumberGenerator::GetPRNG()) - 0.5;
 
 		if (std::abs(seed) <= m_a / 2) {
 			val = 0;
@@ -203,9 +203,9 @@ namespace lbcrypto {
 
 		while (!flagSuccess) {
 			//  pick random int
-			x = uniform_int(this->GetPRNG());
+			x = uniform_int(PseudoRandomNumberGenerator::GetPRNG());
 			//  roll the uniform dice
-			double dice = uniform_real(this->GetPRNG());
+			double dice = uniform_real(PseudoRandomNumberGenerator::GetPRNG());
 			//  check if dice land below pdf
 			if (dice <= UnnormalizedGaussianPDF(mean, stddev, x)) {
 				flagSuccess = true;
@@ -241,9 +241,9 @@ namespace lbcrypto {
 
 		while (!flagSuccess) {
 			//  pick random int
-			x = uniform_int(this->GetPRNG());
+			x = uniform_int(PseudoRandomNumberGenerator::GetPRNG());
 			//  roll the uniform dice
-			double dice = uniform_real(this->GetPRNG());
+			double dice = uniform_real(PseudoRandomNumberGenerator::GetPRNG());
 			//  check if dice land below pdf
 			if (dice <= UnnormalizedGaussianPDFOptimized(mean, sigmaFactor, x)) {
 				flagSuccess = true;
@@ -311,7 +311,7 @@ namespace lbcrypto {
 			//To generate random bit a 32 bit integer is generated in every 32 iterations and each single bit is used in order to save cycles
 			while (hit == 0 && col <= 31) {
 				if (counter % 32 == 0) {
-					seed = uniform_int(this->GetPRNG());
+					seed = uniform_int(PseudoRandomNumberGenerator::GetPRNG());
 					counter = 0;
 				}
 				uint32_t r = seed >> counter;

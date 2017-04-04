@@ -63,20 +63,10 @@ private:
 	static TernaryUniformGeneratorImpl<IntType,VecType>		tug;
 
 public:
-	static void SetUniformModulus(const IntType& mod) { dug.SetModulus(mod); }
-	static void SetDiscreteGaussianParm(float stdev) { dgg.SetStd(stdev); }
+	static BinaryUniformGeneratorImpl<IntType,VecType>& GetBinaryUniformGenerator() { return bug; }
 	static DiscreteGaussianGeneratorImpl<IntType,VecType>& GetDiscreteGaussianGenerator() { return dgg; }
 	static DiscreteUniformGeneratorImpl<IntType,VecType>& GetDiscreteUniformGenerator() { return dug; }
-
-	static DistributionGenerator<IntType,VecType>& GetGenerator(DistributionGeneratorType gt) {
-		switch( gt ) {
-		case BinaryUniformGen:		return bug;
-		case DiscreteGaussianGen:	return dgg;
-		case DiscreteUniformGen:	return dug;
-		case TernaryUniformGen:		return tug;
-		default: throw std::logic_error("unrecognized generator type");
-		}
-	}
+	static TernaryUniformGeneratorImpl<IntType,VecType>& GetTernaryUniformGenerator() { return tug; }
 };
 
 }
