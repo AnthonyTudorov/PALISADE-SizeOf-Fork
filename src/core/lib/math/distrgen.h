@@ -66,6 +66,7 @@ public:
 	static void SetUniformModulus(const IntType& mod) { dug.SetModulus(mod); }
 	static void SetDiscreteGaussianParm(float stdev) { dgg.SetStd(stdev); }
 	static DiscreteGaussianGeneratorImpl<IntType,VecType>& GetDiscreteGaussianGenerator() { return dgg; }
+	static DiscreteUniformGeneratorImpl<IntType,VecType>& GetDiscreteUniformGenerator() { return dug; }
 
 	static DistributionGenerator<IntType,VecType>& GetGenerator(DistributionGeneratorType gt) {
 		switch( gt ) {

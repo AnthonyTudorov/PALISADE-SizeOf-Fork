@@ -100,23 +100,8 @@ TEST(UTBVDCRT, ILVector2n_Encrypt_Decrypt_DCRT) {
 
 	float stdDev = 4;
 
-	std::vector<native64::BigBinaryInteger> moduli(numOfTower);
-
-	std::vector<native64::BigBinaryInteger> rootsOfUnity(numOfTower);
-
-	native64::BigBinaryInteger q("50000");
-	native64::BigBinaryInteger temp;
-	BigBinaryInteger modulus(1);
-
-	for (int j = 0; j < numOfTower; j++) {
-		lbcrypto::NextQ(q, native64::BigBinaryInteger::FIVE, m, native64::BigBinaryInteger::FOUR, native64::BigBinaryInteger::FOUR);
-		moduli[j] = q;
-		rootsOfUnity[j] = RootOfUnity(m, moduli[j]);
-		modulus = modulus * BigBinaryInteger(moduli[j].ConvertToInt());
-	}
-
 	//Prepare for parameters.
-	shared_ptr<ILDCRTParams> params(new ILDCRTParams(m, moduli, rootsOfUnity));
+	shared_ptr<ILDCRTParams> params = getTestParams(m, numOfTower);
 
 	//Set crypto parametes
 	LPCryptoParametersBV<ILVectorArray2n> cryptoParams;
@@ -125,34 +110,31 @@ TEST(UTBVDCRT, ILVector2n_Encrypt_Decrypt_DCRT) {
 	cryptoParams.SetRelinWindow(8);				// Set the relinearization window
 	cryptoParams.SetElementParams(params);			// Set the initialization parameters.
 
-	std::vector<usint> vectorOfInts1 = { 4,0,0,0 };
-
-	IntPlaintextEncoding intArray1(vectorOfInts1);
-
 	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextBV(&cryptoParams, MODE::RLWE);
 	cc.Enable(ENCRYPTION);
 
+	UnitTestEncryption<ILVectorArray2n>(cc);
 
-	//Regular LWE-NTRU encryption algorithm
-
-	////////////////////////////////////////////////////////////
-	//Perform the key generation operation.
-	////////////////////////////////////////////////////////////
-	std::cout << "Keygen" << std::endl;
-	LPKeyPair<ILVectorArray2n> kp = cc.KeyGen();
-
-	////////////////////////////////////////////////////////////
-	//Encryption
-	////////////////////////////////////////////////////////////
-	std::cout << "Encrypting" << std::endl;
-	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertext =
-		cc.Encrypt(kp.publicKey, intArray1,false); // This is the core encryption operation.
-
-	IntPlaintextEncoding intArrayNew;
-
-	cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew,false);  // This is the core decryption operation.
-	
-	EXPECT_EQ(intArray1, intArrayNew);
+//	std::vector<usint> vectorOfInts1 = { 4,0,0,0 };
+//
+//	IntPlaintextEncoding intArray1(vectorOfInts1);
+//
+//	////////////////////////////////////////////////////////////
+//	//Perform the key generation operation.
+//	////////////////////////////////////////////////////////////
+//	LPKeyPair<ILVectorArray2n> kp = cc.KeyGen();
+//
+//	////////////////////////////////////////////////////////////
+//	//Encryption
+//	////////////////////////////////////////////////////////////
+//	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertext =
+//		cc.Encrypt(kp.publicKey, intArray1,false); // This is the core encryption operation.
+//
+//	IntPlaintextEncoding intArrayNew;
+//
+//	cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew,false);  // This is the core decryption operation.
+//
+//	EXPECT_EQ(intArray1, intArrayNew);
 }
 
 
@@ -164,23 +146,8 @@ TEST(UTBVDCRT, ILVector2n_bv_PRE_DCRT) {
 
 	float stdDev = 4;
 
-	std::vector<native64::BigBinaryInteger> moduli(numOfTower);
-
-	std::vector<native64::BigBinaryInteger> rootsOfUnity(numOfTower);
-
-	native64::BigBinaryInteger q("50000");
-	native64::BigBinaryInteger temp;
-	BigBinaryInteger modulus("1");
-
-	for (int j = 0; j < numOfTower; j++) {
-		lbcrypto::NextQ(q, native64::BigBinaryInteger::FIVE, m, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
-		moduli[j] = q;
-		rootsOfUnity[j] = RootOfUnity(m, moduli[j]);
-		modulus = modulus * BigBinaryInteger(moduli[j].ConvertToInt());
-	}
-
 	//Prepare for parameters.
-	shared_ptr<ILDCRTParams> params(new ILDCRTParams(m, moduli, rootsOfUnity));
+	shared_ptr<ILDCRTParams> params = getTestParams(m, numOfTower);
 
 	//Set crypto parametes
 	LPCryptoParametersBV<ILVectorArray2n> cryptoParams;

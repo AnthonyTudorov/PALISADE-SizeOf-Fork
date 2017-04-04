@@ -91,17 +91,17 @@ namespace lbcrypto {
 			}
 		}
 
-		std::cout << "Large vector: " << element.GetModulus() << std::endl;
-		for( int r=0; r<element.GetLength(); r++ )
-			std::cout << "   " << element.GetValAtIndex(r);
-		std::cout << std::endl;
-		std::cout << "New vector: " << this->GetModulus() << std::endl;
-		for( int v = 0; v < m_vectors.size(); v++ ) {
-			std::cout << "tower " << v << " modulus " << m_vectors[v].GetModulus() << std::endl;
-			for( int r=0; r<m_vectors[v].GetLength(); r++ )
-				std::cout << "   " << m_vectors[v].GetValAtIndex(r);
-			std::cout << std::endl;
-		}
+//		std::cout << "Large vector: " << element.GetModulus() << std::endl;
+//		for( int r=0; r<element.GetLength(); r++ )
+//			std::cout << "   " << element.GetValAtIndex(r);
+//		std::cout << std::endl;
+//		std::cout << "New vector: " << this->GetModulus() << std::endl;
+//		for( int v = 0; v < m_vectors.size(); v++ ) {
+//			std::cout << "tower " << v << " modulus " << m_vectors[v].GetModulus() << std::endl;
+//			for( int r=0; r<m_vectors[v].GetLength(); r++ )
+//				std::cout << "   " << m_vectors[v].GetValAtIndex(r);
+//			std::cout << std::endl;
+//		}
 	}
 
 	/* Construct from a single ILVector2n. The format is derived from the passed in ILVector2n.*/
@@ -193,38 +193,68 @@ namespace lbcrypto {
 		m_params = params;
 		m_cyclotomicOrder = params->GetCyclotomicOrder();
 		m_modulus = params->GetModulus();
+		m_format = format;
 
-		ILVector2n randomElement( parm );
-		VecType randVec;
+		size_t numberOfTowers = m_params->GetParams().size();
+		m_vectors.reserve(numberOfTowers);
+
 		usint vectorSize = params->GetCyclotomicOrder() / 2;
 
 		if( gtype == DiscreteUniformGen ) {
-			randVec = VecType(GeneratorContainer<ModType,VecType>::GetGenerator(gtype).GenerateVector(vectorSize, params->GetModulus()));
-			randVec.SetModulus(m_modulus);
-			m_format = COEFFICIENT;
+			native64::BigBinaryVector vals(GeneratorContainer<native64::BigBinaryInteger,native64::BigBinaryVector>::GetDiscreteUniformGenerator().GenerateVector(m_cyclotomicOrder / 2));
 
-			if( format == EVALUATION )
-				this->SwitchFormat();
+			for (usint i = 0; i < numberOfTowers; i++) {
 
-			randomElement.SetValues( randVec, m_format );
+				ILVectorType ilvector(m_params->GetParams()[i]);
+
+				//BigBinaryVector ilDggValues(params.GetCyclotomicOrder() / 2, modulus);
+				vals.SwitchModulus(m_params->GetParams()[i]->GetModulus());
+
+				ilvector.SetValues(vals , Format::COEFFICIENT);
+				if (m_format == Format::EVALUATION) {
+					ilvector.SwitchFormat();
+				}
+				m_vectors.push_back(ilvector);
+			}
 		}
 		else {
-			if( format == COEFFICIENT ) {
-				randVec = VecType(GeneratorContainer<ModType,VecType>::GetGenerator(gtype).GenerateVector(vectorSize, params->GetModulus()));
-				m_format = COEFFICIENT;
-				randomElement.SetValues( randVec, m_format );
-			}
-			else {
-				if( gtype == DiscreteGaussianGen ) {
-					ILVector2n::PreComputeDggSamples(GeneratorContainer<ModType,VecType>::GetGenerator(gtype), parm);
+
+
+			//dgg generating random values
+
+			std::shared_ptr<sint> dggValues = GeneratorContainer<ModType,VecType>::GetDiscreteGaussianGenerator().GenerateIntVector(m_params->GetCyclotomicOrder()/2);
+
+			IntType temp;
+
+			for(usint i = 0; i < numberOfTowers; i++){
+
+				native64::BigBinaryVector ilDggValues(m_params->GetCyclotomicOrder()/2, m_params->GetParams()[i]->GetModulus());
+
+				ILVectorType ilvector(m_params->GetParams()[i]);
+
+
+				for(usint j = 0; j < m_params->GetCyclotomicOrder()/2; j++){
+					// if the random generated value is less than zero, then multiply it by (-1) and subtract the modulus of the current tower to set the coefficient
+					int k = (dggValues.get())[j];
+					if(k < 0){
+						k *= (-1);
+						temp = k;
+						temp = IntType(m_params->GetParams()[i]->GetModulus().ConvertToInt()) - temp;
+					}
+					//if greater than or equal to zero, set it the value generated
+					else{
+						temp = k;
+					}
+					ilDggValues.SetValAtIndex(j,temp.ConvertToInt());
 				}
 
-				randomElement = ILVector2n::GetPrecomputedVector();
-				m_format = EVALUATION;
+				ilvector.SetValues(ilDggValues, Format::COEFFICIENT); // the random values are set in coefficient format
+				if(m_format == Format::EVALUATION){  // if the input format is evaluation, then once random values are set in coefficient format, switch the format to achieve what the caller asked for.
+					ilvector.SwitchFormat();
+				}
+				m_vectors.push_back(ilvector);
 			}
 		}
-
-		fillVectorArrayFromBigVector(randomElement, params);
 	}
 
 
@@ -284,36 +314,28 @@ namespace lbcrypto {
 		m_format = format;
 		m_params = dcrtParams;
 
-		dug.SetModulus(dcrtParams->GetModulus());
+		size_t numberOfTowers = dcrtParams->GetParams().size();
+		m_vectors.reserve(numberOfTowers);
 
-		// create a dummy parm to use in the ILVector2n world
-		shared_ptr<ILParams> parm( new ILParams(dcrtParams->GetCyclotomicOrder(), dcrtParams->GetModulus(), BigBinaryInteger::ONE) );
+		native64::BigBinaryVector vals(GeneratorContainer<native64::BigBinaryInteger,native64::BigBinaryVector>::GetDiscreteUniformGenerator().GenerateVector(m_cyclotomicOrder / 2));
 
-		// create an Element to pull from
-		ILVector2n element( parm );
-		element.SetValues( dug.GenerateVector(m_cyclotomicOrder / 2), m_format );
+		IntType temp;
 
-		fillVectorArrayFromBigVector(element, m_params);
-//		size_t numberOfTowers = dcrtParams->GetParams().size();
-//		m_vectors.reserve(numberOfTowers);
-//
-//		IntType temp;
-//
-//		for (usint i = 0; i < numberOfTowers; i++) {
-//
-//
-//			ILVectorType ilvector(dcrtParams->GetParams()[i]);
-//
-//			//BigBinaryVector ilDggValues(params.GetCyclotomicOrder() / 2, modulus);
-//			vals.SwitchModulus(dcrtParams->GetParams()[i]->GetModulus());
-//
-//			ilvector.SetValues(vals , Format::COEFFICIENT); // the random values are set in coefficient format
-//			if (m_format == Format::EVALUATION) {  // if the input format is evaluation, then once random values are set in coefficient format, switch the format to achieve what the caller asked for.
-//				ilvector.SwitchFormat();
-//			}
-//			m_vectors.push_back(ilvector);
-//
-//		}
+		for (usint i = 0; i < numberOfTowers; i++) {
+
+
+			ILVectorType ilvector(dcrtParams->GetParams()[i]);
+
+			//BigBinaryVector ilDggValues(params.GetCyclotomicOrder() / 2, modulus);
+			vals.SwitchModulus(dcrtParams->GetParams()[i]->GetModulus());
+
+			ilvector.SetValues(vals, Format::COEFFICIENT); // the random values are set in coefficient format
+			if (m_format == Format::EVALUATION) {  // if the input format is evaluation, then once random values are set in coefficient format, switch the format to achieve what the caller asked for.
+				ilvector.SwitchFormat();
+			}
+			m_vectors.push_back(ilvector);
+
+		}
 
 	}
 
@@ -855,7 +877,7 @@ namespace lbcrypto {
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	ILVector2n ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::CRTInterpolate() const
 	{
-	  bool dbg_flag = true;
+	  bool dbg_flag = false;
 
 		usint ringDimension = m_cyclotomicOrder / 2;
 		usint nTowers = m_vectors.size();

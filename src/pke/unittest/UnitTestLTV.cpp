@@ -49,64 +49,6 @@ protected:
 public:
 };
 
-TEST(UTLTVDCRT, ILVectorArray2n_small) {
-  bool dbg_flag = true;
-
-	usint m = 4;
-
-	IntPlaintextEncoding plaintextInt({1,2,3,4,5,6,7,8});
-	plaintextInt.resize(m/2);
-
-	float stdDev = 4;
-
-	usint size = 2;
-
-	DEBUG("Generating moduli");
-
-	vector<native64::BigBinaryInteger> moduli(size);
-
-	vector<native64::BigBinaryInteger> rootsOfUnity(size);
-
-	native64::BigBinaryInteger q("1");
-	native64::BigBinaryInteger temp;
-	BigBinaryInteger modulus("1");
-
-	for (int i = 0; i < size; i++) {
-		lbcrypto::NextQ(q, native64::BigBinaryInteger::TWO, m, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
-		moduli[i] = q;
-		rootsOfUnity[i] = RootOfUnity(m, moduli[i]);
-		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
-	}
-
-	DEBUG("Generating ILDCRTParams");
-	shared_ptr<ILDCRTParams> params( new ILDCRTParams(m, moduli, rootsOfUnity) );
-
-	DEBUG("Generating CryptoParams");
-
-	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
-	cryptoParams.SetPlaintextModulus(BigBinaryInteger(9));
-	cryptoParams.SetDistributionParameter(stdDev);
-	cryptoParams.SetRelinWindow(1);
-	cryptoParams.SetElementParams(params);
-
-	DEBUG("Generating context");
-	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::getCryptoContextDCRT(&cryptoParams);
-	cc.Enable(ENCRYPTION);
-
-	DEBUG("Making keypair");
-	LPKeyPair<ILVectorArray2n> kp = cc.KeyGen();
-
-	DEBUG("Encrypt");
-	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertext4 = cc.Encrypt(kp.publicKey, plaintextInt, false);
-
-	DEBUG("Decrypt");
-	IntPlaintextEncoding plaintextIntNew;
-	DecryptResult result4 = cc.Decrypt(kp.secretKey, ciphertext4, &plaintextIntNew, false);
-	EXPECT_EQ(plaintextIntNew, plaintextInt) << "Encrypt integer plaintext";
-}
-
-
-
 /*Simple Encrypt-Decrypt check for ILVectorArray2n. The assumption is this test case is that everything with respect to lattice and math
 * layers and cryptoparameters work. This test case is only testing if the resulting plaintext from an encrypt/decrypt returns the same
 * plaintext
