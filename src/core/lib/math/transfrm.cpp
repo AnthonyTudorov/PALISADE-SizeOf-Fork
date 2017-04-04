@@ -119,8 +119,9 @@ VecType NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(con
 						omegaFactor = omega;
 					else
 					{
-						omegaFactor = omega*result.GetValAtIndex(indexOdd);
-						omegaFactor.ModBarrettInPlace(element.GetModulus(), mu);
+						//omegaFactor = omega*result.GetValAtIndex(indexOdd);
+						//omegaFactor.ModBarrettInPlace(element.GetModulus(), mu);
+						omegaFactor = omega.ModBarrettMul(result.GetValAtIndex(indexOdd),element.GetModulus(), mu);
 					}
 
 					butterflyPlus = result.GetValAtIndex(indexEven);
