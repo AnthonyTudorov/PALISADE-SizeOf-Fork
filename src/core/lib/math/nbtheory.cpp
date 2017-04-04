@@ -63,8 +63,8 @@ template BigBinaryInteger FindPrimeModulus(usint m, usint nBits);
 template void NextQ(BigBinaryInteger &q, const BigBinaryInteger &plainTextModulus, const usint &ringDimension, const BigBinaryInteger &sigma, const BigBinaryInteger &alpha);
 
 // FIXME the MATH_BACKEND check is a hack and needs to go away
-//#if MATHBACKEND != 7 && MATHBACKEND !=6
 #if MATHBACKEND != 7
+#ifndef NO_MATHBACKEND_7
 template native64::BigBinaryInteger RootOfUnity<native64::BigBinaryInteger>(usint m, const native64::BigBinaryInteger& modulo);
 template std::vector<native64::BigBinaryInteger> RootsOfUnity(usint m, const std::vector<native64::BigBinaryInteger> moduli);
 template native64::BigBinaryInteger GreatestCommonDivisor(const native64::BigBinaryInteger& a, const native64::BigBinaryInteger& b);
@@ -73,6 +73,7 @@ template const native64::BigBinaryInteger PollardRhoFactorization(const native64
 template void PrimeFactorize(const native64::BigBinaryInteger &n, std::set<native64::BigBinaryInteger> &primeFactors);
 template native64::BigBinaryInteger FindPrimeModulus(usint m, usint nBits);
 template void NextQ(native64::BigBinaryInteger &q, const native64::BigBinaryInteger &plainTextModulus, const usint &ringDimension, const native64::BigBinaryInteger &sigma, const native64::BigBinaryInteger &alpha);
+#endif
 #endif
 }
 
@@ -86,7 +87,7 @@ namespace lbcrypto {
 template<typename IntType>
 static IntType RNG(const IntType& modulus)
  {
-
+#if MATHBACKEND !=6
 	// static parameters for the 32-bit unsigned integers used for multiprecision random number generation
 	static const usint chunk_min = 0;
 	static const usint chunk_width = std::numeric_limits<uint32_t>::digits;
@@ -151,7 +152,10 @@ static IntType RNG(const IntType& modulus)
 	// and the bits in the following chunk of the result are larger than in the modulus
 
 	return result;
+#else
 
+	return RandomBnd(modulus);
+#endif
 }
 
 /*
@@ -341,6 +345,7 @@ usint GetMSB32(usint x)
 template<typename IntType>
 IntType GreatestCommonDivisor(const IntType& a, const IntType& b)
  {
+#if MATHBACKEND !=6
    bool dbg_flag = false;
    IntType m_a, m_b, m_t;
  	m_a = a;
@@ -356,6 +361,9 @@ IntType GreatestCommonDivisor(const IntType& a, const IntType& b)
 	}
 	DEBUG("GCD ret "<<m_a.ToString());		  
 	return m_a;
+#else
+	return GCD(a,b);
+#endif
  }
 
 /*
@@ -371,6 +379,8 @@ bool MillerRabinPrimalityTest(const IntType& p)
  		return false;
  	if(p == IntType::TWO || p == IntType::THREE || p == IntType::FIVE)
  		return true;
+#if MATHBACKEND !=6
+
  	IntType d = p-IntType::ONE;
  	usint s = 0;
  	while(d.Mod(IntType::TWO) == IntType::ZERO) {
@@ -385,6 +395,10 @@ bool MillerRabinPrimalityTest(const IntType& p)
 			break;
 	}
 	return (!composite);
+#else
+	return (bool) ProbPrime(p);
+
+#endif
  }
 
 /*
@@ -406,7 +420,7 @@ const IntType PollardRhoFactorization(const IntType &n)
  	if(n.Mod(IntType::TWO) == IntType::ZERO)
  		return IntType(IntType::TWO);
 
-#if MATHBACKEND > 6
+#if MATHBACKEND == 6 || MATHBACKEND == 7
 	IntType mu(IntType::ONE);
 #else
 	//Precompute the Barrett mu parameter

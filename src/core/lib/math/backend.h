@@ -95,6 +95,9 @@
 // native64 native
 //#define MATHBACKEND 7	
 
+#define NO_MATHBACKEND_7  //if defined, then MATHBACKEND 7 is disabled
+#ifndef NO_MATHBACKEND_7
+
 // note we always want to include these
 #include "cpu_int/binint.cpp"
 #include "cpu_int/binvect.cpp"
@@ -105,6 +108,7 @@ namespace native64 {
 typedef NativeInteger<uint64_t> BigBinaryInteger;
 typedef cpu_int::BigBinaryVectorImpl<NativeInteger<uint64_t>> BigBinaryVector;
 }
+#endif
 
 #if MATHBACKEND == 2
 
@@ -351,10 +355,10 @@ template<typename IntType, typename VecType, typename ParmType> class ILVectorIm
 
 	typedef ILParamsImpl<BigBinaryInteger> ILParams;
 	typedef ILVectorImpl<BigBinaryInteger, BigBinaryVector, ILParams> ILVector2n;
-
+#ifndef NO_MATHBACKEND_7
 	typedef ILParamsImpl<native64::BigBinaryInteger> ILNativeParams;
 	typedef ILVectorImpl<native64::BigBinaryInteger, native64::BigBinaryVector, ILNativeParams> ILVectorNative2n;
-
+#endif
 
 } // namespace lbcrypto ends
 

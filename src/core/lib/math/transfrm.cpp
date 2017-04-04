@@ -30,6 +30,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 namespace lbcrypto {
 
+
 //static Initializations
 template<typename IntType, typename VecType>
 NumberTheoreticTransform<IntType,VecType>* NumberTheoreticTransform<IntType,VecType>::m_onlyInstance = 0;
@@ -87,14 +88,12 @@ VecType NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(con
 		  for lower cyclotomic orders is smaller. This trick only works for powers of two cyclotomics.*/ 
 	usint ringDimensionFactor = (rootOfUnityTable.GetLength()) / cycloOrder;
 
-	//YSP mu is not needed for native data types
+	//YSP mu is not needed for native data types or BE 6
 #if MATHBACKEND < 6
 	//Precompute the Barrett mu parameter
 	IntType temp(IntType::ONE);
 	temp <<= 2 * element.GetModulus().GetMSB() + 3;
 	IntType mu = temp.DividedBy(element.GetModulus());
-#else
-	IntType mu(IntType::ONE);
 #endif
 #if MATHBACKEND == 6
 	IntType modulus = element.GetModulus();
@@ -328,7 +327,7 @@ VecType ChineseRemainderTransformFTT<IntType,VecType>::ForwardTransform(const Ve
 	}
 
 	//YSP mu is not needed for native data types
-#if MATHBACKEND > 6
+#if MATHBACKEND > 5
 	IntType mu(IntType::ONE);
 #else
 	//Precompute the Barrett mu parameter
@@ -397,7 +396,7 @@ VecType ChineseRemainderTransformFTT<IntType,VecType>::InverseTransform(const Ve
 	}
 
 	//YSP mu is not needed for native data types
-#if MATHBACKEND > 6
+#if MATHBACKEND > 5
 	IntType mu(IntType::ONE);
 #else
 	//Pre-compute mu for Barrett function
@@ -463,7 +462,7 @@ template<typename IntType, typename VecType>
 void ChineseRemainderTransformFTT<IntType,VecType>::PreCompute(const IntType& rootOfUnity, const usint CycloOrder, const IntType &modulus) {
 
 	//YSP mu is not needed for native data types
-#if MATHBACKEND > 6
+#if MATHBACKEND > 5
 	IntType mu(IntType::ONE);
 #else
 	//Precompute the Barrett mu parameter
@@ -526,7 +525,7 @@ void ChineseRemainderTransformFTT<IntType,VecType>::PreCompute(std::vector<IntTy
 		IntType currentMod(moduliiChain[i]);
 
 		//mu is not needed for native data types
-#if MATHBACKEND > 6
+#if MATHBACKEND > 5
 		IntType mu(IntType::ONE);
 #else
 		//Precompute the Barrett mu parameter
@@ -718,8 +717,10 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 
 // FIXME the MATH_BACKEND check is a hack and needs to go away
 #if MATHBACKEND != 7
+#ifndef NO_MATHBACKEND_7
 	template class ChineseRemainderTransformFTT<native64::BigBinaryInteger,native64::BigBinaryVector>;
 	template class NumberTheoreticTransform<native64::BigBinaryInteger,native64::BigBinaryVector>;
+#endif
 #endif
 
 }//namespace ends here

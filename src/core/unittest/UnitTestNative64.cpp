@@ -63,7 +63,7 @@ protected:
 /* TESTING BASIC MATH METHODS AND OPERATORS     */
 /************************************************/
 TEST(UTNative64Int,basic_math){
-
+#ifndef NO_MATHBACKEND_7
   /************************************************/
   /* TESTING METHOD PLUS FOR ALL CONDITIONS       */
   /************************************************/
@@ -1081,4 +1081,5 @@ TEST(UTNative64Int,method_ConvertToDouble) {
   double xInDouble = 104037585658683683;
 
   EXPECT_EQ(xInDouble, x.ConvertToDouble());
+#endif
 }

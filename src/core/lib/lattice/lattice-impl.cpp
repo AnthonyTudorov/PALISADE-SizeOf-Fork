@@ -13,6 +13,7 @@
 #include "ilparams.cpp"
 #include "ilvector2n.cpp"
 
+#ifndef NO_MATHBACKEND_7
 namespace native64 {
 template class NativeInteger<uint64_t>;
 template<> const NativeInteger<uint64_t> NativeInteger<uint64_t>::ZERO = NativeInteger<uint64_t>(0);
@@ -30,6 +31,7 @@ template<> std::function<unique_ptr<NativeInteger<uint64_t>>()> NativeInteger<ui
 namespace cpu_int {
 template class BigBinaryVectorImpl<native64::NativeInteger<uint64_t>>;
 }
+#endif
 
 namespace lbcrypto {
 template class DiscreteGaussianGeneratorImpl<BigBinaryInteger,BigBinaryVector>;
@@ -46,6 +48,7 @@ template class ILVectorImpl<BigBinaryInteger,BigBinaryVector,ILParams>;
 
 // FIXME the MATH_BACKEND check is a hack and needs to go away
 #if MATHBACKEND != 7
+#ifndef NO_MATHBACKEND_7
 namespace lbcrypto {
 template class DiscreteGaussianGeneratorImpl<native64::BigBinaryInteger,native64::BigBinaryVector>;
 template class BinaryUniformGeneratorImpl<native64::BigBinaryInteger,native64::BigBinaryVector>;
@@ -55,4 +58,5 @@ template class DiscreteUniformGeneratorImpl<native64::BigBinaryInteger,native64:
 template class ILVectorImpl<native64::BigBinaryInteger,native64::BigBinaryVector,ILNativeParams>;
 template class ILParamsImpl<native64::BigBinaryInteger>;
 }
+#endif
 #endif
