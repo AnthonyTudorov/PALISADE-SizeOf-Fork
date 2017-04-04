@@ -417,3 +417,88 @@ TEST(UTFV, ILVector2n_FV_Optimized_Eval_Operations) {
 	EXPECT_EQ(plaintextMult, plaintextNewMult) << "FVOptimized.EvalMult gives incorrect results.\n";
 
 }
+
+// This test is currently disabled as FV.PRE functionality has not been enabled
+/*Simple Proxy re-encryption test for ILVector2n. The assumption is this test case is that everything with respect to the lattice
+* layer and cryptoparameters work. This test case is only testing if the resulting plaintext from an encrypt/decrypt returns the same
+* plaintext
+* The cyclotomic order is set 2048
+* The relinwindow is set to 1 and the modulus and root of unity are precomputed values that satisfy PRE conditions
+*/
+//TEST(UTFV, ILVector2n_Encrypt_Decrypt_PRE) {
+//
+//	usint m = 2048;
+//
+//	BigBinaryInteger modulus("1099511678977");
+//	BigBinaryInteger rootOfUnity("928976858506");
+//
+//	BigBinaryInteger bigModulus("1237940039285380274899136513");
+//	BigBinaryInteger bigRootOfUnity("1067388930511360414468370668");
+//
+//	BigBinaryInteger plaintextModulus("2");
+//
+//	float stdDev = 4;
+//
+//	//Set crypto parametes
+//	BigBinaryInteger delta(modulus.DividedBy(plaintextModulus));
+//	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
+//		2, m, modulus.ToString(), rootOfUnity.ToString(),
+//		1, stdDev, delta.ToString(), RLWE, bigModulus.ToString(),
+//		bigRootOfUnity.ToString(), 0, 9, 1.006);
+//
+//	cc.Enable(ENCRYPTION);
+//	cc.Enable(PRE);
+//	cc.Enable(SHE);
+//
+//	std::vector<usint> vectorOfInts1 = { 1,1,0,1 };
+//
+//	IntPlaintextEncoding intArray1(vectorOfInts1);
+//
+//	//Regular LWE-NTRU encryption algorithm
+//
+//	////////////////////////////////////////////////////////////
+//	//Perform the key generation operation.
+//	////////////////////////////////////////////////////////////
+//	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+//
+//	////////////////////////////////////////////////////////////
+//	//Encryption
+//	////////////////////////////////////////////////////////////
+//	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext =
+//		cc.Encrypt(kp.publicKey, intArray1, false);
+//
+//	//PRE SCHEME
+//
+//	////////////////////////////////////////////////////////////
+//	//Perform the second key generation operation.
+//	// This generates the keys which should be able to decrypt the ciphertext after the re-encryption operation.
+//	////////////////////////////////////////////////////////////
+//
+//	LPKeyPair<ILVector2n> newKp = cc.KeyGen();
+//
+//	/*shared_ptr<LPEvalKey<ILVectorArray2n>> evalKey =
+//	cc.ReKeyGen(newKp.secretKey, kp.secretKey);*/
+//	shared_ptr<LPEvalKey<ILVector2n>> evalKey =
+//		cc.ReKeyGen(newKp.secretKey, kp.secretKey);
+//
+//	////////////////////////////////////////////////////////////
+//	//Perform the proxy re-encryption operation.
+//	// This switches the keys which are used to perform the key switching.
+//	////////////////////////////////////////////////////////////
+//	vector<shared_ptr<Ciphertext<ILVector2n>>> newCiphertext =
+//		cc.ReEncrypt(evalKey, ciphertext);
+//
+//
+//	////////////////////////////////////////////////////////////
+//	//Decryption
+//	////////////////////////////////////////////////////////////
+//
+//	IntPlaintextEncoding intArrayNew;
+//
+//	//DecryptResult result1 = cc.Decrypt(newKp.secretKey, newCiphertext, &intArrayNew, true);
+//
+//	DecryptResult result1 = cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew, true);
+//
+//	EXPECT_EQ(intArray1, intArrayNew);
+//
+//}

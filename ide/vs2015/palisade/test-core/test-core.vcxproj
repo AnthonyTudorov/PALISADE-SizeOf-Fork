@@ -159,7 +159,6 @@
     <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\unittest\UnitTestBinVect.cpp" />
     <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\unittest\UnitTestDistrGen.cpp" />
     <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\unittest\UnitTestField2n.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\unittest\UnitTestLargeFloat.cpp" />
     <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\unittest\UnitTestLatticeElements.cpp" />
     <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\unittest\UnitTestMatrix.cpp" />
     <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\unittest\UnitTestMubintvec.cpp" />

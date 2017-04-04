@@ -44,12 +44,46 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 namespace lbcrypto {
 
+	template <class Element>
+	bool LPCryptoParametersBV<Element>::Serialize(Serialized* serObj) const {
+		if (!serObj->IsObject())
+			return false;
 
+		SerialItem cryptoParamsMap(rapidjson::kObjectType);
+		if (this->SerializeRLWE(serObj, cryptoParamsMap) == false)
+			return false;
+
+		serObj->AddMember("LPCryptoParametersBV", cryptoParamsMap.Move(), serObj->GetAllocator());
+		serObj->AddMember("LPCryptoParametersType", "LPCryptoParametersBV", serObj->GetAllocator());
+		serObj->AddMember("mode", std::to_string(m_mode), serObj->GetAllocator());
+
+		return true;
+	}
+
+
+	template <class Element>
+	bool LPCryptoParametersBV<Element>::Deserialize(const Serialized& serObj) {
+		Serialized::ConstMemberIterator mIter = serObj.FindMember("LPCryptoParametersBV");
+		if (mIter == serObj.MemberEnd()) return false;
+
+		if (this->DeserializeRLWE(mIter) == false)
+			return false;
+
+		SerialItem::ConstMemberIterator pIt;
+
+		if ((pIt = mIter->value.FindMember("mode")) == mIter->value.MemberEnd())
+			return false;
+		MODE mode = (MODE)atoi(pIt->value.GetString());
+
+		this->SetMode(mode);
+
+		return true;
+	}
+
+	//makeSparse is not used by this scheme
 	template <class Element>
 	LPKeyPair<Element> LPAlgorithmBV<Element>::KeyGen(const CryptoContext<Element> cc, bool makeSparse) const
 	{
-		if( makeSparse )
-			return LPKeyPair<Element>();
 
 		LPKeyPair<Element>	kp(new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc));
 
@@ -82,7 +116,6 @@ namespace lbcrypto {
 		s.SwitchFormat();
 
 		//public key is generated and set
-		//privateKey->MakePublicKey(a, publicKey);
 		Element e(dgg, elementParams, Format::COEFFICIENT);
 		e.SwitchFormat();
 
@@ -115,9 +148,6 @@ namespace lbcrypto {
 		const Element &a = publicKey->GetPublicElements().at(0);
 		const Element &b = publicKey->GetPublicElements().at(1);
 
-
-
-		//Element v(dgg, elementParams, Format::EVALUATION);
 		Element v;
 
 		//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
@@ -193,7 +223,6 @@ namespace lbcrypto {
 
 	}
 
-	//TODO: CHECK IMPLEMENTATION
 	template <class Element>
 	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext1,
 		const shared_ptr<Ciphertext<Element>> ciphertext2) const {
@@ -237,7 +266,7 @@ namespace lbcrypto {
 
 		cNew.push_back(std::move(c1[0] * c2[1] + c1[1] * c2[0]));
 
-		cNew.push_back(std::move(c1[1] * c2[1]));
+		cNew.push_back(std::move((c1[1] * c2[1]).Negate()));
 
 		newCiphertext->SetElements(std::move(cNew));
 
@@ -245,54 +274,16 @@ namespace lbcrypto {
 
 	}
 
-
 	template <class Element>
 	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
 		const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const {
 
-		if (ciphertext1->GetElements()[0].GetFormat() == Format::COEFFICIENT || ciphertext2->GetElements()[0].GetFormat() == Format::COEFFICIENT) {
-			throw std::runtime_error("EvalMult cannot multiply in COEFFICIENT domain.");
-		}
-
-		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParamsLWE = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(ek->GetCryptoParameters());
-
-		usint relinWindow = cryptoParamsLWE->GetRelinWindow();
-
-		const shared_ptr<LPEvalKeyRelin<Element>> ekRelin = std::dynamic_pointer_cast<LPEvalKeyRelin<Element>>(ek);
-
 		shared_ptr<Ciphertext<Element>> newCiphertext = this->EvalMult(ciphertext1, ciphertext2);
 
-		const Element &c0 = newCiphertext->GetElements().at(0);
-
-		const Element &c1 = newCiphertext->GetElements().at(1);
-
-		const Element &c2 = newCiphertext->GetElements().at(2);
-
-		std::vector<Element> finalElements;
-
-		finalElements.push_back(std::move(c0));
-
-		finalElements.push_back(std::move(c1));
-
-		const std::vector<Element> &b = ekRelin->GetBVector();
-
-		const std::vector<Element> &a = ekRelin->GetAVector();
-
-		std::vector<Element> c2Decomposed(c2.BaseDecompose(relinWindow));
-
-		for (usint i = 0; i < c2Decomposed.size(); i++) {
-			finalElements.at(0) += c2Decomposed.at(i)*b.at(i);
-
-			finalElements.at(1) += c2Decomposed.at(i)*a.at(i);
-		}
-
-		newCiphertext->SetElements(std::move(finalElements));
-
-		return newCiphertext;
+		return this->KeySwitch(ek, newCiphertext);
 
 	}
 	
-
 	template <class Element>
 	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::EvalNegate(const shared_ptr<Ciphertext<Element>> ciphertext) const {
 
@@ -327,7 +318,7 @@ namespace lbcrypto {
 		//Getting a refernce to discrete gaussian distribution generator.
 		const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 
-		//Getting a refernce to ternary distribution generator.
+		//Getting a reference to ternary distribution generator.
 		const DiscreteUniformGenerator dug(originalKeyParams->GetModulus());
 
 		//Relinearizaiton window is used to calculate the base exponent.
@@ -378,11 +369,21 @@ namespace lbcrypto {
 
 		const std::vector<Element> &c = cipherText->GetElements();
 
-		std::vector<Element> digitsC1(c[1].BaseDecompose(relinWindow));
+		std::vector<Element> digitsC1;
+		Element ct1;
 
+		if (c.size() == 2) //case of PRE or automorphism
+		{
+			digitsC1 = c[1].BaseDecompose(relinWindow);
+			ct1 = digitsC1[0] * a[0];
+		}
+		else //case of EvalMult
+		{
+			digitsC1 = c[2].BaseDecompose(relinWindow);
+			ct1 = c[1] + digitsC1[0] * a[0];
+		}
 
 		Element ct0(c[0] + digitsC1[0] * b[0]);
-		Element ct1(digitsC1[0] * a[0]);
 
 		//Relinearization Step.
 		for (usint i = 1; i < digitsC1.size(); ++i)
@@ -406,82 +407,23 @@ namespace lbcrypto {
 	template <class Element>
 	shared_ptr<LPEvalKey<Element>> LPAlgorithmSHEBV<Element>::EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const
 	{
-		shared_ptr<LPEvalKeyRelin<Element>> quadraticKeySwitchHint(new LPEvalKeyRelin<Element>(originalPrivateKey->GetCryptoContext()));
 
 		shared_ptr<LPPrivateKey<Element>> originalPrivateKeySquared = std::shared_ptr<LPPrivateKey<Element>>(new LPPrivateKey<Element>(originalPrivateKey->GetCryptoContext()));
 
 		Element sSquare(originalPrivateKey->GetPrivateElement()*originalPrivateKey->GetPrivateElement());
 
-		sSquare = sSquare.Negate();
-
 		originalPrivateKeySquared->SetPrivateElement(std::move(sSquare));
 
-		return this->KeySwitchGen(originalPrivateKeySquared , originalPrivateKey);
+		return this->KeySwitchGen(originalPrivateKeySquared, originalPrivateKey);
 
 	}
 
-	
-
 	template <class Element>
-	shared_ptr<LPEvalKey<Element>> LPAlgorithmPREBV<Element>::ReKeyGen(const shared_ptr<LPKey<Element>> newSK,
+	shared_ptr<LPEvalKey<Element>> LPAlgorithmPREBV<Element>::ReKeyGen(const shared_ptr<LPPrivateKey<Element>> newSK,
 		const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const
 	{
-		// create a new ReKey of the proper type, in this context
-		shared_ptr<LPEvalKeyRelin<Element>> EK(new LPEvalKeyRelin<Element>(newSK->GetCryptoContext()));
-
-		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParamsLWE = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(newSK->GetCryptoParameters());
-
-		if (cryptoParamsLWE == 0) {
-			throw std::logic_error("Secret Key crypto parameters have incorrect type in LPAlgorithmPREBV<Element>::ReKeyGen");
-		}
-
-		const shared_ptr<typename Element::Params> elementParams = cryptoParamsLWE->GetElementParams();
-		const BigBinaryInteger &p = cryptoParamsLWE->GetPlaintextModulus();
-		const Element &s = origPrivateKey->GetPrivateElement();
-
-		const shared_ptr<LPPrivateKey<Element>> newPrivateKey =
-			std::dynamic_pointer_cast<LPPrivateKey<Element>>(newSK);
-
-		if (newPrivateKey == 0) {
-			throw std::logic_error("Secret Key has incorrect type in LPAlgorithmPREBV<Element>::ReKeyGen");
-		}
-
-		//LPEvalKeyBV<Element> *evalKey = dynamic_cast<LPEvalKeyBV<Element>*>(EK);
-
-		const Element &sNew = newPrivateKey->GetPrivateElement();
-
-		const DiscreteGaussianGenerator &dgg = cryptoParamsLWE->GetDiscreteGaussianGenerator();
-		const DiscreteUniformGenerator dug(elementParams->GetModulus());
-
-		//std::vector<Element> *evalKeyElements = &evalKey->AccessEvalKeyElements();
-		//std::vector<Element> *evalKeyElementsGenerated = &evalKey->AccessEvalKeyElementsGenerated();
-		usint relinWindow = cryptoParamsLWE->GetRelinWindow();
-
-		std::vector<Element> evalKeyElements(s.PowersOfBase(relinWindow));
-		std::vector<Element> evalKeyElementsGenerated;
-
-
-
-		//s.PowersOfBase(relinWindow, evalKeyElements);
-
-		for (usint i = 0; i < (evalKeyElements.size()); i++)
-		{
-			// Generate a_i vectors
-			Element a(dug, elementParams, Format::EVALUATION);
-			evalKeyElementsGenerated.push_back(a);
-
-			// Generate a_i * newSK + p * e - PowerOfBase(oldSK)
-			Element e(dgg, elementParams, Format::EVALUATION);
-			evalKeyElements.at(i) -= (a*sNew + p*e);
-			evalKeyElements.at(i) *= (elementParams->GetModulus() - BigBinaryInteger::ONE);//change it wrong implementation
-
-		}
-
-		EK->SetAVector(std::move(evalKeyElements));
-		EK->SetBVector(std::move(evalKeyElementsGenerated));
-
-		return EK;
-
+		return origPrivateKey->GetCryptoContext().GetEncryptionAlgorithm()->KeySwitchGen(origPrivateKey, 
+			newSK);
 	}
 
 	//Function for re-encypting ciphertext using the arrays generated by ReKeyGen
@@ -506,36 +448,10 @@ namespace lbcrypto {
 			cipherTextElement.ModReduce(plaintextModulus);// this is being done at the lattice layer. The ciphertext is mod reduced.
 		}
 
-
 		newcipherText->SetElements(cipherTextElements);
 
 		return newcipherText;
 	}
-
-	template <class Element>
-	shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmBV<Element>::RingReduce(shared_ptr<Ciphertext<Element>> cipherText, const shared_ptr<LPEvalKey<Element>> keySwitchHint) const {
-		return cipherText;
-	}
-
-	template <class Element>
-	shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmBV<Element>::ComposedEvalMult(
-		const shared_ptr<Ciphertext<Element>> cipherText1,
-		const shared_ptr<Ciphertext<Element>> cipherText2,
-		const shared_ptr<LPEvalKey<Element>> quadKeySwitchHint) const {
-		return cipherText1;
-	}
-
-	template <class Element>
-	shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmBV<Element>::LevelReduce(const shared_ptr<Ciphertext<Element>> cipherText1,
-		const shared_ptr<LPEvalKey<Element>> linearKeySwitchHint) const {
-		return cipherText1;
-	}
-
-	template <class Element>
-	bool LPLeveledSHEAlgorithmBV<Element>::CanRingReduce(usint ringDimension, const std::vector<BigBinaryInteger> &moduli, const double rootHermiteFactor) const {
-		return false;
-	}
-
 
 	// Constructor for LPPublicKeyEncryptionSchemeBV
 	template <class Element>
@@ -549,12 +465,10 @@ namespace lbcrypto {
 			this->m_algorithmPRE = new LPAlgorithmPREBV<Element>();
 
 		if (mask[SHE])
-			this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>();
+			this->m_algorithmSHE = new LPAlgorithmSHEBV<Element>();
 
-		/*		if (mask[FHE])
-		this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>(); */
 		if (mask[LEVELEDSHE])
-			this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmLTV<Element>();
+			this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmBV<Element>();
 	}
 
 	// Enable for LPPublicKeyEncryptionSchemeLTV
@@ -569,6 +483,8 @@ namespace lbcrypto {
 		case PRE:
 			if (this->m_algorithmPRE == NULL)
 				this->m_algorithmPRE = new LPAlgorithmPREBV<Element>();
+			if (this->m_algorithmSHE == NULL)
+				this->m_algorithmSHE = new LPAlgorithmSHEBV<Element>();
 			break;
 		case SHE:
 			if (this->m_algorithmSHE == NULL)
@@ -578,12 +494,6 @@ namespace lbcrypto {
 			if (this->m_algorithmLeveledSHE == NULL)
 				this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmBV<Element>();
 			break;
-			/*
-			case FHE:
-			if (this->m_algorithmFHE == NULL)
-			this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>();
-			break;
-			*/
 		}
 	}
 

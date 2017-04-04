@@ -122,9 +122,11 @@ VecType NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(con
 						omegaFactor = omega;
 					else
 					{
-#if MATHBACKEND !=6
-						omegaFactor = omega*result.GetValAtIndex(indexOdd);
-						omegaFactor.ModBarrettInPlace(element.GetModulus(), mu);
+					#if MATHBACKEND !=6
+						//omegaFactor = omega*result.GetValAtIndex(indexOdd);
+						//omegaFactor.ModBarrettInPlace(element.GetModulus(), mu);
+						omegaFactor = omega.ModBarrettMul(result.GetValAtIndex(indexOdd),element.GetModulus(), mu);
+
 #else
 						omegaFactor = omega.ModMulFast(result.GetValAtIndex(indexOdd),modulus);
 #endif
@@ -715,12 +717,9 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 	template class NumberTheoreticTransform<BigBinaryInteger,BigBinaryVector>;
 
 // FIXME the MATH_BACKEND check is a hack and needs to go away
-
 #if MATHBACKEND != 7
 	template class ChineseRemainderTransformFTT<native64::BigBinaryInteger,native64::BigBinaryVector>;
-
 	template class NumberTheoreticTransform<native64::BigBinaryInteger,native64::BigBinaryVector>;
 #endif
-
 
 }//namespace ends here

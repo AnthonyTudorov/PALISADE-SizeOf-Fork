@@ -184,8 +184,7 @@ TEST(UTBVDCRT, ILVector2n_bv_PRE_DCRT) {
 	/*shared_ptr<LPEvalKey<ILVectorArray2n>> evalKey =
 		cc.ReKeyGen(newKp.secretKey, kp.secretKey);*/
 	shared_ptr<LPEvalKey<ILVectorArray2n>> evalKey =
-		cc.KeySwitchGen(kp.secretKey, newKp.secretKey);
-
+		cc.ReKeyGen(newKp.secretKey, kp.secretKey);
 
 	////////////////////////////////////////////////////////////
 	//Perform the proxy re-encryption operation.
@@ -303,14 +302,13 @@ TEST(UTBVDCRT, ILVector2n_bv_EVALMULT) {
 	LPCryptoParametersBV<ILVector2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger::FIVE); // Set plaintext modulus.
 	cryptoParams.SetDistributionParameter(stdDev);          // Set the noise parameters.
-	cryptoParams.SetRelinWindow(8);						   // Set the relinearization window
+	cryptoParams.SetRelinWindow(1);						   // Set the relinearization window
 	cryptoParams.SetElementParams(params);                // Set the initialization parameters.
 
 	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(&cryptoParams, MODE::RLWE);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 	cc.Enable(LEVELEDSHE);
-
 
 	std::vector<usint> vectorOfInts1 = { 4,0,0,0 };
 

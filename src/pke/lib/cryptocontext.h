@@ -194,18 +194,34 @@ public:
 
 	/**
 	* ReKeyGen produces an Eval Key that PALISADE can use for Proxy Re Encryption
-	* @param PublicKey
-	* @param PrivateKey
+	* @param newKey (public)
+	* @param oldKey (private)
 	* @return new evaluation key
 	*/
 	shared_ptr<LPEvalKey<Element>> ReKeyGen(
-		const shared_ptr<LPPublicKey<Element>> PublicKey,
-		const shared_ptr<LPPrivateKey<Element>> PrivateKey) const {
+		const shared_ptr<LPPublicKey<Element>> newKey,
+		const shared_ptr<LPPrivateKey<Element>> oldKey) const {
 
-		if( PublicKey == NULL || PrivateKey == NULL || PublicKey->GetCryptoContext() != *this || PrivateKey->GetCryptoContext() != *this )
+		if( newKey == NULL || oldKey == NULL || newKey->GetCryptoContext() != *this || oldKey->GetCryptoContext() != *this )
 			throw std::logic_error("Keys passed to ReKeyGen were not generated with this crypto context");
 
-		return GetEncryptionAlgorithm()->ReKeyGen(PublicKey, PrivateKey);
+		return GetEncryptionAlgorithm()->ReKeyGen(newKey, oldKey);
+	}
+
+	/**
+	* ReKeyGen produces an Eval Key that PALISADE can use for Proxy Re Encryption
+	* @param newKey (private)
+	* @param oldKey (private)
+	* @return new evaluation key
+	*/
+	shared_ptr<LPEvalKey<Element>> ReKeyGen(
+		const shared_ptr<LPPrivateKey<Element>> newKey,
+		const shared_ptr<LPPrivateKey<Element>> oldKey) const {
+
+		if (newKey == NULL || oldKey == NULL || newKey->GetCryptoContext() != *this || oldKey->GetCryptoContext() != *this)
+			throw std::logic_error("Keys passed to ReKeyGen were not generated with this crypto context");
+
+		return GetEncryptionAlgorithm()->ReKeyGen(newKey, oldKey);
 	}
 
 	/**
@@ -921,14 +937,14 @@ public:
 	* @param rootOfUnity
 	* @param relinWindow
 	* @param stDev
+	* @param mode
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextBV(
 		const usint plaintextmodulus,
 		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
 		usint relinWindow, float stDev,
-		MODE mode = RLWE, const std::string& bigmodulus = "0", const std::string& bigrootofunity = "0",
-		int depth = 1);
+		MODE mode = RLWE, int depth = 1);
 
 	/**
 	* FIXME temp function written by GRS

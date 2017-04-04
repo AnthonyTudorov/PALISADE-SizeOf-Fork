@@ -27,7 +27,8 @@
 * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *
 * @section DESCRIPTION
-* This code provides generation of uniform distibutions of discrete values.
+* This code provides generation of uniform distibutions of discrete values. 
+* Discrete uniform generator relies on the built-in C++ generator for 32-bit unsigned integers defined in <random>.
 */
 
 #ifndef LBCRYPTO_MATH_DISCRETEUNIFORMGENERATOR_H_
@@ -63,28 +64,28 @@ public:
 	void SetModulus (const IntType & modulus);
 
 	/**
-	* @brief Required by DistributionGenerator.
+	* @brief Generates a random integer based on the modulus set for the Discrete Unform Generator object. 
+	* Required by DistributionGenerator.
 	*/
 	IntType GenerateInteger () const;
 
 	/**
-	* @brief Required by DistributionGenerator.
+	* @brief Generates a vector of random integers using GenerateInteger()
 	*/
 	VecType GenerateVector (const usint size) const;
 
 private:
+	// discrete uniform generator relies on the built-in C++ generator for 32-bit unsigned integers
+	// the constants below set the parameters specific to 32-bit chunk configuration
 	static const usint CHUNK_MIN = 0;
-	// This code does not work in VS 2012 - need to find a solution
-	//static const usint CHUNK_WIDTH = std::numeric_limits<usint>::digits;
-	//static const usint CHUNK_MAX = std::numeric_limits<usint>::max();
-	// this is a quick fix in the meantime, should get rid of these magic values though...
-	static const usint CHUNK_WIDTH = 16;
-	static const usint CHUNK_MAX   = 65535; // 2^16-1 = 65535
+	static const usint CHUNK_WIDTH = std::numeric_limits<uint32_t>::digits;
+	static const usint CHUNK_MAX = std::numeric_limits<uint32_t>::max();
 
-	usint m_remainingWidth;
+	// number of 32-bit chunks in the modulus set for the discrete uniform generator object
 	usint m_chunksPerValue;
 	
-	//std::uniform_int_distribution<usint> m_distribution;
+	// built-in generator for 32-bit unsigned integers
+	static std::uniform_int_distribution<uint32_t> m_distribution;
 
 	/**
 	* The modulus value that should be used to generate discrete values.

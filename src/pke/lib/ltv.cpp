@@ -277,6 +277,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalSub(
 	return newCiphertext;
 }
 
+// Homomorphic multiplication of ciphertexts without key switching
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalMult(
 	const shared_ptr<Ciphertext<Element>> ciphertext1,
@@ -305,6 +306,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalMult(
 	return newCiphertext;
 }
 
+// Homomorphic multiplication of ciphertexts with key switching
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
 	const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const {
@@ -378,9 +380,9 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmSHELTV<Element>::KeySwitchGen(
 * The algorithm can be found from this paper:
 * http://link.springer.com/chapter/10.1007/978-3-662-44774-1_18
 *
-*KeySwitch takes in a KeySwitchHint and a cipher text. Based on the two, it calculates and returns a new ciphertext.
-* if the KeySwitchHint is constructed for Private Key A converted to Private Key B, then the new ciphertext, originally encrypted with
-* private key A, is now decryptable by public key B (and not A).
+* KeySwitch takes in a KeySwitchHint and a cipher text. Based on the two, it calculates and returns a new ciphertext.
+* if the KeySwitchHint constructed for Private Key A is converted to Private Key B, then the new ciphertext, originally encrypted with
+* private key A, is now decryptable by private key B (and not A).
 */
 template<class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::KeySwitch(
@@ -400,107 +402,37 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::KeySwitch(
 }
 
 
-//Function to generate 1..log(q) encryptions for each bit of the original private key
+//Function to generate an evaluation key for homomorphic evaluation (for depth 2)
 template <class Element>
 shared_ptr<LPEvalKey<Element>> LPAlgorithmSHELTV<Element>::EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const
 {
-	shared_ptr<LPEvalKeyNTRU<Element>> quadraticKeySwitchHint(new LPEvalKeyNTRU<Element>(originalPrivateKey->GetCryptoContext()));
 
-	const auto cryptoParams = originalPrivateKey->GetCryptoParameters();
+	const Element& f = originalPrivateKey->GetPrivateElement();
 
-	const Element& f1 = originalPrivateKey->GetPrivateElement();
-	const Element& f2 = f1;
+	shared_ptr<LPPrivateKey<Element>> quadraticPrivateKey(new LPPrivateKey<Element>(originalPrivateKey->GetCryptoContext()));
+	quadraticPrivateKey->SetPrivateElement(std::move(f*f));
 
-	const Element f1Squared(f1*f1);
-	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
+	return KeySwitchGen(quadraticPrivateKey,originalPrivateKey);
 
-	Element e(cryptoParams->GetDiscreteGaussianGenerator(), cryptoParams->GetElementParams(), Format::COEFFICIENT);
-
-	e.SwitchFormat();
-
-	Element m(p*e);
-
-	m.AddILElementOne();
-
-	Element newKeyInverse = f2.MultiplicativeInverse();
-
-	Element keySwitchHintElement(m * f1Squared * newKeyInverse);
-
-	quadraticKeySwitchHint->SetA(std::move(keySwitchHintElement));
-
-	return quadraticKeySwitchHint;
-}
-
-   //Function for extracting a value at a certain index using automorphism operation.
-template <class Element>
-shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalAtIndex(const shared_ptr<Ciphertext<Element>> ciphertext,
-	const usint i, const std::vector<shared_ptr<LPEvalKey<Element>>> &evalKeys) const
-
-{
-	usint autoIndex = 2 * i - 1;
-
-	shared_ptr<Ciphertext<Element>> permutedCiphertext(new Ciphertext<Element>(*ciphertext));
-
-	permutedCiphertext->SetElement(ciphertext->GetElement().AutomorphismTransform(autoIndex));
-
-	// FIXME: should use new KeySwitch, NOT ReEncrypt
-	return ciphertext->GetCryptoContext().GetEncryptionAlgorithm()->ReEncrypt(evalKeys[i - 2], permutedCiphertext);
-}
-
-// FIXME please
-template <class Element>
-bool LPAlgorithmSHELTV<Element>::EvalAutomorphismKeyGen(const shared_ptr<LPPublicKey<Element>> publicKey,
-	const shared_ptr<LPPrivateKey<Element>> origPrivateKey,
-	const usint size, shared_ptr<LPPrivateKey<Element>> *tempPrivateKey, // FIXME probably a local var
-	std::vector<shared_ptr<LPEvalKey<Element>>> *evalKeys) const
-{
-	const Element &privateKeyElement = origPrivateKey->GetPrivateElement();
-	usint m = privateKeyElement.GetCyclotomicOrder();
-
-	const shared_ptr<LPCryptoParametersLTV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersLTV<Element>>(publicKey->GetCryptoParameters());
-	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
-
-	if (size > m / 2 - 1)
-		throw std::logic_error("size exceeds the ring dimensions\n");
-	else {
-
-		usint i = 3;
-
-		for (usint index = 0; index < size - 1; index++)
-		{
-			Element permutedPrivateKeyElement = privateKeyElement.AutomorphismTransform(i);
-
-			(*tempPrivateKey)->SetPrivateElement(permutedPrivateKeyElement);
-
-			// FIXME: key switch gen
-			evalKeys->at(index) = publicKey->GetCryptoContext().GetEncryptionAlgorithm()->ReKeyGen(publicKey, *tempPrivateKey);
-
-			i = i + 2;
-		}
-
-	}
 }
 
 //Function to generate 1..log(q) encryptions for each bit of the original private key
 template <class Element>
-shared_ptr<LPEvalKey<Element>> LPAlgorithmPRELTV<Element>::ReKeyGen(const shared_ptr<LPKey<Element>> newPK,
+shared_ptr<LPEvalKey<Element>> LPAlgorithmSHELTV<Element>::KeySwitchRelinGen(const shared_ptr<LPPublicKey<Element>> newPublicKey,
 	const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const
 {
-	// FIXME: KeySwitchGen as a subroutine instead
 
-	// create a new ReKey of the proper type, in this context
-	shared_ptr<LPEvalKeyNTRURelin<Element>> ek(new LPEvalKeyNTRURelin<Element>(newPK->GetCryptoContext()));
+	// create a new EvalKey of the proper type, in this context
+	shared_ptr<LPEvalKeyNTRURelin<Element>> ek(new LPEvalKeyNTRURelin<Element>(newPublicKey->GetCryptoContext()));
 
 	// the wrapper checked to make sure that the input keys were created in the proper context
 
 	const shared_ptr<LPCryptoParametersRLWE<Element>> cryptoParamsLWE =
-		std::dynamic_pointer_cast<LPCryptoParametersRLWE<Element>>(newPK->GetCryptoParameters());
+		std::dynamic_pointer_cast<LPCryptoParametersRLWE<Element>>(newPublicKey->GetCryptoParameters());
 
 	const shared_ptr<typename Element::Params> elementParams = cryptoParamsLWE->GetElementParams();
 	const BigBinaryInteger &p = cryptoParamsLWE->GetPlaintextModulus();
 	const Element &f = origPrivateKey->GetPrivateElement();
-
-	const shared_ptr<LPPublicKey<Element>> newPublicKey = std::dynamic_pointer_cast<LPPublicKey<Element>>(newPK);
 
 	const Element &hn = newPublicKey->GetPublicElements().at(0);
 
@@ -523,9 +455,9 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmPRELTV<Element>::ReKeyGen(const shared
 	return ek;
 }
 
-//Function for re-encypting ciphertext using the array generated by ProxyGen
+//Function for re-encypting ciphertext using the array generated by KeySwitchRelinGen
 template <class Element>
-shared_ptr<Ciphertext<Element>> LPAlgorithmPRELTV<Element>::ReEncrypt(const shared_ptr<LPEvalKey<Element>>evalKey,
+shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::KeySwitchRelin(const shared_ptr<LPEvalKey<Element>>evalKey,
 	const shared_ptr<Ciphertext<Element>> ciphertext) const
 {
 	shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(*ciphertext));
@@ -549,9 +481,73 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmPRELTV<Element>::ReEncrypt(const shar
 	for (usint i = 1; i < digits.size(); ++i)
 		ct += digits[i] * proxy[i];
 
-	newCiphertext->SetElement( std::move(ct) );
+	newCiphertext->SetElement(std::move(ct));
 
 	return newCiphertext;
+}
+
+   //Function for extracting a value at a certain index using automorphism operation.
+template <class Element>
+shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalAtIndex(const shared_ptr<Ciphertext<Element>> ciphertext,
+	const usint i, const std::vector<shared_ptr<LPEvalKey<Element>>> &evalKeys) const
+
+{
+	usint autoIndex = 2 * i - 1;
+
+	shared_ptr<Ciphertext<Element>> permutedCiphertext(new Ciphertext<Element>(*ciphertext));
+
+	permutedCiphertext->SetElement(ciphertext->GetElement().AutomorphismTransform(autoIndex));
+
+	return ciphertext->GetCryptoContext().GetEncryptionAlgorithm()->KeySwitchRelin(evalKeys[i - 2], permutedCiphertext);
+}
+
+// FIXME please
+template <class Element>
+bool LPAlgorithmSHELTV<Element>::EvalAutomorphismKeyGen(const shared_ptr<LPPublicKey<Element>> publicKey,
+	const shared_ptr<LPPrivateKey<Element>> origPrivateKey,
+	const usint size, shared_ptr<LPPrivateKey<Element>> *tempPrivateKey, // FIXME probably a local var
+	std::vector<shared_ptr<LPEvalKey<Element>>> *evalKeys) const
+{
+	const Element &privateKeyElement = origPrivateKey->GetPrivateElement();
+	usint n = privateKeyElement.GetCyclotomicOrder()/2;
+
+	const shared_ptr<LPCryptoParametersLTV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersLTV<Element>>(publicKey->GetCryptoParameters());
+	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
+
+	if (size > n / 2 - 1)
+		throw std::logic_error("size exceeds the ring dimensions\n");
+	else {
+
+		usint i = 3;
+
+		for (usint index = 0; index < size - 1; index++)
+		{
+			Element permutedPrivateKeyElement = privateKeyElement.AutomorphismTransform(i);
+
+			(*tempPrivateKey)->SetPrivateElement(permutedPrivateKeyElement);
+
+			evalKeys->at(index) = publicKey->GetCryptoContext().GetEncryptionAlgorithm()->KeySwitchRelinGen(publicKey, *tempPrivateKey);
+
+			i = i + 2;
+		}
+
+	}
+}
+
+//Function to generate 1..log(q) encryptions for each bit of the original private key
+template <class Element>
+shared_ptr<LPEvalKey<Element>> LPAlgorithmPRELTV<Element>::ReKeyGen(const shared_ptr<LPPublicKey<Element>> newPK,
+	const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const
+{
+	return origPrivateKey->GetCryptoContext().GetEncryptionAlgorithm()->KeySwitchRelinGen(newPK, origPrivateKey);
+}
+
+//Function for re-encypting ciphertext using the array generated by ReKeyGen
+template <class Element>
+shared_ptr<Ciphertext<Element>> LPAlgorithmPRELTV<Element>::ReEncrypt(const shared_ptr<LPEvalKey<Element>> evalKey,
+	const shared_ptr<Ciphertext<Element>> ciphertext) const
+{
+	return ciphertext->GetCryptoContext().GetEncryptionAlgorithm()->KeySwitchRelin(evalKey, ciphertext);
 }
 
 
@@ -652,17 +648,6 @@ bool LPLeveledSHEAlgorithmLTV<Element>::CanRingReduce(usint ringDimension, const
 	return rootHermiteFactor >= powerOfTwo;
 }
 
-//Function for re-encypting ciphertext using the array generated by ProxyGen
-template <class Element>
-void LPAlgorithmFHELTV<Element>::Bootstrap(const Ciphertext<Element> &ciphertext,
-	Ciphertext<Element> *newCiphertext)  const
-
-{
-	Ciphertext<Element> ct();
-
-	//*newCiphertext = ct;
-}
-
 // Constructor for LPPublicKeyEncryptionSchemeLTV
 template <class Element>
 LPPublicKeyEncryptionSchemeLTV<Element>::LPPublicKeyEncryptionSchemeLTV(std::bitset<FEATURESETSIZE> mask)
@@ -674,8 +659,6 @@ LPPublicKeyEncryptionSchemeLTV<Element>::LPPublicKeyEncryptionSchemeLTV(std::bit
 		this->m_algorithmPRE = new LPAlgorithmPRELTV<Element>();
 	if (mask[SHE])
 		this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>();
-	if (mask[FHE])
-		this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>();
 	if (mask[LEVELEDSHE])
 		this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmLTV<Element>();
 
@@ -693,14 +676,12 @@ void LPPublicKeyEncryptionSchemeLTV<Element>::Enable(PKESchemeFeature feature) {
 	case PRE:
 		if (this->m_algorithmPRE == NULL)
 			this->m_algorithmPRE = new LPAlgorithmPRELTV<Element>();
+		if (this->m_algorithmSHE == NULL)
+			this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>();
 		break;
 	case SHE:
 		if (this->m_algorithmSHE == NULL)
 			this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>();
-		break;
-	case FHE:
-		if (this->m_algorithmFHE == NULL)
-			this->m_algorithmFHE = new LPAlgorithmFHELTV<Element>();
 		break;
 	case LEVELEDSHE:
 		if (this->m_algorithmLeveledSHE == NULL)

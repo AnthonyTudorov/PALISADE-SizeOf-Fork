@@ -74,7 +74,7 @@ void testDiscreteUniformGenerator(BigBinaryInteger &modulus, std::string test_na
 void testParallelDiscreteUniformGenerator(BigBinaryInteger &modulus, std::string test_name);
 
 
-TEST(UTDistrGen, DiscreteUniformGenerator_VERY_LONG ) {
+TEST(UTDistrGen, DiscreteUniformGenerator_LONG ) {
 
   // TEST CASE TO GENERATE A UNIFORM BIG BINARY INTEGER WITH SMALL MODULUS
   {
@@ -222,7 +222,7 @@ void testDiscreteUniformGenerator(BigBinaryInteger &modulus, std::string test_na
 }
 
 
-TEST(UTDistrGen, ParallelDiscreteUniformGenerator_VERY_LONG ) {
+TEST(UTDistrGen, ParallelDiscreteUniformGenerator_LONG ) {
 
   //BUILD SEVERAL VECTORS OF BBI IN PARALLEL, CONCATENATE THEM TO ONE LARGE VECTOR AND TEST
   //THE RESULT OF THE FIRST AND SECOND CENTRAL MOMENTS
@@ -245,7 +245,7 @@ void testParallelDiscreteUniformGenerator(BigBinaryInteger &modulus, std::string
   double modulusInDouble = modulus.ConvertToDouble();
   // we expect the mean to be modulus/2 (the mid range of the min-max data);
   double expectedMeanInDouble = modulusInDouble / 2.0;
-  usint size = 500000;
+  usint size = 50000;
   //usint size = omp_get_max_threads() * 4;
 
   bool dbg_flag = false;

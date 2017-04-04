@@ -29,6 +29,11 @@ public:
 
 	const DiscreteGaussianGenerator &GetDiscreteGaussianGenerator() const {return m_dgg;}
 
+	virtual void SetPlaintextModulus(const BigBinaryInteger &plaintextModulus) {
+		LPCryptoParameters<Element>::SetPlaintextModulus(plaintextModulus);
+		std::dynamic_pointer_cast<ILParams>(this->GetElementParams())->SetModulus( plaintextModulus );
+	}
+
 	bool Serialize(Serialized* serObj) const {
 		if( !serObj->IsObject() )
 			return false;
@@ -176,16 +181,40 @@ public:
 
 	/**
 	* Function to generate 1..log(q) encryptions for each bit of the original private key
+	* Variant that uses the public key for the new secret key.
 	*
 	* @param &newPrivateKey encryption key for the new ciphertext.
 	* @param &origPrivateKey original private key used for decryption.
 	* @param &ddg discrete Gaussian generator.
 	* @param *evalKey the evaluation key.
 	*/
-	shared_ptr<LPEvalKey<Element>> ReKeyGen(const shared_ptr<LPKey<Element>> newPrivateKey,
+	shared_ptr<LPEvalKey<Element>> ReKeyGen(const shared_ptr<LPPublicKey<Element>> newPrivateKey,
 		const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const {
 		// create a new ReKey of the proper type, in this context
 		shared_ptr<LPEvalKeyNTRURelin<Element>> EK( new LPEvalKeyNTRURelin<Element>(newPrivateKey->GetCryptoContext()) );
+
+		Element a(newPrivateKey->GetCryptoContext().GetCryptoParameters()->GetElementParams(), Format::EVALUATION, true);
+		vector<Element> evalKeyElements;
+		evalKeyElements.push_back(std::move(a));
+
+		EK->SetAVector(std::move(evalKeyElements));
+
+		return EK;
+	}
+
+	/**
+	* Function to generate 1..log(q) encryptions for each bit of the original private key
+	* Variant that uses the new secret key directly.
+	*
+	* @param &newPrivateKey encryption key for the new ciphertext.
+	* @param &origPrivateKey original private key used for decryption.
+	* @param &ddg discrete Gaussian generator.
+	* @param *evalKey the evaluation key.
+	*/
+	shared_ptr<LPEvalKey<Element>> ReKeyGen(const shared_ptr<LPPrivateKey<Element>> newPrivateKey,
+		const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const {
+		// create a new ReKey of the proper type, in this context
+		shared_ptr<LPEvalKeyNTRURelin<Element>> EK(new LPEvalKeyNTRURelin<Element>(newPrivateKey->GetCryptoContext()));
 
 		Element a(newPrivateKey->GetCryptoContext().GetCryptoParameters()->GetElementParams(), Format::EVALUATION, true);
 		vector<Element> evalKeyElements;
@@ -441,7 +470,30 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 			return ans;
 		}
 
+		/**
+		* Method for KeySwitching based on RLWE relinearization.
+		* Function to generate 1..log(q) encryptions for each bit of the original private key
+		*
+		* @param &newPublicKey encryption key for the new ciphertext.
+		* @param origPrivateKey original private key used for decryption.
+		*/
+		shared_ptr<LPEvalKey<Element>> KeySwitchRelinGen(const shared_ptr<LPPublicKey<Element>> newPublicKey,
+			const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const {
+			return shared_ptr<LPEvalKey<Element>>();
+		}
 
+		/**
+		* Method for KeySwitching based on RLWE relinearization
+		*
+		* @param evalKey the evaluation key.
+		* @param ciphertext the input ciphertext.
+		* @return the resulting Ciphertext
+		*/
+		shared_ptr<Ciphertext<Element>> KeySwitchRelin(const shared_ptr<LPEvalKey<Element>> evalKey,
+			const shared_ptr<Ciphertext<Element>> ciphertext) const {
+			shared_ptr<Ciphertext<Element>> ans(new Ciphertext<Element>());
+			return ans;
+		}
 
 		/**
 		 * Function to generate key switch hint on a ciphertext for depth 2.
@@ -491,23 +543,59 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 };
 
 /**
+* @brief Parameter generation for FV.
+* @tparam Element a ring element.
+*/
+template <class Element>
+class LPAlgorithmParamsGenNull : public LPParameterGenerationAlgorithm<Element> {
+public:
+
+	/**
+	 * Default constructor
+	 */
+	LPAlgorithmParamsGenNull() {}
+
+	/**
+	* Method for computing all derived parameters based on chosen primitive parameters
+	*
+	* @param cryptoParams the crypto parameters object to be populated with parameters.
+	* @param evalAddCount number of EvalAdds assuming no EvalMult and KeySwitch operations are performed.
+	* @param evalMultCount number of EvalMults assuming no EvalAdd and KeySwitch operations are performed.
+	* @param keySwitchCount number of KeySwitch operations assuming no EvalAdd and EvalMult operations are performed.
+	*/
+	bool ParamsGen(shared_ptr<LPCryptoParameters<Element>> cryptoParams, int32_t evalAddCount = 0,
+		int32_t evalMultCount = 0, int32_t keySwitchCount = 0) const {
+		return true;
+	}
+
+};
+
+
+/**
 * @brief Main public key encryption scheme for Null implementation,
 * @tparam Element a ring element.
 */
 template <class Element>
 class LPPublicKeyEncryptionSchemeNull : public LPPublicKeyEncryptionScheme<Element> {
 public:
-	LPPublicKeyEncryptionSchemeNull() : LPPublicKeyEncryptionScheme<Element>() {}
+	LPPublicKeyEncryptionSchemeNull() : LPPublicKeyEncryptionScheme<Element>() {
+		this->m_algorithmParamsGen = new LPAlgorithmParamsGenNull<Element>();
+	}
 
 	LPPublicKeyEncryptionSchemeNull(std::bitset<FEATURESETSIZE> mask) {
 
 		if (mask[ENCRYPTION])
-			this->m_algorithmEncryption = new LPAlgorithmNull<Element>();
+			if (this->m_algorithmEncryption == NULL)
+				this->m_algorithmEncryption = new LPAlgorithmNull<Element>();
 
 		if (mask[PRE])
-			this->m_algorithmPRE = new LPAlgorithmPRENull<Element>();
+			if (this->m_algorithmPRE == NULL)
+				this->m_algorithmPRE = new LPAlgorithmPRENull<Element>();
+
 		if (mask[SHE])
-			this->m_algorithmSHE = new LPAlgorithmSHENull<Element>();
+			if (this->m_algorithmSHE == NULL)
+				this->m_algorithmSHE = new LPAlgorithmSHENull<Element>();
+
 		//	if (mask[FHE])
 		//		this->m_algorithmFHE = new LPAlgorithmFHENull<Element>();
 		//	if (mask[LEVELEDSHE])
