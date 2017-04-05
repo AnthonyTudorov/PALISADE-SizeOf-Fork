@@ -93,7 +93,7 @@ namespace lbcrypto {
 
 		const typename Element::Integer &p = cryptoParams->GetPlaintextModulus();
 
-		GeneratorContainer<BigBinaryInteger,BigBinaryVector>::GetDiscreteUniformGenerator().SetModulus(p);
+		GeneratorContainer<BigBinaryInteger,BigBinaryVector>::GetDiscreteUniformGenerator().SetModulus(elementParams->GetModulus());
 
 		//Generate the element "a" of the public key
 		Element a(DiscreteUniformGen, elementParams, Format::EVALUATION);
@@ -104,15 +104,17 @@ namespace lbcrypto {
 		//Done in two steps not to use a random polynomial from a pre-computed pool
 		//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
 		if (cryptoParams->GetMode() == RLWE) {
-			s = Element(DiscreteGaussianGen, elementParams, Format::EVALUATION);
+			s = Element(DiscreteGaussianGen, elementParams, Format::COEFFICIENT);
 		}
 		else {
-			s = Element(TernaryUniformGen, elementParams, Format::EVALUATION);
+			s = Element(TernaryUniformGen, elementParams, Format::COEFFICIENT);
 		}
+		s.SwitchFormat();
 
 		//public key is generated and set
 		//privateKey->MakePublicKey(a, publicKey);
-		Element e(DiscreteGaussianGen, elementParams, Format::EVALUATION);
+		Element e(DiscreteGaussianGen, elementParams, Format::COEFFICIENT);
+		e.SwitchFormat();
 
 		Element b = a*s + p*e;
 

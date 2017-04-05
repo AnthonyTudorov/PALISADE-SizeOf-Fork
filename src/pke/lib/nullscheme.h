@@ -121,9 +121,6 @@ public:
 
 		Element plaintext(ptxt, pubKey->GetCryptoContext().GetCryptoParameters()->GetElementParams());
 
-//		Element copyPlain(pubKey->GetCryptoContext().GetCryptoParameters()->GetElementParams());
-//		copyPlain.SetValues(plaintext.GetValues(), Format::EVALUATION);
-
 		ciphertext->SetElement(plaintext);
 
 		return ciphertext;
@@ -366,7 +363,6 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 
 			const BigBinaryInteger& ptm = ciphertext1->GetCryptoParameters()->GetPlaintextModulus();
 			int	ringdim = c1.GetCyclotomicOrder() / 2;
-
 			for (int c1e = 0; c1e<ringdim; c1e++) {
 				BigBinaryInteger answer, c1val, c2val, prod;
 				c1val = c1.GetValAtIndex(c1e);
@@ -395,8 +391,6 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 				adj = cResult.GetValAtIndex(i) + (ptm - cLarger.GetValAtIndex(i)) % ptm;
 				cResult.SetValAtIndex(i, adj % ptm);
 			}
-
-			// DO NOT USE element's operator* !!!  Element cResult = c1*c2;
 
 			newCiphertext->SetElement(cResult);
 

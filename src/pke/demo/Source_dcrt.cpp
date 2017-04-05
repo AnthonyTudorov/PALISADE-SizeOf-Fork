@@ -48,9 +48,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "encoding/byteplaintextencoding.h"
 #include "encoding/intplaintextencoding.h"
 
-//#include "testJson.h"
-//#include "testJson.cpp"
-
 using namespace std;
 using namespace lbcrypto;
 
@@ -62,22 +59,184 @@ void FinalLeveledComputation();
 void ComposedEvalMultTest();
 bool canRingReduce(usint ringDimension, std::vector<BigBinaryInteger> moduli, double rootHermiteFactor);
 void FFTTest();
-/**
- * @brief Input parameters for PRE example.
- */
-struct SecureParams {
-	usint m;			///< The ring parameter.
-	string modulus;	///< The modulus
-	string rootOfUnity;	///< The rootOfUnity
-	usint relinWindow;		///< The relinearization window parameter.
+
+// Scenario 1 - 503 bits, n = 1024
+
+struct Scenario {
+	usint bits;
+	usint m;
+	string modulus;
+	string rootOfUnity;
+} Scenarios[] = {
+		{
+				503,
+				2048,
+				"13093562431584567480052758787310396608866568184172259157933165472384535185618698219533080369303616628603546736510240284036869026183541572213314110873601",
+				"12023848463855649466660377440069556144464267030949365165993725942220441412632799311989973938254823071405336623315668961501139592673000297887682895033094"
+		},
+		{
+				132,
+				8192,
+				"2722258935367507707706996859454146142209",
+				"1426115470453457649704739287701063827541"
+		},
 };
+
+shared_ptr<ILParams> GenSinglePrimeParams(int sc) {
+	return shared_ptr<ILParams>(new ILParams( Scenarios[sc].m, BigBinaryInteger(Scenarios[sc].modulus), BigBinaryInteger(Scenarios[sc].rootOfUnity)));
+}
+
+static const uint smbits = 28;
+
+shared_ptr<ILDCRTParams> GenDCRTParams(int sc) {
+	usint m = Scenarios[sc].m;
+	usint nTowers = Scenarios[sc].bits/smbits;
+
+	vector<native64::BigBinaryInteger> moduli(nTowers);
+
+	vector<native64::BigBinaryInteger> rootsOfUnity(nTowers);
+
+	native64::BigBinaryInteger q( (1<<smbits) -1 );
+	native64::BigBinaryInteger temp;
+	BigBinaryInteger modulus(1);
+
+	for(int i=0; i < nTowers; i++){
+		lbcrypto::NextQ(q, native64::BigBinaryInteger::TWO, m, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
+		moduli[i] = q;
+		rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
+		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
+
+	}
+
+	return shared_ptr<ILDCRTParams>( new ILDCRTParams(m, moduli, rootsOfUnity) );
+}
+
+void MakeTestPolynomial(int sc, ILVector2n& elem) {
+	auto gen = GeneratorContainer<BigBinaryInteger,BigBinaryVector>::GetDiscreteUniformGenerator();
+	gen.SetModulus(BigBinaryInteger(elem.GetParams()->GetModulus()));
+
+	BigBinaryVector v = gen.GenerateVector(Scenarios[sc].m/2);
+	elem.SetValues(v, Format::COEFFICIENT);
+}
+
+void CRTComposeTest() {
+	for( int i=0; i<2; i++ ) {
+		std::cout << "Case " << i << " m=" << Scenarios[i].m << " bits=" << Scenarios[i].bits << std::endl;
+		shared_ptr<ILDCRTParams> dcparm = GenDCRTParams(i);
+		shared_ptr<ILParams> tvp( new ILParams(dcparm->GetCyclotomicOrder(), dcparm->GetModulus(), BigBinaryInteger::ONE) );
+		ILVector2n tVec(tvp);
+		MakeTestPolynomial(i, tVec);
+
+		double diff, start, finish;
+
+		start = currentDateTime();
+		ILVectorArray2n testVector2(tVec, dcparm);
+		finish = currentDateTime();
+		diff = finish - start;
+		std::cout << "vector Decompose " << diff << std::endl;
+
+		start = currentDateTime();
+		testVector2.CRTInterpolate();
+		finish = currentDateTime();
+		diff = finish - start;
+		std::cout << "vector Interpolate " << diff << std::endl;
+
+	}
+}
+
+void SwitchFormatTest() {
+	for( int i=0; i<2; i++ ) {
+		std::cout << "Case " << i << " m=" << Scenarios[i].m << " bits=" << Scenarios[i].bits << std::endl;
+		shared_ptr<ILParams> spparm = GenSinglePrimeParams(i);
+		ILVector2n testVector(spparm);
+		MakeTestPolynomial(i, testVector);
+
+		double diff, start, finish;
+
+		start = currentDateTime();
+		testVector.SwitchFormat();
+		finish = currentDateTime();
+		diff = finish - start;
+		std::cout << "big int SwitchFormat " << diff << std::endl;
+
+		start = currentDateTime();
+		testVector.SwitchFormat();
+		finish = currentDateTime();
+		diff = finish - start;
+		std::cout << "big int SwitchFormat " << diff << std::endl;
+
+		shared_ptr<ILDCRTParams> dcparm = GenDCRTParams(i);
+		shared_ptr<ILParams> tvp( new ILParams(dcparm->GetCyclotomicOrder(), dcparm->GetModulus(), BigBinaryInteger::ONE) );
+		ILVector2n tVec(tvp);
+		MakeTestPolynomial(i, tVec);
+		ILVectorArray2n testVector2(tVec, dcparm);
+
+		start = currentDateTime();
+		testVector2.SwitchFormat();
+		finish = currentDateTime();
+		diff = finish - start;
+		std::cout << "vector int SwitchFormat " << diff << std::endl;
+
+		start = currentDateTime();
+		testVector2.SwitchFormat();
+		finish = currentDateTime();
+		diff = finish - start;
+		std::cout << "vector int SwitchFormat " << diff << std::endl;
+
+	}
+}
+
+void MultiplyTest() {
+	for( int i=0; i<2; i++ ) {
+		std::cout << "Case " << i << " m=" << Scenarios[i].m << " bits=" << Scenarios[i].bits << std::endl;
+		shared_ptr<ILParams> spparm = GenSinglePrimeParams(i);
+		ILVector2n testVector1(spparm);
+		ILVector2n testVector2(spparm);
+		MakeTestPolynomial(i, testVector1);
+		MakeTestPolynomial(i, testVector2);
+		testVector1.SwitchFormat();
+		testVector2.SwitchFormat();
+
+		double diff, start, finish;
+
+		start = currentDateTime();
+		ILVector2n answer = testVector1 * testVector2;
+		finish = currentDateTime();
+		diff = finish - start;
+		std::cout << "big int element multiply " << diff << std::endl;
+
+		shared_ptr<ILDCRTParams> dcparm = GenDCRTParams(i);
+		shared_ptr<ILParams> tvp( new ILParams(dcparm->GetCyclotomicOrder(), dcparm->GetModulus(), BigBinaryInteger::ONE) );
+		ILVector2n tVec1(tvp);
+		ILVector2n tVec2(tvp);
+		MakeTestPolynomial(i, tVec1);
+		MakeTestPolynomial(i, tVec2);
+		ILVectorArray2n testVector3(tVec1, dcparm);
+		ILVectorArray2n testVector4(tVec2, dcparm);
+
+		start = currentDateTime();
+		ILVectorArray2n answer2 = testVector3 * testVector4;
+		finish = currentDateTime();
+		diff = finish - start;
+		std::cout << "vector int element multiply " << diff << std::endl;
+	}
+}
+
 
 #include <iterator>
 int main() {
 
+	CRTComposeTest();
+	std::cout << "====================================================================" << std::endl;
+
+	SwitchFormatTest();
+	std::cout << "====================================================================" << std::endl;
+
+	MultiplyTest();
+	std::cout << "====================================================================" << std::endl;
+
 	NTRU_DCRT();
 
-	std::cin.get();
 	return 0;
 }
 
