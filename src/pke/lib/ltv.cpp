@@ -138,7 +138,9 @@ LPKeyPair<Element> LPAlgorithmLTV<Element>::KeyGen(const CryptoContext<Element> 
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
-	Element f(DiscreteGaussianGen, elementParams, Format::COEFFICIENT);
+	const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
+
+	Element f(dgg, elementParams, Format::COEFFICIENT);
 
 	f = p*f;
 
@@ -152,7 +154,7 @@ LPKeyPair<Element> LPAlgorithmLTV<Element>::KeyGen(const CryptoContext<Element> 
 	//check if inverse does not exist
 	while (!f.InverseExists())
 	{
-		Element temp(DiscreteGaussianGen, elementParams, Format::COEFFICIENT);
+		Element temp(dgg, elementParams, Format::COEFFICIENT);
 		f = temp;
 		f = p*f;
 		f = f + BigBinaryInteger::ONE;
@@ -163,7 +165,7 @@ LPKeyPair<Element> LPAlgorithmLTV<Element>::KeyGen(const CryptoContext<Element> 
 
 	kp.secretKey->SetPrivateElement(f);
 
-	Element g(DiscreteGaussianGen, elementParams, Format::COEFFICIENT);
+	Element g(dgg, elementParams, Format::COEFFICIENT);
 
 	g.SwitchFormat();
 
@@ -185,11 +187,13 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmLTV<Element>::Encrypt(const shared_pt
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
+	const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
+
 	const Element &h = publicKey->GetPublicElements().at(0);
 
-	Element s(DiscreteGaussianGen, elementParams);
+	Element s(dgg, elementParams);
 
-	Element e(DiscreteGaussianGen, elementParams);
+	Element e(dgg, elementParams);
 
 	Element c(elementParams);
 
@@ -355,7 +359,9 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmSHELTV<Element>::KeySwitchGen(
 	const Element& f2 = newPrivateKey->GetPrivateElement();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
-	Element e(DiscreteGaussianGen, cryptoParams->GetElementParams(), Format::COEFFICIENT);
+	const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
+
+	Element e(dgg, cryptoParams->GetElementParams(), Format::COEFFICIENT);
 
 	e.SwitchFormat();
 
@@ -438,10 +444,12 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmSHELTV<Element>::KeySwitchRelinGen(con
 
 	std::vector<Element> evalKeyElements(f.PowersOfBase(relinWindow));
 
+	const typename Element::DggType &dgg = cryptoParamsLWE->GetDiscreteGaussianGenerator();
+
 	for (usint i = 0; i < evalKeyElements.size(); ++i)
 	{
-		Element s(DiscreteGaussianGen, elementParams, Format::EVALUATION);
-		Element e(DiscreteGaussianGen, elementParams, Format::EVALUATION);
+		Element s(dgg, elementParams, Format::EVALUATION);
+		Element e(dgg, elementParams, Format::EVALUATION);
 
 		evalKeyElements.at(i) += hn*s + p*e;
 	}

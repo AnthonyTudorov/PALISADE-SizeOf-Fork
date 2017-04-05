@@ -227,10 +227,12 @@ LPKeyPair<Element> LPAlgorithmFV<Element>::KeyGen(const CryptoContext<Element> c
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
-	GeneratorContainer<BigBinaryInteger,BigBinaryVector>::GetDiscreteUniformGenerator().SetModulus(elementParams->GetModulus());
+	const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
+	typename Element::DugType dug;
+	typename Element::TugType tug;
 
 	//Generate the element "a" of the public key
-	Element a(DiscreteUniformGen, elementParams, Format::EVALUATION);
+	Element a(dug, elementParams, Format::EVALUATION);
 
 	//Generate the secret key
 	Element s;
@@ -238,18 +240,18 @@ LPKeyPair<Element> LPAlgorithmFV<Element>::KeyGen(const CryptoContext<Element> c
 	//Done in two steps not to use a random polynomial from a pre-computed pool
 	//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
 	if (cryptoParams->GetMode() == RLWE) {
-		s = Element(DiscreteGaussianGen, elementParams, Format::COEFFICIENT);
+		s = Element(dgg, elementParams, Format::COEFFICIENT);
 		s.SwitchFormat();
 	}
 	else {
-		s = Element(TernaryUniformGen, elementParams, Format::COEFFICIENT);
+		s = Element(tug, elementParams, Format::COEFFICIENT);
 		s.SwitchFormat();
 	}
 
 	kp.secretKey->SetPrivateElement(s);
 
 	//Done in two steps not to use a discrete Gaussian polynomial from a pre-computed pool
-	Element e(DiscreteGaussianGen, elementParams, Format::COEFFICIENT);
+	Element e(dgg, elementParams, Format::COEFFICIENT);
 	e.SwitchFormat();
 
 	Element b(elementParams, Format::EVALUATION, true);
@@ -274,6 +276,9 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 	const BigBinaryInteger &delta = cryptoParams->GetDelta();
 
+	const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
+	typename Element::TugType tug;
+
 	const Element &p0 = publicKey->GetPublicElements().at(0);
 	const Element &p1 = publicKey->GetPublicElements().at(1);
 
@@ -281,12 +286,12 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr
 
 	//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
 	if (cryptoParams->GetMode()==RLWE)
-		u = Element(DiscreteGaussianGen, elementParams, Format::EVALUATION);
+		u = Element(dgg, elementParams, Format::EVALUATION);
 	else
-		u = Element(TernaryUniformGen, elementParams, Format::EVALUATION);
+		u = Element(tug, elementParams, Format::EVALUATION);
 
-	Element e1(DiscreteGaussianGen, elementParams, Format::EVALUATION);
-	Element e2(DiscreteGaussianGen, elementParams, Format::EVALUATION);
+	Element e1(dgg, elementParams, Format::EVALUATION);
+	Element e2(dgg, elementParams, Format::EVALUATION);
 
 	Element c0(elementParams);
 	Element c1(elementParams);
@@ -524,7 +529,8 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmSHEFV<Element>::KeySwitchGen(const sha
 	const BigBinaryInteger &p = cryptoParamsLWE->GetPlaintextModulus();
 	const Element &s = newPrivateKey->GetPrivateElement();
 
-	GeneratorContainer<BigBinaryInteger,BigBinaryVector>::GetDiscreteUniformGenerator().SetModulus(elementParams->GetModulus());
+	const typename Element::DggType &dgg = cryptoParamsLWE->GetDiscreteGaussianGenerator();
+	typename Element::DugType dug;
 
 	usint relinWindow = cryptoParamsLWE->GetRelinWindow();
 
@@ -534,11 +540,11 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmSHEFV<Element>::KeySwitchGen(const sha
 	for (usint i = 0; i < (evalKeyElements.size()); i++)
 	{
 		// Generate a_i vectors
-		Element a(DiscreteUniformGen, elementParams, Format::EVALUATION);
+		Element a(dug, elementParams, Format::EVALUATION);
 		evalKeyElementsGenerated.push_back(a);
 
 		// Generate a_i * s + e - PowerOfBase(s^2)
-		Element e(DiscreteGaussianGen, elementParams, Format::EVALUATION);
+		Element e(dgg, elementParams, Format::EVALUATION);
 		evalKeyElements.at(i) -= (a*s + e);
 	}
 

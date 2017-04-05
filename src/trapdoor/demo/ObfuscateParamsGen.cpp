@@ -105,8 +105,7 @@ void RunParamsGen() {
 	double diff, start, finish;
 
 
-	//DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(modulus, stdDev);			// Create the noise generator
-	DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(stdDev); // Create the noise generator
+	ILVector2n::DggType dgg(stdDev); // Create the noise generator
 
 	start = currentDateTime();
 

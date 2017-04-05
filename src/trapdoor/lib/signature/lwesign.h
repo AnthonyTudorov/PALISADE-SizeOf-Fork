@@ -141,7 +141,7 @@ namespace lbcrypto {
 			size_t k = (usint)floor(logTwo);
 			double c = 2 * SIGMA;
 			double s = SPECTRAL_BOUND(n, k);
-			dggLargeSigma = DiscreteGaussianGenerator(sqrt(s * s - c * c));
+			dggLargeSigma = ILVector2n::DggType(sqrt(s * s - c * c));
 		};
 
 		/**
@@ -156,14 +156,14 @@ namespace lbcrypto {
 		*
 		*@return DiscreteGaussianGenerator object held
 		*/
-		DiscreteGaussianGenerator & GetDiscreteGaussianGenerator() { return dgg; }
+		ILVector2n::DggType & GetDiscreteGaussianGenerator() { return dgg; }
 
 		/**
 		*Method for accessing the DiscreteGaussianGenerator object held in this class
 		*
 		*@return DiscreteGaussianGenerator object held
 		*/
-		DiscreteGaussianGenerator & GetDiscreteGaussianGeneratorLargeSigma() { return dggLargeSigma; }
+		ILVector2n::DggType & GetDiscreteGaussianGeneratorLargeSigma() { return dggLargeSigma; }
 
 		/**
 		*Default constructor
@@ -174,7 +174,7 @@ namespace lbcrypto {
 		*@param params Parameters used in ILVector construction
 		*@param dgg DiscreteGaussianGenerator used in sampling
 		*/
-		LPSignatureParameters(shared_ptr<ILParams> params, DiscreteGaussianGenerator dgg) : dgg(dgg) {
+		LPSignatureParameters(shared_ptr<ILParams> params, ILVector2n::DggType dgg) : dgg(dgg) {
 			m_params = params;
 			const BigBinaryInteger & q = params->GetModulus();
 			size_t n = params->GetCyclotomicOrder() / 2;
@@ -182,14 +182,14 @@ namespace lbcrypto {
 			size_t k = (usint)floor(logTwo);
 			double c = 2 * SIGMA;
 			double s = SPECTRAL_BOUND(n, k);
-			dggLargeSigma = DiscreteGaussianGenerator(sqrt(s * s - c * c));
+			dggLargeSigma = ILVector2n::DggType(sqrt(s * s - c * c));
 		}
 
 
 	private:
 		shared_ptr<ILParams> m_params;
-		DiscreteGaussianGenerator dgg;
-		DiscreteGaussianGenerator dggLargeSigma;
+		ILVector2n::DggType dgg;
+		ILVector2n::DggType dggLargeSigma;
 	};
 
 	/**

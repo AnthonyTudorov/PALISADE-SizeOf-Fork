@@ -425,9 +425,9 @@ void clone_operations() {
 	}
 
 	{
-		//    float stdDev = 4;
-		//    DiscreteGaussianGeneratorImpl<IntType,VecType> dgg(stdDev);
-		Element ilvClone = ilv.CloneWithNoise(DiscreteGaussianGen, ilv.GetFormat());
+		float stdDev = 4;
+		DiscreteGaussianGeneratorImpl<IntType,VecType> dgg(stdDev);
+		Element ilvClone = ilv.CloneWithNoise(dgg, ilv.GetFormat());
 
 		EXPECT_EQ(ilv.GetCyclotomicOrder(), ilvClone.GetCyclotomicOrder());
 		EXPECT_EQ(ilv.GetModulus(), ilvClone.GetModulus());
@@ -560,9 +560,10 @@ void other_methods() {
 	IntType primitiveRootOfUnity("22");
 
 	float stdDev = 4.0;
-	DiscreteGaussianGeneratorImpl<IntType,VecType> dgg(stdDev);
-	BinaryUniformGeneratorImpl<IntType,VecType> bug;
-	DiscreteUniformGeneratorImpl<IntType,VecType> dug(primeModulus);
+	typename Element::DggType dgg(stdDev);
+	typename Element::BugType bug;
+	typename Element::DugType dug;
+	dug.SetModulus(primeModulus);
 
 	shared_ptr<ParmType> ilparams( new ParmType(m, primeModulus, primitiveRootOfUnity) );
 
@@ -904,8 +905,8 @@ TEST(UTILVectorArray2n, constructors_test) {
 	ilvector2nVector.push_back(ilv2);
 
 	DEBUG("1");
-	//  float stdDev = 4.0;
-	//  DiscreteGaussianGeneratorImpl<native64::BigBinaryInteger,VecType> dgg(stdDev);
+	float stdDev = 4.0;
+	DiscreteGaussianGeneratorImpl<native64::BigBinaryInteger,native64::BigBinaryVector> dgg(stdDev);
 
 	{
 		ILVectorArray2n ilva(ildcrtparams);
@@ -998,7 +999,7 @@ TEST(UTILVectorArray2n, constructors_test) {
 	DEBUG("5");
 	{
 		DEBUG("ild mod " << ildcrtparams->GetModulus());
-		ILVectorArray2n ilva(DiscreteGaussianGen, ildcrtparams);
+		ILVectorArray2n ilva(dgg, ildcrtparams);
 
 		EXPECT_EQ(Format::EVALUATION, ilva.GetFormat());
 		EXPECT_EQ(modulus, ilva.GetModulus());
@@ -1511,11 +1512,11 @@ TEST(UTILVectorArray2n, decompose_test) {
 		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
 	}
 
-	//  float stdDev = 4;
-	//  DiscreteGaussianGeneratorImpl<native64::BigBinaryInteger,native64::BigBinaryVector> dgg(stdDev);
+	float stdDev = 4;
+	DiscreteGaussianGeneratorImpl<native64::BigBinaryInteger,native64::BigBinaryVector> dgg(stdDev);
 
 	shared_ptr<ILDCRTParams> params( new ILDCRTParams(order, moduli, rootsOfUnity) );
-	ILVectorArray2n ilVectorArray2n(DiscreteGaussianGen, params, Format::COEFFICIENT);
+	ILVectorArray2n ilVectorArray2n(dgg, params, Format::COEFFICIENT);
 
 	ILVectorArray2n ilvectorarray2nOriginal(ilVectorArray2n);
 	ilVectorArray2n.Decompose();
@@ -1546,12 +1547,13 @@ void ensures_mod_operation_during_operations_on_two_ILVector2ns() {
 
 	shared_ptr<ParmType> ilparams( new ParmType(order, primeModulus, primitiveRootOfUnity) );
 
-	GeneratorContainer<IntType,VecType>::GetDiscreteUniformGenerator().SetModulus(primeModulus);
+	typename Element::DugType distrUniGen = typename Element::DugType();
+	distrUniGen.SetModulus(primeModulus);
 
-	Element ilv1(DiscreteUniformGen, ilparams);
+	Element ilv1(distrUniGen, ilparams);
 	VecType bbv1 (ilv1.GetValues());
 
-	Element ilv2(DiscreteUniformGen, ilparams);
+	Element ilv2(distrUniGen, ilparams);
 	VecType bbv2(ilv2.GetValues());
 
 	{
@@ -1609,7 +1611,8 @@ TEST(UTILVectorArray2n, ensures_mod_operation_during_operations_on_two_ILVectorA
 		shared_ptr<native64::ILParams> ilparamsi( new native64::ILParams(order, moduli[i], rootsOfUnity[i]) );
 		ilparams.push_back(ilparamsi);
 
-		auto distrUniGeni = lbcrypto::DiscreteUniformGeneratorImpl<native64::BigBinaryInteger,native64::BigBinaryVector>(moduli[i]);
+		auto distrUniGeni = ILVectorArray2n::DugType();
+		distrUniGeni.SetModulus(moduli[i]);
 
 		native64::ILVector2n ilv1(distrUniGeni, ilparamsi);
 		ilvector2n1[i] = ilv1;

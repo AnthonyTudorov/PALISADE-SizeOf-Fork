@@ -57,7 +57,7 @@ public:
 		m_assuranceMeasure = 0.0f;
 		m_securityLevel = 0.0f;
 		m_relinWindow = 1;
-		SetDistributionParameter(m_distributionParameter);
+		m_dgg.SetStd(m_distributionParameter);
 		m_depth = 0;
 	}
 
@@ -70,7 +70,7 @@ public:
 		m_assuranceMeasure = rhs.m_assuranceMeasure;
 		m_securityLevel = rhs.m_securityLevel;
 		m_relinWindow = rhs.m_relinWindow;
-		SetDistributionParameter(m_distributionParameter);
+		m_dgg.SetStd(m_distributionParameter);
 		m_depth = rhs.m_depth;
 	}
 
@@ -98,9 +98,8 @@ public:
 		m_assuranceMeasure = assuranceMeasure;
 		m_securityLevel = securityLevel;
 		m_relinWindow = relinWindow;
-		SetDistributionParameter(m_distributionParameter);
+		m_dgg.SetStd(m_distributionParameter);
 		m_depth = depth;
-		GeneratorContainer<BigBinaryInteger,BigBinaryVector>::GetDiscreteUniformGenerator().SetModulus(params->GetModulus());
 					}
 
 	/**
@@ -143,6 +142,13 @@ public:
 	 */
 	int GetDepth() const {return m_depth;}
 
+	/**
+	 * Returns reference to Discrete Gaussian Generator
+	 *
+	 * @return reference to Discrete Gaussian Generaror.
+	 */
+	const typename Element::DggType &GetDiscreteGaussianGenerator() const { return m_dgg; }
+
 	//@Set Properties
 
 	/**
@@ -151,7 +157,7 @@ public:
 	 */
 	void SetDistributionParameter(float distributionParameter) {
 		m_distributionParameter = distributionParameter;
-		GeneratorContainer<BigBinaryInteger,BigBinaryVector>::GetDiscreteGaussianGenerator().SetStd(m_distributionParameter);
+		m_dgg.SetStd(m_distributionParameter);
 	}
 
 	/**
@@ -219,6 +225,8 @@ protected:
 	usint m_relinWindow;
 	//depth of computations; used for FHE
 	int m_depth;
+
+	typename Element::DggType m_dgg;
 
 	bool SerializeRLWE(Serialized* serObj, SerialItem& cryptoParamsMap) const {
 

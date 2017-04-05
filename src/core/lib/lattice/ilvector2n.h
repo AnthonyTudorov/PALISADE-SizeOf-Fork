@@ -43,13 +43,13 @@ using std::shared_ptr;
 #include "../math/backend.h"
 #include "../utils/inttypes.h"
 #include "../utils/memory.h"
-#include "../math/distrgen.h"
 #include "../lattice/elemparams.h"
 #include "../lattice/ilparams.h"
 #include "../lattice/ildcrtparams.h"
 #include "../lattice/ilelement.h"
 #include "../math/nbtheory.h"
 #include "../math/transfrm.h"
+#include "../math/distrgen.h"
 
 namespace lbcrypto {
 
@@ -67,6 +67,10 @@ public:
 	typedef IntType Integer;
 	typedef VecType Vector;
 	typedef ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorType;
+	typedef DiscreteGaussianGeneratorImpl<IntType,VecType> DggType;
+	typedef DiscreteUniformGeneratorImpl<IntType,VecType> DugType;
+	typedef TernaryUniformGeneratorImpl<IntType,VecType> TugType;
+	typedef BinaryUniformGeneratorImpl<IntType,VecType> BugType;
 
 	/**
 	 * Default constructor
@@ -91,8 +95,6 @@ public:
 	 */
 	ILVectorImpl(bool initializeElementToMax, const shared_ptr<ParmType> params, Format format);
 
-	ILVectorImpl(DistributionGeneratorType gtype, const shared_ptr<ParmType> params, Format format = EVALUATION);
-
 	/**
 	 * Construct with a vector from a given generator
 	 *
@@ -100,7 +102,7 @@ public:
 	 * @param &params the input params.
 	 * @param format - EVALUATION or COEFFICIENT
 	 */
-	ILVectorImpl(const DiscreteGaussianGeneratorImpl<IntType,VecType> &dgg, const shared_ptr<ParmType> params, Format format = EVALUATION);
+	ILVectorImpl(const DggType &dgg, const shared_ptr<ParmType> params, Format format = EVALUATION);
 
 	/**
 	 * Construct with a vector from a given generator
@@ -109,7 +111,7 @@ public:
 	 * @param &params the input params.
 	 * @param format - EVALUATION or COEFFICIENT
 	 */
-	ILVectorImpl(const BinaryUniformGeneratorImpl<IntType,VecType> &bug, const shared_ptr<ParmType> params, Format format = EVALUATION);
+	ILVectorImpl(const BugType &bug, const shared_ptr<ParmType> params, Format format = EVALUATION);
 
 	/**
 	 * Construct with a vector from a given generator
@@ -118,7 +120,7 @@ public:
 	 * @param &params the input params.
 	 * @param format - EVALUATION or COEFFICIENT
 	 */
-	ILVectorImpl(const TernaryUniformGeneratorImpl<IntType,VecType> &tug, const shared_ptr<ParmType> params, Format format = EVALUATION);
+	ILVectorImpl(const TugType &tug, const shared_ptr<ParmType> params, Format format = EVALUATION);
 
 	/**
 	 * Construct with a vector from a given generator
@@ -127,7 +129,7 @@ public:
 	 * @param &params the input params.
 	 * @param format - EVALUATION or COEFFICIENT
 	 */
-	ILVectorImpl(const DiscreteUniformGeneratorImpl<IntType,VecType> &dug, const shared_ptr<ParmType> params, Format format = EVALUATION);
+	ILVectorImpl(DugType &dug, const shared_ptr<ParmType> params, Format format = EVALUATION);
 
 	/**
 	 *  Create lambda that allocates a zeroed element for the case when it is called from a templated class
@@ -164,7 +166,8 @@ public:
 	 */
 	inline static function<unique_ptr<ILVectorType>()> MakeDiscreteUniformAllocator(shared_ptr<ParmType> params, Format format) {
 		return [=]() {
-			DiscreteUniformGeneratorImpl<IntType,VecType> dug(params->GetModulus());
+			DiscreteUniformGeneratorImpl<IntType,VecType> dug;
+			dug.SetModulus(params->GetModulus());
 			return lbcrypto::make_unique<ILVectorType>(dug, params, format);
 		};
 	}

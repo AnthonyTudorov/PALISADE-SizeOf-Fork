@@ -112,10 +112,10 @@ shared_ptr<ILDCRTParams> GenDCRTParams(int sc) {
 }
 
 void MakeTestPolynomial(int sc, ILVector2n& elem) {
-	auto gen = GeneratorContainer<BigBinaryInteger,BigBinaryVector>::GetDiscreteUniformGenerator();
-	gen.SetModulus(BigBinaryInteger(elem.GetParams()->GetModulus()));
+	ILVector2n::DugType dug;
+	dug.SetModulus(BigBinaryInteger(elem.GetParams()->GetModulus()));
 
-	BigBinaryVector v = gen.GenerateVector(Scenarios[sc].m/2);
+	BigBinaryVector v = dug.GenerateVector(Scenarios[sc].m/2);
 	elem.SetValues(v, Format::COEFFICIENT);
 }
 
@@ -186,6 +186,71 @@ void SwitchFormatTest() {
 	}
 }
 
+// Going to use the BV scheme for these
+void EvalMultTest() {
+	for( int i=0; i<2; i++ ) {
+		std::cout << "Case " << i << " m=" << Scenarios[i].m << " bits=" << Scenarios[i].bits << std::endl;
+		shared_ptr<ILParams> spparm = GenSinglePrimeParams(i);
+		LPCryptoParametersBV<ILVector2n> *cp = new LPCryptoParametersBV<ILVector2n>(
+				spparm,
+				BigBinaryInteger(1<<32 - 1),
+				4.0,
+				0.0,
+				0.0,
+				16, RLWE, 1);
+		CryptoContext<ILVector2n> cc1 = CryptoContextFactory<ILVector2n>::genCryptoContextBV(cp, RLWE);
+		cc1.Enable(ENCRYPTION);
+		cc1.Enable(SHE);
+
+		ILVector2n testVector1(spparm);
+		ILVector2n testVector2(spparm);
+		MakeTestPolynomial(i, testVector1);
+		MakeTestPolynomial(i, testVector2);
+
+		LPKeyPair<ILVector2n> kp1 = cc1.KeyGen();
+		cc1.EvalMultKeyGen(kp1.secretKey);
+		shared_ptr<Ciphertext<ILVector2n>> ciphertext1 = cc1.GetEncryptionAlgorithm()->Encrypt(kp1.publicKey, testVector1);
+		shared_ptr<Ciphertext<ILVector2n>> ciphertext2 = cc1.GetEncryptionAlgorithm()->Encrypt(kp1.publicKey, testVector2);
+
+		double diff, start, finish;
+
+		start = currentDateTime();
+		shared_ptr<Ciphertext<ILVector2n>> ciphertext12 = cc1.EvalMult(ciphertext1,ciphertext2);
+		finish = currentDateTime();
+		diff = finish - start;
+		std::cout << "big int element EvalMult " << diff << std::endl;
+
+		shared_ptr<ILDCRTParams> dcparm = GenDCRTParams(i);
+		shared_ptr<ILParams> tvp( new ILParams(dcparm->GetCyclotomicOrder(), dcparm->GetModulus(), BigBinaryInteger::ONE) );
+		LPCryptoParametersBV<ILVectorArray2n> *cp2 = new LPCryptoParametersBV<ILVectorArray2n>(
+				dcparm,
+				BigBinaryInteger(1<<32 - 1),
+				4.0,
+				0.0,
+				0.0,
+				16, RLWE, 1);
+		CryptoContext<ILVectorArray2n> cc2 = CryptoContextFactory<ILVectorArray2n>::genCryptoContextBV(cp2, RLWE);
+		cc2.Enable(ENCRYPTION);
+		cc2.Enable(SHE);
+
+		ILVector2n tVec1(tvp);
+		ILVector2n tVec2(tvp);
+		MakeTestPolynomial(i, tVec1);
+		MakeTestPolynomial(i, tVec2);
+
+		LPKeyPair<ILVectorArray2n> kp2 = cc2.KeyGen();
+		cc2.EvalMultKeyGen(kp2.secretKey);
+		shared_ptr<Ciphertext<ILVectorArray2n>> ciphertext3 = cc2.GetEncryptionAlgorithm()->Encrypt(kp2.publicKey, tVec1);
+		shared_ptr<Ciphertext<ILVectorArray2n>> ciphertext4 = cc2.GetEncryptionAlgorithm()->Encrypt(kp2.publicKey, tVec2);
+
+		start = currentDateTime();
+		shared_ptr<Ciphertext<ILVectorArray2n>> ciphertext34 = cc2.EvalMult(ciphertext3,ciphertext4);
+		finish = currentDateTime();
+		diff = finish - start;
+		std::cout << "vector int element EvalMult " << diff << std::endl;
+	}
+}
+
 void MultiplyTest() {
 	for( int i=0; i<2; i++ ) {
 		std::cout << "Case " << i << " m=" << Scenarios[i].m << " bits=" << Scenarios[i].bits << std::endl;
@@ -233,6 +298,9 @@ int main() {
 	std::cout << "====================================================================" << std::endl;
 
 	MultiplyTest();
+	std::cout << "====================================================================" << std::endl;
+
+	EvalMultTest();
 	std::cout << "====================================================================" << std::endl;
 
 	NTRU_DCRT();

@@ -227,8 +227,9 @@ TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
     auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
 	double sigma = SIGMA;
 
-	DiscreteGaussianGenerator dgg(sigma);
-	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
+	ILVector2n::DggType dgg(sigma);
+	ILVector2n::DugType dug = ILVector2n::DugType();
+	dug.SetModulus(modulus);
 
 	ILVector2n u(dug,params,COEFFICIENT);
 
@@ -279,12 +280,13 @@ TEST(UTTrapdoor, TrapDoorGaussSampTest) {
 	RingMat rHat = trapPair.second.m_r;
 	//auto uniform_alloc = ILVector2n::MakeDiscreteUniformAllocator(params, EVALUATION);
 
-	DiscreteGaussianGenerator dgg(sigma);
-	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
+	ILVector2n::DggType dgg(sigma);
+	ILVector2n::DugType dug = ILVector2n::DugType();
+	dug.SetModulus(modulus);
 
 	double c = 2 * SIGMA;
 	double s = SPECTRAL_BOUND(n, k);
-	DiscreteGaussianGenerator dggLargeSigma(sqrt(s * s - c * c));
+	ILVector2n::DggType dggLargeSigma(sqrt(s * s - c * c));
 
 	ILVector2n u(dug, params, COEFFICIENT);
 	u.SwitchFormat();
@@ -360,10 +362,11 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 	RingMat eHat = trapPair.second.m_e;
 	RingMat rHat = trapPair.second.m_r;
 
-	DiscreteGaussianGenerator dgg(sigma);
-	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
+	ILVector2n::DggType dgg(sigma);
+	ILVector2n::DugType dug = ILVector2n::DugType();
+	dug.SetModulus(modulus);
 
-	DiscreteGaussianGenerator dggLargeSigma(sqrt(s * s - c * c));
+	ILVector2n::DggType dggLargeSigma(sqrt(s * s - c * c));
 
 	auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
 

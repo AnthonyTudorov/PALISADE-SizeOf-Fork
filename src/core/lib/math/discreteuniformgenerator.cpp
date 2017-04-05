@@ -10,10 +10,10 @@ template<typename IntType, typename VecType>
 std::uniform_int_distribution<uint32_t> DiscreteUniformGeneratorImpl<IntType, VecType>::m_distribution = std::uniform_int_distribution<uint32_t>(CHUNK_MIN, CHUNK_MAX);
 
 template<typename IntType, typename VecType>
-DiscreteUniformGeneratorImpl<IntType,VecType>::DiscreteUniformGeneratorImpl (const IntType & modulus)
+DiscreteUniformGeneratorImpl<IntType,VecType>::DiscreteUniformGeneratorImpl ()
 	: DistributionGenerator<IntType,VecType>() {
 
-	SetModulus(modulus);
+	SetModulus(IntType::ZERO);
 }
 
 template<typename IntType, typename VecType>
@@ -90,7 +90,7 @@ IntType DiscreteUniformGeneratorImpl<IntType,VecType>::GenerateInteger () const 
 }
 
 template<typename IntType, typename VecType>
-VecType DiscreteUniformGeneratorImpl<IntType,VecType>::GenerateVector(const usint size, const IntType &) const {
+VecType DiscreteUniformGeneratorImpl<IntType,VecType>::GenerateVector(const usint size) const {
 
 	VecType v(size,m_modulus);
 

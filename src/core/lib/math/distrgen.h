@@ -1,7 +1,7 @@
 /**
  * @file
  * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
- *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>, Nishanth Pasham, np386@njit.edu
+ *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>
  * @version 00_04
  *
  * @section LICENSE
@@ -34,7 +34,7 @@
 #ifndef LBCRYPTO_MATH_DISTRGEN_H_
 #define LBCRYPTO_MATH_DISTRGEN_H_
 
-#define _USE_MATH_DEFINES 
+#define _USE_MATH_DEFINES
 #include <cmath>
 #include <random>
 #include <bitset>
@@ -44,31 +44,5 @@
 #include "discreteuniformgenerator.h"
 #include "binaryuniformgenerator.h"
 #include "ternaryuniformgenerator.h"
-
-namespace lbcrypto {
-
-enum DistributionGeneratorType {
-	BinaryUniformGen,
-	DiscreteGaussianGen,
-	DiscreteUniformGen,
-	TernaryUniformGen
-};
-
-template<typename IntType, typename VecType>
-class GeneratorContainer {
-private:
-	static BinaryUniformGeneratorImpl<IntType,VecType>		bug;
-	static DiscreteGaussianGeneratorImpl<IntType,VecType>	dgg;
-	static DiscreteUniformGeneratorImpl<IntType,VecType>	dug;
-	static TernaryUniformGeneratorImpl<IntType,VecType>		tug;
-
-public:
-	static BinaryUniformGeneratorImpl<IntType,VecType>& GetBinaryUniformGenerator() { return bug; }
-	static DiscreteGaussianGeneratorImpl<IntType,VecType>& GetDiscreteGaussianGenerator() { return dgg; }
-	static DiscreteUniformGeneratorImpl<IntType,VecType>& GetDiscreteUniformGenerator() { return dug; }
-	static TernaryUniformGeneratorImpl<IntType,VecType>& GetTernaryUniformGenerator() { return tug; }
-};
-
-}
 
 #endif // LBCRYPTO_MATH_DISTRGEN_H_

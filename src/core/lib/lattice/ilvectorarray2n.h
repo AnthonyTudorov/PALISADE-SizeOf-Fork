@@ -58,7 +58,6 @@
 
 #include "../math/backend.h"
 #include "../utils/inttypes.h"
-#include "../math/distrgen.h"
 #include "../lattice/elemparams.h"
 #include "../lattice/ilparams.h"
 #include "../lattice/ildcrtparams.h"
@@ -66,6 +65,7 @@
 #include "../lattice/ilvector2n.h"
 #include "../math/nbtheory.h"
 #include "../math/transfrm.h"
+#include "../math/distrgen.h"
 
 namespace lbcrypto {
 
@@ -83,6 +83,10 @@ namespace lbcrypto {
 		typedef VecType Vector;
 
 		typedef ILVectorArrayImpl<ModType,IntType,VecType,ParmType> ILVectorArrayType;
+		typedef DiscreteGaussianGeneratorImpl<native64::BigBinaryInteger,native64::BigBinaryVector> DggType;
+		typedef DiscreteUniformGeneratorImpl<native64::BigBinaryInteger,native64::BigBinaryVector> DugType;
+		typedef TernaryUniformGeneratorImpl<native64::BigBinaryInteger,native64::BigBinaryVector> TugType;
+		typedef BinaryUniformGeneratorImpl<native64::BigBinaryInteger,native64::BigBinaryVector> BugType;
 
 		// this class contains an array of these:
 		typedef ILVectorImpl<native64::BigBinaryInteger,native64::BigBinaryInteger,native64::BigBinaryVector,native64::ILParams> ILVectorType;
@@ -104,8 +108,6 @@ namespace lbcrypto {
 		*/
 		ILVectorArrayImpl(const shared_ptr<ParmType> params, Format format = EVALUATION, bool initializeElementToZero = false);
 
-		ILVectorArrayImpl(DistributionGeneratorType gtype, const shared_ptr<ParmType> params, Format format = EVALUATION);
-
 		// FIXME should be private?
 		void fillVectorArrayFromBigVector(const ILVector2n& element, const shared_ptr<ParmType> params);
 
@@ -116,7 +118,7 @@ namespace lbcrypto {
 		* @param params parameter set required for ILVectorArray2n. 
 		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
-		ILVectorArrayImpl(const DiscreteGaussianGeneratorImpl<IntType,VecType> &dgg, const shared_ptr<ParmType> params, Format format = EVALUATION);
+		ILVectorArrayImpl(const DggType &dgg, const shared_ptr<ParmType> params, Format format = EVALUATION);
 
 		/**
 		* Constructor based on binary Gaussian generator. This is not implemented. Will throw a logic_error.
@@ -125,7 +127,7 @@ namespace lbcrypto {
 		* @param params parameter set required for ILVectorArray2n.
 		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
-		ILVectorArrayImpl(const BinaryUniformGeneratorImpl<IntType,VecType> &bug, const shared_ptr<ParmType> params, Format format = EVALUATION) {
+		ILVectorArrayImpl(const BugType &bug, const shared_ptr<ParmType> params, Format format = EVALUATION) {
 			throw std::logic_error("Cannot use BinaryUniformGenerator with ILVectorArray2n; not implemented");
 		}
 
@@ -136,7 +138,7 @@ namespace lbcrypto {
 		* @param params parameter set required for ILVectorArray2n.
 		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
-		ILVectorArrayImpl(const TernaryUniformGeneratorImpl<IntType,VecType> &tug, const shared_ptr<ParmType> params, Format format = EVALUATION) {
+		ILVectorArrayImpl(const TugType &tug, const shared_ptr<ParmType> params, Format format = EVALUATION) {
 			throw std::logic_error("Cannot use TernaryUniformGenerator with ILVectorArray2n; not implemented");
 		}
 
@@ -147,7 +149,7 @@ namespace lbcrypto {
 		* @param params the input params.
 		* @param &format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
-		ILVectorArrayImpl(DiscreteUniformGeneratorImpl<IntType,VecType> &dug, const shared_ptr<ParmType> params, Format format = EVALUATION);
+		ILVectorArrayImpl(DugType &dug, const shared_ptr<ParmType> params, Format format = EVALUATION);
 
 		/**
 		* Construct using a single ILVector2n. The ILVector2n is copied into every tower. Each tower will be reduced to it's corresponding modulus  via GetModuli(at tower index). The format is derived from the passed in ILVector2n. 

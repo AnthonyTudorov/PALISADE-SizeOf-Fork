@@ -53,9 +53,8 @@ class DiscreteUniformGeneratorImpl : public DistributionGenerator<IntType,VecTyp
 public:
 	/**
 	* @brief         Constructs a new DiscreteUniformGenerator with the given modulus.
-	* @param modulus The modulus to be used when generating discrete values.
 	*/
-	DiscreteUniformGeneratorImpl (const IntType & modulus = IntType::ZERO);
+	DiscreteUniformGeneratorImpl ();
 
 	/**
 	* @brief         Sets the modulus. Overrides parent function
@@ -72,7 +71,7 @@ public:
 	/**
 	* @brief Generates a vector of random integers using GenerateInteger()
 	*/
-	VecType GenerateVector (const usint size, const IntType &m = IntType::ZERO) const;
+	VecType GenerateVector (const usint size) const;
 
 private:
 	// discrete uniform generator relies on the built-in C++ generator for 32-bit unsigned integers
