@@ -770,9 +770,16 @@ typedef ILVectorImpl<BigBinaryInteger, BigBinaryInteger, BigBinaryVector, ILPara
 
 namespace lbcrypto {
 
-inline ILVector2n VectorConvert(const ILVector2n& v) { return v; }
+//template<typename Vec> ILVector2n VectorConvert<Vec>(const Vec& v);
+//
+//template<>
+//inline ILVector2n VectorConvert<ILVector2n>(const ILVector2n& v) { return v; }
 
-inline ILVector2n VectorConvert(const native64::ILVector2n& v) {
+template<typename Vec>
+inline ILVector2n VectorConvert(const Vec& v) {
+//	if( typeid(Vec) == typeid(ILVector2n) )
+//		return v;
+
 	ILVector2n newvec( shared_ptr<ILParams>(new ILParams(v.GetCyclotomicOrder(),
 							BigBinaryInteger(v.GetModulus().ConvertToInt()),
 							BigBinaryInteger(v.GetRootOfUnity().ConvertToInt()))),
@@ -786,7 +793,7 @@ inline ILVector2n VectorConvert(const native64::ILVector2n& v) {
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-inline ILVector2n ILVectorImpl<ModType,IntType,VecType,ParmType>::CRTInterpolate() const { return VectorConvert(*this); }
+inline ILVector2n ILVectorImpl<ModType,IntType,VecType,ParmType>::CRTInterpolate() const { return VectorConvert<ILVectorImpl<ModType,IntType,VecType,ParmType>>(*this); }
 
 //template<typename ModType, typename IntType, typename VecType, typename ParmType>
 //inline ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(const ILVector2n &element, shared_ptr<ParmType> parms) {
