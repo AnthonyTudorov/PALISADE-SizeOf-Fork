@@ -71,7 +71,8 @@ void BM_keygen(benchmark::State& state) { // benchmark
 		} catch( ... ) {}
 
 		try {
-			ILVector2n::PreComputeDggSamples(GeneratorContainer<BigBinaryInteger,BigBinaryVector>::GetGenerator(DiscreteGaussianGen), cc.GetElementParams());
+			typename ILVector2n::DggType dgg = ILVector2n::DggType(4);			// Create the noise generator
+			ILVector2n::PreComputeDggSamples(dgg, cc.GetElementParams());
 		} catch( ... ) {}
 
 		state.ResumeTiming();
@@ -113,7 +114,8 @@ void BM_encrypt(benchmark::State& state) { // benchmark
 		} catch( ... ) {}
 
 		try {
-			ILVector2n::PreComputeDggSamples(GeneratorContainer<BigBinaryInteger,BigBinaryVector>::GetGenerator(DiscreteGaussianGen), cc.GetElementParams());
+			typename ILVector2n::DggType dgg = ILVector2n::DggType(4);			// Create the noise generator
+			ILVector2n::PreComputeDggSamples(dgg, cc.GetElementParams());
 		} catch( ... ) {}
 
 		size_t strSize = plaintext.GetChunksize(cc.GetCyclotomicOrder(), cc.GetCryptoParameters()->GetPlaintextModulus());
@@ -174,7 +176,8 @@ void BM_decrypt(benchmark::State& state) { // benchmark
 		} catch( ... ) {}
 
 		try {
-			ILVector2n::PreComputeDggSamples(GeneratorContainer<BigBinaryInteger,BigBinaryVector>::GetGenerator(DiscreteGaussianGen), cc.GetElementParams());
+			typename ILVector2n::DggType dgg = ILVector2n::DggType(4);			// Create the noise generator
+			ILVector2n::PreComputeDggSamples(dgg, cc.GetElementParams());
 		} catch( ... ) {}
 
 		size_t strSize = plaintext.GetChunksize(cc.GetCyclotomicOrder(), cc.GetCryptoParameters()->GetPlaintextModulus());
@@ -236,7 +239,8 @@ void BM_rekeygen(benchmark::State& state) { // benchmark
 		} catch( ... ) {}
 
 		try {
-			ILVector2n::PreComputeDggSamples(GeneratorContainer<BigBinaryInteger,BigBinaryVector>::GetGenerator(DiscreteGaussianGen), cc.GetElementParams());
+			typename ILVector2n::DggType dgg = ILVector2n::DggType(4);			// Create the noise generator
+			ILVector2n::PreComputeDggSamples(dgg, cc.GetElementParams());
 		} catch( ... ) {}
 
 		state.ResumeTiming();
@@ -290,7 +294,8 @@ void BM_reencrypt(benchmark::State& state) { // benchmark
 		} catch( ... ) {}
 
 		try {
-			ILVector2n::PreComputeDggSamples(GeneratorContainer<BigBinaryInteger,BigBinaryVector>::GetGenerator(DiscreteGaussianGen), cc.GetElementParams());
+			typename ILVector2n::DggType dgg = ILVector2n::DggType(4);			// Create the noise generator
+			ILVector2n::PreComputeDggSamples(dgg, cc.GetElementParams());
 		} catch( ... ) {}
 
 		size_t strSize = plaintext.GetChunksize(cc.GetCyclotomicOrder(), cc.GetCryptoParameters()->GetPlaintextModulus());
