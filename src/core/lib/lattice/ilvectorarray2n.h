@@ -565,10 +565,6 @@ namespace lbcrypto {
 		* @return the interpolated ring element embeded into ILVectorArray2n.
 		*/
 		ILVector2n CRTInterpolate() const;
-		ILVectorArrayType CRIDecompose(const ILVector2n& invec) const {
-			return std::move( ILVectorArrayType(invec, this->m_params) );
-		}
-		ILVectorArrayType CRIDecompose(const ILVectorNative2n& invec) const { throw std::logic_error("not supported"); }
 
 		/**
 		* Convert from Coefficient to CRT or vice versa; calls FFT and inverse FFT.

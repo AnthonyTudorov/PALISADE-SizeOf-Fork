@@ -307,10 +307,6 @@ public:
 	 */
 	virtual ILVector2n CRTInterpolate() const = 0;
 
-	virtual Element CRIDecompose(const ILVector2n& invec) const = 0;
-	virtual Element CRIDecompose(const ILVectorNative2n& invec) const = 0;
-
-
 	/**
 	 * Interleaves values in the ILVector2n with odd indices being all zeros.
 	 */

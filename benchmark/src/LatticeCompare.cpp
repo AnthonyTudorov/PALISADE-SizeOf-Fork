@@ -64,13 +64,13 @@ using namespace lbcrypto;
 
 typedef native64::BigBinaryInteger  nativeInt;
 
-typedef cpu_int::BigBinaryInteger<uint32_t,64>  smallInt32_64;
-//template class cpu_int::BigBinaryInteger<uint32_t,64>;
-template class cpu_int::BigBinaryVectorImpl<smallInt32_64>;
-
-typedef cpu_int::BigBinaryInteger<uint32_t,128>  smallInt32_128;
-//template class cpu_int::BigBinaryInteger<uint32_t,128>;
-template class cpu_int::BigBinaryVectorImpl<smallInt32_128>;
+//typedef cpu_int::BigBinaryInteger<uint32_t,64>  smallInt32_64;
+////template class cpu_int::BigBinaryInteger<uint32_t,64>;
+//template class cpu_int::BigBinaryVectorImpl<smallInt32_64>;
+//
+//typedef cpu_int::BigBinaryInteger<uint32_t,128>  smallInt32_128;
+////template class cpu_int::BigBinaryInteger<uint32_t,128>;
+//template class cpu_int::BigBinaryVectorImpl<smallInt32_128>;
 
 map<int,map<int,string>> primes;
 map<int,map<int,string>> roots;
@@ -128,7 +128,7 @@ static void BM_add_LATTICE(benchmark::State& state) { // benchmark
 }
 
 BENCHMARK_TEMPLATE(BM_add_LATTICE,nativeInt)->Apply(CustomArguments);
-BENCHMARK_TEMPLATE(BM_add_LATTICE,smallInt32_128)->Apply(CustomArguments);
+BENCHMARK_TEMPLATE(BM_add_LATTICE,BigBinaryInteger)->Apply(CustomArguments);
 
 template <class IntType>
 static void mult_LATTICE(benchmark::State& state) {	// function
@@ -149,7 +149,7 @@ static void BM_mult_LATTICE(benchmark::State& state) { // benchmark
 }
 
 BENCHMARK_TEMPLATE(BM_mult_LATTICE,nativeInt)->Apply(CustomArguments);
-BENCHMARK_TEMPLATE(BM_mult_LATTICE,smallInt32_128)->Apply(CustomArguments);
+BENCHMARK_TEMPLATE(BM_mult_LATTICE,BigBinaryInteger)->Apply(CustomArguments);
 
 template <class IntType>
 static void switchformat_LATTICE(benchmark::State& state) {
@@ -169,7 +169,7 @@ static void BM_switchformat_LATTICE(benchmark::State& state) { // benchmark
 }
 
 BENCHMARK_TEMPLATE(BM_switchformat_LATTICE,nativeInt)->Apply(CustomArguments);
-BENCHMARK_TEMPLATE(BM_switchformat_LATTICE,smallInt32_128)->Apply(CustomArguments);
+BENCHMARK_TEMPLATE(BM_switchformat_LATTICE,BigBinaryInteger)->Apply(CustomArguments);
 
 //execute the benchmarks
 BENCHMARK_MAIN()

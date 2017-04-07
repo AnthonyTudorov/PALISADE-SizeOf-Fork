@@ -52,7 +52,8 @@ using namespace std;
 using namespace lbcrypto;
 
 void NTRU_DCRT();
-double currentDateTime();
+
+//FIXME these methods do not work
 void TestParameterSelection();
 void FinalLeveledComputation();
 void ComposedEvalMultTest();
@@ -345,8 +346,10 @@ int main(int argc, char *argv[]) {
 		std::cout << "====================================================================" << std::endl;
 	}
 
-	if( runcrypto )
+	if( runcrypto ) {
 		NTRU_DCRT();
+	}
+
 
 	return 0;
 }
@@ -526,6 +529,7 @@ void TestParameterSelection(){
 	for(int i=0; i < size;i++){
 		lbcrypto::NextQ(q, native64::BigBinaryInteger::TWO, m, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
 		moduli[i] = q;
+		cout << i << "::" << q << endl;
 		rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
 		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
 	}
