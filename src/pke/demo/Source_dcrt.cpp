@@ -219,7 +219,7 @@ void EvalMultTest(bool runsmall, bool runbig) {
 			shared_ptr<Ciphertext<ILVector2n>> ciphertext12 = cc1.EvalMult(ciphertext1,ciphertext2);
 			finish = currentDateTime();
 			diff = finish - start;
-			std::cout << "big int element EvalMult " << diff << std::endl;
+			std::cout << "ILVector2n EvalMult " << diff << std::endl;
 		}
 
 		if( runsmall ) {
@@ -250,7 +250,7 @@ void EvalMultTest(bool runsmall, bool runbig) {
 			shared_ptr<Ciphertext<ILVectorArray2n>> ciphertext34 = cc2.EvalMult(ciphertext3,ciphertext4);
 			finish = currentDateTime();
 			diff = finish - start;
-			std::cout << "vector int element EvalMult " << diff << std::endl;
+			std::cout << "ILVectorArray2n EvalMult " << diff << std::endl;
 		}
 	}
 }
@@ -274,7 +274,7 @@ void MultiplyTest(bool runsmall, bool runbig) {
 			ILVector2n answer = testVector1 * testVector2;
 			finish = currentDateTime();
 			diff = finish - start;
-			std::cout << "big int element multiply " << diff << std::endl;
+			std::cout << "ILVector2n element multiply " << diff << std::endl;
 		}
 
 		if( runbig ) {
@@ -291,7 +291,7 @@ void MultiplyTest(bool runsmall, bool runbig) {
 			ILVectorArray2n answer2 = testVector3 * testVector4;
 			finish = currentDateTime();
 			diff = finish - start;
-			std::cout << "vector int element multiply " << diff << std::endl;
+			std::cout << "ILVectorArray2n element multiply " << diff << std::endl;
 		}
 	}
 }

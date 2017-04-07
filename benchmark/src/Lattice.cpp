@@ -131,12 +131,23 @@ template <class E>
 static E makeElement(shared_ptr<ILDCRTParams> p) {
 	shared_ptr<ILParams> params( new ILParams( p->GetCyclotomicOrder(), p->GetModulus(), BigBinaryInteger::ONE) );
 	BigBinaryVector vec = makeVector(params);
+
 	ILVector2n bigE(params);
 	bigE.SetValues(vec, bigE.GetFormat());
 
 	E			elem(bigE, p);
 	return std::move(elem);
 }
+
+vector<ILVector2n> vectors[] = {
+		{ makeElement<ILVector2n>(vparms[0]), makeElement<ILVector2n>(vparms[0]) },
+		{ makeElement<ILVector2n>(vparms[1]), makeElement<ILVector2n>(vparms[1]) },
+};
+
+vector<ILVectorArray2n> avectors[] = {
+		{ makeElement<ILVectorArray2n>(vaparms[0]), makeElement<ILVectorArray2n>(vaparms[0]) },
+		{ makeElement<ILVectorArray2n>(vaparms[1]), makeElement<ILVectorArray2n>(vaparms[1]) },
+};
 
 // make variables
 
@@ -187,18 +198,22 @@ void BM_add_LATTICEARRAY(benchmark::State& state) { // benchmark
 		;
 	}
 
-	while (state.KeepRunning()) {
-		if( state.range(0) == 0 )
-			add_LATTICE<ILVector2n>( state, vparms[state.range(1)]);
-		else
-			add_LATTICE<ILVectorArray2n>( state, vaparms[state.range(1)]);
+	if( state.range(0) == 0 ) {
+		while (state.KeepRunning()) {
+			ILVector2n sum = vectors[state.range(1)][0] + vectors[state.range(1)][1];
+		}
+	}
+	else {
+		while (state.KeepRunning()) {
+			ILVectorArray2n sum = avectors[state.range(1)][0] + avectors[state.range(1)][1];
+		}
 	}
 }
 
-BENCHMARK(BM_add_LATTICEARRAY)->ArgName("vec/scenario")->Args({0,0});
-BENCHMARK(BM_add_LATTICEARRAY)->ArgName("vec/scenario")->Args({0,1});
-BENCHMARK(BM_add_LATTICEARRAY)->ArgName("array/scenario")->Args({1,0});
-BENCHMARK(BM_add_LATTICEARRAY)->ArgName("array/scenario")->Args({1,1});
+BENCHMARK(BM_add_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("ILVector2n/scenario")->Args({0,0});
+BENCHMARK(BM_add_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("ILVector2n/scenario")->Args({0,1});
+BENCHMARK(BM_add_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("ILVectorArray2n/scenario")->Args({1,0});
+BENCHMARK(BM_add_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("ILVectorArray2n/scenario")->Args({1,1});
 
 template <class E>
 static void mult_LATTICE(benchmark::State& state, shared_ptr<typename E::Params>& params) {	// function
@@ -228,18 +243,22 @@ void BM_mult_LATTICEARRAY(benchmark::State& state) { // benchmark
 		;
 	}
 
-	while (state.KeepRunning()) {
-		if( state.range(0) == 0 )
-			mult_LATTICE<ILVector2n>( state, vparms[state.range(1)]);
-		else
-			mult_LATTICE<ILVectorArray2n>( state, vaparms[state.range(1)]);
+	if( state.range(0) == 0 ) {
+		while (state.KeepRunning()) {
+			ILVector2n sum = vectors[state.range(1)][0] * vectors[state.range(1)][1];
+		}
+	}
+	else {
+		while (state.KeepRunning()) {
+			ILVectorArray2n sum = avectors[state.range(1)][0] * avectors[state.range(1)][1];
+		}
 	}
 }
 
-BENCHMARK(BM_mult_LATTICEARRAY)->ArgName("vec/scenario")->Args({0,0});
-BENCHMARK(BM_mult_LATTICEARRAY)->ArgName("vec/scenario")->Args({0,1});
-BENCHMARK(BM_mult_LATTICEARRAY)->ArgName("array/scenario")->Args({1,0});
-BENCHMARK(BM_mult_LATTICEARRAY)->ArgName("array/scenario")->Args({1,1});
+BENCHMARK(BM_mult_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("ILVector2n/scenario")->Args({0,0});
+BENCHMARK(BM_mult_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("ILVector2n/scenario")->Args({0,1});
+BENCHMARK(BM_mult_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("ILVectorArray2n/scenario")->Args({1,0});
+BENCHMARK(BM_mult_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("ILVectorArray2n/scenario")->Args({1,1});
 
 template <class E>
 static void switchformat_LATTICE(benchmark::State& state, shared_ptr<typename E::Params>& params) {
