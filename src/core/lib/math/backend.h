@@ -111,6 +111,9 @@ typedef cpu_int::BigBinaryVectorImpl<NativeInteger<uint64_t>> BigBinaryVector;
 #endif
 
 #if MATHBACKEND == 2
+#include "cpu_int/binint.cpp"
+#include "cpu_int/binvect.cpp"
+#include <initializer_list>
 
 #define UBINT_32
 #include "exp_int/ubint.cpp" //experimental dbc unsigned big integers or ubints

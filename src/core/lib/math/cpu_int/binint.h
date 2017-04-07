@@ -729,6 +729,9 @@ namespace cpu_int{
 	 */
 	inline BigBinaryInteger operator/ (const BigBinaryInteger &a) const {return this->DividedBy(a);}
 
+
+	inline BigBinaryInteger operator/=(const BigBinaryInteger &a); 
+
 	/**
 	 * Console output operation.
 	 *

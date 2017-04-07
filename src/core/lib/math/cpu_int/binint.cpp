@@ -1026,6 +1026,12 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Div
 
 }
 
+template<typename uint_type,usint BITLENGTH>
+inline BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::operator/=(const BigBinaryInteger &b){
+    *this = *this/b;
+    return *this;
+  }
+
 //Initializes the array of uint_array from the string equivalent of BigBinaryInteger
 //Algorithm used is repeated division by 2
 //Reference:http://pctechtips.org/convert-from-decimal-to-binary-with-recursion-in-java/
