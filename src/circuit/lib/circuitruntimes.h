@@ -9,7 +9,6 @@
 #define CIRCUIT_RUNTIMES
 
 
-#include "../Type/IntTypes.h"
 #include <vector>
 #include <cmath>
 

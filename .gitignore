@@ -37,3 +37,8 @@ RemoteSystemTempFiles/
 # Ignore intellij project files/cmake files
 CMakeLists.txt
 .idea/
+
+src/circuit/demo/scan.cpp
+src/circuit/demo/parse.cpp
+src/circuit/demo/parse.hpp
+src/circuit/demo/*.hh

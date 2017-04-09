@@ -85,12 +85,14 @@ INC := -I src/core/lib -I src/pke/lib -I src/trapdoor/lib -I test $(OMPINCLUDE) 
 PALISADECORELIB := libPALISADEcore$(LIBSUFFIX)
 PALISADEPKELIB := libPALISADEpke$(LIBSUFFIX)
 PALISADETRAPDOORLIB := libPALISADEtrapdoor$(LIBSUFFIX)
+PALISADECIRCUITLIB := libPALISADEcircuit$(LIBSUFFIX)
+
 PALISADEPYLIB := pycrypto$(LIBSUFFIX)
 
 # run make for all components. you can run any individual component separately
 #  by invoking   "make alltargets"  for example
 # each corresponding makefile will make the allxxxx target
-all: allcore allpke alltrapdoor 
+all: allcore allpke alltrapdoor allcircuit
 
 docs: apidocs
 
@@ -98,9 +100,9 @@ alljava: allcore allpke jwrapper
 
 allpython: allcore allpke alltrapdoor pywrapper
 
-alldemos: allcoredemos allpkedemos alltrapdoordemos
+alldemos: allcoredemos allpkedemos alltrapdoordemos allcircuitdemos
 
-testall: testcore testpke testtrapdoor
+testall: testcore testpke testtrapdoor testcircuit
 
 # clean up all components. you can clean any individual compoenent separately
 #  by invoking   "make cleantargets"  for example
@@ -113,6 +115,8 @@ clean: cleancore cleanpke cleantrapdoor cleandocs cleanbenchmark
 include Makefile.core
 include Makefile.pke
 include Makefile.trapdoor
+include Makefile.circuit
+
 include Makefile.wrapper
 include Makefile.benchmark     #builds the benchmark framework
 include Makefile.docs          #populates doxgen documentation

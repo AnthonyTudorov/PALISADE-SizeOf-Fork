@@ -8,7 +8,7 @@
 #ifndef SRC_FHE_CIRCUITSIM_H_
 #define SRC_FHE_CIRCUITSIM_H_
 
-#include "CircuitFunction.h"
+#include "circuitfunction.h"
 class CircuitNode;
 
 #include <map>
@@ -22,10 +22,10 @@ class CircuitSim {
 	map<string, uint32_t> params;
 
 	// names of inputs and outputs;
-	vector<string> inputs;
-	vector<string> outputs;
+	vector<int> inputs;
+	vector<int> outputs;
 
-	vector<string> argCollection;
+	vector<int> argCollection;
 
 	map<string, CircuitFunction*> knownFunctions;
 
@@ -38,8 +38,8 @@ public:
 	void setParam(string param, uint32_t value) { params[param] = value; }
 
 	void clearArgs() { argCollection.clear(); }
-	vector<string>& getArgs() { return argCollection; }
-	bool addArg(string s) {
+	vector<int>& getArgs() { return argCollection; }
+	bool addArg(int s) {
 		if( std::find(argCollection.begin(), argCollection.end(), s) == argCollection.end() ) {
 			argCollection.push_back(s);
 			return true;
@@ -47,7 +47,7 @@ public:
 		return false;
 	}
 
-	bool addInput(string s) {
+	bool addInput(int s) {
 		if( std::find(inputs.begin(), inputs.end(), s) == inputs.end() ) {
 			inputs.push_back(s);
 			return true;
@@ -55,11 +55,11 @@ public:
 		return false; // duplicate identifier
 	}
 
-	bool isInput(string s) { return std::find(inputs.begin(), inputs.end(), s) != inputs.end(); }
+	bool isInput(int s) { return std::find(inputs.begin(), inputs.end(), s) != inputs.end(); }
 
-	const vector<string>& getInputs() const { return inputs; }
+	const vector<int>& getInputs() const { return inputs; }
 
-	bool addOutput(string s) {
+	bool addOutput(int s) {
 		if( std::find(outputs.begin(), outputs.end(), s) == outputs.end() ) {
 			outputs.push_back(s);
 			return true;
@@ -67,9 +67,9 @@ public:
 		return false; // duplicate identifier
 	}
 
-	bool isOutput(string s) { return std::find(outputs.begin(), outputs.end(), s) != outputs.end(); }
+	bool isOutput(int s) { return std::find(outputs.begin(), outputs.end(), s) != outputs.end(); }
 
-	const vector<string>& getOutputs() const { return outputs; }
+	const vector<int>& getOutputs() const { return outputs; }
 
 	bool addFunction(string function, int argcount);
 
