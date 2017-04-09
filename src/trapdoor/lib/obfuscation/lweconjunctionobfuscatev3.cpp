@@ -158,7 +158,7 @@ shared_ptr<Matrix<Element>>  ObfuscatedLWEConjunctionPattern<Element>::GetS(usin
 }
 
 template <class Element>
-void LWEConjunctionObfuscationAlgorithm<Element>::ParamsGen(DiscreteGaussianGenerator &dgg,
+void LWEConjunctionObfuscationAlgorithm<Element>::ParamsGen(typename Element::DggType &dgg,
 	ObfuscatedLWEConjunctionPattern<Element> *obfuscatedPattern, uint32_t n) const {
 
 	//smoothing parameter - also standard deviation for noise polynomials
@@ -244,7 +244,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::ParamsGen(DiscreteGaussianGene
 }
 
 template <class Element>
-void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(DiscreteGaussianGenerator &dgg,
+void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(typename Element::DggType &dgg,
 				ObfuscatedLWEConjunctionPattern<Element> *obfuscatedPattern) const {
 	TimeVar t1,t2; // for TIC TOC
 	bool dbg_flag = false;
@@ -312,8 +312,8 @@ shared_ptr<Matrix<Element>> LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 				const Matrix<Element> &Aj,
 				const RLWETrapdoorPair<ILVector2n> &Ti,
 				const Element &elemS,
-				DiscreteGaussianGenerator &dgg,
-				DiscreteGaussianGenerator &dggLargeSigma) const {
+				typename Element::DggType &dgg,
+				typename Element::DggType &dggLargeSigma) const {
 
     TimeVar t1,t_total; // for TIC TOC
 	bool dbg_flag = 0;//set to 0 for no debug statements
@@ -370,8 +370,8 @@ shared_ptr<Matrix<Element>> LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 template <class Element>
 void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 				const ClearLWEConjunctionPattern<Element> &clearPattern,
-				DiscreteGaussianGenerator &dgg,
-				TernaryUniformGenerator &tug,
+				typename Element::DggType &dgg,
+				typename Element::TugType &tug,
 				ObfuscatedLWEConjunctionPattern<Element> *obfuscatedPattern) const {
 
 	TimeVar t1; // for TIC TOC
@@ -390,7 +390,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 	double c = 2 * SIGMA;
 	double s = SPECTRAL_BOUND(n, m - 2);
 
-	DiscreteGaussianGenerator dggLargeSigma(sqrt(s * s - c * c));
+	typename Element::DggType dggLargeSigma(sqrt(s * s - c * c));
 
 	const std::string patternString = clearPattern.GetPatternString();
 

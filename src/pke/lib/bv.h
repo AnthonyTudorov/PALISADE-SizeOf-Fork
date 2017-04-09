@@ -102,7 +102,7 @@ namespace lbcrypto {
 						securityLevel,
 						relinWindow,
 						depth) {
-				m_mode = mode;		
+				m_mode = mode;
 			}
 
 			/**
@@ -179,8 +179,7 @@ namespace lbcrypto {
 		* @param &plaintext the plaintext input.
 		* @return ciphertext which results from encryption.
 		*/
-		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
-			Element &plaintext) const;
+		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, ILVector2n &plaintext) const;
 
 		/**
 		* Method for decrypting plaintext using BV
@@ -192,7 +191,7 @@ namespace lbcrypto {
 		*/
 		DecryptResult Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
 			const shared_ptr<Ciphertext<Element>> ciphertext,
-			Element *plaintext) const;
+			ILVector2n *plaintext) const;
 
 		/**
 		* Function to generate public and private keys

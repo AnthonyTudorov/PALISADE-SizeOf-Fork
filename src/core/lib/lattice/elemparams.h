@@ -54,6 +54,10 @@ namespace lbcrypto {
 	class ElemParams : public Serializable
 	{
 	public:
+		ElemParams() {}
+
+		virtual ~ElemParams() {}
+
 		/**
 		* Each element params should give the effective modulus regardless of the representation
 		*/
@@ -69,15 +73,15 @@ namespace lbcrypto {
 		/**
 		 * Get Root of Unity
 		 * @return default of 0 if not implemented; should be =0?
-		 * FIXME: =0
 		 */
-		virtual const IntegerType &GetRootOfUnity() const { return IntegerType::ZERO; }
+		virtual const IntegerType &GetRootOfUnity() const = 0;
 
 	    friend std::ostream& operator<<(std::ostream& out, const ElemParams &item) {
 	    	return item.doprint(out);
 	    }
 
 		virtual bool operator==(const ElemParams<IntegerType> &other) const = 0;
+		bool operator!=(const ElemParams<IntegerType> &other) const { return !(*this == other); }
 
 	private:
 		virtual std::ostream& doprint(std::ostream& out) const = 0;

@@ -156,9 +156,6 @@ void EncryptionSchemeSimulation(usint count){
 	//Precomputations for FTT
 	ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(rootOfUnity, m, modulus);
 
-	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
-
 	//prepare the plaintext
 	BytePlaintextEncoding plaintext;
 	ifstream txt("n_sample.txt");
@@ -223,10 +220,6 @@ void EncryptionSchemeSimulation(usint count){
 
 	fout.close();
 
-	//cleans up precomputed samples
-	ILVector2n::DestroyPreComputedSamples();
-
-	//}
 	ptextFile.close();
 
 	ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().Destroy();
@@ -321,9 +314,6 @@ void PRESimulation(usint count, usint dataset){
 
 	// Precomputations for FTT
 	ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(rootOfUnity, m, modulus);
-
-	// Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
 
 	// prepare the plaintext
 	BytePlaintextEncoding plaintext;
@@ -551,9 +541,6 @@ void PRESimulation(usint count, usint dataset){
 	// ENDS HERE
 
 	fout.close();
-
-	//cleans up precomputed samples
-	ILVector2n::DestroyPreComputedSamples();
 
 	ptextFile.close();
 

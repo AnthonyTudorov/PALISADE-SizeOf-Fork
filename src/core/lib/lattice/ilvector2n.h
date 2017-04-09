@@ -43,17 +43,15 @@ using std::shared_ptr;
 #include "../math/backend.h"
 #include "../utils/inttypes.h"
 #include "../utils/memory.h"
-#include "../math/distrgen.h"
 #include "../lattice/elemparams.h"
 #include "../lattice/ilparams.h"
 #include "../lattice/ildcrtparams.h"
 #include "../lattice/ilelement.h"
 #include "../math/nbtheory.h"
 #include "../math/transfrm.h"
+#include "../math/distrgen.h"
 
 namespace lbcrypto {
-
-template<typename IntType, typename VecType, typename ParmType> class ILVectorImpl;
 
 const usint SAMPLE_SIZE = 30; //!< @brief The maximum number of samples used for random variable sampling.
 
@@ -61,13 +59,18 @@ const usint SAMPLE_SIZE = 30; //!< @brief The maximum number of samples used for
  * @brief Ideal lattice using a vector representation
  */
 
-template<typename IntType, typename VecType, typename ParmType>
-class ILVectorImpl : public ILElement<ILVectorImpl<IntType,VecType,ParmType>,IntType,VecType>
+template<typename ModType, typename IntType, typename VecType, typename ParmType>
+class ILVectorImpl : public ILElement<ILVectorImpl<ModType,IntType,VecType,ParmType>,ModType,IntType,VecType>
 {
 public:
-
 	typedef ParmType Params;
-	typedef ILVectorImpl<IntType,VecType,ParmType> ILVectorType;
+	typedef IntType Integer;
+	typedef VecType Vector;
+	typedef ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorType;
+	typedef DiscreteGaussianGeneratorImpl<IntType,VecType> DggType;
+	typedef DiscreteUniformGeneratorImpl<IntType,VecType> DugType;
+	typedef TernaryUniformGeneratorImpl<IntType,VecType> TugType;
+	typedef BinaryUniformGeneratorImpl<IntType,VecType> BugType;
 
 	/**
 	 * Default constructor
@@ -81,6 +84,8 @@ public:
 	 * @param initializeElementToZero - if true, allocates an empty vector set to all 0s
 	 */
 	ILVectorImpl(const shared_ptr<ParmType> params, Format format = EVALUATION, bool initializeElementToZero = false);
+
+	ILVectorImpl(const shared_ptr<ILDCRTParams> params, Format format = EVALUATION, bool initializeElementToZero = false);
 
 	/**
 	 * Construct given parameters and format
@@ -97,7 +102,7 @@ public:
 	 * @param &params the input params.
 	 * @param format - EVALUATION or COEFFICIENT
 	 */
-	ILVectorImpl(const DiscreteGaussianGeneratorImpl<IntType,VecType> &dgg, const shared_ptr<ParmType> params, Format format = EVALUATION);
+	ILVectorImpl(const DggType &dgg, const shared_ptr<ParmType> params, Format format = EVALUATION);
 
 	/**
 	 * Construct with a vector from a given generator
@@ -106,7 +111,7 @@ public:
 	 * @param &params the input params.
 	 * @param format - EVALUATION or COEFFICIENT
 	 */
-	ILVectorImpl(const BinaryUniformGeneratorImpl<IntType,VecType> &bug, const shared_ptr<ParmType> params, Format format = EVALUATION);
+	ILVectorImpl(const BugType &bug, const shared_ptr<ParmType> params, Format format = EVALUATION);
 
 	/**
 	 * Construct with a vector from a given generator
@@ -115,7 +120,7 @@ public:
 	 * @param &params the input params.
 	 * @param format - EVALUATION or COEFFICIENT
 	 */
-	ILVectorImpl(const TernaryUniformGeneratorImpl<IntType,VecType> &tug, const shared_ptr<ParmType> params, Format format = EVALUATION);
+	ILVectorImpl(const TugType &tug, const shared_ptr<ParmType> params, Format format = EVALUATION);
 
 	/**
 	 * Construct with a vector from a given generator
@@ -124,7 +129,7 @@ public:
 	 * @param &params the input params.
 	 * @param format - EVALUATION or COEFFICIENT
 	 */
-	ILVectorImpl(const DiscreteUniformGeneratorImpl<IntType,VecType> &dug, const shared_ptr<ParmType> params, Format format = EVALUATION);
+	ILVectorImpl(DugType &dug, const shared_ptr<ParmType> params, Format format = EVALUATION);
 
 	/**
 	 *  Create lambda that allocates a zeroed element for the case when it is called from a templated class
@@ -161,7 +166,8 @@ public:
 	 */
 	inline static function<unique_ptr<ILVectorType>()> MakeDiscreteUniformAllocator(shared_ptr<ParmType> params, Format format) {
 		return [=]() {
-			DiscreteUniformGeneratorImpl<IntType,VecType> dug(params->GetModulus());
+			DiscreteUniformGeneratorImpl<IntType,VecType> dug;
+			dug.SetModulus(params->GetModulus());
 			return lbcrypto::make_unique<ILVectorType>(dug, params, format);
 		};
 	}
@@ -171,14 +177,24 @@ public:
 	 *
 	 * @param &element the copied element.
 	 */
-	ILVectorImpl(const ILVectorType &element);
+	ILVectorImpl(const ILVectorType &element, shared_ptr<ParmType> parms = 0);
 
 	/**
 	 * Move constructor.
 	 *
 	 * @param &&element the copied element.
 	 */
-	ILVectorImpl(ILVectorType &&element);
+	ILVectorImpl(ILVectorType &&element, shared_ptr<ParmType> parms = 0);
+
+//	/**
+//	 * Construct from an existing vector2n and parms
+//	 *
+//	 * A kind of copy constructor used in encrypt
+//	 *
+//	 * @param element
+//	 * @param parms
+//	 */
+//	ILVectorImpl(const ILVector2n &element, shared_ptr<ParmType> parms);
 
 	/**
 	 * Clone the object by making a copy of it and returning the copy
@@ -252,7 +268,7 @@ public:
 	 *
 	 * @return the ring element params.
 	 */
-	inline const shared_ptr<ParmType> GetParams() const { return m_params; }
+	const shared_ptr<ParmType> GetParams() const { return m_params; }
 
 	/**
 	 * Get format of the element
@@ -273,7 +289,7 @@ public:
 	 *
 	 * @return the modulus.
 	 */
-	const IntType &GetModulus() const;
+	const ModType &GetModulus() const;
 
 	/**
 	 * Get the values for the element
@@ -288,15 +304,6 @@ public:
 	 * @return order
 	 */
 	const usint GetCyclotomicOrder() const;
-
-	/**
-	 * Get digit for a specific base.  Gets a binary polynomial from a given polynomial.  From every coefficient, it extracts the same digit.  Used in bit decomposition/relinearization operations.
-	 *
-	 * @param index is the index to get.
-	 * @param base is the base the result should be in.
-	 * @return is the result.
-	 */
-	ILVectorImpl GetDigitAtIndexForBase(usint index, usint base) const;
 
 	/**
 	 * Get the root of unity.
@@ -524,11 +531,11 @@ public:
 
 	/**
 	 * Interpolates based on the Chinese Remainder Transform Interpolation.
-	 * Does nothing for ILVectorImpl. Needed to support the linear CRT interpolation in ILVectorArray2n.
+	 * Does nothing for ILVectorImpl.
 	 *
 	 * @return the original ring element.
 	 */
-	ILVectorImpl CRTInterpolate() const { return *this; }
+	ILVector2n CRTInterpolate() const;
 
 	/**
 	 * Transpose the ring element using the automorphism operation
@@ -583,7 +590,7 @@ public:
 	 *
 	 * @param &wFactor ratio between the original ILVectorArray2n's ring dimension and the new ring dimension.
 	 */
-	void MakeSparse(const IntType &wFactor);
+	void MakeSparse(const uint32_t &wFactor);
 
 	/**
 	 * Interleaves values in the ILVectorImpl with odd indices being all zeros.
@@ -710,6 +717,12 @@ public:
 	friend inline ILVectorImpl operator*(const ILVectorImpl &a, const IntType &b) { return a.Times(b); }
 	friend inline ILVectorImpl operator*(const IntType &a, const ILVectorImpl &b) { return b.Times(a); }
 
+	// gets a random discrete Gaussian polynomial
+	static const ILVectorImpl GetPrecomputedVector();
+
+	// gets a random polynomial generated using ternary uniform distribution
+	static const ILVectorImpl GetPrecomputedTugVector();
+
 private:
 
 	// stores either coefficient or evaluation representation
@@ -734,14 +747,47 @@ private:
 
 	// static variable to store the sample size for each set of ILParams
 	static const usint m_sampleSize = SAMPLE_SIZE;
-
-	// gets a random discrete Gaussian polynomial
-	static const ILVectorImpl GetPrecomputedVector();
-
-	// gets a random polynomial generated using ternary uniform distribution
-	static const ILVectorImpl GetPrecomputedTugVector();
 };
 
-} // namespace lbcrypto ends
+}
+
+namespace native64 {
+
+typedef lbcrypto::ILVectorImpl<native64::BigBinaryInteger, native64::BigBinaryInteger, native64::BigBinaryVector, native64::ILParams> ILVector2n;
+
+}
+
+namespace lbcrypto {
+
+template<typename ModType, typename IntType, typename VecType, typename ParmType> class ILVectorImpl;
+typedef ILVectorImpl<BigBinaryInteger, BigBinaryInteger, BigBinaryVector, ILParams> ILVector2n;
+
+}
+
+
+namespace lbcrypto {
+
+inline ILVector2n VectorConvert(const ILVector2n& v) { return v; }
+
+// this little nugget of code lets an ILVector2n return a big-int ILVector2n for CRTInterpolate
+inline ILVector2n VectorConvert(const native64::ILVector2n& v) {
+	ILVector2n newvec( shared_ptr<ILParams>(new ILParams(v.GetCyclotomicOrder(),
+							BigBinaryInteger(v.GetModulus().ConvertToInt()),
+							BigBinaryInteger(v.GetRootOfUnity().ConvertToInt()))),
+						v.GetFormat() );
+
+	for( usint i = 0; i < v.GetCyclotomicOrder(); i++ ) {
+		newvec.SetValAtIndex(i, v.GetValAtIndex(i).ConvertToInt());
+	}
+
+	return newvec;
+}
+
+template<typename ModType, typename IntType, typename VecType, typename ParmType>
+inline ILVector2n ILVectorImpl<ModType,IntType,VecType,ParmType>::CRTInterpolate() const { return VectorConvert(*this); }
+
+}
+
+
 
 #endif

@@ -55,41 +55,29 @@ namespace lbcrypto {
 * It also holds the single PRNG, which should be called by all child class when generating a random number is required.
 *
 */
-class DistributionGenerator {
+
+class PseudoRandomNumberGenerator {
 public:
-
-	/**
-	* @brief The generic constructor for a Distribution Generator.
-	*
-	* For now, this constructor should be blank. Classes extending this class should also extend this constructor.
-	*/
-	DistributionGenerator () {}
-
-//protected:
-	/**
-	* @brief  Returns the singleton PRNG. This should be used to generate all random numbers in implementing classes.
-	* @return The singleton PRNG.
-	*/
 	static std::mt19937 &GetPRNG () {
 		std::call_once(m_flag, [] () {
 			std::random_device rd;
-			DistributionGenerator::m_prng.reset(new std::mt19937(rd()));
+			m_prng.reset(new std::mt19937(rd()));
 		});
 
 		return *m_prng;
 	}
 
 private:
-	/**
-	* A shared pointer to the singleton prng.
-	*/
-	static std::shared_ptr<std::mt19937> m_prng;
+	static std::once_flag 					m_flag;
+	static std::shared_ptr<std::mt19937> 	m_prng;
+};
 
-	/**
-	* The flag that is used to ensure the prng is only constructed once.
-	*/
-	static std::once_flag m_flag;
-
+// Base class for Distribution Generator by type
+template<typename IntType, typename VecType>
+class DistributionGenerator {
+public:
+	DistributionGenerator () {}
+	virtual ~DistributionGenerator() {}
 };
 
 } // namespace lbcrypto

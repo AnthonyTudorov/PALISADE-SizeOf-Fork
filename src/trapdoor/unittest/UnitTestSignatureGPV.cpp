@@ -45,10 +45,11 @@ TEST(UTSignatureGPV,simple_sign_verify) {
   bool dbg_flag = false;
 
   DEBUG("Step 1");
-	DiscreteGaussianGenerator dgg(4);
+	ILVector2n::DggType dgg(4);
 	usint sm = 16;
 	BigBinaryInteger smodulus("1152921504606847009");
 	BigBinaryInteger srootOfUnity("405107564542978792");
+
 	shared_ptr<ILParams> silParams( new ILParams(sm, smodulus, srootOfUnity) );
   DEBUG("Step 2");
 	ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
@@ -81,7 +82,7 @@ TEST(UTSignatureGPV,simple_sign_verify) {
 }
 //TEST FOR SIGNING AND VERIFYING SIGNATURES GENERATED FROM MULTIPLE TEXTS. ONLY SIGNATURES CORRESPONDING TO THEIR RESPECTIVE TEXT SHOULD VERIFY
 TEST(UTSignatureGPV, sign_verify_multiple_texts) {
-	DiscreteGaussianGenerator dgg(4);
+	ILVector2n::DggType dgg(4);
 	usint sm = 16;
 	BigBinaryInteger smodulus("1152921504606847009");
 	BigBinaryInteger srootOfUnity("405107564542978792");
@@ -119,7 +120,7 @@ TEST(UTSignatureGPV, sign_verify_multiple_texts) {
 
 //TEST FOR SIGNING AND VERIFYING SIGNATURES GENERATED FROM MULTIPLE KEYS. ONLY SIGNATURES CORRESPONDING TO THEIR RESPECTIVE SPECIFIC KEY SHOULD VERIFY
 TEST(UTSignatureGPV, sign_verify_multiple_keys) {
-	DiscreteGaussianGenerator dgg(4);
+	ILVector2n::DggType dgg(4);
 	usint sm = 16;
 	BigBinaryInteger smodulus("1152921504606847009");
 	BigBinaryInteger srootOfUnity("405107564542978792");

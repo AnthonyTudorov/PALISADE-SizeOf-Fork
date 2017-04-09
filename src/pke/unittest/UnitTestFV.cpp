@@ -221,7 +221,7 @@ TEST(UTFV, ILVector2n_FV_ParamsGen_EvalMul) {
 	float stdDev = 4;
 
 	//Set crypto parametes
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(plaintextModulus, 1.006, 0, 1, 0);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(plaintextModulus, 1.006, 0, 2, 0);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 

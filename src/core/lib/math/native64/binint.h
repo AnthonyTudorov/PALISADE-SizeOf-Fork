@@ -327,7 +327,11 @@ public:
 	 * @return result of the addition operation of type BigBinary Integer.
 	 */
 	NativeInteger Plus(const NativeInteger& b) const {
-		return m_value + b.m_value;
+		uint_type newv = m_value + b.m_value;
+		if( newv < m_value || newv < b.m_value ) {
+			throw std::logic_error("Overflow");
+		}
+		return newv;
 	}
 
 
@@ -338,7 +342,11 @@ public:
 	 * @return result of the addition operation of type Big Binary Integer.
 	 */
 	const NativeInteger& operator+=(const NativeInteger &b) {
+		uint_type oldv = m_value;
 		m_value += b.m_value;
+		if( m_value < oldv ) {
+			throw std::logic_error("Overflow");
+		}
 		return *this;
 	}
 
@@ -376,9 +384,9 @@ public:
 	 */
 	NativeInteger Times(const NativeInteger& b) const {
 		uint_type prod = m_value * b.m_value;
-		if( prod < m_value || prod < b.m_value )
+		if( prod > 0 && (prod < m_value || prod < b.m_value) )
 			throw std::logic_error("native64 overflow in multiply");
-		return m_value * b.m_value;
+		return prod;
 	}
 
 	/**
@@ -621,9 +629,6 @@ public:
 	NativeInteger ModMul(const NativeInteger& b, const NativeInteger& modulus) const {
 		Duint_type av = m_value;
 		Duint_type bv = b.m_value;
-
-		Duint_type modsum = (Duint_type)m_value;
-		modsum += b.m_value;
 
 		if( av > modulus.m_value ) av = av%modulus.m_value;
 		if( bv > modulus.m_value ) bv = bv%modulus.m_value;
@@ -1059,6 +1064,7 @@ protected:
 	 * @param v The input string
 	 */
 	void AssignVal(const std::string& str) {
+		uint_type test_value = 0;
 		m_value = 0;
 		for( int i=0; i<str.length(); i++ ) {
 			int v = str[i] - '0';
@@ -1067,6 +1073,11 @@ protected:
 			}
 			m_value *= 10;
 			m_value += v;
+
+			if( m_value < test_value ) {
+				throw std::logic_error(str + " is too large to fit in this native integer object");
+			}
+			test_value = m_value;
 		}
 	}
 
@@ -1102,22 +1113,27 @@ private:
 	}
 
 	/**
-	 * function to return the MSB of a 32 bit number.
-	 * @param x is the 32 bit integer.
-	 * @return the MSB position in the 32 bit number x.
+	 * function to return the MSB of a 64 bit number.
+	 * @param x is the 64 bit integer.
+	 * @return the MSB position in the 64 bit number x.
 	 */
 
 	static uint64_t GetMSB32(uint64_t x)
 	{
-	    static const usint bval[] =
-	    {0,1,2,2,3,3,3,3,4,4,4,4,4,4,4,4};
-
-	    uint64_t r = 0;
-		if (x & 0xFFFFFFFF00000000) { r += 32/1; x >>= 32/1; }
-		if (x & 0x00000000FFFF0000) { r += 32/2; x >>= 32/2; }
-		if (x & 0x000000000000FF00) { r += 32/4; x >>= 32/4; }
-		if (x & 0x00000000000000F0) { r += 32/8; x >>= 32/8; }
-	    return r + bval[x];
+		if (x != 0) {
+	// hardware instructions for finding MSB are used are used;
+	// a wrapper for VC++
+	#if defined(_MSC_VER)
+			unsigned long msb;
+			_BitScanReverse64(&msb, x);
+			return msb + 1;
+	#else
+	// a wrapper for GCC
+			return  64 - (sizeof(unsigned long) == 8 ? __builtin_clzl(x) : __builtin_clzll(x));
+	#endif
+		}
+		else
+			return 0;
 	}
 
 	// Duint_type has double the bits in the integral data type.

@@ -216,7 +216,7 @@ CryptoContextFactory<T>::genCryptoContextStehleSteinfeld(
 
 template <typename T>
 CryptoContext<T>
-CryptoContextFactory<T>::getCryptoContextNull(
+CryptoContextFactory<T>::genCryptoContextNull(
 		const std::string& ptModulus, usint ringdim, const std::string& modulus, const std::string& rootOfUnity)
 {
 	shared_ptr<typename T::Params> ep( new typename T::Params(ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
@@ -226,6 +226,17 @@ CryptoContextFactory<T>::getCryptoContextNull(
 
 	return CryptoContext<T>(params, scheme);
 }
+
+template<typename T>
+CryptoContext<ILVectorArray2n>
+CryptoContextFactory<T>::genCryptoContextNull(shared_ptr<ILDCRTParams> parms, const BigBinaryInteger& ptm)
+{
+	shared_ptr<LPCryptoParametersNull<ILVectorArray2n>> params( new LPCryptoParametersNull<ILVectorArray2n>(parms, ptm) );
+	shared_ptr<LPPublicKeyEncryptionScheme<ILVectorArray2n>> scheme( new LPPublicKeyEncryptionSchemeNull<ILVectorArray2n>() );
+
+	return CryptoContext<ILVectorArray2n>(params, scheme);
+}
+
 
 // the methods below allow me to deserialize a json object into this context
 // ... which will only succeed if the object was serialized from this context,

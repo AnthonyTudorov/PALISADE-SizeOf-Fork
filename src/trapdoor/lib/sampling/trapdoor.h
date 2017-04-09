@@ -107,7 +107,7 @@ public:
 	*/
 	static inline RingMat GaussSamp(size_t n, size_t k, const RingMat& A, 
 		const RLWETrapdoorPair<ILVector2n>& T, const ILVector2n &u,
-		double sigma, DiscreteGaussianGenerator &dgg, DiscreteGaussianGenerator &dggLargeSigma);
+		double sigma, ILVector2n::DggType &dgg, ILVector2n::DggType &dggLargeSigma);
 
 	/**
 	* New method for perturbation generation based by the new paper
@@ -122,7 +122,7 @@ public:
 	*/
 	static inline void ZSampleSigmaP(size_t n, double s, double sigma,
 		const RLWETrapdoorPair<ILVector2n> &Tprime,
-		const DiscreteGaussianGenerator& dgg, const DiscreteGaussianGenerator& dggLargeSigma,
+		const ILVector2n::DggType& dgg, const ILVector2n::DggType& dggLargeSigma,
 		RingMat *perturbationVector);
 
 };

@@ -134,7 +134,7 @@ buildContextFromSerialized(const map<string,string>& s)
 			return 0;
 		}
 
-		return CryptoContextFactory<Element>::getCryptoContextNull(plaintextModulus, stoul(ring), modulus, rootOfUnity);
+		return CryptoContextFactory<Element>::genCryptoContextNull(plaintextModulus, stoul(ring), modulus, rootOfUnity);
 	}
 	else {
 		throw std::logic_error("Unrecognized parmtype " + parmtype + " in buildContextFromSerialized");

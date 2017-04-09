@@ -59,7 +59,7 @@ public:
 	/**
 	 * Basic constructor.	  	  
 	 */
-	explicit BigBinaryVectorImpl();
+	BigBinaryVectorImpl();
 
     static inline BigBinaryVectorImpl Single(const IntegerType& val, const IntegerType& modulus) {
         BigBinaryVectorImpl vec(1, modulus);
@@ -72,7 +72,7 @@ public:
 	 *
 	 * @param length is the length of the big binary vector, in terms of the number of entries.	  	  
 	 */
-	explicit BigBinaryVectorImpl(usint length);
+	BigBinaryVectorImpl(usint length);
 
 	/**
 	 * Basic constructor for specifying the length of the vector and the modulus.
@@ -80,14 +80,14 @@ public:
 	 * @param length is the length of the big binary vector, in terms of the number of entries.	
 	 * @param modulus is the modulus of the entries in the vector.  	  
 	 */
-	explicit BigBinaryVectorImpl(usint length, const IntegerType& modulus);
+	BigBinaryVectorImpl(usint length, const IntegerType& modulus);
 
 	/**
 	 * Basic constructor for copying a vector
 	 *
 	 * @param bigBinaryVector is the big binary vector to be copied.  	  
 	 */
-	explicit BigBinaryVectorImpl(const BigBinaryVectorImpl& bigBinaryVector);
+	BigBinaryVectorImpl(const BigBinaryVectorImpl& bigBinaryVector);
 
 	/**
 	 * Basic move constructor for moving a vector
