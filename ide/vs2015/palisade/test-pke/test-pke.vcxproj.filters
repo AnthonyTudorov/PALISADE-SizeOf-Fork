@@ -11,7 +11,8 @@
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestSHEAdvanced.cpp" />
     <ClCompile Include="..\..\..\..\test\include\gtest\gtest-all.cc" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestStatisticalEval.cpp" />
-    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestEncryption.cpp" />
+    <ClCompile Include="..\..\..\..\src\pke\unittest\helperUnitTestDCRT.cpp" />
+    <ClCompile Include="..\..\..\..\src\pke\unittest\helperUnitTestEncryption.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\test\include\gtest\gtest.h" />

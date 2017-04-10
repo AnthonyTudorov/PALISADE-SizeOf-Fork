@@ -48,102 +48,345 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "encoding/byteplaintextencoding.h"
 #include "encoding/intplaintextencoding.h"
 
-//#include "testJson.h"
-//#include "testJson.cpp"
-
 using namespace std;
 using namespace lbcrypto;
 
-//double currentDateTime();
 void NTRU_DCRT();
-double currentDateTime();
+
+//FIXME these methods do not work
 void TestParameterSelection();
 void FinalLeveledComputation();
 void ComposedEvalMultTest();
 bool canRingReduce(usint ringDimension, std::vector<BigBinaryInteger> moduli, double rootHermiteFactor);
-void FFTTest();
-/**
- * @brief Input parameters for PRE example.
- */
-struct SecureParams {
-	usint m;			///< The ring parameter.
-	string modulus;	///< The modulus
-	string rootOfUnity;	///< The rootOfUnity
-	usint relinWindow;		///< The relinearization window parameter.
+
+// test scenarios
+struct Scenario {
+	usint bits;
+	usint m;
+	string modulus;
+	string rootOfUnity;
+} Scenarios[] = {
+		{
+				503,
+				2048,
+				"13093562431584567480052758787310396608866568184172259157933165472384535185618698219533080369303616628603546736510240284036869026183541572213314110873601",
+				"12023848463855649466660377440069556144464267030949365165993725942220441412632799311989973938254823071405336623315668961501139592673000297887682895033094"
+		},
+		{
+				132,
+				8192,
+				"2722258935367507707706996859454146142209",
+				"1426115470453457649704739287701063827541"
+		},
 };
 
-#include <iterator>
-int main() {
-
-	NTRU_DCRT();
-
-	std::cin.get();
-	return 0;
+shared_ptr<ILParams> GenSinglePrimeParams(int sc) {
+	return shared_ptr<ILParams>(new ILParams( Scenarios[sc].m, BigBinaryInteger(Scenarios[sc].modulus), BigBinaryInteger(Scenarios[sc].rootOfUnity)));
 }
 
+static const usint smbits = 28;
 
-// double currentDateTime()
-// {
+shared_ptr<ILDCRTParams> GenDCRTParams(int sc) {
+	usint m = Scenarios[sc].m;
+	usint nTowers = Scenarios[sc].bits/smbits;
 
-// 	std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
+	vector<native64::BigBinaryInteger> moduli(nTowers);
 
-//     time_t tnow = std::chrono::system_clock::to_time_t(now);
-//     tm *date = localtime(&tnow);
-//     date->tm_hour = 0;
-//     date->tm_min = 0;
-//     date->tm_sec = 0;
+	vector<native64::BigBinaryInteger> rootsOfUnity(nTowers);
 
-//     auto midnight = std::chrono::system_clock::from_time_t(mktime(date));
+	native64::BigBinaryInteger q( (1<<smbits) -1 );
+	native64::BigBinaryInteger temp;
+	BigBinaryInteger modulus(1);
 
-// 	return std::chrono::duration <double, std::milli>(now - midnight).count();
-// }
-
-
-
-void NTRU_DCRT() {
-	cout << "NTRU_DCRT" << endl;
-
-	double diff, start, finish;
-
-	start = currentDateTime();
-
-	usint m = 16;
-	m = 4096;
-
-	const BytePlaintextEncoding plaintext = "I would like to see";
-
-	float stdDev = 4;
-
-	usint size = 2;
-
-	std::cout << "tower size: " << size << std::endl;
-
-	BytePlaintextEncoding ctxtd;
-
-	vector<BigBinaryInteger> moduli(size);
-
-	vector<BigBinaryInteger> rootsOfUnity(size);
-
-	BigBinaryInteger q("1");
-	BigBinaryInteger temp;
-	BigBinaryInteger modulus("1");
-
-	for(int i=0; i < size;i++){
-		lbcrypto::NextQ(q, BigBinaryInteger::TWO,m,BigBinaryInteger("4"), BigBinaryInteger("4"));
+	for(int i=0; i < nTowers; i++){
+		lbcrypto::NextQ(q, native64::BigBinaryInteger::TWO, m, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
 		moduli[i] = q;
-		cout << q << endl;
 		rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
-	//	cout << rootsOfUnity[i] << endl;
-		modulus = modulus* moduli[i];
+		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
 
 	}
 
-	cout << "big modulus: " << modulus << endl;
-	ILVectorArray2n::PreComputeCRIFactors(moduli, m);
-	shared_ptr<ILDCRTParams> params( new ILDCRTParams(m, moduli, rootsOfUnity) );
+	return shared_ptr<ILDCRTParams>( new ILDCRTParams(m, moduli, rootsOfUnity) );
+}
+
+void MakeTestPolynomial(int sc, ILVector2n& elem) {
+	ILVector2n::DugType dug;
+	dug.SetModulus(BigBinaryInteger(elem.GetParams()->GetModulus()));
+
+	BigBinaryVector v = dug.GenerateVector(Scenarios[sc].m/2);
+	elem.SetValues(v, Format::COEFFICIENT);
+}
+
+void CRTComposeTest() {
+	for( int i=0; i<2; i++ ) {
+		std::cout << "Case " << i << " m=" << Scenarios[i].m << " bits=" << Scenarios[i].bits << std::endl;
+		shared_ptr<ILDCRTParams> dcparm = GenDCRTParams(i);
+		shared_ptr<ILParams> tvp( new ILParams(dcparm->GetCyclotomicOrder(), dcparm->GetModulus(), BigBinaryInteger::ONE) );
+		ILVector2n tVec(tvp);
+		MakeTestPolynomial(i, tVec);
+
+		double diff, start, finish;
+
+		start = currentDateTime();
+		ILVectorArray2n testVector2(tVec, dcparm);
+		finish = currentDateTime();
+		diff = finish - start;
+		std::cout << "vector Decompose " << diff << std::endl;
+
+		start = currentDateTime();
+		testVector2.CRTInterpolate();
+		finish = currentDateTime();
+		diff = finish - start;
+		std::cout << "vector Interpolate " << diff << std::endl;
+	}
+}
+
+void SwitchFormatTest(bool runsmall, bool runbig) {
+	double diff, start, finish;
+
+	for( int i=0; i<2; i++ ) {
+		std::cout << "Case " << i << " m=" << Scenarios[i].m << " bits=" << Scenarios[i].bits << std::endl;
+		if( runbig ) {
+			shared_ptr<ILParams> spparm = GenSinglePrimeParams(i);
+			ILVector2n testVector(spparm);
+			MakeTestPolynomial(i, testVector);
+
+			start = currentDateTime();
+			testVector.SwitchFormat();
+			finish = currentDateTime();
+			diff = finish - start;
+			std::cout << "big int SwitchFormat " << diff << std::endl;
+
+			start = currentDateTime();
+			testVector.SwitchFormat();
+			finish = currentDateTime();
+			diff = finish - start;
+			std::cout << "big int SwitchFormat " << diff << std::endl;
+		}
+
+		if( runsmall ) {
+			shared_ptr<ILDCRTParams> dcparm = GenDCRTParams(i);
+			shared_ptr<ILParams> tvp( new ILParams(dcparm->GetCyclotomicOrder(), dcparm->GetModulus(), BigBinaryInteger::ONE) );
+			ILVector2n tVec(tvp);
+			MakeTestPolynomial(i, tVec);
+			ILVectorArray2n testVector2(tVec, dcparm);
+
+			start = currentDateTime();
+			testVector2.SwitchFormat();
+			finish = currentDateTime();
+			diff = finish - start;
+			std::cout << "vector int SwitchFormat " << diff << std::endl;
+
+			start = currentDateTime();
+			testVector2.SwitchFormat();
+			finish = currentDateTime();
+			diff = finish - start;
+			std::cout << "vector int SwitchFormat " << diff << std::endl;
+		}
+	}
+}
+
+// Going to use the BV scheme for these
+void EvalMultTest(bool runsmall, bool runbig) {
+	double diff, start, finish;
+
+	for( int i=0; i<2; i++ ) {
+		std::cout << "Case " << i << " m=" << Scenarios[i].m << " bits=" << Scenarios[i].bits << std::endl;
+		if( runbig ) {
+			shared_ptr<ILParams> spparm = GenSinglePrimeParams(i);
+			LPCryptoParametersBV<ILVector2n> *cp = new LPCryptoParametersBV<ILVector2n>(
+					spparm,
+					BigBinaryInteger(1<<32 - 1),
+					4.0,
+					0.0,
+					0.0,
+					16, RLWE, 1);
+			CryptoContext<ILVector2n> cc1 = CryptoContextFactory<ILVector2n>::genCryptoContextBV(cp, RLWE);
+			cc1.Enable(ENCRYPTION);
+			cc1.Enable(SHE);
+
+			ILVector2n testVector1(spparm);
+			ILVector2n testVector2(spparm);
+			MakeTestPolynomial(i, testVector1);
+			MakeTestPolynomial(i, testVector2);
+
+			LPKeyPair<ILVector2n> kp1 = cc1.KeyGen();
+			cc1.EvalMultKeyGen(kp1.secretKey);
+			shared_ptr<Ciphertext<ILVector2n>> ciphertext1 = cc1.GetEncryptionAlgorithm()->Encrypt(kp1.publicKey, testVector1);
+			shared_ptr<Ciphertext<ILVector2n>> ciphertext2 = cc1.GetEncryptionAlgorithm()->Encrypt(kp1.publicKey, testVector2);
+
+			start = currentDateTime();
+			shared_ptr<Ciphertext<ILVector2n>> ciphertext12 = cc1.EvalMult(ciphertext1,ciphertext2);
+			finish = currentDateTime();
+			diff = finish - start;
+			std::cout << "ILVector2n EvalMult " << diff << std::endl;
+		}
+
+		if( runsmall ) {
+			shared_ptr<ILDCRTParams> dcparm = GenDCRTParams(i);
+			shared_ptr<ILParams> tvp( new ILParams(dcparm->GetCyclotomicOrder(), dcparm->GetModulus(), BigBinaryInteger::ONE) );
+			LPCryptoParametersBV<ILVectorArray2n> *cp2 = new LPCryptoParametersBV<ILVectorArray2n>(
+					dcparm,
+					BigBinaryInteger(1<<32 - 1),
+					4.0,
+					0.0,
+					0.0,
+					16, RLWE, 1);
+			CryptoContext<ILVectorArray2n> cc2 = CryptoContextFactory<ILVectorArray2n>::genCryptoContextBV(cp2, RLWE);
+			cc2.Enable(ENCRYPTION);
+			cc2.Enable(SHE);
+
+			ILVector2n tVec1(tvp);
+			ILVector2n tVec2(tvp);
+			MakeTestPolynomial(i, tVec1);
+			MakeTestPolynomial(i, tVec2);
+
+			LPKeyPair<ILVectorArray2n> kp2 = cc2.KeyGen();
+			cc2.EvalMultKeyGen(kp2.secretKey);
+			shared_ptr<Ciphertext<ILVectorArray2n>> ciphertext3 = cc2.GetEncryptionAlgorithm()->Encrypt(kp2.publicKey, tVec1);
+			shared_ptr<Ciphertext<ILVectorArray2n>> ciphertext4 = cc2.GetEncryptionAlgorithm()->Encrypt(kp2.publicKey, tVec2);
+
+			start = currentDateTime();
+			shared_ptr<Ciphertext<ILVectorArray2n>> ciphertext34 = cc2.EvalMult(ciphertext3,ciphertext4);
+			finish = currentDateTime();
+			diff = finish - start;
+			std::cout << "ILVectorArray2n EvalMult " << diff << std::endl;
+		}
+	}
+}
+
+void MultiplyTest(bool runsmall, bool runbig) {
+	double diff, start, finish;
+
+	for( int i=0; i<2; i++ ) {
+		std::cout << "Case " << i << " m=" << Scenarios[i].m << " bits=" << Scenarios[i].bits << std::endl;
+
+		if( runsmall ) {
+			shared_ptr<ILParams> spparm = GenSinglePrimeParams(i);
+			ILVector2n testVector1(spparm);
+			ILVector2n testVector2(spparm);
+			MakeTestPolynomial(i, testVector1);
+			MakeTestPolynomial(i, testVector2);
+			testVector1.SwitchFormat();
+			testVector2.SwitchFormat();
+
+			start = currentDateTime();
+			ILVector2n answer = testVector1 * testVector2;
+			finish = currentDateTime();
+			diff = finish - start;
+			std::cout << "ILVector2n element multiply " << diff << std::endl;
+		}
+
+		if( runbig ) {
+			shared_ptr<ILDCRTParams> dcparm = GenDCRTParams(i);
+			shared_ptr<ILParams> tvp( new ILParams(dcparm->GetCyclotomicOrder(), dcparm->GetModulus(), BigBinaryInteger::ONE) );
+			ILVector2n tVec1(tvp);
+			ILVector2n tVec2(tvp);
+			MakeTestPolynomial(i, tVec1);
+			MakeTestPolynomial(i, tVec2);
+			ILVectorArray2n testVector3(tVec1, dcparm);
+			ILVectorArray2n testVector4(tVec2, dcparm);
+
+			start = currentDateTime();
+			ILVectorArray2n answer2 = testVector3 * testVector4;
+			finish = currentDateTime();
+			diff = finish - start;
+			std::cout << "ILVectorArray2n element multiply " << diff << std::endl;
+		}
+	}
+}
+
+void usage(const string& msg) {
+	cout << "Unrecognized " << msg << ", usage is:" << endl;
+	cout << "big - run big-integer tests" << endl;
+	cout << "small - run small-integer DCRT tests" << endl;
+	cout << "   default is both" << endl;
+	cout << "vec - run vector tests" << endl;
+	cout << "lattice - run lattice tests" << endl;
+	cout << "crypto - run encryption test" << endl;
+	cout << "   default is all" << endl;
+}
+
+#include <iterator>
+int main(int argc, char *argv[]) {
+	bool runbig = false, runsmall = false, runvec = false, runlat = false, runcrypto = false;
+
+	for( int i=1; i<argc; i++ ) {
+		string arg(argv[i]);
+
+		if( arg == "big" ) runbig = true;
+		else if( arg == "small" ) runsmall = true;
+		else if( arg == "vec" ) runvec = true;
+		else if( arg == "lattice" ) runlat = true;
+		else if( arg == "crypto" ) runcrypto = true;
+		else {
+			usage(arg);
+			return 1;
+		}
+	}
+
+	if( !runbig && !runsmall ) runbig = runsmall = true;
+	if( !runvec && !runlat && !runcrypto ) runvec = runlat = runcrypto = true;
+
+	if( runvec ) {
+		if( runbig ) {
+			CRTComposeTest();
+			std::cout << "====================================================================" << std::endl;
+		}
+
+		SwitchFormatTest(runsmall, runbig);
+		std::cout << "====================================================================" << std::endl;
+
+		MultiplyTest(runsmall, runbig);
+		std::cout << "====================================================================" << std::endl;
+	}
+
+	if( runlat ) {
+		EvalMultTest(runsmall, runbig);
+		std::cout << "====================================================================" << std::endl;
+	}
+
+	if( runcrypto ) {
+		NTRU_DCRT();
+	}
+
+
+	return 0;
+}
+
+void NTRU_DCRT() {
+
+	double diff, start, finish;
+
+	usint m = 4096;
+	BigBinaryInteger ptm(256);
+
+	BytePlaintextEncoding plaintext;
+
+	size_t strSize = plaintext.GetChunksize(m, ptm);
+
+	auto randchar = []() -> char {
+		const char charset[] =
+				"0123456789"
+				"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+				"abcdefghijklmnopqrstuvwxyz";
+		const size_t max_index = (sizeof(charset) - 1);
+		return charset[ rand() % max_index ];
+	};
+
+	string shortStr(strSize,0);
+	std::generate_n(shortStr.begin(), strSize/2, randchar);
+	plaintext = shortStr;
+
+
+	float stdDev = 4;
+
+
+	shared_ptr<ILDCRTParams> params = GenDCRTParams(0);
+	cout << "big modulus: " << params->GetModulus() << endl;
 
 	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
-	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
+	cryptoParams.SetPlaintextModulus(ptm);
 	cryptoParams.SetDistributionParameter(stdDev);
 	cryptoParams.SetRelinWindow(1);
 	cryptoParams.SetElementParams(params);
@@ -164,10 +407,6 @@ void NTRU_DCRT() {
 	diff = finish - start;
 
 	cout<< "Key generation execution time: "<<"\t"<<diff<<" ms"<<endl;
-	//fout<< "Key generation execution time: "<<"\t"<<diff<<" ms"<<endl;
-
-	//fout<< currentDateTime()  << " pk = "<<pk.GetPublicElement().GetValues()<<endl;
-	//fout<< currentDateTime()  << " sk = "<<sk.GetPrivateElement().GetValues()<<endl;
 
 	if (!kp.good()) {
 		std::cout<<"Key generation failed!"<<std::endl;
@@ -177,10 +416,6 @@ void NTRU_DCRT() {
 	////////////////////////////////////////////////////////////
 	//Encryption
 	////////////////////////////////////////////////////////////
-
-	// Begin the initial encryption operation.
-	cout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;
-	//fout<<"\n"<<"original plaintext: "<<plaintext<<"\n"<<endl;
 
 	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertext;
 
@@ -194,7 +429,6 @@ void NTRU_DCRT() {
 	diff = finish - start;
 
 	cout<< "Encryption execution time: "<<"\t"<<diff<<" ms"<<endl;
-	//fout<< "Encryption execution time: "<<"\t"<<diff<<" ms"<<endl;
 
 	////////////////////////////////////////////////////////////
 	//Decryption
@@ -212,33 +446,16 @@ void NTRU_DCRT() {
 	diff = finish - start;
 
 	cout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
-	//fout<< "Decryption execution time: "<<"\t"<<diff<<" ms"<<endl;
-
-	cout<<"\n"<<"decrypted plaintext (NTRU encryption): "<<plaintextNew<<"\n"<<endl;
-	//fout<<"\n"<<"decrypted plaintext (NTRU encryption): "<<plaintextNew<<"\n"<<endl;
 
 	if (!result.isValid) {
 		std::cout<<"Decryption failed!"<<std::endl;
-		exit(1);
+		return;
 	}
 
-//	IntPlaintextEncoding intIn = { 2,4,6,8,10 };
-//	IntPlaintextEncoding intOut;
-//	vector<Ciphertext<ILVectorArray2n>> intCiphertext;
-//	CryptoUtility<ILVectorArray2n>::Encrypt(algorithm,pk,intIn,&intCiphertext);
-//	result = CryptoUtility<ILVectorArray2n>::Decrypt(algorithm,sk,intCiphertext,&intOut);
-//
-//	for( int i = 0; i < intIn.GetLength() ; i++ ) {
-//		cout << intIn.at(i) << " ";
-//	}
-//	cout << endl << "::::::::::::" << endl;
-//
-//	for( int i = 0; i < intOut.GetLength() ; i++ ) {
-//		cout << intOut.at(i) << " ";
-//	}
-//	cout << endl;
-//
-//	if(true) return;
+	if( plaintextNew != plaintext ) {
+		cout << "Decryption mismatch!" << endl;
+		return;
+	}
 
 	LPKeyPair<ILVectorArray2n> newKp = cc.KeyGen();
 
@@ -263,8 +480,6 @@ void NTRU_DCRT() {
 		cout << "Running re encryption" << endl;
 		newCiphertext = cc.ReEncrypt(evalKey, ciphertext);
 
-		//cout<<"new CipherText - PRE = "<<newCiphertext.GetValues()<<endl;
-
 		////////////////////////////////////////////////////////////
 		//Decryption
 		////////////////////////////////////////////////////////////
@@ -277,24 +492,13 @@ void NTRU_DCRT() {
 			std::cout<<"Decryption failed!"<<std::endl;
 			exit(1);
 		}
+
+		if( plaintextNew2 != plaintext ) {
+			cout << "Decryption mismatch!" << endl;
+			return;
+		}
+
 	}
-
-	std::cout << "Execution completed." << std::endl;
-	ILVectorArray2n::DestroyPrecomputedCRIFactors();
-
-
-//	cout << "Running serialization testing:" << endl;
-//
-//	TestJsonParms<ILVectorArray2n> tjp;
-//	BytePlaintextEncoding newPlaintext("1) SERIALIZE CRYPTO-OBJS TO FILE AS NESTED JSON STRUCTURES\n2) DESERIALIZE JSON FILES INTO CRYPTO-OBJS USED FOR CRYPTO-APIS\n3) Profit!!!!!");
-//
-//	tjp.ctx = ctx;
-//	tjp.pk = &pk;
-//	tjp.sk = &sk;
-//	tjp.evalKey = &evalKey;
-//	tjp.newSK = &newSK;
-//
-//	testJson<ILVectorArray2n>("DCRT", newPlaintext, &tjp, true);
 }
 
 
@@ -314,20 +518,20 @@ void TestParameterSelection(){
 
 	// BytePlaintextEncoding ctxtd;
 
-	vector<BigBinaryInteger> moduli(size);
+	vector<native64::BigBinaryInteger> moduli(size);
 
-	vector<BigBinaryInteger> rootsOfUnity(size);
+	vector<native64::BigBinaryInteger> rootsOfUnity(size);
 
-	BigBinaryInteger q("1");
-	BigBinaryInteger temp;
+	native64::BigBinaryInteger q("1");
+	native64::BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
 
 	for(int i=0; i < size;i++){
-		lbcrypto::NextQ(q, BigBinaryInteger::TWO,m,BigBinaryInteger("4"), BigBinaryInteger("4"));
+		lbcrypto::NextQ(q, native64::BigBinaryInteger::TWO, m, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
 		moduli[i] = q;
+		cout << i << "::" << q << endl;
 		rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
-		modulus = modulus* moduli[i];
-
+		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
 	}
 
 	cout << "big modulus: " << modulus << endl;
@@ -355,44 +559,43 @@ void TestParameterSelection(){
 	cout << cryptoParams2.GetAssuranceMeasure() << endl;
 
 	const shared_ptr<ILDCRTParams> dcrtParams = std::static_pointer_cast<ILDCRTParams>(cryptoParams2.GetElementParams());
-	std::vector<BigBinaryInteger> moduli2 = dcrtParams->GetModuli();
+	const std::vector<shared_ptr<native64::ILParams>>& allparams = dcrtParams->GetParams();
 
-	for(usint i =0; i < moduliV.size();i++){
-		cout<< moduli2[i] << endl;
+	for(usint i =0; i < allparams.size();i++){
+		cout<< allparams[i]->GetModulus() << endl;
 	}
 }
 
 void FinalLeveledComputation(){
 
-	usint init_m = 16;
+	usint m = 16;
 
 	float init_stdDev = 4;
 
-	usint init_size = 3;
+	usint size = 3;
 
-	std::cout << "tower size: " << init_size << std::endl;
+	std::cout << "tower size: " << size << std::endl;
 
 	BytePlaintextEncoding ctxtd;
 
-	vector<BigBinaryInteger> init_moduli(init_size);
+	vector<native64::BigBinaryInteger> moduli(size);
 
-	vector<BigBinaryInteger> init_rootsOfUnity(init_size);
+	vector<native64::BigBinaryInteger> rootsOfUnity(size);
 
-	BigBinaryInteger q("1");
-	BigBinaryInteger temp;
+	native64::BigBinaryInteger q("1");
+	native64::BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
 
-	for(int i=0; i < init_size;i++){
-		lbcrypto::NextQ(q, BigBinaryInteger::FIVE,init_m,BigBinaryInteger("4"), BigBinaryInteger("4"));
-		init_moduli[i] = q;
-		init_rootsOfUnity[i] = RootOfUnity(init_m,init_moduli[i]);
-		modulus = modulus* init_moduli[i];
-
+	for(int i=0; i < size;i++){
+		lbcrypto::NextQ(q, native64::BigBinaryInteger::TWO, m, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
+		moduli[i] = q;
+		rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
+		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
 	}
 
 	cout << "big modulus: " << modulus << endl;
 
-	shared_ptr<ILDCRTParams> params( new ILDCRTParams(init_m, init_moduli, init_rootsOfUnity) );
+	shared_ptr<ILDCRTParams> params( new ILDCRTParams(m, moduli, rootsOfUnity) );
 
 	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger::THREE);
@@ -400,26 +603,17 @@ void FinalLeveledComputation(){
 	cryptoParams.SetRelinWindow(1);
 	cryptoParams.SetElementParams(params);
 	cryptoParams.SetAssuranceMeasure(6);
-	cryptoParams.SetDepth(init_size-1);
+	cryptoParams.SetDepth(size-1);
 	cryptoParams.SetSecurityLevel(1.006);
 
 	usint n = 16;
 
-	std::vector<BigBinaryInteger> moduliV(init_size);
+	std::vector<BigBinaryInteger> moduliV(size);
 	LPCryptoParametersLTV<ILVectorArray2n> finalParams;
 
 	cryptoParams.ParameterSelection(&finalParams);
 
 	const shared_ptr<ILDCRTParams> dcrtParams = std::static_pointer_cast<ILDCRTParams>( finalParams.GetElementParams() ) ;
-
-	usint m = dcrtParams->GetCyclotomicOrder();
-	usint size = finalParams.GetDepth()+1;
-	const BigBinaryInteger &plainTextModulus = finalParams.GetPlaintextModulus();
-
-	vector<BigBinaryInteger> moduli(size);
-	moduli = dcrtParams->GetModuli();
-	vector<BigBinaryInteger> rootsOfUnity(size);
-	rootsOfUnity = dcrtParams->GetRootsOfUnity();
 
 	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::getCryptoContextDCRT(&finalParams);
 	//scheme initialization: LTV Scheme
@@ -466,72 +660,69 @@ void FinalLeveledComputation(){
 
 	shared_ptr<LPEvalKey<ILVectorArray2n>> linearKeySwitchHint1;
 	shared_ptr<LPEvalKey<ILVectorArray2n>> linearKeySwitchHint2;
-	
+
 	linearKeySwitchHint1 = cc.KeySwitchGen(kp.secretKey, levelPairs[0].secretKey);
-	//UNUSED cc.EvalMultKeyGen(kp.secretKey);
 	auto e = levelPairs[0].secretKey->GetPrivateElement();
 	e.DropLastElement();
 	levelPairs[0].secretKey->SetPrivateElement(e);
 
 	linearKeySwitchHint2 = cc.KeySwitchGen(levelPairs[0].secretKey, levelPairs[1].secretKey);
-	//UNUSED cc.EvalMultKeyGen(levelPairs[0].secretKey);
 	e = levelPairs[1].secretKey->GetPrivateElement();
 	e.DropLastElement();
 	levelPairs[1].secretKey->SetPrivateElement(e);
 
 	//create the ciphertexts for computation
-	ILVectorArray2n element1(dcrtParams);
+	ILVector2n element1(dcrtParams);
 	element1.SwitchFormat();
 	element1 = {1};
 	shared_ptr<Ciphertext<ILVectorArray2n>> cipherText1 = cc.GetEncryptionAlgorithm()->Encrypt(kp.publicKey,element1);
 
-	ILVectorArray2n element2(dcrtParams);
+	ILVector2n element2(dcrtParams);
 	element2.SwitchFormat();
 	element2 = {2};
 	shared_ptr<Ciphertext<ILVectorArray2n>> cipherText2 = cc.GetEncryptionAlgorithm()->Encrypt(kp.publicKey,element2);
 
-	ILVectorArray2n element3(dcrtParams);
+	ILVector2n element3(dcrtParams);
 	element3.SwitchFormat();
 	element3 = {3};
 	shared_ptr<Ciphertext<ILVectorArray2n>> cipherText3 = cc.GetEncryptionAlgorithm()->Encrypt(kp.publicKey,element3);
 
-	ILVectorArray2n element4(dcrtParams);
+	ILVector2n element4(dcrtParams);
 	element4.SwitchFormat();
 	element4 = {4};
 	shared_ptr<Ciphertext<ILVectorArray2n>> cipherText4 = cc.GetEncryptionAlgorithm()->Encrypt(kp.publicKey,element4);
 
-	ILVectorArray2n element5(dcrtParams);
+	ILVector2n element5(dcrtParams);
 	element5.SwitchFormat();
 	element5 = {5};
 	shared_ptr<Ciphertext<ILVectorArray2n>> cipherText5 = cc.GetEncryptionAlgorithm()->Encrypt(kp.publicKey,element5);
 
-	
+
 }
 
 void ComposedEvalMultTest(){
-	usint init_m = 16;
+	usint m = 16;
 
 	float init_stdDev = 4;
 
-	usint init_size = 3;
+	usint size = 3;
 
-	vector<BigBinaryInteger> init_moduli(init_size);
+	vector<native64::BigBinaryInteger> moduli(size);
 
-	vector<BigBinaryInteger> init_rootsOfUnity(init_size);
+	vector<native64::BigBinaryInteger> rootsOfUnity(size);
 
-	BigBinaryInteger q("1");
-	BigBinaryInteger temp;
+	native64::BigBinaryInteger q("1");
+	native64::BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
 
-	for (int i = 0; i < init_size; i++) {
-		lbcrypto::NextQ(q, BigBinaryInteger::FIVE, init_m, BigBinaryInteger("4"), BigBinaryInteger("4"));
-		init_moduli[i] = q;
-		init_rootsOfUnity[i] = RootOfUnity(init_m, init_moduli[i]);
-		modulus = modulus* init_moduli[i];
-
+	for(int i=0; i < size; i++){
+		lbcrypto::NextQ(q, native64::BigBinaryInteger::TWO, m, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
+		moduli[i] = q;
+		rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
+		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
 	}
 
-	shared_ptr<ILDCRTParams> params( new ILDCRTParams(init_m, init_moduli, init_rootsOfUnity) );
+	shared_ptr<ILDCRTParams> params( new ILDCRTParams(m, moduli, rootsOfUnity) );
 
 	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams(params,
 			BigBinaryInteger::FIVE,
@@ -539,7 +730,7 @@ void ComposedEvalMultTest(){
 			6,
 			1.006,
 			1,
-			init_size - 1);
+			size - 1);
 
 	LPCryptoParametersLTV<ILVectorArray2n> finalParamsThreeTowers;
 
@@ -591,29 +782,4 @@ bool canRingReduce(usint ringDimension, std::vector<BigBinaryInteger> moduli, do
 	double powerOfTwo = pow(2, powerValue);
 
 	return rootHermiteFactor >= powerOfTwo;
-}
-
-
-void FFTTest() {
-	usint m1 = 8;
-	
-
-	BigBinaryInteger modulus(17729);
-	BigBinaryInteger rootOfUnity(RootOfUnity(m1, modulus));
-	cout << rootOfUnity << endl;
-	cout << rootOfUnity << endl;
-	shared_ptr<ILParams> params( new ILParams(m1, modulus, rootOfUnity) );
-
-	ILVector2n x1(params, Format::COEFFICIENT);
-	x1 = { 1,0,1,0};
-	
-
-	x1.Decompose();
-
-	x1.SwitchFormat();
-	x1.SwitchFormat();
-
-	x1.PrintValues();
-
-	
 }

@@ -334,8 +334,8 @@ namespace lbcrypto {
 			 */
 			void Obfuscate(
 				const ClearLWEConjunctionPattern<Element> &clearPattern,
-				DiscreteGaussianGenerator &dgg,
-				TernaryUniformGenerator &tug,
+				typename Element::DggType &dgg,
+				typename Element::TugType &tug,
 				ObfuscatedLWEConjunctionPattern<Element> *obfuscatedPattern) const;
 
 			/**
@@ -344,7 +344,7 @@ namespace lbcrypto {
 			* @param &dgg the discrete Gaussian Generator.
 			* @param &obfuscatedPattern the obfuscated pattern.
 			*/
-			void ParamsGen(DiscreteGaussianGenerator &dgg,
+			void ParamsGen(typename Element::DggType &dgg,
 				ObfuscatedLWEConjunctionPattern<Element> *obfuscatedPattern, uint32_t n = 0) const;
 
 			/**
@@ -353,7 +353,7 @@ namespace lbcrypto {
 			 * @param &dgg the discrete Gaussian Generator.
 			 * @param &obfuscatedPattern the obfuscated pattern.
 			 */
-			void KeyGen(DiscreteGaussianGenerator &dgg,
+			void KeyGen(typename Element::DggType &dgg,
 				ObfuscatedLWEConjunctionPattern<Element> *obfuscatedPattern) const;
 
 			/**
@@ -371,8 +371,8 @@ namespace lbcrypto {
 				const Matrix<Element> &Aj,
 				const RLWETrapdoorPair<ILVector2n> &Ti,
 				const Element &elemS,
-				DiscreteGaussianGenerator &dgg,
-				DiscreteGaussianGenerator &dggLargeSigma) const;
+				typename Element::DggType &dgg,
+				typename Element::DggType &dggLargeSigma) const;
 
 			/**
 			 * Method for evaluating the pattern - before matrix-vector optimization

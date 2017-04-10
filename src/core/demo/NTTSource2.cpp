@@ -14,7 +14,6 @@
 #include "lattice/ilparams.h"
 #include "lattice/ildcrtparams.h"
 #include "lattice/ilelement.h"
-//#include/crypto/lwecrypt.h"
 #include "obfuscation/obfuscatelp.h"
 #endif
 #include "time.h"
@@ -117,7 +116,8 @@ void test_NTT (const usint level, const usint nloop) {
   ILParams params1(m, q1, rootOfUnity1);
   shared_ptr<ILParams> x1p(new ILParams(params1));
 
-  const DiscreteUniformGenerator dug1(q1); //random # generator to use
+  ILVector2n::DugType dug1;
+  dug1.SetModulus(q1); //random # generator to use
 
   // two vectors
   ILVector2n x1a(dug1, x1p, Format::COEFFICIENT); 
@@ -147,7 +147,8 @@ void test_NTT (const usint level, const usint nloop) {
   ILParams params2(m, q2, rootOfUnity2);
   shared_ptr<ILParams> x2p(new ILParams(params2));
 
-  const DiscreteUniformGenerator dug2(q2);
+  ILVector2n::DugType dug2;
+  dug2.SetModulus(q1); //random # generator to use
 
   ILVector2n x2a(dug2, x2p, Format::COEFFICIENT);
   ILVector2n x2b(dug2, x2p, Format::COEFFICIENT);
@@ -171,7 +172,8 @@ void test_NTT (const usint level, const usint nloop) {
   ILParams params3(m, q3, rootOfUnity3);
   shared_ptr<ILParams> x3p(new ILParams(params3));
 
-  const DiscreteUniformGenerator dug3(q3); //random # generator to use
+  ILVector2n::DugType dug3;
+  dug3.SetModulus(q1); //random # generator to use
 
   // two vectors
   ILVector2n x3a(dug3, x3p, Format::COEFFICIENT); 

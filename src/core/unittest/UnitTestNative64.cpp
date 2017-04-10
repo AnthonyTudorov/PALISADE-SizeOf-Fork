@@ -742,7 +742,8 @@ TEST(UTNative64Int,mod_arithmetic){
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
       << "Failure testing really big numbers";
   }
-
+  //Native operations with modulus > 32 bits and less than 64 bits are not supported for Visual C++
+#if !defined(_MSC_VER)
   {
 	native64::BigBinaryInteger m( "13835058055282163712" );
 	native64::BigBinaryInteger n( "13835058055282163719" );
@@ -754,6 +755,7 @@ TEST(UTNative64Int,mod_arithmetic){
 	EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
 		<< "Failure testing really super big numbers (causing overflow in 64-bit arithmetic); this test is expected to fail in Visual Studio";
   }
+#endif
 
   /************************************************/
   /* TESTING METHOD MODSUB FOR ALL CONDITIONS -*/
@@ -853,7 +855,8 @@ TEST(UTNative64Int,mod_arithmetic){
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
       << "Failure testing mod_exp_test";
   }
-
+ //Native operations with modulus > 32 bits and less than 64 bits are not supported for Visual C++
+#if !defined(_MSC_VER)
   {
 	native64::BigBinaryInteger m( "4611686019217177693" );
 	native64::BigBinaryInteger n( "2305843009213700738" );
@@ -877,6 +880,7 @@ TEST(UTNative64Int,mod_arithmetic){
 	EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
 		<< "Failure testing really super big numbers (causing overflow in 64-bit arithmetic);  this test is expected to fail in Visual Studio";
   }
+#endif
 }
 
 TEST(UTNative64Int,shift){

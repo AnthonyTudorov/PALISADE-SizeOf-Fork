@@ -93,7 +93,7 @@
 #define MATHBACKEND 6 
 
 // native64 native
-//#define MATHBACKEND 7	
+// #define MATHBACKEND 7	
 
 #define NO_MATHBACKEND_7  //if defined, then MATHBACKEND 7 is disabled
 #ifndef NO_MATHBACKEND_7
@@ -172,7 +172,7 @@ typedef cpu_int::BigBinaryVectorImpl<NativeInteger<uint64_t>> BigBinaryVector;
 namespace lbcrypto {
 
 template<typename IntType> class ILParamsImpl;
-template<typename IntType, typename VecType, typename ParmType> class ILVectorImpl;
+template<typename ModType, typename IntType, typename VecType, typename ParmType> class ILVectorImpl;
 
 #if MATHBACKEND == 2
 	/** integral_dtype specifies the native data type used for the BigBinaryInteger implementation 
@@ -342,8 +342,8 @@ template<typename IntType, typename VecType, typename ParmType> class ILVectorIm
 
 	#define BigBinaryIntegerBitLength 0 // zero indicates unused
 
-	typedef native64::NativeInteger<uint64_t> BigBinaryInteger;
-	typedef cpu_int::BigBinaryVectorImpl<BigBinaryInteger> BigBinaryVector;
+	typedef native64::BigBinaryInteger BigBinaryInteger;
+	typedef native64::BigBinaryVector BigBinaryVector;
 
 	/** Define the mapping for ExpBigBinaryInteger (experimental) */
 	typedef exp_int::ubint<integral_dtype> ubint;
@@ -357,11 +357,10 @@ template<typename IntType, typename VecType, typename ParmType> class ILVectorIm
 #endif
 
 	typedef ILParamsImpl<BigBinaryInteger> ILParams;
-	typedef ILVectorImpl<BigBinaryInteger, BigBinaryVector, ILParams> ILVector2n;
-#ifndef NO_MATHBACKEND_7
+	typedef ILVectorImpl<BigBinaryInteger, BigBinaryInteger, BigBinaryVector, ILParams> ILVector2n;
+
 	typedef ILParamsImpl<native64::BigBinaryInteger> ILNativeParams;
-	typedef ILVectorImpl<native64::BigBinaryInteger, native64::BigBinaryVector, ILNativeParams> ILVectorNative2n;
-#endif
+	typedef ILVectorImpl<native64::BigBinaryInteger, native64::BigBinaryInteger, native64::BigBinaryVector, ILNativeParams> ILVectorNative2n;
 
 } // namespace lbcrypto ends
 

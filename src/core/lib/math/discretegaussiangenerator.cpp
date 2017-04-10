@@ -4,15 +4,15 @@
 
 namespace lbcrypto {
 
-	template<typename IntType, typename VecType>
-	DiscreteGaussianGeneratorImpl<IntType,VecType>::DiscreteGaussianGeneratorImpl() : DistributionGenerator() {
+//	template<typename IntType, typename VecType>
+//	DiscreteGaussianGeneratorImpl<IntType,VecType>::DiscreteGaussianGeneratorImpl() : DistributionGenerator<IntType,VecType>() {
+//
+//		SetStd(1);
+//		Initialize();
+//	}
 
-		SetStd(1);
-		Initialize();
-	}
-
 	template<typename IntType, typename VecType>
-	DiscreteGaussianGeneratorImpl<IntType,VecType>::DiscreteGaussianGeneratorImpl(float std) : DistributionGenerator() {
+	DiscreteGaussianGeneratorImpl<IntType,VecType>::DiscreteGaussianGeneratorImpl(float std) : DistributionGenerator<IntType,VecType>() {
 
 		SetStd(std);
 		Initialize();
@@ -83,7 +83,7 @@ namespace lbcrypto {
 		sint ans;
 
 
-		seed = distribution(GetPRNG()) - 0.5; //we need to use the binary uniform generator rathen than regular continuous distribution; see DG14 for details
+		seed = distribution(PseudoRandomNumberGenerator::GetPRNG()) - 0.5; //we need to use the binary uniform generator rather than regular continuous distribution; see DG14 for details
 		if (std::abs(seed) <= m_a / 2) {
 			val = 0;
 		}
@@ -108,7 +108,7 @@ namespace lbcrypto {
 		std::shared_ptr<sint> ans( new sint[size], std::default_delete<int[]>() );
 
 		for (usint i = 0; i < size; i++) {
-			seed = distribution(GetPRNG()) - 0.5; //we need to use the binary uniform generator rathen than regular continuous distribution; see DG14 for details
+			seed = distribution(PseudoRandomNumberGenerator::GetPRNG()) - 0.5; //we need to use the binary uniform generator rathen than regular continuous distribution; see DG14 for details
 			if (std::abs(seed) <= m_a / 2) {
 				val = 0;
 			}
@@ -135,14 +135,14 @@ namespace lbcrypto {
 	}
 
 	template<typename IntType, typename VecType>
-	IntType DiscreteGaussianGeneratorImpl<IntType,VecType>::GenerateInteger(const IntType &modulus) const {
+	IntType DiscreteGaussianGeneratorImpl<IntType,VecType>::GenerateInteger(const IntType& modulus) const {
 
 		int32_t val = 0;
 		double seed;
 		IntType ans;
 		std::uniform_real_distribution<double> distribution(0.0, 1.0);
 
-		seed = distribution(GetPRNG()) - 0.5;
+		seed = distribution(PseudoRandomNumberGenerator::GetPRNG()) - 0.5;
 
 		if (std::abs(seed) <= m_a / 2) {
 			val = 0;
@@ -211,9 +211,9 @@ namespace lbcrypto {
 
 		while (!flagSuccess) {
 			//  pick random int
-			x = uniform_int(GetPRNG());
+			x = uniform_int(PseudoRandomNumberGenerator::GetPRNG());
 			//  roll the uniform dice
-			double dice = uniform_real(GetPRNG());
+			double dice = uniform_real(PseudoRandomNumberGenerator::GetPRNG());
 			//  check if dice land below pdf
 			if (dice <= UnnormalizedGaussianPDF(mean, stddev, x)) {
 				flagSuccess = true;
@@ -233,7 +233,7 @@ namespace lbcrypto {
 	}
 
 	template<typename IntType, typename VecType>
-	int32_t DiscreteGaussianGeneratorImpl<IntType,VecType>::GenerateInteger(double mean, double stddev, size_t n) {
+	int32_t DiscreteGaussianGeneratorImpl<IntType,VecType>::GenerateInteger(double mean, double stddev, size_t n) const {
 
 		double t = log2(n)*stddev;  //this representation of log_2 is used for Visual Studio
 
@@ -249,9 +249,9 @@ namespace lbcrypto {
 
 		while (!flagSuccess) {
 			//  pick random int
-			x = uniform_int(GetPRNG());
+			x = uniform_int(PseudoRandomNumberGenerator::GetPRNG());
 			//  roll the uniform dice
-			double dice = uniform_real(GetPRNG());
+			double dice = uniform_real(PseudoRandomNumberGenerator::GetPRNG());
 			//  check if dice land below pdf
 			if (dice <= UnnormalizedGaussianPDFOptimized(mean, sigmaFactor, x)) {
 				flagSuccess = true;
@@ -319,7 +319,7 @@ namespace lbcrypto {
 			//To generate random bit a 32 bit integer is generated in every 32 iterations and each single bit is used in order to save cycles
 			while (hit == 0 && col <= 31) {
 				if (counter % 32 == 0) {
-					seed = uniform_int(GetPRNG());
+					seed = uniform_int(PseudoRandomNumberGenerator::GetPRNG());
 					counter = 0;
 				}
 				uint32_t r = seed >> counter;

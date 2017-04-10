@@ -94,13 +94,12 @@ namespace lbcrypto {
 		RingMat A = signKey.GetPrivateElement().first;
 		RLWETrapdoorPair<ILVector2n> T = signKey.GetPrivateElement().second;
 		double stddev = signKey.GetSignatureParameters().GetDiscreteGaussianGenerator().GetStd();
-		DiscreteGaussianGenerator & dgg = signKey.GetSignatureParameters().GetDiscreteGaussianGenerator();
+		typename Element::DggType & dgg = signKey.GetSignatureParameters().GetDiscreteGaussianGenerator();
 
 		//Generating the signature via Gaussian sampling using the values above
 		//double c = 2 * SIGMA;
 		//double s = SPECTRAL_BOUND(n, k);
-		//DiscreteGaussianGenerator dggLargeSigma(sqrt(s * s - c * c));
-		DiscreteGaussianGenerator & dggLargeSigma = signKey.GetSignatureParameters().GetDiscreteGaussianGeneratorLargeSigma();
+		typename Element::DggType & dggLargeSigma = signKey.GetSignatureParameters().GetDiscreteGaussianGeneratorLargeSigma();
 		Matrix<ILVector2n> zHat = RLWETrapdoorUtility::GaussSamp(n,k,A,T,u,stddev,dgg,dggLargeSigma);
 		signatureText->SetElement(zHat);
 

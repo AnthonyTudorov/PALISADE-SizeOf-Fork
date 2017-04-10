@@ -21,4 +21,7 @@ void UnitTestEncryption(const CryptoContext<Element>& cc);
 template <class Element>
 void UnitTestReEncryption(const CryptoContext<Element>& cc);
 
+template <class Element>
+void UnitTestDCRT(const CryptoContext<Element>& cc);
+
 #endif /* TEST_SRC_CRYPTOLAYERTESTS_H_ */

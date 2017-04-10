@@ -61,7 +61,7 @@ TEST(UTStatisticalEval, Null_Eval_Lin_Regression) {
 	string rootOfUnity("268585022");
 
 	//Set crypto parametes
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::getCryptoContextNull(plaintextModulus, m, modulus, rootOfUnity);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextNull(plaintextModulus, m, modulus, rootOfUnity);
 
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
@@ -160,7 +160,7 @@ TEST(UTStatisticalEval, Null_Eval_Lin_Regression_Int) {
 	string rootOfUnity("268585022");
 
 	//Set crypto parametes
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::getCryptoContextNull(std::to_string(plaintextModulus), m, modulus, rootOfUnity);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextNull(std::to_string(plaintextModulus), m, modulus, rootOfUnity);
 
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);

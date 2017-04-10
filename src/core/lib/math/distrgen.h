@@ -1,7 +1,7 @@
 /**
  * @file
  * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
- *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>, Nishanth Pasham, np386@njit.edu
+ *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>
  * @version 00_04
  *
  * @section LICENSE
@@ -34,7 +34,7 @@
 #ifndef LBCRYPTO_MATH_DISTRGEN_H_
 #define LBCRYPTO_MATH_DISTRGEN_H_
 
-#define _USE_MATH_DEFINES 
+#define _USE_MATH_DEFINES
 #include <cmath>
 #include <random>
 #include <bitset>

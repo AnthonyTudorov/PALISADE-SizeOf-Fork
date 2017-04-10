@@ -53,20 +53,15 @@ typedef DiscreteGaussianGeneratorImpl<BigBinaryInteger,BigBinaryVector> Discrete
 * @brief The class for Discrete Gaussion Distribution generator.
 */
 template<typename IntType, typename VecType>
-class DiscreteGaussianGeneratorImpl : DistributionGenerator {
+class DiscreteGaussianGeneratorImpl : public DistributionGenerator<IntType,VecType> {
 
 public:
-	/**
-	* Default constructor.
-	*/
-	DiscreteGaussianGeneratorImpl();
-
 	/**
 	* @brief         Basic constructor for specifying distribution parameter and modulus.
 	* @param modulus The modulus to use to generate discrete values.
 	* @param std     The standard deviation for this Gaussian Distribution.
 	*/
-	DiscreteGaussianGeneratorImpl (float std);
+	DiscreteGaussianGeneratorImpl (float std = 1);
 
 	/**
 	* @brief Initializes the generator.
@@ -104,7 +99,7 @@ public:
 	* @brief  Returns a generated integer. Uses Peikert's inversion method.
 	* @return A random value within this Discrete Gaussian Distribution.
 	*/
-	IntType GenerateInteger (const IntType &modulus) const;
+	IntType GenerateInteger (const IntType& modulus) const;
 
 	/**
 	* @brief           Generates a vector of random values within this Discrete Gaussian Distribution. Uses Peikert's inversion method.
@@ -132,7 +127,7 @@ public:
 	* @param n is ring dimension
 	* @return A random value within this Discrete Gaussian Distribution.
 	*/
-	static int32_t GenerateInteger (double mean, double stddev, size_t n);
+	int32_t GenerateInteger (double mean, double stddev, size_t n) const;
 
 	/**
 	* @brief  Returns a generated integer (int32_t). Uses rejection method.

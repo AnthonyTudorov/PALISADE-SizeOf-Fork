@@ -91,13 +91,13 @@ namespace lbcrypto {
 
 		const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 
-		const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
+		const typename Element::Integer &p = cryptoParams->GetPlaintextModulus();
 
-		const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
+		const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 
-		const DiscreteUniformGenerator dug(elementParams->GetModulus());
+		typename Element::DugType dug;
 
-		TernaryUniformGenerator tug;
+		typename Element::TugType tug;
 
 		//Generate the element "a" of the public key
 		Element a(dug, elementParams, Format::EVALUATION);
@@ -116,6 +116,7 @@ namespace lbcrypto {
 		s.SwitchFormat();
 
 		//public key is generated and set
+		//privateKey->MakePublicKey(a, publicKey);
 		Element e(dgg, elementParams, Format::COEFFICIENT);
 		e.SwitchFormat();
 
@@ -132,7 +133,7 @@ namespace lbcrypto {
 
 	template <class Element>
 	shared_ptr<Ciphertext<Element>> LPAlgorithmBV<Element>::Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
-		Element &plaintext) const
+		ILVector2n &ptxt) const
 	{
 
 		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(publicKey->GetCryptoParameters());
@@ -140,10 +141,10 @@ namespace lbcrypto {
 		shared_ptr<Ciphertext<Element>> ciphertext(new Ciphertext<Element>(publicKey->GetCryptoContext()));
 
 		const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
-		const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
-		const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
+		const typename Element::Integer &p = cryptoParams->GetPlaintextModulus();
+		const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 
-		TernaryUniformGenerator tug;
+		typename Element::TugType tug;
 
 		const Element &a = publicKey->GetPublicElements().at(0);
 		const Element &b = publicKey->GetPublicElements().at(1);
@@ -158,6 +159,8 @@ namespace lbcrypto {
 
 		Element e0(dgg, elementParams, Format::EVALUATION);
 		Element e1(dgg, elementParams, Format::EVALUATION);
+
+		Element plaintext(ptxt, elementParams);
 
 		plaintext.SwitchFormat();
 
@@ -179,12 +182,12 @@ namespace lbcrypto {
 	template <class Element>
 	DecryptResult LPAlgorithmBV<Element>::Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const shared_ptr<Ciphertext<Element>> ciphertext,
-		Element *plaintext) const
+		ILVector2n *plaintext) const
 	{
 
 		const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
 
-		const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
+		const typename Element::Integer &p = cryptoParams->GetPlaintextModulus();
 
 		const std::vector<Element> &c = ciphertext->GetElements();
 
@@ -194,7 +197,10 @@ namespace lbcrypto {
 
 		b.SwitchFormat();
 
-		*plaintext = b.SignedMod(p);
+		// Interpolation is needed in the case of Double-CRT interpolation, for example, ILVectorArray2n
+		// CRTInterpolate does nothing when dealing with single-CRT ring elements, such as ILVector2n
+		ILVector2n interpolatedElement = b.CRTInterpolate();
+		*plaintext = interpolatedElement.SignedMod(p);
 
 		return DecryptResult(plaintext->GetLength());
 
@@ -316,12 +322,12 @@ namespace lbcrypto {
 		const Element &s = originalPrivateKey->GetPrivateElement();
 
 		//Getting a refernce to discrete gaussian distribution generator.
-		const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
+		const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 
 		//Getting a reference to ternary distribution generator.
-		const DiscreteUniformGenerator dug(originalKeyParams->GetModulus());
+		typename Element::DugType dug;
 
-		//Relinearizaiton window is used to calculate the base exponent.
+		//Relinearization window is used to calculate the base exponent.
 		usint relinWindow = cryptoParams->GetRelinWindow();
 
 		//Pushes the powers of base exponent of original key polynomial onto evalKeyElements.

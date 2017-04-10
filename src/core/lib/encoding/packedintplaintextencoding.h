@@ -61,26 +61,13 @@ namespace lbcrypto {
 
 		PackedIntPlaintextEncoding() : std::vector<uint32_t>() {}
 
-		/** Interface for the operation of converting from current plaintext encoding to ilVectorArray2n.
-		*
-		* @param  modulus - used for encoding.
-		* @param  *ilVectorArray2n encoded plaintext - output argument.
-		*/
-		void Encode(const BigBinaryInteger &modulus, ILVectorArray2n *iLVectorArray2n, size_t start_from = 0, size_t length = 0) const;
-
-		/** Interface for the operation of converting from ILVector2n to current plaintext encoding.
-		*
-		* @param  modulus - used for encoding.
-		* @param  *ilVectorArray2n encoded plaintext - input argument.
-		*/
-		void Decode(const BigBinaryInteger &modulus, ILVectorArray2n *iLVectorArray2n);
-
 		/** Interface for the operation of converting from current plaintext encoding to ILVector2n.
 		*
 		* @param  modulus - used for encoding.
 		* @param  *ilVector encoded plaintext - output argument.
 		*/
 		void Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector, size_t start_from = 0, size_t length = 0) const;
+		void Encode(const BigBinaryInteger &modulus, native64::ILVector2n *ilVector, size_t start_from = 0, size_t length = 0) const;
 
 		/** Interface for the operation of converting from ILVector2n to current plaintext encoding.
 		*
@@ -88,6 +75,7 @@ namespace lbcrypto {
 		* @param  *ilVector encoded plaintext - input argument.
 		*/
 		void Decode(const BigBinaryInteger &modulus, ILVector2n *ilVector);
+		void Decode(const BigBinaryInteger &modulus, native64::ILVector2n *ilVector);
 
 		void Unpad(const BigBinaryInteger &modulus) {} // a null op; no padding in int
 

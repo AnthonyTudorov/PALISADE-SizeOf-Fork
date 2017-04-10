@@ -44,16 +44,18 @@ class TernaryUniformGeneratorImpl;
 typedef TernaryUniformGeneratorImpl<BigBinaryInteger,BigBinaryVector> TernaryUniformGenerator;
 
 /**
-* @brief A generator of the Binary Uniform Distribution.
+* @brief A generator of the Ternary Uniform Distribution.
 */
 template<typename IntType, typename VecType>
-class TernaryUniformGeneratorImpl : public DistributionGenerator {
+class TernaryUniformGeneratorImpl : public DistributionGenerator<IntType,VecType> {
 
 public:
 	/**
 	* @brief Basic constructor for Binary Uniform Generator.
 	*/
-	TernaryUniformGeneratorImpl () : DistributionGenerator () {}
+	TernaryUniformGeneratorImpl () : DistributionGenerator<IntType,VecType>() {}
+
+	IntType GenerateInteger(const IntType&) const { return IntType::ZERO; }
 
 	/**
 	* @brief  Generates a vector of random values within the Ternary Uniform Distribution.

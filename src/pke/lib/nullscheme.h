@@ -14,9 +14,6 @@ namespace lbcrypto {
 
 template <class Element>
 class LPCryptoParametersNull : public LPCryptoParameters<Element> {
-private:
-	DiscreteGaussianGenerator	m_dgg;
-
 public:
 	LPCryptoParametersNull() : LPCryptoParameters<Element>() {}
 
@@ -26,8 +23,6 @@ public:
 	LPCryptoParametersNull(const LPCryptoParametersNull& rhs) : LPCryptoParameters<Element>(rhs) {}
 
 	virtual ~LPCryptoParametersNull() {}
-
-	const DiscreteGaussianGenerator &GetDiscreteGaussianGenerator() const {return m_dgg;}
 
 	virtual void SetPlaintextModulus(const BigBinaryInteger &plaintextModulus) {
 		LPCryptoParameters<Element>::SetPlaintextModulus(plaintextModulus);
@@ -121,13 +116,12 @@ public:
 	* @param *ciphertext ciphertext which results from encryption.
 	*/
 	shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> pubKey,
-		Element &plaintext) const {
+		ILVector2n &ptxt) const {
 		shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(pubKey->GetCryptoContext()) );
 
-		Element copyPlain(pubKey->GetCryptoContext().GetCryptoParameters()->GetElementParams());
-		copyPlain.SetValues(plaintext.GetValues(), Format::EVALUATION);
+		Element plaintext(ptxt, pubKey->GetCryptoContext().GetCryptoParameters()->GetElementParams());
 
-		ciphertext->SetElement(copyPlain);
+		ciphertext->SetElement(plaintext);
 
 		return ciphertext;
 	}
@@ -142,8 +136,10 @@ public:
 	*/
 	DecryptResult Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const shared_ptr<Ciphertext<Element>> ciphertext,
-		Element *plaintext) const {
-		*plaintext = ciphertext->GetElement();
+		ILVector2n *plaintext) const {
+		Element b = ciphertext->GetElement();
+		ILVector2n interpolatedElement = b.CRTInterpolate();
+		*plaintext = interpolatedElement;
 		return DecryptResult(plaintext->GetLength());
 	}
 
@@ -355,13 +351,6 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		 */
 		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
 			const shared_ptr<Ciphertext<Element>> ciphertext2) const {
-			if (typeid(Element) != typeid(ILVector2n)) {
-				throw std::runtime_error("EvalMult only implemented for Null Scheme and element ILVector2n.");
-			}
-
-			if (ciphertext1->GetElement().GetFormat() == Format::COEFFICIENT || ciphertext2->GetElement().GetFormat() == Format::COEFFICIENT) {
-				throw std::runtime_error("EvalMult cannot multiply in COEFFICIENT domain.");
-			}
 
 			shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext2->GetCryptoContext()));
 
@@ -374,7 +363,6 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 
 			const BigBinaryInteger& ptm = ciphertext1->GetCryptoParameters()->GetPlaintextModulus();
 			int	ringdim = c1.GetCyclotomicOrder() / 2;
-
 			for (int c1e = 0; c1e<ringdim; c1e++) {
 				BigBinaryInteger answer, c1val, c2val, prod;
 				c1val = c1.GetValAtIndex(c1e);
@@ -403,8 +391,6 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 				adj = cResult.GetValAtIndex(i) + (ptm - cLarger.GetValAtIndex(i)) % ptm;
 				cResult.SetValAtIndex(i, adj % ptm);
 			}
-
-			// DO NOT USE element's operator* !!!  Element cResult = c1*c2;
 
 			newCiphertext->SetElement(cResult);
 

@@ -204,9 +204,6 @@ TEST(UTLTVBATCHING, ILVector2n_EVALMULT) {
 	cc.Enable(SHE);
 	cc.Enable(LEVELEDSHE);
 
-	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(cc.GetGenerator(), cc.GetElementParams());
-
 	//Initialize the public key containers.
 	LPKeyPair<ILVector2n> kp;
 
@@ -241,7 +238,4 @@ TEST(UTLTVBATCHING, ILVector2n_EVALMULT) {
 
 	
 	EXPECT_EQ(results, vectorOfIntsExpected);
-
-	ILVector2n::DestroyPreComputedSamples();
-
 }

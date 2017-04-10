@@ -150,7 +150,7 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 		timeEval2(0.0), timeEval3(0.0), timeTotal(0.0);
 
 	double stdDev = SIGMA;
-	DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(stdDev);			// Create the noise generator
+	ILVector2n::DggType dgg(stdDev);			// Create the noise generator
 
 																				//Finds q using the correctness constraint for the given value of n
 	algorithm.ParamsGen(dgg, &obfuscatedPattern, m / 2);
@@ -169,9 +169,9 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 	PROFILELOG("n = " << m / 2);
 	PROFILELOG(printf("delta=%lf", obfuscatedPattern.GetRootHermiteFactor()));
 
-	//Set crypto parametes
-	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
-	TernaryUniformGenerator tug = TernaryUniformGenerator();			// Create the noise generator
+	typename ILVector2n::DugType dug;
+	dug.SetModulus(modulus);
+	typename ILVector2n::TugType tug;
 
 	PROFILELOG("\nCryptosystem initialization: Performing precomputations...");
 
