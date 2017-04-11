@@ -101,8 +101,11 @@ buildContextFromSerialized(const map<string,string>& s)
 			return 0;
 		}
 
-		return CryptoContextFactory<Element>::genCryptoContextStehleSteinfeld(stoul(plaintextModulus), stoul(ring),
-				modulus, rootOfUnity, stoul(relinWindow), stof(stDev), stof(stDevStSt));
+		shared_ptr<typename Element::Params> parms( new typename Element::Params(stoul(ring),
+														typename Element::Integer(modulus),
+														typename Element::Integer(rootOfUnity)) );
+		return CryptoContextFactory<Element>::genCryptoContextStehleSteinfeld(parms, stoul(plaintextModulus),
+				stoul(relinWindow), stof(stDev), stof(stDevStSt));
 	}
 	else if( parmtype == "FV" ) {
 		if( !getValueForName(s, "plaintextModulus", plaintextModulus) ||
@@ -123,9 +126,11 @@ buildContextFromSerialized(const map<string,string>& s)
 			return 0;
 		}
 
-		return CryptoContextFactory<Element>::genCryptoContextBV(
-				stoul(plaintextModulus), stoul(ring), modulus, rootOfUnity,
-				stoul(relinWindow), stof(stDev));
+		shared_ptr<typename Element::Params> parms( new typename Element::Params(stoul(ring),
+														typename Element::Integer(modulus),
+														typename Element::Integer(rootOfUnity)) );
+		return CryptoContextFactory<Element>::genCryptoContextBV(parms,
+				stoul(plaintextModulus), stoul(relinWindow), stof(stDev));
 	}
 	else if( parmtype == "Null" ) {
 		if( !getValueForName(s, "plaintextModulus", plaintextModulus) ||
@@ -135,7 +140,10 @@ buildContextFromSerialized(const map<string,string>& s)
 			return 0;
 		}
 
-		return CryptoContextFactory<Element>::genCryptoContextNull(plaintextModulus, stoul(ring), modulus, rootOfUnity);
+		shared_ptr<typename Element::Params> parms( new typename Element::Params(stoul(ring),
+														typename Element::Integer(modulus),
+														typename Element::Integer(rootOfUnity)) );
+		return CryptoContextFactory<Element>::genCryptoContextNull(parms, stoul(plaintextModulus));
 	}
 	else {
 		throw std::logic_error("Unrecognized parmtype " + parmtype + " in buildContextFromSerialized");

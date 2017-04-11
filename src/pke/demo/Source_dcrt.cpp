@@ -189,14 +189,7 @@ void EvalMultTest(bool runsmall, bool runbig) {
 		std::cout << "Case " << i << " m=" << Scenarios[i].m << " bits=" << Scenarios[i].bits << std::endl;
 		if( runbig ) {
 			shared_ptr<ILParams> spparm = GenSinglePrimeParams(i);
-			LPCryptoParametersBV<ILVector2n> *cp = new LPCryptoParametersBV<ILVector2n>(
-					spparm,
-					BigBinaryInteger(1<<32 - 1),
-					4.0,
-					0.0,
-					0.0,
-					16, RLWE, 1);
-			CryptoContext<ILVector2n> cc1 = CryptoContextFactory<ILVector2n>::genCryptoContextBV(cp, RLWE);
+			CryptoContext<ILVector2n> cc1 = CryptoContextFactory<ILVector2n>::genCryptoContextBV(spparm, 1<<32 - 1, 16, 4.0);
 			cc1.Enable(ENCRYPTION);
 			cc1.Enable(SHE);
 
@@ -220,14 +213,7 @@ void EvalMultTest(bool runsmall, bool runbig) {
 		if( runsmall ) {
 			shared_ptr<ILDCRTParams> dcparm = GenDCRTParams(i);
 			shared_ptr<ILParams> tvp( new ILParams(dcparm->GetCyclotomicOrder(), dcparm->GetModulus(), BigBinaryInteger::ONE) );
-			LPCryptoParametersBV<ILVectorArray2n> *cp2 = new LPCryptoParametersBV<ILVectorArray2n>(
-					dcparm,
-					BigBinaryInteger(1<<32 - 1),
-					4.0,
-					0.0,
-					0.0,
-					16, RLWE, 1);
-			CryptoContext<ILVectorArray2n> cc2 = CryptoContextFactory<ILVectorArray2n>::genCryptoContextBV(cp2, RLWE);
+			CryptoContext<ILVectorArray2n> cc2 = CryptoContextFactory<ILVectorArray2n>::genCryptoContextBV(dcparm, 1<<32 - 1, 16, 4.0);
 			cc2.Enable(ENCRYPTION);
 			cc2.Enable(SHE);
 

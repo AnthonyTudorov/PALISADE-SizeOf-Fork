@@ -55,13 +55,13 @@ public:
 */
 TEST(UTStatisticalEval, Null_Eval_Lin_Regression) {
 
-	string plaintextModulus("256");
+	usint plaintextModulus = 256;
 	usint m = 64;
-	string modulus("256");
-	string rootOfUnity("268585022");
+	typename ILVector2n::Integer modulus("256");
+	typename ILVector2n::Integer rootOfUnity("268585022");
 
-	//Set crypto parametes
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextNull(plaintextModulus, m, modulus, rootOfUnity);
+	shared_ptr<ILVector2n::Params> ep( new ILVector2n::Params(m, modulus, rootOfUnity) );
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextNull(ep, plaintextModulus);
 
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
@@ -156,12 +156,11 @@ TEST(UTStatisticalEval, Null_Eval_Lin_Regression_Int) {
 
 	usint plaintextModulus = 256;
 	usint m = 64;
-	string modulus("256");
-	string rootOfUnity("268585022");
+	typename ILVector2n::Integer modulus("256");
+	typename ILVector2n::Integer rootOfUnity("268585022");
 
-	//Set crypto parametes
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextNull(std::to_string(plaintextModulus), m, modulus, rootOfUnity);
-
+	shared_ptr<ILVector2n::Params> ep( new ILVector2n::Params(m, modulus, rootOfUnity) );
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextNull(ep, plaintextModulus);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 
