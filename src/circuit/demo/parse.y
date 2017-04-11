@@ -111,7 +111,6 @@ line:           command
 		|		OUTPUTS	numlist ENDLS
 				{
 					for( int i : $2 ) {
-						std::cout << i << " is an output" << std::endl;
 						driver.graph.getNodeById(i)->setAsOutput();
 					}
 				}
@@ -192,17 +191,14 @@ numlist:       /* empty */
 
 gate:           NUM ADD numlist ENDLS
                 {
-                    std::cout << "Processing add gate " << $1 << " with " << $3.size() << " inputs" << std::endl;
                     $$ = new EvalAddNode($1, $3);
                 }
         |       NUM SUB numlist ENDLS
                 {
-                    std::cout << "Processing sub gate " << $1 << " with " << $3.size() << " inputs" << std::endl;
                     $$ = new EvalSubNode($1, $3);
                 }
         |       NUM MUL numlist ENDLS
                 {
-                    std::cout << "Processing mul gate " << $1 << " with " << $3.size() << " inputs" << std::endl;
                     $$ = new EvalMultNode($1, $3);
                 }
                 ;

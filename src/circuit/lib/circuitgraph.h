@@ -9,6 +9,7 @@
 #define SRC_CIRCUIT_CIRCUITGRAPH_H_
 
 #include "CircuitNode.h"
+#include <algorithm>
 #include <string>
 #include <vector>
 #include <map>
