@@ -242,17 +242,9 @@ TEST(UTStatisticalEval, FV_Eval_Lin_Regression_Int) {
 	float stdDev = 4;
 
 	//Set crypto parametes
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
-		plaintextModulus, 0, "0", "0",
-		relWindow, stdDev, "0",
-		OPTIMIZED, "0", "0", 0, 9, 1.006);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(plaintextModulus, 1.006, relWindow, stdDev, 0, 4, 0);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
-
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
-
-	cc.GetEncryptionAlgorithm()->ParamsGen(cc.GetCryptoParameters(), 0, 4);
 
 	double diff, start, finish;
 

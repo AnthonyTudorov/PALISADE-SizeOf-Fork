@@ -65,11 +65,12 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 
 	float stdDev = 4;
 
+	shared_ptr<ILVector2n::Params> parms( new ILVector2n::Params(m, modulus, rootOfUnity) );
+
 	//Set crypto parametes
 	BigBinaryInteger delta(modulus.DividedBy(plaintextModulus));
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
-			64, m, modulus.ToString(), rootOfUnity.ToString(),
-			1, stdDev, delta.ToString(), RLWE, bigModulus.ToString(),
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(parms,
+			64, 1, stdDev, delta.ToString(), RLWE, bigModulus.ToString(),
 			bigRootOfUnity.ToString(), 0, 9, 1.006);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
@@ -189,11 +190,11 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 TEST(UTFV, ILVector2n_FV_ParamsGen_EvalMul) {
 
 	usint relWindow = 1;
-	BigBinaryInteger plaintextModulus(BigBinaryInteger("4"));
+	usint plaintextModulus = 4;
 	float stdDev = 4;
 
 	//Set crypto parametes
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(plaintextModulus, 1.006, 0, 2, 0);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(plaintextModulus, 1.006, 16, stdDev, 0, 2, 0);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 
@@ -260,18 +261,13 @@ TEST(UTFV, ILVector2n_FV_ParamsGen_EvalMul) {
 TEST(UTFV, ILVector2n_FV_Optimized_Eval_Operations) {
 
 	usint relWindow = 1;
-	BigBinaryInteger plaintextModulus(BigBinaryInteger("64"));
+	usint plaintextModulus = 64;
 	float stdDev = 4;
 
-	//Set crypto parametes
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
-			64, 0, "0", "0",
-			relWindow, stdDev, "0",
-			OPTIMIZED, "0", "0", 0, 9, 1.006);
+	//Set crypto parameters
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(plaintextModulus, 1.006, 16, stdDev, 0, 1, 0);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
-
-	cc.GetEncryptionAlgorithm()->ParamsGen(cc.GetCryptoParameters(), 0, 1);
 
 	// Initialize the public key containers.
 	LPKeyPair<ILVector2n> kp;

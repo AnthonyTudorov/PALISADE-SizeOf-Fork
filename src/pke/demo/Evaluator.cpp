@@ -496,18 +496,9 @@ void EvalLinRegressionFV() {
 	usint relWindow = 16;
 	float stdDev = 4;
 
-	//Set crypto parametes
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
-		plaintextModulus, 0, "0", "0",
-		relWindow, stdDev, "0",
-		OPTIMIZED, "0", "0", 0, 9, 1.006);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(plaintextModulus, 1.006, relWindow, stdDev, 0, 3, 0);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
-
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
-
-	cc.GetEncryptionAlgorithm()->ParamsGen(cc.GetCryptoParameters(), 0, 3);
 
 	std::cout << "RationalCiphertext s/d test" << std::endl;
 	Ciphertext<ILVector2n> one(cc), two(cc), three(cc);
@@ -705,15 +696,9 @@ void EvalLinRegressionFV3() {
 	usint relWindow = 16;
 	float stdDev = 4;
 
-	//Set crypto parametes
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
-		plaintextModulus, 0, "0", "0",
-		relWindow, stdDev, "0",
-		OPTIMIZED, "0", "0", 0, 9, 1.006);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(plaintextModulus, 1.006, relWindow, stdDev, 0, 3, 0);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
-
-	cc.GetEncryptionAlgorithm()->ParamsGen(cc.GetCryptoParameters(), 0, 3);
 
 	std::cout << "RationalCiphertext s/d test" << std::endl;
 	Ciphertext<ILVector2n> one(cc), two(cc), three(cc);

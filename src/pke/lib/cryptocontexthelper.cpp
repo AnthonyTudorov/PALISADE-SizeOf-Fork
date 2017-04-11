@@ -109,9 +109,7 @@ buildContextFromSerialized(const map<string,string>& s)
 				!getValueForName(s, "securityLevel", secLevel) )
 			return 0;
 
-		BigBinaryInteger ptm(plaintextModulus);
-
-		return CryptoContextFactory<Element>::genCryptoContextFV(ptm, stof(secLevel),
+		return CryptoContextFactory<Element>::genCryptoContextFV(stoul(plaintextModulus), stof(secLevel), 16, 4,
 				0, 1, 0);
 
 	}

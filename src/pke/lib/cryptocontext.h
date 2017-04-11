@@ -988,9 +988,8 @@ public:
 	* @param securityLevel
 	* @return new context
 	*/
-	static CryptoContext<Element> genCryptoContextFV(
+	static CryptoContext<Element> genCryptoContextFV(shared_ptr<typename Element::Params> params,
 		const usint plaintextmodulus,
-		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
 		usint relinWindow, float stDev, const std::string& delta,
 		MODE mode = RLWE, const std::string& bigmodulus = "0", const std::string& bigrootofunity = "0",
 		int depth = 0, int assuranceMeasure = 0, float securityLevel = 0);
@@ -1005,7 +1004,7 @@ public:
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextFV(
-		const BigBinaryInteger& plaintextModulus, float securityLevel,
+		const usint plaintextModulus, float securityLevel, usint relinWindow, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches);
 
 	/**

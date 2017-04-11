@@ -78,14 +78,11 @@ CryptoContextFactory<T>::genCryptoContextLTV(shared_ptr<typename T::Params> ep,
 
 template <typename T>
 CryptoContext<T>
-CryptoContextFactory<T>::genCryptoContextFV(
+CryptoContextFactory<T>::genCryptoContextFV(shared_ptr<typename T::Params> ep,
 		const usint plaintextmodulus,
-		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
 		usint relinWindow, float stDev, const std::string& delta,
 		MODE mode, const std::string& bigmodulus, const std::string& bigrootofunity, int depth, int assuranceMeasure, float securityLevel)
 {
-	shared_ptr<typename T::Params> ep( new typename T::Params(ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
-
 	shared_ptr<LPCryptoParametersFV<T>> params(
 			new LPCryptoParametersFV<T>(ep,
 					BigBinaryInteger(plaintextmodulus),
@@ -107,7 +104,7 @@ CryptoContextFactory<T>::genCryptoContextFV(
 template <typename T>
 CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextFV(
-		const BigBinaryInteger& plaintextModulus, float securityLevel,
+		const usint plaintextModulus, float securityLevel, usint relinWindow, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches)
 {
 	int nonZeroCount = 0;
@@ -124,10 +121,10 @@ CryptoContextFactory<T>::genCryptoContextFV(
 	shared_ptr<LPCryptoParametersFV<T>> params( new LPCryptoParametersFV<T>() );
 
 	params->SetElementParams(ep);
-	params->SetPlaintextModulus(plaintextModulus);
+	params->SetPlaintextModulus(typename T::Integer(plaintextModulus));
 	params->SetSecurityLevel(securityLevel);
-	params->SetRelinWindow(16);
-	params->SetDistributionParameter(4.0);
+	params->SetRelinWindow(relinWindow);
+	params->SetDistributionParameter(dist);
 	params->SetMode(OPTIMIZED);
 	params->SetAssuranceMeasure(9.0);
 
