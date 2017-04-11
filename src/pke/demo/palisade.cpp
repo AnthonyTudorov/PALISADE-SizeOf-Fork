@@ -584,7 +584,8 @@ main( int argc, char *argv[] )
 	}
 
 	if( !ctx ) {
-		ctx = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(2, 2048, "268441601", "16947867", 1, 4);
+		cout << "Defaulting to LTV5" << endl;
+		ctx = CryptoContextHelper<ILVector2n>::getNewContext( "LTV5" );
 	}
 
 	if( !ctx ) {

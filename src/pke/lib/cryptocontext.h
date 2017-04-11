@@ -967,9 +967,8 @@ public:
 	* @param depth
 	* @return new context
 	*/
-	static CryptoContext<Element> genCryptoContextLTV(
+	static CryptoContext<Element> genCryptoContextLTV(shared_ptr<typename Element::Params> params,
 		const usint plaintextmodulus,
-		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
 		usint relinWindow, float stDev, int depth = 1);
 
 	/**

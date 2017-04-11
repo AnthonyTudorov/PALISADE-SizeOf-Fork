@@ -58,13 +58,10 @@ CryptoContext<T>::Deserialize(const Serialized& serObj)
 
 template <typename T>
 CryptoContext<T>
-CryptoContextFactory<T>::genCryptoContextLTV(
+CryptoContextFactory<T>::genCryptoContextLTV(shared_ptr<typename T::Params> ep,
 		const usint plaintextmodulus,
-		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
 		usint relinWindow, float stDev, int depth)
 {
-	shared_ptr<typename T::Params> ep( new typename T::Params(ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
-
 	shared_ptr<LPCryptoParametersLTV<T>> params( new LPCryptoParametersLTV<T>(
 			ep,
 			BigBinaryInteger(plaintextmodulus),

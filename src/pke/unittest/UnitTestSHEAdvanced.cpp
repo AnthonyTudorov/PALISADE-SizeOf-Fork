@@ -132,7 +132,7 @@ TEST_F(UTSHEAdvanced, ParameterSelection) {
 TEST_F(UTSHEAdvanced, test_eval_mult_single_crt) {
 
 	usint m = 16;
-
+	usint relin = 1;
 	float stdDev = 4;
 
 	BigBinaryInteger q("1");
@@ -141,9 +141,10 @@ TEST_F(UTSHEAdvanced, test_eval_mult_single_crt) {
 	lbcrypto::NextQ(q, BigBinaryInteger::FIVE, m, BigBinaryInteger("4000"), BigBinaryInteger("40000"));
 	BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(/*plaintextmodulus*/ 5 + 4,
-		/*ringdim*/ m, /*modulus*/ q.ToString(), rootOfUnity.ToString(),
-		/*relinWindow*/ 1, /*stDev*/ stdDev);
+	shared_ptr<ILVector2n::Params> parms( new ILVector2n::Params(m, q, rootOfUnity) );
+
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(parms, /*plaintextmodulus*/ 5 + 4,
+		relin, stdDev);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 	cc.Enable(LEVELEDSHE);
@@ -310,9 +311,9 @@ TEST_F(UTSHEAdvanced, test_eval_add_single_crt) {
 
 	lbcrypto::NextQ(q, BigBinaryInteger::FIVE, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
 	BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
-	//shared_ptr<ILParams> params( new ILParams(m, q, RootOfUnity(m, q)) );
+	shared_ptr<ILVector2n::Params> parms( new ILVector2n::Params(m, q, rootOfUnity) );
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(8, m, q.ToString(), rootOfUnity.ToString(), 1, stdDev);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(parms, 8, 1, stdDev);
 	// plaintextmodulus // 5 + 3,
 	// ringdim // m,
 	// modulus // q.ToString(),

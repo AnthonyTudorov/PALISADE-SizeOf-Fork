@@ -80,10 +80,9 @@ TEST(UTSHE, keyswitch_sparse_key_SingleCRT_byteplaintext) {
 	lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("40"), BigBinaryInteger("4"));
 
 	BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
-	ILParams params(m, q, RootOfUnity(m, q));
+	shared_ptr<ILVector2n::Params> params( new ILVector2n::Params(m, q, rootOfUnity) );
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(2, m,
-			q.ToString(), RootOfUnity(m, q).ToString(), 1, stdDev);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, 2, 1, stdDev);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 	cc.Enable(LEVELEDSHE);
@@ -121,10 +120,9 @@ TEST(UTSHE, keyswitch_sparse_key_SingleCRT_intArray) {
 	lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("40"), BigBinaryInteger("4"));
 
 	BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
-	ILParams params(m, q, RootOfUnity(m, q));
+	shared_ptr<ILVector2n::Params> params( new ILVector2n::Params(m, q, rootOfUnity) );
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(2, m,
-			q.ToString(), RootOfUnity(m, q).ToString(), 1, stdDev);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, 2, 1, stdDev);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(LEVELEDSHE);
 	cc.Enable(SHE);
@@ -171,10 +169,9 @@ TEST(UTSHE, keyswitch_SingleCRT) {
 	lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("40"), BigBinaryInteger("4"));
 
 	BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
-	ILParams params(m, q, RootOfUnity(m, q));
+	shared_ptr<ILVector2n::Params> params( new ILVector2n::Params(m, q, rootOfUnity) );
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(2, m,
-			q.ToString(), RootOfUnity(m, q).ToString(), 1, stdDev);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, 2, 1, stdDev);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 
@@ -215,8 +212,9 @@ TEST(UTSHE, sparsekeygen_single_crt_encrypt_decrypt) {
 
 	BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(2, m,
-			q.ToString(), RootOfUnity(m, q).ToString(), 1, stdDev);
+	shared_ptr<ILVector2n::Params> params( new ILVector2n::Params(m, q, rootOfUnity) );
+
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, 2, 1, stdDev);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(LEVELEDSHE);
 	cc.Enable(SHE);
@@ -327,8 +325,9 @@ TEST(UTSHE, ringreduce_single_crt) {
 
 	BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(2, m,
-			q.ToString(), RootOfUnity(m, q).ToString(), 1, stdDev);
+	shared_ptr<ILVector2n::Params> params( new ILVector2n::Params(m, q, rootOfUnity) );
+
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, 2, 1, stdDev);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(LEVELEDSHE);
 	cc.Enable(SHE);

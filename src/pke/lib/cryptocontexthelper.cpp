@@ -84,8 +84,11 @@ buildContextFromSerialized(const map<string,string>& s)
 			return 0;
 		}
 
-		return CryptoContextFactory<Element>::genCryptoContextLTV(stoul(plaintextModulus), stoul(ring),
-				modulus, rootOfUnity, stoul(relinWindow), stof(stDev));
+		shared_ptr<typename Element::Params> parms( new typename Element::Params(stoul(ring),
+														typename Element::Integer(modulus),
+														typename Element::Integer(rootOfUnity)) );
+		return CryptoContextFactory<Element>::genCryptoContextLTV(parms, stoul(plaintextModulus),
+				stoul(relinWindow), stof(stDev));
 	}
 	else if( parmtype == "StehleSteinfeld" ) {
 		if( !getValueForName(s, "plaintextModulus", plaintextModulus) ||
