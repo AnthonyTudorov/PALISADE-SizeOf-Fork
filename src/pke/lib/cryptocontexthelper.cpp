@@ -55,9 +55,30 @@ getValueForName(const map<string,string>& allvals, const string key, string& val
 	return true;
 }
 
+static shared_ptr<ILVectorArray2n::Params>
+generateDCRTParams(usint n, usint nTowers, usint primebits) {
+
+	vector<native64::BigBinaryInteger> moduli(nTowers);
+	vector<native64::BigBinaryInteger> rootsOfUnity(nTowers);
+
+	native64::BigBinaryInteger q( (1<<primebits) -1 );
+	native64::BigBinaryInteger temp;
+	BigBinaryInteger modulus(1);
+
+	for(int i=0; i < nTowers; i++){
+		lbcrypto::NextQ(q, native64::BigBinaryInteger::TWO, n, native64::BigBinaryInteger::FOUR, native64::BigBinaryInteger::FOUR);
+		moduli[i] = q;
+		rootsOfUnity[i] = RootOfUnity(n,moduli[i]);
+		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
+
+	}
+
+	return shared_ptr<ILVectorArray2n::Params>( new ILVectorArray2n::Params(n, moduli, rootsOfUnity) );
+}
+
 template <class Element>
 static CryptoContext<Element>
-buildContextFromSerialized(const map<string,string>& s)
+buildContextFromSerialized(const map<string,string>& s, shared_ptr<typename Element::Params> parms)
 {
 	std::string parmtype;
 	std::string plaintextModulus;
@@ -84,9 +105,6 @@ buildContextFromSerialized(const map<string,string>& s)
 			return 0;
 		}
 
-		shared_ptr<typename Element::Params> parms( new typename Element::Params(stoul(ring),
-														typename Element::Integer(modulus),
-														typename Element::Integer(rootOfUnity)) );
 		return CryptoContextFactory<Element>::genCryptoContextLTV(parms, stoul(plaintextModulus),
 				stoul(relinWindow), stof(stDev));
 	}
@@ -225,30 +243,98 @@ inline shared_ptr<LPCryptoParameters<Element>> DeserializeAndValidateCryptoParam
 }
 
 
-template <class Element>
 bool
-CryptoContextHelper<Element>::matchContextToSerialization(const CryptoContext<Element> cc, const Serialized& ser)
+CryptoContextHelper::matchContextToSerialization(const CryptoContext<ILVector2n> cc, const Serialized& ser)
 {
-	shared_ptr<LPCryptoParameters<Element>> ctxParams = cc.GetCryptoParameters();
-	shared_ptr<LPCryptoParameters<Element>> cParams = DeserializeCryptoParameters<Element>(ser);
+	shared_ptr<LPCryptoParameters<ILVector2n>> ctxParams = cc.GetCryptoParameters();
+	shared_ptr<LPCryptoParameters<ILVector2n>> cParams = DeserializeCryptoParameters<Element>(ser);
 
 	if( !cParams ) return false;
 
 	return *ctxParams == *cParams;
 }
 
-template <class Element>
-CryptoContext<Element>
-CryptoContextHelper<Element>::getNewContext(const string parmset)
+bool
+CryptoContextHelper::matchContextToSerialization(const CryptoContext<ILVectorArray2n> cc, const Serialized& ser)
 {
+	shared_ptr<LPCryptoParameters<ILVectorArray2n>> ctxParams = cc.GetCryptoParameters();
+	shared_ptr<LPCryptoParameters<ILVectorArray2n>> cParams = DeserializeCryptoParameters<Element>(ser);
+
+	if( !cParams ) return false;
+
+	return *ctxParams == *cParams;
+}
+
+CryptoContext<ILVector2n>
+CryptoContextHelper::getNewContext(const string& parmset)
+{
+	std::string parmtype;
+	std::string ring;
+	std::string modulus;
+	std::string rootOfUnity;
+
 	map<string, map<string,string>>::iterator it = CryptoContextParameterSets.find(parmset);
 
 	if( it == CryptoContextParameterSets.end() ) {
 		return 0;
 	}
 
-	return buildContextFromSerialized<Element>(it->second);
+	if( !getValueForName(it->second, "parameters", parmtype) ) {
+		std::cerr << "parameters element is missing" << std::endl;
+		return 0;
+	}
+
+	// FV uses parm generation so we skip this code for FV
+	shared_ptr<typename ILVector2n::Params> parms;
+	if( parmtype != "FV" ) {
+		if( !getValueForName(it->second, "ring", ring) ||
+				!getValueForName(it->second, "modulus", modulus) ||
+				!getValueForName(it->second, "rootOfUnity", rootOfUnity) ) {
+			return 0;
+		}
+
+		parms.reset( new typename ILVector2n::Params(stoul(ring),
+								typename ILVector2n::Integer(modulus),
+								typename ILVector2n::Integer(rootOfUnity)));
+	}
+
+	return buildContextFromSerialized<ILVector2n>(it->second, parms);
 }
+
+CryptoContext<ILVectorArray2n>
+CryptoContextHelper::getNewDCRTContext(const string& parmset, usint numTowers, usint primeBits)
+{
+	std::string parmtype;
+	std::string ring;
+	std::string modulus;
+	std::string rootOfUnity;
+
+	map<string, map<string,string>>::iterator it = CryptoContextParameterSets.find(parmset);
+
+	if( it == CryptoContextParameterSets.end() ) {
+		return 0;
+	}
+
+	if( !getValueForName(it->second, "parameters", parmtype) ) {
+		std::cerr << "parameters element is missing" << std::endl;
+		return 0;
+	}
+
+	// FV uses parm generation so we skip this code for FV
+	shared_ptr<ILVectorArray2n::Params> parms;
+	if( parmtype != "FV" ) {
+		if( !getValueForName(it->second, "ring", ring) ||
+				!getValueForName(it->second, "modulus", modulus) ||
+				!getValueForName(it->second, "rootOfUnity", rootOfUnity) ) {
+			return 0;
+		}
+
+		parms = generateDCRTParams(stoul(ring), numTowers, primeBits);
+
+	}
+	return buildContextFromSerialized<ILVectorArray2n>(it->second, parms);
+}
+
 
 static void printSet(std::ostream& out, string key, map<string,string>& pset)
 {
@@ -259,9 +345,8 @@ static void printSet(std::ostream& out, string key, map<string,string>& pset)
 	}
 }
 
-template <class Element>
 void
-CryptoContextHelper<Element>::printParmSet(std::ostream& out, string parmset)
+CryptoContextHelper::printParmSet(std::ostream& out, string parmset)
 {
 	auto it = CryptoContextParameterSets.find(parmset);
 	if( it == CryptoContextParameterSets.end() ) {
@@ -273,18 +358,16 @@ CryptoContextHelper<Element>::printParmSet(std::ostream& out, string parmset)
 }
 
 
-template <class Element>
 void
-CryptoContextHelper<Element>::printAllParmSets(std::ostream& out)
+CryptoContextHelper::printAllParmSets(std::ostream& out)
 {
 	for( auto S : CryptoContextParameterSets ) {
 		printSet(out, S.first, S.second);
 	}
 }
 
-template <class Element>
 void
-CryptoContextHelper<Element>::printAllParmSetNames(std::ostream& out)
+CryptoContextHelper::printAllParmSetNames(std::ostream& out)
 {
 	map<string, map<string,string>>::iterator it = CryptoContextParameterSets.begin();
 
