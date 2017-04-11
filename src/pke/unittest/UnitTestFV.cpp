@@ -50,34 +50,6 @@ protected:
 public:
 };
 
-/**Simple Encrypt-Decrypt check for FV scheme.
-* This test case is only testing if the resulting plaintext from an encrypt/decrypt returns the same
-* plaintext
-* The cyclotomic order is set 2048
-*/
-TEST(UTFV, ILVector2n_FV_Encrypt_Decrypt) {
-
-	usint m = 2048;
-	BigBinaryInteger modulus("268441601");
-	BigBinaryInteger rootOfUnity("16947867");
-	usint relWindow = 1;
-
-	BytePlaintextEncoding plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
-	
-	float stdDev = 4;
-
-	BigBinaryInteger plaintextModulus(BigBinaryInteger::TWO);
-	BigBinaryInteger delta(modulus.DividedBy(plaintextModulus));
-
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
-			2, m, modulus.ToString(), rootOfUnity.ToString(),
-			relWindow, stdDev, delta.ToString());
-	cc.Enable(ENCRYPTION);
-	cc.Enable(PRE);
-
-	UnitTestEncryption<ILVector2n>(cc);
-}
-
 //Tests EvalAdd, EvalSub, and EvalMul operations for FV in the RLWE mode
 TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 

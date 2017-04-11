@@ -35,8 +35,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "utils/debug.h"
 
-#include "cryptolayertests.h"
-
 using namespace std;
 using namespace lbcrypto;
 
@@ -49,6 +47,7 @@ protected:
 public:
 };
 
+#ifdef OUT
 /*Simple Encrypt-Decrypt check for ILVectorArray2n. The assumption is this test case is that everything with respect to lattice and math
 * layers and cryptoparameters work. This test case is only testing if the resulting plaintext from an encrypt/decrypt returns the same
 * plaintext
@@ -186,7 +185,6 @@ TEST(UTLTVDCRT, Ops_DCRT) {
 	UnitTestDCRT<ILVectorArray2n>(cc);
 }
 
-
 /*Simple Encrypt-Decrypt check for ILVector2n with a short ring dimension. The assumption is this test case is that everything with respect to lattice and math
 * layers and cryptoparameters work. This test case is only testing if the resulting plaintext from an encrypt/decrypt returns the same
 * plaintext
@@ -248,3 +246,4 @@ TEST(UTLTV, ILVector2n_Encrypt_Decrypt_PRE) {
 
 	UnitTestReEncryption<ILVector2n>(cc);
 }
+#endif
