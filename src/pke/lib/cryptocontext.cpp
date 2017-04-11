@@ -60,14 +60,14 @@ template <typename T>
 CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextLTV(shared_ptr<typename T::Params> ep,
 		const usint plaintextmodulus,
-		usint relinWindow, float stDev, int depth)
+		usint relinWindow, float stDev, int depth, int assuranceMeasure, float securityLevel)
 {
 	shared_ptr<LPCryptoParametersLTV<T>> params( new LPCryptoParametersLTV<T>(
 			ep,
 			BigBinaryInteger(plaintextmodulus),
-			stDev, // distribution parameter
-			0.0, // assuranceMeasure,
-			0.0, // securityLevel,
+			stDev,
+			assuranceMeasure,
+			securityLevel,
 			relinWindow,
 			depth) );
 
@@ -169,18 +169,6 @@ CryptoContext<T> CryptoContextFactory<T>::genCryptoContextBV(LPCryptoParametersB
 	mycryptoParams->SetMode(mode);
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeBV<T>() );
-
-	return CryptoContext<T>(mycryptoParams, scheme);
-}
-
-// FIXME: this is temporary until we better incorporate DCRT
-template <typename T>
-CryptoContext<T>
-CryptoContextFactory<T>::getCryptoContextDCRT(LPCryptoParametersLTV<T>* cryptoParams)
-{
-	shared_ptr<LPCryptoParametersLTV<T>> mycryptoParams( new LPCryptoParametersLTV<T>( *cryptoParams ) ); // copy so memory works right
-
-	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeLTV<T>());
 
 	return CryptoContext<T>(mycryptoParams, scheme);
 }

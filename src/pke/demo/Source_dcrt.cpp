@@ -354,11 +354,12 @@ void NTRU_DCRT() {
 	double diff, start, finish;
 
 	usint m = 4096;
-	BigBinaryInteger ptm(256);
+	usint ptm = 256;
+	usint relinWindow = 1;
 
 	BytePlaintextEncoding plaintext;
 
-	size_t strSize = plaintext.GetChunksize(m, ptm);
+	size_t strSize = plaintext.GetChunksize(m, BigBinaryInteger(ptm));
 
 	auto randchar = []() -> char {
 		const char charset[] =
@@ -373,20 +374,13 @@ void NTRU_DCRT() {
 	std::generate_n(shortStr.begin(), strSize/2, randchar);
 	plaintext = shortStr;
 
-
 	float stdDev = 4;
 
 
 	shared_ptr<ILDCRTParams> params = GenDCRTParams(0);
 	cout << "big modulus: " << params->GetModulus() << endl;
 
-	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
-	cryptoParams.SetPlaintextModulus(ptm);
-	cryptoParams.SetDistributionParameter(stdDev);
-	cryptoParams.SetRelinWindow(1);
-	cryptoParams.SetElementParams(params);
-
-	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::getCryptoContextDCRT(&cryptoParams);
+	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextLTV(params, ptm, relinWindow, stdDev);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(PRE);
 
@@ -592,32 +586,23 @@ void FinalLeveledComputation(){
 
 	shared_ptr<ILDCRTParams> params( new ILDCRTParams(m, moduli, rootsOfUnity) );
 
-	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
-	cryptoParams.SetPlaintextModulus(BigBinaryInteger::THREE);
-	cryptoParams.SetDistributionParameter(init_stdDev);
-	cryptoParams.SetRelinWindow(1);
-	cryptoParams.SetElementParams(params);
-	cryptoParams.SetAssuranceMeasure(6);
-	cryptoParams.SetDepth(size-1);
-	cryptoParams.SetSecurityLevel(1.006);
-
 	usint n = 16;
 
 	std::vector<BigBinaryInteger> moduliV(size);
 	LPCryptoParametersLTV<ILVectorArray2n> finalParams;
 
-	cryptoParams.ParameterSelection(&finalParams);
-
-	const shared_ptr<ILDCRTParams> dcrtParams = std::static_pointer_cast<ILDCRTParams>( finalParams.GetElementParams() ) ;
-
-	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::getCryptoContextDCRT(&finalParams);
-	//scheme initialization: LTV Scheme
+	// use the parameter selection version when it works...
+	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextLTV(params, 3, 1, init_stdDev, size-1, 6, 1.006);
 	cc.Enable(SHE);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(LEVELEDSHE);
 
 	//Generate the secret key for the initial ciphertext:
 	LPKeyPair<ILVectorArray2n> kp = cc.KeyGen();
+
+	// FIXME or explain what, in the name of the old gods and the new, is going on in this code?
+
+#ifdef OUT
 
 	//Generate the secret keys for the levels
 	std::vector< LPKeyPair<ILVectorArray2n> > levelPairs(finalParams.GetDepth());
@@ -628,6 +613,7 @@ void FinalLeveledComputation(){
 	leveledCryptoParams.reserve(finalParams.GetDepth()+1);
 
 	//Populate the vector of DcrtParams
+	// ??? are these supposed to be copies, with different numbers of levels in each one? because they are not
 	leveledDcrtParams.push_back(dcrtParams);
 	for(usint i=1;i <= finalParams.GetDepth(); i++){
 		leveledDcrtParams.push_back(leveledDcrtParams[i-1]);
@@ -691,7 +677,7 @@ void FinalLeveledComputation(){
 	element5.SwitchFormat();
 	element5 = {5};
 	shared_ptr<Ciphertext<ILVectorArray2n>> cipherText5 = cc.GetEncryptionAlgorithm()->Encrypt(kp.publicKey,element5);
-
+#endif
 
 }
 
@@ -701,6 +687,7 @@ void ComposedEvalMultTest(){
 	float init_stdDev = 4;
 
 	usint size = 3;
+	usint relinWindow = 1;
 
 	vector<native64::BigBinaryInteger> moduli(size);
 
@@ -719,21 +706,22 @@ void ComposedEvalMultTest(){
 
 	shared_ptr<ILDCRTParams> params( new ILDCRTParams(m, moduli, rootsOfUnity) );
 
-	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams(params,
-			BigBinaryInteger::FIVE,
-			init_stdDev,
-			6,
-			1.006,
-			1,
-			size - 1);
+//	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams(params,
+//			BigBinaryInteger::FIVE,
+//			init_stdDev,
+//			6,
+//			1.006,
+//			1,
+//			size - 1);
+//
+//	LPCryptoParametersLTV<ILVectorArray2n> finalParamsThreeTowers;
+//
+//	cryptoParams.ParameterSelection(&finalParamsThreeTowers);
+//
+//	const shared_ptr<ILDCRTParams> dcrtParams = std::static_pointer_cast<ILDCRTParams>(finalParamsThreeTowers.GetElementParams());
 
-	LPCryptoParametersLTV<ILVectorArray2n> finalParamsThreeTowers;
-
-	cryptoParams.ParameterSelection(&finalParamsThreeTowers);
-
-	const shared_ptr<ILDCRTParams> dcrtParams = std::static_pointer_cast<ILDCRTParams>(finalParamsThreeTowers.GetElementParams());
-
-	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::getCryptoContextDCRT(&finalParamsThreeTowers);
+	// FIXME use the parm selection method when it works
+	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextLTV(params, 5, relinWindow, init_stdDev, size-1, 6, 1.006);
 	cc.Enable(SHE);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(LEVELEDSHE);
@@ -744,23 +732,23 @@ void ComposedEvalMultTest(){
 	//Generate the switch cipher text
 	LPKeyPair<ILVectorArray2n> kpNew = cc.KeyGen();
 
-	//Generating original ciphertext to perform ComposedEvalMult on
-	shared_ptr<Ciphertext<ILVectorArray2n>> c1;
-
-	shared_ptr<Ciphertext<ILVectorArray2n>> c2;
-
-	//Generating new cryptoparameters for when modulus reduction is done.
-	LPCryptoParametersLTV<ILVectorArray2n> finalParamsTwoTowers(finalParamsThreeTowers);
-
-	const shared_ptr<ILDCRTParams> dcrtParams2 = std::static_pointer_cast<ILDCRTParams>(finalParamsThreeTowers.GetElementParams());
-	shared_ptr<ILDCRTParams> finalDcrtParamsTwoTowers( new ILDCRTParams(*dcrtParams2) );
-	finalDcrtParamsTwoTowers->PopLastParam();
-	finalParamsTwoTowers.SetElementParams(finalDcrtParamsTwoTowers);
-
-	//Dropping the last tower of skNew, because ComposedEvalMult performs a ModReduce
-	ILVectorArray2n skNewOldElement(kpNew.secretKey->GetPrivateElement());
-	skNewOldElement.DropLastElement();
-	kpNew.secretKey->SetPrivateElement(skNewOldElement);
+//	//Generating original ciphertext to perform ComposedEvalMult on
+//	shared_ptr<Ciphertext<ILVectorArray2n>> c1;
+//
+//	shared_ptr<Ciphertext<ILVectorArray2n>> c2;
+//
+//	//Generating new cryptoparameters for when modulus reduction is done.
+//	LPCryptoParametersLTV<ILVectorArray2n> finalParamsTwoTowers(finalParamsThreeTowers);
+//
+//	const shared_ptr<ILDCRTParams> dcrtParams2 = std::static_pointer_cast<ILDCRTParams>(finalParamsThreeTowers.GetElementParams());
+//	shared_ptr<ILDCRTParams> finalDcrtParamsTwoTowers( new ILDCRTParams(*dcrtParams2) );
+//	finalDcrtParamsTwoTowers->PopLastParam();
+//	finalParamsTwoTowers.SetElementParams(finalDcrtParamsTwoTowers);
+//
+//	//Dropping the last tower of skNew, because ComposedEvalMult performs a ModReduce
+//	ILVectorArray2n skNewOldElement(kpNew.secretKey->GetPrivateElement());
+//	skNewOldElement.DropLastElement();
+//	kpNew.secretKey->SetPrivateElement(skNewOldElement);
 
 }
 

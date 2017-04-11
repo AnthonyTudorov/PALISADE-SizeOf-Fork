@@ -244,6 +244,8 @@ TEST(UTSHE, keyswitch_ModReduce_DCRT) {
 	BytePlaintextEncoding plaintext("I am good, what are you?! 32 ch");
 	float stdDev = 4;
 	usint size = 4;
+	usint plaintextmodulus = 2;
+	usint relinWindow = 1;
 
 	vector<native64::BigBinaryInteger> moduli(size);
 	moduli.reserve(4);
@@ -265,13 +267,8 @@ TEST(UTSHE, keyswitch_ModReduce_DCRT) {
 
 	shared_ptr<ILDCRTParams> params( new ILDCRTParams(m, moduli, rootsOfUnity) );
 
-	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
-	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
-	cryptoParams.SetDistributionParameter(stdDev);
-	cryptoParams.SetRelinWindow(1);
-	cryptoParams.SetElementParams(params);
+	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextLTV(params, plaintextmodulus, relinWindow, stdDev);
 
-	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::getCryptoContextDCRT(&cryptoParams);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(LEVELEDSHE);
 	cc.Enable(SHE);
@@ -375,6 +372,8 @@ TEST(UTSHE, ringreduce_double_crt) {
 
 	usint m = 16;
 	float stdDev = 4;
+	usint plaintextmodulus = 2;
+	usint relinWindow = 1;
 	usint size = 3;
 
 	vector<native64::BigBinaryInteger> moduli(size);
@@ -397,13 +396,7 @@ TEST(UTSHE, ringreduce_double_crt) {
 
 	shared_ptr<ILDCRTParams> params( new ILDCRTParams(m, moduli, rootsOfUnity) );
 
-	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
-	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO); // Set plaintext modulus.
-	cryptoParams.SetDistributionParameter(stdDev);          // Set the noise parameters.
-	cryptoParams.SetRelinWindow(1);						   // Set the relinearization window
-	cryptoParams.SetElementParams(params);                // Set the initialization parameters.
-
-	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::getCryptoContextDCRT(&cryptoParams);
+	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextLTV(params, plaintextmodulus, relinWindow, stdDev);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(LEVELEDSHE);
 	cc.Enable(SHE);

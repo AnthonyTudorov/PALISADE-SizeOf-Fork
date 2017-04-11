@@ -969,7 +969,7 @@ public:
 	*/
 	static CryptoContext<Element> genCryptoContextLTV(shared_ptr<typename Element::Params> params,
 		const usint plaintextmodulus,
-		usint relinWindow, float stDev, int depth = 1);
+		usint relinWindow, float stDev, int depth = 1, int assuranceMeasure = 0, float securityLevel = 0);
 
 	/**
 	* construct a PALISADE CryptoContext for the FV Scheme
@@ -1030,13 +1030,6 @@ public:
 	* @return
 	*/
 	static CryptoContext<Element> genCryptoContextBV(LPCryptoParametersBV<Element>* cryptoParams, MODE mode = MODE::RLWE);
-
-	/**
-	* FIXME this is temporary until we better incorporate DCRT
-	* @param cryptoParams
-	* @return
-	*/
-	static CryptoContext<Element> getCryptoContextDCRT(LPCryptoParametersLTV<Element>* cryptoParams);
 
 	/**
 	* construct a PALISADE CryptoContext for the StehleSteinfeld Scheme
