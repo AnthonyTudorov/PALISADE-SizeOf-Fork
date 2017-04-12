@@ -331,30 +331,39 @@ namespace lbcrypto {
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	std::vector<ILVectorArrayImpl<ModType,IntType,VecType,ParmType>> ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::BaseDecompose(usint baseBits) const {
-		
-		std::vector< std::vector<ILVectorType> > baseDecomposeElementWise;
+
+		// turn this into a composed vector
+		ILVector2n v( CRTInterpolate() );
+		std::cout << "interpolated vector has mod " << v.GetModulus() << " and root " << v.GetRootOfUnity() << std::endl;
+		std::vector<ILVector2n> bdV = v.BaseDecompose(baseBits);
 
 		std::vector<ILVectorArrayImpl<ModType,IntType,VecType,ParmType>> result;
 
-		ILVectorArrayImpl<ModType,IntType,VecType,ParmType> zero(this->CloneParametersOnly());
-		zero = { 0,0 };
-				
-		for (usint i= 0 ; i <  this->m_vectors.size(); i++) {
-			baseDecomposeElementWise.push_back(std::move(this->m_vectors.at(i).BaseDecompose(baseBits)));
+		// create the result by decomposing the big vectors
+		for( usint i=0; i<bdV.size(); i++ ) {
+			ILVectorArrayImpl<ModType,IntType,VecType,ParmType> dv(bdV[i], this->GetParams());
+			result.push_back( std::move(dv) );
 		}
 
-		usint maxTowerVectorSize = baseDecomposeElementWise.back().size();
-
-		for (usint i = 0; i < maxTowerVectorSize; i++) {
-			ILVectorArrayImpl<ModType,IntType,VecType,ParmType> temp;
-			for (usint j = 0; j < this->m_vectors.size(); j++) {
-				if (i<baseDecomposeElementWise.at(j).size())
-					temp.m_vectors.insert(temp.m_vectors.begin()+j,baseDecomposeElementWise.at(j).at(i));
-				else
-					temp.m_vectors.insert(temp.m_vectors.begin() + j, zero.m_vectors.at(j));
-			}
-			result.push_back(std::move(temp));
-		}
+//		ILVectorArrayImpl<ModType,IntType,VecType,ParmType> zero(this->CloneParametersOnly());
+//		zero = { 0,0 };
+//
+//		for (usint i= 0 ; i <  this->m_vectors.size(); i++) {
+//			baseDecomposeElementWise.push_back(std::move(this->m_vectors.at(i).BaseDecompose(baseBits)));
+//		}
+//
+//		usint maxTowerVectorSize = baseDecomposeElementWise.back().size();
+//
+//		for (usint i = 0; i < maxTowerVectorSize; i++) {
+//			ILVectorArrayImpl<ModType,IntType,VecType,ParmType> temp;
+//			for (usint j = 0; j < this->m_vectors.size(); j++) {
+//				if (i<baseDecomposeElementWise.at(j).size())
+//					temp.m_vectors.insert(temp.m_vectors.begin()+j,baseDecomposeElementWise.at(j).at(i));
+//				else
+//					temp.m_vectors.insert(temp.m_vectors.begin() + j, zero.m_vectors.at(j));
+//			}
+//			result.push_back(std::move(temp));
+//		}
 
 		return std::move(result);
 
