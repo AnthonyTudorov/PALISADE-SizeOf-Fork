@@ -842,7 +842,7 @@ namespace lbcrypto {
 
 		// Setting the root of unity to ONE as the calculation is expensive and not required.
 		ILVector2n polynomialReconstructed( shared_ptr<ILParams>( new ILParams(m_cyclotomicOrder, bigModulus, BigBinaryInteger::ONE) ) );
-		polynomialReconstructed.SetValues(coefficients,m_format);
+		polynomialReconstructed.SetValues(coefficients,COEFFICIENT);
 
 		DEBUG("Z");
 
