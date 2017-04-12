@@ -72,6 +72,11 @@ UnitTestReEncrypt(const CryptoContext<Element>& cc, bool publicVersion) {
 
 	LPKeyPair<Element> newKp = cc.KeyGen();
 
+
+	if (!newKp.good()) {
+		std::cout << "Key generation 2 failed!" << std::endl;
+		exit(1);
+	}
 	////////////////////////////////////////////////////////////
 	//Perform the proxy re-encryption key generation operation.
 	// This generates the keys which are used to perform the key switching.

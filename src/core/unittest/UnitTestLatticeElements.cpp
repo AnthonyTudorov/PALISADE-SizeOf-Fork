@@ -35,6 +35,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "math/distrgen.h"
 #include "lattice/ilvector2n.h"
 #include "lattice/ilvectorarray2n.h"
+#include "utils/parmfactory.h"
 
 using namespace std;
 using namespace lbcrypto;
@@ -59,30 +60,18 @@ void testILVectorArray2nConstructorNegative(std::vector<native64::ILVector2n> &t
 
 // template for operations tests
 template<typename IntType, typename VecType, typename ParmType, typename Element>
-static void operators() {
-	bool dbg_flag = false;
-
-	usint m = 8;
-
-	IntType primeModulus("73");
-	IntType primitiveRootOfUnity("22");
-
-	shared_ptr<ParmType> ilparams( new ParmType(m, primeModulus, primitiveRootOfUnity) );
-
+static void operators_tests(shared_ptr<ParmType> ilparams) {
 	Element ilvector2n1(ilparams);
-	VecType bbv1(m/2, primeModulus);
-	bbv1 = {"1", "2", "0", "1"};
-	ilvector2n1.SetValues(bbv1, ilvector2n1.GetFormat());
+	ilvector2n1 = {1,2,0,1};
 
 	Element ilvector2n2(ilparams);
-	VecType bbv2(m/2, primeModulus);
-	bbv2 = {"1", "2", "0", "1"};
-	ilvector2n2.SetValues(bbv2, ilvector2n2.GetFormat());
+	ilvector2n2 = {1,2,0,1};
 
 	EXPECT_EQ(ilvector2n1, ilvector2n2) << "Operator == fails";
 
 	{//test constructor
 		Element ilv1(ilvector2n1);
+		EXPECT_EQ(ilvector2n1, ilv1) << "copy constructor fails";
 		EXPECT_EQ(ilvector2n1.GetFormat(), ilv1.GetFormat())
 			<< "operator= failed in Format comparision";
 		EXPECT_EQ(ilvector2n1.GetValues(), ilv1.GetValues())
@@ -165,16 +154,27 @@ static void operators() {
 
 //instantiate ops_tests for various backend combos
 TEST(UTILVector2n, ops_tests) {
-	operators<BigBinaryInteger, BigBinaryVector, ILParams, ILVector2n>();
+	usint m = 8;
+	ILVector2n::Integer primeModulus("73");
+	ILVector2n::Integer primitiveRootOfUnity("22");
+
+	operators_tests<BigBinaryInteger, BigBinaryVector, ILParams, ILVector2n>(
+			GenerateTestParams<ILParams,BigBinaryInteger>(m, primeModulus, primitiveRootOfUnity) );
 }
 
 TEST(UTILNativeVector2n, ops_tests) {
-	operators<native64::BigBinaryInteger, native64::BigBinaryVector, native64::ILParams, native64::ILVector2n>();
+	usint m = 8;
+	native64::BigBinaryInteger primeModulus("73");
+	native64::BigBinaryInteger primitiveRootOfUnity("22");
+
+	operators_tests<native64::BigBinaryInteger, native64::BigBinaryVector, native64::ILParams, native64::ILVector2n>(
+			GenerateTestParams<native64::ILParams,native64::BigBinaryInteger>(m, primeModulus, primitiveRootOfUnity) );
 }
 
-//TEST(UTILVectorArray2n, ops_tests) {
-//	operators<BigBinaryInteger, BigBinaryVector, ILDCRTParams, ILVectorArray2n>();
-//}
+TEST(UTILVectorArray2n, ops_tests) {
+	operators_tests<BigBinaryInteger, BigBinaryVector, ILDCRTParams, ILVectorArray2n>(
+			GenerateTestDCRTParams(8, 3, 20) );
+}
 
 // template for rounding_operations tests
 template<typename IntType, typename VecType, typename ParmType, typename Element>
@@ -259,11 +259,37 @@ void rounding_operations() {
 }
 // instantiate various test for rounding_operations()
 TEST(UTILVector2n, rounding_operations) {
-	rounding_operations<BigBinaryInteger, BigBinaryVector, ILParams, ILVector2n>();
+	usint m = 8;
+
+	BigBinaryInteger q("73");
+	BigBinaryInteger primitiveRootOfUnity("22");
+
+	shared_ptr<ILParams> ilparams = GenerateTestParams<ILParams,BigBinaryInteger>(m, q, primitiveRootOfUnity);
+
+	//temporary larger modulus that is used for polynomial multiplication before rounding
+	BigBinaryInteger q2("16417");
+	BigBinaryInteger primitiveRootOfUnity2("13161");
+
+	shared_ptr<ILParams> ilparams2 = GenerateTestParams<ILParams,BigBinaryInteger>(m, q2, primitiveRootOfUnity2);
+
+	rounding_operations<BigBinaryInteger, BigBinaryVector, ILParams, ILVector2n>(ilparams, ilparams2);
 }
 
 TEST(UTILNativeVector2n, rounding_operations) {
-	rounding_operations<native64::BigBinaryInteger, native64::BigBinaryVector, native64::ILParams, native64::ILVector2n>();
+	usint m = 8;
+
+	native64::BigBinaryInteger q("73");
+	native64::BigBinaryInteger primitiveRootOfUnity("22");
+
+	shared_ptr<native64::ILParams> ilparams = GenerateTestParams<native64::ILParams,native64::BigBinaryInteger>(m, q, primitiveRootOfUnity);
+
+	//temporary larger modulus that is used for polynomial multiplication before rounding
+	native64::BigBinaryInteger q2("16417");
+	native64::BigBinaryInteger primitiveRootOfUnity2("13161");
+
+	shared_ptr<native64::ILParams> ilparams2 = GenerateTestParams<native64::ILParams,native64::BigBinaryInteger>(m, q2, primitiveRootOfUnity2);
+
+	rounding_operations<native64::BigBinaryInteger, native64::BigBinaryVector, native64::ILParams, native64::ILVector2n>(ilparams, ilparams2);
 }
 
 //TEST(UTILVectorArray2n, rounding_operations) {

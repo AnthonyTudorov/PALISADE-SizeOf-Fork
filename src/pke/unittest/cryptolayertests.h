@@ -12,6 +12,7 @@
 
 #include "encoding/byteplaintextencoding.h"
 #include "encoding/intplaintextencoding.h"
+#include "utils/parmfactory.h"
 
 using namespace lbcrypto;
 
@@ -52,35 +53,6 @@ inline void GenerateTestPlaintext(int cyclotomicOrder, const BigBinaryInteger& p
 	std::generate_n(longStr.begin(), strSize*2, randchar);
 	plaintextLong = longStr;
 }
-
-/**
- * Generate an ILDCRTParams with a given number of parms, with cyphertext moduli of at least a given size
- * @param m - order
- * @param numOfTower - # of polynomials
- * @param pbits - number of bits in the prime, to start with
- * @return
- */
-inline shared_ptr<ILDCRTParams> GenerateTestDCRTParams(usint m, usint numOfTower, usint pbits) {
-	std::vector<native64::BigBinaryInteger> moduli(numOfTower);
-
-	std::vector<native64::BigBinaryInteger> rootsOfUnity(numOfTower);
-
-	native64::BigBinaryInteger q(1<<pbits - 1);
-	native64::BigBinaryInteger temp;
-	BigBinaryInteger modulus(BigBinaryInteger::ONE);
-
-	for (int j = 0; j < numOfTower; j++) {
-		lbcrypto::NextQ(q, native64::BigBinaryInteger::FIVE, m, native64::BigBinaryInteger::FOUR, native64::BigBinaryInteger::FOUR);
-		moduli[j] = q;
-		rootsOfUnity[j] = RootOfUnity(m, moduli[j]);
-		modulus = modulus * BigBinaryInteger(moduli[j].ConvertToInt());
-	}
-
-	shared_ptr<ILDCRTParams> params(new ILDCRTParams(m, moduli, rootsOfUnity));
-
-	return params;
-}
-
 
 
 #endif /* TEST_SRC_CRYPTOLAYERTESTS_H_ */

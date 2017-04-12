@@ -167,7 +167,7 @@ public:
 	 * @return the root of unity.
 	 */
 	const BigBinaryInteger &GetRootOfUnity() const {
-		throw std::logic_error("no single root of unity");
+		return BigBinaryInteger::ZERO;
 	}
 
 	const std::vector<std::shared_ptr<native64::ILParams>> &GetParams() const {

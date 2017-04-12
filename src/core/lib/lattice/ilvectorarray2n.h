@@ -248,16 +248,16 @@ namespace lbcrypto {
 		const IntType &GetRootOfUnity() const { return IntType::ZERO; }
 
 		/**
-		* Get method for the number of towers of the ILVectorArray2n.
+		* Get method for length of each vector
+		* NOTE assumes all vectors are the same size
 		*
-		* @return the number of towers.
+		* @return length
 		*/
 		usint GetLength() const {
-			usint tot = 0;
-			for( auto vec : m_vectors ) {
-				tot += vec.GetLength();
-			}
-			return tot;
+			if( m_vectors.size() == 0 )
+				return 0;
+
+			return m_vectors[0].GetValues().GetLength();
 		}
 
         /**
