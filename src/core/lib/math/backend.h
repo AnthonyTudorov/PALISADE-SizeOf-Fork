@@ -75,7 +75,7 @@
 //uncommented line (and breaking the documentation of the line)
 
 //32 bit should work with all OS
-//#define MATHBACKEND 2 
+#define MATHBACKEND 2 
 
 //dynamicly allocated backend and support uint32_t and uint64_t on linux
 //#define MATHBACKEND 3 
@@ -90,12 +90,12 @@
 
 //#define MATHBACKEND 4 
 //#define MATHBACKEND 5 
-#define MATHBACKEND 6 
+//#define MATHBACKEND 6 
 
 // native64 native
 // #define MATHBACKEND 7	
 
-#define NO_MATHBACKEND_7  //if defined, then MATHBACKEND 7 is disabled
+//#define NO_MATHBACKEND_7  //if defined, then MATHBACKEND 7 is disabled
 #ifndef NO_MATHBACKEND_7
 
 // note we always want to include these
@@ -111,10 +111,11 @@ typedef cpu_int::BigBinaryVectorImpl<NativeInteger<uint64_t>> BigBinaryVector;
 #endif
 
 #if MATHBACKEND == 2
+#if 0
 #include "cpu_int/binint.cpp"
 #include "cpu_int/binvect.cpp"
 #include <initializer_list>
-
+#endif
 #define UBINT_32
 #include "exp_int/ubint.cpp" //experimental dbc unsigned big integers or ubints
 #include "exp_int/ubintvec.cpp" //vectors of experimental ubints
