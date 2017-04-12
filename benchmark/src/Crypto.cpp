@@ -60,7 +60,7 @@ void BM_keygen(benchmark::State& state) { // benchmark
 
 	if( state.thread_index == 0 ) {
 		state.PauseTiming();
-		cc = CryptoContextHelper<ILVector2n>::getNewContext(parms[state.range(0)]);
+		cc = CryptoContextHelper::getNewContext(parms[state.range(0)]);
 		cc.Enable(ENCRYPTION);
 		cc.Enable(PRE);
 
@@ -103,7 +103,7 @@ void BM_encrypt(benchmark::State& state) { // benchmark
 
 	if( state.thread_index == 0 ) {
 		state.PauseTiming();
-		cc = CryptoContextHelper<ILVector2n>::getNewContext(parms[state.range(0)]);
+		cc = CryptoContextHelper::getNewContext(parms[state.range(0)]);
 		cc.Enable(ENCRYPTION);
 		cc.Enable(PRE);
 
@@ -165,7 +165,7 @@ void BM_decrypt(benchmark::State& state) { // benchmark
 
 	if( state.thread_index == 0 ) {
 		state.PauseTiming();
-		cc = CryptoContextHelper<ILVector2n>::getNewContext(parms[state.range(0)]);
+		cc = CryptoContextHelper::getNewContext(parms[state.range(0)]);
 		cc.Enable(ENCRYPTION);
 		cc.Enable(PRE);
 
@@ -228,7 +228,7 @@ void BM_rekeygen(benchmark::State& state) { // benchmark
 
 	if( state.thread_index == 0 ) {
 		state.PauseTiming();
-		cc = CryptoContextHelper<ILVector2n>::getNewContext(parms[state.range(0)]);
+		cc = CryptoContextHelper::getNewContext(parms[state.range(0)]);
 		cc.Enable(ENCRYPTION);
 		cc.Enable(PRE);
 
@@ -283,7 +283,7 @@ void BM_reencrypt(benchmark::State& state) { // benchmark
 
 	if( state.thread_index == 0 ) {
 		state.PauseTiming();
-		cc = CryptoContextHelper<ILVector2n>::getNewContext(parms[state.range(0)]);
+		cc = CryptoContextHelper::getNewContext(parms[state.range(0)]);
 		cc.Enable(ENCRYPTION);
 		cc.Enable(PRE);
 

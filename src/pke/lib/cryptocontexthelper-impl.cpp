@@ -97,9 +97,6 @@ buildContextFromSerialized(const map<string,string>& s, shared_ptr<typename Elem
 
 	if( parmtype == "LTV" ) {
 		if( !getValueForName(s, "plaintextModulus", plaintextModulus) ||
-				!getValueForName(s, "ring", ring) ||
-				!getValueForName(s, "modulus", modulus) ||
-				!getValueForName(s, "rootOfUnity", rootOfUnity) ||
 				!getValueForName(s, "relinWindow", relinWindow) ||
 				!getValueForName(s, "stDev", stDev) ) {
 			return 0;
@@ -110,18 +107,12 @@ buildContextFromSerialized(const map<string,string>& s, shared_ptr<typename Elem
 	}
 	else if( parmtype == "StehleSteinfeld" ) {
 		if( !getValueForName(s, "plaintextModulus", plaintextModulus) ||
-				!getValueForName(s, "ring", ring) ||
-				!getValueForName(s, "modulus", modulus) ||
-				!getValueForName(s, "rootOfUnity", rootOfUnity) ||
 				!getValueForName(s, "relinWindow", relinWindow) ||
 				!getValueForName(s, "stDev", stDev) ||
 				!getValueForName(s, "stDevStSt", stDevStSt) ) {
 			return 0;
 		}
 
-		shared_ptr<typename Element::Params> parms( new typename Element::Params(stoul(ring),
-														typename Element::Integer(modulus),
-														typename Element::Integer(rootOfUnity)) );
 		return CryptoContextFactory<Element>::genCryptoContextStehleSteinfeld(parms, stoul(plaintextModulus),
 				stoul(relinWindow), stof(stDev), stof(stDevStSt));
 	}
@@ -136,31 +127,19 @@ buildContextFromSerialized(const map<string,string>& s, shared_ptr<typename Elem
 	}
 	else if( parmtype == "BV" ) {
 		if( !getValueForName(s, "plaintextModulus", plaintextModulus) ||
-				!getValueForName(s, "ring", ring) ||
-				!getValueForName(s, "modulus", modulus) ||
-				!getValueForName(s, "rootOfUnity", rootOfUnity) ||
 				!getValueForName(s, "relinWindow", relinWindow) ||
 				!getValueForName(s, "stDev", stDev) ) {
 			return 0;
 		}
 
-		shared_ptr<typename Element::Params> parms( new typename Element::Params(stoul(ring),
-														typename Element::Integer(modulus),
-														typename Element::Integer(rootOfUnity)) );
 		return CryptoContextFactory<Element>::genCryptoContextBV(parms,
 				stoul(plaintextModulus), stoul(relinWindow), stof(stDev));
 	}
 	else if( parmtype == "Null" ) {
-		if( !getValueForName(s, "plaintextModulus", plaintextModulus) ||
-				!getValueForName(s, "ring", ring) ||
-				!getValueForName(s, "modulus", modulus) ||
-				!getValueForName(s, "rootOfUnity", rootOfUnity) ) {
+		if( !getValueForName(s, "plaintextModulus", plaintextModulus) ) {
 			return 0;
 		}
 
-		shared_ptr<typename Element::Params> parms( new typename Element::Params(stoul(ring),
-														typename Element::Integer(modulus),
-														typename Element::Integer(rootOfUnity)) );
 		return CryptoContextFactory<Element>::genCryptoContextNull(parms, stoul(plaintextModulus));
 	}
 	else {
@@ -247,7 +226,7 @@ bool
 CryptoContextHelper::matchContextToSerialization(const CryptoContext<ILVector2n> cc, const Serialized& ser)
 {
 	shared_ptr<LPCryptoParameters<ILVector2n>> ctxParams = cc.GetCryptoParameters();
-	shared_ptr<LPCryptoParameters<ILVector2n>> cParams = DeserializeCryptoParameters<Element>(ser);
+	shared_ptr<LPCryptoParameters<ILVector2n>> cParams = DeserializeCryptoParameters<ILVector2n>(ser);
 
 	if( !cParams ) return false;
 
@@ -258,7 +237,7 @@ bool
 CryptoContextHelper::matchContextToSerialization(const CryptoContext<ILVectorArray2n> cc, const Serialized& ser)
 {
 	shared_ptr<LPCryptoParameters<ILVectorArray2n>> ctxParams = cc.GetCryptoParameters();
-	shared_ptr<LPCryptoParameters<ILVectorArray2n>> cParams = DeserializeCryptoParameters<Element>(ser);
+	shared_ptr<LPCryptoParameters<ILVectorArray2n>> cParams = DeserializeCryptoParameters<ILVectorArray2n>(ser);
 
 	if( !cParams ) return false;
 

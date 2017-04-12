@@ -20,9 +20,15 @@ protected:
 public:
 };
 
-template <typename Element>
-CryptoContext<Element> GenerateTestCryptoContext(const string& parmsetName) {
-	CryptoContext<Element> cc = CryptoContextHelper<Element>::getNewContext(parmsetName);
+static CryptoContext<ILVector2n> GenerateTestCryptoContext(const string& parmsetName) {
+	CryptoContext<ILVector2n> cc = CryptoContextHelper::getNewContext(parmsetName);
+	cc.Enable(ENCRYPTION);
+	cc.Enable(PRE);
+	return cc;
+}
+
+static CryptoContext<ILVectorArray2n> GenerateTestDCRTCryptoContext(const string& parmsetName, usint nTower, usint pbits) {
+	CryptoContext<ILVectorArray2n> cc = CryptoContextHelper::getNewDCRTContext(parmsetName, nTower, pbits);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(PRE);
 	return cc;
@@ -104,51 +110,51 @@ UnitTestReEncrypt(const CryptoContext<Element>& cc, bool publicVersion) {
 }
 
 TEST(UTPRE, LTV_ILVector2n_ReEncrypt_pub) {
-	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext<ILVector2n>("LTV5");
+	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("LTV5");
 	UnitTestReEncrypt<ILVector2n>(cc, true);
 }
 
 TEST(UTPRE, LTV_ILVectorArray2n_ReEncrypt_pub) {
-	CryptoContext<ILVectorArray2n> cc = GenerateTestCryptoContext<ILVectorArray2n>("LTV5");
+	CryptoContext<ILVectorArray2n> cc = GenerateTestDCRTCryptoContext("LTV5", 3, 20);
 	UnitTestReEncrypt<ILVectorArray2n>(cc, true);
 }
 
 TEST(UTPRE, StSt_ILVector2n_ReEncrypt_pub) {
-	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext<ILVector2n>("StSt6");
+	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("StSt6");
 	UnitTestReEncrypt<ILVector2n>(cc, true);
 }
 
 TEST(UTPRE, StSt_ILVectorArray2n_ReEncrypt_pub) {
-	CryptoContext<ILVectorArray2n> cc = GenerateTestCryptoContext<ILVectorArray2n>("StSt6");
+	CryptoContext<ILVectorArray2n> cc = GenerateTestDCRTCryptoContext("StSt6", 3, 20);
 	UnitTestReEncrypt<ILVectorArray2n>(cc, true);
 }
 
 TEST(UTPRE, Null_ILVector2n_ReEncrypt_pub) {
-	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext<ILVector2n>("Null");
+	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("Null");
 	UnitTestReEncrypt<ILVector2n>(cc, true);
 }
 
 TEST(UTPRE, Null_ILVectorArray2n_ReEncrypt_pub) {
-	CryptoContext<ILVectorArray2n> cc = GenerateTestCryptoContext<ILVectorArray2n>("Null");
+	CryptoContext<ILVectorArray2n> cc = GenerateTestDCRTCryptoContext("Null", 3, 20);
 	UnitTestReEncrypt<ILVectorArray2n>(cc, true);
 }
 
 TEST(UTPRE, BV_ILVector2n_ReEncrypt_pri) {
-	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext<ILVector2n>("BV2");
+	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("BV2");
 	UnitTestReEncrypt<ILVector2n>(cc, false);
 }
 
 TEST(UTPRE, BV_ILVectorArray2n_ReEncrypt_pri) {
-	CryptoContext<ILVectorArray2n> cc = GenerateTestCryptoContext<ILVectorArray2n>("BV2");
+	CryptoContext<ILVectorArray2n> cc = GenerateTestDCRTCryptoContext("BV2", 3, 20);
 	UnitTestReEncrypt<ILVectorArray2n>(cc, false);
 }
 
 TEST(UTPRE, FV_ILVector2n_ReEncrypt_pri) {
-	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext<ILVector2n>("FV2");
+	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("FV2");
 	UnitTestReEncrypt<ILVector2n>(cc, false);
 }
 
 TEST(UTPRE, FV_ILVectorArray2n_ReEncrypt_pri) {
-	CryptoContext<ILVectorArray2n> cc = GenerateTestCryptoContext<ILVectorArray2n>("FV2");
+	CryptoContext<ILVectorArray2n> cc = GenerateTestDCRTCryptoContext("FV2", 3, 20);
 	UnitTestReEncrypt<ILVectorArray2n>(cc, false);
 }

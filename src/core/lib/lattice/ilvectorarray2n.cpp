@@ -372,7 +372,7 @@ namespace lbcrypto {
 		
 
 		for (usint i = 0; i < this->m_vectors.size(); i++) {
-			towerVals.insert(towerVals.begin()+i,std::move(this->m_vectors[i].PowersOfBase(baseBits)) );
+			towerVals.push_back( std::move(this->m_vectors[i].PowersOfBase(baseBits)) );
 		}
 
 		usint maxTowerVectorSize = towerVals.back().size();

@@ -22,9 +22,14 @@ protected:
 public:
 };
 
-template <typename Element>
-CryptoContext<Element> GenerateTestCryptoContext(const string& parmsetName) {
-	CryptoContext<Element> cc = CryptoContextHelper<Element>::getNewContext(parmsetName);
+static CryptoContext<ILVector2n> GenerateTestCryptoContext(const string& parmsetName) {
+	CryptoContext<ILVector2n> cc = CryptoContextHelper::getNewContext(parmsetName);
+	cc.Enable(ENCRYPTION);
+	return cc;
+}
+
+static CryptoContext<ILVectorArray2n> GenerateTestDCRTCryptoContext(const string& parmsetName, usint nTower, usint pbits) {
+	CryptoContext<ILVectorArray2n> cc = CryptoContextHelper::getNewDCRTContext(parmsetName, nTower, pbits);
 	cc.Enable(ENCRYPTION);
 	return cc;
 }
@@ -90,51 +95,51 @@ UnitTestEncryption(const CryptoContext<Element>& cc) {
 }
 
 TEST(UTENCRYPT, LTV_ILVector2n_Encrypt_Decrypt) {
-	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext<ILVector2n>("LTV5");
+	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("LTV5");
 	UnitTestEncryption<ILVector2n>(cc);
 }
 
 TEST(UTENCRYPT, LTV_ILVectorArray2n_Encrypt_Decrypt) {
-	CryptoContext<ILVectorArray2n> cc = GenerateTestCryptoContext<ILVectorArray2n>("LTV5");
+	CryptoContext<ILVectorArray2n> cc = GenerateTestDCRTCryptoContext("LTV5", 3, 20);
 	UnitTestEncryption<ILVectorArray2n>(cc);
 }
 
 TEST(UTENCRYPT, StSt_ILVector2n_Encrypt_Decrypt) {
-	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext<ILVector2n>("StSt6");
+	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("StSt6");
 	UnitTestEncryption<ILVector2n>(cc);
 }
 
 TEST(UTENCRYPT, StSt_ILVectorArray2n_Encrypt_Decrypt) {
-	CryptoContext<ILVectorArray2n> cc = GenerateTestCryptoContext<ILVectorArray2n>("StSt6");
+	CryptoContext<ILVectorArray2n> cc = GenerateTestDCRTCryptoContext("StSt6", 3, 20);
 	UnitTestEncryption<ILVectorArray2n>(cc);
 }
 
 TEST(UTENCRYPT, BV_ILVector2n_Encrypt_Decrypt) {
-	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext<ILVector2n>("BV2");
+	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("BV2");
 	UnitTestEncryption<ILVector2n>(cc);
 }
 
 TEST(UTENCRYPT, BV_ILVectorArray2n_Encrypt_Decrypt) {
-	CryptoContext<ILVectorArray2n> cc = GenerateTestCryptoContext<ILVectorArray2n>("BV2");
+	CryptoContext<ILVectorArray2n> cc = GenerateTestDCRTCryptoContext("BV2", 3, 20);
 	UnitTestEncryption<ILVectorArray2n>(cc);
 }
 
 TEST(UTENCRYPT, Null_ILVector2n_Encrypt_Decrypt) {
-	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext<ILVector2n>("Null");
+	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("Null");
 	UnitTestEncryption<ILVector2n>(cc);
 }
 
 TEST(UTENCRYPT, Null_ILVectorArray2n_Encrypt_Decrypt) {
-	CryptoContext<ILVectorArray2n> cc = GenerateTestCryptoContext<ILVectorArray2n>("Null");
+	CryptoContext<ILVectorArray2n> cc = GenerateTestDCRTCryptoContext("Null", 3, 20);
 	UnitTestEncryption<ILVectorArray2n>(cc);
 }
 
 TEST(UTENCRYPT, FV_ILVector2n_Encrypt_Decrypt) {
-	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext<ILVector2n>("FV2");
+	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("FV2");
 	UnitTestEncryption<ILVector2n>(cc);
 }
 
 TEST(UTENCRYPT, FV_ILVectorArray2n_Encrypt_Decrypt) {
-	CryptoContext<ILVectorArray2n> cc = GenerateTestCryptoContext<ILVectorArray2n>("FV2");
+	CryptoContext<ILVectorArray2n> cc = GenerateTestDCRTCryptoContext("FV2", 3, 20);
 	UnitTestEncryption<ILVectorArray2n>(cc);
 }

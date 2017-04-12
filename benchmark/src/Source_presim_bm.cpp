@@ -298,7 +298,7 @@ void PRESimulation(usint count, usint dataset){
 	//Set crypto parameters
 	shared_ptr<ILVector2n::Params> parms( new ILVector2n::Params(m, modulus, rootOfUnity) );
 
-	CryptoContext<ILVector2n> cc =  CryptoContextFactory<ILVector2n>::genCryptoContextLTV(ptModulus, parms, relWindow, stdDev);
+	CryptoContext<ILVector2n> cc =  CryptoContextFactory<ILVector2n>::genCryptoContextLTV(parms, ptModulus, relWindow, stdDev);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(PRE);
 

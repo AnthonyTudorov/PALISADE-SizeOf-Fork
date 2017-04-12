@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
 	// no name specified? print out the names of all available parameter sets
 	if( !haveName ) {
 		cout << "Available crypto parameter sets are:" << endl;
-		CryptoContextHelper<ILVector2n>::printAllParmSetNames(cout);
+		CryptoContextHelper::printAllParmSetNames(cout);
 		return 1;
 	}
 
@@ -127,14 +127,14 @@ int main(int argc, char *argv[])
 
 	if( beVerbose ) cout << "Initializing crypto system" << endl;
 
-	CryptoContext<ILVector2n> cc = CryptoContextHelper<ILVector2n>::getNewContext(parmSetName);
+	CryptoContext<ILVector2n> cc = CryptoContextHelper::getNewContext(parmSetName);
 
 	// enable features that you wish to use
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 
 	if( beVerbose ) {
-		CryptoContextHelper<ILVector2n>::printParmSet(cout, parmSetName);
+		CryptoContextHelper::printParmSet(cout, parmSetName);
 	}
 
 	// for this demo we reset the plaintext modulus and try ParamsGen
