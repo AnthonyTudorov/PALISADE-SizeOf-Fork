@@ -108,7 +108,7 @@ namespace lbcrypto {
 
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorImpl<IntType,VecType,ParmType>::ILVectorImpl(const DiscreteUniformGeneratorImpl<IntType,VecType> &dug, const shared_ptr<ParmType> params, Format format) {
+	ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl( DiscreteUniformGeneratorImpl<IntType,VecType> &dug, const shared_ptr<ParmType> params, Format format) {
 
 		m_params = params;
 
@@ -125,7 +125,7 @@ namespace lbcrypto {
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorImpl<IntType,VecType,ParmType>::ILVectorImpl(const BinaryUniformGeneratorImpl<IntType,VecType> &bug, const shared_ptr<ParmType> params, Format format) {
+	ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(const BinaryUniformGeneratorImpl<IntType,VecType> &bug, const shared_ptr<ParmType> params, Format format) {
     bool dbg_flag = false;
 		m_params = params;
 

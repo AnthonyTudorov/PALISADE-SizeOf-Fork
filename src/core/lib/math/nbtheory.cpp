@@ -69,9 +69,9 @@ template void NextQ(BigBinaryInteger &q, const BigBinaryInteger &plainTextModulu
 template native64::BigBinaryInteger RootOfUnity<native64::BigBinaryInteger>(usint m, const native64::BigBinaryInteger& modulo);
 template std::vector<native64::BigBinaryInteger> RootsOfUnity(usint m, const std::vector<native64::BigBinaryInteger> moduli);
 template native64::BigBinaryInteger GreatestCommonDivisor(const native64::BigBinaryInteger& a, const native64::BigBinaryInteger& b);
-template bool MillerRabinPrimalityTest(const native64::BigBinaryInteger& p);
+  template bool MillerRabinPrimalityTest(const native64::BigBinaryInteger& p, const usint niter);
 template const native64::BigBinaryInteger PollardRhoFactorization(const native64::BigBinaryInteger &n);
-template void PrimeFactorize(const native64::BigBinaryInteger &n, std::set<native64::BigBinaryInteger> &primeFactors);
+template void PrimeFactorize( native64::BigBinaryInteger &n, std::set<native64::BigBinaryInteger> &primeFactors);
 template native64::BigBinaryInteger FindPrimeModulus(usint m, usint nBits);
 template void NextQ(native64::BigBinaryInteger &q, const native64::BigBinaryInteger &plainTextModulus, const usint &ringDimension, const native64::BigBinaryInteger &sigma, const native64::BigBinaryInteger &alpha);
 #endif

@@ -410,6 +410,16 @@ public:
 			throw std::logic_error("Native64 integer divide by zero");
 		return this->m_value / b.m_value;
 	}
+	/**
+	 * Multiplication accumulator.
+	 *
+	 * @param &b is the value to multiply of type Big Binary Integer.
+	 * @return result of the muliplyaccumulate operation of type Big Binary Integer.
+	 */
+	const NativeInteger& operator/=(const NativeInteger &b) {
+	  m_value /= b.m_value;
+		return *this;
+	}
 
 	//modular arithmetic operations
 

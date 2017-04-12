@@ -43,13 +43,13 @@ using std::shared_ptr;
 #include "../math/backend.h"
 #include "../utils/inttypes.h"
 #include "../utils/memory.h"
-#include "../math/distrgen.h"
 #include "../lattice/elemparams.h"
 #include "../lattice/ilparams.h"
 #include "../lattice/ildcrtparams.h"
 #include "../lattice/ilelement.h"
 #include "../math/nbtheory.h"
 #include "../math/transfrm.h"
+#include "../math/distrgen.h"
 
 namespace lbcrypto {
 
@@ -130,7 +130,7 @@ public:
 	 * @param &params the input params.
 	 * @param format - EVALUATION or COEFFICIENT
 	 */
-	ILVectorImpl(DugType &dug, const shared_ptr<ParmType> params, Format format = EVALUATION);
+	ILVectorImpl( DugType &dug, const shared_ptr<ParmType> params, Format format = EVALUATION);
 
 	/**
 	 *  Create lambda that allocates a zeroed element for the case when it is called from a templated class
