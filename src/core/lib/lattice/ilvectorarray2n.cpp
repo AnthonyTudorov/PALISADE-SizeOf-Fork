@@ -338,8 +338,9 @@ namespace lbcrypto {
 //			elementWiseDecompose.push_back( m_vectors.at(i).BaseDecompose(baseBits) );
 //		}
 
+		std::cout << "VectorArray::BaseDecompose(" << baseBits << "), this has " << m_vectors.size() << " vectors" << std::endl;
 		ILVector2n v( CRTInterpolate() );
-		std::cout << "interpolated vector has mod " << v.GetModulus() << " and root " << v.GetRootOfUnity() << std::endl;
+		std::cout << "interpolated vec modulus " << v.GetModulus() << " rootOfUnity " << v.GetRootOfUnity() << std::endl;
 		std::vector<ILVector2n> bdV = v.BaseDecompose(baseBits, false);
 		std::cout << "decomposes into " << bdV.size() << " vectors" << std::endl;
 

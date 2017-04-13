@@ -119,20 +119,20 @@ TEST(UTPRE, LTV_ILVector2n_ReEncrypt_pub) {
 	UnitTestReEncrypt<ILVector2n>(cc, true);
 }
 
-TEST(UTPRE, LTV_ILVectorArray2n_ReEncrypt_pub) {
-	CryptoContext<ILVectorArray2n> cc = GenerateTestDCRTCryptoContext("LTV5", 3, 20);
-	UnitTestReEncrypt<ILVectorArray2n>(cc, true);
-}
+//TEST(UTPRE, LTV_ILVectorArray2n_ReEncrypt_pub) {
+//	CryptoContext<ILVectorArray2n> cc = GenerateTestDCRTCryptoContext("LTV5", 3, 20);
+//	UnitTestReEncrypt<ILVectorArray2n>(cc, true);
+//}
 
 TEST(UTPRE, StSt_ILVector2n_ReEncrypt_pub) {
 	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("StSt6");
 	UnitTestReEncrypt<ILVector2n>(cc, true);
 }
 
-TEST(UTPRE, StSt_ILVectorArray2n_ReEncrypt_pub) {
-	CryptoContext<ILVectorArray2n> cc = GenerateTestDCRTCryptoContext("StSt6", 3, 20);
-	UnitTestReEncrypt<ILVectorArray2n>(cc, true);
-}
+//TEST(UTPRE, StSt_ILVectorArray2n_ReEncrypt_pub) {
+//	CryptoContext<ILVectorArray2n> cc = GenerateTestDCRTCryptoContext("StSt6", 3, 20);
+//	UnitTestReEncrypt<ILVectorArray2n>(cc, true);
+//}
 
 TEST(UTPRE, Null_ILVector2n_ReEncrypt_pub) {
 	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("Null");
