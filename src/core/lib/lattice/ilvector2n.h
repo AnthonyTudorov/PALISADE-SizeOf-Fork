@@ -669,7 +669,7 @@ public:
 	 * @param baseBits is the number of bits in the base, i.e., base = 2^baseBits
 	 * @result is the pointer where the base decomposition vector is stored
 	 */
-	std::vector<ILVectorImpl> BaseDecompose(usint baseBits) const;
+	std::vector<ILVectorImpl> BaseDecompose(usint baseBits, bool evalModeAnswer=true) const;
 
 	/**
 	 * Generate a vector of ILVectorImpl's as {x, base*x, base^2*x, ..., base^{\lfloor {\log q/base} \rfloor}*x, where x is the current ILVectorImpl object;

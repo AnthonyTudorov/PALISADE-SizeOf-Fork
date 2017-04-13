@@ -746,7 +746,7 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 	// baseBits is the number of bits in the base, i.e., base = 2^baseBits
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	std::vector<ILVectorImpl<ModType,IntType,VecType,ParmType>> ILVectorImpl<ModType,IntType,VecType,ParmType>::BaseDecompose(usint baseBits) const {
+	std::vector<ILVectorImpl<ModType,IntType,VecType,ParmType>> ILVectorImpl<ModType,IntType,VecType,ParmType>::BaseDecompose(usint baseBits, bool evalModeAnswer) const {
 		
 		usint nBits = m_params->GetModulus().GetLengthForBase(2);
 
@@ -766,7 +766,8 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 		for (usint i = 0; i < nWindows; ++i)
 		{
 			xDigit.SetValues( x.GetValues().GetDigitAtIndexForBase(i*baseBits + 1, 1 << baseBits), x.GetFormat() );
-			xDigit.SwitchFormat();
+			if( evalModeAnswer )
+				xDigit.SwitchFormat();
 			result.push_back(xDigit);
 		}
 

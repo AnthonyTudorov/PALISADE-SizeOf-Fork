@@ -300,9 +300,10 @@ public:
 	 * used as a subroutine in the relinearization procedure
 	 *
 	 * @param baseBits is the number of bits in the base, i.e., base = 2^baseBits
+	 * @param evalModeAnswer - if true, convert the resultant polynomials to evaluation mode
 	 * @result is the pointer where the base decomposition vector is stored
 	 */
-	virtual std::vector<Element> BaseDecompose(usint baseBits) const = 0;
+	virtual std::vector<Element> BaseDecompose(usint baseBits, bool evalModeAnswer=true) const = 0;
 
 	/**
 	 * Interpolates based on the Chinese Remainder Transform Interpolation.
