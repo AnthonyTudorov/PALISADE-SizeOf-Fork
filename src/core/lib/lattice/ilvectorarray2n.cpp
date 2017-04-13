@@ -827,24 +827,32 @@ namespace lbcrypto {
 		for( usint vi = 0 ; vi < nTowers; vi++ ) {
 			BigBinaryInteger qj(m_vectors[vi].GetModulus().ConvertToInt());
 			BigBinaryInteger divBy = bigModulus / qj;
-			//BigBinaryInteger modInv = (divBy % qj).ModInverse(qj);
 			BigBinaryInteger modInv = divBy.ModInverse(qj).Mod(qj);
 			multiplier[vi] = divBy * modInv;
 
 			DEBUG("multiplier " << vi << " " << qj << " " << multiplier[vi]);
 		}
 
+		// if the vectors are not in COEFFICIENT form, they need to be, so we will need to make a copy
+		// of them and switchformat on them... otherwise we can just use what we have
+		const std::vector<ILVectorType> *vecs = &m_vectors;
+		std::vector<ILVectorType> coeffVecs;
+		if( m_format == EVALUATION ) {
+			for( usint i=0; i<m_vectors.size(); i++ ) {
+				ILVectorType vecCopy(m_vectors[i]);
+				vecCopy.SetFormat(COEFFICIENT);
+				coeffVecs.push_back( std::move(vecCopy) );
+			}
+			vecs = &coeffVecs;
+		}
+
 		// now, compute the values for the vector
 		for( usint ri = 0; ri < ringDimension; ri++ ) {
-			DEBUG( ri );
 			coefficients[ri] = BigBinaryInteger::ZERO;
 			for( usint vi = 0; vi < nTowers; vi++ ) {
-				coefficients[ri] += (BigBinaryInteger(m_vectors[vi].GetValues()[ri].ConvertToInt()) * multiplier[vi]);
-				DEBUG( coefficients[ri] << ":::" << BigBinaryInteger(m_vectors[vi].GetValues()[ri].ConvertToInt()) << ":::" << multiplier[vi] );
+				coefficients[ri] += (BigBinaryInteger((*vecs)[vi].GetValues()[ri].ConvertToInt()) * multiplier[vi]);
 			}
-			DEBUG( coefficients[ri] << ":::" << bigModulus );
 			coefficients[ri] = coefficients[ri] % bigModulus;
-			DEBUG( coefficients[ri] );
 		}
 
 		DEBUG("passed loops");

@@ -748,9 +748,6 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	std::vector<ILVectorImpl<ModType,IntType,VecType,ParmType>> ILVectorImpl<ModType,IntType,VecType,ParmType>::BaseDecompose(usint baseBits) const {
 		
-		// if the input is in EVALUATION form, then the results must be as well
-		bool resultAsEvaluation = GetFormat() == EVALUATION;
-
 		usint nBits = m_params->GetModulus().GetLengthForBase(2);
 
 		usint nWindows = nBits / baseBits;
@@ -764,15 +761,12 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 
 		// convert the polynomial to coefficient representation
 		ILVectorImpl<ModType,IntType,VecType,ParmType> x(*this);
-		if (x.GetFormat() == EVALUATION)
-			x.SwitchFormat();
+		x.SetFormat(COEFFICIENT);
 
 		for (usint i = 0; i < nWindows; ++i)
 		{
 			xDigit.SetValues( x.GetValues().GetDigitAtIndexForBase(i*baseBits + 1, 1 << baseBits), x.GetFormat() );
-			// convert the polynomial back to evaluation representation if it was on the way in
-			if( resultAsEvaluation )
-				xDigit.SwitchFormat();
+			xDigit.SwitchFormat();
 			result.push_back(xDigit);
 		}
 
