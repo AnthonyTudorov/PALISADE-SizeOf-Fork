@@ -156,7 +156,6 @@ public:
 		throw std::logic_error("SetValAtIndex not implemented");
 	}
 
-	// SETTERS
 	/**
 	 * SetValAtIndex
 	 *
@@ -413,6 +412,13 @@ public:
 	 * Convert from Coefficient to CRT or vice versa; calls FFT and inverse FFT.
 	 */
 	virtual void SwitchFormat() = 0;
+
+	void SetFormat(const Format format) {
+		if (this->GetFormat() != format) {
+			this->SwitchFormat();
+		}
+	}
+
 };
 
 } // namespace lbcrypto ends

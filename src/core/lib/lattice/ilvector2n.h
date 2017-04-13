@@ -402,13 +402,6 @@ public:
 	void SetValuesToMax();
 
 	/**
-	 * Sets the format.
-	 *
-	 * @param format is the Format to be set.
-	 */
-	void SetFormat(const Format format);
-
-	/**
 	 * Scalar addition - add an element to the first index only.
 	 * This operation is only allowed in COEFFICIENT format.
 	 *

@@ -333,17 +333,33 @@ namespace lbcrypto {
 	std::vector<ILVectorArrayImpl<ModType,IntType,VecType,ParmType>> ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::BaseDecompose(usint baseBits) const {
 
 		// turn this into a composed vector
-		ILVector2n v( CRTInterpolate() );
-		std::cout << "interpolated vector has mod " << v.GetModulus() << " and root " << v.GetRootOfUnity() << std::endl;
-		std::vector<ILVector2n> bdV = v.BaseDecompose(baseBits);
+		std::cout << "Doing an interpolate, this vector has " << m_vectors.size() << " items" << std::endl;
+		std::vector< std::vector<ILVectorType> > elementWiseDecompose;
+		for (usint i= 0 ; i <  this->m_vectors.size(); i++) {
+			elementWiseDecompose.push_back( m_vectors.at(i).BaseDecompose(baseBits) );
+		}
+
+//		ILVector2n v( CRTInterpolate() );
+//		std::cout << "interpolated vector has mod " << v.GetModulus() << " and root " << v.GetRootOfUnity() << std::endl;
+//		std::vector<ILVector2n> bdV = v.BaseDecompose(baseBits);
 
 		std::vector<ILVectorArrayImpl<ModType,IntType,VecType,ParmType>> result;
-
-		// create the result by decomposing the big vectors
-		for( usint i=0; i<bdV.size(); i++ ) {
-			ILVectorArrayImpl<ModType,IntType,VecType,ParmType> dv(bdV[i], this->GetParams());
-			result.push_back( std::move(dv) );
+		usint resultSize = elementWiseDecompose[0].size();
+		for( usint i=0; i<resultSize; i++ ) {
+			result.push_back( this->CloneParametersOnly() );
 		}
+
+		for( usint i=0; i<resultSize; i++ ) {
+			for( usint t=0; t<m_vectors.size(); t++ ) {
+				result[i].m_vectors[t] = elementWiseDecompose[t][i];
+			}
+		}
+
+//		// create the result by decomposing the big vectors
+//		for( usint i=0; i<bdV.size(); i++ ) {
+//			ILVectorArrayImpl<ModType,IntType,VecType,ParmType> dv(bdV[i], this->GetParams());
+//			result.push_back( std::move(dv) );
+//		}
 
 //		ILVectorArrayImpl<ModType,IntType,VecType,ParmType> zero(this->CloneParametersOnly());
 //		zero = { 0,0 };
