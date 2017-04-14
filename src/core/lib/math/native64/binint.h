@@ -557,8 +557,6 @@ public:
 		modsum += b.m_value;
 
 		modsum %= modulus.m_value;
-		if( modsum > m_uintMax ) //need to check before mod
-			throw std::logic_error("Overflow in ModAdd");
 		return (uint_type)modsum;
 	}
 

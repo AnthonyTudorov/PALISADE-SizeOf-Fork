@@ -34,8 +34,6 @@ shared_ptr<Ciphertext<ILVectorArray2n>> LPAlgorithmSHENull<ILVectorArray2n>::Eva
 
 	ILVectorArray2n	cResult(mResults);
 
-	std::cout << cResult << std::endl;
-
 	newCiphertext->SetElement(cResult);
 
 	return newCiphertext;

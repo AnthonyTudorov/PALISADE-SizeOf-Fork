@@ -183,6 +183,8 @@ public:
 	 */
 	void SetCyclotomicOrder(const usint order) {
 		m_cyclotomicOrder = order;
+		for( usint i=0; i<m_parms.size(); i++ )
+			m_parms[i]->SetCyclotomicOrder(order);
 	}
 
 	/**

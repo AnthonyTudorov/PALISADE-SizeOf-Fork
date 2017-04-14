@@ -26,7 +26,7 @@ public:
 
 	virtual void SetPlaintextModulus(const BigBinaryInteger &plaintextModulus) {
 		LPCryptoParameters<Element>::SetPlaintextModulus(plaintextModulus);
-		std::dynamic_pointer_cast<ILParams>(this->GetElementParams())->SetModulus( plaintextModulus );
+		this->GetElementParams()->SetModulus( plaintextModulus );
 	}
 
 	bool Serialize(Serialized* serObj) const {

@@ -66,8 +66,12 @@ protected:
 
 };
 
+// NOTE the SHE tests are all based on these
+static const usint ORDER = 16;
+
 static CryptoContext<ILVector2n> GenerateTestCryptoContext(const string& parmsetName) {
 	CryptoContext<ILVector2n> cc = CryptoContextHelper::getNewContext(parmsetName);
+	cc.GetElementParams()->SetCyclotomicOrder(ORDER);
 	cc.GetCryptoParameters()->SetPlaintextModulus(ILVector2n::Integer(64));
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
@@ -76,6 +80,7 @@ static CryptoContext<ILVector2n> GenerateTestCryptoContext(const string& parmset
 
 static CryptoContext<ILVectorArray2n> GenerateTestDCRTCryptoContext(const string& parmsetName, usint nTower, usint pbits) {
 	CryptoContext<ILVectorArray2n> cc = CryptoContextHelper::getNewDCRTContext(parmsetName, nTower, pbits);
+	cc.GetElementParams()->SetCyclotomicOrder(ORDER);
 	cc.GetCryptoParameters()->SetPlaintextModulus(ILVector2n::Integer(64));
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
@@ -185,22 +190,15 @@ TEST(UTSHE, FV_ILVectorArray2n_Add) {
 template<class Element>
 void UnitTest_Mult(const CryptoContext<Element>& cc) {
 
-	std::cout <<  "m=" << cc.GetCyclotomicOrder() << std::endl;
-
 	std::vector<uint32_t> vectorOfInts1 = { 1,0,3,1,0,1,2,1 };
 	IntPlaintextEncoding plaintext1(vectorOfInts1);
 
 	std::vector<uint32_t> vectorOfInts2 = { 2,1,3,2,2,1,3,0 };
 	IntPlaintextEncoding plaintext2(vectorOfInts2);
 
-	std::vector<uint32_t> vectorOfIntsMult = { 2, 1, 9, 7, 12, 12, 16, 12, 19, 12, 7, 7, 7, 3 };
-	//std::vector<uint32_t> vectorOfIntsMult = { 47, 53, 2, 0, 5, 9, 16, 12 };
+	//std::vector<uint32_t> vectorOfIntsMult = { 2, 1, 9, 7, 12, 12, 16, 12, 19, 12, 7, 7, 7, 3 };
+	std::vector<uint32_t> vectorOfIntsMult = { 47, 53, 2, 0, 5, 9, 16, 12 };
 	IntPlaintextEncoding plaintextMult(vectorOfIntsMult);
-
-//	if( cc.GetCyclotomicOrder() != 16 || cc.GetCryptoParameters()->GetPlaintextModulus().ConvertToInt() != 64 ) {
-//		GTEST_FAIL() << "UnitTest_Add_Mult requires m=16 and ptm=64";
-//		return;
-//	}
 
 	{
 		// EVAL MULT
@@ -213,40 +211,21 @@ void UnitTest_Mult(const CryptoContext<Element>& cc) {
 		// Initialize the public key containers.
 		LPKeyPair<Element> kp = cc.KeyGen();
 
-		std::cout << "secret key" << std::endl;
-		std::cout << kp.secretKey->GetPrivateElement() << std::endl;
-
 		vector<shared_ptr<Ciphertext<Element>>> ciphertext1 =
 			cc.Encrypt(kp.publicKey, intArray1,false);
 
 		vector<shared_ptr<Ciphertext<Element>>> ciphertext2 =
 			cc.Encrypt(kp.publicKey, intArray2,false);
 
-		std::cout << intArray1 << std::endl;
-		std::cout << ciphertext1[0]->GetElement() << std::endl;
-		std::cout << intArray2 << std::endl;
-		std::cout << ciphertext2[0]->GetElement() << std::endl;
-
 		cc.EvalMultKeyGen(kp.secretKey);
-
-		std::cout << "eval mult key" << std::endl;
-		for( int v=0; v < cc.GetEvalMultKey()->GetAVector().size() ; v++ )
-			std::cout << "vector " << v << ":::" << std::endl << cc.GetEvalMultKey()->GetAVector()[v] << std::endl;
 
 		vector<shared_ptr<Ciphertext<Element>>> cResult;
 
 		cResult.insert(cResult.begin(), cc.EvalMult(ciphertext1.at(0), ciphertext2.at(0)));
 
-		std::cout << cResult[0]->GetElement() << std::endl;
-
-		ILVector2n decrypted;
-		DecryptResult result = GetEncryptionAlgorithm()->Decrypt(privateKey, ciphertext[ch], &decrypted);
-
 		IntPlaintextEncoding results;
 
 		cc.Decrypt(kp.secretKey, cResult, &results,false);
-
-		std::cout << results << std::endl;
 
 		results.resize(intArrayExpected.size());
 
