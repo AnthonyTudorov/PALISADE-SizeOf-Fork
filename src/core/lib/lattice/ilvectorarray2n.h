@@ -617,6 +617,15 @@ namespace lbcrypto {
 		*/
 		bool Deserialize(const Serialized& serObj);
 
+
+		friend inline std::ostream& operator<<(std::ostream& os, const ILVectorArrayType& vec) {
+			for( int i=0; i<vec.GetAllElements().size(); i++ ) {
+				os << i << ": ";
+				os << vec.GetAllElements()[i];
+			}
+			return os;
+		}
+
 		friend inline ILVectorArrayType operator+(const ILVectorArrayType &a, const ILVectorArrayType &b) { return a.Plus(b); }
 		friend inline ILVectorArrayType operator+(const ILVectorArrayType &a, const IntType &b) { return a.Plus(b); }
 		friend inline ILVectorArrayType operator+(const IntType &a, const ILVectorArrayType &b) { return b.Plus(a); }

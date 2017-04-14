@@ -356,13 +356,13 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 			const shared_ptr<Ciphertext<ILVectorArray2n>> ciphertext2) const;
 
 		/**
-		* Function for evaluating multiplication on ciphertext followed by key switching operation.
-		*
-		* @param &ciphertext1 first input ciphertext.
-		* @param &ciphertext2 second input ciphertext.
-		* @param &ek is the evaluation key to make the newCiphertext decryptable by the same secret key as that of ciphertext1 and ciphertext2.
-		* @param *newCiphertext the new resulting ciphertext.
-		*/
+		 * Function for evaluating multiplication on ciphertext followed by key switching operation.
+		 *
+		 * @param &ciphertext1 first input ciphertext.
+		 * @param &ciphertext2 second input ciphertext.
+		 * @param &ek is the evaluation key to make the newCiphertext decryptable by the same secret key as that of ciphertext1 and ciphertext2.
+		 * @param *newCiphertext the new resulting ciphertext.
+		 */
 		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
 				const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const {
 

@@ -83,9 +83,7 @@ static CryptoContext<ILVectorArray2n> GenerateTestDCRTCryptoContext(const string
 }
 
 template<class Element>
-void UnitTest_Add_Mult(const CryptoContext<Element>& cc) {
-
-	std::cout <<  "m=" << cc.GetCyclotomicOrder() << std::endl;
+void UnitTest_Add(const CryptoContext<Element>& cc) {
 
 	std::vector<uint32_t> vectorOfInts1 = { 1,0,3,1,0,1,2,1 };
 	IntPlaintextEncoding plaintext1(vectorOfInts1);
@@ -98,15 +96,6 @@ void UnitTest_Add_Mult(const CryptoContext<Element>& cc) {
 
 	std::vector<uint32_t> vectorOfIntsSub = { 63,63,0,63,62,0,63,1 };
 	IntPlaintextEncoding plaintextSub(vectorOfIntsSub);
-
-	std::vector<uint32_t> vectorOfIntsMult = { 2, 1, 9, 7, 12, 12, 16, 12, 19, 12, 7, 7, 7, 3 };
-	//std::vector<uint32_t> vectorOfIntsMult = { 47, 53, 2, 0, 5, 9, 16, 12 };
-	IntPlaintextEncoding plaintextMult(vectorOfIntsMult);
-
-//	if( cc.GetCyclotomicOrder() != 16 || cc.GetCryptoParameters()->GetPlaintextModulus().ConvertToInt() != 64 ) {
-//		GTEST_FAIL() << "UnitTest_Add_Mult requires m=16 and ptm=64";
-//		return;
-//	}
 
 	{
 		// EVAL ADD
@@ -139,6 +128,79 @@ void UnitTest_Add_Mult(const CryptoContext<Element>& cc) {
 
 		EXPECT_EQ(intArrayExpected, results) << "EvalAdd fails";
 	}
+}
+
+/// add
+TEST(UTSHE, LTV_ILVector2n_Add) {
+	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("LTV5");
+	UnitTest_Add<ILVector2n>(cc);
+}
+
+TEST(UTSHE, LTV_ILVectorArray2n_Add) {
+	CryptoContext<ILVectorArray2n> cc = GenerateTestDCRTCryptoContext("LTV5", 3, 20);
+	UnitTest_Add<ILVectorArray2n>(cc);
+}
+
+TEST(UTSHE, StSt_ILVector2n_Add) {
+	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("StSt6");
+	UnitTest_Add<ILVector2n>(cc);
+}
+
+TEST(UTSHE, StSt_ILVectorArray2n_Add) {
+	CryptoContext<ILVectorArray2n> cc = GenerateTestDCRTCryptoContext("StSt6", 3, 20);
+	UnitTest_Add<ILVectorArray2n>(cc);
+}
+
+TEST(UTSHE, Null_ILVector2n_Add) {
+	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("Null");
+	UnitTest_Add<ILVector2n>(cc);
+}
+
+TEST(UTSHE, Null_ILVectorArray2n_Add) {
+	CryptoContext<ILVectorArray2n> cc = GenerateTestDCRTCryptoContext("Null", 3, 20);
+	UnitTest_Add<ILVectorArray2n>(cc);
+}
+
+TEST(UTSHE, BV_ILVector2n_Add) {
+	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("BV2");
+	UnitTest_Add<ILVector2n>(cc);
+}
+
+TEST(UTSHE, BV_ILVectorArray2n_Add) {
+	CryptoContext<ILVectorArray2n> cc = GenerateTestDCRTCryptoContext("BV2", 3, 20);
+	UnitTest_Add<ILVectorArray2n>(cc);
+}
+
+TEST(UTSHE, FV_ILVector2n_Add) {
+	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("FV2");
+	UnitTest_Add<ILVector2n>(cc);
+}
+
+TEST(UTSHE, FV_ILVectorArray2n_Add) {
+	CryptoContext<ILVectorArray2n> cc = GenerateTestDCRTCryptoContext("FV2", 3, 20);
+	UnitTest_Add<ILVectorArray2n>(cc);
+}
+
+///
+template<class Element>
+void UnitTest_Mult(const CryptoContext<Element>& cc) {
+
+	std::cout <<  "m=" << cc.GetCyclotomicOrder() << std::endl;
+
+	std::vector<uint32_t> vectorOfInts1 = { 1,0,3,1,0,1,2,1 };
+	IntPlaintextEncoding plaintext1(vectorOfInts1);
+
+	std::vector<uint32_t> vectorOfInts2 = { 2,1,3,2,2,1,3,0 };
+	IntPlaintextEncoding plaintext2(vectorOfInts2);
+
+	std::vector<uint32_t> vectorOfIntsMult = { 2, 1, 9, 7, 12, 12, 16, 12, 19, 12, 7, 7, 7, 3 };
+	//std::vector<uint32_t> vectorOfIntsMult = { 47, 53, 2, 0, 5, 9, 16, 12 };
+	IntPlaintextEncoding plaintextMult(vectorOfIntsMult);
+
+//	if( cc.GetCyclotomicOrder() != 16 || cc.GetCryptoParameters()->GetPlaintextModulus().ConvertToInt() != 64 ) {
+//		GTEST_FAIL() << "UnitTest_Add_Mult requires m=16 and ptm=64";
+//		return;
+//	}
 
 	{
 		// EVAL MULT
@@ -151,21 +213,40 @@ void UnitTest_Add_Mult(const CryptoContext<Element>& cc) {
 		// Initialize the public key containers.
 		LPKeyPair<Element> kp = cc.KeyGen();
 
+		std::cout << "secret key" << std::endl;
+		std::cout << kp.secretKey->GetPrivateElement() << std::endl;
+
 		vector<shared_ptr<Ciphertext<Element>>> ciphertext1 =
 			cc.Encrypt(kp.publicKey, intArray1,false);
 
 		vector<shared_ptr<Ciphertext<Element>>> ciphertext2 =
 			cc.Encrypt(kp.publicKey, intArray2,false);
 
+		std::cout << intArray1 << std::endl;
+		std::cout << ciphertext1[0]->GetElement() << std::endl;
+		std::cout << intArray2 << std::endl;
+		std::cout << ciphertext2[0]->GetElement() << std::endl;
+
 		cc.EvalMultKeyGen(kp.secretKey);
+
+		std::cout << "eval mult key" << std::endl;
+		for( int v=0; v < cc.GetEvalMultKey()->GetAVector().size() ; v++ )
+			std::cout << "vector " << v << ":::" << std::endl << cc.GetEvalMultKey()->GetAVector()[v] << std::endl;
 
 		vector<shared_ptr<Ciphertext<Element>>> cResult;
 
 		cResult.insert(cResult.begin(), cc.EvalMult(ciphertext1.at(0), ciphertext2.at(0)));
 
+		std::cout << cResult[0]->GetElement() << std::endl;
+
+		ILVector2n decrypted;
+		DecryptResult result = GetEncryptionAlgorithm()->Decrypt(privateKey, ciphertext[ch], &decrypted);
+
 		IntPlaintextEncoding results;
 
 		cc.Decrypt(kp.secretKey, cResult, &results,false);
+
+		std::cout << results << std::endl;
 
 		results.resize(intArrayExpected.size());
 
@@ -175,55 +256,57 @@ void UnitTest_Add_Mult(const CryptoContext<Element>& cc) {
 
 }
 
-TEST(UTSHE, LTV_ILVector2n_Add_Mult) {
+
+TEST(UTSHE, LTV_ILVector2n_Mult) {
 	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("LTV5");
-	UnitTest_Add_Mult<ILVector2n>(cc);
+	UnitTest_Mult<ILVector2n>(cc);
 }
 
-TEST(UTSHE, LTV_ILVectorArray2n_Add_Mult) {
+TEST(UTSHE, LTV_ILVectorArray2n_Mult) {
 	CryptoContext<ILVectorArray2n> cc = GenerateTestDCRTCryptoContext("LTV5", 3, 20);
-	UnitTest_Add_Mult<ILVectorArray2n>(cc);
+	UnitTest_Mult<ILVectorArray2n>(cc);
 }
 
-TEST(UTSHE, StSt_ILVector2n_Add_Mult) {
-	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("StSt6");
-	UnitTest_Add_Mult<ILVector2n>(cc);
-}
+//TEST(UTSHE, StSt_ILVector2n_Mult) {
+//	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("StSt6");
+//	UnitTest_Mult<ILVector2n>(cc);
+//}
+//
+//TEST(UTSHE, StSt_ILVectorArray2n_Mult) {
+//	CryptoContext<ILVectorArray2n> cc = GenerateTestDCRTCryptoContext("StSt6", 3, 20);
+//	UnitTest_Mult<ILVectorArray2n>(cc);
+//}
 
-TEST(UTSHE, StSt_ILVectorArray2n_Add_Mult) {
-	CryptoContext<ILVectorArray2n> cc = GenerateTestDCRTCryptoContext("StSt6", 3, 20);
-	UnitTest_Add_Mult<ILVectorArray2n>(cc);
-}
-
-TEST(UTSHE, Null_ILVector2n_Add_Mult) {
+TEST(UTSHE, Null_ILVector2n_Mult) {
 	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("Null");
-	UnitTest_Add_Mult<ILVector2n>(cc);
+	UnitTest_Mult<ILVector2n>(cc);
 }
 
-TEST(UTSHE, Null_ILVectorArray2n_Add_Mult) {
+TEST(UTSHE, Null_ILVectorArray2n_Mult) {
 	CryptoContext<ILVectorArray2n> cc = GenerateTestDCRTCryptoContext("Null", 3, 20);
-	UnitTest_Add_Mult<ILVectorArray2n>(cc);
+	UnitTest_Mult<ILVectorArray2n>(cc);
 }
 
-TEST(UTSHE, BV_ILVector2n_Add_Mult) {
+TEST(UTSHE, BV_ILVector2n_Mult) {
 	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("BV2");
-	UnitTest_Add_Mult<ILVector2n>(cc);
+	UnitTest_Mult<ILVector2n>(cc);
 }
 
-TEST(UTSHE, BV_ILVectorArray2n_Add_Mult) {
+TEST(UTSHE, BV_ILVectorArray2n_Mult) {
 	CryptoContext<ILVectorArray2n> cc = GenerateTestDCRTCryptoContext("BV2", 3, 20);
-	UnitTest_Add_Mult<ILVectorArray2n>(cc);
+	UnitTest_Mult<ILVectorArray2n>(cc);
 }
 
-TEST(UTSHE, FV_ILVector2n_Add_Mult) {
+TEST(UTSHE, FV_ILVector2n_Mult) {
 	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("FV2");
-	UnitTest_Add_Mult<ILVector2n>(cc);
+	UnitTest_Mult<ILVector2n>(cc);
 }
 
-TEST(UTSHE, FV_ILVectorArray2n_Add_Mult) {
+TEST(UTSHE, FV_ILVectorArray2n_Mult) {
 	CryptoContext<ILVectorArray2n> cc = GenerateTestDCRTCryptoContext("FV2", 3, 20);
-	UnitTest_Add_Mult<ILVectorArray2n>(cc);
+	UnitTest_Mult<ILVectorArray2n>(cc);
 }
+
 
 
 TEST(UTSHE, keyswitch_sparse_key_SingleCRT_byteplaintext) {
