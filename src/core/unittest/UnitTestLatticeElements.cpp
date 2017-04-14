@@ -160,6 +160,7 @@ TEST(UTILNativeVector2n, ops_tests) {
 
 template<typename IntType, typename VecType, typename ParmType, typename Element>
 void rounding_operations() {
+  bool dbg_flag = false;
 	usint m = 8;
 
 	IntType q("73");
@@ -177,13 +178,19 @@ void rounding_operations() {
 	Element ilvector2n1(ilparams,COEFFICIENT);
 	ilvector2n1 = { 31,21,15,34};
 
+	DEBUG("ilvector2n1 a "<<ilvector2n1);
+
 	Element ilvector2n2(ilparams,COEFFICIENT);
 	ilvector2n2 = { 21,11,35,32 };
+
+	DEBUG("ilvector2n2 a "<<ilvector2n2);
 
 	//unit test for MultiplyAndRound
 
 	Element roundingCorrect1(ilparams, COEFFICIENT);
 	roundingCorrect1 = { 3,2,2,4 };
+
+	DEBUG("ilvector2n1 b "<<ilvector2n1);
 
 	Element rounding1 = ilvector2n1.MultiplyAndRound(p, q);
 
@@ -196,20 +203,28 @@ void rounding_operations() {
 
 	ilvector2n1.SwitchModulus(q2, primitiveRootOfUnity2);
 	ilvector2n2.SwitchModulus(q2, primitiveRootOfUnity2);
+	DEBUG("ilvector2n1 c "<<ilvector2n1);
+	DEBUG("ilvector2n2 c "<<ilvector2n2);
+
 
 	ilvector2n1.SwitchFormat();
 	ilvector2n2.SwitchFormat();
+	DEBUG("ilvector2n1 d "<<ilvector2n1);
+	DEBUG("ilvector2n2 d "<<ilvector2n2);
 
 	Element rounding2 = ilvector2n1 * ilvector2n2;
+
+	DEBUG("rounding2 d "<<rounding2);
 	rounding2.SwitchFormat();
-
+	DEBUG("rounding2 e "<<rounding2);
 	rounding2 = rounding2.MultiplyAndRound(p, q);
-
+	DEBUG("rounding2 f "<<rounding2);
 	EXPECT_EQ(roundingCorrect2, rounding2) << "Rounding p*polynomial1*polynomial2/q is incorrect.\n";
 
 	//makes sure the result is correct after going back to the original modulus
 
 	rounding2.SwitchModulus(q, primitiveRootOfUnity);
+	DEBUG("rounding2 g "<<rounding2);
 
 	Element roundingCorrect3(ilparams, COEFFICIENT);
 	roundingCorrect3 = { 45, 49, 60, 67 };
@@ -290,6 +305,7 @@ TEST(UTILNativeVector2n, setters_tests) {
 
 template<typename IntType, typename VecType, typename ParmType, typename Element>
 void binary_operations() {
+         bool dbg_flag = false;
 	usint m = 8;
 
 	IntType primeModulus("73");
@@ -304,6 +320,7 @@ void binary_operations() {
 	bbv1.SetValAtIndex(2, "1");
 	bbv1.SetValAtIndex(3, "1");
 	ilvector2n1.SetValues(bbv1, ilvector2n1.GetFormat());
+	DEBUG("ilvector2n1 a "<<ilvector2n1);
 
 	Element ilvector2n2(ilparams);
 	VecType bbv2(m/2, primeModulus);
@@ -312,6 +329,7 @@ void binary_operations() {
 	bbv2.SetValAtIndex(2, "1");
 	bbv2.SetValAtIndex(3, "1");
 	ilvector2n2.SetValues(bbv2, ilvector2n2.GetFormat());
+	DEBUG("ilvector2n2 a "<<ilvector2n2);
 
 	Element ilvector2n3(ilparams, COEFFICIENT);
 	VecType bbv3(m / 2, primeModulus);
@@ -320,6 +338,7 @@ void binary_operations() {
 	bbv3.SetValAtIndex(2, "1");
 	bbv3.SetValAtIndex(3, "1");
 	ilvector2n3.SetValues(bbv3, ilvector2n3.GetFormat());
+	DEBUG("ilvector2n3 a "<<ilvector2n3);
 
 	Element ilvector2n4(ilparams, COEFFICIENT);
 	VecType bbv4(m / 2, primeModulus);
@@ -328,10 +347,13 @@ void binary_operations() {
 	bbv4.SetValAtIndex(2, "1");
 	bbv4.SetValAtIndex(3, "1");
 	ilvector2n4.SetValues(bbv4, ilvector2n4.GetFormat());
+	DEBUG("ilvector2n4 a "<<ilvector2n4);
 
 	{
 		Element ilv1(ilvector2n1);
+		DEBUG("ilv1 a "<<ilv1);
 		Element ilv2 = ilv1.Plus(ilvector2n2);
+		DEBUG("ilv2 a "<<ilv2);
 
 		EXPECT_EQ(IntType::THREE, ilv2.GetValAtIndex(0)) << "ILVector2n.Plus is incorrect.\n";
 		EXPECT_EQ(IntType::ONE, ilv2.GetValAtIndex(1)) << "ILVector2n.Plus is incorrect.\n";
@@ -341,6 +363,7 @@ void binary_operations() {
 
 	{
 		Element ilv1(ilvector2n1);
+		DEBUG("ilv1 b "<<ilv1);
 		Element ilv2 = ilv1.Minus(ilvector2n2);
 
 		EXPECT_EQ(IntType::ONE, ilv2.GetValAtIndex(0)) << "ILVector2n.Minus is incorrect.\n";
@@ -351,6 +374,7 @@ void binary_operations() {
 
 	{
 		Element ilv1(ilvector2n1);
+		DEBUG("ilv1 c "<<ilv1);
 		Element ilv2 = ilv1.Times(ilvector2n2);
 
 		EXPECT_EQ(IntType::TWO, ilv2.GetValAtIndex(0)) << "ILVector2n.Times is incorrect.\n";
@@ -361,12 +385,17 @@ void binary_operations() {
 
 	{
 		ilvector2n3.SwitchFormat();
+		DEBUG("ilvector2n3 "<<ilvector2n3);
 		ilvector2n4.SwitchFormat();
+		DEBUG("ilvector2n4 "<<ilvector2n4);
 
 		Element ilv3(ilvector2n3);
 		Element ilv4 = ilv3.Times(ilvector2n4);
+		DEBUG("ilv3 "<<ilv3);
+		DEBUG("ilv4 "<<ilv4);
 
 		ilv4.SwitchFormat();
+		DEBUG("ilv4 "<<ilv4);
 
 		EXPECT_EQ(IntType::ZERO, ilv4.GetValAtIndex(0)) << "ILVector2n.Times using NTT is incorrect.\n";
 		EXPECT_EQ(IntType("72"), ilv4.GetValAtIndex(1)) << "ILVector2n.Times using NTT is incorrect.\n";
@@ -1076,6 +1105,7 @@ TEST(UTILNativeVector2n, signed_mod_tests) {
 
 template<typename IntType, typename VecType, typename ParmType, typename Element>
 void transposition_test() {
+  bool dbg_flag = false;
 	usint m = 8;
 
 	IntType q("73");
@@ -1088,19 +1118,26 @@ void transposition_test() {
 
 	// converts to evaluation representation
 	ilvector2n1.SwitchFormat();
+	DEBUG("ilvector2n1 a "<<ilvector2n1);
 
 	ilvector2n1 = ilvector2n1.Transpose();
+	DEBUG("ilvector2n1 b "<<ilvector2n1);
 
 	// converts back to coefficient representation
 	ilvector2n1.SwitchFormat();
 
+	DEBUG("ilvector2n1 c "<<ilvector2n1);
+
 	Element ilvector2n2(ilparams);
+
 	VecType bbv0(m / 2, q);
 	bbv0.SetValAtIndex(0, "31");
 	bbv0.SetValAtIndex(1, "39");
 	bbv0.SetValAtIndex(2, "58");
 	bbv0.SetValAtIndex(3, "52");
 	ilvector2n2.SetValues(bbv0, Format::COEFFICIENT);
+
+	DEBUG("ilvector2n2 a "<<ilvector2n2);
 
 	EXPECT_EQ(ilvector2n2, ilvector2n1);
 

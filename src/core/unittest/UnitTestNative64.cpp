@@ -748,9 +748,18 @@ TEST(UTNative64Int,mod_arithmetic){
 	native64::BigBinaryInteger m( "13835058055282163712" );
 	native64::BigBinaryInteger n( "13835058055282163719" );
 	native64::BigBinaryInteger q( "13835058055282163729" );
+	bool thrown = false;
+	try {
+	  calculatedResult = m.ModAdd(n,q);
+	} catch (...) {
+	  thrown = true;
+	}
+	
+	EXPECT_FALSE(thrown) 
+	  << "Failure testing ModAdd() of really big numbers threw exception ";
 
-	calculatedResult = m.ModAdd(n,q);
 	expectedResult = 13835058055282163702;
+
 
 	EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
 		<< "Failure testing really super big numbers (causing overflow in 64-bit arithmetic); this test is expected to fail in Visual Studio";

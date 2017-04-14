@@ -85,10 +85,11 @@ namespace lbcrypto {
 	Input: BigBinaryInteger n.
 	Output: Randomly generated BigBinaryInteger between 0 and n.
 */
+
+
 template<typename IntType>
 static IntType RNG(const IntType& modulus)
  {
-#if MATHBACKEND !=6
 	// static parameters for the 32-bit unsigned integers used for multiprecision random number generation
 	static const usint chunk_min = 0;
 	static const usint chunk_width = std::numeric_limits<uint32_t>::digits;
@@ -153,11 +154,16 @@ static IntType RNG(const IntType& modulus)
 	// and the bits in the following chunk of the result are larger than in the modulus
 
 	return result;
-#else
-	return RandomBnd(modulus);
+ }
+#if MATHBACKEND ==6
+//native NTL version
+  static NTL::myZZ RNG(const NTL::myZZ& modulus)
+  {
+    
+    return RandomBnd(modulus);
+    
+  }
 #endif
-}
-
 /*
 	A witness function used for the Miller-Rabin Primality test.
 	Inputs: a is a randomly generated witness between 2 and p-1,
@@ -346,7 +352,6 @@ usint GetMSB32(usint x)
 template<typename IntType>
 IntType GreatestCommonDivisor(const IntType& a, const IntType& b)
  {
-#if MATHBACKEND !=6
    bool dbg_flag = false;
    IntType m_a, m_b, m_t;
  	m_a = a;
@@ -362,25 +367,31 @@ IntType GreatestCommonDivisor(const IntType& a, const IntType& b)
 	}
 	DEBUG("GCD ret "<<m_a.ToString());		  
 	return m_a;
-#else
-	return GCD(a,b);
-#endif
  }
-
-/*
-	The Miller-Rabin Primality Test
-	Input: p the number to be tested for primality.
-	Output: true if p is prime,
-			false if p is not prime
-*/
-template<typename IntType>
-bool MillerRabinPrimalityTest(const IntType& p, const usint niter)
- {
+  
+#if MATHBACKEND ==6
+  //define an NTL native implementation 
+  NTL::myZZ GreatestCommonDivisor(const NTL::myZZ& a, const NTL::myZZ& b)
+  {
+  bool dbg_flag = false;
+  DEBUG("NTL::GCD a "<<a<<" b "<< b);   
+  return GCD(a,b);
+}
+#endif
+  
+  /*
+    The Miller-Rabin Primality Test
+    Input: p the number to be tested for primality.
+    Output: true if p is prime,
+    false if p is not prime
+  */
+  template<typename IntType>
+  bool MillerRabinPrimalityTest(const IntType& p, const usint niter)
+  {
  	if(p < IntType::TWO || ((p != IntType::TWO) && (p.Mod(IntType::TWO) == IntType::ZERO)))
  		return false;
  	if(p == IntType::TWO || p == IntType::THREE || p == IntType::FIVE)
  		return true;
-#if MATHBACKEND !=6
 
  	IntType d = p-IntType::ONE;
  	usint s = 0;
@@ -396,10 +407,22 @@ bool MillerRabinPrimalityTest(const IntType& p, const usint niter)
 			break;
 	}
 	return (!composite);
-#else
-	return (bool) ProbPrime(p, niter); //TODO: check to see if niter >maxint
-#endif
  }
+
+
+#if MATHBACKEND ==6
+  //NTL native version
+bool MillerRabinPrimalityTest(const NTL::myZZ& p, const usint niter)
+ {
+ 	if(p < NTL::myZZ::TWO || ((p != NTL::myZZ::TWO) && 
+	(p.Mod(NTL::myZZ::TWO) == NTL::myZZ::ZERO)))
+ 		return false;
+ 	if(p == NTL::myZZ::TWO || p == NTL::myZZ::THREE || p == NTL::myZZ::FIVE)
+ 		return true;
+
+	return (bool) ProbPrime(p, niter); //TODO: check to see if niter >maxint
+}
+#endif
 
 /*
 	The Pollard Rho factorization of a number n.

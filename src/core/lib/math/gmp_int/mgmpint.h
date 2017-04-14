@@ -333,10 +333,32 @@ namespace NTL{
 
     inline myZZ_p ModAdd(const myZZ_p& b) const {return *this+b;};
 
+    inline myZZ_p ModAdd(const myZZ& b, const myZZ& modulus) const {
+      return myZZ_p(AddMod(this->_ZZ_p__rep%modulus, b%modulus, modulus));
+    }; //to comply with BBI
+    //Fast version does not check for modulus bounds.
+
+    inline myZZ_p ModAddFast(const myZZ& b, const myZZ& modulus) const {
+      return myZZ_p(AddMod(this->_ZZ_p__rep, b, modulus));
+    };
+
     inline myZZ_p ModSub(const myZZ_p& b) const
     {
       return *this-b;      
     };
+
+    inline myZZ_p ModSub(const myZZ& b, const myZZ&modulus) const //to comply with BBI
+    {
+      ZZ newthis(this->_ZZ_p__rep%modulus);
+      ZZ newb(b%modulus);
+      return myZZ_p(SubMod(newthis, newb, modulus));      
+    };
+
+    inline myZZ_p ModSubFast(const myZZ& b, const myZZ& modulus) const
+    {
+      return myZZ_p(SubMod(this->_ZZ_p__rep, b, modulus));
+    };
+
 
     inline myZZ_p ModMul(const myZZ_p& b) const {return *this*b;};
 

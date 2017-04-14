@@ -44,29 +44,29 @@
 
 // It's possible (perhaps even desirable) to have multiple backends
 // available at once
-// MATH BACKEND 1 DEPRECATED DO NOT USE
+// MATHBACKEND 1 DEPRECATED DO NOT USE
 
-// MATH BACKEND 2
+// MATHBACKEND 2
 // Uses cpu_int definition as defaults
 // Also provides exp_int backend with underlying element size of 32 bits
 // 	this allows side by side comparison of cpu_int and exp_int math backend
 
-// MATH BACKEND 3
+// MATHBACKEND 3
 // Uses exp_int definition with uint32_t underlying size as defaults
 // new dynamicly allocated backend and support uint32_t and uint64_t on linux
 // This backend supports arbitrary bitwidths; no memory pool is used; can grow up to RAM
 // limitation
 
-// MATH BACKEND 4
+// MATHBACKEND 4
 // Uses exp_int definition with uint64_t underlying size as defaults
 
-// MATH BACKEND 5
+// MATHBACKEND 5
 // GMP 6.1.1 / NTL 10.3.0 backend  experimental on linux (coexist with BE 2)
 
-//MATH BACKEND 6
+// MATHBACKEND 6
 // 6- GMP 6.1.1 / NTL 10.3.0 backend  experimental on linux (replaces BE 2_
 
-// MATH BACKEND 7
+// MATHBACKEND 7
 // uses native64 as the default
 // This backend provides a maximum size of 64 bits
 // This backend ALSO enables exp_int with uint64_t
@@ -75,7 +75,7 @@
 //uncommented line (and breaking the documentation of the line)
 
 //32 bit should work with all OS
-#define MATHBACKEND 2 
+//#define MATHBACKEND 2 
 
 //dynamicly allocated backend and support uint32_t and uint64_t on linux
 //#define MATHBACKEND 3 
@@ -90,7 +90,7 @@
 
 //#define MATHBACKEND 4 
 //#define MATHBACKEND 5 
-//#define MATHBACKEND 6 
+#define MATHBACKEND 6 
 
 // native64 native
 // #define MATHBACKEND 7	

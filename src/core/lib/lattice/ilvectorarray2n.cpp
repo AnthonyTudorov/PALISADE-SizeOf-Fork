@@ -87,7 +87,13 @@ namespace lbcrypto {
 		// copy each coefficient mod the new modulus
 		for(usint p = 0; p < element.GetLength(); p++ ) {
 			for( usint v = 0; v < vecCount; v++ ) {
-				m_vectors[v].SetValAtIndex(p, (element.GetValAtIndex(p) % bigmods[v]).ConvertToInt());
+			  
+#ifdef MATHBACKEND ==6
+			  IntType tmp = element.GetValAtIndex(p) % bigmods[v];
+			  m_vectors[v].SetValAtIndex(p, tmp.ConvertToInt());
+#else
+			  m_vectors[v].SetValAtIndex(p, (element.GetValAtIndex(p) % bigmods[v]).ConvertToInt());
+#endif
 			}
 		}
 	}
@@ -870,8 +876,14 @@ namespace lbcrypto {
 			errMsg = "ILVectorArrayImpl is of size = " + std::to_string(m_vectors.size()) + " but SwitchModulus for tower at index " + std::to_string(index) + "is called.";
 			throw std::runtime_error(errMsg);
 		}
+#if MATHBACKEND == 6
+		IntType mod = modulus % ModType((*m_params)[index]->GetModulus().ConvertToInt());
+		IntType root = rootOfUnity % ModType((*m_params)[index]->GetModulus().ConvertToInt());
+#else
 		auto mod = modulus % ModType((*m_params)[index]->GetModulus().ConvertToInt());
 		auto root = rootOfUnity % ModType((*m_params)[index]->GetModulus().ConvertToInt());
+#endif
+
 
 		m_modulus = m_modulus / ModType(m_vectors[index].GetModulus().ConvertToInt());
 		m_modulus = m_modulus * ModType(modulus.ConvertToInt());

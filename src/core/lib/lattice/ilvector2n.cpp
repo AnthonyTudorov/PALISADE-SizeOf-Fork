@@ -199,6 +199,7 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 
     } else{
       DEBUG("in ctor && m_values remains empty");
+	m_values = nullptr;
     }      
     //element.m_values = nullptr; //remove the reference (actually unnecessary with smart pointers now.
 	}
@@ -241,8 +242,7 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 			VecType temp(m_params->GetCyclotomicOrder() / 2);
 			temp.SetModulus(m_params->GetModulus());
 			temp = rhs;
-			//this->SetValues(std::move(temp), m_format);
-      		this->SetValues(temp, m_format); //rely on RVO instead of move
+			this->SetValues(std::move(temp), m_format);
 		}
 		return *this;
 	}
@@ -280,8 +280,8 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 	const ILVectorImpl<ModType,IntType,VecType,ParmType>& ILVectorImpl<ModType,IntType,VecType,ParmType>::operator=(usint val) {
 		m_format = EVALUATION;
 		if (m_values == nullptr){
-	         m_values = make_unique<VecType>(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus());
-        }
+			m_values = make_unique<VecType>(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus());
+		}
 		for (size_t i = 0; i < m_values->GetLength(); ++i) {
 			this->SetValAtIndex(i, val);
 		}
@@ -613,16 +613,22 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 		if (m_format == COEFFICIENT) {
 			m_format = EVALUATION;
 			//todo:: does this have an extra copy? 
+			DEBUG("transform to evaluation m_values was"<< *m_values);						  
+
 			m_values = make_unique<VecType>(ChineseRemainderTransformFTT<IntType,VecType>::GetInstance()
 							.ForwardTransform(*m_values, m_params->GetRootOfUnity(), 
 									  m_params->GetCyclotomicOrder()));
+			DEBUG("m_values now "<< *m_values);						  
 		}
 		else {
 			m_format = COEFFICIENT;
+			DEBUG("transform to coefficient m_values was"<< *m_values);						  
 
 			m_values = make_unique<VecType>(ChineseRemainderTransformFTT<IntType,VecType>::GetInstance()
 							.InverseTransform(*m_values, m_params->GetRootOfUnity(), 
 									  m_params->GetCyclotomicOrder()));
+			DEBUG("m_values now "<< *m_values);						  
+
 		}
 	}
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
@@ -733,6 +739,7 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 
 		std::vector<ILVectorImpl<ModType,IntType,VecType,ParmType>> result;
 		result.reserve(nWindows);
+
 		// convert the polynomial to coefficient representation
 		ILVectorImpl<ModType,IntType,VecType,ParmType> x(*this);
 		if (x.GetFormat() == EVALUATION)

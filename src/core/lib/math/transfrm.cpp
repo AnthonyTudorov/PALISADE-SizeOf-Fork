@@ -69,7 +69,7 @@ NumberTheoreticTransform<IntType,VecType>& NumberTheoreticTransform<IntType,VecT
 //Number Theoretic Transform - ITERATIVE IMPLEMENTATION -  twiddle factor table precomputed
 template<typename IntType, typename VecType>
 VecType NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(const VecType& element, const VecType &rootOfUnityTable, const usint cycloOrder) {
-
+        bool dbg_flag = false;
 	usint n = cycloOrder;
 	VecType result(n);
 	result.SetModulus(element.GetModulus());
@@ -121,7 +121,7 @@ VecType NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(con
 						omegaFactor = omega;
 					else
 					{
-					#if MATHBACKEND !=6
+#if MATHBACKEND !=6
 						//omegaFactor = omega*result.GetValAtIndex(indexOdd);
 						//omegaFactor.ModBarrettInPlace(element.GetModulus(), mu);
 						omegaFactor = omega.ModBarrettMul(result.GetValAtIndex(indexOdd),element.GetModulus(), mu);
@@ -129,8 +129,9 @@ VecType NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(con
 #else
 						omegaFactor = omega.ModMulFast(result.GetValAtIndex(indexOdd),modulus);
 #endif
+						DEBUG("omegaFactor "<<omegaFactor);
 					}
-#if MATHBACKEND !=6
+#if  MATHBACKEND !=6
 					butterflyPlus = result.GetValAtIndex(indexEven);
 					butterflyPlus += omegaFactor;
 					if (butterflyPlus >= element.GetModulus())
@@ -144,8 +145,10 @@ VecType NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(con
 					result.SetValAtIndex(indexEven, butterflyPlus);
 					result.SetValAtIndex(indexOdd, butterflyMinus);
 #else
-					result[indexOdd] = result[indexEven]-omegaFactor;
-					result[indexEven]+=omegaFactor;
+					//result[indexOdd] = result[indexEven]-omegaFactor;
+					result[indexOdd] = result[indexEven].ModSubFast(omegaFactor,modulus);
+					//result[indexEven]+=omegaFactor;
+					result[indexEven] = result[indexEven].ModAddFast(omegaFactor,modulus);
 #endif
 				}
 				else
@@ -169,7 +172,7 @@ VecType NumberTheoreticTransform<IntType,VecType>::InverseTransformIterative(con
 
 	ans.SetModulus(element.GetModulus());
 	//TODO:: note this could be stored
-#if MATHBACKEND !=6
+#if 1//MATHBACKEND !=6
 	ans = ans.ModMul(IntType(cycloOrder).ModInverse(element.GetModulus()));
 #else
 	ans *= (IntType(cycloOrder).ModInverse(element.GetModulus()));

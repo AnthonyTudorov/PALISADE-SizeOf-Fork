@@ -227,6 +227,7 @@ namespace NTL{
       ZZ newb(b%modulus);
       return SubMod(newthis, newb, modulus);      
     };
+
     //Fast version does not check for modulus bounds.
     inline myZZ ModSubFast(const myZZ& b, const myZZ& modulus) const
     {
