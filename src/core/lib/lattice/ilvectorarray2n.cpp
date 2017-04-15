@@ -160,7 +160,6 @@ namespace lbcrypto {
 		}
 
 		shared_ptr<ParmType> p( new ParmType(towers.size()) );
-		p->SetCyclotomicOrder(cyclotomicOrder);
 
 		m_modulus = ModType::ONE;
 
@@ -169,6 +168,7 @@ namespace lbcrypto {
 			m_modulus = m_modulus * ModType(towers.at(i).GetModulus().ConvertToInt());
 		}
 
+		p->SetCyclotomicOrder(cyclotomicOrder);
 		m_params = p;
 		m_vectors = towers;
 		m_format = m_vectors[0].GetFormat();
@@ -874,7 +874,7 @@ namespace lbcrypto {
 		ILVector2n polynomialReconstructed( shared_ptr<ILParams>( new ILParams(m_cyclotomicOrder, bigModulus, BigBinaryInteger::ONE) ) );
 		polynomialReconstructed.SetValues(coefficients,COEFFICIENT);
 
-		DEBUG("Z");
+		DEBUG("answer: " << polynomialReconstructed);
 
 		return std::move( polynomialReconstructed );
 	}

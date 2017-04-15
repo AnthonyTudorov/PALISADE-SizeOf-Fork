@@ -147,8 +147,8 @@ CryptoContextFactory<T>::genCryptoContextBV(shared_ptr<typename T::Params> ep,
 		ep,
 		BigBinaryInteger(plaintextmodulus),
 		stDev,
-		0.0, // assuranceMeasure,
-		0.0, // securityLevel,
+		9, // assuranceMeasure,
+		1.006, // securityLevel,
 		relinWindow, // Relinearization Window
 		mode, //Mode of noise generation
 		depth) );

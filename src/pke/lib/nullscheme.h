@@ -320,6 +320,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 			const Element& c2 = ciphertext2->GetElement();
 
 			Element cResult = c1 + c2;
+			std::cout << cResult << std::endl;
 
 			newCiphertext->SetElement(std::move(cResult));
 

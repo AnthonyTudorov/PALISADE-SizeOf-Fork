@@ -167,12 +167,12 @@ TEST(UTSHE, Null_ILVectorArray2n_Add) {
 }
 
 TEST(UTSHE, BV_ILVector2n_Add) {
-	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("BV2");
+	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("BV1");
 	UnitTest_Add<ILVector2n>(cc);
 }
 
 TEST(UTSHE, BV_ILVectorArray2n_Add) {
-	CryptoContext<ILVectorArray2n> cc = GenerateTestDCRTCryptoContext("BV2", 3, 20);
+	CryptoContext<ILVectorArray2n> cc = GenerateTestDCRTCryptoContext("BV1", 3, 20);
 	UnitTest_Add<ILVectorArray2n>(cc);
 }
 
