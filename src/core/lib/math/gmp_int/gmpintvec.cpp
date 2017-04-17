@@ -37,6 +37,8 @@
  *
  */
 
+#if MATHBACKEND == 6 //otherwise it tries to compile
+
 #include "../../utils/serializable.h"
 #include "gmpintvec.h"
 
@@ -347,3 +349,5 @@ namespace NTL {
 } // namespace NTL ends
 
 template class NTL::myVec<NTL::myZZ>; //instantiate template here
+
+#endif //MATHBACKEND == 6

@@ -43,6 +43,8 @@
  * certain math operations.
  */
 
+#if MATHBACKEND == 6 //otherwise it tries to compile
+
 #define _SECURE_SCL 0 // to speed up VS
 
 
@@ -360,3 +362,4 @@ namespace NTL {
 
 } // namespace NTL ends
 
+#endif //MATHBACKEND == 6
