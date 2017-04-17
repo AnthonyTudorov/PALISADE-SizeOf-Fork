@@ -555,7 +555,6 @@ public:
 	NativeInteger ModAdd(const NativeInteger& b, const NativeInteger& modulus) const {
 		Duint_type modsum = (Duint_type)m_value;
 		modsum += b.m_value;
-
 		modsum %= modulus.m_value;
 		return (uint_type)modsum;
 	}

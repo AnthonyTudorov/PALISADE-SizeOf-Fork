@@ -28,15 +28,10 @@ shared_ptr<Ciphertext<ILVectorArray2n>> LPAlgorithmSHENull<ILVectorArray2n>::Eva
 
 	for( int i = 0; i < c1.GetNumOfElements(); i++ ) {
 		typename ILVectorArray2n::ILVectorType v = ElementNullSchemeMultiply(c1e.at(i), c2e.at(i), ptm);
-		std::cout << "Vector " << i << " mult is " << v << std::endl;
 		mResults.push_back(v);
 	}
 
 	ILVectorArray2n	cResult(mResults);
-
-	std::cout << "res: " << cResult << std::endl;
-	ILVector2n vvv = cResult.CRTInterpolate();
-	std::cout << "int: " << vvv << std::endl;
 
 	newCiphertext->SetElement(cResult);
 

@@ -161,6 +161,10 @@ public:
 		return LPCryptoParametersRLWE<Element>::operator ==(rhs);
 	}
 
+	void PrintParameters(std::ostream& os) const {
+		LPCryptoParametersRLWE<Element>::PrintParameters(os);
+	}
+
 private:
 
 	//helper function for ParameterSelection. Splits the string 's' by the delimeter 'c'.

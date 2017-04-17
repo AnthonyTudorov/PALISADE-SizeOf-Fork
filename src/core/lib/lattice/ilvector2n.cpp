@@ -464,8 +464,8 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::Negate() const {
-		if (m_format != Format::EVALUATION)
-			throw std::logic_error("Negate for ILVectorImpl is supported only in EVALUATION format.\n");
+//		if (m_format != Format::EVALUATION)
+//			throw std::logic_error("Negate for ILVectorImpl is supported only in EVALUATION format.\n");
 
 		ILVectorImpl<ModType,IntType,VecType,ParmType> tmp( *this );
 		*tmp.m_values = m_values->ModMul(this->m_params->GetModulus() - IntType::ONE);

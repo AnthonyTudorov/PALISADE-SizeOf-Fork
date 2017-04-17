@@ -150,28 +150,18 @@ LPKeyPair<Element> LPAlgorithmLTV<Element>::KeyGen(const CryptoContext<Element> 
 
 	const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 
-	Element f(dgg, elementParams, Format::COEFFICIENT);
-
-	f = p*f;
-
-	f = f + BigBinaryInteger::ONE;
-
-	if( makeSparse )
-		f.MakeSparse(2);
-
-	f.SwitchFormat();
-
-	//check if inverse does not exist
-	while (!f.InverseExists())
-	{
-		Element temp(dgg, elementParams, Format::COEFFICIENT);
-		f = temp;
+	Element f(elementParams, Format::COEFFICIENT);
+	do {
+		f = Element(dgg, elementParams, Format::COEFFICIENT);
 		f = p*f;
+
 		f = f + BigBinaryInteger::ONE;
+
 		if( makeSparse )
 			f.MakeSparse(2);
+
 		f.SwitchFormat();
-	}
+	} while (!f.InverseExists());
 
 	kp.secretKey->SetPrivateElement(f);
 
@@ -180,7 +170,7 @@ LPKeyPair<Element> LPAlgorithmLTV<Element>::KeyGen(const CryptoContext<Element> 
 	g.SwitchFormat();
 
 	//public key is generated
-	kp.publicKey->SetPublicElementAtIndex(0, std::move(cryptoParams->GetPlaintextModulus()*g*kp.secretKey->GetPrivateElement().MultiplicativeInverse()));
+	kp.publicKey->SetPublicElementAtIndex(0, std::move(p*g*kp.secretKey->GetPrivateElement().MultiplicativeInverse()));
 
 	return kp;
 }

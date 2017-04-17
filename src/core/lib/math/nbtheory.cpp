@@ -182,7 +182,7 @@ static bool WitnessFunction(const IntType& a, const IntType& d, usint s, const I
 			prevMod = true;
 		else
 			prevMod = false;
-		mod = (mod*mod).Mod(p);
+		mod = mod.ModMul(mod,p);
 		if(mod == IntType::ONE && prevMod) return true;
 	}
 	return (mod != IntType::ONE);
@@ -565,7 +565,7 @@ void PrimeFactorize( IntType &n, std::set<IntType> &primeFactors)
 template<typename IntType>
 IntType FindPrimeModulus(usint m, usint nBits)
 {
-	IntType twoTonBitsminusone("1"), M(std::to_string(m)), q;
+	IntType twoTonBitsminusone(IntType::ONE), M(m), q;
 	
 	for(usint i=0; i<nBits-1; i++)	// Iterating until initial search condition.
 		twoTonBitsminusone = twoTonBitsminusone * IntType::TWO;

@@ -38,6 +38,7 @@
 
 #include "cryptocontext.h"
 #include "cryptocontexthelper.h"
+#include "utils/parmfactory.h"
 #include "utils/rapidjson/filewritestream.h"
 
 namespace lbcrypto {
@@ -55,28 +56,7 @@ getValueForName(const map<string,string>& allvals, const string key, string& val
 	return true;
 }
 
-static shared_ptr<ILVectorArray2n::Params>
-generateDCRTParams(usint n, usint nTowers, usint primebits) {
-
-	vector<native64::BigBinaryInteger> moduli(nTowers);
-	vector<native64::BigBinaryInteger> rootsOfUnity(nTowers);
-
-	native64::BigBinaryInteger q( (1<<primebits) -1 );
-	native64::BigBinaryInteger temp;
-	BigBinaryInteger modulus(1);
-
-	for(int i=0; i < nTowers; i++){
-		lbcrypto::NextQ(q, native64::BigBinaryInteger::TWO, n, native64::BigBinaryInteger::FOUR, native64::BigBinaryInteger::FOUR);
-		moduli[i] = q;
-		rootsOfUnity[i] = RootOfUnity(n,moduli[i]);
-		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
-
-	}
-
-	return shared_ptr<ILVectorArray2n::Params>( new ILVectorArray2n::Params(n, moduli, rootsOfUnity) );
-}
-
-template <class Element>
+template <typename Element>
 static CryptoContext<Element>
 buildContextFromSerialized(const map<string,string>& s, shared_ptr<typename Element::Params> parms)
 {
@@ -308,7 +288,7 @@ CryptoContextHelper::getNewDCRTContext(const string& parmset, usint numTowers, u
 			return 0;
 		}
 
-		parms = generateDCRTParams(stoul(ring), numTowers, primeBits);
+		parms = GenerateDCRTParams(stoul(ring), numTowers, primeBits);
 
 	}
 	return buildContextFromSerialized<ILVectorArray2n>(it->second, parms);

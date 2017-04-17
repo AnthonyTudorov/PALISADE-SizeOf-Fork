@@ -41,6 +41,8 @@ Test cases in this file make the following assumptions:
 
 #include "utils/debug.h"
 
+#include "cryptocontextgen.h"
+
 using namespace std;
 using namespace lbcrypto;
 
@@ -68,24 +70,8 @@ protected:
 
 // NOTE the SHE tests are all based on these
 static const usint ORDER = 16;
-
-static CryptoContext<ILVector2n> GenerateTestCryptoContext(const string& parmsetName) {
-	CryptoContext<ILVector2n> cc = CryptoContextHelper::getNewContext(parmsetName);
-	cc.GetElementParams()->SetCyclotomicOrder(ORDER);
-	cc.GetCryptoParameters()->SetPlaintextModulus(ILVector2n::Integer(64));
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
-	return cc;
-}
-
-static CryptoContext<ILVectorArray2n> GenerateTestDCRTCryptoContext(const string& parmsetName, usint nTower, usint pbits) {
-	CryptoContext<ILVectorArray2n> cc = CryptoContextHelper::getNewDCRTContext(parmsetName, nTower, pbits);
-	cc.GetElementParams()->SetCyclotomicOrder(ORDER);
-	cc.GetCryptoParameters()->SetPlaintextModulus(ILVector2n::Integer(64));
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
-	return cc;
-}
+static const usint PTM = 64;
+static const usint TOWERS = 3;
 
 template<class Element>
 void UnitTest_Add(const CryptoContext<Element>& cc) {
@@ -137,52 +123,52 @@ void UnitTest_Add(const CryptoContext<Element>& cc) {
 
 /// add
 TEST(UTSHE, LTV_ILVector2n_Add) {
-	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("LTV5");
+	CryptoContext<ILVector2n> cc = GenCryptoContextElementLTV(ORDER, PTM);
 	UnitTest_Add<ILVector2n>(cc);
 }
 
 TEST(UTSHE, LTV_ILVectorArray2n_Add) {
-	CryptoContext<ILVectorArray2n> cc = GenerateTestDCRTCryptoContext("LTV5", 3, 20);
+	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayLTV(ORDER, TOWERS, PTM);
 	UnitTest_Add<ILVectorArray2n>(cc);
 }
 
 TEST(UTSHE, StSt_ILVector2n_Add) {
-	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("StSt6");
+	CryptoContext<ILVector2n> cc = GenCryptoContextElementStSt(ORDER, PTM);
 	UnitTest_Add<ILVector2n>(cc);
 }
 
-TEST(UTSHE, StSt_ILVectorArray2n_Add) {
-	CryptoContext<ILVectorArray2n> cc = GenerateTestDCRTCryptoContext("StSt6", 3, 20);
-	UnitTest_Add<ILVectorArray2n>(cc);
-}
-
-TEST(UTSHE, Null_ILVector2n_Add) {
-	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("Null");
-	UnitTest_Add<ILVector2n>(cc);
-}
+//TEST(UTSHE, StSt_ILVectorArray2n_Add) {
+//	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayStSt(ORDER, TOWERS, PTM);
+//	UnitTest_Add<ILVectorArray2n>(cc);
+//}
+//
+//TEST(UTSHE, Null_ILVector2n_Add) {
+//	CryptoContext<ILVector2n> cc = GenCryptoContextElementNull(ORDER, PTM);
+//	UnitTest_Add<ILVector2n>(cc);
+//}
 
 TEST(UTSHE, Null_ILVectorArray2n_Add) {
-	CryptoContext<ILVectorArray2n> cc = GenerateTestDCRTCryptoContext("Null", 3, 20);
+	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayNull(ORDER, TOWERS, PTM);
 	UnitTest_Add<ILVectorArray2n>(cc);
 }
 
 TEST(UTSHE, BV_ILVector2n_Add) {
-	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("BV1");
+	CryptoContext<ILVector2n> cc = GenCryptoContextElementBV(ORDER, PTM);
 	UnitTest_Add<ILVector2n>(cc);
 }
 
 TEST(UTSHE, BV_ILVectorArray2n_Add) {
-	CryptoContext<ILVectorArray2n> cc = GenerateTestDCRTCryptoContext("BV1", 3, 20);
+	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayBV(ORDER, TOWERS, PTM);
 	UnitTest_Add<ILVectorArray2n>(cc);
 }
 
 TEST(UTSHE, FV_ILVector2n_Add) {
-	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("FV2");
+	CryptoContext<ILVector2n> cc = GenCryptoContextElementFV(ORDER, PTM);
 	UnitTest_Add<ILVector2n>(cc);
 }
 
 TEST(UTSHE, FV_ILVectorArray2n_Add) {
-	CryptoContext<ILVectorArray2n> cc = GenerateTestDCRTCryptoContext("FV2", 3, 20);
+	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayFV(ORDER, TOWERS, PTM);
 	UnitTest_Add<ILVectorArray2n>(cc);
 }
 
@@ -237,55 +223,54 @@ void UnitTest_Mult(const CryptoContext<Element>& cc) {
 
 
 TEST(UTSHE, LTV_ILVector2n_Mult) {
-	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("LTV5");
+	CryptoContext<ILVector2n> cc = GenCryptoContextElementLTV(ORDER, PTM);
 	UnitTest_Mult<ILVector2n>(cc);
 }
 
 TEST(UTSHE, LTV_ILVectorArray2n_Mult) {
-	CryptoContext<ILVectorArray2n> cc = GenerateTestDCRTCryptoContext("LTV5", 3, 20);
+	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayLTV(ORDER, TOWERS, PTM);
 	UnitTest_Mult<ILVectorArray2n>(cc);
 }
 
 //TEST(UTSHE, StSt_ILVector2n_Mult) {
-//	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("StSt6");
+//	CryptoContext<ILVector2n> cc = GenCryptoContextElementStSt(ORDER, PTM);
 //	UnitTest_Mult<ILVector2n>(cc);
 //}
 //
 //TEST(UTSHE, StSt_ILVectorArray2n_Mult) {
-//	CryptoContext<ILVectorArray2n> cc = GenerateTestDCRTCryptoContext("StSt6", 3, 20);
+//	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayStSt(ORDER, TOWERS, PTM);
 //	UnitTest_Mult<ILVectorArray2n>(cc);
 //}
 
 TEST(UTSHE, Null_ILVector2n_Mult) {
-	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("Null");
+	CryptoContext<ILVector2n> cc = GenCryptoContextElementNull(ORDER, PTM);
 	UnitTest_Mult<ILVector2n>(cc);
 }
 
 TEST(UTSHE, Null_ILVectorArray2n_Mult) {
-	CryptoContext<ILVectorArray2n> cc = GenerateTestDCRTCryptoContext("Null", 3, 20);
+	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayNull(ORDER, TOWERS, PTM);
 	UnitTest_Mult<ILVectorArray2n>(cc);
 }
 
 TEST(UTSHE, BV_ILVector2n_Mult) {
-	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("BV2");
+	CryptoContext<ILVector2n> cc = GenCryptoContextElementBV(ORDER, PTM);
 	UnitTest_Mult<ILVector2n>(cc);
 }
 
 TEST(UTSHE, BV_ILVectorArray2n_Mult) {
-	CryptoContext<ILVectorArray2n> cc = GenerateTestDCRTCryptoContext("BV2", 3, 20);
+	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayBV(ORDER, TOWERS, PTM);
 	UnitTest_Mult<ILVectorArray2n>(cc);
 }
 
 TEST(UTSHE, FV_ILVector2n_Mult) {
-	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("FV2");
+	CryptoContext<ILVector2n> cc = GenCryptoContextElementFV(ORDER, PTM);
 	UnitTest_Mult<ILVector2n>(cc);
 }
 
 TEST(UTSHE, FV_ILVectorArray2n_Mult) {
-	CryptoContext<ILVectorArray2n> cc = GenerateTestDCRTCryptoContext("FV2", 3, 20);
+	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayFV(ORDER, TOWERS, PTM);
 	UnitTest_Mult<ILVectorArray2n>(cc);
 }
-
 
 
 TEST(UTSHE, keyswitch_sparse_key_SingleCRT_byteplaintext) {

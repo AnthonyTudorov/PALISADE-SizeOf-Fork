@@ -133,17 +133,22 @@ int main(int argc, char *argv[])
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 
-	if( beVerbose ) {
-		CryptoContextHelper::printParmSet(cout, parmSetName);
-	}
-
 	// for this demo we reset the plaintext modulus and try ParamsGen
 	cc.GetCryptoParameters()->SetPlaintextModulus(BigBinaryInteger::FOUR);
 
 	try {
+		if( beVerbose )
+			cout << "Running params gen" << endl;
 		cc.GetEncryptionAlgorithm()->ParamsGen(cc.GetCryptoParameters(), 0, 1);
 	} catch(...) {
 		// ignore for schemes w/o Param Gen
+		if( beVerbose )
+			cout << "Running params gen failed, continuing..." << endl;
+	}
+
+	if( beVerbose ) {
+		CryptoContextHelper::printParmSet(cout, parmSetName);
+		cout << *cc.GetCryptoParameters() << endl;
 	}
 
 	std::vector<uint32_t> vectorOfInts1 = { 1,0,3,1,0,1,2,1 };

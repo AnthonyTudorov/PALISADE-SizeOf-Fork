@@ -173,7 +173,7 @@ TEST(UTILNativeVector2n, ops_tests) {
 
 TEST(UTILVectorArray2n, ops_tests) {
 	operators_tests<BigBinaryInteger, BigBinaryVector, ILDCRTParams, ILVectorArray2n>(
-			GenerateTestDCRTParams(8, 3, 20) );
+			GenerateDCRTParams(8, 3, 20) );
 }
 
 // template for rounding_operations tests
@@ -920,7 +920,7 @@ TEST(UTILVectorArray2n, constructors_test) {
 
 	DEBUG("1");
 	float stdDev = 4.0;
-	DiscreteGaussianGeneratorImpl<native64::BigBinaryInteger,native64::BigBinaryVector> dgg(stdDev);
+	ILVectorArray2n::DggType dgg(stdDev);
 
 	{
 		ILVectorArray2n ilva(ildcrtparams);
@@ -1525,7 +1525,7 @@ TEST(UTILVectorArray2n, decompose_test) {
 	}
 
 	float stdDev = 4;
-	DiscreteGaussianGeneratorImpl<native64::BigBinaryInteger,native64::BigBinaryVector> dgg(stdDev);
+	ILVectorArray2n::DggType dgg(stdDev);
 
 	shared_ptr<ILDCRTParams> params( new ILDCRTParams(order, moduli, rootsOfUnity) );
 	ILVectorArray2n ilVectorArray2n(dgg, params, Format::COEFFICIENT);
@@ -1604,12 +1604,6 @@ TEST(UTILVectorArray2n, ensures_mod_operation_during_ops_on_two_ILVectorArray2ns
 
 	std::vector<native64::BigBinaryInteger> moduli(towersize);
 	std::vector<native64::BigBinaryInteger> rootsOfUnity(towersize);
-	std::vector<shared_ptr<native64::ILParams>> ilparams(towersize);
-
-	std::vector<native64::ILVector2n> ilvector2n1(towersize);
-	std::vector<native64::BigBinaryVector> bbv1(towersize);
-	std::vector<native64::ILVector2n> ilvector2n2(towersize);
-	std::vector<native64::BigBinaryVector> bbv2(towersize);
 
 	native64::BigBinaryInteger q("1");
 	BigBinaryInteger modulus("1");
@@ -1619,51 +1613,37 @@ TEST(UTILVectorArray2n, ensures_mod_operation_during_ops_on_two_ILVectorArray2ns
 		moduli[i] = q;
 		rootsOfUnity[i] = RootOfUnity<native64::BigBinaryInteger>(order,moduli[i]);
 		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
-
-		shared_ptr<native64::ILParams> ilparamsi( new native64::ILParams(order, moduli[i], rootsOfUnity[i]) );
-		ilparams.push_back(ilparamsi);
-
-		auto distrUniGeni = ILVectorArray2n::DugType();
-		distrUniGeni.SetModulus(moduli[i]);
-
-		native64::ILVector2n ilv1(distrUniGeni, ilparamsi);
-		ilvector2n1[i] = ilv1;
-		bbv1[i] = (ilv1.GetValues());
-
-		native64::ILVector2n ilv2(distrUniGeni, ilparamsi);
-		ilvector2n2[i] = ilv2;
-		bbv2[i] = (ilv2.GetValues());
 	}
 
 	shared_ptr<ILDCRTParams> ildcrtparams( new ILDCRTParams(order, moduli, rootsOfUnity) );
 
-	ILVectorArray2n ilvectorarray2n1(ilvector2n1);
-	ILVectorArray2n ilvectorarray2n2(ilvector2n2);
+	ILVectorArray2n::DugType dug;
+
+	ILVectorArray2n op1(dug, ildcrtparams);
+	ILVectorArray2n op2(dug, ildcrtparams);
 
 	{
-		ILVectorArray2n ilvectorarray2nResult = ilvectorarray2n1 + ilvectorarray2n2;
+		ILVectorArray2n sum = op1 + op2;
 
 		for(usint i=0; i<towersize; i++) {
 			for(usint j=0; j<order/2; j++) {
-				native64::BigBinaryInteger actualResult(ilvectorarray2nResult.GetElementAtIndex(i).GetValAtIndex(j));
-				native64::BigBinaryInteger expectedResult((bbv1[i].GetValAtIndex(j) + bbv2[i].GetValAtIndex(j)).Mod(moduli[i]));
+				native64::BigBinaryInteger actualResult(sum.GetElementAtIndex(i).GetValAtIndex(j));
+				native64::BigBinaryInteger expectedResult((op1.GetElementAtIndex(i).GetValAtIndex(j) + op2.GetElementAtIndex(i).GetValAtIndex(j)).Mod(moduli[i]));
 				EXPECT_EQ(actualResult, expectedResult) << "ILVectorArray2n + operation returns incorrect results.";
 			}
 		}
-
 	}
 
 	{
-		ILVectorArray2n ilvectorarray2nResult = ilvectorarray2n1 * ilvectorarray2n2;
+		ILVectorArray2n prod = op1 * op2;
 
 		for(usint i=0; i<towersize; i++) {
 			for(usint j=0; j<order/2; j++) {
-				native64::BigBinaryInteger actualResult(ilvectorarray2nResult.GetElementAtIndex(i).GetValAtIndex(j));
-				native64::BigBinaryInteger expectedResult((bbv1[i].GetValAtIndex(j) * bbv2[i].GetValAtIndex(j)).Mod(moduli[i]));
+				native64::BigBinaryInteger actualResult(prod.GetElementAtIndex(i).GetValAtIndex(j));
+				native64::BigBinaryInteger expectedResult((op1.GetElementAtIndex(i).GetValAtIndex(j) * op2.GetElementAtIndex(i).GetValAtIndex(j)).Mod(moduli[i]));
 				EXPECT_EQ(actualResult, expectedResult) << "ILVectorArray2n * operation returns incorrect results.";
 			}
 		}
-
 	}
 
 }

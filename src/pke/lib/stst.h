@@ -203,6 +203,12 @@ public:
 				m_distributionParameterStSt == el->GetDistributionParameterStSt();
 	}
 
+	void PrintParameters(std::ostream& os) const {
+		LPCryptoParametersRLWE<Element>::PrintParameters(os);
+
+		os << " StSt distribution parm: " << m_distributionParameterStSt;
+	}
+
 private:
 	//standard deviation in Discrete Gaussian Distribution used for Key Generation
 	float m_distributionParameterStSt;

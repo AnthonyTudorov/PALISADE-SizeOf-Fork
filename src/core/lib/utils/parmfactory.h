@@ -29,6 +29,14 @@ inline shared_ptr<Params> GenerateTestParams(usint m, const Integer& modulus, co
 	return shared_ptr<Params>(new Params(m, modulus, rootOfUnity));
 }
 
+
+template<typename Params, typename Integer>
+inline shared_ptr<Params> GenerateTestParams(usint m, usint nbits) {
+	Integer modulus = FindPrimeModulus<Integer>(m, 50);
+	Integer rootOfUnity = RootOfUnity<Integer>(m, modulus);
+	return shared_ptr<Params>(new Params(m, modulus, rootOfUnity));
+}
+
 /**
  * Generate an ILDCRTParams with a given number of parms, with cyphertext moduli of at least a given size
  * @param m - order
@@ -36,7 +44,7 @@ inline shared_ptr<Params> GenerateTestParams(usint m, const Integer& modulus, co
  * @param pbits - number of bits in the prime, to start with
  * @return
  */
-inline shared_ptr<ILDCRTParams> GenerateTestDCRTParams(usint m, usint numOfTower, usint pbits) {
+inline shared_ptr<ILDCRTParams> GenerateDCRTParams(usint m, usint numOfTower, usint pbits) {
 	std::vector<native64::BigBinaryInteger> moduli(numOfTower);
 
 	std::vector<native64::BigBinaryInteger> rootsOfUnity(numOfTower);

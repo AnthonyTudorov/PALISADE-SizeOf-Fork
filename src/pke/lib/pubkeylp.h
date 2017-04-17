@@ -1268,6 +1268,12 @@ namespace lbcrypto {
 		 */
 		void SetElementParams(shared_ptr<typename Element::Params> params) { m_params = params; }
 
+
+		friend std::ostream& operator<<(std::ostream& out, const LPCryptoParameters& item) {
+			item.PrintParameters(out);
+			return out;
+		}
+
 	protected:
 		LPCryptoParameters() : m_plaintextModulus(Element::Integer::TWO) {}
 
@@ -1280,6 +1286,11 @@ namespace lbcrypto {
 		LPCryptoParameters(LPCryptoParameters<Element> *from, shared_ptr<typename Element::Params> newElemParms) {
 			*this = *from;
 			m_params = newElemParms;
+		}
+
+		virtual void PrintParameters(std::ostream& out) const {
+			out << "Element Parameters: " << *m_params << std::endl;
+			out << "Plaintext Modulus: " << m_plaintextModulus << std::endl;
 		}
 
 	private:

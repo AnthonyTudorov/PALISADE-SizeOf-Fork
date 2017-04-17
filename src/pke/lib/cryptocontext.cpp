@@ -162,16 +162,17 @@ template <typename T>
 CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextStehleSteinfeld(shared_ptr<typename T::Params> ep,
 		const usint plaintextmodulus,
-		usint relinWindow, float stDev, float stDevStSt)
+		usint relinWindow, float stDev, float stDevStSt, int depth, int assuranceMeasure, float securityLevel)
 {
 	shared_ptr<LPCryptoParametersStehleSteinfeld<T>> params( new LPCryptoParametersStehleSteinfeld<T>(
 			ep,
 			BigBinaryInteger(plaintextmodulus),
 			stDev,
-			0.0, // assuranceMeasure,
-			0.0, // securityLevel,
+			assuranceMeasure,
+			securityLevel,
 			relinWindow,
-			stDevStSt) );
+			stDevStSt,
+			depth) );
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeStehleSteinfeld<T>());
 

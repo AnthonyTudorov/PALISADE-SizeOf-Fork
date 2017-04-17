@@ -969,7 +969,7 @@ public:
 	*/
 	static CryptoContext<Element> genCryptoContextLTV(shared_ptr<typename Element::Params> params,
 		const usint plaintextmodulus,
-		usint relinWindow, float stDev, int depth = 1, int assuranceMeasure = 0, float securityLevel = 0);
+		usint relinWindow, float stDev, int depth = 1, int assuranceMeasure = 9, float securityLevel = 1.006);
 
 	/**
 	* construct a PALISADE CryptoContext for the FV Scheme
@@ -1036,7 +1036,7 @@ public:
 	*/
 	static CryptoContext<Element> genCryptoContextStehleSteinfeld(shared_ptr<typename Element::Params> params,
 		const usint plaintextmodulus,
-		usint relinWindow, float stDev, float stDevStSt);
+		usint relinWindow, float stDev, float stDevStSt, int depth = 1, int assuranceMeasure = 9, float securityLevel = 1.006);
 
 	/**
 	* construct a PALISADE CryptoContext for the Null Scheme

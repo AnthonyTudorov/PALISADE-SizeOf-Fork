@@ -153,7 +153,7 @@ public:
 	virtual LPKeyPair<Element> KeyGen(const CryptoContext<Element> cc, bool makeSparse=false) const {
 		LPKeyPair<Element>	kp( new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc) );
 
-		Element a(cc.GetCryptoParameters()->GetElementParams(), Format::EVALUATION, true);
+		Element a(cc.GetCryptoParameters()->GetElementParams(), Format::COEFFICIENT, true);
 		kp.secretKey->SetPrivateElement(a);
 		kp.publicKey->SetPublicElementAtIndex(0, a);
 		kp.publicKey->SetPublicElementAtIndex(1, a);
@@ -189,7 +189,7 @@ public:
 		// create a new ReKey of the proper type, in this context
 		shared_ptr<LPEvalKeyNTRURelin<Element>> EK( new LPEvalKeyNTRURelin<Element>(newPrivateKey->GetCryptoContext()) );
 
-		Element a(newPrivateKey->GetCryptoContext().GetCryptoParameters()->GetElementParams(), Format::EVALUATION, true);
+		Element a(newPrivateKey->GetCryptoContext().GetCryptoParameters()->GetElementParams(), Format::COEFFICIENT, true);
 		vector<Element> evalKeyElements;
 		evalKeyElements.push_back(std::move(a));
 
@@ -212,7 +212,7 @@ public:
 		// create a new ReKey of the proper type, in this context
 		shared_ptr<LPEvalKeyNTRURelin<Element>> EK(new LPEvalKeyNTRURelin<Element>(newPrivateKey->GetCryptoContext()));
 
-		Element a(newPrivateKey->GetCryptoContext().GetCryptoParameters()->GetElementParams(), Format::EVALUATION, true);
+		Element a(newPrivateKey->GetCryptoContext().GetCryptoParameters()->GetElementParams(), Format::COEFFICIENT, true);
 		vector<Element> evalKeyElements;
 		evalKeyElements.push_back(std::move(a));
 
@@ -320,7 +320,6 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 			const Element& c2 = ciphertext2->GetElement();
 
 			Element cResult = c1 + c2;
-			std::cout << cResult << std::endl;
 
 			newCiphertext->SetElement(std::move(cResult));
 
@@ -449,7 +448,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const {
 			shared_ptr<LPEvalKey<Element>> EK( new LPEvalKeyRelin<Element>(originalPrivateKey->GetCryptoContext()) );
 
-			Element a(originalPrivateKey->GetCryptoContext().GetCryptoParameters()->GetElementParams(), Format::EVALUATION, true);
+			Element a(originalPrivateKey->GetCryptoContext().GetCryptoParameters()->GetElementParams(), Format::COEFFICIENT, true);
 			vector<Element> evalKeyElements;
 			evalKeyElements.push_back(std::move(a));
 
@@ -521,9 +520,9 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		typename Element::ILVectorType ElementNullSchemeMultiply(const typename Element::ILVectorType& c1, const typename Element::ILVectorType& c2,
 				const BigBinaryInteger& ptmod) const {
 
-			typename Element::ILVectorType cResult(c1.GetParams(), Format::EVALUATION, true);
+			typename Element::ILVectorType cResult(c1.GetParams(), Format::COEFFICIENT, true);
 
-			typename Element::ILVectorType cLarger(c1.GetParams(), Format::EVALUATION, true);
+			typename Element::ILVectorType cLarger(c1.GetParams(), Format::COEFFICIENT, true);
 
 			typename Element::ILVectorType::Integer ptm( ptmod.ConvertToInt() );
 
