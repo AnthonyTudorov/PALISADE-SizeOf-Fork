@@ -32,7 +32,7 @@ inline shared_ptr<Params> GenerateTestParams(usint m, const Integer& modulus, co
 
 template<typename Params, typename Integer>
 inline shared_ptr<Params> GenerateTestParams(usint m, usint nbits) {
-	Integer modulus = FindPrimeModulus<Integer>(m, 50);
+	Integer modulus = FindPrimeModulus<Integer>(m, nbits);
 	Integer rootOfUnity = RootOfUnity<Integer>(m, modulus);
 	return shared_ptr<Params>(new Params(m, modulus, rootOfUnity));
 }
@@ -45,19 +45,26 @@ inline shared_ptr<Params> GenerateTestParams(usint m, usint nbits) {
  * @return
  */
 inline shared_ptr<ILDCRTParams> GenerateDCRTParams(usint m, usint numOfTower, usint pbits) {
+
+	if( numOfTower == 0 )
+		throw std::logic_error("Can't make parms with numOfTower == 0 ");
+
 	std::vector<native64::BigBinaryInteger> moduli(numOfTower);
 
 	std::vector<native64::BigBinaryInteger> rootsOfUnity(numOfTower);
 
-	native64::BigBinaryInteger q(1<<pbits - 1);
-	native64::BigBinaryInteger temp;
+	native64::BigBinaryInteger q = FindPrimeModulus<native64::BigBinaryInteger>(m, pbits);
 	BigBinaryInteger modulus(BigBinaryInteger::ONE);
 
-	for (int j = 0; j < numOfTower; j++) {
-		lbcrypto::NextQ(q, native64::BigBinaryInteger::FIVE, m, native64::BigBinaryInteger::FOUR, native64::BigBinaryInteger::FOUR);
+	usint j = 0;
+	for(;;) {
 		moduli[j] = q;
-		rootsOfUnity[j] = RootOfUnity(m, moduli[j]);
-		modulus = modulus * BigBinaryInteger(moduli[j].ConvertToInt());
+		rootsOfUnity[j] = RootOfUnity(m, q);
+		modulus = modulus * BigBinaryInteger(q.ConvertToInt());
+		if( ++j == numOfTower )
+			break;
+
+		lbcrypto::NextQ(q, native64::BigBinaryInteger::FIVE, m, native64::BigBinaryInteger::FOUR, native64::BigBinaryInteger::FOUR);
 	}
 
 	shared_ptr<ILDCRTParams> params(new ILDCRTParams(m, moduli, rootsOfUnity));

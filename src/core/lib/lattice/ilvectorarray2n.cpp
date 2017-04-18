@@ -380,9 +380,20 @@ namespace lbcrypto {
 
 		result.reserve(nWindows);
 		
+		// prepare for the calculations by gathering a big integer version of each of the little moduli
+		std::vector<IntType> mods(m_params->GetParams().size());
+		for( usint i = 0; i < m_params->GetParams().size(); i++ )
+			mods[i] = m_params->GetParams()[i]->GetModulus().ConvertToInt();
+
 		for( usint i = 0; i < nWindows; i++ ) {
-			IntType pI(IntType::TWO.ModExp(IntType(i*baseBits), m_params->GetModulus()));
-			result.push_back( pI * (*this));
+			ILVectorArrayType x( m_params, m_format );
+
+			IntType twoPow( IntType::TWO.Exp( i*baseBits ) );
+			for( usint t = 0; t < m_params->GetParams().size(); t++ ) {
+				IntType pI (twoPow % mods[t]);
+				x.m_vectors[t] = m_vectors[t] * pI.ConvertToInt();
+			}
+			result.push_back( x );
 		}
 
 //		std::vector< std::vector<ILVectorType> > towerVals;

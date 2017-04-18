@@ -17,9 +17,7 @@ using namespace lbcrypto;
 static const usint PrimeBits = 50;
 
 inline CryptoContext<ILVector2n> GenCryptoContextElementNull(usint ORDER, usint ptm) {
-	ILVector2n::Integer cipherModulus = FindPrimeModulus<ILVector2n::Integer>(ORDER, PrimeBits);
-	ILVector2n::Integer rootOfUnity = RootOfUnity<ILVector2n::Integer>(ORDER, cipherModulus);
-	shared_ptr<ILVector2n::Params> p = GenerateTestParams<ILVector2n::Params,ILVector2n::Integer>(ORDER, cipherModulus, rootOfUnity);
+	shared_ptr<ILVector2n::Params> p = GenerateTestParams<ILVector2n::Params,ILVector2n::Integer>(ORDER, PrimeBits);
 
 	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextNull(p, ptm);
 	cc.Enable(ENCRYPTION);
@@ -41,9 +39,7 @@ inline CryptoContext<ILVectorArray2n> GenCryptoContextElementArrayNull(usint ORD
 }
 
 inline CryptoContext<ILVector2n> GenCryptoContextElementLTV(usint ORDER, usint ptm) {
-	ILVector2n::Integer cipherModulus = FindPrimeModulus<ILVector2n::Integer>(ORDER, PrimeBits);
-	ILVector2n::Integer rootOfUnity = RootOfUnity<ILVector2n::Integer>(ORDER, cipherModulus);
-	shared_ptr<ILVector2n::Params> p = GenerateTestParams<ILVector2n::Params,ILVector2n::Integer>(ORDER, cipherModulus, rootOfUnity);
+	shared_ptr<ILVector2n::Params> p = GenerateTestParams<ILVector2n::Params,ILVector2n::Integer>(ORDER, PrimeBits);
 
 	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(p, ptm, 1, 4);
 	cc.Enable(ENCRYPTION);
@@ -65,9 +61,7 @@ inline CryptoContext<ILVectorArray2n> GenCryptoContextElementArrayLTV(usint ORDE
 }
 
 inline CryptoContext<ILVector2n> GenCryptoContextElementStSt(usint ORDER, usint ptm) {
-	ILVector2n::Integer cipherModulus = FindPrimeModulus<ILVector2n::Integer>(ORDER, PrimeBits);
-	ILVector2n::Integer rootOfUnity = RootOfUnity<ILVector2n::Integer>(ORDER, cipherModulus);
-	shared_ptr<ILVector2n::Params> p = GenerateTestParams<ILVector2n::Params,ILVector2n::Integer>(ORDER, cipherModulus, rootOfUnity);
+	shared_ptr<ILVector2n::Params> p = GenerateTestParams<ILVector2n::Params,ILVector2n::Integer>(ORDER, PrimeBits);
 
 	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextStehleSteinfeld(p, ptm, 1, 4, 41411.5);
 	cc.Enable(ENCRYPTION);
@@ -89,9 +83,7 @@ inline CryptoContext<ILVectorArray2n> GenCryptoContextElementArrayStSt(usint ORD
 }
 
 inline CryptoContext<ILVector2n> GenCryptoContextElementBV(usint ORDER, usint ptm) {
-	ILVector2n::Integer cipherModulus = FindPrimeModulus<ILVector2n::Integer>(ORDER, PrimeBits);
-	ILVector2n::Integer rootOfUnity = RootOfUnity<ILVector2n::Integer>(ORDER, cipherModulus);
-	shared_ptr<ILVector2n::Params> p = GenerateTestParams<ILVector2n::Params,ILVector2n::Integer>(ORDER, cipherModulus, rootOfUnity);
+	shared_ptr<ILVector2n::Params> p = GenerateTestParams<ILVector2n::Params,ILVector2n::Integer>(ORDER, PrimeBits);
 
 	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(p, ptm, 1, 4);
 	cc.Enable(ENCRYPTION);
