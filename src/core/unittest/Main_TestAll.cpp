@@ -21,7 +21,12 @@ using namespace lbcrypto;
 int main(int argc, char **argv) {
 
   ::testing::InitGoogleTest(&argc, argv);
-  ::testing::GTEST_FLAG(filter) = "-*_VERY_LONG";
+
+  // if there are no filters used, default to omitting VERY_LONG tests
+  // otherwise we lose control over which tests we can run
+  if (::testing::GTEST_FLAG(filter) == "*") {
+    ::testing::GTEST_FLAG(filter) = "-*_VERY_LONG";
+  }
   RUN_ALL_TESTS();
 
   std::cout << "Press any key to continue..." << std::endl;

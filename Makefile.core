@@ -34,7 +34,8 @@ COREBINDIR := src/core/bin
 CORETESTDIR := src/core/unittest
 COREDEMODIR := src/core/demo
 
-CORESOURCES := $(wildcard $(CORESRCDIR)/lib/*/*.cpp)
+##CORESOURCES := $(wildcard $(CORESRCDIR)/lib/*/*.cpp) ##dbc can't find gmp_int directory
+CORESOURCES := $(shell find $(CORESRCDIR)/lib -name '*.cpp') 
 COREUNITSOURCES := $(wildcard $(CORESRCDIR)/unittest/*.cpp)
 COREDEMOSOURCES := $(wildcard $(CORESRCDIR)/demo/*.cpp)
 
@@ -87,6 +88,7 @@ cleancore:
 # this links test executable  from objects in the test build directory
 $(TEST_TARGET): $(COREUNITOBJECTS) $(EXTLIBDIR)/$(PALISADECORELIB) 
 	@mkdir -p `dirname $(TEST_TARGET)`
+	echo 	$(CC) $(CPPFLAGS) $(INC) $(COREUNITOBJECTS) -o $(TEST_TARGET) -L$(EXTLIBDIR) -lPALISADEcore $(TEST_LIB)
 	$(CC) $(CPPFLAGS) $(INC) $(COREUNITOBJECTS) -o $(TEST_TARGET) -L$(EXTLIBDIR) -lPALISADEcore $(TEST_LIB)
 
 #used to run tests from make

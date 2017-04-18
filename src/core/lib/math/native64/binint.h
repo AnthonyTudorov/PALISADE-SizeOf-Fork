@@ -374,8 +374,18 @@ public:
 	NativeInteger Minus(const NativeInteger& b) const {
 		return m_value <= b.m_value ? 0 : m_value - b.m_value;
 	}
-
-
+#if 0 //dbc not sure we need this
+	/**
+	 * Multiplication accumulator.
+	 *
+	 * @param &b is the value to multiply of type Big Binary Integer.
+	 * @return result of the muliplyaccumulate operation of type Big Binary Integer.
+	 */
+	const NativeInteger& operator*=(const NativeInteger &b) {
+	        m_value *= b.m_value;
+		return *this;
+	}
+#endif
 	/**
 	 * Multiplication operation.
 	 *
@@ -399,6 +409,16 @@ public:
 		if( b.m_value == 0 )
 			throw std::logic_error("Native64 integer divide by zero");
 		return this->m_value / b.m_value;
+	}
+	/**
+	 * Division accumulator.
+	 *
+	 * @param &b is the value of divisor of type Big Binary Integer.
+	 * @return result of the divide accumulate operation of type Big Binary Integer.
+	 */
+	const NativeInteger& operator/=(const NativeInteger &b) {
+	  m_value /= b.m_value;
+		return *this;
 	}
 
 	//modular arithmetic operations
@@ -535,12 +555,24 @@ public:
 	NativeInteger ModAdd(const NativeInteger& b, const NativeInteger& modulus) const {
 		Duint_type modsum = (Duint_type)m_value;
 		modsum += b.m_value;
+
 		modsum %= modulus.m_value;
-		
-		if( modsum > m_uintMax )
+		if( modsum > m_uintMax ) //need to check before mod
 			throw std::logic_error("Overflow in ModAdd");
 		return (uint_type)modsum;
 	}
+
+
+	inline NativeInteger ModAddFast(const NativeInteger& b, const NativeInteger& modulus) const {
+		Duint_type modsum = (Duint_type)m_value;
+		modsum += b.m_value;
+		modsum %= modulus.m_value;
+		if( modsum > m_uintMax )
+			throw std::logic_error("Overflow in ModAddFast");
+		return (uint_type)modsum;
+	}
+
+	
 
 	/**
 	 * Modular addition where Barrett modulo reduction is used.
@@ -594,6 +626,21 @@ public:
 			return (av + mod) - bv;
 		}
 	}
+	//ModSubFast assumes b < modulus
+	inline NativeInteger ModSubFast(const NativeInteger& b, const NativeInteger& modulus) const {
+		uint_type av = m_value;
+		uint_type bv = b.m_value;
+		uint_type mod = modulus.m_value;
+
+	
+		if(av >= bv){
+			return (av-bv)%mod;
+		}
+		else{
+			return (av + mod) - bv;
+		}
+	}
+
 
 	/**
 	 * Scalar modular subtraction where Barrett modular reduction is used.
@@ -633,6 +680,20 @@ public:
 		if( av > modulus.m_value ) av = av%modulus.m_value;
 		if( bv > modulus.m_value ) bv = bv%modulus.m_value;
 
+		return (uint_type)((av*bv)%modulus.m_value);
+	}
+
+	/**
+	 * Scalar modulus multiplication. Fast version, assumes inputs are
+	 * already < modulus. 
+	 *
+	 * @param &b is the scalar to multiply.
+	 * @param modulus is the modulus to perform operations with.
+	 * @return is the result of the modulus multiplication operation.
+	 */
+	NativeInteger ModMulFast(const NativeInteger& b, const NativeInteger& modulus) const {
+		Duint_type av = m_value;
+		Duint_type bv = b.m_value;
 		return (uint_type)((av*bv)%modulus.m_value);
 	}
 

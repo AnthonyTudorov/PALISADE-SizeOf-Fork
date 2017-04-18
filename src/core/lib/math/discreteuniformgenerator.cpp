@@ -33,7 +33,7 @@ IntType DiscreteUniformGeneratorImpl<IntType,VecType>::GenerateInteger () const 
 
 	// result is initialized to 0
 	IntType result;
-
+	
 	//temp is used for intermediate multiprecision computations
 	IntType temp;
 
@@ -96,7 +96,11 @@ VecType DiscreteUniformGeneratorImpl<IntType,VecType>::GenerateVector(const usin
 
 	for (usint i = 0; i < size; i++) {
 	IntType temp(this->GenerateInteger());
+#if MATHBACKEND != 6
 		v.SetValAtIndex(i, temp);
+#else
+		v.SetValAtIndexWithoutMod(i, temp);
+#endif
 	}
 
 	return v;

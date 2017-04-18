@@ -33,7 +33,7 @@
  *
  *  @section DESCRIPTION
  *
- *  This file contains google test code that exercises the big int
+ *  This file contains google test code that exercises the modulo big int
  *  vector library of the PALISADE lattice encryption library.
  *
  **/
@@ -65,12 +65,17 @@ using namespace lbcrypto;
   return RUN_ALL_TESTS();
   }
 */
-class UnitTestmubintvec : public ::testing::Test {
+class UnitTestmubint : public ::testing::Test {
 protected:
   virtual void SetUp() {
     // Code here will be called before each test
     // (right before the constructor).
 
+    //TODO: (dbc) do I need this here?
+    // any calls to mubint may fail otherwise.
+#if (MATHBACKEND == 5) || (MATHBACKEND ==6) //mubint not defined before this. 
+    NTL::ZZ_p::init(NTL::ZZ(1));
+#endif
   }
 
   virtual void TearDown() {
@@ -82,10 +87,10 @@ protected:
 /* list of tests left to run 
    //todo update this. 
 
-  explicit mubintvec(const usint length, const bint_el_t & modulus);
-  explicit mubintvec(const usint length, const std::string& modulus);
-  explicit mubintvec(const std::vector<std::string> &s, const bint_el_t &modulus
-  explicit mubintvec(const std::vector<std::string> &s, const std::string &modulus);
+  explicit mubint(const usint length, const bint_el_t & modulus);
+  explicit mubint(const usint length, const std::string& modulus);
+  explicit mubint(const std::vector<std::string> &s, const bint_el_t &modulus
+  explicit mubint(const std::vector<std::string> &s, const std::string &modulus);
 
   void SetModulus(const uint& value);
   void SetModulus(const bint_el_t& value);
@@ -105,142 +110,37 @@ protected:
    
 
 /************************************************/
-/*	TESTING BASIC METHODS OF mubintvec CLASS        */
+/*	TESTING BASIC METHODS OF mubint CLASS        */
 /************************************************/
-TEST(UTmubintvec,ctor_access_eq_neq){
-  bool dbg_flag = false;
+
+#if (MATHBACKEND == 5) || (MATHBACKEND ==6) //mubint not defined before this. 
+TEST(UTmubint,ctor_access_eq_neq){
   //note this is the same code as the ubintvec, just to confirm it works
   //as inherited
   ubint q("1234567"); // a bigger number
-
-  mubintvec m(5); // calling constructor to create a vector of length 5
-                 //note all values are zero.
+  mubint m("9868");  
 
   m.SetModulus(q);
-
-  mubintvec n(5,q); // calling contructor with modulus
-
-  int i;
-  usint j;
-
-  EXPECT_EQ(5,m.size())<< "Failure in size()";
-  EXPECT_EQ(5,n.size())<< "Failure in size()";
-
-  // Old fashioned soon to be deprecated way of 
-  // setting value of the value at different index locations
-
-  //test SetValAtIndex(string)
-  m.SetValAtIndex(0,"9868");  
-  m.SetValAtIndex(1,"5879");
-  m.SetValAtIndex(2,"4554");
-  m.SetValAtIndex(3,"2343");
-  m.SetValAtIndex(4,"4624");
-
-  DEBUG("m "<<m);
-  EXPECT_EQ(9868U,m.GetValAtIndex(0).ConvertToUsint())
-    << "Failure in SetValAtIndex(0)";
-
+  mubint n("9868",q); // calling contructor with modulus
 
   //old fashioned way of expect
-  EXPECT_EQ(9868U,m.GetValAtIndex(0).ConvertToUsint())
+  EXPECT_EQ(9868U,m)
     << "Failure in SetValAtIndex(str)";
-  EXPECT_EQ(5879U,m.GetValAtIndex(1).ConvertToUsint())
-<< "Failure in SetValAtIndex(str)";
-  EXPECT_EQ(4554U,m.GetValAtIndex(2).ConvertToUsint())
-<< "Failure in SetValAtIndex(str)";
-  EXPECT_EQ(2343U,m.GetValAtIndex(3).ConvertToUsint())
-<< "Failure in SetValAtIndex(str)";
-  EXPECT_EQ(4624U,m.GetValAtIndex(4).ConvertToUsint())
-<< "Failure in SetValAtIndex(str)";
 
-  EXPECT_EQ(ubint(9868U),m.GetValAtIndex(0))<< "Failure in SetValAtIndex()";
-  EXPECT_EQ(ubint(5879U),m.GetValAtIndex(1))<< "Failure in SetValAtIndex()";
-  EXPECT_EQ(ubint(4554U),m.GetValAtIndex(2))<< "Failure in SetValAtIndex()";
-  EXPECT_EQ(ubint(2343U),m.GetValAtIndex(3))<< "Failure in SetValAtIndex()";
-  EXPECT_EQ(ubint(4624U),m.GetValAtIndex(4))<< "Failure in SetValAtIndex()";
+  EXPECT_EQ(ubint(9868U),m)<< "Failure in SetValAtIndex()";
 
   //new way of setting value of the value at different index locations
-  n[0]="4";
-  n[1]=9;   //int (implied)
-  n[2]=ubint("66"); //ubint
-  n[3] = 33L;  //long
-  n[4] = 7UL;  //unsigned long
+  n="4";
+  EXPECT_EQ(ubint(4),n)<< "Failure in = string";
+  n=9;   //int (implied)
+  EXPECT_EQ(ubint(9),n)<< "Failure in = int";
+  n=ubint("66"); //ubint
+  EXPECT_EQ(ubint(66),n)<< "Failure in = ubint";
+  n = 33L;  //long
+  EXPECT_EQ(ubint(33),n)<< "Failure in = long";
+  n = 7UL;  //unsigned long
+  EXPECT_EQ(ubint(7),n)<< "Failure in = unsingned long";
 
-  // new way of accessing
-  EXPECT_EQ(ubint(4),n[0])<< "Failure in []";
-  EXPECT_EQ(ubint(9),n[1])<< "Failure in []";
-  EXPECT_EQ(ubint(66),n[2])<< "Failure in []";
-  EXPECT_EQ(ubint(33),n[3])<< "Failure in []";
-  EXPECT_EQ(ubint(7),n[4])<< "Failure in []";
-
-  //test SetValAtIndex(ubint)
-  n.SetValAtIndex(0,ubint("4")); 
-  n.SetValAtIndex(1,ubint("9"));
-  n.SetValAtIndex(2,ubint("66"));
-  n.SetValAtIndex(3,ubint("33"));
-  n.SetValAtIndex(4,ubint("7"));
-
-
-  EXPECT_EQ(ubint(4),n[0])<< "Failure in SetValAtIndex(ubint)";
-  EXPECT_EQ(ubint(9),n[1])<< "Failure in SetValAtIndex(ubint)";
-  EXPECT_EQ(ubint(66),n[2])<< "Failure in SetValAtIndex(ubint)";
-  EXPECT_EQ(ubint(33),n[3])<< "Failure in SetValAtIndex(ubint)";
-  EXPECT_EQ(ubint(7),n[4])<< "Failure in SetValAtIndex(ubint)";
-
-  m+=n;
-
-  usint expectedResult[5] = {9872,5888,4620,2376,4631};
-
-  for (i=0,j=0;j<5;i++,j++) {
-    EXPECT_EQ (expectedResult[i], (m.GetValAtIndex(j)).ConvertToUsint())
-      << "Failure testing method_plus_equals";
-  }
-
-  //test initializer list of various types
-  mubintvec expectedvecstr(5);
-  expectedvecstr = {"9872","5888","4620","2376","4631"}; //strings
-  expectedvecstr.SetModulus(q);
-  EXPECT_EQ (expectedvecstr, m)<< "Failure string initializer list";
-
-  mubintvec expectedvecint(5);
-  expectedvecint = {ubint(9872U),ubint(5888U),ubint(4620U),ubint(2376U),ubint(4631U)}; //ubints
-  expectedvecint.SetModulus(q);
-  EXPECT_EQ (expectedvecint, m)<< "Failure ubint initializer list";
-
-  expectedvecint = {9872U,5888u,4620u,2376u,4631u}; //usints
-  EXPECT_EQ (expectedvecint, m)<< "Failure usint initializer list";
-
-  expectedvecint = {9872,5888,4620,2376,4631}; //ints (compiler promotes)
-  EXPECT_EQ (expectedvecint, m)<< "Failure int initializer list";
-
-  //test Single()
-  mubintvec s = mubintvec::Single(ubint("3"),ubint("5"));//value 3, mod 5
-  EXPECT_EQ(1, s.size()) <<"Failure Single.size()";
-  EXPECT_EQ(ubint(3), s[0]) <<"Failure Single() value";
-
-  // test assignment of single ubint (puts it in the 0 the position), zeros
-  // out the rest
-  //test that the vector is zeroed on init like this.
-  mubintvec eqtest(10); 
-  EXPECT_EQ ( 10, eqtest.size()) << "Failure create mubintvec of 10 zeros";
-
-  for (i = 0; i< eqtest.size(); i++) {
-    EXPECT_EQ ( ubint(0U), eqtest[i]) << "Failure create mubintvec of zeros";
-  }
-
-  // test assignment of single ubint
-  eqtest = ubint(1);
-  EXPECT_EQ (ubint(1),  eqtest[0]) << "Failure assign single ubint 0 index";
-  for (i = 1; i< eqtest.size(); i++) {
-    EXPECT_EQ ( ubint(0U), eqtest[i]) << "Failure assign single ubint nonzero index";
-  }
-
-  // test assignment of single usint
-  eqtest = 5U;
-  EXPECT_EQ (ubint(5U),  eqtest[0]) << "Failure assign single ubint 0 index";
-  for (i = 1; i< eqtest.size(); i++) {
-    EXPECT_EQ ( ubint(0U), eqtest[i]) << "Failure assign single ubint nonzero index";
-  }
 
   //test comparisons == and !=
   m = n;
@@ -249,124 +149,100 @@ TEST(UTmubintvec,ctor_access_eq_neq){
   EXPECT_TRUE(test1)<<"Failure ==";
   EXPECT_FALSE(test2)<<"Failure !=";
 
-  //n.SetModulus(n.GetModulus()+ubint::ONE); //TODO this will not compile?
+#if 0
+  //we have only one modulus for mubint so this test will not work.
+
+  //n.SetModulus(n.GetModulus()+ubint::ONE); //TODO:: this confused the compiler? //is operator+ inhereted and not operator- ?? that works below. 
   n.SetModulus(ubint(n.GetModulus()+ubint::ONE));
   //reset n to a differnt modulus, comparison will fail. 
   test1 = m==n;
   test2 = m!=n;
-  EXPECT_FALSE(test1)<<"Failure == different mods";
-  EXPECT_TRUE(test2)<<"Failure != different mods";
 
+  cout<<"DEBUG: note the following fails right now since we are not testing moduli."<<endl;
+  EXPECT_FALSE(test1)<<"Failure == different mods";
+
+  cout<<"DEBUG: note the following fails right now since we are not testing moduli."<<endl;
+  EXPECT_TRUE(test2)<<"Failure != different mods";
   // set it back 
   n.SetModulus(n.GetModulus()-ubint::ONE);
+
+#endif
+
+
   m = n+n;
   test1 = m==n;
   test2 = m!=n;
   EXPECT_FALSE(test1)<<"Failure ==";
   EXPECT_TRUE(test2)<<"Failure !=";
 
-  for (auto i = 0; i < m.size(); i++) {
-    m[i] = n[i]; //test both lhs and rhs []
-  }
-
+  m = n;
   test1 = m==n;
   EXPECT_TRUE(test1)<<"Failure [] lhs rhs";
 
   //test more ctors
-  ubintvec u(5);
-  u = {"9872","5888","4620","2376","4631"}; //strings
 
-  mubintvec u2(u);
+  ubint u = {"9872"}; //strings
+
+  mubint u2(u);
   u2.SetModulus(q);
-  mubintvec u3(u,q);
-  mubintvec u4(u,"1234567"); 
-  mubintvec u5(u,1234567U); 
+  mubint u3(u,q);
+  mubint u4(u,"1234567"); 
+  mubint u5(u,1234567U); 
 
-  EXPECT_TRUE(u2 == u3) << "Failure ctor (ubintvec,ubint)";
-  EXPECT_TRUE(u2 == u4) << "Failure ctor (ubintvec,string)";
-  EXPECT_TRUE(u2 == u5) << "Failure ctor (ubintvec,usint)";
+  EXPECT_TRUE(u2 == u3) << "Failure ctor (ubint,ubint)";
+  EXPECT_TRUE(u2 == u4) << "Failure ctor (ubint,string)";
+  EXPECT_TRUE(u2 == u5) << "Failure ctor (ubint,usint)";
 
-  //test comparison between ubintvec and mubintvec
-  EXPECT_TRUE(u == u2) << "Failure mubintvec == ubintvec";
-  EXPECT_FALSE(u != u2) << "Failure mubintvec != ubintvec";
-  EXPECT_TRUE(u2 == u) << "Failure ubintvec == mubintvec";
-  EXPECT_FALSE(u2 != u) << "Failure ubintvec == mubintvec";
+  //test comparison between ubint and mubint
+  EXPECT_TRUE(u == u2) << "Failure mubint == ubintvec";
+
+  EXPECT_FALSE(u != u2) << "Failure mubint == ubintvec";
+  EXPECT_TRUE(u2 == u) << "Failure ubintvec == uubintvec";
+  EXPECT_FALSE(u2 != u) << "Failure ubintvec == mubint";
+
 
 }
 
-TEST(UTmubintvec, constructorTest){
-  bool dbg_flag = false;
-  mubintvec m(10);
-  
-  m.SetValAtIndex(0,"48");
-  m.SetValAtIndex(1,"53");
-  m.SetValAtIndex(2,"7");
-  m.SetValAtIndex(3,"178");
-  m.SetValAtIndex(4,"190");
-  m.SetValAtIndex(5,"120");
-  m.SetValAtIndex(6,"79");
-  m.SetValAtIndex(7,"108");
-  m.SetValAtIndex(8,"60");
-  m.SetValAtIndex(9,"12"); 
 
-  DEBUG("m: "<<m);
+TEST(UTmubint,mod){
 
-  int expectedResult[10] = {48,53,7,178,190,120,79,108,60,12};  // the expected values are stored as one dimensional integer array
-
-  for (usint i=0;i<10;i++){
-    DEBUG("val "<<i<< " is "<<m.GetValAtIndex(i));
-    EXPECT_EQ (expectedResult[i], (m.GetValAtIndex(i)).ConvertToInt());
-  }
-
-
-   mubintvec binvect(m);
-
-  for (usint i=0;i<10;i++){
-    EXPECT_EQ (expectedResult[i], (binvect.GetValAtIndex(i)).ConvertToInt());
-  }
-}
-
-TEST(UTmubintvec,mod){
-  bool dbg_flag = false;
-  mubintvec m(10); // calling constructor to create a vector of length 10 zeroed
+  ubintvec n(10); // calling constructor to create a vector of length 10 zeroed
+  mubint m;
 
   int i;
   usint j;
 	
-
   //setting value of the value at different index locations
-  m.SetValAtIndex(0,"987968");
-  m.SetValAtIndex(1,"587679");
-  m.SetValAtIndex(2,"456454");
-  m.SetValAtIndex(3,"234343");
-  m.SetValAtIndex(4,"769789");
-  m.SetValAtIndex(5,"465654");
-  m.SetValAtIndex(6,"79");
-  m.SetValAtIndex(7,"346346");
-  m.SetValAtIndex(8,"325328");
-  m.SetValAtIndex(9,"7698798");	
+  n.SetValAtIndex(0,"987968");
+  n.SetValAtIndex(1,"587679");
+  n.SetValAtIndex(2,"456454");
+  n.SetValAtIndex(3,"234343");
+  n.SetValAtIndex(4,"769789");
+  n.SetValAtIndex(5,"465654");
+  n.SetValAtIndex(6,"79");
+  n.SetValAtIndex(7,"346346");
+  n.SetValAtIndex(8,"325328");
+  n.SetValAtIndex(9,"7698798");	
 
   ubint q("233");		//calling costructor of ubint Class to create object for modulus
   //set modulus
   m.SetModulus(q); //should take modulus as well.
+  usint expectedResult[10] = {48,53,7,178,190,120,79,108,60,12};	// the expected values are stored as one dimensional integer array  
 
-  mubintvec calculatedResult = m.Mod(q);
-  usint expectedResult[10] = {48,53,7,178,190,120,79,108,60,12};	// the expected values are stored as one dimensional integer array
-
-  for (i=0;i<10;i++) {
-    EXPECT_EQ (expectedResult[i], calculatedResult[i].ConvertToUsint());
+  for( auto i = 0; i < n.length(); i++) {
+    m = n[i];
+    mubint calculatedResult = m.Mod(q);
+    EXPECT_EQ (expectedResult[i], calculatedResult)<<"Failure Mod, index"<< i;
   }
-
 }
 
-TEST(UTmubintvec,basic_vector_vector_mod_math_1_limb){
-  bool dbg_flag = false;
+TEST(UTmubint,basic_mod_math_1_limb){
 
   // q1 modulus 1:
   ubint q1("163841");
   // a1:
-  mubintvec a1(16,q1);
-  DEBUG("a1.modulus "<< a1.GetModulus());
+  ubintvec a1(16);
+
   a1 = { "127753", "077706",
 	 "017133", "022582",
 	 "112132", "027625",
@@ -377,10 +253,7 @@ TEST(UTmubintvec,basic_vector_vector_mod_math_1_limb){
 	 "132013", "057029", };
 
   // b1:
-  mubintvec b1;
-  b1.SetModulus(q1);
-  DEBUG("b1.modulus "<< b1.GetModulus());
-
+  ubintvec b1;
   b1 = {"066773", "069572",
 	"142134", "141115",
 	"123182", "155822",
@@ -391,7 +264,7 @@ TEST(UTmubintvec,basic_vector_vector_mod_math_1_limb){
 	"028502", "026401", };
  
   // modadd1:
-  mubintvec modadd1;
+  ubintvec modadd1;
   modadd1 = {"030685", "147278",
 	     "159267", "163697",
 	     "071473", "019606",
@@ -400,9 +273,6 @@ TEST(UTmubintvec,basic_vector_vector_mod_math_1_limb){
 	     "038630", "047611",
 	     "154600", "025200",
 	     "160515", "083430", };
-
-  modadd1.SetModulus(a1);	// sets modadd1.modulus to the same as a1
-  DEBUG("modadd1.modulus "<< modadd1.GetModulus());
 
   // modsub1:
   std::vector<std::string>  modsub1sv = 
@@ -414,7 +284,7 @@ TEST(UTmubintvec,basic_vector_vector_mod_math_1_limb){
      "025203", "012638",
      "047306", "129504",
      "103511", "030628", };
-  mubintvec modsub1(modsub1sv,q1);
+  ubintvec modsub1(modsub1sv);
 
   // modmul1:
   std::vector<std::string>  modmul1sv = 
@@ -426,112 +296,65 @@ TEST(UTmubintvec,basic_vector_vector_mod_math_1_limb){
      "008355", "146135",
      "061336", "031598",
      "025961", "087680", };
-  mubintvec modmul1(modmul1sv,q1);
-
-  mubintvec c1;
-  mubintvec d1;
-
- //now Mod operations
-  c1 = a1.ModAdd(b1);
-  EXPECT_EQ (c1, modadd1) << "Failure 1 limb vector vector ModAdd()";    
-  
-  DEBUG("modadd1 modulus"<<modadd1.GetModulus());
-  DEBUG("c1 modulus"<<c1.GetModulus());
-  DEBUG("c1 "<<c1<<" modadd "<<modadd1);
-  // test math for case 1
-  c1 = a1.Add(b1);
-  EXPECT_EQ (c1, modadd1) << "Failure 1 limb vector vector Add()";
-
-  c1 = a1 + b1;
-  EXPECT_EQ (c1, modadd1) << "Failure 1 limb vector vector +";
-
-  d1 = a1;
-  d1+=b1;
-  EXPECT_EQ (d1, modadd1) << "Failure 1 limb vector vector +=";
+  ubintvec modmul1(modmul1sv);
 
 
-  c1 = a1.ModSub(b1);
-  EXPECT_EQ (c1, modsub1) << "Failure 1 limb vector vector ModSub()";   
 
-  c1 = a1.Sub(b1);
-  EXPECT_EQ (c1, modsub1) << "Failure 1 limb vector vector Sub()";
 
-  c1 = a1 - b1;
-  EXPECT_EQ (c1, modsub1) << "Failure 1 limb vector vector -";
+  mubint a;
+  a.SetModulus(q1);	// sets a.modulus to q1
+  mubint b;
+  b.SetModulus(q1);	// sets a.modulus to q1
+  mubint c;
+  c.SetModulus(a);	// sets c.modulus to the same as a
 
-  d1 = a1;
-  d1 -= b1;
-  EXPECT_EQ (d1, modsub1) << "Failure 1 limb vector vector -=";
+  mubint d;
 
-  c1 = a1.ModMul(b1);
-  EXPECT_EQ (c1, modmul1) << "Failure 1 limb vector vector ModMul()";   
+  for (auto i = 0; i < a1.length(); i++) {
+    a = a1[i];
+    b= b1[i];
+    //now Mod operations
+    c = a.ModAdd(b);
+    EXPECT_EQ (c, modadd1[i]) << "Failure 1 limb vector vector ModAdd() index "<<i;    
+    // test math for case 1
+    c = a.Add(b);
+    EXPECT_EQ (c, modadd1[i]) << "Failure 1 limb vector vector Add() index "<<i;
 
-  c1 = a1.Mul(b1);
-  EXPECT_EQ (c1, modmul1) << "Failure 1 limb vector vector Mul()";
+    c = a + b;
+    EXPECT_EQ (c, modadd1[i]) << "Failure 1 limb vector vector + index "<<i;
 
-  c1 = a1 * b1;
-  EXPECT_EQ (c1, modmul1) << "Failure 1 limb vector vector *";
+    d = a;
+    d+=b;
+    EXPECT_EQ (d, modadd1[i]) << "Failure 1 limb vector vector += index "<<i;
+    c = a.ModSub(b);
+    EXPECT_EQ (c, modsub1[i]) << "Failure 1 limb vector vector ModSub() index "<<i;   
 
-  d1 = a1;
-  d1 *= b1;
-  EXPECT_EQ (d1, modmul1) << "Failure 1 limb vector vector *=";
+    c = a.Sub(b);
+    EXPECT_EQ (c, modsub1[i]) << "Failure 1 limb vector vector Sub() index "<<i;
 
-}
-TEST(UTmubintvec,basic_vector_scalar_mod_math_2_limb){
-  //basic vector scalar mod math
-  //todo this is very simple, should probably add sub mul by bigger numbers.
+    c = a - b;
+    EXPECT_EQ (c, modsub1[i]) << "Failure 1 limb vector vector - index "<<i;
 
-  // q2:
-  ubint q2("4057816419532801");
-  // a2:
-  std::vector<std::string>  a2sv = 
-    {"0185225172798255", "0098879665709163",
-     "3497410031351258", "4012431933509255",
-     "1543020758028581", "0135094568432141",
-     "3976954337141739", "4030348521557120",
-     "0175940803531155", "0435236277692967",
-     "3304652649070144", "2032520019613814",
-     "0375749152798379", "3933203511673255",
-     "2293434116159938", "1201413067178193", };
-  
-  mubintvec a2(a2sv,q2);
-  mubintvec a2op1(a2.size(),q2);
-  mubintvec a2op1test(a2.size(),q2);
-  
-  ubint myone(ubint::ONE);
-  
-  for (usint i = 0; i < a2.size();i ++){
-    a2op1[i] = a2[i]+myone;
-    a2op1[i] %= q2;
+    d = a;
+    d -= b;
+    EXPECT_EQ (d, modsub1[i]) << "Failure 1 limb vector vector -= index "<<i;
+
+    c = a.ModMul(b);
+    EXPECT_EQ (c, modmul1[i]) << "Failure 1 limb vector vector ModMul() index "<<i;   
+
+    c = a.Mul(b);
+    EXPECT_EQ (c, modmul1[i]) << "Failure 1 limb vector vector Mul() index "<<i;
+
+    c = a * b;
+    EXPECT_EQ (c, modmul1[i]) << "Failure 1 limb vector vector * index "<<i;
+
+    d = a;
+    d *= b;
+    EXPECT_EQ (d, modmul1[i]) << "Failure 1 limb vector vector *= index "<<i;
   }
-  a2op1test = a2.ModAdd(myone);
-  EXPECT_EQ(a2op1, a2op1test)<< "Failure vector scalar ModAdd()"; 
-  a2op1test = a2.Add(myone);
-  EXPECT_EQ(a2op1, a2op1test)<< "Failure vector scalar Add()"; 
-
-  for (usint i = 0; i < a2.size();i ++){
-    a2op1[i] = a2[i]-myone;
-    a2op1[i] %= q2;
-  }
-  a2op1test = a2.ModSub(myone);
-  EXPECT_EQ(a2op1, a2op1test)<< "Failure vector scalar ModSub()"; 
-
-  a2op1test = a2.Sub(myone);
-  EXPECT_EQ(a2op1, a2op1test)<< "Failure vector scalar Sub()"; 
-  for (usint i = 0; i < a2.size();i ++){
-    a2op1[i] = a2[i]*myone;
-    a2op1[i] %= q2;
-  }
-  a2op1test = a2.ModMul(myone);
-  EXPECT_EQ(a2op1, a2op1test)<< "Failure vector scalar ModMul()"; 
-
-  a2op1test = a2.Mul(myone);
-  EXPECT_EQ(a2op1, a2op1test)<< "Failure vector scalar Mul()"; 
-
 }
 
-
-TEST(UTmubintvec,basic_vector_vector_mod_math_2_limb){
+TEST(UTmubint,basic_mod_math_2_limb){
 
   // q2 modulus 2:
   ubint q2("4057816419532801");
@@ -545,7 +368,7 @@ TEST(UTmubintvec,basic_vector_vector_mod_math_2_limb){
      "3304652649070144", "2032520019613814",
      "0375749152798379", "3933203511673255",
      "2293434116159938", "1201413067178193", };
-  mubintvec a2(a2sv,q2);
+  ubintvec a2(a2sv);
 
   // b2:
   std::vector<std::string>  b2sv = 
@@ -558,7 +381,7 @@ TEST(UTmubintvec,basic_vector_vector_mod_math_2_limb){
      "3976652902630043", "3238750424196678",
      "2978742255253796", "2124827461185795", };
 
-  mubintvec b2(b2sv,q2);
+  ubintvec b2(b2sv);
 
   // modadd2:
   std::vector<std::string>  modadd2sv = 
@@ -570,7 +393,7 @@ TEST(UTmubintvec,basic_vector_vector_mod_math_2_limb){
      "1348899997572826", "2152306408779744",
      "0294585635895621", "3114137516337132",
      "1214359951880933", "3326240528363988", };
-  mubintvec modadd2(modadd2sv,q2);
+  ubintvec modadd2(modadd2sv);
 
   // modsub2:
   std::vector<std::string>  modsub2sv = 
@@ -582,7 +405,7 @@ TEST(UTmubintvec,basic_vector_vector_mod_math_2_limb){
      "1202588881034661", "1912733630447884",
      "0456912669701137", "0694453087476577",
      "3372508280438943", "3134402025525199", };
-  mubintvec modsub2(modsub2sv,q2);
+  ubintvec modsub2(modsub2sv);
 
   // modmul2:
   std::vector<std::string>  modmul2sv = 
@@ -594,58 +417,66 @@ TEST(UTmubintvec,basic_vector_vector_mod_math_2_limb){
      "1715852907773825", "2521152917532260",
      "0781959737898673", "2334258943108700",
      "2573793300043944", "1273980645866111", };
-  mubintvec modmul2(modmul2sv,q2);
+  ubintvec modmul2(modmul2sv);
 
-  mubintvec c2;
-  mubintvec d2;
+  mubint a;
+  a.SetModulus(q2);	// sets a.modulus to q2
+  mubint b;
+  b.SetModulus(q2);	// sets b.modulus
+  mubint c;
+  c.SetModulus(a);	// sets c.modulus to the same as a
 
-  //now Mod operations
-  c2 = a2.ModAdd(b2);
-  EXPECT_EQ (c2, modadd2) << "Failure 2 limb vector vector ModAdd()";    
-  c2 = a2.Add(b2);
-  EXPECT_EQ (c2, modadd2) << "Failure 2 limb vector vector Add()";    
+  mubint d;
+  for (auto i = 0; i < a2.length(); i++) {
+    a = a2[i];
+    b= b2[i];
+    //now Mod operations
+    c = a.ModAdd(b);
+    EXPECT_EQ (c, modadd2[i]) << "Failure 2 limb vector vector ModAdd()index "<<i;    
+    c = a.Add(b);
+    EXPECT_EQ (c, modadd2[i]) << "Failure 2 limb vector vector Add()index "<<i;    
 
-  c2 = a2 + b2;
-  EXPECT_EQ (c2, modadd2) << "Failure 2 limb vector vector +";
+    c = a + b;
+    EXPECT_EQ (c, modadd2[i]) << "Failure 2 limb vector vector +index "<<i;
 
-  d2 = a2;
-  d2 += b2;
-  EXPECT_EQ (d2, modadd2) << "Failure 2 limb vector vector +=";
+    d = a;
+    d += b;
+    EXPECT_EQ (d, modadd2[i]) << "Failure 2 limb vector vector +=index "<<i;
   
-  c2 = a2.ModSub(b2);
-  EXPECT_EQ (c2, modsub2) << "Failure 2 limb vector vector ModSub()";   
-  c2 = a2.Sub(b2);
-  EXPECT_EQ (c2, modsub2) << "Failure 2 limb vector vector Sub()";    
+    c = a.ModSub(b);
+    EXPECT_EQ (c, modsub2[i]) << "Failure 2 limb vector vector ModSub()index "<<i;   
+    c = a.Sub(b);
+    EXPECT_EQ (c, modsub2[i]) << "Failure 2 limb vector vector Sub()index "<<i;    
 
-  c2 = a2 - b2;
-  EXPECT_EQ (c2, modsub2) << "Failure 2 limb vector vector -";
+    c = a - b;
+    EXPECT_EQ (c, modsub2[i]) << "Failure 2 limb vector vector -index "<<i;
 
-  d2 = a2;
-  d2 -= b2;
-  EXPECT_EQ (d2, modsub2) << "Failure 2 limb vector vector -=";
+    d = a;
+    d -= b;
+    EXPECT_EQ (d, modsub2[i]) << "Failure 2 limb vector vector -=index "<<i;
   
-  c2 = a2.ModMul(b2);
-  EXPECT_EQ (c2, modmul2) << "Failure 2 limb vector vector ModMul()";   
-  c2 = a2.Mul(b2);
-  EXPECT_EQ (c2, modmul2) << "Failure 2 limb vector vector Mul()";    
+    c = a.ModMul(b);
+    EXPECT_EQ (c, modmul2[i]) << "Failure 2 limb vector vector ModMul()index "<<i;   
+    c = a.Mul(b);
+    EXPECT_EQ (c, modmul2[i]) << "Failure 2 limb vector vector Mul()index "<<i;    
 
-  c2 = a2 * b2;
-  EXPECT_EQ (c2, modmul2) << "Failure 2 limb vector vector *";
+    c = a * b;
+    EXPECT_EQ (c, modmul2[i]) << "Failure 2 limb vector vector *index "<<i;
 
-  d2 = a2;
-  d2 *= b2;
-  EXPECT_EQ (d2, modmul2) << "Failure 2 limb vector vector *=";
-
+    d = a;
+    d *= b;
+    EXPECT_EQ (d, modmul2[i]) << "Failure 2 limb vector vector *=index "<<i;
+  }
 }
 
 
 
 
-TEST(UTmubintvec,basic_vector_vector_mod_math_big_numbers){
+TEST(UTmubint,basic_mod_math_big_numbers){
 
   // q3:
   ubint q3("3273390607896141870013189696827599152216642046043064789483291368096133796404674554883270092325904157150886684127560071009217256545885393053328527589431");
-  mubintvec a3;
+  ubintvec a3;
   a3 = { 
     "2259002487796164904665772121894078584543401744155154298312726209247751689172189255653866355964200768484575418973864307364757237946940733747446643725054",
     "1478743816308009734668992873633380110912159803397999015955212019971253231528589466789603074746010444199132421555598329082557053986240265071537647362089",
@@ -655,10 +486,8 @@ TEST(UTmubintvec,basic_vector_vector_mod_math_big_numbers){
     "3022931024526554241483841300690432083112912011870712018209552253068347592628043101662926263810401378532416655773738499681026278335470355055192240903881",
     "2177879458107855257699914331737144896274676269055062432826552808869348125407671199582563543692287114712642299482144959316835614426673048987634699368975",
     "297233451802123294436846683552230198845414118375785255038220841170372509047202030175469239142902723134737621108313142071558385068315554041062888072990"};
-  a3.SetModulus(q3);
   
-  mubintvec b3;
-  b3.SetModulus(a3);
+  ubintvec b3;
   b3 = {
     "1746404952192586268381151521422372143182145525977836700420382237240400642889251297954418325675184427789348433626369450669892557208439401215109489355089",
     "220598825371098531288665964851212313477741334812037568788443848101743931352326362481681721872150902208420539619641973896119680592696228972313317042316",
@@ -670,8 +499,7 @@ TEST(UTmubintvec,basic_vector_vector_mod_math_big_numbers){
     "132216870748476988853044482759545262615616157934129470128771906579101230690441206392939162889560305016204867157725209170345968349185675785497832527174"};
 
 
-  mubintvec modadd3;
-  modadd3.SetModulus(a3);
+  ubintvec modadd3;
   modadd3 = {
     "732016832092609303033733946488851575508905224089926209249817078392018535656765998725014589313481039123037168472673687025432538609494741909227605490712",
     "1699342641679108265957658838484592424389901138210036584743655868072997162880915829271284796618161346407552961175240302978676734578936494043850964404405",
@@ -683,8 +511,7 @@ TEST(UTmubintvec,basic_vector_vector_mod_math_big_numbers){
     "429450322550600283289891166311775461461030276309914725166992747749473739737643236568408402032463028150942488266038351241904353417501229826560720600164",
   };
 
-  mubintvec modsub3;
-  modsub3.SetModulus(a3);
+  ubintvec modsub3;
   modsub3 = {
     "512597535603578636284620600471706441361256218177317597892343972007351046282937957699448030289016340695226985347494856694864680738501332532337154369965",
     "1258144990936911203380326908782167797434418468585961447166768171869509300176263104307921352873859541990711881935956355186437373393544036099224330319773",
@@ -696,8 +523,7 @@ TEST(UTmubintvec,basic_vector_vector_mod_math_big_numbers){
     "165016581053646305583802200792684936229797960441655784909448934591271278356760823782530076253342418118532753950587932901212416719129878255565055545816",
   };
 
-  mubintvec modmul3;
-  modmul3.SetModulus(a3);
+  ubintvec modmul3;
     modmul3 = {
     "1031054745145843056820705945780914118282144310817341310210020640625431998591940403233545109350272933868060509405157360000389345101372898822036359679625",
     "39893990336327654775086201222472749396440031633689107793562292818341559091551650098949141027412374031231642492390533436782802979527602128674296589001",
@@ -709,47 +535,58 @@ TEST(UTmubintvec,basic_vector_vector_mod_math_big_numbers){
     "477574462920419903543345320561430691498452711801747910227743781056369739411065806345235440677935972019383967954633150768168291144898135169751571023658",
   };
 
-  mubintvec c3;
-  mubintvec d3;
-  //now Mod operations
-  c3 = a3.ModAdd(b3);
-  EXPECT_EQ (c3, modadd3) << "Failure big number vector vector ModAdd()";    
+  mubint a;
+  a.SetModulus(q3);	// sets a.modulus to q3
+  mubint b;
+  b.SetModulus(q3);	// sets b.modulus
+  mubint c;
+  c.SetModulus(a);	// sets c.modulus to the same as a
 
-  c3 = a3.Add(b3);
-  EXPECT_EQ (c3, modadd3) << "Failure big number vector vector Add()";
+  mubint d;
+  for (auto i = 0; i < a3.length(); i++) {
+    a = a3[i];
+    b= b3[i];
 
-  c3 = a3 + b3;
-  EXPECT_EQ (c3, modadd3) << "Failure big number vector vector +";
+    //now Mod operations
+    c = a.ModAdd(b);
+    EXPECT_EQ (c, modadd3[i]) << "Failure big number vector vector ModAdd()index "<<i;    
 
-  d3 = a3;
-  d3+=b3;
-  EXPECT_EQ (d3, modadd3) << "Failure big number vector vector +=";
+    c = a.Add(b);
+    EXPECT_EQ (c, modadd3[i]) << "Failure big number vector vector Add()index "<<i;
+
+    c = a + b;
+    EXPECT_EQ (c, modadd3[i]) << "Failure big number vector vector +index "<<i;
+
+    d = a;
+    d+=b;
+    EXPECT_EQ (d, modadd3[i]) << "Failure big number vector vector +=index "<<i;
   
-  c3 = a3.ModSub(b3);
-  EXPECT_EQ (c3, modsub3) << "Failure big number vector vector ModSub()";   
+    c = a.ModSub(b);
+    EXPECT_EQ (c, modsub3[i]) << "Failure big number vector vector ModSub()index "<<i;   
   
-  c3 = a3.Sub(b3);
-  EXPECT_EQ (c3, modsub3) << "Failure big number vector vector Sub()";
+    c = a.Sub(b);
+    EXPECT_EQ (c, modsub3[i]) << "Failure big number vector vector Sub()index "<<i;
 
-  c3 = a3 - b3;
-  EXPECT_EQ (c3, modsub3) << "Failure big number vector vector -";
+    c = a - b;
+    EXPECT_EQ (c, modsub3[i]) << "Failure big number vector vector -index "<<i;
 
-  d3 = a3;
-  d3 -= b3;
-  EXPECT_EQ (d3, modsub3) << "Failure big number vector vector -=";
+    d = a;
+    d -= b;
+    EXPECT_EQ (d, modsub3[i]) << "Failure big number vector vector -=index "<<i;
 
-  c3 = a3.ModMul(b3);
-  EXPECT_EQ (c3, modmul3) << "Failure big number vector vector ModMul()";   
+    c = a.ModMul(b);
+    EXPECT_EQ (c, modmul3[i]) << "Failure big number vector vector ModMul()index "<<i;   
 
-  c3 = a3.Mul(b3);
-  EXPECT_EQ (c3, modmul3) << "Failure big number vector vector Mul()";
+    c = a.Mul(b);
+    EXPECT_EQ (c, modmul3[i]) << "Failure big number vector vector Mul()index "<<i;
 
-  c3 = a3 * b3;
-  EXPECT_EQ (c3, modmul3) << "Failure big number vector vector *";
+    c = a * b;
+    EXPECT_EQ (c, modmul3[i]) << "Failure big number vector vector *index "<<i;
 
-  d3 = a3;
-  d3 *= b3;
-  EXPECT_EQ (d3, modmul3) << "Failure big number vector vector *=";
-  
+    d = a;
+    d *= b;
+    EXPECT_EQ (d, modmul3[i]) << "Failure big number vector vector *=index "<<i;
+  }
 }
 
+#endif

@@ -17,7 +17,11 @@ VecType BinaryUniformGeneratorImpl<IntType,VecType>::GenerateVector (const usint
 	v.SetModulus(modulus);
 
 	for (usint i = 0; i < size; i++) {
+#if MATHBACKEND !=6
 		v.SetValAtIndex(i, GenerateInteger());
+#else
+		v.SetValAtIndexWithoutMod(i, GenerateInteger());
+#endif
 	}
 	return v;
 }

@@ -55,7 +55,6 @@
  */
 namespace lbcrypto {
 
-	const usint PRIMALITY_NO_OF_ITERATIONS = 100;  //!< @brief Number of iterations used for primality testing.
 
 	/**
 	 * Finds roots of unity for given input.  Assumes the the input is a power of two. 
@@ -110,38 +109,38 @@ namespace lbcrypto {
 	IntType GreatestCommonDivisor(const IntType& a, const IntType& b);
 
 	/**
-	 * Return result of MillerRabin primality test of a IntType.
+	 * Perform the MillerRabin primality test on an IntType.
 	 * This approach to primality testing is iterative and randomized.  
 	 * It returns false if evidence of non-primality is found, and true if no evidence is found after multiple rounds of testing.  
-	 * The const parameter PRIMALITY_NO_OF_ITERATIONS determines how many rounds are used.
+	 * The const parameter PRIMALITY_NO_OF_ITERATIONS determines how many rounds are used ( set in nbtheory.h).
 	 *
 	 * @param p the candidate prime to test.
+	 * @param niter Number of iterations used for primality
+	 *              testing (default = 100.
 	 * 
-	 * @return false if evidence of non-primality is found.  True is no evidence of non-primality is found.	  
+	 * @return false if evidence of non-primality is found.  True is no evidence of non-primality is found.	
 	 */
 	template<typename IntType>
-	bool MillerRabinPrimalityTest(const IntType& p);
+	  bool MillerRabinPrimalityTest(const IntType& p, const usint niter = 100);
 
 	/**
-	 * Return result of PollardRho factorization of a IntType.
+	 * Perform the PollardRho factorization of a IntType.
 	 * Returns IntType::ONE if no factorization is found.
 	 *
 	 * @param n the value to perform a factorization on.
-	 * 
 	 * @return a factor of n, and IntType::ONE if no other factor is found.
 	 */
 	template<typename IntType>
 	const IntType PollardRhoFactorization(const IntType &n);
 
 	/**
-	 * Recursively factorizes and find the distinct primefactors of a number.
-	 * Clears the input set and returns factors in the set.
-	 *
-	 * @param &n the value to factorize.
-	 * @param &primeFactors the input set which is cleared and then results are returned in.  
+	 * Recursively factorizes to find the distinct primefactors of a number.
+	 * @param &n the value to factorize. [note the value of n is destroyed]
+	 * @param &primeFactors set of factors found [must begin cleared]
+	 Side effects: n is destroyed.  
 	 */
 	template<typename IntType>
-	void PrimeFactorize(const IntType &n, std::set<IntType> &primeFactors);
+	void PrimeFactorize( IntType &n, std::set<IntType> &primeFactors);
 
 	/**
 	 * Finds a Prime Modulus Corresponding to a Given Cyclotomic Number.

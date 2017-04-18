@@ -40,6 +40,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
    silent. dbg_flag does not get used by PROFILELOG()
  */
 
+#include "time.h"
+#include <chrono> //for timing
+
 #if!defined(NDEBUG) 
 
 // note that for the following dbg_flag needs to be defined in some scope

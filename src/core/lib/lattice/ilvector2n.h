@@ -63,6 +63,7 @@ template<typename ModType, typename IntType, typename VecType, typename ParmType
 class ILVectorImpl : public ILElement<ILVectorImpl<ModType,IntType,VecType,ParmType>,ModType,IntType,VecType>
 {
 public:
+
 	typedef ParmType Params;
 	typedef IntType Integer;
 	typedef VecType Vector;
@@ -129,7 +130,7 @@ public:
 	 * @param &params the input params.
 	 * @param format - EVALUATION or COEFFICIENT
 	 */
-	ILVectorImpl(DugType &dug, const shared_ptr<ParmType> params, Format format = EVALUATION);
+	ILVectorImpl( DugType &dug, const shared_ptr<ParmType> params, Format format = EVALUATION);
 
 	/**
 	 *  Create lambda that allocates a zeroed element for the case when it is called from a templated class
@@ -318,7 +319,11 @@ public:
 	 *
 	 * @return value at index i.
 	 */
+#if MATHBACKEND !=6
 	const IntType& GetValAtIndex(usint i) const;
+#else
+    const IntType GetValAtIndex(usint i) const;//DBC changed from returning reference because it broke several functions otherwise. changed back for merge with master... since this is a virtual function.
+#endif
 
 	//SETTERS
 	/**
@@ -331,6 +336,14 @@ public:
 		m_values->SetValAtIndex(index, IntType(val));
 	}
 
+    inline void SetValAtIndexWithoutMod(size_t index, int val) {
+#if MATHBACKEND !=6
+      m_values->SetValAtIndex(index, IntType(val));
+#else
+      m_values->SetValAtIndexWithoutMod(index, IntType(val));
+#endif
+	}
+
 	/**
 	 *  Set VecType value to val
 	 *
@@ -340,6 +353,16 @@ public:
 	inline void SetValAtIndex(size_t index, const IntType& val) {
 		m_values->SetValAtIndex(index, val);
 	}
+    inline void SetValAtIndexWithoutMod(size_t index, const IntType& val) {
+#if MATHBACKEND !=6
+      m_values->SetValAtIndex(index, val);
+#else
+      m_values->SetValAtIndexWithoutMod(index, val);
+#endif
+
+    }
+
+    // SCALAR OPERATIONS
 
 	/**
 	 * Set method of the values.
@@ -391,6 +414,8 @@ public:
 	 */
 	ILVectorImpl Times(const IntType &element) const;
 
+
+    // VECTOR OPERATIONS
 	/**
 	 * Performs an addition operation and returns the result.
 	 *
@@ -429,7 +454,7 @@ public:
 	 * Performs -= operation with a IntType and returns the result.
 	 *
 	 * @param &element is the element to subtract
-	 * @return is the result of the addition.
+     * @return is the result of the subtraction.
 	 */
 	const ILVectorImpl& operator-=(const IntType &element) {
 		SetValues( GetValues().ModSub(element), this->m_format );
@@ -459,7 +484,7 @@ public:
 	 * Performs an subtraction operation and returns the result.
 	 *
 	 * @param &element is the element to subtract
-	 * @return is the result of the addition.
+     * @return is the result of the subtract.
 	 */
 	const ILVectorImpl& operator-=(const ILVectorImpl &element);
 
@@ -531,7 +556,7 @@ public:
 
 	/**
 	 * Interpolates based on the Chinese Remainder Transform Interpolation.
-	 * Does nothing for ILVectorImpl.
+	 * Does nothing for ILVectorImpl. Needed to support the 0linear CRT interpolation in ILVectorArray2n.
 	 *
 	 * @return the original ring element.
 	 */
@@ -726,7 +751,7 @@ public:
 private:
 
 	// stores either coefficient or evaluation representation
-	VecType *m_values;
+    unique_ptr<VecType> m_values;
 
 	// 1 for coefficient and 0 for evaluation format
 	Format m_format;
@@ -749,7 +774,8 @@ private:
 	static const usint m_sampleSize = SAMPLE_SIZE;
 };
 
-}
+} //namespace lbcrypto ends
+
 
 namespace native64 {
 

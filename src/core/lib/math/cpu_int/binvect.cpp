@@ -27,7 +27,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "../../utils/serializable.h"
 #include "../cpu_int/binvect.h"
-//#include "../nbtheory.h"
+#include "../../utils/debug.h"
 
 
 namespace cpu_int {
@@ -138,12 +138,12 @@ BigBinaryVectorImpl<IntegerType>::~BigBinaryVectorImpl(){
 //ACCESSORS
 template<class IntegerType_c>
 std::ostream& operator<<(std::ostream& os, const BigBinaryVectorImpl<IntegerType_c> &ptr_obj){
-
-	os<<std::endl;
-	for(usint i=0;i<ptr_obj.m_length;i++){
-		os<< ptr_obj.m_data[i] <<std::endl;
+        auto len = ptr_obj.m_length;
+        os<<"[";
+	for(usint i=0;i<len;i++){
+	  os<< ptr_obj.m_data[i];
+	  os << ((i == (len-1))?"]":" ");
 	}
-
 	return os;
 }
 
@@ -162,28 +162,41 @@ void BigBinaryVectorImpl<IntegerType>::SetModulus(const IntegerType& value){
 */	
 template<class IntegerType>
 void BigBinaryVectorImpl<IntegerType>::SwitchModulus(const IntegerType& newModulus) {
+    bool dbg_flag = false;
+    DEBUG("Switch modulus old mod :"<<this->m_modulus);
+    DEBUG("Switch modulus old this :"<<*this);
 	
 	IntegerType oldModulus(this->m_modulus);
 	IntegerType n;
 	IntegerType oldModulusByTwo(oldModulus>>1);
 	IntegerType diff ((oldModulus > newModulus) ? (oldModulus-newModulus) : (newModulus - oldModulus));
+	DEBUG("Switch modulus diff :"<<diff);
 	for(usint i=0; i< this->m_length; i++) {
 		n = this->GetValAtIndex(i);
+		DEBUG("i,n "<<i<<" "<< n);
 		if(oldModulus < newModulus) {
 			if(n > oldModulusByTwo) {
+			  DEBUG("s1 "<<n.ModAdd(diff, newModulus));
 				this->SetValAtIndex(i, n.ModAdd(diff, newModulus));
 			} else {
+			  DEBUG("s2 "<<n.Mod(newModulus));
 				this->SetValAtIndex(i, n.Mod(newModulus));
 			}
 		} else {
 			if(n > oldModulusByTwo) {
+			  DEBUG("s3 "<<n.ModSub(diff, newModulus));				
 				this->SetValAtIndex(i, n.ModSub(diff, newModulus));
 			} else {
+			  DEBUG("s4 "<<n.Mod(newModulus));
 				this->SetValAtIndex(i, n.Mod(newModulus));
 			}
 		}
 	}
+	DEBUG("Switch modulus this before set :"<<*this);
 	this->SetModulus(newModulus);
+	DEBUG("Switch modulus new modulus :"<<this->m_modulus);
+	DEBUG("Switch modulus new this :"<<*this);
+
 }
 
 template<class IntegerType>

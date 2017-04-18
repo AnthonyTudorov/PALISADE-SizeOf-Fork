@@ -18,11 +18,26 @@ License Information:
 
 Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
 All rights reserved.
-Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions
+  are met:
+  1. Redistributions of source code must retain the above copyright
+  notice, this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright
+  notice, this list of conditions and the following disclaimer in the
+  documentation and/or other materials provided with the distribution.
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+  COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+  POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "ilvector2n.h"
@@ -46,11 +61,11 @@ namespace lbcrypto {
 	shared_ptr<ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::m_tugSamples_params;
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl() : m_values(NULL), m_format(EVALUATION) {
+	ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl() : m_values(nullptr), m_format(EVALUATION) {
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(const shared_ptr<ParmType> params, Format format, bool initializeElementToZero) : m_values(NULL), m_format(format) {
+	ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(const shared_ptr<ParmType> params, Format format, bool initializeElementToZero) : m_values(nullptr), m_format(format) {
 		m_params = params;
 
 		if (initializeElementToZero) {
@@ -59,7 +74,7 @@ namespace lbcrypto {
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(bool initializeElementToMax, const shared_ptr<ParmType> params, Format format) : m_values(NULL), m_format(format) {
+	ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(bool initializeElementToMax, const shared_ptr<ParmType> params, Format format) : m_values(nullptr), m_format(format) {
 		m_params = params;
 
 		if(initializeElementToMax) {
@@ -76,7 +91,7 @@ namespace lbcrypto {
 		if (format == COEFFICIENT)
 		{
 			usint vectorSize = params->GetCyclotomicOrder() / 2;
-			m_values = new VecType(dgg.GenerateVector(vectorSize, params->GetModulus()));
+			m_values = make_unique<VecType>(dgg.GenerateVector(vectorSize, params->GetModulus()));
 			(*m_values).SetModulus(params->GetModulus());
 			m_format = COEFFICIENT;
 		}
@@ -85,8 +100,7 @@ namespace lbcrypto {
 			PreComputeDggSamples(dgg, m_params);
 
 			const ILVectorImpl<ModType,IntType,VecType,ParmType> randomElement = GetPrecomputedVector();
-			m_values = new VecType(*randomElement.m_values);
-
+			m_values = make_unique<VecType>(*randomElement.m_values);
 			(*m_values).SetModulus(params->GetModulus());
 			m_format = EVALUATION;
 		}
@@ -94,13 +108,13 @@ namespace lbcrypto {
 
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(DugType &dug, const shared_ptr<ParmType> params, Format format) {
+	ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl( DiscreteUniformGeneratorImpl<IntType,VecType> &dug, const shared_ptr<ParmType> params, Format format) {
 
 		m_params = params;
 
 		usint vectorSize = params->GetCyclotomicOrder() / 2;
 		dug.SetModulus(params->GetModulus());
-		m_values = new VecType(dug.GenerateVector(vectorSize));
+		m_values = make_unique<VecType>(dug.GenerateVector(vectorSize));
 		(*m_values).SetModulus(params->GetModulus());
 
 		m_format = COEFFICIENT;
@@ -112,13 +126,13 @@ namespace lbcrypto {
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(const BinaryUniformGeneratorImpl<IntType,VecType> &bug, const shared_ptr<ParmType> params, Format format) {
-
+    bool dbg_flag = false;
 		m_params = params;
 
 		usint vectorSize = params->GetCyclotomicOrder() / 2;
-		m_values = new VecType(bug.GenerateVector(vectorSize, params->GetModulus()));
+		m_values = make_unique<VecType>(bug.GenerateVector(vectorSize, params->GetModulus()));
 		//(*m_values).SetModulus(ilParams.GetModulus());
-
+		DEBUG("why does this have no modulus");
 		m_format = COEFFICIENT;
 
 		if (format == EVALUATION)
@@ -134,7 +148,7 @@ namespace lbcrypto {
 		{
 			//usint vectorSize = EulerPhi(params.GetCyclotomicOrder());
 			usint vectorSize = params->GetCyclotomicOrder() / 2;
-			m_values = new VecType(tug.GenerateVector(vectorSize, params->GetModulus()));
+			m_values = make_unique<VecType>(tug.GenerateVector(vectorSize, params->GetModulus()));
 			(*m_values).SetModulus(params->GetModulus());
 			m_format = COEFFICIENT;
 		}
@@ -143,8 +157,7 @@ namespace lbcrypto {
 			PreComputeTugSamples(tug, m_params);
 
 			const ILVectorImpl randomElement = GetPrecomputedTugVector();
-			m_values = new VecType(*randomElement.m_values);
-
+			m_values = make_unique<VecType>(*randomElement.m_values);
 			(*m_values).SetModulus(params->GetModulus());
 			m_format = EVALUATION;
 		}
@@ -153,29 +166,53 @@ namespace lbcrypto {
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(const ILVectorImpl &element, shared_ptr<ParmType>) : m_params(element.m_params), m_format(element.m_format)
 	{
-		if (element.m_values == NULL) {
-			m_values = NULL;
+   		bool dbg_flag = false;
+    	if (!IsEmpty()){
+      		DEBUG("in ctor & m_values was "<<*m_values);
+    	} else {
+      		DEBUG("in ctor & m_values are empty ");      
 		}
-		else {
-			m_values = new VecType(*element.m_values);
+    	if (element.m_values == nullptr) {
+		     DEBUG("in ctor & m_values copy nullptr ");      
+			 m_values = nullptr;
+    	} else {
+	        
+  		m_values = make_unique<VecType>(*element.m_values); //this is a copy
+      		DEBUG("in ctor & m_values now "<<*m_values);
 		}
 	}
 
+	//this is the move
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&element, shared_ptr<ParmType>) : m_params(element.m_params), m_format(element.m_format),
-		m_values(element.m_values) {
-		element.m_values = NULL;
+ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&element, shared_ptr<ParmType>) : m_params(element.m_params), m_format(element.m_format)
+	   //m_values(element.m_values) //note this becomes move below
+{
+   bool dbg_flag = false;
+    if (!IsEmpty()){
+      DEBUG("in ctor && m_values was "<<*m_values);
+    }else{
+      DEBUG("in ctor && m_values was empty");
+    }
+    if (!element.IsEmpty()) {
+      m_values = std::move(element.m_values);
+      DEBUG("in ctor && m_values was "<<*m_values);
+
+    } else{
+      DEBUG("in ctor && m_values remains empty");
+	m_values = nullptr;
+    }      
+    //element.m_values = nullptr; //remove the reference (actually unnecessary with smart pointers now.
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	const ILVectorImpl<ModType,IntType,VecType,ParmType>& ILVectorImpl<ModType,IntType,VecType,ParmType>::operator=(const ILVectorImpl &rhs) {
 
+
 		if (this != &rhs) {
-			if (m_values == NULL && rhs.m_values != NULL) {
-				m_values = new VecType(*rhs.m_values);
-			}
-			else if (rhs.m_values != NULL) {
-				*this->m_values = *rhs.m_values;
+   		   if (m_values == nullptr && rhs.m_values != nullptr) {
+			m_values = make_unique<VecType>(*rhs.m_values); 
+	      } else if (rhs.m_values != nullptr) {
+			*this->m_values = *rhs.m_values; //this is a BBV copy
 			}
 			this->m_params = rhs.m_params;
 			this->m_format = rhs.m_format;
@@ -215,10 +252,10 @@ namespace lbcrypto {
 	const ILVectorImpl<ModType,IntType,VecType,ParmType>& ILVectorImpl<ModType,IntType,VecType,ParmType>::operator=(ILVectorImpl &&rhs) {
 
 		if (this != &rhs) {
-			if (m_values)
-				delete m_values;
-			m_values = rhs.m_values;
-			rhs.m_values = NULL;
+      //if (m_values) //DBC removed delete,
+      //delete m_values; no need to delete smart pointer.
+      m_values = std::move(rhs.m_values); // copy reference
+      //rhs.m_values = nullptr; 
 			m_params = rhs.m_params;
 			m_format = rhs.m_format;
 		}
@@ -229,35 +266,33 @@ namespace lbcrypto {
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::CloneParametersOnly() const {
 		ILVectorImpl<ModType,IntType,VecType,ParmType> result(this->m_params, this->m_format);
-		return std::move(result);
+		return std::move(result);//TODO should we instead rely on RVO? 
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::CloneWithNoise(const DiscreteGaussianGeneratorImpl<IntType,VecType> &dgg, Format format) const {
 		ILVectorImpl<ModType,IntType,VecType,ParmType> result(dgg, m_params, format);
-		return std::move(result);
+		return std::move(result);//TODO should we instead rely on RVO? 
 	}
 
 	//If this is in EVALUATION then just set all the values = val
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	const ILVectorImpl<ModType,IntType,VecType,ParmType>& ILVectorImpl<ModType,IntType,VecType,ParmType>::operator=(usint val) {
 		m_format = EVALUATION;
-		if (m_values == NULL)
-			m_values = new VecType(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus());
-
+		if (m_values == nullptr){
+			m_values = make_unique<VecType>(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus());
+		}
 		for (size_t i = 0; i < m_values->GetLength(); ++i) {
 			this->SetValAtIndex(i, val);
 		}
-
 		return *this;
-
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	ILVectorImpl<ModType,IntType,VecType,ParmType>::~ILVectorImpl()
 	{
-		if (m_values)
-			delete m_values;
+    //if (m_values)
+    //  delete m_values; //DBC removed no need with  smart poiners
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
@@ -286,7 +321,7 @@ namespace lbcrypto {
 	Format ILVectorImpl<ModType,IntType,VecType,ParmType>::GetFormat() const {
 		return m_format;
 	}
-
+#if MATHBACKEND !=6
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	const IntType& ILVectorImpl<ModType,IntType,VecType,ParmType>::GetValAtIndex(usint i) const
 	{
@@ -294,6 +329,20 @@ namespace lbcrypto {
 			throw std::logic_error("No values in ILVectorImpl");
 		return m_values->GetValAtIndex(i);
 	}
+#else
+	template<typename ModType, typename IntType, typename VecType, typename ParmType>
+	const IntType ILVectorImpl<ModType,IntType,VecType,ParmType>::GetValAtIndex(usint i) const
+  {
+    bool dbg_flag = false;
+    if( m_values == nullptr )
+      throw std::logic_error("No values in ILVectorImpl");
+
+    DEBUG("GetValAtIndex: m_values->GetValAtIndex("<<i<<") :"<<m_values->GetValAtIndex(i));
+    const IntType tmp =  m_values->GetValAtIndex(i); //dbc tmp for debug
+    DEBUG("GetValAtIndex: returning tmp "<<tmp);
+    return tmp;
+  }
+#endif
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	usint ILVectorImpl<ModType,IntType,VecType,ParmType>::GetLength() const {
@@ -305,34 +354,43 @@ namespace lbcrypto {
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	void ILVectorImpl<ModType,IntType,VecType,ParmType>::SetValues(const VecType& values, Format format) {
 		if (m_params->GetRootOfUnity() == IntType::ZERO || m_params->GetCyclotomicOrder() / 2 != values.GetLength() || m_params->GetModulus() != values.GetModulus()) {
-			throw std::logic_error("Exisiting m_params do not match with the input parameter VecType& values.\n");
+		  std::cout<<"ILVectorImpl::SetValues warning, mismatch in parameters"<<std::endl;
+		  if (m_params->GetRootOfUnity() == IntType::ZERO){
+		    std::cout<<"m_params->GetRootOfUnity "<<m_params->GetRootOfUnity()<<std::endl;}
+		  if (m_params->GetCyclotomicOrder() / 2 != values.GetLength()){
+		    std::cout<<"m_params->GetCyclotomicOrder/2 "<<m_params->GetCyclotomicOrder()/2<<std::endl;
+		    std::cout<<"!= values.GetLength()"<< values.GetLength() <<std::endl;
 		}
-		if (m_values != NULL) {
-			delete m_values;
+		  if ( m_params->GetModulus() != values.GetModulus()) {
+		    std::cout<<"m_params->GetModulus() "<<m_params->GetModulus()<<std::endl;
+		    std::cout<<"values->GetModulus() "<<values.GetModulus()<<std::endl;
 		}
-		m_values = new VecType(values);
+		  //throw std::logic_error("Exisiting m_params do not match with the input parameter IntType& values.\n");
+		  // if (m_values != nullptr) { //dbc no need with smart pointers
+		  //   delete m_values;
+		  // }
+		}
+		m_values = make_unique<VecType>(values);
 		m_format = format;
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	void ILVectorImpl<ModType,IntType,VecType,ParmType>::SetValuesToZero() {
-		if (m_values != NULL) {
-			delete m_values;
-		}
-		m_values = new VecType(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus());
+		//if (m_values != NULL) { //dbc no need with smart pointers
+		//	delete m_values;
+		//}
+	        m_values = make_unique<VecType>(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus());
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	void ILVectorImpl<ModType,IntType,VecType,ParmType>::SetValuesToMax() {
-		if (m_values != NULL) {
-			delete m_values;
-		}
+		//if (m_values != NULL) { //dbc no need with smart pointers
+		//	delete m_values;
+		//}
 
 		IntType max = m_params->GetModulus() - IntType::ONE;
 		usint size = m_params->GetCyclotomicOrder()/2;
-		m_values = new VecType(m_params->GetCyclotomicOrder()/2, m_params->GetModulus());
-
-
+		m_values = make_unique<VecType>(m_params->GetCyclotomicOrder()/2, m_params->GetModulus());
 		for (usint i = 0; i < size; i++) {
 			IntType temp(max);
 			//IntType temp("2475880078570760549798268928");
@@ -430,13 +488,11 @@ namespace lbcrypto {
 		if (!(*this->m_params == *element.m_params))
 			throw std::logic_error("operator+= called on ILVectorImpl's with different params.");
 
-		if (m_values == NULL) {
-			m_values = new VecType(*element.m_values);
+		if (m_values == nullptr) {
+		        m_values = make_unique<VecType>(*element.m_values);
 			return *this;
 		}
-
 		SetValues( m_values->ModAdd(*element.m_values), this->m_format );
-
 		return *this;
 	}
 
@@ -444,8 +500,11 @@ namespace lbcrypto {
 	const ILVectorImpl<ModType,IntType,VecType,ParmType>& ILVectorImpl<ModType,IntType,VecType,ParmType>::operator-=(const ILVectorImpl &element) {
 		if (!(*this->m_params == *element.m_params))
 			throw std::logic_error("operator-= called on ILVectorImpl's with different params.");
-		if (m_values == NULL)
-			m_values = new VecType(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus());
+		if (m_values == nullptr) {
+
+		        m_values = make_unique<VecType>(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus());
+			//TODO:: is this a bug? it is not the same as +=
+		}
 		SetValues( m_values->ModSub(*element.m_values), this->m_format );
 		return *this;
 	}
@@ -459,10 +518,10 @@ namespace lbcrypto {
 		if (!(*this->m_params == *element.m_params))
 			throw std::logic_error("operator*= called on ILVectorImpl's with different params.");
 
-		if (m_values == NULL)
-			m_values = new VecType(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus());
+		if (m_values == nullptr){
+                        m_values = make_unique<VecType>(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus());
+		}
 		SetValues( m_values->ModMul(*element.m_values), this->m_format );
-
 		return *this;
 	}
 
@@ -525,6 +584,7 @@ namespace lbcrypto {
 		tmp.SetValues( GetValues().ModByTwo(), this->m_format );
 		return std::move( tmp );
 	}
+  //TODO: why is this called Signed Mod, should BBV.Mod be called signed mod too?
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::SignedMod(const IntType & modulus) const {
@@ -543,25 +603,41 @@ namespace lbcrypto {
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	void ILVectorImpl<ModType,IntType,VecType,ParmType>::SwitchFormat() {
+
+	        bool dbg_flag = false;
+		if (m_values == nullptr) {
+		  std::string errMsg = "ILVector2n switch format to empty values";
+		  throw std::runtime_error(errMsg);
+		}
+    
 		if (m_format == COEFFICIENT) {
 			m_format = EVALUATION;
-			if (m_values != NULL)
-				*m_values = ChineseRemainderTransformFTT<IntType,VecType>::GetInstance().ForwardTransform(*m_values, m_params->GetRootOfUnity(), m_params->GetCyclotomicOrder());
+			//todo:: does this have an extra copy? 
+			DEBUG("transform to evaluation m_values was"<< *m_values);						  
+
+			m_values = make_unique<VecType>(ChineseRemainderTransformFTT<IntType,VecType>::GetInstance()
+							.ForwardTransform(*m_values, m_params->GetRootOfUnity(), 
+									  m_params->GetCyclotomicOrder()));
+			DEBUG("m_values now "<< *m_values);						  
 		}
 		else {
 			m_format = COEFFICIENT;
-			if (m_values != NULL)
-				*m_values = ChineseRemainderTransformFTT<IntType,VecType>::GetInstance().InverseTransform(*m_values, m_params->GetRootOfUnity(), m_params->GetCyclotomicOrder());
+			DEBUG("transform to coefficient m_values was"<< *m_values);						  
+
+			m_values = make_unique<VecType>(ChineseRemainderTransformFTT<IntType,VecType>::GetInstance()
+							.InverseTransform(*m_values, m_params->GetRootOfUnity(), 
+									  m_params->GetCyclotomicOrder()));
+			DEBUG("m_values now "<< *m_values);						  
+
 		}
 	}
-
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	void ILVectorImpl<ModType,IntType,VecType,ParmType>::PrintValues() const {
-		if (m_values != NULL) {
+		if (m_values != nullptr) {
 			std::cout << *m_values;
 			std::cout << " mod:" << m_values->GetModulus() << std::endl;
 		}
-		if (m_params.get() != NULL) {
+		if (m_params.get() != nullptr) {
 			std::cout << " rootOfUnity: " << this->GetRootOfUnity() << std::endl;
 		}
 		else {
@@ -610,7 +686,7 @@ namespace lbcrypto {
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	bool ILVectorImpl<ModType,IntType,VecType,ParmType>::IsEmpty() const {
-		if (m_values == NULL)
+		if (m_values == nullptr)
 			return true;
 
 		return false;
@@ -717,7 +793,7 @@ namespace lbcrypto {
 			{
 				ILVectorImpl current(m_dggSamples_params);
 				usint vectorSize = m_dggSamples_params->GetCyclotomicOrder() / 2;
-				current.m_values = new VecType(dgg.GenerateVector(vectorSize, m_dggSamples_params->GetModulus()));
+				current.m_values = make_unique<VecType>(dgg.GenerateVector(vectorSize, m_dggSamples_params->GetModulus()));
 				current.m_values->SetModulus(m_dggSamples_params->GetModulus());
 				current.m_format = COEFFICIENT;
 
@@ -750,7 +826,7 @@ namespace lbcrypto {
 			{
 				ILVectorImpl current(m_tugSamples_params);
 				usint vectorSize = m_tugSamples_params->GetCyclotomicOrder() / 2;
-				current.m_values = new VecType(tug.GenerateVector(vectorSize, m_tugSamples_params->GetModulus()));
+				current.m_values = make_unique<VecType>(tug.GenerateVector(vectorSize, m_tugSamples_params->GetModulus()));
 				current.m_values->SetModulus(m_tugSamples_params->GetModulus());
 				current.m_format = COEFFICIENT;
 

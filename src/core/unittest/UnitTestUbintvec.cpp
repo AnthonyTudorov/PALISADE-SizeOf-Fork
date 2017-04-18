@@ -12,7 +12,7 @@
  *
  *  Copyright (c) 2015, New Jersey Institute of Technology (NJIT) All
  *  rights reserved.  Redistribution and use in source and binary forms,
- *  with or without modification, are permitted provided that the
+ *  with or without modification,
  *  following conditions are met: 1. Redistributions of source code must
  *  retain the above copyright notice, this list of conditions and the
  *  following disclaimer.  2. Redistributions in binary form must
@@ -166,6 +166,8 @@ TEST(UTubintvec,ctor_access_eq_neq){
   EXPECT_EQ(ubint(33),n[3])<< "Failure in SetValAtIndex(ubint)";
   EXPECT_EQ(ubint(7),n[4])<< "Failure in SetValAtIndex(ubint)";
 
+
+
   m+=n;
 
   usint expectedResult[5] = {9872,5888,4620,2376,4631};
@@ -174,6 +176,7 @@ TEST(UTubintvec,ctor_access_eq_neq){
     EXPECT_EQ (expectedResult[i], (m.GetValAtIndex(j)).ConvertToUsint())
       << "Failure testing method_plus_equals";
   }
+
   //test initializer list of various types
   ubintvec expectedvecstr(5);
   expectedvecstr = {"9872","5888","4620","2376","4631"}; //strings
@@ -202,14 +205,14 @@ TEST(UTubintvec,ctor_access_eq_neq){
   EXPECT_EQ ( 10, eqtest.size()) << "Failure create ubintvec of 10 zeros";
 
   for (i = 0; i< eqtest.size(); i++) {
-    EXPECT_EQ ( ubint(0U), eqtest[i]) << "Failure create ubintvec of zeros";
+    EXPECT_EQ ( ubint(0), eqtest[i]) << "Failure create ubintvec of zeros";
   }
 
   // test assignment of single ubint
   eqtest = ubint(1);
   EXPECT_EQ (ubint(1),  eqtest[0]) << "Failure assign single ubint 0 index";
   for (i = 1; i< eqtest.size(); i++) {
-    EXPECT_EQ ( ubint(0U), eqtest[i]) << "Failure assign single ubint nonzero index";
+    EXPECT_EQ ( ubint(0), eqtest[i]) << "Failure assign single ubint nonzero index";
   }
 
   // test assignment of single usint
@@ -218,6 +221,7 @@ TEST(UTubintvec,ctor_access_eq_neq){
   for (i = 1; i< eqtest.size(); i++) {
     EXPECT_EQ ( ubint(0U), eqtest[i]) << "Failure assign single ubint nonzero index";
   }
+
 
   //test comparisons == and !=
   m = n;
@@ -237,7 +241,6 @@ TEST(UTubintvec,ctor_access_eq_neq){
   }
   test1 = m==n;
   EXPECT_TRUE(test1)<<"Failure [] lhs rhs";
-
 
 }
 
@@ -269,7 +272,6 @@ TEST(UTubintvec,mod){
       EXPECT_EQ (expectedResult[i], (calculatedResult.GetValAtIndex(j)).ConvertToUsint());
     }
 }
-
 
 TEST(UTubintvec,basic_vector_scalar_math_1_limb){
   //basic vector math with 1 limb entries
@@ -377,7 +379,7 @@ TEST(UTubintvec,basic_vector_vector_math_1_limb){
 	  "160515", "083430", };
 
   // sub1:
-#if 0 //set to 1 if we allow b>a in subtraction
+#if 0//set to 1 if we allow b>a in subtraction
   std::vector<std::string>  sub1sv = 
     {"060980", "008134",
      "18446744073709426615", "18446744073709433083",
@@ -446,6 +448,7 @@ TEST(UTubintvec,basic_vector_vector_math_1_limb){
   d1 -= b1;
   EXPECT_EQ (d1, sub1) << "Failure 1 limb vector vector -=";
 
+
   c1 = a1.Mul(b1);
   EXPECT_EQ (c1, mul1) << "Failure 1 limb vector vector Mul()";
 
@@ -455,6 +458,7 @@ TEST(UTubintvec,basic_vector_vector_math_1_limb){
   d1 = a1;
   d1 *= b1;
   EXPECT_EQ (d1, mul1) << "Failure 1 limb vector vector *=";
+
 }
 
 
@@ -585,6 +589,7 @@ TEST(UTubintvec,basic_vector_vector_mod_math_1_limb){
   EXPECT_EQ (c1, modadd1) << "Failure 1 limb vector scalar %";   
 
 }
+
 
 TEST(UTubintvec,basic_vector_scalar_math_2_limb){
   //basic vector math with 2 limb entries
@@ -1072,3 +1077,4 @@ TEST(UTubintvec,basic_vector_vector_mod_math_big_numbers){
   EXPECT_EQ (c3, modmul3) << "Failure big number vector vector ModMul()";   
   
 }
+

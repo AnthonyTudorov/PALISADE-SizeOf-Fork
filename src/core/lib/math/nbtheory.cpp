@@ -52,26 +52,29 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 //define DEBUG_ROOTS_OF_UNITY
 
 namespace lbcrypto {
+  //todo: more substitutions here
 
 template BigBinaryInteger RootOfUnity<BigBinaryInteger>(usint m, const BigBinaryInteger& modulo);
 template std::vector<BigBinaryInteger> RootsOfUnity(usint m, const std::vector<BigBinaryInteger> moduli);
 template BigBinaryInteger GreatestCommonDivisor(const BigBinaryInteger& a, const BigBinaryInteger& b);
-template bool MillerRabinPrimalityTest(const BigBinaryInteger& p);
+  template bool MillerRabinPrimalityTest(const BigBinaryInteger& p, const usint niter);
 template const BigBinaryInteger PollardRhoFactorization(const BigBinaryInteger &n);
-template void PrimeFactorize(const BigBinaryInteger &n, std::set<BigBinaryInteger> &primeFactors);
+template void PrimeFactorize( BigBinaryInteger &n, std::set<BigBinaryInteger> &primeFactors);
 template BigBinaryInteger FindPrimeModulus(usint m, usint nBits);
 template void NextQ(BigBinaryInteger &q, const BigBinaryInteger &plainTextModulus, const usint &ringDimension, const BigBinaryInteger &sigma, const BigBinaryInteger &alpha);
 
 // FIXME the MATH_BACKEND check is a hack and needs to go away
 #if MATHBACKEND != 7
+#ifndef NO_MATHBACKEND_7
 template native64::BigBinaryInteger RootOfUnity<native64::BigBinaryInteger>(usint m, const native64::BigBinaryInteger& modulo);
 template std::vector<native64::BigBinaryInteger> RootsOfUnity(usint m, const std::vector<native64::BigBinaryInteger> moduli);
 template native64::BigBinaryInteger GreatestCommonDivisor(const native64::BigBinaryInteger& a, const native64::BigBinaryInteger& b);
-template bool MillerRabinPrimalityTest(const native64::BigBinaryInteger& p);
+  template bool MillerRabinPrimalityTest(const native64::BigBinaryInteger& p, const usint niter);
 template const native64::BigBinaryInteger PollardRhoFactorization(const native64::BigBinaryInteger &n);
-template void PrimeFactorize(const native64::BigBinaryInteger &n, std::set<native64::BigBinaryInteger> &primeFactors);
+template void PrimeFactorize( native64::BigBinaryInteger &n, std::set<native64::BigBinaryInteger> &primeFactors);
 template native64::BigBinaryInteger FindPrimeModulus(usint m, usint nBits);
 template void NextQ(native64::BigBinaryInteger &q, const native64::BigBinaryInteger &plainTextModulus, const usint &ringDimension, const native64::BigBinaryInteger &sigma, const native64::BigBinaryInteger &alpha);
+#endif
 #endif
 }
 
@@ -82,10 +85,11 @@ namespace lbcrypto {
 	Input: BigBinaryInteger n.
 	Output: Randomly generated BigBinaryInteger between 0 and n.
 */
+
+
 template<typename IntType>
 static IntType RNG(const IntType& modulus)
  {
-
 	// static parameters for the 32-bit unsigned integers used for multiprecision random number generation
 	static const usint chunk_min = 0;
 	static const usint chunk_width = std::numeric_limits<uint32_t>::digits;
@@ -130,7 +134,7 @@ static IntType RNG(const IntType& modulus)
 		// Generate a uniform number for the remainder
 		// If not 1, i.e., the modulus is either 1 or a power of 2*CHUNK_WIDTH
 		if (temp.GetMSB() != 1)
-		{
+ {
 			uint32_t bound = temp.ConvertToInt();
 
 			// default generator for the most significant chunk of the multiprecision number
@@ -150,9 +154,16 @@ static IntType RNG(const IntType& modulus)
 	// and the bits in the following chunk of the result are larger than in the modulus
 
 	return result;
-
-}
-
+ }
+#if MATHBACKEND ==6
+//native NTL version
+  static NTL::myZZ RNG(const NTL::myZZ& modulus)
+  {
+    
+    return RandomBnd(modulus);
+    
+  }
+#endif
 /*
 	A witness function used for the Miller-Rabin Primality test.
 	Inputs: a is a randomly generated witness between 2 and p-1,
@@ -188,25 +199,26 @@ static IntType FindGenerator(const IntType& q)
 	bool dbg_flag = false;
  	std::set<IntType> primeFactors;
 	DEBUG("calling PrimeFactorize");
- 	PrimeFactorize<IntType>(q-IntType::ONE, primeFactors);
+
+	IntType qm1 = q-IntType::ONE;
+	IntType qm2 = q-IntType::TWO;
+	IntType tmp = qm1;
+ 	PrimeFactorize<IntType>(tmp, primeFactors); //tmp destroyed
 	DEBUG("done");
  	bool generatorFound = false;
  	IntType gen;
  	while(!generatorFound) {
  		usint count = 0;
 		DEBUG("count "<<count);
- 		gen = RNG(q-IntType::TWO).ModAdd(IntType::ONE, q);
+ 		//gen = RNG(qm2).ModAdd(IntType::ONE, q); //modadd note needed
+		gen = RNG(qm2)+IntType::ONE; 
+
  		for(auto it = primeFactors.begin(); it != primeFactors.end(); ++it) {
 		  DEBUG("in set");
-		  DEBUG("divide "<< (q-IntType::ONE).ToString()
-			<<" by "<< (*it).ToString()); 
+		  DEBUG("divide "<< qm1 <<" by "<< *it);
 
- 			IntType exponent = (q-IntType::ONE).DividedBy(*it);
-			DEBUG("calling modexp "<<gen.ToString()
-			      <<" exponent "<<exponent.ToString()
-			      <<" q "<<q.ToString());
- 			if(gen.ModExp(exponent, q) == IntType::ONE) break;
- 			else count++;
+		  if(gen.ModExp(qm1/(*it), q) == IntType::ONE) break;
+		  else count++;
  		}
  		if(count == primeFactors.size()) generatorFound = true;
  	}
@@ -356,20 +368,31 @@ IntType GreatestCommonDivisor(const IntType& a, const IntType& b)
 	DEBUG("GCD ret "<<m_a.ToString());		  
 	return m_a;
  }
-
-/*
-	The Miller-Rabin Primality Test
-	Input: p the number to be tested for primality.
-	Output: true if p is prime,
-			false if p is not prime
-*/
-template<typename IntType>
-bool MillerRabinPrimalityTest(const IntType& p)
- {
+  
+#if MATHBACKEND ==6
+  //define an NTL native implementation 
+  NTL::myZZ GreatestCommonDivisor(const NTL::myZZ& a, const NTL::myZZ& b)
+  {
+  bool dbg_flag = false;
+  DEBUG("NTL::GCD a "<<a<<" b "<< b);   
+  return GCD(a,b);
+}
+#endif
+  
+  /*
+    The Miller-Rabin Primality Test
+    Input: p the number to be tested for primality.
+    Output: true if p is prime,
+    false if p is not prime
+  */
+  template<typename IntType>
+  bool MillerRabinPrimalityTest(const IntType& p, const usint niter)
+  {
  	if(p < IntType::TWO || ((p != IntType::TWO) && (p.Mod(IntType::TWO) == IntType::ZERO)))
  		return false;
  	if(p == IntType::TWO || p == IntType::THREE || p == IntType::FIVE)
  		return true;
+
  	IntType d = p-IntType::ONE;
  	usint s = 0;
  	while(d.Mod(IntType::TWO) == IntType::ZERO) {
@@ -377,7 +400,7 @@ bool MillerRabinPrimalityTest(const IntType& p)
  		s++;
  	}
  	bool composite = true;
- 	for(int i=0; i<PRIMALITY_NO_OF_ITERATIONS; i++) {
+ 	for(int i=0; i<niter; i++) {
  		IntType a = RNG(p-IntType::THREE).ModAdd(IntType::TWO, p);
  		composite = (WitnessFunction(a, d, s, p));
 		if(composite)
@@ -385,6 +408,21 @@ bool MillerRabinPrimalityTest(const IntType& p)
 	}
 	return (!composite);
  }
+
+
+#if MATHBACKEND ==6
+  //NTL native version
+bool MillerRabinPrimalityTest(const NTL::myZZ& p, const usint niter)
+ {
+ 	if(p < NTL::myZZ::TWO || ((p != NTL::myZZ::TWO) && 
+	(p.Mod(NTL::myZZ::TWO) == NTL::myZZ::ZERO)))
+ 		return false;
+ 	if(p == NTL::myZZ::TWO || p == NTL::myZZ::THREE || p == NTL::myZZ::FIVE)
+ 		return true;
+
+	return (bool) ProbPrime(p, niter); //TODO: check to see if niter >maxint
+}
+#endif
 
 /*
 	The Pollard Rho factorization of a number n.
@@ -405,7 +443,7 @@ const IntType PollardRhoFactorization(const IntType &n)
  	if(n.Mod(IntType::TWO) == IntType::ZERO)
  		return IntType(IntType::TWO);
 
-#if MATHBACKEND > 6
+#if MATHBACKEND == 6 || MATHBACKEND == 7
 	IntType mu(IntType::ONE);
 #else
 	//Precompute the Barrett mu parameter
@@ -432,32 +470,92 @@ const IntType PollardRhoFactorization(const IntType &n)
 		   primeFactors is a set of prime factors of n. All initial values are cleared.
 */
 template<typename IntType>
-void PrimeFactorize(const IntType &n, std::set<IntType> &primeFactors)
+void PrimeFactorize( IntType &n, std::set<IntType> &primeFactors)
  {
    bool dbg_flag = false;
-
+   DEBUG("PrimeFactorize "<<n);
+#if 1 
 	// primeFactors.clear();
-        DEBUG("In PrimeFactorize ");
-	DEBUG("n " <<n.ToString());
+        DEBUG("In PrimeFactorize n " <<n);
 	DEBUG("set size "<< primeFactors.size());
+
  	if(n == IntType::ONE) return;
  	if(MillerRabinPrimalityTest(n)) {
 	        DEBUG("Miller true");
  		primeFactors.insert(n);
  		return;
  	}
-	DEBUG("calling PrFact "<<n.ToString());
-	IntType tmp2(PollardRhoFactorization(n));
-	DEBUG("tmp2  "<<tmp2.ToString());
-	IntType divisor(tmp2);
-	DEBUG("calling PF "<<divisor.ToString());
+
+	DEBUG("calling PrFact n "<<n);
+	IntType divisor(PollardRhoFactorization(n));
+
+	DEBUG("calling PF "<<divisor);
  	PrimeFactorize(divisor, primeFactors);
-	DEBUG("calling div "<<divisor.ToString());
-	IntType tmp = n.DividedBy(divisor);
-	DEBUG("result tmp "<<tmp.ToString());
-	IntType reducedN(tmp);
-	DEBUG("calling PF "<<reducedN.ToString());
-	PrimeFactorize(reducedN, primeFactors);
+
+	DEBUG("calling div "<<divisor);
+	//IntType reducedN = n.DividedBy(divisor);
+	n /= divisor;
+
+	DEBUG("calling PF reduced n "<<n);
+	PrimeFactorize(n, primeFactors);
+#else
+	//do not take a recursive approach -- therein lies memory issues.
+	//do it iteratively.
+	howevere this may be way slower!!!!
+
+	IntType n(nin); //because nin is const!
+	//first check if prime
+	if(nin == IntType::ONE) return;
+ 	if(MillerRabinPrimalityTest(nin)) {
+	        DEBUG("Miller true");
+ 		primeFactors.insert(nin);
+ 		return;
+ 	}
+	while (n%IntType::TWO ==IntType::ZERO) {
+	  primeFactors.insert(IntType::TWO); //note may have to only insert one. 
+	  DEBUG(IntType::TWO);
+	  n >>=1; //n = n/2;
+	}
+	// n must be odd at this point.  So we can skip 
+	// one element (Note i = i +2)
+
+	IntType stopval = n; //should be sqrt(n) 
+
+	usint nbits = n.GetMSB();
+	nbits /=2;
+	stopval = IntType::ONE<<nbits;
+	for (IntType i = IntType::THREE; i <= stopval; i += IntType::TWO){
+	  
+	  if(MillerRabinPrimalityTest(nin)) {
+	    DEBUG("Miller true");
+	    primeFactors.insert(nin);
+	    return;
+	  }
+
+	  // While i divides n, print i and divide n
+	  //note we can use a remdiv() function
+	  while (n%i == IntType::ZERO) {
+	    primeFactors.insert(i);
+	    DEBUG(i);
+	    n /= i;
+	  }
+	}
+	
+	// This condition is to handle the case when n 
+	// is a prime number greater than 2
+	if (n > IntType::TWO){
+	  primeFactors.insert(n);
+	  DEBUG(n);
+	}
+	DEBUG("returning primeFactors ");	
+	for (auto it=primeFactors.begin(); it!=primeFactors.end(); ++it)
+	  DEBUG(*it);
+
+	return;
+
+#endif
+
+
  }
 
 /*
@@ -534,6 +632,7 @@ void NextQ(IntType &q, const IntType &plainTextModulus, const usint &ringDimensi
 */
 usint ModInverse(usint a, usint b)
 {
+
 	usint b0 = b, t, q;
 	usint x0 = 0, x1 = 1;
 	if (b == 1) return 1;
@@ -543,6 +642,8 @@ usint ModInverse(usint a, usint b)
 		t = x0, x0 = x1 - q * x0, x1 = t;
 	}
 	if (x1 < 0) x1 += b0;
+	//TODO: x1 is never < 0
+
 	return x1;
 }
 

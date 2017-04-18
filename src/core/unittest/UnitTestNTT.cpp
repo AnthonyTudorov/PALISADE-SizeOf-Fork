@@ -124,6 +124,8 @@ TEST(UTNTT, switch_format_simple_double_crt) {
 
 	}
 
+	DiscreteGaussianGenerator dgg(init_stdDev);
+
 	shared_ptr<ILDCRTParams> params( new ILDCRTParams(init_m, init_moduli, init_rootsOfUnity) );
 
 	ILVectorArray2n x1(params, Format::COEFFICIENT);
@@ -145,6 +147,7 @@ TEST(UTNTT, switch_format_simple_double_crt) {
 }
 
 TEST(UTNTT, switch_format_decompose_single_crt) {
+        bool dbg_flag = false;
 	usint m1 = 16;
 
 	native64::BigBinaryInteger modulus("1");
@@ -180,11 +183,18 @@ TEST(UTNTT, switch_format_decompose_single_crt) {
 	native64::ILVector2n x2Expected(params2, Format::COEFFICIENT);
 	x2Expected = { 4127,1987,6541,9741 };
 
+	DEBUG("x1: "<<x1);
+	DEBUG("x1: "<<x1Expected);
+
+	DEBUG("x2: "<<x2);
+	DEBUG("x2: "<<x2Expected);
+
 	EXPECT_EQ(x1, x1Expected);
 	EXPECT_EQ(x2, x2Expected);
 }
 
 TEST(UTNTT, decomposeMult_double_crt) {
+  bool dbg_flag = false;
 	usint init_m = 16;
 
 	float init_stdDev = 4;
@@ -204,6 +214,8 @@ TEST(UTNTT, decomposeMult_double_crt) {
 	for (int i = 0; i < init_size; i++) {
 		init_rootsOfUnity[i] = RootOfUnity(init_m, init_moduli[i]);
 	}
+
+	DiscreteGaussianGenerator dgg(init_stdDev);
 
 	shared_ptr<ILDCRTParams> params( new ILDCRTParams(init_m, init_moduli, init_rootsOfUnity) );
 
@@ -232,6 +244,10 @@ TEST(UTNTT, decomposeMult_double_crt) {
 
 	resultsEval.SwitchFormat(); // COEF
 
+
+	DEBUG("resultsEval ix 0: "<<resultsEval.GetElementAtIndex(0).GetValues());
+	DEBUG("resultsEval ix 1: "<<resultsEval.GetElementAtIndex(1).GetValues());
+
 	EXPECT_EQ(resultsEval.GetElementAtIndex(0).GetValAtIndex(0), native64::BigBinaryInteger::ZERO);
 	EXPECT_EQ(resultsEval.GetElementAtIndex(0).GetValAtIndex(1), native64::BigBinaryInteger::ZERO);
 	EXPECT_EQ(resultsEval.GetElementAtIndex(0).GetValAtIndex(2), native64::BigBinaryInteger("17728"));
@@ -244,6 +260,7 @@ TEST(UTNTT, decomposeMult_double_crt) {
 }
 
 TEST(UTNTT, decomposeMult_single_crt) {
+  bool dbg_flag = false;
 	usint m1 = 16;
 
 	BigBinaryInteger modulus("17729");
@@ -252,12 +269,13 @@ TEST(UTNTT, decomposeMult_single_crt) {
 	shared_ptr<ILParams> params2( new ILParams(m1 / 2, modulus, rootOfUnity) );
 
 	ILVector2n x1(params, Format::COEFFICIENT);
+
 	x1 = { 0,0,0,0,0,0,1,0 };
 
 	ILVector2n x2(params, Format::COEFFICIENT);
 	x2 = { 0,0,0,0,0,0,1,0 };
 
-	x1.SwitchFormat();
+	x1.SwitchFormat(); //dbc remember to remove thtese. 
 	x2.SwitchFormat();
 	x1.SwitchFormat();
 	x2.SwitchFormat();
@@ -265,17 +283,28 @@ TEST(UTNTT, decomposeMult_single_crt) {
 	x1.Decompose();
 	x2.Decompose();
 
+	DEBUG("x1.Decompose() "<<x1.GetValues());
+	DEBUG("x2.Decompose() "<<x2.GetValues());
+
 	ILVector2n resultsEval(params2, Format::EVALUATION);
+	DEBUG("resultsEval.modulus"<< resultsEval.GetModulus());
 
 	x1.SwitchFormat();
 	x2.SwitchFormat();
 
+	DEBUG("x1.SwitchFormat() "<<x1.GetValues());
+	DEBUG("x2.SwitchFormat() "<<x2.GetValues());
+
 	resultsEval = x1*x2;
+	DEBUG("resultsEval.eval "<<resultsEval.GetValues());
 
 	resultsEval.SwitchFormat(); // COEF	
+	DEBUG("resultsEval.coef "<<resultsEval.GetValues());
+	DEBUG("resultsEval.modulus"<< resultsEval.GetModulus());
 
 	EXPECT_EQ(resultsEval.GetValAtIndex(0), BigBinaryInteger::ZERO);
 	EXPECT_EQ(resultsEval.GetValAtIndex(1), BigBinaryInteger::ZERO);
 	EXPECT_EQ(resultsEval.GetValAtIndex(2), BigBinaryInteger("17728"));
 	EXPECT_EQ(resultsEval.GetValAtIndex(3), BigBinaryInteger::ZERO);
+
 }

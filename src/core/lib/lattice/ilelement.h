@@ -134,7 +134,12 @@ public:
 	 * @param i
 	 * @return will throw a logic_error.
 	 */
+	//dbc changed this to non ref return
+#if MATHBACKEND !=6
 	virtual const IntType& GetValAtIndex(usint i) const {
+#else
+	virtual const IntType GetValAtIndex(usint i) const {
+#endif
 		throw std::logic_error("GetValAtIndex not implemented");
 	}
 

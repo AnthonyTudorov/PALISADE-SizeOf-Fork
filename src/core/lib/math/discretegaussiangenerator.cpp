@@ -178,10 +178,18 @@ namespace lbcrypto {
 			sint v = (result.get())[i];
 			if (v < 0) {
 				v *= -1;
+#if MATHBACKEND != 6
 				ans.SetValAtIndex(i, modulus - IntType(v));
+#else
+				ans.SetValAtIndexWithoutMod(i, modulus - IntType(v));
+#endif
 			}
 			else {
+#if MATHBACKEND != 6
 				ans.SetValAtIndex(i, IntType(v));
+#else
+				ans.SetValAtIndexWithoutMod(i, IntType(v));
+#endif
 			}
 		}
 
