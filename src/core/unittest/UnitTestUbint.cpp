@@ -277,7 +277,7 @@ TEST(UTubint,consts){
   // test the constants
   a = ubint::ZERO;
   //note for some reason ubint(0) is ambiguous?
-  EXPECT_EQ(ubint(0L), a)<< "Failure testing ZERO";
+  EXPECT_EQ(ubint(0), a)<< "Failure testing ZERO";
 
   a = ubint::ONE;
   EXPECT_EQ(ubint(1), a)<< "Failure testing ONE";
