@@ -127,10 +127,10 @@ TEST(UTSHE, LTV_ILVector2n_Add) {
 	UnitTest_Add<ILVector2n>(cc);
 }
 
-TEST(UTSHE, LTV_ILVectorArray2n_Add) {
-	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayLTV(ORDER, TOWERS, PTM);
-	UnitTest_Add<ILVectorArray2n>(cc);
-}
+//TEST(UTSHE, LTV_ILVectorArray2n_Add) {
+//	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayLTV(ORDER, TOWERS, PTM);
+//	UnitTest_Add<ILVectorArray2n>(cc);
+//}
 
 TEST(UTSHE, StSt_ILVector2n_Add) {
 	CryptoContext<ILVector2n> cc = GenCryptoContextElementStSt(ORDER, PTM);
@@ -141,11 +141,11 @@ TEST(UTSHE, StSt_ILVector2n_Add) {
 //	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayStSt(ORDER, TOWERS, PTM);
 //	UnitTest_Add<ILVectorArray2n>(cc);
 //}
-//
-//TEST(UTSHE, Null_ILVector2n_Add) {
-//	CryptoContext<ILVector2n> cc = GenCryptoContextElementNull(ORDER, PTM);
-//	UnitTest_Add<ILVector2n>(cc);
-//}
+
+TEST(UTSHE, Null_ILVector2n_Add) {
+	CryptoContext<ILVector2n> cc = GenCryptoContextElementNull(ORDER, PTM);
+	UnitTest_Add<ILVector2n>(cc);
+}
 
 TEST(UTSHE, Null_ILVectorArray2n_Add) {
 	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayNull(ORDER, TOWERS, PTM);
@@ -167,10 +167,10 @@ TEST(UTSHE, FV_ILVector2n_Add) {
 	UnitTest_Add<ILVector2n>(cc);
 }
 
-TEST(UTSHE, FV_ILVectorArray2n_Add) {
-	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayFV(ORDER, TOWERS, PTM);
-	UnitTest_Add<ILVectorArray2n>(cc);
-}
+//TEST(UTSHE, FV_ILVectorArray2n_Add) {
+//	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayFV(ORDER, TOWERS, PTM);
+//	UnitTest_Add<ILVectorArray2n>(cc);
+//}
 
 ///
 template<class Element>
@@ -267,32 +267,20 @@ TEST(UTSHE, FV_ILVector2n_Mult) {
 	UnitTest_Mult<ILVector2n>(cc);
 }
 
-TEST(UTSHE, FV_ILVectorArray2n_Mult) {
-	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayFV(ORDER, TOWERS, PTM);
-	UnitTest_Mult<ILVectorArray2n>(cc);
-}
+//TEST(UTSHE, FV_ILVectorArray2n_Mult) {
+//	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayFV(ORDER, TOWERS, PTM);
+//	UnitTest_Mult<ILVectorArray2n>(cc);
+//}
 
 
 TEST(UTSHE, keyswitch_sparse_key_SingleCRT_byteplaintext) {
 
-	//ILVector2n::DestroyPreComputedSamples();
 	usint m = 512;
+	usint plaintextModulus = 2;
 
 	BytePlaintextEncoding plaintext("I am good, what are you?! 32 ch");
-	float stdDev = 4;
 
-	BigBinaryInteger q("1");
-	BigBinaryInteger temp;
-
-	lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("40"), BigBinaryInteger("4"));
-
-	BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
-	shared_ptr<ILVector2n::Params> params( new ILVector2n::Params(m, q, rootOfUnity) );
-
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, 2, 1, stdDev);
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
-	cc.Enable(LEVELEDSHE);
+	CryptoContext<ILVector2n> cc = GenCryptoContextElementLTV(m, 2);
 
 	LPKeyPair<ILVector2n> kp = cc.KeyGen();
 

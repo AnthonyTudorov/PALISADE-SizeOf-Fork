@@ -139,7 +139,7 @@ TEST(UTENCRYPT, FV_ILVector2n_Encrypt_Decrypt) {
 	UnitTestEncryption<ILVector2n>(cc);
 }
 
-TEST(UTENCRYPT, FV_ILVectorArray2n_Encrypt_Decrypt) {
-	CryptoContext<ILVectorArray2n> cc = GenerateTestDCRTCryptoContext("FV2", 3, 20);
-	UnitTestEncryption<ILVectorArray2n>(cc);
-}
+//TEST(UTENCRYPT, FV_ILVectorArray2n_Encrypt_Decrypt) {
+//	CryptoContext<ILVectorArray2n> cc = GenerateTestDCRTCryptoContext("FV2", 3, 20);
+//	UnitTestEncryption<ILVectorArray2n>(cc);
+//}
