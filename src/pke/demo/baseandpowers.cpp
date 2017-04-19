@@ -46,7 +46,7 @@ void TestPowersAndDecompose(CryptoContext<ILVector2n> cc) {
 
 void TestPowersAndDecompose(CryptoContext<ILVectorArray2n> cc) {
 
-	const shared_ptr<ILVectorArray2n::Params> eParms = cc.GetElementParams();
+	const shared_ptr<ILVectorArray2n::Params> eParms = std::dynamic_pointer_cast<ILVectorArray2n::Params>(cc.GetElementParams());
 	typename ILVectorArray2n::DugType dug;
 	ILVectorArray2n randomVec(dug, cc.GetElementParams());
 
@@ -69,16 +69,22 @@ void TestPowersAndDecompose(CryptoContext<ILVectorArray2n> cc) {
 		ILVectorArray2n::Integer twoPow( ILVectorArray2n::Integer::TWO.Exp(i * nBits) );
 		vector<ILVectorArray2n::ILVectorType> scalars(eParms->GetParams().size());
 
-		for( int t = 0; t < eParms->GetParams().size(); i++ ) {
+		for( int t = 0; t < eParms->GetParams().size(); t++ ) {
 			ILVectorArray2n::Integer factor = twoPow % mods[t];
-			ILVectorArray2n::ILVectorType thisScalar(eParms->GetParams()[t]);
+			ILVectorArray2n::ILVectorType thisScalar(eParms->GetParams()[t], COEFFICIENT);
 			thisScalar = factor.ConvertToInt();
 			scalars[t] = thisScalar;
+			cout << t << " poly is " << scalars[t] << endl;
 		}
 		ILVectorArray2n thisProduct(scalars);
+		thisProduct.SwitchFormat();
+
+		cout << "scalars! " << thisProduct << endl;
+
+		cout << thisProduct.GetFormat() << ":" << decomp[i].GetFormat() << endl;
 		//ILVectorArray2n thisProduct = decomp[i] * ILVectorArray2n::Integer::TWO.ModExp( typename ILVectorArray2n::Integer(i * nBits),
 																						//typename ILVectorArray2n::Integer((*eParms)[???]->GetModulus().ConvertToInt()));
-		answer += thisProduct;
+		answer += thisProduct * decomp[i];
 	}
 
 	if (randomVec == answer)

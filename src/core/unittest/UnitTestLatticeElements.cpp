@@ -188,9 +188,7 @@ void rounding_operations() {
 
 	shared_ptr<ParmType> ilparams( new ParmType(m, q, primitiveRootOfUnity) );
 
-	//temporary larger modulus that is used for polynomial
-	//multiplication before rounding
-
+	//temporary larger modulus that is used for polynomial multiplication before rounding
 	IntType q2("16417");
 	IntType primitiveRootOfUnity2("13161");
 
@@ -259,37 +257,11 @@ void rounding_operations() {
 }
 // instantiate various test for rounding_operations()
 TEST(UTILVector2n, rounding_operations) {
-	usint m = 8;
-
-	BigBinaryInteger q("73");
-	BigBinaryInteger primitiveRootOfUnity("22");
-
-	shared_ptr<ILParams> ilparams = GenerateTestParams<ILParams,BigBinaryInteger>(m, q, primitiveRootOfUnity);
-
-	//temporary larger modulus that is used for polynomial multiplication before rounding
-	BigBinaryInteger q2("16417");
-	BigBinaryInteger primitiveRootOfUnity2("13161");
-
-	shared_ptr<ILParams> ilparams2 = GenerateTestParams<ILParams,BigBinaryInteger>(m, q2, primitiveRootOfUnity2);
-
-	rounding_operations<BigBinaryInteger, BigBinaryVector, ILParams, ILVector2n>(ilparams, ilparams2);
+	rounding_operations<BigBinaryInteger, BigBinaryVector, ILParams, ILVector2n>();
 }
 
 TEST(UTILNativeVector2n, rounding_operations) {
-	usint m = 8;
-
-	native64::BigBinaryInteger q("73");
-	native64::BigBinaryInteger primitiveRootOfUnity("22");
-
-	shared_ptr<native64::ILParams> ilparams = GenerateTestParams<native64::ILParams,native64::BigBinaryInteger>(m, q, primitiveRootOfUnity);
-
-	//temporary larger modulus that is used for polynomial multiplication before rounding
-	native64::BigBinaryInteger q2("16417");
-	native64::BigBinaryInteger primitiveRootOfUnity2("13161");
-
-	shared_ptr<native64::ILParams> ilparams2 = GenerateTestParams<native64::ILParams,native64::BigBinaryInteger>(m, q2, primitiveRootOfUnity2);
-
-	rounding_operations<native64::BigBinaryInteger, native64::BigBinaryVector, native64::ILParams, native64::ILVector2n>(ilparams, ilparams2);
+	rounding_operations<native64::BigBinaryInteger, native64::BigBinaryVector, native64::ILParams, native64::ILVector2n>();
 }
 
 //TEST(UTILVectorArray2n, rounding_operations) {
