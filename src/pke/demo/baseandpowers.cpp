@@ -5,12 +5,10 @@
 
 using namespace std;
 
-void TestPowersAndDecompose(CryptoContext<ILVector2n> cc) {
+void TestPowersAndDecompose(CryptoContext<ILVector2n> cc, ILVector2n& randomVec) {
 
-	typename ILVector2n::DugType dug;
-	ILVector2n randomVec(dug, cc.GetElementParams());
-
-	std::cout << randomVec << endl;
+	const shared_ptr<ILVector2n::Params> eParms = std::dynamic_pointer_cast<ILVector2n::Params>(cc.GetElementParams());
+	cout << *eParms << endl;
 
 	vector<ILVector2n> decomp = randomVec.BaseDecompose(cc.GetCryptoParameters()->GetRelinWindow());
 	cout << "BaseDecompose result is " << decomp.size() << " vectors" << endl;
@@ -44,14 +42,10 @@ void TestPowersAndDecompose(CryptoContext<ILVector2n> cc) {
 		cout << "Failure!" << endl;
 }
 
-void TestPowersAndDecompose(CryptoContext<ILVectorArray2n> cc) {
+void TestPowersAndDecompose(CryptoContext<ILVectorArray2n> cc, ILVectorArray2n& randomVec) {
 
 	const shared_ptr<ILVectorArray2n::Params> eParms = std::dynamic_pointer_cast<ILVectorArray2n::Params>(cc.GetElementParams());
 	cout << *eParms << endl;
-	typename ILVectorArray2n::DugType dug;
-	ILVectorArray2n randomVec(dug, cc.GetElementParams());
-
-	std::cout << randomVec << endl;
 
 	vector<ILVectorArray2n> decomp = randomVec.BaseDecompose(cc.GetCryptoParameters()->GetRelinWindow());
 	cout << "BaseDecompose result is " << decomp.size() << " vectors" << endl;
@@ -79,13 +73,15 @@ void TestPowersAndDecompose(CryptoContext<ILVectorArray2n> cc) {
 		}
 		ILVectorArray2n thisProduct(scalars);
 
-		cout << i << " scalars are " << thisProduct << endl;
-
-		cout << thisProduct * decomp[i] << endl;
+		cout << i << " scalar is " << thisProduct << endl;
+		cout << "poly is " << decomp[i] << endl;
+		cout << "product " << thisProduct * decomp[i] << endl;
 		//ILVectorArray2n thisProduct = decomp[i] * ILVectorArray2n::Integer::TWO.ModExp( typename ILVectorArray2n::Integer(i * nBits),
 																						//typename ILVectorArray2n::Integer((*eParms)[???]->GetModulus().ConvertToInt()));
 		answer += thisProduct * decomp[i];
 	}
+
+	cout << "input: " << randomVec << endl << "inswer: " << answer << endl;
 
 	if (randomVec == answer)
 		cout << "Success!" << endl;
@@ -110,14 +106,20 @@ int main()
 {
 	const usint ORDER = 8;
 	const usint PTM = 2;
-	const usint TOWERS = 3;
+	const usint TOWERS = 1;
+	const usint BITS = 4;
 
-	CryptoContext<ILVector2n> cc = GenCryptoContextElementBV(ORDER, PTM);
+	CryptoContext<ILVector2n> cc = GenCryptoContextElementBV(ORDER, PTM, BITS);
 	cout << "ILVector2n modulus " << cc.GetElementParams()->GetModulus() << " order " << ORDER << " ptm is " << PTM << " relin window is " << cc.GetCryptoParameters()->GetRelinWindow() << endl;
-	TestPowersAndDecompose(cc);
 
 	typename ILVector2n::DugType dug;
 	dug.SetModulus( cc.GetElementParams()->GetModulus() );
+
+	ILVector2n randomVec(dug, cc.GetElementParams());
+	std::cout << randomVec << endl;
+
+	TestPowersAndDecompose(cc, randomVec);
+
 
 //	{
 //		CryptoContext<ILVector2n> cc = GenCryptoContextElementBV(ORDER, PTM);
@@ -139,9 +141,14 @@ int main()
 //	}
 
 	for ( usint i = 1; i <= TOWERS; i++ ) {
-		CryptoContext<ILVectorArray2n> cc2 = GenCryptoContextElementArrayBV(ORDER, i, PTM);
+		CryptoContext<ILVectorArray2n> cc2 = GenCryptoContextElementArrayBV(ORDER, i, PTM, BITS);
 		cout << "ILVectorArray2n " << i << " towers, modulus " << cc2.GetElementParams()->GetModulus() << " order " << ORDER << " ptm is " << PTM << " relin window is " << cc2.GetCryptoParameters()->GetRelinWindow() << endl;
-		TestPowersAndDecompose(cc2);
+
+		ILVectorArray2n randomVecA(randomVec, cc2.GetElementParams());
+
+		std::cout << randomVecA << endl;
+
+		TestPowersAndDecompose(cc2, randomVecA);
 	}
 
 	return 0;

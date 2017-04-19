@@ -762,12 +762,16 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 		// convert the polynomial to coefficient representation
 		ILVectorImpl<ModType,IntType,VecType,ParmType> x(*this);
 		x.SetFormat(COEFFICIENT);
+		std::cout << "Base Decompose of " << *this << std::endl << "x is " << x << std::endl;
+
 
 		for (usint i = 0; i < nWindows; ++i)
 		{
 			xDigit.SetValues( x.GetValues().GetDigitAtIndexForBase(i*baseBits + 1, 1 << baseBits), x.GetFormat() );
+			std::cout << "Base Decompose " << i << " " << xDigit << std::endl;
 			if( evalModeAnswer )
 				xDigit.SwitchFormat();
+			std::cout << xDigit << std::endl;
 			result.push_back(xDigit);
 		}
 

@@ -69,6 +69,10 @@ namespace lbcrypto {
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	void ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::fillVectorArrayFromBigVector(const ILVector2n &element, const shared_ptr<ParmType> params) {
 
+		if( element.GetModulus() > params->GetModulus() ) {
+			throw std::logic_error("Modulus of element passed to constructor is bigger that DCRT big modulus");
+		}
+
 		size_t vecCount = params->GetParams().size();
 		m_vectors.reserve(vecCount);
 
@@ -88,11 +92,11 @@ namespace lbcrypto {
 		for(usint p = 0; p < element.GetLength(); p++ ) {
 			for( usint v = 0; v < vecCount; v++ ) {
 			  
-#ifdef MATHBACKEND ==6
+#if MATHBACKEND ==6
 			  IntType tmp = element.GetValAtIndex(p) % bigmods[v];
 			  m_vectors[v].SetValAtIndex(p, tmp.ConvertToInt());
 #else
-			  m_vectors[v].SetValAtIndex(p, (element.GetValAtIndex(p) % bigmods[v]).ConvertToInt());
+			  m_vectors[v].SetValAtIndex(p, ILVectorType::Integer((element.GetValAtIndex(p) % bigmods[v]).ConvertToInt()));
 #endif
 			}
 		}
@@ -330,8 +334,16 @@ namespace lbcrypto {
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	std::vector<ILVectorArrayImpl<ModType,IntType,VecType,ParmType>> ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::BaseDecompose(usint baseBits, bool evalModeAnswer) const {
 
-		ILVector2n v( CRTInterpolate() );
-		std::vector<ILVector2n> bdV = v.BaseDecompose(baseBits, false);
+		std::cout << "DOING BASE DECOMPOSE OF " << *this << std::endl;
+		ILVectorArray2n dCopy( *this );
+		dCopy.SetFormat( COEFFICIENT );
+		std::cout << "Coeff Mode: " << dCopy << std::endl;
+		ILVector2n v( dCopy.CRTInterpolate() );
+		std::cout << "...interpolates to " << v << std::endl << "... which decomposed to:" << std::endl;
+		std::vector<ILVector2n> bdV = v.BaseDecompose(baseBits);
+		for( usint i=0; i<bdV.size(); i++ ) {
+			std::cout << i << ": " << bdV[i] << std::endl;
+		}
 
 		std::vector<ILVectorArrayImpl<ModType,IntType,VecType,ParmType>> result;
 
@@ -809,7 +821,7 @@ namespace lbcrypto {
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	ILVector2n ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::CRTInterpolate() const
 	{
-	  bool dbg_flag = false;
+	  bool dbg_flag = true;
 
 		usint ringDimension = m_cyclotomicOrder / 2;
 		usint nTowers = m_vectors.size();
@@ -852,12 +864,16 @@ namespace lbcrypto {
 			vecs = &coeffVecs;
 		}
 
+		for( usint vi = 0; vi < nTowers; vi++ )
+			DEBUG("tower " << vi << " is " << (*vecs)[vi]);
+
 		// now, compute the values for the vector
 		for( usint ri = 0; ri < ringDimension; ri++ ) {
 			coefficients[ri] = BigBinaryInteger::ZERO;
 			for( usint vi = 0; vi < nTowers; vi++ ) {
 				coefficients[ri] += (BigBinaryInteger((*vecs)[vi].GetValues()[ri].ConvertToInt()) * multiplier[vi]);
 			}
+			DEBUG( (*vecs)[0].GetValues()[ri] << " * " << multiplier[0] << " == " << coefficients[ri] );
 			coefficients[ri] = coefficients[ri] % bigModulus;
 		}
 

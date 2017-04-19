@@ -741,7 +741,7 @@ public:
 	bool Deserialize(const Serialized& serObj);
 
 	friend inline std::ostream& operator<<(std::ostream& os, const ILVectorImpl& vec) {
-		os << vec.GetValues();
+		os << (vec.m_format == EVALUATION ? "EVAL: " : "COEF: ") << vec.GetValues();
 		return os;
 	}
 
