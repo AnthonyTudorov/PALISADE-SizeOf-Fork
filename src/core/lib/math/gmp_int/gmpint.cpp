@@ -40,13 +40,15 @@
  */
 
 
-#if MATHBACKEND == 6 //otherwise it tries to compile
 
 #define _SECURE_SCL 0 // to speed up VS
 
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include "../backend.h"
+#if MATHBACKEND == 6
+
 #include "gmpint.h"
 #include "mgmpint.h"
 
