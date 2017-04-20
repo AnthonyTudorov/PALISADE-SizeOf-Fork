@@ -336,11 +336,11 @@ namespace lbcrypto {
 
 		std::cout << "DOING BASE DECOMPOSE OF " << *this << std::endl;
 		ILVectorArray2n dCopy( *this );
-		dCopy.SetFormat( COEFFICIENT );
-		std::cout << "Coeff Mode: " << dCopy << std::endl;
+//		dCopy.SetFormat( COEFFICIENT );
+//		std::cout << "Coeff Mode: " << dCopy << std::endl;
 		ILVector2n v( dCopy.CRTInterpolate() );
 		std::cout << "...interpolates to " << v << std::endl << "... which decomposed to:" << std::endl;
-		std::vector<ILVector2n> bdV = v.BaseDecompose(baseBits);
+		std::vector<ILVector2n> bdV = v.BaseDecompose(baseBits, false);
 		for( usint i=0; i<bdV.size(); i++ ) {
 			std::cout << i << ": " << bdV[i] << std::endl;
 		}

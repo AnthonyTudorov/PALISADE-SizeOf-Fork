@@ -106,8 +106,8 @@ int main()
 {
 	const usint ORDER = 8;
 	const usint PTM = 2;
-	const usint TOWERS = 1;
-	const usint BITS = 4;
+	const usint TOWERS = 3;
+	const usint BITS = 33;
 
 	CryptoContext<ILVector2n> cc = GenCryptoContextElementBV(ORDER, PTM, BITS);
 	cout << "ILVector2n modulus " << cc.GetElementParams()->GetModulus() << " order " << ORDER << " ptm is " << PTM << " relin window is " << cc.GetCryptoParameters()->GetRelinWindow() << endl;
