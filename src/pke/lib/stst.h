@@ -1,12 +1,10 @@
 /**
-  * @file stst.h -- definitions for StehleSteinfeld Crypto Params
- * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
- *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>, Nishanth Pasham <np386@njit.edu>, Hadi Sajjadpour <ss2959@njit.edu>, Jerry Ryan <gwryan@njit.edu>
- * @version 00_03
+ * @file stst.h -- definitions for StehleSteinfeld Crypto Params
+ * @author  TPOC: palisade@njit.edu
  *
  * @section LICENSE
  *
- * Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
+ * Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -28,8 +26,14 @@
  *
  * @section DESCRIPTION
  *
- * Our Stehle-Steinfeld scheme implementation is described in http://dx.doi.org/10.1016/j.future.2016.10.013
- * It is based on the subfield lattice attack immunity condition proposed in the Conclusions of http://eprint.iacr.org/2016/127.pdf
+ * This code provides support for the Stehle-Steinfeld cryptoscheme.
+ *
+ * Our Stehle-Steinfeld scheme implementation is described here:
+ *   - Cristian Borcea, Arnab “Bobby” Deb Gupta, Yuriy Polyakov, Kurt Rohloff, Gerard Ryan, PICADOR: End-to-end encrypted Publish–Subscribe information distribution with proxy re-encryption, Future Generation Computer Systems, Volume 71, June 2017, Pages 177-191. http://dx.doi.org/10.1016/j.future.2016.10.013
+ *
+ * This scheme is based on the subfield lattice attack immunity condition proposed in the Conclusions section here:
+ *   - Albrecht, Martin, Shi Bai, and Léo Ducas. "A subfield lattice attack on overstretched NTRU assumptions." Annual Cryptology Conference. Springer Berlin Heidelberg, 2016.
+ *
  */
 
 #ifndef LBCRYPTO_CRYPTO_STST_H
@@ -52,16 +56,19 @@ namespace lbcrypto {
 	template <class Element>
 	class LPAlgorithmSHELTV;
 
-
 /**
- * @brief Template for Stehle-Stenfeld crypto parameters.
- * @tparam Element a ring element.
+ * @brief This is the parameters class for the Stehle-Stenfeld encryption scheme.
+ *
+ *  Parameters for this scheme are defined here:
+ *   - Cristian Borcea, Arnab “Bobby” Deb Gupta, Yuriy Polyakov, Kurt Rohloff, Gerard Ryan, PICADOR: End-to-end encrypted Publish–Subscribe information distribution with proxy re-encryption, Future Generation Computer Systems, Volume 71, June 2017, Pages 177-191. http://dx.doi.org/10.1016/j.future.2016.10.013
+ *
+ * @tparam Element a ring element type.
  */
 template <class Element>
 class LPCryptoParametersStehleSteinfeld : public LPCryptoParametersRLWE<Element> {
 public:
 	/**
-	 * Default constructor that initializes all values to 0.
+	 * Default constructor.  This constructor initializes all values to 0.
 	 */
 	LPCryptoParametersStehleSteinfeld() : LPCryptoParametersRLWE<Element>() {
 		m_distributionParameterStSt = 0.0f;
@@ -71,6 +78,7 @@ public:
 	/**
 	 * Copy constructor.
 	 *
+	 * @param rhs - source
 	 */
 	LPCryptoParametersStehleSteinfeld(const LPCryptoParametersStehleSteinfeld &rhs) : LPCryptoParametersRLWE<Element>(rhs) {
 		m_distributionParameterStSt = rhs.m_distributionParameterStSt;
@@ -78,15 +86,20 @@ public:
 	}
 
 	/**
-	 * Constructor that initializes values.
+	 * Constructor that initializes values.  Note that it is possible to set parameters in a way that is overall
+	 * infeasible for actual use.  There are fewer degrees of freedom than parameters provided.  Typically one
+	 * chooses the basic noise, assurance and security parameters as the typical community-accepted values, 
+	 * then chooses the plaintext modulus and depth as needed.  The element parameters should then be choosen 
+	 * to provide correctness and security.  In some cases we would need to operate over already 
+	 * encrypted/provided ciphertext and the depth needs to be pre-computed for initial settings.
 	 *
-	 * @param &params element parameters.
-	 * @param &plaintextModulus plaintext modulus.
-	 * @param distributionParameter noise distribution parameter.
-	 * @param assuranceMeasure assurance level.
-	 * @param securityLevel security level.
-	 * @param relinWindow the size of the relinearization window.
-	 * @param depth depth which is set to 1.
+	 * @param &params Element parameters.  This will depend on the specific class of element being used.
+	 * @param &plaintextModulus Plaintext modulus, typically denoted as p in most publications.
+	 * @param distributionParameter Noise distribution parameter, typically denoted as /sigma in most publications.  Community standards typically call for a value of 3 to 6. Lower values provide more room for computation while larger values provide more security.
+	 * @param assuranceMeasure Assurance level, typically denoted as w in most applications.  This is oftern perceived as a fudge factor in the literature, with a typical value of 9.
+	 * @param securityLevel Security level as Root Hermite Factor.  We use the Root Hermite Factor representation of the security level to better conform with US ITAR and EAR export regulations.  This is typically represented as /delta in the literature.  Typically a Root Hermite Factor of 1.006 or less provides reasonable security for RLWE crypto schemes, although extra care is need for the LTV scheme because LTV makes an additional security assumption that make it suceptible to subfield lattice attacks.
+	 * @param relinWindow The size of the relinearization window.  This is relevant when using this scheme for proxy re-encryption, and the value is denoted as r in the literature.
+	 * @param depth Depth is the depth of computation supprted which is set to 1 by default.  Use the default setting unless you're using SHE, levelled SHE or FHE operations.
 	 */
 	LPCryptoParametersStehleSteinfeld(
 			shared_ptr<typename Element::Params> params,
@@ -127,6 +140,8 @@ public:
 
 	/**
 	 * Sets the value of standard deviation r for discrete Gaussian distribution
+	 *
+	 * @param distributionParameterStSt distribution parameter r.
 	 */
 	void SetDistributionParameterStSt(float distributionParameterStSt) {
 		m_distributionParameterStSt = distributionParameterStSt;
@@ -136,7 +151,6 @@ public:
 	/**
 	 * Serialize the object into a Serialized
 	 * @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-	 * @param fileFlag is an object-specific parameter for the serialization
 	 * @return true if successfully serialized
 	 */
 	bool Serialize(Serialized* serObj) const {
@@ -175,7 +189,11 @@ public:
 		return true;
 	}
 
-
+	/**
+	 * == operator to compare to this instance of LPCryptoParametersStehleSteinfeld object.
+	 *
+	 * @param &rhs LPCryptoParameters to check equality against.
+	 */
 	bool operator==(const LPCryptoParameters<Element>& cmp) const {
 		const LPCryptoParametersStehleSteinfeld<Element> *el = dynamic_cast<const LPCryptoParametersStehleSteinfeld<Element> *>(&cmp);
 
@@ -193,7 +211,14 @@ private:
 };
 
 /**
-* @brief Encryption algorithm implementation template for Stehle-Stenfeld scheme,
+ * @brief This is the algorithms class for the basic public key encrypt, decrypt and key generation methods for the Stehle-Stenfeld scheme encryption scheme.  
+ *
+ * Our Stehle-Steinfeld scheme implementation is described here:
+ *   - Cristian Borcea, Arnab “Bobby” Deb Gupta, Yuriy Polyakov, Kurt Rohloff, Gerard Ryan, PICADOR: End-to-end encrypted Publish–Subscribe information distribution with proxy re-encryption, Future Generation Computer Systems, Volume 71, June 2017, Pages 177-191. http://dx.doi.org/10.1016/j.future.2016.10.013
+ *
+ * This scheme is based on the subfield lattice attack immunity condition proposed in the Conclusions section here:
+ *   - Albrecht, Martin, Shi Bai, and Léo Ducas. "A subfield lattice attack on overstretched NTRU assumptions." Annual Cryptology Conference. Springer Berlin Heidelberg, 2016.
+*
 * @tparam Element a ring element.
 */
 template <class Element>
@@ -206,12 +231,16 @@ public:
 	LPEncryptionAlgorithmStehleSteinfeld() : LPAlgorithmLTV<Element>() {};
 
 	/**
-	* Function to generate public and private keys
-	*
-	* @param &publicKey private key used for decryption.
-	* @param &privateKey private key used for decryption.
-	* @return function ran correctly.
-	*/
+	 * Key Generation method for the StehleSteinfeld scheme.
+	 * This method provides a "sparse" mode where all even indices are non-zero
+	 * and odd indices are set to zero.  This sparse mode can be used to generate keys used for the LTV ring
+	 * switching method.  We do not current support the generation of odd indices with even indices set to zero.
+	 * See the class description for citations on where the algorithms were taken from.
+	 *
+	 * @param cc Drypto context in which to generate a key pair.
+	 * @param makeSparse True to generate a sparse key pair.
+	 * @return Public and private key pair.
+	 */
 	LPKeyPair<Element> KeyGen(const CryptoContext<Element> cc, bool makeSparse=false) const { 		//makeSparse is not used
 
 		LPKeyPair<Element>	kp(new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc));
@@ -258,6 +287,17 @@ public:
 * @brief Main public key encryption scheme for Stehle-Stenfeld scheme implementation,
 * @tparam Element a ring element.
 */
+/**
+* @brief This is the algorithms class for to enable deatures for the Stehle-Stenfeld scheme encryption scheme.  
+ *
+ * Our Stehle-Steinfeld scheme implementation is described here:
+ *   - Cristian Borcea, Arnab “Bobby” Deb Gupta, Yuriy Polyakov, Kurt Rohloff, Gerard Ryan, PICADOR: End-to-end encrypted Publish–Subscribe information distribution with proxy re-encryption, Future Generation Computer Systems, Volume 71, June 2017, Pages 177-191. http://dx.doi.org/10.1016/j.future.2016.10.013
+ *
+ * This scheme is based on the subfield lattice attack immunity condition proposed in the Conclusions section here:
+ *   - Albrecht, Martin, Shi Bai, and Léo Ducas. "A subfield lattice attack on overstretched NTRU assumptions." Annual Cryptology Conference. Springer Berlin Heidelberg, 2016.
+*
+* @tparam Element a ring element.
+*/
 template <class Element>
 class LPPublicKeyEncryptionSchemeStehleSteinfeld : public LPPublicKeyEncryptionSchemeLTV<Element> {
 public:
@@ -280,7 +320,8 @@ public:
 	}
 
 	/**
-	* Function to enable a scheme
+	* Function to enable a scheme.
+	* FIXME This needs to be described better.
 	*
 	*@param feature is the feature to enable
 	*/
