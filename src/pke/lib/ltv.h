@@ -1,12 +1,10 @@
-/**0
- * @file ltv.h -- definitions for LTV Crypto Params
- * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
- *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>, Nishanth Pasham <np386@njit.edu>, Hadi Sajjadpour <ss2959@njit.edu>, Jerry Ryan <gwryan@njit.edu>
- * @version 00_03
+/**
+ * @file ltv.h -- Operations for the LTV cryptoscheme.
+ * @author  TPOC: palisade@njit.edu
  *
  * @section LICENSE
  *
- * Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
+ * Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -28,7 +26,17 @@
  *
  * @section DESCRIPTION
  *
- * This code provides the definitions for the LTV scheme
+ * This code provides support for the LTV cryptoscheme.
+ * This scheme is defined here:
+ *   - López-Alt, Adriana, Eran Tromer, and Vinod Vaikuntanathan. "On-the-fly multiparty computation on the cloud via multikey fully homomorphic encryption." Proceedings of the forty-fourth annual ACM symposium on Theory of computing. ACM, 2012.
+ *
+ * Our design is informed by prior implementation efforts, including here:
+ *   - Rohloff, Kurt, and David Bruce Cousins. "A scalable implementation of fully homomorphic encryption built on NTRU." International Conference on Financial Cryptography and Data Security. Springer Berlin Heidelberg, 2014.
+ *
+ * Note that weaknesses have been discovered in this scheme and it should be used carefully.  Weaknesses come from subfield lattice attacks which are descibed here:
+ *   - Albrecht, Martin, Shi Bai, and Léo Ducas. "A subfield lattice attack on overstretched NTRU assumptions." Annual Cryptology Conference. Springer Berlin Heidelberg, 2016.
+ *   - Cheon, Jung Hee, Jinhyuck Jeong, and Changmin Lee. "An algorithm for NTRU problems and cryptanalysis of the GGH multilinear map without a low-level encoding of zero." LMS Journal of Computation and Mathematics 19.A (2016): 255-266.
+ *   
  */
 
 #ifndef LBCRYPTO_CRYPTO_LTV_H
@@ -39,8 +47,14 @@
 namespace lbcrypto {
 
 /**
- * @brief Template for crypto parameters.
- * @tparam Element a ring element.
+ * @brief This is the parameters class for the LTV encryption scheme.  Note there have been recent advancements in the cryptanalysis of the LTV scheme, so parameters should be chosen with care.  These weaknesses are derived from subfield lattice attacks which are descibed here:
+ *   - Albrecht, Martin, Shi Bai, and Léo Ducas. "A subfield lattice attack on overstretched NTRU assumptions." Annual Cryptology Conference. Springer Berlin Heidelberg, 2016.
+ *   - Cheon, Jung Hee, Jinhyuck Jeong, and Changmin Lee. "An algorithm for NTRU problems and cryptanalysis of the GGH multilinear map without a low-level encoding of zero." LMS Journal of Computation and Mathematics 19.A (2016): 255-266.
+ *
+ *  Parameters for this scheme are defined here:
+ *   - López-Alt, Adriana, Eran Tromer, and Vinod Vaikuntanathan. "On-the-fly multiparty computation on the cloud via multikey fully homomorphic encryption." Proceedings of the forty-fourth annual ACM symposium on Theory of computing. ACM, 2012.
+ *
+ * @tparam Element a ring element type.
  */
 template <class Element>
 class LPCryptoParametersLTV: public LPCryptoParametersRLWE<Element> {
@@ -58,15 +72,20 @@ public:
 	LPCryptoParametersLTV(const LPCryptoParametersLTV &rhs) : LPCryptoParametersRLWE<Element>(rhs) {}
 
 	/**
-	 * Constructor that initializes values.
+	 * Constructor that initializes values.  Note that it is possible to set parameters in a way that is overall
+	 * infeasible for actual use.  There are fewer degrees of freedom than parameters provided.  Typically one
+	 * chooses the basic noise, assurance and security parameters as the typical community-accepted values, 
+	 * then chooses the plaintext modulus and depth as needed.  The element parameters should then be choosen 
+	 * to provide correctness and security.  In some cases we would need to operate over already 
+	 * encrypted/provided ciphertext and the depth needs to be pre-computed for initial settings.
 	 *
-	 * @param &params element parameters.
-	 * @param &plaintextModulus plaintext modulus.
-	 * @param distributionParameter noise distribution parameter.
-	 * @param assuranceMeasure assurance level.
-	 * @param securityLevel security level.
-	 * @param relinWindow the size of the relinearization window.
-	 * @param depth depth which is set to 1.
+	 * @param &params Element parameters.  This will depend on the specific class of element being used.
+	 * @param &plaintextModulus Plaintext modulus, typically denoted as p in most publications.
+	 * @param distributionParameter Noise distribution parameter, typically denoted as /sigma in most publications.  Community standards typically call for a value of 3 to 6. Lower values provide more room for computation while larger values provide more security.
+	 * @param assuranceMeasure Assurance level, typically denoted as w in most applications.  This is oftern perceived as a fudge factor in the literature, with a typical value of 9.
+	 * @param securityLevel Security level as Root Hermite Factor.  We use the Root Hermite Factor representation of the security level to better conform with US ITAR and EAR export regulations.  This is typically represented as /delta in the literature.  Typically a Root Hermite Factor of 1.006 or less provides reasonable security for RLWE crypto schemes, although extra care is need for the LTV scheme because LTV makes an additional security assumption that make it suceptible to subfield lattice attacks.
+	 * @param relinWindow The size of the relinearization window.  This is relevant when using this scheme for proxy re-encryption, and the value is denoted as r in the literature.
+	 * @param depth Depth is the depth of computation supprted which is set to 1 by default.  Use the default setting unless you're using SHE, levelled SHE or FHE operations.
 	 */
 	LPCryptoParametersLTV(
 			shared_ptr<typename Element::Params> params,
@@ -91,10 +110,10 @@ public:
 	virtual ~LPCryptoParametersLTV() {}
 
 	/**
-	 * Serialize the LTV Crypto Parameters
+	 * Serialize the LTV Crypto Parameters using rapidJson representation.
 	 *
-	 * @param serObj - rapidJson object for the serializaion
-	 * @return true on success
+	 * @param serObj RapidJson object for the serializaion
+	 * @return True on success
 	 */
 	bool Serialize(Serialized* serObj) const {
 		if( !serObj->IsObject() )
@@ -111,10 +130,10 @@ public:
 	}
 
 	/**
-	 * Deserialize the LTV Crypto Parameters
+	 * Deserialize the LTV Crypto Parameters using rapidJson representation.
 	 *
-	 * @param serObj
-	 * @return true on success
+	 * @param serObj The serialized object to deserialize.
+	 * @return True on success
 	 */
 	bool Deserialize(const Serialized& serObj) {
 		Serialized::ConstMemberIterator mIter = serObj.FindMember("LPCryptoParametersLTV");
@@ -145,7 +164,7 @@ public:
 private:
 
 	//helper function for ParameterSelection. Splits the string 's' by the delimeter 'c'.
-	// FIXME this goes away
+	// FIXME This will soon be deprecated.
 	std::string split(const std::string s, char c){
 		std::string result;
 		const char *str = s.c_str();
@@ -157,12 +176,22 @@ private:
 	}
 
 	//function for parameter selection. The public ParameterSelection function is a wrapper around this function.
-	// FIXME this goes away
+	// FIXME This will soon be deprecated.
 	void ParameterSelection(usint& n, vector<native64::BigBinaryInteger> &moduli);
 };
 
 /**
-* @brief Encryption algorithm implementation template for Ring-LWE NTRU-based schemes,
+* @brief This is the algorithms class for the basic public key encrypt, decrypt and key generation methods for the LTV encryption scheme.  
+ * Note there have been recent advancements in the cryptanalysis of the LTV scheme, so this protocol should be used with care, if at all.  These weaknesses are derived from subfield lattice attacks which are descibed here:
+ *   - Albrecht, Martin, Shi Bai, and Léo Ducas. "A subfield lattice attack on overstretched NTRU assumptions." Annual Cryptology Conference. Springer Berlin Heidelberg, 2016.
+ *   - Cheon, Jung Hee, Jinhyuck Jeong, and Changmin Lee. "An algorithm for NTRU problems and cryptanalysis of the GGH multilinear map without a low-level encoding of zero." LMS Journal of Computation and Mathematics 19.A (2016): 255-266.
+ *
+ * This scheme is defined here:
+ *   - López-Alt, Adriana, Eran Tromer, and Vinod Vaikuntanathan. "On-the-fly multiparty computation on the cloud via multikey fully homomorphic encryption." Proceedings of the forty-fourth annual ACM symposium on Theory of computing. ACM, 2012.
+ *
+ * Our algorithms are informed by prior implementation efforts, including here:
+ *   - Rohloff, Kurt, and David Bruce Cousins. "A scalable implementation of fully homomorphic encryption built on NTRU." International Conference on Financial Cryptography and Data Security. Springer Berlin Heidelberg, 2014.
+*
 * @tparam Element a ring element.
 */
 template <class Element>
@@ -175,40 +204,54 @@ public:
 	LPAlgorithmLTV() {}
 
 	/**
-	 * Encrypt method for LTV Scheme
+	 * Encrypt method for the LTV Scheme.  See the class description for citations on where the algorithms were
+	 * taken from.
 	 *
-	 * @param publicKey - the encryption key
-	 * @param plaintext - plaintext to be encrypted
-	 * @return a shared pointer to the encrypted Cyphertext
+	 * @param publicKey The encryption key.
+	 * @param plaintext Plaintext to be encrypted.
+	 * @return A shared pointer to the encrypted Ciphertext.
 	 */
 	shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, ILVector2n &plaintext) const;
 
 	/**
-	 * Decrypt method for LTV Scheme
+	 * Decrypt method for the LTV Scheme.  See the class description for citations on where the algorithms were
+	 * taken from.
 	 *
-	 * @param privateKey - decryption key
-	 * @param ciphertext - Ciphertext to be decrypted
-	 * @param plaintext - Plaintext result of Decrypt operation
-	 * @return DecryptResult indicating success or failure and number of bytes decrypted
+	 * @param privateKey Decryption key.
+	 * @param ciphertext Diphertext to be decrypted.
+	 * @param plaintext Plaintext result of Decrypt operation.
+	 * @return DecryptResult indicating success or failure and number of bytes decrypted.
 	 */
 	DecryptResult Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const shared_ptr<Ciphertext<Element>> ciphertext,
 		ILVector2n *plaintext) const;
 
 	/**
-	 * KeyGen
-	 * Note that in "sparse" mode, all even indices are non-zero
-	 * and odd indices are set to zero.
+	 * Key Generation method for the LTV scheme.
+	 * This method provides a "sparse" mode where all even indices are non-zero
+	 * and odd indices are set to zero.  This sparse mode can be used to generate keys used for the LTV ring
+	 * switching method.  We do not current support the generation of odd indices with even indices set to zero.
+	 * See the class description for citations on where the algorithms were taken from.
 	 *
-	 * @param cc - crypto context in which to generate a key pair
-	 * @param makeSparse - true to generate a sparse key pair
-	 * @return public and private key pair
+	 * @param cc Drypto context in which to generate a key pair.
+	 * @param makeSparse True to generate a sparse key pair.
+	 * @return Public and private key pair.
 	 */
 	LPKeyPair<Element> KeyGen(const CryptoContext<Element> cc, bool makeSparse = false) const;
 };
 
 /**
-* @brief Template for crypto PRE.
+ * @brief This is the algorithms class for the Proxy Re-Encryption methods Re-Encryption Key Generation (ReKeyGen) and Re-Encryption (ReEncrypt) for the LTV encryption scheme.  
+ * Note there have been recent advancements in the cryptanalysis of the LTV scheme, so this protocol should be used with care, if at all.  These weaknesses are derived from subfield lattice attacks which are descibed here:
+ *   - Albrecht, Martin, Shi Bai, and Léo Ducas. "A subfield lattice attack on overstretched NTRU assumptions." Annual Cryptology Conference. Springer Berlin Heidelberg, 2016.
+ *   - Cheon, Jung Hee, Jinhyuck Jeong, and Changmin Lee. "An algorithm for NTRU problems and cryptanalysis of the GGH multilinear map without a low-level encoding of zero." LMS Journal of Computation and Mathematics 19.A (2016): 255-266.
+ *
+ * This basic public key scheme is defined here:
+ *   - López-Alt, Adriana, Eran Tromer, and Vinod Vaikuntanathan. "On-the-fly multiparty computation on the cloud via multikey fully homomorphic encryption." Proceedings of the forty-fourth annual ACM symposium on Theory of computing. ACM, 2012.
+ *
+ * Our PRE design and algorithms are informed by the design here:
+ *   - Polyakov, Yuriy, Kurt Rohloff, Gyana Sahu and Vinod Vaikuntanathan. Fast Proxy Re-Encryption for Publish/Subscribe Systems. Under Review in ACM Transactions on Privacy and Security (ACM TOPS).
+*
 * @tparam Element a ring element.
 */
 template <class Element>
@@ -222,7 +265,7 @@ public:
 
 	/**
 	* Function to generate a re-encryption key as 1..log(q) encryptions for each bit of the original private key
-	* Variant that uses the new secret key directly.
+	* This variant that uses the new secret key directly along with the original secret key.
 	*
 	* @param newKey new private key for the new ciphertext.
 	* @param origPrivateKey original private key used for decryption.
@@ -236,9 +279,9 @@ public:
 
 	/**
 	* Function to generate a re-encryption key as 1..log(q) encryptions for each bit of the original private key
-	* Variant that uses the public key for the new secret key.
+	* This variant that uses the new public key with the original secret key.
 	*
-	* @param newKey public key for the new private key.
+	* @param newKey new private key for the new ciphertext.
 	* @param origPrivateKey original private key used for decryption.
 	* @return evalKey the evaluation key for switching the ciphertext to be decryptable by new private key.
 	*/
@@ -246,20 +289,29 @@ public:
 		const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const;
 
 	/**
-	* Function to define ciphertext re-encryption using the array generated by ReKeyGen
+	* Function to define the interface for re-encypting ciphertext using the array generated by ProxyGen.
+	* See the class description for citations on where the algorithms were taken from.
 	*
 	* @param evalKey the evaluation key.
 	* @param ciphertext the input ciphertext.
-	* @return the resulting Ciphertext
+	* @return A shared pointer to the resulting ciphertext.
 	*/
 	shared_ptr<Ciphertext<Element>> ReEncrypt(const shared_ptr<LPEvalKey<Element>> evalKey,
 		const shared_ptr<Ciphertext<Element>> ciphertext) const;
 };
 
 /**
-* Evaluation multiplication for homomorphic encryption operations.
+* @brief This is the algorithms class for the Somewhat Homomorphic Encryption methods for the LTV encryption scheme.  These methods include the standard EvalAdd, EvalMult, EvalSub operations.
+ * Note there have been recent advancements in the cryptanalysis of the LTV scheme, so this protocol should be used with care, if at all.  These weaknesses are derived from subfield lattice attacks which are descibed here:
+ *   - Albrecht, Martin, Shi Bai, and Léo Ducas. "A subfield lattice attack on overstretched NTRU assumptions." Annual Cryptology Conference. Springer Berlin Heidelberg, 2016.
+ *   - Cheon, Jung Hee, Jinhyuck Jeong, and Changmin Lee. "An algorithm for NTRU problems and cryptanalysis of the GGH multilinear map without a low-level encoding of zero." LMS Journal of Computation and Mathematics 19.A (2016): 255-266.
+ *
+ * This scheme is defined here:
+ *   - López-Alt, Adriana, Eran Tromer, and Vinod Vaikuntanathan. "On-the-fly multiparty computation on the cloud via multikey fully homomorphic encryption." Proceedings of the forty-fourth annual ACM symposium on Theory of computing. ACM, 2012.
+ *
+ * Our algorithms are informed by prior implementation efforts, including here:
+ *   - Rohloff, Kurt, and David Bruce Cousins. "A scalable implementation of fully homomorphic encryption built on NTRU." International Conference on Financial Cryptography and Data Security. Springer Berlin Heidelberg, 2014.
 *
-* @brief Template for crypto PRE.
 * @tparam Element a ring element.
 */
 template <class Element>
@@ -272,42 +324,47 @@ public:
 	LPAlgorithmSHELTV() {}
 
 	/**
-	* Function for homomorphic addition of ciphertexts.
+	* Function for evaluation addition on ciphertext.
+	* See the class description for citations on where the algorithms were taken from.
 	*
-	* @param ciphertext1 first input ciphertext.
-	* @param ciphertext2 second input ciphertext.
-	* @return resulting ciphertext.
+	* @param ciphertext1 The first input ciphertext.
+	* @param ciphertext2 The second input ciphertext.
+	* @return A shared pointer to the ciphertext which is the EvalAdd of the two inputs.
 	*/
-
 	shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext1,
 		const shared_ptr<Ciphertext<Element>> ciphertext2) const;
 
 	/**
 	* Function for homomorphic subtraction of ciphertexts.
+	* See the class description for citations on where the algorithms were taken from.
 	*
-	* @param ciphertext1 the input ciphertext.
-	* @param ciphertext2 the input ciphertext.
-	* @return resulting EvalSub ciphertext.
+	* @param ciphertext1 The first input ciphertext.
+	* @param ciphertext2 The second input ciphertext.
+	* @return A shared pointer to the ciphertext which is the EvalAdd of the two inputs.
 	*/
 	shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext1,
 		const shared_ptr<Ciphertext<Element>> ciphertext2) const;
 
 	/**
-	* Function for homomorphic multiplication of ciphertexts without key switching.
+	* Function for evaluating multiplication on ciphertext.
+	* See the class description for citations on where the algorithms were taken from.
 	*
-	* @param ciphertext1 first input ciphertext.
-	* @param ciphertext2 second input ciphertext.
-	* @return resulting EvalMult ciphertext.
+	* @param ciphertext1 The first input ciphertext.
+	* @param ciphertext2 The second input ciphertext.
+	* @return A shared pointer to the ciphertext which is the EvalMult of the two inputs.
 	*/
 	shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
 		const shared_ptr<Ciphertext<Element>> ciphertext2) const;
 
 	/**
-	* Function for evaluating multiplication on ciphertexts with key switching.
+	* Function for evaluating multiplication on ciphertext, but with a key switch performed after the
+	* EvalMult using the Evaluation Key input.
+	* See the class description for citations on where the algorithms were taken from.
 	*
-	* @param ciphertext1 first input ciphertext.
-	* @param ciphertext2 second input ciphertext.
-	* @return resulting EvalMult ciphertext with proper
+	* @param ciphertext1 The first input ciphertext.
+	* @param ciphertext2 The second input ciphertext.
+	* @param evalKey The evaluation key input.
+	* @return A shared pointer to the ciphertext which is the EvalMult of the two inputs.
 	*/
 	shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
 		const shared_ptr<Ciphertext<Element>> ciphertext2,
@@ -315,29 +372,40 @@ public:
 
 	/**
 	* Function for homomorphic negation of ciphertexts.
+	* At a high level, this operation substracts the plaintext value encrypted in the ciphertext from the
+	* plaintext modulus p.
+	* See the class description for citations on where the algorithms were taken from.
 	*
-	* @param ct first input ciphertext.
-	* @return new ciphertext.
+	* @param ct The input ciphertext.
+	* @return A shared pointer to a new ciphertext which is the negation of the input.
 	*/
 	shared_ptr<Ciphertext<Element>> EvalNegate(const shared_ptr<Ciphertext<Element>> ct) const;
 														 
 	/**
-	* Method for generating a KeySwitchHint (uses the NTRU method)
+	* Method for generating a Key Switch Hint.
+	* See the class description for citations on where the algorithms were taken from.
+	* This method generates a key switch hint which is not secure, even without the subfield lattice attacks.
+	* We recommend that one uses key switch hints only for scenarios where security is not of critical 
+	* importance.
 	*
 	* @param &k1 Original private key used for encryption.
 	* @param &k2 New private key to generate the keyswitch hint.
-    * @result keyswitchhint.
+	* @result A shared point to the resulting key switch hint.
 	*/
 	shared_ptr<LPEvalKey<Element>> KeySwitchGen(
 		const shared_ptr<LPPrivateKey<Element>> k1,
 		const shared_ptr<LPPrivateKey<Element>> k2) const;
 
 	/**
-	* Method for KeySwitching based on a KeySwitchHint (uses the NTRU method)
+	* Method for KeySwitching based on a KeySwitchHint.
+	* See the class description for citations on where the algorithms were taken from.
+	* This method uses a key switch hint which is not secure, even without the subfield lattice attacks.
+	* We recommend that one uses key switch hints only for scenarios where security is not of critical 
+	* importance.
 	*
 	* @param keySwitchHint Hint required to perform the ciphertext switching.
 	* @param cipherText Original ciphertext to perform switching on.
-	* @result the resulting ciphertext
+	* @result A shared pointer to the resulting ciphertext.
 	*/
 	shared_ptr<Ciphertext<Element>> KeySwitch(
 		const shared_ptr<LPEvalKey<Element>> keySwitchHint,
@@ -364,7 +432,10 @@ public:
 		const shared_ptr<Ciphertext<Element>> ciphertext) const;
 
 	/**
-	* Function to generate key switch hint on a ciphertext for depth 2 (uses the NTRU method).
+	* Function to generate key switch hint on a ciphertext of depth 2.
+	* This method uses a key switch hint which is not secure, even without the subfield lattice attacks.
+	* We recommend that one uses key switch hints only for scenarios where security is not of critical 
+	* importance.
 	*
 	* @param &newPrivateKey private key for the new ciphertext.
 	* @param *keySwitchHint the key switch hint.
@@ -399,9 +470,19 @@ public:
 		std::vector<shared_ptr<LPEvalKey<Element>>> *evalKeys) const;
 };
 
-
 /**
-* @brief Concrete feature class for Leveled SHELTV operations
+* @brief This is the concrete class for the leveled version of the LTV encryption scheme, and it includes methods not included in the LPAlgorithmSHELTV. This methods include RingReduce, ModReduce, ComposedEvalMult, LevelReduce, CanRingReduce.
+ *
+ * There have been recent advancements in the cryptanalysis of the LTV scheme, so this protocol should be used with care, if at all.  These weaknesses are derived from subfield lattice attacks which are descibed here:
+ *   - Albrecht, Martin, Shi Bai, and Léo Ducas. "A subfield lattice attack on overstretched NTRU assumptions." Annual Cryptology Conference. Springer Berlin Heidelberg, 2016.
+ *   - Cheon, Jung Hee, Jinhyuck Jeong, and Changmin Lee. "An algorithm for NTRU problems and cryptanalysis of the GGH multilinear map without a low-level encoding of zero." LMS Journal of Computation and Mathematics 19.A (2016): 255-266.
+ *
+ * This scheme is defined here:
+ *   - López-Alt, Adriana, Eran Tromer, and Vinod Vaikuntanathan. "On-the-fly multiparty computation on the cloud via multikey fully homomorphic encryption." Proceedings of the forty-fourth annual ACM symposium on Theory of computing. ACM, 2012.
+ *
+ * Our algorithms are informed by prior implementation efforts, including here:
+ *   - Rohloff, Kurt, and David Bruce Cousins. "A scalable implementation of fully homomorphic encryption built on NTRU." International Conference on Financial Cryptography and Data Security. Springer Berlin Heidelberg, 2014.
+*
 * @tparam Element a ring element.
 */
 template <class Element>
@@ -430,12 +511,14 @@ public:
 	shared_ptr<Ciphertext<Element>> RingReduce(shared_ptr<Ciphertext<Element>> cipherText, const shared_ptr<LPEvalKey<Element>> keySwitchHint) const;
 
 	/**
-	* Method for ComposedEvalMult
+	* Method for ComposedEvalMult.  This method performs an EvalMult on two input ciphertext, then a
+	* modululus reduction and a key switch on the result.
+	* See the class description for citations on where the algorithms were taken from.
 	*
-	* @param cipherText1 ciphertext1, first input ciphertext to perform multiplication on.
-	* @param cipherText2 cipherText2, second input ciphertext to perform multiplication on.
-	* @param quadKeySwitchHint is for resultant quadratic secret key after multiplication to the secret key of the particular level.
-	* @return the resulting ciphertext that can be decrypted with the secret key of the particular level.
+	* @param cipherText1 The first input ciphertext to perform multiplication on.
+	* @param cipherText2 THe second input ciphertext to perform multiplication on.
+	* @param quadKeySwitchHint The resultant quadratic secret key after multiplication to the secret key of the particular level.
+	* @return The resulting ciphertext that can be decrypted with the secret key of the particular level.
 	*/
 	shared_ptr<Ciphertext<Element>> ComposedEvalMult(
 		const shared_ptr<Ciphertext<Element>> cipherText1,
@@ -443,7 +526,8 @@ public:
 		const shared_ptr<LPEvalKey<Element>> quadKeySwitchHint) const;
 
 	/**
-	* Method for Level Reduction from sk -> sk1. This method peforms a keyswitch on the ciphertext and then performs a modulus reduction.
+	* Method for Level Reduction from sk -> sk1. 
+	* This method peforms a keyswitch on the ciphertext and then performs a modulus reduction.
 	*
 	* @param cipherText1 is the original ciphertext to be key switched and mod reduced.
 	* @param linearKeySwitchHint is the linear key switch hint to perform the key switch operation.
@@ -454,16 +538,31 @@ public:
 
 	/**
 	* Function that determines if security requirements are met if ring dimension is reduced by half.
+	* This method is useful for testing if a ring reduction can be performed on a ciphertext without violating
+	* a security boundary for the parameter setting.
+	* See the class description for citations on where the algorithms were taken from.
 	*
-	* @param ringDimension is the original ringDimension
-	* @param &moduli is the vector of moduli that is used
-	* @param rootHermiteFactor is the security threshold
+	* @param ringDimension The original ringDimension.
+	* @param &moduli The vector of moduli that is used.
+	* @param rootHermiteFactor The security threshold.
+	* @return True if the security threshold is satisfied in the new ring dimension.
 	*/
 	bool CanRingReduce(usint ringDimension, const std::vector<BigBinaryInteger> &moduli, const double rootHermiteFactor) const;
 };
 
 /**
-* @brief Main public key encryption scheme for LTV implementation,
+* @brief This is the algorithms class for to enable deatures for an LTV encryption scheme, notably public key encryption, proxy re-encryption, somewhat homomorphic encryption and/or fully homomorphic encryption. 
+ *
+ * There have been recent advancements in the cryptanalysis of the LTV scheme, so this protocol should be used with care, if at all.  These weaknesses are derived from subfield lattice attacks which are descibed here:
+ *   - Albrecht, Martin, Shi Bai, and Léo Ducas. "A subfield lattice attack on overstretched NTRU assumptions." Annual Cryptology Conference. Springer Berlin Heidelberg, 2016.
+ *   - Cheon, Jung Hee, Jinhyuck Jeong, and Changmin Lee. "An algorithm for NTRU problems and cryptanalysis of the GGH multilinear map without a low-level encoding of zero." LMS Journal of Computation and Mathematics 19.A (2016): 255-266.
+ *
+ * This scheme is defined here:
+ *   - López-Alt, Adriana, Eran Tromer, and Vinod Vaikuntanathan. "On-the-fly multiparty computation on the cloud via multikey fully homomorphic encryption." Proceedings of the forty-fourth annual ACM symposium on Theory of computing. ACM, 2012.
+ *
+ * Our algorithms are informed by prior implementation efforts, including here:
+ *   - Rohloff, Kurt, and David Bruce Cousins. "A scalable implementation of fully homomorphic encryption built on NTRU." International Conference on Financial Cryptography and Data Security. Springer Berlin Heidelberg, 2014.
+*
 * @tparam Element a ring element.
 */
 template <class Element>
@@ -473,6 +572,7 @@ public:
 	* Inherited constructor
 	*/
 	LPPublicKeyEncryptionSchemeLTV() : LPPublicKeyEncryptionScheme<Element>() {}
+
 	/**
 	* Constructor that initalizes the mask
 	*
@@ -481,7 +581,8 @@ public:
 	LPPublicKeyEncryptionSchemeLTV(std::bitset<FEATURESETSIZE> mask);
 	
 	/**
-	* Function to enable a scheme
+	* Function to enable a scheme.
+	* FIXME This needs to be described better.
 	*
 	*@param feature is the feature to enable
 	*/
