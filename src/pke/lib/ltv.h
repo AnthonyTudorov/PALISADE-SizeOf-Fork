@@ -177,7 +177,7 @@ private:
 
 	//function for parameter selection. The public ParameterSelection function is a wrapper around this function.
 	// FIXME This will soon be deprecated.
-	void ParameterSelection(usint& n, vector<BigBinaryInteger> &moduli);
+	void ParameterSelection(usint& n, vector<native64::BigBinaryInteger> &moduli);
 };
 
 /**
@@ -211,7 +211,7 @@ public:
 	 * @param plaintext Plaintext to be encrypted.
 	 * @return A shared pointer to the encrypted Ciphertext.
 	 */
-	shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, Element &plaintext) const;
+	shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, ILVector2n &plaintext) const;
 
 	/**
 	 * Decrypt method for the LTV Scheme.  See the class description for citations on where the algorithms were
@@ -224,7 +224,7 @@ public:
 	 */
 	DecryptResult Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const shared_ptr<Ciphertext<Element>> ciphertext,
-		Element *plaintext) const;
+		ILVector2n *plaintext) const;
 
 	/**
 	 * Key Generation method for the LTV scheme.

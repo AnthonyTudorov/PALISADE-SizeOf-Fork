@@ -1,5 +1,5 @@
 /**
- * @file stst.h -- definitions for StehleSteinfeld Crypto Params
+  * @file stst.h -- definitions for StehleSteinfeld Crypto Params
  * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
  *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>, Nishanth Pasham <np386@njit.edu>, Hadi Sajjadpour <ss2959@njit.edu>, Jerry Ryan <gwryan@njit.edu>
  * @version 00_03
@@ -121,7 +121,7 @@ public:
 	 *
 	 * @return reference to Discrete Gaussian Generaror.
 	 */
-	const DiscreteGaussianGenerator &GetDiscreteGaussianGeneratorStSt() const {return m_dggStSt;}
+	const typename Element::DggType &GetDiscreteGaussianGeneratorStSt() const {return m_dggStSt;}
 
 	//@Set Properties
 
@@ -132,11 +132,6 @@ public:
 		m_distributionParameterStSt = distributionParameterStSt;
 		m_dggStSt.SetStd(m_distributionParameterStSt);
 	}
-
-	/**
-	 * Sets the discrete Gaussian Generator for keys
-	 */
-	void SetDiscreteGaussianGeneratorStSt(const DiscreteGaussianGenerator &dggStSt) {m_dggStSt = dggStSt;}
 
 	/**
 	 * Serialize the object into a Serialized
@@ -194,7 +189,7 @@ private:
 	//standard deviation in Discrete Gaussian Distribution used for Key Generation
 	float m_distributionParameterStSt;
 	//Discrete Gaussian Generator for Key Generation
-	DiscreteGaussianGenerator m_dggStSt;
+	typename Element::DggType m_dggStSt;
 };
 
 /**
@@ -225,7 +220,7 @@ public:
 
 		const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
-		const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGeneratorStSt();
+		const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGeneratorStSt();
 
 		Element f(dgg, cryptoParams->GetElementParams(), Format::COEFFICIENT);
 

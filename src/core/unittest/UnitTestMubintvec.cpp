@@ -108,14 +108,16 @@ protected:
 /*	TESTING BASIC METHODS OF mubintvec CLASS        */
 /************************************************/
 TEST(UTmubintvec,ctor_access_eq_neq){
+  bool dbg_flag = false;
   //note this is the same code as the ubintvec, just to confirm it works
   //as inherited
   ubint q("1234567"); // a bigger number
-  
+
   mubintvec m(5); // calling constructor to create a vector of length 5
                  //note all values are zero.
 
   m.SetModulus(q);
+
   mubintvec n(5,q); // calling contructor with modulus
 
   int i;
@@ -133,6 +135,11 @@ TEST(UTmubintvec,ctor_access_eq_neq){
   m.SetValAtIndex(2,"4554");
   m.SetValAtIndex(3,"2343");
   m.SetValAtIndex(4,"4624");
+
+  DEBUG("m "<<m);
+  EXPECT_EQ(9868U,m.GetValAtIndex(0).ConvertToUsint())
+    << "Failure in SetValAtIndex(0)";
+
 
   //old fashioned way of expect
   EXPECT_EQ(9868U,m.GetValAtIndex(0).ConvertToUsint())
@@ -188,12 +195,13 @@ TEST(UTmubintvec,ctor_access_eq_neq){
     EXPECT_EQ (expectedResult[i], (m.GetValAtIndex(j)).ConvertToUsint())
       << "Failure testing method_plus_equals";
   }
+
   //test initializer list of various types
   mubintvec expectedvecstr(5);
   expectedvecstr = {"9872","5888","4620","2376","4631"}; //strings
   expectedvecstr.SetModulus(q);
   EXPECT_EQ (expectedvecstr, m)<< "Failure string initializer list";
-  
+
   mubintvec expectedvecint(5);
   expectedvecint = {ubint(9872U),ubint(5888U),ubint(4620U),ubint(2376U),ubint(4631U)}; //ubints
   expectedvecint.SetModulus(q);
@@ -206,9 +214,7 @@ TEST(UTmubintvec,ctor_access_eq_neq){
   EXPECT_EQ (expectedvecint, m)<< "Failure int initializer list";
 
   //test Single()
-
   mubintvec s = mubintvec::Single(ubint("3"),ubint("5"));//value 3, mod 5
-		      
   EXPECT_EQ(1, s.size()) <<"Failure Single.size()";
   EXPECT_EQ(ubint(3), s[0]) <<"Failure Single() value";
 
@@ -243,15 +249,16 @@ TEST(UTmubintvec,ctor_access_eq_neq){
   EXPECT_TRUE(test1)<<"Failure ==";
   EXPECT_FALSE(test2)<<"Failure !=";
 
-  n.SetModulus(n.GetModulus()+ubint::ONE);
+  //n.SetModulus(n.GetModulus()+ubint::ONE); //TODO this will not compile?
+  n.SetModulus(ubint(n.GetModulus()+ubint::ONE));
   //reset n to a differnt modulus, comparison will fail. 
   test1 = m==n;
   test2 = m!=n;
   EXPECT_FALSE(test1)<<"Failure == different mods";
   EXPECT_TRUE(test2)<<"Failure != different mods";
+
   // set it back 
   n.SetModulus(n.GetModulus()-ubint::ONE);
-
   m = n+n;
   test1 = m==n;
   test2 = m!=n;
@@ -261,11 +268,11 @@ TEST(UTmubintvec,ctor_access_eq_neq){
   for (auto i = 0; i < m.size(); i++) {
     m[i] = n[i]; //test both lhs and rhs []
   }
+
   test1 = m==n;
   EXPECT_TRUE(test1)<<"Failure [] lhs rhs";
 
   //test more ctors
-
   ubintvec u(5);
   u = {"9872","5888","4620","2376","4631"}; //strings
 
@@ -281,15 +288,15 @@ TEST(UTmubintvec,ctor_access_eq_neq){
 
   //test comparison between ubintvec and mubintvec
   EXPECT_TRUE(u == u2) << "Failure mubintvec == ubintvec";
-  EXPECT_FALSE(u != u2) << "Failure mubintvec == ubintvec";
-  EXPECT_TRUE(u2 == u) << "Failure ubintvec == uubintvec";
+  EXPECT_FALSE(u != u2) << "Failure mubintvec != ubintvec";
+  EXPECT_TRUE(u2 == u) << "Failure ubintvec == mubintvec";
   EXPECT_FALSE(u2 != u) << "Failure ubintvec == mubintvec";
 
 }
 
 TEST(UTmubintvec, constructorTest){
-
-  BigBinaryVector m(10);
+  bool dbg_flag = false;
+  mubintvec m(10);
   
   m.SetValAtIndex(0,"48");
   m.SetValAtIndex(1,"53");
@@ -302,23 +309,31 @@ TEST(UTmubintvec, constructorTest){
   m.SetValAtIndex(8,"60");
   m.SetValAtIndex(9,"12"); 
 
+  DEBUG("m: "<<m);
+
   int expectedResult[10] = {48,53,7,178,190,120,79,108,60,12};  // the expected values are stored as one dimensional integer array
 
-  // mubintvec binvect(m);
+  for (usint i=0;i<10;i++){
+    DEBUG("val "<<i<< " is "<<m.GetValAtIndex(i));
+    EXPECT_EQ (expectedResult[i], (m.GetValAtIndex(i)).ConvertToInt());
+  }
 
-  /*for (usint i=0;i<10;i++){
+
+   mubintvec binvect(m);
+
+  for (usint i=0;i<10;i++){
     EXPECT_EQ (expectedResult[i], (binvect.GetValAtIndex(i)).ConvertToInt());
-  }*/
-
+  }
 }
 
 TEST(UTmubintvec,mod){
-
+  bool dbg_flag = false;
   mubintvec m(10); // calling constructor to create a vector of length 10 zeroed
 
   int i;
   usint j;
 	
+
   //setting value of the value at different index locations
   m.SetValAtIndex(0,"987968");
   m.SetValAtIndex(1,"587679");
@@ -338,18 +353,20 @@ TEST(UTmubintvec,mod){
   mubintvec calculatedResult = m.Mod(q);
   usint expectedResult[10] = {48,53,7,178,190,120,79,108,60,12};	// the expected values are stored as one dimensional integer array
 
-  for (i=0,j=0;i<10;i++,j++) {
-      EXPECT_EQ (expectedResult[i], (calculatedResult.GetValAtIndex(j)).ConvertToUsint());
+  for (i=0;i<10;i++) {
+    EXPECT_EQ (expectedResult[i], calculatedResult[i].ConvertToUsint());
   }
+
 }
 
 TEST(UTmubintvec,basic_vector_vector_mod_math_1_limb){
+  bool dbg_flag = false;
 
   // q1 modulus 1:
   ubint q1("163841");
   // a1:
   mubintvec a1(16,q1);
-
+  DEBUG("a1.modulus "<< a1.GetModulus());
   a1 = { "127753", "077706",
 	 "017133", "022582",
 	 "112132", "027625",
@@ -362,6 +379,8 @@ TEST(UTmubintvec,basic_vector_vector_mod_math_1_limb){
   // b1:
   mubintvec b1;
   b1.SetModulus(q1);
+  DEBUG("b1.modulus "<< b1.GetModulus());
+
   b1 = {"066773", "069572",
 	"142134", "141115",
 	"123182", "155822",
@@ -381,7 +400,9 @@ TEST(UTmubintvec,basic_vector_vector_mod_math_1_limb){
 	     "038630", "047611",
 	     "154600", "025200",
 	     "160515", "083430", };
+
   modadd1.SetModulus(a1);	// sets modadd1.modulus to the same as a1
+  DEBUG("modadd1.modulus "<< modadd1.GetModulus());
 
   // modsub1:
   std::vector<std::string>  modsub1sv = 
@@ -413,6 +434,10 @@ TEST(UTmubintvec,basic_vector_vector_mod_math_1_limb){
  //now Mod operations
   c1 = a1.ModAdd(b1);
   EXPECT_EQ (c1, modadd1) << "Failure 1 limb vector vector ModAdd()";    
+  
+  DEBUG("modadd1 modulus"<<modadd1.GetModulus());
+  DEBUG("c1 modulus"<<c1.GetModulus());
+  DEBUG("c1 "<<c1<<" modadd "<<modadd1);
   // test math for case 1
   c1 = a1.Add(b1);
   EXPECT_EQ (c1, modadd1) << "Failure 1 limb vector vector Add()";
@@ -725,7 +750,6 @@ TEST(UTmubintvec,basic_vector_vector_mod_math_big_numbers){
   d3 = a3;
   d3 *= b3;
   EXPECT_EQ (d3, modmul3) << "Failure big number vector vector *=";
-
   
 }
 

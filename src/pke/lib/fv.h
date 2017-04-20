@@ -256,7 +256,7 @@ namespace lbcrypto {
 		* @return ciphertext which results from encryption.
 		*/
 		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
-			Element &plaintext) const;
+			ILVector2n &plaintext) const;
 
 		/**
 		* Method for decrypting using FV
@@ -268,7 +268,7 @@ namespace lbcrypto {
 		*/
 		DecryptResult Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
 			const shared_ptr<Ciphertext<Element>> ciphertext,
-			Element *plaintext) const;
+			ILVector2n *plaintext) const;
 
 		/**
 		* Function to generate public and private keys

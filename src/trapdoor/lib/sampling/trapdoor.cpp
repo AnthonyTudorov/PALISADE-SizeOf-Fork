@@ -81,7 +81,7 @@ namespace lbcrypto {
 
 	RingMat RLWETrapdoorUtility::GaussSamp(size_t n, size_t k, const RingMat& A, 
 		const RLWETrapdoorPair<ILVector2n>& T, const ILVector2n &u,
-		double sigma, DiscreteGaussianGenerator &dgg, DiscreteGaussianGenerator &dggLargeSigma) {
+		double sigma, ILVector2n::DggType &dgg, ILVector2n::DggType &dggLargeSigma) {
 
 		const shared_ptr<ILParams> params = u.GetParams();
 		auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
@@ -186,7 +186,7 @@ namespace lbcrypto {
 
 	void RLWETrapdoorUtility::ZSampleSigmaP(size_t n, double s, double sigma,
 		const RLWETrapdoorPair<ILVector2n>& Tprime,
-		const DiscreteGaussianGenerator &dgg, const DiscreteGaussianGenerator &dggLargeSigma,
+		const ILVector2n::DggType &dgg, const ILVector2n::DggType &dggLargeSigma,
 		RingMat *perturbationVector) {
 
 		Matrix<ILVector2n> Tprime0 = Tprime.m_e;

@@ -45,8 +45,10 @@ namespace lbcrypto {
  * @brief Interface for ideal lattices
  *
  * Every lattice must implement these pure virtuals in order to properly interoperate with PALISADE PKE
+ *
+ * Element is the return type for all of these virtual functions
  */
-template <typename Element, typename IntType, typename VecType>
+template <typename Element, typename ModType, typename IntType, typename VecType>
 class ILElement : public Serializable
 {
 public:
@@ -108,7 +110,7 @@ public:
 	 *
 	 * @return the modulus.
 	 */
-	virtual const IntType &GetModulus() const = 0;
+	virtual const ModType &GetModulus() const = 0;
 
 	/**
 	 * Get the values for the element
@@ -125,15 +127,6 @@ public:
 	virtual const usint GetCyclotomicOrder() const = 0;
 
 	/**
-	 * Get digit for a specific base.  Gets a binary polynomial from a given polynomial.  From every coefficient, it extracts the same digit.  Used in bit decomposition/relinearization operations.
-	 *
-	 * @param index is the index to get.
-	 * @param base is the base the result should be in.
-	 * @return is the result.
-	 */
-	virtual Element GetDigitAtIndexForBase(usint index, usint base) const = 0;
-
-	/**
 	 * Gets the Value in the Element that is At Index and returns it
 	 *
 	 * This is only implemented for some derived classes, so the default implementation throws an exception
@@ -141,7 +134,12 @@ public:
 	 * @param i
 	 * @return will throw a logic_error.
 	 */
+	//dbc changed this to non ref return
+#if MATHBACKEND !=6
 	virtual const IntType& GetValAtIndex(usint i) const {
+#else
+	virtual const IntType GetValAtIndex(usint i) const {
+#endif
 		throw std::logic_error("GetValAtIndex not implemented");
 	}
 
@@ -312,7 +310,7 @@ public:
 	 *
 	 * @return the interpolated ring element.
 	 */
-	virtual Element CRTInterpolate() const = 0;
+	virtual ILVector2n CRTInterpolate() const = 0;
 
 	/**
 	 * Interleaves values in the ILVector2n with odd indices being all zeros.
@@ -345,7 +343,7 @@ public:
 	 *
 	 * @param &wFactor ratio between the original element's ring dimension and the new ring dimension.
 	 */
-	virtual void MakeSparse(const IntType &wFactor) = 0;
+	virtual void MakeSparse(const uint32_t &wFactor) = 0;
 
 	/**
 	 * ModByTwo operation on the Element

@@ -59,7 +59,7 @@ public:
 	/**
 	 * Basic constructor.	  	  
 	 */
-	explicit BigBinaryVectorImpl();
+	BigBinaryVectorImpl();
 
     static inline BigBinaryVectorImpl Single(const IntegerType& val, const IntegerType& modulus) {
         BigBinaryVectorImpl vec(1, modulus);
@@ -72,7 +72,7 @@ public:
 	 *
 	 * @param length is the length of the big binary vector, in terms of the number of entries.	  	  
 	 */
-	explicit BigBinaryVectorImpl(usint length);
+	BigBinaryVectorImpl(usint length);
 
 	/**
 	 * Basic constructor for specifying the length of the vector and the modulus.
@@ -80,14 +80,14 @@ public:
 	 * @param length is the length of the big binary vector, in terms of the number of entries.	
 	 * @param modulus is the modulus of the entries in the vector.  	  
 	 */
-	explicit BigBinaryVectorImpl(usint length, const IntegerType& modulus);
+	BigBinaryVectorImpl(usint length, const IntegerType& modulus);
 
 	/**
 	 * Basic constructor for copying a vector
 	 *
 	 * @param bigBinaryVector is the big binary vector to be copied.  	  
 	 */
-	explicit BigBinaryVectorImpl(const BigBinaryVectorImpl& bigBinaryVector);
+	BigBinaryVectorImpl(const BigBinaryVectorImpl& bigBinaryVector);
 
 	/**
 	 * Basic move constructor for moving a vector
@@ -187,6 +187,24 @@ public:
 	 * @param value is the int value to set at the index.
 	 */
 	void SetValAtIndex(usint index, const IntegerType& value) {
+		if(!this->IndexCheck(index)) {
+			throw std::logic_error("Invalid index input to SetValAtIndex for index "
+					+ std::to_string(index) + " for vector of length " + std::to_string(m_length));
+		}
+
+		this->m_data[index] = value;
+	}
+
+	/**
+	 * Sets a value at an index. guarrentees that mod is not taken
+	 * some backends have automatic mod of this class.
+	 *
+	 * @param index is the index to set a value at.
+	 * @param value is the int value to set at the index sans intrinsic modulus.
+	 */
+	//TODO: change SetValAtIndex() to always take mod.
+
+	void SetValAtIndexWithoutMod(usint index, const IntegerType& value) {
 		if(!this->IndexCheck(index)) {
 			throw std::logic_error("Invalid index input to SetValAtIndex for index "
 					+ std::to_string(index) + " for vector of length " + std::to_string(m_length));
@@ -324,6 +342,18 @@ public:
 	 * @return a new vector which is the result of the modulus inverse operation.
 	 */
 	BigBinaryVectorImpl ModInverse() const;
+
+	/**
+	 * Modulus scalar multiplication assignment.
+	 *
+	 * @param &a is the input vector to multiply.
+	 * @param &i is the input integer to multiply at all entries.
+	 * @return a new vector which is the result of the modulus multiplication operation.
+	 */
+	  inline BigBinaryVectorImpl &operator*=(const IntegerType &i) {
+	    *this=this->ModMul(i);
+	    return *this;
+	  }
 
 	//Vector Operations
 

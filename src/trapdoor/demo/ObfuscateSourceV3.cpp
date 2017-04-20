@@ -72,11 +72,7 @@ void Run() {
 
 	double diff, start, finish;
 
-	//Prepare for parameters.
-	//shared_ptr<ILParams> ilParams( new ILParams(m,modulus,rootOfUnity) );
-
-	//DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(modulus, stdDev);			// Create the noise generator
-	DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(stdDev); // Create the noise generator
+	ILVector2n::DggType dgg(stdDev);			// Create the noise generator
 
 	//Finds q using the correctness constraint for the given value of n
 	algorithm.ParamsGen(dgg, &obfuscatedPattern, m / 2);
@@ -95,8 +91,9 @@ void Run() {
 	std::cout << "n = " << m/2 << std::endl;
 	std::cout << printf("delta=%lf", obfuscatedPattern.GetRootHermiteFactor()) << std::endl;
 
-	DiscreteUniformGenerator dug = DiscreteUniformGenerator(modulus);
-	TernaryUniformGenerator tug = TernaryUniformGenerator();			// Create the noise generator
+	typename ILVector2n::DugType dug;
+	dug.SetModulus(modulus);
+	typename ILVector2n::TugType tug;
 
 	std::cout << " \nCryptosystem initialization: Performing precomputations..." << std::endl;
 

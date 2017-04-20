@@ -172,7 +172,7 @@ void SingleThreadedRun() {
 
 		size_t counter = 10;
 		double start, finish;
-		DiscreteGaussianGenerator dgg(SIGMA);
+		ILVector2n::DggType dgg(SIGMA);
 		usint sm = 16;
 		BigBinaryInteger smodulus("1048609");
 		BigBinaryInteger srootOfUnity("389832");

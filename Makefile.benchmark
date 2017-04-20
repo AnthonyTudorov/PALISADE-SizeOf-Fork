@@ -69,7 +69,10 @@ BENCHMARK_BIN =  $(BENCHMARK_SRC:$(BENCHMARK_SRC_DIR)%.cpp=$(BENCHMARK_BIN_DIR)%
 
 
 #this is is the Include directive for the palisade code being benchmarked
-BENCHMARK_INC = -Isrc/core/lib -Isrc/pke/lib $(BM_IFLAGS)
+#BENCHMARK_INC = -Isrc/core/lib -Isrc/pke/lib $(BM_IFLAGS)
+
+#DBC included NTL and GMP
+BENCHMARK_INC = -Isrc/core/lib -Isrc/pke/lib $(BM_IFLAGS) $(NTLINCLUDE) $(GMPINCLUDE)
 
 # this builds objects from sources for benchmarks
 $(BENCHMARK_BUILD_DIR)/%.o: $(BENCHMARK_SRC_DIR)/%.cpp
@@ -90,8 +93,8 @@ $(BENCHMARK_BIN_DIR)/%$(EXESUFFIX): $(BENCHMARK_BUILD_DIR)/%.o $(BM_LIB) $(EXTLI
 benchmarktargets: $(BENCHMARK_BIN)
 
 #this target is usesd to cleanup, it is called from the top Makefile
-.PHONEY: cleanbenchmarks
-cleanbenchmarks:
+.PHONEY: cleanbenchmark
+cleanbenchmark:
 	@echo " Cleaning Benchmarks...";
 	$(RM) -r $(BENCHMARK_BIN_DIR) $(BENCHMARK_BUILD_DIR) $(BM_OBJ) $(BM_LIB)
 

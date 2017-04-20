@@ -72,7 +72,7 @@ void testJson(
 
 	cout << "----------------------START JSON FACILITY TESTING-------------------------" << endl;
 
-	size_t chunksize = newPtxt.GetChunksize(tp->ctx.GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder(), tp->ctx.GetCryptoParameters()->GetPlaintextModulus());
+	size_t chunksize = newPtxt.GetChunksize(tp->ctx.GetCyclotomicOrder(), tp->ctx.GetCryptoParameters()->GetPlaintextModulus());
 	if( newPtxt.size() > chunksize ) {
 		cout << "This test code won't work when the plaintext size (" << newPtxt.size()
 				<< ") is bigger than the chunksize (" << chunksize << ")" << endl;
@@ -399,29 +399,6 @@ NTRUPRE(CryptoContext<ILVector2n>& ctx, string& parmset, bool doJson) {
 	std::cout << " \nCryptosystem initialization: Performing precomputations..." << std::endl;
 
 	double diff, start, finish;
-
-	start = currentDateTime();
-
-	//This code is run only when performing execution time measurements
-
-	try {
-		//Precomputations for DGG
-		ILVector2n::PreComputeDggSamples(ctx.GetGenerator(), ctx.GetElementParams());
-
-		//Precomputations for TUG
-		TernaryUniformGenerator tug;
-		ILVector2n::PreComputeTugSamples(tug, ctx.GetElementParams());
-	} catch (...) {
-		// ignore if this fails... which it will in some cases, like if there is no generator in use
-	}
-
-	finish = currentDateTime();
-	diff = finish - start;
-
-	cout << "Precomputation time: " << "\t" << diff << " ms" << endl;
-	fout << "Precomputation time: " << "\t" << diff << " ms" << endl;
-
-	//Regular LWE-NTRU encryption algorithm
 
 	////////////////////////////////////////////////////////////
 	//Perform the key generation operation.

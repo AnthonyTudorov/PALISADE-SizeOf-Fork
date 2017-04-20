@@ -30,6 +30,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 namespace lbcrypto {
 
+
 //static Initializations
 template<typename IntType, typename VecType>
 NumberTheoreticTransform<IntType,VecType>* NumberTheoreticTransform<IntType,VecType>::m_onlyInstance = 0;
@@ -55,7 +56,7 @@ std::map<IntType, VecType> ChineseRemainderTransformFTT<IntType,VecType>::m_root
 DiscreteFourierTransform* DiscreteFourierTransform::m_onlyInstance = 0;
 std::complex<double>* DiscreteFourierTransform::rootOfUnityTable = 0;
 }
-
+//TODO: why is this namespace split like this? 
 namespace lbcrypto {
 template<typename IntType, typename VecType>
 NumberTheoreticTransform<IntType,VecType>& NumberTheoreticTransform<IntType,VecType>::GetInstance() {
@@ -68,7 +69,7 @@ NumberTheoreticTransform<IntType,VecType>& NumberTheoreticTransform<IntType,VecT
 //Number Theoretic Transform - ITERATIVE IMPLEMENTATION -  twiddle factor table precomputed
 template<typename IntType, typename VecType>
 VecType NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(const VecType& element, const VecType &rootOfUnityTable, const usint cycloOrder) {
-
+        bool dbg_flag = false;
 	usint n = cycloOrder;
 	VecType result(n);
 	result.SetModulus(element.GetModulus());
@@ -87,14 +88,15 @@ VecType NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(con
 		  for lower cyclotomic orders is smaller. This trick only works for powers of two cyclotomics.*/ 
 	usint ringDimensionFactor = (rootOfUnityTable.GetLength()) / cycloOrder;
 
-	//YSP mu is not needed for native data types
-#if MATHBACKEND > 6
-	IntType mu(IntType::ONE);
-#else
+	//YSP mu is not needed for native data types or BE 6
+#if MATHBACKEND < 6
 	//Precompute the Barrett mu parameter
 	IntType temp(IntType::ONE);
 	temp <<= 2 * element.GetModulus().GetMSB() + 3;
 	IntType mu = temp.DividedBy(element.GetModulus());
+#endif
+#if MATHBACKEND == 6
+	IntType modulus = element.GetModulus();
 #endif
 
 	for (usint m = 2; m <= n; m = 2 * m)
@@ -119,10 +121,17 @@ VecType NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(con
 						omegaFactor = omega;
 					else
 					{
-						omegaFactor = omega*result.GetValAtIndex(indexOdd);
-						omegaFactor.ModBarrettInPlace(element.GetModulus(), mu);
-					}
+#if MATHBACKEND !=6
+						//omegaFactor = omega*result.GetValAtIndex(indexOdd);
+						//omegaFactor.ModBarrettInPlace(element.GetModulus(), mu);
+						omegaFactor = omega.ModBarrettMul(result.GetValAtIndex(indexOdd),element.GetModulus(), mu);
 
+#else
+						omegaFactor = omega.ModMulFast(result.GetValAtIndex(indexOdd),modulus);
+#endif
+						DEBUG("omegaFactor "<<omegaFactor);
+					}
+#if  MATHBACKEND !=6
 					butterflyPlus = result.GetValAtIndex(indexEven);
 					butterflyPlus += omegaFactor;
 					if (butterflyPlus >= element.GetModulus())
@@ -135,10 +144,16 @@ VecType NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(con
 
 					result.SetValAtIndex(indexEven, butterflyPlus);
 					result.SetValAtIndex(indexOdd, butterflyMinus);
-
+#else
+					//result[indexOdd] = result[indexEven]-omegaFactor;
+					result[indexOdd] = result[indexEven].ModSubFast(omegaFactor,modulus);
+					//result[indexEven]+=omegaFactor;
+					result[indexEven] = result[indexEven].ModAddFast(omegaFactor,modulus);
+#endif
 				}
 				else
-					result.SetValAtIndex(indexOdd, result.GetValAtIndex(indexEven));
+				  //result.SetValAtIndex(indexOdd, result.GetValAtIndex(indexEven));
+				  result[indexOdd] = result[indexEven];
 
 			}
 
@@ -156,8 +171,12 @@ VecType NumberTheoreticTransform<IntType,VecType>::InverseTransformIterative(con
 	VecType ans = NumberTheoreticTransform<IntType,VecType>::GetInstance().ForwardTransformIterative(element, rootOfUnityInverseTable, cycloOrder);
 
 	ans.SetModulus(element.GetModulus());
-
+	//TODO:: note this could be stored
+#if 1//MATHBACKEND !=6
 	ans = ans.ModMul(IntType(cycloOrder).ModInverse(element.GetModulus()));
+#else
+	ans *= (IntType(cycloOrder).ModInverse(element.GetModulus()));
+#endif
 
 	return ans;
 }
@@ -279,6 +298,7 @@ VecType ChineseRemainderTransform<IntType,VecType>::InverseTransform(const VecTy
 
 	if (!IsPowerOfTwo(element.GetLength())) {
 		std::cout << "Input to IFFT is not a power of two\n ERROR BEFORE FFT\n";
+		//HERE IS WHERE WE NEED ADD additional table of modinverse etc.
 		OpIFFT = NumberTheoreticTransform<IntType,VecType>::GetInstance().InverseTransformIterative(InputToFFT, *m_rootOfUnityInverseTable, CycloOrder);
 	}
 	else {
@@ -286,7 +306,7 @@ VecType ChineseRemainderTransform<IntType,VecType>::InverseTransform(const VecTy
 	}
 
 	VecType ans(CycloOrder / 2);
-
+	//TODO:: can this be done quicker?
 	for (usint i = 0; i<CycloOrder / 2; i++)
 		ans.SetValAtIndex(i, (OpIFFT).GetValAtIndex(i).ModMul(IntType::TWO, (OpIFFT).GetModulus()));
 
@@ -310,7 +330,7 @@ VecType ChineseRemainderTransformFTT<IntType,VecType>::ForwardTransform(const Ve
 	}
 
 	//YSP mu is not needed for native data types
-#if MATHBACKEND > 6
+#if MATHBACKEND > 5
 	IntType mu(IntType::ONE);
 #else
 	//Precompute the Barrett mu parameter
@@ -379,7 +399,7 @@ VecType ChineseRemainderTransformFTT<IntType,VecType>::InverseTransform(const Ve
 	}
 
 	//YSP mu is not needed for native data types
-#if MATHBACKEND > 6
+#if MATHBACKEND > 5
 	IntType mu(IntType::ONE);
 #else
 	//Pre-compute mu for Barrett function
@@ -392,6 +412,7 @@ VecType ChineseRemainderTransformFTT<IntType,VecType>::InverseTransform(const Ve
 
 	IntType rootofUnityInverse;
 
+	//TODO: is there a reason this isn't checked oly initially when the table is made? 
 	try {
 		rootofUnityInverse = rootOfUnity.ModInverse(element.GetModulus());
 	} catch ( std::exception& e ) {
@@ -444,7 +465,7 @@ template<typename IntType, typename VecType>
 void ChineseRemainderTransformFTT<IntType,VecType>::PreCompute(const IntType& rootOfUnity, const usint CycloOrder, const IntType &modulus) {
 
 	//YSP mu is not needed for native data types
-#if MATHBACKEND > 6
+#if MATHBACKEND > 5
 	IntType mu(IntType::ONE);
 #else
 	//Precompute the Barrett mu parameter
@@ -507,7 +528,7 @@ void ChineseRemainderTransformFTT<IntType,VecType>::PreCompute(std::vector<IntTy
 		IntType currentMod(moduliiChain[i]);
 
 		//mu is not needed for native data types
-#if MATHBACKEND > 6
+#if MATHBACKEND > 5
 		IntType mu(IntType::ONE);
 #else
 		//Precompute the Barrett mu parameter
@@ -590,7 +611,6 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 		}
 	}
 
-
 	std::vector<std::complex<double>> DiscreteFourierTransform::FFTForwardTransform(std::vector<std::complex<double>> & A) {
 		int m = A.size();
 		std::vector<std::complex<double>> B(A);
@@ -650,7 +670,6 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 		double n = result.size() / 2;
 		for (int i = 0;i < n;i++) {
 			result[i] = std::complex<double>(result[i].real() / n, result[i].imag() / n);
-			//result[i] =std::complex<double>(result[i].real()/(2*n), result[i].imag()/(2*n));
 		}
 		return result;
 	}
@@ -667,7 +686,6 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 		for (int i = dft.size() - 1;i > 0;i--) {
 			if (i % 2 != 0) {
 				dftRemainder.push_back(dft.at(i));
-				//dftRemainder.push_back(std::complex<double>(2*dft.at(i).real(), 2 * dft.at(i).imag()));
 			}
 		}
 		return dftRemainder;
@@ -699,8 +717,10 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 
 // FIXME the MATH_BACKEND check is a hack and needs to go away
 #if MATHBACKEND != 7
+#ifndef NO_MATHBACKEND_7
 	template class ChineseRemainderTransformFTT<native64::BigBinaryInteger,native64::BigBinaryVector>;
 	template class NumberTheoreticTransform<native64::BigBinaryInteger,native64::BigBinaryVector>;
+#endif
 #endif
 
 }//namespace ends here

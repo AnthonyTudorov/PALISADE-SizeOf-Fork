@@ -14,9 +14,6 @@ namespace lbcrypto {
 
 template <class Element>
 class LPCryptoParametersNull : public LPCryptoParameters<Element> {
-private:
-	DiscreteGaussianGenerator	m_dgg;
-
 public:
 	LPCryptoParametersNull() : LPCryptoParameters<Element>() {}
 
@@ -26,8 +23,6 @@ public:
 	LPCryptoParametersNull(const LPCryptoParametersNull& rhs) : LPCryptoParameters<Element>(rhs) {}
 
 	virtual ~LPCryptoParametersNull() {}
-
-	const DiscreteGaussianGenerator &GetDiscreteGaussianGenerator() const {return m_dgg;}
 
 	virtual void SetPlaintextModulus(const BigBinaryInteger &plaintextModulus) {
 		LPCryptoParameters<Element>::SetPlaintextModulus(plaintextModulus);
@@ -121,13 +116,12 @@ public:
 	* @param *ciphertext ciphertext which results from encryption.
 	*/
 	shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> pubKey,
-		Element &plaintext) const {
+		ILVector2n &ptxt) const {
 		shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(pubKey->GetCryptoContext()) );
 
-		Element copyPlain(pubKey->GetCryptoContext().GetCryptoParameters()->GetElementParams());
-		copyPlain.SetValues(plaintext.GetValues(), Format::EVALUATION);
+		Element plaintext(ptxt, pubKey->GetCryptoContext().GetCryptoParameters()->GetElementParams());
 
-		ciphertext->SetElement(copyPlain);
+		ciphertext->SetElement(plaintext);
 
 		return ciphertext;
 	}
@@ -142,8 +136,10 @@ public:
 	*/
 	DecryptResult Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const shared_ptr<Ciphertext<Element>> ciphertext,
-		Element *plaintext) const {
-		*plaintext = ciphertext->GetElement();
+		ILVector2n *plaintext) const {
+		Element b = ciphertext->GetElement();
+		ILVector2n interpolatedElement = b.CRTInterpolate();
+		*plaintext = interpolatedElement;
 		return DecryptResult(plaintext->GetLength());
 	}
 
@@ -353,63 +349,11 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		 * @param &ciphertext2 second input ciphertext.
 		 * @param *newCiphertext the new resulting ciphertext.
 		 */
-		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
-			const shared_ptr<Ciphertext<Element>> ciphertext2) const {
-			if (typeid(Element) != typeid(ILVector2n)) {
-				throw std::runtime_error("EvalMult only implemented for Null Scheme and element ILVector2n.");
-			}
+		shared_ptr<Ciphertext<ILVector2n>> EvalMult(const shared_ptr<Ciphertext<ILVector2n>> ciphertext1,
+			const shared_ptr<Ciphertext<ILVector2n>> ciphertext2) const;
 
-			if (ciphertext1->GetElement().GetFormat() == Format::COEFFICIENT || ciphertext2->GetElement().GetFormat() == Format::COEFFICIENT) {
-				throw std::runtime_error("EvalMult cannot multiply in COEFFICIENT domain.");
-			}
-
-			shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext2->GetCryptoContext()));
-
-			const Element& c1 = ciphertext1->GetElement();
-			const Element& c2 = ciphertext2->GetElement();
-
-			Element cResult(ciphertext1->GetCryptoContext().GetCryptoParameters()->GetElementParams(), Format::EVALUATION, true);
-
-			Element cLarger(ciphertext1->GetCryptoContext().GetCryptoParameters()->GetElementParams(), Format::EVALUATION, true);
-
-			const BigBinaryInteger& ptm = ciphertext1->GetCryptoParameters()->GetPlaintextModulus();
-			int	ringdim = c1.GetCyclotomicOrder() / 2;
-
-			for (int c1e = 0; c1e<ringdim; c1e++) {
-				BigBinaryInteger answer, c1val, c2val, prod;
-				c1val = c1.GetValAtIndex(c1e);
-				if (c1val != BigBinaryInteger::ZERO) {
-					for (int c2e = 0; c2e<ringdim; c2e++) {
-						c2val = c2.GetValAtIndex(c2e);
-						if (c2val != BigBinaryInteger::ZERO) {
-							prod = c1val * c2val;
-
-							int index = (c1e + c2e);
-
-							if (index >= ringdim) {
-								index %= ringdim;
-								cLarger.SetValAtIndex(index, (cLarger.GetValAtIndex(index) + prod) % ptm);
-							}
-							else
-								cResult.SetValAtIndex(index, (cResult.GetValAtIndex(index) + prod) % ptm);
-						}
-					}
-				}
-			}
-
-			// fold cLarger back into the answer
-			for (int i = 0; i<ringdim; i++) {
-				BigBinaryInteger adj;
-				adj = cResult.GetValAtIndex(i) + (ptm - cLarger.GetValAtIndex(i)) % ptm;
-				cResult.SetValAtIndex(i, adj % ptm);
-			}
-
-			// DO NOT USE element's operator* !!!  Element cResult = c1*c2;
-
-			newCiphertext->SetElement(cResult);
-
-			return newCiphertext;
-		}
+		shared_ptr<Ciphertext<ILVectorArray2n>> EvalMult(const shared_ptr<Ciphertext<ILVectorArray2n>> ciphertext1,
+			const shared_ptr<Ciphertext<ILVectorArray2n>> ciphertext2) const;
 
 		/**
 		* Function for evaluating multiplication on ciphertext followed by key switching operation.
@@ -539,6 +483,49 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 			const usint size, shared_ptr<LPPrivateKey<Element>> *tempPrivateKey,
 			std::vector<shared_ptr<LPEvalKey<Element>>> *evalKeys) const {
 			return false;
+		}
+
+	private:
+		typename Element::ILVectorType ElementNullSchemeMultiply(const typename Element::ILVectorType& c1, const typename Element::ILVectorType& c2,
+				const BigBinaryInteger& ptmod) const {
+
+			typename Element::ILVectorType cResult(c1.GetParams(), Format::EVALUATION, true);
+
+			typename Element::ILVectorType cLarger(c1.GetParams(), Format::EVALUATION, true);
+
+			typename Element::ILVectorType::Integer ptm( ptmod.ConvertToInt() );
+
+			int	ringdim = c1.GetCyclotomicOrder() / 2;
+			for (int c1e = 0; c1e<ringdim; c1e++) {
+				typename Element::ILVectorType::Integer answer, c1val, c2val, prod;
+				c1val = c1.GetValAtIndex(c1e);
+				if (c1val != Element::ILVectorType::Integer::ZERO) {
+					for (int c2e = 0; c2e<ringdim; c2e++) {
+						c2val = c2.GetValAtIndex(c2e);
+						if (c2val != Element::ILVectorType::Integer::ZERO) {
+							prod = c1val * c2val;
+
+							int index = (c1e + c2e);
+
+							if (index >= ringdim) {
+								index %= ringdim;
+								cLarger.SetValAtIndex(index, (cLarger.GetValAtIndex(index) + prod) % ptm);
+							}
+							else
+								cResult.SetValAtIndex(index, (cResult.GetValAtIndex(index) + prod) % ptm);
+						}
+					}
+				}
+			}
+
+			// fold cLarger back into the answer
+			for (int i = 0; i<ringdim; i++) {
+				typename Element::ILVectorType::Integer adj;
+				adj = cResult.GetValAtIndex(i) + (ptm - cLarger.GetValAtIndex(i)) % ptm;
+				cResult.SetValAtIndex(i, adj % ptm);
+			}
+
+			return std::move( cResult );
 		}
 };
 

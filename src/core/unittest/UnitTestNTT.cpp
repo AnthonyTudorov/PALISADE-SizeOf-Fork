@@ -108,19 +108,19 @@ TEST(UTNTT, switch_format_simple_double_crt) {
 
 	usint init_size = 2;
 
-	vector<BigBinaryInteger> init_moduli(init_size);
+	vector<native64::BigBinaryInteger> init_moduli(init_size);
 
-	vector<BigBinaryInteger> init_rootsOfUnity(init_size);
+	vector<native64::BigBinaryInteger> init_rootsOfUnity(init_size);
 
-	BigBinaryInteger q("1");
-	BigBinaryInteger temp;
+	native64::BigBinaryInteger q("1");
+	native64::BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
 
 	for (int i = 0; i < init_size; i++) {
-		lbcrypto::NextQ(q, BigBinaryInteger::FIVE, init_m, BigBinaryInteger("4"), BigBinaryInteger("4"));
+		lbcrypto::NextQ(q, native64::BigBinaryInteger::FIVE, init_m, native64::BigBinaryInteger::FOUR, native64::BigBinaryInteger::FOUR);
 		init_moduli[i] = q;
 		init_rootsOfUnity[i] = RootOfUnity(init_m, init_moduli[i]);
-		modulus = modulus* init_moduli[i];
+		modulus = modulus * BigBinaryInteger(init_moduli[i].ConvertToInt());
 
 	}
 
@@ -147,18 +147,19 @@ TEST(UTNTT, switch_format_simple_double_crt) {
 }
 
 TEST(UTNTT, switch_format_decompose_single_crt) {
+        bool dbg_flag = false;
 	usint m1 = 16;
 
-	BigBinaryInteger modulus("1");
-	NextQ(modulus, BigBinaryInteger("2"), m1, BigBinaryInteger("4"), BigBinaryInteger("4"));
-	BigBinaryInteger rootOfUnity(RootOfUnity(m1, modulus));
-	shared_ptr<ILParams> params( new ILParams(m1, modulus, rootOfUnity) );
-	shared_ptr<ILParams> params2( new ILParams(m1 / 2, modulus, rootOfUnity) );
+	native64::BigBinaryInteger modulus("1");
+	NextQ(modulus, native64::BigBinaryInteger::TWO, m1, native64::BigBinaryInteger::FOUR, native64::BigBinaryInteger::FOUR);
+	native64::BigBinaryInteger rootOfUnity(RootOfUnity(m1, modulus));
+	shared_ptr<native64::ILParams> params( new native64::ILParams(m1, modulus, rootOfUnity) );
+	shared_ptr<native64::ILParams> params2( new native64::ILParams(m1 / 2, modulus, rootOfUnity) );
 
-	ILVector2n x1(params, Format::COEFFICIENT);
+	native64::ILVector2n x1(params, Format::COEFFICIENT);
 	x1 = { 431,3414,1234,7845,2145,7415,5471,8452 };
 
-	ILVector2n x2(params, Format::COEFFICIENT);
+	native64::ILVector2n x2(params, Format::COEFFICIENT);
 	x2 = { 4127,9647,1987,5410,6541,7014,9741,1256 };
 
 	x1.SwitchFormat(); //EVAL
@@ -176,31 +177,38 @@ TEST(UTNTT, switch_format_decompose_single_crt) {
 	x1.SwitchFormat(); //EVAL
 	x2.SwitchFormat();
 
-	ILVector2n x1Expected(params2, Format::COEFFICIENT);
+	native64::ILVector2n x1Expected(params2, Format::COEFFICIENT);
 	x1Expected = { 431,1234,2145,5471};
 
-	ILVector2n x2Expected(params2, Format::COEFFICIENT);
+	native64::ILVector2n x2Expected(params2, Format::COEFFICIENT);
 	x2Expected = { 4127,1987,6541,9741 };
+
+	DEBUG("x1: "<<x1);
+	DEBUG("x1: "<<x1Expected);
+
+	DEBUG("x2: "<<x2);
+	DEBUG("x2: "<<x2Expected);
 
 	EXPECT_EQ(x1, x1Expected);
 	EXPECT_EQ(x2, x2Expected);
 }
 
 TEST(UTNTT, decomposeMult_double_crt) {
+  bool dbg_flag = false;
 	usint init_m = 16;
 
 	float init_stdDev = 4;
 
 	usint init_size = 2;
 
-	vector<BigBinaryInteger> init_moduli(init_size);
+	vector<native64::BigBinaryInteger> init_moduli(init_size);
 
-	vector<BigBinaryInteger> init_rootsOfUnity(init_size);
+	vector<native64::BigBinaryInteger> init_rootsOfUnity(init_size);
 
-	BigBinaryInteger temp;
+	native64::BigBinaryInteger temp;
 	
-	init_moduli[0] = BigBinaryInteger("17729");
-	init_moduli[1] = BigBinaryInteger("17761");
+	init_moduli[0] = native64::BigBinaryInteger("17729");
+	init_moduli[1] = native64::BigBinaryInteger("17761");
 
 
 	for (int i = 0; i < init_size; i++) {
@@ -236,18 +244,23 @@ TEST(UTNTT, decomposeMult_double_crt) {
 
 	resultsEval.SwitchFormat(); // COEF
 
-	EXPECT_EQ(resultsEval.GetElementAtIndex(0).GetValAtIndex(0), BigBinaryInteger::ZERO);
-	EXPECT_EQ(resultsEval.GetElementAtIndex(0).GetValAtIndex(1), BigBinaryInteger::ZERO);
-	EXPECT_EQ(resultsEval.GetElementAtIndex(0).GetValAtIndex(2), BigBinaryInteger("17728"));
-	EXPECT_EQ(resultsEval.GetElementAtIndex(0).GetValAtIndex(3), BigBinaryInteger::ZERO);
 
-	EXPECT_EQ(resultsEval.GetElementAtIndex(1).GetValAtIndex(0), BigBinaryInteger::ZERO);
-	EXPECT_EQ(resultsEval.GetElementAtIndex(1).GetValAtIndex(1), BigBinaryInteger::ZERO);
-	EXPECT_EQ(resultsEval.GetElementAtIndex(1).GetValAtIndex(2), BigBinaryInteger("17760"));
-	EXPECT_EQ(resultsEval.GetElementAtIndex(1).GetValAtIndex(3), BigBinaryInteger::ZERO);
+	DEBUG("resultsEval ix 0: "<<resultsEval.GetElementAtIndex(0).GetValues());
+	DEBUG("resultsEval ix 1: "<<resultsEval.GetElementAtIndex(1).GetValues());
+
+	EXPECT_EQ(resultsEval.GetElementAtIndex(0).GetValAtIndex(0), native64::BigBinaryInteger::ZERO);
+	EXPECT_EQ(resultsEval.GetElementAtIndex(0).GetValAtIndex(1), native64::BigBinaryInteger::ZERO);
+	EXPECT_EQ(resultsEval.GetElementAtIndex(0).GetValAtIndex(2), native64::BigBinaryInteger("17728"));
+	EXPECT_EQ(resultsEval.GetElementAtIndex(0).GetValAtIndex(3), native64::BigBinaryInteger::ZERO);
+
+	EXPECT_EQ(resultsEval.GetElementAtIndex(1).GetValAtIndex(0), native64::BigBinaryInteger::ZERO);
+	EXPECT_EQ(resultsEval.GetElementAtIndex(1).GetValAtIndex(1), native64::BigBinaryInteger::ZERO);
+	EXPECT_EQ(resultsEval.GetElementAtIndex(1).GetValAtIndex(2), native64::BigBinaryInteger("17760"));
+	EXPECT_EQ(resultsEval.GetElementAtIndex(1).GetValAtIndex(3), native64::BigBinaryInteger::ZERO);
 }
 
 TEST(UTNTT, decomposeMult_single_crt) {
+  bool dbg_flag = false;
 	usint m1 = 16;
 
 	BigBinaryInteger modulus("17729");
@@ -256,12 +269,13 @@ TEST(UTNTT, decomposeMult_single_crt) {
 	shared_ptr<ILParams> params2( new ILParams(m1 / 2, modulus, rootOfUnity) );
 
 	ILVector2n x1(params, Format::COEFFICIENT);
+
 	x1 = { 0,0,0,0,0,0,1,0 };
 
 	ILVector2n x2(params, Format::COEFFICIENT);
 	x2 = { 0,0,0,0,0,0,1,0 };
 
-	x1.SwitchFormat();
+	x1.SwitchFormat(); //dbc remember to remove thtese. 
 	x2.SwitchFormat();
 	x1.SwitchFormat();
 	x2.SwitchFormat();
@@ -269,17 +283,28 @@ TEST(UTNTT, decomposeMult_single_crt) {
 	x1.Decompose();
 	x2.Decompose();
 
+	DEBUG("x1.Decompose() "<<x1.GetValues());
+	DEBUG("x2.Decompose() "<<x2.GetValues());
+
 	ILVector2n resultsEval(params2, Format::EVALUATION);
+	DEBUG("resultsEval.modulus"<< resultsEval.GetModulus());
 
 	x1.SwitchFormat();
 	x2.SwitchFormat();
 
+	DEBUG("x1.SwitchFormat() "<<x1.GetValues());
+	DEBUG("x2.SwitchFormat() "<<x2.GetValues());
+
 	resultsEval = x1*x2;
+	DEBUG("resultsEval.eval "<<resultsEval.GetValues());
 
 	resultsEval.SwitchFormat(); // COEF	
+	DEBUG("resultsEval.coef "<<resultsEval.GetValues());
+	DEBUG("resultsEval.modulus"<< resultsEval.GetModulus());
 
 	EXPECT_EQ(resultsEval.GetValAtIndex(0), BigBinaryInteger::ZERO);
 	EXPECT_EQ(resultsEval.GetValAtIndex(1), BigBinaryInteger::ZERO);
 	EXPECT_EQ(resultsEval.GetValAtIndex(2), BigBinaryInteger("17728"));
 	EXPECT_EQ(resultsEval.GetValAtIndex(3), BigBinaryInteger::ZERO);
+
 }

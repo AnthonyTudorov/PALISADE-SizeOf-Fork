@@ -52,11 +52,17 @@
 #ifndef LBCRYPTO_LATTICE_ILDCRTELEMENT_H
 #define LBCRYPTO_LATTICE_ILDCRTELEMENT_H
 
+#include "../lattice/elemparams.h"
 #include "../math/backend.h"
 #include "../utils/inttypes.h"
 #include "../math/nbtheory.h"
-#include "../utils/serializable.h"
-#include "../lattice/elemparams.h"
+#include "../lattice/ilparams.h"
+
+namespace lbcrypto {
+
+template<typename ModType, typename IntType, typename VecType, typename ParmType> class ILVectorImpl;
+
+}
 
 namespace lbcrypto {
 
@@ -67,25 +73,25 @@ class ILDCRTParams : public ElemParams<BigBinaryInteger>
 {
 public:
 
-
 	/**
 	 * Constructor that initializes nothing.
 	 */
-	ILDCRTParams() : m_cyclotomicOrder(0) {}
+	ILDCRTParams(usint depth = 0) : m_cyclotomicOrder(0) {
+		m_parms.resize(depth);
+	}
+
+	ILDCRTParams(usint order, usint depth);
 
 	/**
 	 * Constructor with all parameters provided except the multiplied values of the chain of moduli. That value is automatically calculated. Root of unity of the modulus is also calculated.
 	 *
-	 * @param rootsOfUnity the roots of unity for the chain of moduli
 	 * @param cyclotomic_order the order of the ciphertext
-	 * @param &moduli is the tower of moduli
+	 * @param &modulus is the modulus for the entire tower
+	 * @param rootsOfUnity is unused
 	 */
-	// FIXME: placeholder
-	ILDCRTParams(const usint cyclotomic_order, const BigBinaryInteger &moduli, const BigBinaryInteger& rootsOfUnity) {
+	ILDCRTParams(const usint cyclotomic_order, const BigBinaryInteger &modulus, const BigBinaryInteger& rootsOfUnity) {
 		m_cyclotomicOrder = cyclotomic_order;
-		m_moduli.push_back(moduli);
-		m_rootsOfUnity.push_back(rootsOfUnity);
-		calculateModulus();
+		m_modulus = modulus;
 	}
 
 	/**
@@ -95,10 +101,14 @@ public:
 	 * @param cyclotomic_order the order of the ciphertext
 	 * @param &moduli is the tower of moduli
 	 */
-	ILDCRTParams(const usint cyclotomic_order, const std::vector<BigBinaryInteger> &moduli, const std::vector<BigBinaryInteger>& rootsOfUnity) {
+	ILDCRTParams(const usint cyclotomic_order, const std::vector<native64::BigBinaryInteger> &moduli, const std::vector<native64::BigBinaryInteger>& rootsOfUnity) {
+		if( moduli.size() != rootsOfUnity.size() )
+			throw std::logic_error("sizes of moduli and roots of unity do not match");
 		m_cyclotomicOrder = cyclotomic_order;
-		m_moduli = moduli;
-		m_rootsOfUnity = rootsOfUnity;
+		m_modulus = BigBinaryInteger::ONE;
+		for( int i=0; i<moduli.size(); i++ ) {
+			m_parms.push_back( std::shared_ptr<native64::ILParams>( new native64::ILParams(cyclotomic_order, moduli[i], rootsOfUnity[i]) ) );
+		}
 		calculateModulus();
 	}
 
@@ -108,9 +118,11 @@ public:
 	 * @param cyclotomic_order the order of the ciphertext
 	 * @param &moduli is the tower of moduli
 	 */
-	ILDCRTParams(const usint cyclotomic_order, const std::vector<BigBinaryInteger> &moduli) {
+	ILDCRTParams(const usint cyclotomic_order, const std::vector<native64::BigBinaryInteger> &moduli) {
 		m_cyclotomicOrder = cyclotomic_order;
-		m_moduli = moduli;
+		for( int i=0; i<moduli.size(); i++ ) {
+			m_parms.push_back( std::shared_ptr<native64::ILParams>( new native64::ILParams(cyclotomic_order, moduli[i]) ) );
+		}
 		calculateModulus();
 	}
 
@@ -121,22 +133,13 @@ public:
 	 * @return the resulting ILDCRTParams.
 	 */
 	ILDCRTParams& operator=(const ILDCRTParams &rhs) {
-		this->m_moduli = rhs.m_moduli;
-		this->m_rootsOfUnity = rhs.m_rootsOfUnity;
-		this->m_cyclotomicOrder = usint(rhs.m_cyclotomicOrder);
+		this->m_cyclotomicOrder = rhs.m_cyclotomicOrder;
+		this->m_parms = rhs.m_parms;
 		this->m_modulus = rhs.m_modulus;
 
 		return *this;
 	}
-	/**
-	 * Not equal operator compares this ILDCRTParams to the specified ILDCRTParams
-	 *
-	 * @param &rhs is the specified ILDCRTParams to be compared with this ILDCRTParams.
-	 * @return true if this ILDCRTParams represents the same values as the specified ILDCRTParams, false otherwise
-	 */
-	inline bool operator!=(ILDCRTParams const &rhs) {
-		return !(*this == rhs);
-	}
+
 	// ACCESSORS
 
 	// Get accessors
@@ -148,22 +151,7 @@ public:
 	const usint GetCyclotomicOrder() const {
 		return m_cyclotomicOrder;
 	}
-	/**
-	 * Get the moduli.
-	 *
-	 * @return the chain moduli.
-	 */
-	const std::vector<BigBinaryInteger> &GetModuli() const {
-		return m_moduli;
-	}
-	/**
-	 * Get the root of unity.
-	 *
-	 * @return the roots of unity.
-	 */
-	const std::vector<BigBinaryInteger> &GetRootsOfUnity() const{
-		return m_rootsOfUnity;
-	}
+
 	/**
 	 * Get modulus.
 	 *
@@ -172,6 +160,22 @@ public:
 	const BigBinaryInteger &GetModulus() const {
 		return m_modulus;
 	}
+
+	/**
+	 * Get the root of unity.
+	 *
+	 * @return the root of unity.
+	 */
+	const BigBinaryInteger &GetRootOfUnity() const {
+		throw std::logic_error("no single root of unity");
+	}
+
+	const std::vector<std::shared_ptr<native64::ILParams>> &GetParams() const {
+		return m_parms;
+	}
+
+	std::shared_ptr<native64::ILParams>& operator[](const usint i) { return m_parms[i]; }
+
 	/**
 	 * Set method of the order.
 	 *
@@ -182,25 +186,6 @@ public:
 	}
 
 	/**
-	 * Set the root of unity.
-	 *
-	 * @param &rootsOfUnity the root of unity.
-	 */
-	void SetRootsOfUnity(const std::vector<BigBinaryInteger> &rootsOfUnity) {
-		m_rootsOfUnity = rootsOfUnity;
-	}
-
-	/**
-	 * Set the moduli.
-	 *
-	 * @param &moduli the moduli.
-	 */
-
-	void SetModuli(const std::vector<BigBinaryInteger> &moduli) {
-		m_moduli = moduli;
-		calculateModulus();
-	}
-	/**
 	 * Set the modulus.
 	 *
 	 * @param &modulus modulus value of the multiplied value of the chain of moduli.
@@ -210,13 +195,12 @@ public:
 	}
 
 	/**
-	 * Removes the last parameter for each vector of the ILDCRTParams (modulus, rootofunity) and adjusts the multiplied moduli.
+	 * Removes the last parameter set and adjust the multiplied moduli.
 	 *
 	 */
 	void PopLastParam(){
-		m_modulus = m_modulus / m_moduli.back();
-		m_moduli.pop_back();
-		m_rootsOfUnity.pop_back();
+		m_modulus = m_modulus / BigBinaryInteger(m_parms.back()->GetModulus().ConvertToInt());
+		m_parms.pop_back();
 	}
 
 	/**
@@ -248,20 +232,11 @@ public:
 			return false;
 		}
 
-		if (m_rootsOfUnity.size() != dcrtParams->GetRootsOfUnity().size() )
+		if (m_parms.size() != dcrtParams->m_parms.size() )
 			return false;
 
-		for( int i=0; i < m_rootsOfUnity.size(); i++ ) {
-			if( m_rootsOfUnity[i] != dcrtParams->GetRootsOfUnity()[i] )
-				return false;
-		}
-
-		if (m_moduli.size() != dcrtParams->GetModuli().size()) {
-			return false;
-		}
-
-		for( int i=0; i < m_moduli.size(); i++ ) {
-			if( m_moduli[i] != dcrtParams->GetModuli()[i] )
+		for( int i=0; i < m_parms.size(); i++ ) {
+			if( m_parms[i] != dcrtParams->m_parms[i] )
 				return false;
 		}
 
@@ -271,13 +246,9 @@ public:
 private:
 	std::ostream& doprint(std::ostream& out) const {
 		out << "ILDCRTParams: mod " << GetModulus() << " order " << GetCyclotomicOrder() << std::endl;
-		out << "Moduli:" << std::endl;
-		for( int i=0; i < GetModuli().size(); i++ ) {
-			out << "   " << i << ": " << GetModuli()[i] << std::endl;
-		}
-		out << "Roots of unity:" << std::endl;
-		for( int i=0; i < GetRootsOfUnity().size(); i++ ) {
-			out << "   " << i << ": " << GetRootsOfUnity()[i] << std::endl;
+		out << "Parms:" << std::endl;
+		for( int i=0; i < m_parms.size(); i++ ) {
+			out << "   " << i << ": modulus=" << m_parms[i]->GetModulus() << " root of unity=" << m_parms[i]->GetRootOfUnity() << std::endl;
 		}
 		return out;
 	}
@@ -286,11 +257,8 @@ private:
 	// order of cyclotomic polynomial
 	usint m_cyclotomicOrder;
 
-	// value of moduli
-	std::vector<BigBinaryInteger> m_moduli;
-
-	// primitive root unity that is used to transform from coefficient to evaluation representation and vice versa
-	std::vector<BigBinaryInteger> m_rootsOfUnity;
+	// array of smaller ILParams
+	std::vector<std::shared_ptr<native64::ILParams>>	m_parms;
 
 	//Modulus that is factorized into m_moduli
 	BigBinaryInteger m_modulus;
@@ -298,12 +266,11 @@ private:
 	//This method 'pre-computes' the modulus based on the multiplication of moduli
 	void calculateModulus(){
 
-		m_modulus = BigBinaryInteger::ONE;
+		m_modulus = BigBinaryInteger(1);
 
-		for(usint i = 0; i < m_moduli.size(); i++){
-			m_modulus = m_modulus * m_moduli[i];
+		for(usint i = 0; i < m_parms.size(); i++) {
+			m_modulus = m_modulus * BigBinaryInteger(m_parms[i]->GetModulus().ConvertToInt());
 		}
-
 	}
 
 

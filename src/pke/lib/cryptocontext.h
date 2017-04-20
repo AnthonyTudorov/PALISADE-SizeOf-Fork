@@ -162,18 +162,31 @@ public:
 	const shared_ptr<LPCryptoParameters<Element>> GetCryptoParameters() const { return params; }
 
 	/**
-	* Getter for the Discrete Gaussian Generator used by the params
-	* @return reference to the generator
-	*/
-	const DiscreteGaussianGenerator& GetGenerator() const { return params->GetDiscreteGaussianGenerator(); }
+	 * Getter for element params
+	 * @return
+	 */
+	const shared_ptr<typename Element::Params> GetElementParams() const { return params->GetElementParams(); }
 
 	/**
-	* FIXME this should go away soon
-	* @return
-	*/
-	const shared_ptr<ILParams> GetElementParams() const {
-		return std::dynamic_pointer_cast<ILParams>(params->GetElementParams());
-	}
+	 * Get the cyclotomic order used for this context
+	 *
+	 * @return
+	 */
+	const usint GetCyclotomicOrder() const { return params->GetElementParams()->GetCyclotomicOrder(); }
+
+	/**
+	 * Get the ciphertext modulus used for this context
+	 *
+	 * @return
+	 */
+	const BigBinaryInteger& GetModulus() const { return params->GetElementParams()->GetModulus(); }
+
+	/**
+	 * Get the ciphertext modulus used for this context
+	 *
+	 * @return
+	 */
+	const BigBinaryInteger& GetRootOfUnity() const { return params->GetElementParams()->GetRootOfUnity(); }
 
 	/**
 	* KeyGen generates a key pair using this algorithm's KeyGen method
@@ -284,7 +297,7 @@ public:
 			throw std::logic_error("key passed to Encrypt was not generated with this crypto context");
 
 		const BigBinaryInteger& ptm = publicKey->GetCryptoParameters()->GetPlaintextModulus();
-		size_t chunkSize = plaintext.GetChunksize(publicKey->GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder(), ptm);
+		size_t chunkSize = plaintext.GetChunksize(publicKey->GetCryptoContext().GetCyclotomicOrder(), ptm);
 		size_t ptSize = plaintext.GetLength();
 		size_t rounds = ptSize / chunkSize;
 
@@ -299,7 +312,7 @@ public:
 
 		for (int bytes = 0, i = 0; i < rounds; bytes += chunkSize, i++) {
 
-			Element pt(publicKey->GetCryptoParameters()->GetElementParams());
+			ILVector2n pt(publicKey->GetCryptoParameters()->GetElementParams());
 			plaintext.Encode(ptm, &pt, bytes, chunkSize);
 
 			shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, pt);
@@ -341,7 +354,7 @@ public:
 		{
 			for (int col = 0; col < plaintext.GetCols(); col++)
 			{
-				Element pt(publicKey->GetCryptoParameters()->GetElementParams());
+				ILVector2n pt(publicKey->GetCryptoParameters()->GetElementParams());
 				plaintext(row,col).Encode(ptm, &pt);
 
 				shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, pt);
@@ -373,7 +386,7 @@ public:
 		bool padded = false;
 		BytePlaintextEncoding px;
 		const BigBinaryInteger& ptm = publicKey->GetCryptoContext().GetCryptoParameters()->GetPlaintextModulus();
-		size_t chunkSize = px.GetChunksize(publicKey->GetCryptoContext().GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder(), ptm);
+		size_t chunkSize = px.GetChunksize(publicKey->GetCryptoContext().GetCyclotomicOrder(), ptm);
 		char *ptxt = new char[chunkSize];
 
 		while (instream.good()) {
@@ -389,7 +402,7 @@ public:
 				padded = true;
 			}
 
-			Element pt(publicKey->GetCryptoParameters()->GetElementParams());
+			ILVector2n pt(publicKey->GetCryptoParameters()->GetElementParams());
 			px.Encode(publicKey->GetCryptoParameters()->GetPlaintextModulus(), &pt, 0, chunkSize);
 
 			shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, pt);
@@ -442,7 +455,7 @@ public:
 			if( ciphertext[ch] == NULL || ciphertext[ch]->GetCryptoContext() != *this )
 				throw std::logic_error("A ciphertext passed to Decrypt was not generated with this crypto context");
 
-			Element decrypted;
+			ILVector2n decrypted;
 			DecryptResult result = GetEncryptionAlgorithm()->Decrypt(privateKey, ciphertext[ch], &decrypted);
 
 			if (result.isValid == false) return result;
@@ -489,7 +502,7 @@ public:
 
 				const shared_ptr<Ciphertext<Element>> ctN = (*ciphertext)(row, col).GetNumerator();
 
-				Element decryptedNumerator;
+				ILVector2n decryptedNumerator;
 				DecryptResult resultN = GetEncryptionAlgorithm()->Decrypt(privateKey, ctN, &decryptedNumerator);
 
 				if (resultN.isValid == false) return resultN;
@@ -498,7 +511,7 @@ public:
 
 				const shared_ptr<Ciphertext<Element>> ctD = (*ciphertext)(row, col).GetDenominator();
 
-				Element decryptedDenominator;
+				ILVector2n decryptedDenominator;
 				DecryptResult resultD = GetEncryptionAlgorithm()->Decrypt(privateKey, ctD, &decryptedDenominator);
 
 				if (resultD.isValid == false) return resultD;
@@ -537,7 +550,7 @@ public:
 		while( SerializableHelper::StreamToSerialization(instream, &serObj) ) {
 			shared_ptr<Ciphertext<Element>> ct;
 			if( ct = deserializeCiphertext(serObj) ) {
-				Element decrypted;
+				ILVector2n decrypted;
 				DecryptResult res = GetEncryptionAlgorithm()->Decrypt(privateKey, ct, &decrypted);
 				if( !res.isValid )
 					return;
@@ -982,8 +995,16 @@ public:
 	* @param ringdim
 	* @return
 	*/
-	static CryptoContext<Element> getCryptoContextNull(
+	static CryptoContext<Element> genCryptoContextNull(
 			const std::string& ptModulus, usint ringdim, const std::string& modulus, const std::string& rootOfUnity);
+
+	/**
+	* construct a PALISADE CryptoContext for the Null Scheme
+	* @param parms - the dcrt parameter set
+	* @param ptm - plaintext modulus for the context
+	* @return
+	*/
+	static CryptoContext<ILVectorArray2n> genCryptoContextNull(shared_ptr<ILDCRTParams> parms, const BigBinaryInteger& ptm);
 
 	// helper for deserialization of contexts
 	static shared_ptr<LPCryptoParameters<Element>> GetParameterObject(const Serialized& serObj) {

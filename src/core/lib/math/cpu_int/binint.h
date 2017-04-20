@@ -336,7 +336,7 @@ namespace cpu_int{
     /**
     * Converts the value to an int.
     *
-    * @return the int representation of the value as usint.
+    * @return the int representation of the value as uint64_t.
     */
     uint64_t ConvertToInt() const;
     
@@ -728,6 +728,9 @@ namespace cpu_int{
 	 * @return is the result of the integral part after division operation.
 	 */
 	inline BigBinaryInteger operator/ (const BigBinaryInteger &a) const {return this->DividedBy(a);}
+
+
+	inline BigBinaryInteger operator/=(const BigBinaryInteger &a); 
 
 	/**
 	 * Console output operation.

@@ -1,7 +1,7 @@
 /**
  * @file
  * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
- *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>, Jerry Ryan <gwryan@njit.edu>
+ *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>,Jerry Ryan <gwryan@njit.edu>, Dave Cousins
  * @version 00_03
  *
  * @section LICENSE
@@ -44,22 +44,29 @@
 
 // It's possible (perhaps even desirable) to have multiple backends
 // available at once
+// MATHBACKEND 1 DEPRECATED DO NOT USE
 
-// MATH BACKEND 2
+// MATHBACKEND 2
 // Uses cpu_int definition as defaults
 // Also provides exp_int backend with underlying element size of 32 bits
 // 	this allows side by side comparison of cpu_int and exp_int math backend
 
-// MATH BACKEND 3
+// MATHBACKEND 3
 // Uses exp_int definition with uint32_t underlying size as defaults
 // new dynamicly allocated backend and support uint32_t and uint64_t on linux
 // This backend supports arbitrary bitwidths; no memory pool is used; can grow up to RAM
 // limitation
 
-// MATH BACKEND 4
+// MATHBACKEND 4
 // Uses exp_int definition with uint64_t underlying size as defaults
 
-// MATH BACKEND 7
+// MATHBACKEND 5
+// GMP 6.1.1 / NTL 10.3.0 backend  experimental on linux (coexist with BE 2)
+
+// MATHBACKEND 6
+// 6- GMP 6.1.1 / NTL 10.3.0 backend  experimental on linux (replaces BE 2_
+
+// MATHBACKEND 7
 // uses native64 as the default
 // This backend provides a maximum size of 64 bits
 // This backend ALSO enables exp_int with uint64_t
@@ -79,10 +86,17 @@
 //UTSHE.keyswitch_ModReduce_DCRT takes incredibly rediculously long (9637 sec)
 //UTSHEAdvanced.test_eval_mult_double_crt takes extremely long (89 sec)
 //UTSHEAdvanced.test_eval_add_double_crt takes extremely long (86 sec)
+
+
 //#define MATHBACKEND 4 
+//#define MATHBACKEND 5 
+//#define MATHBACKEND 6 
 
 // native64 native
 // #define MATHBACKEND 7	
+
+//#define NO_MATHBACKEND_7  //if defined, then MATHBACKEND 7 is disabled
+#ifndef NO_MATHBACKEND_7
 
 // note we always want to include these
 #include "cpu_int/binint.cpp"
@@ -94,9 +108,14 @@ namespace native64 {
 typedef NativeInteger<uint64_t> BigBinaryInteger;
 typedef cpu_int::BigBinaryVectorImpl<NativeInteger<uint64_t>> BigBinaryVector;
 }
+#endif
 
 #if MATHBACKEND == 2
-
+#if 0
+#include "cpu_int/binint.cpp"
+#include "cpu_int/binvect.cpp"
+#include <initializer_list>
+#endif
 #define UBINT_32
 #include "exp_int/ubint.cpp" //experimental dbc unsigned big integers or ubints
 #include "exp_int/ubintvec.cpp" //vectors of experimental ubints
@@ -118,7 +137,24 @@ typedef cpu_int::BigBinaryVectorImpl<NativeInteger<uint64_t>> BigBinaryVector;
 #include "exp_int/ubint.cpp" //experimental dbc unsigned big integers or ubints
 #include "exp_int/ubintvec.cpp" //vectors of experimental ubints
 #include "exp_int/mubintvec.cpp" //rings of ubints
+#endif
 
+#if MATHBACKEND == 5
+#include "cpu_int/binint.cpp"
+#include "cpu_int/binvect.cpp"
+#include <initializer_list>
+
+#include "gmp_int/gmpint.h" //experimental gmp unsigned big ints
+#include "gmp_int/mgmpint.h" //experimental gmp modulo unsigned big ints
+#include "gmp_int/gmpintvec.h" //vectors of such
+#include "gmp_int/mgmpintvec.h" //rings of such
+#endif
+
+#if MATHBACKEND == 6
+#include "gmp_int/gmpint.h" //experimental gmp unsigned big ints
+#include "gmp_int/mgmpint.h" //experimental gmp modulo unsigned big ints
+#include "gmp_int/gmpintvec.h" //vectors of such
+#include "gmp_int/mgmpintvec.h" //rings of such
 #endif
 
 #if MATHBACKEND == 7
@@ -137,7 +173,7 @@ typedef cpu_int::BigBinaryVectorImpl<NativeInteger<uint64_t>> BigBinaryVector;
 namespace lbcrypto {
 
 template<typename IntType> class ILParamsImpl;
-template<typename IntType, typename VecType, typename ParmType> class ILVectorImpl;
+template<typename ModType, typename IntType, typename VecType, typename ParmType> class ILVectorImpl;
 
 #if MATHBACKEND == 2
 	/** integral_dtype specifies the native data type used for the BigBinaryInteger implementation 
@@ -226,6 +262,80 @@ template<typename IntType, typename VecType, typename ParmType> class ILVectorIm
 
 #endif
 
+
+#if MATHBACKEND == 5
+
+	/** integral_dtype specifies the native data type used for the BigBinaryInteger implementation 
+	    should be uint32_t for most applications **/
+	typedef uint32_t integral_dtype;
+
+	/** makes sure that only supported data type is supplied **/
+	static_assert(cpu_int::DataTypeChecker<integral_dtype>::value,"Data type provided is not supported in BigBinaryInteger");
+
+	/** Define the mapping for BigBinaryInteger
+	    1500 is the maximum bit width supported by BigBinaryIntegers, large enough for most use cases
+		The bitwidth can be decreased to the least value still supporting BBI multiplications for a specific application - to achieve smaller runtimes**/
+        #define BigBinaryIntegerBitLength 1500 //for documentation on tests
+	typedef cpu_int::BigBinaryInteger<integral_dtype,BigBinaryIntegerBitLength> BigBinaryInteger;
+	
+	/** Define the mapping for BigBinaryVector */
+	typedef cpu_int::BigBinaryVector<BigBinaryInteger> BigBinaryVector;
+	
+	/** Define the mapping for BigBinaryMatrix */
+	//typedef cpu8bit::BigBinaryMatrix BigBinaryMatrix;
+
+	/** Define the mapping for BigBinaryInteger */
+	//typedef gmp_int::myZZ ubint;
+	typedef NTL::myZZ ubint;
+
+	/** Define the mapping for modulo BigBinaryInteger */
+	//typedef gmp_int::myZZ ubint;
+	typedef NTL::myZZ_p mubint;
+
+	/** Define the mapping for Big Integer Vector */
+	typedef NTL::myVec<NTL::myZZ> ubintvec;
+
+	/** Define the mapping for modulo Big Integer Vector */
+	typedef NTL::myVecP<NTL::myZZ_p> mubintvec;
+
+
+#endif
+
+#if MATHBACKEND == 6
+
+#if 0
+	/** integral_dtype specifies the native data type used for the BigBinaryInteger implementation 
+	    should be uint32_t for most applications **/
+	typedef uint32_t integral_dtype;
+
+	/** makes sure that only supported data type is supplied **/
+	static_assert(cpu_int::DataTypeChecker<integral_dtype>::value,"Data type provided is not supported in BigBinaryInteger");
+
+#endif
+        /** Define the mapping for BigBinaryInteger **/
+        #define BigBinaryIntegerBitLength 0 //zero indicates ubnused
+
+	/** Define the mapping for BigBinaryInteger */
+	typedef NTL::myZZ BigBinaryInteger;
+	
+	/** Define the mapping for BigBinaryVector */
+        typedef NTL::myVecP<NTL::myZZ_p> BigBinaryVector;
+
+ 	/** Define the mapping for ubint */
+	typedef NTL::myZZ ubint;
+
+	/** Define the mapping for modulo ubint */
+	//typedef gmp_int::myZZ ubint;
+	typedef NTL::myZZ_p mubint;
+
+	/** Define the mapping for ubint Vector */
+	typedef NTL::myVec<NTL::myZZ> ubintvec;
+
+	/** Define the mapping for modulo ubint Vector */
+	typedef NTL::myVecP<NTL::myZZ_p> mubintvec;
+
+#endif
+
 #if MATHBACKEND == 7
 
 	typedef uint32_t integral_dtype;
@@ -233,8 +343,8 @@ template<typename IntType, typename VecType, typename ParmType> class ILVectorIm
 
 	#define BigBinaryIntegerBitLength 0 // zero indicates unused
 
-	typedef native64::NativeInteger<uint64_t> BigBinaryInteger;
-	typedef cpu_int::BigBinaryVectorImpl<BigBinaryInteger> BigBinaryVector;
+	typedef native64::BigBinaryInteger BigBinaryInteger;
+	typedef native64::BigBinaryVector BigBinaryVector;
 
 	/** Define the mapping for ExpBigBinaryInteger (experimental) */
 	typedef exp_int::ubint<integral_dtype> ubint;
@@ -248,11 +358,10 @@ template<typename IntType, typename VecType, typename ParmType> class ILVectorIm
 #endif
 
 	typedef ILParamsImpl<BigBinaryInteger> ILParams;
-	typedef ILVectorImpl<BigBinaryInteger, BigBinaryVector, ILParams> ILVector2n;
+	typedef ILVectorImpl<BigBinaryInteger, BigBinaryInteger, BigBinaryVector, ILParams> ILVector2n;
 
 	typedef ILParamsImpl<native64::BigBinaryInteger> ILNativeParams;
-	typedef ILVectorImpl<native64::BigBinaryInteger, native64::BigBinaryVector, ILNativeParams> ILVectorNative2n;
-
+	typedef ILVectorImpl<native64::BigBinaryInteger, native64::BigBinaryInteger, native64::BigBinaryVector, ILNativeParams> ILVectorNative2n;
 
 } // namespace lbcrypto ends
 

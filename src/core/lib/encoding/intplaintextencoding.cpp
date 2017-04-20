@@ -45,43 +45,9 @@ IntPlaintextEncoding::IntPlaintextEncoding(uint32_t value)
 		this->push_back((value >> i) & 1);
 	}
 }
-	
-void IntPlaintextEncoding::Encode(const BigBinaryInteger& modulus, ILVectorArray2n *element, size_t startFrom, size_t length) const{
-	//TODO - OPTIMIZE CODE. Please take a look at line 114 temp.SetModulus
-	ILVector2n encodedSingleCrt = element->GetElementAtIndex(0);
 
-	Encode(modulus, &encodedSingleCrt, startFrom, length);
-	BigBinaryVector tempBBV(encodedSingleCrt.GetValues());
-
-	std::vector<ILVector2n> encodeValues;
-	encodeValues.reserve(element->GetNumOfElements());
-
-	for (usint i = 0; i<element->GetNumOfElements(); i++) {
-		ILVector2n temp(element->GetElementAtIndex(i).GetParams());
-		tempBBV = encodedSingleCrt.GetValues();
-		tempBBV.SetModulus(temp.GetModulus());
-		temp.SetValues(tempBBV, encodedSingleCrt.GetFormat());
-		temp.SignedMod(temp.GetModulus());
-		encodeValues.push_back(temp);
-	}
-
-	ILVectorArray2n elementNew(encodeValues);
-	*element = elementNew;
-
-}
-
-
-void IntPlaintextEncoding::Decode(const BigBinaryInteger& modulus, ILVectorArray2n *ilVectorArray2n){
-
-	const ILVector2n &ilVector = ilVectorArray2n->GetElementAtIndex(0);
-	for (usint i = 0; i<ilVector.GetValues().GetLength(); i++) {
-		this->push_back(ilVector.GetValues().GetValAtIndex(i).ConvertToInt());
-	}
-
-}
-
-
-void IntPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector, size_t startFrom, size_t length) const
+template <typename IntType, typename VecType, typename Element>
+void IntPlaintextEncoding::doEncode(const BigBinaryInteger &modulus, Element *ilVector, size_t startFrom, size_t length) const
 {
 	int padlen = 0;
 	uint32_t mod = modulus.ConvertToInt();
@@ -94,7 +60,7 @@ void IntPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *i
 		length = length - padlen;
 	}
 
-	BigBinaryVector temp(ilVector->GetParams()->GetCyclotomicOrder()/2,ilVector->GetModulus());
+	VecType temp(ilVector->GetParams()->GetCyclotomicOrder()/2,ilVector->GetModulus());
 
 	Format format = COEFFICIENT;
 
@@ -102,26 +68,39 @@ void IntPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *i
 		uint32_t entry = this->at(i + startFrom);
 		if( entry >= mod )
 			throw std::logic_error("Cannot encode integer at position " + std::to_string(i) + " because it is >= plaintext modulus " + std::to_string(mod));
-		BigBinaryInteger Val = BigBinaryInteger( entry );
+		IntType Val( entry );
 		temp.SetValAtIndex(i, Val);
 	}
 
-	//BigBinaryInteger Num = modulus - BigBinaryInteger::ONE;
 	for( usint i=0; i<padlen; i++ ) {
-		temp.SetValAtIndex(i+length, BigBinaryInteger::ZERO);
-		//temp.SetValAtIndex(i + length, Num);
-		//if( i == 0 )
-		//	Num = BigBinaryInteger::ZERO;
+		temp.SetValAtIndex(i+length, IntType::ZERO);
 	}
 
 	ilVector->SetValues(temp,format);
 }
 
-void IntPlaintextEncoding::Decode(const BigBinaryInteger &modulus,  ILVector2n *ilVector) {
+void IntPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector, size_t start_from, size_t length) const {
+	doEncode<BigBinaryInteger,BigBinaryVector,ILVector2n>(modulus,ilVector,start_from,length);
+}
+
+void IntPlaintextEncoding::Encode(const BigBinaryInteger &modulus, native64::ILVector2n *ilVector, size_t start_from, size_t length) const  {
+	doEncode<native64::BigBinaryInteger,native64::BigBinaryVector,native64::ILVector2n>(modulus,ilVector,start_from,length);
+}
+
+template <typename IntType, typename VecType, typename Element>
+void IntPlaintextEncoding::doDecode(const BigBinaryInteger &modulus, Element *ilVector) {
 
 	for (usint i = 0; i<ilVector->GetValues().GetLength(); i++) {
 		this->push_back( ilVector->GetValues().GetValAtIndex(i).ConvertToInt() );
 	}
+}
+
+void IntPlaintextEncoding::Decode(const BigBinaryInteger &modulus, ILVector2n *ilVector) {
+	doDecode<BigBinaryInteger,BigBinaryVector,ILVector2n>(modulus,ilVector);
+}
+
+void IntPlaintextEncoding::Decode(const BigBinaryInteger &modulus, native64::ILVector2n *ilVector) {
+	doDecode<native64::BigBinaryInteger,native64::BigBinaryVector,native64::ILVector2n>(modulus,ilVector);
 }
 
 size_t

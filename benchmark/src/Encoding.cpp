@@ -60,7 +60,7 @@ static void setup_Encoding(CryptoContext<ILVector2n>& cc,
 		BytePlaintextEncoding& plaintextShort,
 		BytePlaintextEncoding& plaintextFull,
 		BytePlaintextEncoding& plaintextLong) {
-	int nel = cc.GetElementParams()->GetCyclotomicOrder()/2;
+	int nel = cc.GetCyclotomicOrder()/2;
 	const BigBinaryInteger& ptm = cc.GetCryptoParameters()->GetPlaintextModulus();
 	uint32_t ptmi = ptm.ConvertToInt();
 
@@ -94,21 +94,17 @@ void BM_encoding_Int(benchmark::State& state) { // benchmark
 		ptmi = ptm.ConvertToInt();
 
 		setup_Encoding(cc, plaintextInt, plaintextPacked, plaintextShort, plaintextFull, plaintextLong);
-		chunkSize = plaintextInt.GetChunksize(cc.GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder(), ptm);
+		chunkSize = plaintextInt.GetChunksize(cc.GetCyclotomicOrder(), ptm);
 		state.ResumeTiming();
 	}
 
 	while (state.KeepRunning()) {
 		state.PauseTiming();
-		ILVector2n pt(cc.GetCryptoParameters()->GetElementParams());
+		ILVector2n pt(cc.GetElementParams());
 		state.ResumeTiming();
 
 		plaintextInt.Encode(ptm, &pt, 0, chunkSize);
 	}
-
-	//	ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().Destroy();
-	//	NumberTheoreticTransform::GetInstance().Destroy();
-	//	ILVector2n::DestroyPreComputedSamples();
 }
 
 BENCHMARK_PARMS(BM_encoding_Int)

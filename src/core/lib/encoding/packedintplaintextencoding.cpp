@@ -41,41 +41,6 @@ namespace lbcrypto {
 
 	std::vector<usint> PackedIntPlaintextEncoding::rootOfUnityTable = std::vector<usint>();
 
-	void PackedIntPlaintextEncoding::Encode(const BigBinaryInteger& modulus, ILVectorArray2n *element, size_t startFrom, size_t length) const {
-		//TODO - OPTIMIZE CODE. Please take a look at line 114 temp.SetModulus
-		ILVector2n encodedSingleCrt = element->GetElementAtIndex(0);
-
-		Encode(modulus, &encodedSingleCrt, startFrom, length);
-		BigBinaryVector tempBBV(encodedSingleCrt.GetValues());
-
-		std::vector<ILVector2n> encodeValues;
-		encodeValues.reserve(element->GetNumOfElements());
-
-		for (usint i = 0; i<element->GetNumOfElements(); i++) {
-			ILVector2n temp(element->GetElementAtIndex(i).GetParams());
-			tempBBV = encodedSingleCrt.GetValues();
-			tempBBV.SetModulus(temp.GetModulus());
-			temp.SetValues(tempBBV, encodedSingleCrt.GetFormat());
-			temp.SignedMod(temp.GetModulus());
-			encodeValues.push_back(temp);
-		}
-
-		ILVectorArray2n elementNew(encodeValues);
-		*element = elementNew;
-
-	}
-
-
-	void PackedIntPlaintextEncoding::Decode(const BigBinaryInteger& modulus, ILVectorArray2n *ilVectorArray2n) {
-
-		const ILVector2n &ilVector = ilVectorArray2n->GetElementAtIndex(0);
-		for (usint i = 0; i<ilVector.GetValues().GetLength(); i++) {
-			this->push_back(ilVector.GetValues().GetValAtIndex(i).ConvertToInt());
-		}
-
-	}
-
-
 	void PackedIntPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector, size_t startFrom, size_t length) const
 	{
 		int padlen = 0;
@@ -115,6 +80,9 @@ namespace lbcrypto {
 
 	}
 
+	void PackedIntPlaintextEncoding::Encode(const BigBinaryInteger &modulus, native64::ILVector2n *ilVector, size_t start_from, size_t length) const {}
+
+
 	void PackedIntPlaintextEncoding::Decode(const BigBinaryInteger &modulus, ILVector2n *ilVector) {
 
 		this->Unpack(ilVector, modulus); //Format is in COEFFICIENT
@@ -124,6 +92,8 @@ namespace lbcrypto {
 		}
 
 	}
+
+	void PackedIntPlaintextEncoding::Decode(const BigBinaryInteger &modulus, native64::ILVector2n *ilVector) {}
 
 	size_t PackedIntPlaintextEncoding::GetChunksize(const usint cyc, const BigBinaryInteger& ptm) const
 	{

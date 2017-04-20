@@ -1026,6 +1026,12 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Div
 
 }
 
+template<typename uint_type,usint BITLENGTH>
+inline BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::operator/=(const BigBinaryInteger &b){
+    *this = *this/b;
+    return *this;
+  }
+
 //Initializes the array of uint_array from the string equivalent of BigBinaryInteger
 //Algorithm used is repeated division by 2
 //Reference:http://pctechtips.org/convert-from-decimal-to-binary-with-recursion-in-java/
@@ -1112,7 +1118,6 @@ void BigBinaryInteger<uint_type, BITLENGTH>::SetValue(const std::string& str){
 //Complexity: O(log(*this)-log(modulus))
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod(const BigBinaryInteger& modulus) const{
-
 	//return the same value if value is less than modulus
 	if(*this<modulus){
 		return BigBinaryInteger(*this);
@@ -1633,6 +1638,11 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 		std::cout<<Exp<<"  Exp"<<std::endl;
 	#endif
 
+	//Precompute the Barrett mu parameter
+	BigBinaryInteger temp(BigBinaryInteger::ONE);
+	temp <<= 2 * modulus.GetMSB() + 3;
+	BigBinaryInteger mu = temp.DividedBy(modulus);
+
 	while(true){
 
 		
@@ -1643,7 +1653,7 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 
 		//running product is calculated
 		if(product>modulus){
-			product = product.Mod(modulus);
+			product.ModBarrettInPlace(modulus,mu);
 		}
 
 		#ifdef DEBUG_MODEXP
@@ -1660,7 +1670,7 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 		//mid calculates mid^2%q
 		mid = mid*mid;
 		
-		mid = (mid.Mod(modulus));
+		mid.ModBarrettInPlace(modulus,mu);
 
 		#ifdef DEBUG_MODEXP
 				std::cout<<mid<<std::endl;
@@ -1844,7 +1854,7 @@ usint BigBinaryInteger<uint_type,BITLENGTH>::GetMSB32(uint64_t x)
 		return msb + 1;
 #else
 // a wrapper for GCC
-		return  64 - __builtin_clzl(x);
+		return  64 - (sizeof(unsigned long) == 8 ? __builtin_clzl(x) : __builtin_clzll(x));
 #endif
 	}
 	else

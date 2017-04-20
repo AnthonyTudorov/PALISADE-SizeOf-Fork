@@ -140,7 +140,7 @@ int main(int argc, char *argv[])
 	BytePlaintextEncoding plaintext;
 
 	// The plaintext is broken up into chunks of size chunksize
-	size_t chunksize = plaintext.GetChunksize(cc.GetElementParams()->GetCyclotomicOrder(), cc.GetCryptoParameters()->GetPlaintextModulus());
+	size_t chunksize = plaintext.GetChunksize(cc.GetCyclotomicOrder(), cc.GetCryptoParameters()->GetPlaintextModulus());
 
 	if( beVerbose ) cout << "Encryption will be in chunks of size " << chunksize << endl;
 

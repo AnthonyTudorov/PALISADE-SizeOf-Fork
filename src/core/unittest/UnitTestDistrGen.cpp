@@ -74,12 +74,13 @@ void testDiscreteUniformGenerator(BigBinaryInteger &modulus, std::string test_na
 void testParallelDiscreteUniformGenerator(BigBinaryInteger &modulus, std::string test_name);
 
 
-TEST(UTDistrGen, DiscreteUniformGenerator_VERY_LONG ) {
+TEST(UTDistrGen, DiscreteUniformGenerator_LONG ) {
 
   // TEST CASE TO GENERATE A UNIFORM BIG BINARY INTEGER WITH SMALL MODULUS
   {
     BigBinaryInteger modulus("10403");
-    DiscreteUniformGenerator dug = lbcrypto::DiscreteUniformGenerator(modulus);
+    ILVector2n::DugType dug = ILVector2n::DugType();
+    dug.SetModulus(modulus);
     BigBinaryInteger uniRandNum = dug.GenerateInteger();
 
     EXPECT_LT(uniRandNum, modulus) << "Failure testing with_in_small_modulus_integer_small_modulus";
@@ -88,8 +89,9 @@ TEST(UTDistrGen, DiscreteUniformGenerator_VERY_LONG ) {
   // TEST CASE TO GENERATE A UNIFORM BIG BINARY INTEGER WITH LARGE MODULUS
   {
     BigBinaryInteger modulus("10402635286389262637365363");
-    DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus);
-    BigBinaryInteger uniRandNum = distrUniGen.GenerateInteger();
+    ILVector2n::DugType dug = ILVector2n::DugType();
+    dug.SetModulus(modulus);
+    BigBinaryInteger uniRandNum = dug.GenerateInteger();
 
     EXPECT_LT(uniRandNum, modulus) << "Failure testing with_in_large_modulus_integer_large_modulus";
   }
@@ -97,10 +99,11 @@ TEST(UTDistrGen, DiscreteUniformGenerator_VERY_LONG ) {
   //TEST CASE TO GENERATE A UNIFORM BIG BINARY VECTOR WITH SMALL MODULUS
   {
     BigBinaryInteger modulus("10403");
-    DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus);
+    ILVector2n::DugType dug = ILVector2n::DugType();
+    dug.SetModulus(modulus);
     
     usint size = 10;
-    BigBinaryVector uniRandVector = distrUniGen.GenerateVector(size);
+    BigBinaryVector uniRandVector = dug.GenerateVector(size);
     // test length
     EXPECT_EQ(uniRandVector.GetLength(), size) << "Failure testing vector_uniform_vector_small_modulus wrong length";
     // test content
@@ -114,10 +117,11 @@ TEST(UTDistrGen, DiscreteUniformGenerator_VERY_LONG ) {
   
   {
     BigBinaryInteger modulus("10402635286389262637365363");
-    DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus);
+    ILVector2n::DugType dug = ILVector2n::DugType();
+    dug.SetModulus(modulus);
 
     usint size = 100;
-    BigBinaryVector uniRandVector = distrUniGen.GenerateVector(size);
+    BigBinaryVector uniRandVector = dug.GenerateVector(size);
     // test length
     EXPECT_EQ(uniRandVector.GetLength(), size) << "Failure testing vector_uniform_vector_large_modulus";
     // test content
@@ -149,12 +153,13 @@ TEST(UTDistrGen, DiscreteUniformGenerator_VERY_LONG ) {
     int caught_error = 0;
     try {
       BigBinaryInteger modulus("10402635286389262637365363"); //10402635286389262637365363
-      DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus);
+      ILVector2n::DugType dug = ILVector2n::DugType();
+      dug.SetModulus(modulus);
 
       usint eachIterationSize = 1000, noOfIterations = 100;
       BigBinaryInteger sum, mean, N(eachIterationSize);
 	
-      BigBinaryVector uniRandVector = distrUniGen.GenerateVector(eachIterationSize * noOfIterations);
+      BigBinaryVector uniRandVector = dug.GenerateVector(eachIterationSize * noOfIterations);
 	
       for(usint i=0; i<noOfIterations; i++) {
 	sum = BigBinaryInteger::ZERO;
@@ -181,7 +186,8 @@ void testDiscreteUniformGenerator(BigBinaryInteger &modulus, std::string test_na
     double modulusInDouble = modulus.ConvertToDouble();
     double expectedMeanInDouble = modulusInDouble / 2.0;
 
-    DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus);
+    ILVector2n::DugType distrUniGen = ILVector2n::DugType();
+    distrUniGen.SetModulus(modulus);
 
     usint size = 50000;
     BigBinaryVector randBigBinaryVector = distrUniGen.GenerateVector(size);
@@ -222,7 +228,7 @@ void testDiscreteUniformGenerator(BigBinaryInteger &modulus, std::string test_na
 }
 
 
-TEST(UTDistrGen, ParallelDiscreteUniformGenerator_VERY_LONG ) {
+TEST(UTDistrGen, ParallelDiscreteUniformGenerator_LONG ) {
 
   //BUILD SEVERAL VECTORS OF BBI IN PARALLEL, CONCATENATE THEM TO ONE LARGE VECTOR AND TEST
   //THE RESULT OF THE FIRST AND SECOND CENTRAL MOMENTS
@@ -245,7 +251,7 @@ void testParallelDiscreteUniformGenerator(BigBinaryInteger &modulus, std::string
   double modulusInDouble = modulus.ConvertToDouble();
   // we expect the mean to be modulus/2 (the mid range of the min-max data);
   double expectedMeanInDouble = modulusInDouble / 2.0;
-  usint size = 500000;
+  usint size = 50000;
   //usint size = omp_get_max_threads() * 4;
 
   bool dbg_flag = false;
@@ -254,7 +260,8 @@ void testParallelDiscreteUniformGenerator(BigBinaryInteger &modulus, std::string
   {
     //private copies of our vector
     vector <BigBinaryInteger> randBigBinaryVectorPvt;
-    DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus);
+    ILVector2n::DugType distrUniGen = ILVector2n::DugType();
+    distrUniGen.SetModulus(modulus);
     // build the vectors in parallel
 #pragma omp for nowait schedule(static)
     for(usint i=0; i<size; i++) {

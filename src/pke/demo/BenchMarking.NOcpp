@@ -74,8 +74,8 @@ struct secureParams {
 	BigBinaryInteger rootOfUnity;	///< The rootOfUnity
 	usint relinWindow;		///< The relinearization window parameter.
 };
-static std::map<usint, std::map<usint, BigBinaryInteger>> moduli; //first usint is cyc order, second map maps towersize to moduli
-static std::map<usint, std::map<usint, BigBinaryInteger>> rootsOfUnity; //first usint is cyc order, second map maps towersize to rootsOfUnity
+static std::map<usint, std::map<usint, native64::BigBinaryInteger>> moduli; //first usint is cyc order, second map maps towersize to moduli
+static std::map<usint, std::map<usint, native64::BigBinaryInteger>> rootsOfUnity; //first usint is cyc order, second map maps towersize to rootsOfUnity
 static std::map<usint, std::map<usint, usint>> bitSizes; //first usint is cyc order, second map maps towersize to bitsize
 static std::map<usint, IntPlaintextEncoding> cyclotomicOrderToIntArrayMapper; //used for encryption/decryption
 static std::map<usint, BytePlaintextEncoding> cyclotomicOrderToByteArrayMapper; //used for encryption/decryption
@@ -142,9 +142,9 @@ void CalculateModuli(usint m) {
 	double sqrtn;
 	double ringDimensionN;
 	char c = '.';
-	BigBinaryInteger temp;
+	native64::BigBinaryInteger temp;
 
-		std::map<usint, BigBinaryInteger> towerToModuliOrRootOfUnity;
+		std::map<usint, native64::BigBinaryInteger> towerToModuliOrRootOfUnity;
 		moduli.insert(std::make_pair(m, towerToModuliOrRootOfUnity));
 		rootsOfUnity.insert(std::make_pair(m, towerToModuliOrRootOfUnity));
 		std::map<usint, usint> towerOrderToBitsMap;
@@ -155,14 +155,14 @@ void CalculateModuli(usint m) {
 		q1 = 4 * plaintextModulus * gaussianParameterR * sqrtn * assuranceMeasureW;
 		q2 = 4 * pow(plaintextModulus, 2) * pow(gaussianParameterR, 5) * pow(sqrtn, 3) * pow(assuranceMeasureW, 5);
 
-		BigBinaryInteger q1BBI(split(to_string(q1), c));
-		BigBinaryInteger q2BBI(split(to_string(q2), c));
+		native64::BigBinaryInteger q1BBI(split(to_string(q1), c));
+		native64::BigBinaryInteger q2BBI(split(to_string(q2), c));
 
-		lbcrypto::NextQ(q1BBI, BigBinaryInteger::TWO, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
-		lbcrypto::NextQ(q2BBI, BigBinaryInteger::TWO, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
+		NextQ(q1BBI, native64::BigBinaryInteger::TWO, m, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
+		NextQ(q2BBI, native64::BigBinaryInteger::TWO, m, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
 		cout << endl;
 		for (usint i = 1; i <= maxTowerSize; i++) {
-			std::vector<BigBinaryInteger> moduli_vector_local(i);
+			std::vector<native64::BigBinaryInteger> moduli_vector_local(i);
 			if (i == 1) {
 				moduli[m][i] = q1BBI;
 				rootsOfUnity[m][i] = RootOfUnity(m, q1BBI);
@@ -173,7 +173,7 @@ void CalculateModuli(usint m) {
 				}
 			else {
 				temp = moduli[m][i - 1];
-				lbcrypto::NextQ(temp, BigBinaryInteger::TWO, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
+				NextQ(temp, native64::BigBinaryInteger::TWO, m, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
 				moduli[m][i] = temp;
 				rootsOfUnity[m][i] = RootOfUnity(m, temp);
 			}
@@ -181,12 +181,11 @@ void CalculateModuli(usint m) {
 			double bitSize = floor(log(doubleOfBBI) / log(2)) + 1;
 			bitSizes[m][i] = bitSize;
 			if (i != 1) {
-				std::vector<BigBinaryInteger> moduliV;
+				std::vector<native64::BigBinaryInteger> moduliV;
 				moduliV.reserve(i-1);
 				for (usint j = 1; j <= i; j++) {
 					moduliV.push_back(moduli[m][j]);
 				}
-				ILVectorArray2n::PreComputeCRIFactors(moduliV,m);
 			}
 //		}
 	}
@@ -260,9 +259,9 @@ void BenchMarking_DCRT(bool intOrByteArray){
 				/***************************SETUP START**********************************/
 				cout << "Processing cyclotomic order of " << m << " and tower size of " << i << " under " << k << "th iteration" << endl;
 
-				vector<BigBinaryInteger> moduli_vector(i);
+				vector<native64::BigBinaryInteger> moduli_vector(i);
 
-				vector<BigBinaryInteger> rootsOfUnity_vector(i);
+				vector<native64::BigBinaryInteger> rootsOfUnity_vector(i);
 
 				for (int j = 0; j < i; j++) {
 					moduli_vector[j] = moduli[m][j+1];
@@ -430,7 +429,6 @@ void BenchMarking_DCRT(bool intOrByteArray){
 			}
 		
 		}
-		ILVectorArray2n::DestroyPrecomputedCRIFactors();
 	}
 	
 	ofstream myfile;
@@ -515,10 +513,10 @@ void BenchMarking_SCRT(bool intOrByteArray) {
 				/***************************SETUP START**********************************/
 				cout << "Processing cyclotomic order of " << m << "under " << k << "th iteration" << endl;
 
-				shared_ptr<ILParams> params(new ILParams(m, moduli[m][2], rootsOfUnity[m][2]));
+				shared_ptr<native64::ILParams> params(new native64::ILParams(m, moduli[m][2], rootsOfUnity[m][2]));
 
-				LPCryptoParametersLTV<ILVector2n> cryptoParams;
-				cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
+				LPCryptoParametersLTV<native64::ILVector2n> cryptoParams;
+				cryptoParams.SetPlaintextModulus(native64::BigBinaryInteger::TWO);
 				cryptoParams.SetDistributionParameter(stdDev);
 				cryptoParams.SetRelinWindow(1);
 				cryptoParams.SetElementParams(params);
@@ -725,9 +723,9 @@ void BenchMarking_DCRT_Eval_Mult() {
 				/***************************SETUP START**********************************/
 				cout << "Processing cyclotomic order of " << m << " and tower size of " << i << " under " << k << "th iteration" << endl;
 
-				vector<BigBinaryInteger> moduli_vector(i);
+				vector<native64::BigBinaryInteger> moduli_vector(i);
 
-				vector<BigBinaryInteger> rootsOfUnity_vector(i);
+				vector<native64::BigBinaryInteger> rootsOfUnity_vector(i);
 
 				for (int j = 0; j < i; j++) {
 					moduli_vector[j] = moduli[m][j + 1];

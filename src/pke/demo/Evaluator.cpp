@@ -98,7 +98,7 @@ void EvalLinRegressionNull() {
 	string rootOfUnity("268585022");
 
 	//Set crypto parametes
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::getCryptoContextNull(std::to_string(plaintextModulus), m, modulus, rootOfUnity);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextNull(std::to_string(plaintextModulus), m, modulus, rootOfUnity);
 
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
@@ -300,7 +300,7 @@ void EvalLinRegressionNull3() {
 	string rootOfUnity("268585022");
 
 	//Set crypto parametes
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::getCryptoContextNull(std::to_string(plaintextModulus), m, modulus, rootOfUnity);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextNull(std::to_string(plaintextModulus), m, modulus, rootOfUnity);
 
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
@@ -923,7 +923,7 @@ void RationalTests() {
 	string rootOfUnity("453444631");
 
 	//Set crypto parametes
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::getCryptoContextNull(std::to_string(plaintextModulus), m, modulus, rootOfUnity);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextNull(std::to_string(plaintextModulus), m, modulus, rootOfUnity);
 
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
@@ -1122,24 +1122,12 @@ void IntegerTests() {
 	string rootOfUnity("322299632");
 
 	//Set crypto parametes
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::getCryptoContextNull(std::to_string(plaintextModulus), n, modulus, rootOfUnity);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextNull(std::to_string(plaintextModulus), n, modulus, rootOfUnity);
 
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 
 	double diff, start, finish;
-
-	//start = currentDateTime();
-
-	//cc.GetEncryptionAlgorithm()->ParamsGen(cc.GetCryptoParameters(), 0, 1);
-
-	//finish = currentDateTime();
-	//diff = finish - start;
-
-	//std::cout << "Parameter generation time: " << "\t" << diff << " ms" << std::endl;
-
-	//std::cout << "n = " << cc.GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
-	//std::cout << "log2 q = " << log2(cc.GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
 
 	// Initialize the public key containers.
 	LPKeyPair<ILVector2n> kp;

@@ -47,25 +47,25 @@ typedef BinaryUniformGeneratorImpl<BigBinaryInteger,BigBinaryVector> BinaryUnifo
 * @brief A generator of the Binary Uniform Distribution.
 */
 template<typename IntType, typename VecType>
-class BinaryUniformGeneratorImpl : public DistributionGenerator {
+class BinaryUniformGeneratorImpl : public DistributionGenerator<IntType,VecType> {
 
 public:
 	/**
 	* @brief Basic constructor for Binary Uniform Generator.
 	*/
-	BinaryUniformGeneratorImpl () : DistributionGenerator () {}
+	BinaryUniformGeneratorImpl () : DistributionGenerator<IntType,VecType>() {}
 
 	/**
 	* @brief  Generates a random value within the Binary Uniform Distribution.
 	* @return A random value within this Binary Uniform Distribution.
 	*/
-	virtual IntType GenerateInteger () const;
+	IntType GenerateInteger() const;
 
 	/**
 	* @brief  Generates a vector of random values within the Binary Uniform Distribution.
 	* @return A vector of random values within this Binary Uniform Distribution.
 	*/
-	VecType GenerateVector  (const usint size, const IntType &modulus) const;
+	VecType GenerateVector(const usint size, const IntType &modulus) const;
 
     virtual ~BinaryUniformGeneratorImpl();
 

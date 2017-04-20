@@ -129,9 +129,10 @@ TEST(UTubint,string_conversions_msb){
     <<"Failure Convert 1 limb to float";
   EXPECT_EQ(163841.0, q1.ConvertToDouble())
     <<"Failure Convert 1 limb to double";
+#if 0
   EXPECT_EQ(163841.0L, q1.ConvertToLongDouble())
     <<"Failure Convert 1 limb to longdouble";
-
+#endif
   //test GetMSB() for 1 limb
   usint msb = q1.GetMSB();
 
@@ -172,11 +173,13 @@ TEST(UTubint,string_conversions_msb){
   EXPECT_NE(testd, (double)q2.ConvertToFloat())
     <<"Failure Convert 2 limb to float loss of precision";    
 
+#if 0
   long double testld = 4057816419532801.0L;
   //cout << "sizeoflongdouble "<< sizeof(long double) << endl;  
   //cout << "testld "<< testld << endl;
   EXPECT_EQ(testld, q2.ConvertToLongDouble())
     <<"Failure Convert 2 limb to long double";
+#endif
 
   //test GetMSB()
   msb = q2.GetMSB();
@@ -273,6 +276,7 @@ TEST(UTubint,consts){
 
   // test the constants
   a = ubint::ZERO;
+  //note for some reason ubint(0) is ambiguous?
   EXPECT_EQ(ubint(0), a)<< "Failure testing ZERO";
 
   a = ubint::ONE;
@@ -1177,7 +1181,7 @@ TEST(UTubint,mod_inverse){
     catch (exception& e){
       thrown = true;
       std::cout<<e.what()<<std::endl;
-      modIresult = ubint(0);
+      modIresult = ubint::ZERO;
     }
 
     EXPECT_FALSE(thrown)
@@ -1346,7 +1350,7 @@ TEST(UTubint,mod_arithmetic){
 //Miscellaneous functions tests
 TEST(UTubint, misc_functions){
   // TESTING METHOD  BinaryStringToUbint
-
+#if 0
  std:string binaryString = "1011101101110001111010111011000000011";
   ubint b =
     lbcrypto::ubint::BinaryStringToUbint(binaryString);
@@ -1354,4 +1358,8 @@ TEST(UTubint, misc_functions){
   ubint expectedResult("100633769475");
   EXPECT_EQ(expectedResult, b)
     << "Failure testing BinaryToUbint()";
+#else
+  cout<<"No BinaryStringToUbint()"<<endl;
+#endif
+
 }

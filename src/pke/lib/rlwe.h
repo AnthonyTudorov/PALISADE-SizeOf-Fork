@@ -147,7 +147,7 @@ public:
 	 *
 	 * @return reference to Discrete Gaussian Generaror.
 	 */
-	const DiscreteGaussianGenerator &GetDiscreteGaussianGenerator() const {return m_dgg;}
+	const typename Element::DggType &GetDiscreteGaussianGenerator() const { return m_dgg; }
 
 	//@Set Properties
 
@@ -225,8 +225,8 @@ protected:
 	usint m_relinWindow;
 	//depth of computations; used for FHE
 	int m_depth;
-	//Discrete Gaussian Generator
-	DiscreteGaussianGenerator m_dgg;
+
+	typename Element::DggType m_dgg;
 
 	bool SerializeRLWE(Serialized* serObj, SerialItem& cryptoParamsMap) const {
 

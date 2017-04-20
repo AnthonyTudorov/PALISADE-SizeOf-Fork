@@ -247,25 +247,23 @@ TEST(UTSHE, keyswitch_ModReduce_DCRT) {
 	float stdDev = 4;
 	usint size = 4;
 
-	vector<BigBinaryInteger> moduli(size);
+	vector<native64::BigBinaryInteger> moduli(size);
 	moduli.reserve(4);
-	vector<BigBinaryInteger> rootsOfUnity(size);
+	vector<native64::BigBinaryInteger> rootsOfUnity(size);
 	rootsOfUnity.reserve(4);
 
-	BigBinaryInteger q("1");
-	BigBinaryInteger temp;
+	native64::BigBinaryInteger q("1");
+	native64::BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
 
-	lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("40"), BigBinaryInteger("4"));
+	lbcrypto::NextQ(q, native64::BigBinaryInteger::TWO, m, native64::BigBinaryInteger("40"), native64::BigBinaryInteger("4"));
 
 	for (int i = 0; i < size; i++) {
-		lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
+		lbcrypto::NextQ(q, native64::BigBinaryInteger::TWO, m, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
 		moduli[i] = q;
 		rootsOfUnity[i] = RootOfUnity(m, moduli[i]);
-		modulus = modulus* moduli[i];
+		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
 	}
-
-	ILVectorArray2n::PreComputeCRIFactors(moduli, m);
 
 	shared_ptr<ILDCRTParams> params( new ILDCRTParams(m, moduli, rootsOfUnity) );
 
@@ -314,7 +312,6 @@ TEST(UTSHE, keyswitch_ModReduce_DCRT) {
 	cc.Decrypt(kp2.secretKey, newCiphertext, &plaintextNewModReduce);
 	
 	EXPECT_EQ(plaintext, plaintextNewModReduce);
-	ILVectorArray2n::DestroyPrecomputedCRIFactors();
 }
 
 TEST(UTSHE, ringreduce_single_crt) {
@@ -328,7 +325,6 @@ TEST(UTSHE, ringreduce_single_crt) {
 
 	lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("40"), BigBinaryInteger("4"));
 
-	DiscreteGaussianGenerator dgg(stdDev);
 	BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
 
 	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(2, m,
@@ -382,24 +378,23 @@ TEST(UTSHE, ringreduce_double_crt) {
 	float stdDev = 4;
 	usint size = 3;
 
-	vector<BigBinaryInteger> moduli(size);
+	vector<native64::BigBinaryInteger> moduli(size);
 	moduli.reserve(4);
-	vector<BigBinaryInteger> rootsOfUnity(size);
+	vector<native64::BigBinaryInteger> rootsOfUnity(size);
 	rootsOfUnity.reserve(4);
 
-	BigBinaryInteger q("1");
-	BigBinaryInteger temp;
+	native64::BigBinaryInteger q("1");
+	native64::BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
 
-	lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("40"), BigBinaryInteger("4"));
+	lbcrypto::NextQ(q, native64::BigBinaryInteger::TWO, m, native64::BigBinaryInteger("40"), native64::BigBinaryInteger("4"));
 
 	for (int i = 0; i < size; i++) {
-		lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
+		lbcrypto::NextQ(q, native64::BigBinaryInteger::TWO, m, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
 		moduli[i] = q;
 		rootsOfUnity[i] = RootOfUnity(m, moduli[i]);
-		modulus = modulus* moduli[i];
+		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
 	}
-	ILVectorArray2n::PreComputeCRIFactors(moduli, m);
 
 	shared_ptr<ILDCRTParams> params( new ILDCRTParams(m, moduli, rootsOfUnity) );
 
@@ -453,7 +448,6 @@ TEST(UTSHE, ringreduce_double_crt) {
 	EXPECT_EQ(intArrayNewRR, intArrayExpected);
 
 	ILVector2n::DestroyPreComputedSamples();
-	ILVectorArray2n::DestroyPrecomputedCRIFactors();
 
 }
 
@@ -478,6 +472,7 @@ TEST(UTSHE, canringreduce) {
 }
 
 TEST(UTSHE, decomposeMult) {
+  bool dbg_flag = false;
 	usint m1 = 16;
 
 	BigBinaryInteger modulus("1");
@@ -485,8 +480,10 @@ TEST(UTSHE, decomposeMult) {
 	BigBinaryInteger rootOfUnity(RootOfUnity(m1, modulus));
 	shared_ptr<ILParams> params( new ILParams(m1, modulus, rootOfUnity) );
 	shared_ptr<ILParams> params2( new ILParams(m1 / 2, modulus, rootOfUnity) );
+	DEBUG("1");
 
 	ILVector2n x1(params, Format::COEFFICIENT);
+	DEBUG("x1 format "<<x1.GetFormat());
 	x1 = { 0,0,0,0,0,0,1,0 };
 
 	ILVector2n x2(params, Format::COEFFICIENT);
@@ -496,21 +493,32 @@ TEST(UTSHE, decomposeMult) {
 	x2.SwitchFormat();
 	x1.SwitchFormat();
 	x2.SwitchFormat();
-
+	DEBUG("2");
 	x1.Decompose();
 	x2.Decompose();
 
 	ILVector2n resultsEval(params2, Format::EVALUATION);
-
+	DEBUG("resultsEval format "<<resultsEval.GetFormat());
 	x1.SwitchFormat();
 	x2.SwitchFormat();
-
+	DEBUG("x1 format "<<x1.GetFormat());
+	DEBUG("x2 format "<<x2.GetFormat());
+	DEBUG("3");
 	resultsEval = x1*x2;
 
 	resultsEval.SwitchFormat();
+	DEBUG("4");
+
+	//note now need to do this or else x3 has not data, and when SetFormat is called it tries to switch from EVALUATION and calls CRT on empty vector
+	x1.SwitchFormat();
 
 	ILVector2n x3(x1.CloneParametersOnly());
+
+
+	DEBUG("x1 format "<<x1.GetFormat());
+	DEBUG("x3 format "<<x3.GetFormat());
 	x3.SetFormat(Format::COEFFICIENT);
+	DEBUG("x3 format "<<x3.GetFormat());
 	x3 = { 0,0,0,1 };
 
 	ILVector2n x4(x1.CloneParametersOnly());
@@ -519,10 +527,11 @@ TEST(UTSHE, decomposeMult) {
 
 	x3.SwitchFormat();
 	x4.SwitchFormat();
-
+	DEBUG("5");
 	ILVector2n resultsTest(x4.CloneParametersOnly());
 
 	resultsTest = x3 * x4;
 
 	resultsTest.SwitchFormat();
+	DEBUG("6");
 }

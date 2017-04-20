@@ -37,6 +37,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "lattice/ilvector2n.h"
 #include "lattice/ilvectorarray2n.h"
 #include "utils/utilities.h"
+#include "utils/debug.h"
 
 using namespace std;
 using namespace lbcrypto;
@@ -146,11 +147,13 @@ TEST(UTBinVect,ModAddBBITestBigModulus){
 // TEST CASE WHEN NUMBERS AFTER ADDITION ARE GREATER THAN MODULUS 
 
 TEST(UTBinVect,ModAddBBITestSmallerModulus){
+  bool dbg_flag = false;
 
 	BigBinaryInteger q("3534");	// constructor calling to set mod value
 	BigBinaryVector m(5,q);		// calling constructor to create a vector of length 5 and passing value of q
 	BigBinaryInteger n("34365");
 
+	DEBUG("m's modulus "<<m.GetModulus());
 	m.SetValAtIndex(0,"9868");
 	m.SetValAtIndex(1,"5879");
 	m.SetValAtIndex(2,"4554");
@@ -159,8 +162,10 @@ TEST(UTBinVect,ModAddBBITestSmallerModulus){
 	
 	BigBinaryVector calculatedResult = m.ModAdd(n);
 
+	DEBUG("m "<<m);
+	DEBUG("calculated result  "<< calculatedResult);
 	int expectedResult[5] = {1825,1370,45,1368,1746};
-
+	
 	for (usint i=0;i<5;i++){
 		EXPECT_EQ (expectedResult[i], (calculatedResult.GetValAtIndex(i)).ConvertToInt());
 	}
@@ -260,7 +265,7 @@ TEST(UTBinVect,test_modmul_BBI){
 	and the result is stored in BigBinary Vector calculatedResult.
 */
 TEST(UTBinVect,test_modexp){
-
+  bool dbg_flag = false;
 	BigBinaryInteger q("3534");			// constructor calling to set mod value
 	BigBinaryVector m(5,q);				// calling constructor to create a vector of length 5 and passing value of q
 	BigBinaryInteger n("3");
@@ -270,6 +275,7 @@ TEST(UTBinVect,test_modexp){
 	m.SetValAtIndex(2,"4");
 	m.SetValAtIndex(3,"2343");
 	m.SetValAtIndex(4,"97");
+	DEBUG("m's modulus "<<m.GetModulus());
 	
 	BigBinaryVector calculatedResult = m.ModExp(n);
 

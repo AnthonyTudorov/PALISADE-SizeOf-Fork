@@ -168,10 +168,11 @@
     <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestTransform.cpp" />
     <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestUbint.cpp" />
     <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestUbintvec.cpp" />
+    <ClCompile Include="..\..\..\..\src\pke\unittest\helperUnitTestDCRT.cpp" />
+    <ClCompile Include="..\..\..\..\src\pke\unittest\helperUnitTestEncryption.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestBatching.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestBV.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestBVDCRT.cpp" />
-    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestEncryption.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestFV.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestLTV.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestSHE.cpp" />

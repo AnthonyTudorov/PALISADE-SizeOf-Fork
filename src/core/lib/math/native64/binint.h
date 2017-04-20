@@ -327,7 +327,11 @@ public:
 	 * @return result of the addition operation of type BigBinary Integer.
 	 */
 	NativeInteger Plus(const NativeInteger& b) const {
-		return m_value + b.m_value;
+		uint_type newv = m_value + b.m_value;
+		if( newv < m_value || newv < b.m_value ) {
+			throw std::logic_error("Overflow");
+		}
+		return newv;
 	}
 
 
@@ -338,7 +342,11 @@ public:
 	 * @return result of the addition operation of type Big Binary Integer.
 	 */
 	const NativeInteger& operator+=(const NativeInteger &b) {
+		uint_type oldv = m_value;
 		m_value += b.m_value;
+		if( m_value < oldv ) {
+			throw std::logic_error("Overflow");
+		}
 		return *this;
 	}
 
@@ -366,8 +374,18 @@ public:
 	NativeInteger Minus(const NativeInteger& b) const {
 		return m_value <= b.m_value ? 0 : m_value - b.m_value;
 	}
-
-
+#if 0 //dbc not sure we need this
+	/**
+	 * Multiplication accumulator.
+	 *
+	 * @param &b is the value to multiply of type Big Binary Integer.
+	 * @return result of the muliplyaccumulate operation of type Big Binary Integer.
+	 */
+	const NativeInteger& operator*=(const NativeInteger &b) {
+	        m_value *= b.m_value;
+		return *this;
+	}
+#endif
 	/**
 	 * Multiplication operation.
 	 *
@@ -376,9 +394,9 @@ public:
 	 */
 	NativeInteger Times(const NativeInteger& b) const {
 		uint_type prod = m_value * b.m_value;
-		if( prod < m_value || prod < b.m_value )
+		if( prod > 0 && (prod < m_value || prod < b.m_value) )
 			throw std::logic_error("native64 overflow in multiply");
-		return m_value * b.m_value;
+		return prod;
 	}
 
 	/**
@@ -391,6 +409,16 @@ public:
 		if( b.m_value == 0 )
 			throw std::logic_error("Native64 integer divide by zero");
 		return this->m_value / b.m_value;
+	}
+	/**
+	 * Division accumulator.
+	 *
+	 * @param &b is the value of divisor of type Big Binary Integer.
+	 * @return result of the divide accumulate operation of type Big Binary Integer.
+	 */
+	const NativeInteger& operator/=(const NativeInteger &b) {
+	  m_value /= b.m_value;
+		return *this;
 	}
 
 	//modular arithmetic operations
@@ -527,12 +555,24 @@ public:
 	NativeInteger ModAdd(const NativeInteger& b, const NativeInteger& modulus) const {
 		Duint_type modsum = (Duint_type)m_value;
 		modsum += b.m_value;
+
 		modsum %= modulus.m_value;
-		
-		if( modsum > m_uintMax )
+		if( modsum > m_uintMax ) //need to check before mod
 			throw std::logic_error("Overflow in ModAdd");
 		return (uint_type)modsum;
 	}
+
+
+	inline NativeInteger ModAddFast(const NativeInteger& b, const NativeInteger& modulus) const {
+		Duint_type modsum = (Duint_type)m_value;
+		modsum += b.m_value;
+		modsum %= modulus.m_value;
+		if( modsum > m_uintMax )
+			throw std::logic_error("Overflow in ModAddFast");
+		return (uint_type)modsum;
+	}
+
+	
 
 	/**
 	 * Modular addition where Barrett modulo reduction is used.
@@ -586,6 +626,21 @@ public:
 			return (av + mod) - bv;
 		}
 	}
+	//ModSubFast assumes b < modulus
+	inline NativeInteger ModSubFast(const NativeInteger& b, const NativeInteger& modulus) const {
+		uint_type av = m_value;
+		uint_type bv = b.m_value;
+		uint_type mod = modulus.m_value;
+
+	
+		if(av >= bv){
+			return (av-bv)%mod;
+		}
+		else{
+			return (av + mod) - bv;
+		}
+	}
+
 
 	/**
 	 * Scalar modular subtraction where Barrett modular reduction is used.
@@ -622,12 +677,23 @@ public:
 		Duint_type av = m_value;
 		Duint_type bv = b.m_value;
 
-		Duint_type modsum = (Duint_type)m_value;
-		modsum += b.m_value;
-
 		if( av > modulus.m_value ) av = av%modulus.m_value;
 		if( bv > modulus.m_value ) bv = bv%modulus.m_value;
 
+		return (uint_type)((av*bv)%modulus.m_value);
+	}
+
+	/**
+	 * Scalar modulus multiplication. Fast version, assumes inputs are
+	 * already < modulus. 
+	 *
+	 * @param &b is the scalar to multiply.
+	 * @param modulus is the modulus to perform operations with.
+	 * @return is the result of the modulus multiplication operation.
+	 */
+	NativeInteger ModMulFast(const NativeInteger& b, const NativeInteger& modulus) const {
+		Duint_type av = m_value;
+		Duint_type bv = b.m_value;
 		return (uint_type)((av*bv)%modulus.m_value);
 	}
 
@@ -1059,6 +1125,7 @@ protected:
 	 * @param v The input string
 	 */
 	void AssignVal(const std::string& str) {
+		uint_type test_value = 0;
 		m_value = 0;
 		for( int i=0; i<str.length(); i++ ) {
 			int v = str[i] - '0';
@@ -1067,6 +1134,11 @@ protected:
 			}
 			m_value *= 10;
 			m_value += v;
+
+			if( m_value < test_value ) {
+				throw std::logic_error(str + " is too large to fit in this native integer object");
+			}
+			test_value = m_value;
 		}
 	}
 
@@ -1102,22 +1174,27 @@ private:
 	}
 
 	/**
-	 * function to return the MSB of a 32 bit number.
-	 * @param x is the 32 bit integer.
-	 * @return the MSB position in the 32 bit number x.
+	 * function to return the MSB of a 64 bit number.
+	 * @param x is the 64 bit integer.
+	 * @return the MSB position in the 64 bit number x.
 	 */
 
 	static uint64_t GetMSB32(uint64_t x)
 	{
-	    static const usint bval[] =
-	    {0,1,2,2,3,3,3,3,4,4,4,4,4,4,4,4};
-
-	    uint64_t r = 0;
-		if (x & 0xFFFFFFFF00000000) { r += 32/1; x >>= 32/1; }
-		if (x & 0x00000000FFFF0000) { r += 32/2; x >>= 32/2; }
-		if (x & 0x000000000000FF00) { r += 32/4; x >>= 32/4; }
-		if (x & 0x00000000000000F0) { r += 32/8; x >>= 32/8; }
-	    return r + bval[x];
+		if (x != 0) {
+	// hardware instructions for finding MSB are used are used;
+	// a wrapper for VC++
+	#if defined(_MSC_VER)
+			unsigned long msb;
+			_BitScanReverse64(&msb, x);
+			return msb + 1;
+	#else
+	// a wrapper for GCC
+			return  64 - (sizeof(unsigned long) == 8 ? __builtin_clzl(x) : __builtin_clzll(x));
+	#endif
+		}
+		else
+			return 0;
 	}
 
 	// Duint_type has double the bits in the integral data type.

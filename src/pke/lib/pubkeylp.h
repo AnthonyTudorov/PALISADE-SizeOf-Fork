@@ -899,7 +899,7 @@ namespace lbcrypto {
 			 * @param &plaintext the plaintext input.
 			 * @param *ciphertext ciphertext which results from encryption.
 			 */
-			virtual shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, Element &plaintext) const = 0;
+			virtual shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, ILVector2n &plaintext) const = 0;
 
 			/**
 			 * Method for decrypting plaintext using LBC
@@ -911,7 +911,7 @@ namespace lbcrypto {
 			 */
 			virtual DecryptResult Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
 				const shared_ptr<Ciphertext<Element>> ciphertext,
-				Element *plaintext) const = 0;
+				ILVector2n *plaintext) const = 0;
 
 			/**
 			 * Function to generate public and private keys
@@ -1222,7 +1222,7 @@ namespace lbcrypto {
 			*
 			* @return the plaintext modulus.
 			*/
-		const BigBinaryInteger &GetPlaintextModulus() const { return  m_plaintextModulus; }
+		const typename Element::Integer &GetPlaintextModulus() const { return  m_plaintextModulus; }
 
 		/**
 			* Returns the reference to IL params
@@ -1234,7 +1234,7 @@ namespace lbcrypto {
 		/**
 		* Sets the value of plaintext modulus p
 		*/
-		virtual void SetPlaintextModulus(const BigBinaryInteger &plaintextModulus) { m_plaintextModulus = plaintextModulus; }
+		void SetPlaintextModulus(const typename Element::Integer &plaintextModulus) { m_plaintextModulus = plaintextModulus; }
 			
 		virtual bool operator==(const LPCryptoParameters<Element>& cmp) const = 0;
 
@@ -1243,15 +1243,10 @@ namespace lbcrypto {
 		 */
 		void SetElementParams(shared_ptr<typename Element::Params> params) { m_params = params; }
 
-		virtual const DiscreteGaussianGenerator& GetDiscreteGaussianGenerator() const {
-			throw std::logic_error("These parameters do not use a DGG");
-		}
-
-
 	protected:
-		LPCryptoParameters() : m_plaintextModulus(BigBinaryInteger::TWO) {}
+		LPCryptoParameters() : m_plaintextModulus(Element::Integer::TWO) {}
 
-		LPCryptoParameters(const BigBinaryInteger &plaintextModulus) : m_plaintextModulus(plaintextModulus) {}
+		LPCryptoParameters(const typename Element::Integer &plaintextModulus) : m_plaintextModulus(plaintextModulus) {}
 
 		LPCryptoParameters(shared_ptr<typename Element::Params> params, const BigBinaryInteger &plaintextModulus) : m_plaintextModulus(plaintextModulus) {
 			m_params = params;
@@ -1267,7 +1262,7 @@ namespace lbcrypto {
 		shared_ptr<typename Element::Params>	m_params;
 
 		//plaintext modulus p
-		BigBinaryInteger		m_plaintextModulus;
+		typename Element::Integer		m_plaintextModulus;
 	};
 
 	
@@ -1348,7 +1343,7 @@ namespace lbcrypto {
 		//
 
 		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
-			Element &plaintext) const {
+			ILVector2n &plaintext) const {
 				if(this->m_algorithmEncryption) {
 					return this->m_algorithmEncryption->Encrypt(publicKey,plaintext);
 				}
@@ -1358,7 +1353,7 @@ namespace lbcrypto {
 		}
 
 		DecryptResult Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey, const shared_ptr<Ciphertext<Element>> ciphertext,
-				Element *plaintext) const {
+				ILVector2n *plaintext) const {
 				if(this->m_algorithmEncryption)
 					return this->m_algorithmEncryption->Decrypt(privateKey,ciphertext,plaintext);
 				else {

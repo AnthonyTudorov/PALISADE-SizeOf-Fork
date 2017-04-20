@@ -51,7 +51,7 @@ void LPCryptoParametersLTV<Element>::ParameterSelection(LPCryptoParametersLTV<IL
 {
 
 	//defining moduli outside of recursive call for efficiency
-	std::vector<BigBinaryInteger> moduli(this->m_depth + 1);
+	std::vector<native64::BigBinaryInteger> moduli(this->m_depth + 1);
 	moduli.reserve(this->m_depth + 1);
 
 	usint n = this->GetElementParams()->GetCyclotomicOrder() / 2;
@@ -64,10 +64,10 @@ void LPCryptoParametersLTV<Element>::ParameterSelection(LPCryptoParametersLTV<IL
 	cryptoParams->SetDistributionParameter(this->m_distributionParameter);
 	cryptoParams->SetPlaintextModulus(this->GetPlaintextModulus());
 
-	std::vector<BigBinaryInteger> rootsOfUnity;
+	std::vector<native64::BigBinaryInteger> rootsOfUnity;
 	rootsOfUnity.reserve(this->m_depth + 1);
 	usint m = n * 2; //cyclotomic order
-	BigBinaryInteger rootOfUnity;
+	native64::BigBinaryInteger rootOfUnity;
 
 	for (usint i = 0; i < this->m_depth + 1; i++) {
 		rootOfUnity = RootOfUnity(m, moduli.at(i));
@@ -80,11 +80,11 @@ void LPCryptoParametersLTV<Element>::ParameterSelection(LPCryptoParametersLTV<IL
 }
 
 template <class Element>
-void LPCryptoParametersLTV<Element>::ParameterSelection(usint& n, vector<BigBinaryInteger> &moduli) {
+void LPCryptoParametersLTV<Element>::ParameterSelection(usint& n, vector<native64::BigBinaryInteger> &moduli) {
 	int t = this->m_depth + 1;
 	int d = this->m_depth;
 
-	BigBinaryInteger pBigBinaryInteger(this->GetPlaintextModulus());
+	native64::BigBinaryInteger pBigBinaryInteger(this->GetPlaintextModulus().ConvertToInt());
 	int p = pBigBinaryInteger.ConvertToInt(); // what if this does not fit in an int? (unlikely)
 	double w = this->m_assuranceMeasure;
 	double r = this->m_distributionParameter;
@@ -114,12 +114,12 @@ void LPCryptoParametersLTV<Element>::ParameterSelection(usint& n, vector<BigBina
 		sum = 0.0;
 		for (int i = 0; i<t; i++) {
 			if (i == 0 || i == 1) {
-				moduli[i] = BigBinaryInteger(split(std::to_string(q[i]), c));
+				moduli[i] = native64::BigBinaryInteger(split(std::to_string(q[i]), c));
 			}
 			else {
 				moduli[i] = moduli[i - 1];
 			}
-			NextQ(moduli[i], pBigBinaryInteger, n, BigBinaryInteger("4"), BigBinaryInteger("4"));
+			NextQ(moduli[i], pBigBinaryInteger, n, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
 			q[i] = moduli[i].ConvertToDouble();
 			sum += log(q[i]);
 		}
@@ -148,7 +148,7 @@ LPKeyPair<Element> LPAlgorithmLTV<Element>::KeyGen(const CryptoContext<Element> 
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
-	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
+	const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 
 	Element f(dgg, elementParams, Format::COEFFICIENT);
 
@@ -157,7 +157,7 @@ LPKeyPair<Element> LPAlgorithmLTV<Element>::KeyGen(const CryptoContext<Element> 
 	f = f + BigBinaryInteger::ONE;
 
 	if( makeSparse )
-		f.MakeSparse(BigBinaryInteger::TWO);
+		f.MakeSparse(2);
 
 	f.SwitchFormat();
 
@@ -169,7 +169,7 @@ LPKeyPair<Element> LPAlgorithmLTV<Element>::KeyGen(const CryptoContext<Element> 
 		f = p*f;
 		f = f + BigBinaryInteger::ONE;
 		if( makeSparse )
-			f.MakeSparse(BigBinaryInteger::TWO);
+			f.MakeSparse(2);
 		f.SwitchFormat();
 	}
 
@@ -187,7 +187,7 @@ LPKeyPair<Element> LPAlgorithmLTV<Element>::KeyGen(const CryptoContext<Element> 
 
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmLTV<Element>::Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
-	Element &plaintext) const
+	ILVector2n &ptxt) const
 {
 	const shared_ptr<LPCryptoParametersRLWE<Element>> cryptoParams =
 		std::dynamic_pointer_cast<LPCryptoParametersRLWE<Element>>(publicKey->GetCryptoParameters());
@@ -196,7 +196,8 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmLTV<Element>::Encrypt(const shared_pt
 
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
-	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
+
+	const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 
 	const Element &h = publicKey->GetPublicElements().at(0);
 
@@ -206,6 +207,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmLTV<Element>::Encrypt(const shared_pt
 
 	Element c(elementParams);
 
+	Element plaintext(ptxt, elementParams);
 	plaintext.SwitchFormat();
 
 	c = h*s + p*e + plaintext;
@@ -218,7 +220,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmLTV<Element>::Encrypt(const shared_pt
 template <class Element>
 DecryptResult LPAlgorithmLTV<Element>::Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
 	const shared_ptr<Ciphertext<Element>> ciphertext,
-	Element *plaintext) const
+	ILVector2n *plaintext) const
 {
 
 	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
@@ -234,7 +236,7 @@ DecryptResult LPAlgorithmLTV<Element>::Decrypt(const shared_ptr<LPPrivateKey<Ele
 
 	// Interpolation is needed in the case of Double-CRT interpolation, for example, ILVectorArray2n
 	// CRTInterpolate does nothing when dealing with single-CRT ring elements, such as ILVector2n
-	Element interpolatedElement = b.CRTInterpolate();
+	ILVector2n interpolatedElement = b.CRTInterpolate();
 	*plaintext = interpolatedElement.SignedMod(p);
 
 	return DecryptResult(plaintext->GetLength());
@@ -367,7 +369,9 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmSHELTV<Element>::KeySwitchGen(
 	const Element& f2 = newPrivateKey->GetPrivateElement();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
-	Element e(cryptoParams->GetDiscreteGaussianGenerator(), cryptoParams->GetElementParams(), Format::COEFFICIENT);
+	const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
+
+	Element e(dgg, cryptoParams->GetElementParams(), Format::COEFFICIENT);
 
 	e.SwitchFormat();
 
@@ -446,11 +450,11 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmSHELTV<Element>::KeySwitchRelinGen(con
 
 	const Element &hn = newPublicKey->GetPublicElements().at(0);
 
-	const DiscreteGaussianGenerator &dgg = cryptoParamsLWE->GetDiscreteGaussianGenerator();
-
 	usint relinWindow = cryptoParamsLWE->GetRelinWindow();
 
 	std::vector<Element> evalKeyElements(f.PowersOfBase(relinWindow));
+
+	const typename Element::DggType &dgg = cryptoParamsLWE->GetDiscreteGaussianGenerator();
 
 	for (usint i = 0; i < evalKeyElements.size(); ++i)
 	{
@@ -522,7 +526,6 @@ bool LPAlgorithmSHELTV<Element>::EvalAutomorphismKeyGen(const shared_ptr<LPPubli
 	usint n = privateKeyElement.GetCyclotomicOrder()/2;
 
 	const shared_ptr<LPCryptoParametersLTV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersLTV<Element>>(publicKey->GetCryptoParameters());
-	const DiscreteGaussianGenerator &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 
 	if (size > n / 2 - 1)
 		throw std::logic_error("size exceeds the ring dimensions\n");
