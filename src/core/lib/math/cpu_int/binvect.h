@@ -119,7 +119,7 @@ public:
 	* @param &&rhs is the list of integers to be assigned to the BBV.
 	* @return BigBinaryVectorImpl object 
 	*/
-	const BigBinaryVectorImpl& operator=(std::initializer_list<sint> rhs);
+	const BigBinaryVectorImpl& operator=(std::initializer_list<int64_t> rhs);
 
 	/**
 	* Initializer list for BigBinaryVectorImpl.

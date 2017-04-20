@@ -74,7 +74,7 @@ doEncode(const BytePlaintextEncoding& item, const BigBinaryInteger &modulus, Ele
 		length = length - padlen;
 	}
 
-	usint mod = modulus.ConvertToInt();
+	uint64_t mod = modulus.ConvertToInt();
 
 	if( mod != 2 && mod != 4 && mod != 16 && mod != 256 )
 		throw std::logic_error("Cannot encode byte array with a plaintext modulus of " + std::to_string(mod)
@@ -120,8 +120,8 @@ template<typename IntType, typename ElementType>
 static void
 doDecode(BytePlaintextEncoding& item, const IntType &modulus, ElementType *ilVector)
 {
-    usint mod = modulus.ConvertToInt();
-	usint p = ceil((float)log((double)255) / log((double)mod));
+    uint64_t mod = modulus.ConvertToInt();
+    uint64_t p = ceil((float)log((double)255) / log((double)mod));
 	unsigned char resultant_char;
 
 	for (usint i = 0; i<ilVector->GetValues().GetLength(); i = i + p) {

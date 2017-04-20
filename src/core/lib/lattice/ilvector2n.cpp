@@ -222,7 +222,7 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	const ILVectorImpl<ModType,IntType,VecType,ParmType>& ILVectorImpl<ModType,IntType,VecType,ParmType>::operator=(std::initializer_list<sint> rhs) {
+	const ILVectorImpl<ModType,IntType,VecType,ParmType>& ILVectorImpl<ModType,IntType,VecType,ParmType>::operator=(std::initializer_list<int64_t> rhs) {
 		usint len = rhs.size();
 		if (!IsEmpty()) {
 			usint vectorLength = this->m_values->GetLength();
@@ -762,13 +762,11 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 		// convert the polynomial to coefficient representation
 		ILVectorImpl<ModType,IntType,VecType,ParmType> x(*this);
 		x.SetFormat(COEFFICIENT);
-		std::cout << "Base Decompose of " << *this << std::endl << "x is " << x << std::endl;
 
 
 		for (usint i = 0; i < nWindows; ++i)
 		{
 			xDigit.SetValues( x.GetValues().GetDigitAtIndexForBase(i*baseBits + 1, 1 << baseBits), x.GetFormat() );
-			std::cout << "Base Decompose " << i << " " << xDigit << std::endl;
 			if( evalModeAnswer )
 				xDigit.SwitchFormat();
 			std::cout << xDigit << std::endl;

@@ -323,7 +323,7 @@ namespace exp_int {
   // an exception to throw
   //todo: add throw
   template<class ubint_el_t>
-  const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::operator=(std::initializer_list<sint> rhs){
+  const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::operator=(std::initializer_list<int64_t> rhs){
     bool dbg_flag = false;
     size_t len = rhs.size();
     this->m_data.clear();

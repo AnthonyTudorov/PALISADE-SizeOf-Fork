@@ -203,10 +203,10 @@ namespace lbcrypto {
 				uint64_t entry;
 
 				// if the random generated value is less than zero, then multiply it by (-1) and subtract the modulus of the current tower to set the coefficient
-				int k = (dggValues.get())[j];
+				int64_t k = (dggValues.get())[j];
 				if(k < 0){
 					k *= (-1);
-					entry = dcrtParams->GetParams()[i]->GetModulus().ConvertToInt() - k;
+					entry = dcrtParams->GetParams()[i]->GetModulus().ConvertToInt() - (uint64_t)k;
 				}
 				//if greater than or equal to zero, set it the value generated
 				else {
@@ -240,9 +240,6 @@ namespace lbcrypto {
 			dug.SetModulus(dcrtParams->GetParams()[i]->GetModulus());
 			auto vals(dug.GenerateVector(m_cyclotomicOrder / 2));
 			ILVectorType ilvector(dcrtParams->GetParams()[i]);
-
-			// not necessary: dug Modulus was set
-			// qvals.SwitchModulus(dcrtParams->GetParams()[i]->GetModulus());
 
 			ilvector.SetValues(vals, Format::COEFFICIENT); // the random values are set in coefficient format
 			if (m_format == Format::EVALUATION) {  // if the input format is evaluation, then once random values are set in coefficient format, switch the format to achieve what the caller asked for.
@@ -395,7 +392,7 @@ namespace lbcrypto {
 		// prepare for the calculations by gathering a big integer version of each of the little moduli
 		std::vector<IntType> mods(m_params->GetParams().size());
 		for( usint i = 0; i < m_params->GetParams().size(); i++ )
-			mods[i] = m_params->GetParams()[i]->GetModulus().ConvertToInt();
+			mods[i] = IntType(m_params->GetParams()[i]->GetModulus().ConvertToInt());
 
 		for( usint i = 0; i < nWindows; i++ ) {
 			ILVectorArrayType x( m_params, m_format );
@@ -582,7 +579,7 @@ namespace lbcrypto {
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorArrayImpl<ModType,IntType,VecType,ParmType>& ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::operator=(std::initializer_list<sint> rhs){
+	ILVectorArrayImpl<ModType,IntType,VecType,ParmType>& ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::operator=(std::initializer_list<int64_t> rhs){
 		usint len = rhs.size();
 		if(!IsEmpty()){
 			usint vectorLength = this->m_vectors[0].GetLength();
@@ -778,7 +775,7 @@ namespace lbcrypto {
 		//std::cout<<"a:	"<<a<<std::endl;
 
 		//Since only positive values are being used for Discrete gaussian generator, a call to switch modulus needs to be done
-		d.SwitchModulus( (plaintextModulus*qt).ConvertToInt(), d.GetRootOfUnity().ConvertToInt());
+		d.SwitchModulus( ILVectorType::Integer((plaintextModulus*qt).ConvertToInt()), ILVectorType::Integer(d.GetRootOfUnity().ConvertToInt()));
 			// FIXME NOT CHANGING ROOT OF UNITY-TODO: What to do with SwitchModulus and is it necessary to pass rootOfUnity
 		//d.PrintValues();
 
@@ -821,7 +818,7 @@ namespace lbcrypto {
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	ILVector2n ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::CRTInterpolate() const
 	{
-	  bool dbg_flag = true;
+	  bool dbg_flag = false;
 
 		usint ringDimension = m_cyclotomicOrder / 2;
 		usint nTowers = m_vectors.size();
@@ -942,7 +939,7 @@ namespace lbcrypto {
 
 		m_modulus = m_modulus / ModType(m_vectors[index].GetModulus().ConvertToInt());
 		m_modulus = m_modulus * ModType(modulus.ConvertToInt());
-		m_vectors[index].SwitchModulus(mod.ConvertToInt(), root.ConvertToInt());
+		m_vectors[index].SwitchModulus(ILVectorType::Integer(mod.ConvertToInt()), ILVectorType::Integer(root.ConvertToInt()));
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
