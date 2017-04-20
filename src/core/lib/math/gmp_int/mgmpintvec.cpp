@@ -37,9 +37,12 @@
  *
  */
 
-#if MATHBACKEND == 6 //otherwise it tries to compile
 
 #include "../../utils/serializable.h"
+
+#include "../backend.h"
+#if MATHBACKEND == 6
+
 #include "mgmpintvec.h"
 
 #include "time.h"
