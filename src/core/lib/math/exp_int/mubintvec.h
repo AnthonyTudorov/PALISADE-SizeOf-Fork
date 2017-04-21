@@ -193,7 +193,7 @@ public:
    * note modulus remains unchanged.
    */
 
-  const mubintvec& operator=(std::initializer_list<int64_t> rhs);
+  const mubintvec& operator=(std::initializer_list<sint> rhs);
 
   /**
    * Initializer list for mubintvec.

@@ -222,7 +222,7 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	const ILVectorImpl<ModType,IntType,VecType,ParmType>& ILVectorImpl<ModType,IntType,VecType,ParmType>::operator=(std::initializer_list<int64_t> rhs) {
+	const ILVectorImpl<ModType,IntType,VecType,ParmType>& ILVectorImpl<ModType,IntType,VecType,ParmType>::operator=(std::initializer_list<sint> rhs) {
 		usint len = rhs.size();
 		if (!IsEmpty()) {
 			usint vectorLength = this->m_values->GetLength();
@@ -304,7 +304,7 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 
 	//If this is in EVALUATION then just set all the values = val
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	const ILVectorImpl<ModType,IntType,VecType,ParmType>& ILVectorImpl<ModType,IntType,VecType,ParmType>::operator=(usint val) {
+	const ILVectorImpl<ModType,IntType,VecType,ParmType>& ILVectorImpl<ModType,IntType,VecType,ParmType>::operator=(uint64_t val) {
 		m_format = EVALUATION;
 		if (m_values == nullptr){
 			m_values = make_unique<VecType>(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus());

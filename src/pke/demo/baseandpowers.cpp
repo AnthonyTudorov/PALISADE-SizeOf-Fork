@@ -60,6 +60,7 @@ void TestPowersAndDecompose(CryptoContext<ILVectorArray2n> cc, ILVectorArray2n& 
 	for( usint i = 0; i < eParms->GetParams().size(); i++ )
 		mods[i] = ILVectorArray2n::Integer(eParms->GetParams()[i]->GetModulus().ConvertToInt());
 
+	native64::BigBinaryInteger tp( native64::BigBinaryInteger::TWO.Exp(32) - native64::BigBinaryInteger::ONE );
 	for (usint i = 0; i < decomp.size(); i++) {
 		ILVectorArray2n::Integer twoPow( ILVectorArray2n::Integer::TWO.Exp(i * nBits) );
 		vector<ILVectorArray2n::ILVectorType> scalars(eParms->GetParams().size());
@@ -69,6 +70,15 @@ void TestPowersAndDecompose(CryptoContext<ILVectorArray2n> cc, ILVectorArray2n& 
 			cout << i << " tower " << t << ": " << twoPow << " % " << mods[t] << " == " << factor << endl;
 			ILVectorArray2n::ILVectorType thisScalar(eParms->GetParams()[t], EVALUATION);
 			thisScalar = factor.ConvertToInt();
+			if( factor.ConvertToInt() > tp.ConvertToInt() ) {
+				cout << "!!! " << factor << " .. " 
+					<< factor.ConvertToInt()
+					<< " " << thisScalar
+					<< ", ";
+				auto xxx(thisScalar);
+				xxx.SwitchFormat();
+				cout << xxx << endl;
+			}
 			scalars[t] = thisScalar;
 		}
 		ILVectorArray2n thisProduct(scalars);
@@ -107,7 +117,7 @@ int main()
 	const usint ORDER = 8;
 	const usint PTM = 2;
 	const usint TOWERS = 3;
-	const usint BITS = 33;
+	const usint BITS = 34;
 
 	CryptoContext<ILVector2n> cc = GenCryptoContextElementBV(ORDER, PTM, BITS);
 	cout << "ILVector2n modulus " << cc.GetElementParams()->GetModulus() << " order " << ORDER << " ptm is " << PTM << " relin window is " << cc.GetCryptoParameters()->GetRelinWindow() << endl;

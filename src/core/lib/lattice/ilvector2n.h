@@ -270,7 +270,7 @@ public:
 	 * @param val is the usint to assign to index zero.
 	 * @return the resulting vector.
 	 */
-	const ILVectorType& operator=(usint val);
+	const ILVectorType& operator=(uint64_t val);
 
 	//GETTERS
 	/**
@@ -815,7 +815,7 @@ inline ILVector2n VectorConvert(const native64::ILVector2n& v) {
 						v.GetFormat() );
 
 	for( usint i = 0; i < v.GetCyclotomicOrder(); i++ ) {
-		newvec.SetValAtIndex(i, v.GetValAtIndex(i).ConvertToInt());
+		newvec.SetValAtIndex(i, ILVector2n::Integer(v.GetValAtIndex(i).ConvertToInt()));
 	}
 
 	return newvec;

@@ -88,7 +88,7 @@ public:
 	// Assignment operators
 	virtual const Element& operator=(const Element& rhs) = 0;
 	virtual const Element& operator=(Element&& rhs) = 0;
-	virtual const Element& operator=(std::initializer_list<int64_t> rhs) = 0;
+	virtual const Element& operator=(std::initializer_list<sint> rhs) = 0;
 
 	// GETTERS
 	/**

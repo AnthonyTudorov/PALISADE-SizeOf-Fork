@@ -206,7 +206,7 @@ namespace lbcrypto {
 				int64_t k = (dggValues.get())[j];
 				if(k < 0){
 					k *= (-1);
-					entry = dcrtParams->GetParams()[i]->GetModulus().ConvertToInt() - (uint64_t)k;
+					entry = (uint64_t)dcrtParams->GetParams()[i]->GetModulus().ConvertToInt() - (uint64_t)k;
 				}
 				//if greater than or equal to zero, set it the value generated
 				else {
@@ -579,7 +579,7 @@ namespace lbcrypto {
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorArrayImpl<ModType,IntType,VecType,ParmType>& ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::operator=(std::initializer_list<int64_t> rhs){
+	ILVectorArrayImpl<ModType,IntType,VecType,ParmType>& ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::operator=(std::initializer_list<sint> rhs){
 		usint len = rhs.size();
 		if(!IsEmpty()){
 			usint vectorLength = this->m_vectors[0].GetLength();

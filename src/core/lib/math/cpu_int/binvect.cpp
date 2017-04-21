@@ -100,7 +100,7 @@ const BigBinaryVectorImpl<IntegerType>& BigBinaryVectorImpl<IntegerType>::operat
 }
 
 template<class IntegerType>
-const BigBinaryVectorImpl<IntegerType>& BigBinaryVectorImpl<IntegerType>::operator=(std::initializer_list<int64_t> rhs){
+const BigBinaryVectorImpl<IntegerType>& BigBinaryVectorImpl<IntegerType>::operator=(std::initializer_list<sint> rhs){
 	usint len = rhs.size();
 	for(usint i=0;i<m_length;i++){ // this loops over each tower
 		if(i<len) {
