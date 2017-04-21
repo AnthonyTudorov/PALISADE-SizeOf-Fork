@@ -500,10 +500,10 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::KeySwitchRelin(const
 	return newCiphertext;
 }
 
-   //Function for extracting a value at a certain index using automorphism operation.
+ //Function for extracting a value at a certain index using automorphism operation.
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalAtIndex(const shared_ptr<Ciphertext<Element>> ciphertext,
-	const usint i, const std::vector<shared_ptr<LPEvalKey<Element>>> &evalKeys) const
+	usint i, const std::vector<shared_ptr<LPEvalKey<Element>>> &evalKeys) const
 
 {
 	usint autoIndex = 2 * i - 1;
@@ -515,20 +515,21 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalAtIndex(const sh
 	return ciphertext->GetCryptoContext().GetEncryptionAlgorithm()->KeySwitchRelin(evalKeys[i - 2], permutedCiphertext);
 }
 
-// FIXME please
 template <class Element>
-bool LPAlgorithmSHELTV<Element>::EvalAutomorphismKeyGen(const shared_ptr<LPPublicKey<Element>> publicKey,
-	const shared_ptr<LPPrivateKey<Element>> origPrivateKey,
-	const usint size, shared_ptr<LPPrivateKey<Element>> *tempPrivateKey, // FIXME probably a local var
-	std::vector<shared_ptr<LPEvalKey<Element>>> *evalKeys) const
+shared_ptr<std::vector<shared_ptr<LPEvalKey<Element>>>> LPAlgorithmSHELTV<Element>::EvalAutomorphismKeyGen(const shared_ptr<LPPublicKey<Element>> publicKey,
+	const shared_ptr<LPPrivateKey<Element>> origPrivateKey, usint size) const
 {
 	const Element &privateKeyElement = origPrivateKey->GetPrivateElement();
 	usint n = privateKeyElement.GetCyclotomicOrder()/2;
 
 	const shared_ptr<LPCryptoParametersLTV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersLTV<Element>>(publicKey->GetCryptoParameters());
 
+	shared_ptr<LPPrivateKey<Element>> tempPrivateKey(new LPPrivateKey<Element>(origPrivateKey->GetCryptoContext()));
+
+	shared_ptr<std::vector<shared_ptr<LPEvalKey<Element>>>> evalKeys(new std::vector<shared_ptr<LPEvalKey<Element>>>());
+
 	if (size > n / 2 - 1)
-		throw std::logic_error("size exceeds the ring dimensions\n");
+		throw std::logic_error("size exceeds allowed limit: maximum is n/2");
 	else {
 
 		usint i = 3;
@@ -537,14 +538,16 @@ bool LPAlgorithmSHELTV<Element>::EvalAutomorphismKeyGen(const shared_ptr<LPPubli
 		{
 			Element permutedPrivateKeyElement = privateKeyElement.AutomorphismTransform(i);
 
-			(*tempPrivateKey)->SetPrivateElement(permutedPrivateKeyElement);
+			tempPrivateKey->SetPrivateElement(permutedPrivateKeyElement);
 
-			evalKeys->at(index) = publicKey->GetCryptoContext().GetEncryptionAlgorithm()->KeySwitchRelinGen(publicKey, *tempPrivateKey);
+			evalKeys->push_back(publicKey->GetCryptoContext().GetEncryptionAlgorithm()->KeySwitchRelinGen(publicKey, tempPrivateKey));
 
 			i = i + 2;
 		}
 
 	}
+
+	return evalKeys;
 }
 
 //Function to generate 1..log(q) encryptions for each bit of the original private key
