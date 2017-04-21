@@ -508,11 +508,20 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalAtIndex(const sh
 {
 	usint autoIndex = 2 * i - 1;
 
+	return this->EvalAutomorphism(ciphertext, autoIndex, evalKeys);
+}
+
+template <class Element>
+shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalAutomorphism(const shared_ptr<Ciphertext<Element>> ciphertext, usint i,
+	const std::vector<shared_ptr<LPEvalKey<Element>>> &evalKeys) const
+{
+
 	shared_ptr<Ciphertext<Element>> permutedCiphertext(new Ciphertext<Element>(*ciphertext));
 
-	permutedCiphertext->SetElement(ciphertext->GetElement().AutomorphismTransform(autoIndex));
+	permutedCiphertext->SetElement(ciphertext->GetElement().AutomorphismTransform(i));
 
-	return ciphertext->GetCryptoContext().GetEncryptionAlgorithm()->KeySwitchRelin(evalKeys[i - 2], permutedCiphertext);
+	return ciphertext->GetCryptoContext().GetEncryptionAlgorithm()->KeySwitchRelin(evalKeys[(i - 3) / 2], permutedCiphertext);
+
 }
 
 template <class Element>

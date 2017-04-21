@@ -439,10 +439,7 @@ namespace lbcrypto {
 		* @return resulting ciphertext
 		*/
 		shared_ptr<Ciphertext<Element>> EvalAutomorphism(const shared_ptr<Ciphertext<Element>> ciphertext, usint i,
-			const std::vector<shared_ptr<LPEvalKey<Element>>> &evalKeys) const {
-			std::string errMsg = "LPAlgorithmSHEFV::EvalAutomorphism is not implemented for FV SHE Scheme.";
-			throw std::runtime_error(errMsg);
-		}
+			const std::vector<shared_ptr<LPEvalKey<Element>>> &evalKeys) const;
 
 		/**
 		* Generate automophism keys for a given private key; Uses the private key for encryption
@@ -453,10 +450,7 @@ namespace lbcrypto {
 		* @return returns the evaluation keys
 		*/
 		shared_ptr<std::vector<shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey,
-			usint size, bool flagEvalSum) const {
-			std::string errMsg = "LPAlgorithmSHEFV::EvalAutomorphismKeyGen is not implemented for FV SHE Scheme.";
-			throw std::runtime_error(errMsg);
-		}
+			usint size, bool flagEvalSum) const;
 
 	};
 

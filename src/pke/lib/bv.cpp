@@ -441,7 +441,7 @@ namespace lbcrypto {
 
 		permutedCiphertext->SetElements(std::move(cNew));
 
-		return ciphertext->GetCryptoContext().GetEncryptionAlgorithm()->KeySwitch(evalKeys[(i-3)/2], permutedCiphertext);
+		return this->KeySwitch(evalKeys[(i-3)/2], permutedCiphertext);
 
 	}
 
@@ -469,7 +469,7 @@ namespace lbcrypto {
 
 				tempPrivateKey->SetPrivateElement(permutedPrivateKeyElement);
 
-				evalKeys->push_back(privateKey->GetCryptoContext().GetEncryptionAlgorithm()->KeySwitchGen(tempPrivateKey, privateKey));
+				evalKeys->push_back(this->KeySwitchGen(tempPrivateKey, privateKey));
 
 				i = i + 2;
 			}

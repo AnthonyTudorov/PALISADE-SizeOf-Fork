@@ -476,10 +476,7 @@ public:
 	* @return resulting ciphertext
 	*/
 	shared_ptr<Ciphertext<Element>> EvalAutomorphism(const shared_ptr<Ciphertext<Element>> ciphertext, usint i,
-		const std::vector<shared_ptr<LPEvalKey<Element>>> &evalKeys) const {
-		std::string errMsg = "LPAlgorithmSHELTV::EvalAutomorphism is not implemented for LTV SHE Scheme.";
-		throw std::runtime_error(errMsg);
-	}
+		const std::vector<shared_ptr<LPEvalKey<Element>>> &evalKeys) const;
 
 
 	/**
