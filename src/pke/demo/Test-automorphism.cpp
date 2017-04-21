@@ -56,11 +56,21 @@ using namespace lbcrypto;
 
 #include <iterator>
 
+//ILVector2n tests
 void LTVAutomorphismIntArray();
+void LTVAutomorphismPackedArray(usint i);
+void LTVEvalSumPackedArray();
+
+
 
 int main() {
 
-	LTVAutomorphismIntArray();
+	//LTVAutomorphismIntArray();
+
+	//for (usint index = 2; index < 9; index++)
+	//	LTVAutomorphismPackedArray(index);
+
+	LTVEvalSumPackedArray();
 
 	system("pause");
 	return 0;
@@ -71,7 +81,7 @@ void LTVAutomorphismIntArray() {
 	usint m = 16;
 	BigBinaryInteger q("67108913");
 	BigBinaryInteger rootOfUnity("61564");
-	usint plaintextModulus = 64;
+	usint plaintextModulus = 17;
 
 	float stdDev = 4;
 
@@ -126,4 +136,124 @@ void LTVAutomorphismIntArray() {
 
 
 }
+
+void LTVAutomorphismPackedArray(usint i) {
+
+	usint m = 16;
+	BigBinaryInteger q("67108913");
+	BigBinaryInteger rootOfUnity("61564");
+	usint plaintextModulus = 17;
+
+	float stdDev = 4;
+
+	DiscreteGaussianGenerator dgg(stdDev);
+
+	ILParams params(m, q, rootOfUnity);
+
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(plaintextModulus, m, q.ToString(), RootOfUnity(m, q).ToString(), 1, stdDev);
+	cc.Enable(ENCRYPTION);
+	cc.Enable(SHE);
+
+	// Initialize the public key containers.
+	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
+
+	//std::vector<usint> vectorOfInts = { 0,1,0,2,0,3,0,4,0,5 };
+	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8 };
+	PackedIntPlaintextEncoding intArray(vectorOfInts);
+	//IntPlaintextEncoding intArray(vectorOfInts);
+
+	if (i == 2)
+		//std::cout << "Input array\n\t" << intArray << std::endl;
+		std::cout << intArray << std::endl;
+
+	ciphertext = cc.Encrypt(kp.publicKey, intArray, false);
+
+	shared_ptr<std::vector<shared_ptr<LPEvalKey<ILVector2n>>>> evalKeys =
+		cc.EvalAutomorphismKeyGen(kp.publicKey, kp.secretKey, 7);
+
+	vector<shared_ptr<Ciphertext<ILVector2n>>> permutedCiphertext;
+
+	shared_ptr<Ciphertext<ILVector2n>> p1;
+
+	p1 = cc.EvalAtIndex(ciphertext[0], i, *evalKeys);
+
+	permutedCiphertext.push_back(p1);
+
+	PackedIntPlaintextEncoding intArrayNew;
+	//IntPlaintextEncoding intArrayNew;
+
+	cc.Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew, false);
+	//cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
+
+	//std::cout << "Automorphed array - at index " << i << " (using only odd coefficients)\n\t" << intArrayNew << std::endl;
+
+	std::cout << intArrayNew << std::endl;
+
+}
+
+void LTVEvalSumPackedArray() {
+
+	usint m = 16;
+	BigBinaryInteger q("67108913");
+	BigBinaryInteger rootOfUnity("61564");
+	usint plaintextModulus = 97;
+
+	float stdDev = 4;
+
+	DiscreteGaussianGenerator dgg(stdDev);
+
+	ILParams params(m, q, rootOfUnity);
+
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(plaintextModulus, m, q.ToString(), RootOfUnity(m, q).ToString(), 1, stdDev);
+	cc.Enable(ENCRYPTION);
+	cc.Enable(SHE);
+
+	// Initialize the public key containers.
+	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
+
+	//std::vector<usint> vectorOfInts = { 0,1,0,2,0,3,0,4,0,5 };
+	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8 };
+	PackedIntPlaintextEncoding intArray(vectorOfInts);
+	//IntPlaintextEncoding intArray(vectorOfInts);
+
+	ciphertext = cc.Encrypt(kp.publicKey, intArray, false);
+
+	shared_ptr<std::vector<shared_ptr<LPEvalKey<ILVector2n>>>> evalKeys =
+		cc.EvalAutomorphismKeyGen(kp.publicKey, kp.secretKey, 7);
+
+	vector<shared_ptr<Ciphertext<ILVector2n>>> summedCiphertext;
+
+	shared_ptr<Ciphertext<ILVector2n>> p1 = cc.EvalAtIndex(ciphertext[0], 8, *evalKeys);
+
+	shared_ptr<Ciphertext<ILVector2n>> p2 = cc.EvalAdd(ciphertext[0], p1);
+
+	shared_ptr<Ciphertext<ILVector2n>> p3 = cc.EvalAtIndex(p2, 4, *evalKeys);
+
+	shared_ptr<Ciphertext<ILVector2n>> p4 = cc.EvalAdd(p2, p3);
+
+	shared_ptr<Ciphertext<ILVector2n>> p5 = cc.EvalAtIndex(p4, 2, *evalKeys);
+
+	shared_ptr<Ciphertext<ILVector2n>> p6 = cc.EvalAdd(p4, p5);
+
+	summedCiphertext.push_back(p6);
+
+	PackedIntPlaintextEncoding intArrayNew;
+	//IntPlaintextEncoding intArrayNew;
+
+	cc.Decrypt(kp.secretKey, summedCiphertext, &intArrayNew, false);
+	//cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
+
+	//std::cout << "Automorphed array - at index " << i << " (using only odd coefficients)\n\t" << intArrayNew << std::endl;
+
+	std::cout << "Expected sum is 36" << std::endl;
+	std::cout << intArrayNew << std::endl;
+
+}
+
+
+
 

@@ -520,7 +520,7 @@ shared_ptr<std::vector<shared_ptr<LPEvalKey<Element>>>> LPAlgorithmSHELTV<Elemen
 	const shared_ptr<LPPrivateKey<Element>> origPrivateKey, usint size) const
 {
 	const Element &privateKeyElement = origPrivateKey->GetPrivateElement();
-	usint n = privateKeyElement.GetCyclotomicOrder()/2;
+	usint m = privateKeyElement.GetCyclotomicOrder();
 
 	const shared_ptr<LPCryptoParametersLTV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersLTV<Element>>(publicKey->GetCryptoParameters());
 
@@ -528,13 +528,13 @@ shared_ptr<std::vector<shared_ptr<LPEvalKey<Element>>>> LPAlgorithmSHELTV<Elemen
 
 	shared_ptr<std::vector<shared_ptr<LPEvalKey<Element>>>> evalKeys(new std::vector<shared_ptr<LPEvalKey<Element>>>());
 
-	if (size > n / 2 - 1)
-		throw std::logic_error("size exceeds allowed limit: maximum is n/2");
+	if (size > m / 2 - 1)
+		throw std::logic_error("size exceeds allowed limit: maximum is m/2");
 	else {
 
 		usint i = 3;
 
-		for (usint index = 0; index < size - 1; index++)
+		for (usint index = 0; index < size; index++)
 		{
 			Element permutedPrivateKeyElement = privateKeyElement.AutomorphismTransform(i);
 
