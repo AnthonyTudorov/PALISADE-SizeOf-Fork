@@ -90,7 +90,9 @@ int main() {
 	for (usint index = 3; index < 16; index = index + 2)
 		FVAutomorphismPackedArray(index);
 
-	system("pause");
+	std::cout << "Please press any key to continue..." << std::endl;
+
+	cin.get();
 	return 0;
 }
 
