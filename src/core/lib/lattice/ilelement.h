@@ -134,28 +134,11 @@ public:
 	 * @param i
 	 * @return will throw a logic_error.
 	 */
-	//dbc changed this to non ref return
-#if MATHBACKEND !=6
-	virtual const IntType& GetValAtIndex(usint i) const {
-#else
 	virtual const IntType GetValAtIndex(usint i) const {
-#endif
 		throw std::logic_error("GetValAtIndex not implemented");
 	}
 
 	//SETTERS
-	/**
-	 * Set the Value in the Element that is At Index
-	 *
-	 * This is only implemented for some derived classes, so the default implementation throws an exception
-	 *
-	 * @param index
-	 * @param val
-	 */
-	virtual void SetValAtIndex(size_t index, int val) {
-		throw std::logic_error("SetValAtIndex not implemented");
-	}
-
 	/**
 	 * SetValAtIndex
 	 *

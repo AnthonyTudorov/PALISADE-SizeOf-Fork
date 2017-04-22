@@ -328,11 +328,7 @@ public:
 	 *
 	 * @return value at index i.
 	 */
-#if MATHBACKEND !=6
-	const IntType& GetValAtIndex(usint i) const;
-#else
-    const IntType GetValAtIndex(usint i) const;//DBC changed from returning reference because it broke several functions otherwise. changed back for merge with master... since this is a virtual function.
-#endif
+    const IntType GetValAtIndex(usint i) const;
 
 	//SETTERS
 	/**
@@ -341,26 +337,8 @@ public:
 	 * @param index is the index at which the value is to be set.
 	 * @param val is the value to be set.
 	 */
-	inline void SetValAtIndex(size_t index, int val) {
-		m_values->SetValAtIndex(index, IntType(val));
-	}
-
-	/**
-	 *  Set VecType value to val
-	 *
-	 * @param index is the index at which the value is to be set.
-	 * @param val is the value to be set.
-	 */
 	inline void SetValAtIndex(size_t index, std::string val) {
 		m_values->SetValAtIndex(index, IntType(val));
-	}
-
-    inline void SetValAtIndexWithoutMod(size_t index, int val) {
-#if MATHBACKEND !=6
-      m_values->SetValAtIndex(index, IntType(val));
-#else
-      m_values->SetValAtIndexWithoutMod(index, IntType(val));
-#endif
 	}
 
 	/**
@@ -372,6 +350,7 @@ public:
 	inline void SetValAtIndex(size_t index, const IntType& val) {
 		m_values->SetValAtIndex(index, val);
 	}
+
     inline void SetValAtIndexWithoutMod(size_t index, const IntType& val) {
 #if MATHBACKEND !=6
       m_values->SetValAtIndex(index, val);

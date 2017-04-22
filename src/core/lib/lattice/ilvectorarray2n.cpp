@@ -331,16 +331,9 @@ namespace lbcrypto {
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	std::vector<ILVectorArrayImpl<ModType,IntType,VecType,ParmType>> ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::BaseDecompose(usint baseBits, bool evalModeAnswer) const {
 
-		std::cout << "DOING BASE DECOMPOSE OF " << *this << std::endl;
-		ILVectorArray2n dCopy( *this );
-//		dCopy.SetFormat( COEFFICIENT );
-//		std::cout << "Coeff Mode: " << dCopy << std::endl;
-		ILVector2n v( dCopy.CRTInterpolate() );
-		std::cout << "...interpolates to " << v << std::endl << "... which decomposed to:" << std::endl;
+		ILVector2n v( CRTInterpolate() );
+
 		std::vector<ILVector2n> bdV = v.BaseDecompose(baseBits, false);
-		for( usint i=0; i<bdV.size(); i++ ) {
-			std::cout << i << ": " << bdV[i] << std::endl;
-		}
 
 		std::vector<ILVectorArrayImpl<ModType,IntType,VecType,ParmType>> result;
 
@@ -352,28 +345,7 @@ namespace lbcrypto {
 			result.push_back( std::move(dv) );
 		}
 
-//		ILVectorArrayImpl<ModType,IntType,VecType,ParmType> zero(this->CloneParametersOnly());
-//		zero = { 0,0 };
-//
-//		for (usint i= 0 ; i <  this->m_vectors.size(); i++) {
-//			baseDecomposeElementWise.push_back(std::move(this->m_vectors.at(i).BaseDecompose(baseBits)));
-//		}
-//
-//		usint maxTowerVectorSize = baseDecomposeElementWise.back().size();
-//
-//		for (usint i = 0; i < maxTowerVectorSize; i++) {
-//			ILVectorArrayImpl<ModType,IntType,VecType,ParmType> temp;
-//			for (usint j = 0; j < this->m_vectors.size(); j++) {
-//				if (i<baseDecomposeElementWise.at(j).size())
-//					temp.m_vectors.insert(temp.m_vectors.begin()+j,baseDecomposeElementWise.at(j).at(i));
-//				else
-//					temp.m_vectors.insert(temp.m_vectors.begin() + j, zero.m_vectors.at(j));
-//			}
-//			result.push_back(std::move(temp));
-//		}
-
 		return std::move(result);
-
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
@@ -404,29 +376,6 @@ namespace lbcrypto {
 			}
 			result.push_back( x );
 		}
-
-//		std::vector< std::vector<ILVectorType> > towerVals;
-//
-//		ILVectorArrayImpl<ModType,IntType,VecType,ParmType> zero(this->CloneParametersOnly());
-//		zero = {0,0};
-//
-//
-//		for (usint i = 0; i < this->m_vectors.size(); i++) {
-//			towerVals.push_back( std::move(this->m_vectors[i].PowersOfBase(baseBits)) );
-//		}
-//
-//		usint maxTowerVectorSize = towerVals.back().size();
-//
-//		for (usint i = 0; i < maxTowerVectorSize; i++) {
-//			ILVectorArrayImpl<ModType,IntType,VecType,ParmType> temp;
-//			for (usint j = 0; j < this->m_vectors.size(); j++) {
-//				if(i<towerVals.at(j).size())
-//					temp.m_vectors.insert(temp.m_vectors.begin()+j,towerVals.at(j).at(i));
-//				else
-//					temp.m_vectors.insert(temp.m_vectors.begin() + j, zero.m_vectors.at(j));
-//			}
-//			result.push_back(std::move(temp));
-//		}
 
 		return std::move(result);
 	}

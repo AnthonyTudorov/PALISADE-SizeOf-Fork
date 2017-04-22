@@ -127,20 +127,20 @@ TEST(UTSHE, LTV_ILVector2n_Add) {
 	UnitTest_Add<ILVector2n>(cc);
 }
 
-//TEST(UTSHE, LTV_ILVectorArray2n_Add) {
-//	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayLTV(ORDER, TOWERS, PTM);
-//	UnitTest_Add<ILVectorArray2n>(cc);
-//}
+TEST(UTSHE, LTV_ILVectorArray2n_Add) {
+	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayLTV(ORDER, TOWERS, PTM);
+	UnitTest_Add<ILVectorArray2n>(cc);
+}
 
 TEST(UTSHE, StSt_ILVector2n_Add) {
 	CryptoContext<ILVector2n> cc = GenCryptoContextElementStSt(ORDER, PTM);
 	UnitTest_Add<ILVector2n>(cc);
 }
 
-//TEST(UTSHE, StSt_ILVectorArray2n_Add) {
-//	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayStSt(ORDER, TOWERS, PTM);
-//	UnitTest_Add<ILVectorArray2n>(cc);
-//}
+TEST(UTSHE, StSt_ILVectorArray2n_Add) {
+	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayStSt(ORDER, TOWERS, PTM);
+	UnitTest_Add<ILVectorArray2n>(cc);
+}
 
 TEST(UTSHE, Null_ILVector2n_Add) {
 	CryptoContext<ILVector2n> cc = GenCryptoContextElementNull(ORDER, PTM);

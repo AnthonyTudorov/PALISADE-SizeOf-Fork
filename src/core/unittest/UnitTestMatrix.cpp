@@ -253,20 +253,20 @@ TEST(UTMatrix, gadget_vector) {
 
 TEST(UTMatrix, rotate_vec_result) {
     Matrix<ILVector2n> n = Matrix<ILVector2n>(fastIL2nAlloc(), 1, 2).Ones();
-    const BigBinaryInteger& modulus = n(0,0).GetModulus();
+    const ILVector2n::Integer& modulus = n(0,0).GetModulus();
     n.SetFormat(COEFFICIENT);
-	n(0,0).SetValAtIndex(2, 1);
-    Matrix<BigBinaryVector> R = RotateVecResult(n);
+	n(0,0).SetValAtIndex(2, ILVector2n::Integer::ONE);
+    Matrix<ILVector2n::Vector> R = RotateVecResult(n);
 	EXPECT_EQ(8, R.GetRows());
 	EXPECT_EQ(16, R.GetCols());
-	EXPECT_EQ(BigBinaryVector::Single(BigBinaryInteger::ONE, modulus), R(0,0));
+	EXPECT_EQ(ILVector2n::Vector::Single(ILVector2n::Integer::ONE, modulus), R(0,0));
 
-	BigBinaryInteger negOne = n(0,0).GetModulus() - BigBinaryInteger("1");
-    BigBinaryVector negOneVec = BigBinaryVector::Single(negOne, modulus);
+	ILVector2n::Integer negOne = n(0,0).GetModulus() - ILVector2n::Integer::ONE;
+	ILVector2n::Vector negOneVec = ILVector2n::Vector::Single(negOne, modulus);
 	EXPECT_EQ(negOneVec, R(0,6));
 	EXPECT_EQ(negOneVec, R(1,7));
 
-    auto singleAlloc = [=](){ return make_unique<BigBinaryVector>(1, modulus); };
+    auto singleAlloc = [=](){ return make_unique<ILVector2n::Vector>(1, modulus); };
 	EXPECT_EQ(*singleAlloc(), R(0,6 + 8));
 	EXPECT_EQ(*singleAlloc(), R(1,7 + 8));
 
@@ -274,15 +274,15 @@ TEST(UTMatrix, rotate_vec_result) {
 
 TEST(UTMatrix, rotate) {
     Matrix<ILVector2n> n = Matrix<ILVector2n>(fastIL2nAlloc(), 1, 2).Ones();
-    const BigBinaryInteger& modulus = n(0,0).GetModulus();
+    const ILVector2n::Integer& modulus = n(0,0).GetModulus();
     n.SetFormat(COEFFICIENT);
-	n(0,0).SetValAtIndex(2, 1);
-    Matrix<BigBinaryInteger> R = Rotate(n);
+	n(0,0).SetValAtIndex(2, ILVector2n::Integer::ONE);
+    Matrix<ILVector2n::Integer> R = Rotate(n);
 	EXPECT_EQ(8, R.GetRows());
 	EXPECT_EQ(16, R.GetCols());
-	EXPECT_EQ(BigBinaryInteger::ONE, R(0,0));
+	EXPECT_EQ(ILVector2n::Integer::ONE, R(0,0));
 
-	BigBinaryInteger negOne = n(0,0).GetModulus() - BigBinaryInteger("1");
+	ILVector2n::Integer negOne = n(0,0).GetModulus() - ILVector2n::Integer::ONE;
 	EXPECT_EQ(negOne, R(0,6));
 	EXPECT_EQ(negOne, R(1,7));
 

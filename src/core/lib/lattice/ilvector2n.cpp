@@ -229,10 +229,10 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 
 			for (usint j = 0; j < vectorLength; ++j) { // loops within a tower
 				if (j < len) {
-					SetValAtIndex(j, *(rhs.begin() + j));
+					SetValAtIndex(j, IntType(*(rhs.begin() + j)));
 				}
 				else {
-					SetValAtIndex(j, 0);
+					SetValAtIndex(j, IntType::ZERO);
 				}
 			}
 
@@ -310,7 +310,7 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 			m_values = make_unique<VecType>(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus());
 		}
 		for (size_t i = 0; i < m_values->GetLength(); ++i) {
-			this->SetValAtIndex(i, val);
+			this->SetValAtIndex(i, IntType(val));
 		}
 		return *this;
 	}
@@ -318,8 +318,6 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	ILVectorImpl<ModType,IntType,VecType,ParmType>::~ILVectorImpl()
 	{
-    //if (m_values)
-    //  delete m_values; //DBC removed no need with  smart poiners
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
@@ -348,28 +346,14 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 	Format ILVectorImpl<ModType,IntType,VecType,ParmType>::GetFormat() const {
 		return m_format;
 	}
-#if MATHBACKEND !=6
+
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	const IntType& ILVectorImpl<ModType,IntType,VecType,ParmType>::GetValAtIndex(usint i) const
+	const IntType ILVectorImpl<ModType,IntType,VecType,ParmType>::GetValAtIndex(usint i) const
 	{
 		if (m_values == 0)
 			throw std::logic_error("No values in ILVectorImpl");
 		return m_values->GetValAtIndex(i);
 	}
-#else
-	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	const IntType ILVectorImpl<ModType,IntType,VecType,ParmType>::GetValAtIndex(usint i) const
-  {
-    bool dbg_flag = false;
-    if( m_values == nullptr )
-      throw std::logic_error("No values in ILVectorImpl");
-
-    DEBUG("GetValAtIndex: m_values->GetValAtIndex("<<i<<") :"<<m_values->GetValAtIndex(i));
-    const IntType tmp =  m_values->GetValAtIndex(i); //dbc tmp for debug
-    DEBUG("GetValAtIndex: returning tmp "<<tmp);
-    return tmp;
-  }
-#endif
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	usint ILVectorImpl<ModType,IntType,VecType,ParmType>::GetLength() const {
@@ -381,21 +365,18 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	void ILVectorImpl<ModType,IntType,VecType,ParmType>::SetValues(const VecType& values, Format format) {
 		if (m_params->GetRootOfUnity() == IntType::ZERO || m_params->GetCyclotomicOrder() / 2 != values.GetLength() || m_params->GetModulus() != values.GetModulus()) {
-		  std::cout<<"ILVectorImpl::SetValues warning, mismatch in parameters"<<std::endl;
-		  if (m_params->GetRootOfUnity() == IntType::ZERO){
-		    std::cout<<"m_params->GetRootOfUnity "<<m_params->GetRootOfUnity()<<std::endl;}
-		  if (m_params->GetCyclotomicOrder() / 2 != values.GetLength()){
-		    std::cout<<"m_params->GetCyclotomicOrder/2 "<<m_params->GetCyclotomicOrder()/2<<std::endl;
-		    std::cout<<"!= values.GetLength()"<< values.GetLength() <<std::endl;
-		}
-		  if ( m_params->GetModulus() != values.GetModulus()) {
-		    std::cout<<"m_params->GetModulus() "<<m_params->GetModulus()<<std::endl;
-		    std::cout<<"values->GetModulus() "<<values.GetModulus()<<std::endl;
-		}
-		  //throw std::logic_error("Exisiting m_params do not match with the input parameter IntType& values.\n");
-		  // if (m_values != nullptr) { //dbc no need with smart pointers
-		  //   delete m_values;
-		  // }
+			std::cout<<"ILVectorImpl::SetValues warning, mismatch in parameters"<<std::endl;
+			if (m_params->GetRootOfUnity() == IntType::ZERO) {
+				std::cout<<"m_params->GetRootOfUnity "<<m_params->GetRootOfUnity()<<std::endl;
+			}
+			if (m_params->GetCyclotomicOrder() / 2 != values.GetLength()) {
+				std::cout<<"m_params->GetCyclotomicOrder/2 "<<m_params->GetCyclotomicOrder()/2<<std::endl;
+				std::cout<<"!= values.GetLength()"<< values.GetLength() <<std::endl;
+			}
+			if ( m_params->GetModulus() != values.GetModulus()) {
+				std::cout<<"m_params->GetModulus() "<<m_params->GetModulus()<<std::endl;
+				std::cout<<"values->GetModulus() "<<values.GetModulus()<<std::endl;
+			}
 		}
 		m_values = make_unique<VecType>(values);
 		m_format = format;
@@ -403,25 +384,16 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	void ILVectorImpl<ModType,IntType,VecType,ParmType>::SetValuesToZero() {
-		//if (m_values != NULL) { //dbc no need with smart pointers
-		//	delete m_values;
-		//}
 	        m_values = make_unique<VecType>(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus());
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	void ILVectorImpl<ModType,IntType,VecType,ParmType>::SetValuesToMax() {
-		//if (m_values != NULL) { //dbc no need with smart pointers
-		//	delete m_values;
-		//}
-
 		IntType max = m_params->GetModulus() - IntType::ONE;
+		IntType temp(max);
 		usint size = m_params->GetCyclotomicOrder()/2;
 		m_values = make_unique<VecType>(m_params->GetCyclotomicOrder()/2, m_params->GetModulus());
 		for (usint i = 0; i < size; i++) {
-			IntType temp(max);
-			//IntType temp("2475880078570760549798268928");
-			//IntType temp("1111111111");
 			m_values->SetValAtIndex(i, temp);
 		}
 
@@ -769,7 +741,6 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 			xDigit.SetValues( x.GetValues().GetDigitAtIndexForBase(i*baseBits + 1, 1 << baseBits), x.GetFormat() );
 			if( evalModeAnswer )
 				xDigit.SwitchFormat();
-			std::cout << xDigit << std::endl;
 			result.push_back(xDigit);
 		}
 
