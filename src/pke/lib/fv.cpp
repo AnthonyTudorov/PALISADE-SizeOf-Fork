@@ -477,7 +477,10 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::KeySwitch(const share
 	std::vector<Element> digitsC2;
 
 	Element ct0(c[0]);
-	ct0.SwitchFormat();
+
+	//in the case of EvalMult, c[0] is initially in coefficient format and needs to be switched to evaluation format
+	if (c.size() > 2)
+		ct0.SwitchFormat();
 	
 	Element ct1;
 
@@ -654,8 +657,8 @@ LPPublicKeyEncryptionSchemeFV<Element>::LPPublicKeyEncryptionSchemeFV(std::bitse
 	if (mask[SHE])
 		this->m_algorithmSHE = new LPAlgorithmSHEFV<Element>();
 	// PRE for FV is not currently enabled. Needs to be debugged.
-	//if (mask[PRE])
-	//	this->m_algorithmPRE = new LPAlgorithmPREFV<Element>(); 
+	if (mask[PRE])
+		this->m_algorithmPRE = new LPAlgorithmPREFV<Element>(); 
 
 }
 
@@ -673,12 +676,12 @@ void LPPublicKeyEncryptionSchemeFV<Element>::Enable(PKESchemeFeature feature) {
 			this->m_algorithmSHE = new LPAlgorithmSHEFV<Element>();
 		break;
 	// PRE for FV is not currently enabled. Needs to be debugged.
-	//case PRE:
-	//	if (this->m_algorithmPRE == NULL)
-	//		this->m_algorithmPRE = new LPAlgorithmPREFV<Element>();
-	//	if (this->m_algorithmSHE == NULL)
-	//		this->m_algorithmSHE = new LPAlgorithmSHEFV<Element>();
-	//	break; 
+	case PRE:
+		if (this->m_algorithmPRE == NULL)
+			this->m_algorithmPRE = new LPAlgorithmPREFV<Element>();
+		if (this->m_algorithmSHE == NULL)
+			this->m_algorithmSHE = new LPAlgorithmSHEFV<Element>();
+		break; 
 
 	}
 }
