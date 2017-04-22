@@ -425,6 +425,62 @@ namespace lbcrypto {
 	}
 
 	template <class Element>
+	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::EvalAutomorphism(const shared_ptr<Ciphertext<Element>> ciphertext, usint i,
+		const std::vector<shared_ptr<LPEvalKey<Element>>> &evalKeys) const
+	{
+
+		shared_ptr<Ciphertext<Element>> permutedCiphertext(new Ciphertext<Element>(*ciphertext));
+
+		const std::vector<Element> &c = ciphertext->GetElements();
+
+		std::vector<Element> cNew;
+
+		cNew.push_back(std::move(c[0].AutomorphismTransform(i)));
+
+		cNew.push_back(std::move(c[1].AutomorphismTransform(i)));
+
+		permutedCiphertext->SetElements(std::move(cNew));
+
+		return this->KeySwitch(evalKeys[(i-3)/2], permutedCiphertext);
+
+	}
+
+	template <class Element>
+	shared_ptr<std::vector<shared_ptr<LPEvalKey<Element>>>> LPAlgorithmSHEBV<Element>::EvalAutomorphismKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey,
+		usint size, bool flagEvalSum) const 
+	{
+
+		const Element &privateKeyElement = privateKey->GetPrivateElement();
+		usint m = privateKeyElement.GetCyclotomicOrder();
+
+		shared_ptr<LPPrivateKey<Element>> tempPrivateKey(new LPPrivateKey<Element>(privateKey->GetCryptoContext()));
+
+		shared_ptr<std::vector<shared_ptr<LPEvalKey<Element>>>> evalKeys(new std::vector<shared_ptr<LPEvalKey<Element>>>());
+
+		if (size > m / 2 - 1)
+			throw std::runtime_error("size exceeds allowed limit: maximum is m/2");
+		else {
+
+			usint i = 3;
+
+			for (usint index = 0; index < size; index++)
+			{
+				Element permutedPrivateKeyElement = privateKeyElement.AutomorphismTransform(i);
+
+				tempPrivateKey->SetPrivateElement(permutedPrivateKeyElement);
+
+				evalKeys->push_back(this->KeySwitchGen(tempPrivateKey, privateKey));
+
+				i = i + 2;
+			}
+
+		}
+
+		return evalKeys;
+
+	}
+
+	template <class Element>
 	shared_ptr<LPEvalKey<Element>> LPAlgorithmPREBV<Element>::ReKeyGen(const shared_ptr<LPPrivateKey<Element>> newSK,
 		const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const
 	{
