@@ -1,7 +1,6 @@
 /**
 * @file
 * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
-*	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>, Hadi Sajjadpour <ss2959@njit.edu>
 * @version 00_03
 *
 * @section LICENSE
@@ -31,15 +30,10 @@
 * This code provides basic lattice ideal manipulation functionality.
 */
 
-#include "ilparams.h"
+#include "elemparams.h"
 
-/**
-* @namespace lbcrypto
-* The namespace of lbcrypto
-*/
 namespace lbcrypto {
 
-	
 		/**
 		* Stores this object's attribute name value pairs to a map for serializing this object to a JSON file.
 		*
@@ -47,31 +41,29 @@ namespace lbcrypto {
 		* @return map updated with the attribute name value pairs required to serialize this object.
 		*/
 		template<typename IntType>
-		bool ILParamsImpl<IntType>::Serialize(Serialized* serObj) const {
+		bool ElemParams<IntType>::Serialize(Serialized* serObj) const {
 
 			if( !serObj->IsObject() )
 				return false;
 
-			ElemParams<IntType>::Serialize(serObj);
-
 			SerialItem ser(rapidjson::kObjectType);
-			ser.AddMember("RootOfUnity", this->GetRootOfUnity().ToString(), serObj->GetAllocator());
+			ser.AddMember("Modulus", this->GetModulus().ToString(), serObj->GetAllocator());
+			ser.AddMember("Order", std::to_string(this->GetCyclotomicOrder()), serObj->GetAllocator());
 
-			serObj->AddMember("ILParams", ser, serObj->GetAllocator());
+			serObj->AddMember("ElemParams", ser, serObj->GetAllocator());
 
 			return true;
 		}
 
-		//JSON FACILITY
 		/**
 		* Sets this object's attribute name value pairs to deserialize this object from a JSON file.
 		*
 		* @param serObj stores this object's serialized attribute name value pairs.
 		*/
 		template<typename IntType>
-		bool ILParamsImpl<IntType>::Deserialize(const Serialized& serObj) {
+		bool ElemParams<IntType>::Deserialize(const Serialized& serObj) {
 
-			Serialized::ConstMemberIterator mIter = serObj.FindMember("ILParams");
+			Serialized::ConstMemberIterator mIter = serObj.FindMember("ElemParams");
 			if( mIter == serObj.MemberEnd() ) {
 				return false;
 			}
@@ -80,17 +72,16 @@ namespace lbcrypto {
 
 			if( (oIt = mIter->value.FindMember("Modulus")) == mIter->value.MemberEnd() )
 				return false;
-			IntType bbiModulus(oIt->value.GetString());
+			IntType modulus(oIt->value.GetString());
 
 			if( (oIt = mIter->value.FindMember("Order")) == mIter->value.MemberEnd() )
 				return false;
 			usint order = atoi(oIt->value.GetString());
 
-			if( (oIt = mIter->value.FindMember("RootOfUnity")) == mIter->value.MemberEnd() )
-				return false;
-			IntType RootOfUnity(oIt->value.GetString());
-
-			m_rootOfUnity = RootOfUnity;
+			cyclotomicOrder = order;
+			ringDimension = GetTotient(order);
+			isPowerOfTwo = cyclotomicOrder/2 == ringDimension;
+			ciphertextModulus = modulus;
 			return true;
 		}
 

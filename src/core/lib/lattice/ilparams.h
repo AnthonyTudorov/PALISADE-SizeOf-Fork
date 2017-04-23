@@ -70,7 +70,8 @@ public:
 	 * Constructor that initializes nothing.
 	 * All of the private members will be initialised to zero.
 	 */
-	ILParamsImpl(): m_modulus(0), m_order(0), m_rootOfUnity(0) {}
+	ILParamsImpl()
+		: ElemParams<IntType>(0,IntType::ZERO), m_rootOfUnity(IntType::ZERO) {}
 
 	/**
 	 * Constructor for the pre-computed case.
@@ -79,11 +80,8 @@ public:
 	 * @param &modulus the ciphertext modulus.
 	 * @param &rootOfUnity the root of unity used in the ciphertext.
 	 */
-	ILParamsImpl(const usint order, const IntType & modulus, const IntType & rootOfUnity) {
-		m_order = order;
-		m_modulus = modulus;
-		m_rootOfUnity = rootOfUnity;
-	}
+	ILParamsImpl(const usint order, const IntType & modulus, const IntType & rootOfUnity)
+		: ElemParams<IntType>(order, modulus), m_rootOfUnity(rootOfUnity) {}
 
 	/**
 	 * Constructor for the pre-computed case.
@@ -91,42 +89,45 @@ public:
 	 * @param &order the order of the ciphertext.
 	 * @param &modulus the ciphertext modulus.
 	 */
-	ILParamsImpl(const usint order, const IntType &modulus) {
-		m_order = order;
-		m_modulus = modulus;
+	ILParamsImpl(const usint order, const IntType &modulus)
+		: ElemParams<IntType>(order, modulus)
+	{
 		m_rootOfUnity = RootOfUnity<IntType>(order, modulus);
 	}
 
-	//copy constructor
-	/**
-	 * Copy constructor.
-	 *
-	 * @param &rhs the input set of parameters which is copied.
-	 */
-	ILParamsImpl(const ILParamsImpl &rhs) {
-		m_order = rhs.m_order;
-		m_modulus = rhs.m_modulus;
-		m_rootOfUnity = rhs.m_rootOfUnity;
-	}
+	// use the default copy, move and assignments
 
-	/**
-	 * Assignment Operator.
-	 *
-	 * @param &rhs the ILParams to be copied.
-	 * @return the resulting ILParams.
-	 */
-	ILParamsImpl& operator=(const ILParamsImpl &) = default;
-
-	/**
-	 * Move constructor.
-	 *
-	 * @param &rhs the input set of parameters which is copied.
-	 */
-	ILParamsImpl(const ILParamsImpl &&rhs) {
-		m_order = rhs.m_order;
-		m_modulus = std::move(rhs.m_modulus);
-		m_rootOfUnity = std::move(rhs.m_rootOfUnity);
-	}
+//	//copy constructor
+//	/**
+//	 * Copy constructor.
+//	 *
+//	 * @param &rhs the input set of parameters which is copied.
+//	 */
+//	ILParamsImpl(const ILParamsImpl &rhs) = default;
+////	{
+////		m_order = rhs.m_order;
+////		m_modulus = rhs.m_modulus;
+////		m_rootOfUnity = rhs.m_rootOfUnity;
+////	}
+//
+//	/**
+//	 * Assignment Operator.
+//	 *
+//	 * @param &rhs the ILParams to be copied.
+//	 * @return the resulting ILParams.
+//	 */
+//	ILParamsImpl& operator=(const ILParamsImpl &) = default;
+//
+//	/**
+//	 * Move constructor.
+//	 *
+//	 * @param &rhs the input set of parameters which is copied.
+//	 */
+//	ILParamsImpl(const ILParamsImpl &&rhs) {
+//		m_order = rhs.m_order;
+//		m_modulus = std::move(rhs.m_modulus);
+//		m_rootOfUnity = std::move(rhs.m_rootOfUnity);
+//	}
 
 	/**
 	 * Destructor.
@@ -136,23 +137,6 @@ public:
 	// ACCESSORS
 
 	// Get accessors
-	/**
-	 * Get method of the order.
-	 *
-	 * @return the order.
-	 */
-	const usint GetCyclotomicOrder() const {
-		return m_order;
-	}
-
-	/**
-	 * Get the modulus.
-	 *
-	 * @return the modulus.
-	 */
-	const IntType &GetModulus() const {
-		return m_modulus;
-	}
 
 	/**
 	 * Get the root of unity.
@@ -163,36 +147,8 @@ public:
 		return m_rootOfUnity;
 	}
 
-	// Set accessors
 	/**
-	 * Set method of the order.
-	 *
-	 * @param order the order variable.
-	 */
-	void SetCyclotomicOrder(usint order) {
-		m_order = order;
-	}
-
-	/**
-	 * Set the root of unity.
-	 *
-	 * @param &rootOfUnity the root of unity.
-	 */
-	void SetRootOfUnity(const IntType &rootOfUnity) {
-		m_rootOfUnity = rootOfUnity;
-	}
-
-	/**
-	 * Set the modulus.
-	 *
-	 * @param &modulus the modulus.
-	 */
-	void SetModulus(const IntType &modulus) {
-		m_modulus = modulus;
-	}
-
-	/**
-	 * Equal operator compares this ILVector2n to the specified ElemParams (which will be dynamic casted)
+	 * Equal operator compares ElemParams (which will be dynamic casted)
 	 *
 	 * @param &rhs is the specified ILVector2n to be compared with this ILVector2n.
 	 * @return true if this ILVector2n represents the same values as the specified ILVectorArray2n, false otherwise
@@ -201,21 +157,14 @@ public:
 		if( dynamic_cast<const ILParamsImpl<IntType> *>(&rhs) == 0 )
 			return false;
 
-		if (m_modulus != rhs.GetModulus()) {
-			return false;
-		}
-		if (m_order != rhs.GetCyclotomicOrder()) {
-			return false;
-		}
-		if (m_rootOfUnity != rhs.GetRootOfUnity()) {
-			return false;
-		}
-		return true;
+		return ElemParams<IntType>::operator==(rhs) && m_rootOfUnity == rhs.GetRootOfUnity();
 	}
 
 private:
 	std::ostream& doprint(std::ostream& out) const {
-		out << "ILParams: mod " << GetModulus() << " order " << GetCyclotomicOrder() << " root of unity " << GetRootOfUnity() << std::endl;
+		out << "ILParams ";
+		ElemParams<IntType>::doprint(out);
+		out << "Root of unity " << GetRootOfUnity();
 		return out;
 	}
 
@@ -236,12 +185,6 @@ public:
 	bool Deserialize(const Serialized& serObj);
 
 private:
-	// order of cyclotomic polynomial
-	usint m_order;
-
-	// value of modulus
-	IntType m_modulus;
-
 	// primitive root unity that is used to transform from coefficient to evaluation representation and vice versa
 	IntType m_rootOfUnity;
 

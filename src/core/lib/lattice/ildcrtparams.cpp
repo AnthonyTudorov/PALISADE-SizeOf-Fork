@@ -5,14 +5,15 @@
 
 namespace lbcrypto {
 
-ILDCRTParams::ILDCRTParams(usint order, usint depth) {
-	m_cyclotomicOrder = order;
+template<typename IntType>
+ILDCRTParams<IntType>::ILDCRTParams(usint order, usint depth, usint bits) : ElemParams<IntType>(order) {
+
 	m_parms.resize(depth);
 
 	// FIXME on this starting q
 	native64::BigBinaryInteger q("50000");
 	native64::BigBinaryInteger temp;
-	BigBinaryInteger modulus(BigBinaryInteger::ONE);
+	IntType modulus(BigBinaryInteger::ONE);
 
 	native64::BigBinaryInteger mod, root;
 
@@ -26,11 +27,12 @@ ILDCRTParams::ILDCRTParams(usint order, usint depth) {
 		modulus = modulus * BigBinaryInteger(mod.ConvertToInt());
 	}
 
-	this->m_modulus = modulus;
+	this->ciphertextModulus = modulus;
 }
 
+template<typename IntType>
 bool
-ILDCRTParams::Serialize(Serialized* serObj) const
+ILDCRTParams<IntType>::Serialize(Serialized* serObj) const
 {
 	if( !serObj->IsObject() )
 		return false;
@@ -46,9 +48,9 @@ ILDCRTParams::Serialize(Serialized* serObj) const
 	return true;
 }
 
-//JSON FACILITY
+template<typename IntType>
 bool
-ILDCRTParams::Deserialize(const Serialized& serObj)
+ILDCRTParams<IntType>::Deserialize(const Serialized& serObj)
 {
 	Serialized::ConstMemberIterator rIt = serObj.FindMember("ILDCRTParams");
 	if( rIt == serObj.MemberEnd() ) return false;

@@ -638,17 +638,18 @@ namespace lbcrypto {
 		// Either Format::EVALUATION (0) or Format::COEFFICIENT (1)
 		Format m_format;
 
-		//Big Modulus, multiplied value of all tower moduli
-		ModType m_modulus;
-
-		usint m_cyclotomicOrder;
+		//these are in the parms and need to go away
+//		//Big Modulus, multiplied value of all tower moduli
+//		ModType m_modulus;
+//
+//		usint m_cyclotomicOrder;
 	};
 
 } // namespace lbcrypto ends
 
 namespace lbcrypto {
 
-typedef ILVectorArrayImpl<BigBinaryInteger, BigBinaryInteger, BigBinaryVector, ILDCRTParams> ILVectorArray2n;
+typedef ILVectorArrayImpl<BigBinaryInteger, BigBinaryInteger, BigBinaryVector, ILDCRTParams<BigBinaryInteger>> ILVectorArray2n;
 
 }
 

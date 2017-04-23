@@ -54,21 +54,23 @@ namespace lbcrypto {
 	class ElemParams : public Serializable
 	{
 	public:
-		ElemParams() {}
+		ElemParams(usint order, const IntegerType& ctModulus = IntegerType::ZERO) {
+			cyclotomicOrder = order;
+			ringDimension = GetTotient(order);
+			isPowerOfTwo = ringDimension == cyclotomicOrder / 2;
+			ciphertextModulus = ctModulus;
+		}
 
 		virtual ~ElemParams() {}
 
-		/**
-		* Each element params should give the effective modulus regardless of the representation
-		*/
-		virtual const IntegerType &GetModulus() const = 0;
+		// GETTERS
+		const IntegerType &GetModulus() const { return ciphertextModulus; }
 
-		/**
-		* Get method of the order.
-		*
-		* @return the order.
-		*/
-		virtual const usint GetCyclotomicOrder() const = 0;
+		const usint GetCyclotomicOrder() const { return cyclotomicOrder; }
+
+		const usint GetRingDimension() const { return ringDimension; }
+
+		const bool OrderIsPowerOfTwo() const { return isPowerOfTwo; }
 
 		/**
 		 * Get Root of Unity
@@ -80,11 +82,42 @@ namespace lbcrypto {
 	    	return item.doprint(out);
 	    }
 
-		virtual bool operator==(const ElemParams<IntegerType> &other) const = 0;
+		virtual bool operator==(const ElemParams<IntegerType> &other) const {
+			return cyclotomicOrder == other.cyclotomicOrder &&
+					ringDimension == other.ringDimension &&
+					ciphertextModulus == other.ciphertextModulus;
+		}
 		bool operator!=(const ElemParams<IntegerType> &other) const { return !(*this == other); }
 
-	private:
-		virtual std::ostream& doprint(std::ostream& out) const = 0;
+	public:
+		/**
+		 * Serialize the object into a Serialized
+		 * @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+		 * @param fileFlag is an object-specific parameter for the serialization
+		 * @return true if successfully serialized
+		 */
+		bool Serialize(Serialized* serObj) const;
+
+		/**
+		 * Populate the object from the deserialization of the Setialized
+		 * @param serObj contains the serialized object
+		 * @return true on success
+		 */
+		bool Deserialize(const Serialized& serObj);
+
+
+	protected:
+		usint			cyclotomicOrder;
+		usint			ringDimension;
+		bool			isPowerOfTwo;
+		IntegerType		ciphertextModulus;
+
+		virtual std::ostream& doprint(std::ostream& out) const {
+			out << "[m=" << cyclotomicOrder << (isPowerOfTwo?"* ":" ") << "n=" << ringDimension << " q=" << ciphertextModulus << "]";
+			return out;
+		}
+
+
 	};
 
 } // namespace lbcrypto ends

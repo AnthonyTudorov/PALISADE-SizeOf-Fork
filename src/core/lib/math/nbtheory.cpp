@@ -62,7 +62,12 @@ template const BigBinaryInteger PollardRhoFactorization(const BigBinaryInteger &
 template void PrimeFactorize( BigBinaryInteger &n, std::set<BigBinaryInteger> &primeFactors);
 template BigBinaryInteger FindPrimeModulus(usint m, usint nBits);
 template void NextQ(BigBinaryInteger &q, const BigBinaryInteger &plainTextModulus, const usint &ringDimension, const BigBinaryInteger &sigma, const BigBinaryInteger &alpha);
+template BigBinaryVector PolyMod(const BigBinaryVector &dividend, const BigBinaryVector &divisor, const BigBinaryInteger &modulus);
+template BigBinaryVector PolynomialMultiplication(const BigBinaryVector &a, const BigBinaryVector &b);
+template BigBinaryVector GetCyclotomicPolynomial(usint m, const BigBinaryInteger &modulus);
 
+
+template std::vector<usint> GetTotientList(const usint &n);
 // FIXME the MATH_BACKEND check is a hack and needs to go away
 #if MATHBACKEND != 7
 #ifndef NO_MATHBACKEND_7
@@ -74,6 +79,12 @@ template const native64::BigBinaryInteger PollardRhoFactorization(const native64
 template void PrimeFactorize( native64::BigBinaryInteger &n, std::set<native64::BigBinaryInteger> &primeFactors);
 template native64::BigBinaryInteger FindPrimeModulus(usint m, usint nBits);
 template void NextQ(native64::BigBinaryInteger &q, const native64::BigBinaryInteger &plainTextModulus, const usint &ringDimension, const native64::BigBinaryInteger &sigma, const native64::BigBinaryInteger &alpha);
+//template native64::BigBinaryInteger GetTotient(const native64::BigBinaryInteger &n);
+template std::vector<native64::BigBinaryInteger> GetTotientList(const native64::BigBinaryInteger &n);
+template native64::BigBinaryVector PolyMod(const native64::BigBinaryVector &dividend, const native64::BigBinaryVector &divisor, const native64::BigBinaryInteger &modulus);
+template native64::BigBinaryVector PolynomialMultiplication(const native64::BigBinaryVector &a, const native64::BigBinaryVector &b);
+template native64::BigBinaryVector GetCyclotomicPolynomial(usint m, const native64::BigBinaryInteger &modulus);
+
 #endif
 #endif
 }
@@ -646,5 +657,281 @@ usint ModInverse(usint a, usint b)
 
 	return x1;
 }
+
+template<>
+usint GreatestCommonDivisor(const usint& a, const usint& b)
+{
+	bool dbg_flag = false;
+	usint m_a, m_b, m_t;
+	m_a = a;
+	m_b = b;
+	DEBUG("GCD a " << a << " b " << b);
+	while (m_b != 0) {
+		m_t = m_b;
+		DEBUG("GCD m_a.Mod(b) " << m_a << "( " << m_b << ")");
+		m_b = m_a % (m_b);
+
+		m_a = m_t;
+		DEBUG("GCD m_a " << m_b << " m_b " << m_b);
+	}
+	DEBUG("GCD ret " << m_a);
+	return m_a;
+}
+
+template<typename IntType>
+IntType NextPowerOfTwo(const IntType &n) {
+	usint result = ceil(log2(n));
+	return result;
+}
+
+/*
+phi(n) = n*productOf(1-1/Pi); where Pi's are the prime factors of n
+*/
+//template<typename IntType>
+//IntType GetTotient(const IntType &n) {
+//
+//	std::set<IntType> factors;
+//	PrimeFactorize(n, factors);
+//
+//	IntType primeProd(1);
+//	IntType numerator(1);
+//	for (auto &r : factors) {
+//		numerator = numerator * (r - 1);
+//		primeProd = primeProd*r;
+//	}
+//
+//	IntType ans = (n / primeProd)*numerator;
+//
+//	return ans;
+//}
+
+uint64_t GetTotient(const uint64_t n) {
+
+	std::set<native64::BigBinaryInteger> factors;
+	native64::BigBinaryInteger enn(n);
+	PrimeFactorize(enn, factors);
+	std::cout << n << " prime factors are ";
+	for ( auto &r : factors )
+		std::cout << r << " ";
+	std::cout << std::endl;
+
+	native64::BigBinaryInteger primeProd(1);
+	native64::BigBinaryInteger numerator(1);
+	for (auto &r : factors) {
+		auto f = enn - (enn/r);
+		primeProd = primeProd * f;
+
+//		numerator = numerator * (r - 1);
+//		primeProd = primeProd*r;
+	}
+
+//	uint64_t ans = (n / primeProd.ConvertToInt())*numerator.ConvertToInt();
+
+	return primeProd.ConvertToInt();
+}
+
+/*Naive Loop to find coprimes to n*/
+template<typename IntType>
+std::vector<IntType> GetTotientList(const IntType &n) {
+
+	std::vector<IntType> result;
+	IntType one(1);
+	for (IntType i = IntType(1); i < n; i = i + 1) {
+		if (GreatestCommonDivisor(i, n) == one)
+			result.push_back(i);
+	}
+
+	return std::move(result);
+}
+
+/*Long division algorithm*/
+template<typename IntVector, typename IntType>
+IntVector PolyMod(const IntVector &dividend, const IntVector &divisor, const IntType &modulus) {
+
+	usint divisorLength = divisor.GetLength();
+	usint dividendLength = dividend.GetLength();
+
+	IntVector result(divisorLength - 1, modulus);
+	usint runs = dividendLength - divisorLength + 1; //no. of iterations
+
+	auto mat = [](const IntType &x, const IntType &y, const IntType &z, const IntType &mod) {
+		IntType result(z.ModSub(x*y, mod));
+		return result;
+	};
+
+	IntVector runningDividend(dividend);
+
+	int  divisorPtr, dividendPtr;
+	for (usint i = 0; i < runs; i++) {
+		IntType divConst(runningDividend.GetValAtIndex(dividendLength - 1));//get the highest degree coeff
+		divisorPtr = divisorLength - 1;
+		for (int j = 0; j < dividendLength - i - 1; j++) {
+			if ((divisorPtr - j) > 0) {
+				runningDividend.SetValAtIndex(dividendLength - 1 - j, mat(divisor.GetValAtIndex(divisorPtr - 1 - j), divConst, runningDividend.GetValAtIndex(dividendLength - 2 - j), modulus));
+			}
+			else
+				runningDividend.SetValAtIndex(dividendLength - 1 - j, runningDividend.GetValAtIndex(dividendLength - 2 - j));
+
+		}
+	}
+
+	for (usint i = 0, j = runs; i < divisorLength - 1; i++, j++) {
+		result.SetValAtIndex(i, runningDividend.GetValAtIndex(j));
+	}
+
+
+	return result;
+}
+
+std::vector<int> GetCyclotomicPolynomialRecursive(usint m) {
+	std::vector<int> result;
+	if (m == 1) {
+		result = { -1,1 };
+		return std::move(result);
+	}
+	if (m == 2) {
+		result = { 1,1 };
+		return std::move(result);
+	}
+	auto IsPrime = [](usint m) {
+		bool flag = true;
+		for (usint i = 2; i < m; i++) {
+			if (m%i == 0) {
+				flag = false;
+				return flag;
+			}
+		}
+		return flag;
+	};
+	if (IsPrime(m)) {
+		result = std::vector<int>(m, 1);
+		return result;
+	}
+
+	auto GetDivisibleNumbers = [](usint m) {
+		std::vector<usint> div;
+		for (usint i = 1; i < m; i++) {
+			if (m%i == 0) {
+				div.push_back(i);
+			}
+		}
+		return div;
+	};
+
+	auto PolyMult = [](const std::vector<int> &a, const std::vector<int> &b) {
+		usint degreeA = a.size() - 1;
+		usint degreeB = b.size() - 1;
+
+		usint degreeResultant = degreeA + degreeB;
+
+		std::vector<int> result(degreeResultant + 1, 0);
+
+		for (usint i = 0; i < a.size(); i++) {
+
+			for (usint j = 0; j < b.size(); j++) {
+				const auto &valResult = result.at(i + j);
+				const auto &valMult = a.at(i)*b.at(j);
+				result.at(i + j) = valMult + valResult;
+			}
+		}
+
+		return result;
+	};
+
+	auto PolyQuotient = [](const std::vector<int> &dividend, const std::vector<int> &divisor) {
+		usint divisorLength = divisor.size();
+		usint dividendLength = dividend.size();
+
+		usint runs = dividendLength - divisorLength + 1; //no. of iterations
+		std::vector<int> result(runs + 1);
+
+		auto mat = [](const int x, const int y, const int z) {
+			int result = z - (x*y);
+			return result;
+		};
+
+		std::vector<int> runningDividend(dividend);
+
+		int  divisorPtr, dividendPtr;
+		for (usint i = 0; i < runs; i++) {
+			int divConst = (runningDividend.at(dividendLength - 1));//get the highest degree coeff
+			divisorPtr = divisorLength - 1;
+			for (int j = 0; j < dividendLength - i - 1; j++) {
+				if ((divisorPtr - j) > 0) {
+					runningDividend.at(dividendLength - 1 - j) = mat(divisor.at(divisorPtr - 1 - j), divConst, runningDividend.at(dividendLength - 2 - j));
+				}
+				else
+					runningDividend.at(dividendLength - 1 - j) = runningDividend.at(dividendLength - 2 - j);
+
+			}
+			result.at(i + 1) = runningDividend.at(dividendLength - 1);
+		}
+		result.at(0) = 1;//under the assumption that both dividend and divisor are monic
+		result.pop_back();
+
+		return result;
+	};
+	auto divisibleNumbers = GetDivisibleNumbers(m);
+
+	std::vector<int> product(1, 1);
+
+	for (usint i = 0; i < divisibleNumbers.size(); i++) {
+		product = PolyMult(product, GetCyclotomicPolynomialRecursive(divisibleNumbers.at(i)));
+	}
+
+	//make big poly = x^m - 1
+	std::vector<int> bigPoly(m + 1, 0);
+	bigPoly.at(0) = -1; bigPoly.at(m) = 1;
+	result = PolyQuotient(bigPoly, product);
+
+	return result;
+}
+
+template<typename IntVector>
+IntVector PolynomialMultiplication(const IntVector &a, const IntVector &b) {
+
+	usint degreeA = a.GetLength() - 1;
+	usint degreeB = b.GetLength() - 1;
+
+	usint degreeResultant = degreeA + degreeB;
+
+	const auto &modulus = a.GetModulus();
+
+	IntVector result(degreeResultant + 1, modulus);
+
+	for (usint i = 0; i < a.GetLength(); i++) {
+
+		for (usint j = 0; j < b.GetLength(); j++) {
+			const auto &valResult = result.GetValAtIndex(i + j);
+			const auto &valMult = a.GetValAtIndex(i)*b.GetValAtIndex(j);
+			result.SetValAtIndex(i + j, (valMult + valResult).Mod(modulus));
+		}
+	}
+
+	return result;
+
+}
+
+template<typename IntVector, typename IntType>
+IntVector GetCyclotomicPolynomial(usint m, const IntType &modulus) {
+
+	auto intCP = GetCyclotomicPolynomialRecursive(m);
+	IntVector result(intCP.size(), modulus);
+	for (usint i = 0; i < intCP.size(); i++) {
+		auto val = intCP.at(i);
+		if (intCP.at(i) > -1)
+			result.SetValAtIndex(i, IntType(val));
+		else {
+			val *= -1;
+			result.SetValAtIndex(i, modulus - IntType(val));
+		}
+
+	}
+
+	return result;
+
+}
+
+
 
 }

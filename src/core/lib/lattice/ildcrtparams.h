@@ -69,18 +69,12 @@ namespace lbcrypto {
 /**
  * @brief Parameters for array of ideal lattices (used for Double-CRT)
  */
-class ILDCRTParams : public ElemParams<BigBinaryInteger>
+template<typename IntType>
+class ILDCRTParams : public ElemParams<IntType>
 {
 public:
 
-	/**
-	 * Constructor that initializes nothing.
-	 */
-	ILDCRTParams(usint depth = 0) : m_cyclotomicOrder(0) {
-		m_parms.resize(depth);
-	}
-
-	ILDCRTParams(usint order, usint depth);
+	ILDCRTParams(usint order=0, usint depth=0, usint bits=0);
 
 	/**
 	 * Constructor with all parameters provided except the multiplied values of the chain of moduli. That value is automatically calculated. Root of unity of the modulus is also calculated.
@@ -89,10 +83,8 @@ public:
 	 * @param &modulus is the modulus for the entire tower
 	 * @param rootsOfUnity is unused
 	 */
-	ILDCRTParams(const usint cyclotomic_order, const BigBinaryInteger &modulus, const BigBinaryInteger& rootsOfUnity) {
-		m_cyclotomicOrder = cyclotomic_order;
-		m_modulus = modulus;
-	}
+	ILDCRTParams(const usint cyclotomic_order, const BigBinaryInteger &modulus, const BigBinaryInteger& rootsOfUnity)
+		: ElemParams<IntType>(cyclotomic_order, modulus) {}
 
 	/**
 	 * Constructor with all parameters provided except the multiplied values of the chain of moduli. That value is automatically calculated. Root of unity of the modulus is also calculated.
@@ -101,11 +93,11 @@ public:
 	 * @param cyclotomic_order the order of the ciphertext
 	 * @param &moduli is the tower of moduli
 	 */
-	ILDCRTParams(const usint cyclotomic_order, const std::vector<native64::BigBinaryInteger> &moduli, const std::vector<native64::BigBinaryInteger>& rootsOfUnity) {
+	ILDCRTParams(const usint cyclotomic_order, const std::vector<native64::BigBinaryInteger> &moduli, const std::vector<native64::BigBinaryInteger>& rootsOfUnity)
+		: ElemParams<IntType>(cyclotomic_order) {
 		if( moduli.size() != rootsOfUnity.size() )
 			throw std::logic_error("sizes of moduli and roots of unity do not match");
-		m_cyclotomicOrder = cyclotomic_order;
-		m_modulus = BigBinaryInteger::ONE;
+
 		for( int i=0; i<moduli.size(); i++ ) {
 			m_parms.push_back( std::shared_ptr<native64::ILParams>( new native64::ILParams(cyclotomic_order, moduli[i], rootsOfUnity[i]) ) );
 		}
@@ -118,56 +110,43 @@ public:
 	 * @param cyclotomic_order the order of the ciphertext
 	 * @param &moduli is the tower of moduli
 	 */
-	ILDCRTParams(const usint cyclotomic_order, const std::vector<native64::BigBinaryInteger> &moduli) {
-		m_cyclotomicOrder = cyclotomic_order;
+	ILDCRTParams(const usint cyclotomic_order, const std::vector<native64::BigBinaryInteger> &moduli)
+		: ElemParams<IntType>(cyclotomic_order) {
 		for( int i=0; i<moduli.size(); i++ ) {
 			m_parms.push_back( std::shared_ptr<native64::ILParams>( new native64::ILParams(cyclotomic_order, moduli[i]) ) );
 		}
 		calculateModulus();
 	}
 
-	/**
-	 * Assignment Operator.
-	 *
-	 * @param &rhs the copied ILDCRTParams.
-	 * @return the resulting ILDCRTParams.
-	 */
-	ILDCRTParams& operator=(const ILDCRTParams &rhs) {
-		this->m_cyclotomicOrder = rhs.m_cyclotomicOrder;
-		this->m_parms = rhs.m_parms;
-		this->m_modulus = rhs.m_modulus;
-
-		return *this;
+	ILDCRTParams(const usint cyclotomic_order, std::vector<std::shared_ptr<native64::ILParams>>& parms)
+		: ElemParams<IntType>(cyclotomic_order), m_parms(parms) {
+		calculateModulus();
 	}
+
+
+//	/**
+//	 * Assignment Operator.
+//	 *
+//	 * @param &rhs the copied ILDCRTParams.
+//	 * @return the resulting ILDCRTParams.
+//	 */
+//	ILDCRTParams& operator=(const ILDCRTParams &rhs) {
+//		this->m_cyclotomicOrder = rhs.m_cyclotomicOrder;
+//		this->m_parms = rhs.m_parms;
+//		this->m_modulus = rhs.m_modulus;
+//
+//		return *this;
+//	}
 
 	// ACCESSORS
-
-	// Get accessors
-	/**
-	 * Get method of the order.
-	 *
-	 * @return the cyclotmic order.
-	 */
-	const usint GetCyclotomicOrder() const {
-		return m_cyclotomicOrder;
-	}
-
-	/**
-	 * Get modulus.
-	 *
-	 * @return the modulus.
-	 */
-	const BigBinaryInteger &GetModulus() const {
-		return m_modulus;
-	}
 
 	/**
 	 * Get the root of unity.
 	 *
 	 * @return the root of unity.
 	 */
-	const BigBinaryInteger &GetRootOfUnity() const {
-		return BigBinaryInteger::ZERO;
+	const IntType &GetRootOfUnity() const {
+		throw std::logic_error("no single root of unity");
 	}
 
 	const std::vector<std::shared_ptr<native64::ILParams>> &GetParams() const {
@@ -177,31 +156,11 @@ public:
 	std::shared_ptr<native64::ILParams>& operator[](const usint i) { return m_parms[i]; }
 
 	/**
-	 * Set method of the order.
-	 *
-	 * @param order the order variable.
-	 */
-	void SetCyclotomicOrder(const usint order) {
-		m_cyclotomicOrder = order;
-		for( usint i=0; i<m_parms.size(); i++ )
-			m_parms[i]->SetCyclotomicOrder(order);
-	}
-
-	/**
-	 * Set the modulus.
-	 *
-	 * @param &modulus modulus value of the multiplied value of the chain of moduli.
-	 */
-	void SetModulus(const BigBinaryInteger &modulus) {
-		m_modulus = modulus;
-	}
-
-	/**
 	 * Removes the last parameter set and adjust the multiplied moduli.
 	 *
 	 */
 	void PopLastParam(){
-		m_modulus = m_modulus / BigBinaryInteger(m_parms.back()->GetModulus().ConvertToInt());
+		this->ciphertextModulus = this->ciphertextModulus / IntType(m_parms.back()->GetModulus().ConvertToInt());
 		m_parms.pop_back();
 	}
 
@@ -221,18 +180,14 @@ public:
 	 * @param &other ElemParams to compare against.
 	 * @return the equality check results.
 	 */
-	bool operator==(const ElemParams &other) const {
+	bool operator==(const ElemParams<IntType> &other) const {
 
 		const ILDCRTParams *dcrtParams = dynamic_cast<const ILDCRTParams*>(&other);
 
 		if( dcrtParams == 0 ) return 0;
 
-		if (m_modulus != dcrtParams->GetModulus()) {
+		if( ElemParams<IntType>::operator==(other) == false )
 			return false;
-		}
-		if (m_cyclotomicOrder != dcrtParams->GetCyclotomicOrder()) {
-			return false;
-		}
 
 		if (m_parms.size() != dcrtParams->m_parms.size() )
 			return false;
@@ -247,31 +202,26 @@ public:
 
 private:
 	std::ostream& doprint(std::ostream& out) const {
-		out << "ILDCRTParams: mod " << GetModulus() << " order " << GetCyclotomicOrder() << std::endl;
-		out << "Parms:" << std::endl;
+		out << "ILDCRTParams ";
+		ElemParams<IntType>::doprint(out);
+		out << " Parms:" << std::endl;
 		for( int i=0; i < m_parms.size(); i++ ) {
-			out << "   " << i << ": modulus=" << m_parms[i]->GetModulus() << " root of unity=" << m_parms[i]->GetRootOfUnity() << std::endl;
+			out << "   " << i << ":" << *m_parms[i] << std::endl;
 		}
 		return out;
 	}
 
 private:
-	// order of cyclotomic polynomial
-	usint m_cyclotomicOrder;
-
 	// array of smaller ILParams
 	std::vector<std::shared_ptr<native64::ILParams>>	m_parms;
-
-	//Modulus that is factorized into m_moduli
-	BigBinaryInteger m_modulus;
 
 	//This method 'pre-computes' the modulus based on the multiplication of moduli
 	void calculateModulus(){
 
-		m_modulus = BigBinaryInteger(1);
+		this->ciphertextModulus = BigBinaryInteger(1);
 
 		for(usint i = 0; i < m_parms.size(); i++) {
-			m_modulus = m_modulus * BigBinaryInteger(m_parms[i]->GetModulus().ConvertToInt());
+			this->ciphertextModulus = this->ciphertextModulus * BigBinaryInteger(m_parms[i]->GetModulus().ConvertToInt());
 		}
 	}
 
