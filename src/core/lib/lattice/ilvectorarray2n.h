@@ -225,19 +225,11 @@ namespace lbcrypto {
 		 */
 		const shared_ptr<ParmType> GetParams() const { return m_params; }
 
-		/**
-		* Get method of the cyclotomic order
-		*
-		* @return the cyclotomic order.
-		*/
-		const usint GetCyclotomicOrder() const ;
+		const usint GetCyclotomicOrder() const { return m_params->GetCyclotomicOrder(); }
 
-		/**
-		* Get method of the modulus.
-		*
-		* @return the modulus.
-		*/
-		const ModType &GetModulus() const;
+		const usint GetRingDimension() const { return m_params->GetRingDimension(); }
+
+		const ModType &GetModulus() const { return m_params->GetModulus(); }
 		
 		const IntType &GetRootOfUnity() const { return IntType::ZERO; }
 
@@ -637,12 +629,6 @@ namespace lbcrypto {
 
 		// Either Format::EVALUATION (0) or Format::COEFFICIENT (1)
 		Format m_format;
-
-		//these are in the parms and need to go away
-//		//Big Modulus, multiplied value of all tower moduli
-//		ModType m_modulus;
-//
-//		usint m_cyclotomicOrder;
 	};
 
 } // namespace lbcrypto ends

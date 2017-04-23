@@ -301,7 +301,7 @@ public:
 	 *
 	 * @return the modulus.
 	 */
-	const ModType &GetModulus() const;
+	const ModType &GetModulus() const { return m_params->GetModulus(); }
 
 	/**
 	 * Get the values for the element
@@ -315,14 +315,16 @@ public:
 	 *
 	 * @return order
 	 */
-	const usint GetCyclotomicOrder() const;
+	const usint GetCyclotomicOrder() const { return m_params->GetCyclotomicOrder(); }
+
+	const usint GetRingDimension() const { return m_params->GetRingDimension(); }
 
 	/**
 	 * Get the root of unity.
 	 *
 	 * @return the root of unity.
 	 */
-	const IntType &GetRootOfUnity() const;
+	const IntType &GetRootOfUnity() const { return m_params->GetRootOfUnity(); }
 
 
 	/**

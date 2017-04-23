@@ -101,7 +101,7 @@ public:
 		for( int i=0; i<moduli.size(); i++ ) {
 			m_parms.push_back( std::shared_ptr<native64::ILParams>( new native64::ILParams(cyclotomic_order, moduli[i], rootsOfUnity[i]) ) );
 		}
-		calculateModulus();
+		RecalculateModulus();
 	}
 
 	/**
@@ -115,12 +115,12 @@ public:
 		for( int i=0; i<moduli.size(); i++ ) {
 			m_parms.push_back( std::shared_ptr<native64::ILParams>( new native64::ILParams(cyclotomic_order, moduli[i]) ) );
 		}
-		calculateModulus();
+		RecalculateModulus();
 	}
 
 	ILDCRTParams(const usint cyclotomic_order, std::vector<std::shared_ptr<native64::ILParams>>& parms)
 		: ElemParams<IntType>(cyclotomic_order), m_parms(parms) {
-		calculateModulus();
+		RecalculateModulus();
 	}
 
 
@@ -200,6 +200,17 @@ public:
 		return true;
 	}
 
+	void RecalculateModulus() {
+
+		this->ciphertextModulus = BigBinaryInteger(1);
+
+		for(usint i = 0; i < m_parms.size(); i++) {
+			this->ciphertextModulus = this->ciphertextModulus * BigBinaryInteger(m_parms[i]->GetModulus().ConvertToInt());
+		}
+	}
+
+
+
 private:
 	std::ostream& doprint(std::ostream& out) const {
 		out << "ILDCRTParams ";
@@ -214,17 +225,6 @@ private:
 private:
 	// array of smaller ILParams
 	std::vector<std::shared_ptr<native64::ILParams>>	m_parms;
-
-	//This method 'pre-computes' the modulus based on the multiplication of moduli
-	void calculateModulus(){
-
-		this->ciphertextModulus = BigBinaryInteger(1);
-
-		for(usint i = 0; i < m_parms.size(); i++) {
-			this->ciphertextModulus = this->ciphertextModulus * BigBinaryInteger(m_parms[i]->GetModulus().ConvertToInt());
-		}
-	}
-
 
 };
 

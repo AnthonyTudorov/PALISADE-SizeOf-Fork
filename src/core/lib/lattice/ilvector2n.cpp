@@ -324,25 +324,10 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	const ModType &ILVectorImpl<ModType,IntType,VecType,ParmType>::GetModulus() const {
-		return m_params->GetModulus();
-	}
-
-	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	const usint ILVectorImpl<ModType,IntType,VecType,ParmType>::GetCyclotomicOrder() const {
-		return m_params->GetCyclotomicOrder();
-	}
-
-	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	const VecType &ILVectorImpl<ModType,IntType,VecType,ParmType>::GetValues() const {
 		if (m_values == 0)
 			throw std::logic_error("No values in ILVectorImpl");
 		return *m_values;
-	}
-
-	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	const IntType &ILVectorImpl<ModType,IntType,VecType,ParmType>::GetRootOfUnity() const {
-		return m_params->GetRootOfUnity();
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>

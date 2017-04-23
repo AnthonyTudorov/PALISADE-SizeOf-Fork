@@ -199,7 +199,7 @@ namespace lbcrypto {
 		for (usint i = 0; i < numberOfTowers; i++) {
 
 			dug.SetModulus(dcrtParams->GetParams()[i]->GetModulus());
-			auto vals(dug.GenerateVector(m_cyclotomicOrder / 2));
+			native64::BigBinaryVector vals(dug.GenerateVector(dcrtParams->GetRingDimension()));
 			ILVectorType ilvector(dcrtParams->GetParams()[i]);
 
 			ilvector.SetValues(vals, Format::COEFFICIENT); // the random values are set in coefficient format
@@ -242,16 +242,6 @@ namespace lbcrypto {
 		res.fillVectorArrayFromBigVector(element, m_params);
 
 		return std::move(res);
-	}
-
-	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	const usint ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::GetCyclotomicOrder() const {
-		return m_cyclotomicOrder;
-	}
-
-	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	const ModType &ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::GetModulus() const {
-		return m_params->GetModulus();
 	}
 
 	// DESTRUCTORS
@@ -439,16 +429,11 @@ namespace lbcrypto {
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	bool ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::operator==(const ILVectorArrayImpl &rhs) const {
-		//check if the format's are the same
-		if (m_format != rhs.m_format) {
-                return false;
-          }
 
-		if (m_modulus != rhs.m_modulus) {
-                return false;
-          }
-	
-		if (m_cyclotomicOrder != rhs.m_cyclotomicOrder) {
+		if( m_params != rhs.m_params )
+			return false;
+
+		if (m_format != rhs.m_format) {
                 return false;
           }
 
@@ -466,8 +451,6 @@ namespace lbcrypto {
 		if (this != &rhs) {
 			m_vectors = rhs.m_vectors;			
 			m_format = rhs.m_format;	
-			m_modulus = rhs.m_modulus;
-			m_cyclotomicOrder = rhs.m_cyclotomicOrder;
 			m_params = rhs.m_params;
 		}
 		return *this;
@@ -479,8 +462,6 @@ namespace lbcrypto {
 		if (this != &rhs) {
 			m_vectors = std::move(rhs.m_vectors);
 			m_format = std::move(rhs.m_format);
-			m_modulus = std::move(rhs.m_modulus);
-			m_cyclotomicOrder = std::move(rhs.m_cyclotomicOrder);
 			m_params = std::move(rhs.m_params);
 		}
 		return *this;
@@ -503,7 +484,7 @@ namespace lbcrypto {
 		}
 		else{
 			for(usint i=0;i<m_vectors.size();i++){
-				native64::BigBinaryVector temp(m_cyclotomicOrder/2);
+				native64::BigBinaryVector temp(m_params->GetRingDimension());
 				temp.SetModulus(m_vectors.at(i).GetModulus());
 				temp = rhs;
 				m_vectors.at(i).SetValues(std::move(temp),m_format);
@@ -614,7 +595,8 @@ namespace lbcrypto {
 		}
 	}
 
-	// This function modifies ILVectorArrayImpl to keep all the even indices in the tower. It reduces the ring dimension of the tower by half.
+	// This function modifies ILVectorArrayImpl to keep all the even indices in the tower.
+	// It reduces the ring dimension of the tower by half.
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	void ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::Decompose() {
 		
@@ -626,7 +608,9 @@ namespace lbcrypto {
 		for(int i=0; i < m_vectors.size(); i++) {
 			m_vectors[i].Decompose();
 		}
-		m_cyclotomicOrder = m_cyclotomicOrder / 2;
+
+		// the individual vectors parms have changed, so change the DCRT parms
+		m_params.reset( new ParmType(GetCyclotomicOrder(), m_vectors) );
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
@@ -643,8 +627,9 @@ namespace lbcrypto {
 		if(m_vectors.size() == 0){
 			throw std::out_of_range("Last element being removed from empty list");
 		}
-		m_modulus = m_modulus / ModType(m_vectors[m_vectors.size()-1].GetModulus().ConvertToInt());
+
 		m_vectors.resize(m_vectors.size() - 1);
+		m_params->DropLastElement();
 	}
 
 	/**
@@ -734,7 +719,7 @@ namespace lbcrypto {
 	{
 	  bool dbg_flag = false;
 
-		usint ringDimension = m_cyclotomicOrder / 2;
+		usint ringDimension = GetRingDimension();
 		usint nTowers = m_vectors.size();
 
 		DEBUG("in InterpolateIlArrayVector2n ring " << ringDimension << " towers " << nTowers);
@@ -742,12 +727,12 @@ namespace lbcrypto {
 		for( usint vi = 0; vi < nTowers; vi++ )
 			DEBUG("tower " << vi << " is " << m_vectors[vi]);
 
-		BigBinaryInteger bigModulus(m_modulus); // qT
+		BigBinaryInteger bigModulus(GetModulus()); // qT
 
 		DEBUG("bigModulus " << bigModulus);
 
 		// this is the resulting vector of coefficients
-		BigBinaryVector coefficients(ringDimension, m_modulus);
+		BigBinaryVector coefficients(ringDimension, bigModulus);
 
 		// this will finally be  V[j]= {Sigma(i = 0 --> t-1) ValueOf M(r,i) * qt/qj *[ (qt/qj)^(-1) mod qj ]}modqt
 		
@@ -794,12 +779,12 @@ namespace lbcrypto {
 		// Create an ILVector2n for this BigBinaryVector
 
 		DEBUG("elementing after vectoring");
-		DEBUG("m_cyclotomicOrder " << m_cyclotomicOrder);
+		DEBUG("m_cyclotomicOrder " << GetCyclotomicOrder());
 		DEBUG("modulus "<< bigModulus);
 
 		// Setting the root of unity to ONE as the calculation is expensive and not required.
-		ILVector2n polynomialReconstructed( shared_ptr<ILParams>( new ILParams(m_cyclotomicOrder, bigModulus, BigBinaryInteger::ONE) ) );
-		polynomialReconstructed.SetValues(coefficients,COEFFICIENT);
+		ILVector2n polynomialReconstructed( shared_ptr<ILParams>( new ILParams(GetCyclotomicOrder(), bigModulus, BigBinaryInteger::ONE) ) );
+		polynomialReconstructed.SetValues(coefficients,m_format);
 
 		DEBUG("answer: " << polynomialReconstructed);
 
@@ -842,18 +827,9 @@ namespace lbcrypto {
 			errMsg = "ILVectorArrayImpl is of size = " + std::to_string(m_vectors.size()) + " but SwitchModulus for tower at index " + std::to_string(index) + "is called.";
 			throw std::runtime_error(errMsg);
 		}
-#if MATHBACKEND == 6
-		IntType mod = modulus % ModType((*m_params)[index]->GetModulus().ConvertToInt());
-		IntType root = rootOfUnity % ModType((*m_params)[index]->GetModulus().ConvertToInt());
-#else
-		auto mod = modulus % ModType((*m_params)[index]->GetModulus().ConvertToInt());
-		auto root = rootOfUnity % ModType((*m_params)[index]->GetModulus().ConvertToInt());
-#endif
 
-
-		m_modulus = m_modulus / ModType(m_vectors[index].GetModulus().ConvertToInt());
-		m_modulus = m_modulus * ModType(modulus.ConvertToInt());
-		m_vectors[index].SwitchModulus(ILVectorType::Integer(mod.ConvertToInt()), ILVectorType::Integer(root.ConvertToInt()));
+		m_vectors[index].SwitchModulus(ILVectorType::Integer(modulus.ConvertToInt()), ILVectorType::Integer(rootOfUnity.ConvertToInt()));
+		m_params->RecalculateModulus();
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
