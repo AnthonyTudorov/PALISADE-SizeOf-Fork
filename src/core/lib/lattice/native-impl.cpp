@@ -27,6 +27,7 @@ template<> std::function<unique_ptr<NativeInteger<uint64_t>>()> NativeInteger<ui
 
 }
 
+#include "elemparams.cpp"
 #include "ilparams.cpp"
 #include "ilvector2n.cpp"
 
@@ -63,8 +64,9 @@ template class BinaryUniformGeneratorImpl<native64::BigBinaryInteger,native64::B
 template class TernaryUniformGeneratorImpl<native64::BigBinaryInteger,native64::BigBinaryVector>;
 template class DiscreteUniformGeneratorImpl<native64::BigBinaryInteger,native64::BigBinaryVector>;
 
-template class ILVectorImpl<native64::BigBinaryInteger,native64::BigBinaryInteger,native64::BigBinaryVector,ILNativeParams>;
+template class ElemParams<native64::BigBinaryInteger>;
 template class ILParamsImpl<native64::BigBinaryInteger>;
+template class ILVectorImpl<native64::BigBinaryInteger,native64::BigBinaryInteger,native64::BigBinaryVector,ILNativeParams>;
 }
 #endif
 #endif

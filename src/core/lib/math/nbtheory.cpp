@@ -59,7 +59,7 @@ template std::vector<BigBinaryInteger> RootsOfUnity(usint m, const std::vector<B
 template BigBinaryInteger GreatestCommonDivisor(const BigBinaryInteger& a, const BigBinaryInteger& b);
   template bool MillerRabinPrimalityTest(const BigBinaryInteger& p, const usint niter);
 template const BigBinaryInteger PollardRhoFactorization(const BigBinaryInteger &n);
-template void PrimeFactorize( BigBinaryInteger &n, std::set<BigBinaryInteger> &primeFactors);
+template void PrimeFactorize( BigBinaryInteger n, std::set<BigBinaryInteger> &primeFactors);
 template BigBinaryInteger FindPrimeModulus(usint m, usint nBits);
 template void NextQ(BigBinaryInteger &q, const BigBinaryInteger &plainTextModulus, const usint &ringDimension, const BigBinaryInteger &sigma, const BigBinaryInteger &alpha);
 template BigBinaryVector PolyMod(const BigBinaryVector &dividend, const BigBinaryVector &divisor, const BigBinaryInteger &modulus);
@@ -76,7 +76,7 @@ template std::vector<native64::BigBinaryInteger> RootsOfUnity(usint m, const std
 template native64::BigBinaryInteger GreatestCommonDivisor(const native64::BigBinaryInteger& a, const native64::BigBinaryInteger& b);
   template bool MillerRabinPrimalityTest(const native64::BigBinaryInteger& p, const usint niter);
 template const native64::BigBinaryInteger PollardRhoFactorization(const native64::BigBinaryInteger &n);
-template void PrimeFactorize( native64::BigBinaryInteger &n, std::set<native64::BigBinaryInteger> &primeFactors);
+template void PrimeFactorize( native64::BigBinaryInteger n, std::set<native64::BigBinaryInteger> &primeFactors);
 template native64::BigBinaryInteger FindPrimeModulus(usint m, usint nBits);
 template void NextQ(native64::BigBinaryInteger &q, const native64::BigBinaryInteger &plainTextModulus, const usint &ringDimension, const native64::BigBinaryInteger &sigma, const native64::BigBinaryInteger &alpha);
 //template native64::BigBinaryInteger GetTotient(const native64::BigBinaryInteger &n);
@@ -213,8 +213,7 @@ static IntType FindGenerator(const IntType& q)
 
 	IntType qm1 = q-IntType::ONE;
 	IntType qm2 = q-IntType::TWO;
-	IntType tmp = qm1;
- 	PrimeFactorize<IntType>(tmp, primeFactors); //tmp destroyed
+ 	PrimeFactorize<IntType>(qm1, primeFactors);
 	DEBUG("done");
  	bool generatorFound = false;
  	IntType gen;
@@ -478,10 +477,10 @@ const IntType PollardRhoFactorization(const IntType &n)
 /*
 	Recursively factorizes and find the distinct primefactors of a number
 	Input: n is the number to be prime factorized,
-		   primeFactors is a set of prime factors of n. All initial values are cleared.
+		   primeFactors is a set of prime factors of n.
 */
 template<typename IntType>
-void PrimeFactorize( IntType &n, std::set<IntType> &primeFactors)
+void PrimeFactorize( IntType n, std::set<IntType> &primeFactors)
  {
    bool dbg_flag = false;
    DEBUG("PrimeFactorize "<<n);
@@ -490,7 +489,7 @@ void PrimeFactorize( IntType &n, std::set<IntType> &primeFactors)
         DEBUG("In PrimeFactorize n " <<n);
 	DEBUG("set size "<< primeFactors.size());
 
- 	if(n == IntType::ONE) return;
+ 	if(n == IntType::ZERO || n == IntType::ONE) return;
  	if(MillerRabinPrimalityTest(n)) {
 	        DEBUG("Miller true");
  		primeFactors.insert(n);
@@ -684,49 +683,20 @@ IntType NextPowerOfTwo(const IntType &n) {
 	return result;
 }
 
-/*
-phi(n) = n*productOf(1-1/Pi); where Pi's are the prime factors of n
-*/
-//template<typename IntType>
-//IntType GetTotient(const IntType &n) {
-//
-//	std::set<IntType> factors;
-//	PrimeFactorize(n, factors);
-//
-//	IntType primeProd(1);
-//	IntType numerator(1);
-//	for (auto &r : factors) {
-//		numerator = numerator * (r - 1);
-//		primeProd = primeProd*r;
-//	}
-//
-//	IntType ans = (n / primeProd)*numerator;
-//
-//	return ans;
-//}
-
 uint64_t GetTotient(const uint64_t n) {
 
 	std::set<native64::BigBinaryInteger> factors;
 	native64::BigBinaryInteger enn(n);
 	PrimeFactorize(enn, factors);
-	std::cout << n << " prime factors are ";
-	for ( auto &r : factors )
-		std::cout << r << " ";
-	std::cout << std::endl;
 
 	native64::BigBinaryInteger primeProd(1);
 	native64::BigBinaryInteger numerator(1);
 	for (auto &r : factors) {
-		auto f = enn - (enn/r);
-		primeProd = primeProd * f;
-
-//		numerator = numerator * (r - 1);
-//		primeProd = primeProd*r;
+		numerator = numerator * (r - 1);
+		primeProd = primeProd * r;
 	}
 
-//	uint64_t ans = (n / primeProd.ConvertToInt())*numerator.ConvertToInt();
-
+	primeProd = (enn / primeProd) * numerator;
 	return primeProd.ConvertToInt();
 }
 

@@ -48,7 +48,7 @@ protected:
 public:
 };
 
-static shared_ptr<ILDCRTParams> getTestParams(usint m, usint numOfTower) {
+static shared_ptr<ILVectorArray2n::Params> getTestParams(usint m, usint numOfTower) {
 	std::vector<native64::BigBinaryInteger> moduli(numOfTower);
 
 	std::vector<native64::BigBinaryInteger> rootsOfUnity(numOfTower);
@@ -65,7 +65,7 @@ static shared_ptr<ILDCRTParams> getTestParams(usint m, usint numOfTower) {
 	}
 
 	//Prepare for parameters.
-	shared_ptr<ILDCRTParams> params(new ILDCRTParams(m, moduli, rootsOfUnity));
+	shared_ptr<ILVectorArray2n::Params> params(new ILVectorArray2n::Params(m, moduli, rootsOfUnity));
 
 	return params;
 }
@@ -84,7 +84,7 @@ TEST(UTNULLDCRT, ILVectorArray2n_Encrypt_Decrypt) {
 	usint numOfTower = 3;
 
 	//Prepare for parameters.
-	shared_ptr<ILDCRTParams> params = getTestParams(m, numOfTower);
+	shared_ptr<ILVectorArray2n::Params> params = getTestParams(m, numOfTower);
 
 	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextNull(params, BigBinaryInteger(256));
 	cc.Enable(ENCRYPTION);
@@ -119,7 +119,7 @@ TEST(UTNULLDCRT, Ops_DCRT) {
 	float stdDev = 4;
 
 	//Prepare for parameters.
-	shared_ptr<ILDCRTParams> params = getTestParams(m, numOfTower);
+	shared_ptr<ILVectorArray2n::Params> params = getTestParams(m, numOfTower);
 
 	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextNull(params, BigBinaryInteger(64));
 	cc.Enable(ENCRYPTION);
@@ -131,7 +131,6 @@ TEST(UTNULLDCRT, Ops_DCRT) {
 
 //////////////////////////
 
-
 TEST(UTBVDCRT, Encrypt_Decrypt_PRE_DCRT) {
 
 	usint m = 8;
@@ -141,7 +140,7 @@ TEST(UTBVDCRT, Encrypt_Decrypt_PRE_DCRT) {
 	float stdDev = 4;
 
 	//Prepare for parameters.
-	shared_ptr<ILDCRTParams> params = getTestParams(m, numOfTower);
+	shared_ptr<ILVectorArray2n::Params> params = getTestParams(m, numOfTower);
 
 	//Set crypto parametes
 	LPCryptoParametersBV<ILVectorArray2n> cryptoParams;
@@ -216,12 +215,11 @@ TEST(UTBVDCRT, Ops_DCRT) {
 	float stdDev = 4;
 
 	//Prepare for parameters.
-	shared_ptr<ILDCRTParams> params = getTestParams(m, numOfTower);
+	shared_ptr<ILVectorArray2n::Params> params = getTestParams(m, numOfTower);
 
 	//Set crypto parametes
 	LPCryptoParametersBV<ILVectorArray2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger(64));  	// Set plaintext modulus.
-																//cryptoParams.SetPlaintextModulus(BigBinaryInteger("4"));  	// Set plaintext modulus.
 	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
 	cryptoParams.SetRelinWindow(1);				// Set the relinearization window
 	cryptoParams.SetElementParams(params);			// Set the initialization parameters.
@@ -434,7 +432,7 @@ TEST(UTBVDCRT, ILVector2n_bv_DCRT_MODREDUCE) {
 	//std::cout << " \nCryptosystem initialization: Performing precomputations..." << std::endl;
 
 	//Prepare for parameters.
-	shared_ptr<ILDCRTParams> params(new ILDCRTParams(m, moduli, rootsOfUnity));
+	shared_ptr<ILVectorArray2n::Params> params(new ILVectorArray2n::Params(m, moduli, rootsOfUnity));
 
 	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextBV(params, 5, 8, stdDev);
 	cc.Enable(ENCRYPTION);

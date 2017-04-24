@@ -65,7 +65,7 @@ void RunUniform() {
 	auto gaussian_alloc = ILVector2n::MakeDiscreteGaussianCoefficientAllocator(params, COEFFICIENT, SIGMA);
 	auto uniform_alloc = ILVector2n::MakeDiscreteUniformAllocator(params, COEFFICIENT);
 
-	size_t n = params->GetCyclotomicOrder() / 2;
+	size_t n = params->GetRingDimension();
 	double val = params->GetModulus().ConvertToDouble();
 	double logTwo = log(val - 1.0) / log(2) + 1.0;
 	size_t k = (usint)floor(logTwo);

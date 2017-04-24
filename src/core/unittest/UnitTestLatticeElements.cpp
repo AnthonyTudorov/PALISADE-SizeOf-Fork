@@ -843,7 +843,7 @@ TEST(UTILNativeVector2n, cyclotomicOrder_test) {
 }
 
 TEST(UTILVectorArray2n, cyclotomicOrder_test) {
-	cyclotomicOrder_test<BigBinaryInteger, BigBinaryVector, ILDCRTParams, ILVectorArray2n>();
+	cyclotomicOrder_test<BigBinaryInteger, BigBinaryVector, ILVectorArray2n::Params, ILVectorArray2n>();
 }
 
 // this test is only for ILVectorArray2n so isn't templated
@@ -879,7 +879,7 @@ TEST(UTILVectorArray2n, constructors_test) {
 	native64::ILVector2n ilv2(ilv0);
 	ilv2.SwitchModulus(moduli[2], rootsOfUnity[2]);
 
-	shared_ptr<ILDCRTParams> ildcrtparams( new ILDCRTParams(m, moduli, rootsOfUnity) );
+	shared_ptr<ILVectorArray2n::Params> ildcrtparams( new ILVectorArray2n::Params(m, moduli, rootsOfUnity) );
 
 	std::vector<native64::ILVector2n> ilvector2nVector;
 	ilvector2nVector.push_back(ilv0);
@@ -1122,7 +1122,7 @@ TEST(UTILVectorArray2n, getters_and_operators) {
 	shared_ptr<native64::ILParams> ilparams2( new native64::ILParams(m, moduli[2], rootsOfUnity[2]) );
 
 	native64::ILVector2n ilv0(ilparams0);
-	native64::BigBinaryVector bbv0(m/2, moduli[0]);
+	native64::BigBinaryVector bbv0(ilparams0->GetRingDimension(), moduli[0]);
 	bbv0 = {"2","4","3","2"};
 	ilv0.SetValues(bbv0, Format::EVALUATION);
 
@@ -1132,7 +1132,7 @@ TEST(UTILVectorArray2n, getters_and_operators) {
 	native64::ILVector2n ilv2(ilv0);
 	ilv2.SwitchModulus(moduli[2], rootsOfUnity[2]);
 
-	shared_ptr<ILDCRTParams> ildcrtparams( new ILDCRTParams(m, moduli, rootsOfUnity) );
+	shared_ptr<ILVectorArray2n::Params> ildcrtparams( new ILVectorArray2n::Params(m, moduli, rootsOfUnity) );
 
 	std::vector<native64::ILVector2n> ilvector2nVector(towersize);
 
@@ -1227,7 +1227,7 @@ TEST(UTILVectorArray2n, arithmetic_ops_element_2) {
 	native64::ILVector2n ilv2(ilv0);
 	ilv2.SwitchModulus(moduli[2], rootsOfUnity[2]);
 
-	shared_ptr<ILDCRTParams> ildcrtparams( new ILDCRTParams(m, moduli, rootsOfUnity) );
+	shared_ptr<ILVectorArray2n::Params> ildcrtparams( new ILVectorArray2n::Params(m, moduli, rootsOfUnity) );
 
 	std::vector<native64::ILVector2n> ilvector2nVector(towersize);
 	ilvector2nVector[0] = ilv0;
@@ -1487,7 +1487,7 @@ TEST(UTILVectorArray2n, decompose_test) {
 	float stdDev = 4;
 	ILVectorArray2n::DggType dgg(stdDev);
 
-	shared_ptr<ILDCRTParams> params( new ILDCRTParams(order, moduli, rootsOfUnity) );
+	shared_ptr<ILVectorArray2n::Params> params( new ILVectorArray2n::Params(order, moduli, rootsOfUnity) );
 	ILVectorArray2n ilVectorArray2n(dgg, params, Format::COEFFICIENT);
 
 	ILVectorArray2n ilvectorarray2nOriginal(ilVectorArray2n);
@@ -1575,7 +1575,7 @@ TEST(UTILVectorArray2n, ensures_mod_operation_during_ops_on_two_ILVectorArray2ns
 		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
 	}
 
-	shared_ptr<ILDCRTParams> ildcrtparams( new ILDCRTParams(order, moduli, rootsOfUnity) );
+	shared_ptr<ILVectorArray2n::Params> ildcrtparams( new ILVectorArray2n::Params(order, moduli, rootsOfUnity) );
 
 	ILVectorArray2n::DugType dug;
 

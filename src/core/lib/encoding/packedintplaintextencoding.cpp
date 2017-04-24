@@ -54,7 +54,7 @@ namespace lbcrypto {
 			length = length - padlen;
 		}
 
-		BigBinaryVector temp(ilVector->GetParams()->GetCyclotomicOrder() / 2, ilVector->GetModulus());
+		BigBinaryVector temp(ilVector->GetRingDimension(), ilVector->GetModulus());
 
 		Format format = COEFFICIENT;
 
@@ -97,7 +97,7 @@ namespace lbcrypto {
 
 	void PackedIntPlaintextEncoding::Pack(ILVector2n *ring, const BigBinaryInteger &modulus) const {
 
-		usint n = ring->GetParams()->GetCyclotomicOrder() / 2; //ring dimension
+		usint n = ring->GetRingDimension(); //ring dimension
 
 															   //Do the precomputation if not initialized
 		if (this->initRoot.GetMSB() == 0) {
@@ -106,7 +106,7 @@ namespace lbcrypto {
 
 		//initRoot = BigBinaryInteger::TWO;
 
-		BigBinaryInteger qMod(ring->GetParams()->GetModulus());
+		BigBinaryInteger qMod(ring->GetModulus());
 
 		BigBinaryVector packedVector(ring->GetValues());
 
@@ -126,9 +126,9 @@ namespace lbcrypto {
 
 	void PackedIntPlaintextEncoding::Unpack(ILVector2n *ring, const BigBinaryInteger &modulus) const {
 
-		usint n = ring->GetParams()->GetCyclotomicOrder() / 2; //ring dimension
+		usint n = ring->GetRingDimension(); //ring dimension
 
-		BigBinaryInteger qMod(ring->GetParams()->GetModulus());
+		BigBinaryInteger qMod(ring->GetModulus());
 
 		BigBinaryVector packedVector(ring->GetValues());
 

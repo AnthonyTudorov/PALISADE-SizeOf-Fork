@@ -81,7 +81,7 @@ shared_ptr<ILParams> GenSinglePrimeParams(int sc) {
 
 static const usint smbits = 28;
 
-shared_ptr<ILDCRTParams> GenDCRTParams(int sc) {
+shared_ptr<ILVectorArray2n::Params> GenDCRTParams(int sc) {
 	usint m = Scenarios[sc].m;
 	usint nTowers = Scenarios[sc].bits/smbits;
 
@@ -101,7 +101,7 @@ shared_ptr<ILDCRTParams> GenDCRTParams(int sc) {
 
 	}
 
-	return shared_ptr<ILDCRTParams>( new ILDCRTParams(m, moduli, rootsOfUnity) );
+	return shared_ptr<ILVectorArray2n::Params>( new ILVectorArray2n::Params(m, moduli, rootsOfUnity) );
 }
 
 void MakeTestPolynomial(int sc, ILVector2n& elem) {
@@ -115,7 +115,7 @@ void MakeTestPolynomial(int sc, ILVector2n& elem) {
 void CRTComposeTest() {
 	for( int i=0; i<2; i++ ) {
 		std::cout << "Case " << i << " m=" << Scenarios[i].m << " bits=" << Scenarios[i].bits << std::endl;
-		shared_ptr<ILDCRTParams> dcparm = GenDCRTParams(i);
+		shared_ptr<ILVectorArray2n::Params> dcparm = GenDCRTParams(i);
 		shared_ptr<ILParams> tvp( new ILParams(dcparm->GetCyclotomicOrder(), dcparm->GetModulus(), BigBinaryInteger::ONE) );
 		ILVector2n tVec(tvp);
 		MakeTestPolynomial(i, tVec);
@@ -160,7 +160,7 @@ void SwitchFormatTest(bool runsmall, bool runbig) {
 		}
 
 		if( runsmall ) {
-			shared_ptr<ILDCRTParams> dcparm = GenDCRTParams(i);
+			shared_ptr<ILVectorArray2n::Params> dcparm = GenDCRTParams(i);
 			shared_ptr<ILParams> tvp( new ILParams(dcparm->GetCyclotomicOrder(), dcparm->GetModulus(), BigBinaryInteger::ONE) );
 			ILVector2n tVec(tvp);
 			MakeTestPolynomial(i, tVec);
@@ -211,7 +211,7 @@ void EvalMultTest(bool runsmall, bool runbig) {
 		}
 
 		if( runsmall ) {
-			shared_ptr<ILDCRTParams> dcparm = GenDCRTParams(i);
+			shared_ptr<ILVectorArray2n::Params> dcparm = GenDCRTParams(i);
 			shared_ptr<ILParams> tvp( new ILParams(dcparm->GetCyclotomicOrder(), dcparm->GetModulus(), BigBinaryInteger::ONE) );
 			CryptoContext<ILVectorArray2n> cc2 = CryptoContextFactory<ILVectorArray2n>::genCryptoContextBV(dcparm, 1<<32 - 1, 16, 4.0);
 			cc2.Enable(ENCRYPTION);
@@ -259,7 +259,7 @@ void MultiplyTest(bool runsmall, bool runbig) {
 		}
 
 		if( runbig ) {
-			shared_ptr<ILDCRTParams> dcparm = GenDCRTParams(i);
+			shared_ptr<ILVectorArray2n::Params> dcparm = GenDCRTParams(i);
 			shared_ptr<ILParams> tvp( new ILParams(dcparm->GetCyclotomicOrder(), dcparm->GetModulus(), BigBinaryInteger::ONE) );
 			ILVector2n tVec1(tvp);
 			ILVector2n tVec2(tvp);
@@ -363,7 +363,7 @@ void NTRU_DCRT() {
 	float stdDev = 4;
 
 
-	shared_ptr<ILDCRTParams> params = GenDCRTParams(0);
+	shared_ptr<ILVectorArray2n::Params> params = GenDCRTParams(0);
 	cout << "big modulus: " << params->GetModulus() << endl;
 
 	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextLTV(params, ptm, relinWindow, stdDev);
@@ -511,7 +511,7 @@ void TestParameterSelection(){
 
 	cout << "big modulus: " << modulus << endl;
 
-	shared_ptr<ILDCRTParams> params( new ILDCRTParams(m, moduli, rootsOfUnity) );
+	shared_ptr<ILVectorArray2n::Params> params( new ILVectorArray2n::Params(m, moduli, rootsOfUnity) );
 
 	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
@@ -533,7 +533,7 @@ void TestParameterSelection(){
 	cout << "parameter selection test" << endl;
 	cout << cryptoParams2.GetAssuranceMeasure() << endl;
 
-	const shared_ptr<ILDCRTParams> dcrtParams = std::static_pointer_cast<ILDCRTParams>(cryptoParams2.GetElementParams());
+	const shared_ptr<ILVectorArray2n::Params> dcrtParams = std::static_pointer_cast<ILVectorArray2n::Params>(cryptoParams2.GetElementParams());
 	const std::vector<shared_ptr<native64::ILParams>>& allparams = dcrtParams->GetParams();
 
 	for(usint i =0; i < allparams.size();i++){
@@ -570,7 +570,7 @@ void FinalLeveledComputation(){
 
 	cout << "big modulus: " << modulus << endl;
 
-	shared_ptr<ILDCRTParams> params( new ILDCRTParams(m, moduli, rootsOfUnity) );
+	shared_ptr<ILVectorArray2n::Params> params( new ILVectorArray2n::Params(m, moduli, rootsOfUnity) );
 
 	usint n = 16;
 
@@ -593,7 +593,7 @@ void FinalLeveledComputation(){
 	//Generate the secret keys for the levels
 	std::vector< LPKeyPair<ILVectorArray2n> > levelPairs(finalParams.GetDepth());
 
-	std::vector< shared_ptr<ILDCRTParams> > leveledDcrtParams;
+	std::vector< shared_ptr<ILVectorArray2n::Params> > leveledDcrtParams;
 	leveledDcrtParams.reserve(finalParams.GetDepth()+1);
 	std::vector< LPCryptoParametersLTV<ILVectorArray2n> > leveledCryptoParams;
 	leveledCryptoParams.reserve(finalParams.GetDepth()+1);
@@ -690,21 +690,7 @@ void ComposedEvalMultTest(){
 		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
 	}
 
-	shared_ptr<ILDCRTParams> params( new ILDCRTParams(m, moduli, rootsOfUnity) );
-
-//	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams(params,
-//			BigBinaryInteger::FIVE,
-//			init_stdDev,
-//			6,
-//			1.006,
-//			1,
-//			size - 1);
-//
-//	LPCryptoParametersLTV<ILVectorArray2n> finalParamsThreeTowers;
-//
-//	cryptoParams.ParameterSelection(&finalParamsThreeTowers);
-//
-//	const shared_ptr<ILDCRTParams> dcrtParams = std::static_pointer_cast<ILDCRTParams>(finalParamsThreeTowers.GetElementParams());
+	shared_ptr<ILVectorArray2n::Params> params( new ILVectorArray2n::Params(m, moduli, rootsOfUnity) );
 
 	// FIXME use the parm selection method when it works
 	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextLTV(params, 5, relinWindow, init_stdDev, size-1, 6, 1.006);
@@ -718,23 +704,23 @@ void ComposedEvalMultTest(){
 	//Generate the switch cipher text
 	LPKeyPair<ILVectorArray2n> kpNew = cc.KeyGen();
 
-//	//Generating original ciphertext to perform ComposedEvalMult on
-//	shared_ptr<Ciphertext<ILVectorArray2n>> c1;
-//
-//	shared_ptr<Ciphertext<ILVectorArray2n>> c2;
-//
-//	//Generating new cryptoparameters for when modulus reduction is done.
-//	LPCryptoParametersLTV<ILVectorArray2n> finalParamsTwoTowers(finalParamsThreeTowers);
-//
-//	const shared_ptr<ILDCRTParams> dcrtParams2 = std::static_pointer_cast<ILDCRTParams>(finalParamsThreeTowers.GetElementParams());
-//	shared_ptr<ILDCRTParams> finalDcrtParamsTwoTowers( new ILDCRTParams(*dcrtParams2) );
-//	finalDcrtParamsTwoTowers->PopLastParam();
-//	finalParamsTwoTowers.SetElementParams(finalDcrtParamsTwoTowers);
-//
-//	//Dropping the last tower of skNew, because ComposedEvalMult performs a ModReduce
-//	ILVectorArray2n skNewOldElement(kpNew.secretKey->GetPrivateElement());
-//	skNewOldElement.DropLastElement();
-//	kpNew.secretKey->SetPrivateElement(skNewOldElement);
+	//Generating original ciphertext to perform ComposedEvalMult on
+	shared_ptr<Ciphertext<ILVectorArray2n>> c1;
+
+	shared_ptr<Ciphertext<ILVectorArray2n>> c2;
+
+	//Generating new cryptoparameters for when modulus reduction is done.
+	LPCryptoParametersLTV<ILVectorArray2n> finalParamsTwoTowers(finalParamsThreeTowers);
+
+	const shared_ptr<ILVectorArray2n::Params> dcrtParams2 = std::static_pointer_cast<ILVectorArray2n::Params>(finalParamsThreeTowers.GetElementParams());
+	shared_ptr<ILVectorArray2n::Params> finalDcrtParamsTwoTowers( new ILVectorArray2n::Params(*dcrtParams2) );
+	finalDcrtParamsTwoTowers->PopLastParam();
+	finalParamsTwoTowers.SetElementParams(finalDcrtParamsTwoTowers);
+
+	//Dropping the last tower of skNew, because ComposedEvalMult performs a ModReduce
+	ILVectorArray2n skNewOldElement(kpNew.secretKey->GetPrivateElement());
+	skNewOldElement.DropLastElement();
+	kpNew.secretKey->SetPrivateElement(skNewOldElement);
 
 }
 

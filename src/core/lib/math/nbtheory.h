@@ -140,7 +140,7 @@ namespace lbcrypto {
 	 Side effects: n is destroyed.  
 	 */
 	template<typename IntType>
-	void PrimeFactorize( IntType &n, std::set<IntType> &primeFactors);
+	void PrimeFactorize( IntType n, std::set<IntType> &primeFactors);
 
 	/**
 	 * Finds a Prime Modulus Corresponding to a Given Cyclotomic Number.

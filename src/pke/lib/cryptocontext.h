@@ -175,6 +175,13 @@ public:
 	const usint GetCyclotomicOrder() const { return params->GetElementParams()->GetCyclotomicOrder(); }
 
 	/**
+	 * Get the ring dimension used for this context
+	 *
+	 * @return
+	 */
+	const usint GetRingDimension() const { return params->GetElementParams()->GetRingDimension(); }
+
+	/**
 	 * Get the ciphertext modulus used for this context
 	 *
 	 * @return
@@ -1031,7 +1038,16 @@ public:
 	* @param ringdim
 	* @return
 	*/
-	static CryptoContext<Element> genCryptoContextNull(shared_ptr<typename Element::Params> params, const usint ptModulus);
+	static CryptoContext<Element> genCryptoContextNull(
+			const std::string& ptModulus, usint ringdim, const std::string& modulus, const std::string& rootOfUnity);
+
+	/**
+	* construct a PALISADE CryptoContext for the Null Scheme
+	* @param parms - the dcrt parameter set
+	* @param ptm - plaintext modulus for the context
+	* @return
+	*/
+	static CryptoContext<ILVectorArray2n> genCryptoContextNull(shared_ptr<ILVectorArray2n::Params> parms, const BigBinaryInteger& ptm);
 
 	// helper for deserialization of contexts
 	static shared_ptr<LPCryptoParameters<Element>> GetParameterObject(const Serialized& serObj) {

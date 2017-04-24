@@ -24,9 +24,10 @@ public:
 
 	virtual ~LPCryptoParametersNull() {}
 
-	virtual void SetPlaintextModulus(const BigBinaryInteger &plaintextModulus) {
-		LPCryptoParameters<Element>::SetPlaintextModulus(plaintextModulus);
-		this->GetElementParams()->SetModulus( plaintextModulus );
+	void SetPlaintextModulus(const BigBinaryInteger &plaintextModulus) {
+		throw std::logic_error("plaintext modulus is fixed to be == ciphertext modulus and cannot be changed");
+//		LPCryptoParameters<Element>::SetPlaintextModulus(plaintextModulus);
+//		std::dynamic_pointer_cast<ILParams>(this->GetElementParams())->SetModulus( plaintextModulus );
 	}
 
 	bool Serialize(Serialized* serObj) const {
@@ -78,9 +79,9 @@ public:
 
 		if( (pIt = mIter->value.FindMember("PlaintextModulus")) == mIter->value.MemberEnd() )
 			return false;
-		BigBinaryInteger bbiPlaintextModulus(pIt->value.GetString());
+		BigBinaryInteger plaintextModulus(pIt->value.GetString());
 
-		this->SetPlaintextModulus(bbiPlaintextModulus);
+		LPCryptoParameters<Element>::SetPlaintextModulus(plaintextModulus);
 		return true;
 	}
 
@@ -526,7 +527,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 
 			typename Element::ILVectorType::Integer ptm( ptmod.ConvertToInt() );
 
-			int	ringdim = c1.GetCyclotomicOrder() / 2;
+			int	ringdim = c1.GetRingDimension();
 			for (int c1e = 0; c1e<ringdim; c1e++) {
 				typename Element::ILVectorType::Integer answer, c1val, c2val, prod;
 				c1val = c1.GetValAtIndex(c1e);

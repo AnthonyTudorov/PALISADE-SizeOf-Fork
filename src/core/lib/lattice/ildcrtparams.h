@@ -124,19 +124,18 @@ public:
 	}
 
 
-//	/**
-//	 * Assignment Operator.
-//	 *
-//	 * @param &rhs the copied ILDCRTParams.
-//	 * @return the resulting ILDCRTParams.
-//	 */
-//	ILDCRTParams& operator=(const ILDCRTParams &rhs) {
-//		this->m_cyclotomicOrder = rhs.m_cyclotomicOrder;
-//		this->m_parms = rhs.m_parms;
-//		this->m_modulus = rhs.m_modulus;
-//
-//		return *this;
-//	}
+	/**
+	 * Assignment Operator.
+	 *
+	 * @param &rhs the copied ILDCRTParams.
+	 * @return the resulting ILDCRTParams.
+	 */
+	const ILDCRTParams& operator=(const ILDCRTParams &rhs) {
+		ElemParams<IntType>::operator=(rhs);
+		m_parms = rhs.m_parms;
+
+		return *this;
+	}
 
 	// ACCESSORS
 
@@ -202,10 +201,10 @@ public:
 
 	void RecalculateModulus() {
 
-		this->ciphertextModulus = BigBinaryInteger(1);
+		this->ciphertextModulus = IntType::ONE;
 
 		for(usint i = 0; i < m_parms.size(); i++) {
-			this->ciphertextModulus = this->ciphertextModulus * BigBinaryInteger(m_parms[i]->GetModulus().ConvertToInt());
+			this->ciphertextModulus = this->ciphertextModulus * IntType(m_parms[i]->GetModulus().ConvertToInt());
 		}
 	}
 

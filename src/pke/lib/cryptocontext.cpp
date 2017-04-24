@@ -190,6 +190,17 @@ CryptoContextFactory<T>::genCryptoContextNull(shared_ptr<typename T::Params> ep,
 	return CryptoContext<T>(params, scheme);
 }
 
+template<typename T>
+CryptoContext<ILVectorArray2n>
+CryptoContextFactory<T>::genCryptoContextNull(shared_ptr<ILVectorArray2n::Params> parms, const BigBinaryInteger& ptm)
+{
+	shared_ptr<LPCryptoParametersNull<ILVectorArray2n>> params( new LPCryptoParametersNull<ILVectorArray2n>(parms, ptm) );
+	shared_ptr<LPPublicKeyEncryptionScheme<ILVectorArray2n>> scheme( new LPPublicKeyEncryptionSchemeNull<ILVectorArray2n>() );
+
+	return CryptoContext<ILVectorArray2n>(params, scheme);
+}
+
+
 // the methods below allow me to deserialize a json object into this context
 // ... which will only succeed if the object was serialized from this context,
 // ... or from another context with identical parameters

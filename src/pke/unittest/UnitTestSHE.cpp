@@ -481,7 +481,7 @@ TEST(UTSHE, keyswitch_ModReduce_DCRT) {
 		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
 	}
 
-	shared_ptr<ILDCRTParams> params( new ILDCRTParams(m, moduli, rootsOfUnity) );
+	shared_ptr<ILVectorArray2n::Params> params( new ILVectorArray2n::Params(m, moduli, rootsOfUnity) );
 
 	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextLTV(params, plaintextmodulus, relinWindow, stdDev);
 
@@ -610,7 +610,7 @@ TEST(UTSHE, ringreduce_double_crt) {
 		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
 	}
 
-	shared_ptr<ILDCRTParams> params( new ILDCRTParams(m, moduli, rootsOfUnity) );
+	shared_ptr<ILVectorArray2n::Params> params( new ILVectorArray2n::Params(m, moduli, rootsOfUnity) );
 
 	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextLTV(params, plaintextmodulus, relinWindow, stdDev);
 	cc.Enable(ENCRYPTION);

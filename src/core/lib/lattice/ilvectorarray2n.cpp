@@ -42,7 +42,10 @@ namespace lbcrypto {
 
 	/*CONSTRUCTORS*/
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::ILVectorArrayImpl() : m_format(EVALUATION) {}
+	ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::ILVectorArrayImpl() {
+		m_format = EVALUATION;
+		m_params.reset( new ParmType() );
+	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::ILVectorArrayImpl(const shared_ptr<ParmType> dcrtParams, Format format, bool initializeElementToZero)
@@ -155,16 +158,13 @@ namespace lbcrypto {
 		m_vectors.reserve(vecSize);
 
 		//dgg generating random values
-
-		std::shared_ptr<sint> dggValues = dgg.GenerateIntVector(dcrtParams->GetCyclotomicOrder()/2);
+		std::shared_ptr<sint> dggValues = dgg.GenerateIntVector(dcrtParams->GetRingDimension());
 
 		for(usint i = 0; i < vecSize; i++){
+			
+			native64::BigBinaryVector ilDggValues(dcrtParams->GetRingDimension(), dcrtParams->GetParams()[i]->GetModulus());
 
-			native64::BigBinaryVector ilDggValues(dcrtParams->GetCyclotomicOrder()/2, dcrtParams->GetParams()[i]->GetModulus());
-
-			for(usint j = 0; j < dcrtParams->GetCyclotomicOrder()/2; j++) {
-				uint64_t entry;
-
+			for(usint j = 0; j < dcrtParams->GetRingDimension(); j++){
 				// if the random generated value is less than zero, then multiply it by (-1) and subtract the modulus of the current tower to set the coefficient
 				int64_t k = (dggValues.get())[j];
 				if(k < 0){
@@ -430,16 +430,19 @@ namespace lbcrypto {
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	bool ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::operator==(const ILVectorArrayImpl &rhs) const {
 
-		if( m_params != rhs.m_params )
+		if( GetCyclotomicOrder() != rhs.GetCyclotomicOrder() )
+			return false;
+
+		if( GetModulus() != rhs.GetModulus() )
 			return false;
 
 		if (m_format != rhs.m_format) {
-                return false;
-          }
+			return false;
+		}
 
 		if (m_vectors.size() != rhs.m_vectors.size()) {
-                return false;
-          }
+			return false;
+		}
 
 		//check if the towers are the same
 		else return (m_vectors == rhs.GetAllElements());
@@ -496,14 +499,13 @@ namespace lbcrypto {
 
 	/*SCALAR OPERATIONS*/
 
-	// FIXME which Int do we add to an ILVectorArray2n?
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	ILVectorArrayImpl<ModType,IntType,VecType,ParmType> ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::Plus(const IntType &element) const
 	{
 		ILVectorArrayImpl<ModType,IntType,VecType,ParmType> tmp(*this);
 
 		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
-			tmp.m_vectors[i] += element.ConvertToInt(); // (element % IntType((*m_params)[i]->GetModulus().ConvertToInt())).ConvertToInt();
+			tmp.m_vectors[i] += element.ConvertToInt();
 		}
 		return std::move(tmp);
 	}
@@ -513,7 +515,7 @@ namespace lbcrypto {
 		ILVectorArrayImpl<ModType,IntType,VecType,ParmType> tmp(*this);
 
 		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
-			tmp.m_vectors[i] -= element.ConvertToInt(); //(element % IntType((*m_params)[i]->GetModulus().ConvertToInt())).ConvertToInt();
+			tmp.m_vectors[i] -= element.ConvertToInt();
 		}
 		return std::move(tmp);
 	}
@@ -605,12 +607,15 @@ namespace lbcrypto {
 			throw std::runtime_error(errMsg);
 		}
 		
-		for(int i=0; i < m_vectors.size(); i++) {
+		for( size_t i = 0; i < m_vectors.size(); i++) {
 			m_vectors[i].Decompose();
 		}
 
 		// the individual vectors parms have changed, so change the DCRT parms
-		m_params.reset( new ParmType(GetCyclotomicOrder(), m_vectors) );
+		std::vector<std::shared_ptr<native64::ILParams>> vparms(m_vectors.size());
+		for( size_t i = 0; i < m_vectors.size(); i++)
+			vparms[i] = m_vectors[i].GetParams();
+		m_params.reset( new ParmType(GetCyclotomicOrder(), vparms) );
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
@@ -629,7 +634,7 @@ namespace lbcrypto {
 		}
 
 		m_vectors.resize(m_vectors.size() - 1);
-		m_params->DropLastElement();
+		m_params->PopLastParam();
 	}
 
 	/**
@@ -853,8 +858,6 @@ namespace lbcrypto {
 
 
 		obj.AddMember("Format", std::to_string(this->GetFormat()), serObj->GetAllocator());
-		obj.AddMember("Modulus", this->GetModulus().ToString(), serObj->GetAllocator());
-		obj.AddMember("CyclotomicOrder", std::to_string(this->GetCyclotomicOrder()), serObj->GetAllocator());
 
 		SerializeVector<ILVectorType>("Vectors", "ILVectorImpl", this->GetAllElements(), &obj);
 
@@ -885,14 +888,6 @@ namespace lbcrypto {
 		SerialItem::ConstMemberIterator mIt = it->value.FindMember("Format");
 		if( mIt == it->value.MemberEnd() ) return false;
 		this->m_format = static_cast<Format>(std::stoi(mIt->value.GetString()));
-
-		mIt = it->value.FindMember("Modulus");
-		if( mIt == it->value.MemberEnd() ) return false;
-		this->m_modulus = ModType( mIt->value.GetString() );
-
-		mIt = it->value.FindMember("CyclotomicOrder");
-		if( mIt == it->value.MemberEnd() ) return false;
-		this->m_cyclotomicOrder = std::stoi(mIt->value.GetString());
 
 		mIt = it->value.FindMember("Vectors");
 

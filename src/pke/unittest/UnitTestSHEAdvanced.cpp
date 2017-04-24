@@ -102,7 +102,7 @@ TEST_F(UTSHEAdvanced, ParameterSelection) {
 	}
 
 	//intializing cryptoparameters alongside variables
-	shared_ptr<ILDCRTParams> params(new ILDCRTParams(m, moduli, rootsOfUnity));
+	shared_ptr<ILVectorArray2n::Params> params(new ILVectorArray2n::Params(m, moduli, rootsOfUnity));
 	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
 	cryptoParams.SetDistributionParameter(stdDev);
@@ -117,7 +117,7 @@ TEST_F(UTSHEAdvanced, ParameterSelection) {
 	//calling ParameterSelection. cryptoParams2 will have the new Moduli and ring dimension (cyclotomicorder/2)
 	cryptoParams.ParameterSelection(&cryptoParams2);
 
-	shared_ptr<ILDCRTParams> dcrtParams = std::dynamic_pointer_cast<ILDCRTParams>(cryptoParams2.GetElementParams());
+	shared_ptr<ILVectorArray2n::Params> dcrtParams = std::dynamic_pointer_cast<ILVectorArray2n::Params>(cryptoParams2.GetElementParams());
 	std::vector<shared_ptr<native64::ILParams>> finalParams = dcrtParams->GetParams();
 	//threshold for the first modulus
 	double q1Threshold = 4 * pow(cryptoParams2.GetPlaintextModulus().ConvertToDouble(), 2) * pow(cryptoParams2.GetElementParams()->GetCyclotomicOrder() / 2, 0.5) * cryptoParams2.GetAssuranceMeasure();
@@ -226,7 +226,7 @@ TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 
 	}
 
-	shared_ptr<ILDCRTParams> params(new ILDCRTParams(init_m, init_moduli, init_rootsOfUnity));
+	shared_ptr<ILVectorArray2n::Params> params(new ILVectorArray2n::Params(init_m, init_moduli, init_rootsOfUnity));
 
 //	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
 //	cryptoParams.SetPlaintextModulus(BigBinaryInteger::FIVE + BigBinaryInteger::FOUR);
@@ -408,7 +408,7 @@ TEST_F(UTSHEAdvanced, test_eval_add_double_crt) {
 
 	}
 	DEBUG("2");
-	shared_ptr<ILDCRTParams> params(new ILDCRTParams(init_m, init_moduli, init_rootsOfUnity));
+	shared_ptr<ILVectorArray2n::Params> params(new ILVectorArray2n::Params(init_m, init_moduli, init_rootsOfUnity));
 
 //	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
 //	cryptoParams.SetPlaintextModulus(BigBinaryInteger::FIVE + BigBinaryInteger::FOUR);
@@ -502,7 +502,7 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 
 	}
 
-	shared_ptr<ILDCRTParams> params(new ILDCRTParams(init_m, init_moduli, init_rootsOfUnity));
+	shared_ptr<ILVectorArray2n::Params> params(new ILVectorArray2n::Params(init_m, init_moduli, init_rootsOfUnity));
 
 //	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
 //	cryptoParams.SetPlaintextModulus(BigBinaryInteger::FIVE + BigBinaryInteger::FOUR);

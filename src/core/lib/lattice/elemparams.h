@@ -61,6 +61,28 @@ namespace lbcrypto {
 			ciphertextModulus = ctModulus;
 		}
 
+		ElemParams(const ElemParams& rhs) {
+			cyclotomicOrder = rhs.cyclotomicOrder;
+			ringDimension = rhs.ringDimension;
+			isPowerOfTwo = rhs.isPowerOfTwo;
+			ciphertextModulus = rhs.ciphertextModulus;
+		}
+
+		ElemParams(const ElemParams&& rhs) {
+			cyclotomicOrder = rhs.cyclotomicOrder;
+			ringDimension = rhs.ringDimension;
+			isPowerOfTwo = rhs.isPowerOfTwo;
+			ciphertextModulus = std::move(rhs.ciphertextModulus);
+		}
+
+		const ElemParams& operator=(const ElemParams& rhs) {
+			cyclotomicOrder = rhs.cyclotomicOrder;
+			ringDimension = rhs.ringDimension;
+			isPowerOfTwo = rhs.isPowerOfTwo;
+			ciphertextModulus = rhs.ciphertextModulus;
+			return *this;
+		}
+
 		virtual ~ElemParams() {}
 
 		// GETTERS
@@ -74,7 +96,8 @@ namespace lbcrypto {
 
 		/**
 		 * Get Root of Unity
-		 * @return default of 0 if not implemented; should be =0?
+		 * Derived classes must implement this
+		 * @return
 		 */
 		virtual const IntegerType &GetRootOfUnity() const = 0;
 

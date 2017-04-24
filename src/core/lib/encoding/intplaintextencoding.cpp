@@ -60,7 +60,7 @@ void IntPlaintextEncoding::doEncode(const BigBinaryInteger &modulus, Element *il
 		length = length - padlen;
 	}
 
-	VecType temp(ilVector->GetParams()->GetCyclotomicOrder()/2,ilVector->GetModulus());
+	VecType temp(ilVector->GetParams()->GetRingDimension(),ilVector->GetModulus());
 
 	Format format = COEFFICIENT;
 

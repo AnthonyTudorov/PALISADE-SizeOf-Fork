@@ -95,39 +95,31 @@ public:
 		m_rootOfUnity = RootOfUnity<IntType>(order, modulus);
 	}
 
-	// use the default copy, move and assignments
+	//copy constructor
+	/**
+	 * Copy constructor.
+	 *
+	 * @param &rhs the input set of parameters which is copied.
+	 */
+	ILParamsImpl(const ILParamsImpl &rhs) : ElemParams<IntType>(rhs), m_rootOfUnity(rhs.m_rootOfUnity) {}
 
-//	//copy constructor
-//	/**
-//	 * Copy constructor.
-//	 *
-//	 * @param &rhs the input set of parameters which is copied.
-//	 */
-//	ILParamsImpl(const ILParamsImpl &rhs) = default;
-////	{
-////		m_order = rhs.m_order;
-////		m_modulus = rhs.m_modulus;
-////		m_rootOfUnity = rhs.m_rootOfUnity;
-////	}
-//
-//	/**
-//	 * Assignment Operator.
-//	 *
-//	 * @param &rhs the ILParams to be copied.
-//	 * @return the resulting ILParams.
-//	 */
-//	ILParamsImpl& operator=(const ILParamsImpl &) = default;
-//
-//	/**
-//	 * Move constructor.
-//	 *
-//	 * @param &rhs the input set of parameters which is copied.
-//	 */
-//	ILParamsImpl(const ILParamsImpl &&rhs) {
-//		m_order = rhs.m_order;
-//		m_modulus = std::move(rhs.m_modulus);
-//		m_rootOfUnity = std::move(rhs.m_rootOfUnity);
-//	}
+	/**
+	 * Assignment Operator.
+	 *
+	 * @param &rhs the ILParams to be copied.
+	 * @return the resulting ILParams.
+	 */
+	const ILParamsImpl& operator=(const ILParamsImpl &rhs) {
+		ElemParams<IntType>::operator=(rhs);
+		return *this;
+	}
+
+	/**
+	 * Move constructor.
+	 *
+	 * @param &rhs the input set of parameters which is copied.
+	 */
+	ILParamsImpl(const ILParamsImpl &&rhs) : ElemParams<IntType>(rhs) {}
 
 	/**
 	 * Destructor.
