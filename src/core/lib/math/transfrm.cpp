@@ -112,6 +112,7 @@ VecType NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(con
 	IntType temp(IntType::ONE);
 	temp <<= 2 * element.GetModulus().GetMSB() + 3;
 	IntType mu = temp.DividedBy(element.GetModulus());
+	//std::cout << "NTTFwd mod,tmp,mu" << element.GetModulus() << "," << temp << "," << mu << std::endl;
 #endif
 #if MATHBACKEND == 6
 	IntType modulus = element.GetModulus();

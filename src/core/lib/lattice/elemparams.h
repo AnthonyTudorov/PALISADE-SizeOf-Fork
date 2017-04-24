@@ -54,11 +54,18 @@ namespace lbcrypto {
 	class ElemParams : public Serializable
 	{
 	public:
-		ElemParams(usint order, const IntegerType& ctModulus = IntegerType::ZERO) {
+		ElemParams(usint order,
+				const IntegerType& ctModulus = IntegerType::ZERO,
+				const IntegerType& rUnity = IntegerType::ZERO,
+				const IntegerType& bigCtModulus = IntegerType::ZERO,
+				const IntegerType& bigRUnity = IntegerType::ZERO) {
 			cyclotomicOrder = order;
 			ringDimension = GetTotient(order);
 			isPowerOfTwo = ringDimension == cyclotomicOrder / 2;
 			ciphertextModulus = ctModulus;
+			rootOfUnity = rUnity;
+			bigCiphertextModulus = bigCtModulus;
+			bigRootOfUnity = bigRUnity;
 		}
 
 		ElemParams(const ElemParams& rhs) {
@@ -66,6 +73,9 @@ namespace lbcrypto {
 			ringDimension = rhs.ringDimension;
 			isPowerOfTwo = rhs.isPowerOfTwo;
 			ciphertextModulus = rhs.ciphertextModulus;
+			rootOfUnity = rhs.rootOfUnity;
+			bigCiphertextModulus = rhs.bigCiphertextModulus;
+			bigRootOfUnity = rhs.bigRootOfUnity;
 		}
 
 		ElemParams(const ElemParams&& rhs) {
@@ -73,6 +83,9 @@ namespace lbcrypto {
 			ringDimension = rhs.ringDimension;
 			isPowerOfTwo = rhs.isPowerOfTwo;
 			ciphertextModulus = std::move(rhs.ciphertextModulus);
+			rootOfUnity = std::move(rhs.rootOfUnity);
+			bigCiphertextModulus = std::move(rhs.bigCiphertextModulus);
+			bigRootOfUnity = std::move(rhs.bigRootOfUnity);
 		}
 
 		const ElemParams& operator=(const ElemParams& rhs) {
@@ -80,26 +93,25 @@ namespace lbcrypto {
 			ringDimension = rhs.ringDimension;
 			isPowerOfTwo = rhs.isPowerOfTwo;
 			ciphertextModulus = rhs.ciphertextModulus;
+			rootOfUnity = rhs.rootOfUnity;
+			bigCiphertextModulus = rhs.bigCiphertextModulus;
+			bigRootOfUnity = rhs.bigRootOfUnity;
 			return *this;
 		}
 
 		virtual ~ElemParams() {}
 
 		// GETTERS
-		const IntegerType &GetModulus() const { return ciphertextModulus; }
-
 		const usint GetCyclotomicOrder() const { return cyclotomicOrder; }
 
 		const usint GetRingDimension() const { return ringDimension; }
 
 		const bool OrderIsPowerOfTwo() const { return isPowerOfTwo; }
 
-		/**
-		 * Get Root of Unity
-		 * Derived classes must implement this
-		 * @return
-		 */
-		virtual const IntegerType &GetRootOfUnity() const = 0;
+		const IntegerType &GetModulus() const { return ciphertextModulus; }
+		const IntegerType &GetBigModulus() const { return ciphertextModulus; }
+		const IntegerType &GetRootOfUnity() const { return ciphertextModulus; }
+		const IntegerType &GetBigRootOfUnity() const { return ciphertextModulus; }
 
 	    friend std::ostream& operator<<(std::ostream& out, const ElemParams &item) {
 	    	return item.doprint(out);
@@ -134,6 +146,9 @@ namespace lbcrypto {
 		usint			ringDimension;
 		bool			isPowerOfTwo;
 		IntegerType		ciphertextModulus;
+		IntegerType		rootOfUnity;
+		IntegerType		bigCiphertextModulus;
+		IntegerType		bigRootOfUnity;
 
 		virtual std::ostream& doprint(std::ostream& out) const {
 			out << "[m=" << cyclotomicOrder << (isPowerOfTwo?"* ":" ") << "n=" << ringDimension << " q=" << ciphertextModulus << "]";

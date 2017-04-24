@@ -90,7 +90,7 @@ namespace lbcrypto {
 				return false;
 			IntType RootOfUnity(oIt->value.GetString());
 
-			m_rootOfUnity = RootOfUnity;
+			this->rootOfUnity = RootOfUnity;
 			return true;
 		}
 

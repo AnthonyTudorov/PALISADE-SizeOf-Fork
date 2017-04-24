@@ -71,7 +71,7 @@ public:
 	 * All of the private members will be initialised to zero.
 	 */
 	ILParamsImpl()
-		: ElemParams<IntType>(0,IntType::ZERO), m_rootOfUnity(IntType::ZERO) {}
+		: ElemParams<IntType>(0) {}
 
 	/**
 	 * Constructor for the pre-computed case.
@@ -80,8 +80,8 @@ public:
 	 * @param &modulus the ciphertext modulus.
 	 * @param &rootOfUnity the root of unity used in the ciphertext.
 	 */
-	ILParamsImpl(const usint order, const IntType & modulus, const IntType & rootOfUnity)
-		: ElemParams<IntType>(order, modulus), m_rootOfUnity(rootOfUnity) {}
+	ILParamsImpl(const usint order, const IntType & modulus, const IntType & rootOfUnity, const IntType & bigModulus = IntType::ZERO, const IntType & bigRootOfUnity = IntType::ZERO)
+		: ElemParams<IntType>(order, modulus, rootOfUnity, bigModulus, bigRootOfUnity) {}
 
 	/**
 	 * Constructor for the pre-computed case.
@@ -92,7 +92,7 @@ public:
 	ILParamsImpl(const usint order, const IntType &modulus)
 		: ElemParams<IntType>(order, modulus)
 	{
-		m_rootOfUnity = RootOfUnity<IntType>(order, modulus);
+		this->rootOfUnity = RootOfUnity<IntType>(order, modulus);
 	}
 
 	//copy constructor
@@ -101,7 +101,7 @@ public:
 	 *
 	 * @param &rhs the input set of parameters which is copied.
 	 */
-	ILParamsImpl(const ILParamsImpl &rhs) : ElemParams<IntType>(rhs), m_rootOfUnity(rhs.m_rootOfUnity) {}
+	ILParamsImpl(const ILParamsImpl &rhs) : ElemParams<IntType>(rhs) {}
 
 	/**
 	 * Assignment Operator.
@@ -131,15 +131,6 @@ public:
 	// Get accessors
 
 	/**
-	 * Get the root of unity.
-	 *
-	 * @return the root of unity.
-	 */
-	const IntType &GetRootOfUnity() const {
-		return m_rootOfUnity;
-	}
-
-	/**
 	 * Equal operator compares ElemParams (which will be dynamic casted)
 	 *
 	 * @param &rhs is the specified ILVector2n to be compared with this ILVector2n.
@@ -149,14 +140,14 @@ public:
 		if( dynamic_cast<const ILParamsImpl<IntType> *>(&rhs) == 0 )
 			return false;
 
-		return ElemParams<IntType>::operator==(rhs) && m_rootOfUnity == rhs.GetRootOfUnity();
+		//return ElemParams<IntType>::operator==(rhs) && m_rootOfUnity == rhs.GetRootOfUnity();
 	}
 
 private:
 	std::ostream& doprint(std::ostream& out) const {
 		out << "ILParams ";
 		ElemParams<IntType>::doprint(out);
-		out << "Root of unity " << GetRootOfUnity();
+		//out << "Root of unity " << GetRootOfUnity();
 		return out;
 	}
 
@@ -175,11 +166,6 @@ public:
 	 * @return true on success
 	 */
 	bool Deserialize(const Serialized& serObj);
-
-private:
-	// primitive root unity that is used to transform from coefficient to evaluation representation and vice versa
-	IntType m_rootOfUnity;
-
 };
 
 
