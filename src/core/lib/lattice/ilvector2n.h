@@ -767,6 +767,8 @@ private:
 
 	// static variable to store the sample size for each set of ILParams
 	static const usint m_sampleSize = SAMPLE_SIZE;
+
+	void ArbitrarySwitchFormat();
 };
 
 } //namespace lbcrypto ends

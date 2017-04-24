@@ -316,6 +316,138 @@ private:
 	static std::complex<double>* rootOfUnityTable;
 	uint32_t size;
 };
+
+/**
+* @brief Bluestein Fast Fourier Transform implemetation
+*/
+template<typename IntType, typename VecType>
+class BluesteinFFT {
+public:
+	/**
+	* Get instance to return this object.
+	*
+	* @return is this object.
+	*/
+	static BluesteinFFT& GetInstance();
+
+	/**
+	* Forward transform.
+	*
+	* @param element is the element to perform the transform on.
+	* @param rootOfUnityTable the root of unity table.
+	* @param cycloOrder is the cyclotomic order.
+	* @return is the output result of the transform.
+	*/
+	VecType ForwardTransform(const VecType& element, const IntType& root, const usint cycloOrder);
+
+	/**
+	* Inverse transform.
+	*
+	* @param element is the element to perform the transform on.
+	* @param rootOfUnityInverseTable the root of unity table.
+	* @param cycloOrder is the cyclotomic order.
+	* @return is the output result of the transform.
+	*/
+	VecType InverseTransform(const VecType& element, const VecType& rootOfUnityInverseTable, const usint cycloOrder);
+
+	/**
+	* Set the ring element.
+	*
+	* @param &element is the element to set.
+	*/
+	void SetElement(const VecType &element);
+
+	VecType PadZeros(const VecType &a, const usint finalSize);
+
+	VecType Resize(const VecType &a, usint  lo, usint hi);
+
+	void PreComputeNTTModulus(usint cycloOrder, const std::vector<IntType> &modulii);
+
+	void PreComputeNTTModulus(usint cycloOrder, const IntType &modulus);
+
+	void PreComputeRootTableForNTT(usint cycloOrder, const IntType &modulus);
+
+	/**
+	* Destructor.
+	*/
+	void Destroy();
+
+private:
+	static std::map<IntType, VecType> m_rootOfUnityTableByModulus;
+	static std::map<IntType, VecType> m_rootOfUnityInverseTableByModulus;
+	static std::map<IntType, IntType> m_NTTModulus;
+	static BluesteinFFT *m_onlyInstance;
+	BluesteinFFT() : m_element(0) {}
+	~BluesteinFFT() {}
+	BluesteinFFT(const BluesteinFFT&) : m_element(0) {}
+	const VecType *m_element;
+	usint k2;
+
+};
+
+/**
+* @brief Chinese Remainder Transform Arbitrary implemetation
+*/
+template<typename IntType, typename VecType>
+class ChineseRemainderTransformArb {
+public:
+	/**
+	* Get instance to return this object.
+	*
+	* @return is this object.
+	*/
+	static ChineseRemainderTransformArb& GetInstance();
+
+	/**
+	* Sets the cyclotomic polynomial.
+	*
+	*/
+	static void SetCylotomicPolynomial(const VecType &poly, const IntType &mod);
+
+	/**
+	* Forward transform.
+	*
+	* @param element is the element to perform the transform on.
+	* @param rootOfUnityTable the root of unity table.
+	* @param cycloOrder is the cyclotomic order.
+	* @return is the output result of the transform.
+	*/
+	VecType ForwardTransform(const VecType& element, const IntType& root, const usint cycloOrder);
+
+	/**
+	* Inverse transform.
+	*
+	* @param element is the element to perform the transform on.
+	* @param rootOfUnityInverseTable the root of unity table.
+	* @param cycloOrder is the cyclotomic order.
+	* @return is the output result of the transform.
+	*/
+	VecType InverseTransform(const VecType& element, const IntType& root, const usint cycloOrder);
+
+	/**
+	* Set the ring element.
+	*
+	* @param &element is the element to set.
+	*/
+	void SetElement(const VecType &element);
+
+	VecType PadZeros(const VecType &a, const usint finalSize);
+
+	/**
+	* Destructor.
+	*/
+	void Destroy();
+
+	void PreCompute(const usint cyclotoOrder, const IntType &modulus);
+private:
+	static ChineseRemainderTransformArb *m_onlyInstance;
+	ChineseRemainderTransformArb() : m_element(0) {}
+	~ChineseRemainderTransformArb() {}
+	ChineseRemainderTransformArb(const ChineseRemainderTransformArb&) : m_element(0) {}
+	const VecType *m_element;
+	static std::map<IntType, VecType> m_cyclotomicPolyMap;
+};
+
 	
 
 } // namespace lbcrypto ends
