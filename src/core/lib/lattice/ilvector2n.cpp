@@ -589,6 +589,11 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 		  std::string errMsg = "ILVector2n switch format to empty values";
 		  throw std::runtime_error(errMsg);
 		}
+
+		if (m_params->OrderIsPowerOfTwo() == false ) {
+			ArbitrarySwitchFormat();
+			return;
+		}
     
 		if (m_format == COEFFICIENT) {
 			m_format = EVALUATION;
@@ -608,6 +613,37 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 							.InverseTransform(*m_values, m_params->GetRootOfUnity(), 
 									  m_params->GetCyclotomicOrder()));
 			DEBUG("m_values now "<< *m_values);						  
+
+		}
+	}
+
+	template<typename ModType, typename IntType, typename VecType, typename ParmType>
+	void ILVectorImpl<ModType,IntType,VecType,ParmType>::ArbitrarySwitchFormat() {
+
+	        bool dbg_flag = false;
+		if (m_values == nullptr) {
+		  std::string errMsg = "ILVector2n switch format to empty values";
+		  throw std::runtime_error(errMsg);
+		}
+
+		if (m_format == COEFFICIENT) {
+			m_format = EVALUATION;
+			//todo:: does this have an extra copy?
+			DEBUG("transform to evaluation m_values was"<< *m_values);
+
+			m_values = make_unique<VecType>(ChineseRemainderTransformArb<IntType,VecType>::GetInstance()
+							.ForwardTransform(*m_values, m_params->GetRootOfUnity(),
+									  m_params->GetCyclotomicOrder()));
+			DEBUG("m_values now "<< *m_values);
+		}
+		else {
+			m_format = COEFFICIENT;
+			DEBUG("transform to coefficient m_values was"<< *m_values);
+
+			m_values = make_unique<VecType>(ChineseRemainderTransformArb<IntType,VecType>::GetInstance()
+							.InverseTransform(*m_values, m_params->GetRootOfUnity(),
+									  m_params->GetCyclotomicOrder()));
+			DEBUG("m_values now "<< *m_values);
 
 		}
 	}

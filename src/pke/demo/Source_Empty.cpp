@@ -82,11 +82,11 @@ int main(int argc, char *argv[])
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
 
 	std::vector<usint> vectorOfInts = { 1,1,1,5,1,4,1,6,1,7 };
-	PackedIntPlaintextEncoding intArray(vectorOfInts);
+	/*Packed*/IntPlaintextEncoding intArray(vectorOfInts);
 
 	ciphertext = cc.Encrypt(kp.publicKey, intArray, false);
 
-	PackedIntPlaintextEncoding intArrayNew;
+	/*Packed*/IntPlaintextEncoding intArrayNew;
 
 	cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
 
