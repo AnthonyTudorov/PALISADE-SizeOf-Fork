@@ -367,6 +367,10 @@ public:
 
 	void PreComputeRootTableForNTT(usint cycloOrder, const IntType &modulus);
 
+	static void SetPreComputedNTTModulus(usint cyclotoOrder, const IntType &modulus, const IntType &nttMod);
+
+	static void SetRootTableForNTT(usint cyclotoOrder, const IntType &modulus, const IntType &nttMod, const IntType &nttRoot);
+
 	/**
 	* Destructor.
 	*/
@@ -438,7 +442,8 @@ public:
 	*/
 	void Destroy();
 
-	void PreCompute(const usint cyclotoOrder, const IntType &modulus);
+	static void PreCompute(const usint cyclotoOrder, const IntType &modulus);
+	static void SetPreComputedNTTModulus(usint cyclotoOrder, const IntType &modulus, const IntType &nttMod, const IntType &nttRoot);
 private:
 	static ChineseRemainderTransformArb *m_onlyInstance;
 	ChineseRemainderTransformArb() : m_element(0) {}

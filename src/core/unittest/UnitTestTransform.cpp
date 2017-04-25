@@ -229,3 +229,31 @@ TEST(UTTransform, CRT_CHECK_big_ring) {
 	}
 
 }
+
+TEST(UTTransform, CRT_CHECK_small_ring_precomputed) {
+
+	usint m = 22;
+	BigBinaryInteger squareRootOfRoot(3750);
+	BigBinaryInteger modulus(4621);
+	usint n = GetTotient(m);
+
+	auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulus);
+	BigBinaryInteger nttmodulus("17592186045953");
+	BigBinaryInteger nttroot("1312690467665");
+
+	//ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().PreCompute(m, modulus);
+	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().SetPreComputedNTTModulus(m, modulus, nttmodulus, nttroot);
+	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulus);
+
+	BigBinaryVector input(n, modulus);
+	input = { 1,2,3,4,5,6,7,8,9,10 };
+
+	auto INPUT = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().ForwardTransform(input, squareRootOfRoot, m);
+
+	auto inputCheck = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().InverseTransform(INPUT, squareRootOfRoot, m);
+
+	for (usint i = 0; i < n; i++) {
+		EXPECT_EQ(input.GetValAtIndex(i), inputCheck.GetValAtIndex(i));
+	}
+
+}
