@@ -109,9 +109,9 @@ namespace lbcrypto {
 		const bool OrderIsPowerOfTwo() const { return isPowerOfTwo; }
 
 		const IntegerType &GetModulus() const { return ciphertextModulus; }
-		const IntegerType &GetBigModulus() const { return ciphertextModulus; }
-		const IntegerType &GetRootOfUnity() const { return ciphertextModulus; }
-		const IntegerType &GetBigRootOfUnity() const { return ciphertextModulus; }
+		const IntegerType &GetBigModulus() const { return bigCiphertextModulus; }
+		const IntegerType &GetRootOfUnity() const { return rootOfUnity; }
+		const IntegerType &GetBigRootOfUnity() const { return bigRootOfUnity; }
 
 	    friend std::ostream& operator<<(std::ostream& out, const ElemParams &item) {
 	    	return item.doprint(out);
