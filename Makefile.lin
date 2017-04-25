@@ -7,17 +7,17 @@ OMPINCLUDE :=
 
 
 ##DBC include paths for NTL and GMP leave empty if not using MATHBACKEND 6
-# NTLINCLUDE := -I $(HOME)/sw/include
-# GMPINCLUDE := -I $(HOME)/sw/include
-NTLINCLUDE := 
-GMPINCLUDE := 
+NTLINCLUDE := -I $(HOME)/sw/include
+GMPINCLUDE := -I $(HOME)/sw/include
+#NTLINCLUDE := 
+#GMPINCLUDE := 
 
 ##DBC library paths for NTL and GMP leave empty if not using MATHBACKEND 6
-# NTLLIB := $(HOME)/sw/lib/libntl.a
-# GMPLIB := $(HOME)/sw/lib/libgmp.a
+NTLLIB := $(HOME)/sw/lib/libntl.a
+GMPLIB := $(HOME)/sw/lib/libgmp.a
 
-NTLLIB := 
-GMPLIB := 
+#NTLLIB := 
+#GMPLIB := 
 
 
 CC := g++ # This is the main compiler

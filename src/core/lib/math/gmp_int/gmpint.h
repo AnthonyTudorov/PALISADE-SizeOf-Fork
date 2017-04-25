@@ -199,7 +199,6 @@ namespace NTL{
     myZZ& operator*=(const myZZ &a);
     myZZ& operator*=(const myZZ_p &a);
 
-  
 
     inline myZZ operator*(const myZZ& b) const {
       myZZ tmp;
@@ -215,7 +214,12 @@ namespace NTL{
     //palisade modular arithmetic methods all inline for speed
 
     inline myZZ Mod(const myZZ& modulus) const {return *this%modulus;};
+
+    //    inline myZZ& operator%=(const myZZ &modulus) {*this = *this%modulus; return *this;};  
+
     inline myZZ ModBarrett(const myZZ& modulus, const myZZ& mu) const {return *this%modulus;};
+    void ModBarrettInPlace(const myZZ& modulus, const myZZ& mu) { *this%=modulus;};
+
     inline    myZZ ModBarrett(const myZZ& modulus, const myZZ mu_arr[BARRETT_LEVELS+1]) const  {return *this%modulus;};
     inline myZZ ModInverse(const myZZ& modulus) const {return InvMod(*this%modulus, modulus);};
     inline myZZ ModAdd(const myZZ& b, const myZZ& modulus) const {return myZZ(AddMod(*this%modulus, b%modulus, modulus));};
@@ -241,6 +245,8 @@ namespace NTL{
 
     //    inline myZZ ModBarrettMul(const myZZ& b, const myZZ& modulus,const myZZ& mu) const {return MulMod(*this%modulus, b%modulus, modulus);};
     inline myZZ ModBarrettMul(const myZZ& b, const myZZ& modulus,const myZZ& mu) const {return MulMod(*this, b, modulus);};
+    inline void ModBarrettMulInPlace(const myZZ& b, const myZZ& modulus,const myZZ& mu)  { *this = MulMod(*this, b, modulus);};
+
     //    inline myZZ ModBarrettMul(const myZZ& b, const myZZ& modulus,const myZZ mu_arr[BARRETT_LEVELS]) const  {return MulMod(*this%modulus, b%modulus, modulus);};
     inline myZZ ModBarrettMul(const myZZ& b, const myZZ& modulus,const myZZ mu_arr[BARRETT_LEVELS]) const  {return MulMod(*this, b, modulus);};
 
@@ -330,8 +336,8 @@ namespace NTL{
     static const usint m_log2LimbBitLength;
 
     //Serialization functions
-    const std::string Serialize() const;
-    const char * Deserialize(const char * str);
+    const std::string Serialize(const myZZ& mod = myZZ::ZERO) const;
+    const char * Deserialize(const char * str, const myZZ& mod = myZZ::ZERO);
 
   private:
     //adapter kits
