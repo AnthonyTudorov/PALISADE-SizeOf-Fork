@@ -214,7 +214,7 @@ private:
 	std::ostream& doprint(std::ostream& out) const {
 		out << "ILDCRTParams ";
 		ElemParams<IntType>::doprint(out);
-		out << " Parms:" << std::endl;
+		out << std::endl << " Parms:" << std::endl;
 		for( int i=0; i < m_parms.size(); i++ ) {
 			out << "   " << i << ":" << *m_parms[i] << std::endl;
 		}

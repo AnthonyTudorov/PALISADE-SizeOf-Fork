@@ -120,7 +120,10 @@ namespace lbcrypto {
 		virtual bool operator==(const ElemParams<IntegerType> &other) const {
 			return cyclotomicOrder == other.cyclotomicOrder &&
 					ringDimension == other.ringDimension &&
-					ciphertextModulus == other.ciphertextModulus;
+					ciphertextModulus == other.ciphertextModulus &&
+					rootOfUnity == other.rootOfUnity &&
+					bigCiphertextModulus == other.bigCiphertextModulus &&
+					bigRootOfUnity == other.bigRootOfUnity;
 		}
 		bool operator!=(const ElemParams<IntegerType> &other) const { return !(*this == other); }
 
@@ -151,7 +154,12 @@ namespace lbcrypto {
 		IntegerType		bigRootOfUnity;
 
 		virtual std::ostream& doprint(std::ostream& out) const {
-			out << "[m=" << cyclotomicOrder << (isPowerOfTwo?"* ":" ") << "n=" << ringDimension << " q=" << ciphertextModulus << "]";
+			out << "[m=" << cyclotomicOrder << (isPowerOfTwo?"* ":" ") << "n=" << ringDimension
+					<< " q=" << ciphertextModulus
+					<< " ru=" << rootOfUnity
+					<< " bigq=" << bigCiphertextModulus
+					<< " bigru=" << bigRootOfUnity
+					<< "]";
 			return out;
 		}
 

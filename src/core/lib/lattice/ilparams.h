@@ -140,14 +140,14 @@ public:
 		if( dynamic_cast<const ILParamsImpl<IntType> *>(&rhs) == 0 )
 			return false;
 
-		//return ElemParams<IntType>::operator==(rhs) && m_rootOfUnity == rhs.GetRootOfUnity();
+		return ElemParams<IntType>::operator==(rhs);
 	}
 
 private:
 	std::ostream& doprint(std::ostream& out) const {
 		out << "ILParams ";
 		ElemParams<IntType>::doprint(out);
-		//out << "Root of unity " << GetRootOfUnity();
+		out << std::endl;
 		return out;
 	}
 
