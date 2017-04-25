@@ -96,9 +96,9 @@ void IntPlaintextEncoding::Decode(const BigBinaryInteger &modulus, ILVector2n *i
 }
 
 size_t
-IntPlaintextEncoding::GetChunksize(const usint cyc, const BigBinaryInteger&) const
+IntPlaintextEncoding::GetChunksize(const usint ring, const BigBinaryInteger&) const
 {
-	return cyc/2;
+	return ring;
 }
 
 // Evaluates the array of integers as a polynomial at x = 2

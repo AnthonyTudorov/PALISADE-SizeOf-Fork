@@ -345,7 +345,7 @@ void NTRU_DCRT() {
 
 	BytePlaintextEncoding plaintext;
 
-	size_t strSize = plaintext.GetChunksize(m, BigBinaryInteger(ptm));
+	size_t strSize = plaintext.GetChunksize(m/2, BigBinaryInteger(ptm));
 
 	auto randchar = []() -> char {
 		const char charset[] =

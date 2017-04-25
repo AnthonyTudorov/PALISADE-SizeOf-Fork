@@ -304,8 +304,7 @@ public:
 			throw std::logic_error("key passed to Encrypt was not generated with this crypto context");
 
 		const BigBinaryInteger& ptm = publicKey->GetCryptoParameters()->GetPlaintextModulus();
-		//size_t chunkSize = plaintext.GetChunksize(publicKey->GetCryptoContext().GetCyclotomicOrder(), ptm);
-		size_t chunkSize = publicKey->GetCryptoParameters()->GetElementParams()->GetRingDimension();
+		size_t chunkSize = plaintext.GetChunksize(publicKey->GetCryptoContext().GetRingDimension(), ptm);
 		size_t ptSize = plaintext.GetLength();
 		size_t rounds = ptSize / chunkSize;
 
@@ -394,7 +393,7 @@ public:
 		bool padded = false;
 		BytePlaintextEncoding px;
 		const BigBinaryInteger& ptm = publicKey->GetCryptoContext().GetCryptoParameters()->GetPlaintextModulus();
-		size_t chunkSize = px.GetChunksize(publicKey->GetCryptoContext().GetCyclotomicOrder(), ptm);
+		size_t chunkSize = px.GetChunksize(publicKey->GetCryptoContext().GetRingDimension(), ptm);
 		char *ptxt = new char[chunkSize];
 
 		while (instream.good()) {

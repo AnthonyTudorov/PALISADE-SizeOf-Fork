@@ -77,7 +77,7 @@ namespace lbcrypto {
 
 		void Unpad(const BigBinaryInteger &modulus) {} // a null op; no padding in int
 
-		virtual size_t GetChunksize(const usint cyc, const BigBinaryInteger& ptm) const;
+		virtual size_t GetChunksize(const usint ring, const BigBinaryInteger& ptm) const;
 
 		size_t GetLength() const { return this->size(); }
 

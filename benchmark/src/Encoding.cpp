@@ -25,11 +25,11 @@ bool runOnlyOnce = true;
 using namespace std;
 using namespace lbcrypto;
 
-static void initializeBytes(int cyclotomicOrder, const BigBinaryInteger& ptm,
+static void initializeBytes(int ring, const BigBinaryInteger& ptm,
 		BytePlaintextEncoding& plaintextShort,
 		BytePlaintextEncoding& plaintextFull,
 		BytePlaintextEncoding& plaintextLong) {
-	size_t strSize = plaintextShort.GetChunksize(cyclotomicOrder, ptm);
+	size_t strSize = plaintextShort.GetChunksize(ring, ptm);
 
 	auto randchar = []() -> char {
 		const char charset[] =
@@ -60,7 +60,7 @@ static void setup_Encoding(CryptoContext<ILVector2n>& cc,
 		BytePlaintextEncoding& plaintextShort,
 		BytePlaintextEncoding& plaintextFull,
 		BytePlaintextEncoding& plaintextLong) {
-	int nel = cc.GetCyclotomicOrder()/2;
+	int nel = cc.GetRingDimension();
 	const BigBinaryInteger& ptm = cc.GetCryptoParameters()->GetPlaintextModulus();
 	uint32_t ptmi = ptm.ConvertToInt();
 
@@ -70,7 +70,7 @@ static void setup_Encoding(CryptoContext<ILVector2n>& cc,
 	plaintextInt = intvec;
 	plaintextPacked = intvec;
 
-	initializeBytes(nel*2, ptm, plaintextShort, plaintextFull, plaintextLong);
+	initializeBytes(nel, ptm, plaintextShort, plaintextFull, plaintextLong);
 }
 
 void BM_encoding_Int(benchmark::State& state) { // benchmark
@@ -94,7 +94,7 @@ void BM_encoding_Int(benchmark::State& state) { // benchmark
 		ptmi = ptm.ConvertToInt();
 
 		setup_Encoding(cc, plaintextInt, plaintextPacked, plaintextShort, plaintextFull, plaintextLong);
-		chunkSize = plaintextInt.GetChunksize(cc.GetCyclotomicOrder(), ptm);
+		chunkSize = plaintextInt.GetChunksize(cc.GetRingDimension(), ptm);
 		state.ResumeTiming();
 	}
 
@@ -130,7 +130,7 @@ void BM_encoding_PackedInt(benchmark::State& state) { // benchmark
 		ptmi = ptm.ConvertToInt();
 
 		setup_Encoding(cc, plaintextInt, plaintextPacked, plaintextShort, plaintextFull, plaintextLong);
-		chunkSize = plaintextPacked.GetChunksize(cc.GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder(), ptm);
+		chunkSize = plaintextPacked.GetChunksize(cc.GetCryptoParameters()->GetElementParams()->GetRingDimension(), ptm);
 		state.ResumeTiming();
 	}
 
@@ -173,7 +173,7 @@ void BM_Encoding_StringShort(benchmark::State& state) { // benchmark
 		ptmi = ptm.ConvertToInt();
 
 		setup_Encoding(cc, plaintextInt, plaintextPacked, plaintextShort, plaintextFull, plaintextLong);
-		chunkSize = plaintextShort.GetChunksize(cc.GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder(), ptm);
+		chunkSize = plaintextShort.GetChunksize(cc.GetCryptoParameters()->GetElementParams()->GetRingDimension(), ptm);
 
 		if( ptmi != 2 && ptmi != 4 && ptmi !=16 && ptmi != 256 ) {
 			string msg = "Cannot encode with a plaintext modulus of " + std::to_string(ptmi);
@@ -217,7 +217,7 @@ void BM_Encoding_StringFull(benchmark::State& state) { // benchmark
 		ptmi = ptm.ConvertToInt();
 
 		setup_Encoding(cc, plaintextInt, plaintextPacked, plaintextShort, plaintextFull, plaintextLong);
-		chunkSize = plaintextFull.GetChunksize(cc.GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder(), ptm);
+		chunkSize = plaintextFull.GetChunksize(cc.GetCryptoParameters()->GetElementParams()->GetRingDimension(), ptm);
 
 		if( ptmi != 2 && ptmi != 4 && ptmi !=16 && ptmi != 256 ) {
 			string msg = "Cannot encode with a plaintext modulus of " + std::to_string(ptmi);
@@ -261,7 +261,7 @@ void BM_Encoding_StringLong(benchmark::State& state) { // benchmark
 		ptmi = ptm.ConvertToInt();
 
 		setup_Encoding(cc, plaintextInt, plaintextPacked, plaintextShort, plaintextFull, plaintextLong);
-		chunkSize = plaintextLong.GetChunksize(cc.GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder(), ptm);
+		chunkSize = plaintextLong.GetChunksize(cc.GetCryptoParameters()->GetElementParams()->GetRingDimension(), ptm);
 
 		if( ptmi != 2 && ptmi != 4 && ptmi !=16 && ptmi != 256 ) {
 			string msg = "Cannot encode with a plaintext modulus of " + std::to_string(ptmi);

@@ -72,7 +72,7 @@ void testJson(
 
 	cout << "----------------------START JSON FACILITY TESTING-------------------------" << endl;
 
-	size_t chunksize = newPtxt.GetChunksize(tp->ctx.GetCyclotomicOrder(), tp->ctx.GetCryptoParameters()->GetPlaintextModulus());
+	size_t chunksize = newPtxt.GetChunksize(tp->ctx.GetRingDimension(), tp->ctx.GetCryptoParameters()->GetPlaintextModulus());
 	if( newPtxt.size() > chunksize ) {
 		cout << "This test code won't work when the plaintext size (" << newPtxt.size()
 				<< ") is bigger than the chunksize (" << chunksize << ")" << endl;
