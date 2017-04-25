@@ -305,6 +305,7 @@ public:
 
 		const BigBinaryInteger& ptm = publicKey->GetCryptoParameters()->GetPlaintextModulus();
 		size_t chunkSize = plaintext.GetChunksize(publicKey->GetCryptoContext().GetCyclotomicOrder(), ptm);
+		//size_t chunkSize = GetTotient(publicKey->GetCryptoContext().GetCyclotomicOrder());
 		size_t ptSize = plaintext.GetLength();
 		size_t rounds = ptSize / chunkSize;
 

@@ -51,32 +51,43 @@ int main(int argc, char *argv[])
 {
 	
 	usint m = 22;
-	BigBinaryInteger squareRootOfRoot(3750);
-	BigBinaryInteger modulus(4621);
-	usint n = GetTotient(m);
+	usint p = 89; // we choose s.t. 2m|p-1 to leverage CRTArb
+	BigBinaryInteger modulusQ("800053");
+	BigBinaryInteger modulusP(p);
+	BigBinaryInteger rootOfUnity = RootOfUnity(2 * m, modulusQ);
 
-	auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulus);
-	BigBinaryInteger nttmodulus("17592186045953");
-	BigBinaryInteger nttroot("1312690467665");
+	auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulusQ);
+	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().PreCompute(m, modulusQ);
+	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
-	//ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().PreCompute(m, modulus);
-	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().SetPreComputedNTTModulus(m, modulus, nttmodulus, nttroot);
-	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulus);
+	float stdDev = 4;
 
-	BigBinaryVector input(n, modulus);
-	input = { 1,2,3,4,5,6,7,8,9,10 };
+	shared_ptr<ILParams> params(new ILParams(m, modulusQ, rootOfUnity));
 
+	LPCryptoParametersBV<ILVector2n> cryptoParams;
+	cryptoParams.SetPlaintextModulus(modulusP); // Set plaintext modulus.
+	cryptoParams.SetDistributionParameter(stdDev);          // Set the noise parameters.
+	cryptoParams.SetRelinWindow(8);						   // Set the relinearization window
+	cryptoParams.SetElementParams(params);                // Set the initialization parameters.
 
-	auto INPUT = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().ForwardTransform(input, squareRootOfRoot, m);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(&cryptoParams);
+	cc.Enable(ENCRYPTION);
 
-	std::cout << INPUT << std::endl;
+	// Initialize the public key containers.
+	LPKeyPair<ILVector2n> kp = cc.KeyGen();
 
-	auto inputCheck = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().InverseTransform(INPUT, squareRootOfRoot, m);
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
 
-	std::cout << inputCheck << std::endl;
+	std::vector<usint> vectorOfInts = { 1,1,1,5,1,4,1,6,1,7 };
+	/*Packed*/IntPlaintextEncoding intArray(vectorOfInts);
 
-	//CRTArbRuntimes();
-	//CRTFTTRuntimes();
+	ciphertext = cc.Encrypt(kp.publicKey, intArray, false);
+
+	/*Packed*/IntPlaintextEncoding intArrayNew;
+
+	cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
+
+	std::cout << intArrayNew << std::endl;
 
 	system("pause");
 
