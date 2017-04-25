@@ -107,9 +107,10 @@ void LTVAutomorphismIntArray() {
 
 	DiscreteGaussianGenerator dgg(stdDev);
 
-	ILParams params(m, q, rootOfUnity);
+	shared_ptr<ILParams> params( new ILParams(m, q, rootOfUnity) );
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(plaintextModulus, m, q.ToString(), RootOfUnity(m, q).ToString(), 1, stdDev);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(
+			params, plaintextModulus, 1, stdDev);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 

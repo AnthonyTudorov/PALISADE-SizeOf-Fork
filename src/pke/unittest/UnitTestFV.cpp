@@ -400,6 +400,8 @@ TEST(UTFV, ILVector2n_Encrypt_Decrypt_PRE) {
 	BigBinaryInteger modulus("1099511678977");
 	BigBinaryInteger rootOfUnity("928976858506");
 
+	shared_ptr<ILVector2n::Params> params(new ILVector2n::Params(m, modulus, rootOfUnity));
+
 	BigBinaryInteger bigModulus("1237940039285380274899136513");
 	BigBinaryInteger bigRootOfUnity("1067388930511360414468370668");
 
@@ -410,7 +412,7 @@ TEST(UTFV, ILVector2n_Encrypt_Decrypt_PRE) {
 	//Set crypto parametes
 	BigBinaryInteger delta(modulus.DividedBy(plaintextModulus));
 	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
-		8, m, modulus.ToString(), rootOfUnity.ToString(),
+		params, 8,
 		1, stdDev, delta.ToString(), RLWE, bigModulus.ToString(),
 		bigRootOfUnity.ToString(), 0, 9, 1.006);
 
