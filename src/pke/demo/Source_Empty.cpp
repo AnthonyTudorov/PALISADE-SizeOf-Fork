@@ -55,14 +55,16 @@ int main(int argc, char *argv[])
 	BigBinaryInteger modulusQ("800053");
 	BigBinaryInteger modulusP(p);
 	BigBinaryInteger rootOfUnity = RootOfUnity(2 * m, modulusQ);
+	BigBinaryInteger bigmodulus("1019642968797569");
+	BigBinaryInteger bigroot("116200103432701");
 
 	auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulusQ);
-	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().PreCompute(m, modulusQ);
+	//ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().PreCompute(m, modulusQ);
 	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 	float stdDev = 4;
 
-	shared_ptr<ILParams> params(new ILParams(m, modulusQ, rootOfUnity));
+	shared_ptr<ILParams> params(new ILParams(m, modulusQ, rootOfUnity,bigmodulus,bigroot));
 
 	LPCryptoParametersBV<ILVector2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(modulusP); // Set plaintext modulus.

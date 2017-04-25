@@ -942,7 +942,7 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 	}
 
 	template<typename IntType, typename VecType>
-	VecType ChineseRemainderTransformArb<IntType, VecType>::ForwardTransform(const VecType& element, const IntType& root, const usint cycloOrder) {
+	VecType ChineseRemainderTransformArb<IntType, VecType>::ForwardTransform(const VecType& element, const IntType& root, const IntType& bigMod, const IntType& bigRoot, const usint cycloOrder) {
 
 		usint n = GetTotient(cycloOrder);
 		if (element.GetLength() != n) {
@@ -955,6 +955,12 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 
 		for (usint i = 0; i < n; i++) {
 			inputToBluestein.SetValAtIndex(i, element.GetValAtIndex(i));
+		}
+
+		//precompute bigroot of unity and inverse root of unity table if it's not yet computed.
+		if (BluesteinFFT<IntType, VecType>::GetInstance().m_rootOfUnityTableByModulus[bigMod].GetLength() == 0) {
+			BluesteinFFT<IntType, VecType>::GetInstance().SetPreComputedNTTModulus(cycloOrder,modulus,bigMod);
+			BluesteinFFT<IntType, VecType>::GetInstance().SetRootTableForNTT(cycloOrder,modulus,bigMod,bigRoot);
 		}
 
 		auto outputBluestein = BluesteinFFT<IntType, VecType>::GetInstance().ForwardTransform(inputToBluestein, root, cycloOrder);
@@ -970,8 +976,10 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 	}
 
 	template<typename IntType, typename VecType>
-	VecType ChineseRemainderTransformArb<IntType, VecType>::InverseTransform(const VecType& element, const IntType& root, const usint cycloOrder) {
+	VecType ChineseRemainderTransformArb<IntType, VecType>::InverseTransform(const VecType& element, const IntType& root, const IntType& bigMod, const IntType& bigRoot, const usint cycloOrder) {
+		
 		usint n = GetTotient(cycloOrder);
+
 		if (element.GetLength() != n) {
 			throw std::runtime_error("element size should be equal to phim");
 		}
@@ -983,6 +991,12 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 		usint i = 0;
 		for (auto &coprime : tList) {
 			inputToBluestein.SetValAtIndex(coprime, element.GetValAtIndex(i++));
+		}
+
+		//precompute bigroot of unity and inverse root of unity table if it's not yet computed.
+		if (BluesteinFFT<IntType, VecType>::GetInstance().m_rootOfUnityTableByModulus[bigMod].GetLength() == 0) {
+			BluesteinFFT<IntType, VecType>::GetInstance().SetPreComputedNTTModulus(cycloOrder, modulus, bigMod);
+			BluesteinFFT<IntType, VecType>::GetInstance().SetRootTableForNTT(cycloOrder, modulus, bigMod, bigRoot);
 		}
 
 		auto outputBluestein = BluesteinFFT<IntType, VecType>::GetInstance().ForwardTransform(inputToBluestein, rootInverse, cycloOrder);

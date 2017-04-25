@@ -376,9 +376,11 @@ public:
 	*/
 	void Destroy();
 
-private:
 	static std::map<IntType, VecType> m_rootOfUnityTableByModulus;
 	static std::map<IntType, VecType> m_rootOfUnityInverseTableByModulus;
+
+private:
+	
 	static std::map<IntType, IntType> m_NTTModulus;
 	static BluesteinFFT *m_onlyInstance;
 	BluesteinFFT() : m_element(0) {}
@@ -416,7 +418,7 @@ public:
 	* @param cycloOrder is the cyclotomic order.
 	* @return is the output result of the transform.
 	*/
-	VecType ForwardTransform(const VecType& element, const IntType& root, const usint cycloOrder);
+	VecType ForwardTransform(const VecType& element, const IntType& root, const IntType& bigMod, const IntType& bigRoot, const usint cycloOrder);
 
 	/**
 	* Inverse transform.
@@ -426,7 +428,7 @@ public:
 	* @param cycloOrder is the cyclotomic order.
 	* @return is the output result of the transform.
 	*/
-	VecType InverseTransform(const VecType& element, const IntType& root, const usint cycloOrder);
+	VecType InverseTransform(const VecType& element, const IntType& root, const IntType& bigMod, const IntType& bigRoot, const usint cycloOrder);
 
 	/**
 	* Set the ring element.

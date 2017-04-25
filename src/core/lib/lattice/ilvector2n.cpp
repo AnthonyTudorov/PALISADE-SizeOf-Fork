@@ -632,8 +632,8 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 			DEBUG("transform to evaluation m_values was"<< *m_values);
 
 			m_values = make_unique<VecType>(ChineseRemainderTransformArb<IntType,VecType>::GetInstance()
-							.ForwardTransform(*m_values, m_params->GetRootOfUnity(),
-									  m_params->GetCyclotomicOrder()));
+							.ForwardTransform(*m_values, m_params->GetRootOfUnity(),m_params->GetBigModulus(),
+								m_params->GetBigRootOfUnity(), m_params->GetCyclotomicOrder()));
 			DEBUG("m_values now "<< *m_values);
 		}
 		else {
@@ -641,8 +641,8 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 			DEBUG("transform to coefficient m_values was"<< *m_values);
 
 			m_values = make_unique<VecType>(ChineseRemainderTransformArb<IntType,VecType>::GetInstance()
-							.InverseTransform(*m_values, m_params->GetRootOfUnity(),
-									  m_params->GetCyclotomicOrder()));
+							.InverseTransform(*m_values, m_params->GetRootOfUnity(), m_params->GetBigModulus(),
+								m_params->GetBigRootOfUnity(), m_params->GetCyclotomicOrder()));
 			DEBUG("m_values now "<< *m_values);
 
 		}
