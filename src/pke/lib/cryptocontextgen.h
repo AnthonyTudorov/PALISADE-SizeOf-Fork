@@ -106,7 +106,24 @@ inline CryptoContext<ILVectorArray2n> GenCryptoContextElementArrayBV(usint ORDER
 
 
 inline CryptoContext<ILVector2n> GenCryptoContextElementFV(usint ORDER, usint ptm, usint bits=PrimeBits) {
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(ptm, 1.006, 16, 4, 0, 3, 0);
+
+	shared_ptr<ILVector2n::Params> p = GenerateTestParams<ILVector2n::Params,ILVector2n::Integer>(ORDER, bits);
+
+//    BigBinaryInteger bigModulus = FindPrimeModulus<ILVector2n::Integer>(2 * ORDER, 2*(ceil(log2(p->GetModulus())) + 1) + ceil(log2(ptm)) + 3);
+    BigBinaryInteger bigModulus = FindPrimeModulus<ILVector2n::Integer>(2 * ORDER, 2*bits + ceil(log2(ptm)) + 3);
+    BigBinaryInteger bigRootOfUnity = RootOfUnity<ILVector2n::Integer>(2 * ORDER, bigModulus);
+
+	BigBinaryInteger plaintextModulus(ptm);
+
+	float stdDev = 4;
+
+	//Set crypto parametes
+	BigBinaryInteger delta(p->GetModulus().DividedBy(plaintextModulus));
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
+		p, ptm,
+		16, stdDev, delta.ToString(), RLWE, bigModulus.ToString(),
+		bigRootOfUnity.ToString(), 0, 9, 1.006);
+
 	cc.Enable(ENCRYPTION);
 	cc.Enable(PRE);
 	cc.Enable(SHE);
@@ -116,7 +133,10 @@ inline CryptoContext<ILVector2n> GenCryptoContextElementFV(usint ORDER, usint pt
 }
 
 inline CryptoContext<ILVectorArray2n> GenCryptoContextElementArrayFV(usint ORDER, usint ntowers, usint ptm, usint bits=PrimeBits) {
-	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextFV(ptm, 1.006, 16, 4, 0, 3, 0);
+	shared_ptr<ILVectorArray2n::Params> p = GenerateDCRTParams(ORDER, ntowers, bits);
+
+	string delta( p->GetModulus().DividedBy(ILVector2n::Integer(ptm)).ToString() );
+	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextFV(p, ptm, 1, 4, delta, RLWE, "0", "0", 0, 9, 1.006);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(PRE);
 	cc.Enable(SHE);

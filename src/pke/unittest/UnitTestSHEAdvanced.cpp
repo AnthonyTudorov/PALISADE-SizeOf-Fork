@@ -486,7 +486,9 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 
 	vector<native64::BigBinaryInteger> init_rootsOfUnity(init_size);
 
-	native64::BigBinaryInteger q("1");
+	//native64::BigBinaryInteger q("1");
+	native64::BigBinaryInteger q = FindPrimeModulus<native64::BigBinaryInteger>(init_m, 30);
+
 	native64::BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
 
@@ -545,14 +547,6 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 	//Generating Quadratic KeySwitchHint from sk^2 to skNew
 	cc.EvalMultKeyGen(kp.secretKey);
 
-	shared_ptr<LPEvalKey<ILVectorArray2n>> KeySwitchHint = cc.KeySwitchGen(kp.secretKey, kp1.secretKey);
-
-	//Dropping the last tower of skNew, because ComposedEvalMult performs a ModReduce
-	shared_ptr<LPPrivateKey<ILVectorArray2n>> sk2(new LPPrivateKey<ILVectorArray2n>(kp1.secretKey->GetCryptoContext()));
-	ILVectorArray2n skNewOldElement(kp1.secretKey->GetPrivateElement());
-	skNewOldElement.DropLastElement();
-	sk2->SetPrivateElement(skNewOldElement);
-
 	std::vector<usint> firstElement(8,0);
 	firstElement[0] = 8;
 	firstElement[1] = 5;
@@ -573,23 +567,22 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 	ciphertextElementOne = cc.Encrypt(kp.publicKey, firstElementEncoding, false);
 	ciphertextElementTwo = cc.Encrypt(kp.publicKey, secondElementEncoding, false);
 
-	shared_ptr<Ciphertext<ILVectorArray2n>> mResult = cc.EvalMult(ciphertextElementOne[0], ciphertextElementTwo[0]);
-	IntPlaintextEncoding multresults;
-	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> tempvec( { mResult } );
-	cc.Decrypt(sk2, tempvec, &multresults, false);
+	shared_ptr<LPEvalKey<ILVectorArray2n>> KeySwitchHint = cc.KeySwitchGen(kp.secretKey, kp1.secretKey);
 
-	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> cResult = cc.ComposedEvalMult(ciphertextElementOne, ciphertextElementTwo);
+	//Dropping the last tower of skNew, because ComposedEvalMult performs a ModReduce
+	shared_ptr<LPPrivateKey<ILVectorArray2n>> sk2(new LPPrivateKey<ILVectorArray2n>(kp1.secretKey->GetCryptoContext()));
+	ILVectorArray2n skNewOldElement(kp1.secretKey->GetPrivateElement());
+	skNewOldElement.DropLastElement();
+	sk2->SetPrivateElement(skNewOldElement);
 
-	cResult.at(0) = cc.KeySwitch(KeySwitchHint, cResult.at(0));
+	shared_ptr<Ciphertext<ILVectorArray2n>> cResult = cc.ComposedEvalMult(ciphertextElementOne[0], ciphertextElementTwo[0]);
 
+	cResult = cc.KeySwitch(KeySwitchHint, cResult);
+
+	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> tempvec2( { cResult } );
 	IntPlaintextEncoding results;
 
-	cc.Decrypt(sk2, cResult, &results, false);
-
-	cout << firstElementEncoding << endl;
-	cout << secondElementEncoding << endl;
-	cout << multresults << endl;
-	cout << results << endl;
+	cc.Decrypt(sk2, tempvec2, &results, false);
 
 	EXPECT_EQ(results.at(0), 2);
 	EXPECT_EQ(results.at(1), 4);

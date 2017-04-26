@@ -887,27 +887,14 @@ public:
 	* @param quadKeySwitchHint - is the quadratic key switch hint from original private key to the quadratic key
 	* return vector of resulting ciphertext
 	*/
-	std::vector<shared_ptr<Ciphertext<Element>>> ComposedEvalMult(
-		const std::vector<shared_ptr<Ciphertext<Element>>> ciphertext1,
-		const std::vector<shared_ptr<Ciphertext<Element>>> ciphertext2) const
+	shared_ptr<Ciphertext<Element>> ComposedEvalMult(
+		const shared_ptr<Ciphertext<Element>> ciphertext1,
+		const shared_ptr<Ciphertext<Element>> ciphertext2) const
 	{
-		if (ciphertext1.size() != ciphertext2.size()) {
-			throw std::logic_error("Cannot have ciphertext of different length");
-		}
+		if( ciphertext1 == NULL || ciphertext2 == NULL || ciphertext1->GetCryptoContext() != *this || ciphertext2->GetCryptoContext() != *this )
+			throw std::logic_error("Ciphertexts passed to ComposedEvalMult was not generated with this crypto context");
 
-		vector<shared_ptr<Ciphertext<Element>>> ciphertextResult;
-
-		auto ek = GetEvalMultKey();
-
-		for (int i = 0; i < ciphertext1.size(); i++) {
-			if( ciphertext1[i] == NULL || ciphertext2[i] == NULL || ciphertext1[i]->GetCryptoContext() != *this || ciphertext2[i]->GetCryptoContext() != *this )
-				throw std::logic_error("Ciphertext passed to KeySwitch was not generated with this crypto context");
-
-			shared_ptr<Ciphertext<Element>> e = GetEncryptionAlgorithm()->ComposedEvalMult(ciphertext1[i], ciphertext2[i], ek);
-			ciphertextResult.push_back(e);
-		}
-
-		return ciphertextResult;
+		return GetEncryptionAlgorithm()->ComposedEvalMult(ciphertext1, ciphertext2, GetEvalMultKey());
 	}
 
 	/**
