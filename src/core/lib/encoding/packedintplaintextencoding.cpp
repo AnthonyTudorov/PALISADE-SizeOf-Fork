@@ -38,6 +38,8 @@
 namespace lbcrypto {
 
 	BigBinaryInteger PackedIntPlaintextEncoding::initRoot = BigBinaryInteger(0);
+	BigBinaryInteger PackedIntPlaintextEncoding::bigMod = BigBinaryInteger(0);
+	BigBinaryInteger PackedIntPlaintextEncoding::bigRoot = BigBinaryInteger(0);
 
 	std::vector<usint> PackedIntPlaintextEncoding::rootOfUnityTable = std::vector<usint>();
 
@@ -100,10 +102,22 @@ namespace lbcrypto {
 	void PackedIntPlaintextEncoding::Pack(ILVector2n *ring, const BigBinaryInteger &modulus) const {
 
 		usint n = ring->GetRingDimension(); //ring dimension
-
+		usint m = ring->GetCyclotomicOrder();//cyclotomic order
 															   //Do the precomputation if not initialized
-		if (this->initRoot.GetMSB() == 0) {
-			this->initRoot = RootOfUnity<BigBinaryInteger>(n << 1, modulus);
+		const auto params = ring->GetParams();
+
+		if (this->initRoot.GetMSB() == 0 ) {
+			if (params->OrderIsPowerOfTwo()) {
+				this->initRoot = RootOfUnity<BigBinaryInteger>(m, modulus);
+			}
+			else {
+				this->initRoot = RootOfUnity<BigBinaryInteger>(2*m, modulus);
+				usint nttDim = pow(2, ceil(log2(2 * m - 1)));;
+				this->bigMod = FindPrimeModulus<BigBinaryInteger>(nttDim , log2(nttDim) + 2 * modulus.GetMSB());
+				this->bigRoot = RootOfUnity<BigBinaryInteger>(nttDim, bigMod);
+				auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulus);
+				ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::SetCylotomicPolynomial(cycloPoly, modulus);
+			}
 		}
 
 		//initRoot = BigBinaryInteger::TWO;
@@ -116,7 +130,12 @@ namespace lbcrypto {
 
 		packedVector.SetModulus(modulus);
 
-		packedVector = ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().InverseTransform(packedVector, initRoot, n << 1);
+		if (params->OrderIsPowerOfTwo()) {
+			packedVector = ChineseRemainderTransformFTT<BigBinaryInteger, BigBinaryVector>::GetInstance().InverseTransform(packedVector, initRoot, m);
+		}
+		else {
+			packedVector = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().InverseTransform(packedVector, initRoot,bigMod,bigRoot,m);
+		}		
 
 		//std::cout << packedVector << std::endl;
 
@@ -129,16 +148,24 @@ namespace lbcrypto {
 	void PackedIntPlaintextEncoding::Unpack(ILVector2n *ring, const BigBinaryInteger &modulus) const {
 
 		usint n = ring->GetRingDimension(); //ring dimension
+		usint m = ring->GetCyclotomicOrder(); //ring cyclotomic order
 
 		BigBinaryInteger qMod(ring->GetModulus());
 
 		BigBinaryVector packedVector(ring->GetValues());
 
+		auto params = ring->GetParams();
+
 		//std::cout << packedVector << std::endl;
 
 		packedVector.SetModulus(modulus);
 
-		packedVector = ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().ForwardTransform(packedVector, initRoot, n << 1);
+		if (params->OrderIsPowerOfTwo()) {
+			packedVector = ChineseRemainderTransformFTT<BigBinaryInteger, BigBinaryVector>::GetInstance().ForwardTransform(packedVector, initRoot, m);
+		}
+		else {
+			packedVector = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().ForwardTransform(packedVector, initRoot, bigMod,bigRoot,m);
+		}		
 
 		packedVector.SetModulus(qMod);
 

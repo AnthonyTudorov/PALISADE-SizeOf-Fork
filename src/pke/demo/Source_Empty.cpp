@@ -51,10 +51,11 @@ int main(int argc, char *argv[])
 {
 	
 	usint m = 22;
+	usint N = GetTotient(m);
 	usint p = 89; // we choose s.t. 2m|p-1 to leverage CRTArb
 	BigBinaryInteger modulusQ("800053");
 	BigBinaryInteger modulusP(p);
-	BigBinaryInteger rootOfUnity = RootOfUnity(2 * m, modulusQ);
+	BigBinaryInteger rootOfUnity("59094");
 	BigBinaryInteger bigmodulus("1019642968797569");
 	BigBinaryInteger bigroot("116200103432701");
 
@@ -81,11 +82,11 @@ int main(int argc, char *argv[])
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
 
 	std::vector<usint> vectorOfInts = { 1,1,1,5,1,4,1,6,1,7 };
-	/*Packed*/IntPlaintextEncoding intArray(vectorOfInts);
+	PackedIntPlaintextEncoding intArray(vectorOfInts);
 
 	ciphertext = cc.Encrypt(kp.publicKey, intArray, false);
 
-	/*Packed*/IntPlaintextEncoding intArrayNew;
+	PackedIntPlaintextEncoding intArrayNew;
 
 	cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
 

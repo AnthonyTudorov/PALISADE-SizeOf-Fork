@@ -96,6 +96,8 @@ namespace lbcrypto {
 	private:
 		static BigBinaryInteger initRoot;
 		static std::vector<usint> rootOfUnityTable;
+		static BigBinaryInteger bigMod;
+		static BigBinaryInteger bigRoot;
 
 		void Pack(ILVector2n *ring, const BigBinaryInteger &modulus) const;
 
