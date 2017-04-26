@@ -75,20 +75,31 @@ int main(int argc, char *argv[])
 
 	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(&cryptoParams);
 	cc.Enable(ENCRYPTION);
+	cc.Enable(SHE);
 
 	// Initialize the public key containers.
 	LPKeyPair<ILVector2n> kp = cc.KeyGen();
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext1;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext2;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextResult;
 
-	std::vector<usint> vectorOfInts = { 1,1,1,5,1,4,1,6,1,7 };
-	PackedIntPlaintextEncoding intArray(vectorOfInts);
+	std::vector<usint> vectorOfInts1 = { 1,2,3,4,5,6,7,8,9,10 };
+	PackedIntPlaintextEncoding intArray1(vectorOfInts1);
 
-	ciphertext = cc.Encrypt(kp.publicKey, intArray, false);
+	std::vector<usint> vectorOfInts2 = { 10,9,8,7,6,5,4,3,2,1 };
+	PackedIntPlaintextEncoding intArray2(vectorOfInts2);
 
+	ciphertext1 = cc.Encrypt(kp.publicKey, intArray1, false);
+	ciphertext2 = cc.Encrypt(kp.publicKey, intArray2, false);
+
+	cc.EvalMultKeyGen(kp.secretKey);
+
+	auto ciphertextMult = cc.EvalMult(ciphertext1.at(0), ciphertext2.at(0));
+	ciphertextResult.insert(ciphertextResult.begin(), ciphertextMult);
 	PackedIntPlaintextEncoding intArrayNew;
 
-	cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
+	cc.Decrypt(kp.secretKey, ciphertextResult, &intArrayNew, false);
 
 	std::cout << intArrayNew << std::endl;
 
