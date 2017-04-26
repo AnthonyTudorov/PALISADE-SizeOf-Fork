@@ -371,6 +371,8 @@ public:
 
 	static void SetRootTableForNTT(usint cyclotoOrder, const IntType &modulus, const IntType &nttMod, const IntType &nttRoot);
 
+	static void PreComputePowers(usint cycloOrder, const IntType &modulus, const IntType &root);
+
 	/**
 	* Destructor.
 	*/
@@ -378,6 +380,7 @@ public:
 
 	static std::map<IntType, VecType> m_rootOfUnityTableByModulus;
 	static std::map<IntType, VecType> m_rootOfUnityInverseTableByModulus;
+	static std::map<IntType, VecType> m_powersTableByRoot;
 
 private:
 	

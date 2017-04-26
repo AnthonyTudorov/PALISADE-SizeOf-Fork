@@ -142,7 +142,7 @@ TEST(UTTransform, CRT_polynomial_multiplication_big_ring) {
 	BigBinaryInteger modulus(14401);
 	BigBinaryInteger bigModulus("1045889179649");
 	BigBinaryInteger bigRoot("864331722621");
-	BigBinaryInteger squareRootOfRoot = RootOfUnity(2 * m, modulus);
+	BigBinaryInteger squareRootOfRoot("972");
 	usint n = GetTotient(m);
 	auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulus);
 
@@ -210,7 +210,7 @@ TEST(UTTransform, CRT_CHECK_big_ring) {
 	usint m = 1800;
 
 	BigBinaryInteger modulus(14401);
-	BigBinaryInteger squareRootOfRoot = RootOfUnity(2 * m, modulus);
+	BigBinaryInteger squareRootOfRoot("972");
 	BigBinaryInteger bigModulus("1045889179649");
 	BigBinaryInteger bigRoot("864331722621");
 	usint n = GetTotient(m);
@@ -269,13 +269,13 @@ TEST(UTTransform, CRT_CHECK_small_ring_precomputed) {
 TEST(UTTransform, CRT_CHECK_very_big_ring_precomputed) {
 
 	usint m = 8422;
-	BigBinaryInteger modulus(4621);
-	BigBinaryInteger squareRootOfRoot(3750);
+	BigBinaryInteger modulus("1329227995784915872903807060281819137");//find a modulus that has 2*8422 root of unity and is 120 bit long
+	BigBinaryInteger squareRootOfRoot("390698995947413790827000600831537005");
 	usint n = GetTotient(m);
 
 	auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulus);
-	BigBinaryInteger nttmodulus("17592186045953");
-	BigBinaryInteger nttroot("1312690467665");
+	BigBinaryInteger nttmodulus("1852673427797059126777135760139006525652319754650249024631321344126610076631041");
+	BigBinaryInteger nttroot("1011857408422309039039556907195908859561535234649870814154019834362746408101010");
 
 	//ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().PreCompute(m, modulus);
 	//ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().SetPreComputedNTTModulus(m, modulus, nttmodulus, nttroot);

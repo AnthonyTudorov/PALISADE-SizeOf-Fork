@@ -50,14 +50,14 @@ using namespace lbcrypto;
 int main(int argc, char *argv[])
 {
 	
-	usint m = 22;
+	usint m = 8422;
 	usint N = GetTotient(m);
-	usint p = 89; // we choose s.t. 2m|p-1 to leverage CRTArb
-	BigBinaryInteger modulusQ("800053");
+	usint p = 84221; // we choose s.t. 2m|p-1 to leverage CRTArb
+	BigBinaryInteger modulusQ("1329227995784915872903807060281819137");
 	BigBinaryInteger modulusP(p);
-	BigBinaryInteger rootOfUnity("59094");
-	BigBinaryInteger bigmodulus("1019642968797569");
-	BigBinaryInteger bigroot("116200103432701");
+	BigBinaryInteger rootOfUnity("390698995947413790827000600831537005");
+	BigBinaryInteger bigmodulus("1852673427797059126777135760139006525652319754650249024631321344126610076631041");
+	BigBinaryInteger bigroot("1011857408422309039039556907195908859561535234649870814154019834362746408101010");
 
 	auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulusQ);
 	//ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().PreCompute(m, modulusQ);
@@ -84,22 +84,29 @@ int main(int argc, char *argv[])
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext2;
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextResult;
 
-	std::vector<usint> vectorOfInts1 = { 1,2,3,4,5,6,7,8,9,10 };
+	std::vector<usint> vectorOfInts1;
+	for (usint i = 0; i < N; i++) {
+		vectorOfInts1.push_back(1);
+	}
 	PackedIntPlaintextEncoding intArray1(vectorOfInts1);
 
-	std::vector<usint> vectorOfInts2 = { 10,9,8,7,6,5,4,3,2,1 };
+	std::vector<usint> vectorOfInts2;
+	for (usint i = 0; i < N; i++) {
+		vectorOfInts2.push_back(2);
+	}
 	PackedIntPlaintextEncoding intArray2(vectorOfInts2);
 
 	ciphertext1 = cc.Encrypt(kp.publicKey, intArray1, false);
 	ciphertext2 = cc.Encrypt(kp.publicKey, intArray2, false);
 
-	cc.EvalMultKeyGen(kp.secretKey);
+	/*cc.EvalMultKeyGen(kp.secretKey);
 
 	auto ciphertextMult = cc.EvalMult(ciphertext1.at(0), ciphertext2.at(0));
-	ciphertextResult.insert(ciphertextResult.begin(), ciphertextMult);
+	ciphertextResult.insert(ciphertextResult.begin(), ciphertextMult);*/
 	PackedIntPlaintextEncoding intArrayNew;
 
-	cc.Decrypt(kp.secretKey, ciphertextResult, &intArrayNew, false);
+	//cc.Decrypt(kp.secretKey, ciphertextResult, &intArrayNew, false);
+	cc.Decrypt(kp.secretKey, ciphertext1, &intArrayNew, false);
 
 	std::cout << intArrayNew << std::endl;
 
