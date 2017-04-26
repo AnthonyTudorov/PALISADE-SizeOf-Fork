@@ -114,6 +114,22 @@ const BigBinaryVectorImpl<IntegerType>& BigBinaryVectorImpl<IntegerType>::operat
 }
 
 template<class IntegerType>
+const BigBinaryVectorImpl<IntegerType>& BigBinaryVectorImpl<IntegerType>::operator=(std::initializer_list<std::string> rhs){
+        bool dbg_flag = false;
+	usint len = rhs.size();
+	for(usint i=0;i<m_length;i++){ // this loops over each tower
+		if(i<len) {
+			m_data[i] =  IntegerType(*(rhs.begin()+i));  
+		        DEBUG("in op= i.l. m_data["<<i<<"] = "<<m_data[i]);
+		} else {
+			m_data[i] = IntegerType::ZERO;
+		        DEBUG("in op= i.l. m_data["<<i<<"] = "<<m_data[i]);		}
+	}
+
+	return *this;
+}
+
+template<class IntegerType>
 BigBinaryVectorImpl<IntegerType>& BigBinaryVectorImpl<IntegerType>::operator=(BigBinaryVectorImpl &&rhs){
 
 	if(this!=&rhs){

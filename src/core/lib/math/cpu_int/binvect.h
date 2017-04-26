@@ -112,6 +112,7 @@ public:
 	*/
 	BigBinaryVectorImpl&  operator=(BigBinaryVectorImpl &&rhs);
 
+	//todo replace <sint> with <usint>
 	/**
 	* Initializer list for BigBinaryVectorImpl.
 	*
@@ -119,6 +120,14 @@ public:
 	* @return BigBinaryVectorImpl object 
 	*/
 	const BigBinaryVectorImpl& operator=(std::initializer_list<sint> rhs);
+
+	/**
+	* Initializer list for BigBinaryVectorImpl.
+	*
+	* @param &&rhs is the list of strings containing integers to be assigned to the BBV.
+	* @return BigBinaryVectorImpl object 
+	*/
+	const BigBinaryVectorImpl& operator=(std::initializer_list<std::string> rhs);
 
 	/**
 	* Equals to operator, checks if two BigBinaryVectorImpl obj are equal or not.

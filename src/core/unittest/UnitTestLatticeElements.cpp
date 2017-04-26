@@ -55,10 +55,13 @@ public:
 
 void testILVectorArray2nConstructorNegative(std::vector<native64::ILVector2n> &towers);
 
-/*--------------------------------------- TESTING METHODS OF LATTICE ELEMENTS    --------------------------------------------*/
+/*-TESTING METHODS OF LATTICE ELEMENTS    ----------------*/
 
+// template for operations tests
 template<typename IntType, typename VecType, typename ParmType, typename Element>
-static void operators_tests() {
+static void operators() {
+	bool dbg_flag = false;
+
 	usint m = 8;
 
 	IntType primeModulus("73");
@@ -68,96 +71,112 @@ static void operators_tests() {
 
 	Element ilvector2n1(ilparams);
 	VecType bbv1(m/2, primeModulus);
-	bbv1.SetValAtIndex(0, "1");
-	bbv1.SetValAtIndex(1, "2");
-	bbv1.SetValAtIndex(2, "0");
-	bbv1.SetValAtIndex(3, "1");
+	bbv1 = {"1", "2", "0", "1"};
 	ilvector2n1.SetValues(bbv1, ilvector2n1.GetFormat());
 
 	Element ilvector2n2(ilparams);
 	VecType bbv2(m/2, primeModulus);
-	bbv2.SetValAtIndex(0, "1");
-	bbv2.SetValAtIndex(1, "2");
-	bbv2.SetValAtIndex(2, "0");
-	bbv2.SetValAtIndex(3, "1");
+	bbv2 = {"1", "2", "0", "1"};
 	ilvector2n2.SetValues(bbv2, ilvector2n2.GetFormat());
 
 	EXPECT_EQ(ilvector2n1, ilvector2n2) << "Operator == fails";
 
-
-	{
+	{//test constructor
 		Element ilv1(ilvector2n1);
-		EXPECT_EQ(ilvector2n1.GetFormat(), ilv1.GetFormat()) << "copy constructor fails";
-		EXPECT_EQ(ilvector2n1.GetValues(), ilv1.GetValues()) << "copy constructor fails";
+		EXPECT_EQ(ilvector2n1.GetFormat(), ilv1.GetFormat())
+			<< "operator= failed in Format comparision";
+		EXPECT_EQ(ilvector2n1.GetValues(), ilv1.GetValues())
+			<< "operator= failed in value comparison";
 	}
 
-	{
+	{//test operator=
 		Element ilv1 = ilvector2n1;
-		EXPECT_EQ(ilvector2n1.GetFormat(), ilv1.GetFormat()) << "Get Format fails";
-		EXPECT_EQ(ilvector2n1.GetValues(), ilv1.GetValues()) << "Get Format fails";
+		EXPECT_EQ(ilvector2n1.GetFormat(), ilv1.GetFormat())
+			<< "operator= failed in Format comparision";
+		EXPECT_EQ(ilvector2n1.GetValues(), ilv1.GetValues())
+			<< "operator= failed in value comparison";
 	}
 
-	{
+	{//test SwitchModulus, !=
 		Element ilv1 = ilvector2n1;
 		ilv1.SwitchModulus(IntType("123467"), IntType("1234"));
-		EXPECT_NE(ilvector2n1, ilv1) << "ILVector2n_operator!=: Operator!= is incorrect. It did not compare modulus properly.\n";
+		EXPECT_NE(ilvector2n1, ilv1) 
+			<< "Operator!= failed in switchmodulus comparison";
 
 		Element ilv2 = ilvector2n1;
 		ilv2.SetValAtIndex(2, 2);
-		EXPECT_NE(ilvector2n1, ilv2) << "ILVector2n_operator!=: Operator!= is incorrect. It did not compare values properly.\n";
+		EXPECT_NE(ilvector2n1, ilv2) 
+			<< "Operator!= failed in value comparison";
 	}
 
-	{
+	{//test operator-=
 		Element ilv1 = ilvector2n1;
 		ilv1 -= ilvector2n1;
 		for (usint i = 0; i < m/2; ++i) {
-			EXPECT_EQ(IntType::ZERO, ilv1.GetValAtIndex(i)) << "ILVector2n_operator-=: Operator-= is incorrect.\n";
+			EXPECT_EQ(IntType::ZERO, ilv1.GetValAtIndex(i))
+				<< "Operator-= failed @ index "<<i;
 		}
 	}
 
-	{
+	{//test operator+=
 		Element ilv1 = ilvector2n1;
 		ilv1 += ilvector2n1;
 		for (usint i = 0; i < m/2; ++i)
-		{
-			EXPECT_EQ(IntType::TWO * ilvector2n1.GetValAtIndex(i), ilv1.GetValAtIndex(i)) << "ILVector2n_operator+=: Operator+= is incorrect.\n";
+			{//we expect a+a == 2*a
+			EXPECT_EQ(IntType::TWO * ilvector2n1.GetValAtIndex(i),
+				  ilv1.GetValAtIndex(i))
+				<< "Operator+= failed @ index "<<i;
 		}
 	}
 
-	{
+	{//test getters //todo: this should be in its own test
 		Element ilvector2n(ilparams);
 		VecType bbv(m/2, primeModulus);
-		bbv.SetValAtIndex(0, "1");
-		bbv.SetValAtIndex(1, "2");
-		bbv.SetValAtIndex(2, "0");
-		bbv.SetValAtIndex(3, "1");
+		bbv = {"1", "2", "0", "1"};
 		ilvector2n.SetValues(bbv, ilvector2n.GetFormat());
 
-		EXPECT_EQ(primeModulus, ilvector2n.GetModulus()) << "ILVector2n.GetModulus is incorrect.\n";
-		EXPECT_EQ(m, ilvector2n.GetCyclotomicOrder()) << "ILVector2n.GetCyclotomicOrder is incorrect.\n";
-		EXPECT_EQ(primitiveRootOfUnity, ilvector2n.GetRootOfUnity()) << "ILVector2n.GetRootOfUnity is incorrect.\n";
-		EXPECT_EQ(bbv, ilvector2n.GetValues()) << "ILVector2n.GetValues is incorrect.\n";
-		EXPECT_EQ(Format::EVALUATION, ilvector2n.GetFormat()) << "ILVector2n.GetFormat is incorrect.\n";
-		EXPECT_EQ(m/2, ilvector2n.GetLength()) << "ILVector2n.GetLength is incorrect.\n";
+		EXPECT_EQ(primeModulus, ilvector2n.GetModulus())
+			<< "Failure: GetModulus()";
+		EXPECT_EQ(m, ilvector2n.GetCyclotomicOrder())
+			<< "Failure: GetCyclotomicOrder()";
+		EXPECT_EQ(primitiveRootOfUnity, ilvector2n.GetRootOfUnity())
+			<< "Failure: GetRootOfUnity()";
+		EXPECT_EQ(bbv, ilvector2n.GetValues()) 
+			<< "Failure: GetValues()";
+		EXPECT_EQ(Format::EVALUATION, ilvector2n.GetFormat())
+			<< "Failure: GetFormat()";
+		EXPECT_EQ(m/2, ilvector2n.GetLength())
+			<< "Failure: GetLength()";
 		for (usint i = 0; i < m/2; ++i) {
-			EXPECT_EQ(bbv.GetValAtIndex(i), ilvector2n.GetValAtIndex(i)) << "ILVector2n.GetValAtIndex is incorrect.\n";
+			EXPECT_EQ(bbv.GetValAtIndex(i), 
+				  ilvector2n.GetValAtIndex(i)) 
+				<< " Failure: GetValAtIndex("<<i<< ")";
 		}
+#if 0 //todo: add [] indexing to ilvector2n
+		for (usint i = 0; i < m/2; ++i) {
+			EXPECT_EQ(bbv[i], 
+				  ilvector2n[i]) 
+				<< " Failure: ["<<i<< "]";
+		}
+#endif
 	}
 
 }
 
+//instantiate ops_tests for various backend combos
 TEST(UTILVector2n, ops_tests) {
-	operators_tests<BigBinaryInteger, BigBinaryVector, ILParams, ILVector2n>();
+	operators<BigBinaryInteger, BigBinaryVector, ILParams, ILVector2n>();
 }
 
 TEST(UTILNativeVector2n, ops_tests) {
-	operators_tests<native64::BigBinaryInteger, native64::BigBinaryVector, native64::ILParams, native64::ILVector2n>();
+	operators<native64::BigBinaryInteger, native64::BigBinaryVector, native64::ILParams, native64::ILVector2n>();
 }
 
 //TEST(UTILVectorArray2n, ops_tests) {
-//	operators_tests<BigBinaryInteger, BigBinaryVector, ILDCRTParams, ILVectorArray2n>();
+//	operators<BigBinaryInteger, BigBinaryVector, ILDCRTParams, ILVectorArray2n>();
 //}
 
+// template for rounding_operations tests
 template<typename IntType, typename VecType, typename ParmType, typename Element>
 void rounding_operations() {
   bool dbg_flag = false;
@@ -169,37 +188,41 @@ void rounding_operations() {
 
 	shared_ptr<ParmType> ilparams( new ParmType(m, q, primitiveRootOfUnity) );
 
-	//temporary larger modulus that is used for polynomial multiplication before rounding
+	//temporary larger modulus that is used for polynomial
+	//multiplication before rounding
+
 	IntType q2("16417");
 	IntType primitiveRootOfUnity2("13161");
 
 	shared_ptr<ParmType> ilparams2( new ParmType(m, q2, primitiveRootOfUnity2) );
 
 	Element ilvector2n1(ilparams,COEFFICIENT);
-	ilvector2n1 = { 31,21,15,34};
+	ilvector2n1 = { "31","21","15","34"};
 
 	DEBUG("ilvector2n1 a "<<ilvector2n1);
 
 	Element ilvector2n2(ilparams,COEFFICIENT);
-	ilvector2n2 = { 21,11,35,32 };
+	ilvector2n2 = { "21","11","35","32" };
 
 	DEBUG("ilvector2n2 a "<<ilvector2n2);
 
 	//unit test for MultiplyAndRound
 
 	Element roundingCorrect1(ilparams, COEFFICIENT);
-	roundingCorrect1 = { 3,2,2,4 };
+	roundingCorrect1 = { "3","2","2","4" };
 
 	DEBUG("ilvector2n1 b "<<ilvector2n1);
 
 	Element rounding1 = ilvector2n1.MultiplyAndRound(p, q);
 
-	EXPECT_EQ(roundingCorrect1, rounding1) << "Rounding p*polynomial/q is incorrect.\n";
+	EXPECT_EQ(roundingCorrect1, rounding1) 
+		<< "Failure: Rounding p*polynomial/q";
 
-	//unit test for MultiplyAndRound after a polynomial multiplication using the larger modulus
+	//unit test for MultiplyAndRound after a polynomial
+	//multiplication using the larger modulus
 
 	Element roundingCorrect2(ilparams2, COEFFICIENT);
-	roundingCorrect2 = { 16316, 16320, 60, 286 };
+	roundingCorrect2 = { "16316","16320","60","286" };
 
 	ilvector2n1.SwitchModulus(q2, primitiveRootOfUnity2);
 	ilvector2n2.SwitchModulus(q2, primitiveRootOfUnity2);
@@ -219,20 +242,22 @@ void rounding_operations() {
 	DEBUG("rounding2 e "<<rounding2);
 	rounding2 = rounding2.MultiplyAndRound(p, q);
 	DEBUG("rounding2 f "<<rounding2);
-	EXPECT_EQ(roundingCorrect2, rounding2) << "Rounding p*polynomial1*polynomial2/q is incorrect.\n";
+	EXPECT_EQ(roundingCorrect2, rounding2) 
+		<< "Failure: Rounding p*polynomial1*polynomial2/q";
 
-	//makes sure the result is correct after going back to the original modulus
+	//makes sure the result is correct after going back to the
+	//original modulus
 
 	rounding2.SwitchModulus(q, primitiveRootOfUnity);
 	DEBUG("rounding2 g "<<rounding2);
 
 	Element roundingCorrect3(ilparams, COEFFICIENT);
-	roundingCorrect3 = { 45, 49, 60, 67 };
+	roundingCorrect3 = { "45","49","60","67" };
 
-	EXPECT_EQ(roundingCorrect3, rounding2) << "Rounding p*polynomial1*polynomial2/q (mod q) is incorrect.\n";
-
+	EXPECT_EQ(roundingCorrect3, rounding2) 
+		<< "falure p*polynomial1*polynomial2/q (mod q)";
 }
-
+// instantiate various test for rounding_operations()
 TEST(UTILVector2n, rounding_operations) {
 	rounding_operations<BigBinaryInteger, BigBinaryVector, ILParams, ILVector2n>();
 }
@@ -245,6 +270,7 @@ TEST(UTILNativeVector2n, rounding_operations) {
 //	rounding_operations<BigBinaryInteger, BigBinaryVector, ILDCRTParams, ILVectorArray2n>();
 //}
 
+//template for setters_tests()
 template<typename IntType, typename VecType, typename ParmType, typename Element>
 void setters_tests() {
 	usint m = 8;
@@ -256,45 +282,37 @@ void setters_tests() {
 
 	Element ilvector2n(ilparams);
 	VecType bbv(m/2, primeModulus);
-	bbv.SetValAtIndex(0, "3");
-	bbv.SetValAtIndex(1, "0");
-	bbv.SetValAtIndex(2, "0");
-	bbv.SetValAtIndex(3, "0");
+	bbv = {	"3","0","0","0"};
 	ilvector2n.SetValues(bbv, Format::COEFFICIENT);
 
 	Element ilvector2nInEval(ilparams);
 	VecType bbvEval(m/2, primeModulus);
-	bbvEval.SetValAtIndex(0, "3");
-	bbvEval.SetValAtIndex(1, "3");
-	bbvEval.SetValAtIndex(2, "3");
-	bbvEval.SetValAtIndex(3, "3");
+	bbvEval={"3","3","3","3"};
 	ilvector2nInEval.SetValues(bbvEval, Format::EVALUATION);
 
-	{
+	{// test SetFormat()
 		Element ilv(ilvector2n);
 
 		ilv.SetFormat(Format::COEFFICIENT);
-		EXPECT_EQ(ilvector2n, ilv) << "ILVector2n.SetFormat is incorrect. Setting the format to COEFFICIENT is incorrect.\n";
+		EXPECT_EQ(ilvector2n, ilv) << "Failure: SetFormat() to COEFFICIENT";
 
 		ilv.SetFormat(Format::EVALUATION);
-		EXPECT_EQ(ilvector2nInEval, ilv) << "ILVector2n.SetFormat is incorrect. Setting the format to EVALUATION is incorrect.\n";
+		EXPECT_EQ(ilvector2nInEval, ilv) << "Failure: SetFormat() to EVALUATION";
 	}
 
 	// this is here because it's a vectors-only test
 	{
 		Element ilv(ilparams);
 		VecType bbv(m/2, primeModulus);
-		bbv.SetValAtIndex(0, "56");
-		bbv.SetValAtIndex(1, "1");
-		bbv.SetValAtIndex(2, "37");
-		bbv.SetValAtIndex(3, "2");
+		bbv = {"56","1","37","2"};
 		ilv.SetValues(bbv, Format::COEFFICIENT);
 
-		EXPECT_EQ(36, ilv.Norm());
+		EXPECT_EQ(36, ilv.Norm())
+			<< "Failure: Norm()";
 	}
-
 }
 
+// instantiate setters_tests() for various combos
 TEST(UTILVector2n, setters_tests) {
 	setters_tests<BigBinaryInteger, BigBinaryVector, ILParams, ILVector2n>();
 }
@@ -303,9 +321,10 @@ TEST(UTILNativeVector2n, setters_tests) {
 	setters_tests<native64::BigBinaryInteger, native64::BigBinaryVector, native64::ILParams, native64::ILVector2n>();
 }
 
+//template for binary_ops()
 template<typename IntType, typename VecType, typename ParmType, typename Element>
-void binary_operations() {
-         bool dbg_flag = false;
+void binary_ops() {
+	bool dbg_flag = false;
 	usint m = 8;
 
 	IntType primeModulus("73");
@@ -315,37 +334,25 @@ void binary_operations() {
 
 	Element ilvector2n1(ilparams);
 	VecType bbv1(m/2, primeModulus);
-	bbv1.SetValAtIndex(0, "2");
-	bbv1.SetValAtIndex(1, "1");
-	bbv1.SetValAtIndex(2, "1");
-	bbv1.SetValAtIndex(3, "1");
+	bbv1 = {"2","1","1","1"};
 	ilvector2n1.SetValues(bbv1, ilvector2n1.GetFormat());
 	DEBUG("ilvector2n1 a "<<ilvector2n1);
 
 	Element ilvector2n2(ilparams);
 	VecType bbv2(m/2, primeModulus);
-	bbv2.SetValAtIndex(0, "1");
-	bbv2.SetValAtIndex(1, "0");
-	bbv2.SetValAtIndex(2, "1");
-	bbv2.SetValAtIndex(3, "1");
+	bbv2 = {"1","0","1","1"};
 	ilvector2n2.SetValues(bbv2, ilvector2n2.GetFormat());
 	DEBUG("ilvector2n2 a "<<ilvector2n2);
 
 	Element ilvector2n3(ilparams, COEFFICIENT);
 	VecType bbv3(m / 2, primeModulus);
-	bbv3.SetValAtIndex(0, "2");
-	bbv3.SetValAtIndex(1, "1");
-	bbv3.SetValAtIndex(2, "1");
-	bbv3.SetValAtIndex(3, "1");
+	bbv3 = {"2","1","1","1"};
 	ilvector2n3.SetValues(bbv3, ilvector2n3.GetFormat());
 	DEBUG("ilvector2n3 a "<<ilvector2n3);
 
 	Element ilvector2n4(ilparams, COEFFICIENT);
 	VecType bbv4(m / 2, primeModulus);
-	bbv4.SetValAtIndex(0, "1");
-	bbv4.SetValAtIndex(1, "0");
-	bbv4.SetValAtIndex(2, "1");
-	bbv4.SetValAtIndex(3, "1");
+	bbv4 = {"1","0","1","1"};
 	ilvector2n4.SetValues(bbv4, ilvector2n4.GetFormat());
 	DEBUG("ilvector2n4 a "<<ilvector2n4);
 
@@ -354,33 +361,29 @@ void binary_operations() {
 		DEBUG("ilv1 a "<<ilv1);
 		Element ilv2 = ilv1.Plus(ilvector2n2);
 		DEBUG("ilv2 a "<<ilv2);
-
-		EXPECT_EQ(IntType::THREE, ilv2.GetValAtIndex(0)) << "ILVector2n.Plus is incorrect.\n";
-		EXPECT_EQ(IntType::ONE, ilv2.GetValAtIndex(1)) << "ILVector2n.Plus is incorrect.\n";
-		EXPECT_EQ(IntType::TWO, ilv2.GetValAtIndex(2)) << "ILVector2n.Plus is incorrect.\n";
-		EXPECT_EQ(IntType::TWO, ilv2.GetValAtIndex(3)) << "ILVector2n.Plus is incorrect.\n";
+		VecType expected(4, primeModulus);
+		expected = {"3","1","2","2"};
+		EXPECT_EQ(expected, ilv2.GetValues())
+			<<"Failure: Plus()";
 	}
-
 	{
 		Element ilv1(ilvector2n1);
 		DEBUG("ilv1 b "<<ilv1);
 		Element ilv2 = ilv1.Minus(ilvector2n2);
-
-		EXPECT_EQ(IntType::ONE, ilv2.GetValAtIndex(0)) << "ILVector2n.Minus is incorrect.\n";
-		EXPECT_EQ(IntType::ONE, ilv2.GetValAtIndex(1)) << "ILVector2n.Minus is incorrect.\n";
-		EXPECT_EQ(IntType::ZERO, ilv2.GetValAtIndex(2)) << "ILVector2n.Minus is incorrect.\n";
-		EXPECT_EQ(IntType::ZERO, ilv2.GetValAtIndex(3)) << "ILVector2n.Minus is incorrect.\n";
+		VecType expected(4, primeModulus);
+		expected = {"1","1","0","0"};
+		EXPECT_EQ(expected, ilv2.GetValues())
+			<<"Failure: Minus()";
 	}
-
+	
 	{
 		Element ilv1(ilvector2n1);
 		DEBUG("ilv1 c "<<ilv1);
 		Element ilv2 = ilv1.Times(ilvector2n2);
-
-		EXPECT_EQ(IntType::TWO, ilv2.GetValAtIndex(0)) << "ILVector2n.Times is incorrect.\n";
-		EXPECT_EQ(IntType::ZERO, ilv2.GetValAtIndex(1)) << "ILVector2n.Times is incorrect.\n";
-		EXPECT_EQ(IntType::ONE, ilv2.GetValAtIndex(2)) << "ILVector2n.Times is incorrect.\n";
-		EXPECT_EQ(IntType::ONE, ilv2.GetValAtIndex(3)) << "ILVector2n.Times is incorrect.\n";
+		VecType expected(4, primeModulus);
+		expected = {"2","0","1","1"};
+		EXPECT_EQ(expected, ilv2.GetValues())
+			<<"Failure: Times()";
 	}
 
 	{
@@ -397,28 +400,29 @@ void binary_operations() {
 		ilv4.SwitchFormat();
 		DEBUG("ilv4 "<<ilv4);
 
-		EXPECT_EQ(IntType::ZERO, ilv4.GetValAtIndex(0)) << "ILVector2n.Times using NTT is incorrect.\n";
-		EXPECT_EQ(IntType("72"), ilv4.GetValAtIndex(1)) << "ILVector2n.Times using NTT is incorrect.\n";
-		EXPECT_EQ(IntType::TWO, ilv4.GetValAtIndex(2)) << "ILVector2n.Times using NTT is incorrect.\n";
-		EXPECT_EQ(IntType::FOUR, ilv4.GetValAtIndex(3)) << "ILVector2n.Times using NTT is incorrect.\n";
+		VecType expected(4, primeModulus);
+		expected = {"0","72","2","4"};
+		EXPECT_EQ(expected, ilv4.GetValues())
+			<<"Failure: Times() using SwitchFormat()";
 	}
-
 }
 
-TEST(UTILVector2n, binary_operations) {
-	binary_operations<BigBinaryInteger, BigBinaryVector, ILParams, ILVector2n>();
+// Instantiations of binary_ops
+TEST(UTILVector2n, binary_ops) {
+	binary_ops<BigBinaryInteger, BigBinaryVector, ILParams, ILVector2n>();
 }
 
-TEST(UTILNativeVector2n, binary_operations) {
-	binary_operations<native64::BigBinaryInteger, native64::BigBinaryVector, native64::ILParams, native64::ILVector2n>();
+TEST(UTILNativeVector2n, binary_ops) {
+	binary_ops<native64::BigBinaryInteger, native64::BigBinaryVector, native64::ILParams, native64::ILVector2n>();
 }
 
-//TEST(UTILVectorArray2n, binary_operations) {
-//	binary_operations<BigBinaryInteger, BigBinaryVector, ILDCRTParams, ILVectorArray2n>();
+//TEST(UTILVectorArray2n, binary_ops) {
+//	binary_ops<BigBinaryInteger, BigBinaryVector, ILDCRTParams, ILVectorArray2n>();
 //}
 
+//templet for clone_ops
 template<typename IntType, typename VecType, typename ParmType, typename Element>
-void clone_operations() {
+void clone_ops() {
 	usint m = 8;
 	IntType primeModulus("73");
 	IntType primitiveRootOfUnity("22");
@@ -427,58 +431,53 @@ void clone_operations() {
 
 	Element ilv(ilparams);
 	VecType bbv(m/2, primeModulus);
-	bbv.SetValAtIndex(0, "2");
-	bbv.SetValAtIndex(1, "1");
-	bbv.SetValAtIndex(2, "1");
-	bbv.SetValAtIndex(3, "1");
+	bbv = {"2","1","1","1"};
 	ilv.SetValues(bbv, ilv.GetFormat());
-
 	{
 		Element ilvClone = ilv.CloneParametersOnly();
 
-		EXPECT_EQ(ilv.GetCyclotomicOrder(), ilvClone.GetCyclotomicOrder());
-		EXPECT_EQ(ilv.GetModulus(), ilvClone.GetModulus());
-		EXPECT_EQ(ilv.GetRootOfUnity(), ilvClone.GetRootOfUnity());
-		EXPECT_EQ(ilv.GetFormat(), ilvClone.GetFormat());
+		EXPECT_EQ(ilv.GetCyclotomicOrder(), 
+			  ilvClone.GetCyclotomicOrder())
+			<< "Failure: CloneParametersOnly GetCyclotomicOrder()";
+		EXPECT_EQ(ilv.GetModulus(), ilvClone.GetModulus())
+			<< "Failure: CloneParametersOnly GetModulus()";
+		EXPECT_EQ(ilv.GetRootOfUnity(), ilvClone.GetRootOfUnity())
+			<< "Failure: CloneParametersOnly GetRootOfUnity()";
+		EXPECT_EQ(ilv.GetFormat(), ilvClone.GetFormat())
+			<< "Failure: CloneParametersOnly GetFormat()";
 	}
-
 	{
 		float stdDev = 4;
 		DiscreteGaussianGeneratorImpl<IntType,VecType> dgg(stdDev);
 		Element ilvClone = ilv.CloneWithNoise(dgg, ilv.GetFormat());
 
-		EXPECT_EQ(ilv.GetCyclotomicOrder(), ilvClone.GetCyclotomicOrder());
-		EXPECT_EQ(ilv.GetModulus(), ilvClone.GetModulus());
-		EXPECT_EQ(ilv.GetRootOfUnity(), ilvClone.GetRootOfUnity());
-		EXPECT_EQ(ilv.GetFormat(), ilvClone.GetFormat());
-	}
-
-	{
-		float stdDev = 4;
-		DiscreteGaussianGeneratorImpl<IntType,VecType> dgg(stdDev);
-		Element ilvClone = ilv.CloneWithNoise(dgg, ilv.GetFormat());
-
-		EXPECT_EQ(ilv.GetCyclotomicOrder(), ilvClone.GetCyclotomicOrder());
-		EXPECT_EQ(ilv.GetModulus(), ilvClone.GetModulus());
-		EXPECT_EQ(ilv.GetRootOfUnity(), ilvClone.GetRootOfUnity());
-		EXPECT_EQ(ilv.GetFormat(), ilvClone.GetFormat());
+		EXPECT_EQ(ilv.GetCyclotomicOrder(), 
+			  ilvClone.GetCyclotomicOrder())
+			<< "Failure: CloneWithNoise GetCyclotomicOrder()";
+		EXPECT_EQ(ilv.GetModulus(), ilvClone.GetModulus())
+			<< "Failure: CloneWithNoise GetModulus()";
+		EXPECT_EQ(ilv.GetRootOfUnity(), ilvClone.GetRootOfUnity())
+			<< "Failure: CloneWithNoise GetRootOfUnity()";
+		EXPECT_EQ(ilv.GetFormat(), ilvClone.GetFormat())
+			<< "Failure: CloneWithNoise GetFormat()";
 	}
 }
-
-TEST(UTILVector2n, clone_operations) {
-	clone_operations<BigBinaryInteger, BigBinaryVector, ILParams, ILVector2n>();
+//Instantiations of clone_ops()
+TEST(UTILVector2n, clone_ops) {
+	clone_ops<BigBinaryInteger, BigBinaryVector, ILParams, ILVector2n>();
 }
 
-TEST(UTILNativeVector2n, clone_operations) {
-	clone_operations<native64::BigBinaryInteger, native64::BigBinaryVector, native64::ILParams, native64::ILVector2n>();
+TEST(UTILNativeVector2n, clone_ops) {
+	clone_ops<native64::BigBinaryInteger, native64::BigBinaryVector, native64::ILParams, native64::ILVector2n>();
 }
 
-//TEST(UTILVectorArray2n, clone_operations) {
-//	clone_operations<BigBinaryInteger, BigBinaryVector, ILDCRTParams, ILVectorArray2n>();
+//TEST(UTILVectorArray2n, clone_ops) {
+//	clone_ops<BigBinaryInteger, BigBinaryVector, ILDCRTParams, ILVectorArray2n>();
 //}
 
+//template for arithmetic_ops_element()
 template<typename IntType, typename VecType, typename ParmType, typename Element>
-void arithmetic_operations_element() {
+void arithmetic_ops_element() {
 	usint m = 8;
 	IntType primeModulus("73");
 	IntType primitiveRootOfUnity("22");
@@ -487,10 +486,7 @@ void arithmetic_operations_element() {
 
 	Element ilv(ilparams);
 	VecType bbv(m/2, primeModulus);
-	bbv.SetValAtIndex(0, "2");
-	bbv.SetValAtIndex(1, "1");
-	bbv.SetValAtIndex(2, "4");
-	bbv.SetValAtIndex(3, "1");
+	bbv = {"2","1","4","1"};
 	ilv.SetValues(bbv, ilv.GetFormat());
 
 	IntType element("1");
@@ -498,89 +494,73 @@ void arithmetic_operations_element() {
 	{
 		Element ilvector2n(ilparams);
 		VecType bbv1(m/2, primeModulus);
-		bbv1.SetValAtIndex(0, "1");
-		bbv1.SetValAtIndex(1, "3");
-		bbv1.SetValAtIndex(2, "4");
-		bbv1.SetValAtIndex(3, "1");
+		bbv1 = {"1","3","4","1"};
 		ilvector2n.SetValues(bbv1, Format::COEFFICIENT);
 
 		ilvector2n = ilvector2n.Plus(element);
-
-		EXPECT_EQ(IntType::TWO, ilvector2n.GetValAtIndex(0));
-		EXPECT_EQ(IntType::THREE, ilvector2n.GetValAtIndex(1));
-		EXPECT_EQ(IntType::FOUR, ilvector2n.GetValAtIndex(2));
-		EXPECT_EQ(IntType::ONE, ilvector2n.GetValAtIndex(3));
+		VecType expected(4, primeModulus);
+		expected = {"2","3","4","1"};
+		EXPECT_EQ(expected, ilvector2n.GetValues())
+			<<"Failure: Plus()";
 	}
-
 	{
 		Element ilvector2n = ilv.Minus(element);
-
-		EXPECT_EQ(IntType::ONE, ilvector2n.GetValAtIndex(0));
-		EXPECT_EQ(IntType::ZERO, ilvector2n.GetValAtIndex(1));
-		EXPECT_EQ(IntType::THREE, ilvector2n.GetValAtIndex(2));
-		EXPECT_EQ(IntType::ZERO, ilvector2n.GetValAtIndex(3));
+		VecType expected(4, primeModulus);
+		expected = {"1","0","3","0"};
+		EXPECT_EQ(expected, ilvector2n.GetValues())
+			<<"Failure: Minus()";
 	}
-
 	{
 		IntType ele("2");
 		Element ilvector2n = ilv.Times(ele);
-
-		EXPECT_EQ(IntType::FOUR, ilvector2n.GetValAtIndex(0));
-		EXPECT_EQ(IntType::TWO, ilvector2n.GetValAtIndex(1));
-		EXPECT_EQ(IntType("8"), ilvector2n.GetValAtIndex(2));
-		EXPECT_EQ(IntType::TWO, ilvector2n.GetValAtIndex(3));
+		VecType expected(4, primeModulus);
+		expected = {"4","2","8","2"};
+		EXPECT_EQ(expected, ilvector2n.GetValues())
+			<<"Failure: Times()";
 	}
-
 	{
 		Element ilvector2n(ilparams);
 		VecType bbv1(m/2, primeModulus);
-		bbv1.SetValAtIndex(0, "1");
-		bbv1.SetValAtIndex(1, "3");
-		bbv1.SetValAtIndex(2, "4");
-		bbv1.SetValAtIndex(3, "1");
+		bbv1 = {"1","3","4","1"};
 		ilvector2n.SetValues(bbv1, Format::COEFFICIENT);
 
 		ilvector2n += element;
-
-		EXPECT_EQ(IntType::TWO, ilvector2n.GetValAtIndex(0));
-		EXPECT_EQ(IntType::THREE, ilvector2n.GetValAtIndex(1));
-		EXPECT_EQ(IntType::FOUR, ilvector2n.GetValAtIndex(2));
-		EXPECT_EQ(IntType::ONE, ilvector2n.GetValAtIndex(3));
+		VecType expected(4, primeModulus);
+		expected = {"2","3","4","1"};
+		EXPECT_EQ(expected, ilvector2n.GetValues())
+			<<"Failure: op+=";
 	}
-
 	{
 		Element ilvector2n = ilv.Minus(element);
+		VecType expected(4, primeModulus);
+		expected = {"1","0","3","0"};
+		EXPECT_EQ(expected, ilvector2n.GetValues())
+			<<"Failure: Minus()";
 
-		EXPECT_EQ(IntType::ONE, ilvector2n.GetValAtIndex(0));
-		EXPECT_EQ(IntType::ZERO, ilvector2n.GetValAtIndex(1));
-		EXPECT_EQ(IntType::THREE, ilvector2n.GetValAtIndex(2));
-		EXPECT_EQ(IntType::ZERO, ilvector2n.GetValAtIndex(3));
 	}
-
 	{
 		Element ilvector2n(ilv);
 		ilvector2n -= element;
-
-		EXPECT_EQ(IntType::ONE, ilvector2n.GetValAtIndex(0));
-		EXPECT_EQ(IntType::ZERO, ilvector2n.GetValAtIndex(1));
-		EXPECT_EQ(IntType::THREE, ilvector2n.GetValAtIndex(2));
-		EXPECT_EQ(IntType::ZERO, ilvector2n.GetValAtIndex(3));
+		VecType expected(4, primeModulus);
+		expected = {"1","0","3","0"};
+		EXPECT_EQ(expected, ilvector2n.GetValues())
+			<<"Failure: op-=";
 	}
-
+}
+//instantiations for arithmetic_ops_element()
+TEST(UTILVector2n, arithmetic_ops_element) {
+	arithmetic_ops_element<BigBinaryInteger, BigBinaryVector, ILParams, ILVector2n>();
 }
 
-TEST(UTILVector2n, arithmetic_operations_element) {
-	arithmetic_operations_element<BigBinaryInteger, BigBinaryVector, ILParams, ILVector2n>();
+TEST(UTILNativeVector2n, arithmetic_ops_element) {
+	arithmetic_ops_element<native64::BigBinaryInteger, native64::BigBinaryVector, native64::ILParams, native64::ILVector2n>();
 }
 
-TEST(UTILNativeVector2n, arithmetic_operations_element) {
-	arithmetic_operations_element<native64::BigBinaryInteger, native64::BigBinaryVector, native64::ILParams, native64::ILVector2n>();
-}
-
-//TEST(UTILVectorArray2n, arithmetic_operations_element) {
-//	arithmetic_operations_element<BigBinaryInteger, BigBinaryVector, ILDCRTParams, ILVectorArray2n>();
+//TEST(UTILVectorArray2n, arithmetic_ops_element) {
+//	arithmetic_ops_element<BigBinaryInteger, BigBinaryVector, ILDCRTParams, ILVectorArray2n>();
 //}
 
+//template fore other_methods()
 template<typename IntType, typename VecType, typename ParmType, typename Element>
 void other_methods() {
 	bool dbg_flag = false;
@@ -598,10 +578,7 @@ void other_methods() {
 
 	Element ilvector2n(ilparams);
 	VecType bbv1(m/2, primeModulus);
-	bbv1.SetValAtIndex(0, "2");
-	bbv1.SetValAtIndex(1, "1");
-	bbv1.SetValAtIndex(2, "3");
-	bbv1.SetValAtIndex(3, "2");
+	bbv1 = {"2","1","3","2"};
 	ilvector2n.SetValues(bbv1, Format::EVALUATION);
 
 	DEBUG("1");
@@ -609,109 +586,96 @@ void other_methods() {
 		Element ilv(ilvector2n);
 
 		ilv.AddILElementOne();
-
-		EXPECT_EQ(IntType::THREE, ilv.GetValAtIndex(0));
-		EXPECT_EQ(IntType::TWO, ilv.GetValAtIndex(1));
-		EXPECT_EQ(IntType::FOUR, ilv.GetValAtIndex(2));
-		EXPECT_EQ(IntType::THREE, ilv.GetValAtIndex(3));
+		VecType expected(4, primeModulus);
+		expected = {"3","2","4","3"};
+		EXPECT_EQ(expected, ilv.GetValues())
+			<<"Failure: AddILElementOne()";
 	}
 
 	DEBUG("2");
 	{
 		Element ilv(ilvector2n);
 		ilv = ilv.ModByTwo();
-
-		EXPECT_EQ(IntType::ZERO, ilv.GetValAtIndex(0));
-		EXPECT_EQ(IntType::ONE, ilv.GetValAtIndex(1));
-		EXPECT_EQ(IntType::ONE, ilv.GetValAtIndex(2));
-		EXPECT_EQ(IntType::ZERO, ilv.GetValAtIndex(3));
+		VecType expected(4, primeModulus);
+		expected = {"0","1","1","0"};
+		EXPECT_EQ(expected, ilv.GetValues())
+			<<"Failure: ModByTwo()";
 	}
 
 	DEBUG("3");
 	{
 		Element ilv(ilvector2n);
 		ilv.MakeSparse(2);
-
-		EXPECT_EQ(IntType::TWO, ilv.GetValAtIndex(0));
-		EXPECT_EQ(IntType::ZERO, ilv.GetValAtIndex(1));
-		EXPECT_EQ(IntType::THREE, ilv.GetValAtIndex(2));
-		EXPECT_EQ(IntType::ZERO, ilv.GetValAtIndex(3));
+		VecType expected(4, primeModulus);
+		expected = {"2","0","3","0"};
+		EXPECT_EQ(expected, ilv.GetValues())
+			<<"Failure: MakeSparse(2)";
 
 		Element ilv1(ilvector2n);
 		ilv1.MakeSparse(3);
+		expected = {"2","0","0","2"};
 
-		EXPECT_EQ(IntType::TWO, ilv1.GetValAtIndex(0));
-		EXPECT_EQ(IntType::ZERO, ilv1.GetValAtIndex(1));
-		EXPECT_EQ(IntType::ZERO, ilv1.GetValAtIndex(2));
-		EXPECT_EQ(IntType::TWO, ilv1.GetValAtIndex(3));
+		EXPECT_EQ(expected, ilv1.GetValues())
+			<<"Failure: MakeSparse(3)";
 	}
 
 	DEBUG("4");
 	{
 		Element ilv(ilparams);
 		VecType bbv(m/2, primeModulus);
-		bbv.SetValAtIndex(0, "2");
-		bbv.SetValAtIndex(1, "1");
-		bbv.SetValAtIndex(2, "3");
-		bbv.SetValAtIndex(3, "2");
+		bbv = {"2","1","3","2"};
 		ilv.SetValues(bbv, Format::COEFFICIENT);
 
 		ilv.Decompose();
 
-		EXPECT_EQ(2, ilv.GetLength());
+		EXPECT_EQ(2, ilv.GetLength())<<"Failure: Decompose() length";
 
-		EXPECT_EQ(IntType::TWO, ilv.GetValAtIndex(0)) << "ILVector2n_decompose: Values do not match between original and decomposed elements.";
-		EXPECT_EQ(IntType::THREE, ilv.GetValAtIndex(1)) << "ILVector2n_decompose: Values do not match between original and decomposed elements.";
+		EXPECT_EQ(IntType::TWO, ilv.GetValAtIndex(0)) 
+			<< "Failure: Decompose(): mismatch between original and decomposed elements at index 0.";
+		
+		EXPECT_EQ(IntType::THREE, ilv.GetValAtIndex(1)) 					<< "Failure: Decompose(): mismatch between original and decomposed elements at index 1.";
 	}
 
 	DEBUG("5");
 	{
 		Element ilv(ilparams);
 		VecType bbv(m/2, primeModulus);
-		bbv.SetValAtIndex(0, "2");
-		bbv.SetValAtIndex(1, "1");
-		bbv.SetValAtIndex(2, "3");
-		bbv.SetValAtIndex(3, "2");
+		bbv = {"2","1","3","2"};
 		ilv.SetValues(bbv, Format::COEFFICIENT);
 
 		ilv.SwitchFormat();
 
-		EXPECT_EQ(primeModulus, ilv.GetModulus());
-		EXPECT_EQ(primitiveRootOfUnity, ilv.GetRootOfUnity());
-		EXPECT_EQ(Format::EVALUATION, ilv.GetFormat());
-		EXPECT_EQ(IntType("69"), ilv.GetValAtIndex(0));
-		EXPECT_EQ(IntType("44"), ilv.GetValAtIndex(1));
-		EXPECT_EQ(IntType("65"), ilv.GetValAtIndex(2));
-		EXPECT_EQ(IntType("49"), ilv.GetValAtIndex(3));
-
+		EXPECT_EQ(primeModulus, ilv.GetModulus())
+			<<"Failure: SwitchFormat() ilv modulus";
+		EXPECT_EQ(primitiveRootOfUnity, ilv.GetRootOfUnity())
+			<<"Failure: SwitchFormat() ilv rootOfUnity";
+		EXPECT_EQ(Format::EVALUATION, ilv.GetFormat())
+			<<"Failure: SwitchFormat() ilv format";
+		VecType expected(4, primeModulus);
+		expected = {"69","44","65","49"};
+		EXPECT_EQ(expected, ilv.GetValues())<<"Failure: ivl.SwitchFormat() values";
 
 		Element ilv1(ilparams);
 		VecType bbv1(m/2, primeModulus);
-		bbv1.SetValAtIndex(0, "2");
-		bbv1.SetValAtIndex(1, "1");
-		bbv1.SetValAtIndex(2, "3");
-		bbv1.SetValAtIndex(3, "2");
+		bbv1 = {"2","1","3","2"};
 		ilv1.SetValues(bbv1, Format::EVALUATION);
 
 		ilv1.SwitchFormat();
 
-		EXPECT_EQ(primeModulus, ilv1.GetModulus());
-		EXPECT_EQ(primitiveRootOfUnity, ilv1.GetRootOfUnity());
-		EXPECT_EQ(Format::COEFFICIENT, ilv1.GetFormat());
-		EXPECT_EQ(IntType::TWO, ilv1.GetValAtIndex(0));
-		EXPECT_EQ(IntType::THREE, ilv1.GetValAtIndex(1));
-		EXPECT_EQ(IntType("50"), ilv1.GetValAtIndex(2));
-		EXPECT_EQ(IntType::THREE, ilv1.GetValAtIndex(3));
+		EXPECT_EQ(primeModulus, ilv1.GetModulus())
+			<<"Failure: SwitchFormat() ilv1 modulus";
+		EXPECT_EQ(primitiveRootOfUnity, ilv1.GetRootOfUnity())
+			<<"Failure: SwitchFormat() ilv1 rootOfUnity";
+		EXPECT_EQ(Format::COEFFICIENT, ilv1.GetFormat())
+			<<"Failure: SwitchFormat() ilv1 format";
+		expected = {"2","3","50","3"};
+		EXPECT_EQ(expected, ilv1.GetValues())<<"Failure: ivl1.SwitchFormat() values";
 	}
-
 	DEBUG("6");
 	{
 		Element ilv(ilparams);
 		VecType bbv(m/2, primeModulus);
-		bbv.SetValAtIndex(0, "2");
-		bbv.SetValAtIndex(1, "1");
-		bbv.SetValAtIndex(2, "3");
-		bbv.SetValAtIndex(3, "2");
+		bbv = {"2","1","3","2"};
 		ilv.SetValues(bbv, Format::COEFFICIENT);
 
 		Element ilvector2n1(ilparams);
@@ -721,82 +685,74 @@ void other_methods() {
 		Element ilvector2n5(bug, ilparams);
 		Element ilvector2n6(dug, ilparams);
 
-		EXPECT_EQ(true, ilvector2n1.IsEmpty());
-		EXPECT_EQ(true, ilvector2n2.IsEmpty());
-		EXPECT_EQ(false, ilvector2n3.IsEmpty());
-		EXPECT_EQ(false, ilvector2n4.IsEmpty());
-		EXPECT_EQ(false, ilvector2n5.IsEmpty());
-		EXPECT_EQ(false, ilvector2n6.IsEmpty());
+		EXPECT_EQ(true, ilvector2n1.IsEmpty())
+			<<"Failure: DestroyPreComputedSamples() 2n1";
+		EXPECT_EQ(true, ilvector2n2.IsEmpty())
+			<<"Failure: DestroyPreComputedSamples() 2n2";
+		EXPECT_EQ(false, ilvector2n3.IsEmpty())
+			<<"Failure: DestroyPreComputedSamples() 2n3";
+		EXPECT_EQ(false, ilvector2n4.IsEmpty())
+			<<"Failure: DestroyPreComputedSamples() 2n4";
+		EXPECT_EQ(false, ilvector2n5.IsEmpty())
+			<<"Failure: DestroyPreComputedSamples() 2n5";
+		EXPECT_EQ(false, ilvector2n6.IsEmpty())
+			<<"Failure: DestroyPreComputedSamples() 2n6";
 	}
 
 	DEBUG("7");
 	{
 		Element ilv(ilparams);
 		VecType bbv(m/2, primeModulus);
-		bbv.SetValAtIndex(0, "56");
-		bbv.SetValAtIndex(1, "1");
-		bbv.SetValAtIndex(2, "37");
-		bbv.SetValAtIndex(3, "2");
+		bbv ={"56","1","37","2"};
 		ilv.SetValues(bbv, Format::COEFFICIENT);
 
 		IntType modulus("17");
 		IntType rootOfUnity("15");
 
 		ilv.SwitchModulus(modulus, rootOfUnity);
-
-		EXPECT_EQ(IntType::ZERO, ilv.GetValAtIndex(0));
-		EXPECT_EQ(IntType::ONE, ilv.GetValAtIndex(1));
-		EXPECT_EQ(IntType("15"), ilv.GetValAtIndex(2));
-		EXPECT_EQ(IntType::TWO, ilv.GetValAtIndex(3));
+		VecType expected(4, modulus);
+		expected = {"0","1","15","2"};
+		EXPECT_EQ(expected, ilv.GetValues())
+			<<"Failure: SwitchModulus()";
 
 		Element ilv1(ilparams);
 		VecType bbv1(m/2, primeModulus);
-		bbv1.SetValAtIndex(0, "56");
-		bbv1.SetValAtIndex(1, "43");
-		bbv1.SetValAtIndex(2, "35");
-		bbv1.SetValAtIndex(3, "28");
+		bbv1 ={"56","43","35","28"};
 		ilv1.SetValues(bbv1, Format::COEFFICIENT);
 
 		IntType modulus1("193");
 		IntType rootOfUnity1("150");
 
 		ilv1.SwitchModulus(modulus1, rootOfUnity1);
-
-		EXPECT_EQ(IntType("176"), ilv1.GetValAtIndex(0));
-		EXPECT_EQ(IntType("163"), ilv1.GetValAtIndex(1));
-		EXPECT_EQ(IntType("35"), ilv1.GetValAtIndex(2));
-		EXPECT_EQ(IntType("28"), ilv1.GetValAtIndex(3));
+		VecType expected2(4, modulus1);
+		expected2 = {"176","163","35","28"};
+		EXPECT_EQ(expected2, ilv1.GetValues())
+			<<"Failure: SwitchModulus()";
 	}
 
 	DEBUG("8");
 	{
 		Element ilv(ilparams);
 		VecType bbv(m/2, primeModulus);
-		bbv.SetValAtIndex(0, "2");
-		bbv.SetValAtIndex(1, "4");
-		bbv.SetValAtIndex(2, "3");
-		bbv.SetValAtIndex(3, "2");
+		bbv = {"2","4","3","2"};
 		ilv.SetValues(bbv, Format::COEFFICIENT);
 
 		Element ilv1(ilparams);
 		VecType bbv1(m/2, primeModulus);
-		bbv1.SetValAtIndex(0, "2");
-		bbv1.SetValAtIndex(1, "0");
-		bbv1.SetValAtIndex(2, "3");
-		bbv1.SetValAtIndex(3, "2");
+		bbv1 = {"2","0","3","2"};
 		ilv1.SetValues(bbv1, Format::COEFFICIENT);
 
 		Element ilv2(ilparams);
 		VecType bbv2(m/2, primeModulus);
-		bbv2.SetValAtIndex(0, "2");
-		bbv2.SetValAtIndex(1, "1");
-		bbv2.SetValAtIndex(2, "3");
-		bbv2.SetValAtIndex(3, "2");
+		bbv2 = {"2","1","3","2"};
 		ilv2.SetValues(bbv2, Format::COEFFICIENT);
 
-		EXPECT_EQ(true, ilv.InverseExists());
-		EXPECT_EQ(false, ilv1.InverseExists());
-		EXPECT_EQ(false, ilv1.InverseExists());
+		EXPECT_EQ(true, ilv.InverseExists())
+			<<"Failure: ilv.InverseExists()";
+		EXPECT_EQ(false, ilv1.InverseExists())
+			<<"Failure: ilv1.InverseExists()";
+		EXPECT_EQ(true, ilv2.InverseExists())
+			<<"Failure: ilv2.InverseExists()";
 	}
 
 	DEBUG("9");
@@ -821,10 +777,7 @@ void other_methods() {
 
 		Element ilv1(ilparams);
 		VecType bbv1(m/2, primeModulus);
-		bbv1.SetValAtIndex(0, "2");
-		bbv1.SetValAtIndex(1, "4");
-		bbv1.SetValAtIndex(2, "3");
-		bbv1.SetValAtIndex(3, "2");
+		bbv1 = {"2","4","3","2"};
 		ilv1.SetValues(bbv1, Format::EVALUATION);
 
 		Element ilvInverse1 = ilv1.MultiplicativeInverse();
@@ -832,32 +785,37 @@ void other_methods() {
 
 		for (usint i = 0; i < m/2; ++i)
 		{
-			EXPECT_EQ(IntType::ONE, ilvProduct1.GetValAtIndex(i));
+			EXPECT_EQ(IntType::ONE, ilvProduct1.GetValAtIndex(i))
+				<<"Failure: ilvProduct1.MultiplicativeInverse() @ index "<<i;
 		}
-
 	}
 
-	DEBUG("B");
+	DEBUG("A");
+	{
+		std::cout<<"this might fail"<<std::endl;
+		Element ilv(ilparams);
+		VecType bbv(m/2, primeModulus);
+		bbv = {"56","1","37","1"};
+		ilv.SetValues(bbv, Format::COEFFICIENT);
+		
+		EXPECT_EQ(36, ilv.Norm())<<"Failure: Norm()";
+	}
+	DEBUG("B");	
 	{
 		Element ilv(ilparams);
 		VecType bbv(m/2, primeModulus);
-		bbv.SetValAtIndex(0, "56");
-		bbv.SetValAtIndex(1, "1");
-		bbv.SetValAtIndex(2, "37");
-		bbv.SetValAtIndex(3, "2");
+		bbv = {"56","1","37","2"};
 		ilv.SetValues(bbv, Format::COEFFICIENT);
 
 		usint index = 3;
 		Element ilvAuto(ilv.AutomorphismTransform(index));
-
-		EXPECT_EQ(IntType::ONE, ilvAuto.GetValAtIndex(0));
-		EXPECT_EQ(IntType("56"), ilvAuto.GetValAtIndex(1));
-		EXPECT_EQ(IntType::TWO, ilvAuto.GetValAtIndex(2));
-		EXPECT_EQ(IntType("37"), ilvAuto.GetValAtIndex(3));
+		VecType expected(4, primeModulus);
+		expected = {"1","56","2","37"};
+		EXPECT_EQ(expected, ilvAuto.GetValues())
+			<<"Failure: AutomorphismTransform()";
 	}
-
 }
-
+//Instantiations of other_methods()
 TEST(UTILVector2n, other_methods) {
 	other_methods<BigBinaryInteger, BigBinaryVector, ILParams, ILVector2n>();
 }
@@ -875,9 +833,10 @@ void cyclotomicOrder_test() {
 	usint m = 8;
 	shared_ptr<ParmType> ilparams0( new ParmType(m, IntType("17661"), IntType("8765")) );
 	Element ilv0(ilparams0);
-	EXPECT_EQ(ilparams0->GetCyclotomicOrder(), ilv0.GetCyclotomicOrder());
+	EXPECT_EQ(ilparams0->GetCyclotomicOrder(), ilv0.GetCyclotomicOrder())
+		<< "Failure: GetCyclotomicOrder()";
 }
-
+//Instantiations of cyclotomicOrder_test()
 TEST(UTILVector2n, cyclotomicOrder_test) {
 	cyclotomicOrder_test<BigBinaryInteger, BigBinaryVector, ILParams, ILVector2n>();
 }
@@ -890,7 +849,7 @@ TEST(UTILVectorArray2n, cyclotomicOrder_test) {
 	cyclotomicOrder_test<BigBinaryInteger, BigBinaryVector, ILDCRTParams, ILVectorArray2n>();
 }
 
-// this test is only for ILVector2n so isn't templated
+// this test is only for ILVectorArray2n so isn't templated
 TEST(UTILVectorArray2n, constructors_test) {
 
 	bool dbg_flag = false;
@@ -1064,33 +1023,28 @@ void signed_mod_tests() {
 
 	Element ilvector2n1(ilparams,COEFFICIENT);
 	VecType bbv1(m / 2, primeModulus);
-	bbv1.SetValAtIndex(0, "62");
-	bbv1.SetValAtIndex(1, "7");
-	bbv1.SetValAtIndex(2, "65");
-	bbv1.SetValAtIndex(3, "8");
+	bbv1 = {"62","7","65","8"};
 	ilvector2n1.SetValues(bbv1, ilvector2n1.GetFormat());
 
 	{
 		Element ilv1(ilparams, COEFFICIENT);
 		ilv1 = ilvector2n1.SignedMod(IntType::TWO);
-
-		EXPECT_EQ(IntType::ONE, ilv1.GetValAtIndex(0)) << "ILVector2n.SignedMod fails.\n";
-		EXPECT_EQ(IntType::ONE, ilv1.GetValAtIndex(1)) << "ILVector2n.SignedMod fails.\n";
-		EXPECT_EQ(IntType::ZERO, ilv1.GetValAtIndex(2)) << "ILVector2n.SignedMod fails.\n";
-		EXPECT_EQ(IntType::ZERO, ilv1.GetValAtIndex(3)) << "ILVector2n.SignedMod fails.\n";
+		VecType expected(4, primeModulus);
+		expected = {"1","1","0","0"};
+		EXPECT_EQ(expected, ilv1.GetValues())
+			<<"Failure: ilv1.SignedMod(TWO)";
 	}
 
 	{
 		Element ilv1(ilparams, COEFFICIENT);
 		ilv1 = ilvector2n1.SignedMod(IntType::FIVE);
-
-		EXPECT_EQ(IntType::FOUR, ilv1.GetValAtIndex(0)) << "ILVector2n.SignedMod fails.\n";
-		EXPECT_EQ(IntType::TWO, ilv1.GetValAtIndex(1)) << "ILVector2n.SignedMod fails.\n";
-		EXPECT_EQ(IntType::TWO, ilv1.GetValAtIndex(2)) << "ILVector2n.SignedMod fails.\n";
-		EXPECT_EQ(IntType::THREE, ilv1.GetValAtIndex(3)) << "ILVector2n.SignedMod fails.\n";
+		VecType expected(4, primeModulus);
+		expected = {"4","2","2","3"};
+		EXPECT_EQ(expected, ilv1.GetValues())
+			<<"Failure: ilv1.SignedMod(FIVE)";
 	}
 }
-
+//Instantiations of signed_mod_tests()
 TEST(UTILVector2n, signed_mod_tests) {
 	signed_mod_tests<BigBinaryInteger, BigBinaryVector, ILParams, ILVector2n>();
 }
@@ -1114,7 +1068,7 @@ void transposition_test() {
 	shared_ptr<ParmType> ilparams(new ParmType(m, q, primitiveRootOfUnity));
 
 	Element ilvector2n1(ilparams, COEFFICIENT);
-	ilvector2n1 = { 31,21,15,34 };
+	ilvector2n1 = {"31","21","15","34"};
 
 	// converts to evaluation representation
 	ilvector2n1.SwitchFormat();
@@ -1131,18 +1085,15 @@ void transposition_test() {
 	Element ilvector2n2(ilparams);
 
 	VecType bbv0(m / 2, q);
-	bbv0.SetValAtIndex(0, "31");
-	bbv0.SetValAtIndex(1, "39");
-	bbv0.SetValAtIndex(2, "58");
-	bbv0.SetValAtIndex(3, "52");
+	bbv0 = {"31","39","58","52"};
 	ilvector2n2.SetValues(bbv0, Format::COEFFICIENT);
 
 	DEBUG("ilvector2n2 a "<<ilvector2n2);
 
-	EXPECT_EQ(ilvector2n2, ilvector2n1);
-
+	EXPECT_EQ(ilvector2n2, ilvector2n1)
+		<<"Failure: transposition test";
 }
-
+//Instantiations of transposition_test()
 TEST(UTILVector2n, transposition_test) {
 	transposition_test<BigBinaryInteger, BigBinaryVector, ILParams, ILVector2n>();
 }
@@ -1152,14 +1103,20 @@ TEST(UTILNativeVector2n, transposition_test) {
 }
 
 // ILVectorArray2n Only
-TEST(UTILVectorArray2n, getters_and_operators_tests) {
+TEST(UTILVectorArray2n, getters_and_operators) {
 	usint m = 8;
 	usint towersize = 3;
 
 	std::vector<native64::BigBinaryInteger> moduli(towersize);
-	moduli = {native64::BigBinaryInteger("8353"), native64::BigBinaryInteger("8369"), native64::BigBinaryInteger("8513")};
+	moduli = {native64::BigBinaryInteger("8353"),
+		  native64::BigBinaryInteger("8369"),
+ 		  native64::BigBinaryInteger("8513")};
+
 	std::vector<native64::BigBinaryInteger> rootsOfUnity(towersize);
-	rootsOfUnity = {native64::BigBinaryInteger("8163"), native64::BigBinaryInteger("6677"), native64::BigBinaryInteger("156")};
+
+	rootsOfUnity = {native64::BigBinaryInteger("8163"), 
+			native64::BigBinaryInteger("6677"), 
+			native64::BigBinaryInteger("156")};
 
 	BigBinaryInteger modulus(BigBinaryInteger::ONE);
 	for (usint i = 0; i < towersize; ++i)
@@ -1173,10 +1130,7 @@ TEST(UTILVectorArray2n, getters_and_operators_tests) {
 
 	native64::ILVector2n ilv0(ilparams0);
 	native64::BigBinaryVector bbv0(m/2, moduli[0]);
-	bbv0.SetValAtIndex(0, "2");
-	bbv0.SetValAtIndex(1, "4");
-	bbv0.SetValAtIndex(2, "3");
-	bbv0.SetValAtIndex(3, "2");
+	bbv0 = {"2","4","3","2"};
 	ilv0.SetValues(bbv0, Format::EVALUATION);
 
 	native64::ILVector2n ilv1(ilv0);
@@ -1222,10 +1176,7 @@ TEST(UTILVectorArray2n, getters_and_operators_tests) {
 	{
 		native64::ILVector2n ilvect0(ilparams0);
 		native64::BigBinaryVector bbv1(m/2, moduli[0]);
-		bbv1.SetValAtIndex(0, "2");
-		bbv1.SetValAtIndex(1, "1");
-		bbv1.SetValAtIndex(2, "3");
-		bbv1.SetValAtIndex(3, "2");
+		bbv1 = {"2","1","3","2"};
 		ilvect0.SetValues(bbv1, Format::EVALUATION);
 
 		native64::ILVector2n ilvect1(ilvect0);
@@ -1246,14 +1197,21 @@ TEST(UTILVectorArray2n, getters_and_operators_tests) {
 
 }
 
-TEST(UTILVectorArray2n, arithmetic_operations_element_2) {
+TEST(UTILVectorArray2n, arithmetic_ops_element_2) {
 	usint m = 8;
 	usint towersize = 3;
 
 	std::vector<native64::BigBinaryInteger> moduli(towersize);
-	moduli = {native64::BigBinaryInteger("8353"), native64::BigBinaryInteger("8369"), native64::BigBinaryInteger("8513")};
+	moduli = {
+		native64::BigBinaryInteger("8353"), 
+		native64::BigBinaryInteger("8369"), 
+		native64::BigBinaryInteger("8513")
+	};
 	std::vector<native64::BigBinaryInteger> rootsOfUnity(towersize);
-	rootsOfUnity = {native64::BigBinaryInteger("8163"), native64::BigBinaryInteger("6677"), native64::BigBinaryInteger("156")};
+	rootsOfUnity = {
+		native64::BigBinaryInteger("8163"), 
+		native64::BigBinaryInteger("6677"), 
+		native64::BigBinaryInteger("156")};
 
 	BigBinaryInteger modulus(BigBinaryInteger::ONE);
 	for (usint i = 0; i < towersize; ++i)
@@ -1267,10 +1225,7 @@ TEST(UTILVectorArray2n, arithmetic_operations_element_2) {
 
 	native64::ILVector2n ilv0(ilparams0);
 	native64::BigBinaryVector bbv0(m/2, moduli[0]);
-	bbv0.SetValAtIndex(0, "2");
-	bbv0.SetValAtIndex(1, "4");
-	bbv0.SetValAtIndex(2, "3");
-	bbv0.SetValAtIndex(3, "2");
+	bbv0 = {"2","4","3","2"};
 	ilv0.SetValues(bbv0, Format::EVALUATION);
 
 	native64::ILVector2n ilv1(ilv0);
@@ -1290,10 +1245,7 @@ TEST(UTILVectorArray2n, arithmetic_operations_element_2) {
 
 	native64::ILVector2n ilvect0(ilparams0);
 	native64::BigBinaryVector bbv1(m/2, moduli[0]);
-	bbv1.SetValAtIndex(0, "2");
-	bbv1.SetValAtIndex(1, "1");
-	bbv1.SetValAtIndex(2, "2");
-	bbv1.SetValAtIndex(3, "0");
+	bbv1 = {"2","1","2","0"};
 	ilvect0.SetValues(bbv1, Format::EVALUATION);
 
 	native64::ILVector2n ilvect1(ilvect0);
@@ -1452,10 +1404,7 @@ TEST(UTILVectorArray2n, arithmetic_operations_element_2) {
 	{
 		native64::ILVector2n ilvS0(ilparams0);
 		native64::BigBinaryVector bbvS0(m/2, moduli[0]);
-		bbvS0.SetValAtIndex(0, "23462");
-		bbvS0.SetValAtIndex(1, "467986");
-		bbvS0.SetValAtIndex(2, "33863");
-		bbvS0.SetValAtIndex(3, "2113");
+		bbvS0 = {"23462","467986","33863","2113"};
 		ilvS0.SetValues(bbvS0, Format::EVALUATION);
 		std::cout << ilvS0.GetValues() << std::endl;
 
@@ -1574,7 +1523,7 @@ TEST(UTILVectorArray2n, decompose_test) {
 }
 
 template<typename IntType, typename VecType, typename ParmType, typename Element>
-void ensures_mod_operation_during_operations_on_two_ILVector2ns() {
+void ensures_mod_operation_during_ops_on_two_ILVector2ns() {
 
 	usint order = 8;
 	usint nBits = 7;
@@ -1613,15 +1562,15 @@ void ensures_mod_operation_during_operations_on_two_ILVector2ns() {
 
 }
 
-TEST(UTILVector2n, ensures_mod_operation_during_operations_on_two_ILVector2ns) {
-	ensures_mod_operation_during_operations_on_two_ILVector2ns<BigBinaryInteger, BigBinaryVector, ILParams, ILVector2n>();
+TEST(UTILVector2n, ensures_mod_operation_during_ops_on_two_ILVector2ns) {
+	ensures_mod_operation_during_ops_on_two_ILVector2ns<BigBinaryInteger, BigBinaryVector, ILParams, ILVector2n>();
 }
 
-TEST(UTILNativeVector2n, ensures_mod_operation_during_operations_on_two_ILVector2ns) {
-	ensures_mod_operation_during_operations_on_two_ILVector2ns<native64::BigBinaryInteger, native64::BigBinaryVector, native64::ILParams, native64::ILVector2n>();
+TEST(UTILNativeVector2n, ensures_mod_operation_during_ops_on_two_ILVector2ns) {
+	ensures_mod_operation_during_ops_on_two_ILVector2ns<native64::BigBinaryInteger, native64::BigBinaryVector, native64::ILParams, native64::ILVector2n>();
 }
 
-TEST(UTILVectorArray2n, ensures_mod_operation_during_operations_on_two_ILVectorArray2ns){
+TEST(UTILVectorArray2n, ensures_mod_operation_during_ops_on_two_ILVectorArray2ns){
 
 	usint order = 16;
 	usint nBits = 24;
