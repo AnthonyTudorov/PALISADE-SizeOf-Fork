@@ -99,6 +99,14 @@ namespace lbcrypto {
 		return ring;
 	}
 
+	void PackedIntPlaintextEncoding::Destroy()
+	{
+		initRoot = BigBinaryInteger::ZERO;
+		rootOfUnityTable.clear();
+		bigMod = BigBinaryInteger::ZERO;
+		bigRoot = BigBinaryInteger::ZERO;
+	}
+
 	void PackedIntPlaintextEncoding::Pack(ILVector2n *ring, const BigBinaryInteger &modulus) const {
 
 		usint n = ring->GetRingDimension(); //ring dimension
