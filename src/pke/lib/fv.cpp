@@ -477,7 +477,10 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::KeySwitch(const share
 	std::vector<Element> digitsC2;
 
 	Element ct0(c[0]);
-	ct0.SwitchFormat();
+
+	//in the case of EvalMult, c[0] is initially in coefficient format and needs to be switched to evaluation format
+	if (c.size() > 2)
+		ct0.SwitchFormat();
 	
 	Element ct1;
 
@@ -570,6 +573,62 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmSHEFV<Element>::EvalMultKeyGen(
 	
 }
 
+template <class Element>
+shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalAutomorphism(const shared_ptr<Ciphertext<Element>> ciphertext, usint i,
+	const std::vector<shared_ptr<LPEvalKey<Element>>> &evalKeys) const
+{
+
+	shared_ptr<Ciphertext<Element>> permutedCiphertext(new Ciphertext<Element>(*ciphertext));
+
+	const std::vector<Element> &c = ciphertext->GetElements();
+
+	std::vector<Element> cNew;
+
+	cNew.push_back(std::move(c[0].AutomorphismTransform(i)));
+
+	cNew.push_back(std::move(c[1].AutomorphismTransform(i)));
+
+	permutedCiphertext->SetElements(std::move(cNew));
+
+	return this->KeySwitch(evalKeys[(i - 3) / 2], permutedCiphertext);
+
+}
+
+template <class Element>
+shared_ptr<std::vector<shared_ptr<LPEvalKey<Element>>>> LPAlgorithmSHEFV<Element>::EvalAutomorphismKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey,
+	usint size, bool flagEvalSum) const
+{
+
+	const Element &privateKeyElement = privateKey->GetPrivateElement();
+	usint m = privateKeyElement.GetCyclotomicOrder();
+
+	shared_ptr<LPPrivateKey<Element>> tempPrivateKey(new LPPrivateKey<Element>(privateKey->GetCryptoContext()));
+
+	shared_ptr<std::vector<shared_ptr<LPEvalKey<Element>>>> evalKeys(new std::vector<shared_ptr<LPEvalKey<Element>>>());
+
+	if (size > m / 2 - 1)
+		throw std::runtime_error("size exceeds allowed limit: maximum is m/2");
+	else {
+
+		usint i = 3;
+
+		for (usint index = 0; index < size; index++)
+		{
+			Element permutedPrivateKeyElement = privateKeyElement.AutomorphismTransform(i);
+
+			tempPrivateKey->SetPrivateElement(permutedPrivateKeyElement);
+
+			evalKeys->push_back(this->KeySwitchGen(tempPrivateKey, privateKey));
+
+			i = i + 2;
+		}
+
+	}
+
+	return evalKeys;
+
+}
+
 //Currently DISABLED at the scheme level
 template <class Element>
 shared_ptr<LPEvalKey<Element>> LPAlgorithmPREFV<Element>::ReKeyGen(const shared_ptr<LPPrivateKey<Element>> newSK,
@@ -598,8 +657,8 @@ LPPublicKeyEncryptionSchemeFV<Element>::LPPublicKeyEncryptionSchemeFV(std::bitse
 	if (mask[SHE])
 		this->m_algorithmSHE = new LPAlgorithmSHEFV<Element>();
 	// PRE for FV is not currently enabled. Needs to be debugged.
-	//if (mask[PRE])
-	//	this->m_algorithmPRE = new LPAlgorithmPREFV<Element>(); 
+	if (mask[PRE])
+		this->m_algorithmPRE = new LPAlgorithmPREFV<Element>(); 
 
 }
 
@@ -617,12 +676,12 @@ void LPPublicKeyEncryptionSchemeFV<Element>::Enable(PKESchemeFeature feature) {
 			this->m_algorithmSHE = new LPAlgorithmSHEFV<Element>();
 		break;
 	// PRE for FV is not currently enabled. Needs to be debugged.
-	//case PRE:
-	//	if (this->m_algorithmPRE == NULL)
-	//		this->m_algorithmPRE = new LPAlgorithmPREFV<Element>();
-	//	if (this->m_algorithmSHE == NULL)
-	//		this->m_algorithmSHE = new LPAlgorithmSHEFV<Element>();
-	//	break; 
+	case PRE:
+		if (this->m_algorithmPRE == NULL)
+			this->m_algorithmPRE = new LPAlgorithmPREFV<Element>();
+		if (this->m_algorithmSHE == NULL)
+			this->m_algorithmSHE = new LPAlgorithmSHEFV<Element>();
+		break; 
 
 	}
 }
