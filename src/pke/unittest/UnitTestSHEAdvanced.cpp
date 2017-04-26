@@ -553,22 +553,18 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 	skNewOldElement.DropLastElement();
 	sk2->SetPrivateElement(skNewOldElement);
 
-	std::vector<usint> firstElement(2048);
-	firstElement.at(0) = 8;
-	firstElement.at(1) = 5;
-	firstElement.at(2) = 4;
-
-	std::fill(firstElement.begin() + 3, firstElement.end(), 0);
+	std::vector<usint> firstElement(8,0);
+	firstElement[0] = 8;
+	firstElement[1] = 5;
+	firstElement[2] = 4;
 
 	IntPlaintextEncoding firstElementEncoding(firstElement);
 
-	std::vector<usint> secondElement(2048);
-	secondElement.at(0) = 7;
-	secondElement.at(1) = 4;
-	secondElement.at(2) = 2;
+	std::vector<usint> secondElement(8,0);
+	secondElement[0] = 7;
+	secondElement[1] = 4;
+	secondElement[2] = 2;
 
-
-	std::fill(secondElement.begin() + 3, secondElement.end(), 0);
 	IntPlaintextEncoding secondElementEncoding(secondElement);
 
 	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertextElementOne;
@@ -577,12 +573,23 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 	ciphertextElementOne = cc.Encrypt(kp.publicKey, firstElementEncoding, false);
 	ciphertextElementTwo = cc.Encrypt(kp.publicKey, secondElementEncoding, false);
 
+	shared_ptr<Ciphertext<ILVectorArray2n>> mResult = cc.EvalMult(ciphertextElementOne[0], ciphertextElementTwo[0]);
+	IntPlaintextEncoding multresults;
+	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> tempvec( { mResult } );
+	cc.Decrypt(sk2, tempvec, &multresults, false);
+
 	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> cResult = cc.ComposedEvalMult(ciphertextElementOne, ciphertextElementTwo);
+
 	cResult.at(0) = cc.KeySwitch(KeySwitchHint, cResult.at(0));
 
 	IntPlaintextEncoding results;
 
 	cc.Decrypt(sk2, cResult, &results, false);
+
+	cout << firstElementEncoding << endl;
+	cout << secondElementEncoding << endl;
+	cout << multresults << endl;
+	cout << results << endl;
 
 	EXPECT_EQ(results.at(0), 2);
 	EXPECT_EQ(results.at(1), 4);

@@ -106,19 +106,21 @@ inline CryptoContext<ILVectorArray2n> GenCryptoContextElementArrayBV(usint ORDER
 
 
 inline CryptoContext<ILVector2n> GenCryptoContextElementFV(usint ORDER, usint ptm, usint bits=PrimeBits) {
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(ptm, 1.006, 2, 4, 0, 1, 0);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(ptm, 1.006, 16, 4, 0, 3, 0);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(PRE);
 	cc.Enable(SHE);
+	std::cout << *cc.GetCryptoParameters() << std::endl;
 
 	return cc;
 }
 
 inline CryptoContext<ILVectorArray2n> GenCryptoContextElementArrayFV(usint ORDER, usint ntowers, usint ptm, usint bits=PrimeBits) {
-	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextFV(ptm, 1.006, 2, 4, 0, 1, 0);
+	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextFV(ptm, 1.006, 16, 4, 0, 3, 0);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(PRE);
 	cc.Enable(SHE);
+	std::cout << *cc.GetCryptoParameters() << std::endl;
 
 	return cc;
 }

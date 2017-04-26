@@ -269,6 +269,8 @@ TEST(UTFV, ILVector2n_FV_Optimized_Eval_Operations) {
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 
+	cout << *cc.GetCryptoParameters() << endl;
+
 	// Initialize the public key containers.
 	LPKeyPair<ILVector2n> kp;
 

@@ -703,7 +703,7 @@ namespace lbcrypto {
 	*/
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	void ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::ModReduce(const IntType &plaintextModulus) {
-	  bool dbg_flag = false;
+	  bool dbg_flag = true;
 		if(m_format != Format::EVALUATION) {
 			throw std::logic_error("Mod Reduce function expects EVAL Formatted ILVectorArrayImpl. It was passed COEFF Formatted ILVectorArrayImpl.");
 		}
@@ -711,28 +711,34 @@ namespace lbcrypto {
 		
 		usint lastTowerIndex = m_vectors.size() - 1;
 
+		DEBUG("ModReduce(" << plaintextModulus << ") on tower size " << m_vectors.size()<< " m=" << GetCyclotomicOrder());
+
 		ILVectorType towerT(m_vectors[lastTowerIndex]); //last tower that will be dropped
 		ILVectorType d(towerT);
 
 		//precomputations
-		IntType qt(m_vectors[lastTowerIndex].GetModulus().ConvertToInt());
-		DEBUG("qt: "<< qt.ToString());
-		DEBUG("plaintextModulus: "<< plaintextModulus.ToString());
-		IntType v(qt.ModInverse(plaintextModulus));
-		DEBUG("v: "<< v.ToString());
-		IntType a((v * qt).ModSub(IntType::ONE, plaintextModulus*qt));
-		//std::cout<<"a:	"<<a<<std::endl;
+		typename ILVectorType::Integer ptm(plaintextModulus.ConvertToInt());
+		typename ILVectorType::Integer qt(m_vectors[lastTowerIndex].GetModulus());
+		DEBUG("qt: "<< qt);
+		DEBUG("plaintextModulus: "<< ptm);
+		typename ILVectorType::Integer v(qt.ModInverse(ptm));
+		DEBUG("v: "<< v);
+		typename ILVectorType::Integer a((v * qt).ModSub(ILVectorType::Integer::ONE, ptm*qt));
+		DEBUG("a:	"<<a);
+
+		if( dbg_flag ) { DEBUG("before switch to " << ptm*qt); d.PrintValues(); }
 
 		//Since only positive values are being used for Discrete gaussian generator, a call to switch modulus needs to be done
-		d.SwitchModulus( ILVectorType::Integer((plaintextModulus*qt).ConvertToInt()), ILVectorType::Integer(d.GetRootOfUnity().ConvertToInt()));
+		d.SwitchModulus( ptm*qt, d.GetRootOfUnity() );
 			// FIXME NOT CHANGING ROOT OF UNITY-TODO: What to do with SwitchModulus and is it necessary to pass rootOfUnity
-		//d.PrintValues();
+		if( dbg_flag ) { DEBUG("after switch"); d.PrintValues(); }
 
 		//Calculating delta, step 2
-		ILVectorType delta(d.Times(a.ConvertToInt()));
-		//delta.PrintValues();
+		ILVectorType delta(d.Times(a));
+		if( dbg_flag ) { DEBUG("delta"); delta.PrintValues(); }
 
 		//Calculating d' = c + delta mod q (step 3)
+		// FIXME what is the point of going to size() if the last tower's about to be dropped??
 		for(usint i=0; i<m_vectors.size(); i++) {
 			ILVectorType temp(delta);
 			temp.SwitchModulus(m_vectors[i].GetModulus(), m_vectors[i].GetRootOfUnity());
@@ -741,9 +747,9 @@ namespace lbcrypto {
 
 		//step 4
 		DropLastElement();
-		std::vector<IntType> qtInverseModQi(m_vectors.size());
+		std::vector<ILVectorType::Integer> qtInverseModQi(m_vectors.size());
 		for(usint i=0; i<m_vectors.size(); i++) {
-			IntType mod = IntType(m_vectors[i].GetModulus().ConvertToInt());
+			const ILVectorType::Integer& mod = m_vectors[i].GetModulus();
 			qtInverseModQi[i] = qt.ModInverse(mod);
 			m_vectors[i] = qtInverseModQi[i].ConvertToInt() * m_vectors[i];
 		}
