@@ -2,6 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClInclude Include="..\..\..\..\src\pke\unittest\cryptolayertests.h" />
+    <ClInclude Include="..\..\..\..\test\include\gtest\gtest.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\src\pke\unittest\Main_TestAll.cpp" />
@@ -14,5 +15,6 @@
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestSHE.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestSHEAdvanced.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestStatisticalEval.cpp" />
+    <ClCompile Include="..\..\..\..\test\include\gtest\gtest-all.cc" />
   </ItemGroup>
 </Project>
