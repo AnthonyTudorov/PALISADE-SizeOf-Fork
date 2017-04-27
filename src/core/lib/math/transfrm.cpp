@@ -72,6 +72,9 @@ template<typename IntType, typename VecType>
 std::map<IntType, VecType> BluesteinFFT<IntType, VecType>::m_powersTableByRoot;
 
 template<typename IntType, typename VecType>
+std::map<IntType, VecType> BluesteinFFT<IntType, VecType>::m_RBTableByRoot;
+
+template<typename IntType, typename VecType>
 std::map<IntType, IntType> BluesteinFFT<IntType, VecType>::m_NTTModulus;
 
 DiscreteFourierTransform* DiscreteFourierTransform::m_onlyInstance = 0;
@@ -830,6 +833,32 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 	}
 
 	template<typename IntType, typename VecType>
+	void BluesteinFFT<IntType, VecType>::PreComputeRBTable(usint cycloOrder, const IntType &modulus, const IntType &root, const IntType &bigMod, const IntType &bigRoot) {
+		
+
+		const auto &rootTable = m_rootOfUnityTableByModulus[bigMod]; //assumes rootTable is precomputed
+
+		usint k2 = pow(2, ceil(log2(2 * cycloOrder - 1)));
+
+		auto rootInv = root.ModInverse(modulus);
+		VecType b(2 * cycloOrder - 1, modulus);
+		b.SetValAtIndex(cycloOrder - 1, IntType::ONE);
+		for (usint i = 1; i < cycloOrder; i++) {
+			auto iSqr = (i*i) % (2 * cycloOrder);
+			auto val = rootInv.ModExp(IntType(iSqr), modulus);
+			b.SetValAtIndex(cycloOrder - 1 + i, val);
+			b.SetValAtIndex(cycloOrder - 1 - i, val);
+		}
+
+		auto Rb = PadZeros(b, k2);
+		Rb.SetModulus(bigMod);
+
+		auto RB = NumberTheoreticTransform<IntType, VecType>::GetInstance().ForwardTransformIterative(Rb, rootTable, k2);
+		m_RBTableByRoot[root] = std::move(RB);
+
+	}
+
+	template<typename IntType, typename VecType>
 	VecType BluesteinFFT<IntType, VecType>::ForwardTransform(const VecType& element, const IntType& root, const usint cycloOrder) {
 		if (element.GetLength() != cycloOrder) {
 			throw std::runtime_error("expected size of element vector should be equal to cyclotomic order");
@@ -845,20 +874,11 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 
 		const VecType &powers = m_powersTableByRoot[root];
 
-		/*VecType &powers(cycloOrder, modulus);
-		powers.SetValAtIndex(0, IntType::ONE);
-		for (usint i = 1; i <cycloOrder; i++) {
-			auto iSqr = (i*i) % (2 * cycloOrder);
-			auto val = root.ModExp(IntType(iSqr), modulus);
-			powers.SetValAtIndex(i, val);
-		}*/
-
 		VecType x(element*powers);
 
-		//usint k2 = 2^NextPowerOfTwo(2* cycloOrder-1);
 		usint k2 = pow(2, ceil(log2(2 * cycloOrder - 1)));
 
-		auto rootInv = root.ModInverse(modulus);
+		/*auto rootInv = root.ModInverse(modulus);
 		VecType b(2 * cycloOrder - 1, modulus);
 		b.SetValAtIndex(cycloOrder - 1, IntType::ONE);
 		for (usint i = 1; i < cycloOrder; i++) {
@@ -866,13 +886,13 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 			auto val = rootInv.ModExp(IntType(iSqr), modulus);
 			b.SetValAtIndex(cycloOrder - 1 + i, val);
 			b.SetValAtIndex(cycloOrder - 1 - i, val);
-		}
+		}*/
 
 		auto Ra = PadZeros(x, k2);
-		auto Rb = PadZeros(b, k2);
+		//auto Rb = PadZeros(b, k2);
 
 		Ra.SetModulus(nttModulus);
-		Rb.SetModulus(nttModulus);
+		//Rb.SetModulus(nttModulus);
 
 		//std::cout << rootTable.GetValAtIndex(1) << std::endl;
 		//std::cout << nttModulus << std::endl;
@@ -881,7 +901,8 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 		//std::cout << Rb << std::endl;
 
 		auto RA = NumberTheoreticTransform<IntType, VecType>::GetInstance().ForwardTransformIterative(Ra, rootTable, k2);
-		auto RB = NumberTheoreticTransform<IntType, VecType>::GetInstance().ForwardTransformIterative(Rb, rootTable, k2);
+		//auto RB = NumberTheoreticTransform<IntType, VecType>::GetInstance().ForwardTransformIterative(Rb, rootTable, k2);
+		const auto &RB = m_RBTableByRoot[root];
 
 		auto RC = RA*RB;
 		auto Rc = NumberTheoreticTransform<IntType, VecType>::GetInstance().InverseTransformIterative(RC, rootTableInverse, k2);
@@ -983,8 +1004,11 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 
 		//precompute powers table 
 		if (BluesteinFFT<IntType, VecType>::GetInstance().m_powersTableByRoot[root].GetLength() == 0) {
-			BluesteinFFT<IntType, VecType>::GetInstance().PreComputePowers(cycloOrder, modulus, root);
-			BluesteinFFT<IntType, VecType>::GetInstance().PreComputePowers(cycloOrder, modulus, root.ModInverse(modulus));
+			const auto rootInv(root.ModInverse(modulus));
+			BluesteinFFT<IntType, VecType>::GetInstance().PreComputePowers(cycloOrder, modulus, root);			
+			BluesteinFFT<IntType, VecType>::GetInstance().PreComputePowers(cycloOrder, modulus, rootInv);
+			BluesteinFFT<IntType, VecType>::GetInstance().PreComputeRBTable(cycloOrder,modulus, root,bigMod,bigRoot);
+			BluesteinFFT<IntType, VecType>::GetInstance().PreComputeRBTable(cycloOrder,modulus, rootInv,bigMod,bigRoot);
 		}
 
 		auto outputBluestein = BluesteinFFT<IntType, VecType>::GetInstance().ForwardTransform(inputToBluestein, root, cycloOrder);
@@ -1027,6 +1051,8 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 		if (BluesteinFFT<IntType, VecType>::GetInstance().m_powersTableByRoot[root].GetLength() == 0) {
 			BluesteinFFT<IntType, VecType>::GetInstance().PreComputePowers(cycloOrder, modulus, root);
 			BluesteinFFT<IntType, VecType>::GetInstance().PreComputePowers(cycloOrder, modulus, rootInverse);
+			BluesteinFFT<IntType, VecType>::GetInstance().PreComputeRBTable(cycloOrder, modulus, root, bigMod, bigRoot);
+			BluesteinFFT<IntType, VecType>::GetInstance().PreComputeRBTable(cycloOrder, modulus, rootInverse, bigMod, bigRoot);
 		}
 
 		auto outputBluestein = BluesteinFFT<IntType, VecType>::GetInstance().ForwardTransform(inputToBluestein, rootInverse, cycloOrder);

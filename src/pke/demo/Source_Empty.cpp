@@ -51,11 +51,60 @@ int main(int argc, char *argv[])
 {
 	
 	usint m = 8422;
+	BigBinaryInteger modulus("619578785044668429129510602549015713");//find a modulus that has 2*8422 root of unity and is 120 bit long
+	BigBinaryInteger squareRootOfRoot("204851043665385327685783246012876507");
+	usint n = GetTotient(m);
+
+	auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulus);
+	BigBinaryInteger nttmodulus("1852673427797059126777135760139006525652319754650249024631321344126610076631041");//260 bit long
+	BigBinaryInteger nttroot("1011857408422309039039556907195908859561535234649870814154019834362746408101010");
+
+	//ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().PreCompute(m, modulus);
+	//ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().SetPreComputedNTTModulus(m, modulus, nttmodulus, nttroot);
+	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulus);
+
+	BigBinaryVector input(n, modulus);
+	input = { 1,2,3,4,5,6,7,8,9,10 };
+
+	auto INPUT = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().ForwardTransform(input, squareRootOfRoot, nttmodulus, nttroot, m);
+
+	auto inputCheck = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().InverseTransform(INPUT, squareRootOfRoot, nttmodulus, nttroot, m);
+
+	double diff, start, finish;
+
+	start = currentDateTime();
+
+	INPUT = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().ForwardTransform(input, squareRootOfRoot, nttmodulus, nttroot, m);
+
+	finish = currentDateTime();
+
+	diff = finish - start;
+
+	std::cout << "Forward Transform using precomputation is\t" << diff << std::endl;
+
+	start = currentDateTime();
+
+	inputCheck = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().InverseTransform(INPUT, squareRootOfRoot, nttmodulus, nttroot, m);
+
+	finish = currentDateTime();
+
+	diff = finish - start;
+
+	std::cout << "Inverse Transform using precomputation is\t" << diff << std::endl;
+
+
+	system("pause");
+
+	return 0;
+}
+
+void EvalMultBigRing() {
+	usint m = 8422;
 	usint N = GetTotient(m);
 	usint p = 84221; // we choose s.t. 2m|p-1 to leverage CRTArb
-	BigBinaryInteger modulusQ("1329227995784915872903807060281819137");
+	BigBinaryInteger modulusQ("619578785044668429129510602549015713");
 	BigBinaryInteger modulusP(p);
-	BigBinaryInteger rootOfUnity("390698995947413790827000600831537005");
+	BigBinaryInteger rootOfUnity("204851043665385327685783246012876507");
 	BigBinaryInteger bigmodulus("1852673427797059126777135760139006525652319754650249024631321344126610076631041");
 	BigBinaryInteger bigroot("1011857408422309039039556907195908859561535234649870814154019834362746408101010");
 
@@ -65,7 +114,7 @@ int main(int argc, char *argv[])
 
 	float stdDev = 4;
 
-	shared_ptr<ILParams> params(new ILParams(m, modulusQ, rootOfUnity,bigmodulus,bigroot));
+	shared_ptr<ILParams> params(new ILParams(m, modulusQ, rootOfUnity, bigmodulus, bigroot));
 
 	LPCryptoParametersBV<ILVector2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(modulusP); // Set plaintext modulus.
@@ -99,20 +148,15 @@ int main(int argc, char *argv[])
 	ciphertext1 = cc.Encrypt(kp.publicKey, intArray1, false);
 	ciphertext2 = cc.Encrypt(kp.publicKey, intArray2, false);
 
-	/*cc.EvalMultKeyGen(kp.secretKey);
+	cc.EvalMultKeyGen(kp.secretKey);
 
 	auto ciphertextMult = cc.EvalMult(ciphertext1.at(0), ciphertext2.at(0));
-	ciphertextResult.insert(ciphertextResult.begin(), ciphertextMult);*/
+	ciphertextResult.insert(ciphertextResult.begin(), ciphertextMult);
 	PackedIntPlaintextEncoding intArrayNew;
 
-	//cc.Decrypt(kp.secretKey, ciphertextResult, &intArrayNew, false);
-	cc.Decrypt(kp.secretKey, ciphertext1, &intArrayNew, false);
+	cc.Decrypt(kp.secretKey, ciphertextResult, &intArrayNew, false);
 
 	std::cout << intArrayNew << std::endl;
-
-	system("pause");
-
-	return 0;
 }
 
 

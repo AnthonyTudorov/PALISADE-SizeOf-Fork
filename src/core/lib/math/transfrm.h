@@ -357,7 +357,7 @@ public:
 	*/
 	void SetElement(const VecType &element);
 
-	VecType PadZeros(const VecType &a, const usint finalSize);
+	static VecType PadZeros(const VecType &a, const usint finalSize);
 
 	VecType Resize(const VecType &a, usint  lo, usint hi);
 
@@ -373,6 +373,8 @@ public:
 
 	static void PreComputePowers(usint cycloOrder, const IntType &modulus, const IntType &root);
 
+	static void PreComputeRBTable(usint cycloOrder, const IntType &modulus, const IntType &root, const IntType &bigMod, const IntType &bigRoot);
+
 	/**
 	* Destructor.
 	*/
@@ -381,6 +383,7 @@ public:
 	static std::map<IntType, VecType> m_rootOfUnityTableByModulus;
 	static std::map<IntType, VecType> m_rootOfUnityInverseTableByModulus;
 	static std::map<IntType, VecType> m_powersTableByRoot;
+	static std::map<IntType, VecType> m_RBTableByRoot;
 
 private:
 	
