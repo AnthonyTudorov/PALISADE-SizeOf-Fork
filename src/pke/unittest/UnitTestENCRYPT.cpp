@@ -13,7 +13,7 @@ using namespace lbcrypto;
 
 // This file unit tests the ENCRYPTION capabilities for all schemes, using both known elements
 
-class UnitTestEncryption : public ::testing::Test {
+class UnitTestENCRYPT : public ::testing::Test {
 protected:
 	virtual void SetUp() {}
 

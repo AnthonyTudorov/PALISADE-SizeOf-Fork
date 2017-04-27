@@ -161,6 +161,7 @@
     <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestField2n.cpp" />
     <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestLatticeElements.cpp" />
     <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestMatrix.cpp" />
+    <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestMubint.cpp" />
     <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestMubintvec.cpp" />
     <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestNative64.cpp" />
     <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestNbTheory.cpp" />
@@ -168,13 +169,12 @@
     <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestTransform.cpp" />
     <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestUbint.cpp" />
     <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestUbintvec.cpp" />
-    <ClCompile Include="..\..\..\..\src\pke\unittest\helperUnitTestDCRT.cpp" />
-    <ClCompile Include="..\..\..\..\src\pke\unittest\helperUnitTestEncryption.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestBatching.cpp" />
-    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestBV.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestBVDCRT.cpp" />
+    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestENCRYPT.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestFV.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestLTV.cpp" />
+    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestPRE.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestSHE.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestSHEAdvanced.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestStatisticalEval.cpp" />

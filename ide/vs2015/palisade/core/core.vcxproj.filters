@@ -102,5 +102,6 @@
     <ClInclude Include="..\..\..\..\src\core\lib\utils\serializable.h" />
     <ClInclude Include="..\..\..\..\src\core\lib\utils\serializablehelper.h" />
     <ClInclude Include="..\..\..\..\src\core\lib\utils\utilities.h" />
+    <ClInclude Include="..\..\..\..\src\core\lib\utils\parmfactory.h" />
   </ItemGroup>
 </Project>
