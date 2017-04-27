@@ -66,6 +66,8 @@ public:
 	}
 };
 
+const usint dcrtBits = 40;
+
 /*Testing Parameter selection. The test will check if generated parameters are greater than the following thresholds:
 * The first modulus generated needs to be greater than q1 > 4pr sqrt(n) w. Where
 * p is the plaintext modulus
@@ -86,7 +88,7 @@ TEST_F(UTSHEAdvanced, ParameterSelection) {
 
 	vector<native64::BigBinaryInteger> rootsOfUnity(size);
 
-	native64::BigBinaryInteger q("1");
+	native64::BigBinaryInteger q = FindPrimeModulus<native64::BigBinaryInteger>(m, dcrtBits);
 	native64::BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
 
@@ -135,7 +137,7 @@ TEST_F(UTSHEAdvanced, test_eval_mult_single_crt) {
 	usint relin = 1;
 	float stdDev = 4;
 
-	BigBinaryInteger q("1");
+	BigBinaryInteger q = FindPrimeModulus<BigBinaryInteger>(m, dcrtBits);
 	BigBinaryInteger temp;
 
 	lbcrypto::NextQ(q, BigBinaryInteger::FIVE, m, BigBinaryInteger("4000"), BigBinaryInteger("40000"));
@@ -199,7 +201,7 @@ TEST_F(UTSHEAdvanced, test_eval_mult_single_crt) {
 TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 	bool dbg_flag = false;
 
-	FAIL() << ("this fails because it uses LTV ParamsGen, which is broken");
+//	FAIL() << ("this fails because it uses LTV ParamsGen, which is broken");
 
 	usint init_m = 16;
 
@@ -211,7 +213,7 @@ TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 
 	vector<native64::BigBinaryInteger> init_rootsOfUnity(init_size);
 
-	native64::BigBinaryInteger q("1");
+	native64::BigBinaryInteger q = FindPrimeModulus<native64::BigBinaryInteger>(init_m, dcrtBits);
 	native64::BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
 
@@ -309,7 +311,7 @@ TEST_F(UTSHEAdvanced, test_eval_add_single_crt) {
 
 	float stdDev = 4;
 
-	BigBinaryInteger q("1");
+	BigBinaryInteger q = FindPrimeModulus<BigBinaryInteger>(m, dcrtBits);
 	BigBinaryInteger temp;
 
 	lbcrypto::NextQ(q, BigBinaryInteger::FIVE, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
@@ -382,7 +384,7 @@ TEST_F(UTSHEAdvanced, test_eval_add_double_crt) {
 	bool dbg_flag = false;
 	usint init_m = 16;
 
-	FAIL() << ("this fails because it uses LTV ParamsGen, which is broken");
+//	FAIL() << ("this fails because it uses LTV ParamsGen, which is broken");
 
 	float init_stdDev = 4;
 
@@ -392,7 +394,7 @@ TEST_F(UTSHEAdvanced, test_eval_add_double_crt) {
 
 	vector<native64::BigBinaryInteger> init_rootsOfUnity(init_size);
 
-	native64::BigBinaryInteger q("1");
+	native64::BigBinaryInteger q = FindPrimeModulus<native64::BigBinaryInteger>(init_m, dcrtBits);
 	native64::BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
 	DEBUG("1");
@@ -486,7 +488,6 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 
 	vector<native64::BigBinaryInteger> init_rootsOfUnity(init_size);
 
-	//native64::BigBinaryInteger q("1");
 	native64::BigBinaryInteger q = FindPrimeModulus<native64::BigBinaryInteger>(init_m, 30);
 
 	native64::BigBinaryInteger temp;

@@ -182,9 +182,8 @@ void UnitTest_Mult(const CryptoContext<Element>& cc) {
 	std::vector<uint32_t> vectorOfInts2 = { 2,1,3,2,2,1,3,0 };
 	IntPlaintextEncoding plaintext2(vectorOfInts2);
 
-	//std::vector<uint32_t> vectorOfIntsMult = { 2, 1, 9, 7, 12, 12, 16, 12, 19, 12, 7, 7, 7, 3 };
+	std::vector<uint32_t> vectorOfIntsMultLong = { 2, 1, 9, 7, 12, 12, 16, 12, 19, 12, 7, 7, 7, 3 };
 	std::vector<uint32_t> vectorOfIntsMult = { 47, 53, 2, 0, 5, 9, 16, 12 };
-	IntPlaintextEncoding plaintextMult(vectorOfIntsMult);
 
 	{
 		// EVAL MULT
@@ -192,7 +191,7 @@ void UnitTest_Mult(const CryptoContext<Element>& cc) {
 
 		IntPlaintextEncoding intArray2(vectorOfInts2);
 
-		IntPlaintextEncoding intArrayExpected(vectorOfIntsMult);
+		IntPlaintextEncoding intArrayExpected(cc.GetCyclotomicOrder() == 16 ? vectorOfIntsMult : vectorOfIntsMultLong);
 
 		// Initialize the public key containers.
 		LPKeyPair<Element> kp = cc.KeyGen();

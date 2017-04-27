@@ -75,8 +75,6 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 
-	cout << *cc.GetCryptoParameters() << endl;
-
 	// Initialize the public key containers.
 	LPKeyPair<ILVector2n> kp;
 
@@ -270,8 +268,6 @@ TEST(UTFV, ILVector2n_FV_Optimized_Eval_Operations) {
 	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(plaintextModulus, 1.006, 16, stdDev, 0, 1, 0);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
-
-	cout << *cc.GetCryptoParameters() << endl;
 
 	// Initialize the public key containers.
 	LPKeyPair<ILVector2n> kp;
