@@ -249,6 +249,33 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
+	const ILVectorImpl<ModType,IntType,VecType,ParmType>& ILVectorImpl<ModType,IntType,VecType,ParmType>::operator=(std::initializer_list<std::string> rhs) {
+		usint len = rhs.size();
+		if (!IsEmpty()) {
+			usint vectorLength = this->m_values->GetLength();
+
+			for (usint j = 0; j < vectorLength; ++j) { // loops within a tower
+				if (j < len) {
+					SetValAtIndex(j, *(rhs.begin() + j));
+				}
+				else {
+					SetValAtIndex(j, 0);
+				}
+			}
+
+		}
+		else {
+
+			VecType temp(m_params->GetCyclotomicOrder() / 2);
+			temp.SetModulus(m_params->GetModulus());
+			temp = rhs;
+			this->SetValues(std::move(temp), m_format);
+		}
+		return *this;
+	}
+
+
+	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	const ILVectorImpl<ModType,IntType,VecType,ParmType>& ILVectorImpl<ModType,IntType,VecType,ParmType>::operator=(ILVectorImpl &&rhs) {
 
 		if (this != &rhs) {

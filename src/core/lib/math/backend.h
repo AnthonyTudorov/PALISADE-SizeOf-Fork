@@ -59,6 +59,12 @@
 
 // MATHBACKEND 4
 // Uses exp_int definition with uint64_t underlying size as defaults
+// (currently works for ubuntu, not tested otherwise
+// NOTE currently MATHBACKEND 4 has issues with the following unit tests
+// stemming from poor run time performance of 128 bit intrinsic divide
+// UTSHE.keyswitch_ModReduce_DCRT takes incredibly rediculously long (9637 sec)
+// UTSHEAdvanced.test_eval_mult_double_crt takes extremely long (89 sec)
+//UTSHEAdvanced.test_eval_add_double_crt takes extremely long (86 sec)
 
 // MATHBACKEND 5
 // GMP 6.1.1 / NTL 10.3.0 backend  experimental on linux (coexist with BE 2)
@@ -74,26 +80,14 @@
 //Please UNCOMMENT the approproate line rather than changing the number on the 
 //uncommented line (and breaking the documentation of the line)
 
-//32 bit should work with all OS
 #define MATHBACKEND 2 
-
-//dynamicly allocated backend and support uint32_t and uint64_t on linux
 //#define MATHBACKEND 3 
-
-//64 bit (currently works for ubuntu, not tested otherwise
-//NOTE currently MATHBACKEND 4 has issues with the following unit tests
-//stemming from poor run time performance of 128 bit intrinsic divide
-//UTSHE.keyswitch_ModReduce_DCRT takes incredibly rediculously long (9637 sec)
-//UTSHEAdvanced.test_eval_mult_double_crt takes extremely long (89 sec)
-//UTSHEAdvanced.test_eval_add_double_crt takes extremely long (86 sec)
-
-
 //#define MATHBACKEND 4 
 //#define MATHBACKEND 5 
 //#define MATHBACKEND 6 
+//#define MATHBACKEND 7	// native64 native
 
-// native64 native
-// #define MATHBACKEND 7	
+
 
 //#define NO_MATHBACKEND_7  //if defined, then MATHBACKEND 7 is disabled
 #ifndef NO_MATHBACKEND_7

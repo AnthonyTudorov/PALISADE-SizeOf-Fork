@@ -528,6 +528,8 @@ namespace NTL {
   static const usint b64_shifts[] = { 0, 6, 12, 18, 24, 30 };
   static const usint B64MASK = 0x3F;
 
+
+#if 1 //OLD serialization code... 
   // this for encoding...
   static char to_base64_char[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
@@ -554,7 +556,8 @@ namespace NTL {
    * first 30 bits. For efficiency's sake, the last two bits are encoded
    * as A,B,C, or D and the code is implemented as unrolled loops
    */
-  const std::string myZZ::Serialize() const {
+  const std::string myZZ::Serialize(const myZZ& modulus) const {
+    //TODO: this function needs to be updated to match code in binint.cpp
 
     std::string ans = "";
     //note limbs are now stored little endian in myZZ
@@ -575,7 +578,7 @@ namespace NTL {
    * This function is only used for deserialization
    */
 
-  const char * myZZ::Deserialize(const char *cp){
+  const char * myZZ::Deserialize(const char *cp, const myZZ& modulus){
     clear(*this);
 
     vector<ZZ_limb_t> cv;
@@ -596,7 +599,10 @@ namespace NTL {
     SetMSB();
     return cp;
   }
+#else
 
+
+#endif
   
 
 } // namespace NTL ends

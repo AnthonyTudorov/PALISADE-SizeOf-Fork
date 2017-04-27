@@ -254,6 +254,15 @@ public:
 	 * @return the resulting ILVectorImpl.
 	 */
 	const ILVectorType& operator=(std::initializer_list<sint> rhs);
+	//todo: this should be changed from sint to usint!
+
+	/**
+	 * Initalizer list
+	 *
+	 * @param &rhs the list to set the ILVectorImpl to.
+	 * @return the resulting ILVectorImpl.
+	 */
+	const ILVectorType& operator=(std::initializer_list<std::string> rhs);
 
 	/**
 	 * Assignment Operator. The usint val will be set at index zero and all other indices will be set to zero.
@@ -333,6 +342,16 @@ public:
 	 * @param val is the value to be set.
 	 */
 	inline void SetValAtIndex(size_t index, int val) {
+		m_values->SetValAtIndex(index, IntType(val));
+	}
+
+	/**
+	 *  Set VecType value to val
+	 *
+	 * @param index is the index at which the value is to be set.
+	 * @param val is the value to be set.
+	 */
+	inline void SetValAtIndex(size_t index, std::string val) {
 		m_values->SetValAtIndex(index, IntType(val));
 	}
 

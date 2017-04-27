@@ -62,7 +62,9 @@
 using namespace std;
 using namespace lbcrypto;
 
-typedef native64::BigBinaryInteger  nativeInt;
+typedef native64::BigBinaryInteger nativeInt;
+typedef native64::BigBinaryVector nativeVec;
+typedef native64::ILParams nativeParams;
 
 //typedef cpu_int::BigBinaryInteger<uint32_t,64>  smallInt32_64;
 ////template class cpu_int::BigBinaryInteger<uint32_t,64>;
@@ -96,80 +98,82 @@ static void CustomArguments(benchmark::internal::Benchmark* b) {
 		}
 	}
 }
+//should really be ModType,IntType
+//then ILVectorImpl<> becomes ILVectorType from ilvector2n.h
 
-template <typename IntType>
-static ILVectorImpl<IntType,IntType,cpu_int::BigBinaryVectorImpl<IntType>,ILParamsImpl<IntType>> makeElement(benchmark::State& state) {
+template <typename IntType, typename VecType, typename ParamType>
+static ILVectorImpl<IntType,IntType,VecType,ParamType> makeElement(benchmark::State& state) {
 	int n = state.range(0);
 	int w = state.range(1);
-	shared_ptr<ILParamsImpl<IntType>> params( new ILParamsImpl<IntType>(n, IntType(primes[n][w]), IntType(roots[n][w])) );
-	cpu_int::BigBinaryVectorImpl<IntType> vec(params->GetCyclotomicOrder()/2, params->GetModulus());
-	ILVectorImpl<IntType,IntType,cpu_int::BigBinaryVectorImpl<IntType>,ILParamsImpl<IntType>>	elem(params);
+	shared_ptr<ParamType> params( new ParamType(n, IntType(primes[n][w]), IntType(roots[n][w])) );
+	VecType vec(params->GetCyclotomicOrder()/2, params->GetModulus());
+	ILVectorImpl<IntType,IntType,VecType,ParamType>	elem(params);
 	elem.SetValues(vec, elem.GetFormat());
 	return std::move(elem);
 }
 
 // add
-template <typename IntType>
+template <typename IntType, typename VecType, typename ParamType>
 static void add_LATTICE(benchmark::State& state) {
 	state.PauseTiming();
 	loadprimes();
-	ILVectorImpl<IntType,IntType,cpu_int::BigBinaryVectorImpl<IntType>,ILParamsImpl<IntType>>			a = makeElement<IntType>(state);
-	ILVectorImpl<IntType,IntType,cpu_int::BigBinaryVectorImpl<IntType>,ILParamsImpl<IntType>>			b = makeElement<IntType>(state);
+	ILVectorImpl<IntType,IntType,VecType,ParamType>	a = makeElement<IntType, VecType, ParamType>(state);
+	ILVectorImpl<IntType,IntType,VecType,ParamType>	b = makeElement<IntType, VecType,ParamType>(state);
 	state.ResumeTiming();
 
-	ILVectorImpl<IntType,IntType,cpu_int::BigBinaryVectorImpl<IntType>,ILParamsImpl<IntType>> c1 = a+b;
+	ILVectorImpl<IntType,IntType,VecType,ParamType> c1 = a+b;
 }
 
-template <class E>
+template <class E, class V, class P>
 static void BM_add_LATTICE(benchmark::State& state) { // benchmark
 	while (state.KeepRunning()) {
-		add_LATTICE<E>(state);
+	  add_LATTICE<E,V,P>(state);
 	}
 }
 
-BENCHMARK_TEMPLATE(BM_add_LATTICE,nativeInt)->Apply(CustomArguments);
-BENCHMARK_TEMPLATE(BM_add_LATTICE,BigBinaryInteger)->Apply(CustomArguments);
+BENCHMARK_TEMPLATE(BM_add_LATTICE,nativeInt, nativeVec, nativeParams )->Apply(CustomArguments);
+BENCHMARK_TEMPLATE(BM_add_LATTICE,BigBinaryInteger, BigBinaryVector, ILParams)->Apply(CustomArguments);
 
-template <class IntType>
+template <class IntType, class VecType, typename ParamType>
 static void mult_LATTICE(benchmark::State& state) {	// function
 	state.PauseTiming();
 	loadprimes();
-	ILVectorImpl<IntType,IntType,cpu_int::BigBinaryVectorImpl<IntType>,ILParamsImpl<IntType>>			a = makeElement<IntType>(state);
-	ILVectorImpl<IntType,IntType,cpu_int::BigBinaryVectorImpl<IntType>,ILParamsImpl<IntType>>			b = makeElement<IntType>(state);
+	ILVectorImpl<IntType,IntType,VecType,ParamType>	a = makeElement<IntType,VecType,ParamType>(state);
+	ILVectorImpl<IntType,IntType,VecType,ParamType>	b = makeElement<IntType,VecType,ParamType>(state);
 	state.ResumeTiming();
 
-	ILVectorImpl<IntType,IntType,cpu_int::BigBinaryVectorImpl<IntType>,ILParamsImpl<IntType>> c1 = a*b;
+	ILVectorImpl<IntType,IntType,VecType,ParamType> c1 = a*b;
 }
 
-template <class E>
+template <class E, class V, class P>
 static void BM_mult_LATTICE(benchmark::State& state) { // benchmark
 	while (state.KeepRunning()) {
-		mult_LATTICE<E>(state);
+	  mult_LATTICE<E,V,P>(state);
 	}
 }
 
-BENCHMARK_TEMPLATE(BM_mult_LATTICE,nativeInt)->Apply(CustomArguments);
-BENCHMARK_TEMPLATE(BM_mult_LATTICE,BigBinaryInteger)->Apply(CustomArguments);
+BENCHMARK_TEMPLATE(BM_mult_LATTICE,nativeInt,nativeVec,nativeParams)->Apply(CustomArguments);
+BENCHMARK_TEMPLATE(BM_mult_LATTICE,BigBinaryInteger,BigBinaryVector,ILParams)->Apply(CustomArguments);
 
-template <class IntType>
+template <class IntType, class VecType, class ParamType>
 static void switchformat_LATTICE(benchmark::State& state) {
 	state.PauseTiming();
 	loadprimes();
-	ILVectorImpl<IntType,IntType,cpu_int::BigBinaryVectorImpl<IntType>,ILParamsImpl<IntType>>			a = makeElement<IntType>(state);
+	ILVectorImpl<IntType,IntType,VecType,ParamType>	a = makeElement<IntType,VecType,ParamType>(state);
 	state.ResumeTiming();
 
 	a.SwitchFormat();
 }
 
-template <class E>
+template <class E, class V, class P>
 static void BM_switchformat_LATTICE(benchmark::State& state) { // benchmark
 	while (state.KeepRunning()) {
-		switchformat_LATTICE<E>(state);
+	  switchformat_LATTICE<E,V,P>(state);
 	}
 }
 
-BENCHMARK_TEMPLATE(BM_switchformat_LATTICE,nativeInt)->Apply(CustomArguments);
-BENCHMARK_TEMPLATE(BM_switchformat_LATTICE,BigBinaryInteger)->Apply(CustomArguments);
+BENCHMARK_TEMPLATE(BM_switchformat_LATTICE,nativeInt,nativeVec,nativeParams)->Apply(CustomArguments);
+BENCHMARK_TEMPLATE(BM_switchformat_LATTICE,BigBinaryInteger,BigBinaryVector,ILParams)->Apply(CustomArguments);
 
 //execute the benchmarks
 BENCHMARK_MAIN()
