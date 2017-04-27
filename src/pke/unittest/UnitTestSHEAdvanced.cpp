@@ -68,6 +68,7 @@ public:
 
 const usint dcrtBits = 40;
 
+#if !defined(_MSC_VER)
 /*Testing Parameter selection. The test will check if generated parameters are greater than the following thresholds:
 * The first modulus generated needs to be greater than q1 > 4pr sqrt(n) w. Where
 * p is the plaintext modulus
@@ -591,3 +592,4 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 	EXPECT_EQ(results.at(3), 8);
 	EXPECT_EQ(results.at(4), 8);
 }
+#endif

@@ -128,7 +128,7 @@ TEST(UTSHE, LTV_ILVector2n_Add) {
 }
 
 TEST(UTSHE, LTV_ILVectorArray2n_Add) {
-	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayLTV(ORDER, TOWERS, PTM);
+	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayLTV(ORDER, TOWERS, PTM, 30);
 	UnitTest_Add<ILVectorArray2n>(cc);
 }
 
@@ -138,7 +138,7 @@ TEST(UTSHE, StSt_ILVector2n_Add) {
 }
 
 TEST(UTSHE, StSt_ILVectorArray2n_Add) {
-	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayStSt(ORDER, TOWERS, PTM);
+	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayStSt(ORDER, TOWERS, PTM, 30);
 	UnitTest_Add<ILVectorArray2n>(cc);
 }
 
@@ -148,7 +148,7 @@ TEST(UTSHE, Null_ILVector2n_Add) {
 }
 
 TEST(UTSHE, Null_ILVectorArray2n_Add) {
-	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayNull(ORDER, TOWERS, PTM);
+	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayNull(ORDER, TOWERS, PTM, 30);
 	UnitTest_Add<ILVectorArray2n>(cc);
 }
 
@@ -158,7 +158,7 @@ TEST(UTSHE, BV_ILVector2n_Add) {
 }
 
 TEST(UTSHE, BV_ILVectorArray2n_Add) {
-	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayBV(ORDER, TOWERS, PTM);
+	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayBV(ORDER, TOWERS, PTM, 30);
 	UnitTest_Add<ILVectorArray2n>(cc);
 }
 
@@ -226,10 +226,12 @@ TEST(UTSHE, LTV_ILVector2n_Mult) {
 	UnitTest_Mult<ILVector2n>(cc);
 }
 
+#if !defined(_MSC_VER)
 TEST(UTSHE, LTV_ILVectorArray2n_Mult) {
 	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayLTV(ORDER, TOWERS, PTM);
 	UnitTest_Mult<ILVectorArray2n>(cc);
 }
+#endif
 
 //TEST(UTSHE, StSt_ILVector2n_Mult) {
 //	CryptoContext<ILVector2n> cc = GenCryptoContextElementStSt(ORDER, PTM);
@@ -247,7 +249,7 @@ TEST(UTSHE, Null_ILVector2n_Mult) {
 }
 
 TEST(UTSHE, Null_ILVectorArray2n_Mult) {
-	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayNull(ORDER, TOWERS, PTM);
+	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayNull(ORDER, TOWERS, PTM, 30);
 	UnitTest_Mult<ILVectorArray2n>(cc);
 }
 
@@ -256,10 +258,12 @@ TEST(UTSHE, BV_ILVector2n_Mult) {
 	UnitTest_Mult<ILVector2n>(cc);
 }
 
+#if !defined(_MSC_VER)
 TEST(UTSHE, BV_ILVectorArray2n_Mult) {
 	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayBV(ORDER, TOWERS, PTM);
 	UnitTest_Mult<ILVectorArray2n>(cc);
 }
+#endif
 
 TEST(UTSHE, FV_ILVector2n_Mult) {
 	CryptoContext<ILVector2n> cc = GenCryptoContextElementFV(ORDER, PTM);

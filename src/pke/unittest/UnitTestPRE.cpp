@@ -131,7 +131,7 @@ TEST(UTPRE, Null_ILVector2n_ReEncrypt_pub) {
 }
 
 TEST(UTPRE, Null_ILVectorArray2n_ReEncrypt_pub) {
-	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayNull(ORDER, TOWERS, PTM);
+	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayNull(ORDER, TOWERS, PTM, 30);
 	UnitTestReEncrypt<ILVectorArray2n>(cc, true);
 }
 
@@ -140,10 +140,12 @@ TEST(UTPRE, BV_ILVector2n_ReEncrypt_pri) {
 	UnitTestReEncrypt<ILVector2n>(cc, false);
 }
 
+#if !defined(_MSC_VER)
 TEST(UTPRE, BV_ILVectorArray2n_ReEncrypt_pri) {
 	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayBV(ORDER, TOWERS, PTM);
 	UnitTestReEncrypt<ILVectorArray2n>(cc, false);
 }
+#endif
 
 //TEST(UTPRE, FV_ILVector2n_ReEncrypt_pri) {
 //	CryptoContext<ILVector2n> cc = GenCryptoContextElementFV(ORDER, PTM);
