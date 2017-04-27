@@ -259,7 +259,7 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 					SetValAtIndex(j, *(rhs.begin() + j));
 				}
 				else {
-					SetValAtIndex(j, 0);
+					SetValAtIndex(j, IntType::ZERO);
 				}
 			}
 

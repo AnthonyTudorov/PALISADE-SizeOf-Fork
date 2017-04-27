@@ -537,7 +537,7 @@ namespace lbcrypto {
 					if(j<len) {
 						this->m_vectors[i].SetValAtIndex(j, *(rhs.begin()+j));
 					} else {
-						this->m_vectors[i].SetValAtIndex(j,0);
+						this->m_vectors[i].SetValAtIndex(j,ILVectorType::Integer::ZERO);
 					}
 				}
 			}
