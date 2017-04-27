@@ -151,6 +151,12 @@ namespace lbcrypto {
 				return  LPCryptoParametersRLWE<Element>::operator==(rhs);
 			}
 
+			void PrintParameters(std::ostream& os) const {
+				LPCryptoParametersRLWE<Element>::PrintParameters(os);
+
+				os << " mode: " << m_mode;
+			}
+
 	private:
 		// specifies whether the keys are generated from discrete 
 		// Gaussian distribution or ternary distribution with the norm of unity

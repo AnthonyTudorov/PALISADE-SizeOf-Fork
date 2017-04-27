@@ -887,27 +887,14 @@ public:
 	* @param quadKeySwitchHint - is the quadratic key switch hint from original private key to the quadratic key
 	* return vector of resulting ciphertext
 	*/
-	std::vector<shared_ptr<Ciphertext<Element>>> ComposedEvalMult(
-		const std::vector<shared_ptr<Ciphertext<Element>>> ciphertext1,
-		const std::vector<shared_ptr<Ciphertext<Element>>> ciphertext2) const
+	shared_ptr<Ciphertext<Element>> ComposedEvalMult(
+		const shared_ptr<Ciphertext<Element>> ciphertext1,
+		const shared_ptr<Ciphertext<Element>> ciphertext2) const
 	{
-		if (ciphertext1.size() != ciphertext2.size()) {
-			throw std::logic_error("Cannot have ciphertext of different length");
-		}
+		if( ciphertext1 == NULL || ciphertext2 == NULL || ciphertext1->GetCryptoContext() != *this || ciphertext2->GetCryptoContext() != *this )
+			throw std::logic_error("Ciphertexts passed to ComposedEvalMult was not generated with this crypto context");
 
-		vector<shared_ptr<Ciphertext<Element>>> ciphertextResult;
-
-		auto ek = GetEvalMultKey();
-
-		for (int i = 0; i < ciphertext1.size(); i++) {
-			if( ciphertext1[i] == NULL || ciphertext2[i] == NULL || ciphertext1[i]->GetCryptoContext() != *this || ciphertext2[i]->GetCryptoContext() != *this )
-				throw std::logic_error("Ciphertext passed to KeySwitch was not generated with this crypto context");
-
-			shared_ptr<Ciphertext<Element>> e = GetEncryptionAlgorithm()->ComposedEvalMult(ciphertext1[i], ciphertext2[i], ek);
-			ciphertextResult.push_back(e);
-		}
-
-		return ciphertextResult;
+		return GetEncryptionAlgorithm()->ComposedEvalMult(ciphertext1, ciphertext2, GetEvalMultKey());
 	}
 
 	/**
@@ -967,10 +954,9 @@ public:
 	* @param depth
 	* @return new context
 	*/
-	static CryptoContext<Element> genCryptoContextLTV(
+	static CryptoContext<Element> genCryptoContextLTV(shared_ptr<typename Element::Params> params,
 		const usint plaintextmodulus,
-		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
-		usint relinWindow, float stDev, int depth = 1);
+		usint relinWindow, float stDev, int depth = 1, int assuranceMeasure = 9, float securityLevel = 1.006);
 
 	/**
 	* construct a PALISADE CryptoContext for the FV Scheme
@@ -989,9 +975,8 @@ public:
 	* @param securityLevel
 	* @return new context
 	*/
-	static CryptoContext<Element> genCryptoContextFV(
+	static CryptoContext<Element> genCryptoContextFV(shared_ptr<typename Element::Params> params,
 		const usint plaintextmodulus,
-		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
 		usint relinWindow, float stDev, const std::string& delta,
 		MODE mode = RLWE, const std::string& bigmodulus = "0", const std::string& bigrootofunity = "0",
 		int depth = 0, int assuranceMeasure = 0, float securityLevel = 0);
@@ -1006,7 +991,7 @@ public:
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextFV(
-		const BigBinaryInteger& plaintextModulus, float securityLevel,
+		const usint plaintextModulus, float securityLevel, usint relinWindow, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches);
 
 	/**
@@ -1020,25 +1005,10 @@ public:
 	* @param mode
 	* @return new context
 	*/
-	static CryptoContext<Element> genCryptoContextBV(
+	static CryptoContext<Element> genCryptoContextBV(shared_ptr<typename Element::Params> params,
 		const usint plaintextmodulus,
-		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
 		usint relinWindow, float stDev,
 		MODE mode = RLWE, int depth = 1);
-
-	/**
-	* FIXME temp function written by GRS
-	* @param cryptoParams
-	* @return
-	*/
-	static CryptoContext<Element> genCryptoContextBV(LPCryptoParametersBV<Element>* cryptoParams, MODE mode = MODE::RLWE);
-
-	/**
-	* FIXME this is temporary until we better incorporate DCRT
-	* @param cryptoParams
-	* @return
-	*/
-	static CryptoContext<Element> getCryptoContextDCRT(LPCryptoParametersLTV<Element>* cryptoParams);
 
 	/**
 	* construct a PALISADE CryptoContext for the StehleSteinfeld Scheme
@@ -1051,10 +1021,9 @@ public:
 	* @param stDevStSt
 	* @return new context
 	*/
-	static CryptoContext<Element> genCryptoContextStehleSteinfeld(
+	static CryptoContext<Element> genCryptoContextStehleSteinfeld(shared_ptr<typename Element::Params> params,
 		const usint plaintextmodulus,
-		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
-		usint relinWindow, float stDev, float stDevStSt);
+		usint relinWindow, float stDev, float stDevStSt, int depth = 1, int assuranceMeasure = 9, float securityLevel = 1.006);
 
 	/**
 	* construct a PALISADE CryptoContext for the Null Scheme
@@ -1062,16 +1031,7 @@ public:
 	* @param ringdim
 	* @return
 	*/
-	static CryptoContext<Element> genCryptoContextNull(
-			const std::string& ptModulus, usint ringdim, const std::string& modulus, const std::string& rootOfUnity);
-
-	/**
-	* construct a PALISADE CryptoContext for the Null Scheme
-	* @param parms - the dcrt parameter set
-	* @param ptm - plaintext modulus for the context
-	* @return
-	*/
-	static CryptoContext<ILVectorArray2n> genCryptoContextNull(shared_ptr<ILDCRTParams> parms, const BigBinaryInteger& ptm);
+	static CryptoContext<Element> genCryptoContextNull(shared_ptr<typename Element::Params> params, const usint ptModulus);
 
 	// helper for deserialization of contexts
 	static shared_ptr<LPCryptoParameters<Element>> GetParameterObject(const Serialized& serObj) {

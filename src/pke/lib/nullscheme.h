@@ -26,7 +26,7 @@ public:
 
 	virtual void SetPlaintextModulus(const BigBinaryInteger &plaintextModulus) {
 		LPCryptoParameters<Element>::SetPlaintextModulus(plaintextModulus);
-		std::dynamic_pointer_cast<ILParams>(this->GetElementParams())->SetModulus( plaintextModulus );
+		this->GetElementParams()->SetModulus( plaintextModulus );
 	}
 
 	bool Serialize(Serialized* serObj) const {
@@ -153,7 +153,7 @@ public:
 	virtual LPKeyPair<Element> KeyGen(const CryptoContext<Element> cc, bool makeSparse=false) const {
 		LPKeyPair<Element>	kp( new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc) );
 
-		Element a(cc.GetCryptoParameters()->GetElementParams(), Format::EVALUATION, true);
+		Element a(cc.GetCryptoParameters()->GetElementParams(), Format::COEFFICIENT, true);
 		kp.secretKey->SetPrivateElement(a);
 		kp.publicKey->SetPublicElementAtIndex(0, a);
 		kp.publicKey->SetPublicElementAtIndex(1, a);
@@ -189,7 +189,7 @@ public:
 		// create a new ReKey of the proper type, in this context
 		shared_ptr<LPEvalKeyNTRURelin<Element>> EK( new LPEvalKeyNTRURelin<Element>(newPrivateKey->GetCryptoContext()) );
 
-		Element a(newPrivateKey->GetCryptoContext().GetCryptoParameters()->GetElementParams(), Format::EVALUATION, true);
+		Element a(newPrivateKey->GetCryptoContext().GetCryptoParameters()->GetElementParams(), Format::COEFFICIENT, true);
 		vector<Element> evalKeyElements;
 		evalKeyElements.push_back(std::move(a));
 
@@ -212,7 +212,7 @@ public:
 		// create a new ReKey of the proper type, in this context
 		shared_ptr<LPEvalKeyNTRURelin<Element>> EK(new LPEvalKeyNTRURelin<Element>(newPrivateKey->GetCryptoContext()));
 
-		Element a(newPrivateKey->GetCryptoContext().GetCryptoParameters()->GetElementParams(), Format::EVALUATION, true);
+		Element a(newPrivateKey->GetCryptoContext().GetCryptoParameters()->GetElementParams(), Format::COEFFICIENT, true);
 		vector<Element> evalKeyElements;
 		evalKeyElements.push_back(std::move(a));
 
@@ -356,13 +356,13 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 			const shared_ptr<Ciphertext<ILVectorArray2n>> ciphertext2) const;
 
 		/**
-		* Function for evaluating multiplication on ciphertext followed by key switching operation.
-		*
-		* @param &ciphertext1 first input ciphertext.
-		* @param &ciphertext2 second input ciphertext.
-		* @param &ek is the evaluation key to make the newCiphertext decryptable by the same secret key as that of ciphertext1 and ciphertext2.
-		* @param *newCiphertext the new resulting ciphertext.
-		*/
+		 * Function for evaluating multiplication on ciphertext followed by key switching operation.
+		 *
+		 * @param &ciphertext1 first input ciphertext.
+		 * @param &ciphertext2 second input ciphertext.
+		 * @param &ek is the evaluation key to make the newCiphertext decryptable by the same secret key as that of ciphertext1 and ciphertext2.
+		 * @param *newCiphertext the new resulting ciphertext.
+		 */
 		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
 				const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const {
 
@@ -448,7 +448,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const {
 			shared_ptr<LPEvalKey<Element>> EK( new LPEvalKeyRelin<Element>(originalPrivateKey->GetCryptoContext()) );
 
-			Element a(originalPrivateKey->GetCryptoContext().GetCryptoParameters()->GetElementParams(), Format::EVALUATION, true);
+			Element a(originalPrivateKey->GetCryptoContext().GetCryptoParameters()->GetElementParams(), Format::COEFFICIENT, true);
 			vector<Element> evalKeyElements;
 			evalKeyElements.push_back(std::move(a));
 
@@ -520,9 +520,9 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		typename Element::ILVectorType ElementNullSchemeMultiply(const typename Element::ILVectorType& c1, const typename Element::ILVectorType& c2,
 				const BigBinaryInteger& ptmod) const {
 
-			typename Element::ILVectorType cResult(c1.GetParams(), Format::EVALUATION, true);
+			typename Element::ILVectorType cResult(c1.GetParams(), Format::COEFFICIENT, true);
 
-			typename Element::ILVectorType cLarger(c1.GetParams(), Format::EVALUATION, true);
+			typename Element::ILVectorType cLarger(c1.GetParams(), Format::COEFFICIENT, true);
 
 			typename Element::ILVectorType::Integer ptm( ptmod.ConvertToInt() );
 

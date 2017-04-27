@@ -128,7 +128,7 @@ void EncryptionSchemeSimulation(usint count){
 	int stdDev = 4;
 
 	// Create crypto context
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(2,m,data[i].modulus,data[i].rootOfUnity,relWindow,stdDev);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(ilParams, 2, relWindow, stdDev);
 
 	//prepare the plaintext
 	BytePlaintextEncoding plaintext;
@@ -267,7 +267,9 @@ void PRESimulation(usint count, usint dataset){
 
 	int stdDev = 4;
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(2,m,data[i].modulus,data[i].rootOfUnity,data[i].relinWindow,stdDev, depth);
+	shared_ptr<ILParams> ilParams( new ILParams(m, modulus, rootOfUnity) );
+
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(ilParams, 2, data[i].relinWindow, stdDev, depth);
 
 	// prepare the plaintext
 	BytePlaintextEncoding plaintext;

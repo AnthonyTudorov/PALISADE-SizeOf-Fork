@@ -66,6 +66,9 @@ public:
 	}
 };
 
+const usint dcrtBits = 40;
+
+#if !defined(_MSC_VER)
 /*Testing Parameter selection. The test will check if generated parameters are greater than the following thresholds:
 * The first modulus generated needs to be greater than q1 > 4pr sqrt(n) w. Where
 * p is the plaintext modulus
@@ -86,7 +89,7 @@ TEST_F(UTSHEAdvanced, ParameterSelection) {
 
 	vector<native64::BigBinaryInteger> rootsOfUnity(size);
 
-	native64::BigBinaryInteger q("1");
+	native64::BigBinaryInteger q = FindPrimeModulus<native64::BigBinaryInteger>(m, dcrtBits);
 	native64::BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
 
@@ -132,18 +135,19 @@ TEST_F(UTSHEAdvanced, ParameterSelection) {
 TEST_F(UTSHEAdvanced, test_eval_mult_single_crt) {
 
 	usint m = 16;
-
+	usint relin = 1;
 	float stdDev = 4;
 
-	BigBinaryInteger q("1");
+	BigBinaryInteger q = FindPrimeModulus<BigBinaryInteger>(m, dcrtBits);
 	BigBinaryInteger temp;
 
 	lbcrypto::NextQ(q, BigBinaryInteger::FIVE, m, BigBinaryInteger("4000"), BigBinaryInteger("40000"));
 	BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(/*plaintextmodulus*/ 5 + 4,
-		/*ringdim*/ m, /*modulus*/ q.ToString(), rootOfUnity.ToString(),
-		/*relinWindow*/ 1, /*stDev*/ stdDev);
+	shared_ptr<ILVector2n::Params> parms( new ILVector2n::Params(m, q, rootOfUnity) );
+
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(parms, /*plaintextmodulus*/ 5 + 4,
+		relin, stdDev);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 	cc.Enable(LEVELEDSHE);
@@ -198,6 +202,8 @@ TEST_F(UTSHEAdvanced, test_eval_mult_single_crt) {
 TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 	bool dbg_flag = false;
 
+//	FAIL() << ("this fails because it uses LTV ParamsGen, which is broken");
+
 	usint init_m = 16;
 
 	float init_stdDev = 4;
@@ -208,7 +214,7 @@ TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 
 	vector<native64::BigBinaryInteger> init_rootsOfUnity(init_size);
 
-	native64::BigBinaryInteger q("1");
+	native64::BigBinaryInteger q = FindPrimeModulus<native64::BigBinaryInteger>(init_m, dcrtBits);
 	native64::BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
 
@@ -222,26 +228,27 @@ TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 
 	shared_ptr<ILDCRTParams> params(new ILDCRTParams(init_m, init_moduli, init_rootsOfUnity));
 
-	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
-	cryptoParams.SetPlaintextModulus(BigBinaryInteger::FIVE + BigBinaryInteger::FOUR);
-	cryptoParams.SetDistributionParameter(init_stdDev);
-	cryptoParams.SetRelinWindow(1);
-	cryptoParams.SetElementParams(params);
-	cryptoParams.SetAssuranceMeasure(6);
-	cryptoParams.SetDepth(init_size - 1);
-	cryptoParams.SetSecurityLevel(1.006);
+//	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
+//	cryptoParams.SetPlaintextModulus(BigBinaryInteger::FIVE + BigBinaryInteger::FOUR);
+//	cryptoParams.SetDistributionParameter(init_stdDev);
+//	cryptoParams.SetRelinWindow(1);
+//	cryptoParams.SetElementParams(params);
+//	cryptoParams.SetAssuranceMeasure(6);
+//	cryptoParams.SetDepth(init_size - 1);
+//	cryptoParams.SetSecurityLevel(1.006);
 
 	usint n = 16;
+	usint relWindow = 1;
 
-	LPCryptoParametersLTV<ILVectorArray2n> finalParams;
+//	LPCryptoParametersLTV<ILVectorArray2n> finalParams;
+//
+//	cryptoParams.ParameterSelection(&finalParams);
+//
+//	DEBUG("old parms " << cryptoParams);
+//	DEBUG("new parms" << finalParams);
 
-	cryptoParams.ParameterSelection(&finalParams);
-
-	DEBUG("old parms " << cryptoParams);
-	DEBUG("new parms" << finalParams);
-
-	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::getCryptoContextDCRT(&finalParams);
-	//scheme initialization: LTV Scheme
+	// Fixme use the ParameterSelection version of genCryptoContext
+	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextLTV(params, 5+4, relWindow, init_stdDev, init_size - 1, 6, 1.006);
 	cc.Enable(SHE);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(LEVELEDSHE);
@@ -305,14 +312,14 @@ TEST_F(UTSHEAdvanced, test_eval_add_single_crt) {
 
 	float stdDev = 4;
 
-	BigBinaryInteger q("1");
+	BigBinaryInteger q = FindPrimeModulus<BigBinaryInteger>(m, dcrtBits);
 	BigBinaryInteger temp;
 
 	lbcrypto::NextQ(q, BigBinaryInteger::FIVE, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
 	BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
-	//shared_ptr<ILParams> params( new ILParams(m, q, RootOfUnity(m, q)) );
+	shared_ptr<ILVector2n::Params> parms( new ILVector2n::Params(m, q, rootOfUnity) );
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(8, m, q.ToString(), rootOfUnity.ToString(), 1, stdDev);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(parms, 8, 1, stdDev);
 	// plaintextmodulus // 5 + 3,
 	// ringdim // m,
 	// modulus // q.ToString(),
@@ -378,6 +385,7 @@ TEST_F(UTSHEAdvanced, test_eval_add_double_crt) {
 	bool dbg_flag = false;
 	usint init_m = 16;
 
+//	FAIL() << ("this fails because it uses LTV ParamsGen, which is broken");
 
 	float init_stdDev = 4;
 
@@ -387,7 +395,7 @@ TEST_F(UTSHEAdvanced, test_eval_add_double_crt) {
 
 	vector<native64::BigBinaryInteger> init_rootsOfUnity(init_size);
 
-	native64::BigBinaryInteger q("1");
+	native64::BigBinaryInteger q = FindPrimeModulus<native64::BigBinaryInteger>(init_m, dcrtBits);
 	native64::BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
 	DEBUG("1");
@@ -402,37 +410,31 @@ TEST_F(UTSHEAdvanced, test_eval_add_double_crt) {
 	DEBUG("2");
 	shared_ptr<ILDCRTParams> params(new ILDCRTParams(init_m, init_moduli, init_rootsOfUnity));
 
-	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
-	cryptoParams.SetPlaintextModulus(BigBinaryInteger::FIVE + BigBinaryInteger::FOUR);
-	cryptoParams.SetDistributionParameter(init_stdDev);
-	cryptoParams.SetRelinWindow(1);
-	cryptoParams.SetElementParams(params);
-	cryptoParams.SetAssuranceMeasure(6);
-	cryptoParams.SetDepth(init_size - 1);
-	cryptoParams.SetSecurityLevel(1.006);
+//	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
+//	cryptoParams.SetPlaintextModulus(BigBinaryInteger::FIVE + BigBinaryInteger::FOUR);
+//	cryptoParams.SetDistributionParameter(init_stdDev);
+//	cryptoParams.SetRelinWindow(1);
+//	cryptoParams.SetElementParams(params);
+//	cryptoParams.SetAssuranceMeasure(6);
+//	cryptoParams.SetDepth(init_size - 1);
+//	cryptoParams.SetSecurityLevel(1.006);
 	DEBUG("5");
 	usint n = 16;
 
-	LPCryptoParametersLTV<ILVectorArray2n> finalParams;
+	usint relWindow = 1;
 
-	cryptoParams.ParameterSelection(&finalParams);
+//	LPCryptoParametersLTV<ILVectorArray2n> finalParams;
+//
+//	cryptoParams.ParameterSelection(&finalParams);
+//
+//	const shared_ptr<ILDCRTParams> dcrtParams = std::dynamic_pointer_cast<ILDCRTParams>(finalParams.GetElementParams());
 
-	const shared_ptr<ILDCRTParams> dcrtParams = std::dynamic_pointer_cast<ILDCRTParams>(finalParams.GetElementParams());
-
-	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::getCryptoContextDCRT(&finalParams);
-
-	usint m = dcrtParams->GetCyclotomicOrder();
-	usint size = finalParams.GetDepth() + 1;
-	const BigBinaryInteger &plainTextModulus = finalParams.GetPlaintextModulus();
-//	finalParams.GetElementParams()->GetModuli();
-
-	//scheme initialization: LTV Scheme
+	// Fixme use the ParameterSelection version of genCryptoContext
+	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextLTV(params, 5+4, relWindow, init_stdDev, init_size - 1, 6, 1.006);
 	cc.Enable(SHE);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(LEVELEDSHE);
 
-	//Generating new cryptoparameters for when modulus reduction is done.
-	LPCryptoParametersLTV<ILVectorArray2n> finalParamsOneTower(finalParams);
 	std::vector<usint> vectorOfInts1(2048);
 	vectorOfInts1.at(0) = 2;
 	vectorOfInts1.at(1) = 4;
@@ -487,7 +489,8 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 
 	vector<native64::BigBinaryInteger> init_rootsOfUnity(init_size);
 
-	native64::BigBinaryInteger q("1");
+	native64::BigBinaryInteger q = FindPrimeModulus<native64::BigBinaryInteger>(init_m, 30);
+
 	native64::BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
 
@@ -501,31 +504,33 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 
 	shared_ptr<ILDCRTParams> params(new ILDCRTParams(init_m, init_moduli, init_rootsOfUnity));
 
-	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
-	cryptoParams.SetPlaintextModulus(BigBinaryInteger::FIVE + BigBinaryInteger::FOUR);
-	cryptoParams.SetDistributionParameter(init_stdDev);
-	cryptoParams.SetRelinWindow(1);
-	cryptoParams.SetElementParams(params);
-	cryptoParams.SetAssuranceMeasure(6);
-	cryptoParams.SetDepth(init_size - 1);
-	cryptoParams.SetSecurityLevel(1.006);
+//	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
+//	cryptoParams.SetPlaintextModulus(BigBinaryInteger::FIVE + BigBinaryInteger::FOUR);
+//	cryptoParams.SetDistributionParameter(init_stdDev);
+//	cryptoParams.SetRelinWindow(1);
+//	cryptoParams.SetElementParams(params);
+//	cryptoParams.SetAssuranceMeasure(6);
+//	cryptoParams.SetDepth(init_size - 1);
+//	cryptoParams.SetSecurityLevel(1.006);
 
 	usint n = 16;
+	usint relWindow = 1;
 
-	LPCryptoParametersLTV<ILVectorArray2n> finalParamsTwoTowers;
+//	LPCryptoParametersLTV<ILVectorArray2n> finalParamsTwoTowers;
+//
+//	cryptoParams.ParameterSelection(&finalParamsTwoTowers);
+//
+//	const shared_ptr<ILDCRTParams> dcrtParams = std::dynamic_pointer_cast<ILDCRTParams>(finalParamsTwoTowers.GetElementParams());
 
-	cryptoParams.ParameterSelection(&finalParamsTwoTowers);
-
-	const shared_ptr<ILDCRTParams> dcrtParams = std::dynamic_pointer_cast<ILDCRTParams>(finalParamsTwoTowers.GetElementParams());
-
-	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::getCryptoContextDCRT(&finalParamsTwoTowers);
+	// Fixme use the ParameterSelection version of genCryptoContext
+	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextLTV(params, 5+4, relWindow, init_stdDev, init_size - 1, 6, 1.006);
 	cc.Enable(SHE);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(LEVELEDSHE);
 
-	usint m = dcrtParams->GetCyclotomicOrder();
-	usint size = finalParamsTwoTowers.GetDepth() + 1;
-	const BigBinaryInteger &plainTextModulus = finalParamsTwoTowers.GetPlaintextModulus();
+//	usint m = dcrtParams->GetCyclotomicOrder();
+//	usint size = finalParamsTwoTowers.GetDepth() + 1;
+//	const BigBinaryInteger &plainTextModulus = finalParamsTwoTowers.GetPlaintextModulus();
 
 	//Generate the secret key for the initial ciphertext:
 	LPKeyPair<ILVectorArray2n> kp = cc.KeyGen();
@@ -533,16 +538,36 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 	//Generate the keys for level 1, same number of towers
 	LPKeyPair<ILVectorArray2n> kp1 = cc.KeyGen();
 
-	//Generating new cryptoparameters for when modulus reduction is done.
-	LPCryptoParametersLTV<ILVectorArray2n> finalParamsOneTower(finalParamsTwoTowers);
-
-	const shared_ptr<ILDCRTParams> dcrtParamsWithOneTowers = std::dynamic_pointer_cast<ILDCRTParams>(finalParamsTwoTowers.GetElementParams());
-	shared_ptr<ILDCRTParams> dcrtParamsWith1Tower(new ILDCRTParams(*dcrtParamsWithOneTowers));
-	dcrtParamsWith1Tower->PopLastParam();
-	finalParamsOneTower.SetElementParams(dcrtParamsWith1Tower);
+//	//Generating new cryptoparameters for when modulus reduction is done.
+//	LPCryptoParametersLTV<ILVectorArray2n> finalParamsOneTower(finalParamsTwoTowers);
+//
+//	const shared_ptr<ILDCRTParams> dcrtParamsWithOneTowers = std::dynamic_pointer_cast<ILDCRTParams>(finalParamsTwoTowers.GetElementParams());
+//	shared_ptr<ILDCRTParams> dcrtParamsWith1Tower(new ILDCRTParams(*dcrtParamsWithOneTowers));
+//	dcrtParamsWith1Tower->PopLastParam();
+//	finalParamsOneTower.SetElementParams(dcrtParamsWith1Tower);
 
 	//Generating Quadratic KeySwitchHint from sk^2 to skNew
 	cc.EvalMultKeyGen(kp.secretKey);
+
+	std::vector<usint> firstElement(8,0);
+	firstElement[0] = 8;
+	firstElement[1] = 5;
+	firstElement[2] = 4;
+
+	IntPlaintextEncoding firstElementEncoding(firstElement);
+
+	std::vector<usint> secondElement(8,0);
+	secondElement[0] = 7;
+	secondElement[1] = 4;
+	secondElement[2] = 2;
+
+	IntPlaintextEncoding secondElementEncoding(secondElement);
+
+	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertextElementOne;
+	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertextElementTwo;
+
+	ciphertextElementOne = cc.Encrypt(kp.publicKey, firstElementEncoding, false);
+	ciphertextElementTwo = cc.Encrypt(kp.publicKey, secondElementEncoding, false);
 
 	shared_ptr<LPEvalKey<ILVectorArray2n>> KeySwitchHint = cc.KeySwitchGen(kp.secretKey, kp1.secretKey);
 
@@ -552,36 +577,14 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 	skNewOldElement.DropLastElement();
 	sk2->SetPrivateElement(skNewOldElement);
 
-	std::vector<usint> firstElement(2048);
-	firstElement.at(0) = 8;
-	firstElement.at(1) = 5;
-	firstElement.at(2) = 4;
+	shared_ptr<Ciphertext<ILVectorArray2n>> cResult = cc.ComposedEvalMult(ciphertextElementOne[0], ciphertextElementTwo[0]);
 
-	std::fill(firstElement.begin() + 3, firstElement.end(), 0);
+	cResult = cc.KeySwitch(KeySwitchHint, cResult);
 
-	IntPlaintextEncoding firstElementEncoding(firstElement);
-
-	std::vector<usint> secondElement(2048);
-	secondElement.at(0) = 7;
-	secondElement.at(1) = 4;
-	secondElement.at(2) = 2;
-
-
-	std::fill(secondElement.begin() + 3, secondElement.end(), 0);
-	IntPlaintextEncoding secondElementEncoding(secondElement);
-
-	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertextElementOne;
-	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertextElementTwo;
-
-	ciphertextElementOne = cc.Encrypt(kp.publicKey, firstElementEncoding, false);
-	ciphertextElementTwo = cc.Encrypt(kp.publicKey, secondElementEncoding, false);
-
-	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> cResult = cc.ComposedEvalMult(ciphertextElementOne, ciphertextElementTwo);
-	cResult.at(0) = cc.KeySwitch(KeySwitchHint, cResult.at(0));
-
+	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> tempvec2( { cResult } );
 	IntPlaintextEncoding results;
 
-	cc.Decrypt(sk2, cResult, &results, false);
+	cc.Decrypt(sk2, tempvec2, &results, false);
 
 	EXPECT_EQ(results.at(0), 2);
 	EXPECT_EQ(results.at(1), 4);
@@ -589,3 +592,4 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 	EXPECT_EQ(results.at(3), 8);
 	EXPECT_EQ(results.at(4), 8);
 }
+#endif

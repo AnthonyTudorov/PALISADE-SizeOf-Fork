@@ -350,12 +350,12 @@ main(int argc, char *argv[])
 	}
 
 	std::cout << "Choose parameter set: ";
-	CryptoContextHelper<ILVector2n>::printAllParmSetNames(std::cout);
+	CryptoContextHelper::printAllParmSetNames(std::cout);
 
 	string input;
 	std::cin >> input;
 
-	CryptoContext<ILVector2n> ctx = CryptoContextHelper<ILVector2n>::getNewContext(input);
+	CryptoContext<ILVector2n> ctx = CryptoContextHelper::getNewContext(input);
 	if( !ctx ) {
 		cout << "Error on " << input << endl;
 		return 0;

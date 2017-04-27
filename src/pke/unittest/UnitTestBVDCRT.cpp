@@ -70,25 +70,9 @@ static shared_ptr<ILDCRTParams> getTestParams(usint m, usint numOfTower) {
 	return params;
 }
 
+#ifdef OUT
 //////////////////////
 /// FIXME move to UTNULL
-
-/**
- * Simple Encrypt-Decrypt check for Null scheme.
- */
-TEST(UTNULL, ILVector2n_Encrypt_Decrypt) {
-
-	usint plaintextModulus = 256;
-	usint m = 64;
-	string modulus("256");
-	string rootOfUnity("268585022");
-
-	//Set crypto parametes
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextNull(std::to_string(plaintextModulus), m, modulus, rootOfUnity);
-	cc.Enable(ENCRYPTION);
-
-	UnitTestEncryption<ILVector2n>(cc);
-}
 
 /**
  * Simple Encrypt-Decrypt check for Null scheme.
@@ -147,32 +131,6 @@ TEST(UTNULLDCRT, Ops_DCRT) {
 
 //////////////////////////
 
-/**Simple Encrypt-Decrypt check for BV scheme.
-* This test case is only testing if the resulting plaintext from an encrypt/decrypt matches the original plaintext
-*/
-TEST(UTBVDCRT, Encrypt_Decrypt_DCRT) {
-
-	usint m = 8;
-
-	usint numOfTower = 3;
-
-	float stdDev = 4;
-
-	//Prepare for parameters.
-	shared_ptr<ILDCRTParams> params = getTestParams(m, numOfTower);
-
-	//Set crypto parametes
-	LPCryptoParametersBV<ILVectorArray2n> cryptoParams;
-	cryptoParams.SetPlaintextModulus(BigBinaryInteger("5"));  	// Set plaintext modulus.
-	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
-	cryptoParams.SetRelinWindow(8);				// Set the relinearization window
-	cryptoParams.SetElementParams(params);			// Set the initialization parameters.
-
-	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextBV(&cryptoParams, MODE::RLWE);
-	cc.Enable(ENCRYPTION);
-
-	UnitTestEncryption<ILVectorArray2n>(cc);
-}
 
 TEST(UTBVDCRT, Encrypt_Decrypt_PRE_DCRT) {
 
@@ -448,7 +406,7 @@ TEST(UTBV, Ops) {
 //	EXPECT_EQ(intArrayExpected, results);
 //
 //}
-
+#endif
 
 TEST(UTBVDCRT, ILVector2n_bv_DCRT_MODREDUCE) {
 
@@ -478,15 +436,7 @@ TEST(UTBVDCRT, ILVector2n_bv_DCRT_MODREDUCE) {
 	//Prepare for parameters.
 	shared_ptr<ILDCRTParams> params(new ILDCRTParams(m, moduli, rootsOfUnity));
 
-	//Set crypto parametes
-	LPCryptoParametersBV<ILVectorArray2n> cryptoParams;
-	cryptoParams.SetPlaintextModulus(BigBinaryInteger("5"));  	// Set plaintext modulus.
-																//cryptoParams.SetPlaintextModulus(BigBinaryInteger("4"));  	// Set plaintext modulus.
-	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
-	cryptoParams.SetRelinWindow(8);				// Set the relinearization window
-	cryptoParams.SetElementParams(params);			// Set the initialization parameters.
-
-	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextBV(&cryptoParams);
+	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextBV(params, 5, 8, stdDev);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 	cc.Enable(LEVELEDSHE);

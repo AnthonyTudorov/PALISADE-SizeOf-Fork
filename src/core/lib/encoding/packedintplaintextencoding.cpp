@@ -44,7 +44,7 @@ namespace lbcrypto {
 	void PackedIntPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector, size_t startFrom, size_t length) const
 	{
 		int padlen = 0;
-		uint32_t mod = modulus.ConvertToInt();
+		uint64_t mod = modulus.ConvertToInt();
 
 		if (length == 0) length = this->size();
 

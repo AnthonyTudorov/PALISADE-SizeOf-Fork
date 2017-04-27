@@ -27,7 +27,7 @@
     <ClCompile Include="..\..\..\..\src\pke\lib\cryptocontext-vector-impl.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\lib\cryptocontext-vectorarray-impl.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\lib\cryptocontext.cpp" />
-    <ClCompile Include="..\..\..\..\src\pke\lib\cryptocontexthelper.cpp" />
+    <ClCompile Include="..\..\..\..\src\pke\lib\cryptocontexthelper-impl.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\lib\cryptocontextparametersets-impl.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\lib\fv-vector-impl.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\lib\fv-vectorarray-impl.cpp" />
@@ -48,6 +48,7 @@
     <ClInclude Include="..\..\..\..\src\pke\lib\bv.h" />
     <ClInclude Include="..\..\..\..\src\pke\lib\ciphertext.h" />
     <ClInclude Include="..\..\..\..\src\pke\lib\cryptocontext.h" />
+    <ClInclude Include="..\..\..\..\src\pke\lib\cryptocontextgen.h" />
     <ClInclude Include="..\..\..\..\src\pke\lib\cryptocontexthelper.h" />
     <ClInclude Include="..\..\..\..\src\pke\lib\cryptocontextparametersets.h" />
     <ClInclude Include="..\..\..\..\src\pke\lib\fv.h" />

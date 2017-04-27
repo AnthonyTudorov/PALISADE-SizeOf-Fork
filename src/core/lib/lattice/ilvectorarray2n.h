@@ -248,16 +248,16 @@ namespace lbcrypto {
 		const IntType &GetRootOfUnity() const { return IntType::ZERO; }
 
 		/**
-		* Get method for the number of towers of the ILVectorArray2n.
+		* Get method for length of each vector
+		* NOTE assumes all vectors are the same size
 		*
-		* @return the number of towers.
+		* @return length
 		*/
 		usint GetLength() const {
-			usint tot = 0;
-			for( auto vec : m_vectors ) {
-				tot += vec.GetLength();
-			}
-			return tot;
+			if( m_vectors.size() == 0 )
+				return 0;
+
+			return m_vectors[0].GetValues().GetLength();
 		}
 
         /**
@@ -297,7 +297,7 @@ namespace lbcrypto {
 		* @param baseBits is the number of bits in the base, i.e., base = 2^baseBits
 		* @result is the pointer where the base decomposition vector is stored
 		*/
-		std::vector<ILVectorArrayType> BaseDecompose(usint baseBits) const ;
+		std::vector<ILVectorArrayType> BaseDecompose(usint baseBits, bool evalModeAnswer=true) const ;
 
 		/**
 		* Generate a vector of ILVector2n's as {x, base*x, base^2*x, ..., base^{\lfloor {\log q/base} \rfloor}*x, where x is the current ILVector2n object;
@@ -616,6 +616,15 @@ namespace lbcrypto {
 		* @return true on success
 		*/
 		bool Deserialize(const Serialized& serObj);
+
+
+		friend inline std::ostream& operator<<(std::ostream& os, const ILVectorArrayType& vec) {
+			for( int i=0; i<vec.GetAllElements().size(); i++ ) {
+				os << i << ": ";
+				os << vec.GetAllElements()[i];
+			}
+			return os;
+		}
 
 		friend inline ILVectorArrayType operator+(const ILVectorArrayType &a, const ILVectorArrayType &b) { return a.Plus(b); }
 		friend inline ILVectorArrayType operator+(const ILVectorArrayType &a, const IntType &b) { return a.Plus(b); }

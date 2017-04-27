@@ -41,6 +41,8 @@ Test cases in this file make the following assumptions:
 
 #include "utils/debug.h"
 
+#include "cryptocontextgen.h"
+
 using namespace std;
 using namespace lbcrypto;
 
@@ -66,27 +68,222 @@ protected:
 
 };
 
+// NOTE the SHE tests are all based on these
+static const usint ORDER = 16;
+static const usint PTM = 64;
+static const usint TOWERS = 3;
+
+template<class Element>
+void UnitTest_Add(const CryptoContext<Element>& cc) {
+
+	std::vector<uint32_t> vectorOfInts1 = { 1,0,3,1,0,1,2,1 };
+	IntPlaintextEncoding plaintext1(vectorOfInts1);
+
+	std::vector<uint32_t> vectorOfInts2 = { 2,1,3,2,2,1,3,0 };
+	IntPlaintextEncoding plaintext2(vectorOfInts2);
+
+	std::vector<uint32_t> vectorOfIntsAdd = { 3,1,6,3,2,2,5,1 };
+	IntPlaintextEncoding plaintextAdd(vectorOfIntsAdd);
+
+	std::vector<uint32_t> vectorOfIntsSub = { 63,63,0,63,62,0,63,1 };
+	IntPlaintextEncoding plaintextSub(vectorOfIntsSub);
+
+	{
+		// EVAL ADD
+		IntPlaintextEncoding intArray1(vectorOfInts1);
+
+		IntPlaintextEncoding intArray2(vectorOfInts2);
+
+		IntPlaintextEncoding intArrayExpected(vectorOfIntsAdd);
+
+		////////////////////////////////////////////////////////////
+		//Perform the key generation operation.
+		////////////////////////////////////////////////////////////
+		LPKeyPair<Element> kp = cc.KeyGen();
+
+		vector<shared_ptr<Ciphertext<Element>>> ciphertext1 =
+				cc.Encrypt(kp.publicKey, intArray1,false);
+
+		vector<shared_ptr<Ciphertext<Element>>> ciphertext2 =
+				cc.Encrypt(kp.publicKey, intArray2,false);
+
+		vector<shared_ptr<Ciphertext<Element>>> cResult;
+
+		cResult.insert( cResult.begin(), cc.EvalAdd(ciphertext1.at(0), ciphertext2.at(0)));
+
+		IntPlaintextEncoding results;
+
+		cc.Decrypt(kp.secretKey, cResult, &results,false);
+
+		results.resize(intArrayExpected.size());
+
+		EXPECT_EQ(intArrayExpected, results) << "EvalAdd fails";
+	}
+}
+
+/// add
+TEST(UTSHE, LTV_ILVector2n_Add) {
+	CryptoContext<ILVector2n> cc = GenCryptoContextElementLTV(ORDER, PTM);
+	UnitTest_Add<ILVector2n>(cc);
+}
+
+TEST(UTSHE, LTV_ILVectorArray2n_Add) {
+	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayLTV(ORDER, TOWERS, PTM, 30);
+	UnitTest_Add<ILVectorArray2n>(cc);
+}
+
+TEST(UTSHE, StSt_ILVector2n_Add) {
+	CryptoContext<ILVector2n> cc = GenCryptoContextElementStSt(ORDER, PTM);
+	UnitTest_Add<ILVector2n>(cc);
+}
+
+TEST(UTSHE, StSt_ILVectorArray2n_Add) {
+	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayStSt(ORDER, TOWERS, PTM, 30);
+	UnitTest_Add<ILVectorArray2n>(cc);
+}
+
+TEST(UTSHE, Null_ILVector2n_Add) {
+	CryptoContext<ILVector2n> cc = GenCryptoContextElementNull(ORDER, PTM);
+	UnitTest_Add<ILVector2n>(cc);
+}
+
+TEST(UTSHE, Null_ILVectorArray2n_Add) {
+	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayNull(ORDER, TOWERS, PTM, 30);
+	UnitTest_Add<ILVectorArray2n>(cc);
+}
+
+TEST(UTSHE, BV_ILVector2n_Add) {
+	CryptoContext<ILVector2n> cc = GenCryptoContextElementBV(ORDER, PTM);
+	UnitTest_Add<ILVector2n>(cc);
+}
+
+TEST(UTSHE, BV_ILVectorArray2n_Add) {
+	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayBV(ORDER, TOWERS, PTM, 30);
+	UnitTest_Add<ILVectorArray2n>(cc);
+}
+
+TEST(UTSHE, FV_ILVector2n_Add) {
+	CryptoContext<ILVector2n> cc = GenCryptoContextElementFV(ORDER, PTM);
+	UnitTest_Add<ILVector2n>(cc);
+}
+
+//TEST(UTSHE, FV_ILVectorArray2n_Add) {
+//	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayFV(ORDER, TOWERS, PTM);
+//	UnitTest_Add<ILVectorArray2n>(cc);
+//}
+
+///
+template<class Element>
+void UnitTest_Mult(const CryptoContext<Element>& cc) {
+
+	std::vector<uint32_t> vectorOfInts1 = { 1,0,3,1,0,1,2,1 };
+	IntPlaintextEncoding plaintext1(vectorOfInts1);
+
+	std::vector<uint32_t> vectorOfInts2 = { 2,1,3,2,2,1,3,0 };
+	IntPlaintextEncoding plaintext2(vectorOfInts2);
+
+	std::vector<uint32_t> vectorOfIntsMultLong = { 2, 1, 9, 7, 12, 12, 16, 12, 19, 12, 7, 7, 7, 3 };
+	std::vector<uint32_t> vectorOfIntsMult = { 47, 53, 2, 0, 5, 9, 16, 12 };
+
+	{
+		// EVAL MULT
+		IntPlaintextEncoding intArray1(vectorOfInts1);
+
+		IntPlaintextEncoding intArray2(vectorOfInts2);
+
+		IntPlaintextEncoding intArrayExpected(cc.GetCyclotomicOrder() == 16 ? vectorOfIntsMult : vectorOfIntsMultLong);
+
+		// Initialize the public key containers.
+		LPKeyPair<Element> kp = cc.KeyGen();
+
+		vector<shared_ptr<Ciphertext<Element>>> ciphertext1 =
+			cc.Encrypt(kp.publicKey, intArray1,false);
+
+		vector<shared_ptr<Ciphertext<Element>>> ciphertext2 =
+			cc.Encrypt(kp.publicKey, intArray2,false);
+
+		cc.EvalMultKeyGen(kp.secretKey);
+
+		vector<shared_ptr<Ciphertext<Element>>> cResult;
+
+		cResult.insert(cResult.begin(), cc.EvalMult(ciphertext1.at(0), ciphertext2.at(0)));
+
+		IntPlaintextEncoding results;
+
+		cc.Decrypt(kp.secretKey, cResult, &results,false);
+
+		results.resize(intArrayExpected.size());
+
+		EXPECT_EQ(intArrayExpected, results) << "EvalMult fails";
+
+	}
+
+}
+
+
+TEST(UTSHE, LTV_ILVector2n_Mult) {
+	CryptoContext<ILVector2n> cc = GenCryptoContextElementLTV(ORDER, PTM);
+	UnitTest_Mult<ILVector2n>(cc);
+}
+
+#if !defined(_MSC_VER)
+TEST(UTSHE, LTV_ILVectorArray2n_Mult) {
+	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayLTV(ORDER, TOWERS, PTM);
+	UnitTest_Mult<ILVectorArray2n>(cc);
+}
+#endif
+
+//TEST(UTSHE, StSt_ILVector2n_Mult) {
+//	CryptoContext<ILVector2n> cc = GenCryptoContextElementStSt(ORDER, PTM);
+//	UnitTest_Mult<ILVector2n>(cc);
+//}
+//
+//TEST(UTSHE, StSt_ILVectorArray2n_Mult) {
+//	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayStSt(ORDER, TOWERS, PTM);
+//	UnitTest_Mult<ILVectorArray2n>(cc);
+//}
+
+TEST(UTSHE, Null_ILVector2n_Mult) {
+	CryptoContext<ILVector2n> cc = GenCryptoContextElementNull(ORDER, PTM);
+	UnitTest_Mult<ILVector2n>(cc);
+}
+
+TEST(UTSHE, Null_ILVectorArray2n_Mult) {
+	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayNull(ORDER, TOWERS, PTM, 30);
+	UnitTest_Mult<ILVectorArray2n>(cc);
+}
+
+TEST(UTSHE, BV_ILVector2n_Mult) {
+	CryptoContext<ILVector2n> cc = GenCryptoContextElementBV(ORDER, PTM);
+	UnitTest_Mult<ILVector2n>(cc);
+}
+
+#if !defined(_MSC_VER)
+TEST(UTSHE, BV_ILVectorArray2n_Mult) {
+	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayBV(ORDER, TOWERS, PTM);
+	UnitTest_Mult<ILVectorArray2n>(cc);
+}
+#endif
+
+TEST(UTSHE, FV_ILVector2n_Mult) {
+	CryptoContext<ILVector2n> cc = GenCryptoContextElementFV(ORDER, PTM);
+	UnitTest_Mult<ILVector2n>(cc);
+}
+
+//TEST(UTSHE, FV_ILVectorArray2n_Mult) {
+//	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayFV(ORDER, TOWERS, PTM);
+//	UnitTest_Mult<ILVectorArray2n>(cc);
+//}
+
+
 TEST(UTSHE, keyswitch_sparse_key_SingleCRT_byteplaintext) {
 
-	//ILVector2n::DestroyPreComputedSamples();
 	usint m = 512;
+	usint plaintextModulus = 2;
 
 	BytePlaintextEncoding plaintext("I am good, what are you?! 32 ch");
-	float stdDev = 4;
 
-	BigBinaryInteger q("1");
-	BigBinaryInteger temp;
-
-	lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("40"), BigBinaryInteger("4"));
-
-	BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
-	ILParams params(m, q, RootOfUnity(m, q));
-
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(2, m,
-			q.ToString(), RootOfUnity(m, q).ToString(), 1, stdDev);
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
-	cc.Enable(LEVELEDSHE);
+	CryptoContext<ILVector2n> cc = GenCryptoContextElementLTV(m, 2);
 
 	LPKeyPair<ILVector2n> kp = cc.KeyGen();
 
@@ -121,10 +318,9 @@ TEST(UTSHE, keyswitch_sparse_key_SingleCRT_intArray) {
 	lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("40"), BigBinaryInteger("4"));
 
 	BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
-	ILParams params(m, q, RootOfUnity(m, q));
+	shared_ptr<ILVector2n::Params> params( new ILVector2n::Params(m, q, rootOfUnity) );
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(2, m,
-			q.ToString(), RootOfUnity(m, q).ToString(), 1, stdDev);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, 2, 1, stdDev);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(LEVELEDSHE);
 	cc.Enable(SHE);
@@ -171,10 +367,9 @@ TEST(UTSHE, keyswitch_SingleCRT) {
 	lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("40"), BigBinaryInteger("4"));
 
 	BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
-	ILParams params(m, q, RootOfUnity(m, q));
+	shared_ptr<ILVector2n::Params> params( new ILVector2n::Params(m, q, rootOfUnity) );
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(2, m,
-			q.ToString(), RootOfUnity(m, q).ToString(), 1, stdDev);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, 2, 1, stdDev);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 
@@ -215,8 +410,9 @@ TEST(UTSHE, sparsekeygen_single_crt_encrypt_decrypt) {
 
 	BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(2, m,
-			q.ToString(), RootOfUnity(m, q).ToString(), 1, stdDev);
+	shared_ptr<ILVector2n::Params> params( new ILVector2n::Params(m, q, rootOfUnity) );
+
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, 2, 1, stdDev);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(LEVELEDSHE);
 	cc.Enable(SHE);
@@ -246,6 +442,8 @@ TEST(UTSHE, keyswitch_ModReduce_DCRT) {
 	BytePlaintextEncoding plaintext("I am good, what are you?! 32 ch");
 	float stdDev = 4;
 	usint size = 4;
+	usint plaintextmodulus = 2;
+	usint relinWindow = 1;
 
 	vector<native64::BigBinaryInteger> moduli(size);
 	moduli.reserve(4);
@@ -267,13 +465,8 @@ TEST(UTSHE, keyswitch_ModReduce_DCRT) {
 
 	shared_ptr<ILDCRTParams> params( new ILDCRTParams(m, moduli, rootsOfUnity) );
 
-	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
-	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
-	cryptoParams.SetDistributionParameter(stdDev);
-	cryptoParams.SetRelinWindow(1);
-	cryptoParams.SetElementParams(params);
+	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextLTV(params, plaintextmodulus, relinWindow, stdDev);
 
-	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::getCryptoContextDCRT(&cryptoParams);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(LEVELEDSHE);
 	cc.Enable(SHE);
@@ -327,8 +520,9 @@ TEST(UTSHE, ringreduce_single_crt) {
 
 	BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(2, m,
-			q.ToString(), RootOfUnity(m, q).ToString(), 1, stdDev);
+	shared_ptr<ILVector2n::Params> params( new ILVector2n::Params(m, q, rootOfUnity) );
+
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, 2, 1, stdDev);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(LEVELEDSHE);
 	cc.Enable(SHE);
@@ -376,6 +570,8 @@ TEST(UTSHE, ringreduce_double_crt) {
 
 	usint m = 16;
 	float stdDev = 4;
+	usint plaintextmodulus = 2;
+	usint relinWindow = 1;
 	usint size = 3;
 
 	vector<native64::BigBinaryInteger> moduli(size);
@@ -398,13 +594,7 @@ TEST(UTSHE, ringreduce_double_crt) {
 
 	shared_ptr<ILDCRTParams> params( new ILDCRTParams(m, moduli, rootsOfUnity) );
 
-	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
-	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO); // Set plaintext modulus.
-	cryptoParams.SetDistributionParameter(stdDev);          // Set the noise parameters.
-	cryptoParams.SetRelinWindow(1);						   // Set the relinearization window
-	cryptoParams.SetElementParams(params);                // Set the initialization parameters.
-
-	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::getCryptoContextDCRT(&cryptoParams);
+	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextLTV(params, plaintextmodulus, relinWindow, stdDev);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(LEVELEDSHE);
 	cc.Enable(SHE);

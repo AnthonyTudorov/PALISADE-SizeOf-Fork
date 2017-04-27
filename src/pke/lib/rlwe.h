@@ -202,16 +202,14 @@ public:
 				m_relinWindow == el->GetRelinWindow();
 	}
 
-	friend std::ostream& operator<<(std::ostream& os, const LPCryptoParametersRLWE<Element>& item) {
-		os << "Plaintext modulus " << item.GetPlaintextModulus() << std::endl;
-		os<< *item.GetElementParams();
+	void PrintParameters(std::ostream& os) const {
+		LPCryptoParameters<Element>::PrintParameters(os);
 
-		os << "Distrib parm " << item.GetDistributionParameter() <<
-				", Assurance measure " << item.GetAssuranceMeasure() <<
-				", Security level " << item.GetSecurityLevel() <<
-				", Relin window " << item.GetRelinWindow() <<
-				", Depth " << item.GetDepth() << std::endl;
-		return os;
+		os << "Distrib parm " << GetDistributionParameter() <<
+				", Assurance measure " << GetAssuranceMeasure() <<
+				", Security level " << GetSecurityLevel() <<
+				", Relin window " << GetRelinWindow() <<
+				", Depth " << GetDepth() << std::endl;
 	}
 
 protected:

@@ -107,9 +107,10 @@ void LTVAutomorphismIntArray() {
 
 	DiscreteGaussianGenerator dgg(stdDev);
 
-	ILParams params(m, q, rootOfUnity);
+	shared_ptr<ILParams> params( new ILParams(m, q, rootOfUnity) );
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(plaintextModulus, m, q.ToString(), RootOfUnity(m, q).ToString(), 1, stdDev);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(
+			params, plaintextModulus, 1, stdDev);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 
@@ -168,9 +169,9 @@ void LTVEvalAtIndexPackedArray(usint i) {
 
 	DiscreteGaussianGenerator dgg(stdDev);
 
-	ILParams params(m, q, rootOfUnity);
+	shared_ptr<ILParams> params( new ILParams(m, q, rootOfUnity) );
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(plaintextModulus, m, q.ToString(), RootOfUnity(m, q).ToString(), 1, stdDev);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, plaintextModulus, 1, stdDev);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 
@@ -222,9 +223,9 @@ void LTVAutomorphismPackedArray(usint i) {
 
 	float stdDev = 4;
 
-	ILParams params(m, q, rootOfUnity);
+	shared_ptr<ILParams> params( new ILParams(m, q, rootOfUnity) );
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(plaintextModulus, m, q.ToString(), RootOfUnity(m, q).ToString(), 1, stdDev);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, plaintextModulus, 1, stdDev);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 
@@ -278,9 +279,9 @@ void LTVEvalSumPackedArray() {
 
 	DiscreteGaussianGenerator dgg(stdDev);
 
-	ILParams params(m, q, rootOfUnity);
+	shared_ptr<ILParams> params( new ILParams(m, q, rootOfUnity) );
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(plaintextModulus, m, q.ToString(), RootOfUnity(m, q).ToString(), 1, stdDev);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, plaintextModulus, 1, stdDev);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 
@@ -337,9 +338,9 @@ void BVAutomorphismPackedArray(usint i) {
 
 	float stdDev = 4;
 
-	ILParams params(m, q, rootOfUnity);
+	shared_ptr<ILParams> params( new ILParams(m, q, rootOfUnity) );
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(plaintextModulus, m, q.ToString(), RootOfUnity(m, q).ToString(), 1, stdDev);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, plaintextModulus, 1, stdDev);
 
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
@@ -395,8 +396,10 @@ void FVAutomorphismPackedArray(usint i) {
 	BigBinaryInteger BBIPlaintextModulus(plaintextModulus);
 	BigBinaryInteger delta(q.DividedBy(BBIPlaintextModulus));
 
+	shared_ptr<ILParams> params( new ILParams(m, q, rootOfUnity) );
+
 	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
-		plaintextModulus, m, q.ToString(), rootOfUnity.ToString(),
+		params, plaintextModulus,
 		relWindow, stdDev, delta.ToString());
 
 	cc.Enable(ENCRYPTION);

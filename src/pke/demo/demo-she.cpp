@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
 	// no name specified? print out the names of all available parameter sets
 	if( !haveName ) {
 		cout << "Available crypto parameter sets are:" << endl;
-		CryptoContextHelper<ILVector2n>::printAllParmSetNames(cout);
+		CryptoContextHelper::printAllParmSetNames(cout);
 		return 1;
 	}
 
@@ -127,23 +127,28 @@ int main(int argc, char *argv[])
 
 	if( beVerbose ) cout << "Initializing crypto system" << endl;
 
-	CryptoContext<ILVector2n> cc = CryptoContextHelper<ILVector2n>::getNewContext(parmSetName);
+	CryptoContext<ILVector2n> cc = CryptoContextHelper::getNewContext(parmSetName);
 
 	// enable features that you wish to use
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 
-	if( beVerbose ) {
-		CryptoContextHelper<ILVector2n>::printParmSet(cout, parmSetName);
-	}
-
 	// for this demo we reset the plaintext modulus and try ParamsGen
 	cc.GetCryptoParameters()->SetPlaintextModulus(BigBinaryInteger::FOUR);
 
 	try {
+		if( beVerbose )
+			cout << "Running params gen" << endl;
 		cc.GetEncryptionAlgorithm()->ParamsGen(cc.GetCryptoParameters(), 0, 1);
 	} catch(...) {
 		// ignore for schemes w/o Param Gen
+		if( beVerbose )
+			cout << "Running params gen failed, continuing..." << endl;
+	}
+
+	if( beVerbose ) {
+		CryptoContextHelper::printParmSet(cout, parmSetName);
+		cout << *cc.GetCryptoParameters() << endl;
 	}
 
 	std::vector<uint32_t> vectorOfInts1 = { 1,0,3,1,0,1,2,1 };

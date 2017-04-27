@@ -444,7 +444,7 @@ JNIEXPORT jlong JNICALL Java_com_palisade_PalisadeCrypto_openPalisadeCrypto
 	string cp(parms, env->GetArrayLength(parmJson));
 	if( isCopy ) env->ReleaseByteArrayElements(parmJson, (jbyte *)parms, JNI_ABORT);
 
-	CryptoContext<ILVector2n> ctx = CryptoContextHelper<ILVector2n>::getNewContext( cp );
+	CryptoContext<ILVector2n> ctx = CryptoContextHelper::getNewContext( cp );
 
 	if( bool(ctx) == false ) {
 		return 0;

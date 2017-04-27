@@ -50,34 +50,6 @@ protected:
 public:
 };
 
-/**Simple Encrypt-Decrypt check for FV scheme.
-* This test case is only testing if the resulting plaintext from an encrypt/decrypt returns the same
-* plaintext
-* The cyclotomic order is set 2048
-*/
-TEST(UTFV, ILVector2n_FV_Encrypt_Decrypt) {
-
-	usint m = 2048;
-	BigBinaryInteger modulus("268441601");
-	BigBinaryInteger rootOfUnity("16947867");
-	usint relWindow = 1;
-
-	BytePlaintextEncoding plaintext("NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL");
-	
-	float stdDev = 4;
-
-	BigBinaryInteger plaintextModulus(BigBinaryInteger::TWO);
-	BigBinaryInteger delta(modulus.DividedBy(plaintextModulus));
-
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
-			2, m, modulus.ToString(), rootOfUnity.ToString(),
-			relWindow, stdDev, delta.ToString());
-	cc.Enable(ENCRYPTION);
-	cc.Enable(PRE);
-
-	UnitTestEncryption<ILVector2n>(cc);
-}
-
 //Tests EvalAdd, EvalSub, and EvalMul operations for FV in the RLWE mode
 TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 
@@ -93,11 +65,12 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 
 	float stdDev = 4;
 
+	shared_ptr<ILVector2n::Params> parms( new ILVector2n::Params(m, modulus, rootOfUnity) );
+
 	//Set crypto parametes
 	BigBinaryInteger delta(modulus.DividedBy(plaintextModulus));
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
-			64, m, modulus.ToString(), rootOfUnity.ToString(),
-			1, stdDev, delta.ToString(), RLWE, bigModulus.ToString(),
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(parms,
+			64, 1, stdDev, delta.ToString(), RLWE, bigModulus.ToString(),
 			bigRootOfUnity.ToString(), 0, 9, 1.006);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
@@ -217,11 +190,11 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 TEST(UTFV, ILVector2n_FV_ParamsGen_EvalMul) {
 
 	usint relWindow = 1;
-	BigBinaryInteger plaintextModulus(BigBinaryInteger("4"));
+	usint plaintextModulus = 4;
 	float stdDev = 4;
 
 	//Set crypto parametes
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(plaintextModulus, 1.006, 0, 2, 0);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(plaintextModulus, 1.006, 16, stdDev, 0, 2, 0);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 
@@ -288,18 +261,13 @@ TEST(UTFV, ILVector2n_FV_ParamsGen_EvalMul) {
 TEST(UTFV, ILVector2n_FV_Optimized_Eval_Operations) {
 
 	usint relWindow = 1;
-	BigBinaryInteger plaintextModulus(BigBinaryInteger("64"));
+	usint plaintextModulus = 64;
 	float stdDev = 4;
 
-	//Set crypto parametes
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
-			64, 0, "0", "0",
-			relWindow, stdDev, "0",
-			OPTIMIZED, "0", "0", 0, 9, 1.006);
+	//Set crypto parameters
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(plaintextModulus, 1.006, 16, stdDev, 0, 1, 0);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
-
-	cc.GetEncryptionAlgorithm()->ParamsGen(cc.GetCryptoParameters(), 0, 1);
 
 	// Initialize the public key containers.
 	LPKeyPair<ILVector2n> kp;
@@ -432,6 +400,8 @@ TEST(UTFV, ILVector2n_Encrypt_Decrypt_PRE) {
 	BigBinaryInteger modulus("1099511678977");
 	BigBinaryInteger rootOfUnity("928976858506");
 
+	shared_ptr<ILVector2n::Params> params(new ILVector2n::Params(m, modulus, rootOfUnity));
+
 	BigBinaryInteger bigModulus("1237940039285380274899136513");
 	BigBinaryInteger bigRootOfUnity("1067388930511360414468370668");
 
@@ -442,7 +412,7 @@ TEST(UTFV, ILVector2n_Encrypt_Decrypt_PRE) {
 	//Set crypto parametes
 	BigBinaryInteger delta(modulus.DividedBy(plaintextModulus));
 	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
-		8, m, modulus.ToString(), rootOfUnity.ToString(),
+		params, 8,
 		1, stdDev, delta.ToString(), RLWE, bigModulus.ToString(),
 		bigRootOfUnity.ToString(), 0, 9, 1.006);
 

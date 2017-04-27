@@ -154,30 +154,29 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\src\pke\unittest\helperUnitTestDCRT.cpp" />
-    <ClCompile Include="..\..\..\..\src\pke\unittest\helperUnitTestEncryption.cpp" />
-    <ClCompile Include="..\..\..\..\src\pke\unittest\Main_TestAll.cpp" />
-    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestBatching.cpp" />
-    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestBV.cpp" />
-    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestBVDCRT.cpp" />
-    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestFV.cpp" />
-    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestLTV.cpp" />
-    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestSHE.cpp" />
-    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestSHEAdvanced.cpp" />
-    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestStatisticalEval.cpp" />
-    <ClCompile Include="..\..\..\..\test\include\gtest\gtest-all.cc" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\..\..\src\pke\unittest\cryptolayertests.h" />
-    <ClInclude Include="..\..\..\..\test\include\gtest\gtest.h" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\core\core.vcxproj">
       <Project>{ae8deb8d-de67-43b9-a36b-db1ce7517d8c}</Project>
     </ProjectReference>
     <ProjectReference Include="..\pke\pke.vcxproj">
       <Project>{12a98ba2-2426-476d-9b25-fba1a2639fd6}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\..\src\pke\unittest\cryptolayertests.h" />
+    <ClInclude Include="..\..\..\..\test\include\gtest\gtest.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\..\src\pke\unittest\Main_TestAll.cpp" />
+    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestBatching.cpp" />
+    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestBVDCRT.cpp" />
+    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestENCRYPT.cpp" />
+    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestFV.cpp" />
+    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestLTV.cpp" />
+    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestPRE.cpp" />
+    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestSHE.cpp" />
+    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestSHEAdvanced.cpp" />
+    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestStatisticalEval.cpp" />
+    <ClCompile Include="..\..\..\..\test\include\gtest\gtest-all.cc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

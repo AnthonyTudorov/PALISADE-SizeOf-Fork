@@ -193,6 +193,15 @@ namespace lbcrypto {
 				return  LPCryptoParametersRLWE<Element>::operator==(rhs);
 			}
 
+			void PrintParameters(std::ostream& os) const {
+				LPCryptoParametersRLWE<Element>::PrintParameters(os);
+
+				os << " delta: " << m_delta <<
+						" mode: " << m_mode <<
+						" bigmodulus: " << m_bigModulus <<
+						" bigrootofunity: " << m_bigRootOfUnity;
+			}
+
 		private:
 			// factor delta = floor(q/p) that is multipled by the plaintext polynomial 
 			// in FV (most significant bit ranges are used to represent the message)

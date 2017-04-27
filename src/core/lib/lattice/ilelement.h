@@ -134,29 +134,11 @@ public:
 	 * @param i
 	 * @return will throw a logic_error.
 	 */
-	//dbc changed this to non ref return
-#if MATHBACKEND !=6
-	virtual const IntType& GetValAtIndex(usint i) const {
-#else
 	virtual const IntType GetValAtIndex(usint i) const {
-#endif
 		throw std::logic_error("GetValAtIndex not implemented");
 	}
 
 	//SETTERS
-	/**
-	 * Set the Value in the Element that is At Index
-	 *
-	 * This is only implemented for some derived classes, so the default implementation throws an exception
-	 *
-	 * @param index
-	 * @param val
-	 */
-	virtual void SetValAtIndex(size_t index, int val) {
-		throw std::logic_error("SetValAtIndex not implemented");
-	}
-
-	// SETTERS
 	/**
 	 * SetValAtIndex
 	 *
@@ -301,9 +283,10 @@ public:
 	 * used as a subroutine in the relinearization procedure
 	 *
 	 * @param baseBits is the number of bits in the base, i.e., base = 2^baseBits
+	 * @param evalModeAnswer - if true, convert the resultant polynomials to evaluation mode
 	 * @result is the pointer where the base decomposition vector is stored
 	 */
-	virtual std::vector<Element> BaseDecompose(usint baseBits) const = 0;
+	virtual std::vector<Element> BaseDecompose(usint baseBits, bool evalModeAnswer=true) const = 0;
 
 	/**
 	 * Interpolates based on the Chinese Remainder Transform Interpolation.
@@ -413,6 +396,13 @@ public:
 	 * Convert from Coefficient to CRT or vice versa; calls FFT and inverse FFT.
 	 */
 	virtual void SwitchFormat() = 0;
+
+	void SetFormat(const Format format) {
+		if (this->GetFormat() != format) {
+			this->SwitchFormat();
+		}
+	}
+
 };
 
 } // namespace lbcrypto ends

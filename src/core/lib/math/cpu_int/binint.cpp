@@ -175,7 +175,7 @@ uint64_t BigBinaryInteger<uint_type, BITLENGTH>::ConvertToInt() const{
 	usint ceilInt = m_nSize - ceilIntByUInt(m_MSB);
 	//copy the values by shift and add
 	for (usint i = 0; i < num && (m_nSize - i - 1) >= ceilInt; i++){
-		result += (this->m_value[m_nSize - i - 1] << (m_uintBitLength*i));
+		result += ((uint64_t)this->m_value[m_nSize - i - 1] << (m_uintBitLength*i));
 	}
 	return result;
 }

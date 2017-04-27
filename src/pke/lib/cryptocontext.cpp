@@ -58,19 +58,16 @@ CryptoContext<T>::Deserialize(const Serialized& serObj)
 
 template <typename T>
 CryptoContext<T>
-CryptoContextFactory<T>::genCryptoContextLTV(
+CryptoContextFactory<T>::genCryptoContextLTV(shared_ptr<typename T::Params> ep,
 		const usint plaintextmodulus,
-		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
-		usint relinWindow, float stDev, int depth)
+		usint relinWindow, float stDev, int depth, int assuranceMeasure, float securityLevel)
 {
-	shared_ptr<typename T::Params> ep( new typename T::Params(ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
-
 	shared_ptr<LPCryptoParametersLTV<T>> params( new LPCryptoParametersLTV<T>(
 			ep,
 			BigBinaryInteger(plaintextmodulus),
-			stDev, // distribution parameter
-			0.0, // assuranceMeasure,
-			0.0, // securityLevel,
+			stDev,
+			assuranceMeasure,
+			securityLevel,
 			relinWindow,
 			depth) );
 
@@ -81,14 +78,11 @@ CryptoContextFactory<T>::genCryptoContextLTV(
 
 template <typename T>
 CryptoContext<T>
-CryptoContextFactory<T>::genCryptoContextFV(
+CryptoContextFactory<T>::genCryptoContextFV(shared_ptr<typename T::Params> ep,
 		const usint plaintextmodulus,
-		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
 		usint relinWindow, float stDev, const std::string& delta,
 		MODE mode, const std::string& bigmodulus, const std::string& bigrootofunity, int depth, int assuranceMeasure, float securityLevel)
 {
-	shared_ptr<typename T::Params> ep( new typename T::Params(ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
-
 	shared_ptr<LPCryptoParametersFV<T>> params(
 			new LPCryptoParametersFV<T>(ep,
 					BigBinaryInteger(plaintextmodulus),
@@ -110,7 +104,7 @@ CryptoContextFactory<T>::genCryptoContextFV(
 template <typename T>
 CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextFV(
-		const BigBinaryInteger& plaintextModulus, float securityLevel,
+		const usint plaintextModulus, float securityLevel, usint relinWindow, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches)
 {
 	int nonZeroCount = 0;
@@ -127,10 +121,10 @@ CryptoContextFactory<T>::genCryptoContextFV(
 	shared_ptr<LPCryptoParametersFV<T>> params( new LPCryptoParametersFV<T>() );
 
 	params->SetElementParams(ep);
-	params->SetPlaintextModulus(plaintextModulus);
+	params->SetPlaintextModulus(typename T::Integer(plaintextModulus));
 	params->SetSecurityLevel(securityLevel);
-	params->SetRelinWindow(16);
-	params->SetDistributionParameter(4.0);
+	params->SetRelinWindow(relinWindow);
+	params->SetDistributionParameter(dist);
 	params->SetMode(OPTIMIZED);
 	params->SetAssuranceMeasure(9.0);
 
@@ -144,20 +138,17 @@ CryptoContextFactory<T>::genCryptoContextFV(
 
 template <typename T>
 CryptoContext<T>
-CryptoContextFactory<T>::genCryptoContextBV(
+CryptoContextFactory<T>::genCryptoContextBV(shared_ptr<typename T::Params> ep,
 		const usint plaintextmodulus,
-		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
 		usint relinWindow, float stDev,
 		MODE mode, int depth)
 {
-	shared_ptr<typename T::Params> ep( new typename T::Params(ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)));
-
 	shared_ptr<LPCryptoParametersBV<T>> params( new LPCryptoParametersBV<T>(
 		ep,
 		BigBinaryInteger(plaintextmodulus),
 		stDev,
-		0.0, // assuranceMeasure,
-		0.0, // securityLevel,
+		9, // assuranceMeasure,
+		1.006, // securityLevel,
 		relinWindow, // Relinearization Window
 		mode, //Mode of noise generation
 		depth) );
@@ -168,46 +159,20 @@ CryptoContextFactory<T>::genCryptoContextBV(
 }
 
 template <typename T>
-CryptoContext<T> CryptoContextFactory<T>::genCryptoContextBV(LPCryptoParametersBV<T>* cryptoParams, MODE mode) {
-
-	shared_ptr<LPCryptoParametersBV<T>> mycryptoParams( new LPCryptoParametersBV<T>(*cryptoParams) ); // copy so memory works right
-
-	mycryptoParams->SetMode(mode);
-
-	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeBV<T>() );
-
-	return CryptoContext<T>(mycryptoParams, scheme);
-}
-
-// FIXME: this is temporary until we better incorporate DCRT
-template <typename T>
 CryptoContext<T>
-CryptoContextFactory<T>::getCryptoContextDCRT(LPCryptoParametersLTV<T>* cryptoParams)
-{
-	shared_ptr<LPCryptoParametersLTV<T>> mycryptoParams( new LPCryptoParametersLTV<T>( *cryptoParams ) ); // copy so memory works right
-
-	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeLTV<T>());
-
-	return CryptoContext<T>(mycryptoParams, scheme);
-}
-
-template <typename T>
-CryptoContext<T>
-CryptoContextFactory<T>::genCryptoContextStehleSteinfeld(
+CryptoContextFactory<T>::genCryptoContextStehleSteinfeld(shared_ptr<typename T::Params> ep,
 		const usint plaintextmodulus,
-		usint ringdim, const std::string& modulus, const std::string& rootOfUnity,
-		usint relinWindow, float stDev, float stDevStSt)
+		usint relinWindow, float stDev, float stDevStSt, int depth, int assuranceMeasure, float securityLevel)
 {
-	shared_ptr<typename T::Params> ep( new typename T::Params(ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
-
 	shared_ptr<LPCryptoParametersStehleSteinfeld<T>> params( new LPCryptoParametersStehleSteinfeld<T>(
 			ep,
 			BigBinaryInteger(plaintextmodulus),
 			stDev,
-			0.0, // assuranceMeasure,
-			0.0, // securityLevel,
+			assuranceMeasure,
+			securityLevel,
 			relinWindow,
-			stDevStSt) );
+			stDevStSt,
+			depth) );
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeStehleSteinfeld<T>());
 
@@ -216,27 +181,14 @@ CryptoContextFactory<T>::genCryptoContextStehleSteinfeld(
 
 template <typename T>
 CryptoContext<T>
-CryptoContextFactory<T>::genCryptoContextNull(
-		const std::string& ptModulus, usint ringdim, const std::string& modulus, const std::string& rootOfUnity)
+CryptoContextFactory<T>::genCryptoContextNull(shared_ptr<typename T::Params> ep,
+		const usint ptModulus)
 {
-	shared_ptr<typename T::Params> ep( new typename T::Params(ringdim, BigBinaryInteger(modulus), BigBinaryInteger(rootOfUnity)) );
-
 	shared_ptr<LPCryptoParametersNull<T>> params( new LPCryptoParametersNull<T>(ep, BigBinaryInteger(ptModulus)) );
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeNull<T>() );
 
 	return CryptoContext<T>(params, scheme);
 }
-
-template<typename T>
-CryptoContext<ILVectorArray2n>
-CryptoContextFactory<T>::genCryptoContextNull(shared_ptr<ILDCRTParams> parms, const BigBinaryInteger& ptm)
-{
-	shared_ptr<LPCryptoParametersNull<ILVectorArray2n>> params( new LPCryptoParametersNull<ILVectorArray2n>(parms, ptm) );
-	shared_ptr<LPPublicKeyEncryptionScheme<ILVectorArray2n>> scheme( new LPPublicKeyEncryptionSchemeNull<ILVectorArray2n>() );
-
-	return CryptoContext<ILVectorArray2n>(params, scheme);
-}
-
 
 // the methods below allow me to deserialize a json object into this context
 // ... which will only succeed if the object was serialized from this context,
@@ -246,7 +198,7 @@ template <typename T>
 shared_ptr<LPPublicKey<T>>
 CryptoContext<T>::deserializePublicKey(const Serialized& serObj) const
 {
-	if( CryptoContextHelper<T>::matchContextToSerialization(*this, serObj) == false ) {
+	if( CryptoContextHelper::matchContextToSerialization(*this, serObj) == false ) {
 		return shared_ptr<LPPublicKey<T>>();
 	}
 
@@ -262,7 +214,7 @@ template <typename T>
 shared_ptr<LPPrivateKey<T>>
 CryptoContext<T>::deserializeSecretKey(const Serialized& serObj) const
 {
-	if( CryptoContextHelper<T>::matchContextToSerialization(*this, serObj) == false ) {
+	if( CryptoContextHelper::matchContextToSerialization(*this, serObj) == false ) {
 		return shared_ptr<LPPrivateKey<T>>();
 	}
 
@@ -278,7 +230,7 @@ template <typename T>
 shared_ptr<Ciphertext<T>>
 CryptoContext<T>::deserializeCiphertext(const Serialized& serObj) const
 {
-	if( CryptoContextHelper<T>::matchContextToSerialization(*this, serObj) == false ) {
+	if( CryptoContextHelper::matchContextToSerialization(*this, serObj) == false ) {
 		return shared_ptr<Ciphertext<T>>();
 	}
 
@@ -294,7 +246,7 @@ template <typename T>
 shared_ptr<LPEvalKey<T>>
 CryptoContext<T>::deserializeEvalKey(const Serialized& serObj) const
 {
-	if( CryptoContextHelper<T>::matchContextToSerialization(*this, serObj) == false ) {
+	if( CryptoContextHelper::matchContextToSerialization(*this, serObj) == false ) {
 		return shared_ptr<LPEvalKeyNTRURelin<T>>();
 	}
 
@@ -311,7 +263,7 @@ template <typename T>
 shared_ptr<LPEvalKey<T>>
 CryptoContext<T>::deserializeEvalMultKey(const Serialized& serObj) const
 {
-	if( CryptoContextHelper<T>::matchContextToSerialization(*this, serObj) == false ) {
+	if( CryptoContextHelper::matchContextToSerialization(*this, serObj) == false ) {
 		return shared_ptr<LPEvalKeyNTRURelin<T>>();
 	}
 

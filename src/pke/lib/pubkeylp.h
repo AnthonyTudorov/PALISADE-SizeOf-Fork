@@ -1268,6 +1268,23 @@ namespace lbcrypto {
 		 */
 		void SetElementParams(shared_ptr<typename Element::Params> params) { m_params = params; }
 
+		/**
+		 * Overload to allow printing of parameters to an iostream
+		 * NOTE that the implementation relies on calling the virtual PrintParameters method
+		 * @param out - the stream to print to
+		 * @param item - reference to the item to print
+		 * @return the stream
+		 */
+		friend std::ostream& operator<<(std::ostream& out, const LPCryptoParameters& item) {
+			item.PrintParameters(out);
+			return out;
+		}
+
+		virtual usint GetRelinWindow() const { return 0; }
+
+		virtual const typename Element::DggType &GetDiscreteGaussianGenerator() const { return 0; }
+
+
 	protected:
 		LPCryptoParameters() : m_plaintextModulus(Element::Integer::TWO) {}
 
@@ -1280,6 +1297,11 @@ namespace lbcrypto {
 		LPCryptoParameters(LPCryptoParameters<Element> *from, shared_ptr<typename Element::Params> newElemParms) {
 			*this = *from;
 			m_params = newElemParms;
+		}
+
+		virtual void PrintParameters(std::ostream& out) const {
+			out << "Element Parameters: " << *m_params << std::endl;
+			out << "Plaintext Modulus: " << m_plaintextModulus << std::endl;
 		}
 
 	private:

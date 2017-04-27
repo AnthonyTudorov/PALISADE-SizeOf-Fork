@@ -132,6 +132,7 @@ void EncryptionSchemeSimulation(usint count){
 	//for (usint i = 0; i<7; i++){
 
 	//prepare the parameters
+	usint ptModulus = 2;
 	usint n = data[i].m / 2;
 	usint m = data[i].m;
 	BigBinaryInteger modulus(data[i].modulus);
@@ -140,16 +141,10 @@ void EncryptionSchemeSimulation(usint count){
 
 	int stdDev = 4;
 
-	//Set crypto parametes
+	//Set crypto parameters
+	shared_ptr<ILVector2n::Params> parms( new ILVector2n::Params(m, modulus, rootOfUnity) );
 
-	CryptoContext<ILVector2n> cc =  CryptoContextFactory<ILVector2n>::genCryptoContextLTV(
-			/* plaintextmodulus */ 2,
-			/* ringdim */ m,
-			data[i].modulus,
-			data[i].rootOfUnity,
-			relWindow,
-			stdDev);
-
+	CryptoContext<ILVector2n> cc =  CryptoContextFactory<ILVector2n>::genCryptoContextLTV(parms, ptModulus, relWindow, stdDev);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(PRE);
 
@@ -290,6 +285,7 @@ void PRESimulation(usint count, usint dataset){
 
 	//POPULATE THE PARAMETERS AND PERFORM PRE-COMPUTATIONS
 	//prepare the parameters
+	usint ptModulus = 2;
 	usint n = data[i].m / 2;
 	usint m = data[i].m;
 	BigBinaryInteger modulus(data[i].modulus);
@@ -299,16 +295,10 @@ void PRESimulation(usint count, usint dataset){
 
 	int stdDev = 4;
 
-	// Set crypto parametes
+	//Set crypto parameters
+	shared_ptr<ILVector2n::Params> parms( new ILVector2n::Params(m, modulus, rootOfUnity) );
 
-	CryptoContext<ILVector2n> cc =  CryptoContextFactory<ILVector2n>::genCryptoContextLTV(
-			/* plaintextmodulus */ 2,
-			/* ringdim */ m,
-			data[i].modulus,
-			data[i].rootOfUnity,
-			relWindow,
-			stdDev);
-
+	CryptoContext<ILVector2n> cc =  CryptoContextFactory<ILVector2n>::genCryptoContextLTV(parms, ptModulus, relWindow, stdDev);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(PRE);
 

@@ -61,7 +61,6 @@ TEST(UTLTVBATCHING, ILVector2n_Encrypt_Decrypt) {
 	usint m = 8;
 	BigBinaryInteger modulus("2199023288321");
 	BigBinaryInteger rootOfUnity;
-	usint relWindow = 1;
 
 	lbcrypto::NextQ(modulus, BigBinaryInteger(17), m, BigBinaryInteger("4000"), BigBinaryInteger("4000"));
 	rootOfUnity = RootOfUnity(m, modulus);
@@ -70,8 +69,8 @@ TEST(UTLTVBATCHING, ILVector2n_Encrypt_Decrypt) {
 
 	PackedIntPlaintextEncoding intArray1(vectorOfInts1);
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(17,
-			m, modulus.ToString(), rootOfUnity.ToString(), 8, stdDev);
+	shared_ptr<ILVector2n::Params> ep( new ILVector2n::Params(m, modulus, rootOfUnity) );
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(ep, 17, 8, stdDev);
 
 	cc.Enable(ENCRYPTION);
 
@@ -116,7 +115,6 @@ TEST(UTLTVBATCHING, ILVector2n_EVALADD) {
 	usint m = 8;
 	BigBinaryInteger modulus("2199023288321");
 	BigBinaryInteger rootOfUnity;
-	usint relWindow = 1;
 
 	lbcrypto::NextQ(modulus, BigBinaryInteger(17), m, BigBinaryInteger("4000"), BigBinaryInteger("4000"));
 	rootOfUnity = RootOfUnity(m, modulus);
@@ -141,8 +139,8 @@ TEST(UTLTVBATCHING, ILVector2n_EVALADD) {
 
 	std::vector<usint> vectorOfIntsExpected = { 5,5,5,5 };
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(17,
-			m, modulus.ToString(), rootOfUnity.ToString(), 8, stdDev);
+	shared_ptr<ILVector2n::Params> ep( new ILVector2n::Params(m, modulus, rootOfUnity) );
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(ep, 17, 8, stdDev);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 
@@ -187,19 +185,21 @@ TEST(UTLTVBATCHING, ILVector2n_EVALADD) {
 
 TEST(UTLTVBATCHING, ILVector2n_EVALMULT) {
 
-	usint m = 8;
+	usint ptMod = 17;
 
+	usint m = 8;
+	usint relin = 1;
 	float stdDev = 4;
 
 	BigBinaryInteger q("2199023288321");
-	BigBinaryInteger temp;
 
-	lbcrypto::NextQ(q, BigBinaryInteger(17), m, BigBinaryInteger("4000"), BigBinaryInteger("40000"));
+	lbcrypto::NextQ(q, BigBinaryInteger(ptMod), m, BigBinaryInteger("4000"), BigBinaryInteger("40000"));
 	BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(/*plaintextmodulus*/ 17,
-		/*ringdim*/ m, /*modulus*/ q.ToString(), rootOfUnity.ToString(),
-		/*relinWindow*/ 1, /*stDev*/ stdDev);
+	shared_ptr<ILVector2n::Params> parms( new ILVector2n::Params(m, q, rootOfUnity) );
+
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(parms, ptMod,
+		relin, stdDev);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 	cc.Enable(LEVELEDSHE);

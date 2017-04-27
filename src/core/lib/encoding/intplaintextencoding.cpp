@@ -50,7 +50,7 @@ template <typename IntType, typename VecType, typename Element>
 void IntPlaintextEncoding::doEncode(const BigBinaryInteger &modulus, Element *ilVector, size_t startFrom, size_t length) const
 {
 	int padlen = 0;
-	uint32_t mod = modulus.ConvertToInt();
+	uint64_t mod = modulus.ConvertToInt();
 
 	if( length == 0 ) length = this->size();
 

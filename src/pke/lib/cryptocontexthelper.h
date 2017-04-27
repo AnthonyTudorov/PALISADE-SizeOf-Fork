@@ -46,7 +46,6 @@
 
 namespace lbcrypto {
 
-template <class Element>
 class CryptoContextHelper {
 public:
 
@@ -70,13 +69,25 @@ public:
 	static void printAllParmSetNames(std::ostream& out);
 
 	/**
+	 * Generate a CryptoContext for a given parameter set name
 	 *
 	 * @param parmsetname name of parameter set to use
 	 * @return newly constructed CryptoContext, or null on failure
 	 */
-	static CryptoContext<Element> getNewContext(const string parmsetname);
+	static CryptoContext<ILVector2n> getNewContext(const string& parmsetname);
 
-	static bool matchContextToSerialization(const CryptoContext<Element> cc, const Serialized& ser);
+	/**
+	 * Generate a DCRT CryptoContext for a given parameter set name
+	 *
+	 * @param parmsetname name of parameter set to use
+	 * @param numTowers - how many towers to generate
+	 * @param primeBits - bit width of the primes in the towers
+	 * @return newly constructed CryptoContext, or null on failure
+	 */
+	static CryptoContext<ILVectorArray2n> getNewDCRTContext(const string& parmsetname, usint numTowers, usint primeBits);
+
+	static bool matchContextToSerialization(const CryptoContext<ILVector2n> cc, const Serialized& ser);
+	static bool matchContextToSerialization(const CryptoContext<ILVectorArray2n> cc, const Serialized& ser);
 };
 
 }

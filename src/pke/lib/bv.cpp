@@ -324,7 +324,7 @@ namespace lbcrypto {
 		//Getting a refernce to discrete gaussian distribution generator.
 		const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 
-		//Getting a reference to ternary distribution generator.
+		//Getting a reference to discrete uniform generator.
 		typename Element::DugType dug;
 
 		//Relinearization window is used to calculate the base exponent.

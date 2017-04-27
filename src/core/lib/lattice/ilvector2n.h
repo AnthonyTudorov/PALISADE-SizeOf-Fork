@@ -270,7 +270,7 @@ public:
 	 * @param val is the usint to assign to index zero.
 	 * @return the resulting vector.
 	 */
-	const ILVectorType& operator=(usint val);
+	const ILVectorType& operator=(uint64_t val);
 
 	//GETTERS
 	/**
@@ -328,11 +328,7 @@ public:
 	 *
 	 * @return value at index i.
 	 */
-#if MATHBACKEND !=6
-	const IntType& GetValAtIndex(usint i) const;
-#else
-    const IntType GetValAtIndex(usint i) const;//DBC changed from returning reference because it broke several functions otherwise. changed back for merge with master... since this is a virtual function.
-#endif
+    const IntType GetValAtIndex(usint i) const;
 
 	//SETTERS
 	/**
@@ -341,26 +337,8 @@ public:
 	 * @param index is the index at which the value is to be set.
 	 * @param val is the value to be set.
 	 */
-	inline void SetValAtIndex(size_t index, int val) {
-		m_values->SetValAtIndex(index, IntType(val));
-	}
-
-	/**
-	 *  Set VecType value to val
-	 *
-	 * @param index is the index at which the value is to be set.
-	 * @param val is the value to be set.
-	 */
 	inline void SetValAtIndex(size_t index, std::string val) {
 		m_values->SetValAtIndex(index, IntType(val));
-	}
-
-    inline void SetValAtIndexWithoutMod(size_t index, int val) {
-#if MATHBACKEND !=6
-      m_values->SetValAtIndex(index, IntType(val));
-#else
-      m_values->SetValAtIndexWithoutMod(index, IntType(val));
-#endif
 	}
 
 	/**
@@ -372,6 +350,7 @@ public:
 	inline void SetValAtIndex(size_t index, const IntType& val) {
 		m_values->SetValAtIndex(index, val);
 	}
+
     inline void SetValAtIndexWithoutMod(size_t index, const IntType& val) {
 #if MATHBACKEND !=6
       m_values->SetValAtIndex(index, val);
@@ -400,13 +379,6 @@ public:
 	 * Sets all values to maximum.
 	 */
 	void SetValuesToMax();
-
-	/**
-	 * Sets the format.
-	 *
-	 * @param format is the Format to be set.
-	 */
-	void SetFormat(const Format format);
 
 	/**
 	 * Scalar addition - add an element to the first index only.
@@ -676,7 +648,7 @@ public:
 	 * @param baseBits is the number of bits in the base, i.e., base = 2^baseBits
 	 * @result is the pointer where the base decomposition vector is stored
 	 */
-	std::vector<ILVectorImpl> BaseDecompose(usint baseBits) const;
+	std::vector<ILVectorImpl> BaseDecompose(usint baseBits, bool evalModeAnswer=true) const;
 
 	/**
 	 * Generate a vector of ILVectorImpl's as {x, base*x, base^2*x, ..., base^{\lfloor {\log q/base} \rfloor}*x, where x is the current ILVectorImpl object;
@@ -748,7 +720,7 @@ public:
 	bool Deserialize(const Serialized& serObj);
 
 	friend inline std::ostream& operator<<(std::ostream& os, const ILVectorImpl& vec) {
-		os << vec.GetValues();
+		os << (vec.m_format == EVALUATION ? "EVAL: " : "COEF: ") << vec.GetValues();
 		return os;
 	}
 
@@ -822,7 +794,7 @@ inline ILVector2n VectorConvert(const native64::ILVector2n& v) {
 						v.GetFormat() );
 
 	for( usint i = 0; i < v.GetCyclotomicOrder(); i++ ) {
-		newvec.SetValAtIndex(i, v.GetValAtIndex(i).ConvertToInt());
+		newvec.SetValAtIndex(i, ILVector2n::Integer(v.GetValAtIndex(i).ConvertToInt()));
 	}
 
 	return newvec;

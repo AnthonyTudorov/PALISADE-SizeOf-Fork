@@ -555,10 +555,7 @@ public:
 	NativeInteger ModAdd(const NativeInteger& b, const NativeInteger& modulus) const {
 		Duint_type modsum = (Duint_type)m_value;
 		modsum += b.m_value;
-
 		modsum %= modulus.m_value;
-		if( modsum > m_uintMax ) //need to check before mod
-			throw std::logic_error("Overflow in ModAdd");
 		return (uint_type)modsum;
 	}
 

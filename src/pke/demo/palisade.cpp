@@ -543,7 +543,7 @@ main( int argc, char *argv[] )
 	}
 
 	if( string(argv[1]) == "-list" && argc == 3) {
-		CryptoContextHelper<ILVector2n>::printAllParmSets(cout);
+		CryptoContextHelper::printAllParmSets(cout);
 		return 0;
 	}
 
@@ -563,7 +563,7 @@ main( int argc, char *argv[] )
 		}
 
 		else if( string(argv[cmdidx]) == "-use" && cmdidx+1 < argc) {
-			ctx = CryptoContextHelper<ILVector2n>::getNewContext( string(argv[cmdidx+1]) );
+			ctx = CryptoContextHelper::getNewContext( string(argv[cmdidx+1]) );
 			if( !ctx ) {
 				usage("ALL", "Could not construct a crypto context");
 				return 1;
@@ -584,7 +584,8 @@ main( int argc, char *argv[] )
 	}
 
 	if( !ctx ) {
-		ctx = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(2, 2048, "268441601", "16947867", 1, 4);
+		cout << "Defaulting to LTV5" << endl;
+		ctx = CryptoContextHelper::getNewContext( "LTV5" );
 	}
 
 	if( !ctx ) {
