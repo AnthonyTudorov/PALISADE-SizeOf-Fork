@@ -171,7 +171,7 @@ TEST(UTILNativeVector2n, ops_tests) {
 }
 
 TEST(UTILVectorArray2n, ops_tests) {
-	operators_tests<BigBinaryInteger, BigBinaryVector, ILDCRTParams, ILVectorArray2n>(
+	operators_tests<BigBinaryInteger, BigBinaryVector, ILVectorArray2n::Params, ILVectorArray2n>(
 			GenerateDCRTParams(8, 3, 20) );
 }
 

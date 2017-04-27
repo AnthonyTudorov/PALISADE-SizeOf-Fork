@@ -141,7 +141,6 @@ namespace lbcrypto {
 
 		shared_ptr<ParmType> p( new ParmType(cyclotomicOrder, parms) );
 
-		p->SetCyclotomicOrder(cyclotomicOrder);
 		m_params = p;
 		m_vectors = towers;
 		m_format = m_vectors[0].GetFormat();
@@ -165,6 +164,7 @@ namespace lbcrypto {
 			native64::BigBinaryVector ilDggValues(dcrtParams->GetRingDimension(), dcrtParams->GetParams()[i]->GetModulus());
 
 			for(usint j = 0; j < dcrtParams->GetRingDimension(); j++){
+				uint64_t	entry;
 				// if the random generated value is less than zero, then multiply it by (-1) and subtract the modulus of the current tower to set the coefficient
 				int64_t k = (dggValues.get())[j];
 				if(k < 0){

@@ -119,16 +119,6 @@ TEST(UTLTVBATCHING, ILVector2n_EVALADD) {
 	lbcrypto::NextQ(modulus, BigBinaryInteger(17), m, BigBinaryInteger("4000"), BigBinaryInteger("4000"));
 	rootOfUnity = RootOfUnity(m, modulus);
 
-//	//Prepare for parameters.
-//	shared_ptr<ILParams> params(new ILParams(m, modulus, rootOfUnity));
-//
-//	//Set crypto parametes
-//	LPCryptoParametersBV<ILVector2n> cryptoParams;
-//	cryptoParams.SetPlaintextModulus(BigBinaryInteger("17"));  	// Set plaintext modulus.
-//	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
-//	cryptoParams.SetRelinWindow(8);				// Set the relinearization window
-//	cryptoParams.SetElementParams(params);			// Set the initialization parameters.
-
 	std::vector<usint> vectorOfInts1 = { 1,2,3,4 };
 
 	PackedIntPlaintextEncoding intArray1(vectorOfInts1);
@@ -266,13 +256,7 @@ TEST(UTLTVBATCHING, ILVector_Encrypt_Decrypt_Arb) {
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, rootOfUnity, bigmodulus, bigroot));
 
-	LPCryptoParametersBV<ILVector2n> cryptoParams;
-	cryptoParams.SetPlaintextModulus(modulusP); // Set plaintext modulus.
-	cryptoParams.SetDistributionParameter(stdDev);          // Set the noise parameters.
-	cryptoParams.SetRelinWindow(8);						   // Set the relinearization window
-	cryptoParams.SetElementParams(params);                // Set the initialization parameters.
-
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(&cryptoParams);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, p, 8, stdDev);
 	cc.Enable(ENCRYPTION);
 
 	// Initialize the public key containers.
@@ -310,14 +294,8 @@ TEST(UTLTVBATCHING, ILVector_EVALADD_Arb) {
 	float stdDev = 4;
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, rootOfUnity, bigmodulus, bigroot));
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, p, 8, stdDev);
 
-	LPCryptoParametersBV<ILVector2n> cryptoParams;
-	cryptoParams.SetPlaintextModulus(modulusP); // Set plaintext modulus.
-	cryptoParams.SetDistributionParameter(stdDev);          // Set the noise parameters.
-	cryptoParams.SetRelinWindow(8);						   // Set the relinearization window
-	cryptoParams.SetElementParams(params);                // Set the initialization parameters.
-
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(&cryptoParams);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 
@@ -369,13 +347,7 @@ TEST(UTLTVBATCHING, ILVector_EVALMULT_Arb) {
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, rootOfUnity, bigmodulus, bigroot));
 
-	LPCryptoParametersBV<ILVector2n> cryptoParams;
-	cryptoParams.SetPlaintextModulus(modulusP); // Set plaintext modulus.
-	cryptoParams.SetDistributionParameter(stdDev);          // Set the noise parameters.
-	cryptoParams.SetRelinWindow(8);						   // Set the relinearization window
-	cryptoParams.SetElementParams(params);                // Set the initialization parameters.
-
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(&cryptoParams);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, p, 8, stdDev);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 

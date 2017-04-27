@@ -704,23 +704,23 @@ void ComposedEvalMultTest(){
 	//Generate the switch cipher text
 	LPKeyPair<ILVectorArray2n> kpNew = cc.KeyGen();
 
-	//Generating original ciphertext to perform ComposedEvalMult on
-	shared_ptr<Ciphertext<ILVectorArray2n>> c1;
-
-	shared_ptr<Ciphertext<ILVectorArray2n>> c2;
-
-	//Generating new cryptoparameters for when modulus reduction is done.
-	LPCryptoParametersLTV<ILVectorArray2n> finalParamsTwoTowers(finalParamsThreeTowers);
-
-	const shared_ptr<ILVectorArray2n::Params> dcrtParams2 = std::static_pointer_cast<ILVectorArray2n::Params>(finalParamsThreeTowers.GetElementParams());
-	shared_ptr<ILVectorArray2n::Params> finalDcrtParamsTwoTowers( new ILVectorArray2n::Params(*dcrtParams2) );
-	finalDcrtParamsTwoTowers->PopLastParam();
-	finalParamsTwoTowers.SetElementParams(finalDcrtParamsTwoTowers);
-
-	//Dropping the last tower of skNew, because ComposedEvalMult performs a ModReduce
-	ILVectorArray2n skNewOldElement(kpNew.secretKey->GetPrivateElement());
-	skNewOldElement.DropLastElement();
-	kpNew.secretKey->SetPrivateElement(skNewOldElement);
+//	//Generating original ciphertext to perform ComposedEvalMult on
+//	shared_ptr<Ciphertext<ILVectorArray2n>> c1;
+//
+//	shared_ptr<Ciphertext<ILVectorArray2n>> c2;
+//
+//	//Generating new cryptoparameters for when modulus reduction is done.
+//	LPCryptoParametersLTV<ILVectorArray2n> finalParamsTwoTowers(finalParamsThreeTowers);
+//
+//	const shared_ptr<ILVectorArray2n::Params> dcrtParams2 = std::static_pointer_cast<ILVectorArray2n::Params>(finalParamsThreeTowers.GetElementParams());
+//	shared_ptr<ILVectorArray2n::Params> finalDcrtParamsTwoTowers( new ILVectorArray2n::Params(*dcrtParams2) );
+//	finalDcrtParamsTwoTowers->PopLastParam();
+//	finalParamsTwoTowers.SetElementParams(finalDcrtParamsTwoTowers);
+//
+//	//Dropping the last tower of skNew, because ComposedEvalMult performs a ModReduce
+//	ILVectorArray2n skNewOldElement(kpNew.secretKey->GetPrivateElement());
+//	skNewOldElement.DropLastElement();
+//	kpNew.secretKey->SetPrivateElement(skNewOldElement);
 
 }
 

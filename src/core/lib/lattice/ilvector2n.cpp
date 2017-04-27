@@ -383,7 +383,7 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 		usint size = m_params->GetRingDimension();
 		m_values = make_unique<VecType>(m_params->GetRingDimension(), m_params->GetModulus());
 		for (usint i = 0; i < size; i++) {
-			m_values->SetValAtIndex(i, temp);
+			m_values->SetValAtIndex(i, IntType(max));
 		}
 
 	}

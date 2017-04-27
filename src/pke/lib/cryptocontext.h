@@ -1035,19 +1035,9 @@ public:
 	/**
 	* construct a PALISADE CryptoContext for the Null Scheme
 	* @param modulus
-	* @param ringdim
 	* @return
 	*/
-	static CryptoContext<Element> genCryptoContextNull(
-			const std::string& ptModulus, usint ringdim, const std::string& modulus, const std::string& rootOfUnity);
-
-	/**
-	* construct a PALISADE CryptoContext for the Null Scheme
-	* @param parms - the dcrt parameter set
-	* @param ptm - plaintext modulus for the context
-	* @return
-	*/
-	static CryptoContext<ILVectorArray2n> genCryptoContextNull(shared_ptr<ILVectorArray2n::Params> parms, const BigBinaryInteger& ptm);
+	static CryptoContext<Element> genCryptoContextNull(shared_ptr<typename Element::Params> ep, const usint ptModulus);
 
 	// helper for deserialization of contexts
 	static shared_ptr<LPCryptoParameters<Element>> GetParameterObject(const Serialized& serObj) {
