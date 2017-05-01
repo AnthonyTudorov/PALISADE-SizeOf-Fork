@@ -69,12 +69,11 @@ namespace lbcrypto {
 /**
  * @brief Parameters for array of ideal lattices (used for Double-CRT)
  */
-template<typename IntType>
-class ILDCRTParams : public ElemParams<IntType>
+class ILDCRTParams : public ElemParams<BigBinaryInteger>
 {
 public:
 
-	ILDCRTParams(usint order=0, usint depth=0, usint bits=0);
+	ILDCRTParams(usint order=0, usint depth=1, usint bits=20);
 
 	/**
 	 * Constructor with all parameters provided except the multiplied values of the chain of moduli. That value is automatically calculated. Root of unity of the modulus is also calculated.
@@ -84,7 +83,7 @@ public:
 	 * @param rootsOfUnity is unused
 	 */
 	ILDCRTParams(const usint cyclotomic_order, const BigBinaryInteger &modulus, const BigBinaryInteger& rootsOfUnity)
-		: ElemParams<IntType>(cyclotomic_order, modulus) {}
+		: ElemParams<BigBinaryInteger>(cyclotomic_order, modulus) {}
 
 	/**
 	 * Constructor with all parameters provided except the multiplied values of the chain of moduli. That value is automatically calculated. Root of unity of the modulus is also calculated.
@@ -94,7 +93,7 @@ public:
 	 * @param &moduli is the tower of moduli
 	 */
 	ILDCRTParams(const usint cyclotomic_order, const std::vector<native64::BigBinaryInteger> &moduli, const std::vector<native64::BigBinaryInteger>& rootsOfUnity)
-		: ElemParams<IntType>(cyclotomic_order) {
+		: ElemParams<BigBinaryInteger>(cyclotomic_order) {
 		if( moduli.size() != rootsOfUnity.size() )
 			throw std::logic_error("sizes of moduli and roots of unity do not match");
 
@@ -111,7 +110,7 @@ public:
 	 * @param &moduli is the tower of moduli
 	 */
 	ILDCRTParams(const usint cyclotomic_order, const std::vector<native64::BigBinaryInteger> &moduli)
-		: ElemParams<IntType>(cyclotomic_order) {
+		: ElemParams<BigBinaryInteger>(cyclotomic_order) {
 		for( int i=0; i<moduli.size(); i++ ) {
 			m_parms.push_back( std::shared_ptr<native64::ILParams>( new native64::ILParams(cyclotomic_order, moduli[i]) ) );
 		}
@@ -119,7 +118,7 @@ public:
 	}
 
 	ILDCRTParams(const usint cyclotomic_order, std::vector<std::shared_ptr<native64::ILParams>>& parms)
-		: ElemParams<IntType>(cyclotomic_order), m_parms(parms) {
+		: ElemParams<BigBinaryInteger>(cyclotomic_order), m_parms(parms) {
 		RecalculateModulus();
 	}
 
@@ -131,22 +130,13 @@ public:
 	 * @return the resulting ILDCRTParams.
 	 */
 	const ILDCRTParams& operator=(const ILDCRTParams &rhs) {
-		ElemParams<IntType>::operator=(rhs);
+		ElemParams<BigBinaryInteger>::operator=(rhs);
 		m_parms = rhs.m_parms;
 
 		return *this;
 	}
 
 	// ACCESSORS
-
-	/**
-	 * Get the root of unity.
-	 *
-	 * @return the root of unity.
-	 */
-	const IntType &GetRootOfUnity() const {
-		throw std::logic_error("no single root of unity");
-	}
 
 	const std::vector<std::shared_ptr<native64::ILParams>> &GetParams() const {
 		return m_parms;
@@ -159,7 +149,7 @@ public:
 	 *
 	 */
 	void PopLastParam(){
-		this->ciphertextModulus = this->ciphertextModulus / IntType(m_parms.back()->GetModulus().ConvertToInt());
+		this->ciphertextModulus = this->ciphertextModulus / BigBinaryInteger(m_parms.back()->GetModulus().ConvertToInt());
 		m_parms.pop_back();
 	}
 
@@ -179,13 +169,13 @@ public:
 	 * @param &other ElemParams to compare against.
 	 * @return the equality check results.
 	 */
-	bool operator==(const ElemParams<IntType> &other) const {
+	bool operator==(const ElemParams<BigBinaryInteger> &other) const {
 
 		const ILDCRTParams *dcrtParams = dynamic_cast<const ILDCRTParams*>(&other);
 
 		if( dcrtParams == 0 ) return 0;
 
-		if( ElemParams<IntType>::operator==(other) == false )
+		if( ElemParams<BigBinaryInteger>::operator==(other) == false )
 			return false;
 
 		if (m_parms.size() != dcrtParams->m_parms.size() )
@@ -201,10 +191,10 @@ public:
 
 	void RecalculateModulus() {
 
-		this->ciphertextModulus = IntType::ONE;
+		this->ciphertextModulus = BigBinaryInteger::ONE;
 
 		for(usint i = 0; i < m_parms.size(); i++) {
-			this->ciphertextModulus = this->ciphertextModulus * IntType(m_parms[i]->GetModulus().ConvertToInt());
+			this->ciphertextModulus = this->ciphertextModulus * BigBinaryInteger(m_parms[i]->GetModulus().ConvertToInt());
 		}
 	}
 
@@ -213,7 +203,7 @@ public:
 private:
 	std::ostream& doprint(std::ostream& out) const {
 		out << "ILDCRTParams ";
-		ElemParams<IntType>::doprint(out);
+		ElemParams<BigBinaryInteger>::doprint(out);
 		out << std::endl << " Parms:" << std::endl;
 		for( int i=0; i < m_parms.size(); i++ ) {
 			out << "   " << i << ":" << *m_parms[i] << std::endl;

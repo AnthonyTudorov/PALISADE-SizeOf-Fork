@@ -635,7 +635,7 @@ namespace lbcrypto {
 
 namespace lbcrypto {
 
-typedef ILVectorArrayImpl<BigBinaryInteger, BigBinaryInteger, BigBinaryVector, ILDCRTParams<BigBinaryInteger>> ILVectorArray2n;
+typedef ILVectorArrayImpl<BigBinaryInteger, BigBinaryInteger, BigBinaryVector, ILDCRTParams> ILVectorArray2n;
 
 }
 

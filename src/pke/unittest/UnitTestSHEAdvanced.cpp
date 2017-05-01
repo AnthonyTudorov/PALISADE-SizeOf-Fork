@@ -44,6 +44,7 @@ ModReduce, RingReduce and KeySwitch Hint will be in UnitTestSHE.cpp
 #include "encoding/intplaintextencoding.h"
 
 #include "utils/debug.h"
+#include "utils/parmfactory.h"
 
 #include <cmath>
 
@@ -138,16 +139,9 @@ TEST_F(UTSHEAdvanced, test_eval_mult_single_crt) {
 	usint relin = 1;
 	float stdDev = 4;
 
-	BigBinaryInteger q = FindPrimeModulus<BigBinaryInteger>(m, dcrtBits);
-	BigBinaryInteger temp;
+	shared_ptr<ILVector2n::Params> parms = GenerateTestParams<ILVector2n::Params, ILVector2n::Integer>(m, dcrtBits);
 
-	lbcrypto::NextQ(q, BigBinaryInteger::FIVE, m, BigBinaryInteger("4000"), BigBinaryInteger("40000"));
-	BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
-
-	shared_ptr<ILVector2n::Params> parms( new ILVector2n::Params(m, q, rootOfUnity) );
-
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(parms, /*plaintextmodulus*/ 5 + 4,
-		relin, stdDev);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(parms, 5 + 4, relin, stdDev);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 	cc.Enable(LEVELEDSHE);
@@ -312,12 +306,7 @@ TEST_F(UTSHEAdvanced, test_eval_add_single_crt) {
 
 	float stdDev = 4;
 
-	BigBinaryInteger q = FindPrimeModulus<BigBinaryInteger>(m, dcrtBits);
-	BigBinaryInteger temp;
-
-	lbcrypto::NextQ(q, BigBinaryInteger::FIVE, m, BigBinaryInteger("4"), BigBinaryInteger("4"));
-	BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
-	shared_ptr<ILVector2n::Params> parms( new ILVector2n::Params(m, q, rootOfUnity) );
+	shared_ptr<ILVector2n::Params> parms = GenerateTestParams<ILVector2n::Params, ILVector2n::Integer>(m, dcrtBits);
 
 	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(parms, 8, 1, stdDev);
 	// plaintextmodulus // 5 + 3,
@@ -489,20 +478,8 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 
 	vector<native64::BigBinaryInteger> init_rootsOfUnity(init_size);
 
-	native64::BigBinaryInteger q = FindPrimeModulus<native64::BigBinaryInteger>(init_m, 30);
 
-	native64::BigBinaryInteger temp;
-	BigBinaryInteger modulus("1");
-
-	for (int i = 0; i < init_size; i++) {
-		lbcrypto::NextQ(q, native64::BigBinaryInteger::FIVE, init_m, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
-		init_moduli[i] = q;
-		init_rootsOfUnity[i] = RootOfUnity(init_m, init_moduli[i]);
-		modulus = modulus * BigBinaryInteger(init_moduli[i].ConvertToInt());
-
-	}
-
-	shared_ptr<ILVectorArray2n::Params> params(new ILVectorArray2n::Params(init_m, init_moduli, init_rootsOfUnity));
+	shared_ptr<ILVectorArray2n::Params> params = GenerateDCRTParams( init_m, init_size, dcrtBits );
 
 //	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
 //	cryptoParams.SetPlaintextModulus(BigBinaryInteger::FIVE + BigBinaryInteger::FOUR);
@@ -522,7 +499,6 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 //
 //	const shared_ptr<ILDCRTParams> dcrtParams = std::dynamic_pointer_cast<ILDCRTParams>(finalParamsTwoTowers.GetElementParams());
 
-	// Fixme use the ParameterSelection version of genCryptoContext
 	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextLTV(params, 5+4, relWindow, init_stdDev, init_size - 1, 6, 1.006);
 	cc.Enable(SHE);
 	cc.Enable(ENCRYPTION);
@@ -532,7 +508,7 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 //	usint size = finalParamsTwoTowers.GetDepth() + 1;
 //	const BigBinaryInteger &plainTextModulus = finalParamsTwoTowers.GetPlaintextModulus();
 
-	//Generate the secret key for the initial ciphertext:
+	//Generate the secret key for the initial ciphertext
 	LPKeyPair<ILVectorArray2n> kp = cc.KeyGen();
 
 	//Generate the keys for level 1, same number of towers
@@ -571,18 +547,26 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 
 	shared_ptr<LPEvalKey<ILVectorArray2n>> KeySwitchHint = cc.KeySwitchGen(kp.secretKey, kp1.secretKey);
 
-	//Dropping the last tower of skNew, because ComposedEvalMult performs a ModReduce
-	shared_ptr<LPPrivateKey<ILVectorArray2n>> sk2(new LPPrivateKey<ILVectorArray2n>(kp1.secretKey->GetCryptoContext()));
-	ILVectorArray2n skNewOldElement(kp1.secretKey->GetPrivateElement());
-	skNewOldElement.DropLastElement();
-	sk2->SetPrivateElement(skNewOldElement);
-
 	shared_ptr<Ciphertext<ILVectorArray2n>> cResult = cc.ComposedEvalMult(ciphertextElementOne[0], ciphertextElementTwo[0]);
+
+//	{
+//		vector<shared_ptr<Ciphertext<ILVectorArray2n>>> tempvec( { cc.EvalMult(ciphertextElementOne[0], ciphertextElementTwo[0]) } );
+//		IntPlaintextEncoding tempresult;
+//
+//		cc.Decrypt(kp.secretKey, tempvec, &tempresult, false);
+//		cout << "Composed EM result: " << tempresult << endl;
+//	}
 
 	cResult = cc.KeySwitch(KeySwitchHint, cResult);
 
 	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> tempvec2( { cResult } );
 	IntPlaintextEncoding results;
+
+	//Dropping the last tower of skNew, because ComposedEvalMult performs a ModReduce
+	shared_ptr<LPPrivateKey<ILVectorArray2n>> sk2(new LPPrivateKey<ILVectorArray2n>(kp1.secretKey->GetCryptoContext()));
+	ILVectorArray2n skNewOldElement(kp1.secretKey->GetPrivateElement());
+	skNewOldElement.DropLastElement();
+	sk2->SetPrivateElement(skNewOldElement);
 
 	cc.Decrypt(sk2, tempvec2, &results, false);
 

@@ -5,34 +5,37 @@
 
 namespace lbcrypto {
 
-template<typename IntType>
-ILDCRTParams<IntType>::ILDCRTParams(usint order, usint depth, usint bits) : ElemParams<IntType>(order) {
+ILDCRTParams::ILDCRTParams(usint order, usint depth, usint bits) : ElemParams<BigBinaryInteger>(order) {
+
+	if( order == 0 )
+		return;
+	if( depth == 0 )
+		throw std::logic_error("Invalid depth for ILDCRTParams");
+	if( bits == 0 )
+		throw std::logic_error("Invalid bits for ILDCRTParams");
 
 	m_parms.resize(depth);
+	this->ciphertextModulus = BigBinaryInteger::ZERO;
 
-	// FIXME on this starting q
-	native64::BigBinaryInteger q("50000");
-	native64::BigBinaryInteger temp;
-	IntType modulus(BigBinaryInteger::ONE);
+	native64::BigBinaryInteger q = FindPrimeModulus<native64::BigBinaryInteger>(order, bits);
 
-	native64::BigBinaryInteger mod, root;
-
-	for (int j = 0; j < depth; j++) {
-		lbcrypto::NextQ<native64::BigBinaryInteger>(q, native64::BigBinaryInteger::FIVE, order, native64::BigBinaryInteger::FOUR, native64::BigBinaryInteger::FOUR);
-		mod = q;
-		root = RootOfUnity<native64::BigBinaryInteger>(order, mod);
-
-		std::shared_ptr<native64::ILParams> p( new native64::ILParams(order, mod, root) );
+	for(int j = 0; ;) {
+		native64::BigBinaryInteger root = RootOfUnity<native64::BigBinaryInteger>(order, q);
+		std::shared_ptr<native64::ILParams> p( new native64::ILParams(order, q, root) );
 		m_parms[j] = p;
-		modulus = modulus * BigBinaryInteger(mod.ConvertToInt());
+
+		if( ++j >= depth )
+			break;
+
+		lbcrypto::NextQ<native64::BigBinaryInteger>(q, native64::BigBinaryInteger::FIVE, order, native64::BigBinaryInteger::FOUR, native64::BigBinaryInteger::FOUR);
 	}
 
-	this->ciphertextModulus = modulus;
+	RecalculateModulus();
 }
 
 template<typename IntType>
 bool
-ILDCRTParams<IntType>::Serialize(Serialized* serObj) const
+ILDCRTParams::Serialize(Serialized* serObj) const
 {
 	if( !serObj->IsObject() )
 		return false;
@@ -48,9 +51,8 @@ ILDCRTParams<IntType>::Serialize(Serialized* serObj) const
 	return true;
 }
 
-template<typename IntType>
 bool
-ILDCRTParams<IntType>::Deserialize(const Serialized& serObj)
+ILDCRTParams::Deserialize(const Serialized& serObj)
 {
 	Serialized::ConstMemberIterator rIt = serObj.FindMember("ILDCRTParams");
 	if( rIt == serObj.MemberEnd() ) return false;

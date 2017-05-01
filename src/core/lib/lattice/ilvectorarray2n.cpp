@@ -44,7 +44,7 @@ namespace lbcrypto {
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::ILVectorArrayImpl() {
 		m_format = EVALUATION;
-		m_params.reset( new ParmType() );
+		m_params.reset( new ParmType(0,1) );
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
@@ -615,7 +615,7 @@ namespace lbcrypto {
 		std::vector<std::shared_ptr<native64::ILParams>> vparms(m_vectors.size());
 		for( size_t i = 0; i < m_vectors.size(); i++)
 			vparms[i] = m_vectors[i].GetParams();
-		m_params.reset( new ParmType(GetCyclotomicOrder(), vparms) );
+		m_params.reset( new ParmType(vparms[0]->GetCyclotomicOrder(), vparms) );
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
@@ -652,7 +652,7 @@ namespace lbcrypto {
 	*/
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	void ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::ModReduce(const IntType &plaintextModulus) {
-	  bool dbg_flag = false;
+	  bool dbg_flag = true;
 		if(m_format != Format::EVALUATION) {
 			throw std::logic_error("Mod Reduce function expects EVAL Formatted ILVectorArrayImpl. It was passed COEFF Formatted ILVectorArrayImpl.");
 		}
@@ -695,7 +695,9 @@ namespace lbcrypto {
 		}
 
 		//step 4
+		DEBUG("about to drop last element " << m_vectors.size());
 		DropLastElement();
+		DEBUG("dropped last element " << m_vectors.size());
 		std::vector<ILVectorType::Integer> qtInverseModQi(m_vectors.size());
 		for(usint i=0; i<m_vectors.size(); i++) {
 			const ILVectorType::Integer& mod = m_vectors[i].GetModulus();
@@ -789,7 +791,7 @@ namespace lbcrypto {
 
 		// Setting the root of unity to ONE as the calculation is expensive and not required.
 		ILVector2n polynomialReconstructed( shared_ptr<ILParams>( new ILParams(GetCyclotomicOrder(), bigModulus, BigBinaryInteger::ONE) ) );
-		polynomialReconstructed.SetValues(coefficients,m_format);
+		polynomialReconstructed.SetValues(coefficients,COEFFICIENT);
 
 		DEBUG("answer: " << polynomialReconstructed);
 

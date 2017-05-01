@@ -147,11 +147,11 @@ TEST(UTPRE, BV_ILVectorArray2n_ReEncrypt_pri) {
 }
 #endif
 
-//TEST(UTPRE, FV_ILVector2n_ReEncrypt_pri) {
-//	CryptoContext<ILVector2n> cc = GenCryptoContextElementFV(ORDER, PTM);
-//	UnitTestReEncrypt<ILVector2n>(cc, false);
-//}
-//
+TEST(UTPRE, FV_ILVector2n_ReEncrypt_pri) {
+	CryptoContext<ILVector2n> cc = GenCryptoContextElementFV(ORDER, PTM);
+	UnitTestReEncrypt<ILVector2n>(cc, false);
+}
+
 //TEST(UTPRE, FV_ILVectorArray2n_ReEncrypt_pri) {
 //	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayFV(ORDER, TOWERS, PTM);
 //	UnitTestReEncrypt<ILVectorArray2n>(cc, false);
