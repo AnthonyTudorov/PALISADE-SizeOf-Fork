@@ -509,7 +509,7 @@ namespace lbcrypto {
 		BigBinaryInteger plaintextModulus(cipherText->GetCryptoParameters()->GetPlaintextModulus());
 
 		for (auto &cipherTextElement : cipherTextElements) {
-			cipherTextElement.ModReduce(plaintextModulus);// this is being done at the lattice layer. The ciphertext is mod reduced.
+			cipherTextElement.ModReduce(plaintextModulus); // this is being done at the lattice layer. The ciphertext is mod reduced.
 		}
 
 		newcipherText->SetElements(cipherTextElements);

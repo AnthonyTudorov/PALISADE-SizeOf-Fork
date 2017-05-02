@@ -367,6 +367,9 @@ namespace lbcrypto {
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	ILVectorArrayImpl<ModType,IntType,VecType,ParmType> ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::Plus(const ILVectorArrayImpl &element) const
 	{
+		if( m_vectors.size() != element.m_vectors.size() ) {
+			throw std::logic_error("tower size mismatch; cannot add");
+		}
 		ILVectorArrayImpl<ModType,IntType,VecType,ParmType> tmp(*this);
 
 		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
@@ -390,6 +393,9 @@ namespace lbcrypto {
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	ILVectorArrayImpl<ModType,IntType,VecType,ParmType> ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::Minus(const ILVectorArrayImpl &element) const
 	{
+		if( m_vectors.size() != element.m_vectors.size() ) {
+			throw std::logic_error("tower size mismatch; cannot subtract");
+		}
 		ILVectorArrayImpl<ModType,IntType,VecType,ParmType> tmp(*this);
 
 		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
@@ -523,6 +529,9 @@ namespace lbcrypto {
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	ILVectorArrayImpl<ModType,IntType,VecType,ParmType> ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::Times(const ILVectorArrayImpl & element) const
 	{
+		if( m_vectors.size() != element.m_vectors.size() ) {
+			throw std::logic_error("tower size mismatch; cannot multiply");
+		}
 		ILVectorArrayImpl<ModType,IntType,VecType,ParmType> tmp(*this);
 
 		for (usint i = 0; i < m_vectors.size(); i++) {
@@ -634,7 +643,9 @@ namespace lbcrypto {
 		}
 
 		m_vectors.resize(m_vectors.size() - 1);
-		m_params->PopLastParam();
+		ParmType *newP = new ParmType( *m_params );
+		newP->PopLastParam();
+		m_params.reset(newP);
 	}
 
 	/**
@@ -652,7 +663,7 @@ namespace lbcrypto {
 	*/
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	void ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::ModReduce(const IntType &plaintextModulus) {
-	  bool dbg_flag = true;
+	  bool dbg_flag = false;
 		if(m_format != Format::EVALUATION) {
 			throw std::logic_error("Mod Reduce function expects EVAL Formatted ILVectorArrayImpl. It was passed COEFF Formatted ILVectorArrayImpl.");
 		}
@@ -675,19 +686,15 @@ namespace lbcrypto {
 		typename ILVectorType::Integer a((v * qt).ModSub(ILVectorType::Integer::ONE, ptm*qt));
 		DEBUG("a:	"<<a);
 
-		if( dbg_flag ) { DEBUG("before switch to " << ptm*qt); d.PrintValues(); }
-
-		//Since only positive values are being used for Discrete gaussian generator, a call to switch modulus needs to be done
+		// Since only positive values are being used for Discrete gaussian generator, a call to switch modulus needs to be done
 		d.SwitchModulus( ptm*qt, d.GetRootOfUnity() );
 			// FIXME NOT CHANGING ROOT OF UNITY-TODO: What to do with SwitchModulus and is it necessary to pass rootOfUnity
-		if( dbg_flag ) { DEBUG("after switch"); d.PrintValues(); }
 
-		//Calculating delta, step 2
+		// Calculating delta, step 2
 		ILVectorType delta(d.Times(a));
-		if( dbg_flag ) { DEBUG("delta"); delta.PrintValues(); }
 
-		//Calculating d' = c + delta mod q (step 3)
-		// FIXME what is the point of going to size() if the last tower's about to be dropped??
+		// Calculating d' = c + delta mod q (step 3)
+		// no point in going to size() since the last tower's being dropped
 		for(usint i=0; i<m_vectors.size(); i++) {
 			ILVectorType temp(delta);
 			temp.SwitchModulus(m_vectors[i].GetModulus(), m_vectors[i].GetRootOfUnity());
@@ -695,9 +702,8 @@ namespace lbcrypto {
 		}
 
 		//step 4
-		DEBUG("about to drop last element " << m_vectors.size());
 		DropLastElement();
-		DEBUG("dropped last element " << m_vectors.size());
+
 		std::vector<ILVectorType::Integer> qtInverseModQi(m_vectors.size());
 		for(usint i=0; i<m_vectors.size(); i++) {
 			const ILVectorType::Integer& mod = m_vectors[i].GetModulus();

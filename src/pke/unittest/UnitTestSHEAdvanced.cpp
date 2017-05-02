@@ -545,30 +545,49 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 	ciphertextElementOne = cc.Encrypt(kp.publicKey, firstElementEncoding, false);
 	ciphertextElementTwo = cc.Encrypt(kp.publicKey, secondElementEncoding, false);
 
-	shared_ptr<LPEvalKey<ILVectorArray2n>> KeySwitchHint = cc.KeySwitchGen(kp.secretKey, kp1.secretKey);
 
 	shared_ptr<Ciphertext<ILVectorArray2n>> cResult = cc.ComposedEvalMult(ciphertextElementOne[0], ciphertextElementTwo[0]);
 
-//	{
-//		vector<shared_ptr<Ciphertext<ILVectorArray2n>>> tempvec( { cc.EvalMult(ciphertextElementOne[0], ciphertextElementTwo[0]) } );
-//		IntPlaintextEncoding tempresult;
-//
-//		cc.Decrypt(kp.secretKey, tempvec, &tempresult, false);
-//		cout << "Composed EM result: " << tempresult << endl;
-//	}
+	{
+		vector<shared_ptr<Ciphertext<ILVectorArray2n>>> tempvec( { cc.EvalMult(ciphertextElementOne[0], ciphertextElementTwo[0]) } );
+		IntPlaintextEncoding tempresult;
+
+		cc.Decrypt(kp.secretKey, tempvec, &tempresult, false);
+		cout << "Eval Mult result: " << endl << tempresult << endl;
+	}
+
+	cout << ciphertextElementOne[0]->GetElements()[0] << endl;
+	cout << ciphertextElementTwo[0]->GetElements()[0] << endl;
+	cout << cResult->GetElements()[0] << endl;
+
+	shared_ptr<LPEvalKey<ILVectorArray2n>> KeySwitchHint = cc.KeySwitchGen(kp.secretKey, kp1.secretKey);
+
+	cout << "hint" << endl;
+	cout << KeySwitchHint->GetA() << endl;
+	ILVectorArray2n tempA(KeySwitchHint->GetA());
+	tempA.DropLastElement();
+	KeySwitchHint->SetA(tempA);
+
+	//Dropping the last tower of secret key, because ComposedEvalMult performs a ModReduce
+	ILVectorArray2n tempPrivateElement1(kp1.secretKey->GetPrivateElement());
+	tempPrivateElement1.DropLastElement();
+	kp1.secretKey->SetPrivateElement(tempPrivateElement1);
+
+	cout << "keys reduced" << endl;
+	cout << kp.secretKey->GetPrivateElement() << endl;
+	cout << kp1.secretKey->GetPrivateElement() << endl;
+
 
 	cResult = cc.KeySwitch(KeySwitchHint, cResult);
 
 	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> tempvec2( { cResult } );
 	IntPlaintextEncoding results;
 
-	//Dropping the last tower of skNew, because ComposedEvalMult performs a ModReduce
-	shared_ptr<LPPrivateKey<ILVectorArray2n>> sk2(new LPPrivateKey<ILVectorArray2n>(kp1.secretKey->GetCryptoContext()));
-	ILVectorArray2n skNewOldElement(kp1.secretKey->GetPrivateElement());
-	skNewOldElement.DropLastElement();
-	sk2->SetPrivateElement(skNewOldElement);
+	cout << cResult->GetElements()[0] << endl;
 
-	cc.Decrypt(sk2, tempvec2, &results, false);
+	cc.Decrypt(kp1.secretKey, tempvec2, &results, false);
+
+	cout << "result of decrypt with new key: " << endl << results << endl;
 
 	EXPECT_EQ(results.at(0), 2);
 	EXPECT_EQ(results.at(1), 4);

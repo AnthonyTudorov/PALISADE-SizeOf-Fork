@@ -361,9 +361,7 @@ TEST(UTBVDCRT, ILVector2n_bv_DCRT_MODREDUCE) {
 		EXPECT_EQ(intArray1, intArrayNew) << "Decrypt fails";
 	}
 
-	cout << "Before Mod Reduce, " << ciphertext.size() << ":" << *ciphertext[0]->GetCryptoParameters() << endl;
 	ciphertext = cc.ModReduce(ciphertext);
-	cout << " After Mod Reduce, " << ciphertext.size() << ":" << *ciphertext[0]->GetCryptoParameters() << endl;
 
 	//drop a tower from the secret key
 	
@@ -372,6 +370,7 @@ TEST(UTBVDCRT, ILVector2n_bv_DCRT_MODREDUCE) {
 	kp.secretKey->SetPrivateElement(skEl);
 
 	cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
+	intArrayNew.resize(intArray1.size());
 
 	EXPECT_EQ(intArray1, intArrayNew) << "Decrypt after ModReduce fails";;
 
