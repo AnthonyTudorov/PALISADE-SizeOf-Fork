@@ -39,6 +39,8 @@
 #include "lattice/ilvectorarray2n.h"
 #include "utils/inttypes.h"
 #include "utils/utilities.h"
+#include "utils/parmfactory.h"
+#include "utils/serializablehelper.h"
 
 using namespace std;
 using namespace lbcrypto;
@@ -55,34 +57,125 @@ protected:
   }
 };
 
-/************************************************/
-/*	TESTING METHODS OF BININT CLASS		*/
-/************************************************/
-
-/************************************************/
-/* TESTING BASIC MATH METHODS AND OPERATORS     */
-/************************************************/
 TEST(UTSer,cpu_int){
 	BigBinaryInteger small(7);
 	BigBinaryInteger medium(1<<27 | 1<<22);
 	BigBinaryInteger larger((uint64_t)(1<<40) | 1<<22);
-	BigBinaryInteger yooge("371828316732191");
+	BigBinaryInteger yooge("371828316732191777888912");
 
 	string ser;
 	BigBinaryInteger deser;
+
 	ser = small.Serialize();
 	deser.Deserialize(ser.c_str());
 	EXPECT_EQ(small, deser) << "Small integer ser/deser fails";
+
+	ser = medium.Serialize();
+	deser.Deserialize(ser.c_str());
+	EXPECT_EQ(medium, deser) << "Medium integer ser/deser fails";
+
+	ser = larger.Serialize();
+	deser.Deserialize(ser.c_str());
+	EXPECT_EQ(larger, deser) << "Larger integer ser/deser fails";
+
+	ser = yooge.Serialize();
+	deser.Deserialize(ser.c_str());
+	EXPECT_EQ(yooge, deser) << "Yooge integer ser/deser fails";
 }
 
 TEST(UTSer,native_int){
+	native64::BigBinaryInteger small(7);
+	native64::BigBinaryInteger medium(1<<27 | 1<<22);
+	native64::BigBinaryInteger larger((uint64_t)(1<<40) | 1<<22);
+
+	string ser;
+	native64::BigBinaryInteger deser;
+
+	ser = small.Serialize();
+	deser.Deserialize(ser.c_str());
+	EXPECT_EQ(small, deser) << "Small integer ser/deser fails";
+
+	ser = medium.Serialize();
+	deser.Deserialize(ser.c_str());
+	EXPECT_EQ(medium, deser) << "Medium integer ser/deser fails";
+
+	ser = larger.Serialize();
+	deser.Deserialize(ser.c_str());
+	EXPECT_EQ(larger, deser) << "Larger integer ser/deser fails";
 }
 
 TEST(UTSer,vector_of_cpu_int){
+	const int vecsize = 100;
+	const BigBinaryInteger mod((uint64_t)1<<40);
+	BigBinaryVector	testvec(vecsize, mod);
+	ILVector2n::DugType	dug;
+	dug.SetModulus(mod);
+	BigBinaryInteger ranval;
+
+	for( int i=0; i<vecsize; i++ ) {
+		ranval = dug.GenerateInteger();
+		testvec.SetValAtIndex(i, ranval);
+	}
+
+	Serialized	ser;
+	ser.SetObject();
+	ASSERT_TRUE( testvec.Serialize(&ser) ) << "Serialization failed";
+
+	BigBinaryVector newvec;
+	ASSERT_TRUE( newvec.Deserialize(ser) ) << "Deserialization failed";
+
+	EXPECT_EQ( testvec, newvec ) << "Mismatch after ser/deser";
 }
 
 TEST(UTSer,vector_of_native_int){
+	const int vecsize = 100;
+	const native64::BigBinaryInteger mod((uint64_t)1<<40);
+	native64::BigBinaryVector	testvec(vecsize, mod);
+	native64::ILVector2n::DugType	dug;
+	dug.SetModulus(mod);
+	native64::BigBinaryInteger ranval;
+
+	for( int i=0; i<vecsize; i++ ) {
+		ranval = dug.GenerateInteger();
+		testvec.SetValAtIndex(i, ranval);
+	}
+
+	Serialized	ser;
+	ser.SetObject();
+	ASSERT_TRUE( testvec.Serialize(&ser) ) << "Serialization failed";
+
+	native64::BigBinaryVector newvec;
+	ASSERT_TRUE( newvec.Deserialize(ser) ) << "Deserialization failed";
+
+	cout << "Deserialized" << endl;
+
+	EXPECT_EQ( testvec, newvec ) << "Mismatch after ser/deser";
+}
+
+TEST(UTSer,ilparams_test) {
+	shared_ptr<ILVector2n::Params> p = GenerateTestParams<ILVector2n::Params,ILVector2n::Integer>(1024, 40);
+	Serialized ser;
+	ser.SetObject();
+	ASSERT_TRUE( p->Serialize(&ser) ) << "Serialization failed";
+
+	ILVector2n::Params newp;
+	ASSERT_TRUE( newp.Deserialize(ser) ) << "Deserialization failed";
+
+	EXPECT_EQ( *p, newp ) << "Mismatch after ser/deser";
 }
 
 
+TEST(UTSer,ildcrtparams_test) {
+	shared_ptr<ILVectorArray2n::Params> p = GenerateDCRTParams(1024, 5, 40);
+	Serialized ser;
+	ser.SetObject();
+	ASSERT_TRUE( p->Serialize(&ser) ) << "Serialization failed";
+
+	SerializableHelper::SerializationToStream(ser, cout);
+
+	ILVectorArray2n::Params newp;
+	ASSERT_TRUE( newp.Deserialize(ser) ) << "Deserialization failed";
+
+	EXPECT_EQ( *p, newp ) << "Mismatch after ser/deser";
+}
 

@@ -148,6 +148,27 @@ void SerializeVector(const std::string& vectorName, const std::string& typeName,
 }
 
 template<typename T>
+void SerializeVectorOfPointers(const std::string& vectorName, const std::string& typeName, const std::vector<shared_ptr<T>> inVector, Serialized* serObj) {
+
+	Serialized ser(rapidjson::kObjectType, &serObj->GetAllocator());
+	ser.AddMember("Typename", typeName, serObj->GetAllocator());
+	ser.AddMember("Length", std::to_string(inVector.size()), serObj->GetAllocator());
+
+	Serialized serElements(rapidjson::kObjectType, &serObj->GetAllocator());
+	for( int i=0; i<inVector.size(); i++ ) {
+		Serialized oneEl(rapidjson::kObjectType, &serObj->GetAllocator());
+		inVector[i]->Serialize(&oneEl);
+
+		SerialItem key( std::to_string(i), serObj->GetAllocator() );
+		serElements.AddMember(key, oneEl, serObj->GetAllocator());
+	}
+
+	ser.AddMember("Members", serElements, serObj->GetAllocator());
+
+	serObj->AddMember(SerialItem(vectorName, serObj->GetAllocator()), ser, serObj->GetAllocator());
+}
+
+template<typename T>
 bool DeserializeVector(const std::string& vectorName, const std::string& typeName, const SerialItem::ConstMemberIterator& it, std::vector<T>* outVector) {
 
 	SerialItem::ConstMemberIterator mIt = it->value.FindMember("Typename");
@@ -183,6 +204,48 @@ bool DeserializeVector(const std::string& vectorName, const std::string& typeNam
 
 		if( vectorElem.Deserialize(ser) ) {
 			outVector->at(i) = vectorElem;
+		}
+	}
+
+	return true;
+}
+
+template<typename T>
+bool DeserializeVectorOfPointers(const std::string& vectorName, const std::string& typeName, const SerialItem::ConstMemberIterator& it, std::vector<shared_ptr<T>>* outVector) {
+
+	SerialItem::ConstMemberIterator mIt = it->value.FindMember("Typename");
+	if( mIt == it->value.MemberEnd() ) {
+		std::cout << "no member named Typename" << std::endl;
+		return false;
+	}
+
+	if( mIt->value.GetString() != typeName ) return false;
+	mIt = it->value.FindMember("Length");
+	if( mIt == it->value.MemberEnd() ) return false;
+
+	outVector->clear();
+	outVector->resize( std::stoi(mIt->value.GetString()) );
+
+	mIt = it->value.FindMember("Members");
+	if( mIt == it->value.MemberEnd() ) return false;
+
+	const SerialItem& members = mIt->value;
+
+	for( int i=0; i<outVector->size(); i++ ) {
+		Serialized::ConstMemberIterator eIt = members.FindMember( std::to_string(i) );
+		if( eIt == members.MemberEnd() ) return false;
+
+		T vectorElem;
+		const SerialItem& s = eIt->value;
+		SerialItem::ConstMemberIterator s2 = eIt->value.FindMember(typeName);
+
+		Serialized ser(rapidjson::kObjectType);
+		SerialItem k( typeName, ser.GetAllocator() );
+		SerialItem v( s2->value, ser.GetAllocator() );
+		ser.AddMember(k, v, ser.GetAllocator());
+
+		if( vectorElem.Deserialize(ser) ) {
+			outVector->at(i).reset( new T(vectorElem) );
 		}
 	}
 
