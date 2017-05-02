@@ -472,14 +472,8 @@ void BigBinaryInteger<uint_type,BITLENGTH>::PrintValueInDec() const{
     std::cout<<std::endl;
 }
 
-// the array and the next two functions convert a BigBinaryInteger in and out of a string of characters
-// the encoding is Base64-like: the first 5 6-bit groupings are Base64 encoded, and the last 2 bits are A-D
-
-// Note this is, sadly, hardcoded for 32 bit integers and needs Some Work to handle arbitrary sizes
-
-// precomputed shift amounts for each 6 bit chunk
-static const usint b64_shifts[] = { 0, 6, 12, 18, 24, 30 };
-static const usint B64MASK = 0x3F;
+// the next two functions convert a BigBinaryInteger in and out of a string of characters
+// the encoding is Base64-like: 6-bit groupings are Base64 encoded, along with a length
 
 /**
  * This function is only used for serialization
