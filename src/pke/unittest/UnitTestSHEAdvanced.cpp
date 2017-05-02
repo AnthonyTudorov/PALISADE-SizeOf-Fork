@@ -481,46 +481,19 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 
 	shared_ptr<ILVectorArray2n::Params> params = GenerateDCRTParams( init_m, init_size, dcrtBits );
 
-//	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
-//	cryptoParams.SetPlaintextModulus(BigBinaryInteger::FIVE + BigBinaryInteger::FOUR);
-//	cryptoParams.SetDistributionParameter(init_stdDev);
-//	cryptoParams.SetRelinWindow(1);
-//	cryptoParams.SetElementParams(params);
-//	cryptoParams.SetAssuranceMeasure(6);
-//	cryptoParams.SetDepth(init_size - 1);
-//	cryptoParams.SetSecurityLevel(1.006);
-
 	usint n = 16;
 	usint relWindow = 1;
-
-//	LPCryptoParametersLTV<ILVectorArray2n> finalParamsTwoTowers;
-//
-//	cryptoParams.ParameterSelection(&finalParamsTwoTowers);
-//
-//	const shared_ptr<ILDCRTParams> dcrtParams = std::dynamic_pointer_cast<ILDCRTParams>(finalParamsTwoTowers.GetElementParams());
 
 	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextLTV(params, 5+4, relWindow, init_stdDev, init_size - 1, 6, 1.006);
 	cc.Enable(SHE);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(LEVELEDSHE);
 
-//	usint m = dcrtParams->GetCyclotomicOrder();
-//	usint size = finalParamsTwoTowers.GetDepth() + 1;
-//	const BigBinaryInteger &plainTextModulus = finalParamsTwoTowers.GetPlaintextModulus();
-
 	//Generate the secret key for the initial ciphertext
 	LPKeyPair<ILVectorArray2n> kp = cc.KeyGen();
 
 	//Generate the keys for level 1, same number of towers
 	LPKeyPair<ILVectorArray2n> kp1 = cc.KeyGen();
-
-//	//Generating new cryptoparameters for when modulus reduction is done.
-//	LPCryptoParametersLTV<ILVectorArray2n> finalParamsOneTower(finalParamsTwoTowers);
-//
-//	const shared_ptr<ILDCRTParams> dcrtParamsWithOneTowers = std::dynamic_pointer_cast<ILDCRTParams>(finalParamsTwoTowers.GetElementParams());
-//	shared_ptr<ILDCRTParams> dcrtParamsWith1Tower(new ILDCRTParams(*dcrtParamsWithOneTowers));
-//	dcrtParamsWith1Tower->PopLastParam();
-//	finalParamsOneTower.SetElementParams(dcrtParamsWith1Tower);
 
 	//Generating Quadratic KeySwitchHint from sk^2 to skNew
 	cc.EvalMultKeyGen(kp.secretKey);
