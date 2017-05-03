@@ -895,7 +895,7 @@ namespace lbcrypto {
 		obj.AddMember("Modulus", this->GetModulus().ToString(), serObj->GetAllocator());
 		obj.AddMember("CyclotomicOrder", std::to_string(this->GetCyclotomicOrder()), serObj->GetAllocator());
 
-		SerializeVector<ILVectorType>("Vectors", "ILVector2n", this->GetAllElements(), &obj);
+		SerializeVector<ILVectorType>("Vectors", "ILVectorImpl", this->GetAllElements(), &obj);
 
 		serObj->AddMember("ILVectorArrayImpl", obj, serObj->GetAllocator());
 
@@ -939,7 +939,7 @@ namespace lbcrypto {
 			return false;
 		}
 
-		bool ret = DeserializeVector<ILVectorType>("Vectors", "ILVector2n", mIt, &this->m_vectors);
+		bool ret = DeserializeVector<ILVectorType>("Vectors", "ILVectorImpl", mIt, &this->m_vectors);
 
 		return ret;
 	}

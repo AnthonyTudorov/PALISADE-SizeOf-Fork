@@ -863,10 +863,6 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 		Serialized::ConstMemberIterator iMap = serObj.FindMember("ILVectorImpl");
 		if (iMap == serObj.MemberEnd()) return false;
 
-		for( auto it = iMap->value.MemberBegin(); it != iMap->value.MemberEnd(); it++ ) {
-			std::cout << it->name.GetString() << std::endl;
-		}
-
 		SerialItem::ConstMemberIterator pIt = iMap->value.FindMember("ILParams");
 		if (pIt == iMap->value.MemberEnd()) return false;
 

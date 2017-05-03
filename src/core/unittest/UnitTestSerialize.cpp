@@ -177,8 +177,8 @@ TEST(UTSer,ildcrtparams_test) {
 
 TEST(UTSer,ilvector_test) {
 	shared_ptr<ILVector2n::Params> p = GenerateTestParams<ILVector2n::Params,ILVector2n::Integer>(1024, 40);
-	ILVector2n::DggType dgg;
-	ILVector2n vec(dgg, p);
+	ILVector2n::DugType dug;
+	ILVector2n vec(dug, p);
 
 	Serialized ser;
 	ser.SetObject();
@@ -193,21 +193,15 @@ TEST(UTSer,ilvector_test) {
 
 TEST(UTSer,ilvectorarray_test) {
 	shared_ptr<ILVectorArray2n::Params> p = GenerateDCRTParams(8, 5, 40);
-	ILVectorArray2n::DggType dgg;
-	ILVectorArray2n vec(dgg, p);
+	ILVectorArray2n::DugType dug;
+	ILVectorArray2n vec(dug, p);
 
 	Serialized ser;
 	ser.SetObject();
 	ASSERT_TRUE( vec.Serialize(&ser) ) << "Serialization failed";
 
-	cout << vec << endl;
-
-	SerializableHelper::SerializationToStream(ser, cout);
-
 	ILVectorArray2n newvec;
 	ASSERT_TRUE( newvec.Deserialize(ser) ) << "Deserialization failed";
-
-	cout << newvec << endl;
 
 	EXPECT_EQ( vec, newvec ) << "Mismatch after ser/deser";
 

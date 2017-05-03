@@ -173,7 +173,6 @@ bool DeserializeVector(const std::string& vectorName, const std::string& typeNam
 
 	SerialItem::ConstMemberIterator mIt = it->value.FindMember("Typename");
 	if( mIt == it->value.MemberEnd() ) {
-		std::cout << "no member named Typename" << std::endl;
 		return false;
 	}
 
@@ -194,8 +193,9 @@ bool DeserializeVector(const std::string& vectorName, const std::string& typeNam
 		if( eIt == members.MemberEnd() ) return false;
 
 		T vectorElem;
-		const SerialItem& s = eIt->value;
 		SerialItem::ConstMemberIterator s2 = eIt->value.FindMember(typeName);
+		if( s2 == eIt->value.MemberEnd() )
+			return false;
 
 		Serialized ser(rapidjson::kObjectType);
 		SerialItem k( typeName, ser.GetAllocator() );
