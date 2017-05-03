@@ -92,6 +92,8 @@ namespace lbcrypto {
 		typedef ILVectorImpl<native64::BigBinaryInteger,native64::BigBinaryInteger,native64::BigBinaryVector,native64::ILParams> ILVectorType;
 		typedef ILVectorImpl<ModType,IntType,VecType,ILParams> ILVectorLargeType;
 
+		static const std::string ElementName;
+
 		// CONSTRUCTORS
 
 		/**

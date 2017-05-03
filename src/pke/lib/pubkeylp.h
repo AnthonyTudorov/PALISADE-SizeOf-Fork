@@ -258,7 +258,7 @@ namespace lbcrypto {
 					return false;
 				}
 
-				SerializeVector<Element>("Vectors", elementName<Element>(), this->GetPublicElements(), serObj);
+				SerializeVector<Element>("Vectors", Element::ElementName, this->GetPublicElements(), serObj);
 
 				return true;
 			}
@@ -280,10 +280,25 @@ namespace lbcrypto {
 					return false;
 				}
 
-				bool ret = DeserializeVector<Element>("Vectors", elementName<Element>(), mIt, &this->m_h);
+				bool ret = DeserializeVector<Element>("Vectors", Element::ElementName, mIt, &this->m_h);
 
 				return ret;
 			}
+
+			bool operator==(const LPPublicKey& other) const {
+				if( *this->cryptoContext.GetCryptoParameters() != *other.cryptoContext.GetCryptoParameters() )
+					return false;
+
+				if( m_h.size() != other.m_h.size() )
+					return false;
+
+				for( size_t i = 0; i < m_h.size(); i++ )
+					if( m_h[i] != other.m_h[i] )
+						return false;
+
+				return true;
+			}
+			bool operator!=(const LPPublicKey& other) const { return ! (*this == other); }
 
 	private:
 		std::vector<Element> m_h;
@@ -499,8 +514,8 @@ namespace lbcrypto {
 				return false;
 			}
 
-			SerializeVector<Element>("AVector", elementName<Element>(), this->m_rKey[0], serObj);
-			SerializeVector<Element>("BVector", elementName<Element>(), this->m_rKey[1], serObj);
+			SerializeVector<Element>("AVector", Element::ElementName, this->m_rKey[0], serObj);
+			SerializeVector<Element>("BVector", Element::ElementName, this->m_rKey[1], serObj);
 
 			return true;
 		}
@@ -518,7 +533,7 @@ namespace lbcrypto {
 			}
 
 			std::vector<Element> deserElem;
-			bool ret = DeserializeVector<Element>("AVector", elementName<Element>(), mIt, &deserElem);
+			bool ret = DeserializeVector<Element>("AVector", Element::ElementName, mIt, &deserElem);
 			this->m_rKey.push_back(deserElem);
 
 			if( !ret ) return ret;
@@ -529,7 +544,7 @@ namespace lbcrypto {
 				return false;
 			}
 
-			ret = DeserializeVector<Element>("BVector", elementName<Element>(), mIt, &deserElem);
+			ret = DeserializeVector<Element>("BVector", Element::ElementName, mIt, &deserElem);
 			this->m_rKey.push_back(deserElem);
 
 			return ret;
@@ -603,7 +618,7 @@ namespace lbcrypto {
 				return false;
 			}
 
-			SerializeVector<Element>("Vectors", elementName<Element>(), this->GetAVector(), serObj);
+			SerializeVector<Element>("Vectors", Element::ElementName, this->GetAVector(), serObj);
 
 			return true;
 		}
@@ -625,7 +640,7 @@ namespace lbcrypto {
 			}
 
 			std::vector<Element> newElements;
-			if( DeserializeVector<Element>("Vectors", elementName<Element>(), it, &newElements) ) {
+			if( DeserializeVector<Element>("Vectors", Element::ElementName, it, &newElements) ) {
 				this->SetAVector(newElements);
 				return true;
 			}
@@ -846,6 +861,13 @@ namespace lbcrypto {
 
 		}
 
+		bool operator==(const LPPrivateKey& other) const {
+			if( *this->cryptoContext.GetCryptoParameters() != *other.cryptoContext.GetCryptoParameters() )
+				return false;
+
+			return m_sk == other.m_sk;
+		}
+		bool operator!=(const LPPrivateKey& other) const { return ! (*this == other); }
 
 	private:
 		Element m_sk;
@@ -1262,6 +1284,7 @@ namespace lbcrypto {
 		void SetPlaintextModulus(const typename Element::Integer &plaintextModulus) { m_plaintextModulus = plaintextModulus; }
 			
 		virtual bool operator==(const LPCryptoParameters<Element>& cmp) const = 0;
+		bool operator!=(const LPCryptoParameters<Element>& cmp) const { return !(*this == cmp); }
 
 		/**
 		 * Sets the reference to element params

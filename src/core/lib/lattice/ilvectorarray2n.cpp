@@ -37,6 +37,9 @@ using std::string;
 
 namespace lbcrypto {
 
+	template<typename ModType, typename IntType, typename VecType, typename ParmType>
+	const std::string ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::ElementName = "ILVectorArrayImpl";
+
 	/*CONSTRUCTORS*/
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::ILVectorArrayImpl() : m_format(EVALUATION), m_cyclotomicOrder(0), m_modulus(1) {}

@@ -49,6 +49,9 @@ namespace lbcrypto {
 
 	// static members
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
+	const std::string ILVectorImpl<ModType,IntType,VecType,ParmType>::ElementName = "ILVectorImpl";
+
+	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	std::vector<ILVectorImpl<ModType, IntType,VecType,ParmType>> ILVectorImpl<ModType,IntType,VecType,ParmType>::m_dggSamples;
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>

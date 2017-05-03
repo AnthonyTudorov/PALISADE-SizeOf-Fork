@@ -66,13 +66,15 @@ namespace lbcrypto {
 		Serialized::ConstMemberIterator mIter = serObj.FindMember("LPCryptoParametersBV");
 		if (mIter == serObj.MemberEnd()) return false;
 
-		if (this->DeserializeRLWE(mIter) == false)
+		if (this->DeserializeRLWE(mIter) == false) {
 			return false;
+		}
 
 		SerialItem::ConstMemberIterator pIt;
 
-		if ((pIt = mIter->value.FindMember("mode")) == mIter->value.MemberEnd())
+		if ((pIt = serObj.FindMember("mode")) == serObj.MemberEnd()) {
 			return false;
+		}
 		MODE mode = (MODE)atoi(pIt->value.GetString());
 
 		this->SetMode(mode);

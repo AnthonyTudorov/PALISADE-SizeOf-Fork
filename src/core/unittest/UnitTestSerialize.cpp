@@ -192,7 +192,7 @@ TEST(UTSer,ilvector_test) {
 }
 
 TEST(UTSer,ilvectorarray_test) {
-	shared_ptr<ILVectorArray2n::Params> p = GenerateDCRTParams(8, 5, 40);
+	shared_ptr<ILVectorArray2n::Params> p = GenerateDCRTParams(1024, 5, 40);
 	ILVectorArray2n::DugType dug;
 	ILVectorArray2n vec(dug, p);
 

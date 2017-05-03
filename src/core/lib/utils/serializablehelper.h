@@ -128,7 +128,6 @@ inline std::string elementName() {
 
 template<typename T>
 void SerializeVector(const std::string& vectorName, const std::string& typeName, const std::vector<T> inVector, Serialized* serObj) {
-
 	Serialized ser(rapidjson::kObjectType, &serObj->GetAllocator());
 	ser.AddMember("Typename", typeName, serObj->GetAllocator());
 	ser.AddMember("Length", std::to_string(inVector.size()), serObj->GetAllocator());
