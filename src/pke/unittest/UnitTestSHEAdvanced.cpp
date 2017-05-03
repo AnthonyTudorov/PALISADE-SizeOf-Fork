@@ -481,19 +481,24 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 
 	shared_ptr<ILVectorArray2n::Params> params = GenerateDCRTParams( init_m, init_size, dcrtBits );
 
+	shared_ptr<ILVectorArray2n::Params> paramsSmall( new ILVectorArray2n::Params( *params ) );
+	paramsSmall->PopLastParam();
+
 	usint n = 16;
 	usint relWindow = 1;
 
-	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextLTV(params, 5+4, relWindow, init_stdDev, init_size - 1, 6, 1.006);
+	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextLTV(params, 5+4, relWindow, init_stdDev, init_size - 1);
 	cc.Enable(SHE);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(LEVELEDSHE);
 
+	CryptoContext<ILVectorArray2n> ccSmall = CryptoContextFactory<ILVectorArray2n>::genCryptoContextLTV(paramsSmall, 5+4, relWindow, init_stdDev, init_size - 1);
+	ccSmall.Enable(SHE);
+	ccSmall.Enable(ENCRYPTION);
+	ccSmall.Enable(LEVELEDSHE);
+
 	//Generate the secret key for the initial ciphertext
 	LPKeyPair<ILVectorArray2n> kp = cc.KeyGen();
-
-	//Generate the keys for level 1, same number of towers
-	LPKeyPair<ILVectorArray2n> kp1 = cc.KeyGen();
 
 	//Generating Quadratic KeySwitchHint from sk^2 to skNew
 	cc.EvalMultKeyGen(kp.secretKey);
@@ -529,36 +534,34 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 		cout << "Eval Mult result: " << endl << tempresult << endl;
 	}
 
-	cout << ciphertextElementOne[0]->GetElements()[0] << endl;
-	cout << ciphertextElementTwo[0]->GetElements()[0] << endl;
-	cout << cResult->GetElements()[0] << endl;
+	// ok let's try making the secret keys both have one less tower
+	// because ComposedEvalMult performs a ModReduce
+	ILVectorArray2n tempPrivateElement(kp.secretKey->GetPrivateElement());
+	tempPrivateElement.DropLastElement();
+	kp.secretKey->SetPrivateElement(tempPrivateElement);
 
-	shared_ptr<LPEvalKey<ILVectorArray2n>> KeySwitchHint = cc.KeySwitchGen(kp.secretKey, kp1.secretKey);
-
-	cout << "hint" << endl;
-	cout << KeySwitchHint->GetA() << endl;
-	ILVectorArray2n tempA(KeySwitchHint->GetA());
-	tempA.DropLastElement();
-	KeySwitchHint->SetA(tempA);
-
-	//Dropping the last tower of secret key, because ComposedEvalMult performs a ModReduce
-	ILVectorArray2n tempPrivateElement1(kp1.secretKey->GetPrivateElement());
-	tempPrivateElement1.DropLastElement();
-	kp1.secretKey->SetPrivateElement(tempPrivateElement1);
+	shared_ptr<LPPrivateKey<ILVectorArray2n>> kpSecretSmall( new LPPrivateKey<ILVectorArray2n>(ccSmall) );
+	kpSecretSmall->SetPrivateElement(tempPrivateElement);
+	LPKeyPair<ILVectorArray2n> kp1 = ccSmall.KeyGen();
 
 	cout << "keys reduced" << endl;
-	cout << kp.secretKey->GetPrivateElement() << endl;
-	cout << kp1.secretKey->GetPrivateElement() << endl;
+	cout << "kp:  " << kpSecretSmall->GetPrivateElement() << endl;
+	cout << "kp1: " << kp1.secretKey->GetPrivateElement() << endl;
+	cout << "cresult: " << cResult->GetElements()[0] << endl;
 
+	shared_ptr<LPEvalKey<ILVectorArray2n>> KeySwitchHint = ccSmall.KeySwitchGen(kpSecretSmall, kp1.secretKey);
 
-	cResult = cc.KeySwitch(KeySwitchHint, cResult);
+	// hack hack hack
+	shared_ptr<Ciphertext<ILVectorArray2n>> cResultSmall( new Ciphertext<ILVectorArray2n>(ccSmall) );
+	cResultSmall->SetElements( cResult->GetElements() );
+
+	cResult = ccSmall.KeySwitch(KeySwitchHint, cResultSmall);
 
 	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> tempvec2( { cResult } );
 	IntPlaintextEncoding results;
 
-	cout << cResult->GetElements()[0] << endl;
 
-	cc.Decrypt(kp1.secretKey, tempvec2, &results, false);
+	ccSmall.Decrypt(kp1.secretKey, tempvec2, &results, false);
 
 	cout << "result of decrypt with new key: " << endl << results << endl;
 
