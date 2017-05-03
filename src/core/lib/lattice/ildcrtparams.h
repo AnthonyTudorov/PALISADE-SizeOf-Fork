@@ -238,7 +238,7 @@ public:
 			return false;
 
 		for( int i=0; i < m_parms.size(); i++ ) {
-			if( m_parms[i] != dcrtParams->m_parms[i] )
+			if( *m_parms[i] != *dcrtParams->m_parms[i] )
 				return false;
 		}
 

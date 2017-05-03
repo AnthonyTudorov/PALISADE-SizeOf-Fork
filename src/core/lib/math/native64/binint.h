@@ -828,6 +828,7 @@ public:
 		return str;
 	}
 
+    static const std::string IntegerTypeName() { return "NativeI"; }
 
 	/**
 	 * Get the number of digits using a specific base - support for arbitrary base may be needed.

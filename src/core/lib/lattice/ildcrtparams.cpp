@@ -63,6 +63,12 @@ ILDCRTParams::Deserialize(const Serialized& serObj)
 	if( it == arr.MemberEnd() ) return false;
 	this->m_cyclotomicOrder = std::stoi(it->value.GetString());
 
+	it = arr.FindMember("Params");
+
+	if( it == arr.MemberEnd() ) {
+		return false;
+	}
+
 	return DeserializeVectorOfPointers<native64::ILParams>("Params", "ILParams", it, &this->m_parms);
 }
 

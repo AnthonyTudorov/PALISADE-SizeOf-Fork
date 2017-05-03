@@ -574,6 +574,7 @@ bool BigBinaryVectorImpl<IntegerType>::Serialize(lbcrypto::Serialized* serObj) c
 	lbcrypto::SerialItem bbvMap(rapidjson::kObjectType);
 
 	bbvMap.AddMember("Modulus", this->GetModulus().ToString(), serObj->GetAllocator());
+	bbvMap.AddMember("IntegerType", IntegerType::IntegerTypeName(), serObj->GetAllocator());
 
 	usint pkVectorLength = this->GetLength();
 	bbvMap.AddMember("Length", std::to_string(pkVectorLength), serObj->GetAllocator());
@@ -600,6 +601,11 @@ bool BigBinaryVectorImpl<IntegerType>::Deserialize(const lbcrypto::Serialized& s
 		return false;
 
 	lbcrypto::SerialItem::ConstMemberIterator vIt;
+
+	if( (vIt = mIter->value.FindMember("IntegerType")) == mIter->value.MemberEnd() )
+		return false;
+	if( IntegerType::IntegerTypeName() != vIt->value.GetString() )
+		return false;
 
 	if( (vIt = mIter->value.FindMember("Modulus")) == mIter->value.MemberEnd() )
 		return false;

@@ -147,8 +147,6 @@ TEST(UTSer,vector_of_native_int){
 	native64::BigBinaryVector newvec;
 	ASSERT_TRUE( newvec.Deserialize(ser) ) << "Deserialization failed";
 
-	cout << "Deserialized" << endl;
-
 	EXPECT_EQ( testvec, newvec ) << "Mismatch after ser/deser";
 }
 
@@ -171,11 +169,46 @@ TEST(UTSer,ildcrtparams_test) {
 	ser.SetObject();
 	ASSERT_TRUE( p->Serialize(&ser) ) << "Serialization failed";
 
-	SerializableHelper::SerializationToStream(ser, cout);
-
 	ILVectorArray2n::Params newp;
 	ASSERT_TRUE( newp.Deserialize(ser) ) << "Deserialization failed";
 
 	EXPECT_EQ( *p, newp ) << "Mismatch after ser/deser";
 }
 
+TEST(UTSer,ilvector_test) {
+	shared_ptr<ILVector2n::Params> p = GenerateTestParams<ILVector2n::Params,ILVector2n::Integer>(1024, 40);
+	ILVector2n::DggType dgg;
+	ILVector2n vec(dgg, p);
+
+	Serialized ser;
+	ser.SetObject();
+	ASSERT_TRUE( vec.Serialize(&ser) ) << "Serialization failed";
+
+	ILVector2n newvec;
+	ASSERT_TRUE( newvec.Deserialize(ser) ) << "Deserialization failed";
+
+	EXPECT_EQ( vec, newvec ) << "Mismatch after ser/deser";
+
+}
+
+TEST(UTSer,ilvectorarray_test) {
+	shared_ptr<ILVectorArray2n::Params> p = GenerateDCRTParams(8, 5, 40);
+	ILVectorArray2n::DggType dgg;
+	ILVectorArray2n vec(dgg, p);
+
+	Serialized ser;
+	ser.SetObject();
+	ASSERT_TRUE( vec.Serialize(&ser) ) << "Serialization failed";
+
+	cout << vec << endl;
+
+	SerializableHelper::SerializationToStream(ser, cout);
+
+	ILVectorArray2n newvec;
+	ASSERT_TRUE( newvec.Deserialize(ser) ) << "Deserialization failed";
+
+	cout << newvec << endl;
+
+	EXPECT_EQ( vec, newvec ) << "Mismatch after ser/deser";
+
+}

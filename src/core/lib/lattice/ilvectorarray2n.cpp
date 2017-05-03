@@ -887,6 +887,10 @@ namespace lbcrypto {
 			return false;
 
 		Serialized obj(rapidjson::kObjectType, &serObj->GetAllocator());
+		if (!m_params->Serialize(&obj))
+			return false;
+
+
 		obj.AddMember("Format", std::to_string(this->GetFormat()), serObj->GetAllocator());
 		obj.AddMember("Modulus", this->GetModulus().ToString(), serObj->GetAllocator());
 		obj.AddMember("CyclotomicOrder", std::to_string(this->GetCyclotomicOrder()), serObj->GetAllocator());
@@ -906,6 +910,17 @@ namespace lbcrypto {
 		if( it == serObj.MemberEnd() )
 			return false;
 
+		SerialItem::ConstMemberIterator pIt = it->value.FindMember("ILDCRTParams");
+		if (pIt == it->value.MemberEnd()) return false;
+
+		Serialized parm(rapidjson::kObjectType);
+		parm.AddMember(SerialItem(pIt->name, parm.GetAllocator()), SerialItem(pIt->value, parm.GetAllocator()), parm.GetAllocator());
+
+		shared_ptr<ParmType> json_ilParams(new ParmType());
+		if (!json_ilParams->Deserialize(parm))
+			return false;
+		m_params = json_ilParams;
+
 		SerialItem::ConstMemberIterator mIt = it->value.FindMember("Format");
 		if( mIt == it->value.MemberEnd() ) return false;
 		this->m_format = static_cast<Format>(std::stoi(mIt->value.GetString()));
@@ -923,7 +938,6 @@ namespace lbcrypto {
 		if( mIt == it->value.MemberEnd() ) {
 			return false;
 		}
-
 
 		bool ret = DeserializeVector<ILVectorType>("Vectors", "ILVector2n", mIt, &this->m_vectors);
 

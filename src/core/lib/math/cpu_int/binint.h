@@ -579,6 +579,7 @@ namespace cpu_int{
 
     const std::string Serialize(const BigBinaryInteger& mod = BigBinaryInteger::ZERO) const;
     const char * Deserialize(const char * str, const BigBinaryInteger& mod = BigBinaryInteger::ZERO);
+    static const std::string IntegerTypeName() { return "BBI"; }
 
 
     /**
