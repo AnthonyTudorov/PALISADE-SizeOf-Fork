@@ -489,12 +489,14 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 	usint n = 16;
 	usint relWindow = 1;
 
-	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextLTV(params, 5+4, relWindow, init_stdDev, init_size - 1);
+//	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextLTV(params, 5+4, relWindow, init_stdDev, init_size - 1);
+	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextNull(params, 5+4);
 	cc.Enable(SHE);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(LEVELEDSHE);
 
-	CryptoContext<ILVectorArray2n> ccSmall = CryptoContextFactory<ILVectorArray2n>::genCryptoContextLTV(paramsSmall, 5+4, relWindow, init_stdDev, init_size - 1);
+//	CryptoContext<ILVectorArray2n> ccSmall = CryptoContextFactory<ILVectorArray2n>::genCryptoContextLTV(paramsSmall, 5+4, relWindow, init_stdDev, init_size - 1);
+	CryptoContext<ILVectorArray2n> ccSmall = CryptoContextFactory<ILVectorArray2n>::genCryptoContextNull(paramsSmall, 5+4);
 	ccSmall.Enable(SHE);
 	ccSmall.Enable(ENCRYPTION);
 	ccSmall.Enable(LEVELEDSHE);
@@ -525,17 +527,26 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 	ciphertextElementOne = cc.Encrypt(kp.publicKey, firstElementEncoding, false);
 	ciphertextElementTwo = cc.Encrypt(kp.publicKey, secondElementEncoding, false);
 
-	cout << ciphertextElementOne[0]->GetElement() << endl;
-	cout << ciphertextElementTwo[0]->GetElement() << endl;
-
+	ILVectorArray2n ct1EL( ciphertextElementOne[0]->GetElements()[0] );
+	ct1EL.SwitchFormat();
+	cout << ct1EL << endl;
+	ILVectorArray2n ct2EL( ciphertextElementTwo[0]->GetElements()[0] );
+	ct2EL.SwitchFormat();
+	cout << ct2EL << endl;
 
 	shared_ptr<Ciphertext<ILVectorArray2n>> cResult = cc.ComposedEvalMult(ciphertextElementOne[0], ciphertextElementTwo[0]);
+
+	ILVectorArray2n ct2CEM( cResult->GetElements()[0] );
+	ct2CEM.SwitchFormat();
+	cout << ct2CEM << endl;
 
 	{
 		vector<shared_ptr<Ciphertext<ILVectorArray2n>>> tempvec( { cc.EvalMult(ciphertextElementOne[0], ciphertextElementTwo[0]) } );
 		cout << "mult: " << tempvec[0]->GetElements()[0] << endl;
 		IntPlaintextEncoding tempresult;
 		cout << "sk " << kp.secretKey->GetPrivateElement() << endl;
+
+		cout << "modred: " << cc.ModReduce({tempvec[0]})[0]->GetElements()[0] << endl;
 
 		cc.Decrypt(kp.secretKey, tempvec, &tempresult, false);
 		cout << "Eval Mult result: " << endl << tempresult << endl;

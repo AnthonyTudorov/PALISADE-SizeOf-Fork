@@ -274,7 +274,11 @@ class LPLeveledSHEAlgorithmNull : public LPLeveledSHEAlgorithm<Element> { // FIX
 		shared_ptr<Ciphertext<Element>> ComposedEvalMult(
 				const shared_ptr<Ciphertext<Element>> cipherText1,
 				const shared_ptr<Ciphertext<Element>> cipherText2,
-				const shared_ptr<LPEvalKeyNTRU<Element>> quadKeySwitchHint) const ;
+				const shared_ptr<LPEvalKeyNTRU<Element>> quadKeySwitchHint) const {
+			shared_ptr<Ciphertext<Element>> prod = cipherText1->GetCryptoContext().GetEncryptionAlgorithm()->EvalMult(cipherText1, cipherText2);
+
+			return this->ModReduce(prod);
+		}
 
 		/**
 		* Method for Level Reduction from sk -> sk1. This method peforms a keyswitch on the ciphertext and then performs a modulus reduction.
@@ -617,8 +621,10 @@ public:
 
 		//	if (mask[FHE])
 		//		this->m_algorithmFHE = new LPAlgorithmFHENull<Element>();
-		//	if (mask[LEVELEDSHE])
-		//		this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmNull<Element>();
+
+		if (mask[LEVELEDSHE])
+			if (this->m_algorithmLeveledSHE == NULL)
+				this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmNull<Element>();
 	}
 
 	void Enable(PKESchemeFeature feature) {
@@ -640,10 +646,10 @@ public:
 			//		if (this->m_algorithmFHE == NULL)
 			//			this->m_algorithmFHE = new LPAlgorithmFHENull<Element>();
 			//		break;
-			//	case LEVELEDSHE:
-			//		if (this->m_algorithmLeveledSHE == NULL)
-			//			this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmNull<Element>();
-			//		break;
+		case LEVELEDSHE:
+			if (this->m_algorithmLeveledSHE == NULL)
+				this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmNull<Element>();
+			break;
 		}
 	}
 };
