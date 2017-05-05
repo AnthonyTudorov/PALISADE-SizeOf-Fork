@@ -175,7 +175,8 @@ TEST(UTSHE, FV_ILVector2n_Add) {
 ///
 template<class Element>
 void UnitTest_Mult(const CryptoContext<Element>& cc) {
-
+	bool dbg_flag = false;
+  
 	std::vector<uint32_t> vectorOfInts1 = { 1,0,3,1,0,1,2,1 };
 	IntPlaintextEncoding plaintext1(vectorOfInts1);
 
@@ -193,8 +194,15 @@ void UnitTest_Mult(const CryptoContext<Element>& cc) {
 
 		IntPlaintextEncoding intArrayExpected(cc.GetCyclotomicOrder() == 16 ? vectorOfIntsMult : vectorOfIntsMultLong);
 
+		DEBUG("intArray1 "<<intArray1);
+		DEBUG("intArray2 "<<intArray2);
+		DEBUG("intArrayExpected "<<intArrayExpected);
+
 		// Initialize the public key containers.
 		LPKeyPair<Element> kp = cc.KeyGen();
+
+		DEBUG("kp.publicKey "<<kp.publicKey);
+		DEBUG("kp.secretKey "<<kp.secretKey);
 
 		vector<shared_ptr<Ciphertext<Element>>> ciphertext1 =
 			cc.Encrypt(kp.publicKey, intArray1,false);
@@ -202,18 +210,28 @@ void UnitTest_Mult(const CryptoContext<Element>& cc) {
 		vector<shared_ptr<Ciphertext<Element>>> ciphertext2 =
 			cc.Encrypt(kp.publicKey, intArray2,false);
 
+
 		cc.EvalMultKeyGen(kp.secretKey);
 
-		vector<shared_ptr<Ciphertext<Element>>> cResult;
+		for (auto i = 0; i<ciphertext1.at(0)->GetElements().size(); i++){
+			DEBUG("ciphertext1.at(0) "<<i<<" "<<ciphertext1.at(0)->GetElements().at(i));
+			DEBUG("ciphertext2.at(0) "<<i<<" "<<ciphertext2.at(0)->GetElements().at(i));
 
+		}
+		vector<shared_ptr<Ciphertext<Element>>> cResult;
+		
 		cResult.insert(cResult.begin(), cc.EvalMult(ciphertext1.at(0), ciphertext2.at(0)));
 
+		for (auto i = 0; i<cResult.at(0)->GetElements().size(); i++){
+			DEBUG("cResult.at(0) "<<i<<" "<<cResult.at(0)->GetElements().at(i));
+		}
 		IntPlaintextEncoding results;
 
 		cc.Decrypt(kp.secretKey, cResult, &results,false);
 
+		DEBUG("reults first "<<results);
 		results.resize(intArrayExpected.size());
-
+		DEBUG("reults second "<<results);		
 		EXPECT_EQ(intArrayExpected, results) << "EvalMult fails";
 
 	}

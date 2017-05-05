@@ -56,6 +56,10 @@
 // new dynamicly allocated backend and support uint32_t and uint64_t on linux
 // This backend supports arbitrary bitwidths; no memory pool is used; can grow up to RAM
 // limitation
+// currently failing for  UTPRE.BV_ILVectorArray2n_ReEncrypt_pri
+//                        UTSHE.BV_ILVectorArray2n_Mult
+// and for trapdoor
+
 
 // MATHBACKEND 4
 // Uses exp_int definition with uint64_t underlying size as defaults
@@ -64,13 +68,17 @@
 // stemming from poor run time performance of 128 bit intrinsic divide
 // UTSHE.keyswitch_ModReduce_DCRT takes incredibly rediculously long (9637 sec)
 // UTSHEAdvanced.test_eval_mult_double_crt takes extremely long (89 sec)
-//UTSHEAdvanced.test_eval_add_double_crt takes extremely long (86 sec)
+// UTSHEAdvanced.test_eval_add_double_crt takes extremely long (86 sec)
 
 // MATHBACKEND 5
 // GMP 6.1.1 / NTL 10.3.0 backend  experimental on linux (coexist with BE 2)
 
 // MATHBACKEND 6
 // 6- GMP 6.1.1 / NTL 10.3.0 backend  experimental on linux (replaces BE 2_
+// currently failing for  UTPRE.BV_ILVectorArray2n_ReEncrypt_pri
+//                        UTSHE.BV_ILVectorArray2n_Mult
+
+
 
 // MATHBACKEND 7
 // uses native64 as the default
@@ -80,10 +88,11 @@
 //Please UNCOMMENT the approproate line rather than changing the number on the 
 //uncommented line (and breaking the documentation of the line)
 
-//#define MATHBACKEND 2 
-#define MATHBACKEND 3 
+#define MATHBACKEND 2 
+//#define MATHBACKEND 3 
 //#define MATHBACKEND 4 
 //#define MATHBACKEND 5 
+//currently  broken for BE 6
 //#define MATHBACKEND 6 
 //#define MATHBACKEND 7	// native64 native
 
@@ -112,9 +121,9 @@ typedef cpu_int::BigBinaryVectorImpl<NativeInteger<uint64_t>> BigBinaryVector;
 #include <initializer_list>
 #endif
 #define UBINT_32
-#include "exp_int/ubint.cpp" //experimental dbc unsigned big integers or ubints
-#include "exp_int/ubintvec.cpp" //vectors of experimental ubints
-#include "exp_int/mubintvec.cpp" //rings of ubints
+#include "exp_int/ubint.h" //experimental dbc unsigned big integers or ubints
+#include "exp_int/ubintvec.h" //vectors of experimental ubints
+#include "exp_int/mubintvec.h" //rings of ubints
 
 #endif
 
@@ -129,9 +138,9 @@ typedef cpu_int::BigBinaryVectorImpl<NativeInteger<uint64_t>> BigBinaryVector;
 #if MATHBACKEND == 4
 
 #define UBINT_64
-#include "exp_int/ubint.cpp" //experimental dbc unsigned big integers or ubints
-#include "exp_int/ubintvec.cpp" //vectors of experimental ubints
-#include "exp_int/mubintvec.cpp" //rings of ubints
+#include "exp_int/ubint.h" //experimental dbc unsigned big integers or ubints
+#include "exp_int/ubintvec.h" //vectors of experimental ubints
+#include "exp_int/mubintvec.h" //rings of ubints
 #endif
 
 #if MATHBACKEND == 5
