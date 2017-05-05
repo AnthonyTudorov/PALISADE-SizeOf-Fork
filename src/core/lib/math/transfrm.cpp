@@ -645,6 +645,7 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 		static std::vector<double> cosTable;
 		static std::vector<double> sinTable;
 
+#pragma omp critical
 		if( m != cachedM ) {
 			cachedM = m;
 			sinTable.resize(m/2);
