@@ -165,7 +165,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::ParamsGen(typename Element::Dg
 	double sigma = SIGMA;
 	
 	//assurance measure
-	double alpha = 9.0;
+	double alpha = 144;
 
 	//empirical parameter
 	double beta = 6.0;
