@@ -340,17 +340,26 @@ public:
 
   //ACCESSORS
 
-  //change to ostream?
-  /**
-   * ???
-   *
-   * @param os ???.
-   * @param &ptr_obj ???.
-   * @return the return value.
-   */
-  template<class ubint_el_t_c>
+    /**
+       * ostream output << operator.
+       *
+       * @param os is the std ostream object.
+       * @param ptr_obj is mubintvec to be printed.
+       * @return is the ostream object.
+       */
   friend std::ostream& operator<<(std::ostream& os,
-      const mubintvec<ubint_el_t_c> &ptr_obj);
+				  const mubintvec &ptr_obj)
+  {
+    os<<std::endl;
+    for(usint i=0;i<ptr_obj.m_data.size();i++){
+      os<<ptr_obj.m_data[i] <<std::endl;
+    }
+
+    os<<"modulus: "<<ptr_obj.m_modulus;
+    os <<std::endl;
+
+    return os;
+  };
 
   /**
    * Sets the vector modulus.

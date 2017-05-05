@@ -38,7 +38,8 @@
  */
 
 #include "../../utils/serializable.h"
-#include "ubintvec.h"
+#include "../backend.h"
+//#include "ubintvec.h"
 
 
 namespace exp_int {
@@ -178,17 +179,6 @@ namespace exp_int {
   }
 
   //ACCESSORS
-  //stream <<
-  template<class ubint_el_t_c>
-  std::ostream& operator<<(std::ostream& os, const ubintvec<ubint_el_t_c> &ptr_obj){
-
-    os<<std::endl;
-    for(usint i=0;i<ptr_obj.m_data.size();i++){
-      os<<ptr_obj.m_data[i] <<std::endl;
-    }
-
-    return os;
-  }
 
 
   // Set value at index from ubint
@@ -317,7 +307,7 @@ namespace exp_int {
     return *this;
 
   }
-
+#if 0 //not used
 template<class ubint_el_t>
   ubintvec<ubint_el_t> ubintvec<ubint_el_t>::Exp(const ubint_el_t &b) const{
     ubintvec ans(*this);
@@ -326,7 +316,7 @@ template<class ubint_el_t>
     }
     return ans;
   }
-
+#endif
   // vector elementwise add
   template<class ubint_el_t>
   ubintvec<ubint_el_t> ubintvec<ubint_el_t>::Add(const ubintvec &b) const{
@@ -498,7 +488,7 @@ template<class ubint_el_t>
   ubintvec<ubint_el_t> ubintvec<ubint_el_t>::GetDigitAtIndexForBase(usint index, usint base) const{
     ubintvec ans(*this);
     for(usint i=0;i<this->m_data.size();i++){
-      *ans.m_data[i] = ubint_el_t(ans.m_data[i]->GetDigitAtIndexForBase(index,base));
+      ans.m_data[i] = ubint_el_t(ans.m_data[i].GetDigitAtIndexForBase(index,base));
     }
 
     return ans;
@@ -581,3 +571,10 @@ template<class ubint_el_t>
   }
 
 } // namespace lbcrypto ends
+
+#ifdef UBINT_32
+template class exp_int::ubintvec<exp_int::ubint<uint32_t>>; 
+#endif
+#ifdef UBINT_64
+template class exp_int::ubintvec<exp_int::ubint<uint64_t>>; 
+#endif

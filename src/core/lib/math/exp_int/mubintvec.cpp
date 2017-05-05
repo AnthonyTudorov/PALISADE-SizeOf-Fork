@@ -39,7 +39,8 @@
 
 
 #include "../../utils/serializable.h"
-#include "mubintvec.h"
+#include "../backend.h"
+//#include "mubintvec.h"
 
 #include "time.h"
 #include <chrono>
@@ -82,7 +83,7 @@ namespace exp_int {
     }
     m_modulus = modulus;
     m_modulus_state = INITIALIZED;
-    this->Mod(modulus);
+    this->Mod(ubint_el_t(modulus));
 
     DEBUG("mubintvec CTOR( length "<<length<< " modulus usint) "<<modulus);
   }
@@ -141,7 +142,7 @@ namespace exp_int {
     }
     m_modulus = ubint_el_t(modulus);
     m_modulus_state = INITIALIZED;
-    this->Mod(modulus);
+    this->Mod(ubint_el_t(modulus));
     DEBUG("mubintvec CTOR (strvec length "<<s.size()<< " modulus string) "<<modulus);
   }
 
@@ -386,20 +387,6 @@ namespace exp_int {
   }
 
   //ACCESSORS
-  //stream <<
-  template<class ubint_el_t_c>
-  std::ostream& operator<<(std::ostream& os, const mubintvec<ubint_el_t_c> &ptr_obj){
-
-    os<<std::endl;
-    for(usint i=0;i<ptr_obj.m_data.size();i++){
-      os<<ptr_obj.m_data[i] <<std::endl;
-    }
-
-    os<<"modulus: "<<ptr_obj.m_modulus;
-    os <<std::endl;
-
-    return os;
-  }
 
   //modulus accessors
   template<class ubint_el_t>
@@ -960,3 +947,9 @@ template<class ubint_el_t>
 
 } // namespace lbcrypto ends
  
+#ifdef UBINT_32
+template class exp_int::mubintvec<exp_int::ubint<uint32_t>>; 
+#endif
+#ifdef UBINT_64
+template class exp_int::mubintvec<exp_int::ubint<uint64_t>>; 
+#endif

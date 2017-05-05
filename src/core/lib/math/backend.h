@@ -80,8 +80,8 @@
 //Please UNCOMMENT the approproate line rather than changing the number on the 
 //uncommented line (and breaking the documentation of the line)
 
-#define MATHBACKEND 2 
-//#define MATHBACKEND 3 
+//#define MATHBACKEND 2 
+#define MATHBACKEND 3 
 //#define MATHBACKEND 4 
 //#define MATHBACKEND 5 
 //#define MATHBACKEND 6 
@@ -93,6 +93,7 @@
 #ifndef NO_MATHBACKEND_7
 
 // note we always want to include these
+
 #include "cpu_int/binint.cpp"
 #include "cpu_int/binvect.cpp"
 #include "native64/binint.h"
@@ -120,9 +121,9 @@ typedef cpu_int::BigBinaryVectorImpl<NativeInteger<uint64_t>> BigBinaryVector;
 #if MATHBACKEND == 3
 
 #define UBINT_32
-#include "exp_int/ubint.cpp" //experimental dbc unsigned big integers or ubints
-#include "exp_int/ubintvec.cpp" //vectors of experimental ubints
-#include "exp_int/mubintvec.cpp" //rings of ubints
+#include "exp_int/ubint.h" //experimental dbc unsigned big integers or ubints
+#include "exp_int/ubintvec.h" //vectors of experimental ubints
+#include "exp_int/mubintvec.h" //rings of ubints
 #endif
 
 #if MATHBACKEND == 4
