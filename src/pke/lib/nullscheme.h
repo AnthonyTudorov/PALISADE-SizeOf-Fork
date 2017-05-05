@@ -26,8 +26,6 @@ public:
 
 	void SetPlaintextModulus(const BigBinaryInteger &plaintextModulus) {
 		throw std::logic_error("plaintext modulus is fixed to be == ciphertext modulus and cannot be changed");
-//		LPCryptoParameters<Element>::SetPlaintextModulus(plaintextModulus);
-//		std::dynamic_pointer_cast<ILParams>(this->GetElementParams())->SetModulus( plaintextModulus );
 	}
 
 	bool Serialize(Serialized* serObj) const {
@@ -242,7 +240,7 @@ public:
  * @tparam Element a ring element.
  */
 template <class Element>
-class LPLeveledSHEAlgorithmNull : public LPLeveledSHEAlgorithm<Element> { // FIXME: not implemented!
+class LPLeveledSHEAlgorithmNull : public LPLeveledSHEAlgorithm<Element> {
 	public:
 		/**
 		* Default constructor
@@ -254,14 +252,30 @@ class LPLeveledSHEAlgorithmNull : public LPLeveledSHEAlgorithm<Element> { // FIX
 		 *
 		 * @param *cipherText Ciphertext to perform and apply modreduce on.
 		 */
-		shared_ptr<Ciphertext<Element>> ModReduce(shared_ptr<Ciphertext<Element>> cipherText) const;
+		shared_ptr<Ciphertext<Element>> ModReduce(shared_ptr<Ciphertext<Element>> cipherText) const {
+			shared_ptr<Ciphertext<Element>> newcipherText(new Ciphertext<Element>(*cipherText));
+
+			std::vector<Element> cipherTextElements(cipherText->GetElements());
+
+			typename Element::Integer plaintextModulus(cipherText->GetCryptoParameters()->GetPlaintextModulus());
+
+			for (auto &cipherTextElement : cipherTextElements) {
+				cipherTextElement.ModReduce(plaintextModulus);
+			}
+
+			newcipherText->SetElements(cipherTextElements);
+
+			return newcipherText;
+		}
 		/**
 		 * Method for RingReducing CipherText and the Private Key used for encryption.
 		 *
 		 * @param *cipherText Ciphertext to perform and apply ringreduce on.
 		 * @param *keySwitchHint is the keyswitchhint from the ciphertext's private key to a sparse key
 		 */
-		shared_ptr<Ciphertext<Element>> RingReduce(shared_ptr<Ciphertext<Element>> cipherText, const shared_ptr<LPEvalKey<Element>> keySwitchHint) const ;
+		shared_ptr<Ciphertext<Element>> RingReduce(shared_ptr<Ciphertext<Element>> cipherText, const shared_ptr<LPEvalKey<Element>> keySwitchHint) const {
+			throw std::logic_error("RingReduce not implemented for Null");
+		}
 
 		/**
 		* Method for ComposedEvalMult
@@ -274,8 +288,10 @@ class LPLeveledSHEAlgorithmNull : public LPLeveledSHEAlgorithm<Element> { // FIX
 		shared_ptr<Ciphertext<Element>> ComposedEvalMult(
 				const shared_ptr<Ciphertext<Element>> cipherText1,
 				const shared_ptr<Ciphertext<Element>> cipherText2,
-				const shared_ptr<LPEvalKeyNTRU<Element>> quadKeySwitchHint) const {
+				const shared_ptr<LPEvalKey<Element>> quadKeySwitchHint) const {
 			shared_ptr<Ciphertext<Element>> prod = cipherText1->GetCryptoContext().GetEncryptionAlgorithm()->EvalMult(cipherText1, cipherText2);
+
+			// it's nullscheme so there is no EvalMultKey in use
 
 			return this->ModReduce(prod);
 		}
@@ -288,7 +304,9 @@ class LPLeveledSHEAlgorithmNull : public LPLeveledSHEAlgorithm<Element> { // FIX
 		* @param &cipherTextResult is the resulting ciphertext.
 		*/
 		shared_ptr<Ciphertext<Element>> LevelReduce(const shared_ptr<Ciphertext<Element>> cipherText1,
-				const shared_ptr<LPEvalKeyNTRU<Element>> linearKeySwitchHint) const ;
+				const shared_ptr<LPEvalKey<Element>> linearKeySwitchHint) const {
+			throw std::logic_error("LevelReduce not implemented for Null");
+		}
 
 		/**
 		* Function that determines if security requirements are met if ring dimension is reduced by half.
@@ -297,7 +315,9 @@ class LPLeveledSHEAlgorithmNull : public LPLeveledSHEAlgorithm<Element> { // FIX
 		* @param &moduli is the vector of moduli that is used
 		* @param rootHermiteFactor is the security threshold
 		*/
-		bool CanRingReduce(usint ringDimension, const std::vector<BigBinaryInteger> &moduli, const double rootHermiteFactor) const;
+		bool CanRingReduce(usint ringDimension, const std::vector<BigBinaryInteger> &moduli, const double rootHermiteFactor) const {
+			throw std::logic_error("CanRingReduce not implemented for Null");
+		}
 };
 
 template <class Element>

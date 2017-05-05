@@ -61,7 +61,7 @@ template BigBinaryInteger GreatestCommonDivisor(const BigBinaryInteger& a, const
 template const BigBinaryInteger PollardRhoFactorization(const BigBinaryInteger &n);
 template void PrimeFactorize( BigBinaryInteger n, std::set<BigBinaryInteger> &primeFactors);
 template BigBinaryInteger FindPrimeModulus(usint m, usint nBits);
-template void NextQ(BigBinaryInteger &q, const BigBinaryInteger &plainTextModulus, const usint &ringDimension, const BigBinaryInteger &sigma, const BigBinaryInteger &alpha);
+template void NextQ(BigBinaryInteger &q, const BigBinaryInteger &plainTextModulus, const usint cyclotomicOrder, const BigBinaryInteger &sigma, const BigBinaryInteger &alpha);
 template BigBinaryVector PolyMod(const BigBinaryVector &dividend, const BigBinaryVector &divisor, const BigBinaryInteger &modulus);
 template BigBinaryVector PolynomialMultiplication(const BigBinaryVector &a, const BigBinaryVector &b);
 template BigBinaryVector GetCyclotomicPolynomial(usint m, const BigBinaryInteger &modulus);
@@ -78,7 +78,7 @@ template native64::BigBinaryInteger GreatestCommonDivisor(const native64::BigBin
 template const native64::BigBinaryInteger PollardRhoFactorization(const native64::BigBinaryInteger &n);
 template void PrimeFactorize( native64::BigBinaryInteger n, std::set<native64::BigBinaryInteger> &primeFactors);
 template native64::BigBinaryInteger FindPrimeModulus(usint m, usint nBits);
-template void NextQ(native64::BigBinaryInteger &q, const native64::BigBinaryInteger &plainTextModulus, const usint &ringDimension, const native64::BigBinaryInteger &sigma, const native64::BigBinaryInteger &alpha);
+template void NextQ(native64::BigBinaryInteger &q, const native64::BigBinaryInteger &plainTextModulus, const usint cyclotomicOrder, const native64::BigBinaryInteger &sigma, const native64::BigBinaryInteger &alpha);
 //template native64::BigBinaryInteger GetTotient(const native64::BigBinaryInteger &n);
 template std::vector<native64::BigBinaryInteger> GetTotientList(const native64::BigBinaryInteger &n);
 template native64::BigBinaryVector PolyMod(const native64::BigBinaryVector &dividend, const native64::BigBinaryVector &divisor, const native64::BigBinaryInteger &modulus);
@@ -597,12 +597,12 @@ IntType FindPrimeModulus(usint m, usint nBits)
 }
 
 template<typename IntType>
-void NextQ(IntType &q, const IntType &plainTextModulus, const usint &ringDimension, const IntType &sigma, const IntType &alpha) {
+void NextQ(IntType &q, const IntType &plainTextModulus, const usint cyc, const IntType &sigma, const IntType &alpha) {
 	IntType bigSixteen("16");
 	IntType lowerBound;
-	IntType ringDimensions(ringDimension);
+	IntType cyclotomicOrder(cyc);
 
-	lowerBound = bigSixteen * ringDimensions * sigma  * sigma * alpha;
+	lowerBound = bigSixteen * cyclotomicOrder * sigma  * sigma * alpha;
 	if (!(q >= lowerBound)) {
 		q = lowerBound;
 	}
@@ -614,7 +614,7 @@ void NextQ(IntType &q, const IntType &plainTextModulus, const usint &ringDimensi
 		q = q + IntType::ONE;
 	}
 
-	IntType cyclotomicOrder = ringDimensions * IntType::TWO;
+	//IntType cyclotomicOrder = ringDimensions * IntType::TWO;
 
 	while (q.Mod(cyclotomicOrder) != IntType::ONE) {
 		q = q + plainTextModulus;
@@ -631,7 +631,7 @@ void NextQ(IntType &q, const IntType &plainTextModulus, const usint &ringDimensi
 
 	if(!(cyclotomicOrder == gcd)){
 		q = q + IntType::ONE;
-	  	NextQ(q, plainTextModulus, ringDimension, sigma, alpha);
+	  	NextQ(q, plainTextModulus, cyc, sigma, alpha);
 	}
 		
 }

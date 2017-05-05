@@ -28,7 +28,7 @@ inline CryptoContext<ILVector2n> GenCryptoContextElementNull(usint ORDER, usint 
 }
 
 inline CryptoContext<ILVectorArray2n> GenCryptoContextElementArrayNull(usint ORDER, usint ntowers, usint ptm, usint bits=PrimeBits) {
-	shared_ptr<ILVectorArray2n::Params> p = GenerateDCRTParams(ORDER, ntowers, bits);
+	shared_ptr<ILVectorArray2n::Params> p = GenerateDCRTParams(ORDER, ptm, ntowers, bits);
 
 	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextNull(p, ptm);
 	cc.Enable(ENCRYPTION);
@@ -50,7 +50,7 @@ inline CryptoContext<ILVector2n> GenCryptoContextElementLTV(usint ORDER, usint p
 }
 
 inline CryptoContext<ILVectorArray2n> GenCryptoContextElementArrayLTV(usint ORDER, usint ntowers, usint ptm, usint bits=PrimeBits) {
-	shared_ptr<ILVectorArray2n::Params> p = GenerateDCRTParams(ORDER, ntowers, bits);
+	shared_ptr<ILVectorArray2n::Params> p = GenerateDCRTParams(ORDER, ptm, ntowers, bits);
 
 	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextLTV(p, ptm, 1, 4, ntowers);
 	cc.Enable(ENCRYPTION);
@@ -72,7 +72,7 @@ inline CryptoContext<ILVector2n> GenCryptoContextElementStSt(usint ORDER, usint 
 }
 
 inline CryptoContext<ILVectorArray2n> GenCryptoContextElementArrayStSt(usint ORDER, usint ntowers, usint ptm, usint bits=PrimeBits) {
-	shared_ptr<ILVectorArray2n::Params> p = GenerateDCRTParams(ORDER, ntowers, bits);
+	shared_ptr<ILVectorArray2n::Params> p = GenerateDCRTParams(ORDER, ptm, ntowers, bits);
 
 	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextStehleSteinfeld(p, ptm, 1, 4, 41411.5, ntowers);
 	cc.Enable(ENCRYPTION);
@@ -94,7 +94,7 @@ inline CryptoContext<ILVector2n> GenCryptoContextElementBV(usint ORDER, usint pt
 }
 
 inline CryptoContext<ILVectorArray2n> GenCryptoContextElementArrayBV(usint ORDER, usint ntowers, usint ptm, usint bits=PrimeBits) {
-	shared_ptr<ILVectorArray2n::Params> p = GenerateDCRTParams(ORDER, ntowers, bits);
+	shared_ptr<ILVectorArray2n::Params> p = GenerateDCRTParams(ORDER, ptm, ntowers, bits);
 
 	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextBV(p, ptm, 1, 3, RLWE, ntowers);
 	cc.Enable(ENCRYPTION);

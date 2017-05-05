@@ -474,11 +474,13 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 
 	usint init_size = 2;
 
+	usint ptm = 9;
+
 	vector<native64::BigBinaryInteger> init_moduli(init_size);
 
 	vector<native64::BigBinaryInteger> init_rootsOfUnity(init_size);
 
-	shared_ptr<ILVectorArray2n::Params> params = GenerateDCRTParams( init_m, init_size, dcrtBits );
+	shared_ptr<ILVectorArray2n::Params> params = GenerateDCRTParams( init_m, ptm, init_size, dcrtBits );
 
 	shared_ptr<ILVectorArray2n::Params> paramsSmall( new ILVectorArray2n::Params( *params ) );
 	paramsSmall->PopLastParam();
@@ -489,14 +491,12 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 	usint n = 16;
 	usint relWindow = 1;
 
-//	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextLTV(params, 5+4, relWindow, init_stdDev, init_size - 1);
-	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextNull(params, 5+4);
+	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextLTV(params, ptm, relWindow, init_stdDev, init_size - 1);
 	cc.Enable(SHE);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(LEVELEDSHE);
 
-//	CryptoContext<ILVectorArray2n> ccSmall = CryptoContextFactory<ILVectorArray2n>::genCryptoContextLTV(paramsSmall, 5+4, relWindow, init_stdDev, init_size - 1);
-	CryptoContext<ILVectorArray2n> ccSmall = CryptoContextFactory<ILVectorArray2n>::genCryptoContextNull(paramsSmall, 5+4);
+	CryptoContext<ILVectorArray2n> ccSmall = CryptoContextFactory<ILVectorArray2n>::genCryptoContextLTV(paramsSmall, ptm, relWindow, init_stdDev, init_size - 1);
 	ccSmall.Enable(SHE);
 	ccSmall.Enable(ENCRYPTION);
 	ccSmall.Enable(LEVELEDSHE);
@@ -529,16 +529,16 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 
 	ILVectorArray2n ct1EL( ciphertextElementOne[0]->GetElements()[0] );
 	ct1EL.SwitchFormat();
-	cout << ct1EL << endl;
+	cout << "ciphertext 1: " << ct1EL << endl;
 	ILVectorArray2n ct2EL( ciphertextElementTwo[0]->GetElements()[0] );
 	ct2EL.SwitchFormat();
-	cout << ct2EL << endl;
+	cout << "ciphertext 2: "<< ct2EL << endl;
 
 	shared_ptr<Ciphertext<ILVectorArray2n>> cResult = cc.ComposedEvalMult(ciphertextElementOne[0], ciphertextElementTwo[0]);
 
 	ILVectorArray2n ct2CEM( cResult->GetElements()[0] );
 	ct2CEM.SwitchFormat();
-	cout << ct2CEM << endl;
+	cout << "composed eval mult: "<< ct2CEM << endl;
 
 	{
 		vector<shared_ptr<Ciphertext<ILVectorArray2n>>> tempvec( { cc.EvalMult(ciphertextElementOne[0], ciphertextElementTwo[0]) } );
@@ -546,7 +546,7 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 		IntPlaintextEncoding tempresult;
 		cout << "sk " << kp.secretKey->GetPrivateElement() << endl;
 
-		cout << "modred: " << cc.ModReduce({tempvec[0]})[0]->GetElements()[0] << endl;
+		cout << "modred: " << cc.ModReduce(tempvec[0])->GetElements()[0] << endl;
 
 		cc.Decrypt(kp.secretKey, tempvec, &tempresult, false);
 		cout << "Eval Mult result: " << endl << tempresult << endl;

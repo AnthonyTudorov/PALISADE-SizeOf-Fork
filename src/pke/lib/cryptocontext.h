@@ -825,23 +825,15 @@ public:
 	}
 
 	/**
-	* ModReduce - PALISADE ModReduce method
-	* @param ciphertext - vector of ciphertext
-	* @return vector of mod reduced ciphertext
-	*/
-	std::vector<shared_ptr<Ciphertext<Element>>> ModReduce(
-		vector<shared_ptr<Ciphertext<Element>>> ciphertext) const
-	{
-		std::vector<shared_ptr<Ciphertext<Element>>> newCiphertext(ciphertext.size());
+	 * ModReduce - PALISADE ModReduce method
+	 * @param ciphertext - vector of ciphertext
+	 * @return vector of mod reduced ciphertext
+	 */
+	shared_ptr<Ciphertext<Element>> ModReduce(shared_ptr<Ciphertext<Element>> ciphertext) const {
+		if( ciphertext == NULL || ciphertext->GetCryptoContext() != *this )
+			throw std::logic_error("Information passed to ModReduce was not generated with this crypto context");
 
-		for (int i = 0; i < ciphertext.size(); i++) {
-			if( ciphertext[i] == NULL || ciphertext[i]->GetCryptoContext() != *this )
-				throw std::logic_error("Information passed to ModReduce was not generated with this crypto context");
-
-			newCiphertext[i] = GetEncryptionAlgorithm()->ModReduce(ciphertext[i]);
-		}
-
-		return std::move(newCiphertext);
+		return GetEncryptionAlgorithm()->ModReduce(ciphertext);
 	}
 
 	/**

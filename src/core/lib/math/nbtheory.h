@@ -121,7 +121,7 @@ namespace lbcrypto {
 	 * @return false if evidence of non-primality is found.  True is no evidence of non-primality is found.	
 	 */
 	template<typename IntType>
-	  bool MillerRabinPrimalityTest(const IntType& p, const usint niter = 100);
+	bool MillerRabinPrimalityTest(const IntType& p, const usint niter = 100);
 
 	/**
 	 * Perform the PollardRho factorization of a IntType.
@@ -167,7 +167,7 @@ namespace lbcrypto {
 	 * @return the next prime modulus.  
 	 */
 	template<typename IntType>
-	void NextQ(IntType &q, const IntType &plainTextModulus, const usint &ringDimension, const IntType &sigma, const IntType &alpha);
+	void NextQ(IntType &q, const IntType &plainTextModulus, const usint cyclotomicOrder, const IntType &sigma, const IntType &alpha);
 
 	/**
 	 * Multiplicative inverse for primitive unsigned integer data types

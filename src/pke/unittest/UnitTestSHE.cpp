@@ -447,7 +447,7 @@ TEST(UTSHE, keyswitch_ModReduce_DCRT) {
 	usint plaintextmodulus = 2;
 	usint relinWindow = 1;
 
-	shared_ptr<ILVectorArray2n::Params> params = GenerateDCRTParams( m, size, 30 );
+	shared_ptr<ILVectorArray2n::Params> params = GenerateDCRTParams( m, plaintextmodulus, size, 30 );
 
 	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextLTV(params, plaintextmodulus, relinWindow, stdDev);
 
@@ -479,14 +479,14 @@ TEST(UTSHE, keyswitch_ModReduce_DCRT) {
 	/**************************KEYSWITCH TEST END******************************/
 	/**************************MODREDUCE TEST BEGIN******************************/
 
-	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> reducedCt = cc.ModReduce(newCiphertext);
+	newCiphertext[0] = cc.ModReduce(newCiphertext[0]);
 	ILVectorArray2n sk2PrivateElement(kp2.secretKey->GetPrivateElement());
 	sk2PrivateElement.DropLastElement();
 	kp2.secretKey->SetPrivateElement(sk2PrivateElement);
 
 	BytePlaintextEncoding plaintextNewModReduce;
 
-	cc.Decrypt(kp2.secretKey, reducedCt, &plaintextNewModReduce);
+	cc.Decrypt(kp2.secretKey, newCiphertext, &plaintextNewModReduce);
 	
 	EXPECT_EQ(plaintext, plaintextNewModReduce) << "Mod Reduced Decrypt fails";
 }
@@ -550,7 +550,7 @@ TEST(UTSHE, ringreduce_double_crt) {
 	usint relinWindow = 1;
 	usint size = 3;
 
-	shared_ptr<ILVectorArray2n::Params> params = GenerateDCRTParams( m, size, 32 );
+	shared_ptr<ILVectorArray2n::Params> params = GenerateDCRTParams( m, plaintextmodulus, size, 32 );
 
 	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextLTV(params, plaintextmodulus, relinWindow, stdDev);
 	cc.Enable(ENCRYPTION);

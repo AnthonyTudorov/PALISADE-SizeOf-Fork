@@ -333,11 +333,13 @@ TEST(UTBVDCRT, ILVector2n_bv_DCRT_MODREDUCE) {
 
 	usint numOfTower = 3;
 
+	usint plaintextModulus = 5;
+
 	float stdDev = 4;
 
-	shared_ptr<ILVectorArray2n::Params> params = GenerateDCRTParams(m, numOfTower, 40);
+	shared_ptr<ILVectorArray2n::Params> params = GenerateDCRTParams(m, plaintextModulus, numOfTower, 40);
 
-	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextBV(params, 5, 8, stdDev);
+	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextBV(params, plaintextModulus, 8, stdDev);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 	cc.Enable(LEVELEDSHE);
@@ -361,7 +363,7 @@ TEST(UTBVDCRT, ILVector2n_bv_DCRT_MODREDUCE) {
 		EXPECT_EQ(intArray1, intArrayNew) << "Decrypt fails";
 	}
 
-	ciphertext = cc.ModReduce(ciphertext);
+	ciphertext[0] = cc.ModReduce(ciphertext[0]);
 
 	//drop a tower from the secret key
 	
