@@ -485,9 +485,6 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 	shared_ptr<ILVectorArray2n::Params> paramsSmall( new ILVectorArray2n::Params( *params ) );
 	paramsSmall->PopLastParam();
 
-	cout << "params: " << *params << endl;
-	cout << "params small: " << *paramsSmall << endl;
-
 	usint n = 16;
 	usint relWindow = 1;
 
@@ -527,70 +524,31 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 	ciphertextElementOne = cc.Encrypt(kp.publicKey, firstElementEncoding, false);
 	ciphertextElementTwo = cc.Encrypt(kp.publicKey, secondElementEncoding, false);
 
-	ILVectorArray2n ct1EL( ciphertextElementOne[0]->GetElements()[0] );
-	ct1EL.SwitchFormat();
-	cout << "ciphertext 1: " << ct1EL << endl;
-	ILVectorArray2n ct2EL( ciphertextElementTwo[0]->GetElements()[0] );
-	ct2EL.SwitchFormat();
-	cout << "ciphertext 2: "<< ct2EL << endl;
-
 	shared_ptr<Ciphertext<ILVectorArray2n>> cResult = cc.ComposedEvalMult(ciphertextElementOne[0], ciphertextElementTwo[0]);
-
-	ILVectorArray2n ct2CEM( cResult->GetElements()[0] );
-	ct2CEM.SwitchFormat();
-	cout << "composed eval mult: "<< ct2CEM << endl;
-
-	{
-		vector<shared_ptr<Ciphertext<ILVectorArray2n>>> tempvec( { cc.EvalMult(ciphertextElementOne[0], ciphertextElementTwo[0]) } );
-		cout << "mult: " << tempvec[0]->GetElements()[0] << endl;
-		IntPlaintextEncoding tempresult;
-		cout << "sk " << kp.secretKey->GetPrivateElement() << endl;
-
-		cout << "modred: " << cc.ModReduce(tempvec[0])->GetElements()[0] << endl;
-
-		cc.Decrypt(kp.secretKey, tempvec, &tempresult, false);
-		cout << "Eval Mult result: " << endl << tempresult << endl;
-
-		ILVectorArray2n foo(params, COEFFICIENT, true);
-		foo = { 2,4,1,8,8,0,0,0 };
-		foo.SwitchFormat();
-		cout << "eval form: " << foo << endl;
-	}
 
 	// ok let's try making the secret keys both have one less tower
 	// because ComposedEvalMult performs a ModReduce
 
-	cout << "kp.secret before reduce: " << kp.secretKey->GetPrivateElement() << endl;
 	ILVectorArray2n tempPrivateElement(kp.secretKey->GetPrivateElement());
 	tempPrivateElement.DropLastElement();
 	kp.secretKey->SetPrivateElement(tempPrivateElement);
-	cout << "kp.secret after reduce: " << kp.secretKey->GetPrivateElement() << endl;
 
 	shared_ptr<LPPrivateKey<ILVectorArray2n>> kpSecretSmall( new LPPrivateKey<ILVectorArray2n>(ccSmall) );
 	kpSecretSmall->SetPrivateElement(tempPrivateElement);
 	LPKeyPair<ILVectorArray2n> kp1 = ccSmall.KeyGen();
 
-	cout << "keys reduced" << endl;
-	cout << "kp small:  " << kpSecretSmall->GetPrivateElement() << endl;
-	cout << "kp1: " << kp1.secretKey->GetPrivateElement() << endl;
-	cout << "cresult: " << cResult->GetElements()[0] << endl;
-
 	shared_ptr<LPEvalKey<ILVectorArray2n>> KeySwitchHint = ccSmall.KeySwitchGen(kpSecretSmall, kp1.secretKey);
 
-	// hack hack hack
+	// have to perform the operation in the new context
 	shared_ptr<Ciphertext<ILVectorArray2n>> cResultSmall( new Ciphertext<ILVectorArray2n>(ccSmall) );
 	cResultSmall->SetElements( cResult->GetElements() );
 
-	cout << "cresultSmall: " << cResultSmall->GetElements()[0] << endl;
 	cResult = ccSmall.KeySwitch(KeySwitchHint, cResultSmall);
 
 	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> tempvec2( { cResult } );
 	IntPlaintextEncoding results;
 
-
 	ccSmall.Decrypt(kp1.secretKey, tempvec2, &results, false);
-
-	cout << "result of decrypt with new key: " << endl << results << endl;
 
 	EXPECT_EQ(results.at(0), 2);
 	EXPECT_EQ(results.at(1), 4);
