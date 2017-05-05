@@ -365,6 +365,7 @@ namespace lbcrypto {
 			 * @param &elem a ring element.
 			 * @param &dgg the discrete Gaussian Generator.
 			 * @param &dggLargeSigma the discrete Gaussian Generator for perturbation sampling.
+			 * @param &dggEncoding DGG generator for encoding random ring elements.
 			 */
 			shared_ptr<Matrix<Element>> Encode(
 				const Matrix<Element> &Ai,
@@ -372,7 +373,8 @@ namespace lbcrypto {
 				const RLWETrapdoorPair<ILVector2n> &Ti,
 				const Element &elemS,
 				typename Element::DggType &dgg,
-				typename Element::DggType &dggLargeSigma) const;
+				typename Element::DggType &dggLargeSigma,
+				typename Element::DggType &EdggEncoding) const;
 
 			/**
 			 * Method for evaluating the pattern - before matrix-vector optimization
