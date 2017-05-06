@@ -100,7 +100,7 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
-	for (usint n = 128; n < 4096; n = 2 * n)
+	for (usint n = 16; n < 32; n = 2 * n)
 	{
 		errorflag = CONJOBF(dbg_flag, n_evals, n);
 		if (errorflag)
@@ -243,7 +243,7 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 
 	PROFILELOG("Evaluation 1 started");
 	TIC(t1);
-	result1 = algorithm.Evaluate(obfuscatedPattern, inputStr1);
+	result1 = algorithm.EvaluateACS(obfuscatedPattern, inputStr1,1);
 	timeEval1 = TOC(t1);
 	DEBUG(" \nCleartext pattern evaluation of: " << inputStr1 << " is " << result1 << ".");
 	PROFILELOG("Evaluation 1 execution time: " << "\t" << timeEval1 << " ms");
@@ -257,7 +257,7 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 	if (n_evals > 1) {
 		PROFILELOG("Evaluation 2 started");
 		TIC(t1);
-		result2 = algorithm.Evaluate(obfuscatedPattern, inputStr2);
+		result2 = algorithm.EvaluateACS(obfuscatedPattern, inputStr2,0);
 		timeEval2 = TOC(t1);
 		DEBUG(" \nCleartext pattern evaluation of: " << inputStr2 << " is " << result2 << ".");
 		PROFILELOG("Evaluation 2 execution time: " << "\t" << timeEval2 << " ms");

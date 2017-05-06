@@ -325,7 +325,7 @@ shared_ptr<Matrix<Element>> LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 	size_t k = m - 2;
 	size_t n = elemS.GetRingDimension();
 	const BigBinaryInteger &modulus = elemS.GetParams()->GetModulus();
-	auto zero_alloc = Element::MakeAllocator(elemS.GetParams(), COEFFICIENT);
+	auto zero_alloc = Element::MakeAllocator(elemS.GetParams(), EVALUATION);
 
 	//generate a row vector of discrete Gaussian ring elements
 	//YSP this can be done using discrete Gaussian allocator later - after the dgg allocator is updated to use the same dgg instance
