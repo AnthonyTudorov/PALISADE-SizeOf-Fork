@@ -721,12 +721,12 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::EvaluateACS(
 
 	auto zero_alloc = Element::MakeAllocator(params, EVALUATION);
 
-	std::cout << "" << std::endl;
-	std::cout << "Pattern length \t l : " << l << std::endl;
-	std::cout << "Ring dimension \t n : " << n << std::endl;
-	std::cout << "Modulus \t q : " << q << std::endl;
-	std::cout << "Num bits \t m : " << m << std::endl;
-	std::cout << "Constraint \t : " << constraint << std::endl;
+	//std::cout << "" << std::endl;
+	//std::cout << "Pattern length \t l : " << l << std::endl;
+	//std::cout << "Ring dimension \t n : " << n << std::endl;
+	//std::cout << "Modulus \t q : " << q << std::endl;
+	//std::cout << "Num bits \t m : " << m << std::endl;
+	//std::cout << "Constraint \t : " << constraint << std::endl;
 
 	bool retVal = true;
 	std::string testVal;
@@ -742,24 +742,24 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::EvaluateACS(
 
 	shared_ptr<Matrix<Element>> Sl = obfuscatedPattern.GetSl();
 	shared_ptr<Matrix<Element>> Rl = obfuscatedPattern.GetRl();
-	std::cout << "Sl dimensions: " <<  Sl->GetRows() << ", " << Sl->GetCols() << std::endl;
-	std::cout << "Rl dimensions: " <<  Rl->GetRows() << ", " << Rl->GetCols() << std::endl;
+	//std::cout << "Sl dimensions: " <<  Sl->GetRows() << ", " << Sl->GetCols() << std::endl;
+	//std::cout << "Rl dimensions: " <<  Rl->GetRows() << ", " << Rl->GetCols() << std::endl;
 	if (useRandomVector == 1) {
 		std::vector<int> randvec;
 		randvec.reserve(Rl->GetCols());
 		for (int i = 0; i < Rl->GetCols(); i++) {
 			randvec.push_back(rand() % 2);
 		}
-		std::cout<<"About to set CrossSR and CrossRS from randvec"<<std::endl;
+		//std::cout<<"About to set CrossSR and CrossRS from randvec"<<std::endl;
 		CrossSR = Rl->MultByRandomVector(randvec);
 		CrossRS = Sl->MultByRandomVector(randvec);
 	} else {
-		std::cout<<"About to set CrossSR and CrossRS from unity vec"<<std::endl;
+		//std::cout<<"About to set CrossSR and CrossRS from unity vec"<<std::endl;
 		CrossSR = Rl->MultByUnityVector();
 		CrossRS = Sl->MultByUnityVector();
 	}
-	std::cout << "CrossSR dimensions: " <<  CrossSR.GetRows() << ", " << CrossSR.GetCols() << std::endl;
-	std::cout << "CrossRS dimensions: " <<  CrossRS.GetRows() << ", " << CrossRS.GetCols() << std::endl;
+	//std::cout << "CrossSR dimensions: " <<  CrossSR.GetRows() << ", " << CrossSR.GetCols() << std::endl;
+	//std::cout << "CrossRS dimensions: " <<  CrossRS.GetRows() << ", " << CrossRS.GetCols() << std::endl;
 	//DEBUG("EvalACS1: "<<TOC(t1) <<" ms");
 
 	for (int i=adjustedLength-1; i>=0; i--) 	{
@@ -810,9 +810,9 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::EvaluateACS(
 	//std::cout <<  CrossProd << std::endl;
 
 	norm = CrossProd.Norm();
-	std::cout <<"EvalACS: " <<TOC(t1) <<" ms"<< std::endl;
+	//std::cout <<"EvalACS: " <<TOC(t1) <<" ms"<< std::endl;
 
-	std::cout << "ACS Norm: " << norm << std::endl;
+	//std::cout << "ACS Norm: " << norm << std::endl;
 
 	return (norm <= constraint);
 
@@ -843,12 +843,12 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 
 	auto zero_alloc = Element::MakeAllocator(params, EVALUATION);
 
-	std::cout << "" << std::endl;
-	std::cout << "Pattern length \t l : " << l << std::endl;
-	std::cout << "Ring dimension \t n : " << n << std::endl;
-	std::cout << "Modulus \t q : " << q << std::endl;
-	std::cout << "Num bits \t m : " << m << std::endl;
-	std::cout << "Constraint \t : " << constraint << std::endl;
+	//std::cout << "" << std::endl;
+	//std::cout << "Pattern length \t l : " << l << std::endl;
+	//std::cout << "Ring dimension \t n : " << n << std::endl;
+	//std::cout << "Modulus \t q : " << q << std::endl;
+	//std::cout << "Num bits \t m : " << m << std::endl;
+	//std::cout << "Constraint \t : " << constraint << std::endl;
 
 	bool retVal = true;
 	std::string testVal;
@@ -875,8 +875,8 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 		{
 			{
 				testVal = testString.substr(i*chunkSize,chunkSize);
-				std::cout << " Index: " << i << std::endl;
-				std::cout << " \t Input: \t" << testVal << std::endl;
+				//std::cout << " Index: " << i << std::endl;
+				//std::cout << " \t Input: \t" << testVal << std::endl;
 			}
 			S_ib = obfuscatedPattern.GetS(i,testVal);
 			R_ib = obfuscatedPattern.GetR(i,testVal);
@@ -892,20 +892,20 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 		DEBUG("Eval2:#"<< i << ": " <<TOC(t1) <<" ms");
 	}
 	TIC(t1);
-	std::cout << " S_prod: " << std::endl;
+	//std::cout << " S_prod: " << std::endl;
 	//S_prod.PrintValues();
-	std::cout << " R_prod: " << std::endl;
+	//std::cout << " R_prod: " << std::endl;
 	//R_prod.PrintValues();
 
 	shared_ptr<Matrix<Element>> Sl = obfuscatedPattern.GetSl();
 	shared_ptr<Matrix<Element>> Rl = obfuscatedPattern.GetRl();
 
-	std::cout << " Sl: " << std::endl;
+	//std::cout << " Sl: " << std::endl;
 	//Sl->PrintValues();
-	std::cout << " Rl: " << std::endl;
+	//std::cout << " Rl: " << std::endl;
 	//Rl->PrintValues();
 
-	std::cout << " Cross Product: " << std::endl;
+	//std::cout << " Cross Product: " << std::endl;
 	Matrix<Element> CrossProd = (S_prod * (*Rl)) - (R_prod * (*Sl));
 	//CrossProd.PrintValues();
 
@@ -925,7 +925,7 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 	norm = CrossProd.Norm();
 	DEBUG("Eval5: " <<TOC(t1) <<" ms");
 
-	std::cout << " Norm: " << norm << std::endl;
+	//std::cout << " Norm: " << norm << std::endl;
 
 	return (norm <= constraint);
 
