@@ -7,7 +7,13 @@ test/build
 test/bin
 output.txt
 apidoc_warning_logfile.txt
+third-party/distros/gmp-6.1.1
+third-party/distros/ntl=10.3.0
+third-party/include
+third-party/lib
+third-party/share
 gmon.out
+.gitattributes
 # Except this file
 !.gitignore
 output.txt
