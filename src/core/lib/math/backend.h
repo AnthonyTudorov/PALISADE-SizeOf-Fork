@@ -60,15 +60,13 @@
 //                        UTSHE.BV_ILVectorArray2n_Mult
 // and for trapdoor
 
-
 // MATHBACKEND 4
 // Uses exp_int definition with uint64_t underlying size as defaults
 // (currently works for ubuntu, not tested otherwise
 // NOTE currently MATHBACKEND 4 has issues with the following unit tests
-// stemming from poor run time performance of 128 bit intrinsic divide
-// UTSHE.keyswitch_ModReduce_DCRT takes incredibly rediculously long (9637 sec)
-// UTSHEAdvanced.test_eval_mult_double_crt takes extremely long (89 sec)
-// UTSHEAdvanced.test_eval_add_double_crt takes extremely long (86 sec)
+// possibly stemming from poor run time performance of 128 bit intrinsic divide
+//[ RUN      ] UTFV.ILVector2n_FV_ParamsGen_EvalMul
+
 
 // MATHBACKEND 5
 // GMP 6.1.1 / NTL 10.3.0 backend  experimental on linux (coexist with BE 2)
@@ -88,12 +86,12 @@
 //Please UNCOMMENT the approproate line rather than changing the number on the 
 //uncommented line (and breaking the documentation of the line)
 
-#define MATHBACKEND 2 
+//#define MATHBACKEND 2 
 //#define MATHBACKEND 3 
 //#define MATHBACKEND 4 
 //#define MATHBACKEND 5 
 //currently  broken for BE 6
-//#define MATHBACKEND 6 
+#define MATHBACKEND 6 
 //#define MATHBACKEND 7	// native64 native
 
 

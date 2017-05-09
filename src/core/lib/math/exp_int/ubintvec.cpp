@@ -39,6 +39,7 @@
 
 #include "../../utils/serializable.h"
 #include "../backend.h"
+#if MATHBACKEND ==2 ||MATHBACKEND ==3 ||MATHBACKEND ==4
 //#include "ubintvec.h"
 
 
@@ -578,3 +579,5 @@ template class exp_int::ubintvec<exp_int::ubint<uint32_t>>;
 #ifdef UBINT_64
 template class exp_int::ubintvec<exp_int::ubint<uint64_t>>; 
 #endif
+
+#endif //#if MATHBACKEND ==2 ||MATHBACKEND ==3 ||MATHBACKEND ==4

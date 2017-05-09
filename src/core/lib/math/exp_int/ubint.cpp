@@ -45,7 +45,7 @@
 
 #define _SECURE_SCL 0 // to speed up VS
 #include "../backend.h"
-//#include "ubint.h"
+#if MATHBACKEND ==2 ||MATHBACKEND ==3 ||MATHBACKEND ==4
  
 #include <iostream>
 #include <fstream>
@@ -1084,7 +1084,7 @@ return result;
 
 
       DEBUG("mibl A:"<<this->ToString() );
-      DEBUG("mibl B:"<<limbb );
+      //DEBUG("mibl B:"<<limbb );
       DEBUG("ans.size() now " <<ans.m_value.size());
       if (dbg_flag)
 	ans.PrintLimbsInDec();
@@ -2164,7 +2164,7 @@ return result;
       limb_t ofl=0;
 
       DEBUG("mibl A:"<<a.ToString() );
-      DEBUG("mibl B:"<<limbb );
+      // DEBUG("mibl B:"<<limbb );
       DEBUG("ans.size() now " <<ans.m_value.size());
       if (dbg_flag)
 	ans.PrintLimbsInDec();
@@ -2922,3 +2922,5 @@ template class exp_int::ubint<uint32_t>;
 #ifdef UBINT_64
 template class exp_int::ubint<uint64_t>; 
 #endif
+
+#endif //#if MATHBACKEND ==2 ||MATHBACKEND ==3 ||MATHBACKEND ==4
