@@ -289,13 +289,6 @@ public:
 	virtual std::vector<Element> BaseDecompose(usint baseBits, bool evalModeAnswer=true) const = 0;
 
 	/**
-	 * Interpolates based on the Chinese Remainder Transform Interpolation.
-	 *
-	 * @return the interpolated ring element.
-	 */
-	virtual ILVector2n CRTInterpolate() const = 0;
-
-	/**
 	 * Interleaves values in the ILVector2n with odd indices being all zeros.
 	 */
 	virtual void Decompose() = 0;

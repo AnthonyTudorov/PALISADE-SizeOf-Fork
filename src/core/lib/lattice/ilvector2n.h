@@ -551,7 +551,7 @@ public:
 	 *
 	 * @return the original ring element.
 	 */
-	ILVector2n CRTInterpolate() const;
+	ILVectorImpl CRTInterpolate() const { return *this; }
 
 	/**
 	 * Transpose the ring element using the automorphism operation
@@ -780,31 +780,5 @@ template<typename ModType, typename IntType, typename VecType, typename ParmType
 typedef ILVectorImpl<BigBinaryInteger, BigBinaryInteger, BigBinaryVector, ILParams> ILVector2n;
 
 }
-
-
-namespace lbcrypto {
-
-inline ILVector2n VectorConvert(const ILVector2n& v) { return v; }
-
-// this little nugget of code lets an ILVector2n return a big-int ILVector2n for CRTInterpolate
-inline ILVector2n VectorConvert(const native64::ILVector2n& v) {
-	ILVector2n newvec( shared_ptr<ILParams>(new ILParams(v.GetCyclotomicOrder(),
-							BigBinaryInteger(v.GetModulus().ConvertToInt()),
-							BigBinaryInteger(v.GetRootOfUnity().ConvertToInt()))),
-						v.GetFormat() );
-
-	for( usint i = 0; i < v.GetCyclotomicOrder(); i++ ) {
-		newvec.SetValAtIndex(i, ILVector2n::Integer(v.GetValAtIndex(i).ConvertToInt()));
-	}
-
-	return newvec;
-}
-
-template<typename ModType, typename IntType, typename VecType, typename ParmType>
-inline ILVector2n ILVectorImpl<ModType,IntType,VecType,ParmType>::CRTInterpolate() const { return VectorConvert(*this); }
-
-}
-
-
 
 #endif
