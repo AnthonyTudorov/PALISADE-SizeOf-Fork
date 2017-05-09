@@ -318,48 +318,25 @@ namespace exp_int{
     explicit ubint(const std::string& str);
 
     /**
-     * Basic constructor for initializing big integer from an unsigned integer.
-     *
-     * @param init is the initial unsigned integer.
-     */
-    explicit ubint(usint init);
-
-    /**
-     * Basic constructor for initializing big integer from an signed integer.
-     * because the compiler needs to know how to promote it in statements
-     * like  ubint a(0);  it promotes 0 to int but then what?
-     *
-     * @param init is the initial signed integer.
-     */
-    explicit ubint(sint init);
-
-    /**
      * Basic constructor for initializing big integer from a uint64_t.
      *
      * @param init is the initial 64 bit unsigned integer.
      */
-    explicit ubint(uint64_t init);
-
-    /**
-     * Basic constructor for initializing big integer from an int64_t.
-     *
-     * @param init is the initial 64 bit signed integer.
-     */
-    explicit ubint(int64_t init);
+    explicit ubint(const uint64_t init);
 
     /**
      * Basic constructor for copying a ubint
      *
      * @param rhs is the ubint to be copied.
      */
-    explicit ubint(const ubint& rhs);
+     ubint(const ubint& rhs);
 
     /**
      * Basic constructor for move copying a ubint
      *
      * @param &&rhs is the ubint to be moved from.
      */
-    ubint(ubint&& rhs);
+     explicit ubint(ubint&& rhs);
     
     /**
      * Destructor.
@@ -372,7 +349,7 @@ namespace exp_int{
      * @param &rhs is the ubint to be assigned from.
      * @return assigned ubint ref.
      */
-     ubint&  operator=(const ubint &rhs);
+     const ubint&  operator=(const ubint &rhs);
 
     /**
      * Assignment operator from unsigned integer
@@ -380,7 +357,7 @@ namespace exp_int{
      * @param val is the unsigned integer value that is assigned.
      * @return the assigned ubint ref.
      */
-    inline ubint& operator=(usint val) {
+    inline const ubint& operator=(const usint val) {
     //  *this = intTobint(val);
     	  *this = ubint(val);
       return *this;
@@ -392,7 +369,7 @@ namespace exp_int{
      * @param val is the string value that is assigned.
      * @return the assigned ubint ref.
      */
-    inline ubint& operator=(std::string val) {
+    inline const ubint& operator=(const std::string val) {
       *this = ubint(val);
       return *this;
     }
@@ -404,7 +381,7 @@ namespace exp_int{
      * @param &&rhs is the ubint to move.
      * @return object of type ubint.
      */
-    ubint&  operator=(ubint &&rhs);
+    ubint&  operator=( ubint &&rhs);
 
     //Shift Operators
    
@@ -413,7 +390,7 @@ namespace exp_int{
      * @param shift is the amount to shift of type usint.
      * @return the object of type ubint
      */
-    ubint  operator<<(usint shift) const;
+    ubint  operator<<(const usint shift) const;
 
     /**
      * Left shift operator uses in-place algorithm and operates on the same variable. It is used to reduce the copy constructor call.
@@ -950,15 +927,75 @@ namespace exp_int{
     inline ubint operator/ (const ubint &a) const {return this->Div(a);}
 
     /**
-     * Console output operation.
+     * ostream output << operator
      *
      * @param os is the std ostream object.
      * @param ptr_obj is ubint to be printed.
-     * @return is the ostream object.
+     * @return is the returned ostream object.
      */
-    template<typename limb_t_c>
-    friend std::ostream& operator<<(std::ostream& os, const ubint<limb_t_c> &ptr_obj);
-    
+    friend std::ostream& operator<<(std::ostream& os, const ubint &ptr_obj) {
+      //&&&
+
+      //Algorithm used is double and add
+      //http://www.wikihow.com/Convert-from-Binary-to-Decimal
+
+      //todo: get rid of m_numDigitInPrintval and make dynamic
+      //create reference for the object to be printed
+      ubint *print_obj;
+
+      usint counter;
+
+      //initiate to object to be printed
+      print_obj = new ubint(ptr_obj);  //todo smartpointer
+
+      //print_obj->PrintValueInDec();
+
+      //print_VALUE array stores the decimal value in the array
+      uschar *print_VALUE = new uschar[ptr_obj.m_numDigitInPrintval];  //todo smartpointer
+
+      //reset to zero
+      for(sint i=0;i<ptr_obj.m_numDigitInPrintval;i++)
+	*(print_VALUE+i)=0;
+
+      //starts the conversion from base r to decimal value
+      for(sint i=print_obj->m_MSB;i>0;i--){
+
+	//print_VALUE = print_VALUE*2
+	ubint::double_bitVal(print_VALUE);
+#ifdef DEBUG_OSTREAM
+	for(sint i=0;i<ptr_obj.m_numDigitInPrintval;i++)
+	  std::cout<<(sint)*(print_VALUE+i);
+	std::cout<<std::endl;
+#endif
+	//adds the bit value to the print_VALUE
+	ubint::add_bitVal(print_VALUE,print_obj->GetBitAtIndex(i));
+#ifdef DEBUG_OSTREAM
+	for(sint i=0;i<ptr_obj.m_numDigitInPrintval;i++)
+	  std::cout<<(sint)*(print_VALUE+i);
+	std::cout<<std::endl;
+#endif
+
+      }
+
+      //find the first occurence of non-zero value in print_VALUE
+      for(counter=0;counter<ptr_obj.m_numDigitInPrintval-1;counter++){
+	if((sint)print_VALUE[counter]!=0)break;							
+      }
+
+      //start inserting values into the ostream object 
+      for(;counter<ptr_obj.m_numDigitInPrintval;counter++){
+	os<<(int)print_VALUE[counter];
+      }
+
+      //os<<endl;
+      delete [] print_VALUE;
+      //deallocate the memory since values are inserted into the ostream object
+      delete print_obj;
+      return os;
+    };
+ private:
+
+ public:    
     //constant definations
         
     /**

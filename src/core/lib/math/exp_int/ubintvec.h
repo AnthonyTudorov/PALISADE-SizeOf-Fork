@@ -143,7 +143,7 @@ namespace exp_int {
 
       const ubintvec& operator=(std::initializer_list<usint> rhs);
 
-      /**
+     /**
        * Initializer list for ubintvec.
        *
        * @param &&rhs is the list of strings to be assigned to the ubintvec.
@@ -222,16 +222,23 @@ namespace exp_int {
 
       //ACCESSORS
 
-      //change to ostream?
       /**
-       * ???
+       * ostream output << operator.
        *
-       * @param os ???.
-       * @param &ptr_obj ???.
-       * @return the return value.	  
+       * @param os is the std ostream object.
+       * @param ptr_obj is ubintvec to be printed.
+       * @return is the ostream object.
        */
-      template<class ubint_el_t_c>
-	friend std::ostream& operator<<(std::ostream& os, const ubintvec<ubint_el_t_c> &ptr_obj);
+      friend std::ostream& operator<<(std::ostream& os, const ubintvec &ptr_obj)
+      {
+	//stream <<
+
+	os<<std::endl;
+	for(usint i=0;i<ptr_obj.m_data.size();i++){
+	  os<<ptr_obj.m_data[i] <<std::endl;
+	}
+	return os;
+      };
 
       /**
        * Sets a value at an index.
@@ -347,7 +354,7 @@ namespace exp_int {
        * @return is the result of the multiplication operation.
        */
       const ubintvec& operator*=(const ubint_el_t &b);
-
+#if 0
       /**
        * Scalar exponentiation.
        *
@@ -355,7 +362,7 @@ namespace exp_int {
        * @return is the result of the exponentiation operation.
        */
       ubintvec Exp(const ubint_el_t &b) const;
-
+#endif
       //vector operations
 
       //component-wise addition

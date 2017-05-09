@@ -44,9 +44,9 @@
  */
 
 #define _SECURE_SCL 0 // to speed up VS
-
-#include "ubint.h"
-
+#include "../backend.h"
+#if MATHBACKEND ==2 ||MATHBACKEND ==3 ||MATHBACKEND ==4
+ 
 #include <iostream>
 #include <fstream>
 #include "time.h"
@@ -130,88 +130,11 @@ namespace exp_int {
 
   }
   
-  //todo: figure out how to share code between the following three ctors
-  // https://isocpp.org/wiki/faq/templates#template-specialization
-  template<typename limb_t>
-  ubint<limb_t>::ubint(usint init){
-    bool dbg_flag = false;		// if true then print dbg output
-
-    //setting the MSB
-    usint msb = 0;
-
-    msb = GetMSB32(init); //todo: this really should be renamed to GetMSBUsint or something. or really get NLimbsSize()
-    DEBUG("ctor("<<init<<")");
-    DEBUG( "msb " <<msb);
-    DEBUG( "maxlimb "<<m_MaxLimb);
-
-    DEBUG( "initial size "<< m_value.size());
-
-    if (init <= m_MaxLimb) {
-      //init fits in first limb entry
-      m_value.push_back((limb_t)init);
-      DEBUG("single limb size now "<<m_value.size());
-    } else {
-      usint ceilInt = ceilIntByUInt(msb);
-      DEBUG("mult limb ceilIntByUInt ="<<ceilInt);
-      //setting the values of the array
-      this->m_value.reserve(ceilInt);
-      for(usint i= 0;i<ceilInt;++i){
-        m_value.push_back((limb_t)init);
-        init>>=m_limbBitLength;
-	DEBUG("init now  " << init);
-      }
-
-    }
-    this->m_MSB = msb;
-    m_state = INITIALIZED;
-
-    DEBUG("final msb ="<<msb);
-  }
 
   template<typename limb_t>
-  ubint<limb_t>::ubint(sint sinit){
+  ubint<limb_t>::ubint(const uint64_t initval){
     bool dbg_flag = false;		// if true then print dbg output
-
-    if (sinit<0)
-      throw std::logic_error("ubint() initialized with negative number");
-
-    usint init = (usint) sinit;
-
-    //setting the MSB
-    usint msb = 0;
-
-    msb = GetMSB32(init); //todo: rename
-    DEBUG("ctor("<<init<<")");
-    DEBUG( "msb " <<msb);
-    DEBUG( "maxlimb "<<m_MaxLimb);
-
-    DEBUG( "initial size "<< m_value.size());
-
-    if (init <= m_MaxLimb) {
-      //init fits in first limb entry
-      m_value.push_back((limb_t)init);
-      DEBUG("single limb size now "<<m_value.size());
-    } else {
-      usint ceilInt = ceilIntByUInt(msb);
-      DEBUG("mulit limb ceilIntByUInt ="<<ceilInt);
-      //setting the values of the array
-      this->m_value.reserve(ceilInt);
-      for(usint i= 0;i<ceilInt;++i){
-        m_value.push_back((limb_t)init);
-        init>>=m_limbBitLength;
-	DEBUG("init now  " << init);
-      }
-    }
-    this->m_MSB = msb;
-    m_state = INITIALIZED;
-
-    DEBUG("final msb ="<<msb);
-  }
-
-  template<typename limb_t>
-  ubint<limb_t>::ubint(uint64_t init){
-    bool dbg_flag = false;		// if true then print dbg output
-
+    uint64_t init = initval; //non const var
     //setting the MSB
     usint msb = 0;
 
@@ -246,44 +169,6 @@ namespace exp_int {
   
   }
 
-  template<typename limb_t>
-  ubint<limb_t>::ubint(int64_t sinit){
-    bool dbg_flag = false;		// if true then print dbg output
-    if (sinit<0)
-      throw std::logic_error("ubint() initialized with negative number");
-
-    uint64_t init = (uint64_t)sinit;
-
-    //setting the MSB
-    usint msb = 0;
-
-    msb = GetMSB64(init);
-    DEBUG("ctor(uunt64_t:"<<init<<")");
-    DEBUG( "msb " <<msb);
-    DEBUG( "maxlimb "<<m_MaxLimb);
-
-    DEBUG( "initial size "<< m_value.size());
-
-    if (init <= m_MaxLimb) {
-      //init fits in first limb entry
-      m_value.push_back((limb_t)init);
-      DEBUG("single limb size now "<<m_value.size());
-    } else {
-      usint ceilInt = ceilIntByUInt(msb);
-      DEBUG("mulit limb ceilIntByUInt ="<<ceilInt);
-      //setting the values of the array
-      this->m_value.reserve(ceilInt);
-      for(usint i= 0;i<ceilInt;++i){
-        m_value.push_back((limb_t)init);
-        init>>=m_limbBitLength;
-      }
-    }
-    this->m_MSB = msb;
-    m_state = INITIALIZED;
-
-    DEBUG("final msb ="<<msb);
-  
-  }
   // ctor(string)
   template<typename limb_t>
   ubint<limb_t>::ubint(const std::string& str){
@@ -322,7 +207,7 @@ namespace exp_int {
     m_state = rhs.m_state;
     DEBUG("final msb ="<<this->m_MSB);
   }
-
+#if 1
   //move copy cconstructor
   template<typename limb_t>
   ubint<limb_t>::ubint(ubint &&rhs){
@@ -339,7 +224,7 @@ namespace exp_int {
     //set state
     m_state = rhs.m_state;
   }
-
+#endif
   //this is the zero allocator for the palisade matrix class
   template<typename limb_t>
   std::function<unique_ptr<ubint<limb_t>>()> ubint<limb_t>::Allocator = [](){
@@ -505,7 +390,7 @@ return result;
 
   //copy allocator
   template<typename limb_t>
-  ubint<limb_t>&  ubint<limb_t>::operator=(const ubint &rhs){
+  const ubint<limb_t>&  ubint<limb_t>::operator=(const ubint &rhs){
     //std::cout<<"Ca";
     if(this!=&rhs){
       this->m_MSB=rhs.m_MSB;
@@ -515,7 +400,7 @@ return result;
     }
     return *this;
   }
-
+#if 1
   // move copy allocator
   template<typename limb_t>
   ubint<limb_t>&  ubint<limb_t>::operator=(ubint &&rhs){
@@ -527,7 +412,7 @@ return result;
     }
     return *this;
   }
-
+#endif
   /**
    *	Left Shift is done by splitting the number of shifts into
    *1. Multiple of the bit length of limb data type.
@@ -1199,7 +1084,7 @@ return result;
 
 
       DEBUG("mibl A:"<<this->ToString() );
-      DEBUG("mibl B:"<<limbb );
+      //DEBUG("mibl B:"<<limbb );
       DEBUG("ans.size() now " <<ans.m_value.size());
       if (dbg_flag)
 	ans.PrintLimbsInDec();
@@ -2279,7 +2164,7 @@ return result;
       limb_t ofl=0;
 
       DEBUG("mibl A:"<<a.ToString() );
-      DEBUG("mibl B:"<<limbb );
+      // DEBUG("mibl B:"<<limbb );
       DEBUG("ans.size() now " <<ans.m_value.size());
       if (dbg_flag)
 	ans.PrintLimbsInDec();
@@ -2913,66 +2798,9 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
     return Val;
   }
 
-  //Algorithm used is double and add
-  //http://www.wikihow.com/Convert-from-Binary-to-Decimal
-  template<typename limb_t_c_c>
-  std::ostream& operator<<(std::ostream& os, const ubint<limb_t_c_c>& ptr_obj){
-    //todo: get rid of m_numDigitInPrintval and make dynamic
-    //create reference for the object to be printed
-    ubint<limb_t_c_c> *print_obj;
+  //&&&
 
-    usint counter;
-
-    //initiate to object to be printed
-    print_obj = new ubint<limb_t_c_c>(ptr_obj);  //todo smartpointer
-
-    //print_obj->PrintValueInDec();
-
-    //print_VALUE array stores the decimal value in the array
-    uschar *print_VALUE = new uschar[ptr_obj.m_numDigitInPrintval];  //todo smartpointer
-
-    //reset to zero
-    for(sint i=0;i<ptr_obj.m_numDigitInPrintval;i++)
-      *(print_VALUE+i)=0;
-
-    //starts the conversion from base r to decimal value
-    for(sint i=print_obj->m_MSB;i>0;i--){
-
-      //print_VALUE = print_VALUE*2
-      ubint<limb_t_c_c>::double_bitVal(print_VALUE);
-#ifdef DEBUG_OSTREAM
-      for(sint i=0;i<ptr_obj.m_numDigitInPrintval;i++)
-	std::cout<<(sint)*(print_VALUE+i);
-      std::cout<<std::endl;
-#endif
-      //adds the bit value to the print_VALUE
-      ubint<limb_t_c_c>::add_bitVal(print_VALUE,print_obj->GetBitAtIndex(i));
-#ifdef DEBUG_OSTREAM
-      for(sint i=0;i<ptr_obj.m_numDigitInPrintval;i++)
-	std::cout<<(sint)*(print_VALUE+i);
-      std::cout<<std::endl;
-#endif
-
-    }
-
-    //find the first occurence of non-zero value in print_VALUE
-    for(counter=0;counter<ptr_obj.m_numDigitInPrintval-1;counter++){
-      if((sint)print_VALUE[counter]!=0)break;							
-    }
-
-    //start inserting values into the ostream object 
-    for(;counter<ptr_obj.m_numDigitInPrintval;counter++){
-      os<<(int)print_VALUE[counter];
-    }
-
-    //os<<endl;
-    delete [] print_VALUE;
-    //deallocate the memory since values are inserted into the ostream object
-    delete print_obj;
-    return os;
-  }
-
- 
+  //&&& 
   template<typename limb_t>
   void ubint<limb_t>::double_bitVal(uschar* a){
 	
@@ -3083,5 +2911,16 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
 
   }
 
-} // namespace exp_intg4 ends
+} // namespace exp_int ends
+#ifdef UBINT_32
+template class exp_int::ubint<uint32_t>; 
 
+//template <uint32_t>
+//std::ostream& exp_int::operator<< (std::ostream& os, const exp_int::ubint<uint32_t> &ptr_obj);
+
+#endif
+#ifdef UBINT_64
+template class exp_int::ubint<uint64_t>; 
+#endif
+
+#endif //#if MATHBACKEND ==2 ||MATHBACKEND ==3 ||MATHBACKEND ==4
