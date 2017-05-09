@@ -89,7 +89,7 @@ VecType NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(con
 	usint ringDimensionFactor = (rootOfUnityTable.GetLength()) / cycloOrder;
 
 	//YSP mu is not needed for native data types or BE 6
-#if MATHBACKEND < 6
+#if MATHBACKEND != 6
 	//Precompute the Barrett mu parameter
 	IntType temp(IntType::ONE);
 	temp <<= 2 * element.GetModulus().GetMSB() + 3;

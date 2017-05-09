@@ -933,46 +933,22 @@ TEST(UTILVectorArray2n, constructors_test) {
 		EXPECT_THROW(testILVectorArray2nConstructorNegative(ilvector2nVectorInconsistent), std::logic_error);
 	}
 
-	DEBUG("3");
-	{
-		ILVectorArray2n ilva(ilv0, ildcrtparams);
-
-		EXPECT_EQ(Format::EVALUATION, ilva.GetFormat());
-		EXPECT_EQ(modulus, ilva.GetModulus());
-		EXPECT_EQ(m, ilva.GetCyclotomicOrder());
-		EXPECT_EQ(towersize, ilva.GetNumOfElements());
-		for (usint i = 0; i < towersize; ++i)
-		{
-			EXPECT_EQ(ilvector2nVector[i], ilva.GetElementAtIndex(i));
-		}
-	}
-
 	DEBUG("4");
 	{
 		ILVectorArray2n ilva0;
 		ILVectorArray2n ilva1(ildcrtparams);
-		ILVectorArray2n ilva2(ilv0, ildcrtparams);
-		ILVectorArray2n ilva3(ilvector2nVector);
+		ILVectorArray2n ilva2(ilvector2nVector);
 
-		std::vector<ILVectorArray2n> ilvaVector(4);
-		ilvaVector[0] = ilva0;
-		ilvaVector[1] = ilva1;
-		ilvaVector[2] = ilva2;
-		ilvaVector[3] = ilva3;
+		std::vector<ILVectorArray2n> ilvaVector( { ilva0, ilva1, ilva2 } );
 
 		//copy constructor
 		ILVectorArray2n ilva0Copy(ilva0);
 		ILVectorArray2n ilva1Copy(ilva1);
 		ILVectorArray2n ilva2Copy(ilva2);
-		ILVectorArray2n ilva3Copy(ilva3);
 
-		std::vector<ILVectorArray2n> ilvaCopyVector(4);
-		ilvaCopyVector[0] = ilva0Copy;
-		ilvaCopyVector[1] = ilva1Copy;
-		ilvaCopyVector[2] = ilva2Copy;
-		ilvaCopyVector[3] = ilva3Copy;
+		std::vector<ILVectorArray2n> ilvaCopyVector( { ilva0Copy, ilva1Copy, ilva2Copy } );
 
-		for (usint i = 0; i < 4; ++i)
+		for (usint i = 0; i < 3; ++i)
 		{
 			EXPECT_EQ(ilvaVector[i].GetFormat(), ilvaCopyVector[i].GetFormat());
 			EXPECT_EQ(ilvaVector[i].GetModulus(), ilvaCopyVector[i].GetModulus());
@@ -1000,7 +976,7 @@ TEST(UTILVectorArray2n, constructors_test) {
 
 	DEBUG("6");
 	{
-		ILVectorArray2n ilva(ilv0, ildcrtparams);
+		ILVectorArray2n ilva(dgg, ildcrtparams);
 		ILVectorArray2n ilvaClone(ilva.CloneParametersOnly());
 
 		std::vector<native64::ILVector2n> towersInClone = ilvaClone.GetAllElements();

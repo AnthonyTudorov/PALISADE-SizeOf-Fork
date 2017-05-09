@@ -83,10 +83,6 @@ void IntPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *i
 	doEncode<BigBinaryInteger,BigBinaryVector,ILVector2n>(modulus,ilVector,start_from,length);
 }
 
-void IntPlaintextEncoding::Encode(const BigBinaryInteger &modulus, native64::ILVector2n *ilVector, size_t start_from, size_t length) const  {
-	doEncode<native64::BigBinaryInteger,native64::BigBinaryVector,native64::ILVector2n>(modulus,ilVector,start_from,length);
-}
-
 template <typename IntType, typename VecType, typename Element>
 void IntPlaintextEncoding::doDecode(const BigBinaryInteger &modulus, Element *ilVector) {
 
@@ -97,10 +93,6 @@ void IntPlaintextEncoding::doDecode(const BigBinaryInteger &modulus, Element *il
 
 void IntPlaintextEncoding::Decode(const BigBinaryInteger &modulus, ILVector2n *ilVector) {
 	doDecode<BigBinaryInteger,BigBinaryVector,ILVector2n>(modulus,ilVector);
-}
-
-void IntPlaintextEncoding::Decode(const BigBinaryInteger &modulus, native64::ILVector2n *ilVector) {
-	doDecode<native64::BigBinaryInteger,native64::BigBinaryVector,native64::ILVector2n>(modulus,ilVector);
 }
 
 size_t

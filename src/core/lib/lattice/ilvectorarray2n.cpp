@@ -126,32 +126,6 @@ namespace lbcrypto {
 
 	}
 
-	/* Construct from a single Native ILVector2n. The format is derived from the passed in ILVector2n.*/
-	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::ILVectorArrayImpl(const ILVectorType &element, const shared_ptr<ParmType> params)
-	{
-		Format format;
-		try{
-			format = element.GetFormat();
-		}
-		catch (const std::exception& e) {
-			throw std::logic_error("There is an issue with the format of ILVectors passed to the constructor of ILVectorArrayImpl");
-		}
-
-		if( element.GetCyclotomicOrder() != params->GetCyclotomicOrder() )
-			throw std::logic_error("Cyclotomic order mismatch on input vector and parameters");
-
-		m_format = format;
-		m_modulus = params->GetModulus();
-		m_cyclotomicOrder = params->GetCyclotomicOrder();
-		m_params = params;
-
-		for( int i=0; i < params->GetParams().size(); i++ ) {
-			m_vectors.push_back( element );
-			m_vectors[i].SwitchModulus( (*params)[i]->GetModulus(), (*params)[i]->GetRootOfUnity() );
-		}
-	}
-
 	/* Construct using an tower of ILVectro2ns. The params and format for the ILVectorArrayImpl will be derived from the towers.*/
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::ILVectorArrayImpl(const std::vector<ILVectorType> &towers)

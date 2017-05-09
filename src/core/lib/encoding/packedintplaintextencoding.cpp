@@ -80,9 +80,6 @@ namespace lbcrypto {
 
 	}
 
-	void PackedIntPlaintextEncoding::Encode(const BigBinaryInteger &modulus, native64::ILVector2n *ilVector, size_t start_from, size_t length) const {}
-
-
 	void PackedIntPlaintextEncoding::Decode(const BigBinaryInteger &modulus, ILVector2n *ilVector) {
 
 		this->Unpack(ilVector, modulus); //Format is in COEFFICIENT
@@ -92,8 +89,6 @@ namespace lbcrypto {
 		}
 
 	}
-
-	void PackedIntPlaintextEncoding::Decode(const BigBinaryInteger &modulus, native64::ILVector2n *ilVector) {}
 
 	size_t PackedIntPlaintextEncoding::GetChunksize(const usint cyc, const BigBinaryInteger& ptm) const
 	{

@@ -160,14 +160,6 @@ namespace lbcrypto {
 		ILVectorArrayImpl(const ILVector2n &element, const shared_ptr<ParmType> params);
 
 		/**
-		* Construct using a single Native ILVector2n. The ILVector2n is copied into every tower. Each tower will be reduced to it's corresponding modulus  via GetModuli(at tower index). The format is derived from the passed in ILVector2n.
-		*
-		* @param &element ILVector2n to build other towers from.
-		* @param params parameter set required for ILVectorArray2n.
-		*/
-		ILVectorArrayImpl(const ILVectorType &element, const shared_ptr<ParmType> params);
-
-		/**
 		* Construct using an tower of ILVectro2ns. The params and format for the ILVectorArray2n will be derived from the towers.
 		*
 		* @param &towers vector of ILVector2ns which correspond to each tower of ILVectorArray2n.

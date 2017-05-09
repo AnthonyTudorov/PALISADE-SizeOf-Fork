@@ -139,15 +139,7 @@ void BytePlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *
 	doEncode<BigBinaryInteger,BigBinaryVector,ILVector2n>(*this, modulus, ilVector, start_from, length);
 }
 
-void BytePlaintextEncoding::Encode(const BigBinaryInteger &modulus, native64::ILVector2n *ilVector, size_t start_from, size_t length) const {
-	doEncode<native64::BigBinaryInteger,native64::BigBinaryVector,native64::ILVector2n>(*this, modulus, ilVector, start_from, length);
-}
-
 void BytePlaintextEncoding::Decode(const BigBinaryInteger &modulus, ILVector2n *ilVector) {
-	doDecode(*this, modulus, ilVector);
-}
-
-void BytePlaintextEncoding::Decode(const BigBinaryInteger &modulus, native64::ILVector2n *ilVector) {
 	doDecode(*this, modulus, ilVector);
 }
 
