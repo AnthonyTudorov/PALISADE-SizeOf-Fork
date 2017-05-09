@@ -6,27 +6,17 @@ BOOSTINCLUDE :=
 OMPINCLUDE := 
 
 
-##DBC include paths for NTL and GMP leave empty if not using MATHBACKEND 6
-#NTLINCLUDE := -I $(HOME)/sw/include
-#GMPINCLUDE := -I $(HOME)/sw/include
-##NTLINCLUDE := 
-##GMPINCLUDE := 
+##DBC include and library paths for NTL and GMP leave empty if not using MATHBACKEND 6
 
-##DBC library paths for NTL and GMP leave empty if not using MATHBACKEND 6
-#NTLLIB := $(HOME)/sw/lib/libntl.a
-#GMPLIB := $(HOME)/sw/lib/libgmp.a
 
-#NTLLIB := 
-#GMPLIB := 
-
-ifneq ($(wildcard $(HOME)/sw), )
-  #$(info GMP/NTL directory $(HOME)/sw exists)
-  NTLINCLUDE := -I $(HOME)/sw/include
-  GMPINCLUDE := -I $(HOME)/sw/include
-  NTLLIB := $(HOME)/sw/lib/libntl.a
-  GMPLIB := $(HOME)/sw/lib/libgmp.a
+ifneq ($(wildcard third-party/include), )
+  #$(info GMP/NTL directory third-party/include exists)
+  NTLINCLUDE := -I third-party/include
+  GMPINCLUDE := -I third-party/include
+  NTLLIB := third-party/lib/libntl.a
+  GMPLIB := third-party/lib/libgmp.a
 else
-  #$(info GMP/NTL directory $(HOME)/sw does not exist)
+  #$(info GMP/NTL directory third-party does not exist)
 endif
 
 CC := g++ # This is the main compiler
