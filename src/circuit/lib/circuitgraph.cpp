@@ -5,7 +5,7 @@
  *      Author: gerardryan
  */
 
-#include "CircuitGraph.h"
+#include "circuitgraph.h"
 
 //CircuitGraph::CircuitGraph(const CircuitGraph& from)
 //{

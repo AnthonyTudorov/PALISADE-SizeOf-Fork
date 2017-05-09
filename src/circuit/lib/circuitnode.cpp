@@ -1,5 +1,5 @@
-#include "CircuitNode.h"
-#include "CircuitGraph.h"
+#include "circuitnode.h"
+#include "circuitgraph.h"
 #include <typeinfo>
 
 ostream& operator<<(ostream& out, const CircuitNode& n)

@@ -5,8 +5,8 @@
  *      Author: gerardryan
  */
 
-#include "CircuitSim.h"
-#include "CircuitGraph.h"
+#include "circuitsim.h"
+#include "circuitgraph.h"
 
 CircuitSim::CircuitSim() {
 	// must create built in functions and add them to the function table

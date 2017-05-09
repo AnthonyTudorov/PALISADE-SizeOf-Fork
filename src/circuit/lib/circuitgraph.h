@@ -8,7 +8,7 @@
 #ifndef SRC_CIRCUIT_CIRCUITGRAPH_H_
 #define SRC_CIRCUIT_CIRCUITGRAPH_H_
 
-#include "CircuitNode.h"
+#include "circuitnode.h"
 #include <algorithm>
 #include <string>
 #include <vector>

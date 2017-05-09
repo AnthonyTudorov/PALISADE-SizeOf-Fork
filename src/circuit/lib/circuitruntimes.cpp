@@ -5,7 +5,7 @@
 * as well as two static runtime value matrices.
 */
 
-#include "CircuitRuntimes.h"
+#include "circuitruntimes.h"
 
 namespace CircuitParams {
 
