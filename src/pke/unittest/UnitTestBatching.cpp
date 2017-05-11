@@ -333,11 +333,11 @@ TEST(UTLTVBATCHING, ILVector_EVALMULT_Arb) {
 	usint m = 22;
 	usint N = GetTotient(m);
 	usint p = 89; // we choose s.t. 2m|p-1 to leverage CRTArb
-	BigBinaryInteger modulusQ("800053");
+	BigBinaryInteger modulusQ("68555213");
 	BigBinaryInteger modulusP(p);
-	BigBinaryInteger rootOfUnity("59094");
-	BigBinaryInteger bigmodulus("1019642968797569");
-	BigBinaryInteger bigroot("116200103432701");
+	BigBinaryInteger rootOfUnity("68489508");
+	BigBinaryInteger bigmodulus("71547584689923634753");
+	BigBinaryInteger bigroot("69928215897849945789");
 
 	auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulusQ);
 	//ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().PreCompute(m, modulusQ);
