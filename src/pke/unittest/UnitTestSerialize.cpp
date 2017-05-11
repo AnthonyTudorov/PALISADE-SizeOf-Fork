@@ -166,35 +166,4 @@ TEST(UTPKESer, LTV_keys_and_ciphertext) {
 	BytePlaintextEncoding plaintextShortNew;
 	DecryptResult result = cc.Decrypt(kp.secretKey, ciphertext, &plaintextShortNew, true);
 	EXPECT_EQ(plaintextShortNew, plaintextShort) << "Decrypted deserialize failed";
-
-	auto zeroAlloc = [=]() { return make_unique<IntPlaintextEncoding>(); };
-
-	Matrix<IntPlaintextEncoding> xP = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 2);
-
-	std::vector<uint32_t> vectorOfInts1 = { 1,0,1,1,0,1,0,1 };
-	xP(0, 0) = vectorOfInts1;
-
-	std::vector<uint32_t> vectorOfInts2 = { 1,1,0,1,0,1,1,0 };
-	xP(0, 1) = vectorOfInts2;
-
-	std::vector<uint32_t> vectorOfInts3 = { 1,1,1,1,0,1,0,1 };
-	xP(1, 0) = vectorOfInts3;
-
-	std::vector<uint32_t> vectorOfInts4 = { 1,0,0,1,0,1,1,0 };
-	xP(1, 1) = vectorOfInts4;
-
-	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> encryptXp = cc.EncryptMatrix(kp.publicKey, xP);
-
-	{
-		Serialized ser;
-		ser.SetObject();
-		ASSERT_TRUE( encryptXp->Serialize(&ser) ) << "Matrix serialization failed";
-
-		Matrix<RationalCiphertext<ILVector2n>> mmm([cc]() { return make_unique<RationalCiphertext<ILVector2n>>(cc); } );
-		ASSERT_TRUE( mmm.Deserialize(ser) ) << "Matrix deserialization failed";
-
-		EXPECT_EQ( *encryptXp, mmm ) << "Matrix mismatch after ser/deser";
-	}
-
-
 }
