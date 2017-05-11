@@ -39,7 +39,7 @@
 
 #include "../../utils/serializable.h"
 #include "../backend.h"
-#if MATHBACKEND ==2 ||MATHBACKEND ==3 ||MATHBACKEND ==4
+#if MATHBACKEND ==2 ||MATHBACKEND ==3 ||MATHBACKEND ==4 ||MATHBACKEND ==7
 //#include "ubintvec.h"
 
 
