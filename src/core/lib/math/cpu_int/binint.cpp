@@ -463,9 +463,6 @@ void BigBinaryInteger<uint_type,BITLENGTH>::PrintValueInDec() const{
     std::cout<<std::endl;
 }
 
-// the next two functions convert a BigBinaryInteger in and out of a string of characters
-// the encoding is Base64-like: 6-bit groupings are Base64 encoded, along with a length
-
 /**
  * This function is only used for serialization
  *
