@@ -113,11 +113,7 @@ typedef cpu_int::BigBinaryVectorImpl<NativeInteger<uint64_t>> BigBinaryVector;
 #endif
 
 #if MATHBACKEND == 2
-#if 0
-#include "cpu_int/binint.cpp"
-#include "cpu_int/binvect.cpp"
-#include <initializer_list>
-#endif
+
 #define UBINT_32
 #include "exp_int/ubint.h" //experimental dbc unsigned big integers or ubints
 #include "exp_int/ubintvec.h" //vectors of experimental ubints
@@ -142,9 +138,6 @@ typedef cpu_int::BigBinaryVectorImpl<NativeInteger<uint64_t>> BigBinaryVector;
 #endif
 
 #if MATHBACKEND == 5
-#include "cpu_int/binint.cpp"
-#include "cpu_int/binvect.cpp"
-#include <initializer_list>
 
 #include "gmp_int/gmpint.h" //experimental gmp unsigned big ints
 #include "gmp_int/mgmpint.h" //experimental gmp modulo unsigned big ints
@@ -153,6 +146,7 @@ typedef cpu_int::BigBinaryVectorImpl<NativeInteger<uint64_t>> BigBinaryVector;
 #endif
 
 #if MATHBACKEND == 6
+
 #include "gmp_int/gmpint.h" //experimental gmp unsigned big ints
 #include "gmp_int/mgmpint.h" //experimental gmp modulo unsigned big ints
 #include "gmp_int/gmpintvec.h" //vectors of such
