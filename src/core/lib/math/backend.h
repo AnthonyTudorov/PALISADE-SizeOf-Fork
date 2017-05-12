@@ -110,11 +110,15 @@ namespace native64 {
 typedef NativeInteger<uint64_t> BigBinaryInteger;
 typedef cpu_int::BigBinaryVectorImpl<NativeInteger<uint64_t>> BigBinaryVector;
 }
+#define MATH_NATIVEBITS	64
+#else
+#define MATH_NATIVEBITS 0
 #endif
 
 #if MATHBACKEND == 2
 
 #define UBINT_32
+#define MATH_UBBITS	32
 #include "exp_int/ubint.h" //experimental dbc unsigned big integers or ubints
 #include "exp_int/ubintvec.h" //vectors of experimental ubints
 #include "exp_int/mubintvec.h" //rings of ubints
@@ -124,6 +128,7 @@ typedef cpu_int::BigBinaryVectorImpl<NativeInteger<uint64_t>> BigBinaryVector;
 #if MATHBACKEND == 3
 
 #define UBINT_32
+#define MATH_UBBITS	32
 #include "exp_int/ubint.h" //experimental dbc unsigned big integers or ubints
 #include "exp_int/ubintvec.h" //vectors of experimental ubints
 #include "exp_int/mubintvec.h" //rings of ubints
@@ -132,13 +137,14 @@ typedef cpu_int::BigBinaryVectorImpl<NativeInteger<uint64_t>> BigBinaryVector;
 #if MATHBACKEND == 4
 
 #define UBINT_64
+#define MATH_UBBITS	64
 #include "exp_int/ubint.h" //experimental dbc unsigned big integers or ubints
 #include "exp_int/ubintvec.h" //vectors of experimental ubints
 #include "exp_int/mubintvec.h" //rings of ubints
 #endif
 
 #if MATHBACKEND == 5
-
+#define MATH_UBBITS	0
 #include "gmp_int/gmpint.h" //experimental gmp unsigned big ints
 #include "gmp_int/mgmpint.h" //experimental gmp modulo unsigned big ints
 #include "gmp_int/gmpintvec.h" //vectors of such
@@ -146,7 +152,7 @@ typedef cpu_int::BigBinaryVectorImpl<NativeInteger<uint64_t>> BigBinaryVector;
 #endif
 
 #if MATHBACKEND == 6
-
+#define MATH_UBBITS	0
 #include "gmp_int/gmpint.h" //experimental gmp unsigned big ints
 #include "gmp_int/mgmpint.h" //experimental gmp modulo unsigned big ints
 #include "gmp_int/gmpintvec.h" //vectors of such
@@ -156,6 +162,7 @@ typedef cpu_int::BigBinaryVectorImpl<NativeInteger<uint64_t>> BigBinaryVector;
 #if MATHBACKEND == 7
 
 #define UBINT_32
+#define MATH_UBBITS	32
 #include "exp_int/ubint.h" //experimental dbc unsigned big integers or ubints
 #include "exp_int/ubintvec.h" //vectors of experimental ubints
 #include "exp_int/mubintvec.h" //rings of ubints
@@ -203,6 +210,8 @@ template<typename ModType, typename IntType, typename VecType, typename ParmType
 	/** Define the mapping for modulo Big Integer Vector */
 	typedef exp_int::mubintvec<ubint> mubintvec;
 
+#define MATH_DEFBITS BigBinaryIntegerBitLength
+
 #endif
 
 #if MATHBACKEND == 3
@@ -228,6 +237,8 @@ template<typename ModType, typename IntType, typename VecType, typename ParmType
 
 	/** Define the mapping for modulo Big Integer Vector */
 	typedef exp_int::mubintvec<ubint> mubintvec;
+
+#define MATH_DEFBITS MATH_UBBITS
 
 #endif
 
@@ -255,6 +266,8 @@ template<typename ModType, typename IntType, typename VecType, typename ParmType
 
 	/** Define the mapping for modulo Big Integer Vector */
 	typedef exp_int::mubintvec<ubint> mubintvec;
+
+#define MATH_DEFBITS MATH_UBBITS
 
 #endif
 
@@ -294,6 +307,7 @@ template<typename ModType, typename IntType, typename VecType, typename ParmType
 	/** Define the mapping for modulo Big Integer Vector */
 	typedef NTL::myVecP<NTL::myZZ_p> mubintvec;
 
+#define MATH_DEFBITS 32
 
 #endif
 
@@ -330,6 +344,8 @@ template<typename ModType, typename IntType, typename VecType, typename ParmType
 	/** Define the mapping for modulo ubint Vector */
 	typedef NTL::myVecP<NTL::myZZ_p> mubintvec;
 
+#define MATH_DEFBITS 32
+
 #endif
 
 #if MATHBACKEND == 7
@@ -351,6 +367,7 @@ template<typename ModType, typename IntType, typename VecType, typename ParmType
 	/** Define the mapping for modulo Big Integer Vector */
 	typedef exp_int::mubintvec<ubint> mubintvec;
 
+#define MATH_DEFBITS MATH_NATIVEBITS
 #endif
 
 	typedef ILParamsImpl<BigBinaryInteger> ILParams;
