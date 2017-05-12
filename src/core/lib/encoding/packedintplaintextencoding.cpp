@@ -92,7 +92,6 @@ namespace lbcrypto {
 
 	}
 
-	void PackedIntPlaintextEncoding::Decode(const BigBinaryInteger &modulus, native64::ILVector2n *ilVector) {}
 
 	size_t PackedIntPlaintextEncoding::GetChunksize(const usint ring, const BigBinaryInteger& ptm) const
 	{
