@@ -2909,15 +2909,16 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
   }
 
 } // namespace exp_int ends
-#ifdef UBINT_32
-template class exp_int::ubint<uint32_t>; 
 
-//template <uint32_t>
-//std::ostream& exp_int::operator<< (std::ostream& os, const exp_int::ubint<uint32_t> &ptr_obj);
-
-#endif
-#ifdef UBINT_64
-template class exp_int::ubint<uint64_t>; 
-#endif
+//#ifdef UBINT_32
+//template class exp_int::ubint<uint32_t>;
+//
+////template <uint32_t>
+////std::ostream& exp_int::operator<< (std::ostream& os, const exp_int::ubint<uint32_t> &ptr_obj);
+//
+//#endif
+//#ifdef UBINT_64
+//template class exp_int::ubint<uint64_t>;
+//#endif
 
 #endif //#if MATHBACKEND ==2 ||MATHBACKEND ==3 ||MATHBACKEND ==4
