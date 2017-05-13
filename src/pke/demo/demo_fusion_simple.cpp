@@ -61,7 +61,7 @@ int main(int argc, char *argv[]) {
 	// Set-up of parameters
 	////////////////////////////////////////////////////////////
 
-/*
+
 	cout << "\nStarting FV PKE demo in the RLWE mode" << endl;
 
 	int relWindow = 1;
@@ -78,7 +78,8 @@ int main(int argc, char *argv[]) {
 			relWindow, 
 			sigma, 
 			1, 0, 0);
-*/
+
+/*
 
 	bool	doJson = false;
 
@@ -108,7 +109,7 @@ int main(int argc, char *argv[]) {
 		cout << "Error on " << input << endl;
 		return 0;
 	}
-
+*/
 	//CryptoContext<ILVector2n> cc = GenCryptoContextElementLTV(ORDER, PTM);
 
 	//Turn on features
@@ -152,7 +153,7 @@ int main(int argc, char *argv[]) {
 	start = currentDateTime();
 
 	kp1 = cc.KeyGen();
-	kp2 = cc.KeyGen();
+	kp2 = cc.FusionKeyGen(kp1.publicKey);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -180,7 +181,7 @@ int main(int argc, char *argv[]) {
 
 	start = currentDateTime();
 
-	kpFusion = cc.FusionKeyGen(kp1.secretKey,kp2.secretKey);	// This is the same core key generation operation.
+	kpFusion = cc.FusionReKeyGen(kp1.secretKey,kp2.secretKey);	// This is the same core key generation operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -312,41 +313,6 @@ int main(int argc, char *argv[]) {
 
 	cout << "\n Resulting Added Plaintext with Re-Encryption: \n";
 	cout << plaintextAddNew << endl;
-
-	cout << "\n";
-
-	////////////////////////////////////////////////////////////
-	//Decryption after Accumulation Operation on Re-Encrypted Data
-	////////////////////////////////////////////////////////////
-
-
-	//cout << kp1.secretKey->GetPrivateElement() << endl;
-	//cout << kp2.secretKey->GetPrivateElement() << endl;
-	//cout << kpFusion.secretKey->GetPrivateElement() << endl;
-
-	IntPlaintextEncoding plaintextAddNew1;
-	IntPlaintextEncoding plaintextAddNew2;
-
-	start = currentDateTime();
-
-	DecryptResult resultNew1 = cc.Decrypt(kp1.secretKey, ciphertextAddVectNew, &plaintextAddNew1, true);
-	DecryptResult resultNew2 = cc.Decrypt(kp2.secretKey, ciphertextAddVectNew, &plaintextAddNew2, true);
-
-	finish = currentDateTime();
-	diff = finish - start;
-
-	//std::cin.get();
-
-	plaintextAddNew1.resize(plaintext1.size());
-	plaintextAddNew2.resize(plaintext2.size());
-
-	cout << "\n Original Plaintext: \n";
-	cout << plaintext1 << endl;
-	cout << plaintext2 << endl;
-
-	cout << "\n Resulting Added Plaintext with Re-Encryption and Partial Decryption: \n";
-	cout << plaintextAddNew1 << endl;
-	cout << plaintextAddNew2 << endl;
 
 	cout << "\n";
 

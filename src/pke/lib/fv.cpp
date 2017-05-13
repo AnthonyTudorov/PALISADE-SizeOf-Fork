@@ -641,6 +641,57 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmPREFV<Element>::ReKeyGen(const shared_
 //makeSparse is not used by this scheme
 template <class Element>
 LPKeyPair<Element> LPAlgorithmPREFV<Element>::FusionKeyGen(const CryptoContext<Element> cc,
+		const shared_ptr<LPPublicKey<Element>> kp1, bool makeSparse) const
+{
+
+	LPKeyPair<Element>	kp( new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc) );
+
+	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(cc.GetCryptoParameters());
+
+	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
+	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
+
+	const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
+	typename Element::DugType dug;
+	typename Element::TugType tug;
+
+	//Generate the element "a" of the public key
+	Element a(dug, elementParams, Format::EVALUATION);
+
+	//Generate the secret key
+	Element s;
+
+	//Done in two steps not to use a random polynomial from a pre-computed pool
+	//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
+	if (cryptoParams->GetMode() == RLWE) {
+		s = Element(dgg, elementParams, Format::COEFFICIENT);
+		s.SwitchFormat();
+	}
+	else {
+		throw std::logic_error("FusedKeyGen operation has not been enabled for OPTIMIZED cases");
+		s = Element(tug, elementParams, Format::COEFFICIENT);
+		s.SwitchFormat();
+	}
+
+	kp.secretKey->SetPrivateElement(s);
+
+	//Done in two steps not to use a discrete Gaussian polynomial from a pre-computed pool
+	Element e(dgg, elementParams, Format::COEFFICIENT);
+	e.SwitchFormat();
+
+	Element b(elementParams, Format::EVALUATION, true);
+	b-=e;
+	b-=(a*s);
+
+	kp.publicKey->SetPublicElementAtIndex(0, std::move(b));
+	kp.publicKey->SetPublicElementAtIndex(1, std::move(a));
+
+	return kp;
+}
+
+//makeSparse is not used by this scheme
+template <class Element>
+LPKeyPair<Element> LPAlgorithmPREFV<Element>::FusionReKeyGen(const CryptoContext<Element> cc,
 		const shared_ptr<LPPrivateKey<Element>> kp1,
 		const shared_ptr<LPPrivateKey<Element>> kp2, bool makeSparse) const
 {
@@ -665,28 +716,13 @@ LPKeyPair<Element> LPAlgorithmPREFV<Element>::FusionKeyGen(const CryptoContext<E
 	//Done in two steps not to use a random polynomial from a pre-computed pool
 	//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
 	if (cryptoParams->GetMode() == RLWE) {
-		Element kp1Element = kp1->GetPrivateElement();
-		Element kp2Element = kp2->GetPrivateElement();
-		s = kp1Element + kp2Element;
-		//cout << kp1Element << endl;
-		//cout << kp2Element << endl;
-		//cout << s << endl;
-		//throw std::logic_error("ReKeyGen operation has not been enabled for RLWE cases");
-		/*
 		s = Element(dgg, elementParams, Format::COEFFICIENT);
-
 		s.SwitchFormat();
-		*/
 	}
 	else {
-		Element kp1Element = kp1->GetPrivateElement();
-		Element kp2Element = kp2->GetPrivateElement();
-		s = kp1Element + kp2Element;
-		/*
 		throw std::logic_error("FusedKeyGen operation has not been enabled for OPTIMIZED cases");
 		s = Element(tug, elementParams, Format::COEFFICIENT);
 		s.SwitchFormat();
-		*/
 	}
 
 	kp.secretKey->SetPrivateElement(s);

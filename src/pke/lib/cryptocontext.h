@@ -200,14 +200,24 @@ public:
 
 	/**
 	* KeyGen generates a fusion key pair using this algorithm's KeyGen method from two keys
+	* @param kp1 public key used for decryption to be fused.
+	* @return a public/secret key pair
+	*/
+	LPKeyPair<Element> FusionKeyGen(
+		const shared_ptr<LPPublicKey<Element>> kp1) const {
+		return GetEncryptionAlgorithm()->FusionKeyGen(*this, kp1, false);
+	}
+
+	/**
+	* KeyGen generates a fusion key pair using this algorithm's KeyGen method from two keys
 	* @param kp1 private key used for decryption to be fused.
 	* @param kp2 private key used for decryption to be fused.
 	* @return a public/secret key pair
 	*/
-	LPKeyPair<Element> FusionKeyGen(
+	LPKeyPair<Element> FusionReKeyGen(
 		const shared_ptr<LPPrivateKey<Element>> kp1,
 		const shared_ptr<LPPrivateKey<Element>> kp2) const {
-		return GetEncryptionAlgorithm()->FusionKeyGen(*this, kp1, kp2, false);
+		return GetEncryptionAlgorithm()->FusionReKeyGen(*this, kp1, kp2, false);
 	}
 
 	/**
