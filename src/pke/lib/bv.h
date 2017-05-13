@@ -456,7 +456,7 @@ namespace lbcrypto {
 		* @param makeSparse set to true if ring reduce by a factor of 2 is to be used.
 		* @return key pair including the private and public key
 		*/
-		LPKeyPair<Element> FusionReKeyGen(const CryptoContext<Element> cc,
+		LPKeyPair<Element> FusionKeyGen(const CryptoContext<Element> cc,
 			const shared_ptr<LPPrivateKey<Element>> kp1,
 			const shared_ptr<LPPrivateKey<Element>> kp2,
 			bool makeSparse=false) const {

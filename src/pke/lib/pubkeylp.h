@@ -1066,7 +1066,7 @@ namespace lbcrypto {
 			* @param makeSparse set to true if ring reduce by a factor of 2 is to be used.
 			* @return key pair including the private and public key
 			*/
-			virtual LPKeyPair<Element> FusionReKeyGen(const CryptoContext<Element> cc,
+			virtual LPKeyPair<Element> FusionKeyGen(const CryptoContext<Element> cc,
 				const shared_ptr<LPPrivateKey<Element>> kp1,
 				const shared_ptr<LPPrivateKey<Element>> kp2,
 				bool makeSparse=false) const = 0;
@@ -1509,14 +1509,14 @@ namespace lbcrypto {
 		}
 
 		// Wrapper for Fusion Key Gen
-		LPKeyPair<Element> FusionReKeyGen(const CryptoContext<Element> cc,
+		LPKeyPair<Element> FusionKeyGen(const CryptoContext<Element> cc,
 			const shared_ptr<LPPrivateKey<Element>> kp1,
 			const shared_ptr<LPPrivateKey<Element>> kp2,
 			bool makeSparse) const {
 				if(this->m_algorithmPRE)
-					return this->m_algorithmPRE->FusionReKeyGen(cc, kp1, kp2, makeSparse);
+					return this->m_algorithmPRE->FusionKeyGen(cc, kp1, kp2, makeSparse);
 				else {
-					throw std::logic_error("FusionReKeyGen operation has not been enabled");
+					throw std::logic_error("FusionKeyGen operation has not been enabled");
 				}
 		}
 

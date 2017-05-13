@@ -181,7 +181,7 @@ int main(int argc, char *argv[]) {
 
 	start = currentDateTime();
 
-	kpFusion = cc.FusionReKeyGen(kp1.secretKey,kp2.secretKey);	// This is the same core key generation operation.
+	kpFusion = cc.FusionKeyGen(kp1.secretKey,kp2.secretKey);	// This is the same core key generation operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
