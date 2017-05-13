@@ -1048,6 +1048,19 @@ namespace lbcrypto {
 				const shared_ptr<LPPrivateKey<Element>> kp1,
 				const shared_ptr<LPPrivateKey<Element>> kp2,
 				bool makeSparse=false) const = 0;
+
+			/**
+			 * Method for decrypting plaintext using LBC that is used for the a*s1 decryption.
+			 *
+			 * @param &privateKey private key used for decryption.
+			 * @param &ciphertext ciphertext id decrypted.
+			 * @param *plaintext the plaintext output.
+			 * @return the decoding result.
+			 */
+			virtual DecryptResult FusionDecrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
+				const shared_ptr<Ciphertext<Element>> ciphertext,
+				ILVector2n *plaintext) const = 0;
+
 	};
 
 	/**
@@ -1494,6 +1507,16 @@ namespace lbcrypto {
 					return this->m_algorithmPRE->FusionKeyGen(cc, kp1, kp2, makeSparse);
 				else {
 					throw std::logic_error("FusionKeyGen operation has not been enabled");
+				}
+		}
+
+
+		DecryptResult FusionDecrypt(const shared_ptr<LPPrivateKey<Element>> privateKey, const shared_ptr<Ciphertext<Element>> ciphertext,
+				ILVector2n *plaintext) const {
+				if(this->m_algorithmEncryption)
+					return this->m_algorithmEncryption->Decrypt(privateKey,ciphertext,plaintext);
+				else {
+					throw std::logic_error("FusionDecrypt operation has not been enabled");
 				}
 		}
 
