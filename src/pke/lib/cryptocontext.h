@@ -221,6 +221,45 @@ public:
 	}
 
 	/**
+	* Decrypt method for PALISADE
+	* @param privateKey - for decryption
+	* @param ciphertext - vector of encrypted ciphertext
+	* @param plaintext - pointer to destination for the result of decryption
+	* @param doPadding - true if input plaintext was padded; causes unpadding on last piece of ciphertext
+	* @return size of plaintext
+	*/
+	DecryptResult FusionDecrypt(
+		const shared_ptr<LPPrivateKey<Element>> privateKey,
+		const std::vector<shared_ptr<Ciphertext<Element>>>& ciphertext,
+		Plaintext *plaintext,
+		bool doPadding = true) const
+	{
+		// edge case
+		if (ciphertext.size() == 0)
+			return DecryptResult();
+
+		if( privateKey == NULL || privateKey->GetCryptoContext() != *this )
+			throw std::logic_error("Information passed to Decrypt was not generated with this crypto context");
+
+		int lastone = ciphertext.size() - 1;
+		for( int ch = 0; ch < ciphertext.size(); ch++ ) {
+			if( ciphertext[ch] == NULL || ciphertext[ch]->GetCryptoContext() != *this )
+				throw std::logic_error("A ciphertext passed to Decrypt was not generated with this crypto context");
+
+			ILVector2n decrypted;
+			DecryptResult result = GetEncryptionAlgorithm()->Decrypt(privateKey, ciphertext[ch], &decrypted);
+
+			if (result.isValid == false) return result;
+			plaintext->Decode(privateKey->GetCryptoParameters()->GetPlaintextModulus(), &decrypted);
+			if (ch == lastone && doPadding) {
+				plaintext->Unpad(privateKey->GetCryptoParameters()->GetPlaintextModulus());
+			}
+		}
+
+		return DecryptResult(plaintext->GetLength());
+	}	
+
+	/**
 	* SparseKeyGen generates a key pair with special structure, and without full entropy,
 	* for use in special cases like Ring Reduction
 	* @return a public/secret key pair

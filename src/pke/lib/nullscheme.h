@@ -244,7 +244,7 @@ public:
 	LPKeyPair<Element> FusionKeyGen(const CryptoContext<Element> cc,
 		const shared_ptr<LPPublicKey<Element>> kp1,
 		bool makeSparse=false) const {
-		std::string errMsg = "LPAlgorithmPRELTV::FusionKeyGen using the new secret key is not implemented for the Null Scheme.";
+		std::string errMsg = "LPAlgorithmPRENull::FusionKeyGen using the new secret key is not implemented for the Null Scheme.";
 		throw std::runtime_error(errMsg);
 	}
 
@@ -261,7 +261,22 @@ public:
 		const shared_ptr<LPPrivateKey<Element>> kp1,
 		const shared_ptr<LPPrivateKey<Element>> kp2,
 		bool makeSparse=false) const {
-		std::string errMsg = "LPAlgorithmPRELTV::FusionKeyGen using the new secret key is not implemented for the Null Scheme.";
+		std::string errMsg = "LPAlgorithmPRENull::FusionKeyGen using the new secret key is not implemented for the Null Scheme.";
+		throw std::runtime_error(errMsg);
+	}
+
+	/**
+	* Method for decrypting plaintext using Null
+	*
+	* @param &privateKey private key used for decryption.
+	* @param &ciphertext ciphertext id decrypted.
+	* @param *plaintext the plaintext output.
+	* @return the decrypted plaintext returned.
+	*/
+	DecryptResult FusionDecrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
+		const shared_ptr<Ciphertext<Element>> ciphertext,
+		ILVector2n *plaintext) const {
+		std::string errMsg = "LPAlgorithmPRENull::FusionDecrypt is not implemented for the Null Scheme.";
 		throw std::runtime_error(errMsg);
 	}
 
