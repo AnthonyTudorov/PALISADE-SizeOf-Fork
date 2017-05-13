@@ -656,7 +656,7 @@ LPKeyPair<Element> LPAlgorithmPREFV<Element>::FusionKeyGen(const CryptoContext<E
 	typename Element::TugType tug;
 
 	//Generate the element "a" of the public key
-	Element a(dug, elementParams, Format::EVALUATION);
+	Element a = kp1->GetPublicElements()[1];
 
 	//Generate the secret key
 	Element s;
@@ -691,7 +691,7 @@ LPKeyPair<Element> LPAlgorithmPREFV<Element>::FusionKeyGen(const CryptoContext<E
 
 //makeSparse is not used by this scheme
 template <class Element>
-LPKeyPair<Element> LPAlgorithmPREFV<Element>::FusionReKeyGen(const CryptoContext<Element> cc,
+LPKeyPair<Element> LPAlgorithmPREFV<Element>::FusionKeyGen(const CryptoContext<Element> cc,
 		const shared_ptr<LPPrivateKey<Element>> kp1,
 		const shared_ptr<LPPrivateKey<Element>> kp2, bool makeSparse) const
 {
@@ -711,13 +711,15 @@ LPKeyPair<Element> LPAlgorithmPREFV<Element>::FusionReKeyGen(const CryptoContext
 	Element a(dug, elementParams, Format::EVALUATION);
 
 	//Generate the secret key
-	Element s;
+	Element s(elementParams, Format::EVALUATION, true);
+	Element s1 = kp1->GetPrivateElement();
+	Element s2 = kp2->GetPrivateElement();
 
 	//Done in two steps not to use a random polynomial from a pre-computed pool
 	//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
 	if (cryptoParams->GetMode() == RLWE) {
-		s = Element(dgg, elementParams, Format::COEFFICIENT);
-		s.SwitchFormat();
+		s+=s1;
+		s+=s2;
 	}
 	else {
 		throw std::logic_error("FusedKeyGen operation has not been enabled for OPTIMIZED cases");
@@ -737,6 +739,20 @@ LPKeyPair<Element> LPAlgorithmPREFV<Element>::FusionReKeyGen(const CryptoContext
 
 	kp.publicKey->SetPublicElementAtIndex(0, std::move(b));
 	kp.publicKey->SetPublicElementAtIndex(1, std::move(a));
+
+/*
+	//Generate the element "a" of the public key
+	Element a = kp1->GetPublicElements()[1];
+	Element b1 = kp1->GetPublicElements()[0];
+	Element b2 = kp2->GetPublicElements()[0];
+
+	Element b(elementParams, Format::EVALUATION, true);
+	b+=b1;
+	b+=b2;
+
+	kp.publicKey->SetPublicElementAtIndex(0, std::move(b));
+	kp.publicKey->SetPublicElementAtIndex(1, std::move(a));
+*/
 
 	return kp;
 }

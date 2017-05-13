@@ -258,11 +258,11 @@ public:
 	* @param makeSparse set to true if ring reduce by a factor of 2 is to be used.
 	* @return key pair including the private and public key
 	*/
-	LPKeyPair<Element> FusionReKeyGen(const CryptoContext<Element> cc,
+	LPKeyPair<Element> FusionKeyGen(const CryptoContext<Element> cc,
 		const shared_ptr<LPPrivateKey<Element>> kp1,
 		const shared_ptr<LPPrivateKey<Element>> kp2,
 		bool makeSparse=false) const {
-		std::string errMsg = "LPAlgorithmPRELTV::FusionReKeyGen using the new secret key is not implemented for the Null Scheme.";
+		std::string errMsg = "LPAlgorithmPRELTV::FusionKeyGen using the new secret key is not implemented for the Null Scheme.";
 		throw std::runtime_error(errMsg);
 	}
 

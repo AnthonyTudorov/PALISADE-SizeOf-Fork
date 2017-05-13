@@ -207,10 +207,10 @@ public:
 	* @param kp2 private key used for decryption to be fused.
 	* @return a public/secret key pair
 	*/
-	LPKeyPair<Element> FusionReKeyGen(
+	LPKeyPair<Element> FusionKeyGen(
 		const shared_ptr<LPPrivateKey<Element>> kp1,
 		const shared_ptr<LPPrivateKey<Element>> kp2) const {
-		return GetEncryptionAlgorithm()->FusionReKeyGen(*this, kp1, kp2, false);
+		return GetEncryptionAlgorithm()->FusionKeyGen(*this, kp1, kp2, false);
 	}
 
 	/**
