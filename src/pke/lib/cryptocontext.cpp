@@ -120,7 +120,8 @@ CryptoContextFactory<T>::genCryptoContextFV(
 	params->SetSecurityLevel(securityLevel);
 	params->SetRelinWindow(relinWindow);
 	params->SetDistributionParameter(dist);
-	params->SetMode(OPTIMIZED);
+	params->SetMode(RLWE);
+	//params->SetMode(OPTIMIZED);
 	params->SetAssuranceMeasure(9.0);
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeFV<T>() );

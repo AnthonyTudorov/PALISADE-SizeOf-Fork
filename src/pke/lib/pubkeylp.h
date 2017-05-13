@@ -1022,6 +1022,20 @@ namespace lbcrypto {
 			 */
 			virtual shared_ptr<Ciphertext<Element>> ReEncrypt(const shared_ptr<LPEvalKey<Element>> evalKey,
 				const shared_ptr<Ciphertext<Element>> ciphertext) const = 0;
+
+			/**
+			* Function to generate public and private keys where private keys are summation of two input keys.
+			*
+			* @param cc cryptocontext for the keys to be generated.
+			* @param kp1 private key used for decryption to be fused.
+			* @param kp2 private key used for decryption to be fused.
+			* @param makeSparse set to true if ring reduce by a factor of 2 is to be used.
+			* @return key pair including the private and public key
+			*/
+			virtual LPKeyPair<Element> FusionKeyGen(const CryptoContext<Element> cc,
+				const shared_ptr<LPPrivateKey<Element>> kp1,
+				const shared_ptr<LPPrivateKey<Element>> kp2,
+				bool makeSparse=false) const = 0;
 	};
 
 	/**
@@ -1444,6 +1458,20 @@ namespace lbcrypto {
 					return this->m_algorithmPRE->ReEncrypt(evalKey,ciphertext);
 				else {
 					throw std::logic_error("ReEncrypt operation has not been enabled");
+				}
+		}
+
+
+
+		// Wrapper for Fusion Key Gen
+		LPKeyPair<Element> FusionKeyGen(const CryptoContext<Element> cc,
+			const shared_ptr<LPPrivateKey<Element>> kp1,
+			const shared_ptr<LPPrivateKey<Element>> kp2,
+			bool makeSparse) const {
+				if(this->m_algorithmPRE)
+					return this->m_algorithmPRE->FusionKeyGen(cc, kp1, kp2, makeSparse);
+				else {
+					throw std::logic_error("FusionKeyGen operation has not been enabled");
 				}
 		}
 
