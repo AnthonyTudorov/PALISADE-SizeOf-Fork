@@ -233,6 +233,25 @@ public:
 		return newCiphertext;
 	}
 
+
+
+	/**
+	* Function to generate public and private keys where private keys are summation of two input keys.
+	*
+	* @param cc cryptocontext for the keys to be generated.
+	* @param kp1 private key used for decryption to be fused.
+	* @param kp2 private key used for decryption to be fused.
+	* @param makeSparse set to true if ring reduce by a factor of 2 is to be used.
+	* @return key pair including the private and public key
+	*/
+	LPKeyPair<Element> FusionKeyGen(const CryptoContext<Element> cc,
+		const shared_ptr<LPPrivateKey<Element>> kp1,
+		const shared_ptr<LPPrivateKey<Element>> kp2,
+		bool makeSparse=false) const {
+		std::string errMsg = "LPAlgorithmPRELTV::FusionKeyGen using the new secret key is not implemented for the Null Scheme.";
+		throw std::runtime_error(errMsg);
+	}
+
 };
 
 /**

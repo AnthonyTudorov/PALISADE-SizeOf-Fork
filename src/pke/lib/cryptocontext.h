@@ -199,6 +199,18 @@ public:
 	}
 
 	/**
+	* KeyGen generates a fusion key pair using this algorithm's KeyGen method from two keys
+	* @param kp1 private key used for decryption to be fused.
+	* @param kp2 private key used for decryption to be fused.
+	* @return a public/secret key pair
+	*/
+	LPKeyPair<Element> FusionKeyGen(
+		const shared_ptr<LPPrivateKey<Element>> kp1,
+		const shared_ptr<LPPrivateKey<Element>> kp2) const {
+		return GetEncryptionAlgorithm()->FusionKeyGen(*this, kp1, kp2, false);
+	}
+
+	/**
 	* SparseKeyGen generates a key pair with special structure, and without full entropy,
 	* for use in special cases like Ring Reduction
 	* @return a public/secret key pair
