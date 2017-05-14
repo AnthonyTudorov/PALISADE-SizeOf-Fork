@@ -541,7 +541,7 @@ namespace lbcrypto {
 		bool makeSparse=false) const;
 
 		/**
-		* Method for decrypting using FV with Fusion method.
+		* Method for decrypting using FV
 		*
 		* @param privateKey private key used for decryption.
 		* @param ciphertext ciphertext to be decrypted.

@@ -342,15 +342,16 @@ int main(int argc, char *argv[]) {
 
 	start = currentDateTime();
 
-	DecryptResult resultNew1 = cc.Decrypt(kp1.secretKey, ciphertextAddVectNew, &plaintextAddNew1, true);
-	DecryptResult resultNew2 = cc.FusionDecrypt(kp2.secretKey, ciphertextAddVectNew, &plaintextAddNew2, true);
+	DecryptResult resultNew1 = cc.Decrypt(kpFusion.secretKey, ciphertextAddVectNew, &plaintextAddNew1, true);
+	DecryptResult resultNew2 = cc.FusionDecrypt(kpFusion.secretKey, ciphertextAddVectNew, &plaintextAddNew2, true);
 
 	finish = currentDateTime();
 	diff = finish - start;
 
 	//std::cin.get();
 
-	plaintextAddNew.resize(plaintext1.size());
+	plaintextAddNew1.resize(plaintext1.size());
+	plaintextAddNew2.resize(plaintext1.size());
 
 	cout << "\n Original Plaintext: \n";
 	cout << plaintext1 << endl;
