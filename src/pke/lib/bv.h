@@ -472,10 +472,25 @@ namespace lbcrypto {
 		* @param *plaintext the plaintext output.
 		* @return the success/fail result
 		*/
-		DecryptResult FusionDecrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
+		DecryptResult FusionDecryptMain(const shared_ptr<LPPrivateKey<Element>> privateKey,
 			const shared_ptr<Ciphertext<Element>> ciphertext,
 			ILVector2n *plaintext) const {
-			std::string errMsg = "LPAlgorithmPREBV::FusionDecrypt is not implemented for the BV Scheme.";
+			std::string errMsg = "LPAlgorithmPREBV::FusionDecryptMain is not implemented for the BV Scheme.";
+			throw std::runtime_error(errMsg);
+		}
+
+		/**
+		* Method for decrypting fused plaintext using BV
+		*
+		* @param &privateKey private key used for decryption.
+		* @param &ciphertext ciphertext id decrypted.
+		* @param *plaintext the plaintext output.
+		* @return the success/fail result
+		*/
+		DecryptResult FusionDecryptMaster(const shared_ptr<LPPrivateKey<Element>> privateKey,
+			const shared_ptr<Ciphertext<Element>> ciphertext,
+			ILVector2n *plaintext) const {
+			std::string errMsg = "LPAlgorithmPREBV::FusionDecryptMaster is not implemented for the BV Scheme.";
 			throw std::runtime_error(errMsg);
 		}
 	};
