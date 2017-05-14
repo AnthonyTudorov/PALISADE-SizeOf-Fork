@@ -758,7 +758,33 @@ LPKeyPair<Element> LPAlgorithmPREFV<Element>::FusionKeyGen(const CryptoContext<E
 }
 
 template <class Element>
-DecryptResult LPAlgorithmPREFV<Element>::FusionDecrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
+DecryptResult LPAlgorithmPREFV<Element>::FusionDecryptMain(const shared_ptr<LPPrivateKey<Element>> privateKey,
+		const shared_ptr<Ciphertext<Element>> ciphertext,
+		ILVector2n *plaintext) const
+{
+	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
+	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
+	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
+	const BigBinaryInteger &q = elementParams->GetModulus();
+
+	const std::vector<Element> &c = ciphertext->GetElements();
+
+	const Element &s = privateKey->GetPrivateElement();
+
+	Element b = s*c[1];
+
+	b.SwitchFormat();
+	
+	//Element ans = b.MultiplyAndRound(p, q).SignedMod(p);
+	//*plaintext = ans.CRTInterpolate();
+	
+	*plaintext = b.CRTInterpolate();
+
+	return DecryptResult(plaintext->GetLength());
+}
+
+template <class Element>
+DecryptResult LPAlgorithmPREFV<Element>::FusionDecryptMaster(const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const shared_ptr<Ciphertext<Element>> ciphertext,
 		ILVector2n *plaintext) const
 {
@@ -775,8 +801,10 @@ DecryptResult LPAlgorithmPREFV<Element>::FusionDecrypt(const shared_ptr<LPPrivat
 
 	b.SwitchFormat();
 	
-	Element ans = b.MultiplyAndRound(p, q).SignedMod(p);
-	*plaintext = ans.CRTInterpolate();
+	//Element ans = b.MultiplyAndRound(p, q).SignedMod(p);
+	//*plaintext = ans.CRTInterpolate();
+	
+	*plaintext = b.CRTInterpolate();
 
 	return DecryptResult(plaintext->GetLength());
 }

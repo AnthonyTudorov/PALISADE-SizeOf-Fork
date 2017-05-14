@@ -273,10 +273,25 @@ public:
 	* @param *plaintext the plaintext output.
 	* @return the decrypted plaintext returned.
 	*/
-	DecryptResult FusionDecrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
+	DecryptResult FusionDecryptMain(const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const shared_ptr<Ciphertext<Element>> ciphertext,
 		ILVector2n *plaintext) const {
-		std::string errMsg = "LPAlgorithmPRENull::FusionDecrypt is not implemented for the Null Scheme.";
+		std::string errMsg = "LPAlgorithmPRENull::FusionDecryptMain is not implemented for the Null Scheme.";
+		throw std::runtime_error(errMsg);
+	}
+
+	/**
+	* Method for decrypting plaintext using Null
+	*
+	* @param &privateKey private key used for decryption.
+	* @param &ciphertext ciphertext id decrypted.
+	* @param *plaintext the plaintext output.
+	* @return the decrypted plaintext returned.
+	*/
+	DecryptResult FusionDecryptMaster(const shared_ptr<LPPrivateKey<Element>> privateKey,
+		const shared_ptr<Ciphertext<Element>> ciphertext,
+		ILVector2n *plaintext) const {
+		std::string errMsg = "LPAlgorithmPRENull::FusionDecryptMaster is not implemented for the Null Scheme.";
 		throw std::runtime_error(errMsg);
 	}
 

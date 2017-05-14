@@ -228,10 +228,11 @@ public:
 	* @param doPadding - true if input plaintext was padded; causes unpadding on last piece of ciphertext
 	* @return size of plaintext
 	*/
-	DecryptResult FusionDecrypt(
+	DecryptResult FusionDecryptMaster(
 		const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const std::vector<shared_ptr<Ciphertext<Element>>>& ciphertext,
 		Plaintext *plaintext,
+		ILVector2n *partialPlaintext,
 		bool doPadding = true) const
 	{
 		// edge case
@@ -247,7 +248,51 @@ public:
 				throw std::logic_error("A ciphertext passed to Decrypt was not generated with this crypto context");
 
 			ILVector2n decrypted;
-			DecryptResult result = GetEncryptionAlgorithm()->Decrypt(privateKey, ciphertext[ch], &decrypted);
+			DecryptResult result = GetEncryptionAlgorithm()->FusionDecryptMaster(privateKey, ciphertext[ch], &decrypted);
+
+			*partialPlaintext = decrypted;
+
+			if (result.isValid == false) return result;
+			plaintext->Decode(privateKey->GetCryptoParameters()->GetPlaintextModulus(), &decrypted);
+			if (ch == lastone && doPadding) {
+				plaintext->Unpad(privateKey->GetCryptoParameters()->GetPlaintextModulus());
+			}
+		}
+
+		return DecryptResult(plaintext->GetLength());
+	}
+
+	/**
+	* Decrypt method for PALISADE
+	* @param privateKey - for decryption
+	* @param ciphertext - vector of encrypted ciphertext
+	* @param plaintext - pointer to destination for the result of decryption
+	* @param doPadding - true if input plaintext was padded; causes unpadding on last piece of ciphertext
+	* @return size of plaintext
+	*/
+	DecryptResult FusionDecryptMain(
+		const shared_ptr<LPPrivateKey<Element>> privateKey,
+		const std::vector<shared_ptr<Ciphertext<Element>>>& ciphertext,
+		Plaintext *plaintext,
+		ILVector2n *partialPlaintext,
+		bool doPadding = true) const
+	{
+		// edge case
+		if (ciphertext.size() == 0)
+			return DecryptResult();
+
+		if( privateKey == NULL || privateKey->GetCryptoContext() != *this )
+			throw std::logic_error("Information passed to Decrypt was not generated with this crypto context");
+
+		int lastone = ciphertext.size() - 1;
+		for( int ch = 0; ch < ciphertext.size(); ch++ ) {
+			if( ciphertext[ch] == NULL || ciphertext[ch]->GetCryptoContext() != *this )
+				throw std::logic_error("A ciphertext passed to Decrypt was not generated with this crypto context");
+
+			ILVector2n decrypted;
+			DecryptResult result = GetEncryptionAlgorithm()->FusionDecryptMain(privateKey, ciphertext[ch], &decrypted);
+
+			*partialPlaintext = decrypted;
 
 			if (result.isValid == false) return result;
 			plaintext->Decode(privateKey->GetCryptoParameters()->GetPlaintextModulus(), &decrypted);
