@@ -71,6 +71,10 @@ namespace lbcrypto {
 	template <class Element>
 	class LPCryptoParametersBV;
 
+	//forward declaration of LPCryptoParametersFV class;
+	template <class Element>
+	class LPCryptoParametersFV;
+
 	//forward declaration of LPCryptoParametersStehleSteinfeld class;
 	template <class Element>
 	class LPCryptoParametersStehleSteinfeld;
@@ -1072,7 +1076,7 @@ namespace lbcrypto {
 				bool makeSparse=false) const = 0;
 
 			/**
-			 * Method for decrypting plaintext using LBC that is used for the a*s1 decryption.
+			 * Method for decrypting plaintext using LBC
 			 *
 			 * @param &privateKey private key used for decryption.
 			 * @param &ciphertext ciphertext id decrypted.
@@ -1533,11 +1537,10 @@ namespace lbcrypto {
 				}
 		}
 
-
 		DecryptResult FusionDecrypt(const shared_ptr<LPPrivateKey<Element>> privateKey, const shared_ptr<Ciphertext<Element>> ciphertext,
 				ILVector2n *plaintext) const {
-				if(this->m_algorithmEncryption)
-					return this->m_algorithmEncryption->Decrypt(privateKey,ciphertext,plaintext);
+				if(this->m_algorithmPRE)
+					return this->m_algorithmPRE->FusionDecrypt(privateKey,ciphertext,plaintext);
 				else {
 					throw std::logic_error("FusionDecrypt operation has not been enabled");
 				}
