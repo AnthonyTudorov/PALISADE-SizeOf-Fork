@@ -1,6 +1,7 @@
 
 #include "ildcrtparams.h"
-#include "utils/serializablehelper.h"
+#include "../utils/serializablehelper.h"
+
 
 namespace lbcrypto {
 
