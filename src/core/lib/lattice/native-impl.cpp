@@ -48,10 +48,10 @@ template class ILParamsImpl<BigBinaryInteger>;
 
 template class ILVectorImpl<BigBinaryInteger,BigBinaryInteger,BigBinaryVector,ILParams>;
 
-template<>
-ILVectorImpl<native64::BigBinaryInteger,native64::BigBinaryInteger,native64::BigBinaryVector,native64::ILParams>::ILVectorImpl(const shared_ptr<ILDCRTParams<native64::BigBinaryInteger>> params, Format format, bool initializeElementToZero) : m_values(nullptr), m_format(format) {
-	throw std::logic_error("cannot use this constructor with a native vector");
-}
+//template<>
+//ILVectorImpl<native64::BigBinaryInteger,native64::BigBinaryInteger,native64::BigBinaryVector,native64::ILParams>::ILVectorImpl(const shared_ptr<ILDCRTParams> params, Format format, bool initializeElementToZero) : m_values(nullptr), m_format(format) {
+//	throw std::logic_error("cannot use this constructor with a native vector");
+//}
 
 }
 
