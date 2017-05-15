@@ -24,7 +24,6 @@ int main(int argc, char **argv) {
 
   // if there are no filters used, default to omitting VERY_LONG tests
   // otherwise we lose control over which tests we can run
-  ::testing::GTEST_FLAG(filter) = "UTLTVBATCHING*";
   if (::testing::GTEST_FLAG(filter) == "*") {
     ::testing::GTEST_FLAG(filter) = "-*_VERY_LONG";
   }

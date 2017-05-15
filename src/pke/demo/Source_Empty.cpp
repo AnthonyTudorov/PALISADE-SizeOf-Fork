@@ -47,53 +47,14 @@ using namespace std;
 using namespace lbcrypto;
 
 
+void EvalMultBigRing();
+
 int main(int argc, char *argv[])
 {
 	
-	usint m = 8422;
-	BigBinaryInteger modulus("619578785044668429129510602549015713");//find a modulus that has 2*8422 root of unity and is 120 bit long
-	BigBinaryInteger squareRootOfRoot("204851043665385327685783246012876507");
-	usint n = GetTotient(m);
+	EvalMultBigRing();
 
-	auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulus);
-	BigBinaryInteger nttmodulus("1852673427797059126777135760139006525652319754650249024631321344126610076631041");//260 bit long
-	BigBinaryInteger nttroot("1011857408422309039039556907195908859561535234649870814154019834362746408101010");
-
-	//ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().PreCompute(m, modulus);
-	//ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().SetPreComputedNTTModulus(m, modulus, nttmodulus, nttroot);
-	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulus);
-
-	BigBinaryVector input(n, modulus);
-	input = { 1,2,3,4,5,6,7,8,9,10 };
-
-	auto INPUT = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().ForwardTransform(input, squareRootOfRoot, nttmodulus, nttroot, m);
-
-	auto inputCheck = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().InverseTransform(INPUT, squareRootOfRoot, nttmodulus, nttroot, m);
-
-	double diff, start, finish;
-
-	start = currentDateTime();
-
-	INPUT = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().ForwardTransform(input, squareRootOfRoot, nttmodulus, nttroot, m);
-
-	finish = currentDateTime();
-
-	diff = finish - start;
-
-	std::cout << "Forward Transform using precomputation is\t" << diff << std::endl;
-
-	start = currentDateTime();
-
-	inputCheck = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().InverseTransform(INPUT, squareRootOfRoot, nttmodulus, nttroot, m);
-
-	finish = currentDateTime();
-
-	diff = finish - start;
-
-	std::cout << "Inverse Transform using precomputation is\t" << diff << std::endl;
-
-
-	system("pause");
+	std::cin.get();
 
 	return 0;
 }
