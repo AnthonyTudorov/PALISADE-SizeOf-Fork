@@ -7,6 +7,7 @@
 #include "cryptolayertests.h"
 #include "cryptocontextparametersets.h"
 #include "cryptocontexthelper.h"
+#include "cryptocontextgen.h"
 
 using namespace std;
 using namespace lbcrypto;
@@ -95,12 +96,12 @@ UnitTestEncryption(const CryptoContext<Element>& cc) {
 }
 
 TEST(UTENCRYPT, LTV_ILVector2n_Encrypt_Decrypt) {
-	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("LTV5");
+	CryptoContext<ILVector2n> cc = GenCryptoContextElementLTV(4096, 2, 20);
 	UnitTestEncryption<ILVector2n>(cc);
 }
 
 TEST(UTENCRYPT, LTV_ILVectorArray2n_Encrypt_Decrypt) {
-	CryptoContext<ILVectorArray2n> cc = GenerateTestDCRTCryptoContext("LTV5", 3, 20);
+	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayLTV(4096, 3, 2, 20);
 	UnitTestEncryption<ILVectorArray2n>(cc);
 }
 
