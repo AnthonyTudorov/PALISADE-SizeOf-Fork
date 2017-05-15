@@ -73,6 +73,8 @@ public:
 	typedef TernaryUniformGeneratorImpl<IntType,VecType> TugType;
 	typedef BinaryUniformGeneratorImpl<IntType,VecType> BugType;
 
+	static const std::string ElementName;
+
 	/**
 	 * Default constructor
 	 */

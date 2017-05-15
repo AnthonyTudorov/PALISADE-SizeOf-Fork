@@ -191,7 +191,7 @@ namespace lbcrypto {
 			if( !this->GetCryptoParameters()->Serialize(serObj) )
 				return false;
 
-			SerializeVector("Elements", elementName<Element>(), this->m_elements, serObj);
+			SerializeVector("Elements", Element::ElementName, this->m_elements, serObj);
 
 			return true;
 		}
@@ -214,10 +214,13 @@ namespace lbcrypto {
 			if( mIter == serObj.MemberEnd() )
 				return false;
 
-			return DeserializeVector<Element>("Elements", elementName<Element>(), mIter, &this->m_elements);
+			return DeserializeVector<Element>("Elements", Element::ElementName, mIter, &this->m_elements);
 		}
 
 		inline bool operator==(const Ciphertext<Element>& rhs) const {
+			if( *this->cryptoContext.GetCryptoParameters() != *rhs.cryptoContext.GetCryptoParameters() )
+				return false;
+
 			const std::vector<Element> &lhsE = this->GetElements();
 			const std::vector<Element> &rhsE = rhs.GetElements();
 

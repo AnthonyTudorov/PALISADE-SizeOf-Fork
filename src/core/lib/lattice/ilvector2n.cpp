@@ -49,6 +49,9 @@ namespace lbcrypto {
 
 	// static members
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
+	const std::string ILVectorImpl<ModType,IntType,VecType,ParmType>::ElementName = "ILVectorImpl";
+
+	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	std::vector<ILVectorImpl<ModType, IntType,VecType,ParmType>> ILVectorImpl<ModType,IntType,VecType,ParmType>::m_dggSamples;
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
@@ -863,7 +866,7 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 		Serialized::ConstMemberIterator iMap = serObj.FindMember("ILVectorImpl");
 		if (iMap == serObj.MemberEnd()) return false;
 
-		SerialItem::ConstMemberIterator pIt = iMap->value.FindMember("ParmType");
+		SerialItem::ConstMemberIterator pIt = iMap->value.FindMember("ILParams");
 		if (pIt == iMap->value.MemberEnd()) return false;
 
 		Serialized parm(rapidjson::kObjectType);
@@ -878,14 +881,14 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 
 		VecType vectorBBV = VecType(vectorLength, m_params->GetModulus());
 
-		SerialItem::ConstMemberIterator vIt = iMap->value.FindMember("VecType");
+		SerialItem::ConstMemberIterator vIt = iMap->value.FindMember("BigBinaryVectorImpl");
 		if (vIt == iMap->value.MemberEnd()) {
 			return false;
 		}
 
 		Serialized s(rapidjson::kObjectType);
 		s.AddMember(SerialItem(vIt->name, s.GetAllocator()), SerialItem(vIt->value, s.GetAllocator()), s.GetAllocator());
-		if (!vectorBBV.Deserialize(s)) { //vIt->value) ) {
+		if (!vectorBBV.Deserialize(s)) {
 			return false;
 		}
 

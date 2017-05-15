@@ -574,8 +574,11 @@ bool BigBinaryVectorImpl<IntegerType>::Serialize(lbcrypto::Serialized* serObj) c
 	lbcrypto::SerialItem bbvMap(rapidjson::kObjectType);
 
 	bbvMap.AddMember("Modulus", this->GetModulus().ToString(), serObj->GetAllocator());
+	bbvMap.AddMember("IntegerType", IntegerType::IntegerTypeName(), serObj->GetAllocator());
 
-	usint pkVectorLength = GetLength();
+	usint pkVectorLength = this->GetLength();
+	bbvMap.AddMember("Length", std::to_string(pkVectorLength), serObj->GetAllocator());
+
 	if( pkVectorLength > 0 ) {
 		std::string pkBufferString = "";
 		for (int i = 0; i < pkVectorLength; i++) {
@@ -599,22 +602,35 @@ bool BigBinaryVectorImpl<IntegerType>::Deserialize(const lbcrypto::Serialized& s
 
 	lbcrypto::SerialItem::ConstMemberIterator vIt;
 
+	if( (vIt = mIter->value.FindMember("IntegerType")) == mIter->value.MemberEnd() )
+		return false;
+	if( IntegerType::IntegerTypeName() != vIt->value.GetString() )
+		return false;
+
 	if( (vIt = mIter->value.FindMember("Modulus")) == mIter->value.MemberEnd() )
 		return false;
 	IntegerType bbiModulus(vIt->value.GetString());
 
+	if( (vIt = mIter->value.FindMember("Length")) == mIter->value.MemberEnd() )
+		return false;
+	usint vectorLength = std::stoi(vIt->value.GetString());
+
 	if( (vIt = mIter->value.FindMember("VectorValues")) == mIter->value.MemberEnd() )
 		return false;
 
-	this->SetModulus(bbiModulus);
+	BigBinaryVectorImpl<IntegerType> newVec(vectorLength, bbiModulus);
 
 	IntegerType vectorElem;
-	usint ePos = 0;
 	const char *vp = vIt->value.GetString();
-	while( *vp != '\0' ) {
+	for( usint ePos = 0; ePos < vectorLength; ePos++ ) {
+		if( *vp == '\0' ) {
+			return false; // premature end of vector
+		}
 		vp = vectorElem.Deserialize(vp, bbiModulus);
-		this->SetValAtIndex(ePos++, vectorElem);
+		newVec[ePos] = vectorElem;
 	}
+
+	*this = std::move(newVec);
 
 	return true;
 }

@@ -819,6 +819,8 @@ public:
 		if( len )
 			value = (value<<len) | (lbcrypto::base64_to_value(*++str));
 
+		str++;
+
 		if( isneg )
 			value = (modulus.m_value - value);
 
@@ -826,6 +828,7 @@ public:
 		return str;
 	}
 
+    static const std::string IntegerTypeName() { return "NativeI"; }
 
 	/**
 	 * Get the number of digits using a specific base - support for arbitrary base may be needed.

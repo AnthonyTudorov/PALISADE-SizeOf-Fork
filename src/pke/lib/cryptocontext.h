@@ -1049,9 +1049,6 @@ public:
 			else if (parmstype == "LPCryptoParametersFV") {
 				return shared_ptr<LPCryptoParameters<Element>>(new LPCryptoParametersFV<Element>());
 			}
-			else if (parmstype == "LPCryptoParametersDCRT") { // fixme
-				return shared_ptr<LPCryptoParameters<Element>>();
-			}
 			else if (parmstype == "LPCryptoParametersStehleSteinfeld") {
 				return shared_ptr<LPCryptoParameters<Element>>(new LPCryptoParametersStehleSteinfeld<Element>());
 			}
