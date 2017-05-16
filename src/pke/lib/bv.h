@@ -432,6 +432,21 @@ namespace lbcrypto {
 		shared_ptr<Ciphertext<Element>> ReEncrypt(const shared_ptr<LPEvalKey<Element>> evalKey,
 			const shared_ptr<Ciphertext<Element>> ciphertext) const;
 
+	};
+
+	/**
+	* @brief Multiparty scheme based on BV.
+	* @tparam Element a ring element.
+	*/
+	template <class Element>
+	class LPAlgorithmMultipartyBV : public LPMultipartyAlgorithm<Element> {
+	public:
+
+		/**
+		 * Default constructor
+		 */
+		LPAlgorithmMultipartyBV() {}
+
 		/**
 		* Function to generate public and private keys where private keys are summation of two input keys.
 		*

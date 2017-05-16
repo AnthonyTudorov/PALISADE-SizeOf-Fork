@@ -163,6 +163,7 @@ public:
 
 };
 
+
 /**
 * @brief PRE scheme based on Null.
 * @tparam Element a ring element.
@@ -233,6 +234,20 @@ public:
 		shared_ptr<Ciphertext<Element>> newCiphertext( new Ciphertext<Element>(*ciphertext) );
 		return newCiphertext;
 	}
+
+};
+
+/**
+* @brief Multiparty scheme based on Null.
+* @tparam Element a ring element.
+*/
+template <class Element>
+class LPAlgorithmMultipartyNull : public LPMultipartyAlgorithm<Element> {
+public:
+	/**
+	 * Default constructor
+	 */
+	LPAlgorithmMultipartyNull() {}
 
 	/**
 	* Function to generate public and private keys where private keys are summation of two input keys.

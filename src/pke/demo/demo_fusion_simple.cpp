@@ -141,8 +141,9 @@ int main(int argc, char *argv[]) {
 
 	//Turn on features
 	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);	
-	cc.Enable(PRE);	
+	cc.Enable(SHE);
+	cc.Enable(PRE);
+	cc.Enable(MULTIPARTY);
 
 
 	std::cout << "p = " << cc.GetCryptoParameters()->GetPlaintextModulus() << std::endl;

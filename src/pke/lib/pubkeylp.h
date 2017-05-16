@@ -1027,6 +1027,16 @@ namespace lbcrypto {
 			virtual shared_ptr<Ciphertext<Element>> ReEncrypt(const shared_ptr<LPEvalKey<Element>> evalKey,
 				const shared_ptr<Ciphertext<Element>> ciphertext) const = 0;
 
+	};
+
+	/**
+	 * @brief Abstract interface class for LBC Multiparty algorithms
+	 * @tparam Element a ring element.
+	 */
+	template <class Element>
+	class LPMultipartyAlgorithm {
+		public:
+
 			/**
 			* Function to generate public and private keys where private keys are summation of two input keys.
 			*
@@ -1377,7 +1387,7 @@ namespace lbcrypto {
 
 	public:
 		LPPublicKeyEncryptionScheme() :
-			m_algorithmParamsGen(0), m_algorithmEncryption(0), m_algorithmPRE(0),
+			m_algorithmParamsGen(0), m_algorithmEncryption(0), m_algorithmPRE(0), m_algorithmMultiparty(0),
 			m_algorithmSHE(0), m_algorithmFHE(0), m_algorithmLeveledSHE(0) {}
 
 		virtual ~LPPublicKeyEncryptionScheme() {
@@ -1387,6 +1397,8 @@ namespace lbcrypto {
 				delete this->m_algorithmEncryption;
 			if (this->m_algorithmPRE != NULL)
 				delete this->m_algorithmPRE;
+			if (this->m_algorithmMultiparty != NULL)
+				delete this->m_algorithmMultiparty;
 			if (this->m_algorithmSHE != NULL)
 				delete this->m_algorithmSHE;
 			if (this->m_algorithmFHE != NULL)
@@ -1417,6 +1429,10 @@ namespace lbcrypto {
 					break;
 				 case LEVELEDSHE:
 					if (m_algorithmLeveledSHE!= NULL)
+						flag = true;
+					break;
+				 case MULTIPARTY:
+					if (m_algorithmMultiparty!= NULL)
 						flag = true;
 					break;
 			  }
@@ -1502,13 +1518,16 @@ namespace lbcrypto {
 				}
 		}
 
+		/////////////////////////////////////////
+		// the three functions below are wrappers for things in LPMultipartyAlgorithm (Multiparty)
+		//
 
 		// Wrapper for Fusion Key Gen
 		LPKeyPair<Element> FusionKeyGen(const CryptoContext<Element> cc,
 			const shared_ptr<LPPublicKey<Element>> kp1,
 			bool makeSparse) const {
-				if(this->m_algorithmPRE)
-					return this->m_algorithmPRE->FusionKeyGen(cc, kp1, makeSparse);
+				if(this->m_algorithmMultiparty)
+					return this->m_algorithmMultiparty->FusionKeyGen(cc, kp1, makeSparse);
 				else {
 					throw std::logic_error("FusionKeyGen operation has not been enabled");
 				}
@@ -1519,8 +1538,8 @@ namespace lbcrypto {
 			const shared_ptr<LPPrivateKey<Element>> kp1,
 			const shared_ptr<LPPrivateKey<Element>> kp2,
 			bool makeSparse) const {
-				if(this->m_algorithmPRE)
-					return this->m_algorithmPRE->FusionKeyGen(cc, kp1, kp2, makeSparse);
+				if(this->m_algorithmMultiparty)
+					return this->m_algorithmMultiparty->FusionKeyGen(cc, kp1, kp2, makeSparse);
 				else {
 					throw std::logic_error("FusionKeyGen operation has not been enabled");
 				}
@@ -1528,8 +1547,8 @@ namespace lbcrypto {
 
 		DecryptResult FusionDecryptMain(const shared_ptr<LPPrivateKey<Element>> privateKey, const shared_ptr<Ciphertext<Element>> ciphertext,
 				ILVector2n *plaintext) const {
-				if(this->m_algorithmPRE)
-					return this->m_algorithmPRE->FusionDecryptMain(privateKey,ciphertext,plaintext);
+				if(this->m_algorithmMultiparty)
+					return this->m_algorithmMultiparty->FusionDecryptMain(privateKey,ciphertext,plaintext);
 				else {
 					throw std::logic_error("FusionDecryptMain operation has not been enabled");
 				}
@@ -1537,8 +1556,8 @@ namespace lbcrypto {
 
 		DecryptResult FusionDecryptMaster(const shared_ptr<LPPrivateKey<Element>> privateKey, const shared_ptr<Ciphertext<Element>> ciphertext,
 				ILVector2n *plaintext) const {
-				if(this->m_algorithmPRE)
-					return this->m_algorithmPRE->FusionDecryptMaster(privateKey,ciphertext,plaintext);
+				if(this->m_algorithmMultiparty)
+					return this->m_algorithmMultiparty->FusionDecryptMaster(privateKey,ciphertext,plaintext);
 				else {
 					throw std::logic_error("FusionDecryptMaster operation has not been enabled");
 				}
@@ -1766,6 +1785,7 @@ namespace lbcrypto {
 		const LPParameterGenerationAlgorithm<Element> *m_algorithmParamsGen;
 		const LPEncryptionAlgorithm<Element> *m_algorithmEncryption;
 		const LPPREAlgorithm<Element> *m_algorithmPRE;
+		const LPMultipartyAlgorithm<Element> *m_algorithmMultiparty;
 		const LPSHEAlgorithm<Element> *m_algorithmSHE;
 		const LPFHEAlgorithm<Element> *m_algorithmFHE;
 		const LPLeveledSHEAlgorithm<Element> *m_algorithmLeveledSHE;
