@@ -513,6 +513,23 @@ namespace lbcrypto {
 		shared_ptr<Ciphertext<Element>> ReEncrypt(const shared_ptr<LPEvalKey<Element>> evalKey,
 			const shared_ptr<Ciphertext<Element>> ciphertext) const;
 
+	};
+
+
+
+	/**
+	* @brief Multiparty scheme based on FV. This functionality is currently DISABLED in LPPublicKeyEncryptionSchemeFV because
+	* it needs more testing
+	* @tparam Element a ring element.
+	*/
+	template <class Element>
+	class LPAlgorithmMultipartyFV : public LPMultipartyAlgorithm<Element> {
+	public:
+
+		/**
+		* Default constructor
+		*/
+		LPAlgorithmMultipartyFV() {}
 
 		/**
 		* Function to generate public and private keys where private keys are summation of two input keys.
@@ -565,6 +582,7 @@ namespace lbcrypto {
 			ILVector2n *plaintext) const;
 
 	};
+
 
 
 	/**

@@ -303,6 +303,22 @@ public:
 	shared_ptr<Ciphertext<Element>> ReEncrypt(const shared_ptr<LPEvalKey<Element>> evalKey,
 		const shared_ptr<Ciphertext<Element>> ciphertext) const;
 	
+};
+
+/**
+ * @brief This is the algorithms class for the Multiparty computation method for LTV.  It is not implemented.
+ *
+* @tparam Element a ring element.
+*/
+template <class Element>
+class LPAlgorithmMultipartyLTV : public LPMultipartyAlgorithm<Element> {
+public:
+
+	/**
+	* Default constructor
+	*/
+	LPAlgorithmMultipartyLTV() {}
+
 	/**
 	* Function to generate public and private keys where private keys are summation of two input keys.
 	*
@@ -366,7 +382,6 @@ public:
 		std::string errMsg = "LPAlgorithmPRELTV::FusionDecryptMaster is not implemented for the LTV Scheme.";
 		throw std::runtime_error(errMsg);
 	}
-
 };
 
 /**
