@@ -102,9 +102,9 @@ namespace lbcrypto {
 		virtual ~ElemParams() {}
 
 		// GETTERS
-		const usint GetCyclotomicOrder() const { return cyclotomicOrder; }
+		usint GetCyclotomicOrder() const { return cyclotomicOrder; }
 
-		const usint GetRingDimension() const { return ringDimension; }
+		usint GetRingDimension() const { return ringDimension; }
 
 		const bool OrderIsPowerOfTwo() const { return isPowerOfTwo; }
 

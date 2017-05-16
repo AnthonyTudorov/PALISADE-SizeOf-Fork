@@ -98,7 +98,7 @@ public:
 	int32_t EvalToInt(uint32_t modulus) const;
 	
 	friend std::ostream& operator<<(std::ostream& out, const IntPlaintextEncoding& item) {
-		for( int i=0; i<item.size(); i++ )
+		for( size_t i=0; i<item.size(); i++ )
 			out << "\t" << item.at(i);
 		return out;
 	}

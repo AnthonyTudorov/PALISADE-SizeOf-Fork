@@ -72,12 +72,12 @@ $(PKEBINDIR)/%:
 	@if [ "$(suffix $@)" = ".o" ] ;   \
 	then  \
 		mkdir -p $(@D)  ;\
-		echo $(CC) -fPIC $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(PKEBINDIR)/%,$(PKESRCDIR)/%,$(patsubst %.o,%.cpp,$@))  ;\
+		echo $(CC) $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(PKEBINDIR)/%,$(PKESRCDIR)/%,$(patsubst %.o,%.cpp,$@))  ;\
 		$(CC) -MM $(CPPFLAGS) $(INC) $(patsubst $(PKEBINDIR)/%,$(PKESRCDIR)/%,$(patsubst %.o,%.cpp,$@)) > $(patsubst %.o,%.d,$@) ;\
 		mv -f $(patsubst %.o,%.d,$@) $(patsubst %.o,%.d.tmp,$@)  ;\
 		sed -e 's|.*\.o:|$(PKEBINDIR)/$*:|' < $(patsubst %.o,%.d.tmp,$@) > $(patsubst %.o,%.d,$@)  ;\
 		rm -f $(patsubst %.o,%.d.tmp,$@)  ; \
-		$(CC) -fPIC $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(PKEBINDIR)/%,$(PKESRCDIR)/%,$(patsubst %.o,%.cpp,$@))  ;\
+		$(CC) $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(PKEBINDIR)/%,$(PKESRCDIR)/%,$(patsubst %.o,%.cpp,$@))  ;\
 	fi
 
 .PHONY: cleanpke 

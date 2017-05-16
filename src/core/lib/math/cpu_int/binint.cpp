@@ -32,15 +32,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 namespace cpu_int {
 
-//static uschar* dec2bin(uschar a); //TODO DBC UNUSED REMOVE
-static void printArray(uschar *a,int size);
-
-void printArray(uschar *a,int size){
-		for(int i=0;i<size;i++)
-			std::cout<<(int)*(a+i)<<" ";
-		std::cout<<std::endl;
-	}
-
 //constant static member variable initialization of 0
 template<typename uint_type,usint BITLENGTH>
 const BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::ZERO = BigBinaryInteger(0);
@@ -127,7 +118,7 @@ BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger(uint64_t init){
 
 	uint_type ceilInt = ceilIntByUInt(msb);
 	//setting the values of the array
-	for(sint i= m_nSize-1;i>= m_nSize-ceilInt;i--){
+	for(size_t i= m_nSize-1;i>= m_nSize-ceilInt;i--){
 		this->m_value[i] = (uint_type)init;
 		init>>=m_uintBitLength;
 	}
@@ -526,7 +517,6 @@ const char *BigBinaryInteger<uint_type, BITLENGTH>::Deserialize(const char *str,
 
 	// first decode the length
 	uint32_t len = 0;
-	unsigned char ch;
 
 	while(true) {
 		if( *str == '-' || *str == '*' ) break;
@@ -588,7 +578,7 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Plu
 	uint_type ceilIntA = ceilIntByUInt(A->m_MSB);
 	//position from B to start addition
 	uint_type ceilIntB = ceilIntByUInt(B->m_MSB);
-	sint i;//counter
+	size_t i;//counter
         // DTS: TODO: verify that the sign/unsigned compare is valid here. it seems to have the same form as the bugs fixed above, but i did not observe any crashes in this function (perhaps it was never exercised)
         // a safer alternative would be something like what follows (the loops i fixed above could use the same structure; note all variables become unsigned and all loop indices start from zero):
         // for (usint j = 0; j < m_nSize - CeilIntB /*&& j < m_nSize*/; ++j) {
@@ -710,7 +700,7 @@ void BigBinaryInteger<uint_type, BITLENGTH>::Times(const BigBinaryInteger& b, Bi
 	//Multiplication is done by getting a uint_type from b and multiplying it with *this
 	//after multiplication the result is shifted and added to the final answer
 	BigBinaryInteger temp;
-	for(sint i= m_nSize-1;i>= m_nSize-ceilInt;i--){
+	for(size_t i= m_nSize-1;i>= m_nSize-ceilInt;i--){
 		this->MulIntegerByCharInPlace(b.m_value[i], &temp);
 		*ans += temp<<=( m_nSize-1-i)*m_uintBitLength;
 	}
@@ -745,7 +735,7 @@ const BigBinaryInteger<uint_type,BITLENGTH>& BigBinaryInteger<uint_type,BITLENGT
 	uint_type ceilIntB = ceilIntByUInt(B->m_MSB);
 
 	//counter
-	sint i;
+	size_t i;
         // DTS: watch sign/unsign compare!!!!
 	for(i=m_nSize-1;i>=m_nSize-ceilIntB;i--){
 		ofl =(Duint_type)A->m_value[i]+ (Duint_type)B->m_value[i]+ofl;//sum of the two apint and the carry over
@@ -754,8 +744,7 @@ const BigBinaryInteger<uint_type,BITLENGTH>& BigBinaryInteger<uint_type,BITLENGT
 	}
 
 	if(ofl){
-		// DTS: watch sign/unsign compare!!!!
-		for(;i>=static_cast<sint>(m_nSize-ceilIntA);i--){
+		for(;i>=(m_nSize-ceilIntA);i--){
 			ofl = (Duint_type)A->m_value[i]+ofl;//sum of the two int and the carry over
 			this->m_value[i] = (uint_type)ofl;
 			ofl>>=m_uintBitLength;//current overflow
@@ -771,8 +760,7 @@ const BigBinaryInteger<uint_type,BITLENGTH>& BigBinaryInteger<uint_type,BITLENGT
 		}
 	}
 	else{
-		// DTS: watch sign/unsign compare!!!!
-		for(;i>=static_cast<sint>(m_nSize-ceilIntA);i--){//NChar-ceil(MSB/8)
+		for(;i>=(m_nSize-ceilIntA);i--) {
 			this->m_value[i] = A->m_value[i];
 		}
 		this->m_MSB = (m_nSize-i-2)*m_uintBitLength;
@@ -847,7 +835,7 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mul
 	Duint_type temp=0;
 	//overflow value
 	uint_type ofl=0;
-	sint i= m_nSize-1;
+	size_t i= m_nSize-1;
 
 	for(;i>=endVal ;i--){
 		temp = ((Duint_type)m_value[i]*(Duint_type)b) + ofl;
@@ -884,7 +872,7 @@ void BigBinaryInteger<uint_type, BITLENGTH>::MulIntegerByCharInPlace(uint_type b
 	Duint_type temp = 0;
 	//overflow value
 	uint_type ofl = 0;
-	sint i = m_nSize - 1;
+	size_t i = m_nSize - 1;
 
 	for (; i >= endVal; i--) {
 		temp = ((Duint_type)m_value[i] * (Duint_type)b) + ofl;
@@ -924,12 +912,8 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Div
 	BigBinaryInteger normalised_dividend( this->Minus( this->Mod(b) ) );
 	//Number of array elements in Divisor
 	uint_type ncharInDivisor = ceilIntByUInt(b.m_MSB);
-	//Get the uint integer that is in the MSB position of the Divisor
-	uint_type msbCharInDivisor = b.m_value[(usint)( m_nSize-ncharInDivisor)];
 	//Number of array elements in Normalised_dividend
 	uint_type ncharInNormalised_dividend = ceilIntByUInt(normalised_dividend.m_MSB);
-	////Get the uint integer that is in the MSB position of the normalised_dividend
-	uint_type msbCharInRunning_Normalised_dividend = normalised_dividend.m_value[(usint)( m_nSize-ncharInNormalised_dividend)];
 	//variable to store the running dividend
 	BigBinaryInteger running_dividend;
 	//variable to store the running remainder
@@ -1696,11 +1680,11 @@ const std::string BigBinaryInteger<uint_type,BITLENGTH>::ToString() const{
 	uschar *print_VALUE = new uschar[m_numDigitInPrintval];
 
 	//reset to zero
-	for(sint i=0;i<m_numDigitInPrintval;i++)
+	for(size_t i=0;i<m_numDigitInPrintval;i++)
 		*(print_VALUE+i)=0;
 
 	//starts the conversion from base r to decimal value
-	for(sint i=this->m_MSB;i>0;i--){
+	for(size_t i=this->m_MSB;i>0;i--){
 
 		//print_VALUE = print_VALUE*2
 		BigBinaryInteger<uint_type,BITLENGTH>::double_bitVal(print_VALUE);	
@@ -1975,12 +1959,8 @@ BigBinaryInteger<uint_type, BITLENGTH> BigBinaryInteger<uint_type, BITLENGTH>::D
 	BigBinaryInteger normalised_dividend(*this);
 	//Number of array elements in Divisor
 	uint_type ncharInDivisor = ceilIntByUInt(q.m_MSB);
-	//Get the uint integer that is in the MSB position of the Divisor
-	uint_type msbCharInDivisor = q.m_value[(usint)(m_nSize - ncharInDivisor)];
 	//Number of array elements in Normalised_dividend
 	uint_type ncharInNormalised_dividend = ceilIntByUInt(normalised_dividend.m_MSB);
-	////Get the uint integer that is in the MSB position of the normalised_dividend
-	uint_type msbCharInRunning_Normalised_dividend = normalised_dividend.m_value[(usint)(m_nSize - ncharInNormalised_dividend)];
 	//variable to store the running dividend
 	BigBinaryInteger running_dividend;
 	//variable to store the running remainder
@@ -2121,23 +2101,23 @@ std::ostream& operator<<(std::ostream& os, const BigBinaryInteger<uint_type_c,BI
 	uschar *print_VALUE = new uschar[ptr_obj.m_numDigitInPrintval];
 
 	//reset to zero
-	for(sint i=0;i<ptr_obj.m_numDigitInPrintval;i++)
+	for(size_t i=0;i<ptr_obj.m_numDigitInPrintval;i++)
 		*(print_VALUE+i)=0;
 
 	//starts the conversion from base r to decimal value
-	for(sint i=print_obj->m_MSB;i>0;i--){
+	for(size_t i=print_obj->m_MSB;i>0;i--){
 
 		//print_VALUE = print_VALUE*2
 		BigBinaryInteger<uint_type_c,BITLENGTH_c>::double_bitVal(print_VALUE);	
 #ifdef DEBUG_OSTREAM
-		for(sint i=0;i<ptr_obj.m_numDigitInPrintval;i++)
+		for(size_t i=0;i<ptr_obj.m_numDigitInPrintval;i++)
 		 std::cout<<(sint)*(print_VALUE+i);
 		std::cout<<endl;
 #endif
 		//adds the bit value to the print_VALUE
 		BigBinaryInteger<uint_type_c,BITLENGTH_c>::add_bitVal(print_VALUE,print_obj->GetBitAtIndex(i));
 #ifdef DEBUG_OSTREAM
-		for(sint i=0;i<ptr_obj.m_numDigitInPrintval;i++)
+		for(size_t i=0;i<ptr_obj.m_numDigitInPrintval;i++)
 		 std::cout<<(sint)*(print_VALUE+i);
 		std::cout<<endl;
 #endif
@@ -2208,7 +2188,7 @@ uschar BigBinaryInteger<uint_type,BITLENGTH>::GetBitAtIndex(usint index) const{
 	uint_type temp = this->m_value[idx];
 	uint_type bmask_counter = index%m_uintBitLength==0? m_uintBitLength:index%m_uintBitLength;//bmask is the bit number in the 8 bit array
 	uint_type bmask = 1;
-	for(sint i=1;i<bmask_counter;i++)
+	for(size_t i=1;i<bmask_counter;i++)
 		bmask<<=1;//generate the bitmask number
 	result = temp&bmask;//finds the bit in  bit format
 	result>>=bmask_counter-1;//shifting operation gives bit either 1 or 0

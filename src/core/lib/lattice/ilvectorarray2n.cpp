@@ -629,7 +629,7 @@ namespace lbcrypto {
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	bool ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::IsEmpty() const{
-		for(usint i=0;i<m_vectors.size();i++){
+		for(size_t i=0;i<m_vectors.size();i++){
 			if(!m_vectors.at(i).IsEmpty())
 				return false;
 		}

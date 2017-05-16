@@ -126,10 +126,6 @@ public:
 	 */
 	virtual ~ILParamsImpl() {}
 
-	// ACCESSORS
-
-	// Get accessors
-
 	/**
 	 * Equal operator compares ElemParams (which will be dynamic casted)
 	 *

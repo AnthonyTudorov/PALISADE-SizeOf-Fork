@@ -98,7 +98,7 @@ public:
 		if( moduli.size() != rootsOfUnity.size() )
 			throw std::logic_error("sizes of moduli and roots of unity do not match");
 
-		for( int i=0; i<moduli.size(); i++ ) {
+		for( size_t i=0; i<moduli.size(); i++ ) {
 			m_parms.push_back( std::shared_ptr<native64::ILParams>( new native64::ILParams(cyclotomic_order, moduli[i], rootsOfUnity[i]) ) );
 		}
 		RecalculateModulus();
@@ -112,7 +112,7 @@ public:
 	 */
 	ILDCRTParams(const usint cyclotomic_order, const std::vector<native64::BigBinaryInteger> &moduli)
 		: ElemParams<IntType>(cyclotomic_order) {
-		for( int i=0; i<moduli.size(); i++ ) {
+		for( size_t i=0; i<moduli.size(); i++ ) {
 			m_parms.push_back( std::shared_ptr<native64::ILParams>( new native64::ILParams(cyclotomic_order, moduli[i]) ) );
 		}
 		RecalculateModulus();
@@ -182,7 +182,7 @@ public:
 		if (m_parms.size() != dcrtParams->m_parms.size() )
 			return false;
 
-		for( int i=0; i < m_parms.size(); i++ ) {
+		for( size_t i=0; i < m_parms.size(); i++ ) {
 			if( *m_parms[i] != *dcrtParams->m_parms[i] )
 				return false;
 		}
@@ -206,7 +206,7 @@ private:
 		out << "ILDCRTParams ";
 		ElemParams<IntType>::doprint(out);
 		out << std::endl << " Parms:" << std::endl;
-		for( int i=0; i < m_parms.size(); i++ ) {
+		for( size_t i=0; i < m_parms.size(); i++ ) {
 			out << "   " << i << ":" << *m_parms[i] << std::endl;
 		}
 		return out;

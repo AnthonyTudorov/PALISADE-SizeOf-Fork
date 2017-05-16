@@ -166,7 +166,7 @@ namespace lbcrypto {
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(const ILVectorImpl &element, shared_ptr<ParmType>) : m_params(element.m_params), m_format(element.m_format)
+	ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(const ILVectorImpl &element, shared_ptr<ParmType>) : m_format(element.m_format), m_params(element.m_params)
 	{
    		bool dbg_flag = false;
     	if (!IsEmpty()){
@@ -186,7 +186,7 @@ namespace lbcrypto {
 
 	//this is the move
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&element, shared_ptr<ParmType>) : m_params(element.m_params), m_format(element.m_format)
+ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&element, shared_ptr<ParmType>) : m_format(element.m_format), m_params(element.m_params)
 	   //m_values(element.m_values) //note this becomes move below
 {
    bool dbg_flag = false;
@@ -281,10 +281,7 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 	const ILVectorImpl<ModType,IntType,VecType,ParmType>& ILVectorImpl<ModType,IntType,VecType,ParmType>::operator=(ILVectorImpl &&rhs) {
 
 		if (this != &rhs) {
-      //if (m_values) //DBC removed delete,
-      //delete m_values; no need to delete smart pointer.
-      m_values = std::move(rhs.m_values); // copy reference
-      //rhs.m_values = nullptr; 
+			m_values = std::move(rhs.m_values);
 			m_params = rhs.m_params;
 			m_format = rhs.m_format;
 		}

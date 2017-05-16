@@ -21,7 +21,7 @@ endif
 
 CC := g++ # This is the main compiler
 
-CPPSTD := -std=gnu++11
+CPPSTD := -std=gnu++11 -fPIC
 
 
 LIBSUFFIX := .so
