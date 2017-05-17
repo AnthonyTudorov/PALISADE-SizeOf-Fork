@@ -8,15 +8,19 @@
 #ifndef SRC_CIRCUIT_CIRCUITGRAPH_H_
 #define SRC_CIRCUIT_CIRCUITGRAPH_H_
 
-#include "circuitnode.h"
 #include <algorithm>
 #include <string>
 #include <vector>
 #include <map>
 #include <set>
+#include <queue>
 using namespace std;
 
-class CircuitSim;
+#include "palisade.h"
+#include "cryptocontext.h"
+using namespace lbcrypto;
+
+class CircuitNode;
 
 class CircuitGraph {
 	map<int,CircuitNode*>	allNodes;
@@ -48,7 +52,7 @@ public:
 
 	void DisplayGraph();
 	void DisplayAllDepths();
-	void Execute(CircuitSim *);
+	void Execute(CryptoContext<ILVector2n> cc);
 
 	CircuitNode *getNodeById(int id) {
 		map<int,CircuitNode*>::iterator it = allNodes.find(id);
@@ -58,10 +62,10 @@ public:
 		return it->second;
 	}
 
-	bool addNode(CircuitNode *n) {
-		if( nodeExists(n->GetId()) )
+	bool addNode(CircuitNode *n, int id) {
+		if( nodeExists(id) )
 			return false;
-		allNodes[n->GetId()] = n;
+		allNodes[id] = n;
 		return true;
 	}
 
@@ -90,10 +94,7 @@ public:
 	const vector<int>& getInputs() const { return inputs; }
 	const set<int>& getOutputs() const { return outputs; }
 
-	void resetAllDepths() {
-		for( auto it = allNodes.begin() ; it != allNodes.end() ; it++ )
-			it->second->resetDepth();
-	}
+	void resetAllDepths();
 
 	bool bindParameters(map<string,string>& nameMap, map<CircuitNode *, CircuitNode *>& valueMap);
 

@@ -17,19 +17,22 @@ using std::set;
 using std::ostream;
 
 #include "value.h"
-
-class CircuitGraph;
+#include "circuitgraph.h"
+#include "palisade.h"
+#include "cryptocontext.h"
 
 // This class is meant to represent a node in a circuit
 // the node can have several inputs, and it has one output
 // nodes are identified by a node id
 class CircuitNode {
+
 public:
 	CircuitNode(int nodeID) {
 		this->nodeId = nodeID;
 		this->nodeInputDepth = this->nodeOutputDepth = 0;
 		is_output = false;
 	}
+	virtual ~CircuitNode() {}
 
 	int GetId() const { return nodeId; }
 
@@ -61,7 +64,7 @@ public:
 
 	virtual uint32_t getRuntime() { return 0; }
 
-	virtual Value eval() {}
+	virtual Value eval(CryptoContext<ILVector2n>& cc, CircuitGraph& cg) { return value; }
 
 	friend ostream& operator<<(ostream& out, const CircuitNode& n);
 
@@ -81,10 +84,6 @@ public:
 	Input(int id) : CircuitNode(id) {}
 
 	string getNodeLabel() const { return "(input)"; }
-
-	Value eval() {
-		return value;
-	}
 };
 
 class Output : public CircuitNode {
@@ -94,6 +93,11 @@ public:
 	}
 
 	string getNodeLabel() const { return "(output)"; }
+
+	Value eval(CryptoContext<ILVector2n>& cc, CircuitGraph& cg) {
+		std::cout << "Eval of output node " << nodeId << " by evaluating " << inputs[0] << std::endl;
+		return value = cg.getNodeById(inputs[0])->eval(cc, cg);
+	}
 };
 
 class ModReduceNode : public CircuitNode {
@@ -106,7 +110,7 @@ public:
 	string getNodeLabel() const { return "M/R"; }
 	bool isModReduce() const { return true; }
 
-	Value eval() {}
+	Value eval(CryptoContext<ILVector2n>& cc, CircuitGraph& cg) {}
 };
 
 class EvalNegNode : public CircuitNode {
@@ -117,7 +121,7 @@ public:
 
 	string getNodeLabel() const { return "-"; }
 
-	Value eval() {}
+	Value eval(CryptoContext<ILVector2n>& cc, CircuitGraph& cg) {}
 };
 
 class EvalAddNode : public CircuitNode {
@@ -128,7 +132,19 @@ public:
 
 	string getNodeLabel() const { return "+"; }
 
-	Value eval() {}
+	Value eval(CryptoContext<ILVector2n>& cc, CircuitGraph& cg) {
+		std::cout << "Eval of ADD node " << nodeId << " by evaluating " << inputs[0] << " and " << inputs[1] << std::endl;
+
+		// gather together all of the inputs to this gate and add them
+		if( inputs.size() == 0 ) throw std::logic_error("Cannot add, no inputs");
+		else if( inputs.size() == 1 ) return cg.getNodeById( inputs[0] )->getValue();
+
+		shared_ptr<Ciphertext<ILVector2n>> sum = cc.EvalAdd(cg.getNodeById( inputs[0] )->getValue(), cg.getNodeById( inputs[1] )->getValue());
+
+		for( size_t i = 2; i < inputs.size(); i++ )
+			sum = cc.EvalAdd(sum, cg.getNodeById( inputs[i] )->getValue());
+		return value = sum;
+	}
 };
 
 class EvalSubNode : public CircuitNode {
@@ -139,7 +155,7 @@ public:
 
 	string getNodeLabel() const { return "-"; }
 
-	Value eval() {}
+	Value eval(CryptoContext<ILVector2n>& cc, CircuitGraph& cg) {}
 };
 
 class EvalMultNode : public CircuitNode {
@@ -151,7 +167,7 @@ public:
 	void setBottomUpDepth() { nodeInputDepth = nodeOutputDepth + 1; }
 	string getNodeLabel() const { return "*"; }
 
-	Value eval() {}
+	Value eval(CryptoContext<ILVector2n>& cc, CircuitGraph& cg) {}
 };
 
 #endif

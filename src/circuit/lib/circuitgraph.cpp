@@ -6,6 +6,9 @@
  */
 
 #include "circuitgraph.h"
+#include "circuitnode.h"
+#include "palisade.h"
+#include "cryptocontext.h"
 
 //CircuitGraph::CircuitGraph(const CircuitGraph& from)
 //{
@@ -111,23 +114,23 @@ CircuitGraph::DisplayAllDepths()
 }
 
 void
-CircuitGraph::Execute(CircuitSim *cs)
+CircuitGraph::Execute(CryptoContext<ILVector2n> cc)
 {
-//	resetAllDepths();
-//	Value::setPtmod(cs->getPlaintextModulus());
-//
-//	for( string output : cs->getOutputs() ) {
-//		CircuitNode *out = getNodeByName(output);
-//		out->setOutputDepth(1);
-//		out->processNodeDepth(this);
-//	}
-//
-//	for( string output : cs->getOutputs() ) {
-//		CircuitNode *out = getNodeByName(output);
-//		std::cout << "Processing " << output << std::endl;
-//		Value v = out->eval();
-//		std::cout << v << std::endl;
-//	}
+	std::cout << "resetting depths" << std::endl;
+	resetAllDepths();
+
+	for( int output : getOutputs() ) {
+		CircuitNode *out = getNodeById(output);
+		out->setOutputDepth(1);
+	}
+
+//	processNodeDepth();
+
+	for( int output : getOutputs() ) {
+		CircuitNode *out = getNodeById(output);
+		std::cout << "Processing output " << output << std::endl;
+		Value v = out->eval(cc, *this);
+	}
 }
 
 void
@@ -146,7 +149,7 @@ CircuitGraph::mergeGraph(CircuitGraph *newG)
 	for( auto it = nodes.begin(); it != nodes.end(); it++ ) {
 		// note we unmark each one of these nodes as outputs; they are not outputs of the larger graph they're joining
 		it->second->unsetAsOutput();
-		this->addNode(it->second);
+		this->addNode(it->second, it->second->GetId());
 	}
 }
 
@@ -186,7 +189,7 @@ insertMRbetween(CircuitGraph *g, CircuitNode *up, CircuitNode *down)
 	// remove inName from out; remove otherOut from inName
 	up->delOutput(inName);
 
-	return g->addNode(newMR);
+	return g->addNode(newMR, newMR->GetId());
 }
 
 void
@@ -237,6 +240,14 @@ CircuitGraph::processNodeDepth(CircuitNode *n, queue<CircuitNode *>& nodeQueue)
 //		else if( in->getOutputDepth() == inDepth ) { // do nothing; we are already at the proper depth }
 	}
 }
+
+void
+CircuitGraph::resetAllDepths()
+{
+	for( auto it = allNodes.begin() ; it != allNodes.end() ; it++ )
+		it->second->resetDepth();
+}
+
 
 void
 CircuitGraph::processNodeDepth()

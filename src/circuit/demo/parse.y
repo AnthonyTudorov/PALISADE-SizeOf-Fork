@@ -106,11 +106,12 @@ line:           command
 				}
 		| 		input
 				{
-					driver.graph.addNode($1);
+							driver.graph.addNode($1, $1->GetId());
 				}
 		|		OUTPUTS	numlist ENDLS
 				{
 					for( int i : $2 ) {
+						driver.graph.addOutput(i);
 						driver.graph.getNodeById(i)->setAsOutput();
 					}
 				}
@@ -121,7 +122,7 @@ line:           command
 		| 		gate
 				{
 					// put $1 in the CircuitGraph
-					driver.graph.addNode($1);
+					driver.graph.addNode($1, $1->GetId());
 					driver.graph.addInput($1->GetId());
 				}
 

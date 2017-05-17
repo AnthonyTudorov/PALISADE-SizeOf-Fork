@@ -79,7 +79,7 @@ GMPINCLUDE := -I third-party/include
 #EXTLIB := -L$(EXTLIBDIR) $(TEST_LIB) -pg #-lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt ## include profiling
 EXTLIB := -L$(EXTLIBDIR) $(NTLLIB) $(GMPLIB) $(TEST_LIB) #no profiling
 
-INC := -I src/core/lib -I src/pke/lib -I src/trapdoor/lib -I test $(OMPINCLUDE) $(NTLINCLUDE) $(GMPINCLUDE)
+INC := -I src/core/lib -I src/pke/lib -I src/trapdoor/lib -I src/circuit/lib -I test $(OMPINCLUDE) $(NTLINCLUDE) $(GMPINCLUDE)
 
 #the name of the shared object library for palisade objects.  
 PALISADECORELIB := libPALISADEcore$(LIBSUFFIX)

@@ -18,6 +18,8 @@ class CircuitNode;
 #include <iostream>
 using namespace std;
 
+// OLD DEPRECATED CODE
+
 class CircuitSim {
 	map<string, uint32_t> params;
 
@@ -33,8 +35,6 @@ public:
 	CircuitSim();
 	virtual ~CircuitSim() {}
 
-	uint32_t getRingDimension() { return params["ringdim"]; }
-	uint32_t getPlaintextModulus() { return params["ptmod"]; }
 	void setParam(string param, uint32_t value) { params[param] = value; }
 
 	void clearArgs() { argCollection.clear(); }
