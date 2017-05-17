@@ -333,11 +333,11 @@ TEST(UTLTVBATCHING, ILVector_EVALMULT_Arb) {
 	usint m = 22;
 	usint N = GetTotient(m);
 	usint p = 89; // we choose s.t. 2m|p-1 to leverage CRTArb
-	BigBinaryInteger modulusQ("68555213");
+	BigBinaryInteger modulusQ("72385066601");
 	BigBinaryInteger modulusP(p);
-	BigBinaryInteger rootOfUnity("68489508");
-	BigBinaryInteger bigmodulus("71547584689923634753");
-	BigBinaryInteger bigroot("69928215897849945789");
+	BigBinaryInteger rootOfUnity("69414828251");
+	BigBinaryInteger bigmodulus("77302754575416994210914689");
+	BigBinaryInteger bigroot("76686504597021638023705542");
 
 	auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulusQ);
 	//ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().PreCompute(m, modulusQ);
@@ -347,7 +347,7 @@ TEST(UTLTVBATCHING, ILVector_EVALMULT_Arb) {
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, rootOfUnity, bigmodulus, bigroot));
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, p, 8, stdDev);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, p, 1, stdDev);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 

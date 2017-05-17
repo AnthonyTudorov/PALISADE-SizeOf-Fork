@@ -55,6 +55,7 @@ int main(int argc, char *argv[])
 	
 	EvalMultSmallRing();
 
+
 	std::cin.get();
 
 	return 0;
@@ -120,11 +121,11 @@ void EvalMultSmallRing() {
 	usint m = 22;
 	usint N = GetTotient(m);
 	usint p = 89; // we choose s.t. 2m|p-1 to leverage CRTArb
-	BigBinaryInteger modulusQ("68555213");
+	BigBinaryInteger modulusQ("72385066601");
 	BigBinaryInteger modulusP(p);
-	BigBinaryInteger rootOfUnity("68489508");
-	BigBinaryInteger bigmodulus("71547584689923634753");
-	BigBinaryInteger bigroot("69928215897849945789");
+	BigBinaryInteger rootOfUnity("69414828251");
+	BigBinaryInteger bigmodulus("77302754575416994210914689");
+	BigBinaryInteger bigroot("76686504597021638023705542");
 
 	auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulusQ);
 	//ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().PreCompute(m, modulusQ);
@@ -134,7 +135,7 @@ void EvalMultSmallRing() {
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, rootOfUnity, bigmodulus, bigroot));
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, p, 8, stdDev);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, p, 1, stdDev);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 
@@ -146,15 +147,17 @@ void EvalMultSmallRing() {
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextResult;
 
 	std::vector<usint> vectorOfInts1;
-	for (usint i = 0; i < N; i++) {
+	/*for (usint i = 0; i < N; i++) {
 		vectorOfInts1.push_back(1);
-	}
+	}*/
+	vectorOfInts1 = { 1,2,3,4,5,6,7,8,9,10 };
 	PackedIntPlaintextEncoding intArray1(vectorOfInts1);
 
 	std::vector<usint> vectorOfInts2;
-	for (usint i = 0; i < N; i++) {
+	/*for (usint i = 0; i < N; i++) {
 		vectorOfInts2.push_back(2);
-	}
+	}*/
+	vectorOfInts2 = { 10,9,8,7,6,5,4,3,2,1 };
 	PackedIntPlaintextEncoding intArray2(vectorOfInts2);
 
 	ciphertext1 = cc.Encrypt(kp.publicKey, intArray1, false);

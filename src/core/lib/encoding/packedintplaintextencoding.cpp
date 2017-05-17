@@ -119,7 +119,7 @@ namespace lbcrypto {
 			}
 			else {
 				this->initRoot = RootOfUnity<BigBinaryInteger>(2*m, modulus);
-				usint nttDim = pow(2, ceil(log2(2 * m - 1)));;
+				usint nttDim = pow(2, ceil(log2(2 * m - 1)));
 				this->bigMod = FindPrimeModulus<BigBinaryInteger>(nttDim , log2(nttDim) + 2 * modulus.GetMSB());
 				this->bigRoot = RootOfUnity<BigBinaryInteger>(nttDim, bigMod);
 				auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulus);
