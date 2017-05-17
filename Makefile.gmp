@@ -9,7 +9,7 @@ clean: clean_gmp
 #note change the following directory to the correct one on your install
 
 PALISADE_DIR := $(PWD)
-GMP_VER :=6.1.1
+GMP_VER :=6.1.2
 
 #check if the palisade directory is correct
 ifneq ($(wildcard $(PALISADE_DIR)), )

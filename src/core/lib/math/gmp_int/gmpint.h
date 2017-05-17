@@ -350,6 +350,15 @@ namespace NTL{
      * @return resulting bit.
      */
     uschar GetBitAtIndex(usint index) const;
+
+    /**
+     * Gets 6 bits at the specified index. Right fill with 0
+     *
+     * @param index is the index of the bit to get.
+     * @return resulting bits.
+     */
+    uschar Get6BitsAtIndex(usint index) const;
+
     /**
      * function to return the ceiling of the input number divided by
      * the number of bits in the limb data type.  DBC this is to
