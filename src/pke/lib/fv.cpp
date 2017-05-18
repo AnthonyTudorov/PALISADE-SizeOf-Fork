@@ -795,7 +795,7 @@ DecryptResult LPAlgorithmMultipartyFV<Element>::FusionDecryptMain(const shared_p
 }
 
 template <class Element>
-DecryptResult LPAlgorithmMultipartyFV<Element>::FusionDecryptMaster(const shared_ptr<LPPrivateKey<Element>> privateKey,
+shared_ptr<Ciphertext<Element>> LPAlgorithmMultipartyFV<Element>::FusionDecryptMaster(const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const shared_ptr<Ciphertext<Element>> ciphertext,
 		ILVector2n *plaintext) const
 {
@@ -817,7 +817,17 @@ DecryptResult LPAlgorithmMultipartyFV<Element>::FusionDecryptMaster(const shared
 	
 	*plaintext = b.CRTInterpolate();
 
-	return DecryptResult(plaintext->GetLength());
+	//return DecryptResult(plaintext->GetLength());
+
+	shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext->GetCryptoContext()));
+
+	Element c1 = b;
+
+	newCiphertext->SetElements({ b });
+	//newCiphertext->SetElements({ b, c1 });
+	return newCiphertext;
+
+
 }
 
 // Constructor for LPPublicKeyEncryptionSchemeFV
