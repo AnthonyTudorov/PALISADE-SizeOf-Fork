@@ -563,9 +563,9 @@ namespace lbcrypto {
 		* @param privateKey private key used for decryption.
 		* @param ciphertext ciphertext to be decrypted.
 		* @param *plaintext the plaintext output.
-		* @return the decrypted plaintext returned.
+		* @return resulting ciphertext after the decryption master operation.
 		*/
-		DecryptResult FusionDecryptMain(const shared_ptr<LPPrivateKey<Element>> privateKey,
+		shared_ptr<Ciphertext<Element>> FusionDecryptMain(const shared_ptr<LPPrivateKey<Element>> privateKey,
 			const shared_ptr<Ciphertext<Element>> ciphertext,
 			ILVector2n *plaintext) const;
 
@@ -581,8 +581,21 @@ namespace lbcrypto {
 			const shared_ptr<Ciphertext<Element>> ciphertext,
 			ILVector2n *plaintext) const;
 
-	};
+		/**
+		* Method for decrypting using FV
+		*
+		* @param privateKey private key used for decryption.
+		* @param ciphertext1 ciphertext to be decrypted.
+		* @param ciphertext2 ciphertext to be decrypted.
+		* @param *plaintext the plaintext output.
+		* @return the decrypted plaintext returned.
+		*/
+		DecryptResult FusionDecrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
+			const shared_ptr<Ciphertext<Element>> ciphertext1,
+			const shared_ptr<Ciphertext<Element>> ciphertext2,
+			ILVector2n *plaintext) const;
 
+	};
 
 
 	/**
