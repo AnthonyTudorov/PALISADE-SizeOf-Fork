@@ -1081,9 +1081,9 @@ namespace lbcrypto {
 			 * @param &privateKey private key used for decryption.
 			 * @param &ciphertext ciphertext id decrypted.
 			 * @param *plaintext the plaintext output.
-			 * @return the decoding result.
+			 * @param *newCiphertext the new ciphertext.
 			 */
-			virtual DecryptResult FusionDecryptMaster(const shared_ptr<LPPrivateKey<Element>> privateKey,
+			virtual shared_ptr<Ciphertext<Element>> FusionDecryptMaster(const shared_ptr<LPPrivateKey<Element>> privateKey,
 				const shared_ptr<Ciphertext<Element>> ciphertext,
 				ILVector2n *plaintext) const = 0;
 
@@ -1554,7 +1554,7 @@ namespace lbcrypto {
 				}
 		}
 
-		DecryptResult FusionDecryptMaster(const shared_ptr<LPPrivateKey<Element>> privateKey, const shared_ptr<Ciphertext<Element>> ciphertext,
+		shared_ptr<Ciphertext<Element>> FusionDecryptMaster(const shared_ptr<LPPrivateKey<Element>> privateKey, const shared_ptr<Ciphertext<Element>> ciphertext,
 				ILVector2n *plaintext) const {
 				if(this->m_algorithmMultiparty)
 					return this->m_algorithmMultiparty->FusionDecryptMaster(privateKey,ciphertext,plaintext);

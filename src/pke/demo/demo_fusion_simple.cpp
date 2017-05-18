@@ -352,12 +352,16 @@ int main(int argc, char *argv[]) {
 
 	start = currentDateTime();
 
-	DecryptResult resultNew1 = cc.FusionDecryptMaster(kp1.secretKey, ciphertextAddVectNew, &plaintextAddNew1, &partialPlaintext1, true);
+
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextPartial1;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextPartial2;
+
+	ciphertextPartial1 = cc.FusionDecryptMaster(kp1.secretKey, ciphertextAddVectNew, &plaintextAddNew1, &partialPlaintext1, true);
 	DecryptResult resultNew2 = cc.FusionDecryptMain(kp2.secretKey, ciphertextAddVectNew, &plaintextAddNew2, &partialPlaintext2, true);
 	//DecryptResult resultNewFinal = cc.FusionDecryptFinal(&plaintextAddNew1, &plaintextAddNew2, &plaintextAddNewFinal, true);
 
-	ILVector2n plaintextAddNewFinal = partialPlaintext1 + partialPlaintext2;
-	ILVector2n plaintextAddNewFinalMultRound = plaintextAddNewFinal.MultiplyAndRound(p, q).SignedMod(p);
+	//ILVector2n plaintextAddNewFinal = partialPlaintext1 + partialPlaintext2;
+	//ILVector2n plaintextAddNewFinalMultRound = plaintextAddNewFinal.MultiplyAndRound(p, q).SignedMod(p);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -375,6 +379,10 @@ int main(int argc, char *argv[]) {
 	cout << "\n Resulting Added Plaintext with Re-Encryption: \n";
 	cout << plaintextAddNew1 << endl;
 	cout << plaintextAddNew2 << endl;
+
+	
+	ILVector2n plaintextAddNewFinal = partialPlaintext1 + partialPlaintext2;
+	ILVector2n plaintextAddNewFinalMultRound = plaintextAddNewFinal.MultiplyAndRound(p, q).SignedMod(p);
 	cout << plaintextAddNewFinalMultRound << endl;
 
 	cout << "\n";

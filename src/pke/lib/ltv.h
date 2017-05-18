@@ -374,9 +374,9 @@ public:
 	 * @param privateKey Decryption key.
 	 * @param ciphertext Diphertext to be decrypted.
 	 * @param plaintext Plaintext result of Decrypt operation.
-	 * @return DecryptResult indicating success or failure and number of bytes decrypted.
+	 * @return resulting ciphertext after the decryption master operation.
 	 */
-	DecryptResult FusionDecryptMaster(const shared_ptr<LPPrivateKey<Element>> privateKey,
+	shared_ptr<Ciphertext<Element>> FusionDecryptMaster(const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const shared_ptr<Ciphertext<Element>> ciphertext,
 		ILVector2n *plaintext) const {
 		std::string errMsg = "LPAlgorithmPRELTV::FusionDecryptMaster is not implemented for the LTV Scheme.";
