@@ -345,6 +345,11 @@ int main(int argc, char *argv[]) {
 	ILVector2n partialPlaintext2;
 	//IntPlaintextEncoding plaintextAddNewFinal;
 
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextPartial1;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextPartial2;
+
+	IntPlaintextEncoding plaintextFusionNew;
+
 	const shared_ptr<LPCryptoParameters<ILVector2n>> cryptoParams = kp1.secretKey->GetCryptoParameters();
 	const shared_ptr<typename ILVector2n::Params> elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
@@ -352,38 +357,23 @@ int main(int argc, char *argv[]) {
 
 	start = currentDateTime();
 
-
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextPartial1;
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextPartial2;
-
 	ciphertextPartial1 = cc.FusionDecryptMaster(kp1.secretKey, ciphertextAddVectNew, &plaintextAddNew1, &partialPlaintext1, true);
-	DecryptResult resultNew2 = cc.FusionDecryptMain(kp2.secretKey, ciphertextAddVectNew, &plaintextAddNew2, &partialPlaintext2, true);
-	//DecryptResult resultNewFinal = cc.FusionDecryptFinal(&plaintextAddNew1, &plaintextAddNew2, &plaintextAddNewFinal, true);
-
-	//ILVector2n plaintextAddNewFinal = partialPlaintext1 + partialPlaintext2;
-	//ILVector2n plaintextAddNewFinalMultRound = plaintextAddNewFinal.MultiplyAndRound(p, q).SignedMod(p);
+	ciphertextPartial2 = cc.FusionDecryptMain(kp2.secretKey, ciphertextAddVectNew, &plaintextAddNew2, &partialPlaintext2, true);
+	DecryptResult resultFusion = cc.FusionDecrypt(kpFusion.secretKey, ciphertextPartial1, ciphertextPartial2, &plaintextFusionNew, true);
 
 	finish = currentDateTime();
 	diff = finish - start;
 
 	//std::cin.get();
 
-	plaintextAddNew1.resize(plaintext1.size());
-	plaintextAddNew2.resize(plaintext1.size());
-	//plaintextAddNewFinalMultRound.resize(plaintext1.size());
-
 	cout << "\n Original Plaintext: \n";
 	cout << plaintext1 << endl;
 	cout << plaintext2 << endl;
 
-	cout << "\n Resulting Added Plaintext with Re-Encryption: \n";
-	cout << plaintextAddNew1 << endl;
-	cout << plaintextAddNew2 << endl;
+	plaintextFusionNew.resize(plaintext1.size());
 
-	
-	ILVector2n plaintextAddNewFinal = partialPlaintext1 + partialPlaintext2;
-	ILVector2n plaintextAddNewFinalMultRound = plaintextAddNewFinal.MultiplyAndRound(p, q).SignedMod(p);
-	cout << plaintextAddNewFinalMultRound << endl;
+	cout << "\n Resulting Fused Plaintext with Re-Encryption: \n";
+	cout << plaintextFusionNew << endl;
 
 	cout << "\n";
 
