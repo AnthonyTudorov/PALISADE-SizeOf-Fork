@@ -1094,8 +1094,7 @@ namespace lbcrypto {
 			 * @param *newCiphertext the new ciphertext.
 			 */
 			virtual shared_ptr<Ciphertext<Element>> FusionDecryptMain(const shared_ptr<LPPrivateKey<Element>> privateKey,
-				const shared_ptr<Ciphertext<Element>> ciphertext,
-				ILVector2n *plaintext) const = 0;
+				const shared_ptr<Ciphertext<Element>> ciphertext) const = 0;
 
 			/**
 			 * Method for decrypting plaintext using LBC
@@ -1106,8 +1105,7 @@ namespace lbcrypto {
 			 * @param *newCiphertext the new ciphertext.
 			 */
 			virtual shared_ptr<Ciphertext<Element>> FusionDecryptMaster(const shared_ptr<LPPrivateKey<Element>> privateKey,
-				const shared_ptr<Ciphertext<Element>> ciphertext,
-				ILVector2n *plaintext) const = 0;
+				const shared_ptr<Ciphertext<Element>> ciphertext) const = 0;
 
 
 			/**
@@ -1119,8 +1117,7 @@ namespace lbcrypto {
 			 * @param *plaintext the plaintext output.
 			 * @return the decoding result.
 			 */
-			virtual DecryptResult FusionDecrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
-				const shared_ptr<Ciphertext<Element>> ciphertext1,
+			virtual DecryptResult FusionDecrypt(const shared_ptr<Ciphertext<Element>> ciphertext1,
 				const shared_ptr<Ciphertext<Element>> ciphertext2,
 				ILVector2n *plaintext) const = 0;
 
@@ -1583,30 +1580,29 @@ namespace lbcrypto {
 				}
 		}
 
-		shared_ptr<Ciphertext<Element>> FusionDecryptMain(const shared_ptr<LPPrivateKey<Element>> privateKey, const shared_ptr<Ciphertext<Element>> ciphertext,
-				ILVector2n *plaintext) const {
+		shared_ptr<Ciphertext<Element>> FusionDecryptMain(const shared_ptr<LPPrivateKey<Element>> privateKey, 
+				const shared_ptr<Ciphertext<Element>> ciphertext) const {
 				if(this->m_algorithmMultiparty)
-					return this->m_algorithmMultiparty->FusionDecryptMain(privateKey,ciphertext,plaintext);
+					return this->m_algorithmMultiparty->FusionDecryptMain(privateKey,ciphertext);
 				else {
 					throw std::logic_error("FusionDecryptMain operation has not been enabled");
 				}
 		}
 
-		shared_ptr<Ciphertext<Element>> FusionDecryptMaster(const shared_ptr<LPPrivateKey<Element>> privateKey, const shared_ptr<Ciphertext<Element>> ciphertext,
-				ILVector2n *plaintext) const {
+		shared_ptr<Ciphertext<Element>> FusionDecryptMaster(const shared_ptr<LPPrivateKey<Element>> privateKey, 
+				const shared_ptr<Ciphertext<Element>> ciphertext) const {
 				if(this->m_algorithmMultiparty)
-					return this->m_algorithmMultiparty->FusionDecryptMaster(privateKey,ciphertext,plaintext);
+					return this->m_algorithmMultiparty->FusionDecryptMaster(privateKey,ciphertext);
 				else {
 					throw std::logic_error("FusionDecryptMaster operation has not been enabled");
 				}
 		}
 
-		DecryptResult FusionDecrypt(const shared_ptr<LPPrivateKey<Element>> privateKey, 
-				const shared_ptr<Ciphertext<Element>> ciphertext1,
+		DecryptResult FusionDecrypt(const shared_ptr<Ciphertext<Element>> ciphertext1,
 				const shared_ptr<Ciphertext<Element>> ciphertext2,
 				ILVector2n *plaintext) const {
 				if(this->m_algorithmMultiparty)
-					return this->m_algorithmMultiparty->FusionDecrypt(privateKey,ciphertext1,ciphertext2,plaintext);
+					return this->m_algorithmMultiparty->FusionDecrypt(ciphertext1,ciphertext2,plaintext);
 				else {
 					throw std::logic_error("FusionDecrypt operation has not been enabled");
 				}

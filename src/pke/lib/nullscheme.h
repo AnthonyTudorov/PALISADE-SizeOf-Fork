@@ -289,8 +289,7 @@ public:
 	* @return resulting ciphertext after the decryption master operation.
 	*/
 	shared_ptr<Ciphertext<Element>> FusionDecryptMain(const shared_ptr<LPPrivateKey<Element>> privateKey,
-		const shared_ptr<Ciphertext<Element>> ciphertext,
-		ILVector2n *plaintext) const {
+		const shared_ptr<Ciphertext<Element>> ciphertext) const {
 		std::string errMsg = "LPAlgorithmPRENull::FusionDecryptMain is not implemented for the Null Scheme.";
 		throw std::runtime_error(errMsg);
 	}
@@ -304,8 +303,7 @@ public:
 	* @return resulting ciphertext after the decryption master operation.
 	*/
 	shared_ptr<Ciphertext<Element>> FusionDecryptMaster(const shared_ptr<LPPrivateKey<Element>> privateKey,
-		const shared_ptr<Ciphertext<Element>> ciphertext,
-		ILVector2n *plaintext) const {
+		const shared_ptr<Ciphertext<Element>> ciphertext) const {
 		std::string errMsg = "LPAlgorithmPRENull::FusionDecryptMaster is not implemented for the Null Scheme.";
 		throw std::runtime_error(errMsg);
 	}
@@ -319,8 +317,7 @@ public:
 	* @param *plaintext the plaintext output.
 	* @return the success/fail result
 	*/
-	DecryptResult FusionDecrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
-		const shared_ptr<Ciphertext<Element>> ciphertext1,
+	DecryptResult FusionDecrypt(const shared_ptr<Ciphertext<Element>> ciphertext1,
 		const shared_ptr<Ciphertext<Element>> ciphertext2,
 		ILVector2n *plaintext) const {
 		std::string errMsg = "LPAlgorithmPREBV::FusionDecrypt is not implemented for the Null Scheme.";

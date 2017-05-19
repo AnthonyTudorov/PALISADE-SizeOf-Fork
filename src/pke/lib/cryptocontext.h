@@ -230,32 +230,17 @@ public:
 	*/
 	std::vector<shared_ptr<Ciphertext<Element>>> FusionDecryptMaster(
 		const shared_ptr<LPPrivateKey<Element>> privateKey,
-		const std::vector<shared_ptr<Ciphertext<Element>>>& ciphertext,
-		Plaintext *plaintext,
-		ILVector2n *partialPlaintext,
-		bool doPadding = true) const
+		const std::vector<shared_ptr<Ciphertext<Element>>>& ciphertext) const
 	{
 		if( privateKey == NULL || privateKey->GetCryptoContext() != *this )
 			throw std::logic_error("Information passed to Decrypt was not generated with this crypto context");
 
 		std::vector<shared_ptr<Ciphertext<Element>>> newCiphertext;
 
-		//Following will be trimmed.
-		ILVector2n decrypted;
-		int lastone = ciphertext.size() - 1;
-
 		for( int i=0; i < ciphertext.size(); i++ ) {
 			if( ciphertext[i] == NULL || ciphertext[i]->GetCryptoContext() != *this )
 				throw std::logic_error("One of the ciphertexts passed to DecryptMater was not generated with this crypto context");
-			newCiphertext.push_back( GetEncryptionAlgorithm()->FusionDecryptMaster(privateKey, ciphertext[i], &decrypted) );
-
-			//Following will be trimmed.
-			*partialPlaintext = decrypted;
-			plaintext->Decode(privateKey->GetCryptoParameters()->GetPlaintextModulus(), &decrypted);
-			if (i == lastone && doPadding) {
-				plaintext->Unpad(privateKey->GetCryptoParameters()->GetPlaintextModulus());
-			}
-
+			newCiphertext.push_back( GetEncryptionAlgorithm()->FusionDecryptMaster(privateKey, ciphertext[i]) );
 
 		}
 		return newCiphertext;
@@ -271,33 +256,17 @@ public:
 	*/
 	std::vector<shared_ptr<Ciphertext<Element>>> FusionDecryptMain(
 		const shared_ptr<LPPrivateKey<Element>> privateKey,
-		const std::vector<shared_ptr<Ciphertext<Element>>>& ciphertext,
-		Plaintext *plaintext,
-		ILVector2n *partialPlaintext,
-		bool doPadding = true) const
+		const std::vector<shared_ptr<Ciphertext<Element>>>& ciphertext) const
 	{
 		if( privateKey == NULL || privateKey->GetCryptoContext() != *this )
 			throw std::logic_error("Information passed to Decrypt was not generated with this crypto context");
 
 		std::vector<shared_ptr<Ciphertext<Element>>> newCiphertext;
 
-		//Following will be trimmed.
-		ILVector2n decrypted;
-		int lastone = ciphertext.size() - 1;
-
 		for( int i=0; i < ciphertext.size(); i++ ) {
 			if( ciphertext[i] == NULL || ciphertext[i]->GetCryptoContext() != *this )
 				throw std::logic_error("One of the ciphertexts passed to DecryptMater was not generated with this crypto context");
-			newCiphertext.push_back( GetEncryptionAlgorithm()->FusionDecryptMain(privateKey, ciphertext[i], &decrypted) );
-
-			//Following will be trimmed.
-			*partialPlaintext = decrypted;
-			plaintext->Decode(privateKey->GetCryptoParameters()->GetPlaintextModulus(), &decrypted);
-			if (i == lastone && doPadding) {
-				plaintext->Unpad(privateKey->GetCryptoParameters()->GetPlaintextModulus());
-			}
-
-
+			newCiphertext.push_back( GetEncryptionAlgorithm()->FusionDecryptMain(privateKey, ciphertext[i]) );
 		}
 		return newCiphertext;
 	}
@@ -312,7 +281,6 @@ public:
 	* @return size of plaintext
 	*/
 	DecryptResult FusionDecrypt(
-		const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const std::vector<shared_ptr<Ciphertext<Element>>>& ciphertext1,
 		const std::vector<shared_ptr<Ciphertext<Element>>>& ciphertext2,
 		Plaintext *plaintext,
@@ -322,21 +290,18 @@ public:
 		if (ciphertext1.size() == 0 || ciphertext2.size() == 0 || ciphertext1.size() != ciphertext1.size())
 			return DecryptResult();
 
-		if( privateKey == NULL || privateKey->GetCryptoContext() != *this )
-			throw std::logic_error("Information passed to Decrypt was not generated with this crypto context");
-
 		int lastone = ciphertext1.size() - 1;
 		for( int ch = 0; ch < ciphertext1.size(); ch++ ) {
 			if( ciphertext1[ch] == NULL || ciphertext1[ch]->GetCryptoContext() != *this || ciphertext2[ch] == NULL || ciphertext2[ch]->GetCryptoContext() != *this )
 				throw std::logic_error("A ciphertext passed to Decrypt was not generated with this crypto context");
 
 			ILVector2n decrypted;
-			DecryptResult result = GetEncryptionAlgorithm()->FusionDecrypt(privateKey, ciphertext1[ch], ciphertext2[ch], &decrypted);
+			DecryptResult result = GetEncryptionAlgorithm()->FusionDecrypt(ciphertext1[ch], ciphertext2[ch], &decrypted);
 
 			if (result.isValid == false) return result;
-			plaintext->Decode(privateKey->GetCryptoParameters()->GetPlaintextModulus(), &decrypted);
+			plaintext->Decode(ciphertext1[ch]->GetCryptoParameters()->GetPlaintextModulus(), &decrypted);
 			if (ch == lastone && doPadding) {
-				plaintext->Unpad(privateKey->GetCryptoParameters()->GetPlaintextModulus());
+				plaintext->Unpad(ciphertext1[ch]->GetCryptoParameters()->GetPlaintextModulus());
 			}
 		}
 
