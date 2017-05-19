@@ -94,11 +94,11 @@
 //Please UNCOMMENT the approproate line rather than changing the number on the 
 //uncommented line (and breaking the documentation of the line)
 
-#define MATHBACKEND 2 
+//#define MATHBACKEND 2 
 //#define MATHBACKEND 3 
 //#define MATHBACKEND 4 
 //#define MATHBACKEND 5 
-//#define MATHBACKEND 6 
+#define MATHBACKEND 6 
 //#define MATHBACKEND 7	// native64 native
 
 

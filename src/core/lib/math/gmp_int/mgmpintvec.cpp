@@ -812,23 +812,34 @@ namespace NTL {
 
   // JSON FACILITY - Serialize Operation
   template<class myT>
-  bool myVecP<myT>::Serialize(lbcrypto::Serialized* serObj) const 
-  {
+  bool myVecP<myT>::Serialize(lbcrypto::Serialized* serObj) const {
+    bool dbg_flag = true;
     if( !serObj->IsObject() )
       return false;
-
+    std::string modstring ="";
+    DEBUG("in Serialize");
+    if (this->isModulusSet()){
+      modstring = this->GetModulus().ToString();
+    }else{
+      modstring = "undefined";
+    }
+    DEBUG("modstring "<<modstring);
     lbcrypto::SerialItem bbvMap(rapidjson::kObjectType);
-    bbvMap.AddMember("Modulus", this->GetModulus().ToString(), serObj->GetAllocator()); 
+    bbvMap.AddMember("Modulus", modstring, serObj->GetAllocator()); 
 
     size_t pkVectorLength = this->size();
+    DEBUG ("size "<<pkVectorLength);
     if( pkVectorLength > 0 ) {
       std::string pkBufferString = this->at(0).Serialize();
       for (size_t i = 1; i < pkVectorLength; i++) {
 	pkBufferString += "|";
 	pkBufferString += this->at(i).Serialize();
+
       }
+      DEBUG("add VectorValues");
       bbvMap.AddMember("VectorValues", pkBufferString, serObj->GetAllocator());
     }
+      DEBUG("add myVecP");
     serObj->AddMember("myVecP", bbvMap, serObj->GetAllocator());
     return true;
   }
@@ -836,26 +847,43 @@ namespace NTL {
   // JSON FACILITY - Deserialize Operation
   template<class myT>
   bool myVecP<myT>::Deserialize(const lbcrypto::Serialized& serObj) {
+    bool dbg_flag = true;
   
-  lbcrypto::Serialized::ConstMemberIterator mIter = serObj.FindMember("myVecP");
-  if( mIter == serObj.MemberEnd() )
+    lbcrypto::Serialized::ConstMemberIterator mIter = serObj.FindMember("myVecP");
+    if( mIter == serObj.MemberEnd() ){
+      std::cerr<<"mgmpintvec.Deserialize() failed myVecP not found"<<std::endl;
       return false;
-
+    }    
     lbcrypto::SerialItem::ConstMemberIterator vIt;
-    if( (vIt = mIter->value.FindMember("Modulus")) == mIter->value.MemberEnd() )
+    if( (vIt = mIter->value.FindMember("Modulus")) == mIter->value.MemberEnd() ){
+      std::cerr<<"mgmpintvec.Deserialize() failed Modulus not found"<<std::endl;
       return false;
+    }
+    std::string strval(vIt->value.GetString());
+    DEBUG("getting modulus string "<<strval);
+    myZZ bbiModulus;
+    if (strval !="undefined"){
+      bbiModulus =  myZZ(strval);
+    }
+    DEBUG("===");
+    DEBUG("bbiModulus "<<bbiModulus);
+    DEBUG("===");
 
-    myT bbiModulus(vIt->value.GetString());
-  if( (vIt = mIter->value.FindMember("VectorValues")) == 
-    mIter->value.MemberEnd() )
+    if( (vIt = mIter->value.FindMember("VectorValues")) == 
+	mIter->value.MemberEnd() ){
+      std::cerr<<"mgmpintvec.Deserialize() failed VectorValues not found"<<std::endl;
       return false;
+    }    
     clear(*this);
+    DEBUG("set");
     this->SetModulus(bbiModulus);
-
+    DEBUG("myT");
     myT vectorElem;
     const char *vp = vIt->value.GetString();
     while( *vp != '\0' ) {
+      //DEBUG("deserialize");
       vp = vectorElem.Deserialize(vp);
+      //DEBUG("vE"<<vectorElem);
       this->push_back(vectorElem);
       if( *vp == '|' )
 	vp++;

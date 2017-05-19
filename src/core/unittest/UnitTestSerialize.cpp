@@ -58,6 +58,7 @@ protected:
 };
 
 TEST(UTSer,cpu_int){
+        bool dbg_flag = false;
 	BigBinaryInteger small(7);
 	BigBinaryInteger medium(1<<27 | 1<<22);
 	BigBinaryInteger larger((uint64_t)(1<<40) | 1<<22);
@@ -79,6 +80,9 @@ TEST(UTSer,cpu_int){
 	EXPECT_EQ(larger, deser) << "Larger integer ser/deser fails";
 
 	ser = yooge.Serialize();
+
+	DEBUG("SER "<<ser);
+
 	deser.Deserialize(ser.c_str());
 	EXPECT_EQ(yooge, deser) << "Yooge integer ser/deser fails";
 }
@@ -105,25 +109,34 @@ TEST(UTSer,native_int){
 }
 
 TEST(UTSer,vector_of_cpu_int){
+	bool dbg_flag = false;
 	const int vecsize = 100;
+
+	DEBUG("step 0");
 	const BigBinaryInteger mod((uint64_t)1<<40);
+	DEBUG("step 1");
 	BigBinaryVector	testvec(vecsize, mod);
+	DEBUG("step 2");
 	ILVector2n::DugType	dug;
+	DEBUG("step 3");
 	dug.SetModulus(mod);
 	BigBinaryInteger ranval;
+
 
 	for( int i=0; i<vecsize; i++ ) {
 		ranval = dug.GenerateInteger();
 		testvec.SetValAtIndex(i, ranval);
+		//DEBUG("loop "<<i);
 	}
 
+	DEBUG("step 4");
 	Serialized	ser;
 	ser.SetObject();
 	ASSERT_TRUE( testvec.Serialize(&ser) ) << "Serialization failed";
-
+	DEBUG("step 5");
 	BigBinaryVector newvec;
 	ASSERT_TRUE( newvec.Deserialize(ser) ) << "Deserialization failed";
-
+	DEBUG("step 6");
 	EXPECT_EQ( testvec, newvec ) << "Mismatch after ser/deser";
 }
 

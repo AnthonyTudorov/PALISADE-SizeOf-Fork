@@ -325,6 +325,7 @@ namespace NTL {
   // friend or inherit this? it is the same as gmpint
   const std::string myZZ_p::Serialize() const {
 
+#if 0
     std::string ans = "";
     //note limbs are now stored little endian in ubint
     const ZZ_limb_t *zlp = ZZ_limbs_get(this->_ZZ_p__rep);
@@ -337,6 +338,10 @@ namespace NTL {
       ans += (((zlp[i]) >> b64_shifts[5])&0x3) + 'A';
     }
     return ans;
+#else
+    //same as myZZ
+    return (myZZ(this->_ZZ_p__rep)).Serialize();
+#endif
   }
 
   /**
@@ -346,6 +351,8 @@ namespace NTL {
   const char * myZZ_p::Deserialize(const char *cp){
     clear(*this);
     myZZ(repZZ);
+#if 0
+
     vector<ZZ_limb_t> cv;
 
     while( *cp != '\0' && *cp != '|' ) {
@@ -357,8 +364,10 @@ namespace NTL {
       converted |= ((*cp++ - 'A')&0x3) << b64_shifts[5];
       cv.push_back(converted);
     }
-
     ZZ_limbs_set(repZZ, cv.data(), cv.size());
+#else
+    cp = repZZ.Deserialize(cp);    
+#endif
     *this=myZZ_p(repZZ);
     SetMSB();
     return cp;
