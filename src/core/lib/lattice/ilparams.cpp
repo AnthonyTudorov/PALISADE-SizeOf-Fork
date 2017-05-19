@@ -52,10 +52,13 @@ namespace lbcrypto {
 			if( !serObj->IsObject() )
 				return false;
 
-			ElemParams<IntType>::Serialize(serObj);
-
 			SerialItem ser(rapidjson::kObjectType);
-			ser.AddMember("RootOfUnity", this->GetRootOfUnity().ToString(), serObj->GetAllocator());
+			ser.AddMember("Order", std::to_string(this->cyclotomicOrder), serObj->GetAllocator());
+			ser.AddMember("RingDim", std::to_string(this->ringDimension), serObj->GetAllocator());
+			ser.AddMember("CtModulus", this->ciphertextModulus.ToString(), serObj->GetAllocator());
+			ser.AddMember("RootOfUnity", this->rootOfUnity.ToString(), serObj->GetAllocator());
+			ser.AddMember("BigCtModulus", this->bigCiphertextModulus.ToString(), serObj->GetAllocator());
+			ser.AddMember("BigRootOfUnity", this->bigRootOfUnity.ToString(), serObj->GetAllocator());
 
 			serObj->AddMember("ILParams", ser, serObj->GetAllocator());
 
@@ -78,19 +81,38 @@ namespace lbcrypto {
 
 			SerialItem::ConstMemberIterator oIt;
 
-			if( (oIt = mIter->value.FindMember("Modulus")) == mIter->value.MemberEnd() )
-				return false;
-			IntType bbiModulus(oIt->value.GetString());
-
 			if( (oIt = mIter->value.FindMember("Order")) == mIter->value.MemberEnd() )
 				return false;
 			usint order = atoi(oIt->value.GetString());
+
+			if( (oIt = mIter->value.FindMember("RingDim")) == mIter->value.MemberEnd() )
+				return false;
+			usint ringdim = atoi(oIt->value.GetString());
+
+			if( (oIt = mIter->value.FindMember("CtModulus")) == mIter->value.MemberEnd() )
+				return false;
+			IntType CtModulus(oIt->value.GetString());
 
 			if( (oIt = mIter->value.FindMember("RootOfUnity")) == mIter->value.MemberEnd() )
 				return false;
 			IntType RootOfUnity(oIt->value.GetString());
 
+			if( (oIt = mIter->value.FindMember("BigCtModulus")) == mIter->value.MemberEnd() )
+				return false;
+			IntType BigCtModulus(oIt->value.GetString());
+
+			if( (oIt = mIter->value.FindMember("BigRootOfUnity")) == mIter->value.MemberEnd() )
+				return false;
+			IntType BigRootOfUnity(oIt->value.GetString());
+
+			this->cyclotomicOrder = order;
+			this->ringDimension = ringdim;
+			this->isPowerOfTwo = this->ringDimension == this->cyclotomicOrder / 2;
+			this->ciphertextModulus = CtModulus;
 			this->rootOfUnity = RootOfUnity;
+			this->bigCiphertextModulus = BigCtModulus;
+			this->bigRootOfUnity = BigRootOfUnity;
+
 			return true;
 		}
 

@@ -65,7 +65,14 @@ ILDCRTParams<IntType>::Deserialize(const Serialized& serObj)
 		return false;
 	}
 
-	return DeserializeVectorOfPointers<native64::ILParams>("Params", "ILParams", it, &this->m_parms);
+	if( DeserializeVectorOfPointers<native64::ILParams>("Params", "ILParams", it, &this->m_parms) == false )
+		return false;
+
+	this->cyclotomicOrder = this->m_parms[0]->GetCyclotomicOrder();
+	this->ringDimension = this->m_parms[0]->GetRingDimension();
+	this->isPowerOfTwo = this->ringDimension == this->cyclotomicOrder / 2;
+
+	RecalculateModulus();
 }
 
 
