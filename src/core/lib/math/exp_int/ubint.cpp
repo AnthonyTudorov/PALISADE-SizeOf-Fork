@@ -223,10 +223,10 @@ namespace exp_int {
   }
 #endif
   //this is the zero allocator for the palisade matrix class
-//  template<typename limb_t>
-//  std::function<unique_ptr<ubint<limb_t>>()> ubint<limb_t>::Allocator = [](){
-//    return lbcrypto::make_unique<exp_int::ubint<limb_t>>();
-//  };
+  template<>
+  std::function<unique_ptr<ubint<uint32_t>>()> ubint<uint32_t>::Allocator = [](){
+    return lbcrypto::make_unique<exp_int::ubint<uint32_t>>();
+  };
 
   template<typename limb_t>
   ubint<limb_t>::~ubint()

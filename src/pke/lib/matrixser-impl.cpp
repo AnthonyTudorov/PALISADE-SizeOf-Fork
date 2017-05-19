@@ -127,12 +127,12 @@ bool Matrix<RationalCiphertext<ILVector2n>>::Deserialize(const Serialized& serOb
 }
 
 template<>
-bool Matrix<RationalCiphertext<ILVectorArray2n>>::Serialize(Serialized* serObj) const {
+bool Matrix<RationalCiphertext<ILDCRT2n>>::Serialize(Serialized* serObj) const {
 	return false;
 }
 
 template<>
-bool Matrix<RationalCiphertext<ILVectorArray2n>>::Deserialize(const Serialized& serObj) {
+bool Matrix<RationalCiphertext<ILDCRT2n>>::Deserialize(const Serialized& serObj) {
 	return false;
 }
 
@@ -147,12 +147,12 @@ bool Matrix<Ciphertext<ILVector2n>>::Deserialize(const Serialized& serObj) {
 }
 
 template<>
-bool Matrix<Ciphertext<ILVectorArray2n>>::Serialize(Serialized* serObj) const {
+bool Matrix<Ciphertext<ILDCRT2n>>::Serialize(Serialized* serObj) const {
 	return false;
 }
 
 template<>
-bool Matrix<Ciphertext<ILVectorArray2n>>::Deserialize(const Serialized& serObj) {
+bool Matrix<Ciphertext<ILDCRT2n>>::Deserialize(const Serialized& serObj) {
 	return false;
 }
 

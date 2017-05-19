@@ -37,7 +37,7 @@ clean: clean_ntl
 ntl_unpack: 
 	@echo 'Unpacking ntl for Palisade into $(NTL_DISTRO_DIR)'
 	cd $(DISTROS_DIR);\
-	tar xf ./ntl-$(NTL_VER).tar.gz
+	$(TAR) xf ./ntl-$(NTL_VER).tar.gz
 
 ntl_config:
 	@echo 'Configuring ntl for Palisade in $(NTL_DISTRO_DIR)'

@@ -55,7 +55,7 @@
 
 #include "../math/backend.h"
 #include "../lattice/ilvector2n.h"
-#include "../lattice/ilvectorarray2n.h"
+#include "../lattice/ildcrt2n.h"
 
 #define RAPIDJSON_NO_SIZETYPEDEFINE
 

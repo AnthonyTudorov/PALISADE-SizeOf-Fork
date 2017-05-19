@@ -85,12 +85,12 @@ shared_ptr<ILVectorArray2n::Params> GenDCRTParams(int sc) {
 	usint m = Scenarios[sc].m;
 	usint nTowers = Scenarios[sc].bits/smbits;
 
-	vector<native64::BigBinaryInteger> moduli(nTowers);
+	vector<native_int::BigBinaryInteger> moduli(nTowers);
 
-	vector<native64::BigBinaryInteger> rootsOfUnity(nTowers);
+	vector<native_int::BigBinaryInteger> rootsOfUnity(nTowers);
 
-	native64::BigBinaryInteger q( (1<<smbits) -1 );
-	native64::BigBinaryInteger temp;
+	native_int::BigBinaryInteger q( (1<<smbits) -1 );
+	native_int::BigBinaryInteger temp;
 	BigBinaryInteger modulus(1);
 
 	for(size_t i=0; i < nTowers; i++){
@@ -123,7 +123,7 @@ void CRTComposeTest() {
 		double diff, start, finish;
 
 		start = currentDateTime();
-		ILVectorArray2n testVector2(tVec, dcparm);
+		ILDCRT2n testVector2(tVec, dcparm);
 		finish = currentDateTime();
 		diff = finish - start;
 		std::cout << "vector Decompose " << diff << std::endl;
@@ -164,7 +164,7 @@ void SwitchFormatTest(bool runsmall, bool runbig) {
 			shared_ptr<ILParams> tvp( new ILParams(dcparm->GetCyclotomicOrder(), dcparm->GetModulus(), BigBinaryInteger::ONE) );
 			ILVector2n tVec(tvp);
 			MakeTestPolynomial(i, tVec);
-			ILVectorArray2n testVector2(tVec, dcparm);
+			ILDCRT2n testVector2(tVec, dcparm);
 
 			start = currentDateTime();
 			testVector2.SwitchFormat();
@@ -213,7 +213,7 @@ void EvalMultTest(bool runsmall, bool runbig) {
 		if( runsmall ) {
 			shared_ptr<ILVectorArray2n::Params> dcparm = GenDCRTParams(i);
 			shared_ptr<ILParams> tvp( new ILParams(dcparm->GetCyclotomicOrder(), dcparm->GetModulus(), BigBinaryInteger::ONE) );
-			CryptoContext<ILVectorArray2n> cc2 = CryptoContextFactory<ILVectorArray2n>::genCryptoContextBV(dcparm, 16, 16, 4.0);
+			CryptoContext<ILDCRT2n> cc2 = CryptoContextFactory<ILDCRT2n>::genCryptoContextBV(dcparm, 16, 16, 4.0);
 			cc2.Enable(ENCRYPTION);
 			cc2.Enable(SHE);
 
@@ -222,16 +222,16 @@ void EvalMultTest(bool runsmall, bool runbig) {
 			MakeTestPolynomial(i, tVec1);
 			MakeTestPolynomial(i, tVec2);
 
-			LPKeyPair<ILVectorArray2n> kp2 = cc2.KeyGen();
+			LPKeyPair<ILDCRT2n> kp2 = cc2.KeyGen();
 			cc2.EvalMultKeyGen(kp2.secretKey);
-			shared_ptr<Ciphertext<ILVectorArray2n>> ciphertext3 = cc2.GetEncryptionAlgorithm()->Encrypt(kp2.publicKey, tVec1);
-			shared_ptr<Ciphertext<ILVectorArray2n>> ciphertext4 = cc2.GetEncryptionAlgorithm()->Encrypt(kp2.publicKey, tVec2);
+			shared_ptr<Ciphertext<ILDCRT2n>> ciphertext3 = cc2.GetEncryptionAlgorithm()->Encrypt(kp2.publicKey, tVec1);
+			shared_ptr<Ciphertext<ILDCRT2n>> ciphertext4 = cc2.GetEncryptionAlgorithm()->Encrypt(kp2.publicKey, tVec2);
 
 			start = currentDateTime();
-			shared_ptr<Ciphertext<ILVectorArray2n>> ciphertext34 = cc2.EvalMult(ciphertext3,ciphertext4);
+			shared_ptr<Ciphertext<ILDCRT2n>> ciphertext34 = cc2.EvalMult(ciphertext3,ciphertext4);
 			finish = currentDateTime();
 			diff = finish - start;
-			std::cout << "ILVectorArray2n EvalMult " << diff << std::endl;
+			std::cout << "ILDCRT2n EvalMult " << diff << std::endl;
 		}
 	}
 }
@@ -265,14 +265,14 @@ void MultiplyTest(bool runsmall, bool runbig) {
 			ILVector2n tVec2(tvp);
 			MakeTestPolynomial(i, tVec1);
 			MakeTestPolynomial(i, tVec2);
-			ILVectorArray2n testVector3(tVec1, dcparm);
-			ILVectorArray2n testVector4(tVec2, dcparm);
+			ILDCRT2n testVector3(tVec1, dcparm);
+			ILDCRT2n testVector4(tVec2, dcparm);
 
 			start = currentDateTime();
-			ILVectorArray2n answer2 = testVector3 * testVector4;
+			ILDCRT2n answer2 = testVector3 * testVector4;
 			finish = currentDateTime();
 			diff = finish - start;
-			std::cout << "ILVectorArray2n element multiply " << diff << std::endl;
+			std::cout << "ILDCRT2n element multiply " << diff << std::endl;
 		}
 	}
 }
@@ -366,7 +366,7 @@ void NTRU_DCRT() {
 	shared_ptr<ILVectorArray2n::Params> params = GenDCRTParams(0);
 	cout << "big modulus: " << params->GetModulus() << endl;
 
-	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextLTV(params, ptm, relinWindow, stdDev);
+	CryptoContext<ILDCRT2n> cc = CryptoContextFactory<ILDCRT2n>::genCryptoContextLTV(params, ptm, relinWindow, stdDev);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(PRE);
 
@@ -374,7 +374,7 @@ void NTRU_DCRT() {
 
 	start = currentDateTime();
 
-	LPKeyPair<ILVectorArray2n> kp = cc.KeyGen();	// This is the core function call that generates the keys.
+	LPKeyPair<ILDCRT2n> kp = cc.KeyGen();	// This is the core function call that generates the keys.
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -390,7 +390,7 @@ void NTRU_DCRT() {
 	//Encryption
 	////////////////////////////////////////////////////////////
 
-	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertext;
+	vector<shared_ptr<Ciphertext<ILDCRT2n>>> ciphertext;
 
 	std::cout << "Running encryption..." << std::endl;
 
@@ -430,7 +430,7 @@ void NTRU_DCRT() {
 		return;
 	}
 
-	LPKeyPair<ILVectorArray2n> newKp = cc.KeyGen();
+	LPKeyPair<ILDCRT2n> newKp = cc.KeyGen();
 
 	////////////////////////////////////////////////////////////
 	//Perform the proxy re-encryption key generation operation.
@@ -439,16 +439,16 @@ void NTRU_DCRT() {
 
 	cout << "Running eval key gen" << endl;
 
-	shared_ptr<LPEvalKey<ILVectorArray2n>> evalKey = cc.ReKeyGen(newKp.publicKey, newKp.secretKey);
+	shared_ptr<LPEvalKey<ILDCRT2n>> evalKey = cc.ReKeyGen(newKp.publicKey, newKp.secretKey);
 
 	if( evalKey == NULL ) {
 		cout << "EvalKeyGen failed!!!" << endl;
 	}
 	else {
-		vector<ILVectorArray2n> av = evalKey->GetAVector();
+		vector<ILDCRT2n> av = evalKey->GetAVector();
 		cout << "The eval key A vect size is " << av.size() << endl;
 
-		vector<shared_ptr<Ciphertext<ILVectorArray2n>>> newCiphertext;
+		vector<shared_ptr<Ciphertext<ILDCRT2n>>> newCiphertext;
 
 		cout << "Running re encryption" << endl;
 		newCiphertext = cc.ReEncrypt(evalKey, ciphertext);
@@ -488,16 +488,16 @@ void TestParameterSelection(){
 
 	// BytePlaintextEncoding ctxtd;
 
-	vector<native64::BigBinaryInteger> moduli(size);
+	vector<native_int::BigBinaryInteger> moduli(size);
 
-	vector<native64::BigBinaryInteger> rootsOfUnity(size);
+	vector<native_int::BigBinaryInteger> rootsOfUnity(size);
 
-	native64::BigBinaryInteger q(1);
-	native64::BigBinaryInteger temp;
+	native_int::BigBinaryInteger q(1);
+	native_int::BigBinaryInteger temp;
 	BigBinaryInteger modulus(1);
 
 	for(usint i=0; i < size;i++){
-		lbcrypto::NextQ(q, native64::BigBinaryInteger(ptm), m, native64::BigBinaryInteger(4), native64::BigBinaryInteger(4));
+		lbcrypto::NextQ(q, ptm, m, native_int::BigBinaryInteger("4"), native_int::BigBinaryInteger("4"));
 		moduli[i] = q;
 		cout << i << "::" << q << endl;
 		rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
@@ -508,7 +508,7 @@ void TestParameterSelection(){
 
 	shared_ptr<ILVectorArray2n::Params> params( new ILVectorArray2n::Params(m, moduli, rootsOfUnity) );
 
-	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
+	LPCryptoParametersLTV<ILDCRT2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(ptm);
 	cryptoParams.SetDistributionParameter(stdDev);
 	cryptoParams.SetRelinWindow(1);
@@ -518,7 +518,7 @@ void TestParameterSelection(){
 	cryptoParams.SetSecurityLevel(1.006);
 
 	std::vector<BigBinaryInteger> moduliV(size);
-	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams2;
+	LPCryptoParametersLTV<ILDCRT2n> cryptoParams2;
 
 	cryptoParams.ParameterSelection(&cryptoParams2);
 	//cryptoParams.ParameterSelection(n, moduliV);
@@ -526,8 +526,8 @@ void TestParameterSelection(){
 	cout << "parameter selection test" << endl;
 	cout << cryptoParams2.GetAssuranceMeasure() << endl;
 
-	const shared_ptr<ILVectorArray2n::Params> dcrtParams = std::static_pointer_cast<ILVectorArray2n::Params>(cryptoParams2.GetElementParams());
-	const std::vector<shared_ptr<native64::ILParams>>& allparams = dcrtParams->GetParams();
+	const shared_ptr<ILDCRTParams> dcrtParams = std::static_pointer_cast<ILDCRTParams>(cryptoParams2.GetElementParams());
+	const std::vector<shared_ptr<native_int::ILParams>>& allparams = dcrtParams->GetParams();
 
 	for(usint i =0; i < allparams.size();i++){
 		cout<< allparams[i]->GetModulus() << endl;
@@ -547,16 +547,16 @@ void FinalLeveledComputation(){
 
 	BytePlaintextEncoding ctxtd;
 
-	vector<native64::BigBinaryInteger> moduli(size);
+	vector<native_int::BigBinaryInteger> moduli(size);
 
-	vector<native64::BigBinaryInteger> rootsOfUnity(size);
+	vector<native_int::BigBinaryInteger> rootsOfUnity(size);
 
-	native64::BigBinaryInteger q(1);
-	native64::BigBinaryInteger temp;
+	native_int::BigBinaryInteger q(1);
+	native_int::BigBinaryInteger temp;
 	BigBinaryInteger modulus(1);
 
 	for(size_t i=0; i < size;i++){
-		lbcrypto::NextQ(q, native64::BigBinaryInteger(ptm), m, native64::BigBinaryInteger(4), native64::BigBinaryInteger(4));
+		lbcrypto::NextQ(q, ptm, m, native_int::BigBinaryInteger(4), native_int::BigBinaryInteger(4));
 		moduli[i] = q;
 		rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
 		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
@@ -567,27 +567,27 @@ void FinalLeveledComputation(){
 	shared_ptr<ILVectorArray2n::Params> params( new ILVectorArray2n::Params(m, moduli, rootsOfUnity) );
 
 	std::vector<BigBinaryInteger> moduliV(size);
-	LPCryptoParametersLTV<ILVectorArray2n> finalParams;
+	LPCryptoParametersLTV<ILDCRT2n> finalParams;
 
 	// use the parameter selection version when it works...
-	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextLTV(params, ptm, 1, init_stdDev, size-1, 6, 1.006);
+	CryptoContext<ILDCRT2n> cc = CryptoContextFactory<ILDCRT2n>::genCryptoContextLTV(params, ptm, 1, init_stdDev, size-1, 6, 1.006);
 	cc.Enable(SHE);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(LEVELEDSHE);
 
 	//Generate the secret key for the initial ciphertext:
-	LPKeyPair<ILVectorArray2n> kp = cc.KeyGen();
+	LPKeyPair<ILDCRT2n> kp = cc.KeyGen();
 
 	// FIXME or explain what, in the name of the old gods and the new, is going on in this code?
 
 #ifdef OUT
 
 	//Generate the secret keys for the levels
-	std::vector< LPKeyPair<ILVectorArray2n> > levelPairs(finalParams.GetDepth());
+	std::vector< LPKeyPair<ILDCRT2n> > levelPairs(finalParams.GetDepth());
 
 	std::vector< shared_ptr<ILVectorArray2n::Params> > leveledDcrtParams;
 	leveledDcrtParams.reserve(finalParams.GetDepth()+1);
-	std::vector< LPCryptoParametersLTV<ILVectorArray2n> > leveledCryptoParams;
+	std::vector< LPCryptoParametersLTV<ILDCRT2n> > leveledCryptoParams;
 	leveledCryptoParams.reserve(finalParams.GetDepth()+1);
 
 	//Populate the vector of DcrtParams
@@ -611,14 +611,14 @@ void FinalLeveledComputation(){
 	}
 
 	// contexts and KeyGen on all the SK's and PK's
-	vector<CryptoContext<ILVectorArray2n>> leveledCryptoContexts;
+	vector<CryptoContext<ILDCRT2n>> leveledCryptoContexts;
 	for(usint i=0; i < finalParams.GetDepth(); i++) {
-		leveledCryptoContexts.push_back( CryptoContextFactory<ILVectorArray2n>::getCryptoContextDCRT(&leveledCryptoParams[i]) );
+		leveledCryptoContexts.push_back( CryptoContextFactory<ILDCRT2n>::getCryptoContextDCRT(&leveledCryptoParams[i]) );
 		levelPairs[i] = leveledCryptoContexts[i].KeyGen();
 	}
 
-	shared_ptr<LPEvalKey<ILVectorArray2n>> linearKeySwitchHint1;
-	shared_ptr<LPEvalKey<ILVectorArray2n>> linearKeySwitchHint2;
+	shared_ptr<LPEvalKey<ILDCRT2n>> linearKeySwitchHint1;
+	shared_ptr<LPEvalKey<ILDCRT2n>> linearKeySwitchHint2;
 
 	linearKeySwitchHint1 = cc.KeySwitchGen(kp.secretKey, levelPairs[0].secretKey);
 	auto e = levelPairs[0].secretKey->GetPrivateElement();
@@ -634,27 +634,27 @@ void FinalLeveledComputation(){
 	ILVector2n element1(dcrtParams);
 	element1.SwitchFormat();
 	element1 = {1};
-	shared_ptr<Ciphertext<ILVectorArray2n>> cipherText1 = cc.GetEncryptionAlgorithm()->Encrypt(kp.publicKey,element1);
+	shared_ptr<Ciphertext<ILDCRT2n>> cipherText1 = cc.GetEncryptionAlgorithm()->Encrypt(kp.publicKey,element1);
 
 	ILVector2n element2(dcrtParams);
 	element2.SwitchFormat();
 	element2 = {2};
-	shared_ptr<Ciphertext<ILVectorArray2n>> cipherText2 = cc.GetEncryptionAlgorithm()->Encrypt(kp.publicKey,element2);
+	shared_ptr<Ciphertext<ILDCRT2n>> cipherText2 = cc.GetEncryptionAlgorithm()->Encrypt(kp.publicKey,element2);
 
 	ILVector2n element3(dcrtParams);
 	element3.SwitchFormat();
 	element3 = {3};
-	shared_ptr<Ciphertext<ILVectorArray2n>> cipherText3 = cc.GetEncryptionAlgorithm()->Encrypt(kp.publicKey,element3);
+	shared_ptr<Ciphertext<ILDCRT2n>> cipherText3 = cc.GetEncryptionAlgorithm()->Encrypt(kp.publicKey,element3);
 
 	ILVector2n element4(dcrtParams);
 	element4.SwitchFormat();
 	element4 = {4};
-	shared_ptr<Ciphertext<ILVectorArray2n>> cipherText4 = cc.GetEncryptionAlgorithm()->Encrypt(kp.publicKey,element4);
+	shared_ptr<Ciphertext<ILDCRT2n>> cipherText4 = cc.GetEncryptionAlgorithm()->Encrypt(kp.publicKey,element4);
 
 	ILVector2n element5(dcrtParams);
 	element5.SwitchFormat();
 	element5 = {5};
-	shared_ptr<Ciphertext<ILVectorArray2n>> cipherText5 = cc.GetEncryptionAlgorithm()->Encrypt(kp.publicKey,element5);
+	shared_ptr<Ciphertext<ILDCRT2n>> cipherText5 = cc.GetEncryptionAlgorithm()->Encrypt(kp.publicKey,element5);
 #endif
 
 }
@@ -668,42 +668,42 @@ void ComposedEvalMultTest(){
 	usint relinWindow = 1;
 	usint ptm = 5;
 
-	vector<native64::BigBinaryInteger> moduli(size);
+	vector<native_int::BigBinaryInteger> moduli(size);
 
-	vector<native64::BigBinaryInteger> rootsOfUnity(size);
+	vector<native_int::BigBinaryInteger> rootsOfUnity(size);
 
-	native64::BigBinaryInteger q(1);
-	native64::BigBinaryInteger temp;
+	native_int::BigBinaryInteger q(1);
+	native_int::BigBinaryInteger temp;
 	BigBinaryInteger modulus(1);
 
 	for(size_t i=0; i < size; i++){
-		lbcrypto::NextQ(q, native64::BigBinaryInteger(ptm), m, native64::BigBinaryInteger(4), native64::BigBinaryInteger(4));
+		lbcrypto::NextQ(q, ptm, m, native_int::BigBinaryInteger("4"), native_int::BigBinaryInteger("4"));
 		moduli[i] = q;
 		rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
 		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
 	}
 
-	shared_ptr<ILVectorArray2n::Params> params( new ILVectorArray2n::Params(m, moduli, rootsOfUnity) );
+	shared_ptr<ILDCRTParams> params( new ILDCRTParams(m, moduli, rootsOfUnity) );
 
 	// FIXME use the parm selection method when it works
-	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextLTV(params, ptm, relinWindow, init_stdDev, size-1, 6, 1.006);
+	CryptoContext<ILDCRT2n> cc = CryptoContextFactory<ILDCRT2n>::genCryptoContextLTV(params, ptm, relinWindow, init_stdDev, size-1, 6, 1.006);
 	cc.Enable(SHE);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(LEVELEDSHE);
 
 	//Generate the secret key for the initial ciphertext:
-	LPKeyPair<ILVectorArray2n> kp = cc.KeyGen();
+	LPKeyPair<ILDCRT2n> kp = cc.KeyGen();
 
 	//Generate the switch cipher text
-	LPKeyPair<ILVectorArray2n> kpNew = cc.KeyGen();
+	LPKeyPair<ILDCRT2n> kpNew = cc.KeyGen();
 
 //	//Generating original ciphertext to perform ComposedEvalMult on
-//	shared_ptr<Ciphertext<ILVectorArray2n>> c1;
+//	shared_ptr<Ciphertext<ILDCRT2n>> c1;
 //
-//	shared_ptr<Ciphertext<ILVectorArray2n>> c2;
+//	shared_ptr<Ciphertext<ILDCRT2n>> c2;
 //
 //	//Generating new cryptoparameters for when modulus reduction is done.
-//	LPCryptoParametersLTV<ILVectorArray2n> finalParamsTwoTowers(finalParamsThreeTowers);
+//	LPCryptoParametersLTV<ILDCRT2n> finalParamsTwoTowers(finalParamsThreeTowers);
 //
 //	const shared_ptr<ILVectorArray2n::Params> dcrtParams2 = std::static_pointer_cast<ILVectorArray2n::Params>(finalParamsThreeTowers.GetElementParams());
 //	shared_ptr<ILVectorArray2n::Params> finalDcrtParamsTwoTowers( new ILVectorArray2n::Params(*dcrtParams2) );
@@ -711,7 +711,7 @@ void ComposedEvalMultTest(){
 //	finalParamsTwoTowers.SetElementParams(finalDcrtParamsTwoTowers);
 //
 //	//Dropping the last tower of skNew, because ComposedEvalMult performs a ModReduce
-//	ILVectorArray2n skNewOldElement(kpNew.secretKey->GetPrivateElement());
+//	ILDCRT2n skNewOldElement(kpNew.secretKey->GetPrivateElement());
 //	skNewOldElement.DropLastElement();
 //	kpNew.secretKey->SetPrivateElement(skNewOldElement);
 

@@ -47,7 +47,6 @@
 #include <fstream>
 #include <sstream>
 #include "../backend.h"
-#if MATHBACKEND == 6
 
 #include "gmpint.h"
 #include "mgmpint.h"
@@ -389,7 +388,12 @@ namespace NTL {
  return (conv<usint>(*this)); }
   uint32_t myZZ::ConvertToUint32() const { return (conv<uint32_t>(*this));}
 
-  uint64_t myZZ::ConvertToUint64() const{ return (conv<uint64_t>(*this));}
+  //  uint64_t myZZ::ConvertToUint64() const{ return (conv<uint64_t>(*this));}
+  // on some platforms usint64_t is implemented as an unsigned long long which is not included in the
+  // conv functions in tools.h
+  // FIXME
+  uint64_t myZZ::ConvertToUint64() const { return (conv<uint32_t>(*this)); }
+
   float myZZ::ConvertToFloat() const{ return (conv<float>(*this));}
   double myZZ::ConvertToDouble() const{ return (conv<double>(*this));}
   long double myZZ::ConvertToLongDouble() const {
@@ -606,5 +610,3 @@ namespace NTL {
   
 
 } // namespace NTL ends
-
-#endif //MATHBACKEND == 6

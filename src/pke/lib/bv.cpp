@@ -195,7 +195,7 @@ namespace lbcrypto {
 
 		b.SwitchFormat();
 
-		// Interpolation is needed in the case of Double-CRT interpolation, for example, ILVectorArray2n
+		// Interpolation is needed in the case of Double-CRT interpolation, for example, ILDCRT2n
 		// CRTInterpolate does nothing when dealing with single-CRT ring elements, such as ILVector2n
 		ILVector2n interpolatedElement = b.CRTInterpolate();
 		*plaintext = interpolatedElement.SignedMod(p);

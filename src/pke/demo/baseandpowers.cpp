@@ -39,33 +39,33 @@ void TestPowersAndDecompose(CryptoContext<ILVector2n> cc, ILVector2n& randomVec)
 		cout << "Failure!" << endl;
 }
 
-void TestPowersAndDecompose(CryptoContext<ILVectorArray2n> cc, ILVectorArray2n& randomVec) {
+void TestPowersAndDecompose(CryptoContext<ILDCRT2n> cc, ILDCRT2n& randomVec) {
 
-	const shared_ptr<ILVectorArray2n::Params> eParms = std::dynamic_pointer_cast<ILVectorArray2n::Params>(cc.GetElementParams());
+	const shared_ptr<ILDCRT2n::Params> eParms = std::dynamic_pointer_cast<ILDCRT2n::Params>(cc.GetElementParams());
 	cout << *eParms << endl;
 
-	vector<ILVectorArray2n> decomp = randomVec.BaseDecompose(cc.GetCryptoParameters()->GetRelinWindow());
+	vector<ILDCRT2n> decomp = randomVec.BaseDecompose(cc.GetCryptoParameters()->GetRelinWindow());
 	cout << "BaseDecompose result is " << decomp.size() << " vectors" << endl;
 
 	usint nBits = cc.GetCryptoParameters()->GetRelinWindow();
-	ILVectorArray2n answer(cc.GetElementParams(), EVALUATION, true); // zero vector
+	ILDCRT2n answer(cc.GetElementParams(), EVALUATION, true); // zero vector
 
-	std::vector<ILVectorArray2n::Integer> mods(eParms->GetParams().size());
+	std::vector<ILDCRT2n::Integer> mods(eParms->GetParams().size());
 	for( usint i = 0; i < eParms->GetParams().size(); i++ )
-		mods[i] = ILVectorArray2n::Integer(eParms->GetParams()[i]->GetModulus().ConvertToInt());
+		mods[i] = ILDCRT2n::Integer(eParms->GetParams()[i]->GetModulus().ConvertToInt());
 
-	//native64::BigBinaryInteger tp( native64::BigBinaryInteger(2).Exp(32) - 1 );
+	native_int::BigBinaryInteger tp( native_int::BigBinaryInteger::TWO.Exp(32) - native_int::BigBinaryInteger::ONE );
 	for (usint i = 0; i < decomp.size(); i++) {
-		ILVectorArray2n::Integer twoPow( ILVectorArray2n::Integer(2).Exp(i * nBits) );
-		vector<ILVectorArray2n::ILVectorType> scalars(eParms->GetParams().size());
+		ILDCRT2n::Integer twoPow( ILDCRT2n::Integer::TWO.Exp(i * nBits) );
+		vector<ILDCRT2n::ILVectorType> scalars(eParms->GetParams().size());
 
-		for( size_t t = 0; t < eParms->GetParams().size(); t++ ) {
-			ILVectorArray2n::Integer factor = twoPow % mods[t];
-			ILVectorArray2n::ILVectorType thisScalar(eParms->GetParams()[t], EVALUATION);
+		for( int t = 0; t < eParms->GetParams().size(); t++ ) {
+			ILDCRT2n::Integer factor = twoPow % mods[t];
+			ILDCRT2n::ILVectorType thisScalar(eParms->GetParams()[t], EVALUATION);
 			thisScalar = factor.ConvertToInt();
 			scalars[t] = thisScalar;
 		}
-		ILVectorArray2n thisProduct(scalars);
+		ILDCRT2n thisProduct(scalars);
 
 		answer += thisProduct * decomp[i];
 	}
@@ -75,11 +75,11 @@ void TestPowersAndDecompose(CryptoContext<ILVectorArray2n> cc, ILVectorArray2n& 
 	else
 		cout << "Failure!" << endl;
 
-	ILVectorArray2n randomDgg(cc.GetCryptoParameters()->GetDiscreteGaussianGenerator(), cc.GetElementParams());
-	vector<ILVectorArray2n> pows = randomDgg.PowersOfBase(cc.GetCryptoParameters()->GetRelinWindow());
+	ILDCRT2n randomDgg(cc.GetCryptoParameters()->GetDiscreteGaussianGenerator(), cc.GetElementParams());
+	vector<ILDCRT2n> pows = randomDgg.PowersOfBase(cc.GetCryptoParameters()->GetRelinWindow());
 	cout << "PowersOfBase result is " << decomp.size() << " vectors" << endl;
 
-	ILVectorArray2n answer2(cc.GetElementParams(), EVALUATION, true); // zero vector
+	ILDCRT2n answer2(cc.GetElementParams(), EVALUATION, true); // zero vector
 	for (usint i = 0; i < pows.size(); i++) {
 		answer2 += decomp[i] * pows[i];
 	}
@@ -108,10 +108,10 @@ int main()
 
 
 	for ( usint i = 1; i <= TOWERS; i++ ) {
-		CryptoContext<ILVectorArray2n> cc2 = GenCryptoContextElementArrayBV(ORDER, i, PTM, BITS);
-		cout << "ILVectorArray2n " << i << " towers, modulus " << cc2.GetElementParams()->GetModulus() << " order " << ORDER << " ptm is " << PTM << " relin window is " << cc2.GetCryptoParameters()->GetRelinWindow() << endl;
+		CryptoContext<ILDCRT2n> cc2 = GenCryptoContextElementArrayBV(ORDER, i, PTM, BITS);
+		cout << "ILDCRT2n " << i << " towers, modulus " << cc2.GetElementParams()->GetModulus() << " order " << ORDER << " ptm is " << PTM << " relin window is " << cc2.GetCryptoParameters()->GetRelinWindow() << endl;
 
-		ILVectorArray2n randomVecA(randomVec, cc2.GetElementParams());
+		ILDCRT2n randomVecA(randomVec, cc2.GetElementParams());
 
 		TestPowersAndDecompose(cc2, randomVecA);
 	}

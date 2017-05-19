@@ -49,7 +49,7 @@ public:
 };
 
 
-/*Simple Encrypt-Decrypt check for ILVectorArray2n. The assumption is this test case is that everything with respect to lattice and math
+/*Simple Encrypt-Decrypt check for ILDCRT2n. The assumption is this test case is that everything with respect to lattice and math
 * layers and cryptoparameters work. This test case is only testing if the resulting plaintext from an encrypt/decrypt returns the same
 * plaintext
 * The cyclotomic order is set 2048

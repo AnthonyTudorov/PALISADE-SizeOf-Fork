@@ -492,8 +492,8 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		shared_ptr<Ciphertext<ILVector2n>> EvalMult(const shared_ptr<Ciphertext<ILVector2n>> ciphertext1,
 			const shared_ptr<Ciphertext<ILVector2n>> ciphertext2) const;
 
-		shared_ptr<Ciphertext<ILVectorArray2n>> EvalMult(const shared_ptr<Ciphertext<ILVectorArray2n>> ciphertext1,
-			const shared_ptr<Ciphertext<ILVectorArray2n>> ciphertext2) const;
+		shared_ptr<Ciphertext<ILDCRT2n>> EvalMult(const shared_ptr<Ciphertext<ILDCRT2n>> ciphertext1,
+			const shared_ptr<Ciphertext<ILDCRT2n>> ciphertext2) const;
 
 		/**
 		 * Function for evaluating multiplication on ciphertext followed by key switching operation.

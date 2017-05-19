@@ -41,7 +41,6 @@
 #include "../../utils/serializable.h"
 
 #include "../backend.h"
-#if MATHBACKEND == 6
 
 #include "mgmpintvec.h"
 
@@ -1085,5 +1084,3 @@ namespace NTL {
 } // namespace NTL ends
  
 template class NTL::myVecP<NTL::myZZ_p>; //instantiate template here
- 
-#endif //MATHBACKEND == 6

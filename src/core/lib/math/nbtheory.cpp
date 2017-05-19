@@ -70,22 +70,14 @@ template BigBinaryVector GetCyclotomicPolynomial(usint m, const BigBinaryInteger
 template std::vector<usint> GetTotientList(const usint &n);
 // FIXME the MATH_BACKEND check is a hack and needs to go away
 #if MATHBACKEND != 7
-#ifndef NO_MATHBACKEND_7
-template native64::BigBinaryInteger RootOfUnity<native64::BigBinaryInteger>(usint m, const native64::BigBinaryInteger& modulo);
-template std::vector<native64::BigBinaryInteger> RootsOfUnity(usint m, const std::vector<native64::BigBinaryInteger> moduli);
-template native64::BigBinaryInteger GreatestCommonDivisor(const native64::BigBinaryInteger& a, const native64::BigBinaryInteger& b);
-  template bool MillerRabinPrimalityTest(const native64::BigBinaryInteger& p, const usint niter);
-template const native64::BigBinaryInteger PollardRhoFactorization(const native64::BigBinaryInteger &n);
-template void PrimeFactorize( native64::BigBinaryInteger n, std::set<native64::BigBinaryInteger> &primeFactors);
-template native64::BigBinaryInteger FindPrimeModulus(usint m, usint nBits);
-template void NextQ(native64::BigBinaryInteger &q, const native64::BigBinaryInteger &plainTextModulus, const usint cyclotomicOrder, const native64::BigBinaryInteger &sigma, const native64::BigBinaryInteger &alpha);
-//template native64::BigBinaryInteger GetTotient(const native64::BigBinaryInteger &n);
-template std::vector<native64::BigBinaryInteger> GetTotientList(const native64::BigBinaryInteger &n);
-template native64::BigBinaryVector PolyMod(const native64::BigBinaryVector &dividend, const native64::BigBinaryVector &divisor, const native64::BigBinaryInteger &modulus);
-template native64::BigBinaryVector PolynomialMultiplication(const native64::BigBinaryVector &a, const native64::BigBinaryVector &b);
-template native64::BigBinaryVector GetCyclotomicPolynomial(usint m, const native64::BigBinaryInteger &modulus);
-
-#endif
+template native_int::BigBinaryInteger RootOfUnity<native_int::BigBinaryInteger>(usint m, const native_int::BigBinaryInteger& modulo);
+template std::vector<native_int::BigBinaryInteger> RootsOfUnity(usint m, const std::vector<native_int::BigBinaryInteger> moduli);
+template native_int::BigBinaryInteger GreatestCommonDivisor(const native_int::BigBinaryInteger& a, const native_int::BigBinaryInteger& b);
+  template bool MillerRabinPrimalityTest(const native_int::BigBinaryInteger& p, const usint niter);
+template const native_int::BigBinaryInteger PollardRhoFactorization(const native_int::BigBinaryInteger &n);
+template void PrimeFactorize( native_int::BigBinaryInteger &n, std::set<native_int::BigBinaryInteger> &primeFactors);
+template native_int::BigBinaryInteger FindPrimeModulus(usint m, usint nBits);
+template void NextQ(native_int::BigBinaryInteger &q, const native_int::BigBinaryInteger &plainTextModulus, const usint &ringDimension, const native_int::BigBinaryInteger &sigma, const native_int::BigBinaryInteger &alpha);
 #endif
 }
 

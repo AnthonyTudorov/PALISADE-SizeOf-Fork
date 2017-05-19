@@ -31,7 +31,7 @@
  * This code provides basic lattice ideal manipulation functionality.
  * For more information on ideal lattices please see here: 10.1007/978-3-540-88702-7_5
  * ILDCRTParmas stands for : Ideal Lattive Chinese Remainder Transform Params. This class provides a placeholder for the parameter set
- * of an ILVectorArray2n.
+ * of an ILDCRT2n.
  *
  *  The private members of this class are:
  *
@@ -139,11 +139,11 @@ public:
 
 	// ACCESSORS
 
-	const std::vector<std::shared_ptr<native64::ILParams>> &GetParams() const {
+	const std::vector<std::shared_ptr<native_int::ILParams>> &GetParams() const {
 		return m_parms;
 	}
 
-	std::shared_ptr<native64::ILParams>& operator[](const usint i) { return m_parms[i]; }
+	std::shared_ptr<native_int::ILParams>& operator[](const usint i) { return m_parms[i]; }
 
 	/**
 	 * Removes the last parameter set and adjust the multiplied moduli.
@@ -214,7 +214,7 @@ private:
 
 private:
 	// array of smaller ILParams
-	std::vector<std::shared_ptr<native64::ILParams>>	m_parms;
+	std::vector<std::shared_ptr<native_int::ILParams>>	m_parms;
 
 };
 

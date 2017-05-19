@@ -11,8 +11,8 @@
 #include "ciphertext.cpp"
 
 namespace lbcrypto {
-extern template class CryptoContext<ILVectorArray2n>;
+extern template class CryptoContext<ILDCRT2n>;
 
-template class Ciphertext<ILVectorArray2n>;
+template class Ciphertext<ILDCRT2n>;
 }
 

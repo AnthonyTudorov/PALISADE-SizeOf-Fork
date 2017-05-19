@@ -40,10 +40,10 @@
 #include "../utils/inttypes.h"
 #include "../math/backend.h"
 #include "../lattice/elemparams.h"
+#include "../lattice/ildcrt2n.h"
 #include "../lattice/ilparams.h"
 #include "../lattice/ildcrtparams.h"
 #include "../lattice/ilvector2n.h"
-#include "../lattice/ilvectorarray2n.h"
 
 namespace lbcrypto {
 
@@ -85,13 +85,13 @@ public:
 		return CompareTo(other);
 	}
 
-	native64::BigBinaryInteger ConvertToNativeModulus(const BigBinaryInteger& ptm) {
+	native_int::BigBinaryInteger ConvertToNativeModulus(const BigBinaryInteger& ptm) {
 		static BigBinaryInteger largestNative( ~((uint64_t)0) );
 
 		if( ptm > largestNative )
-			throw std::logic_error("plaintext modulus of " + ptm.ToString() + " is too big to convert to a native64 integer");
+			throw std::logic_error("plaintext modulus of " + ptm.ToString() + " is too big to convert to a native_int integer");
 
-		return native64::BigBinaryInteger( ptm.ConvertToInt() );
+		return native_int::BigBinaryInteger( ptm.ConvertToInt() );
 	}
 };
 
