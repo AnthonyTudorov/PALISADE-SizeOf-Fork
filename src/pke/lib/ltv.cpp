@@ -47,11 +47,11 @@
 namespace lbcrypto {
 
 template <class Element>
-void LPCryptoParametersLTV<Element>::ParameterSelection(LPCryptoParametersLTV<ILVectorArray2n> *cryptoParams)
+void LPCryptoParametersLTV<Element>::ParameterSelection(LPCryptoParametersLTV<ILDCRT2n> *cryptoParams)
 {
 
 	//defining moduli outside of recursive call for efficiency
-	std::vector<native64::BigBinaryInteger> moduli(this->m_depth + 1);
+	std::vector<native_int::BigBinaryInteger> moduli(this->m_depth + 1);
 	moduli.reserve(this->m_depth + 1);
 
 	usint n = this->GetElementParams()->GetRingDimension();
@@ -64,26 +64,26 @@ void LPCryptoParametersLTV<Element>::ParameterSelection(LPCryptoParametersLTV<IL
 	cryptoParams->SetDistributionParameter(this->m_distributionParameter);
 	cryptoParams->SetPlaintextModulus(this->GetPlaintextModulus());
 
-	std::vector<native64::BigBinaryInteger> rootsOfUnity;
+	std::vector<native_int::BigBinaryInteger> rootsOfUnity;
 	rootsOfUnity.reserve(this->m_depth + 1);
 	usint m = this->GetElementParams()->GetCyclotomicOrder();
-	native64::BigBinaryInteger rootOfUnity;
+	native_int::BigBinaryInteger rootOfUnity;
 
 	for (int i = 0; i < this->m_depth + 1; i++) {
 		rootOfUnity = RootOfUnity(m, moduli.at(i));
 		rootsOfUnity.push_back(rootOfUnity);
 	}
 
-	shared_ptr<typename ILVectorArray2n::Params> newElemParams(new typename ILVectorArray2n::Params(m, moduli, rootsOfUnity));
+	shared_ptr<typename ILDCRT2n::Params> newElemParams(new typename ILDCRT2n::Params(m, moduli, rootsOfUnity));
 	cryptoParams->SetElementParams(newElemParams);
 
 }
 
 template <class Element>
-void LPCryptoParametersLTV<Element>::ParameterSelection(usint& n, vector<native64::BigBinaryInteger> &moduli) {
+void LPCryptoParametersLTV<Element>::ParameterSelection(usint& n, vector<native_int::BigBinaryInteger> &moduli) {
 	int t = this->m_depth + 1;
 
-	native64::BigBinaryInteger pBigBinaryInteger(this->GetPlaintextModulus().ConvertToInt());
+	native_int::BigBinaryInteger pBigBinaryInteger(this->GetPlaintextModulus().ConvertToInt());
 	int p = pBigBinaryInteger.ConvertToInt(); // what if this does not fit in an int? (unlikely)
 	double w = this->m_assuranceMeasure;
 	double r = this->m_distributionParameter;
@@ -113,12 +113,12 @@ void LPCryptoParametersLTV<Element>::ParameterSelection(usint& n, vector<native6
 		sum = 0.0;
 		for (int i = 0; i<t; i++) {
 			if (i == 0 || i == 1) {
-				moduli[i] = native64::BigBinaryInteger(split(std::to_string(q[i]), c));
+				moduli[i] = native_int::BigBinaryInteger(split(std::to_string(q[i]), c));
 			}
 			else {
 				moduli[i] = moduli[i - 1];
 			}
-			NextQ(moduli[i], pBigBinaryInteger, n, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
+			NextQ(moduli[i], pBigBinaryInteger, n, native_int::BigBinaryInteger("4"), native_int::BigBinaryInteger("4"));
 			q[i] = moduli[i].ConvertToDouble();
 			sum += log(q[i]);
 		}
@@ -223,7 +223,7 @@ DecryptResult LPAlgorithmLTV<Element>::Decrypt(const shared_ptr<LPPrivateKey<Ele
 
 	b.SwitchFormat();
 
-	// Interpolation is needed in the case of Double-CRT interpolation, for example, ILVectorArray2n
+	// Interpolation is needed in the case of Double-CRT interpolation, for example, ILDCRT2n
 	// CRTInterpolate does nothing when dealing with single-CRT ring elements, such as ILVector2n
 	ILVector2n interpolatedElement = b.CRTInterpolate();
 	*plaintext = interpolatedElement.SignedMod(p);
@@ -568,7 +568,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmPRELTV<Element>::ReEncrypt(const shar
 * http://link.springer.com/chapter/10.1007/978-3-662-44774-1_18
 *
 * Modulus reduction reduces a ciphertext from modulus q to a smaller modulus q/qi. The qi is generally the largest. In the code below,
-* ModReduce is written for ILVectorArray2n and it drops the last tower while updating the necessary parameters.
+* ModReduce is written for ILDCRT2n and it drops the last tower while updating the necessary parameters.
 */
 template<class Element> inline
 shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmLTV<Element>::ModReduce(shared_ptr<Ciphertext<Element>> cipherText) const {

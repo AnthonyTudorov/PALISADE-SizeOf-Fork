@@ -25,7 +25,7 @@ GMP_DISTRO_DIR := $(DISTROS_DIR)/gmp-$(GMP_VER)
 gmp_unpack: 
 	@echo 'Unpacking gmp for Palisade into $(GMP_DISTRO_DIR)'
 	cd $(DISTROS_DIR);\
-	tar xf ./gmp-$(GMP_VER).tar.lz
+	$(TAR) xf ./gmp-$(GMP_VER).tar.lz
 
 gmp_config:
 	@echo 'Configuring gmp for Palisade in $(GMP_DISTRO_DIR)'

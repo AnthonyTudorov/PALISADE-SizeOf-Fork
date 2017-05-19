@@ -33,6 +33,7 @@ Test cases in this file make the following assumptions:
 #include "include/gtest/gtest.h"
 #include <iostream>
 
+#include "../lib/lattice/ildcrt2n.h"
 #include "math/backend.h"
 #include "math/nbtheory.h"
 #include "math/distrgen.h"
@@ -41,7 +42,6 @@ Test cases in this file make the following assumptions:
 #include "lattice/ildcrtparams.h"
 #include "lattice/ilelement.h"
 #include "lattice/ilvector2n.h"
-#include "lattice/ilvectorarray2n.h"
 #include "utils/inttypes.h"
 #include "utils/utilities.h"
 
@@ -107,16 +107,16 @@ TEST(UTNTT, switch_format_simple_double_crt) {
 
 	usint init_size = 2;
 
-	vector<native64::BigBinaryInteger> init_moduli(init_size);
+	vector<native_int::BigBinaryInteger> init_moduli(init_size);
 
-	vector<native64::BigBinaryInteger> init_rootsOfUnity(init_size);
+	vector<native_int::BigBinaryInteger> init_rootsOfUnity(init_size);
 
-	native64::BigBinaryInteger q(1);
-	native64::BigBinaryInteger temp;
+	native_int::BigBinaryInteger q(1);
+	native_int::BigBinaryInteger temp;
 	BigBinaryInteger modulus(1);
 
 	for (size_t i = 0; i < init_size; i++) {
-		lbcrypto::NextQ(q, native64::BigBinaryInteger(5), init_m, native64::BigBinaryInteger(4), native64::BigBinaryInteger(4));
+		lbcrypto::NextQ(q, native_int::BigBinaryInteger::FIVE, init_m, native_int::BigBinaryInteger::FOUR, native_int::BigBinaryInteger::FOUR);
 		init_moduli[i] = q;
 		init_rootsOfUnity[i] = RootOfUnity(init_m, init_moduli[i]);
 		modulus = modulus * BigBinaryInteger(init_moduli[i].ConvertToInt());
@@ -127,14 +127,14 @@ TEST(UTNTT, switch_format_simple_double_crt) {
 
 	shared_ptr<ILVectorArray2n::Params> params( new ILVectorArray2n::Params(init_m, init_moduli, init_rootsOfUnity) );
 
-	ILVectorArray2n x1(params, Format::COEFFICIENT);
+	ILDCRT2n x1(params, Format::COEFFICIENT);
 	x1 = { 431,3414,1234,7845,2145,7415,5471,8452 };
 
-	ILVectorArray2n x2(params, Format::COEFFICIENT);
+	ILDCRT2n x2(params, Format::COEFFICIENT);
 	x2 = { 4127,9647,1987,5410,6541,7014,9741,1256 };
 
-	ILVectorArray2n x1Clone(x1);
-	ILVectorArray2n x2Clone(x2);
+	ILDCRT2n x1Clone(x1);
+	ILDCRT2n x2Clone(x2);
 
 	x1.SwitchFormat();
 	x2.SwitchFormat();
@@ -202,14 +202,14 @@ TEST(UTNTT, decomposeMult_double_crt) {
 
 	usint init_size = 2;
 
-	vector<native64::BigBinaryInteger> init_moduli(init_size);
+	vector<native_int::BigBinaryInteger> init_moduli(init_size);
 
-	vector<native64::BigBinaryInteger> init_rootsOfUnity(init_size);
+	vector<native_int::BigBinaryInteger> init_rootsOfUnity(init_size);
 
-	native64::BigBinaryInteger temp;
+	native_int::BigBinaryInteger temp;
 	
-	init_moduli[0] = native64::BigBinaryInteger("17729");
-	init_moduli[1] = native64::BigBinaryInteger("17761");
+	init_moduli[0] = native_int::BigBinaryInteger("17729");
+	init_moduli[1] = native_int::BigBinaryInteger("17761");
 
 
 	for (size_t i = 0; i < init_size; i++) {
@@ -220,13 +220,13 @@ TEST(UTNTT, decomposeMult_double_crt) {
 
 	shared_ptr<ILVectorArray2n::Params> params( new ILVectorArray2n::Params(init_m, init_moduli, init_rootsOfUnity) );
 
-	ILVectorArray2n x1(params, Format::COEFFICIENT);
+	ILDCRT2n x1(params, Format::COEFFICIENT);
 	x1 = { 0,0,0,0,0,0,1,0 };
 
-	ILVectorArray2n x2(params, Format::COEFFICIENT);
+	ILDCRT2n x2(params, Format::COEFFICIENT);
 	x2 = { 0,0,0,0,0,0,1,0 };
 
-	ILVectorArray2n resultsEval(x2.CloneParametersOnly());
+	ILDCRT2n resultsEval(x2.CloneParametersOnly());
 	resultsEval = { 0,0,0,0,0,0,0,0 };
 	resultsEval.SwitchFormat();
 
@@ -251,12 +251,12 @@ TEST(UTNTT, decomposeMult_double_crt) {
 
 	EXPECT_EQ(resultsEval.GetElementAtIndex(0).GetValAtIndex(0), 0);
 	EXPECT_EQ(resultsEval.GetElementAtIndex(0).GetValAtIndex(1), 0);
-	EXPECT_EQ(resultsEval.GetElementAtIndex(0).GetValAtIndex(2), native64::BigBinaryInteger("17728"));
+	EXPECT_EQ(resultsEval.GetElementAtIndex(0).GetValAtIndex(2), native_int::BigBinaryInteger("17728"));
 	EXPECT_EQ(resultsEval.GetElementAtIndex(0).GetValAtIndex(3), 0);
 
 	EXPECT_EQ(resultsEval.GetElementAtIndex(1).GetValAtIndex(0), 0);
 	EXPECT_EQ(resultsEval.GetElementAtIndex(1).GetValAtIndex(1), 0);
-	EXPECT_EQ(resultsEval.GetElementAtIndex(1).GetValAtIndex(2), native64::BigBinaryInteger("17760"));
+	EXPECT_EQ(resultsEval.GetElementAtIndex(1).GetValAtIndex(2), native_int::BigBinaryInteger("17760"));
 	EXPECT_EQ(resultsEval.GetElementAtIndex(1).GetValAtIndex(3), 0);
 }
 

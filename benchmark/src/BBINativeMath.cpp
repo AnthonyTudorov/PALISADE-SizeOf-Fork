@@ -60,7 +60,7 @@
 #include "lattice/ilelement.h"
 #include "math/distrgen.h"
 #include "lattice/ilvector2n.h"
-#include "lattice/ilvectorarray2n.h"
+#include "../../src/core/lib/lattice/ildcrt2n.h"
 #include "utils/utilities.h"
 #endif
 
@@ -74,7 +74,7 @@ using namespace lbcrypto;
 
 // test BBI constants
 static void make_BBINative_constants(void) {	// function
-	native64::BigBinaryInteger one(native64::BigBinaryInteger::ONE);
+	native_int::BigBinaryInteger one(native_int::BigBinaryInteger::ONE);
 }
 
 void BM_BBINative_constants(benchmark::State& state) { // benchmark
@@ -90,7 +90,7 @@ BENCHMARK(BM_BBINative_constants);		// register benchmark
 // make variables
 
 static void make_BBINative_small_variables (void) {	// function
-	native64::BigBinaryInteger a("10403"), b("103");
+	native_int::BigBinaryInteger a("10403"), b("103");
 }
 
 
@@ -106,7 +106,7 @@ BENCHMARK(BM_BBINative_small_variables);		// register benchmark
 
 
 static void make_BBINative_large_variables (void) {	// function
-	native64::BigBinaryInteger a("18446744073709551616"), b("18446744073709551617");
+	native_int::BigBinaryInteger a("18446744073709551616"), b("18446744073709551617");
 }
 
 void BM_BBINative_large_variables(benchmark::State& state) { // benchmark
@@ -117,18 +117,18 @@ void BM_BBINative_large_variables(benchmark::State& state) { // benchmark
 
 BENCHMARK(BM_BBINative_large_variables);
 
-static native64::BigBinaryInteger smalla("10403"), smallb("103");
-static native64::BigBinaryInteger largea("18446744073709551616"), largeb("18446744073709551617");
+static native_int::BigBinaryInteger smalla("10403"), smallb("103");
+static native_int::BigBinaryInteger largea("18446744073709551616"), largeb("18446744073709551617");
 
 
 // add
 static void add_BBINative(benchmark::State& state) {	// function
 	state.PauseTiming();
-	native64::BigBinaryInteger& a = state.range(0) == 0 ? smalla : largea;
-	native64::BigBinaryInteger& b = state.range(0) == 0 ? smallb : largeb;
+	native_int::BigBinaryInteger& a = state.range(0) == 0 ? smalla : largea;
+	native_int::BigBinaryInteger& b = state.range(0) == 0 ? smallb : largeb;
 	state.ResumeTiming();
 
-	native64::BigBinaryInteger c1 = a+b;
+	native_int::BigBinaryInteger c1 = a+b;
 }
 
 static void BM_BBINative_Addition(benchmark::State& state) { // benchmark
@@ -144,11 +144,11 @@ BENCHMARK(BM_BBINative_Addition)->ArgName("Large")->Arg(1);
 // add
 static void mult_BBINative(benchmark::State& state) {	// function
 	state.PauseTiming();
-	native64::BigBinaryInteger& a = state.range(0) == 0 ? smalla : largea;
-	native64::BigBinaryInteger& b = state.range(0) == 0 ? smallb : largeb;
+	native_int::BigBinaryInteger& a = state.range(0) == 0 ? smalla : largea;
+	native_int::BigBinaryInteger& b = state.range(0) == 0 ? smallb : largeb;
 	state.ResumeTiming();
 
-	native64::BigBinaryInteger c1 = a*b;
+	native_int::BigBinaryInteger c1 = a*b;
 }
 
 static void BM_BBINative_Multiplication(benchmark::State& state) { // benchmark

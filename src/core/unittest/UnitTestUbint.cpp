@@ -35,7 +35,7 @@
  
  *  @section DESCRIPTION
  *
- *  This file contains google test code that exercises the ubint
+ *  This file contains google test code that exercises the exp_int::xubint
  *  unsigned big integer library of the PALISADE library.
  *
 */
@@ -84,7 +84,7 @@ protected:
 printLimbsInDec
 printLimbsInHex
 SetValue(str)
-SetValue(&ubint)
+SetValue(&exp_int::xubint)
 
 intTobint() //todo change name to IntToBint()
 
@@ -116,9 +116,9 @@ TEST(UTubint,string_conversions_msb){
   
   //test string ctor and ConvertTo functions
   //note number of limbs cited assumes uint32_t implementation
-  //create a small ubint with only one limb
+  //create a small exp_int::xubint with only one limb
 
-  ubint q1("00000000000000163841");
+  exp_int::xubint q1("00000000000000163841");
 
   //  q1.PrintIntegerConstants();
 
@@ -138,8 +138,8 @@ TEST(UTubint,string_conversions_msb){
 
   EXPECT_EQ(msb, 18U)<<  "Failure testing 1 limb msb test ";
 
-  //create a large ubint with two limbs
-  ubint q2("00004057816419532801");
+  //create a large exp_int::xubint with two limbs
+  exp_int::xubint q2("00004057816419532801");
   //to big for usint or for float so we expect that to fail
   EXPECT_NE(4057816419532801UL, q2.ConvertToUsint()) 
     <<"Failure Convert 2 limb to usint";
@@ -191,37 +191,37 @@ TEST(UTubint,string_conversions_msb){
   try {
     //test the ctor()
 
-    ubint b;
+    exp_int::xubint b;
     usint bout = b.ConvertToUsint(); //should thrown since b is not initialised.
   } catch (...) {
     thrown = true;
   }
   EXPECT_TRUE(thrown) 
-    << "Failure testing ConvertToUsint() throw on uninitialed ubint";
+    << "Failure testing ConvertToUsint() throw on uninitialed exp_int::xubint";
 #endif
 }
 TEST(UTubint,ctor){    
 
   //test the ctor(usint)
-  ubint c1(123456789);
-  EXPECT_EQ(123456789U, c1.ConvertToUsint())<< "Failure testing ctor(usint)";
+  exp_int::xubint c1(123456789);
+  EXPECT_EQ(123456789, c1.ConvertToUsint())<< "Failure testing ctor(usint)";
   //test the ctor(string)
-  ubint c2("123456789");
-  EXPECT_EQ(123456789U, c2.ConvertToUsint())<< "Failure testing ctor(string)";
-  //test the ctor(ubint)
-  ubint d(c1);
+  exp_int::xubint c2("123456789");
+  EXPECT_EQ(123456789, c2.ConvertToUsint())<< "Failure testing ctor(string)";
+  //test the ctor(exp_int::xubint)
+  exp_int::xubint d(c1);
   EXPECT_EQ(d.ConvertToUsint(), c1.ConvertToUsint())
-    << "Failure testing ctor(ubint)";
-  //test the ctor(ubint&)
-  ubint &e = d;
-  ubint f(e);
+    << "Failure testing ctor(exp_int::xubint)";
+  //test the ctor(exp_int::xubint&)
+  exp_int::xubint &e = d;
+  exp_int::xubint f(e);
   EXPECT_EQ(e.ConvertToUsint(), f.ConvertToUsint()) 
-    << "Failure testing ctor(ubint&)";
+    << "Failure testing ctor(exp_int::xubint&)";
 } 
 
 TEST(UTubint,ctor32){       
   // TEST CASE FOR 32bit VALUES
-  ubint a(UINT32_MAX);
+  exp_int::xubint a(UINT32_MAX);
   uint32_t aint32 = UINT32_MAX;
 
   EXPECT_EQ(aint32,a.ConvertToUint32())
@@ -233,7 +233,7 @@ TEST(UTubint,ctor32){
     abs[i] = 1;
   }
   uint32_t cint32 = abs.to_ulong(); //biggest 32 bit int all FFs
-  ubint c(cint32);
+  exp_int::xubint c(cint32);
   EXPECT_EQ(cint32,c.ConvertToUsint())
     << "Failure testing ConvertToUsint() for maxint32 made with bitsets";    
 
@@ -243,7 +243,7 @@ TEST(UTubint,ctor32){
 
 TEST(UTubint,ctor64){    
   // TEST CASE FOR 64bit VALUES
-  /*ubint a(9223372036854775807ULL); // = 7FFFFFFF
+  /*exp_int::xubint a(9223372036854775807ULL); // = 7FFFFFFF
   uint64_t auint64 = 9223372036854775807ULL;
 >>>>>>> Commenting out test that is failing.
   EXPECT_EQ(auint64,a.ConvertToUint64())
@@ -253,7 +253,7 @@ TEST(UTubint,ctor64){
     abs[i] = 1;
   }
   uint64_t cuint64 = abs.to_ullong(); //biggest 64 bit int all FFs
-  ubint c(cuint64);
+  exp_int::xubint c(cuint64);
 
   EXPECT_EQ(cuint64,c.ConvertToUint64())
     << "Failure testing ConvertToUint64() for maxint64";    
@@ -267,36 +267,6 @@ TEST(UTubint,ctor64){
   //todo some very large digit tests.
 }
 
-///*************************************************
-// * TESTING constants
-// *************************************************/
-//TEST(UTubint,consts){
-//
-//  ubint a;
-//
-//  // test the constants
-//  a = 0;
-//  //note for some reason ubint(0) is ambiguous?
-//  EXPECT_EQ(ubint(0), a)<< "Failure testing ZERO";
-//
-//  a = 1;
-//  EXPECT_EQ(ubint(1), a)<< "Failure testing ONE";
-//
-//  a = 2;
-//  EXPECT_EQ(ubint(2), a)<< "Failure testing TWO";
-//
-//  a = 3;
-//  EXPECT_EQ(ubint(3), a)<< "Failure testing THREE";
-//
-//  a = 4;
-//  EXPECT_EQ(ubint(4), a)<< "Failure testing FOUR";
-//
-//  a = 5;
-//  EXPECT_EQ(ubint(5), a)<< "Failure testing FIVE";
-//
-//  //todo: test log constants?
-//}
-
 /****************************/
 /* TESTING SHIFT OPERATORS  */
 /****************************/
@@ -304,10 +274,10 @@ TEST(UTubint,ctor64){
 TEST(UTubint,left_shift){
 
   // TESTING OPERATOR LEFT SHIFT (<< AND <<=) FOR ALL CONDITIONS
-  // The operator 'Left Shift' operates on ubint a, and it
+  // The operator 'Left Shift' operates on exp_int::xubint a, and it
   // is shifted by a number
 
-  // Returns: a<<(num), and the result is stored in ubint
+  // Returns: a<<(num), and the result is stored in exp_int::xubint
   // or returned in original for <<=
   // 'a' is left shifted by 'num' number of bits, and
   // filled up by 0s from right which is equivalent to a * (2^num)
@@ -317,10 +287,10 @@ TEST(UTubint,left_shift){
 
   // TEST CASE WHEN SHIFT IS LESS THAN LIMB SIZE
   {
-    ubint a("39960");
+    exp_int::xubint a("39960");
     usint shift = 3;
 
-    ubint calculatedResult = a<<(shift);
+    exp_int::xubint calculatedResult = a<<(shift);
     usint expectedResult = 319680;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToUsint())
@@ -332,10 +302,10 @@ TEST(UTubint,left_shift){
   }
   // TEST CASE WHEN SHIFT IS GREATER THAN LIMB SIZE
   {
-    ubint a("39960");
+    exp_int::xubint a("39960");
     usint shift = 33;
 
-    ubint calculatedResult = a<<(shift);
+    exp_int::xubint calculatedResult = a<<(shift);
     uint64_t expectedResult = 343253786296320L;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToUint64())
@@ -348,10 +318,10 @@ TEST(UTubint,left_shift){
 
   {
     
-    ubint a("1024");
+    exp_int::xubint a("1024");
     usint shift = 48;
     
-    ubint calculatedResult = a<<(shift);
+    exp_int::xubint calculatedResult = a<<(shift);
     uint64_t expectedResult = 288230376151711744;
     uint64_t result = calculatedResult.ConvertToUint64();
 
@@ -365,13 +335,13 @@ TEST(UTubint,left_shift){
 
   // TEST CASE WHEN SHIFT IS multi limb
   {
-    ubint a("138712237895312");
+    exp_int::xubint a("138712237895312");
     usint shift = 8;
 
     //usint msb = a.GetMSB();
     //DEBUG("a.msb " <<msb);
 
-    ubint calculatedResult = a<<(shift);
+    exp_int::xubint calculatedResult = a<<(shift);
     uint64_t expectedResult = 35510332901199872;
     //DEBUG("expectedResult 35510332901199872 ="<<expectedResult);
 
@@ -385,10 +355,10 @@ TEST(UTubint,left_shift){
 TEST(UTubint,right_shift){
 
   // TESTING OPERATOR RIGHT SHIFT (>> AND >>=) FOR ALL CONDITIONS
-  // The operator 'Right Shift' operates on ubint a, and it
+  // The operator 'Right Shift' operates on exp_int::xubint a, and it
   // is shifted by a number of bits 
 
-  // Returns: a>>(num), and the result is stored in ubint or the
+  // Returns: a>>(num), and the result is stored in exp_int::xubint or the
   // original a for >>=
   // Result 'a' is right shifted by 'num'
   // number of bits, and filled up by 0s from left which is equivalent
@@ -398,10 +368,10 @@ TEST(UTubint,right_shift){
 
   // TEST CASE WHEN SHIFT IS LESS THAN LIMB SIZE
   {
-    ubint a("39965675");
+    exp_int::xubint a("39965675");
     usshort shift = 3;
 
-    ubint calculatedResult = a>>(shift);
+    exp_int::xubint calculatedResult = a>>(shift);
     usint expectedResult = 4995709;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToUsint())
@@ -412,10 +382,10 @@ TEST(UTubint,right_shift){
   }
   // TEST CASE WHEN SHIFT IS GREATER THAN LIMB SIZE
   {
-    ubint a("343253786296320");
+    exp_int::xubint a("343253786296320");
     usshort shift = 33;
 
-    ubint calculatedResult = a>>(shift);
+    exp_int::xubint calculatedResult = a>>(shift);
     usint expectedResult = 39960;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToUsint())
@@ -425,10 +395,10 @@ TEST(UTubint,right_shift){
       << "Failure testing >>= greater than limb size";
   }
   {
-    ubint a(" 288230376151711744");
+    exp_int::xubint a(" 288230376151711744");
     usshort shift = 48;
 
-    ubint calculatedResult = a>>(shift);
+    exp_int::xubint calculatedResult = a>>(shift);
     usint expectedResult = 1024;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToUsint())
@@ -460,8 +430,8 @@ TEST(UTubint, compare){
   
   // TEST CASE WHEN FIRST NUMBER IS GREATER THAN SECOND NUMBER
   {
-    ubint a("2124827461185795");
-    ubint b("1201413067178193");
+    exp_int::xubint a("2124827461185795");
+    exp_int::xubint b("1201413067178193");
     
     c = a.Compare(b);
     expectedResult = 1;
@@ -482,8 +452,8 @@ TEST(UTubint, compare){
   }
   // TEST CASE WHEN FIRST NUMBER IS LESS THAN SECOND NUMBER
   {
-    ubint a("1201413067178193");
-    ubint b("2124827461185795");
+    exp_int::xubint a("1201413067178193");
+    exp_int::xubint b("2124827461185795");
     
     c = a.Compare(b);
     expectedResult = -1;
@@ -504,8 +474,8 @@ TEST(UTubint, compare){
   }
   // TEST CASE WHEN FIRST NUMBER IS EQUAL TO SECOND NUMBER
   {
-    ubint a("2124827461185795");
-    ubint b("2124827461185795");
+    exp_int::xubint a("2124827461185795");
+    exp_int::xubint b("2124827461185795");
     
     c = a.Compare(b);
     expectedResult = 0;
@@ -528,8 +498,8 @@ TEST(UTubint, compare){
   //test case that failed in TR 409
   {
 
-    ubint a("11272741999");
-    ubint b("8828677302");
+    exp_int::xubint a("11272741999");
+    exp_int::xubint b("8828677302");
 
     c = a.Compare(b);
     expectedResult = 1;
@@ -542,17 +512,17 @@ TEST(UTubint, compare){
 /* TESTING BASIC MATH METHODS AND OPERATORS     */
 /************************************************/
 TEST(UTubint,basic_math){
-  ubint calculatedResult;
+  exp_int::xubint calculatedResult;
   uint64_t expectedResult;
-  string expectedResultStr; //for when ubint is > 64 bits.
+  string expectedResultStr; //for when exp_int::xubint is > 64 bits.
     
   //TESTING + and +=
 
   // TEST CASE WHEN FIRST NUMBER IS GREATER THAN SECOND NUMBER AND MSB
   // HAS NO OVERFLOW
   {
-    ubint a("203450");
-    ubint b("2034");
+    exp_int::xubint a("203450");
+    exp_int::xubint b("2034");
 
     calculatedResult = a.Add(b);
     expectedResult = 205484;
@@ -576,8 +546,8 @@ TEST(UTubint,basic_math){
   // TEST CASE WHEN FIRST NUMBER IS LESS THAN SECOND NUMBER AND MSB
   // HAS NO OVERFLOW
   {
-    ubint a("2034");
-    ubint b("203450");
+    exp_int::xubint a("2034");
+    exp_int::xubint b("203450");
 
     calculatedResult = a.Add(b);
     expectedResult = 205484;
@@ -597,8 +567,8 @@ TEST(UTubint,basic_math){
   // TEST CASE WHEN MSB OF THE RESULT HAS BIT-OVERFLOW TO THE NEXT
   // LIMB
   {
-    ubint a("4294967295");
-    ubint b("1");
+    exp_int::xubint a("4294967295");
+    exp_int::xubint b("1");
 
     calculatedResult = a.Add(b);
     expectedResult = 4294967296;
@@ -620,8 +590,8 @@ TEST(UTubint,basic_math){
   //todo change for limb
 
   {
-    ubint a("35");
-    ubint b("1015");
+    exp_int::xubint a("35");
+    exp_int::xubint b("1015");
       
     calculatedResult = a.Add(b);
     expectedResult = 1050;
@@ -640,8 +610,8 @@ TEST(UTubint,basic_math){
 
   // TEST CASE WHEN both are multi limb numbers
   {
-    ubint a("98879665709163");
-    ubint b("39832572186149");
+    exp_int::xubint a("98879665709163");
+    exp_int::xubint b("39832572186149");
       
     calculatedResult = a.Add(b);
     expectedResult = 138712237895312;
@@ -661,19 +631,19 @@ TEST(UTubint,basic_math){
   //TESTING - and -=
     
   // note that when a<b, the result is 0, since there is no support
-  // for negative numbers in ubint (see sbint for future
+  // for negative numbers in exp_int::xubint (see sbint for future
   // implementation)x
     
   {
     // TEST CASE WHEN FIRST NUMBER IS LESS THAN THE SECOND NUMBER
       
-    ubint a("20489");
-    ubint b("2034455");
+    exp_int::xubint a("20489");
+    exp_int::xubint b("2034455");
       
     calculatedResult = a.Sub(b);
     expectedResult = 0;
       
-    //since ubint is unsigned  result should be zero
+    //since exp_int::xubint is unsigned  result should be zero
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToUint64())
       << "Failure testing Sub() : a < b";
       
@@ -687,8 +657,8 @@ TEST(UTubint,basic_math){
   }
   // TEST CASE WHEN FIRST NUMBER IS EQUAL TO THE SECOND NUMBER
   {
-    ubint a("2048956567");
-    ubint b("2048956567");
+    exp_int::xubint a("2048956567");
+    exp_int::xubint b("2048956567");
       
     calculatedResult = a.Sub(b);
     expectedResult = 0;
@@ -706,8 +676,8 @@ TEST(UTubint,basic_math){
   }
   // TEST CASE WHEN FIRST NUMBER IS GREATER THAN THE SECOND NUMBER
   {
-    ubint a("2048956567");
-    ubint b("2034455");
+    exp_int::xubint a("2048956567");
+    exp_int::xubint b("2034455");
       
     calculatedResult = a.Sub(b);
     expectedResult = 2046922112;
@@ -726,8 +696,8 @@ TEST(UTubint,basic_math){
   // TEST CASE WHEN SUBTRACTION NEEDS BORROW FROM NEXT BYTE
   {
     //todo: change for limb
-    ubint a("196737");
-    ubint b("65406");
+    exp_int::xubint a("196737");
+    exp_int::xubint b("65406");
       
     calculatedResult = a.Sub(b);
     expectedResult = 131331;
@@ -746,8 +716,8 @@ TEST(UTubint,basic_math){
   }
   // TEST CASE WHEN SUBTRACTION IS MULTI LIMB
   {
-    ubint a("98879665709163");
-    ubint b("39832572186149");
+    exp_int::xubint a("98879665709163");
+    exp_int::xubint b("39832572186149");
 
     calculatedResult = a.Sub(b);
     expectedResult = 59047093523014;
@@ -765,11 +735,11 @@ TEST(UTubint,basic_math){
 
   // TESTING METHOD MUL FOR ALL CONDITIONS 
   // The method "Mul" does multiplication on two ubints
-  // a,b Returns a*b, which is stored in another ubint for * or in a for *=
+  // a,b Returns a*b, which is stored in another exp_int::xubint for * or in a for *=
   {
     //single Limb
-    ubint a("1967");
-    ubint b("654");
+    exp_int::xubint a("1967");
+    exp_int::xubint b("654");
 
     calculatedResult = a.Mul(b);
     expectedResult = 1286418;
@@ -785,8 +755,8 @@ TEST(UTubint,basic_math){
   }
   {
     //multi limb
-    ubint a("98879665709163");
-    ubint b("39832572186149");
+    exp_int::xubint a("98879665709163");
+    exp_int::xubint b("39832572186149");
 
     calculatedResult = a.Mul(b);
     expectedResultStr = "3938631422102517149330983287";
@@ -805,9 +775,9 @@ TEST(UTubint,basic_math){
   }
 
   // TESTING METHOD DIVIDED_BY FOR ALL CONDITIONS
-  // The method "Divided By" does division of ubint a by ubint b
+  // The method "Divided By" does division of exp_int::xubint a by exp_int::xubint b
   // Returns a/b, which is stored in another
-  // ubint calculatedResult 
+  // exp_int::xubint calculatedResult
   // When b=0, throws
   // error, since division by Zero is not allowed When a<b, returns 0,
   // since decimal value is not returned
@@ -815,8 +785,8 @@ TEST(UTubint,basic_math){
 
   // TEST CASE WHEN FIRST NUMBER IS LESS THAN THE SECOND NUMBER
   {
-    ubint a("2048");
-    ubint b("2034455");
+    exp_int::xubint a("2048");
+    exp_int::xubint b("2034455");
 
     calculatedResult = a.Div(b);
     expectedResult = 0;
@@ -837,8 +807,8 @@ TEST(UTubint,basic_math){
   // TEST CASE WHEN FIRST NUMBER IS EQUAL TO THE SECOND NUMBER
   {
 
-    ubint a("2048956567");
-    ubint b("2048956567");
+    exp_int::xubint a("2048956567");
+    exp_int::xubint b("2048956567");
 
     calculatedResult = a.Div(b);
     expectedResult = 1;
@@ -856,8 +826,8 @@ TEST(UTubint,basic_math){
   }
   // TEST CASE WHEN FIRST NUMBER IS GREATER THAN THE SECOND NUMBER
   {
-    ubint a("2048956567");
-    ubint b("2034455");
+    exp_int::xubint a("2048956567");
+    exp_int::xubint b("2034455");
 
     calculatedResult = a.Div(b);
     expectedResult = 1007;
@@ -876,8 +846,8 @@ TEST(UTubint,basic_math){
 
   // TEST CASE for MULTI LIMB
   {
-    ubint a("3938631422102517149330983287");
-    ubint b("98879665709163");
+    exp_int::xubint a("3938631422102517149330983287");
+    exp_int::xubint b("98879665709163");
 
 
     calculatedResult = a.Div(b);
@@ -897,8 +867,8 @@ TEST(UTubint,basic_math){
   // TEST CASE for DIVIDE BY 0
   // should throw an error so we verify it does
   {
-    ubint a("3938631422102517149330983287");
-    ubint b("0");
+    exp_int::xubint a("3938631422102517149330983287");
+    exp_int::xubint b("0");
 
     bool thrown = false;
 
@@ -931,10 +901,10 @@ TEST(UTubint,basic_math){
 
   // TESTING METHOD  EXP 
   {
-    ubint x("56");
-    ubint result = x.Exp(10);
+    exp_int::xubint x("56");
+    exp_int::xubint result = x.Exp(10);
 
-    ubint expectedResult("303305489096114176");
+    exp_int::xubint expectedResult("303305489096114176");
     EXPECT_EQ(expectedResult, result)
       << "Failure testing exp";
   }
@@ -947,14 +917,14 @@ TEST(UTubint,mod_operations){
   /************************************************/
 
   // The method "Mod" does modulus operation on two ubints
-  // m,p Returns (m mod p), which is stored in another ubint
+  // m,p Returns (m mod p), which is stored in another exp_int::xubint
 
-  ubint calculatedResult;
+  exp_int::xubint calculatedResult;
   uint64_t expectedResult;
   // TEST CASE WHEN THE NUMBER IS LESS THAN MOD
   {
-    ubint m("27");
-    ubint p("240");
+    exp_int::xubint m("27");
+    exp_int::xubint p("240");
 
     calculatedResult = m.Mod(p);
     expectedResult = 27;
@@ -972,8 +942,8 @@ TEST(UTubint,mod_operations){
   }
   // TEST CASE WHEN THE NUMBER IS GREATER THAN MOD
   {
-    ubint m("93409673");
-    ubint p("406");
+    exp_int::xubint m("93409673");
+    exp_int::xubint p("406");
 
     calculatedResult = m.Mod(p);
     expectedResult = 35;
@@ -991,8 +961,8 @@ TEST(UTubint,mod_operations){
   }
   // TEST CASE WHEN THE NUMBER IS DIVISIBLE BY MOD
   {
-    ubint m("32768");
-    ubint p("16");
+    exp_int::xubint m("32768");
+    exp_int::xubint p("16");
 
     calculatedResult = m.Mod(p);
     expectedResult = 0;
@@ -1011,8 +981,8 @@ TEST(UTubint,mod_operations){
 
   // TEST CASE WHEN THE NUMBER IS EQUAL TO MOD
   {
-    ubint m("67108913");
-    ubint p("67108913");
+    exp_int::xubint m("67108913");
+    exp_int::xubint p("67108913");
 
     calculatedResult = m.Mod(p);
     expectedResult = 0;
@@ -1030,10 +1000,10 @@ TEST(UTubint,mod_operations){
 
   // TEST CASE THAT FAILED TR#392    
   {
-    ubint first("4974113608263");
-    ubint second("486376675628");
-    ubint modcorrect("110346851983");
-    ubint modresult;
+    exp_int::xubint first("4974113608263");
+    exp_int::xubint second("486376675628");
+    exp_int::xubint modcorrect("110346851983");
+    exp_int::xubint modresult;
 
     modresult = first.Mod(second);
 
@@ -1044,11 +1014,11 @@ TEST(UTubint,mod_operations){
   // TEST CASE THAT FAILED TR#409
   {
 
-    ubint first("11272741999");
-    ubint second("8828677302");
+    exp_int::xubint first("11272741999");
+    exp_int::xubint second("8828677302");
 
-    ubint modcorrect("2444064697");
-    ubint modresult;
+    exp_int::xubint modcorrect("2444064697");
+    exp_int::xubint modresult;
     
     modresult = first.Mod(second);
 
@@ -1060,11 +1030,11 @@ TEST(UTubint,mod_operations){
   // ANOTHER TEST CASE THAT FAILED TR#409
   {
 
-    ubint first("239109124202497");
-    ubint second("9");
+    exp_int::xubint first("239109124202497");
+    exp_int::xubint second("9");
 
-    ubint modcorrect("1");
-    ubint modresult;
+    exp_int::xubint modcorrect("1");
+    exp_int::xubint modresult;
     
     modresult = first.Mod(second);
 
@@ -1077,10 +1047,10 @@ TEST(UTubint,mod_operations){
 
   // Mod(0)
   {
-    ubint first("4974113608263");
-    ubint second("0");
-    ubint modcorrect("4974113608263");
-    ubint modresult;
+    exp_int::xubint first("4974113608263");
+    exp_int::xubint second("0");
+    exp_int::xubint modcorrect("4974113608263");
+    exp_int::xubint modresult;
 
     bool thrown = false;
     try {
@@ -1105,11 +1075,11 @@ TEST(UTubint,mod_operations){
 
   /*TEST(UTubint_METHOD_MOD_BARRETT,NUMBER_LESS_THAN_MOD){
 
-    ubint a("9587");
-    ubint b("3591");
-    ubint c("177");
+    exp_int::xubint a("9587");
+    exp_int::xubint b("3591");
+    exp_int::xubint c("177");
 
-    ubint calculatedResult = a.ModBarrett(b,c);
+    exp_int::xubint calculatedResult = a.ModBarrett(b,c);
     int expectedResult = 205484;
 
     std::cout<<"\n"<<d.ConvertToUint64()<<"\n";	//for testing purpose
@@ -1127,16 +1097,16 @@ TEST(UTubint,mod_operations){
   //    uses extended Euclidean algorithm m and p are co-primes (i,e GCD
   //    of m and p is 1)
   // If m and p are not co-prime, the method throws an error
-  // ConvertToUsint converts ubint calculatedResult to integer
+  // ConvertToUsint converts exp_int::xubint calculatedResult to integer
 
 TEST(UTubint,mod_inverse){
-  ubint calculatedResult;
+  exp_int::xubint calculatedResult;
   uint64_t expectedResult;
 
   // TEST CASE WHEN THE NUMBER IS GREATER THAN MOD
   {
-    ubint m("5");
-    ubint p("108");
+    exp_int::xubint m("5");
+    exp_int::xubint p("108");
 
     calculatedResult = m.ModInverse(p);
     expectedResult = 65;
@@ -1147,8 +1117,8 @@ TEST(UTubint,mod_inverse){
 
   // TEST CASE WHEN THE NUMBER AND MOD ARE NOT CO-PRIME
   {
-    ubint m("3017");
-    ubint p("7");
+    exp_int::xubint m("3017");
+    exp_int::xubint p("7");
 
     bool thrown = false;
     try {
@@ -1169,10 +1139,10 @@ TEST(UTubint,mod_inverse){
   {
 
 
-    ubint input ("405107564542978792");
-    ubint modulus("1152921504606847009");
-    ubint modIcorrect("844019068664266609");
-    ubint modIresult;
+    exp_int::xubint input ("405107564542978792");
+    exp_int::xubint modulus("1152921504606847009");
+    exp_int::xubint modIcorrect("844019068664266609");
+    exp_int::xubint modIresult;
 
     bool thrown = false;
     try {
@@ -1193,7 +1163,7 @@ TEST(UTubint,mod_inverse){
 }
 
 TEST(UTubint,mod_arithmetic){
-  ubint calculatedResult;
+  exp_int::xubint calculatedResult;
   uint64_t expectedResult;
 
   /************************************************/
@@ -1206,9 +1176,9 @@ TEST(UTubint,mod_arithmetic){
 
   // TEST CASE WHEN THE FIRST NUMBER IS GREATER THAN MOD
   {
-    ubint m("58059595");
-    ubint n("3768");
-    ubint q("4067");
+    exp_int::xubint m("58059595");
+    exp_int::xubint n("3768");
+    exp_int::xubint q("4067");
 
     calculatedResult = m.ModAdd(n,q);
     expectedResult = 2871;
@@ -1218,9 +1188,9 @@ TEST(UTubint,mod_arithmetic){
   }
   // TEST CASE WHEN THE SECOND NUMBER IS GREATER THAN MOD
   {
-    ubint m("595");
-    ubint n("376988");
-    ubint q("4067");
+    exp_int::xubint m("595");
+    exp_int::xubint n("376988");
+    exp_int::xubint q("4067");
 
     calculatedResult = m.ModAdd(n,q);
     expectedResult = 3419;
@@ -1230,9 +1200,9 @@ TEST(UTubint,mod_arithmetic){
   }
   // TEST CASE WHEN THE BOTH NUMBERS ARE LESS THAN MOD
   {
-    ubint m("595");
-    ubint n("376");
-    ubint q("4067");
+    exp_int::xubint m("595");
+    exp_int::xubint n("376");
+    exp_int::xubint q("4067");
 
     calculatedResult = m.ModAdd(n,q);
     expectedResult = 971;
@@ -1242,9 +1212,9 @@ TEST(UTubint,mod_arithmetic){
   // TEST CASE WHEN THE BOTH NUMBERS ARE GREATER THAN MOD
   {
 
-    ubint m("59509095449");
-    ubint n("37654969960");
-    ubint q("4067");
+    exp_int::xubint m("59509095449");
+    exp_int::xubint n("37654969960");
+    exp_int::xubint q("4067");
 
     calculatedResult = m.ModAdd(n,q);
     expectedResult = 2861;
@@ -1263,14 +1233,14 @@ TEST(UTubint,mod_arithmetic){
   //    = 0 when m=n
   //    = {(m mod q)+q-(n mod q)}mod q when m<n
 
-  //   ConvertToUsint converts ubint calculatedResult to
+  //   ConvertToUsint converts exp_int::xubint calculatedResult to
   //   integer
 
   // TEST CASE WHEN THE FIRST NUMBER IS GREATER THAN MOD
   {
-    ubint m("595");
-    ubint n("399");
-    ubint q("406");
+    exp_int::xubint m("595");
+    exp_int::xubint n("399");
+    exp_int::xubint q("406");
 
     //std::cout << "Before : " << std::endl;
 
@@ -1282,9 +1252,9 @@ TEST(UTubint,mod_arithmetic){
   }
   // TEST CASE WHEN THE FIRST NUMBER LESS THAN SECOND NUMBER AND MOD
   {
-    ubint m("39960");
-    ubint n("595090959");
-    ubint q("406756");
+    exp_int::xubint m("39960");
+    exp_int::xubint n("595090959");
+    exp_int::xubint q("406756");
 
     calculatedResult = m.ModSub(n,q);
     expectedResult = 33029;
@@ -1295,9 +1265,9 @@ TEST(UTubint,mod_arithmetic){
   }
   // TEST CASE WHEN THE FIRST NUMBER EQUAL TO SECOND NUMBER
   {
-    ubint m("595090959");
-    ubint n("595090959");
-    ubint q("406756");
+    exp_int::xubint m("595090959");
+    exp_int::xubint n("595090959");
+    exp_int::xubint q("406756");
 
     calculatedResult = m.ModSub(n,q);
     expectedResult = 0;
@@ -1315,11 +1285,11 @@ TEST(UTubint,mod_arithmetic){
   //              = {(m mod q)*(n mod q)}
 
   {
-    ubint m("39960");
-    ubint n("7959");
-    ubint q("406756");
+    exp_int::xubint m("39960");
+    exp_int::xubint n("7959");
+    exp_int::xubint q("406756");
 
-    ubint calculatedResult = m.ModMul(n,q);
+    exp_int::xubint calculatedResult = m.ModMul(n,q);
     uint64_t expectedResult = 365204;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToUint64())
@@ -1335,11 +1305,11 @@ TEST(UTubint,mod_arithmetic){
   //   = {(m mod q)^(n mod q)}mod q
 
   {
-    ubint m("39960");
-    ubint n("10");
-    ubint q("406756");
+    exp_int::xubint m("39960");
+    exp_int::xubint n("10");
+    exp_int::xubint q("406756");
 
-    ubint calculatedResult = m.ModExp(n,q);
+    exp_int::xubint calculatedResult = m.ModExp(n,q);
     uint64_t expectedResult = 139668;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToUint64())
@@ -1352,10 +1322,10 @@ TEST(UTubint, misc_functions){
   // TESTING METHOD  BinaryStringToUbint
 #if 0
  std:string binaryString = "1011101101110001111010111011000000011";
-  ubint b =
-    lbcrypto::ubint::BinaryStringToUbint(binaryString);
+  exp_int::xubint b =
+    lbcrypto::exp_int::xubint::BinaryStringToUbint(binaryString);
 
-  ubint expectedResult("100633769475");
+  exp_int::xubint expectedResult("100633769475");
   EXPECT_EQ(expectedResult, b)
     << "Failure testing BinaryToUbint()";
 #else

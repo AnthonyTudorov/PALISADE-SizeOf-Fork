@@ -43,6 +43,7 @@
 #include <iostream>
 #include <fstream>
 
+#include "../lib/lattice/ildcrt2n.h"
 #include "math/backend.h"
 #include "utils/inttypes.h"
 #include "math/nbtheory.h"
@@ -53,7 +54,6 @@
 #include "lattice/ilelement.h"
 #include "math/distrgen.h"
 #include "lattice/ilvector2n.h"
-#include "lattice/ilvectorarray2n.h"
 #include "utils/utilities.h"
 
 using namespace std;
@@ -73,9 +73,8 @@ protected:
 
     //TODO: (dbc) do I need this here?
     // any calls to mubint may fail otherwise.
-#if (MATHBACKEND == 5) || (MATHBACKEND ==6) //mubint not defined before this. 
+
     NTL::ZZ_p::init(NTL::ZZ(1));
-#endif
   }
 
   virtual void TearDown() {

@@ -9,13 +9,13 @@
 #include "elemparams.cpp"
 #include "ildcrtparams.cpp"
 #include "ilvector2n.cpp"
-#include "ilvectorarray2n.cpp"
 #include "../math/discretegaussiangenerator.cpp"
 #include "../math/discreteuniformgenerator.cpp"
 #include "../math/binaryuniformgenerator.cpp"
 #include "../math/ternaryuniformgenerator.cpp"
+#include "ildcrt2n.cpp"
 
-// This creates all the necessary class implementations for ILVectorArray2n
+// This creates all the necessary class implementations for ILDCRT2n
 
 namespace lbcrypto {
 

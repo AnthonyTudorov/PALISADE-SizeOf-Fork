@@ -27,7 +27,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 */
 
-#include "ilvectorarray2n.h"
+#include "ildcrt2n.h"
 #include <fstream>
 #include <memory>
 using std::shared_ptr;

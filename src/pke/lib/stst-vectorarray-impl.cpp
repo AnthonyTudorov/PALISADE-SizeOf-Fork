@@ -10,7 +10,7 @@
 #include "stst.h"
 
 namespace lbcrypto {
-template class LPCryptoParametersStehleSteinfeld<ILVectorArray2n>;
-template class LPPublicKeyEncryptionSchemeStehleSteinfeld<ILVectorArray2n>;
-template class LPEncryptionAlgorithmStehleSteinfeld<ILVectorArray2n>;
+template class LPCryptoParametersStehleSteinfeld<ILDCRT2n>;
+template class LPPublicKeyEncryptionSchemeStehleSteinfeld<ILDCRT2n>;
+template class LPEncryptionAlgorithmStehleSteinfeld<ILDCRT2n>;
 }

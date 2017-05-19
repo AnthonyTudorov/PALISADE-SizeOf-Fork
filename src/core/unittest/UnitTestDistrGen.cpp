@@ -38,7 +38,6 @@
 #include "lattice/ildcrtparams.h"
 #include "math/distrgen.h"
 #include "lattice/ilvector2n.h"
-#include "lattice/ilvectorarray2n.h"
 #include "math/nbtheory.h"
 #include "lattice/elemparams.h"
 #include "lattice/ilelement.h"
@@ -46,6 +45,8 @@
 #include "utils/debug.h"
 
 #include <omp.h>
+
+#include "../lib/lattice/ildcrt2n.h"
 using namespace std;
 using namespace lbcrypto;
 
