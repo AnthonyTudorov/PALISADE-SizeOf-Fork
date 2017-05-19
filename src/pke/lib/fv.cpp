@@ -770,8 +770,7 @@ LPKeyPair<Element> LPAlgorithmMultipartyFV<Element>::FusionKeyGen(const CryptoCo
 
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmMultipartyFV<Element>::FusionDecryptMain(const shared_ptr<LPPrivateKey<Element>> privateKey,
-		const shared_ptr<Ciphertext<Element>> ciphertext,
-		ILVector2n *plaintext) const
+		const shared_ptr<Ciphertext<Element>> ciphertext) const
 {
 	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
@@ -783,23 +782,17 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmMultipartyFV<Element>::FusionDecryptM
 	const Element &s = privateKey->GetPrivateElement();
 
 	Element b = s*c[1];
-
 	b.SwitchFormat();		
-	*plaintext = b.CRTInterpolate();
 
 	shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext->GetCryptoContext()));
-
-	Element c1 = b;
-
 	newCiphertext->SetElements({ b });
-	//newCiphertext->SetElements({ b, c1 });
+
 	return newCiphertext;
 }
 
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmMultipartyFV<Element>::FusionDecryptMaster(const shared_ptr<LPPrivateKey<Element>> privateKey,
-		const shared_ptr<Ciphertext<Element>> ciphertext,
-		ILVector2n *plaintext) const
+		const shared_ptr<Ciphertext<Element>> ciphertext) const
 {
 	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
@@ -811,34 +804,26 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmMultipartyFV<Element>::FusionDecryptM
 	const Element &s = privateKey->GetPrivateElement();
 
 	Element b = c[0] + s*c[1];
-
 	b.SwitchFormat();		
-	*plaintext = b.CRTInterpolate();
 
 	shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext->GetCryptoContext()));
-
-	Element c1 = b;
-
 	newCiphertext->SetElements({ b });
-	//newCiphertext->SetElements({ b, c1 });
+
 	return newCiphertext;
 }
 
 template <class Element>
-DecryptResult LPAlgorithmMultipartyFV<Element>::FusionDecrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
-		const shared_ptr<Ciphertext<Element>> ciphertext1,
+DecryptResult LPAlgorithmMultipartyFV<Element>::FusionDecrypt(const shared_ptr<Ciphertext<Element>> ciphertext1,
 		const shared_ptr<Ciphertext<Element>> ciphertext2,
 		ILVector2n *plaintext) const
 {
-	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
+	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = ciphertext1->GetCryptoParameters();
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 	const BigBinaryInteger &q = elementParams->GetModulus();
 
 	const std::vector<Element> &c1 = ciphertext1->GetElements();
 	const std::vector<Element> &c2 = ciphertext2->GetElements();
-
-	const Element &s = privateKey->GetPrivateElement();
 
 	Element b = c1[0] + c2[0];
 	

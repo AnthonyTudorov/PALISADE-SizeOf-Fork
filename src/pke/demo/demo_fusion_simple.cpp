@@ -357,9 +357,9 @@ int main(int argc, char *argv[]) {
 
 	start = currentDateTime();
 
-	ciphertextPartial1 = cc.FusionDecryptMaster(kp1.secretKey, ciphertextAddVectNew, &plaintextAddNew1, &partialPlaintext1, true);
-	ciphertextPartial2 = cc.FusionDecryptMain(kp2.secretKey, ciphertextAddVectNew, &plaintextAddNew2, &partialPlaintext2, true);
-	DecryptResult resultFusion = cc.FusionDecrypt(kpFusion.secretKey, ciphertextPartial1, ciphertextPartial2, &plaintextFusionNew, true);
+	ciphertextPartial1 = cc.FusionDecryptMaster(kp1.secretKey, ciphertextAddVectNew);
+	ciphertextPartial2 = cc.FusionDecryptMain(kp2.secretKey, ciphertextAddVectNew);
+	DecryptResult resultFusion = cc.FusionDecrypt(ciphertextPartial1, ciphertextPartial2, &plaintextFusionNew, true);
 
 	finish = currentDateTime();
 	diff = finish - start;

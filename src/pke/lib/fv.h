@@ -566,8 +566,7 @@ namespace lbcrypto {
 		* @return resulting ciphertext after the decryption master operation.
 		*/
 		shared_ptr<Ciphertext<Element>> FusionDecryptMain(const shared_ptr<LPPrivateKey<Element>> privateKey,
-			const shared_ptr<Ciphertext<Element>> ciphertext,
-			ILVector2n *plaintext) const;
+			const shared_ptr<Ciphertext<Element>> ciphertext) const;
 
 		/**
 		* Method for decrypting using FV
@@ -578,8 +577,7 @@ namespace lbcrypto {
 		* @return resulting ciphertext after the decryption master operation.
 		*/
 		shared_ptr<Ciphertext<Element>> FusionDecryptMaster(const shared_ptr<LPPrivateKey<Element>> privateKey,
-			const shared_ptr<Ciphertext<Element>> ciphertext,
-			ILVector2n *plaintext) const;
+			const shared_ptr<Ciphertext<Element>> ciphertext) const;
 
 		/**
 		* Method for decrypting using FV
@@ -590,8 +588,7 @@ namespace lbcrypto {
 		* @param *plaintext the plaintext output.
 		* @return the decrypted plaintext returned.
 		*/
-		DecryptResult FusionDecrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
-			const shared_ptr<Ciphertext<Element>> ciphertext1,
+		DecryptResult FusionDecrypt(const shared_ptr<Ciphertext<Element>> ciphertext1,
 			const shared_ptr<Ciphertext<Element>> ciphertext2,
 			ILVector2n *plaintext) const;
 
