@@ -7,6 +7,7 @@
 
 
 #include "elemparams.cpp"
+#include "ildcrtparams.cpp"
 #include "ilvector2n.cpp"
 #include "ilvectorarray2n.cpp"
 #include "../math/discretegaussiangenerator.cpp"
@@ -18,8 +19,9 @@
 
 namespace lbcrypto {
 
-class ILDCRTParams;
-template class ILVectorArrayImpl<BigBinaryInteger,BigBinaryInteger,BigBinaryVector,ILDCRTParams>;
+template class ElemParams<BigBinaryInteger>;
+template class ILDCRTParams<BigBinaryInteger>;
+template class ILVectorArrayImpl<BigBinaryInteger,BigBinaryInteger,BigBinaryVector,ILDCRTParams<BigBinaryInteger>>;
 
 }
 

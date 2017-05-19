@@ -5,7 +5,8 @@
 
 namespace lbcrypto {
 
-ILDCRTParams::ILDCRTParams(usint order, usint depth, usint bits) : ElemParams<BigBinaryInteger>(order) {
+template<typename IntType>
+ILDCRTParams<IntType>::ILDCRTParams(usint order, usint depth, usint bits) : ElemParams<IntType>(order) {
 
 	if( order == 0 )
 		return;
@@ -35,15 +36,13 @@ ILDCRTParams::ILDCRTParams(usint order, usint depth, usint bits) : ElemParams<Bi
 
 template<typename IntType>
 bool
-ILDCRTParams::Serialize(Serialized* serObj) const
+ILDCRTParams<IntType>::Serialize(Serialized* serObj) const
 {
 	if( !serObj->IsObject() )
 		return false;
 
 	Serialized ser(rapidjson::kObjectType, &serObj->GetAllocator());
 
-	ser.AddMember("Modulus", m_modulus.ToString(), ser.GetAllocator());
-	ser.AddMember("Order", std::to_string(m_cyclotomicOrder), ser.GetAllocator());
 	SerializeVectorOfPointers<native64::ILParams>("Params", "ILParams", m_parms, &ser);
 
 	serObj->AddMember("ILDCRTParams", ser, serObj->GetAllocator());
@@ -51,24 +50,16 @@ ILDCRTParams::Serialize(Serialized* serObj) const
 	return true;
 }
 
+template<typename IntType>
 bool
-ILDCRTParams::Deserialize(const Serialized& serObj)
+ILDCRTParams<IntType>::Deserialize(const Serialized& serObj)
 {
 	Serialized::ConstMemberIterator rIt = serObj.FindMember("ILDCRTParams");
 	if( rIt == serObj.MemberEnd() ) return false;
 
 	const SerialItem& arr = rIt->value;
 
-	Serialized::ConstMemberIterator it = arr.FindMember("Modulus");
-	if( it == arr.MemberEnd() ) return false;
-	BigBinaryInteger modulus( it->value.GetString() );
-	this->m_modulus = modulus;
-
-	it = arr.FindMember("Order");
-	if( it == arr.MemberEnd() ) return false;
-	this->m_cyclotomicOrder = std::stoi(it->value.GetString());
-
-	it = arr.FindMember("Params");
+	Serialized::ConstMemberIterator it = arr.FindMember("Params");
 
 	if( it == arr.MemberEnd() ) {
 		return false;
