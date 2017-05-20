@@ -133,8 +133,6 @@ public:
 	string getNodeLabel() const { return "+"; }
 
 	Value eval(CryptoContext<ILVector2n>& cc, CircuitGraph& cg) {
-		std::cout << "Eval of ADD node " << nodeId << " by evaluating " << inputs[0] << " and " << inputs[1] << std::endl;
-
 		// gather together all of the inputs to this gate and add them
 		if( inputs.size() == 0 ) throw std::logic_error("Cannot add, no inputs");
 		else if( inputs.size() == 1 ) return cg.getNodeById( inputs[0] )->getValue();
@@ -155,7 +153,17 @@ public:
 
 	string getNodeLabel() const { return "-"; }
 
-	Value eval(CryptoContext<ILVector2n>& cc, CircuitGraph& cg) {}
+	Value eval(CryptoContext<ILVector2n>& cc, CircuitGraph& cg) {
+		// gather together all of the inputs to this gate and add them
+		if( inputs.size() == 0 ) throw std::logic_error("Cannot multiply, no inputs");
+		else if( inputs.size() == 1 ) return cg.getNodeById( inputs[0] )->getValue();
+
+		shared_ptr<Ciphertext<ILVector2n>> prod = cc.EvalMult(cg.getNodeById( inputs[0] )->getValue(), cg.getNodeById( inputs[1] )->getValue());
+
+		for( size_t i = 2; i < inputs.size(); i++ )
+			prod = cc.EvalMult(prod, cg.getNodeById( inputs[i] )->getValue());
+		return value = prod;
+	}
 };
 
 class EvalMultNode : public CircuitNode {

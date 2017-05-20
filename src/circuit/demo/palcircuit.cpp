@@ -15,6 +15,8 @@ main(int argc, char *argv[])
 {
 	CryptoContext<ILVector2n> cc = GenCryptoContextElementNull(8, 8);
 
+	std::cout << *cc.GetCryptoParameters() << std::endl;
+
 	PalisadeCircuit	cir(cc);
 
 	IntPlaintextEncoding pt1 = { 1,2,3,5 };

@@ -36,9 +36,8 @@ using namespace lbcrypto;
 
 static const usint PrimeBits = 50;
 
-inline CryptoContext<ILVector2n> GenCryptoContextElementNull(usint ORDER, usint ptm, usint bits=PrimeBits) {
-	shared_ptr<ILVector2n::Params> p = GenerateTestParams<ILVector2n::Params,ILVector2n::Integer>(ORDER, bits);
-
+inline CryptoContext<ILVector2n> GenCryptoContextElementNull(usint ORDER, usint ptm) {
+	shared_ptr<ILVector2n::Params> p( new ILVector2n::Params(ORDER, ILVector2n::Integer(ptm), ILVector2n::Integer::ONE) );
 	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextNull(p, ptm);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(PRE);
