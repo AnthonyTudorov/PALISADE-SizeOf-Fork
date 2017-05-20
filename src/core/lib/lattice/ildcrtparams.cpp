@@ -73,6 +73,7 @@ ILDCRTParams<IntType>::Deserialize(const Serialized& serObj)
 	this->isPowerOfTwo = this->ringDimension == this->cyclotomicOrder / 2;
 
 	RecalculateModulus();
+	return true;
 }
 
 
