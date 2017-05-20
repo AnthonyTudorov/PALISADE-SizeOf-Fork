@@ -54,7 +54,7 @@ void LPCryptoParametersLTV<Element>::ParameterSelection(LPCryptoParametersLTV<IL
 	std::vector<native64::BigBinaryInteger> moduli(this->m_depth + 1);
 	moduli.reserve(this->m_depth + 1);
 
-	usint n = this->GetElementParams()->GetCyclotomicOrder() / 2;
+	usint n = this->GetElementParams()->GetRingDimension();
 	// set the values for n (ring dimension) and chain of moduli
 	this->ParameterSelection(n, moduli);
 
@@ -66,7 +66,7 @@ void LPCryptoParametersLTV<Element>::ParameterSelection(LPCryptoParametersLTV<IL
 
 	std::vector<native64::BigBinaryInteger> rootsOfUnity;
 	rootsOfUnity.reserve(this->m_depth + 1);
-	usint m = n * 2; //cyclotomic order
+	usint m = this->GetElementParams()->GetCyclotomicOrder();
 	native64::BigBinaryInteger rootOfUnity;
 
 	for (usint i = 0; i < this->m_depth + 1; i++) {

@@ -106,7 +106,7 @@ const BigBinaryInteger ObfuscatedLWEConjunctionPattern<Element>::GetModulus() co
 
 template <class Element>
 usint ObfuscatedLWEConjunctionPattern<Element>::GetRingDimension() const{
-	return (this->m_elemParams->GetCyclotomicOrder())/2;
+	return (this->m_elemParams->GetRingDimension());
 };
 
 // Gets the log of the modulus
@@ -322,7 +322,7 @@ shared_ptr<Matrix<Element>> LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 
 	size_t m = Ai.GetCols();
 	size_t k = m - 2;
-	size_t n = elemS.GetParams()->GetCyclotomicOrder()/2;
+	size_t n = elemS.GetRingDimension();
 	const BigBinaryInteger &modulus = elemS.GetParams()->GetModulus();
 	auto zero_alloc = Element::MakeAllocator(elemS.GetParams(), COEFFICIENT);
 

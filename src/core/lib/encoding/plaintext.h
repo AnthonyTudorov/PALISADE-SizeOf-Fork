@@ -67,7 +67,7 @@ public:
 
 	virtual void Unpad(const BigBinaryInteger &modulus) = 0;
 
-	virtual size_t GetChunksize(const usint cyc, const BigBinaryInteger& ptm) const = 0;
+	virtual size_t GetChunksize(const usint ring, const BigBinaryInteger& ptm) const = 0;
 
 	/**
 	 * Get method to return the length of plaintext

@@ -18,8 +18,8 @@ Description:
 
 This code implements the Brakerski-Vaikuntanathan (BV) homomorphic encryption scheme.
 The scheme is described at http://www.wisdom.weizmann.ac.il/~zvikab/localpapers/IdealHom.pdf (or alternative Internet source:
-http://dx.doi.org/10.1007/978-3-642-22792-9_29). 
-The levelled Homomorphic scheme is described in 
+http://dx.doi.org/10.1007/978-3-642-22792-9_29).
+The levelled Homomorphic scheme is described in
 "Fully Homomorphic Encryption without Bootstrapping", Internet Source: https://eprint.iacr.org/2011/277.pdf .
 Implementation details are provided in
 "Homomorphic Evaluation of the AES Circuit" Internet source: https://eprint.iacr.org/2012/099.pdf .
@@ -103,7 +103,7 @@ namespace lbcrypto {
 
 		//Generate the element "a" of the public key
 		Element a(dug, elementParams, Format::EVALUATION);
-		
+
 		//Generate the secret key
 		Element s;
 
@@ -166,9 +166,9 @@ namespace lbcrypto {
 
 		plaintext.SwitchFormat();
 
-		Element c0( b*v + p*e0 + plaintext );
+		Element c0(b*v + p*e0 + plaintext);
 
-		Element c1( a*v + p*e1 );
+		Element c1(a*v + p*e1);
 
 		std::vector<Element> cVector;
 
@@ -291,7 +291,7 @@ namespace lbcrypto {
 		return this->KeySwitch(ek, newCiphertext);
 
 	}
-	
+
 	template <class Element>
 	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::EvalNegate(const shared_ptr<Ciphertext<Element>> ciphertext) const {
 
@@ -345,7 +345,7 @@ namespace lbcrypto {
 
 			evalKeyElementsGenerated.push_back(a); //alpha's of i
 
-			// Generate a_i * newSK + p * e - PowerOfBase(oldSK)
+												   // Generate a_i * newSK + p * e - PowerOfBase(oldSK)
 			Element e(dgg, originalKeyParams, Format::EVALUATION);
 
 			evalKeyElements.at(i) = (a*sNew + p*e) - evalKeyElements.at(i);
@@ -443,13 +443,13 @@ namespace lbcrypto {
 
 		permutedCiphertext->SetElements(std::move(cNew));
 
-		return this->KeySwitch(evalKeys[(i-3)/2], permutedCiphertext);
+		return this->KeySwitch(evalKeys[(i - 3) / 2], permutedCiphertext);
 
 	}
 
 	template <class Element>
 	shared_ptr<std::vector<shared_ptr<LPEvalKey<Element>>>> LPAlgorithmSHEBV<Element>::EvalAutomorphismKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey,
-		usint size, bool flagEvalSum) const 
+		usint size, bool flagEvalSum) const
 	{
 
 		const Element &privateKeyElement = privateKey->GetPrivateElement();
@@ -486,7 +486,7 @@ namespace lbcrypto {
 	shared_ptr<LPEvalKey<Element>> LPAlgorithmPREBV<Element>::ReKeyGen(const shared_ptr<LPPrivateKey<Element>> newSK,
 		const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const
 	{
-		return origPrivateKey->GetCryptoContext().GetEncryptionAlgorithm()->KeySwitchGen(origPrivateKey, 
+		return origPrivateKey->GetCryptoContext().GetEncryptionAlgorithm()->KeySwitchGen(origPrivateKey,
 			newSK);
 	}
 
@@ -501,7 +501,7 @@ namespace lbcrypto {
 
 	template <class Element>
 	shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmBV<Element>::ModReduce(shared_ptr<Ciphertext<Element>> cipherText) const {
-		
+
 		shared_ptr<Ciphertext<Element>> newcipherText(new Ciphertext<Element>(*cipherText));
 
 		std::vector<Element> cipherTextElements(cipherText->GetElements());
@@ -509,7 +509,7 @@ namespace lbcrypto {
 		BigBinaryInteger plaintextModulus(cipherText->GetCryptoParameters()->GetPlaintextModulus());
 
 		for (auto &cipherTextElement : cipherTextElements) {
-			cipherTextElement.ModReduce(plaintextModulus);// this is being done at the lattice layer. The ciphertext is mod reduced.
+			cipherTextElement.ModReduce(plaintextModulus); // this is being done at the lattice layer. The ciphertext is mod reduced.
 		}
 
 		newcipherText->SetElements(cipherTextElements);

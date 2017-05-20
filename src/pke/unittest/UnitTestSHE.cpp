@@ -373,19 +373,12 @@ TEST(UTSHE, keyswitch_sparse_key_SingleCRT_intArray) {
 
 TEST(UTSHE, keyswitch_SingleCRT) {
 
-	//ILVector2n::DestroyPreComputedSamples();
 	usint m = 512;
 
 	BytePlaintextEncoding plaintext("I am good, what are you?! 32 ch");
 	float stdDev = 4;
 
-	BigBinaryInteger q("1");
-	BigBinaryInteger temp;
-
-	lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("40"), BigBinaryInteger("4"));
-
-	BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
-	shared_ptr<ILVector2n::Params> params( new ILVector2n::Params(m, q, rootOfUnity) );
+	shared_ptr<ILVector2n::Params> params = GenerateTestParams<ILVector2n::Params,ILVector2n::Integer>(m, 30);
 
 	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, 2, 1, stdDev);
 	cc.Enable(ENCRYPTION);
@@ -414,21 +407,12 @@ TEST(UTSHE, keyswitch_SingleCRT) {
 
 TEST(UTSHE, sparsekeygen_single_crt_encrypt_decrypt) {
 
-	//ILVector2n::DestroyPreComputedSamples();
-
 	usint m = 512;
 
 	BytePlaintextEncoding plaintext("I am good, what are you?! 32 ch");
 	float stdDev = 4;
 
-	BigBinaryInteger q("1");
-	BigBinaryInteger temp;
-
-	lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("40"), BigBinaryInteger("4"));
-
-	BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
-
-	shared_ptr<ILVector2n::Params> params( new ILVector2n::Params(m, q, rootOfUnity) );
+	shared_ptr<ILVector2n::Params> params = GenerateTestParams<ILVector2n::Params,ILVector2n::Integer>(m, 30);
 
 	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, 2, 1, stdDev);
 	cc.Enable(ENCRYPTION);
@@ -463,25 +447,7 @@ TEST(UTSHE, keyswitch_ModReduce_DCRT) {
 	usint plaintextmodulus = 2;
 	usint relinWindow = 1;
 
-	vector<native64::BigBinaryInteger> moduli(size);
-	moduli.reserve(4);
-	vector<native64::BigBinaryInteger> rootsOfUnity(size);
-	rootsOfUnity.reserve(4);
-
-	native64::BigBinaryInteger q("1");
-	native64::BigBinaryInteger temp;
-	BigBinaryInteger modulus("1");
-
-	lbcrypto::NextQ(q, native64::BigBinaryInteger::TWO, m, native64::BigBinaryInteger("40"), native64::BigBinaryInteger("4"));
-
-	for (int i = 0; i < size; i++) {
-		lbcrypto::NextQ(q, native64::BigBinaryInteger::TWO, m, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
-		moduli[i] = q;
-		rootsOfUnity[i] = RootOfUnity(m, moduli[i]);
-		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
-	}
-
-	shared_ptr<ILDCRTParams> params( new ILDCRTParams(m, moduli, rootsOfUnity) );
+	shared_ptr<ILVectorArray2n::Params> params = GenerateDCRTParams( m, plaintextmodulus, size, 30 );
 
 	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextLTV(params, plaintextmodulus, relinWindow, stdDev);
 
@@ -508,12 +474,12 @@ TEST(UTSHE, keyswitch_ModReduce_DCRT) {
 
 	cc.Decrypt(kp2.secretKey, newCiphertext, &plaintextNewKeySwitch);
 
-	EXPECT_EQ(plaintext, plaintextNewKeySwitch);
+	EXPECT_EQ(plaintext, plaintextNewKeySwitch) << "Key-Switched Decrypt fails";
 
 	/**************************KEYSWITCH TEST END******************************/
 	/**************************MODREDUCE TEST BEGIN******************************/
 
-	cc.ModReduce(newCiphertext);
+	newCiphertext[0] = cc.ModReduce(newCiphertext[0]);
 	ILVectorArray2n sk2PrivateElement(kp2.secretKey->GetPrivateElement());
 	sk2PrivateElement.DropLastElement();
 	kp2.secretKey->SetPrivateElement(sk2PrivateElement);
@@ -522,23 +488,15 @@ TEST(UTSHE, keyswitch_ModReduce_DCRT) {
 
 	cc.Decrypt(kp2.secretKey, newCiphertext, &plaintextNewModReduce);
 	
-	EXPECT_EQ(plaintext, plaintextNewModReduce);
+	EXPECT_EQ(plaintext, plaintextNewModReduce) << "Mod Reduced Decrypt fails";
 }
 
 TEST(UTSHE, ringreduce_single_crt) {
-	//ILVector2n::DestroyPreComputedSamples();
 	usint m = 16;
 
 	float stdDev = 4;
 
-	BigBinaryInteger q("1");
-	BigBinaryInteger temp;
-
-	lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("40"), BigBinaryInteger("4"));
-
-	BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
-
-	shared_ptr<ILVector2n::Params> params( new ILVector2n::Params(m, q, rootOfUnity) );
+	shared_ptr<ILVector2n::Params> params = GenerateTestParams<ILVector2n::Params,ILVector2n::Integer>(m, 30);
 
 	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, 2, 1, stdDev);
 	cc.Enable(ENCRYPTION);
@@ -592,25 +550,7 @@ TEST(UTSHE, ringreduce_double_crt) {
 	usint relinWindow = 1;
 	usint size = 3;
 
-	vector<native64::BigBinaryInteger> moduli(size);
-	moduli.reserve(4);
-	vector<native64::BigBinaryInteger> rootsOfUnity(size);
-	rootsOfUnity.reserve(4);
-
-	native64::BigBinaryInteger q("1");
-	native64::BigBinaryInteger temp;
-	BigBinaryInteger modulus("1");
-
-	lbcrypto::NextQ(q, native64::BigBinaryInteger::TWO, m, native64::BigBinaryInteger("40"), native64::BigBinaryInteger("4"));
-
-	for (int i = 0; i < size; i++) {
-		lbcrypto::NextQ(q, native64::BigBinaryInteger::TWO, m, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
-		moduli[i] = q;
-		rootsOfUnity[i] = RootOfUnity(m, moduli[i]);
-		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
-	}
-
-	shared_ptr<ILDCRTParams> params( new ILDCRTParams(m, moduli, rootsOfUnity) );
+	shared_ptr<ILVectorArray2n::Params> params = GenerateDCRTParams( m, plaintextmodulus, size, 32 );
 
 	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextLTV(params, plaintextmodulus, relinWindow, stdDev);
 	cc.Enable(ENCRYPTION);

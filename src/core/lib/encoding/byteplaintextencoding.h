@@ -101,7 +101,7 @@ public:
 
 	void Unpad(const BigBinaryInteger &modulus = BigBinaryInteger::ZERO);
 
-	size_t GetChunksize(const usint cyc, const BigBinaryInteger& ptm) const;
+	size_t GetChunksize(const usint ring, const BigBinaryInteger& ptm) const;
 
 	size_t GetLength() const { return this->size(); }
 

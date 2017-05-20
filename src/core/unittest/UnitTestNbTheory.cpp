@@ -344,26 +344,25 @@ TEST(UTNbTheory, test_nextQ){
 	BigBinaryInteger modulus("1");
 	std::vector<BigBinaryInteger> moduli(10);
 
-	BigBinaryInteger expectedModulus("8982485833671537308323644432028149589615262773332244597688750081");
+	BigBinaryInteger expectedModulus("3870844751439548001384346183425749519101626664076414239811368961");
 	BigBinaryVector moduliBBV(10);
 	moduliBBV.SetModulus(expectedModulus);
-	moduliBBV.SetValAtIndex(0, "2236417");
-	moduliBBV.SetValAtIndex(1, "2297857");
-	moduliBBV.SetValAtIndex(2, "2424833");
-	moduliBBV.SetValAtIndex(3, "2437121");
-	moduliBBV.SetValAtIndex(4, "2482177");
-	moduliBBV.SetValAtIndex(5, "2486273");
-	moduliBBV.SetValAtIndex(6, "2572289");
-	moduliBBV.SetValAtIndex(7, "2592769");
-	moduliBBV.SetValAtIndex(8, "2654209");
-	moduliBBV.SetValAtIndex(9, "2707457");
+	moduliBBV.SetValAtIndex(0, "2101249");
+	moduliBBV.SetValAtIndex(1, "2107393");
+	moduliBBV.SetValAtIndex(2, "2236417");
+	moduliBBV.SetValAtIndex(3, "2254849");
+	moduliBBV.SetValAtIndex(4, "2277377");
+	moduliBBV.SetValAtIndex(5, "2357249");
+	moduliBBV.SetValAtIndex(6, "2363393");
+	moduliBBV.SetValAtIndex(7, "2369537");
+	moduliBBV.SetValAtIndex(8, "2387969");
+	moduliBBV.SetValAtIndex(9, "2414593");
 
 	for(usint i=0; i<10; i++){
-        lbcrypto::NextQ(q, BigBinaryInteger::TWO, 2048, BigBinaryInteger("4"), BigBinaryInteger("4"));
+        lbcrypto::NextQ(q, BigBinaryInteger::TWO, 2048, BigBinaryInteger::FOUR, BigBinaryInteger::FOUR);
 		moduli[i] = q;
 		EXPECT_EQ(moduli[i], moduliBBV.GetValAtIndex(i));
-		// std::cout << moduli[i] << std::endl;
 		modulus = modulus* moduli[i];
 	}
-	EXPECT_EQ("8982485833671537308323644432028149589615262773332244597688750081", modulus.ToString());
+	EXPECT_EQ(expectedModulus, modulus);
 }

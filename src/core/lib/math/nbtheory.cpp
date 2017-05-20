@@ -59,10 +59,15 @@ template std::vector<BigBinaryInteger> RootsOfUnity(usint m, const std::vector<B
 template BigBinaryInteger GreatestCommonDivisor(const BigBinaryInteger& a, const BigBinaryInteger& b);
   template bool MillerRabinPrimalityTest(const BigBinaryInteger& p, const usint niter);
 template const BigBinaryInteger PollardRhoFactorization(const BigBinaryInteger &n);
-template void PrimeFactorize( BigBinaryInteger &n, std::set<BigBinaryInteger> &primeFactors);
+template void PrimeFactorize( BigBinaryInteger n, std::set<BigBinaryInteger> &primeFactors);
 template BigBinaryInteger FindPrimeModulus(usint m, usint nBits);
-template void NextQ(BigBinaryInteger &q, const BigBinaryInteger &plainTextModulus, const usint &ringDimension, const BigBinaryInteger &sigma, const BigBinaryInteger &alpha);
+template void NextQ(BigBinaryInteger &q, const BigBinaryInteger &plainTextModulus, const usint cyclotomicOrder, const BigBinaryInteger &sigma, const BigBinaryInteger &alpha);
+template BigBinaryVector PolyMod(const BigBinaryVector &dividend, const BigBinaryVector &divisor, const BigBinaryInteger &modulus);
+template BigBinaryVector PolynomialMultiplication(const BigBinaryVector &a, const BigBinaryVector &b);
+template BigBinaryVector GetCyclotomicPolynomial(usint m, const BigBinaryInteger &modulus);
 
+
+template std::vector<usint> GetTotientList(const usint &n);
 // FIXME the MATH_BACKEND check is a hack and needs to go away
 #if MATHBACKEND != 7
 #ifndef NO_MATHBACKEND_7
@@ -71,9 +76,15 @@ template std::vector<native64::BigBinaryInteger> RootsOfUnity(usint m, const std
 template native64::BigBinaryInteger GreatestCommonDivisor(const native64::BigBinaryInteger& a, const native64::BigBinaryInteger& b);
   template bool MillerRabinPrimalityTest(const native64::BigBinaryInteger& p, const usint niter);
 template const native64::BigBinaryInteger PollardRhoFactorization(const native64::BigBinaryInteger &n);
-template void PrimeFactorize( native64::BigBinaryInteger &n, std::set<native64::BigBinaryInteger> &primeFactors);
+template void PrimeFactorize( native64::BigBinaryInteger n, std::set<native64::BigBinaryInteger> &primeFactors);
 template native64::BigBinaryInteger FindPrimeModulus(usint m, usint nBits);
-template void NextQ(native64::BigBinaryInteger &q, const native64::BigBinaryInteger &plainTextModulus, const usint &ringDimension, const native64::BigBinaryInteger &sigma, const native64::BigBinaryInteger &alpha);
+template void NextQ(native64::BigBinaryInteger &q, const native64::BigBinaryInteger &plainTextModulus, const usint cyclotomicOrder, const native64::BigBinaryInteger &sigma, const native64::BigBinaryInteger &alpha);
+//template native64::BigBinaryInteger GetTotient(const native64::BigBinaryInteger &n);
+template std::vector<native64::BigBinaryInteger> GetTotientList(const native64::BigBinaryInteger &n);
+template native64::BigBinaryVector PolyMod(const native64::BigBinaryVector &dividend, const native64::BigBinaryVector &divisor, const native64::BigBinaryInteger &modulus);
+template native64::BigBinaryVector PolynomialMultiplication(const native64::BigBinaryVector &a, const native64::BigBinaryVector &b);
+template native64::BigBinaryVector GetCyclotomicPolynomial(usint m, const native64::BigBinaryInteger &modulus);
+
 #endif
 #endif
 }
@@ -202,8 +213,7 @@ static IntType FindGenerator(const IntType& q)
 
 	IntType qm1 = q-IntType::ONE;
 	IntType qm2 = q-IntType::TWO;
-	IntType tmp = qm1;
- 	PrimeFactorize<IntType>(tmp, primeFactors); //tmp destroyed
+ 	PrimeFactorize<IntType>(qm1, primeFactors);
 	DEBUG("done");
  	bool generatorFound = false;
  	IntType gen;
@@ -467,10 +477,10 @@ const IntType PollardRhoFactorization(const IntType &n)
 /*
 	Recursively factorizes and find the distinct primefactors of a number
 	Input: n is the number to be prime factorized,
-		   primeFactors is a set of prime factors of n. All initial values are cleared.
+		   primeFactors is a set of prime factors of n.
 */
 template<typename IntType>
-void PrimeFactorize( IntType &n, std::set<IntType> &primeFactors)
+void PrimeFactorize( IntType n, std::set<IntType> &primeFactors)
  {
    bool dbg_flag = false;
    DEBUG("PrimeFactorize "<<n);
@@ -479,7 +489,7 @@ void PrimeFactorize( IntType &n, std::set<IntType> &primeFactors)
         DEBUG("In PrimeFactorize n " <<n);
 	DEBUG("set size "<< primeFactors.size());
 
- 	if(n == IntType::ONE) return;
+ 	if(n == IntType::ZERO || n == IntType::ONE) return;
  	if(MillerRabinPrimalityTest(n)) {
 	        DEBUG("Miller true");
  		primeFactors.insert(n);
@@ -587,12 +597,12 @@ IntType FindPrimeModulus(usint m, usint nBits)
 }
 
 template<typename IntType>
-void NextQ(IntType &q, const IntType &plainTextModulus, const usint &ringDimension, const IntType &sigma, const IntType &alpha) {
+void NextQ(IntType &q, const IntType &plainTextModulus, const usint cyc, const IntType &sigma, const IntType &alpha) {
 	IntType bigSixteen("16");
 	IntType lowerBound;
-	IntType ringDimensions(ringDimension);
+	IntType cyclotomicOrder(cyc);
 
-	lowerBound = bigSixteen * ringDimensions * sigma  * sigma * alpha;
+	lowerBound = bigSixteen * cyclotomicOrder * sigma  * sigma * alpha;
 	if (!(q >= lowerBound)) {
 		q = lowerBound;
 	}
@@ -604,7 +614,7 @@ void NextQ(IntType &q, const IntType &plainTextModulus, const usint &ringDimensi
 		q = q + IntType::ONE;
 	}
 
-	IntType cyclotomicOrder = ringDimensions * IntType::TWO;
+	//IntType cyclotomicOrder = ringDimensions * IntType::TWO;
 
 	while (q.Mod(cyclotomicOrder) != IntType::ONE) {
 		q = q + plainTextModulus;
@@ -621,7 +631,7 @@ void NextQ(IntType &q, const IntType &plainTextModulus, const usint &ringDimensi
 
 	if(!(cyclotomicOrder == gcd)){
 		q = q + IntType::ONE;
-	  	NextQ(q, plainTextModulus, ringDimension, sigma, alpha);
+	  	NextQ(q, plainTextModulus, cyc, sigma, alpha);
 	}
 		
 }
@@ -646,5 +656,252 @@ usint ModInverse(usint a, usint b)
 
 	return x1;
 }
+
+template<>
+usint GreatestCommonDivisor(const usint& a, const usint& b)
+{
+	bool dbg_flag = false;
+	usint m_a, m_b, m_t;
+	m_a = a;
+	m_b = b;
+	DEBUG("GCD a " << a << " b " << b);
+	while (m_b != 0) {
+		m_t = m_b;
+		DEBUG("GCD m_a.Mod(b) " << m_a << "( " << m_b << ")");
+		m_b = m_a % (m_b);
+
+		m_a = m_t;
+		DEBUG("GCD m_a " << m_b << " m_b " << m_b);
+	}
+	DEBUG("GCD ret " << m_a);
+	return m_a;
+}
+
+template<typename IntType>
+IntType NextPowerOfTwo(const IntType &n) {
+	usint result = ceil(log2(n));
+	return result;
+}
+
+uint64_t GetTotient(const uint64_t n) {
+
+	std::set<native64::BigBinaryInteger> factors;
+	native64::BigBinaryInteger enn(n);
+	PrimeFactorize(enn, factors);
+
+	native64::BigBinaryInteger primeProd(1);
+	native64::BigBinaryInteger numerator(1);
+	for (auto &r : factors) {
+		numerator = numerator * (r - 1);
+		primeProd = primeProd * r;
+	}
+
+	primeProd = (enn / primeProd) * numerator;
+	return primeProd.ConvertToInt();
+}
+
+/*Naive Loop to find coprimes to n*/
+template<typename IntType>
+std::vector<IntType> GetTotientList(const IntType &n) {
+
+	std::vector<IntType> result;
+	IntType one(1);
+	for (IntType i = IntType(1); i < n; i = i + 1) {
+		if (GreatestCommonDivisor(i, n) == one)
+			result.push_back(i);
+	}
+
+	return std::move(result);
+}
+
+/*Long division algorithm*/
+template<typename IntVector, typename IntType>
+IntVector PolyMod(const IntVector &dividend, const IntVector &divisor, const IntType &modulus) {
+
+	usint divisorLength = divisor.GetLength();
+	usint dividendLength = dividend.GetLength();
+
+	IntVector result(divisorLength - 1, modulus);
+	usint runs = dividendLength - divisorLength + 1; //no. of iterations
+
+	auto mat = [](const IntType &x, const IntType &y, const IntType &z, const IntType &mod) {
+		IntType result(z.ModSub(x*y, mod));
+		return result;
+	};
+
+	IntVector runningDividend(dividend);
+
+	int  divisorPtr, dividendPtr;
+	for (usint i = 0; i < runs; i++) {
+		IntType divConst(runningDividend.GetValAtIndex(dividendLength - 1));//get the highest degree coeff
+		divisorPtr = divisorLength - 1;
+		for (int j = 0; j < dividendLength - i - 1; j++) {
+			if ((divisorPtr - j) > 0) {
+				runningDividend.SetValAtIndex(dividendLength - 1 - j, mat(divisor.GetValAtIndex(divisorPtr - 1 - j), divConst, runningDividend.GetValAtIndex(dividendLength - 2 - j), modulus));
+			}
+			else
+				runningDividend.SetValAtIndex(dividendLength - 1 - j, runningDividend.GetValAtIndex(dividendLength - 2 - j));
+
+		}
+	}
+
+	for (usint i = 0, j = runs; i < divisorLength - 1; i++, j++) {
+		result.SetValAtIndex(i, runningDividend.GetValAtIndex(j));
+	}
+
+
+	return result;
+}
+
+std::vector<int> GetCyclotomicPolynomialRecursive(usint m) {
+	std::vector<int> result;
+	if (m == 1) {
+		result = { -1,1 };
+		return std::move(result);
+	}
+	if (m == 2) {
+		result = { 1,1 };
+		return std::move(result);
+	}
+	auto IsPrime = [](usint m) {
+		bool flag = true;
+		for (usint i = 2; i < m; i++) {
+			if (m%i == 0) {
+				flag = false;
+				return flag;
+			}
+		}
+		return flag;
+	};
+	if (IsPrime(m)) {
+		result = std::vector<int>(m, 1);
+		return result;
+	}
+
+	auto GetDivisibleNumbers = [](usint m) {
+		std::vector<usint> div;
+		for (usint i = 1; i < m; i++) {
+			if (m%i == 0) {
+				div.push_back(i);
+			}
+		}
+		return div;
+	};
+
+	auto PolyMult = [](const std::vector<int> &a, const std::vector<int> &b) {
+		usint degreeA = a.size() - 1;
+		usint degreeB = b.size() - 1;
+
+		usint degreeResultant = degreeA + degreeB;
+
+		std::vector<int> result(degreeResultant + 1, 0);
+
+		for (usint i = 0; i < a.size(); i++) {
+
+			for (usint j = 0; j < b.size(); j++) {
+				const auto &valResult = result.at(i + j);
+				const auto &valMult = a.at(i)*b.at(j);
+				result.at(i + j) = valMult + valResult;
+			}
+		}
+
+		return result;
+	};
+
+	auto PolyQuotient = [](const std::vector<int> &dividend, const std::vector<int> &divisor) {
+		usint divisorLength = divisor.size();
+		usint dividendLength = dividend.size();
+
+		usint runs = dividendLength - divisorLength + 1; //no. of iterations
+		std::vector<int> result(runs + 1);
+
+		auto mat = [](const int x, const int y, const int z) {
+			int result = z - (x*y);
+			return result;
+		};
+
+		std::vector<int> runningDividend(dividend);
+
+		int  divisorPtr, dividendPtr;
+		for (usint i = 0; i < runs; i++) {
+			int divConst = (runningDividend.at(dividendLength - 1));//get the highest degree coeff
+			divisorPtr = divisorLength - 1;
+			for (int j = 0; j < dividendLength - i - 1; j++) {
+				if ((divisorPtr - j) > 0) {
+					runningDividend.at(dividendLength - 1 - j) = mat(divisor.at(divisorPtr - 1 - j), divConst, runningDividend.at(dividendLength - 2 - j));
+				}
+				else
+					runningDividend.at(dividendLength - 1 - j) = runningDividend.at(dividendLength - 2 - j);
+
+			}
+			result.at(i + 1) = runningDividend.at(dividendLength - 1);
+		}
+		result.at(0) = 1;//under the assumption that both dividend and divisor are monic
+		result.pop_back();
+
+		return result;
+	};
+	auto divisibleNumbers = GetDivisibleNumbers(m);
+
+	std::vector<int> product(1, 1);
+
+	for (usint i = 0; i < divisibleNumbers.size(); i++) {
+		product = PolyMult(product, GetCyclotomicPolynomialRecursive(divisibleNumbers.at(i)));
+	}
+
+	//make big poly = x^m - 1
+	std::vector<int> bigPoly(m + 1, 0);
+	bigPoly.at(0) = -1; bigPoly.at(m) = 1;
+	result = PolyQuotient(bigPoly, product);
+
+	return result;
+}
+
+template<typename IntVector>
+IntVector PolynomialMultiplication(const IntVector &a, const IntVector &b) {
+
+	usint degreeA = a.GetLength() - 1;
+	usint degreeB = b.GetLength() - 1;
+
+	usint degreeResultant = degreeA + degreeB;
+
+	const auto &modulus = a.GetModulus();
+
+	IntVector result(degreeResultant + 1, modulus);
+
+	for (usint i = 0; i < a.GetLength(); i++) {
+
+		for (usint j = 0; j < b.GetLength(); j++) {
+			const auto &valResult = result.GetValAtIndex(i + j);
+			const auto &valMult = a.GetValAtIndex(i)*b.GetValAtIndex(j);
+			result.SetValAtIndex(i + j, (valMult + valResult).Mod(modulus));
+		}
+	}
+
+	return result;
+
+}
+
+template<typename IntVector, typename IntType>
+IntVector GetCyclotomicPolynomial(usint m, const IntType &modulus) {
+
+	auto intCP = GetCyclotomicPolynomialRecursive(m);
+	IntVector result(intCP.size(), modulus);
+	for (usint i = 0; i < intCP.size(); i++) {
+		auto val = intCP.at(i);
+		if (intCP.at(i) > -1)
+			result.SetValAtIndex(i, IntType(val));
+		else {
+			val *= -1;
+			result.SetValAtIndex(i, modulus - IntType(val));
+		}
+
+	}
+
+	return result;
+
+}
+
+
 
 }

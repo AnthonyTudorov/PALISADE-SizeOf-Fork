@@ -119,16 +119,6 @@ TEST(UTLTVBATCHING, ILVector2n_EVALADD) {
 	lbcrypto::NextQ(modulus, BigBinaryInteger(17), m, BigBinaryInteger("4000"), BigBinaryInteger("4000"));
 	rootOfUnity = RootOfUnity(m, modulus);
 
-//	//Prepare for parameters.
-//	shared_ptr<ILParams> params(new ILParams(m, modulus, rootOfUnity));
-//
-//	//Set crypto parametes
-//	LPCryptoParametersBV<ILVector2n> cryptoParams;
-//	cryptoParams.SetPlaintextModulus(BigBinaryInteger("17"));  	// Set plaintext modulus.
-//	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
-//	cryptoParams.SetRelinWindow(8);				// Set the relinearization window
-//	cryptoParams.SetElementParams(params);			// Set the initialization parameters.
-
 	std::vector<usint> vectorOfInts1 = { 1,2,3,4 };
 
 	PackedIntPlaintextEncoding intArray1(vectorOfInts1);
@@ -239,3 +229,155 @@ TEST(UTLTVBATCHING, ILVector2n_EVALMULT) {
 	
 	EXPECT_EQ(results, vectorOfIntsExpected);
 }
+
+
+/*Simple Encrypt-Decrypt check for ILVector. The assumption is this test case is that everything with respect to lattice and math
+* layers and cryptoparameters work. This test case is only testing if the resulting plaintext from an encrypt/decrypt returns the same
+* plaintext
+* The cyclotomic order is set to 22
+*tower size is set to 3*/
+TEST(UTLTVBATCHING, ILVector_Encrypt_Decrypt_Arb) {
+	PackedIntPlaintextEncoding::Destroy();
+
+	usint m = 22;
+	usint N = GetTotient(m);
+	usint p = 89; // we choose s.t. 2m|p-1 to leverage CRTArb
+	BigBinaryInteger modulusQ("800053");
+	BigBinaryInteger modulusP(p);
+	BigBinaryInteger rootOfUnity("59094");
+	BigBinaryInteger bigmodulus("1019642968797569");
+	BigBinaryInteger bigroot("116200103432701");
+
+	auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulusQ);
+	//ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().PreCompute(m, modulusQ);
+	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
+
+	float stdDev = 4;
+
+	shared_ptr<ILParams> params(new ILParams(m, modulusQ, rootOfUnity, bigmodulus, bigroot));
+
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, p, 8, stdDev);
+	cc.Enable(ENCRYPTION);
+
+	// Initialize the public key containers.
+	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
+
+	std::vector<usint> vectorOfInts = { 1,1,1,5,1,4,1,6,1,7 };
+	PackedIntPlaintextEncoding intArray(vectorOfInts);
+
+	ciphertext = cc.Encrypt(kp.publicKey, intArray, false);
+
+	PackedIntPlaintextEncoding intArrayNew;
+
+	cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
+
+	EXPECT_EQ(intArrayNew, vectorOfInts);
+}
+
+TEST(UTLTVBATCHING, ILVector_EVALADD_Arb) {
+	PackedIntPlaintextEncoding::Destroy();
+	usint m = 22;
+	usint N = GetTotient(m);
+	usint p = 89; // we choose s.t. 2m|p-1 to leverage CRTArb
+	BigBinaryInteger modulusQ("800053");
+	BigBinaryInteger modulusP(p);
+	BigBinaryInteger rootOfUnity("59094");
+	BigBinaryInteger bigmodulus("1019642968797569");
+	BigBinaryInteger bigroot("116200103432701");
+
+	auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulusQ);
+	//ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().PreCompute(m, modulusQ);
+	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
+
+	float stdDev = 4;
+
+	shared_ptr<ILParams> params(new ILParams(m, modulusQ, rootOfUnity, bigmodulus, bigroot));
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, p, 8, stdDev);
+
+	cc.Enable(ENCRYPTION);
+	cc.Enable(SHE);
+
+	// Initialize the public key containers.
+	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext1;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext2;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextResult;
+
+	std::vector<usint> vectorOfInts1 = { 1,2,3,4,5,6,7,8,9,10 };
+	PackedIntPlaintextEncoding intArray1(vectorOfInts1);
+
+	std::vector<usint> vectorOfInts2 = { 10,9,8,7,6,5,4,3,2,1 };
+	PackedIntPlaintextEncoding intArray2(vectorOfInts2);
+
+	std::vector<usint> vectorOfIntsAdd;
+	std::transform(vectorOfInts1.begin(), vectorOfInts1.end(), vectorOfInts2.begin(), std::back_inserter(vectorOfIntsAdd), std::plus<usint>());
+
+	ciphertext1 = cc.Encrypt(kp.publicKey, intArray1, false);
+	ciphertext2 = cc.Encrypt(kp.publicKey, intArray2, false);
+
+	auto ciphertextAdd = cc.EvalAdd(ciphertext1.at(0), ciphertext2.at(0));
+	ciphertextResult.insert(ciphertextResult.begin(), ciphertextAdd);
+	PackedIntPlaintextEncoding intArrayNew;
+
+	cc.Decrypt(kp.secretKey, ciphertextResult, &intArrayNew, false);
+
+	EXPECT_EQ(intArrayNew, vectorOfIntsAdd);
+}
+
+TEST(UTLTVBATCHING, ILVector_EVALMULT_Arb) {
+	PackedIntPlaintextEncoding::Destroy();
+
+	usint m = 22;
+	usint N = GetTotient(m);
+	usint p = 89; // we choose s.t. 2m|p-1 to leverage CRTArb
+	BigBinaryInteger modulusQ("72385066601");
+	BigBinaryInteger modulusP(p);
+	BigBinaryInteger rootOfUnity("69414828251");
+	BigBinaryInteger bigmodulus("77302754575416994210914689");
+	BigBinaryInteger bigroot("76686504597021638023705542");
+
+	auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulusQ);
+	//ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().PreCompute(m, modulusQ);
+	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
+
+	float stdDev = 4;
+
+	shared_ptr<ILParams> params(new ILParams(m, modulusQ, rootOfUnity, bigmodulus, bigroot));
+
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, p, 1, stdDev);
+	cc.Enable(ENCRYPTION);
+	cc.Enable(SHE);
+
+	// Initialize the public key containers.
+	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext1;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext2;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextResult;
+
+	std::vector<usint> vectorOfInts1 = { 1,2,3,4,5,6,7,8,9,10 };
+	PackedIntPlaintextEncoding intArray1(vectorOfInts1);
+
+	std::vector<usint> vectorOfInts2 = { 10,9,8,7,6,5,4,3,2,1 };
+	PackedIntPlaintextEncoding intArray2(vectorOfInts2);
+
+	std::vector<usint> vectorOfIntsMult;
+	std::transform(vectorOfInts1.begin(), vectorOfInts1.end(), vectorOfInts2.begin(), std::back_inserter(vectorOfIntsMult), std::multiplies<usint>());
+
+	ciphertext1 = cc.Encrypt(kp.publicKey, intArray1, false);
+	ciphertext2 = cc.Encrypt(kp.publicKey, intArray2, false);
+
+	cc.EvalMultKeyGen(kp.secretKey);
+
+	auto ciphertextMult = cc.EvalMult(ciphertext1.at(0), ciphertext2.at(0));
+	ciphertextResult.insert(ciphertextResult.begin(), ciphertextMult);
+	PackedIntPlaintextEncoding intArrayNew;
+
+	cc.Decrypt(kp.secretKey, ciphertextResult, &intArrayNew, false);
+
+	EXPECT_EQ(intArrayNew, vectorOfIntsMult);
+}
+

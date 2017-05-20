@@ -54,37 +54,116 @@ namespace lbcrypto {
 	class ElemParams : public Serializable
 	{
 	public:
-		ElemParams() {}
+		ElemParams(usint order,
+				const IntegerType& ctModulus = IntegerType::ZERO,
+				const IntegerType& rUnity = IntegerType::ZERO,
+				const IntegerType& bigCtModulus = IntegerType::ZERO,
+				const IntegerType& bigRUnity = IntegerType::ZERO) {
+			cyclotomicOrder = order;
+			ringDimension = GetTotient(order);
+			isPowerOfTwo = ringDimension == cyclotomicOrder / 2;
+			ciphertextModulus = ctModulus;
+			rootOfUnity = rUnity;
+			bigCiphertextModulus = bigCtModulus;
+			bigRootOfUnity = bigRUnity;
+		}
+
+		ElemParams(const ElemParams& rhs) {
+			cyclotomicOrder = rhs.cyclotomicOrder;
+			ringDimension = rhs.ringDimension;
+			isPowerOfTwo = rhs.isPowerOfTwo;
+			ciphertextModulus = rhs.ciphertextModulus;
+			rootOfUnity = rhs.rootOfUnity;
+			bigCiphertextModulus = rhs.bigCiphertextModulus;
+			bigRootOfUnity = rhs.bigRootOfUnity;
+		}
+
+		ElemParams(const ElemParams&& rhs) {
+			cyclotomicOrder = rhs.cyclotomicOrder;
+			ringDimension = rhs.ringDimension;
+			isPowerOfTwo = rhs.isPowerOfTwo;
+			ciphertextModulus = std::move(rhs.ciphertextModulus);
+			rootOfUnity = std::move(rhs.rootOfUnity);
+			bigCiphertextModulus = std::move(rhs.bigCiphertextModulus);
+			bigRootOfUnity = std::move(rhs.bigRootOfUnity);
+		}
+
+		const ElemParams& operator=(const ElemParams& rhs) {
+			cyclotomicOrder = rhs.cyclotomicOrder;
+			ringDimension = rhs.ringDimension;
+			isPowerOfTwo = rhs.isPowerOfTwo;
+			ciphertextModulus = rhs.ciphertextModulus;
+			rootOfUnity = rhs.rootOfUnity;
+			bigCiphertextModulus = rhs.bigCiphertextModulus;
+			bigRootOfUnity = rhs.bigRootOfUnity;
+			return *this;
+		}
 
 		virtual ~ElemParams() {}
 
-		/**
-		* Each element params should give the effective modulus regardless of the representation
-		*/
-		virtual const IntegerType &GetModulus() const = 0;
+		// GETTERS
+		const usint GetCyclotomicOrder() const { return cyclotomicOrder; }
 
-		/**
-		* Get method of the order.
-		*
-		* @return the order.
-		*/
-		virtual const usint GetCyclotomicOrder() const = 0;
+		const usint GetRingDimension() const { return ringDimension; }
 
-		/**
-		 * Get Root of Unity
-		 * @return default of 0 if not implemented; should be =0?
-		 */
-		virtual const IntegerType &GetRootOfUnity() const = 0;
+		const bool OrderIsPowerOfTwo() const { return isPowerOfTwo; }
+
+		const IntegerType &GetModulus() const { return ciphertextModulus; }
+		const IntegerType &GetBigModulus() const { return bigCiphertextModulus; }
+		const IntegerType &GetRootOfUnity() const { return rootOfUnity; }
+		const IntegerType &GetBigRootOfUnity() const { return bigRootOfUnity; }
 
 	    friend std::ostream& operator<<(std::ostream& out, const ElemParams &item) {
 	    	return item.doprint(out);
 	    }
 
-		virtual bool operator==(const ElemParams<IntegerType> &other) const = 0;
+		virtual bool operator==(const ElemParams<IntegerType> &other) const {
+			return cyclotomicOrder == other.cyclotomicOrder &&
+					ringDimension == other.ringDimension &&
+					ciphertextModulus == other.ciphertextModulus &&
+					rootOfUnity == other.rootOfUnity &&
+					bigCiphertextModulus == other.bigCiphertextModulus &&
+					bigRootOfUnity == other.bigRootOfUnity;
+		}
 		bool operator!=(const ElemParams<IntegerType> &other) const { return !(*this == other); }
 
-	private:
-		virtual std::ostream& doprint(std::ostream& out) const = 0;
+	public:
+		/**
+		 * Serialize the object into a Serialized
+		 * @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+		 * @param fileFlag is an object-specific parameter for the serialization
+		 * @return true if successfully serialized
+		 */
+		bool Serialize(Serialized* serObj) const;
+
+		/**
+		 * Populate the object from the deserialization of the Setialized
+		 * @param serObj contains the serialized object
+		 * @return true on success
+		 */
+		bool Deserialize(const Serialized& serObj);
+
+
+	protected:
+		usint			cyclotomicOrder;
+		usint			ringDimension;
+		bool			isPowerOfTwo;
+		IntegerType		ciphertextModulus;
+		IntegerType		rootOfUnity;
+		IntegerType		bigCiphertextModulus;
+		IntegerType		bigRootOfUnity;
+
+		virtual std::ostream& doprint(std::ostream& out) const {
+			out << "[m=" << cyclotomicOrder << (isPowerOfTwo?"* ":" ") << "n=" << ringDimension
+					<< " q=" << ciphertextModulus
+					<< " ru=" << rootOfUnity
+					<< " bigq=" << bigCiphertextModulus
+					<< " bigru=" << bigRootOfUnity
+					<< "]";
+			return out;
+		}
+
+
 	};
 
 } // namespace lbcrypto ends

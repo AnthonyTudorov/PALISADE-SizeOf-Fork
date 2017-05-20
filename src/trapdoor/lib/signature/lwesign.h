@@ -136,7 +136,7 @@ namespace lbcrypto {
 		void SetElemParams(shared_ptr<ILParams> params) { 
 			m_params = params; 
 			const BigBinaryInteger & q = params->GetModulus();
-			size_t n = params->GetCyclotomicOrder() / 2;
+			size_t n = params->GetRingDimension();
 			double logTwo = log(q.ConvertToDouble() - 1.0) / log(2) + 1.0;
 			size_t k = (usint)floor(logTwo);
 			double c = 2 * SIGMA;
@@ -177,7 +177,7 @@ namespace lbcrypto {
 		LPSignatureParameters(shared_ptr<ILParams> params, ILVector2n::DggType dgg) : dgg(dgg) {
 			m_params = params;
 			const BigBinaryInteger & q = params->GetModulus();
-			size_t n = params->GetCyclotomicOrder() / 2;
+			size_t n = params->GetRingDimension();
 			double logTwo = log(q.ConvertToDouble() - 1.0) / log(2) + 1.0;
 			size_t k = (usint)floor(logTwo);
 			double c = 2 * SIGMA;

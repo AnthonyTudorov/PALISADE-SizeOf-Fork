@@ -49,9 +49,6 @@ void MultiThreadedRun() {
 	ILParams ilParams(sm, smodulus, srootOfUnity);
 	shared_ptr<ILParams> silParams = std::make_shared<ILParams>(ilParams);
 
-	ilParams.SetCyclotomicOrder(sm);
-	ilParams.SetRootOfUnity(srootOfUnity);
-	ilParams.SetModulus(smodulus);
 	std::cout << "m: " << sm << " q: " << smodulus << " rootOfUnity: " << srootOfUnity << std::endl;
 	std::cout << "Signature precomputations" << std::endl;
 	start = currentDateTime();
@@ -298,9 +295,7 @@ void SingleThreadedRun() {
 		sm = 512;
 		smodulus.SetValue("134246401");
 		srootOfUnity.SetValue("49884309");
-		ilParams.SetCyclotomicOrder(sm);
-		ilParams.SetRootOfUnity(srootOfUnity);
-		ilParams.SetModulus(smodulus);
+		ilParams = ILParams(sm, smodulus, srootOfUnity);
 		std::cout << "m: " << sm << " q: " << smodulus << " rootOfUnity: " << srootOfUnity << std::endl;
 		std::cout << "Signature precomputations" << std::endl;
 		start = currentDateTime();
@@ -372,9 +367,7 @@ void SingleThreadedRun() {
 		sm = 1024;
 		smodulus.SetValue("134246401");
 		srootOfUnity.SetValue("122451504");
-		ilParams.SetCyclotomicOrder(sm);
-		ilParams.SetRootOfUnity(srootOfUnity);
-		ilParams.SetModulus(smodulus);
+		ilParams = ILParams(sm, smodulus, srootOfUnity);
 		std::cout << "m: " << sm << " q: " << smodulus << " rootOfUnity: " << srootOfUnity << std::endl;
 		std::cout << "Signature precomputations" << std::endl;
 		start = currentDateTime();
@@ -447,9 +440,7 @@ void SingleThreadedRun() {
 		sm = 2048;
 		smodulus.SetValue("134246401");
 		srootOfUnity.SetValue("34044212");
-		ilParams.SetCyclotomicOrder(sm);
-		ilParams.SetRootOfUnity(srootOfUnity);
-		ilParams.SetModulus(smodulus);
+		ilParams = ILParams(sm, smodulus, srootOfUnity);
 		std::cout << "m: " << sm << " q: " << smodulus << " rootOfUnity: " << srootOfUnity << std::endl;
 		std::cout << "Signature precomputations" << std::endl;
 		start = currentDateTime();

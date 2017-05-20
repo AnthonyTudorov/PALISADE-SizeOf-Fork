@@ -175,6 +175,13 @@ public:
 	const usint GetCyclotomicOrder() const { return params->GetElementParams()->GetCyclotomicOrder(); }
 
 	/**
+	 * Get the ring dimension used for this context
+	 *
+	 * @return
+	 */
+	const usint GetRingDimension() const { return params->GetElementParams()->GetRingDimension(); }
+
+	/**
 	 * Get the ciphertext modulus used for this context
 	 *
 	 * @return
@@ -297,7 +304,7 @@ public:
 			throw std::logic_error("key passed to Encrypt was not generated with this crypto context");
 
 		const BigBinaryInteger& ptm = publicKey->GetCryptoParameters()->GetPlaintextModulus();
-		size_t chunkSize = plaintext.GetChunksize(publicKey->GetCryptoContext().GetCyclotomicOrder(), ptm);
+		size_t chunkSize = plaintext.GetChunksize(publicKey->GetCryptoContext().GetRingDimension(), ptm);
 		size_t ptSize = plaintext.GetLength();
 		size_t rounds = ptSize / chunkSize;
 
@@ -386,7 +393,7 @@ public:
 		bool padded = false;
 		BytePlaintextEncoding px;
 		const BigBinaryInteger& ptm = publicKey->GetCryptoContext().GetCryptoParameters()->GetPlaintextModulus();
-		size_t chunkSize = px.GetChunksize(publicKey->GetCryptoContext().GetCyclotomicOrder(), ptm);
+		size_t chunkSize = px.GetChunksize(publicKey->GetCryptoContext().GetRingDimension(), ptm);
 		char *ptxt = new char[chunkSize];
 
 		while (instream.good()) {
@@ -818,23 +825,15 @@ public:
 	}
 
 	/**
-	* ModReduce - PALISADE ModReduce method
-	* @param ciphertext - vector of ciphertext
-	* @return vector of mod reduced ciphertext
-	*/
-	std::vector<shared_ptr<Ciphertext<Element>>> ModReduce(
-		vector<shared_ptr<Ciphertext<Element>>> ciphertext) const
-	{
-		std::vector<shared_ptr<Ciphertext<Element>>> newCiphertext(ciphertext.size());
+	 * ModReduce - PALISADE ModReduce method
+	 * @param ciphertext - vector of ciphertext
+	 * @return vector of mod reduced ciphertext
+	 */
+	shared_ptr<Ciphertext<Element>> ModReduce(shared_ptr<Ciphertext<Element>> ciphertext) const {
+		if( ciphertext == NULL || ciphertext->GetCryptoContext() != *this )
+			throw std::logic_error("Information passed to ModReduce was not generated with this crypto context");
 
-		for (int i = 0; i < ciphertext.size(); i++) {
-			if( ciphertext[i] == NULL || ciphertext[i]->GetCryptoContext() != *this )
-				throw std::logic_error("Information passed to ModReduce was not generated with this crypto context");
-
-			newCiphertext[i] = GetEncryptionAlgorithm()->ModReduce(ciphertext[i]);
-		}
-
-		return std::move(newCiphertext);
+		return GetEncryptionAlgorithm()->ModReduce(ciphertext);
 	}
 
 	/**
@@ -1028,10 +1027,9 @@ public:
 	/**
 	* construct a PALISADE CryptoContext for the Null Scheme
 	* @param modulus
-	* @param ringdim
 	* @return
 	*/
-	static CryptoContext<Element> genCryptoContextNull(shared_ptr<typename Element::Params> params, const usint ptModulus);
+	static CryptoContext<Element> genCryptoContextNull(shared_ptr<typename Element::Params> ep, const usint ptModulus);
 
 	// helper for deserialization of contexts
 	static shared_ptr<LPCryptoParameters<Element>> GetParameterObject(const Serialized& serObj) {
