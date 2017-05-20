@@ -327,6 +327,7 @@ TEST(UTBV, Ops) {
 //}
 #endif
 
+#if !defined(_MSC_VER)
 TEST(UTBVDCRT, ILVector2n_bv_DCRT_MODREDUCE) {
 
 	usint m = 8;
@@ -377,6 +378,7 @@ TEST(UTBVDCRT, ILVector2n_bv_DCRT_MODREDUCE) {
 	EXPECT_EQ(intArray1, intArrayNew) << "Decrypt after ModReduce fails";;
 
 }
+#endif
 
 /*
 TEST(UTBVDCRT, ILVector2n_bv_DCRT_MULT_MODREDUCE) {//TO ADD MODREDUCE
