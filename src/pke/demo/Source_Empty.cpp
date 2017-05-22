@@ -50,16 +50,15 @@ using namespace lbcrypto;
 void EvalMultBigRing();
 void EvalMultSmallRing();
 void EvalAutomorphism();
-
+void EvalSummation();
 
 vector<shared_ptr<Ciphertext<ILVector2n>>> AutomorphCiphertext(vector<shared_ptr<Ciphertext<ILVector2n>>> &ciphertext, usint k);
 std::shared_ptr<LPPrivateKey<ILVector2n>> AutomorphSecretkey(std::shared_ptr<LPPrivateKey<ILVector2n>> sk, usint k);
 
 int main(int argc, char *argv[])
 {
-	for (usint i = 0; i < 1; i++) {
-		EvalAutomorphism();
-	}	
+	
+	EvalSummation();
 	
 	std::cin.get();
 
@@ -260,6 +259,85 @@ void EvalAutomorphism() {
 	cc.Decrypt(kp.secretKey, ciphertextAutomorphedSwitched, &intArrayNew, false);
 
 	std::cout << intArrayNew << std::endl;
+
+}
+
+void EvalSummation() {
+
+	usint m = 22;
+	usint p = 23;
+	BigBinaryInteger modulusP(p);
+	BigBinaryInteger modulusQ("955263939794561");
+	BigBinaryInteger squareRootOfRoot("941018665059848");
+	usint n = GetTotient(m);
+	BigBinaryInteger bigmodulus("80899135611688102162227204937217");
+	BigBinaryInteger bigroot("77936753846653065954043047918387");
+
+	auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulusQ);
+	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulusQ);
+
+
+	float stdDev = 4;
+
+	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
+
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, p, 8, stdDev);
+
+	cc.Enable(ENCRYPTION);
+	cc.Enable(SHE);
+	cc.Enable(LEVELEDSHE);
+
+	// Initialize the public key containers.
+	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+
+	std::vector<usint> vectorOfInts1 = { 1,2,3,4,5,6,7,8,0,0 };
+	PackedIntPlaintextEncoding intArray1(vectorOfInts1);
+
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext = cc.Encrypt(kp.publicKey, intArray1, false);
+	
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextAutomorphedR1 = AutomorphCiphertext(ciphertext, 7);
+	std::shared_ptr<LPPrivateKey<ILVector2n>> skmorphedR1 = AutomorphSecretkey(kp.secretKey, 7);
+
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextAutomorphedSwitchedR1;
+	auto keyswitchR1 = cc.KeySwitchGen(skmorphedR1, kp.secretKey);
+	auto switchedCipherR1 = cc.KeySwitch(keyswitchR1, ciphertextAutomorphedR1.at(0));
+	ciphertextAutomorphedSwitchedR1.insert(ciphertextAutomorphedSwitchedR1.begin(), switchedCipherR1);
+	auto R1 = cc.EvalAdd(ciphertext.at(0), ciphertextAutomorphedSwitchedR1.at(0));
+
+	ciphertext.clear();
+	ciphertext.insert(ciphertext.begin(), R1);
+
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextAutomorphedR2 = AutomorphCiphertext(ciphertext, 5);
+	std::shared_ptr<LPPrivateKey<ILVector2n>> skmorphedR2 = AutomorphSecretkey(kp.secretKey, 5);
+
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextAutomorphedSwitchedR2;
+	auto keyswitchR2 = cc.KeySwitchGen(skmorphedR2, kp.secretKey);
+	auto switchedCipherR2 = cc.KeySwitch(keyswitchR2, ciphertextAutomorphedR2.at(0));
+	ciphertextAutomorphedSwitchedR2.insert(ciphertextAutomorphedSwitchedR2.begin(), switchedCipherR2);
+	auto R2 = cc.EvalAdd(ciphertext.at(0), ciphertextAutomorphedSwitchedR2.at(0));
+
+	ciphertext.clear();
+	ciphertext.insert(ciphertext.begin(), R2);
+
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextAutomorphedR3 = AutomorphCiphertext(ciphertext, 3);
+	std::shared_ptr<LPPrivateKey<ILVector2n>> skmorphedR3 = AutomorphSecretkey(kp.secretKey, 3);
+
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextAutomorphedSwitchedR3;
+	auto keyswitchR3 = cc.KeySwitchGen(skmorphedR3, kp.secretKey);
+	auto switchedCipherR3 = cc.KeySwitch(keyswitchR3, ciphertextAutomorphedR3.at(0));
+	ciphertextAutomorphedSwitchedR3.insert(ciphertextAutomorphedSwitchedR3.begin(), switchedCipherR3);
+	auto R3 = cc.EvalAdd(ciphertext.at(0), ciphertextAutomorphedSwitchedR3.at(0));
+
+	ciphertext.clear();
+	ciphertext.insert(ciphertext.begin(), R3);
+
+
+	PackedIntPlaintextEncoding intArrayNew;
+
+	cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
+
+	std::cout << intArrayNew << std::endl;
+
 
 }
 
