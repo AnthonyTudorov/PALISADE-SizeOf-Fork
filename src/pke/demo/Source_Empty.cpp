@@ -185,13 +185,13 @@ void EvalAutomorphism() {
 	BigBinaryInteger modulusP(p);
 	/*BigBinaryInteger modulusQ("577325471560727734926295560417311036005875689");
 	BigBinaryInteger squareRootOfRoot("576597741275581172514290864170674379520285921");*/
-	BigBinaryInteger modulusQ("12778598974616693871020696593");
-	BigBinaryInteger squareRootOfRoot("12261452723167243236320113431");
+	BigBinaryInteger modulusQ("955263939794561");
+	BigBinaryInteger squareRootOfRoot("941018665059848");
 	//BigBinaryInteger squareRootOfRoot = RootOfUnity(2*m,modulusQ);
 	//std::cout << squareRootOfRoot << std::endl;
 	usint n = GetTotient(m);
-	BigBinaryInteger bigmodulus("87001469665172344667944423740967965089833203342665361683217315920390634654243565412582842241");
-	BigBinaryInteger bigroot("85459458202174375535248531621126549823026586209757195509814247846882708117340790472090909628");
+	BigBinaryInteger bigmodulus("80899135611688102162227204937217");
+	BigBinaryInteger bigroot("77936753846653065954043047918387");
 	//std::cout << bigroot << std::endl;
 
 	auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulusQ);
@@ -248,14 +248,10 @@ void EvalAutomorphism() {
 	
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextAutomorphedSwitched;
-	//kp.secretKey->GetPrivateElement().PrintValues();
-	//skmorphed->GetPrivateElement().PrintValues();
 
 	auto keyswitchR1 = cc.KeySwitchGen(skmorphedR1, kp.secretKey);
 
 	auto switchedCipherR1 = cc.KeySwitch(keyswitchR1, ciphertextAutomorphedR1.at(0));
-	//switchedCipher->GetElements().at(0).PrintValues();
-	//switchedCipher->GetElements().at(1).PrintValues();
 
 	ciphertextAutomorphedSwitched.insert(ciphertextAutomorphedSwitched.begin(), switchedCipherR1);
 
