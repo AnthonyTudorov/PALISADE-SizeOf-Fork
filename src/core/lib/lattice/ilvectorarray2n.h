@@ -605,7 +605,7 @@ namespace lbcrypto {
 
 
 		friend inline std::ostream& operator<<(std::ostream& os, const ILVectorArrayType& vec) {
-			for( int i=0; i<vec.GetAllElements().size(); i++ ) {
+			for( usint i=0; i<vec.GetAllElements().size(); i++ ) {
 				os << i << ": ";
 				os << vec.GetAllElements()[i] << std::endl;
 			}

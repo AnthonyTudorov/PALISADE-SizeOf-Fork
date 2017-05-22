@@ -278,7 +278,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(typename Element::DggTy
 		shared_ptr<std::vector<Matrix<Element>>> Pk_vector_pvt (new std::vector<Matrix<Element>>());
 		shared_ptr<std::vector<RLWETrapdoorPair<ILVector2n>>>   Ek_vector_pvt (new std::vector<RLWETrapdoorPair<ILVector2n>>());
 #pragma omp for nowait schedule(static)
-		for(int32_t i=0; i<=adjustedLength+1; i++) {
+		for(size_t i=0; i<=adjustedLength+1; i++) {
 			//build private copies in parallel
 			TIC(tp);
 			std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev); //TODO remove stddev
@@ -346,14 +346,14 @@ shared_ptr<Matrix<Element>> LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 	//DBC: this loop takes all the time in encode
 	//TODO (dcousins): move gaussj generation out of the loop to enable parallelisation
 	#pragma omp parallel for
-	for(int32_t i=0; i<m; i++) {
+	for(size_t i=0; i<m; i++) {
 
 	  // the following takes approx 250 msec
 		Matrix<Element> gaussj = RLWETrapdoorUtility::GaussSamp(n,k,Ai,Ti,bj(0,i),dgg.GetStd(), dgg, dggLargeSigma);
 //		gaussj(0, 0).PrintValues();
 //		gaussj(1, 0).PrintValues();
 		// the following takes no time
-		for(int32_t j=0; j<m; j++) {
+		for(size_t j=0; j<m; j++) {
 //			gaussj(j, 0).PrintValues();
 			(*result)(j,i) = gaussj(j,0);
 		}
@@ -739,7 +739,7 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::EvaluateACS(
 	if (useRandomVector == 1) {
 		std::vector<int> randvec;
 		randvec.reserve(Rl->GetCols());
-		for (int i = 0; i < Rl->GetCols(); i++) {
+		for (size_t i = 0; i < Rl->GetCols(); i++) {
 			randvec.push_back(rand() % 2);
 		}
 		//std::cout<<"About to set CrossSR and CrossRS from randvec"<<std::endl;

@@ -188,7 +188,7 @@ static bool WitnessFunction(const IntType& a, const IntType& d, usint s, const I
 {
 	IntType mod = a.ModExp(d, p);
 	bool prevMod = false;
-	for(int i=1; i<s+1; i++) {
+	for(usint i=1; i<s+1; i++) {
 		if(mod != 1 && mod != p-1)
 			prevMod = true;
 		else
@@ -412,7 +412,7 @@ IntType GreatestCommonDivisor(const IntType& a, const IntType& b)
  		s++;
  	}
  	bool composite = true;
- 	for(int i=0; i<niter; i++) {
+ 	for(usint i=0; i<niter; i++) {
  		IntType a = RNG(p-3).ModAdd(2, p);
  		composite = (WitnessFunction(a, d, s, p));
 		if(composite)
@@ -738,7 +738,7 @@ IntVector PolyMod(const IntVector &dividend, const IntVector &divisor, const Int
 	for (usint i = 0; i < runs; i++) {
 		IntType divConst(runningDividend.GetValAtIndex(dividendLength - 1));//get the highest degree coeff
 		divisorPtr = divisorLength - 1;
-		for (int j = 0; j < dividendLength - i - 1; j++) {
+		for (usint j = 0; j < dividendLength - i - 1; j++) {
 			if ((divisorPtr - j) > 0) {
 				runningDividend.SetValAtIndex(dividendLength - 1 - j, mat(divisor.GetValAtIndex(divisorPtr - 1 - j), divConst, runningDividend.GetValAtIndex(dividendLength - 2 - j), modulus));
 			}
@@ -829,7 +829,7 @@ std::vector<int> GetCyclotomicPolynomialRecursive(usint m) {
 		for (usint i = 0; i < runs; i++) {
 			int divConst = (runningDividend.at(dividendLength - 1));//get the highest degree coeff
 			divisorPtr = divisorLength - 1;
-			for (int j = 0; j < dividendLength - i - 1; j++) {
+			for (usint j = 0; j < dividendLength - i - 1; j++) {
 				if ((divisorPtr - j) > 0) {
 					runningDividend.at(dividendLength - 1 - j) = mat(divisor.at(divisorPtr - 1 - j), divConst, runningDividend.at(dividendLength - 2 - j));
 				}

@@ -201,7 +201,7 @@ namespace lbcrypto {
 
 			if( lhsE.size() != rhsE.size() ) return false;
 
-			for( int i=0; i<lhsE.size(); i++ ) {
+			for( size_t i=0; i<lhsE.size(); i++ ) {
 				const Element& lE = lhsE.at(i);
 				const Element& rE = rhsE.at(i);
 

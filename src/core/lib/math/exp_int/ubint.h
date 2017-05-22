@@ -954,11 +954,11 @@ namespace exp_int{
       uschar *print_VALUE = new uschar[ptr_obj.m_numDigitInPrintval];  //todo smartpointer
 
       //reset to zero
-      for(sint i=0;i<ptr_obj.m_numDigitInPrintval;i++)
+      for(usint i=0;i<ptr_obj.m_numDigitInPrintval;i++)
 	*(print_VALUE+i)=0;
 
       //starts the conversion from base r to decimal value
-      for(sint i=print_obj->m_MSB;i>0;i--){
+      for(usint i=print_obj->m_MSB;i>0;i--){
 
 	//print_VALUE = print_VALUE*2
 	ubint::double_bitVal(print_VALUE);

@@ -69,7 +69,7 @@ TEST(UTNbTheory, method_greatest_common_divisor){
     BigBinaryInteger a("10403"), b("103");
     BigBinaryInteger c = lbcrypto::GreatestCommonDivisor(a, b);
     
-    int expectedResult = 103;
+    uint64_t expectedResult = 103;
     
     EXPECT_EQ(expectedResult, c.ConvertToInt())
       <<"Failure equals_small_numbers";

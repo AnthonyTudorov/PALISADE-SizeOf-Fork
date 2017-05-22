@@ -93,7 +93,7 @@ shared_ptr<ILVectorArray2n::Params> GenDCRTParams(int sc) {
 	native64::BigBinaryInteger temp;
 	BigBinaryInteger modulus(1);
 
-	for(int i=0; i < nTowers; i++){
+	for(size_t i=0; i < nTowers; i++){
 		lbcrypto::NextQ(q, native64::BigBinaryInteger(2), m, native64::BigBinaryInteger(4), native64::BigBinaryInteger(4));
 		moduli[i] = q;
 		rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
@@ -477,10 +477,6 @@ void NTRU_DCRT() {
 
 void TestParameterSelection(){
 
-	double start;
-
-	start = currentDateTime();
-
 	usint m = 16;
 
 	float stdDev = 4;
@@ -555,11 +551,11 @@ void FinalLeveledComputation(){
 
 	vector<native64::BigBinaryInteger> rootsOfUnity(size);
 
-	native64::BigBinaryInteger q("1");
+	native64::BigBinaryInteger q(1);
 	native64::BigBinaryInteger temp;
-	BigBinaryInteger modulus("1");
+	BigBinaryInteger modulus(1);
 
-	for(int i=0; i < size;i++){
+	for(size_t i=0; i < size;i++){
 		lbcrypto::NextQ(q, native64::BigBinaryInteger(ptm), m, native64::BigBinaryInteger(4), native64::BigBinaryInteger(4));
 		moduli[i] = q;
 		rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
@@ -680,7 +676,7 @@ void ComposedEvalMultTest(){
 	native64::BigBinaryInteger temp;
 	BigBinaryInteger modulus(1);
 
-	for(int i=0; i < size; i++){
+	for(size_t i=0; i < size; i++){
 		lbcrypto::NextQ(q, native64::BigBinaryInteger(ptm), m, native64::BigBinaryInteger(4), native64::BigBinaryInteger(4));
 		moduli[i] = q;
 		rootsOfUnity[i] = RootOfUnity(m,moduli[i]);

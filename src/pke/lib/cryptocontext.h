@@ -301,7 +301,7 @@ public:
 		if (ptSize%chunkSize != 0 || doPadding == true)
 			rounds += 1;
 
-		for (int bytes = 0, i = 0; i < rounds; bytes += chunkSize, i++) {
+		for (size_t bytes = 0, i = 0; i < rounds; bytes += chunkSize, i++) {
 
 			ILVector2n pt(publicKey->GetCryptoParameters()->GetElementParams());
 			plaintext.Encode(ptm, &pt, bytes, chunkSize);
@@ -341,9 +341,9 @@ public:
 
 		const BigBinaryInteger& ptm = publicKey->GetCryptoParameters()->GetPlaintextModulus();
 
-		for (int row = 0; row < plaintext.GetRows(); row++)
+		for (size_t row = 0; row < plaintext.GetRows(); row++)
 		{
-			for (int col = 0; col < plaintext.GetCols(); col++)
+			for (size_t col = 0; col < plaintext.GetCols(); col++)
 			{
 				ILVector2n pt(publicKey->GetCryptoParameters()->GetElementParams());
 				plaintext(row,col).Encode(ptm, &pt);
@@ -441,8 +441,8 @@ public:
 		if( privateKey == NULL || privateKey->GetCryptoContext() != *this )
 			throw std::logic_error("Information passed to Decrypt was not generated with this crypto context");
 
-		int lastone = ciphertext.size() - 1;
-		for( int ch = 0; ch < ciphertext.size(); ch++ ) {
+		size_t lastone = ciphertext.size() - 1;
+		for( size_t ch = 0; ch < ciphertext.size(); ch++ ) {
 			if( ciphertext[ch] == NULL || ciphertext[ch]->GetCryptoContext() != *this )
 				throw std::logic_error("A ciphertext passed to Decrypt was not generated with this crypto context");
 
@@ -484,9 +484,9 @@ public:
 		if (privateKey == NULL || privateKey->GetCryptoContext() != *this)
 			throw std::runtime_error("Information passed to DecryptMatrix was not generated with this crypto context");
 
-		for (int row = 0; row < ciphertext->GetRows(); row++)
+		for (size_t row = 0; row < ciphertext->GetRows(); row++)
 		{
-			for (int col = 0; col < ciphertext->GetCols(); col++)
+			for (size_t col = 0; col < ciphertext->GetCols(); col++)
 			{
 				if ((*ciphertext)(row, col).GetCryptoContext() != *this)
 					throw std::runtime_error("A ciphertext passed to DecryptMatrix was not generated with this crypto context");
@@ -581,7 +581,7 @@ public:
 			throw std::logic_error("Information passed to ReEncrypt was not generated with this crypto context");
 
 		std::vector<shared_ptr<Ciphertext<Element>>> newCiphertext;
-		for( int i=0; i < ciphertext.size(); i++ ) {
+		for( size_t i=0; i < ciphertext.size(); i++ ) {
 			if( ciphertext[i] == NULL || ciphertext[i]->GetCryptoContext() != *this )
 				throw std::logic_error("One of the ciphertexts passed to ReEncrypt was not generated with this crypto context");
 			newCiphertext.push_back( GetEncryptionAlgorithm()->ReEncrypt(evalKey, ciphertext[i]) );
@@ -853,7 +853,7 @@ public:
 
 		std::vector<shared_ptr<Ciphertext<Element>>> newCiphertext(ciphertext.size());
 
-		for (int i = 0; i < ciphertext.size(); i++) {
+		for (size_t i = 0; i < ciphertext.size(); i++) {
 			if( ciphertext[i] == NULL || ciphertext[i]->GetCryptoContext() != *this )
 				throw std::logic_error("Ciphertext passed to RingReduce was not generated with this crypto context");
 

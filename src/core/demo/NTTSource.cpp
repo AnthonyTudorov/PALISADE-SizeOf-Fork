@@ -306,7 +306,7 @@ void test_NTT () {
 
 
   bool failed = false;
-  usint ix;
+  int ix;
   cout << "Startng timing"<<endl;
 
   for (ix = 0; ix <nloop; ix++) {

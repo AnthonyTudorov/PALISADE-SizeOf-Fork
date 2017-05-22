@@ -109,9 +109,9 @@ TEST(UTSignatureGPV, sign_verify_multiple_texts) {
 			<<"Failed signature 1 - text 1 verification";
 	EXPECT_EQ(true, scheme.Verify(v_k, signature2, text2))
 			<< "Failed signature 2 - text 2 verification";
-	EXPECT_EQ(false, scheme.Verify(v_k, signature2, text))
+	EXPECT_NE(true, scheme.Verify(v_k, signature2, text))
 			<< "Failed signature 2 - text 1 verification";
-	EXPECT_EQ(false, scheme.Verify(v_k, signature, text2))
+	EXPECT_NE(true, scheme.Verify(v_k, signature, text2))
 			<< "Failed signature 1 - text 2 verification";
 
 	ILVector2n::DestroyPreComputedSamples();
@@ -145,9 +145,9 @@ TEST(UTSignatureGPV, sign_verify_multiple_keys) {
 		<< "Failed signature 1 - key 1 verification";
 	EXPECT_EQ(true, scheme.Verify(v_k2, signature2, text))
 		<< "Failed signature 2 - key 2 verification";
-	EXPECT_EQ(false, scheme.Verify(v_k, signature2, text))
+	EXPECT_NE(true, scheme.Verify(v_k, signature2, text))
 		<< "Failed signature 2 - key 1 verification";
-	EXPECT_EQ(false, scheme.Verify(v_k2, signature, text))
+	EXPECT_NE(true, scheme.Verify(v_k2, signature, text))
 		<< "Failed signature 1 - key 2 verification";
 
 	ILVector2n::DestroyPreComputedSamples();

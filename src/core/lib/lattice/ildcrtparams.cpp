@@ -22,7 +22,7 @@ ILDCRTParams<IntType>::ILDCRTParams(usint order, usint depth, usint bits) : Elem
 
 	native64::BigBinaryInteger q = FindPrimeModulus<native64::BigBinaryInteger>(order, bits);
 
-	for(int j = 0; ;) {
+	for(size_t j = 0; ;) {
 		native64::BigBinaryInteger root = RootOfUnity<native64::BigBinaryInteger>(order, q);
 		std::shared_ptr<native64::ILParams> p( new native64::ILParams(order, q, root) );
 		m_parms[j] = p;

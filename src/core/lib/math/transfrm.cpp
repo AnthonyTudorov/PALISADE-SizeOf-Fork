@@ -628,7 +628,7 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 			rootOfUnityTable = 0;
 		}
 		rootOfUnityTable = new std::complex<double>[s];
-		for (int j = 0;j < s;j++) {
+		for (size_t j = 0;j < s;j++) {
 			rootOfUnityTable[j] = std::polar(1.0, -2 * M_PI * j / s);
 		}
 	}
@@ -722,7 +722,7 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 		}
 		std::vector<std::complex<double>> invDft = FFTInverseTransform(dft);
 		std::vector<std::complex<double>> invDftRemainder;
-		for (int i = 0;i<invDft.size() / 2;i++) {
+		for (size_t i = 0;i<invDft.size() / 2;i++) {
 			invDftRemainder.push_back(invDft.at(i));
 		}
 		return invDftRemainder;

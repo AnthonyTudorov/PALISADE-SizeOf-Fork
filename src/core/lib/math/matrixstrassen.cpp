@@ -382,7 +382,7 @@ template<class Element>
 void MatrixStrassen<Element>::UnlinearizeDataCAPS(lineardata_t *lineardataPtr) const{
     	int datasize = cols;
 
-    int row = 0;
+    size_t row = 0;
     int counter = 0;
     		data[row].clear();
     		data[row].reserve(datasize);
@@ -749,7 +749,7 @@ MatrixStrassen<Element> MatrixStrassen<Element>::Mult(MatrixStrassen<Element> co
 	numSub = 0;
 	numMult = 0;
 
-	int len = (int)(allrows*allrows);
+	size_t len = (allrows*allrows);
 	desc.lda = (int)allrows;
 	desc.nrec = nrec;
 	desc.bs = 1;
@@ -1000,7 +1000,7 @@ void MatrixStrassen<Element>::strassenDFSCAPS( it_lineardata_t A, it_lineardata_
 #endif
 
   // submatrices; these are described by halfDesc;
-  long long int numEntriesHalf = numEntriesPerProc(halfDesc);
+  size_t numEntriesHalf = numEntriesPerProc(halfDesc);
 
   //printf("numEntriesHalf = %lld\n",numEntriesHalf);
   it_lineardata_t A11 = A;

@@ -73,7 +73,7 @@ TEST(UTNative64Int,basic_math){
   // calculatedResult to integer
 
   native64::BigBinaryInteger calculatedResult;
-  int expectedResult;
+  uint64_t expectedResult;
   // TEST CASE WHEN FIRST NUMBER IS GREATER THAN SECOND NUMBER AND MSB
   // HAS NO OVERFLOW
   {
@@ -445,7 +445,7 @@ TEST(UTNative64Int,basic_compare){
   // typecasted to int as EXPECT_EQ takes integer
 
   sint c;
-  int expectedResult;
+  sint expectedResult;
 
   // TEST CASE WHEN FIRST NUMBER IS GREATER THAN SECOND NUMBER
   {
@@ -455,7 +455,7 @@ TEST(UTNative64Int,basic_compare){
     c = a.Compare(b);
     expectedResult = 1;
 
-    EXPECT_EQ(expectedResult,(int)c)
+    EXPECT_EQ(expectedResult,c)
       << "Failure testing compare_a_greater_than_b";
   }
   // TEST CASE WHEN FIRST NUMBER IS LESS THAN SECOND NUMBER
@@ -466,7 +466,7 @@ TEST(UTNative64Int,basic_compare){
     c = a.Compare(b);
     expectedResult = -1;
 
-    EXPECT_EQ(expectedResult,(int)c)
+    EXPECT_EQ(expectedResult,c)
       << "Failure testing compare_a_less_than_b";
   }
   // TEST CASE WHEN FIRST NUMBER IS EQUAL TO SECOND NUMBER
@@ -477,7 +477,7 @@ TEST(UTNative64Int,basic_compare){
     c = a.Compare(b);
     expectedResult = 0;
 
-    EXPECT_EQ(expectedResult,(int)c)
+    EXPECT_EQ(expectedResult,c)
       << "Failure testing compare_a_equals_b";
   }
 }
@@ -494,7 +494,7 @@ TEST(UTNative64Int,mod_operations){
   // integer
 
   native64::BigBinaryInteger calculatedResult;
-  int expectedResult;
+  uint64_t expectedResult;
   // TEST CASE WHEN THE NUMBER IS LESS THAN MOD
   {
     native64::BigBinaryInteger m("27");
@@ -566,7 +566,7 @@ TEST(UTNative64Int,mod_operations){
     native64::BigBinaryInteger c("177");
 
     native64::BigBinaryInteger calculatedResult = a.ModBarrett(b,c);
-    int expectedResult = 205484;
+    uint64_t expectedResult = 205484;
 
     std::cout<<"\n"<<d.ConvertToInt()<<"\n";	//for testing purpose
 
@@ -586,7 +586,7 @@ TEST(UTNative64Int,mod_inverse){
   // ConvertToInt converts native64::BigBinaryInteger calculatedResult to integer
 
   native64::BigBinaryInteger calculatedResult;
-  int expectedResult;
+  uint64_t expectedResult;
 
   // TEST CASE WHEN THE NUMBER IS GREATER THAN MOD
   {
@@ -838,7 +838,7 @@ TEST(UTNative64Int,mod_arithmetic){
     native64::BigBinaryInteger q("406756");
 
     native64::BigBinaryInteger calculatedResult = m.ModMul(n,q);
-    int expectedResult = 365204;
+    uint64_t expectedResult = 365204;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
       << "Failure testing mod_mul_test";
@@ -859,7 +859,7 @@ TEST(UTNative64Int,mod_arithmetic){
     native64::BigBinaryInteger q("406756");
 
     native64::BigBinaryInteger calculatedResult = m.ModExp(n,q);
-    int expectedResult = 96776;
+    uint64_t expectedResult = 96776;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
       << "Failure testing mod_exp_test";
@@ -920,7 +920,7 @@ TEST(UTNative64Int,shift){
     usshort shift = 3;
 
     native64::BigBinaryInteger calculatedResult = a<<(shift);
-    int expectedResult = 319680;
+    uint64_t expectedResult = 319680;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
       << "Failure testing shift_less_than_max_shift";
@@ -931,7 +931,7 @@ TEST(UTNative64Int,shift){
     usshort shift = 6;
 
     native64::BigBinaryInteger calculatedResult = a<<(shift);
-    int expectedResult = 2557440;
+    uint64_t expectedResult = 2557440;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
       << "Failure testing shift_greater_than_max_shift";
@@ -961,7 +961,7 @@ TEST(UTNative64Int,shift){
     usshort num = 3;
 
     a<<=(num);
-    int expectedResult = 319680;
+    uint64_t expectedResult = 319680;
 
     EXPECT_EQ(expectedResult, a.ConvertToInt())
       << "Failure testing shift_less_than_max_shift";
@@ -972,7 +972,7 @@ TEST(UTNative64Int,shift){
     usshort num = 6;
 
     a<<=(num);
-    int expectedResult = 2557440;
+    uint64_t expectedResult = 2557440;
 
     EXPECT_EQ(expectedResult, a.ConvertToInt())
       << "Failure testing shift_greater_than_max_shift";
@@ -1001,7 +1001,7 @@ TEST(UTNative64Int,shift){
     usshort shift = 3;
 
     native64::BigBinaryInteger calculatedResult = a>>(shift);
-    int expectedResult = 4995709;
+    uint64_t expectedResult = 4995709;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
       << "Failure testing shift_less_than_max_shift";
@@ -1012,7 +1012,7 @@ TEST(UTNative64Int,shift){
     usshort shift = 6;
 
     native64::BigBinaryInteger calculatedResult = a>>(shift);
-    int expectedResult = 624463;
+    uint64_t expectedResult = 624463;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
       << "Failure testing shift_greater_than_max_shift";
@@ -1042,7 +1042,7 @@ TEST(UTNative64Int,shift){
     usshort shift = 3;
 
     a>>=(shift);
-    int expectedResult = 4995709;
+    uint64_t expectedResult = 4995709;
 
     EXPECT_EQ(expectedResult, a.ConvertToInt())
       << "Failure testing shift_less_than_max_shift";
@@ -1053,7 +1053,7 @@ TEST(UTNative64Int,shift){
     usshort shift = 6;
 
     a>>=(shift);
-    int expectedResult = 624463;
+    uint64_t expectedResult = 624463;
 
     EXPECT_EQ(expectedResult, a.ConvertToInt())
       << "Failure testing shift_greater_than_max_shift";

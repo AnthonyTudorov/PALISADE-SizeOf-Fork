@@ -69,7 +69,7 @@ void LPCryptoParametersLTV<Element>::ParameterSelection(LPCryptoParametersLTV<IL
 	usint m = this->GetElementParams()->GetCyclotomicOrder();
 	native64::BigBinaryInteger rootOfUnity;
 
-	for (usint i = 0; i < this->m_depth + 1; i++) {
+	for (int i = 0; i < this->m_depth + 1; i++) {
 		rootOfUnity = RootOfUnity(m, moduli.at(i));
 		rootsOfUnity.push_back(rootOfUnity);
 	}
@@ -105,7 +105,7 @@ void LPCryptoParametersLTV<Element>::ParameterSelection(usint& n, vector<native6
 
 	// which log are we using???
 	int next = ceil(sum / (4 * log(rootHermitFactor)));
-	int nprime = pow(2, ceil(log(next) / log(2)));
+	usint nprime = pow(2, ceil(log(next) / log(2)));
 	char c = '.';
 
 	// splitting a string version on dot is ... probably ... wrong
@@ -123,7 +123,7 @@ void LPCryptoParametersLTV<Element>::ParameterSelection(usint& n, vector<native6
 			sum += log(q[i]);
 		}
 
-		int nprimeCalcFactor = ceil(sum / (4 * log(rootHermitFactor)));
+		usint nprimeCalcFactor = ceil(sum / (4 * log(rootHermitFactor)));
 		if (nprime < nprimeCalcFactor) {
 			n *= 2;
 			ParameterSelection(n, moduli);

@@ -623,7 +623,7 @@ void other_methods() {
 
 		ilv.Decompose();
 
-		EXPECT_EQ(2, ilv.GetLength())<<"Failure: Decompose() length";
+		EXPECT_EQ(2U, ilv.GetLength())<<"Failure: Decompose() length";
 
 		EXPECT_EQ(ilv.GetValAtIndex(0), 2)
 			<< "Failure: Decompose(): mismatch between original and decomposed elements at index 0.";
@@ -924,7 +924,7 @@ TEST(UTILVectorArray2n, constructors_test) {
 		ilvector2nVectorInconsistent[2] = ilv2;
 
 		DEBUG("2.2");
-		for( int ii=0; ii<ilvector2nVectorInconsistent.size(); ii++ ) {
+		for( size_t ii=0; ii<ilvector2nVectorInconsistent.size(); ii++ ) {
 			DEBUG(ii << " item " << ilvector2nVectorInconsistent.at(ii).GetParams().use_count());			
 
 		}

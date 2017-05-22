@@ -82,7 +82,7 @@ namespace lbcrypto {
 		}
 		else {
 			usint remaining = n - hashedText.size();
-			for (int i = 0;i < remaining;i++) {
+			for (size_t i = 0;i < remaining;i++) {
 				hashedText.push_back(0);
 			}
 			hashedText.Encode(BigBinaryInteger("256"), &u);
@@ -121,7 +121,7 @@ namespace lbcrypto {
 		}
 		else {
 			usint remaining = n - hashedText.size();
-			for (int i = 0;i < remaining;i++) {
+			for (size_t i = 0;i < remaining;i++) {
 				hashedText.push_back(0);
 			}
 			hashedText.Encode(BigBinaryInteger("256"), &u);

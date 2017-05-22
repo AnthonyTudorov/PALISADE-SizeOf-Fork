@@ -191,8 +191,8 @@ namespace lbcrypto {
                 }
             #else
             #pragma omp parallel for
-            for (int32_t col = 0; col < result.cols; ++col) {
-            	for (int32_t row = 0; row < result.rows; ++row) {
+            for (size_t col = 0; col < result.cols; ++col) {
+            	for (size_t row = 0; row < result.rows; ++row) {
 
                         *result.data[row][col] = *result.data[row][col] * other;
                     }
@@ -316,8 +316,8 @@ namespace lbcrypto {
                 }
             #else
             #pragma omp parallel for
-            for (int32_t j = 0; j < cols; ++j) {
-            for (int32_t i = 0; i < rows; ++i) {
+            for (size_t j = 0; j < cols; ++j) {
+            for (size_t i = 0; i < rows; ++i) {
                         *result.data[i][j] += *other.data[i][j];
                     }
                 }
@@ -363,8 +363,8 @@ namespace lbcrypto {
                 }
             #else
                 #pragma omp parallel for
-            for (int32_t j = 0; j < cols; ++j) {
-            	for (int32_t i = 0; i < rows; ++i) {
+            for (size_t j = 0; j < cols; ++j) {
+            	for (size_t i = 0; i < rows; ++i) {
                         *result.data[i][j] = *data[i][j] - *other.data[i][j];
                     }
                 }

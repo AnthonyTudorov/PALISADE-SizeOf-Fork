@@ -44,7 +44,7 @@ using namespace std;
 using namespace lbcrypto;
 
 enum CmdMode { INTMODE, BYTEMODE } CommandMode = BYTEMODE;
-int	IntVectorLen = 10; // default value
+usint	IntVectorLen = 10; // default value
 
 void usage(const string& cmd, const string& msg = "");
 
@@ -154,7 +154,7 @@ decrypter(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 		// now decrypt iPlaintext
 		ctx.Decrypt(sk, ciphertext, &iPlaintext, false);
 
-		for( int i=0; i<IntVectorLen; i++ ) {
+		for( size_t i=0; i<IntVectorLen; i++ ) {
 			outF << iPlaintext.at(i) << ' ';
 		}
 		outF << endl;
@@ -215,7 +215,7 @@ encrypter(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 		// pull in file full of integers and do the encryption
 		IntPlaintextEncoding iPlaintext;
 
-		for( int i=0; i<IntVectorLen; i++ ) {
+		for( size_t i=0; i<IntVectorLen; i++ ) {
 			int val;
 
 			inf >> val;
@@ -235,7 +235,7 @@ encrypter(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 			return;
 		}
 
-		for( int i=0; i<ciphertext.size(); i++ ) {
+		for( size_t i=0; i<ciphertext.size(); i++ ) {
 			Serialized cSer;
 			if( ciphertext[i]->Serialize(&cSer) ) {
 				if( !SerializableHelper::WriteSerializationToFile(cSer, ciphertextname) ) {
@@ -402,11 +402,11 @@ evaladder(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 	}
 
 	cout << "EvalAdd-ing:" << endl;
-	for( int i=0; i<IntVectorLen; i++ ) cout << c1->GetElement().GetValAtIndex(i) << " "; cout << endl;
-	for( int i=0; i<IntVectorLen; i++ ) cout << c2->GetElement().GetValAtIndex(i) << " "; cout << endl;
+	for( size_t i=0; i<IntVectorLen; i++ ) cout << c1->GetElement().GetValAtIndex(i) << " "; cout << endl;
+	for( size_t i=0; i<IntVectorLen; i++ ) cout << c2->GetElement().GetValAtIndex(i) << " "; cout << endl;
 	shared_ptr<Ciphertext<ILVector2n>> cdsum = ctx.EvalAdd(c1, c2);
 	cout << "Result:" << endl;
-	for( int i=0; i<IntVectorLen; i++ ) cout << cdsum->GetElement().GetValAtIndex(i) << " "; cout << endl;
+	for( size_t i=0; i<IntVectorLen; i++ ) cout << cdsum->GetElement().GetValAtIndex(i) << " "; cout << endl;
 
 	Serialized cSer;
 	if( cdsum->Serialize(&cSer) ) {
@@ -467,11 +467,11 @@ evalmulter(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 	}
 
 	cout << "EvalMult-ing:" << endl;
-	for( int i=0; i<IntVectorLen; i++ ) cout << c1->GetElement().GetValAtIndex(i) << " "; cout << endl;
-	for( int i=0; i<IntVectorLen; i++ ) cout << c2->GetElement().GetValAtIndex(i) << " "; cout << endl;
+	for( size_t i=0; i<IntVectorLen; i++ ) cout << c1->GetElement().GetValAtIndex(i) << " "; cout << endl;
+	for( size_t i=0; i<IntVectorLen; i++ ) cout << c2->GetElement().GetValAtIndex(i) << " "; cout << endl;
 	shared_ptr<Ciphertext<ILVector2n>> cdsum = ctx.EvalMult(c1, c2);
 	cout << "Result:" << endl;
-	for( int i=0; i<IntVectorLen; i++ ) cout << cdsum->GetElement().GetValAtIndex(i) << " "; cout << endl;
+	for( size_t i=0; i<IntVectorLen; i++ ) cout << cdsum->GetElement().GetValAtIndex(i) << " "; cout << endl;
 
 	Serialized cSer;
 	if( cdsum->Serialize(&cSer) ) {
@@ -520,7 +520,7 @@ usage(const string& cmd, const string& msg)
 	if( msg.length() > 0 )
 		cerr << msg << endl;
 
-	for( int i=0; i<sizeof(cmds)/sizeof(cmds[0]); i++ ) {
+	for( size_t i=0; i<sizeof(cmds)/sizeof(cmds[0]); i++ ) {
 		if( cmd == "ALL" || cmd == cmds[i].command )
 			cerr << "palisade " << cmds[i].command << cmds[i].helpline << endl;
 	}
@@ -604,7 +604,7 @@ main( int argc, char *argv[] )
 
 	bool	rancmd = false;
 	string userCmd(argv[cmdidx]);
-	for( int i=0; i<(sizeof(cmds)/sizeof(cmds[0])); i++ ) {
+	for( size_t i=0; i<(sizeof(cmds)/sizeof(cmds[0])); i++ ) {
 		if( cmds[i].command == string(userCmd) ) {
 			(*cmds[i].func)(ctx, cmds[i].command, argc-1-cmdidx, &argv[cmdidx + 1]);
 			rancmd = true;

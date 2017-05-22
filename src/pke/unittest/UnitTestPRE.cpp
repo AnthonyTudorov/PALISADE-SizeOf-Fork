@@ -40,7 +40,7 @@ UnitTestReEncrypt(const CryptoContext<Element>& cc, bool publicVersion) {
 	auto ptm = cc.GetCryptoParameters()->GetPlaintextModulus().ConvertToInt();
 
 	vector<uint32_t> intvec;
-	for( int ii=0; ii<intSize; ii++)
+	for( size_t ii=0; ii<intSize; ii++)
 		intvec.push_back( rand() % ptm );
 	IntPlaintextEncoding plaintextInt(intvec);
 

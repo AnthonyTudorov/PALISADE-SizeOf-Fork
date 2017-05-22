@@ -148,7 +148,7 @@ void EvalLinRegressionNull() {
 			std::cout << "r,c is" << mmm.GetRows() << "," << mmm.GetCols() << std::endl;
 			const Matrix<RationalCiphertext<ILVector2n>>::data_t& e = mmm.GetData();
 			std::cout << e.size() << std::endl;
-			for( int i=0; i<e.size(); i++ )
+			for( size_t i=0; i<e.size(); i++ )
 				std::cout << i << ":" << e.at(i).size() << std::endl;
 		}
 	}
@@ -225,8 +225,8 @@ void EvalLinRegressionNull() {
 				std::cout << "col # mismatch" << std::endl;
 			}
 
-			for( int r=0; r<y->GetRows(); r++ ) {
-				for( int c=0; c<y->GetCols(); c++ ) {
+			for( size_t r=0; r<y->GetRows(); r++ ) {
+				for( size_t c=0; c<y->GetCols(); c++ ) {
 					if( (*y)(r,c) != newMat(r,c) ) {
 						std::cout << "element mismatch at " << r << "," << c << std::endl;
 					}
@@ -350,7 +350,7 @@ void EvalLinRegressionNull3() {
 			std::cout << "r,c is" << mmm.GetRows() << "," << mmm.GetCols() << std::endl;
 			const Matrix<RationalCiphertext<ILVector2n>>::data_t& e = mmm.GetData();
 			std::cout << e.size() << std::endl;
-			for (int i = 0; i<e.size(); i++)
+			for (size_t i = 0; i<e.size(); i++)
 				std::cout << i << ":" << e.at(i).size() << std::endl;
 		}
 	}
@@ -431,8 +431,8 @@ void EvalLinRegressionNull3() {
 				std::cout << "col # mismatch" << std::endl;
 			}
 
-			for (int r = 0; r<y->GetRows(); r++) {
-				for (int c = 0; c<y->GetCols(); c++) {
+			for (size_t r = 0; r<y->GetRows(); r++) {
+				for (size_t c = 0; c<y->GetCols(); c++) {
 					if ((*y)(r, c) != newMat(r, c)) {
 						std::cout << "element mismatch at " << r << "," << c << std::endl;
 					}
@@ -545,7 +545,7 @@ void EvalLinRegressionFV() {
 			std::cout << "r,c is" << mmm.GetRows() << "," << mmm.GetCols() << std::endl;
 			const Matrix<RationalCiphertext<ILVector2n>>::data_t& e = mmm.GetData();
 			std::cout << e.size() << std::endl;
-			for (int i = 0; i<e.size(); i++)
+			for (size_t i = 0; i<e.size(); i++)
 				std::cout << i << ":" << e.at(i).size() << std::endl;
 		}
 	}
@@ -623,8 +623,8 @@ void EvalLinRegressionFV() {
 				std::cout << "col # mismatch" << std::endl;
 			}
 
-			for (int r = 0; r<y->GetRows(); r++) {
-				for (int c = 0; c<y->GetCols(); c++) {
+			for (size_t r = 0; r<y->GetRows(); r++) {
+				for (size_t c = 0; c<y->GetCols(); c++) {
 					if ((*y)(r, c) != newMat(r, c)) {
 						std::cout << "element mismatch at " << r << "," << c << std::endl;
 					}
@@ -745,7 +745,7 @@ void EvalLinRegressionFV3() {
 			std::cout << "r,c is" << mmm.GetRows() << "," << mmm.GetCols() << std::endl;
 			const Matrix<RationalCiphertext<ILVector2n>>::data_t& e = mmm.GetData();
 			std::cout << e.size() << std::endl;
-			for (int i = 0; i<e.size(); i++)
+			for (size_t i = 0; i<e.size(); i++)
 				std::cout << i << ":" << e.at(i).size() << std::endl;
 		}
 	}
@@ -826,8 +826,8 @@ void EvalLinRegressionFV3() {
 				std::cout << "col # mismatch" << std::endl;
 			}
 
-			for (int r = 0; r<y->GetRows(); r++) {
-				for (int c = 0; c<y->GetCols(); c++) {
+			for (size_t r = 0; r<y->GetRows(); r++) {
+				for (size_t c = 0; c<y->GetCols(); c++) {
 					if ((*y)(r, c) != newMat(r, c)) {
 						std::cout << "element mismatch at " << r << "," << c << std::endl;
 					}

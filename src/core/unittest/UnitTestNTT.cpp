@@ -111,11 +111,11 @@ TEST(UTNTT, switch_format_simple_double_crt) {
 
 	vector<native64::BigBinaryInteger> init_rootsOfUnity(init_size);
 
-	native64::BigBinaryInteger q("1");
+	native64::BigBinaryInteger q(1);
 	native64::BigBinaryInteger temp;
-	BigBinaryInteger modulus("1");
+	BigBinaryInteger modulus(1);
 
-	for (int i = 0; i < init_size; i++) {
+	for (size_t i = 0; i < init_size; i++) {
 		lbcrypto::NextQ(q, native64::BigBinaryInteger(5), init_m, native64::BigBinaryInteger(4), native64::BigBinaryInteger(4));
 		init_moduli[i] = q;
 		init_rootsOfUnity[i] = RootOfUnity(init_m, init_moduli[i]);
@@ -149,7 +149,7 @@ TEST(UTNTT, switch_format_decompose_single_crt) {
         bool dbg_flag = false;
 	usint m1 = 16;
 
-	BigBinaryInteger modulus("1");
+	BigBinaryInteger modulus(1);
 	NextQ(modulus, BigBinaryInteger::TWO, m1, BigBinaryInteger::FOUR, BigBinaryInteger::FOUR);
 	BigBinaryInteger rootOfUnity(RootOfUnity(m1, modulus));
 	shared_ptr<ILParams> params( new ILParams(m1, modulus, rootOfUnity) );
@@ -212,7 +212,7 @@ TEST(UTNTT, decomposeMult_double_crt) {
 	init_moduli[1] = native64::BigBinaryInteger("17761");
 
 
-	for (int i = 0; i < init_size; i++) {
+	for (size_t i = 0; i < init_size; i++) {
 		init_rootsOfUnity[i] = RootOfUnity(init_m, init_moduli[i]);
 	}
 

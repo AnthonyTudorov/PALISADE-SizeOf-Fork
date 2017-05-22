@@ -53,17 +53,6 @@ Matrix<Element>& Matrix<Element>::operator=(const Matrix<Element>& other) {
 }
 
 template<class Element>
-Matrix<Element>& Matrix<Element>::Ones() {
-  //std::cout<<"in Ones"<<std::endl;
-    for (size_t row = 0; row < rows; ++row) {
-        for (size_t col = 0; col < cols; ++col) {
-            *data[row][col] = 1;
-        }
-    }
-    return *this;
-}
-
-template<class Element>
 Matrix<Element>& Matrix<Element>::Fill(const Element &val) {
     for (size_t row = 0; row < rows; ++row) {
         for (size_t col = 0; col < cols; ++col) {
@@ -71,33 +60,6 @@ Matrix<Element>& Matrix<Element>::Fill(const Element &val) {
         }
     }
     return *this;
-}
-
-template<class Element>
-Matrix<Element>& Matrix<Element>::Identity() {
-  //std::cout<<"in Identity"<<std::endl;
-    for (size_t row = 0; row < rows; ++row) {
-        for (size_t col = 0; col < cols; ++col) {
-            if (row == col) {
-                *data[row][col] = 1;
-            } else {
-                *data[row][col] = 0;
-            }
-        }
-    }
-    return *this;
-}
-
-template<class Element>
-Matrix<Element> Matrix<Element>::GadgetVector() const {
-    Matrix<Element> g(allocZero, rows, cols);
-    auto two = allocZero();
-    *two = 2;
-    g(0, 0) = 1;
-    for (size_t col = 1; col < cols; ++col) {
-        g(0, col) = g(0, col-1) * *two;
-    }
-    return g;
 }
 
 template<class Element>
@@ -140,8 +102,8 @@ Matrix<Element> Matrix<Element>::Mult(Matrix<Element> const& other) const {
 #else
     if (rows  == 1) {
         #pragma omp parallel for
-        for (int32_t col = 0; col < result.cols; ++col) {
-		for (int32_t i = 0; i < cols; ++i) {
+        for (size_t col = 0; col < result.cols; ++col) {
+		for (size_t i = 0; i < cols; ++i) {
 		        *result.data[0][col] += *data[0][i] * *other.data[i][col];
 		    }
         }
@@ -149,9 +111,9 @@ Matrix<Element> Matrix<Element>::Mult(Matrix<Element> const& other) const {
     else
     {
 	    #pragma omp parallel for
-	    for (int32_t row = 0; row < result.rows; ++row) {
-		for (int32_t i = 0; i < cols; ++i) {
-		for (int32_t col = 0; col < result.cols; ++col) {
+	    for (size_t row = 0; row < result.rows; ++row) {
+		for (size_t i = 0; i < cols; ++i) {
+		for (size_t col = 0; col < result.cols; ++col) {
 		        *result.data[row][col] += *data[row][i] * *other.data[i][col];
 		    }
 		}
@@ -743,9 +705,8 @@ Matrix<Element> Matrix<Element>::MultByUnityVector() const {
 	Matrix<Element> result(allocZero, rows, 1);
 
 #pragma omp parallel for
-	for (int32_t row = 0; row < result.rows; ++row) {
-
-		for (int32_t col= 0; col<cols; ++col){
+	for (size_t row = 0; row < result.rows; ++row) {
+		for (size_t col= 0; col<cols; ++col){
 				*result.data[row][0] += *data[row][col];
 		}
 	}
@@ -763,9 +724,8 @@ Matrix<Element> Matrix<Element>::MultByRandomVector(std::vector<int> ranvec) con
 	Matrix<Element> result(allocZero, rows, 1);
 
 #pragma omp parallel for
-	for (int32_t row = 0; row < result.rows; ++row) {
-
-		for (int32_t col= 0; col<cols; ++col){
+	for (size_t row = 0; row < result.rows; ++row) {
+		for (size_t col= 0; col<cols; ++col){
 			if (ranvec[col] == 1)
 				*result.data[row][0] += *data[row][col];
 		}
