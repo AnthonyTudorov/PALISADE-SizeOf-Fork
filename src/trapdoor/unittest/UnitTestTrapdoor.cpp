@@ -160,7 +160,6 @@ TEST(UTTrapdoor,GadgetTest){
 	usint m = 16;
 	BigBinaryInteger modulus("67108913");
 	BigBinaryInteger rootOfUnity("61564");
-	float stddev = 4;
 
 	double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
 	double logTwo = log(val-1.0)/log(2)+1.0;

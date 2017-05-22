@@ -61,7 +61,7 @@ namespace lbcrypto {
 			 * @param &rows number of rows.
 			 * @param &rows number of columns.
 			 */
-            Matrix(alloc_func allocZero, size_t rows, size_t cols) : rows(rows), cols(cols), data(), allocZero(allocZero) {
+            Matrix(alloc_func allocZero, size_t rows, size_t cols) : data(), rows(rows), cols(cols), allocZero(allocZero) {
                 data.resize(rows);
                 for (auto row = data.begin(); row != data.end(); ++row) {
                     for (size_t col = 0; col < cols; ++col) {
@@ -86,7 +86,7 @@ namespace lbcrypto {
              *
 			 * @param &allocZero lambda function for zero initialization.
              */
-            Matrix(alloc_func allocZero) : rows(0), cols(0), data(), allocZero(allocZero) {}
+            Matrix(alloc_func allocZero) : data(), rows(0), cols(0), allocZero(allocZero) {}
 
             void SetSize(size_t rows, size_t cols) {
             	if( this->rows != 0 || this->cols != 0 )
@@ -118,14 +118,14 @@ namespace lbcrypto {
 			 * @param &other the matrix object whose values are to be copied
 			 * @return the resulting matrix
 			 */
-            inline Matrix<Element>& operator=(const Matrix<Element>& other);
+            Matrix<Element>& operator=(const Matrix<Element>& other);
 
 			/**
 			 * In-place change of the current matrix to a matrix of all ones
 			 *
 			 * @return the resulting matrix
 			 */
-            inline Matrix<Element>& Ones();  
+            Matrix<Element>& Ones();
 
 			/**
 			 * Fill matrix using the same element
@@ -134,28 +134,28 @@ namespace lbcrypto {
 			 *
 			 * @return the resulting matrix
 			 */
-            inline Matrix<Element>& Fill(const Element &val); 
+            Matrix<Element>& Fill(const Element &val);
 
 			/**
 			 * In-place change of the current matrix to Identity matrix
 			 *
 			 * @return the resulting matrix
 			 */
-            inline Matrix<Element>& Identity();
+            Matrix<Element>& Identity();
 
             /**
              * Sets the first row to be powers of two
 			 *
 			 * @return the resulting matrix
              */
-            inline Matrix<Element> GadgetVector() const; 
+            Matrix<Element> GadgetVector() const;
 
             /**
              * Computes the infinity norm
 			 *
 			 * @return the norm in double format
              */            
-			inline double Norm() const;
+			double Norm() const;
 
             /**
              * Matrix multiplication
@@ -163,7 +163,7 @@ namespace lbcrypto {
 			 * @param &other the multiplier matrix
 			 * @return the result of multiplication
              */  
-            inline Matrix<Element> Mult(Matrix<Element> const& other) const;
+            Matrix<Element> Mult(Matrix<Element> const& other) const;
 
             /**
              * Operator for matrix multiplication
@@ -171,7 +171,7 @@ namespace lbcrypto {
 			 * @param &other the multiplier matrix
 			 * @return the result of multiplication
              */  
-            inline Matrix<Element> operator*(Matrix<Element> const& other) const {
+            Matrix<Element> operator*(Matrix<Element> const& other) const {
                 return Mult(other);
             }
 
@@ -181,7 +181,7 @@ namespace lbcrypto {
 			 * @param &other the multiplier element
 			 * @return the result of multiplication
              */  
-            inline Matrix<Element> ScalarMult(Element const& other) const {
+            Matrix<Element> ScalarMult(Element const& other) const {
                 Matrix<Element> result(*this);
             #if 0
             for (size_t row = 0; row < result.rows; ++row) {
@@ -208,7 +208,7 @@ namespace lbcrypto {
 			 * @param &other the multiplier element
 			 * @return the result of multiplication
              */ 
-            inline Matrix<Element> operator*(Element const& other) const {
+            Matrix<Element> operator*(Element const& other) const {
                 return ScalarMult(other);
             }
 
@@ -218,7 +218,7 @@ namespace lbcrypto {
 			 * @param &other the matrix object to compare to
 			 * @return the boolean result
              */ 
-            inline bool Equal(Matrix<Element> const& other) const {
+            bool Equal(Matrix<Element> const& other) const {
                 if (rows != other.rows || cols != other.cols) {
                     return false;
                 }
@@ -239,7 +239,7 @@ namespace lbcrypto {
 			 * @param &other the matrix object to compare to
 			 * @return the boolean result
              */ 
-            inline bool operator==(Matrix<Element> const& other) const {
+            bool operator==(Matrix<Element> const& other) const {
                 return Equal(other);
             }
 
@@ -249,7 +249,7 @@ namespace lbcrypto {
 			 * @param &other the matrix object to compare to
 			 * @return the boolean result
              */ 
-            inline bool operator!=(Matrix<Element> const& other) const {
+            bool operator!=(Matrix<Element> const& other) const {
                 return !Equal(other);
             }
 
@@ -303,7 +303,7 @@ namespace lbcrypto {
 			 * @param &other the matrix to be added
 			 * @return the resulting matrix
              */ 
-            inline Matrix<Element> Add(Matrix<Element> const& other) const {
+            Matrix<Element> Add(Matrix<Element> const& other) const {
                 if (rows != other.rows || cols != other.cols) {
                     throw invalid_argument("Addition operands have incompatible dimensions");
                 }
@@ -332,7 +332,7 @@ namespace lbcrypto {
 			 * @param &other the matrix to be added
 			 * @return the resulting matrix
              */ 
-            inline Matrix<Element> operator+(Matrix<Element> const& other) const {
+            Matrix<Element> operator+(Matrix<Element> const& other) const {
                 return this->Add(other);
             }
 
@@ -342,7 +342,7 @@ namespace lbcrypto {
 			 * @param &other the matrix to be added
 			 * @return the resulting matrix (same object)
              */ 
-            inline Matrix<Element>& operator+=(Matrix<Element> const& other);
+            Matrix<Element>& operator+=(Matrix<Element> const& other);
 
             /**
              * Matrix substraction
@@ -350,7 +350,7 @@ namespace lbcrypto {
 			 * @param &other the matrix to be substracted
 			 * @return the resulting matrix
              */ 
-            inline Matrix<Element> Sub(Matrix<Element> const& other) const {
+            Matrix<Element> Sub(Matrix<Element> const& other) const {
                 if (rows != other.rows || cols != other.cols) {
                     throw invalid_argument("Subtraction operands have incompatible dimensions");
                 }
@@ -379,7 +379,7 @@ namespace lbcrypto {
 			 * @param &other the matrix to be substracted
 			 * @return the resulting matrix
              */ 
-            inline Matrix<Element> operator-(Matrix<Element> const& other) const {
+            Matrix<Element> operator-(Matrix<Element> const& other) const {
                 return this->Sub(other);
             }
 
@@ -389,14 +389,14 @@ namespace lbcrypto {
 			 * @param &other the matrix to be substracted
 			 * @return the resulting matrix (same object)
              */ 
-            inline Matrix<Element>& operator-=(Matrix<Element> const& other);
+            Matrix<Element>& operator-=(Matrix<Element> const& other);
 
             /**
              * Matrix transposition
 			 *
 			 * @return the resulting matrix
              */ 
-            inline Matrix<Element> Transpose() const;
+            Matrix<Element> Transpose() const;
 
 			// YSP The signature of this method needs to be changed in the future
 			/**
@@ -404,15 +404,15 @@ namespace lbcrypto {
 			*
 			* @param *result where the result is stored
 			*/
-			inline void Determinant(Element *result) const;
-			//inline Element Determinant() const;
+			void Determinant(Element *result) const;
+			//Element Determinant() const;
 
 			/**
 			* Cofactor matrix - the matrix of determinants of the minors A_{ij} multiplied by -1^{i+j}
 			*
 			* @return the cofactor matrix for the given matrix
 			*/
-			inline Matrix<Element> CofactorMatrix() const;
+			Matrix<Element> CofactorMatrix() const;
 
             /**
              * Add rows to bottom of the matrix
@@ -420,7 +420,7 @@ namespace lbcrypto {
 			 * @param &other the matrix to be added to the bottom of current matrix
 			 * @return the resulting matrix
              */ 
-            inline Matrix<Element>& VStack(Matrix<Element> const& other);
+            Matrix<Element>& VStack(Matrix<Element> const& other);
 
             /**
              * Add columns the right of the matrix
@@ -428,7 +428,7 @@ namespace lbcrypto {
 			 * @param &other the matrix to be added to the right of current matrix
 			 * @return the resulting matrix
              */ 
-            inline Matrix<Element>& HStack(Matrix<Element> const& other);
+            Matrix<Element>& HStack(Matrix<Element> const& other);
 
             /**
              * Matrix indexing operator - writeable instance of the element
@@ -437,7 +437,7 @@ namespace lbcrypto {
 			 * @param &col column index
 			 * @return the element at the index
              */ 
-            inline Element& operator()(size_t row, size_t col) {
+            Element& operator()(size_t row, size_t col) {
                 return *data[row][col];
             }
 
@@ -448,7 +448,7 @@ namespace lbcrypto {
 			 * @param &col column index
 			 * @return the element at the index
              */ 
-            inline Element const& operator()(size_t row, size_t col) const {
+            Element const& operator()(size_t row, size_t col) const {
                 return *data[row][col];
             }
 
@@ -458,7 +458,7 @@ namespace lbcrypto {
 			* @param &row row index
 			* @return the row at the index
 			*/
-			inline Matrix<Element> ExtractRow(size_t row) const {
+			Matrix<Element> ExtractRow(size_t row) const {
 				Matrix<Element> result(this->allocZero,1,this->cols);
 				int i = 0;
 				for (auto elem = this->GetData()[row].begin(); elem != this->GetData()[row].end(); ++elem) {
@@ -479,7 +479,7 @@ namespace lbcrypto {
              * Call switch format for each (ring) element
 			 *
              */ 
-            inline void SwitchFormat(); 
+            void SwitchFormat();
 
 
             /*
@@ -533,7 +533,7 @@ namespace lbcrypto {
 	* @return the resulting matrix
     */ 
     template<class Element>
-    inline Matrix<Element> operator*(Element const& e, Matrix<Element> const& M) {
+    Matrix<Element> operator*(Element const& e, Matrix<Element> const& M) {
         return M.ScalarMult(e);
     }
 
@@ -543,7 +543,7 @@ namespace lbcrypto {
 	* @param &inMat the matrix of power-of-2 cyclotomic ring elements to be rotated
 	* @return the resulting matrix of big binary integers
     */ 
-    inline Matrix<BigBinaryInteger> Rotate(Matrix<ILVector2n> const& inMat);
+    Matrix<BigBinaryInteger> Rotate(Matrix<ILVector2n> const& inMat);
 
 	/**
     *  Each element becomes a square matrix with columns of that element's
@@ -552,7 +552,7 @@ namespace lbcrypto {
 	* @param &inMat the matrix of power-of-2 cyclotomic ring elements to be rotated
 	* @return the resulting matrix of big binary integers
     */ 
-    inline Matrix<BigBinaryVector> RotateVecResult(Matrix<ILVector2n> const& inMat);
+    Matrix<BigBinaryVector> RotateVecResult(Matrix<ILVector2n> const& inMat);
 
 	/**
     *  Stream output operator
@@ -562,7 +562,7 @@ namespace lbcrypto {
 	* @return the chained stream
     */ 
     template<class Element>
-    inline std::ostream& operator<<(std::ostream& os, const Matrix<Element>& m);
+    std::ostream& operator<<(std::ostream& os, const Matrix<Element>& m);
 
 	/**
     * Gives the Choleshky decomposition of the input matrix. 
@@ -574,9 +574,9 @@ namespace lbcrypto {
 	* @param &input the matrix for which the Cholesky decomposition is to be computed
 	* @return the resulting matrix of floating-point numbers
     */ 
-    inline Matrix<double> Cholesky(const Matrix<int32_t> &input); 
+    Matrix<double> Cholesky(const Matrix<int32_t> &input);
 
-	inline void Cholesky(const Matrix<int32_t> &input, Matrix<double> &result);
+	void Cholesky(const Matrix<int32_t> &input, Matrix<double> &result);
 
 	/**
     * Convert a matrix of integers from BigBinaryInteger to int32_t
@@ -586,7 +586,7 @@ namespace lbcrypto {
 	* @param &modulus the ring modulus
 	* @return the resulting matrix of int32_t
     */ 
-    inline Matrix<int32_t> ConvertToInt32(const Matrix<BigBinaryInteger> &input, const BigBinaryInteger& modulus);
+    Matrix<int32_t> ConvertToInt32(const Matrix<BigBinaryInteger> &input, const BigBinaryInteger& modulus);
 
 	/**
     * Convert a matrix of BigBinaryVector to int32_t
@@ -596,7 +596,7 @@ namespace lbcrypto {
 	* @param &modulus the ring modulus
 	* @return the resulting matrix of int32_t
     */ 
-    inline Matrix<int32_t> ConvertToInt32(const Matrix<BigBinaryVector> &input, const BigBinaryInteger& modulus); 
+    Matrix<int32_t> ConvertToInt32(const Matrix<BigBinaryVector> &input, const BigBinaryInteger& modulus);
 
 	/**
     * Split a vector of int32_t into a vector of ring elements with ring dimension n
@@ -606,7 +606,7 @@ namespace lbcrypto {
 	* @param &params ILVector2n element params
 	* @return the resulting matrix of ILVector2n
     */ 
-    inline Matrix<ILVector2n> SplitInt32IntoILVector2nElements(Matrix<int32_t> const& other, size_t n, const shared_ptr<ILParams> params);
+    Matrix<ILVector2n> SplitInt32IntoILVector2nElements(Matrix<int32_t> const& other, size_t n, const shared_ptr<ILParams> params);
 
 	/**
     * Another method for splitting a vector of int32_t into a vector of ring elements with ring dimension n
@@ -616,6 +616,6 @@ namespace lbcrypto {
 	* @param &params ILVector2n element params
 	* @return the resulting matrix of ILVector2n
     */ 
-    inline Matrix<ILVector2n> SplitInt32AltIntoILVector2nElements(Matrix<int32_t> const& other, size_t n, const shared_ptr<ILParams> params);
+    Matrix<ILVector2n> SplitInt32AltIntoILVector2nElements(Matrix<int32_t> const& other, size_t n, const shared_ptr<ILParams> params);
 }
 #endif // LBCRYPTO_MATH_MATRIX_H

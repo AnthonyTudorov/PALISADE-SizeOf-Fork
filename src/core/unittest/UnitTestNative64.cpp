@@ -758,7 +758,7 @@ TEST(UTNative64Int,mod_arithmetic){
 	EXPECT_FALSE(thrown) 
 	  << "Failure testing ModAdd() of really big numbers threw exception ";
 
-	expectedResult = 13835058055282163702;
+	expectedResult = 13835058055282163702ULL;
 
 
 	EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
@@ -1067,7 +1067,7 @@ TEST(UTNative64Int,shift){
 TEST(UTNative64Int,method_binary_string_to_big_binary_integer){
   //TEST CASE FOR STATIC METHOD BinaryStringToBigBinaryInt in native64::BigBinaryInteger
 
- std:string binaryString = "1011101101110001111010111011000000011";
+ std::string binaryString = "1011101101110001111010111011000000011";
   native64::BigBinaryInteger b =
     native64::BigBinaryInteger::BinaryStringToBigBinaryInt(binaryString);
 

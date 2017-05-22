@@ -80,8 +80,6 @@ bool clonetest(ILVector2n &a, ILVector2n &b, string name){
 //main NTT test suite.
 void test_NTT (const usint level, const usint nloop) {
   // Code to test NTT at three different numbers of limbs.
-
-  bool dbg_flag = 1;		// if true then print dbg output
  
   TimeVar t1,t2, t3, t_setup, t_total; // timers for TIC() TOC()
 

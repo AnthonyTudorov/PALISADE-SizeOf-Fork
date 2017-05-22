@@ -74,23 +74,23 @@ UnitTestEncryption(const CryptoContext<Element>& cc) {
 	} else {
 		vector<shared_ptr<Ciphertext<Element>>> ciphertext = cc.Encrypt(kp.publicKey, plaintextShort, true);
 		BytePlaintextEncoding plaintextShortNew;
-		DecryptResult result = cc.Decrypt(kp.secretKey, ciphertext, &plaintextShortNew, true);
+		cc.Decrypt(kp.secretKey, ciphertext, &plaintextShortNew, true);
 		EXPECT_EQ(plaintextShortNew, plaintextShort) << "Encrypt short plaintext with padding";
 
 		vector<shared_ptr<Ciphertext<Element>>> ciphertext2 = cc.Encrypt(kp.publicKey, plaintextFull, false);
 		BytePlaintextEncoding plaintextFullNew;
-		DecryptResult result2 = cc.Decrypt(kp.secretKey, ciphertext2, &plaintextFullNew, false);
+		cc.Decrypt(kp.secretKey, ciphertext2, &plaintextFullNew, false);
 		EXPECT_EQ(plaintextFullNew, plaintextFull) << "Encrypt regular plaintext";
 
 		vector<shared_ptr<Ciphertext<Element>>> ciphertext3 = cc.Encrypt(kp.publicKey, plaintextLong, false);
 		BytePlaintextEncoding plaintextLongNew;
-		DecryptResult result3 = cc.Decrypt(kp.secretKey, ciphertext3, &plaintextLongNew, false);
+		cc.Decrypt(kp.secretKey, ciphertext3, &plaintextLongNew, false);
 		EXPECT_EQ(plaintextLongNew, plaintextLong) << "Encrypt long plaintext";
 	}
 
 	vector<shared_ptr<Ciphertext<Element>>> ciphertext4 = cc.Encrypt(kp.publicKey, plaintextInt, false);
 	IntPlaintextEncoding plaintextIntNew;
-	DecryptResult result4 = cc.Decrypt(kp.secretKey, ciphertext4, &plaintextIntNew, false);
+	cc.Decrypt(kp.secretKey, ciphertext4, &plaintextIntNew, false);
 	EXPECT_EQ(plaintextIntNew, plaintextInt) << "Encrypt integer plaintext";
 }
 

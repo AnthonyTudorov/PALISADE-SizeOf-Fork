@@ -102,11 +102,11 @@ protected:
    //JSON FACILITY
    Serialize()
    Deserialize()
-   
+*/
 
-/************************************************/
-/*	TESTING BASIC METHODS OF mubintvec CLASS        */
-/************************************************/
+/************************************************
+ *	TESTING BASIC METHODS OF mubintvec CLASS
+ ************************************************/
 TEST(UTmubintvec,ctor_access_eq_neq){
   bool dbg_flag = false;
   //note this is the same code as the ubintvec, just to confirm it works
@@ -250,7 +250,7 @@ TEST(UTmubintvec,ctor_access_eq_neq){
   EXPECT_FALSE(test2)<<"Failure !=";
 
   //n.SetModulus(n.GetModulus()+ubint::ONE); //TODO this will not compile?
-  n.SetModulus(ubint(n.GetModulus()+ubint::ONE));
+  n.SetModulus(ubint(n.GetModulus() + ubint(1)));
   //reset n to a differnt modulus, comparison will fail. 
   test1 = m==n;
   test2 = m!=n;
@@ -258,7 +258,7 @@ TEST(UTmubintvec,ctor_access_eq_neq){
   EXPECT_TRUE(test2)<<"Failure != different mods";
 
   // set it back 
-  n.SetModulus(n.GetModulus()-ubint::ONE);
+  n.SetModulus(n.GetModulus() - ubint(1));
   m = n+n;
   test1 = m==n;
   test2 = m!=n;
@@ -327,11 +327,10 @@ TEST(UTmubintvec, constructorTest){
 }
 
 TEST(UTmubintvec,mod){
-  bool dbg_flag = false;
-  mubintvec m(10); // calling constructor to create a vector of length 10 zeroed
 
-  int i;
-  usint j;
+	mubintvec m(10); // calling constructor to create a vector of length 10 zeroed
+
+  size_t i;
 	
 
   //setting value of the value at different index locations
@@ -498,7 +497,7 @@ TEST(UTmubintvec,basic_vector_scalar_mod_math_2_limb){
   mubintvec a2op1(a2.size(),q2);
   mubintvec a2op1test(a2.size(),q2);
   
-  ubint myone(ubint::ONE);
+  ubint myone(1);
   
   for (usint i = 0; i < a2.size();i ++){
     a2op1[i] = a2[i]+myone;

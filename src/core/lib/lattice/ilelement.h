@@ -52,6 +52,8 @@ template <typename Element, typename ModType, typename IntType, typename VecType
 class ILElement : public Serializable
 {
 public:
+	virtual const std::string GetElementName() const = 0;
+
 	// note that there's no constructor here in the base class; it contains no data to construct
 
 	/**

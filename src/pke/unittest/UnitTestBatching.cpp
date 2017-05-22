@@ -240,7 +240,6 @@ TEST(UTLTVBATCHING, ILVector_Encrypt_Decrypt_Arb) {
 	PackedIntPlaintextEncoding::Destroy();
 
 	usint m = 22;
-	usint N = GetTotient(m);
 	usint p = 89; // we choose s.t. 2m|p-1 to leverage CRTArb
 	BigBinaryInteger modulusQ("800053");
 	BigBinaryInteger modulusP(p);
@@ -279,7 +278,6 @@ TEST(UTLTVBATCHING, ILVector_Encrypt_Decrypt_Arb) {
 TEST(UTLTVBATCHING, ILVector_EVALADD_Arb) {
 	PackedIntPlaintextEncoding::Destroy();
 	usint m = 22;
-	usint N = GetTotient(m);
 	usint p = 89; // we choose s.t. 2m|p-1 to leverage CRTArb
 	BigBinaryInteger modulusQ("800053");
 	BigBinaryInteger modulusP(p);
@@ -331,7 +329,6 @@ TEST(UTLTVBATCHING, ILVector_EVALMULT_Arb) {
 	PackedIntPlaintextEncoding::Destroy();
 
 	usint m = 22;
-	usint N = GetTotient(m);
 	usint p = 89; // we choose s.t. 2m|p-1 to leverage CRTArb
 	BigBinaryInteger modulusQ("72385066601");
 	BigBinaryInteger modulusP(p);

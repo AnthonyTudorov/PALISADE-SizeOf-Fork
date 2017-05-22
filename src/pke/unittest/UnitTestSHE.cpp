@@ -301,7 +301,7 @@ TEST(UTSHE, keyswitch_sparse_key_SingleCRT_byteplaintext) {
 
 	BytePlaintextEncoding plaintext("I am good, what are you?! 32 ch");
 
-	CryptoContext<ILVector2n> cc = GenCryptoContextElementLTV(m, 2);
+	CryptoContext<ILVector2n> cc = GenCryptoContextElementLTV(m, plaintextModulus);
 
 	LPKeyPair<ILVector2n> kp = cc.KeyGen();
 

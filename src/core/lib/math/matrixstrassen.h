@@ -47,7 +47,7 @@ namespace lbcrypto {
 			 * @param &rows number of rows.
 			 * @param &rows number of columns.
 			 */
-            MatrixStrassen(alloc_func allocZero, size_t rows, size_t cols) : rows(rows), cols(cols), data(), allocZero(allocZero) {
+            MatrixStrassen(alloc_func allocZero, size_t rows, size_t cols) : data(), rows(rows), cols(cols), allocZero(allocZero) {
                 data.resize(rows);
                 for (auto row = data.begin(); row != data.end(); ++row) {
                     for (size_t col = 0; col < cols; ++col) {
@@ -72,7 +72,7 @@ namespace lbcrypto {
              *
 			 * @param &allocZero lambda function for zero initialization.
              */
-            MatrixStrassen(alloc_func allocZero) : rows(0), cols(0), data(), allocZero(allocZero) {}
+            MatrixStrassen(alloc_func allocZero) : data(), rows(0), cols(0), allocZero(allocZero) {}
 
             void SetSize(size_t rows, size_t cols) {
             	if( this->rows != 0 || this->cols != 0 )

@@ -93,7 +93,7 @@ protected:
    //JSON FACILITY
    Serialize()
    Deserialize()
-   
+*/
 
 /************************************************/
 /*	TESTING BASIC METHODS OF ubintvec CLASS        */
@@ -290,7 +290,7 @@ TEST(UTubintvec,basic_vector_scalar_math_1_limb){
   ubintvec a1op1(a1.size());
   ubintvec a1op1test(a1.size());
   
-  ubint myone(ubint::ONE);
+  ubint myone(1);
 
   // test all scalar operations with ONE as the operator term
 
@@ -485,7 +485,7 @@ TEST(UTubintvec,basic_vector_scalar_mod_math_1_limb){
   ubintvec a1op1(a1.size());
   ubintvec a1op1test(a1.size());
   
-  ubint myone(ubint::ONE);
+  ubint myone(1);
   
   for (usint i = 0; i < a1.size();i ++){
     a1op1[i] = a1[i]+myone;
@@ -609,7 +609,7 @@ TEST(UTubintvec,basic_vector_scalar_math_2_limb){
   ubintvec a2op1(a2.size());
   ubintvec a2op1test(a2.size());
   
-  ubint myone(ubint::ONE);
+  ubint myone(1);
   
   for (usint i = 0; i < a2.size();i ++){
     a2op1[i] = a2[i]+myone;
@@ -779,7 +779,7 @@ TEST(UTubintvec,basic_vector_scalar_mod_math_2_limb){
   ubintvec a2op1(a2.size());
   ubintvec a2op1test(a2.size());
   
-  ubint myone(ubint::ONE);
+  ubint myone(1);
   
   for (usint i = 0; i < a2.size();i ++){
     a2op1[i] = a2[i]+myone;

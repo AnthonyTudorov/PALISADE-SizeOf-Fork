@@ -91,10 +91,11 @@ namespace lbcrypto {
 	class ObfuscatedPattern {
 	};
 
-
+#ifdef OUT
 	/*
 	 * @brief Abstract interface for encryption algorithm
 	 * @tparam Element a ring element.
+	 */
 	 
 	template <class Element>
 	class ObfuscationAlgorithm {
@@ -106,6 +107,7 @@ namespace lbcrypto {
 			 * @param &obfuscatedPattern the obfuscated pattern.
 			 * @param &testString cleartext pattern to test for.
 			 * @return true if the string matches the pattern and false otherwise.
+			 */
 			
 			virtual bool Evaluate(const ObfuscatedPattern<Element> &obfuscatedPattern,
 				 const std::string &testString) const;
@@ -116,11 +118,12 @@ namespace lbcrypto {
 			 * @param &clearPattern the obfuscated pattern.
 			 * @param &testString cleartext pattern to test for.
 			 * @return true if the string matches the pattern and false otherwise.
+			 */
 			 			virtual bool Evaluate(const ClearPattern<Element> &clearPattern,
 				 const std::string &testString) const;
 
 	};
-	*/
+#endif
 
 } // namespace lbcrypto ends
 #endif

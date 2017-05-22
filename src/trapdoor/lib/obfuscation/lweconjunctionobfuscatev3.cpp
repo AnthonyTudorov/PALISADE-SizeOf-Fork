@@ -250,7 +250,6 @@ void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(typename Element::DggTy
 	bool dbg_flag = false;
 	TIC(t1);
 
-	usint n = obfuscatedPattern->GetRingDimension();
 	usint k = obfuscatedPattern->GetLogModulus();
 
 	DEBUG("BitLength in KeyGen: " << k);
@@ -409,8 +408,6 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 	std::cout << "Ring dimension \t n : " << n << std::endl;
 	std::cout << "Modulus \t q : " << q << std::endl;
 	std::cout << "Num bits + 2 \t m : " << m << std::endl;
-
-	char val=0;
 
 	// Initialize the s and r matrices.
 	vector<vector<Element>> s_small;
@@ -617,7 +614,6 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::EvaluateV2(
 	std::cout << "Num bits \t m : " << m << std::endl;
 	std::cout << "Constraint \t : " << constraint << std::endl;
 
-	bool retVal = true;
 	std::string testVal;
 
 	double norm = constraint;
@@ -703,7 +699,6 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::EvaluateACS(
 				const std::string &testString, const int useRandomVector) const {
 	//Evaluation of Obfuscated Conjunction Pattern
 	TimeVar t1; // for TIC TOC
-	bool dbg_flag = 1;
 	TIC(t1);
 
 	usint l = obfuscatedPattern.GetLength();
@@ -728,12 +723,9 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::EvaluateACS(
 	//std::cout << "Num bits \t m : " << m << std::endl;
 	//std::cout << "Constraint \t : " << constraint << std::endl;
 
-	bool retVal = true;
 	std::string testVal;
 
 	double norm = constraint;
-
-
 
 	shared_ptr<Matrix<Element>> S_ib;
 	shared_ptr<Matrix<Element>> R_ib;
@@ -850,7 +842,6 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 	//std::cout << "Num bits \t m : " << m << std::endl;
 	//std::cout << "Constraint \t : " << constraint << std::endl;
 
-	bool retVal = true;
 	std::string testVal;
 
 	double norm = constraint;

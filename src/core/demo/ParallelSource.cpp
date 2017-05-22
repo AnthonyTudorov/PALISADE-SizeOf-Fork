@@ -23,7 +23,7 @@ int main(int argc, char* argv[]){
   //float foo[array_size];
   float foo[ARRAY_SIZE];
 
-  bool dbg_flag;
+  bool dbg_flag = false;
 
   TimeVar t1,t_total; //for TIC TOC
   double time1;

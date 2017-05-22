@@ -249,27 +249,11 @@ public:
 	* @param key
 	* @return new evaluation key
 	*/
-	void EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> key) const {
+	void EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> key) const;
 
-		if( key == NULL || key->GetCryptoContext() != *this )
-			throw std::logic_error("Key passed to EvalMultKeyGen were not generated with this crypto context");
+	void ClearEvalMultKeyCache();
 
-		shared_ptr<LPEvalKey<Element>> k = GetEncryptionAlgorithm()->EvalMultKeyGen(key);
-		if( evalMultKeys.size() == 0 )
-			evalMultKeys.push_back(k);
-		else
-			evalMultKeys[0] = k;
-	}
-
-	void ClearEvalMultKeyCache() {
-		evalMultKeys.resize(0);
-	}
-
-	const shared_ptr<LPEvalKey<Element>> GetEvalMultKey() const {
-		if( evalMultKeys.size() != 1 )
-			throw std::logic_error("You need to use EvalMultKeyGen so that you have an EvalKey available");
-		return evalMultKeys[0];
-	}
+	const shared_ptr<LPEvalKey<Element>> GetEvalMultKey() const;
 
 	/**
 	* KeySwitchGen creates a key that can be used with the PALISADE KeySwitch operation
@@ -414,7 +398,7 @@ public:
 
 			shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, pt);
 			if (!ciphertext) {
-				delete ptxt;
+				delete [] ptxt;
 				return;
 			}
 
@@ -422,17 +406,17 @@ public:
 
 			if (ciphertext->Serialize(&cS)) {
 				if (!SerializableHelper::SerializationToStream(cS, outstream)) {
-					delete ptxt;
+					delete [] ptxt;
 					return;
 				}
 			}
 			else {
-				delete ptxt;
+				delete [] ptxt;
 				return;
 			}
 		}
 
-		delete ptxt;
+		delete [] ptxt;
 		return;
 	}
 
@@ -556,7 +540,7 @@ public:
 
 		while( SerializableHelper::StreamToSerialization(instream, &serObj) ) {
 			shared_ptr<Ciphertext<Element>> ct;
-			if( ct = deserializeCiphertext(serObj) ) {
+			if( (ct = deserializeCiphertext(serObj)) != NULL ) {
 				ILVector2n decrypted;
 				DecryptResult res = GetEncryptionAlgorithm()->Decrypt(privateKey, ct, &decrypted);
 				if( !res.isValid )

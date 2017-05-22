@@ -84,7 +84,7 @@ public:
 	 * @param rootsOfUnity is unused
 	 */
 	ILDCRTParams(const usint cyclotomic_order, const BigBinaryInteger &modulus, const BigBinaryInteger& rootsOfUnity)
-		: ElemParams<IntType>(cyclotomic_order, modulus) {}
+		: ElemParams<IntType>(cyclotomic_order, modulus, 0, 0, 0) {}
 
 	/**
 	 * Constructor with all parameters provided except the multiplied values of the chain of moduli. That value is automatically calculated. Root of unity of the modulus is also calculated.
@@ -94,7 +94,7 @@ public:
 	 * @param &moduli is the tower of moduli
 	 */
 	ILDCRTParams(const usint cyclotomic_order, const std::vector<native64::BigBinaryInteger> &moduli, const std::vector<native64::BigBinaryInteger>& rootsOfUnity)
-		: ElemParams<IntType>(cyclotomic_order) {
+		: ElemParams<IntType>(cyclotomic_order, 0, 0, 0, 0) {
 		if( moduli.size() != rootsOfUnity.size() )
 			throw std::logic_error("sizes of moduli and roots of unity do not match");
 
@@ -111,15 +111,15 @@ public:
 	 * @param &moduli is the tower of moduli
 	 */
 	ILDCRTParams(const usint cyclotomic_order, const std::vector<native64::BigBinaryInteger> &moduli)
-		: ElemParams<IntType>(cyclotomic_order) {
+		: ElemParams<IntType>(cyclotomic_order, 0, 0, 0, 0) {
 		for( size_t i=0; i<moduli.size(); i++ ) {
-			m_parms.push_back( std::shared_ptr<native64::ILParams>( new native64::ILParams(cyclotomic_order, moduli[i]) ) );
+			m_parms.push_back( std::shared_ptr<native64::ILParams>( new native64::ILParams(cyclotomic_order, moduli[i], 0, 0, 0) ) );
 		}
 		RecalculateModulus();
 	}
 
 	ILDCRTParams(const usint cyclotomic_order, std::vector<std::shared_ptr<native64::ILParams>>& parms)
-		: ElemParams<IntType>(cyclotomic_order), m_parms(parms) {
+		: ElemParams<IntType>(cyclotomic_order, 0, 0, 0, 0), m_parms(parms) {
 		RecalculateModulus();
 	}
 

@@ -238,7 +238,7 @@ namespace cpu_int{
     *
     * @param init is the initial integer.
     */
-    explicit BigBinaryInteger(uint64_t init);
+    BigBinaryInteger(uint64_t init);
 
     /**
     * Basic constructor for copying a big binary integer

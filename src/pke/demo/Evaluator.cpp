@@ -268,7 +268,7 @@ void EvalLinRegressionNull() {
 	Matrix<IntPlaintextEncoding> numerator = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
 	Matrix<IntPlaintextEncoding> denominator = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
 
-	DecryptResult result1 = cc.DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
+	cc.DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
 
 	std::cout << "numerator row 1 = " << numerator(0, 0).EvalToInt(plaintextModulus) << std::endl;
 	std::cout << "numerator row 2 = " << numerator(1, 0).EvalToInt(plaintextModulus) << std::endl;
@@ -279,7 +279,7 @@ void EvalLinRegressionNull() {
 	Matrix<IntPlaintextEncoding> numerator2 = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
 	Matrix<IntPlaintextEncoding> denominator2 = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
 
-	DecryptResult result2 = cc.DecryptMatrix(kp.secretKey, deserResult, &numerator2, &denominator2);
+	cc.DecryptMatrix(kp.secretKey, deserResult, &numerator2, &denominator2);
 
 	std::cout << "numerator row 1 = " << numerator2(0, 0).EvalToInt(plaintextModulus) << std::endl;
 	std::cout << "numerator row 2 = " << numerator2(1, 0).EvalToInt(plaintextModulus) << std::endl;
@@ -464,7 +464,7 @@ void EvalLinRegressionNull3() {
 	Matrix<IntPlaintextEncoding> numerator = Matrix<IntPlaintextEncoding>(zeroAlloc, 3, 1);
 	Matrix<IntPlaintextEncoding> denominator = Matrix<IntPlaintextEncoding>(zeroAlloc, 3, 1);
 
-	DecryptResult result1 = cc.DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
+	cc.DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
 
 	std::cout << "numerator row 1 = " << numerator(0, 0).EvalToInt(plaintextModulus) << std::endl;
 	std::cout << "numerator row 2 = " << numerator(1, 0).EvalToInt(plaintextModulus) << std::endl;
@@ -477,7 +477,7 @@ void EvalLinRegressionNull3() {
 	Matrix<IntPlaintextEncoding> numerator2 = Matrix<IntPlaintextEncoding>(zeroAlloc, 3, 1);
 	Matrix<IntPlaintextEncoding> denominator2 = Matrix<IntPlaintextEncoding>(zeroAlloc, 3, 1);
 
-	DecryptResult result2 = cc.DecryptMatrix(kp.secretKey, deserResult, &numerator2, &denominator2);
+	cc.DecryptMatrix(kp.secretKey, deserResult, &numerator2, &denominator2);
 
 	std::cout << "numerator row 1 = " << numerator2(0, 0).EvalToInt(plaintextModulus) << std::endl;
 	std::cout << "numerator row 2 = " << numerator2(1, 0).EvalToInt(plaintextModulus) << std::endl;
@@ -668,7 +668,7 @@ void EvalLinRegressionFV() {
 	Matrix<IntPlaintextEncoding> numerator = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
 	Matrix<IntPlaintextEncoding> denominator = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
 
-	DecryptResult result1 = cc.DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
+	cc.DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
 
 	std::cout << "numerator row 1 = " << numerator(0, 0).EvalToInt(plaintextModulus) << std::endl;
 	std::cout << "numerator row 2 = " << numerator(1, 0).EvalToInt(plaintextModulus) << std::endl;
@@ -679,7 +679,7 @@ void EvalLinRegressionFV() {
 	Matrix<IntPlaintextEncoding> numerator2 = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
 	Matrix<IntPlaintextEncoding> denominator2 = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
 
-	DecryptResult result2 = cc.DecryptMatrix(kp.secretKey, deserResult, &numerator2, &denominator2);
+	cc.DecryptMatrix(kp.secretKey, deserResult, &numerator2, &denominator2);
 
 	std::cout << "numerator row 1 = " << numerator2(0, 0).EvalToInt(plaintextModulus) << std::endl;
 	std::cout << "numerator row 2 = " << numerator2(1, 0).EvalToInt(plaintextModulus) << std::endl;
@@ -871,7 +871,7 @@ void EvalLinRegressionFV3() {
 	Matrix<IntPlaintextEncoding> numerator = Matrix<IntPlaintextEncoding>(zeroAlloc, 3, 1);
 	Matrix<IntPlaintextEncoding> denominator = Matrix<IntPlaintextEncoding>(zeroAlloc, 3, 1);
 
-	DecryptResult result1 = cc.DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
+	cc.DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
 
 	std::cout << "numerator row 1 = " << numerator(0, 0).EvalToInt(plaintextModulus) << std::endl;
 	std::cout << "numerator row 2 = " << numerator(1, 0).EvalToInt(plaintextModulus) << std::endl;
@@ -884,7 +884,7 @@ void EvalLinRegressionFV3() {
 	Matrix<IntPlaintextEncoding> numerator2 = Matrix<IntPlaintextEncoding>(zeroAlloc, 3, 1);
 	Matrix<IntPlaintextEncoding> denominator2 = Matrix<IntPlaintextEncoding>(zeroAlloc, 3, 1);
 
-	DecryptResult result2 = cc.DecryptMatrix(kp.secretKey, deserResult, &numerator2, &denominator2);
+	cc.DecryptMatrix(kp.secretKey, deserResult, &numerator2, &denominator2);
 
 	std::cout << "numerator row 1 = " << numerator2(0, 0).EvalToInt(plaintextModulus) << std::endl;
 	std::cout << "numerator row 2 = " << numerator2(1, 0).EvalToInt(plaintextModulus) << std::endl;

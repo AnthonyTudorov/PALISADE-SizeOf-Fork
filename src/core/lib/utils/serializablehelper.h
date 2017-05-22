@@ -36,7 +36,8 @@
 #ifndef LBCRYPTO_SERIALIZABLEHELPER_H
 #define LBCRYPTO_SERIALIZABLEHELPER_H
 
-#define RAPIDJSON_HAS_STDSTRING 1
+#include "serializable.h"
+
 #include "rapidjson/document.h"
 #include "rapidjson/pointer.h"
 #include "rapidjson/reader.h"
@@ -52,7 +53,6 @@
 #include <string>
 #include <unordered_map>
 
-#include "serializable.h"
 #include "../math/backend.h"
 #include "../lattice/ilvector2n.h"
 #include "../lattice/ilvectorarray2n.h"

@@ -555,10 +555,10 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 			for (int c1e = 0; c1e<ringdim; c1e++) {
 				typename Element::ILVectorType::Integer answer, c1val, c2val, prod;
 				c1val = c1.GetValAtIndex(c1e);
-				if (c1val != Element::ILVectorType::Integer::ZERO) {
+				if (c1val != 0) {
 					for (int c2e = 0; c2e<ringdim; c2e++) {
 						c2val = c2.GetValAtIndex(c2e);
-						if (c2val != Element::ILVectorType::Integer::ZERO) {
+						if (c2val != 0) {
 							prod = c1val * c2val;
 
 							int index = (c1e + c2e);
@@ -639,8 +639,8 @@ public:
 			if (this->m_algorithmSHE == NULL)
 				this->m_algorithmSHE = new LPAlgorithmSHENull<Element>();
 
-		//	if (mask[FHE])
-		//		this->m_algorithmFHE = new LPAlgorithmFHENull<Element>();
+		if (mask[FHE])
+			throw std::logic_error("FHE feature not supported for Null scheme");
 
 		if (mask[LEVELEDSHE])
 			if (this->m_algorithmLeveledSHE == NULL)
@@ -662,10 +662,8 @@ public:
 			if (this->m_algorithmSHE == NULL)
 				this->m_algorithmSHE = new LPAlgorithmSHENull<Element>();
 			break;
-			//	case FHE:
-			//		if (this->m_algorithmFHE == NULL)
-			//			this->m_algorithmFHE = new LPAlgorithmFHENull<Element>();
-			//		break;
+		case FHE:
+			throw std::logic_error("FHE feature not supported for Null scheme");
 		case LEVELEDSHE:
 			if (this->m_algorithmLeveledSHE == NULL)
 				this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmNull<Element>();

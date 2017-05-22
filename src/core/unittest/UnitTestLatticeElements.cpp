@@ -62,8 +62,6 @@ void testILVectorArray2nConstructorNegative(std::vector<native64::ILVector2n> &t
 template<typename IntType, typename VecType, typename ParmType, typename Element>
 static void operators_tests(shared_ptr<ParmType> ilparams) {
 
-	usint m = 8;
-
 	Element ilvector2n1(ilparams);
 	ilvector2n1 = {1,2,0,1};
 
@@ -90,7 +88,7 @@ static void operators_tests(shared_ptr<ParmType> ilparams) {
 				<< "Faiure: Operator!= switchmodulus comparison";
 
 			Element ilv2 = ilvector2n1;
-			ilv2.SetValAtIndex(2, Element::Integer::TWO);
+			ilv2.SetValAtIndex(2, 2);
 			EXPECT_NE(ilvector2n1, ilv2)
 				<< "Faiure: Operator!= value comparison";
 		} catch (std::exception& e) {
@@ -627,10 +625,10 @@ void other_methods() {
 
 		EXPECT_EQ(2, ilv.GetLength())<<"Failure: Decompose() length";
 
-		EXPECT_EQ(IntType::TWO, ilv.GetValAtIndex(0)) 
+		EXPECT_EQ(ilv.GetValAtIndex(0), 2)
 			<< "Failure: Decompose(): mismatch between original and decomposed elements at index 0.";
 		
-		EXPECT_EQ(IntType::THREE, ilv.GetValAtIndex(1)) 					<< "Failure: Decompose(): mismatch between original and decomposed elements at index 1.";
+		EXPECT_EQ(ilv.GetValAtIndex(1), 3) 					<< "Failure: Decompose(): mismatch between original and decomposed elements at index 1.";
 	}
 
 	DEBUG("5");
@@ -782,7 +780,7 @@ void other_methods() {
 
 		for (usint i = 0; i < m/2; ++i)
 		{
-			EXPECT_EQ(IntType::ONE, ilvProduct1.GetValAtIndex(i))
+			EXPECT_EQ(ilvProduct1.GetValAtIndex(i), 1)
 				<<"Failure: ilvProduct1.MultiplicativeInverse() @ index "<<i;
 		}
 	}
@@ -1021,7 +1019,7 @@ void signed_mod_tests() {
 
 	{
 		Element ilv1(ilparams, COEFFICIENT);
-		ilv1 = ilvector2n1.SignedMod(IntType::TWO);
+		ilv1 = ilvector2n1.SignedMod(2);
 		VecType expected(4, primeModulus);
 		expected = {"1","1","0","0"};
 		EXPECT_EQ(expected, ilv1.GetValues())
@@ -1030,7 +1028,7 @@ void signed_mod_tests() {
 
 	{
 		Element ilv1(ilparams, COEFFICIENT);
-		ilv1 = ilvector2n1.SignedMod(IntType::FIVE);
+		ilv1 = ilvector2n1.SignedMod(5);
 		VecType expected(4, primeModulus);
 		expected = {"4","2","2","3"};
 		EXPECT_EQ(expected, ilv1.GetValues())
@@ -1370,9 +1368,9 @@ TEST(UTILVectorArray2n, arithmetic_ops_element_2) {
 		{
 			native64::ILVector2n ilv = ilvaCopy.GetElementAtIndex(i);
 
-			EXPECT_EQ(native64::BigBinaryInteger::ZERO, ilv.GetValAtIndex(1))
+			EXPECT_EQ(native64::BigBinaryInteger(0), ilv.GetValAtIndex(1))
 				<<"Failure MakeSparse() index 1";
-			EXPECT_EQ(native64::BigBinaryInteger::ZERO, ilv.GetValAtIndex(3))	
+			EXPECT_EQ(native64::BigBinaryInteger(0), ilv.GetValAtIndex(3))
 				<<"Failure MakeSparse() index 3";
 		}
 	}
@@ -1427,7 +1425,7 @@ TEST(UTILVectorArray2n, arithmetic_ops_element_2) {
 		EXPECT_EQ(native64::BigBinaryInteger("113"), ilvectS1.GetModulus());
 		EXPECT_EQ(rootOfUnity2.ConvertToInt(), ilvectS1.GetRootOfUnity().ConvertToInt());
 
-		EXPECT_EQ(native64::BigBinaryInteger::FOUR, ilvectS2.GetValAtIndex(0));
+		EXPECT_EQ(native64::BigBinaryInteger(4), ilvectS2.GetValAtIndex(0));
 		EXPECT_EQ(native64::BigBinaryInteger("44"), ilvectS2.GetValAtIndex(1));
 		EXPECT_EQ(native64::BigBinaryInteger("84"), ilvectS2.GetValAtIndex(2));
 		EXPECT_EQ(native64::BigBinaryInteger("79"), ilvectS2.GetValAtIndex(3));

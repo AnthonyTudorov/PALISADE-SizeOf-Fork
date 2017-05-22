@@ -6,8 +6,10 @@
 namespace lbcrypto {
 
 template<typename IntType>
-ILDCRTParams<IntType>::ILDCRTParams(usint order, usint depth, usint bits) : ElemParams<IntType>(order) {
+ILDCRTParams<IntType>::ILDCRTParams(usint order, usint depth, usint bits) : ElemParams<IntType>(order, 0, 0, 0, 0) {
 
+	static native64::BigBinaryInteger FIVE(5);
+	static native64::BigBinaryInteger FOUR(5);
 	if( order == 0 )
 		return;
 	if( depth == 0 )
@@ -28,7 +30,7 @@ ILDCRTParams<IntType>::ILDCRTParams(usint order, usint depth, usint bits) : Elem
 		if( ++j >= depth )
 			break;
 
-		lbcrypto::NextQ<native64::BigBinaryInteger>(q, native64::BigBinaryInteger::FIVE, order, native64::BigBinaryInteger::FOUR, native64::BigBinaryInteger::FOUR);
+		lbcrypto::NextQ<native64::BigBinaryInteger>(q, FIVE, order, FOUR, FOUR);
 	}
 
 	RecalculateModulus();

@@ -35,7 +35,7 @@ namespace lbcrypto {
 
 
 template<class Element>
-MatrixStrassen<Element>::MatrixStrassen(alloc_func allocZero, size_t rows, size_t cols, alloc_func allocGen): rows(rows), cols(cols), data(), allocZero(allocZero) {
+MatrixStrassen<Element>::MatrixStrassen(alloc_func allocZero, size_t rows, size_t cols, alloc_func allocGen): data(), rows(rows), cols(cols), allocZero(allocZero) {
     data.resize(rows);
     for (auto row = data.begin(); row != data.end(); ++row) {
         for (size_t col = 0; col < cols; ++col) {
@@ -701,7 +701,7 @@ MatrixStrassen<Element> MatrixStrassen<Element>::Mult(MatrixStrassen<Element> co
 
 
 
-	double rowlog;
+//	double rowlog;
 	int allrows = rows;
 	int allcols = cols;
 
@@ -1085,7 +1085,6 @@ template<class Element>
 void MatrixStrassen<Element>::block_multiplyCAPS(it_lineardata_t A,
 		it_lineardata_t B, it_lineardata_t C, MatDescriptor d,
 		it_lineardata_t work) const{
-	long long lda = d.lda;
 
 #pragma omp parallel for
 	for (int32_t row = 0; row < d.lda; row++) {
@@ -1133,9 +1132,6 @@ void MatrixStrassen<Element>::block_multiplyCAPS(it_lineardata_t A,
 
 		}
 	}
-
-	int len = d.lda * d.lda;
-
 }
 
 // get the communicators used for gather and scatter when collapsing/expanding a column or a row

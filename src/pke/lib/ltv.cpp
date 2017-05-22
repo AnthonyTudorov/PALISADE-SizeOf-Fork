@@ -82,7 +82,6 @@ void LPCryptoParametersLTV<Element>::ParameterSelection(LPCryptoParametersLTV<IL
 template <class Element>
 void LPCryptoParametersLTV<Element>::ParameterSelection(usint& n, vector<native64::BigBinaryInteger> &moduli) {
 	int t = this->m_depth + 1;
-	int d = this->m_depth;
 
 	native64::BigBinaryInteger pBigBinaryInteger(this->GetPlaintextModulus().ConvertToInt());
 	int p = pBigBinaryInteger.ConvertToInt(); // what if this does not fit in an int? (unlikely)
@@ -135,7 +134,7 @@ void LPCryptoParametersLTV<Element>::ParameterSelection(usint& n, vector<native6
 		ParameterSelection(n, moduli);
 	}
 
-	delete q;
+	delete [] q;
 }
 
 template <class Element>
@@ -470,7 +469,6 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::KeySwitchRelin(const
 		std::dynamic_pointer_cast<LPCryptoParametersRLWE<Element>>(evalKey->GetCryptoParameters());
 
 	const shared_ptr<typename Element::Params> elementParams = cryptoParamsLWE->GetElementParams();
-	const BigBinaryInteger &p = cryptoParamsLWE->GetPlaintextModulus();
 
 	const std::vector<Element> &proxy = evalKey->GetAVector();
 
@@ -674,7 +672,8 @@ LPPublicKeyEncryptionSchemeLTV<Element>::LPPublicKeyEncryptionSchemeLTV(std::bit
 		this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>();
 	if (mask[LEVELEDSHE])
 		this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmLTV<Element>();
-
+	if (mask[FHE])
+		throw std::logic_error("FHE and LEVELEDSHE feature not supported for LTV scheme");
 }
 
 // Enable for LPPublicKeyEncryptionSchemeLTV
@@ -689,8 +688,6 @@ void LPPublicKeyEncryptionSchemeLTV<Element>::Enable(PKESchemeFeature feature) {
 	case PRE:
 		if (this->m_algorithmPRE == NULL)
 			this->m_algorithmPRE = new LPAlgorithmPRELTV<Element>();
-		if (this->m_algorithmSHE == NULL)
-			this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>();
 		break;
 	case SHE:
 		if (this->m_algorithmSHE == NULL)
@@ -700,6 +697,8 @@ void LPPublicKeyEncryptionSchemeLTV<Element>::Enable(PKESchemeFeature feature) {
 		if (this->m_algorithmLeveledSHE == NULL)
 			this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmLTV<Element>();
 		break;
+	case FHE:
+		throw std::logic_error("FHE feature not supported for LTV scheme");
 	}
 }
 

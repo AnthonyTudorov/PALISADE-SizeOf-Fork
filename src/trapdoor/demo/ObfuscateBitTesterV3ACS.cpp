@@ -276,10 +276,6 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n, bool use_ACS) {
 	//Generate and test the obfuscated pattern
 	////////////////////////////////////////////////////////////
 
-	bool result1 = false;
-	bool result2 = false;
-	bool result3 = false;
-
 	std::cout << " \nCleartext pattern: " << std::endl;
 	std::cout << clearPattern.GetPatternString() << std::endl;
 

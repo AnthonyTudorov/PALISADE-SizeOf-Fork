@@ -183,39 +183,14 @@ namespace lbcrypto {
 		* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
 		* @return true if successfully serialized
 		*/
-		bool Serialize(Serialized* serObj) const {
-			serObj->SetObject();
-
-			serObj->AddMember("Object", "Ciphertext", serObj->GetAllocator());
-
-			if( !this->GetCryptoParameters()->Serialize(serObj) )
-				return false;
-
-			SerializeVector("Elements", Element::ElementName, this->m_elements, serObj);
-
-			return true;
-		}
+		bool Serialize(Serialized* serObj) const;
 
 		/**
 		* Populate the object from the deserialization of the Serialized
 		* @param serObj contains the serialized object
 		* @return true on success
 		*/
-		bool Deserialize(const Serialized& serObj) {
-			// deserialization must be done in a crypto context; this object must be initialized before deserializing the elements
-			if( !this->cryptoContext )
-				return false;
-
-			Serialized::ConstMemberIterator mIter = serObj.FindMember("Object");
-			if( mIter == serObj.MemberEnd() || string(mIter->value.GetString()) != "Ciphertext" )
-				return false;
-
-			mIter = serObj.FindMember("Elements");
-			if( mIter == serObj.MemberEnd() )
-				return false;
-
-			return DeserializeVector<Element>("Elements", Element::ElementName, mIter, &this->m_elements);
-		}
+		bool Deserialize(const Serialized& serObj);
 
 		inline bool operator==(const Ciphertext<Element>& rhs) const {
 			if( *this->cryptoContext.GetCryptoParameters() != *rhs.cryptoContext.GetCryptoParameters() )

@@ -932,7 +932,7 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Div
 	uint_type shifts =0;
 	usint ansCtr = m_nSize - ncharInNormalised_dividend+ncharInDivisor-1;
 	//Long Division Computation to determine quotient
-	for(usint i=ncharInNormalised_dividend-ncharInDivisor;i>=0;){
+	for(usint i=ncharInNormalised_dividend-ncharInDivisor;;){
 		//Get the remainder from the Modulus operation
 		runningRemainder = running_dividend.Mod(b);
 		//Compute the expected product from the running dividend and remainder
@@ -1979,7 +1979,7 @@ BigBinaryInteger<uint_type, BITLENGTH> BigBinaryInteger<uint_type, BITLENGTH>::D
 	uint_type shifts = 0;
 	usint ansCtr = m_nSize - ncharInNormalised_dividend + ncharInDivisor - 1;
 	//Long Division Computation to determine quotient
-	for (usint i = ncharInNormalised_dividend - ncharInDivisor; i >= 0;) {
+	for (usint i = ncharInNormalised_dividend - ncharInDivisor;;) {
 		//Get the remainder from the Modulus operation
 		runningRemainder = running_dividend.Mod(q);
 		//Compute the expected product from the running dividend and remainder

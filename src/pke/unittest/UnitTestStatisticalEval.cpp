@@ -66,8 +66,6 @@ TEST(UTStatisticalEval, Null_Eval_Lin_Regression) {
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 
-	double diff, start, finish;
-
 	// Initialize the public key containers.
 	LPKeyPair<ILVector2n> kp;
 
@@ -127,7 +125,7 @@ TEST(UTStatisticalEval, Null_Eval_Lin_Regression) {
 	Matrix<IntPlaintextEncoding> numerator = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
 	Matrix<IntPlaintextEncoding> denominator = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
 
-	DecryptResult result1 = cc.DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
+	cc.DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
 
 	////////////////////////////////////////////////////////////
 	// Correct output
@@ -163,8 +161,6 @@ TEST(UTStatisticalEval, Null_Eval_Lin_Regression_Int) {
 	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextNull(ep, plaintextModulus);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
-
-	double diff, start, finish;
 
 	// Initialize the public key containers.
 	LPKeyPair<ILVector2n> kp;
@@ -212,7 +208,7 @@ TEST(UTStatisticalEval, Null_Eval_Lin_Regression_Int) {
 	Matrix<IntPlaintextEncoding> numerator = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
 	Matrix<IntPlaintextEncoding> denominator = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
 
-	DecryptResult result1 = cc.DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
+	cc.DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
 
 	////////////////////////////////////////////////////////////
 	// Correct output
@@ -244,8 +240,6 @@ TEST(UTStatisticalEval, FV_Eval_Lin_Regression_Int) {
 	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(plaintextModulus, 1.006, relWindow, stdDev, 0, 4, 0);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
-
-	double diff, start, finish;
 
 	// Initialize the public key containers.
 	LPKeyPair<ILVector2n> kp;
@@ -295,7 +289,7 @@ TEST(UTStatisticalEval, FV_Eval_Lin_Regression_Int) {
 	Matrix<IntPlaintextEncoding> numerator = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
 	Matrix<IntPlaintextEncoding> denominator = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
 
-	DecryptResult result1 = cc.DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
+	cc.DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
 
 	////////////////////////////////////////////////////////////
 	// Correct output

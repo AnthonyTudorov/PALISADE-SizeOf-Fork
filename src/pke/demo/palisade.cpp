@@ -498,20 +498,20 @@ struct {
 	cmdparser	func;
 	string		helpline;
 } cmds[] = {
-		"makekey", keymaker, " [optional parms] keyname\n"
-		"\tcreate a new keypair and save in keyfilePUB.txt and keyfilePRI.txt",
-		"makerekey", rekeymaker, " [optional parms] pubkey_file secretkey_file rekey_file\n"
-		"\tcreate a re-encryption key from the contents of pubkey_file and secretkey_file, save in rekey_file",
-		"encrypt", encrypter, " [optional parms] plaintext_file pubkey_file ciphertext_file\n"
-		"\tencrypt the contents of plaintext_file using the contents of pubkey_file, save results in ciphertext_file",
-		"reencrypt", reencrypter, " [optional parms] encrypted_file rekey_file reencrypted_file\n"
-		"\treencrypt the contents of encrypted_file using the contents of rekey_file, save results in reencrypted_file",
-		"decrypt", decrypter,  " [optional parms] ciphertext_file prikey_file cleartext_file\n"
-		"\tdecrypt the contents of ciphertext_file using the contents of prikey_file, save results in cleartext_file",
-		"evaladd", evaladder, " [optional parms] ciphertext1 ciphertext2 addresult\n"
-		"\teval-add both ciphertexts\n",
-		"evalmult", evalmulter, " [optional parms] ciphertext1 ciphertext2 addresult\n"
-		"\teval-mult both ciphertexts\n",
+		{"makekey", keymaker, " [optional parms] keyname\n"
+		"\tcreate a new keypair and save in keyfilePUB.txt and keyfilePRI.txt"},
+		{"makerekey", rekeymaker, " [optional parms] pubkey_file secretkey_file rekey_file\n"
+		"\tcreate a re-encryption key from the contents of pubkey_file and secretkey_file, save in rekey_file"},
+		{"encrypt", encrypter, " [optional parms] plaintext_file pubkey_file ciphertext_file\n"
+		"\tencrypt the contents of plaintext_file using the contents of pubkey_file, save results in ciphertext_file"},
+		{"reencrypt", reencrypter, " [optional parms] encrypted_file rekey_file reencrypted_file\n"
+		"\treencrypt the contents of encrypted_file using the contents of rekey_file, save results in reencrypted_file"},
+		{"decrypt", decrypter,  " [optional parms] ciphertext_file prikey_file cleartext_file\n"
+		"\tdecrypt the contents of ciphertext_file using the contents of prikey_file, save results in cleartext_file"},
+		{"evaladd", evaladder, " [optional parms] ciphertext1 ciphertext2 addresult\n"
+		"\teval-add both ciphertexts\n"},
+		{"evalmult", evalmulter, " [optional parms] ciphertext1 ciphertext2 addresult\n"
+		"\teval-mult both ciphertexts\n"},
 };
 
 void

@@ -103,7 +103,6 @@ namespace lbcrypto {
 
 	void PackedIntPlaintextEncoding::Pack(ILVector2n *ring, const BigBinaryInteger &modulus) const {
 
-		usint n = ring->GetRingDimension(); //ring dimension
 		usint m = ring->GetCyclotomicOrder();//cyclotomic order
 															   //Do the precomputation if not initialized
 		const auto params = ring->GetParams();
@@ -149,8 +148,7 @@ namespace lbcrypto {
 
 	void PackedIntPlaintextEncoding::Unpack(ILVector2n *ring, const BigBinaryInteger &modulus) const {
 
-		usint n = ring->GetRingDimension(); //ring dimension
-		usint m = ring->GetCyclotomicOrder(); //ring cyclotomic order
+		usint m = ring->GetCyclotomicOrder(); // cyclotomic order
 
 		BigBinaryInteger qMod(ring->GetModulus());
 

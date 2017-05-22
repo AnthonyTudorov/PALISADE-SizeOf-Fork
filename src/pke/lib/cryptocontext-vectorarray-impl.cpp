@@ -6,7 +6,7 @@
  */
 
 #include "cryptocontext.cpp"
-#include "math/matrix.cpp"
+//#include "math/matrix.cpp"
 
 namespace lbcrypto {
 template class CryptoContextFactory<ILVectorArray2n>;

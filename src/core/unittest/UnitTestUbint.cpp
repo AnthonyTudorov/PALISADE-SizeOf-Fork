@@ -267,35 +267,35 @@ TEST(UTubint,ctor64){
   //todo some very large digit tests.
 }
 
-/*************************************************
- * TESTING constants 
- *************************************************/
-TEST(UTubint,consts){
-
-  ubint a;
-
-  // test the constants
-  a = ubint::ZERO;
-  //note for some reason ubint(0) is ambiguous?
-  EXPECT_EQ(ubint(0), a)<< "Failure testing ZERO";
-
-  a = ubint::ONE;
-  EXPECT_EQ(ubint(1), a)<< "Failure testing ONE";
-
-  a = ubint::TWO;
-  EXPECT_EQ(ubint(2), a)<< "Failure testing TWO";
-
-  a = ubint::THREE;
-  EXPECT_EQ(ubint(3), a)<< "Failure testing THREE";
-
-  a = ubint::FOUR;
-  EXPECT_EQ(ubint(4), a)<< "Failure testing FOUR";
-
-  a = ubint::FIVE;
-  EXPECT_EQ(ubint(5), a)<< "Failure testing FIVE";
-
-  //todo: test log constants?
-}
+///*************************************************
+// * TESTING constants
+// *************************************************/
+//TEST(UTubint,consts){
+//
+//  ubint a;
+//
+//  // test the constants
+//  a = 0;
+//  //note for some reason ubint(0) is ambiguous?
+//  EXPECT_EQ(ubint(0), a)<< "Failure testing ZERO";
+//
+//  a = 1;
+//  EXPECT_EQ(ubint(1), a)<< "Failure testing ONE";
+//
+//  a = 2;
+//  EXPECT_EQ(ubint(2), a)<< "Failure testing TWO";
+//
+//  a = 3;
+//  EXPECT_EQ(ubint(3), a)<< "Failure testing THREE";
+//
+//  a = 4;
+//  EXPECT_EQ(ubint(4), a)<< "Failure testing FOUR";
+//
+//  a = 5;
+//  EXPECT_EQ(ubint(5), a)<< "Failure testing FIVE";
+//
+//  //todo: test log constants?
+//}
 
 /****************************/
 /* TESTING SHIFT OPERATORS  */
@@ -353,9 +353,9 @@ TEST(UTubint,left_shift){
     
     ubint calculatedResult = a<<(shift);
     uint64_t expectedResult = 288230376151711744;
-    uint64_t result =calculatedResult.ConvertToUint64();
+    uint64_t result = calculatedResult.ConvertToUint64();
 
-    EXPECT_EQ(expectedResult, calculatedResult.ConvertToUint64())
+    EXPECT_EQ(expectedResult, result)
       <<"Failure testing << greater than limb size";
     a<<=(shift);
     EXPECT_EQ(expectedResult, a.ConvertToUint64())
@@ -1181,7 +1181,7 @@ TEST(UTubint,mod_inverse){
     catch (exception& e){
       thrown = true;
       std::cout<<e.what()<<std::endl;
-      modIresult = ubint::ZERO;
+      modIresult = 0;
     }
 
     EXPECT_FALSE(thrown)

@@ -37,9 +37,6 @@ using std::string;
 
 namespace lbcrypto {
 
-	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	const std::string ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::ElementName = "ILVectorArrayImpl";
-
 	/*CONSTRUCTORS*/
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::ILVectorArrayImpl() {
@@ -479,6 +476,7 @@ namespace lbcrypto {
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	ILVectorArrayImpl<ModType,IntType,VecType,ParmType>& ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::operator=(std::initializer_list<sint> rhs){
 		usint len = rhs.size();
+		static ILVectorType::Integer ZERO(0);
 		if(!IsEmpty()){
 			usint vectorLength = this->m_vectors[0].GetLength();
 			for(usint i = 0;i < m_vectors.size(); ++i){ // this loops over each tower
@@ -486,7 +484,7 @@ namespace lbcrypto {
 					if(j<len) {
 						this->m_vectors[i].SetValAtIndex(j, *(rhs.begin()+j));
 					} else {
-						this->m_vectors[i].SetValAtIndex(j,ILVectorType::Integer::ZERO);
+						this->m_vectors[i].SetValAtIndex(j, ZERO);
 					}
 				}
 			}
@@ -683,7 +681,7 @@ namespace lbcrypto {
 		DEBUG("plaintextModulus: "<< ptm);
 		typename ILVectorType::Integer v(qt.ModInverse(ptm));
 		DEBUG("v: "<< v);
-		typename ILVectorType::Integer a((v * qt).ModSub(ILVectorType::Integer::ONE, ptm*qt));
+		typename ILVectorType::Integer a((v * qt).ModSub(1, ptm*qt));
 		DEBUG("a:	"<<a);
 
 		// Since only positive values are being used for Discrete gaussian generator, a call to switch modulus needs to be done

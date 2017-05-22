@@ -76,7 +76,7 @@ public:
         return Base::WriteString(str, length);
     }
 
-#if RAPIDJSON_HAS_STDSTRING
+#ifdef RAPIDJSON_HAS_STDSTRING
     bool String(const std::basic_string<Ch>& str) {
         return String(str.data(), SizeType(str.size()));
     }

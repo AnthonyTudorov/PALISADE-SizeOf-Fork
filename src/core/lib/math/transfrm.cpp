@@ -79,9 +79,7 @@ std::map<IntType, IntType> BluesteinFFT<IntType, VecType>::m_NTTModulus;
 
 DiscreteFourierTransform* DiscreteFourierTransform::m_onlyInstance = 0;
 std::complex<double>* DiscreteFourierTransform::rootOfUnityTable = 0;
-}
-//TODO: why is this namespace split like this? 
-namespace lbcrypto {
+
 template<typename IntType, typename VecType>
 NumberTheoreticTransform<IntType,VecType>& NumberTheoreticTransform<IntType,VecType>::GetInstance() {
 	if (m_onlyInstance == NULL) {
@@ -115,7 +113,7 @@ VecType NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(con
 	//YSP mu is not needed for native data types or BE 6
 #if MATHBACKEND != 6
 	//Precompute the Barrett mu parameter
-	IntType temp(IntType::ONE);
+	IntType temp(1);
 	temp <<= 2 * element.GetModulus().GetMSB() + 3;
 	IntType mu = temp.DividedBy(element.GetModulus());
 	//std::cout << "NTTFwd mod,tmp,mu" << element.GetModulus() << "," << temp << "," << mu << std::endl;
@@ -227,15 +225,14 @@ ChineseRemainderTransform<IntType,VecType>& ChineseRemainderTransform<IntType,Ve
 	return *m_onlyInstance;
 }
 
-//template<typename IntType, typename VecType>
-//ChineseRemainderTransformFTT<IntType,VecType>& ChineseRemainderTransformFTT<IntType,VecType>::GetInstance() {
-//	if (m_onlyInstance == NULL) {
-//		m_onlyInstance = new ChineseRemainderTransformFTT<IntType,VecType>();
-//	}
-//
-//	return *m_onlyInstance;
-//}
+template<typename IntType, typename VecType>
+ChineseRemainderTransformFTT<IntType,VecType>& ChineseRemainderTransformFTT<IntType,VecType>::GetInstance() {
+	if (m_onlyInstance == NULL) {
+		m_onlyInstance = new ChineseRemainderTransformFTT<IntType,VecType>();
+	}
 
+	return *m_onlyInstance;
+}
 
 //main CRT Transform - uses iterative FFT as a subroutine
 //includes precomputation of twidle factor table
@@ -345,7 +342,7 @@ VecType ChineseRemainderTransform<IntType,VecType>::InverseTransform(const VecTy
 template<typename IntType, typename VecType>
 VecType ChineseRemainderTransformFTT<IntType,VecType>::ForwardTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder) {
 	std::string errMsg;
-	if (rootOfUnity == IntType::ONE || rootOfUnity == IntType::ZERO) {
+	if (rootOfUnity == 1 || rootOfUnity == 0) {
 		errMsg = "Root of unity cannot be zero or one to perform a forward transform";
 		throw std::logic_error(errMsg);
 	}
@@ -356,10 +353,10 @@ VecType ChineseRemainderTransformFTT<IntType,VecType>::ForwardTransform(const Ve
 
 	//YSP mu is not needed for native data types
 #if MATHBACKEND > 5
-	IntType mu(IntType::ONE);
+	IntType mu(1);
 #else
 	//Precompute the Barrett mu parameter
-	IntType temp(IntType::ONE);
+	IntType temp(1);
 	temp <<= 2 * element.GetModulus().GetMSB() + 3;
 	IntType mu = temp.DividedBy(element.GetModulus());
 #endif
@@ -384,7 +381,7 @@ VecType ChineseRemainderTransformFTT<IntType,VecType>::ForwardTransform(const Ve
 		if( mSearch == m_rootOfUnityTableByModulus.end() || recompute ){
 			VecType rTable(CycloOrder / 2);
 			IntType modulus(element.GetModulus());
-			IntType x(IntType::ONE);
+			IntType x(1);
 
 			for (usint i = 0; i<CycloOrder / 2; i++) {
 				rTable.SetValAtIndex(i, x);
@@ -414,7 +411,7 @@ VecType ChineseRemainderTransformFTT<IntType,VecType>::ForwardTransform(const Ve
 template<typename IntType, typename VecType>
 VecType ChineseRemainderTransformFTT<IntType,VecType>::InverseTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder) {
 	std::string errMsg;
-	if (rootOfUnity == IntType::ONE || rootOfUnity == IntType::ZERO) {
+	if (rootOfUnity == 1 || rootOfUnity == 0) {
 		errMsg = "Root of unity cannot be zero or one to perform an inverse transform";
 		throw std::logic_error(errMsg);
 	}
@@ -425,10 +422,10 @@ VecType ChineseRemainderTransformFTT<IntType,VecType>::InverseTransform(const Ve
 
 	//YSP mu is not needed for native data types
 #if MATHBACKEND > 5
-	IntType mu(IntType::ONE);
+	IntType mu(1);
 #else
 	//Pre-compute mu for Barrett function
-	IntType temp(IntType::ONE);
+	IntType temp(1);
 	temp <<= 2 * element.GetModulus().GetMSB() + 3;
 	IntType mu = temp.DividedBy(element.GetModulus());
 #endif
@@ -463,7 +460,7 @@ VecType ChineseRemainderTransformFTT<IntType,VecType>::InverseTransform(const Ve
 		if( mSearch == m_rootOfUnityInverseTableByModulus.end() || recompute ) {
 			VecType TableI(CycloOrder / 2);
 
-			IntType x(IntType::ONE);
+			IntType x(1);
 
 			for (usint i = 0; i<CycloOrder / 2; i++) {
 				TableI.SetValAtIndex(i, x);
@@ -491,15 +488,15 @@ void ChineseRemainderTransformFTT<IntType,VecType>::PreCompute(const IntType& ro
 
 	//YSP mu is not needed for native data types
 #if MATHBACKEND > 5
-	IntType mu(IntType::ONE);
+	IntType mu(1);
 #else
 	//Precompute the Barrett mu parameter
-	IntType temp(IntType::ONE);
+	IntType temp(1);
 	temp <<= 2 * modulus.GetMSB() + 3;
 	IntType mu = temp.DividedBy(modulus);
 #endif
 
-	IntType x(IntType::ONE);
+	IntType x(1);
 
 
 	VecType *rootOfUnityTableCheck = NULL;
@@ -523,7 +520,7 @@ void ChineseRemainderTransformFTT<IntType,VecType>::PreCompute(const IntType& ro
 		VecType TableI(CycloOrder / 2);
 		IntType rootOfUnityInverse = rootOfUnity.ModInverse(modulus);
 
-		x = IntType::ONE;
+		x = 1;
 
 		for (usint i = 0; i<CycloOrder / 2; i++) {
 			TableI.SetValAtIndex(i, x);
@@ -554,10 +551,10 @@ void ChineseRemainderTransformFTT<IntType,VecType>::PreCompute(std::vector<IntTy
 
 		//mu is not needed for native data types
 #if MATHBACKEND > 5
-		IntType mu(IntType::ONE);
+		IntType mu(1);
 #else
 		//Precompute the Barrett mu parameter
-		IntType temp(IntType::ONE);
+		IntType temp(1);
 		temp <<= 2 * currentMod.GetMSB() + 3;
 		IntType mu = temp.DividedBy(currentMod);
 #endif
@@ -567,7 +564,7 @@ void ChineseRemainderTransformFTT<IntType,VecType>::PreCompute(std::vector<IntTy
 
 
 
-		IntType x(IntType::ONE);
+		IntType x(1);
 
 
 		//computation of root of unity table
@@ -582,7 +579,7 @@ void ChineseRemainderTransformFTT<IntType,VecType>::PreCompute(std::vector<IntTy
 		this->m_rootOfUnityTableByModulus[currentMod] = std::move(rTable);
 
 		//computation of root of unity inverse table
-		x = IntType::ONE;
+		x = 1;
 
 		IntType rootOfUnityInverse = currentRoot.ModInverse(currentMod);
 
@@ -770,13 +767,13 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 		VecType rootTable(nttDim/2, nttMod);
 		VecType rootTableInverse(nttDim/2, nttMod);
 
-		IntType x(IntType::ONE);
+		IntType x(1);
 		for (usint i = 0; i<nttDim / 2; i++) {
 			rootTable.SetValAtIndex(i, x);
 			x = x.ModMul(root, nttMod);
 		}
 
-		x = (IntType::ONE);
+		x = (1);
 		for (usint i = 0; i<nttDim / 2; i++) {
 			rootTableInverse.SetValAtIndex(i, x);
 			x = x.ModMul(rootInv, nttMod);
@@ -798,7 +795,7 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 		VecType rootTable(nttDim / 2, nttMod);
 		VecType rootTableInverse(nttDim / 2, nttMod);
 
-		IntType x(IntType::ONE);
+		IntType x(1);
 		for (usint i = 0; i<nttDim / 2; i++) {
 			rootTable.SetValAtIndex(i, x);
 			//rootTable.SetValAtIndex(i + nttDim / 2, nttMod - x);
@@ -807,7 +804,7 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 
 		//rootTable.SetValAtIndex(nttDim, IntType::ONE);
 
-		x = (IntType::ONE);
+		x = 1;
 		for (usint i = 0; i<nttDim / 2; i++) {
 			rootTableInverse.SetValAtIndex(i, x);
 			//rootTableInverse.SetValAtIndex(i + nttDim / 2, nttMod - x);
@@ -823,7 +820,7 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 	void BluesteinFFT<IntType, VecType>::PreComputePowers(usint cycloOrder, const IntType &modulus, const IntType &root) {
 
 		VecType powers(cycloOrder, modulus);
-		powers.SetValAtIndex(0, IntType::ONE);
+		powers.SetValAtIndex(0, 1);
 		for (usint i = 1; i <cycloOrder; i++) {
 			auto iSqr = (i*i) % (2 * cycloOrder);
 			auto val = root.ModExp(IntType(iSqr), modulus);
@@ -843,7 +840,7 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 
 		auto rootInv = root.ModInverse(modulus);
 		VecType b(2 * cycloOrder - 1, modulus);
-		b.SetValAtIndex(cycloOrder - 1, IntType::ONE);
+		b.SetValAtIndex(cycloOrder - 1, 1);
 		for (usint i = 1; i < cycloOrder; i++) {
 			auto iSqr = (i*i) % (2 * cycloOrder);
 			auto val = rootInv.ModExp(IntType(iSqr), modulus);
@@ -934,7 +931,7 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 		}
 
 		for (usint i = a.GetLength(); i < finalSize; i++) {
-			result.SetValAtIndex(i, IntType::ZERO);
+			result.SetValAtIndex(i, IntType(0));
 		}
 
 		return result;

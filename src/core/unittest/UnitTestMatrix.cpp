@@ -274,7 +274,7 @@ TEST(UTMatrix, rotate_vec_result) {
 
 TEST(UTMatrix, rotate) {
     Matrix<ILVector2n> n = Matrix<ILVector2n>(fastIL2nAlloc(), 1, 2).Ones();
-    const ILVector2n::Integer& modulus = n(0,0).GetModulus();
+
     n.SetFormat(COEFFICIENT);
 	n(0,0).SetValAtIndex(2, ILVector2n::Integer::ONE);
     Matrix<ILVector2n::Integer> R = Rotate(n);

@@ -1006,7 +1006,7 @@ TEST(UTBinInt,shift){
 TEST(UTBinInt,method_binary_string_to_big_binary_integer){
   //TEST CASE FOR STATIC METHOD BinaryStringToBigBinaryInt in BigBinaryInteger
 
- std:string binaryString = "1011101101110001111010111011000000011";
+ std::string binaryString = "1011101101110001111010111011000000011";
   BigBinaryInteger b =
     lbcrypto::BigBinaryInteger::BinaryStringToBigBinaryInt(binaryString);
 

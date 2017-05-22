@@ -97,13 +97,8 @@ void vec_diff(BigBinaryVector &a, BigBinaryVector &b) {
 void test_BigBinaryVector (int nloop) {
   cout<<"testing BigBinaryVector"<<endl;
 
-  bool dbg_flag = 1;		// if true then print dbg output
-
   TimeVar t1,t2,t3,t_total; // timers for TIC() TOC()
-  double time1;		    // captures the time in usec.
   double time2;
-  double time3;
-  double timeTotal;		// overal time
 
   //there are three test cases, 1) small modulus 2)approx 48 bits. 3)
   //very big numbers
@@ -434,14 +429,9 @@ void vec_diff(mubintvec &a, mubintvec &b) {
 // Code to test ubintvec at three different numbers of limbs.
 void test_ubintvec(int nloop) {
   #if MATHBACKEND == 2 ||  MATHBACKEND ==5
-
-  bool dbg_flag = 1;		// if true then print dbg output
  
   TimeVar t1,t2, t3,t_total; // timers for TIC() TOC()
-  double time1;		    // captures the time in usec.
   double time2;
-  double time3;
-  double timeTotal;		// overal time
 
   cout<<"testing ubintvec"<<endl;
 
