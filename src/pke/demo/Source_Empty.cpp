@@ -49,13 +49,16 @@ using namespace lbcrypto;
 
 void EvalMultBigRing();
 void EvalMultSmallRing();
+void EvalAutomorphism();
+
+
+vector<shared_ptr<Ciphertext<ILVector2n>>> AutomorphCiphertext(vector<shared_ptr<Ciphertext<ILVector2n>>> &ciphertext, usint k);
+std::shared_ptr<LPPrivateKey<ILVector2n>> AutomorphSecretkey(std::shared_ptr<LPPrivateKey<ILVector2n>> sk, usint k);
 
 int main(int argc, char *argv[])
 {
+	EvalAutomorphism();
 	
-	EvalMultSmallRing();
-
-
 	std::cin.get();
 
 	return 0;
@@ -173,4 +176,101 @@ void EvalMultSmallRing() {
 	std::cout << intArrayNew << std::endl;
 }
 
+void EvalAutomorphism() {
+
+	usint m = 22;
+	usint p = 23;
+	BigBinaryInteger modulusP(p);
+	BigBinaryInteger modulusQ("12778598974616693871020696593");
+	BigBinaryInteger squareRootOfRoot("12261452723167243236320113431");
+	//BigBinaryInteger squareRootOfRoot = RootOfUnity(2*m,modulusQ);
+	//std::cout << squareRootOfRoot << std::endl;
+	usint n = GetTotient(m);
+	BigBinaryInteger bigmodulus("26737774526602763422133842307743584503443924104487050441559489");
+	BigBinaryInteger bigroot("25833580194401688117896146800363926299361767688444709258053273");
+	//std::cout << bigroot << std::endl;
+
+	auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulusQ);
+	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulusQ);
+
+
+	float stdDev = 4;
+
+	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
+
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, p, 8, stdDev);
+
+	cc.Enable(ENCRYPTION);
+	cc.Enable(SHE);
+	cc.Enable(LEVELEDSHE);
+
+	// Initialize the public key containers.
+	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	//kp.secretKey->GetPrivateElement().PrintValues();
+
+	std::vector<usint> vectorOfInts1 = { 1,2,3,4,5,6,7,8,0,0 };//packed encoding of 1:10
+	PackedIntPlaintextEncoding intArray1(vectorOfInts1);
+
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext = cc.Encrypt(kp.publicKey, intArray1, false);
+	//ciphertext.at(0)->GetElements().at(0).PrintValues();
+	//ciphertext.at(0)->GetElements().at(1).PrintValues();
+
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextAutomorphed = AutomorphCiphertext(ciphertext, 7);
+
+	//ciphertextAutomorphed.at(0)->GetElements().at(0).PrintValues();
+	//ciphertextAutomorphed.at(0)->GetElements().at(1).PrintValues();
+
+	
+	std::shared_ptr<LPPrivateKey<ILVector2n>> skmorphed = AutomorphSecretkey(kp.secretKey, 7);
+
+	PackedIntPlaintextEncoding intArrayCheck;
+
+	cc.Decrypt(skmorphed, ciphertextAutomorphed, &intArrayCheck, false);
+	std::cout << intArrayCheck << std::endl;
+
+	
+
+	//vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextAutomorphedSwitched;
+	////kp.secretKey->GetPrivateElement().PrintValues();
+	////skmorphed->GetPrivateElement().PrintValues();
+
+	//auto keyswitch = cc.KeySwitchGen(skmorphed, kp.secretKey);
+
+	//auto switchedCipher = cc.KeySwitch(keyswitch, ciphertextAutomorphed.at(0));
+	////switchedCipher->GetElements().at(0).PrintValues();
+	////switchedCipher->GetElements().at(1).PrintValues();
+
+	//ciphertextAutomorphedSwitched.insert(ciphertextAutomorphedSwitched.begin(), switchedCipher);
+
+	//PackedIntPlaintextEncoding intArrayNew;
+
+	//cc.Decrypt(skmorphed, ciphertextAutomorphedSwitched, &intArrayNew, false);
+
+	//std::cout << intArrayNew << std::endl;
+
+}
+
+vector<shared_ptr<Ciphertext<ILVector2n>>> AutomorphCiphertext(vector<shared_ptr<Ciphertext<ILVector2n>>> &ciphertext, usint k) {
+	vector<shared_ptr<Ciphertext<ILVector2n>>> result;
+	for (usint i = 0; i < ciphertext.size(); i++) {
+		auto shrCipher = ciphertext.at(i);
+		shared_ptr<Ciphertext<ILVector2n>> ciphertextResult(new Ciphertext<ILVector2n>(shrCipher->GetCryptoContext()));
+		std::vector<ILVector2n> morphedCipherElements(shrCipher->GetElements());
+		for (usint j = 0; j < morphedCipherElements.size(); j++) {
+			morphedCipherElements.at(i).SIAutomorphism(k);
+		}
+		ciphertextResult->SetElements(std::move(morphedCipherElements));
+		result.push_back(ciphertextResult);
+	}
+	return result;
+}
+
+std::shared_ptr<LPPrivateKey<ILVector2n>> AutomorphSecretkey(std::shared_ptr<LPPrivateKey<ILVector2n>> sk, usint k) {
+	std::shared_ptr<LPPrivateKey<ILVector2n>> morphedSK(new LPPrivateKey<ILVector2n>(sk->GetCryptoContext()));
+	ILVector2n morphedSKElement(sk->GetPrivateElement());
+	morphedSKElement.SIAutomorphism(k);
+	morphedSK->SetPrivateElement(std::move(morphedSKElement));
+
+	return morphedSK;
+}
 

@@ -97,11 +97,19 @@ namespace lbcrypto {
 
 	private:
 		static BigBinaryInteger initRoot;
-		static std::vector<usint> rootOfUnityTable;
-		static BigBinaryInteger bigMod;
-		static BigBinaryInteger bigRoot;
+
+		static std::vector<BigBinaryVector> coefficientsCRT;
+
+		static BigBinaryVector rootList;
 
 		void Pack(ILVector2n *ring, const BigBinaryInteger &modulus) const;
+
+		BigBinaryVector FindPermutedSlots(const BigBinaryVector &orig, const BigBinaryVector & perm, const BigBinaryVector & rootList) const;
+		
+		
+		void InitializeCRTCoefficients(usint cycloOrder, const BigBinaryInteger & modulus) const;
+
+		BigBinaryVector GetRootVector(const BigBinaryInteger &modulus,usint cycloOrder) const;
 
 		void Unpack(ILVector2n *ring, const BigBinaryInteger &modulus) const;
 

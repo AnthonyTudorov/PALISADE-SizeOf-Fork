@@ -895,6 +895,48 @@ IntVector GetCyclotomicPolynomial(usint m, const IntType &modulus) {
 
 }
 
+BigBinaryInteger SyntheticRemainder(const BigBinaryVector &dividend, const BigBinaryInteger &a, const BigBinaryInteger &modulus) {
+	auto val = dividend.GetValAtIndex(dividend.GetLength() - 1);
+	for (int i = dividend.GetLength() - 2; i > -1; i--) {
+		val = dividend.GetValAtIndex(i) + a*val;
+		val = val.Mod(modulus);
+	}
 
+	return val;
+}
+
+BigBinaryVector SyntheticPolyRemainder(const BigBinaryVector &dividend, const BigBinaryVector &aList, const BigBinaryInteger &modulus) {
+	BigBinaryVector result(aList.GetLength(),modulus);
+	for (usint i = 0; i < aList.GetLength(); i++) {
+		result.SetValAtIndex(i, SyntheticRemainder(dividend, aList.GetValAtIndex(i), modulus));
+	}
+
+	return result;
+}
+
+BigBinaryVector PolynomialPower(const BigBinaryVector &input, usint power) {
+	usint finalDegree = (input.GetLength() - 1)*power;
+	BigBinaryVector finalPoly(finalDegree + 1, input.GetModulus());
+	finalPoly.SetValAtIndex(0, input.GetValAtIndex(0));
+	for (usint i = 1; i < input.GetLength(); i++) {
+		finalPoly.SetValAtIndex(i*power, input.GetValAtIndex(i));
+	}
+	return finalPoly;
+}
+
+BigBinaryVector SyntheticPolynomialDivision(const BigBinaryVector &dividend, const BigBinaryInteger &a, const BigBinaryInteger &modulus) {
+	usint n = dividend.GetLength() - 1;
+	BigBinaryVector result(n, modulus);
+
+	result.SetValAtIndex(n - 1, dividend.GetValAtIndex(n));
+	auto val(dividend.GetValAtIndex(n));
+	for (int i = n - 1; i > 0; i--) {
+		val = val*a + dividend.GetValAtIndex(i);
+		val = val.Mod(modulus);
+		result.SetValAtIndex(i - 1, val);
+	}
+
+	return result;
+}
 
 }

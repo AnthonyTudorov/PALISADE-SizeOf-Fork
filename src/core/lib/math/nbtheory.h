@@ -246,6 +246,44 @@ namespace lbcrypto {
 	*/
 	std::vector<int> GetCyclotomicPolynomialRecursive(usint m);
 
+	/**
+	* Returns the remainder after polynomial division of dividend with divisor = x-a.
+	* Uses synthetic division algorithm.
+	* @param &dividend is the input polynomial dividend in lower to higher coefficient form.
+	* @param &a is the integer in divisor[x-a].
+	* @return remainder after division with x-a.
+	*/
+	BigBinaryInteger SyntheticRemainder(const BigBinaryVector &dividend, const BigBinaryInteger &a, const BigBinaryInteger &modulus);
+
+	/**
+	* Returns the remainder vector after polynomial division of dividend with divisor = x-aList[i].
+	* Uses synthetic division algorithm.
+	* @param &dividend is the input polynomial dividend in lower to higher coefficient form.
+	* @param &aList is the integer vector for divisor[x-aList[i]].
+	* @return remainder vector after division with x-aList[i].
+	*/
+	BigBinaryVector SyntheticPolyRemainder(const BigBinaryVector &dividend, const BigBinaryVector &aList, const BigBinaryInteger &modulus);
+
+	/**
+	* Returns the polynomial after raising it by exponent = power.
+	* Returns input^power.Uses Frobenius mapping.
+	* @param &input is operand polynomial which needs to be exponentiated.
+	* @param &power is the exponent.
+	* @return exponentiated polynomial.
+	*/
+	BigBinaryVector PolynomialPower(const BigBinaryVector &input, usint power);
+
+	/**
+	* Returns the quotient after polynomial division of dividend with divisor = x-a.
+	* Uses synthetic division algorithm.
+	* @param &dividend is the input polynomial dividend in lower to higher coefficient form.
+	* @param &a is the integer in divisor[x-a].
+	* @return quotient after division with x-a.
+	*/
+	BigBinaryVector SyntheticPolynomialDivision(const BigBinaryVector &dividend, const BigBinaryInteger &a, const BigBinaryInteger &modulus);
+
+
+
 
 } // namespace lbcrypto ends
 

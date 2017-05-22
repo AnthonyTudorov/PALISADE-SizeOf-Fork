@@ -21,7 +21,7 @@ using namespace lbcrypto;
 int main(int argc, char **argv) {
 
   ::testing::InitGoogleTest(&argc, argv);
-
+  
   // if there are no filters used, default to omitting VERY_LONG tests
   // otherwise we lose control over which tests we can run
   if (::testing::GTEST_FLAG(filter) == "*") {
