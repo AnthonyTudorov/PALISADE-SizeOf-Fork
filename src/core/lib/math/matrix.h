@@ -193,7 +193,6 @@ namespace lbcrypto {
             #pragma omp parallel for
             for (size_t col = 0; col < result.cols; ++col) {
             	for (size_t row = 0; row < result.rows; ++row) {
-
                         *result.data[row][col] = *result.data[row][col] * other;
                     }
                 }

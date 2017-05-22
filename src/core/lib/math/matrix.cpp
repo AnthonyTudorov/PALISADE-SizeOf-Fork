@@ -62,8 +62,8 @@ Matrix<Element>& Matrix<Element>::Fill(const Element &val) {
     return *this;
 }
 
-template<class Element>
-double Matrix<Element>::Norm() const {
+template<>
+double Matrix<ILVector2n>::Norm() const {
     double retVal = 0.0;
 	double locVal = 0.0;
 
@@ -123,8 +123,8 @@ Matrix<Element> Matrix<Element>::Mult(Matrix<Element> const& other) const {
     return result;
 }
 
-template<class Element>
-void Matrix<Element>::SetFormat(Format format) {
+template<>
+void Matrix<ILVector2n>::SetFormat(Format format) {
     for (size_t row = 0; row < rows; ++row) {
         for (size_t col = 0; col < cols; ++col) {
             data[row][col]->SetFormat(format);
@@ -155,7 +155,7 @@ for (size_t j = 0; j < cols; ++j) {
 }
 
 template<class Element>
-inline Matrix<Element>& Matrix<Element>::operator-=(Matrix<Element> const& other) {
+Matrix<Element>& Matrix<Element>::operator-=(Matrix<Element> const& other) {
     if (rows != other.rows || cols != other.cols) {
         throw invalid_argument("Subtraction operands have incompatible dimensions");
     }
@@ -335,8 +335,8 @@ inline Matrix<Element>& Matrix<Element>::HStack(Matrix<Element> const& other) {
     return *this;
 }
 
-template<class Element>
-void Matrix<Element>::PrintValues() const {
+template<>
+void Matrix<ILVector2n>::PrintValues() const {
     for (size_t col = 0; col < cols; ++col) {
         for (size_t row = 0; row < rows; ++row) {
             data[row][col]->PrintValues();
@@ -346,38 +346,27 @@ void Matrix<Element>::PrintValues() const {
     }
 }
 
-template<class Element>
-void Matrix<Element>::SwitchFormat() {
+template<>
+void Matrix<ILVector2n>::SwitchFormat() {
 
-
-if (rows == 1)
-{
-    	for (size_t row = 0; row < rows; ++row) {
-	#pragma omp parallel for
-    		for (size_t col = 0; col < cols; ++col) {
-    			data[row][col]->SwitchFormat();
-    		}
-    	}
-}
-else
-{
-    	for (size_t col = 0; col < cols; ++col) {
-	#pragma omp parallel for
-	for (size_t row = 0; row < rows; ++row) {
-    			data[row][col]->SwitchFormat();
-    		}
-    	}
-}
-
-/*
-    	for (size_t row = 0; row < rows; ++row) {
-	#pragma omp parallel for
-    		for (size_t col = 0; col < cols; ++col) {
-    			data[row][col]->SwitchFormat();
-    		}
-    	}
-*/
-
+	if (rows == 1)
+	{
+		for (size_t row = 0; row < rows; ++row) {
+#pragma omp parallel for
+			for (size_t col = 0; col < cols; ++col) {
+				data[row][col]->SwitchFormat();
+			}
+		}
+	}
+	else
+	{
+		for (size_t col = 0; col < cols; ++col) {
+#pragma omp parallel for
+			for (size_t row = 0; row < rows; ++row) {
+				data[row][col]->SwitchFormat();
+			}
+		}
+	}
 }
 
 
