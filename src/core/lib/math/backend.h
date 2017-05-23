@@ -47,22 +47,19 @@
 
 // note that we #define how many bits the underlying integer can store as a guide for users of the backends
 
-// MATHBACKEND 1
-//		This is an old deprecated implementation, DO NOT USE
-
 // MATHBACKEND 2
-// 		Uses cpu_int:: definition as defaults
+// 		Uses cpu_int:: definition as default
+//		Implemented as a vector of integers
+//		Configurable maximum bit length and type of underlying integer
 
 // MATHBACKEND 3
 // 		This uses exp_int:: definition with uint32_t underlying size as defaults
 // 			new dynamicly allocated backend and support uint32_t and uint64_t on linux
-// 			This backend supports arbitrary bitwidths; no memory pool is used; can grow up to RAM limitation
 
 // MATHBACKEND 4
-// 		This uses exp_int:: definition with uint64_t underlying size as defaults
-
-// MATHBACKEND 5
-//		This is an old deprecated implementation, DO NOT USE
+// 		This uses exp_int:: definition as default
+// 		This backend supports arbitrary bitwidths; no memory pool is used; can grow up to RAM limitation
+//		Configurable type of underlying integer
 
 // MATHBACKEND 6
 //		This uses gmp_int:: definition as default
@@ -75,8 +72,7 @@
 //To select backend, please UNCOMMENT the appropriate line rather than changing the number on the
 //uncommented line (and breaking the documentation of the line)
 
-//#define MATHBACKEND 2
-#define MATHBACKEND 3
+#define MATHBACKEND 2
 //#define MATHBACKEND 4 
 //#define MATHBACKEND 6 
 //#define MATHBACKEND 7
@@ -102,15 +98,19 @@ typedef BigBinaryVectorImpl<BinaryInteger> BinaryVector;
 }
 
 ////////// for exp_int, decide if you want 32 bit or 64 bit underlying integers in the implementation
-#if MATHBACKEND == 2 || MATHBACKEND == 3 || MATHBACKEND == 5 || MATHBACKEND == 7
 #define UBINT_32
+//#define UBINT_64
+
+#ifdef UBINT_32
 #define MATH_UBBITS	32
 typedef uint32_t expdtype;
-#else
-#define UBINT_64
+#endif
+
+#ifdef UBINT_64
 #define MATH_UBBITS	64
 typedef uint64_t expdtype;
 #endif
+
 #include "exp_int/ubint.h" //experimental dbc unsigned big integers or ubints
 #include "exp_int/ubintvec.h" //vectors of experimental ubints
 #include "exp_int/mubintvec.h" //rings of ubints
@@ -157,7 +157,7 @@ namespace lbcrypto {
 
 #endif
 
-#if MATHBACKEND == 3 || MATHBACKEND == 4
+#if MATHBACKEND == 4
 
 	typedef exp_int::xubint BigBinaryInteger;
 	typedef exp_int::xmubintvec BigBinaryVector;
@@ -174,19 +174,6 @@ namespace lbcrypto {
 	
 	/** Define the mapping for BigBinaryVector */
     typedef NTL::myVecP<NTL::myZZ_p> BigBinaryVector;
-
-// 	/** Define the mapping for ubint */
-//	typedef NTL::myZZ ubint;
-//
-//	/** Define the mapping for modulo ubint */
-//	//typedef gmp_int::myZZ ubint;
-//	typedef NTL::myZZ_p mubint;
-//
-//	/** Define the mapping for ubint Vector */
-//	typedef NTL::myVec<NTL::myZZ> ubintvec;
-//
-//	/** Define the mapping for modulo ubint Vector */
-//	typedef NTL::myVecP<NTL::myZZ_p> mubintvec;
 
 #define MATH_DEFBITS 0
 
