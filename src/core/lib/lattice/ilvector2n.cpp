@@ -513,21 +513,54 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::AutomorphismTransform(const usint &k) const {
-		
+
 		ILVectorImpl result(*this);
+
 		usint m = this->m_params->GetCyclotomicOrder();
 		usint n = this->m_params->GetRingDimension();
-		const auto &modulus = this->m_params->GetModulus();
-		auto tList = GetTotientList(m);
-		VecType expanded(m, modulus);
-		for (usint i = 0; i < n; i++) {
-			expanded.SetValAtIndex(tList.at(i), m_values->GetValAtIndex(i));
-		}
 
-		for (usint i = 0; i < n; i++) {
-			usint idx = tList.at(i)*k;
-			idx = idx%m;
-			result.m_values->SetValAtIndex(i, expanded.GetValAtIndex(idx));
+		if (m_params->OrderIsPowerOfTwo() == false) {
+
+			//Add a test based on the inverse totient hash table
+			//if (i % 2 == 0)
+			//	throw std::runtime_error("automorphism index should be odd\n");
+			
+			const auto &modulus = this->m_params->GetModulus();
+
+			// All automorphism operations are performed for k coprime to m, which are generated using GetTotientList(m)
+			std::vector<usint> totientList = GetTotientList(m);
+
+			// Temporary vector of size m is introduced
+			// This step can be eliminated by using a hash table that looks up the ring index (between 0 and n - 1)  
+			// based on the totient index (between 0 and m - 1)
+			VecType expanded(m, modulus);
+			for (usint i = 0; i < n; i++) {
+				expanded.SetValAtIndex(totientList.at(i), m_values->GetValAtIndex(i));
+			}
+
+			for (usint i = 0; i < n; i++) {
+
+				//determines which power of primitive root unity we should switch to
+				usint idx = totientList.at(i)*k % m;
+
+				result.m_values->SetValAtIndex(i, expanded.GetValAtIndex(idx));
+
+			}
+		}
+		else
+		{
+			if (k % 2 == 0)
+				throw std::runtime_error("automorphism index should be odd\n");
+
+			for (usint j = 1; j < m; j = j + 2)
+			{
+
+				//determines which power of primitive root unity we should switch to
+				usint idx = (j*k) % m;
+				result.m_values->SetValAtIndex((j + 1) / 2 - 1, GetValues().GetValAtIndex((idx + 1) / 2 - 1));
+
+			}
+
 		}
 
 		return result;

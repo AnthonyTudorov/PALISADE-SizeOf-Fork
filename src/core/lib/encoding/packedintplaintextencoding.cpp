@@ -121,7 +121,7 @@ namespace lbcrypto {
 					this->initRoot = RootOfUnity<BigBinaryInteger>(m, modulus);
 				}
 			}
-			std::cout << initRoot << std::endl;
+			//std::cout << initRoot << std::endl;
 			//this->initRoot = BigBinaryInteger(7);
 		}
 
@@ -154,7 +154,7 @@ namespace lbcrypto {
 
 		ring->SetValues(slotValues, Format::COEFFICIENT);
 
-		ring->PrintValues();
+		//ring->PrintValues();
 
 	}
 
