@@ -579,6 +579,9 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalAutomorphism(cons
 
 	const std::vector<Element> &c = ciphertext->GetElements();
 
+	usint m = c[0].GetCyclotomicOrder();
+	usint n = c[0].GetRingDimension();
+
 	std::vector<Element> cNew;
 
 	cNew.push_back(std::move(c[0].AutomorphismTransform(i)));
@@ -587,7 +590,14 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalAutomorphism(cons
 
 	permutedCiphertext->SetElements(std::move(cNew));
 
-	return this->KeySwitch(evalKeys[(i - 3) / 2], permutedCiphertext);
+	//this loop needs to be replaced with a call to hash table for inverse totient list
+	std::vector<usint> totientList = GetTotientList(m);
+	uint32_t p;
+	for (p = 0; p < n; p++)
+		if (i == totientList[p])
+			break;
+
+	return this->KeySwitch(evalKeys[p - 1], permutedCiphertext);
 
 }
 
@@ -599,25 +609,26 @@ shared_ptr<std::vector<shared_ptr<LPEvalKey<Element>>>> LPAlgorithmSHEFV<Element
 	const Element &privateKeyElement = privateKey->GetPrivateElement();
 	usint m = privateKeyElement.GetCyclotomicOrder();
 
+	usint n = privateKeyElement.GetRingDimension();
+
 	shared_ptr<LPPrivateKey<Element>> tempPrivateKey(new LPPrivateKey<Element>(privateKey->GetCryptoContext()));
 
 	shared_ptr<std::vector<shared_ptr<LPEvalKey<Element>>>> evalKeys(new std::vector<shared_ptr<LPEvalKey<Element>>>());
 
-	if (size > m / 2 - 1)
-		throw std::runtime_error("size exceeds allowed limit: maximum is m/2");
+	if (size > n - 1)
+		throw std::runtime_error("size exceeds the ring dimension");
 	else {
 
-		usint i = 3;
+		std::vector<usint> totientList = GetTotientList(m);
 
-		for (usint index = 0; index < size; index++)
+		for (usint index = 1; index < size + 1; index++)
 		{
-			Element permutedPrivateKeyElement = privateKeyElement.AutomorphismTransform(i);
+			Element permutedPrivateKeyElement = privateKeyElement.AutomorphismTransform(totientList[index]);
 
 			tempPrivateKey->SetPrivateElement(permutedPrivateKeyElement);
 
 			evalKeys->push_back(this->KeySwitchGen(tempPrivateKey, privateKey));
 
-			i = i + 2;
 		}
 
 	}

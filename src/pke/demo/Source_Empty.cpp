@@ -69,11 +69,11 @@ int main(int argc, char *argv[])
 	std::cout << x << "  ";
 	std::cout << std::endl;*/
 
-	PerformanceTest();
+	//PerformanceTest();
 
 	//EvalSummation();
 
-	//EvalAutomorphism();
+	EvalAutomorphism();
 	
 	std::cout << "Press any key to continue" << std::endl;
 	std::cin.get();

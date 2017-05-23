@@ -508,7 +508,16 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalAutomorphism(con
 
 	permutedCiphertext->SetElement(ciphertext->GetElement().AutomorphismTransform(i));
 
-	return ciphertext->GetCryptoContext().GetEncryptionAlgorithm()->KeySwitchRelin(evalKeys[(i - 3) / 2], permutedCiphertext);
+	//this loop needs to be replaced with a call to hash table for inverse totient list
+	usint m = ciphertext->GetElement().GetCyclotomicOrder();
+	usint n = ciphertext->GetElement().GetRingDimension();
+	std::vector<usint> totientList = GetTotientList(m);
+	uint32_t p;
+	for (p = 0; p < n; p++)
+		if (i == totientList[p])
+			break;
+
+	return ciphertext->GetCryptoContext().GetEncryptionAlgorithm()->KeySwitchRelin(evalKeys[p-1], permutedCiphertext);
 
 }
 
@@ -519,25 +528,26 @@ shared_ptr<std::vector<shared_ptr<LPEvalKey<Element>>>> LPAlgorithmSHELTV<Elemen
 	const Element &privateKeyElement = origPrivateKey->GetPrivateElement();
 	usint m = privateKeyElement.GetCyclotomicOrder();
 
+	usint n = privateKeyElement.GetRingDimension();
+
 	shared_ptr<LPPrivateKey<Element>> tempPrivateKey(new LPPrivateKey<Element>(origPrivateKey->GetCryptoContext()));
 
 	shared_ptr<std::vector<shared_ptr<LPEvalKey<Element>>>> evalKeys(new std::vector<shared_ptr<LPEvalKey<Element>>>());
 
-	if (size > m / 2 - 1)
-		throw std::logic_error("size exceeds allowed limit: maximum is m/2");
+	if (size > n - 1)
+		throw std::logic_error("size exceeds the ring dimension");
 	else {
 
-		usint i = 3;
+		std::vector<usint> totientList = GetTotientList(m);
 
-		for (usint index = 0; index < size; index++)
+		for (usint index = 1; index < size + 1; index++)
 		{
-			Element permutedPrivateKeyElement = privateKeyElement.AutomorphismTransform(i);
+			Element permutedPrivateKeyElement = privateKeyElement.AutomorphismTransform(totientList[index]);
 
 			tempPrivateKey->SetPrivateElement(permutedPrivateKeyElement);
 
 			evalKeys->push_back(publicKey->GetCryptoContext().GetEncryptionAlgorithm()->KeySwitchRelinGen(publicKey, tempPrivateKey));
 
-			i = i + 2;
 		}
 
 	}
