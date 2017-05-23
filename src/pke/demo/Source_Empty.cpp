@@ -52,13 +52,17 @@ void EvalMultSmallRing();
 void EvalAutomorphism();
 void EvalSummation();
 
+void PerformanceTest();
+
 vector<shared_ptr<Ciphertext<ILVector2n>>> AutomorphCiphertext(vector<shared_ptr<Ciphertext<ILVector2n>>> &ciphertext, usint k);
 std::shared_ptr<LPPrivateKey<ILVector2n>> AutomorphSecretkey(std::shared_ptr<LPPrivateKey<ILVector2n>> sk, usint k);
 
 int main(int argc, char *argv[])
 {
-	
-	EvalSummation();
+	PerformanceTest();
+
+
+	//EvalSummation();
 	
 	std::cin.get();
 
@@ -367,5 +371,51 @@ std::shared_ptr<LPPrivateKey<ILVector2n>> AutomorphSecretkey(std::shared_ptr<LPP
 	morphedSK->SetPrivateElement(std::move(morphedSKElement));
 
 	return morphedSK;
+}
+
+void PerformanceTest() {
+
+	usint m = 8422;
+	BigBinaryInteger modulus("1194825523642870048326524785366004369"); //120 bits
+	BigBinaryInteger squareRootOfRoot("1125399230456375417724134273593267324");
+	BigBinaryInteger bigModulus("1852673427797059126777135760139006525652319754650249024631321344126610076631041"); //260 bits
+	BigBinaryInteger bigRoot("1011857408422309039039556907195908859561535234649870814154019834362746408101010");
+	usint n = GetTotient(m);
+
+	auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulus);
+
+	//ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().PreCompute(m, modulus);
+	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulus);
+
+	BigBinaryVector input(n, modulus);
+	input = { 1,2,3,4,5,6,7,8,9,10 };
+	auto INPUT = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().ForwardTransform(input, squareRootOfRoot, bigModulus, bigRoot, m);
+
+
+	auto inputCheck = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().InverseTransform(INPUT, squareRootOfRoot, bigModulus, bigRoot, m);
+
+	double start, stop, diff;
+
+	start = currentDateTime();
+
+	INPUT = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().ForwardTransform(input, squareRootOfRoot, bigModulus, bigRoot, m);
+
+	stop = currentDateTime();
+
+	diff = stop - start;
+
+	std::cout << "Forward Transform computation time is :\t" << diff << std::endl;
+
+	start = currentDateTime();
+
+	inputCheck = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().InverseTransform(INPUT, squareRootOfRoot, bigModulus, bigRoot, m);
+
+	stop = currentDateTime();
+
+	diff = stop - start;
+
+	std::cout << "Inverse Transform computation time is :\t" << diff << std::endl;
+
+	std::cout << inputCheck << std::endl;
 }
 
