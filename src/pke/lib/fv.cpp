@@ -572,15 +572,12 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmSHEFV<Element>::EvalMultKeyGen(
 
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalAutomorphism(const shared_ptr<Ciphertext<Element>> ciphertext, usint i,
-	const std::vector<shared_ptr<LPEvalKey<Element>>> &evalKeys) const
+	const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalKeys) const
 {
 
 	shared_ptr<Ciphertext<Element>> permutedCiphertext(new Ciphertext<Element>(*ciphertext));
 
 	const std::vector<Element> &c = ciphertext->GetElements();
-
-	usint m = c[0].GetCyclotomicOrder();
-	usint n = c[0].GetRingDimension();
 
 	std::vector<Element> cNew;
 
@@ -590,44 +587,34 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalAutomorphism(cons
 
 	permutedCiphertext->SetElements(std::move(cNew));
 
-	//this loop needs to be replaced with a call to hash table for inverse totient list
-	std::vector<usint> totientList = GetTotientList(m);
-	uint32_t p;
-	for (p = 0; p < n; p++)
-		if (i == totientList[p])
-			break;
-
-	return this->KeySwitch(evalKeys[p - 1], permutedCiphertext);
+	return this->KeySwitch(evalKeys.find(i)->second, permutedCiphertext);
 
 }
 
 template <class Element>
-shared_ptr<std::vector<shared_ptr<LPEvalKey<Element>>>> LPAlgorithmSHEFV<Element>::EvalAutomorphismKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey,
-	usint size, bool flagEvalSum) const
+shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> LPAlgorithmSHEFV<Element>::EvalAutomorphismKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey,
+	const std::vector<usint> &indexList) const
 {
 
 	const Element &privateKeyElement = privateKey->GetPrivateElement();
-	usint m = privateKeyElement.GetCyclotomicOrder();
 
 	usint n = privateKeyElement.GetRingDimension();
 
 	shared_ptr<LPPrivateKey<Element>> tempPrivateKey(new LPPrivateKey<Element>(privateKey->GetCryptoContext()));
 
-	shared_ptr<std::vector<shared_ptr<LPEvalKey<Element>>>> evalKeys(new std::vector<shared_ptr<LPEvalKey<Element>>>());
+	shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> evalKeys(new std::map<usint, shared_ptr<LPEvalKey<Element>>>());
 
-	if (size > n - 1)
+	if (indexList.size() > n - 1)
 		throw std::runtime_error("size exceeds the ring dimension");
 	else {
 
-		std::vector<usint> totientList = GetTotientList(m);
-
-		for (usint index = 1; index < size + 1; index++)
+		for (usint i = 0; i < indexList.size(); i++)
 		{
-			Element permutedPrivateKeyElement = privateKeyElement.AutomorphismTransform(totientList[index]);
+			Element permutedPrivateKeyElement = privateKeyElement.AutomorphismTransform(indexList[i]);
 
 			tempPrivateKey->SetPrivateElement(permutedPrivateKeyElement);
 
-			evalKeys->push_back(this->KeySwitchGen(tempPrivateKey, privateKey));
+			(*evalKeys)[indexList[i]] = this->KeySwitchGen(tempPrivateKey, privateKey);
 
 		}
 

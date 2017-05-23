@@ -488,65 +488,42 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::KeySwitchRelin(const
 	return newCiphertext;
 }
 
- //Function for extracting a value at a certain index using automorphism operation.
-template <class Element>
-shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalAtIndex(const shared_ptr<Ciphertext<Element>> ciphertext,
-	usint i, const std::vector<shared_ptr<LPEvalKey<Element>>> &evalKeys) const
-
-{
-	usint autoIndex = 2 * i - 1;
-
-	return this->EvalAutomorphism(ciphertext, autoIndex, evalKeys);
-}
-
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalAutomorphism(const shared_ptr<Ciphertext<Element>> ciphertext, usint i,
-	const std::vector<shared_ptr<LPEvalKey<Element>>> &evalKeys) const
+	const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalKeys) const
 {
 
 	shared_ptr<Ciphertext<Element>> permutedCiphertext(new Ciphertext<Element>(*ciphertext));
 
 	permutedCiphertext->SetElement(ciphertext->GetElement().AutomorphismTransform(i));
 
-	//this loop needs to be replaced with a call to hash table for inverse totient list
-	usint m = ciphertext->GetElement().GetCyclotomicOrder();
-	usint n = ciphertext->GetElement().GetRingDimension();
-	std::vector<usint> totientList = GetTotientList(m);
-	uint32_t p;
-	for (p = 0; p < n; p++)
-		if (i == totientList[p])
-			break;
-
-	return ciphertext->GetCryptoContext().GetEncryptionAlgorithm()->KeySwitchRelin(evalKeys[p-1], permutedCiphertext);
+	return ciphertext->GetCryptoContext().GetEncryptionAlgorithm()->KeySwitchRelin(evalKeys.find(i)->second, permutedCiphertext);
 
 }
 
 template <class Element>
-shared_ptr<std::vector<shared_ptr<LPEvalKey<Element>>>> LPAlgorithmSHELTV<Element>::EvalAutomorphismKeyGen(const shared_ptr<LPPublicKey<Element>> publicKey,
-	const shared_ptr<LPPrivateKey<Element>> origPrivateKey, usint size) const
+shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> LPAlgorithmSHELTV<Element>::EvalAutomorphismKeyGen(const shared_ptr<LPPublicKey<Element>> publicKey,
+	const shared_ptr<LPPrivateKey<Element>> origPrivateKey, const::std::vector<usint> &indexList) const
 {
 	const Element &privateKeyElement = origPrivateKey->GetPrivateElement();
-	usint m = privateKeyElement.GetCyclotomicOrder();
 
 	usint n = privateKeyElement.GetRingDimension();
 
 	shared_ptr<LPPrivateKey<Element>> tempPrivateKey(new LPPrivateKey<Element>(origPrivateKey->GetCryptoContext()));
 
-	shared_ptr<std::vector<shared_ptr<LPEvalKey<Element>>>> evalKeys(new std::vector<shared_ptr<LPEvalKey<Element>>>());
+	shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> evalKeys(new std::map<usint, shared_ptr<LPEvalKey<Element>>>());
 
-	if (size > n - 1)
+	if (indexList.size() > n - 1)
 		throw std::logic_error("size exceeds the ring dimension");
 	else {
 
-		std::vector<usint> totientList = GetTotientList(m);
-
-		for (usint index = 1; index < size + 1; index++)
+		for (usint i = 0; i < indexList.size(); i++)
 		{
-			Element permutedPrivateKeyElement = privateKeyElement.AutomorphismTransform(totientList[index]);
+			Element permutedPrivateKeyElement = privateKeyElement.AutomorphismTransform(indexList[i]);
 
 			tempPrivateKey->SetPrivateElement(permutedPrivateKeyElement);
 
-			evalKeys->push_back(publicKey->GetCryptoContext().GetEncryptionAlgorithm()->KeySwitchRelinGen(publicKey, tempPrivateKey));
+			(*evalKeys)[indexList[i]] = publicKey->GetCryptoContext().GetEncryptionAlgorithm()->KeySwitchRelinGen(publicKey, tempPrivateKey);
 
 		}
 
