@@ -199,7 +199,12 @@ int main(int argc, char *argv[]) {
 
 	start = currentDateTime();
 
-	kpFusion = cc.FusionKeyGen(kp1.secretKey,kp2.secretKey);	// This is the same core key generation operation.
+
+	vector<shared_ptr<LPPrivateKey<ILVector2n>>> secretKeys;
+	secretKeys.push_back(kp1.secretKey);
+	secretKeys.push_back(kp2.secretKey);
+
+	kpFusion = cc.FusionKeyGen(secretKeys);	// This is the same core key generation operation.
 
 	finish = currentDateTime();
 	diff = finish - start;

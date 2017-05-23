@@ -1068,7 +1068,7 @@ namespace lbcrypto {
 			* @return key pair including the private and public key
 			*/
 			virtual LPKeyPair<Element> FusionKeyGen(const CryptoContext<Element> cc,
-				const shared_ptr<LPPublicKey<Element>> kp1,
+				const shared_ptr<LPPublicKey<Element>> pk1,
 				bool makeSparse=false) const = 0;
 
 			/**
@@ -1081,8 +1081,7 @@ namespace lbcrypto {
 			* @return key pair including the private and public key
 			*/
 			virtual LPKeyPair<Element> FusionKeyGen(const CryptoContext<Element> cc,
-				const shared_ptr<LPPrivateKey<Element>> kp1,
-				const shared_ptr<LPPrivateKey<Element>> kp2,
+		const vector<shared_ptr<LPPrivateKey<Element>>>& secretKeys,
 				bool makeSparse=false) const = 0;
 
 			/**
@@ -1558,10 +1557,10 @@ namespace lbcrypto {
 
 		// Wrapper for Fusion Key Gen
 		LPKeyPair<Element> FusionKeyGen(const CryptoContext<Element> cc,
-			const shared_ptr<LPPublicKey<Element>> kp1,
+			const shared_ptr<LPPublicKey<Element>> pk1,
 			bool makeSparse) const {
 				if(this->m_algorithmMultiparty)
-					return this->m_algorithmMultiparty->FusionKeyGen(cc, kp1, makeSparse);
+					return this->m_algorithmMultiparty->FusionKeyGen(cc, pk1, makeSparse);
 				else {
 					throw std::logic_error("FusionKeyGen operation has not been enabled");
 				}
@@ -1569,11 +1568,10 @@ namespace lbcrypto {
 
 		// Wrapper for Fusion Key Gen
 		LPKeyPair<Element> FusionKeyGen(const CryptoContext<Element> cc,
-			const shared_ptr<LPPrivateKey<Element>> kp1,
-			const shared_ptr<LPPrivateKey<Element>> kp2,
+			const vector<shared_ptr<LPPrivateKey<Element>>>& secretKeys,
 			bool makeSparse) const {
 				if(this->m_algorithmMultiparty)
-					return this->m_algorithmMultiparty->FusionKeyGen(cc, kp1, kp2, makeSparse);
+					return this->m_algorithmMultiparty->FusionKeyGen(cc, secretKeys, makeSparse);
 				else {
 					throw std::logic_error("FusionKeyGen operation has not been enabled");
 				}

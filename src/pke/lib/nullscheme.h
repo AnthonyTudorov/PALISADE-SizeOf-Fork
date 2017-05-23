@@ -257,7 +257,7 @@ public:
 	* @return key pair including the private and public key
 	*/
 	LPKeyPair<Element> FusionKeyGen(const CryptoContext<Element> cc,
-		const shared_ptr<LPPublicKey<Element>> kp1,
+		const shared_ptr<LPPublicKey<Element>> pk1,
 		bool makeSparse=false) const {
 		std::string errMsg = "LPAlgorithmPRENull::FusionKeyGen using the new secret key is not implemented for the Null Scheme.";
 		throw std::runtime_error(errMsg);
@@ -273,8 +273,7 @@ public:
 	* @return key pair including the private and public key
 	*/
 	LPKeyPair<Element> FusionKeyGen(const CryptoContext<Element> cc,
-		const shared_ptr<LPPrivateKey<Element>> kp1,
-		const shared_ptr<LPPrivateKey<Element>> kp2,
+		const vector<shared_ptr<LPPrivateKey<Element>>>& secretKeys,
 		bool makeSparse=false) const {
 		std::string errMsg = "LPAlgorithmPRENull::FusionKeyGen using the new secret key is not implemented for the Null Scheme.";
 		throw std::runtime_error(errMsg);

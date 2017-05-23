@@ -215,9 +215,8 @@ public:
 	* @return a public/secret key pair
 	*/
 	LPKeyPair<Element> FusionKeyGen(
-		const shared_ptr<LPPrivateKey<Element>> kp1,
-		const shared_ptr<LPPrivateKey<Element>> kp2) const {
-		return GetEncryptionAlgorithm()->FusionKeyGen(*this, kp1, kp2, false);
+		const vector<shared_ptr<LPPrivateKey<Element>>>& secretKeys) const {
+		return GetEncryptionAlgorithm()->FusionKeyGen(*this, secretKeys, false);
 	}
 
 	/**

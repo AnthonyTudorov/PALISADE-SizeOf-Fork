@@ -540,7 +540,7 @@ namespace lbcrypto {
 		* @return key pair including the private and public key
 		*/
 		LPKeyPair<Element> FusionKeyGen(const CryptoContext<Element> cc,
-		const shared_ptr<LPPublicKey<Element>> kp1,
+		const shared_ptr<LPPublicKey<Element>> pk1,
 		bool makeSparse=false) const;
 
 		/**
@@ -553,8 +553,7 @@ namespace lbcrypto {
 		* @return key pair including the private and public key
 		*/
 		LPKeyPair<Element> FusionKeyGen(const CryptoContext<Element> cc,
-		const shared_ptr<LPPrivateKey<Element>> kp1,
-		const shared_ptr<LPPrivateKey<Element>> kp2,
+		const vector<shared_ptr<LPPrivateKey<Element>>>& secretKeys,
 		bool makeSparse=false) const;
 
 		/**

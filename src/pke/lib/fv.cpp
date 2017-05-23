@@ -652,9 +652,10 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmPREFV<Element>::ReEncrypt(const share
 //makeSparse is not used by this scheme
 template <class Element>
 LPKeyPair<Element> LPAlgorithmMultipartyFV<Element>::FusionKeyGen(const CryptoContext<Element> cc,
-		const shared_ptr<LPPrivateKey<Element>> kp1,
-		const shared_ptr<LPPrivateKey<Element>> kp2, bool makeSparse) const
+		const vector<shared_ptr<LPPrivateKey<Element>>>& secretKeys,
+		bool makeSparse) const
 {
+
 
 	LPKeyPair<Element>	kp( new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc) );
 
@@ -672,14 +673,18 @@ LPKeyPair<Element> LPAlgorithmMultipartyFV<Element>::FusionKeyGen(const CryptoCo
 
 	//Generate the secret key
 	Element s(elementParams, Format::EVALUATION, true);
-	Element s1 = kp1->GetPrivateElement();
-	Element s2 = kp2->GetPrivateElement();
 
 	//Done in two steps not to use a random polynomial from a pre-computed pool
 	//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
 	if (cryptoParams->GetMode() == RLWE) {
-		s+=s1;
-		s+=s2;
+
+		int numKeys = secretKeys.size();
+		for( int i = 0; i < numKeys; i++ ) {
+			shared_ptr<LPPrivateKey<Element>> sk1 = secretKeys[i];
+			Element s1 = sk1->GetPrivateElement();
+			s += s1;
+		}
+
 	}
 	else {
 		throw std::logic_error("FusedKeyGen operation has not been enabled for OPTIMIZED cases");
@@ -700,27 +705,13 @@ LPKeyPair<Element> LPAlgorithmMultipartyFV<Element>::FusionKeyGen(const CryptoCo
 	kp.publicKey->SetPublicElementAtIndex(0, std::move(b));
 	kp.publicKey->SetPublicElementAtIndex(1, std::move(a));
 
-/*
-	//Generate the element "a" of the public key
-	Element a = kp1->GetPublicElements()[1];
-	Element b1 = kp1->GetPublicElements()[0];
-	Element b2 = kp2->GetPublicElements()[0];
-
-	Element b(elementParams, Format::EVALUATION, true);
-	b+=b1;
-	b+=b2;
-
-	kp.publicKey->SetPublicElementAtIndex(0, std::move(b));
-	kp.publicKey->SetPublicElementAtIndex(1, std::move(a));
-*/
-
 	return kp;
 }
 
 //makeSparse is not used by this scheme
 template <class Element>
 LPKeyPair<Element> LPAlgorithmMultipartyFV<Element>::FusionKeyGen(const CryptoContext<Element> cc,
-		const shared_ptr<LPPublicKey<Element>> kp1, bool makeSparse) const
+		const shared_ptr<LPPublicKey<Element>> pk1, bool makeSparse) const
 {
 
 	LPKeyPair<Element>	kp( new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc) );
@@ -735,7 +726,7 @@ LPKeyPair<Element> LPAlgorithmMultipartyFV<Element>::FusionKeyGen(const CryptoCo
 	typename Element::TugType tug;
 
 	//Generate the element "a" of the public key
-	Element a = kp1->GetPublicElements()[1];
+	Element a = pk1->GetPublicElements()[1];
 
 	//Generate the secret key
 	Element s;
