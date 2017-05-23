@@ -35,7 +35,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "utils/debug.h"
 
 #include "math/matrix.h"
-#include "math/matrix.cpp"
 
 using namespace lbcrypto;
 

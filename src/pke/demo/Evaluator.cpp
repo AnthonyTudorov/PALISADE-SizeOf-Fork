@@ -33,7 +33,6 @@
 #include <fstream>
 
 #include "math/matrix.h"
-#include "math/matrix.cpp"
 #include "palisade.h"
 
 #include "cryptocontexthelper.h"

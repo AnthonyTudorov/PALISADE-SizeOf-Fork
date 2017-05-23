@@ -221,7 +221,7 @@ namespace lbcrypto {
 		* @param &other is the ciphertext to add with.
 		* @return the result of the addition.
 		*/
-		inline const Ciphertext<Element>& operator+=(const Ciphertext<Element> &other) {
+		const Ciphertext<Element>& operator+=(const Ciphertext<Element> &other) {
 			shared_ptr<Ciphertext<Element>> b(new Ciphertext<Element>(other));
 			// ciphertext object has no data yet, i.e., it is zero-initialized
 			if (m_elements.size() == 0)
@@ -235,6 +235,10 @@ namespace lbcrypto {
 				*this = *(cryptoContext.EvalAdd(a, b));
 			}
 			return *this;
+		}
+
+		const Ciphertext<Element>& operator-=(const Ciphertext<Element> &other) {
+			throw std::logic_error("operator-= not implemented for Ciphertext");
 		}
 
 		/**

@@ -17,6 +17,7 @@ using std::invalid_argument;
 
 namespace lbcrypto {
 
+template class Matrix<Ciphertext<ILVector2n>>;
 template class Matrix<RationalCiphertext<ILVector2n>>;
 
 template<>

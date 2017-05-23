@@ -147,7 +147,7 @@ Matrix<Element>& Matrix<Element>::operator+=(Matrix<Element> const& other) {
     #pragma omp parallel for
 for (size_t j = 0; j < cols; ++j) {
 	for (size_t i = 0; i < rows; ++i) {
-            data[i][j] += *other.data[i][j];
+            *data[i][j] += *other.data[i][j];
         }
     }
 #endif
@@ -340,6 +340,39 @@ void Matrix<ILVector2n>::PrintValues() const {
     for (size_t col = 0; col < cols; ++col) {
         for (size_t row = 0; row < rows; ++row) {
             data[row][col]->PrintValues();
+            std::cout << " ";
+        }
+        std::cout << std::endl;
+    }
+}
+
+template<>
+void Matrix<BigBinaryInteger>::PrintValues() const {
+    for (size_t col = 0; col < cols; ++col) {
+        for (size_t row = 0; row < rows; ++row) {
+            data[row][col]->PrintValues();
+            std::cout << " ";
+        }
+        std::cout << std::endl;
+    }
+}
+
+template<>
+void Matrix<BigBinaryVector>::PrintValues() const {
+    for (size_t col = 0; col < cols; ++col) {
+        for (size_t row = 0; row < rows; ++row) {
+            data[row][col]->PrintValues();
+            std::cout << " ";
+        }
+        std::cout << std::endl;
+    }
+}
+
+template<>
+void Matrix<int>::PrintValues() const {
+    for (size_t col = 0; col < cols; ++col) {
+        for (size_t row = 0; row < rows; ++row) {
+            std::cout << *data[row][col];
             std::cout << " ";
         }
         std::cout << std::endl;

@@ -17,6 +17,12 @@ using std::invalid_argument;
 
 namespace lbcrypto {
 
+template class Matrix<ILVector2n>;
+template class Matrix<BigBinaryInteger>;
+template class Matrix<BigBinaryVector>;
+template class Matrix<double>;
+template class Matrix<int>;
+
 template<>
 bool Matrix<int32_t>::Serialize(Serialized* serObj) const {
 	return false;

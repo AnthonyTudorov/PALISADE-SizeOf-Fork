@@ -42,7 +42,7 @@
 
 
 #main best performance configuration for parallel operation - cross-platform
-CPPFLAGS += -g -Wall -Werror -O3 $(CPPSTD) -fopenmp ##undefine for parallel best performance operation with debug
+CPPFLAGS += -g -Wall -Werror -Wno-error=unused-command-line-argument -O3 $(CPPSTD) -fopenmp ##undefine for parallel best performance operation with debug
 #CPPFLAGS += -Wall -O3 $(CPPSTD) -w -fopenmp -m64 -DNDEBUG  ##undefine for parallel best performance operation with no debug
 
 #THE OPTIONS BELOW SHOULD BE USED WITH CARE AS THEY USE A LOT OF AGGRESSIVE OPTIMIZATION OPTIONS

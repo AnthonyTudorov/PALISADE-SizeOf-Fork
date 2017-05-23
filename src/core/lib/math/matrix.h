@@ -387,7 +387,7 @@ namespace lbcrypto {
 			 *
 			 * @param &other the matrix to be substracted
 			 * @return the resulting matrix (same object)
-             */ 
+             */
             Matrix<Element>& operator-=(Matrix<Element> const& other);
 
             /**
@@ -472,7 +472,13 @@ namespace lbcrypto {
              * Print values of the matrix to the cout stream
 			 *
              */ 
-            void PrintValues() const; 
+            void PrintValues() const;
+
+            // this is a hack for Matrix
+            friend std::ostream& operator<<(std::ostream& out, const Matrix<Element>& item) {
+            	item.PrintValues();
+            	return out;
+            }
 
             /**
              * Call switch format for each (ring) element

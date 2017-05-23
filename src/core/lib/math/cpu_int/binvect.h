@@ -211,6 +211,8 @@ public:
 	template<class IntegerType_c>
 	friend std::ostream& operator<<(std::ostream& os, const BigBinaryVectorImpl<IntegerType_c> &ptr_obj);
 
+	void PrintValues() const { std::cout << *this; }
+
 	/**
 	 * Sets a value at an index.
 	 *
@@ -509,6 +511,9 @@ private:
 		return true;
 	}
 };
+
+template<typename IntegerType>
+inline BigBinaryVectorImpl<IntegerType> operator-(const BigBinaryVectorImpl<IntegerType> &a) { return BigBinaryVectorImpl<IntegerType>(0) - a; }
 
 //BINARY OPERATORS
 
