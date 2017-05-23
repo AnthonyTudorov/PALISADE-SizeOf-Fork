@@ -24,3 +24,6 @@ JNILIB := PalisadeCryptoWrapper.dll
 
 PYINCLUDE := -I C:/Mingw64/mingw64/opt/include/python2.7
 LIBPYTHON := -L C:/Mingw64/mingw64/opt/bin -lpython2.7 
+
+COMPTHREADFLAG := -pthread
+LOADTHREADFLAG := -pthread

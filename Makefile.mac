@@ -15,3 +15,6 @@ JNILINKPARM := -framework JavaVM
 
 PYINCLUDE := $(shell python-config --include)
 LIBPYTHON := -lpython2.7 
+
+COMPTHREADFLAG := -pthread
+LOADTHREADFLAG := 
