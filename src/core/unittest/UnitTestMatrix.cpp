@@ -36,8 +36,7 @@
 #include "utils/inttypes.h"
 #include "utils/utilities.h"
 
-#include "math/matrix.cpp"
-#include "math/matrixser.cpp"
+#include "math/matrix.h"
 #include "math/matrixstrassen.cpp"
 
 //using namespace std;

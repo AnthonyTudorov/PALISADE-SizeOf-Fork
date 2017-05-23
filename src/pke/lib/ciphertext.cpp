@@ -18,7 +18,7 @@ bool Ciphertext<Element>::Serialize(Serialized* serObj) const {
 	if( !this->GetCryptoParameters()->Serialize(serObj) )
 		return false;
 
-	SerializeVector("Elements", this->m_elements[0].GetElementName(), this->m_elements, serObj);
+	SerializeVector("Elements", Element::GetElementName(), this->m_elements, serObj);
 
 	return true;
 }

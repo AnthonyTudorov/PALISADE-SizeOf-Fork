@@ -19,6 +19,8 @@ namespace lbcrypto {
 
 template class Matrix<Ciphertext<ILVector2n>>;
 template class Matrix<RationalCiphertext<ILVector2n>>;
+template class Matrix<Ciphertext<ILVectorArray2n>>;
+template class Matrix<RationalCiphertext<ILVectorArray2n>>;
 
 template<>
 bool Matrix<RationalCiphertext<ILVector2n>>::Serialize(Serialized* serObj) const {

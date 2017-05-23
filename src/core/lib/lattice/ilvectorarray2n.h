@@ -92,7 +92,7 @@ namespace lbcrypto {
 		typedef ILVectorImpl<native64::BigBinaryInteger,native64::BigBinaryInteger,native64::BigBinaryVector,native64::ILParams> ILVectorType;
 		typedef ILVectorImpl<ModType,IntType,VecType,ILParams> ILVectorLargeType;
 
-		const std::string GetElementName() const { return "ILDCRTImpl"; }
+		static const std::string GetElementName() { return "ILDCRTImpl"; }
 
 		// CONSTRUCTORS
 

@@ -73,7 +73,7 @@ public:
 	typedef TernaryUniformGeneratorImpl<IntType,VecType> TugType;
 	typedef BinaryUniformGeneratorImpl<IntType,VecType> BugType;
 
-	const std::string GetElementName() const { return "ILVectorImpl"; }
+	static const std::string GetElementName() { return "ILVectorImpl"; }
 
 	/**
 	 * Default constructor

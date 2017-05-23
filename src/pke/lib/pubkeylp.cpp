@@ -19,7 +19,7 @@ bool LPPublicKey<Element>::Serialize(Serialized *serObj) const {
 		return false;
 	}
 
-	SerializeVector<Element>("Vectors", this->GetPublicElements()[0].GetElementName(), this->GetPublicElements(), serObj);
+	SerializeVector<Element>("Vectors", Element::GetElementName(), this->GetPublicElements(), serObj);
 
 	return true;
 }
@@ -37,8 +37,7 @@ bool LPPublicKey<Element>::Deserialize(const Serialized &serObj) {
 		return false;
 	}
 
-	Element tmp;
-	bool ret = DeserializeVector<Element>("Vectors", tmp.GetElementName(), mIt, &this->m_h);
+	bool ret = DeserializeVector<Element>("Vectors", Element::GetElementName(), mIt, &this->m_h);
 
 	return ret;
 }
@@ -53,8 +52,8 @@ bool LPEvalKeyRelin<Element>::Serialize(Serialized *serObj) const {
 		return false;
 	}
 
-	SerializeVector<Element>("AVector", this->m_rKey[0][0].GetElementName(), this->m_rKey[0], serObj);
-	SerializeVector<Element>("BVector", this->m_rKey[1][0].GetElementName(), this->m_rKey[1], serObj);
+	SerializeVector<Element>("AVector", Element::GetElementName(), this->m_rKey[0], serObj);
+	SerializeVector<Element>("BVector", Element::GetElementName(), this->m_rKey[1], serObj);
 
 	return true;
 }
@@ -72,9 +71,8 @@ bool LPEvalKeyRelin<Element>::Deserialize(const Serialized &serObj) {
 		return false;
 	}
 
-	Element tmp;
 	std::vector<Element> deserElem;
-	bool ret = DeserializeVector<Element>("AVector", tmp.GetElementName(), mIt, &deserElem);
+	bool ret = DeserializeVector<Element>("AVector", Element::GetElementName(), mIt, &deserElem);
 	this->m_rKey.push_back(deserElem);
 
 	if( !ret ) return ret;
@@ -85,7 +83,7 @@ bool LPEvalKeyRelin<Element>::Deserialize(const Serialized &serObj) {
 		return false;
 	}
 
-	ret = DeserializeVector<Element>("BVector", tmp.GetElementName(), mIt, &deserElem);
+	ret = DeserializeVector<Element>("BVector", Element::GetElementName(), mIt, &deserElem);
 	this->m_rKey.push_back(deserElem);
 
 	return ret;
@@ -101,7 +99,7 @@ bool LPEvalKeyNTRURelin<Element>::Serialize(Serialized *serObj) const {
 		return false;
 	}
 
-	SerializeVector<Element>("Vectors", this->GetAVector()[0].GetElementName(), this->GetAVector(), serObj);
+	SerializeVector<Element>("Vectors", Element::GetElementName(), this->GetAVector(), serObj);
 
 	return true;
 }
@@ -118,9 +116,8 @@ bool LPEvalKeyNTRURelin<Element>::Deserialize(const Serialized &serObj) {
 		return false;
 	}
 
-	Element tmp;
 	std::vector<Element> newElements;
-	if( DeserializeVector<Element>("Vectors", tmp.GetElementName(), it, &newElements) ) {
+	if( DeserializeVector<Element>("Vectors", Element::GetElementName(), it, &newElements) ) {
 		this->SetAVector(newElements);
 		return true;
 	}
