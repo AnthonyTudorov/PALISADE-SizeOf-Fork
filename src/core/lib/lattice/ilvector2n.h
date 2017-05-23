@@ -546,26 +546,7 @@ public:
 	 * @param &i is the element to perform the automorphism transform with.
 	 * @return is the result of the automorphism transform.
 	 */
-	ILVectorImpl AutomorphismTransform(const usint &i) const;
-
-	void SIAutomorphism(usint k) {
-
-		usint m = this->m_params->GetCyclotomicOrder();
-		usint n = this->m_params->GetRingDimension();
-		const auto &modulus = this->m_params->GetModulus();
-		auto tList = GetTotientList(m);
-		VecType expanded(m, modulus);
-		for (usint i = 0; i < n; i++) {
-			expanded.SetValAtIndex(tList.at(i), m_values->GetValAtIndex(i));
-		}
-
-		for (usint i = 0; i < n; i++) {
-			usint idx = tList.at(i)*k;
-			idx = idx%m;
-			m_values->SetValAtIndex(i, expanded.GetValAtIndex(idx));
-		}
-
-	}
+	ILVectorImpl AutomorphismTransform(const usint &k) const;
 
 	/**
 	 * Interpolates based on the Chinese Remainder Transform Interpolation.

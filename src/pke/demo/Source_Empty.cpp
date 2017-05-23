@@ -57,12 +57,23 @@ void PerformanceTest();
 vector<shared_ptr<Ciphertext<ILVector2n>>> AutomorphCiphertext(vector<shared_ptr<Ciphertext<ILVector2n>>> &ciphertext, usint k);
 std::shared_ptr<LPPrivateKey<ILVector2n>> AutomorphSecretkey(std::shared_ptr<LPPrivateKey<ILVector2n>> sk, usint k);
 
+std::vector<usint> YuriyAutomorphism(const std::vector<usint> &input, usint i);
+
 int main(int argc, char *argv[])
 {
-	PerformanceTest();
+	/*std::vector<usint> input = { 4145365, 15446096, 13914296, 5921598, 4346276, 23277173, 10116835, 5628509, 2463476, 10824166 };
 
+	auto res = YuriyAutomorphism(input, 7);
+
+	for (auto &x : res)
+	std::cout << x << "  ";
+	std::cout << std::endl;*/
+
+	//PerformanceTest();
 
 	//EvalSummation();
+
+	EvalAutomorphism();
 	
 	std::cin.get();
 
@@ -353,7 +364,7 @@ vector<shared_ptr<Ciphertext<ILVector2n>>> AutomorphCiphertext(vector<shared_ptr
 		std::vector<ILVector2n> morphedCipherElements;
 		for (usint elCounter = 0; elCounter < shrCipher->GetElements().size(); elCounter++) {
 			ILVector2n temp(shrCipher->GetElements().at(elCounter));
-			temp.SIAutomorphism(k);
+			temp = temp.AutomorphismTransform(k);
 			morphedCipherElements.push_back(std::move(temp));
 		}
 
@@ -367,7 +378,7 @@ vector<shared_ptr<Ciphertext<ILVector2n>>> AutomorphCiphertext(vector<shared_ptr
 std::shared_ptr<LPPrivateKey<ILVector2n>> AutomorphSecretkey(std::shared_ptr<LPPrivateKey<ILVector2n>> sk, usint k) {
 	std::shared_ptr<LPPrivateKey<ILVector2n>> morphedSK(new LPPrivateKey<ILVector2n>(sk->GetCryptoContext()));
 	ILVector2n morphedSKElement(sk->GetPrivateElement());
-	morphedSKElement.SIAutomorphism(k);
+	morphedSKElement = morphedSKElement.AutomorphismTransform(k);
 	morphedSK->SetPrivateElement(std::move(morphedSKElement));
 
 	return morphedSK;
@@ -417,5 +428,37 @@ void PerformanceTest() {
 	std::cout << "Inverse Transform computation time is :\t" << diff << std::endl;
 
 	std::cout << inputCheck << std::endl;
+}
+
+std::vector<usint> YuriyAutomorphism(const std::vector<usint>& input, usint i)
+{
+	usint m = 22;
+	usint n = 10;
+
+	std::vector<usint> result(n, 0);
+
+	std::vector<usint> totientList = GetTotientList(m);
+	usint totientIndex = totientList[i];
+
+	for (usint k = 0; k < n; k++)
+	{
+		//which power of primitive root unity we should switch to
+		usint newOmegaPower = (totientList[k] * totientIndex) % m;
+		//std::cout << "omegaPower = " << newOmegaPower << std::endl;
+
+		//index in the totient list corresponding to the new omega power
+		size_t p = 0;
+
+		for (p = 0; p < n; p++) {
+			if (newOmegaPower == totientList[p]) {
+				break;
+			}
+		}
+		//std::cout << "p = " << p << std::endl;
+
+		result.at(p) = input.at(k);
+	}
+
+	return result;
 }
 

@@ -512,23 +512,26 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::AutomorphismTransform(const usint &i) const {
+	ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::AutomorphismTransform(const usint &k) const {
 		
-		if (i % 2 == 0)
-			throw std::logic_error("automorphism index should be odd\n");
-		else
-		{
-			ILVectorImpl result(*this);
-			usint m = m_params->GetCyclotomicOrder();
-
-			for (usint j = 1; j < m; j = j + 2)
-			{
-				//usint newIndex = (j*iInverse) % m;
-				usint newIndex = (j*i) % m;
-				result.m_values->SetValAtIndex((newIndex + 1) / 2 - 1, GetValues().GetValAtIndex((j + 1) / 2 - 1));
-			}
-			return result;
+		ILVectorImpl result(*this);
+		usint m = this->m_params->GetCyclotomicOrder();
+		usint n = this->m_params->GetRingDimension();
+		const auto &modulus = this->m_params->GetModulus();
+		auto tList = GetTotientList(m);
+		VecType expanded(m, modulus);
+		for (usint i = 0; i < n; i++) {
+			expanded.SetValAtIndex(tList.at(i), m_values->GetValAtIndex(i));
 		}
+
+		for (usint i = 0; i < n; i++) {
+			usint idx = tList.at(i)*k;
+			idx = idx%m;
+			result.m_values->SetValAtIndex(i, expanded.GetValAtIndex(idx));
+		}
+
+		return result;
+
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
