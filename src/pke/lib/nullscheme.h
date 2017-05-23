@@ -317,8 +317,7 @@ public:
 	* @param *plaintext the plaintext output.
 	* @return the success/fail result
 	*/
-	DecryptResult FusionDecrypt(const shared_ptr<Ciphertext<Element>> ciphertext1,
-		const shared_ptr<Ciphertext<Element>> ciphertext2,
+	DecryptResult FusionDecrypt(const vector<shared_ptr<Ciphertext<Element>>>& ciphertextVec,
 		ILVector2n *plaintext) const {
 		std::string errMsg = "LPAlgorithmPREBV::FusionDecrypt is not implemented for the Null Scheme.";
 		throw std::runtime_error(errMsg);

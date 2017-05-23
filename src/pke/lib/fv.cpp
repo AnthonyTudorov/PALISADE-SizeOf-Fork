@@ -813,19 +813,23 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmMultipartyFV<Element>::FusionDecryptM
 }
 
 template <class Element>
-DecryptResult LPAlgorithmMultipartyFV<Element>::FusionDecrypt(const shared_ptr<Ciphertext<Element>> ciphertext1,
-		const shared_ptr<Ciphertext<Element>> ciphertext2,
+DecryptResult LPAlgorithmMultipartyFV<Element>::FusionDecrypt(const vector<shared_ptr<Ciphertext<Element>>>& ciphertextVec,
 		ILVector2n *plaintext) const
 {
-	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = ciphertext1->GetCryptoParameters();
+
+	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = ciphertextVec[0]->GetCryptoParameters();
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 	const BigBinaryInteger &q = elementParams->GetModulus();
 
-	const std::vector<Element> &c1 = ciphertext1->GetElements();
-	const std::vector<Element> &c2 = ciphertext2->GetElements();
+	const std::vector<Element> &cElem = ciphertextVec[0]->GetElements();
+	Element b = cElem[0];
 
-	Element b = c1[0] + c2[0];
+	int numCipher = ciphertextVec.size();
+	for( int i = 1; i < numCipher; i++ ) {
+		const std::vector<Element> &c2 = ciphertextVec[i]->GetElements();
+		b += c2[0];
+	}
 	
 	Element ans = b.MultiplyAndRound(p, q).SignedMod(p);
 	*plaintext = ans.CRTInterpolate();

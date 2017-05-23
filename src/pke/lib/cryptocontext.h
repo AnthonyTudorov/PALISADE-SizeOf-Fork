@@ -288,25 +288,40 @@ public:
 		bool doPadding = true) const
 	{
 
-		std::vector<shared_ptr<Ciphertext<Element>>> ciphertext1 = partialCiphertextVec[0];
-		std::vector<shared_ptr<Ciphertext<Element>>> ciphertext2 = partialCiphertextVec[1];
-
-		// edge case
-		if (ciphertext1.size() == 0 || ciphertext2.size() == 0 || ciphertext1.size() != ciphertext1.size())
+		//Make sure we're processing ciphertexts.
+		int last_ciphertext = partialCiphertextVec.size();
+		if (last_ciphertext <= 1 )
 			return DecryptResult();
 
-		int lastone = ciphertext1.size() - 1;
-		for( int ch = 0; ch < ciphertext1.size(); ch++ ) {
-			if( ciphertext1[ch] == NULL || ciphertext1[ch]->GetCryptoContext() != *this || ciphertext2[ch] == NULL || ciphertext2[ch]->GetCryptoContext() != *this )
-				throw std::logic_error("A ciphertext passed to Decrypt was not generated with this crypto context");
+		//Make sure ciphertexts are of non-zero length and that they'r eof the same length/
+		int ciphertext_size = partialCiphertextVec[0].size();
+		for( int i = 0; i < last_ciphertext; i++ ) {
+			std::vector<shared_ptr<Ciphertext<Element>>> ciphertext = partialCiphertextVec[i];
+			// edge case
+			if (ciphertext.size() == 0 || ciphertext.size() != ciphertext_size)
+				return DecryptResult();
+		}
+
+		int lastone = partialCiphertextVec[0].size() - 1;
+		for( int ch = 0; ch < ciphertext_size; ch++ ) {
+
+			vector<shared_ptr<Ciphertext<Element>>> ciphertextVec;
+
+			for( int i = 0; i < last_ciphertext; i++ ) {
+				std::vector<shared_ptr<Ciphertext<Element>>> ciphertext = partialCiphertextVec[i];
+				// edge case
+				if (ciphertext[ch] == NULL || ciphertext[ch]->GetCryptoContext() != *this)
+					throw std::logic_error("A ciphertext passed to Decrypt was not generated with this crypto context");
+				ciphertextVec.push_back(ciphertext[ch]);
+			}
 
 			ILVector2n decrypted;
-			DecryptResult result = GetEncryptionAlgorithm()->FusionDecrypt(ciphertext1[ch], ciphertext2[ch], &decrypted);
+			DecryptResult result = GetEncryptionAlgorithm()->FusionDecrypt(ciphertextVec, &decrypted);
 
 			if (result.isValid == false) return result;
-			plaintext->Decode(ciphertext1[ch]->GetCryptoParameters()->GetPlaintextModulus(), &decrypted);
+			plaintext->Decode(ciphertextVec[0]->GetCryptoParameters()->GetPlaintextModulus(), &decrypted);
 			if (ch == lastone && doPadding) {
-				plaintext->Unpad(ciphertext1[ch]->GetCryptoParameters()->GetPlaintextModulus());
+				plaintext->Unpad(ciphertextVec[0]->GetCryptoParameters()->GetPlaintextModulus());
 			}
 		}
 

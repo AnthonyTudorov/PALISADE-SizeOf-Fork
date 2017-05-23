@@ -1117,8 +1117,7 @@ namespace lbcrypto {
 			 * @param *plaintext the plaintext output.
 			 * @return the decoding result.
 			 */
-			virtual DecryptResult FusionDecrypt(const shared_ptr<Ciphertext<Element>> ciphertext1,
-				const shared_ptr<Ciphertext<Element>> ciphertext2,
+			virtual DecryptResult FusionDecrypt(const vector<shared_ptr<Ciphertext<Element>>>& ciphertextVec,
 				ILVector2n *plaintext) const = 0;
 
 	};
@@ -1598,11 +1597,10 @@ namespace lbcrypto {
 				}
 		}
 
-		DecryptResult FusionDecrypt(const shared_ptr<Ciphertext<Element>> ciphertext1,
-				const shared_ptr<Ciphertext<Element>> ciphertext2,
+		DecryptResult FusionDecrypt(const vector<shared_ptr<Ciphertext<Element>>>& ciphertextVec,
 				ILVector2n *plaintext) const {
 				if(this->m_algorithmMultiparty)
-					return this->m_algorithmMultiparty->FusionDecrypt(ciphertext1,ciphertext2,plaintext);
+					return this->m_algorithmMultiparty->FusionDecrypt(ciphertextVec,plaintext);
 				else {
 					throw std::logic_error("FusionDecrypt operation has not been enabled");
 				}

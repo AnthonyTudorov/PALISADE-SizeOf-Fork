@@ -588,8 +588,7 @@ namespace lbcrypto {
 		* @param *plaintext the plaintext output.
 		* @return the decrypted plaintext returned.
 		*/
-		DecryptResult FusionDecrypt(const shared_ptr<Ciphertext<Element>> ciphertext1,
-			const shared_ptr<Ciphertext<Element>> ciphertext2,
+		DecryptResult FusionDecrypt(const vector<shared_ptr<Ciphertext<Element>>>& ciphertextVec,
 			ILVector2n *plaintext) const;
 
 	};
