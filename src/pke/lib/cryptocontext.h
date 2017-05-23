@@ -281,11 +281,16 @@ public:
 	* @return size of plaintext
 	*/
 	DecryptResult FusionDecrypt(
-		const std::vector<shared_ptr<Ciphertext<Element>>>& ciphertext1,
-		const std::vector<shared_ptr<Ciphertext<Element>>>& ciphertext2,
+		const std::vector<vector<shared_ptr<Ciphertext<Element>>>>& partialCiphertextVec,
+//		const std::vector<shared_ptr<Ciphertext<Element>>>& ciphertext1,
+//		const std::vector<shared_ptr<Ciphertext<Element>>>& ciphertext2,
 		Plaintext *plaintext,
 		bool doPadding = true) const
 	{
+
+		std::vector<shared_ptr<Ciphertext<Element>>> ciphertext1 = partialCiphertextVec[0];
+		std::vector<shared_ptr<Ciphertext<Element>>> ciphertext2 = partialCiphertextVec[1];
+
 		// edge case
 		if (ciphertext1.size() == 0 || ciphertext2.size() == 0 || ciphertext1.size() != ciphertext1.size())
 			return DecryptResult();
