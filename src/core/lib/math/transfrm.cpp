@@ -266,17 +266,8 @@ VecType ChineseRemainderTransform<IntType,VecType>::ForwardTransform(const VecTy
 		OpFFT = NumberTheoreticTransform<IntType,VecType>::GetInstance().ForwardTransformIterative(InputToFFT, *m_rootOfUnityTable, CycloOrder);
 	}
 	else {
-
-		//auto start = std::chrono::steady_clock::now();
-
 		OpFFT = NumberTheoreticTransform<IntType,VecType>::GetInstance().ForwardTransformIterative(InputToFFT, *m_rootOfUnityTable, CycloOrder);
 
-		/*auto end = std::chrono::steady_clock::now();
-
-			auto diff = end - start;
-
-			std::cout << std::chrono::duration <double, std::milli> (diff).count() << " ms" << std::endl;
-			system("pause");*/
 	}
 
 	VecType ans(CycloOrder / 2);
@@ -541,7 +532,6 @@ void ChineseRemainderTransformFTT<IntType,VecType>::PreCompute(std::vector<IntTy
 
 	if (numOfRootU != numModulii) {
 		throw std::logic_error("size of root of unity and size of moduli chain not of same size");
-		system("pause");
 	}
 
 	for (usint i = numOfRootU; i<numOfRootU; ++i) {
