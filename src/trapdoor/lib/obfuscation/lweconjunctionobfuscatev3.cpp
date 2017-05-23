@@ -702,7 +702,7 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::EvaluateACS(
 	TIC(t1);
 
 	usint l = obfuscatedPattern.GetLength();
-	usint n = obfuscatedPattern.GetRingDimension();
+	//usint n = obfuscatedPattern.GetRingDimension();
 	BigBinaryInteger q(obfuscatedPattern.GetModulus());
 	usint m = obfuscatedPattern.GetLogModulus() + 2;
 	usint chunkSize = obfuscatedPattern.GetChunkSize();
@@ -822,7 +822,7 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 	TIC(t1);
 
 	usint l = obfuscatedPattern.GetLength();
-	usint n = obfuscatedPattern.GetRingDimension();
+	//usint n = obfuscatedPattern.GetRingDimension();
 	BigBinaryInteger q(obfuscatedPattern.GetModulus());
 	usint m = obfuscatedPattern.GetLogModulus() + 2;
 	usint chunkSize = obfuscatedPattern.GetChunkSize();
