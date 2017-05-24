@@ -81,7 +81,7 @@ shared_ptr<ILParams> GenSinglePrimeParams(int sc) {
 
 static const usint smbits = 28;
 
-shared_ptr<ILVectorArray2n::Params> GenDCRTParams(int sc) {
+shared_ptr<ILDCRTParams<BigBinaryInteger>> GenDCRTParams(int sc) {
 	usint m = Scenarios[sc].m;
 	usint nTowers = Scenarios[sc].bits/smbits;
 
@@ -101,7 +101,7 @@ shared_ptr<ILVectorArray2n::Params> GenDCRTParams(int sc) {
 
 	}
 
-	return shared_ptr<ILVectorArray2n::Params>( new ILVectorArray2n::Params(m, moduli, rootsOfUnity) );
+	return shared_ptr<ILDCRTParams<BigBinaryInteger>>( new ILDCRTParams<BigBinaryInteger>(m, moduli, rootsOfUnity) );
 }
 
 void MakeTestPolynomial(int sc, ILVector2n& elem) {
@@ -115,7 +115,7 @@ void MakeTestPolynomial(int sc, ILVector2n& elem) {
 void CRTComposeTest() {
 	for( int i=0; i<2; i++ ) {
 		std::cout << "Case " << i << " m=" << Scenarios[i].m << " bits=" << Scenarios[i].bits << std::endl;
-		shared_ptr<ILVectorArray2n::Params> dcparm = GenDCRTParams(i);
+		shared_ptr<ILDCRTParams<BigBinaryInteger>> dcparm = GenDCRTParams(i);
 		shared_ptr<ILParams> tvp( new ILParams(dcparm->GetCyclotomicOrder(), dcparm->GetModulus(), BigBinaryInteger::ONE) );
 		ILVector2n tVec(tvp);
 		MakeTestPolynomial(i, tVec);
@@ -160,7 +160,7 @@ void SwitchFormatTest(bool runsmall, bool runbig) {
 		}
 
 		if( runsmall ) {
-			shared_ptr<ILVectorArray2n::Params> dcparm = GenDCRTParams(i);
+			shared_ptr<ILDCRTParams<BigBinaryInteger>> dcparm = GenDCRTParams(i);
 			shared_ptr<ILParams> tvp( new ILParams(dcparm->GetCyclotomicOrder(), dcparm->GetModulus(), BigBinaryInteger::ONE) );
 			ILVector2n tVec(tvp);
 			MakeTestPolynomial(i, tVec);
@@ -211,7 +211,7 @@ void EvalMultTest(bool runsmall, bool runbig) {
 		}
 
 		if( runsmall ) {
-			shared_ptr<ILVectorArray2n::Params> dcparm = GenDCRTParams(i);
+			shared_ptr<ILDCRTParams<BigBinaryInteger>> dcparm = GenDCRTParams(i);
 			shared_ptr<ILParams> tvp( new ILParams(dcparm->GetCyclotomicOrder(), dcparm->GetModulus(), BigBinaryInteger::ONE) );
 			CryptoContext<ILDCRT2n> cc2 = CryptoContextFactory<ILDCRT2n>::genCryptoContextBV(dcparm, 16, 16, 4.0);
 			cc2.Enable(ENCRYPTION);
@@ -259,7 +259,7 @@ void MultiplyTest(bool runsmall, bool runbig) {
 		}
 
 		if( runbig ) {
-			shared_ptr<ILVectorArray2n::Params> dcparm = GenDCRTParams(i);
+			shared_ptr<ILDCRTParams<BigBinaryInteger>> dcparm = GenDCRTParams(i);
 			shared_ptr<ILParams> tvp( new ILParams(dcparm->GetCyclotomicOrder(), dcparm->GetModulus(), BigBinaryInteger::ONE) );
 			ILVector2n tVec1(tvp);
 			ILVector2n tVec2(tvp);
@@ -363,7 +363,7 @@ void NTRU_DCRT() {
 	float stdDev = 4;
 
 
-	shared_ptr<ILVectorArray2n::Params> params = GenDCRTParams(0);
+	shared_ptr<ILDCRTParams<BigBinaryInteger>> params = GenDCRTParams(0);
 	cout << "big modulus: " << params->GetModulus() << endl;
 
 	CryptoContext<ILDCRT2n> cc = CryptoContextFactory<ILDCRT2n>::genCryptoContextLTV(params, ptm, relinWindow, stdDev);
@@ -506,7 +506,7 @@ void TestParameterSelection(){
 
 	cout << "big modulus: " << modulus << endl;
 
-	shared_ptr<ILVectorArray2n::Params> params( new ILVectorArray2n::Params(m, moduli, rootsOfUnity) );
+	shared_ptr<ILDCRTParams<BigBinaryInteger>> params( new ILDCRTParams<BigBinaryInteger>(m, moduli, rootsOfUnity) );
 
 	LPCryptoParametersLTV<ILDCRT2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(ptm);
@@ -526,7 +526,7 @@ void TestParameterSelection(){
 	cout << "parameter selection test" << endl;
 	cout << cryptoParams2.GetAssuranceMeasure() << endl;
 
-	const shared_ptr<ILDCRTParams> dcrtParams = std::static_pointer_cast<ILDCRTParams>(cryptoParams2.GetElementParams());
+	const shared_ptr<ILDCRTParams<BigBinaryInteger>> dcrtParams = std::static_pointer_cast<ILDCRTParams<BigBinaryInteger>>(cryptoParams2.GetElementParams());
 	const std::vector<shared_ptr<native_int::ILParams>>& allparams = dcrtParams->GetParams();
 
 	for(usint i =0; i < allparams.size();i++){
@@ -564,7 +564,7 @@ void FinalLeveledComputation(){
 
 	cout << "big modulus: " << modulus << endl;
 
-	shared_ptr<ILVectorArray2n::Params> params( new ILVectorArray2n::Params(m, moduli, rootsOfUnity) );
+	shared_ptr<ILDCRTParams<BigBinaryInteger>> params( new ILDCRTParams<BigBinaryInteger>(m, moduli, rootsOfUnity) );
 
 	std::vector<BigBinaryInteger> moduliV(size);
 	LPCryptoParametersLTV<ILDCRT2n> finalParams;
@@ -585,7 +585,7 @@ void FinalLeveledComputation(){
 	//Generate the secret keys for the levels
 	std::vector< LPKeyPair<ILDCRT2n> > levelPairs(finalParams.GetDepth());
 
-	std::vector< shared_ptr<ILVectorArray2n::Params> > leveledDcrtParams;
+	std::vector< shared_ptr<ILDCRTParams<BigBinaryInteger>> > leveledDcrtParams;
 	leveledDcrtParams.reserve(finalParams.GetDepth()+1);
 	std::vector< LPCryptoParametersLTV<ILDCRT2n> > leveledCryptoParams;
 	leveledCryptoParams.reserve(finalParams.GetDepth()+1);
@@ -683,7 +683,7 @@ void ComposedEvalMultTest(){
 		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
 	}
 
-	shared_ptr<ILDCRTParams> params( new ILDCRTParams(m, moduli, rootsOfUnity) );
+	shared_ptr<ILDCRTParams<BigBinaryInteger>> params( new ILDCRTParams<BigBinaryInteger>(m, moduli, rootsOfUnity) );
 
 	// FIXME use the parm selection method when it works
 	CryptoContext<ILDCRT2n> cc = CryptoContextFactory<ILDCRT2n>::genCryptoContextLTV(params, ptm, relinWindow, init_stdDev, size-1, 6, 1.006);
@@ -705,8 +705,8 @@ void ComposedEvalMultTest(){
 //	//Generating new cryptoparameters for when modulus reduction is done.
 //	LPCryptoParametersLTV<ILDCRT2n> finalParamsTwoTowers(finalParamsThreeTowers);
 //
-//	const shared_ptr<ILVectorArray2n::Params> dcrtParams2 = std::static_pointer_cast<ILVectorArray2n::Params>(finalParamsThreeTowers.GetElementParams());
-//	shared_ptr<ILVectorArray2n::Params> finalDcrtParamsTwoTowers( new ILVectorArray2n::Params(*dcrtParams2) );
+//	const shared_ptr<ILDCRTParams<BigBinaryInteger>> dcrtParams2 = std::static_pointer_cast<ILDCRTParams<BigBinaryInteger>>(finalParamsThreeTowers.GetElementParams());
+//	shared_ptr<ILDCRTParams<BigBinaryInteger>> finalDcrtParamsTwoTowers( new ILDCRTParams<BigBinaryInteger>(*dcrtParams2) );
 //	finalDcrtParamsTwoTowers->PopLastParam();
 //	finalParamsTwoTowers.SetElementParams(finalDcrtParamsTwoTowers);
 //

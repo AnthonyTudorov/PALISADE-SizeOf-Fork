@@ -75,7 +75,7 @@ static shared_ptr<ILParams> generate_IL_parms(int s) {
 
 static const usint smbits = 28;
 
-static shared_ptr<ILDCRTParams> generate_DCRT_parms(int s) {
+static shared_ptr<ILDCRTParams<BigBinaryInteger>> generate_DCRT_parms(int s) {
 	usint nTowers = Scenarios[s].bits/smbits;
 
 	vector<native_int::BigBinaryInteger> moduli(nTowers);
@@ -94,12 +94,12 @@ static shared_ptr<ILDCRTParams> generate_DCRT_parms(int s) {
 
 	}
 
-	return shared_ptr<ILDCRTParams>( new ILDCRTParams(Scenarios[s].m, moduli, rootsOfUnity) );
+	return shared_ptr<ILDCRTParams<BigBinaryInteger>>( new ILDCRTParams<BigBinaryInteger>(Scenarios[s].m, moduli, rootsOfUnity) );
 }
 
 // statically construct 'em
 vector<shared_ptr<ILParams>> vparms = { generate_IL_parms(0), generate_IL_parms(1) };
-vector<shared_ptr<ILDCRTParams>> vaparms = { generate_DCRT_parms(0), generate_DCRT_parms(1) };
+vector<shared_ptr<ILDCRTParams<BigBinaryInteger>>> vaparms = { generate_DCRT_parms(0), generate_DCRT_parms(1) };
 
 template <class E>
 static void make_LATTICE_empty(shared_ptr<typename E::Params>& params) {
@@ -128,7 +128,7 @@ static E makeElement(shared_ptr<ILParams> params) {
 }
 
 template <class E>
-static E makeElement(shared_ptr<ILDCRTParams> p) {
+static E makeElement(shared_ptr<ILDCRTParams<BigBinaryInteger>> p) {
 	shared_ptr<ILParams> params( new ILParams( p->GetCyclotomicOrder(), p->GetModulus(), BigBinaryInteger::ONE) );
 	BigBinaryVector vec = makeVector(params);
 

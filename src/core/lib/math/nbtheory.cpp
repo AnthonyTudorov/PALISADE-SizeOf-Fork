@@ -75,9 +75,9 @@ template std::vector<native_int::BigBinaryInteger> RootsOfUnity(usint m, const s
 template native_int::BigBinaryInteger GreatestCommonDivisor(const native_int::BigBinaryInteger& a, const native_int::BigBinaryInteger& b);
   template bool MillerRabinPrimalityTest(const native_int::BigBinaryInteger& p, const usint niter);
 template const native_int::BigBinaryInteger PollardRhoFactorization(const native_int::BigBinaryInteger &n);
-template void PrimeFactorize( native_int::BigBinaryInteger &n, std::set<native_int::BigBinaryInteger> &primeFactors);
+template void PrimeFactorize( native_int::BigBinaryInteger n, std::set<native_int::BigBinaryInteger> &primeFactors);
 template native_int::BigBinaryInteger FindPrimeModulus(usint m, usint nBits);
-template void NextQ(native_int::BigBinaryInteger &q, const native_int::BigBinaryInteger &plainTextModulus, const usint &ringDimension, const native_int::BigBinaryInteger &sigma, const native_int::BigBinaryInteger &alpha);
+template void NextQ(native_int::BigBinaryInteger &q, const native_int::BigBinaryInteger &plainTextModulus, const usint cyclotomicOrder, const native_int::BigBinaryInteger &sigma, const native_int::BigBinaryInteger &alpha);
 #endif
 }
 
@@ -680,12 +680,12 @@ IntType NextPowerOfTwo(const IntType &n) {
 
 uint64_t GetTotient(const uint64_t n) {
 
-	std::set<native64::BigBinaryInteger> factors;
-	native64::BigBinaryInteger enn(n);
+	std::set<native_int::BigBinaryInteger> factors;
+	native_int::BigBinaryInteger enn(n);
 	PrimeFactorize(enn, factors);
 
-	native64::BigBinaryInteger primeProd(1);
-	native64::BigBinaryInteger numerator(1);
+	native_int::BigBinaryInteger primeProd(1);
+	native_int::BigBinaryInteger numerator(1);
 	for (auto &r : factors) {
 		numerator = numerator * (r - 1);
 		primeProd = primeProd * r;

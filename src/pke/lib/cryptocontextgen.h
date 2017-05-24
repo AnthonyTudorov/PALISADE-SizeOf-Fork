@@ -28,7 +28,7 @@ inline CryptoContext<ILVector2n> GenCryptoContextElementNull(usint ORDER, usint 
 }
 
 inline CryptoContext<ILDCRT2n> GenCryptoContextElementArrayNull(usint ORDER, usint ntowers, usint ptm, usint bits=PrimeBits) {
-	shared_ptr<ILDCRT2n::Params> p = GenerateDCRTParams(ORDER, ntowers, bits);
+	shared_ptr<ILDCRT2n::Params> p = GenerateDCRTParams(ORDER, ptm, ntowers, bits);
 
 	CryptoContext<ILDCRT2n> cc = CryptoContextFactory<ILDCRT2n>::genCryptoContextNull(p, ptm);
 	cc.Enable(ENCRYPTION);
@@ -50,7 +50,7 @@ inline CryptoContext<ILVector2n> GenCryptoContextElementLTV(usint ORDER, usint p
 }
 
 inline CryptoContext<ILDCRT2n> GenCryptoContextElementArrayLTV(usint ORDER, usint ntowers, usint ptm, usint bits=PrimeBits) {
-	shared_ptr<ILDCRT2n::Params> p = GenerateDCRTParams(ORDER, ntowers, bits);
+	shared_ptr<ILDCRT2n::Params> p = GenerateDCRTParams(ORDER, ptm, ntowers, bits);
 
 	CryptoContext<ILDCRT2n> cc = CryptoContextFactory<ILDCRT2n>::genCryptoContextLTV(p, ptm, 1, 4, ntowers);
 	cc.Enable(ENCRYPTION);
@@ -72,7 +72,7 @@ inline CryptoContext<ILVector2n> GenCryptoContextElementStSt(usint ORDER, usint 
 }
 
 inline CryptoContext<ILDCRT2n> GenCryptoContextElementArrayStSt(usint ORDER, usint ntowers, usint ptm, usint bits=PrimeBits) {
-	shared_ptr<ILDCRT2n::Params> p = GenerateDCRTParams(ORDER, ntowers, bits);
+	shared_ptr<ILDCRT2n::Params> p = GenerateDCRTParams(ORDER, ptm, ntowers, bits);
 
 	CryptoContext<ILDCRT2n> cc = CryptoContextFactory<ILDCRT2n>::genCryptoContextStehleSteinfeld(p, ptm, 1, 4, 41411.5, ntowers);
 	cc.Enable(ENCRYPTION);
@@ -94,7 +94,7 @@ inline CryptoContext<ILVector2n> GenCryptoContextElementBV(usint ORDER, usint pt
 }
 
 inline CryptoContext<ILDCRT2n> GenCryptoContextElementArrayBV(usint ORDER, usint ntowers, usint ptm, usint bits=PrimeBits) {
-	shared_ptr<ILDCRT2n::Params> p = GenerateDCRTParams(ORDER, ntowers, bits);
+	shared_ptr<ILDCRT2n::Params> p = GenerateDCRTParams(ORDER, ptm, ntowers, bits);
 
 	CryptoContext<ILDCRT2n> cc = CryptoContextFactory<ILDCRT2n>::genCryptoContextBV(p, ptm, 1, 3, RLWE, ntowers);
 	cc.Enable(ENCRYPTION);
