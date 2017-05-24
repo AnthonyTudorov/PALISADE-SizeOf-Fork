@@ -55,6 +55,37 @@ BigBinaryVectorImpl<IntegerType>::BigBinaryVectorImpl(usint length, const Intege
 }
 
 template<class IntegerType>
+BigBinaryVectorImpl<IntegerType>::BigBinaryVectorImpl(usint length, const IntegerType& modulus, std::initializer_list<usint> rhs){
+	this->m_length = length;
+	this->m_modulus = modulus;
+	this->m_data = new IntegerType[m_length] ();
+	usint len = rhs.size();
+	for (usint i=0;i<m_length;i++){ // this loops over each entry
+		if(i<len) {
+			m_data[i] =  IntegerType(*(rhs.begin()+i));  
+		} else {
+			m_data[i] = IntegerType::ZERO;
+		}
+	}
+
+}
+
+template<class IntegerType>
+BigBinaryVectorImpl<IntegerType>::BigBinaryVectorImpl(usint length, const IntegerType& modulus, std::initializer_list<std::string> rhs){
+	this->m_length = length;
+	this->m_modulus = modulus;
+	this->m_data = new IntegerType[m_length] ();
+	usint len = rhs.size();
+	for(usint i=0;i<m_length;i++){ // this loops over each entry
+		if(i<len) {
+			m_data[i] =  IntegerType(*(rhs.begin()+i));  
+		} else {
+			m_data[i] = IntegerType::ZERO;
+		}
+	}
+}
+
+template<class IntegerType>
 BigBinaryVectorImpl<IntegerType>::BigBinaryVectorImpl(const BigBinaryVectorImpl &bigBinaryVector){
 
 	m_length = bigBinaryVector.m_length;
@@ -118,12 +149,12 @@ const BigBinaryVectorImpl<IntegerType>& BigBinaryVectorImpl<IntegerType>::operat
         bool dbg_flag = false;
 	usint len = rhs.size();
 	for(usint i=0;i<m_length;i++){ // this loops over each tower
-		if(i<len) {
+	        if(i<len) {
 			m_data[i] =  IntegerType(*(rhs.begin()+i));  
 		        DEBUG("in op= i.l. m_data["<<i<<"] = "<<m_data[i]);
 		} else {
 			m_data[i] = IntegerType::ZERO;
-		        DEBUG("in op= i.l. m_data["<<i<<"] = "<<m_data[i]);		}
+		        DEBUG("in op= i.l. m_data["<<i<<"] = "<<m_data[i]);		        }
 	}
 
 	return *this;

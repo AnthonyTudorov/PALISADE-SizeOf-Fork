@@ -74,6 +74,7 @@ namespace exp_int {
     m_modulus_state = GARBAGE;
     DEBUG("mubintvec ctor(usint length)"<<length);
   }
+
   // Basic constructor for specifying the length of the vector and modulus.
   template<class ubint_el_t>
   mubintvec<ubint_el_t>::mubintvec(const usint length, const usint &modulus){
@@ -89,6 +90,7 @@ namespace exp_int {
     DEBUG("mubintvec CTOR( length "<<length<< " modulus usint) "<<modulus);
   }
 
+  
   // Basic constructor for specifying the length of the vector and modulus.
   template<class ubint_el_t>
   mubintvec<ubint_el_t>::mubintvec(const usint length, const ubint_el_t &modulus){
@@ -96,6 +98,50 @@ namespace exp_int {
     this->m_data.resize(length);
     for (usint i = 0; i < length; i++){
       this->m_data[i] = ubint_el_t::ZERO;
+    }
+    m_modulus = modulus;
+    m_modulus_state = INITIALIZED;
+    this->Mod(modulus);
+
+    DEBUG("mubintvec CTOR( length "<<length<< " modulus ubint_el_t) "<<modulus);
+  }
+
+  
+  // Basic constructor for specifying the length of the vector and modulus with initializer list of usint
+
+  template<class ubint_el_t>
+  mubintvec<ubint_el_t>::mubintvec(const usint length, const ubint_el_t &modulus, std::initializer_list<usint>rhs){
+    bool dbg_flag = false;
+    this->m_data.resize(length);
+    
+    usint len = rhs.size();
+    for (usint i=0;i<length;i++){ // this loops over each entry
+      if(i<len) {
+	this->m_data[i] =  ubint_el_t(*(rhs.begin()+i));  
+      } else {
+	this->m_data[i] = ubint_el_t(0);
+      }
+    }
+    m_modulus = modulus;
+    m_modulus_state = INITIALIZED;
+    this->Mod(modulus);
+    DEBUG("mubintvec CTOR (length "<<length<< " modulus ubint) "<<modulus.ToString());
+  }
+
+  // Basic constructor for specifying the length of the vector and modulus with initializer list of strings
+
+  template<class ubint_el_t>
+  mubintvec<ubint_el_t>::mubintvec(const usint length, const ubint_el_t &modulus, std::initializer_list<std::string>rhs){
+    bool dbg_flag = false;
+    this->m_data.resize(length);
+    
+    usint len = rhs.size();
+    for (usint i=0;i<length;i++){ // this loops over each entry
+      if(i<len) {
+	this->m_data[i] =  ubint_el_t(*(rhs.begin()+i));  
+      } else {
+	this->m_data[i] = ubint_el_t(0);
+      }
     }
     m_modulus = modulus;
     m_modulus_state = INITIALIZED;

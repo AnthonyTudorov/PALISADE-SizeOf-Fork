@@ -82,7 +82,6 @@ Compares two integer values
 /* 	The method "Mod" operates on BigBinary Vector m, BigBinary Integer q
   	Returns:  m mod q, and the result is stored in BigBinary Vector calculatedResult.
 */
-
 TEST(UTBinVect, SetModulusTest){
 
 	BigBinaryVector m(10);
@@ -110,6 +109,35 @@ TEST(UTBinVect, SetModulusTest){
 		EXPECT_EQ (expectedResult[i], (calculatedResult.GetValAtIndex(i)).ConvertToInt());
 	}
 
+}
+
+TEST(UTBinVect, CTOR_Test){
+  const usint len  = 10;
+  BigBinaryInteger q("233");
+  int expectedResult[10] = {48,53,7,178,190,120,79,108,60,12};
+
+  {
+    BigBinaryVector m(len, q, 
+		    {"987968","587679","456454","234343",
+			"769789","465654","79","346346",
+			"325328","7698798"});	
+
+    BigBinaryVector calculatedResult = m.Mod(q);
+
+
+    for (usint i=0;i<len;i++){
+      EXPECT_EQ (expectedResult[i], (calculatedResult.GetValAtIndex(i)).ConvertToInt());
+    }
+  }
+
+  {
+    BigBinaryVector m(len, q,  {48,53,7,178,190,120,79,108,60,12});
+
+    for (usint i=0;i<len;i++){
+      EXPECT_EQ (expectedResult[i], m.GetValAtIndex(i).ConvertToInt());
+    }
+
+  }
 }
 
 
