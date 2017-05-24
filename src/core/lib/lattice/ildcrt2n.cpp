@@ -160,7 +160,7 @@ namespace lbcrypto {
 
 		for(usint i = 0; i < vecSize; i++){
 			
-			native64::BigBinaryVector ilDggValues(dcrtParams->GetRingDimension(), dcrtParams->GetParams()[i]->GetModulus());
+			native_int::BigBinaryVector ilDggValues(dcrtParams->GetRingDimension(), dcrtParams->GetParams()[i]->GetModulus());
 
 			for(usint j = 0; j < dcrtParams->GetRingDimension(); j++){
 				uint64_t	entry;
@@ -198,7 +198,7 @@ namespace lbcrypto {
 		for (usint i = 0; i < numberOfTowers; i++) {
 
 			dug.SetModulus(dcrtParams->GetParams()[i]->GetModulus());
-			native64::BigBinaryVector vals(dug.GenerateVector(dcrtParams->GetRingDimension()));
+			native_int::BigBinaryVector vals(dug.GenerateVector(dcrtParams->GetRingDimension()));
 			ILVectorType ilvector(dcrtParams->GetParams()[i]);
 
 			ilvector.SetValues(vals, Format::COEFFICIENT); // the random values are set in coefficient format
@@ -493,7 +493,7 @@ namespace lbcrypto {
 		}
 		else{
 			for(usint i=0;i<m_vectors.size();i++){
-				native64::BigBinaryVector temp(m_params->GetRingDimension());
+				native_int::BigBinaryVector temp(m_params->GetRingDimension());
 				temp.SetModulus(m_vectors.at(i).GetModulus());
 				temp = rhs;
 				m_vectors.at(i).SetValues(std::move(temp),m_format);
@@ -621,7 +621,7 @@ namespace lbcrypto {
 		}
 
 		// the individual vectors parms have changed, so change the DCRT parms
-		std::vector<std::shared_ptr<native64::ILParams>> vparms(m_vectors.size());
+		std::vector<std::shared_ptr<native_int::ILParams>> vparms(m_vectors.size());
 		for( size_t i = 0; i < m_vectors.size(); i++)
 			vparms[i] = m_vectors[i].GetParams();
 		m_params.reset( new ParmType(vparms[0]->GetCyclotomicOrder(), vparms) );

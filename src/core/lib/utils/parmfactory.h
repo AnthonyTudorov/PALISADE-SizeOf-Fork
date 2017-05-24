@@ -44,7 +44,7 @@ inline shared_ptr<Params> GenerateTestParams(usint m, usint nbits) {
  * @param pbits - number of bits in the prime, to start with
  * @return
  */
-inline shared_ptr<ILVectorArray2n::Params> GenerateDCRTParams(usint m, usint ptm, usint numOfTower, usint pbits) {
+inline shared_ptr<ILDCRTParams<BigBinaryInteger>> GenerateDCRTParams(usint m, usint ptm, usint numOfTower, usint pbits) {
 
 	if( numOfTower == 0 )
 		throw std::logic_error("Can't make parms with numOfTower == 0 ");
@@ -69,7 +69,7 @@ inline shared_ptr<ILVectorArray2n::Params> GenerateDCRTParams(usint m, usint ptm
 		lbcrypto::NextQ(q, ptmI, m, native64::BigBinaryInteger(4), native64::BigBinaryInteger(4));
 	}
 
-	shared_ptr<ILDCRTParams> params(new ILVectorArray2n::Params(m, moduli, rootsOfUnity));
+	shared_ptr<ILDCRTParams<BigBinaryInteger>> params(new ILDCRTParams<BigBinaryInteger>(m, moduli, rootsOfUnity));
 
 	return params;
 }

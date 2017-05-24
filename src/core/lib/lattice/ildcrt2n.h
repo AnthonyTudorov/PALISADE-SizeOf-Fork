@@ -644,7 +644,7 @@ namespace lbcrypto {
 
 namespace lbcrypto {
 
-typedef ILDCRTImpl<BigBinaryInteger, BigBinaryInteger, BigBinaryVector, ILDCRTParams> ILDCRT2n;
+typedef ILDCRTImpl<BigBinaryInteger, BigBinaryInteger, BigBinaryVector, ILDCRTParams<BigBinaryInteger>> ILDCRT2n;
 
 }
 

@@ -164,7 +164,7 @@ TEST(UTSer,ilparams_test) {
 
 
 TEST(UTSer,ildcrtparams_test) {
-	shared_ptr<ILDCRTParams> p = GenerateDCRTParams(1024, 64, 5, 40);
+	shared_ptr<ILDCRTParams<BigBinaryInteger>> p = GenerateDCRTParams(1024, 64, 5, 40);
 	Serialized ser;
 	ser.SetObject();
 	ASSERT_TRUE( p->Serialize(&ser) ) << "Serialization failed";
@@ -192,9 +192,9 @@ TEST(UTSer,ilvector_test) {
 }
 
 TEST(UTSer,ilvectorarray_test) {
-	shared_ptr<ILDCRTParams> p = GenerateDCRTParams(1024, 64, 5, 40);
-	ILVectorArray2n::DugType dug;
-	ILVectorArray2n vec(dug, p);
+	shared_ptr<ILDCRTParams<BigBinaryInteger>> p = GenerateDCRTParams(1024, 64, 5, 40);
+	ILDCRT2n::DugType dug;
+	ILDCRT2n vec(dug, p);
 
 	Serialized ser;
 	ser.SetObject();

@@ -61,7 +61,7 @@ TEST(UTBVDCRT, Encrypt_Decrypt_PRE_DCRT) {
 	float stdDev = 4;
 
 	//Prepare for parameters.
-	shared_ptr<ILVectorArray2n::Params> params = getTestParams(m, numOfTower);
+	shared_ptr<ILDCRTParams<BigBinaryInteger>> params = getTestParams(m, numOfTower);
 
 	//Set crypto parametes
 	LPCryptoParametersBV<ILDCRT2n> cryptoParams;
@@ -136,7 +136,7 @@ TEST(UTBVDCRT, Ops_DCRT) {
 	float stdDev = 4;
 
 	//Prepare for parameters.
-	shared_ptr<ILVectorArray2n::Params> params = getTestParams(m, numOfTower);
+	shared_ptr<ILDCRTParams<BigBinaryInteger>> params = getTestParams(m, numOfTower);
 
 	//Set crypto parametes
 	LPCryptoParametersBV<ILDCRT2n> cryptoParams;
@@ -276,7 +276,7 @@ TEST(UTBV, Ops) {
 //		modulus = modulus * BigBinaryInteger(init_moduli[i].ConvertToInt());
 //	}
 //
-//	shared_ptr<ILDCRTParams> params(new ILDCRTParams(init_m, init_moduli, init_rootsOfUnity));
+//	shared_ptr<ILDCRTParams<BigBinaryInteger>> params(new ILDCRTParams<BigBinaryInteger>(init_m, init_moduli, init_rootsOfUnity));
 //
 //	LPCryptoParametersBV<ILDCRT2n> cryptoParams;
 //	cryptoParams.SetPlaintextModulus(BigBinaryInteger::FIVE); // Set plaintext modulus.
@@ -338,7 +338,7 @@ TEST(UTBVDCRT, ILVector2n_bv_DCRT_MODREDUCE) {
 
 	float stdDev = 4;
 
-	shared_ptr<ILDCRTParams> params = GenerateDCRTParams(m, plaintextModulus, numOfTower, 40);
+	shared_ptr<ILDCRTParams<BigBinaryInteger>> params = GenerateDCRTParams(m, plaintextModulus, numOfTower, 40);
 
 	CryptoContext<ILDCRT2n> cc = CryptoContextFactory<ILDCRT2n>::genCryptoContextBV(params, plaintextModulus, m, stdDev);
 	cc.Enable(ENCRYPTION);
@@ -404,7 +404,7 @@ TEST(UTBVDCRT, ILVector2n_bv_DCRT_MULT_MODREDUCE) {//TO ADD MODREDUCE
 		modulus = modulus* init_moduli[i];
 	}
 
-	shared_ptr<ILDCRTParams> params(new ILDCRTParams(init_m, init_moduli, init_rootsOfUnity));
+	shared_ptr<ILDCRTParams<BigBinaryInteger>> params(new ILDCRTParams<BigBinaryInteger>(init_m, init_moduli, init_rootsOfUnity));
 
 
 	LPCryptoParametersBV<ILDCRT2n> cryptoParams;

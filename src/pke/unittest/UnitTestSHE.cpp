@@ -447,7 +447,7 @@ TEST(UTSHE, keyswitch_ModReduce_DCRT) {
 	usint plaintextmodulus = 2;
 	usint relinWindow = 1;
 
-	shared_ptr<ILDCRTParams> params = GenerateDCRTParams( m, plaintextmodulus, size, 30 );
+	shared_ptr<ILDCRTParams<BigBinaryInteger>> params = GenerateDCRTParams( m, plaintextmodulus, size, 30 );
 
 	CryptoContext<ILDCRT2n> cc = CryptoContextFactory<ILDCRT2n>::genCryptoContextLTV(params, plaintextmodulus, relinWindow, stdDev);
 
@@ -550,7 +550,7 @@ TEST(UTSHE, ringreduce_double_crt) {
 	usint relinWindow = 1;
 	usint size = 3;
 
-	shared_ptr<ILDCRTParams> params = GenerateDCRTParams( m, plaintextmodulus, size, 32 );
+	shared_ptr<ILDCRTParams<BigBinaryInteger>> params = GenerateDCRTParams( m, plaintextmodulus, size, 32 );
 
 	CryptoContext<ILDCRT2n> cc = CryptoContextFactory<ILDCRT2n>::genCryptoContextLTV(params, plaintextmodulus, relinWindow, stdDev);
 	cc.Enable(ENCRYPTION);

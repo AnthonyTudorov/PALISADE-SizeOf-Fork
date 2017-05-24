@@ -125,7 +125,7 @@ TEST(UTNTT, switch_format_simple_double_crt) {
 
 	DiscreteGaussianGenerator dgg(init_stdDev);
 
-	shared_ptr<ILVectorArray2n::Params> params( new ILVectorArray2n::Params(init_m, init_moduli, init_rootsOfUnity) );
+	shared_ptr<ILDCRTParams<BigBinaryInteger>> params( new ILDCRTParams<BigBinaryInteger>(init_m, init_moduli, init_rootsOfUnity) );
 
 	ILDCRT2n x1(params, Format::COEFFICIENT);
 	x1 = { 431,3414,1234,7845,2145,7415,5471,8452 };
@@ -218,7 +218,7 @@ TEST(UTNTT, decomposeMult_double_crt) {
 
 	DiscreteGaussianGenerator dgg(init_stdDev);
 
-	shared_ptr<ILVectorArray2n::Params> params( new ILVectorArray2n::Params(init_m, init_moduli, init_rootsOfUnity) );
+	shared_ptr<ILDCRTParams<BigBinaryInteger>> params( new ILDCRTParams<BigBinaryInteger>(init_m, init_moduli, init_rootsOfUnity) );
 
 	ILDCRT2n x1(params, Format::COEFFICIENT);
 	x1 = { 0,0,0,0,0,0,1,0 };

@@ -84,7 +84,7 @@ TEST(UTLTVDCRT, ILVectorArray2n_Encrypt_Decrypt) {
 	}
 	DEBUG("3");	
 
-	shared_ptr<ILVectorArray2n::Params> params( new ILVectorArray2n::Params(m, moduli, rootsOfUnity) );
+	shared_ptr<ILDCRTParams<BigBinaryInteger>> params( new ILDCRTParams<BigBinaryInteger>(m, moduli, rootsOfUnity) );
 	DEBUG("4");	
 
 	LPCryptoParametersLTV<ILDCRT2n> cryptoParams;
@@ -169,7 +169,7 @@ TEST(UTLTVDCRT, Ops_DCRT) {
 		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
 	}
 
-	shared_ptr<ILVectorArray2n::Params> params( new ILVectorArray2n::Params(m, moduli, rootsOfUnity) );
+	shared_ptr<ILDCRTParams<BigBinaryInteger>> params( new ILDCRTParams<BigBinaryInteger>(m, moduli, rootsOfUnity) );
 
 	LPCryptoParametersLTV<ILDCRT2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger(64));

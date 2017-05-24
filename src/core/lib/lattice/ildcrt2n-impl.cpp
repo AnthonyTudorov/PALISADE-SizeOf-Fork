@@ -19,7 +19,7 @@
 
 namespace lbcrypto {
 
-template class ILDCRTImpl<cpu_int::BinaryInteger,cpu_int::BinaryInteger,cpu_int::BinaryVector,ILDCRTParams>;
+template class ILDCRTImpl<BigBinaryInteger,BigBinaryInteger,BigBinaryVector,ILDCRTParams<BigBinaryInteger>>;
 
 }
 

@@ -169,7 +169,7 @@ TEST(UTILNativeVector2n, ops_tests) {
 }
 
 TEST(UTILVectorArray2n, ops_tests) {
-	operators_tests<BigBinaryInteger, BigBinaryVector, ILDCRTParams, ILDCRT2n>(
+	operators_tests<BigBinaryInteger, BigBinaryVector, ILDCRTParams<BigBinaryInteger>, ILDCRT2n>(
 			GenerateDCRTParams(8, 8, 3, 20) );
 }
 
@@ -841,7 +841,7 @@ TEST(UTILNativeVector2n, cyclotomicOrder_test) {
 }
 
 TEST(UTILVectorArray2n, cyclotomicOrder_test) {
-	cyclotomicOrder_test<BigBinaryInteger, BigBinaryVector, ILDCRTParams, ILDCRT2n>();
+	cyclotomicOrder_test<BigBinaryInteger, BigBinaryVector, ILDCRTParams<BigBinaryInteger>, ILDCRT2n>();
 }
 
 // this test is only for ILDCRT2n so isn't templated
@@ -877,7 +877,7 @@ TEST(UTILVectorArray2n, constructors_test) {
 	native_int::ILVector2n ilv2(ilv0);
 	ilv2.SwitchModulus(moduli[2], rootsOfUnity[2]);
 
-	shared_ptr<ILVectorArray2n::Params> ildcrtparams( new ILVectorArray2n::Params(m, moduli, rootsOfUnity) );
+	shared_ptr<ILDCRTParams<BigBinaryInteger>> ildcrtparams( new ILDCRTParams<BigBinaryInteger>(m, moduli, rootsOfUnity) );
 
 	std::vector<native_int::ILVector2n> ilvector2nVector;
 	ilvector2nVector.push_back(ilv0);
@@ -1130,7 +1130,7 @@ TEST(UTILVectorArray2n, getters_and_operators) {
 	native_int::ILVector2n ilv2(ilv0);
 	ilv2.SwitchModulus(moduli[2], rootsOfUnity[2]);
 
-	shared_ptr<ILVectorArray2n::Params> ildcrtparams( new ILVectorArray2n::Params(m, moduli, rootsOfUnity) );
+	shared_ptr<ILDCRTParams<BigBinaryInteger>> ildcrtparams( new ILDCRTParams<BigBinaryInteger>(m, moduli, rootsOfUnity) );
 
 	std::vector<native_int::ILVector2n> ilvector2nVector(towersize);
 
@@ -1225,7 +1225,7 @@ TEST(UTILVectorArray2n, arithmetic_ops_element_2) {
 	native_int::ILVector2n ilv2(ilv0);
 	ilv2.SwitchModulus(moduli[2], rootsOfUnity[2]);
 
-	shared_ptr<ILVectorArray2n::Params> ildcrtparams( new ILVectorArray2n::Params(m, moduli, rootsOfUnity) );
+	shared_ptr<ILDCRTParams<BigBinaryInteger>> ildcrtparams( new ILDCRTParams<BigBinaryInteger>(m, moduli, rootsOfUnity) );
 
 	std::vector<native_int::ILVector2n> ilvector2nVector(towersize);
 	ilvector2nVector[0] = ilv0;
@@ -1469,7 +1469,7 @@ TEST(UTILVectorArray2n, decompose_test) {
 	float stdDev = 4;
 	ILDCRT2n::DggType dgg(stdDev);
 
-	shared_ptr<ILDCRTParams> params( new ILDCRTParams(order, moduli, rootsOfUnity) );
+	shared_ptr<ILDCRTParams<BigBinaryInteger>> params = GenerateDCRTParams(order, ptm, towersize, nBits);
 	ILDCRT2n ilVectorArray2n(dgg, params, Format::COEFFICIENT);
 
 	ILDCRT2n ilvectorarray2nOriginal(ilVectorArray2n);
@@ -1545,7 +1545,7 @@ TEST(UTILVectorArray2n, ensures_mod_operation_during_ops_on_two_ILVectorArray2ns
 	usint towersize = 3;
 	usint ptm = 2;
 
-	shared_ptr<ILDCRTParams> ildcrtparams = GenerateDCRTParams(order, ptm, towersize, nBits);
+	shared_ptr<ILDCRTParams<BigBinaryInteger>> ildcrtparams = GenerateDCRTParams(order, ptm, towersize, nBits);
 
 	ILDCRT2n::DugType dug;
 
@@ -1558,7 +1558,7 @@ TEST(UTILVectorArray2n, ensures_mod_operation_during_ops_on_two_ILVectorArray2ns
 		for(usint i=0; i<towersize; i++) {
 			for(usint j=0; j<ildcrtparams->GetRingDimension(); j++) {
 				native_int::BigBinaryInteger actualResult(sum.GetElementAtIndex(i).GetValAtIndex(j));
-				native_int::BigBinaryInteger expectedResult((op1.GetElementAtIndex(i).GetValAtIndex(j) + op2.GetElementAtIndex(i).GetValAtIndex(j)).Mod(moduli[i]));
+				native_int::BigBinaryInteger expectedResult((op1.GetElementAtIndex(i).GetValAtIndex(j) + op2.GetElementAtIndex(i).GetValAtIndex(j)).Mod(ildcrtparams->GetParams()[i]->GetModulus()));
 				EXPECT_EQ(actualResult, expectedResult) << "Failure: ILDCRT2n + operation tower "<<i<<" index "<<j;
 			}
 		}
@@ -1570,7 +1570,7 @@ TEST(UTILVectorArray2n, ensures_mod_operation_during_ops_on_two_ILVectorArray2ns
 		for(usint i=0; i<towersize; i++) {
 			for(usint j=0; j<ildcrtparams->GetRingDimension(); j++) {
 				native_int::BigBinaryInteger actualResult(prod.GetElementAtIndex(i).GetValAtIndex(j));
-				native_int::BigBinaryInteger expectedResult((op1.GetElementAtIndex(i).GetValAtIndex(j) * op2.GetElementAtIndex(i).GetValAtIndex(j)).Mod(moduli[i]));
+				native_int::BigBinaryInteger expectedResult((op1.GetElementAtIndex(i).GetValAtIndex(j) * op2.GetElementAtIndex(i).GetValAtIndex(j)).Mod(ildcrtparams->GetParams()[i]->GetModulus()));
 				EXPECT_EQ(actualResult, expectedResult)  << "Failure: ILDCRT2n * operation tower "<<i<<" index "<<j;
 			}
 		}
