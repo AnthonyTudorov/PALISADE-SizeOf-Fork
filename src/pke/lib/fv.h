@@ -539,7 +539,7 @@ namespace lbcrypto {
 		* @param makeSparse set to true if ring reduce by a factor of 2 is to be used.
 		* @return key pair including the private and public key
 		*/
-		LPKeyPair<Element> FusionKeyGen(const CryptoContext<Element> cc,
+		LPKeyPair<Element> MultipartyKeyGen(const CryptoContext<Element> cc,
 		const shared_ptr<LPPublicKey<Element>> pk1,
 		bool makeSparse=false) const;
 
@@ -552,7 +552,7 @@ namespace lbcrypto {
 		* @param makeSparse set to true if ring reduce by a factor of 2 is to be used.
 		* @return key pair including the private and public key
 		*/
-		LPKeyPair<Element> FusionKeyGen(const CryptoContext<Element> cc,
+		LPKeyPair<Element> MultipartyKeyGen(const CryptoContext<Element> cc,
 		const vector<shared_ptr<LPPrivateKey<Element>>>& secretKeys,
 		bool makeSparse=false) const;
 
@@ -564,7 +564,7 @@ namespace lbcrypto {
 		* @param *plaintext the plaintext output.
 		* @return resulting ciphertext after the decryption master operation.
 		*/
-		shared_ptr<Ciphertext<Element>> FusionDecryptMain(const shared_ptr<LPPrivateKey<Element>> privateKey,
+		shared_ptr<Ciphertext<Element>> MultipartyDecryptMain(const shared_ptr<LPPrivateKey<Element>> privateKey,
 			const shared_ptr<Ciphertext<Element>> ciphertext) const;
 
 		/**
@@ -575,7 +575,7 @@ namespace lbcrypto {
 		* @param *plaintext the plaintext output.
 		* @return resulting ciphertext after the decryption master operation.
 		*/
-		shared_ptr<Ciphertext<Element>> FusionDecryptMaster(const shared_ptr<LPPrivateKey<Element>> privateKey,
+		shared_ptr<Ciphertext<Element>> MultipartyDecryptLead(const shared_ptr<LPPrivateKey<Element>> privateKey,
 			const shared_ptr<Ciphertext<Element>> ciphertext) const;
 
 		/**
@@ -587,7 +587,7 @@ namespace lbcrypto {
 		* @param *plaintext the plaintext output.
 		* @return the decrypted plaintext returned.
 		*/
-		DecryptResult FusionDecrypt(const vector<shared_ptr<Ciphertext<Element>>>& ciphertextVec,
+		DecryptResult MultipartyDecryptFusion(const vector<shared_ptr<Ciphertext<Element>>>& ciphertextVec,
 			ILVector2n *plaintext) const;
 
 	};

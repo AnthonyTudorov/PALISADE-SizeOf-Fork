@@ -199,35 +199,34 @@ public:
 	}
 
 	/**
-	* KeyGen generates a fusion key pair using this algorithm's KeyGen method from two keys
-	* @param kp1 public key used for decryption to be fused.
+	* KeyGen generates a Multiparty key pair using this algorithm's KeyGen method from two keys
+	* @param pk first public key used to coordinate the creation of later public keys.
 	* @return a public/secret key pair
 	*/
-	LPKeyPair<Element> FusionKeyGen(
-		const shared_ptr<LPPublicKey<Element>> kp1) const {
-		return GetEncryptionAlgorithm()->FusionKeyGen(*this, kp1, false);
+	LPKeyPair<Element> MultipartyKeyGen(
+		const shared_ptr<LPPublicKey<Element>> pk) const {
+		return GetEncryptionAlgorithm()->MultipartyKeyGen(*this, pk, false);
 	}
 
 	/**
-	* KeyGen generates a fusion key pair using this algorithm's KeyGen method from two keys
-	* @param kp1 private key used for decryption to be fused.
-	* @param kp2 private key used for decryption to be fused.
+	* KeyGen generates a Multiparty key pair using a vector of secret keys
+	* @param secretKeys a vector of the secret keys to be used for multiparty computation.
 	* @return a public/secret key pair
 	*/
-	LPKeyPair<Element> FusionKeyGen(
+	LPKeyPair<Element> MultipartyKeyGen(
 		const vector<shared_ptr<LPPrivateKey<Element>>>& secretKeys) const {
-		return GetEncryptionAlgorithm()->FusionKeyGen(*this, secretKeys, false);
+		return GetEncryptionAlgorithm()->MultipartyKeyGen(*this, secretKeys, false);
 	}
 
 	/**
-	* Decrypt method for PALISADE
-	* @param privateKey - for decryption
-	* @param ciphertext - vector of encrypted ciphertext
-	* @param plaintext - pointer to destination for the result of decryption
-	* @param doPadding - true if input plaintext was padded; causes unpadding on last piece of ciphertext
-	* @return vector of shared pointers to re-encrypted ciphertexts
+	* Lead Multiparty Decryption method for PALISADE multiparty operations.
+	* This should be performed by exactly one of the clients.
+	* All other clients should perform the MultipartyDecryptMain operation.
+	* @param privateKey the secret key of the lead decryption client
+	* @param ciphertext vector of encrypted ciphertext
+	* @return vector of partially decrypted ciphertexts
 	*/
-	std::vector<shared_ptr<Ciphertext<Element>>> FusionDecryptMaster(
+	std::vector<shared_ptr<Ciphertext<Element>>> MultipartyDecryptLead(
 		const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const std::vector<shared_ptr<Ciphertext<Element>>>& ciphertext) const
 	{
@@ -239,21 +238,21 @@ public:
 		for( int i=0; i < ciphertext.size(); i++ ) {
 			if( ciphertext[i] == NULL || ciphertext[i]->GetCryptoContext() != *this )
 				throw std::logic_error("One of the ciphertexts passed to DecryptMater was not generated with this crypto context");
-			newCiphertext.push_back( GetEncryptionAlgorithm()->FusionDecryptMaster(privateKey, ciphertext[i]) );
+			newCiphertext.push_back( GetEncryptionAlgorithm()->MultipartyDecryptLead(privateKey, ciphertext[i]) );
 
 		}
 		return newCiphertext;
 	}
 
 	/**
-	* Decrypt method for PALISADE
+	* Multiparty decryption method for PALISADE multiparty operations.
+	* The lead multiparty decryption operation should be performed by exactly one of the clients.
+	* All other clients should perform this MultipartyDecryptMain operation.
 	* @param privateKey - for decryption
 	* @param ciphertext - vector of encrypted ciphertext
-	* @param plaintext - pointer to destination for the result of decryption
-	* @param doPadding - true if input plaintext was padded; causes unpadding on last piece of ciphertext
-	* @return vector of shared pointers to re-encrypted ciphertexts
+	* @return vector of partially decrypted ciphertexts
 	*/
-	std::vector<shared_ptr<Ciphertext<Element>>> FusionDecryptMain(
+	std::vector<shared_ptr<Ciphertext<Element>>> MultipartyDecryptMain(
 		const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const std::vector<shared_ptr<Ciphertext<Element>>>& ciphertext) const
 	{
@@ -265,24 +264,22 @@ public:
 		for( int i=0; i < ciphertext.size(); i++ ) {
 			if( ciphertext[i] == NULL || ciphertext[i]->GetCryptoContext() != *this )
 				throw std::logic_error("One of the ciphertexts passed to DecryptMater was not generated with this crypto context");
-			newCiphertext.push_back( GetEncryptionAlgorithm()->FusionDecryptMain(privateKey, ciphertext[i]) );
+			newCiphertext.push_back( GetEncryptionAlgorithm()->MultipartyDecryptMain(privateKey, ciphertext[i]) );
 		}
 		return newCiphertext;
 	}
 
 	/**
-	* Decrypt method for PALISADE
-	* @param privateKey - for decryption
-	* @param ciphertext1 - vector of encrypted ciphertext
-	* @param ciphertext2 - vector of encrypted ciphertext
+	* Final multiparty decryption method to fuse the partially decrypted ciphertexts into a decrypted plaintext.
+	* The lead multiparty decryption operation should be performed by exactly one of the clients.
+	* All other clients should perform the MultipartyDecryptMain operation.
+	* @param partialCiphertextVec - vector of partially decrypted ciphertexts.
 	* @param plaintext - pointer to destination for the result of decryption
 	* @param doPadding - true if input plaintext was padded; causes unpadding on last piece of ciphertext
 	* @return size of plaintext
 	*/
-	DecryptResult FusionDecrypt(
+	DecryptResult MultipartyDecryptFusion(
 		const std::vector<vector<shared_ptr<Ciphertext<Element>>>>& partialCiphertextVec,
-//		const std::vector<shared_ptr<Ciphertext<Element>>>& ciphertext1,
-//		const std::vector<shared_ptr<Ciphertext<Element>>>& ciphertext2,
 		Plaintext *plaintext,
 		bool doPadding = true) const
 	{
@@ -315,7 +312,7 @@ public:
 			}
 
 			ILVector2n decrypted;
-			DecryptResult result = GetEncryptionAlgorithm()->FusionDecrypt(ciphertextVec, &decrypted);
+			DecryptResult result = GetEncryptionAlgorithm()->MultipartyDecryptFusion(ciphertextVec, &decrypted);
 
 			if (result.isValid == false) return result;
 			plaintext->Decode(ciphertextVec[0]->GetCryptoParameters()->GetPlaintextModulus(), &decrypted);

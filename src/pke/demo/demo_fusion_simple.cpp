@@ -158,7 +158,7 @@ int main(int argc, char *argv[]) {
 	LPKeyPair<ILVector2n> kp2;
 	LPKeyPair<ILVector2n> kp3;
 
-	LPKeyPair<ILVector2n> kpFusion;
+	LPKeyPair<ILVector2n> kpMultiparty;
 
 	shared_ptr<LPEvalKey<ILVector2n>> evalKey1;
 	shared_ptr<LPEvalKey<ILVector2n>> evalKey2;
@@ -173,8 +173,8 @@ int main(int argc, char *argv[]) {
 	start = currentDateTime();
 
 	kp1 = cc.KeyGen();
-	kp2 = cc.FusionKeyGen(kp1.publicKey);
-	kp3 = cc.FusionKeyGen(kp1.publicKey);
+	kp2 = cc.MultipartyKeyGen(kp1.publicKey);
+	kp3 = cc.MultipartyKeyGen(kp1.publicKey);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -201,7 +201,7 @@ int main(int argc, char *argv[]) {
 	// This generates the keys which should be able to decrypt the ciphertext after the re-encryption operation.
 	////////////////////////////////////////////////////////////
 
-	std::cout << "Generating a fusion key..." << std::endl;
+	std::cout << "Generating a Multiparty key..." << std::endl;
 
 	start = currentDateTime();
 
@@ -211,13 +211,13 @@ int main(int argc, char *argv[]) {
 	secretKeys.push_back(kp2.secretKey);
 	secretKeys.push_back(kp3.secretKey);
 
-	kpFusion = cc.FusionKeyGen(secretKeys);	// This is the same core key generation operation.
+	kpMultiparty = cc.MultipartyKeyGen(secretKeys);	// This is the same core key generation operation.
 
 	finish = currentDateTime();
 	diff = finish - start;
 	cout << "Key generation time: " << "\t" << diff << " ms" << endl;
 
-	if( !kpFusion.good() ) {
+	if( !kpMultiparty.good() ) {
 		std::cout << "Key generation failed!" << std::endl;
 		exit(1);
 	}
@@ -235,9 +235,9 @@ int main(int argc, char *argv[]) {
 
 	start = currentDateTime();
 
-	evalKey1 = cc.ReKeyGen(kpFusion.secretKey, kp1.secretKey);
-	evalKey2 = cc.ReKeyGen(kpFusion.secretKey, kp2.secretKey);
-	evalKey3 = cc.ReKeyGen(kpFusion.secretKey, kp3.secretKey);
+	evalKey1 = cc.ReKeyGen(kpMultiparty.secretKey, kp1.secretKey);
+	evalKey2 = cc.ReKeyGen(kpMultiparty.secretKey, kp2.secretKey);
+	evalKey3 = cc.ReKeyGen(kpMultiparty.secretKey, kp3.secretKey);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -335,7 +335,7 @@ int main(int argc, char *argv[]) {
 
 	start = currentDateTime();
 
-	DecryptResult resultNew = cc.Decrypt(kpFusion.secretKey, ciphertextAddVectNew, &plaintextAddNew, true);
+	DecryptResult resultNew = cc.Decrypt(kpMultiparty.secretKey, ciphertextAddVectNew, &plaintextAddNew, true);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -355,7 +355,7 @@ int main(int argc, char *argv[]) {
 	cout << "\n";
 
 	////////////////////////////////////////////////////////////
-	//Decryption after Accumulation Operation on Re-Encrypted Data with Fusion
+	//Decryption after Accumulation Operation on Re-Encrypted Data with Multiparty
 	////////////////////////////////////////////////////////////
 
 	IntPlaintextEncoding plaintextAddNew1;
@@ -371,7 +371,7 @@ int main(int argc, char *argv[]) {
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextPartial2;
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextPartial3;
 
-	IntPlaintextEncoding plaintextFusionNew;
+	IntPlaintextEncoding plaintextMultipartyNew;
 
 	const shared_ptr<LPCryptoParameters<ILVector2n>> cryptoParams = kp1.secretKey->GetCryptoParameters();
 	const shared_ptr<typename ILVector2n::Params> elementParams = cryptoParams->GetElementParams();
@@ -380,17 +380,17 @@ int main(int argc, char *argv[]) {
 
 	start = currentDateTime();
 
-	ciphertextPartial1 = cc.FusionDecryptMaster(kp1.secretKey, ciphertextAddVectNew);
-	ciphertextPartial2 = cc.FusionDecryptMain(kp2.secretKey, ciphertextAddVectNew);
-	ciphertextPartial3 = cc.FusionDecryptMain(kp3.secretKey, ciphertextAddVectNew);
+	ciphertextPartial1 = cc.MultipartyDecryptLead(kp1.secretKey, ciphertextAddVectNew);
+	ciphertextPartial2 = cc.MultipartyDecryptMain(kp2.secretKey, ciphertextAddVectNew);
+	ciphertextPartial3 = cc.MultipartyDecryptMain(kp3.secretKey, ciphertextAddVectNew);
 
 	vector<vector<shared_ptr<Ciphertext<ILVector2n>>>> partialCiphertextVec;
 	partialCiphertextVec.push_back(ciphertextPartial1);
 	partialCiphertextVec.push_back(ciphertextPartial2);
 	partialCiphertextVec.push_back(ciphertextPartial3);
 
-	DecryptResult resultFusion = cc.FusionDecrypt(partialCiphertextVec, &plaintextFusionNew, true);
-//	DecryptResult resultFusion = cc.FusionDecrypt(ciphertextPartial1, ciphertextPartial2, &plaintextFusionNew, true);
+	DecryptResult resultMultiparty = cc.MultipartyDecryptFusion(partialCiphertextVec, &plaintextMultipartyNew, true);
+//	DecryptResult resultMultiparty = cc.MultipartyDecryptFusion(ciphertextPartial1, ciphertextPartial2, &plaintextMultipartyNew, true);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -402,10 +402,10 @@ int main(int argc, char *argv[]) {
 	cout << plaintext2 << endl;
 	cout << plaintext3 << endl;
 
-	plaintextFusionNew.resize(plaintext1.size());
+	plaintextMultipartyNew.resize(plaintext1.size());
 
 	cout << "\n Resulting Fused Plaintext with Re-Encryption: \n";
-	cout << plaintextFusionNew << endl;
+	cout << plaintextMultipartyNew << endl;
 
 	cout << "\n";
 

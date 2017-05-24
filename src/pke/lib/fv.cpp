@@ -651,7 +651,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmPREFV<Element>::ReEncrypt(const share
 
 //makeSparse is not used by this scheme
 template <class Element>
-LPKeyPair<Element> LPAlgorithmMultipartyFV<Element>::FusionKeyGen(const CryptoContext<Element> cc,
+LPKeyPair<Element> LPAlgorithmMultipartyFV<Element>::MultipartyKeyGen(const CryptoContext<Element> cc,
 		const vector<shared_ptr<LPPrivateKey<Element>>>& secretKeys,
 		bool makeSparse) const
 {
@@ -710,7 +710,7 @@ LPKeyPair<Element> LPAlgorithmMultipartyFV<Element>::FusionKeyGen(const CryptoCo
 
 //makeSparse is not used by this scheme
 template <class Element>
-LPKeyPair<Element> LPAlgorithmMultipartyFV<Element>::FusionKeyGen(const CryptoContext<Element> cc,
+LPKeyPair<Element> LPAlgorithmMultipartyFV<Element>::MultipartyKeyGen(const CryptoContext<Element> cc,
 		const shared_ptr<LPPublicKey<Element>> pk1, bool makeSparse) const
 {
 
@@ -760,7 +760,7 @@ LPKeyPair<Element> LPAlgorithmMultipartyFV<Element>::FusionKeyGen(const CryptoCo
 }
 
 template <class Element>
-shared_ptr<Ciphertext<Element>> LPAlgorithmMultipartyFV<Element>::FusionDecryptMain(const shared_ptr<LPPrivateKey<Element>> privateKey,
+shared_ptr<Ciphertext<Element>> LPAlgorithmMultipartyFV<Element>::MultipartyDecryptMain(const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const shared_ptr<Ciphertext<Element>> ciphertext) const
 {
 	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
@@ -782,7 +782,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmMultipartyFV<Element>::FusionDecryptM
 }
 
 template <class Element>
-shared_ptr<Ciphertext<Element>> LPAlgorithmMultipartyFV<Element>::FusionDecryptMaster(const shared_ptr<LPPrivateKey<Element>> privateKey,
+shared_ptr<Ciphertext<Element>> LPAlgorithmMultipartyFV<Element>::MultipartyDecryptLead(const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const shared_ptr<Ciphertext<Element>> ciphertext) const
 {
 	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
@@ -804,7 +804,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmMultipartyFV<Element>::FusionDecryptM
 }
 
 template <class Element>
-DecryptResult LPAlgorithmMultipartyFV<Element>::FusionDecrypt(const vector<shared_ptr<Ciphertext<Element>>>& ciphertextVec,
+DecryptResult LPAlgorithmMultipartyFV<Element>::MultipartyDecryptFusion(const vector<shared_ptr<Ciphertext<Element>>>& ciphertextVec,
 		ILVector2n *plaintext) const
 {
 
