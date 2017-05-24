@@ -7,8 +7,8 @@ BOOSTLIB := -L C:/boost_1_60_0/stage/lib/
 #BOOSTLIB := 
 
 OMPINCLUDE := 
-CC := g++ # This is the main compiler
 CPPSTD := -std=gnu++11
+CC := g++ $(CPPSTD)
 
 LIBCMD := -s -shared -Wl,--subsystem,windows 
 
