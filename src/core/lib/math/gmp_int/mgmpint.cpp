@@ -348,7 +348,9 @@ namespace NTL {
    * This function is only used for deserialization
    */
 
-  const char * myZZ_p::Deserialize(const char *cp){
+  const char * myZZ_p::Deserialize(const char *cp, myZZ &modulus){
+    bool dbg_flag = true;
+    const char *cpout;
     clear(*this);
     myZZ(repZZ);
 #if 0
@@ -366,11 +368,14 @@ namespace NTL {
     }
     ZZ_limbs_set(repZZ, cv.data(), cv.size());
 #else
-    cp = repZZ.Deserialize(cp);    
+    DEBUG("cp before in mgminp "<<cp);
+    cpout = repZZ.Deserialize(cp);    
+    DEBUG("cp after in mgminp "<<cpout);
 #endif
     *this=myZZ_p(repZZ);
+    this->SetModulus(modulus);
     SetMSB();
-    return cp;
+    return cpout;
   }
 
   

@@ -339,6 +339,8 @@ namespace NTL{
     const std::string Serialize(const myZZ& mod = myZZ::ZERO) const;
     const char * Deserialize(const char * str, const myZZ& mod = myZZ::ZERO);
 
+    static const std::string IntegerTypeName() { return "NTL"; }
+
   private:
     //adapter kits
     void SetMSB();

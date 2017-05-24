@@ -806,16 +806,14 @@ namespace NTL {
     return ans;
   }
 
-  //new serialize and deserialise operations
-  //todo: not tested just added to satisfy compilier
-  //currently using the same map as bigBinaryVector, with modulus. 
+  // serialize and deserialise operations
 
-  // JSON FACILITY - Serialize Operation
   template<class myT>
   bool myVecP<myT>::Serialize(lbcrypto::Serialized* serObj) const {
     bool dbg_flag = true;
     if( !serObj->IsObject() )
       return false;
+
     std::string modstring ="";
     DEBUG("in Serialize");
     if (this->isModulusSet()){
@@ -824,37 +822,52 @@ namespace NTL {
       modstring = "undefined";
     }
     DEBUG("modstring "<<modstring);
+
     lbcrypto::SerialItem bbvMap(rapidjson::kObjectType);
     bbvMap.AddMember("Modulus", modstring, serObj->GetAllocator()); 
 
+    bbvMap.AddMember("IntegerType", myZZ::IntegerTypeName(), serObj->GetAllocator());
+
     size_t pkVectorLength = this->size();
     DEBUG ("size "<<pkVectorLength);
-    if( pkVectorLength > 0 ) {
-      std::string pkBufferString = this->at(0).Serialize();
-      for (size_t i = 1; i < pkVectorLength; i++) {
-	pkBufferString += "|";
-	pkBufferString += this->at(i).Serialize();
+    bbvMap.AddMember("Length", std::to_string(pkVectorLength), serObj->GetAllocator());
 
+    if( pkVectorLength > 0 ) {
+      std::string pkBufferString = "";
+      for (int i = 0; i < pkVectorLength; i++) {
+	pkBufferString += GetValAtIndex(i).Serialize(this->GetModulus());
       }
       DEBUG("add VectorValues");
       bbvMap.AddMember("VectorValues", pkBufferString, serObj->GetAllocator());
     }
-      DEBUG("add myVecP");
-    serObj->AddMember("myVecP", bbvMap, serObj->GetAllocator());
+    DEBUG("add BigBinaryVectorImpl");
+    serObj->AddMember("BigBinaryVectorImpl", bbvMap, serObj->GetAllocator());
+
+    DEBUG("serialize done");
     return true;
   }
 
-  // JSON FACILITY - Deserialize Operation
+  // Deserialize
   template<class myT>
   bool myVecP<myT>::Deserialize(const lbcrypto::Serialized& serObj) {
     bool dbg_flag = true;
-  
-    lbcrypto::Serialized::ConstMemberIterator mIter = serObj.FindMember("myVecP");
+    DEBUG("in deserialize");
+    lbcrypto::Serialized::ConstMemberIterator mIter = serObj.FindMember("BigBinaryVectorImpl");
     if( mIter == serObj.MemberEnd() ){
-      std::cerr<<"mgmpintvec.Deserialize() failed myVecP not found"<<std::endl;
+      std::cerr<<"mgmpintvec.Deserialize() failed BigBinaryVectorImpl not found"<<std::endl;
       return false;
     }    
     lbcrypto::SerialItem::ConstMemberIterator vIt;
+
+    if( (vIt = mIter->value.FindMember("IntegerType"))
+	== mIter->value.MemberEnd() ){
+      std::cerr<<"mgmpintvec.Deserialize() failed IntegerType not found"<<std::endl;
+      return false;
+    }
+    if( myZZ::IntegerTypeName() != vIt->value.GetString() ){
+      std::cerr<<"mgmpintvec.Deserialize() failed IntegerType transltion"<<std::endl;
+      return false;
+    }
     if( (vIt = mIter->value.FindMember("Modulus")) == mIter->value.MemberEnd() ){
       std::cerr<<"mgmpintvec.Deserialize() failed Modulus not found"<<std::endl;
       return false;
@@ -868,27 +881,38 @@ namespace NTL {
     DEBUG("===");
     DEBUG("bbiModulus "<<bbiModulus);
     DEBUG("===");
-
+    
+    if( (vIt = mIter->value.FindMember("Length")) == mIter->value.MemberEnd() ){
+      std::cerr<<"mgmpintvec.Deserialize() failed Length not found"<<std::endl;
+      return false;
+    }
+    usint vectorLength = std::stoi(vIt->value.GetString());
+    
+    DEBUG("vectorLength "<<vectorLength);
+    
     if( (vIt = mIter->value.FindMember("VectorValues")) == 
 	mIter->value.MemberEnd() ){
       std::cerr<<"mgmpintvec.Deserialize() failed VectorValues not found"<<std::endl;
       return false;
     }    
-    clear(*this);
-    DEBUG("set");
-    this->SetModulus(bbiModulus);
-    DEBUG("myT");
+     
+    myVecP<myT> newVec(vectorLength, bbiModulus);
     myT vectorElem;
-    const char *vp = vIt->value.GetString();
-    while( *vp != '\0' ) {
-      //DEBUG("deserialize");
-      vp = vectorElem.Deserialize(vp);
-      //DEBUG("vE"<<vectorElem);
-      this->push_back(vectorElem);
-      if( *vp == '|' )
-	vp++;
-    }
 
+    const char *vp = vIt->value.GetString();
+
+    for( usint ePos = 0; ePos < vectorLength; ePos++ ) {
+      if( *vp == '\0' ) {
+	std::cerr<<"mgmpintvec.Deserialize() premature end of vector"<<std::endl;
+	std::cerr<<"at position "<<ePos<<std::endl;
+	return false; // premature end of vector
+      }
+      DEBUG("vp "<<vp);
+      vp = vectorElem.Deserialize(vp, bbiModulus);
+      DEBUG("vp "<<vp);
+      newVec[ePos] = vectorElem;
+    }
+    *this = std::move(newVec);
     return true;
   }
 

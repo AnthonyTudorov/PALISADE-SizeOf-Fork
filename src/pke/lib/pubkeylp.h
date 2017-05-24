@@ -293,7 +293,8 @@ namespace lbcrypto {
 					return false;
 
 				for( size_t i = 0; i < m_h.size(); i++ )
-					if( m_h[i] != other.m_h[i] )
+				  //if( m_h[i] != other.m_h[i] )
+				  if( m_h.at(i) != other.m_h.at(i)) 
 						return false;
 
 				return true;

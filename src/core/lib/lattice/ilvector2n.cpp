@@ -869,16 +869,21 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 	// JSON FACILITY - Serialize Operation
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	bool ILVectorImpl<ModType,IntType,VecType,ParmType>::Serialize(Serialized* serObj) const {
-		if( !serObj->IsObject() )
+                bool dbg_flag = true;
+		if( !serObj->IsObject() ){
+		        DEBUG("ILVectorImpl::Serialize is obj failed");
 			return false;
-
+		}
 		Serialized obj(rapidjson::kObjectType, &serObj->GetAllocator());
-		if (!this->GetValues().Serialize(&obj))
+		if (!this->GetValues().Serialize(&obj)){
+		        DEBUG("ILVectorImpl::Serialize Get values failed");
 			return false;
+		}
 
-		if (!m_params->Serialize(&obj))
+		if (!m_params->Serialize(&obj)){
+		        DEBUG("ILVectorImpl::Serialize m_[arams failed");
 			return false;
-
+		}
 		obj.AddMember("Format", std::to_string(this->GetFormat()), obj.GetAllocator());
 
 		serObj->AddMember("ILVectorImpl", obj.Move(), serObj->GetAllocator());
@@ -889,18 +894,27 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 	// JSON FACILITY - Deserialize Operation
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	bool ILVectorImpl<ModType,IntType,VecType,ParmType>::Deserialize(const Serialized& serObj) {
+                bool dbg_flag = true;
 		Serialized::ConstMemberIterator iMap = serObj.FindMember("ILVectorImpl");
-		if (iMap == serObj.MemberEnd()) return false;
+		if (iMap == serObj.MemberEnd()) {
+		  DEBUG("ILVectorImpl::Deserialize could not find ILVectorImpl");
+		  return false;
+		}
 
 		SerialItem::ConstMemberIterator pIt = iMap->value.FindMember("ILParams");
-		if (pIt == iMap->value.MemberEnd()) return false;
+		if (pIt == iMap->value.MemberEnd()) {
+		  DEBUG("ILVectorImpl::Deserialize could not find ILParams");
+		  return false;
+		}
 
 		Serialized parm(rapidjson::kObjectType);
 		parm.AddMember(SerialItem(pIt->name, parm.GetAllocator()), SerialItem(pIt->value, parm.GetAllocator()), parm.GetAllocator());
 
 		shared_ptr<ParmType> json_ilParams(new ParmType());
-		if (!json_ilParams->Deserialize(parm))
+		if (!json_ilParams->Deserialize(parm)){
+		  DEBUG("ILVectorImpl::Deserialize could not deserialize Params");
 			return false;
+		}
 		m_params = json_ilParams;
 
 		usint vectorLength = this->m_params->GetRingDimension();
@@ -909,16 +923,21 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 
 		SerialItem::ConstMemberIterator vIt = iMap->value.FindMember("BigBinaryVectorImpl");
 		if (vIt == iMap->value.MemberEnd()) {
+		  DEBUG("ILVectorImpl::Deserialize could not find BigBinaryVectorImpl");
 			return false;
 		}
 
 		Serialized s(rapidjson::kObjectType);
 		s.AddMember(SerialItem(vIt->name, s.GetAllocator()), SerialItem(vIt->value, s.GetAllocator()), s.GetAllocator());
 		if (!vectorBBV.Deserialize(s)) {
+		  DEBUG("ILVectorImpl::Deserialize could not deserialize s");
 			return false;
 		}
 
-		if ((vIt = iMap->value.FindMember("Format")) == iMap->value.MemberEnd()) return false;
+		if ((vIt = iMap->value.FindMember("Format")) == iMap->value.MemberEnd()) {
+		  DEBUG("ILVectorImpl::Deserialize could not find format");
+		  return false;
+		}
 		this->SetValues(vectorBBV, Format(atoi(vIt->value.GetString())));
 
 		return true;
