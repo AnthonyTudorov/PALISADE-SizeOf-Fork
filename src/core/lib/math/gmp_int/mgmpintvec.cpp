@@ -37,6 +37,7 @@
  *
  */
 
+#ifdef __linux__
 
 #include "../../utils/serializable.h"
 
@@ -1084,3 +1085,5 @@ namespace NTL {
 } // namespace NTL ends
  
 template class NTL::myVecP<NTL::myZZ_p>; //instantiate template here
+
+#endif

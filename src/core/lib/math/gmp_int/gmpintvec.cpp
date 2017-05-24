@@ -37,7 +37,7 @@
  *
  */
 
-
+#ifdef __linux__
 
 #include "../../utils/serializable.h"
 #include "../backend.h"
@@ -351,3 +351,5 @@ namespace NTL {
 } // namespace NTL ends
 
 template class NTL::myVec<NTL::myZZ>; //instantiate template here
+
+#endif

@@ -40,7 +40,7 @@
  */
 
 
-
+#ifdef __linux__
 #define _SECURE_SCL 0 // to speed up VS
 
 #include <iostream>
@@ -610,3 +610,5 @@ namespace NTL {
   
 
 } // namespace NTL ends
+
+#endif

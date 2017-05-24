@@ -45,7 +45,6 @@
 
 #define _SECURE_SCL 0 // to speed up VS
 #include "../backend.h"
-#if MATHBACKEND ==2 ||MATHBACKEND ==3 ||MATHBACKEND ==4 ||MATHBACKEND ==7
  
 #include <iostream>
 #include <fstream>
@@ -2917,5 +2916,3 @@ template class exp_int::ubint<uint32_t>;
 #ifdef UBINT_64
 template class exp_int::ubint<uint64_t>;
 #endif
-
-#endif //#if MATHBACKEND ==2 ||MATHBACKEND ==3 ||MATHBACKEND ==4

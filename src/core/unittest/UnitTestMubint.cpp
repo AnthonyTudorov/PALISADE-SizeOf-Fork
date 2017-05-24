@@ -58,6 +58,7 @@
 
 using namespace std;
 using namespace lbcrypto;
+using namespace exp_int;
 
 /*
   int main(int argc, char **argv) {
@@ -71,10 +72,6 @@ protected:
     // Code here will be called before each test
     // (right before the constructor).
 
-    //TODO: (dbc) do I need this here?
-    // any calls to mubint may fail otherwise.
-
-    NTL::ZZ_p::init(NTL::ZZ(1));
   }
 
   virtual void TearDown() {
@@ -112,12 +109,11 @@ protected:
 /*	TESTING BASIC METHODS OF mubint CLASS        */
 /************************************************/
 
-#if (MATHBACKEND == 5) || (MATHBACKEND ==6) //mubint not defined before this. 
 TEST(UTmubint,ctor_access_eq_neq){
   //note this is the same code as the ubintvec, just to confirm it works
   //as inherited
   ubint q("1234567"); // a bigger number
-  mubint m("9868");  
+  mubint m("9868");
 
   m.SetModulus(q);
   mubint n("9868",q); // calling contructor with modulus
@@ -587,5 +583,3 @@ TEST(UTmubint,basic_mod_math_big_numbers){
     EXPECT_EQ (d, modmul3[i]) << "Failure big number vector vector *=index "<<i;
   }
 }
-
-#endif
