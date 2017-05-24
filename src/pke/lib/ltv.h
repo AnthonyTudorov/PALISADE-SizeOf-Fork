@@ -305,11 +305,11 @@ public:
 	
 };
 
-/**
- * @brief This is the algorithms class for the Multiparty computation method for LTV.  It is not implemented.
- *
-* @tparam Element a ring element.
-*/
+	/**
+	 * @brief The multiparty homomorphic encryption capability is not implemented for this scheme yet.
+	 *
+	 * @tparam Element a ring element.
+	 */
 template <class Element>
 class LPAlgorithmMultipartyLTV : public LPMultipartyAlgorithm<Element> {
 public:
@@ -319,14 +319,14 @@ public:
 	*/
 	LPAlgorithmMultipartyLTV() {}
 
-	/**
-	* Function to generate public and private keys where private keys are summation of two input keys.
-	*
-	* @param cc cryptocontext for the keys to be generated.
-	* @param kp1 private key used for decryption to be fused.
-	* @param makeSparse set to true if ring reduce by a factor of 2 is to be used.
-	* @return key pair including the private and public key
-	*/
+		/**
+		* Function to generate public and private keys for multiparty homomrophic encryption in coordination with a leading client that generated a first public key.
+		*
+		* @param cc cryptocontext for the keys to be generated.
+		* @param pk1 private key used for decryption to be fused.
+		* @param makeSparse set to true if ring reduce by a factor of 2 is to be used.
+		* @return key pair including the private and public key
+		*/
 	LPKeyPair<Element> MultipartyKeyGen(const CryptoContext<Element> cc,
 		const shared_ptr<LPPublicKey<Element>> pk1,
 		bool makeSparse=false) const {
@@ -334,15 +334,12 @@ public:
 		throw std::runtime_error(errMsg);
 	}
 	
-	/**
-	* Function to generate public and private keys where private keys are summation of two input keys.
-	*
-	* @param cc cryptocontext for the keys to be generated.
-	* @param kp1 private key used for decryption to be fused.
-	* @param kp2 private key used for decryption to be fused.
-	* @param makeSparse set to true if ring reduce by a factor of 2 is to be used.
-	* @return key pair including the private and public key
-	*/
+		/**
+		 * Method for main decryption operation run by most decryption clients for multiparty homomorphic encryption
+		 *
+		 * @param privateKey private key used for decryption.
+		 * @param ciphertext ciphertext id decrypted.
+		 */
 	LPKeyPair<Element> MultipartyKeyGen(const CryptoContext<Element> cc,
 		const vector<shared_ptr<LPPrivateKey<Element>>>& secretKeys,
 		bool makeSparse=false) const {
@@ -350,30 +347,25 @@ public:
 		throw std::runtime_error(errMsg);
 	}
 
-	/**
-	 * Decrypt method for the Multiparty LTV Scheme.  See the class description for citations on where the algorithms were
-	 * taken from.
-	 *
-	 * @param privateKey Decryption key.
-	 * @param ciphertext Diphertext to be decrypted.
-	 * @param plaintext Plaintext result of Decrypt operation.
-	 * @return resulting ciphertext after the decryption master operation.
-	 */
+		/**
+		 * Method for decryption operation run by the lead decryption client for multiparty homomorphic encryption
+		 *
+		 * @param privateKey private key used for decryption.
+		 * @param ciphertext ciphertext id decrypted.
+		 */
 	shared_ptr<Ciphertext<Element>> MultipartyDecryptMain(const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const shared_ptr<Ciphertext<Element>> ciphertext) const {
 		std::string errMsg = "LPAlgorithmPRELTV::MultipartyDecryptMain is not implemented for the LTV Scheme.";
 		throw std::runtime_error(errMsg);
 	}
 
-	/**
-	 * Decrypt method for the Multiparty LTV Scheme.  See the class description for citations on where the algorithms were
-	 * taken from.
-	 *
-	 * @param privateKey Decryption key.
-	 * @param ciphertext Diphertext to be decrypted.
-	 * @param plaintext Plaintext result of Decrypt operation.
-	 * @return resulting ciphertext after the decryption master operation.
-	 */
+		/**
+		 * Method for fusing the partially decrypted ciphertext.
+		 *
+		 * @param &ciphertextVec ciphertext id decrypted.
+		 * @param *plaintext the plaintext output.
+		 * @return the decoding result.
+		 */
 	shared_ptr<Ciphertext<Element>> MultipartyDecryptLead(const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const shared_ptr<Ciphertext<Element>> ciphertext) const {
 		std::string errMsg = "LPAlgorithmPRELTV::MultipartyDecryptLead is not implemented for the LTV Scheme.";

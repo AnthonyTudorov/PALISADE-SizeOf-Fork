@@ -1052,7 +1052,18 @@ namespace lbcrypto {
 	};
 
 	/**
-	 * @brief Abstract interface class for LBC Multiparty algorithms
+	 * @brief Abstract interface class for LBC Multiparty algorithms.  A version of this multiparty scheme built on the BGV scheme is seen here:
+	 *   - Asharov G., Jain A., López-Alt A., Tromer E., Vaikuntanathan V., Wichs D. (2012) Multiparty Computation with Low Communication, Computation and Interaction via Threshold FHE. In: Pointcheval D., Johansson T. (eds) Advances in Cryptology – EUROCRYPT 2012. EUROCRYPT 2012. Lecture Notes in Computer Science, vol 7237. Springer, Berlin, Heidelberg
+	 *
+	 * During offline key generation, this multiparty scheme relies on the clients coordinating their public key generation.  To do this, a single client generates a public-secret key pair.
+	 * This public key is shared with other keys which use an element in the public key to generate their own public keys.
+	 * The clients generate a shared key pair using a scheme-specific approach, then generate re-encryption keys.  Re-encryption keys are uploaded to the server.
+	 * Clients encrypt data with their public keys and send the encrypted data server.
+	 * The data is re-encrypted.  Computations are then run on the data.
+	 * The result is sent to each of the clients.
+	 * One client runs a "Leader" multiparty decryption operation with its own secret key.  All other clients run a regular "Main" multiparty decryption with their own secret key.
+	 * The resulting partially decrypted ciphertext are then fully decrypted with the decryption fusion algorithms.
+	 *
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
@@ -1060,10 +1071,10 @@ namespace lbcrypto {
 		public:
 
 			/**
-			* Function to generate public and private keys where private keys are summation of two input keys.
+			* Function to generate public and private keys for multiparty homomrophic encryption in coordination with a leading client that generated a first public key.
 			*
 			* @param cc cryptocontext for the keys to be generated.
-			* @param kp1 private key used for decryption to be fused.
+			* @param pk1 private key used for decryption to be fused.
 			* @param makeSparse set to true if ring reduce by a factor of 2 is to be used.
 			* @return key pair including the private and public key
 			*/
@@ -1072,11 +1083,10 @@ namespace lbcrypto {
 				bool makeSparse=false) const = 0;
 
 			/**
-			* Function to generate public and private keys where private keys are summation of two input keys.
+			* Function to generate public and private keys for multiparty homomrophic encryption server key pair in coordination with secret keys of clients.
 			*
 			* @param cc cryptocontext for the keys to be generated.
-			* @param kp1 private key used for decryption to be fused.
-			* @param kp2 private key used for decryption to be fused.
+			* @param secretkeys private keys used for decryption to be fused.
 			* @param makeSparse set to true if ring reduce by a factor of 2 is to be used.
 			* @return key pair including the private and public key
 			*/
@@ -1085,34 +1095,28 @@ namespace lbcrypto {
 				bool makeSparse=false) const = 0;
 
 			/**
-			 * Method for decrypting plaintext using LBC
+			 * Method for main decryption operation run by most decryption clients for multiparty homomorphic encryption
 			 *
-			 * @param &privateKey private key used for decryption.
-			 * @param &ciphertext ciphertext id decrypted.
-			 * @param *plaintext the plaintext output.
-			 * @param *newCiphertext the new ciphertext.
+			 * @param privateKey private key used for decryption.
+			 * @param ciphertext ciphertext id decrypted.
 			 */
 			virtual shared_ptr<Ciphertext<Element>> MultipartyDecryptMain(const shared_ptr<LPPrivateKey<Element>> privateKey,
 				const shared_ptr<Ciphertext<Element>> ciphertext) const = 0;
 
 			/**
-			 * Method for decrypting plaintext using LBC
+			 * Method for decryption operation run by the lead decryption client for multiparty homomorphic encryption
 			 *
-			 * @param &privateKey private key used for decryption.
-			 * @param &ciphertext ciphertext id decrypted.
-			 * @param *plaintext the plaintext output.
-			 * @param *newCiphertext the new ciphertext.
+			 * @param privateKey private key used for decryption.
+			 * @param ciphertext ciphertext id decrypted.
 			 */
 			virtual shared_ptr<Ciphertext<Element>> MultipartyDecryptLead(const shared_ptr<LPPrivateKey<Element>> privateKey,
 				const shared_ptr<Ciphertext<Element>> ciphertext) const = 0;
 
 
 			/**
-			 * Method for decrypting plaintext using LBC
+			 * Method for fusing the partially decrypted ciphertext.
 			 *
-			 * @param &privateKey private key used for decryption.
-			 * @param &ciphertext1 ciphertext id decrypted.
-			 * @param &ciphertext2 ciphertext id decrypted.
+			 * @param &ciphertextVec ciphertext id decrypted.
 			 * @param *plaintext the plaintext output.
 			 * @return the decoding result.
 			 */
