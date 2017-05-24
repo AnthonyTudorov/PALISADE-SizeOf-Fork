@@ -69,7 +69,7 @@ namespace lbcrypto {
 		Signature<Matrix<Element>> *signatureText) {
 		//Getting parameters for calculations
 		const BigBinaryInteger & q = signKey.GetSignatureParameters().GetILParams()->GetModulus();
-		size_t n = signKey.GetSignatureParameters().GetILParams()->GetCyclotomicOrder() / 2;
+		size_t n = signKey.GetSignatureParameters().GetILParams()->GetRingDimension();
 		double logTwo = log(q.ConvertToDouble() - 1.0) / log(2) + 1.0;
 		size_t k = (usint)floor(logTwo);
 
@@ -110,7 +110,7 @@ namespace lbcrypto {
 	bool LPSignatureSchemeGPVGM<Element>::Verify(LPVerificationKeyGPVGM<Element> &verificationKey,
 		const Signature<Matrix<Element>> &signatureText,
 		const BytePlaintextEncoding & plainText) {
-		size_t n = verificationKey.GetSignatureParameters().GetILParams()->GetCyclotomicOrder() / 2;
+		size_t n = verificationKey.GetSignatureParameters().GetILParams()->GetRingDimension();
 		const BigBinaryInteger & q = verificationKey.GetSignatureParameters().GetILParams()->GetModulus();
 
 		//Encode the text into a vector so it can be used in verification process. TODO: Adding some kind of digestion algorithm

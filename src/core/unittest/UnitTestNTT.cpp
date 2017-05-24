@@ -125,7 +125,7 @@ TEST(UTNTT, switch_format_simple_double_crt) {
 
 	DiscreteGaussianGenerator dgg(init_stdDev);
 
-	shared_ptr<ILDCRTParams> params( new ILDCRTParams(init_m, init_moduli, init_rootsOfUnity) );
+	shared_ptr<ILVectorArray2n::Params> params( new ILVectorArray2n::Params(init_m, init_moduli, init_rootsOfUnity) );
 
 	ILVectorArray2n x1(params, Format::COEFFICIENT);
 	x1 = { 431,3414,1234,7845,2145,7415,5471,8452 };
@@ -183,10 +183,12 @@ TEST(UTNTT, switch_format_decompose_single_crt) {
 	x2Expected = { 4127,1987,6541,9741 };
 
 	DEBUG("x1: "<<x1);
-	DEBUG("x1: "<<x1Expected);
+	DEBUG("x1p: "<<*x1.GetParams());
+	DEBUG("x1exp: "<<x1Expected);
+	DEBUG("x1exppp: "<<*x1Expected.GetParams());
 
 	DEBUG("x2: "<<x2);
-	DEBUG("x2: "<<x2Expected);
+	DEBUG("x2exp: "<<x2Expected);
 
 	EXPECT_EQ(x1, x1Expected);
 	EXPECT_EQ(x2, x2Expected);
@@ -216,7 +218,7 @@ TEST(UTNTT, decomposeMult_double_crt) {
 
 	DiscreteGaussianGenerator dgg(init_stdDev);
 
-	shared_ptr<ILDCRTParams> params( new ILDCRTParams(init_m, init_moduli, init_rootsOfUnity) );
+	shared_ptr<ILVectorArray2n::Params> params( new ILVectorArray2n::Params(init_m, init_moduli, init_rootsOfUnity) );
 
 	ILVectorArray2n x1(params, Format::COEFFICIENT);
 	x1 = { 0,0,0,0,0,0,1,0 };

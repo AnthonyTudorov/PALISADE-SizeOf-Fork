@@ -118,7 +118,7 @@ void BM_encrypt(benchmark::State& state) { // benchmark
 			ILVector2n::PreComputeDggSamples(dgg, cc.GetElementParams());
 		} catch( ... ) {}
 
-		size_t strSize = plaintext.GetChunksize(cc.GetCyclotomicOrder(), cc.GetCryptoParameters()->GetPlaintextModulus());
+		size_t strSize = plaintext.GetChunksize(cc.GetRingDimension(), cc.GetCryptoParameters()->GetPlaintextModulus());
 
 		if( strSize == 0 ) {
 			state.SkipWithError( "Chunk size is 0" );
@@ -180,7 +180,7 @@ void BM_decrypt(benchmark::State& state) { // benchmark
 			ILVector2n::PreComputeDggSamples(dgg, cc.GetElementParams());
 		} catch( ... ) {}
 
-		size_t strSize = plaintext.GetChunksize(cc.GetCyclotomicOrder(), cc.GetCryptoParameters()->GetPlaintextModulus());
+		size_t strSize = plaintext.GetChunksize(cc.GetRingDimension(), cc.GetCryptoParameters()->GetPlaintextModulus());
 
 		if( strSize == 0 ) {
 			state.SkipWithError( "Chunk size is 0" );
@@ -298,7 +298,7 @@ void BM_reencrypt(benchmark::State& state) { // benchmark
 			ILVector2n::PreComputeDggSamples(dgg, cc.GetElementParams());
 		} catch( ... ) {}
 
-		size_t strSize = plaintext.GetChunksize(cc.GetCyclotomicOrder(), cc.GetCryptoParameters()->GetPlaintextModulus());
+		size_t strSize = plaintext.GetChunksize(cc.GetRingDimension(), cc.GetCryptoParameters()->GetPlaintextModulus());
 
 		if( strSize == 0 ) {
 			state.SkipWithError( "Chunk size is 0" );

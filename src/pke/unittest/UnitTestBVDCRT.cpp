@@ -34,6 +34,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "encoding/intplaintextencoding.h"
 
 #include "utils/debug.h"
+#include "utils/parmfactory.h"
 #include "cryptolayertests.h"
 
 using namespace std;
@@ -48,89 +49,8 @@ protected:
 public:
 };
 
-static shared_ptr<ILDCRTParams> getTestParams(usint m, usint numOfTower) {
-	std::vector<native64::BigBinaryInteger> moduli(numOfTower);
-
-	std::vector<native64::BigBinaryInteger> rootsOfUnity(numOfTower);
-
-	native64::BigBinaryInteger q("50000");
-	native64::BigBinaryInteger temp;
-	BigBinaryInteger modulus(1);
-
-	for (int j = 0; j < numOfTower; j++) {
-		lbcrypto::NextQ(q, native64::BigBinaryInteger::FIVE, m, native64::BigBinaryInteger::FOUR, native64::BigBinaryInteger::FOUR);
-		moduli[j] = q;
-		rootsOfUnity[j] = RootOfUnity(m, moduli[j]);
-		modulus = modulus * BigBinaryInteger(moduli[j].ConvertToInt());
-	}
-
-	//Prepare for parameters.
-	shared_ptr<ILDCRTParams> params(new ILDCRTParams(m, moduli, rootsOfUnity));
-
-	return params;
-}
-
 #ifdef OUT
-//////////////////////
-/// FIXME move to UTNULL
-
-/**
- * Simple Encrypt-Decrypt check for Null scheme.
- */
-TEST(UTNULLDCRT, ILVectorArray2n_Encrypt_Decrypt) {
-
-	usint m = 64;
-
-	usint numOfTower = 3;
-
-	//Prepare for parameters.
-	shared_ptr<ILDCRTParams> params = getTestParams(m, numOfTower);
-
-	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextNull(params, BigBinaryInteger(256));
-	cc.Enable(ENCRYPTION);
-
-	UnitTestEncryption<ILVectorArray2n>(cc);
-}
-
-
-TEST(UTNULL, Ops) {
-
-	usint m = 64;
-
-	float stdDev = 4;
-
-	usint plaintextModulus = 256;
-	string modulus("256");
-	string rootOfUnity("242542334");
-
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextNull(std::to_string(plaintextModulus), m, modulus, rootOfUnity);
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
-
-	UnitTestDCRT<ILVector2n>(cc);
-}
-
-TEST(UTNULLDCRT, Ops_DCRT) {
-
-	usint m = 64;
-
-	usint numOfTower = 3;
-
-	float stdDev = 4;
-
-	//Prepare for parameters.
-	shared_ptr<ILDCRTParams> params = getTestParams(m, numOfTower);
-
-	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextNull(params, BigBinaryInteger(64));
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
-
-	UnitTestDCRT<ILVectorArray2n>(cc);
-}
-
-
 //////////////////////////
-
 
 TEST(UTBVDCRT, Encrypt_Decrypt_PRE_DCRT) {
 
@@ -141,7 +61,7 @@ TEST(UTBVDCRT, Encrypt_Decrypt_PRE_DCRT) {
 	float stdDev = 4;
 
 	//Prepare for parameters.
-	shared_ptr<ILDCRTParams> params = getTestParams(m, numOfTower);
+	shared_ptr<ILVectorArray2n::Params> params = getTestParams(m, numOfTower);
 
 	//Set crypto parametes
 	LPCryptoParametersBV<ILVectorArray2n> cryptoParams;
@@ -216,12 +136,11 @@ TEST(UTBVDCRT, Ops_DCRT) {
 	float stdDev = 4;
 
 	//Prepare for parameters.
-	shared_ptr<ILDCRTParams> params = getTestParams(m, numOfTower);
+	shared_ptr<ILVectorArray2n::Params> params = getTestParams(m, numOfTower);
 
 	//Set crypto parametes
 	LPCryptoParametersBV<ILVectorArray2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger(64));  	// Set plaintext modulus.
-																//cryptoParams.SetPlaintextModulus(BigBinaryInteger("4"));  	// Set plaintext modulus.
 	cryptoParams.SetDistributionParameter(stdDev);			// Set the noise parameters.
 	cryptoParams.SetRelinWindow(1);				// Set the relinearization window
 	cryptoParams.SetElementParams(params);			// Set the initialization parameters.
@@ -408,35 +327,20 @@ TEST(UTBV, Ops) {
 //}
 #endif
 
+#if !defined(_MSC_VER)
 TEST(UTBVDCRT, ILVector2n_bv_DCRT_MODREDUCE) {
 
 	usint m = 8;
 
 	usint numOfTower = 3;
 
+	usint plaintextModulus = 5;
+
 	float stdDev = 4;
 
-	std::vector<native64::BigBinaryInteger> moduli(numOfTower);
+	shared_ptr<ILVectorArray2n::Params> params = GenerateDCRTParams(m, plaintextModulus, numOfTower, 40);
 
-	std::vector<native64::BigBinaryInteger> rootsOfUnity(numOfTower);
-
-	native64::BigBinaryInteger q("50000");
-	native64::BigBinaryInteger temp;
-	BigBinaryInteger modulus("1");
-
-	for (int j = 0; j < numOfTower; j++) {
-		lbcrypto::NextQ(q, native64::BigBinaryInteger::FIVE, m, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
-		moduli[j] = q;
-		rootsOfUnity[j] = RootOfUnity(m, moduli[j]);
-		modulus = modulus * BigBinaryInteger(moduli[j].ConvertToInt());
-	}
-
-	//std::cout << " \nCryptosystem initialization: Performing precomputations..." << std::endl;
-
-	//Prepare for parameters.
-	shared_ptr<ILDCRTParams> params(new ILDCRTParams(m, moduli, rootsOfUnity));
-
-	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextBV(params, 5, 8, stdDev);
+	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextBV(params, plaintextModulus, 8, stdDev);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 	cc.Enable(LEVELEDSHE);
@@ -444,33 +348,23 @@ TEST(UTBVDCRT, ILVector2n_bv_DCRT_MODREDUCE) {
 	// Initialize the public key containers.
 	LPKeyPair<ILVectorArray2n> kp = cc.KeyGen();
 
-	//Regular LWE-NTRU encryption algorithm
-
-	////////////////////////////////////////////////////////////
-	//Perform the key generation operation.
-	////////////////////////////////////////////////////////////
-
-	//LPAlgorithmLTV<ILVector2n> algorithm;
-
 	std::vector<usint> vectorOfInts1 = { 4,1,2,3 };
 
 	IntPlaintextEncoding intArray1(vectorOfInts1);
-
+	IntPlaintextEncoding intArrayNew;
 
 	////////////////////////////////////////////////////////////
 	//Encryption
 	////////////////////////////////////////////////////////////
 
-	// Begin the initial encryption operation.
-	//cout<<"\n"<<"original plaintext: "<< intArray1 <<"\n"<<endl;
+	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertext = cc.Encrypt(kp.publicKey, intArray1, false);
 
-	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertext =
-		cc.Encrypt(kp.publicKey, intArray1,false);
+	{
+		cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
+		EXPECT_EQ(intArray1, intArrayNew) << "Decrypt fails";
+	}
 
-
-	IntPlaintextEncoding intArrayNew;
-
-	ciphertext = cc.ModReduce(ciphertext);
+	ciphertext[0] = cc.ModReduce(ciphertext[0]);
 
 	//drop a tower from the secret key
 	
@@ -478,11 +372,13 @@ TEST(UTBVDCRT, ILVector2n_bv_DCRT_MODREDUCE) {
 	skEl.DropLastElement();
 	kp.secretKey->SetPrivateElement(skEl);
 
-	cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew,false);
+	cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
+	intArrayNew.resize(intArray1.size());
 
-	EXPECT_EQ(intArray1, intArrayNew);
+	EXPECT_EQ(intArray1, intArrayNew) << "Decrypt after ModReduce fails";;
 
 }
+#endif
 
 /*
 TEST(UTBVDCRT, ILVector2n_bv_DCRT_MULT_MODREDUCE) {//TO ADD MODREDUCE

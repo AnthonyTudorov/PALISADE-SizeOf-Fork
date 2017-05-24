@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file
  * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
  *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>, Nishanth Pasham, np386@njit.edu
@@ -121,7 +121,7 @@ namespace lbcrypto {
 	 * @return false if evidence of non-primality is found.  True is no evidence of non-primality is found.	
 	 */
 	template<typename IntType>
-	  bool MillerRabinPrimalityTest(const IntType& p, const usint niter = 100);
+	bool MillerRabinPrimalityTest(const IntType& p, const usint niter = 100);
 
 	/**
 	 * Perform the PollardRho factorization of a IntType.
@@ -140,7 +140,7 @@ namespace lbcrypto {
 	 Side effects: n is destroyed.  
 	 */
 	template<typename IntType>
-	void PrimeFactorize( IntType &n, std::set<IntType> &primeFactors);
+	void PrimeFactorize( IntType n, std::set<IntType> &primeFactors);
 
 	/**
 	 * Finds a Prime Modulus Corresponding to a Given Cyclotomic Number.
@@ -167,7 +167,7 @@ namespace lbcrypto {
 	 * @return the next prime modulus.  
 	 */
 	template<typename IntType>
-	void NextQ(IntType &q, const IntType &plainTextModulus, const usint &ringDimension, const IntType &sigma, const IntType &alpha);
+	void NextQ(IntType &q, const IntType &plainTextModulus, const usint cyclotomicOrder, const IntType &sigma, const IntType &alpha);
 
 	/**
 	 * Multiplicative inverse for primitive unsigned integer data types
@@ -178,6 +178,75 @@ namespace lbcrypto {
 	 * @return the multiplicative inverse  
 	 */
 	usint ModInverse(usint a, usint b);
+
+	/**
+	* Returns the next power of 2 that is greater than the input number.
+	*
+	* @param &n is the input value for which next power of 2 needs to be computed.
+	* @return Next power of 2 that is greater or equal to n.
+	*/
+	template<typename IntType>
+	IntType NextPowerOfTwo(const IntType &n);
+
+	/**
+	* Returns the totient value φ(n) of a number n.
+	*
+	* @param &n the input number.
+	* @return φ(n) which is the number of integers m coprime to n such that 1 ≤ m ≤ n.
+	*/
+	uint64_t GetTotient(const uint64_t n);
+
+
+	/**
+	* Returns the list of coprimes to number n in ascending order.
+	*
+	* @param &n the input number.
+	* @return vector of mi's such that 1 ≤ mi ≤ n and gcd(mi,n)==1.
+	*/
+	template<typename IntType>
+	std::vector<IntType> GetTotientList(const IntType &n);
+
+	/**
+	* Returns the polynomial modulus.
+	*
+	* @param &dividend the input dividend polynomial with degree >= degree of divisor.
+	* @param &divisor the input divisor polynomial with degree <= degree of dividend and divisor is a monic polynomial.
+	* @param &modulus the working modulus.
+	* @return resultant polynomial vector s.t. return = divident mod (divisor,modulus).
+	*/
+	template<typename IntVector, typename IntType>
+	IntVector PolyMod(const IntVector &dividend, const IntVector &divisor, const IntType &modulus);
+
+	/**
+	* Returns the polynomial multiplication of the input operands.
+	*
+	* @param &a the input polynomial.
+	* @param &b the input polynomial.
+	* a and b must have the same modulus.
+	* @return resultant polynomial s.t. return = a*b and coefficinet ci = ci%modulus.
+	*/
+	template<typename IntVector>
+	IntVector PolynomialMultiplication(const IntVector &a, const IntVector &b);
+
+	/**
+	* Returns the m-th cyclotomic polynomial.
+	* Added as a wrapper to GetCyclotomicPolynomialRecursive
+	* @param &m the input cyclotomic order.
+	* @param &modulus is the working modulus.
+	* @return resultant m-th cyclotomic polynomial with coefficients in modulus.
+	*/
+	template<typename IntVector, typename IntType>
+	IntVector GetCyclotomicPolynomial(usint m, const IntType &modulus);
+
+	/**
+	* Returns the m-th cyclotomic polynomial.
+	*
+	* @param &m the input cyclotomic order.
+	* @return resultant m-th cyclotomic polynomial.
+	*/
+	std::vector<int> GetCyclotomicPolynomialRecursive(usint m);
+
+
 } // namespace lbcrypto ends
 
 #endif

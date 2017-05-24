@@ -68,9 +68,6 @@ void MultiThreadedRun(int index) {
 	ILParams ilParams(sm, smodulus, srootOfUnity);
 	shared_ptr<ILParams> silParams = std::make_shared<ILParams>(ilParams);
 
-	ilParams.SetCyclotomicOrder(sm);
-	ilParams.SetRootOfUnity(srootOfUnity);
-	ilParams.SetModulus(smodulus);
 	std::cout << "m: " << sm << " q: " << smodulus << " rootOfUnity: " << srootOfUnity << std::endl;
 	std::cout << "Signature precomputations" << std::endl;
 	start = currentDateTime();

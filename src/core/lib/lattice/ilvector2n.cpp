@@ -93,7 +93,7 @@ namespace lbcrypto {
 
 		if (format == COEFFICIENT)
 		{
-			usint vectorSize = params->GetCyclotomicOrder() / 2;
+			usint vectorSize = params->GetRingDimension();
 			m_values = make_unique<VecType>(dgg.GenerateVector(vectorSize, params->GetModulus()));
 			(*m_values).SetModulus(params->GetModulus());
 			m_format = COEFFICIENT;
@@ -115,7 +115,7 @@ namespace lbcrypto {
 
 		m_params = params;
 
-		usint vectorSize = params->GetCyclotomicOrder() / 2;
+		usint vectorSize = params->GetRingDimension();
 		dug.SetModulus(params->GetModulus());
 		m_values = make_unique<VecType>(dug.GenerateVector(vectorSize));
 		(*m_values).SetModulus(params->GetModulus());
@@ -132,7 +132,7 @@ namespace lbcrypto {
     bool dbg_flag = false;
 		m_params = params;
 
-		usint vectorSize = params->GetCyclotomicOrder() / 2;
+		usint vectorSize = params->GetRingDimension();
 		m_values = make_unique<VecType>(bug.GenerateVector(vectorSize, params->GetModulus()));
 		//(*m_values).SetModulus(ilParams.GetModulus());
 		DEBUG("why does this have no modulus");
@@ -149,8 +149,7 @@ namespace lbcrypto {
 
 		if (format == COEFFICIENT)
 		{
-			//usint vectorSize = EulerPhi(params.GetCyclotomicOrder());
-			usint vectorSize = params->GetCyclotomicOrder() / 2;
+			usint vectorSize = params->GetRingDimension();
 			m_values = make_unique<VecType>(tug.GenerateVector(vectorSize, params->GetModulus()));
 			(*m_values).SetModulus(params->GetModulus());
 			m_format = COEFFICIENT;
@@ -269,7 +268,7 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 		}
 		else {
 
-			VecType temp(m_params->GetCyclotomicOrder() / 2);
+			VecType temp(m_params->GetRingDimension());
 			temp.SetModulus(m_params->GetModulus());
 			temp = rhs;
 			this->SetValues(std::move(temp), m_format);
@@ -310,7 +309,7 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 	const ILVectorImpl<ModType,IntType,VecType,ParmType>& ILVectorImpl<ModType,IntType,VecType,ParmType>::operator=(uint64_t val) {
 		m_format = EVALUATION;
 		if (m_values == nullptr){
-			m_values = make_unique<VecType>(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus());
+			m_values = make_unique<VecType>(m_params->GetRingDimension(), m_params->GetModulus());
 		}
 		for (size_t i = 0; i < m_values->GetLength(); ++i) {
 			this->SetValAtIndex(i, IntType(val));
@@ -324,25 +323,10 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	const ModType &ILVectorImpl<ModType,IntType,VecType,ParmType>::GetModulus() const {
-		return m_params->GetModulus();
-	}
-
-	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	const usint ILVectorImpl<ModType,IntType,VecType,ParmType>::GetCyclotomicOrder() const {
-		return m_params->GetCyclotomicOrder();
-	}
-
-	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	const VecType &ILVectorImpl<ModType,IntType,VecType,ParmType>::GetValues() const {
 		if (m_values == 0)
 			throw std::logic_error("No values in ILVectorImpl");
 		return *m_values;
-	}
-
-	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	const IntType &ILVectorImpl<ModType,IntType,VecType,ParmType>::GetRootOfUnity() const {
-		return m_params->GetRootOfUnity();
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
@@ -367,19 +351,22 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	void ILVectorImpl<ModType,IntType,VecType,ParmType>::SetValues(const VecType& values, Format format) {
-		if (m_params->GetRootOfUnity() == IntType::ZERO || m_params->GetCyclotomicOrder() / 2 != values.GetLength() || m_params->GetModulus() != values.GetModulus()) {
-			std::cout<<"ILVectorImpl::SetValues warning, mismatch in parameters"<<std::endl;
-			if (m_params->GetRootOfUnity() == IntType::ZERO) {
-				std::cout<<"m_params->GetRootOfUnity "<<m_params->GetRootOfUnity()<<std::endl;
-			}
-			if (m_params->GetCyclotomicOrder() / 2 != values.GetLength()) {
-				std::cout<<"m_params->GetCyclotomicOrder/2 "<<m_params->GetCyclotomicOrder()/2<<std::endl;
-				std::cout<<"!= values.GetLength()"<< values.GetLength() <<std::endl;
-			}
-			if ( m_params->GetModulus() != values.GetModulus()) {
-				std::cout<<"m_params->GetModulus() "<<m_params->GetModulus()<<std::endl;
-				std::cout<<"values->GetModulus() "<<values.GetModulus()<<std::endl;
-			}
+		if (m_params->GetRootOfUnity() == IntType::ZERO || m_params->GetRingDimension() != values.GetLength() || m_params->GetModulus() != values.GetModulus()) {
+		  std::cout<<"ILVectorImpl::SetValues warning, mismatch in parameters"<<std::endl;
+		  if (m_params->GetRootOfUnity() == IntType::ZERO){
+		    std::cout<<"m_params->GetRootOfUnity "<<m_params->GetRootOfUnity()<<std::endl;}
+		  if (m_params->GetRingDimension() != values.GetLength()){
+		    std::cout<<"m_params->GetRingDimension() "<<m_params->GetRingDimension()<<std::endl;
+		    std::cout<<"!= values.GetLength()"<< values.GetLength() <<std::endl;
+		}
+		  if ( m_params->GetModulus() != values.GetModulus()) {
+		    std::cout<<"m_params->GetModulus() "<<m_params->GetModulus()<<std::endl;
+		    std::cout<<"values->GetModulus() "<<values.GetModulus()<<std::endl;
+		}
+		  //throw std::logic_error("Exisiting m_params do not match with the input parameter IntType& values.\n");
+		  // if (m_values != nullptr) { //dbc no need with smart pointers
+		  //   delete m_values;
+		  // }
 		}
 		m_values = make_unique<VecType>(values);
 		m_format = format;
@@ -387,17 +374,16 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	void ILVectorImpl<ModType,IntType,VecType,ParmType>::SetValuesToZero() {
-	        m_values = make_unique<VecType>(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus());
+	        m_values = make_unique<VecType>(m_params->GetRingDimension(), m_params->GetModulus());
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	void ILVectorImpl<ModType,IntType,VecType,ParmType>::SetValuesToMax() {
 		IntType max = m_params->GetModulus() - IntType::ONE;
-		IntType temp(max);
-		usint size = m_params->GetCyclotomicOrder()/2;
-		m_values = make_unique<VecType>(m_params->GetCyclotomicOrder()/2, m_params->GetModulus());
+		usint size = m_params->GetRingDimension();
+		m_values = make_unique<VecType>(m_params->GetRingDimension(), m_params->GetModulus());
 		for (usint i = 0; i < size; i++) {
-			m_values->SetValAtIndex(i, temp);
+			m_values->SetValAtIndex(i, IntType(max));
 		}
 
 	}
@@ -496,7 +482,7 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 			throw std::logic_error("operator-= called on ILVectorImpl's with different params.");
 		if (m_values == nullptr) {
 
-		        m_values = make_unique<VecType>(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus());
+		        m_values = make_unique<VecType>(m_params->GetRingDimension(), m_params->GetModulus());
 			//TODO:: is this a bug? it is not the same as +=
 		}
 		SetValues( m_values->ModSub(*element.m_values), this->m_format );
@@ -513,7 +499,7 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 			throw std::logic_error("operator*= called on ILVectorImpl's with different params.");
 
 		if (m_values == nullptr){
-                        m_values = make_unique<VecType>(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus());
+                        m_values = make_unique<VecType>(m_params->GetRingDimension(), m_params->GetModulus());
 		}
 		SetValues( m_values->ModMul(*element.m_values), this->m_format );
 		return *this;
@@ -522,7 +508,7 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	void ILVectorImpl<ModType,IntType,VecType,ParmType>::AddILElementOne() {
 		IntType tempValue;
-		for (usint i = 0; i < m_params->GetCyclotomicOrder() / 2; i++) {
+		for (usint i = 0; i < m_params->GetRingDimension(); i++) {
 			tempValue = GetValues().GetValAtIndex(i) + IntType::ONE;
 			tempValue = tempValue.Mod(m_params->GetModulus());
 			m_values->SetValAtIndex(i, tempValue);
@@ -603,6 +589,11 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 		  std::string errMsg = "ILVector2n switch format to empty values";
 		  throw std::runtime_error(errMsg);
 		}
+
+		if (m_params->OrderIsPowerOfTwo() == false ) {
+			ArbitrarySwitchFormat();
+			return;
+		}
     
 		if (m_format == COEFFICIENT) {
 			m_format = EVALUATION;
@@ -622,6 +613,37 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 							.InverseTransform(*m_values, m_params->GetRootOfUnity(), 
 									  m_params->GetCyclotomicOrder()));
 			DEBUG("m_values now "<< *m_values);						  
+
+		}
+	}
+
+	template<typename ModType, typename IntType, typename VecType, typename ParmType>
+	void ILVectorImpl<ModType,IntType,VecType,ParmType>::ArbitrarySwitchFormat() {
+
+	        bool dbg_flag = false;
+		if (m_values == nullptr) {
+		  std::string errMsg = "ILVector2n switch format to empty values";
+		  throw std::runtime_error(errMsg);
+		}
+
+		if (m_format == COEFFICIENT) {
+			m_format = EVALUATION;
+			//todo:: does this have an extra copy?
+			DEBUG("transform to evaluation m_values was"<< *m_values);
+
+			m_values = make_unique<VecType>(ChineseRemainderTransformArb<IntType,VecType>::GetInstance()
+							.ForwardTransform(*m_values, m_params->GetRootOfUnity(),m_params->GetBigModulus(),
+								m_params->GetBigRootOfUnity(), m_params->GetCyclotomicOrder()));
+			DEBUG("m_values now "<< *m_values);
+		}
+		else {
+			m_format = COEFFICIENT;
+			DEBUG("transform to coefficient m_values was"<< *m_values);
+
+			m_values = make_unique<VecType>(ChineseRemainderTransformArb<IntType,VecType>::GetInstance()
+							.InverseTransform(*m_values, m_params->GetRootOfUnity(), m_params->GetBigModulus(),
+								m_params->GetBigRootOfUnity(), m_params->GetCyclotomicOrder()));
+			DEBUG("m_values now "<< *m_values);
 
 		}
 	}
@@ -645,7 +667,7 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 		IntType modTemp;
 		IntType tempValue;
 		if (m_values != 0) {
-			for (usint i = 0; i < m_params->GetCyclotomicOrder() / 2;i++) {
+			for (usint i = 0; i < m_params->GetRingDimension();i++) {
 				if (i%wFactor != 0) {
 					m_values->SetValAtIndex(i, IntType::ZERO);
 				}
@@ -657,6 +679,10 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	void ILVectorImpl<ModType,IntType,VecType,ParmType>::Decompose() {
 
+		if( m_params->OrderIsPowerOfTwo() == false ) {
+			throw std::logic_error("Cannot decompose if cyclotomic order is not a power of 2");
+		}
+
 		Format format(m_format);
 
 		if (format != Format::COEFFICIENT) {
@@ -667,11 +693,11 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 		usint decomposedCyclotomicOrder = m_params->GetCyclotomicOrder() / 2;
 		//Using the halving lemma propety of roots of unity to calculate the root of unity at half the cyclotomic order
 
-		m_params = shared_ptr<ParmType>(new ParmType(decomposedCyclotomicOrder, m_params->GetModulus(), m_params->GetRootOfUnity()));
+		m_params.reset(new ParmType(decomposedCyclotomicOrder, m_params->GetModulus(), m_params->GetRootOfUnity()));
 
 		//Interleaving operation.
 		VecType decomposeValues(GetLength() / 2, GetModulus());
-		for (usint i = 0; i < GetLength();i = i + 2) {
+		for (usint i = 0; i < GetLength(); i = i + 2) {
 			decomposeValues.SetValAtIndex(i / 2, GetValues().GetValAtIndex(i));
 		}
 
@@ -786,7 +812,7 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 			for (usint i = 0; i < m_sampleSize; ++i)
 			{
 				ILVectorImpl current(m_dggSamples_params);
-				usint vectorSize = m_dggSamples_params->GetCyclotomicOrder() / 2;
+				usint vectorSize = m_dggSamples_params->GetRingDimension();
 				current.m_values = make_unique<VecType>(dgg.GenerateVector(vectorSize, m_dggSamples_params->GetModulus()));
 				current.m_values->SetModulus(m_dggSamples_params->GetModulus());
 				current.m_format = COEFFICIENT;
@@ -819,7 +845,7 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 			for (usint i = 0; i < m_sampleSize; ++i)
 			{
 				ILVectorImpl current(m_tugSamples_params);
-				usint vectorSize = m_tugSamples_params->GetCyclotomicOrder() / 2;
+				usint vectorSize = m_tugSamples_params->GetRingDimension();
 				current.m_values = make_unique<VecType>(tug.GenerateVector(vectorSize, m_tugSamples_params->GetModulus()));
 				current.m_values->SetModulus(m_tugSamples_params->GetModulus());
 				current.m_format = COEFFICIENT;
@@ -877,7 +903,7 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 			return false;
 		m_params = json_ilParams;
 
-		usint vectorLength = this->m_params->GetCyclotomicOrder() / 2;
+		usint vectorLength = this->m_params->GetRingDimension();
 
 		VecType vectorBBV = VecType(vectorLength, m_params->GetModulus());
 

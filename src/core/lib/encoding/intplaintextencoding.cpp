@@ -60,7 +60,7 @@ void IntPlaintextEncoding::doEncode(const BigBinaryInteger &modulus, Element *il
 		length = length - padlen;
 	}
 
-	VecType temp(ilVector->GetParams()->GetCyclotomicOrder()/2,ilVector->GetModulus());
+	VecType temp(ilVector->GetParams()->GetRingDimension(),ilVector->GetModulus());
 
 	Format format = COEFFICIENT;
 
@@ -96,9 +96,9 @@ void IntPlaintextEncoding::Decode(const BigBinaryInteger &modulus, ILVector2n *i
 }
 
 size_t
-IntPlaintextEncoding::GetChunksize(const usint cyc, const BigBinaryInteger&) const
+IntPlaintextEncoding::GetChunksize(const usint ring, const BigBinaryInteger&) const
 {
-	return cyc/2;
+	return ring;
 }
 
 // Evaluates the array of integers as a polynomial at x = 2

@@ -106,7 +106,7 @@ const BigBinaryInteger ObfuscatedLWEConjunctionPattern<Element>::GetModulus() co
 
 template <class Element>
 usint ObfuscatedLWEConjunctionPattern<Element>::GetRingDimension() const{
-	return (this->m_elemParams->GetCyclotomicOrder())/2;
+	return (this->m_elemParams->GetRingDimension());
 };
 
 // Gets the log of the modulus
@@ -165,7 +165,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::ParamsGen(typename Element::Dg
 	double sigma = SIGMA;
 	
 	//assurance measure
-	double alpha = 9.0;
+	double alpha = 144;
 
 	//empirical parameter
 	double beta = 6.0;
@@ -185,7 +185,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::ParamsGen(typename Element::Dg
 	auto nRLWE = [&](double q) -> double { return log2(q / sigma) / (4 * log2(hermiteFactor));  };
 
 	//Correctness constraint
-	auto qCorrectness = [&](uint32_t n, uint32_t m) -> double { return  32*Berr*pow(sqrt(m*n)*beta*SPECTRAL_BOUND(n,m-2),length);  };
+	auto qCorrectness = [&](uint32_t n, uint32_t m) -> double { return  32*Berr*(m-2)*sqrt(n)*pow(sqrt(m*n)*beta*SPECTRAL_BOUND(n,m-2),length);  };
 
 	double qPrev = 1e6;
 	double q = 0;
@@ -313,7 +313,8 @@ shared_ptr<Matrix<Element>> LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 				const RLWETrapdoorPair<ILVector2n> &Ti,
 				const Element &elemS,
 				typename Element::DggType &dgg,
-				typename Element::DggType &dggLargeSigma) const {
+				typename Element::DggType &dggLargeSigma,
+				typename Element::DggType &dggEncoding) const {
 
     TimeVar t1,t_total; // for TIC TOC
 	bool dbg_flag = 0;//set to 0 for no debug statements
@@ -322,9 +323,9 @@ shared_ptr<Matrix<Element>> LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 
 	size_t m = Ai.GetCols();
 	size_t k = m - 2;
-	size_t n = elemS.GetParams()->GetCyclotomicOrder()/2;
+	size_t n = elemS.GetRingDimension();
 	const BigBinaryInteger &modulus = elemS.GetParams()->GetModulus();
-	auto zero_alloc = Element::MakeAllocator(elemS.GetParams(), COEFFICIENT);
+	auto zero_alloc = Element::MakeAllocator(elemS.GetParams(), EVALUATION);
 
 	//generate a row vector of discrete Gaussian ring elements
 	//YSP this can be done using discrete Gaussian allocator later - after the dgg allocator is updated to use the same dgg instance
@@ -332,7 +333,7 @@ shared_ptr<Matrix<Element>> LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 	Matrix<Element> ej(zero_alloc, 1, m); 
 
 	for(size_t i=0; i<m; i++) {
-		ej(0,i).SetValues(dgg.GenerateVector(n,modulus),COEFFICIENT);
+		ej(0,i).SetValues(dggEncoding.GenerateVector(n,modulus),COEFFICIENT);
 		ej(0,i).SwitchFormat();
 	}
 
@@ -391,6 +392,8 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 	double s = SPECTRAL_BOUND(n, m - 2);
 
 	typename Element::DggType dggLargeSigma(sqrt(s * s - c * c));
+
+	typename Element::DggType dggEncoding((m-2)*sqrt(n)*SIGMA);
 
 	const std::string patternString = clearPattern.GetPatternString();
 
@@ -513,10 +516,10 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 
 		for(usint k=0; k<chunkExponent; k++) {
 
-			shared_ptr<Matrix<Element>> S_i = this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],s_small[i-1][k]*r_small[i-1][k],dgg, dggLargeSigma);
+			shared_ptr<Matrix<Element>> S_i = this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],s_small[i-1][k]*r_small[i-1][k],dgg, dggLargeSigma, dggEncoding);
 			SVector.push_back(S_i);
 
-			shared_ptr<Matrix<Element>> R_i = this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],r_small[i-1][k],dgg, dggLargeSigma);
+			shared_ptr<Matrix<Element>> R_i = this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],r_small[i-1][k],dgg, dggLargeSigma,dgg);
 			RVector.push_back(R_i);
 
 		}
@@ -537,13 +540,13 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 	elemrl1.SwitchFormat();
 
 	shared_ptr<Matrix<Element>> Sl = 
-		this->Encode(Pk_vector[adjustedLength],Pk_vector[adjustedLength+1],Ek_vector[adjustedLength],elemrl1*s_prod,dgg, dggLargeSigma);
+		this->Encode(Pk_vector[adjustedLength],Pk_vector[adjustedLength+1],Ek_vector[adjustedLength],elemrl1*s_prod,dgg, dggLargeSigma, dgg);
 
 	//std::cout << "encode 1 for L ran" << std::endl;
 	//std::cout << elemrl1.GetValues() << std::endl;
 
 	shared_ptr<Matrix<Element>> Rl = 
-		this->Encode(Pk_vector[adjustedLength],Pk_vector[adjustedLength+1],Ek_vector[adjustedLength],elemrl1,dgg, dggLargeSigma);
+		this->Encode(Pk_vector[adjustedLength],Pk_vector[adjustedLength+1],Ek_vector[adjustedLength],elemrl1,dgg, dggLargeSigma, dggEncoding);
 
 	//std::cout << "encode 2 for L ran" << std::endl;
 
@@ -718,12 +721,12 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::EvaluateACS(
 
 	auto zero_alloc = Element::MakeAllocator(params, EVALUATION);
 
-	std::cout << "" << std::endl;
-	std::cout << "Pattern length \t l : " << l << std::endl;
-	std::cout << "Ring dimension \t n : " << n << std::endl;
-	std::cout << "Modulus \t q : " << q << std::endl;
-	std::cout << "Num bits \t m : " << m << std::endl;
-	std::cout << "Constraint \t : " << constraint << std::endl;
+	//std::cout << "" << std::endl;
+	//std::cout << "Pattern length \t l : " << l << std::endl;
+	//std::cout << "Ring dimension \t n : " << n << std::endl;
+	//std::cout << "Modulus \t q : " << q << std::endl;
+	//std::cout << "Num bits \t m : " << m << std::endl;
+	//std::cout << "Constraint \t : " << constraint << std::endl;
 
 	bool retVal = true;
 	std::string testVal;
@@ -739,24 +742,24 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::EvaluateACS(
 
 	shared_ptr<Matrix<Element>> Sl = obfuscatedPattern.GetSl();
 	shared_ptr<Matrix<Element>> Rl = obfuscatedPattern.GetRl();
-	std::cout << "Sl dimensions: " <<  Sl->GetRows() << ", " << Sl->GetCols() << std::endl;
-	std::cout << "Rl dimensions: " <<  Rl->GetRows() << ", " << Rl->GetCols() << std::endl;
+	//std::cout << "Sl dimensions: " <<  Sl->GetRows() << ", " << Sl->GetCols() << std::endl;
+	//std::cout << "Rl dimensions: " <<  Rl->GetRows() << ", " << Rl->GetCols() << std::endl;
 	if (useRandomVector == 1) {
 		std::vector<int> randvec;
 		randvec.reserve(Rl->GetCols());
 		for (int i = 0; i < Rl->GetCols(); i++) {
 			randvec.push_back(rand() % 2);
 		}
-		std::cout<<"About to set CrossSR and CrossRS from randvec"<<std::endl;
+		//std::cout<<"About to set CrossSR and CrossRS from randvec"<<std::endl;
 		CrossSR = Rl->MultByRandomVector(randvec);
 		CrossRS = Sl->MultByRandomVector(randvec);
 	} else {
-		std::cout<<"About to set CrossSR and CrossRS from unity vec"<<std::endl;
+		//std::cout<<"About to set CrossSR and CrossRS from unity vec"<<std::endl;
 		CrossSR = Rl->MultByUnityVector();
 		CrossRS = Sl->MultByUnityVector();
 	}
-	std::cout << "CrossSR dimensions: " <<  CrossSR.GetRows() << ", " << CrossSR.GetCols() << std::endl;
-	std::cout << "CrossRS dimensions: " <<  CrossRS.GetRows() << ", " << CrossRS.GetCols() << std::endl;
+	//std::cout << "CrossSR dimensions: " <<  CrossSR.GetRows() << ", " << CrossSR.GetCols() << std::endl;
+	//std::cout << "CrossRS dimensions: " <<  CrossRS.GetRows() << ", " << CrossRS.GetCols() << std::endl;
 	//DEBUG("EvalACS1: "<<TOC(t1) <<" ms");
 
 	for (int i=adjustedLength-1; i>=0; i--) 	{
@@ -807,9 +810,9 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::EvaluateACS(
 	//std::cout <<  CrossProd << std::endl;
 
 	norm = CrossProd.Norm();
-	std::cout <<"EvalACS: " <<TOC(t1) <<" ms"<< std::endl;
+	//std::cout <<"EvalACS: " <<TOC(t1) <<" ms"<< std::endl;
 
-	std::cout << "ACS Norm: " << norm << std::endl;
+	//std::cout << "ACS Norm: " << norm << std::endl;
 
 	return (norm <= constraint);
 
@@ -840,12 +843,12 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 
 	auto zero_alloc = Element::MakeAllocator(params, EVALUATION);
 
-	std::cout << "" << std::endl;
-	std::cout << "Pattern length \t l : " << l << std::endl;
-	std::cout << "Ring dimension \t n : " << n << std::endl;
-	std::cout << "Modulus \t q : " << q << std::endl;
-	std::cout << "Num bits \t m : " << m << std::endl;
-	std::cout << "Constraint \t : " << constraint << std::endl;
+	//std::cout << "" << std::endl;
+	//std::cout << "Pattern length \t l : " << l << std::endl;
+	//std::cout << "Ring dimension \t n : " << n << std::endl;
+	//std::cout << "Modulus \t q : " << q << std::endl;
+	//std::cout << "Num bits \t m : " << m << std::endl;
+	//std::cout << "Constraint \t : " << constraint << std::endl;
 
 	bool retVal = true;
 	std::string testVal;
@@ -872,8 +875,8 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 		{
 			{
 				testVal = testString.substr(i*chunkSize,chunkSize);
-				std::cout << " Index: " << i << std::endl;
-				std::cout << " \t Input: \t" << testVal << std::endl;
+				//std::cout << " Index: " << i << std::endl;
+				//std::cout << " \t Input: \t" << testVal << std::endl;
 			}
 			S_ib = obfuscatedPattern.GetS(i,testVal);
 			R_ib = obfuscatedPattern.GetR(i,testVal);
@@ -889,20 +892,20 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 		DEBUG("Eval2:#"<< i << ": " <<TOC(t1) <<" ms");
 	}
 	TIC(t1);
-	std::cout << " S_prod: " << std::endl;
+	//std::cout << " S_prod: " << std::endl;
 	//S_prod.PrintValues();
-	std::cout << " R_prod: " << std::endl;
+	//std::cout << " R_prod: " << std::endl;
 	//R_prod.PrintValues();
 
 	shared_ptr<Matrix<Element>> Sl = obfuscatedPattern.GetSl();
 	shared_ptr<Matrix<Element>> Rl = obfuscatedPattern.GetRl();
 
-	std::cout << " Sl: " << std::endl;
+	//std::cout << " Sl: " << std::endl;
 	//Sl->PrintValues();
-	std::cout << " Rl: " << std::endl;
+	//std::cout << " Rl: " << std::endl;
 	//Rl->PrintValues();
 
-	std::cout << " Cross Product: " << std::endl;
+	//std::cout << " Cross Product: " << std::endl;
 	Matrix<Element> CrossProd = (S_prod * (*Rl)) - (R_prod * (*Sl));
 	//CrossProd.PrintValues();
 
@@ -922,7 +925,7 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 	norm = CrossProd.Norm();
 	DEBUG("Eval5: " <<TOC(t1) <<" ms");
 
-	std::cout << " Norm: " << norm << std::endl;
+	//std::cout << " Norm: " << norm << std::endl;
 
 	return (norm <= constraint);
 

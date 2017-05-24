@@ -77,7 +77,7 @@ namespace lbcrypto {
 
 		void Unpad(const BigBinaryInteger &modulus) {} // a null op; no padding in int
 
-		virtual size_t GetChunksize(const usint cyc, const BigBinaryInteger& ptm) const;
+		virtual size_t GetChunksize(const usint ring, const BigBinaryInteger& ptm) const;
 
 		size_t GetLength() const { return this->size(); }
 
@@ -86,6 +86,8 @@ namespace lbcrypto {
 			const std::vector<uint32_t>& rv = dynamic_cast<const std::vector<uint32_t>&>(other);
 			return lv == rv;
 		}
+
+		static void Destroy();
 
 		friend std::ostream& operator<<(std::ostream& out, const PackedIntPlaintextEncoding& item) {
 			for (int i = 0; i<item.size(); i++)
@@ -96,6 +98,8 @@ namespace lbcrypto {
 	private:
 		static BigBinaryInteger initRoot;
 		static std::vector<usint> rootOfUnityTable;
+		static BigBinaryInteger bigMod;
+		static BigBinaryInteger bigRoot;
 
 		void Pack(ILVector2n *ring, const BigBinaryInteger &modulus) const;
 

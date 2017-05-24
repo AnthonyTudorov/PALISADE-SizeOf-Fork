@@ -171,8 +171,8 @@ TEST(UTILNativeVector2n, ops_tests) {
 }
 
 TEST(UTILVectorArray2n, ops_tests) {
-	operators_tests<BigBinaryInteger, BigBinaryVector, ILDCRTParams, ILVectorArray2n>(
-			GenerateDCRTParams(8, 3, 20) );
+	operators_tests<BigBinaryInteger, BigBinaryVector, ILVectorArray2n::Params, ILVectorArray2n>(
+			GenerateDCRTParams(8, 8, 3, 20) );
 }
 
 // template for rounding_operations tests
@@ -843,7 +843,7 @@ TEST(UTILNativeVector2n, cyclotomicOrder_test) {
 }
 
 TEST(UTILVectorArray2n, cyclotomicOrder_test) {
-	cyclotomicOrder_test<BigBinaryInteger, BigBinaryVector, ILDCRTParams, ILVectorArray2n>();
+	cyclotomicOrder_test<BigBinaryInteger, BigBinaryVector, ILVectorArray2n::Params, ILVectorArray2n>();
 }
 
 // this test is only for ILVectorArray2n so isn't templated
@@ -879,7 +879,7 @@ TEST(UTILVectorArray2n, constructors_test) {
 	native64::ILVector2n ilv2(ilv0);
 	ilv2.SwitchModulus(moduli[2], rootsOfUnity[2]);
 
-	shared_ptr<ILDCRTParams> ildcrtparams( new ILDCRTParams(m, moduli, rootsOfUnity) );
+	shared_ptr<ILVectorArray2n::Params> ildcrtparams( new ILVectorArray2n::Params(m, moduli, rootsOfUnity) );
 
 	std::vector<native64::ILVector2n> ilvector2nVector;
 	ilvector2nVector.push_back(ilv0);
@@ -1122,7 +1122,7 @@ TEST(UTILVectorArray2n, getters_and_operators) {
 	shared_ptr<native64::ILParams> ilparams2( new native64::ILParams(m, moduli[2], rootsOfUnity[2]) );
 
 	native64::ILVector2n ilv0(ilparams0);
-	native64::BigBinaryVector bbv0(m/2, moduli[0]);
+	native64::BigBinaryVector bbv0(ilparams0->GetRingDimension(), moduli[0]);
 	bbv0 = {"2","4","3","2"};
 	ilv0.SetValues(bbv0, Format::EVALUATION);
 
@@ -1132,7 +1132,7 @@ TEST(UTILVectorArray2n, getters_and_operators) {
 	native64::ILVector2n ilv2(ilv0);
 	ilv2.SwitchModulus(moduli[2], rootsOfUnity[2]);
 
-	shared_ptr<ILDCRTParams> ildcrtparams( new ILDCRTParams(m, moduli, rootsOfUnity) );
+	shared_ptr<ILVectorArray2n::Params> ildcrtparams( new ILVectorArray2n::Params(m, moduli, rootsOfUnity) );
 
 	std::vector<native64::ILVector2n> ilvector2nVector(towersize);
 
@@ -1227,7 +1227,7 @@ TEST(UTILVectorArray2n, arithmetic_ops_element_2) {
 	native64::ILVector2n ilv2(ilv0);
 	ilv2.SwitchModulus(moduli[2], rootsOfUnity[2]);
 
-	shared_ptr<ILDCRTParams> ildcrtparams( new ILDCRTParams(m, moduli, rootsOfUnity) );
+	shared_ptr<ILVectorArray2n::Params> ildcrtparams( new ILVectorArray2n::Params(m, moduli, rootsOfUnity) );
 
 	std::vector<native64::ILVector2n> ilvector2nVector(towersize);
 	ilvector2nVector[0] = ilv0;
@@ -1466,28 +1466,12 @@ TEST(UTILVectorArray2n, decompose_test) {
 	usint order = 16;
 	usint nBits = 24;
 	usint towersize = 3;
-
-	std::vector<native64::BigBinaryInteger> moduli(towersize);
-	std::vector<native64::BigBinaryInteger> rootsOfUnity(towersize);
-	std::vector<native64::ILParams> ilparams(towersize);
-
-	std::vector<native64::ILVector2n> ilvector2n1(towersize);
-	std::vector<native64::BigBinaryVector> bbv1(towersize);
-
-	native64::BigBinaryInteger q("1");
-	BigBinaryInteger modulus("1");
-
-	for(usint i=0; i < towersize;i++){
-		lbcrypto::NextQ(q, native64::BigBinaryInteger::TWO, order, native64::BigBinaryInteger::FOUR, native64::BigBinaryInteger::FOUR);
-		moduli[i] = q;
-		rootsOfUnity[i] = RootOfUnity<native64::BigBinaryInteger>(order,moduli[i]);
-		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
-	}
+	usint ptm = 2;
 
 	float stdDev = 4;
 	ILVectorArray2n::DggType dgg(stdDev);
 
-	shared_ptr<ILDCRTParams> params( new ILDCRTParams(order, moduli, rootsOfUnity) );
+	shared_ptr<ILVectorArray2n::Params> params = GenerateDCRTParams(order, ptm, towersize, nBits);
 	ILVectorArray2n ilVectorArray2n(dgg, params, Format::COEFFICIENT);
 
 	ILVectorArray2n ilvectorarray2nOriginal(ilVectorArray2n);
@@ -1561,21 +1545,9 @@ TEST(UTILVectorArray2n, ensures_mod_operation_during_ops_on_two_ILVectorArray2ns
 	usint order = 16;
 	usint nBits = 24;
 	usint towersize = 3;
+	usint ptm = 2;
 
-	std::vector<native64::BigBinaryInteger> moduli(towersize);
-	std::vector<native64::BigBinaryInteger> rootsOfUnity(towersize);
-
-	native64::BigBinaryInteger q("1");
-	BigBinaryInteger modulus("1");
-
-	for(usint i=0; i < towersize;i++){
-		lbcrypto::NextQ(q, native64::BigBinaryInteger::TWO, order, native64::BigBinaryInteger::FOUR, native64::BigBinaryInteger::FOUR);
-		moduli[i] = q;
-		rootsOfUnity[i] = RootOfUnity<native64::BigBinaryInteger>(order,moduli[i]);
-		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
-	}
-
-	shared_ptr<ILDCRTParams> ildcrtparams( new ILDCRTParams(order, moduli, rootsOfUnity) );
+	shared_ptr<ILVectorArray2n::Params> ildcrtparams = GenerateDCRTParams(order, ptm, towersize, nBits);
 
 	ILVectorArray2n::DugType dug;
 
@@ -1588,8 +1560,8 @@ TEST(UTILVectorArray2n, ensures_mod_operation_during_ops_on_two_ILVectorArray2ns
 		for(usint i=0; i<towersize; i++) {
 			for(usint j=0; j<order/2; j++) {
 				native64::BigBinaryInteger actualResult(sum.GetElementAtIndex(i).GetValAtIndex(j));
-				native64::BigBinaryInteger expectedResult((op1.GetElementAtIndex(i).GetValAtIndex(j) + op2.GetElementAtIndex(i).GetValAtIndex(j)).Mod(moduli[i]));
-				EXPECT_EQ(actualResult, expectedResult) << "Failure: ILVectorArray2n + operation tower "<<i<<" index "<<j;
+				native64::BigBinaryInteger expectedResult((op1.GetElementAtIndex(i).GetValAtIndex(j) + op2.GetElementAtIndex(i).GetValAtIndex(j)).Mod(ildcrtparams->GetParams()[i]->GetModulus()));
+				EXPECT_EQ(actualResult, expectedResult) << "ILVectorArray2n + operation returns incorrect results.";
 			}
 		}
 	}
@@ -1600,8 +1572,8 @@ TEST(UTILVectorArray2n, ensures_mod_operation_during_ops_on_two_ILVectorArray2ns
 		for(usint i=0; i<towersize; i++) {
 			for(usint j=0; j<order/2; j++) {
 				native64::BigBinaryInteger actualResult(prod.GetElementAtIndex(i).GetValAtIndex(j));
-				native64::BigBinaryInteger expectedResult((op1.GetElementAtIndex(i).GetValAtIndex(j) * op2.GetElementAtIndex(i).GetValAtIndex(j)).Mod(moduli[i]));
-				EXPECT_EQ(actualResult, expectedResult)  << "Failure: ILVectorArray2n * operation tower "<<i<<" index "<<j;
+				native64::BigBinaryInteger expectedResult((op1.GetElementAtIndex(i).GetValAtIndex(j) * op2.GetElementAtIndex(i).GetValAtIndex(j)).Mod(ildcrtparams->GetParams()[i]->GetModulus()));
+				EXPECT_EQ(actualResult, expectedResult) << "ILVectorArray2n * operation returns incorrect results.";
 			}
 		}
 	}

@@ -88,7 +88,7 @@ public:
 	 */
 	ILVectorImpl(const shared_ptr<ParmType> params, Format format = EVALUATION, bool initializeElementToZero = false);
 
-	ILVectorImpl(const shared_ptr<ILDCRTParams> params, Format format = EVALUATION, bool initializeElementToZero = false);
+	ILVectorImpl(const shared_ptr<ILDCRTParams<ModType>> params, Format format = EVALUATION, bool initializeElementToZero = false);
 
 	/**
 	 * Construct given parameters and format
@@ -301,7 +301,7 @@ public:
 	 *
 	 * @return the modulus.
 	 */
-	const ModType &GetModulus() const;
+	const ModType &GetModulus() const { return m_params->GetModulus(); }
 
 	/**
 	 * Get the values for the element
@@ -315,14 +315,16 @@ public:
 	 *
 	 * @return order
 	 */
-	const usint GetCyclotomicOrder() const;
+	const usint GetCyclotomicOrder() const { return m_params->GetCyclotomicOrder(); }
+
+	const usint GetRingDimension() const { return m_params->GetRingDimension(); }
 
 	/**
 	 * Get the root of unity.
 	 *
 	 * @return the root of unity.
 	 */
-	const IntType &GetRootOfUnity() const;
+	const IntType &GetRootOfUnity() const { return m_params->GetRootOfUnity(); }
 
 
 	/**
@@ -765,6 +767,8 @@ private:
 
 	// static variable to store the sample size for each set of ILParams
 	static const usint m_sampleSize = SAMPLE_SIZE;
+
+	void ArbitrarySwitchFormat();
 };
 
 } //namespace lbcrypto ends

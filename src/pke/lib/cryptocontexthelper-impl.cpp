@@ -265,8 +265,7 @@ CryptoContextHelper::getNewDCRTContext(const string& parmset, usint numTowers, u
 {
 	std::string parmtype;
 	std::string ring;
-	std::string modulus;
-	std::string rootOfUnity;
+	std::string plaintextModulus;
 
 	map<string, map<string,string>>::iterator it = CryptoContextParameterSets.find(parmset);
 
@@ -283,12 +282,11 @@ CryptoContextHelper::getNewDCRTContext(const string& parmset, usint numTowers, u
 	shared_ptr<ILVectorArray2n::Params> parms;
 	if( parmtype != "FV" ) {
 		if( !getValueForName(it->second, "ring", ring) ||
-				!getValueForName(it->second, "modulus", modulus) ||
-				!getValueForName(it->second, "rootOfUnity", rootOfUnity) ) {
+				!getValueForName(it->second, "plaintextModulus", plaintextModulus) ) {
 			return 0;
 		}
 
-		parms = GenerateDCRTParams(stoul(ring), numTowers, primeBits);
+		parms = GenerateDCRTParams(stoul(ring), stoul(plaintextModulus), numTowers, primeBits);
 
 	}
 	return buildContextFromSerialized<ILVectorArray2n>(it->second, parms);
