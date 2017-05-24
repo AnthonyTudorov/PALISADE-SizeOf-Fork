@@ -356,10 +356,8 @@ void test_BigBinaryVector (usint nloop) {
 }
 
 
-//////////////////// helper functions fofr test_ubintvec()
+//////////////////// helper functions for test_ubintvec()
 //todo figure out how to share code between these vec_diffs
-
-#if MATHBACKEND == 2 ||  MATHBACKEND ==5
 
 //function to compare two bintvecs and print differing indicies
 void vec_diff(exp_int::xubintvec &a, exp_int::xubintvec &b) {
@@ -423,12 +421,12 @@ void vec_diff(exp_int::xmubintvec &a, exp_int::xmubintvec &b) {
 
 
 }
-#endif
 
 
-// Code to test ubintvec at three different numbers of limbs.
+// Code to test exp_int::xubintvec at three different numbers of limbs.
 void test_ubintvec(usint nloop) {
-  #if MATHBACKEND == 2 ||  MATHBACKEND ==5
+
+  bool dbg_flag = true;		// if true then print dbg output
  
   TimeVar t1,t2, t3,t_total; // timers for TIC() TOC()
   double time2;
@@ -858,7 +856,6 @@ void test_ubintvec(usint nloop) {
   TESTIT(t3, mc3, ma3 * mb3,  modmul3, nloop);
 
   return ;
-#endif
 }
 
 

@@ -126,11 +126,13 @@ typedef ubintvec<xubint> xubintvec;
 typedef mubintvec<xubint> xmubintvec;
 }
 
+#ifdef __linux__
 ////////// for gmp int
 #include "gmp_int/gmpint.h" //experimental gmp unsigned big ints
 #include "gmp_int/mgmpint.h" //experimental gmp modulo unsigned big ints
 #include "gmp_int/gmpintvec.h" //vectors of such
 #include "gmp_int/mgmpintvec.h" //rings of such
+#endif
 
 ////////// for native int
 #include "native_int/binint.h"
@@ -166,7 +168,7 @@ namespace lbcrypto {
 
 #endif
 
-
+#ifdef __linux__
 #if MATHBACKEND == 6
 
 	/** Define the mapping for BigBinaryInteger */
@@ -177,6 +179,7 @@ namespace lbcrypto {
 
 #define MATH_DEFBITS 0
 
+#endif
 #endif
 
 #if MATHBACKEND == 7
