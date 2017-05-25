@@ -270,8 +270,14 @@ public:
 	LPKeyPair<Element> MultipartyKeyGen(const CryptoContext<Element> cc,
 		const shared_ptr<LPPublicKey<Element>> pk1,
 		bool makeSparse=false) const {
-		std::string errMsg = "LPAlgorithmPRENull::MultipartyKeyGen using the new secret key is not implemented for the Null Scheme.";
-		throw std::runtime_error(errMsg);
+		LPKeyPair<Element>	kp( new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc) );
+
+		Element a(cc.GetCryptoParameters()->GetElementParams(), Format::COEFFICIENT, true);
+		kp.secretKey->SetPrivateElement(a);
+		kp.publicKey->SetPublicElementAtIndex(0, a);
+		kp.publicKey->SetPublicElementAtIndex(1, a);
+
+		return kp;
 	}
 
 		/**
@@ -285,8 +291,14 @@ public:
 	LPKeyPair<Element> MultipartyKeyGen(const CryptoContext<Element> cc,
 		const vector<shared_ptr<LPPrivateKey<Element>>>& secretKeys,
 		bool makeSparse=false) const {
-		std::string errMsg = "LPAlgorithmPRENull::MultipartyKeyGen using the new secret key is not implemented for the Null Scheme.";
-		throw std::runtime_error(errMsg);
+		LPKeyPair<Element>	kp( new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc) );
+
+		Element a(cc.GetCryptoParameters()->GetElementParams(), Format::COEFFICIENT, true);
+		kp.secretKey->SetPrivateElement(a);
+		kp.publicKey->SetPublicElementAtIndex(0, a);
+		kp.publicKey->SetPublicElementAtIndex(1, a);
+
+		return kp;
 	}
 
 		/**
@@ -297,8 +309,12 @@ public:
 		 */
 	shared_ptr<Ciphertext<Element>> MultipartyDecryptMain(const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const shared_ptr<Ciphertext<Element>> ciphertext) const {
-		std::string errMsg = "LPAlgorithmPRENull::MultipartyDecryptMain is not implemented for the Null Scheme.";
-		throw std::runtime_error(errMsg);
+
+		shared_ptr<Ciphertext<Element>> ciphertext_out( new Ciphertext<Element>(privateKey->GetCryptoContext()) );
+		Element plaintext(ciphertext->GetElement());
+		ciphertext_out->SetElement(plaintext);
+
+		return ciphertext_out;
 	}
 
 		/**
@@ -309,8 +325,12 @@ public:
 		 */
 	shared_ptr<Ciphertext<Element>> MultipartyDecryptLead(const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const shared_ptr<Ciphertext<Element>> ciphertext) const {
-		std::string errMsg = "LPAlgorithmPRENull::MultipartyDecryptLead is not implemented for the Null Scheme.";
-		throw std::runtime_error(errMsg);
+
+		shared_ptr<Ciphertext<Element>> ciphertext_out( new Ciphertext<Element>(privateKey->GetCryptoContext()) );
+		Element plaintext(ciphertext->GetElement());
+		ciphertext_out->SetElement(plaintext);
+
+		return ciphertext_out;
 	}
 
 		/**
@@ -322,8 +342,10 @@ public:
 		 */
 	DecryptResult MultipartyDecryptFusion(const vector<shared_ptr<Ciphertext<Element>>>& ciphertextVec,
 		ILVector2n *plaintext) const {
-		std::string errMsg = "LPAlgorithmPREBV::MultipartyDecrypt is not implemented for the Null Scheme.";
-		throw std::runtime_error(errMsg);
+		Element b = ciphertextVec[0]->GetElement();
+		ILVector2n interpolatedElement = b.CRTInterpolate();
+		*plaintext = interpolatedElement;
+		return DecryptResult(plaintext->GetLength());
 	}
 
 };
@@ -750,6 +772,10 @@ public:
 		case PRE:
 			if (this->m_algorithmPRE == NULL)
 				this->m_algorithmPRE = new LPAlgorithmPRENull<Element>();
+			break;
+		case MULTIPARTY:
+			if (this->m_algorithmMultiparty == NULL)
+				this->m_algorithmMultiparty = new LPAlgorithmMultipartyNull<Element>();
 			break;
 		case SHE:
 			if (this->m_algorithmSHE == NULL)
