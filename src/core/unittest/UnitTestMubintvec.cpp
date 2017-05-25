@@ -360,7 +360,7 @@ TEST(UTmubintvec,mod){
 }
 
 TEST(UTmubintvec,basic_vector_vector_mod_math_1_limb){
-  bool dbg_flag = false;
+  bool dbg_flag = true;
 
   // q1 modulus 1:
   ubint q1("163841");

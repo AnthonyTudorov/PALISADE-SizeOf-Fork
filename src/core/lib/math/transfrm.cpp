@@ -983,8 +983,10 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 
 	template<typename IntType, typename VecType>
 	VecType ChineseRemainderTransformArb<IntType, VecType>::ForwardTransform(const VecType& element, const IntType& root, const IntType& bigMod, const IntType& bigRoot, const usint cycloOrder) {
-
+	        bool dbg_flag = false;
 		usint n = GetTotient(cycloOrder);
+		DEBUG("GetTotient("<<cycloOrder<<")= "<<n);
+		DEBUG("element length "<<element.GetLength());
 		if (element.GetLength() != n) {
 			throw std::runtime_error("element size should be equal to phim");
 		}

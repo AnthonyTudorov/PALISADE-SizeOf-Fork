@@ -134,11 +134,11 @@ namespace NTL{
 
  
 
-    //inline myZZ_p& operator=(const unsigned int a) {return myZZ_p((unsigned int)a);}
-
-    //the following may be wrong, i am winging this.
+    // operator=
     inline myZZ_p& operator=(const char * s) {this->_ZZ_p__rep=conv<ZZ>(s);}
     inline myZZ_p& operator=(int a) {this->_ZZ_p__rep=conv<ZZ>(a);}
+
+
 
     //myZZ_p( ZZ_p && zzin) : ZZ_p(zzin), m_MSB(5){};
 #if 0

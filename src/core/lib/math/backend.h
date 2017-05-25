@@ -75,17 +75,13 @@
 // 6- GMP 6.1.1 / NTL 10.3.0 backend  experimental on linux (replaces BE 2_
 
 // currently failing for  
-// UTSer.cpu_int
-// UTSer.vector_of_cpu_int
-// UTPKESer.LTV_keys_and_ciphertext (core dump)
+// UTPRE.BV_ILVectorArray2n_ReEncrypt_pri
 // UTSHE.BV_ILVectorArray2n_Mult
-// UTTrapdoor.TrapDoorGaussGqSampTest (doesn't return)
-// UTSignatureGPV.sign_verify_multiple_texts (doesn't return or takes too long)
 // UTSignatureGPV.simple_sign_verify
+// UTSignatureGPV.sign_verify_multiple_texts
 // UTSignatureGPV.sign_verify_multiple_keys
 // UTTrapdoor.TrapDoorGaussSampTest
- 
- 
+
 // MATHBACKEND 7
 // uses native64 as the default
 // This backend provides a maximum size of 64 bits
@@ -95,10 +91,10 @@
 //uncommented line (and breaking the documentation of the line)
 
 //#define MATHBACKEND 2 
-//#define MATHBACKEND 3 
+#define MATHBACKEND 3 
 //#define MATHBACKEND 4 
 //#define MATHBACKEND 5 
-#define MATHBACKEND 6 
+//#define MATHBACKEND 6 
 //#define MATHBACKEND 7	// native64 native
 
 

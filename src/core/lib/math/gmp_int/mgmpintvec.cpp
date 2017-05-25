@@ -275,14 +275,19 @@ namespace NTL {
   }
   
   //Assignment with initializer list of myZZ
-  // note, resizes the vector to the length of the initializer list
+  //if myZZ.size()>rhs.size()
+  // keeps current size, just fills elements from initializer list
+  // otherwise fills to rhs.size().
   //keeps current modulus
   template<class myT>
   const myVecP<myT>& myVecP<myT>::operator=(std::initializer_list<myT> rhs){
     bool dbg_flag = false;
-    DEBUG("in op=initializerlist <myT>");
     usint len = rhs.size();
-    this->SetLength(len);
+    DEBUG("in op=initializerlist <myT>");
+    if (this->length()<len){
+      this->SetLength(len);
+    }
+
     for(usint i=0;i<len;i++){ // this loops over each entry
       (*this)[i] =  myT(*(rhs.begin()+i));
     }
@@ -297,7 +302,10 @@ namespace NTL {
     bool dbg_flag = false;
     DEBUG("in op=initializerlist <usint>");
     usint len = rhs.size();
-    this->SetLength(len);
+    if (this->length()<len){
+      this->SetLength(len);
+    }
+
     for(usint i=0;i<len;i++){ // this loops over each entry
       (*this)[i] =  myZZ(*(rhs.begin()+i));
     }
@@ -312,7 +320,10 @@ namespace NTL {
     bool dbg_flag = false;
     DEBUG("in op=initializerlist <int>");
     usint len = rhs.size();
-    this->SetLength(len);
+    if (this->length()<len){
+      this->SetLength(len);
+    }
+
     for(usint i=0;i<len;i++){ // this loops over each entry
       (*this)[i] =  myZZ(*(rhs.begin()+i));
     }
@@ -328,7 +339,10 @@ namespace NTL {
     bool dbg_flag = false;
     DEBUG("in op=initializerlist <string>");
     usint len = rhs.size();
-    this->SetLength(len);
+    if (this->length()<len){
+      this->SetLength(len);
+    }
+
     for(usint i=0;i<len;i++){ // this loops over each entry
       (*this)[i] =  myT(*(rhs.begin()+i));
     }
@@ -345,7 +359,10 @@ namespace NTL {
     bool dbg_flag = false;
     DEBUG("in op=initializerlist const char*");
     usint len = rhs.size();
-    this->SetLength(len);
+    if (this->length()<len){
+      this->SetLength(len);
+    }
+
     for(usint i=0;i<len;i++){ // this loops over each entry
       (*this)[i] =  (myT(*(rhs.begin()+i)));
     } 
