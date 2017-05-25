@@ -288,7 +288,7 @@ namespace NTL {
     else
       return Number>>myZZ::m_log2LimbBitLength;
   }
-
+#if 0
   // friend or inherit this? it is the same as gmpint
  //the following code is new serialize/deserialize code from
 
@@ -321,60 +321,34 @@ namespace NTL {
       return 63;
   }
 
-
-  // friend or inherit this? it is the same as gmpint
-  const std::string myZZ_p::Serialize() const {
-
-#if 0
-    std::string ans = "";
-    //note limbs are now stored little endian in ubint
-    const ZZ_limb_t *zlp = ZZ_limbs_get(this->_ZZ_p__rep);
-    for (auto i = 0; i< rep(*this).size(); ++i){
-      ans += to_base64_char[((zlp[i]) >> b64_shifts[0]) & B64MASK];
-      ans += to_base64_char[((zlp[i]) >> b64_shifts[1]) & B64MASK];
-      ans += to_base64_char[((zlp[i]) >> b64_shifts[2]) & B64MASK];
-      ans += to_base64_char[((zlp[i]) >> b64_shifts[3]) & B64MASK];
-      ans += to_base64_char[((zlp[i]) >> b64_shifts[4]) & B64MASK];
-      ans += (((zlp[i]) >> b64_shifts[5])&0x3) + 'A';
-    }
-    return ans;
-#else
-    //same as myZZ
-    return (myZZ(this->_ZZ_p__rep)).Serialize();
 #endif
+  // serialization of myZZ_p, calls myZZ.Serialize, 
+  const std::string myZZ_p::Serialize(const myZZ &modulus) const {
+    bool dbg_flag = true;
+    
+    //note this does simple serialization, other libraries store small special values for 0 or  -1
+    //we ignore this
+    DEBUG("mgmp ser "<<*this);
+    return (myZZ(this->_ZZ_p__rep)).Serialize();
   }
 
-  /**
-   * This function is only used for deserialization
-   */
-
+  // deserialization of myZZ_p, calls myZZ.Deserialize, 
+  // sets modulus to input  modulus. 
   const char * myZZ_p::Deserialize(const char *cp, myZZ &modulus){
-    bool dbg_flag = true;
+    bool dbg_flag = false;
     const char *cpout;
     clear(*this);
-    myZZ(repZZ);
-#if 0
+    myZZ(repZZ); //new value store decode
 
-    vector<ZZ_limb_t> cv;
-
-    while( *cp != '\0' && *cp != '|' ) {
-      ZZ_limb_t converted =  base64_to_value(*cp++) << b64_shifts[0];
-      converted |= base64_to_value(*cp++) << b64_shifts[1];
-      converted |= base64_to_value(*cp++) << b64_shifts[2];
-      converted |= base64_to_value(*cp++) << b64_shifts[3];
-      converted |= base64_to_value(*cp++) << b64_shifts[4];
-      converted |= ((*cp++ - 'A')&0x3) << b64_shifts[5];
-      cv.push_back(converted);
-    }
-    ZZ_limbs_set(repZZ, cv.data(), cv.size());
-#else
-    DEBUG("cp before in mgminp "<<cp);
-    cpout = repZZ.Deserialize(cp);    
-    DEBUG("cp after in mgminp "<<cpout);
-#endif
+    //DEBUG("cp before in mgminp "<<cp);
+    cpout = repZZ.Deserialize(cp);    //cpout is rest of cp after decode
+    //DEBUG("cp after in mgminp "<<cpout);
+    //save
     *this=myZZ_p(repZZ);
     this->SetModulus(modulus);
+    DEBUG("mgmp deser "<<*this);
     SetMSB();
+
     return cpout;
   }
 

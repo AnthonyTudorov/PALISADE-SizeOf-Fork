@@ -58,7 +58,7 @@ protected:
 };
 
 TEST(UTSer,cpu_int){
-        bool dbg_flag = false;
+	bool dbg_flag = false;
 	BigBinaryInteger small(7);
 	BigBinaryInteger medium(1<<27 | 1<<22);
 	BigBinaryInteger larger((uint64_t)(1<<40) | 1<<22);
@@ -122,11 +122,9 @@ TEST(UTSer,vector_of_cpu_int){
 	dug.SetModulus(mod);
 	BigBinaryInteger ranval;
 
-
 	for( int i=0; i<vecsize; i++ ) {
 		ranval = dug.GenerateInteger();
 		testvec.SetValAtIndex(i, ranval);
-		//DEBUG("loop "<<i);
 	}
 
 	DEBUG("step 4");
@@ -134,6 +132,7 @@ TEST(UTSer,vector_of_cpu_int){
 	ser.SetObject();
 	ASSERT_TRUE( testvec.Serialize(&ser) ) << "Serialization failed";
 	DEBUG("step 5");
+
 	BigBinaryVector newvec;
 	ASSERT_TRUE( newvec.Deserialize(ser) ) << "Deserialization failed";
 	DEBUG("step 6");

@@ -423,7 +423,7 @@ namespace NTL{
 
     //Serialization functions
 
-    const std::string Serialize() const;
+    const std::string Serialize(const myZZ &modulus) const;
     const char * Deserialize(const char * str, myZZ &modulus);
 
   private:
