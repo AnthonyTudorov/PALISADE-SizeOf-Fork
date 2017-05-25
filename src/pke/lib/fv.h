@@ -123,6 +123,45 @@ namespace lbcrypto {
 					}
 
 			/**
+			* Constructor that initializes values.
+			*
+			* @param &params element parameters.
+			* @param &encodingParams plaintext space parameters.
+			* @param distributionParameter noise distribution parameter.
+			* @param assuranceMeasure assurance level.
+			* @param securityLevel security level (root Hermite factor).
+			* @param relinWindow the size of the relinearization window.
+			* @param delta FV-specific factor that is multiplied by the plaintext polynomial.
+			* @param mode optimization setting (RLWE vs OPTIMIZED)
+			* @param bigModulus modulus used in polynomial multiplications in EvalMult
+			* @param bigRootOfUnity root of unity for bigModulus
+			* @param depth depth which is set to 1.
+			*/
+			LPCryptoParametersFV(shared_ptr<typename Element::Params> params,
+				shared_ptr<typename EncodingParams> encodingParams,
+				float distributionParameter,
+				float assuranceMeasure,
+				float securityLevel,
+				usint relinWindow,
+				const BigBinaryInteger &delta,
+				MODE mode,
+				const BigBinaryInteger &bigModulus,
+				const BigBinaryInteger &bigRootOfUnity,
+				int depth = 1)
+				: LPCryptoParametersRLWE<Element>(params,
+					encodingParams,
+					distributionParameter,
+					assuranceMeasure,
+					securityLevel,
+					relinWindow,
+					depth) {
+				m_delta = delta;
+				m_mode = mode;
+				m_bigModulus = bigModulus;
+				m_bigRootOfUnity = bigRootOfUnity;
+			}
+
+			/**
 			* Destructor
 			*/
 			virtual ~LPCryptoParametersFV() {}

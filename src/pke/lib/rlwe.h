@@ -103,6 +103,34 @@ public:
 					}
 
 	/**
+	* Constructor that initializes values.
+	*
+	* @param &params element parameters.
+	* @param &encodingParams encoding-specific parameters
+	* @param distributionParameter noise distribution parameter.
+	* @param assuranceMeasure assurance level.
+	* @param securityLevel security level.
+	* @param relinWindow the size of the relinearization window.
+	* @param depth depth which defaults to 1.
+	*/
+	LPCryptoParametersRLWE(
+		shared_ptr<typename Element::Params> params,
+		shared_ptr<typename EncodingParams> encodingParams,
+		float distributionParameter,
+		float assuranceMeasure,
+		float securityLevel,
+		usint relinWindow,
+		int depth = 1) : LPCryptoParameters<Element>(params, encodingParams)
+	{
+		m_distributionParameter = distributionParameter;
+		m_assuranceMeasure = assuranceMeasure;
+		m_securityLevel = securityLevel;
+		m_relinWindow = relinWindow;
+		m_dgg.SetStd(m_distributionParameter);
+		m_depth = depth;
+	}
+
+	/**
 	 * Destructor
 	 */
 	virtual ~LPCryptoParametersRLWE() {}
@@ -196,6 +224,7 @@ public:
 
 		return  this->GetPlaintextModulus() == el->GetPlaintextModulus() &&
 				*this->GetElementParams() == *el->GetElementParams() &&
+				*this->GetEncodingParams() == *el->GetEncodingParams() &&
 				m_distributionParameter == el->GetDistributionParameter() &&
 				m_assuranceMeasure == el->GetAssuranceMeasure() &&
 				m_securityLevel == el->GetSecurityLevel() &&
@@ -233,7 +262,13 @@ protected:
 		if( !this->GetElementParams()->Serialize(&pser) )
 			return false;
 
+		Serialized encodingPser(rapidjson::kObjectType, &serObj->GetAllocator());
+
+		if (!this->GetElementParams()->Serialize(&encodingPser))
+			return false;
+
 		cryptoParamsMap.AddMember("ElemParams", pser.Move(), serObj->GetAllocator());
+		cryptoParamsMap.AddMember("EncodingParams", encodingPser.Move(), serObj->GetAllocator());
 		cryptoParamsMap.AddMember("DistributionParameter", std::to_string(this->GetDistributionParameter()), serObj->GetAllocator());
 		cryptoParamsMap.AddMember("AssuranceMeasure", std::to_string(this->GetAssuranceMeasure()), serObj->GetAllocator());
 		cryptoParamsMap.AddMember("SecurityLevel", std::to_string(this->GetSecurityLevel()), serObj->GetAllocator());
@@ -264,6 +299,32 @@ protected:
 
 		shared_ptr<typename Element::Params> ep( json_ilParams );
 		this->SetElementParams( ep );
+
+		SerialItem::ConstMemberIterator epIt;
+
+		if ((epIt = mIter->value.FindMember("EncodingParams")) == mIter->value.MemberEnd())
+			return false;
+		Serialized oneItemE(rapidjson::kObjectType);
+		SerialItem keyE(epIt->value.MemberBegin()->name, oneItemE.GetAllocator());
+		SerialItem valE(epIt->value.MemberBegin()->value, oneItemE.GetAllocator());
+		oneItemE.AddMember(keyE, valE, oneItemE.GetAllocator());
+
+		typename EncodingParams *json_encodingParams = new typename EncodingParams();
+		//		if( typeid(Element) == typeid(ILVector2n) )
+		//			json_ilParams = new ILParams();
+		//		else if( typeid(Element) == typeid(ILVectorArray2n) )
+		//			json_ilParams = new ILDCRTParams();
+		//		else {
+		//			throw std::logic_error("Unrecognized element type");
+		//		}
+
+		if (!json_encodingParams->Deserialize(oneItemE)) {
+			delete json_encodingParams;
+			return false;
+		}
+
+		shared_ptr<typename EncodingParams> encodingParams(json_encodingParams);
+		this->SetEncodingParams(encodingParams);
 
 		if( (pIt = mIter->value.FindMember("PlaintextModulus")) == mIter->value.MemberEnd() )
 			return false;

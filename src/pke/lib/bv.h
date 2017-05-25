@@ -127,6 +127,38 @@ namespace lbcrypto {
 			}
 
 			/**
+			* Constructor that initializes values.
+			*
+			* @param &params element parameters.
+			* @param &encodingParams plaintext space parameters.
+			* @param distributionParameter noise distribution parameter.
+			* @param assuranceMeasure assurance level.
+			* @param securityLevel security level.
+			* @param relinWindow the size of the relinearization window.
+			* @param mode sets the mode of operation: RLWE or OPTIMIZED
+			* @param depth depth which is set to 1.
+			*/
+			LPCryptoParametersBV(
+				shared_ptr<typename Element::Params> params,
+				shared_ptr<typename EncodingParams> encodingParams,
+				float distributionParameter,
+				float assuranceMeasure,
+				float securityLevel,
+				usint relinWindow,
+				MODE mode,
+				int depth = 1)
+				: LPCryptoParametersRLWE<Element>(
+					params,
+					encodingParams,
+					distributionParameter,
+					assuranceMeasure,
+					securityLevel,
+					relinWindow,
+					depth) {
+				m_mode = mode;
+			}
+
+			/**
 			* Destructor.
 			*/
 			virtual ~LPCryptoParametersBV() {}

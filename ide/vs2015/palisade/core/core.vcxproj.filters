@@ -34,6 +34,7 @@
     <ClCompile Include="..\..\..\..\src\core\lib\utils\palisadebase64.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\utils\serializablehelper.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\utils\utilities.cpp" />
+    <ClCompile Include="..\..\..\..\src\core\lib\encoding\encodingparams.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\src\core\lib\encoding\byteplaintextencoding.h" />
@@ -104,5 +105,7 @@
     <ClInclude Include="..\..\..\..\src\core\lib\utils\serializable.h" />
     <ClInclude Include="..\..\..\..\src\core\lib\utils\serializablehelper.h" />
     <ClInclude Include="..\..\..\..\src\core\lib\utils\utilities.h" />
+    <ClInclude Include="..\..\..\..\src\core\lib\utils\parmfactory.h" />
+    <ClInclude Include="..\..\..\..\src\core\lib\encoding\encodingparams.h" />
   </ItemGroup>
 </Project>

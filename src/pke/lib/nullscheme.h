@@ -20,6 +20,9 @@ public:
 	LPCryptoParametersNull(const shared_ptr<typename Element::Params> ep, const BigBinaryInteger &plaintextModulus)
 		: LPCryptoParameters<Element>(ep, plaintextModulus) {}
 
+	LPCryptoParametersNull(shared_ptr<typename Element::Params> ep, shared_ptr<typename EncodingParams> encodingParams)
+		: LPCryptoParameters<Element>(ep, encodingParams) {}
+
 	LPCryptoParametersNull(const LPCryptoParametersNull& rhs) : LPCryptoParameters<Element>(rhs) {}
 
 	virtual ~LPCryptoParametersNull() {}
@@ -39,7 +42,13 @@ public:
 		if( !this->GetElementParams()->Serialize(&pser) )
 			return false;
 
+		Serialized pserEncoding(rapidjson::kObjectType, &serObj->GetAllocator());
+
+		if (!this->GetEncodingParams()->Serialize(&pserEncoding))
+			return false;
+
 		cryptoParamsMap.AddMember("ElemParams", pser.Move(), serObj->GetAllocator());
+		cryptoParamsMap.AddMember("EncodingParams", pserEncoding.Move(), serObj->GetAllocator());
 		cryptoParamsMap.AddMember("PlaintextModulus", this->GetPlaintextModulus().ToString(), serObj->GetAllocator());
 
 		serObj->AddMember("LPCryptoParametersNull", cryptoParamsMap.Move(), serObj->GetAllocator());
@@ -74,6 +83,24 @@ public:
 		}
 
 		this->SetElementParams( shared_ptr<typename Element::Params>(json_ilParams) );
+
+		SerialItem::ConstMemberIterator pItEncoding;
+
+		if ((pItEncoding = mIter->value.FindMember("EncodingParams")) == mIter->value.MemberEnd())
+			return false;
+		Serialized oneItemEncoding(rapidjson::kObjectType);
+		SerialItem keyEncoding(pItEncoding->value.MemberBegin()->name, oneItemEncoding.GetAllocator());
+		SerialItem valEncoding(pItEncoding->value.MemberBegin()->value, oneItemEncoding.GetAllocator());
+		oneItemEncoding.AddMember(keyEncoding, valEncoding, oneItem.GetAllocator());
+
+		typename EncodingParams *json_ilParamsEncoding = new typename EncodingParams();
+
+		if (!json_ilParamsEncoding->Deserialize(oneItemEncoding)) {
+			delete json_ilParamsEncoding;
+			return false;
+		}
+
+		this->SetEncodingParams(shared_ptr<typename EncodingParams>(json_ilParamsEncoding));
 
 		if( (pIt = mIter->value.FindMember("PlaintextModulus")) == mIter->value.MemberEnd() )
 			return false;

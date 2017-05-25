@@ -7,6 +7,7 @@
 
 #include "elemparams.cpp"
 #include "ilparams.cpp"
+#include "../encoding/encodingparams.cpp"
 #include "ilvector2n.cpp"
 #include "../math/discretegaussiangenerator.cpp"
 #include "../math/discreteuniformgenerator.cpp"
@@ -26,6 +27,7 @@ template class DiscreteUniformGeneratorImpl<BigBinaryInteger,BigBinaryVector>;
 namespace lbcrypto {
 template class ElemParams<BigBinaryInteger>;
 template class ILParamsImpl<BigBinaryInteger>;
+template class EncodingParamsImpl<BigBinaryInteger>;
 template class ILVectorImpl<BigBinaryInteger,BigBinaryInteger,BigBinaryVector,ILParams>;
 
 template<>

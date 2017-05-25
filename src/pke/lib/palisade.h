@@ -36,6 +36,8 @@ class CryptoContext;
 #include "lattice/ilvector2n.h"
 #include "../../core/lib/lattice/ildcrt2n.h"
 
+#include "encoding/encodingparams.h"
+
 #include "pubkeylp.h"
 
 #include "rlwe.h"

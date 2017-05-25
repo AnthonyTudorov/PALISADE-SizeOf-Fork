@@ -43,6 +43,7 @@
 #include "utils/inttypes.h"
 #include "math/distrgen.h"
 #include "utils/serializablehelper.h"
+#include "encoding/encodingparams.h"
 
 
 /**
@@ -1244,6 +1245,13 @@ namespace lbcrypto {
 			* @return the ring element parameters.
 			*/
 		const shared_ptr<typename Element::Params> GetElementParams() const { return m_params; }
+
+		/**
+		* Returns the reference to encoding params
+		*
+		* @return the encoding parameters.
+		*/
+		const shared_ptr<typename EncodingParams> GetEncodingParams() const { return m_encodingParams; }
 			
 		/**
 		* Sets the value of plaintext modulus p
@@ -1257,6 +1265,14 @@ namespace lbcrypto {
 		 * Sets the reference to element params
 		 */
 		void SetElementParams(shared_ptr<typename Element::Params> params) { m_params = params; }
+
+		/**
+		* Sets the reference to element params
+		*/
+		void SetEncodingParams(shared_ptr<typename EncodingParams> encodingParams) {
+			m_encodingParams = encodingParams;
+			m_plaintextModulus = encodingParams->GetPlaintextModulus();
+		}
 
 		/**
 		 * Overload to allow printing of parameters to an iostream
@@ -1286,6 +1302,12 @@ namespace lbcrypto {
 			m_params = params;
 		}
 
+		LPCryptoParameters(shared_ptr<typename Element::Params> params, shared_ptr<typename EncodingParams> encodingParams) {
+			m_params = params;
+			m_encodingParams = encodingParams;
+			m_plaintextModulus = encodingParams->GetPlaintextModulus();
+		}
+
 		LPCryptoParameters(LPCryptoParameters<Element> *from, shared_ptr<typename Element::Params> newElemParms) {
 			*this = *from;
 			m_params = newElemParms;
@@ -1294,11 +1316,15 @@ namespace lbcrypto {
 		virtual void PrintParameters(std::ostream& out) const {
 			out << "Element Parameters: " << *m_params << std::endl;
 			out << "Plaintext Modulus: " << m_plaintextModulus << std::endl;
+			out << "Encoding Parameters: " << *m_encodingParams << std::endl;
 		}
 
 	private:
 		//element-specific parameters
 		shared_ptr<typename Element::Params>	m_params;
+
+		//encoding-specific parameters
+		shared_ptr<typename EncodingParams>		m_encodingParams;
 
 		//plaintext modulus p
 		typename Element::Integer		m_plaintextModulus;

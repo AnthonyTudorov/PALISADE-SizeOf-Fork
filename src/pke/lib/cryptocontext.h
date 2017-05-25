@@ -1047,6 +1047,21 @@ public:
 		usint relinWindow, float stDev, int depth = 1, int assuranceMeasure = 9, float securityLevel = 1.006);
 
 	/**
+	* construct a PALISADE CryptoContext for the LTV Scheme
+	* @param encodingParams
+	* @param ringdim
+	* @param modulus
+	* @param rootOfUnity
+	* @param relinWindow
+	* @param stDev
+	* @param depth
+	* @return new context
+	*/
+	static CryptoContext<Element> genCryptoContextLTV(shared_ptr<typename Element::Params> params,
+		shared_ptr<typename EncodingParams> encodingParams,
+		usint relinWindow, float stDev, int depth = 1, int assuranceMeasure = 9, float securityLevel = 1.006);
+
+	/**
 	* construct a PALISADE CryptoContext for the FV Scheme
 	* @param plaintextmodulus
 	* @param ringdim
@@ -1070,6 +1085,29 @@ public:
 		int depth = 0, int assuranceMeasure = 0, float securityLevel = 0);
 
 	/**
+	* construct a PALISADE CryptoContext for the FV Scheme
+	* @param encodingParams
+	* @param ringdim
+	* @param modulus
+	* @param rootOfUnity
+	* @param relinWindow
+	* @param stDev
+	* @param delta
+	* @param mode
+	* @param bigmodulus
+	* @param bigrootofunity
+	* @param depth
+	* @param assuranceMeasure
+	* @param securityLevel
+	* @return new context
+	*/
+	static CryptoContext<Element> genCryptoContextFV(shared_ptr<typename Element::Params> params,
+		shared_ptr<typename EncodingParams> encodingParams,
+		usint relinWindow, float stDev, const std::string& delta,
+		MODE mode = RLWE, const std::string& bigmodulus = "0", const std::string& bigrootofunity = "0",
+		int depth = 0, int assuranceMeasure = 0, float securityLevel = 0);
+
+	/**
 	* construct a PALISADE CryptoContext for the FV Scheme using the scheme's ParamsGen methods
 	* @param plaintextModulus
 	* @param securityLevel
@@ -1080,6 +1118,19 @@ public:
 	*/
 	static CryptoContext<Element> genCryptoContextFV(
 		const usint plaintextModulus, float securityLevel, usint relinWindow, float dist,
+		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches);
+
+	/**
+	* construct a PALISADE CryptoContext for the FV Scheme using the scheme's ParamsGen methods
+	* @param encodingParams
+	* @param securityLevel
+	* @param numAdds
+	* @param numMults
+	* @param numKeyswitches
+	* @return new context
+	*/
+	static CryptoContext<Element> genCryptoContextFV(
+		shared_ptr<typename EncodingParams> encodingParams, float securityLevel, usint relinWindow, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches);
 
 	/**
@@ -1099,6 +1150,22 @@ public:
 		MODE mode = RLWE, int depth = 1);
 
 	/**
+	* construct a PALISADE CryptoContext for the BV Scheme
+	* @param encodingParams
+	* @param ringdim
+	* @param modulus
+	* @param rootOfUnity
+	* @param relinWindow
+	* @param stDev
+	* @param mode
+	* @return new context
+	*/
+	static CryptoContext<Element> genCryptoContextBV(shared_ptr<typename Element::Params> params,
+		shared_ptr<typename EncodingParams> encodingParams,
+		usint relinWindow, float stDev,
+		MODE mode = RLWE, int depth = 1);
+
+	/**
 	* construct a PALISADE CryptoContext for the StehleSteinfeld Scheme
 	* @param plaintextmodulus
 	* @param ringdim
@@ -1114,11 +1181,33 @@ public:
 		usint relinWindow, float stDev, float stDevStSt, int depth = 1, int assuranceMeasure = 9, float securityLevel = 1.006);
 
 	/**
+	* construct a PALISADE CryptoContext for the StehleSteinfeld Scheme
+	* @param encodingParams
+	* @param ringdim
+	* @param modulus
+	* @param rootOfUnity
+	* @param relinWindow
+	* @param stDev
+	* @param stDevStSt
+	* @return new context
+	*/
+	static CryptoContext<Element> genCryptoContextStehleSteinfeld(shared_ptr<typename Element::Params> params,
+		shared_ptr<typename EncodingParams> encodingParams,
+		usint relinWindow, float stDev, float stDevStSt, int depth = 1, int assuranceMeasure = 9, float securityLevel = 1.006);
+
+	/**
 	* construct a PALISADE CryptoContext for the Null Scheme
 	* @param modulus
 	* @return
 	*/
 	static CryptoContext<Element> genCryptoContextNull(shared_ptr<typename Element::Params> ep, const usint ptModulus);
+
+	/**
+	* construct a PALISADE CryptoContext for the Null Scheme
+	* @param modulus
+	* @return
+	*/
+	static CryptoContext<Element> genCryptoContextNull(shared_ptr<typename Element::Params> ep, shared_ptr<typename EncodingParams> encodingParams);
 
 	// helper for deserialization of contexts
 	static shared_ptr<LPCryptoParameters<Element>> GetParameterObject(const Serialized& serObj) {
