@@ -280,18 +280,20 @@ namespace exp_int {
 
 
   //Assignment with initializer list of ubints
-  // note, resizes the vector to the length of the initializer list
+  // does not resize the vector
+  // unless lhs size is too small
   template<class ubint_el_t>
   const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::operator=(std::initializer_list<ubint_el_t> rhs){
     bool dbg_flag = false;
     size_t len = rhs.size();
-    this->m_data.clear();
-
-    for(usint i=0;i<len;i++){ // this loops over each entry
+    if (this->m_data.size()< len){
+      this->m_data.resize(len);
+    }
+    for(usint i=0;i<this->m_data.size();i++){ // this loops over each entry
       if(i<len) {
-	this->m_data.push_back( ubint_el_t(*(rhs.begin()+i)));
+	this->m_data[i]= ubint_el_t(*(rhs.begin()+i));
       } else {
-	this->m_data.push_back(ubint_el_t::ZERO);
+	this->m_data[i]=ubint_el_t::ZERO;
       }
     }
     if (this->m_modulus_state == INITIALIZED) {
@@ -306,12 +308,14 @@ namespace exp_int {
   const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::operator=(std::initializer_list<usint> rhs){
     bool dbg_flag = false;
     size_t len = rhs.size();
-    this->m_data.clear();
-    for(usint i=0;i<len;i++){ // this loops over each entry
+    if (this->m_data.size()< len){
+      this->m_data.resize(len);
+    }
+    for(usint i=0;i<this->m_data.size();i++){ // this loops over each entry
       if(i<len) {
-	this->m_data.push_back( ubint_el_t(*(rhs.begin()+i)));
+	this->m_data[i] =  ubint_el_t(*(rhs.begin()+i));
       } else {
-	this->m_data.push_back(ubint_el_t::ZERO);
+	this->m_data[i] = ubint_el_t::ZERO;
       }
     }
     if (this->m_modulus_state == INITIALIZED) {
@@ -328,12 +332,14 @@ namespace exp_int {
   const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::operator=(std::initializer_list<sint> rhs){
     bool dbg_flag = false;
     size_t len = rhs.size();
-    this->m_data.clear();
-    for(usint i=0;i<len;i++){ // this loops over each entry
+    if (this->m_data.size()< len){
+      this->m_data.resize(len);
+    }
+    for(usint i=0;i<this->m_data.size();i++){ // this loops over each entry
       if(i<len) {
-	this->m_data.push_back( ubint_el_t(*(rhs.begin()+i)));
+	this->m_data[i] = ubint_el_t(*(rhs.begin()+i));
       } else {
-	this->m_data.push_back(ubint_el_t::ZERO);
+	this->m_data[i] = ubint_el_t::ZERO;
       }
     }
     if (this->m_modulus_state == INITIALIZED) {
@@ -348,12 +354,14 @@ namespace exp_int {
   const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::operator=(std::initializer_list<std::string> rhs){
     bool dbg_flag = false;
     size_t len = rhs.size();
-    this->m_data.clear();
-    for(usint i=0;i<len;i++){ // this loops over each entry
+    if (this->m_data.size()< len){
+      this->m_data.resize(len);
+    }
+    for(usint i=0;i< this->m_data.size();i++){ // this loops over each entry
       if(i<len) {
-	this->m_data.push_back( ubint_el_t(*(rhs.begin()+i)));
+	this->m_data[i] =  ubint_el_t(*(rhs.begin()+i));
       } else {
-	this->m_data.push_back(ubint_el_t::ZERO);
+	this->m_data[i] = ubint_el_t::ZERO;
       }
     }
     if (this->m_modulus_state == INITIALIZED) {
