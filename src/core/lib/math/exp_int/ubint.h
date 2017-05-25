@@ -473,7 +473,7 @@ namespace exp_int{
      * it is truncated to the least significant bits that fit
      * @return the int representation of the value as usint.
      */
-    usint ConvertToInt() const;
+    uint64_t ConvertToInt() const;
 
     /**
      * Converts the value to a uint32_t.
@@ -773,9 +773,9 @@ namespace exp_int{
     const std::string ToString() const;		
 
     //Serialization functions
+    const std::string Serialize(const ubint& mod = ubint::ZERO) const;
+    const char * Deserialize(const char * str, const ubint& mod = ubint::ZERO);
 
-    const std::string Serialize() const;
-    const char * Deserialize(const char * str);
 
     // helper functions
 
@@ -996,6 +996,13 @@ namespace exp_int{
  private:
 
  public:    
+#ifdef UBINT_32
+    static const std::string IntegerTypeName() { return "UBINT_32"; }
+#endif
+#ifdef UBINT_64
+    static const std::string IntegerTypeName() { return "UBINT_64"; }
+#endif
+
     //constant definations
         
     /**

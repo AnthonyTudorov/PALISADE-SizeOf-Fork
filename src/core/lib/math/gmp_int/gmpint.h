@@ -135,7 +135,7 @@ namespace NTL{
 
     //palisade conversion methods 
     usint ConvertToUsint() const;
-    usint ConvertToInt() const;
+    uint64_t ConvertToInt() const;
     uint32_t ConvertToUint32() const;
     uint64_t ConvertToUint64() const;
     float ConvertToFloat() const;

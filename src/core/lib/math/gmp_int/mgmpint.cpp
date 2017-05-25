@@ -246,12 +246,12 @@ namespace NTL {
 
     return (conv<usint>(*this)); 
   }
-  usint myZZ_p::ConvertToInt() const{ 
+  uint64_t myZZ_p::ConvertToInt() const{ 
    bool dbg_flag = false;
 
     DEBUG("in myZZ_p::ConvertToInt() this "<<*this);
 
-    return (conv<int>(*this)); }
+    return (conv<uint64_t>(*this)); }
   uint32_t myZZ_p::ConvertToUint32() const { return (conv<uint32_t>(*this));}
 
   uint64_t myZZ_p::ConvertToUint64() const{ return (conv<uint64_t>(*this));}

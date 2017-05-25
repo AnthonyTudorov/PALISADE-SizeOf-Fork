@@ -51,14 +51,12 @@
 // Also provides exp_int backend with underlying element size of 32 bits
 // 	this allows side by side comparison of cpu_int and exp_int math backend
 
-// MATHBACKEND 3
+// MATHBACKEND 3 
 // Uses exp_int definition with uint32_t underlying size as defaults
-// new dynamicly allocated backend and support uint32_t and uint64_t on linux
-// This backend supports arbitrary bitwidths; no memory pool is used; can grow up to RAM
-// limitation
-// currently failing for  UTPRE.BV_ILVectorArray2n_ReEncrypt_pri
-//                        UTSHE.BV_ILVectorArray2n_Mult
-// and for trapdoor
+// new dynamicly allocated backend and support uint32_t and uint64_t
+// on linux This backend supports arbitrary bitwidths; no memory pool
+// is used; can grow up to RAM limitation
+// passes all tests
 
 // MATHBACKEND 4
 // Uses exp_int definition with uint64_t underlying size as defaults
@@ -75,8 +73,6 @@
 // 6- GMP 6.1.1 / NTL 10.3.0 backend  experimental on linux (replaces BE 2_
 
 // currently failing for  
-// UTPRE.BV_ILVectorArray2n_ReEncrypt_pri
-// UTSHE.BV_ILVectorArray2n_Mult
 // UTSignatureGPV.simple_sign_verify
 // UTSignatureGPV.sign_verify_multiple_texts
 // UTSignatureGPV.sign_verify_multiple_keys
@@ -91,10 +87,10 @@
 //uncommented line (and breaking the documentation of the line)
 
 //#define MATHBACKEND 2 
-#define MATHBACKEND 3 
+//#define MATHBACKEND 3 
 //#define MATHBACKEND 4 
 //#define MATHBACKEND 5 
-//#define MATHBACKEND 6 
+#define MATHBACKEND 6 
 //#define MATHBACKEND 7	// native64 native
 
 

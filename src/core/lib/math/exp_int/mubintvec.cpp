@@ -286,7 +286,7 @@ namespace exp_int {
   const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::operator=(std::initializer_list<ubint_el_t> rhs){
     bool dbg_flag = false;
     size_t len = rhs.size();
-    if (this->m_data.size()< len){
+        if (this->m_data.size()< len){
       this->m_data.resize(len);
     }
     for(usint i=0;i<this->m_data.size();i++){ // this loops over each entry
@@ -895,10 +895,10 @@ template<class ubint_el_t>
   //new serialize and deserialise operations
   //todo: not tested just added to satisfy compilier
   //currently using the same map as bigBinaryVector, with modulus. 
-
+#if 0
   // JSON FACILITY - Serialize Operation
-  template<class bin_el_t>
-  bool mubintvec<bin_el_t>::Serialize(lbcrypto::Serialized* serObj) const {
+  template<class ubint_el_t>
+  bool mubintvec<ubint_el_t>::Serialize(lbcrypto::Serialized* serObj) const {
 
     if( !serObj->IsObject() )
       return false;
@@ -918,7 +918,62 @@ template<class ubint_el_t>
     serObj->AddMember("mubintvec", bbvMap, serObj->GetAllocator());
     return true;
   }
+#else
+ // serialize and deserialise operations
+  template<class ubint_el_t>
+  bool mubintvec<ubint_el_t>::Serialize(lbcrypto::Serialized* serObj) const {
 
+    bool dbg_flag = false;
+    if( !serObj->IsObject() ){
+      std::cerr<<"myVecP::Serialize failed bad object"<<std::endl;
+      return false;
+    }
+    //serialize the modulus or mark as unknown
+    std::string modstring ="";
+    DEBUG("in vector Serialize");
+    if (this->isModulusSet()){
+      modstring = this->GetModulus().ToString();
+    }else{
+      modstring = "undefined";
+    }
+    DEBUG("modstring "<<modstring);
+
+    //build the map for the serialization
+    lbcrypto::SerialItem bbvMap(rapidjson::kObjectType);
+    //add modulus
+    bbvMap.AddMember("Modulus", modstring, serObj->GetAllocator()); 
+    //add Integer type
+    DEBUG("IntegerType "<<ubint_el_t::IntegerTypeName());
+    bbvMap.AddMember("IntegerType", ubint_el_t::IntegerTypeName(), 
+		     serObj->GetAllocator());
+
+    //determine vector length 
+    size_t pkVectorLength = this->size();
+    DEBUG ("size "<<pkVectorLength);
+    bbvMap.AddMember("Length", std::to_string(pkVectorLength), 
+		     serObj->GetAllocator());
+
+    //build a string containing all vector elements concatenated
+    if( pkVectorLength > 0 ) {
+      std::string pkBufferString = "";
+      for (int i = 0; i < pkVectorLength; i++) {
+	DEBUG("element "<<i<<" "<<this->m_data[i]);
+	std::string tmp = this->m_data[i].Serialize(this->GetModulus());
+	pkBufferString += tmp;
+      }
+      DEBUG("add VectorValues");
+      bbvMap.AddMember("VectorValues", pkBufferString, serObj->GetAllocator());
+    }
+    //store the map.
+    DEBUG("add BigBinaryVectorImpl");
+    serObj->AddMember("BigBinaryVectorImpl", bbvMap, serObj->GetAllocator());
+
+    DEBUG("serialize done");
+    return true;
+  }
+#endif
+
+#if 0
   // JSON FACILITY - Deserialize Operation
   template<class ubint_el_t>
   bool mubintvec<ubint_el_t>::Deserialize(const lbcrypto::Serialized& serObj) {
@@ -952,7 +1007,87 @@ template<class ubint_el_t>
 
     return true;
   }
+#else
+  // Deserialize
+  template<class ubint_el_t>
+  bool mubintvec<ubint_el_t>::Deserialize(const lbcrypto::Serialized& serObj) {
+    bool dbg_flag = false;
+    DEBUG("in deserialize");
 
+    //decode in reverse order from Serialize above
+    lbcrypto::Serialized::ConstMemberIterator mIter = serObj.FindMember("BigBinaryVectorImpl");
+    if( mIter == serObj.MemberEnd() ){
+      std::cerr<<"myVecP::Deserialize() failed"
+	       <<" BigBinaryVectorImpl not found"<<std::endl;
+      return false;
+    }    
+
+    lbcrypto::SerialItem::ConstMemberIterator vIt; //iterator over serial items
+    //look for IntegerType
+    if( (vIt = mIter->value.FindMember("IntegerType")) 
+	== mIter->value.MemberEnd() ){
+      std::cerr<<"myVecP::Deserialize() failed IntegerType not found"
+	       <<std::endl;
+      return false;
+    }
+    if( ubint_el_t::IntegerTypeName() != vIt->value.GetString() ){
+      std::cerr<<"myVecP::Deserialize() failed IntegerType transltion"
+	       <<std::endl;
+      return false;
+    }
+    //look for Modulus
+    if( (vIt = mIter->value.FindMember("Modulus"))
+	== mIter->value.MemberEnd() ){
+      std::cerr<<"myVecP::Deserialize() failed Modulus not found"<<std::endl;
+      return false;
+    }
+    //decode modulus
+    std::string strval(vIt->value.GetString());
+    DEBUG("getting modulus string "<<strval);
+    ubint_el_t bbiModulus;
+    if (strval !="undefined"){
+      bbiModulus =  ubint_el_t(strval);
+    }
+    DEBUG("bbiModulus "<<bbiModulus);
+    
+    //find length of vector
+    if( (vIt = mIter->value.FindMember("Length")) 
+	== mIter->value.MemberEnd() ){
+      std::cerr<<"myVecP::Deserialize() failed Length not found"<<std::endl;
+      return false;
+    }
+    usint vectorLength = std::stoi(vIt->value.GetString());
+    DEBUG("vectorLength "<<vectorLength);
+    
+    if( (vIt = mIter->value.FindMember("VectorValues")) == 
+	mIter->value.MemberEnd() ){
+      std::cerr<<"myVecP::Deserialize() failed VectorValues not found"
+	       <<std::endl;
+      return false;
+    }    
+    
+    mubintvec<ubint_el_t> newVec(vectorLength, bbiModulus); //build new vector
+    ubint_el_t vectorElem; //element to store decode
+    
+    const char *vp = vIt->value.GetString(); //concatenated str of coded values
+    DEBUG("vp is size "<<strlen(vp));
+
+    for( usint ePos = 0; ePos < vectorLength; ePos++ ) {
+      if( *vp == '\0' ) {
+	std::cerr<<"myVecP::Deserialize() premature end of vector"<<std::endl;
+	std::cerr<<"at position "<<ePos<<std::endl;
+	return false; // premature end of vector
+      }
+      DEBUG("loop "<<ePos<<" vp before is size "<<strlen(vp));
+      vp = vectorElem.Deserialize(vp, bbiModulus); //decode element
+      DEBUG("vp after is size "<<strlen(vp));
+      newVec[ePos] = vectorElem;//store it
+    }
+    *this = std::move(newVec);//save the overall vector
+    return true;
+  }
+
+#endif
 
 } // namespace lbcrypto ends
  

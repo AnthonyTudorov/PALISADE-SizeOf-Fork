@@ -362,6 +362,13 @@ public:
   };
 
   /**
+   * checks the vector modulus state.
+   * always returns true
+   */
+  bool isModulusSet(void) const { return true;};
+
+
+  /**
    * Sets the vector modulus.
    *
    * @param value is the value to set.

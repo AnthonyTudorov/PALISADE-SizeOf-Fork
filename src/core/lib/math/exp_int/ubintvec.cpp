@@ -89,8 +89,7 @@ namespace exp_int {
 
 
   //ASSIGNMENT copy allocator const binvec to binvec
-  //if two vectors are different sized, then it will resize target vector
-  //unlike BigBinaryVector which just throws.
+
 
   template<class ubint_el_t>
   const ubintvec<ubint_el_t>& ubintvec<ubint_el_t>::operator=(const ubintvec &rhs){
@@ -112,46 +111,61 @@ namespace exp_int {
   }
 
   //Assignment with initializer list of ubints
-  // note, resizes the vector to the length of the initializer list
+  // does not resize the vector
+  // unless lhs size is too small
   template<class ubint_el_t>
   const ubintvec<ubint_el_t>& ubintvec<ubint_el_t>::operator=(std::initializer_list<ubint_el_t> rhs){
     usint len = rhs.size();
-    m_data.clear();
+    if (this->m_data.size()< len){
+      this->m_data.resize(len);
+    }
+
     for(usint i=0;i<len;i++){ // this loops over each entry
       if(i<len) {
-	m_data.push_back( ubint_el_t(*(rhs.begin()+i)));
+	m_data[i] =  ubint_el_t(*(rhs.begin()+i));
       } else {
-	m_data.push_back(ubint_el_t::ZERO);
+	m_data[i] = ubint_el_t::ZERO;
       }
     }
 
     return *this;
   }
   //Assignment with initializer list of usints
+  // does not resize the vector
+  // unless lhs size is too small
   template<class ubint_el_t>
   const ubintvec<ubint_el_t>& ubintvec<ubint_el_t>::operator=(std::initializer_list<usint> rhs){
     usint len = rhs.size();
-    m_data.clear();
+    if (this->m_data.size()< len){
+      this->m_data.resize(len);
+    }
+    //m_data.clear();
     for(usint i=0;i<len;i++){ // this loops over each entry
       if(i<len) {
-	m_data.push_back( ubint_el_t(*(rhs.begin()+i)));
+	m_data[i] = ubint_el_t(*(rhs.begin()+i));
       } else {
-	m_data.push_back(ubint_el_t::ZERO);
+	m_data[i] = ubint_el_t::ZERO;
       }
     }
     return *this;
   }
 
   //Assignment with initializer list of strings
+  // does not resize the vector
+  // unless lhs size is too small
+
   template<class ubint_el_t>
   const ubintvec<ubint_el_t>& ubintvec<ubint_el_t>::operator=(std::initializer_list<std::string> rhs){
     usint len = rhs.size();
-    m_data.clear();
+    if (this->m_data.size()< len){
+      this->m_data.resize(len);
+    }
+    // m_data.clear();
     for(usint i=0;i<len;i++){ // this loops over each entry
       if(i<len) {
-	m_data.push_back( ubint_el_t(*(rhs.begin()+i)));
+	m_data[i] = ubint_el_t(*(rhs.begin()+i));
       } else {
-	m_data.push_back(ubint_el_t::ZERO);
+	m_data[i] = ubint_el_t::ZERO;
       }
     }
     return *this;
