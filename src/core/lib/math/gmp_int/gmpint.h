@@ -322,12 +322,12 @@ namespace NTL{
     usint GetLengthForBase(usint base) const {return GetMSB();};
 
     /**
-     * Get the number of digits using a specific base - only
+     * Get the integer value of the of a subfield of bits. 
      * power-of-2 bases are currently supported.
      *
-     * @param index is the location to return value from in the specific base.
-     * @param base is the base with which to determine length in.
-     * @return the length of the representation in a specific base.
+     * @param index is the bit location (lsb)
+     * @param base is the bitwidth of the subfield
+     * @return the integer value of the subfield
      */
     usint GetDigitAtIndexForBase(usint index, usint base) const;
 
@@ -341,9 +341,6 @@ namespace NTL{
 
     static const std::string IntegerTypeName() { return "NTL"; }
 
-  private:
-    //adapter kits
-    void SetMSB();
 
     /**
      * Gets the bit at the specified index.
@@ -360,6 +357,24 @@ namespace NTL{
      * @return resulting bits.
      */
     uschar Get6BitsAtIndex(usint index) const;
+
+    
+    /**
+    * Prints the value of the internal limb storage
+    * in decimal format. Used primarily for debugging
+    */
+    void PrintLimbsInDec() const;
+
+    /**
+    * Prints the value of the internal limb storage
+    * in hexadecimal format. Used primarily for debugging
+    */
+    void PrintLimbsInHex() const;
+
+
+  private:
+    //adapter kits
+    void SetMSB();
 
     /**
      * function to return the ceiling of the input number divided by

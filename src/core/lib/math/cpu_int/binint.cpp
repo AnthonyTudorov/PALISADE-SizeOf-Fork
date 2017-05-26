@@ -462,12 +462,23 @@ BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENGTH>::o
 
 
 template<typename uint_type,usint BITLENGTH>
-void BigBinaryInteger<uint_type,BITLENGTH>::PrintValueInDec() const{
+void BigBinaryInteger<uint_type,BITLENGTH>::PrintLimbsInDec() const{
 
 	sint i= m_MSB%m_uintBitLength==0&&m_MSB!=0? m_MSB/m_uintBitLength:(sint)m_MSB/m_uintBitLength +1;
 	for(i=m_nSize-i;i<m_nSize;i++)//actual
     //(i=0;i<Nchar;i++)//for debug
-	    std::cout<<std::dec<<(uint_type)m_value[i]<<".";
+	    std::cout<<std::dec<<(uint_type)m_value[i]<<" ";
+
+    std::cout<<std::endl;
+}
+
+template<typename uint_type,usint BITLENGTH>
+void BigBinaryInteger<uint_type,BITLENGTH>::PrintLimbsInHex() const{
+
+	sint i= m_MSB%m_uintBitLength==0&&m_MSB!=0? m_MSB/m_uintBitLength:(sint)m_MSB/m_uintBitLength +1;
+	for(i=m_nSize-i;i<m_nSize;i++)//actual
+    //(i=0;i<Nchar;i++)//for debug
+	  std::cout<<std::hex<<(uint_type)m_value[i]<<std::dec<<" ";
 
     std::cout<<std::endl;
 }
@@ -1690,7 +1701,7 @@ const std::string BigBinaryInteger<uint_type,BITLENGTH>::ToString() const{
 	//initiate to object to be printed
 	//print_obj = new BigBinaryInteger<uint_type,BITLENGTH>(*this);
 
-	//print_obj->PrintValueInDec();
+	//print_obj->PrintLimbsInDec();
 
 	//print_VALUE array stores the decimal value in the array
 	uschar *print_VALUE = new uschar[m_numDigitInPrintval];
@@ -2115,7 +2126,7 @@ std::ostream& operator<<(std::ostream& os, const BigBinaryInteger<uint_type_c,BI
 	//initiate to object to be printed
 	print_obj = new BigBinaryInteger<uint_type_c,BITLENGTH_c>(ptr_obj);
 
-	//print_obj->PrintValueInDec();
+	//print_obj->PrintLimbsInDec();
 
 	//print_VALUE array stores the decimal value in the array
 	uschar *print_VALUE = new uschar[ptr_obj.m_numDigitInPrintval];

@@ -307,9 +307,16 @@ namespace cpu_int{
 //Auxillary Functions
 
     /**
-    * Prints the value to console in base-r format where r is equal to 2^bitwidth of the integral datatype.
+    * Prints the value of the internal limb storage
+    * in decimal format. Used primarily for debugging
     */
-    void PrintValueInDec() const;
+    void PrintLimbsInDec() const;
+
+    /**
+    * Prints the value of the internal limb storage
+    * in hexadecimal format. Used primarily for debugging
+    */
+    void PrintLimbsInHex() const;
 
     /**
     * Basic set method for setting the value of a big binary integer

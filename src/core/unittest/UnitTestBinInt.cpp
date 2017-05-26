@@ -1043,3 +1043,25 @@ TEST(UTBinInt,method_getDigitAtIndex) {
 	EXPECT_EQ(x.GetDigitAtIndexForBase(3,2), 0);
 	EXPECT_EQ(x.GetDigitAtIndexForBase(4,2), 1);
 }
+
+TEST(UTBinInt, method_GetBitAtIndex){
+  bool dbg_flag = false;
+  BigBinaryInteger x(1);
+
+  x <<=(100); //x has one bit at 100
+
+  x+=BigBinaryInteger::TWO; //x has one bit at 2
+
+  DEBUG("x "<<x);
+  if (dbg_flag) x.PrintLimbsInHex();
+
+  // index is 1 for lsb!
+  EXPECT_EQ(x.GetBitAtIndex(1), 0);  
+  EXPECT_EQ(x.GetBitAtIndex(2), 1);  
+
+  for (auto idx = 3; idx < 100; idx++){
+    EXPECT_EQ(x.GetBitAtIndex(idx), 0);  
+  }
+  EXPECT_EQ(x.GetBitAtIndex(101), 1);  
+
+}
