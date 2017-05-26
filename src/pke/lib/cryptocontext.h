@@ -1110,13 +1110,16 @@ public:
 	* @param depth
 	* @param assuranceMeasure
 	* @param securityLevel
+	* @param bigmodulusarb
+	* @param bigrootofunityarb
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextFV(shared_ptr<typename Element::Params> params,
 		const usint plaintextmodulus,
 		usint relinWindow, float stDev, const std::string& delta,
 		MODE mode = RLWE, const std::string& bigmodulus = "0", const std::string& bigrootofunity = "0",
-		int depth = 0, int assuranceMeasure = 0, float securityLevel = 0);
+		int depth = 0, int assuranceMeasure = 0, float securityLevel = 0,
+		const std::string& bigmodulusarb = "0", const std::string& bigrootofunityarb = "0");
 
 	/**
 	* construct a PALISADE CryptoContext for the FV Scheme
@@ -1133,13 +1136,16 @@ public:
 	* @param depth
 	* @param assuranceMeasure
 	* @param securityLevel
+	* @param bigmodulusarb
+	* @param bigrootofunityarb
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextFV(shared_ptr<typename Element::Params> params,
 		shared_ptr<typename EncodingParams> encodingParams,
 		usint relinWindow, float stDev, const std::string& delta,
 		MODE mode = RLWE, const std::string& bigmodulus = "0", const std::string& bigrootofunity = "0",
-		int depth = 0, int assuranceMeasure = 0, float securityLevel = 0);
+		int depth = 0, int assuranceMeasure = 0, float securityLevel = 0,
+		const std::string& bigmodulusarb = "0", const std::string& bigrootofunityarb = "0");
 
 	/**
 	* construct a PALISADE CryptoContext for the FV Scheme using the scheme's ParamsGen methods

@@ -65,6 +65,8 @@ namespace lbcrypto {
 				m_mode = RLWE;
 				m_bigModulus = BigBinaryInteger(0);
 				m_bigRootOfUnity = BigBinaryInteger(0);
+				m_bigModulusArb = BigBinaryInteger(0);
+				m_bigRootOfUnityArb = BigBinaryInteger(0);
 			}
 
 			/**
@@ -76,6 +78,8 @@ namespace lbcrypto {
 				m_mode = rhs.m_mode;
 				m_bigModulus = rhs.m_bigModulus;
 				m_bigRootOfUnity = rhs.m_bigRootOfUnity;
+				m_bigModulusArb = rhs.m_bigModulusArb;
+				m_bigRootOfUnityArb = rhs.m_bigRootOfUnityArb;
 			}
 
 			/**
@@ -96,6 +100,8 @@ namespace lbcrypto {
 			 * @param mode optimization setting (RLWE vs OPTIMIZED)
 			 * @param bigModulus modulus used in polynomial multiplications in EvalMult
 			 * @param bigRootOfUnity root of unity for bigModulus
+			 * @param bigModulusArb modulus used in polynomial multiplications in EvalMult (for arbitrary cyclotomics)
+			 * @param bigRootOfUnityArb root of unity for bigModulus (for arbitrary cyclotomics)
 			 * @param depth Depth is the depth of computation supprted which is set to 1 by default.  Use the default setting unless you're using SHE, levelled SHE or FHE operations.
 			 */
 			LPCryptoParametersFV(shared_ptr<typename Element::Params> params,
@@ -108,6 +114,8 @@ namespace lbcrypto {
 				MODE mode,
 				const BigBinaryInteger &bigModulus,
 				const BigBinaryInteger &bigRootOfUnity,
+				const BigBinaryInteger &bigModulusArb,
+				const BigBinaryInteger &bigRootOfUnityArb,
 				int depth = 1)
 					: LPCryptoParametersRLWE<Element>(params,
 						plaintextModulus,
@@ -120,6 +128,8 @@ namespace lbcrypto {
 						m_mode = mode;
 						m_bigModulus = bigModulus;
 						m_bigRootOfUnity = bigRootOfUnity;
+						m_bigModulusArb = bigModulusArb;
+						m_bigRootOfUnityArb = bigRootOfUnityArb;
 					}
 
 			/**
@@ -135,6 +145,8 @@ namespace lbcrypto {
 			* @param mode optimization setting (RLWE vs OPTIMIZED)
 			* @param bigModulus modulus used in polynomial multiplications in EvalMult
 			* @param bigRootOfUnity root of unity for bigModulus
+			* @param bigModulusArb modulus used in polynomial multiplications in EvalMult (arbitrary cyclotomics)
+			* @param bigRootOfUnityArb root of unity for bigModulus (arbitrary cyclotomics)
 			* @param depth depth which is set to 1.
 			*/
 			LPCryptoParametersFV(shared_ptr<typename Element::Params> params,
@@ -147,6 +159,8 @@ namespace lbcrypto {
 				MODE mode,
 				const BigBinaryInteger &bigModulus,
 				const BigBinaryInteger &bigRootOfUnity,
+				const BigBinaryInteger &bigModulusArb,
+				const BigBinaryInteger &bigRootOfUnityArb,
 				int depth = 1)
 				: LPCryptoParametersRLWE<Element>(params,
 					encodingParams,
@@ -159,6 +173,8 @@ namespace lbcrypto {
 				m_mode = mode;
 				m_bigModulus = bigModulus;
 				m_bigRootOfUnity = bigRootOfUnity;
+				m_bigModulusArb = bigModulusArb;
+				m_bigRootOfUnityArb = bigRootOfUnityArb;
 			}
 
 			/**
@@ -209,6 +225,20 @@ namespace lbcrypto {
 			const BigBinaryInteger& GetBigRootOfUnity() const { return m_bigRootOfUnity; }
 
 			/**
+			* Gets the modulus used for polynomial multiplications in EvalMult (arbitrary cyclotomics)
+			*
+			* @return the modulus value.
+			*/
+			const BigBinaryInteger& GetBigModulusArb() const { return m_bigModulusArb; }
+
+			/**
+			* Gets the primitive root of unity used for polynomial multiplications in EvalMult (arbitrary cyclotomics)
+			*
+			* @return the primitive root of unity value.
+			*/
+			const BigBinaryInteger& GetBigRootOfUnityArb() const { return m_bigRootOfUnityArb; }
+
+			/**
 			* Sets the value of the delta factor
 			* @param &delta is the delta factor
 			*/
@@ -234,6 +264,16 @@ namespace lbcrypto {
 			void SetBigRootOfUnity(const BigBinaryInteger &bigRootOfUnity) { m_bigRootOfUnity = bigRootOfUnity; }
 
 			/**
+			* Sets the modulus used for polynomial multiplications in EvalMult (arbitrary cyclotomics)
+			*/
+			void SetBigModulusArb(const BigBinaryInteger &bigModulusArb) { m_bigModulusArb = bigModulusArb; }
+
+			/**
+			* Sets primitive root of unity used for polynomial multiplications in EvalMult (arbitrary cyclotomics)
+			*/
+			void SetBigRootOfUnityArb(const BigBinaryInteger &bigRootOfUnityArb) { m_bigRootOfUnityArb = bigRootOfUnityArb; }
+
+			/**
 			* == operator to compare to this instance of LPCryptoParametersFV object. 
 			*
 			* @param &rhs LPCryptoParameters to check equality against.
@@ -247,6 +287,8 @@ namespace lbcrypto {
 				if (m_mode != el->m_mode) return false;
 				if (m_bigModulus != el->m_bigModulus) return false;
 				if (m_bigRootOfUnity != el->m_bigRootOfUnity) return false;
+				if (m_bigModulusArb != el->m_bigModulusArb) return false;
+				if (m_bigRootOfUnityArb != el->m_bigRootOfUnityArb) return false;
 
 				return  LPCryptoParametersRLWE<Element>::operator==(rhs);
 			}
@@ -257,7 +299,9 @@ namespace lbcrypto {
 				os << " delta: " << m_delta <<
 						" mode: " << m_mode <<
 						" bigmodulus: " << m_bigModulus <<
-						" bigrootofunity: " << m_bigRootOfUnity;
+						" bigrootofunity: " << m_bigRootOfUnity <<
+						" bigmodulusarb: " << m_bigModulusArb <<
+						" bigrootofunityarb: " << m_bigRootOfUnityArb;
 			}
 
 		private:
@@ -274,6 +318,12 @@ namespace lbcrypto {
 			
 			// primitive root of unity for m_bigModulus
 			BigBinaryInteger m_bigRootOfUnity;
+
+			// Large modulus used for CRT with m_bigModulus
+			BigBinaryInteger m_bigModulusArb;
+
+			// Primitive root of unity for m_bigModulusArb
+			BigBinaryInteger m_bigRootOfUnityArb;
 	};
 
 	/**

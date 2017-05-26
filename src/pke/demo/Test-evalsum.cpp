@@ -59,6 +59,7 @@ using namespace lbcrypto;
 
 void ArbLTVEvalSumPackedArray();
 void ArbBVEvalSumPackedArray();
+void ArbFVEvalSumPackedArray();
 
 int main() {
 
@@ -74,6 +75,9 @@ int main() {
 
 	ArbBVEvalSumPackedArray();
 
+	std::cout << "\n===========FV TESTS (EVALSUM-ARBITRARY)===============: " << std::endl;
+
+	ArbFVEvalSumPackedArray();
 
 	std::cout << "Please press any key to continue..." << std::endl;
 
@@ -211,3 +215,69 @@ void ArbLTVEvalSumPackedArray() {
 
 }
 
+
+void ArbFVEvalSumPackedArray() {
+
+	usint m = 22;
+	usint p = 89;
+	BigBinaryInteger modulusP(p);
+	/*BigBinaryInteger modulusQ("577325471560727734926295560417311036005875689");
+	BigBinaryInteger squareRootOfRoot("576597741275581172514290864170674379520285921");*/
+	BigBinaryInteger modulusQ("955263939794561");
+	BigBinaryInteger squareRootOfRoot("941018665059848");
+	//BigBinaryInteger squareRootOfRoot = RootOfUnity(2*m,modulusQ);
+	//std::cout << squareRootOfRoot << std::endl;
+	usint n = GetTotient(m);
+	BigBinaryInteger bigmodulus("80899135611688102162227204937217");
+	BigBinaryInteger bigroot("77936753846653065954043047918387");
+	//std::cout << bigroot << std::endl;
+
+	auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulusQ);
+	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulusQ);
+
+	PackedIntPlaintextEncoding::SetParams(modulusP, m);
+
+	float stdDev = 4;
+
+	usint batchSize = 8;
+
+	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
+
+	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetInitRoot(), batchSize));
+
+	BigBinaryInteger delta(modulusQ.DividedBy(modulusP));
+
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
+		params, encodingParams,
+		8, stdDev, delta.ToString());
+
+	cc.Enable(ENCRYPTION);
+	cc.Enable(SHE);
+
+	// Initialize the public key containers.
+	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
+
+	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8,0,0 };
+	PackedIntPlaintextEncoding intArray(vectorOfInts);
+
+	std::cout << "Input array\n\t" << intArray << std::endl;
+
+	cc.EvalSumKeyGen(kp.secretKey);
+
+	ciphertext = cc.Encrypt(kp.publicKey, intArray, false);
+
+	auto ciphertext1 = cc.EvalSum(ciphertext[0], batchSize);
+
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextSum;
+
+	ciphertextSum.push_back(ciphertext1);
+
+	PackedIntPlaintextEncoding intArrayNew;
+
+	cc.Decrypt(kp.secretKey, ciphertextSum, &intArrayNew, false);
+
+	std::cout << "Sum = " << intArrayNew[0] << std::endl;
+
+}

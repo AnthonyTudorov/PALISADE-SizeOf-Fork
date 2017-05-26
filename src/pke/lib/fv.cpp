@@ -53,6 +53,8 @@ bool LPCryptoParametersFV<Element>::Serialize(Serialized* serObj) const {
 	cryptoParamsMap.AddMember("mode", std::to_string(m_mode), serObj->GetAllocator());
 	cryptoParamsMap.AddMember("bigmodulus", m_bigModulus.ToString(), serObj->GetAllocator());
 	cryptoParamsMap.AddMember("bigrootofunity", m_bigRootOfUnity.ToString(), serObj->GetAllocator());
+	cryptoParamsMap.AddMember("bigmodulusarb", m_bigModulusArb.ToString(), serObj->GetAllocator());
+	cryptoParamsMap.AddMember("bigrootofunityarb", m_bigRootOfUnityArb.ToString(), serObj->GetAllocator());
 
 	serObj->AddMember("LPCryptoParametersFV", cryptoParamsMap.Move(), serObj->GetAllocator());
 	serObj->AddMember("LPCryptoParametersType", "LPCryptoParametersFV", serObj->GetAllocator());
@@ -85,8 +87,18 @@ bool LPCryptoParametersFV<Element>::Deserialize(const Serialized& serObj) {
 		return false;
 	BigBinaryInteger bigrootofunity(pIt->value.GetString());
 
+	if ((pIt = mIter->value.FindMember("bigmodulusarb")) == mIter->value.MemberEnd())
+		return false;
+	BigBinaryInteger bigmodulusarb(pIt->value.GetString());
+
+	if ((pIt = mIter->value.FindMember("bigrootofunityarb")) == mIter->value.MemberEnd())
+		return false;
+	BigBinaryInteger bigrootofunityarb(pIt->value.GetString());
+
 	this->SetBigModulus(bigmodulus);
 	this->SetBigRootOfUnity(bigrootofunity);
+	this->SetBigModulusArb(bigmodulusarb);
+	this->SetBigRootOfUnityArb(bigrootofunityarb);
 	this->SetMode(mode);
 	this->SetDelta(delta);
 

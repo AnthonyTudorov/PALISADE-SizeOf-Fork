@@ -122,7 +122,8 @@ CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextFV(shared_ptr<typename T::Params> ep,
 		const usint plaintextmodulus,
 		usint relinWindow, float stDev, const std::string& delta,
-		MODE mode, const std::string& bigmodulus, const std::string& bigrootofunity, int depth, int assuranceMeasure, float securityLevel)
+		MODE mode, const std::string& bigmodulus, const std::string& bigrootofunity, int depth, int assuranceMeasure, float securityLevel,
+		const std::string& bigmodulusarb, const std::string& bigrootofunityarb)
 {
 	shared_ptr<LPCryptoParametersFV<T>> params(
 			new LPCryptoParametersFV<T>(ep,
@@ -135,6 +136,8 @@ CryptoContextFactory<T>::genCryptoContextFV(shared_ptr<typename T::Params> ep,
 					mode,
 					BigBinaryInteger(bigmodulus),
 					BigBinaryInteger(bigrootofunity),
+					BigBinaryInteger(bigmodulusarb),
+					BigBinaryInteger(bigrootofunityarb),
 					depth) );
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeFV<T>() );
@@ -147,7 +150,8 @@ CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextFV(shared_ptr<typename T::Params> ep,
 	shared_ptr<typename EncodingParams> encodingParams,
 	usint relinWindow, float stDev, const std::string& delta,
-	MODE mode, const std::string& bigmodulus, const std::string& bigrootofunity, int depth, int assuranceMeasure, float securityLevel)
+	MODE mode, const std::string& bigmodulus, const std::string& bigrootofunity, int depth, int assuranceMeasure, float securityLevel,
+	const std::string& bigmodulusarb, const std::string& bigrootofunityarb)
 {
 	shared_ptr<LPCryptoParametersFV<T>> params(
 		new LPCryptoParametersFV<T>(ep,
@@ -160,6 +164,8 @@ CryptoContextFactory<T>::genCryptoContextFV(shared_ptr<typename T::Params> ep,
 			mode,
 			BigBinaryInteger(bigmodulus),
 			BigBinaryInteger(bigrootofunity),
+			BigBinaryInteger(bigmodulusarb),
+			BigBinaryInteger(bigrootofunityarb),
 			depth));
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeFV<T>());
