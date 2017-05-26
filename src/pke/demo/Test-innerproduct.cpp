@@ -59,7 +59,7 @@ using namespace lbcrypto;
 
 void ArbLTVInnerProductPackedArray();
 void ArbBVInnerProductPackedArray();
-void ArbFVEvalSumPackedArray();
+void ArbFVInnerProductPackedArray();
 void ArbFVEvalMultPackedArray();
 
 int main() {
@@ -76,9 +76,9 @@ int main() {
 
 	ArbBVInnerProductPackedArray();
 
-	std::cout << "\n===========FV TESTS (EVALSUM-ARBITRARY)===============: " << std::endl;
+	std::cout << "\n===========FV TESTS (INNER-PRODUCT-ARBITRARY)===============: " << std::endl;
 
-	ArbFVEvalSumPackedArray();
+	ArbFVInnerProductPackedArray();
 
 	std::cout << "\n===========FV TESTS (EVALMULT-ARBITRARY)===============: " << std::endl;
 
@@ -242,41 +242,54 @@ void ArbLTVInnerProductPackedArray() {
 
 }
 
-
-void ArbFVEvalSumPackedArray() {
+void ArbFVInnerProductPackedArray() {
 
 	usint m = 22;
-	usint p = 89;
+	usint N = GetTotient(m);
+	usint p = 89; // we choose s.t. 2m|p-1 to leverage CRTArb
+	BigBinaryInteger modulusQ("72385066601");
 	BigBinaryInteger modulusP(p);
-	/*BigBinaryInteger modulusQ("577325471560727734926295560417311036005875689");
-	BigBinaryInteger squareRootOfRoot("576597741275581172514290864170674379520285921");*/
-	BigBinaryInteger modulusQ("955263939794561");
-	BigBinaryInteger squareRootOfRoot("941018665059848");
-	//BigBinaryInteger squareRootOfRoot = RootOfUnity(2*m,modulusQ);
-	//std::cout << squareRootOfRoot << std::endl;
-	usint n = GetTotient(m);
-	BigBinaryInteger bigmodulus("80899135611688102162227204937217");
-	BigBinaryInteger bigroot("77936753846653065954043047918387");
-	//std::cout << bigroot << std::endl;
+	BigBinaryInteger rootOfUnity("69414828251");
+	BigBinaryInteger bigmodulus("77302754575416994210914689");
+	BigBinaryInteger bigroot("76686504597021638023705542");
 
 	auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulusQ);
-	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulusQ);
-
-	PackedIntPlaintextEncoding::SetParams(modulusP, m);
+	//ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().PreCompute(m, modulusQ);
+	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 	float stdDev = 4;
 
-	usint batchSize = 8;
+	shared_ptr<ILParams> params(new ILParams(m, modulusQ, rootOfUnity, bigmodulus, bigroot));
 
-	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
+	BigBinaryInteger bigEvalMultModulus("37778931862957161710549");
+	BigBinaryInteger bigEvalMultRootOfUnity("7161758688665914206613");
+	BigBinaryInteger bigEvalMultModulusAlt("1461501637330902918203684832716283019655932547329");
+	BigBinaryInteger bigEvalMultRootOfUnityAlt("570268124029534407621996591794583635795426001824");
+
+	auto cycloPolyBig = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, bigEvalMultModulus);
+	//ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().PreCompute(m, modulusQ);
+	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::SetCylotomicPolynomial(cycloPolyBig, bigEvalMultModulus);
+
+	PackedIntPlaintextEncoding::SetParams(modulusP, m);
+
+	usint batchSize = 8;
 
 	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetInitRoot(), batchSize));
 
 	BigBinaryInteger delta(modulusQ.DividedBy(modulusP));
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
-		params, encodingParams,
-		8, stdDev, delta.ToString());
+	//genCryptoContextFV(shared_ptr<typename Element::Params> params,
+	//	shared_ptr<typename EncodingParams> encodingParams,
+	//	usint relinWindow, float stDev, const std::string& delta,
+	//	MODE mode = RLWE, const std::string& bigmodulus = "0", const std::string& bigrootofunity = "0",
+	//	int depth = 0, int assuranceMeasure = 0, float securityLevel = 0,
+	//	const std::string& bigmodulusarb = "0", const std::string& bigrootofunityarb = "0")
+
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(params, encodingParams, 1, stdDev, delta.ToString(), OPTIMIZED,
+		bigEvalMultModulus.ToString(), bigEvalMultRootOfUnity.ToString(), 1, 9, 1.006, bigEvalMultModulusAlt.ToString(), bigEvalMultRootOfUnityAlt.ToString());
+
+	//BigBinaryInteger modulusQ("955263939794561");
+	//BigBinaryInteger squareRootOfRoot("941018665059848");
 
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
@@ -284,22 +297,33 @@ void ArbFVEvalSumPackedArray() {
 	// Initialize the public key containers.
 	LPKeyPair<ILVector2n> kp = cc.KeyGen();
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext1;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext2;
 
-	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8,0,0 };
-	PackedIntPlaintextEncoding intArray(vectorOfInts);
+	std::vector<usint> vectorOfInts1 = { 1,2,3,4,5,6,7,8,0,0 };
+	PackedIntPlaintextEncoding intArray1(vectorOfInts1);
 
-	std::cout << "Input array\n\t" << intArray << std::endl;
+	std::cout << "Input array 1 \n\t" << intArray1 << std::endl;
+
+
+	std::vector<usint> vectorOfInts2 = { 1,2,3,2,1,2,1,2,0,0 };
+	PackedIntPlaintextEncoding intArray2(vectorOfInts2);
+
+	std::cout << "Input array 2 \n\t" << intArray2 << std::endl;
 
 	cc.EvalSumKeyGen(kp.secretKey);
+	cc.EvalMultKeyGen(kp.secretKey);
 
-	ciphertext = cc.Encrypt(kp.publicKey, intArray, false);
+	ciphertext1 = cc.Encrypt(kp.publicKey, intArray1, false);
+	ciphertext2 = cc.Encrypt(kp.publicKey, intArray2, false);
 
-	auto ciphertext1 = cc.EvalSum(ciphertext[0], batchSize);
+	auto result = cc.EvalMult(ciphertext1[0], ciphertext2[0]);
+
+	result = cc.EvalSum(result, batchSize);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextSum;
 
-	ciphertextSum.push_back(ciphertext1);
+	ciphertextSum.push_back(result);
 
 	PackedIntPlaintextEncoding intArrayNew;
 
@@ -335,6 +359,10 @@ void ArbFVEvalMultPackedArray() {
 	BigBinaryInteger bigEvalMultRootOfUnity("7161758688665914206613");
 	BigBinaryInteger bigEvalMultModulusAlt("1461501637330902918203684832716283019655932547329");
 	BigBinaryInteger bigEvalMultRootOfUnityAlt("570268124029534407621996591794583635795426001824");
+
+	auto cycloPolyBig = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, bigEvalMultModulus);
+	//ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().PreCompute(m, modulusQ);
+	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::SetCylotomicPolynomial(cycloPolyBig, bigEvalMultModulus);
 
 	PackedIntPlaintextEncoding::SetParams(modulusP, m);
 

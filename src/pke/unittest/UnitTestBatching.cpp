@@ -403,6 +403,10 @@ TEST(UTFVBATCHING, ILVector_EVALMULT_Arb) {
 	BigBinaryInteger bigEvalMultModulusAlt("1461501637330902918203684832716283019655932547329");
 	BigBinaryInteger bigEvalMultRootOfUnityAlt("570268124029534407621996591794583635795426001824");
 
+	auto cycloPolyBig = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, bigEvalMultModulus);
+	//ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().PreCompute(m, modulusQ);
+	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::SetCylotomicPolynomial(cycloPolyBig, bigEvalMultModulus);
+
 	PackedIntPlaintextEncoding::SetParams(modulusP, m);
 
 	usint batchSize = 8;
