@@ -53,6 +53,7 @@ namespace lbcrypto {
 template BigBinaryInteger RootOfUnity<BigBinaryInteger>(usint m, const BigBinaryInteger& modulo);
 template std::vector<BigBinaryInteger> RootsOfUnity(usint m, const std::vector<BigBinaryInteger> moduli);
 template BigBinaryInteger GreatestCommonDivisor(const BigBinaryInteger& a, const BigBinaryInteger& b);
+
 template bool MillerRabinPrimalityTest(const BigBinaryInteger& p, const usint niter);
 template const BigBinaryInteger PollardRhoFactorization(const BigBinaryInteger &n);
 template void PrimeFactorize( BigBinaryInteger n, std::set<BigBinaryInteger> &primeFactors);
@@ -61,8 +62,30 @@ template void NextQ(BigBinaryInteger &q, const BigBinaryInteger &plainTextModulu
 template BigBinaryVector PolyMod(const BigBinaryVector &dividend, const BigBinaryVector &divisor, const BigBinaryInteger &modulus);
 template BigBinaryVector PolynomialMultiplication(const BigBinaryVector &a, const BigBinaryVector &b);
 template BigBinaryVector GetCyclotomicPolynomial(usint m, const BigBinaryInteger &modulus);
+template BigBinaryInteger FindGeneratorCyclic(const BigBinaryInteger& modulo);
+template bool IsGenerator(const BigBinaryInteger& g, const BigBinaryInteger& modulo);
 
 template std::vector<usint> GetTotientList(const usint &n);
+
+// FIXME the MATH_BACKEND check is a hack and needs to go away
+#if MATHBACKEND != 7
+#ifndef NO_MATHBACKEND_7
+template native64::BigBinaryInteger RootOfUnity<native64::BigBinaryInteger>(usint m, const native64::BigBinaryInteger& modulo);
+template std::vector<native64::BigBinaryInteger> RootsOfUnity(usint m, const std::vector<native64::BigBinaryInteger> moduli);
+template native64::BigBinaryInteger GreatestCommonDivisor(const native64::BigBinaryInteger& a, const native64::BigBinaryInteger& b);
+  template bool MillerRabinPrimalityTest(const native64::BigBinaryInteger& p, const usint niter);
+template const native64::BigBinaryInteger PollardRhoFactorization(const native64::BigBinaryInteger &n);
+template void PrimeFactorize( native64::BigBinaryInteger n, std::set<native64::BigBinaryInteger> &primeFactors);
+template native64::BigBinaryInteger FindPrimeModulus(usint m, usint nBits);
+template void NextQ(native64::BigBinaryInteger &q, const native64::BigBinaryInteger &plainTextModulus, const usint cyclotomicOrder, const native64::BigBinaryInteger &sigma, const native64::BigBinaryInteger &alpha);
+//template native64::BigBinaryInteger GetTotient(const native64::BigBinaryInteger &n);
+template std::vector<native64::BigBinaryInteger> GetTotientList(const native64::BigBinaryInteger &n);
+template native64::BigBinaryVector PolyMod(const native64::BigBinaryVector &dividend, const native64::BigBinaryVector &divisor, const native64::BigBinaryInteger &modulus);
+template native64::BigBinaryVector PolynomialMultiplication(const native64::BigBinaryVector &a, const native64::BigBinaryVector &b);
+template native64::BigBinaryVector GetCyclotomicPolynomial(usint m, const native64::BigBinaryInteger &modulus);
+template native64::BigBinaryInteger FindGeneratorCyclic(const native64::BigBinaryInteger& modulo);
+template bool IsGenerator(const native64::BigBinaryInteger& g, const native64::BigBinaryInteger& modulo);
+>>>>>>> Fixed the plaintext generator bug affecting automorphism
 
 #if MATHBACKEND != 7
 template native_int::BinaryInteger RootOfUnity<native_int::BinaryInteger>(usint m, const native_int::BinaryInteger& modulo);
@@ -221,6 +244,80 @@ static IntType FindGenerator(const IntType& q)
  	}
  	return gen;
  }
+
+/*
+A helper function for arbitrary cyclotomics. This finds a generator for any composite q (cyclic group).
+Input: BigBinaryInteger q (cyclic group).
+Output: A generator of prime q
+*/
+template<typename IntType>
+IntType FindGeneratorCyclic(const IntType& q)
+{
+	bool dbg_flag = false;
+	std::set<IntType> primeFactors;
+	DEBUG("calling PrimeFactorize");
+
+	IntType qm1 = IntType(GetTotient(q.ConvertToInt()));
+	std::vector<IntType> totientList = GetTotientList(q);
+
+	PrimeFactorize<IntType>(qm1, primeFactors);
+	DEBUG("done");
+	bool generatorFound = false;
+	IntType gen;
+	usint i = 0;
+	while (!generatorFound) {
+		usint count = 0;
+		DEBUG("count " << count);
+
+		i++;
+		gen = totientList[i];
+
+		for (auto it = primeFactors.begin(); it != primeFactors.end(); ++it) {
+			DEBUG("in set");
+			DEBUG("divide " << qm1 << " by " << *it);
+
+			if (gen.ModExp(qm1 / (*it), q) == IntType::ONE) break;
+			else count++;
+		}
+		
+		if (count == primeFactors.size()) generatorFound = true;
+	}
+	return gen;
+}
+
+/*
+A helper function for arbitrary cyclotomics. Checks if g is a generator of q (supports any cyclic group, not just prime-modulus groups)
+Input: Candidate generator g and modulus q
+Output: returns true if g is a generator for q
+*/
+template<typename IntType>
+bool IsGenerator(const IntType &g, const IntType& q)
+{
+	bool dbg_flag = false;
+	std::set<IntType> primeFactors;
+	DEBUG("calling PrimeFactorize");
+
+	IntType qm1 = IntType(GetTotient(q.ConvertToInt()));
+
+	PrimeFactorize<IntType>(qm1, primeFactors);
+	DEBUG("done");
+
+	usint count = 0;
+
+	for (auto it = primeFactors.begin(); it != primeFactors.end(); ++it) {
+		DEBUG("in set");
+		DEBUG("divide " << qm1 << " by " << *it);
+
+		if (g.ModExp(qm1 / (*it), q) == IntType::ONE) break;
+		else count++;
+	}
+
+	if (count == primeFactors.size())
+		return true;
+	else
+		return false;
+
+}
 
 /*
 	finds roots of unity for given input.  Assumes the the input is a power of two.  Mostly likely does not give correct results otherwise.
@@ -696,7 +793,7 @@ std::vector<IntType> GetTotientList(const IntType &n) {
 
 	std::vector<IntType> result;
 	IntType one(1);
-	for (IntType i = IntType(1); i < n; i = i + 1) {
+	for (IntType i = IntType(1); i < n; i = i + IntType(1)) {
 		if (GreatestCommonDivisor(i, n) == one)
 			result.push_back(i);
 	}

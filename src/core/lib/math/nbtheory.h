@@ -282,7 +282,22 @@ namespace lbcrypto {
 	*/
 	BigBinaryVector SyntheticPolynomialDivision(const BigBinaryVector &dividend, const BigBinaryInteger &a, const BigBinaryInteger &modulus);
 
+	/**
+	* Checkes if g is a generator for any cyclic group with modulus q (non-prime moduli are supported); currently q up to 64 bits only are supported
+	* @param &g is candidate generator
+	* @param &q is the modulus ( 2, 4, p^k, or 2*p^k where p^k is a power of an odd prime number )
+	* @return true if g is a generator
+	*/
+	template<typename IntType>
+	bool IsGenerator(const IntType& g, const IntType& q);
 
+	/**
+	* Finds a generator for any cyclic group with modulus q (non-prime moduli are supported); currently q up to 64 bits only are supported
+	* @param &q is the modulus ( 2, 4, p^k, or 2*p^k where p^k is a power of an odd prime number )
+	* @return true if g is a generator
+	*/
+	template<typename IntType>
+	IntType FindGeneratorCyclic(const IntType& q);
 
 
 } // namespace lbcrypto ends

@@ -130,13 +130,14 @@ namespace lbcrypto {
 				initRoot = RootOfUnity<BigBinaryInteger>(m, modulus);
 			}
 			else {
-				//initRoot = BigBinaryInteger(7);
+				//initRoot = BigBinaryInteger(5);
 				initRoot = RootOfUnity<BigBinaryInteger>(m, modulus);
-				while (!MillerRabinPrimalityTest(initRoot) || GreatestCommonDivisor<usint>(initRoot.ConvertToInt(),m)!=1)
+				while (!MillerRabinPrimalityTest(initRoot) || GreatestCommonDivisor<usint>(initRoot.ConvertToInt(),m)!=1 || !IsGenerator<BigBinaryInteger>(this->initRoot, BigBinaryInteger(m)))
 				{
 					this->initRoot = RootOfUnity<BigBinaryInteger>(m, modulus);
 				}
 			}
+			//std::cout << "generator? = " << IsGenerator<BigBinaryInteger>(this->initRoot, BigBinaryInteger(m)) << std::endl;
 			//std::cout << initRoot << std::endl;
 			//this->initRoot = BigBinaryInteger(7);
 		}
