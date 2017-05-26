@@ -245,6 +245,11 @@ TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
 	Matrix<int32_t> zHatBBI([](){ return make_unique<int32_t>(); },  k, m/2);
 
   DEBUG("3");
+  DEBUG("u "<<u);
+  DEBUG("sigma "<<sigma);
+  DEBUG("k "<<k);
+  DEBUG("modulus "<<modulus);
+  
 	LatticeGaussSampUtility::GaussSampGq(u,sigma,k,modulus, 2,dgg,&zHatBBI);
 
 	EXPECT_EQ(k,zHatBBI.GetRows())
