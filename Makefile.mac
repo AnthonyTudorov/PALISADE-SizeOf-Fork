@@ -6,7 +6,7 @@ CPPSTD := -std=c++11 -stdlib=libc++ -fPIC
 CC := clang++ $(CPPSTD)
 
 LIBSUFFIX := .dylib
-LIBCMD := -dynamiclib -undefined suppress -flat_namespace
+LIBCMD := -dynamiclib -undefined suppress -flat_namespace -fopenmp
 
 RDYNAMIC := 
 

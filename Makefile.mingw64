@@ -10,7 +10,7 @@ OMPINCLUDE :=
 CPPSTD := -std=gnu++11
 CC := g++ $(CPPSTD)
 
-LIBCMD := -s -shared -Wl,--subsystem,windows 
+LIBCMD := -s -shared -Wl,--subsystem,windows  -fopenmp
 
 LIBSUFFIX := .dll
 EXESUFFIX := .exe

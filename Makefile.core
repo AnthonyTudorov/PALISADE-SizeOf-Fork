@@ -63,7 +63,7 @@ bin/demo/core/%$(EXESUFFIX): src/core/bin/demo/%.o $(EXTLIBDIR)/$(PALISADECORELI
 $(EXTLIBDIR)/$(PALISADECORELIB): $(COREOBJECTS)
 	@echo " -- core:linking $@ from COREOBJECTS"
 	mkdir -p $(EXTLIBDIR)
-	$(CC) $(LIBCMD) -o $@ $(COREOBJECTS) 
+	$(CC) $(LIBCMD) -o $@ $(COREOBJECTS) $(TEST_LIB)
 
 ### #this builds the individual objects that make up the library .
 .PRECIOUS: $(COREBINDIR)/%

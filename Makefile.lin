@@ -24,7 +24,7 @@ CPPSTD := -std=gnu++11 -fPIC
 CC := g++ $(CPPSTD)
 
 LIBSUFFIX := .so
-LIBCMD := -fPIC -shared -Wl,--export-dynamic
+LIBCMD := -fPIC -shared -Wl,--export-dynamic -fopenmp
 
 RDYNAMIC := -rdynamic
 

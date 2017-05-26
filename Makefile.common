@@ -52,7 +52,7 @@ CPPFLAGS += -g -Wall -Werror -O3 -fopenmp $(COMPTHREADFLAG) ##undefine for paral
 #CPPFLAGS += -Wall -w  -m64 -Ofast -flto -march=native -funroll-loops -fopenmp ##undefine for multithread really best performance operation
 
 
-TEST_LIB := $(LOADTHREADFLAG) -fopenmp $(NTLLIB) $(GMPLIB) 
+TEST_LIB := $(LOADTHREADFLAG) -fopenmp $(NTLLIB) $(GMPLIB) -lgomp
 
 
 #build directory
