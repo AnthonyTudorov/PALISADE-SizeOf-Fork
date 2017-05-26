@@ -571,12 +571,13 @@ namespace lbcrypto {
 		*
 		* @param &modulus is the modulus to be set
 		* @param &rootOfUnity is the corresponding root of unity for the modulus
+		* @param &modulusArb is the modulus used for arbitrary cyclotomics CRT
+		* @param &rootOfUnityArb is the corresponding root of unity for the modulus
 		* ASSUMPTION: This method assumes that the caller provides the correct rootOfUnity for the modulus
 		*/
-		void SwitchModulus(const IntType &modulus, const IntType &rootOfUnity) {
-			throw std::logic_error("SwitchModulus not implemented on ILDCRT2n");
+		void SwitchModulus(const IntType &modulus, const IntType &rootOfUnity, const IntType &modulusArb = IntType::ZERO, const IntType &rootOfUnityArb = IntType::ZERO) {
+			throw std::logic_error("SwitchModulus not implemented on ILVectorArray2n");
 		}
-
 
 		/**
 		* Switch modulus at tower i and adjust the values

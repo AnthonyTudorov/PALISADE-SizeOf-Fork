@@ -387,9 +387,11 @@ public:
 	 *
 	 * @param &modulus is the modulus to be set.
 	 * @param &rootOfUnity is the corresponding root of unity for the modulus
+	 * @param &modulusArb is the modulus used for arbitrary cyclotomics CRT
+	 * @param &rootOfUnityArb is the corresponding root of unity for the modulus
 	 * ASSUMPTION: This method assumes that the caller provides the correct rootOfUnity for the modulus.
 	 */
-	virtual void SwitchModulus(const IntType &modulus, const IntType &rootOfUnity) = 0;
+	virtual void SwitchModulus(const IntType &modulus, const IntType &rootOfUnity, const IntType &modulusArb = IntType::ZERO, const IntType &rootOfUnityArb = IntType::ZERO) = 0;
 
 	/**
 	 * Convert from Coefficient to CRT or vice versa; calls FFT and inverse FFT.

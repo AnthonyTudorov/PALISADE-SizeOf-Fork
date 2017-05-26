@@ -606,10 +606,11 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	void ILVectorImpl<ModType,IntType,VecType,ParmType>::SwitchModulus(const IntType &modulus, const IntType &rootOfUnity) {
+	void ILVectorImpl<ModType,IntType,VecType,ParmType>::SwitchModulus(const IntType &modulus, const IntType &rootOfUnity, const IntType &modulusArb = IntType::ZERO, 
+		const IntType &rootOfUnityArb = IntType::ZERO) {
 		if (m_values) {
 			m_values->SwitchModulus(modulus);
-			m_params = shared_ptr<ParmType>(new ParmType(m_params->GetCyclotomicOrder(), modulus, rootOfUnity));
+			m_params = shared_ptr<ParmType>(new ParmType(m_params->GetCyclotomicOrder(), modulus, rootOfUnity, modulusArb, rootOfUnityArb));
 		}
 	}
 

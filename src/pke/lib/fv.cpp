@@ -421,6 +421,8 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared
 
 	const BigBinaryInteger &bigModulus = cryptoParamsLWE->GetBigModulus();
 	const BigBinaryInteger &bigRootOfUnity = cryptoParamsLWE->GetBigRootOfUnity();
+	const BigBinaryInteger &bigModulusArb = cryptoParamsLWE->GetBigModulusArb();
+	const BigBinaryInteger &bigRootOfUnityArb = cryptoParamsLWE->GetBigRootOfUnityArb();
 
 	std::vector<Element> cipherText1Elements = ciphertext1->GetElements();
 	std::vector<Element> cipherText2Elements = ciphertext2->GetElements();
@@ -432,10 +434,10 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared
 	cipherText2Elements[1].SwitchFormat();
 
 	//switches the modulus to a larger value so that polynomial multiplication w/o mod q can be performed
-	cipherText1Elements[0].SwitchModulus(bigModulus, bigRootOfUnity);
-	cipherText1Elements[1].SwitchModulus(bigModulus, bigRootOfUnity);
-	cipherText2Elements[0].SwitchModulus(bigModulus, bigRootOfUnity);
-	cipherText2Elements[1].SwitchModulus(bigModulus, bigRootOfUnity);
+	cipherText1Elements[0].SwitchModulus(bigModulus, bigRootOfUnity, bigModulusArb, bigRootOfUnityArb);
+	cipherText1Elements[1].SwitchModulus(bigModulus, bigRootOfUnity, bigModulusArb, bigRootOfUnityArb);
+	cipherText2Elements[0].SwitchModulus(bigModulus, bigRootOfUnity, bigModulusArb, bigRootOfUnityArb);
+	cipherText2Elements[1].SwitchModulus(bigModulus, bigRootOfUnity, bigModulusArb, bigRootOfUnityArb);
 
 	//converts the ciphertext elements back to evaluation representation
 	cipherText1Elements[0].SwitchFormat();
@@ -457,9 +459,9 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared
 	c2 = c2.MultiplyAndRound(p, q);
 
 	//switch the modulus back to the original value
-	c0.SwitchModulus(q, elementParams->GetRootOfUnity());
-	c1.SwitchModulus(q, elementParams->GetRootOfUnity());
-	c2.SwitchModulus(q, elementParams->GetRootOfUnity());
+	c0.SwitchModulus(q, elementParams->GetRootOfUnity(), elementParams->GetBigModulus(), elementParams->GetBigRootOfUnity());
+	c1.SwitchModulus(q, elementParams->GetRootOfUnity(), elementParams->GetBigModulus(), elementParams->GetBigRootOfUnity());
+	c2.SwitchModulus(q, elementParams->GetRootOfUnity(), elementParams->GetBigModulus(), elementParams->GetBigRootOfUnity());
 
 	newCiphertext->SetElements({ c0, c1, c2 });
 

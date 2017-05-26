@@ -21,6 +21,7 @@ using namespace lbcrypto;
 int main(int argc, char **argv) {
 
   ::testing::InitGoogleTest(&argc, argv);
+
   //::testing::GTEST_FLAG(filter) = "UTFV*";
   int rv = RUN_ALL_TESTS();
 
