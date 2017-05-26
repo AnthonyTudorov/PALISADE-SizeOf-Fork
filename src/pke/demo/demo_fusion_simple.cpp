@@ -1,5 +1,5 @@
 /*
- * @file Source_json.cpp - PALISADE library.
+ * @file demo_fusion_simple.cpp - PALISADE library.
  * @author  TPOC: palisade@njit.edu
  *
  * @section LICENSE
@@ -25,7 +25,7 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * @section DESCRIPTION
- * Demo software for FV pke operations.
+ * Demo software for FV multiparty operations.
  *
  */
 
@@ -63,43 +63,6 @@ int main(int argc, char *argv[]) {
 
 	//Generate parameters.
 	double diff, start, finish;
-
-/*
-	cout << "\nStarting FV PKE demo in the RLWE mode" << endl;
-
-	int relWindow = 1;
-	int plaintextModulus = 64;
-	double sigma = 4;
-	double alpha = 9;
-	double rootHermiteFactor = 1.006;
-
-	//Set Crypto Parameters	
-	
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
-			plaintextModulus, 
-			rootHermiteFactor,
-			relWindow, 
-			sigma, 
-			1, 0, 0);
-
-	//Turn on features
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);	
-	cc.Enable(PRE);	
-
-	start = currentDateTime();
-
-	cc.GetEncryptionAlgorithm()->ParamsGen(cc.GetCryptoParameters(), 0, 1);
-
-	finish = currentDateTime();
-	diff = finish - start;
-
-	std::cout << "n = " << cc.GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
-	std::cout << "log2 q = " << log2(cc.GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
-
-	cout << "Param generation time: " << "\t" << diff << " ms" << endl;
-
-*/
 
 	bool	doJson = false;
 

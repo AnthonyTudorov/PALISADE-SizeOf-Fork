@@ -1,5 +1,5 @@
 /**
- * @file cryptocontext.cpp -- Control for encryption operations.
+ * @file cryptocontext.h -- Control for encryption operations.
  * @author  TPOC: palisade@njit.edu
  *
  * @section LICENSE

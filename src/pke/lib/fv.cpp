@@ -854,17 +854,21 @@ void LPPublicKeyEncryptionSchemeFV<Element>::Enable(PKESchemeFeature feature) {
 			this->m_algorithmEncryption = new LPAlgorithmFV<Element>();
 		break;
 	case SHE:
+		if (this->m_algorithmEncryption == NULL)
+			this->m_algorithmEncryption = new LPAlgorithmFV<Element>();
 		if (this->m_algorithmSHE == NULL)
 			this->m_algorithmSHE = new LPAlgorithmSHEFV<Element>();
 		break;
 	// PRE for FV is not currently enabled. Needs to be debugged.
 	case PRE:
+		if (this->m_algorithmEncryption == NULL)
+			this->m_algorithmEncryption = new LPAlgorithmFV<Element>();
 		if (this->m_algorithmPRE == NULL)
 			this->m_algorithmPRE = new LPAlgorithmPREFV<Element>();
-		if (this->m_algorithmSHE == NULL)
-			this->m_algorithmSHE = new LPAlgorithmSHEFV<Element>();
 		break; 
 	case MULTIPARTY:
+		if (this->m_algorithmEncryption == NULL)
+			this->m_algorithmEncryption = new LPAlgorithmFV<Element>();
 		if (this->m_algorithmPRE == NULL)
 			this->m_algorithmPRE = new LPAlgorithmPREFV<Element>();
 		if (this->m_algorithmSHE == NULL)
