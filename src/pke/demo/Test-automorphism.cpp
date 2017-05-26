@@ -75,6 +75,7 @@ int main() {
 
 	std::cout << "\n===========LTV TESTS (EVALAUTOMORPHISM)===============: " << std::endl;
 
+	PackedIntPlaintextEncoding::Destroy();
 	for (usint index = 3; index < 16; index = index + 2)
 		LTVAutomorphismPackedArray(index);
 
@@ -88,6 +89,7 @@ int main() {
 
 	std::cout << "\n===========BV TESTS (EVALAUTOMORPHISM)===============: " << std::endl;
 
+	PackedIntPlaintextEncoding::Destroy();
 	for (usint index = 3; index < 16; index = index + 2)
 		BVAutomorphismPackedArray(index);
 
@@ -101,6 +103,7 @@ int main() {
 
 	std::cout << "\n==============FV TESTS (EVALAUTOMORPHISM)================: " << std::endl;
 
+	PackedIntPlaintextEncoding::Destroy();
 	for (usint index = 3; index < 16; index = index + 2)
 		FVAutomorphismPackedArray(index);
 
@@ -365,7 +368,7 @@ void ArbBVAutomorphismPackedArray(usint i) {
 void ArbLTVAutomorphismPackedArray(usint i) {
 
 	usint m = 22;
-	usint p = 23;
+	usint p = 89;
 	BigBinaryInteger modulusP(p);
 	/*BigBinaryInteger modulusQ("577325471560727734926295560417311036005875689");
 	BigBinaryInteger squareRootOfRoot("576597741275581172514290864170674379520285921");*/
@@ -386,7 +389,7 @@ void ArbLTVAutomorphismPackedArray(usint i) {
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, p, 1, stdDev);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, p, 8, stdDev);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 

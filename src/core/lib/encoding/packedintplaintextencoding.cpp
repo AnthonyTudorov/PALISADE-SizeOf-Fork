@@ -103,6 +103,22 @@ namespace lbcrypto {
 		rootList = BigBinaryVector();
 	}
 
+	void PackedIntPlaintextEncoding::SetParams(const BigBinaryInteger &modulus, usint m)
+	{
+
+		//initRoot = BigBinaryInteger(7);
+		initRoot = RootOfUnity<BigBinaryInteger>(m, modulus);
+		while (!MillerRabinPrimalityTest(initRoot) || GreatestCommonDivisor<usint>(initRoot.ConvertToInt(), m) != 1)
+		{
+			initRoot = RootOfUnity<BigBinaryInteger>(m, modulus);
+		}
+
+		//std::cout << "params = " << initRoot << std::endl;
+		
+		coefficientsCRT.clear();
+		rootList = BigBinaryVector();
+	}
+
 	void PackedIntPlaintextEncoding::Pack(ILVector2n *ring, const BigBinaryInteger &modulus) const {
 
 		usint m = ring->GetCyclotomicOrder();//cyclotomic order
@@ -111,11 +127,11 @@ namespace lbcrypto {
 
 		if (this->initRoot.GetMSB() == 0 ) {
 			if (params->OrderIsPowerOfTwo()) {
-				this->initRoot = RootOfUnity<BigBinaryInteger>(m, modulus);
+				initRoot = RootOfUnity<BigBinaryInteger>(m, modulus);
 			}
 			else {
-				//this->initRoot = RootOfUnity<BigBinaryInteger>(m, modulus);
-				this->initRoot = BigBinaryInteger(7);
+				//initRoot = BigBinaryInteger(7);
+				initRoot = RootOfUnity<BigBinaryInteger>(m, modulus);
 				while (!MillerRabinPrimalityTest(initRoot) || GreatestCommonDivisor<usint>(initRoot.ConvertToInt(),m)!=1)
 				{
 					this->initRoot = RootOfUnity<BigBinaryInteger>(m, modulus);

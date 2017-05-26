@@ -61,6 +61,8 @@ namespace lbcrypto {
 
 		PackedIntPlaintextEncoding() : std::vector<uint32_t>() {}
 
+		static BigBinaryInteger GetInitRoot() { return initRoot;  }
+
 		/** Interface for the operation of converting from current plaintext encoding to ILVector2n.
 		*
 		* @param  modulus - used for encoding.
@@ -80,6 +82,8 @@ namespace lbcrypto {
 		virtual size_t GetChunksize(const usint ring, const BigBinaryInteger& ptm) const;
 
 		size_t GetLength() const { return this->size(); }
+
+		static void SetParams(const BigBinaryInteger &modulus, usint m);
 
 		bool CompareTo(const Plaintext& other) const {
 			const std::vector<uint32_t>& lv = dynamic_cast<const std::vector<uint32_t>&>(*this);

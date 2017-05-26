@@ -62,9 +62,10 @@ class CryptoContext : public Serializable {
 	friend class CryptoContextFactory<Element>;
 
 private:
-	shared_ptr<LPCryptoParameters<Element>>				params;			/*!< crypto parameters used for this context */
-	shared_ptr<LPPublicKeyEncryptionScheme<Element>>	scheme;			/*!< algorithm used; accesses all crypto methods */
-	static vector<shared_ptr<LPEvalKey<Element>>>		evalMultKeys;	/*!< cached evalmult keys */
+	shared_ptr<LPCryptoParameters<Element>>					params;			/*!< crypto parameters used for this context */
+	shared_ptr<LPPublicKeyEncryptionScheme<Element>>		scheme;			/*!< algorithm used; accesses all crypto methods */
+	static vector<shared_ptr<LPEvalKey<Element>>>			evalMultKeys;	/*!< cached evalmult keys */
+	static std::map<usint, shared_ptr<LPEvalKey<Element>>>	evalSumKeys;	/*!< cached evalsum keys */
 
 	/**
 	 * Private methods to compare two contexts; this is only used internally and is not generally available
@@ -877,6 +878,39 @@ public:
 		return GetEncryptionAlgorithm()->EvalAutomorphismKeyGen(privateKey, indexList);
 
 	}
+
+	/**
+	* Generate evalsum keys
+	*
+	* @param privateKey private key.
+	* @param publicKey public key (used in NTRU schemes).
+	*/
+	void EvalSumKeyGen(
+		const shared_ptr<LPPrivateKey<Element>> privateKey, 
+		const shared_ptr<LPPublicKey<Element>> publicKey = nullptr) const {
+
+		//need to add exception handling
+
+		auto evalKeys = GetEncryptionAlgorithm()->EvalSumKeyGen(privateKey,publicKey);
+
+		evalSumKeys = *evalKeys;
+
+	}
+	/**
+	* Function for evaluating a sum of all components
+	*
+	* @param ciphertext the input ciphertext.
+	* @param batchSize size of the batch
+	* @return resulting ciphertext
+	*/
+	shared_ptr<Ciphertext<Element>> EvalSum(const shared_ptr<Ciphertext<Element>> ciphertext, usint batchSize) const {
+
+		//need to add exception handling
+
+		return GetEncryptionAlgorithm()->EvalSum(ciphertext, batchSize, evalSumKeys);
+
+	}
+
 
 	/**
 	* EvalLinRegression - Computes the parameter vector for linear regression using the least squares method
