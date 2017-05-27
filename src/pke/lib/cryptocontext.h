@@ -1092,7 +1092,7 @@ public:
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextLTV(shared_ptr<typename Element::Params> params,
-		shared_ptr<typename EncodingParams> encodingParams,
+		shared_ptr<EncodingParams> encodingParams,
 		usint relinWindow, float stDev, int depth = 1, int assuranceMeasure = 9, float securityLevel = 1.006);
 
 	/**
@@ -1141,7 +1141,7 @@ public:
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextFV(shared_ptr<typename Element::Params> params,
-		shared_ptr<typename EncodingParams> encodingParams,
+		shared_ptr<EncodingParams> encodingParams,
 		usint relinWindow, float stDev, const std::string& delta,
 		MODE mode = RLWE, const std::string& bigmodulus = "0", const std::string& bigrootofunity = "0",
 		int depth = 0, int assuranceMeasure = 0, float securityLevel = 0,
@@ -1170,7 +1170,7 @@ public:
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextFV(
-		shared_ptr<typename EncodingParams> encodingParams, float securityLevel, usint relinWindow, float dist,
+		shared_ptr<EncodingParams> encodingParams, float securityLevel, usint relinWindow, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches);
 
 	/**
@@ -1201,7 +1201,7 @@ public:
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextBV(shared_ptr<typename Element::Params> params,
-		shared_ptr<typename EncodingParams> encodingParams,
+		shared_ptr<EncodingParams> encodingParams,
 		usint relinWindow, float stDev,
 		MODE mode = RLWE, int depth = 1);
 
@@ -1232,7 +1232,7 @@ public:
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextStehleSteinfeld(shared_ptr<typename Element::Params> params,
-		shared_ptr<typename EncodingParams> encodingParams,
+		shared_ptr<EncodingParams> encodingParams,
 		usint relinWindow, float stDev, float stDevStSt, int depth = 1, int assuranceMeasure = 9, float securityLevel = 1.006);
 
 	/**
@@ -1247,7 +1247,7 @@ public:
 	* @param modulus
 	* @return
 	*/
-	static CryptoContext<Element> genCryptoContextNull(shared_ptr<typename Element::Params> ep, shared_ptr<typename EncodingParams> encodingParams);
+	static CryptoContext<Element> genCryptoContextNull(shared_ptr<typename Element::Params> ep, shared_ptr<EncodingParams> encodingParams);
 
 	// helper for deserialization of contexts
 	static shared_ptr<LPCryptoParameters<Element>> GetParameterObject(const Serialized& serObj) {

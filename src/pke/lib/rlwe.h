@@ -115,7 +115,7 @@ public:
 	*/
 	LPCryptoParametersRLWE(
 		shared_ptr<typename Element::Params> params,
-		shared_ptr<typename EncodingParams> encodingParams,
+		shared_ptr<EncodingParams> encodingParams,
 		float distributionParameter,
 		float assuranceMeasure,
 		float securityLevel,
@@ -309,7 +309,7 @@ protected:
 		SerialItem valE(epIt->value.MemberBegin()->value, oneItemE.GetAllocator());
 		oneItemE.AddMember(keyE, valE, oneItemE.GetAllocator());
 
-		typename EncodingParams *json_encodingParams = new typename EncodingParams();
+		EncodingParams *json_encodingParams = new EncodingParams();
 		//		if( typeid(Element) == typeid(ILVector2n) )
 		//			json_ilParams = new ILParams();
 		//		else if( typeid(Element) == typeid(ILVectorArray2n) )
@@ -323,7 +323,7 @@ protected:
 			return false;
 		}
 
-		shared_ptr<typename EncodingParams> encodingParams(json_encodingParams);
+		shared_ptr<EncodingParams> encodingParams(json_encodingParams);
 		this->SetEncodingParams(encodingParams);
 
 		if( (pIt = mIter->value.FindMember("PlaintextModulus")) == mIter->value.MemberEnd() )

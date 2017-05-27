@@ -20,7 +20,7 @@ public:
 	LPCryptoParametersNull(const shared_ptr<typename Element::Params> ep, const BigBinaryInteger &plaintextModulus)
 		: LPCryptoParameters<Element>(ep, plaintextModulus) {}
 
-	LPCryptoParametersNull(shared_ptr<typename Element::Params> ep, shared_ptr<typename EncodingParams> encodingParams)
+	LPCryptoParametersNull(shared_ptr<typename Element::Params> ep, shared_ptr<EncodingParams> encodingParams)
 		: LPCryptoParameters<Element>(ep, encodingParams) {}
 
 	LPCryptoParametersNull(const LPCryptoParametersNull& rhs) : LPCryptoParameters<Element>(rhs) {}
@@ -93,14 +93,14 @@ public:
 		SerialItem valEncoding(pItEncoding->value.MemberBegin()->value, oneItemEncoding.GetAllocator());
 		oneItemEncoding.AddMember(keyEncoding, valEncoding, oneItem.GetAllocator());
 
-		typename EncodingParams *json_ilParamsEncoding = new typename EncodingParams();
+		EncodingParams *json_ilParamsEncoding = new EncodingParams();
 
 		if (!json_ilParamsEncoding->Deserialize(oneItemEncoding)) {
 			delete json_ilParamsEncoding;
 			return false;
 		}
 
-		this->SetEncodingParams(shared_ptr<typename EncodingParams>(json_ilParamsEncoding));
+		this->SetEncodingParams(shared_ptr<EncodingParams>(json_ilParamsEncoding));
 
 		if( (pIt = mIter->value.FindMember("PlaintextModulus")) == mIter->value.MemberEnd() )
 			return false;
