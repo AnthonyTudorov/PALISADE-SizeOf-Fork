@@ -911,6 +911,23 @@ public:
 
 	}
 
+	/**
+	* Evaluates inner product in batched encoding
+	*
+	* @param ciphertext1 first vector.
+	* @param ciphertext2 second vector.
+	* @param batchSize size of the batch to be summed up
+	* @return resulting ciphertext
+	*/
+	shared_ptr<Ciphertext<Element>> EvalInnerProduct(const shared_ptr<Ciphertext<Element>> ciphertext1, const shared_ptr<Ciphertext<Element>> ciphertext2, usint batchSize) const {
+
+		//need to add exception handling
+
+		auto evalMultKey = GetEvalMultKey();
+
+		return GetEncryptionAlgorithm()->EvalInnerProduct(ciphertext1, ciphertext2, batchSize, evalSumKeys, evalMultKey);
+
+	}
 
 	/**
 	* EvalLinRegression - Computes the parameter vector for linear regression using the least squares method
