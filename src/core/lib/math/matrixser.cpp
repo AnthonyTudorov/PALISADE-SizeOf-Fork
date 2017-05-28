@@ -105,6 +105,16 @@ bool Matrix<IntPlaintextEncoding>::Deserialize(const Serialized& serObj) {
 }
 
 template<>
+bool Matrix<PackedIntPlaintextEncoding>::Serialize(Serialized* serObj) const {
+	return false;
+}
+
+template<>
+bool Matrix<PackedIntPlaintextEncoding>::Deserialize(const Serialized& serObj) {
+	return false;
+}
+
+template<>
 bool Matrix<Field2n>::Serialize(Serialized* serObj) const {
 	return false;
 }

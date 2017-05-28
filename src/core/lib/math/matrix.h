@@ -40,6 +40,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "../lattice/ilvector2n.h"
 #include "../lattice/ildcrt2n.h"
 #include "../encoding/intplaintextencoding.h"
+#include "../encoding/packedintplaintextencoding.h"
 #include "../utils/inttypes.h"
 #include "../utils/utilities.h"
 #include "../utils/memory.h"

@@ -1291,6 +1291,54 @@ namespace lbcrypto {
 
 			}
 
+			/**
+			* EvalLinRegressBatched - Computes the parameter vector for linear regression using the least squares method
+			* Currently supports only two regressors
+			* @param x - matrix of regressors
+			* @param y - vector of dependent variables
+			* @return the parameter vector using (x^T x)^{-1} x^T y (using least squares method)
+			*/
+			shared_ptr<Matrix<RationalCiphertext<Element>>>
+				EvalLinRegressBatched(const shared_ptr<Matrix<RationalCiphertext<Element>>> x,
+					const shared_ptr<Matrix<RationalCiphertext<Element>>> y, usint batchSize,
+					const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalSumKeys,
+					const shared_ptr<LPEvalKey<Element>> evalMultKey) const
+			{
+
+				Matrix<RationalCiphertext<Element>> covarianceMatrix(x->GetAllocator(),2,2);
+
+				shared_ptr<Ciphertext<Element>> x0 = (*x)(0, 0).GetNumerator();
+				shared_ptr<Ciphertext<Element>> x1 = (*x)(0, 1).GetNumerator();
+				shared_ptr<Ciphertext<Element>> y0 = (*y)(0, 0).GetNumerator();
+
+				//Compute the covariance matrix for X
+				covarianceMatrix(0, 0).SetNumerator(*EvalInnerProduct(x0, x0, batchSize, evalSumKeys, evalMultKey));
+				covarianceMatrix(0, 1).SetNumerator(*EvalInnerProduct(x0, x1, batchSize, evalSumKeys, evalMultKey));
+				covarianceMatrix(1, 0) = covarianceMatrix(0, 1);
+				covarianceMatrix(1, 1).SetNumerator(*EvalInnerProduct(x1, x1, batchSize, evalSumKeys, evalMultKey));
+
+				Matrix<RationalCiphertext<Element>> cofactorMatrix = covarianceMatrix.CofactorMatrix();
+
+				Matrix<RationalCiphertext<Element>> adjugateMatrix = cofactorMatrix.Transpose();
+
+				shared_ptr<Matrix<RationalCiphertext<Element>>> result(new Matrix<RationalCiphertext<Element>>(x->GetAllocator(), 2, 1));
+
+				(*result)(0, 0).SetNumerator(*EvalInnerProduct(x0, y0, batchSize, evalSumKeys, evalMultKey));
+				(*result)(1, 0).SetNumerator(*EvalInnerProduct(x1, y0, batchSize, evalSumKeys, evalMultKey));
+
+				*result = adjugateMatrix * (*result);
+
+				RationalCiphertext<Element> determinant;
+				covarianceMatrix.Determinant(&determinant);
+
+				for (int row = 0; row < result->GetRows(); row++)
+					for (int col = 0; col < result->GetCols(); col++)
+						(*result)(row, col).SetDenominator(*determinant.GetNumerator());
+
+				return result;
+
+			}
+
 	};
 
 	/**
@@ -1726,6 +1774,18 @@ namespace lbcrypto {
 			else
 				throw std::logic_error("EvalInnerProduct operation has not been enabled");
 
+		}
+
+		shared_ptr<Matrix<RationalCiphertext<Element>>>
+			EvalLinRegressBatched(const shared_ptr<Matrix<RationalCiphertext<Element>>> x,
+				const shared_ptr<Matrix<RationalCiphertext<Element>>> y, usint batchSize,
+				const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalSumKeys,
+				const shared_ptr<LPEvalKey<Element>> evalMultKey) const {
+
+			if (this->m_algorithmSHE)
+				return this->m_algorithmSHE->EvalLinRegressBatched(x, y, batchSize, evalSumKeys, evalMultKey);
+			else
+				throw std::logic_error("EvalLinRegressionBatched operation has not been enabled");
 		}
 
 		/**

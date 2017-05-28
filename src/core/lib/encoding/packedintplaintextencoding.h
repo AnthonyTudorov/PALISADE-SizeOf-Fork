@@ -94,8 +94,10 @@ namespace lbcrypto {
 		static void Destroy();
 
 		friend std::ostream& operator<<(std::ostream& out, const PackedIntPlaintextEncoding& item) {
-			for (size_t i = 0; i<item.size(); i++)
-				out << item.at(i);
+			size_t i;
+			for (i = 0; i<item.size()-1; i++)
+				out << item.at(i) << ",";
+			out << item.at(i);
 			return out;
 		}
 

@@ -147,9 +147,7 @@ void ArbBVInnerProductPackedArray() {
 	ciphertext1 = cc.Encrypt(kp.publicKey, intArray1, false);
 	ciphertext2 = cc.Encrypt(kp.publicKey, intArray2, false);
 
-	auto result = cc.EvalMult(ciphertext1[0], ciphertext2[0]);
-
-	result = cc.EvalSum(result, batchSize);
+	auto result = cc.EvalInnerProduct(ciphertext1[0], ciphertext2[0], batchSize);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextSum;
 
@@ -226,9 +224,7 @@ void ArbLTVInnerProductPackedArray() {
 	ciphertext1 = cc.Encrypt(kp.publicKey, intArray1, false);
 	ciphertext2 = cc.Encrypt(kp.publicKey, intArray2, false);
 
-	auto result = cc.EvalMult(ciphertext1[0], ciphertext2[0]);
-
-	result = cc.EvalSum(result, batchSize);
+	auto result = cc.EvalInnerProduct(ciphertext1[0], ciphertext2[0], batchSize);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextSum;
 
@@ -317,9 +313,7 @@ void ArbFVInnerProductPackedArray() {
 	ciphertext1 = cc.Encrypt(kp.publicKey, intArray1, false);
 	ciphertext2 = cc.Encrypt(kp.publicKey, intArray2, false);
 
-	auto result = cc.EvalMult(ciphertext1[0], ciphertext2[0]);
-
-	result = cc.EvalSum(result, batchSize);
+	auto result = cc.EvalInnerProduct(ciphertext1[0], ciphertext2[0], batchSize);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextSum;
 
