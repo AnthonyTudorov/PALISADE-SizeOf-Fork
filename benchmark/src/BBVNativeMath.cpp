@@ -71,11 +71,11 @@ using namespace lbcrypto;
 // add
 static void add_BBVNative(benchmark::State& state) {
 	state.PauseTiming();
-	native_int::BigBinaryVector a = makeNativeVector(parmArray[state.range(0)]);
-	native_int::BigBinaryVector b = makeNativeVector(parmArray[state.range(0)]);
+	native_int::BinaryVector a = makeNativeVector(parmArray[state.range(0)]);
+	native_int::BinaryVector b = makeNativeVector(parmArray[state.range(0)]);
 	state.ResumeTiming();
 
-	native_int::BigBinaryVector c1 = a+b;
+	native_int::BinaryVector c1 = a+b;
 }
 
 static void BM_BBVNative_Addition(benchmark::State& state) { // benchmark
@@ -90,11 +90,11 @@ DO_PARM_BENCHMARK(BM_BBVNative_Addition)
 // add
 static void mult_BBVNative(benchmark::State& state) {	// function
 	state.PauseTiming();
-	native_int::BigBinaryVector a = makeNativeVector(parmArray[state.range(0)]);
-	native_int::BigBinaryVector b = makeNativeVector(parmArray[state.range(0)]);
+	native_int::BinaryVector a = makeNativeVector(parmArray[state.range(0)]);
+	native_int::BinaryVector b = makeNativeVector(parmArray[state.range(0)]);
 	state.ResumeTiming();
 
-	native_int::BigBinaryVector c1 = a*b;
+	native_int::BinaryVector c1 = a*b;
 }
 
 static void BM_BBVNative_Multiplication(benchmark::State& state) { // benchmark

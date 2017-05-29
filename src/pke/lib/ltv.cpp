@@ -51,7 +51,7 @@ void LPCryptoParametersLTV<Element>::ParameterSelection(LPCryptoParametersLTV<IL
 {
 
 	//defining moduli outside of recursive call for efficiency
-	std::vector<native_int::BigBinaryInteger> moduli(this->m_depth + 1);
+	std::vector<native_int::BinaryInteger> moduli(this->m_depth + 1);
 	moduli.reserve(this->m_depth + 1);
 
 	usint n = this->GetElementParams()->GetRingDimension();
@@ -64,10 +64,10 @@ void LPCryptoParametersLTV<Element>::ParameterSelection(LPCryptoParametersLTV<IL
 	cryptoParams->SetDistributionParameter(this->m_distributionParameter);
 	cryptoParams->SetPlaintextModulus(this->GetPlaintextModulus());
 
-	std::vector<native_int::BigBinaryInteger> rootsOfUnity;
+	std::vector<native_int::BinaryInteger> rootsOfUnity;
 	rootsOfUnity.reserve(this->m_depth + 1);
 	usint m = this->GetElementParams()->GetCyclotomicOrder();
-	native_int::BigBinaryInteger rootOfUnity;
+	native_int::BinaryInteger rootOfUnity;
 
 	for (int i = 0; i < this->m_depth + 1; i++) {
 		rootOfUnity = RootOfUnity(m, moduli.at(i));
@@ -80,10 +80,10 @@ void LPCryptoParametersLTV<Element>::ParameterSelection(LPCryptoParametersLTV<IL
 }
 
 template <class Element>
-void LPCryptoParametersLTV<Element>::ParameterSelection(usint& n, vector<native_int::BigBinaryInteger> &moduli) {
+void LPCryptoParametersLTV<Element>::ParameterSelection(usint& n, vector<native_int::BinaryInteger> &moduli) {
 	int t = this->m_depth + 1;
 
-	native_int::BigBinaryInteger pBigBinaryInteger(this->GetPlaintextModulus().ConvertToInt());
+	native_int::BinaryInteger pBigBinaryInteger(this->GetPlaintextModulus().ConvertToInt());
 	int p = pBigBinaryInteger.ConvertToInt(); // what if this does not fit in an int? (unlikely)
 	double w = this->m_assuranceMeasure;
 	double r = this->m_distributionParameter;
@@ -113,12 +113,12 @@ void LPCryptoParametersLTV<Element>::ParameterSelection(usint& n, vector<native_
 		sum = 0.0;
 		for (int i = 0; i<t; i++) {
 			if (i == 0 || i == 1) {
-				moduli[i] = native_int::BigBinaryInteger(split(std::to_string(q[i]), c));
+				moduli[i] = native_int::BinaryInteger(split(std::to_string(q[i]), c));
 			}
 			else {
 				moduli[i] = moduli[i - 1];
 			}
-			NextQ(moduli[i], pBigBinaryInteger, n, native_int::BigBinaryInteger("4"), native_int::BigBinaryInteger("4"));
+			NextQ(moduli[i], pBigBinaryInteger, n, native_int::BinaryInteger("4"), native_int::BinaryInteger("4"));
 			q[i] = moduli[i].ConvertToDouble();
 			sum += log(q[i]);
 		}

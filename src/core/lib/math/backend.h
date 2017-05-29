@@ -52,10 +52,6 @@
 //		Implemented as a vector of integers
 //		Configurable maximum bit length and type of underlying integer
 
-// MATHBACKEND 3
-// 		This uses exp_int:: definition with uint32_t underlying size as defaults
-// 			new dynamicly allocated backend and support uint32_t and uint64_t on linux
-
 // MATHBACKEND 4
 // 		This uses exp_int:: definition as default
 // 		This backend supports arbitrary bitwidths; no memory pool is used; can grow up to RAM limitation
@@ -76,8 +72,6 @@
 //#define MATHBACKEND 4 
 //#define MATHBACKEND 6 
 //#define MATHBACKEND 7
-
-// note we always want to include these
 
 ////////// cpu_int code
 #include "cpu_int/binint.cpp"
@@ -132,6 +126,11 @@ typedef mubintvec<xubint> xmubintvec;
 #include "gmp_int/mgmpint.h" //experimental gmp modulo unsigned big ints
 #include "gmp_int/gmpintvec.h" //vectors of such
 #include "gmp_int/mgmpintvec.h" //rings of such
+
+namespace gmp_int {
+typedef NTL::myZZ ubint;
+typedef NTL::myZZ_p mubint;
+}
 #endif
 
 ////////// for native int
@@ -140,8 +139,8 @@ typedef mubintvec<xubint> xmubintvec;
 #define MATH_NATIVEBITS	64
 
 namespace native_int {
-typedef NativeInteger<uint64_t> BigBinaryInteger;
-typedef cpu_int::BigBinaryVectorImpl<NativeInteger<uint64_t>> BigBinaryVector;
+typedef NativeInteger<uint64_t> BinaryInteger;
+typedef cpu_int::BigBinaryVectorImpl<NativeInteger<uint64_t>> BinaryVector;
 }
 
 /**
@@ -184,8 +183,8 @@ namespace lbcrypto {
 
 #if MATHBACKEND == 7
 
-	typedef native_int::BigBinaryInteger BigBinaryInteger;
-	typedef native_int::BigBinaryVector BigBinaryVector;
+	typedef native_int::BinaryInteger BinaryInteger;
+	typedef native_int::BinaryVector BinaryVector;
 
 #define MATH_DEFBITS MATH_NATIVEBITS
 #endif
@@ -196,8 +195,7 @@ namespace lbcrypto {
 	typedef ILParamsImpl<BigBinaryInteger> ILParams;
 	typedef ILVectorImpl<BigBinaryInteger, BigBinaryInteger, BigBinaryVector, ILParams> ILVector2n;
 
-	typedef ILParamsImpl<native_int::BigBinaryInteger> ILNativeParams;
-	typedef ILVectorImpl<native_int::BigBinaryInteger, native_int::BigBinaryInteger, native_int::BigBinaryVector, ILNativeParams> ILVectorNative2n;
+	typedef ILParamsImpl<native_int::BinaryInteger> ILNativeParams;
 
 } // namespace lbcrypto ends
 

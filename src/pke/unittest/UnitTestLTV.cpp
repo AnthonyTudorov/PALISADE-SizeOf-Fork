@@ -66,17 +66,17 @@ TEST(UTLTVDCRT, ILVectorArray2n_Encrypt_Decrypt) {
 
 	BytePlaintextEncoding ctxtd;
 
-	vector<native_int::BigBinaryInteger> moduli(size);
+	vector<native_int::BinaryInteger> moduli(size);
 
-	vector<native_int::BigBinaryInteger> rootsOfUnity(size);
+	vector<native_int::BinaryInteger> rootsOfUnity(size);
 
-	native_int::BigBinaryInteger q("1");
-	native_int::BigBinaryInteger temp;
+	native_int::BinaryInteger q("1");
+	native_int::BinaryInteger temp;
 	BigBinaryInteger modulus("1");
 
 	DEBUG("1");
 	for (int i = 0; i < size; i++) {
-		lbcrypto::NextQ(q, native_int::BigBinaryInteger::TWO, m, native_int::BigBinaryInteger("4"), native_int::BigBinaryInteger("4"));
+		lbcrypto::NextQ(q, native_int::BinaryInteger::TWO, m, native_int::BinaryInteger("4"), native_int::BinaryInteger("4"));
 		moduli[i] = q;
 		rootsOfUnity[i] = RootOfUnity(m, moduli[i]);
 		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
@@ -154,16 +154,16 @@ TEST(UTLTVDCRT, Ops_DCRT) {
 
 	BytePlaintextEncoding ctxtd;
 
-	vector<native_int::BigBinaryInteger> moduli(size);
+	vector<native_int::BinaryInteger> moduli(size);
 
-	vector<native_int::BigBinaryInteger> rootsOfUnity(size);
+	vector<native_int::BinaryInteger> rootsOfUnity(size);
 
-	native_int::BigBinaryInteger q("1");
-	native_int::BigBinaryInteger temp;
+	native_int::BinaryInteger q("1");
+	native_int::BinaryInteger temp;
 	BigBinaryInteger modulus("1");
 
 	for (int i = 0; i < size; i++) {
-		lbcrypto::NextQ(q, native_int::BigBinaryInteger::TWO, m, native_int::BigBinaryInteger("4"), native_int::BigBinaryInteger("4"));
+		lbcrypto::NextQ(q, native_int::BinaryInteger::TWO, m, native_int::BinaryInteger("4"), native_int::BinaryInteger("4"));
 		moduli[i] = q;
 		rootsOfUnity[i] = RootOfUnity(m, moduli[i]);
 		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());

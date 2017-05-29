@@ -107,16 +107,16 @@ TEST(UTNTT, switch_format_simple_double_crt) {
 
 	usint init_size = 2;
 
-	vector<native_int::BigBinaryInteger> init_moduli(init_size);
+	vector<native_int::BinaryInteger> init_moduli(init_size);
 
-	vector<native_int::BigBinaryInteger> init_rootsOfUnity(init_size);
+	vector<native_int::BinaryInteger> init_rootsOfUnity(init_size);
 
-	native_int::BigBinaryInteger q(1);
-	native_int::BigBinaryInteger temp;
+	native_int::BinaryInteger q(1);
+	native_int::BinaryInteger temp;
 	BigBinaryInteger modulus(1);
 
 	for (size_t i = 0; i < init_size; i++) {
-		lbcrypto::NextQ(q, native_int::BigBinaryInteger::FIVE, init_m, native_int::BigBinaryInteger::FOUR, native_int::BigBinaryInteger::FOUR);
+		lbcrypto::NextQ(q, native_int::BinaryInteger(5), init_m, native_int::BinaryInteger(4), native_int::BinaryInteger(4));
 		init_moduli[i] = q;
 		init_rootsOfUnity[i] = RootOfUnity(init_m, init_moduli[i]);
 		modulus = modulus * BigBinaryInteger(init_moduli[i].ConvertToInt());
@@ -202,14 +202,14 @@ TEST(UTNTT, decomposeMult_double_crt) {
 
 	usint init_size = 2;
 
-	vector<native_int::BigBinaryInteger> init_moduli(init_size);
+	vector<native_int::BinaryInteger> init_moduli(init_size);
 
-	vector<native_int::BigBinaryInteger> init_rootsOfUnity(init_size);
+	vector<native_int::BinaryInteger> init_rootsOfUnity(init_size);
 
-	native_int::BigBinaryInteger temp;
+	native_int::BinaryInteger temp;
 	
-	init_moduli[0] = native_int::BigBinaryInteger("17729");
-	init_moduli[1] = native_int::BigBinaryInteger("17761");
+	init_moduli[0] = native_int::BinaryInteger("17729");
+	init_moduli[1] = native_int::BinaryInteger("17761");
 
 
 	for (size_t i = 0; i < init_size; i++) {
@@ -251,12 +251,12 @@ TEST(UTNTT, decomposeMult_double_crt) {
 
 	EXPECT_EQ(resultsEval.GetElementAtIndex(0).GetValAtIndex(0), 0);
 	EXPECT_EQ(resultsEval.GetElementAtIndex(0).GetValAtIndex(1), 0);
-	EXPECT_EQ(resultsEval.GetElementAtIndex(0).GetValAtIndex(2), native_int::BigBinaryInteger("17728"));
+	EXPECT_EQ(resultsEval.GetElementAtIndex(0).GetValAtIndex(2), native_int::BinaryInteger("17728"));
 	EXPECT_EQ(resultsEval.GetElementAtIndex(0).GetValAtIndex(3), 0);
 
 	EXPECT_EQ(resultsEval.GetElementAtIndex(1).GetValAtIndex(0), 0);
 	EXPECT_EQ(resultsEval.GetElementAtIndex(1).GetValAtIndex(1), 0);
-	EXPECT_EQ(resultsEval.GetElementAtIndex(1).GetValAtIndex(2), native_int::BigBinaryInteger("17760"));
+	EXPECT_EQ(resultsEval.GetElementAtIndex(1).GetValAtIndex(2), native_int::BinaryInteger("17760"));
 	EXPECT_EQ(resultsEval.GetElementAtIndex(1).GetValAtIndex(3), 0);
 }
 

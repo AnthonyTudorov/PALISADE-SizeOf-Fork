@@ -181,7 +181,7 @@ private:
 
 	//function for parameter selection. The public ParameterSelection function is a wrapper around this function.
 	// FIXME This will soon be deprecated.
-	void ParameterSelection(usint& n, vector<native_int::BigBinaryInteger> &moduli);
+	void ParameterSelection(usint& n, vector<native_int::BinaryInteger> &moduli);
 };
 
 /**

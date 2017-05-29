@@ -49,13 +49,13 @@ inline shared_ptr<ILDCRTParams<BigBinaryInteger>> GenerateDCRTParams(usint m, us
 	if( numOfTower == 0 )
 		throw std::logic_error("Can't make parms with numOfTower == 0 ");
 
-	std::vector<native_int::BigBinaryInteger> moduli(numOfTower);
+	std::vector<native_int::BinaryInteger> moduli(numOfTower);
 
-	std::vector<native_int::BigBinaryInteger> rootsOfUnity(numOfTower);
+	std::vector<native_int::BinaryInteger> rootsOfUnity(numOfTower);
 
-	native_int::BigBinaryInteger ptmI( ptm );
+	native_int::BinaryInteger ptmI( ptm );
 
-	native_int::BigBinaryInteger q = FindPrimeModulus<native_int::BigBinaryInteger>(m, pbits);
+	native_int::BinaryInteger q = FindPrimeModulus<native_int::BinaryInteger>(m, pbits);
 	BigBinaryInteger modulus(1);
 
 	usint j = 0;
@@ -66,7 +66,7 @@ inline shared_ptr<ILDCRTParams<BigBinaryInteger>> GenerateDCRTParams(usint m, us
 		if( ++j == numOfTower )
 			break;
 
-		lbcrypto::NextQ(q, ptmI, m, native64::BigBinaryInteger(4), native64::BigBinaryInteger(4));
+		lbcrypto::NextQ(q, ptmI, m, native_int::BinaryInteger(4), native_int::BinaryInteger(4));
 	}
 
 	shared_ptr<ILDCRTParams<BigBinaryInteger>> params(new ILDCRTParams<BigBinaryInteger>(m, moduli, rootsOfUnity));

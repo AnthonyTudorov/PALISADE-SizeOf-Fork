@@ -38,7 +38,7 @@
  *
  **/
 
-//todo reduce the number of required includes
+#ifdef __linux__
 #include "include/gtest/gtest.h"
 #include <iostream>
 #include <fstream>
@@ -58,7 +58,7 @@
 
 using namespace std;
 using namespace lbcrypto;
-using namespace exp_int;
+using namespace gmp_int;
 
 /*
   int main(int argc, char **argv) {
@@ -147,7 +147,7 @@ TEST(UTmubint,ctor_access_eq_neq){
 #if 0
   //we have only one modulus for mubint so this test will not work.
 
-  //n.SetModulus(n.GetModulus()+ubint::ONE); //TODO:: this confused the compiler? //is operator+ inhereted and not operator- ?? that works below. 
+  //n.SetModulus(n.GetModulus()+ubint::ONE); //TODO:: this confused the compiler? //is operator+ inhereted and not operator- ?? that works below.
   n.SetModulus(ubint(n.GetModulus()+ubint::ONE));
   //reset n to a differnt modulus, comparison will fail. 
   test1 = m==n;
@@ -583,3 +583,5 @@ TEST(UTmubint,basic_mod_math_big_numbers){
     EXPECT_EQ (d, modmul3[i]) << "Failure big number vector vector *=index "<<i;
   }
 }
+
+#endif

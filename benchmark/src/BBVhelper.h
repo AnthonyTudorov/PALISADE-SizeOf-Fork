@@ -19,12 +19,12 @@ inline BigBinaryVector makeVector(shared_ptr<T> p) {
 	return std::move(v);
 }
 
-inline native_int::BigBinaryVector makeNativeVector(shared_ptr<ILParams> p) {
+inline native_int::BinaryVector makeNativeVector(shared_ptr<ILParams> p) {
 	native_int::ILVector2n::DugType dug;
 	dug.SetModulus(p->GetModulus().ConvertToInt());
 
 	uint64_t mod = p->GetModulus().ConvertToInt();
-	native_int::BigBinaryVector vec = dug.GenerateVector(p->GetCyclotomicOrder()/2);
+	native_int::BinaryVector vec = dug.GenerateVector(p->GetCyclotomicOrder()/2);
 
 	return std::move(vec);
 }

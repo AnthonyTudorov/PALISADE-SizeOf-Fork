@@ -771,7 +771,7 @@ private:
 
 namespace native_int {
 
-typedef lbcrypto::ILVectorImpl<native_int::BigBinaryInteger, native_int::BigBinaryInteger, native_int::BigBinaryVector, native_int::ILParams> ILVector2n;
+typedef lbcrypto::ILVectorImpl<native_int::BinaryInteger, native_int::BinaryInteger, native_int::BinaryVector, native_int::ILParams> ILVector2n;
 
 }
 
