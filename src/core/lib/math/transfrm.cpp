@@ -1049,7 +1049,7 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 
 		outputBluestein = outputBluestein*cyclotomicInverse;
 
-		auto output = PolyMod(outputBluestein, this->m_cyclotomicPolyMap[modulus], modulus);
+		VecType output = PolyMod<VecType,IntType>(outputBluestein, this->m_cyclotomicPolyMap[modulus], modulus);
 
 		return output;
 	}
@@ -1060,15 +1060,10 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 	template class NumberTheoreticTransform<BigBinaryInteger,BigBinaryVector>;
 	template class ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>;
 	template class BluesteinFFT<BigBinaryInteger, BigBinaryVector>;
-	extern template  BigBinaryVector PolyMod(const BigBinaryVector &dividend, const BigBinaryVector &divisor, const BigBinaryInteger &modulus);
 
-// FIXME the MATH_BACKEND check is a hack and needs to go away
-#if MATHBACKEND != 7
-	template class ChineseRemainderTransformFTT<native_int::BigBinaryInteger,native_int::BigBinaryVector>;
-	template class NumberTheoreticTransform<native_int::BigBinaryInteger,native_int::BigBinaryVector>;
-	template class ChineseRemainderTransformArb<native_int::BigBinaryInteger, native_int::BigBinaryVector>;
-	template class BluesteinFFT<native_int::BigBinaryInteger, native_int::BigBinaryVector>;
-	extern template  native_int::BigBinaryVector PolyMod(const native_int::BigBinaryVector &dividend, const native_int::BigBinaryVector &divisor, const native_int::BigBinaryInteger &modulus);
-#endif
+	template class ChineseRemainderTransformFTT<native_int::BinaryInteger,native_int::BinaryVector>;
+	template class NumberTheoreticTransform<native_int::BinaryInteger,native_int::BinaryVector>;
+	template class ChineseRemainderTransformArb<native_int::BinaryInteger, native_int::BinaryVector>;
+	template class BluesteinFFT<native_int::BinaryInteger, native_int::BinaryVector>;
 
 }//namespace ends here

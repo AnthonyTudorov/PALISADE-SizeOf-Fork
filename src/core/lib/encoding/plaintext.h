@@ -85,13 +85,13 @@ public:
 		return CompareTo(other);
 	}
 
-	native_int::BigBinaryInteger ConvertToNativeModulus(const BigBinaryInteger& ptm) {
+	native_int::BinaryInteger ConvertToNativeModulus(const BigBinaryInteger& ptm) {
 		static BigBinaryInteger largestNative( ~((uint64_t)0) );
 
 		if( ptm > largestNative )
 			throw std::logic_error("plaintext modulus of " + ptm.ToString() + " is too big to convert to a native_int integer");
 
-		return native_int::BigBinaryInteger( ptm.ConvertToInt() );
+		return native_int::BinaryInteger( ptm.ConvertToInt() );
 	}
 };
 

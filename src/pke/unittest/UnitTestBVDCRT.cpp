@@ -261,16 +261,16 @@ TEST(UTBV, Ops) {
 //
 //	usint init_size = 5;
 //
-//	vector<native_int::BigBinaryInteger> init_moduli(init_size);
+//	vector<native_int::BinaryInteger> init_moduli(init_size);
 //
-//	vector<native_int::BigBinaryInteger> init_rootsOfUnity(init_size);
+//	vector<native_int::BinaryInteger> init_rootsOfUnity(init_size);
 //
-//	native_int::BigBinaryInteger q("21990232");
-//	native_int::BigBinaryInteger temp;
+//	native_int::BinaryInteger q("21990232");
+//	native_int::BinaryInteger temp;
 //	BigBinaryInteger modulus("1");
 //
 //	for (int i = 0; i < init_size; i++) {
-//		lbcrypto::NextQ(q, native_int::BigBinaryInteger::FIVE, init_m, native_int::BigBinaryInteger("4"), native_int::BigBinaryInteger("4"));
+//		lbcrypto::NextQ(q, native_int::BinaryInteger::FIVE, init_m, native_int::BinaryInteger("4"), native_int::BinaryInteger("4"));
 //		init_moduli[i] = q;
 //		init_rootsOfUnity[i] = RootOfUnity(init_m, init_moduli[i]);
 //		modulus = modulus * BigBinaryInteger(init_moduli[i].ConvertToInt());

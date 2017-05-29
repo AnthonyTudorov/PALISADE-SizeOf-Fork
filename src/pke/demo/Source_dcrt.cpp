@@ -85,16 +85,16 @@ shared_ptr<ILDCRTParams<BigBinaryInteger>> GenDCRTParams(int sc) {
 	usint m = Scenarios[sc].m;
 	usint nTowers = Scenarios[sc].bits/smbits;
 
-	vector<native_int::BigBinaryInteger> moduli(nTowers);
+	vector<native_int::BinaryInteger> moduli(nTowers);
 
-	vector<native_int::BigBinaryInteger> rootsOfUnity(nTowers);
+	vector<native_int::BinaryInteger> rootsOfUnity(nTowers);
 
-	native_int::BigBinaryInteger q( (1<<smbits) -1 );
-	native_int::BigBinaryInteger temp;
+	native_int::BinaryInteger q( (1<<smbits) -1 );
+	native_int::BinaryInteger temp;
 	BigBinaryInteger modulus(1);
 
 	for(size_t i=0; i < nTowers; i++){
-		lbcrypto::NextQ(q, native64::BigBinaryInteger(2), m, native64::BigBinaryInteger(4), native64::BigBinaryInteger(4));
+		lbcrypto::NextQ(q, native_int::BinaryInteger(2), m, native_int::BinaryInteger(4), native_int::BinaryInteger(4));
 		moduli[i] = q;
 		rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
 		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
@@ -488,16 +488,16 @@ void TestParameterSelection(){
 
 	// BytePlaintextEncoding ctxtd;
 
-	vector<native_int::BigBinaryInteger> moduli(size);
+	vector<native_int::BinaryInteger> moduli(size);
 
-	vector<native_int::BigBinaryInteger> rootsOfUnity(size);
+	vector<native_int::BinaryInteger> rootsOfUnity(size);
 
-	native_int::BigBinaryInteger q(1);
-	native_int::BigBinaryInteger temp;
+	native_int::BinaryInteger q(1);
+	native_int::BinaryInteger temp;
 	BigBinaryInteger modulus(1);
 
 	for(usint i=0; i < size;i++){
-		lbcrypto::NextQ(q, ptm, m, native_int::BigBinaryInteger("4"), native_int::BigBinaryInteger("4"));
+		lbcrypto::NextQ(q, native_int::BinaryInteger(ptm), m, native_int::BinaryInteger(4), native_int::BinaryInteger(4));
 		moduli[i] = q;
 		cout << i << "::" << q << endl;
 		rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
@@ -547,16 +547,16 @@ void FinalLeveledComputation(){
 
 	BytePlaintextEncoding ctxtd;
 
-	vector<native_int::BigBinaryInteger> moduli(size);
+	vector<native_int::BinaryInteger> moduli(size);
 
-	vector<native_int::BigBinaryInteger> rootsOfUnity(size);
+	vector<native_int::BinaryInteger> rootsOfUnity(size);
 
-	native_int::BigBinaryInteger q(1);
-	native_int::BigBinaryInteger temp;
+	native_int::BinaryInteger q(1);
+	native_int::BinaryInteger temp;
 	BigBinaryInteger modulus(1);
 
 	for(size_t i=0; i < size;i++){
-		lbcrypto::NextQ(q, ptm, m, native_int::BigBinaryInteger(4), native_int::BigBinaryInteger(4));
+		lbcrypto::NextQ(q, native_int::BinaryInteger(ptm), m, native_int::BinaryInteger(4), native_int::BinaryInteger(4));
 		moduli[i] = q;
 		rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
 		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
@@ -668,16 +668,16 @@ void ComposedEvalMultTest(){
 	usint relinWindow = 1;
 	usint ptm = 5;
 
-	vector<native_int::BigBinaryInteger> moduli(size);
+	vector<native_int::BinaryInteger> moduli(size);
 
-	vector<native_int::BigBinaryInteger> rootsOfUnity(size);
+	vector<native_int::BinaryInteger> rootsOfUnity(size);
 
-	native_int::BigBinaryInteger q(1);
-	native_int::BigBinaryInteger temp;
+	native_int::BinaryInteger q(1);
+	native_int::BinaryInteger temp;
 	BigBinaryInteger modulus(1);
 
 	for(size_t i=0; i < size; i++){
-		lbcrypto::NextQ(q, ptm, m, native_int::BigBinaryInteger("4"), native_int::BigBinaryInteger("4"));
+		lbcrypto::NextQ(q, native_int::BinaryInteger(ptm), m, native_int::BinaryInteger(4), native_int::BinaryInteger(4));
 		moduli[i] = q;
 		rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
 		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());

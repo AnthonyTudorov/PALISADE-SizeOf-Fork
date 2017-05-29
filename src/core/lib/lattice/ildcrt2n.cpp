@@ -131,7 +131,7 @@ namespace lbcrypto {
 	{
 		usint cyclotomicOrder = towers.at(0).GetCyclotomicOrder();
 		std::vector<std::shared_ptr<native_int::ILParams>> parms;
-		for (usint i = 1; i < towers.size(); i++) {
+		for (usint i = 0; i < towers.size(); i++) {
 			if ( towers[i].GetCyclotomicOrder() != cyclotomicOrder ) {
 				throw std::logic_error("ILVectors provided to constructor must have the same ring dimension");
 			}
@@ -160,7 +160,7 @@ namespace lbcrypto {
 
 		for(usint i = 0; i < vecSize; i++){
 			
-			native_int::BigBinaryVector ilDggValues(dcrtParams->GetRingDimension(), dcrtParams->GetParams()[i]->GetModulus());
+			native_int::BinaryVector ilDggValues(dcrtParams->GetRingDimension(), dcrtParams->GetParams()[i]->GetModulus());
 
 			for(usint j = 0; j < dcrtParams->GetRingDimension(); j++){
 				uint64_t	entry;
@@ -198,7 +198,7 @@ namespace lbcrypto {
 		for (usint i = 0; i < numberOfTowers; i++) {
 
 			dug.SetModulus(dcrtParams->GetParams()[i]->GetModulus());
-			native_int::BigBinaryVector vals(dug.GenerateVector(dcrtParams->GetRingDimension()));
+			native_int::BinaryVector vals(dug.GenerateVector(dcrtParams->GetRingDimension()));
 			ILVectorType ilvector(dcrtParams->GetParams()[i]);
 
 			ilvector.SetValues(vals, Format::COEFFICIENT); // the random values are set in coefficient format
@@ -493,7 +493,7 @@ namespace lbcrypto {
 		}
 		else{
 			for(usint i=0;i<m_vectors.size();i++){
-				native_int::BigBinaryVector temp(m_params->GetRingDimension());
+				native_int::BinaryVector temp(m_params->GetRingDimension());
 				temp.SetModulus(m_vectors.at(i).GetModulus());
 				temp = rhs;
 				m_vectors.at(i).SetValues(std::move(temp),m_format);

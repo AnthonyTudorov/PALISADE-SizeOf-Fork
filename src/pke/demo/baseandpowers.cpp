@@ -54,7 +54,6 @@ void TestPowersAndDecompose(CryptoContext<ILDCRT2n> cc, ILDCRT2n& randomVec) {
 	for( usint i = 0; i < eParms->GetParams().size(); i++ )
 		mods[i] = ILDCRT2n::Integer(eParms->GetParams()[i]->GetModulus().ConvertToInt());
 
-	native_int::BigBinaryInteger tp( native_int::BigBinaryInteger::TWO.Exp(32) - native_int::BigBinaryInteger::ONE );
 	for (usint i = 0; i < decomp.size(); i++) {
 		ILDCRT2n::Integer twoPow( ILDCRT2n::Integer::TWO.Exp(i * nBits) );
 		vector<ILDCRT2n::ILVectorType> scalars(eParms->GetParams().size());

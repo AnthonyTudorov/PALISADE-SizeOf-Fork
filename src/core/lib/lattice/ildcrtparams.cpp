@@ -8,8 +8,8 @@ namespace lbcrypto {
 template<typename IntType>
 ILDCRTParams<IntType>::ILDCRTParams(usint order, usint depth, usint bits) : ElemParams<IntType>(order, 0, 0, 0, 0) {
 
-	static native64::BigBinaryInteger FIVE(5);
-	static native64::BigBinaryInteger FOUR(5);
+	static native_int::BinaryInteger FIVE(5);
+	static native_int::BinaryInteger FOUR(5);
 	if( order == 0 )
 		return;
 	if( depth == 0 )
@@ -20,17 +20,17 @@ ILDCRTParams<IntType>::ILDCRTParams(usint order, usint depth, usint bits) : Elem
 	m_parms.resize(depth);
 	this->ciphertextModulus = BigBinaryInteger::ZERO;
 
-	native_int::BigBinaryInteger q = FindPrimeModulus<native_int::BigBinaryInteger>(order, bits);
+	native_int::BinaryInteger q = FindPrimeModulus<native_int::BinaryInteger>(order, bits);
 
 	for(size_t j = 0; ;) {
-		native_int::BigBinaryInteger root = RootOfUnity<native_int::BigBinaryInteger>(order, q);
+		native_int::BinaryInteger root = RootOfUnity<native_int::BinaryInteger>(order, q);
 		std::shared_ptr<native_int::ILParams> p( new native_int::ILParams(order, q, root) );
 		m_parms[j] = p;
 
 		if( ++j >= depth )
 			break;
 
-		lbcrypto::NextQ<native_int::BigBinaryInteger>(q, native_int::BigBinaryInteger::FIVE, order, native_int::BigBinaryInteger::FOUR, native_int::BigBinaryInteger::FOUR);
+		lbcrypto::NextQ<native_int::BinaryInteger>(q, FIVE, order, FOUR, FOUR);
 	}
 
 	RecalculateModulus();

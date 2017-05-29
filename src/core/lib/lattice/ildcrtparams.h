@@ -93,13 +93,13 @@ public:
 	 * @param cyclotomic_order the order of the ciphertext
 	 * @param &moduli is the tower of moduli
 	 */
-	ILDCRTParams(const usint cyclotomic_order, const std::vector<native64::BigBinaryInteger> &moduli, const std::vector<native64::BigBinaryInteger>& rootsOfUnity)
+	ILDCRTParams(const usint cyclotomic_order, const std::vector<native_int::BinaryInteger> &moduli, const std::vector<native_int::BinaryInteger>& rootsOfUnity)
 		: ElemParams<IntType>(cyclotomic_order, 0, 0, 0, 0) {
 		if( moduli.size() != rootsOfUnity.size() )
 			throw std::logic_error("sizes of moduli and roots of unity do not match");
 
 		for( size_t i=0; i<moduli.size(); i++ ) {
-			m_parms.push_back( std::shared_ptr<native64::ILParams>( new native64::ILParams(cyclotomic_order, moduli[i], rootsOfUnity[i]) ) );
+			m_parms.push_back( std::shared_ptr<native_int::ILParams>( new native_int::ILParams(cyclotomic_order, moduli[i], rootsOfUnity[i]) ) );
 		}
 		RecalculateModulus();
 	}
@@ -110,15 +110,15 @@ public:
 	 * @param cyclotomic_order the order of the ciphertext
 	 * @param &moduli is the tower of moduli
 	 */
-	ILDCRTParams(const usint cyclotomic_order, const std::vector<native64::BigBinaryInteger> &moduli)
+	ILDCRTParams(const usint cyclotomic_order, const std::vector<native_int::BinaryInteger> &moduli)
 		: ElemParams<IntType>(cyclotomic_order, 0, 0, 0, 0) {
 		for( size_t i=0; i<moduli.size(); i++ ) {
-			m_parms.push_back( std::shared_ptr<native64::ILParams>( new native64::ILParams(cyclotomic_order, moduli[i], 0, 0, 0) ) );
+			m_parms.push_back( std::shared_ptr<native_int::ILParams>( new native_int::ILParams(cyclotomic_order, moduli[i], 0, 0, 0) ) );
 		}
 		RecalculateModulus();
 	}
 
-	ILDCRTParams(const usint cyclotomic_order, std::vector<std::shared_ptr<native64::ILParams>>& parms)
+	ILDCRTParams(const usint cyclotomic_order, std::vector<std::shared_ptr<native_int::ILParams>>& parms)
 		: ElemParams<IntType>(cyclotomic_order, 0, 0, 0, 0), m_parms(parms) {
 		RecalculateModulus();
 	}

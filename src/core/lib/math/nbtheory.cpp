@@ -52,12 +52,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 //define DEBUG_ROOTS_OF_UNITY
 
 namespace lbcrypto {
-  //todo: more substitutions here
 
 template BigBinaryInteger RootOfUnity<BigBinaryInteger>(usint m, const BigBinaryInteger& modulo);
 template std::vector<BigBinaryInteger> RootsOfUnity(usint m, const std::vector<BigBinaryInteger> moduli);
 template BigBinaryInteger GreatestCommonDivisor(const BigBinaryInteger& a, const BigBinaryInteger& b);
-  template bool MillerRabinPrimalityTest(const BigBinaryInteger& p, const usint niter);
+template bool MillerRabinPrimalityTest(const BigBinaryInteger& p, const usint niter);
 template const BigBinaryInteger PollardRhoFactorization(const BigBinaryInteger &n);
 template void PrimeFactorize( BigBinaryInteger n, std::set<BigBinaryInteger> &primeFactors);
 template BigBinaryInteger FindPrimeModulus(usint m, usint nBits);
@@ -68,17 +67,18 @@ template BigBinaryVector GetCyclotomicPolynomial(usint m, const BigBinaryInteger
 
 
 template std::vector<usint> GetTotientList(const usint &n);
-// FIXME the MATH_BACKEND check is a hack and needs to go away
-#if MATHBACKEND != 7
-template native_int::BigBinaryInteger RootOfUnity<native_int::BigBinaryInteger>(usint m, const native_int::BigBinaryInteger& modulo);
-template std::vector<native_int::BigBinaryInteger> RootsOfUnity(usint m, const std::vector<native_int::BigBinaryInteger> moduli);
-template native_int::BigBinaryInteger GreatestCommonDivisor(const native_int::BigBinaryInteger& a, const native_int::BigBinaryInteger& b);
-  template bool MillerRabinPrimalityTest(const native_int::BigBinaryInteger& p, const usint niter);
-template const native_int::BigBinaryInteger PollardRhoFactorization(const native_int::BigBinaryInteger &n);
-template void PrimeFactorize( native_int::BigBinaryInteger n, std::set<native_int::BigBinaryInteger> &primeFactors);
-template native_int::BigBinaryInteger FindPrimeModulus(usint m, usint nBits);
-template void NextQ(native_int::BigBinaryInteger &q, const native_int::BigBinaryInteger &plainTextModulus, const usint cyclotomicOrder, const native_int::BigBinaryInteger &sigma, const native_int::BigBinaryInteger &alpha);
-#endif
+
+template native_int::BinaryInteger RootOfUnity<native_int::BinaryInteger>(usint m, const native_int::BinaryInteger& modulo);
+template std::vector<native_int::BinaryInteger> RootsOfUnity(usint m, const std::vector<native_int::BinaryInteger> moduli);
+template native_int::BinaryInteger GreatestCommonDivisor(const native_int::BinaryInteger& a, const native_int::BinaryInteger& b);
+template bool MillerRabinPrimalityTest(const native_int::BinaryInteger& p, const usint niter);
+template const native_int::BinaryInteger PollardRhoFactorization(const native_int::BinaryInteger &n);
+template void PrimeFactorize( native_int::BinaryInteger n, std::set<native_int::BinaryInteger> &primeFactors);
+template native_int::BinaryInteger FindPrimeModulus(usint m, usint nBits);
+template void NextQ(native_int::BinaryInteger &q, const native_int::BinaryInteger &plainTextModulus, const usint cyclotomicOrder, const native_int::BinaryInteger &sigma, const native_int::BinaryInteger &alpha);
+template native_int::BinaryVector PolyMod(const native_int::BinaryVector &dividend, const native_int::BinaryVector &divisor, const native_int::BinaryInteger &modulus);
+template native_int::BinaryVector PolynomialMultiplication(const native_int::BinaryVector &a, const native_int::BinaryVector &b);
+template native_int::BinaryVector GetCyclotomicPolynomial(usint m, const native_int::BinaryInteger &modulus);
 }
 
 namespace lbcrypto {
@@ -680,12 +680,12 @@ IntType NextPowerOfTwo(const IntType &n) {
 
 uint64_t GetTotient(const uint64_t n) {
 
-	std::set<native_int::BigBinaryInteger> factors;
-	native_int::BigBinaryInteger enn(n);
+	std::set<native_int::BinaryInteger> factors;
+	native_int::BinaryInteger enn(n);
 	PrimeFactorize(enn, factors);
 
-	native_int::BigBinaryInteger primeProd(1);
-	native_int::BigBinaryInteger numerator(1);
+	native_int::BinaryInteger primeProd(1);
+	native_int::BinaryInteger numerator(1);
 	for (auto &r : factors) {
 		numerator = numerator * (r - 1);
 		primeProd = primeProd * r;

@@ -47,7 +47,7 @@ template class ILParamsImpl<BigBinaryInteger>;
 template class ILVectorImpl<BigBinaryInteger,BigBinaryInteger,BigBinaryVector,ILParams>;
 
 //template<>
-//ILVectorImpl<native_int::BigBinaryInteger,native_int::BigBinaryInteger,native_int::BigBinaryVector,native_int::ILParams>::ILVectorImpl(const shared_ptr<ILDCRTParams> params, Format format, bool initializeElementToZero) : m_values(nullptr), m_format(format) {
+//ILVectorImpl<native_int::BinaryInteger,native_int::BinaryInteger,native_int::BinaryVector,native_int::ILParams>::ILVectorImpl(const shared_ptr<ILDCRTParams> params, Format format, bool initializeElementToZero) : m_values(nullptr), m_format(format) {
 //	throw std::logic_error("cannot use this constructor with a native vector");
 //}
 
@@ -56,12 +56,12 @@ template class ILVectorImpl<BigBinaryInteger,BigBinaryInteger,BigBinaryVector,IL
 // FIXME the MATH_BACKEND check is a hack and needs to go away
 #if MATHBACKEND != 7
 namespace lbcrypto {
-template class DiscreteGaussianGeneratorImpl<native_int::BigBinaryInteger,native_int::BigBinaryVector>;
-template class BinaryUniformGeneratorImpl<native_int::BigBinaryInteger,native_int::BigBinaryVector>;
-template class TernaryUniformGeneratorImpl<native_int::BigBinaryInteger,native_int::BigBinaryVector>;
-template class DiscreteUniformGeneratorImpl<native_int::BigBinaryInteger,native_int::BigBinaryVector>;
+template class DiscreteGaussianGeneratorImpl<native_int::BinaryInteger,native_int::BinaryVector>;
+template class BinaryUniformGeneratorImpl<native_int::BinaryInteger,native_int::BinaryVector>;
+template class TernaryUniformGeneratorImpl<native_int::BinaryInteger,native_int::BinaryVector>;
+template class DiscreteUniformGeneratorImpl<native_int::BinaryInteger,native_int::BinaryVector>;
 
-template class ILVectorImpl<native_int::BigBinaryInteger,native_int::BigBinaryInteger,native_int::BigBinaryVector,ILNativeParams>;
-template class ILParamsImpl<native_int::BigBinaryInteger>;
+template class ILVectorImpl<native_int::BinaryInteger,native_int::BinaryInteger,native_int::BinaryVector,ILNativeParams>;
+template class ILParamsImpl<native_int::BinaryInteger>;
 }
 #endif

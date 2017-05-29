@@ -7,7 +7,7 @@
 
 #include "cryptocontext.h"
 #include "lattice/ilvector2n.cpp"
-#include "lattice/ilvectorarray2n.cpp"
+#include "lattice/ildcrt2n.cpp"
 #include "ciphertext.cpp"
 
 namespace lbcrypto {

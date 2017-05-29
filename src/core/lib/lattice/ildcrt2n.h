@@ -83,13 +83,13 @@ namespace lbcrypto {
 		typedef VecType Vector;
 
 		typedef ILDCRTImpl<ModType,IntType,VecType,ParmType> ILVectorArrayType;
-		typedef DiscreteGaussianGeneratorImpl<native_int::BigBinaryInteger,native_int::BigBinaryVector> DggType;
-		typedef DiscreteUniformGeneratorImpl<native_int::BigBinaryInteger,native_int::BigBinaryVector> DugType;
-		typedef TernaryUniformGeneratorImpl<native_int::BigBinaryInteger,native_int::BigBinaryVector> TugType;
-		typedef BinaryUniformGeneratorImpl<native_int::BigBinaryInteger,native_int::BigBinaryVector> BugType;
+		typedef DiscreteGaussianGeneratorImpl<native_int::BinaryInteger,native_int::BinaryVector> DggType;
+		typedef DiscreteUniformGeneratorImpl<native_int::BinaryInteger,native_int::BinaryVector> DugType;
+		typedef TernaryUniformGeneratorImpl<native_int::BinaryInteger,native_int::BinaryVector> TugType;
+		typedef BinaryUniformGeneratorImpl<native_int::BinaryInteger,native_int::BinaryVector> BugType;
 
 		// this class contains an array of these:
-		typedef ILVectorImpl<native_int::BigBinaryInteger,native_int::BigBinaryInteger,native_int::BigBinaryVector,native_int::ILParams> ILVectorType;
+		typedef ILVectorImpl<native_int::BinaryInteger,native_int::BinaryInteger,native_int::BinaryVector,native_int::ILParams> ILVectorType;
 		typedef ILVectorImpl<ModType,IntType,VecType,ILParams> ILVectorLargeType;
 
 		static const std::string GetElementName() { return "ILDCRTImpl"; }

@@ -19,6 +19,9 @@
 
 namespace lbcrypto {
 
+template class ElemParams<native_int::BinaryInteger>;
+template class ILParamsImpl<native_int::BinaryInteger>;
+template class ILDCRTParams<BigBinaryInteger>;
 template class ILDCRTImpl<BigBinaryInteger,BigBinaryInteger,BigBinaryVector,ILDCRTParams<BigBinaryInteger>>;
 
 }

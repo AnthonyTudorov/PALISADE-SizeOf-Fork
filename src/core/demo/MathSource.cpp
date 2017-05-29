@@ -425,8 +425,6 @@ void vec_diff(exp_int::xmubintvec &a, exp_int::xmubintvec &b) {
 
 // Code to test exp_int::xubintvec at three different numbers of limbs.
 void test_ubintvec(usint nloop) {
-
-  bool dbg_flag = true;		// if true then print dbg output
  
   TimeVar t1,t2, t3,t_total; // timers for TIC() TOC()
   double time2;

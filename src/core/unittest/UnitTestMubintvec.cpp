@@ -249,15 +249,15 @@ TEST(UTmubintvec,ctor_access_eq_neq){
   EXPECT_TRUE(test1)<<"Failure ==";
   EXPECT_FALSE(test2)<<"Failure !=";
 
-  n.SetModulus(exp_int::xubint(n.GetModulus()+exp_int::xubint::ONE));
-  //reset n to a differnt modulus, comparison will fail. 
+  n.SetModulus(exp_int::xubint(n.GetModulus()+exp_int::xubint(1)));
+  //reset n to a different modulus, comparison will fail.
   test1 = m==n;
   test2 = m!=n;
   EXPECT_FALSE(test1)<<"Failure == different mods";
   EXPECT_TRUE(test2)<<"Failure != different mods";
 
   // set it back 
-  n.SetModulus(n.GetModulus()-exp_int::xubint::ONE);
+  n.SetModulus(n.GetModulus()-exp_int::xubint(1));
   m = n+n;
   test1 = m==n;
   test2 = m!=n;
@@ -327,7 +327,7 @@ TEST(UTmubintvec, constructorTest){
 
 TEST(UTmubintvec,mod){
 
-	mubintvec m(10); // calling constructor to create a vector of length 10 zeroed
+	exp_int::xmubintvec m(10); // calling constructor to create a vector of length 10 zeroed
 
   size_t i;
 	
@@ -496,7 +496,7 @@ TEST(UTmubintvec,basic_vector_scalar_mod_math_2_limb){
   exp_int::xmubintvec a2op1(a2.size(),q2);
   exp_int::xmubintvec a2op1test(a2.size(),q2);
   
-  exp_int::xubint myone(exp_int::xubint::ONE);
+  exp_int::xubint myone(1);
   
   for (usint i = 0; i < a2.size();i ++){
     a2op1[i] = a2[i]+myone;

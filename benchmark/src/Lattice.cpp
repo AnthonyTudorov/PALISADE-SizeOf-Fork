@@ -78,16 +78,16 @@ static const usint smbits = 28;
 static shared_ptr<ILDCRTParams<BigBinaryInteger>> generate_DCRT_parms(int s) {
 	usint nTowers = Scenarios[s].bits/smbits;
 
-	vector<native_int::BigBinaryInteger> moduli(nTowers);
+	vector<native_int::BinaryInteger> moduli(nTowers);
 
-	vector<native_int::BigBinaryInteger> rootsOfUnity(nTowers);
+	vector<native_int::BinaryInteger> rootsOfUnity(nTowers);
 
-	native_int::BigBinaryInteger q( (1<<smbits) -1 );
-	native_int::BigBinaryInteger temp;
+	native_int::BinaryInteger q( (1<<smbits) -1 );
+	native_int::BinaryInteger temp;
 	BigBinaryInteger modulus(1);
 
 	for(int i=0; i < nTowers; i++){
-		lbcrypto::NextQ(q, native_int::BigBinaryInteger::TWO, Scenarios[s].m, native_int::BigBinaryInteger("4"), native_int::BigBinaryInteger("4"));
+		lbcrypto::NextQ(q, native_int::BinaryInteger::TWO, Scenarios[s].m, native_int::BinaryInteger("4"), native_int::BinaryInteger("4"));
 		moduli[i] = q;
 		rootsOfUnity[i] = RootOfUnity(Scenarios[s].m,moduli[i]);
 		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
