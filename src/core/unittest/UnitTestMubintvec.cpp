@@ -102,11 +102,11 @@ protected:
    //JSON FACILITY
    Serialize()
    Deserialize()
-   
+*/
 
-/************************************************/
-/*	TESTING BASIC METHODS OF mubintvec CLASS        */
-/************************************************/
+/************************************************
+ *	TESTING BASIC METHODS OF mubintvec CLASS
+ ************************************************/
 TEST(UTmubintvec,ctor_access_eq_neq){
   bool dbg_flag = false;
   //note this is the same code as the ubintvec, just to confirm it works
@@ -120,11 +120,11 @@ TEST(UTmubintvec,ctor_access_eq_neq){
 
   mubintvec n(5,q); // calling contructor with modulus
 
-  int i;
+  usint i;
   usint j;
 
-  EXPECT_EQ(5,m.size())<< "Failure in size()";
-  EXPECT_EQ(5,n.size())<< "Failure in size()";
+  EXPECT_EQ(5U,m.size())<< "Failure in size()";
+  EXPECT_EQ(5U,n.size())<< "Failure in size()";
 
   // Old fashioned soon to be deprecated way of 
   // setting value of the value at different index locations
@@ -215,14 +215,14 @@ TEST(UTmubintvec,ctor_access_eq_neq){
 
   //test Single()
   mubintvec s = mubintvec::Single(ubint("3"),ubint("5"));//value 3, mod 5
-  EXPECT_EQ(1, s.size()) <<"Failure Single.size()";
+  EXPECT_EQ(1U, s.size()) <<"Failure Single.size()";
   EXPECT_EQ(ubint(3), s[0]) <<"Failure Single() value";
 
   // test assignment of single ubint (puts it in the 0 the position), zeros
   // out the rest
   //test that the vector is zeroed on init like this.
   mubintvec eqtest(10); 
-  EXPECT_EQ ( 10, eqtest.size()) << "Failure create mubintvec of 10 zeros";
+  EXPECT_EQ ( 10U, eqtest.size()) << "Failure create mubintvec of 10 zeros";
 
   for (i = 0; i< eqtest.size(); i++) {
     EXPECT_EQ ( ubint(0U), eqtest[i]) << "Failure create mubintvec of zeros";
@@ -250,7 +250,7 @@ TEST(UTmubintvec,ctor_access_eq_neq){
   EXPECT_FALSE(test2)<<"Failure !=";
 
   //n.SetModulus(n.GetModulus()+ubint::ONE); //TODO this will not compile?
-  n.SetModulus(ubint(n.GetModulus()+ubint::ONE));
+  n.SetModulus(ubint(n.GetModulus() + ubint(1)));
   //reset n to a differnt modulus, comparison will fail. 
   test1 = m==n;
   test2 = m!=n;
@@ -258,14 +258,14 @@ TEST(UTmubintvec,ctor_access_eq_neq){
   EXPECT_TRUE(test2)<<"Failure != different mods";
 
   // set it back 
-  n.SetModulus(n.GetModulus()-ubint::ONE);
+  n.SetModulus(n.GetModulus() - ubint(1));
   m = n+n;
   test1 = m==n;
   test2 = m!=n;
   EXPECT_FALSE(test1)<<"Failure ==";
   EXPECT_TRUE(test2)<<"Failure !=";
 
-  for (auto i = 0; i < m.size(); i++) {
+  for (usint i = 0; i < m.size(); i++) {
     m[i] = n[i]; //test both lhs and rhs []
   }
 
@@ -311,7 +311,7 @@ TEST(UTmubintvec, constructorTest){
 
   DEBUG("m: "<<m);
 
-  int expectedResult[10] = {48,53,7,178,190,120,79,108,60,12};  // the expected values are stored as one dimensional integer array
+  uint64_t expectedResult[10] = {48,53,7,178,190,120,79,108,60,12};  // the expected values are stored as one dimensional integer array
 
   for (usint i=0;i<10;i++){
     DEBUG("val "<<i<< " is "<<m.GetValAtIndex(i));
@@ -327,11 +327,10 @@ TEST(UTmubintvec, constructorTest){
 }
 
 TEST(UTmubintvec,mod){
-  bool dbg_flag = false;
-  mubintvec m(10); // calling constructor to create a vector of length 10 zeroed
 
-  int i;
-  usint j;
+	mubintvec m(10); // calling constructor to create a vector of length 10 zeroed
+
+  size_t i;
 	
 
   //setting value of the value at different index locations
@@ -498,7 +497,7 @@ TEST(UTmubintvec,basic_vector_scalar_mod_math_2_limb){
   mubintvec a2op1(a2.size(),q2);
   mubintvec a2op1test(a2.size(),q2);
   
-  ubint myone(ubint::ONE);
+  ubint myone(1);
   
   for (usint i = 0; i < a2.size();i ++){
     a2op1[i] = a2[i]+myone;

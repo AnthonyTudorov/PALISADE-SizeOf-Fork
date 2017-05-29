@@ -218,7 +218,7 @@ namespace lbcrypto {
 		* @param &other is the ciphertext to add with.
 		* @return the result of the addition.
 		*/
-		inline const RationalCiphertext<Element>& operator+=(const RationalCiphertext<Element> &other) {
+		const RationalCiphertext<Element>& operator+=(const RationalCiphertext<Element> &other) {
 			// ciphertext object has no data yet, i.e., it is zero-initialized
 			if (m_numerator->GetElements().size() == 0)
 			{
@@ -236,13 +236,17 @@ namespace lbcrypto {
 			return *this;
 		}
 
+		const RationalCiphertext<Element>& operator-=(const RationalCiphertext<Element> &other) {
+			throw std::logic_error("operator-= not implemented for RationalCiphertext");
+		}
+
 		/**
 		* Unary negation operator.
 		*
 		* @param &other is the ciphertext to add with.
 		* @return the result of the addition.
 		*/
-		inline const RationalCiphertext<Element> operator-() {
+		const RationalCiphertext<Element> operator-() {
 			if (m_numerator->GetElements().size() == 0)
 				throw std::logic_error("No elements in the ciphertext to be negated");
 			else
@@ -253,7 +257,7 @@ namespace lbcrypto {
 			}
 		}
 
-		inline bool operator==(const RationalCiphertext<Element>& rhs) const {
+		bool operator==(const RationalCiphertext<Element>& rhs) const {
 			bool topPart = this->GetIntegerFlag() == rhs.GetIntegerFlag() &&
 				*this->GetNumerator() == *rhs.GetNumerator();
 			if( !topPart || this->GetIntegerFlag() == true )
@@ -262,7 +266,7 @@ namespace lbcrypto {
 			return *this->GetDenominator() == *rhs.GetDenominator();
 		}
 
-		inline bool operator!=(const RationalCiphertext<Element>& rhs) const {
+		bool operator!=(const RationalCiphertext<Element>& rhs) const {
 			return ! ( *this == rhs );
 		}
 

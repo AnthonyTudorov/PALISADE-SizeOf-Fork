@@ -65,12 +65,11 @@ void RunUniform() {
 	auto gaussian_alloc = ILVector2n::MakeDiscreteGaussianCoefficientAllocator(params, COEFFICIENT, SIGMA);
 	auto uniform_alloc = ILVector2n::MakeDiscreteUniformAllocator(params, COEFFICIENT);
 
-	size_t n = params->GetRingDimension();
 	double val = params->GetModulus().ConvertToDouble();
 	double logTwo = log(val - 1.0) / log(2) + 1.0;
 	size_t k = (usint)floor(logTwo);
 
-	double diff, start, finish;
+	double start, finish;
 
 	start = currentDateTime();
 
@@ -102,7 +101,7 @@ void RunParamsGen() {
 
 	double stdDev = SIGMA;
 
-	double diff, start, finish;
+	double start, finish;
 
 
 	ILVector2n::DggType dgg(stdDev); // Create the noise generator

@@ -119,9 +119,6 @@ namespace exp_int {
   template<typename limb_t>
   ubint<limb_t>::ubint()
   {
-    // builds a ubint that defaults to zero
-    
-    bool dbg_flag = false;		// if true then print dbg output
     // BBI bare ctor() generates a valid zero. mimic that activity
     m_MSB = 0;
     m_value.reserve(LimbReserveHint);
@@ -226,10 +223,10 @@ namespace exp_int {
   }
 #endif
   //this is the zero allocator for the palisade matrix class
-  template<typename limb_t>
-  std::function<unique_ptr<ubint<limb_t>>()> ubint<limb_t>::Allocator = [](){
-    return lbcrypto::make_unique<exp_int::ubint<limb_t>>();
-  };
+//  template<typename limb_t>
+//  std::function<unique_ptr<ubint<limb_t>>()> ubint<limb_t>::Allocator = [](){
+//    return lbcrypto::make_unique<exp_int::ubint<limb_t>>();
+//  };
 
   template<typename limb_t>
   ubint<limb_t>::~ubint()
@@ -288,7 +285,7 @@ namespace exp_int {
       result = (uint32_t)m_value[0];
     } else {
       //Case where limb_t is less bits than uint32_t
-      int msbTest = sizeof(uint32_t)*8;
+      size_t msbTest = sizeof(uint32_t)*8;
       if (msbTest > m_MSB)
 	msbTest = m_MSB;
       usint ceilInt = ceilIntByUInt(msbTest);
@@ -317,7 +314,7 @@ namespace exp_int {
       DEBUG("result2 " << result);
     } else {
       //Case where limb_t is less bits than uint64_t
-      int msbTest = sizeof(uint64_t)*8;
+      size_t msbTest = sizeof(uint64_t)*8;
       if (msbTest > m_MSB)
 	msbTest = m_MSB;
       usint ceilInt = ceilIntByUInt(msbTest);
@@ -449,7 +446,7 @@ return result;
     if(remainingShift!=0){
       limb_t oFlow = 0;
       Dlimb_t temp = 0;
-      sint i;
+      size_t i;
 
       DEBUG("m_MSB "<<m_MSB);
       DEBUG("ilimit "<<ceilIntByUInt(m_MSB));
@@ -532,7 +529,7 @@ return result;
       if(remainingShift!=0){
 	limb_t oFlow = 0;
 	Dlimb_t temp = 0;
-	sint i;
+	size_t i;
 	
 	DEBUG("m_MSB "<<m_MSB);
 	DEBUG("ilimit "<<ceilIntByUInt(m_MSB));
@@ -794,7 +791,7 @@ return result;
       std::cout <<"bint uninitialised"<<std::endl;
     } else {
       DEBUG("PrintLimbsInDec size "<< m_value.size());
-      for (auto i = 0; i < m_value.size(); i++){
+      for (size_t i = 0; i < m_value.size(); i++){
         std::cout<< i << ":"<< m_value[i];
         std::cout <<std::endl;
       }
@@ -809,8 +806,8 @@ return result;
       std::cout <<"bint uninitialised"<<std::endl;
     } else {
       DEBUG("PrintLimbsInHex size "<< m_value.size());
-      for (auto i = 0; i < m_value.size(); i++){
-	std::cout<< i << ": 0x"<< std::hex << m_value[i] << std::dec <<std::endl;
+      for (size_t i = 0; i < m_value.size(); i++){
+    	  std::cout<< i << ": 0x"<< std::hex << m_value[i] << std::dec <<std::endl;
       }
       std::cout<<"MSB: "<<m_MSB << std::endl;
     }
@@ -967,7 +964,7 @@ return result;
       DEBUG("in Sub, b > a return zero");
       return std::move(ubint(ZERO));
     }
-    int cntr=0,current=0;
+    size_t cntr=0,current=0;
 
     ubint result(*this);
 
@@ -991,7 +988,7 @@ return result;
       std::cout<<"endValB "<< endValB <<std::endl;
     }
 
-    for(sint i=0; i<b.m_value.size(); ++i){
+    for(size_t i=0; i<b.m_value.size(); ++i){
       DEBUG ("limb  "<<i);
       DEBUG ("a limb "<<this->m_value[i]);
       DEBUG ("res limb "<<result.m_value[i]);
@@ -1787,12 +1784,12 @@ return result;
     //memory allocated for decimal array
     DecValue = new uschar[arrSize]; //todo smartpointer
 
-    for(sint i=0;i<arrSize;i++)//store the string to decimal array
+    for(size_t i=0;i<arrSize;i++)//store the string to decimal array
       DecValue[i] = (uschar) stoi(v.substr(i,1));
 
     if (dbg_flag) {
       std::cout << "decval1 ";
-      for(int i=0;i<arrSize;i++)
+      for(size_t i=0;i<arrSize;i++)
 	std::cout <<(usint)DecValue[i] << " ";//for debug purpose
       std::cout << std::endl;
     }
@@ -1800,7 +1797,7 @@ return result;
     //clear the current value of m_value;
     m_value.clear();
 
-    sshort zptr = 0;
+    size_t zptr = 0;
     //index of highest non-zero number in decimal number
     //define  bit register array
     uschar *bitArr = new uschar[m_limbBitLength](); //todo smartpointer
@@ -1810,7 +1807,7 @@ return result;
     while(zptr!=arrSize){
       bitArr[cnt]=DecValue[arrSize-1]%2;
       //start divide by 2 in the DecValue array
-      for(sint i=zptr;i<arrSize-1;i++){
+      for(size_t i=zptr;i<arrSize-1;i++){
 	DecValue[i+1]= (DecValue[i]%2)*10 + DecValue[i+1];
 	DecValue[i]>>=1;
       }
@@ -1842,16 +1839,16 @@ return result;
 
     if (dbg_flag) {
       std::cout << "in AssignVal m_value ";
-      for(int i=0;i<m_value.size();i++)
+      for(size_t i=0;i<m_value.size();i++)
 	std::cout <<m_value[i] << " ";//for debug purpose
       std::cout << std::endl;
       std::cout << "in AssignVal m_value hex ";
-      for(int i=0;i<m_value.size();i++)
+      for(size_t i=0;i<m_value.size();i++)
 	std::cout << std::hex <<m_value[i] <<  " ";//for debug purpose
       std::cout <<std::dec << std::endl;
 
       std::cout << "in AssignVal m_value hex ";
-      for(int i=0;i<m_value.size();i++)
+      for(size_t i=0;i<m_value.size();i++)
 	std::cout << std::hex <<m_value[i] <<  " ";//for debug purpose
       std::cout <<std::dec << std::endl;
     }
@@ -2372,11 +2369,11 @@ return result;
     uschar *print_VALUE = new uschar[m_numDigitInPrintval];  //todo smartpointer
 
     //reset to zero
-    for(sint i=0;i<m_numDigitInPrintval;i++)
+    for(size_t i=0;i<m_numDigitInPrintval;i++)
       *(print_VALUE+i)=0;
 
     //starts the conversion from base r to decimal value
-    for(sint i=print_obj->m_MSB;i>0;i--){
+    for(size_t i=print_obj->m_MSB;i>0;i--){
 
       //print_VALUE = print_VALUE*2
       ubint<limb_t>::double_bitVal(print_VALUE);
@@ -2863,7 +2860,7 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
     limb_t temp = this->m_value[idx];
     limb_t bmask_counter = index%m_limbBitLength==0? m_limbBitLength:index%m_limbBitLength;//bmask is the bit number in the 8 bit array
     limb_t bmask = 1;
-    for(sint i=1;i<bmask_counter;i++)
+    for(size_t i=1;i<bmask_counter;i++)
       bmask<<=1;//generate the bitmask number
     result = temp&bmask;//finds the bit in  bit format
     result>>=bmask_counter-1;//shifting operation gives bit either 1 or 0

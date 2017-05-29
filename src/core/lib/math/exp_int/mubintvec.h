@@ -59,12 +59,10 @@ namespace exp_int {
 /**
  * @brief The class for representing vectors of ubint with associated modulo math
  */
-//note this inherits from ubintvec
 
-//JSON FACILITY
 template<class ubint_el_t>
-class mubintvec: public lbcrypto::Serializable, public ubintvec<ubint_el_t>
-//    class mubintvec : public lbcrypto::Serializable
+class mubintvec: public ubintvec<ubint_el_t>
+	// note inherits Serializable from ubintvec
 {
 public:
   /**

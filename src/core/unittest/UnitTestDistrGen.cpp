@@ -107,7 +107,7 @@ TEST(UTDistrGen, DiscreteUniformGenerator_LONG ) {
     // test length
     EXPECT_EQ(uniRandVector.GetLength(), size) << "Failure testing vector_uniform_vector_small_modulus wrong length";
     // test content
-    for(int i=0; i<size; i++) {
+    for(size_t i=0; i<size; i++) {
       EXPECT_LT(uniRandVector.GetValAtIndex(i), modulus)
 	<< "Failure testing vector_uniform_vector_small_modulus value greater than modulus at index "<< i;
     }
@@ -125,7 +125,7 @@ TEST(UTDistrGen, DiscreteUniformGenerator_LONG ) {
     // test length
     EXPECT_EQ(uniRandVector.GetLength(), size) << "Failure testing vector_uniform_vector_large_modulus";
     // test content
-    for(int i=0; i<size; i++) {
+    for(size_t i=0; i<size; i++) {
       EXPECT_LT(uniRandVector.GetValAtIndex(i), modulus) 
 	<< "Failure testing vector_uniform_vector_large_modulus value greater than modulus at index "<< i;
     }
@@ -164,7 +164,7 @@ TEST(UTDistrGen, DiscreteUniformGenerator_LONG ) {
       for(usint i=0; i<noOfIterations; i++) {
 	sum = BigBinaryInteger::ZERO;
 	mean = BigBinaryInteger::ZERO;
-	for(int j=i*eachIterationSize; j<(i+1)*eachIterationSize; j++) {
+	for(size_t j=i*eachIterationSize; j<(i+1)*eachIterationSize; j++) {
 	  sum += uniRandVector.GetValAtIndex(j);
 	}
 	mean = sum.DividedBy(N);
@@ -359,7 +359,7 @@ void testParallelDiscreteUniformGenerator(BigBinaryInteger &modulus, std::string
   {
     BinaryUniformGenerator binaryUniGen = lbcrypto::BinaryUniformGenerator();
     BigBinaryInteger binUniRandNum = binaryUniGen.GenerateInteger();
-    EXPECT_GE(binUniRandNum.ConvertToInt(), 0)
+    EXPECT_GE(binUniRandNum.ConvertToInt(), 0ULL)
       << "Failure less than 0";
   }
 
@@ -367,7 +367,7 @@ void testParallelDiscreteUniformGenerator(BigBinaryInteger &modulus, std::string
   {
     BinaryUniformGenerator binaryUniGen = lbcrypto::BinaryUniformGenerator();
     BigBinaryInteger binUniRandNum = binaryUniGen.GenerateInteger();
-    EXPECT_LE(binUniRandNum.ConvertToInt(), 1)
+    EXPECT_LE(binUniRandNum.ConvertToInt(), 1ULL)
       << "Failure greater than 1";
   }
 

@@ -122,9 +122,9 @@ TEST(UTubint,string_conversions_msb){
 
   //  q1.PrintIntegerConstants();
 
-  EXPECT_EQ(163841, q1.ConvertToUsint())<<"Failure Convert 1 limb to usint";
-  EXPECT_EQ(163841, q1.ConvertToUint32())<<"Failure Convert 1 limb to uint";
-  EXPECT_EQ(163841, q1.ConvertToUint64())<<"Failure Convert 1 limb to uint64";
+  EXPECT_EQ(163841ULL, q1.ConvertToUsint())<<"Failure Convert 1 limb to usint";
+  EXPECT_EQ(163841ULL, q1.ConvertToUint32())<<"Failure Convert 1 limb to uint";
+  EXPECT_EQ(163841ULL, q1.ConvertToUint64())<<"Failure Convert 1 limb to uint64";
   EXPECT_EQ(163841.0F, q1.ConvertToFloat())
     <<"Failure Convert 1 limb to float";
   EXPECT_EQ(163841.0, q1.ConvertToDouble())
@@ -136,7 +136,7 @@ TEST(UTubint,string_conversions_msb){
   //test GetMSB() for 1 limb
   usint msb = q1.GetMSB();
 
-  EXPECT_EQ(msb, 18)<<  "Failure testing 1 limb msb test ";
+  EXPECT_EQ(msb, 18U)<<  "Failure testing 1 limb msb test ";
 
   //create a large ubint with two limbs
   ubint q2("00004057816419532801");
@@ -146,9 +146,9 @@ TEST(UTubint,string_conversions_msb){
 
   EXPECT_NE(4057816419532801UL, q2.ConvertToUint32())
     <<"Failure Convert 2 limb to uint32";
-  EXPECT_EQ(4057816419532801UL, q2.ConvertToUint64())
+  EXPECT_EQ(4057816419532801ULL, q2.ConvertToUint64())
     <<"Failure Convert 2 limb to uint64";
-  EXPECT_EQ(4057816419532801L, q2.ConvertToUint64())
+  EXPECT_EQ(4057816419532801ULL, q2.ConvertToUint64())
     <<"Failure Convert 2 limb to uint64";
 
   //test float converstions. 
@@ -184,7 +184,7 @@ TEST(UTubint,string_conversions_msb){
   //test GetMSB()
   msb = q2.GetMSB();
   //DEBUG("q2 msb "<<msb);
-  EXPECT_EQ(msb, 52)<<  "Failure testing 2 limb msb test ";
+  EXPECT_EQ(msb, 52U)<<  "Failure testing 2 limb msb test ";
 
 #if 0 //this 'feature' was removed to match BBI operation.
   bool thrown = false;
@@ -204,10 +204,10 @@ TEST(UTubint,ctor){
 
   //test the ctor(usint)
   ubint c1(123456789);
-  EXPECT_EQ(123456789, c1.ConvertToUsint())<< "Failure testing ctor(usint)";
+  EXPECT_EQ(123456789U, c1.ConvertToUsint())<< "Failure testing ctor(usint)";
   //test the ctor(string)
   ubint c2("123456789");
-  EXPECT_EQ(123456789, c2.ConvertToUsint())<< "Failure testing ctor(string)";
+  EXPECT_EQ(123456789U, c2.ConvertToUsint())<< "Failure testing ctor(string)";
   //test the ctor(ubint)
   ubint d(c1);
   EXPECT_EQ(d.ConvertToUsint(), c1.ConvertToUsint())
@@ -267,35 +267,35 @@ TEST(UTubint,ctor64){
   //todo some very large digit tests.
 }
 
-/*************************************************
- * TESTING constants 
- *************************************************/
-TEST(UTubint,consts){
-
-  ubint a;
-
-  // test the constants
-  a = ubint::ZERO;
-  //note for some reason ubint(0) is ambiguous?
-  EXPECT_EQ(ubint(0), a)<< "Failure testing ZERO";
-
-  a = ubint::ONE;
-  EXPECT_EQ(ubint(1), a)<< "Failure testing ONE";
-
-  a = ubint::TWO;
-  EXPECT_EQ(ubint(2), a)<< "Failure testing TWO";
-
-  a = ubint::THREE;
-  EXPECT_EQ(ubint(3), a)<< "Failure testing THREE";
-
-  a = ubint::FOUR;
-  EXPECT_EQ(ubint(4), a)<< "Failure testing FOUR";
-
-  a = ubint::FIVE;
-  EXPECT_EQ(ubint(5), a)<< "Failure testing FIVE";
-
-  //todo: test log constants?
-}
+///*************************************************
+// * TESTING constants
+// *************************************************/
+//TEST(UTubint,consts){
+//
+//  ubint a;
+//
+//  // test the constants
+//  a = 0;
+//  //note for some reason ubint(0) is ambiguous?
+//  EXPECT_EQ(ubint(0), a)<< "Failure testing ZERO";
+//
+//  a = 1;
+//  EXPECT_EQ(ubint(1), a)<< "Failure testing ONE";
+//
+//  a = 2;
+//  EXPECT_EQ(ubint(2), a)<< "Failure testing TWO";
+//
+//  a = 3;
+//  EXPECT_EQ(ubint(3), a)<< "Failure testing THREE";
+//
+//  a = 4;
+//  EXPECT_EQ(ubint(4), a)<< "Failure testing FOUR";
+//
+//  a = 5;
+//  EXPECT_EQ(ubint(5), a)<< "Failure testing FIVE";
+//
+//  //todo: test log constants?
+//}
 
 /****************************/
 /* TESTING SHIFT OPERATORS  */
@@ -353,9 +353,9 @@ TEST(UTubint,left_shift){
     
     ubint calculatedResult = a<<(shift);
     uint64_t expectedResult = 288230376151711744;
-    uint64_t result =calculatedResult.ConvertToUint64();
+    uint64_t result = calculatedResult.ConvertToUint64();
 
-    EXPECT_EQ(expectedResult, calculatedResult.ConvertToUint64())
+    EXPECT_EQ(expectedResult, result)
       <<"Failure testing << greater than limb size";
     a<<=(shift);
     EXPECT_EQ(expectedResult, a.ConvertToUint64())
@@ -950,7 +950,7 @@ TEST(UTubint,mod_operations){
   // m,p Returns (m mod p), which is stored in another ubint
 
   ubint calculatedResult;
-  int expectedResult;
+  uint64_t expectedResult;
   // TEST CASE WHEN THE NUMBER IS LESS THAN MOD
   {
     ubint m("27");
@@ -1131,7 +1131,7 @@ TEST(UTubint,mod_operations){
 
 TEST(UTubint,mod_inverse){
   ubint calculatedResult;
-  int expectedResult;
+  uint64_t expectedResult;
 
   // TEST CASE WHEN THE NUMBER IS GREATER THAN MOD
   {
@@ -1181,7 +1181,7 @@ TEST(UTubint,mod_inverse){
     catch (exception& e){
       thrown = true;
       std::cout<<e.what()<<std::endl;
-      modIresult = ubint::ZERO;
+      modIresult = 0;
     }
 
     EXPECT_FALSE(thrown)
@@ -1194,7 +1194,7 @@ TEST(UTubint,mod_inverse){
 
 TEST(UTubint,mod_arithmetic){
   ubint calculatedResult;
-  int expectedResult;
+  uint64_t expectedResult;
 
   /************************************************/
   /* TESTING METHOD MODADD FOR ALL CONDITIONS     */
@@ -1320,7 +1320,7 @@ TEST(UTubint,mod_arithmetic){
     ubint q("406756");
 
     ubint calculatedResult = m.ModMul(n,q);
-    int expectedResult = 365204;
+    uint64_t expectedResult = 365204;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToUint64())
       << "Failure testing ModMul()";
@@ -1340,7 +1340,7 @@ TEST(UTubint,mod_arithmetic){
     ubint q("406756");
 
     ubint calculatedResult = m.ModExp(n,q);
-    int expectedResult = 139668;
+    uint64_t expectedResult = 139668;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToUint64())
       << "Failure testing ModExp()";

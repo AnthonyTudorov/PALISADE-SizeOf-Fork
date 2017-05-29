@@ -82,7 +82,7 @@ namespace lbcrypto {
 		}
 		else {
 			usint remaining = n - hashedText.size();
-			for (int i = 0;i < remaining;i++) {
+			for (size_t i = 0;i < remaining;i++) {
 				hashedText.push_back(0);
 			}
 			hashedText.Encode(BigBinaryInteger("256"), &u);
@@ -111,7 +111,6 @@ namespace lbcrypto {
 		const Signature<Matrix<Element>> &signatureText,
 		const BytePlaintextEncoding & plainText) {
 		size_t n = verificationKey.GetSignatureParameters().GetILParams()->GetRingDimension();
-		const BigBinaryInteger & q = verificationKey.GetSignatureParameters().GetILParams()->GetModulus();
 
 		//Encode the text into a vector so it can be used in verification process. TODO: Adding some kind of digestion algorithm
 		HashUtil util;
@@ -122,7 +121,7 @@ namespace lbcrypto {
 		}
 		else {
 			usint remaining = n - hashedText.size();
-			for (int i = 0;i < remaining;i++) {
+			for (size_t i = 0;i < remaining;i++) {
 				hashedText.push_back(0);
 			}
 			hashedText.Encode(BigBinaryInteger("256"), &u);

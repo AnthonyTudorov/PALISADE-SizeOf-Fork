@@ -35,7 +35,7 @@ namespace lbcrypto {
 
 
 template<class Element>
-Matrix<Element>::Matrix(alloc_func allocZero, size_t rows, size_t cols, alloc_func allocGen): rows(rows), cols(cols), data(), allocZero(allocZero) {
+Matrix<Element>::Matrix(alloc_func allocZero, size_t rows, size_t cols, alloc_func allocGen): data(), rows(rows), cols(cols), allocZero(allocZero) {
     data.resize(rows);
     for (auto row = data.begin(); row != data.end(); ++row) {
         for (size_t col = 0; col < cols; ++col) {
@@ -53,17 +53,6 @@ Matrix<Element>& Matrix<Element>::operator=(const Matrix<Element>& other) {
 }
 
 template<class Element>
-Matrix<Element>& Matrix<Element>::Ones() {
-  //std::cout<<"in Ones"<<std::endl;
-    for (size_t row = 0; row < rows; ++row) {
-        for (size_t col = 0; col < cols; ++col) {
-            *data[row][col] = 1;
-        }
-    }
-    return *this;
-}
-
-template<class Element>
 Matrix<Element>& Matrix<Element>::Fill(const Element &val) {
     for (size_t row = 0; row < rows; ++row) {
         for (size_t col = 0; col < cols; ++col) {
@@ -71,53 +60,6 @@ Matrix<Element>& Matrix<Element>::Fill(const Element &val) {
         }
     }
     return *this;
-}
-
-template<class Element>
-Matrix<Element>& Matrix<Element>::Identity() {
-  //std::cout<<"in Identity"<<std::endl;
-    for (size_t row = 0; row < rows; ++row) {
-        for (size_t col = 0; col < cols; ++col) {
-            if (row == col) {
-                *data[row][col] = 1;
-            } else {
-                *data[row][col] = 0;
-            }
-        }
-    }
-    return *this;
-}
-
-template<class Element>
-Matrix<Element> Matrix<Element>::GadgetVector() const {
-    Matrix<Element> g(allocZero, rows, cols);
-    auto two = allocZero();
-    *two = 2;
-    g(0, 0) = 1;
-    for (size_t col = 1; col < cols; ++col) {
-        g(0, col) = g(0, col-1) * *two;
-    }
-    return g;
-}
-
-template<class Element>
-double Matrix<Element>::Norm() const {
-    double retVal = 0.0;
-	double locVal = 0.0;
-
-	//std::cout << " Norm: " << rows << "-" << cols << "-"  << locVal << "-"  << retVal << std::endl;
-
-	for (size_t row = 0; row < rows; ++row) {
-		for (size_t col = 0; col < cols; ++col) {
-			locVal = data[row][col]->Norm();
-			//std::cout << " Norm: " << row << "-" << col << "-"  << locVal << "-"  << retVal << std::endl;
-			if (locVal > retVal) {
-				retVal = locVal;
-			}
-		}
-	}
-
-    return retVal;
 }
 
 template<class Element>
@@ -140,8 +82,8 @@ Matrix<Element> Matrix<Element>::Mult(Matrix<Element> const& other) const {
 #else
     if (rows  == 1) {
         #pragma omp parallel for
-        for (int32_t col = 0; col < result.cols; ++col) {
-		for (int32_t i = 0; i < cols; ++i) {
+        for (size_t col = 0; col < result.cols; ++col) {
+		for (size_t i = 0; i < cols; ++i) {
 		        *result.data[0][col] += *data[0][i] * *other.data[i][col];
 		    }
         }
@@ -149,9 +91,9 @@ Matrix<Element> Matrix<Element>::Mult(Matrix<Element> const& other) const {
     else
     {
 	    #pragma omp parallel for
-	    for (int32_t row = 0; row < result.rows; ++row) {
-		for (int32_t i = 0; i < cols; ++i) {
-		for (int32_t col = 0; col < result.cols; ++col) {
+	    for (size_t row = 0; row < result.rows; ++row) {
+		for (size_t i = 0; i < cols; ++i) {
+		for (size_t col = 0; col < result.cols; ++col) {
 		        *result.data[row][col] += *data[row][i] * *other.data[i][col];
 		    }
 		}
@@ -159,15 +101,6 @@ Matrix<Element> Matrix<Element>::Mult(Matrix<Element> const& other) const {
     }
 #endif
     return result;
-}
-
-template<class Element>
-void Matrix<Element>::SetFormat(Format format) {
-    for (size_t row = 0; row < rows; ++row) {
-        for (size_t col = 0; col < cols; ++col) {
-            data[row][col]->SetFormat(format);
-        }
-    }
 }
 
 template<class Element>
@@ -185,7 +118,7 @@ Matrix<Element>& Matrix<Element>::operator+=(Matrix<Element> const& other) {
     #pragma omp parallel for
 for (size_t j = 0; j < cols; ++j) {
 	for (size_t i = 0; i < rows; ++i) {
-            data[i][j] += *other.data[i][j];
+            *data[i][j] += *other.data[i][j];
         }
     }
 #endif
@@ -193,7 +126,7 @@ for (size_t j = 0; j < cols; ++j) {
 }
 
 template<class Element>
-inline Matrix<Element>& Matrix<Element>::operator-=(Matrix<Element> const& other) {
+Matrix<Element>& Matrix<Element>::operator-=(Matrix<Element> const& other) {
     if (rows != other.rows || cols != other.cols) {
         throw invalid_argument("Subtraction operands have incompatible dimensions");
     }
@@ -374,52 +307,6 @@ inline Matrix<Element>& Matrix<Element>::HStack(Matrix<Element> const& other) {
 }
 
 template<class Element>
-void Matrix<Element>::PrintValues() const {
-    for (size_t col = 0; col < cols; ++col) {
-        for (size_t row = 0; row < rows; ++row) {
-            data[row][col]->PrintValues();
-            std::cout << " ";
-        }
-        std::cout << std::endl;
-    }
-}
-
-template<class Element>
-void Matrix<Element>::SwitchFormat() {
-
-
-if (rows == 1)
-{
-    	for (size_t row = 0; row < rows; ++row) {
-	#pragma omp parallel for
-    		for (size_t col = 0; col < cols; ++col) {
-    			data[row][col]->SwitchFormat();
-    		}
-    	}
-}
-else
-{
-    	for (size_t col = 0; col < cols; ++col) {
-	#pragma omp parallel for
-	for (size_t row = 0; row < rows; ++row) {
-    			data[row][col]->SwitchFormat();
-    		}
-    	}
-}
-
-/*
-    	for (size_t row = 0; row < rows; ++row) {
-	#pragma omp parallel for
-    		for (size_t col = 0; col < cols; ++col) {
-    			data[row][col]->SwitchFormat();
-    		}
-    	}
-*/
-
-}
-
-
-template<class Element>
 void Matrix<Element>::deepCopyData(data_t const& src) {
     data.clear();
     data.resize(src.size());
@@ -428,69 +315,6 @@ void Matrix<Element>::deepCopyData(data_t const& src) {
             data[row].push_back(make_unique<Element>(**elem));
         }
     }
-}
-
-inline Matrix<BigBinaryInteger> Rotate(Matrix<ILVector2n> const& inMat) {
-    Matrix<ILVector2n> mat(inMat);
-    mat.SetFormat(COEFFICIENT);
-    size_t n = mat(0,0).GetLength();
-    BigBinaryInteger const& modulus = mat(0,0).GetModulus();
-    size_t rows = mat.GetRows() * n;
-    size_t cols = mat.GetCols() * n;
-    Matrix<BigBinaryInteger> result(BigBinaryInteger::Allocator, rows, cols);
-    for (size_t row = 0; row < mat.GetRows(); ++row) {
-        for (size_t col = 0; col < mat.GetCols(); ++col) {
-            for (size_t rotRow = 0; rotRow < n; ++rotRow) {
-                for (size_t rotCol = 0; rotCol < n; ++rotCol) {
-                    result(row*n + rotRow, col*n + rotCol) =
-                        mat(row, col).GetValues().GetValAtIndex(
-                            (rotRow - rotCol + n) % n
-                            );
-                    //  negate (mod q) upper-right triangle to account for
-                    //  (mod x^n + 1)
-                    if (rotRow < rotCol) {
-                        result(row*n + rotRow, col*n + rotCol) = modulus.ModSub(result(row*n + rotRow, col*n + rotCol), modulus);
-                    }
-                }
-            }
-        }
-    }
-    return result;
-}
-
-/**
-    *  Each element becomes a square matrix with columns of that element's
-    *  rotations in coefficient form.
-    */
-Matrix<BigBinaryVector> RotateVecResult(Matrix<ILVector2n> const& inMat) {
-    Matrix<ILVector2n> mat(inMat);
-    mat.SetFormat(COEFFICIENT);
-    size_t n = mat(0,0).GetLength();
-    BigBinaryInteger const& modulus = mat(0,0).GetModulus();
-    BigBinaryVector zero(1, modulus);
-    size_t rows = mat.GetRows() * n;
-    size_t cols = mat.GetCols() * n;
-    auto singleElemBinVecAlloc = [=](){ return make_unique<BigBinaryVector>(1, modulus); };
-    Matrix<BigBinaryVector> result(singleElemBinVecAlloc, rows, cols);
-    for (size_t row = 0; row < mat.GetRows(); ++row) {
-        for (size_t col = 0; col < mat.GetCols(); ++col) {
-            for (size_t rotRow = 0; rotRow < n; ++rotRow) {
-                for (size_t rotCol = 0; rotCol < n; ++rotCol) {
-                    BigBinaryVector& elem = result(row*n + rotRow, col*n + rotCol);
-                    elem.SetValAtIndex(0,
-                        mat(row, col).GetValues().GetValAtIndex(
-                            (rotRow - rotCol + n) % n
-                            ));
-                    //  negate (mod q) upper-right triangle to account for
-                    //  (mod x^n + 1)
-                    if (rotRow < rotCol) {
-                        result(row*n + rotRow, col*n + rotCol) = zero.ModSub(elem);
-                    }
-                }
-            }
-        }
-    }
-    return result;
 }
 
 template<class Element>
@@ -507,232 +331,6 @@ inline std::ostream& operator<<(std::ostream& os, const Matrix<Element>& m){
     return os;
 }
 
-// YSP removed the Matrix class because it is not defined for all possible data types
-// needs to be checked to make sure input matrix is used in the right places
-// the assumption is that covariance matrix does not have large coefficients because it is formed by
-// discrete gaussians e and s; this implies int32_t can be used
-// This algorithm can be further improved - see the Darmstadt paper section 4.4
-Matrix<double> Cholesky(const Matrix<int32_t> &input) {
-	//  http://eprint.iacr.org/2013/297.pdf
-	if (input.GetRows() != input.GetCols()) {
-		throw invalid_argument("not square");
-	}
-	size_t rows = input.GetRows();
-	Matrix<double> result([]() { return make_unique<double>(); }, rows, rows);
-
-	for (size_t i = 0; i < rows; ++i) {
-		for (size_t j = 0; j < rows; ++j) {
-			result(i, j) = input(i, j);
-		}
-	}
-
-	for (size_t k = 0; k < rows; ++k) {
-		result(k, k) = sqrt(result(k, k));
-		//result(k, k) = sqrt(input(k, k));
-		for (size_t i = k + 1; i < rows; ++i) {
-			//result(i, k) = input(i, k) / result(k, k);
-			result(i, k) = result(i, k) / result(k, k);
-			//  zero upper-right triangle
-			result(k, i) = 0;
-		}
-		for (size_t j = k + 1; j < rows; ++j) {
-			for (size_t i = j; i < rows; ++i) {
-				if (result(i, k) != 0 && result(j, k) != 0) {
-					result(i, j) = result(i, j) - result(i, k) * result(j, k);
-					//result(i, j) = input(i, j) - result(i, k) * result(j, k);
-
-				}
-			}
-		}
-	}
-	return result;
-}
-
-void Cholesky(const Matrix<int32_t> &input, Matrix<double> &result) {
-	//  http://eprint.iacr.org/2013/297.pdf
-	if (input.GetRows() != input.GetCols()) {
-		throw invalid_argument("not square");
-	}
-	size_t rows = input.GetRows();
-//	Matrix<LargeFloat> result([]() { return make_unique<LargeFloat>(); }, rows, rows);
-
-	for (size_t i = 0; i < rows; ++i) {
-		for (size_t j = 0; j < rows; ++j) {
-			result(i, j) = input(i, j);
-		}
-	}
-
-	for (size_t k = 0; k < rows; ++k) {
-
-		result(k, k) = sqrt(input(k, k));
-
-		for (size_t i = k + 1; i < rows; ++i) {
-			//result(i, k) = input(i, k) / result(k, k);
-			result(i, k) = result(i, k) / result(k, k);
-			//  zero upper-right triangle
-			result(k, i) = 0;
-		}
-		for (size_t j = k + 1; j < rows; ++j) {
-			for (size_t i = j; i < rows; ++i) {
-				if (result(i, k) != 0 && result(j, k) != 0) {
-					result(i, j) = result(i, j) - result(i, k) * result(j, k);
-					//result(i, j) = input(i, j) - result(i, k) * result(j, k);
-
-				}
-			}
-		}
-	}
-}
-
-
-//  Convert from Z_q to [-q/2, q/2]
-Matrix<int32_t> ConvertToInt32(const Matrix<BigBinaryInteger> &input, const BigBinaryInteger& modulus) {
-    size_t rows = input.GetRows();
-    size_t cols = input.GetCols();
-    BigBinaryInteger negativeThreshold(modulus / BigBinaryInteger::TWO);
-    Matrix<int32_t> result([](){ return make_unique<int32_t>(); }, rows, cols);
-    for (size_t i = 0; i < rows; ++i) {
-        for (size_t j = 0; j < cols; ++j) {
-            if (input(i,j) > negativeThreshold) {
-                result(i,j) = -1 *(modulus - input(i,j)).ConvertToInt();
-            } else {
-                result(i,j) = input(i,j).ConvertToInt();
-            }
-        }
-    }
-    return result;
-}
-
-Matrix<int32_t> ConvertToInt32(const Matrix<BigBinaryVector> &input, const BigBinaryInteger& modulus) {
-    size_t rows = input.GetRows();
-    size_t cols = input.GetCols();
-    BigBinaryInteger negativeThreshold(modulus / BigBinaryInteger::TWO);
-    Matrix<int32_t> result([](){ return make_unique<int32_t>(); }, rows, cols);
-    for (size_t i = 0; i < rows; ++i) {
-        for (size_t j = 0; j < cols; ++j) {
-            const BigBinaryInteger& elem = input(i,j).GetValAtIndex(0);
-            if (elem > negativeThreshold) {
-                result(i,j) = -1*(modulus - elem).ConvertToInt();
-            } else {
-                result(i,j) = elem.ConvertToInt();
-            }
-        }
-    }
-    return result;
-}
-
-//  split a vector of int32_t into a vector of ring elements with ring dimension n
-Matrix<ILVector2n> SplitInt32IntoILVector2nElements(Matrix<int32_t> const& other, size_t n, const shared_ptr<ILParams> params) {
-			
-	auto zero_alloc = ILVector2n::MakeAllocator(params, COEFFICIENT);
-
-	size_t rows = other.GetRows()/n;
-
-    Matrix<ILVector2n> result(zero_alloc, rows, 1);
-
-    for (size_t row = 0; row < rows; ++row) {
-		BigBinaryVector tempBBV(n,params->GetModulus());
-
-        for (size_t i = 0; i < n; ++i) {
-			BigBinaryInteger tempBBI;
-			uint32_t tempInteger;
-			if (other(row*n + i,0) < 0)
-			{
-				tempInteger = -other(row*n + i,0);
-				tempBBI = params->GetModulus() - BigBinaryInteger(tempInteger);
-			}
-			else
-			{
-				tempInteger = other(row*n + i,0);
-				tempBBI = BigBinaryInteger(tempInteger);
-			}
-            tempBBV.SetValAtIndex(i,tempBBI);
-        }
-
-		result(row,0).SetValues(tempBBV,COEFFICIENT);
-    }
-
-    return result;
-}
-
-//  split a vector of BBI into a vector of ring elements with ring dimension n
-Matrix<ILVector2n> SplitInt32AltIntoILVector2nElements(Matrix<int32_t> const& other, size_t n, const shared_ptr<ILParams> params) {
-			
-	auto zero_alloc = ILVector2n::MakeAllocator(params, COEFFICIENT);
-
-	size_t rows = other.GetRows();
-
-    Matrix<ILVector2n> result(zero_alloc, rows, 1);
-
-    for (size_t row = 0; row < rows; ++row) {
-
-		BigBinaryVector tempBBV(n,params->GetModulus());
-
-        for (size_t i = 0; i < n; ++i) {
-
-			BigBinaryInteger tempBBI;
-			uint32_t tempInteger;
-			if (other(row,i) < 0)
-			{
-				tempInteger = -other(row,i);
-				tempBBI = params->GetModulus() - BigBinaryInteger(tempInteger);
-			}
-			else
-			{
-				tempInteger = other(row,i);
-				tempBBI = BigBinaryInteger(tempInteger);
-			}
-
-			tempBBV.SetValAtIndex(i,tempBBI);
-        }
-
-		result(row,0).SetValues(tempBBV,COEFFICIENT);
-    }
-
-    return result;
-}
-
-#ifdef OUT
-/**
-* Serialize the object into a Serialized
-* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-* @return true if successfully serialized
-*/
-template<class Element>
-bool Matrix<Element>::Serialize(Serialized* serObj) const {
-	serObj->SetObject();
-std::cout << "SERIALIZING " << rows << ":" << cols << std::endl;
-std::cout << data.size() << std::endl;
-std::cout << data[0].size() << std::endl;
-	//SerializeVectorOfVector("Matrix", elementName<Element>(), this->data, serObj);
-
-	std::cout << typeid(Element).name() << std::endl;
-
-	for( int r=0; r<rows; r++ ) {
-		for( int c=0; c<cols; c++ ) {
-			data[r][c]->Serialize(serObj);
-		}
-	}
-
-	return true;
-}
-
-/**
-* Populate the object from the deserialization of the Serialized
-* @param serObj contains the serialized object
-* @return true on success
-*/
-template<class Element>
-bool Matrix<Element>::Deserialize(const Serialized& serObj) {
-	Serialized::ConstMemberIterator mIter = serObj.FindMember("Matrix");
-	if( mIter == serObj.MemberEnd() )
-		return false;
-
-	//return DeserializeVectorOfVector<Element>("Matrix", elementName<Element>(), mIter, &this->data);
-	return true;
-}
-#endif
-
 /*
  * Multiply the matrix by a vector of 1's, which is the same as adding all the
  * elements in the row together.
@@ -743,9 +341,8 @@ Matrix<Element> Matrix<Element>::MultByUnityVector() const {
 	Matrix<Element> result(allocZero, rows, 1);
 
 #pragma omp parallel for
-	for (int32_t row = 0; row < result.rows; ++row) {
-
-		for (int32_t col= 0; col<cols; ++col){
+	for (size_t row = 0; row < result.rows; ++row) {
+		for (size_t col= 0; col<cols; ++col){
 				*result.data[row][0] += *data[row][col];
 		}
 	}
@@ -763,9 +360,8 @@ Matrix<Element> Matrix<Element>::MultByRandomVector(std::vector<int> ranvec) con
 	Matrix<Element> result(allocZero, rows, 1);
 
 #pragma omp parallel for
-	for (int32_t row = 0; row < result.rows; ++row) {
-
-		for (int32_t col= 0; col<cols; ++col){
+	for (size_t row = 0; row < result.rows; ++row) {
+		for (size_t col= 0; col<cols; ++col){
 			if (ranvec[col] == 1)
 				*result.data[row][0] += *data[row][col];
 		}

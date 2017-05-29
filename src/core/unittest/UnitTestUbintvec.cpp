@@ -93,7 +93,7 @@ protected:
    //JSON FACILITY
    Serialize()
    Deserialize()
-   
+*/
 
 /************************************************/
 /*	TESTING BASIC METHODS OF ubintvec CLASS        */
@@ -104,11 +104,11 @@ TEST(UTubintvec,ctor_access_eq_neq){
                  //note all values are zero.
   ubintvec n(5);
 
-  int i;
+  usint i;
   usint j;
 
-  EXPECT_EQ(5,m.size())<< "Failure in size()";
-  EXPECT_EQ(5,n.size())<< "Failure in size()";
+  EXPECT_EQ(5U,m.size())<< "Failure in size()";
+  EXPECT_EQ(5U,n.size())<< "Failure in size()";
 
   // Old fashioned soon to be deprecated way of 
   // setting value of the value at different index locations
@@ -195,14 +195,14 @@ TEST(UTubintvec,ctor_access_eq_neq){
   //test Single()
   ubintvec s = ubintvec::Single(ubint("3"));
 		      
-  EXPECT_EQ(1, s.size()) <<"Failure Single.size()";
+  EXPECT_EQ(1U, s.size()) <<"Failure Single.size()";
   EXPECT_EQ(ubint(3), s[0]) <<"Failure Single() value";
 
   // test assignment of single ubint (puts it in the 0 the position), zeros
   // out the rest
   //test that the vector is zeroed on init like this.
   ubintvec eqtest(10); 
-  EXPECT_EQ ( 10, eqtest.size()) << "Failure create ubintvec of 10 zeros";
+  EXPECT_EQ ( 10U, eqtest.size()) << "Failure create ubintvec of 10 zeros";
 
   for (i = 0; i< eqtest.size(); i++) {
     EXPECT_EQ ( ubint(0), eqtest[i]) << "Failure create ubintvec of zeros";
@@ -236,7 +236,7 @@ TEST(UTubintvec,ctor_access_eq_neq){
   EXPECT_FALSE(test1)<<"Failure ==";
   EXPECT_TRUE(test2)<<"Failure !=";
 
-  for (auto i = 0; i < m.size(); i++) {
+  for (size_t i = 0; i < m.size(); i++) {
     m[i] = n[i]; //test both lhs and rhs []
   }
   test1 = m==n;
@@ -248,7 +248,7 @@ TEST(UTubintvec,mod){
 
   ubintvec m(10); // calling constructor to create a vector of length 10 zeroed
 
-  int i;
+  usint i;
   usint j;
 	
   //setting value of the value at different index locations
@@ -290,7 +290,7 @@ TEST(UTubintvec,basic_vector_scalar_math_1_limb){
   ubintvec a1op1(a1.size());
   ubintvec a1op1test(a1.size());
   
-  ubint myone(ubint::ONE);
+  ubint myone(1);
 
   // test all scalar operations with ONE as the operator term
 
@@ -485,7 +485,7 @@ TEST(UTubintvec,basic_vector_scalar_mod_math_1_limb){
   ubintvec a1op1(a1.size());
   ubintvec a1op1test(a1.size());
   
-  ubint myone(ubint::ONE);
+  ubint myone(1);
   
   for (usint i = 0; i < a1.size();i ++){
     a1op1[i] = a1[i]+myone;
@@ -609,7 +609,7 @@ TEST(UTubintvec,basic_vector_scalar_math_2_limb){
   ubintvec a2op1(a2.size());
   ubintvec a2op1test(a2.size());
   
-  ubint myone(ubint::ONE);
+  ubint myone(1);
   
   for (usint i = 0; i < a2.size();i ++){
     a2op1[i] = a2[i]+myone;
@@ -779,7 +779,7 @@ TEST(UTubintvec,basic_vector_scalar_mod_math_2_limb){
   ubintvec a2op1(a2.size());
   ubintvec a2op1test(a2.size());
   
-  ubint myone(ubint::ONE);
+  ubint myone(1);
   
   for (usint i = 0; i < a2.size();i ++){
     a2op1[i] = a2[i]+myone;

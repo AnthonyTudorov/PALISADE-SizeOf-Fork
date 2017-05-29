@@ -54,12 +54,12 @@ void TestPowersAndDecompose(CryptoContext<ILVectorArray2n> cc, ILVectorArray2n& 
 	for( usint i = 0; i < eParms->GetParams().size(); i++ )
 		mods[i] = ILVectorArray2n::Integer(eParms->GetParams()[i]->GetModulus().ConvertToInt());
 
-	native64::BigBinaryInteger tp( native64::BigBinaryInteger::TWO.Exp(32) - native64::BigBinaryInteger::ONE );
+	//native64::BigBinaryInteger tp( native64::BigBinaryInteger(2).Exp(32) - 1 );
 	for (usint i = 0; i < decomp.size(); i++) {
-		ILVectorArray2n::Integer twoPow( ILVectorArray2n::Integer::TWO.Exp(i * nBits) );
+		ILVectorArray2n::Integer twoPow( ILVectorArray2n::Integer(2).Exp(i * nBits) );
 		vector<ILVectorArray2n::ILVectorType> scalars(eParms->GetParams().size());
 
-		for( int t = 0; t < eParms->GetParams().size(); t++ ) {
+		for( size_t t = 0; t < eParms->GetParams().size(); t++ ) {
 			ILVectorArray2n::Integer factor = twoPow % mods[t];
 			ILVectorArray2n::ILVectorType thisScalar(eParms->GetParams()[t], EVALUATION);
 			thisScalar = factor.ConvertToInt();

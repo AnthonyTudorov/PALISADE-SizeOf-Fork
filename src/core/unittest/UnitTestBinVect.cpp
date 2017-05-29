@@ -103,7 +103,7 @@ TEST(UTBinVect, SetModulusTest){
 
 	BigBinaryVector calculatedResult = m.Mod(q);
 
-	int expectedResult[10] = {48,53,7,178,190,120,79,108,60,12};	// the expected values are stored as one dimensional integer array
+	uint64_t expectedResult[10] = {48,53,7,178,190,120,79,108,60,12};	// the expected values are stored as one dimensional integer array
 
 	for (usint i=0;i<5;i++){
 		EXPECT_EQ (expectedResult[i], (calculatedResult.GetValAtIndex(i)).ConvertToInt());
@@ -163,7 +163,7 @@ TEST(UTBinVect,ModAddBBITestBigModulus){
 
 	BigBinaryVector calculatedResult = m.ModAdd(n);
 
-	int expectedResult[5] = {9871, 5882,4557,2346,9792};
+	uint64_t expectedResult[5] = {9871, 5882,4557,2346,9792};
 
 	for (usint i=0;i<5;i++){
 		EXPECT_EQ (expectedResult[i], (calculatedResult.GetValAtIndex(i)).ConvertToInt());
@@ -192,7 +192,7 @@ TEST(UTBinVect,ModAddBBITestSmallerModulus){
 
 	DEBUG("m "<<m);
 	DEBUG("calculated result  "<< calculatedResult);
-	int expectedResult[5] = {1825,1370,45,1368,1746};
+	uint64_t expectedResult[5] = {1825,1370,45,1368,1746};
 	
 	for (usint i=0;i<5;i++){
 		EXPECT_EQ (expectedResult[i], (calculatedResult.GetValAtIndex(i)).ConvertToInt());
@@ -226,7 +226,7 @@ TEST(UTBinVect,modsub_first_number_less_than_second_number){
 	
 	BigBinaryVector calculatedResult = m.ModSub(n);
 
-	int expectedResult[5] = {241,3320,1995,3318,162};
+	uint64_t expectedResult[5] = {241,3320,1995,3318,162};
 
 	for (usint i=0;i<5;i++){
 		EXPECT_EQ (expectedResult[i], (calculatedResult.GetValAtIndex(i)).ConvertToInt());
@@ -249,7 +249,7 @@ TEST(UTBinVect,modsub_first_number_greater_than_second_number){
 	
 	BigBinaryVector calculatedResult = m.ModSub(n);
 
-	int expectedResult[5] = {3,4,9,3,29};
+	uint64_t expectedResult[5] = {3,4,9,3,29};
 
 	for (usint i=0;i<5;i++){
 		EXPECT_EQ (expectedResult[i], (calculatedResult.GetValAtIndex(i)).ConvertToInt());
@@ -277,7 +277,7 @@ TEST(UTBinVect,test_modmul_BBI){
 
 	BigBinaryVector calculatedResult = m.ModMul(n);
 
-	int expectedResult[5] = {1576,1850,978,1758,1476};
+	uint64_t expectedResult[5] = {1576,1850,978,1758,1476};
 
 	for (usint i=0;i<5;i++){
 		EXPECT_EQ (expectedResult[i], (calculatedResult.GetValAtIndex(i)).ConvertToInt());
@@ -307,7 +307,7 @@ TEST(UTBinVect,test_modexp){
 	
 	BigBinaryVector calculatedResult = m.ModExp(n);
 
-	int expectedResult[5] = {2792,3123,64,159,901};
+	uint64_t expectedResult[5] = {2792,3123,64,159,901};
 
 	for (usint i=0;i<5;i++){
 		EXPECT_EQ (expectedResult[i], (calculatedResult.GetValAtIndex(i)).ConvertToInt());
@@ -336,7 +336,7 @@ TEST(UTBinVect,test_modinv){
 	
 	BigBinaryVector calculatedResult = m.ModInverse();
 
-	int expectedResult[5] = {32,24,9,17,13};
+	uint64_t expectedResult[5] = {32,24,9,17,13};
 
 	for (usint i=0;i<5;i++){
 		EXPECT_EQ (expectedResult[i], (calculatedResult.GetValAtIndex(i)).ConvertToInt());
@@ -373,7 +373,7 @@ TEST(UTBinVect, modadd_vector_result_smaller_modulus){
 	
 	BigBinaryVector calculatedResult = m.ModAdd(n);
 
-	int expectedResult[5] = {14401,10428,11310,3576,17686};
+	uint64_t expectedResult[5] = {14401,10428,11310,3576,17686};
 
 	for (usint i=0;i<5;i++)
 	{
@@ -404,7 +404,7 @@ TEST(UTBinVect, modadd_vector_result_greater_modulus){
 	
 	BigBinaryVector calculatedResult = m.ModAdd(n);
 
-	int expectedResult[5] = {604,573,141,291,604};
+	uint64_t expectedResult[5] = {604,573,141,291,604};
 
 	for (usint i=0;i<5;i++)
 	{
@@ -438,7 +438,7 @@ TEST(UTBinVect,method_plus_equals_vector_operation){
 
 	m+=n;
 
-	int expectedResult[5] = {17,632,21,405,598};
+	uint64_t expectedResult[5] = {17,632,21,405,598};
 
 	for (usint i=0;i<5;i++){
 		EXPECT_EQ (expectedResult[i], (m.GetValAtIndex(i)).ConvertToInt());
@@ -472,7 +472,7 @@ TEST(UTBinVect, modmul_vector){
 	
 	BigBinaryVector calculatedResult = m.ModMul(n);
 
-	int expectedResult[5] = {52,351,315,450,195};
+	uint64_t expectedResult[5] = {52,351,315,450,195};
 
 	for (usint i=0;i<5;i++){
 		EXPECT_EQ (expectedResult[i], (calculatedResult.GetValAtIndex(i)).ConvertToInt());

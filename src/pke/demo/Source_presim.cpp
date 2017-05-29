@@ -356,7 +356,7 @@ void PRESimulation(usint count, usint dataset){
 
 		vector<shared_ptr<Ciphertext<ILVector2n>>> ct;
 		ct.push_back(arrCiphertext[j]);
-		DecryptResult result = cc.Decrypt(kp.secretKey, ct, &plaintextNew[j]);
+		cc.Decrypt(kp.secretKey, ct, &plaintextNew[j]);
 		ct.clear();
 
 	}
@@ -420,7 +420,7 @@ void PRESimulation(usint count, usint dataset){
 
 		vector<shared_ptr<Ciphertext<ILVector2n>>> ct;
 		ct.push_back(arrCiphertextNew[j]);
-		DecryptResult result = cc.Decrypt(privateKeys.back(), ct, &plaintextNew[j]);
+		cc.Decrypt(privateKeys.back(), ct, &plaintextNew[j]);
 		ct.clear();
 	}
 

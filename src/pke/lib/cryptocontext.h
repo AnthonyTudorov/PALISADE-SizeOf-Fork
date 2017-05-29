@@ -249,27 +249,11 @@ public:
 	* @param key
 	* @return new evaluation key
 	*/
-	void EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> key) const {
+	void EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> key) const;
 
-		if( key == NULL || key->GetCryptoContext() != *this )
-			throw std::logic_error("Key passed to EvalMultKeyGen were not generated with this crypto context");
+	void ClearEvalMultKeyCache();
 
-		shared_ptr<LPEvalKey<Element>> k = GetEncryptionAlgorithm()->EvalMultKeyGen(key);
-		if( evalMultKeys.size() == 0 )
-			evalMultKeys.push_back(k);
-		else
-			evalMultKeys[0] = k;
-	}
-
-	void ClearEvalMultKeyCache() {
-		evalMultKeys.resize(0);
-	}
-
-	const shared_ptr<LPEvalKey<Element>> GetEvalMultKey() const {
-		if( evalMultKeys.size() != 1 )
-			throw std::logic_error("You need to use EvalMultKeyGen so that you have an EvalKey available");
-		return evalMultKeys[0];
-	}
+	const shared_ptr<LPEvalKey<Element>> GetEvalMultKey() const;
 
 	/**
 	* KeySwitchGen creates a key that can be used with the PALISADE KeySwitch operation
@@ -317,7 +301,7 @@ public:
 		if (ptSize%chunkSize != 0 || doPadding == true)
 			rounds += 1;
 
-		for (int bytes = 0, i = 0; i < rounds; bytes += chunkSize, i++) {
+		for (size_t bytes = 0, i = 0; i < rounds; bytes += chunkSize, i++) {
 
 			ILVector2n pt(publicKey->GetCryptoParameters()->GetElementParams());
 			plaintext.Encode(ptm, &pt, bytes, chunkSize);
@@ -357,9 +341,9 @@ public:
 
 		const BigBinaryInteger& ptm = publicKey->GetCryptoParameters()->GetPlaintextModulus();
 
-		for (int row = 0; row < plaintext.GetRows(); row++)
+		for (size_t row = 0; row < plaintext.GetRows(); row++)
 		{
-			for (int col = 0; col < plaintext.GetCols(); col++)
+			for (size_t col = 0; col < plaintext.GetCols(); col++)
 			{
 				ILVector2n pt(publicKey->GetCryptoParameters()->GetElementParams());
 				plaintext(row,col).Encode(ptm, &pt);
@@ -414,7 +398,7 @@ public:
 
 			shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, pt);
 			if (!ciphertext) {
-				delete ptxt;
+				delete [] ptxt;
 				return;
 			}
 
@@ -422,17 +406,17 @@ public:
 
 			if (ciphertext->Serialize(&cS)) {
 				if (!SerializableHelper::SerializationToStream(cS, outstream)) {
-					delete ptxt;
+					delete [] ptxt;
 					return;
 				}
 			}
 			else {
-				delete ptxt;
+				delete [] ptxt;
 				return;
 			}
 		}
 
-		delete ptxt;
+		delete [] ptxt;
 		return;
 	}
 
@@ -457,8 +441,8 @@ public:
 		if( privateKey == NULL || privateKey->GetCryptoContext() != *this )
 			throw std::logic_error("Information passed to Decrypt was not generated with this crypto context");
 
-		int lastone = ciphertext.size() - 1;
-		for( int ch = 0; ch < ciphertext.size(); ch++ ) {
+		size_t lastone = ciphertext.size() - 1;
+		for( size_t ch = 0; ch < ciphertext.size(); ch++ ) {
 			if( ciphertext[ch] == NULL || ciphertext[ch]->GetCryptoContext() != *this )
 				throw std::logic_error("A ciphertext passed to Decrypt was not generated with this crypto context");
 
@@ -500,9 +484,9 @@ public:
 		if (privateKey == NULL || privateKey->GetCryptoContext() != *this)
 			throw std::runtime_error("Information passed to DecryptMatrix was not generated with this crypto context");
 
-		for (int row = 0; row < ciphertext->GetRows(); row++)
+		for (size_t row = 0; row < ciphertext->GetRows(); row++)
 		{
-			for (int col = 0; col < ciphertext->GetCols(); col++)
+			for (size_t col = 0; col < ciphertext->GetCols(); col++)
 			{
 				if ((*ciphertext)(row, col).GetCryptoContext() != *this)
 					throw std::runtime_error("A ciphertext passed to DecryptMatrix was not generated with this crypto context");
@@ -556,7 +540,7 @@ public:
 
 		while( SerializableHelper::StreamToSerialization(instream, &serObj) ) {
 			shared_ptr<Ciphertext<Element>> ct;
-			if( ct = deserializeCiphertext(serObj) ) {
+			if( (ct = deserializeCiphertext(serObj)) != NULL ) {
 				ILVector2n decrypted;
 				DecryptResult res = GetEncryptionAlgorithm()->Decrypt(privateKey, ct, &decrypted);
 				if( !res.isValid )
@@ -597,7 +581,7 @@ public:
 			throw std::logic_error("Information passed to ReEncrypt was not generated with this crypto context");
 
 		std::vector<shared_ptr<Ciphertext<Element>>> newCiphertext;
-		for( int i=0; i < ciphertext.size(); i++ ) {
+		for( size_t i=0; i < ciphertext.size(); i++ ) {
 			if( ciphertext[i] == NULL || ciphertext[i]->GetCryptoContext() != *this )
 				throw std::logic_error("One of the ciphertexts passed to ReEncrypt was not generated with this crypto context");
 			newCiphertext.push_back( GetEncryptionAlgorithm()->ReEncrypt(evalKey, ciphertext[i]) );
@@ -869,7 +853,7 @@ public:
 
 		std::vector<shared_ptr<Ciphertext<Element>>> newCiphertext(ciphertext.size());
 
-		for (int i = 0; i < ciphertext.size(); i++) {
+		for (size_t i = 0; i < ciphertext.size(); i++) {
 			if( ciphertext[i] == NULL || ciphertext[i]->GetCryptoContext() != *this )
 				throw std::logic_error("Ciphertext passed to RingReduce was not generated with this crypto context");
 

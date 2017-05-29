@@ -250,7 +250,6 @@ void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(typename Element::DggTy
 	bool dbg_flag = false;
 	TIC(t1);
 
-	usint n = obfuscatedPattern->GetRingDimension();
 	usint k = obfuscatedPattern->GetLogModulus();
 
 	DEBUG("BitLength in KeyGen: " << k);
@@ -279,7 +278,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(typename Element::DggTy
 		shared_ptr<std::vector<Matrix<Element>>> Pk_vector_pvt (new std::vector<Matrix<Element>>());
 		shared_ptr<std::vector<RLWETrapdoorPair<ILVector2n>>>   Ek_vector_pvt (new std::vector<RLWETrapdoorPair<ILVector2n>>());
 #pragma omp for nowait schedule(static)
-		for(int32_t i=0; i<=adjustedLength+1; i++) {
+		for(size_t i=0; i<=adjustedLength+1; i++) {
 			//build private copies in parallel
 			TIC(tp);
 			std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev); //TODO remove stddev
@@ -347,14 +346,14 @@ shared_ptr<Matrix<Element>> LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 	//DBC: this loop takes all the time in encode
 	//TODO (dcousins): move gaussj generation out of the loop to enable parallelisation
 	#pragma omp parallel for
-	for(int32_t i=0; i<m; i++) {
+	for(size_t i=0; i<m; i++) {
 
 	  // the following takes approx 250 msec
 		Matrix<Element> gaussj = RLWETrapdoorUtility::GaussSamp(n,k,Ai,Ti,bj(0,i),dgg.GetStd(), dgg, dggLargeSigma);
 //		gaussj(0, 0).PrintValues();
 //		gaussj(1, 0).PrintValues();
 		// the following takes no time
-		for(int32_t j=0; j<m; j++) {
+		for(size_t j=0; j<m; j++) {
 //			gaussj(j, 0).PrintValues();
 			(*result)(j,i) = gaussj(j,0);
 		}
@@ -409,8 +408,6 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 	std::cout << "Ring dimension \t n : " << n << std::endl;
 	std::cout << "Modulus \t q : " << q << std::endl;
 	std::cout << "Num bits + 2 \t m : " << m << std::endl;
-
-	char val=0;
 
 	// Initialize the s and r matrices.
 	vector<vector<Element>> s_small;
@@ -617,7 +614,6 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::EvaluateV2(
 	std::cout << "Num bits \t m : " << m << std::endl;
 	std::cout << "Constraint \t : " << constraint << std::endl;
 
-	bool retVal = true;
 	std::string testVal;
 
 	double norm = constraint;
@@ -703,11 +699,10 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::EvaluateACS(
 				const std::string &testString, const int useRandomVector) const {
 	//Evaluation of Obfuscated Conjunction Pattern
 	TimeVar t1; // for TIC TOC
-	bool dbg_flag = 1;
 	TIC(t1);
 
 	usint l = obfuscatedPattern.GetLength();
-	usint n = obfuscatedPattern.GetRingDimension();
+	//usint n = obfuscatedPattern.GetRingDimension();
 	BigBinaryInteger q(obfuscatedPattern.GetModulus());
 	usint m = obfuscatedPattern.GetLogModulus() + 2;
 	usint chunkSize = obfuscatedPattern.GetChunkSize();
@@ -728,12 +723,9 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::EvaluateACS(
 	//std::cout << "Num bits \t m : " << m << std::endl;
 	//std::cout << "Constraint \t : " << constraint << std::endl;
 
-	bool retVal = true;
 	std::string testVal;
 
 	double norm = constraint;
-
-
 
 	shared_ptr<Matrix<Element>> S_ib;
 	shared_ptr<Matrix<Element>> R_ib;
@@ -747,7 +739,7 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::EvaluateACS(
 	if (useRandomVector == 1) {
 		std::vector<int> randvec;
 		randvec.reserve(Rl->GetCols());
-		for (int i = 0; i < Rl->GetCols(); i++) {
+		for (size_t i = 0; i < Rl->GetCols(); i++) {
 			randvec.push_back(rand() % 2);
 		}
 		//std::cout<<"About to set CrossSR and CrossRS from randvec"<<std::endl;
@@ -830,7 +822,7 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 	TIC(t1);
 
 	usint l = obfuscatedPattern.GetLength();
-	usint n = obfuscatedPattern.GetRingDimension();
+	//usint n = obfuscatedPattern.GetRingDimension();
 	BigBinaryInteger q(obfuscatedPattern.GetModulus());
 	usint m = obfuscatedPattern.GetLogModulus() + 2;
 	usint chunkSize = obfuscatedPattern.GetChunkSize();
@@ -850,7 +842,6 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 	//std::cout << "Num bits \t m : " << m << std::endl;
 	//std::cout << "Constraint \t : " << constraint << std::endl;
 
-	bool retVal = true;
 	std::string testVal;
 
 	double norm = constraint;

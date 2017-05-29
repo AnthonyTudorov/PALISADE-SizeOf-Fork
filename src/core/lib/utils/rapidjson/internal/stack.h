@@ -36,7 +36,7 @@ public:
         RAPIDJSON_ASSERT(stackCapacity > 0);
     }
 
-#if RAPIDJSON_HAS_CXX11_RVALUE_REFS
+#ifdef RAPIDJSON_HAS_CXX11_RVALUE_REFS
     Stack(Stack&& rhs)
         : allocator_(rhs.allocator_),
           ownAllocator_(rhs.ownAllocator_),
@@ -58,7 +58,7 @@ public:
         Destroy();
     }
 
-#if RAPIDJSON_HAS_CXX11_RVALUE_REFS
+#ifdef RAPIDJSON_HAS_CXX11_RVALUE_REFS
     Stack& operator=(Stack&& rhs) {
         if (&rhs != this)
         {

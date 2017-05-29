@@ -93,8 +93,8 @@ shared_ptr<ILVectorArray2n::Params> GenDCRTParams(int sc) {
 	native64::BigBinaryInteger temp;
 	BigBinaryInteger modulus(1);
 
-	for(int i=0; i < nTowers; i++){
-		lbcrypto::NextQ(q, native64::BigBinaryInteger::TWO, m, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
+	for(size_t i=0; i < nTowers; i++){
+		lbcrypto::NextQ(q, native64::BigBinaryInteger(2), m, native64::BigBinaryInteger(4), native64::BigBinaryInteger(4));
 		moduli[i] = q;
 		rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
 		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
@@ -189,7 +189,7 @@ void EvalMultTest(bool runsmall, bool runbig) {
 		std::cout << "Case " << i << " m=" << Scenarios[i].m << " bits=" << Scenarios[i].bits << std::endl;
 		if( runbig ) {
 			shared_ptr<ILParams> spparm = GenSinglePrimeParams(i);
-			CryptoContext<ILVector2n> cc1 = CryptoContextFactory<ILVector2n>::genCryptoContextBV(spparm, 1<<32 - 1, 16, 4.0);
+			CryptoContext<ILVector2n> cc1 = CryptoContextFactory<ILVector2n>::genCryptoContextBV(spparm, 16, 16, 4.0);
 			cc1.Enable(ENCRYPTION);
 			cc1.Enable(SHE);
 
@@ -213,7 +213,7 @@ void EvalMultTest(bool runsmall, bool runbig) {
 		if( runsmall ) {
 			shared_ptr<ILVectorArray2n::Params> dcparm = GenDCRTParams(i);
 			shared_ptr<ILParams> tvp( new ILParams(dcparm->GetCyclotomicOrder(), dcparm->GetModulus(), BigBinaryInteger::ONE) );
-			CryptoContext<ILVectorArray2n> cc2 = CryptoContextFactory<ILVectorArray2n>::genCryptoContextBV(dcparm, 1<<32 - 1, 16, 4.0);
+			CryptoContext<ILVectorArray2n> cc2 = CryptoContextFactory<ILVectorArray2n>::genCryptoContextBV(dcparm, 16, 16, 4.0);
 			cc2.Enable(ENCRYPTION);
 			cc2.Enable(SHE);
 
@@ -370,8 +370,6 @@ void NTRU_DCRT() {
 	cc.Enable(ENCRYPTION);
 	cc.Enable(PRE);
 
-	bool successKeyGen=false;
-
 	std::cout <<"\n" <<  "Running key generation..." << std::endl;
 
 	start = currentDateTime();
@@ -479,15 +477,12 @@ void NTRU_DCRT() {
 
 void TestParameterSelection(){
 
-	double diff, start, finish;
-
-	start = currentDateTime();
-
 	usint m = 16;
 
 	float stdDev = 4;
 
 	usint size = 11;
+	usint ptm = 2;
 
 	std::cout << "tower size: " << size << std::endl;
 
@@ -497,12 +492,12 @@ void TestParameterSelection(){
 
 	vector<native64::BigBinaryInteger> rootsOfUnity(size);
 
-	native64::BigBinaryInteger q("1");
+	native64::BigBinaryInteger q(1);
 	native64::BigBinaryInteger temp;
-	BigBinaryInteger modulus("1");
+	BigBinaryInteger modulus(1);
 
-	for(int i=0; i < size;i++){
-		lbcrypto::NextQ(q, native64::BigBinaryInteger::TWO, m, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
+	for(usint i=0; i < size;i++){
+		lbcrypto::NextQ(q, native64::BigBinaryInteger(ptm), m, native64::BigBinaryInteger(4), native64::BigBinaryInteger(4));
 		moduli[i] = q;
 		cout << i << "::" << q << endl;
 		rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
@@ -514,15 +509,13 @@ void TestParameterSelection(){
 	shared_ptr<ILVectorArray2n::Params> params( new ILVectorArray2n::Params(m, moduli, rootsOfUnity) );
 
 	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
-	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
+	cryptoParams.SetPlaintextModulus(ptm);
 	cryptoParams.SetDistributionParameter(stdDev);
 	cryptoParams.SetRelinWindow(1);
 	cryptoParams.SetElementParams(params);
 	cryptoParams.SetAssuranceMeasure(6);
 	cryptoParams.SetDepth(size-1);
 	cryptoParams.SetSecurityLevel(1.006);
-
-	usint n = 16;
 
 	std::vector<BigBinaryInteger> moduliV(size);
 	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams2;
@@ -548,6 +541,7 @@ void FinalLeveledComputation(){
 	float init_stdDev = 4;
 
 	usint size = 3;
+	usint ptm = 3;
 
 	std::cout << "tower size: " << size << std::endl;
 
@@ -557,12 +551,12 @@ void FinalLeveledComputation(){
 
 	vector<native64::BigBinaryInteger> rootsOfUnity(size);
 
-	native64::BigBinaryInteger q("1");
+	native64::BigBinaryInteger q(1);
 	native64::BigBinaryInteger temp;
-	BigBinaryInteger modulus("1");
+	BigBinaryInteger modulus(1);
 
-	for(int i=0; i < size;i++){
-		lbcrypto::NextQ(q, native64::BigBinaryInteger::TWO, m, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
+	for(size_t i=0; i < size;i++){
+		lbcrypto::NextQ(q, native64::BigBinaryInteger(ptm), m, native64::BigBinaryInteger(4), native64::BigBinaryInteger(4));
 		moduli[i] = q;
 		rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
 		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
@@ -572,13 +566,11 @@ void FinalLeveledComputation(){
 
 	shared_ptr<ILVectorArray2n::Params> params( new ILVectorArray2n::Params(m, moduli, rootsOfUnity) );
 
-	usint n = 16;
-
 	std::vector<BigBinaryInteger> moduliV(size);
 	LPCryptoParametersLTV<ILVectorArray2n> finalParams;
 
 	// use the parameter selection version when it works...
-	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextLTV(params, 3, 1, init_stdDev, size-1, 6, 1.006);
+	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextLTV(params, ptm, 1, init_stdDev, size-1, 6, 1.006);
 	cc.Enable(SHE);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(LEVELEDSHE);
@@ -674,17 +666,18 @@ void ComposedEvalMultTest(){
 
 	usint size = 3;
 	usint relinWindow = 1;
+	usint ptm = 5;
 
 	vector<native64::BigBinaryInteger> moduli(size);
 
 	vector<native64::BigBinaryInteger> rootsOfUnity(size);
 
-	native64::BigBinaryInteger q("1");
+	native64::BigBinaryInteger q(1);
 	native64::BigBinaryInteger temp;
-	BigBinaryInteger modulus("1");
+	BigBinaryInteger modulus(1);
 
-	for(int i=0; i < size; i++){
-		lbcrypto::NextQ(q, native64::BigBinaryInteger::TWO, m, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
+	for(size_t i=0; i < size; i++){
+		lbcrypto::NextQ(q, native64::BigBinaryInteger(ptm), m, native64::BigBinaryInteger(4), native64::BigBinaryInteger(4));
 		moduli[i] = q;
 		rootsOfUnity[i] = RootOfUnity(m,moduli[i]);
 		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
@@ -693,7 +686,7 @@ void ComposedEvalMultTest(){
 	shared_ptr<ILVectorArray2n::Params> params( new ILVectorArray2n::Params(m, moduli, rootsOfUnity) );
 
 	// FIXME use the parm selection method when it works
-	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextLTV(params, 5, relinWindow, init_stdDev, size-1, 6, 1.006);
+	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextLTV(params, ptm, relinWindow, init_stdDev, size-1, 6, 1.006);
 	cc.Enable(SHE);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(LEVELEDSHE);

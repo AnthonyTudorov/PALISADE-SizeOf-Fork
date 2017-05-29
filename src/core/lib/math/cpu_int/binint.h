@@ -238,7 +238,7 @@ namespace cpu_int{
     *
     * @param init is the initial integer.
     */
-    explicit BigBinaryInteger(uint64_t init);
+    BigBinaryInteger(uint64_t init);
 
     /**
     * Basic constructor for copying a big binary integer
@@ -688,6 +688,15 @@ namespace cpu_int{
     */
     bool operator<=(const BigBinaryInteger& a) const;
 
+	/**
+	 * Unary minus on a lattice
+	 * @return
+	 */
+    BigBinaryInteger operator-() const {
+		return BigBinaryInteger(0).Minus(*this);
+	}
+
+
     //overloaded binary operators based on integer arithmetic and comparison functions
     /**
     * Addition operation.
@@ -743,6 +752,8 @@ namespace cpu_int{
     template<typename uint_type_c,usint BITLENGTH_c>
 	friend std::ostream& operator<<(std::ostream& os, const BigBinaryInteger<uint_type_c,BITLENGTH_c> &ptr_obj);
     
+    void PrintValues() const { std::cout << *this; }
+
 	/**
     * Gets the bit at the specified index.
     *

@@ -36,7 +36,7 @@
 #include "utils/inttypes.h"
 #include "utils/utilities.h"
 
-#include "math/matrix.cpp"
+#include "math/matrix.h"
 #include "math/matrixstrassen.cpp"
 
 //using namespace std;
@@ -257,8 +257,8 @@ TEST(UTMatrix, rotate_vec_result) {
     n.SetFormat(COEFFICIENT);
 	n(0,0).SetValAtIndex(2, ILVector2n::Integer::ONE);
     Matrix<ILVector2n::Vector> R = RotateVecResult(n);
-	EXPECT_EQ(8, R.GetRows());
-	EXPECT_EQ(16, R.GetCols());
+	EXPECT_EQ(8U, R.GetRows());
+	EXPECT_EQ(16U, R.GetCols());
 	EXPECT_EQ(ILVector2n::Vector::Single(ILVector2n::Integer::ONE, modulus), R(0,0));
 
 	ILVector2n::Integer negOne = n(0,0).GetModulus() - ILVector2n::Integer::ONE;
@@ -274,12 +274,12 @@ TEST(UTMatrix, rotate_vec_result) {
 
 TEST(UTMatrix, rotate) {
     Matrix<ILVector2n> n = Matrix<ILVector2n>(fastIL2nAlloc(), 1, 2).Ones();
-    const ILVector2n::Integer& modulus = n(0,0).GetModulus();
+
     n.SetFormat(COEFFICIENT);
 	n(0,0).SetValAtIndex(2, ILVector2n::Integer::ONE);
     Matrix<ILVector2n::Integer> R = Rotate(n);
-	EXPECT_EQ(8, R.GetRows());
-	EXPECT_EQ(16, R.GetCols());
+	EXPECT_EQ(8U, R.GetRows());
+	EXPECT_EQ(16U, R.GetCols());
 	EXPECT_EQ(ILVector2n::Integer::ONE, R(0,0));
 
 	ILVector2n::Integer negOne = n(0,0).GetModulus() - ILVector2n::Integer::ONE;
