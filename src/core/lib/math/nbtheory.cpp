@@ -717,7 +717,7 @@ std::vector<IntType> GetTotientList(const IntType &n) {
 	return std::move(result);
 }
 
-/*Long division algorithm*/
+/* Calculate the remainder from polynomial division */
 template<typename IntVector, typename IntType>
 IntVector PolyMod(const IntVector &dividend, const IntVector &divisor, const IntType &modulus) {
 
@@ -739,7 +739,7 @@ IntVector PolyMod(const IntVector &dividend, const IntVector &divisor, const Int
 		IntType divConst(runningDividend.GetValAtIndex(dividendLength - 1));//get the highest degree coeff
 		divisorPtr = divisorLength - 1;
 		for (usint j = 0; j < dividendLength - i - 1; j++) {
-			if ((divisorPtr - j) > 0) {
+			if (divisorPtr > j) {
 				runningDividend.SetValAtIndex(dividendLength - 1 - j, mat(divisor.GetValAtIndex(divisorPtr - 1 - j), divConst, runningDividend.GetValAtIndex(dividendLength - 2 - j), modulus));
 			}
 			else
@@ -757,7 +757,6 @@ IntVector PolyMod(const IntVector &dividend, const IntVector &divisor, const Int
 }
 
 std::vector<int> GetCyclotomicPolynomialRecursive(usint m) {
-	int dbg_flag = true;
 	std::vector<int> result;
 	if (m == 1) {
 		result = { -1,1 };
@@ -812,11 +811,9 @@ std::vector<int> GetCyclotomicPolynomialRecursive(usint m) {
 		return result;
 	};
 
-	auto PolyQuotient = [dbg_flag](const std::vector<int> &dividend, const std::vector<int> &divisor) {
+	auto PolyQuotient = [](const std::vector<int> &dividend, const std::vector<int> &divisor) {
 		usint divisorLength = divisor.size();
 		usint dividendLength = dividend.size();
-
-		DEBUG("divisorlen " << divisorLength << " dividend " << dividendLength);
 
 		usint runs = dividendLength - divisorLength + 1; //no. of iterations
 		std::vector<int> result(runs + 1);
@@ -830,21 +827,16 @@ std::vector<int> GetCyclotomicPolynomialRecursive(usint m) {
 
 		int  divisorPtr;
 		for (usint i = 0; i < runs; i++) {
-			DEBUG("inside run " << i);
 			int divConst = (runningDividend.at(dividendLength - 1));//get the highest degree coeff
 			divisorPtr = divisorLength - 1;
-			DEBUG(divisorPtr << " loop limit " << (dividendLength - i - 1));
 			for (usint j = 0; j < dividendLength - i - 1; j++) {
-				DEBUG(j << " and " << (divisorPtr - j) << " and " << (dividendLength - 1 - j));
-				DEBUG(divisor.size() << ":" << (divisorPtr - 1 - j));
-				if ((divisorPtr - j) > 0) {
+				if (divisorPtr > j) {
 					runningDividend.at(dividendLength - 1 - j) = mat(divisor.at(divisorPtr - 1 - j), divConst, runningDividend.at(dividendLength - 2 - j));
 				}
 				else
 					runningDividend.at(dividendLength - 1 - j) = runningDividend.at(dividendLength - 2 - j);
 
 			}
-			DEBUG(result.size() << " size, setting " << (i+1));
 			result.at(i + 1) = runningDividend.at(dividendLength - 1);
 		}
 		result.at(0) = 1;//under the assumption that both dividend and divisor are monic
@@ -853,31 +845,19 @@ std::vector<int> GetCyclotomicPolynomialRecursive(usint m) {
 		return result;
 	};
 	auto divisibleNumbers = GetDivisibleNumbers(m);
-	DEBUG("divisible numbers of " << m);
-	for( auto const& n : divisibleNumbers )
-		DEBUG( n );
-	DEBUG("done");
 
 	std::vector<int> product(1, 1);
 
 	for (usint i = 0; i < divisibleNumbers.size(); i++) {
-		product = PolyMult(product, GetCyclotomicPolynomialRecursive(divisibleNumbers.at(i)));
+		auto P = GetCyclotomicPolynomialRecursive(divisibleNumbers[i]);
+		product = PolyMult(product, P);
 	}
-
-	DEBUG("product");
-	for( auto const& n : product )
-		DEBUG( n );
-	DEBUG("done");
 
 	//make big poly = x^m - 1
 	std::vector<int> bigPoly(m + 1, 0);
 	bigPoly.at(0) = -1;
 	bigPoly.at(m) = 1;
 
-	DEBUG("bigpoly");
-	for( auto const& n : bigPoly )
-		DEBUG( n );
-	DEBUG("done");
 	result = PolyQuotient(bigPoly, product);
 
 	return result;
