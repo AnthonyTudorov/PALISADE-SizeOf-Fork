@@ -734,7 +734,7 @@ IntVector PolyMod(const IntVector &dividend, const IntVector &divisor, const Int
 
 	IntVector runningDividend(dividend);
 
-	int  divisorPtr;
+	usint  divisorPtr;
 	for (usint i = 0; i < runs; i++) {
 		IntType divConst(runningDividend.GetValAtIndex(dividendLength - 1));//get the highest degree coeff
 		divisorPtr = divisorLength - 1;
@@ -825,7 +825,7 @@ std::vector<int> GetCyclotomicPolynomialRecursive(usint m) {
 
 		std::vector<int> runningDividend(dividend);
 
-		int  divisorPtr;
+		usint  divisorPtr;
 		for (usint i = 0; i < runs; i++) {
 			int divConst = (runningDividend.at(dividendLength - 1));//get the highest degree coeff
 			divisorPtr = divisorLength - 1;

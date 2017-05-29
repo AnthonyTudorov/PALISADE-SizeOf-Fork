@@ -57,36 +57,6 @@ class UnitTestTransform : public ::testing::Test {
   }
 };
 
-TEST(UTTransform, Simple) {
-	BigBinaryInteger primeModulus("113"); //65537
-	usint cycloOrder = 8;
-	usint n = cycloOrder / 2;
-
-	BigBinaryInteger primitiveRootOfUnity = lbcrypto::RootOfUnity(cycloOrder, primeModulus);
-
-	BigBinaryVector a(n, primeModulus);
-	a = { 1,2,1,0 };
-
-	BigBinaryVector b(n, primeModulus);
-	b = { 1,1,0,0 };
-
-	cout << PolyMod(a,b,primeModulus) << endl;
-
-	a = {0,1,2,1}; b={0,0,1,1}; cout << PolyMod(a,b,primeModulus) << endl;
-
-	a = {1,1,1,1}; b={0,0,0,1}; cout << PolyMod(a,b,primeModulus) << endl;
-
-	BigBinaryInteger modulus(4621);
-
-	for( usint m = 3; m < 30; m++ ) {
-		usint nn = GetTotient(m);
-		cout << "m is " << m << " and n is " << nn << endl;
-		auto A = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulus);
-		cout <<  ":::::::" << A << endl;
-	}
-
-}
-
 /*---------------------------------------	TESTING METHODS OF TRANSFORM	  --------------------------------------------*/
 
 // TEST CASE TO TEST POLYNOMIAL MULTIPLICATION USING CHINESE REMAINDER THEOREM
