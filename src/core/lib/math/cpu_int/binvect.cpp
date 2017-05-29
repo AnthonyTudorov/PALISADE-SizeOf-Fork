@@ -154,7 +154,7 @@ const BigBinaryVectorImpl<IntegerType>& BigBinaryVectorImpl<IntegerType>::operat
 		} else {
 			m_data[i] = 0;
 		}
-		DEBUG("in op= i.l. m_data["<<i<<"] = "<<m_data[i]);		}
+		DEBUG("in op= i.l. m_data["<<i<<"] = "<<m_data[i]);
 	}
 
 	return *this;
