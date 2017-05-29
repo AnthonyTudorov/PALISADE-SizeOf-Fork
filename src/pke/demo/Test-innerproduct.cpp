@@ -242,12 +242,13 @@ void ArbFVInnerProductPackedArray() {
 
 	usint m = 22;
 	usint N = GetTotient(m);
-	usint p = 89; // we choose s.t. 2m|p-1 to leverage CRTArb
-	BigBinaryInteger modulusQ("72385066601");
+	usint p = 2333; // we choose s.t. 2m|p-1 to leverage CRTArb
+	BigBinaryInteger modulusQ("1152921504606847009");
 	BigBinaryInteger modulusP(p);
-	BigBinaryInteger rootOfUnity("69414828251");
-	BigBinaryInteger bigmodulus("77302754575416994210914689");
-	BigBinaryInteger bigroot("76686504597021638023705542");
+	BigBinaryInteger rootOfUnity("1147559132892757400");
+
+	BigBinaryInteger bigmodulus("42535295865117307932921825928971026753");
+	BigBinaryInteger bigroot("13201431150704581233041184864526870950");
 
 	auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulusQ);
 	//ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().PreCompute(m, modulusQ);
@@ -257,10 +258,10 @@ void ArbFVInnerProductPackedArray() {
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, rootOfUnity, bigmodulus, bigroot));
 
-	BigBinaryInteger bigEvalMultModulus("37778931862957161710549");
-	BigBinaryInteger bigEvalMultRootOfUnity("7161758688665914206613");
-	BigBinaryInteger bigEvalMultModulusAlt("1461501637330902918203684832716283019655932547329");
-	BigBinaryInteger bigEvalMultRootOfUnityAlt("570268124029534407621996591794583635795426001824");
+	BigBinaryInteger bigEvalMultModulus("42535295865117307932921825928971026753");
+	BigBinaryInteger bigEvalMultRootOfUnity("22649103892665819561201725524201801241");
+	BigBinaryInteger bigEvalMultModulusAlt("115792089237316195423570985008687907853269984665640564039457584007913129642241");
+	BigBinaryInteger bigEvalMultRootOfUnityAlt("37861550304274465568523443986246841530644847113781666728121717722285667862085");
 
 	auto cycloPolyBig = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, bigEvalMultModulus);
 	//ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().PreCompute(m, modulusQ);

@@ -108,12 +108,13 @@ namespace lbcrypto {
 
 		//initRoot = BigBinaryInteger(7);
 		initRoot = RootOfUnity<BigBinaryInteger>(m, modulus);
-		while (!MillerRabinPrimalityTest(initRoot) || GreatestCommonDivisor<usint>(initRoot.ConvertToInt(), m) != 1)
+		while (!MillerRabinPrimalityTest(initRoot) || GreatestCommonDivisor<usint>(initRoot.ConvertToInt(), m) != 1 || !IsGenerator<BigBinaryInteger>(initRoot, BigBinaryInteger(m)))
 		{
 			initRoot = RootOfUnity<BigBinaryInteger>(m, modulus);
+			//std::cout << "candidate: " << initRoot << std::endl;
 		}
 
-		//std::cout << "params = " << initRoot << std::endl;
+		//std::cout << "root found" << initRoot << std::endl;
 		
 		coefficientsCRT.clear();
 		rootList = BigBinaryVector();
@@ -135,14 +136,12 @@ namespace lbcrypto {
 				while (!MillerRabinPrimalityTest(initRoot) || GreatestCommonDivisor<usint>(initRoot.ConvertToInt(),m)!=1 || !IsGenerator<BigBinaryInteger>(this->initRoot, BigBinaryInteger(m)))
 				{
 					this->initRoot = RootOfUnity<BigBinaryInteger>(m, modulus);
+					//std::cout << "candidate: " << initRoot << std::endl;
 				}
 			}
 			//std::cout << "generator? = " << IsGenerator<BigBinaryInteger>(this->initRoot, BigBinaryInteger(m)) << std::endl;
-			//std::cout << initRoot << std::endl;
-			//this->initRoot = BigBinaryInteger(7);
+			//std::cout << "root found" << initRoot << std::endl;
 		}
-
-		//initRoot = BigBinaryInteger::TWO;
 
 		BigBinaryInteger qMod(ring->GetModulus());
 
