@@ -95,7 +95,7 @@ public:
   explicit mubintvec(const usint length, const usint &modulus);
 
   /**
-   * Basic constructor for specifying the length of the vector.
+   * Basic constructor for specifying the length of the vector with modulus
    *
    * @param length initial size in terms of the number of entries.
    * @param modulus ubint associated with entries in the vector.
@@ -109,6 +109,29 @@ public:
    * @param modulus string associated with entries in the vector.
    */
   explicit mubintvec(const usint length, const std::string& modulus);
+
+
+  /**
+   * Basic constructor for specifying the length of the vector with
+   * modulus with initializer lists
+   *
+   * @param length initial size in terms of the number of entries.
+   * @param modulus ubint associated with entries in the vector.
+   * @param rhs initialier list of usints
+   */
+  explicit mubintvec(const usint length, const ubint_el_t & modulus, std::initializer_list<usint> rhs);
+
+
+  /**
+   * Basic constructor for specifying the length of the vector with
+   * modulus with initializer lists
+   *
+   * @param length initial size in terms of the number of entries.
+   * @param modulus ubint associated with entries in the vector.
+   * @param rhs initialier list of strings
+   */
+  explicit mubintvec(const usint length, const ubint_el_t & modulus, std::initializer_list<std::string> rhs);
+
 
   // constructor specifying the mubintvec as a vector of strings and modulus
   explicit mubintvec(const std::vector<std::string> &s, const ubint_el_t &modulus);

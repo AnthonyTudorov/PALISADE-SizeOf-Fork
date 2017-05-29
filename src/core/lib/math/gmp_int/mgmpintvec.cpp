@@ -136,6 +136,48 @@ namespace NTL {
     this->SetModulus(q);
   }
 
+
+  //constructors with moduli and initializer list
+  //ctor myZZ moduli
+  template<class myT>
+  myVecP<myT>::myVecP(const long n, const myZZ &q, std::initializer_list<usint> rhs): Vec<myT>(INIT_SIZE,n)
+  {
+    bool dbg_flag = false;
+    DEBUG("myVecP(n,ZZ) n:"<<n);
+    DEBUG("q:"<<q);
+    this->SetModulus(q);
+    DEBUG("get modulus "<<GetModulus());
+    usint len = rhs.size();
+    for (usint i=0;i<n;i++){ // this loops over each entry
+      if(i<len) {
+	(*this)[i] =  myT(*(rhs.begin()+i));  
+      } else {
+	(*this)[i] = myT(0);
+      }
+    }
+  }
+  
+
+
+ template<class myT>
+ myVecP<myT>::myVecP(const long n, const myZZ &q, std::initializer_list<std::string> rhs): Vec<myT>(INIT_SIZE,n)
+  {
+    bool dbg_flag = false;
+    DEBUG("myVecP(n,ZZ) n:"<<n);
+    DEBUG("q:"<<q);
+    this->SetModulus(q);
+    DEBUG("get modulus "<<GetModulus());
+    usint len = rhs.size();
+    for (usint i=0;i<n;i++){ // this loops over each entry
+      if(i<len) {
+	(*this)[i] =  myT(*(rhs.begin()+i));  
+      } else {
+	(*this)[i] = myT(0);
+      }
+    }
+  }
+  
+
   template<class myT>
   myVecP<myT>::myVecP(const myVecP<myT> &a, const myZZ &q): Vec<myT>(a)
   {
