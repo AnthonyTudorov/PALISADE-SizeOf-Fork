@@ -311,9 +311,10 @@ namespace lbcrypto {
 
 		const std::vector<Element> &cipherTextElements = ciphertext->GetElements();
 
-		Element c0 = cipherTextElements[0].AddRandomNoise(encodingParams->GetPlaintextModulus());
+		// We need to generate new random noise using the plaintext modulus and then
+		// add this noise to all slots except for first one. This requires packing and switchformat.
 
-		newCiphertext->SetElements({ c0, cipherTextElements[1] });
+		newCiphertext->SetElements({ cipherTextElements[0], cipherTextElements[1] });
 		return newCiphertext;
 	}
 

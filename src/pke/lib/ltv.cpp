@@ -344,7 +344,10 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::AddRandomNoise(const
 
 	const Element& c1 = ciphertext->GetElement();
 
-	newCiphertext->SetElement(c1.AddRandomNoise(encodingParams->GetPlaintextModulus()));
+	// We need to generate new random noise using the plaintext modulus and then
+	// add this noise to all slots except for first one. This requires packing and switchformat.
+
+	newCiphertext->SetElement(c1);
 
 	return newCiphertext;
 }

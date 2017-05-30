@@ -512,29 +512,6 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorImpl<ModType, IntType, VecType, ParmType> ILVectorImpl<ModType, IntType, VecType, ParmType>::AddRandomNoise(const IntType &modulus) const {
-		
-		ILVectorImpl<ModType, IntType, VecType, ParmType> result(*this);
-
-		usint vectorSize = this->m_params->GetRingDimension();
-
-		DiscreteUniformGeneratorImpl<IntType, VecType> dug;
-		dug.SetModulus(modulus);
-		//IntType randomInteger = dug.GenerateInteger();
-		VecType randomVector = dug.GenerateVector(vectorSize - 1);
-
-		//the logic is not implemented yet
-		//the vector should be first packed and then switched to evaluation format using the ciphertext modulus
-
-		for (usint i = 1; i < vectorSize; i++) {
-			result.m_values->SetValAtIndex(i, result.m_values->GetValAtIndex(i));
-		}
-
-		return std::move(result);
-
-	}
-
-	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::AutomorphismTransform(const usint &k) const {
 
 		ILVectorImpl result(*this);
