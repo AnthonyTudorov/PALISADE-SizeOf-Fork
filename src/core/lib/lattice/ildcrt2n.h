@@ -524,6 +524,13 @@ namespace lbcrypto {
 		void AddILElementOne();
 
 		/**
+		* Add uniformly random values to all components except for the first one
+		*/
+		ILVectorArrayType AddRandomNoise(const IntType &modulus) const {
+			throw std::logic_error("AddRandomNoise is not currently implemented for ILVectorArray2n");
+		}
+
+		/**
 		* Make ILDCRT2n Sparse. Sets every index of each tower not equal to zero mod the wFactor to zero.
 		*
 		* @param &wFactor ratio between the sparse and none-sparse values. 

@@ -353,6 +353,14 @@ namespace lbcrypto {
 		shared_ptr<Ciphertext<Element>> EvalNegate(const shared_ptr<Ciphertext<Element>> ct) const;
 
 		/**
+		* Adds uniformly random noise to all plaintext slots except for the first one
+		*
+		* @param ct The input ciphertext.
+		* @return A shared pointer to a new ciphertext
+		*/
+		shared_ptr<Ciphertext<Element>> AddRandomNoise(const shared_ptr<Ciphertext<Element>> ct) const;
+
+		/**
 		* Method for generating a KeySwitchHint using RLWE relinearization (based on the RLWE assumption only)
 		*
 		* @param originalPrivateKey is the original private key used for encryption.

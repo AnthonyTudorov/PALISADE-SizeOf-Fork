@@ -284,6 +284,11 @@ public:
 	virtual Element AutomorphismTransform(const usint& i) const = 0;
 
 	/**
+	* Add uniformly random values to all components except for the first one
+	*/
+	virtual Element AddRandomNoise(const IntType &modulus) const = 0;
+
+	/**
 	 * Write the element as \sum\limits{i=0}^{\lfloor {\log q/base} \rfloor} {(base^i u_i)} and
 	 * return the vector of {u_0, u_1,...,u_{\lfloor {\log q/base} \rfloor}} \in R_base^{\lceil {\log q/base} \rceil};
 	 * used as a subroutine in the relinearization procedure

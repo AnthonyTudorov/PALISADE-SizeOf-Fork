@@ -1116,6 +1116,14 @@ namespace lbcrypto {
 			virtual shared_ptr<Ciphertext<Element>> EvalNegate(const shared_ptr<Ciphertext<Element>> ciphertext) const = 0;
 
 			/**
+			* Virtual function to add random noise to all plaintext slots except for the first one
+			*
+			* @param &ciphertext the input ciphertext.
+			* @return modified ciphertext
+			*/
+			virtual shared_ptr<Ciphertext<Element>> AddRandomNoise(const shared_ptr<Ciphertext<Element>> ciphertext) const = 0;
+
+			/**
 			* Method for KeySwitchGen
 			*
 			* @param &originalPrivateKey Original private key used for encryption.
@@ -1285,9 +1293,12 @@ namespace lbcrypto {
 
 				shared_ptr<Ciphertext<Element>> result = EvalMult(ciphertext1, ciphertext2, evalMultKey);
 
-				return EvalSum(result, batchSize, evalSumKeys);
+				result = EvalSum(result, batchSize, evalSumKeys);
 
-				// we should add an extra step here to add a random number to all slots except for the first one
+				//return result;
+
+				// add a random number to all slots except for the first one so that no information is leaked
+				return AddRandomNoise(result);
 
 			}
 

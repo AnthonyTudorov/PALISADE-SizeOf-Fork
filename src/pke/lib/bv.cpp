@@ -302,6 +302,22 @@ namespace lbcrypto {
 	}
 
 	template <class Element>
+	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::AddRandomNoise(const shared_ptr<Ciphertext<Element>> ciphertext) const {
+
+		const shared_ptr<LPCryptoParameters<Element>> cryptoParams = ciphertext->GetCryptoParameters();
+		const shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
+
+		shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext->GetCryptoContext()));
+
+		const std::vector<Element> &cipherTextElements = ciphertext->GetElements();
+
+		Element c0 = cipherTextElements[0].AddRandomNoise(encodingParams->GetPlaintextModulus());
+
+		newCiphertext->SetElements({ c0, cipherTextElements[1] });
+		return newCiphertext;
+	}
+
+	template <class Element>
 	shared_ptr<LPEvalKey<Element>> LPAlgorithmSHEBV<Element>::KeySwitchGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey, const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
 
 		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(originalPrivateKey->GetCryptoParameters());

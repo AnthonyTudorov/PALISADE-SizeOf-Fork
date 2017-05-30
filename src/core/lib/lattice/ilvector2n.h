@@ -564,6 +564,13 @@ public:
 	ILVectorImpl Transpose() const;
 
 	/**
+	* Add uniformly random values to all components except for the first one
+	*
+	* @return is the result of after the noise is added.
+	*/
+	ILVectorImpl AddRandomNoise(const IntType &modulus) const;
+
+	/**
 	 * Performs a multiplicative inverse operation and returns the result.
 	 *
 	 * @return is the result of the multiplicative inverse.
