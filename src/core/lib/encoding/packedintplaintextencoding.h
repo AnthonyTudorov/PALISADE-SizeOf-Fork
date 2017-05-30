@@ -110,12 +110,11 @@ namespace lbcrypto {
 
 		void Pack(ILVector2n *ring, const BigBinaryInteger &modulus) const;
 
-		BigBinaryVector FindPermutedSlots(const BigBinaryVector &orig, const BigBinaryVector & perm, const BigBinaryVector & rootList) const;
+		static BigBinaryVector FindPermutedSlots(const BigBinaryVector &orig, const BigBinaryVector & perm, const BigBinaryVector & rootList);
 		
-		
-		void InitializeCRTCoefficients(usint cycloOrder, const BigBinaryInteger & modulus) const;
+		static void InitializeCRTCoefficients(usint cycloOrder, const BigBinaryInteger & modulus);
 
-		BigBinaryVector GetRootVector(const BigBinaryInteger &modulus,usint cycloOrder) const;
+		static BigBinaryVector GetRootVector(const BigBinaryInteger &modulus,usint cycloOrder);
 
 		void Unpack(ILVector2n *ring, const BigBinaryInteger &modulus) const;
 
