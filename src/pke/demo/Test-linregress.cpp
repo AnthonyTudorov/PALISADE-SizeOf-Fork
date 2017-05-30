@@ -50,6 +50,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <random>
 
 #include "math/nbtheory.h"
+#include "math/matrix.h"
+#include "math/matrix.cpp"
 
 using namespace std;
 using namespace lbcrypto;
@@ -74,7 +76,7 @@ int main() {
 
 	std::cout << "Please press any key to continue..." << std::endl;
 
-	cin.get();
+	std::cin.get();
 	return 0;
 }
 
@@ -128,7 +130,7 @@ void ArbBVLinearRegressionPackedArray() {
 	cc.EvalSumKeyGen(kp.secretKey);
 	cc.EvalMultKeyGen(kp.secretKey);
 
-	auto zeroAlloc = [=]() { return std::make_unique<PackedIntPlaintextEncoding>(); };
+	auto zeroAlloc = [=]() { return lbcrypto::make_unique<PackedIntPlaintextEncoding>(); };
 
 	Matrix<PackedIntPlaintextEncoding> xP = Matrix<PackedIntPlaintextEncoding>(zeroAlloc, 1, 2);
 
@@ -234,7 +236,7 @@ void ArbFVInnerProductPackedArray() {
 	cc.EvalSumKeyGen(kp.secretKey);
 	cc.EvalMultKeyGen(kp.secretKey);
 
-	auto zeroAlloc = [=]() { return std::make_unique<PackedIntPlaintextEncoding>(); };
+	auto zeroAlloc = [=]() { return lbcrypto::make_unique<PackedIntPlaintextEncoding>(); };
 
 	Matrix<PackedIntPlaintextEncoding> xP = Matrix<PackedIntPlaintextEncoding>(zeroAlloc, 1, 2);
 
