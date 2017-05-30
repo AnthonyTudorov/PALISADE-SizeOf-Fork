@@ -11,12 +11,16 @@
 #include "cryptocontext.h"
 #include "utils/serializablehelper.h"
 #include "rationalciphertext.h"
-#include "math/matrix.h"
+
+#include "math/matrix.cpp"
 using std::invalid_argument;
 
 namespace lbcrypto {
 
+template class Matrix<Ciphertext<ILVector2n>>;
 template class Matrix<RationalCiphertext<ILVector2n>>;
+template class Matrix<Ciphertext<ILVectorArray2n>>;
+template class Matrix<RationalCiphertext<ILVectorArray2n>>;
 
 template<>
 bool Matrix<RationalCiphertext<ILVector2n>>::Serialize(Serialized* serObj) const {
@@ -29,8 +33,8 @@ bool Matrix<RationalCiphertext<ILVector2n>>::Serialize(Serialized* serObj) const
 
 	int elCount = 0;
 
-	for( int r=0; r<rows; r++ ) {
-		for( int c=0; c<cols; c++ ) {
+	for( size_t r=0; r<rows; r++ ) {
+		for( size_t c=0; c<cols; c++ ) {
 			Serialized elSer(rapidjson::kObjectType, &serObj->GetAllocator());
 
 			if( (*this)(r,c).Serialize(&elSer) == false )
@@ -82,7 +86,7 @@ bool Matrix<RationalCiphertext<ILVector2n>>::Deserialize(const Serialized& serOb
 
 	this->SetSize(mrows, mcols);
 
-	for( int i=0; i<rows*cols; i++ ) {
+	for( size_t i=0; i<rows*cols; i++ ) {
 		mIter = serObj.FindMember( std::to_string(i) );
 		if( mIter == serObj.MemberEnd() )
 			return false;
@@ -151,6 +155,22 @@ template<>
 bool Matrix<Ciphertext<ILVectorArray2n>>::Deserialize(const Serialized& serObj) {
 	return false;
 }
+
+template<>
+Matrix<RationalCiphertext<ILVector2n>>& Matrix<RationalCiphertext<ILVector2n>>::Ones() {
+	throw std::logic_error("Cannot fill matrix of ciphertext with 1's");
+}
+
+template<>
+Matrix<RationalCiphertext<ILVector2n>>& Matrix<RationalCiphertext<ILVector2n>>::Identity() {
+	throw std::logic_error("Cannot create identity matrix of ciphertext");
+}
+
+template<>
+Matrix<RationalCiphertext<ILVector2n>> Matrix<RationalCiphertext<ILVector2n>>::GadgetVector() const {
+	throw std::logic_error("Cannot create gadget matrix of ciphertext");
+}
+
 
 
 }

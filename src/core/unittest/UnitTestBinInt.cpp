@@ -73,7 +73,7 @@ TEST(UTBinInt,basic_math){
   // calculatedResult to integer
 
   BigBinaryInteger calculatedResult;
-  int expectedResult;
+  uint64_t expectedResult;
   // TEST CASE WHEN FIRST NUMBER IS GREATER THAN SECOND NUMBER AND MSB
   // HAS NO OVERFLOW
   {
@@ -494,7 +494,7 @@ TEST(UTBinInt,mod_operations){
   // integer
 
   BigBinaryInteger calculatedResult;
-  int expectedResult;
+  uint64_t expectedResult;
   // TEST CASE WHEN THE NUMBER IS LESS THAN MOD
   {
     BigBinaryInteger m("27");
@@ -586,7 +586,7 @@ TEST(UTBinInt,mod_inverse){
   // ConvertToInt converts BigBinaryInteger calculatedResult to integer
 
   BigBinaryInteger calculatedResult;
-  int expectedResult;
+  uint64_t expectedResult;
 
   // TEST CASE WHEN THE NUMBER IS GREATER THAN MOD
   {
@@ -669,7 +669,7 @@ TEST(UTBinInt,mod_inverse){
 
 TEST(UTBinInt,mod_arithmetic){
   BigBinaryInteger calculatedResult;
-  int expectedResult;
+  uint64_t expectedResult;
   /************************************************/
   /* TESTING METHOD MODADD FOR ALL CONDITIONS     */
   /************************************************/
@@ -803,7 +803,7 @@ TEST(UTBinInt,mod_arithmetic){
     BigBinaryInteger q("406756");
 
     BigBinaryInteger calculatedResult = m.ModMul(n,q);
-    int expectedResult = 365204;
+    uint64_t expectedResult = 365204;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
       << "Failure testing mod_mul_test";
@@ -824,7 +824,7 @@ TEST(UTBinInt,mod_arithmetic){
     BigBinaryInteger q("406756");
 
     BigBinaryInteger calculatedResult = m.ModExp(n,q);
-    int expectedResult = 96776;
+    uint64_t expectedResult = 96776;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
       << "Failure testing mod_exp_test";
@@ -859,7 +859,7 @@ TEST(UTBinInt,shift){
     usshort shift = 3;
 
     BigBinaryInteger calculatedResult = a<<(shift);
-    int expectedResult = 319680;
+    uint64_t expectedResult = 319680;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
       << "Failure testing shift_less_than_max_shift";
@@ -870,7 +870,7 @@ TEST(UTBinInt,shift){
     usshort shift = 6;
 
     BigBinaryInteger calculatedResult = a<<(shift);
-    int expectedResult = 2557440;
+    uint64_t expectedResult = 2557440;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
       << "Failure testing shift_greater_than_max_shift";
@@ -900,7 +900,7 @@ TEST(UTBinInt,shift){
     usshort num = 3;
 
     a<<=(num);
-    int expectedResult = 319680;
+    uint64_t expectedResult = 319680;
 
     EXPECT_EQ(expectedResult, a.ConvertToInt())
       << "Failure testing shift_less_than_max_shift";
@@ -911,7 +911,7 @@ TEST(UTBinInt,shift){
     usshort num = 6;
 
     a<<=(num);
-    int expectedResult = 2557440;
+    uint64_t expectedResult = 2557440;
 
     EXPECT_EQ(expectedResult, a.ConvertToInt())
       << "Failure testing shift_greater_than_max_shift";
@@ -940,7 +940,7 @@ TEST(UTBinInt,shift){
     usshort shift = 3;
 
     BigBinaryInteger calculatedResult = a>>(shift);
-    int expectedResult = 4995709;
+    uint64_t expectedResult = 4995709;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
       << "Failure testing shift_less_than_max_shift";
@@ -951,7 +951,7 @@ TEST(UTBinInt,shift){
     usshort shift = 6;
 
     BigBinaryInteger calculatedResult = a>>(shift);
-    int expectedResult = 624463;
+    uint64_t expectedResult = 624463;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
       << "Failure testing shift_greater_than_max_shift";
@@ -981,7 +981,7 @@ TEST(UTBinInt,shift){
     usshort shift = 3;
 
     a>>=(shift);
-    int expectedResult = 4995709;
+    uint64_t expectedResult = 4995709;
 
     EXPECT_EQ(expectedResult, a.ConvertToInt())
       << "Failure testing shift_less_than_max_shift";
@@ -992,7 +992,7 @@ TEST(UTBinInt,shift){
     usshort shift = 6;
 
     a>>=(shift);
-    int expectedResult = 624463;
+    uint64_t expectedResult = 624463;
 
     EXPECT_EQ(expectedResult, a.ConvertToInt())
       << "Failure testing shift_greater_than_max_shift";
@@ -1006,7 +1006,7 @@ TEST(UTBinInt,shift){
 TEST(UTBinInt,method_binary_string_to_big_binary_integer){
   //TEST CASE FOR STATIC METHOD BinaryStringToBigBinaryInt in BigBinaryInteger
 
- std:string binaryString = "1011101101110001111010111011000000011";
+ std::string binaryString = "1011101101110001111010111011000000011";
   BigBinaryInteger b =
     lbcrypto::BigBinaryInteger::BinaryStringToBigBinaryInt(binaryString);
 
@@ -1038,10 +1038,10 @@ TEST(UTBinInt,method_ConvertToDouble) {
 TEST(UTBinInt,method_getDigitAtIndex) {
 	BigBinaryInteger x(0xa);
 
-	EXPECT_EQ(x.GetDigitAtIndexForBase(1,2), 0);
-	EXPECT_EQ(x.GetDigitAtIndexForBase(2,2), 1);
-	EXPECT_EQ(x.GetDigitAtIndexForBase(3,2), 0);
-	EXPECT_EQ(x.GetDigitAtIndexForBase(4,2), 1);
+	EXPECT_EQ(x.GetDigitAtIndexForBase(1,2), 0ULL);
+	EXPECT_EQ(x.GetDigitAtIndexForBase(2,2), 1ULL);
+	EXPECT_EQ(x.GetDigitAtIndexForBase(3,2), 0ULL);
+	EXPECT_EQ(x.GetDigitAtIndexForBase(4,2), 1ULL);
 }
 
 TEST(UTBinInt, method_GetBitAtIndex){

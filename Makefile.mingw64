@@ -7,10 +7,10 @@ BOOSTLIB := -L C:/boost_1_60_0/stage/lib/
 #BOOSTLIB := 
 
 OMPINCLUDE := 
-CC := g++ # This is the main compiler
 CPPSTD := -std=gnu++11
+CC := g++ $(CPPSTD)
 
-LIBCMD := -s -shared -Wl,--subsystem,windows 
+LIBCMD := -s -shared -Wl,--subsystem,windows  -fopenmp
 
 LIBSUFFIX := .dll
 EXESUFFIX := .exe
@@ -24,3 +24,6 @@ JNILIB := PalisadeCryptoWrapper.dll
 
 PYINCLUDE := -I C:/Mingw64/mingw64/opt/include/python2.7
 LIBPYTHON := -L C:/Mingw64/mingw64/opt/bin -lpython2.7 
+
+COMPTHREADFLAG := -pthread
+LOADTHREADFLAG := -pthread

@@ -19,13 +19,12 @@ else
   #$(info GMP/NTL directory third-party does not exist)
 endif
 
-CC := g++ # This is the main compiler
 
-CPPSTD := -std=gnu++11
-
+CPPSTD := -std=gnu++11 -fPIC
+CC := g++ $(CPPSTD)
 
 LIBSUFFIX := .so
-LIBCMD := -fPIC -shared -Wl,--export-dynamic
+LIBCMD := -fPIC -shared -Wl,--export-dynamic -fopenmp
 
 RDYNAMIC := -rdynamic
 
@@ -34,3 +33,6 @@ JNILIB := libPalisadeCryptoWrapper.so
 
 PYINCLUDE := -I/usr/include/python2.7
 LIBPYTHON := -lpython2.7 
+
+COMPTHREADFLAG := -pthread
+LOADTHREADFLAG := -pthread

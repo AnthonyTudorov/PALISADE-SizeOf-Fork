@@ -23,7 +23,7 @@ int main(int argc, char* argv[]){
   //float foo[array_size];
   float foo[ARRAY_SIZE];
 
-  bool dbg_flag;
+  bool dbg_flag = false;
 
   TimeVar t1,t_total; //for TIC TOC
   double time1;
@@ -50,7 +50,7 @@ int main(int argc, char* argv[]){
   TIC(t1);
   
 #pragma omp parallel for
-  for (int i = 0; i < ARRAY_SIZE; ++i) {
+  for (size_t i = 0; i < ARRAY_SIZE; ++i) {
     float tmp = i;
 
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -63,7 +63,7 @@ int main(int argc, char* argv[]){
   DEBUG("Total time: " << "\t" << timeTotal << " ms");
 
   bool goodflag = true;
-  for (int i = 1; i < ARRAY_SIZE; ++i) {
+  for (size_t i = 1; i < ARRAY_SIZE; ++i) {
     if ((foo[i]-foo[i-1])!= 1) {
       goodflag = goodflag & false;
     }
@@ -72,7 +72,7 @@ int main(int argc, char* argv[]){
       std::cout << "success" << std::endl;
   } else {
     std::cout<< "fail" << std::endl;
-    for (int i = 0; i < ARRAY_SIZE; ++i) {
+    for (size_t i = 0; i < ARRAY_SIZE; ++i) {
       std::cout << foo[i] << " ";
     }
     std::cout << std::endl;

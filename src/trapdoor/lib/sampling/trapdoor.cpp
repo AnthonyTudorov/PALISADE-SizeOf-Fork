@@ -44,7 +44,7 @@ namespace lbcrypto {
 		auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
 		auto gaussian_alloc = ILVector2n::MakeDiscreteGaussianCoefficientAllocator(params, COEFFICIENT, stddev);
 		auto uniform_alloc = ILVector2n::MakeDiscreteUniformAllocator(params, EVALUATION);
-		size_t n = params->GetRingDimension();
+
 		//  k ~= bitlength of q
 		// size_t k = params.GetModulus().GetMSB();
 		double val = params->GetModulus().ConvertToDouble();

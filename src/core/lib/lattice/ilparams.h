@@ -71,7 +71,7 @@ public:
 	 * All of the private members will be initialised to zero.
 	 */
 	ILParamsImpl()
-		: ElemParams<IntType>(0) {}
+		: ElemParams<IntType>(0, 0, 0, 0, 0) {}
 
 	/**
 	 * Constructor for the pre-computed case.
@@ -80,7 +80,7 @@ public:
 	 * @param &modulus the ciphertext modulus.
 	 * @param &rootOfUnity the root of unity used in the ciphertext.
 	 */
-	ILParamsImpl(const usint order, const IntType & modulus, const IntType & rootOfUnity, const IntType & bigModulus = IntType::ZERO, const IntType & bigRootOfUnity = IntType::ZERO)
+	ILParamsImpl(const usint order, const IntType & modulus, const IntType & rootOfUnity, const IntType & bigModulus = 0, const IntType & bigRootOfUnity = 0)
 		: ElemParams<IntType>(order, modulus, rootOfUnity, bigModulus, bigRootOfUnity) {}
 
 	/**
@@ -125,10 +125,6 @@ public:
 	 * Destructor.
 	 */
 	virtual ~ILParamsImpl() {}
-
-	// ACCESSORS
-
-	// Get accessors
 
 	/**
 	 * Equal operator compares ElemParams (which will be dynamic casted)

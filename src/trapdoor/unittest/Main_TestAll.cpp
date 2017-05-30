@@ -21,9 +21,9 @@ using namespace lbcrypto;
 int main(int argc, char **argv) {
 
   ::testing::InitGoogleTest(&argc, argv);
-  RUN_ALL_TESTS();
+  int rv = RUN_ALL_TESTS();
 
-  std::cout << "Press any key to continue..." << std::endl;
+  std::cout << rv << ", press return to continue..." << std::endl;
   std::cin.get();
 
   return 0;

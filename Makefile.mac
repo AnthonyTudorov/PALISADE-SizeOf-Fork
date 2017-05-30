@@ -1,11 +1,12 @@
 ## for mac OSx
 
 OMPINCLUDE := -I /opt/local/include/libomp -fopenmp
-CC := clang++
-CPPSTD := -std=c++11 -stdlib=libc++
+
+CPPSTD := -std=c++11 -stdlib=libc++ -fPIC
+CC := clang++ $(CPPSTD)
 
 LIBSUFFIX := .dylib
-LIBCMD := -dynamiclib -undefined suppress -flat_namespace
+LIBCMD := -dynamiclib -undefined suppress -flat_namespace -fopenmp
 
 RDYNAMIC := 
 
@@ -15,3 +16,6 @@ JNILINKPARM := -framework JavaVM
 
 PYINCLUDE := $(shell python-config --include)
 LIBPYTHON := -lpython2.7 
+
+COMPTHREADFLAG := -pthread
+LOADTHREADFLAG := 

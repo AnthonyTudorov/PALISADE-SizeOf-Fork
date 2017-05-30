@@ -60,8 +60,8 @@ protected:
 TEST(UTSer,cpu_int){
 	bool dbg_flag = false;
 	BigBinaryInteger small(7);
-	BigBinaryInteger medium(1<<27 | 1<<22);
-	BigBinaryInteger larger((uint64_t)(1<<40) | 1<<22);
+	BigBinaryInteger medium(1ULL<<27 | 1ULL<<22);
+	BigBinaryInteger larger(1ULL<<40 | 1ULL<<22);
 	BigBinaryInteger yooge("371828316732191777888912");
 
 	string ser;
@@ -89,8 +89,8 @@ TEST(UTSer,cpu_int){
 
 TEST(UTSer,native_int){
 	native64::BigBinaryInteger small(7);
-	native64::BigBinaryInteger medium(1<<27 | 1<<22);
-	native64::BigBinaryInteger larger((uint64_t)(1<<40) | 1<<22);
+	native64::BigBinaryInteger medium(1ULL<<27 | 1ULL<<22);
+	native64::BigBinaryInteger larger(1ULL<<40 | 1ULL<<22);
 
 	string ser;
 	native64::BigBinaryInteger deser;

@@ -446,7 +446,7 @@ namespace exp_int{
      *
      * @return the index of the most significant bit.
      */
-    inline usint GetMSB()const;
+    usint GetMSB()const;
 
     //usshort GetMSB()const; //TODO: deprecate shouldn't be using shorts!
 
@@ -557,7 +557,7 @@ namespace exp_int{
      * @param &b is the value to add of type ubint.
      * @return result of the addition operation of type ubint.
      */
-    inline ubint& operator+=(const ubint &b);
+    ubint& operator+=(const ubint &b);
 
 		
     /**
@@ -566,7 +566,7 @@ namespace exp_int{
      * @param &b is the value to subtract of type ubint.
      * @return result of the subtraction operation of type ubint.
      */
-    inline ubint& operator-=(const ubint &b);
+    ubint& operator-=(const ubint &b);
 
     /**
      * Multiplication accumulator.
@@ -574,7 +574,7 @@ namespace exp_int{
      * @param &b is the value to multiply by of type ubint.
      * @return result of the multiplication operation of type ubint.
      */
-    inline ubint& operator*=(const ubint &b);
+    ubint& operator*=(const ubint &b);
 
     /**
      * Division accumulator.
@@ -582,7 +582,7 @@ namespace exp_int{
      * @param &b is the value to divide by of type ubint.
      * @return result of the division operation of type ubint.
      */
-    inline ubint& operator/=(const ubint &b);
+    ubint& operator/=(const ubint &b);
 
     /**
      * Modulus accumulator.
@@ -590,7 +590,7 @@ namespace exp_int{
      * @param &b is the value to modulo by of type ubint.
      * @return result of the modulo operation of type ubint.
      */
-    inline ubint& operator%=(const ubint &b);
+    ubint& operator%=(const ubint &b);
 
     /**
      * Subtraction operation.
@@ -954,11 +954,11 @@ namespace exp_int{
       uschar *print_VALUE = new uschar[ptr_obj.m_numDigitInPrintval];  //todo smartpointer
 
       //reset to zero
-      for(sint i=0;i<ptr_obj.m_numDigitInPrintval;i++)
+      for(usint i=0;i<ptr_obj.m_numDigitInPrintval;i++)
 	*(print_VALUE+i)=0;
 
       //starts the conversion from base r to decimal value
-      for(sint i=print_obj->m_MSB;i>0;i--){
+      for(usint i=print_obj->m_MSB;i>0;i--){
 
 	//print_VALUE = print_VALUE*2
 	ubint::double_bitVal(print_VALUE);
@@ -1041,12 +1041,12 @@ namespace exp_int{
      * @param a is the ubint to be compared with.
      * @return  -1 for strictly less than, 0 for equal to and 1 for strictly greater than conditons.
      */
-    inline sint Compare(const ubint& a) const;
+    sint Compare(const ubint& a) const;
 
     /**
      *  Set this int to 1.
      */
-    inline void SetIdentity() { *this = ubint::ONE; };
+    void SetIdentity() { *this = ubint::ONE; };
 
     /**
      * A zero allocator that is called by the Matrix class. It is used to initialize a Matrix of ubint objects.

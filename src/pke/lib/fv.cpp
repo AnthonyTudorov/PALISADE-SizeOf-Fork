@@ -225,7 +225,6 @@ LPKeyPair<Element> LPAlgorithmFV<Element>::KeyGen(const CryptoContext<Element> c
 	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(cc.GetCryptoParameters());
 
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
-	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
 	const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 	typename Element::DugType dug;
@@ -273,7 +272,6 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr
 	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(publicKey->GetCryptoParameters());
 
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
-	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 	const BigBinaryInteger &delta = cryptoParams->GetDelta();
 
 	const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
@@ -529,7 +527,6 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmSHEFV<Element>::KeySwitchGen(const sha
 
 	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParamsLWE = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(newPrivateKey->GetCryptoParameters());
 	const shared_ptr<typename Element::Params> elementParams = cryptoParamsLWE->GetElementParams();
-	const BigBinaryInteger &p = cryptoParamsLWE->GetPlaintextModulus();
 	const Element &s = newPrivateKey->GetPrivateElement();
 
 	const typename Element::DggType &dgg = cryptoParamsLWE->GetDiscreteGaussianGenerator();
@@ -653,13 +650,16 @@ LPPublicKeyEncryptionSchemeFV<Element>::LPPublicKeyEncryptionSchemeFV(std::bitse
 	: LPPublicKeyEncryptionScheme<Element>() {
 
 	if (mask[ENCRYPTION])
+		if (this->m_algorithmEncryption == NULL)
 		this->m_algorithmEncryption = new LPAlgorithmFV<Element>();
 	if (mask[SHE])
+		if (this->m_algorithmSHE == NULL)
 		this->m_algorithmSHE = new LPAlgorithmSHEFV<Element>();
-	// PRE for FV is not currently enabled. Needs to be debugged.
 	if (mask[PRE])
+		if (this->m_algorithmPRE == NULL)
 		this->m_algorithmPRE = new LPAlgorithmPREFV<Element>(); 
-
+	if (mask[FHE] || mask[LEVELEDSHE])
+		throw std::logic_error("FHE and LEVELEDSHE feature not supported for FV scheme");
 }
 
 // Enable for LPPublicKeyEncryptionSchemeFV
@@ -675,14 +675,14 @@ void LPPublicKeyEncryptionSchemeFV<Element>::Enable(PKESchemeFeature feature) {
 		if (this->m_algorithmSHE == NULL)
 			this->m_algorithmSHE = new LPAlgorithmSHEFV<Element>();
 		break;
-	// PRE for FV is not currently enabled. Needs to be debugged.
 	case PRE:
 		if (this->m_algorithmPRE == NULL)
 			this->m_algorithmPRE = new LPAlgorithmPREFV<Element>();
-		if (this->m_algorithmSHE == NULL)
-			this->m_algorithmSHE = new LPAlgorithmSHEFV<Element>();
 		break; 
-
+	case FHE:
+		throw std::logic_error("FHE feature not supported for FV scheme");
+	case LEVELEDSHE:
+		throw std::logic_error("LEVELEDSHE feature not supported for FV scheme");
 	}
 }
 

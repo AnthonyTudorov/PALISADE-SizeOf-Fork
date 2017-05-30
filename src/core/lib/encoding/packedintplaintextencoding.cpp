@@ -45,7 +45,7 @@ namespace lbcrypto {
 
 	void PackedIntPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector, size_t startFrom, size_t length) const
 	{
-		int padlen = 0;
+		size_t padlen = 0;
 		uint64_t mod = modulus.ConvertToInt();
 
 		if (length == 0) length = this->size();
@@ -58,9 +58,7 @@ namespace lbcrypto {
 
 		BigBinaryVector temp(ilVector->GetRingDimension(), ilVector->GetModulus());
 
-		Format format = COEFFICIENT;
-
-		for (usint i = 0; i < length; i++) {
+		for (size_t i = 0; i < length; i++) {
 			uint32_t entry = this->at(i + startFrom);
 			if (entry >= mod)
 				throw std::logic_error("Cannot encode integer at position " + std::to_string(i) + " because it is >= plaintext modulus " + std::to_string(mod));
@@ -69,11 +67,8 @@ namespace lbcrypto {
 		}
 
 		//BigBinaryInteger Num = modulus - BigBinaryInteger::ONE;
-		for (usint i = 0; i<padlen; i++) {
+		for (size_t i = 0; i<padlen; i++) {
 			temp.SetValAtIndex(i + length, BigBinaryInteger::ZERO);
-			//temp.SetValAtIndex(i + length, Num);
-			//if( i == 0 )
-			//	Num = BigBinaryInteger::ZERO;
 		}
 
 		ilVector->SetValues(temp, Format::EVALUATION); //output was in coefficient format
@@ -108,7 +103,6 @@ namespace lbcrypto {
 
 	void PackedIntPlaintextEncoding::Pack(ILVector2n *ring, const BigBinaryInteger &modulus) const {
 
-		usint n = ring->GetRingDimension(); //ring dimension
 		usint m = ring->GetCyclotomicOrder();//cyclotomic order
 															   //Do the precomputation if not initialized
 		const auto params = ring->GetParams();
@@ -154,8 +148,7 @@ namespace lbcrypto {
 
 	void PackedIntPlaintextEncoding::Unpack(ILVector2n *ring, const BigBinaryInteger &modulus) const {
 
-		usint n = ring->GetRingDimension(); //ring dimension
-		usint m = ring->GetCyclotomicOrder(); //ring cyclotomic order
+		usint m = ring->GetCyclotomicOrder(); // cyclotomic order
 
 		BigBinaryInteger qMod(ring->GetModulus());
 

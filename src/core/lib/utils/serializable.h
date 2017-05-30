@@ -43,8 +43,12 @@
 #include <unordered_map>
 #include <sstream>
 #include <string>
-#define RAPIDJSON_HAS_STDSTRING 1
-#define RAPIDJSON_HAS_CXX11_RVALUE_REFS 1
+#ifndef RAPIDJSON_HAS_STDSTRING
+#define RAPIDJSON_HAS_STDSTRING
+#endif
+#ifndef RAPIDJSON_HAS_CXX11_RVALUE_REFS
+#define RAPIDJSON_HAS_CXX11_RVALUE_REFS
+#endif
 #include "rapidjson/document.h"
 #include "rapidjson/pointer.h"
 #include "rapidjson/reader.h"

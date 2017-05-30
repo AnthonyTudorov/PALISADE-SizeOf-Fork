@@ -78,9 +78,31 @@ public:
 	 * Basic constructor for specifying the length of the vector and the modulus.
 	 *
 	 * @param length is the length of the big binary vector, in terms of the number of entries.	
-	 * @param modulus is the modulus of the entries in the vector.  	  
+	 * @param modulus is the modulus of the ring.
 	 */
 	BigBinaryVectorImpl(usint length, const IntegerType& modulus);
+
+	/**
+	 * Basic constructor for specifying the length of the vector
+	 * the modulus and an initializer list.
+	 *
+	 * @param length is the length of the big binary vector, in terms of the number of entries.	
+	 * @param modulus is the modulus of the ring.
+	 * @param rhs is an initializer list of usint
+	 */
+	BigBinaryVectorImpl(usint length, const IntegerType& modulus, std::initializer_list<usint> rhs);
+
+	/**
+	 * Basic constructor for specifying the length of the vector
+	 * the modulus and an initializer list.
+	 *
+	 * @param length is the length of the big binary vector, in terms of the number of entries.	
+	 * @param modulus is the modulus of the ring.
+	 * @param rhs is an initializer list of strings
+	 */
+
+	BigBinaryVectorImpl(usint length, const IntegerType& modulus, std::initializer_list<std::string> rhs);
+
 
 	/**
 	 * Basic constructor for copying a vector
@@ -188,6 +210,8 @@ public:
 	*/
 	template<class IntegerType_c>
 	friend std::ostream& operator<<(std::ostream& os, const BigBinaryVectorImpl<IntegerType_c> &ptr_obj);
+
+	void PrintValues() const { std::cout << *this; }
 
 	/**
 	 * Sets a value at an index.
@@ -487,6 +511,9 @@ private:
 		return true;
 	}
 };
+
+template<typename IntegerType>
+inline BigBinaryVectorImpl<IntegerType> operator-(const BigBinaryVectorImpl<IntegerType> &a) { return BigBinaryVectorImpl<IntegerType>(0) - a; }
 
 //BINARY OPERATORS
 

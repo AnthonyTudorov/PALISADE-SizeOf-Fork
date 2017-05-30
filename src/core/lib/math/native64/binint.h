@@ -869,7 +869,7 @@ public:
 		}
 
 		uint_type v = 0;
-		for( int i=0 ; i < bitString.length() ; i++ ) {
+		for( size_t i=0 ; i < bitString.length() ; i++ ) {
 			int n = bitString[i] - '0';
 			if( n < 0 || n > 1 ) {
 				throw std::logic_error("Bit string must contain only 0 or 1");
@@ -1127,7 +1127,7 @@ protected:
 	void AssignVal(const std::string& str) {
 		uint_type test_value = 0;
 		m_value = 0;
-		for( int i=0; i<str.length(); i++ ) {
+		for( size_t i=0; i<str.length(); i++ ) {
 			int v = str[i] - '0';
 			if( v < 0 || v > 9 ) {
 				throw std::logic_error("String contains a non-digit");

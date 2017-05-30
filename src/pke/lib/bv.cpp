@@ -366,8 +366,6 @@ namespace lbcrypto {
 
 		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParamsLWE = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(keySwitchHint->GetCryptoParameters());
 
-		const BigBinaryInteger &p = cryptoParamsLWE->GetPlaintextModulus();
-
 		const shared_ptr<LPEvalKeyRelin<Element>> evalKey = std::static_pointer_cast<LPEvalKeyRelin<Element>>(keySwitchHint);
 
 		const std::vector<Element> &a = evalKey->GetAVector();
@@ -520,19 +518,26 @@ namespace lbcrypto {
 	// Constructor for LPPublicKeyEncryptionSchemeBV
 	template <class Element>
 	LPPublicKeyEncryptionSchemeBV<Element>::LPPublicKeyEncryptionSchemeBV(std::bitset<FEATURESETSIZE> mask)
-		: LPPublicKeyEncryptionScheme<Element>() {
+	: LPPublicKeyEncryptionScheme<Element>() {
 
 		if (mask[ENCRYPTION])
-			this->m_algorithmEncryption = new LPAlgorithmBV<Element>();
+			if (this->m_algorithmEncryption == NULL)
+				this->m_algorithmEncryption = new LPAlgorithmBV<Element>();
 
 		if (mask[PRE])
-			this->m_algorithmPRE = new LPAlgorithmPREBV<Element>();
+			if (this->m_algorithmPRE == NULL)
+				this->m_algorithmPRE = new LPAlgorithmPREBV<Element>();
 
 		if (mask[SHE])
-			this->m_algorithmSHE = new LPAlgorithmSHEBV<Element>();
+			if (this->m_algorithmSHE == NULL)
+				this->m_algorithmSHE = new LPAlgorithmSHEBV<Element>();
 
 		if (mask[LEVELEDSHE])
-			this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmBV<Element>();
+			if (this->m_algorithmLeveledSHE == NULL)
+				this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmBV<Element>();
+
+		if (mask[FHE])
+			throw std::logic_error("FHE feature not supported for BV scheme");
 	}
 
 	// Enable for LPPublicKeyEncryptionSchemeLTV
@@ -547,8 +552,6 @@ namespace lbcrypto {
 		case PRE:
 			if (this->m_algorithmPRE == NULL)
 				this->m_algorithmPRE = new LPAlgorithmPREBV<Element>();
-			if (this->m_algorithmSHE == NULL)
-				this->m_algorithmSHE = new LPAlgorithmSHEBV<Element>();
 			break;
 		case SHE:
 			if (this->m_algorithmSHE == NULL)
@@ -558,6 +561,8 @@ namespace lbcrypto {
 			if (this->m_algorithmLeveledSHE == NULL)
 				this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmBV<Element>();
 			break;
+		case FHE:
+			throw std::logic_error("FHE feature not supported for BV scheme");
 		}
 	}
 

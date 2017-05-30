@@ -121,7 +121,7 @@ void testJson(
 	cout << "Deserializing instance from " << jsonFileName << endl;
 	SerializableHelper::ReadSerializationFromFile(jsonFileName, &testMap1);
 
-	if ( pkDeserialized = tp->ctx.deserializePublicKey(testMap1) ) {
+	if ( (pkDeserialized = tp->ctx.deserializePublicKey(testMap1)) != NULL ) {
 		cout << "Deserialized into pkDeserialized" << endl;
 	} else {
 		cout << "FAILED" << endl;
@@ -134,7 +134,7 @@ void testJson(
 	jsonFileName = "LPPrivateKey" + cID + "_Enc.txt";
 	cout << "Deserializing instance from " << jsonFileName << endl;
 	SerializableHelper::ReadSerializationFromFile(jsonFileName, &testMap2);
-	if (skDeserialized = tp->ctx.deserializeSecretKey(testMap2) ) {
+	if ( (skDeserialized = tp->ctx.deserializeSecretKey(testMap2)) != NULL ) {
 		cout << "Deserialized into skDeserialized" << endl;
 	} else {
 		cout << "FAILED" << endl;
@@ -174,7 +174,7 @@ void testJson(
 	cout << "Deserializing instance from " << jsonFileName << endl;
 	SerializableHelper::ReadSerializationFromFile(jsonFileName, &testMap3);
 	shared_ptr<Ciphertext<Element>> ciphertextDeserialized;
-	if (ciphertextDeserialized = tp->ctx.deserializeCiphertext(testMap3) )
+	if ((ciphertextDeserialized = tp->ctx.deserializeCiphertext(testMap3)) != NULL )
 		cout << "Deserialized into ciphertextDeserialized" << endl;
 	else {
 		cout << "FAILED" << endl;
@@ -223,7 +223,7 @@ void testJson(
 	jsonFileName = "LPEvalKey" + cID + "_Pre.txt";
 	cout << "Deserializing instance from " << jsonFileName << endl;
 	SerializableHelper::ReadSerializationFromFile(jsonFileName, &testMap4);
-	if( evalKeyDeserialized = tp->ctx.deserializeEvalKey(testMap4) )
+	if( (evalKeyDeserialized = tp->ctx.deserializeEvalKey(testMap4)) != NULL )
 		cout << "Deserialized into evalKeyDeserialized" << endl;
 	else {
 		cout << "FAILED" << endl;
@@ -284,7 +284,7 @@ void testJson(
 	jsonFileName = "LPPrivateKey" + cID + "_Pre.txt";
 	cout << "Deserializing instance from " << jsonFileName << endl;
 	SerializableHelper::ReadSerializationFromFile(jsonFileName, &testMap5);
-	if( newSKDeserialized = tp->ctx.deserializeSecretKey(testMap5) )
+	if( (newSKDeserialized = tp->ctx.deserializeSecretKey(testMap5)) != NULL )
 		cout << "Deserialized into newSKDeserialized" << endl;
 	else {
 		cout << "FAILED" << endl;
@@ -297,7 +297,7 @@ void testJson(
 	cout << "Deserializing instance from " << jsonFileName << endl;
 	SerializableHelper::ReadSerializationFromFile(jsonFileName, &testMap3);
 	shared_ptr<Ciphertext<Element>> preCiphertextDeserialized;
-	if( preCiphertextDeserialized = tp->ctx.deserializeCiphertext(testMap3) )
+	if( (preCiphertextDeserialized = tp->ctx.deserializeCiphertext(testMap3)) != NULL )
 		cout << "Deserialized into preCiphertextDeserialized" << endl;
 	else {
 		cout << "FAILED" << endl;
@@ -311,7 +311,7 @@ void testJson(
 	BytePlaintextEncoding testPlaintextPreRec;
 	vector<shared_ptr<Ciphertext<Element>>> preCtVec;
 	preCtVec.push_back(preCiphertextDeserialized);
-	DecryptResult testResult1 = tp->ctx.Decrypt(newSKDeserialized, preCtVec, &testPlaintextPreRec);
+	tp->ctx.Decrypt(newSKDeserialized, preCtVec, &testPlaintextPreRec);
 	preCtVec.clear();
 
 	cout << "Recovered plaintext from call to PRE Decrypt: " << endl;

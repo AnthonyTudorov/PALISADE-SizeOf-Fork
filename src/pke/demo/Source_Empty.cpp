@@ -119,7 +119,6 @@ void EvalMultBigRing() {
 
 void EvalMultSmallRing() {
 	usint m = 22;
-	usint N = GetTotient(m);
 	usint p = 89; // we choose s.t. 2m|p-1 to leverage CRTArb
 	BigBinaryInteger modulusQ("72385066601");
 	BigBinaryInteger modulusP(p);

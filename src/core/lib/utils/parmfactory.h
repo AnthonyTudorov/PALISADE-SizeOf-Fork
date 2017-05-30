@@ -66,7 +66,7 @@ inline shared_ptr<ILVectorArray2n::Params> GenerateDCRTParams(usint m, usint ptm
 		if( ++j == numOfTower )
 			break;
 
-		lbcrypto::NextQ(q, ptmI, m, native64::BigBinaryInteger::FOUR, native64::BigBinaryInteger::FOUR);
+		lbcrypto::NextQ(q, ptmI, m, native64::BigBinaryInteger(4), native64::BigBinaryInteger(4));
 	}
 
 	shared_ptr<ILVectorArray2n::Params> params(new ILVectorArray2n::Params(m, moduli, rootsOfUnity));

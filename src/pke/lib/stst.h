@@ -317,17 +317,18 @@ public:
 	*@param mask the mask to be initialized
 	*/
 	LPPublicKeyEncryptionSchemeStehleSteinfeld(std::bitset<FEATURESETSIZE> mask) {
-		if (mask[ENCRYPTION])
+		if (mask[ENCRYPTION] && this->m_algorithmEncryption == NULL)
 			this->m_algorithmEncryption = new LPEncryptionAlgorithmStehleSteinfeld<Element>();
-		if (mask[PRE])
+		if (mask[PRE] && this->m_algorithmPRE == NULL)
 			this->m_algorithmPRE = new LPAlgorithmPRELTV<Element>();
-		if (mask[SHE])
+		if (mask[SHE] && this->m_algorithmSHE == NULL)
 			this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>();
+		if (mask[FHE] || mask[LEVELEDSHE])
+			throw std::logic_error("FHE and LEVELEDSHE feature not supported for StehleSteinfeld scheme");
 	}
 
 	/**
 	* Function to enable a scheme.
-	* FIXME This needs to be described better.
 	*
 	*@param feature is the feature to enable
 	*/
@@ -341,13 +342,15 @@ public:
 		case PRE:
 			if (this->m_algorithmPRE == NULL)
 				this->m_algorithmPRE = new LPAlgorithmPRELTV<Element>();
-			if (this->m_algorithmSHE == NULL)
-				this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>();
 			break;
 		case SHE:
 			if (this->m_algorithmSHE == NULL)
 				this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>();
 			break;
+		case FHE:
+			throw std::logic_error("FHE feature not supported for StehleSteinfeld scheme");
+		case LEVELEDSHE:
+			throw std::logic_error("LEVELEDSHE feature not supported for StehleSteinfeld scheme");
 		}
 	}
 };

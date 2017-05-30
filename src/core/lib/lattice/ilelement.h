@@ -161,6 +161,14 @@ public:
 
 	// OPERATORS
 	/**
+	 * Unary minus on a lattice
+	 * @return
+	 */
+	Element operator-() const {
+		return this->Times(IntType(-1));
+	}
+
+	/**
 	 * Scalar addition - add an element to the first index only.
 	 * This operation is only allowed in COEFFICIENT format.
 	 *

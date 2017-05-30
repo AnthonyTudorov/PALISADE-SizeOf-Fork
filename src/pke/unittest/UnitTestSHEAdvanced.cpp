@@ -92,10 +92,10 @@ TEST_F(UTSHEAdvanced, ParameterSelection) {
 
 	native64::BigBinaryInteger q = FindPrimeModulus<native64::BigBinaryInteger>(m, dcrtBits);
 	native64::BigBinaryInteger temp;
-	BigBinaryInteger modulus("1");
+	BigBinaryInteger modulus(1);
 
-	for (int i = 0; i < size; i++) {
-		lbcrypto::NextQ(q, native64::BigBinaryInteger::TWO, m, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
+	for (size_t i = 0; i < size; i++) {
+		lbcrypto::NextQ(q, native64::BigBinaryInteger(2), m, native64::BigBinaryInteger(4), native64::BigBinaryInteger(4));
 		moduli[i] = q;
 		rootsOfUnity[i] = RootOfUnity(m, moduli[i]);
 		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
@@ -189,7 +189,7 @@ TEST_F(UTSHEAdvanced, test_eval_mult_single_crt) {
 
 	cc.Decrypt(newKp.secretKey, ciphertextResults, &results, false);
 
-	EXPECT_EQ(results.at(0), 6);
+	EXPECT_EQ(results.at(0), 6U);
 }
 
 
@@ -204,6 +204,8 @@ TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 
 	usint init_size = 2;
 
+	usint plaintextModulus = 9;
+
 	vector<native64::BigBinaryInteger> init_moduli(init_size);
 
 	vector<native64::BigBinaryInteger> init_rootsOfUnity(init_size);
@@ -212,8 +214,8 @@ TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 	native64::BigBinaryInteger temp;
 	BigBinaryInteger modulus("1");
 
-	for (int i = 0; i < init_size; i++) {
-		lbcrypto::NextQ(q, native64::BigBinaryInteger::FIVE, init_m, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
+	for (usint i = 0; i < init_size; i++) {
+		lbcrypto::NextQ(q, native64::BigBinaryInteger(plaintextModulus), init_m, native64::BigBinaryInteger(4), native64::BigBinaryInteger(4));
 		init_moduli[i] = q;
 		init_rootsOfUnity[i] = RootOfUnity(init_m, init_moduli[i]);
 		modulus = modulus * BigBinaryInteger(init_moduli[i].ConvertToInt());
@@ -231,7 +233,6 @@ TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 //	cryptoParams.SetDepth(init_size - 1);
 //	cryptoParams.SetSecurityLevel(1.006);
 
-	usint n = 16;
 	usint relWindow = 1;
 
 //	LPCryptoParametersLTV<ILVectorArray2n> finalParams;
@@ -242,7 +243,7 @@ TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 //	DEBUG("new parms" << finalParams);
 
 	// Fixme use the ParameterSelection version of genCryptoContext
-	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextLTV(params, 5+4, relWindow, init_stdDev, init_size - 1, 6, 1.006);
+	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextLTV(params, plaintextModulus, relWindow, init_stdDev, init_size - 1, 6, 1.006);
 	cc.Enable(SHE);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(LEVELEDSHE);
@@ -293,9 +294,9 @@ TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 
 	cc.Decrypt(newKp.secretKey, cResult, &results, false);
 
-	EXPECT_EQ(6, results.at(0));
-	EXPECT_EQ(0, results.at(1));
-	EXPECT_EQ(3, results.at(2));
+	EXPECT_EQ(6U, results.at(0));
+	EXPECT_EQ(0U, results.at(1));
+	EXPECT_EQ(3U, results.at(2));
 
 }
 
@@ -363,10 +364,10 @@ TEST_F(UTSHEAdvanced, test_eval_add_single_crt) {
 
 	cc.Decrypt(kp.secretKey, ciphertextResults, &results, false);
 
-	EXPECT_EQ(5, results.at(0));
-	EXPECT_EQ(1, results.at(1));
-	EXPECT_EQ(4, results.at(2));
-	EXPECT_EQ(5, results.at(3));
+	EXPECT_EQ(5U, results.at(0));
+	EXPECT_EQ(1U, results.at(1));
+	EXPECT_EQ(4U, results.at(2));
+	EXPECT_EQ(5U, results.at(3));
 }
 
 
@@ -379,6 +380,7 @@ TEST_F(UTSHEAdvanced, test_eval_add_double_crt) {
 	float init_stdDev = 4;
 
 	usint init_size = 2;
+	usint plaintextModulus = 9;
 
 	vector<native64::BigBinaryInteger> init_moduli(init_size);
 
@@ -386,11 +388,11 @@ TEST_F(UTSHEAdvanced, test_eval_add_double_crt) {
 
 	native64::BigBinaryInteger q = FindPrimeModulus<native64::BigBinaryInteger>(init_m, dcrtBits);
 	native64::BigBinaryInteger temp;
-	BigBinaryInteger modulus("1");
+	BigBinaryInteger modulus(1);
 	DEBUG("1");
 
-	for (int i = 0; i < init_size; i++) {
-		lbcrypto::NextQ(q, native64::BigBinaryInteger::FIVE, init_m, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
+	for (size_t i = 0; i < init_size; i++) {
+		lbcrypto::NextQ(q, native64::BigBinaryInteger(plaintextModulus), init_m, native64::BigBinaryInteger(4), native64::BigBinaryInteger(4));
 		init_moduli[i] = q;
 		init_rootsOfUnity[i] = RootOfUnity(init_m, init_moduli[i]);
 		modulus = modulus * BigBinaryInteger(init_moduli[i].ConvertToInt());
@@ -408,7 +410,6 @@ TEST_F(UTSHEAdvanced, test_eval_add_double_crt) {
 //	cryptoParams.SetDepth(init_size - 1);
 //	cryptoParams.SetSecurityLevel(1.006);
 	DEBUG("5");
-	usint n = 16;
 
 	usint relWindow = 1;
 
@@ -419,7 +420,7 @@ TEST_F(UTSHEAdvanced, test_eval_add_double_crt) {
 //	const shared_ptr<ILDCRTParams> dcrtParams = std::dynamic_pointer_cast<ILDCRTParams>(finalParams.GetElementParams());
 
 	// Fixme use the ParameterSelection version of genCryptoContext
-	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextLTV(params, 5+4, relWindow, init_stdDev, init_size - 1, 6, 1.006);
+	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextLTV(params, plaintextModulus, relWindow, init_stdDev, init_size - 1, 6, 1.006);
 	cc.Enable(SHE);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(LEVELEDSHE);
@@ -459,10 +460,10 @@ TEST_F(UTSHEAdvanced, test_eval_add_double_crt) {
 
 	cc.Decrypt(kp.secretKey, ciphertextResults, &results, false);
 
-	EXPECT_EQ(results.at(0), 5);
-	EXPECT_EQ(results.at(1), 7);
-	EXPECT_EQ(results.at(2), 3);
-	EXPECT_EQ(results.at(3), 6);
+	EXPECT_EQ(results.at(0), 5U);
+	EXPECT_EQ(results.at(1), 7U);
+	EXPECT_EQ(results.at(2), 3U);
+	EXPECT_EQ(results.at(3), 6U);
 	DEBUG("13");
 }
 
@@ -485,7 +486,6 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 	shared_ptr<ILVectorArray2n::Params> paramsSmall( new ILVectorArray2n::Params( *params ) );
 	paramsSmall->PopLastParam();
 
-	usint n = 16;
 	usint relWindow = 1;
 
 	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextLTV(params, ptm, relWindow, init_stdDev, init_size - 1);
@@ -550,10 +550,10 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 
 	ccSmall.Decrypt(kp1.secretKey, tempvec2, &results, false);
 
-	EXPECT_EQ(results.at(0), 2);
-	EXPECT_EQ(results.at(1), 4);
-	EXPECT_EQ(results.at(2), 1);
-	EXPECT_EQ(results.at(3), 8);
-	EXPECT_EQ(results.at(4), 8);
+	EXPECT_EQ(results.at(0), 2U);
+	EXPECT_EQ(results.at(1), 4U);
+	EXPECT_EQ(results.at(2), 1U);
+	EXPECT_EQ(results.at(3), 8U);
+	EXPECT_EQ(results.at(4), 8U);
 }
 #endif

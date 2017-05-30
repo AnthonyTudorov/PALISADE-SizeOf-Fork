@@ -97,6 +97,8 @@ TEST(UTTransform, CRT_polynomial_multiplication){
 
 TEST(UTTransform, CRT_polynomial_multiplication_small) {
 
+	bool dbg_flag = false;
+
 	usint m = 22;
 	BigBinaryInteger squareRootOfRoot(3750);
 	BigBinaryInteger modulus(4621);
@@ -104,26 +106,33 @@ TEST(UTTransform, CRT_polynomial_multiplication_small) {
 	BigBinaryInteger bigRoot("31971887649898");
 	usint n = GetTotient(m);
 
+	DEBUG("m is " << m << " and n is " << n);
 	auto cycloPoly =  GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulus);
+	DEBUG("2");
 
 	//ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().PreCompute(m, modulus);
 	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly,modulus);
-
+	DEBUG("3");
 
 	BigBinaryVector a(n, modulus);
 	a = { 1,2,3,4,5,6,7,8,9,10 };
 	auto A = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().ForwardTransform(a, squareRootOfRoot, bigModulus, bigRoot, m);
+	DEBUG("4");
 
 	BigBinaryVector b(n, modulus);
 	b = { 5,6,7,8,9,10,11,12,13,14 };
 	auto B = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().ForwardTransform(b, squareRootOfRoot, bigModulus, bigRoot, m);
+	DEBUG("5");
 
 	auto C = A*B;
+	DEBUG("6");
 
 	auto c = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().InverseTransform(C, squareRootOfRoot, bigModulus, bigRoot, m);
 
+	DEBUG("7");
 	auto cCheck = PolynomialMultiplication(a, b);
 
+	DEBUG("8");
 	cCheck = PolyMod(cCheck, cycloPoly, modulus);
 
 	for (usint i = 0; i < n; i++) {
