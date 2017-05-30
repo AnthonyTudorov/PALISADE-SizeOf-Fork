@@ -48,9 +48,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <time.h>
 #include <sstream>
 
-//#define DEBUG_NBTHEORY //used to print step by step values in debug mode
-//define DEBUG_ROOTS_OF_UNITY
-
 namespace lbcrypto {
 
 template BigBinaryInteger RootOfUnity<BigBinaryInteger>(usint m, const BigBinaryInteger& modulo);
@@ -65,9 +62,9 @@ template BigBinaryVector PolyMod(const BigBinaryVector &dividend, const BigBinar
 template BigBinaryVector PolynomialMultiplication(const BigBinaryVector &a, const BigBinaryVector &b);
 template BigBinaryVector GetCyclotomicPolynomial(usint m, const BigBinaryInteger &modulus);
 
-
 template std::vector<usint> GetTotientList(const usint &n);
 
+#if MATHBACKEND != 7
 template native_int::BinaryInteger RootOfUnity<native_int::BinaryInteger>(usint m, const native_int::BinaryInteger& modulo);
 template std::vector<native_int::BinaryInteger> RootsOfUnity(usint m, const std::vector<native_int::BinaryInteger> moduli);
 template native_int::BinaryInteger GreatestCommonDivisor(const native_int::BinaryInteger& a, const native_int::BinaryInteger& b);
@@ -79,9 +76,7 @@ template void NextQ(native_int::BinaryInteger &q, const native_int::BinaryIntege
 template native_int::BinaryVector PolyMod(const native_int::BinaryVector &dividend, const native_int::BinaryVector &divisor, const native_int::BinaryInteger &modulus);
 template native_int::BinaryVector PolynomialMultiplication(const native_int::BinaryVector &a, const native_int::BinaryVector &b);
 template native_int::BinaryVector GetCyclotomicPolynomial(usint m, const native_int::BinaryInteger &modulus);
-}
-
-namespace lbcrypto {
+#endif
 
 /*
 	Generates a random number between 0 and n.

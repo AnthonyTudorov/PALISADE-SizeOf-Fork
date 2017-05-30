@@ -183,8 +183,8 @@ namespace lbcrypto {
 
 #if MATHBACKEND == 7
 
-	typedef native_int::BinaryInteger BinaryInteger;
-	typedef native_int::BinaryVector BinaryVector;
+	typedef native_int::BinaryInteger BigBinaryInteger;
+	typedef native_int::BinaryVector BigBinaryVector;
 
 #define MATH_DEFBITS MATH_NATIVEBITS
 #endif
