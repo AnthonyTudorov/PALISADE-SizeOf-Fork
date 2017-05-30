@@ -116,7 +116,7 @@ void CRTComposeTest() {
 	for( int i=0; i<2; i++ ) {
 		std::cout << "Case " << i << " m=" << Scenarios[i].m << " bits=" << Scenarios[i].bits << std::endl;
 		shared_ptr<ILDCRTParams<BigBinaryInteger>> dcparm = GenDCRTParams(i);
-		shared_ptr<ILParams> tvp( new ILParams(dcparm->GetCyclotomicOrder(), dcparm->GetModulus(), BigBinaryInteger::ONE) );
+		shared_ptr<ILParams> tvp( new ILParams(dcparm->GetCyclotomicOrder(), dcparm->GetModulus(), 1) );
 		ILVector2n tVec(tvp);
 		MakeTestPolynomial(i, tVec);
 
@@ -161,7 +161,7 @@ void SwitchFormatTest(bool runsmall, bool runbig) {
 
 		if( runsmall ) {
 			shared_ptr<ILDCRTParams<BigBinaryInteger>> dcparm = GenDCRTParams(i);
-			shared_ptr<ILParams> tvp( new ILParams(dcparm->GetCyclotomicOrder(), dcparm->GetModulus(), BigBinaryInteger::ONE) );
+			shared_ptr<ILParams> tvp( new ILParams(dcparm->GetCyclotomicOrder(), dcparm->GetModulus(), 1) );
 			ILVector2n tVec(tvp);
 			MakeTestPolynomial(i, tVec);
 			ILDCRT2n testVector2(tVec, dcparm);
@@ -212,7 +212,7 @@ void EvalMultTest(bool runsmall, bool runbig) {
 
 		if( runsmall ) {
 			shared_ptr<ILDCRTParams<BigBinaryInteger>> dcparm = GenDCRTParams(i);
-			shared_ptr<ILParams> tvp( new ILParams(dcparm->GetCyclotomicOrder(), dcparm->GetModulus(), BigBinaryInteger::ONE) );
+			shared_ptr<ILParams> tvp( new ILParams(dcparm->GetCyclotomicOrder(), dcparm->GetModulus(), 1) );
 			CryptoContext<ILDCRT2n> cc2 = CryptoContextFactory<ILDCRT2n>::genCryptoContextBV(dcparm, 16, 16, 4.0);
 			cc2.Enable(ENCRYPTION);
 			cc2.Enable(SHE);
@@ -260,7 +260,7 @@ void MultiplyTest(bool runsmall, bool runbig) {
 
 		if( runbig ) {
 			shared_ptr<ILDCRTParams<BigBinaryInteger>> dcparm = GenDCRTParams(i);
-			shared_ptr<ILParams> tvp( new ILParams(dcparm->GetCyclotomicOrder(), dcparm->GetModulus(), BigBinaryInteger::ONE) );
+			shared_ptr<ILParams> tvp( new ILParams(dcparm->GetCyclotomicOrder(), dcparm->GetModulus(), 1) );
 			ILVector2n tVec1(tvp);
 			ILVector2n tVec2(tvp);
 			MakeTestPolynomial(i, tVec1);

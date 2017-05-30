@@ -16,7 +16,7 @@ void TestPowersAndDecompose(CryptoContext<ILVector2n> cc, ILVector2n& randomVec)
 	usint nBits = cc.GetCryptoParameters()->GetRelinWindow();
 	ILVector2n answer(cc.GetElementParams(), EVALUATION, true); // zero vector
 	for (usint i = 0; i < decomp.size(); i++) {
-		ILVector2n thisProduct = decomp[i] * ILVector2n::Integer::TWO.ModExp( typename ILVector2n::Integer(i * nBits), cc.GetElementParams()->GetModulus());
+		ILVector2n thisProduct = decomp[i] * ILVector2n::Integer(2).ModExp( typename ILVector2n::Integer(i * nBits), cc.GetElementParams()->GetModulus());
 		answer += thisProduct;
 	}
 
@@ -55,7 +55,7 @@ void TestPowersAndDecompose(CryptoContext<ILDCRT2n> cc, ILDCRT2n& randomVec) {
 		mods[i] = ILDCRT2n::Integer(eParms->GetParams()[i]->GetModulus().ConvertToInt());
 
 	for (usint i = 0; i < decomp.size(); i++) {
-		ILDCRT2n::Integer twoPow( ILDCRT2n::Integer::TWO.Exp(i * nBits) );
+		ILDCRT2n::Integer twoPow( ILDCRT2n::Integer(2).Exp(i * nBits) );
 		vector<ILDCRT2n::ILVectorType> scalars(eParms->GetParams().size());
 
 		for( int t = 0; t < eParms->GetParams().size(); t++ ) {

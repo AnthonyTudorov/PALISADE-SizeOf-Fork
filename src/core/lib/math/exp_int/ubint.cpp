@@ -2907,12 +2907,6 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
 
   }
 
+  template class ubint<expdtype>;
+
 } // namespace exp_int ends
-
-#ifdef UBINT_32
-template class exp_int::ubint<uint32_t>;
-#endif
-
-#ifdef UBINT_64
-template class exp_int::ubint<uint64_t>;
-#endif

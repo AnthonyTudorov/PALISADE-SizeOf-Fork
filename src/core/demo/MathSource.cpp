@@ -76,7 +76,7 @@ BigBinaryVector BBVfromStrvec( std::vector<std::string> &s) {
 }
 
 //function to compare two BigBinaryVectors and print differing indicies
-void vec_diff(BigBinaryVector &a, BigBinaryVector &b) {
+void vec_diff(cpu_int::BinaryVector &a, cpu_int::BinaryVector &b) {
     for (usint i= 0; i < a.GetLength(); ++i){  
       if (a.GetValAtIndex(i) != b.GetValAtIndex(i)) {
         cout << "i: "<< i << endl;

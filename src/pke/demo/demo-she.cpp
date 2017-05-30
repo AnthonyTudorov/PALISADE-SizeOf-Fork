@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
 	cc.Enable(SHE);
 
 	// for this demo we reset the plaintext modulus and try ParamsGen
-	cc.GetCryptoParameters()->SetPlaintextModulus(BigBinaryInteger::FOUR);
+	cc.GetCryptoParameters()->SetPlaintextModulus(4);
 
 	try {
 		if( beVerbose )
