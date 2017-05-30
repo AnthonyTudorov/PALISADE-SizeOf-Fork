@@ -154,7 +154,7 @@ LPKeyPair<Element> LPAlgorithmLTV<Element>::KeyGen(const CryptoContext<Element> 
 		f = Element(dgg, elementParams, Format::COEFFICIENT);
 		f = p*f;
 
-		f = f + BigBinaryInteger::ONE;
+		f = f + 1;
 
 		if( makeSparse )
 			f.MakeSparse(2);
