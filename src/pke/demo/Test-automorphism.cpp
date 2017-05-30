@@ -296,7 +296,7 @@ void FVAutomorphismPackedArray(usint i) {
 void ArbBVAutomorphismPackedArray(usint i) {
 
 	usint m = 22;
-	usint p = 23;
+	usint p = 16787;
 	BigBinaryInteger modulusP(p);
 	/*BigBinaryInteger modulusQ("577325471560727734926295560417311036005875689");
 	BigBinaryInteger squareRootOfRoot("576597741275581172514290864170674379520285921");*/
