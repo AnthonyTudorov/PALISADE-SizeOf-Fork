@@ -72,26 +72,27 @@ int main() {
 	usint m = 22;
 
 	//LTVAutomorphismIntArray();
+	std::vector<usint> totientList = GetTotientList(m);
 
 	std::cout << "\n===========LTV TESTS (EVALAUTOMORPHISM)===============: " << std::endl;
 
-	PackedIntPlaintextEncoding::Destroy();
+	/*PackedIntPlaintextEncoding::Destroy();
 	for (usint index = 3; index < 16; index = index + 2)
-		LTVAutomorphismPackedArray(index);
+		LTVAutomorphismPackedArray(index);*/
 
 	std::cout << "\n===========LTV TESTS (EVALAUTOMORPHISM-ARBITRARY)===============: " << std::endl;
 
-	PackedIntPlaintextEncoding::Destroy();
+	/*PackedIntPlaintextEncoding::Destroy();
 	std::vector<usint> totientList = GetTotientList(m);
 	for (usint index = 1; index < 10; index++) {
 		ArbLTVAutomorphismPackedArray(totientList[index]);
-	}
+	}*/
 
 	std::cout << "\n===========BV TESTS (EVALAUTOMORPHISM)===============: " << std::endl;
 
-	PackedIntPlaintextEncoding::Destroy();
+	/*PackedIntPlaintextEncoding::Destroy();
 	for (usint index = 3; index < 16; index = index + 2)
-		BVAutomorphismPackedArray(index);
+		BVAutomorphismPackedArray(index);*/
 
 	std::cout << "\n===========BV TESTS (EVALAUTOMORPHISM-ARBITRARY)===============: " << std::endl;
 

@@ -170,7 +170,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\src\pke\demo\Test-automorphism.cpp" />
+    <ClCompile Include="..\..\..\..\src\pke\demo\Run-linregress.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
