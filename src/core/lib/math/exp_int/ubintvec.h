@@ -519,6 +519,9 @@ namespace exp_int {
       bool IndexCheck(usint) const;
     };
 
+  template<typename ubint_el_t>
+  inline ubintvec<ubint_el_t> operator-(const ubintvec<ubint_el_t> &a) { return ubintvec<ubint_el_t>(0) - a; }
+
   //BINARY OPERATOR Templates
   /**
    *   scalar modulo operator %

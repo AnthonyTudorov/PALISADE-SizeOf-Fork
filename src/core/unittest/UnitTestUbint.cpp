@@ -204,10 +204,10 @@ TEST(UTubint,ctor){
 
   //test the ctor(usint)
   exp_int::xubint c1(123456789);
-  EXPECT_EQ(123456789, c1.ConvertToUsint())<< "Failure testing ctor(usint)";
+  EXPECT_EQ(123456789U, c1.ConvertToUsint())<< "Failure testing ctor(usint)";
   //test the ctor(string)
   exp_int::xubint c2("123456789");
-  EXPECT_EQ(123456789, c2.ConvertToUsint())<< "Failure testing ctor(string)";
+  EXPECT_EQ(123456789U, c2.ConvertToUsint())<< "Failure testing ctor(string)";
   //test the ctor(exp_int::xubint)
   exp_int::xubint d(c1);
   EXPECT_EQ(d.ConvertToUsint(), c1.ConvertToUsint())

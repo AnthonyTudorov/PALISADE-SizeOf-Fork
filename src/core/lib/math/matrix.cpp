@@ -256,14 +256,15 @@ Matrix<Element> Matrix<Element>::CofactorMatrix() const {
 			}
 
 			/* Calculate the determinant */
-			auto determinant( *allocZero() );
+			Element determinant( *allocZero() );
 			c.Determinant(&determinant);
+			Element negDeterminant = -determinant;
 
 			/* Fill in the elements of the cofactor */
 			if ((i + j) % 2 == 0)
 				*result.data[i][j] = determinant;
 			else
-				*result.data[i][j] = -determinant;
+				*result.data[i][j] = negDeterminant;
 		}
 	}
 

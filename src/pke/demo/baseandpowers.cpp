@@ -58,7 +58,7 @@ void TestPowersAndDecompose(CryptoContext<ILDCRT2n> cc, ILDCRT2n& randomVec) {
 		ILDCRT2n::Integer twoPow( ILDCRT2n::Integer(2).Exp(i * nBits) );
 		vector<ILDCRT2n::ILVectorType> scalars(eParms->GetParams().size());
 
-		for( int t = 0; t < eParms->GetParams().size(); t++ ) {
+		for( usint t = 0; t < eParms->GetParams().size(); t++ ) {
 			ILDCRT2n::Integer factor = twoPow % mods[t];
 			ILDCRT2n::ILVectorType thisScalar(eParms->GetParams()[t], EVALUATION);
 			thisScalar = factor.ConvertToInt();

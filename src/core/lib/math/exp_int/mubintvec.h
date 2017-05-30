@@ -655,6 +655,9 @@ private:
 
 };
 
+template<typename ubint_el_t>
+inline mubintvec<ubint_el_t> operator-(const mubintvec<ubint_el_t> &a) { return mubintvec<ubint_el_t>(0) - a; }
+
 //BINARY OPERATORS
   /**
    *   scalar modulo
