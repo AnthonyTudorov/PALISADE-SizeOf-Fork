@@ -980,13 +980,15 @@ public:
 	bool operator<=(const NativeInteger& a) const { return m_value <= a.m_value; }
 
 	//overloaded binary operators based on integer arithmetic and comparison functions
+	NativeInteger operator-() const { return NativeInteger(0).Minus(*this); }
+
 	/**
 	 * Addition operation.
 	 *
 	 * @param a is the value to add.
 	 * @return is the result of the addition operation.
 	 */
-	inline NativeInteger operator+(const NativeInteger &a) const {return this->Plus(a);}
+	NativeInteger operator+(const NativeInteger &a) const {return this->Plus(a);}
 
 	/**
 	 * Subtraction operation.
@@ -994,7 +996,7 @@ public:
 	 * @param a is the value to subtract.
 	 * @return is the result of the subtraction operation.
 	 */
-	inline NativeInteger operator-(const NativeInteger &a) const {return this->Minus(a);}
+	NativeInteger operator-(const NativeInteger &a) const {return this->Minus(a);}
 
 	/**
 	 * Multiplication operation.
@@ -1033,6 +1035,8 @@ public:
 		os << ptr_obj.m_value;
 		return os;
 	}
+
+	void PrintValues() const { std::cout << this->m_value; }
 
 	/**
 	 * Gets the bit at the specified index.
