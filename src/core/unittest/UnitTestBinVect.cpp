@@ -114,7 +114,7 @@ TEST(UTBinVect, SetModulusTest){
 TEST(UTBinVect, CTOR_Test){
   const usint len  = 10;
   BigBinaryInteger q("233");
-  int expectedResult[10] = {48,53,7,178,190,120,79,108,60,12};
+  usint expectedResult[10] = {48,53,7,178,190,120,79,108,60,12};
 
   {
     BigBinaryVector m(len, q, 
