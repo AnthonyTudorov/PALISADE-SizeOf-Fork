@@ -110,7 +110,9 @@ public:
 	string getNodeLabel() const { return "M/R"; }
 	bool isModReduce() const { return true; }
 
-	Value eval(CryptoContext<ILVector2n>& cc, CircuitGraph& cg) {}
+	Value eval(CryptoContext<ILVector2n>& cc, CircuitGraph& cg) {
+		throw std::logic_error("eval not implemented for ModReduce");
+	}
 };
 
 class EvalNegNode : public CircuitNode {
@@ -121,7 +123,9 @@ public:
 
 	string getNodeLabel() const { return "-"; }
 
-	Value eval(CryptoContext<ILVector2n>& cc, CircuitGraph& cg) {}
+	Value eval(CryptoContext<ILVector2n>& cc, CircuitGraph& cg) {
+		throw std::logic_error("eval not implemented for EvalNeg");
+	}
 };
 
 class EvalAddNode : public CircuitNode {
@@ -154,14 +158,14 @@ public:
 	string getNodeLabel() const { return "-"; }
 
 	Value eval(CryptoContext<ILVector2n>& cc, CircuitGraph& cg) {
-		// gather together all of the inputs to this gate and add them
-		if( inputs.size() == 0 ) throw std::logic_error("Cannot multiply, no inputs");
+		// gather together all of the inputs to this gate and subtract them
+		if( inputs.size() == 0 ) throw std::logic_error("Cannot subtract, no inputs");
 		else if( inputs.size() == 1 ) return cg.getNodeById( inputs[0] )->getValue();
 
 		shared_ptr<Ciphertext<ILVector2n>> prod = cc.EvalMult(cg.getNodeById( inputs[0] )->getValue(), cg.getNodeById( inputs[1] )->getValue());
 
 		for( size_t i = 2; i < inputs.size(); i++ )
-			prod = cc.EvalMult(prod, cg.getNodeById( inputs[i] )->getValue());
+			prod = cc.EvalSub(prod, cg.getNodeById( inputs[i] )->getValue());
 		return value = prod;
 	}
 };
@@ -175,7 +179,17 @@ public:
 	void setBottomUpDepth() { nodeInputDepth = nodeOutputDepth + 1; }
 	string getNodeLabel() const { return "*"; }
 
-	Value eval(CryptoContext<ILVector2n>& cc, CircuitGraph& cg) {}
+	Value eval(CryptoContext<ILVector2n>& cc, CircuitGraph& cg) {
+		// gather together all of the inputs to this gate and multiply them
+		if( inputs.size() == 0 ) throw std::logic_error("Cannot multiply, no inputs");
+		else if( inputs.size() == 1 ) return cg.getNodeById( inputs[0] )->getValue();
+
+		shared_ptr<Ciphertext<ILVector2n>> prod = cc.EvalMult(cg.getNodeById( inputs[0] )->getValue(), cg.getNodeById( inputs[1] )->getValue());
+
+		for( size_t i = 2; i < inputs.size(); i++ )
+			prod = cc.EvalMult(prod, cg.getNodeById( inputs[i] )->getValue());
+		return value = prod;
+	}
 };
 
 #endif

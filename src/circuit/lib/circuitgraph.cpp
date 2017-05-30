@@ -71,16 +71,16 @@ CircuitGraph::bindParameters(map<string,string>& nameMap, map<CircuitNode *, Cir
 {
 	for( auto it = allNodes.begin() ; it != allNodes.end() ; it++ ) {
 		CircuitNode *n = it->second;
-		auto outs(n->getOutputs());
-		for( auto o : outs ) {
+		//auto outs(n->getOutputs());
+		//for( auto o : outs ) {
 //			map<string,string>::iterator it = nameMap.find(o);
 //			if( it != nameMap.end() ) {
 //				n->delOutput(it->first);
 //				n->addOutput(it->second);
 //			}
-		}
+		//}
 
-		for( int i=0; i<n->getInputs().size(); i++ ) {
+		for( size_t i=0; i<n->getInputs().size(); i++ ) {
 			cout << "node " << n->GetId() << " has input " << n->getInputs().at(i) << " in position " << i << endl;
 //			map<CircuitNode *, CircuitNode *>::iterator it = valueMap.find( n->getInputs().at(i) );
 //			if( it != valueMap.end() ) {
@@ -171,8 +171,8 @@ insertMRbetween(CircuitGraph *g, CircuitNode *up, CircuitNode *down)
 
 	// replace the old input to down (up) with the new input (newMR)
 	bool didChange = false;
-	for( int i = 0; i < down->getInputs().size(); i++ ) {
-		if( down->getInputs().at(i) == up->GetId() ) {
+	for( size_t i = 0; i < down->getInputs().size(); i++ ) {
+		if( down->getInputs()[i] == up->GetId() ) {
 			down->setInput(i, newMR->GetId());
 			didChange = true;
 			break;
