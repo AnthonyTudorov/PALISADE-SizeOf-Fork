@@ -261,7 +261,7 @@ public:
 
 		f = p*f;
 
-		f = f + BigBinaryInteger::ONE;
+		f = f + 1;
 
 		f.SwitchFormat();
 
@@ -272,7 +272,7 @@ public:
 			Element temp(dgg, cryptoParams->GetElementParams(), Format::COEFFICIENT);
 			f = temp;
 			f = p*f;
-			f = f + BigBinaryInteger::ONE;
+			f = f + 1;
 			f.SwitchFormat();
 		}
 

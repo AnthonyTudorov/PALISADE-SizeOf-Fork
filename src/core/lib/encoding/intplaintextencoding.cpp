@@ -73,7 +73,7 @@ void IntPlaintextEncoding::doEncode(const BigBinaryInteger &modulus, Element *il
 	}
 
 	for( size_t i=0; i<padlen; i++ ) {
-		temp.SetValAtIndex(i+length, IntType::ZERO);
+		temp.SetValAtIndex(i+length, IntType(0));
 	}
 
 	ilVector->SetValues(temp,format);

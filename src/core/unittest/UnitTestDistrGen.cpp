@@ -163,8 +163,7 @@ TEST(UTDistrGen, DiscreteUniformGenerator_LONG ) {
       BigBinaryVector uniRandVector = dug.GenerateVector(eachIterationSize * noOfIterations);
 	
       for(usint i=0; i<noOfIterations; i++) {
-	sum = BigBinaryInteger::ZERO;
-	mean = BigBinaryInteger::ZERO;
+	sum = mean = BigBinaryInteger(0);
 	for(size_t j=i*eachIterationSize; j<(i+1)*eachIterationSize; j++) {
 	  sum += uniRandVector.GetValAtIndex(j);
 	}
@@ -416,7 +415,7 @@ void testParallelDiscreteUniformGenerator(BigBinaryInteger &modulus, std::string
 	 int32_t sum = 0;
 
 	 for (usint index = 0; index<randBigBinaryVector.GetLength(); index++) {
-		 if (randBigBinaryVector[index] == modulus - BigBinaryInteger::ONE)
+		 if (randBigBinaryVector[index] == modulus - 1)
 			 sum -= 1;
 		 else
 			 sum += randBigBinaryVector[index].ConvertToInt();
@@ -468,7 +467,7 @@ TEST(UTDistrGen, DiscreteGaussianGenerator) {
     sint stdev = 5;
     usint size = 100000;
     BigBinaryInteger modulus("10403");
-    BigBinaryInteger modulusByTwo(modulus.DividedBy(BigBinaryInteger::TWO));
+    BigBinaryInteger modulusByTwo(modulus.DividedBy(2));
     DiscreteGaussianGenerator dgg = lbcrypto::DiscreteGaussianGenerator(stdev);
     BigBinaryVector dggBigBinaryVector = dgg.GenerateVector(size,modulus);
 
@@ -551,7 +550,7 @@ TEST(UTDistrGen, ParallelDiscreteGaussianGenerator_VERY_LONG) {
     sint stdev = 5;
     usint size = 100000;
     BigBinaryInteger modulus("10403");
-    BigBinaryInteger modulusByTwo(modulus.DividedBy(BigBinaryInteger::TWO));
+    BigBinaryInteger modulusByTwo(modulus.DividedBy(2));
     //BigBinaryVector dggBigBinaryVector = dgg.GenerateVector(size,modulus);
     vector<BigBinaryInteger> dggBigBinaryVector;
 #pragma omp parallel // this is executed in parallel

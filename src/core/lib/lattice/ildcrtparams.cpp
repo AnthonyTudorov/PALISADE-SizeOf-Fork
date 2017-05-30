@@ -18,7 +18,7 @@ ILDCRTParams<IntType>::ILDCRTParams(usint order, usint depth, usint bits) : Elem
 		throw std::logic_error("Invalid bits for ILDCRTParams");
 
 	m_parms.resize(depth);
-	this->ciphertextModulus = BigBinaryInteger::ZERO;
+	this->ciphertextModulus = BigBinaryInteger(0);
 
 	native_int::BinaryInteger q = FindPrimeModulus<native_int::BinaryInteger>(order, bits);
 

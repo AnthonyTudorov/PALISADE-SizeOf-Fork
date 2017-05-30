@@ -327,18 +327,18 @@ TEST(UTSHE, keyswitch_sparse_key_SingleCRT_intArray) {
 
 	//ILVector2n::DestroyPreComputedSamples();
 	usint m = 16;
-
+	usint ptm = 2;
 	float stdDev = 4;
 
-	BigBinaryInteger q("1");
+	BigBinaryInteger q(1);
 	BigBinaryInteger temp;
 
-	lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("40"), BigBinaryInteger("4"));
+	lbcrypto::NextQ(q, BigBinaryInteger(ptm), m, BigBinaryInteger(40), BigBinaryInteger(4));
 
 	BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
 	shared_ptr<ILVector2n::Params> params( new ILVector2n::Params(m, q, rootOfUnity) );
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, 2, 1, stdDev);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, ptm, 1, stdDev);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(LEVELEDSHE);
 	cc.Enable(SHE);
@@ -433,7 +433,7 @@ TEST(UTSHE, sparsekeygen_single_crt_encrypt_decrypt) {
 	privateElement.SwitchFormat();
 
 	for (usint i = 1; i < privateElement.GetLength(); i += 2) {
-		EXPECT_EQ(BigBinaryInteger::ZERO, privateElement.GetValAtIndex(i));
+		EXPECT_EQ(BigBinaryInteger(0), privateElement.GetValAtIndex(i));
 	}
 }
 

@@ -192,7 +192,7 @@ public:
 
 	void RecalculateModulus() {
 
-		this->ciphertextModulus = IntType::ONE;
+		this->ciphertextModulus = 1;
 
 		for(usint i = 0; i < m_parms.size(); i++) {
 			this->ciphertextModulus = this->ciphertextModulus * IntType(m_parms[i]->GetModulus().ConvertToInt());
