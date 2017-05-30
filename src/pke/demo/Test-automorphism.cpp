@@ -76,23 +76,23 @@ int main() {
 
 	std::cout << "\n===========LTV TESTS (EVALAUTOMORPHISM)===============: " << std::endl;
 
-	/*PackedIntPlaintextEncoding::Destroy();
+	PackedIntPlaintextEncoding::Destroy();
 	for (usint index = 3; index < 16; index = index + 2)
-		LTVAutomorphismPackedArray(index);*/
+		LTVAutomorphismPackedArray(index);
 
 	std::cout << "\n===========LTV TESTS (EVALAUTOMORPHISM-ARBITRARY)===============: " << std::endl;
 
-	/*PackedIntPlaintextEncoding::Destroy();
-	std::vector<usint> totientList = GetTotientList(m);
+	PackedIntPlaintextEncoding::Destroy();
+	//std::vector<usint> totientList = GetTotientList(m);
 	for (usint index = 1; index < 10; index++) {
 		ArbLTVAutomorphismPackedArray(totientList[index]);
-	}*/
+	}
 
 	std::cout << "\n===========BV TESTS (EVALAUTOMORPHISM)===============: " << std::endl;
 
-	/*PackedIntPlaintextEncoding::Destroy();
+	PackedIntPlaintextEncoding::Destroy();
 	for (usint index = 3; index < 16; index = index + 2)
-		BVAutomorphismPackedArray(index);*/
+		BVAutomorphismPackedArray(index);
 
 	std::cout << "\n===========BV TESTS (EVALAUTOMORPHISM-ARBITRARY)===============: " << std::endl;
 
@@ -297,7 +297,8 @@ void FVAutomorphismPackedArray(usint i) {
 void ArbBVAutomorphismPackedArray(usint i) {
 
 	usint m = 22;
-	usint p = 16787;
+	//usint p = 16787;
+	usint p = 23;
 	BigBinaryInteger modulusP(p);
 	/*BigBinaryInteger modulusQ("577325471560727734926295560417311036005875689");
 	BigBinaryInteger squareRootOfRoot("576597741275581172514290864170674379520285921");*/
