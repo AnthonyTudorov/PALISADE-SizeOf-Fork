@@ -231,7 +231,7 @@ namespace lbcrypto {
 
 		const ModType &GetModulus() const { return m_params->GetModulus(); }
 		
-		const IntType &GetRootOfUnity() const { return IntType::ZERO; }
+		const IntType &GetRootOfUnity() const { static IntType t(0); return t; }
 
 		/**
 		* Get method for length of each vector

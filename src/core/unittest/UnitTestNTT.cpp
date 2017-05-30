@@ -74,8 +74,8 @@ protected:
 TEST(UTNTT, switch_format_simple_single_crt) {
 	usint m1 = 16;
 
-	BigBinaryInteger modulus("1");
-	NextQ(modulus, BigBinaryInteger::TWO, m1, BigBinaryInteger::FOUR, BigBinaryInteger::FOUR);
+	BigBinaryInteger modulus(1);
+	NextQ(modulus, BigBinaryInteger(2), m1, BigBinaryInteger(4), BigBinaryInteger(4));
 	BigBinaryInteger rootOfUnity(RootOfUnity(m1, modulus));
 	ILParams params(m1, modulus, rootOfUnity);
 	ILParams params2(m1 / 2, modulus, rootOfUnity);
@@ -150,7 +150,7 @@ TEST(UTNTT, switch_format_decompose_single_crt) {
 	usint m1 = 16;
 
 	BigBinaryInteger modulus(1);
-	NextQ(modulus, BigBinaryInteger::TWO, m1, BigBinaryInteger::FOUR, BigBinaryInteger::FOUR);
+	NextQ(modulus, BigBinaryInteger(2), m1, BigBinaryInteger(4), BigBinaryInteger(4));
 	BigBinaryInteger rootOfUnity(RootOfUnity(m1, modulus));
 	shared_ptr<ILParams> params( new ILParams(m1, modulus, rootOfUnity) );
 	shared_ptr<ILParams> params2( new ILParams(m1 / 2, modulus, rootOfUnity) );

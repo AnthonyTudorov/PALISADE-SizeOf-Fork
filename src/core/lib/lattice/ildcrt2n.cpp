@@ -234,7 +234,7 @@ namespace lbcrypto {
 		
 		// create an Element to pull from
 		// create a dummy parm to use in the ILVector2n world
-		shared_ptr<ILParams> parm( new ILParams(m_params->GetCyclotomicOrder(), m_params->GetModulus(), BigBinaryInteger::ONE) );
+		shared_ptr<ILParams> parm( new ILParams(m_params->GetCyclotomicOrder(), m_params->GetModulus(), 1) );
 		ILVector2n element( parm );
 		element.SetValues( randVec, m_format );
 
@@ -317,7 +317,7 @@ namespace lbcrypto {
 		for( usint i = 0; i < nWindows; i++ ) {
 			ILVectorArrayType x( m_params, m_format );
 
-			IntType twoPow( IntType::TWO.Exp( i*baseBits ) );
+			IntType twoPow( IntType(2).Exp( i*baseBits ) );
 			for( usint t = 0; t < m_params->GetParams().size(); t++ ) {
 				IntType pI (twoPow % mods[t]);
 				x.m_vectors[t] = m_vectors[t] * pI.ConvertToInt();
@@ -778,7 +778,7 @@ namespace lbcrypto {
 
 		// now, compute the values for the vector
 		for( usint ri = 0; ri < ringDimension; ri++ ) {
-			coefficients[ri] = BigBinaryInteger::ZERO;
+			coefficients[ri] = 0;
 			for( usint vi = 0; vi < nTowers; vi++ ) {
 				coefficients[ri] += (BigBinaryInteger((*vecs)[vi].GetValues()[ri].ConvertToInt()) * multiplier[vi]);
 			}
@@ -796,7 +796,7 @@ namespace lbcrypto {
 		DEBUG("modulus "<< bigModulus);
 
 		// Setting the root of unity to ONE as the calculation is expensive and not required.
-		ILVector2n polynomialReconstructed( shared_ptr<ILParams>( new ILParams(GetCyclotomicOrder(), bigModulus, BigBinaryInteger::ONE) ) );
+		ILVector2n polynomialReconstructed( shared_ptr<ILParams>( new ILParams(GetCyclotomicOrder(), bigModulus, 1) ) );
 		polynomialReconstructed.SetValues(coefficients,COEFFICIENT);
 
 		DEBUG("answer: " << polynomialReconstructed);

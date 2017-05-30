@@ -105,7 +105,7 @@ TEST_F(UTSHEAdvanced, ParameterSelection) {
 	//intializing cryptoparameters alongside variables
 	shared_ptr<ILDCRTParams<BigBinaryInteger>> params(new ILDCRTParams<BigBinaryInteger>(m, moduli, rootsOfUnity));
 	LPCryptoParametersLTV<ILDCRT2n> cryptoParams;
-	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
+	cryptoParams.SetPlaintextModulus(2);
 	cryptoParams.SetDistributionParameter(stdDev);
 	cryptoParams.SetRelinWindow(1);
 	cryptoParams.SetElementParams(params);

@@ -201,7 +201,7 @@ void Matrix<Element>::Determinant(Element *determinant) const {
 				}
 			}
 
-			auto tempDeterminant = *allocZero();
+			auto tempDeterminant( *allocZero() );
 			result.Determinant(&tempDeterminant);
 
 			if (j1 % 2 == 0)
@@ -256,9 +256,8 @@ Matrix<Element> Matrix<Element>::CofactorMatrix() const {
 			}
 
 			/* Calculate the determinant */
-			auto determinant = *allocZero();
+			auto determinant( *allocZero() );
 			c.Determinant(&determinant);
-			//auto determinant = c.Determinant();
 
 			/* Fill in the elements of the cofactor */
 			if ((i + j) % 2 == 0)

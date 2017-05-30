@@ -1109,7 +1109,7 @@ TEST(UTILDCRT2n, getters_and_operators) {
 			native_int::BinaryInteger("6677"), 
 			native_int::BinaryInteger("156")};
 
-	BigBinaryInteger modulus(BigBinaryInteger::ONE);
+	BigBinaryInteger modulus(1);
 	for (usint i = 0; i < towersize; ++i)
 	{
 		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
@@ -1204,7 +1204,7 @@ TEST(UTILDCRT2n, arithmetic_ops_element_2) {
 		native_int::BinaryInteger("6677"), 
 		native_int::BinaryInteger("156")};
 
-	BigBinaryInteger modulus(BigBinaryInteger::ONE);
+	BigBinaryInteger modulus(1);
 	for (usint i = 0; i < towersize; ++i)
 	{
 		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
