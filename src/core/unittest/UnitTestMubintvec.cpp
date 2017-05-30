@@ -215,14 +215,14 @@ TEST(UTmubintvec,ctor_access_eq_neq){
 
   //test Single()
   exp_int::xmubintvec s = exp_int::xmubintvec::Single(exp_int::xubint("3"),exp_int::xubint("5"));//value 3, mod 5
-  EXPECT_EQ(1, s.size()) <<"Failure Single.size()";
+  EXPECT_EQ(1U, s.size()) <<"Failure Single.size()";
   EXPECT_EQ(exp_int::xubint(3), s[0]) <<"Failure Single() value";
 
   // test assignment of single exp_int::xubint (puts it in the 0 the position), zeros
   // out the rest
   //test that the vector is zeroed on init like this.
   exp_int::xmubintvec eqtest(10);
-  EXPECT_EQ ( 10, eqtest.size()) << "Failure create exp_int::xmubintvec of 10 zeros";
+  EXPECT_EQ ( 10U, eqtest.size()) << "Failure create exp_int::xmubintvec of 10 zeros";
 
   for (i = 0; i< eqtest.size(); i++) {
     EXPECT_EQ ( exp_int::xubint(0U), eqtest[i]) << "Failure create exp_int::xmubintvec of zeros";
