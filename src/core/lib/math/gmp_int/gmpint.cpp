@@ -533,4 +533,4 @@ namespace NTL {
 
 } // namespace NTL ends
 
-#endif __linux__
+#endif //__linux__

@@ -422,8 +422,8 @@ namespace NTL{
 
     //Serialization functions
 
-    const std::string Serialize() const;
-    const char * Deserialize(const char * str);
+    const std::string Serialize(const myZZ& mod = myZZ::ZERO) const;
+    const char * Deserialize(const char *cp, const myZZ& modulus = myZZ::ZERO);
 
   private:
     //adapter kits

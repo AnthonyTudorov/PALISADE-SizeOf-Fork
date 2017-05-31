@@ -333,7 +333,7 @@ namespace NTL {
 
   // deserialization of myZZ_p, calls myZZ.Deserialize, 
   // sets modulus to input  modulus. 
-  const char * myZZ_p::Deserialize(const char *cp, myZZ &modulus){
+  const char * myZZ_p::Deserialize(const char *cp, const myZZ &modulus){
     bool dbg_flag = false;
     const char *cpout;
     clear(*this);
