@@ -11,8 +11,8 @@ OMPINCLUDE :=
 
 ifneq ($(wildcard third-party/include), )
   #$(info GMP/NTL directory third-party/include exists)
-  NTLLIB := third-party/lib/libntl.a
-  GMPLIB := third-party/lib/libgmp.a
+  NTLLIB := third-party/lib/libntl.so
+  GMPLIB := third-party/lib/libgmp.so
 else
   #$(info GMP/NTL directory third-party does not exist)
 endif
