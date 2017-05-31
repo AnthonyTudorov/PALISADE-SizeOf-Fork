@@ -37,11 +37,10 @@
  *
  */
 
-
+#ifdef __linux__
 
 #include "../../utils/serializable.h"
 #include "../backend.h"
-#if MATHBACKEND == 6
 
 #include "gmpintvec.h"
 
@@ -353,5 +352,4 @@ namespace NTL {
 
 template class NTL::myVec<NTL::myZZ>; //instantiate template here
 
-
-#endif //MATHBACKEND == 6
+#endif

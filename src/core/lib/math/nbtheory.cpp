@@ -48,16 +48,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <time.h>
 #include <sstream>
 
-//#define DEBUG_NBTHEORY //used to print step by step values in debug mode
-//define DEBUG_ROOTS_OF_UNITY
-
 namespace lbcrypto {
-  //todo: more substitutions here
 
 template BigBinaryInteger RootOfUnity<BigBinaryInteger>(usint m, const BigBinaryInteger& modulo);
 template std::vector<BigBinaryInteger> RootsOfUnity(usint m, const std::vector<BigBinaryInteger> moduli);
 template BigBinaryInteger GreatestCommonDivisor(const BigBinaryInteger& a, const BigBinaryInteger& b);
-  template bool MillerRabinPrimalityTest(const BigBinaryInteger& p, const usint niter);
+template bool MillerRabinPrimalityTest(const BigBinaryInteger& p, const usint niter);
 template const BigBinaryInteger PollardRhoFactorization(const BigBinaryInteger &n);
 template void PrimeFactorize( BigBinaryInteger n, std::set<BigBinaryInteger> &primeFactors);
 template BigBinaryInteger FindPrimeModulus(usint m, usint nBits);
@@ -66,30 +62,21 @@ template BigBinaryVector PolyMod(const BigBinaryVector &dividend, const BigBinar
 template BigBinaryVector PolynomialMultiplication(const BigBinaryVector &a, const BigBinaryVector &b);
 template BigBinaryVector GetCyclotomicPolynomial(usint m, const BigBinaryInteger &modulus);
 
-
 template std::vector<usint> GetTotientList(const usint &n);
-// FIXME the MATH_BACKEND check is a hack and needs to go away
+
 #if MATHBACKEND != 7
-#ifndef NO_MATHBACKEND_7
-template native64::BigBinaryInteger RootOfUnity<native64::BigBinaryInteger>(usint m, const native64::BigBinaryInteger& modulo);
-template std::vector<native64::BigBinaryInteger> RootsOfUnity(usint m, const std::vector<native64::BigBinaryInteger> moduli);
-template native64::BigBinaryInteger GreatestCommonDivisor(const native64::BigBinaryInteger& a, const native64::BigBinaryInteger& b);
-  template bool MillerRabinPrimalityTest(const native64::BigBinaryInteger& p, const usint niter);
-template const native64::BigBinaryInteger PollardRhoFactorization(const native64::BigBinaryInteger &n);
-template void PrimeFactorize( native64::BigBinaryInteger n, std::set<native64::BigBinaryInteger> &primeFactors);
-template native64::BigBinaryInteger FindPrimeModulus(usint m, usint nBits);
-template void NextQ(native64::BigBinaryInteger &q, const native64::BigBinaryInteger &plainTextModulus, const usint cyclotomicOrder, const native64::BigBinaryInteger &sigma, const native64::BigBinaryInteger &alpha);
-//template native64::BigBinaryInteger GetTotient(const native64::BigBinaryInteger &n);
-template std::vector<native64::BigBinaryInteger> GetTotientList(const native64::BigBinaryInteger &n);
-template native64::BigBinaryVector PolyMod(const native64::BigBinaryVector &dividend, const native64::BigBinaryVector &divisor, const native64::BigBinaryInteger &modulus);
-template native64::BigBinaryVector PolynomialMultiplication(const native64::BigBinaryVector &a, const native64::BigBinaryVector &b);
-template native64::BigBinaryVector GetCyclotomicPolynomial(usint m, const native64::BigBinaryInteger &modulus);
-
+template native_int::BinaryInteger RootOfUnity<native_int::BinaryInteger>(usint m, const native_int::BinaryInteger& modulo);
+template std::vector<native_int::BinaryInteger> RootsOfUnity(usint m, const std::vector<native_int::BinaryInteger> moduli);
+template native_int::BinaryInteger GreatestCommonDivisor(const native_int::BinaryInteger& a, const native_int::BinaryInteger& b);
+template bool MillerRabinPrimalityTest(const native_int::BinaryInteger& p, const usint niter);
+template const native_int::BinaryInteger PollardRhoFactorization(const native_int::BinaryInteger &n);
+template void PrimeFactorize( native_int::BinaryInteger n, std::set<native_int::BinaryInteger> &primeFactors);
+template native_int::BinaryInteger FindPrimeModulus(usint m, usint nBits);
+template void NextQ(native_int::BinaryInteger &q, const native_int::BinaryInteger &plainTextModulus, const usint cyclotomicOrder, const native_int::BinaryInteger &sigma, const native_int::BinaryInteger &alpha);
+template native_int::BinaryVector PolyMod(const native_int::BinaryVector &dividend, const native_int::BinaryVector &divisor, const native_int::BinaryInteger &modulus);
+template native_int::BinaryVector PolynomialMultiplication(const native_int::BinaryVector &a, const native_int::BinaryVector &b);
+template native_int::BinaryVector GetCyclotomicPolynomial(usint m, const native_int::BinaryInteger &modulus);
 #endif
-#endif
-}
-
-namespace lbcrypto {
 
 /*
 	Generates a random number between 0 and n.
@@ -688,12 +675,12 @@ IntType NextPowerOfTwo(const IntType &n) {
 
 uint64_t GetTotient(const uint64_t n) {
 
-	std::set<native64::BigBinaryInteger> factors;
-	native64::BigBinaryInteger enn(n);
+	std::set<native_int::BinaryInteger> factors;
+	native_int::BinaryInteger enn(n);
 	PrimeFactorize(enn, factors);
 
-	native64::BigBinaryInteger primeProd(1);
-	native64::BigBinaryInteger numerator(1);
+	native_int::BinaryInteger primeProd(1);
+	native_int::BinaryInteger numerator(1);
 	for (auto &r : factors) {
 		numerator = numerator * (r - 1);
 		primeProd = primeProd * r;

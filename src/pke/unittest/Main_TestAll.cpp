@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include "../../core/lib/lattice/ildcrt2n.h"
 #include "include/gtest/gtest.h"
 
 
@@ -12,7 +13,6 @@
 #include "lattice/ilelement.h"
 #include "math/distrgen.h"
 #include "lattice/ilvector2n.h"
-#include "lattice/ilvectorarray2n.h"
 #include "utils/utilities.h"
 
 using namespace std;

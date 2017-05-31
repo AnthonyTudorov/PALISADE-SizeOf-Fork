@@ -272,11 +272,6 @@ void PRESimulation(usint count, usint dataset){
 
 	ofstream fout;
 
-	#if MATHBACKEND == 1
-		fout.open("singlepreperformance_m_" + std::to_string(data[i].m) + "_d_" + std::to_string(data[i].depth) + 
-			"_r_" + std::to_string(data[i].relinWindow) + "_len_" + std::to_string(data[i].bitLength) + 
-			"_BBIBITLENGTH_" + std::to_string(cpu8bit::BIT_LENGTH) +  ".txt");
-	#endif
 	#if MATHBACKEND == 2
 		fout.open("singlepreperformance_m_" + std::to_string(data[i].m) + "_d_" + std::to_string(data[i].depth) + 
 			"_r_" + std::to_string(data[i].relinWindow) + "_len_" + std::to_string(data[i].bitLength) + 

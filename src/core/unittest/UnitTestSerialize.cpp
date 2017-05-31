@@ -28,6 +28,7 @@
 #include "include/gtest/gtest.h"
 #include <iostream>
 
+#include "../lib/lattice/ildcrt2n.h"
 #include "math/backend.h"
 #include "math/nbtheory.h"
 #include "math/distrgen.h"
@@ -36,7 +37,6 @@
 #include "lattice/ildcrtparams.h"
 #include "lattice/ilelement.h"
 #include "lattice/ilvector2n.h"
-#include "lattice/ilvectorarray2n.h"
 #include "utils/inttypes.h"
 #include "utils/utilities.h"
 #include "utils/parmfactory.h"
@@ -88,12 +88,12 @@ TEST(UTSer,cpu_int){
 }
 
 TEST(UTSer,native_int){
-	native64::BigBinaryInteger small(7);
-	native64::BigBinaryInteger medium(1ULL<<27 | 1ULL<<22);
-	native64::BigBinaryInteger larger(1ULL<<40 | 1ULL<<22);
+	native_int::BinaryInteger small(7);
+	native_int::BinaryInteger medium(1ULL<<27 | 1ULL<<22);
+	native_int::BinaryInteger larger(1ULL<<40 | 1ULL<<22);
 
 	string ser;
-	native64::BigBinaryInteger deser;
+	native_int::BinaryInteger deser;
 
 	ser = small.Serialize();
 	deser.Deserialize(ser.c_str());
@@ -141,11 +141,11 @@ TEST(UTSer,vector_of_cpu_int){
 
 TEST(UTSer,vector_of_native_int){
 	const int vecsize = 100;
-	const native64::BigBinaryInteger mod((uint64_t)1<<40);
-	native64::BigBinaryVector	testvec(vecsize, mod);
-	native64::ILVector2n::DugType	dug;
+	const native_int::BinaryInteger mod((uint64_t)1<<40);
+	native_int::BinaryVector	testvec(vecsize, mod);
+	native_int::ILVector2n::DugType	dug;
 	dug.SetModulus(mod);
-	native64::BigBinaryInteger ranval;
+	native_int::BinaryInteger ranval;
 
 	for( int i=0; i<vecsize; i++ ) {
 		ranval = dug.GenerateInteger();
@@ -156,7 +156,7 @@ TEST(UTSer,vector_of_native_int){
 	ser.SetObject();
 	ASSERT_TRUE( testvec.Serialize(&ser) ) << "Serialization failed";
 
-	native64::BigBinaryVector newvec;
+	native_int::BinaryVector newvec;
 	ASSERT_TRUE( newvec.Deserialize(ser) ) << "Deserialization failed";
 
 	EXPECT_EQ( testvec, newvec ) << "Mismatch after ser/deser";
@@ -176,12 +176,12 @@ TEST(UTSer,ilparams_test) {
 
 
 TEST(UTSer,ildcrtparams_test) {
-	shared_ptr<ILVectorArray2n::Params> p = GenerateDCRTParams(1024, 64, 5, 40);
+	shared_ptr<ILDCRTParams<BigBinaryInteger>> p = GenerateDCRTParams(1024, 64, 5, 40);
 	Serialized ser;
 	ser.SetObject();
 	ASSERT_TRUE( p->Serialize(&ser) ) << "Serialization failed";
 
-	ILVectorArray2n::Params newp;
+	ILDCRT2n::Params newp;
 	ASSERT_TRUE( newp.Deserialize(ser) ) << "Deserialization failed";
 
 	EXPECT_EQ( *p, newp ) << "Mismatch after ser/deser";
@@ -204,15 +204,15 @@ TEST(UTSer,ilvector_test) {
 }
 
 TEST(UTSer,ilvectorarray_test) {
-	shared_ptr<ILVectorArray2n::Params> p = GenerateDCRTParams(1024, 64, 5, 40);
-	ILVectorArray2n::DugType dug;
-	ILVectorArray2n vec(dug, p);
+	shared_ptr<ILDCRTParams<BigBinaryInteger>> p = GenerateDCRTParams(1024, 64, 5, 40);
+	ILDCRT2n::DugType dug;
+	ILDCRT2n vec(dug, p);
 
 	Serialized ser;
 	ser.SetObject();
 	ASSERT_TRUE( vec.Serialize(&ser) ) << "Serialization failed";
 
-	ILVectorArray2n newvec;
+	ILDCRT2n newvec;
 	ASSERT_TRUE( newvec.Deserialize(ser) ) << "Deserialization failed";
 
 	EXPECT_EQ( vec, newvec ) << "Mismatch after ser/deser";

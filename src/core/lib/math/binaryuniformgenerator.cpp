@@ -8,7 +8,7 @@ std::bernoulli_distribution BinaryUniformGeneratorImpl<IntType,VecType>::m_distr
 
 template<typename IntType, typename VecType>
 IntType BinaryUniformGeneratorImpl<IntType,VecType>::GenerateInteger () const {
-	return (m_distribution(PseudoRandomNumberGenerator::GetPRNG()) ? IntType(IntType::ONE) : IntType(IntType::ZERO));
+	return (m_distribution(PseudoRandomNumberGenerator::GetPRNG()) ? IntType(1) : IntType(0));
 }
 
 template<typename IntType, typename VecType>

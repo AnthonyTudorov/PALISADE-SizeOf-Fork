@@ -26,6 +26,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "include/gtest/gtest.h"
 #include <iostream>
 
+#include "../lib/lattice/ildcrt2n.h"
 #include "math/backend.h"
 #include "utils/inttypes.h"
 #include "math/nbtheory.h"
@@ -35,7 +36,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "lattice/ilelement.h"
 #include "math/distrgen.h"
 #include "lattice/ilvector2n.h"
-#include "lattice/ilvectorarray2n.h"
 #include "utils/utilities.h"
 #include "utils/debug.h"
 

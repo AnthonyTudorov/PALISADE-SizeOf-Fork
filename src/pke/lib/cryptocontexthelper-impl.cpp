@@ -214,10 +214,10 @@ CryptoContextHelper::matchContextToSerialization(const CryptoContext<ILVector2n>
 }
 
 bool
-CryptoContextHelper::matchContextToSerialization(const CryptoContext<ILVectorArray2n> cc, const Serialized& ser)
+CryptoContextHelper::matchContextToSerialization(const CryptoContext<ILDCRT2n> cc, const Serialized& ser)
 {
-	shared_ptr<LPCryptoParameters<ILVectorArray2n>> ctxParams = cc.GetCryptoParameters();
-	shared_ptr<LPCryptoParameters<ILVectorArray2n>> cParams = DeserializeCryptoParameters<ILVectorArray2n>(ser);
+	shared_ptr<LPCryptoParameters<ILDCRT2n>> ctxParams = cc.GetCryptoParameters();
+	shared_ptr<LPCryptoParameters<ILDCRT2n>> cParams = DeserializeCryptoParameters<ILDCRT2n>(ser);
 
 	if( !cParams ) return false;
 
@@ -260,7 +260,7 @@ CryptoContextHelper::getNewContext(const string& parmset)
 	return buildContextFromSerialized<ILVector2n>(it->second, parms);
 }
 
-CryptoContext<ILVectorArray2n>
+CryptoContext<ILDCRT2n>
 CryptoContextHelper::getNewDCRTContext(const string& parmset, usint numTowers, usint primeBits)
 {
 	std::string parmtype;
@@ -279,7 +279,7 @@ CryptoContextHelper::getNewDCRTContext(const string& parmset, usint numTowers, u
 	}
 
 	// FV uses parm generation so we skip this code for FV
-	shared_ptr<ILVectorArray2n::Params> parms;
+	shared_ptr<ILDCRT2n::Params> parms;
 	if( parmtype != "FV" ) {
 		if( !getValueForName(it->second, "ring", ring) ||
 				!getValueForName(it->second, "plaintextModulus", plaintextModulus) ) {
@@ -289,7 +289,7 @@ CryptoContextHelper::getNewDCRTContext(const string& parmset, usint numTowers, u
 		parms = GenerateDCRTParams(stoul(ring), stoul(plaintextModulus), numTowers, primeBits);
 
 	}
-	return buildContextFromSerialized<ILVectorArray2n>(it->second, parms);
+	return buildContextFromSerialized<ILDCRT2n>(it->second, parms);
 }
 
 

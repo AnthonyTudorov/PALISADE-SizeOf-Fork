@@ -134,11 +134,10 @@ namespace NTL{
 
  
 
-    // operator=
-    inline myZZ_p& operator=(const char * s) {this->_ZZ_p__rep=conv<ZZ>(s);}
-    inline myZZ_p& operator=(int a) {this->_ZZ_p__rep=conv<ZZ>(a);}
 
-
+   
+    inline myZZ_p& operator=(const char * s) {this->_ZZ_p__rep=conv<ZZ>(s); return *this;}
+    inline myZZ_p& operator=(int a) {this->_ZZ_p__rep=conv<ZZ>(a); return *this;}
 
     //myZZ_p( ZZ_p && zzin) : ZZ_p(zzin), m_MSB(5){};
 #if 0
@@ -423,8 +422,8 @@ namespace NTL{
 
     //Serialization functions
 
-    const std::string Serialize(const myZZ &modulus) const;
-    const char * Deserialize(const char * str, myZZ &modulus);
+    const std::string Serialize() const;
+    const char * Deserialize(const char * str);
 
   private:
     //adapter kits

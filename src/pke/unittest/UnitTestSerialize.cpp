@@ -56,8 +56,8 @@ static CryptoContext<ILVector2n> GenerateTestCryptoContext(const string& parmset
 	return cc;
 }
 
-static CryptoContext<ILVectorArray2n> GenerateTestDCRTCryptoContext(const string& parmsetName, usint nTower, usint pbits) {
-	CryptoContext<ILVectorArray2n> cc = CryptoContextHelper::getNewDCRTContext(parmsetName, nTower, pbits);
+static CryptoContext<ILDCRT2n> GenerateTestDCRTCryptoContext(const string& parmsetName, usint nTower, usint pbits) {
+	CryptoContext<ILDCRT2n> cc = CryptoContextHelper::getNewDCRTContext(parmsetName, nTower, pbits);
 	cc.Enable(ENCRYPTION);
 	return cc;
 }
@@ -81,8 +81,8 @@ TEST(UTPKESer, LTV_ILVector2n_Serial) {
 }
 
 TEST(UTPKESer, LTV_ILVectorArray2n_Serial) {
-	CryptoContext<ILVectorArray2n> cc = GenerateTestDCRTCryptoContext("LTV5", 3, 20);
-	UnitTestContext<ILVectorArray2n>(cc);
+	CryptoContext<ILDCRT2n> cc = GenerateTestDCRTCryptoContext("LTV5", 3, 20);
+	UnitTestContext<ILDCRT2n>(cc);
 }
 
 TEST(UTPKESer, StSt_ILVector2n_Serial) {
@@ -91,8 +91,8 @@ TEST(UTPKESer, StSt_ILVector2n_Serial) {
 }
 
 TEST(UTPKESer, StSt_ILVectorArray2n_Serial) {
-	CryptoContext<ILVectorArray2n> cc = GenerateTestDCRTCryptoContext("StSt6", 3, 20);
-	UnitTestContext<ILVectorArray2n>(cc);
+	CryptoContext<ILDCRT2n> cc = GenerateTestDCRTCryptoContext("StSt6", 3, 20);
+	UnitTestContext<ILDCRT2n>(cc);
 }
 
 TEST(UTPKESer, BV_ILVector2n_Serial) {
@@ -101,8 +101,8 @@ TEST(UTPKESer, BV_ILVector2n_Serial) {
 }
 
 TEST(UTPKESer, BV_ILVectorArray2n_Serial) {
-	CryptoContext<ILVectorArray2n> cc = GenerateTestDCRTCryptoContext("BV2", 3, 20);
-	UnitTestContext<ILVectorArray2n>(cc);
+	CryptoContext<ILDCRT2n> cc = GenerateTestDCRTCryptoContext("BV2", 3, 20);
+	UnitTestContext<ILDCRT2n>(cc);
 }
 
 TEST(UTPKESer, Null_ILVector2n_Serial) {
@@ -111,8 +111,8 @@ TEST(UTPKESer, Null_ILVector2n_Serial) {
 }
 
 TEST(UTPKESer, Null_ILVectorArray2n_Serial) {
-	CryptoContext<ILVectorArray2n> cc = GenerateTestDCRTCryptoContext("Null", 3, 20);
-	UnitTestContext<ILVectorArray2n>(cc);
+	CryptoContext<ILDCRT2n> cc = GenerateTestDCRTCryptoContext("Null", 3, 20);
+	UnitTestContext<ILDCRT2n>(cc);
 }
 
 TEST(UTPKESer, FV_ILVector2n_Serial) {
@@ -121,8 +121,8 @@ TEST(UTPKESer, FV_ILVector2n_Serial) {
 }
 
 //TEST(UTPKESer, FV_ILVectorArray2n_Serial) {
-//	CryptoContext<ILVectorArray2n> cc = GenerateTestDCRTCryptoContext("FV2", 3, 20);
-//	UnitTestContext<ILVectorArray2n>(cc);
+//	CryptoContext<ILDCRT2n> cc = GenerateTestDCRTCryptoContext("FV2", 3, 20);
+//	UnitTestContext<ILDCRT2n>(cc);
 //}
 
 // REMAINDER OF THE TESTS USE LTV AS A REPRESENTITIVE CONTEXT

@@ -11,10 +11,8 @@ OMPINCLUDE :=
 
 ifneq ($(wildcard third-party/include), )
   #$(info GMP/NTL directory third-party/include exists)
-  NTLINCLUDE := -I third-party/include
-  GMPINCLUDE := -I third-party/include
-  NTLLIB := third-party/lib/libntl.a
-  GMPLIB := third-party/lib/libgmp.a
+  NTLLIB := third-party/lib/libntl.so
+  GMPLIB := third-party/lib/libgmp.so
 else
   #$(info GMP/NTL directory third-party does not exist)
 endif
@@ -36,3 +34,4 @@ LIBPYTHON := -lpython2.7
 
 COMPTHREADFLAG := -pthread
 LOADTHREADFLAG := -pthread
+

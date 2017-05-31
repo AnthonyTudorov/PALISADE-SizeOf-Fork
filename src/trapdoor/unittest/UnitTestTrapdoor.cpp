@@ -399,8 +399,6 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 
 	auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
 
-	auto singleAlloc = [=]() { return make_unique<BigBinaryVector>(1, modulus); };
-
 	//Do perturbation sampling
 	RingMat pHat(zero_alloc, k + 2, 1);
 

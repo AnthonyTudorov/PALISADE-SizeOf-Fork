@@ -68,7 +68,7 @@ namespace lbcrypto {
 
 		//BigBinaryInteger Num = modulus - BigBinaryInteger::ONE;
 		for (size_t i = 0; i<padlen; i++) {
-			temp.SetValAtIndex(i + length, BigBinaryInteger::ZERO);
+			temp.SetValAtIndex(i + length, BigBinaryInteger(0));
 		}
 
 		ilVector->SetValues(temp, Format::EVALUATION); //output was in coefficient format
@@ -95,10 +95,10 @@ namespace lbcrypto {
 
 	void PackedIntPlaintextEncoding::Destroy()
 	{
-		initRoot = BigBinaryInteger::ZERO;
+		initRoot = BigBinaryInteger(0);
 		rootOfUnityTable.clear();
-		bigMod = BigBinaryInteger::ZERO;
-		bigRoot = BigBinaryInteger::ZERO;
+		bigMod = BigBinaryInteger(0);
+		bigRoot = BigBinaryInteger(0);
 	}
 
 	void PackedIntPlaintextEncoding::Pack(ILVector2n *ring, const BigBinaryInteger &modulus) const {

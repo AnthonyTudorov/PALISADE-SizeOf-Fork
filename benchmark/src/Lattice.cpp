@@ -37,7 +37,7 @@
 #include "lattice/ilelement.h"
 #include "math/distrgen.h"
 #include "lattice/ilvector2n.h"
-#include "lattice/ilvectorarray2n.h"
+#include "../../src/core/lib/lattice/ildcrt2n.h"
 #include "utils/utilities.h"
 
 #include <vector>
@@ -75,31 +75,31 @@ static shared_ptr<ILParams> generate_IL_parms(int s) {
 
 static const usint smbits = 28;
 
-static shared_ptr<ILDCRTParams> generate_DCRT_parms(int s) {
+static shared_ptr<ILDCRTParams<BigBinaryInteger>> generate_DCRT_parms(int s) {
 	usint nTowers = Scenarios[s].bits/smbits;
 
-	vector<native64::BigBinaryInteger> moduli(nTowers);
+	vector<native_int::BinaryInteger> moduli(nTowers);
 
-	vector<native64::BigBinaryInteger> rootsOfUnity(nTowers);
+	vector<native_int::BinaryInteger> rootsOfUnity(nTowers);
 
-	native64::BigBinaryInteger q( (1<<smbits) -1 );
-	native64::BigBinaryInteger temp;
+	native_int::BinaryInteger q( (1<<smbits) -1 );
+	native_int::BinaryInteger temp;
 	BigBinaryInteger modulus(1);
 
 	for(int i=0; i < nTowers; i++){
-		lbcrypto::NextQ(q, native64::BigBinaryInteger::TWO, Scenarios[s].m, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
+		lbcrypto::NextQ(q, native_int::BinaryInteger::TWO, Scenarios[s].m, native_int::BinaryInteger("4"), native_int::BinaryInteger("4"));
 		moduli[i] = q;
 		rootsOfUnity[i] = RootOfUnity(Scenarios[s].m,moduli[i]);
 		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
 
 	}
 
-	return shared_ptr<ILDCRTParams>( new ILDCRTParams(Scenarios[s].m, moduli, rootsOfUnity) );
+	return shared_ptr<ILDCRTParams<BigBinaryInteger>>( new ILDCRTParams<BigBinaryInteger>(Scenarios[s].m, moduli, rootsOfUnity) );
 }
 
 // statically construct 'em
 vector<shared_ptr<ILParams>> vparms = { generate_IL_parms(0), generate_IL_parms(1) };
-vector<shared_ptr<ILDCRTParams>> vaparms = { generate_DCRT_parms(0), generate_DCRT_parms(1) };
+vector<shared_ptr<ILDCRTParams<BigBinaryInteger>>> vaparms = { generate_DCRT_parms(0), generate_DCRT_parms(1) };
 
 template <class E>
 static void make_LATTICE_empty(shared_ptr<typename E::Params>& params) {
@@ -128,7 +128,7 @@ static E makeElement(shared_ptr<ILParams> params) {
 }
 
 template <class E>
-static E makeElement(shared_ptr<ILDCRTParams> p) {
+static E makeElement(shared_ptr<ILDCRTParams<BigBinaryInteger>> p) {
 	shared_ptr<ILParams> params( new ILParams( p->GetCyclotomicOrder(), p->GetModulus(), BigBinaryInteger::ONE) );
 	BigBinaryVector vec = makeVector(params);
 
@@ -144,9 +144,9 @@ vector<ILVector2n> vectors[] = {
 		{ makeElement<ILVector2n>(vparms[1]), makeElement<ILVector2n>(vparms[1]) },
 };
 
-vector<ILVectorArray2n> avectors[] = {
-		{ makeElement<ILVectorArray2n>(vaparms[0]), makeElement<ILVectorArray2n>(vaparms[0]) },
-		{ makeElement<ILVectorArray2n>(vaparms[1]), makeElement<ILVectorArray2n>(vaparms[1]) },
+vector<ILDCRT2n> avectors[] = {
+		{ makeElement<ILDCRT2n>(vaparms[0]), makeElement<ILDCRT2n>(vaparms[0]) },
+		{ makeElement<ILDCRT2n>(vaparms[1]), makeElement<ILDCRT2n>(vaparms[1]) },
 };
 
 // make variables
@@ -205,15 +205,15 @@ void BM_add_LATTICEARRAY(benchmark::State& state) { // benchmark
 	}
 	else {
 		while (state.KeepRunning()) {
-			ILVectorArray2n sum = avectors[state.range(1)][0] + avectors[state.range(1)][1];
+			ILDCRT2n sum = avectors[state.range(1)][0] + avectors[state.range(1)][1];
 		}
 	}
 }
 
 BENCHMARK(BM_add_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("ILVector2n/scenario")->Args({0,0});
 BENCHMARK(BM_add_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("ILVector2n/scenario")->Args({0,1});
-BENCHMARK(BM_add_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("ILVectorArray2n/scenario")->Args({1,0});
-BENCHMARK(BM_add_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("ILVectorArray2n/scenario")->Args({1,1});
+BENCHMARK(BM_add_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("ILDCRT2n/scenario")->Args({1,0});
+BENCHMARK(BM_add_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("ILDCRT2n/scenario")->Args({1,1});
 
 template <class E>
 static void mult_LATTICE(benchmark::State& state, shared_ptr<typename E::Params>& params) {	// function
@@ -250,15 +250,15 @@ void BM_mult_LATTICEARRAY(benchmark::State& state) { // benchmark
 	}
 	else {
 		while (state.KeepRunning()) {
-			ILVectorArray2n sum = avectors[state.range(1)][0] * avectors[state.range(1)][1];
+			ILDCRT2n sum = avectors[state.range(1)][0] * avectors[state.range(1)][1];
 		}
 	}
 }
 
 BENCHMARK(BM_mult_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("ILVector2n/scenario")->Args({0,0});
 BENCHMARK(BM_mult_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("ILVector2n/scenario")->Args({0,1});
-BENCHMARK(BM_mult_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("ILVectorArray2n/scenario")->Args({1,0});
-BENCHMARK(BM_mult_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("ILVectorArray2n/scenario")->Args({1,1});
+BENCHMARK(BM_mult_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("ILDCRT2n/scenario")->Args({1,0});
+BENCHMARK(BM_mult_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("ILDCRT2n/scenario")->Args({1,1});
 
 template <class E>
 static void switchformat_LATTICE(benchmark::State& state, shared_ptr<typename E::Params>& params) {

@@ -142,7 +142,7 @@ CryptoContextFactory<T>::genCryptoContextFV(
 	if( nonZeroCount > 1 )
 		throw std::logic_error("only one of (numAdds,numMults,numKeyswitches) can be nonzero in FV context constructor");
 
-	shared_ptr<typename T::Params> ep( new typename T::Params(0, BigBinaryInteger::ZERO, BigBinaryInteger::ZERO) );
+	shared_ptr<typename T::Params> ep( new typename T::Params(0, BigBinaryInteger(0), BigBinaryInteger(0)) );
 
 	shared_ptr<LPCryptoParametersFV<T>> params( new LPCryptoParametersFV<T>() );
 

@@ -1,5 +1,6 @@
 #Makefile to build and install ntl in palisade
 
+TAR ?= tar
 
 #note change the following directory to the correct one on your install
 
@@ -37,12 +38,12 @@ clean: clean_ntl
 ntl_unpack: 
 	@echo 'Unpacking ntl for Palisade into $(NTL_DISTRO_DIR)'
 	cd $(DISTROS_DIR);\
-	tar xf ./ntl-$(NTL_VER).tar.gz
+	$(TAR) xf ./ntl-$(NTL_VER).tar.gz
 
 ntl_config:
 	@echo 'Configuring ntl for Palisade in $(NTL_DISTRO_DIR)'
 	cd $(NTL_DISTRO_DIR); \
-	./configure PREFIX=$(THIRD_PARTY_DIR) GMP_PREFIX=$(THIRD_PARTY_DIR) NTL_THREADS=on NTL_THREAD_BOOST=on NTL_EXCEPTIONS=on
+	./configure PREFIX=$(THIRD_PARTY_DIR) GMP_PREFIX=$(THIRD_PARTY_DIR) NTL_THREADS=on NTL_THREAD_BOOST=on NTL_EXCEPTIONS=on SHARED=on
 
 ntl_make:
 	@echo 'making ntl for Palisade in $(NTL_DISTRO_DIR)'

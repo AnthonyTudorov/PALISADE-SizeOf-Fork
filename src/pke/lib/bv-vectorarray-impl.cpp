@@ -9,7 +9,7 @@
 #include "bv.cpp"
 
 namespace lbcrypto {
-template class LPCryptoParametersBV<ILVectorArray2n>;
-template class LPPublicKeyEncryptionSchemeBV<ILVectorArray2n>;
-template class LPAlgorithmBV<ILVectorArray2n>;
+template class LPCryptoParametersBV<ILDCRT2n>;
+template class LPPublicKeyEncryptionSchemeBV<ILDCRT2n>;
+template class LPAlgorithmBV<ILDCRT2n>;
 }

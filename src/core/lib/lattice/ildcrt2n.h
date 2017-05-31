@@ -28,7 +28,7 @@
 *
 * @section DESCRIPTION
 *
-* On a high level, ILVectorArray2n stands for: IL = Ideal Lattice, ILVectorArray= An array of ILVector2n's, 2n = power of two cyclotomic. 
+* On a high level, ILDCRT2n stands for: IL = Ideal Lattice, ILVectorArray= An array of ILVector2n's, 2n = power of two cyclotomic. 
 * for more information on ideal lattices please see here: 10.1007/978-3-540-88702-7_5
 *
 * This class provides a data structure for polynomial rings modulus a power of two cyclotomic order polynomial in double-CRT (Chinese remainder transform) format. The class
@@ -37,14 +37,14 @@
 * of the matrix is called a tower and is composed of an ILVector2n. 
 * The purpose of having an array of ILVector2n's is to gain performance. A polynomial represented in ILVector2n with a large modulus and large coefficients,
 * can be broken down into ILVector2ns with lower moduli and lower coefficients. The multiplication of the moduli must equal to the original large modulus. 
-* It is possible to go from an ILVectorArray2n representation of a polynomial to an ILVector2n representation via the Chinese Remainder Transform Interpolation. 
+* It is possible to go from an ILDCRT2n representation of a polynomial to an ILVector2n representation via the Chinese Remainder Transform Interpolation. 
 * The function in this class that achieves this is the InterpolateILVectorArray2n function.
 * The term ring dimension will be used throughout this code. Ring dimension in this class would refer to the size of each tower (as in how many elements the Vector
 * of it's corresponding ILVector2n holds). In the special case of this data structure (power of two cyclotomic order), the ring dimension is half the cyclotomic order.
 * 
 * This class has three private members: 
 * std::vector<ILVector2n> m_vectors: This holds the towers
-* Format m_format; The format of the ILVectorArray2n, which is either in coefficient or evaluation (CRT) format.
+* Format m_format; The format of the ILDCRT2n, which is either in coefficient or evaluation (CRT) format.
 *
 * The crypto layer code of the library is where this data structure can be utilized. 
 *
@@ -75,21 +75,21 @@ namespace lbcrypto {
 	* The
 	*/
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	class ILVectorArrayImpl : public ILElement< ILVectorArrayImpl<ModType,IntType,VecType,ParmType>,ModType,IntType,VecType>
+	class ILDCRTImpl : public ILElement< ILDCRTImpl<ModType,IntType,VecType,ParmType>,ModType,IntType,VecType>
 	{
 	public:
 		typedef ParmType Params;
 		typedef IntType Integer;
 		typedef VecType Vector;
 
-		typedef ILVectorArrayImpl<ModType,IntType,VecType,ParmType> ILVectorArrayType;
-		typedef DiscreteGaussianGeneratorImpl<native64::BigBinaryInteger,native64::BigBinaryVector> DggType;
-		typedef DiscreteUniformGeneratorImpl<native64::BigBinaryInteger,native64::BigBinaryVector> DugType;
-		typedef TernaryUniformGeneratorImpl<native64::BigBinaryInteger,native64::BigBinaryVector> TugType;
-		typedef BinaryUniformGeneratorImpl<native64::BigBinaryInteger,native64::BigBinaryVector> BugType;
+		typedef ILDCRTImpl<ModType,IntType,VecType,ParmType> ILVectorArrayType;
+		typedef DiscreteGaussianGeneratorImpl<native_int::BinaryInteger,native_int::BinaryVector> DggType;
+		typedef DiscreteUniformGeneratorImpl<native_int::BinaryInteger,native_int::BinaryVector> DugType;
+		typedef TernaryUniformGeneratorImpl<native_int::BinaryInteger,native_int::BinaryVector> TugType;
+		typedef BinaryUniformGeneratorImpl<native_int::BinaryInteger,native_int::BinaryVector> BugType;
 
 		// this class contains an array of these:
-		typedef ILVectorImpl<native64::BigBinaryInteger,native64::BigBinaryInteger,native64::BigBinaryVector,native64::ILParams> ILVectorType;
+		typedef ILVectorImpl<native_int::BinaryInteger,native_int::BinaryInteger,native_int::BinaryVector,native_int::ILParams> ILVectorType;
 		typedef ILVectorImpl<ModType,IntType,VecType,ILParams> ILVectorLargeType;
 
 		static const std::string GetElementName() { return "ILDCRTImpl"; }
@@ -99,16 +99,16 @@ namespace lbcrypto {
 		/**
 		* Constructor that initialized m_format to EVALUATION and calls m_params to nothing
 		*/
-		ILVectorArrayImpl();
+		ILDCRTImpl();
 		
 		/**
 		* Constructor that initializes parameters.
 		*
-		*@param params parameter set required for ILVectorArray2n.
+		*@param params parameter set required for ILDCRT2n.
 		*@param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*@param initializeElementToZero
 		*/
-		ILVectorArrayImpl(const shared_ptr<ParmType> params, Format format = EVALUATION, bool initializeElementToZero = false);
+		ILDCRTImpl(const shared_ptr<ParmType> params, Format format = EVALUATION, bool initializeElementToZero = false);
 
 		// FIXME should be private?
 		void fillVectorArrayFromBigVector(const ILVector2n& element, const shared_ptr<ParmType> params);
@@ -116,32 +116,32 @@ namespace lbcrypto {
 		/**
 		* Constructor based on discrete Gaussian generator. 
 		*
-		* @param &dgg the input discrete Gaussian generator. The dgg will be the seed to populate the towers of the ILVectorArray2n with random numbers.
-		* @param params parameter set required for ILVectorArray2n. 
+		* @param &dgg the input discrete Gaussian generator. The dgg will be the seed to populate the towers of the ILDCRT2n with random numbers.
+		* @param params parameter set required for ILDCRT2n. 
 		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
-		ILVectorArrayImpl(const DggType &dgg, const shared_ptr<ParmType> params, Format format = EVALUATION);
+		ILDCRTImpl(const DggType &dgg, const shared_ptr<ParmType> params, Format format = EVALUATION);
 
 		/**
 		* Constructor based on binary Gaussian generator. This is not implemented. Will throw a logic_error.
 		*
-		* @param &bug the input binary uniform generator. The bug will be the seed to populate the towers of the ILVectorArray2n with random numbers.
-		* @param params parameter set required for ILVectorArray2n.
+		* @param &bug the input binary uniform generator. The bug will be the seed to populate the towers of the ILDCRT2n with random numbers.
+		* @param params parameter set required for ILDCRT2n.
 		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
-		ILVectorArrayImpl(const BugType &bug, const shared_ptr<ParmType> params, Format format = EVALUATION) {
-			throw std::logic_error("Cannot use BinaryUniformGenerator with ILVectorArray2n; not implemented");
+		ILDCRTImpl(const BugType &bug, const shared_ptr<ParmType> params, Format format = EVALUATION) {
+			throw std::logic_error("Cannot use BinaryUniformGenerator with ILDCRT2n; not implemented");
 		}
 
 		/**
 		* Constructor based on binary Gaussian generator. This is not implemented. Will throw a logic_error.
 		*
-		* @param &tug the input ternary uniform generator. The bug will be the seed to populate the towers of the ILVectorArray2n with random numbers.
-		* @param params parameter set required for ILVectorArray2n.
+		* @param &tug the input ternary uniform generator. The bug will be the seed to populate the towers of the ILDCRT2n with random numbers.
+		* @param params parameter set required for ILDCRT2n.
 		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
-		ILVectorArrayImpl(const TugType &tug, const shared_ptr<ParmType> params, Format format = EVALUATION) {
-			throw std::logic_error("Cannot use TernaryUniformGenerator with ILVectorArray2n; not implemented");
+		ILDCRTImpl(const TugType &tug, const shared_ptr<ParmType> params, Format format = EVALUATION) {
+			throw std::logic_error("Cannot use TernaryUniformGenerator with ILDCRT2n; not implemented");
 		}
 
 		/**
@@ -151,63 +151,63 @@ namespace lbcrypto {
 		* @param params the input params.
 		* @param &format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
-		ILVectorArrayImpl(DugType &dug, const shared_ptr<ParmType> params, Format format = EVALUATION);
+		ILDCRTImpl(DugType &dug, const shared_ptr<ParmType> params, Format format = EVALUATION);
 
 		/**
 		* Construct using a single ILVector2n. The ILVector2n is copied into every tower. Each tower will be reduced to it's corresponding modulus  via GetModuli(at tower index). The format is derived from the passed in ILVector2n. 
 		*
 		* @param &element ILVector2n to build other towers from.
-		* @param params parameter set required for ILVectorArray2n.
+		* @param params parameter set required for ILDCRT2n.
 		*/
-		ILVectorArrayImpl(const ILVector2n &element, const shared_ptr<ParmType> params);
+		ILDCRTImpl(const ILVector2n &element, const shared_ptr<ParmType> params);
 
 		/**
-		* Construct using an tower of ILVectro2ns. The params and format for the ILVectorArray2n will be derived from the towers.
+		* Construct using an tower of ILVectro2ns. The params and format for the ILDCRT2n will be derived from the towers.
 		*
-		* @param &towers vector of ILVector2ns which correspond to each tower of ILVectorArray2n.
+		* @param &towers vector of ILVector2ns which correspond to each tower of ILDCRT2n.
 		*/
-		ILVectorArrayImpl(const std::vector<ILVectorType> &elements);
+		ILDCRTImpl(const std::vector<ILVectorType> &elements);
 
 		/**
 		* Copy constructor.
 		*
-		* @param &element ILVectorArray2n to copy from
+		* @param &element ILDCRT2n to copy from
 		*/
-		ILVectorArrayImpl(const ILVectorArrayType &element);
+		ILDCRTImpl(const ILVectorArrayType &element);
 
 		/**
 		* Move constructor.
 		*
-		* @param &&element ILVectorArray2n to move from
+		* @param &&element ILDCRT2n to move from
 		*/
-		ILVectorArrayImpl(const ILVectorArrayType &&element);
+		ILDCRTImpl(const ILVectorArrayType &&element);
 
 		//CLONE OPERATIONS
 		/**
 		 * Clone the object by making a copy of it and returning the copy
 		 * @return new Element
 		 */
-		ILVectorArrayType Clone() const { return std::move(ILVectorArrayImpl(*this)); }
+		ILVectorArrayType Clone() const { return std::move(ILDCRTImpl(*this)); }
 
 		/**
 		 * Clone the object, but have it contain nothing
 		 * @return new Element
 		 */
-		ILVectorArrayType CloneEmpty() const { return std::move( ILVectorArrayImpl() ); }
+		ILVectorArrayType CloneEmpty() const { return std::move( ILDCRTImpl() ); }
 
  		/**
 		* Clone
 		*
-		* Creates a new ILVectorArray2n and clones only the params. The tower values are empty. The tower values can be filled by another process/function or initializer list.
+		* Creates a new ILDCRT2n and clones only the params. The tower values are empty. The tower values can be filled by another process/function or initializer list.
 		*/
 		ILVectorArrayType CloneParametersOnly() const;
 
 		/**
 		* Clone with noise
 		*
-		* Creates a new ILVectorArray2n and clones the params. The tower values will be filled up with noise based on the discrete gaussian.
+		* Creates a new ILDCRT2n and clones the params. The tower values will be filled up with noise based on the discrete gaussian.
 		*
-		* @param &dgg the input discrete Gaussian generator. The dgg will be the seed to populate the towers of the ILVectorArray2n with random numbers.
+		* @param &dgg the input discrete Gaussian generator. The dgg will be the seed to populate the towers of the ILDCRT2n with random numbers.
 		* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 		*/
 		ILVectorArrayType CloneWithNoise(const DiscreteGaussianGeneratorImpl<IntType,VecType> &dgg, Format format = EVALUATION) const;
@@ -215,7 +215,7 @@ namespace lbcrypto {
 		/**
 		* Destructor.
 		*/
-		~ILVectorArrayImpl();
+		~ILDCRTImpl();
 
 		//GETTERS
 
@@ -231,7 +231,7 @@ namespace lbcrypto {
 
 		const ModType &GetModulus() const { return m_params->GetModulus(); }
 		
-		const IntType &GetRootOfUnity() const { return IntType::ZERO; }
+		const IntType &GetRootOfUnity() const { static IntType t(0); return t; }
 
 		/**
 		* Get method for length of each vector
@@ -301,37 +301,37 @@ namespace lbcrypto {
 		/**
 		* Assignment Operator.
 		*
-		* @param &rhs the copied ILVectorArray2n.
-		* @return the resulting ILVectorArray2n.
+		* @param &rhs the copied ILDCRT2n.
+		* @return the resulting ILDCRT2n.
 		*/
 		const ILVectorArrayType& operator=(const ILVectorArrayType &rhs);
 
 		/**
 		* Move Assignment Operator.
 		*
-		* @param &rhs the copied ILVectorArray2n.
-		* @return the resulting ILVectorArray2n.
+		* @param &rhs the copied ILDCRT2n.
+		* @return the resulting ILDCRT2n.
 		*/
 		const ILVectorArrayType& operator=(ILVectorArrayType &&rhs);
 
 		/**
 		* Initalizer list
 		*
-		* @param &rhs the list to initalized the ILVectorArray2n
-		* @return the resulting ILVectorArray2n.
+		* @param &rhs the list to initalized the ILDCRT2n
+		* @return the resulting ILDCRT2n.
 		*/
 		ILVectorArrayType& operator=(std::initializer_list<sint> rhs);
 
 		/**
 		* Equal operator.
 		*
-		* @param &rhs is the specified ILVectorArray2n to be compared with this ILVectorArray2n.
-		* @return true if this ILVectorArray2n represents the same values as the specified ILVectorArray2n, false otherwise
+		* @param &rhs is the specified ILDCRT2n to be compared with this ILDCRT2n.
+		* @return true if this ILDCRT2n represents the same values as the specified ILDCRT2n, false otherwise
 		*/
 		bool operator==(const ILVectorArrayType &rhs) const;
 
 		/**
-		* Performs an entry-wise addition over all elements of each tower with the towers of the ILVectorArray2n on the right hand side.
+		* Performs an entry-wise addition over all elements of each tower with the towers of the ILDCRT2n on the right hand side.
 		*
 		* @param &rhs is the element to add with.
 		* @return is the result of the addition.
@@ -339,7 +339,7 @@ namespace lbcrypto {
 		const ILVectorArrayType& operator+=(const ILVectorArrayType &rhs);
 
 		/**
-		* Performs an entry-wise subtraction over all elements of each tower with the towers of the ILVectorArray2n on the right hand side.
+		* Performs an entry-wise subtraction over all elements of each tower with the towers of the ILDCRT2n on the right hand side.
 		*
 		* @param &rhs is the element to subtract from.
 		* @return is the result of the addition.
@@ -480,7 +480,7 @@ namespace lbcrypto {
 		* @return is the return value of the modulus.
 		*/
 		ILVectorArrayType SignedMod(const IntType &modulus) const {
-			throw std::logic_error("SignedMod of an IntType not implemented on ILVectorArray2n");
+			throw std::logic_error("SignedMod of an IntType not implemented on ILDCRT2n");
 		}
 
 		// OTHER FUNCTIONS AND UTILITIES 
@@ -491,7 +491,7 @@ namespace lbcrypto {
 		* @return will throw a logic_error
 		*/
 		const VecType &GetValues() const {
-			throw std::logic_error("GetValues not implemented on ILVectorArray2n");
+			throw std::logic_error("GetValues not implemented on ILDCRT2n");
 		}
 
 		/**
@@ -501,7 +501,7 @@ namespace lbcrypto {
 		* @param format
 		*/
 		void SetValues(const VecType &values, Format format) {
-			throw std::logic_error("SetValues not implemented on ILVectorArray2n");
+			throw std::logic_error("SetValues not implemented on ILDCRT2n");
 		}
 
 		/**
@@ -515,14 +515,14 @@ namespace lbcrypto {
 		void AddILElementOne();
 
 		/**
-		* Make ILVectorArray2n Sparse. Sets every index of each tower not equal to zero mod the wFactor to zero.
+		* Make ILDCRT2n Sparse. Sets every index of each tower not equal to zero mod the wFactor to zero.
 		*
 		* @param &wFactor ratio between the sparse and none-sparse values. 
 		*/
 		void MakeSparse(const uint32_t &wFactor);
 
 		/**
-		* Performs ILVector2n::Decompose on each tower and adjusts the ILVectorArray2n.m_parameters accordingly. This method also reduces the ring dimension by half.
+		* Performs ILVector2n::Decompose on each tower and adjusts the ILDCRT2n.m_parameters accordingly. This method also reduces the ring dimension by half.
 		*/
 		void Decompose();
 
@@ -533,22 +533,22 @@ namespace lbcrypto {
 		bool IsEmpty() const;
 
 		/**
-		* Drops the last element in the tower. The resulting ILVectorArray2n will have one less tower.
+		* Drops the last element in the tower. The resulting ILDCRT2n will have one less tower.
 		*/
 		void DropLastElement();
 
 		/**
-		* ModReduces reduces the ILVectorArray2n's composite modulus by dropping the last modulus from the chain of moduli as well as dropping the last tower.
+		* ModReduces reduces the ILDCRT2n's composite modulus by dropping the last modulus from the chain of moduli as well as dropping the last tower.
 		* 
-		*@param plaintextModulus is the plaintextModulus used for the ILVectorArray2n
+		*@param plaintextModulus is the plaintextModulus used for the ILDCRT2n
 		*/
 		void ModReduce(const IntType &plaintextModulus);
 
 		/**
-		* Interpolates the ILVectorArray2n to an ILVector2n based on the Chinese Remainder Transform Interpolation.
-		* and then returns an ILVectorArray2n with that single element
+		* Interpolates the ILDCRT2n to an ILVector2n based on the Chinese Remainder Transform Interpolation.
+		* and then returns an ILDCRT2n with that single element
 		*
-		* @return the interpolated ring element embeded into ILVectorArray2n.
+		* @return the interpolated ring element embeded into ILDCRT2n.
 		*/
 		ILVector2n CRTInterpolate() const;
 
@@ -565,7 +565,7 @@ namespace lbcrypto {
 		* ASSUMPTION: This method assumes that the caller provides the correct rootOfUnity for the modulus
 		*/
 		void SwitchModulus(const IntType &modulus, const IntType &rootOfUnity) {
-			throw std::logic_error("SwitchModulus not implemented on ILVectorArray2n");
+			throw std::logic_error("SwitchModulus not implemented on ILDCRT2n");
 		}
 
 
@@ -635,7 +635,7 @@ namespace lbcrypto {
 
 namespace lbcrypto {
 
-typedef ILVectorArrayImpl<BigBinaryInteger, BigBinaryInteger, BigBinaryVector, ILDCRTParams<BigBinaryInteger>> ILVectorArray2n;
+typedef ILDCRTImpl<BigBinaryInteger, BigBinaryInteger, BigBinaryVector, ILDCRTParams<BigBinaryInteger>> ILDCRT2n;
 
 }
 

@@ -10,7 +10,7 @@ namespace lbcrypto {
 		else {
 			// the value of element.GetValAtIndex(i) is usually small - so a 32-bit integer is more than enough
 			// this approach is much faster than BigBinaryInteger::ConvertToDouble
-			BigBinaryInteger negativeThreshold(element.GetModulus()/ BigBinaryInteger::TWO);
+			BigBinaryInteger negativeThreshold(element.GetModulus()/ 2);
 			for (size_t i = 0;i < element.GetLength();i++) {
 				if (element.GetValAtIndex(i) > negativeThreshold)
 					this->push_back((double)(int32_t)(-1 * (element.GetModulus() - element.GetValAtIndex(i)).ConvertToInt()));

@@ -2,9 +2,9 @@
 #define _SRC_LIB_LATTICE_SIGNATURE_FIELD2N_H
 
 #include "ilvector2n.h"
-#include "ilvectorarray2n.h"
 #include "../math/transfrm.h"
 #include "../math/matrix.h"
+#include "ildcrt2n.h"
 
 namespace lbcrypto {
 

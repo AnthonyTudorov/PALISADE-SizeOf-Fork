@@ -250,6 +250,7 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	const ILVectorImpl<ModType,IntType,VecType,ParmType>& ILVectorImpl<ModType,IntType,VecType,ParmType>::operator=(std::initializer_list<std::string> rhs) {
+		static IntType ZERO(0);
 		usint len = rhs.size();
 		if (!IsEmpty()) {
 			usint vectorLength = this->m_values->GetLength();
@@ -259,7 +260,7 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 					SetValAtIndex(j, *(rhs.begin() + j));
 				}
 				else {
-					SetValAtIndex(j, IntType::ZERO);
+					SetValAtIndex(j, ZERO);
 				}
 			}
 
@@ -374,7 +375,7 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	void ILVectorImpl<ModType,IntType,VecType,ParmType>::SetValuesToMax() {
-		IntType max = m_params->GetModulus() - IntType::ONE;
+		IntType max = m_params->GetModulus() - 1;
 		usint size = m_params->GetRingDimension();
 		m_values = make_unique<VecType>(m_params->GetRingDimension(), m_params->GetModulus());
 		for (usint i = 0; i < size; i++) {

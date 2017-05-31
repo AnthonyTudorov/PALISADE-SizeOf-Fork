@@ -84,10 +84,10 @@ public:
 	 * @param primeBits - bit width of the primes in the towers
 	 * @return newly constructed CryptoContext, or null on failure
 	 */
-	static CryptoContext<ILVectorArray2n> getNewDCRTContext(const string& parmsetname, usint numTowers, usint primeBits);
+	static CryptoContext<ILDCRT2n> getNewDCRTContext(const string& parmsetname, usint numTowers, usint primeBits);
 
 	static bool matchContextToSerialization(const CryptoContext<ILVector2n> cc, const Serialized& ser);
-	static bool matchContextToSerialization(const CryptoContext<ILVectorArray2n> cc, const Serialized& ser);
+	static bool matchContextToSerialization(const CryptoContext<ILDCRT2n> cc, const Serialized& ser);
 };
 
 }

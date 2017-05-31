@@ -10,8 +10,8 @@
 #include "rationalciphertext.cpp"
 
 namespace lbcrypto {
-extern template class CryptoContext<ILVectorArray2n>;
+extern template class CryptoContext<ILDCRT2n>;
 
-template class RationalCiphertext<ILVectorArray2n>;
+template class RationalCiphertext<ILDCRT2n>;
 }
 

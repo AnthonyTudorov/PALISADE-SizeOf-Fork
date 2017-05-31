@@ -111,8 +111,8 @@ TEST(UTPRE, LTV_ILVector2n_ReEncrypt_pub) {
 }
 
 //TEST(UTPRE, LTV_ILVectorArray2n_ReEncrypt_pub) {
-//	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayLTV(ORDER, TOWERS, PTM);
-//	UnitTestReEncrypt<ILVectorArray2n>(cc, true);
+//	CryptoContext<ILDCRT2n> cc = GenCryptoContextElementArrayLTV(ORDER, TOWERS, PTM);
+//	UnitTestReEncrypt<ILDCRT2n>(cc, true);
 //}
 
 //TEST(UTPRE, StSt_ILVector2n_ReEncrypt_pub) {
@@ -121,8 +121,8 @@ TEST(UTPRE, LTV_ILVector2n_ReEncrypt_pub) {
 //}
 //
 //TEST(UTPRE, StSt_ILVectorArray2n_ReEncrypt_pub) {
-//	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayStSt(ORDER, TOWERS, PTM);
-//	UnitTestReEncrypt<ILVectorArray2n>(cc, true);
+//	CryptoContext<ILDCRT2n> cc = GenCryptoContextElementArrayStSt(ORDER, TOWERS, PTM);
+//	UnitTestReEncrypt<ILDCRT2n>(cc, true);
 //}
 
 TEST(UTPRE, Null_ILVector2n_ReEncrypt_pub) {
@@ -131,8 +131,8 @@ TEST(UTPRE, Null_ILVector2n_ReEncrypt_pub) {
 }
 
 TEST(UTPRE, Null_ILVectorArray2n_ReEncrypt_pub) {
-	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayNull(ORDER, TOWERS, PTM, 30);
-	UnitTestReEncrypt<ILVectorArray2n>(cc, true);
+	CryptoContext<ILDCRT2n> cc = GenCryptoContextElementArrayNull(ORDER, TOWERS, PTM, 30);
+	UnitTestReEncrypt<ILDCRT2n>(cc, true);
 }
 
 TEST(UTPRE, BV_ILVector2n_ReEncrypt_pri) {
@@ -142,8 +142,8 @@ TEST(UTPRE, BV_ILVector2n_ReEncrypt_pri) {
 
 #if !defined(_MSC_VER)
 TEST(UTPRE, BV_ILVectorArray2n_ReEncrypt_pri) {
-	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayBV(ORDER, TOWERS, PTM);
-	UnitTestReEncrypt<ILVectorArray2n>(cc, false);
+	CryptoContext<ILDCRT2n> cc = GenCryptoContextElementArrayBV(ORDER, TOWERS, PTM);
+	UnitTestReEncrypt<ILDCRT2n>(cc, false);
 }
 #endif
 
@@ -153,6 +153,6 @@ TEST(UTPRE, FV_ILVector2n_ReEncrypt_pri) {
 }
 
 //TEST(UTPRE, FV_ILVectorArray2n_ReEncrypt_pri) {
-//	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayFV(ORDER, TOWERS, PTM);
-//	UnitTestReEncrypt<ILVectorArray2n>(cc, false);
+//	CryptoContext<ILDCRT2n> cc = GenCryptoContextElementArrayFV(ORDER, TOWERS, PTM);
+//	UnitTestReEncrypt<ILDCRT2n>(cc, false);
 //}

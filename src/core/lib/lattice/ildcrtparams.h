@@ -31,7 +31,7 @@
  * This code provides basic lattice ideal manipulation functionality.
  * For more information on ideal lattices please see here: 10.1007/978-3-540-88702-7_5
  * ILDCRTParmas stands for : Ideal Lattive Chinese Remainder Transform Params. This class provides a placeholder for the parameter set
- * of an ILVectorArray2n.
+ * of an ILDCRT2n.
  *
  *  The private members of this class are:
  *
@@ -93,13 +93,13 @@ public:
 	 * @param cyclotomic_order the order of the ciphertext
 	 * @param &moduli is the tower of moduli
 	 */
-	ILDCRTParams(const usint cyclotomic_order, const std::vector<native64::BigBinaryInteger> &moduli, const std::vector<native64::BigBinaryInteger>& rootsOfUnity)
+	ILDCRTParams(const usint cyclotomic_order, const std::vector<native_int::BinaryInteger> &moduli, const std::vector<native_int::BinaryInteger>& rootsOfUnity)
 		: ElemParams<IntType>(cyclotomic_order, 0, 0, 0, 0) {
 		if( moduli.size() != rootsOfUnity.size() )
 			throw std::logic_error("sizes of moduli and roots of unity do not match");
 
 		for( size_t i=0; i<moduli.size(); i++ ) {
-			m_parms.push_back( std::shared_ptr<native64::ILParams>( new native64::ILParams(cyclotomic_order, moduli[i], rootsOfUnity[i]) ) );
+			m_parms.push_back( std::shared_ptr<native_int::ILParams>( new native_int::ILParams(cyclotomic_order, moduli[i], rootsOfUnity[i]) ) );
 		}
 		RecalculateModulus();
 	}
@@ -110,15 +110,15 @@ public:
 	 * @param cyclotomic_order the order of the ciphertext
 	 * @param &moduli is the tower of moduli
 	 */
-	ILDCRTParams(const usint cyclotomic_order, const std::vector<native64::BigBinaryInteger> &moduli)
+	ILDCRTParams(const usint cyclotomic_order, const std::vector<native_int::BinaryInteger> &moduli)
 		: ElemParams<IntType>(cyclotomic_order, 0, 0, 0, 0) {
 		for( size_t i=0; i<moduli.size(); i++ ) {
-			m_parms.push_back( std::shared_ptr<native64::ILParams>( new native64::ILParams(cyclotomic_order, moduli[i], 0, 0, 0) ) );
+			m_parms.push_back( std::shared_ptr<native_int::ILParams>( new native_int::ILParams(cyclotomic_order, moduli[i], 0, 0, 0) ) );
 		}
 		RecalculateModulus();
 	}
 
-	ILDCRTParams(const usint cyclotomic_order, std::vector<std::shared_ptr<native64::ILParams>>& parms)
+	ILDCRTParams(const usint cyclotomic_order, std::vector<std::shared_ptr<native_int::ILParams>>& parms)
 		: ElemParams<IntType>(cyclotomic_order, 0, 0, 0, 0), m_parms(parms) {
 		RecalculateModulus();
 	}
@@ -139,11 +139,11 @@ public:
 
 	// ACCESSORS
 
-	const std::vector<std::shared_ptr<native64::ILParams>> &GetParams() const {
+	const std::vector<std::shared_ptr<native_int::ILParams>> &GetParams() const {
 		return m_parms;
 	}
 
-	std::shared_ptr<native64::ILParams>& operator[](const usint i) { return m_parms[i]; }
+	std::shared_ptr<native_int::ILParams>& operator[](const usint i) { return m_parms[i]; }
 
 	/**
 	 * Removes the last parameter set and adjust the multiplied moduli.
@@ -192,7 +192,7 @@ public:
 
 	void RecalculateModulus() {
 
-		this->ciphertextModulus = IntType::ONE;
+		this->ciphertextModulus = 1;
 
 		for(usint i = 0; i < m_parms.size(); i++) {
 			this->ciphertextModulus = this->ciphertextModulus * IntType(m_parms[i]->GetModulus().ConvertToInt());
@@ -214,7 +214,7 @@ private:
 
 private:
 	// array of smaller ILParams
-	std::vector<std::shared_ptr<native64::ILParams>>	m_parms;
+	std::vector<std::shared_ptr<native_int::ILParams>>	m_parms;
 
 };
 

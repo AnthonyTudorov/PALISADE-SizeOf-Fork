@@ -27,7 +27,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 */
 
-#include "ilvectorarray2n.h"
+#include "ildcrt2n.h"
 #include <fstream>
 #include <memory>
 using std::shared_ptr;
@@ -39,13 +39,13 @@ namespace lbcrypto {
 
 	/*CONSTRUCTORS*/
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::ILVectorArrayImpl() {
+	ILDCRTImpl<ModType,IntType,VecType,ParmType>::ILDCRTImpl() {
 		m_format = EVALUATION;
 		m_params.reset( new ParmType(0,1) );
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::ILVectorArrayImpl(const shared_ptr<ParmType> dcrtParams, Format format, bool initializeElementToZero)
+	ILDCRTImpl<ModType,IntType,VecType,ParmType>::ILDCRTImpl(const shared_ptr<ParmType> dcrtParams, Format format, bool initializeElementToZero)
 	{
 		m_format = format;
 		m_params = dcrtParams;
@@ -59,14 +59,14 @@ namespace lbcrypto {
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::ILVectorArrayImpl(const ILVectorArrayImpl &element)  {
+	ILDCRTImpl<ModType,IntType,VecType,ParmType>::ILDCRTImpl(const ILDCRTImpl &element)  {
 		m_format = element.m_format;
 		m_vectors = element.m_vectors;
 		m_params = element.m_params;
 	}
 	
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	void ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::fillVectorArrayFromBigVector(const ILVector2n &element, const shared_ptr<ParmType> params) {
+	void ILDCRTImpl<ModType,IntType,VecType,ParmType>::fillVectorArrayFromBigVector(const ILVector2n &element, const shared_ptr<ParmType> params) {
 
 		if( element.GetModulus() > params->GetModulus() ) {
 			throw std::logic_error("Modulus of element passed to constructor is bigger that DCRT big modulus");
@@ -103,14 +103,14 @@ namespace lbcrypto {
 
 	/* Construct from a single ILVector2n. The format is derived from the passed in ILVector2n.*/
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::ILVectorArrayImpl(const ILVector2n &element, const shared_ptr<ParmType> params)
+	ILDCRTImpl<ModType,IntType,VecType,ParmType>::ILDCRTImpl(const ILVector2n &element, const shared_ptr<ParmType> params)
 	{
 		Format format;
 		try{
 			format = element.GetFormat();
 		}
 		catch (const std::exception& e) {
-			throw std::logic_error("There is an issue with the format of ILVectors passed to the constructor of ILVectorArrayImpl");
+			throw std::logic_error("There is an issue with the format of ILVectors passed to the constructor of ILDCRTImpl");
 		}
 
 		if( element.GetCyclotomicOrder() != params->GetCyclotomicOrder() )
@@ -123,15 +123,17 @@ namespace lbcrypto {
 
 	}
 
-	/* Construct using an tower of ILVectro2ns. The params and format for the ILVectorArrayImpl will be derived from the towers.*/
+	/* Construct using a tower of vectors.
+	 * The params and format for the ILDCRTImpl will be derived from the towers
+	 */
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::ILVectorArrayImpl(const std::vector<ILVectorType> &towers)
+	ILDCRTImpl<ModType,IntType,VecType,ParmType>::ILDCRTImpl(const std::vector<ILVectorType> &towers)
 	{
 		usint cyclotomicOrder = towers.at(0).GetCyclotomicOrder();
-		std::vector<std::shared_ptr<native64::ILParams>> parms;
+		std::vector<std::shared_ptr<native_int::ILParams>> parms;
 		for (usint i = 0; i < towers.size(); i++) {
 			if ( towers[i].GetCyclotomicOrder() != cyclotomicOrder ) {
-				throw std::logic_error(std::string("ILVectors provided to ILVectorArrayImpl must have the same ring dimension"));
+				throw std::logic_error("ILVectors provided to constructor must have the same ring dimension");
 			}
 			parms.push_back( towers[i].GetParams() );
 		}
@@ -143,9 +145,9 @@ namespace lbcrypto {
 		m_format = m_vectors[0].GetFormat();
 	}
 
-	/*The dgg will be the seed to populate the towers of the ILVectorArrayImpl with random numbers. The algorithm to populate the towers can be seen below.*/
+	/*The dgg will be the seed to populate the towers of the ILDCRTImpl with random numbers. The algorithm to populate the towers can be seen below.*/
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::ILVectorArrayImpl(const DggType& dgg, const shared_ptr<ParmType> dcrtParams, Format format)
+	ILDCRTImpl<ModType,IntType,VecType,ParmType>::ILDCRTImpl(const DggType& dgg, const shared_ptr<ParmType> dcrtParams, Format format)
 	{
 		m_format = format;
 		m_params = dcrtParams;
@@ -158,7 +160,7 @@ namespace lbcrypto {
 
 		for(usint i = 0; i < vecSize; i++){
 			
-			native64::BigBinaryVector ilDggValues(dcrtParams->GetRingDimension(), dcrtParams->GetParams()[i]->GetModulus());
+			native_int::BinaryVector ilDggValues(dcrtParams->GetRingDimension(), dcrtParams->GetParams()[i]->GetModulus());
 
 			for(usint j = 0; j < dcrtParams->GetRingDimension(); j++){
 				uint64_t	entry;
@@ -185,7 +187,7 @@ namespace lbcrypto {
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::ILVectorArrayImpl(DugType& dug, const shared_ptr<ParmType> dcrtParams, Format format) {
+	ILDCRTImpl<ModType,IntType,VecType,ParmType>::ILDCRTImpl(DugType& dug, const shared_ptr<ParmType> dcrtParams, Format format) {
 
 		m_format = format;
 		m_params = dcrtParams;
@@ -196,7 +198,7 @@ namespace lbcrypto {
 		for (usint i = 0; i < numberOfTowers; i++) {
 
 			dug.SetModulus(dcrtParams->GetParams()[i]->GetModulus());
-			native64::BigBinaryVector vals(dug.GenerateVector(dcrtParams->GetRingDimension()));
+			native_int::BinaryVector vals(dug.GenerateVector(dcrtParams->GetRingDimension()));
 			ILVectorType ilvector(dcrtParams->GetParams()[i]);
 
 			ilvector.SetValues(vals, Format::COEFFICIENT); // the random values are set in coefficient format
@@ -209,30 +211,30 @@ namespace lbcrypto {
 
 	/*Move constructor*/
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::ILVectorArrayImpl(const ILVectorArrayImpl &&element){
+	ILDCRTImpl<ModType,IntType,VecType,ParmType>::ILDCRTImpl(const ILDCRTImpl &&element){
 		m_format = element.m_format;
 		m_vectors = std::move(element.m_vectors);
 		m_params = std::move(element.m_params);
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorArrayImpl<ModType,IntType,VecType,ParmType> ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::CloneParametersOnly() const{
+	ILDCRTImpl<ModType,IntType,VecType,ParmType> ILDCRTImpl<ModType,IntType,VecType,ParmType>::CloneParametersOnly() const{
 		
-		ILVectorArrayImpl res(this->m_params, this->m_format);
+		ILDCRTImpl res(this->m_params, this->m_format);
 		return std::move(res);
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorArrayImpl<ModType,IntType,VecType,ParmType> ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::CloneWithNoise(const DiscreteGaussianGeneratorImpl<IntType,VecType> &dgg, Format format) const {
+	ILDCRTImpl<ModType,IntType,VecType,ParmType> ILDCRTImpl<ModType,IntType,VecType,ParmType>::CloneWithNoise(const DiscreteGaussianGeneratorImpl<IntType,VecType> &dgg, Format format) const {
 
-		ILVectorArrayImpl res = CloneParametersOnly();
+		ILDCRTImpl res = CloneParametersOnly();
 
 		ILVector2n randomElement = ILVector2n::GetPrecomputedVector();
 		VecType randVec = VecType(randomElement.GetValues());
 		
 		// create an Element to pull from
 		// create a dummy parm to use in the ILVector2n world
-		shared_ptr<ILParams> parm( new ILParams(m_params->GetCyclotomicOrder(), m_params->GetModulus(), BigBinaryInteger::ONE) );
+		shared_ptr<ILParams> parm( new ILParams(m_params->GetCyclotomicOrder(), m_params->GetModulus(), 1) );
 		ILVector2n element( parm );
 		element.SetValues( randVec, m_format );
 
@@ -244,48 +246,48 @@ namespace lbcrypto {
 	// DESTRUCTORS
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::~ILVectorArrayImpl() {}
+	ILDCRTImpl<ModType,IntType,VecType,ParmType>::~ILDCRTImpl() {}
 
 	// GET ACCESSORS
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	const typename ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::ILVectorType& ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::GetElementAtIndex (usint i) const
+	const typename ILDCRTImpl<ModType,IntType,VecType,ParmType>::ILVectorType& ILDCRTImpl<ModType,IntType,VecType,ParmType>::GetElementAtIndex (usint i) const
 	{
 		if(m_vectors.empty())
-			throw std::logic_error("ILVectorArrayImpl's towers are not initialized.");
+			throw std::logic_error("ILDCRTImpl's towers are not initialized.");
 		if(i > m_vectors.size()-1)
 			throw std::logic_error("Index: " + std::to_string(i) + " is out of range.");
 		return m_vectors[i];
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	usint ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::GetNumOfElements() const {
+	usint ILDCRTImpl<ModType,IntType,VecType,ParmType>::GetNumOfElements() const {
 		return m_vectors.size();
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	const std::vector<typename ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::ILVectorType>& ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::GetAllElements() const
+	const std::vector<typename ILDCRTImpl<ModType,IntType,VecType,ParmType>::ILVectorType>& ILDCRTImpl<ModType,IntType,VecType,ParmType>::GetAllElements() const
 	{
 		return m_vectors;
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	Format ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::GetFormat() const
+	Format ILDCRTImpl<ModType,IntType,VecType,ParmType>::GetFormat() const
 	{
 		return m_format;
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	std::vector<ILVectorArrayImpl<ModType,IntType,VecType,ParmType>> ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::BaseDecompose(usint baseBits, bool evalModeAnswer) const {
+	std::vector<ILDCRTImpl<ModType,IntType,VecType,ParmType>> ILDCRTImpl<ModType,IntType,VecType,ParmType>::BaseDecompose(usint baseBits, bool evalModeAnswer) const {
 
 		ILVector2n v( CRTInterpolate() );
 
 		std::vector<ILVector2n> bdV = v.BaseDecompose(baseBits, false);
 
-		std::vector<ILVectorArrayImpl<ModType,IntType,VecType,ParmType>> result;
+		std::vector<ILDCRTImpl<ModType,IntType,VecType,ParmType>> result;
 
 		// populate the result by converting each of the big vectors into a VectorArray
 		for( usint i=0; i<bdV.size(); i++ ) {
-			ILVectorArrayImpl<ModType,IntType,VecType,ParmType> dv(bdV[i], this->GetParams());
+			ILDCRTImpl<ModType,IntType,VecType,ParmType> dv(bdV[i], this->GetParams());
 			if( evalModeAnswer )
 				dv.SwitchFormat();
 			result.push_back( std::move(dv) );
@@ -295,9 +297,9 @@ namespace lbcrypto {
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	std::vector<ILVectorArrayImpl<ModType,IntType,VecType,ParmType>> ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::PowersOfBase(usint baseBits) const {
+	std::vector<ILDCRTImpl<ModType,IntType,VecType,ParmType>> ILDCRTImpl<ModType,IntType,VecType,ParmType>::PowersOfBase(usint baseBits) const {
 
-		std::vector<ILVectorArrayImpl<ModType,IntType,VecType,ParmType>> result;
+		std::vector<ILDCRTImpl<ModType,IntType,VecType,ParmType>> result;
 
 		usint nBits = m_params->GetModulus().GetLengthForBase(2);
 
@@ -315,7 +317,7 @@ namespace lbcrypto {
 		for( usint i = 0; i < nWindows; i++ ) {
 			ILVectorArrayType x( m_params, m_format );
 
-			IntType twoPow( IntType::TWO.Exp( i*baseBits ) );
+			IntType twoPow( IntType(2).Exp( i*baseBits ) );
 			for( usint t = 0; t < m_params->GetParams().size(); t++ ) {
 				IntType pI (twoPow % mods[t]);
 				x.m_vectors[t] = m_vectors[t] * pI.ConvertToInt();
@@ -329,9 +331,9 @@ namespace lbcrypto {
 	/*VECTOR OPERATIONS*/
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorArrayImpl<ModType,IntType,VecType,ParmType> ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::MultiplicativeInverse() const
+	ILDCRTImpl<ModType,IntType,VecType,ParmType> ILDCRTImpl<ModType,IntType,VecType,ParmType>::MultiplicativeInverse() const
 	{
-		ILVectorArrayImpl<ModType,IntType,VecType,ParmType> tmp(*this);
+		ILDCRTImpl<ModType,IntType,VecType,ParmType> tmp(*this);
 
 		for (usint i = 0; i < m_vectors.size(); i++) {
 			tmp.m_vectors[i] = m_vectors[i].MultiplicativeInverse();
@@ -340,9 +342,9 @@ namespace lbcrypto {
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorArrayImpl<ModType,IntType,VecType,ParmType> ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::ModByTwo() const
+	ILDCRTImpl<ModType,IntType,VecType,ParmType> ILDCRTImpl<ModType,IntType,VecType,ParmType>::ModByTwo() const
 	{
-		ILVectorArrayImpl<ModType,IntType,VecType,ParmType> tmp(*this);
+		ILDCRTImpl<ModType,IntType,VecType,ParmType> tmp(*this);
 
 		for (usint i = 0; i < m_vectors.size(); i++) {
 			tmp.m_vectors[i] = m_vectors[i].ModByTwo();
@@ -351,9 +353,9 @@ namespace lbcrypto {
 	}
 
 //	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-//	ILVectorArrayImpl<ModType,IntType,VecType,ParmType> ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::SignedMod(const IntType & modulus) const
+//	ILDCRTImpl<ModType,IntType,VecType,ParmType> ILDCRTImpl<ModType,IntType,VecType,ParmType>::SignedMod(const IntType & modulus) const
 //	{
-//		ILVectorArrayImpl tmp(*this);
+//		ILDCRTImpl tmp(*this);
 //
 //		for (usint i = 0; i < m_vectors.size(); i++) {
 //			tmp.m_vectors[i] = m_vectors[i].SignedMod(modulus);
@@ -362,12 +364,12 @@ namespace lbcrypto {
 //	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorArrayImpl<ModType,IntType,VecType,ParmType> ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::Plus(const ILVectorArrayImpl &element) const
+	ILDCRTImpl<ModType,IntType,VecType,ParmType> ILDCRTImpl<ModType,IntType,VecType,ParmType>::Plus(const ILDCRTImpl &element) const
 	{
 		if( m_vectors.size() != element.m_vectors.size() ) {
 			throw std::logic_error("tower size mismatch; cannot add");
 		}
-		ILVectorArrayImpl<ModType,IntType,VecType,ParmType> tmp(*this);
+		ILDCRTImpl<ModType,IntType,VecType,ParmType> tmp(*this);
 
 		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
 			tmp.m_vectors[i] += element.GetElementAtIndex (i);
@@ -376,8 +378,8 @@ namespace lbcrypto {
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorArrayImpl<ModType,IntType,VecType,ParmType> ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::Negate() const {
-		ILVectorArrayImpl<ModType,IntType,VecType,ParmType> tmp(this->CloneParametersOnly());
+	ILDCRTImpl<ModType,IntType,VecType,ParmType> ILDCRTImpl<ModType,IntType,VecType,ParmType>::Negate() const {
+		ILDCRTImpl<ModType,IntType,VecType,ParmType> tmp(this->CloneParametersOnly());
 		tmp.m_vectors.clear();
 
 		for (usint i = 0; i < this->m_vectors.size(); i++) {
@@ -388,12 +390,12 @@ namespace lbcrypto {
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorArrayImpl<ModType,IntType,VecType,ParmType> ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::Minus(const ILVectorArrayImpl &element) const
+	ILDCRTImpl<ModType,IntType,VecType,ParmType> ILDCRTImpl<ModType,IntType,VecType,ParmType>::Minus(const ILDCRTImpl &element) const
 	{
 		if( m_vectors.size() != element.m_vectors.size() ) {
 			throw std::logic_error("tower size mismatch; cannot subtract");
 		}
-		ILVectorArrayImpl<ModType,IntType,VecType,ParmType> tmp(*this);
+		ILDCRTImpl<ModType,IntType,VecType,ParmType> tmp(*this);
 
 		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
 			tmp.m_vectors[i] -= element.GetElementAtIndex (i);
@@ -402,7 +404,7 @@ namespace lbcrypto {
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	const ILVectorArrayImpl<ModType,IntType,VecType,ParmType>& ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::operator+=(const ILVectorArrayImpl &rhs)
+	const ILDCRTImpl<ModType,IntType,VecType,ParmType>& ILDCRTImpl<ModType,IntType,VecType,ParmType>::operator+=(const ILDCRTImpl &rhs)
 	{
 		for (usint i = 0; i < this->GetNumOfElements(); i++) {
 			this->m_vectors.at(i) += rhs.GetElementAtIndex(i);
@@ -412,7 +414,7 @@ namespace lbcrypto {
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	const ILVectorArrayImpl<ModType,IntType,VecType,ParmType>& ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::operator-=(const ILVectorArrayImpl &rhs) {
+	const ILDCRTImpl<ModType,IntType,VecType,ParmType>& ILDCRTImpl<ModType,IntType,VecType,ParmType>::operator-=(const ILDCRTImpl &rhs) {
 		for (usint i = 0; i < this->GetNumOfElements(); i++) {
 			this->m_vectors.at(i) -= rhs.GetElementAtIndex(i);
 		}
@@ -421,7 +423,7 @@ namespace lbcrypto {
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	const ILVectorArrayImpl<ModType,IntType,VecType,ParmType>& ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::operator*=(const ILVectorArrayImpl &element) {
+	const ILDCRTImpl<ModType,IntType,VecType,ParmType>& ILDCRTImpl<ModType,IntType,VecType,ParmType>::operator*=(const ILDCRTImpl &element) {
 		for (usint i = 0; i < this->m_vectors.size(); i++) {
 			this->m_vectors.at(i) *= element.m_vectors.at(i);
 		}
@@ -431,7 +433,7 @@ namespace lbcrypto {
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	bool ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::operator==(const ILVectorArrayImpl &rhs) const {
+	bool ILDCRTImpl<ModType,IntType,VecType,ParmType>::operator==(const ILDCRTImpl &rhs) const {
 
 		if( GetCyclotomicOrder() != rhs.GetCyclotomicOrder() )
 			return false;
@@ -452,7 +454,7 @@ namespace lbcrypto {
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	const ILVectorArrayImpl<ModType,IntType,VecType,ParmType> & ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::operator=(const ILVectorArrayImpl & rhs)
+	const ILDCRTImpl<ModType,IntType,VecType,ParmType> & ILDCRTImpl<ModType,IntType,VecType,ParmType>::operator=(const ILDCRTImpl & rhs)
 	{
 		if (this != &rhs) {
 			m_vectors = rhs.m_vectors;			
@@ -463,7 +465,7 @@ namespace lbcrypto {
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	const ILVectorArrayImpl<ModType,IntType,VecType,ParmType> & ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::operator=(ILVectorArrayImpl&& rhs)
+	const ILDCRTImpl<ModType,IntType,VecType,ParmType> & ILDCRTImpl<ModType,IntType,VecType,ParmType>::operator=(ILDCRTImpl&& rhs)
 	{
 		if (this != &rhs) {
 			m_vectors = std::move(rhs.m_vectors);
@@ -474,7 +476,7 @@ namespace lbcrypto {
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorArrayImpl<ModType,IntType,VecType,ParmType>& ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::operator=(std::initializer_list<sint> rhs){
+	ILDCRTImpl<ModType,IntType,VecType,ParmType>& ILDCRTImpl<ModType,IntType,VecType,ParmType>::operator=(std::initializer_list<sint> rhs){
 		usint len = rhs.size();
 		static ILVectorType::Integer ZERO(0);
 		if(!IsEmpty()){
@@ -491,7 +493,7 @@ namespace lbcrypto {
 		}
 		else{
 			for(usint i=0;i<m_vectors.size();i++){
-				native64::BigBinaryVector temp(m_params->GetRingDimension());
+				native_int::BinaryVector temp(m_params->GetRingDimension());
 				temp.SetModulus(m_vectors.at(i).GetModulus());
 				temp = rhs;
 				m_vectors.at(i).SetValues(std::move(temp),m_format);
@@ -504,9 +506,9 @@ namespace lbcrypto {
 	/*SCALAR OPERATIONS*/
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorArrayImpl<ModType,IntType,VecType,ParmType> ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::Plus(const IntType &element) const
+	ILDCRTImpl<ModType,IntType,VecType,ParmType> ILDCRTImpl<ModType,IntType,VecType,ParmType>::Plus(const IntType &element) const
 	{
-		ILVectorArrayImpl<ModType,IntType,VecType,ParmType> tmp(*this);
+		ILDCRTImpl<ModType,IntType,VecType,ParmType> tmp(*this);
 
 		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
 			tmp.m_vectors[i] += element.ConvertToInt();
@@ -515,8 +517,8 @@ namespace lbcrypto {
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorArrayImpl<ModType,IntType,VecType,ParmType> ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::Minus(const IntType &element) const {
-		ILVectorArrayImpl<ModType,IntType,VecType,ParmType> tmp(*this);
+	ILDCRTImpl<ModType,IntType,VecType,ParmType> ILDCRTImpl<ModType,IntType,VecType,ParmType>::Minus(const IntType &element) const {
+		ILDCRTImpl<ModType,IntType,VecType,ParmType> tmp(*this);
 
 		for (usint i = 0; i < tmp.m_vectors.size(); i++) {
 			tmp.m_vectors[i] -= element.ConvertToInt();
@@ -525,12 +527,12 @@ namespace lbcrypto {
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorArrayImpl<ModType,IntType,VecType,ParmType> ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::Times(const ILVectorArrayImpl & element) const
+	ILDCRTImpl<ModType,IntType,VecType,ParmType> ILDCRTImpl<ModType,IntType,VecType,ParmType>::Times(const ILDCRTImpl & element) const
 	{
 		if( m_vectors.size() != element.m_vectors.size() ) {
 			throw std::logic_error("tower size mismatch; cannot multiply");
 		}
-		ILVectorArrayImpl<ModType,IntType,VecType,ParmType> tmp(*this);
+		ILDCRTImpl<ModType,IntType,VecType,ParmType> tmp(*this);
 
 		for (usint i = 0; i < m_vectors.size(); i++) {
 			//ModMul multiplies and performs a mod operation on the results. The mod is the modulus of each tower.
@@ -541,9 +543,9 @@ namespace lbcrypto {
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorArrayImpl<ModType,IntType,VecType,ParmType> ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::Times(const IntType &element) const
+	ILDCRTImpl<ModType,IntType,VecType,ParmType> ILDCRTImpl<ModType,IntType,VecType,ParmType>::Times(const IntType &element) const
 	{
-		ILVectorArrayImpl<ModType,IntType,VecType,ParmType> tmp(*this);
+		ILDCRTImpl<ModType,IntType,VecType,ParmType> tmp(*this);
 
 		for (usint i = 0; i < m_vectors.size(); i++) {
 			tmp.m_vectors[i] = tmp.m_vectors[i] * element.ConvertToInt(); // (element % IntType((*m_params)[i]->GetModulus().ConvertToInt())).ConvertToInt();
@@ -552,7 +554,7 @@ namespace lbcrypto {
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorArrayImpl<ModType,IntType,VecType,ParmType> ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::MultiplyAndRound(const IntType &p, const IntType &q) const
+	ILDCRTImpl<ModType,IntType,VecType,ParmType> ILDCRTImpl<ModType,IntType,VecType,ParmType>::MultiplyAndRound(const IntType &p, const IntType &q) const
 	{
 		std::string errMsg = "Operation not implemented yet";
 		throw std::runtime_error(errMsg);
@@ -560,7 +562,7 @@ namespace lbcrypto {
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorArrayImpl<ModType,IntType,VecType,ParmType> ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::DivideAndRound(const IntType &q) const
+	ILDCRTImpl<ModType,IntType,VecType,ParmType> ILDCRTImpl<ModType,IntType,VecType,ParmType>::DivideAndRound(const IntType &q) const
 	{
 		std::string errMsg = "Operation not implemented yet";
 		throw std::runtime_error(errMsg);
@@ -568,7 +570,7 @@ namespace lbcrypto {
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	const ILVectorArrayImpl<ModType,IntType,VecType,ParmType>& ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::operator*=(const IntType &element) {
+	const ILDCRTImpl<ModType,IntType,VecType,ParmType>& ILDCRTImpl<ModType,IntType,VecType,ParmType>::operator*=(const IntType &element) {
 		for (usint i = 0; i < this->m_vectors.size(); i++) {
 			this->m_vectors.at(i) *= element.ConvertToInt(); //this->m_vectors.at(i) * (element % IntType((*m_params)[i]->GetModulus().ConvertToInt())).ConvertToInt();
 		}
@@ -579,7 +581,7 @@ namespace lbcrypto {
 	/*OTHER FUNCTIONS*/
 	
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	void ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::PrintValues() const{
+	void ILDCRTImpl<ModType,IntType,VecType,ParmType>::PrintValues() const{
 		std::cout<<"---START PRINT DOUBLE CRT-- WITH SIZE" <<m_vectors.size() << std::endl;
 		 for(usint i = 0; i < m_vectors.size();i++){
 			std::cout<<"VECTOR " << i << std::endl;
@@ -589,16 +591,16 @@ namespace lbcrypto {
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	void ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::AddILElementOne() {
+	void ILDCRTImpl<ModType,IntType,VecType,ParmType>::AddILElementOne() {
 		if(m_format != Format::EVALUATION)
-			throw std::runtime_error("ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::AddILElementOne cannot be called on a ILVectorArrayImpl in COEFFICIENT format.");
+			throw std::runtime_error("ILDCRTImpl<ModType,IntType,VecType,ParmType>::AddILElementOne cannot be called on a ILDCRTImpl in COEFFICIENT format.");
 		for(usint i = 0; i < m_vectors.size(); i++){
 			m_vectors[i].AddILElementOne();
 		}
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	void ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::MakeSparse(const uint32_t &wFactor){
+	void ILDCRTImpl<ModType,IntType,VecType,ParmType>::MakeSparse(const uint32_t &wFactor){
 		for(usint i = 0; i < m_vectors.size(); i++){
 			m_vectors[i].MakeSparse(wFactor);
 		}
@@ -607,10 +609,10 @@ namespace lbcrypto {
 	// This function modifies ILVectorArrayImpl to keep all the even indices in the tower.
 	// It reduces the ring dimension of the tower by half.
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	void ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::Decompose() {
+	void ILDCRTImpl<ModType,IntType,VecType,ParmType>::Decompose() {
 		
 		if(m_format != Format::COEFFICIENT) {
-			std::string errMsg = "ILVectorArrayImpl not in COEFFICIENT format to perform Decompose.";
+			std::string errMsg = "ILDCRTImpl not in COEFFICIENT format to perform Decompose.";
 			throw std::runtime_error(errMsg);
 		}
 		
@@ -619,14 +621,14 @@ namespace lbcrypto {
 		}
 
 		// the individual vectors parms have changed, so change the DCRT parms
-		std::vector<std::shared_ptr<native64::ILParams>> vparms(m_vectors.size());
+		std::vector<std::shared_ptr<native_int::ILParams>> vparms(m_vectors.size());
 		for( size_t i = 0; i < m_vectors.size(); i++)
 			vparms[i] = m_vectors[i].GetParams();
 		m_params.reset( new ParmType(vparms[0]->GetCyclotomicOrder(), vparms) );
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	bool ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::IsEmpty() const{
+	bool ILDCRTImpl<ModType,IntType,VecType,ParmType>::IsEmpty() const{
 		for(size_t i=0;i<m_vectors.size();i++){
 			if(!m_vectors.at(i).IsEmpty())
 				return false;
@@ -635,7 +637,7 @@ namespace lbcrypto {
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	void ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::DropLastElement(){
+	void ILDCRTImpl<ModType,IntType,VecType,ParmType>::DropLastElement(){
 		if(m_vectors.size() == 0){
 			throw std::out_of_range("Last element being removed from empty list");
 		}
@@ -652,7 +654,7 @@ namespace lbcrypto {
 	* http://link.springer.com/chapter/10.1007/978-3-662-44774-1_18
 	* 
 	* Modulus reduction reduces a ciphertext from modulus q to a smaller modulus q/qi. The qi is generally the largest. In the code below,
-	* ModReduce is written for ILVectorArrayImpl and it drops the last tower while updating the necessary parameters.
+	* ModReduce is written for ILDCRTImpl and it drops the last tower while updating the necessary parameters.
 	* The steps taken here are as follows:
 	* 1. compute a short d in R such that d = c mod q
 	* 2. compute a short delta in R such that delta = (vq′−1)·d mod (pq′). E.g., all of delta’s integer coefficients can be in the range [−pq′/2, pq′/2).
@@ -660,10 +662,10 @@ namespace lbcrypto {
 	* 4. output (d′/q′) in R(q/q′).
 	*/
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	void ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::ModReduce(const IntType &plaintextModulus) {
+	void ILDCRTImpl<ModType,IntType,VecType,ParmType>::ModReduce(const IntType &plaintextModulus) {
 	  bool dbg_flag = false;
 		if(m_format != Format::EVALUATION) {
-			throw std::logic_error("Mod Reduce function expects EVAL Formatted ILVectorArrayImpl. It was passed COEFF Formatted ILVectorArrayImpl.");
+			throw std::logic_error("Mod Reduce function expects EVAL Formatted ILDCRTImpl. It was passed COEFF Formatted ILDCRTImpl.");
 		}
 		this->SwitchFormat();
 		
@@ -715,7 +717,7 @@ namespace lbcrypto {
 	/*
 	 * This method applies the Chinese Remainder Interpolation on an ILVectoArray2n and produces an ILVector2n
 	* How the Algorithm works:
-	* Consider the ILVectorArrayImpl as a 2-dimensional matrix M, with dimension ringDimension * Number of Towers.
+	* Consider the ILDCRTImpl as a 2-dimensional matrix M, with dimension ringDimension * Number of Towers.
 	* For brevity , lets say this is r * t
 	* Let qt denote the bigModulus (all the towers' moduli multiplied together) and qi denote the modulus of a particular tower. 
 	* Let V be a BigBinaryVector of size tower (tower size). Each coefficient of V is calculated as follows:
@@ -726,7 +728,7 @@ namespace lbcrypto {
 	* for parameter selection of the ILVector2n.
 	*/
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVector2n ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::CRTInterpolate() const
+	ILVector2n ILDCRTImpl<ModType,IntType,VecType,ParmType>::CRTInterpolate() const
 	{
 	  bool dbg_flag = false;
 
@@ -776,7 +778,7 @@ namespace lbcrypto {
 
 		// now, compute the values for the vector
 		for( usint ri = 0; ri < ringDimension; ri++ ) {
-			coefficients[ri] = BigBinaryInteger::ZERO;
+			coefficients[ri] = 0;
 			for( usint vi = 0; vi < nTowers; vi++ ) {
 				coefficients[ri] += (BigBinaryInteger((*vecs)[vi].GetValues()[ri].ConvertToInt()) * multiplier[vi]);
 			}
@@ -794,7 +796,7 @@ namespace lbcrypto {
 		DEBUG("modulus "<< bigModulus);
 
 		// Setting the root of unity to ONE as the calculation is expensive and not required.
-		ILVector2n polynomialReconstructed( shared_ptr<ILParams>( new ILParams(GetCyclotomicOrder(), bigModulus, BigBinaryInteger::ONE) ) );
+		ILVector2n polynomialReconstructed( shared_ptr<ILParams>( new ILParams(GetCyclotomicOrder(), bigModulus, 1) ) );
 		polynomialReconstructed.SetValues(coefficients,COEFFICIENT);
 
 		DEBUG("answer: " << polynomialReconstructed);
@@ -804,7 +806,7 @@ namespace lbcrypto {
 
 	/*Switch format calls IlVector2n's switchformat*/
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	void ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::SwitchFormat() {
+	void ILDCRTImpl<ModType,IntType,VecType,ParmType>::SwitchFormat() {
 		if (m_format == COEFFICIENT) {
 			m_format = EVALUATION;
 		}
@@ -819,7 +821,7 @@ namespace lbcrypto {
 
 #ifdef OUT
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	void ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::SwitchModulus(const IntType &modulus, const IntType &rootOfUnity) {
+	void ILDCRTImpl<ModType,IntType,VecType,ParmType>::SwitchModulus(const IntType &modulus, const IntType &rootOfUnity) {
 		m_modulus = ModType::ONE;
 		for (usint i = 0; i < m_vectors.size(); ++i)
 		{
@@ -832,10 +834,10 @@ namespace lbcrypto {
 #endif
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	void ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::SwitchModulusAtIndex(usint index, const IntType &modulus, const IntType &rootOfUnity) {
+	void ILDCRTImpl<ModType,IntType,VecType,ParmType>::SwitchModulusAtIndex(usint index, const IntType &modulus, const IntType &rootOfUnity) {
 		if(index > m_vectors.size()-1) {
 			std::string errMsg;
-			errMsg = "ILVectorArrayImpl is of size = " + std::to_string(m_vectors.size()) + " but SwitchModulus for tower at index " + std::to_string(index) + "is called.";
+			errMsg = "ILDCRTImpl is of size = " + std::to_string(m_vectors.size()) + " but SwitchModulus for tower at index " + std::to_string(index) + "is called.";
 			throw std::runtime_error(errMsg);
 		}
 
@@ -844,7 +846,7 @@ namespace lbcrypto {
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	bool ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::InverseExists() const
+	bool ILDCRTImpl<ModType,IntType,VecType,ParmType>::InverseExists() const
 	{
 		for (usint i = 0; i < m_vectors.size(); i++) {
 			if (!m_vectors[i].InverseExists()) return false;
@@ -854,7 +856,7 @@ namespace lbcrypto {
 
 	// JSON FACILITY - Serialize Operation
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	bool ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::Serialize(Serialized* serObj) const {
+	bool ILDCRTImpl<ModType,IntType,VecType,ParmType>::Serialize(Serialized* serObj) const {
 		if( !serObj->IsObject() )
 			return false;
 
@@ -867,15 +869,15 @@ namespace lbcrypto {
 
 		SerializeVector<ILVectorType>("Vectors", "ILVectorImpl", this->GetAllElements(), &obj);
 
-		serObj->AddMember("ILVectorArrayImpl", obj, serObj->GetAllocator());
+		serObj->AddMember("ILDCRTImpl", obj, serObj->GetAllocator());
 
 		return true;
 	}
 
 	// JSON FACILITY - Deserialize Operation
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	bool ILVectorArrayImpl<ModType,IntType,VecType,ParmType>::Deserialize(const Serialized& serObj) {
-		SerialItem::ConstMemberIterator it = serObj.FindMember("ILVectorArrayImpl");
+	bool ILDCRTImpl<ModType,IntType,VecType,ParmType>::Deserialize(const Serialized& serObj) {
+		SerialItem::ConstMemberIterator it = serObj.FindMember("ILDCRTImpl");
 
 		if( it == serObj.MemberEnd() )
 			return false;

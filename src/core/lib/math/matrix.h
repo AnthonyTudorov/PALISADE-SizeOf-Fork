@@ -38,7 +38,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "../math/nbtheory.h"
 #include "../math/distrgen.h"
 #include "../lattice/ilvector2n.h"
-#include "../lattice/ilvectorarray2n.h"
+#include "../lattice/ildcrt2n.h"
 #include "../encoding/intplaintextencoding.h"
 #include "../utils/inttypes.h"
 #include "../utils/utilities.h"

@@ -369,18 +369,20 @@ public:
        * @return is the ostream object.
        */
   friend std::ostream& operator<<(std::ostream& os,
-				  const mubintvec &ptr_obj)
+		  const mubintvec &ptr_obj)
   {
-    os<<std::endl;
-    for(usint i=0;i<ptr_obj.m_data.size();i++){
-      os<<ptr_obj.m_data[i] <<std::endl;
-    }
+	  os<<std::endl;
+	  for(usint i=0;i<ptr_obj.m_data.size();i++){
+		  os<<ptr_obj.m_data[i] <<std::endl;
+	  }
 
-    os<<"modulus: "<<ptr_obj.m_modulus;
-    os <<std::endl;
+	  os<<"modulus: "<<ptr_obj.m_modulus;
+	  os <<std::endl;
 
-    return os;
-  };
+	  return os;
+  }
+
+  void PrintValues() const { std::cout << *this; }
 
   /**
    * checks the vector modulus state.
@@ -659,6 +661,9 @@ private:
   State m_modulus_state;
 
 };
+
+template<typename ubint_el_t>
+inline mubintvec<ubint_el_t> operator-(const mubintvec<ubint_el_t> &a) { return mubintvec<ubint_el_t>(0) - a; }
 
 //BINARY OPERATORS
   /**
