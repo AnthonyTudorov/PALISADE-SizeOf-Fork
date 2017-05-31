@@ -59,12 +59,12 @@ using namespace lbcrypto;
 
 #include <iterator>
 
-void ArbFVInnerProductPackedArray();
+void ArbFVLinearRegressionPackedArray();
 void FVAutomorphismPackedArray(usint i);
 
 int main() {
 
-	//ArbFVInnerProductPackedArray();
+	//ArbFVLinearRegressionPackedArray();
 
 	FVAutomorphismPackedArray(3);
 
@@ -74,7 +74,7 @@ int main() {
 	return 0;
 }
 
-void ArbFVInnerProductPackedArray() {
+void ArbFVLinearRegressionPackedArray() {
 
 	double start, finish;
 
@@ -383,6 +383,6 @@ void FVAutomorphismPackedArray(usint i) {
 
 	std::cout << "Automorphed array - at index " << i << " (using only odd coefficients)\n\t" << intArrayNew << std::endl;
 
-	//std::cout << intArrayNew << std::endl;
+	std::cout << intArrayNew << std::endl;
 
 }

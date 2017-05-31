@@ -811,8 +811,13 @@ IntVector PolyMod(const IntVector &dividend, const IntVector &divisor, const Int
 	IntVector result(divisorLength - 1, modulus);
 	usint runs = dividendLength - divisorLength + 1; //no. of iterations
 
-	auto mat = [](const IntType &x, const IntType &y, const IntType &z, const IntType &mod) {
-		IntType result(z.ModSub(x*y, mod));
+	//Precompute the Barrett mu parameter
+	IntType temp(IntType::ONE);
+	temp <<= 2 * modulus.GetMSB() + 3;
+	IntType mu = temp.DividedBy(modulus);
+
+	auto mat = [](const IntType &x, const IntType &y, const IntType &z, const IntType &mod, const IntType &muBarrett) {
+		IntType result(z.ModBarrettSub(x*y, mod, muBarrett));
 		return result;
 	};
 
@@ -823,8 +828,8 @@ IntVector PolyMod(const IntVector &dividend, const IntVector &divisor, const Int
 		IntType divConst(runningDividend.GetValAtIndex(dividendLength - 1));//get the highest degree coeff
 		divisorPtr = divisorLength - 1;
 		for (usint j = 0; j < dividendLength - i - 1; j++) {
-			if (divisorPtr > j) {
-				runningDividend.SetValAtIndex(dividendLength - 1 - j, mat(divisor.GetValAtIndex(divisorPtr - 1 - j), divConst, runningDividend.GetValAtIndex(dividendLength - 2 - j), modulus));
+			if (divisorPtr> j) {
+				runningDividend.SetValAtIndex(dividendLength - 1 - j, mat(divisor.GetValAtIndex(divisorPtr - 1 - j), divConst, runningDividend.GetValAtIndex(dividendLength - 2 - j), modulus, mu));
 			}
 			else
 				runningDividend.SetValAtIndex(dividendLength - 1 - j, runningDividend.GetValAtIndex(dividendLength - 2 - j));
