@@ -222,7 +222,7 @@ CircuitGraph::processNodeDepth(CircuitNode *n, queue<CircuitNode *>& nodeQueue)
 			for( int otherOut : otherOutputs ) {
 				CircuitNode *out = getNodeById(otherOut);
 				if( out == (CircuitNode *)0 ) {
-					std::cout << "There is no node with id " << otherOut << " for node " << in->GetId() + " in the graph!!" << endl;
+					std::cout << "There is no node with id " << otherOut << " for node " << in->GetId() << " in the graph!!" << endl;
 					continue;
 				}
 				int outDepth = out->getInputDepth();

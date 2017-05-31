@@ -68,13 +68,13 @@ $(CIRCUITDEMODIR)/scan.cpp: $(CIRCUITDEMODIR)/scan.l
 
 $(EXTDEMODIR)/circuit/palcircuit$(EXESUFFIX): $(CIRCUITDEMOOBJECTS) $(EXTLIBDIR)/$(PALISADECIRCUITLIB) $(CLIBS)
 	@mkdir -p $(@D)
-	$(CC) $(CPPFLAGS) $(INC) -o $@ $^ $(EXTLIB)
+	$(CC) -o $@ $^ $(EXTLIB)
 
 #this builds the palisade library out of the objects 
 $(EXTLIBDIR)/$(PALISADECIRCUITLIB): $(CIRCUITOBJECTS) $(CLIBS)
 	@echo " -- circuit:linking $@ from CIRCUITOBJECTS"
 	mkdir -p $(EXTLIBDIR)
-	$(CC) $(CPPFLAGS) $(INC) $(LIBCMD) -o $@ $(CIRCUITOBJECTS) -lgomp -L$(EXTLIBDIR) -lPALISADEcore
+	$(CC) $(LIBCMD) -o $@ $(CIRCUITOBJECTS) -lgomp -L$(EXTLIBDIR) -lPALISADEcore
 
 ### #this builds the individual objects that make up the library .
 .PRECIOUS: $(CIRCUITBINDIR)/%
@@ -99,7 +99,7 @@ cleancircuit:
 # this links test executable  from objects in the test build directory
 $(CIRCUIT_TEST_TARGET): $(CIRCUITUNITOBJECTS) $(CLIBS)
 	@mkdir -p `dirname $(CIRCUIT_TEST_TARGET)`
-	$(CC) $(CPPFLAGS) $(INC) $(CIRCUITUNITOBJECTS) -o $(CIRCUIT_TEST_TARGET) $(CLIBS) $(TEST_LIB)
+	$(CC) $(CIRCUITUNITOBJECTS) -o $(CIRCUIT_TEST_TARGET) $(CLIBS) $(TEST_LIB)
 
 #used to run tests from make
 .PHONY: testcircuit

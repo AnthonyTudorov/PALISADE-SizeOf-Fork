@@ -48,7 +48,7 @@ class CircuitNode;
 
 #define YYINITDEPTH 100000
 
-char *type_to_string(wire_type ty)
+std::string type_to_string(wire_type ty)
 {
     switch (ty) {
       case INT:
@@ -176,7 +176,6 @@ strlist:        /* empty */
                     $1.push_back($2);
                     $$ = $1;
                 }
-        |       numlist
         ;
 
 numlist:       /* empty */
