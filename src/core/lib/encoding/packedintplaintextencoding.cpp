@@ -75,11 +75,6 @@ namespace lbcrypto {
 
 		this->Pack(ilVector, modulus);//ilVector coefficients are packed and resulting ilVector is in COEFFICIENT form.
 
-		ilVector->PrintValues();
-
-		usint x = ilVector->GetCyclotomicOrder();
-		usint y = ilVector->GetRingDimension();
-
 	}
 
 	void PackedIntPlaintextEncoding::Decode(const BigBinaryInteger &modulus, ILVector2n *ilVector) {
@@ -139,7 +134,7 @@ namespace lbcrypto {
 				initRoot = RootOfUnity<BigBinaryInteger>(m, modulus);
 			}
 			else {
-				//initRoot = BigBinaryInteger(5);
+				//initRoot = BigBinaryInteger(7);
 				initRoot = RootOfUnity<BigBinaryInteger>(m, modulus);
 				while (!MillerRabinPrimalityTest(initRoot) || GreatestCommonDivisor<usint>(initRoot.ConvertToInt(),m)!=1 || !IsGenerator<BigBinaryInteger>(this->initRoot, BigBinaryInteger(m)))
 				{
@@ -214,10 +209,11 @@ namespace lbcrypto {
 		for (usint i = 1; i < n; i++) {
 			packedVector += coefficients.at(i)*slotValues.GetValAtIndex(i);
 		}
-		auto yPow = PolynomialPower(packedVector, initRoot.ConvertToInt());
-		auto permPacked = PolyMod(yPow, cycloPoly, modulus);
-		auto perm = SyntheticPolyRemainder(permPacked, rootListInit, modulus);
+
+		auto perm = SyntheticPolyPowerMod(packedVector,initRoot,rootListInit);
+
 		auto newRootList = FindPermutedSlots(slotValues, perm, rootListInit);
+
 		coefficients.clear();
 		for (usint i = 0; i < n; i++) {
 			auto coeffRow = SyntheticPolynomialDivision(cycloPoly, newRootList.GetValAtIndex(i), modulus);
@@ -253,8 +249,6 @@ namespace lbcrypto {
 
 		auto params = ring->GetParams();
 
-		//std::cout << packedVector << std::endl;
-
 		packedVector.SetModulus(modulus);
 
 		if (params->OrderIsPowerOfTwo()) {
@@ -268,6 +262,27 @@ namespace lbcrypto {
 
 		ring->SetValues(packedVector, Format::COEFFICIENT);
 
+	}
+
+	BigBinaryVector PackedIntPlaintextEncoding::SyntheticPolyPowerMod(const BigBinaryVector &input, const BigBinaryInteger &power, const BigBinaryVector &rootListInit) {
+
+		usint n = input.GetLength();
+		const auto &modulus = input.GetModulus();
+		BigBinaryVector result(n,modulus);
+
+		for (usint i = 0; i < n; i++) {
+			auto &root = rootListInit.GetValAtIndex(i);
+			auto pow(root.ModExp(power, modulus));
+			auto val = input.GetValAtIndex(n - 1);
+			for (int j = n-2; j > -1; j--) {
+				val = input.GetValAtIndex(j) + pow*val;
+				val = val.Mod(modulus);
+			}
+
+			result.SetValAtIndex(i, val);
+		}
+		
+		return result;
 	}
 
 }

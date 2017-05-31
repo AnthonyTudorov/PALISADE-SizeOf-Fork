@@ -116,6 +116,8 @@ namespace lbcrypto {
 
 		static BigBinaryVector GetRootVector(const BigBinaryInteger &modulus,usint cycloOrder);
 
+		static BigBinaryVector SyntheticPolyPowerMod(const BigBinaryVector &input, const BigBinaryInteger &power, const BigBinaryVector &rootListInit);
+
 		void Unpack(ILVector2n *ring, const BigBinaryInteger &modulus) const;
 
 	};
