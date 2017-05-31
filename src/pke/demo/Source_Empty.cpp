@@ -53,6 +53,7 @@ void EvalAutomorphism();
 void EvalSummation();
 
 void PerformanceTest();
+void PerformanceTestV2();
 
 vector<shared_ptr<Ciphertext<ILVector2n>>> AutomorphCiphertext(vector<shared_ptr<Ciphertext<ILVector2n>>> &ciphertext, usint k);
 std::shared_ptr<LPPrivateKey<ILVector2n>> AutomorphSecretkey(std::shared_ptr<LPPrivateKey<ILVector2n>> sk, usint k);
@@ -69,11 +70,11 @@ int main(int argc, char *argv[])
 	std::cout << x << "  ";
 	std::cout << std::endl;*/
 
-	//PerformanceTest();
+	PerformanceTestV2();
 
 	//EvalSummation();
 
-	EvalAutomorphism();
+	//EvalAutomorphism();
 	
 	std::cout << "Press any key to continue" << std::endl;
 	std::cin.get();
@@ -429,6 +430,57 @@ void PerformanceTest() {
 	std::cout << "Inverse Transform computation time is :\t" << diff << std::endl;
 
 	std::cout << inputCheck << std::endl;
+}
+
+
+void PerformanceTestV2() {
+
+	usint m = 9742;
+	usint n = GetTotient(m);
+	BigBinaryInteger modulus("1329227995784915872903807060281374689");
+	BigBinaryInteger squareRootOfRoot("1103835257645791936030700335506173789");
+
+	BigBinaryInteger bigModulus("1852673427797059126777135760139006525652319754650249024631321344126610076631041");
+	BigBinaryInteger bigRoot("1011857408422309039039556907195908859561535234649870814154019834362746408101010");
+
+	auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulus);
+
+	//ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().PreCompute(m, modulus);
+	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulus);
+
+	BigBinaryVector input(n, modulus);
+	DiscreteUniformGenerator dug;
+	dug.SetModulus(modulus);
+
+	input = dug.GenerateVector(n);
+
+	auto INPUT = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().ForwardTransform(input, squareRootOfRoot, bigModulus, bigRoot, m);
+
+	auto inputCheck = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().InverseTransform(INPUT, squareRootOfRoot, bigModulus, bigRoot, m);
+
+	double start, stop, diff;
+
+	start = currentDateTime();
+
+	INPUT = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().ForwardTransform(input, squareRootOfRoot, bigModulus, bigRoot, m);
+
+	stop = currentDateTime();
+
+	diff = stop - start;
+
+	std::cout << "Forward Transform computation time is :\t" << diff << std::endl;
+
+	start = currentDateTime();
+
+	inputCheck = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().InverseTransform(INPUT, squareRootOfRoot, bigModulus, bigRoot, m);
+
+	stop = currentDateTime();
+
+	diff = stop - start;
+
+	std::cout << "Inverse Transform computation time is :\t" << diff << std::endl;
+
+	//std::cout << inputCheck << std::endl;
 }
 
 std::vector<usint> YuriyAutomorphism(const std::vector<usint>& input, usint i)
