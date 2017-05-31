@@ -330,11 +330,14 @@ namespace NTL {
  return (conv<uint64_t>(*this)); }
   uint32_t myZZ::ConvertToUint32() const { return (conv<uint32_t>(*this));}
 
-  //  uint64_t myZZ::ConvertToUint64() const{ return (conv<uint64_t>(*this));}
-  // on some platforms usint64_t is implemented as an unsigned long long which is not included in the
-  // conv functions in tools.h
-  // FIXME
-  uint64_t myZZ::ConvertToUint64() const { return (conv<uint32_t>(*this)); }
+  // warning on some platforms usint64_t is implemented as an unsigned
+  // long long which is not included in the conv functions in tools.h
+  // in which case the following does not compile. 
+
+   uint64_t myZZ::ConvertToUint64() const{
+     static_assert(sizeof(uint64_t) == sizeof(long), 
+		   "sizeof(uint64_t) != sizeof(long), edit myZZ ConvertToUint64()");
+     return (conv<uint64_t>(*this));}
 
   float myZZ::ConvertToFloat() const{ return (conv<float>(*this));}
   double myZZ::ConvertToDouble() const{ return (conv<double>(*this));}

@@ -824,10 +824,11 @@ namespace exp_int{
      */
     ubint MultiplyAndRound(const ubint &p, const ubint &q) const;
     
+    // this is a negation operator which really doesn't make sense for an unsinged 
     ubint operator-() const {
-    	return ubint(0).Minus(*this);
+      return ubint(0).Minus(*this);
     }
-
+    
     /**
      * Divide and Rounding operation on a ubint x. 
      * Returns [x*p/q] where [] is the rounding operation.
@@ -893,7 +894,7 @@ namespace exp_int{
      * @param a is the value to add.
      * @return is the result of the addition operation.
      */
-    ubint operator+(const ubint &a) const {return this->Add(a);}
+    inline ubint operator+(const ubint &a) const {return this->Add(a);}
 
     /**
      * Subtraction operation.
@@ -901,7 +902,7 @@ namespace exp_int{
      * @param a is the value to subtract.
      * @return is the result of the subtraction operation.
      */
-    ubint operator-(const ubint &a) const {return this->Sub(a);}
+    inline ubint operator-(const ubint &a) const {return this->Sub(a);}
 
     /**
      * Multiplication operation.
@@ -909,7 +910,7 @@ namespace exp_int{
      * @param a is the value to multiply with.
      * @return is the result of the multiplication operation.
      */
-    ubint operator*(const ubint &a) const {return this->Mul(a);}
+    inline ubint operator*(const ubint &a) const {return this->Mul(a);}
 
 
 
@@ -919,7 +920,7 @@ namespace exp_int{
      * @param a is the value to Mod.
      * @return is the result of the modulus operation.
      */
-    ubint operator%(const ubint &a) const {return this->Mod(a);}
+    inline ubint operator%(const ubint &a) const {return this->Mod(a);}
 
     /**
      * Division operation.
@@ -928,7 +929,7 @@ namespace exp_int{
      * @param b is the value to divide by.
      * @return is the result of the integral part after division operation.
      */
-    ubint operator/ (const ubint &a) const {return this->Div(a);}
+    inline ubint operator/ (const ubint &a) const {return this->Div(a);}
 
     /**
      * ostream output << operator
@@ -1053,7 +1054,7 @@ namespace exp_int{
     /**
      *  Set this int to 1.
      */
-    void SetIdentity() { *this = ubint::ONE; };
+    inline void SetIdentity() { *this = ubint::ONE; };
 
     /**
      * A zero allocator that is called by the Matrix class. It is used to initialize a Matrix of ubint objects.
@@ -1084,6 +1085,14 @@ namespace exp_int{
      * @return none
      */
     void PrintIntegerConstants(void);
+
+    /**
+     * Gets the bit at the specified index.
+     *
+     * @param index is the index of the bit to get.
+     * @return resulting bit.
+     */
+    uschar GetBitAtIndex(usint index) const;
 
 
   protected:
@@ -1120,14 +1129,6 @@ namespace exp_int{
     void NormalizeLimbs(void);
     
     
-    /**
-     * Gets the bit at the specified index.
-     *
-     * @param index is the index of the bit to get.
-     * @return resulting bit.
-     */
-    uschar GetBitAtIndex(usint index) const;
-
 
     /**
      * Sets the limb value at the specified index.

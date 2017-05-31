@@ -1154,4 +1154,4 @@ namespace NTL {
  
 template class NTL::myVecP<NTL::myZZ_p>; //instantiate template here
 
-#endif
+#endif //__linux__

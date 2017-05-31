@@ -57,6 +57,22 @@
 // 		This backend supports arbitrary bitwidths; no memory pool is used; can grow up to RAM limitation
 //		Configurable type of underlying integer (either 32 or 64 bit)
 
+// passes all tests with UBINT_32
+// fails tests with UBINT_64
+//[  FAILED  ] UTSer.cpu_int  //this cascades to other failurs. 
+
+//[  FAILED  ] UTSer.vector_of_cpu_int
+//[  FAILED  ] UTSer.ilvector_test
+
+//[ RUN      ] UTLTVBATCHING.ILVector_EVALMULT_Arb hangs
+//[ RUN      ] UTFV.ILVector2n_FV_ParamsGen_EvalMul hangs
+//[ RUN      ] UTFV.ILVector2n_FV_Optimized_Eval_Operations hangs
+//[  FAILED  ] UTPKESer.LTV_keys_and_ciphertext failed
+//[ RUN      ] UTSHE.FV_ILVector2n_Add hangs
+//[ RUN      ] UTSHE.FV_ILVector2n_Mult hangs
+//[ RUN      ] UTStatisticalEval.FV_Eval_Lin_Regression_Int hangs
+
+
 // MATHBACKEND 6
 //		This uses gmp_int:: definition as default
 // 		GMP 6.1.2 / NTL 10.3.0 backend
@@ -68,8 +84,8 @@
 //To select backend, please UNCOMMENT the appropriate line rather than changing the number on the
 //uncommented line (and breaking the documentation of the line)
 
-#define MATHBACKEND 2 
-//#define MATHBACKEND 4 
+//#define MATHBACKEND 2 
+#define MATHBACKEND 4 
 //#define MATHBACKEND 6 
 //#define MATHBACKEND 7
 
@@ -92,8 +108,8 @@ typedef BigBinaryVectorImpl<BinaryInteger> BinaryVector;
 }
 
 ////////// for exp_int, decide if you want 32 bit or 64 bit underlying integers in the implementation
-#define UBINT_32
-//#define UBINT_64
+//#define UBINT_32
+#define UBINT_64
 
 #ifdef UBINT_32
 #define MATH_UBBITS	32

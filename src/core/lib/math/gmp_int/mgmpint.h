@@ -134,8 +134,7 @@ namespace NTL{
 
  
 
-
-   
+    // operator=
     inline myZZ_p& operator=(const char * s) {this->_ZZ_p__rep=conv<ZZ>(s); return *this;}
     inline myZZ_p& operator=(int a) {this->_ZZ_p__rep=conv<ZZ>(a); return *this;}
 
@@ -422,7 +421,7 @@ namespace NTL{
 
     //Serialization functions
 
-    const std::string Serialize(const myZZ& mod = myZZ::ZERO) const;
+    const std::string Serialize(const myZZ& modulus = myZZ::ZERO) const;
     const char * Deserialize(const char *cp, const myZZ& modulus = myZZ::ZERO);
 
   private:

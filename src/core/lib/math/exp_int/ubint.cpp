@@ -118,6 +118,10 @@ namespace exp_int {
   template<typename limb_t>
   ubint<limb_t>::ubint()
   {
+    // builds a ubint that defaults to zero
+    
+    bool dbg_flag = false;		// if true then print dbg output
+    DEBUG("ubint() ctor");
     // BBI bare ctor() generates a valid zero. mimic that activity
     m_MSB = 0;
     m_value.reserve(LimbReserveHint);
@@ -145,7 +149,9 @@ namespace exp_int {
       //init fits in first limb entry
       m_value.push_back((limb_t)init);
       DEBUG("single limb size now "<<m_value.size());
-    } else {
+    } 
+#ifdef UBINT_32 //does not occur for UBINT_64
+    else {
       usint ceilInt = ceilIntByUInt(msb);
       DEBUG("mulit limb ceilIntByUInt ="<<ceilInt);
       //setting the values of the array
@@ -158,6 +164,7 @@ namespace exp_int {
       }
 
     }
+#endif
     this->m_MSB = msb;
     m_state = INITIALIZED;
 
@@ -203,7 +210,7 @@ namespace exp_int {
     m_state = rhs.m_state;
     DEBUG("final msb ="<<this->m_MSB);
   }
-#if 1
+
   //move copy cconstructor
   template<typename limb_t>
   ubint<limb_t>::ubint(ubint &&rhs){
@@ -220,11 +227,12 @@ namespace exp_int {
     //set state
     m_state = rhs.m_state;
   }
-#endif
+
   //this is the zero allocator for the palisade matrix class
-  template<>
-  std::function<unique_ptr<ubint<uint32_t>>()> ubint<uint32_t>::Allocator = [](){
-    return lbcrypto::make_unique<exp_int::ubint<uint32_t>>();
+
+  template<typename limb_t>
+  std::function<unique_ptr<ubint<limb_t>>()> ubint<limb_t>::Allocator = [](){
+    return lbcrypto::make_unique<exp_int::ubint<limb_t>>();
   };
 
   template<typename limb_t>

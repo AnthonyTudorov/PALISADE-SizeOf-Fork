@@ -251,9 +251,9 @@ namespace NTL {
     DEBUG("in myZZ_p::ConvertToInt() this "<<*this);
 
     return (conv<uint64_t>(*this)); }
+    
   uint32_t myZZ_p::ConvertToUint32() const { return (conv<uint32_t>(*this));}
-  // FIXME note uint64_t is a long long on some platforms which doesn't go with NTL
-  uint64_t myZZ_p::ConvertToUint64() const{ return (conv<uint32_t>(*this));}
+  uint64_t myZZ_p::ConvertToUint64() const{ return (conv<uint64_t>(*this));}
   float myZZ_p::ConvertToFloat() const{ return (conv<float>(this->_ZZ_p__rep));}
   double myZZ_p::ConvertToDouble() const{ return (conv<double>(this->_ZZ_p__rep));}
   long double myZZ_p::ConvertToLongDouble() const {
