@@ -270,13 +270,18 @@ namespace lbcrypto {
 		const auto &modulus = input.GetModulus();
 		BigBinaryVector result(n,modulus);
 
+		//Precompute the Barrett mu parameter
+		BigBinaryInteger temp(BigBinaryInteger::ONE);
+		temp <<= 2 * modulus.GetMSB() + 3;
+		BigBinaryInteger mu = temp.DividedBy(modulus);
+
 		for (usint i = 0; i < n; i++) {
 			auto &root = rootListInit.GetValAtIndex(i);
 			auto pow(root.ModExp(power, modulus));
 			auto val = input.GetValAtIndex(n - 1);
 			for (int j = n-2; j > -1; j--) {
 				val = input.GetValAtIndex(j) + pow*val;
-				val = val.Mod(modulus);
+				val = val.ModBarrett(modulus,mu);
 			}
 
 			result.SetValAtIndex(i, val);

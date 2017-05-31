@@ -999,9 +999,15 @@ IntVector GetCyclotomicPolynomial(usint m, const IntType &modulus) {
 
 BigBinaryInteger SyntheticRemainder(const BigBinaryVector &dividend, const BigBinaryInteger &a, const BigBinaryInteger &modulus) {
 	auto val = dividend.GetValAtIndex(dividend.GetLength() - 1);
+
+	//Precompute the Barrett mu parameter
+	BigBinaryInteger temp(BigBinaryInteger::ONE);
+	temp <<= 2 * modulus.GetMSB() + 3;
+	BigBinaryInteger mu = temp.DividedBy(modulus);
+
 	for (int i = dividend.GetLength() - 2; i > -1; i--) {
 		val = dividend.GetValAtIndex(i) + a*val;
-		val = val.Mod(modulus);
+		val = val.ModBarrett(modulus,mu);
 	}
 
 	return val;
@@ -1030,11 +1036,16 @@ BigBinaryVector SyntheticPolynomialDivision(const BigBinaryVector &dividend, con
 	usint n = dividend.GetLength() - 1;
 	BigBinaryVector result(n, modulus);
 
+	//Precompute the Barrett mu parameter
+	BigBinaryInteger temp(BigBinaryInteger::ONE);
+	temp <<= 2 * modulus.GetMSB() + 3;
+	BigBinaryInteger mu = temp.DividedBy(modulus);
+
 	result.SetValAtIndex(n - 1, dividend.GetValAtIndex(n));
 	auto val(dividend.GetValAtIndex(n));
 	for (int i = n - 1; i > 0; i--) {
 		val = val*a + dividend.GetValAtIndex(i);
-		val = val.Mod(modulus);
+		val = val.ModBarrett(modulus,mu);
 		result.SetValAtIndex(i - 1, val);
 	}
 

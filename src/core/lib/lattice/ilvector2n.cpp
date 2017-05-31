@@ -97,12 +97,20 @@ namespace lbcrypto {
 		}
 		else
 		{
-			PreComputeDggSamples(dgg, m_params);
 
-			const ILVectorImpl<ModType,IntType,VecType,ParmType> randomElement = GetPrecomputedVector();
-			m_values = make_unique<VecType>(*randomElement.m_values);
+			usint vectorSize = params->GetRingDimension();
+			m_values = make_unique<VecType>(dgg.GenerateVector(vectorSize, params->GetModulus()));
 			(*m_values).SetModulus(params->GetModulus());
-			m_format = EVALUATION;
+			m_format = COEFFICIENT;
+
+			this->SwitchFormat();
+
+			//PreComputeDggSamples(dgg, m_params);
+
+			//const ILVectorImpl<ModType,IntType,VecType,ParmType> randomElement = GetPrecomputedVector();
+			//m_values = make_unique<VecType>(*randomElement.m_values);
+			//(*m_values).SetModulus(params->GetModulus());
+			//m_format = EVALUATION;
 		}
 	}
 
@@ -153,12 +161,19 @@ namespace lbcrypto {
 		}
 		else
 		{
-			PreComputeTugSamples(tug, m_params);
-
-			const ILVectorImpl randomElement = GetPrecomputedTugVector();
-			m_values = make_unique<VecType>(*randomElement.m_values);
+			usint vectorSize = params->GetRingDimension();
+			m_values = make_unique<VecType>(tug.GenerateVector(vectorSize, params->GetModulus()));
 			(*m_values).SetModulus(params->GetModulus());
-			m_format = EVALUATION;
+			m_format = COEFFICIENT;
+
+			this->SwitchFormat();
+
+			//PreComputeTugSamples(tug, m_params);
+
+			//const ILVectorImpl randomElement = GetPrecomputedTugVector();
+			//m_values = make_unique<VecType>(*randomElement.m_values);
+			//(*m_values).SetModulus(params->GetModulus());
+			//m_format = EVALUATION;
 		}
 	}
 
