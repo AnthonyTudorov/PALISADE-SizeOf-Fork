@@ -124,7 +124,7 @@ CircuitGraph::Execute(CryptoContext<ILVector2n> cc)
 		out->setOutputDepth(1);
 	}
 
-//	processNodeDepth();
+	processNodeDepth();
 
 	for( int output : getOutputs() ) {
 		CircuitNode *out = getNodeById(output);
@@ -195,13 +195,18 @@ insertMRbetween(CircuitGraph *g, CircuitNode *up, CircuitNode *down)
 void
 CircuitGraph::processNodeDepth(CircuitNode *n, queue<CircuitNode *>& nodeQueue)
 {
+	cout << "processNodeDepth for node " << *n << endl;
+	for( int i : n->getInputs() ) cout << "  input:" << i << endl;
+	for( int i : n->getOutputs() ) cout << " output:" << i << endl;
 	// calculate what the input depth should be for this node given its output depth
 	n->setBottomUpDepth();
 	int inDepth = n->getInputDepth();
 
 	// assign new output depth to every node providing input
-	for( int i : getInputs() ) {
+	for( int i : n->getInputs() ) {
 		auto in = getNodeById(i);
+		cout << "input is " << *in << endl;
+
 		// if this node has not been seen yet... set it's output
 		if( in->getOutputDepth() == 0 ) {
 			in->setOutputDepth(inDepth);
