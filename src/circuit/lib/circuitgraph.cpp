@@ -207,7 +207,7 @@ CircuitGraph::processNodeDepth(CircuitNode *n, queue<CircuitNode *>& nodeQueue)
 		auto in = getNodeById(i);
 		cout << "input is " << *in << endl;
 
-		// if this node has not been seen yet... set it's output
+		// if this node has not been seen yet... set its output
 		if( in->getOutputDepth() == 0 ) {
 			in->setOutputDepth(inDepth);
 			nodeQueue.push(in);
@@ -259,7 +259,8 @@ CircuitGraph::processNodeDepth()
 {
 	queue<CircuitNode *> items;
 
-	items.push(allNodes[0]);
+	for( int i : this->getOutputs() )
+		items.push(allNodes[i]);
 
 	while( items.size() > 0 ) {
 		processNodeDepth(items.front(), items);

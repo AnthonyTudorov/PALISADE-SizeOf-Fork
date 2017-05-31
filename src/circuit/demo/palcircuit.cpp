@@ -61,6 +61,10 @@ main(int argc, char *argv[])
 
 			std::cout << result << std::endl;
 		}
+
+		std::cout << "Begin DOT output" << std::endl;
+		driver.graph.DisplayGraph();
+		std::cout << "End DOT output" << std::endl;
 	}
 
 	return 0;

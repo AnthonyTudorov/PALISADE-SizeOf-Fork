@@ -4,21 +4,10 @@
 
 ostream& operator<<(ostream& out, const CircuitNode& n)
 {
-	out << n.nodeId << endl;
-	out << n.nodeInputDepth << endl;
-	out << n.nodeOutputDepth << endl;
-	out << "inputs: ";
-	for( int i : n.getInputs() ) out << i << " ";
-	out << endl;
-	out << "outputs: ";
-	for( int i : n.getOutputs() ) out << i << " ";
-	out << endl;
-	out << endl;
-
 	out << n.nodeId << "  [label=\"";
 	if( n.nodeInputDepth != 0 )
 		out << "(" + std::to_string(n.nodeInputDepth) + ")\\n";
-	out << n.getNodeLabel();
+	out << n.getNodeLabel() << "\"";
 	const Value& val = n.getValue();
 	if( val != NULL )
 		out << "\\n\\[" << n.getValue()->GetElement() << "\\] \" ";
