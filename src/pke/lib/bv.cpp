@@ -536,6 +536,10 @@ namespace lbcrypto {
 			if (this->m_algorithmLeveledSHE == NULL)
 				this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmBV<Element>();
 
+		if (mask[MULTIPARTY])
+			if (this->m_algorithmMultiparty == NULL)
+				this->m_algorithmMultiparty = new LPAlgorithmMultipartyBV<Element>();
+
 		if (mask[FHE])
 			throw std::logic_error("FHE feature not supported for BV scheme");
 	}
@@ -561,6 +565,9 @@ namespace lbcrypto {
 			if (this->m_algorithmLeveledSHE == NULL)
 				this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmBV<Element>();
 			break;
+		case MULTIPARTY:
+			if (this->m_algorithmMultiparty == NULL)
+				this->m_algorithmMultiparty = new LPAlgorithmMultipartyBV<Element>();
 		case FHE:
 			throw std::logic_error("FHE feature not supported for BV scheme");
 		}

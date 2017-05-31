@@ -966,6 +966,7 @@ namespace lbcrypto {
 	template <class Element>
 	class LPMultipartyAlgorithm {
 		public:
+			virtual ~LPMultipartyAlgorithm() {}
 
 			/**
 			* Function to generate public and private keys for multiparty homomrophic encryption in coordination with a leading client that generated a first public key.
