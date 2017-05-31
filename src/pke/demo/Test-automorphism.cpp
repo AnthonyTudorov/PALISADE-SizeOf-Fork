@@ -83,7 +83,6 @@ int main() {
 	std::cout << "\n===========LTV TESTS (EVALAUTOMORPHISM-ARBITRARY)===============: " << std::endl;
 
 	PackedIntPlaintextEncoding::Destroy();
-	//std::vector<usint> totientList = GetTotientList(m);
 	for (usint index = 1; index < 10; index++) {
 		ArbLTVAutomorphismPackedArray(totientList[index]);
 	}
@@ -97,7 +96,6 @@ int main() {
 	std::cout << "\n===========BV TESTS (EVALAUTOMORPHISM-ARBITRARY)===============: " << std::endl;
 
 	PackedIntPlaintextEncoding::Destroy();
-	//std::vector<usint> totientList = GetTotientList(m);
 	for (usint index = 1; index < 10; index++) {
 		ArbBVAutomorphismPackedArray(totientList[index]);
 	}

@@ -75,6 +75,11 @@ namespace lbcrypto {
 
 		this->Pack(ilVector, modulus);//ilVector coefficients are packed and resulting ilVector is in COEFFICIENT form.
 
+		ilVector->PrintValues();
+
+		usint x = ilVector->GetCyclotomicOrder();
+		usint y = ilVector->GetRingDimension();
+
 	}
 
 	void PackedIntPlaintextEncoding::Decode(const BigBinaryInteger &modulus, ILVector2n *ilVector) {
@@ -143,7 +148,7 @@ namespace lbcrypto {
 				}
 			}
 			//std::cout << "generator? = " << IsGenerator<BigBinaryInteger>(this->initRoot, BigBinaryInteger(m)) << std::endl;
-			//std::cout << "root found" << initRoot << std::endl;
+			std::cout << "root found" << initRoot << std::endl;
 		}
 
 		BigBinaryInteger qMod(ring->GetModulus());
@@ -192,11 +197,11 @@ namespace lbcrypto {
 	void PackedIntPlaintextEncoding::InitializeCRTCoefficients(usint cycloOrder,const BigBinaryInteger &modulus){
 		usint n = GetTotient(cycloOrder);
 		auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(cycloOrder, modulus);
-		auto rootList = GetRootVector(modulus, cycloOrder);
+		auto rootListInit = GetRootVector(modulus, cycloOrder);
 		std::vector<BigBinaryVector> coefficients;
 		for (usint i = 0; i < n; i++) {
-			auto coeffRow = SyntheticPolynomialDivision(cycloPoly, rootList.GetValAtIndex(i), modulus);
-			auto x = SyntheticRemainder(coeffRow, rootList.GetValAtIndex(i), modulus);
+			auto coeffRow = SyntheticPolynomialDivision(cycloPoly, rootListInit.GetValAtIndex(i), modulus);
+			auto x = SyntheticRemainder(coeffRow, rootListInit.GetValAtIndex(i), modulus);
 			x = x.ModInverse(modulus);
 			coeffRow = coeffRow*x;
 			coefficients.push_back(std::move(coeffRow));
@@ -211,8 +216,8 @@ namespace lbcrypto {
 		}
 		auto yPow = PolynomialPower(packedVector, initRoot.ConvertToInt());
 		auto permPacked = PolyMod(yPow, cycloPoly, modulus);
-		auto perm = SyntheticPolyRemainder(permPacked, rootList, modulus);
-		auto newRootList = FindPermutedSlots(slotValues, perm, rootList);
+		auto perm = SyntheticPolyRemainder(permPacked, rootListInit, modulus);
+		auto newRootList = FindPermutedSlots(slotValues, perm, rootListInit);
 		coefficients.clear();
 		for (usint i = 0; i < n; i++) {
 			auto coeffRow = SyntheticPolynomialDivision(cycloPoly, newRootList.GetValAtIndex(i), modulus);
@@ -256,7 +261,7 @@ namespace lbcrypto {
 			packedVector = ChineseRemainderTransformFTT<BigBinaryInteger, BigBinaryVector>::GetInstance().ForwardTransform(packedVector, initRoot, m);
 		}
 		else {
-			packedVector = SyntheticPolyRemainder(packedVector, this->rootList, modulus);
+			packedVector = SyntheticPolyRemainder(packedVector, rootList, modulus);
 		}		
 
 		packedVector.SetModulus(qMod);
