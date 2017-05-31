@@ -305,7 +305,7 @@ namespace lbcrypto {
 		int32_t S = 0;
 		bool discard = true;
 		std::uniform_int_distribution<int32_t> uniform_int(std::numeric_limits<int32_t>::min(), std::numeric_limits<int32_t>::max());
-		uint32_t seed;
+		uint32_t seed = 0;
 		char counter = 0;
 		int32_t MAX_ROW = probMatrixSize - 1;
 		while (discard == true) {
@@ -315,7 +315,7 @@ namespace lbcrypto {
 			uint32_t hit = 0;
 			//Indicator of column
 			short col = 0;
-			bool scanningInitialized = false;
+			//bool scanningInitialized = false;
 			//To generate random bit a 32 bit integer is generated in every 32 iterations and each single bit is used in order to save cycles
 			while (hit == 0 && col <= 31) {
 				if (counter % 32 == 0) {

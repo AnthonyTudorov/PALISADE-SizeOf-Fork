@@ -107,8 +107,6 @@ void test_NTT () {
   // Code to test NTT at three different numbers of limbs.
 
   int nloop = 100; //number of times to run each test for timing.
-
-  bool dbg_flag = 1;		// if true then print dbg output
  
   TimeVar t1,t2, t3,t_total; // timers for TIC() TOC()
   // captures the time
@@ -308,7 +306,7 @@ void test_NTT () {
 
 
   bool failed = false;
-  usint ix;
+  int ix;
   cout << "Startng timing"<<endl;
 
   for (ix = 0; ix <nloop; ix++) {

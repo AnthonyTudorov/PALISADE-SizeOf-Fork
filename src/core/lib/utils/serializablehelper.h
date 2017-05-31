@@ -36,7 +36,8 @@
 #ifndef LBCRYPTO_SERIALIZABLEHELPER_H
 #define LBCRYPTO_SERIALIZABLEHELPER_H
 
-#define RAPIDJSON_HAS_STDSTRING 1
+#include "serializable.h"
+
 #include "rapidjson/document.h"
 #include "rapidjson/pointer.h"
 #include "rapidjson/reader.h"
@@ -52,7 +53,6 @@
 #include <string>
 #include <unordered_map>
 
-#include "serializable.h"
 #include "../math/backend.h"
 #include "../lattice/ilvector2n.h"
 #include "../lattice/ilvectorarray2n.h"
@@ -114,18 +114,6 @@ public:
 
 };
 
-template <class Element>
-inline std::string elementName() {
-	if( typeid(Element) == typeid(ILVector2n) )
-		return "ILVector2n";
-	else if( typeid(Element) == typeid(ILVectorArray2n) )
-		return "ILVectorArray2n";
-	else {
-		std::string msg = "Unrecognized type name for Element: ";
-		throw std::logic_error( msg + typeid(Element).name() );
-	}
-}
-
 template<typename T>
 void SerializeVector(const std::string& vectorName, const std::string& typeName, const std::vector<T> inVector, Serialized* serObj) {
 	Serialized ser(rapidjson::kObjectType, &serObj->GetAllocator());
@@ -133,7 +121,7 @@ void SerializeVector(const std::string& vectorName, const std::string& typeName,
 	ser.AddMember("Length", std::to_string(inVector.size()), serObj->GetAllocator());
 
 	Serialized serElements(rapidjson::kObjectType, &serObj->GetAllocator());
-	for( int i=0; i<inVector.size(); i++ ) {
+	for( size_t i=0; i<inVector.size(); i++ ) {
 		Serialized oneEl(rapidjson::kObjectType, &serObj->GetAllocator());
 		inVector[i].Serialize(&oneEl);
 
@@ -154,7 +142,7 @@ void SerializeVectorOfPointers(const std::string& vectorName, const std::string&
 	ser.AddMember("Length", std::to_string(inVector.size()), serObj->GetAllocator());
 
 	Serialized serElements(rapidjson::kObjectType, &serObj->GetAllocator());
-	for( int i=0; i<inVector.size(); i++ ) {
+	for( size_t i=0; i<inVector.size(); i++ ) {
 		Serialized oneEl(rapidjson::kObjectType, &serObj->GetAllocator());
 		inVector[i]->Serialize(&oneEl);
 
@@ -187,7 +175,7 @@ bool DeserializeVector(const std::string& vectorName, const std::string& typeNam
 
 	const SerialItem& members = mIt->value;
 
-	for( int i=0; i<outVector->size(); i++ ) {
+	for( size_t i=0; i<outVector->size(); i++ ) {
 		Serialized::ConstMemberIterator eIt = members.FindMember( std::to_string(i) );
 		if( eIt == members.MemberEnd() ) return false;
 
@@ -230,12 +218,11 @@ bool DeserializeVectorOfPointers(const std::string& vectorName, const std::strin
 
 	const SerialItem& members = mIt->value;
 
-	for( int i=0; i<outVector->size(); i++ ) {
+	for( size_t i=0; i<outVector->size(); i++ ) {
 		Serialized::ConstMemberIterator eIt = members.FindMember( std::to_string(i) );
 		if( eIt == members.MemberEnd() ) return false;
 
 		T vectorElem;
-		const SerialItem& s = eIt->value;
 		SerialItem::ConstMemberIterator s2 = eIt->value.FindMember(typeName);
 
 		Serialized ser(rapidjson::kObjectType);

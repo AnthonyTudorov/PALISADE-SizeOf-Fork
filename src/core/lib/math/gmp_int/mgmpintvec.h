@@ -104,6 +104,10 @@ namespace NTL {
     myVecP(const long n, const myZZ &q);
     myVecP(const INIT_SIZE_TYPE, const long n, const myZZ &q);
     myVecP(const INIT_SIZE_TYPE, const long n, const myT& a, const myZZ &q);
+
+    //constructors with moduli and initializer lists
+    myVecP(const long n, const myZZ &q, std::initializer_list<usint> rhs);
+    myVecP(const long n, const myZZ &q, std::initializer_list<std::string> rhs);
     
     //copy with myZZ moduli
     myVecP(const myVecP<myT> &a, const myZZ &q);

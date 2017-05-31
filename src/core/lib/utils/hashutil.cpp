@@ -52,10 +52,10 @@ lbcrypto::BytePlaintextEncoding HashUtil::SHA256(lbcrypto::BytePlaintextEncoding
 	message.push_back((uint8_t)(m_len & 0x00000000000000ff));
 
 
-	for (int n = 0;n < (message.size() * 8) / 512; n++) {
+	for (usint n = 0;n < (message.size() * 8) / 512; n++) {
 		uint32_t w[64];
 		short counter = 0;
-		for (int m = 64 * n;m < (64 * (n + 1));m += 4) {
+		for (usint m = 64 * n;m < (64 * (n + 1));m += 4) {
 			w[counter] = ((uint32_t)message.at(m) << 24) ^ ((uint32_t)message.at(m + 1) << 16) ^ ((uint32_t)message.at(m + 2) << 8) ^ ((uint32_t)message.at(m + 3));
 			counter++;
 		}

@@ -73,7 +73,7 @@ public:
 	typedef TernaryUniformGeneratorImpl<IntType,VecType> TugType;
 	typedef BinaryUniformGeneratorImpl<IntType,VecType> BugType;
 
-	static const std::string ElementName;
+	static const std::string GetElementName() { return "ILVectorImpl"; }
 
 	/**
 	 * Default constructor
@@ -698,16 +698,12 @@ public:
 	/**
 	 * Clear the pre-computed discrete Gaussian samples.
 	 */
-	static void DestroyPreComputedSamples() {
-		m_dggSamples.clear();
-	}
+	static void DestroyPreComputedSamples();
 
 	/**
 	 * Clear the pre-computed ternary uniform samples.
 	 */
-	static void DestroyPreComputedTugSamples() {
-		m_tugSamples.clear();
-	}
+	static void DestroyPreComputedTugSamples();
 
 	/**
 	 * Serialize the object into a Serialized

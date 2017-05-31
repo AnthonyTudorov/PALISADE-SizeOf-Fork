@@ -51,7 +51,7 @@ RAPIDJSON_DIAG_OFF(effc++)
 */
 #endif // !defined(RAPIDJSON_HAS_STDSTRING)
 
-#if RAPIDJSON_HAS_STDSTRING
+#ifdef RAPIDJSON_HAS_STDSTRING
 #include <string>
 #endif // RAPIDJSON_HAS_STDSTRING
 
@@ -59,7 +59,7 @@ RAPIDJSON_DIAG_OFF(effc++)
 #include <iterator> // std::iterator, std::random_access_iterator_tag
 #endif
 
-#if RAPIDJSON_HAS_CXX11_RVALUE_REFS
+#ifdef RAPIDJSON_HAS_CXX11_RVALUE_REFS
 #include <utility> // std::move
 #endif
 
@@ -369,7 +369,7 @@ inline GenericStringRef<CharType> StringRef(const CharType* str, size_t length) 
     return GenericStringRef<CharType>(str, SizeType(length));
 }
 
-#if RAPIDJSON_HAS_STDSTRING
+#ifdef RAPIDJSON_HAS_STDSTRING
 //! Mark a string object as constant string
 /*! Mark a string object (e.g. \c std::string) as a "string literal".
     This function can be used to avoid copying a string to be referenced as a
@@ -438,7 +438,7 @@ public:
     //! Default constructor creates a null value.
     GenericValue() RAPIDJSON_NOEXCEPT : data_(), flags_(kNullFlag) {}
 
-#if RAPIDJSON_HAS_CXX11_RVALUE_REFS
+#ifdef RAPIDJSON_HAS_CXX11_RVALUE_REFS
     //! Move constructor in C++11
     GenericValue(GenericValue&& rhs) RAPIDJSON_NOEXCEPT : data_(rhs.data_), flags_(rhs.flags_) {
         rhs.flags_ = kNullFlag; // give up contents
@@ -449,7 +449,7 @@ private:
     //! Copy constructor is not permitted.
     GenericValue(const GenericValue& rhs);
 
-#if RAPIDJSON_HAS_CXX11_RVALUE_REFS
+#ifdef RAPIDJSON_HAS_CXX11_RVALUE_REFS
     //! Moving from a GenericDocument is not permitted.
     template <typename StackAllocator>
     GenericValue(GenericDocument<Encoding,Allocator,StackAllocator>&& rhs);
@@ -560,7 +560,7 @@ public:
     //! Constructor for copy-string (i.e. do make a copy of string)
     GenericValue(const Ch*s, Allocator& allocator) : data_(), flags_() { SetStringRaw(StringRef(s), allocator); }
 
-#if RAPIDJSON_HAS_STDSTRING
+#ifdef RAPIDJSON_HAS_STDSTRING
     //! Constructor for copy-string from a string object (i.e. do make a copy of string)
     /*! \note Requires the definition of the preprocessor symbol \ref RAPIDJSON_HAS_STDSTRING.
      */
@@ -610,7 +610,7 @@ public:
         return *this;
     }
 
-#if RAPIDJSON_HAS_CXX11_RVALUE_REFS
+#ifdef RAPIDJSON_HAS_CXX11_RVALUE_REFS
     //! Move assignment in C++11
     GenericValue& operator=(GenericValue&& rhs) RAPIDJSON_NOEXCEPT {
         return *this = rhs.Move();
@@ -744,7 +744,7 @@ public:
     //! Equal-to operator with const C-string pointer
     bool operator==(const Ch* rhs) const { return *this == GenericValue(StringRef(rhs)); }
 
-#if RAPIDJSON_HAS_STDSTRING
+#ifdef RAPIDJSON_HAS_STDSTRING
     //! Equal-to operator with string object
     /*! \note Requires the definition of the preprocessor symbol \ref RAPIDJSON_HAS_STDSTRING.
      */
@@ -871,7 +871,7 @@ public:
     template <typename SourceAllocator>
     const GenericValue& operator[](const GenericValue<Encoding, SourceAllocator>& name) const { return const_cast<GenericValue&>(*this)[name]; }
 
-#if RAPIDJSON_HAS_STDSTRING
+#ifdef RAPIDJSON_HAS_STDSTRING
     //! Get a value from an object associated with name (string object).
     GenericValue& operator[](const std::basic_string<Ch>& name) { return (*this)[GenericValue(StringRef(name))]; }
     const GenericValue& operator[](const std::basic_string<Ch>& name) const { return (*this)[GenericValue(StringRef(name))]; }
@@ -900,7 +900,7 @@ public:
     */
     bool HasMember(const Ch* name) const { return FindMember(name) != MemberEnd(); }
 
-#if RAPIDJSON_HAS_STDSTRING
+#ifdef RAPIDJSON_HAS_STDSTRING
     //! Check whether a member exists in the object with string object.
     /*!
         \param name Member name to be searched.
@@ -968,7 +968,7 @@ public:
     }
     template <typename SourceAllocator> ConstMemberIterator FindMember(const GenericValue<Encoding, SourceAllocator>& name) const { return const_cast<GenericValue&>(*this).FindMember(name); }
 
-#if RAPIDJSON_HAS_STDSTRING
+#ifdef RAPIDJSON_HAS_STDSTRING
     //! Find member by string object name.
     /*!
         \param name Member name to be searched.
@@ -1026,7 +1026,7 @@ public:
         return AddMember(name, v, allocator);
     }
 
-#if RAPIDJSON_HAS_STDSTRING
+#ifdef RAPIDJSON_HAS_STDSTRING
     //! Add a string object as member (name-value pair) to the object.
     /*! \param name A string value as name of member.
         \param value constant string reference as value of member.
@@ -1066,7 +1066,7 @@ public:
         return AddMember(name, v, allocator);
     }
 
-#if RAPIDJSON_HAS_CXX11_RVALUE_REFS
+#ifdef RAPIDJSON_HAS_CXX11_RVALUE_REFS
     GenericValue& AddMember(GenericValue&& name, GenericValue&& value, Allocator& allocator) {
         return AddMember(name, value, allocator);
     }
@@ -1160,7 +1160,7 @@ public:
         return RemoveMember(n);
     }
 
-#if RAPIDJSON_HAS_STDSTRING
+#ifdef RAPIDJSON_HAS_STDSTRING
     bool RemoveMember(const std::basic_string<Ch>& name) { return RemoveMember(GenericValue(StringRef(name))); }
 #endif
 
@@ -1250,7 +1250,7 @@ public:
         return EraseMember(n);
     }
 
-#if RAPIDJSON_HAS_STDSTRING
+#ifdef RAPIDJSON_HAS_STDSTRING
     bool EraseMember(const std::basic_string<Ch>& name) { return EraseMember(GenericValue(StringRef(name))); }
 #endif
 
@@ -1352,7 +1352,7 @@ public:
         return *this;
     }
 
-#if RAPIDJSON_HAS_CXX11_RVALUE_REFS
+#ifdef RAPIDJSON_HAS_CXX11_RVALUE_REFS
     GenericValue& PushBack(GenericValue&& value, Allocator& allocator) {
         return PushBack(value, allocator);
     }
@@ -1512,7 +1512,7 @@ public:
     */
     GenericValue& SetString(const Ch* s, Allocator& allocator) { return SetString(s, internal::StrLen(s), allocator); }
 
-#if RAPIDJSON_HAS_STDSTRING
+#ifdef RAPIDJSON_HAS_STDSTRING
     //! Set this value as a string by copying from source string.
     /*! \param s source string.
         \param allocator Allocator for allocating copied buffer. Commonly use GenericDocument::GetAllocator().
@@ -1802,7 +1802,7 @@ public:
             ownAllocator_ = allocator_ = RAPIDJSON_NEW(Allocator());
     }
 
-#if RAPIDJSON_HAS_CXX11_RVALUE_REFS
+#ifdef RAPIDJSON_HAS_CXX11_RVALUE_REFS
     //! Move constructor in C++11
     GenericDocument(GenericDocument&& rhs) RAPIDJSON_NOEXCEPT
         : ValueType(std::forward<ValueType>(rhs)), // explicit cast to avoid prohibited move from Document
@@ -1821,7 +1821,7 @@ public:
         Destroy();
     }
 
-#if RAPIDJSON_HAS_CXX11_RVALUE_REFS
+#ifdef RAPIDJSON_HAS_CXX11_RVALUE_REFS
     //! Move assignment in C++11
     GenericDocument& operator=(GenericDocument&& rhs) RAPIDJSON_NOEXCEPT
     {

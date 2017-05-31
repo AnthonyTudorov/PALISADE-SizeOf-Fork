@@ -26,7 +26,7 @@ shared_ptr<Ciphertext<ILVectorArray2n>> LPAlgorithmSHENull<ILVectorArray2n>::Eva
 
 	vector<typename ILVectorArray2n::ILVectorType> mResults;
 
-	for( int i = 0; i < c1.GetNumOfElements(); i++ ) {
+	for( size_t i = 0; i < c1.GetNumOfElements(); i++ ) {
 		typename ILVectorArray2n::ILVectorType v = ElementNullSchemeMultiply(c1e.at(i), c2e.at(i), ptm);
 		mResults.push_back(v);
 	}

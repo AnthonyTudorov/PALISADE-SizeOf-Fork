@@ -97,17 +97,17 @@ TEST(UTTrapdoor,sizes){
 	shared_ptr<ILParams> fastParams( new ILParams(m, modulus, rootOfUnity) );
 	std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> trapPair = RLWETrapdoorUtility::TrapdoorGen(fastParams, stddev);
 
-	EXPECT_EQ(1,trapPair.first.GetRows())
+	EXPECT_EQ(1U,trapPair.first.GetRows())
 		<< "Failure testing number of rows";
 	EXPECT_EQ(k+2,trapPair.first.GetCols())
 		<< "Failure testing number of colums";
 
-	EXPECT_EQ(1,trapPair.second.m_r.GetRows())
+	EXPECT_EQ(1U,trapPair.second.m_r.GetRows())
 		<< "Failure testing number of rows";
 	EXPECT_EQ(k,trapPair.second.m_r.GetCols())
 		<< "Failure testing number of colums";
 
-	EXPECT_EQ(1,trapPair.second.m_e.GetRows())
+	EXPECT_EQ(1U,trapPair.second.m_e.GetRows())
 		<< "Failure testing number of rows";
 	EXPECT_EQ(k,trapPair.second.m_e.GetCols())
 		<< "Failure testing number of colums";
@@ -141,7 +141,7 @@ TEST(UTTrapdoor,TrapDoorPairTest){
 	RingMat stackedTrap1 = eHat.VStack(rHat);
 	//stackedTrap2.PrintValues();
 
-	EXPECT_EQ(2,stackedTrap1.GetRows())
+	EXPECT_EQ(2U,stackedTrap1.GetRows())
 		<< "Failure testing number of rows";
 	EXPECT_EQ(k,stackedTrap1.GetCols())
 		<< "Failure testing number of colums";
@@ -160,7 +160,6 @@ TEST(UTTrapdoor,GadgetTest){
 	usint m = 16;
 	BigBinaryInteger modulus("67108913");
 	BigBinaryInteger rootOfUnity("61564");
-	float stddev = 4;
 
 	double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
 	double logTwo = log(val-1.0)/log(2)+1.0;
@@ -171,7 +170,7 @@ TEST(UTTrapdoor,GadgetTest){
 
         RingMat g = RingMat(zero_alloc, 1, k).GadgetVector();
 
-	EXPECT_EQ(1,g.GetRows())
+	EXPECT_EQ(1U,g.GetRows())
 		<< "Failure testing number of rows";
 	EXPECT_EQ(k,g.GetCols())
 		<< "Failure testing number of colums";
@@ -205,7 +204,7 @@ TEST(UTTrapdoor,TrapDoorMultTest){
 	RingMat stackedTrap2 = stackedTrap1.VStack(eyeKK);
 
 	RingMat trapMult = (trapPair.first)*(stackedTrap2);
-	EXPECT_EQ(1,trapMult.GetRows())
+	EXPECT_EQ(1U,trapMult.GetRows())
 		<< "Failure testing number of rows";
 	EXPECT_EQ(k,trapMult.GetCols())
 		<< "Failure testing number of colums";

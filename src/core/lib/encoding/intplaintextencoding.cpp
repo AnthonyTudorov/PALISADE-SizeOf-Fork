@@ -49,7 +49,7 @@ IntPlaintextEncoding::IntPlaintextEncoding(uint32_t value)
 template <typename IntType, typename VecType, typename Element>
 void IntPlaintextEncoding::doEncode(const BigBinaryInteger &modulus, Element *ilVector, size_t startFrom, size_t length) const
 {
-	int padlen = 0;
+	size_t padlen = 0;
 	uint64_t mod = modulus.ConvertToInt();
 
 	if( length == 0 ) length = this->size();
@@ -64,7 +64,7 @@ void IntPlaintextEncoding::doEncode(const BigBinaryInteger &modulus, Element *il
 
 	Format format = COEFFICIENT;
 
-	for (usint i = 0; i < length; i++) {
+	for (size_t i = 0; i < length; i++) {
 		uint32_t entry = this->at(i + startFrom);
 		if( entry >= mod )
 			throw std::logic_error("Cannot encode integer at position " + std::to_string(i) + " because it is >= plaintext modulus " + std::to_string(mod));
@@ -72,7 +72,7 @@ void IntPlaintextEncoding::doEncode(const BigBinaryInteger &modulus, Element *il
 		temp.SetValAtIndex(i, Val);
 	}
 
-	for( usint i=0; i<padlen; i++ ) {
+	for( size_t i=0; i<padlen; i++ ) {
 		temp.SetValAtIndex(i+length, IntType::ZERO);
 	}
 

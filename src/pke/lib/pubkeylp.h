@@ -147,7 +147,7 @@ namespace lbcrypto {
 	 * @brief Concrete class for LP public keys
 	 * @tparam Element a ring element.
 	 */
-	template <class Element>
+	template <typename Element>
 	class LPPublicKey : public LPKey<Element> {
 		public:
 
@@ -163,9 +163,8 @@ namespace lbcrypto {
 			*
 			*@param &rhs LPPublicKey to copy from
 			*/
-			explicit LPPublicKey(const LPPublicKey<Element> &rhs) {
+			explicit LPPublicKey(const LPPublicKey<Element> &rhs) : LPKey<Element>(rhs.cryptoContext) {
 				m_h = rhs.m_h;
-				this->m_cryptoParameters = rhs.m_cryptoParameters;
 			}
 
 			/**
@@ -173,9 +172,8 @@ namespace lbcrypto {
 			*
 			*@param &rhs LPPublicKey to move from
 			*/
-			explicit LPPublicKey(LPPublicKey<Element> &&rhs) {
+			explicit LPPublicKey(LPPublicKey<Element> &&rhs) : LPKey<Element>(rhs.cryptoContext) {
 				m_h = std::move(rhs.m_h);
-				this->m_cryptoParameters = rhs.m_cryptoParameters;
 			}
 
 			/**
@@ -185,7 +183,6 @@ namespace lbcrypto {
 			*/
 			const LPPublicKey<Element>& operator=(const LPPublicKey<Element> &rhs) {
 				this->m_h = rhs.m_h;
-				this->m_cryptoParameters = rhs.m_cryptoParameters;
 
 				return *this;
 			}
@@ -197,8 +194,6 @@ namespace lbcrypto {
 			*/
 			const LPPublicKey<Element>& operator=(LPPublicKey<Element> &&rhs) {
 				m_h = std::move(rhs.m_h);
-				this->m_cryptoParameters = rhs.m_cryptoParameters;
-
 				return *this;
 			}
 
@@ -246,48 +241,20 @@ namespace lbcrypto {
 				m_h.insert(m_h.begin() + idx, std::move(element));
 			}
 			
-			//JSON FACILITY
 			/**
 			* Serialize the object into a Serialized
 			* @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
 			* @param fileFlag is an object-specific parameter for the serialization
 			* @return true if successfully serialized
 			*/
-			bool Serialize(Serialized *serObj) const {
-				serObj->SetObject();
-
-				serObj->AddMember("Object", "PublicKey", serObj->GetAllocator());
-
-				if (!this->GetCryptoParameters()->Serialize(serObj)) {
-					return false;
-				}
-
-				SerializeVector<Element>("Vectors", Element::ElementName, this->GetPublicElements(), serObj);
-
-				return true;
-			}
+			bool Serialize(Serialized *serObj) const;
 
 			/**
 			* Populate the object from the deserialization of the Serialized
 			* @param &serObj contains the serialized object
 			* @return true on success
 			*/
-			bool Deserialize(const Serialized &serObj) { 
-
-				Serialized::ConstMemberIterator mIt = serObj.FindMember("Object");
-				if( mIt == serObj.MemberEnd() || string(mIt->value.GetString()) != "PublicKey" )
-					return false;
-
-				mIt = serObj.FindMember("Vectors");
-
-				if( mIt == serObj.MemberEnd() ) {
-					return false;
-				}
-
-				bool ret = DeserializeVector<Element>("Vectors", Element::ElementName, mIt, &this->m_h);
-
-				return ret;
-			}
+			bool Deserialize(const Serialized &serObj);
 
 			bool operator==(const LPPublicKey& other) const {
 				if( *this->cryptoContext.GetCryptoParameters() != *other.cryptoContext.GetCryptoParameters() )
@@ -356,7 +323,6 @@ namespace lbcrypto {
 
 		virtual const std::vector<Element> &GetAVector() const {
 			throw std::runtime_error("GetAVector operation not supported");
-			return std::vector<Element>();
 		}
 
 		/**
@@ -390,7 +356,6 @@ namespace lbcrypto {
 
 		virtual const std::vector<Element> &GetBVector() const {
 			throw std::runtime_error("GetBVector operation not supported");
-			return std::vector<Element>();
 		}
 
 		/**
@@ -423,7 +388,6 @@ namespace lbcrypto {
 
 		virtual const Element &GetA() const {
 			throw std::runtime_error("GetA operation not supported");
-			return Element();
 		}
 	};
 
@@ -509,50 +473,10 @@ namespace lbcrypto {
 		* @param fileFlag is an object-specific parameter for the serialization
 		* @return true if successfully serialized
 		*/
-		bool Serialize(Serialized *serObj) const {
-			serObj->SetObject();
+		bool Serialize(Serialized *serObj) const;
 
-			serObj->AddMember("Object", "EvalKeyRelin", serObj->GetAllocator());
+		bool Deserialize(const Serialized &serObj);
 
-			if (!this->GetCryptoParameters()->Serialize(serObj)) {
-				return false;
-			}
-
-			SerializeVector<Element>("AVector", Element::ElementName, this->m_rKey[0], serObj);
-			SerializeVector<Element>("BVector", Element::ElementName, this->m_rKey[1], serObj);
-
-			return true;
-		}
-
-		bool Deserialize(const Serialized &serObj) {
-
-			Serialized::ConstMemberIterator mIt = serObj.FindMember("Object");
-			if( mIt == serObj.MemberEnd() || string(mIt->value.GetString()) != "EvalKeyRelin" )
-				return false;
-
-			mIt = serObj.FindMember("AVector");
-
-			if( mIt == serObj.MemberEnd() ) {
-				return false;
-			}
-
-			std::vector<Element> deserElem;
-			bool ret = DeserializeVector<Element>("AVector", Element::ElementName, mIt, &deserElem);
-			this->m_rKey.push_back(deserElem);
-
-			if( !ret ) return ret;
-
-			mIt = serObj.FindMember("BVector");
-
-			if( mIt == serObj.MemberEnd() ) {
-				return false;
-			}
-
-			ret = DeserializeVector<Element>("BVector", Element::ElementName, mIt, &deserElem);
-			this->m_rKey.push_back(deserElem);
-
-			return ret;
-		}
 	private:
 		//private member to store vector of vector of Element.
 		std::vector< std::vector<Element> > m_rKey;
@@ -613,45 +537,14 @@ namespace lbcrypto {
 		* @param fileFlag is an object-specific parameter for the serialization
 		* @return true if successfully serialized
 		*/
-		bool Serialize(Serialized *serObj) const {
-			serObj->SetObject();
-
-			serObj->AddMember("Object", "EvalKeyNTRURelin", serObj->GetAllocator());
-
-			if (!this->GetCryptoParameters()->Serialize(serObj)) {
-				return false;
-			}
-
-			SerializeVector<Element>("Vectors", Element::ElementName, this->GetAVector(), serObj);
-
-			return true;
-		}
+		bool Serialize(Serialized *serObj) const;
 
 		/**
 		* Populate the object from the deserialization of the Serialized
 		* @param &serObj contains the serialized object
 		* @return true on success
 		*/
-		bool Deserialize(const Serialized &serObj) {
-			Serialized::ConstMemberIterator mIt = serObj.FindMember("Object");
-			if( mIt == serObj.MemberEnd() || string(mIt->value.GetString()) != "EvalKeyNTRURelin" )
-				return false;
-
-			SerialItem::ConstMemberIterator it = serObj.FindMember("Vectors");
-
-			if( it == serObj.MemberEnd() ) {
-				return false;
-			}
-
-			std::vector<Element> newElements;
-			if( DeserializeVector<Element>("Vectors", Element::ElementName, it, &newElements) ) {
-				this->SetAVector(newElements);
-				return true;
-			}
-
-			return false;
-		}
-
+		bool Deserialize(const Serialized &serObj);
 		
 	private:
 		//private member to store vector of Element.
@@ -896,6 +789,7 @@ namespace lbcrypto {
 	template <class Element>
 	class LPParameterGenerationAlgorithm {
 	public:
+		virtual ~LPParameterGenerationAlgorithm() {}
 
 		/**
 		* Method for computing all derived parameters based on chosen primitive parameters
@@ -916,7 +810,8 @@ namespace lbcrypto {
 	 */
 	template <class Element>
 	class LPEncryptionAlgorithm {
-		public:	
+		public:
+			virtual ~LPEncryptionAlgorithm() {}
 
 			/**
 			 * Method for encrypting plaintex using LBC
@@ -957,7 +852,8 @@ namespace lbcrypto {
 	 */
 	template <class Element>
 	class LPLeveledSHEAlgorithm {
-		public:	
+		public:
+		virtual ~LPLeveledSHEAlgorithm() {}
 
 			/**
 			 * Method for Modulus Reduction.
@@ -1014,6 +910,7 @@ namespace lbcrypto {
 	template <class Element>
 	class LPPREAlgorithm {
 		public:
+			virtual ~LPPREAlgorithm() {}
 
 			/**
 			 * Virtual function to generate 1..log(q) encryptions for each bit of the original private key.
@@ -1132,6 +1029,7 @@ namespace lbcrypto {
 	template <class Element>
 	class LPSHEAlgorithm {
 		public:
+			virtual ~LPSHEAlgorithm() {}
 
 			/**
 			* Virtual function to define the interface for homomorphic addition of ciphertexts.
@@ -1199,8 +1097,8 @@ namespace lbcrypto {
 				RationalCiphertext<Element> determinant;
 				xCovariance.Determinant(&determinant);
 
-				for (int row = 0; row < result->GetRows(); row++)
-					for (int col = 0; col < result->GetCols(); col++)
+				for (size_t row = 0; row < result->GetRows(); row++)
+					for (size_t col = 0; col < result->GetCols(); col++)
 						(*result)(row, col).SetDenominator(*determinant.GetNumerator());
 
 				return result;
@@ -1322,6 +1220,7 @@ namespace lbcrypto {
 	template <class Element>
 	class LPFHEAlgorithm {
 		public:
+			virtual ~LPFHEAlgorithm() {}
 
 			/**
 			 * Virtual function to define the interface for bootstrapping evaluation of ciphertext
@@ -1384,11 +1283,13 @@ namespace lbcrypto {
 
 		virtual usint GetRelinWindow() const { return 0; }
 
-		virtual const typename Element::DggType &GetDiscreteGaussianGenerator() const { return 0; }
+		virtual const typename Element::DggType &GetDiscreteGaussianGenerator() const {
+			throw std::logic_error("No DGG Available for this parameter set");
+		}
 
 
 	protected:
-		LPCryptoParameters() : m_plaintextModulus(Element::Integer::TWO) {}
+		LPCryptoParameters() : m_plaintextModulus(2) {}
 
 		LPCryptoParameters(const typename Element::Integer &plaintextModulus) : m_plaintextModulus(plaintextModulus) {}
 
@@ -1817,7 +1718,7 @@ namespace lbcrypto {
 		shared_ptr<Ciphertext<Element>> LevelReduce(const shared_ptr<Ciphertext<Element>> cipherText1,
 				const shared_ptr<LPEvalKeyNTRU<Element>> linearKeySwitchHint) const {
 			if(this->m_algorithmLeveledSHE){
-				this->m_algorithmLeveledSHE->LevelReduce(cipherText1,linearKeySwitchHint);
+				return this->m_algorithmLeveledSHE->LevelReduce(cipherText1,linearKeySwitchHint);
 			}
 			else{
 				throw std::logic_error("LevelReduce operation has not been enabled");

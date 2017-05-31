@@ -57,7 +57,7 @@ namespace exp_int {
     m_data.resize(length);
 
     for (usint i = 0; i < length; i++){
-      m_data[i] = ubint_el_t::ZERO;
+      m_data[i] = 0;
     }
   }
 
@@ -121,7 +121,7 @@ namespace exp_int {
       if(i<len) {
 	m_data.push_back( ubint_el_t(*(rhs.begin()+i)));
       } else {
-	m_data.push_back(ubint_el_t::ZERO);
+	m_data.push_back(ubint_el_t(0));
       }
     }
 
@@ -136,7 +136,7 @@ namespace exp_int {
       if(i<len) {
 	m_data.push_back( ubint_el_t(*(rhs.begin()+i)));
       } else {
-	m_data.push_back(ubint_el_t::ZERO);
+	m_data.push_back(ubint_el_t(0));
       }
     }
     return *this;
@@ -151,7 +151,7 @@ namespace exp_int {
       if(i<len) {
 	m_data.push_back( ubint_el_t(*(rhs.begin()+i)));
       } else {
-	m_data.push_back(ubint_el_t::ZERO);
+	m_data.push_back(ubint_el_t(0));
       }
     }
     return *this;

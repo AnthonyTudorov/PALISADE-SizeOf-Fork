@@ -164,6 +164,6 @@ TEST(UTPKESer, LTV_keys_and_ciphertext) {
 
 	ciphertext[0] = newC;
 	BytePlaintextEncoding plaintextShortNew;
-	DecryptResult result = cc.Decrypt(kp.secretKey, ciphertext, &plaintextShortNew, true);
+	cc.Decrypt(kp.secretKey, ciphertext, &plaintextShortNew, true);
 	EXPECT_EQ(plaintextShortNew, plaintextShort) << "Decrypted deserialize failed";
 }

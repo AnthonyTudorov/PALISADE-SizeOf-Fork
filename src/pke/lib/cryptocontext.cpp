@@ -35,6 +35,32 @@
 
 namespace lbcrypto {
 
+template <typename Element>
+void CryptoContext<Element>::EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> key) const {
+
+	if( key == NULL || key->GetCryptoContext() != *this )
+		throw std::logic_error("Key passed to EvalMultKeyGen were not generated with this crypto context");
+
+	shared_ptr<LPEvalKey<Element>> k = GetEncryptionAlgorithm()->EvalMultKeyGen(key);
+	if( evalMultKeys.size() == 0 )
+		evalMultKeys.push_back(k);
+	else
+		evalMultKeys[0] = k;
+}
+
+template <typename Element>
+void CryptoContext<Element>::ClearEvalMultKeyCache() {
+	evalMultKeys.resize(0);
+}
+
+template <typename Element>
+const shared_ptr<LPEvalKey<Element>> CryptoContext<Element>::GetEvalMultKey() const {
+	if( evalMultKeys.size() != 1 )
+		throw std::logic_error("You need to use EvalMultKeyGen so that you have an EvalKey available");
+	return evalMultKeys[0];
+}
+
+
 template <typename T>
 bool
 CryptoContext<T>::Deserialize(const Serialized& serObj)

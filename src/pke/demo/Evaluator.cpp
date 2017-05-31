@@ -33,7 +33,6 @@
 #include <fstream>
 
 #include "math/matrix.h"
-#include "math/matrix.cpp"
 #include "palisade.h"
 
 #include "cryptocontexthelper.h"
@@ -148,7 +147,7 @@ void EvalLinRegressionNull() {
 			std::cout << "r,c is" << mmm.GetRows() << "," << mmm.GetCols() << std::endl;
 			const Matrix<RationalCiphertext<ILVector2n>>::data_t& e = mmm.GetData();
 			std::cout << e.size() << std::endl;
-			for( int i=0; i<e.size(); i++ )
+			for( size_t i=0; i<e.size(); i++ )
 				std::cout << i << ":" << e.at(i).size() << std::endl;
 		}
 	}
@@ -225,8 +224,8 @@ void EvalLinRegressionNull() {
 				std::cout << "col # mismatch" << std::endl;
 			}
 
-			for( int r=0; r<y->GetRows(); r++ ) {
-				for( int c=0; c<y->GetCols(); c++ ) {
+			for( size_t r=0; r<y->GetRows(); r++ ) {
+				for( size_t c=0; c<y->GetCols(); c++ ) {
 					if( (*y)(r,c) != newMat(r,c) ) {
 						std::cout << "element mismatch at " << r << "," << c << std::endl;
 					}
@@ -268,7 +267,7 @@ void EvalLinRegressionNull() {
 	Matrix<IntPlaintextEncoding> numerator = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
 	Matrix<IntPlaintextEncoding> denominator = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
 
-	DecryptResult result1 = cc.DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
+	cc.DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
 
 	std::cout << "numerator row 1 = " << numerator(0, 0).EvalToInt(plaintextModulus) << std::endl;
 	std::cout << "numerator row 2 = " << numerator(1, 0).EvalToInt(plaintextModulus) << std::endl;
@@ -279,7 +278,7 @@ void EvalLinRegressionNull() {
 	Matrix<IntPlaintextEncoding> numerator2 = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
 	Matrix<IntPlaintextEncoding> denominator2 = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
 
-	DecryptResult result2 = cc.DecryptMatrix(kp.secretKey, deserResult, &numerator2, &denominator2);
+	cc.DecryptMatrix(kp.secretKey, deserResult, &numerator2, &denominator2);
 
 	std::cout << "numerator row 1 = " << numerator2(0, 0).EvalToInt(plaintextModulus) << std::endl;
 	std::cout << "numerator row 2 = " << numerator2(1, 0).EvalToInt(plaintextModulus) << std::endl;
@@ -350,7 +349,7 @@ void EvalLinRegressionNull3() {
 			std::cout << "r,c is" << mmm.GetRows() << "," << mmm.GetCols() << std::endl;
 			const Matrix<RationalCiphertext<ILVector2n>>::data_t& e = mmm.GetData();
 			std::cout << e.size() << std::endl;
-			for (int i = 0; i<e.size(); i++)
+			for (size_t i = 0; i<e.size(); i++)
 				std::cout << i << ":" << e.at(i).size() << std::endl;
 		}
 	}
@@ -431,8 +430,8 @@ void EvalLinRegressionNull3() {
 				std::cout << "col # mismatch" << std::endl;
 			}
 
-			for (int r = 0; r<y->GetRows(); r++) {
-				for (int c = 0; c<y->GetCols(); c++) {
+			for (size_t r = 0; r<y->GetRows(); r++) {
+				for (size_t c = 0; c<y->GetCols(); c++) {
 					if ((*y)(r, c) != newMat(r, c)) {
 						std::cout << "element mismatch at " << r << "," << c << std::endl;
 					}
@@ -464,7 +463,7 @@ void EvalLinRegressionNull3() {
 	Matrix<IntPlaintextEncoding> numerator = Matrix<IntPlaintextEncoding>(zeroAlloc, 3, 1);
 	Matrix<IntPlaintextEncoding> denominator = Matrix<IntPlaintextEncoding>(zeroAlloc, 3, 1);
 
-	DecryptResult result1 = cc.DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
+	cc.DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
 
 	std::cout << "numerator row 1 = " << numerator(0, 0).EvalToInt(plaintextModulus) << std::endl;
 	std::cout << "numerator row 2 = " << numerator(1, 0).EvalToInt(plaintextModulus) << std::endl;
@@ -477,7 +476,7 @@ void EvalLinRegressionNull3() {
 	Matrix<IntPlaintextEncoding> numerator2 = Matrix<IntPlaintextEncoding>(zeroAlloc, 3, 1);
 	Matrix<IntPlaintextEncoding> denominator2 = Matrix<IntPlaintextEncoding>(zeroAlloc, 3, 1);
 
-	DecryptResult result2 = cc.DecryptMatrix(kp.secretKey, deserResult, &numerator2, &denominator2);
+	cc.DecryptMatrix(kp.secretKey, deserResult, &numerator2, &denominator2);
 
 	std::cout << "numerator row 1 = " << numerator2(0, 0).EvalToInt(plaintextModulus) << std::endl;
 	std::cout << "numerator row 2 = " << numerator2(1, 0).EvalToInt(plaintextModulus) << std::endl;
@@ -545,7 +544,7 @@ void EvalLinRegressionFV() {
 			std::cout << "r,c is" << mmm.GetRows() << "," << mmm.GetCols() << std::endl;
 			const Matrix<RationalCiphertext<ILVector2n>>::data_t& e = mmm.GetData();
 			std::cout << e.size() << std::endl;
-			for (int i = 0; i<e.size(); i++)
+			for (size_t i = 0; i<e.size(); i++)
 				std::cout << i << ":" << e.at(i).size() << std::endl;
 		}
 	}
@@ -623,8 +622,8 @@ void EvalLinRegressionFV() {
 				std::cout << "col # mismatch" << std::endl;
 			}
 
-			for (int r = 0; r<y->GetRows(); r++) {
-				for (int c = 0; c<y->GetCols(); c++) {
+			for (size_t r = 0; r<y->GetRows(); r++) {
+				for (size_t c = 0; c<y->GetCols(); c++) {
 					if ((*y)(r, c) != newMat(r, c)) {
 						std::cout << "element mismatch at " << r << "," << c << std::endl;
 					}
@@ -668,7 +667,7 @@ void EvalLinRegressionFV() {
 	Matrix<IntPlaintextEncoding> numerator = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
 	Matrix<IntPlaintextEncoding> denominator = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
 
-	DecryptResult result1 = cc.DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
+	cc.DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
 
 	std::cout << "numerator row 1 = " << numerator(0, 0).EvalToInt(plaintextModulus) << std::endl;
 	std::cout << "numerator row 2 = " << numerator(1, 0).EvalToInt(plaintextModulus) << std::endl;
@@ -679,7 +678,7 @@ void EvalLinRegressionFV() {
 	Matrix<IntPlaintextEncoding> numerator2 = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
 	Matrix<IntPlaintextEncoding> denominator2 = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
 
-	DecryptResult result2 = cc.DecryptMatrix(kp.secretKey, deserResult, &numerator2, &denominator2);
+	cc.DecryptMatrix(kp.secretKey, deserResult, &numerator2, &denominator2);
 
 	std::cout << "numerator row 1 = " << numerator2(0, 0).EvalToInt(plaintextModulus) << std::endl;
 	std::cout << "numerator row 2 = " << numerator2(1, 0).EvalToInt(plaintextModulus) << std::endl;
@@ -745,7 +744,7 @@ void EvalLinRegressionFV3() {
 			std::cout << "r,c is" << mmm.GetRows() << "," << mmm.GetCols() << std::endl;
 			const Matrix<RationalCiphertext<ILVector2n>>::data_t& e = mmm.GetData();
 			std::cout << e.size() << std::endl;
-			for (int i = 0; i<e.size(); i++)
+			for (size_t i = 0; i<e.size(); i++)
 				std::cout << i << ":" << e.at(i).size() << std::endl;
 		}
 	}
@@ -826,8 +825,8 @@ void EvalLinRegressionFV3() {
 				std::cout << "col # mismatch" << std::endl;
 			}
 
-			for (int r = 0; r<y->GetRows(); r++) {
-				for (int c = 0; c<y->GetCols(); c++) {
+			for (size_t r = 0; r<y->GetRows(); r++) {
+				for (size_t c = 0; c<y->GetCols(); c++) {
 					if ((*y)(r, c) != newMat(r, c)) {
 						std::cout << "element mismatch at " << r << "," << c << std::endl;
 					}
@@ -871,7 +870,7 @@ void EvalLinRegressionFV3() {
 	Matrix<IntPlaintextEncoding> numerator = Matrix<IntPlaintextEncoding>(zeroAlloc, 3, 1);
 	Matrix<IntPlaintextEncoding> denominator = Matrix<IntPlaintextEncoding>(zeroAlloc, 3, 1);
 
-	DecryptResult result1 = cc.DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
+	cc.DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
 
 	std::cout << "numerator row 1 = " << numerator(0, 0).EvalToInt(plaintextModulus) << std::endl;
 	std::cout << "numerator row 2 = " << numerator(1, 0).EvalToInt(plaintextModulus) << std::endl;
@@ -884,7 +883,7 @@ void EvalLinRegressionFV3() {
 	Matrix<IntPlaintextEncoding> numerator2 = Matrix<IntPlaintextEncoding>(zeroAlloc, 3, 1);
 	Matrix<IntPlaintextEncoding> denominator2 = Matrix<IntPlaintextEncoding>(zeroAlloc, 3, 1);
 
-	DecryptResult result2 = cc.DecryptMatrix(kp.secretKey, deserResult, &numerator2, &denominator2);
+	cc.DecryptMatrix(kp.secretKey, deserResult, &numerator2, &denominator2);
 
 	std::cout << "numerator row 1 = " << numerator2(0, 0).EvalToInt(plaintextModulus) << std::endl;
 	std::cout << "numerator row 2 = " << numerator2(1, 0).EvalToInt(plaintextModulus) << std::endl;

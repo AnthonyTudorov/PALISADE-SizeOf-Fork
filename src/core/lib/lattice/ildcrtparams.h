@@ -84,7 +84,7 @@ public:
 	 * @param rootsOfUnity is unused
 	 */
 	ILDCRTParams(const usint cyclotomic_order, const BigBinaryInteger &modulus, const BigBinaryInteger& rootsOfUnity)
-		: ElemParams<IntType>(cyclotomic_order, modulus) {}
+		: ElemParams<IntType>(cyclotomic_order, modulus, 0, 0, 0) {}
 
 	/**
 	 * Constructor with all parameters provided except the multiplied values of the chain of moduli. That value is automatically calculated. Root of unity of the modulus is also calculated.
@@ -94,11 +94,11 @@ public:
 	 * @param &moduli is the tower of moduli
 	 */
 	ILDCRTParams(const usint cyclotomic_order, const std::vector<native64::BigBinaryInteger> &moduli, const std::vector<native64::BigBinaryInteger>& rootsOfUnity)
-		: ElemParams<IntType>(cyclotomic_order) {
+		: ElemParams<IntType>(cyclotomic_order, 0, 0, 0, 0) {
 		if( moduli.size() != rootsOfUnity.size() )
 			throw std::logic_error("sizes of moduli and roots of unity do not match");
 
-		for( int i=0; i<moduli.size(); i++ ) {
+		for( size_t i=0; i<moduli.size(); i++ ) {
 			m_parms.push_back( std::shared_ptr<native64::ILParams>( new native64::ILParams(cyclotomic_order, moduli[i], rootsOfUnity[i]) ) );
 		}
 		RecalculateModulus();
@@ -111,15 +111,15 @@ public:
 	 * @param &moduli is the tower of moduli
 	 */
 	ILDCRTParams(const usint cyclotomic_order, const std::vector<native64::BigBinaryInteger> &moduli)
-		: ElemParams<IntType>(cyclotomic_order) {
-		for( int i=0; i<moduli.size(); i++ ) {
-			m_parms.push_back( std::shared_ptr<native64::ILParams>( new native64::ILParams(cyclotomic_order, moduli[i]) ) );
+		: ElemParams<IntType>(cyclotomic_order, 0, 0, 0, 0) {
+		for( size_t i=0; i<moduli.size(); i++ ) {
+			m_parms.push_back( std::shared_ptr<native64::ILParams>( new native64::ILParams(cyclotomic_order, moduli[i], 0, 0, 0) ) );
 		}
 		RecalculateModulus();
 	}
 
 	ILDCRTParams(const usint cyclotomic_order, std::vector<std::shared_ptr<native64::ILParams>>& parms)
-		: ElemParams<IntType>(cyclotomic_order), m_parms(parms) {
+		: ElemParams<IntType>(cyclotomic_order, 0, 0, 0, 0), m_parms(parms) {
 		RecalculateModulus();
 	}
 
@@ -182,7 +182,7 @@ public:
 		if (m_parms.size() != dcrtParams->m_parms.size() )
 			return false;
 
-		for( int i=0; i < m_parms.size(); i++ ) {
+		for( size_t i=0; i < m_parms.size(); i++ ) {
 			if( *m_parms[i] != *dcrtParams->m_parms[i] )
 				return false;
 		}
@@ -206,7 +206,7 @@ private:
 		out << "ILDCRTParams ";
 		ElemParams<IntType>::doprint(out);
 		out << std::endl << " Parms:" << std::endl;
-		for( int i=0; i < m_parms.size(); i++ ) {
+		for( size_t i=0; i < m_parms.size(); i++ ) {
 			out << "   " << i << ":" << *m_parms[i] << std::endl;
 		}
 		return out;

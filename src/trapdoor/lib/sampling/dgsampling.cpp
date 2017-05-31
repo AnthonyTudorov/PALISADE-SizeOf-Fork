@@ -301,7 +301,7 @@ namespace lbcrypto {
 		int evenPtr = 0;
 		int oddPtr = p->GetRows() / 2;
 		Matrix<int32_t> permuted([]() { return make_unique<int32_t>(); }, p->GetRows(), 1);
-		for (int i = 0;i < p->GetRows();i++) {
+		for (size_t i = 0;i < p->GetRows();i++) {
 			if (i % 2 == 0) {
 				permuted(evenPtr,0) = (*p)(i,0);
 				evenPtr++;

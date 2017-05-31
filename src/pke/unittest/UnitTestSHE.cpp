@@ -213,7 +213,7 @@ void UnitTest_Mult(const CryptoContext<Element>& cc) {
 
 		cc.EvalMultKeyGen(kp.secretKey);
 
-		for (auto i = 0; i<ciphertext1.at(0)->GetElements().size(); i++){
+		for (size_t i = 0; i<ciphertext1.at(0)->GetElements().size(); i++){
 			DEBUG("ciphertext1.at(0) "<<i<<" "<<ciphertext1.at(0)->GetElements().at(i));
 			DEBUG("ciphertext2.at(0) "<<i<<" "<<ciphertext2.at(0)->GetElements().at(i));
 
@@ -222,7 +222,7 @@ void UnitTest_Mult(const CryptoContext<Element>& cc) {
 		
 		cResult.insert(cResult.begin(), cc.EvalMult(ciphertext1.at(0), ciphertext2.at(0)));
 
-		for (auto i = 0; i<cResult.at(0)->GetElements().size(); i++){
+		for (size_t i = 0; i<cResult.at(0)->GetElements().size(); i++){
 			DEBUG("cResult.at(0) "<<i<<" "<<cResult.at(0)->GetElements().at(i));
 		}
 		IntPlaintextEncoding results;
@@ -301,7 +301,7 @@ TEST(UTSHE, keyswitch_sparse_key_SingleCRT_byteplaintext) {
 
 	BytePlaintextEncoding plaintext("I am good, what are you?! 32 ch");
 
-	CryptoContext<ILVector2n> cc = GenCryptoContextElementLTV(m, 2);
+	CryptoContext<ILVector2n> cc = GenCryptoContextElementLTV(m, plaintextModulus);
 
 	LPKeyPair<ILVector2n> kp = cc.KeyGen();
 

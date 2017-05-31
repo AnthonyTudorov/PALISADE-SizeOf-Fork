@@ -55,10 +55,46 @@ namespace lbcrypto {
 	{
 	public:
 		ElemParams(usint order,
-				const IntegerType& ctModulus = IntegerType::ZERO,
-				const IntegerType& rUnity = IntegerType::ZERO,
-				const IntegerType& bigCtModulus = IntegerType::ZERO,
-				const IntegerType& bigRUnity = IntegerType::ZERO) {
+				const IntegerType& ctModulus) {
+			cyclotomicOrder = order;
+			ringDimension = GetTotient(order);
+			isPowerOfTwo = ringDimension == cyclotomicOrder / 2;
+			ciphertextModulus = ctModulus;
+			rootOfUnity = 0;
+			bigCiphertextModulus = 0;
+			bigRootOfUnity = 0;
+		}
+
+		ElemParams(usint order,
+				const IntegerType& ctModulus,
+				const IntegerType& rUnity) {
+			cyclotomicOrder = order;
+			ringDimension = GetTotient(order);
+			isPowerOfTwo = ringDimension == cyclotomicOrder / 2;
+			ciphertextModulus = ctModulus;
+			rootOfUnity = rUnity;
+			bigCiphertextModulus = 0;
+			bigRootOfUnity = 0;
+		}
+
+		ElemParams(usint order,
+				const IntegerType& ctModulus,
+				const IntegerType& rUnity,
+				const IntegerType& bigCtModulus) {
+			cyclotomicOrder = order;
+			ringDimension = GetTotient(order);
+			isPowerOfTwo = ringDimension == cyclotomicOrder / 2;
+			ciphertextModulus = ctModulus;
+			rootOfUnity = rUnity;
+			bigCiphertextModulus = bigCtModulus;
+			bigRootOfUnity = 0;
+		}
+
+		ElemParams(usint order,
+				const IntegerType& ctModulus,
+				const IntegerType& rUnity,
+				const IntegerType& bigCtModulus,
+				const IntegerType& bigRUnity) {
 			cyclotomicOrder = order;
 			ringDimension = GetTotient(order);
 			isPowerOfTwo = ringDimension == cyclotomicOrder / 2;
@@ -102,9 +138,9 @@ namespace lbcrypto {
 		virtual ~ElemParams() {}
 
 		// GETTERS
-		const usint GetCyclotomicOrder() const { return cyclotomicOrder; }
+		usint GetCyclotomicOrder() const { return cyclotomicOrder; }
 
-		const usint GetRingDimension() const { return ringDimension; }
+		usint GetRingDimension() const { return ringDimension; }
 
 		const bool OrderIsPowerOfTwo() const { return isPowerOfTwo; }
 

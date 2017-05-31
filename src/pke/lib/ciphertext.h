@@ -183,39 +183,14 @@ namespace lbcrypto {
 		* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
 		* @return true if successfully serialized
 		*/
-		bool Serialize(Serialized* serObj) const {
-			serObj->SetObject();
-
-			serObj->AddMember("Object", "Ciphertext", serObj->GetAllocator());
-
-			if( !this->GetCryptoParameters()->Serialize(serObj) )
-				return false;
-
-			SerializeVector("Elements", Element::ElementName, this->m_elements, serObj);
-
-			return true;
-		}
+		bool Serialize(Serialized* serObj) const;
 
 		/**
 		* Populate the object from the deserialization of the Serialized
 		* @param serObj contains the serialized object
 		* @return true on success
 		*/
-		bool Deserialize(const Serialized& serObj) {
-			// deserialization must be done in a crypto context; this object must be initialized before deserializing the elements
-			if( !this->cryptoContext )
-				return false;
-
-			Serialized::ConstMemberIterator mIter = serObj.FindMember("Object");
-			if( mIter == serObj.MemberEnd() || string(mIter->value.GetString()) != "Ciphertext" )
-				return false;
-
-			mIter = serObj.FindMember("Elements");
-			if( mIter == serObj.MemberEnd() )
-				return false;
-
-			return DeserializeVector<Element>("Elements", Element::ElementName, mIter, &this->m_elements);
-		}
+		bool Deserialize(const Serialized& serObj);
 
 		inline bool operator==(const Ciphertext<Element>& rhs) const {
 			if( *this->cryptoContext.GetCryptoParameters() != *rhs.cryptoContext.GetCryptoParameters() )
@@ -226,7 +201,7 @@ namespace lbcrypto {
 
 			if( lhsE.size() != rhsE.size() ) return false;
 
-			for( int i=0; i<lhsE.size(); i++ ) {
+			for( size_t i=0; i<lhsE.size(); i++ ) {
 				const Element& lE = lhsE.at(i);
 				const Element& rE = rhsE.at(i);
 
@@ -246,7 +221,7 @@ namespace lbcrypto {
 		* @param &other is the ciphertext to add with.
 		* @return the result of the addition.
 		*/
-		inline const Ciphertext<Element>& operator+=(const Ciphertext<Element> &other) {
+		const Ciphertext<Element>& operator+=(const Ciphertext<Element> &other) {
 			shared_ptr<Ciphertext<Element>> b(new Ciphertext<Element>(other));
 			// ciphertext object has no data yet, i.e., it is zero-initialized
 			if (m_elements.size() == 0)
@@ -260,6 +235,10 @@ namespace lbcrypto {
 				*this = *(cryptoContext.EvalAdd(a, b));
 			}
 			return *this;
+		}
+
+		const Ciphertext<Element>& operator-=(const Ciphertext<Element> &other) {
+			throw std::logic_error("operator-= not implemented for Ciphertext");
 		}
 
 		/**

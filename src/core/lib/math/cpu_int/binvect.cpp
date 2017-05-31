@@ -55,6 +55,37 @@ BigBinaryVectorImpl<IntegerType>::BigBinaryVectorImpl(usint length, const Intege
 }
 
 template<class IntegerType>
+BigBinaryVectorImpl<IntegerType>::BigBinaryVectorImpl(usint length, const IntegerType& modulus, std::initializer_list<usint> rhs){
+	this->m_length = length;
+	this->m_modulus = modulus;
+	this->m_data = new IntegerType[m_length] ();
+	usint len = rhs.size();
+	for (usint i=0;i<m_length;i++){ // this loops over each entry
+		if(i<len) {
+			m_data[i] =  IntegerType(*(rhs.begin()+i));  
+		} else {
+			m_data[i] = IntegerType::ZERO;
+		}
+	}
+
+}
+
+template<class IntegerType>
+BigBinaryVectorImpl<IntegerType>::BigBinaryVectorImpl(usint length, const IntegerType& modulus, std::initializer_list<std::string> rhs){
+	this->m_length = length;
+	this->m_modulus = modulus;
+	this->m_data = new IntegerType[m_length] ();
+	usint len = rhs.size();
+	for(usint i=0;i<m_length;i++){ // this loops over each entry
+		if(i<len) {
+			m_data[i] =  IntegerType(*(rhs.begin()+i));  
+		} else {
+			m_data[i] = IntegerType::ZERO;
+		}
+	}
+}
+
+template<class IntegerType>
 BigBinaryVectorImpl<IntegerType>::BigBinaryVectorImpl(const BigBinaryVectorImpl &bigBinaryVector){
 
 	m_length = bigBinaryVector.m_length;
@@ -104,9 +135,9 @@ const BigBinaryVectorImpl<IntegerType>& BigBinaryVectorImpl<IntegerType>::operat
 	usint len = rhs.size();
 	for(usint i=0;i<m_length;i++){ // this loops over each tower
 		if(i<len) {
-			m_data[i] =  IntegerType(*(rhs.begin()+i));  
+			m_data[i] = IntegerType(*(rhs.begin()+i));
 		} else {
-			m_data[i] = IntegerType::ZERO;
+			m_data[i] = 0;
 		}
 	}
 
@@ -119,11 +150,11 @@ const BigBinaryVectorImpl<IntegerType>& BigBinaryVectorImpl<IntegerType>::operat
 	usint len = rhs.size();
 	for(usint i=0;i<m_length;i++){ // this loops over each tower
 		if(i<len) {
-			m_data[i] =  IntegerType(*(rhs.begin()+i));  
-		        DEBUG("in op= i.l. m_data["<<i<<"] = "<<m_data[i]);
+			m_data[i] = IntegerType(*(rhs.begin()+i));
 		} else {
-			m_data[i] = IntegerType::ZERO;
-		        DEBUG("in op= i.l. m_data["<<i<<"] = "<<m_data[i]);		}
+			m_data[i] = 0;
+		}
+		DEBUG("in op= i.l. m_data["<<i<<"] = "<<m_data[i]);
 	}
 
 	return *this;
@@ -238,7 +269,7 @@ BigBinaryVectorImpl<IntegerType> BigBinaryVectorImpl<IntegerType>::Mod(const Int
 	//}
 	//return ans;
 
-	if (modulus==IntegerType::TWO)
+	if (modulus==2)
 		return this->ModByTwo();
 	else 
 	{
@@ -260,7 +291,7 @@ BigBinaryVectorImpl<IntegerType> BigBinaryVectorImpl<IntegerType>::Mod(const Int
 template<class IntegerType>
 BigBinaryVectorImpl<IntegerType> BigBinaryVectorImpl<IntegerType>::ModAddAtIndex(usint i, const IntegerType &b) const{
 	if(i > this->GetLength()-1) {
-		std::string errMsg = "binvect::ModAddAtIndex. Index is out of range. i = " + i;
+		std::string errMsg = "binvect::ModAddAtIndex. Index is out of range. i = " + std::to_string(i);
 		throw std::runtime_error(errMsg);
 	}
 	BigBinaryVectorImpl ans(*this);
@@ -360,7 +391,7 @@ BigBinaryVectorImpl<IntegerType> BigBinaryVectorImpl<IntegerType>::ModMul(const 
 	IntegerType mu(IntegerType::ONE);
 #else
 	//Precompute the Barrett mu parameter
-	IntegerType temp(IntegerType::ONE);
+	IntegerType temp(1);
 	temp <<= 2 * this->GetModulus().GetMSB() + 3;
 	IntegerType mu = temp.DividedBy(m_modulus);
 #endif
@@ -403,8 +434,7 @@ template<class IntegerType>
 BigBinaryVectorImpl<IntegerType> BigBinaryVectorImpl<IntegerType>::ModAdd(const BigBinaryVectorImpl &b) const{
 
 	if((this->m_length!=b.m_length) || this->m_modulus!=b.m_modulus ){
-        std::cout<<"ModAdd called on BigBinaryVectorImpl's with different parameters."<<std::endl;
-		return (BigBinaryVectorImpl)NULL;
+        throw std::logic_error("ModAdd called on BigBinaryVectorImpl's with different parameters.");
 	}
 
 	BigBinaryVectorImpl ans(*this);
@@ -420,7 +450,7 @@ template<class IntegerType>
 BigBinaryVectorImpl<IntegerType> BigBinaryVectorImpl<IntegerType>::ModSub(const BigBinaryVectorImpl &b) const{
 
 	if((this->m_length!=b.m_length) || this->m_modulus!=b.m_modulus ){
-        std::cout<<"ModSub called on BigBinaryVectorImpl's with different parameters."<<std::endl;
+        throw std::logic_error("ModSub called on BigBinaryVectorImpl's with different parameters.");
 	}
 
 	BigBinaryVectorImpl ans(*this);
@@ -439,16 +469,16 @@ BigBinaryVectorImpl<IntegerType> BigBinaryVectorImpl<IntegerType>::ModByTwo() co
 	IntegerType halfQ(this->GetModulus() >> 1);
 	for (usint i = 0; i<ans.GetLength(); i++) {
 		if (this->GetValAtIndex(i)>halfQ) {
-			if (this->GetValAtIndex(i).Mod(IntegerType::TWO) == IntegerType::ONE)
-				ans.SetValAtIndex(i, IntegerType::ZERO);
+			if (this->GetValAtIndex(i).Mod(2) == 1)
+				ans.SetValAtIndex(i, IntegerType(0));
 			else
-				ans.SetValAtIndex(i, IntegerType::ONE);
+				ans.SetValAtIndex(i, 1);
 		}
 		else {
-			if (this->GetValAtIndex(i).Mod(IntegerType::TWO) == IntegerType::ONE)
-				ans.SetValAtIndex(i, IntegerType::ONE);
+			if (this->GetValAtIndex(i).Mod(2) == 1)
+				ans.SetValAtIndex(i, 1);
 			else
-				ans.SetValAtIndex(i, IntegerType::ZERO);
+				ans.SetValAtIndex(i, IntegerType(0));
 		}
 
 	}
@@ -459,8 +489,7 @@ template<class IntegerType>
 const BigBinaryVectorImpl<IntegerType>& BigBinaryVectorImpl<IntegerType>::operator+=(const BigBinaryVectorImpl &b) {
 
 	if((this->m_length!=b.m_length) || this->m_modulus!=b.m_modulus ){
-        std::cout<<"operator+= called on BigBinaryVectorImpl's with different parameters."<<std::endl;
-		return (BigBinaryVectorImpl)NULL;
+        throw std::logic_error("operator+= called on BigBinaryVectorImpl's with different parameters.");
 	}
 
 	for(usint i=0;i<this->m_length;i++){
@@ -474,8 +503,7 @@ template<class IntegerType>
 const BigBinaryVectorImpl<IntegerType>& BigBinaryVectorImpl<IntegerType>::operator-=(const BigBinaryVectorImpl &b) {
 
 	if((this->m_length!=b.m_length) || this->m_modulus!=b.m_modulus ){
-        std::cout<<"operator-= called on BigBinaryVectorImpl's with different parameters."<<std::endl;
-		return (BigBinaryVectorImpl)NULL;
+        throw std::logic_error("operator-= called on BigBinaryVectorImpl's with different parameters.");
 	}
 
 	for(usint i=0;i<this->m_length;i++){
@@ -514,8 +542,7 @@ template<class IntegerType>
 BigBinaryVectorImpl<IntegerType> BigBinaryVectorImpl<IntegerType>::ModMul(const BigBinaryVectorImpl &b) const{
 
 	if((this->m_length!=b.m_length) || this->m_modulus!=b.m_modulus ){
-        std::cout<<"ModMul called on BigBinaryVectorImpl's with different parameters."<<std::endl;
-		return (BigBinaryVectorImpl)NULL;
+        throw std::logic_error("ModMul called on BigBinaryVectorImpl's with different parameters.");
 	}
 
 	BigBinaryVectorImpl ans(*this);
@@ -525,7 +552,7 @@ BigBinaryVectorImpl<IntegerType> BigBinaryVectorImpl<IntegerType>::ModMul(const 
 	IntegerType mu(IntegerType::ONE);
 #else
 	//Precompute the Barrett mu parameter
-	IntegerType temp(IntegerType::ONE);
+	IntegerType temp(1);
 	temp <<= 2 * this->GetModulus().GetMSB() + 3;
 	IntegerType mu = temp.DividedBy(this->GetModulus());
 #endif
@@ -541,8 +568,7 @@ template<class IntegerType>
 BigBinaryVectorImpl<IntegerType> BigBinaryVectorImpl<IntegerType>::MultWithOutMod(const BigBinaryVectorImpl &b) const {
 
 	if ((this->m_length != b.m_length) || this->m_modulus != b.m_modulus) {
-		std::cout << "ModMul called on BigBinaryVectorImpl's with different parameters." << std::endl;
-		return (BigBinaryVectorImpl)NULL;
+        throw std::logic_error("ModMul called on BigBinaryVectorImpl's with different parameters.");
 	}
 
 	BigBinaryVectorImpl ans(*this);
@@ -581,7 +607,7 @@ bool BigBinaryVectorImpl<IntegerType>::Serialize(lbcrypto::Serialized* serObj) c
 
 	if( pkVectorLength > 0 ) {
 		std::string pkBufferString = "";
-		for (int i = 0; i < pkVectorLength; i++) {
+		for (size_t i = 0; i < pkVectorLength; i++) {
 			pkBufferString += GetValAtIndex(i).Serialize(this->GetModulus());
 		}
 		bbvMap.AddMember("VectorValues", pkBufferString, serObj->GetAllocator());

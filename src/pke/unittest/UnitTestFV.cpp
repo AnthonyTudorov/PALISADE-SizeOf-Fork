@@ -189,12 +189,12 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 // Generates parameters for FV in the RWLE mode to support a single EvalMult and then validates that single EvalMult works correctly
 TEST(UTFV, ILVector2n_FV_ParamsGen_EvalMul) {
 
-	usint relWindow = 1;
+	usint relWindow = 16;
 	usint plaintextModulus = 4;
 	float stdDev = 4;
 
 	//Set crypto parametes
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(plaintextModulus, 1.006, 16, stdDev, 0, 2, 0);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(plaintextModulus, 1.006, relWindow, stdDev, 0, 2, 0);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 
@@ -249,7 +249,7 @@ TEST(UTFV, ILVector2n_FV_ParamsGen_EvalMul) {
 	//Decryption after EvalMult Operation
 	////////////////////////////////////////////////////////////
 
-	DecryptResult result = cc.Decrypt(kp.secretKey, ciphertextMult, &plaintextNewMult, true);
+	cc.Decrypt(kp.secretKey, ciphertextMult, &plaintextNewMult, true);
 
 	plaintextNewMult.resize(plaintextMult.size());
 
@@ -260,12 +260,12 @@ TEST(UTFV, ILVector2n_FV_ParamsGen_EvalMul) {
 //Tests ParamsGen, EvalAdd, EvalSub, and EvalMul operations for FV in the OPTIMIZED mode
 TEST(UTFV, ILVector2n_FV_Optimized_Eval_Operations) {
 
-	usint relWindow = 1;
+	usint relWindow = 16;
 	usint plaintextModulus = 64;
 	float stdDev = 4;
 
 	//Set crypto parameters
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(plaintextModulus, 1.006, 16, stdDev, 0, 1, 0);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(plaintextModulus, 1.006, relWindow, stdDev, 0, 1, 0);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 
@@ -465,7 +465,7 @@ TEST(UTFV, ILVector2n_Encrypt_Decrypt_PRE) {
 
 	IntPlaintextEncoding intArrayNew;
 
-	DecryptResult result1 = cc.Decrypt(newKp.secretKey, newCiphertext, &intArrayNew, true);
+	cc.Decrypt(newKp.secretKey, newCiphertext, &intArrayNew, true);
 
 	//DecryptResult result1 = cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew, true);
 

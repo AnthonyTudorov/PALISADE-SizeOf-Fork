@@ -106,7 +106,6 @@ void MultiThreadedRun(int index) {
 
 	double signTime = 0;
 	double verifyTime = 0;
-	size_t verifyCounter = 0;
 	//bool verifyBool = false;
 
 	std::vector<BytePlaintextEncoding> text{
