@@ -97,7 +97,8 @@ namespace NTL {
 
     void clear(myVec& x); //why isn't this inhereted?
 
-    inline usint size() {return this->length();};
+    inline size_t size(void) const {return this->length();};
+
     void SetValAtIndex(usint index, const myT&value);
     void SetValAtIndex(usint index, const char *s);
     void SetValAtIndex(usint index, const std::string& str);

@@ -6,6 +6,8 @@ all: gmp_unpack gmp_config gmp_make gmp_check gmp_install
 
 clean: clean_gmp
 
+TAR ?= tar
+
 #note change the following directory to the correct one on your install
 
 PALISADE_DIR := $(PWD)

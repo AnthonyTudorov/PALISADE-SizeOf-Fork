@@ -232,7 +232,7 @@ namespace NTL {
     DEBUG("reversedinput string: "<<v);
 
     DEBUG("len = "<<len);
-    for (auto i = 0; i < len; i+=bitsPerByte){
+    for (usint i = 0; i < len; i+=bitsPerByte){
       std::string bits = v.substr(0, bitsPerByte);
       //reverse the bits
       std::reverse(bits.begin(), bits.end());
@@ -346,7 +346,7 @@ namespace NTL {
     ZZ_limb_t temp = zlp[idx]; // point to correct limb
     ZZ_limb_t bmask_counter = index%NTL_ZZ_NBITS==0? NTL_ZZ_NBITS:index%NTL_ZZ_NBITS;//bmask is the bit number in the limb
     ZZ_limb_t bmask = 1;
-    for(sint i=1;i<bmask_counter;i++)
+    for(usint i=1;i<bmask_counter;i++)
       bmask<<=1;//generate the bitmask number
     result = temp&bmask;//finds the bit in  bit format
     result>>=bmask_counter-1;//shifting operation gives bit either 1 or 0
@@ -369,7 +369,7 @@ namespace NTL {
   }
 
   //adapter kit
-  const myZZ& myZZ::zero() {return (ZZ::zero());}
+  //const myZZ& myZZ::zero() {return myZZ(ZZ::zero());}
 
   //palisade conversion methods
   usint myZZ::ConvertToUsint() const{
@@ -451,7 +451,6 @@ namespace NTL {
     myZZ ans(0);
     myZZ rv(0);
     
-    int f;
     
     DEBUG( "*this "<<this->ToString());
     DEBUG("q "<<q.ToString());

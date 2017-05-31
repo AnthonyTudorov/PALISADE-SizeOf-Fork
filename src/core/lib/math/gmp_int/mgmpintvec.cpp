@@ -82,7 +82,7 @@ namespace NTL {
     for (auto i=0; i< a.length(); i++) {
       (*this)[i]=a[i];
     }
-    this->m_modulus_state == GARBAGE;
+    this->m_modulus_state = GARBAGE;
   }
 
   //movecopy ctor

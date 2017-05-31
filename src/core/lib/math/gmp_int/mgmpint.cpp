@@ -230,13 +230,12 @@ namespace NTL {
     if (m_OTM_state == GARBAGE){
       //throw std::logic_error("myZZ_p::m_getOTM() called with uninitialized OTM");
       std::cout<<"myZZ_p::m_getOTM() called with uninitialized OTM"<<std::endl;
-    } else {
-      return m_OTM;
     }
+    return m_OTM;
   }
 
   //adapter kit
-  const myZZ_p& myZZ_p::zero() {return (ZZ_p::zero());}
+  //static const myZZ_p& myZZ_p::zero() {return const myZZ_p(0);}
 
   //palisade conversion methods
   usint myZZ_p::ConvertToUsint() const{
