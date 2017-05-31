@@ -235,7 +235,7 @@ public:
 
 		std::vector<shared_ptr<Ciphertext<Element>>> newCiphertext;
 
-		for( int i=0; i < ciphertext.size(); i++ ) {
+		for( size_t i=0; i < ciphertext.size(); i++ ) {
 			if( ciphertext[i] == NULL || ciphertext[i]->GetCryptoContext() != *this )
 				throw std::logic_error("One of the ciphertexts passed to DecryptMater was not generated with this crypto context");
 			newCiphertext.push_back( GetEncryptionAlgorithm()->MultipartyDecryptLead(privateKey, ciphertext[i]) );
@@ -261,7 +261,7 @@ public:
 
 		std::vector<shared_ptr<Ciphertext<Element>>> newCiphertext;
 
-		for( int i=0; i < ciphertext.size(); i++ ) {
+		for( size_t i=0; i < ciphertext.size(); i++ ) {
 			if( ciphertext[i] == NULL || ciphertext[i]->GetCryptoContext() != *this )
 				throw std::logic_error("One of the ciphertexts passed to DecryptMater was not generated with this crypto context");
 			newCiphertext.push_back( GetEncryptionAlgorithm()->MultipartyDecryptMain(privateKey, ciphertext[i]) );
@@ -285,25 +285,25 @@ public:
 	{
 
 		//Make sure we're processing ciphertexts.
-		int last_ciphertext = partialCiphertextVec.size();
+		size_t last_ciphertext = partialCiphertextVec.size();
 		if (last_ciphertext <= 1 )
 			return DecryptResult();
 
 		//Make sure ciphertexts are of non-zero length and that they'r eof the same length/
-		int ciphertext_size = partialCiphertextVec[0].size();
-		for( int i = 0; i < last_ciphertext; i++ ) {
+		size_t ciphertext_size = partialCiphertextVec[0].size();
+		for( size_t i = 0; i < last_ciphertext; i++ ) {
 			std::vector<shared_ptr<Ciphertext<Element>>> ciphertext = partialCiphertextVec[i];
 			// edge case
 			if (ciphertext.size() == 0 || ciphertext.size() != ciphertext_size)
 				return DecryptResult();
 		}
 
-		int lastone = partialCiphertextVec[0].size() - 1;
-		for( int ch = 0; ch < ciphertext_size; ch++ ) {
+		size_t lastone = partialCiphertextVec[0].size() - 1;
+		for( size_t ch = 0; ch < ciphertext_size; ch++ ) {
 
 			vector<shared_ptr<Ciphertext<Element>>> ciphertextVec;
 
-			for( int i = 0; i < last_ciphertext; i++ ) {
+			for( size_t i = 0; i < last_ciphertext; i++ ) {
 				std::vector<shared_ptr<Ciphertext<Element>>> ciphertext = partialCiphertextVec[i];
 				// edge case
 				if (ciphertext[ch] == NULL || ciphertext[ch]->GetCryptoContext() != *this)

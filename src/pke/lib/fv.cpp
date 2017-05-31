@@ -674,8 +674,8 @@ LPKeyPair<Element> LPAlgorithmMultipartyFV<Element>::MultipartyKeyGen(const Cryp
 	//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
 	if (cryptoParams->GetMode() == RLWE) {
 
-		int numKeys = secretKeys.size();
-		for( int i = 0; i < numKeys; i++ ) {
+		size_t numKeys = secretKeys.size();
+		for( size_t i = 0; i < numKeys; i++ ) {
 			shared_ptr<LPPrivateKey<Element>> sk1 = secretKeys[i];
 			Element s1 = sk1->GetPrivateElement();
 			s += s1;
@@ -807,8 +807,8 @@ DecryptResult LPAlgorithmMultipartyFV<Element>::MultipartyDecryptFusion(const ve
 	const std::vector<Element> &cElem = ciphertextVec[0]->GetElements();
 	Element b = cElem[0];
 
-	int numCipher = ciphertextVec.size();
-	for( int i = 1; i < numCipher; i++ ) {
+	size_t numCipher = ciphertextVec.size();
+	for( size_t i = 1; i < numCipher; i++ ) {
 		const std::vector<Element> &c2 = ciphertextVec[i]->GetElements();
 		b += c2[0];
 	}

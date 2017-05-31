@@ -158,7 +158,7 @@ UnitTestMultiparty(const CryptoContext<Element>& cc, bool publicVersion) {
 
 	IntPlaintextEncoding plaintextAddNew;
 
-	DecryptResult resultNew = cc.Decrypt(kpMultiparty.secretKey, ciphertextAddVectNew, &plaintextAddNew, true);
+	cc.Decrypt(kpMultiparty.secretKey, ciphertextAddVectNew, &plaintextAddNew, true);
 
 	//std::cin.get();
 
@@ -188,8 +188,6 @@ UnitTestMultiparty(const CryptoContext<Element>& cc, bool publicVersion) {
 
 	const shared_ptr<LPCryptoParameters<ILVector2n>> cryptoParams = kp1.secretKey->GetCryptoParameters();
 	const shared_ptr<typename ILVector2n::Params> elementParams = cryptoParams->GetElementParams();
-	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
-	const BigBinaryInteger &q = elementParams->GetModulus();
 
 	ciphertextPartial1 = cc.MultipartyDecryptLead(kp1.secretKey, ciphertextAddVectNew);
 	ciphertextPartial2 = cc.MultipartyDecryptMain(kp2.secretKey, ciphertextAddVectNew);
@@ -200,8 +198,7 @@ UnitTestMultiparty(const CryptoContext<Element>& cc, bool publicVersion) {
 	partialCiphertextVec.push_back(ciphertextPartial2);
 	partialCiphertextVec.push_back(ciphertextPartial3);
 
-	DecryptResult resultMultiparty = cc.MultipartyDecryptFusion(partialCiphertextVec, &plaintextMultipartyNew, true);
-//	DecryptResult resultMultiparty = cc.MultipartyDecryptFusion(ciphertextPartial1, ciphertextPartial2, &plaintextMultipartyNew, true);
+	cc.MultipartyDecryptFusion(partialCiphertextVec, &plaintextMultipartyNew, true);
 
 	plaintextMultipartyNew.resize(plaintext1.size());
 

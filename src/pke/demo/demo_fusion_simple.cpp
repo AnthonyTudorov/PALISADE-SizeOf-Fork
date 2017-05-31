@@ -51,8 +51,7 @@ static const usint PTM = 256;
 
 void usage()
 {
-	cout << "args are:" << endl;
-	cout << "-dojson : includes the json tests" << endl;
+	cout << "No args are needed." << endl;
 }
 
 int main(int argc, char *argv[]) {
@@ -64,14 +63,10 @@ int main(int argc, char *argv[]) {
 	//Generate parameters.
 	double diff, start, finish;
 
-	bool	doJson = false;
-
 	while( argc-- > 1 ) {
 		string arg(*++argv);
 
-		if( arg == "-dojson" )
-			doJson = true;
-		else if( arg == "-help" || arg == "-?" ) {
+		if( arg == "-help" || arg == "-?" ) {
 			usage();
 			return 0;
 		}
@@ -298,7 +293,7 @@ int main(int argc, char *argv[]) {
 
 	start = currentDateTime();
 
-	DecryptResult resultNew = cc.Decrypt(kpMultiparty.secretKey, ciphertextAddVectNew, &plaintextAddNew, true);
+	cc.Decrypt(kpMultiparty.secretKey, ciphertextAddVectNew, &plaintextAddNew, true);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -338,8 +333,6 @@ int main(int argc, char *argv[]) {
 
 	const shared_ptr<LPCryptoParameters<ILVector2n>> cryptoParams = kp1.secretKey->GetCryptoParameters();
 	const shared_ptr<typename ILVector2n::Params> elementParams = cryptoParams->GetElementParams();
-	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
-	const BigBinaryInteger &q = elementParams->GetModulus();
 
 	start = currentDateTime();
 
@@ -352,8 +345,7 @@ int main(int argc, char *argv[]) {
 	partialCiphertextVec.push_back(ciphertextPartial2);
 	partialCiphertextVec.push_back(ciphertextPartial3);
 
-	DecryptResult resultMultiparty = cc.MultipartyDecryptFusion(partialCiphertextVec, &plaintextMultipartyNew, true);
-//	DecryptResult resultMultiparty = cc.MultipartyDecryptFusion(ciphertextPartial1, ciphertextPartial2, &plaintextMultipartyNew, true);
+	cc.MultipartyDecryptFusion(partialCiphertextVec, &plaintextMultipartyNew, true);
 
 	finish = currentDateTime();
 	diff = finish - start;
