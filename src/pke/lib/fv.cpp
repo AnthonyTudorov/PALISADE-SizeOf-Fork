@@ -402,9 +402,9 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared
 	shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext1->GetCryptoContext()));
 
 	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParamsLWE = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(ciphertext1->GetCryptoContext().GetCryptoParameters());
+	const BigBinaryInteger &p = cryptoParamsLWE->GetPlaintextModulus();
 
 	const shared_ptr<typename Element::Params> elementParams = cryptoParamsLWE->GetElementParams();
-	const BigBinaryInteger &p = cryptoParamsLWE->GetPlaintextModulus();
 	const BigBinaryInteger &q = elementParams->GetModulus();
 
 	const BigBinaryInteger &bigModulus = cryptoParamsLWE->GetBigModulus();
@@ -659,7 +659,6 @@ LPKeyPair<Element> LPAlgorithmMultipartyFV<Element>::MultipartyKeyGen(const Cryp
 	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(cc.GetCryptoParameters());
 
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
-	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
 	const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 	typename Element::DugType dug;
@@ -716,7 +715,6 @@ LPKeyPair<Element> LPAlgorithmMultipartyFV<Element>::MultipartyKeyGen(const Cryp
 	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(cc.GetCryptoParameters());
 
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
-	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
 	const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 	typename Element::DugType dug;
@@ -762,8 +760,6 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmMultipartyFV<Element>::MultipartyDecr
 {
 	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
-	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
-	const BigBinaryInteger &q = elementParams->GetModulus();
 
 	const std::vector<Element> &c = ciphertext->GetElements();
 
@@ -784,8 +780,6 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmMultipartyFV<Element>::MultipartyDecr
 {
 	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
-	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
-	const BigBinaryInteger &q = elementParams->GetModulus();
 
 	const std::vector<Element> &c = ciphertext->GetElements();
 
