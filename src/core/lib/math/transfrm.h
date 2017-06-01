@@ -448,6 +448,12 @@ public:
 
 	static void PreCompute(const usint cyclotoOrder, const IntType &modulus);
 	static void SetPreComputedNTTModulus(usint cyclotoOrder, const IntType &modulus, const IntType &nttMod, const IntType &nttRoot);
+	//function to set the nttMod and nttRoot; computes m_cyclotomicPolyReveseNTTMap,m_cyclotomicPolyNTTMap.
+	//Always called after setting the cyclotomic polynomial.
+	static void SetPreComputedNTTDivisionModulus(usint cyclotoOrder, const IntType &modulus, const IntType &nttMod, const IntType &nttRoot);
+
+	static VecType InversePolyMod(const VecType &cycloPoly, const IntType &modulus,usint power);
+
 private:
 	static ChineseRemainderTransformArb *m_onlyInstance;
 	ChineseRemainderTransformArb() : m_element(0) {}
@@ -455,6 +461,13 @@ private:
 	ChineseRemainderTransformArb(const ChineseRemainderTransformArb&) : m_element(0) {}
 	const VecType *m_element;
 	static std::map<IntType, VecType> m_cyclotomicPolyMap;
+	static std::map<IntType, VecType> m_cyclotomicPolyReveseNTTMap;
+	static std::map<IntType, VecType> m_cyclotomicPolyNTTMap;
+	static std::map<IntType, VecType> m_rootOfUnityDivisionTableByModulus;
+	static std::map<IntType, VecType> m_rootOfUnityDivisionInverseTableByModulus;
+	static std::map<IntType, IntType> m_DivisionNTTModulus;
+	static std::map<IntType, IntType> m_DivisionNTTRootOfUnity;
+	static usint m_nttDivisionDim;
 };
 
 	

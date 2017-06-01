@@ -63,6 +63,12 @@ template<typename IntType, typename VecType>
 std::map<IntType, VecType> ChineseRemainderTransformArb<IntType, VecType>::m_cyclotomicPolyMap;
 
 template<typename IntType, typename VecType>
+std::map<IntType, VecType> ChineseRemainderTransformArb<IntType, VecType>::m_cyclotomicPolyReveseNTTMap;
+
+template<typename IntType, typename VecType>
+std::map<IntType, VecType> ChineseRemainderTransformArb<IntType, VecType>::m_cyclotomicPolyNTTMap;
+
+template<typename IntType, typename VecType>
 std::map<IntType, VecType> BluesteinFFT<IntType, VecType>::m_rootOfUnityTableByModulus;
 
 template<typename IntType, typename VecType>
@@ -76,6 +82,21 @@ std::map<IntType, VecType> BluesteinFFT<IntType, VecType>::m_RBTableByRoot;
 
 template<typename IntType, typename VecType>
 std::map<IntType, IntType> BluesteinFFT<IntType, VecType>::m_NTTModulus;
+
+template<typename IntType, typename VecType>
+std::map<IntType, VecType> ChineseRemainderTransformArb<IntType, VecType>::m_rootOfUnityDivisionTableByModulus;
+
+template<typename IntType, typename VecType>
+std::map<IntType, VecType> ChineseRemainderTransformArb<IntType, VecType>::m_rootOfUnityDivisionInverseTableByModulus;
+
+template<typename IntType, typename VecType>
+std::map<IntType, IntType> ChineseRemainderTransformArb<IntType, VecType>::m_DivisionNTTModulus;
+
+template<typename IntType, typename VecType>
+std::map<IntType, IntType> ChineseRemainderTransformArb<IntType, VecType>::m_DivisionNTTRootOfUnity;
+
+template<typename IntType, typename VecType>
+usint ChineseRemainderTransformArb<IntType, VecType>::m_nttDivisionDim = 1;
 
 DiscreteFourierTransform* DiscreteFourierTransform::m_onlyInstance = 0;
 std::complex<double>* DiscreteFourierTransform::rootOfUnityTable = 0;
@@ -966,6 +987,25 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 		BluesteinFFT<IntType, VecType>::GetInstance().SetPreComputedNTTModulus(cyclotoOrder, modulus, nttMod);
 
 		BluesteinFFT<IntType, VecType>::GetInstance().SetRootTableForNTT(cyclotoOrder, modulus, nttMod, nttRoot);
+	}
+
+	template<typename IntType, typename VecType>
+	void ChineseRemainderTransformArb<IntType, VecType>::SetPreComputedNTTDivisionModulus(usint cyclotoOrder, const IntType &modulus, const IntType &nttMod, const IntType &nttRoot) {
+
+		usint n = GetTotient(cyclotoOrder);
+		usint power = cyclotoOrder - n;
+		m_nttDivisionDim = 2*std::pow(2,ceil(log2(power)));
+		m_DivisionNTTModulus[modulus] = nttMod;
+		m_DivisionNTTRootOfUnity[modulus] = nttRoot;
+		const auto &RevCPM = InversePolyMod(m_cyclotomicPolyMap[modulus], modulus, power);
+		//ChineseRemainderTransformArb<IntType, VecType>::GetInstance().SetRootTableForNTTDivision(cyclotoOrder, modulus, nttMod, nttRoot);
+	}
+
+	template<typename IntType, typename VecType>
+	VecType ChineseRemainderTransformArb<IntType, VecType>::InversePolyMod(const VecType &cycloPoly, const IntType &modulus, usint power) {
+		VecType result;
+
+		return result;
 	}
 
 	template<typename IntType, typename VecType>
