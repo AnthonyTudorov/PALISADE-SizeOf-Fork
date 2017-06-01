@@ -439,7 +439,7 @@ public:
 	*/
 	void SetElement(const VecType &element);
 
-	VecType PadZeros(const VecType &a, const usint finalSize);
+	static VecType PadZeros(const VecType &a, const usint finalSize);
 
 	/**
 	* Destructor.
