@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
 	//EvalSummation();
 	//EvalMultSmallRing();
 	//EvalAutomorphism();
-	PerformanceTestV4();
+	PerformanceTestV3();
 	
 	std::cout << "Press any key to continue" << std::endl;
 	std::cin.get();
@@ -397,8 +397,8 @@ void PerformanceTest() {
 	BigBinaryInteger squareRootOfRoot("1125399230456375417724134273593267324");
 	BigBinaryInteger bigModulus("1852673427797059126777135760139006525652319754650249024631321344126610076631041"); //260 bits
 	BigBinaryInteger bigRoot("1011857408422309039039556907195908859561535234649870814154019834362746408101010");
-	BigBinaryInteger bigModulusNTTDivision("22852932273529643486316954447175244494414503554339459946903988163765274935297");//254 bits
-	BigBinaryInteger bigRootNTTDivision("166896813997959873062972192819860531324067319379918385803279340301727857067");
+	//BigBinaryInteger bigModulusNTTDivision("22852932273529643486316954447175244494414503554339459946903988163765274935297");//254 bits
+	//BigBinaryInteger bigRootNTTDivision("166896813997959873062972192819860531324067319379918385803279340301727857067");
 	usint n = GetTotient(m);
 	usint m_nttDivisionDim = 2 * std::pow(2, ceil(log2(m-n)));
 	//BigBinaryInteger bigRootNTTDivision = RootOfUnity(m_nttDivisionDim, bigModulusNTTDivision);
@@ -407,7 +407,7 @@ void PerformanceTest() {
 
 	//ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().PreCompute(m, modulus);
 	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulus);
-	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::SetPreComputedNTTDivisionModulus(m, modulus, bigModulusNTTDivision, bigRootNTTDivision);
+	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::SetPreComputedNTTDivisionModulus(m, modulus, bigModulus, bigRoot);
 
 	BigBinaryVector input(n, modulus);
 	input = { 1,2,3,4,5,6,7,8,9,10 };
@@ -448,15 +448,15 @@ void PerformanceTestV3() {
 	BigBinaryInteger squareRootOfRoot("84");
 	BigBinaryInteger bigModulus("4072961"); //260 bits
 	BigBinaryInteger bigRoot("4063975");
-	BigBinaryInteger bigModulusNTTDivision("4164673"); //260 bits
-	BigBinaryInteger bigRootNTTDivision("3987663");
+	//BigBinaryInteger bigModulusNTTDivision("4164673"); //260 bits
+	//BigBinaryInteger bigRootNTTDivision("3987663");
 
 	usint n = GetTotient(m);
 
 	auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulus);
 
 	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulus);
-	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::SetPreComputedNTTDivisionModulus(m, modulus, bigModulusNTTDivision, bigRootNTTDivision);
+	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::SetPreComputedNTTDivisionModulus(m, modulus, bigModulus, bigRoot);
 
 	BigBinaryVector input(n, modulus);
 	input = { 1,2,3,4,5,6,7,8,9,10 };
@@ -469,7 +469,7 @@ void PerformanceTestV3() {
 
 	start = currentDateTime();
 
-	INPUT = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().ForwardTransform(input, squareRootOfRoot, bigModulus, bigRoot, m);
+	//INPUT = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().ForwardTransform(input, squareRootOfRoot, bigModulus, bigRoot, m);
 
 	stop = currentDateTime();
 
@@ -479,7 +479,7 @@ void PerformanceTestV3() {
 
 	start = currentDateTime();
 
-	inputCheck = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().InverseTransform(INPUT, squareRootOfRoot, bigModulus, bigRoot, m);
+	//inputCheck = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().InverseTransform(INPUT, squareRootOfRoot, bigModulus, bigRoot, m);
 
 	stop = currentDateTime();
 
@@ -549,17 +549,17 @@ void PerformanceTestV4() {
 	BigBinaryInteger squareRootOfRoot("1125399230456375417724134273593267324");
 	BigBinaryInteger bigModulus("1852673427797059126777135760139006525652319754650249024631321344126610076631041"); //260 bits
 	BigBinaryInteger bigRoot("1011857408422309039039556907195908859561535234649870814154019834362746408101010");
-	BigBinaryInteger bigModulusNTTDivision("22852932273529643486316954447175244494414503554339459946903988163765274935297");//254 bits
-	BigBinaryInteger bigRootNTTDivision("166896813997959873062972192819860531324067319379918385803279340301727857067");
+	//BigBinaryInteger bigModulusNTTDivision("22852932273529643486316954447175244494414503554339459946903988163765274935297");//254 bits
+	//BigBinaryInteger bigRootNTTDivision("166896813997959873062972192819860531324067319379918385803279340301727857067");
 	usint n = GetTotient(m);
-	usint m_nttDivisionDim = 2 * std::pow(2, ceil(log2(m - n)));
+	//usint m_nttDivisionDim = 2 * std::pow(2, ceil(log2(m - n)));
 	//BigBinaryInteger bigRootNTTDivision = RootOfUnity(m_nttDivisionDim, bigModulusNTTDivision);
 	//std::cout << bigRootNTTDivision << std::endl;
 	auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulus);
 
 	//ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().PreCompute(m, modulus);
 	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulus);
-	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::SetPreComputedNTTDivisionModulus(m, modulus, bigModulusNTTDivision, bigRootNTTDivision);
+	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::SetPreComputedNTTDivisionModulus(m, modulus, bigModulus, bigRoot);
 
 	//BigBinaryVector input(n, modulus);
 	//input = { 1,2,3,4,5,6,7,8,9,10 };

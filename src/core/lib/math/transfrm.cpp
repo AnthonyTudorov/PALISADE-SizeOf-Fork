@@ -990,11 +990,17 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 	}
 
 	template<typename IntType, typename VecType>
-	void ChineseRemainderTransformArb<IntType, VecType>::SetPreComputedNTTDivisionModulus(usint cyclotoOrder, const IntType &modulus, const IntType &nttMod, const IntType &nttRoot) {
+	void ChineseRemainderTransformArb<IntType, VecType>::SetPreComputedNTTDivisionModulus(usint cyclotoOrder, const IntType &modulus, const IntType &nttMod, const IntType &nttRootBig) {
 
 		usint n = GetTotient(cyclotoOrder);
 		usint power = cyclotoOrder - n;
 		m_nttDivisionDim = 2*std::pow(2,ceil(log2(power)));
+
+		usint nttDimBig = std::pow(2, ceil(log2(2 * cyclotoOrder - 1)));
+
+		// Computes the root of unity for the division NTT based on the root of unity for regular NTT
+		IntType nttRoot = nttRootBig.ModExp(IntType(nttDimBig/m_nttDivisionDim),nttMod);
+
 		m_DivisionNTTModulus[modulus] = nttMod;
 		m_DivisionNTTRootOfUnity[modulus] = nttRoot;
 		//part0 setting of rootTable and inverse rootTable
@@ -1082,7 +1088,8 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 	}
 
 	template<typename IntType, typename VecType>
-	VecType ChineseRemainderTransformArb<IntType, VecType>::ForwardTransform(const VecType& element, const IntType& root, const IntType& bigMod, const IntType& bigRoot, const usint cycloOrder) {
+	VecType ChineseRemainderTransformArb<IntType, VecType>::ForwardTransform(const VecType& element, const IntType& root, const IntType& bigMod, 
+		const IntType& bigRoot, const usint cycloOrder) {
 
 		usint n = GetTotient(cycloOrder);
 		if (element.GetLength() != n) {
@@ -1125,7 +1132,8 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 	}
 
 	template<typename IntType, typename VecType>
-	VecType ChineseRemainderTransformArb<IntType, VecType>::InverseTransform(const VecType& element, const IntType& root, const IntType& bigMod, const IntType& bigRoot, const usint cycloOrder) {
+	VecType ChineseRemainderTransformArb<IntType, VecType>::InverseTransform(const VecType& element, const IntType& root, const IntType& bigMod, 
+		const IntType& bigRoot, const usint cycloOrder) {
 		
 		usint n = GetTotient(cycloOrder);
 
@@ -1154,6 +1162,11 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 			BluesteinFFT<IntType, VecType>::GetInstance().PreComputePowers(cycloOrder, modulus, rootInverse);
 			BluesteinFFT<IntType, VecType>::GetInstance().PreComputeRBTable(cycloOrder, modulus, root, bigMod, bigRoot);
 			BluesteinFFT<IntType, VecType>::GetInstance().PreComputeRBTable(cycloOrder, modulus, rootInverse, bigMod, bigRoot);
+		}
+
+		//precompute root of unity tables for division NTT
+		if (m_rootOfUnityDivisionTableByModulus[bigMod].GetLength() == 0) {
+			SetPreComputedNTTDivisionModulus(cycloOrder, modulus, bigMod, bigRoot);
 		}
 
 		auto outputBluestein = BluesteinFFT<IntType, VecType>::GetInstance().ForwardTransform(inputToBluestein, rootInverse, cycloOrder);
