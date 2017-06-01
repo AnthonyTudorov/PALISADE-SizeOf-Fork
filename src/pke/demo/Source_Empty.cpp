@@ -488,6 +488,26 @@ void PerformanceTestV3() {
 	std::cout << "Inverse Transform computation time is :\t" << diff << std::endl;
 
 	std::cout << inputCheck << std::endl;
+
+	BigBinaryVector a(n, modulus);
+	a = { 1,2,3,4,5,6,7,8,9,10 };
+	auto A = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().ForwardTransform(a, squareRootOfRoot, bigModulus, bigRoot, m);
+
+	BigBinaryVector b(n, modulus);
+	b = { 5,6,7,8,9,10,11,12,13,14 };
+	auto B = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().ForwardTransform(b, squareRootOfRoot, bigModulus, bigRoot, m);
+
+	auto C = A*B;
+
+	auto c = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().InverseTransform(C, squareRootOfRoot, bigModulus, bigRoot, m);
+
+	auto cCheck = PolynomialMultiplication(a, b);
+
+	cCheck = PolyMod(cCheck, cycloPoly, modulus);
+
+	std::cout << "Expected " << cCheck << std::endl;
+
+	std::cout << "Actual " << c << std::endl;
 }
 
 
