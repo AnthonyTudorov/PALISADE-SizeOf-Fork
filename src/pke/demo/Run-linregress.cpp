@@ -534,6 +534,9 @@ void ArbFVInnerProductPackedArray() {
 	shared_ptr<Ciphertext<ILVector2n>> x1 = (*x)(0, 1).GetNumerator();
 	shared_ptr<Ciphertext<ILVector2n>> y0 = (*y)(0, 0).GetNumerator();
 
+	//Compute InnerProduct
+	auto innerProduct2 = cc.EvalInnerProduct(y0, x1, batchSize);
+
 
 	std::cout << "Starting inner product computation" << std::endl;
 

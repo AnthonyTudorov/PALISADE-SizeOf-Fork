@@ -1175,43 +1175,43 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 
 		outputBluestein = outputBluestein*cyclotomicInverse;
 
-		VecType output = PolyMod<VecType,IntType>(outputBluestein, this->m_cyclotomicPolyMap[modulus], modulus);
+		//VecType output = PolyMod<VecType,IntType>(outputBluestein, this->m_cyclotomicPolyMap[modulus], modulus);
 
-		//const auto &nttMod = m_DivisionNTTModulus[modulus];
-		//const auto &rootTable = m_rootOfUnityDivisionTableByModulus[nttMod];
-		//VecType aPadded2(m_nttDivisionDim, nttMod);
-		////perform mod operation
-		//usint power = cycloOrder - n;
-		//for (usint i = n; i < outputBluestein.GetLength(); i++) {
-		//	aPadded2.SetValAtIndex(power - (i - n) - 1, outputBluestein.GetValAtIndex(i));
-		//}
+		const auto &nttMod = m_DivisionNTTModulus[modulus];
+		const auto &rootTable = m_rootOfUnityDivisionTableByModulus[nttMod];
+		VecType aPadded2(m_nttDivisionDim, nttMod);
+		//perform mod operation
+		usint power = cycloOrder - n;
+		for (usint i = n; i < outputBluestein.GetLength(); i++) {
+			aPadded2.SetValAtIndex(power - (i - n) - 1, outputBluestein.GetValAtIndex(i));
+		}
 
-		////std::cout << aPadded2 << std::endl;
-		//
-		//auto A = NumberTheoreticTransform<IntType, VecType>::GetInstance().ForwardTransformIterative(aPadded2, rootTable, m_nttDivisionDim);
-		//auto AB = A*m_cyclotomicPolyReveseNTTMap[modulus];
-		//const auto &rootTableInverse = m_rootOfUnityDivisionInverseTableByModulus[nttMod];
-		//auto a = NumberTheoreticTransform<IntType, VecType>::GetInstance().InverseTransformIterative(AB, rootTableInverse, m_nttDivisionDim);
+		//std::cout << aPadded2 << std::endl;
+		
+		auto A = NumberTheoreticTransform<IntType, VecType>::GetInstance().ForwardTransformIterative(aPadded2, rootTable, m_nttDivisionDim);
+		auto AB = A*m_cyclotomicPolyReveseNTTMap[modulus];
+		const auto &rootTableInverse = m_rootOfUnityDivisionInverseTableByModulus[nttMod];
+		auto a = NumberTheoreticTransform<IntType, VecType>::GetInstance().InverseTransformIterative(AB, rootTableInverse, m_nttDivisionDim);
 
-		//VecType quotient(m_nttDivisionDim, modulus);
-		//for (usint i = 0; i < power; i++) {
-		//	quotient.SetValAtIndex(i, a.GetValAtIndex(i));
-		//}
-		//quotient = quotient.Mod(modulus);
-		//quotient.SetModulus(nttMod);
+		VecType quotient(m_nttDivisionDim, modulus);
+		for (usint i = 0; i < power; i++) {
+			quotient.SetValAtIndex(i, a.GetValAtIndex(i));
+		}
+		quotient = quotient.Mod(modulus);
+		quotient.SetModulus(nttMod);
 
-		//quotient = NumberTheoreticTransform<IntType, VecType>::GetInstance().ForwardTransformIterative(quotient, rootTable, m_nttDivisionDim);
+		quotient = NumberTheoreticTransform<IntType, VecType>::GetInstance().ForwardTransformIterative(quotient, rootTable, m_nttDivisionDim);
 
-		//quotient = quotient*m_cyclotomicPolyNTTMap[modulus];
+		quotient = quotient*m_cyclotomicPolyNTTMap[modulus];
 
-		//quotient = NumberTheoreticTransform<IntType, VecType>::GetInstance().InverseTransformIterative(quotient, rootTableInverse, m_nttDivisionDim);
-		//quotient.SetModulus(modulus);
-		//quotient = quotient.Mod(modulus);
+		quotient = NumberTheoreticTransform<IntType, VecType>::GetInstance().InverseTransformIterative(quotient, rootTableInverse, m_nttDivisionDim);
+		quotient.SetModulus(modulus);
+		quotient = quotient.Mod(modulus);
 
-		//VecType output(n, modulus);
-		//for (usint i = 0; i < n; i++) {
-		//	output.SetValAtIndex(i, outputBluestein.GetValAtIndex(i) - quotient.GetValAtIndex(cycloOrder -1 -i));
-		//}
+		VecType output(n, modulus);
+		for (usint i = 0; i < n; i++) {
+			output.SetValAtIndex(i, outputBluestein.GetValAtIndex(i).ModSub(quotient.GetValAtIndex(cycloOrder -1 -i),modulus));
+		}
 
 		return output;
 	}
