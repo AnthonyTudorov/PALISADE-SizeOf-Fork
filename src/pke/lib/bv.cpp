@@ -135,7 +135,7 @@ namespace lbcrypto {
 
 	template <class Element>
 	shared_ptr<Ciphertext<Element>> LPAlgorithmBV<Element>::Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
-		ILVector2n &ptxt) const
+		ILVector2n &ptxt, bool doEncryption) const
 	{
 
 		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(publicKey->GetCryptoParameters());
@@ -148,35 +148,53 @@ namespace lbcrypto {
 
 		typename Element::TugType tug;
 
-		const Element &a = publicKey->GetPublicElements().at(0);
-		const Element &b = publicKey->GetPublicElements().at(1);
-
-		Element v;
-
-		//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
-		if (cryptoParams->GetMode() == RLWE)
-			v = Element(dgg, elementParams, Format::EVALUATION);
-		else
-			v = Element(tug, elementParams, Format::EVALUATION);
-
-		Element e0(dgg, elementParams, Format::EVALUATION);
-		Element e1(dgg, elementParams, Format::EVALUATION);
-
 		Element plaintext(ptxt, elementParams);
 
 		plaintext.SwitchFormat();
 
-		Element c0(b*v + p*e0 + plaintext);
-
-		Element c1(a*v + p*e1);
-
 		std::vector<Element> cVector;
 
-		cVector.push_back(std::move(c0));
+		if (doEncryption) {
 
-		cVector.push_back(std::move(c1));
+			const Element &a = publicKey->GetPublicElements().at(0);
+			const Element &b = publicKey->GetPublicElements().at(1);
 
-		ciphertext->SetElements(std::move(cVector));
+			Element v;
+
+			//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
+			if (cryptoParams->GetMode() == RLWE)
+				v = Element(dgg, elementParams, Format::EVALUATION);
+			else
+				v = Element(tug, elementParams, Format::EVALUATION);
+
+			Element e0(dgg, elementParams, Format::EVALUATION);
+			Element e1(dgg, elementParams, Format::EVALUATION);
+
+			Element c0(b*v + p*e0 + plaintext);
+
+			Element c1(a*v + p*e1);
+
+			cVector.push_back(std::move(c0));
+
+			cVector.push_back(std::move(c1));
+
+			ciphertext->SetElements(std::move(cVector));
+
+		}
+		else
+		{
+
+			Element c0(plaintext);
+
+			Element c1(elementParams);
+
+			cVector.push_back(std::move(c0));
+
+			cVector.push_back(std::move(c1));
+
+			ciphertext->SetElements(std::move(cVector));
+
+		}
 
 		return ciphertext;
 	}

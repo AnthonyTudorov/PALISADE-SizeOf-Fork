@@ -139,14 +139,16 @@ public:
 	*
 	* @param &publicKey public key used for encryption.
 	* @param &plaintext the plaintext input.
+	* @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 	* @param *ciphertext ciphertext which results from encryption.
 	*/
 	shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> pubKey,
-		ILVector2n &ptxt) const {
+		ILVector2n &ptxt, bool doEncryption = true) const {
 		shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(pubKey->GetCryptoContext()) );
 
 		Element plaintext(ptxt, pubKey->GetCryptoContext().GetCryptoParameters()->GetElementParams());
 
+		// no difference between Encryption and non-Encryption mode for the Null scheme
 		ciphertext->SetElement(plaintext);
 
 		return ciphertext;

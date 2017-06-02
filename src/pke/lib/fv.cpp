@@ -277,7 +277,7 @@ LPKeyPair<Element> LPAlgorithmFV<Element>::KeyGen(const CryptoContext<Element> c
 
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
-		ILVector2n &ptxt) const
+		ILVector2n &ptxt, bool doEncryption = true) const
 {
 	shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(publicKey->GetCryptoContext()) );
 
@@ -286,34 +286,47 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &delta = cryptoParams->GetDelta();
 
-	const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
-	typename Element::TugType tug;
-
-	const Element &p0 = publicKey->GetPublicElements().at(0);
-	const Element &p1 = publicKey->GetPublicElements().at(1);
-
-	Element u;
-
-	//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
-	if (cryptoParams->GetMode()==RLWE)
-		u = Element(dgg, elementParams, Format::EVALUATION);
-	else
-		u = Element(tug, elementParams, Format::EVALUATION);
-
-	Element e1(dgg, elementParams, Format::EVALUATION);
-	Element e2(dgg, elementParams, Format::EVALUATION);
-
-	Element c0(elementParams);
-	Element c1(elementParams);
-
 	Element plaintext(ptxt, elementParams);
 	plaintext.SwitchFormat();
 
-	c0 = p0*u + e1 + delta*plaintext;
+	if (doEncryption) {
 
-	c1 = p1*u + e2;
+		const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
+		typename Element::TugType tug;
 
-	ciphertext->SetElements({ c0, c1 });
+		const Element &p0 = publicKey->GetPublicElements().at(0);
+		const Element &p1 = publicKey->GetPublicElements().at(1);
+
+		Element u;
+
+		//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
+		if (cryptoParams->GetMode() == RLWE)
+			u = Element(dgg, elementParams, Format::EVALUATION);
+		else
+			u = Element(tug, elementParams, Format::EVALUATION);
+
+		Element e1(dgg, elementParams, Format::EVALUATION);
+		Element e2(dgg, elementParams, Format::EVALUATION);
+
+		Element c0(elementParams);
+		Element c1(elementParams);
+
+		c0 = p0*u + e1 + delta*plaintext;
+
+		c1 = p1*u + e2;
+
+		ciphertext->SetElements({ c0, c1 });
+
+	}
+	else
+	{
+
+		Element c0(delta*plaintext);
+		Element c1(elementParams);
+
+		ciphertext->SetElements({ c0, c1 });
+
+	}
 
 	return ciphertext;
 }

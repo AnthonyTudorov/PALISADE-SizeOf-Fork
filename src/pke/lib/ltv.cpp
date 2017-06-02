@@ -176,7 +176,7 @@ LPKeyPair<Element> LPAlgorithmLTV<Element>::KeyGen(const CryptoContext<Element> 
 
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmLTV<Element>::Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
-	ILVector2n &ptxt) const
+	ILVector2n &ptxt, bool doEncryption) const
 {
 	const shared_ptr<LPCryptoParametersRLWE<Element>> cryptoParams =
 		std::dynamic_pointer_cast<LPCryptoParametersRLWE<Element>>(publicKey->GetCryptoParameters());
@@ -186,22 +186,31 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmLTV<Element>::Encrypt(const shared_pt
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
-	const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
-
-	const Element &h = publicKey->GetPublicElements().at(0);
-
-	Element s(dgg, elementParams);
-
-	Element e(dgg, elementParams);
-
-	Element c(elementParams);
-
 	Element plaintext(ptxt, elementParams);
 	plaintext.SwitchFormat();
 
-	c = h*s + p*e + plaintext;
+	if (doEncryption)
+	{
 
-	ciphertext->SetElement(c);
+		const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
+
+		const Element &h = publicKey->GetPublicElements().at(0);
+
+		Element s(dgg, elementParams);
+
+		Element e(dgg, elementParams);
+
+		Element c(elementParams);
+
+		c = h*s + p*e + plaintext;
+
+		ciphertext->SetElement(c);
+
+	}
+	else
+	{
+		ciphertext->SetElement(plaintext);
+	}
 
 	return ciphertext;
 }

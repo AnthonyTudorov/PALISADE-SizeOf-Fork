@@ -399,12 +399,13 @@ public:
 	* @param publicKey - for encryption
 	* @param plaintext - to encrypt
 	* @param doPadding - if true, pad the input out to fill the encrypted chunk
+	* @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 	* @return a vector of pointers to Ciphertexts created by encrypting the plaintext
 	*/
 	std::vector<shared_ptr<Ciphertext<Element>>> Encrypt(
 		const shared_ptr<LPPublicKey<Element>> publicKey,
 		const Plaintext& plaintext,
-		bool doPadding = true) const
+		bool doPadding = true, bool doEncryption = true) const
 	{
 		std::vector<shared_ptr<Ciphertext<Element>>> cipherResults;
 
@@ -430,7 +431,7 @@ public:
 			ILVector2n pt(publicKey->GetCryptoParameters()->GetElementParams());
 			plaintext.Encode(ptm, &pt, bytes, chunkSize);
 
-			shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, pt);
+			shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, pt, doEncryption);
 
 			if (!ciphertext) {
 				cipherResults.clear();
@@ -448,11 +449,13 @@ public:
 	* Encrypt a matrix of plaintexts (integer encoding)
 	* @param publicKey - for encryption
 	* @param plaintext - to encrypt
+	* @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 	* @return a vector of pointers to Ciphertexts created by encrypting the plaintext
 	*/
 	shared_ptr<Matrix<RationalCiphertext<Element>>> EncryptMatrix(
 		const shared_ptr<LPPublicKey<Element>> publicKey,
-		const Matrix<IntPlaintextEncoding> &plaintext) const
+		const Matrix<IntPlaintextEncoding> &plaintext,
+		bool doEncryption = true) const
 	{
 
 		auto zeroAlloc = [=]() { return make_unique<RationalCiphertext<Element>>(*this, true); };
@@ -472,7 +475,7 @@ public:
 				ILVector2n pt(publicKey->GetCryptoParameters()->GetElementParams());
 				plaintext(row,col).Encode(ptm, &pt);
 
-				shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, pt);
+				shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, pt, doEncryption);
 
 				(*cipherResults)(row, col).SetNumerator(*ciphertext);
 			}
@@ -486,11 +489,13 @@ public:
 	* Encrypt a matrix of plaintexts (packed encoding)
 	* @param publicKey - for encryption
 	* @param plaintext - to encrypt
+	* @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 	* @return a vector of pointers to Ciphertexts created by encrypting the plaintext
 	*/
 	shared_ptr<Matrix<RationalCiphertext<Element>>> EncryptMatrix(
 		const shared_ptr<LPPublicKey<Element>> publicKey,
-		const Matrix<PackedIntPlaintextEncoding> &plaintext) const
+		const Matrix<PackedIntPlaintextEncoding> &plaintext,
+		bool doEncryption = true) const
 	{
 
 		auto zeroAlloc = [=]() { return make_unique<RationalCiphertext<Element>>(*this, true); };
@@ -510,7 +515,7 @@ public:
 				ILVector2n pt(publicKey->GetCryptoParameters()->GetElementParams());
 				plaintext(row, col).Encode(ptm, &pt);
 
-				shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, pt);
+				shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, pt, doEncryption);
 
 				(*cipherResults)(row, col).SetNumerator(*ciphertext);
 			}
@@ -526,12 +531,14 @@ public:
 	* @param publicKey - the encryption key in use
 	* @param instream - where to read the input from
 	* @param ostream - where to write the serialization to
+	* @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 	* @return
 	*/
 	void EncryptStream(
 		const shared_ptr<LPPublicKey<Element>> publicKey,
 		std::istream& instream,
-		std::ostream& outstream) const
+		std::ostream& outstream,
+		bool doEncryption = true) const
 	{
 		if( publicKey == NULL || publicKey->GetCryptoContext() != *this )
 			throw std::logic_error("key passed to EncryptStream was not generated with this crypto context");
@@ -558,7 +565,7 @@ public:
 			ILVector2n pt(publicKey->GetCryptoParameters()->GetElementParams());
 			px.Encode(publicKey->GetCryptoParameters()->GetPlaintextModulus(), &pt, 0, chunkSize);
 
-			shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, pt);
+			shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, pt, doEncryption);
 			if (!ciphertext) {
 				delete [] ptxt;
 				return;

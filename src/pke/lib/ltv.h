@@ -246,9 +246,10 @@ public:
 	 *
 	 * @param publicKey The encryption key.
 	 * @param plaintext Plaintext to be encrypted.
+	 * @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 	 * @return A shared pointer to the encrypted Ciphertext.
 	 */
-	shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, ILVector2n &plaintext) const;
+	shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, ILVector2n &plaintext, bool doEncryption = true) const;
 
 	/**
 	 * Decrypt method for the LTV Scheme.  See the class description for citations on where the algorithms were
