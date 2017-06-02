@@ -133,7 +133,7 @@ public:
 	}
 
 	bool operator==(const EncodingParamsImpl<IntType> &other) const {
-		return m_plaintextModulus == other.m_plaintextGenerator &&
+		return m_plaintextModulus == other.m_plaintextModulus &&
 			m_plaintextGenerator == other.m_plaintextGenerator &&
 			m_batchSize == other.m_batchSize;
 	}

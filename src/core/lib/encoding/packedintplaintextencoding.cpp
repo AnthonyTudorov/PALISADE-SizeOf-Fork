@@ -143,7 +143,7 @@ namespace lbcrypto {
 				}
 			}
 			//std::cout << "generator? = " << IsGenerator<BigBinaryInteger>(this->initRoot, BigBinaryInteger(m)) << std::endl;
-			std::cout << "root found" << initRoot << std::endl;
+			//std::cout << "root found" << initRoot << std::endl;
 		}
 
 		BigBinaryInteger qMod(ring->GetModulus());

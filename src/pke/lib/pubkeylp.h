@@ -1443,12 +1443,17 @@ namespace lbcrypto {
 
 
 	protected:
-		LPCryptoParameters() : m_plaintextModulus(2) {}
+		LPCryptoParameters() : m_plaintextModulus(2) {
+			m_encodingParams = std::make_shared<EncodingParams>(2);
+		}
 
-		LPCryptoParameters(const typename Element::Integer &plaintextModulus) : m_plaintextModulus(plaintextModulus) {}
+		LPCryptoParameters(const typename Element::Integer &plaintextModulus) : m_plaintextModulus(plaintextModulus) { 
+			m_encodingParams = std::make_shared<EncodingParams>(plaintextModulus);
+		}
 
 		LPCryptoParameters(shared_ptr<typename Element::Params> params, const BigBinaryInteger &plaintextModulus) : m_plaintextModulus(plaintextModulus) {
 			m_params = params;
+			m_encodingParams = std::make_shared<EncodingParams>(plaintextModulus);
 		}
 
 		LPCryptoParameters(shared_ptr<typename Element::Params> params, shared_ptr<EncodingParams> encodingParams) {

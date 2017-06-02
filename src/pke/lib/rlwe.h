@@ -222,7 +222,7 @@ public:
 
 		if( el == 0 ) return false;
 
-		return  this->GetPlaintextModulus() == el->GetPlaintextModulus() &&
+		return this->GetPlaintextModulus() == el->GetPlaintextModulus() &&
 				*this->GetElementParams() == *el->GetElementParams() &&
 				*this->GetEncodingParams() == *el->GetEncodingParams() &&
 				m_distributionParameter == el->GetDistributionParameter() &&
@@ -264,7 +264,7 @@ protected:
 
 		Serialized encodingPser(rapidjson::kObjectType, &serObj->GetAllocator());
 
-		if (!this->GetElementParams()->Serialize(&encodingPser))
+		if (!this->GetEncodingParams()->Serialize(&encodingPser))
 			return false;
 
 		cryptoParamsMap.AddMember("ElemParams", pser.Move(), serObj->GetAllocator());
