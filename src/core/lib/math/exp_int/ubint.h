@@ -1002,6 +1002,7 @@ namespace exp_int{
     void PrintValues() const { std::cout << *this; }
 
  private:
+    static inline limb_t base64_to_value(const char &b64);
 
  public:    
 #ifdef UBINT_32

@@ -59,15 +59,9 @@
 
 // passes all tests with UBINT_32
 // fails tests with UBINT_64
-//[  FAILED  ] UTSer.cpu_int  //this cascades to other failurs. 
-
-//[  FAILED  ] UTSer.vector_of_cpu_int
-//[  FAILED  ] UTSer.ilvector_test
-
 //[ RUN      ] UTLTVBATCHING.ILVector_EVALMULT_Arb hangs
 //[ RUN      ] UTFV.ILVector2n_FV_ParamsGen_EvalMul hangs
 //[ RUN      ] UTFV.ILVector2n_FV_Optimized_Eval_Operations hangs
-//[  FAILED  ] UTPKESer.LTV_keys_and_ciphertext failed
 //[ RUN      ] UTSHE.FV_ILVector2n_Add hangs
 //[ RUN      ] UTSHE.FV_ILVector2n_Mult hangs
 //[ RUN      ] UTStatisticalEval.FV_Eval_Lin_Regression_Int hangs
@@ -79,6 +73,7 @@
 
 // MATHBACKEND 7
 // 		This uses native_int:: as the default
+
 // This backend provides a maximum size of 64 bits
 
 //To select backend, please UNCOMMENT the appropriate line rather than changing the number on the

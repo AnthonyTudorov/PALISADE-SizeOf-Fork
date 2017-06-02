@@ -173,9 +173,13 @@ static IntType RNG(const IntType& modulus)
 template<typename IntType>
 static bool WitnessFunction(const IntType& a, const IntType& d, usint s, const IntType& p)
 {
+  bool dbg_flag = true;
+  DEBUG("calling modexp a "<<a<<" d "<<d<<" p "<<p);
 	IntType mod = a.ModExp(d, p);
+	DEBUG("mod "<<mod);
 	bool prevMod = false;
 	for(usint i=1; i<s+1; i++) {
+	  DEBUG("wf "<<i);
 		if(mod != 1 && mod != p-1)
 			prevMod = true;
 		else
@@ -194,7 +198,7 @@ static bool WitnessFunction(const IntType& a, const IntType& d, usint s, const I
 template<typename IntType>
 static IntType FindGenerator(const IntType& q)
  {
-	bool dbg_flag = false;
+	bool dbg_flag = true;
  	std::set<IntType> primeFactors;
 	DEBUG("calling PrimeFactorize");
 
@@ -387,6 +391,7 @@ IntType GreatestCommonDivisor(const IntType& a, const IntType& b)
   template<typename IntType>
   bool MillerRabinPrimalityTest(const IntType& p, const usint niter)
   {
+        bool dbg_flag = true;
  	if(p < 2 || ((p != 2) && (p.Mod(2) == 0)))
  		return false;
  	if(p == 2 || p == 3 || p == 5)
@@ -394,17 +399,22 @@ IntType GreatestCommonDivisor(const IntType& a, const IntType& b)
 
  	IntType d = p-1;
  	usint s = 0;
+	DEBUG("start while d "<<d);
  	while(d.Mod(2) == 0) {
  		d = d.DividedBy(2);
  		s++;
  	}
+	DEBUG("end while s "<<s);
  	bool composite = true;
  	for(usint i=0; i<niter; i++) {
+	  DEBUG(".1");
  		IntType a = RNG(p-3).ModAdd(2, p);
+	  DEBUG(".2");
  		composite = (WitnessFunction(a, d, s, p));
 		if(composite)
 			break;
 	}
+	DEBUG("done composite "<<composite);
 	return (!composite);
  }
 
@@ -471,7 +481,7 @@ const IntType PollardRhoFactorization(const IntType &n)
 template<typename IntType>
 void PrimeFactorize( IntType n, std::set<IntType> &primeFactors)
  {
-   bool dbg_flag = false;
+   bool dbg_flag = true;
    DEBUG("PrimeFactorize "<<n);
 #if 1 
 	// primeFactors.clear();
@@ -479,6 +489,7 @@ void PrimeFactorize( IntType n, std::set<IntType> &primeFactors)
 	DEBUG("set size "<< primeFactors.size());
 
  	if(n == 0 || n == 1) return;
+	DEBUG("calling MillerRabinPrimalityTest("<<n<<")");
  	if(MillerRabinPrimalityTest(n)) {
 	        DEBUG("Miller true");
  		primeFactors.insert(n);
@@ -500,7 +511,7 @@ void PrimeFactorize( IntType n, std::set<IntType> &primeFactors)
 #else
 	//do not take a recursive approach -- therein lies memory issues.
 	//do it iteratively.
-	howevere this may be way slower!!!!
+	//howevere this may be way slower!!!!
 
 	IntType n(nin); //because nin is const!
 	//first check if prime

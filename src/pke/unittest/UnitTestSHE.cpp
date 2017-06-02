@@ -75,48 +75,54 @@ static const usint TOWERS = 3;
 
 template<class Element>
 void UnitTest_Add(const CryptoContext<Element>& cc) {
-
+	bool dbg_flag = true;
+	DEBUG("1.1");
 	std::vector<uint32_t> vectorOfInts1 = { 1,0,3,1,0,1,2,1 };
 	IntPlaintextEncoding plaintext1(vectorOfInts1);
-
+	DEBUG("1.2");
 	std::vector<uint32_t> vectorOfInts2 = { 2,1,3,2,2,1,3,0 };
 	IntPlaintextEncoding plaintext2(vectorOfInts2);
-
+	DEBUG("1.3");
 	std::vector<uint32_t> vectorOfIntsAdd = { 3,1,6,3,2,2,5,1 };
 	IntPlaintextEncoding plaintextAdd(vectorOfIntsAdd);
-
+	DEBUG("1.4");
 	std::vector<uint32_t> vectorOfIntsSub = { 63,63,0,63,62,0,63,1 };
 	IntPlaintextEncoding plaintextSub(vectorOfIntsSub);
 
 	{
+
+		DEBUG("2.1");
 		// EVAL ADD
 		IntPlaintextEncoding intArray1(vectorOfInts1);
-
+		DEBUG("2.2");
 		IntPlaintextEncoding intArray2(vectorOfInts2);
-
+		DEBUG("2.3");
 		IntPlaintextEncoding intArrayExpected(vectorOfIntsAdd);
 
 		////////////////////////////////////////////////////////////
 		//Perform the key generation operation.
 		////////////////////////////////////////////////////////////
+		DEBUG("2.4");
 		LPKeyPair<Element> kp = cc.KeyGen();
-
+		DEBUG("2.5");
 		vector<shared_ptr<Ciphertext<Element>>> ciphertext1 =
 				cc.Encrypt(kp.publicKey, intArray1,false);
-
+		DEBUG("2.6");
 		vector<shared_ptr<Ciphertext<Element>>> ciphertext2 =
 				cc.Encrypt(kp.publicKey, intArray2,false);
-
+		DEBUG("2.7");
 		vector<shared_ptr<Ciphertext<Element>>> cResult;
-
+		DEBUG("2.8");
 		cResult.insert( cResult.begin(), cc.EvalAdd(ciphertext1.at(0), ciphertext2.at(0)));
-
+		DEBUG("2.9");
 		IntPlaintextEncoding results;
 
+		DEBUG("2.a");
 		cc.Decrypt(kp.secretKey, cResult, &results,false);
 
+		DEBUG("2.b");
 		results.resize(intArrayExpected.size());
-
+		DEBUG("2.c");
 		EXPECT_EQ(intArrayExpected, results) << "EvalAdd fails";
 	}
 }
@@ -163,7 +169,10 @@ TEST(UTSHE, BV_ILVectorArray2n_Add) {
 }
 
 TEST(UTSHE, FV_ILVector2n_Add) {
+	bool dbg_flag = true;
+	DEBUG("GenCryptoContextElementFV");
 	CryptoContext<ILVector2n> cc = GenCryptoContextElementFV(ORDER, PTM);
+	DEBUG("done");
 	UnitTest_Add<ILVector2n>(cc);
 }
 

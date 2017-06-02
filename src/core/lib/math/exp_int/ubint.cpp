@@ -1399,7 +1399,8 @@ return result;
   //returns quotient and remainder
   template<typename limb_t>
   int ubint<limb_t>::divqr_vect(ubint& qin, ubint& rin, const ubint& uin, const ubint& vin) const{
-
+    bool dbg_flag = false;
+    DEBUG("/");
     vector<limb_t>&q = (qin.m_value);
     vector<limb_t>&r = (rin.m_value);
     const vector<limb_t>&u = (uin.m_value);
@@ -1503,7 +1504,8 @@ return result;
   //quotient only 
   template<typename limb_t>
   int ubint<limb_t>::divq_vect(ubint& qin, const ubint& uin, const ubint& vin) const{
-
+    bool dbg_flag = false;
+    DEBUG("\\");
     vector<limb_t>&q = (qin.m_value);
     const vector<limb_t>&u = (uin.m_value);
     const vector<limb_t>&v = (vin.m_value);
@@ -1617,7 +1619,8 @@ return result;
 
 
 #endif
-
+    bool dbg_flag = false;
+    DEBUG("r");
     const Dlimb_t ffs = (Dlimb_t)m_MaxLimb; // Number  (2**64)-1.
     const Dlimb_t b = (Dlimb_t)m_MaxLimb+1; // Number base (2**64).
 
@@ -1935,6 +1938,7 @@ return result;
 #ifndef OLD_DIV
     ans.m_value.resize(modulus.m_value.size());
 #endif
+    
 
     f = divr_vect(ans,  *this,  modulus);
     if (f!= 0)
@@ -1947,7 +1951,7 @@ return result;
       DEBUG("ans");
       ans.PrintLimbsInDec();
     }
-
+    
     return(ans);
 
   }
@@ -2325,25 +2329,35 @@ return result;
 
     while(true){
       //product is multiplied only if lsb bitvalue is 1
+#if 0   
       if(Exp.m_value[0]%2==1){
 	product = product*mid;
       }
-
-      //running product is calculated
-      if(product>modulus){
-	product = product.Mod(modulus);
+#else
+      if(Exp.m_value[0]&1){
+	product *=mid;
       }
+
+
+#endif
+      //running product is calculated
+      // if(product>modulus){
+	//product = product.Mod(modulus);
+	product %=modulus;
+	//}
 
       DEBUG("product "<<product.ToString());
       //divide by 2 and check even to odd to find bit value
-      Exp = Exp>>1;
+      //Exp = Exp>>1;
+      Exp >>=1;
       if(Exp==ZERO)break;
 
       DEBUG("Exp "<<Exp.ToString());
 
       //mid calculates mid^2%q
-      mid = mid*mid;
-      mid = (mid.Mod(modulus));
+      //mid = mid*mid;
+      //mid = (mid.Mod(modulus));
+      mid = mid.ModMul(mid, modulus);
       DEBUG("mid: "<<mid.ToString());
     }
     if (dbg_flag) {
@@ -2573,11 +2587,12 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
   static const usint b64_shifts[] = { 0, 6, 12, 18, 24, 30, 36, 42, 48, 54, 60};
   static const usint B64MASK = 0x3F;
 
-  // this for encoding...
+  // this for encoding...mapping 0.. 2^6-1 to an ascii char
   static char to_base64_char[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
   // and this for decoding...
-  static inline unsigned int base64_to_value(char b64) {
+  template<typename limb_t>
+  inline limb_t ubint<limb_t>::base64_to_value(const char &b64) {
     if( isupper(b64) )
       return b64 - 'A';
     else if( islower(b64) )
@@ -2594,10 +2609,13 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
   //note modulus is ignored
   template<typename limb_t>
   const std::string ubint<limb_t>::Serialize(const ubint<limb_t>& modulus) const {
-    
+    bool dbg_flag = false;
+
     std::string ans = "";
     
     for (auto fromP = m_value.begin(); fromP!=m_value.end(); fromP++){
+      DEBUG(" ser "<<std::hex<<" "<<*fromP<<std::dec);      
+
       ans += to_base64_char[((*fromP) >> b64_shifts[0]) & B64MASK];
       ans += to_base64_char[((*fromP) >> b64_shifts[1]) & B64MASK];
       ans += to_base64_char[((*fromP) >> b64_shifts[2]) & B64MASK];
@@ -2610,9 +2628,11 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
       ans += to_base64_char[((*fromP) >> b64_shifts[8]) & B64MASK];
       ans += to_base64_char[((*fromP) >> b64_shifts[9]) & B64MASK];
       ans += to_base64_char[((*fromP) >> b64_shifts[10]) & B64MASK];
+      DEBUG("UBINT_64");
 #endif
     }
     ans += "|"; //mark end of word. 
+    DEBUG("ans ser "<<ans);
     return ans;
   }
 
@@ -2621,6 +2641,7 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
   //note modulus is ignored
   template<typename limb_t>
     const char * ubint<limb_t>::Deserialize(const char *cp, const ubint<limb_t>& modulus){
+    bool dbg_flag = false;
 
     m_value.clear();
     while( *cp != '\0' && *cp != '|' ) {
@@ -2637,6 +2658,8 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
       converted |= base64_to_value(*cp++) << b64_shifts[9];
       converted |= base64_to_value(*cp++) << b64_shifts[10];
 #endif
+      DEBUG(" deser "<<converted);      
+      DEBUG(" deser "<<std::hex<<" "<<converted<<std::dec); 
       m_value.push_back(converted);
 
     }
