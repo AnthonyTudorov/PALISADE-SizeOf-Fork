@@ -60,12 +60,12 @@ class pdriver;
 %token MUL
 %token  <std::string>           	VERSION
 %token  <std::string>           	COMMAND
-%token  <int>           			NUM
+%token  <usint>           			NUM
 %token  <std::string>           	STR
-%type   <std::vector<int>>			numlist
+%type   <std::vector<usint>>		numlist
 %type   <std::vector<std::string>>	strlist
 %type   <wire_type>          		type basic_type agg_type
-%type	<CircuitNode*>				gate
+%type	<CircuitNode*>				gate const
 %type	<CircuitNode*>				input
 
 /*%printer { yyoutput << $$; } <*>; */
@@ -98,7 +98,7 @@ line:           command
 				}
 		| 		const
 				{
-					
+					driver.graph.addNode($1, $1->GetId());
 				}
 		| 		gate
 				{
@@ -166,6 +166,7 @@ agg_type:		LEFT_BRACK basic_type RIGHT_BRACK
 const:          NUM CONST NUM ENDLS
                 {
                     std::cout << "Adding the constant " << $3 << std::endl;
+                    $$ = new ConstInput($1, $3);
                 }
         ;
 
@@ -182,7 +183,7 @@ strlist:        /* empty */
 
 numlist:       /* empty */
                 {
-                    $$ = std::vector<int>();
+                    $$ = std::vector<usint>();
                 }
         |       numlist NUM
                 {

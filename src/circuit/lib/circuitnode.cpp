@@ -17,8 +17,8 @@ ostream& operator<<(ostream& out, const CircuitNode& n)
 	//out << " xlabel=\"" << n.GetId() << "\"";
 	out << "]; ";
 
-	const vector<int>& nodeInputs = n.getInputs();
-	for( int input : nodeInputs )
+	const vector<usint>& nodeInputs = n.getInputs();
+	for( usint input : nodeInputs )
 		out << input << " -> " << n.nodeId << "; ";
 	if( n.is_output ) {
 		out << "{ rank=same; Outputs " << n.nodeId << " }; ";

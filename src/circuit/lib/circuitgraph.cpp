@@ -174,10 +174,10 @@ insertMRbetween(CircuitGraph *g, CircuitNode *up, CircuitNode *down)
 		return true;
 	}
 
-	int outName = up->GetId();
-	int inName = down->GetId();
+	usint outName = up->GetId();
+	usint inName = down->GetId();
 
-	CircuitNode *newMR = new ModReduceNode(g->GenNodeNumber(), vector<int>({outName}));
+	CircuitNode *newMR = new ModReduceNode(g->GenNodeNumber(), vector<usint>({outName}));
 	newMR->setInputDepth(up->getOutputDepth());
 	newMR->setOutputDepth(down->getInputDepth());
 
@@ -212,7 +212,7 @@ CircuitGraph::processNodeDepth(CircuitNode *n, queue<CircuitNode *>& nodeQueue)
 	for( int i : n->getOutputs() ) cout << " output:" << i << endl;
 	// calculate what the input depth should be for this node given its output depth
 	n->setBottomUpDepth();
-	int inDepth = n->getInputDepth();
+	usint inDepth = n->getInputDepth();
 
 	// assign new output depth to every node providing input
 	for( int i : n->getInputs() ) {
@@ -236,13 +236,13 @@ CircuitGraph::processNodeDepth(CircuitNode *n, queue<CircuitNode *>& nodeQueue)
 			// now find all the links leaving "in" that might need a mod/reduce
 
 			auto otherOutputs(in->getOutputs());
-			for( int otherOut : otherOutputs ) {
+			for( usint otherOut : otherOutputs ) {
 				CircuitNode *out = getNodeById(otherOut);
 				if( out == (CircuitNode *)0 ) {
 					std::cout << "There is no node with id " << otherOut << " for node " << in->GetId() << " in the graph!!" << endl;
 					continue;
 				}
-				int outDepth = out->getInputDepth();
+				usint outDepth = out->getInputDepth();
 
 				if( inDepth > outDepth ) {
 					if( insertMRbetween(this, in, out) == false ) {

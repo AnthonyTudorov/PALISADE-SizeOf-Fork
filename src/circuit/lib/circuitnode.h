@@ -38,19 +38,19 @@ public:
 
 	usint GetId() const { return nodeId; }
 
-	const vector<int>& getInputs() const { return inputs; }
-	int getInput(int i) { return inputs[i]; }
-	void setInput(int inputIdx, int nodeId) { inputs[inputIdx] = nodeId; }
+	const vector<usint>& getInputs() const { return inputs; }
+	int getInput(usint i) { return inputs[i]; }
+	void setInput(usint inputIdx, usint nodeId) { inputs[inputIdx] = nodeId; }
 
-	const set<int>& getOutputs() const { return outputs; }
-	void addOutput(int n) { outputs.insert(n); }
-	void delOutput(int n) { outputs.erase(n); }
+	const set<usint>& getOutputs() const { return outputs; }
+	void addOutput(usint n) { outputs.insert(n); }
+	void delOutput(usint n) { outputs.erase(n); }
 
 	void setAsOutput() { is_output = true; }
 	void unsetAsOutput() { is_output = false; }
 
-	const int getInputDepth() const { return nodeInputDepth; }
-	const int getOutputDepth() const { return nodeOutputDepth; }
+	const usint getInputDepth() const { return nodeInputDepth; }
+	const usint getOutputDepth() const { return nodeOutputDepth; }
 	void resetDepth() { this->nodeInputDepth = this->nodeOutputDepth = 0; }
 	void setInputDepth(int newDepth) { nodeInputDepth = newDepth; }
 	void setOutputDepth(int newDepth) { nodeOutputDepth = newDepth; }
@@ -76,16 +76,25 @@ protected:
 	bool			is_output;
 	usint			nodeId;
 
-	vector<int>		inputs;
-	set<int>		outputs;
-	int				nodeInputDepth;
-	int				nodeOutputDepth;
+	vector<usint>		inputs;
+	set<usint>		outputs;
+	usint				nodeInputDepth;
+	usint				nodeOutputDepth;
 	Value			value;
+};
+
+class ConstInput : public CircuitNode {
+public:
+	ConstInput(usint id, usint value) : CircuitNode(id) {
+		this->value = BigBinaryInteger(value);
+	}
+
+	string getNodeLabel() const { return "(const)"; }
 };
 
 class Input : public CircuitNode {
 public:
-	Input(int id, wire_type type) : CircuitNode(id) {
+	Input(usint id, wire_type type) : CircuitNode(id) {
 		value.SetType(type);
 	}
 
@@ -94,7 +103,7 @@ public:
 
 class Output : public CircuitNode {
 public:
-	Output(int nodeId) : CircuitNode(nodeId) {
+	Output(usint nodeId) : CircuitNode(nodeId) {
 		nodeInputDepth = nodeOutputDepth = 1;
 	}
 
@@ -108,7 +117,7 @@ public:
 
 class ModReduceNode : public CircuitNode {
 public:
-	ModReduceNode(int id, const vector<int>& inputs) : CircuitNode(id) {
+	ModReduceNode(usint id, const vector<usint>& inputs) : CircuitNode(id) {
 		this->inputs = inputs;
 	}
 
@@ -123,7 +132,7 @@ public:
 
 class EvalNegNode : public CircuitNode {
 public:
-	EvalNegNode(int id, const vector<int>& inputs) : CircuitNode(id) {
+	EvalNegNode(usint id, const vector<usint>& inputs) : CircuitNode(id) {
 		this->inputs = inputs;
 	}
 
@@ -136,7 +145,7 @@ public:
 
 class EvalAddNode : public CircuitNode {
 public:
-	EvalAddNode(int id, const vector<int>& inputs) : CircuitNode(id) {
+	EvalAddNode(usint id, const vector<usint>& inputs) : CircuitNode(id) {
 		this->inputs = inputs;
 	}
 
@@ -147,7 +156,7 @@ public:
 
 class EvalSubNode : public CircuitNode {
 public:
-	EvalSubNode(int id, const vector<int>& inputs) : CircuitNode(id) {
+	EvalSubNode(usint id, const vector<usint>& inputs) : CircuitNode(id) {
 		this->inputs = inputs;
 	}
 
@@ -158,7 +167,7 @@ public:
 
 class EvalMultNode : public CircuitNode {
 public:
-	EvalMultNode(int id, const vector<int>& inputs) : CircuitNode(id) {
+	EvalMultNode(usint id, const vector<usint>& inputs) : CircuitNode(id) {
 		this->inputs = inputs;
 	}
 

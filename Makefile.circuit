@@ -74,7 +74,7 @@ $(EXTDEMODIR)/circuit/palcircuit$(EXESUFFIX): $(CIRCUITDEMOOBJECTS) $(EXTLIBDIR)
 $(EXTLIBDIR)/$(PALISADECIRCUITLIB): $(CIRCUITOBJECTS) $(CLIBS)
 	@echo " -- circuit:linking $@ from CIRCUITOBJECTS"
 	mkdir -p $(EXTLIBDIR)
-	$(CC) $(LIBCMD) -o $@ $(CIRCUITOBJECTS) -lgomp -L$(EXTLIBDIR) -lPALISADEcore
+	$(CC) $(LIBCMD) -o $@ $(CIRCUITOBJECTS) -lgomp $(CLIBS)
 
 ### #this builds the individual objects that make up the library .
 .PRECIOUS: $(CIRCUITBINDIR)/%
