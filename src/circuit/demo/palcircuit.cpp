@@ -9,6 +9,7 @@
 #include "cryptocontextgen.h"
 #include "parsedriver.h"
 #include "palisadecircuit.h"
+using namespace lbcrypto;
 
 int
 main(int argc, char *argv[])
@@ -19,15 +20,23 @@ main(int argc, char *argv[])
 
 	PalisadeCircuit	cir(cc);
 
-	IntPlaintextEncoding pt1 = { 1,2,3,5 };
-	IntPlaintextEncoding pt2 = { 1,2,3,7 };
+	IntPlaintextEncoding vecs[] = {
+			{ 1,2,3,5 },
+			{ 1,2,3,7 }
+	};
+	IntPlaintextEncoding ints[] = { { 7 }, { 3 } };
 
 	LPKeyPair<ILVector2n> kp = cc.KeyGen();
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ct1 = cc.Encrypt(kp.publicKey,pt1);
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ct2 = cc.Encrypt(kp.publicKey,pt2);
+	vector< vector<shared_ptr<Ciphertext<ILVector2n>>> > cipherVecs;
+	for( size_t i = 0; i < sizeof(vecs)/sizeof(vecs[0]); i++ )
+		cipherVecs.push_back( cc.Encrypt(kp.publicKey, vecs[i]) );
 
-	CircuitIO inputs = { {0,ct1[0]}, {1,ct2[0]} };
+	vector< vector<shared_ptr<Ciphertext<ILVector2n>>> > intVecs;
+	for( size_t i = 0; i < sizeof(ints)/sizeof(ints[0]); i++ )
+		intVecs.push_back( cc.Encrypt(kp.publicKey, ints[i]) );
+
+	CircuitIO inputs;
 
 	bool verbose = false;
 	for( int i=1; i<argc; i++ ) {
@@ -48,8 +57,34 @@ main(int argc, char *argv[])
 		driver.graph.DisplayGraph();
 		std::cout << "End DOT output" << std::endl;
 
-		std::cout << "input 0 is " << pt1 << std::endl;
-		std::cout << "input 1 is " << pt2 << std::endl;
+		auto intypes = driver.graph.GetInputTypes();
+
+		size_t curVec = 0, maxVec = sizeof(vecs)/sizeof(vecs[0]);
+		size_t curInt = 0, maxInt = sizeof(ints)/sizeof(ints[0]);
+		cout << "Circuit takes " << intypes.size() << " inputs:" <<endl;
+		for( size_t i = 0; i < intypes.size(); i++ ) {
+			cout << "input " << i << ": type " << intypes[i] << ", value is: ";
+
+			switch(intypes[i]) {
+			case INT:
+				if( curInt == maxInt )
+					throw std::logic_error("out of ints");
+				inputs[i] = intVecs[curInt++][0];
+				cout << ints[i] << endl;
+				break;
+
+			case VECTOR_INT:
+				if( curVec == maxVec )
+					throw std::logic_error("out of vecs");
+				inputs[i] = cipherVecs[curVec++][0];
+				cout << vecs[i] << endl;
+				break;
+
+			default:
+				throw std::logic_error("type not supported");
+			}
+		}
+		cout << endl;
 
 		CircuitIO outputs = cir.CircuitEval(driver.graph, inputs);
 
@@ -57,7 +92,7 @@ main(int argc, char *argv[])
 			IntPlaintextEncoding result;
 
 			std::cout << "For output " << out.first << std::endl;
-			cc.Decrypt(kp.secretKey, {out.second}, &result);
+			cc.Decrypt(kp.secretKey, {out.second.GetIntVecValue()}, &result);
 
 			std::cout << result << std::endl;
 		}

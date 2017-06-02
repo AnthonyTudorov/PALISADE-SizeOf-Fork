@@ -9,7 +9,6 @@
 #define SRC_FHE_CIRCUITSIM_H_
 
 #include "circuitfunction.h"
-class CircuitNode;
 
 #include <map>
 #include <vector>
@@ -18,7 +17,10 @@ class CircuitNode;
 #include <iostream>
 using namespace std;
 
+namespace lbcrypto {
 // OLD DEPRECATED CODE
+
+class CircuitNode;
 
 class CircuitSim {
 	map<string, uint32_t> params;
@@ -85,5 +87,7 @@ public:
 
 	CircuitGraph *UserFunctionFactory(string func, vector<CircuitNode *>& inputs);
 };
+
+}
 
 #endif /* SRC_FHE_CIRCUITSIM_H_ */

@@ -9,7 +9,8 @@
 #define SRC_CIRCUIT_LIB_VALUE_H_
 
 #include "palisade.h"
+#include "circuitinput.h"
 using namespace lbcrypto;
-typedef std::shared_ptr<Ciphertext<ILVector2n>>	Value;
+typedef CircuitObject	Value;
 
 #endif /* SRC_CIRCUIT_LIB_VALUE_H_ */

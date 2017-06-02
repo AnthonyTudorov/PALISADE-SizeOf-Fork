@@ -21,20 +21,22 @@ using std::ostream;
 #include "palisade.h"
 #include "cryptocontext.h"
 
+namespace lbcrypto {
+
 // This class is meant to represent a node in a circuit
 // the node can have several inputs, and it has one output
 // nodes are identified by a node id
 class CircuitNode {
 
 public:
-	CircuitNode(int nodeID) {
+	CircuitNode(usint nodeID) {
 		this->nodeId = nodeID;
 		this->nodeInputDepth = this->nodeOutputDepth = 0;
 		is_output = false;
 	}
 	virtual ~CircuitNode() {}
 
-	int GetId() const { return nodeId; }
+	usint GetId() const { return nodeId; }
 
 	const vector<int>& getInputs() const { return inputs; }
 	int getInput(int i) { return inputs[i]; }
@@ -54,6 +56,8 @@ public:
 	void setOutputDepth(int newDepth) { nodeOutputDepth = newDepth; }
 	void resetOutputDepth(int newDepth) { nodeOutputDepth = newDepth; }
 
+	wire_type GetType() const { return value.GetType(); }
+
 	Value& getValue() { return value; }
 	const Value& getValue() const { return value; }
 	void setValue(const Value& v) { value = v; }
@@ -70,7 +74,7 @@ public:
 
 protected:
 	bool			is_output;
-	int				nodeId;
+	usint			nodeId;
 
 	vector<int>		inputs;
 	set<int>		outputs;
@@ -81,7 +85,9 @@ protected:
 
 class Input : public CircuitNode {
 public:
-	Input(int id) : CircuitNode(id) {}
+	Input(int id, wire_type type) : CircuitNode(id) {
+		value.SetType(type);
+	}
 
 	string getNodeLabel() const { return "(input)"; }
 };
@@ -136,17 +142,7 @@ public:
 
 	string getNodeLabel() const { return "+"; }
 
-	Value eval(CryptoContext<ILVector2n>& cc, CircuitGraph& cg) {
-		// gather together all of the inputs to this gate and add them
-		if( inputs.size() == 0 ) throw std::logic_error("Cannot add, no inputs");
-		else if( inputs.size() == 1 ) return cg.getNodeById( inputs[0] )->getValue();
-
-		shared_ptr<Ciphertext<ILVector2n>> sum = cc.EvalAdd(cg.getNodeById( inputs[0] )->getValue(), cg.getNodeById( inputs[1] )->getValue());
-
-		for( size_t i = 2; i < inputs.size(); i++ )
-			sum = cc.EvalAdd(sum, cg.getNodeById( inputs[i] )->getValue());
-		return value = sum;
-	}
+	Value eval(CryptoContext<ILVector2n>& cc, CircuitGraph& cg);
 };
 
 class EvalSubNode : public CircuitNode {
@@ -157,17 +153,7 @@ public:
 
 	string getNodeLabel() const { return "-"; }
 
-	Value eval(CryptoContext<ILVector2n>& cc, CircuitGraph& cg) {
-		// gather together all of the inputs to this gate and subtract them
-		if( inputs.size() == 0 ) throw std::logic_error("Cannot subtract, no inputs");
-		else if( inputs.size() == 1 ) return cg.getNodeById( inputs[0] )->getValue();
-
-		shared_ptr<Ciphertext<ILVector2n>> prod = cc.EvalMult(cg.getNodeById( inputs[0] )->getValue(), cg.getNodeById( inputs[1] )->getValue());
-
-		for( size_t i = 2; i < inputs.size(); i++ )
-			prod = cc.EvalSub(prod, cg.getNodeById( inputs[i] )->getValue());
-		return value = prod;
-	}
+	Value eval(CryptoContext<ILVector2n>& cc, CircuitGraph& cg);
 };
 
 class EvalMultNode : public CircuitNode {
@@ -179,17 +165,9 @@ public:
 	void setBottomUpDepth() { nodeInputDepth = nodeOutputDepth + 1; }
 	string getNodeLabel() const { return "*"; }
 
-	Value eval(CryptoContext<ILVector2n>& cc, CircuitGraph& cg) {
-		// gather together all of the inputs to this gate and multiply them
-		if( inputs.size() == 0 ) throw std::logic_error("Cannot multiply, no inputs");
-		else if( inputs.size() == 1 ) return cg.getNodeById( inputs[0] )->getValue();
-
-		shared_ptr<Ciphertext<ILVector2n>> prod = cc.EvalMult(cg.getNodeById( inputs[0] )->getValue(), cg.getNodeById( inputs[1] )->getValue());
-
-		for( size_t i = 2; i < inputs.size(); i++ )
-			prod = cc.EvalMult(prod, cg.getNodeById( inputs[i] )->getValue());
-		return value = prod;
-	}
+	Value eval(CryptoContext<ILVector2n>& cc, CircuitGraph& cg);
 };
+
+}
 
 #endif

@@ -11,6 +11,8 @@
 #include <vector>
 using namespace std;
 
+namespace lbcrypto {
+
 class CircuitGraph;
 
 class CircuitFunction {
@@ -30,5 +32,7 @@ public:
 	const vector<string>& getArgs() { return args; }
 	CircuitGraph *getContents() { return contents; }
 };
+
+}
 
 #endif //TALUS_CIRCUITFUNCTION_H

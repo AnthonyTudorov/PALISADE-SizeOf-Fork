@@ -10,6 +10,8 @@
 #include "palisade.h"
 #include "cryptocontext.h"
 
+namespace lbcrypto {
+
 //CircuitGraph::CircuitGraph(const CircuitGraph& from)
 //{
 //	map<string,string> nameMap;
@@ -141,6 +143,16 @@ CircuitGraph::MarkAllOutputs()
 	}
 }
 
+const vector<wire_type> CircuitGraph::GetInputTypes() {
+	vector<wire_type>	types;
+
+	for( usint i : getInputs() ) {
+		types.push_back( allNodes[i]->GetType() );
+	}
+
+	return types;
+}
+
 // every node in newG gets added to this
 void
 CircuitGraph::mergeGraph(CircuitGraph *newG)
@@ -268,4 +280,4 @@ CircuitGraph::processNodeDepth()
 	}
 }
 
-
+}

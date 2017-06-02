@@ -8,6 +8,8 @@
 #include "circuitsim.h"
 #include "circuitgraph.h"
 
+namespace lbcrypto {
+
 CircuitSim::CircuitSim() {
 	// must create built in functions and add them to the function table
 	addFunction("EvalAdd", 2);
@@ -78,4 +80,6 @@ CircuitSim::addUserFunction(string function, vector<string>& args, CircuitGraph*
 
 	knownFunctions[function] = new CircuitFunction(function, args, body);
 	return true;
+}
+
 }

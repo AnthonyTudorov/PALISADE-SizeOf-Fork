@@ -18,24 +18,25 @@ using namespace std;
 
 #include "palisade.h"
 #include "cryptocontext.h"
-using namespace lbcrypto;
+#include "circuitinput.h"
 
+namespace lbcrypto {
 class CircuitNode;
 
 class CircuitGraph {
-	map<int,CircuitNode*>	allNodes;
-	vector<int>				inputs;
-	set<int>				outputs;
+	map<usint,CircuitNode*>	allNodes;
+	vector<usint>				inputs;
+	set<usint>				outputs;
 
-	const map<int,CircuitNode*>& getAllNodes() const { return allNodes; }
+	const map<usint,CircuitNode*>& getAllNodes() const { return allNodes; }
 
 	bool nodeExists(int id) {
 		return allNodes.find(id) != allNodes.end();
 	}
 
 	// can add input if the node exists but it's not in the input list yet
-	bool canAddInput(int id) {
-		return allNodes.find(id) != allNodes.end() &&
+	bool canAddInput(usint id) {
+		return nodeExists(id) &&
 				std::find(inputs.begin(), inputs.end(), id) == inputs.end();
 	}
 
@@ -52,10 +53,11 @@ public:
 
 	void DisplayGraph();
 	void DisplayAllDepths();
+
 	void Execute(CryptoContext<ILVector2n> cc);
 
-	CircuitNode *getNodeById(int id) {
-		map<int,CircuitNode*>::iterator it = allNodes.find(id);
+	CircuitNode *getNodeById(usint id) {
+		auto it = allNodes.find(id);
 		if( it == allNodes.end() ) {
 			return 0;
 		}
@@ -88,16 +90,20 @@ public:
 		outputs.insert(n);
 	}
 
+	const vector<wire_type> GetInputTypes();
+
 	void MarkAllOutputs();
 
-	const int getInput(int i) const { return inputs[i]; }
-	const vector<int>& getInputs() const { return inputs; }
-	const set<int>& getOutputs() const { return outputs; }
+	const usint getInput(usint i) const { return inputs[i]; }
+	const vector<usint>& getInputs() const { return inputs; }
+	const set<usint>& getOutputs() const { return outputs; }
 
 	void resetAllDepths();
 
 	bool bindParameters(map<string,string>& nameMap, map<CircuitNode *, CircuitNode *>& valueMap);
 
 };
+
+}
 
 #endif /* SRC_CIRCUIT_CIRCUITGRAPH_H_ */

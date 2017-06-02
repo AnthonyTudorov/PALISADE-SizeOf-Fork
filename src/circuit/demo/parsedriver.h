@@ -27,7 +27,7 @@ public:
   virtual ~pdriver ();
 
   std::map<std::string, int> variables;
-  CircuitGraph	graph;
+  lbcrypto::CircuitGraph	graph;
 
   int result;
 
