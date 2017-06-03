@@ -192,6 +192,7 @@ namespace lbcrypto {
 		const Element &s = privateKey->GetPrivateElement();
 
 		Element b = c[0] - s*c[1];
+
 		b.SwitchFormat();
 
 		// Interpolation is needed in the case of Double-CRT interpolation, for example, ILVectorArray2n
@@ -602,12 +603,12 @@ template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmMultipartyBV<Element>::MultipartyDecryptLead(const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const shared_ptr<Ciphertext<Element>> ciphertext) const
 {
+
 		const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
 		const std::vector<Element> &c = ciphertext->GetElements();
 		const Element &s = privateKey->GetPrivateElement();
 
 		Element b = c[0] - s*c[1];
-//		b.SwitchFormat();	
 
 		shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext->GetCryptoContext()));
 		newCiphertext->SetElements({ b });
@@ -620,13 +621,11 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmMultipartyBV<Element>::MultipartyDecr
 		const shared_ptr<Ciphertext<Element>> ciphertext) const
 {
 	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
-//	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 	const std::vector<Element> &c = ciphertext->GetElements();
 
 	const Element &s = privateKey->GetPrivateElement();
 
-	Element b = -s*c[1];
-//	b.SwitchFormat();		
+	Element b = s*c[1];
 
 	shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext->GetCryptoContext()));
 	newCiphertext->SetElements({ b });
@@ -641,7 +640,6 @@ DecryptResult LPAlgorithmMultipartyBV<Element>::MultipartyDecryptFusion(const ve
 {
 
 	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = ciphertextVec[0]->GetCryptoParameters();
-//	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
 	const std::vector<Element> &cElem = ciphertextVec[0]->GetElements();
@@ -650,9 +648,9 @@ DecryptResult LPAlgorithmMultipartyBV<Element>::MultipartyDecryptFusion(const ve
 	size_t numCipher = ciphertextVec.size();
 	for( size_t i = 1; i < numCipher; i++ ) {
 		const std::vector<Element> &c2 = ciphertextVec[i]->GetElements();
-		b += c2[0];
+		b -= c2[0];
 	}
-	
+
 	b.SwitchFormat();	
 
 	// Interpolation is needed in the case of Double-CRT interpolation, for example, ILVectorArray2n

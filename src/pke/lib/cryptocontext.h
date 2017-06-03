@@ -286,7 +286,7 @@ public:
 
 		//Make sure we're processing ciphertexts.
 		size_t last_ciphertext = partialCiphertextVec.size();
-		if (last_ciphertext <= 1 )
+		if (last_ciphertext < 1 )
 			return DecryptResult();
 
 		//Make sure ciphertexts are of non-zero length and that they'r eof the same length/
