@@ -672,27 +672,12 @@ LPKeyPair<Element> LPAlgorithmMultipartyFV<Element>::MultipartyKeyGen(const Cryp
 
 	//Done in two steps not to use a random polynomial from a pre-computed pool
 	//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
-	if (cryptoParams->GetMode() == RLWE) {
 
-		size_t numKeys = secretKeys.size();
-		for( size_t i = 0; i < numKeys; i++ ) {
-			shared_ptr<LPPrivateKey<Element>> sk1 = secretKeys[i];
-			Element s1 = sk1->GetPrivateElement();
-			s += s1;
-		}
-
-	}
-	else {
-		//throw std::logic_error("FusedKeyGen operation has not been enabled for OPTIMIZED cases");
-		//s = Element(tug, elementParams, Format::COEFFICIENT);
-		//s.SwitchFormat();
-
-		size_t numKeys = secretKeys.size();
-		for( size_t i = 0; i < numKeys; i++ ) {
-			shared_ptr<LPPrivateKey<Element>> sk1 = secretKeys[i];
-			Element s1 = sk1->GetPrivateElement();
-			s += s1;
-		}
+	size_t numKeys = secretKeys.size();
+	for( size_t i = 0; i < numKeys; i++ ) {
+		shared_ptr<LPPrivateKey<Element>> sk1 = secretKeys[i];
+		Element s1 = sk1->GetPrivateElement();
+		s += s1;
 	}
 
 	kp.secretKey->SetPrivateElement(s);

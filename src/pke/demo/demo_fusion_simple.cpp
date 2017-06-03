@@ -208,10 +208,19 @@ int main(int argc, char *argv[]) {
 	////////////////////////////////////////////////////////////
 	// Encode source data
 	////////////////////////////////////////////////////////////
-
+/*
 	std::vector<uint32_t> vectorOfInts1 = {2,2,2,2,2,2,0,0,0,0,0,0};
 	std::vector<uint32_t> vectorOfInts2 = {3,3,3,3,3,0,0,0,0,0,0,0};
 	std::vector<uint32_t> vectorOfInts3 = {1,1,1,1,0,0,0,0,0,0,0,0};
+*/
+	std::vector<uint32_t> vectorOfInts1 = {1,1,1,1,1,1,1,0,0,0,0,0};
+/*
+	std::vector<uint32_t> vectorOfInts2 = {1,0,0,1,1,0,0,0,0,0,0,0};
+	std::vector<uint32_t> vectorOfInts3 = {1,1,1,1,0,0,0,0,0,0,0,0};
+*/
+	std::vector<uint32_t> vectorOfInts2 = {0,0,0,0,0,0,0,0,0,0,0,0};
+	std::vector<uint32_t> vectorOfInts3 = {0,0,0,0,0,0,0,0,0,0,0,0};
+
 	IntPlaintextEncoding plaintext1(vectorOfInts1);
 	IntPlaintextEncoding plaintext2(vectorOfInts2);
 	IntPlaintextEncoding plaintext3(vectorOfInts3);
@@ -336,6 +345,9 @@ int main(int argc, char *argv[]) {
 
 	start = currentDateTime();
 
+	ciphertextPartial1 = cc.MultipartyDecryptLead(kp1.secretKey, ciphertext1);
+
+
 	ciphertextPartial1 = cc.MultipartyDecryptLead(kp1.secretKey, ciphertextAddVectNew);
 	ciphertextPartial2 = cc.MultipartyDecryptMain(kp2.secretKey, ciphertextAddVectNew);
 	ciphertextPartial3 = cc.MultipartyDecryptMain(kp3.secretKey, ciphertextAddVectNew);
@@ -363,6 +375,27 @@ int main(int argc, char *argv[]) {
 	cout << plaintextMultipartyNew << endl;
 
 	cout << "\n";
+
+	IntPlaintextEncoding plaintextNew1;
+	cc.Decrypt(kp1.secretKey, ciphertext1, &plaintextNew1, true);
+	plaintextNew1.resize(plaintext1.size());
+	cout << "\n Resulting Fused Plaintext with Re-Encryption: \n";
+	cout << plaintextNew1 << endl;
+
+
+	ciphertextPartial1 = cc.MultipartyDecryptLead(kp1.secretKey, ciphertext1);
+	const std::vector<ILVector2n> &cElem = ciphertextPartial1[0]->GetElements();
+	cout << "Number of Elements:" << cElem.size() << endl;
+	vector<vector<shared_ptr<Ciphertext<ILVector2n>>>> partialCiphertextVec1;
+	partialCiphertextVec1.push_back(ciphertextPartial1);
+	cout << "\n Sizes: \n";
+	cout << "Vector of ciphertexts:" << partialCiphertextVec1.size() << endl;
+	cout << "Vector of 0th ciphertexts:" << partialCiphertextVec1[0].size() << endl;
+	IntPlaintextEncoding plaintextMultipartyNew1;
+	cc.MultipartyDecryptFusion(partialCiphertextVec1, &plaintextMultipartyNew1, true);
+	plaintextMultipartyNew1.resize(plaintext1.size());
+	cout << "\n Resulting Fused Plaintext with Re-Encryption: \n";
+	cout << plaintextMultipartyNew1 << endl;
 
 	////////////////////////////////////////////////////////////
 	// Done

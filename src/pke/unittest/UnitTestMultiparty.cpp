@@ -100,9 +100,13 @@ UnitTestMultiparty(const CryptoContext<Element>& cc, bool publicVersion) {
 	////////////////////////////////////////////////////////////
 	// Encode source data
 	////////////////////////////////////////////////////////////
-
+/*
 	std::vector<uint32_t> vectorOfInts1 = {2,2,2,2,2,2,0,0,0,0,0,0};
 	std::vector<uint32_t> vectorOfInts2 = {3,3,3,3,3,0,0,0,0,0,0,0};
+	std::vector<uint32_t> vectorOfInts3 = {1,1,1,1,0,0,0,0,0,0,0,0};
+*/
+	std::vector<uint32_t> vectorOfInts1 = {1,1,1,1,1,1,1,0,0,0,0,0};
+	std::vector<uint32_t> vectorOfInts2 = {1,0,0,1,1,0,0,0,0,0,0,0};
 	std::vector<uint32_t> vectorOfInts3 = {1,1,1,1,0,0,0,0,0,0,0,0};
 	IntPlaintextEncoding plaintext1(vectorOfInts1);
 	IntPlaintextEncoding plaintext2(vectorOfInts2);
@@ -265,6 +269,56 @@ TEST(UTMultiparty, FV1_ILVector2n_Multiparty_pri) {
 
 TEST(UTMultiparty, FV2_ILVector2n_Multiparty_pri) {
 	string input = "FV2";
+	CryptoContext<ILVector2n> cc = CryptoContextHelper::getNewContext(input);
+	cc.Enable(ENCRYPTION);
+	cc.Enable(SHE);
+	cc.Enable(PRE);
+	cc.Enable(MULTIPARTY);
+	UnitTestMultiparty<ILVector2n>(cc, true);
+}
+
+TEST(UTMultiparty, BV1_ILVector2n_Multiparty_pri) {
+	string input = "BV1";
+	CryptoContext<ILVector2n> cc = CryptoContextHelper::getNewContext(input);
+	cc.Enable(ENCRYPTION);
+	cc.Enable(SHE);
+	cc.Enable(PRE);
+	cc.Enable(MULTIPARTY);
+	UnitTestMultiparty<ILVector2n>(cc, true);
+}
+
+TEST(UTMultiparty, BV2_ILVector2n_Multiparty_pri) {
+	string input = "BV2";
+	CryptoContext<ILVector2n> cc = CryptoContextHelper::getNewContext(input);
+	cc.Enable(ENCRYPTION);
+	cc.Enable(SHE);
+	cc.Enable(PRE);
+	cc.Enable(MULTIPARTY);
+	UnitTestMultiparty<ILVector2n>(cc, true);
+}
+
+TEST(UTMultiparty, BV3_ILVector2n_Multiparty_pri) {
+	string input = "BV3";
+	CryptoContext<ILVector2n> cc = CryptoContextHelper::getNewContext(input);
+	cc.Enable(ENCRYPTION);
+	cc.Enable(SHE);
+	cc.Enable(PRE);
+	cc.Enable(MULTIPARTY);
+	UnitTestMultiparty<ILVector2n>(cc, true);
+}
+
+TEST(UTMultiparty, BV4_ILVector2n_Multiparty_pri) {
+	string input = "BV4";
+	CryptoContext<ILVector2n> cc = CryptoContextHelper::getNewContext(input);
+	cc.Enable(ENCRYPTION);
+	cc.Enable(SHE);
+	cc.Enable(PRE);
+	cc.Enable(MULTIPARTY);
+	UnitTestMultiparty<ILVector2n>(cc, true);
+}
+
+TEST(UTMultiparty, BV5_ILVector2n_Multiparty_pri) {
+	string input = "BV5";
 	CryptoContext<ILVector2n> cc = CryptoContextHelper::getNewContext(input);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);

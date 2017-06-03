@@ -458,10 +458,7 @@ namespace lbcrypto {
 		*/
 		LPKeyPair<Element> MultipartyKeyGen(const CryptoContext<Element> cc,
 			const shared_ptr<LPPublicKey<Element>> pk1,
-			bool makeSparse=false) const {
-			std::string errMsg = "LPAlgorithmPRELTV::MultipartyKeyGen using the new secret key is not implemented for the BV Scheme.";
-			throw std::runtime_error(errMsg);
-		}
+			bool makeSparse=false) const;
 
 		/**
 		* Function to generate public and private keys for multiparty homomrophic encryption server key pair in coordination with secret keys of clients.
@@ -473,10 +470,7 @@ namespace lbcrypto {
 		*/
 		LPKeyPair<Element> MultipartyKeyGen(const CryptoContext<Element> cc,
 		const vector<shared_ptr<LPPrivateKey<Element>>>& secretKeys,
-			bool makeSparse=false) const {
-			std::string errMsg = "LPAlgorithmPRELTV::MultipartyKeyGen using the new secret key is not implemented for the BV Scheme.";
-			throw std::runtime_error(errMsg);
-		}
+			bool makeSparse=false) const;
 
 		/**
 		 * Method for main decryption operation run by most decryption clients for multiparty homomorphic encryption
@@ -485,10 +479,7 @@ namespace lbcrypto {
 		 * @param ciphertext ciphertext id decrypted.
 		 */
 		shared_ptr<Ciphertext<Element>> MultipartyDecryptMain(const shared_ptr<LPPrivateKey<Element>> privateKey,
-			const shared_ptr<Ciphertext<Element>> ciphertext) const {
-			std::string errMsg = "LPAlgorithmPREBV::MultipartyDecryptMain is not implemented for the BV Scheme.";
-			throw std::runtime_error(errMsg);
-		}
+			const shared_ptr<Ciphertext<Element>> ciphertext) const;
 
 		/**
 		 * Method for decryption operation run by the lead decryption client for multiparty homomorphic encryption
@@ -497,10 +488,7 @@ namespace lbcrypto {
 		 * @param ciphertext ciphertext id decrypted.
 		 */
 		shared_ptr<Ciphertext<Element>> MultipartyDecryptLead(const shared_ptr<LPPrivateKey<Element>> privateKey,
-			const shared_ptr<Ciphertext<Element>> ciphertext) const {
-			std::string errMsg = "LPAlgorithmPREBV::MultipartyDecryptLead is not implemented for the BV Scheme.";
-			throw std::runtime_error(errMsg);
-		}
+			const shared_ptr<Ciphertext<Element>> ciphertext) const;
 
 		/**
 		 * Method for fusing the partially decrypted ciphertext.
@@ -510,10 +498,7 @@ namespace lbcrypto {
 		 * @return the decoding result.
 		 */
 		DecryptResult MultipartyDecryptFusion(const vector<shared_ptr<Ciphertext<Element>>>& ciphertextVec,
-			ILVector2n *plaintext) const {
-			std::string errMsg = "LPAlgorithmPREBV::MultipartyDecrypt is not implemented for the BV Scheme.";
-			throw std::runtime_error(errMsg);
-		}
+			ILVector2n *plaintext) const;
 	};
 
 
