@@ -63,19 +63,37 @@ namespace lbcrypto {
 
 		static BigBinaryInteger GetInitRoot() { return initRoot;  }
 
-		/** Interface for the operation of converting from current plaintext encoding to ILVector2n.
+		/** The operation of converting from current plaintext encoding to ILVector2n.
 		*
 		* @param  modulus - used for encoding.
 		* @param  *ilVector encoded plaintext - output argument.
 		*/
 		void Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector, size_t start_from = 0, size_t length = 0) const;
 
-		/** Interface for the operation of converting from ILVector2n to current plaintext encoding.
+		/** The operation of converting from current plaintext encoding to ILVectorArray2n.
+		*
+		* @param  modulus - used for encoding.
+		* @param  *ilVector encoded plaintext - output argument.
+		*/
+		void Encode(const BigBinaryInteger &modulus, ILVectorArray2n *ilVector, size_t start_from = 0, size_t length = 0) const {
+			throw std::logic_error("Encode: Packed encoding is not currently supported for ILVectorArray2n");
+		};
+
+		/** The operation of converting from ILVector2n to current plaintext encoding.
 		*
 		* @param  modulus - used for encoding.
 		* @param  *ilVector encoded plaintext - input argument.
 		*/
 		void Decode(const BigBinaryInteger &modulus, ILVector2n *ilVector);
+
+		/** The operation of converting from ILVectorArray2n to current plaintext encoding.
+		*
+		* @param  modulus - used for encoding.
+		* @param  *ilVector encoded plaintext - input argument.
+		*/
+		void Decode(const BigBinaryInteger &modulus, ILVectorArray2n *ilVector){
+			throw std::logic_error("Decode: Packed encoding is not currently supported for ILVectorArray2n");
+		}
 
 		void Unpad(const BigBinaryInteger &modulus) {} // a null op; no padding in int
 

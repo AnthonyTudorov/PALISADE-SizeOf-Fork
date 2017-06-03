@@ -502,15 +502,7 @@ public:
 	* @return A shared pointer to a new ciphertext which is the negation of the input.
 	*/
 	shared_ptr<Ciphertext<Element>> EvalNegate(const shared_ptr<Ciphertext<Element>> ct) const;
-
-	/**
-	* Adds uniformly random noise to all plaintext slots except for the first one
-	*
-	* @param ct The input ciphertext.
-	* @return A shared pointer to a new ciphertext
-	*/
-	shared_ptr<Ciphertext<Element>> AddRandomNoise(const shared_ptr<Ciphertext<Element>> ct) const;
-														 
+													 
 	/**
 	* Method for generating a Key Switch Hint.
 	* See the class description for citations on where the algorithms were taken from.

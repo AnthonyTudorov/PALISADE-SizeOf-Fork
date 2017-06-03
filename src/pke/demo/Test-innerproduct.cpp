@@ -159,6 +159,8 @@ void ArbBVInnerProductPackedArray() {
 
 	std::cout << "Sum = " << intArrayNew[0] << std::endl;
 
+	std::cout << "All components (other slots randomized) = " << intArrayNew << std::endl;
+
 }
 
 
@@ -235,6 +237,8 @@ void ArbLTVInnerProductPackedArray() {
 	cc.Decrypt(kp.secretKey, ciphertextSum, &intArrayNew, false);
 
 	std::cout << "Sum = " << intArrayNew[0] << std::endl;
+
+	std::cout << "All components (other slots randomized) = " << intArrayNew << std::endl;
 
 }
 
@@ -325,6 +329,8 @@ void ArbFVInnerProductPackedArray() {
 	cc.Decrypt(kp.secretKey, ciphertextSum, &intArrayNew, false);
 
 	std::cout << "Sum = " << intArrayNew[0] << std::endl;
+
+	std::cout << "All components (other slots randomized) = " << intArrayNew << std::endl;
 
 }
 

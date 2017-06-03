@@ -186,7 +186,7 @@ namespace lbcrypto {
 
 			Element c0(plaintext);
 
-			Element c1(elementParams);
+			Element c1(elementParams,Format::EVALUATION,true);
 
 			cVector.push_back(std::move(c0));
 
@@ -319,22 +319,6 @@ namespace lbcrypto {
 		return newCiphertext;
 	}
 
-	template <class Element>
-	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::AddRandomNoise(const shared_ptr<Ciphertext<Element>> ciphertext) const {
-
-		const shared_ptr<LPCryptoParameters<Element>> cryptoParams = ciphertext->GetCryptoParameters();
-		const shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
-
-		shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext->GetCryptoContext()));
-
-		const std::vector<Element> &cipherTextElements = ciphertext->GetElements();
-
-		// We need to generate new random noise using the plaintext modulus and then
-		// add this noise to all slots except for first one. This requires packing and switchformat.
-
-		newCiphertext->SetElements({ cipherTextElements[0], cipherTextElements[1] });
-		return newCiphertext;
-	}
 
 	template <class Element>
 	shared_ptr<LPEvalKey<Element>> LPAlgorithmSHEBV<Element>::KeySwitchGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey, const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {

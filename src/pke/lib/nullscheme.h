@@ -669,20 +669,6 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 			throw std::runtime_error(errMsg);
 		}
 
-		/**
-		* Adds uniformly random noise to all plaintext slots except for the first one
-		*
-		* @param ct The input ciphertext.
-		* @return A shared pointer to a new ciphertext
-		*/
-		shared_ptr<Ciphertext<Element>> AddRandomNoise(const shared_ptr<Ciphertext<Element>> ct) const {
-
-			std::string errMsg = "LPAlgorithmSHENull::AddRandomNoise is not implemented for Null SHE Scheme.";
-			throw std::runtime_error(errMsg);
-
-		}
-
-
 	private:
 		typename Element::ILVectorType ElementNullSchemeMultiply(const typename Element::ILVectorType& c1, const typename Element::ILVectorType& c2,
 				const BigBinaryInteger& ptmod) const {

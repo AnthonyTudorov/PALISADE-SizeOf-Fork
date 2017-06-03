@@ -322,7 +322,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr
 	{
 
 		Element c0(delta*plaintext);
-		Element c1(elementParams);
+		Element c1(elementParams, Format::EVALUATION, true);
 
 		ciphertext->SetElements({ c0, c1 });
 
@@ -409,24 +409,6 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalNegate(const shar
 
 	newCiphertext->SetElements({ c0, c1 });
 	return newCiphertext;
-}
-
-template <class Element>
-shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::AddRandomNoise(const shared_ptr<Ciphertext<Element>> ciphertext) const {
-
-	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = ciphertext->GetCryptoParameters();
-	const shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
-
-	shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext->GetCryptoContext()));
-
-	const std::vector<Element> &cipherTextElements = ciphertext->GetElements();
-
-	// We need to generate new random noise using the plaintext modulus and then
-	// add this noise to all slots except for first one. This requires packing and switchformat.
-
-	newCiphertext->SetElements({ cipherTextElements[0], cipherTextElements[1] });
-	return newCiphertext;
-
 }
 
 template <class Element>

@@ -1117,12 +1117,50 @@ namespace lbcrypto {
 			virtual shared_ptr<Ciphertext<Element>> EvalNegate(const shared_ptr<Ciphertext<Element>> ciphertext) const = 0;
 
 			/**
-			* Virtual function to add random noise to all plaintext slots except for the first one
+			* Function to add random noise to all plaintext slots except for the first one; used in EvalInnerProduct
 			*
 			* @param &ciphertext the input ciphertext.
 			* @return modified ciphertext
 			*/
-			virtual shared_ptr<Ciphertext<Element>> AddRandomNoise(const shared_ptr<Ciphertext<Element>> ciphertext) const = 0;
+			shared_ptr<Ciphertext<Element>> AddRandomNoise(const shared_ptr<Ciphertext<Element>> ciphertext) const {
+
+				const shared_ptr<LPCryptoParameters<Element>> cryptoParams = ciphertext->GetCryptoParameters();
+				const shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
+				const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
+
+				usint n = elementParams->GetRingDimension();
+
+				auto cc = ciphertext->GetCryptoContext();
+
+				DiscreteUniformGenerator dug;
+				dug.SetModulus(encodingParams->GetPlaintextModulus());
+				BigBinaryVector randomVector = dug.GenerateVector(n - 1);
+
+				std::vector<usint> randomIntVector(n);
+
+				//first plainext slot does not need to change
+				randomIntVector[0] = 0;
+
+				for (usint i = 0; i < n - 1; i++)
+				{
+					randomIntVector[i + 1] = randomVector.GetValAtIndex(i).ConvertToInt();
+				}
+
+				PackedIntPlaintextEncoding::SetParams(encodingParams->GetPlaintextModulus(), elementParams->GetCyclotomicOrder());
+
+				PackedIntPlaintextEncoding plaintext(randomIntVector);
+
+				ILVector2n encodedPlaintext(elementParams);
+
+				plaintext.Encode(encodingParams->GetPlaintextModulus(), &encodedPlaintext);
+
+				shared_ptr<LPPublicKey<Element>> pk(new LPPublicKey<Element>(cc));
+
+				shared_ptr<Ciphertext<Element>>  embeddedPlaintext = cc.GetEncryptionAlgorithm()->Encrypt(pk, encodedPlaintext, false);
+
+				return EvalAdd(ciphertext, embeddedPlaintext);
+
+			};
 
 			/**
 			* Method for KeySwitchGen
@@ -1295,8 +1333,6 @@ namespace lbcrypto {
 				shared_ptr<Ciphertext<Element>> result = EvalMult(ciphertext1, ciphertext2, evalMultKey);
 
 				result = EvalSum(result, batchSize, evalSumKeys);
-
-				//return result;
 
 				// add a random number to all slots except for the first one so that no information is leaked
 				return AddRandomNoise(result);
@@ -1571,7 +1607,7 @@ namespace lbcrypto {
 		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
 			ILVector2n &plaintext, bool doEncryption = true) const {
 				if(this->m_algorithmEncryption) {
-					return this->m_algorithmEncryption->Encrypt(publicKey,plaintext);
+					return this->m_algorithmEncryption->Encrypt(publicKey,plaintext,doEncryption);
 				}
 				else {
 					throw std::logic_error("Encrypt operation has not been enabled");

@@ -343,24 +343,6 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalNegate(const sha
 	return newCiphertext;
 }
 
-template <class Element>
-shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::AddRandomNoise(const shared_ptr<Ciphertext<Element>> ciphertext) const {
-
-	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = ciphertext->GetCryptoParameters();
-	const shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
-
-	shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext->GetCryptoContext()));
-
-	const Element& c1 = ciphertext->GetElement();
-
-	// We need to generate new random noise using the plaintext modulus and then
-	// add this noise to all slots except for first one. This requires packing and switchformat.
-
-	newCiphertext->SetElement(c1);
-
-	return newCiphertext;
-}
-
 /**
 * Method for KeySwitching based on a KeySwitchHint
 *
