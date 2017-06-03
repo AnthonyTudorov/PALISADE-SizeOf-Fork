@@ -277,7 +277,7 @@ LPKeyPair<Element> LPAlgorithmFV<Element>::KeyGen(const CryptoContext<Element> c
 
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
-		ILVector2n &ptxt, bool doEncryption = true) const
+		ILVector2n &ptxt, bool doEncryption) const
 {
 	shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(publicKey->GetCryptoContext()) );
 
