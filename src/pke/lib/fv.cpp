@@ -683,9 +683,16 @@ LPKeyPair<Element> LPAlgorithmMultipartyFV<Element>::MultipartyKeyGen(const Cryp
 
 	}
 	else {
-		throw std::logic_error("FusedKeyGen operation has not been enabled for OPTIMIZED cases");
-		s = Element(tug, elementParams, Format::COEFFICIENT);
-		s.SwitchFormat();
+		//throw std::logic_error("FusedKeyGen operation has not been enabled for OPTIMIZED cases");
+		//s = Element(tug, elementParams, Format::COEFFICIENT);
+		//s.SwitchFormat();
+
+		size_t numKeys = secretKeys.size();
+		for( size_t i = 0; i < numKeys; i++ ) {
+			shared_ptr<LPPrivateKey<Element>> sk1 = secretKeys[i];
+			Element s1 = sk1->GetPrivateElement();
+			s += s1;
+		}
 	}
 
 	kp.secretKey->SetPrivateElement(s);
@@ -733,7 +740,7 @@ LPKeyPair<Element> LPAlgorithmMultipartyFV<Element>::MultipartyKeyGen(const Cryp
 		s.SwitchFormat();
 	}
 	else {
-		throw std::logic_error("FusedKeyGen operation has not been enabled for OPTIMIZED cases");
+		//throw std::logic_error("FusedKeyGen operation has not been enabled for OPTIMIZED cases");
 		s = Element(tug, elementParams, Format::COEFFICIENT);
 		s.SwitchFormat();
 	}
