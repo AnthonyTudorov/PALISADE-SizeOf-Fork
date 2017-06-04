@@ -1,40 +1,43 @@
 /**
- * @file
- * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
- *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>, Nishanth Pasham <np386@njit.edu>, Hadi Sajjadpour <ss2959@njit.edu>, Jerry Ryan <gwryan@njit.edu>
- * @version 00_03
+ * @file ltv.h -- Operations for the LTV cryptoscheme.
+ * @author  TPOC: palisade@njit.edu
  *
  * @section LICENSE
- * 
- * Copyright (c) 2015-2016, New Jersey Institute of Technology (NJIT)
+ *
+ * Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
  * All rights reserved.
- * Redistribution and use in source and binary forms, with or without modification, 
+ * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 1. Redistributions of source code must retain the above copyright notice, this 
+ * 1. Redistributions of source code must retain the above copyright notice, this
  * list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright notice, this 
- * list of conditions and the following disclaimer in the documentation and/or other 
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or other
  * materials provided with the distribution.
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR 
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS 
- * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * @section DESCRIPTION
  *
  * This code implements the Brakerski-Vaikuntanathan (BV) homomorphic encryption scheme.
- * The scheme is described at http://www.wisdom.weizmann.ac.il/~zvikab/localpapers/IdealHom.pdf (or alternative Internet source:
- * http://dx.doi.org/10.1007/978-3-642-22792-9_29). 
- * The levelled Homomorphic scheme (BGV) is described in
- * "Fully Homomorphic Encryption without Bootstrapping", Internet Source : https://eprint.iacr.org/2011/277.pdf .
- * Implementation details are provided in
- * "Homomorphic Evaluation of the AES Circuit" Internet source : https://eprint.iacr.org/2012/099.pdf .
+ * The basic scheme is described here:
+ *   -  Brakerski Z., Vaikuntanathan V. (2011) Fully Homomorphic Encryption from Ring-LWE and Security for Key Dependent Messages. In: Rogaway P. (eds) Advances in Cryptology – CRYPTO 2011. CRYPTO 2011. Lecture Notes in Computer Science, vol 6841. Springer, Berlin, Heidelberg
+ *      (http://www.wisdom.weizmann.ac.il/~zvikab/localpapers/IdealHom.pdf) or alternative Internet source: (http://dx.doi.org/10.1007/978-3-642-22792-9_29).
+ * 
+ * We use advances from the BGV scheme for levelled homomorphic capabilities from here:
+ *   - Brakerski Z., Gentry C., Halevi S. (2013) Packed Ciphertexts in LWE-Based Homomorphic Encryption. In: Kurosawa K., Hanaoka G. (eds) Public-Key Cryptography – PKC 2013. Lecture Notes in Computer Science, vol 7778. Springer, Berlin, Heidelberg
+ *     (https://eprint.iacr.org/2011/277.pdf).
+ *
+ * Implementation design details that we use in our implementation are discussed here: 
+ *   - Gentry C., Halevi S., Smart N.P. (2012) Homomorphic Evaluation of the AES Circuit. In: Safavi-Naini R., Canetti R. (eds) Advances in Cryptology – CRYPTO 2012. Lecture Notes in Computer Science, vol 7417. Springer, Berlin, Heidelberg
+ *     ( https://eprint.iacr.org/2012/099.pdf)
  */
 
 
@@ -52,6 +55,18 @@ namespace lbcrypto {
 
 	/**
 	 * @brief Crypto parameters class for RLWE-based schemes.
+	 * The basic scheme is described here:
+	 *   -  Brakerski Z., Vaikuntanathan V. (2011) Fully Homomorphic Encryption from Ring-LWE and Security for Key Dependent Messages. In: Rogaway P. (eds) Advances in Cryptology – CRYPTO 2011. CRYPTO 2011. Lecture Notes in Computer Science, vol 6841. Springer, Berlin, Heidelberg
+	 *      (http://www.wisdom.weizmann.ac.il/~zvikab/localpapers/IdealHom.pdf) or alternative Internet source: (http://dx.doi.org/10.1007/978-3-642-22792-9_29).
+	 * 
+	 * We use advances from the BGV scheme for levelled homomorphic capabilities from here:
+	 *   - Brakerski Z., Gentry C., Halevi S. (2013) Packed Ciphertexts in LWE-Based Homomorphic Encryption. In: Kurosawa K., Hanaoka G. (eds) Public-Key Cryptography – PKC 2013. Lecture Notes in Computer Science, vol 7778. Springer, Berlin, Heidelberg
+	 *     (https://eprint.iacr.org/2011/277.pdf).
+	 *
+	 * Implementation design details that we use in our implementation are discussed here: 
+	 *   - Gentry C., Halevi S., Smart N.P. (2012) Homomorphic Evaluation of the AES Circuit. In: Safavi-Naini R., Canetti R. (eds) Advances in Cryptology – CRYPTO 2012. Lecture Notes in Computer Science, vol 7417. Springer, Berlin, Heidelberg
+	 *     ( https://eprint.iacr.org/2012/099.pdf)
+	 *
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
@@ -68,13 +83,19 @@ namespace lbcrypto {
 			/**
 			 * Copy constructor.
 			 *
+	 		 * @param rhs - source
 			 */
 			LPCryptoParametersBV(const LPCryptoParametersBV &rhs) : LPCryptoParametersRLWE<Element>(rhs) {
 				m_mode = rhs.m_mode;
 			}
 
 			/**
-			 * Constructor that initializes values.
+			 * Constructor that initializes values.  Note that it is possible to set parameters in a way that is overall
+			 * infeasible for actual use.  There are fewer degrees of freedom than parameters provided.  Typically one
+			 * chooses the basic noise, assurance and security parameters as the typical community-accepted values, 
+			 * then chooses the plaintext modulus and depth as needed.  The element parameters should then be choosen 
+			 * to provide correctness and security.  In some cases we would need to operate over already 
+			 * encrypted/provided ciphertext and the depth needs to be pre-computed for initial settings.
 			 *
 			 * @param &params element parameters.
 			 * @param &plaintextModulus plaintext modulus.
@@ -166,7 +187,19 @@ namespace lbcrypto {
 
 
 	/**
-	* @brief Encryption algorithm implementation template for BV-based schemes,
+	* @brief Encryption algorithm implementation template for BV-based schemes.
+	* The basic scheme is described here:
+	*   -  Brakerski Z., Vaikuntanathan V. (2011) Fully Homomorphic Encryption from Ring-LWE and Security for Key Dependent Messages. In: Rogaway P. (eds) Advances in Cryptology – CRYPTO 2011. CRYPTO 2011. Lecture Notes in Computer Science, vol 6841. Springer, Berlin, Heidelberg
+	*      (http://www.wisdom.weizmann.ac.il/~zvikab/localpapers/IdealHom.pdf) or alternative Internet source: (http://dx.doi.org/10.1007/978-3-642-22792-9_29).
+	* 
+	* We use advances from the BGV scheme for levelled homomorphic capabilities from here:
+	*   - Brakerski Z., Gentry C., Halevi S. (2013) Packed Ciphertexts in LWE-Based Homomorphic Encryption. In: Kurosawa K., Hanaoka G. (eds) Public-Key Cryptography – PKC 2013. Lecture Notes in Computer Science, vol 7778. Springer, Berlin, Heidelberg
+	*     (https://eprint.iacr.org/2011/277.pdf).
+	*
+	* Implementation design details that we use in our implementation are discussed here: 
+	*   - Gentry C., Halevi S., Smart N.P. (2012) Homomorphic Evaluation of the AES Circuit. In: Safavi-Naini R., Canetti R. (eds) Advances in Cryptology – CRYPTO 2012. Lecture Notes in Computer Science, vol 7417. Springer, Berlin, Heidelberg
+	*     ( https://eprint.iacr.org/2012/099.pdf)
+	*
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
@@ -211,7 +244,18 @@ namespace lbcrypto {
 	};
 
 	/**
-	* Class for evaluation of homomorphic operations.
+	* Class for evaluation of somewhat homomorphic operations.
+	* The basic scheme is described here:
+	*   -  Brakerski Z., Vaikuntanathan V. (2011) Fully Homomorphic Encryption from Ring-LWE and Security for Key Dependent Messages. In: Rogaway P. (eds) Advances in Cryptology – CRYPTO 2011. CRYPTO 2011. Lecture Notes in Computer Science, vol 6841. Springer, Berlin, Heidelberg
+	*      (http://www.wisdom.weizmann.ac.il/~zvikab/localpapers/IdealHom.pdf) or alternative Internet source: (http://dx.doi.org/10.1007/978-3-642-22792-9_29).
+	* 
+	* We use advances from the BGV scheme for levelled homomorphic capabilities from here:
+	*   - Brakerski Z., Gentry C., Halevi S. (2013) Packed Ciphertexts in LWE-Based Homomorphic Encryption. In: Kurosawa K., Hanaoka G. (eds) Public-Key Cryptography – PKC 2013. Lecture Notes in Computer Science, vol 7778. Springer, Berlin, Heidelberg
+	*     (https://eprint.iacr.org/2011/277.pdf).
+	*
+	* Implementation design details that we use in our implementation are discussed here: 
+	*   - Gentry C., Halevi S., Smart N.P. (2012) Homomorphic Evaluation of the AES Circuit. In: Safavi-Naini R., Canetti R. (eds) Advances in Cryptology – CRYPTO 2012. Lecture Notes in Computer Science, vol 7417. Springer, Berlin, Heidelberg
+	*     ( https://eprint.iacr.org/2012/099.pdf)
 	*
 	* @tparam Element a ring element.
 	*/
@@ -386,6 +430,17 @@ namespace lbcrypto {
 
 	/**
 	* @brief PRE scheme based on BV.
+	* The basic scheme is described here:
+	*   -  Brakerski Z., Vaikuntanathan V. (2011) Fully Homomorphic Encryption from Ring-LWE and Security for Key Dependent Messages. In: Rogaway P. (eds) Advances in Cryptology – CRYPTO 2011. CRYPTO 2011. Lecture Notes in Computer Science, vol 6841. Springer, Berlin, Heidelberg
+	*      (http://www.wisdom.weizmann.ac.il/~zvikab/localpapers/IdealHom.pdf) or alternative Internet source: (http://dx.doi.org/10.1007/978-3-642-22792-9_29).
+	* 
+	* We use advances from the BGV scheme for levelled homomorphic capabilities from here:
+	*   - Brakerski Z., Gentry C., Halevi S. (2013) Packed Ciphertexts in LWE-Based Homomorphic Encryption. In: Kurosawa K., Hanaoka G. (eds) Public-Key Cryptography – PKC 2013. Lecture Notes in Computer Science, vol 7778. Springer, Berlin, Heidelberg
+	*     (https://eprint.iacr.org/2011/277.pdf).
+	*
+ 	* Our PRE design and algorithms are informed by the design here:
+ 	*   - Polyakov, Yuriy, Kurt Rohloff, Gyana Sahu and Vinod Vaikuntanathan. Fast Proxy Re-Encryption for Publish/Subscribe Systems. Under Review in ACM Transactions on Privacy and Security (ACM TOPS).
+	*
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
@@ -435,7 +490,17 @@ namespace lbcrypto {
 	};
 
 	/**
-	 * @brief The multiparty homomorphic encryption capability is not implemented for this scheme yet.
+	 * @brief The multiparty homomorphic encryption capability for the BV scheme. A version of this multiparty scheme built on the BGV scheme is seen here:
+	 *   - Asharov G., Jain A., López-Alt A., Tromer E., Vaikuntanathan V., Wichs D. (2012) Multiparty Computation with Low Communication, Computation and Interaction via Threshold FHE. In: Pointcheval D., Johansson T. (eds) Advances in Cryptology – EUROCRYPT 2012. EUROCRYPT 2012. Lecture Notes in Computer Science, vol 7237. Springer, Berlin, Heidelberg
+	 *
+	 * During offline key generation, this multiparty scheme relies on the clients coordinating their public key generation.  To do this, a single client generates a public-secret key pair.
+	 * This public key is shared with other keys which use an element in the public key to generate their own public keys.
+	 * The clients generate a shared key pair using a scheme-specific approach, then generate re-encryption keys.  Re-encryption keys are uploaded to the server.
+	 * Clients encrypt data with their public keys and send the encrypted data server.
+	 * The data is re-encrypted.  Computations are then run on the data.
+	 * The result is sent to each of the clients.
+	 * One client runs a "Leader" multiparty decryption operation with its own secret key.  All other clients run a regular "Main" multiparty decryption with their own secret key.
+	 * The resulting partially decrypted ciphertext are then fully decrypted with the decryption fusion algorithms.
 	 *
 	 * @tparam Element a ring element.
 	 */
@@ -504,6 +569,11 @@ namespace lbcrypto {
 
 	/**
 	* @brief Concrete feature class for Leveled SHEBV operations. This class adds leveled (BGV scheme) features to the BV scheme.
+	* 
+	* We use advances from the BGV scheme for levelled homomorphic capabilities from here:
+	*   - Brakerski Z., Gentry C., Halevi S. (2013) Packed Ciphertexts in LWE-Based Homomorphic Encryption. In: Kurosawa K., Hanaoka G. (eds) Public-Key Cryptography – PKC 2013. Lecture Notes in Computer Science, vol 7778. Springer, Berlin, Heidelberg
+	*     (https://eprint.iacr.org/2011/277.pdf).
+	*
 	* @tparam Element a ring element.
 	*/
 	template <class Element>

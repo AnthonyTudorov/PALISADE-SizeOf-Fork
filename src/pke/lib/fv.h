@@ -1,36 +1,38 @@
 /**
- * @file
- * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
- *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>, Nishanth Pasham <np386@njit.edu>, Hadi Sajjadpour <ss2959@njit.edu>, Jerry Ryan <gwryan@njit.edu>
- * @version 00_03
+ * @file ltv.h -- Operations for the LTV cryptoscheme.
+ * @author  TPOC: palisade@njit.edu
  *
  * @section LICENSE
- * 
- * Copyright (c) 2015-2016, New Jersey Institute of Technology (NJIT)
+ *
+ * Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
  * All rights reserved.
- * Redistribution and use in source and binary forms, with or without modification, 
+ * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 1. Redistributions of source code must retain the above copyright notice, this 
+ * 1. Redistributions of source code must retain the above copyright notice, this
  * list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright notice, this 
- * list of conditions and the following disclaimer in the documentation and/or other 
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or other
  * materials provided with the distribution.
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR 
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS 
- * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * @section DESCRIPTION
  *
  * This code implements the Fan-Vercauteren (FV) homomorphic encryption scheme.
- * The FV scheme is introduced in https://eprint.iacr.org/2012/144.pdf and originally implemented in https://eprint.iacr.org/2014/062.pdf
- * (this paper has optimized correctness constraints, which are used here as well).
+ * The FV scheme is introduced here:
+ *   - Junfeng Fan and Frederik Vercauteren. Somewhat Practical Fully Homomorphic Encryption.  Cryptology ePrint Archive, Report 2012/144. (https://eprint.iacr.org/2012/144.pdf)
+ *
+ * Our implementation builds from the designs here:
+ *   - Lepoint T., Naehrig M. (2014) A Comparison of the Homomorphic Encryption Schemes FV and YASHE. In: Pointcheval D., Vergnaud D. (eds) Progress in Cryptology – AFRICACRYPT 2014. AFRICACRYPT 2014. Lecture Notes in Computer Science, vol 8469. Springer, Cham. (https://eprint.iacr.org/2014/062.pdf)
+ *
  */
 
 #ifndef LBCRYPTO_CRYPTO_FV_H
@@ -41,9 +43,16 @@
 namespace lbcrypto {
 
 	/**
-	 * @brief Crypto parameters class for FV.
-	 * @tparam Element a ring element.
-	 */
+ 	* @brief This is the parameters class for the FV encryption scheme.
+ 	*
+ 	* The FV scheme parameter guidelines are introduced here:
+ 	*   - Junfeng Fan and Frederik Vercauteren. Somewhat Practical Fully Homomorphic Encryption.  Cryptology ePrint Archive, Report 2012/144. (https://eprint.iacr.org/2012/144.pdf)
+ 	*
+ 	* We used the optimized parameter selection from the designs here:
+ 	*   - Lepoint T., Naehrig M. (2014) A Comparison of the Homomorphic Encryption Schemes FV and YASHE. In: Pointcheval D., Vergnaud D. (eds) Progress in Cryptology – AFRICACRYPT 2014. AFRICACRYPT 2014. Lecture Notes in Computer Science, vol 8469. Springer, Cham. (https://eprint.iacr.org/2014/062.pdf)
+ 	*
+ 	* @tparam Element a ring element type.
+ 	*/
 	template <class Element>
 	class LPCryptoParametersFV : public LPCryptoParametersRLWE<Element> {
 
@@ -59,8 +68,8 @@ namespace lbcrypto {
 			}
 
 			/**
-			 * Copy constructor.
-			 *
+		 	 * Copy constructor.
+	 		 * @param rhs - source
 			 */
 			LPCryptoParametersFV(const LPCryptoParametersFV &rhs) : LPCryptoParametersRLWE<Element>(rhs) {
 				m_delta = rhs.m_delta;
@@ -70,19 +79,24 @@ namespace lbcrypto {
 			}
 
 			/**
-			 * Constructor that initializes values.
+			 * Constructor that initializes values.  Note that it is possible to set parameters in a way that is overall
+			 * infeasible for actual use.  There are fewer degrees of freedom than parameters provided.  Typically one
+			 * chooses the basic noise, assurance and security parameters as the typical community-accepted values, 
+			 * then chooses the plaintext modulus and depth as needed.  The element parameters should then be choosen 
+			 * to provide correctness and security.  In some cases we would need to operate over already 
+			 * encrypted/provided ciphertext and the depth needs to be pre-computed for initial settings.
 			 *
-			 * @param &params element parameters.
-			 * @param &plaintextModulus plaintext modulus.
-			 * @param distributionParameter noise distribution parameter.
-			 * @param assuranceMeasure assurance level.
-			 * @param securityLevel security level (root Hermite factor).
-			 * @param relinWindow the size of the relinearization window.
+			 * @param &params Element parameters.  This will depend on the specific class of element being used.
+			 * @param &plaintextModulus Plaintext modulus, typically denoted as p in most publications.
+			 * @param distributionParameter Noise distribution parameter, typically denoted as /sigma in most publications.  Community standards typically call for a value of 3 to 6. Lower values provide more room for computation while larger values provide more security.
+			 * @param assuranceMeasure Assurance level, typically denoted as w in most applications.  This is oftern perceived as a fudge factor in the literature, with a typical value of 9.
+			 * @param securityLevel Security level as Root Hermite Factor.  We use the Root Hermite Factor representation of the security level to better conform with US ITAR and EAR export regulations.  This is typically represented as /delta in the literature.  Typically a Root Hermite Factor of 1.006 or less provides reasonable security for RLWE crypto schemes, although extra care is need for the LTV scheme because LTV makes an additional security assumption that make it suceptible to subfield lattice attacks.
+			 * @param relinWindow The size of the relinearization window.  This is relevant when using this scheme for proxy re-encryption, and the value is denoted as r in the literature.
 			 * @param delta FV-specific factor that is multiplied by the plaintext polynomial.
 			 * @param mode optimization setting (RLWE vs OPTIMIZED)
 			 * @param bigModulus modulus used in polynomial multiplications in EvalMult
 			 * @param bigRootOfUnity root of unity for bigModulus
-			 * @param depth depth which is set to 1.
+			 * @param depth Depth is the depth of computation supprted which is set to 1 by default.  Use the default setting unless you're using SHE, levelled SHE or FHE operations.
 			 */
 			LPCryptoParametersFV(shared_ptr<typename Element::Params> params,
 				const BigBinaryInteger &plaintextModulus, 
@@ -130,7 +144,7 @@ namespace lbcrypto {
 			/**
 			* Gets the value of the delta factor.
 			*
-			* @return the delta factor.
+			* @return the delta factor. It is an FV-specific factor that is multiplied by the plaintext polynomial.
 			*/
 			const BigBinaryInteger& GetDelta() const { return m_delta; }
 
@@ -157,21 +171,26 @@ namespace lbcrypto {
 
 			/**
 			* Sets the value of the delta factor
+			* @param &delta is the delta factor
 			*/
 			void SetDelta(const BigBinaryInteger &delta) { m_delta = delta; }
 
 			/**
 			* Configures the mode for generating the secret key polynomial
+			* @param mode is RLWE or OPTIMIZED.  OPTIMIZED is preferred for increased performance.
 			*/
 			void SetMode(MODE mode) { m_mode = mode; }
 
 			/**
 			* Sets the modulus used for polynomial multiplications in EvalMult
+			* 
+			* @param &bigModulus the modulus value.
 			*/
 			void SetBigModulus(const BigBinaryInteger &bigModulus) { m_bigModulus = bigModulus; }
 
 			/**
 			* Sets primitive root of unity used for polynomial multiplications in EvalMult
+			* @param &bigRootOfUnity is the root of unity used for EvalMult operations.
 			*/
 			void SetBigRootOfUnity(const BigBinaryInteger &bigRootOfUnity) { m_bigRootOfUnity = bigRootOfUnity; }
 
@@ -220,6 +239,13 @@ namespace lbcrypto {
 
 	/**
 	* @brief Parameter generation for FV.
+	*
+ 	* The FV scheme parameter guidelines are introduced here:
+ 	*   - Junfeng Fan and Frederik Vercauteren. Somewhat Practical Fully Homomorphic Encryption.  Cryptology ePrint Archive, Report 2012/144. (https://eprint.iacr.org/2012/144.pdf)
+ 	*
+ 	* We used the optimized parameter selection from the designs here:
+ 	*   - Lepoint T., Naehrig M. (2014) A Comparison of the Homomorphic Encryption Schemes FV and YASHE. In: Pointcheval D., Vergnaud D. (eds) Progress in Cryptology – AFRICACRYPT 2014. AFRICACRYPT 2014. Lecture Notes in Computer Science, vol 8469. Springer, Cham. (https://eprint.iacr.org/2014/062.pdf)
+ 	*
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
@@ -245,7 +271,14 @@ namespace lbcrypto {
 	};
 
 	/**
-	* @brief Encryption algorithm implementation for FV
+	* @brief Encryption algorithm implementation for FV for the basic public key encrypt, decrypt and key generation methods for the FV encryption scheme.
+	*
+ 	* The FV scheme parameter guidelines are introduced here:
+ 	*   - Junfeng Fan and Frederik Vercauteren. Somewhat Practical Fully Homomorphic Encryption.  Cryptology ePrint Archive, Report 2012/144. (https://eprint.iacr.org/2012/144.pdf)
+ 	*
+ 	* We used the optimized parameter selection from the designs here:
+ 	*   - Lepoint T., Naehrig M. (2014) A Comparison of the Homomorphic Encryption Schemes FV and YASHE. In: Pointcheval D., Vergnaud D. (eds) Progress in Cryptology – AFRICACRYPT 2014. AFRICACRYPT 2014. Lecture Notes in Computer Science, vol 8469. Springer, Cham. (https://eprint.iacr.org/2014/062.pdf)
+ 	*
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
@@ -258,7 +291,7 @@ namespace lbcrypto {
 		LPAlgorithmFV() {}
 
 		/**
-		* Method for encrypting plaintext using FV
+		* Method for encrypting plaintext using FV.
 		*
 		* @param publicKey public key used for encryption.
 		* @param &plaintext the plaintext input.
@@ -268,7 +301,8 @@ namespace lbcrypto {
 			ILVector2n &plaintext) const;
 
 		/**
-		* Method for decrypting using FV
+		* Method for decrypting using FV. See the class description for citations on where the algorithms were
+	 	* taken from.
 		*
 		* @param privateKey private key used for decryption.
 		* @param ciphertext ciphertext to be decrypted.
@@ -280,10 +314,11 @@ namespace lbcrypto {
 			ILVector2n *plaintext) const;
 
 		/**
-		* Function to generate public and private keys
+		* Function to generate public and private keys. See the class description for citations on where the algorithms were
+	 	* taken from.
 		*
 		* @param cc cryptocontext for the keys to be generated.
-		* @param makeSparse set to true if ring reduce by a factor of 2 is to be used.
+		* @param makeSparse set to true if ring reduce by a factor of 2 is to be used.  Generally this should always be false.
 		* @return key pair including the private and public key
 		*/
 		LPKeyPair<Element> KeyGen(const CryptoContext<Element> cc, bool makeSparse=false) const;
@@ -292,6 +327,13 @@ namespace lbcrypto {
 
 	/**
 	* @brief SHE algorithms implementation for FV.
+	*
+ 	* The FV scheme parameter guidelines are introduced here:
+ 	*   - Junfeng Fan and Frederik Vercauteren. Somewhat Practical Fully Homomorphic Encryption.  Cryptology ePrint Archive, Report 2012/144. (https://eprint.iacr.org/2012/144.pdf)
+ 	*
+ 	* We used the optimized parameter selection from the designs here:
+ 	*   - Lepoint T., Naehrig M. (2014) A Comparison of the Homomorphic Encryption Schemes FV and YASHE. In: Pointcheval D., Vergnaud D. (eds) Progress in Cryptology – AFRICACRYPT 2014. AFRICACRYPT 2014. Lecture Notes in Computer Science, vol 8469. Springer, Cham. (https://eprint.iacr.org/2014/062.pdf)
+ 	*
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
@@ -441,7 +483,7 @@ namespace lbcrypto {
 		}
 
 		/**
-		* Function for evaluating automorphism of ciphertext at index i
+		* Function for evaluating automorphism of ciphertext at index i.
 		*
 		* @param ciphertext the input ciphertext.
 		* @param i automorphism index
