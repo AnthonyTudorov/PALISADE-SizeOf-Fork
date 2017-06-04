@@ -86,7 +86,8 @@ enum PKESchemeFeature{
 	PRE=1,
 	SHE=4,
 	FHE=5,
-	LEVELEDSHE=6
+	LEVELEDSHE=6,
+	MULTIPARTY=7
 };
 
 /**
