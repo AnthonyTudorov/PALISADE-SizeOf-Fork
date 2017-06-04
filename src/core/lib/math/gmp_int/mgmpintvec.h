@@ -156,7 +156,6 @@ namespace NTL {
 
     void clear(myVecP& x); //why isn't this inhereted?
 
-    inline usint size() {return this->length();};
 
     // Note, SetValAtIndex should be deprecated by .at() and []
     void SetValAtIndex(usint index, const myT&value);
@@ -210,7 +209,7 @@ namespace NTL {
     //scalar modulo assignment
     inline myVecP& operator%=(const myZZ& a)
     { 
-      for (auto i = 0; i < this->length(); i++){
+      for (size_t i = 0; i < this->size(); i++){
 	(*this)[i]%=a;
       }
       return *this;
@@ -227,7 +226,7 @@ namespace NTL {
     inline myVecP& operator+=(const myZZ& a)
     { 
       ModulusCheck("Warning: myVecP::op+=");
-      for (unsigned int i = 0; i < this->length(); i++){
+      for (unsigned int i = 0; i < this->size(); i++){
 #ifdef FORCE_NORMALIZATION	
 	//(*this)[i]=(*this)[i]+a%m_modulus; //+= not defined yet
 	AddMod((*this)[i]._ZZ_p__rep,(*this)[i]._ZZ_p__rep, a, m_modulus); 
@@ -263,7 +262,7 @@ namespace NTL {
     inline myVecP& operator-=(const myZZ& a)
     { 
       ModulusCheck("Warning: myVecP::op-=");
-      for (auto i = 0; i < this->length(); i++){
+      for (size_t i = 0; i < this->size(); i++){
 	SubMod((*this)[i]._ZZ_p__rep,(*this)[i]._ZZ_p__rep, a, m_modulus); 	
 	//(*this)[i]-=a%m_modulus;
       }
@@ -300,7 +299,7 @@ namespace NTL {
     inline myVecP& operator*=(const myZZ& a)
     { 
       ModulusCheck("Warning: myVecP::op-=");
-      for (auto i = 0; i < this->length(); i++){
+      for (size_t i = 0; i < this->size(); i++){
 	MulMod((*this)[i]._ZZ_p__rep,(*this)[i]._ZZ_p__rep, a, m_modulus); 
 	//
       }
@@ -429,7 +428,7 @@ namespace NTL {
 	return (this->m_modulus);
       }else{
 	std::cout<<"myZZ GetModulus() on uninitialized modulus"<<std::endl;
-	return 0;
+	return myZZ::ZERO;
       }
     };
     
@@ -465,7 +464,7 @@ namespace NTL {
       if ((this->SameModulus(b)) && 
 	  (this->size()==b.size())) { 
 	//loop over each entry and fail if !=
-	for (auto i = 0; i < this->size(); ++i) {
+	for (size_t i = 0; i < this->size(); ++i) {
 	  if ((*this)[i]!=b[i]){
 	    return false;
 	  }
@@ -483,9 +482,9 @@ namespace NTL {
     // myvecP and myvec<myZZ>
     inline bool operator==(const myVec<myZZ>& b) const
     { 
-      if ((this->size()==b.length())) { //TODO: define size() for b
+      if ((this->size()==b.size())) { //TODO: define size() for b
 	//loop over each entry and fail if !=
-	for (auto i = 0; i < this->size(); ++i) {
+	for (size_t i = 0; i < this->size(); ++i) {
 	  if ((*this)[i]!=b[i]){
 	    return false;
 	  }
@@ -578,7 +577,7 @@ namespace NTL {
       DEBUG("mgmpintvec Renormalize modulus"<<m_modulus);     
       DEBUG("mgmpintvec size"<< this->size());     
       //loop over each entry and fail if !=
-      for (auto i = 0; i < this->size(); ++i) {
+      for (size_t i = 0; i < this->size(); ++i) {
 	(*this)[i] %=m_modulus;
 	DEBUG("this ["<<i<<"] now "<< (*this)[i]);     
       }
@@ -602,9 +601,9 @@ namespace NTL {
   //myVec<myZZ> and myVecP
   inline long operator==(const myVec<myZZ> &a, const myVecP<myZZ_p> &b) 
   {
-    if ((a.length()==b.size())) { 
+    if ((a.size()==b.size())) { 
       //loop over each entry and fail if !=
-      for (auto i = 0; i < a.length(); ++i) {
+      for (usint i = 0; i < a.size(); ++i) {
 	if (a[i]!=b[i]){
 	  return false;
 	}

@@ -128,8 +128,8 @@ TEST(UTSHE, LTV_ILVector2n_Add) {
 }
 
 TEST(UTSHE, LTV_ILVectorArray2n_Add) {
-	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayLTV(ORDER, TOWERS, PTM, 30);
-	UnitTest_Add<ILVectorArray2n>(cc);
+	CryptoContext<ILDCRT2n> cc = GenCryptoContextElementArrayLTV(ORDER, TOWERS, PTM, 30);
+	UnitTest_Add<ILDCRT2n>(cc);
 }
 
 TEST(UTSHE, StSt_ILVector2n_Add) {
@@ -138,8 +138,8 @@ TEST(UTSHE, StSt_ILVector2n_Add) {
 }
 
 TEST(UTSHE, StSt_ILVectorArray2n_Add) {
-	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayStSt(ORDER, TOWERS, PTM, 30);
-	UnitTest_Add<ILVectorArray2n>(cc);
+	CryptoContext<ILDCRT2n> cc = GenCryptoContextElementArrayStSt(ORDER, TOWERS, PTM, 30);
+	UnitTest_Add<ILDCRT2n>(cc);
 }
 
 TEST(UTSHE, Null_ILVector2n_Add) {
@@ -148,8 +148,8 @@ TEST(UTSHE, Null_ILVector2n_Add) {
 }
 
 TEST(UTSHE, Null_ILVectorArray2n_Add) {
-	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayNull(ORDER, TOWERS, PTM, 30);
-	UnitTest_Add<ILVectorArray2n>(cc);
+	CryptoContext<ILDCRT2n> cc = GenCryptoContextElementArrayNull(ORDER, TOWERS, PTM, 30);
+	UnitTest_Add<ILDCRT2n>(cc);
 }
 
 TEST(UTSHE, BV_ILVector2n_Add) {
@@ -158,8 +158,8 @@ TEST(UTSHE, BV_ILVector2n_Add) {
 }
 
 TEST(UTSHE, BV_ILVectorArray2n_Add) {
-	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayBV(ORDER, TOWERS, PTM, 30);
-	UnitTest_Add<ILVectorArray2n>(cc);
+	CryptoContext<ILDCRT2n> cc = GenCryptoContextElementArrayBV(ORDER, TOWERS, PTM, 30);
+	UnitTest_Add<ILDCRT2n>(cc);
 }
 
 TEST(UTSHE, FV_ILVector2n_Add) {
@@ -168,8 +168,8 @@ TEST(UTSHE, FV_ILVector2n_Add) {
 }
 
 //TEST(UTSHE, FV_ILVectorArray2n_Add) {
-//	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayFV(ORDER, TOWERS, PTM);
-//	UnitTest_Add<ILVectorArray2n>(cc);
+//	CryptoContext<ILDCRT2n> cc = GenCryptoContextElementArrayFV(ORDER, TOWERS, PTM);
+//	UnitTest_Add<ILDCRT2n>(cc);
 //}
 
 ///
@@ -246,8 +246,8 @@ TEST(UTSHE, LTV_ILVector2n_Mult) {
 
 #if !defined(_MSC_VER)
 TEST(UTSHE, LTV_ILVectorArray2n_Mult) {
-	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayLTV(ORDER, TOWERS, PTM);
-	UnitTest_Mult<ILVectorArray2n>(cc);
+	CryptoContext<ILDCRT2n> cc = GenCryptoContextElementArrayLTV(ORDER, TOWERS, PTM);
+	UnitTest_Mult<ILDCRT2n>(cc);
 }
 #endif
 
@@ -257,8 +257,8 @@ TEST(UTSHE, LTV_ILVectorArray2n_Mult) {
 //}
 //
 //TEST(UTSHE, StSt_ILVectorArray2n_Mult) {
-//	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayStSt(ORDER, TOWERS, PTM);
-//	UnitTest_Mult<ILVectorArray2n>(cc);
+//	CryptoContext<ILDCRT2n> cc = GenCryptoContextElementArrayStSt(ORDER, TOWERS, PTM);
+//	UnitTest_Mult<ILDCRT2n>(cc);
 //}
 
 TEST(UTSHE, Null_ILVector2n_Mult) {
@@ -267,8 +267,8 @@ TEST(UTSHE, Null_ILVector2n_Mult) {
 }
 
 TEST(UTSHE, Null_ILVectorArray2n_Mult) {
-	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayNull(ORDER, TOWERS, PTM, 30);
-	UnitTest_Mult<ILVectorArray2n>(cc);
+	CryptoContext<ILDCRT2n> cc = GenCryptoContextElementArrayNull(ORDER, TOWERS, PTM, 30);
+	UnitTest_Mult<ILDCRT2n>(cc);
 }
 
 TEST(UTSHE, BV_ILVector2n_Mult) {
@@ -278,8 +278,8 @@ TEST(UTSHE, BV_ILVector2n_Mult) {
 
 #if !defined(_MSC_VER)
 TEST(UTSHE, BV_ILVectorArray2n_Mult) {
-	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayBV(ORDER, TOWERS, PTM);
-	UnitTest_Mult<ILVectorArray2n>(cc);
+	CryptoContext<ILDCRT2n> cc = GenCryptoContextElementArrayBV(ORDER, TOWERS, PTM);
+	UnitTest_Mult<ILDCRT2n>(cc);
 }
 #endif
 
@@ -289,8 +289,8 @@ TEST(UTSHE, FV_ILVector2n_Mult) {
 }
 
 //TEST(UTSHE, FV_ILVectorArray2n_Mult) {
-//	CryptoContext<ILVectorArray2n> cc = GenCryptoContextElementArrayFV(ORDER, TOWERS, PTM);
-//	UnitTest_Mult<ILVectorArray2n>(cc);
+//	CryptoContext<ILDCRT2n> cc = GenCryptoContextElementArrayFV(ORDER, TOWERS, PTM);
+//	UnitTest_Mult<ILDCRT2n>(cc);
 //}
 
 
@@ -327,18 +327,18 @@ TEST(UTSHE, keyswitch_sparse_key_SingleCRT_intArray) {
 
 	//ILVector2n::DestroyPreComputedSamples();
 	usint m = 16;
-
+	usint ptm = 2;
 	float stdDev = 4;
 
-	BigBinaryInteger q("1");
+	BigBinaryInteger q(1);
 	BigBinaryInteger temp;
 
-	lbcrypto::NextQ(q, BigBinaryInteger::TWO, m, BigBinaryInteger("40"), BigBinaryInteger("4"));
+	lbcrypto::NextQ(q, BigBinaryInteger(ptm), m, BigBinaryInteger(40), BigBinaryInteger(4));
 
 	BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
 	shared_ptr<ILVector2n::Params> params( new ILVector2n::Params(m, q, rootOfUnity) );
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, 2, 1, stdDev);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, ptm, 1, stdDev);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(LEVELEDSHE);
 	cc.Enable(SHE);
@@ -433,7 +433,7 @@ TEST(UTSHE, sparsekeygen_single_crt_encrypt_decrypt) {
 	privateElement.SwitchFormat();
 
 	for (usint i = 1; i < privateElement.GetLength(); i += 2) {
-		EXPECT_EQ(BigBinaryInteger::ZERO, privateElement.GetValAtIndex(i));
+		EXPECT_EQ(BigBinaryInteger(0), privateElement.GetValAtIndex(i));
 	}
 }
 
@@ -447,27 +447,27 @@ TEST(UTSHE, keyswitch_ModReduce_DCRT) {
 	usint plaintextmodulus = 2;
 	usint relinWindow = 1;
 
-	shared_ptr<ILVectorArray2n::Params> params = GenerateDCRTParams( m, plaintextmodulus, size, 30 );
+	shared_ptr<ILDCRTParams<BigBinaryInteger>> params = GenerateDCRTParams( m, plaintextmodulus, size, 30 );
 
-	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextLTV(params, plaintextmodulus, relinWindow, stdDev);
+	CryptoContext<ILDCRT2n> cc = CryptoContextFactory<ILDCRT2n>::genCryptoContextLTV(params, plaintextmodulus, relinWindow, stdDev);
 
 	cc.Enable(ENCRYPTION);
 	cc.Enable(LEVELEDSHE);
 	cc.Enable(SHE);
 
-	LPKeyPair<ILVectorArray2n> kp = cc.KeyGen();
+	LPKeyPair<ILDCRT2n> kp = cc.KeyGen();
 
-	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertext =
+	vector<shared_ptr<Ciphertext<ILDCRT2n>>> ciphertext =
 			cc.Encrypt(kp.publicKey, plaintext);
 
-	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> newCiphertext(1);
+	vector<shared_ptr<Ciphertext<ILDCRT2n>>> newCiphertext(1);
 
-	LPKeyPair<ILVectorArray2n> kp2 = cc.KeyGen();
+	LPKeyPair<ILDCRT2n> kp2 = cc.KeyGen();
 
-	shared_ptr<LPEvalKey<ILVectorArray2n>> keySwitchHint;
+	shared_ptr<LPEvalKey<ILDCRT2n>> keySwitchHint;
 	keySwitchHint = cc.KeySwitchGen(kp.secretKey, kp2.secretKey);
 
-	shared_ptr<Ciphertext<ILVectorArray2n>> newCt = cc.KeySwitch(keySwitchHint, ciphertext[0]);
+	shared_ptr<Ciphertext<ILDCRT2n>> newCt = cc.KeySwitch(keySwitchHint, ciphertext[0]);
 	newCiphertext[0] = newCt;
 
 	BytePlaintextEncoding plaintextNewKeySwitch;
@@ -480,7 +480,7 @@ TEST(UTSHE, keyswitch_ModReduce_DCRT) {
 	/**************************MODREDUCE TEST BEGIN******************************/
 
 	newCiphertext[0] = cc.ModReduce(newCiphertext[0]);
-	ILVectorArray2n sk2PrivateElement(kp2.secretKey->GetPrivateElement());
+	ILDCRT2n sk2PrivateElement(kp2.secretKey->GetPrivateElement());
 	sk2PrivateElement.DropLastElement();
 	kp2.secretKey->SetPrivateElement(sk2PrivateElement);
 
@@ -550,27 +550,27 @@ TEST(UTSHE, ringreduce_double_crt) {
 	usint relinWindow = 1;
 	usint size = 3;
 
-	shared_ptr<ILVectorArray2n::Params> params = GenerateDCRTParams( m, plaintextmodulus, size, 32 );
+	shared_ptr<ILDCRTParams<BigBinaryInteger>> params = GenerateDCRTParams( m, plaintextmodulus, size, 32 );
 
-	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::genCryptoContextLTV(params, plaintextmodulus, relinWindow, stdDev);
+	CryptoContext<ILDCRT2n> cc = CryptoContextFactory<ILDCRT2n>::genCryptoContextLTV(params, plaintextmodulus, relinWindow, stdDev);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(LEVELEDSHE);
 	cc.Enable(SHE);
 
-	LPKeyPair<ILVectorArray2n> kp = cc.KeyGen();
+	LPKeyPair<ILDCRT2n> kp = cc.KeyGen();
 
-	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> ciphertext;
+	vector<shared_ptr<Ciphertext<ILDCRT2n>>> ciphertext;
 
 	std::vector<usint> vectorOfInts = { 1,1,1,1,1,1,1,1 };
 	IntPlaintextEncoding intArray(vectorOfInts);
 
 	ciphertext = cc.Encrypt(kp.publicKey, intArray, false);
 
-	vector<shared_ptr<Ciphertext<ILVectorArray2n>>> newCiphertext(ciphertext.size());
+	vector<shared_ptr<Ciphertext<ILDCRT2n>>> newCiphertext(ciphertext.size());
 
-	LPKeyPair<ILVectorArray2n> kp2 = cc.SparseKeyGen();
+	LPKeyPair<ILDCRT2n> kp2 = cc.SparseKeyGen();
 
-	shared_ptr<LPEvalKey<ILVectorArray2n>> keySwitchHint = cc.KeySwitchGen(kp.secretKey, kp2.secretKey);
+	shared_ptr<LPEvalKey<ILDCRT2n>> keySwitchHint = cc.KeySwitchGen(kp.secretKey, kp2.secretKey);
 
 	newCiphertext[0] = cc.KeySwitch(keySwitchHint, ciphertext[0]);
 
@@ -580,7 +580,7 @@ TEST(UTSHE, ringreduce_double_crt) {
 
 	ciphertext = cc.RingReduce(ciphertext, keySwitchHint);
 
-	ILVectorArray2n skSparseElement(kp2.secretKey->GetPrivateElement());
+	ILDCRT2n skSparseElement(kp2.secretKey->GetPrivateElement());
 	skSparseElement.SwitchFormat();
 	skSparseElement.Decompose();
 	skSparseElement.SwitchFormat();

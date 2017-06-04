@@ -31,7 +31,7 @@ template class ILVectorImpl<BigBinaryInteger,BigBinaryInteger,BigBinaryVector,IL
 template<>
 ILVectorImpl<BigBinaryInteger,BigBinaryInteger,BigBinaryVector,ILParams>::ILVectorImpl(const shared_ptr<ILDCRTParams<BigBinaryInteger>> params, Format format, bool initializeElementToZero) : m_values(nullptr), m_format(format) {
 	// construct a local params out of the stuff from the DCRT Params
-	m_params.reset( new ILParams(params->GetCyclotomicOrder(), params->GetModulus(), BigBinaryInteger::ONE));
+	m_params.reset( new ILParams(params->GetCyclotomicOrder(), params->GetModulus(), 1));
 
 	if (initializeElementToZero) {
 		this->SetValuesToZero();

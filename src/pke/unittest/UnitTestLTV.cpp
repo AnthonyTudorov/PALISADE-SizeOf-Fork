@@ -48,7 +48,7 @@ public:
 };
 
 #ifdef OUT
-/*Simple Encrypt-Decrypt check for ILVectorArray2n. The assumption is this test case is that everything with respect to lattice and math
+/*Simple Encrypt-Decrypt check for ILDCRT2n. The assumption is this test case is that everything with respect to lattice and math
 * layers and cryptoparameters work. This test case is only testing if the resulting plaintext from an encrypt/decrypt returns the same
 * plaintext
 * The cyclotomic order is set 2048
@@ -66,17 +66,17 @@ TEST(UTLTVDCRT, ILVectorArray2n_Encrypt_Decrypt) {
 
 	BytePlaintextEncoding ctxtd;
 
-	vector<native64::BigBinaryInteger> moduli(size);
+	vector<native_int::BinaryInteger> moduli(size);
 
-	vector<native64::BigBinaryInteger> rootsOfUnity(size);
+	vector<native_int::BinaryInteger> rootsOfUnity(size);
 
-	native64::BigBinaryInteger q("1");
-	native64::BigBinaryInteger temp;
+	native_int::BinaryInteger q("1");
+	native_int::BinaryInteger temp;
 	BigBinaryInteger modulus("1");
 
 	DEBUG("1");
 	for (int i = 0; i < size; i++) {
-		lbcrypto::NextQ(q, native64::BigBinaryInteger::TWO, m, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
+		lbcrypto::NextQ(q, native_int::BinaryInteger::TWO, m, native_int::BinaryInteger("4"), native_int::BinaryInteger("4"));
 		moduli[i] = q;
 		rootsOfUnity[i] = RootOfUnity(m, moduli[i]);
 		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
@@ -84,20 +84,20 @@ TEST(UTLTVDCRT, ILVectorArray2n_Encrypt_Decrypt) {
 	}
 	DEBUG("3");	
 
-	shared_ptr<ILVectorArray2n::Params> params( new ILVectorArray2n::Params(m, moduli, rootsOfUnity) );
+	shared_ptr<ILDCRTParams<BigBinaryInteger>> params( new ILDCRTParams<BigBinaryInteger>(m, moduli, rootsOfUnity) );
 	DEBUG("4");	
 
-	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
+	LPCryptoParametersLTV<ILDCRT2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger::TWO);
 	cryptoParams.SetDistributionParameter(stdDev);
 	cryptoParams.SetRelinWindow(1);
 	cryptoParams.SetElementParams(params);
 
-	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::getCryptoContextDCRT(&cryptoParams);
+	CryptoContext<ILDCRT2n> cc = CryptoContextFactory<ILDCRT2n>::getCryptoContextDCRT(&cryptoParams);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(PRE);
 
-	UnitTestEncryption<ILVectorArray2n>(cc);
+	UnitTestEncryption<ILDCRT2n>(cc);
 }
 
 /*Simple Encrypt-Decrypt check for ILVector2n. The assumption is this test case is that everything with respect to lattice and math
@@ -154,35 +154,35 @@ TEST(UTLTVDCRT, Ops_DCRT) {
 
 	BytePlaintextEncoding ctxtd;
 
-	vector<native64::BigBinaryInteger> moduli(size);
+	vector<native_int::BinaryInteger> moduli(size);
 
-	vector<native64::BigBinaryInteger> rootsOfUnity(size);
+	vector<native_int::BinaryInteger> rootsOfUnity(size);
 
-	native64::BigBinaryInteger q("1");
-	native64::BigBinaryInteger temp;
+	native_int::BinaryInteger q("1");
+	native_int::BinaryInteger temp;
 	BigBinaryInteger modulus("1");
 
 	for (int i = 0; i < size; i++) {
-		lbcrypto::NextQ(q, native64::BigBinaryInteger::TWO, m, native64::BigBinaryInteger("4"), native64::BigBinaryInteger("4"));
+		lbcrypto::NextQ(q, native_int::BinaryInteger::TWO, m, native_int::BinaryInteger("4"), native_int::BinaryInteger("4"));
 		moduli[i] = q;
 		rootsOfUnity[i] = RootOfUnity(m, moduli[i]);
 		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
 	}
 
-	shared_ptr<ILVectorArray2n::Params> params( new ILVectorArray2n::Params(m, moduli, rootsOfUnity) );
+	shared_ptr<ILDCRTParams<BigBinaryInteger>> params( new ILDCRTParams<BigBinaryInteger>(m, moduli, rootsOfUnity) );
 
-	LPCryptoParametersLTV<ILVectorArray2n> cryptoParams;
+	LPCryptoParametersLTV<ILDCRT2n> cryptoParams;
 	cryptoParams.SetPlaintextModulus(BigBinaryInteger(64));
 	cryptoParams.SetDistributionParameter(stdDev);
 	cryptoParams.SetRelinWindow(1);
 	cryptoParams.SetElementParams(params);
 
-	CryptoContext<ILVectorArray2n> cc = CryptoContextFactory<ILVectorArray2n>::getCryptoContextDCRT(&cryptoParams);
+	CryptoContext<ILDCRT2n> cc = CryptoContextFactory<ILDCRT2n>::getCryptoContextDCRT(&cryptoParams);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 	cc.Enable(PRE);
 
-	UnitTestDCRT<ILVectorArray2n>(cc);
+	UnitTestDCRT<ILDCRT2n>(cc);
 }
 
 /*Simple Encrypt-Decrypt check for ILVector2n with a short ring dimension. The assumption is this test case is that everything with respect to lattice and math

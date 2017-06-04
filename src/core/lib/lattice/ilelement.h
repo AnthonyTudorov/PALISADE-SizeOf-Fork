@@ -351,9 +351,9 @@ public:
 
 	/**
 	 * ModReduce reduces the composite modulus by dropping the last modulus from the chain of moduli as well as dropping the last tower.
-	 * It's only implemented in the derived class for ILVectorArray2n
+	 * It's only implemented in the derived class for ILDCRT2n
 	 *
-	 *@param plaintextModulus is the plaintextModulus used for the ILVectorArray2n
+	 *@param plaintextModulus is the plaintextModulus used for the ILDCRT2n
 	 */
 	virtual void ModReduce(const IntType &plaintextModulus) {
 		throw std::logic_error("ModReduce is not implemented");

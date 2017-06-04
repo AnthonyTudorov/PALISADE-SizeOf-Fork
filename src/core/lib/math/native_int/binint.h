@@ -54,7 +54,7 @@
 #include "../../utils/memory.h"
 #include "../../utils/palisadebase64.h"
 
-namespace native64 {
+namespace native_int {
 
 /**The following structs are needed for initialization of NativeInteger at the preprocessing stage.
  *The structs compute certain values using template metaprogramming approach and mostly follow recursion to calculate value(s).
@@ -63,7 +63,7 @@ namespace native64 {
 #ifdef _MSC_VER
 	// NOTE large 64 bit numbers will overflow in Visual Studio until they implement an __int128
 	// generate a runtime message that only gets printed one time
-#pragma message ("Operations on native64 integers may overflow and not be detected in this version of Visual Studio")
+#pragma message ("Operations on native_int integers may overflow and not be detected in this version of Visual Studio")
 
 class UsageMessage {
 public:
@@ -395,7 +395,7 @@ public:
 	NativeInteger Times(const NativeInteger& b) const {
 		uint_type prod = m_value * b.m_value;
 		if( prod > 0 && (prod < m_value || prod < b.m_value) )
-			throw std::logic_error("native64 overflow in multiply");
+			throw std::logic_error("native_int overflow in multiply");
 		return prod;
 	}
 
@@ -865,7 +865,7 @@ public:
 	 */
 	static NativeInteger BinaryStringToBigBinaryInt(const std::string& bitString) {
 		if( bitString.length() > m_uintBitLength ) {
-			throw std::logic_error("Bit string is too long to fit in a native64");
+			throw std::logic_error("Bit string is too long to fit in a native_int");
 		}
 
 		uint_type v = 0;
@@ -918,7 +918,7 @@ public:
 	NativeInteger DivideAndRound(const NativeInteger &q) const {
 
 		if( q == 0 )
-			throw std::logic_error("native64 divide by zero");
+			throw std::logic_error("native_int divide by zero");
 
 		uint_type ans = m_value/q.m_value;
 		uint_type rem = m_value%q.m_value;
@@ -980,13 +980,15 @@ public:
 	bool operator<=(const NativeInteger& a) const { return m_value <= a.m_value; }
 
 	//overloaded binary operators based on integer arithmetic and comparison functions
+	NativeInteger operator-() const { return NativeInteger(0).Minus(*this); }
+
 	/**
 	 * Addition operation.
 	 *
 	 * @param a is the value to add.
 	 * @return is the result of the addition operation.
 	 */
-	inline NativeInteger operator+(const NativeInteger &a) const {return this->Plus(a);}
+	NativeInteger operator+(const NativeInteger &a) const {return this->Plus(a);}
 
 	/**
 	 * Subtraction operation.
@@ -994,7 +996,7 @@ public:
 	 * @param a is the value to subtract.
 	 * @return is the result of the subtraction operation.
 	 */
-	inline NativeInteger operator-(const NativeInteger &a) const {return this->Minus(a);}
+	NativeInteger operator-(const NativeInteger &a) const {return this->Minus(a);}
 
 	/**
 	 * Multiplication operation.
@@ -1033,6 +1035,8 @@ public:
 		os << ptr_obj.m_value;
 		return os;
 	}
+
+	void PrintValues() const { std::cout << this->m_value; }
 
 	/**
 	 * Gets the bit at the specified index.

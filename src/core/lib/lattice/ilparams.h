@@ -50,9 +50,9 @@ typedef ILParamsImpl<BigBinaryInteger> ILParams;
 
 }
 
-namespace native64 {
+namespace native_int {
 
-typedef lbcrypto::ILParamsImpl<native64::BigBinaryInteger> ILParams;
+typedef lbcrypto::ILParamsImpl<native_int::BinaryInteger> ILParams;
 
 }
 
@@ -130,7 +130,7 @@ public:
 	 * Equal operator compares ElemParams (which will be dynamic casted)
 	 *
 	 * @param &rhs is the specified ILVector2n to be compared with this ILVector2n.
-	 * @return true if this ILVector2n represents the same values as the specified ILVectorArray2n, false otherwise
+	 * @return true if this ILVector2n represents the same values as the specified ILDCRT2n, false otherwise
 	 */
 	bool operator==(const ElemParams<IntType>& rhs) const {
 		if( dynamic_cast<const ILParamsImpl<IntType> *>(&rhs) == 0 )

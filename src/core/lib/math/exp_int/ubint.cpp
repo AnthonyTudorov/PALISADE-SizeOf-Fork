@@ -45,7 +45,6 @@
 
 #define _SECURE_SCL 0 // to speed up VS
 #include "../backend.h"
-#if MATHBACKEND ==2 ||MATHBACKEND ==3 ||MATHBACKEND ==4
  
 #include <iostream>
 #include <fstream>
@@ -223,10 +222,10 @@ namespace exp_int {
   }
 #endif
   //this is the zero allocator for the palisade matrix class
-//  template<typename limb_t>
-//  std::function<unique_ptr<ubint<limb_t>>()> ubint<limb_t>::Allocator = [](){
-//    return lbcrypto::make_unique<exp_int::ubint<limb_t>>();
-//  };
+  template<>
+  std::function<unique_ptr<ubint<uint32_t>>()> ubint<uint32_t>::Allocator = [](){
+    return lbcrypto::make_unique<exp_int::ubint<uint32_t>>();
+  };
 
   template<typename limb_t>
   ubint<limb_t>::~ubint()
@@ -2908,16 +2907,6 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
 
   }
 
+  template class ubint<expdtype>;
+
 } // namespace exp_int ends
-#ifdef UBINT_32
-template class exp_int::ubint<uint32_t>; 
-
-//template <uint32_t>
-//std::ostream& exp_int::operator<< (std::ostream& os, const exp_int::ubint<uint32_t> &ptr_obj);
-
-#endif
-#ifdef UBINT_64
-template class exp_int::ubint<uint64_t>; 
-#endif
-
-#endif //#if MATHBACKEND ==2 ||MATHBACKEND ==3 ||MATHBACKEND ==4

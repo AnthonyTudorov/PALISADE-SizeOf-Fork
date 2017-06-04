@@ -383,7 +383,7 @@ public:
 	 * @param &i is the input integer to multiply at all entries.
 	 * @return a new vector which is the result of the modulus multiplication operation.
 	 */
-	  inline BigBinaryVectorImpl &operator*=(const IntegerType &i) {
+	BigBinaryVectorImpl &operator*=(const IntegerType &i) {
 	    *this=this->ModMul(i);
 	    return *this;
 	  }

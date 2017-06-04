@@ -446,7 +446,7 @@ TEST(UTFV, ILVector2n_Encrypt_Decrypt_PRE) {
 
 	LPKeyPair<ILVector2n> newKp = cc.KeyGen();
 
-	/*shared_ptr<LPEvalKey<ILVectorArray2n>> evalKey =
+	/*shared_ptr<LPEvalKey<ILDCRT2n>> evalKey =
 	cc.ReKeyGen(newKp.secretKey, kp.secretKey);*/
 	shared_ptr<LPEvalKey<ILVector2n>> evalKey =
 		cc.ReKeyGen(newKp.secretKey, kp.secretKey);

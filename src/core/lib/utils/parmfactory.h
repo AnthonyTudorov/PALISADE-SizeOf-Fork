@@ -10,6 +10,7 @@
 
 // useful for testing
 
+#include "../lattice/ildcrt2n.h"
 #include "math/backend.h"
 #include "math/distrgen.h"
 
@@ -20,7 +21,6 @@
 #include "lattice/ildcrtparams.h"
 #include "lattice/ilelement.h"
 #include "lattice/ilvector2n.h"
-#include "lattice/ilvectorarray2n.h"
 
 using namespace lbcrypto;
 
@@ -44,19 +44,19 @@ inline shared_ptr<Params> GenerateTestParams(usint m, usint nbits) {
  * @param pbits - number of bits in the prime, to start with
  * @return
  */
-inline shared_ptr<ILVectorArray2n::Params> GenerateDCRTParams(usint m, usint ptm, usint numOfTower, usint pbits) {
+inline shared_ptr<ILDCRTParams<BigBinaryInteger>> GenerateDCRTParams(usint m, usint ptm, usint numOfTower, usint pbits) {
 
 	if( numOfTower == 0 )
 		throw std::logic_error("Can't make parms with numOfTower == 0 ");
 
-	std::vector<native64::BigBinaryInteger> moduli(numOfTower);
+	std::vector<native_int::BinaryInteger> moduli(numOfTower);
 
-	std::vector<native64::BigBinaryInteger> rootsOfUnity(numOfTower);
+	std::vector<native_int::BinaryInteger> rootsOfUnity(numOfTower);
 
-	native64::BigBinaryInteger ptmI( ptm );
+	native_int::BinaryInteger ptmI( ptm );
 
-	native64::BigBinaryInteger q = FindPrimeModulus<native64::BigBinaryInteger>(m, pbits);
-	BigBinaryInteger modulus(BigBinaryInteger::ONE);
+	native_int::BinaryInteger q = FindPrimeModulus<native_int::BinaryInteger>(m, pbits);
+	BigBinaryInteger modulus(1);
 
 	usint j = 0;
 	for(;;) {
@@ -66,10 +66,10 @@ inline shared_ptr<ILVectorArray2n::Params> GenerateDCRTParams(usint m, usint ptm
 		if( ++j == numOfTower )
 			break;
 
-		lbcrypto::NextQ(q, ptmI, m, native64::BigBinaryInteger(4), native64::BigBinaryInteger(4));
+		lbcrypto::NextQ(q, ptmI, m, native_int::BinaryInteger(4), native_int::BinaryInteger(4));
 	}
 
-	shared_ptr<ILVectorArray2n::Params> params(new ILVectorArray2n::Params(m, moduli, rootsOfUnity));
+	shared_ptr<ILDCRTParams<BigBinaryInteger>> params(new ILDCRTParams<BigBinaryInteger>(m, moduli, rootsOfUnity));
 
 	return params;
 }

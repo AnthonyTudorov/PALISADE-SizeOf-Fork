@@ -61,10 +61,10 @@ namespace lbcrypto {
 			 * Default constructor.
 			 */
 			LPCryptoParametersFV() : LPCryptoParametersRLWE<Element>() {
-				m_delta = BigBinaryInteger::ZERO;
+				m_delta = BigBinaryInteger(0);
 				m_mode = RLWE;
-				m_bigModulus = BigBinaryInteger::ZERO;
-				m_bigRootOfUnity = BigBinaryInteger::ZERO;
+				m_bigModulus = BigBinaryInteger(0);
+				m_bigRootOfUnity = BigBinaryInteger(0);
 			}
 
 			/**

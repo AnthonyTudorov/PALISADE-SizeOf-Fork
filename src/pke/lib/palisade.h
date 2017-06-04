@@ -34,7 +34,7 @@ class CryptoContext;
 #include "lattice/ildcrtparams.h"
 #include "lattice/ilelement.h"
 #include "lattice/ilvector2n.h"
-#include "lattice/ilvectorarray2n.h"
+#include "../../core/lib/lattice/ildcrt2n.h"
 
 #include "pubkeylp.h"
 

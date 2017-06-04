@@ -43,7 +43,7 @@ BigBinaryVector ZeroPadForward(const BigBinaryVector &InputPoly,usint target_ord
 			ans.SetValAtIndex(i,InputPoly.GetValAtIndex(i));
 
 		for(usint i=InputPoly.GetLength();i<target_order;i++)
-			ans.SetValAtIndex(i,BigBinaryInteger::ZERO);
+			ans.SetValAtIndex(i, BigBinaryInteger(0));
 
 		ans.SetModulus(InputPoly.GetModulus());
 

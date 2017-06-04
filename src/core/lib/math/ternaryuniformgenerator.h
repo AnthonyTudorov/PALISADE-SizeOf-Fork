@@ -55,7 +55,7 @@ public:
 	*/
 	TernaryUniformGeneratorImpl () : DistributionGenerator<IntType,VecType>() {}
 
-	IntType GenerateInteger(const IntType&) const { return IntType::ZERO; }
+	IntType GenerateInteger(const IntType&) const { return IntType(0); }
 
 	/**
 	* @brief  Generates a vector of random values within the Ternary Uniform Distribution.
@@ -65,7 +65,7 @@ public:
 	*/
 	VecType GenerateVector  (const usint size, const IntType &modulus) const;
 
-    virtual ~TernaryUniformGeneratorImpl();
+    virtual ~TernaryUniformGeneratorImpl() {}
 private:
 	static std::uniform_int_distribution<int> m_distribution;
 

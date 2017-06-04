@@ -36,8 +36,8 @@
 
 #include "utils/serializable.h"
 #include "lattice/ilvector2n.h"
-#include "lattice/ilvectorarray2n.h"
 #include <string>
+#include "../../core/lib/lattice/ildcrt2n.h"
 
 namespace lbcrypto {
 
@@ -256,13 +256,6 @@ protected:
 		oneItem.AddMember(key, val, oneItem.GetAllocator());
 
 		typename Element::Params *json_ilParams = new typename Element::Params();
-//		if( typeid(Element) == typeid(ILVector2n) )
-//			json_ilParams = new ILParams();
-//		else if( typeid(Element) == typeid(ILVectorArray2n) )
-//			json_ilParams = new ILDCRTParams();
-//		else {
-//			throw std::logic_error("Unrecognized element type");
-//		}
 
 		if( !json_ilParams->Deserialize(oneItem) ) {
 			delete json_ilParams;

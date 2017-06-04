@@ -37,11 +37,11 @@
  *
  */
 
+#ifdef __linux__
 
 #include "../../utils/serializable.h"
 
 #include "../backend.h"
-#if MATHBACKEND == 6
 
 #include "mgmpintvec.h"
 
@@ -82,7 +82,7 @@ namespace NTL {
     for (auto i=0; i< a.length(); i++) {
       (*this)[i]=a[i];
     }
-    this->m_modulus_state == GARBAGE;
+    this->m_modulus_state = GARBAGE;
   }
 
   //movecopy ctor
@@ -1085,5 +1085,5 @@ namespace NTL {
 } // namespace NTL ends
  
 template class NTL::myVecP<NTL::myZZ_p>; //instantiate template here
- 
-#endif //MATHBACKEND == 6
+
+#endif

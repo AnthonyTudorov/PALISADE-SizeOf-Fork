@@ -38,7 +38,6 @@
 #include "lattice/ildcrtparams.h"
 #include "math/distrgen.h"
 #include "lattice/ilvector2n.h"
-#include "lattice/ilvectorarray2n.h"
 #include "math/nbtheory.h"
 #include "lattice/elemparams.h"
 #include "lattice/ilelement.h"
@@ -46,6 +45,8 @@
 #include "utils/debug.h"
 
 #include <omp.h>
+
+#include "../lib/lattice/ildcrt2n.h"
 using namespace std;
 using namespace lbcrypto;
 
@@ -87,7 +88,7 @@ TEST(UTDistrGen, DiscreteUniformGenerator_LONG ) {
   }
 
   // TEST CASE TO GENERATE A UNIFORM BIG BINARY INTEGER WITH LARGE MODULUS
-  {
+  if( MATH_DEFBITS > 64 ) {
     BigBinaryInteger modulus("10402635286389262637365363");
     ILVector2n::DugType dug = ILVector2n::DugType();
     dug.SetModulus(modulus);
@@ -115,7 +116,7 @@ TEST(UTDistrGen, DiscreteUniformGenerator_LONG ) {
   
   //TEST CASE TO GENERATE A UNIFORM BIG BINARY VECTOR WITH LARGE MODULUS
   
-  {
+  if( MATH_DEFBITS > 64 ) {
     BigBinaryInteger modulus("10402635286389262637365363");
     ILVector2n::DugType dug = ILVector2n::DugType();
     dug.SetModulus(modulus);
@@ -141,7 +142,7 @@ TEST(UTDistrGen, DiscreteUniformGenerator_LONG ) {
     BigBinaryInteger large_modulus("100019");
     testDiscreteUniformGenerator(large_modulus, "large_modulus");
   }
-  {
+  if( MATH_DEFBITS > 64 ) {
     // TEST CASE ON FIRST AND SECOND CENTRAL MOMENTS HUGE MODULUS
     BigBinaryInteger huge_modulus("10402635286389262637365363");
     testDiscreteUniformGenerator(huge_modulus, "huge_modulus");
@@ -149,7 +150,7 @@ TEST(UTDistrGen, DiscreteUniformGenerator_LONG ) {
 
   //TEST CASE TO RECREATE OVERFLOW ISSUE CAUSED WHEN CALCULATING MEAN OF BBI's
   //Issue#73
-  {
+  if( MATH_DEFBITS > 64 ) {
     int caught_error = 0;
     try {
       BigBinaryInteger modulus("10402635286389262637365363"); //10402635286389262637365363
@@ -162,8 +163,7 @@ TEST(UTDistrGen, DiscreteUniformGenerator_LONG ) {
       BigBinaryVector uniRandVector = dug.GenerateVector(eachIterationSize * noOfIterations);
 	
       for(usint i=0; i<noOfIterations; i++) {
-	sum = BigBinaryInteger::ZERO;
-	mean = BigBinaryInteger::ZERO;
+	sum = mean = BigBinaryInteger(0);
 	for(size_t j=i*eachIterationSize; j<(i+1)*eachIterationSize; j++) {
 	  sum += uniRandVector.GetValAtIndex(j);
 	}
@@ -239,8 +239,10 @@ TEST(UTDistrGen, ParallelDiscreteUniformGenerator_LONG ) {
   BigBinaryInteger large_modulus("100019");// test large modulus
   testParallelDiscreteUniformGenerator(large_modulus, "large_modulus");
 
-  BigBinaryInteger huge_modulus("10402635286389262637365363");
-  testParallelDiscreteUniformGenerator(huge_modulus, "huge_modulus");
+  if( MATH_DEFBITS > 64 ) {
+	  BigBinaryInteger huge_modulus("10402635286389262637365363");
+	  testParallelDiscreteUniformGenerator(huge_modulus, "huge_modulus");
+  }
 
 }
 
@@ -413,7 +415,7 @@ void testParallelDiscreteUniformGenerator(BigBinaryInteger &modulus, std::string
 	 int32_t sum = 0;
 
 	 for (usint index = 0; index<randBigBinaryVector.GetLength(); index++) {
-		 if (randBigBinaryVector[index] == modulus - BigBinaryInteger::ONE)
+		 if (randBigBinaryVector[index] == modulus - 1)
 			 sum -= 1;
 		 else
 			 sum += randBigBinaryVector[index].ConvertToInt();
@@ -465,7 +467,7 @@ TEST(UTDistrGen, DiscreteGaussianGenerator) {
     sint stdev = 5;
     usint size = 100000;
     BigBinaryInteger modulus("10403");
-    BigBinaryInteger modulusByTwo(modulus.DividedBy(BigBinaryInteger::TWO));
+    BigBinaryInteger modulusByTwo(modulus.DividedBy(2));
     DiscreteGaussianGenerator dgg = lbcrypto::DiscreteGaussianGenerator(stdev);
     BigBinaryVector dggBigBinaryVector = dgg.GenerateVector(size,modulus);
 
@@ -548,7 +550,7 @@ TEST(UTDistrGen, ParallelDiscreteGaussianGenerator_VERY_LONG) {
     sint stdev = 5;
     usint size = 100000;
     BigBinaryInteger modulus("10403");
-    BigBinaryInteger modulusByTwo(modulus.DividedBy(BigBinaryInteger::TWO));
+    BigBinaryInteger modulusByTwo(modulus.DividedBy(2));
     //BigBinaryVector dggBigBinaryVector = dgg.GenerateVector(size,modulus);
     vector<BigBinaryInteger> dggBigBinaryVector;
 #pragma omp parallel // this is executed in parallel

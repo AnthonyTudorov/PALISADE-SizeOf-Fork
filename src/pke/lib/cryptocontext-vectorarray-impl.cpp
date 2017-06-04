@@ -8,9 +8,9 @@
 #include "cryptocontext.cpp"
 
 namespace lbcrypto {
-template class CryptoContextFactory<ILVectorArray2n>;
-template class CryptoContext<ILVectorArray2n>;
+template class CryptoContextFactory<ILDCRT2n>;
+template class CryptoContext<ILDCRT2n>;
 
-template<class ILVectorArray2n> vector<shared_ptr<LPEvalKey<ILVectorArray2n>>> CryptoContext<ILVectorArray2n>::evalMultKeys;
+template<class ILDCRT2n> vector<shared_ptr<LPEvalKey<ILDCRT2n>>> CryptoContext<ILDCRT2n>::evalMultKeys;
 }
 

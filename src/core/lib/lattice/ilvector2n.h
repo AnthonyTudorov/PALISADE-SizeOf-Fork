@@ -494,7 +494,7 @@ public:
 	 * Equal operator compares this ILVectorImpl to the specified ILVectorImpl
 	 *
 	 * @param &rhs is the specified ILVectorImpl to be compared with this ILVectorImpl.
-	 * @return true if this ILVectorImpl represents the same values as the specified ILVectorArray2n, false otherwise
+	 * @return true if this ILVectorImpl represents the same values as the specified ILDCRT2n, false otherwise
 	 */
 	inline bool operator==(const ILVectorImpl &rhs) const {
 		if (this->GetFormat() != rhs.GetFormat()) {
@@ -550,7 +550,7 @@ public:
 
 	/**
 	 * Interpolates based on the Chinese Remainder Transform Interpolation.
-	 * Does nothing for ILVectorImpl. Needed to support the 0linear CRT interpolation in ILVectorArray2n.
+	 * Does nothing for ILVectorImpl. Needed to support the 0linear CRT interpolation in ILDCRT2n.
 	 *
 	 * @return the original ring element.
 	 */
@@ -605,9 +605,9 @@ public:
 	void PrintValues() const;
 
 	/**
-	 * Make ILVectorArray2n Sparse for SHE KeyGen operations. Sets every index not equal to zero mod the wFactor to zero.
+	 * Make ILDCRT2n Sparse for SHE KeyGen operations. Sets every index not equal to zero mod the wFactor to zero.
 	 *
-	 * @param &wFactor ratio between the original ILVectorArray2n's ring dimension and the new ring dimension.
+	 * @param &wFactor ratio between the original ILDCRT2n's ring dimension and the new ring dimension.
 	 */
 	void MakeSparse(const uint32_t &wFactor);
 
@@ -769,9 +769,9 @@ private:
 } //namespace lbcrypto ends
 
 
-namespace native64 {
+namespace native_int {
 
-typedef lbcrypto::ILVectorImpl<native64::BigBinaryInteger, native64::BigBinaryInteger, native64::BigBinaryVector, native64::ILParams> ILVector2n;
+typedef lbcrypto::ILVectorImpl<native_int::BinaryInteger, native_int::BinaryInteger, native_int::BinaryVector, native_int::ILParams> ILVector2n;
 
 }
 

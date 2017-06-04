@@ -247,7 +247,7 @@ namespace lbcrypto {
 		* @param &other is the ciphertext to add with.
 		* @return the result of the addition.
 		*/
-		inline const Ciphertext<Element> operator-() {
+		const Ciphertext<Element> operator-() {
 			if (m_elements.size() == 0)
 				throw std::logic_error("No elements in the ciphertext to be negated");
 			else
@@ -278,7 +278,7 @@ namespace lbcrypto {
 	* @return The result of addition.
 	*/
 	template <class Element>
-	inline Ciphertext<Element> operator+(const Ciphertext<Element> &a, const Ciphertext<Element> &b) { 
+	Ciphertext<Element> operator+(const Ciphertext<Element> &a, const Ciphertext<Element> &b) {
 		shared_ptr<Ciphertext<Element>> aPtr(new Ciphertext<Element>(a));
 		shared_ptr<Ciphertext<Element>> bPtr(new Ciphertext<Element>(b));
 		return *a.GetCryptoContext().EvalAdd(aPtr,bPtr); 
@@ -294,7 +294,7 @@ namespace lbcrypto {
 	* @return The result of subtraction.
 	*/
 	template <class Element>
-	inline Ciphertext<Element> operator-(const Ciphertext<Element> &a, const Ciphertext<Element> &b) {
+	Ciphertext<Element> operator-(const Ciphertext<Element> &a, const Ciphertext<Element> &b) {
 		shared_ptr<Ciphertext<Element>> aPtr(new Ciphertext<Element>(a));
 		shared_ptr<Ciphertext<Element>> bPtr(new Ciphertext<Element>(b));
 		return *a.GetCryptoContext().EvalSub(aPtr, bPtr);
@@ -309,7 +309,7 @@ namespace lbcrypto {
 	* @return The result of multiplication.
 	*/
 	template <class Element>
-	inline Ciphertext<Element> operator*(const Ciphertext<Element> &a, const Ciphertext<Element> &b) {
+	Ciphertext<Element> operator*(const Ciphertext<Element> &a, const Ciphertext<Element> &b) {
 		shared_ptr<Ciphertext<Element>> aPtr(new Ciphertext<Element>(a));
 		shared_ptr<Ciphertext<Element>> bPtr(new Ciphertext<Element>(b));
 		return *a.GetCryptoContext().EvalMult(aPtr, bPtr);

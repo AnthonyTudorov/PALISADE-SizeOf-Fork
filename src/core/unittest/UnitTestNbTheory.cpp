@@ -28,6 +28,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "include/gtest/gtest.h"
 #include <iostream>
 
+#include "../lib/lattice/ildcrt2n.h"
 #include "math/backend.h"
 #include "math/nbtheory.h"
 #include "math/distrgen.h"
@@ -36,7 +37,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "lattice/ildcrtparams.h"
 #include "lattice/ilelement.h"
 #include "lattice/ilvector2n.h"
-#include "lattice/ilvectorarray2n.h"
 #include "utils/inttypes.h"
 #include "utils/utilities.h"
 
@@ -179,14 +179,14 @@ TEST(UTNbTheory, method_primitive_root_of_unity_VERY_LONG){
     BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus<BigBinaryInteger>(m, nBits);
     BigBinaryInteger primitiveRootOfUnity = lbcrypto::RootOfUnity<BigBinaryInteger>(m, primeModulus);
 
-    BigBinaryInteger M(std::to_string(m)), MbyTwo(M.DividedBy(BigBinaryInteger::TWO));
+    BigBinaryInteger M(std::to_string(m)), MbyTwo(M.DividedBy(2));
 
     BigBinaryInteger wpowerm = primitiveRootOfUnity.ModExp(M, primeModulus);
-    EXPECT_EQ(wpowerm, BigBinaryInteger::ONE)
+    EXPECT_EQ(wpowerm, 1)
       <<"Failure single equal_m";
 
     BigBinaryInteger wpowermbytwo = primitiveRootOfUnity.ModExp(MbyTwo, primeModulus);
-    EXPECT_NE(wpowermbytwo, BigBinaryInteger::ONE)
+    EXPECT_NE(wpowermbytwo, 1)
       <<"Failure single not_equal_mbytwo";
   }
   {
@@ -197,7 +197,7 @@ TEST(UTNbTheory, method_primitive_root_of_unity_VERY_LONG){
     const usint nBits=43;
     const int ITERATIONS = m*2;
 
-    BigBinaryInteger M(std::to_string(m)), MbyTwo(M.DividedBy(BigBinaryInteger::TWO)), MbyFour(MbyTwo.DividedBy(BigBinaryInteger::TWO));
+    BigBinaryInteger M(std::to_string(m)), MbyTwo(M.DividedBy(2)), MbyFour(MbyTwo.DividedBy(2));
 
     BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus<BigBinaryInteger>(m, nBits);
 
@@ -205,13 +205,13 @@ TEST(UTNbTheory, method_primitive_root_of_unity_VERY_LONG){
       BigBinaryInteger primitiveRootOfUnity = lbcrypto::RootOfUnity<BigBinaryInteger>(m, primeModulus);
 
       BigBinaryInteger wpowerm = primitiveRootOfUnity.ModExp(M, primeModulus);
-      EXPECT_EQ(wpowerm, BigBinaryInteger::ONE)
+      EXPECT_EQ(wpowerm, 1)
 	<<"Failure single input iteration "<< i <<" equal_m";
 	BigBinaryInteger wpowermbytwo = primitiveRootOfUnity.ModExp(MbyTwo, primeModulus);
-      EXPECT_NE(wpowermbytwo, BigBinaryInteger::ONE)
+      EXPECT_NE(wpowermbytwo, 1)
 	<<"Failure single input  iteration "<< i <<" not_equal_mbytwo";
       BigBinaryInteger wpowermbyfour = primitiveRootOfUnity.ModExp(MbyFour, primeModulus);
-      EXPECT_NE(wpowermbyfour, BigBinaryInteger::ONE)
+      EXPECT_NE(wpowermbyfour, 1)
 	<<"Failure single input iteration "<< i <<"not_equal_mbyfour";
     }
   }
@@ -249,7 +249,7 @@ TEST(UTNbTheory, method_primitive_root_of_unity_VERY_LONG){
 	int length = sizeof(nqBitsArray)/sizeof(nqBitsArray[0]);
 	// double diff, start, finish;
 	usint n, qBits, m;
-	// BigBinaryInteger M(std::to_string(m)), MbyTwo(M.DividedBy(BigBinaryInteger::TWO)), MbyFour(MbyTwo.DividedBy(BigBinaryInteger::TWO));
+	// BigBinaryInteger M(std::to_string(m)), MbyTwo(M.DividedBy(2)), MbyFour(MbyTwo.DividedBy(2));
 
 	for(int i=2; i<length; i += 2) {
 		// fout << "----------------------------------------------------------------------------------------------------------------------------------" << endl;
@@ -258,7 +258,7 @@ TEST(UTNbTheory, method_primitive_root_of_unity_VERY_LONG){
 		qBits = nqBitsArray[i+1];
 		m = 2 * n;
 
-		BigBinaryInteger M(std::to_string(m)), MbyTwo(M.DividedBy(BigBinaryInteger::TWO)), MbyFour(MbyTwo.DividedBy(BigBinaryInteger::TWO));
+		BigBinaryInteger M(std::to_string(m)), MbyTwo(M.DividedBy(2)), MbyFour(MbyTwo.DividedBy(2));
 
 		// start = currentDateTime();
 		// fout << "m=" << m << ", qBits=" << qBits << ", M=" << M << ", MbyTwo=" << MbyTwo << endl;
@@ -283,17 +283,17 @@ TEST(UTNbTheory, method_primitive_root_of_unity_VERY_LONG){
 
 		BigBinaryInteger wpowerm = primitiveRootOfUnity.ModExp(M, primeModulus);
 		// fout << "w^m = " << wpowerm << endl;
-		EXPECT_EQ(wpowerm, BigBinaryInteger::ONE)
+		EXPECT_EQ(wpowerm, 1)
 		  <<"Failure multi input iteration "<< i <<" equal_m";
 
 		BigBinaryInteger wpowermbytwo = primitiveRootOfUnity.ModExp(MbyTwo, primeModulus);
 		// fout << "w^(m/2) = " << wpowermbytwo << endl;
-		EXPECT_NE(wpowermbytwo, BigBinaryInteger::ONE)
+		EXPECT_NE(wpowermbytwo, 1)
 		  <<"Failure multi input  iteration "<< i <<" not_equal_mbytwo";
 
 		BigBinaryInteger wpowermbyfour = primitiveRootOfUnity.ModExp(MbyFour, primeModulus);
 		// fout << "w^(m/4) = " << wpowermbyfour << endl;
-		EXPECT_NE(wpowermbyfour, BigBinaryInteger::ONE)
+		EXPECT_NE(wpowermbyfour, 1)
 		  <<"Failure multi input  iteration "<< i <<" not_equal_mbyfour";
 		// fout << "----------------------------------------------------------------------------------------------------------------------------------" << endl;
 		// fout << endl;
@@ -339,14 +339,9 @@ TEST(UTNbTheory, method_primitive_root_of_unity_VERY_LONG){
 }
 
 TEST(UTNbTheory, test_nextQ){
-	BigBinaryInteger q("1");
-	BigBinaryInteger temp;
-	BigBinaryInteger modulus("1");
-	std::vector<BigBinaryInteger> moduli(10);
+	BigBinaryInteger q(1);
 
-	BigBinaryInteger expectedModulus("3870844751439548001384346183425749519101626664076414239811368961");
 	BigBinaryVector moduliBBV(10);
-	moduliBBV.SetModulus(expectedModulus);
 	moduliBBV.SetValAtIndex(0, "2101249");
 	moduliBBV.SetValAtIndex(1, "2107393");
 	moduliBBV.SetValAtIndex(2, "2236417");
@@ -359,10 +354,7 @@ TEST(UTNbTheory, test_nextQ){
 	moduliBBV.SetValAtIndex(9, "2414593");
 
 	for(usint i=0; i<10; i++){
-        lbcrypto::NextQ(q, BigBinaryInteger::TWO, 2048, BigBinaryInteger::FOUR, BigBinaryInteger::FOUR);
-		moduli[i] = q;
-		EXPECT_EQ(moduli[i], moduliBBV.GetValAtIndex(i));
-		modulus = modulus* moduli[i];
+        lbcrypto::NextQ(q, BigBinaryInteger(2), 2048, BigBinaryInteger(4), BigBinaryInteger(4));
+		EXPECT_EQ(q, moduliBBV.GetValAtIndex(i));
 	}
-	EXPECT_EQ(expectedModulus, modulus);
 }

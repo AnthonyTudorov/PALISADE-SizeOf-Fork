@@ -147,7 +147,7 @@ public:
 	 * FIXME this will be replaced by the new mechanism for crypto params
 	 * @param cryptoParams
 	 */
-	void ParameterSelection(LPCryptoParametersLTV<ILVectorArray2n> *cryptoParams);
+	void ParameterSelection(LPCryptoParametersLTV<ILDCRT2n> *cryptoParams);
 
 	/**
 	 * == operator to compare to this instance of LPCryptoParametersLTV object.
@@ -181,7 +181,7 @@ private:
 
 	//function for parameter selection. The public ParameterSelection function is a wrapper around this function.
 	// FIXME This will soon be deprecated.
-	void ParameterSelection(usint& n, vector<native64::BigBinaryInteger> &moduli);
+	void ParameterSelection(usint& n, vector<native_int::BinaryInteger> &moduli);
 };
 
 /**

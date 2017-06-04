@@ -43,7 +43,7 @@
 #include "lattice/ilelement.h"
 #include "math/distrgen.h"
 #include "lattice/ilvector2n.h"
-#include "lattice/ilvectorarray2n.h"
+#include "../../src/core/lib/lattice/ildcrt2n.h"
 #include "utils/utilities.h"
 
 #include <vector>
@@ -62,9 +62,9 @@
 using namespace std;
 using namespace lbcrypto;
 
-typedef native64::BigBinaryInteger nativeInt;
-typedef native64::BigBinaryVector nativeVec;
-typedef native64::ILParams nativeParams;
+typedef native_int::BinaryInteger nativeInt;
+typedef native_int::BinaryVector nativeVec;
+typedef native_int::ILParams nativeParams;
 
 //typedef cpu_int::BigBinaryInteger<uint32_t,64>  smallInt32_64;
 ////template class cpu_int::BigBinaryInteger<uint32_t,64>;
