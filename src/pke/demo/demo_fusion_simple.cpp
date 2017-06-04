@@ -45,8 +45,8 @@
 using namespace std;
 using namespace lbcrypto;
 
-static const usint ORDER = 2048;
-static const usint PTM = 256;
+//static const usint ORDER = 2048;
+//static const usint PTM = 256;
 //double currentDateTime();
 
 void usage()

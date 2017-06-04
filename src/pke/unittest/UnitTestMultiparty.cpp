@@ -21,9 +21,9 @@ public:
 };
 
 // NOTE the PRE tests are all based on these
-static const usint ORDER = 2048;
-static const usint PTM = 256;
-static const usint TOWERS = 3;
+//static const usint ORDER = 2048;
+//static const usint PTM = 256;
+//static const usint TOWERS = 3;
 
 template <class Element>
 void
