@@ -186,13 +186,9 @@ namespace lbcrypto {
 		const shared_ptr<Ciphertext<Element>> ciphertext,
 		ILVector2n *plaintext) const
 	{
-
 		const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
-
 		const typename Element::Integer &p = cryptoParams->GetPlaintextModulus();
-
 		const std::vector<Element> &c = ciphertext->GetElements();
-
 		const Element &s = privateKey->GetPrivateElement();
 
 		Element b = c[0] - s*c[1];
@@ -205,7 +201,6 @@ namespace lbcrypto {
 		*plaintext = interpolatedElement.SignedMod(p);
 
 		return DecryptResult(plaintext->GetLength());
-
 	}
 
 	template <class Element>
@@ -515,6 +510,159 @@ namespace lbcrypto {
 		return newcipherText;
 	}
 
+
+	//makeSparse is not used by this scheme
+	template <class Element>
+	LPKeyPair<Element> LPAlgorithmMultipartyBV<Element>::MultipartyKeyGen(const CryptoContext<Element> cc,
+		const vector<shared_ptr<LPPrivateKey<Element>>>& secretKeys,
+		bool makeSparse) const
+	{
+
+		LPKeyPair<Element>	kp(new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc));
+		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersBV<Element>>(cc.GetCryptoParameters());
+		const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
+		const typename Element::Integer &p = cryptoParams->GetPlaintextModulus();
+		const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
+		typename Element::DugType dug;
+		typename Element::TugType tug;
+
+		//Generate the element "a" of the public key
+		Element a(dug, elementParams, Format::EVALUATION);
+		//Generate the secret key
+		Element s(elementParams, Format::EVALUATION, true);
+
+		//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
+		size_t numKeys = secretKeys.size();
+		for( size_t i = 0; i < numKeys; i++ ) {
+			shared_ptr<LPPrivateKey<Element>> sk1 = secretKeys[i];
+			Element s1 = sk1->GetPrivateElement();
+			s += s1;
+		}
+//		s.SwitchFormat();
+
+		//public key is generated and set
+		//privateKey->MakePublicKey(a, publicKey);
+		Element e(dgg, elementParams, Format::COEFFICIENT);
+		e.SwitchFormat();
+
+		Element b = a*s + p*e;
+
+		kp.secretKey->SetPrivateElement(std::move(s));
+		kp.publicKey->SetPublicElementAtIndex(0, std::move(a));
+		kp.publicKey->SetPublicElementAtIndex(1, std::move(b));
+
+		return kp;
+	}
+
+//makeSparse is not used by this scheme
+template <class Element>
+LPKeyPair<Element> LPAlgorithmMultipartyBV<Element>::MultipartyKeyGen(const CryptoContext<Element> cc,
+		const shared_ptr<LPPublicKey<Element>> pk1, bool makeSparse) const
+	{
+
+
+		LPKeyPair<Element>	kp(new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc));
+		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersBV<Element>>(cc.GetCryptoParameters());
+		const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
+		const typename Element::Integer &p = cryptoParams->GetPlaintextModulus();
+		const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
+		typename Element::DugType dug;
+		typename Element::TugType tug;
+
+		//Generate the element "a" of the public key
+		Element a = pk1->GetPublicElements()[1];
+		//Generate the secret key
+		Element s;
+
+		//Done in two steps not to use a random polynomial from a pre-computed pool
+		//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
+		if (cryptoParams->GetMode() == RLWE) {
+			s = Element(dgg, elementParams, Format::COEFFICIENT);
+		}
+		else {
+			s = Element(tug, elementParams, Format::COEFFICIENT);
+		}
+		s.SwitchFormat();
+
+		//public key is generated and set
+		//privateKey->MakePublicKey(a, publicKey);
+		Element e(dgg, elementParams, Format::COEFFICIENT);
+		e.SwitchFormat();
+		//a.SwitchFormat();
+
+		Element b = a*s + p*e;
+
+		kp.secretKey->SetPrivateElement(std::move(s));
+		kp.publicKey->SetPublicElementAtIndex(0, std::move(a));
+		kp.publicKey->SetPublicElementAtIndex(1, std::move(b));
+
+		return kp;
+	}
+
+template <class Element>
+shared_ptr<Ciphertext<Element>> LPAlgorithmMultipartyBV<Element>::MultipartyDecryptLead(const shared_ptr<LPPrivateKey<Element>> privateKey,
+		const shared_ptr<Ciphertext<Element>> ciphertext) const
+{
+
+		const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
+		const std::vector<Element> &c = ciphertext->GetElements();
+		const Element &s = privateKey->GetPrivateElement();
+
+		Element b = c[0] - s*c[1];
+
+		shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext->GetCryptoContext()));
+		newCiphertext->SetElements({ b });
+
+		return newCiphertext;
+}
+
+template <class Element>
+shared_ptr<Ciphertext<Element>> LPAlgorithmMultipartyBV<Element>::MultipartyDecryptMain(const shared_ptr<LPPrivateKey<Element>> privateKey,
+		const shared_ptr<Ciphertext<Element>> ciphertext) const
+{
+	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
+	const std::vector<Element> &c = ciphertext->GetElements();
+
+	const Element &s = privateKey->GetPrivateElement();
+
+	Element b = s*c[1];
+
+	shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext->GetCryptoContext()));
+	newCiphertext->SetElements({ b });
+
+	return newCiphertext;
+}
+
+
+template <class Element>
+DecryptResult LPAlgorithmMultipartyBV<Element>::MultipartyDecryptFusion(const vector<shared_ptr<Ciphertext<Element>>>& ciphertextVec,
+		ILVector2n *plaintext) const
+{
+
+	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = ciphertextVec[0]->GetCryptoParameters();
+	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
+
+	const std::vector<Element> &cElem = ciphertextVec[0]->GetElements();
+	Element b = cElem[0];
+
+	size_t numCipher = ciphertextVec.size();
+	for( size_t i = 1; i < numCipher; i++ ) {
+		const std::vector<Element> &c2 = ciphertextVec[i]->GetElements();
+		b -= c2[0];
+	}
+
+	b.SwitchFormat();	
+
+	// Interpolation is needed in the case of Double-CRT interpolation, for example, ILVectorArray2n
+	// CRTInterpolate does nothing when dealing with single-CRT ring elements, such as ILVector2n
+	ILVector2n interpolatedElement = b.CRTInterpolate();
+	*plaintext = interpolatedElement.SignedMod(p);
+
+	return DecryptResult(plaintext->GetLength());
+
+}
+
+
 	// Constructor for LPPublicKeyEncryptionSchemeBV
 	template <class Element>
 	LPPublicKeyEncryptionSchemeBV<Element>::LPPublicKeyEncryptionSchemeBV(std::bitset<FEATURESETSIZE> mask)
@@ -535,6 +683,10 @@ namespace lbcrypto {
 		if (mask[LEVELEDSHE])
 			if (this->m_algorithmLeveledSHE == NULL)
 				this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmBV<Element>();
+
+		if (mask[MULTIPARTY])
+			if (this->m_algorithmMultiparty == NULL)
+				this->m_algorithmMultiparty = new LPAlgorithmMultipartyBV<Element>();
 
 		if (mask[FHE])
 			throw std::logic_error("FHE feature not supported for BV scheme");
@@ -560,6 +712,10 @@ namespace lbcrypto {
 		case LEVELEDSHE:
 			if (this->m_algorithmLeveledSHE == NULL)
 				this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmBV<Element>();
+			break;
+		case MULTIPARTY:
+			if (this->m_algorithmMultiparty == NULL)
+				this->m_algorithmMultiparty = new LPAlgorithmMultipartyBV<Element>();
 			break;
 		case FHE:
 			throw std::logic_error("FHE feature not supported for BV scheme");

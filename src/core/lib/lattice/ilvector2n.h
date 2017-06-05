@@ -189,16 +189,6 @@ public:
 	 */
 	ILVectorImpl(ILVectorType &&element, shared_ptr<ParmType> parms = 0);
 
-//	/**
-//	 * Construct from an existing vector2n and parms
-//	 *
-//	 * A kind of copy constructor used in encrypt
-//	 *
-//	 * @param element
-//	 * @param parms
-//	 */
-//	ILVectorImpl(const ILVector2n &element, shared_ptr<ParmType> parms);
-
 	/**
 	 * Clone the object by making a copy of it and returning the copy
 	 * @return new Element
@@ -411,6 +401,15 @@ public:
 
 
     // VECTOR OPERATIONS
+
+	/**
+	 * Unary minus on a lattice
+	 * @return -lattice
+	 */
+	ILVectorImpl operator-() const {
+		ILVectorImpl all0(this->GetParams(), this->GetFormat(), true);
+		return all0 - *this;
+	}
 	/**
 	 * Performs an addition operation and returns the result.
 	 *

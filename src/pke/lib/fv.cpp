@@ -402,9 +402,9 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared
 	shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext1->GetCryptoContext()));
 
 	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParamsLWE = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(ciphertext1->GetCryptoContext().GetCryptoParameters());
+	const BigBinaryInteger &p = cryptoParamsLWE->GetPlaintextModulus();
 
 	const shared_ptr<typename Element::Params> elementParams = cryptoParamsLWE->GetElementParams();
-	const BigBinaryInteger &p = cryptoParamsLWE->GetPlaintextModulus();
 	const BigBinaryInteger &q = elementParams->GetModulus();
 
 	const BigBinaryInteger &bigModulus = cryptoParamsLWE->GetBigModulus();
@@ -644,6 +644,173 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmPREFV<Element>::ReEncrypt(const share
 	return ciphertext->GetCryptoContext().GetEncryptionAlgorithm()->KeySwitch(EK, ciphertext);
 }
 
+
+
+//makeSparse is not used by this scheme
+template <class Element>
+LPKeyPair<Element> LPAlgorithmMultipartyFV<Element>::MultipartyKeyGen(const CryptoContext<Element> cc,
+		const vector<shared_ptr<LPPrivateKey<Element>>>& secretKeys,
+		bool makeSparse) const
+{
+
+
+	LPKeyPair<Element>	kp( new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc) );
+
+	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(cc.GetCryptoParameters());
+
+	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
+
+	const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
+	typename Element::DugType dug;
+	typename Element::TugType tug;
+
+	//Generate the element "a" of the public key
+	Element a(dug, elementParams, Format::EVALUATION);
+
+	//Generate the secret key
+	Element s(elementParams, Format::EVALUATION, true);
+
+	//Done in two steps not to use a random polynomial from a pre-computed pool
+	//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
+
+	size_t numKeys = secretKeys.size();
+	for( size_t i = 0; i < numKeys; i++ ) {
+		shared_ptr<LPPrivateKey<Element>> sk1 = secretKeys[i];
+		Element s1 = sk1->GetPrivateElement();
+		s += s1;
+	}
+
+	kp.secretKey->SetPrivateElement(s);
+
+	//Done in two steps not to use a discrete Gaussian polynomial from a pre-computed pool
+	Element e(dgg, elementParams, Format::COEFFICIENT);
+	e.SwitchFormat();
+
+	Element b(elementParams, Format::EVALUATION, true);
+	b-=e;
+	b-=(a*s);
+
+	kp.publicKey->SetPublicElementAtIndex(0, std::move(b));
+	kp.publicKey->SetPublicElementAtIndex(1, std::move(a));
+
+	return kp;
+}
+
+//makeSparse is not used by this scheme
+template <class Element>
+LPKeyPair<Element> LPAlgorithmMultipartyFV<Element>::MultipartyKeyGen(const CryptoContext<Element> cc,
+		const shared_ptr<LPPublicKey<Element>> pk1, bool makeSparse) const
+{
+
+	LPKeyPair<Element>	kp( new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc) );
+
+	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(cc.GetCryptoParameters());
+
+	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
+
+	const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
+	typename Element::DugType dug;
+	typename Element::TugType tug;
+
+	//Generate the element "a" of the public key
+	Element a = pk1->GetPublicElements()[1];
+
+	//Generate the secret key
+	Element s;
+
+	//Done in two steps not to use a random polynomial from a pre-computed pool
+	//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
+	if (cryptoParams->GetMode() == RLWE) {
+		s = Element(dgg, elementParams, Format::COEFFICIENT);
+		s.SwitchFormat();
+	}
+	else {
+		//throw std::logic_error("FusedKeyGen operation has not been enabled for OPTIMIZED cases");
+		s = Element(tug, elementParams, Format::COEFFICIENT);
+		s.SwitchFormat();
+	}
+
+	kp.secretKey->SetPrivateElement(s);
+
+	//Done in two steps not to use a discrete Gaussian polynomial from a pre-computed pool
+	Element e(dgg, elementParams, Format::COEFFICIENT);
+	e.SwitchFormat();
+
+	Element b(elementParams, Format::EVALUATION, true);
+	b-=e;
+	b-=(a*s);
+
+	kp.publicKey->SetPublicElementAtIndex(0, std::move(b));
+	kp.publicKey->SetPublicElementAtIndex(1, std::move(a));
+
+	return kp;
+}
+
+template <class Element>
+shared_ptr<Ciphertext<Element>> LPAlgorithmMultipartyFV<Element>::MultipartyDecryptMain(const shared_ptr<LPPrivateKey<Element>> privateKey,
+		const shared_ptr<Ciphertext<Element>> ciphertext) const
+{
+	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
+	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
+
+	const std::vector<Element> &c = ciphertext->GetElements();
+
+	const Element &s = privateKey->GetPrivateElement();
+
+	Element b = s*c[1];
+	b.SwitchFormat();		
+
+	shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext->GetCryptoContext()));
+	newCiphertext->SetElements({ b });
+
+	return newCiphertext;
+}
+
+template <class Element>
+shared_ptr<Ciphertext<Element>> LPAlgorithmMultipartyFV<Element>::MultipartyDecryptLead(const shared_ptr<LPPrivateKey<Element>> privateKey,
+		const shared_ptr<Ciphertext<Element>> ciphertext) const
+{
+	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
+	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
+
+	const std::vector<Element> &c = ciphertext->GetElements();
+
+	const Element &s = privateKey->GetPrivateElement();
+
+	Element b = c[0] + s*c[1];
+	b.SwitchFormat();		
+
+	shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext->GetCryptoContext()));
+	newCiphertext->SetElements({ b });
+
+	return newCiphertext;
+}
+
+template <class Element>
+DecryptResult LPAlgorithmMultipartyFV<Element>::MultipartyDecryptFusion(const vector<shared_ptr<Ciphertext<Element>>>& ciphertextVec,
+		ILVector2n *plaintext) const
+{
+
+	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = ciphertextVec[0]->GetCryptoParameters();
+	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
+	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
+	const BigBinaryInteger &q = elementParams->GetModulus();
+
+	const std::vector<Element> &cElem = ciphertextVec[0]->GetElements();
+	Element b = cElem[0];
+
+	size_t numCipher = ciphertextVec.size();
+	for( size_t i = 1; i < numCipher; i++ ) {
+		const std::vector<Element> &c2 = ciphertextVec[i]->GetElements();
+		b += c2[0];
+	}
+	
+	Element ans = b.MultiplyAndRound(p, q).SignedMod(p);
+	*plaintext = ans.CRTInterpolate();
+
+	return DecryptResult(plaintext->GetLength());
+}
+
 // Constructor for LPPublicKeyEncryptionSchemeFV
 template <class Element>
 LPPublicKeyEncryptionSchemeFV<Element>::LPPublicKeyEncryptionSchemeFV(std::bitset<FEATURESETSIZE> mask)
@@ -662,6 +829,7 @@ LPPublicKeyEncryptionSchemeFV<Element>::LPPublicKeyEncryptionSchemeFV(std::bitse
 		throw std::logic_error("FHE and LEVELEDSHE feature not supported for FV scheme");
 }
 
+
 // Enable for LPPublicKeyEncryptionSchemeFV
 template <class Element>
 void LPPublicKeyEncryptionSchemeFV<Element>::Enable(PKESchemeFeature feature) {
@@ -672,12 +840,28 @@ void LPPublicKeyEncryptionSchemeFV<Element>::Enable(PKESchemeFeature feature) {
 			this->m_algorithmEncryption = new LPAlgorithmFV<Element>();
 		break;
 	case SHE:
+		if (this->m_algorithmEncryption == NULL)
+			this->m_algorithmEncryption = new LPAlgorithmFV<Element>();
 		if (this->m_algorithmSHE == NULL)
 			this->m_algorithmSHE = new LPAlgorithmSHEFV<Element>();
 		break;
 	case PRE:
+		if (this->m_algorithmEncryption == NULL)
+			this->m_algorithmEncryption = new LPAlgorithmFV<Element>();
+		if (this->m_algorithmSHE == NULL)
+			this->m_algorithmSHE = new LPAlgorithmSHEFV<Element>();
 		if (this->m_algorithmPRE == NULL)
 			this->m_algorithmPRE = new LPAlgorithmPREFV<Element>();
+		break; 
+	case MULTIPARTY:
+		if (this->m_algorithmEncryption == NULL)
+			this->m_algorithmEncryption = new LPAlgorithmFV<Element>();
+		if (this->m_algorithmPRE == NULL)
+			this->m_algorithmPRE = new LPAlgorithmPREFV<Element>();
+		if (this->m_algorithmSHE == NULL)
+			this->m_algorithmSHE = new LPAlgorithmSHEFV<Element>();
+		if (this->m_algorithmMultiparty == NULL)
+			this->m_algorithmMultiparty = new LPAlgorithmMultipartyFV<Element>();
 		break; 
 	case FHE:
 		throw std::logic_error("FHE feature not supported for FV scheme");

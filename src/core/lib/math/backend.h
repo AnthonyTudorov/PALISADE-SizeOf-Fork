@@ -73,14 +73,13 @@
 
 // MATHBACKEND 7
 // 		This uses native_int:: as the default
-
 // This backend provides a maximum size of 64 bits
 
 //To select backend, please UNCOMMENT the appropriate line rather than changing the number on the
 //uncommented line (and breaking the documentation of the line)
 
-//#define MATHBACKEND 2 
-#define MATHBACKEND 4 
+#define MATHBACKEND 2
+//#define MATHBACKEND 4
 //#define MATHBACKEND 6 
 //#define MATHBACKEND 7
 
@@ -103,8 +102,8 @@ typedef BigBinaryVectorImpl<BinaryInteger> BinaryVector;
 }
 
 ////////// for exp_int, decide if you want 32 bit or 64 bit underlying integers in the implementation
-//#define UBINT_32
-#define UBINT_64
+#define UBINT_32
+//#define UBINT_64
 
 #ifdef UBINT_32
 #define MATH_UBBITS	32

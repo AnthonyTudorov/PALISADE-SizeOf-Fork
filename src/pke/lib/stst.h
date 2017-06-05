@@ -323,8 +323,8 @@ public:
 			this->m_algorithmPRE = new LPAlgorithmPRELTV<Element>();
 		if (mask[SHE] && this->m_algorithmSHE == NULL)
 			this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>();
-		if (mask[FHE] || mask[LEVELEDSHE])
-			throw std::logic_error("FHE and LEVELEDSHE feature not supported for StehleSteinfeld scheme");
+		if (mask[MULTIPARTY] || mask[FHE] || mask[LEVELEDSHE])
+			throw std::logic_error("MULTIPARTY, FHE and LEVELEDSHE feature not supported for StehleSteinfeld scheme");
 	}
 
 	/**
@@ -347,6 +347,8 @@ public:
 			if (this->m_algorithmSHE == NULL)
 				this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>();
 			break;
+		case MULTIPARTY:
+			throw std::logic_error("MULTIPARTY feature not supported for StehleSteinfeld scheme");
 		case FHE:
 			throw std::logic_error("FHE feature not supported for StehleSteinfeld scheme");
 		case LEVELEDSHE:

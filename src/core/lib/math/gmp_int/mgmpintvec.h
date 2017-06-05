@@ -209,7 +209,7 @@ namespace NTL {
     //scalar modulo assignment
     inline myVecP& operator%=(const myZZ& a)
     { 
-      for (auto i = 0; i < this->size(); i++){
+      for (size_t i = 0; i < this->size(); i++){
 	(*this)[i]%=a;
       }
       return *this;
@@ -262,7 +262,7 @@ namespace NTL {
     inline myVecP& operator-=(const myZZ& a)
     { 
       ModulusCheck("Warning: myVecP::op-=");
-      for (auto i = 0; i < this->size(); i++){
+      for (size_t i = 0; i < this->size(); i++){
 	SubMod((*this)[i]._ZZ_p__rep,(*this)[i]._ZZ_p__rep, a, m_modulus); 	
 	//(*this)[i]-=a%m_modulus;
       }
@@ -299,7 +299,7 @@ namespace NTL {
     inline myVecP& operator*=(const myZZ& a)
     { 
       ModulusCheck("Warning: myVecP::op-=");
-      for (auto i = 0; i < this->size(); i++){
+      for (size_t i = 0; i < this->size(); i++){
 	MulMod((*this)[i]._ZZ_p__rep,(*this)[i]._ZZ_p__rep, a, m_modulus); 
 	//
       }
@@ -464,7 +464,7 @@ namespace NTL {
       if ((this->SameModulus(b)) && 
 	  (this->size()==b.size())) { 
 	//loop over each entry and fail if !=
-	for (auto i = 0; i < this->size(); ++i) {
+	for (size_t i = 0; i < this->size(); ++i) {
 	  if ((*this)[i]!=b[i]){
 	    return false;
 	  }
@@ -484,7 +484,7 @@ namespace NTL {
     { 
       if ((this->size()==b.size())) { //TODO: define size() for b
 	//loop over each entry and fail if !=
-	for (auto i = 0; i < this->size(); ++i) {
+	for (size_t i = 0; i < this->size(); ++i) {
 	  if ((*this)[i]!=b[i]){
 	    return false;
 	  }
@@ -603,7 +603,7 @@ namespace NTL {
   {
     if ((a.size()==b.size())) { 
       //loop over each entry and fail if !=
-      for (usint i = 0; i < a.size(); ++i) {
+      for (size_t i = 0; i < a.size(); ++i) {
 	if (a[i]!=b[i]){
 	  return false;
 	}

@@ -229,7 +229,6 @@ namespace exp_int {
   }
 
   //this is the zero allocator for the palisade matrix class
-
   template<typename limb_t>
   std::function<unique_ptr<ubint<limb_t>>()> ubint<limb_t>::Allocator = [](){
     return lbcrypto::make_unique<exp_int::ubint<limb_t>>();
@@ -1399,8 +1398,7 @@ return result;
   //returns quotient and remainder
   template<typename limb_t>
   int ubint<limb_t>::divqr_vect(ubint& qin, ubint& rin, const ubint& uin, const ubint& vin) const{
-    bool dbg_flag = false;
-    DEBUG("/");
+
     vector<limb_t>&q = (qin.m_value);
     vector<limb_t>&r = (rin.m_value);
     const vector<limb_t>&u = (uin.m_value);
@@ -1504,8 +1502,7 @@ return result;
   //quotient only 
   template<typename limb_t>
   int ubint<limb_t>::divq_vect(ubint& qin, const ubint& uin, const ubint& vin) const{
-    bool dbg_flag = false;
-    DEBUG("\\");
+
     vector<limb_t>&q = (qin.m_value);
     const vector<limb_t>&u = (uin.m_value);
     const vector<limb_t>&v = (vin.m_value);
@@ -1619,8 +1616,7 @@ return result;
 
 
 #endif
-    bool dbg_flag = false;
-    DEBUG("r");
+
     const Dlimb_t ffs = (Dlimb_t)m_MaxLimb; // Number  (2**64)-1.
     const Dlimb_t b = (Dlimb_t)m_MaxLimb+1; // Number base (2**64).
 
@@ -1938,7 +1934,6 @@ return result;
 #ifndef OLD_DIV
     ans.m_value.resize(modulus.m_value.size());
 #endif
-    
 
     f = divr_vect(ans,  *this,  modulus);
     if (f!= 0)
@@ -1951,7 +1946,7 @@ return result;
       DEBUG("ans");
       ans.PrintLimbsInDec();
     }
-    
+
     return(ans);
 
   }
@@ -2329,35 +2324,25 @@ return result;
 
     while(true){
       //product is multiplied only if lsb bitvalue is 1
-#if 0   
       if(Exp.m_value[0]%2==1){
 	product = product*mid;
       }
-#else
-      if(Exp.m_value[0]&1){
-	product *=mid;
-      }
 
-
-#endif
       //running product is calculated
-      // if(product>modulus){
-	//product = product.Mod(modulus);
-	product %=modulus;
-	//}
+      if(product>modulus){
+	product = product.Mod(modulus);
+      }
 
       DEBUG("product "<<product.ToString());
       //divide by 2 and check even to odd to find bit value
-      //Exp = Exp>>1;
-      Exp >>=1;
+      Exp = Exp>>1;
       if(Exp==ZERO)break;
 
       DEBUG("Exp "<<Exp.ToString());
 
       //mid calculates mid^2%q
-      //mid = mid*mid;
-      //mid = (mid.Mod(modulus));
-      mid = mid.ModMul(mid, modulus);
+      mid = mid*mid;
+      mid = (mid.Mod(modulus));
       DEBUG("mid: "<<mid.ToString());
     }
     if (dbg_flag) {
@@ -2579,20 +2564,26 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
     return(this->Compare(a)<=0);
   }
   
-  // helper functions convert a ubint in and out of a string of
-  // characters the encoding is Base64-like: the first 6 or 11 6-bit
-  // groupings are Base64 encoded
+  //the following code is new serialize/deserialize code from
+  // binint.cpp 
+  // TODO: it has not been tested 
+  // the array and the next
+  // two functions convert a ubint in and out of a string of
+  // characters the encoding is Base64-like: the first 5 6-bit
+  // groupings are Base64 encoded, and the last 2 bits are A-D
+  
+  // Note this is, sadly, hardcoded for 32 bit integers and needs Some
+  // Work to handle arbitrary sizes
 
   // precomputed shift amounts for each 6 bit chunk
-  static const usint b64_shifts[] = { 0, 6, 12, 18, 24, 30, 36, 42, 48, 54, 60};
+  static const usint b64_shifts[] = { 0, 6, 12, 18, 24, 30 };
   static const usint B64MASK = 0x3F;
 
-  // this for encoding...mapping 0.. 2^6-1 to an ascii char
+  // this for encoding...
   static char to_base64_char[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
   // and this for decoding...
-  template<typename limb_t>
-  inline limb_t ubint<limb_t>::base64_to_value(const char &b64) {
+  static inline unsigned int base64_to_value(char b64) {
     if( isupper(b64) )
       return b64 - 'A';
     else if( islower(b64) )
@@ -2605,71 +2596,58 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
       return 63;
   }
 
-  //Serialize ubint by concatnating 6bits converted to an ascii character together, and terminating with '|'
-  //note modulus is ignored
+  /**
+   * This function is only used for serialization
+   *
+   * The scheme here is to take each of the limb_ts in the
+   * ubint and turn it into 6 ascii characters. It's
+   * basically Base64 encoding: 6 bits per character times 5 is the
+   * first 30 bits. For efficiency's sake, the last two bits are encoded
+   * as A,B,C, or D and the code is implemented as unrolled loops
+   */
   template<typename limb_t>
-  const std::string ubint<limb_t>::Serialize(const ubint<limb_t>& modulus) const {
-    bool dbg_flag = false;
+  const std::string ubint<limb_t>::Serialize() const {
 
     std::string ans = "";
-    
-    for (auto fromP = m_value.begin(); fromP!=m_value.end(); fromP++){
-      DEBUG(" ser "<<std::hex<<" "<<*fromP<<std::dec);      
+    //const uint_type *fromP;
 
+    //	sint siz = (m_MSB%m_uintBitLength==0&&m_MSB!=0) ? (m_MSB/m_uintBitLength) : ((sint)m_MSB/m_uintBitLength +1);
+    //int i;
+    //note limbs are now stored little endian in ubint
+    //for(i=m_nSize-1, fromP=m_value+i ; i>=m_nSize-siz ; i--,fromP--) {
+    for (auto fromP = m_value.begin(); fromP!=m_value.end(); fromP++){
       ans += to_base64_char[((*fromP) >> b64_shifts[0]) & B64MASK];
       ans += to_base64_char[((*fromP) >> b64_shifts[1]) & B64MASK];
       ans += to_base64_char[((*fromP) >> b64_shifts[2]) & B64MASK];
       ans += to_base64_char[((*fromP) >> b64_shifts[3]) & B64MASK];
       ans += to_base64_char[((*fromP) >> b64_shifts[4]) & B64MASK];
-      ans += to_base64_char[((*fromP) >> b64_shifts[5]) & B64MASK];
-#ifdef UBINT_64
-      ans += to_base64_char[((*fromP) >> b64_shifts[6]) & B64MASK];
-      ans += to_base64_char[((*fromP) >> b64_shifts[7]) & B64MASK];
-      ans += to_base64_char[((*fromP) >> b64_shifts[8]) & B64MASK];
-      ans += to_base64_char[((*fromP) >> b64_shifts[9]) & B64MASK];
-      ans += to_base64_char[((*fromP) >> b64_shifts[10]) & B64MASK];
-      DEBUG("UBINT_64");
-#endif
+      ans += (((*fromP) >> b64_shifts[5])&0x3) + 'A';
     }
-    ans += "|"; //mark end of word. 
-    DEBUG("ans ser "<<ans);
+
     return ans;
   }
 
-  //Deserialize ubint by building limbs 6 bits at a time 
-  //returns input cp with stripped chars for decoded myZZ
-  //note modulus is ignored
+  /**
+   * This function is only used for deserialization
+   */
   template<typename limb_t>
-    const char * ubint<limb_t>::Deserialize(const char *cp, const ubint<limb_t>& modulus){
-    bool dbg_flag = false;
+  const char * ubint<limb_t>::Deserialize(const char *cp){
 
     m_value.clear();
+
     while( *cp != '\0' && *cp != '|' ) {
       limb_t converted =  base64_to_value(*cp++) << b64_shifts[0];
       converted |= base64_to_value(*cp++) << b64_shifts[1];
       converted |= base64_to_value(*cp++) << b64_shifts[2];
       converted |= base64_to_value(*cp++) << b64_shifts[3];
       converted |= base64_to_value(*cp++) << b64_shifts[4];
-      converted |= base64_to_value(*cp++) << b64_shifts[5];
-#ifdef UBINT_64
-      converted |= base64_to_value(*cp++) << b64_shifts[6];
-      converted |= base64_to_value(*cp++) << b64_shifts[7];
-      converted |= base64_to_value(*cp++) << b64_shifts[8];
-      converted |= base64_to_value(*cp++) << b64_shifts[9];
-      converted |= base64_to_value(*cp++) << b64_shifts[10];
-#endif
-      DEBUG(" deser "<<converted);      
-      DEBUG(" deser "<<std::hex<<" "<<converted<<std::dec); 
+      converted |= ((*cp++ - 'A')&0x3) << b64_shifts[5];
       m_value.push_back(converted);
-
     }
 
     SetMSB();
     m_state = INITIALIZED;
 
-    if (*cp == '|') {		// if end of ubint strip of separator
-      cp++;
-    }
     return cp;
   }
 
@@ -2702,7 +2680,7 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
    inline  usint ubint<limb_t>::GetMSBlimb_t(limb_t x){
 
 #ifdef UBINT_32
-    return ubint<limb_t>::GetMSB32(x);
+     return ubint<limb_t>::GetMSB32(x);
 #endif
 #ifdef UBINT_64
      return ubint<limb_t>::GetMSB64(x);

@@ -315,14 +315,14 @@ namespace exp_int{
      *
      * @param str is the initial integer represented as a string.
      */
-    ubint(const std::string& str);
+    explicit ubint(const std::string& str);
 
     /**
      * Basic constructor for initializing big integer from a uint64_t.
      *
      * @param init is the initial 64 bit unsigned integer.
      */
-    ubint(const uint64_t init);
+    explicit ubint(const uint64_t init);
 
     /**
      * Basic constructor for copying a ubint
@@ -473,7 +473,7 @@ namespace exp_int{
      * it is truncated to the least significant bits that fit
      * @return the int representation of the value as usint.
      */
-    uint64_t ConvertToInt() const;
+    usint ConvertToInt() const;
 
     /**
      * Converts the value to a uint32_t.
@@ -939,66 +939,67 @@ namespace exp_int{
      * @return is the returned ostream object.
      */
     friend std::ostream& operator<<(std::ostream& os, const ubint &ptr_obj) {
-    	//&&&
+      //&&&
 
-    	//Algorithm used is double and add
-    	//http://www.wikihow.com/Convert-from-Binary-to-Decimal
+      //Algorithm used is double and add
+      //http://www.wikihow.com/Convert-from-Binary-to-Decimal
 
-    	//todo: get rid of m_numDigitInPrintval and make dynamic
-    	//create reference for the object to be printed
-    	ubint *print_obj;
+      //todo: get rid of m_numDigitInPrintval and make dynamic
+      //create reference for the object to be printed
+      ubint *print_obj;
 
-    	usint counter;
+      usint counter;
 
-    	//initiate to object to be printed
-    	print_obj = new ubint(ptr_obj);  //todo smartpointer
+      //initiate to object to be printed
+      print_obj = new ubint(ptr_obj);  //todo smartpointer
 
-    	//print_obj->PrintValueInDec();
+      //print_obj->PrintValueInDec();
 
-    	//print_VALUE array stores the decimal value in the array
-    	uschar *print_VALUE = new uschar[ptr_obj.m_numDigitInPrintval];  //todo smartpointer
+      //print_VALUE array stores the decimal value in the array
+      uschar *print_VALUE = new uschar[ptr_obj.m_numDigitInPrintval];  //todo smartpointer
 
-    	//reset to zero
-    	for(usint i=0;i<ptr_obj.m_numDigitInPrintval;i++)
-    		*(print_VALUE+i)=0;
+      //reset to zero
+      for(usint i=0;i<ptr_obj.m_numDigitInPrintval;i++)
+	*(print_VALUE+i)=0;
 
-    	//starts the conversion from base r to decimal value
-    	for(usint i=print_obj->m_MSB;i>0;i--){
+      //starts the conversion from base r to decimal value
+      for(usint i=print_obj->m_MSB;i>0;i--){
 
-    		//print_VALUE = print_VALUE*2
-    		ubint::double_bitVal(print_VALUE);
+	//print_VALUE = print_VALUE*2
+	ubint::double_bitVal(print_VALUE);
 #ifdef DEBUG_OSTREAM
-    		for(sint i=0;i<ptr_obj.m_numDigitInPrintval;i++)
-    			std::cout<<(sint)*(print_VALUE+i);
-    		std::cout<<std::endl;
+	for(sint i=0;i<ptr_obj.m_numDigitInPrintval;i++)
+	  std::cout<<(sint)*(print_VALUE+i);
+	std::cout<<std::endl;
 #endif
-    		//adds the bit value to the print_VALUE
-    		ubint::add_bitVal(print_VALUE,print_obj->GetBitAtIndex(i));
+	//adds the bit value to the print_VALUE
+	ubint::add_bitVal(print_VALUE,print_obj->GetBitAtIndex(i));
 #ifdef DEBUG_OSTREAM
-    		for(sint i=0;i<ptr_obj.m_numDigitInPrintval;i++)
-    			std::cout<<(sint)*(print_VALUE+i);
-    		std::cout<<std::endl;
+	for(sint i=0;i<ptr_obj.m_numDigitInPrintval;i++)
+	  std::cout<<(sint)*(print_VALUE+i);
+	std::cout<<std::endl;
 #endif
 
-    	}
+      }
 
-    	//find the first occurence of non-zero value in print_VALUE
-    	for(counter=0;counter<ptr_obj.m_numDigitInPrintval-1;counter++){
-    		if((sint)print_VALUE[counter]!=0)break;
-    	}
+      //find the first occurence of non-zero value in print_VALUE
+      for(counter=0;counter<ptr_obj.m_numDigitInPrintval-1;counter++){
+	if((sint)print_VALUE[counter]!=0)break;							
+      }
 
-    	//start inserting values into the ostream object
-    	for(;counter<ptr_obj.m_numDigitInPrintval;counter++){
-    		os<<(int)print_VALUE[counter];
-    	}
+      //start inserting values into the ostream object 
+      for(;counter<ptr_obj.m_numDigitInPrintval;counter++){
+	os<<(int)print_VALUE[counter];
+      }
 
-    	//os<<endl;
-    	delete [] print_VALUE;
-    	//deallocate the memory since values are inserted into the ostream object
-    	delete print_obj;
-    	return os;
+      //os<<endl;
+      delete [] print_VALUE;
+      //deallocate the memory since values are inserted into the ostream object
+      delete print_obj;
+      return os;
     }
 
+	//TODO get rid of all PrintValues
     void PrintValues() const { std::cout << *this; }
 
  private:
@@ -1129,7 +1130,7 @@ namespace exp_int{
      */
     void NormalizeLimbs(void);
     
-    
+
 
     /**
      * Sets the limb value at the specified index.

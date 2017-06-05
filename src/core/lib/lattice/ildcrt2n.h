@@ -323,6 +323,15 @@ namespace lbcrypto {
 		ILVectorArrayType& operator=(std::initializer_list<sint> rhs);
 
 		/**
+		 * Unary minus on a DCRT
+		 * @return -DCRT
+		 */
+		ILVectorArrayType operator-() const {
+			ILVectorArrayType all0(this->GetParams(), this->GetFormat(), true);
+			return all0 - *this;
+		}
+
+		/**
 		* Equal operator.
 		*
 		* @param &rhs is the specified ILDCRT2n to be compared with this ILDCRT2n.

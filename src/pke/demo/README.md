@@ -27,6 +27,7 @@ File Listing
 - [plaintextMessage](src/demo/pre/plaintextMessage): a test plaintext message used by testall
 
 * Demo programs
+- [demo_fusion_simple.cpp](src/pke/demo/demo_fusion_simple.cpp): a demo program of multiparty FHE operations built on FV.
 - [leaktester.cpp](src/demo/pre/leaktester.cpp): a throwaway program being used to test for leaks
 - [palisade.cpp](src/demo/pre/palisade.cpp): a program designed to demonstrate the key generation, evaluation key generation, encryption, re-encryption, and decryption functionality of the library. If you run the command without any parameters it generates a help message. Results are serialized into flat files, and are deserialized when needed. The program will read the crypto context parms file, or will read a file that you provide. Note you can also tell the program to figure out what crypto parameters to use based on whatever serialized object you are reading at the start of your program.
 - [PrettyJson.cpp](src/demo/pre/PrettyJson.cpp): a pretty-printer of serialized JSON files

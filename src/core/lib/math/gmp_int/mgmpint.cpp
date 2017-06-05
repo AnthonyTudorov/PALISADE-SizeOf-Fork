@@ -231,7 +231,7 @@ namespace NTL {
       //throw std::logic_error("myZZ_p::m_getOTM() called with uninitialized OTM");
       std::cout<<"myZZ_p::m_getOTM() called with uninitialized OTM"<<std::endl;
     }
-    return m_OTM;
+      return m_OTM;
   }
 
   //adapter kit
@@ -253,6 +253,8 @@ namespace NTL {
     return (conv<uint64_t>(*this)); }
     
   uint32_t myZZ_p::ConvertToUint32() const { return (conv<uint32_t>(*this));}
+
+need to do here what we did with gmpint::converttouint64
   uint64_t myZZ_p::ConvertToUint64() const{ return (conv<uint64_t>(*this));}
   float myZZ_p::ConvertToFloat() const{ return (conv<float>(this->_ZZ_p__rep));}
   double myZZ_p::ConvertToDouble() const{ return (conv<double>(this->_ZZ_p__rep));}
@@ -324,7 +326,7 @@ namespace NTL {
   // serialization of myZZ_p, calls myZZ.Serialize, 
   const std::string myZZ_p::Serialize(const myZZ &modulus) const {
     bool dbg_flag = true;
-    
+
     //note this does simple serialization, other libraries store small special values for 0 or  -1
     //we ignore this
     DEBUG("mgmp ser "<<*this);

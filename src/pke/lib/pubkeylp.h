@@ -71,6 +71,10 @@ namespace lbcrypto {
 	template <class Element>
 	class LPCryptoParametersBV;
 
+	//forward declaration of LPCryptoParametersFV class;
+	template <class Element>
+	class LPCryptoParametersFV;
+
 	//forward declaration of LPCryptoParametersStehleSteinfeld class;
 	template <class Element>
 	class LPCryptoParametersStehleSteinfeld;
@@ -942,6 +946,82 @@ namespace lbcrypto {
 			 */
 			virtual shared_ptr<Ciphertext<Element>> ReEncrypt(const shared_ptr<LPEvalKey<Element>> evalKey,
 				const shared_ptr<Ciphertext<Element>> ciphertext) const = 0;
+
+	};
+
+	/**
+	 * @brief Abstract interface class for LBC Multiparty algorithms.  A version of this multiparty scheme built on the BGV scheme is seen here:
+	 *   - Asharov G., Jain A., López-Alt A., Tromer E., Vaikuntanathan V., Wichs D. (2012) Multiparty Computation with Low Communication, Computation and Interaction via Threshold FHE. In: Pointcheval D., Johansson T. (eds) Advances in Cryptology – EUROCRYPT 2012. EUROCRYPT 2012. Lecture Notes in Computer Science, vol 7237. Springer, Berlin, Heidelberg
+	 *
+	 * During offline key generation, this multiparty scheme relies on the clients coordinating their public key generation.  To do this, a single client generates a public-secret key pair.
+	 * This public key is shared with other keys which use an element in the public key to generate their own public keys.
+	 * The clients generate a shared key pair using a scheme-specific approach, then generate re-encryption keys.  Re-encryption keys are uploaded to the server.
+	 * Clients encrypt data with their public keys and send the encrypted data server.
+	 * The data is re-encrypted.  Computations are then run on the data.
+	 * The result is sent to each of the clients.
+	 * One client runs a "Leader" multiparty decryption operation with its own secret key.  All other clients run a regular "Main" multiparty decryption with their own secret key.
+	 * The resulting partially decrypted ciphertext are then fully decrypted with the decryption fusion algorithms.
+	 *
+	 * @tparam Element a ring element.
+	 */
+	template <class Element>
+	class LPMultipartyAlgorithm {
+		public:
+			virtual ~LPMultipartyAlgorithm() {}
+
+			/**
+			* Function to generate public and private keys for multiparty homomrophic encryption in coordination with a leading client that generated a first public key.
+			*
+			* @param cc cryptocontext for the keys to be generated.
+			* @param pk1 private key used for decryption to be fused.
+			* @param makeSparse set to true if ring reduce by a factor of 2 is to be used.
+			* @return key pair including the private and public key
+			*/
+			virtual LPKeyPair<Element> MultipartyKeyGen(const CryptoContext<Element> cc,
+				const shared_ptr<LPPublicKey<Element>> pk1,
+				bool makeSparse=false) const = 0;
+
+			/**
+			* Function to generate public and private keys for multiparty homomrophic encryption server key pair in coordination with secret keys of clients.
+			*
+			* @param cc cryptocontext for the keys to be generated.
+			* @param secretkeys private keys used for decryption to be fused.
+			* @param makeSparse set to true if ring reduce by a factor of 2 is to be used.
+			* @return key pair including the private and public key
+			*/
+			virtual LPKeyPair<Element> MultipartyKeyGen(const CryptoContext<Element> cc,
+		const vector<shared_ptr<LPPrivateKey<Element>>>& secretKeys,
+				bool makeSparse=false) const = 0;
+
+			/**
+			 * Method for main decryption operation run by most decryption clients for multiparty homomorphic encryption
+			 *
+			 * @param privateKey private key used for decryption.
+			 * @param ciphertext ciphertext id decrypted.
+			 */
+			virtual shared_ptr<Ciphertext<Element>> MultipartyDecryptMain(const shared_ptr<LPPrivateKey<Element>> privateKey,
+				const shared_ptr<Ciphertext<Element>> ciphertext) const = 0;
+
+			/**
+			 * Method for decryption operation run by the lead decryption client for multiparty homomorphic encryption
+			 *
+			 * @param privateKey private key used for decryption.
+			 * @param ciphertext ciphertext id decrypted.
+			 */
+			virtual shared_ptr<Ciphertext<Element>> MultipartyDecryptLead(const shared_ptr<LPPrivateKey<Element>> privateKey,
+				const shared_ptr<Ciphertext<Element>> ciphertext) const = 0;
+
+
+			/**
+			 * Method for fusing the partially decrypted ciphertext.
+			 *
+			 * @param &ciphertextVec ciphertext id decrypted.
+			 * @param *plaintext the plaintext output.
+			 * @return the decoding result.
+			 */
+			virtual DecryptResult MultipartyDecryptFusion(const vector<shared_ptr<Ciphertext<Element>>>& ciphertextVec,
+				ILVector2n *plaintext) const = 0;
+
 	};
 
 	/**
@@ -1247,7 +1327,7 @@ namespace lbcrypto {
 
 	public:
 		LPPublicKeyEncryptionScheme() :
-			m_algorithmParamsGen(0), m_algorithmEncryption(0), m_algorithmPRE(0),
+			m_algorithmParamsGen(0), m_algorithmEncryption(0), m_algorithmPRE(0), m_algorithmMultiparty(0),
 			m_algorithmSHE(0), m_algorithmFHE(0), m_algorithmLeveledSHE(0) {}
 
 		virtual ~LPPublicKeyEncryptionScheme() {
@@ -1257,6 +1337,8 @@ namespace lbcrypto {
 				delete this->m_algorithmEncryption;
 			if (this->m_algorithmPRE != NULL)
 				delete this->m_algorithmPRE;
+			if (this->m_algorithmMultiparty != NULL)
+				delete this->m_algorithmMultiparty;
 			if (this->m_algorithmSHE != NULL)
 				delete this->m_algorithmSHE;
 			if (this->m_algorithmFHE != NULL)
@@ -1287,6 +1369,10 @@ namespace lbcrypto {
 					break;
 				 case LEVELEDSHE:
 					if (m_algorithmLeveledSHE!= NULL)
+						flag = true;
+					break;
+				 case MULTIPARTY:
+					if (m_algorithmMultiparty!= NULL)
 						flag = true;
 					break;
 			  }
@@ -1369,6 +1455,59 @@ namespace lbcrypto {
 					return this->m_algorithmPRE->ReEncrypt(evalKey,ciphertext);
 				else {
 					throw std::logic_error("ReEncrypt operation has not been enabled");
+				}
+		}
+
+		/////////////////////////////////////////
+		// the three functions below are wrappers for things in LPMultipartyAlgorithm (Multiparty)
+		//
+
+		// Wrapper for Multiparty Key Gen
+		LPKeyPair<Element> MultipartyKeyGen(const CryptoContext<Element> cc,
+			const shared_ptr<LPPublicKey<Element>> pk1,
+			bool makeSparse) const {
+				if(this->m_algorithmMultiparty)
+					return this->m_algorithmMultiparty->MultipartyKeyGen(cc, pk1, makeSparse);
+				else {
+					throw std::logic_error("MultipartyKeyGen operation has not been enabled");
+				}
+		}
+
+		// Wrapper for Multiparty Key Gen
+		LPKeyPair<Element> MultipartyKeyGen(const CryptoContext<Element> cc,
+			const vector<shared_ptr<LPPrivateKey<Element>>>& secretKeys,
+			bool makeSparse) const {
+				if(this->m_algorithmMultiparty)
+					return this->m_algorithmMultiparty->MultipartyKeyGen(cc, secretKeys, makeSparse);
+				else {
+					throw std::logic_error("MultipartyKeyGen operation has not been enabled");
+				}
+		}
+
+		shared_ptr<Ciphertext<Element>> MultipartyDecryptMain(const shared_ptr<LPPrivateKey<Element>> privateKey, 
+				const shared_ptr<Ciphertext<Element>> ciphertext) const {
+				if(this->m_algorithmMultiparty)
+					return this->m_algorithmMultiparty->MultipartyDecryptMain(privateKey,ciphertext);
+				else {
+					throw std::logic_error("MultipartyDecryptMain operation has not been enabled");
+				}
+		}
+
+		shared_ptr<Ciphertext<Element>> MultipartyDecryptLead(const shared_ptr<LPPrivateKey<Element>> privateKey, 
+				const shared_ptr<Ciphertext<Element>> ciphertext) const {
+				if(this->m_algorithmMultiparty)
+					return this->m_algorithmMultiparty->MultipartyDecryptLead(privateKey,ciphertext);
+				else {
+					throw std::logic_error("MultipartyDecryptLead operation has not been enabled");
+				}
+		}
+
+		DecryptResult MultipartyDecryptFusion(const vector<shared_ptr<Ciphertext<Element>>>& ciphertextVec,
+				ILVector2n *plaintext) const {
+				if(this->m_algorithmMultiparty)
+					return this->m_algorithmMultiparty->MultipartyDecryptFusion(ciphertextVec,plaintext);
+				else {
+					throw std::logic_error("MultipartyDecrypt operation has not been enabled");
 				}
 		}
 
@@ -1594,6 +1733,7 @@ namespace lbcrypto {
 		const LPParameterGenerationAlgorithm<Element> *m_algorithmParamsGen;
 		const LPEncryptionAlgorithm<Element> *m_algorithmEncryption;
 		const LPPREAlgorithm<Element> *m_algorithmPRE;
+		const LPMultipartyAlgorithm<Element> *m_algorithmMultiparty;
 		const LPSHEAlgorithm<Element> *m_algorithmSHE;
 		const LPFHEAlgorithm<Element> *m_algorithmFHE;
 		const LPLeveledSHEAlgorithm<Element> *m_algorithmLeveledSHE;

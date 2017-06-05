@@ -672,8 +672,8 @@ LPPublicKeyEncryptionSchemeLTV<Element>::LPPublicKeyEncryptionSchemeLTV(std::bit
 		this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>();
 	if (mask[LEVELEDSHE])
 		this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmLTV<Element>();
-	if (mask[FHE])
-		throw std::logic_error("FHE and LEVELEDSHE feature not supported for LTV scheme");
+	if (mask[MULTIPARTY] || mask[FHE])
+		throw std::logic_error("FHE and MULTIPARTY feature not supported for LTV scheme");
 }
 
 // Enable for LPPublicKeyEncryptionSchemeLTV
@@ -699,6 +699,8 @@ void LPPublicKeyEncryptionSchemeLTV<Element>::Enable(PKESchemeFeature feature) {
 		break;
 	case FHE:
 		throw std::logic_error("FHE feature not supported for LTV scheme");
+	case MULTIPARTY:
+		throw std::logic_error("MULTIPARTY feature not supported for LTV scheme");
 	}
 }
 

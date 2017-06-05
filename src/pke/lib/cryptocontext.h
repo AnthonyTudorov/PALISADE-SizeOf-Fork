@@ -1,39 +1,34 @@
 /**
-* @file		cryptocontext.h
-*
-* @author	TPOC:
-Dr. Kurt Rohloff <rohloff@njit.edu>,
-Programmers:
-Jerry Ryan <gwryan@njit.edu>
-
-* @version 00_03
-*
-* @section LICENSE
-*
-* Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
-* All rights reserved.
-* Redistribution and use in source and binary forms, with or without modification,
-* are permitted provided that the following conditions are met:
-* 1. Redistributions of source code must retain the above copyright notice, this
-* list of conditions and the following disclaimer.
-* 2. Redistributions in binary form must reproduce the above copyright notice, this
-* list of conditions and the following disclaimer in the documentation and/or other
-* materials provided with the distribution.
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
-* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-* (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
-* OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-* THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-* NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
-* IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-* @section DESCRIPTION
-*
-* This file defines the Crypto Context: all the pieces needed to initialize and use the palisade library
-*/
+ * @file cryptocontext.h -- Control for encryption operations.
+ * @author  TPOC: palisade@njit.edu
+ *
+ * @section LICENSE
+ *
+ * Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or other
+ * materials provided with the distribution.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+ * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * @section DESCRIPTION
+ *
+ * This code provides support for the holding and maintenance of cryptosystem parameters.
+ *   
+ */
 
 #ifndef SRC_DEMO_PRE_CRYPTOCONTEXT_H_
 #define SRC_DEMO_PRE_CRYPTOCONTEXT_H_
@@ -202,6 +197,133 @@ public:
 	LPKeyPair<Element> KeyGen() const {
 		return GetEncryptionAlgorithm()->KeyGen(*this, false);
 	}
+
+	/**
+	* KeyGen generates a Multiparty key pair using this algorithm's KeyGen method from two keys
+	* @param pk first public key used to coordinate the creation of later public keys.
+	* @return a public/secret key pair
+	*/
+	LPKeyPair<Element> MultipartyKeyGen(
+		const shared_ptr<LPPublicKey<Element>> pk) const {
+		return GetEncryptionAlgorithm()->MultipartyKeyGen(*this, pk, false);
+	}
+
+	/**
+	* KeyGen generates a Multiparty key pair using a vector of secret keys
+	* @param secretKeys a vector of the secret keys to be used for multiparty computation.
+	* @return a public/secret key pair
+	*/
+	LPKeyPair<Element> MultipartyKeyGen(
+		const vector<shared_ptr<LPPrivateKey<Element>>>& secretKeys) const {
+		return GetEncryptionAlgorithm()->MultipartyKeyGen(*this, secretKeys, false);
+	}
+
+	/**
+	* Lead Multiparty Decryption method for PALISADE multiparty operations.
+	* This should be performed by exactly one of the clients.
+	* All other clients should perform the MultipartyDecryptMain operation.
+	* @param privateKey the secret key of the lead decryption client
+	* @param ciphertext vector of encrypted ciphertext
+	* @return vector of partially decrypted ciphertexts
+	*/
+	std::vector<shared_ptr<Ciphertext<Element>>> MultipartyDecryptLead(
+		const shared_ptr<LPPrivateKey<Element>> privateKey,
+		const std::vector<shared_ptr<Ciphertext<Element>>>& ciphertext) const
+	{
+		if( privateKey == NULL || privateKey->GetCryptoContext() != *this )
+			throw std::logic_error("Information passed to Decrypt was not generated with this crypto context");
+
+		std::vector<shared_ptr<Ciphertext<Element>>> newCiphertext;
+
+		for( size_t i=0; i < ciphertext.size(); i++ ) {
+			if( ciphertext[i] == NULL || ciphertext[i]->GetCryptoContext() != *this )
+				throw std::logic_error("One of the ciphertexts passed to DecryptMater was not generated with this crypto context");
+			newCiphertext.push_back( GetEncryptionAlgorithm()->MultipartyDecryptLead(privateKey, ciphertext[i]) );
+
+		}
+		return newCiphertext;
+	}
+
+	/**
+	* Multiparty decryption method for PALISADE multiparty operations.
+	* The lead multiparty decryption operation should be performed by exactly one of the clients.
+	* All other clients should perform this MultipartyDecryptMain operation.
+	* @param privateKey - for decryption
+	* @param ciphertext - vector of encrypted ciphertext
+	* @return vector of partially decrypted ciphertexts
+	*/
+	std::vector<shared_ptr<Ciphertext<Element>>> MultipartyDecryptMain(
+		const shared_ptr<LPPrivateKey<Element>> privateKey,
+		const std::vector<shared_ptr<Ciphertext<Element>>>& ciphertext) const
+	{
+		if( privateKey == NULL || privateKey->GetCryptoContext() != *this )
+			throw std::logic_error("Information passed to Decrypt was not generated with this crypto context");
+
+		std::vector<shared_ptr<Ciphertext<Element>>> newCiphertext;
+
+		for( size_t i=0; i < ciphertext.size(); i++ ) {
+			if( ciphertext[i] == NULL || ciphertext[i]->GetCryptoContext() != *this )
+				throw std::logic_error("One of the ciphertexts passed to DecryptMater was not generated with this crypto context");
+			newCiphertext.push_back( GetEncryptionAlgorithm()->MultipartyDecryptMain(privateKey, ciphertext[i]) );
+		}
+		return newCiphertext;
+	}
+
+	/**
+	* Final multiparty decryption method to fuse the partially decrypted ciphertexts into a decrypted plaintext.
+	* The lead multiparty decryption operation should be performed by exactly one of the clients.
+	* All other clients should perform the MultipartyDecryptMain operation.
+	* @param partialCiphertextVec - vector of partially decrypted ciphertexts.
+	* @param plaintext - pointer to destination for the result of decryption
+	* @param doPadding - true if input plaintext was padded; causes unpadding on last piece of ciphertext
+	* @return size of plaintext
+	*/
+	DecryptResult MultipartyDecryptFusion(
+		const std::vector<vector<shared_ptr<Ciphertext<Element>>>>& partialCiphertextVec,
+		Plaintext *plaintext,
+		bool doPadding = true) const
+	{
+
+		//Make sure we're processing ciphertexts.
+		size_t last_ciphertext = partialCiphertextVec.size();
+		if (last_ciphertext < 1 )
+			return DecryptResult();
+
+		//Make sure ciphertexts are of non-zero length and that they'r eof the same length/
+		size_t ciphertext_size = partialCiphertextVec[0].size();
+		for( size_t i = 0; i < last_ciphertext; i++ ) {
+			std::vector<shared_ptr<Ciphertext<Element>>> ciphertext = partialCiphertextVec[i];
+			// edge case
+			if (ciphertext.size() == 0 || ciphertext.size() != ciphertext_size)
+				return DecryptResult();
+		}
+
+		size_t lastone = partialCiphertextVec[0].size() - 1;
+		for( size_t ch = 0; ch < ciphertext_size; ch++ ) {
+
+			vector<shared_ptr<Ciphertext<Element>>> ciphertextVec;
+
+			for( size_t i = 0; i < last_ciphertext; i++ ) {
+				std::vector<shared_ptr<Ciphertext<Element>>> ciphertext = partialCiphertextVec[i];
+				// edge case
+				if (ciphertext[ch] == NULL || ciphertext[ch]->GetCryptoContext() != *this)
+					throw std::logic_error("A ciphertext passed to Decrypt was not generated with this crypto context");
+				ciphertextVec.push_back(ciphertext[ch]);
+			}
+
+			ILVector2n decrypted;
+			DecryptResult result = GetEncryptionAlgorithm()->MultipartyDecryptFusion(ciphertextVec, &decrypted);
+
+			if (result.isValid == false) return result;
+			plaintext->Decode(ciphertextVec[0]->GetCryptoParameters()->GetPlaintextModulus(), &decrypted);
+			if (ch == lastone && doPadding) {
+				plaintext->Unpad(ciphertextVec[0]->GetCryptoParameters()->GetPlaintextModulus());
+			}
+		}
+
+		return DecryptResult(plaintext->GetLength());
+	}
+
 
 	/**
 	* SparseKeyGen generates a key pair with special structure, and without full entropy,

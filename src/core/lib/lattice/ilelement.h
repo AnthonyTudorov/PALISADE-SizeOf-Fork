@@ -162,11 +162,9 @@ public:
 	// OPERATORS
 	/**
 	 * Unary minus on a lattice
-	 * @return
+	 * @return -lattice
 	 */
-	Element operator-() const {
-		return this->Times(IntType(-1));
-	}
+	virtual Element operator-() const = 0;
 
 	/**
 	 * Scalar addition - add an element to the first index only.

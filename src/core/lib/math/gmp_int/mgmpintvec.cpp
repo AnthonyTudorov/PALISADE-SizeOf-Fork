@@ -319,7 +319,7 @@ namespace NTL {
   //Assignment with initializer list of myZZ
   //if myZZ.size()>rhs.size()
   // keeps current size, just fills elements from initializer list
-  // otherwise fills to rhs.size().
+  // otherwise extends lhs and fills to rhs.size().
   //keeps current modulus
   template<class myT>
   const myVecP<myT>& myVecP<myT>::operator=(std::initializer_list<myT> rhs){
@@ -327,7 +327,7 @@ namespace NTL {
     usint len = rhs.size();
     DEBUG("in op=initializerlist <myT>");
     if (this->length()<len){
-      this->SetLength(len);
+    this->SetLength(len);
     }
 
     for(usint i=0;i<len;i++){ // this loops over each entry
@@ -345,7 +345,7 @@ namespace NTL {
     DEBUG("in op=initializerlist <usint>");
     usint len = rhs.size();
     if (this->length()<len){
-      this->SetLength(len);
+    this->SetLength(len);
     }
 
     for(usint i=0;i<len;i++){ // this loops over each entry
@@ -363,7 +363,7 @@ namespace NTL {
     DEBUG("in op=initializerlist <int>");
     usint len = rhs.size();
     if (this->length()<len){
-      this->SetLength(len);
+    this->SetLength(len);
     }
 
     for(usint i=0;i<len;i++){ // this loops over each entry
@@ -382,7 +382,7 @@ namespace NTL {
     DEBUG("in op=initializerlist <string>");
     usint len = rhs.size();
     if (this->length()<len){
-      this->SetLength(len);
+    this->SetLength(len);
     }
 
     for(usint i=0;i<len;i++){ // this loops over each entry
@@ -402,7 +402,7 @@ namespace NTL {
     DEBUG("in op=initializerlist const char*");
     usint len = rhs.size();
     if (this->length()<len){
-      this->SetLength(len);
+    this->SetLength(len);
     }
 
     for(usint i=0;i<len;i++){ // this loops over each entry
@@ -900,7 +900,7 @@ namespace NTL {
   bool myVecP<myT>::Deserialize(const lbcrypto::Serialized& serObj) {
     bool dbg_flag = false;
     DEBUG("in deserialize");
-
+  
     //decode in reverse order from Serialize above
     lbcrypto::Serialized::ConstMemberIterator mIter = serObj.FindMember("BigBinaryVectorImpl");
     if( mIter == serObj.MemberEnd() ){
@@ -936,7 +936,7 @@ namespace NTL {
       bbiModulus =  myZZ(strval);
     }
     DEBUG("bbiModulus "<<bbiModulus);
-    
+
     //find length of vector
     if( (vIt = mIter->value.FindMember("Length")) 
 	== mIter->value.MemberEnd() ){
@@ -946,13 +946,13 @@ namespace NTL {
     usint vectorLength = std::stoi(vIt->value.GetString());
     DEBUG("vectorLength "<<vectorLength);
     
-    if( (vIt = mIter->value.FindMember("VectorValues")) == 
+  if( (vIt = mIter->value.FindMember("VectorValues")) == 
 	mIter->value.MemberEnd() ){
       std::cerr<<"myVecP::Deserialize() failed VectorValues not found"
 	       <<std::endl;
       return false;
     }    
-    
+
     myVecP<myT> newVec(vectorLength, bbiModulus); //build new vector
     myT vectorElem; //element to store decode
     
@@ -964,7 +964,7 @@ namespace NTL {
 	std::cerr<<"myVecP::Deserialize() premature end of vector"<<std::endl;
 	std::cerr<<"at position "<<ePos<<std::endl;
 	return false; // premature end of vector
-      }
+    }
       DEBUG("loop "<<ePos<<" vp before is size "<<strlen(vp));
       vp = vectorElem.Deserialize(vp, bbiModulus); //decode element
       DEBUG("vp after is size "<<strlen(vp));
@@ -1153,5 +1153,5 @@ namespace NTL {
 } // namespace NTL ends
  
 template class NTL::myVecP<NTL::myZZ_p>; //instantiate template here
-
+ 
 #endif //__linux__
