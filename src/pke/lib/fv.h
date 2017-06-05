@@ -467,6 +467,16 @@ namespace lbcrypto {
 			const shared_ptr<Ciphertext<Element>> ct2) const;
 
 		/**
+		* Function for multiplying ciphertext by plaintext.
+		*
+		* @param ciphertext input ciphertext.
+		* @param plaintext input plaintext embedded in the cryptocontext.
+		* @return result of the multiplication.
+		*/
+		shared_ptr<Ciphertext<Element>> EvalMultPlain(const shared_ptr<Ciphertext<Element>> ciphertext,
+			const shared_ptr<Ciphertext<Element>> plaintext) const;
+
+		/**
 		* Function for evaluating multiplication on ciphertext followed by key switching operation.
 		* Currently it assumes that the input arguments are fresh ciphertexts (of depth 1). Support for the input ciphertexts of higher depths will be added later.
 		*

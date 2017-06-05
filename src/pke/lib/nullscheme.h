@@ -539,6 +539,19 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		}
 
 		/**
+		* Function for evaluating multiplication of ciphertext by plaintext
+		*
+		* @param &ciphertext input ciphertext.
+		* @param &plaintext input plaintext embedded in cryptocontext.
+		* @param *newCiphertext the new resulting ciphertext.
+		*/
+		shared_ptr<Ciphertext<Element>> EvalMultPlain(const shared_ptr<Ciphertext<Element>> ciphertext,
+			const shared_ptr<Ciphertext<Element>> plaintext) const {
+
+			return EvalMult(ciphertext, plaintext);
+		}
+
+		/**
 		* Function for homomorpic negation of ciphertext.
 		*
 		* @param &ciphertext input ciphertext.

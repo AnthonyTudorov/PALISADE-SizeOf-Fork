@@ -1065,6 +1065,16 @@ namespace lbcrypto {
 				const shared_ptr<Ciphertext<Element>> ciphertext2) const = 0;
 
 			/**
+			* Virtual function to define the interface for multiplication of ciphertext by plaintext.
+			*
+			* @param &ciphertext the input ciphertext.
+			* @param &plaintext the input plaintext embedded in the cryptocontext.
+			* @param *newCiphertext the new ciphertext.
+			*/
+			virtual shared_ptr<Ciphertext<Element>> EvalMultPlain(const shared_ptr<Ciphertext<Element>> ciphertext,
+				const shared_ptr<Ciphertext<Element>> plaintext) const = 0;
+
+			/**
 			* Virtual function to define the interface for multiplicative homomorphic evaluation of ciphertext using the evaluation key.
 			*
 			* @param &ciphertext1 first input ciphertext.
@@ -1748,6 +1758,17 @@ namespace lbcrypto {
 				throw std::logic_error("EvalMult operation has not been enabled");
 			}
 		}
+
+		shared_ptr<Ciphertext<Element>> EvalMultPlain(const shared_ptr<Ciphertext<Element>> ciphertext,
+			const shared_ptr<Ciphertext<Element>> plaintext) const {
+
+			if (this->m_algorithmSHE)
+				return this->m_algorithmSHE->EvalMultPlain(ciphertext, plaintext);
+			else {
+				throw std::logic_error("EvalMult operation has not been enabled");
+			}
+		}
+
 
 		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
 			const shared_ptr<Ciphertext<Element>> ciphertext2,

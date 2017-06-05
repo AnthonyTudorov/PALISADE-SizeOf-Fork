@@ -296,6 +296,35 @@ namespace lbcrypto {
 	}
 
 	template <class Element>
+	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::EvalMultPlain(
+		const shared_ptr<Ciphertext<Element>> ciphertext,
+		const shared_ptr<Ciphertext<Element>> plaintext) const
+	{
+
+		if (ciphertext->GetElements()[0].GetFormat() == Format::COEFFICIENT || plaintext->GetElements()[0].GetFormat() == Format::COEFFICIENT) {
+			throw std::runtime_error("EvalMult cannot multiply in COEFFICIENT domain.");
+		}
+
+		shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext->GetCryptoContext()));
+
+		const std::vector<Element> &c1 = ciphertext->GetElements();
+
+		const std::vector<Element> &c2 = plaintext->GetElements();
+
+		std::vector<Element> cNew;
+
+		cNew.push_back(std::move(c1[0] * c2[0]));
+
+		cNew.push_back(std::move(c1[1] * c2[0]));
+
+		newCiphertext->SetElements(std::move(cNew));
+
+		return newCiphertext;
+
+	}
+
+
+	template <class Element>
 	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
 		const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const {
 

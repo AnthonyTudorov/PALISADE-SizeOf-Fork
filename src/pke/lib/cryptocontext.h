@@ -886,6 +886,30 @@ public:
 	}
 
 	/**
+	* EvalAddPLain - PALISADE EvalAdd method for a ciphertext and plaintext
+	* @param ciphertext
+	* @param plaintext
+	* @return new ciphertext for ciphertext + plaintext 
+	*/
+	shared_ptr<Ciphertext<Element>>
+		EvalAddPlain(const shared_ptr<Ciphertext<Element>> ciphertext, const shared_ptr<Ciphertext<Element>> plaintext) const
+	{
+		return EvalAdd(ciphertext, plaintext);
+	}
+
+	/**
+	* EvalSubPlain - PALISADE EvalSub method for a ciphertext and plaintext
+	* @param ciphertext
+	* @param plaintext
+	* @return new ciphertext for ciphertext - plaintext
+	*/
+	shared_ptr<Ciphertext<Element>>
+		EvalSubPlain(const shared_ptr<Ciphertext<Element>> ciphertext, const shared_ptr<Ciphertext<Element>> plaintext) const
+	{
+		return EvalSub(ciphertext, plaintext);
+	}
+
+	/**
 	 * EvalMult - PALISADE EvalMult method for a pair of ciphertexts
 	 * @param ct1
 	 * @param ct2
@@ -900,6 +924,21 @@ public:
 		auto ek = GetEvalMultKey();
 
 		return GetEncryptionAlgorithm()->EvalMult(ct1, ct2, ek);
+	}
+
+	/**
+	* EvalMult - PALISADE EvalMult method for a a multiplication of ciphertext by plaintext
+	* @param ct1
+	* @param ct2
+	* @return new ciphertext for ct1 * ct2
+	*/
+	shared_ptr<Ciphertext<Element>>
+		EvalMultPlain(const shared_ptr<Ciphertext<Element>> ciphertext, const shared_ptr<Ciphertext<Element>> plaintext) const
+	{
+		if (ciphertext == NULL || plaintext == NULL || ciphertext->GetCryptoContext() != *this || plaintext->GetCryptoContext() != *this)
+			throw std::logic_error("Information passed to EvalMult was not generated with this crypto context");
+
+		return GetEncryptionAlgorithm()->EvalMultPlain(ciphertext, plaintext);
 	}
 
 	/**

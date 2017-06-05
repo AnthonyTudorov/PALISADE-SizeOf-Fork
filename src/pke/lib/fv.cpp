@@ -483,6 +483,78 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared
 }
 
 template <class Element>
+shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMultPlain(const shared_ptr<Ciphertext<Element>> ciphertext,
+	const shared_ptr<Ciphertext<Element>> plaintext) const {
+
+	if (ciphertext->GetElements()[0].GetFormat() == Format::COEFFICIENT || plaintext->GetElements()[0].GetFormat() == Format::COEFFICIENT) {
+		throw std::runtime_error("LPAlgorithmSHEFV::EvalMult cannot multiply in COEFFICIENT domain.");
+	}
+
+	if (!(ciphertext->GetCryptoParameters() == plaintext->GetCryptoParameters())) {
+		std::string errMsg = "LPAlgorithmSHEFV::EvalMult crypto parameters are not the same";
+		throw std::runtime_error(errMsg);
+	}
+
+	shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext->GetCryptoContext()));
+
+	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParamsLWE = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(ciphertext->GetCryptoContext().GetCryptoParameters());
+
+	const shared_ptr<typename Element::Params> elementParams = cryptoParamsLWE->GetElementParams();
+	const BigBinaryInteger &p = cryptoParamsLWE->GetPlaintextModulus();
+	const BigBinaryInteger &q = elementParams->GetModulus();
+
+	const BigBinaryInteger &bigModulus = cryptoParamsLWE->GetBigModulus();
+	const BigBinaryInteger &bigRootOfUnity = cryptoParamsLWE->GetBigRootOfUnity();
+	const BigBinaryInteger &bigModulusArb = cryptoParamsLWE->GetBigModulusArb();
+	const BigBinaryInteger &bigRootOfUnityArb = cryptoParamsLWE->GetBigRootOfUnityArb();
+
+	std::vector<Element> cipherText1Elements = ciphertext->GetElements();
+	std::vector<Element> cipherText2Elements = plaintext->GetElements();
+
+	//converts the ciphertext elements to coefficient format so that the modulus switching can be done
+	cipherText1Elements[0].SwitchFormat();
+	cipherText1Elements[1].SwitchFormat();
+	cipherText2Elements[0].SwitchFormat();
+	//cipherText2Elements[1].SwitchFormat();
+
+	//switches the modulus to a larger value so that polynomial multiplication w/o mod q can be performed
+	cipherText1Elements[0].SwitchModulus(bigModulus, bigRootOfUnity, bigModulusArb, bigRootOfUnityArb);
+	cipherText1Elements[1].SwitchModulus(bigModulus, bigRootOfUnity, bigModulusArb, bigRootOfUnityArb);
+	cipherText2Elements[0].SwitchModulus(bigModulus, bigRootOfUnity, bigModulusArb, bigRootOfUnityArb);
+	//cipherText2Elements[1].SwitchModulus(bigModulus, bigRootOfUnity, bigModulusArb, bigRootOfUnityArb);
+
+	//converts the ciphertext elements back to evaluation representation
+	cipherText1Elements[0].SwitchFormat();
+	cipherText1Elements[1].SwitchFormat();
+	cipherText2Elements[0].SwitchFormat();
+	//cipherText2Elements[1].SwitchFormat();
+
+	Element c0 = cipherText1Elements[0] * cipherText2Elements[0];
+	Element c1 = cipherText1Elements[1] * cipherText2Elements[0];
+
+	//converts to coefficient representation before rounding
+	c0.SwitchFormat();
+	c1.SwitchFormat();
+
+	c0 = c0.MultiplyAndRound(p, q);
+	c1 = c1.MultiplyAndRound(p, q);
+
+	//switch the modulus back to the original value
+	c0.SwitchModulus(q, elementParams->GetRootOfUnity(), elementParams->GetBigModulus(), elementParams->GetBigRootOfUnity());
+	c1.SwitchModulus(q, elementParams->GetRootOfUnity(), elementParams->GetBigModulus(), elementParams->GetBigRootOfUnity());
+
+	//puts back in evaluation representation
+	c0.SwitchFormat();
+	c1.SwitchFormat();
+
+	newCiphertext->SetElements({ c0, c1});
+
+	return newCiphertext;
+
+}
+
+
+template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::KeySwitch(const shared_ptr<LPEvalKey<Element>> ek,
 	const shared_ptr<Ciphertext<Element>> cipherText) const
 {

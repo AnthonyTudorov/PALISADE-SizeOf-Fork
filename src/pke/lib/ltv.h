@@ -479,6 +479,20 @@ public:
 		const shared_ptr<Ciphertext<Element>> ciphertext2) const;
 
 	/**
+	* Function for multiplying a ciphertext by plaintext.
+	* See the class description for citations on where the algorithms were taken from.
+	*
+	* @param ciphertext Input ciphertext.
+	* @param plaintext input plaintext.
+	* @return A shared pointer to the ciphertext which is the EvalMultPlain of the two inputs.
+	*/
+	shared_ptr<Ciphertext<Element>> EvalMultPlain(const shared_ptr<Ciphertext<Element>> ciphertext,
+		const shared_ptr<Ciphertext<Element>> plaintext) const {
+		return EvalMult(ciphertext, plaintext);
+	}
+
+
+	/**
 	* Function for evaluating multiplication on ciphertext, but with a key switch performed after the
 	* EvalMult using the Evaluation Key input.
 	* See the class description for citations on where the algorithms were taken from.
