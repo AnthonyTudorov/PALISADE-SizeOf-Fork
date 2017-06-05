@@ -83,7 +83,7 @@ IntType DiscreteUniformGeneratorImpl<IntType,VecType>::GenerateInteger () const 
 
 		}
 
-	} while (result > m_modulus);// deals with the rare scenario when the bits in the most significant chunk are the same
+	} while (result >= m_modulus);// deals with the rare scenario when the bits in the most significant chunk are the same
 						   // and the bits in the following chunk of the result are larger than in the modulus
 
 	return result;
