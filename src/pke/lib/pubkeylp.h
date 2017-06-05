@@ -1146,7 +1146,7 @@ namespace lbcrypto {
 					randomIntVector[i + 1] = randomVector.GetValAtIndex(i).ConvertToInt();
 				}
 
-				//PackedIntPlaintextEncoding::SetParams(encodingParams->GetPlaintextModulus(), elementParams->GetCyclotomicOrder());
+				PackedIntPlaintextEncoding::SetParams(encodingParams->GetPlaintextModulus(), elementParams->GetCyclotomicOrder());
 
 				PackedIntPlaintextEncoding plaintext(randomIntVector);
 

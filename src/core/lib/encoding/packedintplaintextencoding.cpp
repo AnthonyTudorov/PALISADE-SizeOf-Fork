@@ -37,11 +37,11 @@
 
 namespace lbcrypto {
 
-	BigBinaryInteger PackedIntPlaintextEncoding::initRoot = BigBinaryInteger(0);
+	std::map<BigBinaryInteger, BigBinaryInteger> PackedIntPlaintextEncoding::m_initRoot;
 
-	std::vector<BigBinaryVector> PackedIntPlaintextEncoding::coefficientsCRT = std::vector<BigBinaryVector>();
+	std::map<BigBinaryInteger, std::vector<BigBinaryVector>> PackedIntPlaintextEncoding::m_coefficientsCRT;
 
-	BigBinaryVector PackedIntPlaintextEncoding::rootList = BigBinaryVector();
+	std::map<BigBinaryInteger, BigBinaryVector> PackedIntPlaintextEncoding::m_rootList;
 
 	void PackedIntPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector, size_t startFrom, size_t length) const
 	{
@@ -95,31 +95,32 @@ namespace lbcrypto {
 
 	void PackedIntPlaintextEncoding::Destroy()
 	{
-		initRoot = BigBinaryInteger(0);
-		rootOfUnityTable.clear();
-		bigMod = BigBinaryInteger(0);
-		bigRoot = BigBinaryInteger(0);
-		coefficientsCRT.clear();
-		rootList = BigBinaryVector();
+		m_initRoot.clear();
+		m_coefficientsCRT.clear();
+		m_rootList.clear();
 	}
 
 	void PackedIntPlaintextEncoding::SetParams(const BigBinaryInteger &modulus, usint m)
 	{
 
-		coefficientsCRT.clear();
-		rootList = BigBinaryVector();
+		if (m_initRoot[modulus].GetMSB() == 0) {
 
-		//initRoot = BigBinaryInteger(7);
-		initRoot = RootOfUnity<BigBinaryInteger>(m, modulus);
-		while (!MillerRabinPrimalityTest(initRoot) || GreatestCommonDivisor<usint>(initRoot.ConvertToInt(), m) != 1 || !IsGenerator<BigBinaryInteger>(initRoot, BigBinaryInteger(m)))
-		{
-			initRoot = RootOfUnity<BigBinaryInteger>(m, modulus);
-			//std::cout << "candidate: " << initRoot << std::endl;
+
+			//initRoot = BigBinaryInteger(7);
+			BigBinaryInteger initRoot = RootOfUnity<BigBinaryInteger>(m, modulus);
+			while (!MillerRabinPrimalityTest(initRoot) || GreatestCommonDivisor<usint>(initRoot.ConvertToInt(), m) != 1 || !IsGenerator<BigBinaryInteger>(initRoot, BigBinaryInteger(m)))
+			{
+				initRoot = RootOfUnity<BigBinaryInteger>(m, modulus);
+				//std::cout << "candidate: " << initRoot << std::endl;
+			}
+
+			m_initRoot[modulus] = initRoot;
+			//std::cout << "root found" << initRoot << std::endl;
+
+			InitializeCRTCoefficients(m, modulus);
+
 		}
 
-		//std::cout << "root found" << initRoot << std::endl;
-
-		InitializeCRTCoefficients(m, modulus);
 
 	}
 
@@ -129,19 +130,11 @@ namespace lbcrypto {
 															   //Do the precomputation if not initialized
 		const auto params = ring->GetParams();
 
-		if (this->initRoot.GetMSB() == 0 ) {
-			if (params->OrderIsPowerOfTwo()) {
-				initRoot = RootOfUnity<BigBinaryInteger>(m, modulus);
-			}
-			else {
-				//initRoot = BigBinaryInteger(7);
-				initRoot = RootOfUnity<BigBinaryInteger>(m, modulus);
-				while (!MillerRabinPrimalityTest(initRoot) || GreatestCommonDivisor<usint>(initRoot.ConvertToInt(),m)!=1 || !IsGenerator<BigBinaryInteger>(this->initRoot, BigBinaryInteger(m)))
-				{
-					this->initRoot = RootOfUnity<BigBinaryInteger>(m, modulus);
-					//std::cout << "candidate: " << initRoot << std::endl;
-				}
-			}
+		if (this->m_initRoot[modulus].GetMSB() == 0 ) {
+			if (params->OrderIsPowerOfTwo())
+				m_initRoot[modulus] = RootOfUnity<BigBinaryInteger>(m, modulus);
+			else
+				SetParams(modulus, m);
 			//std::cout << "generator? = " << IsGenerator<BigBinaryInteger>(this->initRoot, BigBinaryInteger(m)) << std::endl;
 			//std::cout << "root found" << initRoot << std::endl;
 		}
@@ -155,16 +148,13 @@ namespace lbcrypto {
 		slotValues.SetModulus(modulus);
 
 		if (params->OrderIsPowerOfTwo()) {
-			slotValues = ChineseRemainderTransformFTT<BigBinaryInteger, BigBinaryVector>::GetInstance().InverseTransform(slotValues, initRoot, m);
+			slotValues = ChineseRemainderTransformFTT<BigBinaryInteger, BigBinaryVector>::GetInstance().InverseTransform(slotValues, m_initRoot[modulus], m);
 		}
 		else {
-			if (this->coefficientsCRT.size() == 0) {
-				this->InitializeCRTCoefficients(m,modulus);
-			}
 			
-			BigBinaryVector packedVector(coefficientsCRT.at(0)*slotValues.GetValAtIndex(0));
+			BigBinaryVector packedVector(m_coefficientsCRT[modulus].at(0)*slotValues.GetValAtIndex(0));
 			for (usint i = 1; i < n; i++) {
-				packedVector += coefficientsCRT.at(i)*slotValues.GetValAtIndex(i);
+				packedVector += m_coefficientsCRT[modulus].at(i)*slotValues.GetValAtIndex(i);
 			}
 			slotValues = std::move(packedVector);
 		}
@@ -182,7 +172,7 @@ namespace lbcrypto {
 		auto tList = GetTotientList(cycloOrder);
 		BigBinaryVector rootList(tList.size(),modulus);
 		for (usint i = 0; i < tList.size(); i++) {
-			auto val = initRoot.ModExp(BigBinaryInteger(tList.at(i)), modulus);
+			auto val = m_initRoot[modulus].ModExp(BigBinaryInteger(tList.at(i)), modulus);
 			rootList.SetValAtIndex(i, val);
 		}
 		
@@ -210,7 +200,7 @@ namespace lbcrypto {
 			packedVector += coefficients.at(i)*slotValues.GetValAtIndex(i);
 		}
 
-		auto perm = SyntheticPolyPowerMod(packedVector,initRoot,rootListInit);
+		auto perm = SyntheticPolyPowerMod(packedVector,m_initRoot[modulus],rootListInit);
 
 		auto newRootList = FindPermutedSlots(slotValues, perm, rootListInit);
 
@@ -222,8 +212,8 @@ namespace lbcrypto {
 			coeffRow = coeffRow*x;
 			coefficients.push_back(std::move(coeffRow));
 		}
-		coefficientsCRT = std::move(coefficients);
-		rootList = std::move(newRootList);
+		m_coefficientsCRT[modulus] = std::move(coefficients);
+		m_rootList[modulus] = std::move(newRootList);
 	}
 
 	BigBinaryVector PackedIntPlaintextEncoding::FindPermutedSlots(const BigBinaryVector &orig, const BigBinaryVector & perm, const BigBinaryVector & rootList){
@@ -252,10 +242,10 @@ namespace lbcrypto {
 		packedVector.SetModulus(modulus);
 
 		if (params->OrderIsPowerOfTwo()) {
-			packedVector = ChineseRemainderTransformFTT<BigBinaryInteger, BigBinaryVector>::GetInstance().ForwardTransform(packedVector, initRoot, m);
+			packedVector = ChineseRemainderTransformFTT<BigBinaryInteger, BigBinaryVector>::GetInstance().ForwardTransform(packedVector, m_initRoot[modulus], m);
 		}
 		else {
-			packedVector = SyntheticPolyRemainder(packedVector, rootList, modulus);
+			packedVector = SyntheticPolyRemainder(packedVector, m_rootList[modulus], modulus);
 		}		
 
 		packedVector.SetModulus(qMod);

@@ -109,7 +109,7 @@ void LTVPlaintextPKE() {
 
 	usint batchSize = 8;
 
-	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetInitRoot(), batchSize));
+	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetInitRoot(modulusP), batchSize));
 
 	PackedIntPlaintextEncoding::SetParams(modulusP, m);
 
@@ -165,7 +165,7 @@ void BVPlaintextPKE() {
 
 	usint batchSize = 8;
 
-	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetInitRoot(), batchSize));
+	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetInitRoot(modulusP), batchSize));
 
 	PackedIntPlaintextEncoding::SetParams(modulusP, m);
 
@@ -222,7 +222,7 @@ void FVPlaintextPKE() {
 
 	usint batchSize = 8;
 
-	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetInitRoot(), batchSize));
+	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetInitRoot(modulusP), batchSize));
 
 	PackedIntPlaintextEncoding::SetParams(modulusP, m);
 

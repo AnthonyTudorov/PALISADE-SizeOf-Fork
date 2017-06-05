@@ -61,7 +61,7 @@ namespace lbcrypto {
 
 		PackedIntPlaintextEncoding() : std::vector<uint32_t>() {}
 
-		static BigBinaryInteger GetInitRoot() { return initRoot;  }
+		static BigBinaryInteger GetInitRoot(const BigBinaryInteger &modulus) { return m_initRoot[modulus];  }
 
 		/** The operation of converting from current plaintext encoding to ILVector2n.
 		*
@@ -120,11 +120,12 @@ namespace lbcrypto {
 		}
 
 	private:
-		static BigBinaryInteger initRoot;
 
-		static std::vector<BigBinaryVector> coefficientsCRT;
+		static std::map<BigBinaryInteger, BigBinaryInteger> m_initRoot;
 
-		static BigBinaryVector rootList;
+		static std::map<BigBinaryInteger, std::vector<BigBinaryVector>> m_coefficientsCRT;
+
+		static std::map<BigBinaryInteger, BigBinaryVector> m_rootList;
 
 		void Pack(ILVector2n *ring, const BigBinaryInteger &modulus) const;
 

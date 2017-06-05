@@ -68,7 +68,7 @@ int main() {
 
 	std::cout << "========== FV LINEAR REGRESSION FOR 2 REGRESSORS AND DATASET OF 4096 ======== " << std::endl;
 
-	//ArbFVLinearRegressionPackedArray();
+	ArbFVLinearRegressionPackedArray();
 
 	std::cout << "========== BV LINEAR REGRESSION FOR 2 REGRESSORS AND DATASET OF 4096 ======== " << std::endl;
 
@@ -135,7 +135,7 @@ void ArbFVLinearRegressionPackedArray() {
 	usint batchSize = 4096;
 	usint relinWindow = 24;
 
-	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetInitRoot(), batchSize));
+	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetInitRoot(modulusP), batchSize));
 
 	BigBinaryInteger delta(modulusQ.DividedBy(modulusP));
 
@@ -315,7 +315,7 @@ void FVAutomorphismPackedArray(usint i) {
 	usint batchSize = 4096;
 	usint relinWindow = 24;
 
-	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetInitRoot(), batchSize));
+	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetInitRoot(modulusP), batchSize));
 
 	BigBinaryInteger delta(modulusQ.DividedBy(modulusP));
 
@@ -455,7 +455,7 @@ void ArbFVInnerProductPackedArray() {
 	usint batchSize = 4096;
 	usint relinWindow = 24;
 
-	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetInitRoot(), batchSize));
+	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetInitRoot(modulusP), batchSize));
 
 	BigBinaryInteger delta(modulusQ.DividedBy(modulusP));
 
@@ -631,7 +631,7 @@ void ArbBVLinearRegressionPackedArray() {
 	usint batchSize = 4096;
 	usint relinWindow = 24;
 
-	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetInitRoot(), batchSize));
+	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetInitRoot(modulusP), batchSize));
 
 	//BigBinaryInteger delta(modulusQ.DividedBy(modulusP));
 
