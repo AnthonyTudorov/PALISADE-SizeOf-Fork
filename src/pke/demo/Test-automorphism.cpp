@@ -66,6 +66,7 @@ void BVAutomorphismPackedArray(usint i);
 void ArbBVAutomorphismPackedArray(usint i);
 void FVAutomorphismPackedArray(usint i);
 void ArbFVAutomorphismPackedArray(usint i);
+void ArbNullAutomorphismPackedArray(usint i);
 
 int main() {
 
@@ -111,6 +112,13 @@ int main() {
 	PackedIntPlaintextEncoding::Destroy();
 	for (usint index = 1; index < 10; index++) {
 		ArbFVAutomorphismPackedArray(totientList[index]);
+	}
+
+	std::cout << "\n===========NULL TESTS (EVALAUTOMORPHISM-ARBITRARY)===============: " << std::endl;
+
+	PackedIntPlaintextEncoding::Destroy();
+	for (usint index = 1; index < 10; index++) {
+		ArbNullAutomorphismPackedArray(totientList[index]);
 	}
 
 	std::cout << "Please press any key to continue..." << std::endl;
@@ -499,6 +507,83 @@ void ArbFVAutomorphismPackedArray(usint i) {
 	//IntPlaintextEncoding intArrayNew;
 
 	cc.Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew, false);
+	//cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
+
+	std::cout << "Automorphed array - at index " << i << " (using only odd coefficients)\n\t" << intArrayNew << std::endl;
+
+	//std::cout << intArrayNew << std::endl;
+
+}
+
+
+void ArbNullAutomorphismPackedArray(usint i) {
+
+	usint m = 22;
+	usint p = 23;
+	BigBinaryInteger modulusP(p);
+	/*BigBinaryInteger modulusQ("577325471560727734926295560417311036005875689");
+	BigBinaryInteger squareRootOfRoot("576597741275581172514290864170674379520285921");*/
+	BigBinaryInteger modulusQ("955263939794561");
+	BigBinaryInteger squareRootOfRoot("941018665059848");
+	//BigBinaryInteger squareRootOfRoot = RootOfUnity(2*m,modulusQ);
+	//std::cout << squareRootOfRoot << std::endl;
+	usint n = GetTotient(m);
+	BigBinaryInteger bigmodulus("80899135611688102162227204937217");
+	BigBinaryInteger bigroot("77936753846653065954043047918387");
+	//std::cout << bigroot << std::endl;
+
+	auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulusQ);
+	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulusQ);
+
+	usint batchSize = 8;
+
+	float stdDev = 4;
+
+	PackedIntPlaintextEncoding::SetParams(modulusP, m);
+
+	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
+
+	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetInitRoot(modulusP), batchSize));
+
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextNull(
+		params, encodingParams);
+
+	cc.Enable(ENCRYPTION);
+	cc.Enable(SHE);
+
+	// Initialize the public key containers.
+	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
+
+	//std::vector<usint> vectorOfInts = { 0,1,0,2,0,3,0,4,0,5 };
+	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8, 9, 10 };
+	PackedIntPlaintextEncoding intArray(vectorOfInts);
+	//IntPlaintextEncoding intArray(vectorOfInts);
+
+	if (i == 3)
+		std::cout << "Input array\n\t" << intArray << std::endl;
+	//std::cout << intArray << std::endl;
+
+	ciphertext = cc.Encrypt(kp.publicKey, intArray, false);
+
+	std::vector<usint> indexList = GetTotientList(m);
+	indexList.erase(indexList.begin());
+
+	auto evalKeys = cc.EvalAutomorphismKeyGen(kp.secretKey, indexList);
+
+	vector<shared_ptr<Ciphertext<ILVector2n>>> permutedCiphertext;
+
+	shared_ptr<Ciphertext<ILVector2n>> p1;
+
+	p1 = cc.EvalAutomorphism(ciphertext[0], i, *evalKeys);
+
+	permutedCiphertext.push_back(p1);
+
+	PackedIntPlaintextEncoding intArrayNew;
+	//IntPlaintextEncoding intArrayNew;
+
+	cc.Decrypt(kp.secretKey,  permutedCiphertext, &intArrayNew, false);
 	//cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
 
 	std::cout << "Automorphed array - at index " << i << " (using only odd coefficients)\n\t" << intArrayNew << std::endl;

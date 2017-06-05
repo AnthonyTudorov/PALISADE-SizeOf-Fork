@@ -167,7 +167,7 @@ public:
 		ILVector2n *plaintext) const {
 		Element b = ciphertext->GetElement();
 		ILVector2n interpolatedElement = b.CRTInterpolate();
-		*plaintext = interpolatedElement;
+		*plaintext = interpolatedElement.SignedMod(ciphertext->GetCryptoContext().GetCryptoParameters()->GetPlaintextModulus());
 		return DecryptResult(plaintext->GetLength());
 	}
 
@@ -637,8 +637,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		*/
 		shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const shared_ptr<LPPublicKey<Element>> publicKey,
 			const shared_ptr<LPPrivateKey<Element>> origPrivateKey, const std::vector<usint> &indexList) const {
-			std::string errMsg = "LPAlgorithmSHENull::EvalAutomorphismKeyGen is not implemented for Null SHE Scheme.";
-			throw std::runtime_error(errMsg);
+			return shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>>();
 		}
 
 		/**
@@ -651,10 +650,24 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		*/
 		shared_ptr<Ciphertext<Element>> EvalAutomorphism(const shared_ptr<Ciphertext<Element>> ciphertext, usint i,
 			const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalKeys) const {
-			std::string errMsg = "LPAlgorithmSHENull::EvalAutomorphism is not implemented for Null SHE Scheme.";
-			throw std::runtime_error(errMsg);
-		}
 
+			shared_ptr<Ciphertext<Element>> permutedCiphertext(new Ciphertext<Element>(*ciphertext));
+
+			Element temp = ciphertext->GetElement();
+
+			//Switch from coefficient representation to evaluation
+			temp.SwitchFormat();
+
+			temp = temp.AutomorphismTransform(i);
+			
+			//Switch from evaluation representation to coefficient
+			temp.SwitchFormat();
+
+			permutedCiphertext->SetElement(temp);
+
+			return permutedCiphertext;
+
+		}
 
 		/**
 		* Generate automophism keys for a given private key; Uses the private key for encryption
@@ -665,8 +678,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		*/
 		shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey,
 			const std::vector<usint> &indexList) const {
-			std::string errMsg = "LPAlgorithmSHENull::EvalAutomorphismKeyGen is not implemented for Null SHE Scheme.";
-			throw std::runtime_error(errMsg);
+			return shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>>();
 		}
 
 	private:
