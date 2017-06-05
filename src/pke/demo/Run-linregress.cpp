@@ -68,7 +68,7 @@ int main() {
 
 	std::cout << "========== FV LINEAR REGRESSION FOR 2 REGRESSORS AND DATASET OF 4096 ======== " << std::endl;
 
-	ArbFVLinearRegressionPackedArray();
+	//ArbFVLinearRegressionPackedArray();
 
 	std::cout << "========== BV LINEAR REGRESSION FOR 2 REGRESSORS AND DATASET OF 4096 ======== " << std::endl;
 
@@ -642,7 +642,7 @@ void ArbBVLinearRegressionPackedArray() {
 	//	int depth = 0, int assuranceMeasure = 0, float securityLevel = 0,
 	//	const std::string& bigmodulusarb = "0", const std::string& bigrootofunityarb = "0")
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, encodingParams, relinWindow, stdDev);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, encodingParams, relinWindow, stdDev, OPTIMIZED);
 
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
