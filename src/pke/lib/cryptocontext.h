@@ -1072,6 +1072,30 @@ public:
 	}
 
 	/**
+	* EvalCrossCorrelation - Computes the sliding sum of inner products (known as
+	* as cross-correlation, sliding inner product, or sliding dot product in
+	* image processing
+	* @param x - first vector of row vectors
+	* @param y - second vector of row vectors
+	* @param batchSize - batch size for packed encoding
+	* @param indexStart - starting index in the vectors of row vectors
+	* @param length - length of the slice in the vectors of row vectors; default is 0 meaning to use the full length of the vector
+	* @return sum(x_i*y_i), i.e., a sum of inner products
+	*/
+	shared_ptr<Ciphertext<Element>>
+		EvalCrossCorrelation(const shared_ptr<Matrix<RationalCiphertext<Element>>> x,
+			const shared_ptr<Matrix<RationalCiphertext<Element>>> y, usint batchSize,
+			usint indexStart = 0, usint length = 0) const {
+
+		//need to add exception handling
+
+		auto evalMultKey = GetEvalMultKey();
+
+		return GetEncryptionAlgorithm()->EvalCrossCorrelation(x, y, batchSize, indexStart, length, evalSumKeys, evalMultKey);
+
+	}
+
+	/**
 	* EvalLinRegressBatched- Computes the parameter vector for linear regression using the least squares method
 	* Supported only in batched mode; currently works only for two regressors
 	* @param x - matrix of regressors
