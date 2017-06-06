@@ -177,7 +177,6 @@ void EncryptionSchemeSimulation(usint count){
 
 		//Regular LWE-NTRU encryption algorithm
 
-		bool successKeyGen = false;
 		kp = cc.KeyGen();
 
 		if (!kp.good()) {

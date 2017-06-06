@@ -50,7 +50,7 @@ using namespace lbcrypto;
 // GCD benchmarks
 
 // this benchmark returns a reference to a BBI which can be used for output
-static BigBinaryInteger& GCD_equals_small_numbers(void) { // function
+static BigBinaryInteger GCD_equals_small_numbers(void) { // function
   BigBinaryInteger a("10403"), b("103");
   BigBinaryInteger c(lbcrypto::GreatestCommonDivisor(a, b));
   return(c);

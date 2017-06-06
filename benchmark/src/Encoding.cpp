@@ -82,7 +82,7 @@ void BM_encoding_Int(benchmark::State& state) { // benchmark
 	BytePlaintextEncoding plaintextLong;
 	BigBinaryInteger ptm;
 	usint ptmi;
-	size_t chunkSize;
+	size_t chunkSize = 0;
 
 	if( state.thread_index == 0 ) {
 		state.PauseTiming();
@@ -118,7 +118,7 @@ void BM_encoding_PackedInt(benchmark::State& state) { // benchmark
 	BytePlaintextEncoding plaintextLong;
 	BigBinaryInteger ptm;
 	usint ptmi;
-	size_t chunkSize;
+	size_t chunkSize = 0;
 
 	if( state.thread_index == 0 ) {
 		state.PauseTiming();
@@ -159,7 +159,7 @@ void BM_Encoding_StringShort(benchmark::State& state) { // benchmark
 	BytePlaintextEncoding plaintextLong;
 	BigBinaryInteger ptm;
 	usint ptmi;
-	size_t chunkSize;
+	size_t chunkSize = 0;
 	shared_ptr<Ciphertext<ILVector2n>> ct1, ct2;
 
 	if( state.thread_index == 0 ) {
@@ -203,7 +203,7 @@ void BM_Encoding_StringFull(benchmark::State& state) { // benchmark
 	BytePlaintextEncoding plaintextLong;
 	BigBinaryInteger ptm;
 	usint ptmi;
-	size_t chunkSize;
+	size_t chunkSize = 0;
 	shared_ptr<Ciphertext<ILVector2n>> ct1, ct2;
 
 	if( state.thread_index == 0 ) {
@@ -247,7 +247,7 @@ void BM_Encoding_StringLong(benchmark::State& state) { // benchmark
 	BytePlaintextEncoding plaintextLong;
 	BigBinaryInteger ptm;
 	usint ptmi;
-	size_t chunkSize;
+	size_t chunkSize = 0;
 	shared_ptr<Ciphertext<ILVector2n>> ct1, ct2;
 
 	if( state.thread_index == 0 ) {
