@@ -108,7 +108,7 @@ namespace lbcrypto {
 
 			//initRoot = BigBinaryInteger(7);
 			BigBinaryInteger initRoot = RootOfUnity<BigBinaryInteger>(m, modulus);
-			while (!MillerRabinPrimalityTest(initRoot) || GreatestCommonDivisor<usint>(initRoot.ConvertToInt(), m) != 1 || !IsGenerator<BigBinaryInteger>(initRoot, BigBinaryInteger(m)))
+			while (GreatestCommonDivisor<usint>(initRoot.ConvertToInt(), m) != 1 || !IsGenerator<BigBinaryInteger>(initRoot, BigBinaryInteger(m)))
 			{
 				initRoot = RootOfUnity<BigBinaryInteger>(m, modulus);
 				//std::cout << "candidate: " << initRoot << std::endl;
