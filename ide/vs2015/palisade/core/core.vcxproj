@@ -22,13 +22,14 @@
     <ClCompile Include="..\..\..\..\src\core\lib\encoding\byteplaintextencoding.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\encoding\intplaintextencoding.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\encoding\packedintplaintextencoding.cpp" />
+    <ClCompile Include="..\..\..\..\src\core\lib\lattice\elemparams.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\lattice\field2n.cpp" />
+    <ClCompile Include="..\..\..\..\src\core\lib\lattice\ildcrt2n-impl.cpp" />
+    <ClCompile Include="..\..\..\..\src\core\lib\lattice\ildcrt2n.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\lattice\ildcrtparams.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\lattice\ilparams.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\lattice\ilvector2n-impl.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\lattice\ilvector2n.cpp" />
-    <ClCompile Include="..\..\..\..\src\core\lib\lattice\ilvectorarray2n-impl.cpp" />
-    <ClCompile Include="..\..\..\..\src\core\lib\lattice\ilvectorarray2n.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\lattice\native-impl.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\math\binaryuniformgenerator.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\math\cpu_int\binint.cpp" />
@@ -42,7 +43,7 @@
     <ClCompile Include="..\..\..\..\src\core\lib\math\matrix.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\math\matrixser.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\math\matrixstrassen.cpp" />
-    <ClCompile Include="..\..\..\..\src\core\lib\math\native64\binint.cpp" />
+    <ClCompile Include="..\..\..\..\src\core\lib\math\native_int\binint.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\math\nbtheory.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\math\ternaryuniformgenerator.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\math\transfrm.cpp" />
@@ -59,11 +60,11 @@
     <ClInclude Include="..\..\..\..\src\core\lib\encoding\plaintext.h" />
     <ClInclude Include="..\..\..\..\src\core\lib\lattice\elemparams.h" />
     <ClInclude Include="..\..\..\..\src\core\lib\lattice\field2n.h" />
+    <ClInclude Include="..\..\..\..\src\core\lib\lattice\ildcrt2n.h" />
     <ClInclude Include="..\..\..\..\src\core\lib\lattice\ildcrtparams.h" />
     <ClInclude Include="..\..\..\..\src\core\lib\lattice\ilelement.h" />
     <ClInclude Include="..\..\..\..\src\core\lib\lattice\ilparams.h" />
     <ClInclude Include="..\..\..\..\src\core\lib\lattice\ilvector2n.h" />
-    <ClInclude Include="..\..\..\..\src\core\lib\lattice\ilvectorarray2n.h" />
     <ClInclude Include="..\..\..\..\src\core\lib\math\backend.h" />
     <ClInclude Include="..\..\..\..\src\core\lib\math\binaryuniformgenerator.h" />
     <ClInclude Include="..\..\..\..\src\core\lib\math\cpu_int\binint.h" />
@@ -79,7 +80,7 @@
     <ClInclude Include="..\..\..\..\src\core\lib\math\interface.h" />
     <ClInclude Include="..\..\..\..\src\core\lib\math\matrix.h" />
     <ClInclude Include="..\..\..\..\src\core\lib\math\matrixstrassen.h" />
-    <ClInclude Include="..\..\..\..\src\core\lib\math\native64\binint.h" />
+    <ClInclude Include="..\..\..\..\src\core\lib\math\native_int\binint.h" />
     <ClInclude Include="..\..\..\..\src\core\lib\math\nbtheory.h" />
     <ClInclude Include="..\..\..\..\src\core\lib\math\ternaryuniformgenerator.h" />
     <ClInclude Include="..\..\..\..\src\core\lib\math\transfrm.h" />

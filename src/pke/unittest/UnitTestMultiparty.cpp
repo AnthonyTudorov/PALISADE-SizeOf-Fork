@@ -11,7 +11,7 @@
 using namespace std;
 using namespace lbcrypto;
 
-class UnitTestMultiparty : public ::testing::Test {
+class UTMultiparty : public ::testing::Test {
 protected:
 	virtual void SetUp() {}
 

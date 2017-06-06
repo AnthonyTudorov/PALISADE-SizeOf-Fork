@@ -5,6 +5,7 @@
  *      Author: gerardryan
  */
 
+#include "cryptocontext.h"
 #include "pubkeylp.h"
 
 namespace lbcrypto {
