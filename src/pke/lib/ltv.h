@@ -525,8 +525,7 @@ public:
 	* We recommend that one uses key switch hints only for scenarios where security is not of critical 
 	* importance.
 	*
-	* @param &newPrivateKey private key for the new ciphertext.
-	* @param *keySwitchHint the key switch hint.
+	* @param originalPrivateKey private key to start from.
 	* @return resulting evalkeyswitch hint
 	*/
 	shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const;
@@ -568,7 +567,7 @@ public:
 
 
 	/**
-	* Generate automophism keys for a given private key; Uses the private key for encryption
+	* Generate automophism keys for a given private key; Uses the private key for encryption.  This method is not currently supported.
 	*
 	* @param privateKey private key.
 	* @param size number of automorphims to be computed; maximum is ring dimension

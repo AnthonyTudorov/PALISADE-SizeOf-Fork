@@ -244,7 +244,7 @@ public:
 	 * See the class description for citations on where the algorithms were taken from.
 	 *
 	 * @param cc Drypto context in which to generate a key pair.
-	 * @param makeSparse True to generate a sparse key pair.
+	 * @param makeSparse True to generate a saprse key pair.
 	 * @return Public and private key pair.
 	 */
 	LPKeyPair<Element> KeyGen(const CryptoContext<Element> cc, bool makeSparse=false) const { 		//makeSparse is not used
@@ -287,6 +287,53 @@ public:
 
 		return kp;
 	}
+
+	/**
+	* Unimplemented function to generate an evaluation key for the Stehle-Steinfeld scheme. 
+	* EvalMult is currently unsopported in the Stehle-Steinfeld scheme and there is no currently known method to 
+	* support EvalMult in the Stehle-Steinfeld scheme.
+	*
+	* @param originalPrivateKey private key to start from.
+	* @return resulting evalkeyswitch hint
+	*/
+	shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const {
+		std::string errMsg = "LPEncryptionAlgorithmStehleSteinfeld::EvalMultKeyGen is not implemented for the Stehle-Steinfeld Scheme.";
+		throw std::runtime_error(errMsg);
+	}
+
+
+	/**
+	* Unimplemented function to generate an evaluation key for the Stehle-Steinfeld scheme. 
+	* EvalMult is currently unsopported in the Stehle-Steinfeld scheme and there is no currently known method to 
+	* support EvalMult in the Stehle-Steinfeld scheme.
+	*
+	* @param &k1 Original private key used for encryption.
+	* @param &k2 New private key to generate the keyswitch hint.
+	* @result A shared point to the resulting key switch hint.
+	*/
+	shared_ptr<LPEvalKey<Element>> KeySwitchGen(
+		const shared_ptr<LPPrivateKey<Element>> k1,
+		const shared_ptr<LPPrivateKey<Element>> k2) const {
+		std::string errMsg = "LPEncryptionAlgorithmStehleSteinfeld::KeySwitchGen is not implemented for the Stehle-Steinfeld Scheme.";
+		throw std::runtime_error(errMsg);
+	}
+
+
+	/**
+	* Generate automophism keys for a given private key; Uses the private key for encryption.  This method is not currently supported.
+	*
+	* @param privateKey private key.
+	* @param size number of automorphims to be computed; maximum is ring dimension
+	* @param flagEvalSum if set to true, log_2{size} evaluation keys are generated to be used by EvalSum
+	* @return returns the evaluation keys
+	*/
+	shared_ptr<std::vector<shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey,
+		usint size, bool flagEvalSum) const {
+		std::string errMsg = "LPAlgorithmSHELTV::EvalAutomorphismKeyGen is not implemented for Stehle-Steinfeld SHE Scheme.";
+		throw std::runtime_error(errMsg);
+	}
+
+
 };
 
 /**
