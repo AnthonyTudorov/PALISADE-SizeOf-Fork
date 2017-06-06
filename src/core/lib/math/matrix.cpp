@@ -312,7 +312,7 @@ void Matrix<Element>::deepCopyData(data_t const& src) {
     data.resize(src.size());
     for (size_t row = 0; row < src.size(); ++row) {
         for (auto elem = src[row].begin(); elem != src[row].end(); ++elem) {
-            data[row].push_back(make_unique<Element>(**elem));
+            data[row].push_back(lbcrypto::make_unique<Element>(**elem));
         }
     }
 }

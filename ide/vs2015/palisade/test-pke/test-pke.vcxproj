@@ -172,6 +172,7 @@
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestENCRYPT.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestFV.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestLTV.cpp" />
+    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestMultiparty.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestPRE.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestSHE.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestSHEAdvanced.cpp" />
