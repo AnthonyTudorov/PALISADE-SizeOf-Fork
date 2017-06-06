@@ -322,7 +322,8 @@ namespace exp_int{
      *
      * @param init is the initial 64 bit unsigned integer.
      */
-    explicit ubint(const uint64_t init);
+    //explicit ubint(const uint64_t init);
+    ubint(const uint64_t init);
 
     /**
      * Basic constructor for copying a ubint
@@ -473,7 +474,7 @@ namespace exp_int{
      * it is truncated to the least significant bits that fit
      * @return the int representation of the value as usint.
      */
-    usint ConvertToInt() const;
+    uint64_t ConvertToInt() const;
 
     /**
      * Converts the value to a uint32_t.

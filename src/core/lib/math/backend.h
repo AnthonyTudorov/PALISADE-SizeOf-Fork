@@ -59,13 +59,14 @@
 
 // passes all tests with UBINT_32
 // fails tests with UBINT_64
+// there is a bug in the way modulus is computed. do not use.
+
 //[ RUN      ] UTLTVBATCHING.ILVector_EVALMULT_Arb hangs
 //[ RUN      ] UTFV.ILVector2n_FV_ParamsGen_EvalMul hangs
 //[ RUN      ] UTFV.ILVector2n_FV_Optimized_Eval_Operations hangs
 //[ RUN      ] UTSHE.FV_ILVector2n_Add hangs
 //[ RUN      ] UTSHE.FV_ILVector2n_Mult hangs
 //[ RUN      ] UTStatisticalEval.FV_Eval_Lin_Regression_Int hangs
-
 
 // MATHBACKEND 6
 //		This uses gmp_int:: definition as default
@@ -78,9 +79,9 @@
 //To select backend, please UNCOMMENT the appropriate line rather than changing the number on the
 //uncommented line (and breaking the documentation of the line)
 
-#define MATHBACKEND 2
+//#define MATHBACKEND 2
 //#define MATHBACKEND 4
-//#define MATHBACKEND 6 
+#define MATHBACKEND 6 
 //#define MATHBACKEND 7
 
 ////////// cpu_int code
@@ -108,11 +109,13 @@ typedef BigBinaryVectorImpl<BinaryInteger> BinaryVector;
 #ifdef UBINT_32
 #define MATH_UBBITS	32
 typedef uint32_t expdtype;
+#undef UBINT_64 //cant have both accidentally
 #endif
 
 #ifdef UBINT_64
 #define MATH_UBBITS	64
 typedef uint64_t expdtype;
+#undef UBINT_32 //cant have both accidentally
 #endif
 
 #include "exp_int/ubint.h" //dynamically sized  unsigned big integers or ubints

@@ -157,7 +157,8 @@ static IntType RNG(const IntType& modulus)
 //native NTL version
   static NTL::myZZ RNG(const NTL::myZZ& modulus)
   {
-    
+    bool dbg_flag = true;
+    DEBUG("in NTL RNG");
     return RandomBnd(modulus);
     
   }
@@ -173,8 +174,8 @@ static IntType RNG(const IntType& modulus)
 template<typename IntType>
 static bool WitnessFunction(const IntType& a, const IntType& d, usint s, const IntType& p)
 {
-  bool dbg_flag = true;
-  DEBUG("calling modexp a "<<a<<" d "<<d<<" p "<<p);
+        bool dbg_flag = false;
+        DEBUG("calling modexp a "<<a<<" d "<<d<<" p "<<p);
 	IntType mod = a.ModExp(d, p);
 	DEBUG("mod "<<mod);
 	bool prevMod = false;
@@ -198,7 +199,7 @@ static bool WitnessFunction(const IntType& a, const IntType& d, usint s, const I
 template<typename IntType>
 static IntType FindGenerator(const IntType& q)
  {
-	bool dbg_flag = true;
+	bool dbg_flag = false;
  	std::set<IntType> primeFactors;
 	DEBUG("calling PrimeFactorize");
 
@@ -376,7 +377,7 @@ IntType GreatestCommonDivisor(const IntType& a, const IntType& b)
   //define an NTL native implementation 
   NTL::myZZ GreatestCommonDivisor(const NTL::myZZ& a, const NTL::myZZ& b)
   {
-  bool dbg_flag = false;
+  bool dbg_flag = true;
   DEBUG("NTL::GCD a "<<a<<" b "<< b);   
   return GCD(a,b);
 }
@@ -391,7 +392,7 @@ IntType GreatestCommonDivisor(const IntType& a, const IntType& b)
   template<typename IntType>
   bool MillerRabinPrimalityTest(const IntType& p, const usint niter)
   {
-        bool dbg_flag = true;
+        bool dbg_flag = false;
  	if(p < 2 || ((p != 2) && (p.Mod(2) == 0)))
  		return false;
  	if(p == 2 || p == 3 || p == 5)
@@ -423,6 +424,8 @@ IntType GreatestCommonDivisor(const IntType& a, const IntType& b)
   //NTL native version
 bool MillerRabinPrimalityTest(const NTL::myZZ& p, const usint niter)
  {
+    bool dbg_flag = false;
+    DEBUG("in NTL MRPT");
  	if(p < NTL::myZZ::TWO || ((p != NTL::myZZ::TWO) && 
 	(p.Mod(NTL::myZZ::TWO) == NTL::myZZ::ZERO)))
  		return false;
@@ -481,7 +484,7 @@ const IntType PollardRhoFactorization(const IntType &n)
 template<typename IntType>
 void PrimeFactorize( IntType n, std::set<IntType> &primeFactors)
  {
-   bool dbg_flag = true;
+   bool dbg_flag = false;
    DEBUG("PrimeFactorize "<<n);
 #if 1 
 	// primeFactors.clear();

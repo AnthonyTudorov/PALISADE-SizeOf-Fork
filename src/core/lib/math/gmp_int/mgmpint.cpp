@@ -254,8 +254,15 @@ namespace NTL {
     
   uint32_t myZZ_p::ConvertToUint32() const { return (conv<uint32_t>(*this));}
 
-need to do here what we did with gmpint::converttouint64
-  uint64_t myZZ_p::ConvertToUint64() const{ return (conv<uint64_t>(*this));}
+ // warning on some platforms usint64_t is implemented as an unsigned
+  // long long which is not included in the conv functions in tools.h
+  // in which case the following does not compile. 
+
+  uint64_t myZZ_p::ConvertToUint64() const{ 
+    static_assert(sizeof(uint64_t) == sizeof(long), 
+		  "sizeof(uint64_t) != sizeof(long), edit myZZ ConvertToUint64()");
+    return (conv<uint64_t>(*this));
+  }
   float myZZ_p::ConvertToFloat() const{ return (conv<float>(this->_ZZ_p__rep));}
   double myZZ_p::ConvertToDouble() const{ return (conv<double>(this->_ZZ_p__rep));}
   long double myZZ_p::ConvertToLongDouble() const {
