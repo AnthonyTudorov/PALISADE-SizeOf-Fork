@@ -293,7 +293,7 @@ public:
 	* EvalMult is currently unsopported in the Stehle-Steinfeld scheme and there is no currently known method to 
 	* support EvalMult in the Stehle-Steinfeld scheme.
 	*
-	* @param originalPrivateKey private key to start from.
+	* @param originalPrivateKey private key to start from when key switching.
 	* @return resulting evalkeyswitch hint
 	*/
 	shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const {
