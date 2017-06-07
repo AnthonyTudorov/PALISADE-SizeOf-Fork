@@ -37,11 +37,11 @@
 
 namespace lbcrypto {
 
-	BigBinaryInteger PackedIntPlaintextEncoding::initRoot = BigBinaryInteger(0);
-	BigBinaryInteger PackedIntPlaintextEncoding::bigMod = BigBinaryInteger(0);
-	BigBinaryInteger PackedIntPlaintextEncoding::bigRoot = BigBinaryInteger(0);
+	std::map<BigBinaryInteger, BigBinaryInteger> PackedIntPlaintextEncoding::m_initRoot;
 
-	std::vector<usint> PackedIntPlaintextEncoding::rootOfUnityTable = std::vector<usint>();
+	std::map<BigBinaryInteger, std::vector<BigBinaryVector>> PackedIntPlaintextEncoding::m_coefficientsCRT;
+
+	std::map<BigBinaryInteger, BigBinaryVector> PackedIntPlaintextEncoding::m_rootList;
 
 	void PackedIntPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector, size_t startFrom, size_t length) const
 	{
@@ -95,55 +95,139 @@ namespace lbcrypto {
 
 	void PackedIntPlaintextEncoding::Destroy()
 	{
-		initRoot = BigBinaryInteger(0);
-		rootOfUnityTable.clear();
-		bigMod = BigBinaryInteger(0);
-		bigRoot = BigBinaryInteger(0);
+		m_initRoot.clear();
+		m_coefficientsCRT.clear();
+		m_rootList.clear();
+	}
+
+	void PackedIntPlaintextEncoding::SetParams(const BigBinaryInteger &modulus, usint m)
+	{
+
+		if (m_initRoot[modulus].GetMSB() == 0) {
+
+
+			//initRoot = BigBinaryInteger(7);
+			BigBinaryInteger initRoot = RootOfUnity<BigBinaryInteger>(m, modulus);
+			while (GreatestCommonDivisor<usint>(initRoot.ConvertToInt(), m) != 1 || !IsGenerator<BigBinaryInteger>(initRoot, BigBinaryInteger(m)))
+			{
+				initRoot = RootOfUnity<BigBinaryInteger>(m, modulus);
+				//std::cout << "candidate: " << initRoot << std::endl;
+			}
+
+			m_initRoot[modulus] = initRoot;
+			//std::cout << "root found" << initRoot << std::endl;
+
+			InitializeCRTCoefficients(m, modulus);
+
+		}
+
+
 	}
 
 	void PackedIntPlaintextEncoding::Pack(ILVector2n *ring, const BigBinaryInteger &modulus) const {
 
+		usint n = ring->GetRingDimension(); //ring dimension
 		usint m = ring->GetCyclotomicOrder();//cyclotomic order
 															   //Do the precomputation if not initialized
 		const auto params = ring->GetParams();
 
-		if (this->initRoot.GetMSB() == 0 ) {
-			if (params->OrderIsPowerOfTwo()) {
-				this->initRoot = RootOfUnity<BigBinaryInteger>(m, modulus);
-			}
-			else {
-				this->initRoot = RootOfUnity<BigBinaryInteger>(2*m, modulus);
-				usint nttDim = pow(2, ceil(log2(2 * m - 1)));
-				this->bigMod = FindPrimeModulus<BigBinaryInteger>(nttDim , log2(nttDim) + 2 * modulus.GetMSB());
-				this->bigRoot = RootOfUnity<BigBinaryInteger>(nttDim, bigMod);
-				auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulus);
-				ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::SetCylotomicPolynomial(cycloPoly, modulus);
-			}
+		if (this->m_initRoot[modulus].GetMSB() == 0 ) {
+			if (params->OrderIsPowerOfTwo())
+				m_initRoot[modulus] = RootOfUnity<BigBinaryInteger>(m, modulus);
+			else
+				SetParams(modulus, m);
+			//std::cout << "generator? = " << IsGenerator<BigBinaryInteger>(this->initRoot, BigBinaryInteger(m)) << std::endl;
+			//std::cout << "root found" << initRoot << std::endl;
 		}
-
-		//initRoot = BigBinaryInteger::TWO;
 
 		BigBinaryInteger qMod(ring->GetModulus());
 
-		BigBinaryVector packedVector(ring->GetValues());
+		BigBinaryVector slotValues(ring->GetValues());
 
 		//std::cout << packedVector << std::endl;
 
-		packedVector.SetModulus(modulus);
+		slotValues.SetModulus(modulus);
 
 		if (params->OrderIsPowerOfTwo()) {
-			packedVector = ChineseRemainderTransformFTT<BigBinaryInteger, BigBinaryVector>::GetInstance().InverseTransform(packedVector, initRoot, m);
+			slotValues = ChineseRemainderTransformFTT<BigBinaryInteger, BigBinaryVector>::GetInstance().InverseTransform(slotValues, m_initRoot[modulus], m);
 		}
 		else {
-			packedVector = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().InverseTransform(packedVector, initRoot,bigMod,bigRoot,m);
-		}		
+			
+			BigBinaryVector packedVector(m_coefficientsCRT[modulus].at(0)*slotValues.GetValAtIndex(0));
+			for (usint i = 1; i < n; i++) {
+				packedVector += m_coefficientsCRT[modulus].at(i)*slotValues.GetValAtIndex(i);
+			}
+			slotValues = std::move(packedVector);
+		}
 
-		//std::cout << packedVector << std::endl;
+		slotValues.SetModulus(qMod);
 
-		packedVector.SetModulus(qMod);
+		ring->SetValues(slotValues, Format::COEFFICIENT);
 
-		ring->SetValues(packedVector, Format::COEFFICIENT);
+		//ring->PrintValues();
 
+	}
+
+
+	BigBinaryVector PackedIntPlaintextEncoding::GetRootVector(const BigBinaryInteger &modulus, usint cycloOrder) {
+		auto tList = GetTotientList(cycloOrder);
+		BigBinaryVector rootList(tList.size(),modulus);
+		for (usint i = 0; i < tList.size(); i++) {
+			auto val = m_initRoot[modulus].ModExp(BigBinaryInteger(tList.at(i)), modulus);
+			rootList.SetValAtIndex(i, val);
+		}
+		
+		return rootList;
+	}
+
+	void PackedIntPlaintextEncoding::InitializeCRTCoefficients(usint cycloOrder,const BigBinaryInteger &modulus){
+		usint n = GetTotient(cycloOrder);
+		auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(cycloOrder, modulus);
+		auto rootListInit = GetRootVector(modulus, cycloOrder);
+		std::vector<BigBinaryVector> coefficients;
+		for (usint i = 0; i < n; i++) {
+			auto coeffRow = SyntheticPolynomialDivision(cycloPoly, rootListInit.GetValAtIndex(i), modulus);
+			auto x = SyntheticRemainder(coeffRow, rootListInit.GetValAtIndex(i), modulus);
+			x = x.ModInverse(modulus);
+			coeffRow = coeffRow*x;
+			coefficients.push_back(std::move(coeffRow));
+		}
+		BigBinaryVector slotValues(n, modulus);
+		for (usint i = 0; i < n; i++) {
+			slotValues.SetValAtIndex(i, BigBinaryInteger(i + 1));
+		}
+		BigBinaryVector packedVector(coefficients.at(0)*slotValues.GetValAtIndex(0));
+		for (usint i = 1; i < n; i++) {
+			packedVector += coefficients.at(i)*slotValues.GetValAtIndex(i);
+		}
+
+		auto perm = SyntheticPolyPowerMod(packedVector,m_initRoot[modulus],rootListInit);
+
+		auto newRootList = FindPermutedSlots(slotValues, perm, rootListInit);
+
+		coefficients.clear();
+		for (usint i = 0; i < n; i++) {
+			auto coeffRow = SyntheticPolynomialDivision(cycloPoly, newRootList.GetValAtIndex(i), modulus);
+			auto x = SyntheticRemainder(coeffRow, newRootList.GetValAtIndex(i), modulus);
+			x = x.ModInverse(modulus);
+			coeffRow = coeffRow*x;
+			coefficients.push_back(std::move(coeffRow));
+		}
+		m_coefficientsCRT[modulus] = std::move(coefficients);
+		m_rootList[modulus] = std::move(newRootList);
+	}
+
+	BigBinaryVector PackedIntPlaintextEncoding::FindPermutedSlots(const BigBinaryVector &orig, const BigBinaryVector & perm, const BigBinaryVector & rootList){
+		BigBinaryVector newRootList(rootList.GetLength(), rootList.GetModulus());
+		usint idx = 0;
+		while (perm.GetValAtIndex(idx) != BigBinaryInteger::ONE)
+			idx++;
+		usint n = rootList.GetLength();
+		for (usint i = 0; i < n; i++) {
+			newRootList.SetValAtIndex(i, rootList.GetValAtIndex(idx));
+			idx = perm.GetValAtIndex(idx).ConvertToInt()-1;
+		}
+		return newRootList;
 	}
 
 	void PackedIntPlaintextEncoding::Unpack(ILVector2n *ring, const BigBinaryInteger &modulus) const {
@@ -156,21 +240,45 @@ namespace lbcrypto {
 
 		auto params = ring->GetParams();
 
-		//std::cout << packedVector << std::endl;
-
 		packedVector.SetModulus(modulus);
 
 		if (params->OrderIsPowerOfTwo()) {
-			packedVector = ChineseRemainderTransformFTT<BigBinaryInteger, BigBinaryVector>::GetInstance().ForwardTransform(packedVector, initRoot, m);
+			packedVector = ChineseRemainderTransformFTT<BigBinaryInteger, BigBinaryVector>::GetInstance().ForwardTransform(packedVector, m_initRoot[modulus], m);
 		}
 		else {
-			packedVector = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().ForwardTransform(packedVector, initRoot, bigMod,bigRoot,m);
+			packedVector = SyntheticPolyRemainder(packedVector, m_rootList[modulus], modulus);
 		}		
 
 		packedVector.SetModulus(qMod);
 
 		ring->SetValues(packedVector, Format::COEFFICIENT);
 
+	}
+
+	BigBinaryVector PackedIntPlaintextEncoding::SyntheticPolyPowerMod(const BigBinaryVector &input, const BigBinaryInteger &power, const BigBinaryVector &rootListInit) {
+
+		usint n = input.GetLength();
+		const auto &modulus = input.GetModulus();
+		BigBinaryVector result(n,modulus);
+
+		//Precompute the Barrett mu parameter
+		BigBinaryInteger temp(BigBinaryInteger::ONE);
+		temp <<= 2 * modulus.GetMSB() + 3;
+		BigBinaryInteger mu = temp.DividedBy(modulus);
+
+		for (usint i = 0; i < n; i++) {
+			auto &root = rootListInit.GetValAtIndex(i);
+			auto pow(root.ModExp(power, modulus));
+			auto val = input.GetValAtIndex(n - 1);
+			for (int j = n-2; j > -1; j--) {
+				val = input.GetValAtIndex(j) + pow*val;
+				val = val.ModBarrett(modulus,mu);
+			}
+
+			result.SetValAtIndex(i, val);
+		}
+		
+		return result;
 	}
 
 }

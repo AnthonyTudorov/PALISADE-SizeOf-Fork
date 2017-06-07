@@ -53,6 +53,8 @@ bool LPCryptoParametersFV<Element>::Serialize(Serialized* serObj) const {
 	cryptoParamsMap.AddMember("mode", std::to_string(m_mode), serObj->GetAllocator());
 	cryptoParamsMap.AddMember("bigmodulus", m_bigModulus.ToString(), serObj->GetAllocator());
 	cryptoParamsMap.AddMember("bigrootofunity", m_bigRootOfUnity.ToString(), serObj->GetAllocator());
+	cryptoParamsMap.AddMember("bigmodulusarb", m_bigModulusArb.ToString(), serObj->GetAllocator());
+	cryptoParamsMap.AddMember("bigrootofunityarb", m_bigRootOfUnityArb.ToString(), serObj->GetAllocator());
 
 	serObj->AddMember("LPCryptoParametersFV", cryptoParamsMap.Move(), serObj->GetAllocator());
 	serObj->AddMember("LPCryptoParametersType", "LPCryptoParametersFV", serObj->GetAllocator());
@@ -85,8 +87,18 @@ bool LPCryptoParametersFV<Element>::Deserialize(const Serialized& serObj) {
 		return false;
 	BigBinaryInteger bigrootofunity(pIt->value.GetString());
 
+	if ((pIt = mIter->value.FindMember("bigmodulusarb")) == mIter->value.MemberEnd())
+		return false;
+	BigBinaryInteger bigmodulusarb(pIt->value.GetString());
+
+	if ((pIt = mIter->value.FindMember("bigrootofunityarb")) == mIter->value.MemberEnd())
+		return false;
+	BigBinaryInteger bigrootofunityarb(pIt->value.GetString());
+
 	this->SetBigModulus(bigmodulus);
 	this->SetBigRootOfUnity(bigrootofunity);
+	this->SetBigModulusArb(bigmodulusarb);
+	this->SetBigRootOfUnityArb(bigrootofunityarb);
 	this->SetMode(mode);
 	this->SetDelta(delta);
 
@@ -265,7 +277,7 @@ LPKeyPair<Element> LPAlgorithmFV<Element>::KeyGen(const CryptoContext<Element> c
 
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
-		ILVector2n &ptxt) const
+		ILVector2n &ptxt, bool doEncryption) const
 {
 	shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(publicKey->GetCryptoContext()) );
 
@@ -274,34 +286,47 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &delta = cryptoParams->GetDelta();
 
-	const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
-	typename Element::TugType tug;
-
-	const Element &p0 = publicKey->GetPublicElements().at(0);
-	const Element &p1 = publicKey->GetPublicElements().at(1);
-
-	Element u;
-
-	//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
-	if (cryptoParams->GetMode()==RLWE)
-		u = Element(dgg, elementParams, Format::EVALUATION);
-	else
-		u = Element(tug, elementParams, Format::EVALUATION);
-
-	Element e1(dgg, elementParams, Format::EVALUATION);
-	Element e2(dgg, elementParams, Format::EVALUATION);
-
-	Element c0(elementParams);
-	Element c1(elementParams);
-
 	Element plaintext(ptxt, elementParams);
 	plaintext.SwitchFormat();
 
-	c0 = p0*u + e1 + delta*plaintext;
+	if (doEncryption) {
 
-	c1 = p1*u + e2;
+		const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
+		typename Element::TugType tug;
 
-	ciphertext->SetElements({ c0, c1 });
+		const Element &p0 = publicKey->GetPublicElements().at(0);
+		const Element &p1 = publicKey->GetPublicElements().at(1);
+
+		Element u;
+
+		//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
+		if (cryptoParams->GetMode() == RLWE)
+			u = Element(dgg, elementParams, Format::EVALUATION);
+		else
+			u = Element(tug, elementParams, Format::EVALUATION);
+
+		Element e1(dgg, elementParams, Format::EVALUATION);
+		Element e2(dgg, elementParams, Format::EVALUATION);
+
+		Element c0(elementParams);
+		Element c1(elementParams);
+
+		c0 = p0*u + e1 + delta*plaintext;
+
+		c1 = p1*u + e2;
+
+		ciphertext->SetElements({ c0, c1 });
+
+	}
+	else
+	{
+
+		Element c0(delta*plaintext);
+		Element c1(elementParams, Format::EVALUATION, true);
+
+		ciphertext->SetElements({ c0, c1 });
+
+	}
 
 	return ciphertext;
 }
@@ -409,6 +434,8 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared
 
 	const BigBinaryInteger &bigModulus = cryptoParamsLWE->GetBigModulus();
 	const BigBinaryInteger &bigRootOfUnity = cryptoParamsLWE->GetBigRootOfUnity();
+	const BigBinaryInteger &bigModulusArb = cryptoParamsLWE->GetBigModulusArb();
+	const BigBinaryInteger &bigRootOfUnityArb = cryptoParamsLWE->GetBigRootOfUnityArb();
 
 	std::vector<Element> cipherText1Elements = ciphertext1->GetElements();
 	std::vector<Element> cipherText2Elements = ciphertext2->GetElements();
@@ -420,10 +447,10 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared
 	cipherText2Elements[1].SwitchFormat();
 
 	//switches the modulus to a larger value so that polynomial multiplication w/o mod q can be performed
-	cipherText1Elements[0].SwitchModulus(bigModulus, bigRootOfUnity);
-	cipherText1Elements[1].SwitchModulus(bigModulus, bigRootOfUnity);
-	cipherText2Elements[0].SwitchModulus(bigModulus, bigRootOfUnity);
-	cipherText2Elements[1].SwitchModulus(bigModulus, bigRootOfUnity);
+	cipherText1Elements[0].SwitchModulus(bigModulus, bigRootOfUnity, bigModulusArb, bigRootOfUnityArb);
+	cipherText1Elements[1].SwitchModulus(bigModulus, bigRootOfUnity, bigModulusArb, bigRootOfUnityArb);
+	cipherText2Elements[0].SwitchModulus(bigModulus, bigRootOfUnity, bigModulusArb, bigRootOfUnityArb);
+	cipherText2Elements[1].SwitchModulus(bigModulus, bigRootOfUnity, bigModulusArb, bigRootOfUnityArb);
 
 	//converts the ciphertext elements back to evaluation representation
 	cipherText1Elements[0].SwitchFormat();
@@ -445,15 +472,87 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared
 	c2 = c2.MultiplyAndRound(p, q);
 
 	//switch the modulus back to the original value
-	c0.SwitchModulus(q, elementParams->GetRootOfUnity());
-	c1.SwitchModulus(q, elementParams->GetRootOfUnity());
-	c2.SwitchModulus(q, elementParams->GetRootOfUnity());
+	c0.SwitchModulus(q, elementParams->GetRootOfUnity(), elementParams->GetBigModulus(), elementParams->GetBigRootOfUnity());
+	c1.SwitchModulus(q, elementParams->GetRootOfUnity(), elementParams->GetBigModulus(), elementParams->GetBigRootOfUnity());
+	c2.SwitchModulus(q, elementParams->GetRootOfUnity(), elementParams->GetBigModulus(), elementParams->GetBigRootOfUnity());
 
 	newCiphertext->SetElements({ c0, c1, c2 });
 
 	return newCiphertext;
 
 }
+
+template <class Element>
+shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMultPlain(const shared_ptr<Ciphertext<Element>> ciphertext,
+	const shared_ptr<Ciphertext<Element>> plaintext) const {
+
+	if (ciphertext->GetElements()[0].GetFormat() == Format::COEFFICIENT || plaintext->GetElements()[0].GetFormat() == Format::COEFFICIENT) {
+		throw std::runtime_error("LPAlgorithmSHEFV::EvalMult cannot multiply in COEFFICIENT domain.");
+	}
+
+	if (!(ciphertext->GetCryptoParameters() == plaintext->GetCryptoParameters())) {
+		std::string errMsg = "LPAlgorithmSHEFV::EvalMult crypto parameters are not the same";
+		throw std::runtime_error(errMsg);
+	}
+
+	shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext->GetCryptoContext()));
+
+	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParamsLWE = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(ciphertext->GetCryptoContext().GetCryptoParameters());
+
+	const shared_ptr<typename Element::Params> elementParams = cryptoParamsLWE->GetElementParams();
+	const BigBinaryInteger &p = cryptoParamsLWE->GetPlaintextModulus();
+	const BigBinaryInteger &q = elementParams->GetModulus();
+
+	const BigBinaryInteger &bigModulus = cryptoParamsLWE->GetBigModulus();
+	const BigBinaryInteger &bigRootOfUnity = cryptoParamsLWE->GetBigRootOfUnity();
+	const BigBinaryInteger &bigModulusArb = cryptoParamsLWE->GetBigModulusArb();
+	const BigBinaryInteger &bigRootOfUnityArb = cryptoParamsLWE->GetBigRootOfUnityArb();
+
+	std::vector<Element> cipherText1Elements = ciphertext->GetElements();
+	std::vector<Element> cipherText2Elements = plaintext->GetElements();
+
+	//converts the ciphertext elements to coefficient format so that the modulus switching can be done
+	cipherText1Elements[0].SwitchFormat();
+	cipherText1Elements[1].SwitchFormat();
+	cipherText2Elements[0].SwitchFormat();
+	//cipherText2Elements[1].SwitchFormat();
+
+	//switches the modulus to a larger value so that polynomial multiplication w/o mod q can be performed
+	cipherText1Elements[0].SwitchModulus(bigModulus, bigRootOfUnity, bigModulusArb, bigRootOfUnityArb);
+	cipherText1Elements[1].SwitchModulus(bigModulus, bigRootOfUnity, bigModulusArb, bigRootOfUnityArb);
+	cipherText2Elements[0].SwitchModulus(bigModulus, bigRootOfUnity, bigModulusArb, bigRootOfUnityArb);
+	//cipherText2Elements[1].SwitchModulus(bigModulus, bigRootOfUnity, bigModulusArb, bigRootOfUnityArb);
+
+	//converts the ciphertext elements back to evaluation representation
+	cipherText1Elements[0].SwitchFormat();
+	cipherText1Elements[1].SwitchFormat();
+	cipherText2Elements[0].SwitchFormat();
+	//cipherText2Elements[1].SwitchFormat();
+
+	Element c0 = cipherText1Elements[0] * cipherText2Elements[0];
+	Element c1 = cipherText1Elements[1] * cipherText2Elements[0];
+
+	//converts to coefficient representation before rounding
+	c0.SwitchFormat();
+	c1.SwitchFormat();
+
+	c0 = c0.MultiplyAndRound(p, q);
+	c1 = c1.MultiplyAndRound(p, q);
+
+	//switch the modulus back to the original value
+	c0.SwitchModulus(q, elementParams->GetRootOfUnity(), elementParams->GetBigModulus(), elementParams->GetBigRootOfUnity());
+	c1.SwitchModulus(q, elementParams->GetRootOfUnity(), elementParams->GetBigModulus(), elementParams->GetBigRootOfUnity());
+
+	//puts back in evaluation representation
+	c0.SwitchFormat();
+	c1.SwitchFormat();
+
+	newCiphertext->SetElements({ c0, c1});
+
+	return newCiphertext;
+
+}
+
 
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::KeySwitch(const shared_ptr<LPEvalKey<Element>> ek,
@@ -572,7 +671,7 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmSHEFV<Element>::EvalMultKeyGen(
 
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalAutomorphism(const shared_ptr<Ciphertext<Element>> ciphertext, usint i,
-	const std::vector<shared_ptr<LPEvalKey<Element>>> &evalKeys) const
+	const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalKeys) const
 {
 
 	shared_ptr<Ciphertext<Element>> permutedCiphertext(new Ciphertext<Element>(*ciphertext));
@@ -587,37 +686,35 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalAutomorphism(cons
 
 	permutedCiphertext->SetElements(std::move(cNew));
 
-	return this->KeySwitch(evalKeys[(i - 3) / 2], permutedCiphertext);
+	return this->KeySwitch(evalKeys.find(i)->second, permutedCiphertext);
 
 }
 
 template <class Element>
-shared_ptr<std::vector<shared_ptr<LPEvalKey<Element>>>> LPAlgorithmSHEFV<Element>::EvalAutomorphismKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey,
-	usint size, bool flagEvalSum) const
+shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> LPAlgorithmSHEFV<Element>::EvalAutomorphismKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey,
+	const std::vector<usint> &indexList) const
 {
 
 	const Element &privateKeyElement = privateKey->GetPrivateElement();
-	usint m = privateKeyElement.GetCyclotomicOrder();
+
+	usint n = privateKeyElement.GetRingDimension();
 
 	shared_ptr<LPPrivateKey<Element>> tempPrivateKey(new LPPrivateKey<Element>(privateKey->GetCryptoContext()));
 
-	shared_ptr<std::vector<shared_ptr<LPEvalKey<Element>>>> evalKeys(new std::vector<shared_ptr<LPEvalKey<Element>>>());
+	shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> evalKeys(new std::map<usint, shared_ptr<LPEvalKey<Element>>>());
 
-	if (size > m / 2 - 1)
-		throw std::runtime_error("size exceeds allowed limit: maximum is m/2");
+	if (indexList.size() > n - 1)
+		throw std::runtime_error("size exceeds the ring dimension");
 	else {
 
-		usint i = 3;
-
-		for (usint index = 0; index < size; index++)
+		for (usint i = 0; i < indexList.size(); i++)
 		{
-			Element permutedPrivateKeyElement = privateKeyElement.AutomorphismTransform(i);
+			Element permutedPrivateKeyElement = privateKeyElement.AutomorphismTransform(indexList[i]);
 
 			tempPrivateKey->SetPrivateElement(permutedPrivateKeyElement);
 
-			evalKeys->push_back(this->KeySwitchGen(tempPrivateKey, privateKey));
+			(*evalKeys)[indexList[i]] = this->KeySwitchGen(tempPrivateKey, privateKey);
 
-			i = i + 2;
 		}
 
 	}

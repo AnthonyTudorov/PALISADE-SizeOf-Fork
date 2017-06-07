@@ -1384,24 +1384,18 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::ModBarrettSub(const BigBinaryInteger& b, const BigBinaryInteger& modulus,const BigBinaryInteger& mu) const{
 
-	BigBinaryInteger* a = NULL;
-	BigBinaryInteger* b_op = NULL;
+	BigBinaryInteger* a = const_cast<BigBinaryInteger*>(this);
+	BigBinaryInteger* b_op = const_cast<BigBinaryInteger*>(&b);
 
 	if(*this>modulus){
 		*a = this->ModBarrett(modulus,mu);
-	}
-	else{
-		a = const_cast<BigBinaryInteger*>(this);
 	}
 
 	if(b>modulus){
 		*b_op = b.ModBarrett(modulus,mu);
 	}
-	else{
-		b_op = const_cast<BigBinaryInteger*>(&b);
-	}
 
-	if(!(*a<*b_op)){
+	if(*a >= *b_op){
 		return ((*a-*b_op).ModBarrett(modulus,mu));
 		
 	}

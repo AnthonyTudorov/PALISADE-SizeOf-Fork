@@ -49,13 +49,37 @@ using namespace lbcrypto;
 
 void EvalMultBigRing();
 void EvalMultSmallRing();
+void EvalAutomorphism();
+void EvalSummation();
+
+void PerformanceTest();
+void PerformanceTestV3();
+void PerformanceTestV2();
+void PerformanceTestV4();
+
+vector<shared_ptr<Ciphertext<ILVector2n>>> AutomorphCiphertext(vector<shared_ptr<Ciphertext<ILVector2n>>> &ciphertext, usint k);
+std::shared_ptr<LPPrivateKey<ILVector2n>> AutomorphSecretkey(std::shared_ptr<LPPrivateKey<ILVector2n>> sk, usint k);
+
+std::vector<usint> YuriyAutomorphism(const std::vector<usint> &input, usint i);
 
 int main(int argc, char *argv[])
 {
+	/*std::vector<usint> input = { 4145365, 15446096, 13914296, 5921598, 4346276, 23277173, 10116835, 5628509, 2463476, 10824166 };
+
+	auto res = YuriyAutomorphism(input, 7);
+
+	for (auto &x : res)
+	std::cout << x << "  ";
+	std::cout << std::endl;*/
+
+	//PerformanceTestV2();
+
+	//EvalSummation();
+	//EvalMultSmallRing();
+	//EvalAutomorphism();
+	PerformanceTestV3();
 	
-	EvalMultSmallRing();
-
-
+	std::cout << "Press any key to continue" << std::endl;
 	std::cin.get();
 
 	return 0;
@@ -120,7 +144,8 @@ void EvalMultBigRing() {
 void EvalMultSmallRing() {
 	usint m = 22;
 	usint p = 89; // we choose s.t. 2m|p-1 to leverage CRTArb
-	BigBinaryInteger modulusQ("72385066601");
+	//BigBinaryInteger modulusQ("72385066601");
+	BigBinaryInteger modulusQ("23");
 	BigBinaryInteger modulusP(p);
 	BigBinaryInteger rootOfUnity("69414828251");
 	BigBinaryInteger bigmodulus("77302754575416994210914689");
@@ -129,7 +154,7 @@ void EvalMultSmallRing() {
 	auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulusQ);
 	//ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().PreCompute(m, modulusQ);
 	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
-
+	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::SetPreComputedNTTDivisionModulus(m, modulusQ, bigmodulus, bigroot);
 	float stdDev = 4;
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, rootOfUnity, bigmodulus, bigroot));
@@ -173,4 +198,457 @@ void EvalMultSmallRing() {
 	std::cout << intArrayNew << std::endl;
 }
 
+void EvalAutomorphism() {
+
+	usint m = 22;
+	usint p = 23;
+	BigBinaryInteger modulusP(p);
+	/*BigBinaryInteger modulusQ("577325471560727734926295560417311036005875689");
+	BigBinaryInteger squareRootOfRoot("576597741275581172514290864170674379520285921");*/
+	BigBinaryInteger modulusQ("955263939794561");
+	BigBinaryInteger squareRootOfRoot("941018665059848");
+	//BigBinaryInteger squareRootOfRoot = RootOfUnity(2*m,modulusQ);
+	//std::cout << squareRootOfRoot << std::endl;
+	BigBinaryInteger bigmodulus("80899135611688102162227204937217");
+	BigBinaryInteger bigroot("77936753846653065954043047918387");
+	//std::cout << bigroot << std::endl;
+
+	auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulusQ);
+	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulusQ);
+
+
+	float stdDev = 4;
+
+	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
+
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, p, 8, stdDev);
+
+	cc.Enable(ENCRYPTION);
+	cc.Enable(SHE);
+	cc.Enable(LEVELEDSHE);
+
+	// Initialize the public key containers.
+	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	//kp.secretKey->GetPrivateElement().PrintValues();
+
+	std::vector<usint> vectorOfInts1 = { 1,2,3,4,5,6,7,8,0,0 };
+	PackedIntPlaintextEncoding intArray1(vectorOfInts1);
+
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext = cc.Encrypt(kp.publicKey, intArray1, false);
+
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextAutomorphedR1 = AutomorphCiphertext(ciphertext, 7);
+	std::shared_ptr<LPPrivateKey<ILVector2n>> skmorphedR1 = AutomorphSecretkey(kp.secretKey, 7);
+
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextAutomorphedR2 = AutomorphCiphertext(ciphertext, 5);
+	std::shared_ptr<LPPrivateKey<ILVector2n>> skmorphedR2 = AutomorphSecretkey(kp.secretKey, 5);
+
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextAutomorphedR3 = AutomorphCiphertext(ciphertext, 3);
+	std::shared_ptr<LPPrivateKey<ILVector2n>> skmorphedR3 = AutomorphSecretkey(kp.secretKey, 3);
+
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextAutomorphedR4 = AutomorphCiphertext(ciphertext, 9);
+	std::shared_ptr<LPPrivateKey<ILVector2n>> skmorphedR4 = AutomorphSecretkey(kp.secretKey, 9);
+
+	PackedIntPlaintextEncoding intArrayCheckR1;
+	PackedIntPlaintextEncoding intArrayCheckR2;
+	PackedIntPlaintextEncoding intArrayCheckR3;
+	PackedIntPlaintextEncoding intArrayCheckR4;
+
+	cc.Decrypt(skmorphedR1, ciphertextAutomorphedR1, &intArrayCheckR1, false);
+	std::cout << intArrayCheckR1 << std::endl;
+
+	cc.Decrypt(skmorphedR2, ciphertextAutomorphedR2, &intArrayCheckR2, false);
+	std::cout << intArrayCheckR2 << std::endl;
+
+	cc.Decrypt(skmorphedR3, ciphertextAutomorphedR3, &intArrayCheckR3, false);
+	std::cout << intArrayCheckR3 << std::endl;
+
+	cc.Decrypt(skmorphedR4, ciphertextAutomorphedR4, &intArrayCheckR4, false);
+	std::cout << intArrayCheckR4 << std::endl;
+	
+
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextAutomorphedSwitched;
+
+	auto keyswitchR1 = cc.KeySwitchGen(skmorphedR1, kp.secretKey);
+
+	auto switchedCipherR1 = cc.KeySwitch(keyswitchR1, ciphertextAutomorphedR1.at(0));
+
+	ciphertextAutomorphedSwitched.insert(ciphertextAutomorphedSwitched.begin(), switchedCipherR1);
+
+	PackedIntPlaintextEncoding intArrayNew;
+
+	cc.Decrypt(kp.secretKey, ciphertextAutomorphedSwitched, &intArrayNew, false);
+
+	std::cout << intArrayNew << std::endl;
+
+}
+
+void EvalSummation() {
+
+	usint m = 22;
+	usint p = 23;
+	BigBinaryInteger modulusP(p);
+	BigBinaryInteger modulusQ("955263939794561");
+	BigBinaryInteger squareRootOfRoot("941018665059848");
+	BigBinaryInteger bigmodulus("80899135611688102162227204937217");
+	BigBinaryInteger bigroot("77936753846653065954043047918387");
+
+	auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulusQ);
+	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulusQ);
+
+
+	float stdDev = 4;
+
+	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
+
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, p, 8, stdDev);
+
+	cc.Enable(ENCRYPTION);
+	cc.Enable(SHE);
+	cc.Enable(LEVELEDSHE);
+
+	// Initialize the public key containers.
+	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+
+	std::vector<usint> vectorOfInts1 = { 1,2,3,4,5,6,7,8,0,0 };
+	PackedIntPlaintextEncoding intArray1(vectorOfInts1);
+
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext = cc.Encrypt(kp.publicKey, intArray1, false);
+	
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextAutomorphedR1 = AutomorphCiphertext(ciphertext, 7);
+	std::shared_ptr<LPPrivateKey<ILVector2n>> skmorphedR1 = AutomorphSecretkey(kp.secretKey, 7);
+
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextAutomorphedSwitchedR1;
+	auto keyswitchR1 = cc.KeySwitchGen(skmorphedR1, kp.secretKey);
+	auto switchedCipherR1 = cc.KeySwitch(keyswitchR1, ciphertextAutomorphedR1.at(0));
+	ciphertextAutomorphedSwitchedR1.insert(ciphertextAutomorphedSwitchedR1.begin(), switchedCipherR1);
+	auto R1 = cc.EvalAdd(ciphertext.at(0), ciphertextAutomorphedSwitchedR1.at(0));
+
+	ciphertext.clear();
+	ciphertext.insert(ciphertext.begin(), R1);
+
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextAutomorphedR2 = AutomorphCiphertext(ciphertext, 5);
+	std::shared_ptr<LPPrivateKey<ILVector2n>> skmorphedR2 = AutomorphSecretkey(kp.secretKey, 5);
+
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextAutomorphedSwitchedR2;
+	auto keyswitchR2 = cc.KeySwitchGen(skmorphedR2, kp.secretKey);
+	auto switchedCipherR2 = cc.KeySwitch(keyswitchR2, ciphertextAutomorphedR2.at(0));
+	ciphertextAutomorphedSwitchedR2.insert(ciphertextAutomorphedSwitchedR2.begin(), switchedCipherR2);
+	auto R2 = cc.EvalAdd(ciphertext.at(0), ciphertextAutomorphedSwitchedR2.at(0));
+
+	ciphertext.clear();
+	ciphertext.insert(ciphertext.begin(), R2);
+
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextAutomorphedR3 = AutomorphCiphertext(ciphertext, 3);
+	std::shared_ptr<LPPrivateKey<ILVector2n>> skmorphedR3 = AutomorphSecretkey(kp.secretKey, 3);
+
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextAutomorphedSwitchedR3;
+	auto keyswitchR3 = cc.KeySwitchGen(skmorphedR3, kp.secretKey);
+	auto switchedCipherR3 = cc.KeySwitch(keyswitchR3, ciphertextAutomorphedR3.at(0));
+	ciphertextAutomorphedSwitchedR3.insert(ciphertextAutomorphedSwitchedR3.begin(), switchedCipherR3);
+	auto R3 = cc.EvalAdd(ciphertext.at(0), ciphertextAutomorphedSwitchedR3.at(0));
+
+	ciphertext.clear();
+	ciphertext.insert(ciphertext.begin(), R3);
+
+
+	PackedIntPlaintextEncoding intArrayNew;
+
+	cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
+
+	std::cout << intArrayNew << std::endl;
+
+
+}
+
+vector<shared_ptr<Ciphertext<ILVector2n>>> AutomorphCiphertext(vector<shared_ptr<Ciphertext<ILVector2n>>> &ciphertext, usint k) {
+	std::vector<shared_ptr<Ciphertext<ILVector2n>>> result;
+	for (usint i = 0; i < ciphertext.size(); i++) {
+		auto shrCipher = ciphertext.at(i);
+		shared_ptr<Ciphertext<ILVector2n>> ciphertextResult(new Ciphertext<ILVector2n>(shrCipher->GetCryptoContext()));
+		std::vector<ILVector2n> morphedCipherElements;
+		for (usint elCounter = 0; elCounter < shrCipher->GetElements().size(); elCounter++) {
+			ILVector2n temp(shrCipher->GetElements().at(elCounter));
+			temp = temp.AutomorphismTransform(k);
+			morphedCipherElements.push_back(std::move(temp));
+		}
+
+		ciphertextResult->SetElements(std::move(morphedCipherElements));
+		result.push_back(std::move(ciphertextResult));
+	}
+
+	return result;
+}
+
+std::shared_ptr<LPPrivateKey<ILVector2n>> AutomorphSecretkey(std::shared_ptr<LPPrivateKey<ILVector2n>> sk, usint k) {
+	std::shared_ptr<LPPrivateKey<ILVector2n>> morphedSK(new LPPrivateKey<ILVector2n>(sk->GetCryptoContext()));
+	ILVector2n morphedSKElement(sk->GetPrivateElement());
+	morphedSKElement = morphedSKElement.AutomorphismTransform(k);
+	morphedSK->SetPrivateElement(std::move(morphedSKElement));
+
+	return morphedSK;
+}
+
+void PerformanceTest() {
+
+	usint m = 8422;
+	BigBinaryInteger modulus("1194825523642870048326524785366004369"); //120 bits
+	BigBinaryInteger squareRootOfRoot("1125399230456375417724134273593267324");
+	BigBinaryInteger bigModulus("1852673427797059126777135760139006525652319754650249024631321344126610076631041"); //260 bits
+	BigBinaryInteger bigRoot("1011857408422309039039556907195908859561535234649870814154019834362746408101010");
+	//BigBinaryInteger bigModulusNTTDivision("22852932273529643486316954447175244494414503554339459946903988163765274935297");//254 bits
+	//BigBinaryInteger bigRootNTTDivision("166896813997959873062972192819860531324067319379918385803279340301727857067");
+
+	//BigBinaryInteger bigRootNTTDivision = RootOfUnity(m_nttDivisionDim, bigModulusNTTDivision);
+	//std::cout << bigRootNTTDivision << std::endl;
+	auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulus);
+
+	//ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().PreCompute(m, modulus);
+	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulus);
+	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::SetPreComputedNTTDivisionModulus(m, modulus, bigModulus, bigRoot);
+
+	usint n = GetTotient(m);
+	BigBinaryVector input(n, modulus);
+	input = { 1,2,3,4,5,6,7,8,9,10 };
+	auto INPUT = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().ForwardTransform(input, squareRootOfRoot, bigModulus, bigRoot, m);
+
+
+	auto inputCheck = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().InverseTransform(INPUT, squareRootOfRoot, bigModulus, bigRoot, m);
+
+	double start, stop, diff;
+
+	start = currentDateTime();
+
+	INPUT = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().ForwardTransform(input, squareRootOfRoot, bigModulus, bigRoot, m);
+
+	stop = currentDateTime();
+
+	diff = stop - start;
+
+	std::cout << "Forward Transform computation time is :\t" << diff << std::endl;
+
+	start = currentDateTime();
+
+	inputCheck = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().InverseTransform(INPUT, squareRootOfRoot, bigModulus, bigRoot, m);
+
+	stop = currentDateTime();
+
+	diff = stop - start;
+
+	std::cout << "Inverse Transform computation time is :\t" << diff << std::endl;
+
+	std::cout << inputCheck << std::endl;
+}
+
+void PerformanceTestV3() {
+
+	usint m = 22;
+	BigBinaryInteger modulus("89"); //120 bits
+	BigBinaryInteger squareRootOfRoot("84");
+	BigBinaryInteger bigModulus("4072961"); //260 bits
+	BigBinaryInteger bigRoot("4063975");
+	//BigBinaryInteger bigModulusNTTDivision("4164673"); //260 bits
+	//BigBinaryInteger bigRootNTTDivision("3987663");
+
+	usint n = GetTotient(m);
+
+	auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulus);
+
+	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulus);
+	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::SetPreComputedNTTDivisionModulus(m, modulus, bigModulus, bigRoot);
+
+	BigBinaryVector input(n, modulus);
+	input = { 1,2,3,4,5,6,7,8,9,10 };
+	auto INPUT = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().ForwardTransform(input, squareRootOfRoot, bigModulus, bigRoot, m);
+
+
+	auto inputCheck = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().InverseTransform(INPUT, squareRootOfRoot, bigModulus, bigRoot, m);
+
+	double start, stop, diff;
+
+	start = currentDateTime();
+
+	//INPUT = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().ForwardTransform(input, squareRootOfRoot, bigModulus, bigRoot, m);
+
+	stop = currentDateTime();
+
+	diff = stop - start;
+
+	std::cout << "Forward Transform computation time is :\t" << diff << std::endl;
+
+	start = currentDateTime();
+
+	//inputCheck = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().InverseTransform(INPUT, squareRootOfRoot, bigModulus, bigRoot, m);
+
+	stop = currentDateTime();
+
+	diff = stop - start;
+
+	std::cout << "Inverse Transform computation time is :\t" << diff << std::endl;
+
+	std::cout << inputCheck << std::endl;
+
+	BigBinaryVector a(n, modulus);
+	a = { 1,2,3,4,5,6,7,8,9,10 };
+	auto A = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().ForwardTransform(a, squareRootOfRoot, bigModulus, bigRoot, m);
+
+	BigBinaryVector b(n, modulus);
+	b = { 5,6,7,8,9,10,11,12,13,14 };
+	auto B = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().ForwardTransform(b, squareRootOfRoot, bigModulus, bigRoot, m);
+
+	auto C = A*B;
+
+	auto c = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().InverseTransform(C, squareRootOfRoot, bigModulus, bigRoot, m);
+
+	auto cCheck = PolynomialMultiplication(a, b);
+
+	cCheck = PolyMod(cCheck, cycloPoly, modulus);
+
+	std::cout << "Expected " << cCheck << std::endl;
+
+	std::cout << "Actual " << c << std::endl;
+}
+
+
+
+void PerformanceTestV2() {
+
+	usint m = 9742;
+	usint n = GetTotient(m);
+	BigBinaryInteger modulus("1329227995784915872903807060281374689");
+	BigBinaryInteger squareRootOfRoot("1103835257645791936030700335506173789");
+
+	BigBinaryInteger bigModulus("1852673427797059126777135760139006525652319754650249024631321344126610076631041");
+	BigBinaryInteger bigRoot("1011857408422309039039556907195908859561535234649870814154019834362746408101010");
+
+	auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulus);
+
+	//ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().PreCompute(m, modulus);
+	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulus);
+
+	BigBinaryVector input(n, modulus);
+	DiscreteUniformGenerator dug;
+	dug.SetModulus(modulus);
+
+	input = dug.GenerateVector(n);
+
+	auto INPUT = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().ForwardTransform(input, squareRootOfRoot, bigModulus, bigRoot, m);
+
+	auto inputCheck = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().InverseTransform(INPUT, squareRootOfRoot, bigModulus, bigRoot, m);
+
+	double start, stop, diff;
+
+	start = currentDateTime();
+
+	INPUT = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().ForwardTransform(input, squareRootOfRoot, bigModulus, bigRoot, m);
+
+	stop = currentDateTime();
+
+	diff = stop - start;
+
+	std::cout << "Forward Transform computation time is :\t" << diff << std::endl;
+
+	start = currentDateTime();
+
+	inputCheck = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().InverseTransform(INPUT, squareRootOfRoot, bigModulus, bigRoot, m);
+
+	stop = currentDateTime();
+
+	diff = stop - start;
+
+	std::cout << "Inverse Transform computation time is :\t" << diff << std::endl;
+
+	//std::cout << inputCheck << std::endl;
+}
+
+void PerformanceTestV4() {
+
+	usint m = 8422;
+	BigBinaryInteger modulus("1194825523642870048326524785366004369"); //120 bits
+	BigBinaryInteger squareRootOfRoot("1125399230456375417724134273593267324");
+	BigBinaryInteger bigModulus("1852673427797059126777135760139006525652319754650249024631321344126610076631041"); //260 bits
+	BigBinaryInteger bigRoot("1011857408422309039039556907195908859561535234649870814154019834362746408101010");
+	//BigBinaryInteger bigModulusNTTDivision("22852932273529643486316954447175244494414503554339459946903988163765274935297");//254 bits
+	//BigBinaryInteger bigRootNTTDivision("166896813997959873062972192819860531324067319379918385803279340301727857067");
+	usint n = GetTotient(m);
+	//usint m_nttDivisionDim = 2 * std::pow(2, ceil(log2(m - n)));
+	//BigBinaryInteger bigRootNTTDivision = RootOfUnity(m_nttDivisionDim, bigModulusNTTDivision);
+	//std::cout << bigRootNTTDivision << std::endl;
+	auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulus);
+
+	//ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().PreCompute(m, modulus);
+	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulus);
+	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::SetPreComputedNTTDivisionModulus(m, modulus, bigModulus, bigRoot);
+
+	//BigBinaryVector input(n, modulus);
+	//input = { 1,2,3,4,5,6,7,8,9,10 };
+
+	BigBinaryVector input(n, modulus);
+	DiscreteUniformGenerator dug;
+	dug.SetModulus(modulus);
+
+	input = dug.GenerateVector(n);
+
+	auto INPUT = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().ForwardTransform(input, squareRootOfRoot, bigModulus, bigRoot, m);
+
+
+	auto inputCheck = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().InverseTransform(INPUT, squareRootOfRoot, bigModulus, bigRoot, m);
+
+	double start, stop, diff;
+
+	start = currentDateTime();
+
+	INPUT = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().ForwardTransform(input, squareRootOfRoot, bigModulus, bigRoot, m);
+
+	stop = currentDateTime();
+
+	diff = stop - start;
+
+	std::cout << "Forward Transform computation time is :\t" << diff << std::endl;
+
+	start = currentDateTime();
+
+	inputCheck = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().InverseTransform(INPUT, squareRootOfRoot, bigModulus, bigRoot, m);
+
+	stop = currentDateTime();
+
+	diff = stop - start;
+
+	std::cout << "Inverse Transform computation time is :\t" << diff << std::endl;
+
+	//std::cout << inputCheck << std::endl;
+}
+
+
+
+std::vector<usint> YuriyAutomorphism(const std::vector<usint>& input, usint i)
+{
+	usint m = 22;
+	usint n = 10;
+
+	std::vector<usint> result(n, 0);
+
+	std::vector<usint> totientList = GetTotientList(m);
+	usint totientIndex = totientList[i];
+
+	for (usint k = 0; k < n; k++)
+	{
+		//which power of primitive root unity we should switch to
+		usint newOmegaPower = (totientList[k] * totientIndex) % m;
+		//std::cout << "omegaPower = " << newOmegaPower << std::endl;
+
+		//index in the totient list corresponding to the new omega power
+		size_t p = 0;
+
+		for (p = 0; p < n; p++) {
+			if (newOmegaPower == totientList[p]) {
+				break;
+			}
+		}
+		//std::cout << "p = " << p << std::endl;
+
+		result.at(p) = input.at(k);
+	}
+
+	return result;
+}
 

@@ -37,6 +37,7 @@
 #include "encoding/plaintext.h"
 #include "encoding/byteplaintextencoding.h"
 #include "encoding/intplaintextencoding.h"
+#include "encoding/packedintplaintextencoding.h"
 #include "cryptocontexthelper.h"
 
 namespace lbcrypto {
@@ -62,9 +63,10 @@ class CryptoContext : public Serializable {
 	friend class CryptoContextFactory<Element>;
 
 private:
-	shared_ptr<LPCryptoParameters<Element>>				params;			/*!< crypto parameters used for this context */
-	shared_ptr<LPPublicKeyEncryptionScheme<Element>>	scheme;			/*!< algorithm used; accesses all crypto methods */
-	static vector<shared_ptr<LPEvalKey<Element>>>		evalMultKeys;	/*!< cached evalmult keys */
+	shared_ptr<LPCryptoParameters<Element>>					params;			/*!< crypto parameters used for this context */
+	shared_ptr<LPPublicKeyEncryptionScheme<Element>>		scheme;			/*!< algorithm used; accesses all crypto methods */
+	static vector<shared_ptr<LPEvalKey<Element>>>			evalMultKeys;	/*!< cached evalmult keys */
+	static std::map<usint, shared_ptr<LPEvalKey<Element>>>	evalSumKeys;	/*!< cached evalsum keys */
 
 	/**
 	 * Private methods to compare two contexts; this is only used internally and is not generally available
@@ -397,12 +399,13 @@ public:
 	* @param publicKey - for encryption
 	* @param plaintext - to encrypt
 	* @param doPadding - if true, pad the input out to fill the encrypted chunk
+	* @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 	* @return a vector of pointers to Ciphertexts created by encrypting the plaintext
 	*/
 	std::vector<shared_ptr<Ciphertext<Element>>> Encrypt(
 		const shared_ptr<LPPublicKey<Element>> publicKey,
 		const Plaintext& plaintext,
-		bool doPadding = true) const
+		bool doPadding = true, bool doEncryption = true) const
 	{
 		std::vector<shared_ptr<Ciphertext<Element>>> cipherResults;
 
@@ -428,7 +431,7 @@ public:
 			ILVector2n pt(publicKey->GetCryptoParameters()->GetElementParams());
 			plaintext.Encode(ptm, &pt, bytes, chunkSize);
 
-			shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, pt);
+			shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, pt, doEncryption);
 
 			if (!ciphertext) {
 				cipherResults.clear();
@@ -443,14 +446,16 @@ public:
 	}
 
 	/**
-	* Encrypt a matrix of plaintexts
+	* Encrypt a matrix of plaintexts (integer encoding)
 	* @param publicKey - for encryption
 	* @param plaintext - to encrypt
+	* @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 	* @return a vector of pointers to Ciphertexts created by encrypting the plaintext
 	*/
 	shared_ptr<Matrix<RationalCiphertext<Element>>> EncryptMatrix(
 		const shared_ptr<LPPublicKey<Element>> publicKey,
-		const Matrix<IntPlaintextEncoding> &plaintext) const
+		const Matrix<IntPlaintextEncoding> &plaintext,
+		bool doEncryption = true) const
 	{
 
 		auto zeroAlloc = [=]() { return make_unique<RationalCiphertext<Element>>(*this, true); };
@@ -470,7 +475,47 @@ public:
 				ILVector2n pt(publicKey->GetCryptoParameters()->GetElementParams());
 				plaintext(row,col).Encode(ptm, &pt);
 
-				shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, pt);
+				shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, pt, doEncryption);
+
+				(*cipherResults)(row, col).SetNumerator(*ciphertext);
+			}
+		}
+
+		return cipherResults;
+
+	}
+
+	/**
+	* Encrypt a matrix of plaintexts (packed encoding)
+	* @param publicKey - for encryption
+	* @param plaintext - to encrypt
+	* @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
+	* @return a vector of pointers to Ciphertexts created by encrypting the plaintext
+	*/
+	shared_ptr<Matrix<RationalCiphertext<Element>>> EncryptMatrix(
+		const shared_ptr<LPPublicKey<Element>> publicKey,
+		const Matrix<PackedIntPlaintextEncoding> &plaintext,
+		bool doEncryption = true) const
+	{
+
+		auto zeroAlloc = [=]() { return make_unique<RationalCiphertext<Element>>(*this, true); };
+
+		shared_ptr<Matrix<RationalCiphertext<Element>>> cipherResults(new Matrix<RationalCiphertext<Element>>
+			(zeroAlloc, plaintext.GetRows(), plaintext.GetCols()));
+
+		if (publicKey == NULL || publicKey->GetCryptoContext() != *this)
+			throw std::logic_error("key passed to EncryptMatrix was not generated with this crypto context");
+
+		const BigBinaryInteger& ptm = publicKey->GetCryptoParameters()->GetPlaintextModulus();
+
+		for (size_t row = 0; row < plaintext.GetRows(); row++)
+		{
+			for (size_t col = 0; col < plaintext.GetCols(); col++)
+			{
+				ILVector2n pt(publicKey->GetCryptoParameters()->GetElementParams());
+				plaintext(row, col).Encode(ptm, &pt);
+
+				shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, pt, doEncryption);
 
 				(*cipherResults)(row, col).SetNumerator(*ciphertext);
 			}
@@ -486,12 +531,14 @@ public:
 	* @param publicKey - the encryption key in use
 	* @param instream - where to read the input from
 	* @param ostream - where to write the serialization to
+	* @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 	* @return
 	*/
 	void EncryptStream(
 		const shared_ptr<LPPublicKey<Element>> publicKey,
 		std::istream& instream,
-		std::ostream& outstream) const
+		std::ostream& outstream,
+		bool doEncryption = true) const
 	{
 		if( publicKey == NULL || publicKey->GetCryptoContext() != *this )
 			throw std::logic_error("key passed to EncryptStream was not generated with this crypto context");
@@ -518,7 +565,7 @@ public:
 			ILVector2n pt(publicKey->GetCryptoParameters()->GetElementParams());
 			px.Encode(publicKey->GetCryptoParameters()->GetPlaintextModulus(), &pt, 0, chunkSize);
 
-			shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, pt);
+			shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, pt, doEncryption);
 			if (!ciphertext) {
 				delete [] ptxt;
 				return;
@@ -582,7 +629,7 @@ public:
 	}
 
 	/**
-	* Decrypt method for a matrix of ciphertexts
+	* Decrypt method for a matrix of ciphertexts (integer encoding)
 	* @param privateKey - for decryption
 	* @param ciphertext - matrix of encrypted ciphertexts
 	* @param plaintext - pointer to the destination martrix of plaintexts
@@ -635,6 +682,63 @@ public:
 		}
 
 		return DecryptResult((*numerator)(numerator->GetRows()-1,numerator->GetCols()-1).GetLength());
+
+	}
+
+	/**
+	* Decrypt method for a matrix of ciphertexts (packed encoding)
+	* @param privateKey - for decryption
+	* @param ciphertext - matrix of encrypted ciphertexts
+	* @param plaintext - pointer to the destination martrix of plaintexts
+	* @return size of plaintext
+	*/
+	DecryptResult DecryptMatrix(
+		const shared_ptr<LPPrivateKey<Element>> privateKey,
+		const shared_ptr<Matrix<RationalCiphertext<Element>>> ciphertext,
+		Matrix<PackedIntPlaintextEncoding> *numerator,
+		Matrix<PackedIntPlaintextEncoding> *denominator) const
+	{
+
+		// edge case
+		if ((ciphertext->GetCols() == 0) && (ciphertext->GetRows() == 0))
+			return DecryptResult();
+
+		if ((ciphertext->GetCols() != numerator->GetCols()) || (ciphertext->GetRows() != numerator->GetRows()) ||
+			(ciphertext->GetCols() != denominator->GetCols()) || (ciphertext->GetRows() != denominator->GetRows()))
+			throw std::runtime_error("Ciphertext and plaintext matrices have different dimensions");
+
+		if (privateKey == NULL || privateKey->GetCryptoContext() != *this)
+			throw std::runtime_error("Information passed to DecryptMatrix was not generated with this crypto context");
+
+		for (size_t row = 0; row < ciphertext->GetRows(); row++)
+		{
+			for (size_t col = 0; col < ciphertext->GetCols(); col++)
+			{
+				if ((*ciphertext)(row, col).GetCryptoContext() != *this)
+					throw std::runtime_error("A ciphertext passed to DecryptMatrix was not generated with this crypto context");
+
+				const shared_ptr<Ciphertext<Element>> ctN = (*ciphertext)(row, col).GetNumerator();
+
+				ILVector2n decryptedNumerator;
+				DecryptResult resultN = GetEncryptionAlgorithm()->Decrypt(privateKey, ctN, &decryptedNumerator);
+
+				if (resultN.isValid == false) return resultN;
+
+				(*numerator)(row, col).Decode(privateKey->GetCryptoParameters()->GetPlaintextModulus(), &decryptedNumerator);
+
+				const shared_ptr<Ciphertext<Element>> ctD = (*ciphertext)(row, col).GetDenominator();
+
+				ILVector2n decryptedDenominator;
+				DecryptResult resultD = GetEncryptionAlgorithm()->Decrypt(privateKey, ctD, &decryptedDenominator);
+
+				if (resultD.isValid == false) return resultD;
+
+				(*denominator)(row, col).Decode(privateKey->GetCryptoParameters()->GetPlaintextModulus(), &decryptedDenominator);
+
+			}
+		}
+
+		return DecryptResult((*numerator)(numerator->GetRows() - 1, numerator->GetCols() - 1).GetLength());
 
 	}
 
@@ -782,6 +886,30 @@ public:
 	}
 
 	/**
+	* EvalAddPLain - PALISADE EvalAdd method for a ciphertext and plaintext
+	* @param ciphertext
+	* @param plaintext
+	* @return new ciphertext for ciphertext + plaintext 
+	*/
+	shared_ptr<Ciphertext<Element>>
+		EvalAddPlain(const shared_ptr<Ciphertext<Element>> ciphertext, const shared_ptr<Ciphertext<Element>> plaintext) const
+	{
+		return EvalAdd(ciphertext, plaintext);
+	}
+
+	/**
+	* EvalSubPlain - PALISADE EvalSub method for a ciphertext and plaintext
+	* @param ciphertext
+	* @param plaintext
+	* @return new ciphertext for ciphertext - plaintext
+	*/
+	shared_ptr<Ciphertext<Element>>
+		EvalSubPlain(const shared_ptr<Ciphertext<Element>> ciphertext, const shared_ptr<Ciphertext<Element>> plaintext) const
+	{
+		return EvalSub(ciphertext, plaintext);
+	}
+
+	/**
 	 * EvalMult - PALISADE EvalMult method for a pair of ciphertexts
 	 * @param ct1
 	 * @param ct2
@@ -796,6 +924,21 @@ public:
 		auto ek = GetEvalMultKey();
 
 		return GetEncryptionAlgorithm()->EvalMult(ct1, ct2, ek);
+	}
+
+	/**
+	* EvalMult - PALISADE EvalMult method for a a multiplication of ciphertext by plaintext
+	* @param ct1
+	* @param ct2
+	* @return new ciphertext for ct1 * ct2
+	*/
+	shared_ptr<Ciphertext<Element>>
+		EvalMultPlain(const shared_ptr<Ciphertext<Element>> ciphertext, const shared_ptr<Ciphertext<Element>> plaintext) const
+	{
+		if (ciphertext == NULL || plaintext == NULL || ciphertext->GetCryptoContext() != *this || plaintext->GetCryptoContext() != *this)
+			throw std::logic_error("Information passed to EvalMult was not generated with this crypto context");
+
+		return GetEncryptionAlgorithm()->EvalMultPlain(ciphertext, plaintext);
 	}
 
 	/**
@@ -829,35 +972,19 @@ public:
 	}
 
 	/**
-	* Function for evaluating ciphertext at an index
-	*
-	* @param ciphertext the input ciphertext.
-	* @param i index of the item to be "extracted", starts with 2.
-	* @param &evalKeys - reference to the vector of evaluation keys generated by EvalAutomorphismKeyGen.
-	* @return resulting ciphertext
-	*/
-	shared_ptr<Ciphertext<Element>> EvalAtIndex(const shared_ptr<Ciphertext<Element>> ciphertext, usint i,
-		const std::vector<shared_ptr<LPEvalKey<Element>>> &evalKeys) const {
-
-		//need to add exception handling
-
-		return GetEncryptionAlgorithm()->EvalAtIndex(ciphertext, i, evalKeys);
-	}
-
-	/**
 	* Generate automophism keys for a given private key
 	*
 	* @param publicKey original public key.
 	* @param origPrivateKey original private key.
-	* @param size number of automorphims to be computed; starting from plaintext index 2; maximum is n/2-1
+	* @param indexList list of automorphism indices to be computed
 	* @return returns the evaluation keys; index 0 of the vector corresponds to plaintext index 2, index 1 to plaintex index 3, etc.
 	*/
-	shared_ptr<std::vector<shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const shared_ptr<LPPublicKey<Element>> publicKey,
-		const shared_ptr<LPPrivateKey<Element>> origPrivateKey, usint size) const {
+	shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const shared_ptr<LPPublicKey<Element>> publicKey,
+		const shared_ptr<LPPrivateKey<Element>> origPrivateKey, const std::vector<usint> &indexList) const {
 
 		//need to add exception handling
 
-		return GetEncryptionAlgorithm()->EvalAutomorphismKeyGen(publicKey, origPrivateKey, size);
+		return GetEncryptionAlgorithm()->EvalAutomorphismKeyGen(publicKey, origPrivateKey, indexList);
 
 	}
 
@@ -870,7 +997,7 @@ public:
 	* @return resulting ciphertext
 	*/
 	shared_ptr<Ciphertext<Element>> EvalAutomorphism(const shared_ptr<Ciphertext<Element>> ciphertext, usint i,
-		const std::vector<shared_ptr<LPEvalKey<Element>>> &evalKeys) const {
+		const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalKeys) const {
 
 		//need to add exception handling
 
@@ -882,17 +1009,108 @@ public:
 	* Generate automophism keys for a given private key; Uses the private key for encryption
 	*
 	* @param privateKey private key.
-	* @param size number of automorphims to be computed; maximum is ring dimension
-	* @param flagEvalSum if set to true, log_2{size} evaluation keys are generated to be used by EvalSum
+	* @param indexList list of automorphism indices to be computed
 	* @return returns the evaluation keys
 	*/
-	shared_ptr<std::vector<shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey,
-		usint size, bool flagEvalSum) const {
+	shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey,
+		const std::vector<usint> &indexList) const {
 
 		//need to add exception handling
 
-		return GetEncryptionAlgorithm()->EvalAutomorphismKeyGen(privateKey, size, flagEvalSum);
+		return GetEncryptionAlgorithm()->EvalAutomorphismKeyGen(privateKey, indexList);
 
+	}
+
+	/**
+	* Generate evalsum keys
+	*
+	* @param privateKey private key.
+	* @param publicKey public key (used in NTRU schemes).
+	*/
+	void EvalSumKeyGen(
+		const shared_ptr<LPPrivateKey<Element>> privateKey, 
+		const shared_ptr<LPPublicKey<Element>> publicKey = nullptr) const {
+
+		//need to add exception handling
+
+		auto evalKeys = GetEncryptionAlgorithm()->EvalSumKeyGen(privateKey,publicKey);
+
+		evalSumKeys = *evalKeys;
+
+	}
+	/**
+	* Function for evaluating a sum of all components
+	*
+	* @param ciphertext the input ciphertext.
+	* @param batchSize size of the batch
+	* @return resulting ciphertext
+	*/
+	shared_ptr<Ciphertext<Element>> EvalSum(const shared_ptr<Ciphertext<Element>> ciphertext, usint batchSize) const {
+
+		//need to add exception handling
+
+		return GetEncryptionAlgorithm()->EvalSum(ciphertext, batchSize, evalSumKeys);
+
+	}
+
+	/**
+	* Evaluates inner product in batched encoding
+	*
+	* @param ciphertext1 first vector.
+	* @param ciphertext2 second vector.
+	* @param batchSize size of the batch to be summed up
+	* @return resulting ciphertext
+	*/
+	shared_ptr<Ciphertext<Element>> EvalInnerProduct(const shared_ptr<Ciphertext<Element>> ciphertext1, const shared_ptr<Ciphertext<Element>> ciphertext2, usint batchSize) const {
+
+		//need to add exception handling
+
+		auto evalMultKey = GetEvalMultKey();
+
+		return GetEncryptionAlgorithm()->EvalInnerProduct(ciphertext1, ciphertext2, batchSize, evalSumKeys, evalMultKey);
+
+	}
+
+	/**
+	* EvalCrossCorrelation - Computes the sliding sum of inner products (known as
+	* as cross-correlation, sliding inner product, or sliding dot product in
+	* image processing
+	* @param x - first vector of row vectors
+	* @param y - second vector of row vectors
+	* @param batchSize - batch size for packed encoding
+	* @param indexStart - starting index in the vectors of row vectors
+	* @param length - length of the slice in the vectors of row vectors; default is 0 meaning to use the full length of the vector
+	* @return sum(x_i*y_i), i.e., a sum of inner products
+	*/
+	shared_ptr<Ciphertext<Element>>
+		EvalCrossCorrelation(const shared_ptr<Matrix<RationalCiphertext<Element>>> x,
+			const shared_ptr<Matrix<RationalCiphertext<Element>>> y, usint batchSize,
+			usint indexStart = 0, usint length = 0) const {
+
+		//need to add exception handling
+
+		auto evalMultKey = GetEvalMultKey();
+
+		return GetEncryptionAlgorithm()->EvalCrossCorrelation(x, y, batchSize, indexStart, length, evalSumKeys, evalMultKey);
+
+	}
+
+	/**
+	* EvalLinRegressBatched- Computes the parameter vector for linear regression using the least squares method
+	* Supported only in batched mode; currently works only for two regressors
+	* @param x - matrix of regressors
+	* @param y - vector of dependent variables
+	* @return the parameter vector using (x^T x)^{-1} x^T y (using least squares method)
+	*/
+	shared_ptr<Matrix<RationalCiphertext<Element>>>
+		EvalLinRegressBatched(const shared_ptr<Matrix<RationalCiphertext<Element>>> x,
+			const shared_ptr<Matrix<RationalCiphertext<Element>>> y, usint batchSize) const
+	{
+		//need to add exception handling
+
+		auto evalMultKey = GetEvalMultKey();
+
+		return GetEncryptionAlgorithm()->EvalLinRegressBatched(x, y, batchSize, evalSumKeys, evalMultKey);
 	}
 
 	/**
@@ -1064,6 +1282,21 @@ public:
 		usint relinWindow, float stDev, int depth = 1, int assuranceMeasure = 9, float securityLevel = 1.006);
 
 	/**
+	* construct a PALISADE CryptoContext for the LTV Scheme
+	* @param encodingParams
+	* @param ringdim
+	* @param modulus
+	* @param rootOfUnity
+	* @param relinWindow
+	* @param stDev
+	* @param depth
+	* @return new context
+	*/
+	static CryptoContext<Element> genCryptoContextLTV(shared_ptr<typename Element::Params> params,
+		shared_ptr<EncodingParams> encodingParams,
+		usint relinWindow, float stDev, int depth = 1, int assuranceMeasure = 9, float securityLevel = 1.006);
+
+	/**
 	* construct a PALISADE CryptoContext for the FV Scheme
 	* @param plaintextmodulus
 	* @param ringdim
@@ -1078,13 +1311,42 @@ public:
 	* @param depth
 	* @param assuranceMeasure
 	* @param securityLevel
+	* @param bigmodulusarb
+	* @param bigrootofunityarb
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextFV(shared_ptr<typename Element::Params> params,
 		const usint plaintextmodulus,
 		usint relinWindow, float stDev, const std::string& delta,
 		MODE mode = RLWE, const std::string& bigmodulus = "0", const std::string& bigrootofunity = "0",
-		int depth = 0, int assuranceMeasure = 0, float securityLevel = 0);
+		int depth = 0, int assuranceMeasure = 0, float securityLevel = 0,
+		const std::string& bigmodulusarb = "0", const std::string& bigrootofunityarb = "0");
+
+	/**
+	* construct a PALISADE CryptoContext for the FV Scheme
+	* @param encodingParams
+	* @param ringdim
+	* @param modulus
+	* @param rootOfUnity
+	* @param relinWindow
+	* @param stDev
+	* @param delta
+	* @param mode
+	* @param bigmodulus
+	* @param bigrootofunity
+	* @param depth
+	* @param assuranceMeasure
+	* @param securityLevel
+	* @param bigmodulusarb
+	* @param bigrootofunityarb
+	* @return new context
+	*/
+	static CryptoContext<Element> genCryptoContextFV(shared_ptr<typename Element::Params> params,
+		shared_ptr<EncodingParams> encodingParams,
+		usint relinWindow, float stDev, const std::string& delta,
+		MODE mode = RLWE, const std::string& bigmodulus = "0", const std::string& bigrootofunity = "0",
+		int depth = 0, int assuranceMeasure = 0, float securityLevel = 0,
+		const std::string& bigmodulusarb = "0", const std::string& bigrootofunityarb = "0");
 
 	/**
 	* construct a PALISADE CryptoContext for the FV Scheme using the scheme's ParamsGen methods
@@ -1097,6 +1359,19 @@ public:
 	*/
 	static CryptoContext<Element> genCryptoContextFV(
 		const usint plaintextModulus, float securityLevel, usint relinWindow, float dist,
+		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches);
+
+	/**
+	* construct a PALISADE CryptoContext for the FV Scheme using the scheme's ParamsGen methods
+	* @param encodingParams
+	* @param securityLevel
+	* @param numAdds
+	* @param numMults
+	* @param numKeyswitches
+	* @return new context
+	*/
+	static CryptoContext<Element> genCryptoContextFV(
+		shared_ptr<EncodingParams> encodingParams, float securityLevel, usint relinWindow, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches);
 
 	/**
@@ -1116,6 +1391,22 @@ public:
 		MODE mode = RLWE, int depth = 1);
 
 	/**
+	* construct a PALISADE CryptoContext for the BV Scheme
+	* @param encodingParams
+	* @param ringdim
+	* @param modulus
+	* @param rootOfUnity
+	* @param relinWindow
+	* @param stDev
+	* @param mode
+	* @return new context
+	*/
+	static CryptoContext<Element> genCryptoContextBV(shared_ptr<typename Element::Params> params,
+		shared_ptr<EncodingParams> encodingParams,
+		usint relinWindow, float stDev,
+		MODE mode = RLWE, int depth = 1);
+
+	/**
 	* construct a PALISADE CryptoContext for the StehleSteinfeld Scheme
 	* @param plaintextmodulus
 	* @param ringdim
@@ -1131,11 +1422,33 @@ public:
 		usint relinWindow, float stDev, float stDevStSt, int depth = 1, int assuranceMeasure = 9, float securityLevel = 1.006);
 
 	/**
+	* construct a PALISADE CryptoContext for the StehleSteinfeld Scheme
+	* @param encodingParams
+	* @param ringdim
+	* @param modulus
+	* @param rootOfUnity
+	* @param relinWindow
+	* @param stDev
+	* @param stDevStSt
+	* @return new context
+	*/
+	static CryptoContext<Element> genCryptoContextStehleSteinfeld(shared_ptr<typename Element::Params> params,
+		shared_ptr<EncodingParams> encodingParams,
+		usint relinWindow, float stDev, float stDevStSt, int depth = 1, int assuranceMeasure = 9, float securityLevel = 1.006);
+
+	/**
 	* construct a PALISADE CryptoContext for the Null Scheme
 	* @param modulus
 	* @return
 	*/
 	static CryptoContext<Element> genCryptoContextNull(shared_ptr<typename Element::Params> ep, const usint ptModulus);
+
+	/**
+	* construct a PALISADE CryptoContext for the Null Scheme
+	* @param modulus
+	* @return
+	*/
+	static CryptoContext<Element> genCryptoContextNull(shared_ptr<typename Element::Params> ep, shared_ptr<EncodingParams> encodingParams);
 
 	// helper for deserialization of contexts
 	static shared_ptr<LPCryptoParameters<Element>> GetParameterObject(const Serialized& serObj) {

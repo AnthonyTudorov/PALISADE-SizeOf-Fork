@@ -325,7 +325,7 @@ TEST(UTLTVBATCHING, ILVector_EVALADD_Arb) {
 	EXPECT_EQ(intArrayNew, vectorOfIntsAdd);
 }
 
-TEST(UTLTVBATCHING, ILVector_EVALMULT_Arb) {
+TEST(UTBVBATCHING, ILVector_EVALMULT_Arb) {
 	PackedIntPlaintextEncoding::Destroy();
 
 	usint m = 22;
@@ -345,6 +345,85 @@ TEST(UTLTVBATCHING, ILVector_EVALMULT_Arb) {
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, rootOfUnity, bigmodulus, bigroot));
 
 	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, p, 1, stdDev);
+	cc.Enable(ENCRYPTION);
+	cc.Enable(SHE);
+
+	// Initialize the public key containers.
+	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext1;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext2;
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextResult;
+
+	std::vector<usint> vectorOfInts1 = { 1,2,3,4,5,6,7,8,9,10 };
+	PackedIntPlaintextEncoding intArray1(vectorOfInts1);
+
+	std::vector<usint> vectorOfInts2 = { 10,9,8,7,6,5,4,3,2,1 };
+	PackedIntPlaintextEncoding intArray2(vectorOfInts2);
+
+	std::vector<usint> vectorOfIntsMult;
+	std::transform(vectorOfInts1.begin(), vectorOfInts1.end(), vectorOfInts2.begin(), std::back_inserter(vectorOfIntsMult), std::multiplies<usint>());
+
+	ciphertext1 = cc.Encrypt(kp.publicKey, intArray1, false);
+	ciphertext2 = cc.Encrypt(kp.publicKey, intArray2, false);
+
+	cc.EvalMultKeyGen(kp.secretKey);
+
+	auto ciphertextMult = cc.EvalMult(ciphertext1.at(0), ciphertext2.at(0));
+	ciphertextResult.insert(ciphertextResult.begin(), ciphertextMult);
+	PackedIntPlaintextEncoding intArrayNew;
+
+	cc.Decrypt(kp.secretKey, ciphertextResult, &intArrayNew, false);
+
+	EXPECT_EQ(intArrayNew, vectorOfIntsMult);
+}
+
+TEST(UTFVBATCHING, ILVector_EVALMULT_Arb) {
+	PackedIntPlaintextEncoding::Destroy();
+
+	usint m = 22;
+	usint p = 89; // we choose s.t. 2m|p-1 to leverage CRTArb
+	BigBinaryInteger modulusQ("72385066601");
+	BigBinaryInteger modulusP(p);
+	BigBinaryInteger rootOfUnity("69414828251");
+	BigBinaryInteger bigmodulus("77302754575416994210914689");
+	BigBinaryInteger bigroot("76686504597021638023705542");
+
+	auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulusQ);
+	//ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().PreCompute(m, modulusQ);
+	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
+
+	float stdDev = 4;
+
+	shared_ptr<ILParams> params(new ILParams(m, modulusQ, rootOfUnity, bigmodulus, bigroot));
+
+	BigBinaryInteger bigEvalMultModulus("37778931862957161710549");
+	BigBinaryInteger bigEvalMultRootOfUnity("7161758688665914206613");
+	BigBinaryInteger bigEvalMultModulusAlt("1461501637330902918203684832716283019655932547329");
+	BigBinaryInteger bigEvalMultRootOfUnityAlt("570268124029534407621996591794583635795426001824");
+
+	auto cycloPolyBig = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, bigEvalMultModulus);
+	//ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().PreCompute(m, modulusQ);
+	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::SetCylotomicPolynomial(cycloPolyBig, bigEvalMultModulus);
+
+	PackedIntPlaintextEncoding::SetParams(modulusP, m);
+
+	usint batchSize = 8;
+
+	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetInitRoot(modulusP), batchSize));
+
+	BigBinaryInteger delta(modulusQ.DividedBy(modulusP));
+
+	//genCryptoContextFV(shared_ptr<typename Element::Params> params,
+	//	shared_ptr<typename EncodingParams> encodingParams,
+	//	usint relinWindow, float stDev, const std::string& delta,
+	//	MODE mode = RLWE, const std::string& bigmodulus = "0", const std::string& bigrootofunity = "0",
+	//	int depth = 0, int assuranceMeasure = 0, float securityLevel = 0,
+	//	const std::string& bigmodulusarb = "0", const std::string& bigrootofunityarb = "0")
+
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(params, encodingParams, 1, stdDev,delta.ToString(),OPTIMIZED,
+		bigEvalMultModulus.ToString(), bigEvalMultRootOfUnity.ToString(),1,9,1.006, bigEvalMultModulusAlt.ToString(), bigEvalMultRootOfUnityAlt.ToString());
+	
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 

@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\src\core\lib\encoding\byteplaintextencoding.cpp" />
+    <ClCompile Include="..\..\..\..\src\core\lib\encoding\encodingparams.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\encoding\intplaintextencoding.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\encoding\packedintplaintextencoding.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\lattice\elemparams.cpp" />
@@ -55,6 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\src\core\lib\encoding\byteplaintextencoding.h" />
+    <ClInclude Include="..\..\..\..\src\core\lib\encoding\encodingparams.h" />
     <ClInclude Include="..\..\..\..\src\core\lib\encoding\intplaintextencoding.h" />
     <ClInclude Include="..\..\..\..\src\core\lib\encoding\packedintplaintextencoding.h" />
     <ClInclude Include="..\..\..\..\src\core\lib\encoding\plaintext.h" />

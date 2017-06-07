@@ -61,25 +61,47 @@ namespace lbcrypto {
 
 		PackedIntPlaintextEncoding() : std::vector<uint32_t>() {}
 
-		/** Interface for the operation of converting from current plaintext encoding to ILVector2n.
+		static BigBinaryInteger GetInitRoot(const BigBinaryInteger &modulus) { return m_initRoot[modulus];  }
+
+		/** The operation of converting from current plaintext encoding to ILVector2n.
 		*
 		* @param  modulus - used for encoding.
 		* @param  *ilVector encoded plaintext - output argument.
 		*/
 		void Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector, size_t start_from = 0, size_t length = 0) const;
 
-		/** Interface for the operation of converting from ILVector2n to current plaintext encoding.
+		/** The operation of converting from current plaintext encoding to ILVectorArray2n.
+		*
+		* @param  modulus - used for encoding.
+		* @param  *ilVector encoded plaintext - output argument.
+		*/
+		void Encode(const BigBinaryInteger &modulus, ILDCRT2n *ilVector, size_t start_from = 0, size_t length = 0) const {
+			throw std::logic_error("Encode: Packed encoding is not currently supported for ILVectorArray2n");
+		};
+
+		/** The operation of converting from ILVector2n to current plaintext encoding.
 		*
 		* @param  modulus - used for encoding.
 		* @param  *ilVector encoded plaintext - input argument.
 		*/
 		void Decode(const BigBinaryInteger &modulus, ILVector2n *ilVector);
 
+		/** The operation of converting from ILVectorArray2n to current plaintext encoding.
+		*
+		* @param  modulus - used for encoding.
+		* @param  *ilVector encoded plaintext - input argument.
+		*/
+		void Decode(const BigBinaryInteger &modulus, ILDCRT2n *ilVector){
+			throw std::logic_error("Decode: Packed encoding is not currently supported for ILVectorArray2n");
+		}
+
 		void Unpad(const BigBinaryInteger &modulus) {} // a null op; no padding in int
 
 		virtual size_t GetChunksize(const usint ring, const BigBinaryInteger& ptm) const;
 
 		size_t GetLength() const { return this->size(); }
+
+		static void SetParams(const BigBinaryInteger &modulus, usint m);
 
 		bool CompareTo(const Plaintext& other) const {
 			const std::vector<uint32_t>& lv = dynamic_cast<const std::vector<uint32_t>&>(*this);
@@ -90,18 +112,30 @@ namespace lbcrypto {
 		static void Destroy();
 
 		friend std::ostream& operator<<(std::ostream& out, const PackedIntPlaintextEncoding& item) {
-			for (size_t i = 0; i<item.size(); i++)
-				out << item.at(i);
+			size_t i;
+			for (i = 0; i<item.size()-1; i++)
+				out << item.at(i) << ",";
+			out << item.at(i);
 			return out;
 		}
 
 	private:
-		static BigBinaryInteger initRoot;
-		static std::vector<usint> rootOfUnityTable;
-		static BigBinaryInteger bigMod;
-		static BigBinaryInteger bigRoot;
+
+		static std::map<BigBinaryInteger, BigBinaryInteger> m_initRoot;
+
+		static std::map<BigBinaryInteger, std::vector<BigBinaryVector>> m_coefficientsCRT;
+
+		static std::map<BigBinaryInteger, BigBinaryVector> m_rootList;
 
 		void Pack(ILVector2n *ring, const BigBinaryInteger &modulus) const;
+
+		static BigBinaryVector FindPermutedSlots(const BigBinaryVector &orig, const BigBinaryVector & perm, const BigBinaryVector & rootList);
+		
+		static void InitializeCRTCoefficients(usint cycloOrder, const BigBinaryInteger & modulus);
+
+		static BigBinaryVector GetRootVector(const BigBinaryInteger &modulus,usint cycloOrder);
+
+		static BigBinaryVector SyntheticPolyPowerMod(const BigBinaryVector &input, const BigBinaryInteger &power, const BigBinaryVector &rootListInit);
 
 		void Unpack(ILVector2n *ring, const BigBinaryInteger &modulus) const;
 

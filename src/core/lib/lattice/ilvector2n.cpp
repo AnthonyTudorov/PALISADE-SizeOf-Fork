@@ -97,12 +97,20 @@ namespace lbcrypto {
 		}
 		else
 		{
-			PreComputeDggSamples(dgg, m_params);
 
-			const ILVectorImpl<ModType,IntType,VecType,ParmType> randomElement = GetPrecomputedVector();
-			m_values = make_unique<VecType>(*randomElement.m_values);
+			usint vectorSize = params->GetRingDimension();
+			m_values = make_unique<VecType>(dgg.GenerateVector(vectorSize, params->GetModulus()));
 			(*m_values).SetModulus(params->GetModulus());
-			m_format = EVALUATION;
+			m_format = COEFFICIENT;
+
+			this->SwitchFormat();
+
+			//PreComputeDggSamples(dgg, m_params);
+
+			//const ILVectorImpl<ModType,IntType,VecType,ParmType> randomElement = GetPrecomputedVector();
+			//m_values = make_unique<VecType>(*randomElement.m_values);
+			//(*m_values).SetModulus(params->GetModulus());
+			//m_format = EVALUATION;
 		}
 	}
 
@@ -153,12 +161,19 @@ namespace lbcrypto {
 		}
 		else
 		{
-			PreComputeTugSamples(tug, m_params);
-
-			const ILVectorImpl randomElement = GetPrecomputedTugVector();
-			m_values = make_unique<VecType>(*randomElement.m_values);
+			usint vectorSize = params->GetRingDimension();
+			m_values = make_unique<VecType>(tug.GenerateVector(vectorSize, params->GetModulus()));
 			(*m_values).SetModulus(params->GetModulus());
-			m_format = EVALUATION;
+			m_format = COEFFICIENT;
+
+			this->SwitchFormat();
+
+			//PreComputeTugSamples(tug, m_params);
+
+			//const ILVectorImpl randomElement = GetPrecomputedTugVector();
+			//m_values = make_unique<VecType>(*randomElement.m_values);
+			//(*m_values).SetModulus(params->GetModulus());
+			//m_format = EVALUATION;
 		}
 	}
 
@@ -512,23 +527,59 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::AutomorphismTransform(const usint &i) const {
-		
-		if (i % 2 == 0)
-			throw std::logic_error("automorphism index should be odd\n");
+	ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::AutomorphismTransform(const usint &k) const {
+
+		ILVectorImpl result(*this);
+
+		usint m = this->m_params->GetCyclotomicOrder();
+		usint n = this->m_params->GetRingDimension();
+
+		if (m_params->OrderIsPowerOfTwo() == false) {
+
+			//Add a test based on the inverse totient hash table
+			//if (i % 2 == 0)
+			//	throw std::runtime_error("automorphism index should be odd\n");
+			
+			const auto &modulus = this->m_params->GetModulus();
+
+			// All automorphism operations are performed for k coprime to m, which are generated using GetTotientList(m)
+			std::vector<usint> totientList = GetTotientList(m);
+
+			// Temporary vector of size m is introduced
+			// This step can be eliminated by using a hash table that looks up the ring index (between 0 and n - 1)  
+			// based on the totient index (between 0 and m - 1)
+			VecType expanded(m, modulus);
+			for (usint i = 0; i < n; i++) {
+				expanded.SetValAtIndex(totientList.at(i), m_values->GetValAtIndex(i));
+			}
+
+			for (usint i = 0; i < n; i++) {
+
+				//determines which power of primitive root unity we should switch to
+				usint idx = totientList.at(i)*k % m;
+
+				result.m_values->SetValAtIndex(i, expanded.GetValAtIndex(idx));
+
+			}
+		}
 		else
 		{
-			ILVectorImpl result(*this);
-			usint m = m_params->GetCyclotomicOrder();
+			if (k % 2 == 0)
+				throw std::runtime_error("automorphism index should be odd\n");
 
 			for (usint j = 1; j < m; j = j + 2)
 			{
-				//usint newIndex = (j*iInverse) % m;
-				usint newIndex = (j*i) % m;
-				result.m_values->SetValAtIndex((newIndex + 1) / 2 - 1, GetValues().GetValAtIndex((j + 1) / 2 - 1));
+
+				//determines which power of primitive root unity we should switch to
+				usint idx = (j*k) % m;
+				result.m_values->SetValAtIndex((j + 1) / 2 - 1, GetValues().GetValAtIndex((idx + 1) / 2 - 1));
+
 			}
-			return result;
+
 		}
+
+		return result;
+
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
@@ -570,10 +621,11 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	void ILVectorImpl<ModType,IntType,VecType,ParmType>::SwitchModulus(const IntType &modulus, const IntType &rootOfUnity) {
+	void ILVectorImpl<ModType,IntType,VecType,ParmType>::SwitchModulus(const IntType &modulus, const IntType &rootOfUnity, const IntType &modulusArb, 
+		const IntType &rootOfUnityArb) {
 		if (m_values) {
 			m_values->SwitchModulus(modulus);
-			m_params = shared_ptr<ParmType>(new ParmType(m_params->GetCyclotomicOrder(), modulus, rootOfUnity));
+			m_params = shared_ptr<ParmType>(new ParmType(m_params->GetCyclotomicOrder(), modulus, rootOfUnity, modulusArb, rootOfUnityArb));
 		}
 	}
 
