@@ -23,8 +23,7 @@ inline native_int::BinaryVector makeNativeVector(shared_ptr<ILParams> p) {
 	native_int::ILVector2n::DugType dug;
 	dug.SetModulus(p->GetModulus().ConvertToInt());
 
-	uint64_t mod = p->GetModulus().ConvertToInt();
-	native_int::BinaryVector vec = dug.GenerateVector(p->GetCyclotomicOrder()/2);
+	native_int::BinaryVector vec = dug.GenerateVector(p->GetRingDimension());
 
 	return std::move(vec);
 }

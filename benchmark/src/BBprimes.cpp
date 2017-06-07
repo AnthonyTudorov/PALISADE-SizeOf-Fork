@@ -23,7 +23,7 @@ int main( int argc, char *argv[] ) {
 	parmarray << "shared_ptr<ILParams> parmArray[] = {" << endl;
 
 	for( int o=8; o<=8192; o *= 2 ) {
-		for( int s = 0; s < sizeof(shifts)/sizeof(shifts[0]); s++ ) {
+		for( size_t s = 0; s < sizeof(shifts)/sizeof(shifts[0]); s++ ) {
 			string pname = "parm_" + std::to_string(o) + "_" + std::to_string(shifts[s]);
 			mod = FindPrimeModulus<BigBinaryInteger>(o, shifts[s]);
 			rootUnity = RootOfUnity<BigBinaryInteger>(o, mod);
