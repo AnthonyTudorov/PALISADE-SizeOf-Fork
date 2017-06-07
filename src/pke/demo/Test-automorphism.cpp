@@ -71,7 +71,7 @@ void ArbNullAutomorphismPackedArray(usint i);
 int main() {
 
 	//LTVAutomorphismIntArray();
-	usint m = 16;
+	usint m = 22;
 	std::vector<usint> totientList = GetTotientList(m);
 
 	std::cout << "\n===========LTV TESTS (EVALAUTOMORPHISM)===============: " << std::endl;
