@@ -132,7 +132,7 @@ namespace NTL{
     myZZ_p(NTL::ZZ_p &a, unsigned int q);
     myZZ_p(const NTL::ZZ_p &a, unsigned int q);
 
- 
+    //inline myZZ_p& operator=(const unsigned int a) {return myZZ_p((unsigned int)a);}
 
     // operator=
     inline myZZ_p& operator=(const char * s) {this->_ZZ_p__rep=conv<ZZ>(s); return *this;}
@@ -242,11 +242,13 @@ namespace NTL{
     inline myZZ_p Minus(const myZZ_p& b) const  {return(*this-b);}; //to be deprecated
     inline myZZ_p operator-(const myZZ_p &b) const {
       myZZ_p tmp;
-      sub(tmp, *this, b);
+      //sub(tmp, *this, b);
+      tmp = this->ModSub(b);
       return tmp ;
     };
     inline myZZ_p& operator-=(const myZZ_p &a) {
-      sub(*this, *this, a);
+      //sub(*this, *this, a);
+      *this = this->ModSub(b);
       return *this;
     };
 
@@ -342,6 +344,7 @@ namespace NTL{
 
     inline myZZ_p ModSub(const myZZ_p& b) const
     {
+replace this. so it matches bbv irregular use of signed mod.
       return *this-b;      
     };
 
@@ -444,6 +447,13 @@ namespace NTL{
     static OTMState m_OTM_state;
     
   }; //class ends
+
+  //negation operator NOTE this mimics binvect.h
+
+
+
+  inline myZZ_p operator-(const myZZ_p &a) { return myZZ_p(0) - a; }
+
 
  //comparison operators with two operands defined outside the class
   inline long operator==(const myZZ &a, const myZZ_p& b) 

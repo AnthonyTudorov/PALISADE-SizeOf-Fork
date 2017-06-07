@@ -499,6 +499,23 @@ namespace NTL {
   //not enabled yet
   
   //ACCESSORS
+#if 0
+  //stream <<
+  template<class myT>
+  std::ostream& operator<<(std::ostream& os, const myVecP<myT> &ptr_obj)
+  {
+    
+    //os<<std::endl;
+    //os<<ptr_obj;
+    //os<<std::endl;
+    for(usint i=0;i<ptr_obj.size();i++){
+      os<<ptr_obj[i] <<", ";
+    }
+    os<<"modulus: "<<ptr_obj.GetModulus();
+    //os <<std::endl;
+    return os;
+  }
+#endif  
   
   //Switches the integers in the vector to values corresponding to the new modulus
   //*  Algorithm: Integer i, Old Modulus om, New Modulus nm, delta = abs(om-nm):
@@ -726,6 +743,7 @@ namespace NTL {
 
   //subtraction of vector
   //why can't I inheret this?
+
   template<class myT>
   myVecP<myT> myVecP<myT>::operator-(const myVecP<myT> &b) const
   {
@@ -739,7 +757,18 @@ namespace NTL {
     DEBUG("myVecP::operator- returning modulus "<<res.m_modulus);
     return(res);
   }
+#if 0  //negation of vector
 
+  template<class myT>
+  myVecP<myT> myVecP<myT>::operator-() const
+  {
+    bool dbg_flag = false;
+    DEBUG("in myVecP::operator-negate");
+
+    return (myZZ(0)- *this);
+
+  }
+#endif
 
   //multiplication vector by scalar
   template<class myT>

@@ -271,7 +271,9 @@ namespace NTL {
     
     myVecP operator-(myVecP const& b) const;
     myVecP operator-(myZZ const& b) const;
-    
+#if 0
+    myVecP operator-() ; //negation
+#endif
 
     //scalar
     inline myVecP Sub(const myZZ& b) const {ModulusCheck("Warning: myVecP::Sub"); return (*this)-b%m_modulus;};
@@ -513,6 +515,11 @@ namespace NTL {
     // ostream 
     friend std::ostream& operator<<(std::ostream& os, const myVecP &ptr_obj);
 #endif
+
+
+    //Todo: get rid of printvalues everywhere
+    void PrintValues() const { std::cout << *this; }
+    
 
     //JSON FACILITY
     /**

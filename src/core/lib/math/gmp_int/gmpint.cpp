@@ -69,6 +69,7 @@ namespace NTL {
   myZZ::myZZ(long a): ZZ(a) {}
   myZZ::myZZ(unsigned long a): ZZ(a) {}
   myZZ::myZZ(const unsigned int &a): ZZ(a) {}
+  myZZ::myZZ(long long unsigned int a): ZZ(a) {};
   myZZ::myZZ(unsigned int &a): ZZ(a) {}
   myZZ::myZZ(INIT_SIZE_TYPE, long k): ZZ(INIT_SIZE, k) {m_MSB=0; }
   myZZ::myZZ(std::string s): ZZ(conv<ZZ>(s.c_str())) {}
@@ -443,6 +444,21 @@ namespace NTL {
     *this = *this*a;
     return *this;
   }
+
+#if 0
+  inline long myZZ::operator<(const myZZ_p& b) const
+  { return b.Compare(*this) >= 0; };
+  inline long myZZ::operator>(const myZZ_p& b) const
+  { return b.Compare(*this) <= 0; };
+  inline long myZZ::operator<=(const myZZ_p& b) const
+  { return b.Compare(*this) > 0; }; 
+  inline long myZZ::operator>=( const myZZ_p& b) const
+  { return b.Compare(*this) < 0; };
+  inline long myZZ::operator==(const myZZ_p& b) const
+  { return b.Compare(*this) == 0; };
+  inline long myZZ::operator!=(const myZZ_p& b) const
+  { return b.Compare(*this) != 0; };
+#endif
 
 
   // helper functions convert a ubint in and out of a string of

@@ -102,6 +102,7 @@ namespace NTL{
     myZZ(long a);
     myZZ(unsigned long a);
     myZZ(const unsigned int &a);
+    myZZ(long long unsigned int a);
     myZZ(unsigned int &a);
     myZZ(INIT_SIZE_TYPE, long k);
     myZZ(std::string s);
@@ -147,8 +148,9 @@ namespace NTL{
 
     //associated comparison operators
     inline long operator==(const myZZ& b) const {return this->Compare(b)==0;};
+    inline long operator==(const usint& b) const {return this->Compare(b)==0;};
     inline long operator!=(const myZZ& b) const {return this->Compare(b)!= 0;};
-
+    inline long operator!=(const usint& b) const {return this->Compare(b)!= 0;};
   
     //palisade arithmetic methods all inline for speed
     inline myZZ Add(const myZZ& b) const {return *this+b;};
@@ -169,6 +171,13 @@ namespace NTL{
       return tmp ;
     };
 
+    inline myZZ operator+(const usint& b) const {
+      myZZ tmp;
+      myZZ bzz(b);
+      add(tmp, *this, bzz);
+      return tmp ;
+    }
+
     inline myZZ& operator +=(const myZZ &a) {
       *this = *this+a;
       return *this;
@@ -181,6 +190,16 @@ namespace NTL{
       }
       myZZ tmp;
       sub(tmp, *this, b);
+      return tmp ;
+    };
+
+    inline myZZ operator-(const usint &b) const {
+      myZZ bzz(b);
+      if (*this < bzz) { // should return 0
+	return myZZ(0);
+      }
+      myZZ tmp;
+      sub(tmp, *this, bzz);
       return tmp ;
     };
 
@@ -203,6 +222,13 @@ namespace NTL{
     inline myZZ operator*(const myZZ& b) const {
       myZZ tmp;
       mul(tmp, *this, b);
+      return tmp ;
+    }
+
+    inline myZZ operator*(const usint& b) const {
+      myZZ tmp;
+      myZZ bzz(b);
+      mul(tmp, *this, bzz);
       return tmp ;
     }
     inline myZZ Mul(const myZZ& b) const {return *this*b;};
@@ -371,6 +397,8 @@ namespace NTL{
     */
     void PrintLimbsInHex() const;
 
+    //TODO: get rid of this insantiy
+    void PrintValues() const { std::cout << *this; };
 
   private:
     //adapter kits
