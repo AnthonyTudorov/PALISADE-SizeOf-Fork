@@ -63,8 +63,6 @@ void ArbFVEvalSumPackedArray();
 
 int main() {
 
-	usint m = 22;
-
 	//LTVAutomorphismIntArray();
 
 	std::cout << "\n===========LTV TESTS (EVALSUM-ARBITRARY)===============: " << std::endl;
@@ -96,7 +94,6 @@ void ArbBVEvalSumPackedArray() {
 	BigBinaryInteger squareRootOfRoot("941018665059848");
 	//BigBinaryInteger squareRootOfRoot = RootOfUnity(2*m,modulusQ);
 	//std::cout << squareRootOfRoot << std::endl;
-	usint n = GetTotient(m);
 	BigBinaryInteger bigmodulus("80899135611688102162227204937217");
 	BigBinaryInteger bigroot("77936753846653065954043047918387");
 	//std::cout << bigroot << std::endl;
@@ -162,7 +159,6 @@ void ArbLTVEvalSumPackedArray() {
 
 	//BigBinaryInteger squareRootOfRoot = RootOfUnity(2*m,modulusQ);
 	//std::cout << squareRootOfRoot << std::endl;
-	usint n = GetTotient(m);
 	//BigBinaryInteger bigmodulus("80899135611688102162227204937217");
 	//BigBinaryInteger bigroot("77936753846653065954043047918387");
 	BigBinaryInteger bigmodulus("1361129467683753853853498429727072847489");
@@ -227,7 +223,6 @@ void ArbFVEvalSumPackedArray() {
 	BigBinaryInteger squareRootOfRoot("941018665059848");
 	//BigBinaryInteger squareRootOfRoot = RootOfUnity(2*m,modulusQ);
 	//std::cout << squareRootOfRoot << std::endl;
-	usint n = GetTotient(m);
 	BigBinaryInteger bigmodulus("80899135611688102162227204937217");
 	BigBinaryInteger bigroot("77936753846653065954043047918387");
 	//std::cout << bigroot << std::endl;

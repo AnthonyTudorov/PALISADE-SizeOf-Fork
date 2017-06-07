@@ -62,8 +62,6 @@ void FVCrossCorrelation();
 
 int main() {
 
-	usint m = 22;
-
 	std::cout << "\n===========BV TESTS (CROSS-CORRELATION-ARBITRARY)===============: " << std::endl;
 
 	BVCrossCorrelation();
@@ -87,7 +85,6 @@ void BVCrossCorrelation() {
 	BigBinaryInteger modulusQ("955263939794561");
 	BigBinaryInteger squareRootOfRoot("941018665059848");
 
-	usint n = GetTotient(m);
 	BigBinaryInteger bigmodulus("80899135611688102162227204937217");
 	BigBinaryInteger bigroot("77936753846653065954043047918387");
 
@@ -173,7 +170,6 @@ void BVCrossCorrelation() {
 void FVCrossCorrelation() {
 
 	usint m = 22;
-	usint N = GetTotient(m);
 	usint p = 89; // we choose s.t. 2m|p-1 to leverage CRTArb
 	BigBinaryInteger modulusQ("72385066601");
 	BigBinaryInteger modulusP(p);

@@ -726,15 +726,15 @@ namespace lbcrypto {
 		return dftRemainder;
 	}
 	std::vector<std::complex<double>> DiscreteFourierTransform::InverseTransform(std::vector<std::complex<double>> A) {
-		int n = A.size();
+		size_t n = A.size();
 		std::vector<std::complex<double>> dft;
-		for (int i = 0; i < n; i++) {
+		for (size_t i = 0; i < n; i++) {
 			dft.push_back(0);
 			dft.push_back(A.at(i));
 		}
 		std::vector<std::complex<double>> invDft = FFTInverseTransform(dft);
 		std::vector<std::complex<double>> invDftRemainder;
-		for (int i = 0; i < invDft.size() / 2; i++) {
+		for (size_t i = 0; i < invDft.size() / 2; i++) {
 			invDftRemainder.push_back(invDft.at(i));
 		}
 		return invDftRemainder;

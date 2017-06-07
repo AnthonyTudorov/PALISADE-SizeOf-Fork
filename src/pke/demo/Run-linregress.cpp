@@ -89,7 +89,6 @@ void ArbFVLinearRegressionPackedArray() {
 	double start, finish;
 
 	usint m = 9742;
-	usint N = GetTotient(m);
 	usint p = 9743; // we choose s.t. 2m|p-1 to leverage CRTArb
 	//BigBinaryInteger modulusQ("1329227995784915872903807060280351429");
 	//BigBinaryInteger modulusP(p);
@@ -253,7 +252,7 @@ void ArbFVLinearRegressionPackedArray() {
 
 	start = currentDateTime();
 
-	DecryptResult result1 = cc.DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
+	cc.DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
 
 	finish = currentDateTime();
 
@@ -269,7 +268,6 @@ void FVAutomorphismPackedArray(usint i) {
 	double start, finish;
 
 	usint m = 9742;
-	usint N = GetTotient(m);
 	usint p = 9743; // we choose s.t. 2m|p-1 to leverage CRTArb
 	//BigBinaryInteger modulusQ("1329227995784915872903807060280351429");
 	//BigBinaryInteger modulusP(p);
@@ -409,7 +407,6 @@ void ArbFVInnerProductPackedArray() {
 	double start, finish;
 
 	usint m = 9742;
-	usint N = GetTotient(m);
 	usint p = 9743; // we choose s.t. 2m|p-1 to leverage CRTArb
 					//BigBinaryInteger modulusQ("1329227995784915872903807060280351429");
 					//BigBinaryInteger modulusP(p);
@@ -580,7 +577,7 @@ void ArbFVInnerProductPackedArray() {
 
 	start = currentDateTime();
 
-	DecryptResult result1 = cc.Decrypt(kp.secretKey,newCiphertext,&intArrayNew,false);
+	cc.Decrypt(kp.secretKey,newCiphertext,&intArrayNew,false);
 
 	finish = currentDateTime();
 
@@ -594,7 +591,6 @@ void ArbBVLinearRegressionPackedArray() {
 	double start, finish;
 
 	usint m = 9742;
-	usint N = GetTotient(m);
 	usint p = 9743; // we choose s.t. 2m|p-1 to leverage CRTArb
 					//BigBinaryInteger modulusQ("1329227995784915872903807060280351429");
 					//BigBinaryInteger modulusP(p);
@@ -748,7 +744,7 @@ void ArbBVLinearRegressionPackedArray() {
 
 	start = currentDateTime();
 
-	DecryptResult result1 = cc.DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
+	cc.DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
 
 	finish = currentDateTime();
 

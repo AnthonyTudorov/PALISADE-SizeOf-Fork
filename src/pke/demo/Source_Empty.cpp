@@ -209,7 +209,6 @@ void EvalAutomorphism() {
 	BigBinaryInteger squareRootOfRoot("941018665059848");
 	//BigBinaryInteger squareRootOfRoot = RootOfUnity(2*m,modulusQ);
 	//std::cout << squareRootOfRoot << std::endl;
-	usint n = GetTotient(m);
 	BigBinaryInteger bigmodulus("80899135611688102162227204937217");
 	BigBinaryInteger bigroot("77936753846653065954043047918387");
 	//std::cout << bigroot << std::endl;
@@ -290,7 +289,6 @@ void EvalSummation() {
 	BigBinaryInteger modulusP(p);
 	BigBinaryInteger modulusQ("955263939794561");
 	BigBinaryInteger squareRootOfRoot("941018665059848");
-	usint n = GetTotient(m);
 	BigBinaryInteger bigmodulus("80899135611688102162227204937217");
 	BigBinaryInteger bigroot("77936753846653065954043047918387");
 
@@ -399,8 +397,7 @@ void PerformanceTest() {
 	BigBinaryInteger bigRoot("1011857408422309039039556907195908859561535234649870814154019834362746408101010");
 	//BigBinaryInteger bigModulusNTTDivision("22852932273529643486316954447175244494414503554339459946903988163765274935297");//254 bits
 	//BigBinaryInteger bigRootNTTDivision("166896813997959873062972192819860531324067319379918385803279340301727857067");
-	usint n = GetTotient(m);
-	usint m_nttDivisionDim = 2 * std::pow(2, ceil(log2(m-n)));
+
 	//BigBinaryInteger bigRootNTTDivision = RootOfUnity(m_nttDivisionDim, bigModulusNTTDivision);
 	//std::cout << bigRootNTTDivision << std::endl;
 	auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulus);
@@ -409,6 +406,7 @@ void PerformanceTest() {
 	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulus);
 	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::SetPreComputedNTTDivisionModulus(m, modulus, bigModulus, bigRoot);
 
+	usint n = GetTotient(m);
 	BigBinaryVector input(n, modulus);
 	input = { 1,2,3,4,5,6,7,8,9,10 };
 	auto INPUT = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().ForwardTransform(input, squareRootOfRoot, bigModulus, bigRoot, m);

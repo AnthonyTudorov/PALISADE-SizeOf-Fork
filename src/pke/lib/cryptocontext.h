@@ -508,9 +508,9 @@ public:
 
 		const BigBinaryInteger& ptm = publicKey->GetCryptoParameters()->GetPlaintextModulus();
 
-		for (int row = 0; row < plaintext.GetRows(); row++)
+		for (size_t row = 0; row < plaintext.GetRows(); row++)
 		{
-			for (int col = 0; col < plaintext.GetCols(); col++)
+			for (size_t col = 0; col < plaintext.GetCols(); col++)
 			{
 				ILVector2n pt(publicKey->GetCryptoParameters()->GetElementParams());
 				plaintext(row, col).Encode(ptm, &pt);
@@ -710,9 +710,9 @@ public:
 		if (privateKey == NULL || privateKey->GetCryptoContext() != *this)
 			throw std::runtime_error("Information passed to DecryptMatrix was not generated with this crypto context");
 
-		for (int row = 0; row < ciphertext->GetRows(); row++)
+		for (size_t row = 0; row < ciphertext->GetRows(); row++)
 		{
-			for (int col = 0; col < ciphertext->GetCols(); col++)
+			for (size_t col = 0; col < ciphertext->GetCols(); col++)
 			{
 				if ((*ciphertext)(row, col).GetCryptoContext() != *this)
 					throw std::runtime_error("A ciphertext passed to DecryptMatrix was not generated with this crypto context");

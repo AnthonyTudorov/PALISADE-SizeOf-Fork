@@ -1389,8 +1389,8 @@ namespace lbcrypto {
 			RationalCiphertext<Element> determinant;
 			covarianceMatrix.Determinant(&determinant);
 
-			for (int row = 0; row < result->GetRows(); row++)
-				for (int col = 0; col < result->GetCols(); col++)
+			for (size_t row = 0; row < result->GetRows(); row++)
+				for (size_t col = 0; col < result->GetCols(); col++)
 					(*result)(row, col).SetDenominator(*determinant.GetNumerator());
 
 			return result;

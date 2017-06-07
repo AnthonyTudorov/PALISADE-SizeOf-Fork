@@ -70,9 +70,8 @@ void ArbNullAutomorphismPackedArray(usint i);
 
 int main() {
 
-	usint m = 22;
-
 	//LTVAutomorphismIntArray();
+	usint m = 16;
 	std::vector<usint> totientList = GetTotientList(m);
 
 	std::cout << "\n===========LTV TESTS (EVALAUTOMORPHISM)===============: " << std::endl;
@@ -312,7 +311,6 @@ void ArbBVAutomorphismPackedArray(usint i) {
 	BigBinaryInteger squareRootOfRoot("941018665059848");
 	//BigBinaryInteger squareRootOfRoot = RootOfUnity(2*m,modulusQ);
 	//std::cout << squareRootOfRoot << std::endl;
-	usint n = GetTotient(m);
 	BigBinaryInteger bigmodulus("80899135611688102162227204937217");
 	BigBinaryInteger bigroot("77936753846653065954043047918387");
 	//std::cout << bigroot << std::endl;
@@ -383,7 +381,6 @@ void ArbLTVAutomorphismPackedArray(usint i) {
 	BigBinaryInteger squareRootOfRoot("941018665059848");
 	//BigBinaryInteger squareRootOfRoot = RootOfUnity(2*m,modulusQ);
 	//std::cout << squareRootOfRoot << std::endl;
-	usint n = GetTotient(m);
 	BigBinaryInteger bigmodulus("80899135611688102162227204937217");
 	BigBinaryInteger bigroot("77936753846653065954043047918387");
 	//std::cout << bigroot << std::endl;
@@ -452,7 +449,6 @@ void ArbFVAutomorphismPackedArray(usint i) {
 	BigBinaryInteger squareRootOfRoot("941018665059848");
 	//BigBinaryInteger squareRootOfRoot = RootOfUnity(2*m,modulusQ);
 	//std::cout << squareRootOfRoot << std::endl;
-	usint n = GetTotient(m);
 	BigBinaryInteger bigmodulus("80899135611688102162227204937217");
 	BigBinaryInteger bigroot("77936753846653065954043047918387");
 	//std::cout << bigroot << std::endl;
@@ -527,7 +523,6 @@ void ArbNullAutomorphismPackedArray(usint i) {
 	BigBinaryInteger squareRootOfRoot("941018665059848");
 	//BigBinaryInteger squareRootOfRoot = RootOfUnity(2*m,modulusQ);
 	//std::cout << squareRootOfRoot << std::endl;
-	usint n = GetTotient(m);
 	BigBinaryInteger bigmodulus("80899135611688102162227204937217");
 	BigBinaryInteger bigroot("77936753846653065954043047918387");
 	//std::cout << bigroot << std::endl;
@@ -536,8 +531,6 @@ void ArbNullAutomorphismPackedArray(usint i) {
 	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 	usint batchSize = 8;
-
-	float stdDev = 4;
 
 	PackedIntPlaintextEncoding::SetParams(modulusP, m);
 
