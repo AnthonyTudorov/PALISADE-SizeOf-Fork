@@ -75,7 +75,7 @@ namespace lbcrypto {
 		* @param  modulus - used for encoding.
 		* @param  *ilVector encoded plaintext - output argument.
 		*/
-		void Encode(const BigBinaryInteger &modulus, ILVectorArray2n *ilVector, size_t start_from = 0, size_t length = 0) const {
+		void Encode(const BigBinaryInteger &modulus, ILDCRT2n *ilVector, size_t start_from = 0, size_t length = 0) const {
 			throw std::logic_error("Encode: Packed encoding is not currently supported for ILVectorArray2n");
 		};
 
@@ -91,7 +91,7 @@ namespace lbcrypto {
 		* @param  modulus - used for encoding.
 		* @param  *ilVector encoded plaintext - input argument.
 		*/
-		void Decode(const BigBinaryInteger &modulus, ILVectorArray2n *ilVector){
+		void Decode(const BigBinaryInteger &modulus, ILDCRT2n *ilVector){
 			throw std::logic_error("Decode: Packed encoding is not currently supported for ILVectorArray2n");
 		}
 

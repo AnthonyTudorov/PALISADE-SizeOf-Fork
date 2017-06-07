@@ -100,9 +100,7 @@ namespace lbcrypto {
 
 	DiscreteFourierTransform* DiscreteFourierTransform::m_onlyInstance = 0;
 	std::complex<double>* DiscreteFourierTransform::rootOfUnityTable = 0;
-}
-//TODO: why is this namespace split like this? 
-namespace lbcrypto {
+
 	template<typename IntType, typename VecType>
 	NumberTheoreticTransform<IntType, VecType>& NumberTheoreticTransform<IntType, VecType>::GetInstance() {
 		if (m_onlyInstance == NULL) {
@@ -121,7 +119,7 @@ namespace lbcrypto {
 
 		//reverse coefficients (bit reversal)
 		usint msb = GetMSB32(n - 1);
-		for (usint i = 0; i < n; i++)
+		for (size_t i = 0; i < n; i++)
 			result.SetValAtIndex(i, element.GetValAtIndex(ReverseBits(i, msb)));
 
 		IntType omegaFactor;
@@ -136,7 +134,7 @@ namespace lbcrypto {
 		//YSP mu is not needed for native data types or BE 6
 #if MATHBACKEND != 6
 		//Precompute the Barrett mu parameter
-		IntType temp(IntType::ONE);
+		IntType temp(1);
 		temp <<= 2 * element.GetModulus().GetMSB() + 3;
 		IntType mu = temp.DividedBy(element.GetModulus());
 		//std::cout << "NTTFwd mod,tmp,mu" << element.GetModulus() << "," << temp << "," << mu << std::endl;
@@ -290,17 +288,7 @@ namespace lbcrypto {
 			OpFFT = NumberTheoreticTransform<IntType, VecType>::GetInstance().ForwardTransformIterative(InputToFFT, *m_rootOfUnityTable, CycloOrder);
 		}
 		else {
-
-			//auto start = std::chrono::steady_clock::now();
-
 			OpFFT = NumberTheoreticTransform<IntType, VecType>::GetInstance().ForwardTransformIterative(InputToFFT, *m_rootOfUnityTable, CycloOrder);
-
-			/*auto end = std::chrono::steady_clock::now();
-
-			auto diff = end - start;
-
-			std::cout << std::chrono::duration <double, std::milli> (diff).count() << " ms" << std::endl;
-			system("pause");*/
 		}
 
 		VecType ans(CycloOrder / 2);
@@ -366,7 +354,7 @@ namespace lbcrypto {
 	template<typename IntType, typename VecType>
 	VecType ChineseRemainderTransformFTT<IntType, VecType>::ForwardTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder) {
 		std::string errMsg;
-		if (rootOfUnity == IntType::ONE || rootOfUnity == IntType::ZERO) {
+		if (rootOfUnity == 1 || rootOfUnity == 0) {
 			errMsg = "Root of unity cannot be zero or one to perform a forward transform";
 			throw std::logic_error(errMsg);
 		}
@@ -377,10 +365,10 @@ namespace lbcrypto {
 
 		//YSP mu is not needed for native data types
 #if MATHBACKEND > 5
-		IntType mu(IntType::ONE);
+		IntType mu(1);
 #else
 		//Precompute the Barrett mu parameter
-		IntType temp(IntType::ONE);
+		IntType temp(1);
 		temp <<= 2 * element.GetModulus().GetMSB() + 3;
 		IntType mu = temp.DividedBy(element.GetModulus());
 #endif
@@ -405,7 +393,7 @@ namespace lbcrypto {
 			if (mSearch == m_rootOfUnityTableByModulus.end() || recompute) {
 				VecType rTable(CycloOrder / 2);
 				IntType modulus(element.GetModulus());
-				IntType x(IntType::ONE);
+				IntType x(1);
 
 				for (usint i = 0; i < CycloOrder / 2; i++) {
 					rTable.SetValAtIndex(i, x);
@@ -435,7 +423,7 @@ namespace lbcrypto {
 	template<typename IntType, typename VecType>
 	VecType ChineseRemainderTransformFTT<IntType, VecType>::InverseTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder) {
 		std::string errMsg;
-		if (rootOfUnity == IntType::ONE || rootOfUnity == IntType::ZERO) {
+		if (rootOfUnity == 1 || rootOfUnity == 0) {
 			errMsg = "Root of unity cannot be zero or one to perform an inverse transform";
 			throw std::logic_error(errMsg);
 		}
@@ -446,10 +434,10 @@ namespace lbcrypto {
 
 		//YSP mu is not needed for native data types
 #if MATHBACKEND > 5
-		IntType mu(IntType::ONE);
+		IntType mu(1);
 #else
 		//Pre-compute mu for Barrett function
-		IntType temp(IntType::ONE);
+		IntType temp(1);
 		temp <<= 2 * element.GetModulus().GetMSB() + 3;
 		IntType mu = temp.DividedBy(element.GetModulus());
 #endif
@@ -485,7 +473,7 @@ namespace lbcrypto {
 			if (mSearch == m_rootOfUnityInverseTableByModulus.end() || recompute) {
 				VecType TableI(CycloOrder / 2);
 
-				IntType x(IntType::ONE);
+				IntType x(1);
 
 				for (usint i = 0; i < CycloOrder / 2; i++) {
 					TableI.SetValAtIndex(i, x);
@@ -513,15 +501,15 @@ namespace lbcrypto {
 
 		//YSP mu is not needed for native data types
 #if MATHBACKEND > 5
-		IntType mu(IntType::ONE);
+		IntType mu(1);
 #else
 		//Precompute the Barrett mu parameter
-		IntType temp(IntType::ONE);
+		IntType temp(1);
 		temp <<= 2 * modulus.GetMSB() + 3;
 		IntType mu = temp.DividedBy(modulus);
 #endif
 
-		IntType x(IntType::ONE);
+		IntType x(1);
 
 
 		VecType *rootOfUnityTableCheck = NULL;
@@ -545,7 +533,7 @@ namespace lbcrypto {
 			VecType TableI(CycloOrder / 2);
 			IntType rootOfUnityInverse = rootOfUnity.ModInverse(modulus);
 
-			x = IntType::ONE;
+			x = 1;
 
 			for (usint i = 0; i < CycloOrder / 2; i++) {
 				TableI.SetValAtIndex(i, x);
@@ -566,7 +554,6 @@ namespace lbcrypto {
 
 		if (numOfRootU != numModulii) {
 			throw std::logic_error("size of root of unity and size of moduli chain not of same size");
-			system("pause");
 		}
 
 		for (usint i = numOfRootU; i < numOfRootU; ++i) {
@@ -576,10 +563,10 @@ namespace lbcrypto {
 
 			//mu is not needed for native data types
 #if MATHBACKEND > 5
-			IntType mu(IntType::ONE);
+			IntType mu(1);
 #else
 			//Precompute the Barrett mu parameter
-			IntType temp(IntType::ONE);
+			IntType temp(1);
 			temp <<= 2 * currentMod.GetMSB() + 3;
 			IntType mu = temp.DividedBy(currentMod);
 #endif
@@ -589,7 +576,7 @@ namespace lbcrypto {
 
 
 
-			IntType x(IntType::ONE);
+			IntType x(1);
 
 
 			//computation of root of unity table
@@ -604,7 +591,7 @@ namespace lbcrypto {
 			this->m_rootOfUnityTableByModulus[currentMod] = std::move(rTable);
 
 			//computation of root of unity inverse table
-			x = IntType::ONE;
+			x = 1;
 
 			IntType rootOfUnityInverse = currentRoot.ModInverse(currentMod);
 
@@ -653,7 +640,7 @@ namespace lbcrypto {
 			rootOfUnityTable = 0;
 		}
 		rootOfUnityTable = new std::complex<double>[s];
-		for (int j = 0; j < s; j++) {
+		for (size_t j = 0; j < s; j++) {
 			rootOfUnityTable[j] = std::polar(1.0, -2 * M_PI * j / s);
 		}
 	}
@@ -792,13 +779,13 @@ namespace lbcrypto {
 		VecType rootTable(nttDim / 2, nttMod);
 		VecType rootTableInverse(nttDim / 2, nttMod);
 
-		IntType x(IntType::ONE);
+		IntType x(1);
 		for (usint i = 0; i < nttDim / 2; i++) {
 			rootTable.SetValAtIndex(i, x);
 			x = x.ModMul(root, nttMod);
 		}
 
-		x = (IntType::ONE);
+		x = 1;
 		for (usint i = 0; i < nttDim / 2; i++) {
 			rootTableInverse.SetValAtIndex(i, x);
 			x = x.ModMul(rootInv, nttMod);
@@ -820,7 +807,7 @@ namespace lbcrypto {
 		VecType rootTable(nttDim / 2, nttMod);
 		VecType rootTableInverse(nttDim / 2, nttMod);
 
-		IntType x(IntType::ONE);
+		IntType x(1);
 		for (usint i = 0; i < nttDim / 2; i++) {
 			rootTable.SetValAtIndex(i, x);
 			//rootTable.SetValAtIndex(i + nttDim / 2, nttMod - x);
@@ -829,7 +816,7 @@ namespace lbcrypto {
 
 		//rootTable.SetValAtIndex(nttDim, IntType::ONE);
 
-		x = (IntType::ONE);
+		x = 1;
 		for (usint i = 0; i < nttDim / 2; i++) {
 			rootTableInverse.SetValAtIndex(i, x);
 			//rootTableInverse.SetValAtIndex(i + nttDim / 2, nttMod - x);
@@ -845,7 +832,7 @@ namespace lbcrypto {
 	void BluesteinFFT<IntType, VecType>::PreComputePowers(usint cycloOrder, const IntType &modulus, const IntType &root) {
 
 		VecType powers(cycloOrder, modulus);
-		powers.SetValAtIndex(0, IntType::ONE);
+		powers.SetValAtIndex(0, 1);
 		for (usint i = 1; i < cycloOrder; i++) {
 			auto iSqr = (i*i) % (2 * cycloOrder);
 			auto val = root.ModExp(IntType(iSqr), modulus);
@@ -865,7 +852,7 @@ namespace lbcrypto {
 
 		auto rootInv = root.ModInverse(modulus);
 		VecType b(2 * cycloOrder - 1, modulus);
-		b.SetValAtIndex(cycloOrder - 1, IntType::ONE);
+		b.SetValAtIndex(cycloOrder - 1, 1);
 		for (usint i = 1; i < cycloOrder; i++) {
 			auto iSqr = (i*i) % (2 * cycloOrder);
 			auto val = rootInv.ModExp(IntType(iSqr), modulus);
@@ -1258,18 +1245,12 @@ namespace lbcrypto {
 	template class NumberTheoreticTransform<BigBinaryInteger, BigBinaryVector>;
 	template class ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>;
 	template class BluesteinFFT<BigBinaryInteger, BigBinaryVector>;
-	extern template  BigBinaryVector PolyMod(const BigBinaryVector &dividend, const BigBinaryVector &divisor, const BigBinaryInteger &modulus);
 
-	// FIXME the MATH_BACKEND check is a hack and needs to go away
 #if MATHBACKEND != 7
-#ifndef NO_MATHBACKEND_7
-	template class ChineseRemainderTransformFTT<native64::BigBinaryInteger, native64::BigBinaryVector>;
-	template class NumberTheoreticTransform<native64::BigBinaryInteger, native64::BigBinaryVector>;
-	template class ChineseRemainderTransformArb<native64::BigBinaryInteger, native64::BigBinaryVector>;
-	template class BluesteinFFT<native64::BigBinaryInteger, native64::BigBinaryVector>;
-	extern template  native64::BigBinaryVector PolyMod(const native64::BigBinaryVector &dividend, const native64::BigBinaryVector &divisor, const native64::BigBinaryInteger &modulus);
-
-#endif
+	template class ChineseRemainderTransformFTT<native_int::BinaryInteger, native_int::BinaryVector>;
+	template class NumberTheoreticTransform<native_int::BinaryInteger, native_int::BinaryVector>;
+	template class ChineseRemainderTransformArb<native_int::BinaryInteger, native_int::BinaryVector>;
+	template class BluesteinFFT<native_int::BinaryInteger, native_int::BinaryVector>;
 #endif
 
 }//namespace ends here

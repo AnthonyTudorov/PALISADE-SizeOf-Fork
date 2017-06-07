@@ -50,64 +50,45 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 namespace lbcrypto {
 
-template BigBinaryInteger RootOfUnity<BigBinaryInteger>(usint m, const BigBinaryInteger& modulo);
-template std::vector<BigBinaryInteger> RootsOfUnity(usint m, const std::vector<BigBinaryInteger> moduli);
-template BigBinaryInteger GreatestCommonDivisor(const BigBinaryInteger& a, const BigBinaryInteger& b);
 
-template bool MillerRabinPrimalityTest(const BigBinaryInteger& p, const usint niter);
-template const BigBinaryInteger PollardRhoFactorization(const BigBinaryInteger &n);
-template void PrimeFactorize( BigBinaryInteger n, std::set<BigBinaryInteger> &primeFactors);
-template BigBinaryInteger FindPrimeModulus(usint m, usint nBits);
-template void NextQ(BigBinaryInteger &q, const BigBinaryInteger &plainTextModulus, const usint cyclotomicOrder, const BigBinaryInteger &sigma, const BigBinaryInteger &alpha);
-template BigBinaryVector PolyMod(const BigBinaryVector &dividend, const BigBinaryVector &divisor, const BigBinaryInteger &modulus);
-template BigBinaryVector PolynomialMultiplication(const BigBinaryVector &a, const BigBinaryVector &b);
-template BigBinaryVector GetCyclotomicPolynomial(usint m, const BigBinaryInteger &modulus);
-template BigBinaryInteger FindGeneratorCyclic(const BigBinaryInteger& modulo);
-template bool IsGenerator(const BigBinaryInteger& g, const BigBinaryInteger& modulo);
+	template BigBinaryInteger RootOfUnity<BigBinaryInteger>(usint m, const BigBinaryInteger& modulo);
+	template std::vector<BigBinaryInteger> RootsOfUnity(usint m, const std::vector<BigBinaryInteger> moduli);
+	template BigBinaryInteger GreatestCommonDivisor(const BigBinaryInteger& a, const BigBinaryInteger& b);
+	template bool MillerRabinPrimalityTest(const BigBinaryInteger& p, const usint niter);
+	template const BigBinaryInteger PollardRhoFactorization(const BigBinaryInteger &n);
+	template void PrimeFactorize(BigBinaryInteger n, std::set<BigBinaryInteger> &primeFactors);
+	template BigBinaryInteger FindPrimeModulus(usint m, usint nBits);
+	template void NextQ(BigBinaryInteger &q, const BigBinaryInteger &plainTextModulus, const usint cyclotomicOrder, const BigBinaryInteger &sigma, const BigBinaryInteger &alpha);
+	template BigBinaryVector PolyMod(const BigBinaryVector &dividend, const BigBinaryVector &divisor, const BigBinaryInteger &modulus);
+	template BigBinaryVector PolynomialMultiplication(const BigBinaryVector &a, const BigBinaryVector &b);
+	template BigBinaryVector GetCyclotomicPolynomial(usint m, const BigBinaryInteger &modulus);
+	template BigBinaryInteger FindGeneratorCyclic(const BigBinaryInteger& modulo);
+	template bool IsGenerator(const BigBinaryInteger& g, const BigBinaryInteger& modulo);
 
-template std::vector<usint> GetTotientList(const usint &n);
-
-// FIXME the MATH_BACKEND check is a hack and needs to go away
-#if MATHBACKEND != 7
-#ifndef NO_MATHBACKEND_7
-template native64::BigBinaryInteger RootOfUnity<native64::BigBinaryInteger>(usint m, const native64::BigBinaryInteger& modulo);
-template std::vector<native64::BigBinaryInteger> RootsOfUnity(usint m, const std::vector<native64::BigBinaryInteger> moduli);
-template native64::BigBinaryInteger GreatestCommonDivisor(const native64::BigBinaryInteger& a, const native64::BigBinaryInteger& b);
-  template bool MillerRabinPrimalityTest(const native64::BigBinaryInteger& p, const usint niter);
-template const native64::BigBinaryInteger PollardRhoFactorization(const native64::BigBinaryInteger &n);
-template void PrimeFactorize( native64::BigBinaryInteger n, std::set<native64::BigBinaryInteger> &primeFactors);
-template native64::BigBinaryInteger FindPrimeModulus(usint m, usint nBits);
-template void NextQ(native64::BigBinaryInteger &q, const native64::BigBinaryInteger &plainTextModulus, const usint cyclotomicOrder, const native64::BigBinaryInteger &sigma, const native64::BigBinaryInteger &alpha);
-//template native64::BigBinaryInteger GetTotient(const native64::BigBinaryInteger &n);
-template std::vector<native64::BigBinaryInteger> GetTotientList(const native64::BigBinaryInteger &n);
-template native64::BigBinaryVector PolyMod(const native64::BigBinaryVector &dividend, const native64::BigBinaryVector &divisor, const native64::BigBinaryInteger &modulus);
-template native64::BigBinaryVector PolynomialMultiplication(const native64::BigBinaryVector &a, const native64::BigBinaryVector &b);
-template native64::BigBinaryVector GetCyclotomicPolynomial(usint m, const native64::BigBinaryInteger &modulus);
-template native64::BigBinaryInteger FindGeneratorCyclic(const native64::BigBinaryInteger& modulo);
-template bool IsGenerator(const native64::BigBinaryInteger& g, const native64::BigBinaryInteger& modulo);
->>>>>>> Fixed the plaintext generator bug affecting automorphism
+	template std::vector<usint> GetTotientList(const usint &n);
 
 #if MATHBACKEND != 7
-template native_int::BinaryInteger RootOfUnity<native_int::BinaryInteger>(usint m, const native_int::BinaryInteger& modulo);
-template std::vector<native_int::BinaryInteger> RootsOfUnity(usint m, const std::vector<native_int::BinaryInteger> moduli);
-template native_int::BinaryInteger GreatestCommonDivisor(const native_int::BinaryInteger& a, const native_int::BinaryInteger& b);
-template bool MillerRabinPrimalityTest(const native_int::BinaryInteger& p, const usint niter);
-template const native_int::BinaryInteger PollardRhoFactorization(const native_int::BinaryInteger &n);
-template void PrimeFactorize( native_int::BinaryInteger n, std::set<native_int::BinaryInteger> &primeFactors);
-template native_int::BinaryInteger FindPrimeModulus(usint m, usint nBits);
-template void NextQ(native_int::BinaryInteger &q, const native_int::BinaryInteger &plainTextModulus, const usint cyclotomicOrder, const native_int::BinaryInteger &sigma, const native_int::BinaryInteger &alpha);
-template native_int::BinaryVector PolyMod(const native_int::BinaryVector &dividend, const native_int::BinaryVector &divisor, const native_int::BinaryInteger &modulus);
-template native_int::BinaryVector PolynomialMultiplication(const native_int::BinaryVector &a, const native_int::BinaryVector &b);
-template native_int::BinaryVector GetCyclotomicPolynomial(usint m, const native_int::BinaryInteger &modulus);
+	template native_int::BinaryInteger RootOfUnity<native_int::BinaryInteger>(usint m, const native_int::BinaryInteger& modulo);
+	template std::vector<native_int::BinaryInteger> RootsOfUnity(usint m, const std::vector<native_int::BinaryInteger> moduli);
+	template native_int::BinaryInteger GreatestCommonDivisor(const native_int::BinaryInteger& a, const native_int::BinaryInteger& b);
+	template bool MillerRabinPrimalityTest(const native_int::BinaryInteger& p, const usint niter);
+	template const native_int::BinaryInteger PollardRhoFactorization(const native_int::BinaryInteger &n);
+	template void PrimeFactorize(native_int::BinaryInteger n, std::set<native_int::BinaryInteger> &primeFactors);
+	template native_int::BinaryInteger FindPrimeModulus(usint m, usint nBits);
+	template void NextQ(native_int::BinaryInteger &q, const native_int::BinaryInteger &plainTextModulus, const usint cyclotomicOrder, const native_int::BinaryInteger &sigma, const native_int::BinaryInteger &alpha);
+	template native_int::BinaryVector PolyMod(const native_int::BinaryVector &dividend, const native_int::BinaryVector &divisor, const native_int::BinaryInteger &modulus);
+	template native_int::BinaryVector PolynomialMultiplication(const native_int::BinaryVector &a, const native_int::BinaryVector &b);
+	template native_int::BinaryVector GetCyclotomicPolynomial(usint m, const native_int::BinaryInteger &modulus);
+	template native_int::BinaryInteger FindGeneratorCyclic(const native_int::BinaryInteger& modulo);
+	template bool IsGenerator(const native_int::BinaryInteger& g, const native_int::BinaryInteger& modulo);
 #endif
+
 
 /*
 	Generates a random number between 0 and n.
 	Input: BigBinaryInteger n.
 	Output: Randomly generated BigBinaryInteger between 0 and n.
 */
-
-
 template<typename IntType>
 static IntType RNG(const IntType& modulus)
  {
