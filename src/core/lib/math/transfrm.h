@@ -206,14 +206,7 @@ namespace lbcrypto {
 		*
 		* @return is this object.
 		*/
-		static ChineseRemainderTransformFTT& GetInstance() {
-			if (m_onlyInstance == NULL) {
-				m_onlyInstance = new ChineseRemainderTransformFTT<IntType, VecType>();
-			}
-
-			return *m_onlyInstance;
-		}
-
+		static ChineseRemainderTransformFTT& GetInstance();
 		/**
 		* Virtual forward transform.
 		*

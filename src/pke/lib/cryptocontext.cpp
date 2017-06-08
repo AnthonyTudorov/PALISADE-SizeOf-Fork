@@ -60,6 +60,63 @@ const shared_ptr<LPEvalKey<Element>> CryptoContext<Element>::GetEvalMultKey() co
 	return evalMultKeys[0];
 }
 
+template <typename Element>
+void CryptoContext<Element>::EvalSumKeyGen(
+	const shared_ptr<LPPrivateKey<Element>> privateKey,
+	const shared_ptr<LPPublicKey<Element>> publicKey) const {
+
+	//need to add exception handling
+
+	auto evalKeys = GetEncryptionAlgorithm()->EvalSumKeyGen(privateKey,publicKey);
+
+	evalSumKeys = *evalKeys;
+}
+
+template <typename Element>
+shared_ptr<Ciphertext<Element>> CryptoContext<Element>::EvalSum(const shared_ptr<Ciphertext<Element>> ciphertext, usint batchSize) const {
+
+	//need to add exception handling
+
+	return GetEncryptionAlgorithm()->EvalSum(ciphertext, batchSize, evalSumKeys);
+
+}
+
+template <typename Element>
+shared_ptr<Ciphertext<Element>> CryptoContext<Element>::EvalInnerProduct(const shared_ptr<Ciphertext<Element>> ciphertext1, const shared_ptr<Ciphertext<Element>> ciphertext2, usint batchSize) const {
+
+	//need to add exception handling
+
+	auto evalMultKey = GetEvalMultKey();
+
+	return GetEncryptionAlgorithm()->EvalInnerProduct(ciphertext1, ciphertext2, batchSize, evalSumKeys, evalMultKey);
+
+}
+
+template <typename Element>
+shared_ptr<Ciphertext<Element>>
+CryptoContext<Element>::EvalCrossCorrelation(const shared_ptr<Matrix<RationalCiphertext<Element>>> x,
+		const shared_ptr<Matrix<RationalCiphertext<Element>>> y, usint batchSize,
+		usint indexStart, usint length) const {
+
+	//need to add exception handling
+
+	auto evalMultKey = GetEvalMultKey();
+
+	return GetEncryptionAlgorithm()->EvalCrossCorrelation(x, y, batchSize, indexStart, length, evalSumKeys, evalMultKey);
+
+}
+
+template <typename Element>
+shared_ptr<Matrix<RationalCiphertext<Element>>>
+CryptoContext<Element>::EvalLinRegressBatched(const shared_ptr<Matrix<RationalCiphertext<Element>>> x,
+		const shared_ptr<Matrix<RationalCiphertext<Element>>> y, usint batchSize) const
+{
+	//need to add exception handling
+
+	auto evalMultKey = GetEvalMultKey();
+
+	return GetEncryptionAlgorithm()->EvalLinRegressBatched(x, y, batchSize, evalSumKeys, evalMultKey);
+}
 
 template <typename T>
 bool
