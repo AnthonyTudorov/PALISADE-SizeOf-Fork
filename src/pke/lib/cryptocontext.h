@@ -1029,15 +1029,8 @@ public:
 	*/
 	void EvalSumKeyGen(
 		const shared_ptr<LPPrivateKey<Element>> privateKey, 
-		const shared_ptr<LPPublicKey<Element>> publicKey = nullptr) const {
+		const shared_ptr<LPPublicKey<Element>> publicKey = nullptr) const;
 
-		//need to add exception handling
-
-		auto evalKeys = GetEncryptionAlgorithm()->EvalSumKeyGen(privateKey,publicKey);
-
-		evalSumKeys = *evalKeys;
-
-	}
 	/**
 	* Function for evaluating a sum of all components
 	*
@@ -1045,13 +1038,7 @@ public:
 	* @param batchSize size of the batch
 	* @return resulting ciphertext
 	*/
-	shared_ptr<Ciphertext<Element>> EvalSum(const shared_ptr<Ciphertext<Element>> ciphertext, usint batchSize) const {
-
-		//need to add exception handling
-
-		return GetEncryptionAlgorithm()->EvalSum(ciphertext, batchSize, evalSumKeys);
-
-	}
+	shared_ptr<Ciphertext<Element>> EvalSum(const shared_ptr<Ciphertext<Element>> ciphertext, usint batchSize) const;
 
 	/**
 	* Evaluates inner product in batched encoding
@@ -1061,15 +1048,7 @@ public:
 	* @param batchSize size of the batch to be summed up
 	* @return resulting ciphertext
 	*/
-	shared_ptr<Ciphertext<Element>> EvalInnerProduct(const shared_ptr<Ciphertext<Element>> ciphertext1, const shared_ptr<Ciphertext<Element>> ciphertext2, usint batchSize) const {
-
-		//need to add exception handling
-
-		auto evalMultKey = GetEvalMultKey();
-
-		return GetEncryptionAlgorithm()->EvalInnerProduct(ciphertext1, ciphertext2, batchSize, evalSumKeys, evalMultKey);
-
-	}
+	shared_ptr<Ciphertext<Element>> EvalInnerProduct(const shared_ptr<Ciphertext<Element>> ciphertext1, const shared_ptr<Ciphertext<Element>> ciphertext2, usint batchSize) const;
 
 	/**
 	* EvalCrossCorrelation - Computes the sliding sum of inner products (known as
@@ -1085,15 +1064,7 @@ public:
 	shared_ptr<Ciphertext<Element>>
 		EvalCrossCorrelation(const shared_ptr<Matrix<RationalCiphertext<Element>>> x,
 			const shared_ptr<Matrix<RationalCiphertext<Element>>> y, usint batchSize,
-			usint indexStart = 0, usint length = 0) const {
-
-		//need to add exception handling
-
-		auto evalMultKey = GetEvalMultKey();
-
-		return GetEncryptionAlgorithm()->EvalCrossCorrelation(x, y, batchSize, indexStart, length, evalSumKeys, evalMultKey);
-
-	}
+			usint indexStart = 0, usint length = 0) const;
 
 	/**
 	* EvalLinRegressBatched- Computes the parameter vector for linear regression using the least squares method
@@ -1104,15 +1075,7 @@ public:
 	*/
 	shared_ptr<Matrix<RationalCiphertext<Element>>>
 		EvalLinRegressBatched(const shared_ptr<Matrix<RationalCiphertext<Element>>> x,
-			const shared_ptr<Matrix<RationalCiphertext<Element>>> y, usint batchSize) const
-	{
-		//need to add exception handling
-
-		auto evalMultKey = GetEvalMultKey();
-
-		return GetEncryptionAlgorithm()->EvalLinRegressBatched(x, y, batchSize, evalSumKeys, evalMultKey);
-	}
-
+			const shared_ptr<Matrix<RationalCiphertext<Element>>> y, usint batchSize) const;
 	/**
 	* EvalLinRegression - Computes the parameter vector for linear regression using the least squares method
 	* @param x - matrix of regressors

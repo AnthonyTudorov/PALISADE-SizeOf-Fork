@@ -246,14 +246,14 @@ namespace lbcrypto {
 		return *m_onlyInstance;
 	}
 
-	//template<typename IntType, typename VecType>
-	//ChineseRemainderTransformFTT<IntType,VecType>& ChineseRemainderTransformFTT<IntType,VecType>::GetInstance() {
-	//	if (m_onlyInstance == NULL) {
-	//		m_onlyInstance = new ChineseRemainderTransformFTT<IntType,VecType>();
-	//	}
-	//
-	//	return *m_onlyInstance;
-	//}
+	template<typename IntType, typename VecType>
+	ChineseRemainderTransformFTT<IntType,VecType>& ChineseRemainderTransformFTT<IntType,VecType>::GetInstance() {
+		if (m_onlyInstance == NULL) {
+			m_onlyInstance = new ChineseRemainderTransformFTT<IntType,VecType>();
+		}
+
+		return *m_onlyInstance;
+	}
 
 
 	//main CRT Transform - uses iterative FFT as a subroutine
@@ -943,7 +943,7 @@ namespace lbcrypto {
 		}
 
 		for (usint i = a.GetLength(); i < finalSize; i++) {
-			result.SetValAtIndex(i, IntType::ZERO);
+			result.SetValAtIndex(i, IntType(0));
 		}
 
 		return result;
@@ -1013,13 +1013,13 @@ namespace lbcrypto {
 		VecType rootTable(nttDim / 2, nttMod);
 		VecType rootTableInverse(nttDim / 2, nttMod);
 
-		IntType x(IntType::ONE);
+		IntType x(1);
 		for (usint i = 0; i < nttDim / 2; i++) {
 			rootTable.SetValAtIndex(i, x);
 			x = x.ModMul(root, nttMod);
 		}
 
-		x = IntType::ONE;
+		x = 1;
 		for (usint i = 0; i < nttDim / 2; i++) {
 			rootTableInverse.SetValAtIndex(i, x);
 			x = x.ModMul(rootInv, nttMod);
@@ -1059,15 +1059,15 @@ namespace lbcrypto {
 		VecType result(power, modulus);
 		usint r = ceil(log2(power));
 		VecType h(1, modulus);//h is a unit polynomial
-		h.SetValAtIndex(0, IntType::ONE);
+		h.SetValAtIndex(0, 1);
 
 		for (usint i = 0; i < r; i++) {
 			usint qDegree = std::pow(2, i + 1);
 			VecType q(qDegree + 1, modulus);//q = x^(2^i+1)
-			q.SetValAtIndex(qDegree, IntType::ONE);
+			q.SetValAtIndex(qDegree, 1);
 			auto hSquare = PolynomialMultiplication(h, h);
 
-			auto a = h*IntType::TWO;
+			auto a = h * IntType(2);
 			auto b = PolynomialMultiplication(hSquare, cycloPoly);
 			//b = 2h - gh^2
 			for (usint j = 0; j < b.GetLength(); j++) {

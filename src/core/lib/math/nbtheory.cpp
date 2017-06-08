@@ -257,7 +257,7 @@ IntType FindGeneratorCyclic(const IntType& q)
 			DEBUG("in set");
 			DEBUG("divide " << qm1 << " by " << *it);
 
-			if (gen.ModExp(qm1 / (*it), q) == IntType::ONE) break;
+			if (gen.ModExp(qm1 / (*it), q) == 1) break;
 			else count++;
 		}
 		
@@ -289,7 +289,7 @@ bool IsGenerator(const IntType &g, const IntType& q)
 		DEBUG("in set");
 		DEBUG("divide " << qm1 << " by " << *it);
 
-		if (g.ModExp(qm1 / (*it), q) == IntType::ONE) break;
+		if (g.ModExp(qm1 / (*it), q) == 1) break;
 		else count++;
 	}
 
@@ -793,7 +793,7 @@ IntVector PolyMod(const IntVector &dividend, const IntVector &divisor, const Int
 	usint runs = dividendLength - divisorLength + 1; //no. of iterations
 
 	//Precompute the Barrett mu parameter
-	IntType temp(IntType::ONE);
+	IntType temp(1);
 	temp <<= 2 * modulus.GetMSB() + 3;
 	IntType mu = temp.DividedBy(modulus);
 
