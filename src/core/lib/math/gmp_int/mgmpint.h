@@ -248,7 +248,7 @@ namespace NTL{
     };
     inline myZZ_p& operator-=(const myZZ_p &a) {
       //sub(*this, *this, a);
-      *this = this->ModSub(b);
+      *this = this->ModSub(a);
       return *this;
     };
 
@@ -344,7 +344,7 @@ namespace NTL{
 
     inline myZZ_p ModSub(const myZZ_p& b) const
     {
-replace this. so it matches bbv irregular use of signed mod.
+      ///ERROR replace this. so it matches bbv irregular use of signed mod.
       return *this-b;      
     };
 

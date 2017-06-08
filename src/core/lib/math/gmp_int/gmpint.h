@@ -251,10 +251,13 @@ namespace NTL{
     inline myZZ ModAdd(const myZZ& b, const myZZ& modulus) const {return myZZ(AddMod(*this%modulus, b%modulus, modulus));};
     //Fast version does not check for modulus bounds.
     inline myZZ ModAddFast(const myZZ& b, const myZZ& modulus) const {return AddMod(*this, b, modulus);};
+
+    //NOTE THIS mimics binint signed mod
     inline myZZ ModSub(const myZZ& b, const myZZ& modulus) const
     {
       ZZ newthis(*this%modulus);
       ZZ newb(b%modulus);
+      //ERROR replace this
       return SubMod(newthis, newb, modulus);      
     };
 

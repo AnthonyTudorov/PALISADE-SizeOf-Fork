@@ -757,18 +757,18 @@ namespace NTL {
     DEBUG("myVecP::operator- returning modulus "<<res.m_modulus);
     return(res);
   }
-#if 0  //negation of vector
 
   template<class myT>
-  myVecP<myT> myVecP<myT>::operator-() const
+  myVecP<myT> myVecP<myT>::operator-(void) const
   {
     bool dbg_flag = false;
     DEBUG("in myVecP::operator-negate");
-
-    return (myZZ(0)- *this);
+    myVecP<myT> tmp (this->size());
+    tmp.clear();
+    tmp.CopyModulus(*this);
+    return (tmp - *this);
 
   }
-#endif
 
   //multiplication vector by scalar
   template<class myT>

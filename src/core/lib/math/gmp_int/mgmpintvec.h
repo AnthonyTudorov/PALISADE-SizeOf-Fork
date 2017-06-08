@@ -271,9 +271,9 @@ namespace NTL {
     
     myVecP operator-(myVecP const& b) const;
     myVecP operator-(myZZ const& b) const;
-#if 0
-    myVecP operator-() ; //negation
-#endif
+
+    myVecP operator-(void) const; //negation
+
 
     //scalar
     inline myVecP Sub(const myZZ& b) const {ModulusCheck("Warning: myVecP::Sub"); return (*this)-b%m_modulus;};
