@@ -272,7 +272,7 @@ namespace NTL {
     myVecP operator-(myVecP const& b) const;
     myVecP operator-(myZZ const& b) const;
 
-    myVecP operator-(void) const; //negation
+    myVecP operator-(void); //negation
 
 
     //scalar

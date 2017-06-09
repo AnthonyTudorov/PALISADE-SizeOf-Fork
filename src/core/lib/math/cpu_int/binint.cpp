@@ -158,8 +158,8 @@ BigBinaryInteger<uint_type,BITLENGTH>::~BigBinaryInteger()
 */
 template<typename uint_type, usint BITLENGTH>
 uint64_t BigBinaryInteger<uint_type, BITLENGTH>::ConvertToInt() const{
-
 	uint64_t result = 0;
+
 	//set num to number of equisized chunks
 	usint num = 64 / m_uintBitLength;
 
@@ -168,6 +168,12 @@ uint64_t BigBinaryInteger<uint_type, BITLENGTH>::ConvertToInt() const{
 	for (usint i = 0; i < num && (m_nSize - i - 1) >= ceilInt; i++){
 		result += ((uint64_t)this->m_value[m_nSize - i - 1] << (m_uintBitLength*i));
 	}
+	if (this->m_MSB >= 64) {
+		std::cerr<<"BBI::Warning ConvertToInt() Loss of precision. "<<std::endl;
+		std::cerr<<"input  "<< *this<<std::endl;			
+		std::cerr<<"result  "<< result<<std::endl;			
+	}
+
 	return result;
 }
 

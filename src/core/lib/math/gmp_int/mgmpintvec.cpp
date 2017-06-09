@@ -481,8 +481,9 @@ namespace NTL {
 
   }
 
-  template<class myT>
-  void myVecP<myT>::clear(myVecP<myT>& x)
+  //todo " should this be (void)?
+  template<class myT>  
+  void myVecP<myT>::clear(myVecP<myT>& x) 
   {
     //sets all elements to zero, but does not change length
     bool dbg_flag = false;
@@ -493,7 +494,7 @@ namespace NTL {
     for (i = 0; i < n; i++){
       NTL_NAMESPACE::clear(x[i]);  
     }
-    NTL_NAMESPACE::clear(this->m_modulus);
+    NTL_NAMESPACE::clear(x.m_modulus);
   }
   
   //not enabled yet
@@ -759,12 +760,12 @@ namespace NTL {
   }
 
   template<class myT>
-  myVecP<myT> myVecP<myT>::operator-(void) const
+  myVecP<myT> myVecP<myT>::operator-(void) 
   {
     bool dbg_flag = false;
     DEBUG("in myVecP::operator-negate");
     myVecP<myT> tmp (this->size());
-    tmp.clear();
+    myVecP<myT>::clear(tmp);
     tmp.CopyModulus(*this);
     return (tmp - *this);
 

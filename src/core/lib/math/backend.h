@@ -104,7 +104,7 @@ typedef BigBinaryVectorImpl<BinaryInteger> BinaryVector;
 
 ////////// for exp_int, decide if you want 32 bit or 64 bit underlying integers in the implementation
 #define UBINT_32
-//#define UBINT_64
+//#define UBINT_64                //DONT USE THIS IT DOESNT WORK - DBC
 
 #ifdef UBINT_32
 #define MATH_UBBITS	32
@@ -172,7 +172,9 @@ namespace lbcrypto {
 #endif
 
 #if MATHBACKEND == 4
-
+        #ifdef UBINT_64
+	  #error MATHBACKEND 4 with UBINT_64 currently does not work do not use.
+	#endif
 	typedef exp_int::xubint BigBinaryInteger;
 	typedef exp_int::xmubintvec BigBinaryVector;
 

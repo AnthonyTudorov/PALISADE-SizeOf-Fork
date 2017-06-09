@@ -135,13 +135,13 @@ namespace NTL{
     static const myZZ& zero();
 
     //palisade conversion methods 
-    usint ConvertToUsint() const;
+    //    usint ConvertToUsint() const;
     uint64_t ConvertToInt() const;
-    uint32_t ConvertToUint32() const;
+    //uint32_t ConvertToUint32() const;
     uint64_t ConvertToUint64() const;
-    float ConvertToFloat() const;
+    //float ConvertToFloat() const;
     double ConvertToDouble() const;
-    long double ConvertToLongDouble() const;
+    //long double ConvertToLongDouble() const;
 
     //comparison method inline for speed
     inline sint Compare(const myZZ& a) const { return compare(*this,a); };
@@ -252,19 +252,29 @@ namespace NTL{
     //Fast version does not check for modulus bounds.
     inline myZZ ModAddFast(const myZZ& b, const myZZ& modulus) const {return AddMod(*this, b, modulus);};
 
-    //NOTE THIS mimics binint signed mod
+    //NOTE ModSub needs to return signed modulus (i.e. -1/2..q/2) in order
+    //to be consistent with BE 2
     inline myZZ ModSub(const myZZ& b, const myZZ& modulus) const
     {
       ZZ newthis(*this%modulus);
       ZZ newb(b%modulus);
-      //ERROR replace this
-      return SubMod(newthis, newb, modulus);      
+
+      if (newthis>=newb) {
+	return SubMod(newthis, newb, modulus);  //normal mod sub    
+      } else {
+	return (newthis+modulus -b) ;  //signed mod
+      }
     };
 
     //Fast version does not check for modulus bounds.
     inline myZZ ModSubFast(const myZZ& b, const myZZ& modulus) const
     {
-    return SubMod(*this, b, modulus);
+      if (*this>=b) {
+	return SubMod(*this, b, modulus);  //normal mod sub    
+      } else {
+	return (*this+modulus -b) ;  //signed mod
+      }
+
     };
 
 

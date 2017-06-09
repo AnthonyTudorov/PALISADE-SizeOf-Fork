@@ -315,20 +315,33 @@ namespace NTL {
   //const myZZ& myZZ::zero() {return myZZ(ZZ::zero());}
 
   //palisade conversion methods
+#if 0 //Deprecated
   usint myZZ::ConvertToUsint() const{
     bool dbg_flag = false;
-
+    
     DEBUG("in myZZ::ConvertToUsint() this.size() "<<this->size());
     DEBUG("in myZZ::ConvertToUsint() this "<<*this);
     
- return (conv<usint>(*this)); }
- uint64_t myZZ::ConvertToInt() const{
-    bool dbg_flag = false;
+    return (conv<usint>(*this)); }
+#endif
 
+
+  uint64_t myZZ::ConvertToInt() const{
+    bool dbg_flag = false;
+    
     DEBUG("in myZZ::ConvertToInt() this.size() "<<this->size());
     DEBUG("in myZZ::ConvertToInt() this "<<*this);
-    
- return (conv<uint64_t>(*this)); }
+    uint64_t result = conv<uint64_t>(*this);
+    if (this->GetMSB() >= 64) {
+      std::cerr<<"Warning myZZ::ConvertToInt() Loss of precision. "<<std::endl;
+      std::cerr<<"input  "<< *this<<std::endl;			
+      std::cerr<<"result  "<< result<<std::endl;			
+    }
+    return result; 
+  }
+
+  double myZZ::ConvertToDouble() const{ return (conv<double>(*this));}
+#if 0 //Deprecated
   uint32_t myZZ::ConvertToUint32() const { return (conv<uint32_t>(*this));}
 
   // warning on some platforms usint64_t is implemented as an unsigned
@@ -341,11 +354,12 @@ namespace NTL {
      return (conv<uint64_t>(*this));}
 
   float myZZ::ConvertToFloat() const{ return (conv<float>(*this));}
-  double myZZ::ConvertToDouble() const{ return (conv<double>(*this));}
+
   long double myZZ::ConvertToLongDouble() const {
     std::cerr<<"can't convert to long double"<<std::endl; 
     return 0.0L;
   }
+#endif
 
   std::ostream& operator<<(std::ostream& os, const myZZ& ptr_obj){
     bool dbg_flag = false;
