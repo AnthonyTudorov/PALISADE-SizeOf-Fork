@@ -18,5 +18,7 @@
     <ClCompile Include="..\..\..\..\test\include\gtest\gtest-all.cc" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestMultiparty.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestSerialize.cpp" />
+    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestAutomorphism.cpp" />
+    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestEvalSum.cpp" />
   </ItemGroup>
 </Project>
