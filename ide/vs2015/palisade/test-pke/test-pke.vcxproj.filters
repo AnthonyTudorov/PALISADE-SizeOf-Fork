@@ -20,5 +20,6 @@
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestSerialize.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestAutomorphism.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestEvalSum.cpp" />
+    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestEvalInnerProduct.cpp" />
   </ItemGroup>
 </Project>
