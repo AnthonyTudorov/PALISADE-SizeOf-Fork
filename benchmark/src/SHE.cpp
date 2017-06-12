@@ -47,7 +47,7 @@ static std::vector<uint32_t> makeVector(int siz, int ptmi) {
 	for( int i=0; i<siz; i++ )
 		elem.push_back(i%ptmi);
 
-	return std::move(elem);
+	return elem;
 }
 
 static void setup_SHE(CryptoContext<ILVector2n>& cc, shared_ptr<Ciphertext<ILVector2n>>& ct1, shared_ptr<Ciphertext<ILVector2n>>& ct2) {

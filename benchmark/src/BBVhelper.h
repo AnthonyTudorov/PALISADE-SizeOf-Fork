@@ -37,17 +37,14 @@ inline BigBinaryVector makeVector(shared_ptr<T> p) {
 	ILVector2n::DugType dug;
 	dug.SetModulus(p->GetModulus());
 
-	BigBinaryVector v = dug.GenerateVector(p->GetCyclotomicOrder()/2);
-	return std::move(v);
+	return dug.GenerateVector(p->GetCyclotomicOrder()/2);
 }
 
 inline native_int::BinaryVector makeNativeVector(shared_ptr<ILParams> p) {
 	native_int::ILVector2n::DugType dug;
 	dug.SetModulus(p->GetModulus().ConvertToInt());
 
-	native_int::BinaryVector vec = dug.GenerateVector(p->GetRingDimension());
-
-	return std::move(vec);
+	return dug.GenerateVector(p->GetRingDimension());
 }
 
 #endif

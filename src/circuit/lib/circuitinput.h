@@ -44,23 +44,31 @@ class CircuitObject {
 	wire_type	t;
 	BigBinaryInteger	ival;
 	BigBinaryInteger	dval;
-	shared_ptr<Ciphertext<ILVector2n>> ct;
-	shared_ptr<RationalCiphertext<ILVector2n>> rct;
+	shared_ptr<Ciphertext<ILDCRT2n>> ct;
+	shared_ptr<RationalCiphertext<ILDCRT2n>> rct;
+	shared_ptr<Matrix<Ciphertext<ILDCRT2n>>> mct;
+	shared_ptr<Matrix<RationalCiphertext<ILDCRT2n>>> mrct;
 
 public:
 	CircuitObject() : t(UNKNOWN) {}
 	CircuitObject(const BigBinaryInteger& ival) : t(INT), ival(ival) {}
 	CircuitObject(const BigBinaryInteger& ival, const BigBinaryInteger& dval) : t(RATIONAL), ival(ival), dval(dval) {}
-	CircuitObject(const shared_ptr<Ciphertext<ILVector2n>> ct) : t(VECTOR_INT), ct(ct) {}
-	CircuitObject(const shared_ptr<RationalCiphertext<ILVector2n>> rct) : t(VECTOR_RAT), rct(rct) {}
+	CircuitObject(const shared_ptr<Ciphertext<ILDCRT2n>> ct) : t(VECTOR_INT), ct(ct) {}
+	CircuitObject(const shared_ptr<RationalCiphertext<ILDCRT2n>> rct) : t(VECTOR_RAT), rct(rct) {}
+	CircuitObject(const shared_ptr<Matrix<Ciphertext<ILDCRT2n>>> mct) : t(MATRIX_INT), mct(mct) {}
+	CircuitObject(const shared_ptr<Matrix<RationalCiphertext<ILDCRT2n>>> mrct) : t(MATRIX_RAT), mrct(mrct) {}
 
 	wire_type GetType() const { return t; }
 	void SetType(wire_type t) {
 		ct.reset();
 		rct.reset();
+		mct.reset();
+		mrct.reset();
 		this->t = t;
 	}
-	shared_ptr<Ciphertext<ILVector2n>> GetIntVecValue() const { return ct; }
+	shared_ptr<Ciphertext<ILDCRT2n>> GetIntVecValue() const { return ct; }
+
+	friend std::ostream& operator<<(std::ostream& out, const CircuitObject& obj);
 };
 
 #endif

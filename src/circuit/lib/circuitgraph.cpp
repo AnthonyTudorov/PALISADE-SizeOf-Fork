@@ -12,125 +12,64 @@
 
 namespace lbcrypto {
 
-//CircuitGraph::CircuitGraph(const CircuitGraph& from)
-//{
-//	map<string,string> nameMap;
-//	map<CircuitNode*,CircuitNode*> valueMap;
-//
-//	// first, clone all of the nodes
-//	for( map<string,CircuitNode*>::const_iterator it = from.allNodes.begin(); it != from.allNodes.end(); it++ ) {
-//		CircuitNode *old = it->second;
-//		string newName = CircuitNode::generateNodeName();
-//		CircuitNode *clone = old->clone(newName, old->getInputs().size());
-//		nameMap[old->getName()] = newName;
-//		valueMap[old] = clone;
-//
-//		// note we are copying old names and old pointers; will adjust later
-//		for( int i = 0; i < old->getInputs().size(); i++ )
-//			clone->setInput(i, old->getInput(i) );
-//		for( string output : old->getOutputs() )
-//			clone->addOutput(output);
-//		clone->setInputDepth( old->getInputDepth() );
-//		clone->setOutputDepth( old->getOutputDepth() );
-//		clone->setValue( old->getValue() );
-//
-//		this->allNodes[newName] = clone;
-//	}
-//
-//	// now adjust the "old" pointers and names to the new values
-//	for( map<string,CircuitNode*>::const_iterator it = this->allNodes.begin(); it != this->allNodes.end(); it++ ) {
-//		CircuitNode *node = it->second;
-//
-//		for( int i=0; i<node->getInputs().size(); i++ ) {
-//			CircuitNode *inputnode = valueMap[ node->getInputs().at(i) ];
-//			node->setInput(i, inputnode);
-//		}
-//
-//		// now the inputs for every node in the new graph are also in the new graph
-//
-//		// update the node outputs
-//		set<string> outputs = node->getOutputs();
-//		for( string o : outputs ) {
-//			node->delOutput(o);
-//			node->addOutput(nameMap[o]);
-//		}
-//	}
-//
-//	for( string input : from.inputs )
-//		this->inputs.push_back( nameMap[input] );
-//
-//	for( string output : from.outputs ) {
-//		this->outputs.insert( nameMap[output] );
-//	}
-//
-//	MarkAllOutputs();
-//}
-
-// replace all instances of a name in nameMap with the new value
-// replace all instances of a pointer in valueMap with the new value
-bool
-CircuitGraph::bindParameters(map<string,string>& nameMap, map<CircuitNode *, CircuitNode *>& valueMap)
-{
-	for( auto it = allNodes.begin() ; it != allNodes.end() ; it++ ) {
-		CircuitNode *n = it->second;
-		//auto outs(n->getOutputs());
-		//for( auto o : outs ) {
-//			map<string,string>::iterator it = nameMap.find(o);
-//			if( it != nameMap.end() ) {
-//				n->delOutput(it->first);
-//				n->addOutput(it->second);
-//			}
-		//}
-
-		for( size_t i=0; i<n->getInputs().size(); i++ ) {
-			cout << "node " << n->GetId() << " has input " << n->getInputs().at(i) << " in position " << i << endl;
-//			map<CircuitNode *, CircuitNode *>::iterator it = valueMap.find( n->getInputs().at(i) );
-//			if( it != valueMap.end() ) {
-//				CircuitNode *oldN = n->getInput(i);
-//				n->setInput(i, it->second);
-//			}
-		}
-	}
-
-	return true;
-}
-
 void
-CircuitGraph::DisplayGraph()
+CircuitGraph::DisplayGraph() const
 {
-	std::cout << "digraph G {" << std::endl;
-	std::cout << "Inputs -> Outputs;" << std::endl;
+	cout << "digraph G {" << endl;
+	cout << "Inputs -> Outputs;" << endl;
+	cout << "{rank=max; Outputs};" << endl;
 
 	for( auto it = allNodes.begin(); it != allNodes.end(); it++ ) {
-		std::cout << *it->second << std::endl;
+		cout << *it->second << endl;
 	}
-	std::cout << "}" << std::endl;
+	cout << "}" << endl;
 }
 
 void
-CircuitGraph::DisplayAllDepths()
+CircuitGraph::SetStreamKey(CryptoContext<ILDCRT2n> cc, shared_ptr<LPPrivateKey<ILDCRT2n>> k) const {
+	extern CryptoContext<ILDCRT2n> _graph_cc;
+	extern shared_ptr<LPPrivateKey<ILDCRT2n>> _graph_key;
+
+	_graph_cc = cc;
+	_graph_key = k;
+}
+
+
+void
+CircuitGraph::DisplayDecryptedGraph(CryptoContext<ILDCRT2n> cc, shared_ptr<LPPrivateKey<ILDCRT2n>> k) const
 {
+	SetStreamKey(cc, k);
+	cout << "digraph G {" << endl;
+	cout << "Inputs -> Outputs;" << endl;
+	cout << "{rank=max; Outputs};" << endl;
+
 	for( auto it = allNodes.begin(); it != allNodes.end(); it++ ) {
-		std::cout << it->second->GetId() << " Depth " << it->second->getInputDepth() << std::endl;
+		cout << *it->second << endl;
 	}
+	cout << "}" << endl;
 }
 
 void
-CircuitGraph::Execute(CryptoContext<ILVector2n> cc)
+CircuitGraph::Prepare()
 {
-	std::cout << "resetting depths" << std::endl;
+	cout << "resetting depths" << endl;
 	resetAllDepths();
 
 	for( int output : getOutputs() ) {
 		CircuitNode *out = getNodeById(output);
+		cout << "setting node " << output << " to 1" << endl;
 		out->setOutputDepth(1);
 	}
 
 	processNodeDepth();
+}
 
+void
+CircuitGraph::Execute(CryptoContext<ILDCRT2n> cc)
+{
 	for( int output : getOutputs() ) {
 		CircuitNode *out = getNodeById(output);
-		std::cout << "Processing output " << output << std::endl;
+		cout << "Evaluating output " << output << endl;
 		Value v = out->eval(cc, *this);
 	}
 }
@@ -207,9 +146,6 @@ insertMRbetween(CircuitGraph *g, CircuitNode *up, CircuitNode *down)
 void
 CircuitGraph::processNodeDepth(CircuitNode *n, queue<CircuitNode *>& nodeQueue)
 {
-	cout << "processNodeDepth for node " << *n << endl;
-	for( int i : n->getInputs() ) cout << "  input:" << i << endl;
-	for( int i : n->getOutputs() ) cout << " output:" << i << endl;
 	// calculate what the input depth should be for this node given its output depth
 	n->setBottomUpDepth();
 	usint inDepth = n->getInputDepth();
@@ -217,7 +153,6 @@ CircuitGraph::processNodeDepth(CircuitNode *n, queue<CircuitNode *>& nodeQueue)
 	// assign new output depth to every node providing input
 	for( int i : n->getInputs() ) {
 		auto in = getNodeById(i);
-		cout << "input is " << *in << endl;
 
 		// if this node has not been seen yet... set its output
 		if( in->getOutputDepth() == 0 ) {
@@ -226,7 +161,7 @@ CircuitGraph::processNodeDepth(CircuitNode *n, queue<CircuitNode *>& nodeQueue)
 		}
 		else if( in->getOutputDepth() > inDepth ) {
 			if( insertMRbetween(this, in, n) == false ) {
-				std::cout << "problem inserting mr" << std::endl;
+				throw std::logic_error("problem inserting mr");
 			}
 		}
 		else if( in->getOutputDepth() < inDepth ) {
@@ -235,26 +170,29 @@ CircuitGraph::processNodeDepth(CircuitNode *n, queue<CircuitNode *>& nodeQueue)
 
 			// now find all the links leaving "in" that might need a mod/reduce
 
-			auto otherOutputs(in->getOutputs());
-			for( usint otherOut : otherOutputs ) {
+			auto outputs = in->getOutputs();
+
+			for( usint otherOut : outputs ) {
+				if( otherOut == i )
+					continue;
+
 				CircuitNode *out = getNodeById(otherOut);
 				if( out == (CircuitNode *)0 ) {
-					std::cout << "There is no node with id " << otherOut << " for node " << in->GetId() << " in the graph!!" << endl;
-					continue;
+					throw std::logic_error( "There is no node with id " + to_string(otherOut) + " for node " + to_string(in->GetId()) + " in the graph!!" );
 				}
+
 				usint outDepth = out->getInputDepth();
 
 				if( inDepth > outDepth ) {
 					if( insertMRbetween(this, in, out) == false ) {
-						std::cout << "problem inserting mr" << std::endl;
+						throw std::logic_error("problem inserting mr");
 					}
 				} else if( inDepth < outDepth ) {
-					std::cout << "Node " << otherOut << " has inputDepth " << outDepth
-							<< " and node " << in << " has outputDepth " << inDepth << std::endl;
+					cout << "Node " << otherOut << " has inputDepth " << outDepth
+							<< " and node " << in << " has outputDepth " << inDepth << endl;
 				}
 			}
 		}
-//		else if( in->getOutputDepth() == inDepth ) { // do nothing; we are already at the proper depth }
 	}
 }
 

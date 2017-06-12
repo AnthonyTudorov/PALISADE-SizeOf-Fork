@@ -217,9 +217,7 @@ static BigBinaryInteger  PM_foundPrimeModulus(void){
   usint m = 2048;
   usint nBits = 30;
 
-  BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus<BigBinaryInteger>(m, nBits);
-  return (std::move(primeModulus));
-
+  return lbcrypto::FindPrimeModulus<BigBinaryInteger>(m, nBits);
 }
 
 static void BM_PM1(benchmark::State& state) { // benchmark

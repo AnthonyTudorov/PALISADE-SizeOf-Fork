@@ -8,13 +8,9 @@
 #include <set>
 #include <iostream>
 #include <typeinfo>
-
-using std::string;
-using std::vector;
-using std::map;
-using std::queue;
-using std::set;
-using std::ostream;
+#include <fstream>
+#include <iomanip>
+using namespace std;
 
 #include "value.h"
 #include "circuitgraph.h"
@@ -23,7 +19,18 @@ using std::ostream;
 
 namespace lbcrypto {
 
-// This class is meant to represent a node in a circuit
+class CircuitSimulation {
+	usint	nodeId;
+	string	stepTag;
+public:
+	CircuitSimulation(usint id, string tag) : nodeId(id), stepTag(tag) {}
+	friend ostream& operator<<(ostream& out, const CircuitSimulation& item) {
+		out << item.stepTag << " at Node " << item.nodeId;
+		return out;
+	}
+};
+
+// This class is used to represent a node in a circuit
 // the node can have several inputs, and it has one output
 // nodes are identified by a node id
 class CircuitNode {
@@ -32,7 +39,7 @@ public:
 	CircuitNode(usint nodeID) {
 		this->nodeId = nodeID;
 		this->nodeInputDepth = this->nodeOutputDepth = 0;
-		is_output = false;
+		is_input = is_output = false;
 	}
 	virtual ~CircuitNode() {}
 
@@ -48,6 +55,9 @@ public:
 
 	void setAsOutput() { is_output = true; }
 	void unsetAsOutput() { is_output = false; }
+
+	void setAsInput() { is_input = true; }
+	void unsetAsInput() { is_input = false; }
 
 	const usint getInputDepth() const { return nodeInputDepth; }
 	const usint getOutputDepth() const { return nodeOutputDepth; }
@@ -68,19 +78,40 @@ public:
 
 	virtual uint32_t getRuntime() { return 0; }
 
-	virtual Value eval(CryptoContext<ILVector2n>& cc, CircuitGraph& cg) { return value; }
+	virtual string OpTag() const = 0;
+
+	static void ResetSimulation() {
+		step = 0;
+		sim.clear();
+	}
+	void Log() {
+		sim.push_back( CircuitSimulation(nodeId, OpTag()) );
+		step++;
+	}
+	static void PrintLog(ostream& out) {
+		out << step << " steps" << endl;
+		for( size_t i=0; i < step; i++ )
+			out << i << ": " << sim[i] << endl;
+	}
+
+	virtual Value eval(CryptoContext<ILDCRT2n>& cc, CircuitGraph& cg) { Log(); return value; }
 
 	friend ostream& operator<<(ostream& out, const CircuitNode& n);
 
 protected:
+	bool			is_input;
 	bool			is_output;
 	usint			nodeId;
 
-	vector<usint>		inputs;
+	vector<usint>	inputs;
 	set<usint>		outputs;
-	usint				nodeInputDepth;
-	usint				nodeOutputDepth;
+	usint			nodeInputDepth;
+	usint			nodeOutputDepth;
 	Value			value;
+
+private:
+	static	int							step;
+	static vector<CircuitSimulation>	sim;
 };
 
 class ConstInput : public CircuitNode {
@@ -89,15 +120,18 @@ public:
 		this->value = BigBinaryInteger(value);
 	}
 
+	string OpTag() const { return "ConstInput"; }
 	string getNodeLabel() const { return "(const)"; }
 };
 
 class Input : public CircuitNode {
 public:
 	Input(usint id, wire_type type) : CircuitNode(id) {
+		setAsInput();
 		value.SetType(type);
 	}
 
+	string OpTag() const { return "Input"; }
 	string getNodeLabel() const { return "(input)"; }
 };
 
@@ -107,9 +141,10 @@ public:
 		nodeInputDepth = nodeOutputDepth = 1;
 	}
 
+	string OpTag() const { return "Output"; }
 	string getNodeLabel() const { return "(output)"; }
 
-	Value eval(CryptoContext<ILVector2n>& cc, CircuitGraph& cg) {
+	Value eval(CryptoContext<ILDCRT2n>& cc, CircuitGraph& cg) {
 		std::cout << "Eval of output node " << nodeId << " by evaluating " << inputs[0] << std::endl;
 		return value = cg.getNodeById(inputs[0])->eval(cc, cg);
 	}
@@ -122,12 +157,11 @@ public:
 	}
 
 	void setBottomUpDepth() { nodeInputDepth = nodeOutputDepth + 1; }
+	string OpTag() const { return "ModReduce"; }
 	string getNodeLabel() const { return "M/R"; }
 	bool isModReduce() const { return true; }
 
-	Value eval(CryptoContext<ILVector2n>& cc, CircuitGraph& cg) {
-		throw std::logic_error("eval not implemented for ModReduce");
-	}
+	Value eval(CryptoContext<ILDCRT2n>& cc, CircuitGraph& cg);
 };
 
 class EvalNegNode : public CircuitNode {
@@ -136,9 +170,10 @@ public:
 		this->inputs = inputs;
 	}
 
+	string OpTag() const { return "EvalNeg"; }
 	string getNodeLabel() const { return "-"; }
 
-	Value eval(CryptoContext<ILVector2n>& cc, CircuitGraph& cg) {
+	Value eval(CryptoContext<ILDCRT2n>& cc, CircuitGraph& cg) {
 		throw std::logic_error("eval not implemented for EvalNeg");
 	}
 };
@@ -149,9 +184,10 @@ public:
 		this->inputs = inputs;
 	}
 
+	string OpTag() const { return "EvalAdd"; }
 	string getNodeLabel() const { return "+"; }
 
-	Value eval(CryptoContext<ILVector2n>& cc, CircuitGraph& cg);
+	Value eval(CryptoContext<ILDCRT2n>& cc, CircuitGraph& cg);
 };
 
 class EvalSubNode : public CircuitNode {
@@ -160,9 +196,10 @@ public:
 		this->inputs = inputs;
 	}
 
+	string OpTag() const { return "EvalSub"; }
 	string getNodeLabel() const { return "-"; }
 
-	Value eval(CryptoContext<ILVector2n>& cc, CircuitGraph& cg);
+	Value eval(CryptoContext<ILDCRT2n>& cc, CircuitGraph& cg);
 };
 
 class EvalMultNode : public CircuitNode {
@@ -172,9 +209,10 @@ public:
 	}
 
 	void setBottomUpDepth() { nodeInputDepth = nodeOutputDepth + 1; }
+	string OpTag() const { return "EvalMult"; }
 	string getNodeLabel() const { return "*"; }
 
-	Value eval(CryptoContext<ILVector2n>& cc, CircuitGraph& cg);
+	Value eval(CryptoContext<ILDCRT2n>& cc, CircuitGraph& cg);
 };
 
 }

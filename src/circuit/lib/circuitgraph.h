@@ -24,9 +24,9 @@ namespace lbcrypto {
 class CircuitNode;
 
 class CircuitGraph {
-	map<usint,CircuitNode*>	allNodes;
-	vector<usint>				inputs;
-	set<usint>				outputs;
+	map<usint,CircuitNode*>				allNodes;
+	vector<usint>						inputs;
+	set<usint>							outputs;
 
 	const map<usint,CircuitNode*>& getAllNodes() const { return allNodes; }
 
@@ -51,10 +51,11 @@ public:
 
 	void mergeGraph(CircuitGraph *newG);
 
-	void DisplayGraph();
-	void DisplayAllDepths();
+	void DisplayGraph() const;
+	void DisplayDecryptedGraph(CryptoContext<ILDCRT2n> cc, shared_ptr<LPPrivateKey<ILDCRT2n>> k) const;
 
-	void Execute(CryptoContext<ILVector2n> cc);
+	void Prepare();
+	void Execute(CryptoContext<ILDCRT2n> cc);
 
 	CircuitNode *getNodeById(usint id) {
 		auto it = allNodes.find(id);
@@ -100,8 +101,7 @@ public:
 
 	void resetAllDepths();
 
-	bool bindParameters(map<string,string>& nameMap, map<CircuitNode *, CircuitNode *>& valueMap);
-
+	void SetStreamKey(CryptoContext<ILDCRT2n> cc, shared_ptr<LPPrivateKey<ILDCRT2n>> k) const;
 };
 
 }

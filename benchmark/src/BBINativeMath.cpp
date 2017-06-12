@@ -76,7 +76,7 @@ using namespace lbcrypto;
 
 // test BBI constants
 static void make_BBINative_constants(void) {	// function
-	native_int::BinaryInteger one(native_int::BinaryInteger::ONE);
+	native_int::BinaryInteger one(1);
 }
 
 void BM_BBINative_constants(benchmark::State& state) { // benchmark

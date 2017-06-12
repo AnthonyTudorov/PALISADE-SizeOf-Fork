@@ -104,12 +104,16 @@ line:           command
 				{
 					// put $1 in the CircuitGraph
 					driver.graph.addNode($1, $1->GetId());
-					//driver.graph.addInput($1->GetId());
+					
+					// all of the inputs for $1 need to be marked as having $1 as their output
+					for( auto input : $1->getInputs() ) {
+						driver.graph.getNodeById(input)->addOutput($1->GetId());
+					}
 				}
 
 version:        VERSION ENDLS
                 {
-                    std::cout << "Version of this circuit: " << $1 << std::endl;
+                    //std::cout << "Version of this circuit: " << $1 << std::endl;
                 }
 
 command:        COMMAND strlist ENDLS
@@ -118,7 +122,7 @@ command:        COMMAND strlist ENDLS
 
 input:          NUM INPUT NUM TYPEOF type ENDLS
                 {
-                	std::cout << "Adding input #" << $3 << " of type " << $5 << std::endl;
+                	//std::cout << "Adding input #" << $3 << " of type " << $5 << std::endl;
                 	
                 	$$ = new Input($1, $5);
                 }
@@ -165,7 +169,7 @@ agg_type:		LEFT_BRACK basic_type RIGHT_BRACK
 
 const:          NUM CONST NUM ENDLS
                 {
-                    std::cout << "Adding the constant " << $3 << std::endl;
+                    //std::cout << "Adding the constant " << $3 << std::endl;
                     $$ = new ConstInput($1, $3);
                 }
         ;
