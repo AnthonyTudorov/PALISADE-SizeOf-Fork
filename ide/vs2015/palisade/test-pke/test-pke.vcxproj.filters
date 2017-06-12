@@ -21,5 +21,7 @@
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestAutomorphism.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestEvalSum.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestEvalInnerProduct.cpp" />
+    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestEvalCrossCorrelation.cpp" />
+    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestEvalLinearRegression.cpp" />
   </ItemGroup>
 </Project>
