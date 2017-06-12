@@ -1,8 +1,33 @@
-/*
- * CircuitGraph.h
+/**
+ * @file circuitgraph.h -- Representation of a circuit as a graph of circuit nodes.
+ * @author  TPOC: palisade@njit.edu
  *
- *  Created on: Aug 17, 2016
- *      Author: gerardryan
+ * @section LICENSE
+ *
+ * Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or other
+ * materials provided with the distribution.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+ * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * @section DESCRIPTION
+ *
+ * This code provides support for representing a circuit as a graph of CircuitNode objects.
+ *
  */
 
 #ifndef SRC_CIRCUIT_CIRCUITGRAPH_H_
@@ -21,14 +46,20 @@ using namespace std;
 #include "circuitinput.h"
 
 namespace lbcrypto {
+
+template<typename Element>
 class CircuitNode;
 
+template<typename Element>
 class CircuitGraph {
-	map<usint,CircuitNode*>				allNodes;
+	static CryptoContext<Element> _graph_cc;
+	static shared_ptr<LPPrivateKey<Element>> _graph_key;
+
+	map<usint,CircuitNode<Element>*>				allNodes;
 	vector<usint>						inputs;
 	set<usint>							outputs;
 
-	const map<usint,CircuitNode*>& getAllNodes() const { return allNodes; }
+	const map<usint,CircuitNode<Element>*>& getAllNodes() const { return allNodes; }
 
 	bool nodeExists(int id) {
 		return allNodes.find(id) != allNodes.end();
@@ -40,6 +71,8 @@ class CircuitGraph {
 				std::find(inputs.begin(), inputs.end(), id) == inputs.end();
 	}
 
+	void processNodeDepth(CircuitNode<Element> *n, queue<CircuitNode<Element>*>&);
+
 public:
 	CircuitGraph() {}
 	virtual ~CircuitGraph() {}
@@ -47,17 +80,14 @@ public:
 	int GenNodeNumber() { return allNodes.size() + 1; }
 
 	void processNodeDepth();
-	void processNodeDepth(CircuitNode *n, queue<CircuitNode*>&);
-
-	void mergeGraph(CircuitGraph *newG);
 
 	void DisplayGraph() const;
-	void DisplayDecryptedGraph(CryptoContext<ILDCRT2n> cc, shared_ptr<LPPrivateKey<ILDCRT2n>> k) const;
+	void DisplayDecryptedGraph(CryptoContext<Element> cc, shared_ptr<LPPrivateKey<Element>> k) const;
 
 	void Prepare();
-	void Execute(CryptoContext<ILDCRT2n> cc);
+	void Execute(CryptoContext<Element> cc);
 
-	CircuitNode *getNodeById(usint id) {
+	CircuitNode<Element> *getNodeById(usint id) {
 		auto it = allNodes.find(id);
 		if( it == allNodes.end() ) {
 			return 0;
@@ -65,7 +95,7 @@ public:
 		return it->second;
 	}
 
-	bool addNode(CircuitNode *n, int id) {
+	bool addNode(CircuitNode<Element> *n, int id) {
 		if( nodeExists(id) )
 			return false;
 		allNodes[id] = n;
@@ -93,15 +123,19 @@ public:
 
 	const vector<wire_type> GetInputTypes();
 
-	void MarkAllOutputs();
-
 	const usint getInput(usint i) const { return inputs[i]; }
 	const vector<usint>& getInputs() const { return inputs; }
 	const set<usint>& getOutputs() const { return outputs; }
 
 	void resetAllDepths();
 
-	void SetStreamKey(CryptoContext<ILDCRT2n> cc, shared_ptr<LPPrivateKey<ILDCRT2n>> k) const;
+	/**
+	 * SetStreamKey causes the graph creator to decrypt each available Value in the graph and display them
+	 *
+	 * @param cc - CryptoContext in use
+	 * @param k - private key for decryption
+	 */
+	void SetStreamKey(CryptoContext<Element> cc, shared_ptr<LPPrivateKey<Element>> k) const;
 };
 
 }

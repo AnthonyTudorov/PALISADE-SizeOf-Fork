@@ -1,5 +1,37 @@
-#ifndef __TYPE_H__
-#define __TYPE_H__
+/**
+ * @file circuitinput.h -- Representation of objects into and out of a circuit
+ * @author  TPOC: palisade@njit.edu
+ *
+ * @section LICENSE
+ *
+ * Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or other
+ * materials provided with the distribution.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+ * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * @section DESCRIPTION
+ *
+ * This code provides support for input and output of a circuit
+ *
+ */
+
+#ifndef SRC_CIRCUIT_CIRCUITINPUT_H_
+#define SRC_CIRCUIT_CIRCUITINPUT_H_
 
 #include "palisade.h"
 #include <memory>
@@ -40,23 +72,24 @@ inline std::ostream& operator<<(std::ostream& out, const wire_type& ty)
 }
 
 
+template<typename Element>
 class CircuitObject {
 	wire_type	t;
 	BigBinaryInteger	ival;
 	BigBinaryInteger	dval;
-	shared_ptr<Ciphertext<ILDCRT2n>> ct;
-	shared_ptr<RationalCiphertext<ILDCRT2n>> rct;
-	shared_ptr<Matrix<Ciphertext<ILDCRT2n>>> mct;
-	shared_ptr<Matrix<RationalCiphertext<ILDCRT2n>>> mrct;
+	shared_ptr<Ciphertext<Element>> ct;
+	shared_ptr<RationalCiphertext<Element>> rct;
+	shared_ptr<Matrix<Ciphertext<Element>>> mct;
+	shared_ptr<Matrix<RationalCiphertext<Element>>> mrct;
 
 public:
 	CircuitObject() : t(UNKNOWN) {}
 	CircuitObject(const BigBinaryInteger& ival) : t(INT), ival(ival) {}
 	CircuitObject(const BigBinaryInteger& ival, const BigBinaryInteger& dval) : t(RATIONAL), ival(ival), dval(dval) {}
-	CircuitObject(const shared_ptr<Ciphertext<ILDCRT2n>> ct) : t(VECTOR_INT), ct(ct) {}
-	CircuitObject(const shared_ptr<RationalCiphertext<ILDCRT2n>> rct) : t(VECTOR_RAT), rct(rct) {}
-	CircuitObject(const shared_ptr<Matrix<Ciphertext<ILDCRT2n>>> mct) : t(MATRIX_INT), mct(mct) {}
-	CircuitObject(const shared_ptr<Matrix<RationalCiphertext<ILDCRT2n>>> mrct) : t(MATRIX_RAT), mrct(mrct) {}
+	CircuitObject(const shared_ptr<Ciphertext<Element>> ct) : t(VECTOR_INT), ct(ct) {}
+	CircuitObject(const shared_ptr<RationalCiphertext<Element>> rct) : t(VECTOR_RAT), rct(rct) {}
+	CircuitObject(const shared_ptr<Matrix<Ciphertext<Element>>> mct) : t(MATRIX_INT), mct(mct) {}
+	CircuitObject(const shared_ptr<Matrix<RationalCiphertext<Element>>> mrct) : t(MATRIX_RAT), mrct(mrct) {}
 
 	wire_type GetType() const { return t; }
 	void SetType(wire_type t) {
@@ -66,9 +99,11 @@ public:
 		mrct.reset();
 		this->t = t;
 	}
-	shared_ptr<Ciphertext<ILDCRT2n>> GetIntVecValue() const { return ct; }
-
-	friend std::ostream& operator<<(std::ostream& out, const CircuitObject& obj);
+	shared_ptr<Ciphertext<Element>> GetIntVecValue() const { return ct; }
 };
+
+template<typename Element>
+extern std::ostream& operator<<(std::ostream& out, const CircuitObject<Element>& obj);
+
 
 #endif
