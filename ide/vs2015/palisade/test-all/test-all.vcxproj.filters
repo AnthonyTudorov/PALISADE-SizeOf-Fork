@@ -32,6 +32,7 @@
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestSerialize.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestAutomorphism.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestEvalSum.cpp" />
+    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestEvalInnerProduct.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\test\include\gtest\gtest.h" />

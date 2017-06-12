@@ -79,7 +79,6 @@ TEST(UTEvalIP, Test_LTV_EvalInnerProduct) {
 	
 }
 
-
 TEST(UTEvalIP, Test_BV_EvalInnerProduct) {
 	usint size = 10;
 	std::vector<usint> input1(size, 0);

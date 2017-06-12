@@ -173,6 +173,7 @@
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestBatching.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestBVDCRT.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestENCRYPT.cpp" />
+    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestEvalInnerProduct.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestEvalSum.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestFV.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestLTV.cpp" />
