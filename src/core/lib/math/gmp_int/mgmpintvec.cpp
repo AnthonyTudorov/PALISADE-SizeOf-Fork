@@ -37,7 +37,7 @@
  *
  */
 
-#ifdef __linux__
+#if __linux__ && MATHBACKEND == 6
 
 #include "../../utils/serializable.h"
 
