@@ -37,9 +37,8 @@
 
 namespace lbcrypto {
 
-template<typename Element>
 void
-CircuitGraph<Element>::DisplayGraph() const
+CircuitGraph::DisplayGraph() const
 {
 	cout << "digraph G {" << endl;
 	cout << "Inputs -> Outputs;" << endl;
@@ -53,18 +52,21 @@ CircuitGraph<Element>::DisplayGraph() const
 
 template<typename Element>
 void
-CircuitGraph<Element>::SetStreamKey(CryptoContext<Element> cc, shared_ptr<LPPrivateKey<Element>> k) const {
-	extern CryptoContext<Element> _graph_cc;
-	extern shared_ptr<LPPrivateKey<Element>> _graph_key;
-
-	_graph_cc = cc;
-	_graph_key = k;
+CircuitGraphWithValues<Element>::SetStreamKey(CryptoContext<Element> cc, shared_ptr<LPPrivateKey<Element>> k) const {
+	CircuitGraphWithValues<Element>::_graph_cc = cc;
+	CircuitGraphWithValues<Element>::_graph_key = k;
 }
-
 
 template<typename Element>
 void
-CircuitGraph<Element>::DisplayDecryptedGraph(CryptoContext<Element> cc, shared_ptr<LPPrivateKey<Element>> k) const
+CircuitGraphWithValues<Element>::DisplayGraph() const
+{
+	this->g.DisplayGraph();
+}
+
+template<typename Element>
+void
+CircuitGraphWithValues<Element>::DisplayDecryptedGraph(CryptoContext<Element> cc, shared_ptr<LPPrivateKey<Element>> k) const
 {
 	SetStreamKey(cc, k);
 	cout << "digraph G {" << endl;
@@ -77,15 +79,14 @@ CircuitGraph<Element>::DisplayDecryptedGraph(CryptoContext<Element> cc, shared_p
 	cout << "}" << endl;
 }
 
-template<typename Element>
 void
-CircuitGraph<Element>::Prepare()
+CircuitGraph::Preprocess()
 {
 	cout << "resetting depths" << endl;
 	resetAllDepths();
 
 	for( int output : getOutputs() ) {
-		CircuitNode<Element> *out = getNodeById(output);
+		CircuitNode *out = getNodeById(output);
 		cout << "setting node " << output << " to 1" << endl;
 		out->setOutputDepth(1);
 	}
@@ -95,17 +96,17 @@ CircuitGraph<Element>::Prepare()
 
 template<typename Element>
 void
-CircuitGraph<Element>::Execute(CryptoContext<Element> cc)
+CircuitGraphWithValues<Element>::Execute(CryptoContext<Element> cc)
 {
 	for( int output : getOutputs() ) {
-		CircuitNode<Element> *out = getNodeById(output);
+		CircuitNodeWithValue<Element> *out = getNodeById(output);
 		cout << "Evaluating output " << output << endl;
 		out->eval(cc, *this);
 	}
 }
 
 template<typename Element>
-const vector<wire_type> CircuitGraph<Element>::GetInputTypes() {
+const vector<wire_type> CircuitGraphWithValues<Element>::GetInputTypes() {
 	vector<wire_type>	types;
 
 	for( usint i : getInputs() ) {
@@ -115,9 +116,8 @@ const vector<wire_type> CircuitGraph<Element>::GetInputTypes() {
 	return types;
 }
 
-template<typename Element>
 static bool
-insertMRbetween(CircuitGraph<Element> *g, CircuitNode<Element> *up, CircuitNode<Element> *down)
+insertMRbetween(CircuitGraph *g, CircuitNode *up, CircuitNode *down)
 {
 	if( down->isModReduce() ) {
 		// just expand the thing
@@ -128,7 +128,7 @@ insertMRbetween(CircuitGraph<Element> *g, CircuitNode<Element> *up, CircuitNode<
 	usint outName = up->GetId();
 	usint inName = down->GetId();
 
-	CircuitNode<Element> *newMR = new ModReduceNode<Element>(g->GenNodeNumber(), vector<usint>({outName}));
+	CircuitNode *newMR = new ModReduceNode(g->GenNodeNumber(), vector<usint>({outName}));
 	newMR->setInputDepth(up->getOutputDepth());
 	newMR->setOutputDepth(down->getInputDepth());
 
@@ -155,9 +155,8 @@ insertMRbetween(CircuitGraph<Element> *g, CircuitNode<Element> *up, CircuitNode<
 	return g->addNode(newMR, newMR->GetId());
 }
 
-template<typename Element>
 void
-CircuitGraph<Element>::processNodeDepth(CircuitNode<Element> *n, queue<CircuitNode<Element> *>& nodeQueue)
+CircuitGraph::processNodeDepth(CircuitNode *n, queue<CircuitNode *>& nodeQueue)
 {
 	// calculate what the input depth should be for this node given its output depth
 	n->setBottomUpDepth();
@@ -189,8 +188,8 @@ CircuitGraph<Element>::processNodeDepth(CircuitNode<Element> *n, queue<CircuitNo
 				if( otherOut == i )
 					continue;
 
-				CircuitNode<Element> *out = getNodeById(otherOut);
-				if( out == (CircuitNode<Element> *)0 ) {
+				CircuitNode *out = getNodeById(otherOut);
+				if( out == (CircuitNode *)0 ) {
 					throw std::logic_error( "There is no node with id " + to_string(otherOut) + " for node " + to_string(in->GetId()) + " in the graph!!" );
 				}
 
@@ -209,20 +208,18 @@ CircuitGraph<Element>::processNodeDepth(CircuitNode<Element> *n, queue<CircuitNo
 	}
 }
 
-template<typename Element>
 void
-CircuitGraph<Element>::resetAllDepths()
+CircuitGraph::resetAllDepths()
 {
 	for( auto it = allNodes.begin() ; it != allNodes.end() ; it++ )
 		it->second->resetDepth();
 }
 
 
-template<typename Element>
 void
-CircuitGraph<Element>::processNodeDepth()
+CircuitGraph::processNodeDepth()
 {
-	queue<CircuitNode<Element> *> items;
+	queue<CircuitNode *> items;
 
 	for( int i : this->getOutputs() )
 		items.push(allNodes[i]);

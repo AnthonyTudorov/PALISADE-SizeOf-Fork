@@ -30,66 +30,84 @@
  *
  */
 
-#include "circuitnode.h"
 #include "circuitgraph.h"
+#include "circuitnode.h"
 
 namespace lbcrypto {
 
 template<typename Element>
-int	CircuitNode<Element>::step;
+CryptoContext<Element> CircuitGraphWithValues<Element>::_graph_cc;
 
 template<typename Element>
-vector<CircuitSimulation>CircuitNode<Element>::sim;
+shared_ptr<LPPrivateKey<Element>> CircuitGraphWithValues<Element>::_graph_key;
 
-template<typename Element>
-CryptoContext<Element> CircuitGraph<Element>::_graph_cc;
-
-template<typename Element>
-shared_ptr<LPPrivateKey<Element>> CircuitGraph<Element>::_graph_key;
-
-template<typename Element>
-ostream& operator<<(ostream& out, const CircuitNode<Element>& n)
+ostream& operator<<(ostream& out, const CircuitNode& n)
 {
-	out << n.nodeId << "  [label=\"" << n.GetId() << "\\n";
-	if( n.nodeInputDepth != 0 )
-		out << "(d=" + std::to_string(n.nodeInputDepth) + ")\\n";
+	out << n.GetId() << "  [label=\"" << n.GetId() << "\\n";
+	if( n.getInputDepth() != 0 )
+		out << "(d=" + std::to_string(n.getInputDepth()) + ")\\n";
 	out << n.getNodeLabel();
-
-	const Value<Element>& val = n.getValue();
-	if( CircuitGraph<Element>::_graph_key && val.GetType() != UNKNOWN ) {
-		IntPlaintextEncoding pt;
-		CircuitGraph<Element>::_graph_cc.Decrypt(CircuitGraph<Element>::_graph_key, {val.GetIntVecValue()}, &pt);
-		out << "\\n\\[" << pt << "\\] ";
-	}
 
 	out << "\"]; ";
 
 	const vector<usint>& nodeInputs = n.getInputs();
 	for( usint input : nodeInputs )
-		out << input << " -> " << n.nodeId << "; ";
+		out << input << " -> " << n.GetId() << "; ";
 	if( n.is_output ) {
-		out << "{ rank=same; Outputs " << n.nodeId << " }; ";
+		out << "{ rank=same; Outputs " << n.GetId() << " }; ";
 	}
 	if( n.is_input ) {
-		out << "{ rank=same; Inputs " << n.nodeId << " }; ";
+		out << "{ rank=same; Inputs " << n.GetId() << " }; ";
+	}
+
+	return out;
+}
+
+template<typename Element>
+ostream& operator<<(ostream& out, const CircuitNodeWithValue<Element>& n)
+{
+	out << n.GetId() << "  [label=\"" << n.GetId() << "\\n";
+	if( n.getNode()->getInputDepth() != 0 )
+		out << "(d=" + std::to_string(n.getNode()->getInputDepth()) + ")\\n";
+	out << n.getNodeLabel();
+
+	const Value<Element>& val = n.getValue();
+	if( CircuitGraphWithValues<Element>::_graph_key && val.GetType() != UNKNOWN ) {
+		IntPlaintextEncoding pt;
+		CircuitGraphWithValues<Element>::_graph_cc.Decrypt(CircuitGraphWithValues<Element>::_graph_key, {val.GetIntVecValue()}, &pt);
+		out << "\\n\\[" << pt << "\\] ";
+	}
+
+	out << "\"]; ";
+
+	const vector<usint>& nodeInputs = n.getNode()->getInputs();
+	for( usint input : nodeInputs )
+		out << input << " -> " << n.GetId() << "; ";
+	if( n.getNode()->IsOutput() ) {
+		out << "{ rank=same; Outputs " << n.GetId() << " }; ";
+	}
+	if( n.getNode()->IsInput() ) {
+		out << "{ rank=same; Inputs " << n.GetId() << " }; ";
 	}
 
 	return out;
 }
 
 
+
 // note that for our purposes here, INT and VECTOR_INT can be considered the same thing
 // since an INT is simply a vector with one entry and the rest zeroes
 
 template<typename Element>
-Value<Element> EvalAddNode<Element>::eval(CryptoContext<Element>& cc, CircuitGraph<Element>& cg) {
+Value<Element> EvalAddNodeWithValue<Element>::eval(CryptoContext<Element>& cc, CircuitGraphWithValues<Element>& cg) {
 	if( this->value.GetType() != UNKNOWN )
 		return this->value;
 
-	if( this->inputs.size() !=2 ) throw std::logic_error("Add requires 2 inputs");
+	if( this->getNode()->getInputs().size() !=2 ) throw std::logic_error("Add requires 2 inputs");
 
-	Value<Element> v0( cg.getNodeById(this->inputs[0])->eval(cc,cg) );
-	Value<Element> v1( cg.getNodeById(this->inputs[1])->eval(cc,cg) );
+	for( auto z : this->getNode()->getInputs() ) { cout << z << "!!!" << endl; cout << cg.getNodeById(z) << endl; }
+	Value<Element> v0( cg.getNodeById(this->getNode()->getInputs()[0])->eval(cc,cg) );
+	Value<Element> v1( cg.getNodeById(this->getNode()->getInputs()[1])->eval(cc,cg) );
 	auto t0 = v0.GetType();
 	auto t1 = v1.GetType();
 
@@ -110,14 +128,14 @@ Value<Element> EvalAddNode<Element>::eval(CryptoContext<Element>& cc, CircuitGra
 }
 
 template<typename Element>
-Value<Element> EvalSubNode<Element>::eval(CryptoContext<Element>& cc, CircuitGraph<Element>& cg) {
+Value<Element> EvalSubNodeWithValue<Element>::eval(CryptoContext<Element>& cc, CircuitGraphWithValues<Element>& cg) {
 	if( this->value.GetType() != UNKNOWN )
 		return this->value;
 
-	if( this->inputs.size() !=2 ) throw std::logic_error("Subtract requires 2 inputs");
+	if( this->getNode()->getInputs().size() !=2 ) throw std::logic_error("Subtract requires 2 inputs");
 
-	Value<Element> v0( cg.getNodeById(this->inputs[0])->eval(cc,cg) );
-	Value<Element> v1( cg.getNodeById(this->inputs[1])->eval(cc,cg) );
+	Value<Element> v0( cg.getNodeById(this->getNode()->getInputs()[0])->eval(cc,cg) );
+	Value<Element> v1( cg.getNodeById(this->getNode()->getInputs()[1])->eval(cc,cg) );
 	auto t0 = v0.GetType();
 	auto t1 = v1.GetType();
 
@@ -137,14 +155,14 @@ Value<Element> EvalSubNode<Element>::eval(CryptoContext<Element>& cc, CircuitGra
 }
 
 template<typename Element>
-Value<Element> EvalMultNode<Element>::eval(CryptoContext<Element>& cc, CircuitGraph<Element>& cg) {
+Value<Element> EvalMultNodeWithValue<Element>::eval(CryptoContext<Element>& cc, CircuitGraphWithValues<Element>& cg) {
 	if( this->value.GetType() != UNKNOWN )
 		return this->value;
 
-	if( this->inputs.size() !=2 ) throw std::logic_error("Mult requires 2 inputs");
+	if( this->getNode()->getInputs().size() !=2 ) throw std::logic_error("Mult requires 2 inputs");
 
-	Value<Element> v0( cg.getNodeById(this->inputs[0])->eval(cc,cg) );
-	Value<Element> v1( cg.getNodeById(this->inputs[1])->eval(cc,cg) );
+	Value<Element> v0( cg.getNodeById(this->getNode()->getInputs()[0])->eval(cc,cg) );
+	Value<Element> v1( cg.getNodeById(this->getNode()->getInputs()[1])->eval(cc,cg) );
 	auto t0 = v0.GetType();
 	auto t1 = v1.GetType();
 
@@ -164,13 +182,13 @@ Value<Element> EvalMultNode<Element>::eval(CryptoContext<Element>& cc, CircuitGr
 }
 
 template<typename Element>
-Value<Element> ModReduceNode<Element>::eval(CryptoContext<Element>& cc, CircuitGraph<Element>& cg) {
+Value<Element> ModReduceNodeWithValue<Element>::eval(CryptoContext<Element>& cc, CircuitGraphWithValues<Element>& cg) {
 	if( this->value.GetType() != UNKNOWN )
 		return this->value;
 
-	if( this->inputs.size() != 1 ) throw std::logic_error("ModReduce must have one input");
+	if( this->getNode()->getInputs().size() != 1 ) throw std::logic_error("ModReduce must have one input");
 
-	Value<Element> v0( cg.getNodeById(this->inputs[0])->eval(cc,cg) );
+	Value<Element> v0( cg.getNodeById(this->getNode()->getInputs()[0])->eval(cc,cg) );
 	auto t0 = v0.GetType();
 
 	if( t0 == VECTOR_INT ) {
@@ -182,6 +200,21 @@ Value<Element> ModReduceNode<Element>::eval(CryptoContext<Element>& cc, CircuitG
 
 	this->Log();
 	return this->value;
+}
+
+#define TESTANDMAKE(T,TV,n) { T* node = dynamic_cast<T*>(n); if( node != 0 ) return new TV(node); }
+
+template<typename Element>
+CircuitNodeWithValue<Element> *ValueNodeFactory( CircuitNode *n ) {
+	TESTANDMAKE( ConstInput, ConstInputWithValue<Element>, n );
+	TESTANDMAKE( Input, InputWithValue<Element>, n );
+	TESTANDMAKE( Output, OutputWithValue<Element>, n );
+	TESTANDMAKE( ModReduceNode, ModReduceNodeWithValue<Element>, n );
+	TESTANDMAKE( EvalNegNode, EvalNegNodeWithValue<Element>, n );
+	TESTANDMAKE( EvalAddNode, EvalAddNodeWithValue<Element>, n );
+	TESTANDMAKE( EvalSubNode, EvalSubNodeWithValue<Element>, n );
+	TESTANDMAKE( EvalMultNode, EvalMultNodeWithValue<Element>, n );
+	throw std::logic_error("Type not supported in ValueNodeFactory");
 }
 
 

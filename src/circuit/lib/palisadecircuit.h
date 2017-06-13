@@ -40,28 +40,29 @@ using std::map;
 #include "palisade.h"
 #include "cryptocontext.h"
 #include "circuitnode.h"
+#include "circuitgraph.h"
 
 typedef	size_t CircuitKey;
-typedef map<CircuitKey,CircuitObject>	CircuitIO;
 
+template<typename Element>
+using CircuitIO = map<CircuitKey,CircuitObject<Element>>;
+
+template<typename Element>
 class PalisadeCircuit {
-	CryptoContext<ILDCRT2n>	cc;
+	CryptoContext<Element>	cc;
+	CircuitGraphWithValues<Element>	g;
 
 public:
-	PalisadeCircuit(CryptoContext<ILDCRT2n> cc) : cc(cc) {}
+	PalisadeCircuit(CryptoContext<Element> cc, CircuitGraph& cg) : cc(cc), g(cg) {}
 
-	void CircuitSetup(CircuitGraph& g, bool verbose) {
-		if( verbose ) cout << "Setting up" << endl;
-		g.Prepare();
-	}
+	CircuitGraphWithValues<Element>&  GetGraph() { return g; }
 
-	CircuitIO	CircuitEval(CircuitGraph& g, const CircuitIO& inputs, bool verbose ) {
+	CircuitIO<Element>	CircuitEval(const CircuitIO<Element>& inputs, bool verbose ) {
 		if( verbose ) cout << "Setting inputs" << endl;
 		auto circuitInputs = g.getInputs();
 		if( verbose ) {
 			cout << "inputs: "; for( auto x : g.getInputs() ) cout << x << " "; cout << endl;
 			cout << "outputs: "; for( auto x : g.getOutputs() ) cout << x << " "; cout << endl;
-			cout << circuitInputs.size() << endl << inputs.size() << endl;
 		}
 		if( circuitInputs.size() != inputs.size() ) {
 			throw std::logic_error("Argument count mismatch");
@@ -73,7 +74,7 @@ public:
 				throw std::logic_error("input number " + std::to_string(input) + " is not an input to the circuit");
 			}
 
-			CircuitNode *i = g.getNodeById(input);
+			CircuitNodeWithValue<Element> *i = g.getNodeById(input);
 			if( i == 0 ) throw std::logic_error("input " + std::to_string(input) + " was not specified");
 
 			// type check
@@ -82,23 +83,21 @@ public:
 				throw std::logic_error("input number " + std::to_string(input) + " type mismatch");
 			}
 
-			cout << i->GetId() << " before: " << i->GetType();
 			i->setValue(cinput->second);
-			cout << " after " << i->GetType() << endl;
 		}
 
 		if( verbose ) cout << "Executing" << endl;
 		g.Execute(cc);
 
 		if( verbose ) cout << "Gathering outputs" << endl;
-		CircuitIO retval;
+		CircuitIO<Element> retval;
 		for( auto output : g.getOutputs() ) {
 			retval[output] = g.getNodeById(output)->getValue();
 		}
 		return retval;
 	}
 
-	void CircuitDump(CircuitGraph& g) {
+	void CircuitDump() {
 
 	}
 };

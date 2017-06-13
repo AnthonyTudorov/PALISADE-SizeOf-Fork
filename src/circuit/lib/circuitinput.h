@@ -102,8 +102,4 @@ public:
 	shared_ptr<Ciphertext<Element>> GetIntVecValue() const { return ct; }
 };
 
-template<typename Element>
-extern std::ostream& operator<<(std::ostream& out, const CircuitObject<Element>& obj);
-
-
 #endif

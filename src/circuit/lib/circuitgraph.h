@@ -44,22 +44,19 @@ using namespace std;
 #include "palisade.h"
 #include "cryptocontext.h"
 #include "circuitinput.h"
+#include "circuitnode.h"
 
 namespace lbcrypto {
 
-template<typename Element>
 class CircuitNode;
 
 template<typename Element>
+class CircuitNodeWithValue;
+
 class CircuitGraph {
-	static CryptoContext<Element> _graph_cc;
-	static shared_ptr<LPPrivateKey<Element>> _graph_key;
-
-	map<usint,CircuitNode<Element>*>				allNodes;
-	vector<usint>						inputs;
-	set<usint>							outputs;
-
-	const map<usint,CircuitNode<Element>*>& getAllNodes() const { return allNodes; }
+	map<usint,CircuitNode*>			allNodes;
+	vector<usint>					inputs;
+	set<usint>						outputs;
 
 	bool nodeExists(int id) {
 		return allNodes.find(id) != allNodes.end();
@@ -71,7 +68,7 @@ class CircuitGraph {
 				std::find(inputs.begin(), inputs.end(), id) == inputs.end();
 	}
 
-	void processNodeDepth(CircuitNode<Element> *n, queue<CircuitNode<Element>*>&);
+	void processNodeDepth(CircuitNode *n, queue<CircuitNode*>&);
 
 public:
 	CircuitGraph() {}
@@ -79,15 +76,14 @@ public:
 
 	int GenNodeNumber() { return allNodes.size() + 1; }
 
+	const map<usint,CircuitNode*>& getAllNodes() const { return allNodes; }
+
 	void processNodeDepth();
 
 	void DisplayGraph() const;
-	void DisplayDecryptedGraph(CryptoContext<Element> cc, shared_ptr<LPPrivateKey<Element>> k) const;
+	void Preprocess();
 
-	void Prepare();
-	void Execute(CryptoContext<Element> cc);
-
-	CircuitNode<Element> *getNodeById(usint id) {
+	CircuitNode *getNodeById(usint id) {
 		auto it = allNodes.find(id);
 		if( it == allNodes.end() ) {
 			return 0;
@@ -95,7 +91,7 @@ public:
 		return it->second;
 	}
 
-	bool addNode(CircuitNode<Element> *n, int id) {
+	bool addNode(CircuitNode *n, int id) {
 		if( nodeExists(id) )
 			return false;
 		allNodes[id] = n;
@@ -121,13 +117,54 @@ public:
 		outputs.insert(n);
 	}
 
-	const vector<wire_type> GetInputTypes();
-
-	const usint getInput(usint i) const { return inputs[i]; }
 	const vector<usint>& getInputs() const { return inputs; }
 	const set<usint>& getOutputs() const { return outputs; }
 
 	void resetAllDepths();
+};
+
+template<typename Element>
+class CircuitGraphWithValues {
+	CircuitGraph&								g;
+	map<usint,CircuitNodeWithValue<Element>*>	allNodes;
+
+	const map<usint,CircuitNodeWithValue<Element>*>& getAllNodes() const { return allNodes; }
+
+public:
+	CircuitGraphWithValues(CircuitGraph& cg) : g(cg) {
+		for( map<usint,CircuitNode*>::const_iterator it = cg.getAllNodes().begin(); it != cg.getAllNodes().end(); it++ ) {
+			cout << it->first << ":::::" << it->second << endl;
+			allNodes[ it->first ] = ValueNodeFactory<Element>( it->second );
+		}
+	}
+	virtual ~CircuitGraphWithValues() {
+		for( typename map<usint,CircuitNodeWithValue<Element>*>::iterator it = allNodes.begin(); it != allNodes.end(); it++ ) {
+			delete ( it->second );
+		}
+		allNodes.clear();
+	}
+
+	// these two statics are used by operator<< as a hack to display values
+	static CryptoContext<Element>				_graph_cc;
+	static shared_ptr<LPPrivateKey<Element>>	_graph_key;
+
+	const vector<usint>& getInputs() const { return g.getInputs(); }
+	const set<usint>& getOutputs() const { return g.getOutputs(); }
+
+	CircuitNodeWithValue<Element> *getNodeById(usint id) {
+		auto it = allNodes.find(id);
+		if( it == allNodes.end() ) {
+			return 0;
+		}
+		return it->second;
+	}
+
+	void Execute(CryptoContext<Element> cc);
+
+	const vector<wire_type> GetInputTypes();
+
+	void DisplayGraph() const;
+	void DisplayDecryptedGraph(CryptoContext<Element> cc, shared_ptr<LPPrivateKey<Element>> k) const;
 
 	/**
 	 * SetStreamKey causes the graph creator to decrypt each available Value in the graph and display them

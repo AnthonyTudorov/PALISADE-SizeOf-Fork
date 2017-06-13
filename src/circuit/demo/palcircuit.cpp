@@ -1,16 +1,50 @@
-/*
- * palcircuit.cpp
+/**
+ * @file palcircuit.cpp -- Test program to demo parsing, estimating, and executing circuits
+ * @author  TPOC: palisade@njit.edu
  *
- *  Created on: Apr 7, 2017
- *      Author: gerardryan
+ * @section LICENSE
+ *
+ * Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or other
+ * materials provided with the distribution.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+ * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * @section DESCRIPTION
+ *
+ * Demonstrates how to parse and evaluate circuits
+ *
  */
 
 #include "palisade.h"
 #include "cryptocontextgen.h"
-#include "parsedriver.h"
 #include "palisadecircuit.h"
 using namespace lbcrypto;
 using std::cout;
+
+#include "parsedriver.h"
+
+#include "circuitnode.cpp"
+#include "circuitgraph.cpp"
+
+namespace lbcrypto {
+template class CircuitGraphWithValues<ILDCRT2n>;
+template class CircuitNodeWithValue<ILDCRT2n>;
+}
 
 void usage() {
 	cout << "Arguments are" << endl;
@@ -25,8 +59,6 @@ main(int argc, char *argv[])
 {
 	CryptoContext<ILDCRT2n> cc = GenCryptoContextElementArrayNull(8, 5, 8, 10);
 	cc.Enable(LEVELEDSHE);
-
-	PalisadeCircuit	cir(cc);
 
 	IntPlaintextEncoding vecs[] = {
 			{ 1,2,3,5 },
@@ -45,7 +77,7 @@ main(int argc, char *argv[])
 	for( size_t i = 0; i < sizeof(ints)/sizeof(ints[0]); i++ )
 		intVecs.push_back( cc.Encrypt(kp.publicKey, ints[i]) );
 
-	CircuitIO inputs;
+	CircuitIO<ILDCRT2n> inputs;
 
 	bool debug_parse = false;
 	bool print_graph = false;
@@ -92,17 +124,24 @@ main(int argc, char *argv[])
 		if( print_graph )
 			driver.graph.DisplayGraph();
 
-		if( verbose )
-			cir.CircuitDump(driver.graph);
+		if( verbose ) cout << "Setting up" << endl;
+		driver.graph.Preprocess();
 
-		cir.CircuitSetup(driver.graph, verbose);
 		if( print_graph )
 			driver.graph.DisplayGraph();
 
-		if( verbose )
-			cir.CircuitDump(driver.graph);
+		PalisadeCircuit<ILDCRT2n>	cir(cc, driver.graph);
 
-		auto intypes = driver.graph.GetInputTypes();
+		if( verbose )
+			cir.CircuitDump();
+
+		if( print_graph )
+			cir.GetGraph().DisplayGraph();
+
+		if( verbose )
+			cir.CircuitDump();
+
+		auto intypes = cir.GetGraph().GetInputTypes();
 		if( verbose ) {
 			cout << "Circuit takes " << intypes.size() << " inputs:" <<endl;
 			for( size_t i = 0; i < intypes.size(); i++ ) {
@@ -137,11 +176,11 @@ main(int argc, char *argv[])
 			}
 		}
 
-		CircuitNode::ResetSimulation();
+		CircuitNodeWithValue<ILDCRT2n>::ResetSimulation();
 
-		CircuitIO outputs = cir.CircuitEval(driver.graph, inputs, verbose);
+		CircuitIO<ILDCRT2n> outputs = cir.CircuitEval(inputs, verbose);
 
-		CircuitNode::PrintLog(cout);
+		CircuitNodeWithValue<ILDCRT2n>::PrintLog(cout);
 
 		for( auto& out : outputs ) {
 			IntPlaintextEncoding result;
@@ -153,7 +192,7 @@ main(int argc, char *argv[])
 		}
 
 		if( print_graph ) {
-			driver.graph.DisplayDecryptedGraph(cc, kp.secretKey);
+			cir.GetGraph().DisplayDecryptedGraph(cc, kp.secretKey);
 		}
 	}
 
