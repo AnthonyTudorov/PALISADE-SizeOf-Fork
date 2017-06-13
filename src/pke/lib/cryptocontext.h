@@ -983,6 +983,8 @@ public:
 
 	}
 
+
+
 	/**
 	* Function for evaluating automorphism of ciphertext at index i
 	*
@@ -1025,6 +1027,14 @@ public:
 	void EvalSumKeyGen(
 		const shared_ptr<LPPrivateKey<Element>> privateKey, 
 		const shared_ptr<LPPublicKey<Element>> publicKey = nullptr) const;
+
+	/**
+	* Returns evalsum keys
+	*
+	*/
+	const std::map<usint, shared_ptr<LPEvalKey<Element>>>& GetEvalSumKey() {
+		return evalSumKeys;
+	}
 
 	/**
 	* Function for evaluating a sum of all components
