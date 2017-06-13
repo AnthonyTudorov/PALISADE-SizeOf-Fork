@@ -163,7 +163,7 @@ CircuitGraph::processNodeDepth(CircuitNode *n, queue<CircuitNode *>& nodeQueue)
 	usint inDepth = n->getInputDepth();
 
 	// assign new output depth to every node providing input
-	for( int i : n->getInputs() ) {
+	for( usint i : n->getInputs() ) {
 		auto in = getNodeById(i);
 
 		// if this node has not been seen yet... set its output

@@ -236,7 +236,7 @@ public:
 	* @return a public/secret key pair
 	*/
 	LPKeyPair<Element> KeyGen() const {
-		double start;
+		double start = 0;
 		if( doTiming ) start = currentDateTime();
 		auto r = GetEncryptionAlgorithm()->KeyGen(*this, false);
 		if( doTiming ) {
@@ -912,7 +912,7 @@ public:
 		if( ct1 == NULL || ct2 == NULL || ct1->GetCryptoContext() != *this || ct2->GetCryptoContext() != *this )
 			throw std::logic_error("Information passed to EvalAdd was not generated with this crypto context");
 
-		double start;
+		double start = 0;
 		if( doTiming ) start = currentDateTime();
 		auto rv = GetEncryptionAlgorithm()->EvalAdd(ct1, ct2);
 		if( doTiming ) {
@@ -933,7 +933,7 @@ public:
 		if( ct1 == NULL || ct2 == NULL || ct1->GetCryptoContext() != *this || ct2->GetCryptoContext() != *this )
 			throw std::logic_error("Information passed to EvalSub was not generated with this crypto context");
 
-		double start;
+		double start = 0;
 		if( doTiming ) start = currentDateTime();
 		auto rv = GetEncryptionAlgorithm()->EvalSub(ct1, ct2);
 		if( doTiming ) {
@@ -980,7 +980,7 @@ public:
 
 		auto ek = GetEvalMultKey();
 
-		double start;
+		double start = 0;
 		if( doTiming ) start = currentDateTime();
 		auto rv = GetEncryptionAlgorithm()->EvalMult(ct1, ct2, ek);
 		if( doTiming ) {

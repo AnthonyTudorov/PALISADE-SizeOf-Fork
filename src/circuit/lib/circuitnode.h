@@ -169,7 +169,7 @@ public:
 
 	static void PrintLog(ostream& out) {
 		out << step << " steps" << endl;
-		for( size_t i=0; i < step; i++ )
+		for( int i=0; i < step; i++ )
 			out << i << ": " << sim[i] << endl;
 	}
 
