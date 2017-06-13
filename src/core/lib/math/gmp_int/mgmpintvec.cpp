@@ -324,15 +324,20 @@ namespace NTL {
   template<class myT>
   const myVecP<myT>& myVecP<myT>::operator=(std::initializer_list<myT> rhs){
     bool dbg_flag = false;
-    usint len = rhs.size();
     DEBUG("in op=initializerlist <myT>");
-    if (this->length()<len){
-    this->SetLength(len);
+    size_t len = rhs.size();
+    if (this->size()< len){
+      this->SetLength(len);
+    };
+
+    for(usint i=0;i<this->size();i++){ // this loops over each entry
+      if (i<len) {
+	(*this)[i] =  myT(*(rhs.begin()+i));
+      }else{
+	(*this)[i] =  myT(0);
+      }
     }
 
-    for(usint i=0;i<len;i++){ // this loops over each entry
-      (*this)[i] =  myT(*(rhs.begin()+i));
-    }
     return *this;
     DEBUG("mubintvec assignment copy CTOR ubint init list length "<<this->length());
   }
@@ -343,15 +348,21 @@ namespace NTL {
   const myVecP<myT>& myVecP<myT>::operator=(std::initializer_list<usint> rhs){
     bool dbg_flag = false;
     DEBUG("in op=initializerlist <usint>");
-    usint len = rhs.size();
-    if (this->length()<len){
-    this->SetLength(len);
-    }
 
-    for(usint i=0;i<len;i++){ // this loops over each entry
-      (*this)[i] =  myZZ(*(rhs.begin()+i));
+    size_t len = rhs.size();
+    if (this->size()< len){
+      this->SetLength(len);
+    };
+
+    for(usint i=0;i<this->size();i++){ // this loops over each entry
+      if (i<len) {
+	(*this)[i] =  myT(*(rhs.begin()+i));
+      }else{
+	(*this)[i] =  myT(0);
+      }
     }
     return *this;
+
     DEBUG("mubintvec assignment copy CTOR usint init list length "<<this->length());
   }
 
@@ -361,14 +372,19 @@ namespace NTL {
   const myVecP<myT>& myVecP<myT>::operator=(std::initializer_list<int> rhs){
     bool dbg_flag = false;
     DEBUG("in op=initializerlist <int>");
-    usint len = rhs.size();
-    if (this->length()<len){
-    this->SetLength(len);
+    size_t len = rhs.size();
+    if (this->size()< len){
+      this->SetLength(len);
+    };
+
+    for(usint i=0;i<this->size();i++){ // this loops over each entry
+      if (i<len) {
+	(*this)[i] =  myT(*(rhs.begin()+i));
+      }else{
+	(*this)[i] =  myT(0);
+      }
     }
 
-    for(usint i=0;i<len;i++){ // this loops over each entry
-      (*this)[i] =  myZZ(*(rhs.begin()+i));
-    }
     return *this;
     DEBUG("mubintvec assignment copy CTOR int init list length "<<this->length());
   }
@@ -380,14 +396,19 @@ namespace NTL {
   const myVecP<myT>& myVecP<myT>::operator=(std::initializer_list<std::string> rhs){
     bool dbg_flag = false;
     DEBUG("in op=initializerlist <string>");
-    usint len = rhs.size();
-    if (this->length()<len){
-    this->SetLength(len);
+    size_t len = rhs.size();
+    if (this->size()< len){
+      this->SetLength(len);
+    };
+
+    for(usint i=0;i<this->size();i++){ // this loops over each entry
+      if (i<len) {
+	(*this)[i] =  myT(*(rhs.begin()+i));
+      }else{
+	(*this)[i] =  myT(0);
+      }
     }
 
-    for(usint i=0;i<len;i++){ // this loops over each entry
-      (*this)[i] =  myT(*(rhs.begin()+i));
-    }
     return *this;
     DEBUG("mubintvec assignment copy CTOR string init list length "<<this->size());
   }
@@ -400,14 +421,18 @@ namespace NTL {
   {
     bool dbg_flag = false;
     DEBUG("in op=initializerlist const char*");
-    usint len = rhs.size();
-    if (this->length()<len){
-    this->SetLength(len);
-    }
+ size_t len = rhs.size();
+    if (this->size()< len){
+      this->SetLength(len);
+    };
 
-    for(usint i=0;i<len;i++){ // this loops over each entry
-      (*this)[i] =  (myT(*(rhs.begin()+i)));
-    } 
+    for(usint i=0;i<this->size();i++){ // this loops over each entry
+      if (i<len) {
+	(*this)[i] =  myT(*(rhs.begin()+i));
+      }else{
+	(*this)[i] =  myT(0);
+      }
+    }
     return *this;
   }
   
@@ -728,7 +753,9 @@ namespace NTL {
     return ans;
   }
 
-  
+
+  //Need to mimic Palisade use of signed modulus for modsub.
+
   //subtraction of scalar
   template<class myT>
   myVecP<myT> myVecP<myT>::operator-(const myZZ& b) const
@@ -736,11 +763,12 @@ namespace NTL {
     unsigned int n = this->length();
     myVecP<myT> res(n);
     res.CopyModulus(*this);
-    long i;
-    for (i = 0; i < n; i++)
-      res[i] = (*this)[i]-b%m_modulus;
+
+    for (size_t i = 0; i < n; i++) {
+      res[i] = (*this)[i].ModSub(b);
+    }
     return(res);
-  }
+ }
 
   //subtraction of vector
   //why can't I inheret this?
@@ -753,8 +781,12 @@ namespace NTL {
     ArgCheckVector(b, "myVecP::op-");
     myVecP<myT> res;
     res.CopyModulus(*this);
-    myVecP<myT>::sub(res, *this, b);
-    //NTL_OPT_RETURN(myVecP<myT>, res);
+
+    for (size_t i = 0; i < b.size(); i++) {
+      res[i] = (*this)[i].ModSub(b[i]);
+    }
+
+
     DEBUG("myVecP::operator- returning modulus "<<res.m_modulus);
     return(res);
   }
@@ -767,6 +799,7 @@ namespace NTL {
     myVecP<myT> tmp (this->size());
     myVecP<myT>::clear(tmp);
     tmp.CopyModulus(*this);
+    
     return (tmp - *this);
 
   }

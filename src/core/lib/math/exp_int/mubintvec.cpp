@@ -628,7 +628,7 @@ namespace exp_int {
 
   }
 
-
+  // needs to match BE 2 using signed modulus for result
   // method to subtract scalar from vector
   template<class ubint_el_t>
   mubintvec<ubint_el_t> mubintvec<ubint_el_t>::ModSub(const ubint_el_t &b) const{

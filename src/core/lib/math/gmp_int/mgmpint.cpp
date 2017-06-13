@@ -237,22 +237,28 @@ namespace NTL {
   //adapter kit
   //static const myZZ_p& myZZ_p::zero() {return const myZZ_p(0);}
 
-  //palisade conversion methods
-  usint myZZ_p::ConvertToUsint() const{
-    bool dbg_flag = false;
+  // //palisade conversion methods
+  // usint myZZ_p::ConvertToUsint() const{
+  //   bool dbg_flag = false;
 
-    DEBUG("in myZZ_p::ConvertToUsint() this "<<*this);
+  //   DEBUG("in myZZ_p::ConvertToUsint() this "<<*this);
 
-    return (conv<usint>(*this)); 
-  }
+  //   return (conv<usint>(*this)); 
+  // }
   uint64_t myZZ_p::ConvertToInt() const{ 
    bool dbg_flag = false;
 
     DEBUG("in myZZ_p::ConvertToInt() this "<<*this);
 
-    return (conv<uint64_t>(*this)); }
-    
-  uint32_t myZZ_p::ConvertToUint32() const { return (conv<uint32_t>(*this));}
+    uint64_t result = conv<uint64_t>(*this);
+    if (this->GetMSB() >= 64) {
+      std::cerr<<"Warning myZZ_p::ConvertToInt() Loss of precision. "<<std::endl;
+      std::cerr<<"input  "<< *this<<std::endl;			
+      std::cerr<<"result  "<< result<<std::endl;			
+    }
+    return result;
+  }
+  // uint32_t myZZ_p::ConvertToUint32() const { return (conv<uint32_t>(*this));}
 
  // warning on some platforms usint64_t is implemented as an unsigned
   // long long which is not included in the conv functions in tools.h
@@ -261,14 +267,20 @@ namespace NTL {
   uint64_t myZZ_p::ConvertToUint64() const{ 
     static_assert(sizeof(uint64_t) == sizeof(long), 
 		  "sizeof(uint64_t) != sizeof(long), edit myZZ ConvertToUint64()");
-    return (conv<uint64_t>(*this));
+    uint64_t result = conv<uint64_t>(*this);
+    if (this->GetMSB() >= 64) {
+      std::cerr<<"Warning myZZ_p::ConvertToInt() Loss of precision. "<<std::endl;
+      std::cerr<<"input  "<< *this<<std::endl;			
+      std::cerr<<"result  "<< result<<std::endl;			
+    }
+    return result;
   }
-  float myZZ_p::ConvertToFloat() const{ return (conv<float>(this->_ZZ_p__rep));}
+  //float myZZ_p::ConvertToFloat() const{ return (conv<float>(this->_ZZ_p__rep));}
   double myZZ_p::ConvertToDouble() const{ return (conv<double>(this->_ZZ_p__rep));}
-  long double myZZ_p::ConvertToLongDouble() const {
-    std::cerr<<"can't convert to long double"<<std::endl; 
-    return 0.0L;
-  }
+  //long double myZZ_p::ConvertToLongDouble() const {
+  //  std::cerr<<"can't convert to long double"<<std::endl; 
+  //  return 0.0L;
+  //}
 
   std::ostream& operator<<(std::ostream& os, const myZZ_p& ptr_obj){
     os << (ZZ_p)ptr_obj;

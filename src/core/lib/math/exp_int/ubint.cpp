@@ -2149,6 +2149,7 @@ return result;
     //todo what is the order of this operation?
   }
 
+  //Need to mimic        signed modulus return of BE 2
   template<typename limb_t>
   ubint<limb_t> ubint<limb_t>::ModSub(const ubint& b, const ubint& modulus) const{
     ubint* a = const_cast<ubint*>(this);

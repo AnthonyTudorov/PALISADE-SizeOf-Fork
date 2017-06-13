@@ -154,13 +154,13 @@ namespace NTL{
     static const myZZ_p& zero();
 
     //palisade conversion methods 
-    usint ConvertToUsint() const;
+    //usint ConvertToUsint() const;
     uint64_t ConvertToInt() const;
-    uint32_t ConvertToUint32() const;
+    //uint32_t ConvertToUint32() const;
     uint64_t ConvertToUint64() const;
-    float ConvertToFloat() const;
+    //float ConvertToFloat() const;
     double ConvertToDouble() const;
-    long double ConvertToLongDouble() const;
+    //long double ConvertToLongDouble() const;
 
     //it has problems finding which clear to use
 
@@ -238,17 +238,28 @@ namespace NTL{
     inline myZZ_p Add(const myZZ_p& b) const {return *this+b;};
     inline myZZ_p Plus(const myZZ_p& b) const {return *this+b;}; //to be deprecated
 
+    //NOTE ModSub needs to return signed modulus (i.e. -1/2..q/2) in order
+    //to be consistent with BE 2 
+
     inline myZZ_p Sub(const myZZ_p& b) const  {return(*this-b);};  
     inline myZZ_p Minus(const myZZ_p& b) const  {return(*this-b);}; //to be deprecated
     inline myZZ_p operator-(const myZZ_p &b) const {
-      myZZ_p tmp;
-      //sub(tmp, *this, b);
-      tmp = this->ModSub(b);
-      return tmp ;
+      if (*this>=b) {
+	return this->ModSub(b);
+      } else { 
+	myZZ tmp;
+	myZZ mod = this->GetModulus();
+	tmp = this->_ZZ_p__rep + mod - b._ZZ_p__rep;
+	myZZ_p ret(tmp, mod);
+
+	return ret;
+
+      }
     };
+
     inline myZZ_p& operator-=(const myZZ_p &a) {
       //sub(*this, *this, a);
-      *this = this->ModSub(a);
+      *this = *this-a;
       return *this;
     };
 
@@ -344,7 +355,6 @@ namespace NTL{
 
     inline myZZ_p ModSub(const myZZ_p& b) const
     {
-      ///ERROR replace this. so it matches bbv irregular use of signed mod.
       return *this-b;      
     };
 
@@ -352,12 +362,23 @@ namespace NTL{
     {
       ZZ newthis(this->_ZZ_p__rep%modulus);
       ZZ newb(b%modulus);
-      return myZZ_p(SubMod(newthis, newb, modulus));      
+      if (newthis>=newb) {
+	return myZZ_p(SubMod(newthis, newb, modulus));  //normal mod sub    
+      } else {
+	return myZZ_p(newthis+modulus -b) ;  //signed mod
+      }
+
     };
 
+    //Fast version does not check for modulus bounds.
     inline myZZ_p ModSubFast(const myZZ& b, const myZZ& modulus) const
     {
-      return myZZ_p(SubMod(this->_ZZ_p__rep, b, modulus));
+      ZZ newthis(this->_ZZ_p__rep);
+      if (newthis>=b) {
+	return myZZ_p(SubMod(newthis, b, modulus));  //normal mod sub    
+      } else {
+	return myZZ_p(newthis+modulus -b) ;  //signed mod
+      }
     };
 
 

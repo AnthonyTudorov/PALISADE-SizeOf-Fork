@@ -216,15 +216,13 @@ namespace NTL {
     inline myVec ModAdd(const myT& b, const myZZ& modulus) const {return ((*this)+b)%modulus;};
     inline myVec ModAdd(const myVec& b, const myZZ& modulus) const {return ((*this)+b)%modulus;};
 
-    // note that modsub requires us to use the NTL signed subtraction 
-    // rather than the Palisade unsigned subtraction 
+    //Need to mimic Palisade use of signed modulus for modsub.
     inline myVec ModSub(const myT& b, const myZZ& modulus) const 
     {
       unsigned int n = this->length();
       myVec<myT> res(n);
       for (unsigned int i = 0; i < n; i++){
-	NTL_NAMESPACE::sub(res[i],(*this)[i],b);
-	res[i] = res[i]%modulus;
+	res[i] = (*this)[i].ModSub(b, modulus);
       }
       return(res);
     };
@@ -234,8 +232,7 @@ namespace NTL {
       unsigned int n = this->length();
       myVec<myT> res(n);
       for (unsigned int i = 0; i < n; i++){
-	NTL_NAMESPACE::sub(res[i],(*this)[i],b[i]);
-	res[i] = res[i]%modulus;
+	res[i] = (*this)[i].ModSub(b[i],modulus);
       }
       return(res);
     };
