@@ -57,11 +57,33 @@ template <class Element>
 class CryptoContext : public Serializable {
 	friend class CryptoContextFactory<Element>;
 
+public:
+	// these variables are used to track timings
+	enum OpType {
+		OpKeyGen,
+		OpEvalAdd, OpEvalSub, OpEvalMult,
+		OpModReduce
+	};
+
+	struct TimingInfo {
+		OpType	operation;
+		double	timeval;
+		TimingInfo(OpType o, double t) : operation(o), timeval(t) {}
+	};
+
+	friend std::ostream& operator<<(std::ostream& out, const TimingInfo& t) {
+		out << t.operation << ": " << t.timeval;
+		return out;
+	}
+
 private:
 	shared_ptr<LPCryptoParameters<Element>>					params;			/*!< crypto parameters used for this context */
 	shared_ptr<LPPublicKeyEncryptionScheme<Element>>		scheme;			/*!< algorithm used; accesses all crypto methods */
 	static vector<shared_ptr<LPEvalKey<Element>>>			evalMultKeys;	/*!< cached evalmult keys */
 	static std::map<usint, shared_ptr<LPEvalKey<Element>>>	evalSumKeys;	/*!< cached evalsum keys */
+
+	bool doTiming;
+	vector<TimingInfo>* timeSamples;
 
 	/**
 	 * Private methods to compare two contexts; this is only used internally and is not generally available
@@ -82,6 +104,8 @@ public:
 	CryptoContext(LPCryptoParameters<Element> *params = 0, LPPublicKeyEncryptionScheme<Element> *scheme = 0) {
 		this->params.reset(params);
 		this->scheme.reset(scheme);
+		this->doTiming = false;
+		this->timeSamples = 0;
 	}
 
 	/**
@@ -92,6 +116,8 @@ public:
 	CryptoContext(shared_ptr<LPCryptoParameters<Element>> params, shared_ptr<LPPublicKeyEncryptionScheme<Element>> scheme) {
 		this->params = params;
 		this->scheme = scheme;
+		this->doTiming = false;
+		this->timeSamples = 0;
 	}
 
 	/**
@@ -101,6 +127,8 @@ public:
 	CryptoContext(const CryptoContext<Element>& c) {
 		params = c.params;
 		scheme = c.scheme;
+		doTiming = c.doTiming;
+		timeSamples = c.timeSamples;
 	}
 
 	/**
@@ -111,6 +139,8 @@ public:
 	CryptoContext<Element>& operator=(const CryptoContext<Element>& rhs) {
 		params = rhs.params;
 		scheme = rhs.scheme;
+		doTiming = rhs.doTiming;
+		timeSamples = rhs.timeSamples;
 		return *this;
 	}
 
@@ -118,6 +148,20 @@ public:
 	 * A CryptoContext is only valid if the shared pointers are both valid
 	 */
 	operator bool() const { return bool(params) && bool(scheme); }
+
+	void StartTiming(vector<TimingInfo>* timeSamples) {
+		this->timeSamples = timeSamples;
+		doTiming = true;
+	}
+	void StopTiming() {
+		doTiming = false;
+	}
+	void ResumeTiming() {
+		doTiming = true;
+	}
+	void ResetTiming() {
+		timeSamples->clear();
+	}
 
 	/**
 	 * Serialize the CryptoContext
@@ -192,7 +236,13 @@ public:
 	* @return a public/secret key pair
 	*/
 	LPKeyPair<Element> KeyGen() const {
-		return GetEncryptionAlgorithm()->KeyGen(*this, false);
+		double start;
+		if( doTiming ) start = currentDateTime();
+		auto r = GetEncryptionAlgorithm()->KeyGen(*this, false);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpKeyGen, currentDateTime() - start) );
+		}
+		return r;
 	}
 
 	/**
@@ -862,7 +912,13 @@ public:
 		if( ct1 == NULL || ct2 == NULL || ct1->GetCryptoContext() != *this || ct2->GetCryptoContext() != *this )
 			throw std::logic_error("Information passed to EvalAdd was not generated with this crypto context");
 
-		return GetEncryptionAlgorithm()->EvalAdd(ct1, ct2);
+		double start;
+		if( doTiming ) start = currentDateTime();
+		auto rv = GetEncryptionAlgorithm()->EvalAdd(ct1, ct2);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalAdd, currentDateTime() - start) );
+		}
+		return rv;
 	}
 
 	/**
@@ -877,7 +933,13 @@ public:
 		if( ct1 == NULL || ct2 == NULL || ct1->GetCryptoContext() != *this || ct2->GetCryptoContext() != *this )
 			throw std::logic_error("Information passed to EvalSub was not generated with this crypto context");
 
-		return GetEncryptionAlgorithm()->EvalSub(ct1, ct2);
+		double start;
+		if( doTiming ) start = currentDateTime();
+		auto rv = GetEncryptionAlgorithm()->EvalSub(ct1, ct2);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalSub, currentDateTime() - start) );
+		}
+		return rv;
 	}
 
 	/**
@@ -918,7 +980,13 @@ public:
 
 		auto ek = GetEvalMultKey();
 
-		return GetEncryptionAlgorithm()->EvalMult(ct1, ct2, ek);
+		double start;
+		if( doTiming ) start = currentDateTime();
+		auto rv = GetEncryptionAlgorithm()->EvalMult(ct1, ct2, ek);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalMult, currentDateTime() - start) );
+		}
+		return rv;
 	}
 
 	/**

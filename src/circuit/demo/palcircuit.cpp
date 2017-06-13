@@ -60,6 +60,9 @@ main(int argc, char *argv[])
 	CryptoContext<ILDCRT2n> cc = GenCryptoContextElementArrayNull(8, 5, 8, 10);
 	cc.Enable(LEVELEDSHE);
 
+	vector<CryptoContext<ILDCRT2n>::TimingInfo>	times;
+	cc.StartTiming(&times);
+
 	IntPlaintextEncoding vecs[] = {
 			{ 1,2,3,5 },
 			{ 1,2,3,7 }
@@ -193,6 +196,10 @@ main(int argc, char *argv[])
 
 		if( print_graph ) {
 			cir.GetGraph().DisplayDecryptedGraph(cc, kp.secretKey);
+		}
+
+		for( auto &t : times ) {
+			cout << t << endl;
 		}
 	}
 
