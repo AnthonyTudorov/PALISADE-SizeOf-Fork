@@ -40,7 +40,7 @@
  */
 
 
-#ifdef __linux__
+#if __linux__ && MATHBACKEND == 6
 #define _SECURE_SCL 0 // to speed up VS
 
 #include <iostream>

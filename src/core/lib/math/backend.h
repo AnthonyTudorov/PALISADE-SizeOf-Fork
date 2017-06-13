@@ -120,7 +120,7 @@ typedef ubintvec<xubint> xubintvec;
 typedef mubintvec<xubint> xmubintvec;
 }
 
-#ifdef __linux__
+#if __linux__ && MATHBACKEND == 6
 ////////// for gmp int
 #include "gmp_int/gmpint.h" //experimental gmp unsigned big ints
 #include "gmp_int/mgmpint.h" //experimental gmp modulo unsigned big ints
