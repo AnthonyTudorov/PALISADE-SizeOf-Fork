@@ -132,12 +132,17 @@ private:
 protected:
 	CircuitNode		*node;
 	Value<Element>	value;
+	usint			noiseval;
+	usint			timeval;
 
 public:
-	CircuitNodeWithValue(CircuitNode *n) : node(n) {}
+	CircuitNodeWithValue(CircuitNode *n) : node(n), noiseval(3), timeval(0) {}
 	virtual ~CircuitNodeWithValue() {}
 
 	wire_type GetType() const { return value.GetType(); }
+
+	usint GetNoise() const { return noiseval; }
+	void SetNoise(usint n) { noiseval = n; }
 
 	CircuitNode *getNode() const { return node; }
 	Value<Element>& getValue() { return value; }

@@ -71,6 +71,8 @@ ostream& operator<<(ostream& out, const CircuitNodeWithValue<Element>& n)
 		out << "(d=" + std::to_string(n.getNode()->getInputDepth()) + ")\\n";
 	out << n.getNodeLabel();
 
+	out << "\\n(noise=" << n.GetNoise() << ")\\n";
+
 	const Value<Element>& val = n.getValue();
 	if( CircuitGraphWithValues<Element>::_graph_key && val.GetType() != UNKNOWN ) {
 		IntPlaintextEncoding pt;
@@ -105,9 +107,10 @@ Value<Element> EvalAddNodeWithValue<Element>::eval(CryptoContext<Element>& cc, C
 
 	if( this->getNode()->getInputs().size() !=2 ) throw std::logic_error("Add requires 2 inputs");
 
-	for( auto z : this->getNode()->getInputs() ) { cout << z << "!!!" << endl; cout << cg.getNodeById(z) << endl; }
-	Value<Element> v0( cg.getNodeById(this->getNode()->getInputs()[0])->eval(cc,cg) );
-	Value<Element> v1( cg.getNodeById(this->getNode()->getInputs()[1])->eval(cc,cg) );
+	auto n0 = cg.getNodeById(this->getNode()->getInputs()[0]);
+	auto n1 = cg.getNodeById(this->getNode()->getInputs()[1]);
+	Value<Element> v0( n0->eval(cc,cg) );
+	Value<Element> v1( n1->eval(cc,cg) );
 	auto t0 = v0.GetType();
 	auto t1 = v1.GetType();
 
@@ -124,6 +127,7 @@ Value<Element> EvalAddNodeWithValue<Element>::eval(CryptoContext<Element>& cc, C
 	}
 
 	this->Log();
+	this->SetNoise( n0->GetNoise() + n1->GetNoise() );
 	return this->value;
 }
 
@@ -134,8 +138,10 @@ Value<Element> EvalSubNodeWithValue<Element>::eval(CryptoContext<Element>& cc, C
 
 	if( this->getNode()->getInputs().size() !=2 ) throw std::logic_error("Subtract requires 2 inputs");
 
-	Value<Element> v0( cg.getNodeById(this->getNode()->getInputs()[0])->eval(cc,cg) );
-	Value<Element> v1( cg.getNodeById(this->getNode()->getInputs()[1])->eval(cc,cg) );
+	auto n0 = cg.getNodeById(this->getNode()->getInputs()[0]);
+	auto n1 = cg.getNodeById(this->getNode()->getInputs()[1]);
+	Value<Element> v0( n0->eval(cc,cg) );
+	Value<Element> v1( n1->eval(cc,cg) );
 	auto t0 = v0.GetType();
 	auto t1 = v1.GetType();
 
@@ -151,6 +157,7 @@ Value<Element> EvalSubNodeWithValue<Element>::eval(CryptoContext<Element>& cc, C
 	}
 
 	this->Log();
+	this->SetNoise( n0->GetNoise() + n1->GetNoise() );
 	return this->value;
 }
 
@@ -161,8 +168,10 @@ Value<Element> EvalMultNodeWithValue<Element>::eval(CryptoContext<Element>& cc, 
 
 	if( this->getNode()->getInputs().size() !=2 ) throw std::logic_error("Mult requires 2 inputs");
 
-	Value<Element> v0( cg.getNodeById(this->getNode()->getInputs()[0])->eval(cc,cg) );
-	Value<Element> v1( cg.getNodeById(this->getNode()->getInputs()[1])->eval(cc,cg) );
+	auto n0 = cg.getNodeById(this->getNode()->getInputs()[0]);
+	auto n1 = cg.getNodeById(this->getNode()->getInputs()[1]);
+	Value<Element> v0( n0->eval(cc,cg) );
+	Value<Element> v1( n1->eval(cc,cg) );
 	auto t0 = v0.GetType();
 	auto t1 = v1.GetType();
 
@@ -178,6 +187,7 @@ Value<Element> EvalMultNodeWithValue<Element>::eval(CryptoContext<Element>& cc, 
 	}
 
 	this->Log();
+	this->SetNoise( n0->GetNoise() * n1->GetNoise() );
 	return this->value;
 }
 
@@ -188,7 +198,8 @@ Value<Element> ModReduceNodeWithValue<Element>::eval(CryptoContext<Element>& cc,
 
 	if( this->getNode()->getInputs().size() != 1 ) throw std::logic_error("ModReduce must have one input");
 
-	Value<Element> v0( cg.getNodeById(this->getNode()->getInputs()[0])->eval(cc,cg) );
+	auto n0 = cg.getNodeById(this->getNode()->getInputs()[0]);
+	Value<Element> v0( n0->eval(cc,cg) );
 	auto t0 = v0.GetType();
 
 	if( t0 == VECTOR_INT ) {
@@ -199,6 +210,7 @@ Value<Element> ModReduceNodeWithValue<Element>::eval(CryptoContext<Element>& cc,
 	}
 
 	this->Log();
+	this->SetNoise( n0->GetNoise() );
 	return this->value;
 }
 
