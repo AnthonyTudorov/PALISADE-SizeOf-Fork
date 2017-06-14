@@ -42,8 +42,8 @@ using std::cout;
 #include "circuitgraph.cpp"
 
 namespace lbcrypto {
-template class CircuitGraphWithValues<ILDCRT2n>;
-template class CircuitNodeWithValue<ILDCRT2n>;
+template class CircuitGraphWithValues<ILVector2n>;
+template class CircuitNodeWithValue<ILVector2n>;
 }
 
 void usage() {
@@ -57,10 +57,13 @@ void usage() {
 int
 main(int argc, char *argv[])
 {
-	CryptoContext<ILDCRT2n> cc = GenCryptoContextElementArrayNull(8, 5, 8, 10);
+	const usint MAXVECS = 30;
+
+	//CryptoContext<ILVector2n> cc = GenCryptoContextElementArrayNull(8, 5, 8, 10);
+	CryptoContext<ILVector2n> cc = GenCryptoContextElementNull(32,32);
 	cc.Enable(LEVELEDSHE);
 
-	vector<CryptoContext<ILDCRT2n>::TimingInfo>	times;
+	vector<TimingInfo>	times;
 	cc.StartTiming(&times);
 
 	IntPlaintextEncoding vecs[] = {
@@ -69,18 +72,22 @@ main(int argc, char *argv[])
 	};
 	IntPlaintextEncoding ints[] = { { 7 }, { 3 } };
 
-	LPKeyPair<ILDCRT2n> kp = cc.KeyGen();
+	LPKeyPair<ILVector2n> kp = cc.KeyGen();
 	cc.EvalMultKeyGen(kp.secretKey);
 
-	vector< vector<shared_ptr<Ciphertext<ILDCRT2n>>> > cipherVecs;
-	for( size_t i = 0; i < sizeof(vecs)/sizeof(vecs[0]); i++ )
-		cipherVecs.push_back( cc.Encrypt(kp.publicKey, vecs[i]) );
+//	vector< vector<shared_ptr<Ciphertext<ILVector2n>>> > cipherVecs;
+//	for( size_t i = 0; i < sizeof(vecs)/sizeof(vecs[0]); i++ )
+//		cipherVecs.push_back( cc.Encrypt(kp.publicKey, vecs[i]) );
 
-	vector< vector<shared_ptr<Ciphertext<ILDCRT2n>>> > intVecs;
+	vector< vector<shared_ptr<Ciphertext<ILVector2n>>> > intVecs;
 	for( size_t i = 0; i < sizeof(ints)/sizeof(ints[0]); i++ )
 		intVecs.push_back( cc.Encrypt(kp.publicKey, ints[i]) );
 
-	CircuitIO<ILDCRT2n> inputs;
+	vector< vector<shared_ptr<Ciphertext<ILVector2n>>> > cipherVecs;
+	for( usint i = 0; i < MAXVECS; i++ )
+		cipherVecs.push_back( cc.Encrypt(kp.publicKey, IntPlaintextEncoding({i})) );
+
+	CircuitIO<ILVector2n> inputs;
 
 	bool debug_parse = false;
 	bool print_graph = false;
@@ -133,7 +140,7 @@ main(int argc, char *argv[])
 		if( print_graph )
 			driver.graph.DisplayGraph();
 
-		PalisadeCircuit<ILDCRT2n>	cir(cc, driver.graph);
+		PalisadeCircuit<ILVector2n>	cir(cc, driver.graph);
 
 		if( verbose )
 			cir.CircuitDump();
@@ -153,25 +160,25 @@ main(int argc, char *argv[])
 		}
 
 		//
-		size_t curVec = 0, maxVec = sizeof(vecs)/sizeof(vecs[0]);
+		size_t curVec = 0, maxVec = MAXVECS; //sizeof(vecs)/sizeof(vecs[0]);
 		size_t curInt = 0, maxInt = sizeof(ints)/sizeof(ints[0]);
 
 		for( size_t i = 0; i < intypes.size(); i++ ) {
-			if( verbose ) cout << "input " << i << ": value ";
+			//if( verbose ) cout << "input " << i << ": value ";
 
 			switch(intypes[i]) {
 			case INT:
 				if( curInt == maxInt )
 					throw std::logic_error("out of ints");
 				inputs[i] = intVecs[curInt++][0];
-				if( verbose ) cout << ints[i] << endl;
+				//if( verbose ) cout << ints[i] << endl;
 				break;
 
 			case VECTOR_INT:
 				if( curVec == maxVec )
 					throw std::logic_error("out of vecs");
 				inputs[i] = cipherVecs[curVec++][0];
-				if( verbose ) cout << vecs[i] << endl;
+				//if( verbose ) cout << vecs[i] << endl;
 				break;
 
 			default:
@@ -179,11 +186,11 @@ main(int argc, char *argv[])
 			}
 		}
 
-		CircuitNodeWithValue<ILDCRT2n>::ResetSimulation();
+		CircuitNodeWithValue<ILVector2n>::ResetSimulation();
 
-		CircuitIO<ILDCRT2n> outputs = cir.CircuitEval(inputs, verbose);
+		CircuitIO<ILVector2n> outputs = cir.CircuitEval(inputs, verbose);
 
-		CircuitNodeWithValue<ILDCRT2n>::PrintLog(cout);
+		CircuitNodeWithValue<ILVector2n>::PrintLog(cout);
 
 		for( auto& out : outputs ) {
 			IntPlaintextEncoding result;
@@ -198,8 +205,9 @@ main(int argc, char *argv[])
 			cir.GetGraph().DisplayDecryptedGraph(cc, kp.secretKey);
 		}
 
-		for( auto &t : times ) {
-			cout << t << endl;
+		cout << "Timing Information:" << endl;
+		for( size_t i = 0; i < times.size(); i++ ) {
+			cout << times[i] << endl;
 		}
 	}
 

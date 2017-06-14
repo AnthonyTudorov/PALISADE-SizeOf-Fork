@@ -34,6 +34,7 @@
 #include "encoding/intplaintextencoding.h"
 #include "encoding/packedintplaintextencoding.h"
 #include "cryptocontexthelper.h"
+#include "timingprint.h"
 
 namespace lbcrypto {
 
@@ -58,24 +59,6 @@ class CryptoContext : public Serializable {
 	friend class CryptoContextFactory<Element>;
 
 public:
-	// these variables are used to track timings
-	enum OpType {
-		OpKeyGen,
-		OpEvalAdd, OpEvalSub, OpEvalMult,
-		OpModReduce
-	};
-
-	struct TimingInfo {
-		OpType	operation;
-		double	timeval;
-		TimingInfo(OpType o, double t) : operation(o), timeval(t) {}
-	};
-
-	friend std::ostream& operator<<(std::ostream& out, const TimingInfo& t) {
-		out << t.operation << ": " << t.timeval;
-		return out;
-	}
-
 private:
 	shared_ptr<LPCryptoParameters<Element>>					params;			/*!< crypto parameters used for this context */
 	shared_ptr<LPPublicKeyEncryptionScheme<Element>>		scheme;			/*!< algorithm used; accesses all crypto methods */

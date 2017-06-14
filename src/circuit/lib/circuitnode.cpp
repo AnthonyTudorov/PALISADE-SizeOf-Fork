@@ -105,30 +105,34 @@ Value<Element> EvalAddNodeWithValue<Element>::eval(CryptoContext<Element>& cc, C
 	if( this->value.GetType() != UNKNOWN )
 		return this->value;
 
-	if( this->getNode()->getInputs().size() !=2 ) throw std::logic_error("Add requires 2 inputs");
+	if( this->getNode()->getInputs().size() < 2 ) throw std::logic_error("Add requires at least 2 inputs");
 
 	auto n0 = cg.getNodeById(this->getNode()->getInputs()[0]);
-	auto n1 = cg.getNodeById(this->getNode()->getInputs()[1]);
 	Value<Element> v0( n0->eval(cc,cg) );
-	Value<Element> v1( n1->eval(cc,cg) );
 	auto t0 = v0.GetType();
-	auto t1 = v1.GetType();
+	usint noise = n0->GetNoise();
 
-	if( t0 != t1 ) {
-		throw std::logic_error("type mismatch for EvalAdd");
-	}
+	for( size_t i=1; i < this->getNode()->getInputs().size(); i++ ) {
+		auto n1 = cg.getNodeById(this->getNode()->getInputs()[i]);
+		Value<Element> v1( n1->eval(cc,cg) );
+		auto t1 = v1.GetType();
 
-	if( t0 == VECTOR_INT ) {
-		this->value = cc.EvalAdd(v0.GetIntVecValue(), v1.GetIntVecValue());
-		cout << t1 << endl;
-	}
-	else {
-		throw std::logic_error("eval add for types " + std::to_string(t0) + " and " + std::to_string(t1) + " not implemented");
+		if( t0 != t1 ) {
+			throw std::logic_error("type mismatch for EvalAdd");
+		}
+
+		if( t0 == VECTOR_INT ) {
+			v0 = cc.EvalAdd(v0.GetIntVecValue(), v1.GetIntVecValue());
+		}
+		else {
+			throw std::logic_error("eval add for types " + std::to_string(t0) + " and " + std::to_string(t1) + " not implemented");
+		}
+		noise += n1->GetNoise();
 	}
 
 	this->Log();
-	this->SetNoise( n0->GetNoise() + n1->GetNoise() );
-	return this->value;
+	this->SetNoise( noise );
+	return this->value = v0;
 }
 
 template<typename Element>
@@ -136,28 +140,51 @@ Value<Element> EvalSubNodeWithValue<Element>::eval(CryptoContext<Element>& cc, C
 	if( this->value.GetType() != UNKNOWN )
 		return this->value;
 
-	if( this->getNode()->getInputs().size() !=2 ) throw std::logic_error("Subtract requires 2 inputs");
+	if( this->getNode()->getInputs().size() == 1 ) {
+		// EvalNegate
+		auto n0 = cg.getNodeById(this->getNode()->getInputs()[0]);
+		Value<Element> v0( n0->eval(cc,cg) );
+		auto t0 = v0.GetType();
+
+		if( t0 == VECTOR_INT ) {
+			this->value = cc.EvalNegate(v0.GetIntVecValue());
+			this->SetNoise( n0->GetNoise() );
+			this->Log();
+			return this->value;
+		}
+		else {
+			throw std::logic_error("eval negate for type " + std::to_string(t0) + " is not implemented");
+		}
+	}
+
+	if( this->getNode()->getInputs().size() < 2 ) throw std::logic_error("Subtract requires at least 2 inputs");
 
 	auto n0 = cg.getNodeById(this->getNode()->getInputs()[0]);
-	auto n1 = cg.getNodeById(this->getNode()->getInputs()[1]);
 	Value<Element> v0( n0->eval(cc,cg) );
-	Value<Element> v1( n1->eval(cc,cg) );
 	auto t0 = v0.GetType();
-	auto t1 = v1.GetType();
+	usint noise = n0->GetNoise();
 
-	if( t0 != t1 ) {
-		throw std::logic_error("type mismatch for EvalSub");
-	}
+	for( size_t i=1; i < this->getNode()->getInputs().size(); i++ ) {
+		auto n1 = cg.getNodeById(this->getNode()->getInputs()[i]);
+		Value<Element> v1( n1->eval(cc,cg) );
+		auto t1 = v1.GetType();
 
-	if( t0 == VECTOR_INT ) {
-		this->value = cc.EvalSub(v0.GetIntVecValue(), v1.GetIntVecValue());
-	}
-	else {
-		throw std::logic_error("eval sub for types " + std::to_string(t0) + " and " + std::to_string(t1) + " are not implemented");
+		if( t0 != t1 ) {
+			throw std::logic_error("type mismatch for EvalSub");
+		}
+
+		if( t0 == VECTOR_INT ) {
+			v0 = cc.EvalSub(v0.GetIntVecValue(), v1.GetIntVecValue());
+		}
+		else {
+			throw std::logic_error("eval sub for types " + std::to_string(t0) + " and " + std::to_string(t1) + " are not implemented");
+		}
+
+		noise += n1->GetNoise();
 	}
 
 	this->Log();
-	this->SetNoise( n0->GetNoise() + n1->GetNoise() );
+	this->SetNoise( noise );
 	return this->value;
 }
 

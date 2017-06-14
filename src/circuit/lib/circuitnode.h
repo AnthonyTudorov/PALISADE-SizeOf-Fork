@@ -250,7 +250,6 @@ class ModReduceNode : public CircuitNode {
 public:
 	ModReduceNode(usint id, const vector<usint>& inputs) : CircuitNode(id) {
 		this->inputs = inputs;
-		cout << "MADE A MOD REDUCE";
 	}
 
 	void setBottomUpDepth() { this->nodeInputDepth = this->nodeOutputDepth + 1; }
@@ -262,7 +261,7 @@ public:
 template<typename Element>
 class ModReduceNodeWithValue : public CircuitNodeWithValue<Element> {
 public:
-	ModReduceNodeWithValue(ModReduceNode* node) : CircuitNodeWithValue<Element>(node) {cout << "MADE A MOD REDUCE VAL";}
+	ModReduceNodeWithValue(ModReduceNode* node) : CircuitNodeWithValue<Element>(node) {}
 
 	Value<Element> eval(CryptoContext<Element>& cc, CircuitGraphWithValues<Element>& cg);
 };

@@ -133,7 +133,6 @@ class CircuitGraphWithValues {
 public:
 	CircuitGraphWithValues(CircuitGraph& cg) : g(cg) {
 		for( map<usint,CircuitNode*>::const_iterator it = cg.getAllNodes().begin(); it != cg.getAllNodes().end(); it++ ) {
-			cout << it->first << ":::::" << it->second << endl;
 			allNodes[ it->first ] = ValueNodeFactory<Element>( it->second );
 		}
 	}
