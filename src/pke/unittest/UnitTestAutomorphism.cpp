@@ -149,7 +149,7 @@ std::vector<usint> ArbLTVAutomorphismPackedArray(usint i) {
 	BigBinaryInteger modulusQ("955263939794561");
 	BigBinaryInteger squareRootOfRoot("941018665059848");
 	
-	usint n = GetTotient(m);
+	//usint n = GetTotient(m);
 	BigBinaryInteger bigmodulus("80899135611688102162227204937217");
 	BigBinaryInteger bigroot("77936753846653065954043047918387");
 
@@ -207,7 +207,7 @@ std::vector<usint> ArbBVAutomorphismPackedArray(usint i) {
 	BigBinaryInteger modulusQ("955263939794561");
 	BigBinaryInteger squareRootOfRoot("941018665059848");
 	
-	usint n = GetTotient(m);
+	//usint n = GetTotient(m);
 	BigBinaryInteger bigmodulus("80899135611688102162227204937217");
 	BigBinaryInteger bigroot("77936753846653065954043047918387");
 

@@ -57,8 +57,10 @@ usint FVCrossCorrelation();
 TEST(UTEvalCC, Test_BV_EvalCC) {
 
 	usint result = BVCrossCorrelation();
+	usint expectedResult = 11;
 
-	EXPECT_EQ(result, 11);
+	EXPECT_EQ(result, expectedResult);
+
 	
 }
 
@@ -66,8 +68,9 @@ TEST(UTEvalCC, Test_BV_EvalCC) {
 TEST(UTEvalCC, Test_FV_EvalCC) {
 	
 	usint result = FVCrossCorrelation();
+	usint expectedResult = 11;
 
-	EXPECT_EQ(result, 11);
+	EXPECT_EQ(result, expectedResult);
 
 }
 
