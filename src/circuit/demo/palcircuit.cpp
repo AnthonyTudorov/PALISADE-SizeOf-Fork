@@ -88,6 +88,8 @@ main(int argc, char *argv[])
 	for( usint i = 0; i < MAXVECS; i++ )
 		cipherVecs.push_back( cc.Encrypt(kp.publicKey, IntPlaintextEncoding({i+1})) );
 
+	Matrix<Ciphertext<ILVector2n>>	mat([cc](){return make_unique<Ciphertext<ILVector2n> >(cc);},3,3);
+
 	CircuitIO<ILVector2n> inputs;
 
 	bool debug_parse = false;
