@@ -959,6 +959,15 @@ namespace lbcrypto {
 	}
 
 	template<typename IntType, typename VecType>
+	void BluesteinFFT<IntType, VecType>::Destroy() {
+		m_rootOfUnityTableByModulus.clear();
+		m_rootOfUnityInverseTableByModulus.clear();
+		m_powersTableByRoot.clear();
+		m_RBTableByRoot.clear();
+		m_NTTModulus.clear();
+	}
+
+	template<typename IntType, typename VecType>
 	ChineseRemainderTransformArb<IntType, VecType>& ChineseRemainderTransformArb<IntType, VecType>::GetInstance() {
 		if (m_onlyInstance == NULL) {
 			m_onlyInstance = new ChineseRemainderTransformArb<IntType, VecType>();//lazy instantiation
@@ -1237,6 +1246,19 @@ namespace lbcrypto {
 		return output;
 	}
 
+
+	template<typename IntType, typename VecType>
+	void ChineseRemainderTransformArb<IntType, VecType>::Destroy() {
+		m_cyclotomicPolyMap.clear();
+		m_cyclotomicPolyReverseNTTMap.clear();
+		m_cyclotomicPolyNTTMap.clear();
+		m_rootOfUnityDivisionTableByModulus.clear();
+		m_rootOfUnityDivisionInverseTableByModulus.clear();
+		m_DivisionNTTModulus.clear();
+		m_DivisionNTTRootOfUnity.clear();
+		m_nttDivisionDim.clear();
+		BluesteinFFT<IntType, VecType>::GetInstance().Destroy();
+	}
 
 
 	template class ChineseRemainderTransformFTT<BigBinaryInteger, BigBinaryVector>;

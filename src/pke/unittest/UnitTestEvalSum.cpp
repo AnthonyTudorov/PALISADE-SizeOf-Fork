@@ -131,6 +131,9 @@ TEST(UTEvalSum, Test_FV_EvalSum) {
 
 usint ArbLTVEvalSumPackedArray(std::vector<usint> &clearVector) {
 
+	PackedIntPlaintextEncoding::Destroy();
+	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().Destroy();
+
 	usint m = 22;
 	usint p = 89;
 	BigBinaryInteger modulusP(p);
@@ -140,6 +143,7 @@ usint ArbLTVEvalSumPackedArray(std::vector<usint> &clearVector) {
 
 	BigBinaryInteger bigmodulus("1361129467683753853853498429727072847489");
 	BigBinaryInteger bigroot("574170933302565148884487552139817611806");
+
 
 	auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulusQ);
 	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulusQ);
