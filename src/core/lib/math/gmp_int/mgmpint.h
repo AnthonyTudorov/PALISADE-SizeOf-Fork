@@ -355,7 +355,14 @@ namespace NTL{
 
     inline myZZ_p ModSub(const myZZ_p& b) const
     {
-      return *this-b;      
+      ZZ newthis(this->_ZZ_p__rep);
+      ZZ newb(b._ZZ_p__rep);
+      ZZ mod(this->GetModulus());
+      if (newthis>=newb) {
+	return myZZ_p(SubMod(newthis, newb, mod));  //normal mod sub    
+      } else {
+	return myZZ_p(newthis+mod -newb) ;  //signed mod
+      }
     };
 
     inline myZZ_p ModSub(const myZZ& b, const myZZ&modulus) const //to comply with BBI
