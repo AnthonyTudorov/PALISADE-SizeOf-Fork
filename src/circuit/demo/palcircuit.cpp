@@ -60,7 +60,8 @@ main(int argc, char *argv[])
 	const usint MAXVECS = 30;
 
 	//CryptoContext<ILVector2n> cc = GenCryptoContextElementArrayNull(8, 5, 8, 10);
-	CryptoContext<ILVector2n> cc = GenCryptoContextElementNull(32,32);
+	CryptoContext<ILVector2n> cc = GenCryptoContextElementNull(8,32);
+	//CryptoContext<ILVector2n> cc = GenCryptoContextElementFV(32,32);
 	cc.Enable(LEVELEDSHE);
 
 	vector<TimingInfo>	times;
@@ -75,9 +76,9 @@ main(int argc, char *argv[])
 	LPKeyPair<ILVector2n> kp = cc.KeyGen();
 	cc.EvalMultKeyGen(kp.secretKey);
 
-//	vector< vector<shared_ptr<Ciphertext<ILVector2n>>> > cipherVecs;
-//	for( size_t i = 0; i < sizeof(vecs)/sizeof(vecs[0]); i++ )
-//		cipherVecs.push_back( cc.Encrypt(kp.publicKey, vecs[i]) );
+	//	vector< vector<shared_ptr<Ciphertext<ILVector2n>>> > cipherVecs;
+	//	for( size_t i = 0; i < sizeof(vecs)/sizeof(vecs[0]); i++ )
+	//		cipherVecs.push_back( cc.Encrypt(kp.publicKey, vecs[i]) );
 
 	vector< vector<shared_ptr<Ciphertext<ILVector2n>>> > intVecs;
 	for( size_t i = 0; i < sizeof(ints)/sizeof(ints[0]); i++ )
@@ -85,7 +86,7 @@ main(int argc, char *argv[])
 
 	vector< vector<shared_ptr<Ciphertext<ILVector2n>>> > cipherVecs;
 	for( usint i = 0; i < MAXVECS; i++ )
-		cipherVecs.push_back( cc.Encrypt(kp.publicKey, IntPlaintextEncoding({i})) );
+		cipherVecs.push_back( cc.Encrypt(kp.publicKey, IntPlaintextEncoding({i+1})) );
 
 	CircuitIO<ILVector2n> inputs;
 
@@ -190,24 +191,27 @@ main(int argc, char *argv[])
 
 		CircuitIO<ILVector2n> outputs = cir.CircuitEval(inputs, verbose);
 
-		CircuitNodeWithValue<ILVector2n>::PrintLog(cout);
+		if( verbose )
+			CircuitNodeWithValue<ILVector2n>::PrintLog(cout);
 
 		for( auto& out : outputs ) {
 			IntPlaintextEncoding result;
 
-			if( verbose ) cout << "For output " << out.first << endl;
+			cout << "For output " << out.first << endl;
 			cc.Decrypt(kp.secretKey, {out.second.GetIntVecValue()}, &result);
 
-			if( verbose ) cout << result << endl;
+			cout << result << endl;
 		}
 
 		if( print_graph ) {
 			cir.GetGraph().DisplayDecryptedGraph(cc, kp.secretKey);
 		}
 
-		cout << "Timing Information:" << endl;
-		for( size_t i = 0; i < times.size(); i++ ) {
-			cout << times[i] << endl;
+		if( verbose ) {
+			cout << "Timing Information:" << endl;
+			for( size_t i = 0; i < times.size(); i++ ) {
+				cout << times[i] << endl;
+			}
 		}
 	}
 

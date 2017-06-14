@@ -87,7 +87,6 @@ CircuitGraph::Preprocess()
 
 	for( int output : getOutputs() ) {
 		CircuitNode *out = getNodeById(output);
-		cout << "setting node " << output << " to 1" << endl;
 		out->setOutputDepth(1);
 	}
 
