@@ -49,7 +49,9 @@ template class CircuitNodeWithValue<ILVector2n>;
 void usage() {
 	cout << "Arguments are" << endl;
 	cout << "-d  --  debug mode on the parse" << endl;
-	cout << "-p  --  print the circuit in DOT format for use with graphviz" << endl;
+	cout << "-ginput  --  print a graph of the input circuit in DOT format (for use with graphviz)" << endl;
+	cout << "-gproc  --  print the circuit in DOT format for use with graphviz" << endl;
+	cout << "-gresult  --  print the circuit in DOT format for use with graphviz" << endl;
 	cout << "-v  --  verbose details about the circuit" << endl;
 	cout << "-h  --  this message" << endl;
 }
@@ -67,10 +69,10 @@ main(int argc, char *argv[])
 	vector<TimingInfo>	times;
 	cc.StartTiming(&times);
 
-	IntPlaintextEncoding vecs[] = {
-			{ 1,2,3,5 },
-			{ 1,2,3,7 }
-	};
+//	IntPlaintextEncoding vecs[] = {
+//			{ 1,2,3,5 },
+//			{ 1,2,3,7 }
+//	};
 	IntPlaintextEncoding ints[] = { { 7 }, { 3 } };
 
 	LPKeyPair<ILVector2n> kp = cc.KeyGen();
@@ -93,7 +95,9 @@ main(int argc, char *argv[])
 	CircuitIO<ILVector2n> inputs;
 
 	bool debug_parse = false;
-	bool print_graph = false;
+	bool print_input_graph = false;
+	bool print_preproc_graph = false;
+	bool print_result_graph = false;
 	bool verbose = false;
 	for( int i=1; i<argc; i++ ) {
 		string arg(argv[i]);
@@ -101,8 +105,16 @@ main(int argc, char *argv[])
 			debug_parse = true;
 			continue;
 		}
-		if( arg == "-p" ) {
-			print_graph = true;
+		if( arg == "-ginput" ) {
+			print_input_graph = true;
+			continue;
+		}
+		if( arg == "-gproc" ) {
+			print_preproc_graph = true;
+			continue;
+		}
+		if( arg == "-gresult" ) {
+			print_result_graph = true;
 			continue;
 		}
 		if( arg == "-v" ) {
@@ -134,22 +146,16 @@ main(int argc, char *argv[])
 			cout << "Circuit parsed" << endl;
 		}
 
-		if( print_graph )
+		if( print_input_graph )
 			driver.graph.DisplayGraph();
 
 		if( verbose ) cout << "Setting up" << endl;
 		driver.graph.Preprocess();
 
-		if( print_graph )
+		if( print_preproc_graph )
 			driver.graph.DisplayGraph();
 
 		PalisadeCircuit<ILVector2n>	cir(cc, driver.graph);
-
-		if( verbose )
-			cir.CircuitDump();
-
-		if( print_graph )
-			cir.GetGraph().DisplayGraph();
 
 		if( verbose )
 			cir.CircuitDump();
@@ -205,7 +211,7 @@ main(int argc, char *argv[])
 			cout << result << endl;
 		}
 
-		if( print_graph ) {
+		if( print_result_graph ) {
 			cir.GetGraph().DisplayDecryptedGraph(cc, kp.secretKey);
 		}
 
