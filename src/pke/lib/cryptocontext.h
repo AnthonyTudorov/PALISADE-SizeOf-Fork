@@ -235,7 +235,13 @@ public:
 	*/
 	LPKeyPair<Element> MultipartyKeyGen(
 		const shared_ptr<LPPublicKey<Element>> pk) const {
-		return GetEncryptionAlgorithm()->MultipartyKeyGen(*this, pk, false);
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto r = GetEncryptionAlgorithm()->MultipartyKeyGen(*this, pk, false);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpMultiPartyKeyGenKey, currentDateTime() - start) );
+		}
+		return r;
 	}
 
 	/**
@@ -245,7 +251,13 @@ public:
 	*/
 	LPKeyPair<Element> MultipartyKeyGen(
 		const vector<shared_ptr<LPPrivateKey<Element>>>& secretKeys) const {
-		return GetEncryptionAlgorithm()->MultipartyKeyGen(*this, secretKeys, false);
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto r =  GetEncryptionAlgorithm()->MultipartyKeyGen(*this, secretKeys, false);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpMultiPartyKeyGenKeyvec, currentDateTime() - start) );
+		}
+		return r;
 	}
 
 	/**
@@ -265,11 +277,16 @@ public:
 
 		std::vector<shared_ptr<Ciphertext<Element>>> newCiphertext;
 
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
 		for( size_t i=0; i < ciphertext.size(); i++ ) {
 			if( ciphertext[i] == NULL || ciphertext[i]->GetCryptoContext() != *this )
 				throw std::logic_error("One of the ciphertexts passed to DecryptMater was not generated with this crypto context");
 			newCiphertext.push_back( GetEncryptionAlgorithm()->MultipartyDecryptLead(privateKey, ciphertext[i]) );
 
+		}
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpMultiPartyDecryptLead, currentDateTime() - start) );
 		}
 		return newCiphertext;
 	}
@@ -291,10 +308,15 @@ public:
 
 		std::vector<shared_ptr<Ciphertext<Element>>> newCiphertext;
 
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
 		for( size_t i=0; i < ciphertext.size(); i++ ) {
 			if( ciphertext[i] == NULL || ciphertext[i]->GetCryptoContext() != *this )
 				throw std::logic_error("One of the ciphertexts passed to DecryptMater was not generated with this crypto context");
 			newCiphertext.push_back( GetEncryptionAlgorithm()->MultipartyDecryptMain(privateKey, ciphertext[i]) );
+		}
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpMultiPartyDecryptMain, currentDateTime() - start) );
 		}
 		return newCiphertext;
 	}
@@ -328,6 +350,8 @@ public:
 				return DecryptResult();
 		}
 
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
 		size_t lastone = partialCiphertextVec[0].size() - 1;
 		for( size_t ch = 0; ch < ciphertext_size; ch++ ) {
 
@@ -351,6 +375,9 @@ public:
 			}
 		}
 
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpMultiPartyDecryptFusion, currentDateTime() - start) );
+		}
 		return DecryptResult(plaintext->GetLength());
 	}
 
@@ -361,7 +388,13 @@ public:
 	* @return a public/secret key pair
 	*/
 	LPKeyPair<Element> SparseKeyGen() const {
-		return GetEncryptionAlgorithm()->KeyGen(*this, true);
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto r = GetEncryptionAlgorithm()->KeyGen(*this, true);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpSparseKeyGen, currentDateTime() - start) );
+		}
+		return r;
 	}
 
 	/**
@@ -377,7 +410,13 @@ public:
 		if( newKey == NULL || oldKey == NULL || newKey->GetCryptoContext() != *this || oldKey->GetCryptoContext() != *this )
 			throw std::logic_error("Keys passed to ReKeyGen were not generated with this crypto context");
 
-		return GetEncryptionAlgorithm()->ReKeyGen(newKey, oldKey);
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto r = GetEncryptionAlgorithm()->ReKeyGen(newKey, oldKey);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpReKeyGenPubPri, currentDateTime() - start) );
+		}
+		return r;
 	}
 
 	/**
@@ -393,7 +432,13 @@ public:
 		if (newKey == NULL || oldKey == NULL || newKey->GetCryptoContext() != *this || oldKey->GetCryptoContext() != *this)
 			throw std::logic_error("Keys passed to ReKeyGen were not generated with this crypto context");
 
-		return GetEncryptionAlgorithm()->ReKeyGen(newKey, oldKey);
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto r = GetEncryptionAlgorithm()->ReKeyGen(newKey, oldKey);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpReKeyGenPriPri, currentDateTime() - start) );
+		}
+		return r;
 	}
 
 	/**
@@ -419,7 +464,13 @@ public:
 		if( key1 == NULL || key2 == NULL || key1->GetCryptoContext() != *this || key2->GetCryptoContext() != *this )
 			throw std::logic_error("Keys passed to KeySwitchGen were not generated with this crypto context");
 
-		return GetEncryptionAlgorithm()->KeySwitchGen(key1, key2);
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto r = GetEncryptionAlgorithm()->KeySwitchGen(key1, key2);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpReKeyGenPriPri, currentDateTime() - start) );
+		}
+		return r;
 	}
 
 	/**
@@ -454,6 +505,8 @@ public:
 		if (ptSize%chunkSize != 0 || doPadding == true)
 			rounds += 1;
 
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
 		for (size_t bytes = 0, i = 0; i < rounds; bytes += chunkSize, i++) {
 
 			ILVector2n pt(publicKey->GetCryptoParameters()->GetElementParams());
@@ -470,6 +523,9 @@ public:
 
 		}
 
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEncrypt, currentDateTime() - start) );
+		}
 		return cipherResults;
 	}
 
@@ -496,6 +552,8 @@ public:
 
 		const BigBinaryInteger& ptm = publicKey->GetCryptoParameters()->GetPlaintextModulus();
 
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
 		for (size_t row = 0; row < plaintext.GetRows(); row++)
 		{
 			for (size_t col = 0; col < plaintext.GetCols(); col++)
@@ -509,6 +567,9 @@ public:
 			}
 		}
 
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEncryptMatrixPlain, currentDateTime() - start) );
+		}
 		return cipherResults;
 
 	}
@@ -536,6 +597,8 @@ public:
 
 		const BigBinaryInteger& ptm = publicKey->GetCryptoParameters()->GetPlaintextModulus();
 
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
 		for (size_t row = 0; row < plaintext.GetRows(); row++)
 		{
 			for (size_t col = 0; col < plaintext.GetCols(); col++)
@@ -549,6 +612,9 @@ public:
 			}
 		}
 
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEncryptMatrixPacked, currentDateTime() - start) );
+		}
 		return cipherResults;
 
 	}
@@ -568,6 +634,8 @@ public:
 		std::ostream& outstream,
 		bool doEncryption = true) const
 	{
+		// NOTE timing this operation is not supported
+
 		if( publicKey == NULL || publicKey->GetCryptoContext() != *this )
 			throw std::logic_error("key passed to EncryptStream was not generated with this crypto context");
 
@@ -639,6 +707,8 @@ public:
 			throw std::logic_error("Information passed to Decrypt was not generated with this crypto context");
 
 		size_t lastone = ciphertext.size() - 1;
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
 		for( size_t ch = 0; ch < ciphertext.size(); ch++ ) {
 			if( ciphertext[ch] == NULL || ciphertext[ch]->GetCryptoContext() != *this )
 				throw std::logic_error("A ciphertext passed to Decrypt was not generated with this crypto context");
@@ -653,6 +723,9 @@ public:
 			}
 		}
 
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpDecrypt, currentDateTime() - start) );
+		}
 		return DecryptResult(plaintext->GetLength());
 	}
 
@@ -681,6 +754,8 @@ public:
 		if (privateKey == NULL || privateKey->GetCryptoContext() != *this)
 			throw std::runtime_error("Information passed to DecryptMatrix was not generated with this crypto context");
 
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
 		for (size_t row = 0; row < ciphertext->GetRows(); row++)
 		{
 			for (size_t col = 0; col < ciphertext->GetCols(); col++)
@@ -709,6 +784,9 @@ public:
 			}
 		}
 
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpDecryptMatrixPlain, currentDateTime() - start) );
+		}
 		return DecryptResult((*numerator)(numerator->GetRows()-1,numerator->GetCols()-1).GetLength());
 
 	}
@@ -738,6 +816,8 @@ public:
 		if (privateKey == NULL || privateKey->GetCryptoContext() != *this)
 			throw std::runtime_error("Information passed to DecryptMatrix was not generated with this crypto context");
 
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
 		for (size_t row = 0; row < ciphertext->GetRows(); row++)
 		{
 			for (size_t col = 0; col < ciphertext->GetCols(); col++)
@@ -766,6 +846,9 @@ public:
 			}
 		}
 
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpDecryptMatrixPacked, currentDateTime() - start) );
+		}
 		return DecryptResult((*numerator)(numerator->GetRows() - 1, numerator->GetCols() - 1).GetLength());
 
 	}
@@ -782,6 +865,8 @@ public:
 		std::istream& instream,
 		std::ostream& outstream) const
 	{
+		// NOTE timing this operation is not supported
+
 		if( privateKey == NULL || privateKey->GetCryptoContext() != *this )
 			throw std::logic_error("Information passed to DecryptStream was not generated with this crypto context");
 
@@ -835,12 +920,17 @@ public:
 			throw std::logic_error("Information passed to ReEncrypt was not generated with this crypto context");
 
 		std::vector<shared_ptr<Ciphertext<Element>>> newCiphertext;
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
 		for( size_t i=0; i < ciphertext.size(); i++ ) {
 			if( ciphertext[i] == NULL || ciphertext[i]->GetCryptoContext() != *this )
 				throw std::logic_error("One of the ciphertexts passed to ReEncrypt was not generated with this crypto context");
 			newCiphertext.push_back( GetEncryptionAlgorithm()->ReEncrypt(evalKey, ciphertext[i]) );
 		}
 
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpReEncrypt, currentDateTime() - start) );
+		}
 		return newCiphertext;
 	}
 
@@ -855,6 +945,8 @@ public:
 		std::istream& instream,
 		std::ostream& outstream) const
 	{
+		// NOTE timing this operation is not supported
+
 		if( evalKey == NULL || evalKey->GetCryptoContext() != *this )
 			throw std::logic_error("Information passed to ReEncryptStream was not generated with this crypto context");
 
@@ -934,7 +1026,13 @@ public:
 	shared_ptr<Ciphertext<Element>>
 		EvalAddPlain(const shared_ptr<Ciphertext<Element>> ciphertext, const shared_ptr<Ciphertext<Element>> plaintext) const
 	{
-		return EvalAdd(ciphertext, plaintext);
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto rv = EvalAdd(ciphertext, plaintext);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalAddPlain, currentDateTime() - start) );
+		}
+		return rv;
 	}
 
 	/**
@@ -946,7 +1044,13 @@ public:
 	shared_ptr<Ciphertext<Element>>
 		EvalSubPlain(const shared_ptr<Ciphertext<Element>> ciphertext, const shared_ptr<Ciphertext<Element>> plaintext) const
 	{
-		return EvalSub(ciphertext, plaintext);
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto rv = EvalSub(ciphertext, plaintext);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalSubPlain, currentDateTime() - start) );
+		}
+		return rv;
 	}
 
 	/**
@@ -984,7 +1088,13 @@ public:
 		if (ciphertext == NULL || plaintext == NULL || ciphertext->GetCryptoContext() != *this || plaintext->GetCryptoContext() != *this)
 			throw std::logic_error("Information passed to EvalMult was not generated with this crypto context");
 
-		return GetEncryptionAlgorithm()->EvalMultPlain(ciphertext, plaintext);
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto rv = GetEncryptionAlgorithm()->EvalMultPlain(ciphertext, plaintext);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalMultPlain, currentDateTime() - start) );
+		}
+		return rv;
 	}
 
 	/**
@@ -1000,7 +1110,13 @@ public:
 		if( ct1 == NULL || ct2 == NULL || ek == NULL || ct1->GetCryptoContext() != *this || ct2->GetCryptoContext() != *this || ek->GetCryptoContext() != *this )
 			throw std::logic_error("Information passed to EvalMult was not generated with this crypto context");
 
-		return GetEncryptionAlgorithm()->EvalMult(ct1, ct2, ek);
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto rv = GetEncryptionAlgorithm()->EvalMult(ct1, ct2, ek);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalMultKey, currentDateTime() - start) );
+		}
+		return rv;
 	}
 
 	/**

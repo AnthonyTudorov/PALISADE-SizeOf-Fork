@@ -51,20 +51,26 @@ using namespace std;
 namespace lbcrypto {
 
 class CircuitSimulation {
-	usint	nodeId;
-	string	stepTag;
 public:
-	CircuitSimulation(usint id, string tag) : nodeId(id), stepTag(tag) {}
+	usint	nodeId;
+	OpType	op;
+
+	CircuitSimulation(usint id, OpType op) : nodeId(id), op(op) {}
 	friend ostream& operator<<(ostream& out, const CircuitSimulation& item) {
-		out << item.stepTag << " at Node " << item.nodeId;
+		out << item.op << " at Node " << item.nodeId;
 		return out;
 	}
 };
+
+class CircuitGraph;
 
 // This class is used to represent a node in a circuit
 // the node can have several inputs, and it has one output
 // nodes are identified by a node id
 class CircuitNode {
+private:
+	static	int							step;
+	static vector<CircuitSimulation>	sim;
 
 public:
 	CircuitNode(usint nodeID) {
@@ -103,9 +109,35 @@ public:
 	virtual bool isModReduce() const { return false; }
 
 	virtual string getNodeLabel() const = 0;
-	virtual string OpTag() const = 0;
+	virtual OpType OpTag() const = 0;
 
 	friend ostream& operator<<(ostream& out, const CircuitNode& n);
+
+	virtual void simeval(CircuitGraph& cg) {} //= 0;
+
+	static void ResetSimulation() {
+		step = 0;
+		sim.clear();
+	}
+
+	void Log(OpType t) {
+		sim.push_back( CircuitSimulation(GetId(), t) );
+		step++;
+	}
+
+	static void PrintOperationSet(ostream& out) {
+		map<OpType,bool> ops;
+		for( int i=0; i < step; i++ )
+			ops[ sim[i].op ] = true;
+		for( auto op : ops )
+			out << op.first << endl;
+	}
+
+	static void PrintLog(ostream& out) {
+		out << step << " steps" << endl;
+		for( int i=0; i < step; i++ )
+			out << i << ": " << sim[i] << endl;
+	}
 
 protected:
 	bool			is_input;
@@ -152,7 +184,7 @@ public:
 
 	usint GetId() const { return node->GetId(); }
 	string getNodeLabel() const { return node->getNodeLabel(); }
-	string OpTag() const { return node->OpTag(); }
+	OpType OpTag() const { return node->OpTag(); }
 	bool isModReduce() const { return node->isModReduce(); }
 
 	virtual Value<Element> eval(CryptoContext<Element>& cc, CircuitGraphWithValues<Element>& cg) { Log(); return value; }
@@ -192,7 +224,7 @@ class ConstInput : public CircuitNode {
 public:
 	ConstInput(usint id, usint value) : CircuitNode(id), val(value) {}
 
-	string OpTag() const { return "ConstInput"; }
+	OpType OpTag() const { return "ConstInput"; }
 	string getNodeLabel() const { return "(const)"; }
 	usint GetVal() const { return val; }
 };
@@ -212,7 +244,7 @@ public:
 		this->setAsInput();
 	}
 
-	string OpTag() const { return "Input"; }
+	OpType OpTag() const { return "Input"; }
 	string getNodeLabel() const { return "(input)"; }
 	wire_type GetType() const { return type; }
 };
@@ -231,7 +263,7 @@ public:
 		this->nodeInputDepth = this->nodeOutputDepth = 1;
 	}
 
-	string OpTag() const { return "Output"; }
+	OpType OpTag() const { return "Output"; }
 	string getNodeLabel() const { return "(output)"; }
 };
 
@@ -253,7 +285,7 @@ public:
 	}
 
 	void setBottomUpDepth() { this->nodeInputDepth = this->nodeOutputDepth + 1; }
-	string OpTag() const { return "ModReduce"; }
+	OpType OpTag() const { return OpModReduce; }
 	string getNodeLabel() const { return "M/R"; }
 	bool isModReduce() const { return true; }
 };
@@ -272,7 +304,7 @@ public:
 		this->inputs = inputs;
 	}
 
-	string OpTag() const { return "EvalNeg"; }
+	OpType OpTag() const { return OpEvalNeg; }
 	string getNodeLabel() const { return "-"; }
 };
 
@@ -292,7 +324,7 @@ public:
 		this->inputs = inputs;
 	}
 
-	string OpTag() const { return "EvalAdd"; }
+	OpType OpTag() const { return OpEvalAdd; }
 	string getNodeLabel() const { return "+"; }
 };
 
@@ -310,7 +342,7 @@ public:
 		this->inputs = inputs;
 	}
 
-	string OpTag() const { return "EvalSub"; }
+	OpType OpTag() const { return OpEvalSub; }
 	string getNodeLabel() const { return "-"; }
 };
 
@@ -329,7 +361,7 @@ public:
 	}
 
 	void setBottomUpDepth() { this->nodeInputDepth = this->nodeOutputDepth + 1; }
-	string OpTag() const { return "EvalMult"; }
+	OpType OpTag() const { return OpEvalMult; }
 	string getNodeLabel() const { return "*"; }
 };
 

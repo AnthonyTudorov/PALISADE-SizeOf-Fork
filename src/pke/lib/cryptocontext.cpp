@@ -36,11 +36,16 @@ void CryptoContext<Element>::EvalMultKeyGen(const shared_ptr<LPPrivateKey<Elemen
 	if( key == NULL || key->GetCryptoContext() != *this )
 		throw std::logic_error("Key passed to EvalMultKeyGen were not generated with this crypto context");
 
+	double start = 0;
+	if( doTiming ) start = currentDateTime();
 	shared_ptr<LPEvalKey<Element>> k = GetEncryptionAlgorithm()->EvalMultKeyGen(key);
 	if( evalMultKeys.size() == 0 )
 		evalMultKeys.push_back(k);
 	else
 		evalMultKeys[0] = k;
+	if( doTiming ) {
+		timeSamples->push_back( TimingInfo(OpEvalMultKeyGen, currentDateTime() - start) );
+	}
 }
 
 template <typename Element>
@@ -62,9 +67,14 @@ void CryptoContext<Element>::EvalSumKeyGen(
 
 	//need to add exception handling
 
+	double start = 0;
+	if( doTiming ) start = currentDateTime();
 	auto evalKeys = GetEncryptionAlgorithm()->EvalSumKeyGen(privateKey,publicKey);
 
 	evalSumKeys = *evalKeys;
+	if( doTiming ) {
+		timeSamples->push_back( TimingInfo(OpEvalSumKeyGen, currentDateTime() - start) );
+	}
 }
 
 template <typename Element>
