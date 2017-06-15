@@ -43,7 +43,7 @@ using namespace std;
 
 using namespace lbcrypto;
 
-enum CmdMode { INTMODE, BYTEMODE } CommandMode = BYTEMODE;
+enum CmdMode { INTMODE, BYTEMODE } CommandMode = INTMODE;
 usint	IntVectorLen = 10; // default value
 
 void usage(const string& cmd, const string& msg = "");

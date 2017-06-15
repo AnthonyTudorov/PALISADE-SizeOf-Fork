@@ -1,5 +1,5 @@
 /**
- * @file ltv.h -- Operations for the LTV cryptoscheme.
+ * @file fv.h -- Operations for the FV cryptoscheme.
  * @author  TPOC: palisade@njit.edu
  *
  * @section LICENSE

@@ -1,12 +1,10 @@
-/**0
- * @file rlwe.h
- * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
- *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>, Nishanth Pasham <np386@njit.edu>, Hadi Sajjadpour <ss2959@njit.edu>, Jerry Ryan <gwryan@njit.edu>
- * @version 00_03
+/**
+ * @file rlwe.h -- PALISADE.
+ * @author  TPOC: palisade@njit.edu
  *
  * @section LICENSE
  *
- * Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
+ * Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -28,7 +26,6 @@
  *
  * @section DESCRIPTION
  *
- * Base class for all RLWE-based Crypto Parameters
  */
 
 #ifndef LBCRYPTO_CRYPTO_RLWE_H
