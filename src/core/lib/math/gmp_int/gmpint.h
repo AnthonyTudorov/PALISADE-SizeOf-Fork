@@ -256,13 +256,21 @@ namespace NTL{
     //to be consistent with BE 2
     inline myZZ ModSub(const myZZ& b, const myZZ& modulus) const
     {
+      bool dbg_flag = false;
       ZZ newthis(*this%modulus);
       ZZ newb(b%modulus);
 
       if (newthis>=newb) {
-	return SubMod(newthis, newb, modulus);  //normal mod sub    
+	ZZ tmp(SubMod(newthis, newb, modulus));  //normal mod sub    
+	
+	DEBUG("in modsub submod tmp "<<tmp);
+	return tmp;
+
       } else {
-	return (newthis+modulus -b) ;  //signed mod
+	ZZ tmp(newthis+modulus -newb) ;  //signed mod
+	
+	DEBUG("in modsub alt tmp "<<tmp);
+	return tmp;
       }
     };
 

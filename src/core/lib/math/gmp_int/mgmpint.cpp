@@ -228,8 +228,10 @@ namespace NTL {
   myZZ& myZZ_p::m_getOTM(void) const 
   {
     if (m_OTM_state == GARBAGE){
-      //throw std::logic_error("myZZ_p::m_getOTM() called with uninitialized OTM");
+      //std::logic_error("myZZ_p::m_getOTM() called with uninitialized OTM");
       std::cout<<"myZZ_p::m_getOTM() called with uninitialized OTM"<<std::endl;
+      std::string foo;
+      std::cin >> foo;
     }
       return m_OTM;
   }
@@ -344,7 +346,7 @@ namespace NTL {
 #endif
   // serialization of myZZ_p, calls myZZ.Serialize, 
   const std::string myZZ_p::Serialize(const myZZ &modulus) const {
-    bool dbg_flag = true;
+    bool dbg_flag = false;
 
     //note this does simple serialization, other libraries store small special values for 0 or  -1
     //we ignore this

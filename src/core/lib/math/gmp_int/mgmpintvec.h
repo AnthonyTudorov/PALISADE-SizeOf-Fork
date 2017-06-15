@@ -280,7 +280,16 @@ namespace NTL {
     inline myVecP ModSub(const myZZ& b) const {ModulusCheck("Warning: myVecP::ModSub"); return (*this)-b%m_modulus;};
     
     //vector
-    inline myVecP Sub(const myVecP& b) const {ArgCheckVector(b, "myVecP Sub()");  return (*this)-b;};
+    inline myVecP Sub(const myVecP& b) const {
+      bool dbg_flag = false;
+      DEBUG("in myVecP::Sub");
+      DEBUG(*this);
+      DEBUG(this->GetModulus());
+      DEBUG(b);
+      DEBUG(b.GetModulus());
+      ArgCheckVector(b, "myVecP Sub()");  
+      return (*this)-b;
+    };
     inline myVecP ModSub(const myVecP& b) const {ArgCheckVector(b, "myVecP ModSub()"); return (this->Sub(b));};
     
     //deprecated vector
@@ -434,17 +443,19 @@ namespace NTL {
       }
     };
     
-    inline void CopyModulus(const myVecP& rhs){
+    inline int CopyModulus(const myVecP& rhs){
       bool dbg_flag = false;
       DEBUG("CopyModulus(const myVecP& modulus is "<<rhs.m_modulus);
       DEBUG("CopyModulus(const myVecP& modulus_state is "<<rhs.m_modulus_state);
       this->m_modulus = rhs.m_modulus;
       this->m_modulus_state = rhs.m_modulus_state;
-      if (isModulusSet())
+      if (isModulusSet()){
 	ZZ_p::init(this->m_modulus);
-      else{
-	//std::cout<<"Warning: myZZ_p::CopyModulus() from uninitialized modulus"<<std::endl;
+	return (0);
+      } else{
+	std::cout<<"Warning: myVec_p::CopyModulus() from uninitialized modulus"<<std::endl; //happens many many times
 	this->m_modulus_state = GARBAGE;
+	return (-1);
       }
     };
 
@@ -510,6 +521,16 @@ namespace NTL {
     // { return this->Compare(b) <= 0; }
     // inline long operator>=( const myZZ_p& b) const
     // { return this->Compare(b) >= 0; }
+
+
+    /* operators to get a value at an index.
+       * @param idx is the index to get a value at.
+       * @return is the value at the index. return NULL if invalid index.
+       */
+    inline myZZ_p& operator[](std::size_t idx) {return myZZ_p((*this)[idx]._ZZ_p__rep,this->GetModulus());}
+    inline const myZZ_p& operator[](std::size_t idx) const {return myZZ_p((*this)[idx]._ZZ_p__rep,this->GetModulus());}
+
+
 
 #if 0
     // ostream 

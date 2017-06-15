@@ -157,7 +157,7 @@ static IntType RNG(const IntType& modulus)
 //native NTL version
   static NTL::myZZ RNG(const NTL::myZZ& modulus)
   {
-    bool dbg_flag = true;
+    bool dbg_flag = false;
     DEBUG("in NTL RNG");
     return RandomBnd(modulus);
     
@@ -377,7 +377,7 @@ IntType GreatestCommonDivisor(const IntType& a, const IntType& b)
   //define an NTL native implementation 
   NTL::myZZ GreatestCommonDivisor(const NTL::myZZ& a, const NTL::myZZ& b)
   {
-  bool dbg_flag = true;
+  bool dbg_flag = false;
   DEBUG("NTL::GCD a "<<a<<" b "<< b);   
   return GCD(a,b);
 }

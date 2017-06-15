@@ -355,8 +355,15 @@ namespace NTL{
 
     inline myZZ_p ModSub(const myZZ_p& b) const
     {
+      bool dbg_flag = false;
       ZZ newthis(this->_ZZ_p__rep);
       ZZ newb(b._ZZ_p__rep);
+      DEBUG("in myZZ_p::ModSub()this getOTM "<<this->m_getOTM());
+      DEBUG("in myZZ_p::ModSub()this GetModulus "<<this->GetModulus());
+
+      DEBUG("in myZZ_p::ModSub() b getOTM "<<b.m_getOTM());
+      DEBUG("in myZZ_p::ModSub() b GetModulus "<<b.GetModulus());
+
       ZZ mod(this->GetModulus());
       if (newthis>=newb) {
 	return myZZ_p(SubMod(newthis, newb, mod));  //normal mod sub    
