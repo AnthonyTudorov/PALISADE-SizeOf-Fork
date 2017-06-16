@@ -40,7 +40,7 @@ template <typename IntType, typename VecType, typename Element>
 void SignedIntPlaintextEncoding::doEncode(const BigBinaryInteger &modulus, Element *ilVector, size_t startFrom, size_t length) const
 {
 	size_t padlen = 0;
-	uint64_t mod = modulus.ConvertToInt();
+	int64_t mod = modulus.ConvertToInt();
 
 	if( mod%2 != 0 )
 		throw std::logic_error("Plaintext modulus must be an even number for SignedIntPlaintextEncoding");
