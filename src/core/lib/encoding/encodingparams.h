@@ -64,12 +64,12 @@ public:
 	 * @param batchSize sets the maximum batch size (as a power of 2) needed for EvalSum
 	 */
 	EncodingParamsImpl(
-	    const IntType& plaintextModulus = IntType::ZERO,
-	    const IntType& plaintextGenerator = IntType::ZERO,
-	    usint batchSize = 0) {
-		m_plaintextModulus = plaintextModulus;
-		m_plaintextGenerator = plaintextGenerator;
-		m_batchSize = batchSize;
+		const IntType& plaintextModulus = IntType::ZERO,
+		usint plaintextGenerator = 0,
+		usint batchSize = 0) {
+			m_plaintextModulus = plaintextModulus;
+			m_plaintextGenerator = plaintextGenerator;
+			m_batchSize = batchSize;
 	}
 
 	/**
@@ -115,27 +115,26 @@ public:
 	// ACCESSORS
 
 	// Get accessors
+
 	/**
 	* @brief Getter for the plaintext modulus.
 	* @return The plaintext modulus.
 	*/
-	const IntType &GetPlaintextModulus() const {
-		return m_plaintextModulus;
+	const IntType &GetPlaintextModulus() const { 
+		return m_plaintextModulus; 
 	}
+	
 	/**
 	* @brief Getter for the plaintext generator.
 	* @return The plaintext generator.
 	*/
-	const IntType &GetPlaintextGenerator() const {
-		return m_plaintextGenerator;
-	}
+	const usint GetPlaintextGenerator() const { return m_plaintextGenerator; }
+
 	/**
 	* @brief Getter for the plaintext batch size.
 	* @return The plaintext batch size.
 	*/
-	const usint GetBatchSize() const {
-		return m_batchSize;
-	}
+	const usint GetBatchSize() const { return m_batchSize; }
 
 	// Operators
 	/**
@@ -178,7 +177,7 @@ private:
 	// plaintext modulus that is used by all schemes
 	IntType		m_plaintextModulus;
 	// plaintext generator is used for packed encoding
-	IntType		m_plaintextGenerator;
+	usint		m_plaintextGenerator;
 	// maximum batch size used by EvalSumKeyGen for packed encoding
 	usint		m_batchSize;
 

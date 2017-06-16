@@ -227,29 +227,32 @@ IntType FindGeneratorCyclic(const IntType& q)
 	std::set<IntType> primeFactors;
 	DEBUG("calling PrimeFactorize");
 
-	IntType qm1 = IntType(GetTotient(q.ConvertToInt()));
-	std::vector<IntType> totientList = GetTotientList(q);
+	IntType phi_q = IntType(GetTotient(q.ConvertToInt()));
+	IntType phi_q_m1 = IntType(GetTotient(q.ConvertToInt()));
 
-	PrimeFactorize<IntType>(qm1, primeFactors);
+	PrimeFactorize<IntType>(phi_q, primeFactors);
 	DEBUG("done");
 	bool generatorFound = false;
 	IntType gen;
-	usint i = 0;
 	while (!generatorFound) {
 		usint count = 0;
 		DEBUG("count " << count);
 
-		i++;
-		gen = totientList[i];
+		gen = RNG(phi_q_m1)+1; // gen is random in [1, phi(q)]
+		if (GreatestCommonDivisor<IntType>(gen, q) != 1){
+			// Generator must lie in the group!
+			continue;
+		}
 
+		// Order of a generator cannot divide any co-factor
 		for (auto it = primeFactors.begin(); it != primeFactors.end(); ++it) {
 			DEBUG("in set");
-			DEBUG("divide " << qm1 << " by " << *it);
+			DEBUG("divide " << phi_q << " by " << *it);
 
-			if (gen.ModExp(qm1 / (*it), q) == 1) break;
+			if (gen.ModExp(phi_q / (*it), q) == 1) break;
 			else count++;
 		}
-		
+
 		if (count == primeFactors.size()) generatorFound = true;
 	}
 	return gen;

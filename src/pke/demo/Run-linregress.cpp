@@ -124,7 +124,7 @@ void ArbFVLinearRegressionPackedArray() {
 	usint batchSize = 4096;
 	usint relinWindow = 24;
 
-	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetInitRoot(modulusP), batchSize));
+	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP), batchSize));
 
 	BigBinaryInteger delta(modulusQ.DividedBy(modulusP));
 
@@ -303,7 +303,7 @@ void FVAutomorphismPackedArray(usint i) {
 	usint batchSize = 4096;
 	usint relinWindow = 24;
 
-	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetInitRoot(modulusP), batchSize));
+	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP), batchSize));
 
 	BigBinaryInteger delta(modulusQ.DividedBy(modulusP));
 
@@ -442,7 +442,7 @@ void ArbFVInnerProductPackedArray() {
 	usint batchSize = 4096;
 	usint relinWindow = 24;
 
-	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetInitRoot(modulusP), batchSize));
+	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP), batchSize));
 
 	BigBinaryInteger delta(modulusQ.DividedBy(modulusP));
 
@@ -617,7 +617,7 @@ void ArbBVLinearRegressionPackedArray() {
 	usint batchSize = 4096;
 	usint relinWindow = 24;
 
-	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetInitRoot(modulusP), batchSize));
+	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP), batchSize));
 
 	//BigBinaryInteger delta(modulusQ.DividedBy(modulusP));
 

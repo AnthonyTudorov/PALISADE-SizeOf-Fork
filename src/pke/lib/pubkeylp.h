@@ -1266,7 +1266,7 @@ namespace lbcrypto {
 			const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 
 			usint batchSize = encodingParams->GetBatchSize();
-			uint64_t g = encodingParams->GetPlaintextGenerator().ConvertToInt();
+			usint g = encodingParams->GetPlaintextGenerator();
 			usint m = elementParams->GetCyclotomicOrder();
 
 			// stores automorphism indices needed for EvalSum
@@ -1305,7 +1305,7 @@ namespace lbcrypto {
 			const shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
 			const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 
-			uint64_t g = encodingParams->GetPlaintextGenerator().ConvertToInt();
+			usint g = encodingParams->GetPlaintextGenerator();
 			usint m = elementParams->GetCyclotomicOrder();
 
 			for (int i = 0; i < floor(log2(batchSize)); i++)

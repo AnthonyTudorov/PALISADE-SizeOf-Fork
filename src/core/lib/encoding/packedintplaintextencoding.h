@@ -90,13 +90,14 @@ public:
 		return m_initRoot[modulus];
 	}
 
-	/**
-	 * Interface for the operation of converting from current plaintext encoding to ILVector2n.
-	 *
-	 * @param  modulus - used for encoding.
-	 * @param  *ilVector encoded plaintext - output argument.
-	 * @param  start_from - location to start from.  Defaults to 0.
-	 * @param  length - length of data to encode.  Defaults to 0.
+	static usint GetAutomorphismGenerator(const BigBinaryInteger &modulus) { return m_automorphismGenerator[modulus];  }
+
+	/** The operation of converting from current plaintext encoding to ILVector2n.
+	*
+	* @param  modulus - used for encoding.
+	* @param  *ilVector encoded plaintext - output argument.
+	* @param  start_from - location to start from.  Defaults to 0.
+	* @param  length - length of data to encode.  Defaults to 0.
 	*/
 	void Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector, size_t start_from = 0, size_t length = 0) const;
 
@@ -201,6 +202,8 @@ private:
 	static std::map<BigBinaryInteger, std::vector<BigBinaryVector>> m_coefficientsCRT;
 
 	static std::map<BigBinaryInteger, BigBinaryVector> m_rootList;
+
+	static std::map<BigBinaryInteger, usint> m_automorphismGenerator;
 
 	void Pack(ILVector2n *ring, const BigBinaryInteger &modulus) const;
 
