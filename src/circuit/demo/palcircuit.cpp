@@ -66,9 +66,6 @@ main(int argc, char *argv[])
 	//CryptoContext<ILVector2n> cc = GenCryptoContextElementFV(32,32);
 	cc.Enable(LEVELEDSHE);
 
-	vector<TimingInfo>	times;
-	cc.StartTiming(&times);
-
 //	IntPlaintextEncoding vecs[] = {
 //			{ 1,2,3,5 },
 //			{ 1,2,3,7 }
@@ -152,6 +149,9 @@ main(int argc, char *argv[])
 		if( verbose ) cout << "Setting up" << endl;
 		driver.graph.Preprocess();
 
+		cout << "The operations used are:" << endl;
+		CircuitNode::PrintOperationSet(cout);
+
 		if( print_preproc_graph )
 			driver.graph.DisplayGraph();
 
@@ -195,9 +195,14 @@ main(int argc, char *argv[])
 			}
 		}
 
+		vector<TimingInfo>	times;
+		cc.StartTiming(&times);
+
 		CircuitNodeWithValue<ILVector2n>::ResetSimulation();
 
 		CircuitIO<ILVector2n> outputs = cir.CircuitEval(inputs, verbose);
+
+		cc.StopTiming();
 
 		if( verbose )
 			CircuitNodeWithValue<ILVector2n>::PrintLog(cout);

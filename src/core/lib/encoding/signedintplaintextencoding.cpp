@@ -58,7 +58,7 @@ void SignedIntPlaintextEncoding::doEncode(const BigBinaryInteger &modulus, Eleme
 	Format format = COEFFICIENT;
 
 	for (size_t i = 0; i < length; i++) {
-		uint32_t entry = this->at(i + startFrom);
+		int32_t entry = this->at(i + startFrom);
 		if( entry < 0 ) entry = mod - entry;
 		if( entry >= mod )
 			throw std::logic_error("Cannot encode integer at position " + std::to_string(i) + " because it is out of range of +/- plaintext modulus/2 " + std::to_string(mod));

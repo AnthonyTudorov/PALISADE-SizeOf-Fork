@@ -35,6 +35,9 @@
 
 namespace lbcrypto {
 
+int	CircuitNode::step;
+vector<CircuitSimulation> CircuitNode::sim;
+
 template<typename Element>
 CryptoContext<Element> CircuitGraphWithValues<Element>::_graph_cc;
 
@@ -53,12 +56,12 @@ ostream& operator<<(ostream& out, const CircuitNode& n)
 	const vector<usint>& nodeInputs = n.getInputs();
 	for( usint input : nodeInputs )
 		out << input << " -> " << n.GetId() << "; ";
-	if( n.is_output ) {
-		out << "{ rank=same; Outputs " << n.GetId() << " }; ";
-	}
-	if( n.is_input ) {
-		out << "{ rank=same; Inputs " << n.GetId() << " }; ";
-	}
+//	if( n.is_output ) {
+//		out << "{ rank=same; Outputs " << n.GetId() << " }; ";
+//	}
+//	if( n.is_input ) {
+//		out << "{ rank=same; Inputs " << n.GetId() << " }; ";
+//	}
 
 	return out;
 }
@@ -85,12 +88,12 @@ ostream& operator<<(ostream& out, const CircuitNodeWithValue<Element>& n)
 	const vector<usint>& nodeInputs = n.getNode()->getInputs();
 	for( usint input : nodeInputs )
 		out << input << " -> " << n.GetId() << "; ";
-	if( n.getNode()->IsOutput() ) {
-		out << "{ rank=same; Outputs " << n.GetId() << " }; ";
-	}
-	if( n.getNode()->IsInput() ) {
-		out << "{ rank=same; Inputs " << n.GetId() << " }; ";
-	}
+//	if( n.getNode()->IsOutput() ) {
+//		out << "{ rank=same; Outputs " << n.GetId() << " }; ";
+//	}
+//	if( n.getNode()->IsInput() ) {
+//		out << "{ rank=same; Inputs " << n.GetId() << " }; ";
+//	}
 
 	return out;
 }

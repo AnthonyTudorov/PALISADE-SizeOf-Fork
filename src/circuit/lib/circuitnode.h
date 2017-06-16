@@ -150,7 +150,6 @@ protected:
 	usint			nodeOutputDepth;
 };
 
-
 template<typename Element>
 class CircuitGraphWithValues;
 
@@ -224,7 +223,7 @@ class ConstInput : public CircuitNode {
 public:
 	ConstInput(usint id, usint value) : CircuitNode(id), val(value) {}
 
-	OpType OpTag() const { return "ConstInput"; }
+	OpType OpTag() const { return OpNOOP; }
 	string getNodeLabel() const { return "(const)"; }
 	usint GetVal() const { return val; }
 };
@@ -244,7 +243,7 @@ public:
 		this->setAsInput();
 	}
 
-	OpType OpTag() const { return "Input"; }
+	OpType OpTag() const { return OpNOOP; }
 	string getNodeLabel() const { return "(input)"; }
 	wire_type GetType() const { return type; }
 };
@@ -263,7 +262,7 @@ public:
 		this->nodeInputDepth = this->nodeOutputDepth = 1;
 	}
 
-	OpType OpTag() const { return "Output"; }
+	OpType OpTag() const { return OpNOOP; }
 	string getNodeLabel() const { return "(output)"; }
 };
 

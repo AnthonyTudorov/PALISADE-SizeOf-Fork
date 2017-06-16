@@ -41,8 +41,8 @@ void
 CircuitGraph::DisplayGraph() const
 {
 	cout << "digraph G {" << endl;
-	cout << "Inputs -> Outputs;" << endl;
-	cout << "{rank=max; Outputs};" << endl;
+//	cout << "Inputs -> Outputs;" << endl;
+//	cout << "{rank=max; Outputs};" << endl;
 
 	for( auto it = allNodes.begin(); it != allNodes.end(); it++ ) {
 		cout << *it->second << endl;

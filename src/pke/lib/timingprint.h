@@ -14,6 +14,7 @@ namespace lbcrypto {
 
 // these variables are used to track timings
 enum OpType {
+	OpNOOP,
 	OpKeyGen,
 	OpMultiPartyKeyGenKey, OpMultiPartyKeyGenKeyvec,
 	OpMultiPartyDecryptLead, OpMultiPartyDecryptMain, OpMultiPartyDecryptFusion,
@@ -37,6 +38,9 @@ struct TimingInfo {
 
 inline std::ostream& operator<<(std::ostream& out, const OpType& op) {
 	switch(op) {
+	case OpNOOP:
+		out << "NONE";
+		break;
 	case OpKeyGen:
 		out << "KeyGen";
 		break;
