@@ -36,6 +36,9 @@
 using namespace lbcrypto;
 using std::cout;
 
+#include <fstream>
+using std::ostream;
+
 #include "parsedriver.h"
 
 #include "circuitnode.cpp"
@@ -52,6 +55,7 @@ void usage() {
 	cout << "-ginput  --  print a graph of the input circuit in DOT format (for use with graphviz)" << endl;
 	cout << "-gproc  --  print the circuit in DOT format for use with graphviz" << endl;
 	cout << "-gresult  --  print the circuit in DOT format for use with graphviz" << endl;
+	cout << "-elist=filename  --  save information needed for estimating in file filename; stop after generating" << endl;
 	cout << "-v  --  verbose details about the circuit" << endl;
 	cout << "-h  --  this message" << endl;
 }
@@ -96,8 +100,17 @@ main(int argc, char *argv[])
 	bool print_preproc_graph = false;
 	bool print_result_graph = false;
 	bool verbose = false;
+	bool evaluation_list_mode = false;
+	ofstream	evalListF;
 	for( int i=1; i<argc; i++ ) {
 		string arg(argv[i]);
+		string argf(arg);
+
+		// split by = sign
+		auto epos = arg.find('=');
+		arg = arg.substr(0, epos);
+		argf = argf.substr(epos+1);
+
 		if( arg == "-d" ) {
 			debug_parse = true;
 			continue;
@@ -122,6 +135,15 @@ main(int argc, char *argv[])
 			usage();
 			return 0;
 		}
+		if( arg == "-elist" ) {
+			evaluation_list_mode = true;
+			evalListF.open(argf, ofstream::out);
+			if( !evalListF.is_open() ) {
+				cout << "Unable to open file " << argf << endl;
+				return 1;
+			}
+			continue;
+		}
 		if( arg[0] == '-' ) { // an unrecognized arg
 			usage();
 			return 0;
@@ -130,6 +152,15 @@ main(int argc, char *argv[])
 		if( verbose )
 			cout << "Crypto Parameters used:" << endl << *cc.GetCryptoParameters() << endl;
 
+		if( evaluation_list_mode ) {
+			Serialized serObj;
+			serObj.SetObject();
+			if( cc.Serialize(&serObj) == false ) {
+				cout << "Can't serialize CryptoContext" << endl;
+				return 1;
+			}
+			SerializableHelper::SerializationToStream(serObj, evalListF);
+		}
 
 		pdriver driver(debug_parse);
 
@@ -149,11 +180,19 @@ main(int argc, char *argv[])
 		if( verbose ) cout << "Setting up" << endl;
 		driver.graph.Preprocess();
 
-		cout << "The operations used are:" << endl;
-		CircuitNode::PrintOperationSet(cout);
-
 		if( print_preproc_graph )
 			driver.graph.DisplayGraph();
+
+		if( evaluation_list_mode ) {
+			driver.graph.GenerateOperationList();
+			if( verbose ) {
+				cout << "The operations used are:" << endl;
+				CircuitNode::PrintOperationSet(cout);
+			}
+			CircuitNode::PrintOperationSet(evalListF);
+			evalListF.close();
+			return 0;
+		}
 
 		PalisadeCircuit<ILVector2n>	cir(cc, driver.graph);
 

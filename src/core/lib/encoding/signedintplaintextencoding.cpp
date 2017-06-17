@@ -61,7 +61,7 @@ void SignedIntPlaintextEncoding::doEncode(const BigBinaryInteger &modulus, Eleme
 		int32_t entry = this->at(i + startFrom);
 		if( entry < 0 ) entry = mod - entry;
 		if( entry >= mod )
-			throw std::logic_error("Cannot encode integer at position " + std::to_string(i) + " because it is out of range of +/- plaintext modulus/2 " + std::to_string(mod));
+			throw std::logic_error("Cannot encode integer " + std::to_string(entry) + " at position " + std::to_string(i) + " because it is out of range of +/- plaintext modulus/2 " + std::to_string(mod));
 		IntType Val( entry );
 		temp.SetValAtIndex(i, Val);
 	}

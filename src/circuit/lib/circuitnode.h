@@ -62,6 +62,9 @@ public:
 	}
 };
 
+
+static const usint DEFAULTNOISEVAL = 3;
+
 class CircuitGraph;
 
 // This class is used to represent a node in a circuit
@@ -77,6 +80,7 @@ public:
 		this->nodeId = nodeID;
 		this->nodeInputDepth = this->nodeOutputDepth = 0;
 		is_input = is_output = false;
+		noiseval = 0;
 	}
 	virtual ~CircuitNode() {}
 
@@ -111,9 +115,12 @@ public:
 	virtual string getNodeLabel() const = 0;
 	virtual OpType OpTag() const = 0;
 
+	usint GetNoise() const { return noiseval; }
+	void SetNoise(usint n) { noiseval = n; }
+
 	friend ostream& operator<<(ostream& out, const CircuitNode& n);
 
-	virtual void simeval(CircuitGraph& cg) {} //= 0;
+	virtual void simeval(CircuitGraph& cg) = 0;
 
 	static void ResetSimulation() {
 		step = 0;
@@ -148,6 +155,9 @@ protected:
 	set<usint>		outputs;
 	usint			nodeInputDepth;
 	usint			nodeOutputDepth;
+
+	// in CircuitNode, these are estimates
+	usint			noiseval;
 };
 
 template<typename Element>
@@ -164,10 +174,9 @@ protected:
 	CircuitNode		*node;
 	Value<Element>	value;
 	usint			noiseval;
-	usint			timeval;
 
 public:
-	CircuitNodeWithValue(CircuitNode *n) : node(n), noiseval(3), timeval(0) {}
+	CircuitNodeWithValue(CircuitNode *n) : node(n), noiseval(DEFAULTNOISEVAL) {}
 	virtual ~CircuitNodeWithValue() {}
 
 	wire_type GetType() const { return value.GetType(); }
@@ -185,6 +194,9 @@ public:
 	string getNodeLabel() const { return node->getNodeLabel(); }
 	OpType OpTag() const { return node->OpTag(); }
 	bool isModReduce() const { return node->isModReduce(); }
+
+	bool IsOutput() const { return node->IsOutput(); }
+	bool IsInput() const { return node->IsInput(); }
 
 	virtual Value<Element> eval(CryptoContext<Element>& cc, CircuitGraphWithValues<Element>& cg) { Log(); return value; }
 
@@ -223,6 +235,9 @@ class ConstInput : public CircuitNode {
 public:
 	ConstInput(usint id, usint value) : CircuitNode(id), val(value) {}
 
+	void simeval(CircuitGraph& cg) {
+		noiseval = DEFAULTNOISEVAL;
+	}
 	OpType OpTag() const { return OpNOOP; }
 	string getNodeLabel() const { return "(const)"; }
 	usint GetVal() const { return val; }
@@ -243,6 +258,9 @@ public:
 		this->setAsInput();
 	}
 
+	void simeval(CircuitGraph& cg) {
+		noiseval = DEFAULTNOISEVAL;
+	}
 	OpType OpTag() const { return OpNOOP; }
 	string getNodeLabel() const { return "(input)"; }
 	wire_type GetType() const { return type; }
@@ -256,33 +274,13 @@ public:
 	}
 };
 
-class Output : public CircuitNode {
-public:
-	Output(usint nodeId) : CircuitNode(nodeId) {
-		this->nodeInputDepth = this->nodeOutputDepth = 1;
-	}
-
-	OpType OpTag() const { return OpNOOP; }
-	string getNodeLabel() const { return "(output)"; }
-};
-
-template<typename Element>
-class OutputWithValue : public CircuitNodeWithValue<Element> {
-public:
-	OutputWithValue(Output* out) : CircuitNodeWithValue<Element>(out) {}
-
-	Value<Element> eval(CryptoContext<Element>& cc, CircuitGraphWithValues<Element>& cg) {
-		std::cout << "Eval of output node " << this->GetId() << " by evaluating " << this->getNode()->getInputs()[0] << std::endl;
-		return this->value = cg.getNodeById(this->getNode()->getInputs()[0])->eval(cc, cg);
-	}
-};
-
 class ModReduceNode : public CircuitNode {
 public:
 	ModReduceNode(usint id, const vector<usint>& inputs) : CircuitNode(id) {
 		this->inputs = inputs;
 	}
 
+	void simeval(CircuitGraph& cg);
 	void setBottomUpDepth() { this->nodeInputDepth = this->nodeOutputDepth + 1; }
 	OpType OpTag() const { return OpModReduce; }
 	string getNodeLabel() const { return "M/R"; }
@@ -303,6 +301,7 @@ public:
 		this->inputs = inputs;
 	}
 
+	void simeval(CircuitGraph& cg);
 	OpType OpTag() const { return OpEvalNeg; }
 	string getNodeLabel() const { return "-"; }
 };
@@ -312,9 +311,7 @@ class EvalNegNodeWithValue : public CircuitNodeWithValue<Element> {
 public:
 	EvalNegNodeWithValue(EvalNegNode* node) : CircuitNodeWithValue<Element>(node) {}
 
-	Value<Element> eval(CryptoContext<Element>& cc, CircuitGraphWithValues<Element>& cg) {
-		throw std::logic_error("eval not implemented for EvalNeg");
-	}
+	Value<Element> eval(CryptoContext<Element>& cc, CircuitGraphWithValues<Element>& cg);
 };
 
 class EvalAddNode : public CircuitNode {
@@ -323,6 +320,7 @@ public:
 		this->inputs = inputs;
 	}
 
+	void simeval(CircuitGraph& cg);
 	OpType OpTag() const { return OpEvalAdd; }
 	string getNodeLabel() const { return "+"; }
 };
@@ -341,6 +339,7 @@ public:
 		this->inputs = inputs;
 	}
 
+	void simeval(CircuitGraph& cg);
 	OpType OpTag() const { return OpEvalSub; }
 	string getNodeLabel() const { return "-"; }
 };
@@ -359,6 +358,7 @@ public:
 		this->inputs = inputs;
 	}
 
+	void simeval(CircuitGraph& cg);
 	void setBottomUpDepth() { this->nodeInputDepth = this->nodeOutputDepth + 1; }
 	OpType OpTag() const { return OpEvalMult; }
 	string getNodeLabel() const { return "*"; }

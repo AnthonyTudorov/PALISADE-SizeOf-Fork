@@ -50,18 +50,15 @@ ostream& operator<<(ostream& out, const CircuitNode& n)
 	if( n.getInputDepth() != 0 )
 		out << "(d=" + std::to_string(n.getInputDepth()) + ")\\n";
 	out << n.getNodeLabel();
+	if( n.IsOutput() ) {
+		out << "(output)\\n";
+	}
 
 	out << "\"]; ";
 
 	const vector<usint>& nodeInputs = n.getInputs();
 	for( usint input : nodeInputs )
 		out << input << " -> " << n.GetId() << "; ";
-//	if( n.is_output ) {
-//		out << "{ rank=same; Outputs " << n.GetId() << " }; ";
-//	}
-//	if( n.is_input ) {
-//		out << "{ rank=same; Inputs " << n.GetId() << " }; ";
-//	}
 
 	return out;
 }
@@ -73,6 +70,9 @@ ostream& operator<<(ostream& out, const CircuitNodeWithValue<Element>& n)
 	if( n.getNode()->getInputDepth() != 0 )
 		out << "(d=" + std::to_string(n.getNode()->getInputDepth()) + ")\\n";
 	out << n.getNodeLabel();
+	if( n.IsOutput() ) {
+		out << "(output)\\n";
+	}
 
 	out << "\\n(noise=" << n.GetNoise() << ")\\n";
 
@@ -88,20 +88,34 @@ ostream& operator<<(ostream& out, const CircuitNodeWithValue<Element>& n)
 	const vector<usint>& nodeInputs = n.getNode()->getInputs();
 	for( usint input : nodeInputs )
 		out << input << " -> " << n.GetId() << "; ";
-//	if( n.getNode()->IsOutput() ) {
-//		out << "{ rank=same; Outputs " << n.GetId() << " }; ";
-//	}
-//	if( n.getNode()->IsInput() ) {
-//		out << "{ rank=same; Inputs " << n.GetId() << " }; ";
-//	}
 
 	return out;
 }
 
-
-
 // note that for our purposes here, INT and VECTOR_INT can be considered the same thing
 // since an INT is simply a vector with one entry and the rest zeroes
+
+void EvalAddNode::simeval(CircuitGraph& g) {
+	if( noiseval != 0 )
+		return; // visit only once!
+
+	if( getInputs().size() < 2 ) throw std::logic_error("Add requires at least 2 inputs");
+
+	auto n0 = g.getNodeById(getInputs()[0]);
+	n0->simeval(g);
+	usint noise = n0->GetNoise();
+
+	for( size_t i=1; i < getInputs().size(); i++ ) {
+		auto n1 = g.getNodeById(getInputs()[i]);
+		n1->simeval(g);
+
+		noise += n1->GetNoise();
+	}
+
+	this->Log(OpEvalAdd);
+	this->SetNoise( noise );
+	return;
+}
 
 template<typename Element>
 Value<Element> EvalAddNodeWithValue<Element>::eval(CryptoContext<Element>& cc, CircuitGraphWithValues<Element>& cg) {
@@ -136,6 +150,28 @@ Value<Element> EvalAddNodeWithValue<Element>::eval(CryptoContext<Element>& cc, C
 	this->Log();
 	this->SetNoise( noise );
 	return this->value = v0;
+}
+
+void EvalSubNode::simeval(CircuitGraph& g) {
+	if( noiseval != 0 )
+		return; // visit only once!
+
+	if( getInputs().size() < 2 ) throw std::logic_error("Sub requires at least 2 inputs");
+
+	auto n0 = g.getNodeById(getInputs()[0]);
+	n0->simeval(g);
+	usint noise = n0->GetNoise();
+
+	for( size_t i=1; i < getInputs().size(); i++ ) {
+		auto n1 = g.getNodeById(getInputs()[i]);
+		n1->simeval(g);
+
+		noise += n1->GetNoise();
+	}
+
+	this->Log(OpEvalSub);
+	this->SetNoise( noise );
+	return;
 }
 
 template<typename Element>
@@ -191,12 +227,65 @@ Value<Element> EvalSubNodeWithValue<Element>::eval(CryptoContext<Element>& cc, C
 	return this->value;
 }
 
+void EvalNegNode::simeval(CircuitGraph& g) {
+	if( noiseval != 0 )
+		return; // visit only once!
+
+	if( getInputs().size() != 1 ) throw std::logic_error("Neg requires 1 input");
+
+	auto n0 = g.getNodeById(getInputs()[0]);
+	n0->simeval(g);
+
+	this->Log(OpEvalNeg);
+	this->SetNoise( n0->GetNoise() );
+	return;
+}
+
+template<typename Element>
+Value<Element> EvalNegNodeWithValue<Element>::eval(CryptoContext<Element>& cc, CircuitGraphWithValues<Element>& cg) {
+	if( this->value.GetType() != UNKNOWN )
+		return this->value;
+
+	if( this->getNode()->getInputs().size() != 1 ) throw std::logic_error("Neg requires 1 input");
+
+	auto n0 = cg.getNodeById(this->getNode()->getInputs()[0]);
+	Value<Element> v0( n0->eval(cc,cg) );
+	auto t0 = v0.GetType();
+
+	if( t0 == VECTOR_INT ) {
+		this->value = cc.EvalNegate(v0.GetIntVecValue());
+	}
+	else {
+		throw std::logic_error("eval negate for type " + std::to_string(t0) + " is not implemented");
+	}
+
+	this->Log();
+	this->SetNoise( n0->GetNoise() );
+	return this->value;
+}
+
+void EvalMultNode::simeval(CircuitGraph& g) {
+	if( noiseval != 0 )
+		return; // visit only once!
+
+	if( getInputs().size() != 2 ) throw std::logic_error("Mult requires 2 inputs");
+
+	auto n0 = g.getNodeById(getInputs()[0]);
+	auto n1 = g.getNodeById(getInputs()[0]);
+	n0->simeval(g);
+	n1->simeval(g);
+
+	this->Log(OpEvalMult);
+	this->SetNoise( n0->GetNoise() + n1->GetNoise() );
+	return;
+}
+
 template<typename Element>
 Value<Element> EvalMultNodeWithValue<Element>::eval(CryptoContext<Element>& cc, CircuitGraphWithValues<Element>& cg) {
 	if( this->value.GetType() != UNKNOWN )
 		return this->value;
 
-	if( this->getNode()->getInputs().size() !=2 ) throw std::logic_error("Mult requires 2 inputs");
+	if( this->getNode()->getInputs().size() != 2 ) throw std::logic_error("Mult requires 2 inputs");
 
 	auto n0 = cg.getNodeById(this->getNode()->getInputs()[0]);
 	auto n1 = cg.getNodeById(this->getNode()->getInputs()[1]);
@@ -219,6 +308,20 @@ Value<Element> EvalMultNodeWithValue<Element>::eval(CryptoContext<Element>& cc, 
 	this->Log();
 	this->SetNoise( n0->GetNoise() * n1->GetNoise() );
 	return this->value;
+}
+
+void ModReduceNode::simeval(CircuitGraph& g) {
+	if( noiseval != 0 )
+		return; // visit only once!
+
+	if( getInputs().size() != 1 ) throw std::logic_error("ModReduce must have one input");
+
+	auto n0 = g.getNodeById(getInputs()[0]);
+	n0->simeval(g);
+
+	this->Log(OpModReduce);
+	this->SetNoise( n0->GetNoise() );
+	return;
 }
 
 template<typename Element>
@@ -250,7 +353,6 @@ template<typename Element>
 CircuitNodeWithValue<Element> *ValueNodeFactory( CircuitNode *n ) {
 	TESTANDMAKE( ConstInput, ConstInputWithValue<Element>, n );
 	TESTANDMAKE( Input, InputWithValue<Element>, n );
-	TESTANDMAKE( Output, OutputWithValue<Element>, n );
 	TESTANDMAKE( ModReduceNode, ModReduceNodeWithValue<Element>, n );
 	TESTANDMAKE( EvalNegNode, EvalNegNodeWithValue<Element>, n );
 	TESTANDMAKE( EvalAddNode, EvalAddNodeWithValue<Element>, n );

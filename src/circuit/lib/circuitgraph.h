@@ -82,6 +82,7 @@ public:
 
 	void DisplayGraph() const;
 	void Preprocess();
+	void GenerateOperationList();
 
 	CircuitNode *getNodeById(usint id) {
 		auto it = allNodes.find(id);

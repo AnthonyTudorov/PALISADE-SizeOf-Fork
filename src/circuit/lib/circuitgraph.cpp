@@ -41,8 +41,6 @@ void
 CircuitGraph::DisplayGraph() const
 {
 	cout << "digraph G {" << endl;
-//	cout << "Inputs -> Outputs;" << endl;
-//	cout << "{rank=max; Outputs};" << endl;
 
 	for( auto it = allNodes.begin(); it != allNodes.end(); it++ ) {
 		cout << *it->second << endl;
@@ -70,8 +68,6 @@ CircuitGraphWithValues<Element>::DisplayDecryptedGraph(CryptoContext<Element> cc
 {
 	SetStreamKey(cc, k);
 	cout << "digraph G {" << endl;
-	cout << "Inputs -> Outputs;" << endl;
-	cout << "{rank=max; Outputs};" << endl;
 
 	for( auto it = allNodes.begin(); it != allNodes.end(); it++ ) {
 		cout << *it->second << endl;
@@ -93,13 +89,22 @@ CircuitGraph::Preprocess()
 	processNodeDepth();
 }
 
+void
+CircuitGraph::GenerateOperationList()
+{
+	for( int output : getOutputs() ) {
+		CircuitNode *out = getNodeById(output);
+		cout << "Evaluating output " << output << endl;
+		out->simeval(*this);
+	}
+}
+
 template<typename Element>
 void
 CircuitGraphWithValues<Element>::Execute(CryptoContext<Element> cc)
 {
 	for( int output : getOutputs() ) {
 		CircuitNodeWithValue<Element> *out = getNodeById(output);
-		cout << "Evaluating output " << output << endl;
 		out->eval(cc, *this);
 	}
 }
