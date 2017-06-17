@@ -682,7 +682,7 @@ public:
 	 * This is used as a subroutine in the relinearization procedure.
 	 *
 	 * @param baseBits is the number of bits in the base, i.e., \f$ base = 2^{baseBits} \f$.
-	 * @result is the pointer where the base decomposition vector is stored
+	 * @return is the pointer where the base decomposition vector is stored
 	 */
 	std::vector<ILVectorImpl> BaseDecompose(usint baseBits, bool evalModeAnswer=true) const;
 
@@ -692,7 +692,7 @@ public:
 	 * used as a subroutine in the relinearization procedure to get powers of a certain "base" for the secret key element
 	 *
 	 * @param baseBits is the number of bits in the base, i.e., \f$ base = 2^{baseBits} \f$.
-	 * @result is the pointer where the base decomposition vector is stored
+	 * @return is the pointer where the base decomposition vector is stored
 	 */
 	std::vector<ILVectorImpl> PowersOfBase(usint baseBits) const;
 
