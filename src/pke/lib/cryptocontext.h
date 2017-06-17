@@ -34,7 +34,7 @@
 #include "encoding/intplaintextencoding.h"
 #include "encoding/packedintplaintextencoding.h"
 #include "cryptocontexthelper.h"
-#include "timingprint.h"
+#include "cryptotiming.h"
 
 namespace lbcrypto {
 

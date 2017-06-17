@@ -35,8 +35,9 @@ CIRCUITTESTDIR := src/circuit/unittest
 CIRCUITDEMODIR := src/circuit/demo
 
 CIRCUITSOURCES := $(wildcard $(CIRCUITSRCDIR)/lib/*.cpp)
+
 CIRCUITUNITSOURCES := $(wildcard $(CIRCUITSRCDIR)/unittest/*.cpp)
-CIRCUITDEMOSOURCES := $(CIRCUITDEMODIR)/palcircuit.cpp $(CIRCUITDEMODIR)/scan.cpp $(CIRCUITDEMODIR)/parse.cpp $(CIRCUITDEMODIR)/parsedriver.cpp
+CIRCUITDEMOSOURCES := $(CIRCUITDEMODIR)/palcircuit.cpp
 
 CIRCUITOBJECTS = $(patsubst $(CIRCUITSRCDIR)/%,$(CIRCUITBINDIR)/%,$(patsubst %.cpp,%.o,$(CIRCUITSOURCES)))
 CIRCUITUNITOBJECTS := $(patsubst $(CIRCUITSRCDIR)/%,$(CIRCUITBINDIR)/%,$(patsubst %.cpp,%.o,$(CIRCUITUNITSOURCES)))
@@ -58,12 +59,14 @@ circuitstring:
 	@echo $(CIRCUITDEMOOBJECTS)
 
 .PHONY:allcircuit
-allcircuit: $(CLIBS) $(EXTLIBDIR)/$(PALISADECIRCUITLIB) $(CIRCUIT_TEST_TARGET) $(CIRCUITDEMOSOURCES) $(EXTDEMODIR)/circuit/palcircuit$(EXESUFFIX)
+allcircuit: $(CLIBS) gram $(EXTLIBDIR)/$(PALISADECIRCUITLIB) $(CIRCUIT_TEST_TARGET) $(CIRCUITDEMOSOURCES) $(EXTDEMODIR)/circuit/palcircuit$(EXESUFFIX)
 
-$(CIRCUITDEMODIR)/parse.cpp: $(CIRCUITDEMODIR)/parse.y
+gram: $(CIRCUITSRCDIR)/lib/parse.cpp $(CIRCUITSRCDIR)/lib/parse.hpp $(CIRCUITSRCDIR)/lib/scan.cpp
+
+$(CIRCUITSRCDIR)/lib/parse.cpp: $(CIRCUITSRCDIR)/lib/parse.y
 	bison --defines -o $@ $^
 
-$(CIRCUITDEMODIR)/scan.cpp: $(CIRCUITDEMODIR)/scan.l
+$(CIRCUITSRCDIR)/lib/scan.cpp: $(CIRCUITSRCDIR)/lib/scan.l
 	flex -o $@ $^
 
 $(EXTDEMODIR)/circuit/palcircuit$(EXESUFFIX): $(CIRCUITDEMOOBJECTS) $(EXTLIBDIR)/$(PALISADECIRCUITLIB) $(CLIBS)

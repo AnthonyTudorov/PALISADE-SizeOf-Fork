@@ -38,7 +38,7 @@ RemoteSystemTempFiles/
 CMakeLists.txt
 .idea/
 
-src/circuit/demo/scan.cpp
-src/circuit/demo/parse.cpp
-src/circuit/demo/parse.hpp
-src/circuit/demo/*.hh
+src/circuit/lib/scan.cpp
+src/circuit/lib/parse.cpp
+src/circuit/lib/parse.hpp
+src/circuit/lib/*.hh
