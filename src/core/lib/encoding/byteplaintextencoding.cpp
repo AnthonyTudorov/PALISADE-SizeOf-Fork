@@ -1,6 +1,6 @@
 /*
  * @file byteplaintextencoding.cpp Represents and defines plaintext objects in Palisade 
- * that encodes bytes of data, notionallt chars.
+ * that encodes bytes of data, notionally chars.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
