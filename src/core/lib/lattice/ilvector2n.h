@@ -1,5 +1,5 @@
 /**
- * @file plaintext.h Represents and defines plaintext objects in Palisade.
+ * @file ilvector2n.h Represents integer lattice elements with power-of-2 dimensions.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -50,9 +50,10 @@ namespace lbcrypto
 const usint SAMPLE_SIZE = 30; //!< @brief The maximum number of samples used for random variable sampling.
 
 /**
+ * @class ILVectorImpl
+ * @file ilvector2n.h
  * @brief Ideal lattice using a vector representation
  */
-
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
 class ILVectorImpl : public ILElement<ILVectorImpl<ModType,IntType,VecType,ParmType>,ModType,IntType,VecType>
 {
@@ -67,17 +68,21 @@ public:
 	typedef TernaryUniformGeneratorImpl<IntType,VecType> TugType;
 	typedef BinaryUniformGeneratorImpl<IntType,VecType> BugType;
 
+	/**
+	 * @brief Return the element name.
+	 * @return This method returns "ILVectorImpl".
+	 */
 	static const std::string GetElementName() {
 		return "ILVectorImpl";
 	}
 
 	/**
-	 * Default constructor
+	 * @brief Default constructor
 	 */
 	ILVectorImpl();
 
 	/**
-	 * Construct given parameters and format
+	 * @brief Construct given parameters and format
 	 * @param params - element parameters
 	 * @param format - EVALUATION or COEFFICIENT
 	 * @param initializeElementToZero - if true, allocates an empty vector set to all 0s
@@ -87,7 +92,7 @@ public:
 	ILVectorImpl(const shared_ptr<ILDCRTParams<ModType>> params, Format format = EVALUATION, bool initializeElementToZero = false);
 
 	/**
-	 * Construct given parameters and format
+	 * @brief Construct given parameters and format
 	 * @param initializeElementToMax - if true, initializes entries in the vector to the maximum value
 	 * @param params - element parameters
 	 * @param format - EVALUATION or COEFFICIENT
@@ -95,7 +100,7 @@ public:
 	ILVectorImpl(bool initializeElementToMax, const shared_ptr<ParmType> params, Format format);
 
 	/**
-	 * Construct with a vector from a given generator
+	 * @brief Construct with a vector from a given generator
 	 *
 	 * @param &dgg the input discrete Gaussian Generator.
 	 * @param &params the input params.
@@ -104,7 +109,7 @@ public:
 	ILVectorImpl(const DggType &dgg, const shared_ptr<ParmType> params, Format format = EVALUATION);
 
 	/**
-	 * Construct with a vector from a given generator
+	 * @brief Construct with a vector from a given generator
 	 *
 	 * @param &bug the input Binary Uniform Generator.
 	 * @param &params the input params.
@@ -113,7 +118,7 @@ public:
 	ILVectorImpl(const BugType &bug, const shared_ptr<ParmType> params, Format format = EVALUATION);
 
 	/**
-	 * Construct with a vector from a given generator
+	 * @brief Construct with a vector from a given generator
 	 *
 	 * @param &tug the input Ternary Uniform Generator.
 	 * @param &params the input params.
@@ -122,7 +127,7 @@ public:
 	ILVectorImpl(const TugType &tug, const shared_ptr<ParmType> params, Format format = EVALUATION);
 
 	/**
-	 * Construct with a vector from a given generator
+	 * @brief Construct with a vector from a given generator
 	 *
 	 * @param &dug the input discrete Uniform Generator.
 	 * @param &params the input params.
@@ -131,7 +136,9 @@ public:
 	ILVectorImpl( DugType &dug, const shared_ptr<ParmType> params, Format format = EVALUATION);
 
 	/**
-	 *  Create lambda that allocates a zeroed element for the case when it is called from a templated class
+	 * @brief Create lambda that allocates a zeroed element for the case when it is called from a templated class
+	 * @param params the params to use.
+	 * @param format - EVALUATION or COEFFICIENT
 	 */
 	inline static function<unique_ptr<ILVectorType>()> MakeAllocator(const shared_ptr<ParmType> params, Format format) {
 		return [=]() {
@@ -140,7 +147,7 @@ public:
 	}
 
 	/**
-	 * Allocator for discrete uniform distribution.
+	 * @brief Allocator for discrete uniform distribution.
 	 *
 	 * @param params ILParams instance that is is passed.
 	 * @param resultFormat resultFormat for the polynomials generated.
@@ -157,7 +164,7 @@ public:
 	}
 
 	/**
-	 * Allocator for discrete uniform distribution.
+	 * @brief Allocator for discrete uniform distribution.
 	 *
 	 * @param params ILParams instance that is is passed.
 	 * @param format format for the polynomials generated.
@@ -172,21 +179,23 @@ public:
 	}
 
 	/**
-	 * Copy constructor.
+	 * @brief Copy constructor.
 	 *
 	 * @param &element the copied element.
+	 * @param parms ILParams instance that is is passed.
 	 */
 	ILVectorImpl(const ILVectorType &element, shared_ptr<ParmType> parms = 0);
 
 	/**
-	 * Move constructor.
+	 * @brief Move constructor.
 	 *
 	 * @param &&element the copied element.
+	 * @param parms ILParams instance that is is passed.
 	 */
 	ILVectorImpl(ILVectorType &&element, shared_ptr<ParmType> parms = 0);
 
 	/**
-	 * Clone the object by making a copy of it and returning the copy
+	 * @brief Clone the object by making a copy of it and returning the copy
 	 * @return new Element
 	 */
 	ILVectorType Clone() const {
@@ -194,7 +203,7 @@ public:
 	}
 
 	/**
-	 * Clone the object, but have it contain nothing
+	 * @brief Clone the object, but have it contain nothing
 	 * @return new Element
 	 */
 	ILVectorType CloneEmpty() const {
@@ -202,19 +211,18 @@ public:
 	}
 
 	/**
-	 * Clone
-	 *
-	 * Creates a new ILVectorImpl and clones only the params.
+	 * @brief Clone method that creates a new ILVectorImpl and clones only the params.
 	 *  The tower values are empty. The tower values can be filled by another process/function or initializer list.
+	 * @return new Element
 	 */
 	ILVectorType CloneParametersOnly() const ;
 
 	/**
-	 * Clone with noise
-	 *
+	 * @brief Clone method with noise. 
 	 * Creates a new ILVectorImpl and clones the params. The tower values will be filled up with noise based on the discrete gaussian.
 	 *
 	 * @param &dgg the input discrete Gaussian generator. The dgg will be the seed to populate the towers of the ILVectorImpl with random numbers.
+	 * @return new Element
 	 */
 	ILVectorType CloneWithNoise(const DiscreteGaussianGeneratorImpl<IntType,VecType> &dgg, Format format) const;
 
@@ -224,7 +232,7 @@ public:
 	~ILVectorImpl();
 
 	/**
-	 * Assignment Operator.
+	 * @brief Assignment Operator.
 	 *
 	 * @param &rhs the ILVectorImpl to be copied.
 	 * @return the resulting ILVectorImpl.
@@ -232,7 +240,7 @@ public:
 	const ILVectorType& operator=(const ILVectorType &rhs);
 
 	/**
-	 * Move Assignment.
+	 * @brief Move Assignment.
 	 *
 	 * @param &rhs the ILVectorImpl to be copied.
 	 * @return the resulting ILVectorImpl.
@@ -240,7 +248,7 @@ public:
 	const ILVectorType& operator=(ILVectorType &&rhs);
 
 	/**
-	 * Initalizer list
+	 * @brief Initalizer list
 	 *
 	 * @param &rhs the list to set the ILVectorImpl to.
 	 * @return the resulting ILVectorImpl.
@@ -249,7 +257,7 @@ public:
 	//todo: this should be changed from sint to usint!
 
 	/**
-	 * Initalizer list
+	 * @brief Initalizer list
 	 *
 	 * @param &rhs the list to set the ILVectorImpl to.
 	 * @return the resulting ILVectorImpl.
@@ -257,7 +265,7 @@ public:
 	const ILVectorType& operator=(std::initializer_list<std::string> rhs);
 
 	/**
-	 * Assignment Operator. The usint val will be set at index zero and all other indices will be set to zero.
+	 * @brief Assignment Operator. The usint val will be set at index zero and all other indices will be set to zero.
 	 *
 	 * @param val is the usint to assign to index zero.
 	 * @return the resulting vector.
@@ -266,7 +274,7 @@ public:
 
 	//GETTERS
 	/**
-	 * Get method to get ILParams for the current vector.
+	 * @brief Get method to get ILParams for the current vector.
 	 *
 	 * @return the ring element params.
 	 */
@@ -275,21 +283,21 @@ public:
 	}
 
 	/**
-	 * Get format of the element
+	 * @brief Get format of the element
 	 *
 	 * @return COEFFICIENT or EVALUATION
 	 */
 	Format GetFormat() const;
 
 	/**
-	 * Get the length of the element.
+	 * @brief Get the length of the element.
 	 *
 	 * @return length
 	 */
 	usint GetLength() const;
 
 	/**
-	 * Get modulus of the element
+	 * @brief Get modulus of the element
 	 *
 	 * @return the modulus.
 	 */
@@ -298,27 +306,32 @@ public:
 	}
 
 	/**
-	 * Get the values for the element
+	 * @brief Get the values for the element
 	 *
 	 * @return the vector.
 	 */
 	const VecType &GetValues() const;
 
 	/**
-	 * Get the cyclotomic order
+	 * @brief Get the cyclotomic order
 	 *
 	 * @return order
 	 */
 	const usint GetCyclotomicOrder() const {
 		return m_params->GetCyclotomicOrder();
 	}
-
+	
+	/**
+	 * @brief Get the ring dimension.
+	 *
+	 * @return the ring dimension
+	 */
 	const usint GetRingDimension() const {
 		return m_params->GetRingDimension();
 	}
 
 	/**
-	 * Get the root of unity.
+	 * @brief Get the root of unity.
 	 *
 	 * @return the root of unity.
 	 */
@@ -328,7 +341,7 @@ public:
 
 
 	/**
-	 * Get value of binaryvector at index i.
+	 * @brief Get value of element at index i.
 	 *
 	 * @return value at index i.
 	 */
@@ -336,7 +349,7 @@ public:
 
 	//SETTERS
 	/**
-	 *  Set VecType value to val
+	 *  @brief Set VecType value to val
 	 *
 	 * @param index is the index at which the value is to be set.
 	 * @param val is the value to be set.
@@ -346,7 +359,7 @@ public:
 	}
 
 	/**
-	 *  Set VecType value to val
+	 * @brief Set VecType value to val
 	 *
 	 * @param index is the index at which the value is to be set.
 	 * @param val is the value to be set.
@@ -355,6 +368,11 @@ public:
 		m_values->SetValAtIndex(index, val);
 	}
 
+	/**
+	 * @brief Set the value of the element at a given index to a given value without performing a modulus operation.
+	 * @param index the index to put data at.
+	 * @param val the value to assign.
+	 */
 	inline void SetValAtIndexWithoutMod(size_t index, const IntType& val) {
 #if MATHBACKEND !=6
 		m_values->SetValAtIndex(index, val);
@@ -367,25 +385,25 @@ public:
 	// SCALAR OPERATIONS
 
 	/**
-	 * Set method of the values.
+	 * @brief Set method of the values.
 	 *
 	 * @param values is the set of values of the vector.
-	 * @param format is the format.
+	 * @param format is the format, either COEFFICIENT or EVALUATION.
 	 */
 	void SetValues(const VecType& values, Format format);
 
 	/**
-	 * Sets all values to zero.
+	 * @brief Sets all values of element to zero.
 	 */
 	void SetValuesToZero();
 
 	/**
-	 * Sets all values to maximum.
+	 * @brief Sets all values of element to maximum.
 	 */
 	void SetValuesToMax();
 
 	/**
-	 * Scalar addition - add an element to the first index only.
+	 * @brief Scalar addition - add an element to the first index only.
 	 * This operation is only allowed in COEFFICIENT format.
 	 *
 	 * @param &element is the element to add entry-wise.
@@ -394,7 +412,7 @@ public:
 	ILVectorImpl Plus(const IntType &element) const;
 
 	/**
-	 * Scalar subtraction - subtract an element to all entries.
+	 * @brief Scalar subtraction - subtract an element to all entries.
 	 *
 	 * @param &element is the element to subtract entry-wise.
 	 * @return is the return value of the minus operation.
@@ -402,7 +420,7 @@ public:
 	ILVectorImpl Minus(const IntType &element) const;
 
 	/**
-	 * Scalar multiplication - multiply all entries.
+	 * @brief Scalar multiplication - multiply all entries.
 	 *
 	 * @param &element is the element to multiply entry-wise.
 	 * @return is the return value of the times operation.
@@ -413,15 +431,15 @@ public:
 	// VECTOR OPERATIONS
 
 	/**
-	 * Unary minus on a lattice
-	 * @return -lattice
+	 * @brief Unary minus on a lattice element.
+	 * @return negation of the lattice element.
 	 */
 	ILVectorImpl operator-() const {
 		ILVectorImpl all0(this->GetParams(), this->GetFormat(), true);
 		return all0 - *this;
 	}
 	/**
-	 * Performs an addition operation and returns the result.
+	 * @brief Performs an addition operation and returns the result.
 	 *
 	 * @param &element is the element to add with.
 	 * @return is the result of the addition.
@@ -429,7 +447,7 @@ public:
 	ILVectorImpl Plus(const ILVectorImpl &element) const;
 
 	/**
-	 * Performs a subtraction operation and returns the result.
+	 * @brief Performs a subtraction operation and returns the result.
 	 *
 	 * @param &element is the element to subtract with.
 	 * @return is the result of the subtraction.
@@ -437,7 +455,7 @@ public:
 	ILVectorImpl Minus(const ILVectorImpl &element) const;
 
 	/**
-	 * Performs a multiplication operation and returns the result.
+	 * @brief Performs a multiplication operation and returns the result.
 	 *
 	 * @param &element is the element to multiply with.
 	 * @return is the result of the multiplication.
@@ -445,7 +463,7 @@ public:
 	ILVectorImpl Times(const ILVectorImpl &element) const;
 
 	/**
-	 * Performs += operation with a IntType and returns the result.
+	 * @brief Performs += operation with a IntType and returns the result.
 	 *
 	 * @param &element is the element to add
 	 * @return is the result of the addition.
@@ -455,7 +473,7 @@ public:
 	}
 
 	/**
-	 * Performs -= operation with a IntType and returns the result.
+	 * @brief Performs -= operation with a IntType and returns the result.
 	 *
 	 * @param &element is the element to subtract
 	 * @return is the result of the subtraction.
@@ -466,7 +484,7 @@ public:
 	}
 
 	/**
-	 * Performs *= operation with a IntType and returns the result.
+	 * @brief Performs *= operation with a IntType and returns the result.
 	 *
 	 * @param &element is the element to multiply by
 	 * @return is the result of the multiplication.
@@ -477,7 +495,7 @@ public:
 	}
 
 	/**
-	 * Performs an addition operation and returns the result.
+	 * @brief Performs an addition operation and returns the result.
 	 *
 	 * @param &element is the element to add
 	 * @return is the result of the addition.
@@ -485,7 +503,7 @@ public:
 	const ILVectorImpl& operator+=(const ILVectorImpl &element);
 
 	/**
-	 * Performs an subtraction operation and returns the result.
+	 * @brief Performs an subtraction operation and returns the result.
 	 *
 	 * @param &element is the element to subtract
 	 * @return is the result of the subtract.
@@ -493,7 +511,7 @@ public:
 	const ILVectorImpl& operator-=(const ILVectorImpl &element);
 
 	/**
-	 * Performs an multiplication operation and returns the result.
+	 * @brief Performs an multiplication operation and returns the result.
 	 *
 	 * @param &element is the element to multiply by
 	 * @return is the result of the multiplication.
@@ -501,10 +519,10 @@ public:
 	const ILVectorImpl& operator*=(const ILVectorImpl &element);
 
 	/**
-	 * Equal operator compares this ILVectorImpl to the specified ILVectorImpl
+	 * @brief Equality operator compares this element to the input element.
 	 *
-	 * @param &rhs is the specified ILVectorImpl to be compared with this ILVectorImpl.
-	 * @return true if this ILVectorImpl represents the same values as the specified ILDCRT2n, false otherwise
+	 * @param &rhs is the specified ILVectorImpl to be compared with this element.
+	 * @return true if this ILVectorImpl represents the same values as the specified element, false otherwise
 	 */
 	inline bool operator==(const ILVectorImpl &rhs) const {
 		if (this->GetFormat() != rhs.GetFormat()) {
@@ -520,7 +538,7 @@ public:
 	}
 
 	/**
-	 * Scalar multiplication followed by division and rounding operation - operation on all entries.
+	 * @brief Scalar multiplication followed by division and rounding operation - operation on all entries.
 	 *
 	 * @param &p is the integer muliplicand.
 	 * @param &q is the integer divisor.
@@ -529,7 +547,7 @@ public:
 	ILVectorImpl MultiplyAndRound(const IntType &p, const IntType &q) const;
 
 	/**
-	 * Scalar division followed by rounding operation - operation on all entries.
+	 * @brief Scalar division followed by rounding operation - operation on all entries.
 	 *
 	 * @param &q is the element to divide entry-wise.
 	 * @return is the return value of the divide, followed by rounding operation.
@@ -537,7 +555,7 @@ public:
 	ILVectorImpl DivideAndRound(const IntType &q) const;
 
 	/**
-	 * Performs a negation operation and returns the result.
+	 * @brief Performs a negation operation and returns the result.
 	 *
 	 * @return is the result of the negation.
 	 */
@@ -546,12 +564,12 @@ public:
 	// OTHER METHODS
 
 	/**
-	 * Adds one to every entry of the ILVectorImpl.
+	 * @brief Adds one to every entry of the ILVectorImpl.
 	 */
 	void AddILElementOne();
 
 	/**
-	 * Performs an automorphism transform operation and returns the result.
+	 * @brief Performs an automorphism transform operation and returns the result.
 	 *
 	 * @param &i is the element to perform the automorphism transform with.
 	 * @return is the result of the automorphism transform.
@@ -559,7 +577,7 @@ public:
 	ILVectorImpl AutomorphismTransform(const usint &k) const;
 
 	/**
-	 * Interpolates based on the Chinese Remainder Transform Interpolation.
+	 * @brief Interpolates based on the Chinese Remainder Transform Interpolation.
 	 * Does nothing for ILVectorImpl. Needed to support the 0linear CRT interpolation in ILDCRT2n.
 	 *
 	 * @return the original ring element.
@@ -569,28 +587,28 @@ public:
 	}
 
 	/**
-	 * Transpose the ring element using the automorphism operation
+	 * @brief Transpose the ring element using the automorphism operation
 	 *
 	 * @return is the result of the transposition.
 	 */
 	ILVectorImpl Transpose() const;
 
 	/**
-	 * Performs a multiplicative inverse operation and returns the result.
+	 * @brief Performs a multiplicative inverse operation and returns the result.
 	 *
 	 * @return is the result of the multiplicative inverse.
 	 */
 	ILVectorImpl MultiplicativeInverse() const;
 
 	/**
-	 * Perform a modulus by 2 operation.  Returns the least significant bit.
+	 * @brief Perform a modulus by 2 operation.  Returns the least significant bit.
 	 *
 	 * @return is the return value of the modulus by 2, also the least significant bit.
 	 */
 	ILVectorImpl ModByTwo() const;
 
 	/**
-	 * Modulus - perform a modulus operation. Does proper mapping of [-modulus/2, modulus/2) to [0, modulus)
+	 * @brief Modulus - perform a modulus operation. Does proper mapping of [-modulus/2, modulus/2) to [0, modulus)
 	 *
 	 * @param modulus is the modulus to use.
 	 * @return is the return value of the modulus.
@@ -598,7 +616,7 @@ public:
 	ILVectorImpl SignedMod(const IntType &modulus) const;
 
 	/**
-	 * Switch modulus and adjust the values
+	 * @brief Switch modulus and adjust the values
 	 *
 	 * @param &modulus is the modulus to be set.
 	 * @param &rootOfUnity is the corresponding root of unity for the modulus
@@ -609,48 +627,49 @@ public:
 	void SwitchModulus(const IntType &modulus, const IntType &rootOfUnity, const IntType &modulusArb = IntType(0), const IntType &rootOfUnityArb = IntType(0));
 
 	/**
-	 * Convert from Coefficient to CRT or vice versa; calls FFT and inverse FFT.
+	 * @brief Convert from Coefficient to Evaluation or vice versa; calls FFT and inverse FFT.
 	 */
 	void SwitchFormat();
 
 	/**
-	 * Prints values of the ILVectorImpl.
+	 * @brief Prints values of the element.
 	 */
 	void PrintValues() const;
 
 	/**
-	 * Make ILDCRT2n Sparse for SHE KeyGen operations. Sets every index not equal to zero mod the wFactor to zero.
+	 * @brief Make the element values sparse. Sets every index not equal to zero mod the wFactor to zero.
+	 * This is particularly useful for the LTV-based ring reduction operations.
 	 *
-	 * @param &wFactor ratio between the original ILDCRT2n's ring dimension and the new ring dimension.
+	 * @param &wFactor ratio between the original ring dimension and the new ring dimension.
 	 */
 	void MakeSparse(const uint32_t &wFactor);
 
 	/**
-	 * Interleaves values in the ILVectorImpl with odd indices being all zeros.
+	 * @brief Interleaves values in the element with odd indices being all zeros.
 	 */
 	void Decompose();
 
 	/**
-	 * Returns true if the vector is empty/ m_values==NULL
+	 * @brief Returns true if the vector is empty/ m_values==NULL
 	 */
 	bool IsEmpty() const;
 
 	/**
-	 * Determines if inverse exists
+	 * @brief Determines if inverse exists
 	 *
 	 * @return is the Boolean representation of the existence of multiplicative inverse.
 	 */
 	bool InverseExists() const;
 
 	/**
-	 * Returns the infinity norm, basically the largest value in the ring element.
+	 * @brief Returns the infinity norm, basically the largest value in the ring element.
 	 *
 	 * @return is the largest value in the ring element.
 	 */
 	double Norm() const;
 
 	/**
-	 * Rounds the polynomial to an input integer.
+	 * @brief Rounds the polynomial to an input integer.
 	 *
 	 * @param x is integer to round to.
 	 * @return is the result of the rounding operation.
@@ -658,26 +677,27 @@ public:
 	ILVectorImpl Round(const IntType& x) const;
 
 	/**
-	 * Write vector x (current value of the ILVectorImpl object) as \sum\limits{i=0}^{\lfloor {\log q/base} \rfloor} {(base^i u_i)} and
-	 * return the vector of {u_0, u_1,...,u_{\lfloor {\log q/base} \rfloor}} \in R_base^{\lceil {\log q/base} \rceil};
-	 * used as a subroutine in the relinearization procedure
+	 * @brief Write the element as \f$ \sum\limits{i=0}^{\lfloor {\log q/base} \rfloor} {(base^i u_i)} \f$ and
+	 * return the vector of \f$ \left\{u_0, u_1,...,u_{\lfloor {\log q/base} \rfloor} \right\} \in R_{{base}^{\lceil {\log q/base} \rceil}} \f$;
+	 * This is used as a subroutine in the relinearization procedure.
 	 *
-	 * @param baseBits is the number of bits in the base, i.e., base = 2^baseBits
+	 * @param baseBits is the number of bits in the base, i.e., \f$ base = 2^{baseBits} \f$.
 	 * @result is the pointer where the base decomposition vector is stored
 	 */
 	std::vector<ILVectorImpl> BaseDecompose(usint baseBits, bool evalModeAnswer=true) const;
 
 	/**
-	 * Generate a vector of ILVectorImpl's as {x, base*x, base^2*x, ..., base^{\lfloor {\log q/base} \rfloor}*x, where x is the current ILVectorImpl object;
+	 * @brief Generate a vector of ILVectorImpl's as \f$ \left\{x, {base}*x, {base}^2*x, ..., {base}^{\lfloor {\log q/{base}} \rfloor} \right\}*x \f$, 
+	 * where \f$ x \f$ is the current ILVectorImpl object;
 	 * used as a subroutine in the relinearization procedure to get powers of a certain "base" for the secret key element
 	 *
-	 * @param baseBits is the number of bits in the base, i.e., base = 2^baseBits
+	 * @param baseBits is the number of bits in the base, i.e., \f$ base = 2^{baseBits} \f$.
 	 * @result is the pointer where the base decomposition vector is stored
 	 */
 	std::vector<ILVectorImpl> PowersOfBase(usint baseBits) const;
 
 	/**
-	 * Shift entries in the vector left a specific number of entries.
+	 * @brief Shift entries in the vector left a specific number of entries.
 	 *
 	 * @param n the number of entries to shift left.
 	 * @return is the resulting vector from shifting left.
@@ -685,7 +705,7 @@ public:
 	ILVectorImpl ShiftLeft(unsigned int n) const;
 
 	/**
-	 * Shift entries in the vector right a specific number of entries.
+	 * @brief Shift entries in the vector right a specific number of entries.
 	 *
 	 * @param n the number of entries to shift right.
 	 * @return is the resulting vector from shifting right.
@@ -693,7 +713,7 @@ public:
 	ILVectorImpl ShiftRight(unsigned int n) const;
 
 	/**
-	 * Pre computes the Dgg samples.
+	 * @brief Pre computes the Dgg samples.
 	 *
 	 * @param &dgg the discrete Gaussian Generator.
 	 * @param &params are the relevant ring parameters.
@@ -701,7 +721,7 @@ public:
 	static void PreComputeDggSamples(const DiscreteGaussianGeneratorImpl<IntType,VecType> &dgg, const shared_ptr<ParmType> params);
 
 	/**
-	 * Pre computes the Tug samples.
+	 * @brief Pre computes the Tug samples.
 	 *
 	 * @param &tug the ternary uniform generator.
 	 * @param &params are the relevant ring parameters.
@@ -709,63 +729,132 @@ public:
 	static void PreComputeTugSamples(const TernaryUniformGeneratorImpl<IntType,VecType> &tug, const shared_ptr<ParmType> params);
 
 	/**
-	 * Clear the pre-computed discrete Gaussian samples.
+	 * @brief Clear the pre-computed discrete Gaussian samples.
 	 */
 	static void DestroyPreComputedSamples();
 
 	/**
-	 * Clear the pre-computed ternary uniform samples.
+	 * @brief Clear the pre-computed ternary uniform samples.
 	 */
 	static void DestroyPreComputedTugSamples();
 
 	/**
-	 * Serialize the object into a Serialized
+	 * @brief Serialize the object into a Serialized
 	 * @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
 	 * @return true if successfully serialized
 	 */
 	bool Serialize(Serialized* serObj) const;
 
 	/**
-	 * Populate the object from the deserialization of the Setialized
+	 * @brief Populate the object from the deserialization of the Setialized
 	 * @param serObj contains the serialized object
 	 * @return true on success
 	 */
 	bool Deserialize(const Serialized& serObj);
 
+	/**
+	 * @brief ostream operator
+	 * @param os the input preceding output stream
+	 * @param vec the element to add to the output stream.
+	 * @return a resulting concatenated output stream
+	 */
 	friend inline std::ostream& operator<<(std::ostream& os, const ILVectorImpl& vec) {
 		os << (vec.m_format == EVALUATION ? "EVAL: " : "COEF: ") << vec.GetValues();
 		return os;
 	}
 
+	/**
+	 * @brief Element-element addition operator.
+	 * @param a first element to add.
+	 * @param b second element to add.
+	 * @return the result of the addition operation.
+	 */
 	friend inline ILVectorImpl operator+(const ILVectorImpl &a, const ILVectorImpl &b) {
 		return a.Plus(b);
 	}
+	
+	/**
+	 * @brief Element-integer addition operator.
+	 * @param a first element to add.
+	 * @param b integer to add.
+	 * @return the result of the addition operation.
+	 */
 	friend inline ILVectorImpl operator+(const ILVectorImpl &a, const IntType &b) {
 		return a.Plus(b);
 	}
+	
+	/**
+	 * @brief Integer-element addition operator.
+	 * @param a integer to add.
+	 * @param b element to add.
+	 * @return the result of the addition operation.
+	 */
 	friend inline ILVectorImpl operator+(const IntType &a, const ILVectorImpl &b) {
 		return b.Plus(a);
 	}
+	
+	/**
+	 * @brief Element-element subtraction operator.
+	 * @param a element to subtract from.
+	 * @param b element to subtract.
+	 * @return the result of the subtraction operation.
+	 */
 	friend inline ILVectorImpl operator-(const ILVectorImpl &a, const ILVectorImpl &b) {
 		return a.Minus(b);
 	}
+	
+	/**
+	 * @brief Element-integer subtraction operator.
+	 * @param a element to subtract from.
+	 * @param b integer to subtract.
+	 * @return the result of the subtraction operation.
+	 */
 	friend inline ILVectorImpl operator-(const ILVectorImpl &a, const IntType &b) {
 		return a.Minus(b);
 	}
+	
+	/**
+	 * @brief Element-element multiplication operator.
+	 * @param a element to multiply.
+	 * @param b element to multiply.
+	 * @return the result of the multiplication operation.
+	 */
 	friend inline ILVectorImpl operator*(const ILVectorImpl &a, const ILVectorImpl &b) {
 		return a.Times(b);
 	}
+	
+	/**
+	 * @brief Element-integer multiplication operator.
+	 * @param a element to multiply.
+	 * @param b integer to multiply.
+	 * @return the result of the multiplication operation.
+	 */
 	friend inline ILVectorImpl operator*(const ILVectorImpl &a, const IntType &b) {
 		return a.Times(b);
 	}
+	
+	/**
+	 * @brief Integer-element multiplication operator.
+	 * @param a integer to multiply.
+	 * @param b element to multiply.
+	 * @return the result of the multiplication operation.
+	 */
 	friend inline ILVectorImpl operator*(const IntType &a, const ILVectorImpl &b) {
 		return b.Times(a);
 	}
 
-	// gets a random discrete Gaussian polynomial
+	// 
+	/**
+	 * @brief Gets a pre-computed sample discrete Gaussian polynomial element.
+	 * @return the sampled element.
+	 */
 	static const ILVectorImpl GetPrecomputedVector();
 
 	// gets a random polynomial generated using ternary uniform distribution
+	/**
+	 * @brief Gets a pre-computed sample ternary uniform distribution polynomial element.
+	 * @return the sampled element.
+	 */
 	static const ILVectorImpl GetPrecomputedTugVector();
 
 private:
