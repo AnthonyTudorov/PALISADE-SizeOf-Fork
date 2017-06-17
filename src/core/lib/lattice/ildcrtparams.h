@@ -1,12 +1,8 @@
 /**
- * @file
- * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
- *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>, Hadi Sajjadpour <ss2959@njit.edu>
- * @version 00_03
+ * @file plaintext.h Represents and defines plaintext objects in Palisade.
+ * @author  TPOC: palisade@njit.edu
  *
- * @section LICENSE
- *
- * Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
+ * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -26,27 +22,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * @section DESCRIPTION
- * LAYER 2 : LATTICE DATA STRUCTURES AND OPERATIONS
- * This code provides basic lattice ideal manipulation functionality.
- * For more information on ideal lattices please see here: 10.1007/978-3-540-88702-7_5
- * ILDCRTParmas stands for : Ideal Lattive Chinese Remainder Transform Params. This class provides a placeholder for the parameter set
- * of an ILDCRT2n.
- *
- *  The private members of this class are:
- *
- *	 order of cyclotomic polynomial.
- *	 usint m_cyclotomicOrder;
- *
- *	// value of moduli
- *	 std::vector<BigBinaryInteger> m_moduli;
- *
- *	// primitive root unity that is used to transform from coefficient to evaluation representation and vice versa
- *	std::vector<BigBinaryInteger> m_rootsOfUnity;
- *
- *	//Modulus that is factorized into m_moduli
- *	BigBinaryInteger m_modulus;
- *
  */
 
 #ifndef LBCRYPTO_LATTICE_ILDCRTELEMENT_H
@@ -58,13 +33,15 @@
 #include "../math/nbtheory.h"
 #include "../lattice/ilparams.h"
 
-namespace lbcrypto {
+namespace lbcrypto
+{
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType> class ILVectorImpl;
 
 }
 
-namespace lbcrypto {
+namespace lbcrypto
+{
 
 /**
  * @brief Parameters for array of ideal lattices (used for Double-CRT)
@@ -143,13 +120,15 @@ public:
 		return m_parms;
 	}
 
-	std::shared_ptr<native_int::ILParams>& operator[](const usint i) { return m_parms[i]; }
+	std::shared_ptr<native_int::ILParams>& operator[](const usint i) {
+		return m_parms[i];
+	}
 
 	/**
 	 * Removes the last parameter set and adjust the multiplied moduli.
 	 *
 	 */
-	void PopLastParam(){
+	void PopLastParam() {
 		this->ciphertextModulus = this->ciphertextModulus / IntType(m_parms.back()->GetModulus().ConvertToInt());
 		m_parms.pop_back();
 	}

@@ -1,12 +1,8 @@
 /**
- * @file
- * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
- *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>
- * @version 00_03
+ * @file plaintext.h Represents and defines plaintext objects in Palisade.
+ * @author  TPOC: palisade@njit.edu
  *
- * @section LICENSE
- *
- * Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
+ * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -26,9 +22,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * @section DESCRIPTION
- *
- * This code provides basic lattice ideal manipulation functionality.
  */
 
 #ifndef LBCRYPTO_LATTICE_ILVECTOR2N_H
@@ -51,7 +44,8 @@ using std::shared_ptr;
 #include "../math/transfrm.h"
 #include "../math/distrgen.h"
 
-namespace lbcrypto {
+namespace lbcrypto
+{
 
 const usint SAMPLE_SIZE = 30; //!< @brief The maximum number of samples used for random variable sampling.
 
@@ -73,7 +67,9 @@ public:
 	typedef TernaryUniformGeneratorImpl<IntType,VecType> TugType;
 	typedef BinaryUniformGeneratorImpl<IntType,VecType> BugType;
 
-	static const std::string GetElementName() { return "ILVectorImpl"; }
+	static const std::string GetElementName() {
+		return "ILVectorImpl";
+	}
 
 	/**
 	 * Default constructor
@@ -193,13 +189,17 @@ public:
 	 * Clone the object by making a copy of it and returning the copy
 	 * @return new Element
 	 */
-	ILVectorType Clone() const { return std::move(ILVectorImpl(*this)); }
+	ILVectorType Clone() const {
+		return std::move(ILVectorImpl(*this));
+	}
 
 	/**
 	 * Clone the object, but have it contain nothing
 	 * @return new Element
 	 */
-	ILVectorType CloneEmpty() const { return std::move( ILVectorImpl() ); }
+	ILVectorType CloneEmpty() const {
+		return std::move( ILVectorImpl() );
+	}
 
 	/**
 	 * Clone
@@ -270,7 +270,9 @@ public:
 	 *
 	 * @return the ring element params.
 	 */
-	const shared_ptr<ParmType> GetParams() const { return m_params; }
+	const shared_ptr<ParmType> GetParams() const {
+		return m_params;
+	}
 
 	/**
 	 * Get format of the element
@@ -291,7 +293,9 @@ public:
 	 *
 	 * @return the modulus.
 	 */
-	const ModType &GetModulus() const { return m_params->GetModulus(); }
+	const ModType &GetModulus() const {
+		return m_params->GetModulus();
+	}
 
 	/**
 	 * Get the values for the element
@@ -305,16 +309,22 @@ public:
 	 *
 	 * @return order
 	 */
-	const usint GetCyclotomicOrder() const { return m_params->GetCyclotomicOrder(); }
+	const usint GetCyclotomicOrder() const {
+		return m_params->GetCyclotomicOrder();
+	}
 
-	const usint GetRingDimension() const { return m_params->GetRingDimension(); }
+	const usint GetRingDimension() const {
+		return m_params->GetRingDimension();
+	}
 
 	/**
 	 * Get the root of unity.
 	 *
 	 * @return the root of unity.
 	 */
-	const IntType &GetRootOfUnity() const { return m_params->GetRootOfUnity(); }
+	const IntType &GetRootOfUnity() const {
+		return m_params->GetRootOfUnity();
+	}
 
 
 	/**
@@ -322,7 +332,7 @@ public:
 	 *
 	 * @return value at index i.
 	 */
-    const IntType GetValAtIndex(usint i) const;
+	const IntType GetValAtIndex(usint i) const;
 
 	//SETTERS
 	/**
@@ -345,16 +355,16 @@ public:
 		m_values->SetValAtIndex(index, val);
 	}
 
-    inline void SetValAtIndexWithoutMod(size_t index, const IntType& val) {
+	inline void SetValAtIndexWithoutMod(size_t index, const IntType& val) {
 #if MATHBACKEND !=6
-      m_values->SetValAtIndex(index, val);
+		m_values->SetValAtIndex(index, val);
 #else
-      m_values->SetValAtIndexWithoutMod(index, val);
+		m_values->SetValAtIndexWithoutMod(index, val);
 #endif
 
-    }
+	}
 
-    // SCALAR OPERATIONS
+	// SCALAR OPERATIONS
 
 	/**
 	 * Set method of the values.
@@ -400,7 +410,7 @@ public:
 	ILVectorImpl Times(const IntType &element) const;
 
 
-    // VECTOR OPERATIONS
+	// VECTOR OPERATIONS
 
 	/**
 	 * Unary minus on a lattice
@@ -448,7 +458,7 @@ public:
 	 * Performs -= operation with a IntType and returns the result.
 	 *
 	 * @param &element is the element to subtract
-     * @return is the result of the subtraction.
+	 * @return is the result of the subtraction.
 	 */
 	const ILVectorImpl& operator-=(const IntType &element) {
 		SetValues( GetValues().ModSub(element), this->m_format );
@@ -478,7 +488,7 @@ public:
 	 * Performs an subtraction operation and returns the result.
 	 *
 	 * @param &element is the element to subtract
-     * @return is the result of the subtract.
+	 * @return is the result of the subtract.
 	 */
 	const ILVectorImpl& operator-=(const ILVectorImpl &element);
 
@@ -554,7 +564,9 @@ public:
 	 *
 	 * @return the original ring element.
 	 */
-	ILVectorImpl CRTInterpolate() const { return *this; }
+	ILVectorImpl CRTInterpolate() const {
+		return *this;
+	}
 
 	/**
 	 * Transpose the ring element using the automorphism operation
@@ -725,14 +737,30 @@ public:
 		return os;
 	}
 
-	friend inline ILVectorImpl operator+(const ILVectorImpl &a, const ILVectorImpl &b) { return a.Plus(b); }
-	friend inline ILVectorImpl operator+(const ILVectorImpl &a, const IntType &b) { return a.Plus(b); }
-	friend inline ILVectorImpl operator+(const IntType &a, const ILVectorImpl &b) { return b.Plus(a); }
-	friend inline ILVectorImpl operator-(const ILVectorImpl &a, const ILVectorImpl &b) { return a.Minus(b); }
-	friend inline ILVectorImpl operator-(const ILVectorImpl &a, const IntType &b) { return a.Minus(b); }
-	friend inline ILVectorImpl operator*(const ILVectorImpl &a, const ILVectorImpl &b) { return a.Times(b); }
-	friend inline ILVectorImpl operator*(const ILVectorImpl &a, const IntType &b) { return a.Times(b); }
-	friend inline ILVectorImpl operator*(const IntType &a, const ILVectorImpl &b) { return b.Times(a); }
+	friend inline ILVectorImpl operator+(const ILVectorImpl &a, const ILVectorImpl &b) {
+		return a.Plus(b);
+	}
+	friend inline ILVectorImpl operator+(const ILVectorImpl &a, const IntType &b) {
+		return a.Plus(b);
+	}
+	friend inline ILVectorImpl operator+(const IntType &a, const ILVectorImpl &b) {
+		return b.Plus(a);
+	}
+	friend inline ILVectorImpl operator-(const ILVectorImpl &a, const ILVectorImpl &b) {
+		return a.Minus(b);
+	}
+	friend inline ILVectorImpl operator-(const ILVectorImpl &a, const IntType &b) {
+		return a.Minus(b);
+	}
+	friend inline ILVectorImpl operator*(const ILVectorImpl &a, const ILVectorImpl &b) {
+		return a.Times(b);
+	}
+	friend inline ILVectorImpl operator*(const ILVectorImpl &a, const IntType &b) {
+		return a.Times(b);
+	}
+	friend inline ILVectorImpl operator*(const IntType &a, const ILVectorImpl &b) {
+		return b.Times(a);
+	}
 
 	// gets a random discrete Gaussian polynomial
 	static const ILVectorImpl GetPrecomputedVector();
@@ -743,7 +771,7 @@ public:
 private:
 
 	// stores either coefficient or evaluation representation
-    unique_ptr<VecType> m_values;
+	unique_ptr<VecType> m_values;
 
 	// 1 for coefficient and 0 for evaluation format
 	Format m_format;
@@ -771,13 +799,15 @@ private:
 } //namespace lbcrypto ends
 
 
-namespace native_int {
+namespace native_int
+{
 
 typedef lbcrypto::ILVectorImpl<native_int::BinaryInteger, native_int::BinaryInteger, native_int::BinaryVector, native_int::ILParams> ILVector2n;
 
 }
 
-namespace lbcrypto {
+namespace lbcrypto
+{
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType> class ILVectorImpl;
 typedef ILVectorImpl<BigBinaryInteger, BigBinaryInteger, BigBinaryVector, ILParams> ILVector2n;

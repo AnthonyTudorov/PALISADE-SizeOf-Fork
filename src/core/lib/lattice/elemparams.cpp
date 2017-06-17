@@ -1,5 +1,5 @@
-/**
-* @file
+/*
+* @file elemparams.cpp - element parameters for palisade
 * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
 * @version 00_03
 *
@@ -32,59 +32,61 @@
 
 #include "elemparams.h"
 
-namespace lbcrypto {
+namespace lbcrypto
+{
 
-		/**
-		* Stores this object's attribute name value pairs to a map for serializing this object to a JSON file.
-		*
-		* @param serObj stores this object's serialized attribute name value pairs.
-		* @return map updated with the attribute name value pairs required to serialize this object.
-		*/
-		template<typename IntType>
-		bool ElemParams<IntType>::Serialize(Serialized* serObj) const {
+/**
+* Stores this object's attribute name value pairs to a map for serializing this object to a JSON file.
+*
+* @param serObj stores this object's serialized attribute name value pairs.
+* @return map updated with the attribute name value pairs required to serialize this object.
+*/
+template<typename IntType>
+bool ElemParams<IntType>::Serialize(Serialized* serObj) const
+{
 
-			if( !serObj->IsObject() )
-				return false;
+	if( !serObj->IsObject() )
+		return false;
 
-			SerialItem ser(rapidjson::kObjectType);
-			ser.AddMember("Modulus", this->GetModulus().ToString(), serObj->GetAllocator());
-			ser.AddMember("Order", std::to_string(this->GetCyclotomicOrder()), serObj->GetAllocator());
+	SerialItem ser(rapidjson::kObjectType);
+	ser.AddMember("Modulus", this->GetModulus().ToString(), serObj->GetAllocator());
+	ser.AddMember("Order", std::to_string(this->GetCyclotomicOrder()), serObj->GetAllocator());
 
-			serObj->AddMember("ElemParams", ser, serObj->GetAllocator());
+	serObj->AddMember("ElemParams", ser, serObj->GetAllocator());
 
-			return true;
-		}
+	return true;
+}
 
-		/**
-		* Sets this object's attribute name value pairs to deserialize this object from a JSON file.
-		*
-		* @param serObj stores this object's serialized attribute name value pairs.
-		*/
-		template<typename IntType>
-		bool ElemParams<IntType>::Deserialize(const Serialized& serObj) {
+/**
+* Sets this object's attribute name value pairs to deserialize this object from a JSON file.
+*
+* @param serObj stores this object's serialized attribute name value pairs.
+*/
+template<typename IntType>
+bool ElemParams<IntType>::Deserialize(const Serialized& serObj)
+{
 
-			Serialized::ConstMemberIterator mIter = serObj.FindMember("ElemParams");
-			if( mIter == serObj.MemberEnd() ) {
-				return false;
-			}
+	Serialized::ConstMemberIterator mIter = serObj.FindMember("ElemParams");
+	if( mIter == serObj.MemberEnd() ) {
+		return false;
+	}
 
-			SerialItem::ConstMemberIterator oIt;
+	SerialItem::ConstMemberIterator oIt;
 
-			if( (oIt = mIter->value.FindMember("Modulus")) == mIter->value.MemberEnd() )
-				return false;
-			IntType modulus(oIt->value.GetString());
+	if( (oIt = mIter->value.FindMember("Modulus")) == mIter->value.MemberEnd() )
+		return false;
+	IntType modulus(oIt->value.GetString());
 
-			if( (oIt = mIter->value.FindMember("Order")) == mIter->value.MemberEnd() )
-				return false;
-			usint order = atoi(oIt->value.GetString());
+	if( (oIt = mIter->value.FindMember("Order")) == mIter->value.MemberEnd() )
+		return false;
+	usint order = atoi(oIt->value.GetString());
 
-			cyclotomicOrder = order;
-			ringDimension = GetTotient(order);
-			isPowerOfTwo = cyclotomicOrder/2 == ringDimension;
-			ciphertextModulus = modulus;
-			return true;
-		}
+	cyclotomicOrder = order;
+	ringDimension = GetTotient(order);
+	isPowerOfTwo = cyclotomicOrder/2 == ringDimension;
+	ciphertextModulus = modulus;
+	return true;
+}
 
 
 } // namespace lbcrypto ends
-

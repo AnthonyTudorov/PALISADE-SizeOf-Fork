@@ -1,12 +1,8 @@
 /**
- * @file
- * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
- *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>, Hadi Sajjadpour <ss2959@njit.edu>
- * @version 00_03
+ * @file plaintext.h Represents and defines plaintext objects in Palisade.
+ * @author  TPOC: palisade@njit.edu
  *
- * @section LICENSE
- *
- * Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
+ * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -26,9 +22,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * @section DESCRIPTION
- * LAYER 2 : LATTICE DATA STRUCTURES AND OPERATIONS
- * This code provides basic lattice ideal manipulation functionality.
  */
 
 #ifndef LBCRYPTO_LATTICE_ILPARAMS_H
@@ -43,20 +36,23 @@
  * @namespace lbcrypto
  * The namespace of lbcrypto
  */
-namespace lbcrypto {
+namespace lbcrypto
+{
 
 template<typename IntType> class ILParamsImpl;
 typedef ILParamsImpl<BigBinaryInteger> ILParams;
 
 }
 
-namespace native_int {
+namespace native_int
+{
 
 typedef lbcrypto::ILParamsImpl<native_int::BinaryInteger> ILParams;
 
 }
 
-namespace lbcrypto {
+namespace lbcrypto
+{
 
 /**
  * @brief Parameters for ideal lattice: cyclotomic order and modulus.
@@ -90,8 +86,7 @@ public:
 	 * @param &modulus the ciphertext modulus.
 	 */
 	ILParamsImpl(const usint order, const IntType &modulus)
-		: ElemParams<IntType>(order, modulus)
-	{
+		: ElemParams<IntType>(order, modulus) {
 		this->rootOfUnity = RootOfUnity<IntType>(order, modulus);
 	}
 

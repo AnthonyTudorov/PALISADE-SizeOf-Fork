@@ -1,3 +1,28 @@
+/**
+ * @file plaintext.h Represents and defines plaintext objects in Palisade.
+ * @author  TPOC: palisade@njit.edu
+ *
+ * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or other
+ * materials provided with the distribution.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+ * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
 #ifndef _SRC_LIB_LATTICE_SIGNATURE_FIELD2N_H
 #define _SRC_LIB_LATTICE_SIGNATURE_FIELD2N_H
 
@@ -6,217 +31,244 @@
 #include "../math/matrix.h"
 #include "ildcrt2n.h"
 
-namespace lbcrypto {
+namespace lbcrypto
+{
 
-	class Field2n :public std::vector<std::complex<double>>, public Serializable {
-	public:
-		/**Default Constructor
-		*/
-		Field2n() : format(COEFFICIENT) {};
-
-		/**Constructor for field element
-		*
-		*@param size element size
-		*@param f format of the element
-		*@param initializeElementToZero flag for initializing values to zero
-		*/
-		Field2n(int size, Format f = EVALUATION, bool initializeElementToZero = false)
-			:std::vector<std::complex<double>>(size, initializeElementToZero ? 0 : -std::numeric_limits<double>::max()) {
-			this->format = f;
-		}
-
-		/**Constructor from ring element
-		*
-		*@param & element ring element
-		*/
-		explicit Field2n(const ILVector2n & element);
-
-		/** Constructor from a ring element matrix
-		*
-		*@param &element ring element matrix
-		*/
-		explicit Field2n(const Matrix<int32_t> & element);
-
-		/**Method for getting the format of the element
-		*
-		*@return format of the field element
-		*/
-		Format GetFormat() const { return format; }
-
-		/**Inverse operation for the field elements
-		*
-		*@return the inverse field element
-		*/
-		Field2n Inverse() const;
-
-		/**Addition operation for field elements
-		*
-		*@param &rhs right hand side element for operation
-		*@return result of the operation
-		*/
-		Field2n Plus(const Field2n &rhs) const;
-
-		/**Scalar addition operation for field elements
-		*
-		*@param &rhs right hand side element for operation
-		*@return result of the operation
-		*/
-		Field2n Plus(double rhs) const;
-
-		/**Substraction operation for field elements
-		*
-		*@param &rhs right hand side element for operation
-		*@return result of the operation
-		*/
-		Field2n Minus(const Field2n &rhs) const;
-
-		/**Multiplication operation for field elements
-		*
-		*@param &rhs right hand side element for operation
-		*@return result of the operation
-		*/
-		Field2n Times(const Field2n & rhs) const;
-
-		/**Right shift operation for the field element
-		*
-		*@return the shifted field element
-		*/
-		Field2n ShiftRight();
-
-		/**
-		* Performs an automorphism transform operation and returns the result.
-		*
-		* @param &i is the element to perform the automorphism transform with.
-		* @return is the result of the automorphism transform.
-		*/
-		Field2n AutomorphismTransform(size_t i) const;
-
-		/**Transpose operation defined in the paper of perturbation sampling
-		*
-		*@return the transpose of the element
-		*/
-		Field2n Transpose() const;
-
-		/**Function for extracting odd factors of the field element
-		*
-		*@return the field element with odd parts of the initial element
-		*/
-		Field2n ExtractOdd() const;
-
-		/**Function for extracting even factors of the field element
-		*
-		*@return the field element with even parts of the initial element
-		*/
-		Field2n ExtractEven() const;
-
-		/**Permutation operation defined in the paper
-		*
-		*@return permuted new field element
-		*/
-		Field2n Permute() const;
-
-		/**Inverse operation for permutation operation defined in the paper
-		*
-		*@return non permuted version of the element
-		*/
-		Field2n InversePermute() const;
-
-		/**Operation for scalar multiplication
-		*
-		*@param d scalar for multiplication
-		*@return the field element with the scalar multiplication
-		*/
-		Field2n ScalarMult(double d);
-
-		/** Method for switching format of the field elements
-		*/
-		void SwitchFormat();
-
-		/** Method for getting the size of the element
-		*
-		*@return the size of the element
-		*/
-		size_t Size() const { return this->size(); }
-
-		/**Indexing operator for field elements
-		*
-		*@param idx index of the element
-		*@return element at the index
-		*/
-		inline std::complex<double>& operator[](std::size_t idx) { return (this->at(idx)); }
-
-		/**Indexing operator for field elements
-		*
-		*@param idx index of the element
-		*@return element at the index
-		*/
-		inline const std::complex<double>& operator[](std::size_t idx) const { return (this->at(idx)); }
-
-		/**
-		* Serialize the object into a Serialized
-		* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-		* @return true if successfully serialized
-		*/
-		bool Serialize(Serialized* serObj) const { return false; }
-
-		/**
-		* Populate the object from the deserialization of the Serialized
-		* @param serObj contains the serialized object
-		* @return true on success
-		*/
-		bool Deserialize(const Serialized& serObj) { return false; }
-
-	private:
-		//Format of the field element
-		Format format;
-	};
-
-	/**
-	*  Stream output operator
-	*
-	* @param &os stream
-	* @param &m matrix to be outputted
-	* @return the chained stream
+class Field2n :public std::vector<std::complex<double>>, public Serializable
+{
+public:
+	/**Default Constructor
 	*/
-	inline std::ostream& operator<<(std::ostream& os, const Field2n& m) {
-		os << "[ ";
-		for (size_t row = 0; row < m.size(); ++row) {
-			os << m.at(row) << " ";
-		}
-		os << " ]\n";
-		return os;
+	Field2n() : format(COEFFICIENT) {};
+
+	/**Constructor for field element
+	*
+	*@param size element size
+	*@param f format of the element
+	*@param initializeElementToZero flag for initializing values to zero
+	*/
+	Field2n(int size, Format f = EVALUATION, bool initializeElementToZero = false)
+		:std::vector<std::complex<double>>(size, initializeElementToZero ? 0 : -std::numeric_limits<double>::max()) {
+		this->format = f;
 	}
 
-	/**Addition operator for field elements
+	/**Constructor from ring element
 	*
-	*@param &a left hand side field element
-	*@param &b right hand side field element
-	*@return result of the addition operation
+	*@param & element ring element
 	*/
-	inline Field2n operator+(const Field2n &a, const Field2n &b) { return a.Plus(b); }
+	explicit Field2n(const ILVector2n & element);
 
-	/**Scalar addition operator for field elements
+	/** Constructor from a ring element matrix
 	*
-	*@param &a left hand side field element
-	*@param &b  the scalar to be added
-	*@return result of the addition operation
+	*@param &element ring element matrix
 	*/
-	inline Field2n operator+(const Field2n &a, double scalar) { return a.Plus(scalar); }
+	explicit Field2n(const Matrix<int32_t> & element);
 
-	/**Substraction operator for field elements
+	/**Method for getting the format of the element
 	*
-	*@param &a left hand side field element
-	*@param &b right hand side field element
-	*@return result of the substraction operation
+	*@return format of the field element
 	*/
-	inline Field2n operator-(const Field2n &a, const Field2n &b) { return a.Minus(b); }
+	Format GetFormat() const {
+		return format;
+	}
 
-	/**Multiplication operator for field elements
+	/**Inverse operation for the field elements
 	*
-	*@param &a left hand side field element
-	*@param &b right hand side field element
-	*@return result of the multiplication operation
+	*@return the inverse field element
 	*/
-	inline Field2n operator*(const Field2n &a, const Field2n &b) { return a.Times(b); }
+	Field2n Inverse() const;
+
+	/**Addition operation for field elements
+	*
+	*@param &rhs right hand side element for operation
+	*@return result of the operation
+	*/
+	Field2n Plus(const Field2n &rhs) const;
+
+	/**Scalar addition operation for field elements
+	*
+	*@param &rhs right hand side element for operation
+	*@return result of the operation
+	*/
+	Field2n Plus(double rhs) const;
+
+	/**Substraction operation for field elements
+	*
+	*@param &rhs right hand side element for operation
+	*@return result of the operation
+	*/
+	Field2n Minus(const Field2n &rhs) const;
+
+	/**Multiplication operation for field elements
+	*
+	*@param &rhs right hand side element for operation
+	*@return result of the operation
+	*/
+	Field2n Times(const Field2n & rhs) const;
+
+	/**Right shift operation for the field element
+	*
+	*@return the shifted field element
+	*/
+	Field2n ShiftRight();
+
+	/**
+	* Performs an automorphism transform operation and returns the result.
+	*
+	* @param &i is the element to perform the automorphism transform with.
+	* @return is the result of the automorphism transform.
+	*/
+	Field2n AutomorphismTransform(size_t i) const;
+
+	/**Transpose operation defined in the paper of perturbation sampling
+	*
+	*@return the transpose of the element
+	*/
+	Field2n Transpose() const;
+
+	/**Function for extracting odd factors of the field element
+	*
+	*@return the field element with odd parts of the initial element
+	*/
+	Field2n ExtractOdd() const;
+
+	/**Function for extracting even factors of the field element
+	*
+	*@return the field element with even parts of the initial element
+	*/
+	Field2n ExtractEven() const;
+
+	/**Permutation operation defined in the paper
+	*
+	*@return permuted new field element
+	*/
+	Field2n Permute() const;
+
+	/**Inverse operation for permutation operation defined in the paper
+	*
+	*@return non permuted version of the element
+	*/
+	Field2n InversePermute() const;
+
+	/**Operation for scalar multiplication
+	*
+	*@param d scalar for multiplication
+	*@return the field element with the scalar multiplication
+	*/
+	Field2n ScalarMult(double d);
+
+	/** Method for switching format of the field elements
+	*/
+	void SwitchFormat();
+
+	/** Method for getting the size of the element
+	*
+	*@return the size of the element
+	*/
+	size_t Size() const {
+		return this->size();
+	}
+
+	/**Indexing operator for field elements
+	*
+	*@param idx index of the element
+	*@return element at the index
+	*/
+	inline std::complex<double>& operator[](std::size_t idx) {
+		return (this->at(idx));
+	}
+
+	/**Indexing operator for field elements
+	*
+	*@param idx index of the element
+	*@return element at the index
+	*/
+	inline const std::complex<double>& operator[](std::size_t idx) const {
+		return (this->at(idx));
+	}
+
+	/**
+	* Serialize the object into a Serialized
+	* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+	* @return true if successfully serialized
+	*/
+	bool Serialize(Serialized* serObj) const {
+		return false;
+	}
+
+	/**
+	* Populate the object from the deserialization of the Serialized
+	* @param serObj contains the serialized object
+	* @return true on success
+	*/
+	bool Deserialize(const Serialized& serObj) {
+		return false;
+	}
+
+private:
+	//Format of the field element
+	Format format;
+};
+
+/**
+*  Stream output operator
+*
+* @param &os stream
+* @param &m matrix to be outputted
+* @return the chained stream
+*/
+inline std::ostream& operator<<(std::ostream& os, const Field2n& m)
+{
+	os << "[ ";
+	for (size_t row = 0; row < m.size(); ++row) {
+		os << m.at(row) << " ";
+	}
+	os << " ]\n";
+	return os;
+}
+
+/**Addition operator for field elements
+*
+*@param &a left hand side field element
+*@param &b right hand side field element
+*@return result of the addition operation
+*/
+inline Field2n operator+(const Field2n &a, const Field2n &b)
+{
+	return a.Plus(b);
+}
+
+/**Scalar addition operator for field elements
+*
+*@param &a left hand side field element
+*@param &b  the scalar to be added
+*@return result of the addition operation
+*/
+inline Field2n operator+(const Field2n &a, double scalar)
+{
+	return a.Plus(scalar);
+}
+
+/**Substraction operator for field elements
+*
+*@param &a left hand side field element
+*@param &b right hand side field element
+*@return result of the substraction operation
+*/
+inline Field2n operator-(const Field2n &a, const Field2n &b)
+{
+	return a.Minus(b);
+}
+
+/**Multiplication operator for field elements
+*
+*@param &a left hand side field element
+*@param &b right hand side field element
+*@return result of the multiplication operation
+*/
+inline Field2n operator*(const Field2n &a, const Field2n &b)
+{
+	return a.Times(b);
+}
 }
 #endif
