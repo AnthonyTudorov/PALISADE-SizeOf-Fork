@@ -31,7 +31,14 @@
 
 namespace lbcrypto
 {
+/**
+ * @class EncodingParamsImpl
+ * @brief defining EncodingParams.
+ */
 template<typename IntType> class EncodingParamsImpl;
+/**
+ * @brief defining typedef  EncodingParamsImpl<BigBinaryInteger> as EncodingParams. 
+ */
 typedef EncodingParamsImpl<BigBinaryInteger> EncodingParams;
 }
 
@@ -40,7 +47,7 @@ namespace lbcrypto
 
 /**
  * @class EncodingParamsImpl
- * @brief Parameters for plaintext encodings: defines plaintext space.
+ * @brief Templated serializable parameters for plaintext encodings defines plaintext space.
  */
 template<typename IntType>
 class EncodingParamsImpl : public Serializable
