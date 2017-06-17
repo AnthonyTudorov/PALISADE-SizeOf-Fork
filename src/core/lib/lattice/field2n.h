@@ -1,5 +1,5 @@
 /**
- * @file plaintext.h Represents and defines plaintext objects in Palisade.
+ * @file field2n.h Represents and defines plaintext objects in Palisade.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
