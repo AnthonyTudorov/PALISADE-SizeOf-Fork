@@ -1,5 +1,5 @@
 /**
- * @file plaintext.h Represents and defines plaintext objects in Palisade.
+ * @file ilparams.h Wraps parameters for integer lattice operations.  Inherits from ElemParams.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -32,30 +32,24 @@
 #include "../utils/inttypes.h"
 #include "../math/nbtheory.h"
 
-/**
- * @namespace lbcrypto
- * The namespace of lbcrypto
- */
 namespace lbcrypto
 {
-
 template<typename IntType> class ILParamsImpl;
 typedef ILParamsImpl<BigBinaryInteger> ILParams;
-
 }
 
 namespace native_int
 {
-
 typedef lbcrypto::ILParamsImpl<native_int::BinaryInteger> ILParams;
-
 }
 
 namespace lbcrypto
 {
 
 /**
- * @brief Parameters for ideal lattice: cyclotomic order and modulus.
+ * @class ILParamsImpl
+ * @file elemparams.h
+ * @brief Wrapper class to hold the parameters for integer lattice operations and their inheritors.
  */
 template<typename IntType>
 class ILParamsImpl : public ElemParams<IntType>
@@ -70,17 +64,20 @@ public:
 		: ElemParams<IntType>(0, 0, 0, 0, 0) {}
 
 	/**
-	 * Constructor for the pre-computed case.
+	 * @brief Constructor for the case of partially pre-computed parameters.
 	 *
 	 * @param &order the order of the ciphertext.
 	 * @param &modulus the ciphertext modulus.
 	 * @param &rootOfUnity the root of unity used in the ciphertext.
+	 * @param bigModulus the big ciphertext modulus.
+	 * @param bigRootOfUnity the big ciphertext modulus used for bit packing operations.
+	 * @return 
 	 */
 	ILParamsImpl(const usint order, const IntType & modulus, const IntType & rootOfUnity, const IntType & bigModulus = 0, const IntType & bigRootOfUnity = 0)
 		: ElemParams<IntType>(order, modulus, rootOfUnity, bigModulus, bigRootOfUnity) {}
 
 	/**
-	 * Constructor for the pre-computed case.
+	 * @brief Constructor for the case of partially pre-computed parameters.
 	 *
 	 * @param &order the order of the ciphertext.
 	 * @param &modulus the ciphertext modulus.
@@ -90,16 +87,15 @@ public:
 		this->rootOfUnity = RootOfUnity<IntType>(order, modulus);
 	}
 
-	//copy constructor
 	/**
-	 * Copy constructor.
+	 * @brief Copy constructor.
 	 *
 	 * @param &rhs the input set of parameters which is copied.
 	 */
 	ILParamsImpl(const ILParamsImpl &rhs) : ElemParams<IntType>(rhs) {}
 
 	/**
-	 * Assignment Operator.
+	 * @brief Assignment Operator.
 	 *
 	 * @param &rhs the ILParams to be copied.
 	 * @return the resulting ILParams.
@@ -110,22 +106,22 @@ public:
 	}
 
 	/**
-	 * Move constructor.
+	 * @brief Move constructor.
 	 *
 	 * @param &rhs the input set of parameters which is copied.
 	 */
 	ILParamsImpl(const ILParamsImpl &&rhs) : ElemParams<IntType>(rhs) {}
 
 	/**
-	 * Destructor.
+	 * @brief Standard Destructor method.
 	 */
 	virtual ~ILParamsImpl() {}
 
 	/**
-	 * Equal operator compares ElemParams (which will be dynamic casted)
+	 * @brief Equality operator compares ElemParams (which will be dynamic casted)
 	 *
 	 * @param &rhs is the specified ILVector2n to be compared with this ILVector2n.
-	 * @return true if this ILVector2n represents the same values as the specified ILDCRT2n, false otherwise
+	 * @return True if this ILVector2n represents the same values as the specified ILDCRT2n, False otherwise
 	 */
 	bool operator==(const ElemParams<IntType>& rhs) const {
 		if( dynamic_cast<const ILParamsImpl<IntType> *>(&rhs) == 0 )
@@ -144,15 +140,14 @@ private:
 
 public:
 	/**
-	 * Serialize the object into a Serialized
+	 * @brief Serialize the object into a Serialized
 	 * @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-	 * @param fileFlag is an object-specific parameter for the serialization
 	 * @return true if successfully serialized
 	 */
 	bool Serialize(Serialized* serObj) const;
 
 	/**
-	 * Populate the object from the deserialization of the Setialized
+	 * @brief Populate the object from the deserialization of the Setialized
 	 * @param serObj contains the serialized object
 	 * @return true on success
 	 */
