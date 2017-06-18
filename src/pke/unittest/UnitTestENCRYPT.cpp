@@ -81,7 +81,7 @@ UnitTestEncryption(const CryptoContext<Element>& cc) {
 	vector<int32_t> sintvec;
 	for( size_t ii=0; ii<intSize; ii++) {
 		int rnum = rand() % ptm;
-		if( rnum > ptm/2 ) rnum = ptm - rnum;
+		if( rnum > (int)ptm/2 ) rnum = ptm - rnum;
 		sintvec.push_back( rnum );
 	}
 	SignedIntPlaintextEncoding plaintextSInt(sintvec);
