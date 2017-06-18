@@ -94,10 +94,42 @@ CircuitGraph::GenerateOperationList()
 {
 	for( int output : getOutputs() ) {
 		CircuitNode *out = getNodeById(output);
-		cout << "Evaluating output " << output << endl;
 		out->simeval(*this);
 	}
 }
+
+TimingStatistics
+CircuitGraph::GenerateRuntimeEstimate(map<OpType,TimingStatistics>& stats) const
+{
+	vector<CircuitSimulation> steps = CircuitNode::GetSimulationItems();
+
+	// first make sure we have estimates for every operation performed
+	set<OpType> ops;
+	for( auto &s : steps ) {
+		ops.insert( s.op );
+	}
+
+	for( OpType o : ops ) {
+		if( stats.find(o) == stats.end() ) {
+			cout << "WARNING there are no measurements for " << o << endl;
+		}
+	}
+
+	TimingStatistics estimate;
+	estimate.min = estimate.max = estimate.average = 0;
+
+	for( size_t i=0; i<steps.size(); i++ ) {
+		auto this_est = stats[ steps[i].op ];
+		cout << i << ":" << steps[i].op << "(" << steps[i].nodeId << ") = "
+				<< this_est.min << "," << this_est.max << "," << this_est.average << endl;
+		estimate.min += this_est.min;
+		estimate.max += this_est.max;
+		estimate.average += this_est.average;
+	}
+
+	return estimate;
+}
+
 
 template<typename Element>
 void

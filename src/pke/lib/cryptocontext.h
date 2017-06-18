@@ -468,7 +468,7 @@ public:
 		if( doTiming ) start = currentDateTime();
 		auto r = GetEncryptionAlgorithm()->KeySwitchGen(key1, key2);
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpReKeyGenPriPri, currentDateTime() - start) );
+			timeSamples->push_back( TimingInfo(OpKeySwitchGen, currentDateTime() - start) );
 		}
 		return r;
 	}
@@ -1130,7 +1130,13 @@ public:
 		if (ct == NULL || ct->GetCryptoContext() != *this)
 			throw std::logic_error("Information passed to EvalNegate was not generated with this crypto context");
 
-		return GetEncryptionAlgorithm()->EvalNegate(ct);
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto rv = GetEncryptionAlgorithm()->EvalNegate(ct);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalNeg, currentDateTime() - start) );
+		}
+		return rv;
 	}
 
 	/**
@@ -1146,8 +1152,13 @@ public:
 
 		//need to add exception handling
 
-		return GetEncryptionAlgorithm()->EvalAutomorphismKeyGen(publicKey, origPrivateKey, indexList);
-
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto rv = GetEncryptionAlgorithm()->EvalAutomorphismKeyGen(publicKey, origPrivateKey, indexList);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalAutomorphismKeyGen, currentDateTime() - start) );
+		}
+		return rv;
 	}
 
 
@@ -1165,8 +1176,13 @@ public:
 
 		//need to add exception handling
 
-		return GetEncryptionAlgorithm()->EvalAutomorphism(ciphertext, i, evalKeys);
-
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto rv = GetEncryptionAlgorithm()->EvalAutomorphism(ciphertext, i, evalKeys);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalAutomorphismI, currentDateTime() - start) );
+		}
+		return rv;
 	}
 
 	/**
@@ -1181,8 +1197,13 @@ public:
 
 		//need to add exception handling
 
-		return GetEncryptionAlgorithm()->EvalAutomorphismKeyGen(privateKey, indexList);
-
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto rv = GetEncryptionAlgorithm()->EvalAutomorphismKeyGen(privateKey, indexList);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalAutomorphismK, currentDateTime() - start) );
+		}
+		return rv;
 	}
 
 	/**
@@ -1261,7 +1282,13 @@ public:
 		//if (ct1 == NULL || ct2 == NULL || ct1->GetCryptoContext() != *this || ct2->GetCryptoContext() != *this)
 		//	throw std::logic_error("Information passed to EvalMult was not generated with this crypto context");
 
-		return GetEncryptionAlgorithm()->EvalLinRegression(x, y);
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto rv = GetEncryptionAlgorithm()->EvalLinRegression(x, y);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpLinRegression, currentDateTime() - start) );
+		}
+		return rv;
 	}
 
 	/**
@@ -1280,7 +1307,13 @@ public:
 		if( ciphertext == NULL || ciphertext->GetCryptoContext() != *this )
 			throw std::logic_error("Ciphertext passed to KeySwitch was not generated with this crypto context");
 
-		return GetEncryptionAlgorithm()->KeySwitch(keySwitchHint, ciphertext);
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto rv = GetEncryptionAlgorithm()->KeySwitch(keySwitchHint, ciphertext);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpKeySwitch, currentDateTime() - start) );
+		}
+		return rv;
 	}
 
 	/**
@@ -1292,7 +1325,13 @@ public:
 		if( ciphertext == NULL || ciphertext->GetCryptoContext() != *this )
 			throw std::logic_error("Information passed to ModReduce was not generated with this crypto context");
 
-		return GetEncryptionAlgorithm()->ModReduce(ciphertext);
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto rv = GetEncryptionAlgorithm()->ModReduce(ciphertext);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpModReduce, currentDateTime() - start) );
+		}
+		return rv;
 	}
 
 	/**
@@ -1308,8 +1347,13 @@ public:
 			throw std::logic_error("Information passed to LevelReduce was not generated with this crypto context");
 		}
 
-
-		return GetEncryptionAlgorithm()->LevelReduce(cipherText1, linearKeySwitchHint);
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto rv = GetEncryptionAlgorithm()->LevelReduce(cipherText1, linearKeySwitchHint);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpLevelReduce, currentDateTime() - start) );
+		}
+		return rv;
 	}
 
 	/**
@@ -1328,6 +1372,8 @@ public:
 
 		std::vector<shared_ptr<Ciphertext<Element>>> newCiphertext(ciphertext.size());
 
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
 		for (size_t i = 0; i < ciphertext.size(); i++) {
 			if( ciphertext[i] == NULL || ciphertext[i]->GetCryptoContext() != *this )
 				throw std::logic_error("Ciphertext passed to RingReduce was not generated with this crypto context");
@@ -1335,6 +1381,9 @@ public:
 			newCiphertext[i] = GetEncryptionAlgorithm()->RingReduce(ciphertext[i], keySwitchHint);
 		}
 
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpRingReduce, currentDateTime() - start) );
+		}
 		return newCiphertext;
 	}
 
@@ -1352,7 +1401,13 @@ public:
 		if( ciphertext1 == NULL || ciphertext2 == NULL || ciphertext1->GetCryptoContext() != *this || ciphertext2->GetCryptoContext() != *this )
 			throw std::logic_error("Ciphertexts passed to ComposedEvalMult was not generated with this crypto context");
 
-		return GetEncryptionAlgorithm()->ComposedEvalMult(ciphertext1, ciphertext2, GetEvalMultKey());
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto rv = GetEncryptionAlgorithm()->ComposedEvalMult(ciphertext1, ciphertext2, GetEvalMultKey());
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpComposedEvalMult, currentDateTime() - start) );
+		}
+		return rv;
 	}
 
 	/**

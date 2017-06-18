@@ -146,6 +146,10 @@ public:
 			out << i << ": " << sim[i] << endl;
 	}
 
+	static const vector<CircuitSimulation>& GetSimulationItems() {
+		return sim;
+	}
+
 protected:
 	bool			is_input;
 	bool			is_output;
@@ -216,6 +220,9 @@ public:
 			out << i << ": " << sim[i] << endl;
 	}
 
+	static const vector<CircuitSimulation>& GetSimulationItems() {
+		return sim;
+	}
 };
 
 template<typename Element>

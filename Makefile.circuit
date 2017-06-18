@@ -35,9 +35,8 @@ CIRCUITTESTDIR := src/circuit/unittest
 CIRCUITDEMODIR := src/circuit/demo
 
 CIRCUITSOURCES := $(wildcard $(CIRCUITSRCDIR)/lib/*.cpp)
-
 CIRCUITUNITSOURCES := $(wildcard $(CIRCUITSRCDIR)/unittest/*.cpp)
-CIRCUITDEMOSOURCES := $(CIRCUITDEMODIR)/palcircuit.cpp
+CIRCUITDEMOSOURCES := $(wildcard $(CIRCUITDEMODIR)/*.cpp)
 
 CIRCUITOBJECTS = $(patsubst $(CIRCUITSRCDIR)/%,$(CIRCUITBINDIR)/%,$(patsubst %.cpp,%.o,$(CIRCUITSOURCES)))
 CIRCUITUNITOBJECTS := $(patsubst $(CIRCUITSRCDIR)/%,$(CIRCUITBINDIR)/%,$(patsubst %.cpp,%.o,$(CIRCUITUNITSOURCES)))
@@ -45,7 +44,6 @@ CIRCUITUNITOBJECTS += test/include/gtest/gtest-all.o
 CIRCUITDEMOOBJECTS := $(patsubst $(CIRCUITSRCDIR)/%,$(CIRCUITBINDIR)/%,$(patsubst %.cpp,%.o,$(CIRCUITDEMOSOURCES)))
 
 CLIBS := $(EXTLIBDIR)/$(PALISADETRAPDOORLIB) $(EXTLIBDIR)/$(PALISADEPKELIB) $(EXTLIBDIR)/$(PALISADECORELIB)
-
 
 CIRCUIT_TEST_TARGET := $(EXTTESTDIR)/circuit/tests$(EXESUFFIX)
 
@@ -59,7 +57,7 @@ circuitstring:
 	@echo $(CIRCUITDEMOOBJECTS)
 
 .PHONY:allcircuit
-allcircuit: $(CLIBS) gram $(EXTLIBDIR)/$(PALISADECIRCUITLIB) $(CIRCUIT_TEST_TARGET) $(CIRCUITDEMOSOURCES) $(EXTDEMODIR)/circuit/palcircuit$(EXESUFFIX)
+allcircuit: $(CLIBS) gram $(EXTLIBDIR)/$(PALISADECIRCUITLIB) $(CIRCUIT_TEST_TARGET) $(CIRCUITDEMOSOURCES) allcircuitdemos
 
 gram: $(CIRCUITSRCDIR)/lib/parse.cpp $(CIRCUITSRCDIR)/lib/parse.hpp $(CIRCUITSRCDIR)/lib/scan.cpp
 
@@ -69,7 +67,9 @@ $(CIRCUITSRCDIR)/lib/parse.cpp: $(CIRCUITSRCDIR)/lib/parse.y
 $(CIRCUITSRCDIR)/lib/scan.cpp: $(CIRCUITSRCDIR)/lib/scan.l
 	flex -o $@ $^
 
-$(EXTDEMODIR)/circuit/palcircuit$(EXESUFFIX): $(CIRCUITDEMOOBJECTS) $(EXTLIBDIR)/$(PALISADECIRCUITLIB) $(CLIBS)
+allcircuitdemos: $(patsubst $(CIRCUITBINDIR)/demo/%,bin/demo/circuit/%,$(patsubst %.o,%$(EXESUFFIX),$(CIRCUITDEMOOBJECTS)))
+
+bin/demo/circuit/%$(EXESUFFIX): src/circuit/bin/demo/%.o $(EXTLIBDIR)/$(PALISADECIRCUITLIB) $(CLIBS)
 	@mkdir -p $(@D)
 	$(CC) -o $@ $^ $(EXTLIB)
 
@@ -97,7 +97,7 @@ $(CIRCUITBINDIR)/%:
 
 #this target is used to cleanup, it is called from the top Makefile
 cleancircuit: 
-	$(RM) -fr $(CIRCUITBINDIR) $(EXTLIBDIR)/$(PALISADECIRCUITLIB) `dirname $(CIRCUIT_TEST_TARGET)` bin/demo/circuit $(CIRCUITDEMODIR)/parse.cpp $(CIRCUITDEMODIR)/scan.cpp $(CIRCUITDEMODIR)/parse.hpp $(wildcard $(CIRCUITDEMODIR)/*.hh)
+	$(RM) -fr $(CIRCUITBINDIR) $(EXTLIBDIR)/$(PALISADECIRCUITLIB) `dirname $(CIRCUIT_TEST_TARGET)` bin/demo/circuit $(CIRCUITSRCDIR)/lib/parse.cpp $(CIRCUITSRCDIR)/lib/scan.cpp $(CIRCUITSRCDIR)/lib/parse.hpp $(wildcard $(CIRCUITSRCDIR)/lib/*.hh)
 
 # this links test executable  from objects in the test build directory
 $(CIRCUIT_TEST_TARGET): $(CIRCUITUNITOBJECTS) $(CLIBS)

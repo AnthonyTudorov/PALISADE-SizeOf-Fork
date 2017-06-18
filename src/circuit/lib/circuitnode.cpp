@@ -156,6 +156,14 @@ void EvalSubNode::simeval(CircuitGraph& g) {
 	if( noiseval != 0 )
 		return; // visit only once!
 
+	if( getInputs().size() == 1 ) {
+		auto n0 = g.getNodeById(getInputs()[0]);
+		n0->simeval(g);
+		this->SetNoise( n0->GetNoise() );
+		this->Log(OpEvalNeg);
+		return;
+	}
+
 	if( getInputs().size() < 2 ) throw std::logic_error("Sub requires at least 2 inputs");
 
 	auto n0 = g.getNodeById(getInputs()[0]);
@@ -271,7 +279,7 @@ void EvalMultNode::simeval(CircuitGraph& g) {
 	if( getInputs().size() != 2 ) throw std::logic_error("Mult requires 2 inputs");
 
 	auto n0 = g.getNodeById(getInputs()[0]);
-	auto n1 = g.getNodeById(getInputs()[0]);
+	auto n1 = g.getNodeById(getInputs()[1]);
 	n0->simeval(g);
 	n1->simeval(g);
 

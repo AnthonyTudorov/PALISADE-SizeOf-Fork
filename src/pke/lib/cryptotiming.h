@@ -1,12 +1,37 @@
-/*
- * timingprint.h
+/**
+ * @file cryptotiming.h -- Definitions for taking timings of crypto operations
+ * @author  TPOC: palisade@njit.edu
  *
- *  Created on: Jun 14, 2017
- *      Author: gwryan
+ * @section LICENSE
+ *
+ * Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or other
+ * materials provided with the distribution.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+ * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * @section DESCRIPTION
+ *
+ * This code provides support for timing crypto operations
+ *
  */
 
-#ifndef TIMINGPRINT_H_
-#define TIMINGPRINT_H_
+#ifndef CRYPTOTIMING_H_
+#define CRYPTOTIMING_H_
 
 // this is included by cryptocontext.h only
 
@@ -20,14 +45,19 @@ enum OpType {
 	OpMultiPartyDecryptLead, OpMultiPartyDecryptMain, OpMultiPartyDecryptFusion,
 	OpSparseKeyGen,
 	OpReKeyGenPubPri, OpReKeyGenPriPri,
-	OpEvalSumKeyGen, OpEvalMultKeyGen,
+	OpEvalMultKeyGen,
 	OpKeySwitchGen,
 	OpEncrypt, OpEncryptMatrixPlain, OpEncryptMatrixPacked,
 	OpDecrypt, OpDecryptMatrixPlain, OpDecryptMatrixPacked,
 	OpReEncrypt,
 	OpEvalAdd, OpEvalAddPlain, OpEvalSub, OpEvalSubPlain,
 	OpEvalMult, OpEvalMultKey, OpEvalMultPlain, OpEvalNeg,
-	OpModReduce
+	OpEvalAutomorphismKeyGen,
+	OpEvalAutomorphismI,
+	OpEvalAutomorphismK,
+	OpLinRegression, OpKeySwitch,
+	OpModReduce, OpLevelReduce, OpRingReduce, OpComposedEvalMult,
+	OpEvalSumKeyGen, OpEvalSum, OpEvalInnerProduct, OpEvalCrossCorrelation, OpEvalLinRegressionBatched,
 };
 
 struct TimingInfo {
@@ -36,99 +66,25 @@ struct TimingInfo {
 	TimingInfo(OpType o, double t) : operation(o), timeval(t) {}
 };
 
-inline std::ostream& operator<<(std::ostream& out, const OpType& op) {
-	switch(op) {
-	case OpNOOP:
-		out << "NONE";
-		break;
-	case OpKeyGen:
-		out << "KeyGen";
-		break;
-	case OpMultiPartyKeyGenKey:
-		out << "MultipartyKeyGen(key)";
-		break;
-	case OpMultiPartyKeyGenKeyvec:
-		out << "MultipartyKeyGen(vector<key>)";
-		break;
-	case OpMultiPartyDecryptLead:
-		out << "MultiPartyDecryptLead";
-		break;
-	case OpMultiPartyDecryptMain:
-		out << "MultiPartyDecryptMain";
-		break;
-	case OpMultiPartyDecryptFusion:
-		out << "MultiPartyDecryptFusion";
-		break;
-	case OpSparseKeyGen:
-		out << "SparseKeyGen";
-		break;
-	case OpReKeyGenPubPri:
-		out << "ReKeyGen(pubkey,privkey)";
-		break;
-	case OpReKeyGenPriPri:
-		out << "ReKeyGen(privkey,privkey)";
-		break;
-	case OpEvalSumKeyGen:
-		out << "EvalSumKeyGen";
-		break;
-	case OpEvalMultKeyGen:
-		out << "EvalMultKeyGen";
-		break;
-	case OpEncrypt:
-		out << "Encrypt";
-		break;
-	case OpEncryptMatrixPlain:
-		out << "EncryptMatrix(intplaintext)";
-		break;
-	case OpEncryptMatrixPacked:
-		out << "EncryptMatrix(packedintplaintext)";
-		break;
-	case OpDecrypt:
-		out << "Decrypt";
-		break;
-	case OpDecryptMatrixPlain:
-		out << "DecryptMatrix(intplaintext)";
-		break;
-	case OpDecryptMatrixPacked:
-		out << "DecryptMatrix(packedintplaintext)";
-		break;
-	case OpReEncrypt:
-		out << "ReEncrypt";
-		break;
+struct TimingStatistics {
+	OpType	operation;
+	usint	samples;
+	double	min;
+	double	max;
+	double	average;
 
-	case OpEvalAdd:
-		out << "EvalAdd";
-		break;
-	case OpEvalAddPlain:
-		out << "EvalAddPlain";
-		break;
-	case OpEvalNeg:
-		out << "EvalNeg";
-		break;
-	case OpEvalSub:
-		out << "EvalSub";
-		break;
-	case OpEvalSubPlain:
-		out << "EvalSubPlain";
-		break;
-	case OpEvalMult:
-		out << "EvalMult";
-		break;
-	case OpEvalMultKey:
-		out << "EvalMult(key)";
-		break;
-	case OpEvalMultPlain:
-		out << "EvalMultPlain";
-		break;
-	case OpModReduce:
-		out << "ModReduce";
-		break;
-	default:
-		out << op << "(UNIMPLEMENTED!)";
-		break;
-	}
-	return out;
-}
+	TimingStatistics() : operation(OpNOOP), samples(0),
+			min(std::numeric_limits<double>::max()),
+			max(std::numeric_limits<double>::min()), average(0) {}
+	bool Serialize(Serialized* serObj) const;
+	bool Deserialize(const Serialized& serObj);
+};
+
+extern std::map<OpType,string> OperatorName;
+extern std::map<OpType,PKESchemeFeature> OperatorFeat;
+extern std::map<string,OpType> OperatorType;
+
+extern std::ostream& operator<<(std::ostream& out, const OpType& op);
 
 inline std::ostream& operator<<(std::ostream& out, const TimingInfo& t) {
 	out << t.operation << ": " << t.timeval;
@@ -137,4 +93,4 @@ inline std::ostream& operator<<(std::ostream& out, const TimingInfo& t) {
 
 }
 
-#endif /* TIMINGPRINT_H_ */
+#endif /* CRYPTOTIMING_H_ */

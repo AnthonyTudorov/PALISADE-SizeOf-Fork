@@ -52,10 +52,11 @@ template class CircuitNodeWithValue<ILVector2n>;
 void usage() {
 	cout << "Arguments are" << endl;
 	cout << "-d  --  debug mode on the parse" << endl;
-	cout << "-ginput  --  print a graph of the input circuit in DOT format (for use with graphviz)" << endl;
-	cout << "-gproc  --  print the circuit in DOT format for use with graphviz" << endl;
-	cout << "-gresult  --  print the circuit in DOT format for use with graphviz" << endl;
+	cout << "-ginput  --  print a graph of the input circuit, in DOT format (for use with graphviz)" << endl;
+	cout << "-gproc  --  print a graph of the preprocessed input circuit, in DOT format (for use with graphviz)" << endl;
+	cout << "-gresult  --  print a graph of the result of executing the circuit, in DOT format (for use with graphviz)" << endl;
 	cout << "-elist=filename  --  save information needed for estimating in file filename; stop after generating" << endl;
+	cout << "-estats=filename  --  use this information for estimating runtime" << endl;
 	cout << "-v  --  verbose details about the circuit" << endl;
 	cout << "-h  --  this message" << endl;
 }
@@ -101,7 +102,9 @@ main(int argc, char *argv[])
 	bool print_result_graph = false;
 	bool verbose = false;
 	bool evaluation_list_mode = false;
+	bool evaluation_run_mode = false;
 	ofstream	evalListF;
+	ifstream	evalStatF;
 	for( int i=1; i<argc; i++ ) {
 		string arg(argv[i]);
 		string argf(arg);
@@ -144,9 +147,23 @@ main(int argc, char *argv[])
 			}
 			continue;
 		}
+		if( arg == "-estats" ) {
+			evaluation_run_mode = true;
+			evalStatF.open(argf, ofstream::in);
+			if( !evalStatF.is_open() ) {
+				cout << "Unable to open file " << argf << endl;
+				return 1;
+			}
+			continue;
+		}
 		if( arg[0] == '-' ) { // an unrecognized arg
 			usage();
-			return 0;
+			return 1;
+		}
+
+		if( evaluation_list_mode && evaluation_run_mode ) {
+			cout << "Cannot specify both -elist and -estats" << endl;
+			return 1;
 		}
 
 		if( verbose )
@@ -160,6 +177,22 @@ main(int argc, char *argv[])
 				return 1;
 			}
 			SerializableHelper::SerializationToStream(serObj, evalListF);
+		}
+
+		map<OpType,TimingStatistics> timings;
+		if( evaluation_run_mode ) {
+			Serialized serObj;
+			if( SerializableHelper::StreamToSerialization(evalStatF, &serObj) == false ) {
+				cout << "Input file does not begin with a serialization" << endl;
+				return 1;
+			}
+
+			while( SerializableHelper::StreamToSerialization(evalStatF, &serObj) == true ) {
+				TimingStatistics stat;
+				stat.Deserialize(serObj);
+				timings[ stat.operation ] = stat;
+			}
+			evalStatF.close();
 		}
 
 		pdriver driver(debug_parse);
@@ -194,6 +227,13 @@ main(int argc, char *argv[])
 			return 0;
 		}
 
+		if( evaluation_run_mode ) {
+			driver.graph.GenerateOperationList();
+			TimingStatistics estimate = driver.graph.GenerateRuntimeEstimate(timings);
+			cout << "TIMING ESTIMATE (min,max,average): " << estimate.min << "," << estimate.max << "," << estimate.average;
+			cout << " **********************" << endl;
+		}
+
 		PalisadeCircuit<ILVector2n>	cir(cc, driver.graph);
 
 		if( verbose )
@@ -207,26 +247,22 @@ main(int argc, char *argv[])
 			}
 		}
 
-		//
 		size_t curVec = 0, maxVec = MAXVECS; //sizeof(vecs)/sizeof(vecs[0]);
 		size_t curInt = 0, maxInt = sizeof(ints)/sizeof(ints[0]);
 
 		for( size_t i = 0; i < intypes.size(); i++ ) {
-			//if( verbose ) cout << "input " << i << ": value ";
 
 			switch(intypes[i]) {
 			case INT:
 				if( curInt == maxInt )
 					throw std::logic_error("out of ints");
 				inputs[i] = intVecs[curInt++][0];
-				//if( verbose ) cout << ints[i] << endl;
 				break;
 
 			case VECTOR_INT:
 				if( curVec == maxVec )
 					throw std::logic_error("out of vecs");
 				inputs[i] = cipherVecs[curVec++][0];
-				//if( verbose ) cout << vecs[i] << endl;
 				break;
 
 			default:
@@ -258,6 +294,13 @@ main(int argc, char *argv[])
 		if( print_result_graph ) {
 			cir.GetGraph().DisplayDecryptedGraph(cc, kp.secretKey);
 		}
+
+		double actual = 0;
+		for( size_t i = 0; i < times.size(); i++ ) {
+			actual += times[i].timeval;
+		}
+		cout << "TIMING ACTUAL: " << actual;
+		cout << " **********************" << endl;
 
 		if( verbose ) {
 			cout << "Timing Information:" << endl;

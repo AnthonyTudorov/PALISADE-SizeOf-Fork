@@ -71,10 +71,10 @@ void CryptoContext<Element>::EvalSumKeyGen(
 	if( doTiming ) start = currentDateTime();
 	auto evalKeys = GetEncryptionAlgorithm()->EvalSumKeyGen(privateKey,publicKey);
 
-	evalSumKeys = *evalKeys;
 	if( doTiming ) {
 		timeSamples->push_back( TimingInfo(OpEvalSumKeyGen, currentDateTime() - start) );
 	}
+	evalSumKeys = *evalKeys;
 }
 
 template <typename Element>
@@ -82,8 +82,13 @@ shared_ptr<Ciphertext<Element>> CryptoContext<Element>::EvalSum(const shared_ptr
 
 	//need to add exception handling
 
-	return GetEncryptionAlgorithm()->EvalSum(ciphertext, batchSize, evalSumKeys);
-
+	double start = 0;
+	if( doTiming ) start = currentDateTime();
+	auto rv = GetEncryptionAlgorithm()->EvalSum(ciphertext, batchSize, evalSumKeys);
+	if( doTiming ) {
+		timeSamples->push_back( TimingInfo(OpEvalSum, currentDateTime() - start) );
+	}
+	return rv;
 }
 
 template <typename Element>
@@ -93,8 +98,13 @@ shared_ptr<Ciphertext<Element>> CryptoContext<Element>::EvalInnerProduct(const s
 
 	auto evalMultKey = GetEvalMultKey();
 
-	return GetEncryptionAlgorithm()->EvalInnerProduct(ciphertext1, ciphertext2, batchSize, evalSumKeys, evalMultKey);
-
+	double start = 0;
+	if( doTiming ) start = currentDateTime();
+	auto rv = GetEncryptionAlgorithm()->EvalInnerProduct(ciphertext1, ciphertext2, batchSize, evalSumKeys, evalMultKey);
+	if( doTiming ) {
+		timeSamples->push_back( TimingInfo(OpEvalInnerProduct, currentDateTime() - start) );
+	}
+	return rv;
 }
 
 template <typename Element>
@@ -107,8 +117,13 @@ CryptoContext<Element>::EvalCrossCorrelation(const shared_ptr<Matrix<RationalCip
 
 	auto evalMultKey = GetEvalMultKey();
 
-	return GetEncryptionAlgorithm()->EvalCrossCorrelation(x, y, batchSize, indexStart, length, evalSumKeys, evalMultKey);
-
+	double start = 0;
+	if( doTiming ) start = currentDateTime();
+	auto rv = GetEncryptionAlgorithm()->EvalCrossCorrelation(x, y, batchSize, indexStart, length, evalSumKeys, evalMultKey);
+	if( doTiming ) {
+		timeSamples->push_back( TimingInfo(OpEvalCrossCorrelation, currentDateTime() - start) );
+	}
+	return rv;
 }
 
 template <typename Element>
@@ -120,7 +135,13 @@ CryptoContext<Element>::EvalLinRegressBatched(const shared_ptr<Matrix<RationalCi
 
 	auto evalMultKey = GetEvalMultKey();
 
-	return GetEncryptionAlgorithm()->EvalLinRegressBatched(x, y, batchSize, evalSumKeys, evalMultKey);
+	double start = 0;
+	if( doTiming ) start = currentDateTime();
+	auto rv = GetEncryptionAlgorithm()->EvalLinRegressBatched(x, y, batchSize, evalSumKeys, evalMultKey);
+	if( doTiming ) {
+		timeSamples->push_back( TimingInfo(OpEvalLinRegressionBatched, currentDateTime() - start) );
+	}
+	return rv;
 }
 
 template <typename T>
