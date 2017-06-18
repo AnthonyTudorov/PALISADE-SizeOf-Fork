@@ -78,7 +78,6 @@ CircuitGraphWithValues<Element>::DisplayDecryptedGraph(CryptoContext<Element> cc
 void
 CircuitGraph::Preprocess()
 {
-	cout << "resetting depths" << endl;
 	resetAllDepths();
 
 	for( int output : getOutputs() ) {
