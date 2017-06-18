@@ -1,28 +1,31 @@
-﻿//LAYER 1 : PRIMITIVE DATA STRUCTURES AND OPERATIONS
+﻿/*
+ * @file binint.cpp This file contains the integer manipulation functionality.
+ * @author  TPOC: palisade@njit.edu
+ *
+ * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or other
+ * materials provided with the distribution.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+ * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
 /*
-PRE SCHEME PROJECT, Crypto Lab, NJIT
-Version:
-	v00.01
-Last Edited:
-	3/1/2015 4:37AM
-List of Authors:
-	TPOC:
-		Dr. Kurt Rohloff, rohloff@njit.edu
-	Programmers:
-		Dr. Yuriy Polyakov, polyakov@njit.edu
-		Gyana Sahu, grs22@njit.edu
 Description:
 	This class provides a class for big integers.
-
-License Information:
-
-Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
-All rights reserved.
-Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 */
 #include "binint.h"
 
@@ -152,7 +155,7 @@ BigBinaryInteger<uint_type,BITLENGTH>::~BigBinaryInteger()
 {	
 }
 
-/**
+/*
 *Converts the BigBinaryInteger to unsigned integer or returns the first 32 bits of the BigBinaryInteger.
 *Splits the BigBinaryInteger into bit length of uint data type and then uses shift and add to form the 32 bit unsigned integer.
 */
@@ -190,7 +193,7 @@ const BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENG
 	return *this;
 }
 
-/**
+/*
 *	Left Shift is done by splitting the number of shifts into
 *1. Multiple of the bit length of uint data type.
 *	Shifting is done by the shifting the uint type numbers.
@@ -249,7 +252,7 @@ BigBinaryInteger<uint_type,BITLENGTH>  BigBinaryInteger<uint_type,BITLENGTH>::op
 
 }
 
-/**
+/*
 *	Left Shift is done by splitting the number of shifts into
 *1. Multiple of the bit length of uint data type.
 *	Shifting is done by the shifting the uint type numbers.
@@ -310,7 +313,7 @@ const BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENG
 
 }
 
-/**Right Shift is done by splitting the number of shifts into
+/*Right Shift is done by splitting the number of shifts into
 *1. Multiple of the bit length of uint data type.
 *	Shifting is done by the shifting the uint type numbers in the array to the right.
 *2. Shifts between 1 to bit length of uint data type.
@@ -380,7 +383,7 @@ BigBinaryInteger<uint_type,BITLENGTH>  BigBinaryInteger<uint_type,BITLENGTH>::op
 }
 
 
-/**Right Shift is done by splitting the number of shifts into
+/*Right Shift is done by splitting the number of shifts into
 *1. Multiple of the bit length of uint data type.
 *	Shifting is done by the shifting the uint type numbers in the array to the right.
 *2. Shifts between 1 to bit length of uint data type.
@@ -463,7 +466,7 @@ void BigBinaryInteger<uint_type,BITLENGTH>::PrintValueInDec() const{
     std::cout<<std::endl;
 }
 
-/**
+/*
  * This function is only used for serialization
  *
  * The scheme here is to take the integer 6 bits at a time and encode it into a Base64 encoding
@@ -548,7 +551,7 @@ usshort BigBinaryInteger<uint_type,BITLENGTH>::GetMSB()const{
 	return m_MSB;
 }
 
-/** Addition operation:
+/* Addition operation:
 *  Algorithm used is usual school book sum and carry-over, expect for that radix is 2^m_bitLength.
 */
 template<typename uint_type,usint BITLENGTH>
@@ -615,7 +618,7 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Plu
 	return result;
 }
 
-/** Minus operation:
+/* Minus operation:
 *  Algorithm used is usual school book borrow and subtract, except for that radix is 2^m_bitLength.
 */
 template<typename uint_type,usint BITLENGTH>
@@ -667,7 +670,7 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Min
 
 }
 
-/** Times operation:
+/* Times operation:
 *  Algorithm used is usual school book shift and add after multiplication, except for that radix is 2^m_bitLength.
 */
 template<typename uint_type,usint BITLENGTH>
@@ -815,7 +818,7 @@ BigBinaryInteger<uint_type, BITLENGTH> BigBinaryInteger<uint_type, BITLENGTH>::o
 	return result;
 }
 
-/** Times operation:
+/* Times operation:
 *  Algorithm used is usual school book multiplication.
 *  This function is used in the Multiplication of two BigBinaryInteger objects
 */
@@ -850,7 +853,7 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mul
 	return ans;
 }
 
-/** Times operation: Optimized version (with reduced number of BigBinaryInteger instantiations)
+/* Times operation: Optimized version (with reduced number of BigBinaryInteger instantiations)
 *  Algorithm used is usual school book multiplication.
 *  This function is used in the Multiplication of two BigBinaryInteger objects
 */
@@ -1144,7 +1147,7 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 	return result;
 }
 
-/**
+/*
 Source: http://homes.esat.kuleuven.be/~fvercaut/papers/bar_mont.pdf
 @article{knezevicspeeding,
   title={Speeding Up Barrett and Montgomery Modular Multiplications},
@@ -1185,7 +1188,7 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 
 }
 
-/**
+/*
 In-place version of ModBarrett
 Source: http://homes.esat.kuleuven.be/~fvercaut/papers/bar_mont.pdf
 @article{knezevicspeeding,
@@ -1227,7 +1230,7 @@ void BigBinaryInteger<uint_type, BITLENGTH>::ModBarrettInPlace(const BigBinaryIn
 
 }
 
-/**
+/*
 Source: http://homes.esat.kuleuven.be/~fvercaut/papers/bar_mont.pdf
 @article{knezevicspeeding,
   title={Speeding Up Barrett and Montgomery Modular Multiplications},

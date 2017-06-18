@@ -1,13 +1,8 @@
 /**
- * @file
- * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
- *	Programmers: Arnab Deb Gupta <ad479@njit.edu>
-			Jerry Ryan <gwryan@njit.edu>
- * @version 00_01
+ * @file serializablehelper.h Helper methods for serialization.
+ * @author  TPOC: palisade@njit.edu
  *
- * @section LICENSE
- *
- * Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
+ * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -27,11 +22,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * @section DESCRIPTION
- *
- * This code serves as a helper class for Palisade's JSON Facility.
- *
- */
+ */ 
 
 #ifndef LBCRYPTO_SERIALIZABLEHELPER_H
 #define LBCRYPTO_SERIALIZABLEHELPER_H

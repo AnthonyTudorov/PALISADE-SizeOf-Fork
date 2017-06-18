@@ -1,12 +1,8 @@
 /**
- * @file
- * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
- *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>, Hadi Sajjadpour <ss2959@njit.edu>
- * @version 00_03
+ * @file encodingparams.h Represents and defines parameters for plaintext encoding.
+ * @author  TPOC: palisade@njit.edu
  *
- * @section LICENSE
- *
- * Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
+ * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -26,33 +22,32 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * @section DESCRIPTION
- * This code defines the structure for storing encoding parameters, such as as plaintext modulus
- * and plaintext generator
  */
 
 #ifndef LBCRYPTO_ENCODING_ENCODINGPARAMS_H
 #define LBCRYPTO_ENCODING_ENCODINGPARAMS_H
 
 #include "../math/backend.h"
-//#include "../utils/inttypes.h"
-//#include "../math/nbtheory.h"
 
+namespace lbcrypto
+{
 /**
- * @namespace lbcrypto
- * The namespace of lbcrypto
+ * @class EncodingParamsImpl
+ * @brief defining EncodingParams.
  */
-namespace lbcrypto {
-
 template<typename IntType> class EncodingParamsImpl;
+/**
+ * @brief defining typedef  EncodingParamsImpl<BigBinaryInteger> as EncodingParams. 
+ */
 typedef EncodingParamsImpl<BigBinaryInteger> EncodingParams;
-
 }
 
-namespace lbcrypto {
+namespace lbcrypto
+{
 
 /**
- * @brief Parameters for plaintext encodings: defines plaintext space.
+ * @class EncodingParamsImpl
+ * @brief Templated serializable parameters for plaintext encodings defines plaintext space.
  */
 template<typename IntType>
 class EncodingParamsImpl : public Serializable
@@ -60,7 +55,7 @@ class EncodingParamsImpl : public Serializable
 public:
 
 	/**
-	 * Main constructor. Supports (1) default constructor, (2) regular encoding with plaintext modulus set, 
+	 * Main constructor. Supports (1) default constructor, (2) regular encoding with plaintext modulus set,
 	 * (3) packed encoding with at least first two parameters set.
 	 * All of the private members not explicitly included as aerguments will be initialized to zero.
 	 *
@@ -69,15 +64,14 @@ public:
 	 * @param batchSize sets the maximum batch size (as a power of 2) needed for EvalSum
 	 */
 	EncodingParamsImpl(
-		const IntType& plaintextModulus = IntType::ZERO,
-		const IntType& plaintextGenerator = IntType::ZERO,
-		usint batchSize = 0) {
-			m_plaintextModulus = plaintextModulus;
-			m_plaintextGenerator = plaintextGenerator;
-			m_batchSize = batchSize;
+	    const IntType& plaintextModulus = IntType::ZERO,
+	    const IntType& plaintextGenerator = IntType::ZERO,
+	    usint batchSize = 0) {
+		m_plaintextModulus = plaintextModulus;
+		m_plaintextGenerator = plaintextGenerator;
+		m_batchSize = batchSize;
 	}
 
-	//copy constructor
 	/**
 	 * Copy constructor.
 	 *
@@ -121,31 +115,63 @@ public:
 	// ACCESSORS
 
 	// Get accessors
-
-	const IntType &GetPlaintextModulus() const { return m_plaintextModulus; }
-	const IntType &GetPlaintextGenerator() const { return m_plaintextGenerator; }
-	const usint GetBatchSize() const { return m_batchSize; }
+	/**
+	* @brief Getter for the plaintext modulus.
+	* @return The plaintext modulus.
+	*/
+	const IntType &GetPlaintextModulus() const {
+		return m_plaintextModulus;
+	}
+	/**
+	* @brief Getter for the plaintext generator.
+	* @return The plaintext generator.
+	*/
+	const IntType &GetPlaintextGenerator() const {
+		return m_plaintextGenerator;
+	}
+	/**
+	* @brief Getter for the plaintext batch size.
+	* @return The plaintext batch size.
+	*/
+	const usint GetBatchSize() const {
+		return m_batchSize;
+	}
 
 	// Operators
-
+	/**
+	 * @brief output stream operator.
+	 * @param out the output stream to output.
+	 * @param item the following object to output.
+	 * @return the string output.
+	 */
 	friend std::ostream& operator<<(std::ostream& out, const EncodingParamsImpl &item) {
 		return item.doprint(out);
 	}
-
+	/**
+	 * @brief Equality operator for the parameters.  Tests that all the parameters are equal.
+	 * @param other the other parameter set to compare to.
+	 * @return true if values of all data are equal.
+	 */
 	bool operator==(const EncodingParamsImpl<IntType> &other) const {
 		return m_plaintextModulus == other.m_plaintextModulus &&
-			m_plaintextGenerator == other.m_plaintextGenerator &&
-			m_batchSize == other.m_batchSize;
+		       m_plaintextGenerator == other.m_plaintextGenerator &&
+		       m_batchSize == other.m_batchSize;
 	}
-
-	bool operator!=(const EncodingParamsImpl<IntType> &other) const { return !(*this == other); }
+	/**
+	 * @brief Inequality operator for the parameters.  Tests that all the parameters are not equal.
+	 * @param other the other parameter set to compare to.
+	 * @return true if values of any data is not equal.
+	 */
+	bool operator!=(const EncodingParamsImpl<IntType> &other) const {
+		return !(*this == other);
+	}
 
 private:
 
 	std::ostream& doprint(std::ostream& out) const {
-		out << "[p=" << m_plaintextModulus << " g=" << m_plaintextGenerator 
-			<< " L=" << m_batchSize
-			<< "]";
+		out << "[p=" << m_plaintextModulus << " g=" << m_plaintextGenerator
+		    << " L=" << m_batchSize
+		    << "]";
 		return out;
 	}
 
@@ -160,7 +186,6 @@ public:
 	/**
 	 * Serialize the object into a Serialized
 	 * @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-	 * @param fileFlag is an object-specific parameter for the serialization
 	 * @return true if successfully serialized
 	 */
 	bool Serialize(Serialized* serObj) const;

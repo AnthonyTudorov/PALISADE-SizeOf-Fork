@@ -1,12 +1,8 @@
 /**
- * @file
- * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
- *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>, Hadi Sajjadpour <ss2959@njit.edu>
- * @version 00_03
+ * @file ildcrtparams.h Wraps parameters for integer lattice operations using double-CRT representation.  Inherits from ElemParams.
+ * @author  TPOC: palisade@njit.edu
  *
- * @section LICENSE
- *
- * Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
+ * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -26,27 +22,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * @section DESCRIPTION
- * LAYER 2 : LATTICE DATA STRUCTURES AND OPERATIONS
- * This code provides basic lattice ideal manipulation functionality.
- * For more information on ideal lattices please see here: 10.1007/978-3-540-88702-7_5
- * ILDCRTParmas stands for : Ideal Lattive Chinese Remainder Transform Params. This class provides a placeholder for the parameter set
- * of an ILDCRT2n.
- *
- *  The private members of this class are:
- *
- *	 order of cyclotomic polynomial.
- *	 usint m_cyclotomicOrder;
- *
- *	// value of moduli
- *	 std::vector<BigBinaryInteger> m_moduli;
- *
- *	// primitive root unity that is used to transform from coefficient to evaluation representation and vice versa
- *	std::vector<BigBinaryInteger> m_rootsOfUnity;
- *
- *	//Modulus that is factorized into m_moduli
- *	BigBinaryInteger m_modulus;
- *
  */
 
 #ifndef LBCRYPTO_LATTICE_ILDCRTELEMENT_H
@@ -58,40 +33,53 @@
 #include "../math/nbtheory.h"
 #include "../lattice/ilparams.h"
 
-namespace lbcrypto {
-
+namespace lbcrypto
+{
 template<typename ModType, typename IntType, typename VecType, typename ParmType> class ILVectorImpl;
-
 }
 
-namespace lbcrypto {
+namespace lbcrypto
+{
 
 /**
- * @brief Parameters for array of ideal lattices (used for Double-CRT)
+ * @brief Parameters for array of ideal lattices (used for Double-CRT).
+ *
+ * The double-CRT representation of polynomials is a common optimization for lattice encryption operations.
+ * Basically, it allows large-modulus polynamials to be represented as multiple smaller-modulus polynomials.
+ * The double-CRT representations are discussed theoretically here:
+ *   - Gentry C., Halevi S., Smart N.P. (2012) Homomorphic Evaluation of the AES Circuit. In: Safavi-Naini R., Canetti R. (eds) Advances in Cryptology – CRYPTO 2012. Lecture Notes in Computer Science, vol 7417. Springer, Berlin, Heidelberg
  */
 template<typename IntType>
 class ILDCRTParams : public ElemParams<IntType>
 {
 public:
 
+	/**
+	 * @brief Constructor with basic parameter set.
+	 *
+	 * @param order the order of the ciphertext.
+	 * @param depth is the modulus for the entire tower.
+	 * @param bits is the number of bits of the moduli.  This determines whether native data types can be used if # of bits
+	 * is less than 64.
+	 */
 	ILDCRTParams(usint order=0, usint depth=1, usint bits=20);
 
 	/**
-	 * Constructor with all parameters provided except the multiplied values of the chain of moduli. That value is automatically calculated. Root of unity of the modulus is also calculated.
+	 * @brief Constructor with some pre-computed parameters. That value is automatically calculated. Root of unity of the modulus is also calculated.
 	 *
 	 * @param cyclotomic_order the order of the ciphertext
-	 * @param &modulus is the modulus for the entire tower
+	 * @param &modulus is the modulus for the primary ciphertext.
 	 * @param rootsOfUnity is unused
 	 */
 	ILDCRTParams(const usint cyclotomic_order, const BigBinaryInteger &modulus, const BigBinaryInteger& rootsOfUnity)
 		: ElemParams<IntType>(cyclotomic_order, modulus, 0, 0, 0) {}
 
 	/**
-	 * Constructor with all parameters provided except the multiplied values of the chain of moduli. That value is automatically calculated. Root of unity of the modulus is also calculated.
-	 *
-	 * @param rootsOfUnity the roots of unity for the chain of moduli
+	 * @brief Constructor with some pre-computed parameters provided as input.
 	 * @param cyclotomic_order the order of the ciphertext
-	 * @param &moduli is the tower of moduli
+	 * @param moduli the list of the smaller moduli of the component polynomials.
+	 * @param rootsOfUnity the list of the smaller roots of unity of the component polynomials.
+	 * @return
 	 */
 	ILDCRTParams(const usint cyclotomic_order, const std::vector<native_int::BinaryInteger> &moduli, const std::vector<native_int::BinaryInteger>& rootsOfUnity)
 		: ElemParams<IntType>(cyclotomic_order, 0, 0, 0, 0) {
@@ -105,7 +93,7 @@ public:
 	}
 
 	/**
-	 * Constructor with only cylotomic order and chain of moduli. Multiplied values of the chain of moduli is automatically calculated. Root of unity of the modulus is also calculated.
+	 * @brief Constructor with only cylotomic order and chain of moduli. Multiplied values of the chain of moduli is automatically calculated. Root of unity of the modulus is also calculated.
 	 *
 	 * @param cyclotomic_order the order of the ciphertext
 	 * @param &moduli is the tower of moduli
@@ -118,6 +106,12 @@ public:
 		RecalculateModulus();
 	}
 
+	/**
+	 * @brief Constructor that takes in the cyclotomic order and the component parameters of the component moduli.
+	 * @param cyclotomic_order the primary cyclotomic order.  This is not checked against the component moduli.
+	 * @param parms the componet parameters.
+	 * @return
+	 */
 	ILDCRTParams(const usint cyclotomic_order, std::vector<std::shared_ptr<native_int::ILParams>>& parms)
 		: ElemParams<IntType>(cyclotomic_order, 0, 0, 0, 0), m_parms(parms) {
 		RecalculateModulus();
@@ -138,18 +132,28 @@ public:
 	}
 
 	// ACCESSORS
-
+	/**
+	 * @brief Getter method for the component parameters.
+	 * @return A vector of the component polynomial parameters.
+	 */
 	const std::vector<std::shared_ptr<native_int::ILParams>> &GetParams() const {
 		return m_parms;
 	}
 
-	std::shared_ptr<native_int::ILParams>& operator[](const usint i) { return m_parms[i]; }
+	/**
+	 * @brief Getter method for the component parameters of a specific index.
+	 * @param i the index of the parameters to return.  Note this this call is unguarded if the index is out of bounds.
+	 * @return the parameters at index i.
+	 */
+	std::shared_ptr<native_int::ILParams>& operator[](const usint i) {
+		return m_parms[i];
+	}
 
 	/**
-	 * Removes the last parameter set and adjust the multiplied moduli.
+	 * @brief Removes the last parameter set and adjust the multiplied moduli.
 	 *
 	 */
-	void PopLastParam(){
+	void PopLastParam() {
 		this->ciphertextModulus = this->ciphertextModulus / IntType(m_parms.back()->GetModulus().ConvertToInt());
 		m_parms.pop_back();
 	}
@@ -159,13 +163,17 @@ public:
 	 */
 	~ILDCRTParams() {}
 
-	//JSON FACILITY
+	/**
+	 * @brief Serialize the object into a Serialized
+	 * @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+	 * @return true if successfully serialized
+	 */
 	bool Serialize(Serialized* serObj) const;
 
 	bool Deserialize(const Serialized& serObj);
 
 	/**
-	 * == Operator checks if the ElemParams are the same.
+	 * @brief Equality operator checks if the ElemParams are the same.
 	 *
 	 * @param &other ElemParams to compare against.
 	 * @return the equality check results.
@@ -190,6 +198,9 @@ public:
 		return true;
 	}
 
+	/**
+	 * @brief Method to recalculate the composite modulus from the component moduli.
+	 */
 	void RecalculateModulus() {
 
 		this->ciphertextModulus = 1;
