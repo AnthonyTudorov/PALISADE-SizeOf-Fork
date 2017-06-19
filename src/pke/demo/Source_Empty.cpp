@@ -147,7 +147,7 @@ void SearchAttributeExample()
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
 
-	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetInitRoot(modulusP), batchSize));
+	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP), batchSize));
 
 	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, encodingParams, 8, stdDev);
 
@@ -189,7 +189,7 @@ void SearchAttributeExample()
 	auto AttrProject0 = Project(AttrSearch0, 0, kp.publicKey);
 	auto AttrProject1 = Project(AttrSearch1, 0, kp.publicKey);
 
-	auto pGen = cc.GetCryptoParameters()->GetEncodingParams()->GetPlaintextGenerator();
+	BigBinaryInteger pGen(cc.GetCryptoParameters()->GetEncodingParams()->GetPlaintextGenerator());
 	auto autoMorphIdx = pGen.ModExp(BigBinaryInteger(4),BigBinaryInteger(m));
 	
 	auto AttrRotate1 =  cc.EvalAutomorphism(AttrProject1, autoMorphIdx.ConvertToInt(), cc.GetEvalSumKey());
