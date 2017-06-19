@@ -432,6 +432,12 @@ namespace NTL{
     const std::string ToString() const;	
 
     //public modulus accessors
+
+    inline bool isModulusSet(void) const{
+      return(this->m_OTM_state == INITIALIZED);
+    };
+    
+ 
     inline void SetModulus(const usint& value){
       m_setOTM(myZZ(value));
     };

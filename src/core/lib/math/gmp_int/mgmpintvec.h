@@ -453,7 +453,7 @@ namespace NTL {
 	ZZ_p::init(this->m_modulus);
 	return (0);
       } else{
-	std::cout<<"Warning: myVec_p::CopyModulus() from uninitialized modulus"<<std::endl; //happens many many times
+	//std::cout<<"Warning: myVec_p::CopyModulus() from uninitialized modulus"<<std::endl; //happens many many times
 	this->m_modulus_state = GARBAGE;
 	return (-1);
       }
@@ -527,10 +527,30 @@ namespace NTL {
        * @param idx is the index to get a value at.
        * @return is the value at the index. return NULL if invalid index.
        */
-    inline myZZ_p& operator[](std::size_t idx) {return myZZ_p((*this)[idx]._ZZ_p__rep,this->GetModulus());}
-    inline const myZZ_p& operator[](std::size_t idx) const {return myZZ_p((*this)[idx]._ZZ_p__rep,this->GetModulus());}
+#if 1
+    inline myZZ_p& operator[](std::size_t idx) {
+      //myZZ_p tmp((*this)[idx]._ZZ_p__rep);
+      //tmp.SetModulus(this->GetModulus());
+      if(! (*this)[idx].isModulusSet()){
+	(*this)[idx].SetModulus(this->GetModulus);
+      }
+      return (*this)[idx];
 
+      //here we have the problem we return the element, but it never had it's modulus value set. 
+      //we need to somehow beable to set that modulus. 
+    }
 
+    inline const myZZ_p& operator[](std::size_t idx) const {
+      if(! (*this)[idx].isModulusSet()){
+	//how do we get this to work for the const???
+	I guess we need a flag in vector, and if so it points to the vector's modulus. 
+
+	(*this)[idx].SetModulus(this->GetModulus);
+      }
+      return (*this)[idx];
+    }
+#endif
+ 
 
 #if 0
     // ostream 
