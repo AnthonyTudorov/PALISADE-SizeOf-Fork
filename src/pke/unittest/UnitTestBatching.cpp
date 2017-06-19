@@ -410,7 +410,7 @@ TEST(UTFVBATCHING, ILVector_EVALMULT_Arb) {
 
 	usint batchSize = 8;
 
-	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetInitRoot(modulusP), batchSize));
+	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP), batchSize));
 
 	BigBinaryInteger delta(modulusQ.DividedBy(modulusP));
 

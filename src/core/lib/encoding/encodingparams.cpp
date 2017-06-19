@@ -42,17 +42,18 @@ namespace lbcrypto
 template <typename IntType> bool EncodingParamsImpl<IntType>::Serialize(Serialized* serObj) const
 {
 
-	if(!serObj->IsObject())
+	if (!serObj->IsObject())
 		return false;
 
 	SerialItem ser(rapidjson::kObjectType);
 	ser.AddMember("PlaintextModulus", this->m_plaintextModulus.ToString(), serObj->GetAllocator());
-	ser.AddMember("PlaintextGenerator", this->m_plaintextGenerator.ToString(), serObj->GetAllocator());
+	ser.AddMember("PlaintextGenerator", std::to_string(this->m_plaintextGenerator), serObj->GetAllocator());
 	ser.AddMember("BatchSize", std::to_string(this->m_batchSize), serObj->GetAllocator());
 
 	serObj->AddMember("EncodingParams", ser, serObj->GetAllocator());
 
 	return true;
+
 }
 
 // JSON FACILITY
@@ -65,21 +66,21 @@ template <typename IntType> bool EncodingParamsImpl<IntType>::Deserialize(const 
 {
 
 	Serialized::ConstMemberIterator mIter = serObj.FindMember("EncodingParams");
-	if(mIter == serObj.MemberEnd()) {
+	if (mIter == serObj.MemberEnd()) {
 		return false;
 	}
 
 	SerialItem::ConstMemberIterator oIt;
 
-	if((oIt = mIter->value.FindMember("PlaintextModulus")) == mIter->value.MemberEnd())
+	if ((oIt = mIter->value.FindMember("PlaintextModulus")) == mIter->value.MemberEnd())
 		return false;
 	IntType plaintextModulus(atoi(oIt->value.GetString()));
 
-	if((oIt = mIter->value.FindMember("PlaintextGenerator")) == mIter->value.MemberEnd())
+	if ((oIt = mIter->value.FindMember("PlaintextGenerator")) == mIter->value.MemberEnd())
 		return false;
-	IntType plaintextGenerator(atoi(oIt->value.GetString()));
+	usint plaintextGenerator = atoi(oIt->value.GetString());
 
-	if((oIt = mIter->value.FindMember("BatchSize")) == mIter->value.MemberEnd())
+	if ((oIt = mIter->value.FindMember("BatchSize")) == mIter->value.MemberEnd())
 		return false;
 	usint batchSize = atoi(oIt->value.GetString());
 
@@ -88,6 +89,7 @@ template <typename IntType> bool EncodingParamsImpl<IntType>::Deserialize(const 
 	this->m_batchSize = batchSize;
 
 	return true;
+
 }
 
 } // namespace lbcrypto ends
