@@ -222,7 +222,8 @@ public:
 /**
  * @brief Parameter generation for LTV.
  *
- * FIXME desc
+ * This is an implementation of the algorithm in the "Parameter Selection" section of
+ * Rohloff & Cousins' "A Scalable Implementation of Fully Homomorphic Encryption Built on NTRU"
  *
  * @tparam Element a ring element.
  */
