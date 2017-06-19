@@ -46,7 +46,7 @@ const       { return yy::parser::make_CONST(loc); }
 
 \n       { return yy::parser::make_ENDL(loc); }
 [ \r\t]+                        /* ignore whitespace */
-\#.*\n                           /* ignore comments */
+\#[^\n]*                        /* ignore comments */
 
 v[0-9]+.[0-9]+ { return yy::parser::make_VERSION(yytext,loc); }
 

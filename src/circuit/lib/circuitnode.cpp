@@ -141,6 +141,9 @@ Value<Element> EvalAddNodeWithValue<Element>::eval(CryptoContext<Element>& cc, C
 		if( t0 == VECTOR_INT ) {
 			v0 = cc.EvalAdd(v0.GetIntVecValue(), v1.GetIntVecValue());
 		}
+		else if( t0 == MATRIX_INT ) {
+			v0 = cc.EvalAdd(v0.GetIntMatValue(), v1.GetIntMatValue());
+		}
 		else {
 			throw std::logic_error("eval add for types " + std::to_string(t0) + " and " + std::to_string(t1) + " not implemented");
 		}
@@ -199,6 +202,12 @@ Value<Element> EvalSubNodeWithValue<Element>::eval(CryptoContext<Element>& cc, C
 			this->Log();
 			return this->value;
 		}
+		else if( t0 == MATRIX_INT ) {
+			this->value = cc.EvalNegate(v0.GetIntMatValue());
+			this->SetNoise( n0->GetNoise() );
+			this->Log();
+			return this->value;
+		}
 		else {
 			throw std::logic_error("eval negate for type " + std::to_string(t0) + " is not implemented");
 		}
@@ -222,6 +231,9 @@ Value<Element> EvalSubNodeWithValue<Element>::eval(CryptoContext<Element>& cc, C
 
 		if( t0 == VECTOR_INT ) {
 			v0 = cc.EvalSub(v0.GetIntVecValue(), v1.GetIntVecValue());
+		}
+		else if( t0 == MATRIX_INT ) {
+			v0 = cc.EvalSub(v0.GetIntMatValue(), v1.GetIntMatValue());
 		}
 		else {
 			throw std::logic_error("eval sub for types " + std::to_string(t0) + " and " + std::to_string(t1) + " are not implemented");
@@ -262,6 +274,9 @@ Value<Element> EvalNegNodeWithValue<Element>::eval(CryptoContext<Element>& cc, C
 
 	if( t0 == VECTOR_INT ) {
 		this->value = cc.EvalNegate(v0.GetIntVecValue());
+	}
+	else if( t0 == MATRIX_INT ) {
+		v0 = cc.EvalNegate(v0.GetIntMatValue());
 	}
 	else {
 		throw std::logic_error("eval negate for type " + std::to_string(t0) + " is not implemented");
@@ -309,6 +324,9 @@ Value<Element> EvalMultNodeWithValue<Element>::eval(CryptoContext<Element>& cc, 
 	if( t1 == VECTOR_INT ) {
 		this->value = cc.EvalMult(v0.GetIntVecValue(), v1.GetIntVecValue());
 	}
+	else if( t0 == MATRIX_INT ) {
+		this->value = cc.EvalMult(v0.GetIntMatValue(), v1.GetIntMatValue());
+	}
 	else {
 		throw std::logic_error("eval mult for types " + std::to_string(t0) + " and " + std::to_string(t1) + " are not implemented");
 	}
@@ -345,6 +363,9 @@ Value<Element> ModReduceNodeWithValue<Element>::eval(CryptoContext<Element>& cc,
 
 	if( t0 == VECTOR_INT ) {
 		this->value = cc.ModReduce(v0.GetIntVecValue());
+	}
+	else if( t0 == MATRIX_INT ) {
+		this->value = cc.ModReduce(v0.GetIntMatValue());
 	}
 	else {
 		throw std::logic_error("modreduce for type " + std::to_string(t0) + " is not implemented");

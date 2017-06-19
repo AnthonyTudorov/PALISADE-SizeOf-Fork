@@ -132,16 +132,33 @@ public:
 	 */
 	operator bool() const { return bool(params) && bool(scheme); }
 
+	/**
+	 * StartTiming method activates timing of CryptoMethods
+	 *
+	 * @param timeSamples points to a vector in which timing samples will be stored
+	 */
 	void StartTiming(vector<TimingInfo>* timeSamples) {
 		this->timeSamples = timeSamples;
 		doTiming = true;
 	}
+
+	/*
+	 * StopTiming - turns off timing
+	 */
 	void StopTiming() {
 		doTiming = false;
 	}
+
+	/**
+	 * ResumeTiming - re-enables timing with existing TimingInfo vector
+	 */
 	void ResumeTiming() {
 		doTiming = true;
 	}
+
+	/**
+	 * ResetTiming - erases measurements
+	 */
 	void ResetTiming() {
 		timeSamples->clear();
 	}

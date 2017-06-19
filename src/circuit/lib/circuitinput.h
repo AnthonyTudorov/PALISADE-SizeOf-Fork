@@ -100,6 +100,7 @@ public:
 		this->t = t;
 	}
 	shared_ptr<Ciphertext<Element>> GetIntVecValue() const { return ct; }
+	shared_ptr<Matrix<RationalCiphertext<Element>>> GetIntMatValue() const { return mrct; }
 };
 
 #endif
