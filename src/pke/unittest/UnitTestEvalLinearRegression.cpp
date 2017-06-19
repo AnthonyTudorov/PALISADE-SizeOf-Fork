@@ -163,6 +163,8 @@ rationalInt ArbBVLinearRegressionPackedArray() {
 
 rationalInt ArbFVLinearRegressionPackedArray() {
 
+	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().Destroy();
+
 	usint m = 22;
 
 	usint p = 2333; // we choose s.t. 2m|p-1 to leverage CRTArb
