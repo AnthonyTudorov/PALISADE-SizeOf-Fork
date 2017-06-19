@@ -60,68 +60,68 @@ public:
 const usint dcrtBits = 40;
 
 #if !defined(_MSC_VER)
-/*Testing Parameter selection. The test will check if generated parameters are greater than the following thresholds:
-* The first modulus generated needs to be greater than q1 > 4pr sqrt(n) w. Where
-* p is the plaintext modulus
-* r is Gaussian Parameter
-* w is the assurance measure
-* n is the ring dimension
-*/
-TEST_F(UTSHEAdvanced, ParameterSelection) {
-
-
-	usint m = 16; // initial cycltomic order
-
-	float stdDev = 4;
-
-	usint size = 11; // tower size, equal to depth of operation + 1
-
-	vector<native_int::BinaryInteger> moduli(size);
-
-	vector<native_int::BinaryInteger> rootsOfUnity(size);
-
-	native_int::BinaryInteger q = FindPrimeModulus<native_int::BinaryInteger>(m, dcrtBits);
-	native_int::BinaryInteger temp;
-	BigBinaryInteger modulus("1");
-
-	for (size_t i = 0; i < size; i++) {
-		lbcrypto::NextQ(q, native_int::BinaryInteger(2), m, native_int::BinaryInteger(4), native_int::BinaryInteger(4));
-		moduli[i] = q;
-		rootsOfUnity[i] = RootOfUnity(m, moduli[i]);
-		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
-
-	}
-
-	//intializing cryptoparameters alongside variables
-	shared_ptr<ILDCRTParams<BigBinaryInteger>> params(new ILDCRTParams<BigBinaryInteger>(m, moduli, rootsOfUnity));
-	LPCryptoParametersLTV<ILDCRT2n> cryptoParams;
-	cryptoParams.SetPlaintextModulus(2);
-	cryptoParams.SetDistributionParameter(stdDev);
-	cryptoParams.SetRelinWindow(1);
-	cryptoParams.SetElementParams(params);
-	cryptoParams.SetAssuranceMeasure(6);
-	cryptoParams.SetDepth(size - 1);
-	cryptoParams.SetSecurityLevel(1.006);
-
-	//New CryptoParameters placeholder
-	LPCryptoParametersLTV<ILDCRT2n> cryptoParams2;
-	//calling ParameterSelection. cryptoParams2 will have the new Moduli and ring dimension (cyclotomicorder/2)
-	cryptoParams.ParameterSelection(&cryptoParams2);
-
-	shared_ptr<ILDCRTParams<BigBinaryInteger>> dcrtParams = std::dynamic_pointer_cast<ILDCRTParams<BigBinaryInteger>>(cryptoParams2.GetElementParams());
-	std::vector<shared_ptr<native_int::ILParams>> finalParams = dcrtParams->GetParams();
-	//threshold for the first modulus
-	double q1Threshold = 4 * pow(cryptoParams2.GetPlaintextModulus().ConvertToDouble(), 2) * pow(cryptoParams2.GetElementParams()->GetCyclotomicOrder() / 2, 0.5) * cryptoParams2.GetAssuranceMeasure();
-	//test for the first modulus
-	EXPECT_LT(q1Threshold, finalParams[0]->GetModulus().ConvertToDouble());
-	//threshold for all but the first modulus
-	double q2Threshold = 4 * pow(cryptoParams2.GetPlaintextModulus().ConvertToDouble(), 2) * pow(cryptoParams2.GetDistributionParameter(), 5) * pow(cryptoParams2.GetElementParams()->GetCyclotomicOrder() / 2, 1.5) * pow(cryptoParams2.GetAssuranceMeasure(), 5);
-
-	//test for all but the first modulus
-	for (usint i = 1; i < finalParams.size(); i++) {
-		EXPECT_LT(q2Threshold, finalParams[i]->GetModulus().ConvertToDouble());
-	}
-}
+///*Testing Parameter selection. The test will check if generated parameters are greater than the following thresholds:
+//* The first modulus generated needs to be greater than q1 > 4pr sqrt(n) w. Where
+//* p is the plaintext modulus
+//* r is Gaussian Parameter
+//* w is the assurance measure
+//* n is the ring dimension
+//*/
+//TEST_F(UTSHEAdvanced, ParameterSelection) {
+//
+//
+//	usint m = 16; // initial cycltomic order
+//
+//	float stdDev = 4;
+//
+//	usint size = 11; // tower size, equal to depth of operation + 1
+//
+//	vector<native_int::BinaryInteger> moduli(size);
+//
+//	vector<native_int::BinaryInteger> rootsOfUnity(size);
+//
+//	native_int::BinaryInteger q = FindPrimeModulus<native_int::BinaryInteger>(m, dcrtBits);
+//	native_int::BinaryInteger temp;
+//	BigBinaryInteger modulus("1");
+//
+//	for (size_t i = 0; i < size; i++) {
+//		lbcrypto::NextQ(q, native_int::BinaryInteger(2), m, native_int::BinaryInteger(4), native_int::BinaryInteger(4));
+//		moduli[i] = q;
+//		rootsOfUnity[i] = RootOfUnity(m, moduli[i]);
+//		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
+//
+//	}
+//
+//	//intializing cryptoparameters alongside variables
+//	shared_ptr<ILDCRTParams<BigBinaryInteger>> params(new ILDCRTParams<BigBinaryInteger>(m, moduli, rootsOfUnity));
+//	LPCryptoParametersLTV<ILDCRT2n> cryptoParams;
+//	cryptoParams.SetPlaintextModulus(2);
+//	cryptoParams.SetDistributionParameter(stdDev);
+//	cryptoParams.SetRelinWindow(1);
+//	cryptoParams.SetElementParams(params);
+//	cryptoParams.SetAssuranceMeasure(6);
+//	cryptoParams.SetDepth(size - 1);
+//	cryptoParams.SetSecurityLevel(1.006);
+//
+//	//New CryptoParameters placeholder
+//	LPCryptoParametersLTV<ILDCRT2n> cryptoParams2;
+//	//calling ParameterSelection. cryptoParams2 will have the new Moduli and ring dimension (cyclotomicorder/2)
+//	cryptoParams.ParameterSelection(&cryptoParams2);
+//
+//	shared_ptr<ILDCRTParams<BigBinaryInteger>> dcrtParams = std::dynamic_pointer_cast<ILDCRTParams<BigBinaryInteger>>(cryptoParams2.GetElementParams());
+//	std::vector<shared_ptr<native_int::ILParams>> finalParams = dcrtParams->GetParams();
+//	//threshold for the first modulus
+//	double q1Threshold = 4 * pow(cryptoParams2.GetPlaintextModulus().ConvertToDouble(), 2) * pow(cryptoParams2.GetElementParams()->GetCyclotomicOrder() / 2, 0.5) * cryptoParams2.GetAssuranceMeasure();
+//	//test for the first modulus
+//	EXPECT_LT(q1Threshold, finalParams[0]->GetModulus().ConvertToDouble());
+//	//threshold for all but the first modulus
+//	double q2Threshold = 4 * pow(cryptoParams2.GetPlaintextModulus().ConvertToDouble(), 2) * pow(cryptoParams2.GetDistributionParameter(), 5) * pow(cryptoParams2.GetElementParams()->GetCyclotomicOrder() / 2, 1.5) * pow(cryptoParams2.GetAssuranceMeasure(), 5);
+//
+//	//test for all but the first modulus
+//	for (usint i = 1; i < finalParams.size(); i++) {
+//		EXPECT_LT(q2Threshold, finalParams[i]->GetModulus().ConvertToDouble());
+//	}
+//}
 
 TEST_F(UTSHEAdvanced, test_eval_mult_single_crt) {
 

@@ -174,13 +174,6 @@ public:
 	}
 
 	/**
-	 * ParameterSelection for LTV Crypto Parameters
-	 * FIXME this will be replaced by the new mechanism for crypto params
-	 * @param cryptoParams
-	 */
-	void ParameterSelection(LPCryptoParametersLTV<ILDCRT2n> *cryptoParams);
-
-	/**
 	 * == operator to compare to this instance of LPCryptoParametersLTV object.
 	 *
 	 * @param &rhs LPCryptoParameters to check equality against.
@@ -195,30 +188,13 @@ public:
 	void PrintParameters(std::ostream& os) const {
 		LPCryptoParametersRLWE<Element>::PrintParameters(os);
 	}
-
-private:
-
-	//helper function for ParameterSelection. Splits the string 's' by the delimeter 'c'.
-	// FIXME This will soon be deprecated.
-	std::string split(const std::string s, char c){
-		std::string result;
-		const char *str = s.c_str();
-		const char *begin = str;
-		while(*str != c && *str)
-			str++;
-		result = std::string(begin, str);
-		return result;
-	}
-
-	//function for parameter selection. The public ParameterSelection function is a wrapper around this function.
-	// FIXME This will soon be deprecated.
-	void ParameterSelection(usint& n, vector<native_int::BinaryInteger> &moduli);
 };
 
 /**
  * @brief Parameter generation for LTV.
  *
- * FIXME desc
+ * This is an implementation of the algorithm in the "Parameter Selection" section of
+ * Rohloff & Cousins' "A Scalable Implementation of Fully Homomorphic Encryption Built on NTRU"
  *
  * @tparam Element a ring element.
  */

@@ -43,108 +43,127 @@
 
 namespace lbcrypto {
 
-template <class Element>
-bool LPAlgorithmParamsGenLTV<Element>::ParamsGen(shared_ptr<LPCryptoParameters<Element>> cryptoParams, int32_t evalAddCount,
-	int32_t evalMultCount, int32_t keySwitchCount) const
+//template <>
+//bool LPAlgorithmParamsGenLTV<ILVector2n>::ParamsGen(shared_ptr<LPCryptoParameters<ILVector2n>> cryptoParams,
+//		int32_t evalAddCount, int32_t evalMultCount, int32_t keySwitchCount) const
+//{
+//	return false;
+//}
+
+template<typename Element>
+bool LPAlgorithmParamsGenLTV<Element>::ParamsGen(shared_ptr<LPCryptoParameters<Element>> cryptoParams,
+		int32_t evalAddCount, int32_t evalMultCount, int32_t keySwitchCount) const
 {
 	if (!cryptoParams)
 		return false;
 
-	const shared_ptr<LPCryptoParametersLTV<Element>> cParams = std::dynamic_pointer_cast<LPCryptoParametersLTV<Element>>(cryptoParams);
+	const shared_ptr<LPCryptoParametersLTV<ILDCRT2n>> cParams = std::dynamic_pointer_cast<LPCryptoParametersLTV<ILDCRT2n>>(cryptoParams);
+
+//	double sigma = cryptoParamsFV->GetDistributionParameter();
+	double w = cParams->GetAssuranceMeasure();
+//	double hermiteFactor = cryptoParamsFV->GetSecurityLevel();
+
+	usint n = 512; // to start
+	double p = cParams->GetPlaintextModulus().ConvertToDouble();
+	uint32_t r = cParams->GetRelinWindow();
+
+	auto q1 = 4 * p * r * sqrt(n) * w;
+
+	std::cout << q1 << std::endl;
 
 	return false;
 }
 
-template <class Element>
-void LPCryptoParametersLTV<Element>::ParameterSelection(LPCryptoParametersLTV<ILDCRT2n> *cryptoParams)
-{
-
-	//defining moduli outside of recursive call for efficiency
-	std::vector<native_int::BinaryInteger> moduli(this->m_depth + 1);
-	moduli.reserve(this->m_depth + 1);
-
-	usint n = this->GetElementParams()->GetRingDimension();
-	// set the values for n (ring dimension) and chain of moduli
-	this->ParameterSelection(n, moduli);
-
-	cryptoParams->SetAssuranceMeasure(this->m_assuranceMeasure);
-	cryptoParams->SetDepth(this->m_depth);
-	cryptoParams->SetSecurityLevel(this->m_securityLevel);
-	cryptoParams->SetDistributionParameter(this->m_distributionParameter);
-	cryptoParams->SetPlaintextModulus(this->GetPlaintextModulus());
-
-	std::vector<native_int::BinaryInteger> rootsOfUnity;
-	rootsOfUnity.reserve(this->m_depth + 1);
-	usint m = this->GetElementParams()->GetCyclotomicOrder();
-	native_int::BinaryInteger rootOfUnity;
-
-	for (int i = 0; i < this->m_depth + 1; i++) {
-		rootOfUnity = RootOfUnity(m, moduli.at(i));
-		rootsOfUnity.push_back(rootOfUnity);
-	}
-
-	shared_ptr<typename ILDCRT2n::Params> newElemParams(new typename ILDCRT2n::Params(m, moduli, rootsOfUnity));
-	cryptoParams->SetElementParams(newElemParams);
-
-}
-
-template <class Element>
-void LPCryptoParametersLTV<Element>::ParameterSelection(usint& n, vector<native_int::BinaryInteger> &moduli) {
-	int t = this->m_depth + 1;
-
-	native_int::BinaryInteger pBigBinaryInteger(this->GetPlaintextModulus().ConvertToInt());
-	int p = pBigBinaryInteger.ConvertToInt(); // what if this does not fit in an int? (unlikely)
-	double w = this->m_assuranceMeasure;
-	double r = this->m_distributionParameter;
-	double rootHermitFactor = this->m_securityLevel;
-
-	double sqrtn = sqrt(n);
-	double q1 = 4 * p * r * sqrtn * w;
-	double q2 = 4 * pow(p, 2) * pow(r, 5) * pow(sqrtn, 3) * pow(w, 5); // maybe p * p instead
-
-	double* q = new double[t];
-	q[0] = q1;
-	for (int i = 1; i<t; i++)
-		q[i] = q2;
-
-	double sum = 0.0;
-	for (int i = 0; i<t; i++) {
-		sum += log(q[i]);  /// probably needs to be log2?????
-	}
-
-	// which log are we using???
-	int next = ceil(sum / (4 * log(rootHermitFactor)));
-	usint nprime = pow(2, ceil(log(next) / log(2)));
-	char c = '.';
-
-	// splitting a string version on dot is ... probably ... wrong
-	if (n == nprime) {
-		sum = 0.0;
-		for (int i = 0; i<t; i++) {
-			if (i == 0 || i == 1) {
-				moduli[i] = native_int::BinaryInteger(split(std::to_string(q[i]), c));
-			}
-			else {
-				moduli[i] = moduli[i - 1];
-			}
-			NextQ(moduli[i], pBigBinaryInteger, n, native_int::BinaryInteger("4"), native_int::BinaryInteger("4"));
-			q[i] = moduli[i].ConvertToDouble();
-			sum += log(q[i]);
-		}
-
-		usint nprimeCalcFactor = ceil(sum / (4 * log(rootHermitFactor)));
-		if (nprime < nprimeCalcFactor) {
-			n *= 2;
-			ParameterSelection(n, moduli);
-		}
-	}
-	else {
-		n *= 2;
-		ParameterSelection(n, moduli);
-	}
-
-	delete [] q;
-}
+//template <class Element>
+//void ParameterSelection(LPCryptoParametersLTV<ILDCRT2n> *cryptoParams)
+//{
+//
+//	//defining moduli outside of recursive call for efficiency
+//	std::vector<native_int::BinaryInteger> moduli(this->m_depth + 1);
+//	moduli.reserve(this->m_depth + 1);
+//
+//	usint n = this->GetElementParams()->GetRingDimension();
+//	// set the values for n (ring dimension) and chain of moduli
+//	this->ParameterSelection(n, moduli);
+//
+//	cryptoParams->SetAssuranceMeasure(this->m_assuranceMeasure);
+//	cryptoParams->SetDepth(this->m_depth);
+//	cryptoParams->SetSecurityLevel(this->m_securityLevel);
+//	cryptoParams->SetDistributionParameter(this->m_distributionParameter);
+//	cryptoParams->SetPlaintextModulus(this->GetPlaintextModulus());
+//
+//	std::vector<native_int::BinaryInteger> rootsOfUnity;
+//	rootsOfUnity.reserve(this->m_depth + 1);
+//	usint m = this->GetElementParams()->GetCyclotomicOrder();
+//	native_int::BinaryInteger rootOfUnity;
+//
+//	for (int i = 0; i < this->m_depth + 1; i++) {
+//		rootOfUnity = RootOfUnity(m, moduli.at(i));
+//		rootsOfUnity.push_back(rootOfUnity);
+//	}
+//
+//	shared_ptr<typename ILDCRT2n::Params> newElemParams(new typename ILDCRT2n::Params(m, moduli, rootsOfUnity));
+//	cryptoParams->SetElementParams(newElemParams);
+//
+//}
+//
+//template <class Element>
+//void ParameterSelection(usint& n, vector<native_int::BinaryInteger> &moduli) {
+//	int t = this->m_depth + 1;
+//
+//	native_int::BinaryInteger pBigBinaryInteger(this->GetPlaintextModulus().ConvertToInt());
+//	int p = pBigBinaryInteger.ConvertToInt(); // what if this does not fit in an int? (unlikely)
+//	double w = this->m_assuranceMeasure;
+//	double r = this->m_distributionParameter;
+//	double rootHermitFactor = this->m_securityLevel;
+//
+//	double sqrtn = sqrt(n);
+//	double q1 = 4 * p * r * sqrtn * w;
+//	double q2 = 4 * pow(p, 2) * pow(r, 5) * pow(sqrtn, 3) * pow(w, 5); // maybe p * p instead
+//
+//	double* q = new double[t];
+//	q[0] = q1;
+//	for (int i = 1; i<t; i++)
+//		q[i] = q2;
+//
+//	double sum = 0.0;
+//	for (int i = 0; i<t; i++) {
+//		sum += log(q[i]);  /// probably needs to be log2?????
+//	}
+//
+//	// which log are we using???
+//	int next = ceil(sum / (4 * log(rootHermitFactor)));
+//	usint nprime = pow(2, ceil(log(next) / log(2)));
+//	char c = '.';
+//
+//	// splitting a string version on dot is ... probably ... wrong
+//	if (n == nprime) {
+//		sum = 0.0;
+//		for (int i = 0; i<t; i++) {
+//			if (i == 0 || i == 1) {
+//				moduli[i] = native_int::BinaryInteger(split(std::to_string(q[i]), c));
+//			}
+//			else {
+//				moduli[i] = moduli[i - 1];
+//			}
+//			NextQ(moduli[i], pBigBinaryInteger, n, native_int::BinaryInteger("4"), native_int::BinaryInteger("4"));
+//			q[i] = moduli[i].ConvertToDouble();
+//			sum += log(q[i]);
+//		}
+//
+//		usint nprimeCalcFactor = ceil(sum / (4 * log(rootHermitFactor)));
+//		if (nprime < nprimeCalcFactor) {
+//			n *= 2;
+//			ParameterSelection(n, moduli);
+//		}
+//	}
+//	else {
+//		n *= 2;
+//		ParameterSelection(n, moduli);
+//	}
+//
+//	delete [] q;
+//}
 
 template <class Element>
 LPKeyPair<Element> LPAlgorithmLTV<Element>::KeyGen(const CryptoContext<Element> cc, bool makeSparse) const
