@@ -44,6 +44,18 @@
 namespace lbcrypto {
 
 template <class Element>
+bool LPAlgorithmParamsGenLTV<Element>::ParamsGen(shared_ptr<LPCryptoParameters<Element>> cryptoParams, int32_t evalAddCount,
+	int32_t evalMultCount, int32_t keySwitchCount) const
+{
+	if (!cryptoParams)
+		return false;
+
+	const shared_ptr<LPCryptoParametersLTV<Element>> cParams = std::dynamic_pointer_cast<LPCryptoParametersLTV<Element>>(cryptoParams);
+
+	return false;
+}
+
+template <class Element>
 void LPCryptoParametersLTV<Element>::ParameterSelection(LPCryptoParametersLTV<ILDCRT2n> *cryptoParams)
 {
 

@@ -30,6 +30,7 @@
 namespace lbcrypto {
 template class LPCryptoParametersLTV<ILVector2n>;
 template class LPPublicKeyEncryptionSchemeLTV<ILVector2n>;
+template class LPAlgorithmParamsGenLTV<ILVector2n>;
 template class LPAlgorithmLTV<ILVector2n>;
 template class LPAlgorithmPRELTV<ILVector2n>;
 template class LPAlgorithmSHELTV<ILVector2n>;
