@@ -142,7 +142,7 @@ Value<Element> EvalAddNodeWithValue<Element>::eval(CryptoContext<Element>& cc, C
 			v0 = cc.EvalAdd(v0.GetIntVecValue(), v1.GetIntVecValue());
 		}
 		else if( t0 == MATRIX_INT ) {
-			v0 = cc.EvalAdd(v0.GetIntMatValue(), v1.GetIntMatValue());
+			v0 = cc.EvalAddMatrix(v0.GetIntMatValue(), v1.GetIntMatValue());
 		}
 		else {
 			throw std::logic_error("eval add for types " + std::to_string(t0) + " and " + std::to_string(t1) + " not implemented");
@@ -233,7 +233,7 @@ Value<Element> EvalSubNodeWithValue<Element>::eval(CryptoContext<Element>& cc, C
 			v0 = cc.EvalSub(v0.GetIntVecValue(), v1.GetIntVecValue());
 		}
 		else if( t0 == MATRIX_INT ) {
-			v0 = cc.EvalSub(v0.GetIntMatValue(), v1.GetIntMatValue());
+			v0 = cc.EvalSubMatrix(v0.GetIntMatValue(), v1.GetIntMatValue());
 		}
 		else {
 			throw std::logic_error("eval sub for types " + std::to_string(t0) + " and " + std::to_string(t1) + " are not implemented");
@@ -325,7 +325,7 @@ Value<Element> EvalMultNodeWithValue<Element>::eval(CryptoContext<Element>& cc, 
 		this->value = cc.EvalMult(v0.GetIntVecValue(), v1.GetIntVecValue());
 	}
 	else if( t0 == MATRIX_INT ) {
-		this->value = cc.EvalMult(v0.GetIntMatValue(), v1.GetIntMatValue());
+		this->value = cc.EvalMultMatrix(v0.GetIntMatValue(), v1.GetIntMatValue());
 	}
 	else {
 		throw std::logic_error("eval mult for types " + std::to_string(t0) + " and " + std::to_string(t1) + " are not implemented");
@@ -365,7 +365,7 @@ Value<Element> ModReduceNodeWithValue<Element>::eval(CryptoContext<Element>& cc,
 		this->value = cc.ModReduce(v0.GetIntVecValue());
 	}
 	else if( t0 == MATRIX_INT ) {
-		this->value = cc.ModReduce(v0.GetIntMatValue());
+		this->value = cc.ModReduceMatrix(v0.GetIntMatValue());
 	}
 	else {
 		throw std::logic_error("modreduce for type " + std::to_string(t0) + " is not implemented");

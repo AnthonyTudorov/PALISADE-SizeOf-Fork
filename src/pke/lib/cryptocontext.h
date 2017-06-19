@@ -1013,6 +1013,21 @@ public:
 		return rv;
 	}
 
+	shared_ptr<Matrix<RationalCiphertext<Element>>>
+	EvalAddMatrix(const shared_ptr<Matrix<RationalCiphertext<Element>>> ct1, const shared_ptr<Matrix<RationalCiphertext<Element>>> ct2) const
+	{
+		// tests needed for context
+
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		Matrix<RationalCiphertext<Element>> rv = *ct1 + *ct2;
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalAddMatrix, currentDateTime() - start) );
+		}
+		shared_ptr<Matrix<RationalCiphertext<Element>>> a(new Matrix<RationalCiphertext<Element>>(rv));
+		return a;
+	}
+
 	/**
 	 * EvalSub - PALISADE EvalSub method for a pair of ciphertexts
 	 * @param ct1
@@ -1032,6 +1047,21 @@ public:
 			timeSamples->push_back( TimingInfo(OpEvalSub, currentDateTime() - start) );
 		}
 		return rv;
+	}
+
+	shared_ptr<Matrix<RationalCiphertext<Element>>>
+	EvalSubMatrix(const shared_ptr<Matrix<RationalCiphertext<Element>>> ct1, const shared_ptr<Matrix<RationalCiphertext<Element>>> ct2) const
+	{
+		// tests needed for context
+
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		Matrix<RationalCiphertext<Element>> rv = *ct1 - *ct2;
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalSubMatrix, currentDateTime() - start) );
+		}
+		shared_ptr<Matrix<RationalCiphertext<Element>>> a(new Matrix<RationalCiphertext<Element>>(rv));
+		return a;
 	}
 
 	/**
@@ -1091,6 +1121,21 @@ public:
 			timeSamples->push_back( TimingInfo(OpEvalMult, currentDateTime() - start) );
 		}
 		return rv;
+	}
+
+	shared_ptr<Matrix<RationalCiphertext<Element>>>
+	EvalMultMatrix(const shared_ptr<Matrix<RationalCiphertext<Element>>> ct1, const shared_ptr<Matrix<RationalCiphertext<Element>>> ct2) const
+	{
+		// tests needed for context
+
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		Matrix<RationalCiphertext<Element>> rv = *ct1 * *ct2;
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalMultMatrix, currentDateTime() - start) );
+		}
+		shared_ptr<Matrix<RationalCiphertext<Element>>> a(new Matrix<RationalCiphertext<Element>>(rv));
+		return a;
 	}
 
 	/**
@@ -1349,6 +1394,46 @@ public:
 			timeSamples->push_back( TimingInfo(OpModReduce, currentDateTime() - start) );
 		}
 		return rv;
+	}
+
+	/**
+	 * ModReduce - PALISADE ModReduce method
+	 * @param ciphertext - vector of ciphertext
+	 * @return vector of mod reduced ciphertext
+	 */
+	shared_ptr<RationalCiphertext<Element>> ModReduceRational(shared_ptr<RationalCiphertext<Element>> ciphertext) const {
+		if( ciphertext == NULL || ciphertext->GetNumerator()->GetCryptoContext() != *this )
+			throw std::logic_error("Information passed to ModReduce was not generated with this crypto context");
+
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto n = GetEncryptionAlgorithm()->ModReduce(ciphertext->GetNumerator());
+		auto d = GetEncryptionAlgorithm()->ModReduce(ciphertext->GetDenominator());
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpModReduce, currentDateTime() - start) );
+		}
+		return shared_ptr<RationalCiphertext<Element>>(new RationalCiphertext<Element>(*n,*d));
+	}
+
+	/**
+	 * ModReduce - PALISADE ModReduce method
+	 * @param ciphertext - vector of ciphertext
+	 * @return vector of mod reduced ciphertext
+	 */
+	shared_ptr<Matrix<RationalCiphertext<Element>>> ModReduceMatrix(shared_ptr<Matrix<RationalCiphertext<Element>>> ciphertext) const {
+		// needs context check
+
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		shared_ptr<Matrix<RationalCiphertext<Element>>> m(
+				new Matrix<RationalCiphertext<Element>>(ciphertext->GetAllocator(), ciphertext->GetRows(), ciphertext->GetCols()));
+		for( size_t r = 0; r < m->GetRows(); r++ )
+			for( size_t c = 0; c < m->GetCols(); c++ )
+				(*m)(r,c) = ModReduceRational((*ciphertext)(r,c));
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpModReduceMatrix, currentDateTime() - start) );
+		}
+		return m;
 	}
 
 	/**

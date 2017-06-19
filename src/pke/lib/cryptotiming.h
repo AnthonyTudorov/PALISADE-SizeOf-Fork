@@ -50,13 +50,15 @@ enum OpType {
 	OpEncrypt, OpEncryptMatrixPlain, OpEncryptMatrixPacked,
 	OpDecrypt, OpDecryptMatrixPlain, OpDecryptMatrixPacked,
 	OpReEncrypt,
-	OpEvalAdd, OpEvalAddPlain, OpEvalSub, OpEvalSubPlain,
-	OpEvalMult, OpEvalMultKey, OpEvalMultPlain, OpEvalNeg,
+	OpEvalAdd, OpEvalAddMatrix, OpEvalAddPlain,
+	OpEvalSub, OpEvalSubMatrix, OpEvalSubPlain,
+	OpEvalMult, OpEvalMultMatrix, OpEvalMultKey, OpEvalMultPlain,
+	OpEvalNeg,
 	OpEvalAutomorphismKeyGen,
 	OpEvalAutomorphismI,
 	OpEvalAutomorphismK,
 	OpLinRegression, OpKeySwitch,
-	OpModReduce, OpLevelReduce, OpRingReduce, OpComposedEvalMult,
+	OpModReduce, OpModReduceRational, OpModReduceMatrix, OpLevelReduce, OpRingReduce, OpComposedEvalMult,
 	OpEvalSumKeyGen, OpEvalSum, OpEvalInnerProduct, OpEvalCrossCorrelation, OpEvalLinRegressionBatched,
 };
 
