@@ -49,6 +49,7 @@ int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
 
   //::testing::GTEST_FLAG(filter) = "UTFV*";
+  //::testing::GTEST_FLAG(filter) = "*Test_FV_EvalLR";
   int rv = RUN_ALL_TESTS();
 
   std::cout << rv << ", press return to continue..." << std::endl;
