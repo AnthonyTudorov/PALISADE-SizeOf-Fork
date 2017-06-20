@@ -212,7 +212,7 @@ main(int argc, char *argv[])
 		if( print_input_graph )
 			driver.graph.DisplayGraph();
 
-		if( verbose ) cout << "Setting up" << endl;
+		if( verbose ) cout << "Preprocessing" << endl;
 		driver.graph.Preprocess();
 
 		if( print_preproc_graph )
@@ -221,6 +221,7 @@ main(int argc, char *argv[])
 		if( evaluation_list_mode ) {
 			driver.graph.GenerateOperationList();
 			if( verbose ) {
+				CircuitNode::PrintLog(cout);
 				cout << "The operations used are:" << endl;
 				CircuitNode::PrintOperationSet(cout);
 			}
@@ -278,8 +279,6 @@ main(int argc, char *argv[])
 
 		vector<TimingInfo>	times;
 		cc.StartTiming(&times);
-
-		CircuitNodeWithValue<ILVector2n>::ResetSimulation();
 
 		CircuitIO<ILVector2n> outputs = cir.CircuitEval(inputs, verbose);
 

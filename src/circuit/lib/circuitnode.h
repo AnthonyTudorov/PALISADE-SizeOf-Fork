@@ -72,8 +72,7 @@ class CircuitGraph;
 // nodes are identified by a node id
 class CircuitNode {
 private:
-	static	int							step;
-	static vector<CircuitSimulation>	sim;
+	static vector<CircuitSimulation *>	sim;
 
 public:
 	CircuitNode(usint nodeID) {
@@ -122,32 +121,27 @@ public:
 
 	virtual void simeval(CircuitGraph& cg) = 0;
 
-	static void ResetSimulation() {
-		step = 0;
-		sim.clear();
-	}
-
-	void Log(OpType t) {
-		sim.push_back( CircuitSimulation(GetId(), t) );
-		step++;
+	static void Log(usint id, OpType t) {
+		cout<<"CIRCUITNODE LOGGING "<<t<<" into " << &CircuitNode::sim <<endl;
+		CircuitNode::sim.push_back( new CircuitSimulation(id, t) );
 	}
 
 	static void PrintOperationSet(ostream& out) {
 		map<OpType,bool> ops;
-		for( int i=0; i < step; i++ )
-			ops[ sim[i].op ] = true;
+		for( int i=0; i < CircuitNode::sim.size(); i++ )
+			ops[ CircuitNode::sim[i]->op ] = true;
 		for( auto op : ops )
 			out << op.first << endl;
 	}
 
 	static void PrintLog(ostream& out) {
-		out << step << " steps" << endl;
-		for( int i=0; i < step; i++ )
-			out << i << ": " << sim[i] << endl;
+		out << CircuitNode::sim.size() << " steps" << endl;
+		for( int i=0; i < CircuitNode::sim.size(); i++ )
+			out << i << ": " << *CircuitNode::sim[i] << endl;
 	}
 
-	static const vector<CircuitSimulation>& GetSimulationItems() {
-		return sim;
+	static const vector<CircuitSimulation *>& GetSimulationItems() {
+		return CircuitNode::sim;
 	}
 
 protected:
@@ -203,11 +197,6 @@ public:
 	bool IsInput() const { return node->IsInput(); }
 
 	virtual Value<Element> eval(CryptoContext<Element>& cc, CircuitGraphWithValues<Element>& cg) { Log(); return value; }
-
-	static void ResetSimulation() {
-		step = 0;
-		sim.clear();
-	}
 
 	void Log() {
 		sim.push_back( CircuitSimulation(node->GetId(), node->OpTag()) );

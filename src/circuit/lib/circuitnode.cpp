@@ -35,8 +35,7 @@
 
 namespace lbcrypto {
 
-int	CircuitNode::step;
-vector<CircuitSimulation> CircuitNode::sim;
+vector<CircuitSimulation *> CircuitNode::sim;
 
 template<typename Element>
 CryptoContext<Element> CircuitGraphWithValues<Element>::_graph_cc;
@@ -112,7 +111,9 @@ void EvalAddNode::simeval(CircuitGraph& g) {
 		noise += n1->GetNoise();
 	}
 
-	this->Log(OpEvalAdd);
+	CircuitNode::PrintLog(cout);
+	CircuitNode::Log(GetId(),OpEvalAdd);
+	CircuitNode::PrintLog(cout);
 	this->SetNoise( noise );
 	return;
 }
@@ -163,7 +164,9 @@ void EvalSubNode::simeval(CircuitGraph& g) {
 		auto n0 = g.getNodeById(getInputs()[0]);
 		n0->simeval(g);
 		this->SetNoise( n0->GetNoise() );
-		this->Log(OpEvalNeg);
+		CircuitNode::PrintLog(cout);
+		CircuitNode::Log(GetId(),OpEvalNeg);
+		CircuitNode::PrintLog(cout);
 		return;
 	}
 
@@ -180,7 +183,9 @@ void EvalSubNode::simeval(CircuitGraph& g) {
 		noise += n1->GetNoise();
 	}
 
-	this->Log(OpEvalSub);
+	CircuitNode::PrintLog(cout);
+	CircuitNode::Log(GetId(),OpEvalSub);
+	CircuitNode::PrintLog(cout);
 	this->SetNoise( noise );
 	return;
 }
@@ -256,7 +261,7 @@ void EvalNegNode::simeval(CircuitGraph& g) {
 	auto n0 = g.getNodeById(getInputs()[0]);
 	n0->simeval(g);
 
-	this->Log(OpEvalNeg);
+	CircuitNode::Log(GetId(),OpEvalNeg);
 	this->SetNoise( n0->GetNoise() );
 	return;
 }
@@ -298,7 +303,9 @@ void EvalMultNode::simeval(CircuitGraph& g) {
 	n0->simeval(g);
 	n1->simeval(g);
 
-	this->Log(OpEvalMult);
+	CircuitNode::PrintLog(cout);
+	CircuitNode::Log(GetId(),OpEvalMult);
+	CircuitNode::PrintLog(cout);
 	this->SetNoise( n0->GetNoise() + n1->GetNoise() );
 	return;
 }
@@ -344,8 +351,10 @@ void ModReduceNode::simeval(CircuitGraph& g) {
 
 	auto n0 = g.getNodeById(getInputs()[0]);
 	n0->simeval(g);
-
-	this->Log(OpModReduce);
+cout << "MODREDUCE:" << endl;
+	CircuitNode::PrintLog(cout);
+	CircuitNode::Log(GetId(),OpModReduce);
+	CircuitNode::PrintLog(cout);
 	this->SetNoise( n0->GetNoise() );
 	return;
 }
