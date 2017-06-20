@@ -110,6 +110,7 @@ public:
 			OperatorFeat[m->op] = m->feat;
 		}
 	}
+	virtual ~FeatureMapBuilder() {}
 };
 
 static FeatureMapBuilder __mapper;
