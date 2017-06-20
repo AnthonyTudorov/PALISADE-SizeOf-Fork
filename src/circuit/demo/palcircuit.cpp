@@ -227,6 +227,7 @@ main(int argc, char *argv[])
 			}
 			CircuitNode::PrintOperationSet(evalListF);
 			evalListF.close();
+			CircuitNode::ResetLog();
 			return 0;
 		}
 
@@ -235,6 +236,7 @@ main(int argc, char *argv[])
 			TimingStatistics estimate = driver.graph.GenerateRuntimeEstimate(timings);
 			cout << "TIMING ESTIMATE (min,max,average): " << estimate.min << "," << estimate.max << "," << estimate.average;
 			cout << " **********************" << endl;
+			CircuitNode::ResetLog();
 		}
 
 		PalisadeCircuit<ILVector2n>	cir(cc, driver.graph);

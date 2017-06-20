@@ -35,7 +35,7 @@
 
 namespace lbcrypto {
 
-vector<CircuitSimulation *> CircuitNode::sim;
+vector<CircuitSimulation> CircuitNode::sim;
 
 template<typename Element>
 CryptoContext<Element> CircuitGraphWithValues<Element>::_graph_cc;

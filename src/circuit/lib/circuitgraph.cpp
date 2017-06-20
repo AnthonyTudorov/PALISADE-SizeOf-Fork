@@ -100,12 +100,12 @@ CircuitGraph::GenerateOperationList()
 TimingStatistics
 CircuitGraph::GenerateRuntimeEstimate(map<OpType,TimingStatistics>& stats) const
 {
-	vector<CircuitSimulation *> steps = CircuitNode::GetSimulationItems();
+	vector<CircuitSimulation> steps = CircuitNode::GetSimulationItems();
 
 	// first make sure we have estimates for every operation performed
 	set<OpType> ops;
 	for( auto &s : steps ) {
-		ops.insert( s->op );
+		ops.insert( s.op );
 	}
 
 	for( OpType o : ops ) {
@@ -118,8 +118,8 @@ CircuitGraph::GenerateRuntimeEstimate(map<OpType,TimingStatistics>& stats) const
 	estimate.min = estimate.max = estimate.average = 0;
 
 	for( size_t i=0; i<steps.size(); i++ ) {
-		auto this_est = stats[ steps[i]->op ];
-		cout << i << ":" << steps[i]->op << "(" << steps[i]->nodeId << ") = "
+		auto this_est = stats[ steps[i].op ];
+		cout << i << ":" << steps[i].op << "(" << steps[i].nodeId << ") = "
 				<< this_est.min << "," << this_est.max << "," << this_est.average << endl;
 		estimate.min += this_est.min;
 		estimate.max += this_est.max;

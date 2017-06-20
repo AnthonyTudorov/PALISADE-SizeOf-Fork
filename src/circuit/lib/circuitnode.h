@@ -72,7 +72,7 @@ class CircuitGraph;
 // nodes are identified by a node id
 class CircuitNode {
 private:
-	static vector<CircuitSimulation *>	sim;
+	static vector<CircuitSimulation>	sim;
 
 public:
 	CircuitNode(usint nodeID) {
@@ -123,13 +123,13 @@ public:
 
 	static void Log(usint id, OpType t) {
 		cout<<"CIRCUITNODE LOGGING "<<t<<" into " << &CircuitNode::sim <<endl;
-		CircuitNode::sim.push_back( new CircuitSimulation(id, t) );
+		CircuitNode::sim.push_back( CircuitSimulation(id, t) );
 	}
 
 	static void PrintOperationSet(ostream& out) {
 		map<OpType,bool> ops;
 		for( int i=0; i < CircuitNode::sim.size(); i++ )
-			ops[ CircuitNode::sim[i]->op ] = true;
+			ops[ CircuitNode::sim[i].op ] = true;
 		for( auto op : ops )
 			out << op.first << endl;
 	}
@@ -137,11 +137,15 @@ public:
 	static void PrintLog(ostream& out) {
 		out << CircuitNode::sim.size() << " steps" << endl;
 		for( int i=0; i < CircuitNode::sim.size(); i++ )
-			out << i << ": " << *CircuitNode::sim[i] << endl;
+			out << i << ": " << CircuitNode::sim[i] << endl;
 	}
 
-	static const vector<CircuitSimulation *>& GetSimulationItems() {
+	static const vector<CircuitSimulation>& GetSimulationItems() {
 		return CircuitNode::sim;
+	}
+
+	static void ResetLog() {
+		CircuitNode::sim.clear();
 	}
 
 protected:
