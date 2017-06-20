@@ -54,6 +54,11 @@ int main(int argc, char *argv[]) {
 	//Generate parameters.
 	double diff, start, finish;
 
+
+	std::cout << "\nThis code demonstrates the use of the FV, BV, StSt, Null and LTV schemes for basic public-key encryption. " << std::endl;
+	std::cout << "This code shows how to use schemes and pre-computed parameters for those schemes can be selected during run-time. " << std::endl;
+	std::cout << "We do not generally recommend the use of the LTV scheme due to security concerns. " << std::endl;
+	
 	std::cout << "Choose parameter set: ";
 	CryptoContextHelper::printAllParmSetNames(std::cout);
 

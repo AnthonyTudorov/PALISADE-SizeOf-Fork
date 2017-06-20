@@ -52,6 +52,11 @@ int main(int argc, char *argv[])
 	// Set-up of parameters
 	////////////////////////////////////////////////////////////
 
+
+	std::cout << "\nThis code demonstrates the use of the FV schemes for basic proxy-re-encryption operations. " << std::endl;
+	std::cout << "This code shows how to auto-generate parameters during run-time based on desired plaintext moduli and security levels. " << std::endl;
+	std::cout << "In this demonstration we encrypt data and then proxy re-encrypt it. " << std::endl;
+
 	//Generate parameters.
 	double diff, start, finish;
 

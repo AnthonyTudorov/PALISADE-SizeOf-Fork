@@ -51,6 +51,12 @@ int main(int argc, char *argv[]) {
 	// Set-up of parameters
 	////////////////////////////////////////////////////////////
 
+
+	std::cout << "\nThis code demonstrates the use of the FV schemes for basic homomorphic encryption operations. " << std::endl;
+	std::cout << "This code shows how to auto-generate parameters during run-time based on desired plaintext moduli and security levels. " << std::endl;
+	std::cout << "In this demonstration we use three input plaintext and show how to both add them together and multiply them together. " << std::endl;
+
+
 	//Generate parameters.
 	double diff, start, finish;
 
@@ -69,7 +75,7 @@ int main(int argc, char *argv[]) {
 	
 	start = currentDateTime();
 
-	cryptoContext.GetEncryptionAlgorithm()->ParamsGen(cryptoContext.GetCryptoParameters(), 0, 2);
+	cryptoContext.GetEncryptionAlgorithm()->ParamsGen(cryptoContext.GetCryptoParameters(), 0, 1);
 
 	finish = currentDateTime();
 	diff = finish - start;
