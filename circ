@@ -1,0 +1,9 @@
+PC=bin/demo/circuit/palcircuit
+GT=bin/demo/circuit/gentimingest
+
+filename=`basename $1`
+fn="${filename%.*}"
+
+$PC -v -gproc -elist=${fn}.listfile $1
+$GT ${fn}.listfile ${fn}.statsfile
+$PC -v -estats=${fn}.statsfile $1

@@ -81,6 +81,10 @@ main(int argc, char *argv[])
 
 	SerializableHelper::SerializationToStream(serObj, out);
 
+	cc.Enable(ENCRYPTION);
+	cc.Enable(SHE);
+	cc.Enable(LEVELEDSHE);
+
 	string operation;
 	set<OpType> operations;
 	while( in >> operation ) {
@@ -92,9 +96,7 @@ main(int argc, char *argv[])
 		cout << operation << " added" << endl;
 		operations.insert(fop->second);
 	}
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
-	cc.Enable(LEVELEDSHE);
+	in.close();
 
 	// set up to encrypt some thingz
 	auto ptm = cc.GetCryptoParameters()->GetPlaintextModulus().ConvertToInt();
@@ -161,12 +163,11 @@ main(int argc, char *argv[])
 		UNARY_SHE_OP(ModReduce);
 	}
 
-	in.close();
-
 	// time to assemble timing statistics
 	map<OpType,TimingStatistics> stats;
 	for( TimingInfo& sample : times ) {
 		TimingStatistics& st = stats[ sample.operation ];
+		std::cout << sample << std::endl;
 		st.operation = sample.operation;
 		st.samples++;
 		st.average += sample.timeval;

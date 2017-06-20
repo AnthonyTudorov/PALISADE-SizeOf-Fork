@@ -110,6 +110,9 @@ public:
 	virtual string getNodeLabel() const = 0;
 	virtual OpType OpTag() const = 0;
 
+	double GetRuntime() const { return runtime; }
+	void SetRuntime(double n) { runtime = n; }
+
 	usint GetNoise() const { return noiseval; }
 	void SetNoise(usint n) { noiseval = n; }
 
@@ -132,6 +135,7 @@ protected:
 	usint			nodeOutputDepth;
 
 	// in CircuitNode, these are estimates
+	double			runtime;
 	usint			noiseval;
 };
 
