@@ -61,6 +61,22 @@ void usage() {
 	cout << "-h  --  this message" << endl;
 }
 
+
+void PrintOperationSet(ostream& out, vector<CircuitSimulation>& timings) {
+	map<OpType,bool> ops;
+	for( int i=0; i < timings.size(); i++ )
+		ops[ timings[i].op ] = true;
+	for( auto op : ops )
+		out << op.first << endl;
+}
+
+void PrintLog(ostream& out, vector<CircuitSimulation>& timings) {
+	out << timings.size() << " steps" << endl;
+	for( int i=0; i < timings.size(); i++ )
+		out << i << ": " << timings[i] << endl;
+}
+
+
 int
 main(int argc, char *argv[])
 {
@@ -219,24 +235,24 @@ main(int argc, char *argv[])
 			driver.graph.DisplayGraph();
 
 		if( evaluation_list_mode ) {
-			driver.graph.GenerateOperationList();
+			vector<CircuitSimulation> opslist;
+			driver.graph.GenerateOperationList(opslist);
 			if( verbose ) {
-				CircuitNode::PrintLog(cout);
+				PrintLog(cout,opslist);
 				cout << "The operations used are:" << endl;
-				CircuitNode::PrintOperationSet(cout);
+				PrintOperationSet(cout, opslist);
 			}
-			CircuitNode::PrintOperationSet(evalListF);
+			PrintOperationSet(evalListF, opslist);
 			evalListF.close();
-			CircuitNode::ResetLog();
 			return 0;
 		}
 
 		if( evaluation_run_mode ) {
-			driver.graph.GenerateOperationList();
-			TimingStatistics estimate = driver.graph.GenerateRuntimeEstimate(timings);
+			vector<CircuitSimulation> opslist;
+			driver.graph.GenerateOperationList(opslist);
+			TimingStatistics estimate = driver.graph.GenerateRuntimeEstimate(opslist, timings);
 			cout << "TIMING ESTIMATE (min,max,average): " << estimate.min << "," << estimate.max << "," << estimate.average;
 			cout << " **********************" << endl;
-			CircuitNode::ResetLog();
 		}
 
 		PalisadeCircuit<ILVector2n>	cir(cc, driver.graph);

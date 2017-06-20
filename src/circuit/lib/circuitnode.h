@@ -50,8 +50,7 @@ using namespace std;
 
 namespace lbcrypto {
 
-class CircuitSimulation {
-public:
+struct CircuitSimulation {
 	usint	nodeId;
 	OpType	op;
 
@@ -71,9 +70,6 @@ class CircuitGraph;
 // the node can have several inputs, and it has one output
 // nodes are identified by a node id
 class CircuitNode {
-private:
-	static vector<CircuitSimulation>	sim;
-
 public:
 	CircuitNode(usint nodeID) {
 		this->nodeId = nodeID;
@@ -119,33 +115,10 @@ public:
 
 	friend ostream& operator<<(ostream& out, const CircuitNode& n);
 
-	virtual void simeval(CircuitGraph& cg) = 0;
+	virtual void simeval(CircuitGraph& cg, vector<CircuitSimulation>& ops) = 0;
 
-	static void Log(usint id, OpType t) {
-		cout<<"CIRCUITNODE LOGGING "<<t<<" into " << &CircuitNode::sim <<endl;
-		CircuitNode::sim.push_back( CircuitSimulation(id, t) );
-	}
-
-	static void PrintOperationSet(ostream& out) {
-		map<OpType,bool> ops;
-		for( int i=0; i < CircuitNode::sim.size(); i++ )
-			ops[ CircuitNode::sim[i].op ] = true;
-		for( auto op : ops )
-			out << op.first << endl;
-	}
-
-	static void PrintLog(ostream& out) {
-		out << CircuitNode::sim.size() << " steps" << endl;
-		for( int i=0; i < CircuitNode::sim.size(); i++ )
-			out << i << ": " << CircuitNode::sim[i] << endl;
-	}
-
-	static const vector<CircuitSimulation>& GetSimulationItems() {
-		return CircuitNode::sim;
-	}
-
-	static void ResetLog() {
-		CircuitNode::sim.clear();
+	static void Log(vector<CircuitSimulation>& ops, usint id, OpType t) {
+		ops.push_back( CircuitSimulation(id, t) );
 	}
 
 protected:
@@ -235,7 +208,7 @@ class ConstInput : public CircuitNode {
 public:
 	ConstInput(usint id, usint value) : CircuitNode(id), val(value) {}
 
-	void simeval(CircuitGraph& cg) {
+	void simeval(CircuitGraph& cg, vector<CircuitSimulation>&) {
 		noiseval = DEFAULTNOISEVAL;
 	}
 	OpType OpTag() const { return OpNOOP; }
@@ -258,7 +231,7 @@ public:
 		this->setAsInput();
 	}
 
-	void simeval(CircuitGraph& cg) {
+	void simeval(CircuitGraph& cg, vector<CircuitSimulation>&) {
 		noiseval = DEFAULTNOISEVAL;
 	}
 	OpType OpTag() const { return OpNOOP; }
@@ -280,7 +253,7 @@ public:
 		this->inputs = inputs;
 	}
 
-	void simeval(CircuitGraph& cg);
+	void simeval(CircuitGraph& cg, vector<CircuitSimulation>& ops);
 	void setBottomUpDepth() { this->nodeInputDepth = this->nodeOutputDepth + 1; }
 	OpType OpTag() const { return OpModReduce; }
 	string getNodeLabel() const { return "M/R"; }
@@ -301,7 +274,7 @@ public:
 		this->inputs = inputs;
 	}
 
-	void simeval(CircuitGraph& cg);
+	void simeval(CircuitGraph& cg, vector<CircuitSimulation>& ops);
 	OpType OpTag() const { return OpEvalNeg; }
 	string getNodeLabel() const { return "-"; }
 };
@@ -320,7 +293,7 @@ public:
 		this->inputs = inputs;
 	}
 
-	void simeval(CircuitGraph& cg);
+	void simeval(CircuitGraph& cg, vector<CircuitSimulation>& ops);
 	OpType OpTag() const { return OpEvalAdd; }
 	string getNodeLabel() const { return "+"; }
 };
@@ -339,7 +312,7 @@ public:
 		this->inputs = inputs;
 	}
 
-	void simeval(CircuitGraph& cg);
+	void simeval(CircuitGraph& cg, vector<CircuitSimulation>& ops);
 	OpType OpTag() const { return OpEvalSub; }
 	string getNodeLabel() const { return "-"; }
 };
@@ -358,7 +331,7 @@ public:
 		this->inputs = inputs;
 	}
 
-	void simeval(CircuitGraph& cg);
+	void simeval(CircuitGraph& cg, vector<CircuitSimulation>& ops);
 	void setBottomUpDepth() { this->nodeInputDepth = this->nodeOutputDepth + 1; }
 	OpType OpTag() const { return OpEvalMult; }
 	string getNodeLabel() const { return "*"; }

@@ -82,8 +82,8 @@ public:
 
 	void DisplayGraph() const;
 	void Preprocess();
-	void GenerateOperationList();
-	TimingStatistics GenerateRuntimeEstimate(map<OpType,TimingStatistics>& stats) const;
+	void GenerateOperationList(vector<CircuitSimulation>& ops);
+	TimingStatistics GenerateRuntimeEstimate(vector<CircuitSimulation>& steps, map<OpType,TimingStatistics>& stats) const;
 
 	CircuitNode *getNodeById(usint id) {
 		auto it = allNodes.find(id);

@@ -89,19 +89,17 @@ CircuitGraph::Preprocess()
 }
 
 void
-CircuitGraph::GenerateOperationList()
+CircuitGraph::GenerateOperationList(vector<CircuitSimulation>& ops)
 {
 	for( int output : getOutputs() ) {
 		CircuitNode *out = getNodeById(output);
-		out->simeval(*this);
+		out->simeval(*this, ops);
 	}
 }
 
 TimingStatistics
-CircuitGraph::GenerateRuntimeEstimate(map<OpType,TimingStatistics>& stats) const
+CircuitGraph::GenerateRuntimeEstimate(vector<CircuitSimulation>& steps, map<OpType,TimingStatistics>& stats) const
 {
-	vector<CircuitSimulation> steps = CircuitNode::GetSimulationItems();
-
 	// first make sure we have estimates for every operation performed
 	set<OpType> ops;
 	for( auto &s : steps ) {

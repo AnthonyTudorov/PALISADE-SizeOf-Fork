@@ -35,8 +35,6 @@
 
 namespace lbcrypto {
 
-vector<CircuitSimulation> CircuitNode::sim;
-
 template<typename Element>
 CryptoContext<Element> CircuitGraphWithValues<Element>::_graph_cc;
 
@@ -94,26 +92,24 @@ ostream& operator<<(ostream& out, const CircuitNodeWithValue<Element>& n)
 // note that for our purposes here, INT and VECTOR_INT can be considered the same thing
 // since an INT is simply a vector with one entry and the rest zeroes
 
-void EvalAddNode::simeval(CircuitGraph& g) {
+void EvalAddNode::simeval(CircuitGraph& g, vector<CircuitSimulation>& ops) {
 	if( noiseval != 0 )
 		return; // visit only once!
 
 	if( getInputs().size() < 2 ) throw std::logic_error("Add requires at least 2 inputs");
 
 	auto n0 = g.getNodeById(getInputs()[0]);
-	n0->simeval(g);
+	n0->simeval(g, ops);
 	usint noise = n0->GetNoise();
 
 	for( size_t i=1; i < getInputs().size(); i++ ) {
 		auto n1 = g.getNodeById(getInputs()[i]);
-		n1->simeval(g);
+		n1->simeval(g, ops);
 
 		noise += n1->GetNoise();
 	}
 
-	CircuitNode::PrintLog(cout);
-	CircuitNode::Log(GetId(),OpEvalAdd);
-	CircuitNode::PrintLog(cout);
+	CircuitNode::Log(ops,GetId(),OpEvalAdd);
 	this->SetNoise( noise );
 	return;
 }
@@ -156,36 +152,32 @@ Value<Element> EvalAddNodeWithValue<Element>::eval(CryptoContext<Element>& cc, C
 	return this->value = v0;
 }
 
-void EvalSubNode::simeval(CircuitGraph& g) {
+void EvalSubNode::simeval(CircuitGraph& g, vector<CircuitSimulation>& ops) {
 	if( noiseval != 0 )
 		return; // visit only once!
 
 	if( getInputs().size() == 1 ) {
 		auto n0 = g.getNodeById(getInputs()[0]);
-		n0->simeval(g);
+		n0->simeval(g,ops);
 		this->SetNoise( n0->GetNoise() );
-		CircuitNode::PrintLog(cout);
-		CircuitNode::Log(GetId(),OpEvalNeg);
-		CircuitNode::PrintLog(cout);
+		CircuitNode::Log(ops,GetId(),OpEvalNeg);
 		return;
 	}
 
 	if( getInputs().size() < 2 ) throw std::logic_error("Sub requires at least 2 inputs");
 
 	auto n0 = g.getNodeById(getInputs()[0]);
-	n0->simeval(g);
+	n0->simeval(g,ops);
 	usint noise = n0->GetNoise();
 
 	for( size_t i=1; i < getInputs().size(); i++ ) {
 		auto n1 = g.getNodeById(getInputs()[i]);
-		n1->simeval(g);
+		n1->simeval(g,ops);
 
 		noise += n1->GetNoise();
 	}
 
-	CircuitNode::PrintLog(cout);
-	CircuitNode::Log(GetId(),OpEvalSub);
-	CircuitNode::PrintLog(cout);
+	CircuitNode::Log(ops,GetId(),OpEvalSub);
 	this->SetNoise( noise );
 	return;
 }
@@ -252,16 +244,16 @@ Value<Element> EvalSubNodeWithValue<Element>::eval(CryptoContext<Element>& cc, C
 	return this->value;
 }
 
-void EvalNegNode::simeval(CircuitGraph& g) {
+void EvalNegNode::simeval(CircuitGraph& g, vector<CircuitSimulation>& ops) {
 	if( noiseval != 0 )
 		return; // visit only once!
 
 	if( getInputs().size() != 1 ) throw std::logic_error("Neg requires 1 input");
 
 	auto n0 = g.getNodeById(getInputs()[0]);
-	n0->simeval(g);
+	n0->simeval(g,ops);
 
-	CircuitNode::Log(GetId(),OpEvalNeg);
+	CircuitNode::Log(ops,GetId(),OpEvalNeg);
 	this->SetNoise( n0->GetNoise() );
 	return;
 }
@@ -292,7 +284,7 @@ Value<Element> EvalNegNodeWithValue<Element>::eval(CryptoContext<Element>& cc, C
 	return this->value;
 }
 
-void EvalMultNode::simeval(CircuitGraph& g) {
+void EvalMultNode::simeval(CircuitGraph& g, vector<CircuitSimulation>& ops) {
 	if( noiseval != 0 )
 		return; // visit only once!
 
@@ -300,12 +292,10 @@ void EvalMultNode::simeval(CircuitGraph& g) {
 
 	auto n0 = g.getNodeById(getInputs()[0]);
 	auto n1 = g.getNodeById(getInputs()[1]);
-	n0->simeval(g);
-	n1->simeval(g);
+	n0->simeval(g,ops);
+	n1->simeval(g,ops);
 
-	CircuitNode::PrintLog(cout);
-	CircuitNode::Log(GetId(),OpEvalMult);
-	CircuitNode::PrintLog(cout);
+	CircuitNode::Log(ops,GetId(),OpEvalMult);
 	this->SetNoise( n0->GetNoise() + n1->GetNoise() );
 	return;
 }
@@ -343,18 +333,16 @@ Value<Element> EvalMultNodeWithValue<Element>::eval(CryptoContext<Element>& cc, 
 	return this->value;
 }
 
-void ModReduceNode::simeval(CircuitGraph& g) {
+void ModReduceNode::simeval(CircuitGraph& g, vector<CircuitSimulation>& ops) {
 	if( noiseval != 0 )
 		return; // visit only once!
 
 	if( getInputs().size() != 1 ) throw std::logic_error("ModReduce must have one input");
 
 	auto n0 = g.getNodeById(getInputs()[0]);
-	n0->simeval(g);
-cout << "MODREDUCE:" << endl;
-	CircuitNode::PrintLog(cout);
-	CircuitNode::Log(GetId(),OpModReduce);
-	CircuitNode::PrintLog(cout);
+	n0->simeval(g,ops);
+
+	CircuitNode::Log(ops,GetId(),OpModReduce);
 	this->SetNoise( n0->GetNoise() );
 	return;
 }

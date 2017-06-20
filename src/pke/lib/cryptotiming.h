@@ -62,13 +62,15 @@ enum OpType {
 	OpEvalSumKeyGen, OpEvalSum, OpEvalInnerProduct, OpEvalCrossCorrelation, OpEvalLinRegressionBatched,
 };
 
-struct TimingInfo {
+class TimingInfo {
+public:
 	OpType	operation;
 	double	timeval;
 	TimingInfo(OpType o, double t) : operation(o), timeval(t) {}
 };
 
-struct TimingStatistics {
+class TimingStatistics {
+public:
 	OpType	operation;
 	usint	samples;
 	double	min;

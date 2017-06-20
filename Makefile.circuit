@@ -59,6 +59,8 @@ allcircuit: $(CLIBS) gram $(EXTLIBDIR)/$(PALISADECIRCUITLIB) $(CIRCUIT_TEST_TARG
 
 gram: $(CIRCUITSRCDIR)/lib/parse.cpp $(CIRCUITSRCDIR)/lib/parse.hpp $(CIRCUITSRCDIR)/lib/scan.cpp
 
+$(CIRCUITSRCDIR)/lib/parse.hpp: $(CIRCUITSRCDIR)/lib/parse.cpp
+
 $(CIRCUITSRCDIR)/lib/parse.cpp: $(CIRCUITSRCDIR)/lib/parse.y
 	bison --defines -o $@ $^
 
