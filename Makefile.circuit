@@ -34,7 +34,7 @@ CIRCUITBINDIR := src/circuit/bin
 CIRCUITTESTDIR := src/circuit/unittest
 CIRCUITDEMODIR := src/circuit/demo
 
-CIRCUITSOURCES := $(wildcard $(CIRCUITSRCDIR)/lib/*.cpp) $(CIRCUITSRCDIR)/lib/parse.cpp $(CIRCUITSRCDIR)/lib/scan.cpp
+CIRCUITSOURCES := $(sort $(wildcard $(CIRCUITSRCDIR)/lib/*.cpp) $(CIRCUITSRCDIR)/lib/parse.cpp $(CIRCUITSRCDIR)/lib/scan.cpp)
 CIRCUITUNITSOURCES := $(wildcard $(CIRCUITSRCDIR)/unittest/*.cpp)
 CIRCUITDEMOSOURCES := $(wildcard $(CIRCUITDEMODIR)/*.cpp)
 
