@@ -45,11 +45,8 @@
 using namespace std;
 using namespace lbcrypto;
 
-static const usint ORDER = 2048;
-static const usint PTM = 256;
-//double currentDateTime();
-
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
 
 	////////////////////////////////////////////////////////////
 	// Set-up of parameters
@@ -58,19 +55,22 @@ int main(int argc, char *argv[]) {
 	//Generate parameters.
 	double diff, start, finish;
 
-	std::cout << "Choose parameter set: ";
-	CryptoContextHelper::printAllParmSetNames(std::cout);
+	int relWindow = 1;
+	int plaintextModulus = 64;
+	double sigma = 4;
+	double rootHermiteFactor = 1.006;	
 
-	string input;
-	std::cin >> input;
+	//Set Crypto Parameters	
+	CryptoContext<ILVector2n> cryptoContext = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
+			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 1, 0);
 
+	// enable features that you wish to use
+	cryptoContext.Enable(ENCRYPTION);
+	cryptoContext.Enable(SHE);
+	
 	start = currentDateTime();
 
-	CryptoContext<ILVector2n> cryptoContext = CryptoContextHelper::getNewContext(input);
-	if( !cryptoContext ) {
-		cout << "Error on " << input << endl;
-		return 0;
-	}
+	cryptoContext.GetEncryptionAlgorithm()->ParamsGen(cryptoContext.GetCryptoParameters(), 0, 1);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -89,7 +89,7 @@ int main(int argc, char *argv[]) {
 
 	//std::cout << "Press any key to continue." << std::endl;
 	//std::cin.get();
-	
+
 	////////////////////////////////////////////////////////////
 	// Perform Key Generation Operation
 	////////////////////////////////////////////////////////////
@@ -129,7 +129,7 @@ int main(int argc, char *argv[]) {
 	start = currentDateTime();
 
 	ciphertext1 = cryptoContext.Encrypt(keyPair1.publicKey, plaintext, true);
-	
+
 	finish = currentDateTime();
 	diff = finish - start;
 	cout << "Encryption time: " << "\t" << diff << " ms" << endl;
@@ -142,7 +142,7 @@ int main(int argc, char *argv[]) {
 
 	start = currentDateTime();
 
-	DecryptResult resultDec1 = cryptoContext.Decrypt(keyPair1.secretKey, ciphertext1, &plaintextDec1, true);
+	cryptoContext.Decrypt(keyPair1.secretKey, ciphertext1, &plaintextDec1, true);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -221,7 +221,7 @@ int main(int argc, char *argv[]) {
 
 	start = currentDateTime();
 
-	DecryptResult resultDec2 = cryptoContext.Decrypt(keyPair2.secretKey, ciphertext2, &plaintextDec2, true);
+	cryptoContext.Decrypt(keyPair2.secretKey, ciphertext2, &plaintextDec2, true);
 
 	finish = currentDateTime();
 	diff = finish - start;

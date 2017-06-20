@@ -45,10 +45,6 @@
 using namespace std;
 using namespace lbcrypto;
 
-static const usint ORDER = 2048;
-static const usint PTM = 256;
-//double currentDateTime();
-
 int main(int argc, char *argv[]) {
 
 	////////////////////////////////////////////////////////////
@@ -115,7 +111,7 @@ int main(int argc, char *argv[]) {
 	// Encode source data
 	////////////////////////////////////////////////////////////
 
-	std::vector<uint32_t> vectorOfInts = {2,2,2,2,2,2,0,0,0,0,0,0};
+	std::vector<uint32_t> vectorOfInts = {1,1,1,0,1,1,0,1,0,0,0,0};
 	IntPlaintextEncoding plaintext(vectorOfInts);
 
 	////////////////////////////////////////////////////////////
@@ -141,7 +137,7 @@ int main(int argc, char *argv[]) {
 
 	start = currentDateTime();
 
-	DecryptResult resultDec = cryptoContext.Decrypt(keyPair.secretKey, ciphertext, &plaintextDec, true);
+	cryptoContext.Decrypt(keyPair.secretKey, ciphertext, &plaintextDec, true);
 
 	finish = currentDateTime();
 	diff = finish - start;
