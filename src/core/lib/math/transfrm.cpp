@@ -1231,9 +1231,9 @@ namespace lbcrypto {
 			// Similar to the prime case but with alternating signs
 			for (usint i = 0; i < n; i++) {
 				if (i%2 == 0) {
-					output.SetValAtIndex(i, outputBluestein.GetValAtIndex(i).ModSub(coeff_n, modulus));
+					output.SetValAtIndex(i, output.GetValAtIndex(i).ModSub(coeff_n, modulus));
 				} else {
-					output.SetValAtIndex(i, outputBluestein.GetValAtIndex(i).ModAdd(coeff_n, modulus));
+					output.SetValAtIndex(i, output.GetValAtIndex(i).ModAdd(coeff_n, modulus));
 				}
 			}
 		} else {
