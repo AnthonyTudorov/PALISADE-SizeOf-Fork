@@ -203,7 +203,7 @@ Value<Element> EvalSubNodeWithValue<Element>::eval(CryptoContext<Element>& cc, C
 			return this->value;
 		}
 		else if( t0 == MATRIX_INT ) {
-			this->value = cc.EvalNegate(v0.GetIntMatValue());
+			this->value = cc.EvalNegateMatrix(v0.GetIntMatValue());
 			this->SetNoise( n0->GetNoise() );
 			this->Log();
 			return this->value;
@@ -276,7 +276,7 @@ Value<Element> EvalNegNodeWithValue<Element>::eval(CryptoContext<Element>& cc, C
 		this->value = cc.EvalNegate(v0.GetIntVecValue());
 	}
 	else if( t0 == MATRIX_INT ) {
-		v0 = cc.EvalNegate(v0.GetIntMatValue());
+		v0 = cc.EvalNegateMatrix(v0.GetIntMatValue());
 	}
 	else {
 		throw std::logic_error("eval negate for type " + std::to_string(t0) + " is not implemented");

@@ -53,7 +53,7 @@ enum OpType {
 	OpEvalAdd, OpEvalAddMatrix, OpEvalAddPlain,
 	OpEvalSub, OpEvalSubMatrix, OpEvalSubPlain,
 	OpEvalMult, OpEvalMultMatrix, OpEvalMultKey, OpEvalMultPlain,
-	OpEvalNeg,
+	OpEvalNeg, OpEvalNegMatrix,
 	OpEvalAutomorphismKeyGen,
 	OpEvalAutomorphismI,
 	OpEvalAutomorphismK,

@@ -1202,6 +1202,28 @@ public:
 	}
 
 	/**
+	* EvalSub - PALISADE Negate method for a ciphertext
+	* @param ct
+	* @return new ciphertext -ct
+	*/
+	shared_ptr<Matrix<RationalCiphertext<Element>>>
+	EvalNegateMatrix(const shared_ptr<Matrix<RationalCiphertext<Element>>> ct) const
+	{
+
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		shared_ptr<Matrix<RationalCiphertext<Element>>> m(
+				new Matrix<RationalCiphertext<Element>>(ct->GetAllocator(), ct->GetRows(), ct->GetCols()));
+		for( size_t r = 0; r < m->GetRows(); r++ )
+			for( size_t c = 0; c < m->GetCols(); c++ )
+				(*m)(r,c) = -((*ct)(r,c));
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalNegMatrix, currentDateTime() - start) );
+		}
+		return m;
+	}
+
+	/**
 	* Generate automophism keys for a given private key
 	*
 	* @param publicKey original public key.

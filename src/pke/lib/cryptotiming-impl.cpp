@@ -69,6 +69,7 @@ static struct FeatureMap FeatureMap[] = {
 	{ OpEvalAddMatrix, "EvalAddMatrix", SHE },
 	{ OpEvalAddPlain, "EvalAddPlain", SHE },
 	{ OpEvalNeg, "EvalNeg", SHE },
+	{ OpEvalNegMatrix, "EvalNegMatrix", SHE },
 	{ OpEvalSub, "EvalSub", SHE },
 	{ OpEvalSubMatrix, "EvalSubMatrix", SHE },
 	{ OpEvalSubPlain, "EvalSubPlain", SHE },
