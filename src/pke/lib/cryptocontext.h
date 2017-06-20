@@ -1401,18 +1401,16 @@ public:
 	 * @param ciphertext - vector of ciphertext
 	 * @return vector of mod reduced ciphertext
 	 */
-	shared_ptr<RationalCiphertext<Element>> ModReduceRational(shared_ptr<RationalCiphertext<Element>> ciphertext) const {
-		if( ciphertext == NULL || ciphertext->GetNumerator()->GetCryptoContext() != *this )
-			throw std::logic_error("Information passed to ModReduce was not generated with this crypto context");
+	RationalCiphertext<Element> ModReduceRational(RationalCiphertext<Element> ciphertext) const {
 
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
-		auto n = GetEncryptionAlgorithm()->ModReduce(ciphertext->GetNumerator());
-		auto d = GetEncryptionAlgorithm()->ModReduce(ciphertext->GetDenominator());
+		shared_ptr<Ciphertext<Element>> n = GetEncryptionAlgorithm()->ModReduce(ciphertext.GetNumerator());
+		shared_ptr<Ciphertext<Element>> d = GetEncryptionAlgorithm()->ModReduce(ciphertext.GetDenominator());
 		if( doTiming ) {
 			timeSamples->push_back( TimingInfo(OpModReduce, currentDateTime() - start) );
 		}
-		return shared_ptr<RationalCiphertext<Element>>(new RationalCiphertext<Element>(*n,*d));
+		return RationalCiphertext<Element>(n,d);
 	}
 
 	/**
