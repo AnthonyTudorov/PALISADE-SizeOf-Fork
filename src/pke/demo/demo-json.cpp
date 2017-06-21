@@ -45,6 +45,144 @@
 using namespace std;
 using namespace lbcrypto;
 
+
+
+
+void
+keymaker(CryptoContext<ILVector2n> ctx, string keyname)
+{
+
+	// Initialize the public key containers.
+	LPKeyPair<ILVector2n> kp = ctx.KeyGen();
+
+	if( kp.publicKey && kp.secretKey ) {
+		Serialized pubK, privK;
+
+		if( kp.publicKey->Serialize(&pubK) ) {
+			if( !SerializableHelper::WriteSerializationToFile(pubK, keyname + "PUB.txt") ) {
+				cerr << "Error writing serialization of public key to " + keyname + "PUB.txt" << endl;
+				return;
+			}
+		} else {
+			cerr << "Error serializing public key" << endl;
+			return;
+		}
+
+		if( kp.secretKey->Serialize(&privK) ) {
+			if( !SerializableHelper::WriteSerializationToFile(privK, keyname + "PRI.txt") ) {
+				cerr << "Error writing serialization of private key to " + keyname + "PRI.txt" << endl;
+				return;
+			}
+		} else {
+			cerr << "Error serializing private key" << endl;
+			return;
+		}
+	} else {
+		cerr << "Failure in generating keys" << endl;
+	}
+
+	return;
+}
+
+
+void
+encrypter(CryptoContext<ILVector2n> ctx, IntPlaintextEncoding iPlaintext, string pubkeyname, string ciphertextname)
+{
+
+	ofstream ctSer(ciphertextname, ios::binary);
+	if( !ctSer.is_open() ) {
+		cerr << "could not open output file " << ciphertextname << endl;
+		return;
+	}
+
+	Serialized	kser;
+	if( SerializableHelper::ReadSerializationFromFile(pubkeyname, &kser) == false ) {
+		cerr << "Could not read public key" << endl;
+		return;
+	}
+
+	// Initialize the public key containers.
+	shared_ptr<LPPublicKey<ILVector2n>> pk = ctx.deserializePublicKey(kser);
+
+	if( !pk ) {
+		cerr << "Could not deserialize public key" << endl;
+		ctSer.close();
+		return;
+	}
+
+	// now encrypt iPlaintext
+	std::vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext = ctx.Encrypt(pk, iPlaintext, false);
+
+	// FIXME: this works iff size == 1
+	if( ciphertext.size() != 1 ) {
+		cerr << ciphertext.size() << " is the wrong # of ciphertexts!!!" << endl;
+		return;
+	}
+
+	for( size_t i=0; i<ciphertext.size(); i++ ) {
+		Serialized cSer;
+		if( ciphertext[i]->Serialize(&cSer) ) {
+			if( !SerializableHelper::WriteSerializationToFile(cSer, ciphertextname) ) {
+				cerr << "Error writing serialization of ciphertext to " + ciphertextname << endl;
+				return;
+			}
+		} else {
+			cerr << "Error serializing ciphertext" << endl;
+			return;
+		}
+
+	}
+
+	ctSer.close();
+	return;
+}
+
+
+void
+decrypter(CryptoContext<ILVector2n> ctx, string ciphertextname, string prikeyname, IntPlaintextEncoding &iPlaintext)
+{
+
+	Serialized	kser;
+	if( SerializableHelper::ReadSerializationFromFile(prikeyname, &kser) == false ) {
+		cerr << "Could not read private key" << endl;
+		return;
+	}
+
+	shared_ptr<LPPrivateKey<ILVector2n>> sk = ctx.deserializeSecretKey(kser);
+	if( !sk ) {
+		cerr << "Could not deserialize private key" << endl;
+		return;
+	}
+
+	ifstream inCt(ciphertextname, ios::binary);
+	if( !inCt.is_open() ) {
+		cerr << "Could not open ciphertext" << endl;
+		return;
+	}
+
+	//Serialized	kser;
+	if( SerializableHelper::ReadSerializationFromFile(ciphertextname, &kser) == false ) {
+		cerr << "Could not read ciphertext" << endl;
+		return;
+	}
+
+	// Initialize the public key containers.
+	shared_ptr<Ciphertext<ILVector2n>> ct = ctx.deserializeCiphertext(kser);
+	if( ct == NULL ) {
+		cerr << "Could not deserialize ciphertext" << endl;
+		return;
+	}
+
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext( { ct } );
+
+	// now decrypt iPlaintext
+	ctx.Decrypt(sk, ciphertext, &iPlaintext, false);
+
+	inCt.close();
+
+	return;
+}
+
 int main(int argc, char *argv[])
 {
 
@@ -63,16 +201,16 @@ int main(int argc, char *argv[])
 	int relWindow = 1;
 	int plaintextModulus = 64;
 	double sigma = 4;
-	double rootHermiteFactor = 1.006;	
+	double rootHermiteFactor = 1.006;
 
-	//Set Crypto Parameters	
+	//Set Crypto Parameters
 	CryptoContext<ILVector2n> cryptoContext = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
-			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 1, 0);
+	            plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 1, 0);
 
 	// enable features that you wish to use
 	cryptoContext.Enable(ENCRYPTION);
 	cryptoContext.Enable(SHE);
-	
+
 	start = currentDateTime();
 
 	cryptoContext.GetEncryptionAlgorithm()->ParamsGen(cryptoContext.GetCryptoParameters(), 0, 1);
@@ -92,6 +230,39 @@ int main(int argc, char *argv[])
 	std::cout << "n = " << cryptoContext.GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
 	std::cout << "log2 q = " << log2(cryptoContext.GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
 
+	string keyFileName = "demo_json_key";
+	string keyFileNamePublic = "demo_json_keyPUB.txt";
+	string keyFileNamePrivate = "demo_json_keyPRI.txt";
+
+	keymaker(cryptoContext, keyFileName);
+
+	std::vector<uint32_t> vectorOfInts1 = {3,1,4,2,1,1,0,1,0,0,0,0};
+	IntPlaintextEncoding plaintext1(vectorOfInts1);
+	std::vector<uint32_t> vectorOfInts2 = {1,1,1,0,1,1,0,1,0,0,0,0};
+	IntPlaintextEncoding plaintext2(vectorOfInts2);
+
+	string ciphertextFileName1 = "ciphertext1.txt";
+	string ciphertextFileName2 = "ciphertext2.txt";
+
+	encrypter(cryptoContext, plaintext1, keyFileNamePublic, ciphertextFileName1);
+	encrypter(cryptoContext, plaintext2, keyFileNamePublic, ciphertextFileName2);
+	
+	IntPlaintextEncoding plaintext1_dec;
+	IntPlaintextEncoding plaintext2_dec;
+
+	decrypter(cryptoContext, ciphertextFileName1, keyFileNamePrivate, plaintext1_dec);
+	decrypter(cryptoContext, ciphertextFileName2, keyFileNamePrivate, plaintext2_dec);
+
+	plaintext1_dec.resize(plaintext1.size());
+	plaintext2_dec.resize(plaintext2.size());
+
+	cout << "\n Original Plaintext: \n";
+	cout << plaintext1 << endl;
+	cout << plaintext2 << endl;
+
+	cout << "\n Resulting Decryption of Ciphertext: \n";
+	cout << plaintext1_dec << endl;
+	cout << plaintext2_dec << endl;
 
 	return 0;
 }
