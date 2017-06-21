@@ -113,7 +113,7 @@ namespace lbcrypto {
 		bool dbg_flag = false;
 		usint n = cycloOrder;
 		assert((n & (n-1)) == 0); // Check that n is a power of 2 (n == 0 not handled)
-		assert(n == 2*rootOfUnityTable.GetLength()); // Check that twiddle table is half the size of the cycloOrder
+		//assert(n == 2*rootOfUnityTable.GetLength()); // Check that twiddle table is half the size of the cycloOrder
 		VecType result(n);
 		result.SetModulus(element.GetModulus());
 
@@ -1127,7 +1127,7 @@ namespace lbcrypto {
 
 		auto outputBluestein = BluesteinFFT<IntType, VecType>::GetInstance().ForwardTransform(inputToBluestein, root, cycloOrder);
 
-		VecType output = Drop(outputBluestein, cycloOrder, true);
+		VecType output = Drop(outputBluestein, cycloOrder, true, bigMod, bigRoot);
 		return output;
 
 	}
@@ -1163,7 +1163,7 @@ namespace lbcrypto {
 		auto cyclotomicInverse = (IntType(cycloOrder)).ModInverse(modulus);
 		outputBluestein = outputBluestein*cyclotomicInverse;
 
-		VecType output= Drop(outputBluestein, cycloOrder, false);
+		VecType output= Drop(outputBluestein, cycloOrder, false, bigMod, bigRoot);
 		return output;
 	}
 
@@ -1191,7 +1191,7 @@ namespace lbcrypto {
 	}
 
 	template<typename IntType, typename VecType>
-	VecType ChineseRemainderTransformArb<IntType, VecType>::Drop(const VecType& element, const usint cycloOrder, bool forward) {
+	VecType ChineseRemainderTransformArb<IntType, VecType>::Drop(const VecType& element, const usint cycloOrder, bool forward, const IntType& bigMod, const IntType& bigRoot) {
 		usint n = GetTotient(cycloOrder);
 
 		const auto &modulus = element.GetModulus();
@@ -1232,6 +1232,12 @@ namespace lbcrypto {
 					}
 				}
 			} else {
+
+				//precompute root of unity tables for division NTT
+				if ((m_rootOfUnityDivisionTableByModulus[bigMod].GetLength() == 0) || (m_DivisionNTTModulus[modulus] != bigMod)) {
+					SetPreComputedNTTDivisionModulus(cycloOrder, modulus, bigMod, bigRoot);
+				}
+
 				// cycloOrder is arbitrary
 				//auto output = PolyMod(element, this->m_cyclotomicPolyMap[modulus], modulus);
 

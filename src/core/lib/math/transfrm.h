@@ -452,7 +452,7 @@ namespace lbcrypto {
 		~ChineseRemainderTransformArb() {}
 		ChineseRemainderTransformArb(const ChineseRemainderTransformArb&) : m_element(0) {}
 		VecType Pad(const VecType& element, const usint cycloOrder, bool forward);
-		VecType Drop(const VecType& element, const usint cycloOrder, bool forward);
+		VecType Drop(const VecType& element, const usint cycloOrder, bool forward, const IntType& bigMod, const IntType& bigRoot);
 		const VecType *m_element;
 		static std::map<IntType, VecType> m_cyclotomicPolyMap;
 		static std::map<IntType, VecType> m_cyclotomicPolyReverseNTTMap;
