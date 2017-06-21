@@ -106,7 +106,7 @@ inline CryptoContext<ILDCRT2n> GenCryptoContextElementArrayBV(usint ORDER, usint
 
 
 inline CryptoContext<ILVector2n> GenCryptoContextElementFV(usint ORDER, usint ptm, usint bits=PrimeBits) {
-	bool dbg_flag = true;
+	bool dbg_flag = false;
 	DEBUG("1");
 	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(ptm, 1.006, 1, 4, 0, 2, 0);
 	DEBUG("2");

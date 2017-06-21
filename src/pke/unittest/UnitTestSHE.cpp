@@ -75,7 +75,7 @@ static const usint TOWERS = 3;
 
 template<class Element>
 void UnitTest_Add(const CryptoContext<Element>& cc) {
-	bool dbg_flag = true;
+	bool dbg_flag = false;
 	DEBUG("1.1");
 	std::vector<uint32_t> vectorOfInts1 = { 1,0,3,1,0,1,2,1 };
 	IntPlaintextEncoding plaintext1(vectorOfInts1);
@@ -169,7 +169,7 @@ TEST(UTSHE, BV_ILVectorArray2n_Add) {
 }
 
 TEST(UTSHE, FV_ILVector2n_Add) {
-	bool dbg_flag = true;
+	bool dbg_flag = false;
 	DEBUG("GenCryptoContextElementFV");
 	CryptoContext<ILVector2n> cc = GenCryptoContextElementFV(ORDER, PTM);
 	DEBUG("done");

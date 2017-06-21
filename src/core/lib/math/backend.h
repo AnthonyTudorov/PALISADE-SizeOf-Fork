@@ -71,6 +71,15 @@
 // MATHBACKEND 6
 //		This uses gmp_int:: definition as default
 // 		GMP 6.1.2 / NTL 10.3.0 backend
+//passes all core tests except NTL specialized tests
+//pass all pke tests if WARN_BAD_MODULUS flag is set, not otherwise 
+//-- maybe it is not threadsafe.
+// fails
+// UTSignatureGPV.simple_sign_verify (throws in SampleC with inf mean) 
+// UTSignatureGPV.sign_verify_multiple_texts (throws GenerateInteger could not find success after repeated attempts mean is a very big negative number)
+// UTTrapdoor.TrapDoorGaussGqSampTest (throws in SampleC with inf mean)
+// UTTrapdoor.TrapDoorGaussSampTest (throws in SampleC with inf mean) 
+//UTSignatureGPV.sign_verify_multiple_keys fails
 
 // MATHBACKEND 7
 // 		This uses native_int:: as the default

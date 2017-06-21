@@ -214,7 +214,7 @@ TEST(UTTrapdoor,TrapDoorMultTest){
 }
 
 TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
-  bool dbg_flag = true;
+  bool dbg_flag = false;
   DEBUG("start tests");
 	usint m = 16;
     usint n = m/2;
@@ -269,7 +269,7 @@ TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
 
 // Test of Gaussian Sampling using the UCSD integer perturbation sampling algorithm
 TEST(UTTrapdoor, TrapDoorGaussSampTest) {
-        bool dbg_flag = true;
+        bool dbg_flag = false;
 	DEBUG("in test");
 	usint m = 16;
 	usint n = m / 2;

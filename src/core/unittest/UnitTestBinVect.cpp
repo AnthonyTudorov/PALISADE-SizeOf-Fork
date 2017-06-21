@@ -112,7 +112,7 @@ TEST(UTBinVect, SetModulusTest){
 }
 
 
-TEST(UTBinVect,modulus_framework){
+TEST(UTBinVect,NTL_modulus_framework){
 #if MATHBACKEND  == 6 //NTL backend
 
   bool dbg_flag = true;
@@ -124,9 +124,9 @@ TEST(UTBinVect,modulus_framework){
 
   NTL::myVecP<NTL::myZZ_p>  m(5); 
   m = {"9868", "5879", "4554", "2343", "4624",}; 
+  vector<usint> m_expected_1 = {9868, 5879, 4554, 2343, 4624,}; 
 
   m.SetModulus(q1);
-
 
   //test the modulus of the entire vector.
   NTL::myZZ qtest1 = m.GetModulus();
@@ -135,12 +135,9 @@ TEST(UTBinVect,modulus_framework){
   DEBUG("qtest1 "<<qtest1);
   EXPECT_EQ(q1, qtest1)<<"Failure NTL vector.GetModulus() 1";
 
-  EXPECT_EQ(9868U,m[0]) << "Failure in NTL []";
-  EXPECT_EQ(5879U,m[1]) << "Failure in NTL []";
-  EXPECT_EQ(4554U,m[2]) << "Failure in NTL []";
-  EXPECT_EQ(2343U,m[3]) << "Failure in NTL []";
-  EXPECT_EQ(4624U,m[4]) << "Failure in NTL []";
-
+  for (size_t i = 0; i < m.size(); i++){
+    EXPECT_EQ(m_expected_1[i],m[i]) << "Failure in NTL ["<<i<<"]";
+  }
   NTL::myZZ_p elem = m[0]; //should inheret the modulus.
 
   EXPECT_EQ(9868U,elem) << "Failure in NTL elem 1";
@@ -154,18 +151,16 @@ TEST(UTBinVect,modulus_framework){
   DEBUG("m "<<m);
   DEBUG("q2 "<<q2);
   DEBUG("qtest2 "<<qtest2);
-
+  vector<usint> m_expected_2 = {208, 14, 69, 273, 139,}; 
   EXPECT_EQ(q2, qtest2)<<"Failure NTL vector.GetModulus() 2";
 
-  EXPECT_EQ(9868U,m[0]) << "Failure in NTL []";
-  EXPECT_EQ(5879U,m[1]) << "Failure in NTL []";
-  EXPECT_EQ(4554U,m[2]) << "Failure in NTL []";
-  EXPECT_EQ(2343U,m[3]) << "Failure in NTL []";
-  EXPECT_EQ(4624U,m[4]) << "Failure in NTL []";
+  for (size_t i = 0; i < m.size(); i++){
+    EXPECT_EQ(m_expected_2[i],m[i]) << "Failure in NTL ["<<i<<"]";
+  }
 
   NTL::myZZ_p elem2 = m[0];
 
-  EXPECT_EQ(9868U,elem2) << "Failure in NTL elem";
+  EXPECT_EQ(208U,elem2) << "Failure in NTL elem";
   EXPECT_EQ(qtest2,elem2.GetModulus()) << "Failure in NTL elem.GetModulus()";
  
   EXPECT_NE(elem.GetModulus(), elem2.GetModulus())

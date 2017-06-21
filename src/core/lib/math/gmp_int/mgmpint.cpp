@@ -218,22 +218,33 @@ namespace NTL {
 
   bool myZZ_p::m_checkOTM(const myZZ &q) const 
   {
+#ifdef WARN_BAD_MODULUS
     if (m_OTM_state == GARBAGE){
       //throw std::logic_error("myZZ_p::m_checkOTM() called with uninitialized OTM");
       std::cout<<"myZZ_p::m_checkOTM() called with uninitialized OTM"<<std::endl;
+#ifdef PAUSE_BAD_MODULUS
+      std::string foo;
+      std::cin >> foo;
+#endif
+
     }
+#endif
     return (m_OTM == q);
   }
 
   myZZ& myZZ_p::m_getOTM(void) const 
   {
+#ifdef WARN_BAD_MODULUS
     if (m_OTM_state == GARBAGE){
       //std::logic_error("myZZ_p::m_getOTM() called with uninitialized OTM");
       std::cout<<"myZZ_p::m_getOTM() called with uninitialized OTM"<<std::endl;
+#ifdef PAUSE_BAD_MODULUS
       std::string foo;
       std::cin >> foo;
+#endif
     }
-      return m_OTM;
+#endif
+    return m_OTM;
   }
 
   //adapter kit

@@ -64,9 +64,11 @@ namespace NTL {
     DEBUG("input vector "<<a);
     DEBUG("input modulus "<<a.GetModulus());
     int rv = this->CopyModulus(a);
-    
-    if (rv==-1) 
+    if (rv==-1) {
+#ifdef WARN_BAD_MODULUS
       std::cerr<<"in myVecP(myVecP) Bad CopyModulus"<<std::endl;
+#endif
+    }
     *this=a;
 
     DEBUG("output vector "<<*this);
@@ -90,9 +92,11 @@ namespace NTL {
     bool dbg_flag = false;
     DEBUG("in myVecP copymove, myvecP<myT> alength "<<a.length());
     int rv = this->CopyModulus(a);
-    if (rv==-1) 
+    if (rv==-1) {
+#ifdef WARN_BAD_MODULUS
       std::cerr<<"in myVecP(myVecP &&) Bad CopyModulus"<<std::endl;
-
+#endif
+    }
     this->move(a);
   }
 
@@ -499,9 +503,11 @@ namespace NTL {
     this->SetLength(rhs.length());
     DEBUG("setting length "<<rhs.length());
     int rv = this->CopyModulus(rhs);
-    if (rv==-1) 
+    if (rv==-1) {
+#ifdef WARN_BAD_MODULUS
       std::cerr<<"in operator=(myVecP) Bad CopyModulus"<<std::endl;
-
+#endif
+    }
     for (auto i = 0; i < rhs.length(); i++){
       (*this)[i] = rhs[i];
     }
@@ -622,9 +628,11 @@ namespace NTL {
     unsigned int n = this->length();
     myVecP<myT> res(n);
     int rv = res.CopyModulus(*this);
-    if (rv==-1) 
+    if (rv==-1) {
+#ifdef WARN_BAD_MODULUS
       std::cerr<<"in operator%(myZZ) Bad CopyModulus"<<std::endl;
-
+#endif
+    }
     for (unsigned int i = 0; i < n; i++){
       res[i] = (*this)[i]%b;
     }
@@ -653,9 +661,11 @@ namespace NTL {
 	myZZ thisMod(this->GetModulus());
 	myVecP ans(*this);
 	int rv = ans.CopyModulus(*this);
-	if (rv==-1) 
+	if (rv==-1) {
+#ifdef WARN_BAD_MODULUS
 	  std::cerr<<"in Mod Bad CopyModulus"<<std::endl;
-
+#endif
+	}
 	myZZ halfQ(thisMod >> 1);
 	DEBUG("halfQ = "<<halfQ);
 
@@ -728,9 +738,11 @@ namespace NTL {
     unsigned int n = this->length();
     myVecP<myT> res(n);
     int rv = res.CopyModulus(*this);
-    if (rv==-1) 
+    if (rv==-1) {
+#ifdef WARN_BAD_MODULUS
       std::cerr<<"in operator+(myZZ) Bad CopyModulus"<<std::endl;
-
+#endif
+    }
     long i;
     for (i = 0; i < n; i++)
       //res[i] = (*this)[i]+b%m_modulus;
@@ -747,9 +759,11 @@ namespace NTL {
     ArgCheckVector(b, "myVecP operator+");
     myVecP<myT> res;
     int rv = res.CopyModulus(*this);
-        if (rv==-1) 
-      std::cerr<<"in operator+(myVecP) Bad CopyModulus"<<std::endl;
-
+    if (rv==-1) {
+#ifdef WARN_BAD_MODULUS
+	  std::cerr<<"in operator+(myVecP) Bad CopyModulus"<<std::endl;
+#endif
+    }
     myVecP<myT>::add(res, *this, b%m_modulus);
     //NTL_OPT_RETURN(myVecP<myT>, res);
     DEBUG("myVecP::operator+ returning modulus "<<res.m_modulus);
@@ -824,9 +838,11 @@ namespace NTL {
     myVecP<myT> tmp (this->size());
     myVecP<myT>::clear(tmp);
     int rv = tmp.CopyModulus(*this);
-    if (rv==-1) 
+    if (rv==-1) {
+#ifdef WARN_BAD_MODULUS
       std::cerr<<"in operator-(void) Bad CopyModulus"<<std::endl;
-    
+#endif    
+    }
     return (tmp - *this);
 
   }
@@ -839,9 +855,11 @@ namespace NTL {
     unsigned int n = this->length();
     myVecP<myT> res(n);
     int rv = res.CopyModulus(*this);
-    if (rv==-1) 
+    if (rv==-1) {
+#ifdef WARN_BAD_MODULUS
       std::cerr<<"in operator*(myZZ) Bad CopyModulus"<<std::endl;
-
+#endif
+    }
     long i;
     for (i = 0; i < n; i++)
       //res[i] = (*this)[i]*b%m_modulus;
@@ -859,9 +877,11 @@ namespace NTL {
     ArgCheckVector(b, "myVecP::operator*");
     myVecP<myT> res;
     int rv = res.CopyModulus(*this);
-    if (rv==-1) 
+    if (rv==-1) {
+#ifdef WARN_BAD_MODULUS
       std::cerr<<"in operator*(myVecP) Bad CopyModulus"<<std::endl;
-
+#endif
+    }
     myVecP<myT>::mul(res, *this, b);
     //NTL_OPT_RETURN(myVecP<myT>, res);
     DEBUG("myVecP::operator* returning modulus "<<res.m_modulus);

@@ -104,7 +104,7 @@ CryptoContextFactory<T>::genCryptoContextFV(shared_ptr<typename T::Params> ep,
 		usint relinWindow, float stDev, const std::string& delta,
 		MODE mode, const std::string& bigmodulus, const std::string& bigrootofunity, int depth, int assuranceMeasure, float securityLevel)
 {
-        bool dbg_flag = true;
+        bool dbg_flag = false;
 	DEBUG("gen 1");
 	shared_ptr<LPCryptoParametersFV<T>> params(
 			new LPCryptoParametersFV<T>(ep,

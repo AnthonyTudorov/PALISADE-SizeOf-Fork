@@ -127,7 +127,7 @@ TEST(UTPKESer, FV_ILVector2n_Serial) {
 
 // REMAINDER OF THE TESTS USE LTV AS A REPRESENTITIVE CONTEXT
 TEST(UTPKESer, LTV_keys_and_ciphertext) {
-        bool dbg_flag = true;
+        bool dbg_flag = false;
 	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("LTV5");
 	LPKeyPair<ILVector2n> kp = cc.KeyGen();
 	LPKeyPair<ILVector2n> kpnew;

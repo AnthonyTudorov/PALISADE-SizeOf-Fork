@@ -527,14 +527,18 @@ namespace NTL {
        * @param idx is the index to get a value at.
        * @return is the value at the index. return NULL if invalid index.
        */
-#if 1
+#if 0 //this has problems 
     inline myZZ_p& operator[](std::size_t idx) {
       //myZZ_p tmp((*this)[idx]._ZZ_p__rep);
       //tmp.SetModulus(this->GetModulus());
-      if(! (*this)[idx].isModulusSet()){
-	(*this)[idx].SetModulus(this->GetModulus);
+      myZZ_p tmp = this->NTL::operator[](idx);
+      
+
+      if(! tmp.isModulusSet()){
+	std::cout<<"op[] mod not set"<<std::endl;
+	tmp.SetModulus(this->GetModulus());
       }
-      return (*this)[idx];
+      return tmp;
 
       //here we have the problem we return the element, but it never had it's modulus value set. 
       //we need to somehow beable to set that modulus. 
@@ -542,11 +546,10 @@ namespace NTL {
 
     inline const myZZ_p& operator[](std::size_t idx) const {
       if(! (*this)[idx].isModulusSet()){
-	//how do we get this to work for the const???
-	I guess we need a flag in vector, and if so it points to the vector's modulus. 
-
-	(*this)[idx].SetModulus(this->GetModulus);
+	std::cout<<"const op[] mod not set"<<std::endl;
+	//(*this)[idx].SetModulus(this->GetModulus());
       }
+	//how do we get this to work for the const???
       return (*this)[idx];
     }
 #endif

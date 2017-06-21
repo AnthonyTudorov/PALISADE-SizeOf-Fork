@@ -43,7 +43,8 @@
 #ifndef LBCRYPTO_MATH_MGMPINT_MGMPINT_H
 #define LBCRYPTO_MATH_MGMPINT_MGMPINT_H
 
-
+//#define WARN_BAD_MODULUS  //define to cause code to report when a bad modulus is trapped.
+//#define PAUSE_BAD_MODULUS  //define to cause code to pause when a bad modulus is trapped.
 
 #include <iostream>
 #include <string>
