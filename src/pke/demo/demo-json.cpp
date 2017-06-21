@@ -191,9 +191,9 @@ int main(int argc, char *argv[])
 	////////////////////////////////////////////////////////////
 
 
-	std::cout << "\nThis code demonstrates the use of the FV schemes for basic proxy-re-encryption operations. " << std::endl;
-	std::cout << "This code shows how to auto-generate parameters during run-time based on desired plaintext moduli and security levels. " << std::endl;
-	std::cout << "In this demonstration we encrypt data and then proxy re-encrypt it. " << std::endl;
+	std::cout << "\nThis code demonstrates a simple use of json serialization for FV schemes with public key encryption. " << std::endl;
+	std::cout << "This code creates and saves keys to disk, loads the keys from disk, encrypts data and saves ciphertext to disk. " << std::endl;
+	std::cout << "The code then loads the ciphertext from disk and decrypts. " << std::endl;
 
 	//Generate parameters.
 	double diff, start, finish;
