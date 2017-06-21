@@ -38,14 +38,14 @@
 namespace lbcrypto {
 
 void
-CircuitGraph::DisplayGraph() const
+CircuitGraph::DisplayGraph(ostream* out) const
 {
-	cout << "digraph G {" << endl;
+	*out << "digraph G {" << endl;
 
 	for( auto it = allNodes.begin(); it != allNodes.end(); it++ ) {
-		cout << *it->second << endl;
+		*out << *it->second << endl;
 	}
-	cout << "}" << endl;
+	*out << "}" << endl;
 }
 
 template<typename Element>
@@ -57,22 +57,22 @@ CircuitGraphWithValues<Element>::SetStreamKey(CryptoContext<Element> cc, shared_
 
 template<typename Element>
 void
-CircuitGraphWithValues<Element>::DisplayGraph() const
+CircuitGraphWithValues<Element>::DisplayGraph(ostream* f) const
 {
-	this->g.DisplayGraph();
+	this->g.DisplayGraph(f);
 }
 
 template<typename Element>
 void
-CircuitGraphWithValues<Element>::DisplayDecryptedGraph(CryptoContext<Element> cc, shared_ptr<LPPrivateKey<Element>> k) const
+CircuitGraphWithValues<Element>::DisplayDecryptedGraph(ostream* f, CryptoContext<Element> cc, shared_ptr<LPPrivateKey<Element>> k) const
 {
 	SetStreamKey(cc, k);
-	cout << "digraph G {" << endl;
+	*f << "digraph G {" << endl;
 
 	for( auto it = allNodes.begin(); it != allNodes.end(); it++ ) {
-		cout << *it->second << endl;
+		*f << *it->second << endl;
 	}
-	cout << "}" << endl;
+	*f << "}" << endl;
 }
 
 void
@@ -93,12 +93,13 @@ CircuitGraph::GenerateOperationList(vector<CircuitSimulation>& ops)
 {
 	for( int output : getOutputs() ) {
 		CircuitNode *out = getNodeById(output);
+		ClearVisited();
 		out->simeval(*this, ops);
 	}
 }
 
-TimingStatistics
-CircuitGraph::GenerateRuntimeEstimate(vector<CircuitSimulation>& steps, map<OpType,TimingStatistics>& stats)
+void
+CircuitGraph::UpdateRuntimeEstimates(vector<CircuitSimulation>& steps, map<OpType,TimingStatistics>& stats)
 {
 	// first make sure we have estimates for every operation performed
 	set<OpType> ops;
@@ -112,23 +113,24 @@ CircuitGraph::GenerateRuntimeEstimate(vector<CircuitSimulation>& steps, map<OpTy
 		}
 	}
 
-	TimingStatistics estimate;
-	estimate.min = estimate.max = estimate.average = 0;
-
+	// mark each of the nodes with a time estimate
 	for( size_t i=0; i<steps.size(); i++ ) {
 		CircuitNode *node = getNodeById(steps[i].nodeId);
 		auto this_est = stats[ steps[i].op ];
-		node->SetRuntime(this_est.average);
-		cout << i << ":" << steps[i].op << "(" << steps[i].nodeId << ") = "
-				<< this_est.min << "," << this_est.max << "," << this_est.average << endl;
-		estimate.min += this_est.min;
-		estimate.max += this_est.max;
-		estimate.average += this_est.average;
+		node->SetRuntime(this_est);
 	}
-
-	return estimate;
 }
 
+void
+CircuitGraph::PrintRuntimeEstimates(ostream& out)
+{
+	for( int output : getOutputs() ) {
+		CircuitNode *o = getNodeById(output);
+		ClearVisited();
+		o->CircuitVisit(*this);
+		out << "RUNTIME ESTIMATE FOR Output " << output << " " << GetRuntime() << endl;
+	}
+}
 
 template<typename Element>
 void

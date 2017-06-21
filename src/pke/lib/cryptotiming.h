@@ -80,8 +80,17 @@ public:
 	TimingStatistics() : operation(OpNOOP), samples(0),
 			min(std::numeric_limits<double>::max()),
 			max(std::numeric_limits<double>::min()), average(0) {}
+	TimingStatistics(double min, double max, double average) : operation(OpNOOP), samples(0),
+			min(min), max(max), average(average) {}
 	bool Serialize(Serialized* serObj) const;
 	bool Deserialize(const Serialized& serObj);
+	const TimingStatistics operator+(const TimingStatistics& op) const {
+		return TimingStatistics( min + op.min, max + op.max, average + op.average);
+	}
+	TimingStatistics& operator+=(const TimingStatistics& op) {
+		min += op.min, max += op.max, average += op.average;
+		return *this;
+	}
 };
 
 extern std::map<OpType,string> OperatorName;
@@ -92,6 +101,11 @@ extern std::ostream& operator<<(std::ostream& out, const OpType& op);
 
 inline std::ostream& operator<<(std::ostream& out, const TimingInfo& t) {
 	out << t.operation << ": " << t.timeval;
+	return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, const TimingStatistics& t) {
+	out << "(min=" << t.min << ",max=" << t.max << ",avg=" << t.average << ")";
 	return out;
 }
 

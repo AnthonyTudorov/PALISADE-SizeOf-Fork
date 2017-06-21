@@ -52,9 +52,9 @@ template class CircuitNodeWithValue<ILVector2n>;
 void usage() {
 	cout << "Arguments are" << endl;
 	cout << "-d  --  debug mode on the parse" << endl;
-	cout << "-ginput  --  print a graph of the input circuit, in DOT format (for use with graphviz)" << endl;
-	cout << "-gproc  --  print a graph of the preprocessed input circuit, in DOT format (for use with graphviz)" << endl;
-	cout << "-gresult  --  print a graph of the result of executing the circuit, in DOT format (for use with graphviz)" << endl;
+	cout << "-ginput[=file]  --  print a graph of the input circuit, DOT format" << endl;
+	cout << "-gproc[=file]  --  print a graph of the preprocessed input circuit, DOT format" << endl;
+	cout << "-gresult[=file]  --  print a graph of the result of executing the circuit, DOT format" << endl;
 	cout << "-elist=filename  --  save information needed for estimating in file filename; stop after generating" << endl;
 	cout << "-estats=filename  --  use this information for estimating runtime" << endl;
 	cout << "-v  --  verbose details about the circuit" << endl;
@@ -123,6 +123,12 @@ main(int argc, char *argv[])
 	bool evaluation_run_mode = false;
 	ofstream	evalListF;
 	ifstream	evalStatF;
+	ostream	*inGraph = &cout;
+	ostream	*procGraph = &cout;
+	ostream	*resultGraph = &cout;
+	ofstream inGF, procGF, resultGF;
+
+	// Process user args
 	for( int i=1; i<argc; i++ ) {
 		string arg(argv[i]);
 		string argf(arg);
@@ -138,14 +144,38 @@ main(int argc, char *argv[])
 		}
 		if( arg == "-ginput" ) {
 			print_input_graph = true;
+			if( argf.size() > 0 ) {
+				inGF.open(argf, ostream::out);
+				if( !inGF.is_open() ) {
+					cout << "Unable to open file " << argf << endl;
+					return 1;
+				}
+				inGraph = &inGF;
+			}
 			continue;
 		}
 		if( arg == "-gproc" ) {
 			print_preproc_graph = true;
+			if( argf.size() > 0 ) {
+				procGF.open(argf, ostream::out);
+				if( !procGF.is_open() ) {
+					cout << "Unable to open file " << argf << endl;
+					return 1;
+				}
+				procGraph = &procGF;
+			}
 			continue;
 		}
 		if( arg == "-gresult" ) {
 			print_result_graph = true;
+			if( argf.size() > 0 ) {
+				resultGF.open(argf, ostream::out);
+				if( !resultGF.is_open() ) {
+					cout << "Unable to open file " << argf << endl;
+					return 1;
+				}
+				resultGraph = &resultGF;
+			}
 			continue;
 		}
 		if( arg == "-v" ) {
@@ -184,9 +214,11 @@ main(int argc, char *argv[])
 			return 1;
 		}
 
+		// Prepare to process the graph
 		if( verbose )
 			cout << "Crypto Parameters used:" << endl << *cc.GetCryptoParameters() << endl;
 
+		// when in evaluation mode (preparing to estimate/run, then stop), save the CryptoContext
 		if( evaluation_list_mode ) {
 			Serialized serObj;
 			serObj.SetObject();
@@ -197,12 +229,17 @@ main(int argc, char *argv[])
 			SerializableHelper::SerializationToStream(serObj, evalListF);
 		}
 
+		// when generating timing estimates, need to read in the Context and the timings
 		map<OpType,TimingStatistics> timings;
 		if( evaluation_run_mode ) {
 			Serialized serObj;
 			if( SerializableHelper::StreamToSerialization(evalStatF, &serObj) == false ) {
 				cout << "Input file does not begin with a serialization" << endl;
 				return 1;
+			}
+
+			if( CryptoContextFactory<ILVector2n>::DeserializeAndValidateParams(cc, serObj) == false ) {
+				cout << "Crypto context in file does not match" << endl;
 			}
 
 			while( SerializableHelper::StreamToSerialization(evalStatF, &serObj) == true ) {
@@ -213,6 +250,7 @@ main(int argc, char *argv[])
 			evalStatF.close();
 		}
 
+		// Parse the graph
 		pdriver driver(debug_parse);
 
 		auto res = driver.parse(argv[i]);
@@ -225,20 +263,27 @@ main(int argc, char *argv[])
 			cout << "Circuit parsed" << endl;
 		}
 
-		if( print_input_graph )
-			driver.graph.DisplayGraph();
+		if( print_input_graph ) {
+			driver.graph.DisplayGraph(inGraph);
+			if( inGF.is_open() )
+				inGF.close();
+		}
 
+		// assign depths and optimize if you can
 		if( verbose ) cout << "Preprocessing" << endl;
 		driver.graph.Preprocess();
 
-		if( print_preproc_graph )
-			driver.graph.DisplayGraph();
+		if( print_preproc_graph ) {
+			driver.graph.DisplayGraph(procGraph);
+			if( procGF.is_open() )
+				procGF.close();
+		}
 
+		// to do estimates we need to know what functions we called; write them out and finish up
 		if( evaluation_list_mode ) {
 			vector<CircuitSimulation> opslist;
 			driver.graph.GenerateOperationList(opslist);
 			if( verbose ) {
-				PrintLog(cout,opslist);
 				cout << "The operations used are:" << endl;
 				PrintOperationSet(cout, opslist);
 			}
@@ -247,12 +292,12 @@ main(int argc, char *argv[])
 			return 0;
 		}
 
+		// apply the estimates and determine how long the circuit's outputs should take to evaluate
 		if( evaluation_run_mode ) {
 			vector<CircuitSimulation> opslist;
 			driver.graph.GenerateOperationList(opslist);
-			TimingStatistics estimate = driver.graph.GenerateRuntimeEstimate(opslist, timings);
-			cout << "TIMING ESTIMATE (min,max,average): " << estimate.min << "," << estimate.max << "," << estimate.average;
-			cout << " **********************" << endl;
+			driver.graph.UpdateRuntimeEstimates(opslist, timings);
+			driver.graph.PrintRuntimeEstimates(cout);
 		}
 
 		PalisadeCircuit<ILVector2n>	cir(cc, driver.graph);
@@ -305,6 +350,14 @@ main(int argc, char *argv[])
 		if( verbose )
 			CircuitNodeWithValue<ILVector2n>::PrintLog(cout);
 
+		// apply the actial timings to the circuit
+		for( auto& node : cir.GetGraph().getAllNodes() ) {
+			int s = node.second->GetEvalSequenceNumber();
+			if( s < 0 ) continue;
+			node.second->SetRuntime( times[s].timeval );
+		}
+
+		// print the output
 		for( auto& out : outputs ) {
 			IntPlaintextEncoding result;
 
@@ -315,15 +368,18 @@ main(int argc, char *argv[])
 		}
 
 		if( print_result_graph ) {
-			cir.GetGraph().DisplayDecryptedGraph(cc, kp.secretKey);
+			cir.GetGraph().DisplayDecryptedGraph(resultGraph, cc, kp.secretKey);
+			if( resultGF.is_open() )
+				resultGF.close();
 		}
 
-		double actual = 0;
-		for( size_t i = 0; i < times.size(); i++ ) {
-			actual += times[i].timeval;
+		// we have the times for each node, now sum up for each output
+		for( auto& out : cir.GetGraph().getOutputs() ) {
+			CircuitNodeWithValue<ILVector2n> *n = cir.GetGraph().getNodeById(out);
+			cir.GetGraph().ClearVisited();
+			n->CircuitVisit(cir.GetGraph());
+			cout << "RUNTIME ACTUAL FOR Output " << out << " " << cir.GetGraph().GetRuntime() << endl;
 		}
-		cout << "TIMING ACTUAL: " << actual;
-		cout << " **********************" << endl;
 
 		if( verbose ) {
 			cout << "Timing Information:" << endl;

@@ -1304,9 +1304,7 @@ public:
 	* Returns evalsum keys
 	*
 	*/
-	const std::map<usint, shared_ptr<LPEvalKey<Element>>>& GetEvalSumKey() {
-		return evalSumKeys;
-	}
+	const std::map<usint, shared_ptr<LPEvalKey<Element>>>& GetEvalSumKey() const;
 
 	/**
 	* Function for evaluating a sum of all components

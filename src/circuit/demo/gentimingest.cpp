@@ -166,8 +166,8 @@ main(int argc, char *argv[])
 	// time to assemble timing statistics
 	map<OpType,TimingStatistics> stats;
 	for( TimingInfo& sample : times ) {
+		cout << sample << endl;
 		TimingStatistics& st = stats[ sample.operation ];
-		std::cout << sample << std::endl;
 		st.operation = sample.operation;
 		st.samples++;
 		st.average += sample.timeval;

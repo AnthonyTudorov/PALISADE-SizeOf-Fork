@@ -78,6 +78,11 @@ void CryptoContext<Element>::EvalSumKeyGen(
 }
 
 template <typename Element>
+const std::map<usint, shared_ptr<LPEvalKey<Element>>>& CryptoContext<Element>::GetEvalSumKey() const {
+	return evalSumKeys;
+}
+
+template <typename Element>
 shared_ptr<Ciphertext<Element>> CryptoContext<Element>::EvalSum(const shared_ptr<Ciphertext<Element>> ciphertext, usint batchSize) const {
 
 	//need to add exception handling

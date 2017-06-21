@@ -76,6 +76,7 @@ public:
 		this->nodeInputDepth = this->nodeOutputDepth = 0;
 		is_input = is_output = false;
 		noiseval = 0;
+		visited = false;
 	}
 	virtual ~CircuitNode() {}
 
@@ -110,8 +111,14 @@ public:
 	virtual string getNodeLabel() const = 0;
 	virtual OpType OpTag() const = 0;
 
-	double GetRuntime() const { return runtime; }
-	void SetRuntime(double n) { runtime = n; }
+	const TimingStatistics& GetRuntime() const { return runtime; }
+	void SetRuntime(TimingStatistics& n) { runtime = n; }
+
+	bool Visited() const { return visited; }
+	const void Visit() { visited = true; }
+	const void ClearVisit() { visited = false; }
+
+	void CircuitVisit(CircuitGraph& cg);
 
 	usint GetNoise() const { return noiseval; }
 	void SetNoise(usint n) { noiseval = n; }
@@ -135,8 +142,9 @@ protected:
 	usint			nodeOutputDepth;
 
 	// in CircuitNode, these are estimates
-	double			runtime;
-	usint			noiseval;
+	TimingStatistics		runtime;
+	bool					visited;
+	usint					noiseval;
 };
 
 template<typename Element>
@@ -153,9 +161,12 @@ protected:
 	CircuitNode		*node;
 	Value<Element>	value;
 	usint			noiseval;
+	double			runtime;
+	bool			visited;
+	int				evalsequence;
 
 public:
-	CircuitNodeWithValue(CircuitNode *n) : node(n), noiseval(DEFAULTNOISEVAL) {}
+	CircuitNodeWithValue(CircuitNode *n) : node(n), noiseval(DEFAULTNOISEVAL), runtime(0), visited(false), evalsequence(-1) {}
 	virtual ~CircuitNodeWithValue() {}
 
 	wire_type GetType() const { return value.GetType(); }
@@ -167,7 +178,6 @@ public:
 	Value<Element>& getValue() { return value; }
 	const Value<Element>& getValue() const { return value; }
 	void setValue(const Value<Element>& v) { value = v; }
-	virtual uint32_t getRuntime() { return 0; }
 
 	usint GetId() const { return node->GetId(); }
 	string getNodeLabel() const { return node->getNodeLabel(); }
@@ -177,11 +187,24 @@ public:
 	bool IsOutput() const { return node->IsOutput(); }
 	bool IsInput() const { return node->IsInput(); }
 
-	virtual Value<Element> eval(CryptoContext<Element>& cc, CircuitGraphWithValues<Element>& cg) { Log(); return value; }
+	virtual Value<Element> eval(CryptoContext<Element>& cc, CircuitGraphWithValues<Element>& cg) {
+		return value;
+	}
+
+	const double& GetRuntime() const { return runtime; }
+	void SetRuntime(double& n) { runtime = n; }
+
+	bool Visited() const { return visited; }
+	const void Visit() { visited = true; }
+	const void ClearVisit() { visited = false; }
+
+	void CircuitVisit(CircuitGraphWithValues<Element>& cg);
+
+	int GetEvalSequenceNumber() const { return evalsequence; }
 
 	void Log() {
 		sim.push_back( CircuitSimulation(node->GetId(), node->OpTag()) );
-		step++;
+		evalsequence = step++;
 	}
 
 	static void PrintLog(ostream& out) {
@@ -213,7 +236,10 @@ public:
 	ConstInput(usint id, usint value) : CircuitNode(id), val(value) {}
 
 	void simeval(CircuitGraph& cg, vector<CircuitSimulation>&) {
-		noiseval = DEFAULTNOISEVAL;
+		if( !Visited() ) {
+			Visit();
+			noiseval = DEFAULTNOISEVAL;
+		}
 	}
 	OpType OpTag() const { return OpNOOP; }
 	string getNodeLabel() const { return "(const)"; }
@@ -233,10 +259,14 @@ class Input : public CircuitNode {
 public:
 	Input(usint id, wire_type type) : CircuitNode(id), type(type) {
 		this->setAsInput();
+		this->runtime = TimingStatistics(0,0,0);
 	}
 
 	void simeval(CircuitGraph& cg, vector<CircuitSimulation>&) {
-		noiseval = DEFAULTNOISEVAL;
+		if( !Visited() ) {
+			Visit();
+			noiseval = DEFAULTNOISEVAL;
+		}
 	}
 	OpType OpTag() const { return OpNOOP; }
 	string getNodeLabel() const { return "(input)"; }

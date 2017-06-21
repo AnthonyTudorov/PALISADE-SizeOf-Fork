@@ -89,12 +89,41 @@ ostream& operator<<(ostream& out, const CircuitNodeWithValue<Element>& n)
 	return out;
 }
 
+void CircuitNode::CircuitVisit(CircuitGraph& g) {
+	if( Visited() )
+		return;
+
+	for( usint in : inputs ) {
+		CircuitNode *n = g.getNodeById(in);
+		n->CircuitVisit(g);
+	}
+
+	Visit();
+	return;
+}
+
+template<typename Element>
+void CircuitNodeWithValue<Element>::CircuitVisit(CircuitGraphWithValues<Element>& g) {
+	if( Visited() )
+		return;
+
+	for( usint in : this->getNode()->getInputs() ) {
+		CircuitNodeWithValue<Element> *n = g.getNodeById(in);
+		n->CircuitVisit(g);
+	}
+
+	Visit();
+	return;
+}
+
 // note that for our purposes here, INT and VECTOR_INT can be considered the same thing
 // since an INT is simply a vector with one entry and the rest zeroes
 
 void EvalAddNode::simeval(CircuitGraph& g, vector<CircuitSimulation>& ops) {
-	if( noiseval != 0 )
+	if( Visited() )
 		return; // visit only once!
+
+	Visit();
 
 	if( getInputs().size() < 2 ) throw std::logic_error("Add requires at least 2 inputs");
 
@@ -153,8 +182,10 @@ Value<Element> EvalAddNodeWithValue<Element>::eval(CryptoContext<Element>& cc, C
 }
 
 void EvalSubNode::simeval(CircuitGraph& g, vector<CircuitSimulation>& ops) {
-	if( noiseval != 0 )
+	if( Visited() )
 		return; // visit only once!
+
+	Visit();
 
 	if( getInputs().size() == 1 ) {
 		auto n0 = g.getNodeById(getInputs()[0]);
@@ -245,9 +276,10 @@ Value<Element> EvalSubNodeWithValue<Element>::eval(CryptoContext<Element>& cc, C
 }
 
 void EvalNegNode::simeval(CircuitGraph& g, vector<CircuitSimulation>& ops) {
-	if( noiseval != 0 )
+	if( Visited() )
 		return; // visit only once!
 
+	Visit();
 	if( getInputs().size() != 1 ) throw std::logic_error("Neg requires 1 input");
 
 	auto n0 = g.getNodeById(getInputs()[0]);
@@ -285,9 +317,10 @@ Value<Element> EvalNegNodeWithValue<Element>::eval(CryptoContext<Element>& cc, C
 }
 
 void EvalMultNode::simeval(CircuitGraph& g, vector<CircuitSimulation>& ops) {
-	if( noiseval != 0 )
+	if( Visited() )
 		return; // visit only once!
 
+	Visit();
 	if( getInputs().size() != 2 ) throw std::logic_error("Mult requires 2 inputs");
 
 	auto n0 = g.getNodeById(getInputs()[0]);
@@ -334,9 +367,10 @@ Value<Element> EvalMultNodeWithValue<Element>::eval(CryptoContext<Element>& cc, 
 }
 
 void ModReduceNode::simeval(CircuitGraph& g, vector<CircuitSimulation>& ops) {
-	if( noiseval != 0 )
+	if( Visited() )
 		return; // visit only once!
 
+	Visit();
 	if( getInputs().size() != 1 ) throw std::logic_error("ModReduce must have one input");
 
 	auto n0 = g.getNodeById(getInputs()[0]);

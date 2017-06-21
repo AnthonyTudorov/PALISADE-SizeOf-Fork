@@ -80,10 +80,30 @@ public:
 
 	void processNodeDepth();
 
-	void DisplayGraph() const;
+	void DisplayGraph(ostream* f) const;
+
 	void Preprocess();
+
 	void GenerateOperationList(vector<CircuitSimulation>& ops);
-	TimingStatistics GenerateRuntimeEstimate(vector<CircuitSimulation>& steps, map<OpType,TimingStatistics>& stats);
+
+	void UpdateRuntimeEstimates(vector<CircuitSimulation>& steps, map<OpType,TimingStatistics>& stats);
+	void PrintRuntimeEstimates(ostream& out);
+
+	void ClearVisited() {
+		for( auto node : allNodes )
+			node.second->ClearVisit();
+	}
+
+	TimingStatistics GetRuntime() const {
+		TimingStatistics	total(0,0,0);
+		for( auto node : allNodes )
+			if( node.second->Visited() ) {
+				cout << endl << node.first << " " << node.second->GetRuntime().operation << " " << node.second->GetRuntime();
+				total += node.second->GetRuntime();
+			}
+		cout << endl;
+		return total;
+	}
 
 	CircuitNode *getNodeById(usint id) {
 		auto it = allNodes.find(id);
@@ -130,8 +150,6 @@ class CircuitGraphWithValues {
 	CircuitGraph&								g;
 	map<usint,CircuitNodeWithValue<Element>*>	allNodes;
 
-	const map<usint,CircuitNodeWithValue<Element>*>& getAllNodes() const { return allNodes; }
-
 public:
 	CircuitGraphWithValues(CircuitGraph& cg) : g(cg) {
 		for( map<usint,CircuitNode*>::const_iterator it = cg.getAllNodes().begin(); it != cg.getAllNodes().end(); it++ ) {
@@ -152,6 +170,8 @@ public:
 	const vector<usint>& getInputs() const { return g.getInputs(); }
 	const set<usint>& getOutputs() const { return g.getOutputs(); }
 
+	map<usint,CircuitNodeWithValue<Element>*>& getAllNodes() { return allNodes; }
+
 	CircuitNodeWithValue<Element> *getNodeById(usint id) {
 		auto it = allNodes.find(id);
 		if( it == allNodes.end() ) {
@@ -164,8 +184,21 @@ public:
 
 	const vector<wire_type> GetInputTypes();
 
-	void DisplayGraph() const;
-	void DisplayDecryptedGraph(CryptoContext<Element> cc, shared_ptr<LPPrivateKey<Element>> k) const;
+	void DisplayGraph(ostream* f) const;
+	void DisplayDecryptedGraph(ostream* f, CryptoContext<Element> cc, shared_ptr<LPPrivateKey<Element>> k) const;
+
+	void ClearVisited() {
+		for( auto node : allNodes )
+			node.second->ClearVisit();
+	}
+
+	double GetRuntime() const {
+		double	total = 0;
+		for( auto node : allNodes )
+			if( node.second->Visited() )
+				total += node.second->GetRuntime();
+		return total;
+	}
 
 	/**
 	 * SetStreamKey causes the graph creator to decrypt each available Value in the graph and display them
