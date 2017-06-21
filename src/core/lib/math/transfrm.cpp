@@ -1133,153 +1133,6 @@ namespace lbcrypto {
 	}
 
 	template<typename IntType, typename VecType>
-	VecType ChineseRemainderTransformArb<IntType, VecType>::Pad(const VecType& element, const usint cycloOrder, bool forward) {
-		usint n = GetTotient(cycloOrder);
-
-		const auto &modulus = element.GetModulus();
-		VecType inputToBluestein(cycloOrder, modulus);
-
-		if(n+1 == cycloOrder){ // cycloOrder is prime
-			if(forward){ // Forward transform padding
-				for (usint i = 0; i < n; i++) {
-					inputToBluestein.SetValAtIndex(i+1, element.GetValAtIndex(i));
-				}
-			} else { // Inverse transform padding
-				auto coeff_sum = IntType(0);
-				for (usint i = 0; i < n; i++) {
-					auto elem_i = element.GetValAtIndex(i);
-					inputToBluestein.SetValAtIndex(i, elem_i);
-					coeff_sum = coeff_sum.ModSub(elem_i, modulus);
-				}
-				inputToBluestein.SetValAtIndex(n, coeff_sum);
-			}
-		} else if (2*(n+1) == cycloOrder) { // cycloOrder is 2*prime
-			if(forward){ // Forward transform padding
-				for (usint i = 0; i < n; i++) {
-					inputToBluestein.SetValAtIndex(2+2*i, element.GetValAtIndex(i));
-				}
-			} else { // Inverse transform padding
-				auto coeff_sum = IntType(0);
-				for (usint i = 0; i < n; i++) {
-					auto elem_i = element.GetValAtIndex(i);
-					inputToBluestein.SetValAtIndex(i, elem_i);
-					coeff_sum = coeff_sum.ModSub(elem_i, modulus);
-				}
-				inputToBluestein.SetValAtIndex(n, coeff_sum);
-				for (usint i = 0; i < n+1; i++) {
-					inputToBluestein.SetValAtIndex(n+1+i, inputToBluestein.GetValAtIndex(i));
-				}
-			}
-		} else { // cycloOrder is arbitrary: Not Implemented
-			assert(false);
-		}
-
-		return inputToBluestein;
-	}
-
-	template<typename IntType, typename VecType>
-	VecType ChineseRemainderTransformArb<IntType, VecType>::Drop(const VecType& element, const usint cycloOrder, bool forward) {
-		usint n = GetTotient(cycloOrder);
-
-		const auto &modulus = element.GetModulus();
-		VecType output(n, modulus);
-
-		if(n+1 == cycloOrder){ // cycloOrder is prime
-			if(forward){ // Forward transform drop
-				for (usint i = 0; i < n; i++) {
-					output.SetValAtIndex(i, element.GetValAtIndex(i));
-				}
-			} else { // Inverse transform drop
-				for (usint i = 0; i < n; i++) {
-					output.SetValAtIndex(i, element.GetValAtIndex(1+i));
-				}
-			}
-		} else if (2*(n+1) == cycloOrder) { // cycloOrder is 2*prime
-			if(forward){ // Forward transform drop
-				for (usint i = 0; i < n; i++) {
-					output.SetValAtIndex(i, element.GetValAtIndex(i));
-				}
-				auto coeff_sum = IntType(0);
-				for (usint i = 0; i < cycloOrder; i++){
-					coeff_sum = coeff_sum.ModAdd(element.GetValAtIndex(i), modulus);
-				}
-			} else { // Inverse transform drop
-				for (usint i = 0; i < n; i++) {
-					output.SetValAtIndex(i, element.GetValAtIndex(2+2*i));
-				}
-			}
-		} else { // cycloOrder is arbitrary: Not Implemented
-			assert(false);
-
-			// What follows is placeholder code for future implementation
-			/* For polynomial remainder we use the FFT-based algorithm developed in
-
-			@Inbook{Cao2012,
-			author = "Cao, Zhengjun
-			and Cao, Hanyue",
-			editor = "Liu, Baoxiang
-			and Ma, Maode
-			and Chang, Jincai",
-			title = "On Fast Division Algorithm for Polynomials Using Newton Iteration",
-			bookTitle = "Information Computing and Applications: Third International Conference, ICICA 2012, Chengde, China, September 14-16, 2012. Proceedings",
-			year = "2012",
-			publisher = "Springer Berlin Heidelberg",
-			address = "Berlin, Heidelberg",
-			pages = "175--180",
-			isbn = "978-3-642-34062-8",
-			doi = "10.1007/978-3-642-34062-8_23",
-			url = "http://dx.doi.org/10.1007/978-3-642-34062-8_23"
-			}
-
-			// cycloOrder is arbitrary
-			//auto output = PolyMod(outputBluestein, this->m_cyclotomicPolyMap[modulus], modulus);
-
-			//precompute root of unity tables for division NTT
-			if ((m_rootOfUnityDivisionTableByModulus[bigMod].GetLength() == 0) || (m_DivisionNTTModulus[modulus] != bigMod)) {
-				SetPreComputedNTTDivisionModulus(cycloOrder, modulus, bigMod, bigRoot);
-			}
-
-			const auto &nttMod = m_DivisionNTTModulus[modulus];
-			const auto &rootTable = m_rootOfUnityDivisionTableByModulus[nttMod];
-			VecType aPadded2(m_nttDivisionDim[cycloOrder], nttMod);
-			//perform mod operation
-			usint power = cycloOrder - n;
-			for (usint i = n; i < outputBluestein.GetLength(); i++) {
-				aPadded2.SetValAtIndex(power - (i - n) - 1, outputBluestein.GetValAtIndex(i));
-			}
-
-			//std::cout << aPadded2 << std::endl;
-
-			auto A = NumberTheoreticTransform<IntType, VecType>::GetInstance().ForwardTransformIterative(aPadded2, rootTable, m_nttDivisionDim[cycloOrder]);
-			auto AB = A*m_cyclotomicPolyReverseNTTMap[modulus];
-			const auto &rootTableInverse = m_rootOfUnityDivisionInverseTableByModulus[nttMod];
-			auto a = NumberTheoreticTransform<IntType, VecType>::GetInstance().InverseTransformIterative(AB, rootTableInverse, m_nttDivisionDim[cycloOrder]);
-
-			VecType quotient(m_nttDivisionDim[cycloOrder], modulus);
-			for (usint i = 0; i < power; i++) {
-				quotient.SetValAtIndex(i, a.GetValAtIndex(i));
-			}
-			quotient = quotient.Mod(modulus);
-			quotient.SetModulus(nttMod);
-
-			quotient = NumberTheoreticTransform<IntType, VecType>::GetInstance().ForwardTransformIterative(quotient, rootTable, m_nttDivisionDim[cycloOrder]);
-
-			quotient = quotient*m_cyclotomicPolyNTTMap[modulus];
-
-			quotient = NumberTheoreticTransform<IntType, VecType>::GetInstance().InverseTransformIterative(quotient, rootTableInverse, m_nttDivisionDim[cycloOrder]);
-			quotient.SetModulus(modulus);
-			quotient = quotient.Mod(modulus);
-
-			for (usint i = 0; i < n; i++) {
-				output.SetValAtIndex(i, outputBluestein.GetValAtIndex(i).ModSub(quotient.GetValAtIndex(cycloOrder - 1 - i), modulus));
-			}
-			*/
-		}
-
-		return output;
-	}
-
-	template<typename IntType, typename VecType>
 	VecType ChineseRemainderTransformArb<IntType, VecType>::InverseTransform(const VecType& element, const IntType& root, const IntType& bigMod,
 		const IntType& bigRoot, const usint cycloOrder) {
 
@@ -1314,6 +1167,113 @@ namespace lbcrypto {
 		return output;
 	}
 
+
+	template<typename IntType, typename VecType>
+	VecType ChineseRemainderTransformArb<IntType, VecType>::Pad(const VecType& element, const usint cycloOrder, bool forward) {
+		usint n = GetTotient(cycloOrder);
+
+		const auto &modulus = element.GetModulus();
+		VecType inputToBluestein(cycloOrder, modulus);
+
+		if(forward){ // Forward transform padding
+			for (usint i = 0; i < n; i++) {
+				inputToBluestein.SetValAtIndex(i, element.GetValAtIndex(i));
+			}
+		} else { // Inverse transform padding
+			auto tList = GetTotientList(cycloOrder);
+			usint i = 0;
+			for (auto &coprime : tList) {
+				inputToBluestein.SetValAtIndex(coprime, element.GetValAtIndex(i++));
+			}
+		}
+
+		return inputToBluestein;
+	}
+
+	template<typename IntType, typename VecType>
+	VecType ChineseRemainderTransformArb<IntType, VecType>::Drop(const VecType& element, const usint cycloOrder, bool forward) {
+		usint n = GetTotient(cycloOrder);
+
+		const auto &modulus = element.GetModulus();
+		VecType output(n, modulus);
+
+		if(forward){ // Forward transform drop
+			auto tList = GetTotientList(cycloOrder);
+			for (usint i = 0; i < n; i++) {
+				output.SetValAtIndex(i, element.GetValAtIndex(tList[i]));
+			}
+		} else { // Inverse transform drop
+			if((n+1) == cycloOrder){
+				// cycloOrder is prime: Reduce mod Phi_{n+1}(x)
+				// Reduction involves subtracting the coeff of x^n from all terms
+				auto coeff_n = element.GetValAtIndex(n);
+				for (usint i = 0; i < n; i++) {
+					output.SetValAtIndex(i, element.GetValAtIndex(i).ModSub(coeff_n, modulus));
+				}
+			} else if ((n+1)*2 == cycloOrder){
+				// cycloOrder is 2*prime: 2 Step reduction
+				// First reduce mod x^(n+1)+1 (=(x+1)*Phi_{2*(n+1)}(x))
+				// Subtract co-efficient of x^(i+n+1) from x^(i)
+				for (usint i = 0; i < n; i++) {
+					auto coeff_i = element.GetValAtIndex(i);
+					auto coeff_ip = element.GetValAtIndex(i+n+1);
+					output.SetValAtIndex(i, coeff_i.ModSub(coeff_ip, modulus));
+				}
+				auto coeff_n = element.GetValAtIndex(n).ModSub(
+						element.GetValAtIndex(2*n+1), modulus
+					);
+				// Now reduce mod Phi_{2*(n+1)}(x)
+				// Similar to the prime case but with alternating signs
+				for (usint i = 0; i < n; i++) {
+					if (i%2 == 0) {
+						output.SetValAtIndex(i, output.GetValAtIndex(i).ModSub(coeff_n, modulus));
+					} else {
+						output.SetValAtIndex(i, output.GetValAtIndex(i).ModAdd(coeff_n, modulus));
+					}
+				}
+			} else {
+				// cycloOrder is arbitrary
+				//auto output = PolyMod(element, this->m_cyclotomicPolyMap[modulus], modulus);
+
+				const auto &nttMod = m_DivisionNTTModulus[modulus];
+				const auto &rootTable = m_rootOfUnityDivisionTableByModulus[nttMod];
+				VecType aPadded2(m_nttDivisionDim[cycloOrder], nttMod);
+				//perform mod operation
+				usint power = cycloOrder - n;
+				for (usint i = n; i < element.GetLength(); i++) {
+					aPadded2.SetValAtIndex(power - (i - n) - 1, element.GetValAtIndex(i));
+				}
+
+				//std::cout << aPadded2 << std::endl;
+
+				auto A = NumberTheoreticTransform<IntType, VecType>::GetInstance().ForwardTransformIterative(aPadded2, rootTable, m_nttDivisionDim[cycloOrder]);
+				auto AB = A*m_cyclotomicPolyReverseNTTMap[modulus];
+				const auto &rootTableInverse = m_rootOfUnityDivisionInverseTableByModulus[nttMod];
+				auto a = NumberTheoreticTransform<IntType, VecType>::GetInstance().InverseTransformIterative(AB, rootTableInverse, m_nttDivisionDim[cycloOrder]);
+
+				VecType quotient(m_nttDivisionDim[cycloOrder], modulus);
+				for (usint i = 0; i < power; i++) {
+					quotient.SetValAtIndex(i, a.GetValAtIndex(i));
+				}
+				quotient = quotient.Mod(modulus);
+				quotient.SetModulus(nttMod);
+
+				quotient = NumberTheoreticTransform<IntType, VecType>::GetInstance().ForwardTransformIterative(quotient, rootTable, m_nttDivisionDim[cycloOrder]);
+
+				quotient = quotient*m_cyclotomicPolyNTTMap[modulus];
+
+				quotient = NumberTheoreticTransform<IntType, VecType>::GetInstance().InverseTransformIterative(quotient, rootTableInverse, m_nttDivisionDim[cycloOrder]);
+				quotient.SetModulus(modulus);
+				quotient = quotient.Mod(modulus);
+
+				for (usint i = 0; i < n; i++) {
+					output.SetValAtIndex(i, element.GetValAtIndex(i).ModSub(quotient.GetValAtIndex(cycloOrder - 1 - i), modulus));
+				}
+			}
+		}
+
+		return output;
+	}
 
 	template<typename IntType, typename VecType>
 	void ChineseRemainderTransformArb<IntType, VecType>::Destroy() {
