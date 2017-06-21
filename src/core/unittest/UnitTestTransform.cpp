@@ -183,6 +183,53 @@ TEST(UTTransform, CRT_polynomial_multiplication_big_ring) {
 
 }
 
+TEST(UTTransform, CRT_polynomial_multiplication_big_ring_prime_cyclotomics) {
+
+
+	//usint m = 1733;
+	//usint p = 2 * m + 1;
+	//BigBinaryInteger modulusP(p);
+
+	//BigBinaryInteger modulusQ("1152921504606909071");
+	//BigBinaryInteger squareRootOfRoot("44343872016735288");
+
+	//BigBinaryInteger bigmodulus("10889035741470030830827987437816582848513");
+	//BigBinaryInteger bigroot("5879632101734955395039618227388702592012");
+
+	usint m = 1733;
+
+	BigBinaryInteger modulus("1152921504606909071");
+	BigBinaryInteger bigModulus("10889035741470030830827987437816582848513");
+	BigBinaryInteger bigRoot("5879632101734955395039618227388702592012");
+	BigBinaryInteger squareRootOfRoot("44343872016735288");
+	usint n = GetTotient(m);
+	auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulus);
+
+	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().PreCompute(m, modulus);
+	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulus);
+
+	BigBinaryVector a(n, modulus);
+	a = { 1,2,3,4,5,6,7,8,9,10 };
+	auto A = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().ForwardTransform(a, squareRootOfRoot, bigModulus, bigRoot, m);
+
+	BigBinaryVector b(n, modulus);
+	b = { 5,6,7,8,9,10,11,12,13,14 };
+	auto B = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().ForwardTransform(b, squareRootOfRoot, bigModulus, bigRoot, m);
+
+	auto C = A*B;
+
+	auto c = ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().InverseTransform(C, squareRootOfRoot, bigModulus, bigRoot, m);
+
+	auto cCheck = PolynomialMultiplication(a, b);
+
+	cCheck = PolyMod(cCheck, cycloPoly, modulus);
+
+	for (usint i = 0; i < n; i++) {
+		EXPECT_EQ(cCheck.GetValAtIndex(i), c.GetValAtIndex(i));
+	}
+
+}
+
 
 // TEST CASE TO TEST FORWARD AND INVERSE TRANSFORM IN ARBITRARY CYCLOTOMIC FILED.
 //CHECKING IF INVERSET-TRANSFORM(FORWARD-TRANSFORM(A)) = A.
