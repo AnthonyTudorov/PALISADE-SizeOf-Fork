@@ -83,9 +83,9 @@ main(int argc, char *argv[])
 	const usint MAXVECS = 30;
 
 	//CryptoContext<ILVector2n> cc = GenCryptoContextElementArrayNull(8, 5, 8, 10);
-	CryptoContext<ILVector2n> cc = GenCryptoContextElementNull(8,32);
-	//CryptoContext<ILVector2n> cc = GenCryptoContextElementFV(32,32);
-	cc.Enable(LEVELEDSHE);
+	//CryptoContext<ILVector2n> cc = GenCryptoContextElementNull(8,32);
+	CryptoContext<ILVector2n> cc = GenCryptoContextElementFV(8,32);
+	//cc.Enable(LEVELEDSHE);
 
 //	IntPlaintextEncoding vecs[] = {
 //			{ 1,2,3,5 },
@@ -364,7 +364,11 @@ main(int argc, char *argv[])
 			cout << "For output " << out.first << endl;
 			cc.Decrypt(kp.secretKey, {out.second.GetIntVecValue()}, &result);
 
-			cout << result << endl;
+			size_t i;
+			const size_t n = 10;
+			for( i=0; i < n; i++ )
+				cout << result[i] << " ";
+			cout << (( i == n ) ? "..." : " ") << endl;
 		}
 
 		if( print_result_graph ) {

@@ -83,7 +83,7 @@ main(int argc, char *argv[])
 
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
-	cc.Enable(LEVELEDSHE);
+	//cc.Enable(LEVELEDSHE);
 
 	string operation;
 	set<OpType> operations;

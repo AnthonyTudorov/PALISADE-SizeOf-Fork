@@ -77,7 +77,7 @@ bin/demo/circuit/%$(EXESUFFIX): src/circuit/bin/demo/%.o $(EXTLIBDIR)/$(PALISADE
 $(EXTLIBDIR)/$(PALISADECIRCUITLIB): $(CIRCUITOBJECTS) $(CLIBS)
 	@echo " -- circuit:linking $@ from CIRCUITOBJECTS"
 	mkdir -p $(EXTLIBDIR)
-	$(CC) $(LIBCMD) -o $@ $(CIRCUITOBJECTS) -L$(EXTLIBDIR) -lgomp $(CLIBS)
+	$(CC) $(LIBCMD) -o $@ $(CIRCUITOBJECTS) -L$(EXTLIBDIR) -lgomp 
 
 ### #this builds the individual objects that make up the library .
 .PRECIOUS: $(CIRCUITBINDIR)/%
