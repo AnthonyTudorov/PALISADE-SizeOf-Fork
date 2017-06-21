@@ -1,34 +1,27 @@
 /**
- * @file
- * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
- *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>
- * @version 00_03
+ * @file pubkeylp.h -- Public key type for lattice crypto operations.
+ * @author  TPOC: palisade@njit.edu
  *
- * @section LICENSE
- * 
- * Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
+ * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
  * All rights reserved.
- * Redistribution and use in source and binary forms, with or without modification, 
+ * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 1. Redistributions of source code must retain the above copyright notice, this 
+ * 1. Redistributions of source code must retain the above copyright notice, this
  * list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright notice, this 
- * list of conditions and the following disclaimer in the documentation and/or other 
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or other
  * materials provided with the distribution.
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR 
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS 
- * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * @section DESCRIPTION
- *
- * This file contains the core public key interface functionality.
  */
 
 #ifndef LBCRYPTO_CRYPTO_PUBKEYLP_H
@@ -43,6 +36,7 @@
 #include "utils/inttypes.h"
 #include "math/distrgen.h"
 #include "utils/serializablehelper.h"
+#include "encoding/encodingparams.h"
 
 
 /**
@@ -819,9 +813,10 @@ namespace lbcrypto {
 			 *
 			 * @param &publicKey public key used for encryption.
 			 * @param &plaintext the plaintext input.
+			 * @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 			 * @param *ciphertext ciphertext which results from encryption.
 			 */
-			virtual shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, ILVector2n &plaintext) const = 0;
+			virtual shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, ILVector2n &plaintext, bool doEncryption = true) const = 0;
 
 			/**
 			 * Method for decrypting plaintext using LBC
@@ -1033,187 +1028,420 @@ namespace lbcrypto {
 		public:
 			virtual ~LPSHEAlgorithm() {}
 
-			/**
-			* Virtual function to define the interface for homomorphic addition of ciphertexts.
-			*
-			* @param &ciphertext1 the input ciphertext.
-			* @param &ciphertext2 the input ciphertext.
-			* @param *newCiphertext the new ciphertext.
-			*/
-			virtual shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext1,
-				const shared_ptr<Ciphertext<Element>> ciphertext2) const = 0;
+		/**
+		* Virtual function to define the interface for homomorphic addition of ciphertexts.
+		*
+		* @param &ciphertext1 the input ciphertext.
+		* @param &ciphertext2 the input ciphertext.
+		* @param *newCiphertext the new ciphertext.
+		*/
+		virtual shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext1,
+			const shared_ptr<Ciphertext<Element>> ciphertext2) const = 0;
 
-			/**
-			* Virtual function to define the interface for homomorphic subtraction of ciphertexts.
-			*
-			* @param &ciphertext1 the input ciphertext.
-			* @param &ciphertext2 the input ciphertext.
-			* @param *newCiphertext the new ciphertext.
-			*/
-			virtual shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext1,
-				const shared_ptr<Ciphertext<Element>> ciphertext2) const = 0;
+		/**
+		* Virtual function to define the interface for homomorphic subtraction of ciphertexts.
+		*
+		* @param &ciphertext1 the input ciphertext.
+		* @param &ciphertext2 the input ciphertext.
+		* @param *newCiphertext the new ciphertext.
+		*/
+		virtual shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext1,
+			const shared_ptr<Ciphertext<Element>> ciphertext2) const = 0;
 
-			/**
-			* Virtual function to define the interface for multiplicative homomorphic evaluation of ciphertext.
-			*
-			* @param &ciphertext1 the input ciphertext.
-			* @param &ciphertext2 the input ciphertext.
-			* @param *newCiphertext the new ciphertext.
-			*/
-			virtual shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
-				const shared_ptr<Ciphertext<Element>> ciphertext2) const = 0;
+		/**
+		* Virtual function to define the interface for multiplicative homomorphic evaluation of ciphertext.
+		*
+		* @param &ciphertext1 the input ciphertext.
+		* @param &ciphertext2 the input ciphertext.
+		* @param *newCiphertext the new ciphertext.
+		*/
+		virtual shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
+			const shared_ptr<Ciphertext<Element>> ciphertext2) const = 0;
 
-			/**
-			* Virtual function to define the interface for multiplicative homomorphic evaluation of ciphertext using the evaluation key.
-			*
-			* @param &ciphertext1 first input ciphertext.
-			* @param &ciphertext2 second input ciphertext.
-			* @param &ek is the evaluation key to make the newCiphertext decryptable by the same secret key as that of ciphertext1 and ciphertext2.
-			* @param *newCiphertext the new resulting ciphertext.
-			*/
-			virtual shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
-				const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const = 0;
+		/**
+		* Virtual function to define the interface for multiplication of ciphertext by plaintext.
+		*
+		* @param &ciphertext the input ciphertext.
+		* @param &plaintext the input plaintext embedded in the cryptocontext.
+		* @param *newCiphertext the new ciphertext.
+		*/
+		virtual shared_ptr<Ciphertext<Element>> EvalMultPlain(const shared_ptr<Ciphertext<Element>> ciphertext,
+			const shared_ptr<Ciphertext<Element>> plaintext) const = 0;
 
-			/**
-			* EvalLinRegression - Computes the parameter vector for linear regression using the least squares method
-			* @param x - matrix of regressors
-			* @param y - vector of dependent variables
-			* @return the parameter vector using (x^T x)^{-1} x^T y (using least squares method)
-			*/
-			shared_ptr<Matrix<RationalCiphertext<Element>>>
-				EvalLinRegression(const shared_ptr<Matrix<RationalCiphertext<Element>>> x,
-					const shared_ptr<Matrix<RationalCiphertext<Element>>> y) const
-			{
-				// multiplication is done in reverse order to minimize the number of inner products
-				Matrix<RationalCiphertext<Element>> xTransposed = x->Transpose();
-				shared_ptr<Matrix<RationalCiphertext<Element>>> result (new Matrix<RationalCiphertext<Element>>(xTransposed * (*y)));
+		/**
+		* Virtual function to define the interface for multiplicative homomorphic evaluation of ciphertext using the evaluation key.
+		*
+		* @param &ciphertext1 first input ciphertext.
+		* @param &ciphertext2 second input ciphertext.
+		* @param &ek is the evaluation key to make the newCiphertext decryptable by the same secret key as that of ciphertext1 and ciphertext2.
+		* @param *newCiphertext the new resulting ciphertext.
+		*/
+		virtual shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
+			const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const = 0;
 
-				Matrix<RationalCiphertext<Element>> xCovariance = xTransposed * (*x);
+		/**
+		* EvalLinRegression - Computes the parameter vector for linear regression using the least squares method
+		* @param x - matrix of regressors
+		* @param y - vector of dependent variables
+		* @return the parameter vector using (x^T x)^{-1} x^T y (using least squares method)
+		*/
+		shared_ptr<Matrix<RationalCiphertext<Element>>>
+			EvalLinRegression(const shared_ptr<Matrix<RationalCiphertext<Element>>> x,
+				const shared_ptr<Matrix<RationalCiphertext<Element>>> y) const
+		{
+			// multiplication is done in reverse order to minimize the number of inner products
+			Matrix<RationalCiphertext<Element>> xTransposed = x->Transpose();
+			shared_ptr<Matrix<RationalCiphertext<Element>>> result(new Matrix<RationalCiphertext<Element>>(xTransposed * (*y)));
 
-				Matrix<RationalCiphertext<Element>> cofactorMatrix = xCovariance.CofactorMatrix();
+			Matrix<RationalCiphertext<Element>> xCovariance = xTransposed * (*x);
 
-				Matrix<RationalCiphertext<Element>> adjugateMatrix = cofactorMatrix.Transpose();
+			Matrix<RationalCiphertext<Element>> cofactorMatrix = xCovariance.CofactorMatrix();
 
-				*result = adjugateMatrix * (*result);
+			Matrix<RationalCiphertext<Element>> adjugateMatrix = cofactorMatrix.Transpose();
 
-				RationalCiphertext<Element> determinant;
-				xCovariance.Determinant(&determinant);
+			*result = adjugateMatrix * (*result);
+
+			RationalCiphertext<Element> determinant;
+			xCovariance.Determinant(&determinant);
 
 				for (size_t row = 0; row < result->GetRows(); row++)
 					for (size_t col = 0; col < result->GetCols(); col++)
 						(*result)(row, col).SetDenominator(*determinant.GetNumerator());
 
-				return result;
+			return result;
 
+		}
+
+		/**
+		* Virtual function to define the interface for homomorphic negation of ciphertext.
+		*
+		* @param &ciphertext the input ciphertext.
+		* @param *newCiphertext the new ciphertext.
+		*/
+		virtual shared_ptr<Ciphertext<Element>> EvalNegate(const shared_ptr<Ciphertext<Element>> ciphertext) const = 0;
+
+		/**
+		* Function to add random noise to all plaintext slots except for the first one; used in EvalInnerProduct
+		*
+		* @param &ciphertext the input ciphertext.
+		* @return modified ciphertext
+		*/
+		shared_ptr<Ciphertext<Element>> AddRandomNoise(const shared_ptr<Ciphertext<Element>> ciphertext) const {
+
+			const shared_ptr<LPCryptoParameters<Element>> cryptoParams = ciphertext->GetCryptoParameters();
+			const shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
+			const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
+
+			usint n = elementParams->GetRingDimension();
+
+			auto cc = ciphertext->GetCryptoContext();
+
+			DiscreteUniformGenerator dug;
+			dug.SetModulus(encodingParams->GetPlaintextModulus());
+			BigBinaryVector randomVector = dug.GenerateVector(n - 1);
+
+			std::vector<usint> randomIntVector(n);
+
+			//first plainext slot does not need to change
+			randomIntVector[0] = 0;
+
+			for (usint i = 0; i < n - 1; i++)
+			{
+				randomIntVector[i + 1] = randomVector.GetValAtIndex(i).ConvertToInt();
 			}
 
-			/**
-			* Virtual function to define the interface for homomorphic negation of ciphertext.
-			*
-			* @param &ciphertext the input ciphertext.
-			* @param *newCiphertext the new ciphertext.
-			*/
-			virtual shared_ptr<Ciphertext<Element>> EvalNegate(const shared_ptr<Ciphertext<Element>> ciphertext) const = 0;
+			PackedIntPlaintextEncoding::SetParams(encodingParams->GetPlaintextModulus(), elementParams->GetCyclotomicOrder());
 
-			/**
-			* Method for KeySwitchGen
-			*
-			* @param &originalPrivateKey Original private key used for encryption.
-			* @param &newPrivateKey New private key to generate the keyswitch hint.
-			* @param *KeySwitchHint is where the resulting keySwitchHint will be placed.
-			*/
-			virtual shared_ptr<LPEvalKey<Element>> KeySwitchGen(
-				const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
-				const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const = 0;
+			PackedIntPlaintextEncoding plaintext(randomIntVector);
 
-			/**
-			* Method for KeySwitch
-			*
-			* @param &keySwitchHint Hint required to perform the ciphertext switching.
-			* @param &cipherText Original ciphertext to perform switching on.
-			*/
-			virtual shared_ptr<Ciphertext<Element>> KeySwitch(
-				const shared_ptr<LPEvalKey<Element>> keySwitchHint,
-				const shared_ptr<Ciphertext<Element>> cipherText) const = 0;
+			ILVector2n encodedPlaintext(elementParams);
 
-			/**
-			* Method for KeySwitching based on RLWE relinearization (used only for the LTV scheme).
-			* Function to generate 1..log(q) encryptions for each bit of the original private key
-			*
-			* @param &newPublicKey encryption key for the new ciphertext.
-			* @param origPrivateKey original private key used for decryption.
-			*/
-			virtual shared_ptr<LPEvalKey<Element>> KeySwitchRelinGen(const shared_ptr<LPPublicKey<Element>> newPublicKey,
-				const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const = 0;
+			plaintext.Encode(encodingParams->GetPlaintextModulus(), &encodedPlaintext);
 
-			/**
-			* Method for KeySwitching based on RLWE relinearization (used only for the LTV scheme).
-			*
-			* @param evalKey the evaluation key.
-			* @param ciphertext the input ciphertext.
-			* @return the resulting Ciphertext
-			*/
-			virtual shared_ptr<Ciphertext<Element>> KeySwitchRelin(const shared_ptr<LPEvalKey<Element>> evalKey,
-				const shared_ptr<Ciphertext<Element>> ciphertext) const = 0;
+			shared_ptr<LPPublicKey<Element>> pk(new LPPublicKey<Element>(cc));
 
-			/**
-			* Virtual function to define the interface for generating a evaluation key which is used after each multiplication.
-			*
-			* @param &ciphertext1 first input ciphertext.
-			* @param &ciphertext2 second input ciphertext.
-			* @param &ek is the evaluation key to make the newCiphertext decryptable by the same secret key as that of ciphertext1 and ciphertext2.
-			* @param *newCiphertext the new resulting ciphertext.
-			*/
-			virtual	shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(
-					const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const = 0;		
+			shared_ptr<Ciphertext<Element>>  embeddedPlaintext = cc.GetEncryptionAlgorithm()->Encrypt(pk, encodedPlaintext, false);
 
-			/**
-			 * Virtual function to define the interface for evaluating ciphertext at an index
-			 *
-			 * @param ciphertext the input ciphertext.
-			 * @param i index of the item to be "extracted", starts with 2.
-			 * @param &evalKeys - reference to the vector of evaluation keys generated by EvalAutomorphismKeyGen.
-			 * @return resulting ciphertext
-			 */
-			virtual shared_ptr<Ciphertext<Element>> EvalAtIndex(const shared_ptr<Ciphertext<Element>> ciphertext, const usint i,
-					const std::vector<shared_ptr<LPEvalKey<Element>>> &evalKeys) const = 0;
+			return EvalAdd(ciphertext, embeddedPlaintext);
 
-			/**
-			 * Virtual function to generate all isomorphism keys for a given private key
-			 *
-			 * @param publicKey encryption key for the new ciphertext.
-			 * @param origPrivateKey original private key used for decryption.
-			 * @param size number of automorphims to be computed
-			 * @return a vector of re-encryption keys.
-			 */
-			virtual shared_ptr<std::vector<shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const shared_ptr<LPPublicKey<Element>> publicKey,
-				const shared_ptr<LPPrivateKey<Element>> origPrivateKey,
-				const usint size) const = 0;
+		};
 
-			/**
-			* Virtial function for evaluating automorphism of ciphertext at index i
-			*
-			* @param ciphertext the input ciphertext.
-			* @param i automorphism index
-			* @param &evalKeys - reference to the vector of evaluation keys generated by EvalAutomorphismKeyGen.
-			* @return resulting ciphertext
-			*/
-			virtual shared_ptr<Ciphertext<Element>> EvalAutomorphism(const shared_ptr<Ciphertext<Element>> ciphertext, usint i,
-				const std::vector<shared_ptr<LPEvalKey<Element>>> &evalKeys) const = 0;
+		/**
+		* Method for KeySwitchGen
+		*
+		* @param &originalPrivateKey Original private key used for encryption.
+		* @param &newPrivateKey New private key to generate the keyswitch hint.
+		* @param *KeySwitchHint is where the resulting keySwitchHint will be placed.
+		*/
+		virtual shared_ptr<LPEvalKey<Element>> KeySwitchGen(
+			const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
+			const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const = 0;
+
+		/**
+		* Method for KeySwitch
+		*
+		* @param &keySwitchHint Hint required to perform the ciphertext switching.
+		* @param &cipherText Original ciphertext to perform switching on.
+		*/
+		virtual shared_ptr<Ciphertext<Element>> KeySwitch(
+			const shared_ptr<LPEvalKey<Element>> keySwitchHint,
+			const shared_ptr<Ciphertext<Element>> cipherText) const = 0;
+
+		/**
+		* Method for KeySwitching based on RLWE relinearization (used only for the LTV scheme).
+		* Function to generate 1..log(q) encryptions for each bit of the original private key
+		*
+		* @param &newPublicKey encryption key for the new ciphertext.
+		* @param origPrivateKey original private key used for decryption.
+		*/
+		virtual shared_ptr<LPEvalKey<Element>> KeySwitchRelinGen(const shared_ptr<LPPublicKey<Element>> newPublicKey,
+			const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const = 0;
+
+		/**
+		* Method for KeySwitching based on RLWE relinearization (used only for the LTV scheme).
+		*
+		* @param evalKey the evaluation key.
+		* @param ciphertext the input ciphertext.
+		* @return the resulting Ciphertext
+		*/
+		virtual shared_ptr<Ciphertext<Element>> KeySwitchRelin(const shared_ptr<LPEvalKey<Element>> evalKey,
+			const shared_ptr<Ciphertext<Element>> ciphertext) const = 0;
+
+		/**
+		* Virtual function to define the interface for generating a evaluation key which is used after each multiplication.
+		*
+		* @param &ciphertext1 first input ciphertext.
+		* @param &ciphertext2 second input ciphertext.
+		* @param &ek is the evaluation key to make the newCiphertext decryptable by the same secret key as that of ciphertext1 and ciphertext2.
+		* @param *newCiphertext the new resulting ciphertext.
+		*/
+		virtual	shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(
+			const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const = 0;
+
+		/**
+		 * Virtual function to generate all isomorphism keys for a given private key
+		 *
+		 * @param publicKey encryption key for the new ciphertext.
+		 * @param origPrivateKey original private key used for decryption.
+		 * @param indexList list of automorphism indices to be computed
+		 * @return returns the evaluation keys
+		 */
+		virtual shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const shared_ptr<LPPublicKey<Element>> publicKey,
+			const shared_ptr<LPPrivateKey<Element>> origPrivateKey,
+			const std::vector<usint> &indexList) const = 0;
+
+		/**
+		* Virtial function for evaluating automorphism of ciphertext at index i
+		*
+		* @param ciphertext the input ciphertext.
+		* @param i automorphism index
+		* @param &evalKeys - reference to the vector of evaluation keys generated by EvalAutomorphismKeyGen.
+		* @return resulting ciphertext
+		*/
+		virtual shared_ptr<Ciphertext<Element>> EvalAutomorphism(const shared_ptr<Ciphertext<Element>> ciphertext, usint i,
+			const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalKeys) const = 0;
 
 
-			/**
-			* Virtual function to generate automophism keys for a given private key; Uses the private key for encryption
-			*
-			* @param privateKey private key.
-			* @param size number of automorphims to be computed; maximum is ring dimension
-			* @param flagEvalSum if set to true, log_2{size} evaluation keys are generated to be used by EvalSum
-			* @return returns the evaluation keys
-			*/
-			virtual shared_ptr<std::vector<shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey,
-				usint size, bool flagEvalSum) const = 0;
+		/**
+		* Virtual function to generate automophism keys for a given private key; Uses the private key for encryption
+		*
+		* @param privateKey private key.
+		* @param indexList list of automorphism indices to be computed
+		* @return returns the evaluation keys
+		*/
+		virtual shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey,
+			const std::vector<usint> &indexList) const = 0;
+
+		/**
+		* Virtual function to generate the automorphism keys for EvalSum; works only for packed encoding
+		*
+		* @param privateKey private key.
+		* @return returns the evaluation keys
+		*/
+		shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalSumKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey,
+			const shared_ptr<LPPublicKey<Element>> publicKey) const
+		{
+
+			const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
+			const shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
+			const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
+
+			usint batchSize = encodingParams->GetBatchSize();
+			usint g = encodingParams->GetPlaintextGenerator();
+			usint m = elementParams->GetCyclotomicOrder();
+
+			// stores automorphism indices needed for EvalSum
+			std::vector<usint> indices;
+
+			for (int i = 0; i < floor(log2(batchSize)); i++)
+			{
+				indices.push_back(g);
+				g = (g * g) % m;
+			}
+
+
+			if (publicKey)
+				// NTRU-based scheme
+				return EvalAutomorphismKeyGen(publicKey, privateKey, indices);
+			else
+				// Regular RLWE scheme
+				return EvalAutomorphismKeyGen(privateKey, indices);
+
+		}
+
+		/**
+		* Sums all elements in log (batch size) time - works only with packed encoding
+		*
+		* @param ciphertext the input ciphertext.
+		* @param batchSize size of the batch to be summed up
+		* @param &evalKeys - reference to the map of evaluation keys generated by EvalAutomorphismKeyGen.
+		* @return resulting ciphertext
+		*/
+		shared_ptr<Ciphertext<Element>> EvalSum(const shared_ptr<Ciphertext<Element>> ciphertext, usint batchSize,
+			const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalKeys) const {
+
+			const shared_ptr<LPCryptoParameters<Element>> cryptoParams = ciphertext->GetCryptoParameters();
+			shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(*ciphertext));
+
+			const shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
+			const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
+
+			usint g = encodingParams->GetPlaintextGenerator();
+			usint m = elementParams->GetCyclotomicOrder();
+
+			for (int i = 0; i < floor(log2(batchSize)); i++)
+			{
+				newCiphertext = EvalAdd(newCiphertext, EvalAutomorphism(newCiphertext, g, evalKeys));
+				g = (g * g) % m;
+			}
+
+			return newCiphertext;
+
+		}
+
+		/**
+		* Evaluates inner product in batched encoding
+		*
+		* @param ciphertext1 first vector.
+		* @param ciphertext2 second vector.
+		* @param batchSize size of the batch to be summed up
+		* @param &evalSumKeys - reference to the map of evaluation keys generated by EvalAutomorphismKeyGen.
+		* @param &evalMultKey - reference to the evaluation key generated by EvalMultKeyGen.
+		* @return resulting ciphertext
+		*/
+		shared_ptr<Ciphertext<Element>> EvalInnerProduct(const shared_ptr<Ciphertext<Element>> ciphertext1,
+			const shared_ptr<Ciphertext<Element>> ciphertext2, usint batchSize,
+			const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalSumKeys,
+			const shared_ptr<LPEvalKey<Element>> evalMultKey) const {
+
+			shared_ptr<Ciphertext<Element>> result = EvalMult(ciphertext1, ciphertext2, evalMultKey);
+
+			result = EvalSum(result, batchSize, evalSumKeys);
+
+			// add a random number to all slots except for the first one so that no information is leaked
+			return AddRandomNoise(result);
+
+		}
+
+		/**
+		* EvalLinRegressBatched - Computes the parameter vector for linear regression using the least squares method
+		* Currently supports only two regressors
+		* @param x - matrix of regressors
+		* @param y - vector of dependent variables
+		* @return the parameter vector using (x^T x)^{-1} x^T y (using least squares method)
+		*/
+		shared_ptr<Matrix<RationalCiphertext<Element>>>
+			EvalLinRegressBatched(const shared_ptr<Matrix<RationalCiphertext<Element>>> x,
+				const shared_ptr<Matrix<RationalCiphertext<Element>>> y, usint batchSize,
+				const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalSumKeys,
+				const shared_ptr<LPEvalKey<Element>> evalMultKey) const
+		{
+
+			Matrix<RationalCiphertext<Element>> covarianceMatrix(x->GetAllocator(), 2, 2);
+
+			shared_ptr<Ciphertext<Element>> x0 = (*x)(0, 0).GetNumerator();
+			shared_ptr<Ciphertext<Element>> x1 = (*x)(0, 1).GetNumerator();
+			shared_ptr<Ciphertext<Element>> y0 = (*y)(0, 0).GetNumerator();
+
+			//Compute the covariance matrix for X
+			covarianceMatrix(0, 0).SetNumerator(*EvalInnerProduct(x0, x0, batchSize, evalSumKeys, evalMultKey));
+			covarianceMatrix(0, 1).SetNumerator(*EvalInnerProduct(x0, x1, batchSize, evalSumKeys, evalMultKey));
+			covarianceMatrix(1, 0) = covarianceMatrix(0, 1);
+			covarianceMatrix(1, 1).SetNumerator(*EvalInnerProduct(x1, x1, batchSize, evalSumKeys, evalMultKey));
+
+			Matrix<RationalCiphertext<Element>> cofactorMatrix = covarianceMatrix.CofactorMatrix();
+
+			Matrix<RationalCiphertext<Element>> adjugateMatrix = cofactorMatrix.Transpose();
+
+			shared_ptr<Matrix<RationalCiphertext<Element>>> result(new Matrix<RationalCiphertext<Element>>(x->GetAllocator(), 2, 1));
+
+			(*result)(0, 0).SetNumerator(*EvalInnerProduct(x0, y0, batchSize, evalSumKeys, evalMultKey));
+			(*result)(1, 0).SetNumerator(*EvalInnerProduct(x1, y0, batchSize, evalSumKeys, evalMultKey));
+
+			*result = adjugateMatrix * (*result);
+
+			RationalCiphertext<Element> determinant;
+			covarianceMatrix.Determinant(&determinant);
+
+			for (size_t row = 0; row < result->GetRows(); row++)
+				for (size_t col = 0; col < result->GetCols(); col++)
+					(*result)(row, col).SetDenominator(*determinant.GetNumerator());
+
+			return result;
+
+		}
+
+
+		/**
+		* EvalCrossCorrelation - Computes the sliding sum of inner products (known as
+		* as cross-correlation, sliding inner product, or sliding dot product in
+		* image processing
+		* @param x - first vector of row vectors
+		* @param y - second vector of row vectors
+		* @param batchSize - batch size for packed encoding
+		* @param indexStart - starting index in the vectors of row vectors
+		* @param length - length of the slice in the vectors of row vectors
+		* @param evalSumKeys - evaluation keys used for the automorphism operation
+		* @param evalMultKey - the evaluation key used for multiplication
+		* @return sum(x_i*y_i), i.e., a sum of inner products
+		*/
+		shared_ptr<Ciphertext<Element>>
+			EvalCrossCorrelation(const shared_ptr<Matrix<RationalCiphertext<Element>>> x,
+				const shared_ptr<Matrix<RationalCiphertext<Element>>> y, usint batchSize, 
+				usint indexStart, usint length,
+				const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalSumKeys,
+				const shared_ptr<LPEvalKey<Element>> evalMultKey) const
+		{
+
+			if (length == 0)
+				length = x->GetRows();
+			
+			if (length - indexStart > x->GetRows())
+				throw std::runtime_error("The number of rows exceeds the dimension of the vector");
+
+			//additional error checking can be added here
+
+			shared_ptr<Ciphertext<Element>> result;
+
+			shared_ptr<Ciphertext<Element>> x0 = (*x)(indexStart, 0).GetNumerator();
+			shared_ptr<Ciphertext<Element>> y0 = (*y)(indexStart, 0).GetNumerator();
+
+			result = EvalInnerProduct(x0, y0, batchSize, evalSumKeys, evalMultKey);
+
+			for (usint i = indexStart + 1; i < indexStart + length; i++)
+			{
+				shared_ptr<Ciphertext<Element>> xi = (*x)(i, 0).GetNumerator();
+				shared_ptr<Ciphertext<Element>> yi = (*y)(i, 0).GetNumerator();
+				
+				result = EvalAdd(result,EvalInnerProduct(xi, yi, batchSize, evalSumKeys, evalMultKey));
+			}
+
+			return result;
+
+		}
 
 	};
+
 
 	/**
 	 * @brief Abstract interface class for LBC SHE algorithms
@@ -1257,6 +1485,13 @@ namespace lbcrypto {
 			* @return the ring element parameters.
 			*/
 		const shared_ptr<typename Element::Params> GetElementParams() const { return m_params; }
+
+		/**
+		* Returns the reference to encoding params
+		*
+		* @return the encoding parameters.
+		*/
+		const shared_ptr<EncodingParams> GetEncodingParams() const { return m_encodingParams; }
 			
 		/**
 		* Sets the value of plaintext modulus p
@@ -1270,6 +1505,14 @@ namespace lbcrypto {
 		 * Sets the reference to element params
 		 */
 		void SetElementParams(shared_ptr<typename Element::Params> params) { m_params = params; }
+
+		/**
+		* Sets the reference to element params
+		*/
+		void SetEncodingParams(shared_ptr<EncodingParams> encodingParams) {
+			m_encodingParams = encodingParams;
+			m_plaintextModulus = encodingParams->GetPlaintextModulus();
+		}
 
 		/**
 		 * Overload to allow printing of parameters to an iostream
@@ -1291,12 +1534,23 @@ namespace lbcrypto {
 
 
 	protected:
-		LPCryptoParameters() : m_plaintextModulus(2) {}
+		LPCryptoParameters() : m_plaintextModulus(2) {
+			m_encodingParams = std::make_shared<EncodingParams>(2);
+		}
 
-		LPCryptoParameters(const typename Element::Integer &plaintextModulus) : m_plaintextModulus(plaintextModulus) {}
+		LPCryptoParameters(const typename Element::Integer &plaintextModulus) : m_plaintextModulus(plaintextModulus) { 
+			m_encodingParams = std::make_shared<EncodingParams>(plaintextModulus);
+		}
 
 		LPCryptoParameters(shared_ptr<typename Element::Params> params, const BigBinaryInteger &plaintextModulus) : m_plaintextModulus(plaintextModulus) {
 			m_params = params;
+			m_encodingParams = std::make_shared<EncodingParams>(plaintextModulus);
+		}
+
+		LPCryptoParameters(shared_ptr<typename Element::Params> params, shared_ptr<EncodingParams> encodingParams) {
+			m_params = params;
+			m_encodingParams = encodingParams;
+			m_plaintextModulus = encodingParams->GetPlaintextModulus();
 		}
 
 		LPCryptoParameters(LPCryptoParameters<Element> *from, shared_ptr<typename Element::Params> newElemParms) {
@@ -1307,11 +1561,15 @@ namespace lbcrypto {
 		virtual void PrintParameters(std::ostream& out) const {
 			out << "Element Parameters: " << *m_params << std::endl;
 			out << "Plaintext Modulus: " << m_plaintextModulus << std::endl;
+			out << "Encoding Parameters: " << *m_encodingParams << std::endl;
 		}
 
 	private:
 		//element-specific parameters
 		shared_ptr<typename Element::Params>	m_params;
+
+		//encoding-specific parameters
+		shared_ptr<EncodingParams>		m_encodingParams;
 
 		//plaintext modulus p
 		typename Element::Integer		m_plaintextModulus;
@@ -1401,9 +1659,9 @@ namespace lbcrypto {
 		//
 
 		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
-			ILVector2n &plaintext) const {
+			ILVector2n &plaintext, bool doEncryption = true) const {
 				if(this->m_algorithmEncryption) {
-					return this->m_algorithmEncryption->Encrypt(publicKey,plaintext);
+					return this->m_algorithmEncryption->Encrypt(publicKey,plaintext,doEncryption);
 				}
 				else {
 					throw std::logic_error("Encrypt operation has not been enabled");
@@ -1545,6 +1803,17 @@ namespace lbcrypto {
 			}
 		}
 
+		shared_ptr<Ciphertext<Element>> EvalMultPlain(const shared_ptr<Ciphertext<Element>> ciphertext,
+			const shared_ptr<Ciphertext<Element>> plaintext) const {
+
+			if (this->m_algorithmSHE)
+				return this->m_algorithmSHE->EvalMultPlain(ciphertext, plaintext);
+			else {
+				throw std::logic_error("EvalMult operation has not been enabled");
+			}
+		}
+
+
 		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
 			const shared_ptr<Ciphertext<Element>> ciphertext2,
 			const shared_ptr<LPEvalKey<Element>> evalKey) const {
@@ -1565,27 +1834,18 @@ namespace lbcrypto {
 			}
 		}
 
-		shared_ptr<Ciphertext<Element>> EvalAtIndex(const shared_ptr<Ciphertext<Element>> ciphertext, const usint i,
-			const std::vector<shared_ptr<LPEvalKey<Element>>> &evalKeys) const {
-
-			if (this->m_algorithmSHE)
-				return this->m_algorithmSHE->EvalAtIndex(ciphertext, i, evalKeys);
-			else 
-				throw std::logic_error("EvalAtIndex operation has not been enabled");
-		}
-
-		shared_ptr<std::vector<shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const shared_ptr<LPPublicKey<Element>> publicKey,
+		shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const shared_ptr<LPPublicKey<Element>> publicKey,
 			const shared_ptr<LPPrivateKey<Element>> origPrivateKey,
-			const usint size) const {
+			const std::vector<usint> &indexList) const {
 
 			if (this->m_algorithmSHE)
-				return this->m_algorithmSHE->EvalAutomorphismKeyGen(publicKey,origPrivateKey,size);
+				return this->m_algorithmSHE->EvalAutomorphismKeyGen(publicKey,origPrivateKey,indexList);
 			else
 				throw std::logic_error("EvalAutomorphismKeyGen operation has not been enabled");
 		}
 
 		shared_ptr<Ciphertext<Element>> EvalAutomorphism(const shared_ptr<Ciphertext<Element>> ciphertext, usint i,
-			const std::vector<shared_ptr<LPEvalKey<Element>>> &evalKeys) const {
+			const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalKeys) const {
 
 			if (this->m_algorithmSHE)
 				return this->m_algorithmSHE->EvalAutomorphism(ciphertext, i, evalKeys);
@@ -1593,14 +1853,73 @@ namespace lbcrypto {
 				throw std::logic_error("EvalAutomorphism operation has not been enabled");
 		}
 
-		shared_ptr<std::vector<shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey,
-			usint size, bool flagEvalSum) const {
+		shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey,
+			const std::vector<usint> &indexList) const {
 
 			if (this->m_algorithmSHE)
-				return this->m_algorithmSHE->EvalAutomorphismKeyGen(privateKey, size, flagEvalSum);
+				return this->m_algorithmSHE->EvalAutomorphismKeyGen(privateKey, indexList);
 			else
 				throw std::logic_error("EvalAutomorphismKeyGen operation has not been enabled");
 		}
+
+		shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalSumKeyGen(
+			const shared_ptr<LPPrivateKey<Element>> privateKey,
+			const shared_ptr<LPPublicKey<Element>> publicKey) const {
+
+			if (this->m_algorithmSHE)
+				return this->m_algorithmSHE->EvalSumKeyGen(privateKey,publicKey);
+			else
+				throw std::logic_error("EvalSumKeyGen operation has not been enabled");
+		}
+
+		shared_ptr<Ciphertext<Element>> EvalSum(const shared_ptr<Ciphertext<Element>> ciphertext, usint batchSize,
+			const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalKeys) const {
+
+			if (this->m_algorithmSHE)
+				return this->m_algorithmSHE->EvalSum(ciphertext, batchSize, evalKeys);
+			else
+				throw std::logic_error("EvalSum operation has not been enabled");
+
+		}
+
+		shared_ptr<Ciphertext<Element>> EvalInnerProduct(const shared_ptr<Ciphertext<Element>> ciphertext1,
+			const shared_ptr<Ciphertext<Element>> ciphertext2, usint batchSize,
+			const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalSumKeys,
+			const shared_ptr<LPEvalKey<Element>> evalMultKey) const {
+
+			if (this->m_algorithmSHE)
+				return this->m_algorithmSHE->EvalInnerProduct(ciphertext1, ciphertext2, batchSize, evalSumKeys, evalMultKey);
+			else
+				throw std::logic_error("EvalInnerProduct operation has not been enabled");
+
+		}
+
+		shared_ptr<Matrix<RationalCiphertext<Element>>>
+			EvalLinRegressBatched(const shared_ptr<Matrix<RationalCiphertext<Element>>> x,
+				const shared_ptr<Matrix<RationalCiphertext<Element>>> y, usint batchSize,
+				const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalSumKeys,
+				const shared_ptr<LPEvalKey<Element>> evalMultKey) const {
+
+			if (this->m_algorithmSHE)
+				return this->m_algorithmSHE->EvalLinRegressBatched(x, y, batchSize, evalSumKeys, evalMultKey);
+			else
+				throw std::logic_error("EvalLinRegressionBatched operation has not been enabled");
+		}
+
+
+		shared_ptr<Ciphertext<Element>>
+			EvalCrossCorrelation(const shared_ptr<Matrix<RationalCiphertext<Element>>> x,
+				const shared_ptr<Matrix<RationalCiphertext<Element>>> y, usint batchSize,
+				usint indexStart, usint length,
+				const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalSumKeys,
+				const shared_ptr<LPEvalKey<Element>> evalMultKey) const {
+
+			if (this->m_algorithmSHE)
+				return this->m_algorithmSHE->EvalCrossCorrelation(x, y, batchSize, indexStart, length, evalSumKeys, evalMultKey);
+			else
+				throw std::logic_error("EvalCrossCorrelation operation has not been enabled");
+		}
+
 
 		/**
 		* EvalLinRegression - Computes the parameter vector for linear regression using the least squares method

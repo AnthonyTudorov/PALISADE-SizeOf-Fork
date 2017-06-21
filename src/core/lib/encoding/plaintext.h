@@ -1,12 +1,8 @@
 /**
- * @file
- * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
- *	Programmers: Jerry Ryan <gwryan@njit.edu
- * @version 00_03
+ * @file plaintext.h Represents and defines plaintext objects in Palisade.
+ * @author  TPOC: palisade@njit.edu
  *
- * @section LICENSE
- *
- * Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
+ * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -26,10 +22,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * @section DESCRIPTION
- *
- * This code provides the abstraction for plaintext in palisade
- *
  */
 #ifndef LBCRYPTO_UTILS_PLAINTEXT_H
 #define LBCRYPTO_UTILS_PLAINTEXT_H
@@ -45,28 +37,55 @@
 #include "../lattice/ildcrtparams.h"
 #include "../lattice/ilvector2n.h"
 
-namespace lbcrypto {
-
-class Plaintext {
+namespace lbcrypto
+{
+/**
+ * @class Plaintext
+ * @brief This class represents plaintext in the Palisade library.
+ *
+ * Plaintext is primarily intended to be
+ * used as a container and in conjunction with specific encodings which inherit from this class
+ * which depend on the application the plaintext is used with.  It provides virtual methods for encoding
+ * and decoding of data.
+ */
+class Plaintext
+{
 public:
 	virtual ~Plaintext() {}
 
-	/** Interface for the operation of converting from current plaintext encoding to ILVector2n.
+	/**
+	 * Interface for the operation of converting from current plaintext encoding to ILVector2n.
 	 *
 	 * @param  modulus - used for encoding.
 	 * @param  *ilVector encoded plaintext - output argument.
+	 * @param  start_from - location to start from.  Defaults to 0.
+	 * @param  length - length of data to encode.  Defaults to 0.
 	 */
-    virtual void Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector, size_t start_from=0, size_t length=0) const = 0;
+	virtual void Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector, size_t start_from=0, size_t length=0) const = 0;
 
-	/** Interface for the operation of converting from ILVector2n to current plaintext encoding.
+	/**
+	 * Interface for the operation of converting from ILVector2n to current plaintext encoding.
 	 *
 	 * @param  modulus - used for encoding.
 	 * @param  *ilVector encoded plaintext - input argument.
 	 */
 	virtual void Decode(const BigBinaryInteger &modulus, ILVector2n *ilVector) = 0;
 
+	/**
+	 * Interface for the operation of stripping away unneeded trailing zeros to pad out a short plaintext until one with entries
+	 * for all dimensions.
+	 *
+	 * @param  &modulus - used for encoding.
+	 */
 	virtual void Unpad(const BigBinaryInteger &modulus) = 0;
 
+	/**
+	 * Getter for the ChunkSize data.
+	 *
+	 * @param  ring - the ring dimension.
+	 * @param  ptm - the plaintext modulus.
+	 * @return ring - the chunk size.
+	 */
 	virtual size_t GetChunksize(const usint ring, const BigBinaryInteger& ptm) const = 0;
 
 	/**
@@ -76,8 +95,20 @@ public:
 	 */
 	virtual size_t GetLength() const = 0;
 
+	/**
+	 * Method to compare two plaintext to test for equivalence.  This method does not test that the plaintext are of the same type.
+	 *
+	 * @param other - the other plaintext to compare to.
+	 * @return whether the two plaintext are equivalent.
+	 */
 	virtual bool CompareTo(const Plaintext& other) const = 0;
 
+	/**
+	 * Method to compare two plaintext to test for euality to.  This method makes sure the plaintext are of the same type.
+	 *
+	 * @param other - the other plaintext to compare to.
+	 * @return whether the two plaintext are the same.
+	 */
 	bool operator==(const Plaintext& other) const {
 		if( typeid(this) != typeid(&other) )
 			return false;
@@ -85,6 +116,12 @@ public:
 		return CompareTo(other);
 	}
 
+	/**
+	 * Method to convert plaintext modulus to a native data type.
+	 *
+	 * @param ptm - the plaintext modulus.
+	 * @return the plaintext modulus in native type.
+	 */
 	native_int::BinaryInteger ConvertToNativeModulus(const BigBinaryInteger& ptm) {
 		static BigBinaryInteger largestNative( ~((uint64_t)0) );
 

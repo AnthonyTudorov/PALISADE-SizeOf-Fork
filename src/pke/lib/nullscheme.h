@@ -1,8 +1,28 @@
-/*
- * nullscheme.h
+/**
+ * @file nullscheme.h -- Operations for the null cryptoscheme.
+ * @author  TPOC: palisade@njit.edu
  *
- *  Created on: Oct 4, 2016
- *      Author: gwryan
+ * @section LICENSE
+ *
+ * Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or other
+ * materials provided with the distribution.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+ * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 #ifndef SRC_LIB_CRYPTO_NULLSCHEME_H_
@@ -19,6 +39,9 @@ public:
 
 	LPCryptoParametersNull(const shared_ptr<typename Element::Params> ep, const BigBinaryInteger &plaintextModulus)
 		: LPCryptoParameters<Element>(ep, plaintextModulus) {}
+
+	LPCryptoParametersNull(shared_ptr<typename Element::Params> ep, shared_ptr<EncodingParams> encodingParams)
+		: LPCryptoParameters<Element>(ep, encodingParams) {}
 
 	LPCryptoParametersNull(const LPCryptoParametersNull& rhs) : LPCryptoParameters<Element>(rhs) {}
 
@@ -39,7 +62,13 @@ public:
 		if( !this->GetElementParams()->Serialize(&pser) )
 			return false;
 
+		Serialized pserEncoding(rapidjson::kObjectType, &serObj->GetAllocator());
+
+		if (!this->GetEncodingParams()->Serialize(&pserEncoding))
+			return false;
+
 		cryptoParamsMap.AddMember("ElemParams", pser.Move(), serObj->GetAllocator());
+		cryptoParamsMap.AddMember("EncodingParams", pserEncoding.Move(), serObj->GetAllocator());
 		cryptoParamsMap.AddMember("PlaintextModulus", this->GetPlaintextModulus().ToString(), serObj->GetAllocator());
 
 		serObj->AddMember("LPCryptoParametersNull", cryptoParamsMap.Move(), serObj->GetAllocator());
@@ -74,6 +103,24 @@ public:
 		}
 
 		this->SetElementParams( shared_ptr<typename Element::Params>(json_ilParams) );
+
+		SerialItem::ConstMemberIterator pItEncoding;
+
+		if ((pItEncoding = mIter->value.FindMember("EncodingParams")) == mIter->value.MemberEnd())
+			return false;
+		Serialized oneItemEncoding(rapidjson::kObjectType);
+		SerialItem keyEncoding(pItEncoding->value.MemberBegin()->name, oneItemEncoding.GetAllocator());
+		SerialItem valEncoding(pItEncoding->value.MemberBegin()->value, oneItemEncoding.GetAllocator());
+		oneItemEncoding.AddMember(keyEncoding, valEncoding, oneItem.GetAllocator());
+
+		EncodingParams *json_ilParamsEncoding = new EncodingParams();
+
+		if (!json_ilParamsEncoding->Deserialize(oneItemEncoding)) {
+			delete json_ilParamsEncoding;
+			return false;
+		}
+
+		this->SetEncodingParams(shared_ptr<EncodingParams>(json_ilParamsEncoding));
 
 		if( (pIt = mIter->value.FindMember("PlaintextModulus")) == mIter->value.MemberEnd() )
 			return false;
@@ -112,14 +159,16 @@ public:
 	*
 	* @param &publicKey public key used for encryption.
 	* @param &plaintext the plaintext input.
+	* @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 	* @param *ciphertext ciphertext which results from encryption.
 	*/
 	shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> pubKey,
-		ILVector2n &ptxt) const {
+		ILVector2n &ptxt, bool doEncryption = true) const {
 		shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(pubKey->GetCryptoContext()) );
 
 		Element plaintext(ptxt, pubKey->GetCryptoContext().GetCryptoParameters()->GetElementParams());
 
+		// no difference between Encryption and non-Encryption mode for the Null scheme
 		ciphertext->SetElement(plaintext);
 
 		return ciphertext;
@@ -138,7 +187,7 @@ public:
 		ILVector2n *plaintext) const {
 		Element b = ciphertext->GetElement();
 		ILVector2n interpolatedElement = b.CRTInterpolate();
-		*plaintext = interpolatedElement;
+		*plaintext = interpolatedElement.SignedMod(ciphertext->GetCryptoContext().GetCryptoParameters()->GetPlaintextModulus());
 		return DecryptResult(plaintext->GetLength());
 	}
 
@@ -510,6 +559,19 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		}
 
 		/**
+		* Function for evaluating multiplication of ciphertext by plaintext
+		*
+		* @param &ciphertext input ciphertext.
+		* @param &plaintext input plaintext embedded in cryptocontext.
+		* @param *newCiphertext the new resulting ciphertext.
+		*/
+		shared_ptr<Ciphertext<Element>> EvalMultPlain(const shared_ptr<Ciphertext<Element>> ciphertext,
+			const shared_ptr<Ciphertext<Element>> plaintext) const {
+
+			return EvalMult(ciphertext, plaintext);
+		}
+
+		/**
 		* Function for homomorpic negation of ciphertext.
 		*
 		* @param &ciphertext input ciphertext.
@@ -599,31 +661,16 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 
 
 		/**
-		* Function for evaluating ciphertext at an index
-		*
-		* @param ciphertext the input ciphertext.
-		* @param i index of the item to be "extracted", starts with 2.
-		* @param &evalKeys - reference to the vector of evaluation keys generated by EvalAutomorphismKeyGen.
-		* @return resulting ciphertext
-		*/
-		shared_ptr<Ciphertext<Element>> EvalAtIndex(const shared_ptr<Ciphertext<Element>> ciphertext, usint i,
-			const std::vector<shared_ptr<LPEvalKey<Element>>> &evalKeys) const {
-			std::string errMsg = "LPAlgorithmSHENull::EvalAtIndex is not implemented for Null SHE Scheme.";
-			throw std::runtime_error(errMsg);
-		}
-
-		/**
 		* Generate automophism keys for a given private key; works only with odd indices in the ciphertext (uses the RLWE relinerarization method)
 		*
 		* @param publicKey original public key.
 		* @param origPrivateKey original private key.
-		* @param size number of automorphims to be computed; starting from plaintext index 2; maximum is n/2-1
+		* @param indexList list of automorphism indices to be computed
 		* @return returns the evaluation keys; index 0 of the vector corresponds to plaintext index 2, index 1 to plaintex index 3, etc.
 		*/
-		shared_ptr<std::vector<shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const shared_ptr<LPPublicKey<Element>> publicKey,
-			const shared_ptr<LPPrivateKey<Element>> origPrivateKey, usint size) const {
-			std::string errMsg = "LPAlgorithmSHENull::EvalAutomorphismKeyGen is not implemented for Null SHE Scheme.";
-			throw std::runtime_error(errMsg);
+		shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const shared_ptr<LPPublicKey<Element>> publicKey,
+			const shared_ptr<LPPrivateKey<Element>> origPrivateKey, const std::vector<usint> &indexList) const {
+			return shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>>();
 		}
 
 		/**
@@ -631,30 +678,41 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		*
 		* @param ciphertext the input ciphertext.
 		* @param i automorphism index
-		* @param &evalKeys - reference to the vector of evaluation keys generated by EvalAutomorphismKeyGen.
+		* @param &evalKeys - reference to the map of evaluation keys generated by EvalAutomorphismKeyGen.
 		* @return resulting ciphertext
 		*/
 		shared_ptr<Ciphertext<Element>> EvalAutomorphism(const shared_ptr<Ciphertext<Element>> ciphertext, usint i,
-			const std::vector<shared_ptr<LPEvalKey<Element>>> &evalKeys) const {
-			std::string errMsg = "LPAlgorithmSHENull::EvalAutomorphism is not implemented for Null SHE Scheme.";
-			throw std::runtime_error(errMsg);
-		}
+			const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalKeys) const {
 
+			shared_ptr<Ciphertext<Element>> permutedCiphertext(new Ciphertext<Element>(*ciphertext));
+
+			Element temp = ciphertext->GetElement();
+
+			//Switch from coefficient representation to evaluation
+			temp.SwitchFormat();
+
+			temp = temp.AutomorphismTransform(i);
+			
+			//Switch from evaluation representation to coefficient
+			temp.SwitchFormat();
+
+			permutedCiphertext->SetElement(temp);
+
+			return permutedCiphertext;
+
+		}
 
 		/**
 		* Generate automophism keys for a given private key; Uses the private key for encryption
 		*
 		* @param privateKey private key.
-		* @param size number of automorphims to be computed; maximum is ring dimension
-		* @param flagEvalSum if set to true, log_2{size} evaluation keys are generated to be used by EvalSum
+		* @param indexList list of automorphism indices to be computed
 		* @return returns the evaluation keys
 		*/
-		shared_ptr<std::vector<shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey,
-			usint size, bool flagEvalSum) const {
-			std::string errMsg = "LPAlgorithmSHENull::EvalAutomorphismKeyGen is not implemented for Null SHE Scheme.";
-			throw std::runtime_error(errMsg);
+		shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey,
+			const std::vector<usint> &indexList) const {
+			return shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>>();
 		}
-
 
 	private:
 		typename Element::ILVectorType ElementNullSchemeMultiply(const typename Element::ILVectorType& c1, const typename Element::ILVectorType& c2,

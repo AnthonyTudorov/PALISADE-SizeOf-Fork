@@ -1,33 +1,29 @@
 ﻿/**
- * @file
- * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
- *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>, Nishanth Pasham, np386@njit.edu
- * @version 00_03
+ * @file nbtheory.h This code provides number theory utilities.
+ * @author  TPOC: palisade@njit.edu
  *
- * @section LICENSE
- * 
- * Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
+ * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
  * All rights reserved.
- * Redistribution and use in source and binary forms, with or without modification, 
+ * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 1. Redistributions of source code must retain the above copyright notice, this 
+ * 1. Redistributions of source code must retain the above copyright notice, this
  * list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright notice, this 
- * list of conditions and the following disclaimer in the documentation and/or other 
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or other
  * materials provided with the distribution.
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR 
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS 
- * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * @section DESCRIPTION
- *
+ */
+ /*
  * 	NBTHEORY is set set of functions that will be used to calculate following:
  *		- If two numbers are coprime.
  *		- GCD of two numbers 
@@ -245,6 +241,59 @@ namespace lbcrypto {
 	* @return resultant m-th cyclotomic polynomial.
 	*/
 	std::vector<int> GetCyclotomicPolynomialRecursive(usint m);
+
+	/**
+	* Returns the remainder after polynomial division of dividend with divisor = x-a.
+	* Uses synthetic division algorithm.
+	* @param &dividend is the input polynomial dividend in lower to higher coefficient form.
+	* @param &a is the integer in divisor[x-a].
+	* @return remainder after division with x-a.
+	*/
+	BigBinaryInteger SyntheticRemainder(const BigBinaryVector &dividend, const BigBinaryInteger &a, const BigBinaryInteger &modulus);
+
+	/**
+	* Returns the remainder vector after polynomial division of dividend with divisor = x-aList[i].
+	* Uses synthetic division algorithm.
+	* @param &dividend is the input polynomial dividend in lower to higher coefficient form.
+	* @param &aList is the integer vector for divisor[x-aList[i]].
+	* @return remainder vector after division with x-aList[i].
+	*/
+	BigBinaryVector SyntheticPolyRemainder(const BigBinaryVector &dividend, const BigBinaryVector &aList, const BigBinaryInteger &modulus);
+
+	/**
+	* Returns the polynomial after raising it by exponent = power.
+	* Returns input^power.Uses Frobenius mapping.
+	* @param &input is operand polynomial which needs to be exponentiated.
+	* @param &power is the exponent.
+	* @return exponentiated polynomial.
+	*/
+	BigBinaryVector PolynomialPower(const BigBinaryVector &input, usint power);
+
+	/**
+	* Returns the quotient after polynomial division of dividend with divisor = x-a.
+	* Uses synthetic division algorithm.
+	* @param &dividend is the input polynomial dividend in lower to higher coefficient form.
+	* @param &a is the integer in divisor[x-a].
+	* @return quotient after division with x-a.
+	*/
+	BigBinaryVector SyntheticPolynomialDivision(const BigBinaryVector &dividend, const BigBinaryInteger &a, const BigBinaryInteger &modulus);
+
+	/**
+	* Checkes if g is a generator for any cyclic group with modulus q (non-prime moduli are supported); currently q up to 64 bits only are supported
+	* @param &g is candidate generator
+	* @param &q is the modulus ( 2, 4, p^k, or 2*p^k where p^k is a power of an odd prime number )
+	* @return true if g is a generator
+	*/
+	template<typename IntType>
+	bool IsGenerator(const IntType& g, const IntType& q);
+
+	/**
+	* Finds a generator for any cyclic group with modulus q (non-prime moduli are supported); currently q up to 64 bits only are supported
+	* @param &q is the modulus ( 2, 4, p^k, or 2*p^k where p^k is a power of an odd prime number )
+	* @return true if g is a generator
+	*/
+	template<typename IntType>
+	IntType FindGeneratorCyclic(const IntType& q);
 
 
 } // namespace lbcrypto ends

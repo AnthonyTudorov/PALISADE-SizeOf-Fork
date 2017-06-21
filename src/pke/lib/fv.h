@@ -1,10 +1,8 @@
 /**
- * @file ltv.h -- Operations for the LTV cryptoscheme.
+ * @file fv.h -- Operations for the FV cryptoscheme.
  * @author  TPOC: palisade@njit.edu
  *
- * @section LICENSE
- *
- * Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
+ * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -24,7 +22,8 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * @section DESCRIPTION
+ */
+ /*
  *
  * This code implements the Fan-Vercauteren (FV) homomorphic encryption scheme.
  * The FV scheme is introduced here:
@@ -65,6 +64,8 @@ namespace lbcrypto {
 				m_mode = RLWE;
 				m_bigModulus = BigBinaryInteger(0);
 				m_bigRootOfUnity = BigBinaryInteger(0);
+				m_bigModulusArb = BigBinaryInteger(0);
+				m_bigRootOfUnityArb = BigBinaryInteger(0);
 			}
 
 			/**
@@ -76,6 +77,8 @@ namespace lbcrypto {
 				m_mode = rhs.m_mode;
 				m_bigModulus = rhs.m_bigModulus;
 				m_bigRootOfUnity = rhs.m_bigRootOfUnity;
+				m_bigModulusArb = rhs.m_bigModulusArb;
+				m_bigRootOfUnityArb = rhs.m_bigRootOfUnityArb;
 			}
 
 			/**
@@ -96,6 +99,8 @@ namespace lbcrypto {
 			 * @param mode optimization setting (RLWE vs OPTIMIZED)
 			 * @param bigModulus modulus used in polynomial multiplications in EvalMult
 			 * @param bigRootOfUnity root of unity for bigModulus
+			 * @param bigModulusArb modulus used in polynomial multiplications in EvalMult (for arbitrary cyclotomics)
+			 * @param bigRootOfUnityArb root of unity for bigModulus (for arbitrary cyclotomics)
 			 * @param depth Depth is the depth of computation supprted which is set to 1 by default.  Use the default setting unless you're using SHE, levelled SHE or FHE operations.
 			 */
 			LPCryptoParametersFV(shared_ptr<typename Element::Params> params,
@@ -108,6 +113,8 @@ namespace lbcrypto {
 				MODE mode,
 				const BigBinaryInteger &bigModulus,
 				const BigBinaryInteger &bigRootOfUnity,
+				const BigBinaryInteger &bigModulusArb,
+				const BigBinaryInteger &bigRootOfUnityArb,
 				int depth = 1)
 					: LPCryptoParametersRLWE<Element>(params,
 						plaintextModulus,
@@ -120,7 +127,54 @@ namespace lbcrypto {
 						m_mode = mode;
 						m_bigModulus = bigModulus;
 						m_bigRootOfUnity = bigRootOfUnity;
+						m_bigModulusArb = bigModulusArb;
+						m_bigRootOfUnityArb = bigRootOfUnityArb;
 					}
+
+			/**
+			* Constructor that initializes values.
+			*
+			* @param &params element parameters.
+			* @param &encodingParams plaintext space parameters.
+			* @param distributionParameter noise distribution parameter.
+			* @param assuranceMeasure assurance level.
+			* @param securityLevel security level (root Hermite factor).
+			* @param relinWindow the size of the relinearization window.
+			* @param delta FV-specific factor that is multiplied by the plaintext polynomial.
+			* @param mode optimization setting (RLWE vs OPTIMIZED)
+			* @param bigModulus modulus used in polynomial multiplications in EvalMult
+			* @param bigRootOfUnity root of unity for bigModulus
+			* @param bigModulusArb modulus used in polynomial multiplications in EvalMult (arbitrary cyclotomics)
+			* @param bigRootOfUnityArb root of unity for bigModulus (arbitrary cyclotomics)
+			* @param depth depth which is set to 1.
+			*/
+			LPCryptoParametersFV(shared_ptr<typename Element::Params> params,
+				shared_ptr<EncodingParams> encodingParams,
+				float distributionParameter,
+				float assuranceMeasure,
+				float securityLevel,
+				usint relinWindow,
+				const BigBinaryInteger &delta,
+				MODE mode,
+				const BigBinaryInteger &bigModulus,
+				const BigBinaryInteger &bigRootOfUnity,
+				const BigBinaryInteger &bigModulusArb,
+				const BigBinaryInteger &bigRootOfUnityArb,
+				int depth = 1)
+				: LPCryptoParametersRLWE<Element>(params,
+					encodingParams,
+					distributionParameter,
+					assuranceMeasure,
+					securityLevel,
+					relinWindow,
+					depth) {
+				m_delta = delta;
+				m_mode = mode;
+				m_bigModulus = bigModulus;
+				m_bigRootOfUnity = bigRootOfUnity;
+				m_bigModulusArb = bigModulusArb;
+				m_bigRootOfUnityArb = bigRootOfUnityArb;
+			}
 
 			/**
 			* Destructor
@@ -170,6 +224,20 @@ namespace lbcrypto {
 			const BigBinaryInteger& GetBigRootOfUnity() const { return m_bigRootOfUnity; }
 
 			/**
+			* Gets the modulus used for polynomial multiplications in EvalMult (arbitrary cyclotomics)
+			*
+			* @return the modulus value.
+			*/
+			const BigBinaryInteger& GetBigModulusArb() const { return m_bigModulusArb; }
+
+			/**
+			* Gets the primitive root of unity used for polynomial multiplications in EvalMult (arbitrary cyclotomics)
+			*
+			* @return the primitive root of unity value.
+			*/
+			const BigBinaryInteger& GetBigRootOfUnityArb() const { return m_bigRootOfUnityArb; }
+
+			/**
 			* Sets the value of the delta factor
 			* @param &delta is the delta factor
 			*/
@@ -195,6 +263,16 @@ namespace lbcrypto {
 			void SetBigRootOfUnity(const BigBinaryInteger &bigRootOfUnity) { m_bigRootOfUnity = bigRootOfUnity; }
 
 			/**
+			* Sets the modulus used for polynomial multiplications in EvalMult (arbitrary cyclotomics)
+			*/
+			void SetBigModulusArb(const BigBinaryInteger &bigModulusArb) { m_bigModulusArb = bigModulusArb; }
+
+			/**
+			* Sets primitive root of unity used for polynomial multiplications in EvalMult (arbitrary cyclotomics)
+			*/
+			void SetBigRootOfUnityArb(const BigBinaryInteger &bigRootOfUnityArb) { m_bigRootOfUnityArb = bigRootOfUnityArb; }
+
+			/**
 			* == operator to compare to this instance of LPCryptoParametersFV object. 
 			*
 			* @param &rhs LPCryptoParameters to check equality against.
@@ -208,6 +286,8 @@ namespace lbcrypto {
 				if (m_mode != el->m_mode) return false;
 				if (m_bigModulus != el->m_bigModulus) return false;
 				if (m_bigRootOfUnity != el->m_bigRootOfUnity) return false;
+				if (m_bigModulusArb != el->m_bigModulusArb) return false;
+				if (m_bigRootOfUnityArb != el->m_bigRootOfUnityArb) return false;
 
 				return  LPCryptoParametersRLWE<Element>::operator==(rhs);
 			}
@@ -218,7 +298,9 @@ namespace lbcrypto {
 				os << " delta: " << m_delta <<
 						" mode: " << m_mode <<
 						" bigmodulus: " << m_bigModulus <<
-						" bigrootofunity: " << m_bigRootOfUnity;
+						" bigrootofunity: " << m_bigRootOfUnity <<
+						" bigmodulusarb: " << m_bigModulusArb <<
+						" bigrootofunityarb: " << m_bigRootOfUnityArb;
 			}
 
 		private:
@@ -235,6 +317,12 @@ namespace lbcrypto {
 			
 			// primitive root of unity for m_bigModulus
 			BigBinaryInteger m_bigRootOfUnity;
+
+			// Large modulus used for CRT with m_bigModulus
+			BigBinaryInteger m_bigModulusArb;
+
+			// Primitive root of unity for m_bigModulusArb
+			BigBinaryInteger m_bigRootOfUnityArb;
 	};
 
 	/**
@@ -295,10 +383,11 @@ namespace lbcrypto {
 		*
 		* @param publicKey public key used for encryption.
 		* @param &plaintext the plaintext input.
+		* @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 		* @return ciphertext which results from encryption.
 		*/
 		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
-			ILVector2n &plaintext) const;
+			ILVector2n &plaintext, bool doEncryption = true) const;
 
 		/**
 		* Method for decrypting using FV. See the class description for citations on where the algorithms were
@@ -377,6 +466,16 @@ namespace lbcrypto {
 			const shared_ptr<Ciphertext<Element>> ct2) const;
 
 		/**
+		* Function for multiplying ciphertext by plaintext.
+		*
+		* @param ciphertext input ciphertext.
+		* @param plaintext input plaintext embedded in the cryptocontext.
+		* @return result of the multiplication.
+		*/
+		shared_ptr<Ciphertext<Element>> EvalMultPlain(const shared_ptr<Ciphertext<Element>> ciphertext,
+			const shared_ptr<Ciphertext<Element>> plaintext) const;
+
+		/**
 		* Function for evaluating multiplication on ciphertext followed by key switching operation.
 		* Currently it assumes that the input arguments are fresh ciphertexts (of depth 1). Support for the input ciphertexts of higher depths will be added later.
 		*
@@ -453,56 +552,41 @@ namespace lbcrypto {
 		*/
 		shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(
 					const shared_ptr<LPPrivateKey<Element>> k1) const;
-		
-		/**
-		* Function for evaluating ciphertext at an index
-		*
-		* @param ciphertext the input ciphertext.
-		* @param i index of the item to be "extracted", starts with 2.
-		* @param &evalKeys - reference to the vector of evaluation keys generated by EvalAutomorphismKeyGen.
-		* @return resulting ciphertext
-		*/
-		shared_ptr<Ciphertext<Element>> EvalAtIndex(const shared_ptr<Ciphertext<Element>> ciphertext, usint i,
-			const std::vector<shared_ptr<LPEvalKey<Element>>> &evalKeys) const {
-			std::string errMsg = "LPAlgorithmSHEFV::EvalAtIndex is not implemented for FV SHE Scheme.";
-			throw std::runtime_error(errMsg);
-		}
-
-		/**
-		* Generate automophism keys for a given private key; works only with odd indices in the ciphertext (uses the RLWE relinerarization method)
-		*
-		* @param publicKey original public key.
-		* @param origPrivateKey original private key.
-		* @param size number of automorphims to be computed; starting from plaintext index 2; maximum is n/2-1
-		* @return returns the evaluation keys; index 0 of the vector corresponds to plaintext index 2, index 1 to plaintex index 3, etc.
-		*/
-		shared_ptr<std::vector<shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const shared_ptr<LPPublicKey<Element>> publicKey,
-			const shared_ptr<LPPrivateKey<Element>> origPrivateKey, usint size) const {
-			std::string errMsg = "LPAlgorithmSHEFV::EvalAutomorphismKeyGen is not implemented for FV SHE Scheme.";
-			throw std::runtime_error(errMsg);
-		}
 
 		/**
 		* Function for evaluating automorphism of ciphertext at index i.
 		*
 		* @param ciphertext the input ciphertext.
 		* @param i automorphism index
-		* @param &evalKeys - reference to the vector of evaluation keys generated by EvalAutomorphismKeyGen.
+		* @param &evalKeys - reference to the map of evaluation keys generated by EvalAutomorphismKeyGen.
 		* @return resulting ciphertext
 		*/
 		shared_ptr<Ciphertext<Element>> EvalAutomorphism(const shared_ptr<Ciphertext<Element>> ciphertext, usint i,
-			const std::vector<shared_ptr<LPEvalKey<Element>>> &evalKeys) const;
+			const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalKeys) const;
 
 		/**
 		* Generate automophism keys for a given private key; Uses the private key for encryption
 		*
 		* @param privateKey private key.
-		* @param size number of automorphims to be computed; maximum is ring dimension
-		* @param flagEvalSum if set to true, log_2{size} evaluation keys are generated to be used by EvalSum
+		* @param indexList list of automorphism indices to be computed
 		* @return returns the evaluation keys
 		*/
-		shared_ptr<std::vector<shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey,
-			usint size, bool flagEvalSum) const;
+		shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey,
+			const std::vector<usint> &indexList) const;
+
+		/**
+		* Generate automophism keys for a given private key; Uses the public key for encryption
+		*
+		* @param publicKey public key.
+		* @param privateKey private key.
+		* @param indexList list of automorphism indices to be computed
+		* @return returns the evaluation keys
+		*/
+		shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const shared_ptr<LPPublicKey<Element>> publicKey,
+			const shared_ptr<LPPrivateKey<Element>> privateKey, const std::vector<usint> &indexList) const {
+			std::string errMsg = "LPAlgorithmSHEFV::EvalAutomorphismKeyGen is not implemented for FV SHE Scheme.";
+			throw std::runtime_error(errMsg);
+		}
 
 	};
 

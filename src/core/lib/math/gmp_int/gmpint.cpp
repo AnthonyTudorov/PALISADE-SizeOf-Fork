@@ -1,14 +1,9 @@
-﻿//LAYER 1 : PRIMITIVE DATA STRUCTURES AND OPERATIONS
-/**
- * @file
- * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
- * Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu
- * <grs22@njit.edu>
- * @version 00_03
+﻿/**
+ * @file gmpint.cpp  This file contains the C++ code for implementing the main class for
+ * big integers: gmpint which replaces BBI and uses NTL
+ * @author  TPOC: palisade@njit.edu
  *
- * @section LICENSE
- * 
- * Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
+ * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -69,7 +64,7 @@ namespace NTL {
   myZZ::myZZ(long a): ZZ(a) {}
   myZZ::myZZ(unsigned long a): ZZ(a) {}
   myZZ::myZZ(const unsigned int &a): ZZ(a) {}
-  myZZ::myZZ(long long unsigned int a): ZZ(a) {};
+  myZZ::myZZ(long long unsigned int a): ZZ(a) {}; //do I still need this?
   myZZ::myZZ(unsigned int &a): ZZ(a) {}
   myZZ::myZZ(INIT_SIZE_TYPE, long k): ZZ(INIT_SIZE, k) {m_MSB=0; }
   myZZ::myZZ(std::string s): ZZ(conv<ZZ>(s.c_str())) {}
@@ -318,17 +313,17 @@ namespace NTL {
 #if 0 //Deprecated
   usint myZZ::ConvertToUsint() const{
     bool dbg_flag = false;
-    
+
     DEBUG("in myZZ::ConvertToUsint() this.size() "<<this->size());
     DEBUG("in myZZ::ConvertToUsint() this "<<*this);
     
-    return (conv<usint>(*this)); }
+ return (conv<usint>(*this)); }
 #endif
 
 
   uint64_t myZZ::ConvertToInt() const{
     bool dbg_flag = false;
-    
+
     DEBUG("in myZZ::ConvertToInt() this.size() "<<this->size());
     DEBUG("in myZZ::ConvertToInt() this "<<*this);
     uint64_t result = conv<uint64_t>(*this);
@@ -339,7 +334,7 @@ namespace NTL {
     }
     return result; 
   }
-
+    
   double myZZ::ConvertToDouble() const{ return (conv<double>(*this));}
 #if 0 //Deprecated
   uint32_t myZZ::ConvertToUint32() const { return (conv<uint32_t>(*this));}
@@ -458,6 +453,7 @@ namespace NTL {
     *this = *this*a;
     return *this;
   }
+
 
 #if 0
   inline long myZZ::operator<(const myZZ_p& b) const

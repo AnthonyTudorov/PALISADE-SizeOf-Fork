@@ -1,12 +1,8 @@
-/**
- * @file
- * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
- *	Programmers: Jerry Ryan <gwryan@njit.edu>
- * @version 00_03
+/*
+ * @file plaintext.h Represents and defines plaintext objects in Palisade.
+ * @author  TPOC: palisade@njit.edu
  *
- * @section LICENSE
- *
- * Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
+ * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -26,21 +22,16 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * @section DESCRIPTION
- *
- * This code provides a int array abstraction.
- *
  */
-
 #include "intplaintextencoding.h"
 
-namespace lbcrypto {
+namespace lbcrypto
+{
 
 // Forms a binary array from an integer; represents the integer as a binary polynomial
 IntPlaintextEncoding::IntPlaintextEncoding(uint32_t value)
 {
-	for (size_t i = 0; i < 32; i++)
-	{
+	for (size_t i = 0; i < 32; i++) {
 		// gets i-th bit of the 32-bit integer
 		this->push_back((value >> i) & 1);
 	}
@@ -79,19 +70,22 @@ void IntPlaintextEncoding::doEncode(const BigBinaryInteger &modulus, Element *il
 	ilVector->SetValues(temp,format);
 }
 
-void IntPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector, size_t start_from, size_t length) const {
+void IntPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector, size_t start_from, size_t length) const
+{
 	doEncode<BigBinaryInteger,BigBinaryVector,ILVector2n>(modulus,ilVector,start_from,length);
 }
 
 template <typename IntType, typename VecType, typename Element>
-void IntPlaintextEncoding::doDecode(const BigBinaryInteger &modulus, Element *ilVector) {
+void IntPlaintextEncoding::doDecode(const BigBinaryInteger &modulus, Element *ilVector)
+{
 
 	for (usint i = 0; i<ilVector->GetValues().GetLength(); i++) {
 		this->push_back( ilVector->GetValues().GetValAtIndex(i).ConvertToInt() );
 	}
 }
 
-void IntPlaintextEncoding::Decode(const BigBinaryInteger &modulus, ILVector2n *ilVector) {
+void IntPlaintextEncoding::Decode(const BigBinaryInteger &modulus, ILVector2n *ilVector)
+{
 	doDecode<BigBinaryInteger,BigBinaryVector,ILVector2n>(modulus,ilVector);
 }
 

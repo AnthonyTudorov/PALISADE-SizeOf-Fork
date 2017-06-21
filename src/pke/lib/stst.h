@@ -2,9 +2,7 @@
  * @file stst.h -- definitions for StehleSteinfeld Crypto Params
  * @author  TPOC: palisade@njit.edu
  *
- * @section LICENSE
- *
- * Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
+ * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -24,7 +22,8 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * @section DESCRIPTION
+ */
+ /*
  *
  * This code provides support for the Stehle-Steinfeld cryptoscheme.
  *
@@ -121,6 +120,41 @@ public:
 		m_dggStSt.SetStd(m_distributionParameterStSt);
 	}
 
+	/**
+	* Constructor that initializes values.  Note that it is possible to set parameters in a way that is overall
+	* infeasible for actual use.  There are fewer degrees of freedom than parameters provided.  Typically one
+	* chooses the basic noise, assurance and security parameters as the typical community-accepted values,
+	* then chooses the plaintext modulus and depth as needed.  The element parameters should then be choosen
+	* to provide correctness and security.  In some cases we would need to operate over already
+	* encrypted/provided ciphertext and the depth needs to be pre-computed for initial settings.
+	*
+	* @param &params Element parameters.  This will depend on the specific class of element being used.
+	* @param &encodingParams Plaintext space parameters.
+	* @param distributionParameter Noise distribution parameter, typically denoted as /sigma in most publications.  Community standards typically call for a value of 3 to 6. Lower values provide more room for computation while larger values provide more security.
+	* @param assuranceMeasure Assurance level, typically denoted as w in most applications.  This is oftern perceived as a fudge factor in the literature, with a typical value of 9.
+	* @param securityLevel Security level as Root Hermite Factor.  We use the Root Hermite Factor representation of the security level to better conform with US ITAR and EAR export regulations.  This is typically represented as /delta in the literature.  Typically a Root Hermite Factor of 1.006 or less provides reasonable security for RLWE crypto schemes, although extra care is need for the LTV scheme because LTV makes an additional security assumption that make it suceptible to subfield lattice attacks.
+	* @param relinWindow The size of the relinearization window.  This is relevant when using this scheme for proxy re-encryption, and the value is denoted as r in the literature.
+	* @param depth Depth is the depth of computation supprted which is set to 1 by default.  Use the default setting unless you're using SHE, levelled SHE or FHE operations.
+	*/
+	LPCryptoParametersStehleSteinfeld(
+		shared_ptr<typename Element::Params> params,
+		shared_ptr<EncodingParams> encodingParams,
+		float distributionParameter,
+		float assuranceMeasure,
+		float securityLevel,
+		usint relinWindow,
+		float distributionParmStst,
+		int depth = 1)
+		: LPCryptoParametersRLWE<Element>(params,
+			encodingParams,
+			distributionParameter,
+			assuranceMeasure,
+			securityLevel,
+			relinWindow,
+			depth) {
+		m_distributionParameterStSt = distributionParmStst;
+		m_dggStSt.SetStd(m_distributionParameterStSt);
+	}
 
 	/**
 	 * Returns the value of standard deviation r for discrete Gaussian distribution used in Key Generation
@@ -244,7 +278,7 @@ public:
 	 * See the class description for citations on where the algorithms were taken from.
 	 *
 	 * @param cc Drypto context in which to generate a key pair.
-	 * @param makeSparse True to generate a sparse key pair.
+	 * @param makeSparse True to generate a saprse key pair.
 	 * @return Public and private key pair.
 	 */
 	LPKeyPair<Element> KeyGen(const CryptoContext<Element> cc, bool makeSparse=false) const { 		//makeSparse is not used
@@ -287,6 +321,53 @@ public:
 
 		return kp;
 	}
+
+	/**
+	* Unimplemented function to generate an evaluation key for the Stehle-Steinfeld scheme. 
+	* EvalMult is currently unsopported in the Stehle-Steinfeld scheme and there is no currently known method to 
+	* support EvalMult in the Stehle-Steinfeld scheme.
+	*
+	* @param originalPrivateKey private key to start from when key switching.
+	* @return resulting evalkeyswitch hint
+	*/
+	shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const {
+		std::string errMsg = "LPEncryptionAlgorithmStehleSteinfeld::EvalMultKeyGen is not implemented for the Stehle-Steinfeld Scheme.";
+		throw std::runtime_error(errMsg);
+	}
+
+
+	/**
+	* Unimplemented function to generate an evaluation key for the Stehle-Steinfeld scheme. 
+	* EvalMult is currently unsopported in the Stehle-Steinfeld scheme and there is no currently known method to 
+	* support EvalMult in the Stehle-Steinfeld scheme.
+	*
+	* @param &k1 Original private key used for encryption.
+	* @param &k2 New private key to generate the keyswitch hint.
+	* @result A shared point to the resulting key switch hint.
+	*/
+	shared_ptr<LPEvalKey<Element>> KeySwitchGen(
+		const shared_ptr<LPPrivateKey<Element>> k1,
+		const shared_ptr<LPPrivateKey<Element>> k2) const {
+		std::string errMsg = "LPEncryptionAlgorithmStehleSteinfeld::KeySwitchGen is not implemented for the Stehle-Steinfeld Scheme.";
+		throw std::runtime_error(errMsg);
+	}
+
+
+	/**
+	* Generate automophism keys for a given private key; Uses the private key for encryption.  This method is not currently supported.
+	*
+	* @param privateKey private key.
+	* @param size number of automorphims to be computed; maximum is ring dimension
+	* @param flagEvalSum if set to true, log_2{size} evaluation keys are generated to be used by EvalSum
+	* @return returns the evaluation keys
+	*/
+	shared_ptr<std::vector<shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey,
+		usint size, bool flagEvalSum) const {
+		std::string errMsg = "LPAlgorithmSHELTV::EvalAutomorphismKeyGen is not implemented for Stehle-Steinfeld SHE Scheme.";
+		throw std::runtime_error(errMsg);
+	}
+
+
 };
 
 /**

@@ -1,11 +1,8 @@
-//Hi Level Execution/Demonstration
 /*
- * @file demo-crypt-pre-text -- Operations of PRE operations in PALISADE library.
+ * @file 
  * @author  TPOC: palisade@njit.edu
  *
- * @section LICENSE
- *
- * Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
+ * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -25,8 +22,8 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * @section DESCRIPTION
- *
+ */
+ /*
 // This program demonstrates the use of the PALISADE library to encrypt bytes of text
 //
 // All PALISADE functionality takes place as a part of a CryptoContext, and so the first

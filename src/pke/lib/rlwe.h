@@ -1,12 +1,8 @@
-/**0
- * @file rlwe.h
- * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
- *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>, Gyana Sahu <grs22@njit.edu>, Nishanth Pasham <np386@njit.edu>, Hadi Sajjadpour <ss2959@njit.edu>, Jerry Ryan <gwryan@njit.edu>
- * @version 00_03
+/**
+ * @file rlwe.h -- PALISADE ring-learn-with-errors functionality.
+ * @author  TPOC: palisade@njit.edu
  *
- * @section LICENSE
- *
- * Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
+ * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -26,9 +22,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * @section DESCRIPTION
- *
- * Base class for all RLWE-based Crypto Parameters
  */
 
 #ifndef LBCRYPTO_CRYPTO_RLWE_H
@@ -101,6 +94,34 @@ public:
 		m_dgg.SetStd(m_distributionParameter);
 		m_depth = depth;
 					}
+
+	/**
+	* Constructor that initializes values.
+	*
+	* @param &params element parameters.
+	* @param &encodingParams encoding-specific parameters
+	* @param distributionParameter noise distribution parameter.
+	* @param assuranceMeasure assurance level.
+	* @param securityLevel security level.
+	* @param relinWindow the size of the relinearization window.
+	* @param depth depth which defaults to 1.
+	*/
+	LPCryptoParametersRLWE(
+		shared_ptr<typename Element::Params> params,
+		shared_ptr<EncodingParams> encodingParams,
+		float distributionParameter,
+		float assuranceMeasure,
+		float securityLevel,
+		usint relinWindow,
+		int depth = 1) : LPCryptoParameters<Element>(params, encodingParams)
+	{
+		m_distributionParameter = distributionParameter;
+		m_assuranceMeasure = assuranceMeasure;
+		m_securityLevel = securityLevel;
+		m_relinWindow = relinWindow;
+		m_dgg.SetStd(m_distributionParameter);
+		m_depth = depth;
+	}
 
 	/**
 	 * Destructor
@@ -194,8 +215,9 @@ public:
 
 		if( el == 0 ) return false;
 
-		return  this->GetPlaintextModulus() == el->GetPlaintextModulus() &&
+		return this->GetPlaintextModulus() == el->GetPlaintextModulus() &&
 				*this->GetElementParams() == *el->GetElementParams() &&
+				*this->GetEncodingParams() == *el->GetEncodingParams() &&
 				m_distributionParameter == el->GetDistributionParameter() &&
 				m_assuranceMeasure == el->GetAssuranceMeasure() &&
 				m_securityLevel == el->GetSecurityLevel() &&
@@ -233,7 +255,13 @@ protected:
 		if( !this->GetElementParams()->Serialize(&pser) )
 			return false;
 
+		Serialized encodingPser(rapidjson::kObjectType, &serObj->GetAllocator());
+
+		if (!this->GetEncodingParams()->Serialize(&encodingPser))
+			return false;
+
 		cryptoParamsMap.AddMember("ElemParams", pser.Move(), serObj->GetAllocator());
+		cryptoParamsMap.AddMember("EncodingParams", encodingPser.Move(), serObj->GetAllocator());
 		cryptoParamsMap.AddMember("DistributionParameter", std::to_string(this->GetDistributionParameter()), serObj->GetAllocator());
 		cryptoParamsMap.AddMember("AssuranceMeasure", std::to_string(this->GetAssuranceMeasure()), serObj->GetAllocator());
 		cryptoParamsMap.AddMember("SecurityLevel", std::to_string(this->GetSecurityLevel()), serObj->GetAllocator());
@@ -264,6 +292,32 @@ protected:
 
 		shared_ptr<typename Element::Params> ep( json_ilParams );
 		this->SetElementParams( ep );
+
+		SerialItem::ConstMemberIterator epIt;
+
+		if ((epIt = mIter->value.FindMember("EncodingParams")) == mIter->value.MemberEnd())
+			return false;
+		Serialized oneItemE(rapidjson::kObjectType);
+		SerialItem keyE(epIt->value.MemberBegin()->name, oneItemE.GetAllocator());
+		SerialItem valE(epIt->value.MemberBegin()->value, oneItemE.GetAllocator());
+		oneItemE.AddMember(keyE, valE, oneItemE.GetAllocator());
+
+		EncodingParams *json_encodingParams = new EncodingParams();
+		//		if( typeid(Element) == typeid(ILVector2n) )
+		//			json_ilParams = new ILParams();
+		//		else if( typeid(Element) == typeid(ILVectorArray2n) )
+		//			json_ilParams = new ILDCRTParams();
+		//		else {
+		//			throw std::logic_error("Unrecognized element type");
+		//		}
+
+		if (!json_encodingParams->Deserialize(oneItemE)) {
+			delete json_encodingParams;
+			return false;
+		}
+
+		shared_ptr<EncodingParams> encodingParams(json_encodingParams);
+		this->SetEncodingParams(encodingParams);
 
 		if( (pIt = mIter->value.FindMember("PlaintextModulus")) == mIter->value.MemberEnd() )
 			return false;

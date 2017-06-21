@@ -1,21 +1,29 @@
-//LAYER 3 : CRYPTO DATA STRUCTURES AND OPERATIONS
 /*
-PRE SCHEME PROJECT, Crypto Lab, NJIT
-Version:
-v00.01
-Last Edited:
-6/14/2015 5:37AM
-List of Authors:
-TPOC:
-Dr. Kurt Rohloff, rohloff@njit.edu
-Programmers:
-Dr. Yuriy Polyakov, polyakov@njit.edu
-Gyana Sahu, grs22@njit.edu
-Nishanth Pasham, np386@njit.edu
-Hadi Sajjadpour, ss2959@njit.edu
-Jerry Ryan, gwryan@njit.edu
-Description:
-
+* @file bv.cpp - BV scheme implementation.
+ * @author  TPOC: palisade@njit.edu
+ *
+ * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or other
+ * materials provided with the distribution.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+ * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+/*
 This code implements the Brakerski-Vaikuntanathan (BV) homomorphic encryption scheme.
 The scheme is described at http://www.wisdom.weizmann.ac.il/~zvikab/localpapers/IdealHom.pdf (or alternative Internet source:
 http://dx.doi.org/10.1007/978-3-642-22792-9_29).
@@ -135,7 +143,7 @@ namespace lbcrypto {
 
 	template <class Element>
 	shared_ptr<Ciphertext<Element>> LPAlgorithmBV<Element>::Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
-		ILVector2n &ptxt) const
+		ILVector2n &ptxt, bool doEncryption) const
 	{
 
 		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(publicKey->GetCryptoParameters());
@@ -148,35 +156,53 @@ namespace lbcrypto {
 
 		typename Element::TugType tug;
 
-		const Element &a = publicKey->GetPublicElements().at(0);
-		const Element &b = publicKey->GetPublicElements().at(1);
-
-		Element v;
-
-		//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
-		if (cryptoParams->GetMode() == RLWE)
-			v = Element(dgg, elementParams, Format::EVALUATION);
-		else
-			v = Element(tug, elementParams, Format::EVALUATION);
-
-		Element e0(dgg, elementParams, Format::EVALUATION);
-		Element e1(dgg, elementParams, Format::EVALUATION);
-
 		Element plaintext(ptxt, elementParams);
 
 		plaintext.SwitchFormat();
 
-		Element c0(b*v + p*e0 + plaintext);
-
-		Element c1(a*v + p*e1);
-
 		std::vector<Element> cVector;
 
-		cVector.push_back(std::move(c0));
+		if (doEncryption) {
 
-		cVector.push_back(std::move(c1));
+			const Element &a = publicKey->GetPublicElements().at(0);
+			const Element &b = publicKey->GetPublicElements().at(1);
 
-		ciphertext->SetElements(std::move(cVector));
+			Element v;
+
+			//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
+			if (cryptoParams->GetMode() == RLWE)
+				v = Element(dgg, elementParams, Format::EVALUATION);
+			else
+				v = Element(tug, elementParams, Format::EVALUATION);
+
+			Element e0(dgg, elementParams, Format::EVALUATION);
+			Element e1(dgg, elementParams, Format::EVALUATION);
+
+			Element c0(b*v + p*e0 + plaintext);
+
+			Element c1(a*v + p*e1);
+
+			cVector.push_back(std::move(c0));
+
+			cVector.push_back(std::move(c1));
+
+			ciphertext->SetElements(std::move(cVector));
+
+		}
+		else
+		{
+
+			Element c0(plaintext);
+
+			Element c1(elementParams,Format::EVALUATION,true);
+
+			cVector.push_back(std::move(c0));
+
+			cVector.push_back(std::move(c1));
+
+			ciphertext->SetElements(std::move(cVector));
+
+		}
 
 		return ciphertext;
 	}
@@ -278,6 +304,35 @@ namespace lbcrypto {
 	}
 
 	template <class Element>
+	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::EvalMultPlain(
+		const shared_ptr<Ciphertext<Element>> ciphertext,
+		const shared_ptr<Ciphertext<Element>> plaintext) const
+	{
+
+		if (ciphertext->GetElements()[0].GetFormat() == Format::COEFFICIENT || plaintext->GetElements()[0].GetFormat() == Format::COEFFICIENT) {
+			throw std::runtime_error("EvalMult cannot multiply in COEFFICIENT domain.");
+		}
+
+		shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext->GetCryptoContext()));
+
+		const std::vector<Element> &c1 = ciphertext->GetElements();
+
+		const std::vector<Element> &c2 = plaintext->GetElements();
+
+		std::vector<Element> cNew;
+
+		cNew.push_back(std::move(c1[0] * c2[0]));
+
+		cNew.push_back(std::move(c1[1] * c2[0]));
+
+		newCiphertext->SetElements(std::move(cNew));
+
+		return newCiphertext;
+
+	}
+
+
+	template <class Element>
 	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
 		const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const {
 
@@ -300,6 +355,7 @@ namespace lbcrypto {
 		newCiphertext->SetElements({ c0, c1 });
 		return newCiphertext;
 	}
+
 
 	template <class Element>
 	shared_ptr<LPEvalKey<Element>> LPAlgorithmSHEBV<Element>::KeySwitchGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey, const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
@@ -421,7 +477,7 @@ namespace lbcrypto {
 
 	template <class Element>
 	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::EvalAutomorphism(const shared_ptr<Ciphertext<Element>> ciphertext, usint i,
-		const std::vector<shared_ptr<LPEvalKey<Element>>> &evalKeys) const
+		const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalKeys) const
 	{
 
 		shared_ptr<Ciphertext<Element>> permutedCiphertext(new Ciphertext<Element>(*ciphertext));
@@ -436,37 +492,35 @@ namespace lbcrypto {
 
 		permutedCiphertext->SetElements(std::move(cNew));
 
-		return this->KeySwitch(evalKeys[(i - 3) / 2], permutedCiphertext);
+		return this->KeySwitch(evalKeys.find(i)->second, permutedCiphertext);
 
 	}
 
 	template <class Element>
-	shared_ptr<std::vector<shared_ptr<LPEvalKey<Element>>>> LPAlgorithmSHEBV<Element>::EvalAutomorphismKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey,
-		usint size, bool flagEvalSum) const
+	shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> LPAlgorithmSHEBV<Element>::EvalAutomorphismKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey,
+		const std::vector<usint> &indexList) const
 	{
 
 		const Element &privateKeyElement = privateKey->GetPrivateElement();
-		usint m = privateKeyElement.GetCyclotomicOrder();
+
+		usint n = privateKeyElement.GetRingDimension();
 
 		shared_ptr<LPPrivateKey<Element>> tempPrivateKey(new LPPrivateKey<Element>(privateKey->GetCryptoContext()));
 
-		shared_ptr<std::vector<shared_ptr<LPEvalKey<Element>>>> evalKeys(new std::vector<shared_ptr<LPEvalKey<Element>>>());
+		shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> evalKeys(new std::map<usint, shared_ptr<LPEvalKey<Element>>>());
 
-		if (size > m / 2 - 1)
-			throw std::runtime_error("size exceeds allowed limit: maximum is m/2");
+		if (indexList.size() > n - 1)
+			throw std::runtime_error("size exceeds the ring dimension");
 		else {
 
-			usint i = 3;
-
-			for (usint index = 0; index < size; index++)
+			for (usint i = 0; i < indexList.size(); i++)
 			{
-				Element permutedPrivateKeyElement = privateKeyElement.AutomorphismTransform(i);
+				Element permutedPrivateKeyElement = privateKeyElement.AutomorphismTransform(indexList[i]);
 
 				tempPrivateKey->SetPrivateElement(permutedPrivateKeyElement);
 
-				evalKeys->push_back(this->KeySwitchGen(tempPrivateKey, privateKey));
+				(*evalKeys)[indexList[i]] = this->KeySwitchGen(tempPrivateKey, privateKey);
 
-				i = i + 2;
 			}
 
 		}

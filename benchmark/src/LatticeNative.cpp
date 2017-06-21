@@ -1,27 +1,31 @@
 /*
-  PALISADE PROJECT, Crypto Lab, NJIT
-  Version:
-  v00.01
-  Last Edited:
-
-  List of Authors:
-  TPOC:
-  Dr. Kurt Rohloff, rohloff@njit.edu
-  Programmers:
-  Gerard Ryan (gwryan@njit.edu)
-
+ * @author  TPOC: palisade@njit.edu
+ *
+ * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or other
+ * materials provided with the distribution.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+ * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+/*
   Description:
   This code benchmarks functions of the src/lib/lattoce directory  of the PALISADE lattice encryption library.
-
-  License Information:
-
-  Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
-  All rights reserved.
-  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-  1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-  2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+*/
 
 #include "benchmark/benchmark_api.h"
 
@@ -36,7 +40,7 @@
 #include "lattice/ilelement.h"
 #include "math/distrgen.h"
 #include "lattice/ilvector2n.h"
-#include "lattice/ilvectorarray2n.h"
+#include "lattice/ildcrt2n.h"
 #include "utils/utilities.h"
 
 #include <vector>
@@ -47,7 +51,8 @@
 using namespace std;
 using namespace lbcrypto;
 
-typedef ILParamsImpl<native64::BigBinaryInteger> ILNativeParams;
+typedef ILParamsImpl<native_int::BinaryInteger> ILNativeParams;
+typedef ILVectorImpl< native_int::BinaryInteger, native_int::BinaryInteger, native_int::BinaryVector, ILNativeParams > ILVectorNative2n;
 
 template <class E>
 static void make_NATIVELATTICE_empty(shared_ptr<ILParams>& params) {
@@ -77,7 +82,7 @@ static E makeElement(benchmark::State& state, shared_ptr<ILParams> params) {
 			new ILNativeParams(params->GetCyclotomicOrder(),
 					params->GetModulus().ConvertToInt(),
 					params->GetRootOfUnity().ConvertToInt()) );
-	native64::BigBinaryVector vec = makeNativeVector(params);
+	native_int::BinaryVector vec = makeNativeVector(params);
 	E			elem(nparams);
 	elem.SetValues(vec, elem.GetFormat());
 	return std::move(elem);

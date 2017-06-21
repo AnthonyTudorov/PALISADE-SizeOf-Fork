@@ -1,11 +1,8 @@
-//LAYER 3 : CRYPTO DATA STRUCTURES AND OPERATIONS
 /*
- * @file ltv.cpp -- Operations for the LTV cryptoscheme.
+* @file ltv.cpp - LTV scheme implementation.
  * @author  TPOC: palisade@njit.edu
  *
- * @section LICENSE
- *
- * Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
+ * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -25,8 +22,8 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * @section DESCRIPTION
- *
+*/
+/*
  * This code provides support for the LTV cryptoscheme.
  * This scheme is defined here:
  *   - López-Alt, Adriana, Eran Tromer, and Vinod Vaikuntanathan. "On-the-fly multiparty computation on the cloud via multikey fully homomorphic encryption." Proceedings of the forty-fourth annual ACM symposium on Theory of computing. ACM, 2012.
@@ -176,7 +173,7 @@ LPKeyPair<Element> LPAlgorithmLTV<Element>::KeyGen(const CryptoContext<Element> 
 
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmLTV<Element>::Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
-	ILVector2n &ptxt) const
+	ILVector2n &ptxt, bool doEncryption) const
 {
 	const shared_ptr<LPCryptoParametersRLWE<Element>> cryptoParams =
 		std::dynamic_pointer_cast<LPCryptoParametersRLWE<Element>>(publicKey->GetCryptoParameters());
@@ -186,22 +183,31 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmLTV<Element>::Encrypt(const shared_pt
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
-	const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
-
-	const Element &h = publicKey->GetPublicElements().at(0);
-
-	Element s(dgg, elementParams);
-
-	Element e(dgg, elementParams);
-
-	Element c(elementParams);
-
 	Element plaintext(ptxt, elementParams);
 	plaintext.SwitchFormat();
 
-	c = h*s + p*e + plaintext;
+	if (doEncryption)
+	{
 
-	ciphertext->SetElement(c);
+		const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
+
+		const Element &h = publicKey->GetPublicElements().at(0);
+
+		Element s(dgg, elementParams);
+
+		Element e(dgg, elementParams);
+
+		Element c(elementParams);
+
+		c = h*s + p*e + plaintext;
+
+		ciphertext->SetElement(c);
+
+	}
+	else
+	{
+		ciphertext->SetElement(plaintext);
+	}
 
 	return ciphertext;
 }
@@ -488,56 +494,43 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::KeySwitchRelin(const
 	return newCiphertext;
 }
 
- //Function for extracting a value at a certain index using automorphism operation.
-template <class Element>
-shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalAtIndex(const shared_ptr<Ciphertext<Element>> ciphertext,
-	usint i, const std::vector<shared_ptr<LPEvalKey<Element>>> &evalKeys) const
-
-{
-	usint autoIndex = 2 * i - 1;
-
-	return this->EvalAutomorphism(ciphertext, autoIndex, evalKeys);
-}
-
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalAutomorphism(const shared_ptr<Ciphertext<Element>> ciphertext, usint i,
-	const std::vector<shared_ptr<LPEvalKey<Element>>> &evalKeys) const
+	const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalKeys) const
 {
 
 	shared_ptr<Ciphertext<Element>> permutedCiphertext(new Ciphertext<Element>(*ciphertext));
 
 	permutedCiphertext->SetElement(ciphertext->GetElement().AutomorphismTransform(i));
 
-	return ciphertext->GetCryptoContext().GetEncryptionAlgorithm()->KeySwitchRelin(evalKeys[(i - 3) / 2], permutedCiphertext);
+	return ciphertext->GetCryptoContext().GetEncryptionAlgorithm()->KeySwitchRelin(evalKeys.find(i)->second, permutedCiphertext);
 
 }
 
 template <class Element>
-shared_ptr<std::vector<shared_ptr<LPEvalKey<Element>>>> LPAlgorithmSHELTV<Element>::EvalAutomorphismKeyGen(const shared_ptr<LPPublicKey<Element>> publicKey,
-	const shared_ptr<LPPrivateKey<Element>> origPrivateKey, usint size) const
+shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> LPAlgorithmSHELTV<Element>::EvalAutomorphismKeyGen(const shared_ptr<LPPublicKey<Element>> publicKey,
+	const shared_ptr<LPPrivateKey<Element>> origPrivateKey, const::std::vector<usint> &indexList) const
 {
 	const Element &privateKeyElement = origPrivateKey->GetPrivateElement();
-	usint m = privateKeyElement.GetCyclotomicOrder();
+
+	usint n = privateKeyElement.GetRingDimension();
 
 	shared_ptr<LPPrivateKey<Element>> tempPrivateKey(new LPPrivateKey<Element>(origPrivateKey->GetCryptoContext()));
 
-	shared_ptr<std::vector<shared_ptr<LPEvalKey<Element>>>> evalKeys(new std::vector<shared_ptr<LPEvalKey<Element>>>());
+	shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> evalKeys(new std::map<usint, shared_ptr<LPEvalKey<Element>>>());
 
-	if (size > m / 2 - 1)
-		throw std::logic_error("size exceeds allowed limit: maximum is m/2");
+	if (indexList.size() > n - 1)
+		throw std::logic_error("size exceeds the ring dimension");
 	else {
 
-		usint i = 3;
-
-		for (usint index = 0; index < size; index++)
+		for (usint i = 0; i < indexList.size(); i++)
 		{
-			Element permutedPrivateKeyElement = privateKeyElement.AutomorphismTransform(i);
+			Element permutedPrivateKeyElement = privateKeyElement.AutomorphismTransform(indexList[i]);
 
 			tempPrivateKey->SetPrivateElement(permutedPrivateKeyElement);
 
-			evalKeys->push_back(publicKey->GetCryptoContext().GetEncryptionAlgorithm()->KeySwitchRelinGen(publicKey, tempPrivateKey));
+			(*evalKeys)[indexList[i]] = publicKey->GetCryptoContext().GetEncryptionAlgorithm()->KeySwitchRelinGen(publicKey, tempPrivateKey);
 
-			i = i + 2;
 		}
 
 	}

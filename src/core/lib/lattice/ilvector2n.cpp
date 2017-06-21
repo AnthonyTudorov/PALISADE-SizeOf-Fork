@@ -1,43 +1,27 @@
-// LAYER 2 : LATTICE DATA STRUCTURES AND OPERATIONS
 /*
-PRE SCHEME PROJECT, Crypto Lab, NJIT
-Version:
-v00.01
-Last Edited:
-6/1/2015 5:37AM
-List of Authors:
-TPOC:
-Dr. Kurt Rohloff, rohloff@njit.edu
-Programmers:
-Dr. Yuriy Polyakov, polyakov@njit.edu
-Gyana Sahu, grs22@njit.edu
-Description:
-This code provides basic lattice ideal manipulation functionality.
-
-License Information:
-
-Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
-All rights reserved.
-  Redistribution and use in source and binary forms, with or without
-  modification, are permitted provided that the following conditions
-  are met:
-  1. Redistributions of source code must retain the above copyright
-  notice, this list of conditions and the following disclaimer.
-  2. Redistributions in binary form must reproduce the above copyright
-  notice, this list of conditions and the following disclaimer in the
-  documentation and/or other materials provided with the distribution.
-  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-  COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-  POSSIBILITY OF SUCH DAMAGE.
+ * @file  ilvector2n-impl.cpp - implementation of the integer lattice with power-of-2 dimension.
+ * @author  TPOC: palisade@njit.edu
+ *
+ * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or other
+ * materials provided with the distribution.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+ * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
 */
 
 #include "ilvector2n.h"
@@ -45,7 +29,8 @@ All rights reserved.
 #include <cmath>
 
 
-namespace lbcrypto {
+namespace lbcrypto
+{
 
 	// static members
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
@@ -61,11 +46,13 @@ namespace lbcrypto {
 	shared_ptr<ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::m_tugSamples_params;
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl() : m_values(nullptr), m_format(EVALUATION) {
+ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl() : m_values(nullptr), m_format(EVALUATION)
+{
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(const shared_ptr<ParmType> params, Format format, bool initializeElementToZero) : m_values(nullptr), m_format(format) {
+ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(const shared_ptr<ParmType> params, Format format, bool initializeElementToZero) : m_values(nullptr), m_format(format)
+{
 		m_params = params;
 
 		if (initializeElementToZero) {
@@ -74,7 +61,8 @@ namespace lbcrypto {
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(bool initializeElementToMax, const shared_ptr<ParmType> params, Format format) : m_values(nullptr), m_format(format) {
+ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(bool initializeElementToMax, const shared_ptr<ParmType> params, Format format) : m_values(nullptr), m_format(format)
+{
 		m_params = params;
 
 		if(initializeElementToMax) {
@@ -84,31 +72,38 @@ namespace lbcrypto {
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(const DggType &dgg, const shared_ptr<ParmType> params, Format format) {
+ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(const DggType &dgg, const shared_ptr<ParmType> params, Format format)
+{
 
 		m_params = params;
 
-		if (format == COEFFICIENT)
-		{
+	if (format == COEFFICIENT) {
 			usint vectorSize = params->GetRingDimension();
 			m_values = make_unique<VecType>(dgg.GenerateVector(vectorSize, params->GetModulus()));
 			(*m_values).SetModulus(params->GetModulus());
 			m_format = COEFFICIENT;
-		}
-		else
-		{
-			PreComputeDggSamples(dgg, m_params);
+	} else {
 
-			const ILVectorImpl<ModType,IntType,VecType,ParmType> randomElement = GetPrecomputedVector();
-			m_values = make_unique<VecType>(*randomElement.m_values);
+		usint vectorSize = params->GetRingDimension();
+		m_values = make_unique<VecType>(dgg.GenerateVector(vectorSize, params->GetModulus()));
 			(*m_values).SetModulus(params->GetModulus());
-			m_format = EVALUATION;
+		m_format = COEFFICIENT;
+
+		this->SwitchFormat();
+
+		//PreComputeDggSamples(dgg, m_params);
+
+		//const ILVectorImpl<ModType,IntType,VecType,ParmType> randomElement = GetPrecomputedVector();
+		//m_values = make_unique<VecType>(*randomElement.m_values);
+		//(*m_values).SetModulus(params->GetModulus());
+		//m_format = EVALUATION;
 		}
 	}
 
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl( DiscreteUniformGeneratorImpl<IntType,VecType> &dug, const shared_ptr<ParmType> params, Format format) {
+ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl( DiscreteUniformGeneratorImpl<IntType,VecType> &dug, const shared_ptr<ParmType> params, Format format)
+{
 
 		m_params = params;
 
@@ -125,7 +120,8 @@ namespace lbcrypto {
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(const BinaryUniformGeneratorImpl<IntType,VecType> &bug, const shared_ptr<ParmType> params, Format format) {
+ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(const BinaryUniformGeneratorImpl<IntType,VecType> &bug, const shared_ptr<ParmType> params, Format format)
+{
     bool dbg_flag = false;
 		m_params = params;
 
@@ -140,25 +136,30 @@ namespace lbcrypto {
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(const TernaryUniformGeneratorImpl<IntType,VecType> &tug, const shared_ptr<ParmType> params, Format format) {
+ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(const TernaryUniformGeneratorImpl<IntType,VecType> &tug, const shared_ptr<ParmType> params, Format format)
+{
 
 		m_params = params;
 
-		if (format == COEFFICIENT)
-		{
+	if (format == COEFFICIENT) {
 			usint vectorSize = params->GetRingDimension();
 			m_values = make_unique<VecType>(tug.GenerateVector(vectorSize, params->GetModulus()));
 			(*m_values).SetModulus(params->GetModulus());
 			m_format = COEFFICIENT;
-		}
-		else
-		{
-			PreComputeTugSamples(tug, m_params);
+	} else {
+		usint vectorSize = params->GetRingDimension();
+		m_values = make_unique<VecType>(tug.GenerateVector(vectorSize, params->GetModulus()));
+		(*m_values).SetModulus(params->GetModulus());
+		m_format = COEFFICIENT;
 
-			const ILVectorImpl randomElement = GetPrecomputedTugVector();
-			m_values = make_unique<VecType>(*randomElement.m_values);
-			(*m_values).SetModulus(params->GetModulus());
-			m_format = EVALUATION;
+		this->SwitchFormat();
+
+		//PreComputeTugSamples(tug, m_params);
+
+		//const ILVectorImpl randomElement = GetPrecomputedTugVector();
+		//m_values = make_unique<VecType>(*randomElement.m_values);
+		//(*m_values).SetModulus(params->GetModulus());
+		//m_format = EVALUATION;
 		}
 	}
 
@@ -204,7 +205,8 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	const ILVectorImpl<ModType,IntType,VecType,ParmType>& ILVectorImpl<ModType,IntType,VecType,ParmType>::operator=(const ILVectorImpl &rhs) {
+const ILVectorImpl<ModType,IntType,VecType,ParmType>& ILVectorImpl<ModType,IntType,VecType,ParmType>::operator=(const ILVectorImpl &rhs)
+{
 
 
 		if (this != &rhs) {
@@ -221,7 +223,8 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	const ILVectorImpl<ModType,IntType,VecType,ParmType>& ILVectorImpl<ModType,IntType,VecType,ParmType>::operator=(std::initializer_list<sint> rhs) {
+const ILVectorImpl<ModType,IntType,VecType,ParmType>& ILVectorImpl<ModType,IntType,VecType,ParmType>::operator=(std::initializer_list<sint> rhs)
+{
 		static IntType ZERO(0);
 		usint len = rhs.size();
 		if (!IsEmpty()) {
@@ -230,14 +233,12 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 			for (usint j = 0; j < vectorLength; ++j) { // loops within a tower
 				if (j < len) {
 					SetValAtIndex(j, IntType(*(rhs.begin() + j)));
-				}
-				else {
+			} else {
 					SetValAtIndex(j, ZERO);
 				}
 			}
 
-		}
-		else {
+	} else {
 
 			VecType temp(m_params->GetCyclotomicOrder() / 2);
 			temp.SetModulus(m_params->GetModulus());
@@ -249,7 +250,8 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	const ILVectorImpl<ModType,IntType,VecType,ParmType>& ILVectorImpl<ModType,IntType,VecType,ParmType>::operator=(std::initializer_list<std::string> rhs) {
+const ILVectorImpl<ModType,IntType,VecType,ParmType>& ILVectorImpl<ModType,IntType,VecType,ParmType>::operator=(std::initializer_list<std::string> rhs)
+{
 		static IntType ZERO(0);
 		usint len = rhs.size();
 		if (!IsEmpty()) {
@@ -258,14 +260,12 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 			for (usint j = 0; j < vectorLength; ++j) { // loops within a tower
 				if (j < len) {
 					SetValAtIndex(j, *(rhs.begin() + j));
-				}
-				else {
+			} else {
 					SetValAtIndex(j, ZERO);
 				}
 			}
 
-		}
-		else {
+	} else {
 
 			VecType temp(m_params->GetRingDimension());
 			temp.SetModulus(m_params->GetModulus());
@@ -277,7 +277,8 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	const ILVectorImpl<ModType,IntType,VecType,ParmType>& ILVectorImpl<ModType,IntType,VecType,ParmType>::operator=(ILVectorImpl &&rhs) {
+const ILVectorImpl<ModType,IntType,VecType,ParmType>& ILVectorImpl<ModType,IntType,VecType,ParmType>::operator=(ILVectorImpl &&rhs)
+{
 
 		if (this != &rhs) {
 			m_values = std::move(rhs.m_values);
@@ -289,20 +290,23 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::CloneParametersOnly() const {
+ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::CloneParametersOnly() const
+{
 		ILVectorImpl<ModType,IntType,VecType,ParmType> result(this->m_params, this->m_format);
 		return std::move(result);//TODO should we instead rely on RVO? 
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::CloneWithNoise(const DiscreteGaussianGeneratorImpl<IntType,VecType> &dgg, Format format) const {
+ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::CloneWithNoise(const DiscreteGaussianGeneratorImpl<IntType,VecType> &dgg, Format format) const
+{
 		ILVectorImpl<ModType,IntType,VecType,ParmType> result(dgg, m_params, format);
 		return std::move(result);//TODO should we instead rely on RVO? 
 	}
 
 	//If this is in EVALUATION then just set all the values = val
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	const ILVectorImpl<ModType,IntType,VecType,ParmType>& ILVectorImpl<ModType,IntType,VecType,ParmType>::operator=(uint64_t val) {
+const ILVectorImpl<ModType,IntType,VecType,ParmType>& ILVectorImpl<ModType,IntType,VecType,ParmType>::operator=(uint64_t val)
+{
 		m_format = EVALUATION;
 		if (m_values == nullptr){
 			m_values = make_unique<VecType>(m_params->GetRingDimension(), m_params->GetModulus());
@@ -319,14 +323,16 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	const VecType &ILVectorImpl<ModType,IntType,VecType,ParmType>::GetValues() const {
+const VecType &ILVectorImpl<ModType,IntType,VecType,ParmType>::GetValues() const
+{
 		if (m_values == 0)
 			throw std::logic_error("No values in ILVectorImpl");
 		return *m_values;
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	Format ILVectorImpl<ModType,IntType,VecType,ParmType>::GetFormat() const {
+Format ILVectorImpl<ModType,IntType,VecType,ParmType>::GetFormat() const
+{
 		return m_format;
 	}
 
@@ -339,18 +345,21 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	usint ILVectorImpl<ModType,IntType,VecType,ParmType>::GetLength() const {
+usint ILVectorImpl<ModType,IntType,VecType,ParmType>::GetLength() const
+{
 		if (m_values == 0)
 			throw std::logic_error("No values in ILVectorImpl");
 		return m_values->GetLength();
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	void ILVectorImpl<ModType,IntType,VecType,ParmType>::SetValues(const VecType& values, Format format) {
+void ILVectorImpl<ModType,IntType,VecType,ParmType>::SetValues(const VecType& values, Format format)
+{
 		if (m_params->GetRootOfUnity() == 0 || m_params->GetRingDimension() != values.GetLength() || m_params->GetModulus() != values.GetModulus()) {
 		  std::cout<<"ILVectorImpl::SetValues warning, mismatch in parameters"<<std::endl;
 		  if (m_params->GetRootOfUnity() == 0){
-		    std::cout<<"m_params->GetRootOfUnity "<<m_params->GetRootOfUnity()<<std::endl;}
+			std::cout<<"m_params->GetRootOfUnity "<<m_params->GetRootOfUnity()<<std::endl;
+		}
 		  if (m_params->GetRingDimension() != values.GetLength()){
 		    std::cout<<"m_params->GetRingDimension() "<<m_params->GetRingDimension()<<std::endl;
 		    std::cout<<"!= values.GetLength()"<< values.GetLength() <<std::endl;
@@ -369,12 +378,14 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	void ILVectorImpl<ModType,IntType,VecType,ParmType>::SetValuesToZero() {
+void ILVectorImpl<ModType,IntType,VecType,ParmType>::SetValuesToZero()
+{
 	        m_values = make_unique<VecType>(m_params->GetRingDimension(), m_params->GetModulus());
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	void ILVectorImpl<ModType,IntType,VecType,ParmType>::SetValuesToMax() {
+void ILVectorImpl<ModType,IntType,VecType,ParmType>::SetValuesToMax()
+{
 		IntType max = m_params->GetModulus() - 1;
 		usint size = m_params->GetRingDimension();
 		m_values = make_unique<VecType>(m_params->GetRingDimension(), m_params->GetModulus());
@@ -385,42 +396,48 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::Plus(const IntType &element) const {
+ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::Plus(const IntType &element) const
+{
 		ILVectorImpl<ModType,IntType,VecType,ParmType> tmp = CloneParametersOnly();
 		tmp.SetValues( GetValues().ModAddAtIndex(0, element), this->m_format );
 		return std::move( tmp );
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::Minus(const IntType &element) const {
+ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::Minus(const IntType &element) const
+{
 		ILVectorImpl<ModType,IntType,VecType,ParmType> tmp = CloneParametersOnly();
 		tmp.SetValues( GetValues().ModSub(element), this->m_format );
 		return std::move( tmp );
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::Times(const IntType &element) const {
+ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::Times(const IntType &element) const
+{
 		ILVectorImpl<ModType,IntType,VecType,ParmType> tmp = CloneParametersOnly();
 		tmp.SetValues( GetValues().ModMul(element), this->m_format );
 		return std::move( tmp );
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::MultiplyAndRound(const IntType &p, const IntType &q) const {
+ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::MultiplyAndRound(const IntType &p, const IntType &q) const
+{
 		ILVectorImpl<ModType,IntType,VecType,ParmType> tmp = CloneParametersOnly();
 		tmp.SetValues( GetValues().MultiplyAndRound(p, q), this->m_format );
 		return std::move( tmp );
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::DivideAndRound(const IntType &q) const {
+ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::DivideAndRound(const IntType &q) const
+{
 		ILVectorImpl<ModType,IntType,VecType,ParmType> tmp = CloneParametersOnly();
 		tmp.SetValues( GetValues().DivideAndRound(q), this->m_format );
 		return std::move( tmp );
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::Negate() const {
+ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::Negate() const
+{
 //		if (m_format != Format::EVALUATION)
 //			throw std::logic_error("Negate for ILVectorImpl is supported only in EVALUATION format.\n");
 
@@ -432,21 +449,24 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 	// VECTOR OPERATIONS
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::Plus(const ILVectorImpl &element) const {
+ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::Plus(const ILVectorImpl &element) const
+{
 		ILVectorImpl tmp = CloneParametersOnly();
 		tmp.SetValues( GetValues().ModAdd(*element.m_values), this->m_format );
 		return std::move( tmp );
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::Minus(const ILVectorImpl &element) const {
+ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::Minus(const ILVectorImpl &element) const
+{
 		ILVectorImpl<ModType,IntType,VecType,ParmType> tmp = CloneParametersOnly();
 		tmp.SetValues( GetValues().ModSub(*element.m_values), this->m_format );
 		return std::move( tmp );
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::Times(const ILVectorImpl &element) const {
+ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::Times(const ILVectorImpl &element) const
+{
 		if (m_format != Format::EVALUATION || element.m_format != Format::EVALUATION)
 			throw std::logic_error("operator* for ILVectorImpl is supported only in EVALUATION format.\n");
 
@@ -460,7 +480,8 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 
 	// FIXME: should the parms tests here be done in regular + as well as +=? or in neither place?
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	const ILVectorImpl<ModType,IntType,VecType,ParmType>& ILVectorImpl<ModType,IntType,VecType,ParmType>::operator+=(const ILVectorImpl &element) {
+const ILVectorImpl<ModType,IntType,VecType,ParmType>& ILVectorImpl<ModType,IntType,VecType,ParmType>::operator+=(const ILVectorImpl &element)
+{
 		if (!(*this->m_params == *element.m_params))
 			throw std::logic_error("operator+= called on ILVectorImpl's with different params.");
 
@@ -473,7 +494,8 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	const ILVectorImpl<ModType,IntType,VecType,ParmType>& ILVectorImpl<ModType,IntType,VecType,ParmType>::operator-=(const ILVectorImpl &element) {
+const ILVectorImpl<ModType,IntType,VecType,ParmType>& ILVectorImpl<ModType,IntType,VecType,ParmType>::operator-=(const ILVectorImpl &element)
+{
 		if (!(*this->m_params == *element.m_params))
 			throw std::logic_error("operator-= called on ILVectorImpl's with different params.");
 		if (m_values == nullptr) {
@@ -486,7 +508,8 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	const ILVectorImpl<ModType,IntType,VecType,ParmType>& ILVectorImpl<ModType,IntType,VecType,ParmType>::operator*=(const ILVectorImpl &element) {
+const ILVectorImpl<ModType,IntType,VecType,ParmType>& ILVectorImpl<ModType,IntType,VecType,ParmType>::operator*=(const ILVectorImpl &element)
+{
 
 		if (m_format != Format::EVALUATION || element.m_format != Format::EVALUATION)
 			throw std::logic_error("operator*= for ILVectorImpl is supported only in EVALUATION format.\n");
@@ -502,7 +525,8 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	void ILVectorImpl<ModType,IntType,VecType,ParmType>::AddILElementOne() {
+void ILVectorImpl<ModType,IntType,VecType,ParmType>::AddILElementOne()
+{
 		IntType tempValue;
 		for (usint i = 0; i < m_params->GetRingDimension(); i++) {
 			tempValue = GetValues().GetValAtIndex(i) + 1;
@@ -512,50 +536,85 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::AutomorphismTransform(const usint &i) const {
+ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::AutomorphismTransform(const usint &k) const
+{
 		
-		if (i % 2 == 0)
-			throw std::logic_error("automorphism index should be odd\n");
-		else
-		{
 			ILVectorImpl result(*this);
-			usint m = m_params->GetCyclotomicOrder();
 
-			for (usint j = 1; j < m; j = j + 2)
-			{
-				//usint newIndex = (j*iInverse) % m;
-				usint newIndex = (j*i) % m;
-				result.m_values->SetValAtIndex((newIndex + 1) / 2 - 1, GetValues().GetValAtIndex((j + 1) / 2 - 1));
+	usint m = this->m_params->GetCyclotomicOrder();
+	usint n = this->m_params->GetRingDimension();
+
+	if (m_params->OrderIsPowerOfTwo() == false) {
+
+		//Add a test based on the inverse totient hash table
+		//if (i % 2 == 0)
+		//	throw std::runtime_error("automorphism index should be odd\n");
+
+		const auto &modulus = this->m_params->GetModulus();
+
+		// All automorphism operations are performed for k coprime to m, which are generated using GetTotientList(m)
+		std::vector<usint> totientList = GetTotientList(m);
+
+		// Temporary vector of size m is introduced
+		// This step can be eliminated by using a hash table that looks up the ring index (between 0 and n - 1)
+		// based on the totient index (between 0 and m - 1)
+		VecType expanded(m, modulus);
+		for (usint i = 0; i < n; i++) {
+			expanded.SetValAtIndex(totientList.at(i), m_values->GetValAtIndex(i));
 			}
-			return result;
+
+		for (usint i = 0; i < n; i++) {
+
+			//determines which power of primitive root unity we should switch to
+			usint idx = totientList.at(i)*k % m;
+
+			result.m_values->SetValAtIndex(i, expanded.GetValAtIndex(idx));
+
 		}
+	} else {
+		if (k % 2 == 0)
+			throw std::runtime_error("automorphism index should be odd\n");
+
+		for (usint j = 1; j < m; j = j + 2) {
+
+			//determines which power of primitive root unity we should switch to
+			usint idx = (j*k) % m;
+			result.m_values->SetValAtIndex((j + 1) / 2 - 1, GetValues().GetValAtIndex((idx + 1) / 2 - 1));
+
+		}
+
+	}
+
+	return result;
+
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::Transpose() const {
+ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::Transpose() const
+{
 		if (m_format == COEFFICIENT)
 			throw std::logic_error("ILVectorImpl element transposition is currently implemented only in the Evaluation representation.");
-		else
-		{
+	else {
 			usint m = m_params->GetCyclotomicOrder();
 			return AutomorphismTransform(2 * m - 1);
 		}
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::MultiplicativeInverse() const {
+ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::MultiplicativeInverse() const
+{
 		ILVectorImpl tmp = CloneParametersOnly();
 		if (InverseExists()) {
 			tmp.SetValues( GetValues().ModInverse(), this->m_format );
 			return std::move( tmp );
-		}
-		else {
+	} else {
 			throw std::logic_error("ILVectorImpl has no inverse\n");
 		}
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::ModByTwo() const {
+ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::ModByTwo() const
+{
 		ILVectorImpl tmp = CloneParametersOnly();
 		tmp.SetValues( GetValues().ModByTwo(), this->m_format );
 		return std::move( tmp );
@@ -563,22 +622,26 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
   //TODO: why is this called Signed Mod, should BBV.Mod be called signed mod too?
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::SignedMod(const IntType & modulus) const {
+ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::SignedMod(const IntType & modulus) const
+{
 		ILVectorImpl tmp = CloneParametersOnly();
 		tmp.SetValues( GetValues().Mod(modulus), this->m_format );
 		return std::move( tmp );
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	void ILVectorImpl<ModType,IntType,VecType,ParmType>::SwitchModulus(const IntType &modulus, const IntType &rootOfUnity) {
+void ILVectorImpl<ModType,IntType,VecType,ParmType>::SwitchModulus(const IntType &modulus, const IntType &rootOfUnity, const IntType &modulusArb,
+        const IntType &rootOfUnityArb)
+{
 		if (m_values) {
 			m_values->SwitchModulus(modulus);
-			m_params = shared_ptr<ParmType>(new ParmType(m_params->GetCyclotomicOrder(), modulus, rootOfUnity));
+		m_params = shared_ptr<ParmType>(new ParmType(m_params->GetCyclotomicOrder(), modulus, rootOfUnity, modulusArb, rootOfUnityArb));
 		}
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	void ILVectorImpl<ModType,IntType,VecType,ParmType>::SwitchFormat() {
+void ILVectorImpl<ModType,IntType,VecType,ParmType>::SwitchFormat()
+{
 
 	        bool dbg_flag = false;
 		if (m_values == nullptr) {
@@ -600,8 +663,7 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 							.ForwardTransform(*m_values, m_params->GetRootOfUnity(), 
 									  m_params->GetCyclotomicOrder()));
 			DEBUG("m_values now "<< *m_values);						  
-		}
-		else {
+	} else {
 			m_format = COEFFICIENT;
 			DEBUG("transform to coefficient m_values was"<< *m_values);						  
 
@@ -614,7 +676,8 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	void ILVectorImpl<ModType,IntType,VecType,ParmType>::ArbitrarySwitchFormat() {
+void ILVectorImpl<ModType,IntType,VecType,ParmType>::ArbitrarySwitchFormat()
+{
 
 	        bool dbg_flag = false;
 		if (m_values == nullptr) {
@@ -631,8 +694,7 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 							.ForwardTransform(*m_values, m_params->GetRootOfUnity(),m_params->GetBigModulus(),
 								m_params->GetBigRootOfUnity(), m_params->GetCyclotomicOrder()));
 			DEBUG("m_values now "<< *m_values);
-		}
-		else {
+	} else {
 			m_format = COEFFICIENT;
 			DEBUG("transform to coefficient m_values was"<< *m_values);
 
@@ -644,22 +706,23 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 		}
 	}
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	void ILVectorImpl<ModType,IntType,VecType,ParmType>::PrintValues() const {
+void ILVectorImpl<ModType,IntType,VecType,ParmType>::PrintValues() const
+{
 		if (m_values != nullptr) {
 			std::cout << *m_values;
 			std::cout << " mod:" << m_values->GetModulus() << std::endl;
 		}
 		if (m_params.get() != nullptr) {
 			std::cout << " rootOfUnity: " << this->GetRootOfUnity() << std::endl;
-		}
-		else {
+	} else {
 			std::cout << " something's odd: null m_params?!" << std::endl;
 		}
 		std::cout << std::endl;
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	void ILVectorImpl<ModType,IntType,VecType,ParmType>::MakeSparse(const uint32_t &wFactor) {
+void ILVectorImpl<ModType,IntType,VecType,ParmType>::MakeSparse(const uint32_t &wFactor)
+{
 		IntType modTemp;
 		IntType tempValue;
 		if (m_values != 0) {
@@ -673,7 +736,8 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 
 	// This function modifies ILVectorImpl to keep all the even indices. It reduces the ring dimension by half.
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	void ILVectorImpl<ModType,IntType,VecType,ParmType>::Decompose() {
+void ILVectorImpl<ModType,IntType,VecType,ParmType>::Decompose()
+{
 
 		if( m_params->OrderIsPowerOfTwo() == false ) {
 			throw std::logic_error("Cannot decompose if cyclotomic order is not a power of 2");
@@ -701,7 +765,8 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	bool ILVectorImpl<ModType,IntType,VecType,ParmType>::IsEmpty() const {
+bool ILVectorImpl<ModType,IntType,VecType,ParmType>::IsEmpty() const
+{
 		if (m_values == nullptr)
 			return true;
 
@@ -709,7 +774,8 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	bool ILVectorImpl<ModType,IntType,VecType,ParmType>::InverseExists() const {
+bool ILVectorImpl<ModType,IntType,VecType,ParmType>::InverseExists() const
+{
 		for (usint i = 0; i < GetValues().GetLength(); i++) {
 			if (m_values->GetValAtIndex(i) == 0)
 				return false;
@@ -718,17 +784,16 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	double ILVectorImpl<ModType,IntType,VecType,ParmType>::Norm() const {
+double ILVectorImpl<ModType,IntType,VecType,ParmType>::Norm() const
+{
 		double retVal = 0.0;
 		double locVal = 0.0;
 		double q = m_params->GetModulus().ConvertToDouble();
 
 		for (usint i = 0; i < GetValues().GetLength(); i++) {
-			if (m_values->GetValAtIndex(i) > (m_params->GetModulus() >> 1))
-			{
+		if (m_values->GetValAtIndex(i) > (m_params->GetModulus() >> 1)) {
 				locVal = q - (m_values->GetValAtIndex(i)).ConvertToDouble();
-			}
-			else
+		} else
 				locVal = (m_values->GetValAtIndex(i)).ConvertToDouble();
 
 			if (locVal > retVal)
@@ -743,7 +808,8 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 	// baseBits is the number of bits in the base, i.e., base = 2^baseBits
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	std::vector<ILVectorImpl<ModType,IntType,VecType,ParmType>> ILVectorImpl<ModType,IntType,VecType,ParmType>::BaseDecompose(usint baseBits, bool evalModeAnswer) const {
+std::vector<ILVectorImpl<ModType,IntType,VecType,ParmType>> ILVectorImpl<ModType,IntType,VecType,ParmType>::BaseDecompose(usint baseBits, bool evalModeAnswer) const
+{
 		
 		usint nBits = m_params->GetModulus().GetLengthForBase(2);
 
@@ -761,8 +827,7 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 		x.SetFormat(COEFFICIENT);
 
 
-		for (usint i = 0; i < nWindows; ++i)
-		{
+	for (usint i = 0; i < nWindows; ++i) {
 			xDigit.SetValues( x.GetValues().GetDigitAtIndexForBase(i*baseBits + 1, 1 << baseBits), x.GetFormat() );
 			if( evalModeAnswer )
 				xDigit.SwitchFormat();
@@ -777,7 +842,8 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 	// baseBits is the number of bits in the base, i.e., base = 2^baseBits
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	std::vector<ILVectorImpl<ModType,IntType,VecType,ParmType>> ILVectorImpl<ModType,IntType,VecType,ParmType>::PowersOfBase(usint baseBits) const {
+std::vector<ILVectorImpl<ModType,IntType,VecType,ParmType>> ILVectorImpl<ModType,IntType,VecType,ParmType>::PowersOfBase(usint baseBits) const
+{
 
 		static IntType TWO(2);
 		std::vector<ILVectorImpl<ModType,IntType,VecType,ParmType>> result;
@@ -790,8 +856,7 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 
 		result.reserve(nWindows);
 
-		for (usint i = 0; i < nWindows; ++i)
-		{
+	for (usint i = 0; i < nWindows; ++i) {
 			IntType pI(TWO.ModExp(IntType(i*baseBits), m_params->GetModulus()));
 			result.push_back(pI*(*this));
 		}
@@ -801,13 +866,12 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	void ILVectorImpl<ModType,IntType,VecType,ParmType>::PreComputeDggSamples(const DiscreteGaussianGeneratorImpl<IntType,VecType> &dgg, const shared_ptr<ParmType> params) {
-		if (m_dggSamples.size() == 0 || m_dggSamples_params != params)
+void ILVectorImpl<ModType,IntType,VecType,ParmType>::PreComputeDggSamples(const DiscreteGaussianGeneratorImpl<IntType,VecType> &dgg, const shared_ptr<ParmType> params)
 		{
+	if (m_dggSamples.size() == 0 || m_dggSamples_params != params) {
 			DestroyPreComputedSamples();
 			m_dggSamples_params = params;
-			for (usint i = 0; i < m_sampleSize; ++i)
-			{
+		for (usint i = 0; i < m_sampleSize; ++i) {
 				ILVectorImpl current(m_dggSamples_params);
 				usint vectorSize = m_dggSamples_params->GetRingDimension();
 				current.m_values = make_unique<VecType>(dgg.GenerateVector(vectorSize, m_dggSamples_params->GetModulus()));
@@ -823,7 +887,8 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 
 	//Select a precomputed vector randomly
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	const ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::GetPrecomputedVector() {
+const ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::GetPrecomputedVector()
+{
 
 		//std::default_random_engine generator;
 		//std::uniform_real_distribution<int> distribution(0,SAMPLE_SIZE-1);
@@ -834,13 +899,12 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	void ILVectorImpl<ModType,IntType,VecType,ParmType>::PreComputeTugSamples(const TernaryUniformGeneratorImpl<IntType,VecType> &tug, const shared_ptr<ParmType> params) {
-		if (m_tugSamples.size() == 0 || m_tugSamples_params != params)
+void ILVectorImpl<ModType,IntType,VecType,ParmType>::PreComputeTugSamples(const TernaryUniformGeneratorImpl<IntType,VecType> &tug, const shared_ptr<ParmType> params)
 		{
+	if (m_tugSamples.size() == 0 || m_tugSamples_params != params) {
 			DestroyPreComputedTugSamples();
 			m_tugSamples_params = params;
-			for (usint i = 0; i < m_sampleSize; ++i)
-			{
+		for (usint i = 0; i < m_sampleSize; ++i) {
 				ILVectorImpl current(m_tugSamples_params);
 				usint vectorSize = m_tugSamples_params->GetRingDimension();
 				current.m_values = make_unique<VecType>(tug.GenerateVector(vectorSize, m_tugSamples_params->GetModulus()));
@@ -856,14 +920,16 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 
 	//Select a precomputed vector randomly
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	const ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::GetPrecomputedTugVector() {
+const ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorImpl<ModType,IntType,VecType,ParmType>::GetPrecomputedTugVector()
+{
 
 		int randomIndex = rand() % SAMPLE_SIZE;
 		return m_tugSamples[randomIndex];
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	void ILVectorImpl<ModType,IntType,VecType,ParmType>::DestroyPreComputedSamples() {
+void ILVectorImpl<ModType,IntType,VecType,ParmType>::DestroyPreComputedSamples()
+{
 		m_dggSamples.clear();
 	}
 
@@ -871,7 +937,8 @@ ILVectorImpl<ModType,IntType,VecType,ParmType>::ILVectorImpl(ILVectorImpl &&elem
 	 * Clear the pre-computed ternary uniform samples.
 	 */
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	void ILVectorImpl<ModType,IntType,VecType,ParmType>::DestroyPreComputedTugSamples() {
+void ILVectorImpl<ModType,IntType,VecType,ParmType>::DestroyPreComputedTugSamples()
+{
 		m_tugSamples.clear();
 	}
 

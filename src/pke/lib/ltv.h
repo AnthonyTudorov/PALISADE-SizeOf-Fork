@@ -2,9 +2,7 @@
  * @file ltv.h -- Operations for the LTV cryptoscheme.
  * @author  TPOC: palisade@njit.edu
  *
- * @section LICENSE
- *
- * Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
+ * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -24,8 +22,8 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * @section DESCRIPTION
- *
+ */
+/*
  * This code provides support for the LTV cryptoscheme.
  * This scheme is defined here:
  *   - López-Alt, Adriana, Eran Tromer, and Vinod Vaikuntanathan. "On-the-fly multiparty computation on the cloud via multikey fully homomorphic encryption." Proceedings of the forty-fourth annual ACM symposium on Theory of computing. ACM, 2012.
@@ -98,6 +96,39 @@ public:
 	: LPCryptoParametersRLWE<Element>(
 			params,
 			plaintextModulus,
+			distributionParameter,
+			assuranceMeasure,
+			securityLevel,
+			relinWindow,
+			depth) {}
+
+	/**
+	* Constructor that initializes values.  Note that it is possible to set parameters in a way that is overall
+	* infeasible for actual use.  There are fewer degrees of freedom than parameters provided.  Typically one
+	* chooses the basic noise, assurance and security parameters as the typical community-accepted values,
+	* then chooses the plaintext modulus and depth as needed.  The element parameters should then be choosen
+	* to provide correctness and security.  In some cases we would need to operate over already
+	* encrypted/provided ciphertext and the depth needs to be pre-computed for initial settings.
+	*
+	* @param &params Element parameters.  This will depend on the specific class of element being used.
+	* @param &encodingParams Plaintext space parameters.
+	* @param distributionParameter Noise distribution parameter, typically denoted as /sigma in most publications.  Community standards typically call for a value of 3 to 6. Lower values provide more room for computation while larger values provide more security.
+	* @param assuranceMeasure Assurance level, typically denoted as w in most applications.  This is oftern perceived as a fudge factor in the literature, with a typical value of 9.
+	* @param securityLevel Security level as Root Hermite Factor.  We use the Root Hermite Factor representation of the security level to better conform with US ITAR and EAR export regulations.  This is typically represented as /delta in the literature.  Typically a Root Hermite Factor of 1.006 or less provides reasonable security for RLWE crypto schemes, although extra care is need for the LTV scheme because LTV makes an additional security assumption that make it suceptible to subfield lattice attacks.
+	* @param relinWindow The size of the relinearization window.  This is relevant when using this scheme for proxy re-encryption, and the value is denoted as r in the literature.
+	* @param depth Depth is the depth of computation supprted which is set to 1 by default.  Use the default setting unless you're using SHE, levelled SHE or FHE operations.
+	*/
+	LPCryptoParametersLTV(
+		shared_ptr<typename Element::Params> params,
+		shared_ptr<EncodingParams> encodingParams,
+		float distributionParameter,
+		float assuranceMeasure,
+		float securityLevel,
+		usint relinWindow,
+		int depth = 1)
+		: LPCryptoParametersRLWE<Element>(
+			params,
+			encodingParams,
 			distributionParameter,
 			assuranceMeasure,
 			securityLevel,
@@ -213,9 +244,10 @@ public:
 	 *
 	 * @param publicKey The encryption key.
 	 * @param plaintext Plaintext to be encrypted.
+	 * @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 	 * @return A shared pointer to the encrypted Ciphertext.
 	 */
-	shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, ILVector2n &plaintext) const;
+	shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, ILVector2n &plaintext, bool doEncryption = true) const;
 
 	/**
 	 * Decrypt method for the LTV Scheme.  See the class description for citations on where the algorithms were
@@ -445,6 +477,20 @@ public:
 		const shared_ptr<Ciphertext<Element>> ciphertext2) const;
 
 	/**
+	* Function for multiplying a ciphertext by plaintext.
+	* See the class description for citations on where the algorithms were taken from.
+	*
+	* @param ciphertext Input ciphertext.
+	* @param plaintext input plaintext.
+	* @return A shared pointer to the ciphertext which is the EvalMultPlain of the two inputs.
+	*/
+	shared_ptr<Ciphertext<Element>> EvalMultPlain(const shared_ptr<Ciphertext<Element>> ciphertext,
+		const shared_ptr<Ciphertext<Element>> plaintext) const {
+		return EvalMult(ciphertext, plaintext);
+	}
+
+
+	/**
 	* Function for evaluating multiplication on ciphertext, but with a key switch performed after the
 	* EvalMult using the Evaluation Key input.
 	* See the class description for citations on where the algorithms were taken from.
@@ -468,7 +514,7 @@ public:
 	* @return A shared pointer to a new ciphertext which is the negation of the input.
 	*/
 	shared_ptr<Ciphertext<Element>> EvalNegate(const shared_ptr<Ciphertext<Element>> ct) const;
-														 
+													 
 	/**
 	* Method for generating a Key Switch Hint.
 	* See the class description for citations on where the algorithms were taken from.
@@ -525,61 +571,46 @@ public:
 	* We recommend that one uses key switch hints only for scenarios where security is not of critical 
 	* importance.
 	*
-	* @param &newPrivateKey private key for the new ciphertext.
-	* @param *keySwitchHint the key switch hint.
+	* @param originalPrivateKey private key to start from.
 	* @return resulting evalkeyswitch hint
 	*/
 	shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const;
-
-	/**
-	* Function for evaluating ciphertext at an index; works only with odd indices in the ciphertext.
-	* The plaintext should be padded with zeros at even indices for this to work correctly. In other words,
-	* if the ring dimension n is used, up to n/2 coefficients at odd indices can be encrypted.
-	*
-	* @param ciphertext the input ciphertext.
-	* @param i index of the item to be "extracted", starts with 2.
-	* @param &evalKeys - reference to the vector of evaluation keys generated by EvalAutomorphismKeyGen.
-	* @return resulting ciphertext
-	*/
-	shared_ptr<Ciphertext<Element>> EvalAtIndex(const shared_ptr<Ciphertext<Element>> ciphertext, usint i,
-		const std::vector<shared_ptr<LPEvalKey<Element>>> &evalKeys) const;
-
-	/**
-	* Generate automophism keys for a given private key; works only with odd indices in the ciphertext (uses the RLWE relinerarization method)
-	*
-	* @param publicKey original public key.
-	* @param origPrivateKey original private key.
-	* @param size number of automorphims to be computed; starting from plaintext index 2; maximum is n/2-1
-	* @return returns the evaluation keys; index 0 of the vector corresponds to plaintext index 2, index 1 to plaintex index 3, etc.
-	*/
-	shared_ptr<std::vector<shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const shared_ptr<LPPublicKey<Element>> publicKey,
-		const shared_ptr<LPPrivateKey<Element>> origPrivateKey, usint size) const;
 
 	/**
 	* Function for evaluating automorphism of ciphertext at index i
 	*
 	* @param ciphertext the input ciphertext.
 	* @param i automorphism index
-	* @param &evalKeys - reference to the vector of evaluation keys generated by EvalAutomorphismKeyGen.
+	* @param &evalKeys - reference to the map of evaluation keys generated by EvalAutomorphismKeyGen.
 	* @return resulting ciphertext
 	*/
 	shared_ptr<Ciphertext<Element>> EvalAutomorphism(const shared_ptr<Ciphertext<Element>> ciphertext, usint i,
-		const std::vector<shared_ptr<LPEvalKey<Element>>> &evalKeys) const;
+		const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalKeys) const;
 
 
 	/**
-	* Generate automophism keys for a given private key; Uses the private key for encryption
+	* Generate automophism keys for a given private key; Uses the private key for encryption.  This method is not currently supported.
 	*
 	* @param privateKey private key.
-	* @param size number of automorphims to be computed; maximum is ring dimension
-	* @param flagEvalSum if set to true, log_2{size} evaluation keys are generated to be used by EvalSum
+	* @param indexList list of automorphism indices to be computed
 	* @return returns the evaluation keys
 	*/
-	shared_ptr<std::vector<shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey,
-		usint size, bool flagEvalSum) const {
+	shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey,
+		const std::vector<usint> &indexList) const {
 		std::string errMsg = "LPAlgorithmSHELTV::EvalAutomorphismKeyGen is not implemented for LTV SHE Scheme.";
 		throw std::runtime_error(errMsg);
 	}
+
+	/**
+	* Generate automophism keys for a given private key; Uses the public key for encryption
+	*
+	* @param publicKey public key.
+	* @param privateKey private key.
+	* @param indexList list of automorphism indices to be computed
+	* @return returns the evaluation keys
+	*/
+	shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const shared_ptr<LPPublicKey<Element>> publicKey,
+		const shared_ptr<LPPrivateKey<Element>> privateKey, const std::vector<usint> &indexList) const;
 
 };
 
