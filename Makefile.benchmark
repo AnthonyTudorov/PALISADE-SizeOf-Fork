@@ -33,8 +33,8 @@ BM_LIB = $(BM_SRCDIR)/libbenchmark.a
 
 #note the following may need to be set automatically ala cmake
 
-#REGEX_FLAG := -DHAVE_STD_REGEX  #note does not work for g++ <version 4.9
-REGEX_FLAG := -DHAVE_POSIX_REGEX
+REGEX_FLAG := -DHAVE_STD_REGEX  #note does not work for g++ <version 4.9
+#REGEX_FLAG := -DHAVE_POSIX_REGEX
 
 LIBBENCHMARK_FLAGS = $(REGEX_FLAG) -DHAVE_STEADY_CLOCK -DNDEBUG -Wno-unused-but-set-variable -Wno-unused-variable ##-Wextra -Wshadow -pedantic -pedantic-errors -Wfloat-equal -Wzero-as-null-pointer-constant -fstrict-aliasing -Wstrict-aliasing -Wno-nested-anon-types
 

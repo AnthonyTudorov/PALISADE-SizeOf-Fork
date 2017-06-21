@@ -79,9 +79,9 @@
 //To select backend, please UNCOMMENT the appropriate line rather than changing the number on the
 //uncommented line (and breaking the documentation of the line)
 
-//#define MATHBACKEND 2
+#define MATHBACKEND 2
 //#define MATHBACKEND 4
-#define MATHBACKEND 6 
+//#define MATHBACKEND 6 
 //#define MATHBACKEND 7
 
 ////////// cpu_int code
@@ -182,8 +182,7 @@ namespace lbcrypto {
 
 #endif
 
-#ifdef __linux__ 
-#if MATHBACKEND == 6
+#if defined(__linux__)&& MATHBACKEND == 6
 
 	/** Define the mapping for BigBinaryInteger */
 	typedef NTL::myZZ BigBinaryInteger;
@@ -193,7 +192,6 @@ namespace lbcrypto {
 
 #define MATH_DEFBITS 0
 
-#endif
 #endif
 
 #if MATHBACKEND == 7
