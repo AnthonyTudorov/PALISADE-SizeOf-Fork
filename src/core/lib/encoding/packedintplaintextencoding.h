@@ -87,10 +87,14 @@ public:
 	 * @param modulus the initial root.
 	 */
 	static BigBinaryInteger GetInitRoot(const BigBinaryInteger &modulus) {
-		return m_initRoot[modulus];
+		native_int::BinaryInteger modulusNI(modulus.ConvertToInt());
+		return BigBinaryInteger(modulusNI.ConvertToInt());
 	}
 
-	static usint GetAutomorphismGenerator(const BigBinaryInteger &modulus) { return m_automorphismGenerator[modulus];  }
+	static usint GetAutomorphismGenerator(const BigBinaryInteger &modulus) { 
+		native_int::BinaryInteger modulusNI(modulus.ConvertToInt());
+		return m_automorphismGenerator[modulusNI];  
+	}
 
 	/** The operation of converting from current plaintext encoding to ILVector2n.
 	*
@@ -197,23 +201,23 @@ public:
 
 private:
 
-	static std::map<BigBinaryInteger, BigBinaryInteger> m_initRoot;
+	static std::map<native_int::BinaryInteger, native_int::BinaryInteger> m_initRoot;
 
-	static std::map<BigBinaryInteger, std::vector<BigBinaryVector>> m_coefficientsCRT;
+	static std::map<native_int::BinaryInteger, std::vector<native_int::BinaryVector>> m_coefficientsCRT;
 
-	static std::map<BigBinaryInteger, BigBinaryVector> m_rootList;
+	static std::map<native_int::BinaryInteger, native_int::BinaryVector> m_rootList;
 
-	static std::map<BigBinaryInteger, usint> m_automorphismGenerator;
+	static std::map<native_int::BinaryInteger, usint> m_automorphismGenerator;
 
 	void Pack(ILVector2n *ring, const BigBinaryInteger &modulus) const;
 
-	static BigBinaryVector FindPermutedSlots(const BigBinaryVector &orig, const BigBinaryVector & perm, const BigBinaryVector & rootList);
+	static native_int::BinaryVector FindPermutedSlots(const native_int::BinaryVector &orig, const native_int::BinaryVector & perm, const native_int::BinaryVector & rootList);
 
-	static void InitializeCRTCoefficients(usint cycloOrder, const BigBinaryInteger & modulus);
+	static void InitializeCRTCoefficients(usint cycloOrder, const native_int::BinaryInteger & modulus);
 
-	static BigBinaryVector GetRootVector(const BigBinaryInteger &modulus,usint cycloOrder);
+	static native_int::BinaryVector GetRootVector(const native_int::BinaryInteger &modulus,usint cycloOrder);
 
-	static BigBinaryVector SyntheticPolyPowerMod(const BigBinaryVector &input, const BigBinaryInteger &power, const BigBinaryVector &rootListInit);
+	static native_int::BinaryVector SyntheticPolyPowerMod(const native_int::BinaryVector &input, const native_int::BinaryInteger &power, const native_int::BinaryVector &rootListInit);
 
 	void Unpack(ILVector2n *ring, const BigBinaryInteger &modulus) const;
 
