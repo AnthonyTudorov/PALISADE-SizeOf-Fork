@@ -35,14 +35,14 @@
  */
 
 
-#ifdef __linux__
+
 #define _SECURE_SCL 0 // to speed up VS
 
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include "../backend.h"
-
+#if defined(__linux__) && MATHBACKEND == 6
 #include "gmpint.h"
 #include "mgmpint.h"
 

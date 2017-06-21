@@ -31,11 +31,11 @@
  *
  */
 
-#if __linux__ && MATHBACKEND == 6
 
 #include "../../utils/serializable.h"
 
 #include "../backend.h"
+#if defined(__linux__) && MATHBACKEND == 6
 
 #include "mgmpintvec.h"
 

@@ -710,6 +710,10 @@ namespace exp_int{
      */
     ubint ModSub(const ubint& b, const ubint& modulus) const;
 
+    // this is wrapper for modsub
+    inline ubint ModBarrettSub(const ubint& b, const ubint& modulus,const ubint& mu) const {
+      return this->ModSub(b, modulus);
+    };
 
 
     /**

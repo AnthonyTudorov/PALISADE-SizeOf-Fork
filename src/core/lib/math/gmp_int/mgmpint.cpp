@@ -37,7 +37,6 @@
  * certain math operations.
  */
 
-#if __linux__ && MATHBACKEND == 6
 
 #define _SECURE_SCL 0 // to speed up VS
 
@@ -48,6 +47,7 @@
 
 #include "../backend.h"
 
+#if defined(__linux__) && MATHBACKEND == 6
 
 #include "gmpint.h"
 #include "mgmpint.h"
