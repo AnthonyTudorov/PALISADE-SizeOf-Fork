@@ -166,6 +166,27 @@ namespace lbcrypto {
 	void NextQ(IntType &q, const IntType &plainTextModulus, const usint cyclotomicOrder, const IntType &sigma, const IntType &alpha);
 
 	/**
+	* Finds the first prime that satisfies q = 1 mod m
+	*
+	* @param nBits the number of bits needed to be in q.
+	* @param m the the ring parameter.
+	*
+	* @return the next prime modulus.
+	*/
+	template<typename IntType>
+	IntType FirstPrime(usint nBits, usint m);
+
+	/**
+	* Finds the next prime that satisfies q = 1 mod m
+	*
+	* @param &q is the prime number to start from (the number itself is not included)
+	*
+	* @return the next prime modulus.
+	*/
+	template<typename IntType>
+	IntType NextPrime(const IntType &q, usint cyclotomicOrder);
+
+	/**
 	 * Multiplicative inverse for primitive unsigned integer data types
 	 *
 	 * @param a the number we need the inverse of.

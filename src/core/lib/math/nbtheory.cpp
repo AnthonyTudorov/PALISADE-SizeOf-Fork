@@ -48,6 +48,8 @@ namespace lbcrypto {
 	template void PrimeFactorize(BigBinaryInteger n, std::set<BigBinaryInteger> &primeFactors);
 	template BigBinaryInteger FindPrimeModulus(usint m, usint nBits);
 	template void NextQ(BigBinaryInteger &q, const BigBinaryInteger &plainTextModulus, const usint cyclotomicOrder, const BigBinaryInteger &sigma, const BigBinaryInteger &alpha);
+	template BigBinaryInteger FirstPrime(usint nBits, usint m);
+	template BigBinaryInteger NextPrime(const BigBinaryInteger &q, usint cyclotomicOrder);
 	template BigBinaryVector PolyMod(const BigBinaryVector &dividend, const BigBinaryVector &divisor, const BigBinaryInteger &modulus);
 	template BigBinaryVector PolynomialMultiplication(const BigBinaryVector &a, const BigBinaryVector &b);
 	template BigBinaryVector GetCyclotomicPolynomial(usint m, const BigBinaryInteger &modulus);
@@ -69,6 +71,8 @@ namespace lbcrypto {
 	template void PrimeFactorize(native_int::BinaryInteger n, std::set<native_int::BinaryInteger> &primeFactors);
 	template native_int::BinaryInteger FindPrimeModulus(usint m, usint nBits);
 	template void NextQ(native_int::BinaryInteger &q, const native_int::BinaryInteger &plainTextModulus, const usint cyclotomicOrder, const native_int::BinaryInteger &sigma, const native_int::BinaryInteger &alpha);
+	template native_int::BinaryInteger FirstPrime(usint nBits, usint m);
+	template native_int::BinaryInteger NextPrime(const native_int::BinaryInteger &q, usint cyclotomicOrder);
 	template native_int::BinaryVector PolyMod(const native_int::BinaryVector &dividend, const native_int::BinaryVector &divisor, const native_int::BinaryInteger &modulus);
 	template native_int::BinaryVector PolynomialMultiplication(const native_int::BinaryVector &a, const native_int::BinaryVector &b);
 	template native_int::BinaryVector GetCyclotomicPolynomial(usint m, const native_int::BinaryInteger &modulus);
@@ -701,6 +705,37 @@ void NextQ(IntType &q, const IntType &plainTextModulus, const usint cyc, const I
 	  	NextQ(q, plainTextModulus, cyc, sigma, alpha);
 	}
 		
+}
+
+template<typename IntType>
+IntType FirstPrime(usint nBits, usint m) {
+
+	IntType r = IntType(2).ModExp(nBits, m);
+
+	IntType qNew = (IntType(1) << nBits) + (IntType(m) - r) + IntType(1);
+
+	size_t i = 1;
+
+	while (!MillerRabinPrimalityTest(qNew)) {
+		qNew += IntType(i*m);
+		i++;
+	}
+
+	return qNew;
+
+}
+
+template<typename IntType>
+IntType NextPrime(const IntType &q, usint m) {
+
+	IntType qNew = q + m;
+
+	while (!MillerRabinPrimalityTest(qNew)) {
+		qNew += m;
+	}
+
+	return qNew;
+
 }
 
 
