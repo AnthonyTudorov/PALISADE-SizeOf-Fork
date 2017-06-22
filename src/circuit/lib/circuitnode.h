@@ -113,8 +113,9 @@ public:
 	virtual string getNodeLabel() const = 0;
 	virtual OpType OpTag() const = 0;
 
-	double GetRuntime() const { return runtime->GetEstimate(); }
-	void SetRuntime(TimingStatistics* n) { runtime = n; }
+	double GetEstimate() const { return estimatedRun; }
+	void SetRuntimeEstimate(TimingStatistics* n) { runtime = n; }
+	void MarkEstimate() { estimatedRun = runtime->GetEstimate(); }
 
 	bool Visited() const { return visited; }
 	const void Visit() { visited = true; }

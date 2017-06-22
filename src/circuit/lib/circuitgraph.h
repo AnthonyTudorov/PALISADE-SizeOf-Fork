@@ -98,7 +98,7 @@ public:
 		double	total = 0;
 		for( auto node : allNodes )
 			if( node.second->Visited() ) {
-				total += node.second->GetRuntime();
+				total += node.second->GetEstimate();
 			}
 		return total;
 	}

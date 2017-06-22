@@ -98,6 +98,7 @@ void CircuitNode::CircuitVisit(CircuitGraph& g) {
 		n->CircuitVisit(g);
 	}
 
+	this->MarkEstimate();
 	Visit();
 	return;
 }
