@@ -116,7 +116,7 @@ CircuitGraph::UpdateRuntimeEstimates(vector<CircuitSimulation>& steps, map<OpTyp
 	// mark each of the nodes with a time estimate
 	for( size_t i=0; i<steps.size(); i++ ) {
 		CircuitNode *node = getNodeById(steps[i].nodeId);
-		auto this_est = stats[ steps[i].op ];
+		TimingStatistics& this_est = stats[ steps[i].op ];
 		node->SetRuntimeEstimate(&this_est);
 	}
 }

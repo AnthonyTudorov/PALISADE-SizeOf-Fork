@@ -95,7 +95,6 @@ public:
 		return *this;
 	}
 	double GetEstimate() {
-		std::cout << operation << ":" << (wasCalled?"T":"F") << ":" << startup << ":" << average << std::endl;
 		if( wasCalled ) return average;
 		wasCalled = true;
 		return startup;

@@ -366,7 +366,7 @@ main(int argc, char *argv[])
 
 			size_t i;
 			const size_t n = 10;
-			for( i=0; i < n; i++ )
+			for( i=0; i < n && i < cc.GetCyclotomicOrder(); i++ )
 				cout << result[i] << " ";
 			cout << (( i == n ) ? "..." : " ") << endl;
 		}

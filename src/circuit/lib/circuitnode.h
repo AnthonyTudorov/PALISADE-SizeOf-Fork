@@ -147,7 +147,7 @@ protected:
 	// in CircuitNode, these are estimates
 	TimingStatistics		*runtime;
 	bool					visited;
-	usint					estimatedRun;
+	double					estimatedRun;
 	usint					noiseval;
 };
 
