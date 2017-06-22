@@ -98,7 +98,9 @@ void CircuitNode::CircuitVisit(CircuitGraph& g) {
 		n->CircuitVisit(g);
 	}
 
+	cout << "Marking estimate for " << GetId() << ":::::";
 	this->MarkEstimate();
+	cout << ":::::: " << this->GetEstimate() << endl;
 	Visit();
 	return;
 }
