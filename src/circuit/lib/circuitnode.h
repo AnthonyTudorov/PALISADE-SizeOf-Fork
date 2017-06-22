@@ -77,6 +77,8 @@ public:
 		is_input = is_output = false;
 		noiseval = 0;
 		visited = false;
+		runtime = 0;
+		estimatedRun = 0;
 	}
 	virtual ~CircuitNode() {}
 
@@ -111,8 +113,8 @@ public:
 	virtual string getNodeLabel() const = 0;
 	virtual OpType OpTag() const = 0;
 
-	const TimingStatistics& GetRuntime() const { return runtime; }
-	void SetRuntime(TimingStatistics& n) { runtime = n; }
+	const TimingStatistics* GetRuntime() const { return runtime; }
+	void SetRuntime(TimingStatistics* n) { runtime = n; }
 
 	bool Visited() const { return visited; }
 	const void Visit() { visited = true; }
@@ -142,8 +144,9 @@ protected:
 	usint			nodeOutputDepth;
 
 	// in CircuitNode, these are estimates
-	TimingStatistics		runtime;
+	TimingStatistics		*runtime;
 	bool					visited;
+	usint					estimatedRun;
 	usint					noiseval;
 };
 
@@ -233,7 +236,9 @@ extern CircuitNodeWithValue<Element> *ValueNodeFactory( CircuitNode *n );
 class ConstInput : public CircuitNode {
 	usint val;
 public:
-	ConstInput(usint id, usint value) : CircuitNode(id), val(value) {}
+	ConstInput(usint id, usint value) : CircuitNode(id), val(value) {
+		this->runtime = new TimingStatistics(0,0,0,0);
+	}
 
 	void simeval(CircuitGraph& cg, vector<CircuitSimulation>&) {
 		if( !Visited() ) {
@@ -259,7 +264,7 @@ class Input : public CircuitNode {
 public:
 	Input(usint id, wire_type type) : CircuitNode(id), type(type) {
 		this->setAsInput();
-		this->runtime = TimingStatistics(0,0,0,0);
+		this->runtime = new TimingStatistics(0,0,0,0);
 	}
 
 	void simeval(CircuitGraph& cg, vector<CircuitSimulation>&) {

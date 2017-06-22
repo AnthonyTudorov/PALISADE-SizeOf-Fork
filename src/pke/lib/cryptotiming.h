@@ -74,14 +74,16 @@ public:
 	OpType	operation;
 	usint	samples;
 	double	startup;
+	bool	wasCalled;
 	double	min;
 	double	max;
 	double	average;
 
-	TimingStatistics() : operation(OpNOOP), samples(0), startup(0),
+	TimingStatistics() : operation(OpNOOP), samples(0), startup(0), wasCalled(false),
 			min(std::numeric_limits<double>::max()),
 			max(std::numeric_limits<double>::min()), average(0) {}
-	TimingStatistics(double startup, double min, double max, double average) : operation(OpNOOP), samples(0), startup(startup),
+	TimingStatistics(double startup, double min, double max, double average) : operation(OpNOOP), samples(0),
+			startup(startup), wasCalled(false),
 			min(min), max(max), average(average) {}
 	bool Serialize(Serialized* serObj) const;
 	bool Deserialize(const Serialized& serObj);
@@ -91,6 +93,11 @@ public:
 	TimingStatistics& operator+=(const TimingStatistics& op) {
 		startup = op.startup, min += op.min, max += op.max, average += op.average;
 		return *this;
+	}
+	double GetEstimate() {
+		if( wasCalled ) return average;
+		wasCalled = true;
+		return startup;
 	}
 };
 

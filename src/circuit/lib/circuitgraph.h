@@ -99,7 +99,7 @@ public:
 		for( auto node : allNodes )
 			if( node.second->Visited() ) {
 //				cout << endl << node.first << " " << node.second->GetRuntime().operation << " " << node.second->GetRuntime();
-				total += node.second->GetRuntime();
+				total += *node.second->GetRuntime();
 			}
 		cout << endl;
 		return total;
