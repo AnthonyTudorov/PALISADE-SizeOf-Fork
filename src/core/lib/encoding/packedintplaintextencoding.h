@@ -87,10 +87,14 @@ public:
 	 * @param modulus the initial root.
 	 */
 	static BigBinaryInteger GetInitRoot(const BigBinaryInteger &modulus) {
-		return m_initRoot[modulus];
+		native_int::BinaryInteger modulusNI(modulus.ConvertToInt());
+		return BigBinaryInteger(modulusNI.ConvertToInt());
 	}
 
-	static usint GetAutomorphismGenerator(const BigBinaryInteger &modulus) { return m_automorphismGenerator[modulus];  }
+	static usint GetAutomorphismGenerator(const BigBinaryInteger &modulus) { 
+		native_int::BinaryInteger modulusNI(modulus.ConvertToInt());
+		return m_automorphismGenerator[modulusNI];  
+	}
 
 	/** The operation of converting from current plaintext encoding to ILVector2n.
 	*
@@ -196,25 +200,67 @@ public:
 	}
 
 private:
+	//initial root of unity for plaintext space
+	static std::map<native_int::BinaryInteger, native_int::BinaryInteger> m_initRoot;
 
-	static std::map<BigBinaryInteger, BigBinaryInteger> m_initRoot;
+	//stores the crt coefficients used for packing of slot values
+	static std::map<native_int::BinaryInteger, std::vector<native_int::BinaryVector>> m_coefficientsCRT;
 
-	static std::map<BigBinaryInteger, std::vector<BigBinaryVector>> m_coefficientsCRT;
+	//stores the list of primitive roots used in packing.
+	static std::map<native_int::BinaryInteger, native_int::BinaryVector> m_rootList;
 
-	static std::map<BigBinaryInteger, BigBinaryVector> m_rootList;
+	static std::map<native_int::BinaryInteger, usint> m_automorphismGenerator;
 
-	static std::map<BigBinaryInteger, usint> m_automorphismGenerator;
-
+	/**
+	* @brief Packs the slot values into aggregate plaintext space.
+	*
+	* @param ring is the element containing slot values.
+	* @param modulus is the plaintext modulus used for packing.
+	*/
 	void Pack(ILVector2n *ring, const BigBinaryInteger &modulus) const;
 
-	static BigBinaryVector FindPermutedSlots(const BigBinaryVector &orig, const BigBinaryVector & perm, const BigBinaryVector & rootList);
+	/**
+	* @brief Generates the permuted root list.
+	*
+	* @param orig is the vector of sequencial slot values.
+	* @param perm is permuted slot values.
+	* @param rootList is the original list of primitive roots.
+	*/
+	static native_int::BinaryVector FindPermutedSlots(const native_int::BinaryVector &orig, const native_int::BinaryVector & perm, const native_int::BinaryVector & rootList);
 
-	static void InitializeCRTCoefficients(usint cycloOrder, const BigBinaryInteger & modulus);
+	/**
+	* @brief Initializes the crt coefficients for polynomial interpolation.
+	*
+	* @param cycloOrder is the cyclotomic order of the polynomial ring.
+	* @param modulus is the plaintext modulus used for packing.
+	*/
+	static void InitializeCRTCoefficients(usint cycloOrder, const native_int::BinaryInteger & modulus);
 
-	static BigBinaryVector GetRootVector(const BigBinaryInteger &modulus,usint cycloOrder);
+	/**
+	* @brief Generates a list of primitive roots by raising the m_initRoot to every value in totient list.
+	*
+	* @param cycloOrder is the cyclotomic order of the polynomial ring.
+	* @param modulus is the plaintext modulus used for packing.
+	* @return vector containing root list
+	*/
+	static native_int::BinaryVector GetRootVector(const native_int::BinaryInteger &modulus,usint cycloOrder);
 
-	static BigBinaryVector SyntheticPolyPowerMod(const BigBinaryVector &input, const BigBinaryInteger &power, const BigBinaryVector &rootListInit);
+	/**
+	* @brief Performs Frobenius map and Unpack operation in an efficient way.
+	*
+	* @param input is the polynomial ring.
+	* @param power is the exponent in the frobenius map operation.
+	* @param rootListInit is the vector containing primitive roots.
+	* @return vector containing slots values.
+	*/
+	static native_int::BinaryVector SyntheticPolyPowerMod(const native_int::BinaryVector &input, const native_int::BinaryInteger &power, const native_int::BinaryVector &rootListInit);
 
+	/**
+	* @brief Unpacks the data from aggregated plaintext to slot values.
+	*
+	* @param ring is the input polynomial ring in aggregate plaintext.
+	* @param modulus is the plaintext modulus used in packing operation.
+	*/
 	void Unpack(ILVector2n *ring, const BigBinaryInteger &modulus) const;
 
 };

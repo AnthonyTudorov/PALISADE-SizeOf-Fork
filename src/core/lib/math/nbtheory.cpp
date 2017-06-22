@@ -51,6 +51,10 @@ namespace lbcrypto {
 	template BigBinaryVector PolyMod(const BigBinaryVector &dividend, const BigBinaryVector &divisor, const BigBinaryInteger &modulus);
 	template BigBinaryVector PolynomialMultiplication(const BigBinaryVector &a, const BigBinaryVector &b);
 	template BigBinaryVector GetCyclotomicPolynomial(usint m, const BigBinaryInteger &modulus);
+	template BigBinaryInteger SyntheticRemainder(const BigBinaryVector &dividend, const BigBinaryInteger &a, const BigBinaryInteger &modulus);
+	template BigBinaryVector SyntheticPolyRemainder(const BigBinaryVector &dividend, const BigBinaryVector &aList, const BigBinaryInteger &modulus);
+	template BigBinaryVector PolynomialPower<BigBinaryVector, BigBinaryInteger>(const BigBinaryVector &input, usint power);
+	template BigBinaryVector SyntheticPolynomialDivision(const BigBinaryVector &dividend, const BigBinaryInteger &a, const BigBinaryInteger &modulus);
 	template BigBinaryInteger FindGeneratorCyclic(const BigBinaryInteger& modulo);
 	template bool IsGenerator(const BigBinaryInteger& g, const BigBinaryInteger& modulo);
 
@@ -68,6 +72,10 @@ namespace lbcrypto {
 	template native_int::BinaryVector PolyMod(const native_int::BinaryVector &dividend, const native_int::BinaryVector &divisor, const native_int::BinaryInteger &modulus);
 	template native_int::BinaryVector PolynomialMultiplication(const native_int::BinaryVector &a, const native_int::BinaryVector &b);
 	template native_int::BinaryVector GetCyclotomicPolynomial(usint m, const native_int::BinaryInteger &modulus);
+	template native_int::BinaryInteger SyntheticRemainder(const native_int::BinaryVector &dividend, const native_int::BinaryInteger &a, const native_int::BinaryInteger &modulus);
+	template native_int::BinaryVector SyntheticPolyRemainder(const native_int::BinaryVector &dividend, const native_int::BinaryVector &aList, const native_int::BinaryInteger &modulus);
+	template native_int::BinaryVector PolynomialPower<native_int::BinaryVector, native_int::BinaryInteger>(const native_int::BinaryVector &input, usint power);
+	template native_int::BinaryVector SyntheticPolynomialDivision(const native_int::BinaryVector &dividend, const native_int::BinaryInteger &a, const native_int::BinaryInteger &modulus);
 	template native_int::BinaryInteger FindGeneratorCyclic(const native_int::BinaryInteger& modulo);
 	template bool IsGenerator(const native_int::BinaryInteger& g, const native_int::BinaryInteger& modulo);
 #endif
@@ -970,13 +978,15 @@ IntVector GetCyclotomicPolynomial(usint m, const IntType &modulus) {
 
 }
 
-BigBinaryInteger SyntheticRemainder(const BigBinaryVector &dividend, const BigBinaryInteger &a, const BigBinaryInteger &modulus) {
+
+template<typename IntVector, typename IntType>
+IntType SyntheticRemainder(const IntVector &dividend, const IntType &a, const IntType &modulus) {
 	auto val = dividend.GetValAtIndex(dividend.GetLength() - 1);
 
 	//Precompute the Barrett mu parameter
-	BigBinaryInteger temp(BigBinaryInteger::ONE);
+	IntType temp(IntType::ONE);
 	temp <<= 2 * modulus.GetMSB() + 3;
-	BigBinaryInteger mu = temp.DividedBy(modulus);
+	IntType mu = temp.DividedBy(modulus);
 
 	for (int i = dividend.GetLength() - 2; i > -1; i--) {
 		val = dividend.GetValAtIndex(i) + a*val;
@@ -986,8 +996,9 @@ BigBinaryInteger SyntheticRemainder(const BigBinaryVector &dividend, const BigBi
 	return val;
 }
 
-BigBinaryVector SyntheticPolyRemainder(const BigBinaryVector &dividend, const BigBinaryVector &aList, const BigBinaryInteger &modulus) {
-	BigBinaryVector result(aList.GetLength(),modulus);
+template<typename IntVector, typename IntType>
+IntVector SyntheticPolyRemainder(const IntVector &dividend, const IntVector &aList, const IntType &modulus) {
+	IntVector result(aList.GetLength(),modulus);
 	for (usint i = 0; i < aList.GetLength(); i++) {
 		result.SetValAtIndex(i, SyntheticRemainder(dividend, aList.GetValAtIndex(i), modulus));
 	}
@@ -995,9 +1006,10 @@ BigBinaryVector SyntheticPolyRemainder(const BigBinaryVector &dividend, const Bi
 	return result;
 }
 
-BigBinaryVector PolynomialPower(const BigBinaryVector &input, usint power) {
+template<typename IntVector, typename IntType>
+IntVector PolynomialPower(const IntVector &input, usint power) {
 	usint finalDegree = (input.GetLength() - 1)*power;
-	BigBinaryVector finalPoly(finalDegree + 1, input.GetModulus());
+	IntVector finalPoly(finalDegree + 1, input.GetModulus());
 	finalPoly.SetValAtIndex(0, input.GetValAtIndex(0));
 	for (usint i = 1; i < input.GetLength(); i++) {
 		finalPoly.SetValAtIndex(i*power, input.GetValAtIndex(i));
@@ -1005,14 +1017,15 @@ BigBinaryVector PolynomialPower(const BigBinaryVector &input, usint power) {
 	return finalPoly;
 }
 
-BigBinaryVector SyntheticPolynomialDivision(const BigBinaryVector &dividend, const BigBinaryInteger &a, const BigBinaryInteger &modulus) {
+template<typename IntVector, typename IntType>
+IntVector SyntheticPolynomialDivision(const IntVector &dividend, const IntType &a, const IntType &modulus) {
 	usint n = dividend.GetLength() - 1;
-	BigBinaryVector result(n, modulus);
+	IntVector result(n, modulus);
 
 	//Precompute the Barrett mu parameter
-	BigBinaryInteger temp(BigBinaryInteger::ONE);
+	IntType temp(IntType::ONE);
 	temp <<= 2 * modulus.GetMSB() + 3;
-	BigBinaryInteger mu = temp.DividedBy(modulus);
+	IntType mu = temp.DividedBy(modulus);
 
 	result.SetValAtIndex(n - 1, dividend.GetValAtIndex(n));
 	auto val(dividend.GetValAtIndex(n));

@@ -29,13 +29,13 @@
 
 namespace lbcrypto {
 
-	std::map<BigBinaryInteger, BigBinaryInteger> PackedIntPlaintextEncoding::m_initRoot;
+	std::map<native_int::BinaryInteger, native_int::BinaryInteger> PackedIntPlaintextEncoding::m_initRoot;
 
-	std::map<BigBinaryInteger, usint> PackedIntPlaintextEncoding::m_automorphismGenerator;
+	std::map<native_int::BinaryInteger, usint> PackedIntPlaintextEncoding::m_automorphismGenerator;
 
-	std::map<BigBinaryInteger, std::vector<BigBinaryVector>> PackedIntPlaintextEncoding::m_coefficientsCRT;
+	std::map<native_int::BinaryInteger, std::vector<native_int::BinaryVector>> PackedIntPlaintextEncoding::m_coefficientsCRT;
 
-	std::map<BigBinaryInteger, BigBinaryVector> PackedIntPlaintextEncoding::m_rootList;
+	std::map<native_int::BinaryInteger, native_int::BinaryVector> PackedIntPlaintextEncoding::m_rootList;
 
 	void PackedIntPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector, size_t startFrom, size_t length) const
 	{
@@ -89,28 +89,32 @@ namespace lbcrypto {
 
 	void PackedIntPlaintextEncoding::Destroy()
 	{
+		//clears the initial root of unity 
 		m_initRoot.clear();
+		//clears the automorphism generator
 		m_automorphismGenerator.clear();
+		//clears the CRT coefficients
 		m_coefficientsCRT.clear();
+		//clears the root list 
 		m_rootList.clear();
 	}
 
 	void PackedIntPlaintextEncoding::SetParams(const BigBinaryInteger &modulus, usint m)
 	{
+		native_int::BinaryInteger modulusNI(modulus.ConvertToInt()); //native int modulus
 
-		if (m_initRoot[modulus].GetMSB() == 0) {
-			BigBinaryInteger initRoot = RootOfUnity<BigBinaryInteger>(m, modulus);
-			BigBinaryInteger mm(m); // Hackish typecast
-			BigBinaryInteger automorphismGenerator = FindGeneratorCyclic<BigBinaryInteger>(mm);
-
-			m_initRoot[modulus] = initRoot;
-			m_automorphismGenerator[modulus] = automorphismGenerator.ConvertToInt();
-			//std::cout << "root found" << initRoot << std::endl;
-
-			InitializeCRTCoefficients(m, modulus);
+		//initialize the CRT coefficients if not initialized
+		if (m_initRoot[modulusNI].GetMSB() == 0) {
+			native_int::BinaryInteger initRoot = RootOfUnity<native_int::BinaryInteger>(m, modulusNI);
+			native_int::BinaryInteger mm(m); // Hackish typecast
+			native_int::BinaryInteger automorphismGenerator = FindGeneratorCyclic<native_int::BinaryInteger>(mm);
+			//store the initial root of unity, to be used as automorphism generator.
+			m_initRoot[modulusNI] = initRoot;
+			m_automorphismGenerator[modulusNI] = automorphismGenerator.ConvertToInt();
+			//initializes the CRT coefficient matrix
+			InitializeCRTCoefficients(m, modulusNI);
 
 		}
-
 
 	}
 
@@ -118,84 +122,108 @@ namespace lbcrypto {
 
 		usint n = ring->GetRingDimension(); //ring dimension
 		usint m = ring->GetCyclotomicOrder();//cyclotomic order
-											 //Do the precomputation if not initialized
+											 
 		const auto params = ring->GetParams();
 
-		if (this->m_initRoot[modulus].GetMSB() == 0) {
+		native_int::BinaryInteger modulusNI(modulus.ConvertToInt());//native int modulus
+
+		//Do the precomputation if not initialized
+		if (this->m_initRoot[modulusNI].GetMSB() == 0) {
 			if (params->OrderIsPowerOfTwo())
-				m_initRoot[modulus] = RootOfUnity<BigBinaryInteger>(m, modulus);
+				m_initRoot[modulusNI] = RootOfUnity<native_int::BinaryInteger>(m, modulusNI);
 			else
 				SetParams(modulus, m);
 			//std::cout << "generator? = " << IsGenerator<BigBinaryInteger>(this->initRoot, BigBinaryInteger(m)) << std::endl;
 			//std::cout << "root found" << initRoot << std::endl;
 		}
 
+		//stores the ring modulus temporarily, after packing is done it is replaced back
 		BigBinaryInteger qMod(ring->GetModulus());
 
-		BigBinaryVector slotValues(ring->GetValues());
+		native_int::BinaryVector slotValues(ring->GetValues().GetLength(),modulusNI);
+
+		//copy values from ring to the vector
+		for (usint i = 0; i < ring->GetRingDimension(); i++) {
+			slotValues.SetValAtIndex(i, ring->GetValAtIndex(i).ConvertToInt());
+		}
 
 		//std::cout << packedVector << std::endl;
 
-		slotValues.SetModulus(modulus);
-
 		if (params->OrderIsPowerOfTwo()) {
-			slotValues = ChineseRemainderTransformFTT<BigBinaryInteger, BigBinaryVector>::GetInstance().InverseTransform(slotValues, m_initRoot[modulus], m);
+			//power of 2 cyclotomics can use inverse CRT as packing function.
+			slotValues = ChineseRemainderTransformFTT<native_int::BinaryInteger, native_int::BinaryVector>::GetInstance().InverseTransform(slotValues, m_initRoot[modulusNI], m);
 		}
 		else {
-
-			BigBinaryVector packedVector(m_coefficientsCRT[modulus].at(0)*slotValues.GetValAtIndex(0));
+			//for arbitrary cyclotomics CRT interpolation has to be used.
+			native_int::BinaryVector packedVector(m_coefficientsCRT[modulusNI].at(0)*slotValues.GetValAtIndex(0));
 			for (usint i = 1; i < n; i++) {
-				packedVector += m_coefficientsCRT[modulus].at(i)*slotValues.GetValAtIndex(i);
+				packedVector += m_coefficientsCRT[modulusNI].at(i)*slotValues.GetValAtIndex(i);
 			}
 			slotValues = std::move(packedVector);
 		}
 
-		slotValues.SetModulus(qMod);
+		BigBinaryVector slotValuesRing(ring->GetRingDimension(), qMod);
 
-		ring->SetValues(slotValues, Format::COEFFICIENT);
+		//copy values into the slotValuesRing
+		for (usint i = 0; i < ring->GetRingDimension(); i++) {
+			slotValuesRing.SetValAtIndex(i, BigBinaryInteger(slotValues.GetValAtIndex(i).ConvertToInt()));
+		}
+
+		ring->SetValues(slotValuesRing, Format::COEFFICIENT);
 
 		//ring->PrintValues();
 
 	}
 
 
-	BigBinaryVector PackedIntPlaintextEncoding::GetRootVector(const BigBinaryInteger &modulus, usint cycloOrder) {
+	native_int::BinaryVector PackedIntPlaintextEncoding::GetRootVector(const native_int::BinaryInteger &modulus, usint cycloOrder) {
 		auto tList = GetTotientList(cycloOrder);
-		BigBinaryVector rootList(tList.size(), modulus);
+		native_int::BinaryVector rootList(tList.size(), modulus);
 		for (usint i = 0; i < tList.size(); i++) {
-			auto val = m_initRoot[modulus].ModExp(BigBinaryInteger(tList.at(i)), modulus);
+			auto val = m_initRoot[modulus].ModExp(native_int::BinaryInteger(tList.at(i)), modulus);
 			rootList.SetValAtIndex(i, val);
 		}
 
 		return rootList;
 	}
 
-	void PackedIntPlaintextEncoding::InitializeCRTCoefficients(usint cycloOrder, const BigBinaryInteger &modulus) {
+	void PackedIntPlaintextEncoding::InitializeCRTCoefficients(usint cycloOrder, const native_int::BinaryInteger &modulus) {
 		usint n = GetTotient(cycloOrder);
-		auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(cycloOrder, modulus);
+		//get the cyclotomic polynomial w.r.t plaintext modulus.
+		auto cycloPoly = GetCyclotomicPolynomial<native_int::BinaryVector, native_int::BinaryInteger>(cycloOrder, modulus);
+		//get initial root list, used to construct interpolation matrix
 		auto rootListInit = GetRootVector(modulus, cycloOrder);
-		std::vector<BigBinaryVector> coefficients;
+		//matrix to store interpolation coefficients
+		std::vector<native_int::BinaryVector> coefficients;
+
 		for (usint i = 0; i < n; i++) {
+			//coeffRow = cycloPoly/(x-rootListInit[i])
 			auto coeffRow = SyntheticPolynomialDivision(cycloPoly, rootListInit.GetValAtIndex(i), modulus);
-			auto x = SyntheticRemainder(coeffRow, rootListInit.GetValAtIndex(i), modulus);
-			x = x.ModInverse(modulus);
-			coeffRow = coeffRow*x;
+			//y = coeffRow % ((x-rootListInit[i]))
+			auto y = SyntheticRemainder(coeffRow, rootListInit.GetValAtIndex(i), modulus);
+			y = y.ModInverse(modulus);
+			//coeffRow /=y
+			coeffRow = coeffRow*y;
 			coefficients.push_back(std::move(coeffRow));
 		}
-		BigBinaryVector slotValues(n, modulus);
+		// initial sequential slot values
+		native_int::BinaryVector slotValues(n, modulus);
 		for (usint i = 0; i < n; i++) {
-			slotValues.SetValAtIndex(i, BigBinaryInteger(i + 1));
+			slotValues.SetValAtIndex(i, native_int::BinaryInteger(i + 1));
 		}
-		BigBinaryVector packedVector(coefficients.at(0)*slotValues.GetValAtIndex(0));
+
+		native_int::BinaryVector packedVector(coefficients.at(0)*slotValues.GetValAtIndex(0));
 		for (usint i = 1; i < n; i++) {
 			packedVector += coefficients.at(i)*slotValues.GetValAtIndex(i);
 		}
-
+		// list of permuted slot values
 		auto perm = SyntheticPolyPowerMod(packedVector, m_automorphismGenerator[modulus], rootListInit);
 
+		//root list based on permuted slot values
 		auto newRootList = FindPermutedSlots(slotValues, perm, rootListInit);
 
 		coefficients.clear();
+		//generate new CRT coefficients based on permuted root list
 		for (usint i = 0; i < n; i++) {
 			auto coeffRow = SyntheticPolynomialDivision(cycloPoly, newRootList.GetValAtIndex(i), modulus);
 			auto x = SyntheticRemainder(coeffRow, newRootList.GetValAtIndex(i), modulus);
@@ -207,10 +235,10 @@ namespace lbcrypto {
 		m_rootList[modulus] = std::move(newRootList);
 	}
 
-	BigBinaryVector PackedIntPlaintextEncoding::FindPermutedSlots(const BigBinaryVector &orig, const BigBinaryVector & perm, const BigBinaryVector & rootList) {
-		BigBinaryVector newRootList(rootList.GetLength(), rootList.GetModulus());
+	native_int::BinaryVector PackedIntPlaintextEncoding::FindPermutedSlots(const native_int::BinaryVector &orig, const native_int::BinaryVector & perm, const native_int::BinaryVector & rootList) {
+		native_int::BinaryVector newRootList(rootList.GetLength(), rootList.GetModulus());
 		usint idx = 0;
-		while (perm.GetValAtIndex(idx) != BigBinaryInteger::ONE)
+		while (perm.GetValAtIndex(idx) != native_int::BinaryInteger::ONE)
 			idx++;
 		usint n = rootList.GetLength();
 		for (usint i = 0; i < n; i++) {
@@ -226,35 +254,48 @@ namespace lbcrypto {
 
 		BigBinaryInteger qMod(ring->GetModulus());
 
-		BigBinaryVector packedVector(ring->GetValues());
+		//native int modulus
+		native_int::BinaryInteger modulusNI(modulus.ConvertToInt());
+
+		native_int::BinaryVector packedVector(ring->GetRingDimension(),modulusNI);
+
+		//copy aggregate plaintext values
+		for (usint i = 0; i < ring->GetRingDimension(); i++) {
+			packedVector.SetValAtIndex(i, native_int::BinaryInteger(ring->GetValAtIndex(i).ConvertToInt()));
+		}
+
 
 		auto params = ring->GetParams();
 
-		packedVector.SetModulus(modulus);
-
 		if (params->OrderIsPowerOfTwo()) {
-			packedVector = ChineseRemainderTransformFTT<BigBinaryInteger, BigBinaryVector>::GetInstance().ForwardTransform(packedVector, m_initRoot[modulus], m);
+			//power of 2 cyclotomics can use forward CRT for getting slot values
+			packedVector = ChineseRemainderTransformFTT<native_int::BinaryInteger, native_int::BinaryVector>::GetInstance().ForwardTransform(packedVector, m_initRoot[modulusNI], m);
 		}
 		else {
-			packedVector = SyntheticPolyRemainder(packedVector, m_rootList[modulus], modulus);
+			//arbitrary cyclotomics relies on polynomial remaindering to get slot values
+			packedVector = SyntheticPolyRemainder(packedVector, m_rootList[modulusNI], modulusNI);
 		}
 
-		packedVector.SetModulus(qMod);
+		BigBinaryVector packedVectorRing(ring->GetRingDimension(), qMod);
 
-		ring->SetValues(packedVector, Format::COEFFICIENT);
+		for (usint i = 0; i < ring->GetRingDimension(); i++) {
+			packedVectorRing.SetValAtIndex(i, BigBinaryInteger(packedVector.GetValAtIndex(i).ConvertToInt()));
+		}
+
+		ring->SetValues(packedVectorRing, Format::COEFFICIENT);
 
 	}
 
-	BigBinaryVector PackedIntPlaintextEncoding::SyntheticPolyPowerMod(const BigBinaryVector &input, const BigBinaryInteger &power, const BigBinaryVector &rootListInit) {
+	native_int::BinaryVector PackedIntPlaintextEncoding::SyntheticPolyPowerMod(const native_int::BinaryVector &input, const native_int::BinaryInteger &power, const native_int::BinaryVector &rootListInit) {
 
 		usint n = input.GetLength();
 		const auto &modulus = input.GetModulus();
-		BigBinaryVector result(n, modulus);
+		native_int::BinaryVector result(n, modulus);
 
 		//Precompute the Barrett mu parameter
-		BigBinaryInteger temp(BigBinaryInteger::ONE);
+		native_int::BinaryInteger temp(native_int::BinaryInteger::ONE);
 		temp <<= 2 * modulus.GetMSB() + 3;
-		BigBinaryInteger mu = temp.DividedBy(modulus);
+		native_int::BinaryInteger mu = temp.DividedBy(modulus);
 
 		for (usint i = 0; i < n; i++) {
 			auto &root = rootListInit.GetValAtIndex(i);

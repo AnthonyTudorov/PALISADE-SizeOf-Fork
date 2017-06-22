@@ -345,22 +345,72 @@ namespace lbcrypto {
 		*/
 		void SetElement(const VecType &element);
 
+		/**
+		*
+		* @param a is the input vector to be padded with zeros.
+		* @param finalSize is the length of the output vector.
+		* @return output vector padded with (finalSize - initial size)additional zeros.
+		*/
 		static VecType PadZeros(const VecType &a, const usint finalSize);
 
+		/**
+		*
+		* @param a is the input vector to be resized.
+		* @param lo is lower coefficient index.
+		* @param hi is higher coefficient index.
+		* @return output vector s.t output vector = a[lo]...a[hi].
+		*/
 		VecType Resize(const VecType &a, usint  lo, usint hi);
 
 		void PreComputeNTTModulus(usint cycloOrder, const std::vector<IntType> &modulii);
 
+		/**
+		* @brief Precomputes the modulus needed for NTT operation in forward Bluestein transform.
+		* @param cycloOrder is the cyclotomic order of the polynomial.
+		* @param modulus is the modulus of the polynomial.
+		*/
 		void PreComputeNTTModulus(usint cycloOrder, const IntType &modulus);
 
+		/**
+		* @brief Precomputes the root of unity table needed for NTT operation in forward Bluestein transform.
+		* @param cycloOrder is the cyclotomic order of the polynomial ring.
+		* @param modulus is the modulus of the polynomial.
+		*/
 		void PreComputeRootTableForNTT(usint cycloOrder, const IntType &modulus);
 
+		/**
+		* @brief Sets the precomputed modulus that is needed for NTT operation in forward Bluestein transform.
+		* @param cycloOrder is the cyclotomic order of the ring.
+		* @param modulus is the modulus of the polynomial ring.
+		* @param nttMod is the precomputed modulus required for the NTT transform.
+		*/
 		static void SetPreComputedNTTModulus(usint cyclotoOrder, const IntType &modulus, const IntType &nttMod);
 
+		/**
+		* @brief Sets the root of unity table that is needed for NTT operation in forward Bluestein transform.
+		* @param cycloOrder is the cyclotomic order of the ring.
+		* @param modulus is the modulus of the polynomial ring.
+		* @param nttMod is the precomputed modulus required for the NTT transform.
+		* @param nttRoot is the initial root of unity used to populate the root of unity table.
+		*/
 		static void SetRootTableForNTT(usint cyclotoOrder, const IntType &modulus, const IntType &nttMod, const IntType &nttRoot);
 
+		/**
+		* @brief precomputes the powers of root used in forward Bluestein transform.
+		* @param cycloOrder is the cyclotomic order of the polynomial ring.
+		* @param modulus is the modulus of the polynomial ring.
+		* @param root is the root of unity s.t. root^2m = 1.
+		*/
 		static void PreComputePowers(usint cycloOrder, const IntType &modulus, const IntType &root);
 
+		/**
+		* @brief precomputes the NTT transform of the power of root of unity used in the Bluestein transform.
+		* @param cycloOrder is the cyclotomic order of the polynomial ring.
+		* @param modulus is the modulus of the polynomial ring.
+		* @param root is the root of unity s.t. root^2m = 1.
+		* @param bigMod is the modulus required for the NTT transform.
+		* @param bigRoot is the root of unity required for the NTT transform.
+		*/
 		static void PreComputeRBTable(usint cycloOrder, const IntType &modulus, const IntType &root, const IntType &bigMod, const IntType &bigRoot);
 
 		/**
@@ -368,25 +418,29 @@ namespace lbcrypto {
 		*/
 		void Destroy();
 
+		//map to store the root of unity table with modulus as key.
 		static std::map<IntType, VecType> m_rootOfUnityTableByModulus;
+
+		//map to store the root of unity inverse table with modulus as key.
 		static std::map<IntType, VecType> m_rootOfUnityInverseTableByModulus;
+
+		//map to store the power of roots as a table with root of unity as key.
 		static std::map<IntType, VecType> m_powersTableByRoot;
+
+		//map to store the forward transform of power table with modulus as key.
 		static std::map<IntType, VecType> m_RBTableByRoot;
 
 	private:
-
+		//map to store the precomputed NTT modulus with modulus as key.
 		static std::map<IntType, IntType> m_NTTModulus;
+		//pointer to the class to support sigleton class structure.
 		static BluesteinFFT *m_onlyInstance;
-		BluesteinFFT() : m_element(0) {}
 		~BluesteinFFT() {}
-		BluesteinFFT(const BluesteinFFT&) : m_element(0) {}
-		const VecType *m_element;
-		usint k2;
 
 	};
 
 	/**
-	* @brief Chinese Remainder Transform Arbitrary implemetation
+	* @brief Chinese Remainder Transform for arbitrary cyclotomics.
 	*/
 	template<typename IntType, typename VecType>
 	class ChineseRemainderTransformArb {
@@ -408,8 +462,10 @@ namespace lbcrypto {
 		* Forward transform.
 		*
 		* @param element is the element to perform the transform on.
-		* @param rootOfUnityTable the root of unity table.
-		* @param cycloOrder is the cyclotomic order.
+		* @param root is the 2mth root of unity w.r.t the ring modulus.
+		* @param cycloOrder is the cyclotomic order of the ring element.
+		* @param bigMod is the addtional modulus needed for NTT operation.
+		* @param bigRoot is the addtional root of unity w.r.t bigMod needed for NTT operation.
 		* @return is the output result of the transform.
 		*/
 		VecType ForwardTransform(const VecType& element, const IntType& root, const IntType& bigMod, const IntType& bigRoot, const usint cycloOrder);
@@ -418,49 +474,86 @@ namespace lbcrypto {
 		* Inverse transform.
 		*
 		* @param element is the element to perform the transform on.
-		* @param rootOfUnityInverseTable the root of unity table.
-		* @param cycloOrder is the cyclotomic order.
+		* @param root is the 2mth root of unity w.r.t the ring modulus.
+		* @param cycloOrder is the cyclotomic order of the ring element.
+		* @param bigMod is the addtional modulus needed for NTT operation.
+		* @param bigRoot is the addtional root of unity w.r.t bigMod needed for NTT operation.
 		* @return is the output result of the transform.
 		*/
 		VecType InverseTransform(const VecType& element, const IntType& root, const IntType& bigMod, const IntType& bigRoot, const usint cycloOrder);
 
-		/**
-		* Set the ring element.
-		*
-		* @param &element is the element to set.
-		*/
-		void SetElement(const VecType &element);
-
-		static VecType PadZeros(const VecType &a, const usint finalSize);
 
 		/**
 		* Destructor.
 		*/
 		void Destroy();
-
+		
+		/**
+		* @brief Precomputes the root of unity and modulus needed for NTT operation in forward Bluestein transform.
+		* @param cycloOrder is the cyclotomic order of the polynomial ring.
+		* @param modulus is the modulus of the polynomial ring.
+		*/
 		static void PreCompute(const usint cyclotoOrder, const IntType &modulus);
+
+		/**
+		* @brief Sets the precomputed root of unity and modulus needed for NTT operation in forward Bluestein transform.
+		* @param cycloOrder is the cyclotomic order of the polynomial ring.
+		* @param modulus is the modulus of the polynomial ring.
+		* @param nttMod is the modulus needed for the NTT operation in forward Bluestein transform.
+		* @param nttRoot is the root of unity needed for the NTT operation in forward Bluestein transform.
+		*/
 		static void SetPreComputedNTTModulus(usint cyclotoOrder, const IntType &modulus, const IntType &nttMod, const IntType &nttRoot);
-		//function to set the nttMod and nttRoot; computes m_cyclotomicPolyReveseNTTMap,m_cyclotomicPolyNTTMap.
-		//Always called after setting the cyclotomic polynomial.
+		
+		/**
+		* @brief Sets the precomputed root of unity and modulus needed for NTT operation and computes m_cyclotomicPolyReveseNTTMap,m_cyclotomicPolyNTTMap.
+		* Always called after setting the cyclotomic polynomial.
+		* @param cycloOrder is the cyclotomic order of the polynomial ring.
+		* @param modulus is the modulus of the polynomial ring.
+		* @param nttMod is the modulus needed for the NTT operation in forward Bluestein transform.
+		* @param nttRoot is the root of unity needed for the NTT operation in forward Bluestein transform.
+		*/
 		static void SetPreComputedNTTDivisionModulus(usint cyclotoOrder, const IntType &modulus, const IntType &nttMod, const IntType &nttRoot);
 
+		/**
+		* @brief Computes the inverse of the cyclotomic polynomial using Newton-Iteration method.
+		* @param cycloPoly is the cyclotomic polynomial.
+		* @param modulus is the modulus of the polynomial ring.
+		* @return inverse polynomial. 
+		*/
 		static VecType InversePolyMod(const VecType &cycloPoly, const IntType &modulus, usint power);
 
 	private:
+		//pointer to the class to support sigleton class structure.
 		static ChineseRemainderTransformArb *m_onlyInstance;
-		ChineseRemainderTransformArb() : m_element(0) {}
+		//destructor
 		~ChineseRemainderTransformArb() {}
-		ChineseRemainderTransformArb(const ChineseRemainderTransformArb&) : m_element(0) {}
+
 		VecType Pad(const VecType& element, const usint cycloOrder, bool forward);
+
 		VecType Drop(const VecType& element, const usint cycloOrder, bool forward, const IntType& bigMod, const IntType& bigRoot);
-		const VecType *m_element;
+
+		//map to store the cyclotomic polynomial with polynomial ring's modulus as key.
 		static std::map<IntType, VecType> m_cyclotomicPolyMap;
+
+		//map to store the forward NTT transform of the inverse of cyclotomic polynomial with polynomial ring's modulus as key.
 		static std::map<IntType, VecType> m_cyclotomicPolyReverseNTTMap;
+
+		//map to store the forward NTT transform of the cyclotomic polynomial with polynomial ring's modulus as key.
 		static std::map<IntType, VecType> m_cyclotomicPolyNTTMap;
+
+		//map to store the root of unity table used in NTT based polynomial division.
 		static std::map<IntType, VecType> m_rootOfUnityDivisionTableByModulus;
+
+		//map to store the root of unity table for computing forward NTT of inverse cyclotomic polynomial used in NTT based polynomial division.
 		static std::map<IntType, VecType> m_rootOfUnityDivisionInverseTableByModulus;
+
+		//modulus used in NTT based polynomial division.
 		static std::map<IntType, IntType> m_DivisionNTTModulus;
+
+		//root of unity used in NTT based polynomial division.
 		static std::map<IntType, IntType> m_DivisionNTTRootOfUnity;
+
+		//dimension of the NTT transform in NTT based polynomial division.
 		static std::map<usint, usint> m_nttDivisionDim;
 
 	};

@@ -249,7 +249,8 @@ namespace lbcrypto {
 	* @param &a is the integer in divisor[x-a].
 	* @return remainder after division with x-a.
 	*/
-	BigBinaryInteger SyntheticRemainder(const BigBinaryVector &dividend, const BigBinaryInteger &a, const BigBinaryInteger &modulus);
+	template<typename IntVector, typename IntType>
+	IntType SyntheticRemainder(const IntVector &dividend, const IntType &a, const IntType &modulus);
 
 	/**
 	* Returns the remainder vector after polynomial division of dividend with divisor = x-aList[i].
@@ -258,7 +259,8 @@ namespace lbcrypto {
 	* @param &aList is the integer vector for divisor[x-aList[i]].
 	* @return remainder vector after division with x-aList[i].
 	*/
-	BigBinaryVector SyntheticPolyRemainder(const BigBinaryVector &dividend, const BigBinaryVector &aList, const BigBinaryInteger &modulus);
+	template<typename IntVector, typename IntType>
+	IntVector SyntheticPolyRemainder(const IntVector &dividend, const IntVector &aList, const IntType &modulus);
 
 	/**
 	* Returns the polynomial after raising it by exponent = power.
@@ -267,7 +269,8 @@ namespace lbcrypto {
 	* @param &power is the exponent.
 	* @return exponentiated polynomial.
 	*/
-	BigBinaryVector PolynomialPower(const BigBinaryVector &input, usint power);
+	template<typename IntVector, typename IntType>
+	IntVector PolynomialPower(const IntVector &input, usint power);
 
 	/**
 	* Returns the quotient after polynomial division of dividend with divisor = x-a.
@@ -276,7 +279,8 @@ namespace lbcrypto {
 	* @param &a is the integer in divisor[x-a].
 	* @return quotient after division with x-a.
 	*/
-	BigBinaryVector SyntheticPolynomialDivision(const BigBinaryVector &dividend, const BigBinaryInteger &a, const BigBinaryInteger &modulus);
+	template<typename IntVector, typename IntType>
+	IntVector SyntheticPolynomialDivision(const IntVector &dividend, const IntType &a, const IntType &modulus);
 
 	/**
 	* Checkes if g is a generator for any cyclic group with modulus q (non-prime moduli are supported); currently q up to 64 bits only are supported
