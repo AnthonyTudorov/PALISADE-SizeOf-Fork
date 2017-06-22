@@ -43,10 +43,12 @@ using std::ostream;
 
 #include "circuitnode.cpp"
 #include "circuitgraph.cpp"
+#include "circuitinput.cpp"
 
 namespace lbcrypto {
 template class CircuitGraphWithValues<ILDCRT2n>;
 template class CircuitNodeWithValue<ILDCRT2n>;
+template class CircuitObject<ILDCRT2n>;
 }
 
 void usage() {
@@ -359,16 +361,9 @@ main(int argc, char *argv[])
 
 		// print the output
 		for( auto& out : outputs ) {
-			IntPlaintextEncoding result;
-
 			cout << "For output " << out.first << endl;
-			cc.Decrypt(kp.secretKey, {out.second.GetIntVecValue()}, &result);
-
-			size_t i;
-			const size_t n = 10;
-			for( i=0; i < n && i < cc.GetCyclotomicOrder(); i++ )
-				cout << result[i] << " ";
-			cout << (( i == n ) ? "..." : " ") << endl;
+			cout << out.second.GetType() << endl;
+			out.second.DecryptAndPrint(cc, kp.secretKey, cout);
 		}
 
 		if( print_result_graph ) {

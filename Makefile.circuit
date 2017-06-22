@@ -69,9 +69,9 @@ $(CIRCUITSRCDIR)/lib/scan.cpp: $(CIRCUITSRCDIR)/lib/scan.l
 
 allcircuitdemos: $(patsubst $(CIRCUITBINDIR)/demo/%,bin/demo/circuit/%,$(patsubst %.o,%$(EXESUFFIX),$(CIRCUITDEMOOBJECTS)))
 
-bin/demo/circuit/%$(EXESUFFIX): src/circuit/bin/demo/%.o $(EXTLIBDIR)/$(PALISADECIRCUITLIB) $(CLIBS)
+bin/demo/circuit/%$(EXESUFFIX): src/circuit/bin/demo/%.o $(EXTLIBDIR)/$(PALISADECIRCUITLIB)
 	@mkdir -p $(@D)
-	$(CC) -o $@ $^ $(EXTLIB) -lPALISADEcore -lPALISADEpke -lPALISADEtrapdoor
+	$(CC) -o $@ $^ $(EXTLIB) -lPALISADEcore -lPALISADEpke -lPALISADEtrapdoor -lPALISADEcircuit
 
 #this builds the palisade library out of the objects 
 $(EXTLIBDIR)/$(PALISADECIRCUITLIB): $(CIRCUITOBJECTS) $(CLIBS)

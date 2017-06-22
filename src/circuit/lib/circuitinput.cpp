@@ -34,6 +34,8 @@
 #include "circuitinput.h"
 #include "cryptocontext.h"
 
+namespace lbcrypto {
+
 template<typename Element>
 std::ostream& operator<<(std::ostream& out, const CircuitObject<Element>& obj)
 {
@@ -57,3 +59,34 @@ std::ostream& operator<<(std::ostream& out, const CircuitObject<Element>& obj)
 	return out;
 }
 
+template<typename Element>
+void CircuitObject<Element>::DecryptAndPrint(CryptoContext<Element> cc, shared_ptr<LPPrivateKey<Element>> key, std::ostream& out) const
+{
+	switch( this->t ) {
+	case VECTOR_INT:
+	{
+		IntPlaintextEncoding result;
+		cc.Decrypt(key, {GetIntVecValue()}, &result);
+
+		size_t i;
+		const size_t n = 10;
+		for( i=0; i < n && i < cc.GetRingDimension(); i++ )
+			out << result[i] << " ";
+		out << (( i == n ) ? "..." : " ") << std::endl;
+	}
+	break;
+
+	case MATRIX_RAT:
+	{
+		Matrix<IntPlaintextEncoding> numerator([](){return make_unique<IntPlaintextEncoding>();},3,3);
+		Matrix<IntPlaintextEncoding> denominator([](){return make_unique<IntPlaintextEncoding>();},3,3);
+		cc.DecryptMatrix(key, {GetIntMatValue()}, &numerator, &denominator);
+	}
+		break;
+
+	default:
+		throw std::logic_error("type not supported");
+	}
+}
+
+}

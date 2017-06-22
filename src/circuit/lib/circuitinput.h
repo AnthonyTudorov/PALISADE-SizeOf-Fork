@@ -71,6 +71,7 @@ inline std::ostream& operator<<(std::ostream& out, const wire_type& ty)
 	return out;
 }
 
+namespace lbcrypto {
 
 template<typename Element>
 class CircuitObject {
@@ -101,6 +102,10 @@ public:
 	}
 	shared_ptr<Ciphertext<Element>> GetIntVecValue() const { return ct; }
 	shared_ptr<Matrix<RationalCiphertext<Element>>> GetIntMatValue() const { return mrct; }
+
+	void DecryptAndPrint(CryptoContext<Element> cc, shared_ptr<LPPrivateKey<Element>> key, std::ostream& out) const;
 };
+
+}
 
 #endif

@@ -75,9 +75,7 @@ ostream& operator<<(ostream& out, const CircuitNodeWithValue<Element>& n)
 
 	const Value<Element>& val = n.getValue();
 	if( CircuitGraphWithValues<Element>::_graph_key && val.GetType() != UNKNOWN ) {
-		IntPlaintextEncoding pt;
-		CircuitGraphWithValues<Element>::_graph_cc.Decrypt(CircuitGraphWithValues<Element>::_graph_key, {val.GetIntVecValue()}, &pt);
-		out << "\\n\\[" << pt << "\\] ";
+		val.DecryptAndPrint(CircuitGraphWithValues<Element>::_graph_cc, CircuitGraphWithValues<Element>::_graph_key, out);
 	}
 
 	out << "\"]; ";
