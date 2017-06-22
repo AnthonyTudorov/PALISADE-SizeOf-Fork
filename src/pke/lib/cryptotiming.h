@@ -73,22 +73,23 @@ class TimingStatistics {
 public:
 	OpType	operation;
 	usint	samples;
+	double	startup;
 	double	min;
 	double	max;
 	double	average;
 
-	TimingStatistics() : operation(OpNOOP), samples(0),
+	TimingStatistics() : operation(OpNOOP), samples(0), startup(0),
 			min(std::numeric_limits<double>::max()),
 			max(std::numeric_limits<double>::min()), average(0) {}
-	TimingStatistics(double min, double max, double average) : operation(OpNOOP), samples(0),
+	TimingStatistics(double startup, double min, double max, double average) : operation(OpNOOP), samples(0), startup(startup),
 			min(min), max(max), average(average) {}
 	bool Serialize(Serialized* serObj) const;
 	bool Deserialize(const Serialized& serObj);
 	const TimingStatistics operator+(const TimingStatistics& op) const {
-		return TimingStatistics( min + op.min, max + op.max, average + op.average);
+		return TimingStatistics( startup, min + op.min, max + op.max, average + op.average);
 	}
 	TimingStatistics& operator+=(const TimingStatistics& op) {
-		min += op.min, max += op.max, average += op.average;
+		startup = op.startup, min += op.min, max += op.max, average += op.average;
 		return *this;
 	}
 };
@@ -105,7 +106,7 @@ inline std::ostream& operator<<(std::ostream& out, const TimingInfo& t) {
 }
 
 inline std::ostream& operator<<(std::ostream& out, const TimingStatistics& t) {
-	out << "(min=" << t.min << ",max=" << t.max << ",avg=" << t.average << ")";
+	out << "(startup=" << t.startup << ",min=" << t.min << ",max=" << t.max << ",avg=" << t.average << ")";
 	return out;
 }
 

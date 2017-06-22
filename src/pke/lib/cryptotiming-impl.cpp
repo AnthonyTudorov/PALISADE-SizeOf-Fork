@@ -126,6 +126,7 @@ bool TimingStatistics::Serialize(Serialized *serObj) const {
 
 	statMap.AddMember("operation", OperatorName[operation], serObj->GetAllocator());
 	statMap.AddMember("samples", std::to_string(samples), serObj->GetAllocator());
+	statMap.AddMember("startup", std::to_string(startup), serObj->GetAllocator());
 	statMap.AddMember("min", std::to_string(min), serObj->GetAllocator());
 	statMap.AddMember("max", std::to_string(max), serObj->GetAllocator());
 	statMap.AddMember("average", std::to_string(average), serObj->GetAllocator());
@@ -147,6 +148,9 @@ bool TimingStatistics::Deserialize(const Serialized& serObj) {
 	if( (pIt = mIter->value.FindMember("samples")) == mIter->value.MemberEnd() )
 		return false;
 	samples = std::stoi( pIt->value.GetString() );
+	if( (pIt = mIter->value.FindMember("startup")) == mIter->value.MemberEnd() )
+		return false;
+	startup = std::stod( pIt->value.GetString() );
 	if( (pIt = mIter->value.FindMember("min")) == mIter->value.MemberEnd() )
 		return false;
 	min = std::stod( pIt->value.GetString() );

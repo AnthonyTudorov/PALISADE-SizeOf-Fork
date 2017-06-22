@@ -259,7 +259,7 @@ class Input : public CircuitNode {
 public:
 	Input(usint id, wire_type type) : CircuitNode(id), type(type) {
 		this->setAsInput();
-		this->runtime = TimingStatistics(0,0,0);
+		this->runtime = TimingStatistics(0,0,0,0);
 	}
 
 	void simeval(CircuitGraph& cg, vector<CircuitSimulation>&) {

@@ -168,13 +168,17 @@ main(int argc, char *argv[])
 	for( TimingInfo& sample : times ) {
 		cout << sample << endl;
 		TimingStatistics& st = stats[ sample.operation ];
-		st.operation = sample.operation;
-		st.samples++;
-		st.average += sample.timeval;
-		if( sample.timeval < st.min )
-			st.min = sample.timeval;
-		if( sample.timeval > st.max )
-			st.max = sample.timeval;
+		if( st.operation == OpNOOP ) {
+			st.operation = sample.operation;
+			st.startup = sample.timeval;
+		} else {
+			st.samples++;
+			st.average += sample.timeval;
+			if( sample.timeval < st.min )
+				st.min = sample.timeval;
+			if( sample.timeval > st.max )
+				st.max = sample.timeval;
+		}
 	}
 
 	// read them out
