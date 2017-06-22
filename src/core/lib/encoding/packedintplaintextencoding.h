@@ -219,7 +219,13 @@ private:
 	*/
 	void Pack(ILVector2n *ring, const BigBinaryInteger &modulus) const;
 
-
+	/**
+	* @brief Generates the permuted root list.
+	*
+	* @param orig is the vector of sequencial slot values.
+	* @param perm is permuted slot values.
+	* @param rootList is the original list of primitive roots.
+	*/
 	static native_int::BinaryVector FindPermutedSlots(const native_int::BinaryVector &orig, const native_int::BinaryVector & perm, const native_int::BinaryVector & rootList);
 
 	/**

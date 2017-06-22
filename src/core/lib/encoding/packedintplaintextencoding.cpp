@@ -89,26 +89,29 @@ namespace lbcrypto {
 
 	void PackedIntPlaintextEncoding::Destroy()
 	{
+		//clears the initial root of unity 
 		m_initRoot.clear();
+		//clears the automorphism generator
 		m_automorphismGenerator.clear();
+		//clears the CRT coefficients
 		m_coefficientsCRT.clear();
+		//clears the root list 
 		m_rootList.clear();
 	}
 
 	void PackedIntPlaintextEncoding::SetParams(const BigBinaryInteger &modulus, usint m)
 	{
-
 		native_int::BinaryInteger modulusNI(modulus.ConvertToInt()); //native int modulus
 
+		//initialize the CRT coefficients if not initialized
 		if (m_initRoot[modulusNI].GetMSB() == 0) {
 			native_int::BinaryInteger initRoot = RootOfUnity<native_int::BinaryInteger>(m, modulusNI);
 			native_int::BinaryInteger mm(m); // Hackish typecast
 			native_int::BinaryInteger automorphismGenerator = FindGeneratorCyclic<native_int::BinaryInteger>(mm);
-
+			//store the initial root of unity, to be used as automorphism generator.
 			m_initRoot[modulusNI] = initRoot;
 			m_automorphismGenerator[modulusNI] = automorphismGenerator.ConvertToInt();
-			//std::cout << "root found" << initRoot << std::endl;
-
+			//initializes the CRT coefficient matrix
 			InitializeCRTCoefficients(m, modulusNI);
 
 		}
@@ -119,11 +122,12 @@ namespace lbcrypto {
 
 		usint n = ring->GetRingDimension(); //ring dimension
 		usint m = ring->GetCyclotomicOrder();//cyclotomic order
-											 //Do the precomputation if not initialized
+											 
 		const auto params = ring->GetParams();
 
-		native_int::BinaryInteger modulusNI(modulus.ConvertToInt());
+		native_int::BinaryInteger modulusNI(modulus.ConvertToInt());//native int modulus
 
+		//Do the precomputation if not initialized
 		if (this->m_initRoot[modulusNI].GetMSB() == 0) {
 			if (params->OrderIsPowerOfTwo())
 				m_initRoot[modulusNI] = RootOfUnity<native_int::BinaryInteger>(m, modulusNI);
@@ -133,10 +137,12 @@ namespace lbcrypto {
 			//std::cout << "root found" << initRoot << std::endl;
 		}
 
+		//stores the ring modulus temporarily, after packing is done it is replaced back
 		BigBinaryInteger qMod(ring->GetModulus());
 
 		native_int::BinaryVector slotValues(ring->GetValues().GetLength(),modulusNI);
 
+		//copy values from ring to the vector
 		for (usint i = 0; i < ring->GetRingDimension(); i++) {
 			slotValues.SetValAtIndex(i, ring->GetValAtIndex(i).ConvertToInt());
 		}
@@ -144,10 +150,11 @@ namespace lbcrypto {
 		//std::cout << packedVector << std::endl;
 
 		if (params->OrderIsPowerOfTwo()) {
+			//power of 2 cyclotomics can use inverse CRT as packing function.
 			slotValues = ChineseRemainderTransformFTT<native_int::BinaryInteger, native_int::BinaryVector>::GetInstance().InverseTransform(slotValues, m_initRoot[modulusNI], m);
 		}
 		else {
-
+			//for arbitrary cyclotomics CRT interpolation has to be used.
 			native_int::BinaryVector packedVector(m_coefficientsCRT[modulusNI].at(0)*slotValues.GetValAtIndex(0));
 			for (usint i = 1; i < n; i++) {
 				packedVector += m_coefficientsCRT[modulusNI].at(i)*slotValues.GetValAtIndex(i);
@@ -155,7 +162,6 @@ namespace lbcrypto {
 			slotValues = std::move(packedVector);
 		}
 
-		//slotValues.SetModulus(qMod);
 		BigBinaryVector slotValuesRing(ring->GetRingDimension(), qMod);
 
 		//copy values into the slotValuesRing
@@ -183,30 +189,41 @@ namespace lbcrypto {
 
 	void PackedIntPlaintextEncoding::InitializeCRTCoefficients(usint cycloOrder, const native_int::BinaryInteger &modulus) {
 		usint n = GetTotient(cycloOrder);
+		//get the cyclotomic polynomial w.r.t plaintext modulus.
 		auto cycloPoly = GetCyclotomicPolynomial<native_int::BinaryVector, native_int::BinaryInteger>(cycloOrder, modulus);
+		//get initial root list, used to construct interpolation matrix
 		auto rootListInit = GetRootVector(modulus, cycloOrder);
+		//matrix to store interpolation coefficients
 		std::vector<native_int::BinaryVector> coefficients;
+
 		for (usint i = 0; i < n; i++) {
+			//coeffRow = cycloPoly/(x-rootListInit[i])
 			auto coeffRow = SyntheticPolynomialDivision(cycloPoly, rootListInit.GetValAtIndex(i), modulus);
-			auto x = SyntheticRemainder(coeffRow, rootListInit.GetValAtIndex(i), modulus);
-			x = x.ModInverse(modulus);
-			coeffRow = coeffRow*x;
+			//y = coeffRow % ((x-rootListInit[i]))
+			auto y = SyntheticRemainder(coeffRow, rootListInit.GetValAtIndex(i), modulus);
+			y = y.ModInverse(modulus);
+			//coeffRow /=y
+			coeffRow = coeffRow*y;
 			coefficients.push_back(std::move(coeffRow));
 		}
+		// initial sequential slot values
 		native_int::BinaryVector slotValues(n, modulus);
 		for (usint i = 0; i < n; i++) {
 			slotValues.SetValAtIndex(i, native_int::BinaryInteger(i + 1));
 		}
+
 		native_int::BinaryVector packedVector(coefficients.at(0)*slotValues.GetValAtIndex(0));
 		for (usint i = 1; i < n; i++) {
 			packedVector += coefficients.at(i)*slotValues.GetValAtIndex(i);
 		}
-
+		// list of permuted slot values
 		auto perm = SyntheticPolyPowerMod(packedVector, m_automorphismGenerator[modulus], rootListInit);
 
+		//root list based on permuted slot values
 		auto newRootList = FindPermutedSlots(slotValues, perm, rootListInit);
 
 		coefficients.clear();
+		//generate new CRT coefficients based on permuted root list
 		for (usint i = 0; i < n; i++) {
 			auto coeffRow = SyntheticPolynomialDivision(cycloPoly, newRootList.GetValAtIndex(i), modulus);
 			auto x = SyntheticRemainder(coeffRow, newRootList.GetValAtIndex(i), modulus);
@@ -237,10 +254,12 @@ namespace lbcrypto {
 
 		BigBinaryInteger qMod(ring->GetModulus());
 
+		//native int modulus
 		native_int::BinaryInteger modulusNI(modulus.ConvertToInt());
 
 		native_int::BinaryVector packedVector(ring->GetRingDimension(),modulusNI);
 
+		//copy aggregate plaintext values
 		for (usint i = 0; i < ring->GetRingDimension(); i++) {
 			packedVector.SetValAtIndex(i, native_int::BinaryInteger(ring->GetValAtIndex(i).ConvertToInt()));
 		}
@@ -249,9 +268,11 @@ namespace lbcrypto {
 		auto params = ring->GetParams();
 
 		if (params->OrderIsPowerOfTwo()) {
+			//power of 2 cyclotomics can use forward CRT for getting slot values
 			packedVector = ChineseRemainderTransformFTT<native_int::BinaryInteger, native_int::BinaryVector>::GetInstance().ForwardTransform(packedVector, m_initRoot[modulusNI], m);
 		}
 		else {
+			//arbitrary cyclotomics relies on polynomial remaindering to get slot values
 			packedVector = SyntheticPolyRemainder(packedVector, m_rootList[modulusNI], modulusNI);
 		}
 
