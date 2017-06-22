@@ -1860,7 +1860,10 @@ public:
 			return false;
 		}
 
-		return false;
+		if( *cp != *ctx.GetCryptoParameters() )
+			return false;
+
+		return true;
 	}
 };
 
