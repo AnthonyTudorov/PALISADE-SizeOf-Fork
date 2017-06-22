@@ -87,7 +87,7 @@ Compares two integer values
   	Returns:  m mod q, and the result is stored in BigBinary Vector calculatedResult.
 */
 TEST(UTBinVect, SetModulusTest){
-
+	bool dbg_flag = false;
 	BigBinaryVector m(10);
 	
 	m.SetValAtIndex(0,"987968");
@@ -105,8 +105,9 @@ TEST(UTBinVect, SetModulusTest){
 
 	m.SetModulus(q);
 
+	DEBUG("m"<<m);
 	BigBinaryVector calculatedResult = m.Mod(q);
-
+	DEBUG("calculated result"<<m);
 	uint64_t expectedResult[10] = {48,53,7,178,190,120,79,108,60,12};	// the expected values are stored as one dimensional integer array
 
 	for (usint i=0;i<5;i++){
@@ -114,7 +115,7 @@ TEST(UTBinVect, SetModulusTest){
 	}
 
 }
-
+#if 0
 
 TEST(UTBinVect,NTL_modulus_framework){
 #if MATHBACKEND  == 6 //NTL backend
@@ -172,7 +173,7 @@ TEST(UTBinVect,NTL_modulus_framework){
 
 #endif
 }
-
+#endif
 TEST(UTBinVect, CTOR_Test){
   const usint len  = 10;
   BigBinaryInteger q("233");
@@ -237,7 +238,7 @@ TEST(UTBinVect,ModAddBBITestBigModulus){
 // TEST CASE WHEN NUMBERS AFTER ADDITION ARE GREATER THAN MODULUS 
 
 TEST(UTBinVect,ModAddBBITestSmallerModulus){
-  bool dbg_flag = false;
+  bool dbg_flag = true;
 
 	BigBinaryInteger q("3534");	// constructor calling to set mod value
 	BigBinaryVector m(5,q);		// calling constructor to create a vector of length 5 and passing value of q

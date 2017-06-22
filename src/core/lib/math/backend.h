@@ -79,9 +79,9 @@
 //To select backend, please UNCOMMENT the appropriate line rather than changing the number on the
 //uncommented line (and breaking the documentation of the line)
 
-#define MATHBACKEND 2
+//#define MATHBACKEND 2
 //#define MATHBACKEND 4
-//#define MATHBACKEND 6 
+#define MATHBACKEND 6 
 //#define MATHBACKEND 7
 
 ////////// cpu_int code
@@ -136,8 +136,8 @@ typedef mubintvec<xubint> xmubintvec;
 #if defined(__linux__) && MATHBACKEND == 6
 ////////// for gmp int
 #include "gmp_int/gmpint.h" //experimental gmp unsigned big ints
-#include "gmp_int/mgmpint.h" //experimental gmp modulo unsigned big ints
-#include "gmp_int/gmpintvec.h" //vectors of such
+//#include "gmp_int/mgmpint.h" //experimental gmp modulo unsigned big ints
+//#include "gmp_int/gmpintvec.h" //vectors of such
 #include "gmp_int/mgmpintvec.h" //rings of such
 
 namespace gmp_int {
@@ -188,7 +188,7 @@ namespace lbcrypto {
 	typedef NTL::myZZ BigBinaryInteger;
 	
 	/** Define the mapping for BigBinaryVector */
-        typedef NTL::myVecP<NTL::myZZ_p> BigBinaryVector;
+        typedef NTL::myVecP<NTL::myZZ> BigBinaryVector;
 
 #define MATH_DEFBITS 0
 

@@ -42,14 +42,11 @@
 #include "../../utils/serializable.h"
 #include <initializer_list>
 #include "gmpintvec.h"
-#include "mgmpint.h"
 
-#if 1
 #include <NTL/vector.h>
 #include <NTL/vec_ZZ.h>
 #include <NTL/SmartPtr.h>
 #include <NTL/vec_ZZ_p.h>
-#endif
 
 //defining this forces modulo when you write to the vector (except with SetValAtIndexWithoutMod)
 #define FORCE_NORMALIZATION 
@@ -80,8 +77,10 @@ namespace NTL {
     //constructors without moduli
     explicit myVecP(const usint n): Vec<myT>(INIT_SIZE, n) {m_modulus_state = GARBAGE;}; 
    myVecP(const INIT_SIZE_TYPE, const long n): Vec<myT>(INIT_SIZE, n) {m_modulus_state = GARBAGE;}; 
-   myVecP(const INIT_SIZE_TYPE, const long n,  myT const& a): Vec<myT>(INIT_SIZE, n, a)  {m_modulus_state = GARBAGE;}; 
 
+#if 0
+   myVecP(const INIT_SIZE_TYPE, const long n,  myT const& a): Vec<myT>(INIT_SIZE, n, a)  {m_modulus_state = GARBAGE;}; 
+#endif
 
     //copy
     // copy ctors with vector inputs
@@ -152,7 +151,7 @@ namespace NTL {
 
     // Note, SetValAtIndex should be deprecated by .at() and []
     void SetValAtIndex(usint index, const myT&value);
-    void SetValAtIndex(usint index, const myZZ&value);
+    //void SetValAtIndex(usint index, const myZZ&value);
     void SetValAtIndex(usint index, const char *s);
     void SetValAtIndex(usint index, const std::string& str);
 
@@ -211,7 +210,7 @@ namespace NTL {
     //vector addition assignment
     inline myVecP& operator+=(const myVecP& a) {
       this->ArgCheckVector(a, "myVecP::op +=");
-      add(*this, *this, a);
+      modadd_p(*this, *this, a);
       return *this;
     };
     
@@ -220,34 +219,35 @@ namespace NTL {
     { 
       ModulusCheck("Warning: myVecP::op+=");
       for (unsigned int i = 0; i < this->size(); i++){
-#ifdef FORCE_NORMALIZATION	
-	//(*this)[i]=(*this)[i]+a%m_modulus; //+= not defined yet
-	AddMod((*this)[i]._ZZ_p__rep,(*this)[i]._ZZ_p__rep, a, m_modulus); 
-#else
-	AddMod((*this)[i]._ZZ_p__rep,(*this)[i]._ZZ_p__rep, a, m_modulus); 
-#endif
+	AddMod((*this)[i],(*this)[i], a, m_modulus); 
       }
       return *this;
     };
     
-    myVecP operator+(const myVecP& b) const;
-    myVecP operator+(const myZZ& b) const;
+    myVecP operator+(const myVecP& b) const; //becomes modulo addition
+    myVecP operator+(const myZZ& b) const; //becomes modulo addition
     
     inline myVecP Add(const myZZ& b) const {ModulusCheck("Warning: myVecP::Add"); return (*this)+b%m_modulus; };
-    inline myVecP ModAdd(const myZZ& b) const {ModulusCheck("Warning: myVecP::ModAdd"); return (*this)+b%m_modulus; };
-    void add(myVecP& x, const myVecP& a, const myVecP& b) const; //define procedural
+    inline myVecP ModAdd(const myZZ& b) const {ModulusCheck("Warning: myVecP::ModAdd"); return this->Add(b); };
+
+    void modadd_p(myVecP& x, const myVecP& a, const myVecP& b) const; //define procedural
     
     myVecP ModAddAtIndex(usint i, const myZZ &b) const;
     
     //vector add
-    inline myVecP Add(const myVecP& b) const { ArgCheckVector(b, "myVecP Add()"); return (*this)+b;};
-    inline myVecP ModAdd(const myVecP& b) const { return (this->Add(b));};
+    inline myVecP Add(const myVecP& b) const { 
+      ArgCheckVector(b, "myVecP Add()"); 
+      return (*this)+b;
+    };
+    inline myVecP ModAdd(const myVecP& b) const { 
+      return (this->Add(b));
+    };
     
     //Subtraction
     //vector subtraction assignment
     inline myVecP& operator-=(const myVecP& a) {
       ArgCheckVector(a, "myVecP -="); 
-      sub(*this, *this, a);
+      modsub_p(*this, *this, a);
       return *this;
     };
     
@@ -255,10 +255,7 @@ namespace NTL {
     inline myVecP& operator-=(const myZZ& a)
     { 
       ModulusCheck("Warning: myVecP::op-=");
-      for (size_t i = 0; i < this->size(); i++){
-	SubMod((*this)[i]._ZZ_p__rep,(*this)[i]._ZZ_p__rep, a, m_modulus); 	
-	//(*this)[i]-=a%m_modulus;
-      }
+      *this = *this-a;
       return *this;
     };
     
@@ -287,15 +284,16 @@ namespace NTL {
     
     //deprecated vector
     inline myVecP Minus(const myVecP& b) const {ArgCheckVector(b, "myVecP Minus()"); return (this->Sub(b));};
-    
-    void sub(myVecP& x, const myVecP& a, const myVecP& b) const; //define procedural
+
+    //procecural
+    void modsub_p(myVecP& x, const myVecP& a, const myVecP& b) const; //define procedural
     
     //Multiplication
     //vector multiplication assignments
     inline myVecP& operator*=(const myVecP& a)
     { 
       ArgCheckVector(a, "myVecP *="); 
-      mul(*this, *this, a);
+      modmul_p(*this, *this, a);
       return *this;
     };
     
@@ -304,8 +302,7 @@ namespace NTL {
     { 
       ModulusCheck("Warning: myVecP::op-=");
       for (size_t i = 0; i < this->size(); i++){
-	MulMod((*this)[i]._ZZ_p__rep,(*this)[i]._ZZ_p__rep, a, m_modulus); 
-	//
+	MulMod((*this)[i],(*this)[i], a%m_modulus, m_modulus); 
       }
       return *this;
     };
@@ -321,7 +318,7 @@ namespace NTL {
     inline myVecP Mul(const myVecP& b) const {ArgCheckVector(b, "myVecP Mul()"); return (*this)*b;};
     inline myVecP ModMul(const myVecP& b) const {ArgCheckVector(b, "myVecP Mul()");return (this->Mul(b));};
     
-    void mul(myVecP& x, const myVecP& a, const myVecP& b) const; //define procedural
+    void modmul_p(myVecP& x, const myVecP& a, const myVecP& b) const; //define procedural
     
     
     /**
@@ -383,6 +380,7 @@ namespace NTL {
       this->Renormalize();
     };
     
+#if 0
     //sets modulus and the NTL init function using myZZ_p.modulus argument
     //note this is not the same as setting the modulus to value!
     inline void SetModulus(const myZZ_p& value){
@@ -397,7 +395,7 @@ namespace NTL {
       ZZ_p::init(this->m_modulus);
       this->Renormalize();
     };
-    
+#endif    
     //sets modulus and the NTL init function string argument
     inline void SetModulus(const std::string& value){
       bool dbg_flag = false;
@@ -589,7 +587,7 @@ namespace NTL {
 	ZZ_p::init(this->m_modulus); //set global modulus to this 
       }
     };
-
+#if 0
     //utility function to check argument consistency for vector scalar fns
     //use when argument to function is myZZ_p (myT)
     inline void ArgCheckScalar(const myT &b, std::string fname) const {
@@ -600,7 +598,7 @@ namespace NTL {
       }
       ZZ_p::init(this->m_modulus); //set global modulus to this 
     };
-    
+#endif    
     //utility function to check argument consistency for vector vector fns
     //use when argument to function is myVecP
     inline void ArgCheckVector(const myVecP &b, std::string fname) const {
@@ -640,7 +638,7 @@ namespace NTL {
   }; //template class ends
   
   
-  
+#if 0  
   //comparison operators with two operands must be defined outside the class
   //myVec<myZZ> and myVecP
   inline long operator==(const myVec<myZZ> &a, const myVecP<myZZ_p> &b) 
@@ -660,7 +658,7 @@ namespace NTL {
   
   inline long operator!=(const myVec<myZZ> &a, const myVecP<myZZ_p> &b) 
   { return !(operator==(a,b)); };
-  
+#endif  
   
   
 } // namespace NTL ends
