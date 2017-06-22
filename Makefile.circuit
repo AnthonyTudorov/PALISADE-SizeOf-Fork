@@ -71,7 +71,7 @@ allcircuitdemos: $(patsubst $(CIRCUITBINDIR)/demo/%,bin/demo/circuit/%,$(patsubs
 
 bin/demo/circuit/%$(EXESUFFIX): src/circuit/bin/demo/%.o $(EXTLIBDIR)/$(PALISADECIRCUITLIB) $(CLIBS)
 	@mkdir -p $(@D)
-	$(CC) -o $@ $^ $(EXTLIB)
+	$(CC) -o $@ $^ $(EXTLIB) -lPALISADEcore -lPALISADEpke -lPALISADEtrapdoor
 
 #this builds the palisade library out of the objects 
 $(EXTLIBDIR)/$(PALISADECIRCUITLIB): $(CIRCUITOBJECTS) $(CLIBS)
