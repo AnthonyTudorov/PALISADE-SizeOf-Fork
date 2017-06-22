@@ -167,7 +167,7 @@ Value<Element> EvalAddNodeWithValue<Element>::eval(CryptoContext<Element>& cc, C
 		if( t0 == VECTOR_INT ) {
 			v0 = cc.EvalAdd(v0.GetIntVecValue(), v1.GetIntVecValue());
 		}
-		else if( t0 == MATRIX_INT ) {
+		else if( t0 == MATRIX_RAT ) {
 			v0 = cc.EvalAddMatrix(v0.GetIntMatValue(), v1.GetIntMatValue());
 		}
 		else {
@@ -230,7 +230,7 @@ Value<Element> EvalSubNodeWithValue<Element>::eval(CryptoContext<Element>& cc, C
 			this->Log();
 			return this->value;
 		}
-		else if( t0 == MATRIX_INT ) {
+		else if( t0 == MATRIX_RAT ) {
 			this->value = cc.EvalNegateMatrix(v0.GetIntMatValue());
 			this->SetNoise( n0->GetNoise() );
 			this->Log();
@@ -260,7 +260,7 @@ Value<Element> EvalSubNodeWithValue<Element>::eval(CryptoContext<Element>& cc, C
 		if( t0 == VECTOR_INT ) {
 			v0 = cc.EvalSub(v0.GetIntVecValue(), v1.GetIntVecValue());
 		}
-		else if( t0 == MATRIX_INT ) {
+		else if( t0 == MATRIX_RAT ) {
 			v0 = cc.EvalSubMatrix(v0.GetIntMatValue(), v1.GetIntMatValue());
 		}
 		else {
@@ -304,7 +304,7 @@ Value<Element> EvalNegNodeWithValue<Element>::eval(CryptoContext<Element>& cc, C
 	if( t0 == VECTOR_INT ) {
 		this->value = cc.EvalNegate(v0.GetIntVecValue());
 	}
-	else if( t0 == MATRIX_INT ) {
+	else if( t0 == MATRIX_RAT ) {
 		v0 = cc.EvalNegateMatrix(v0.GetIntMatValue());
 	}
 	else {
@@ -354,7 +354,7 @@ Value<Element> EvalMultNodeWithValue<Element>::eval(CryptoContext<Element>& cc, 
 	if( t1 == VECTOR_INT ) {
 		this->value = cc.EvalMult(v0.GetIntVecValue(), v1.GetIntVecValue());
 	}
-	else if( t0 == MATRIX_INT ) {
+	else if( t0 == MATRIX_RAT ) {
 		this->value = cc.EvalMultMatrix(v0.GetIntMatValue(), v1.GetIntMatValue());
 	}
 	else {
@@ -395,7 +395,7 @@ Value<Element> ModReduceNodeWithValue<Element>::eval(CryptoContext<Element>& cc,
 	if( t0 == VECTOR_INT ) {
 		this->value = cc.ModReduce(v0.GetIntVecValue());
 	}
-	else if( t0 == MATRIX_INT ) {
+	else if( t0 == MATRIX_RAT ) {
 		this->value = cc.ModReduceMatrix(v0.GetIntMatValue());
 	}
 	else {

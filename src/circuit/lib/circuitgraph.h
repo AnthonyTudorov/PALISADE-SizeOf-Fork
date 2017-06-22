@@ -94,14 +94,12 @@ public:
 			node.second->ClearVisit();
 	}
 
-	TimingStatistics GetRuntime() const {
-		TimingStatistics	total(0,0,0,0);
+	double GetRuntime() const {
+		double	total = 0;
 		for( auto node : allNodes )
 			if( node.second->Visited() ) {
-//				cout << endl << node.first << " " << node.second->GetRuntime().operation << " " << node.second->GetRuntime();
-				total += *node.second->GetRuntime();
+				total += node.second->GetRuntime();
 			}
-		cout << endl;
 		return total;
 	}
 

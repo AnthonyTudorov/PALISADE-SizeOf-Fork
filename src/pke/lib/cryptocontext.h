@@ -290,7 +290,7 @@ public:
 		const std::vector<shared_ptr<Ciphertext<Element>>>& ciphertext) const
 	{
 		if( privateKey == NULL || privateKey->GetCryptoContext() != *this )
-			throw std::logic_error("Information passed to Decrypt was not generated with this crypto context");
+			throw std::logic_error("Information passed to MultipartyDecryptLead was not generated with this crypto context");
 
 		std::vector<shared_ptr<Ciphertext<Element>>> newCiphertext;
 
@@ -298,7 +298,7 @@ public:
 		if( doTiming ) start = currentDateTime();
 		for( size_t i=0; i < ciphertext.size(); i++ ) {
 			if( ciphertext[i] == NULL || ciphertext[i]->GetCryptoContext() != *this )
-				throw std::logic_error("One of the ciphertexts passed to DecryptMater was not generated with this crypto context");
+				throw std::logic_error("One of the ciphertexts passed to MultipartyDecryptLead was not generated with this crypto context");
 			newCiphertext.push_back( GetEncryptionAlgorithm()->MultipartyDecryptLead(privateKey, ciphertext[i]) );
 
 		}
@@ -321,7 +321,7 @@ public:
 		const std::vector<shared_ptr<Ciphertext<Element>>>& ciphertext) const
 	{
 		if( privateKey == NULL || privateKey->GetCryptoContext() != *this )
-			throw std::logic_error("Information passed to Decrypt was not generated with this crypto context");
+			throw std::logic_error("Information passed to MultipartyDecryptMain was not generated with this crypto context");
 
 		std::vector<shared_ptr<Ciphertext<Element>>> newCiphertext;
 
@@ -329,7 +329,7 @@ public:
 		if( doTiming ) start = currentDateTime();
 		for( size_t i=0; i < ciphertext.size(); i++ ) {
 			if( ciphertext[i] == NULL || ciphertext[i]->GetCryptoContext() != *this )
-				throw std::logic_error("One of the ciphertexts passed to DecryptMater was not generated with this crypto context");
+				throw std::logic_error("One of the ciphertexts passed to MultipartyDecryptMain was not generated with this crypto context");
 			newCiphertext.push_back( GetEncryptionAlgorithm()->MultipartyDecryptMain(privateKey, ciphertext[i]) );
 		}
 		if( doTiming ) {
@@ -378,7 +378,7 @@ public:
 				std::vector<shared_ptr<Ciphertext<Element>>> ciphertext = partialCiphertextVec[i];
 				// edge case
 				if (ciphertext[ch] == NULL || ciphertext[ch]->GetCryptoContext() != *this)
-					throw std::logic_error("A ciphertext passed to Decrypt was not generated with this crypto context");
+					throw std::logic_error("A ciphertext passed to MultipartyDecryptFusion was not generated with this crypto context");
 				ciphertextVec.push_back(ciphertext[ch]);
 			}
 

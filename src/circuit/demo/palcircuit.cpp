@@ -110,7 +110,7 @@ main(int argc, char *argv[])
 
 	Matrix<IntPlaintextEncoding> mat([](){return make_unique<IntPlaintextEncoding>();},3,3);
 
-	auto emat = cc.EncryptMatrix(kp.publicKey, mat);
+	shared_ptr<Matrix<RationalCiphertext<ILDCRT2n>>> emat = cc.EncryptMatrix(kp.publicKey, mat);
 
 	CircuitIO<ILDCRT2n> inputs;
 
@@ -331,7 +331,7 @@ main(int argc, char *argv[])
 				inputs[i] = cipherVecs[curVec++][0];
 				break;
 
-			case MATRIX_INT:
+			case MATRIX_RAT:
 				inputs[i] = emat;
 				break;
 
