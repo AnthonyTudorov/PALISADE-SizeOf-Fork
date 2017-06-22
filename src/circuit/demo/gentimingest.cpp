@@ -72,7 +72,7 @@ main(int argc, char *argv[])
 		return 1;
 	}
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::DeserializeAndCreateContext(serObj);
+	CryptoContext<ILDCRT2n> cc = CryptoContextFactory<ILDCRT2n>::DeserializeAndCreateContext(serObj);
 
 	if( cc != true ) {
 		cout << "Unable to deserialize CryptoContext" << endl;
@@ -83,7 +83,7 @@ main(int argc, char *argv[])
 
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
-	//cc.Enable(LEVELEDSHE);
+	cc.Enable(LEVELEDSHE);
 
 	string operation;
 	set<OpType> operations;
@@ -115,7 +115,7 @@ main(int argc, char *argv[])
 			operations.count(OpDecrypt) ) {
 		cc.ResumeTiming();
 		for( int reps=0; reps < MaxIterations; reps++ ) {
-			LPKeyPair<ILVector2n> kp = cc.KeyGen();
+			LPKeyPair<ILDCRT2n> kp = cc.KeyGen();
 			auto crypt = cc.Encrypt(kp.publicKey, inputs[0]);
 			IntPlaintextEncoding decrypted;
 			cc.Decrypt(kp.secretKey, crypt, &decrypted);
@@ -124,7 +124,7 @@ main(int argc, char *argv[])
 	}
 
 #define BINARY_SHE_OP(opfunc,ek) \
-		LPKeyPair<ILVector2n> kp = cc.KeyGen(); \
+		LPKeyPair<ILDCRT2n> kp = cc.KeyGen(); \
 		auto crypt0 = cc.Encrypt(kp.publicKey, inputs[0]); \
 		auto crypt1 = cc.Encrypt(kp.publicKey, inputs[1]); \
 		if( ek ) cc.EvalMultKeyGen(kp.secretKey); \
@@ -147,7 +147,7 @@ main(int argc, char *argv[])
 	}
 
 #define UNARY_SHE_OP(opfunc) \
-		LPKeyPair<ILVector2n> kp = cc.KeyGen(); \
+		LPKeyPair<ILDCRT2n> kp = cc.KeyGen(); \
 		auto crypt0 = cc.Encrypt(kp.publicKey, inputs[0]); \
 		cc.ResumeTiming(); \
 		for (int reps = 0; reps < MaxIterations; reps++) { \

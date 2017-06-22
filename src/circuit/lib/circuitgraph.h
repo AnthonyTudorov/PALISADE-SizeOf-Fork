@@ -98,7 +98,7 @@ public:
 		TimingStatistics	total(0,0,0);
 		for( auto node : allNodes )
 			if( node.second->Visited() ) {
-				cout << endl << node.first << " " << node.second->GetRuntime().operation << " " << node.second->GetRuntime();
+//				cout << endl << node.first << " " << node.second->GetRuntime().operation << " " << node.second->GetRuntime();
 				total += node.second->GetRuntime();
 			}
 		cout << endl;

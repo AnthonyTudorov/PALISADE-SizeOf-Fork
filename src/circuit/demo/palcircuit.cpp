@@ -45,8 +45,8 @@ using std::ostream;
 #include "circuitgraph.cpp"
 
 namespace lbcrypto {
-template class CircuitGraphWithValues<ILVector2n>;
-template class CircuitNodeWithValue<ILVector2n>;
+template class CircuitGraphWithValues<ILDCRT2n>;
+template class CircuitNodeWithValue<ILDCRT2n>;
 }
 
 void usage() {
@@ -82,10 +82,10 @@ main(int argc, char *argv[])
 {
 	const usint MAXVECS = 30;
 
-	//CryptoContext<ILVector2n> cc = GenCryptoContextElementArrayNull(8, 5, 8, 10);
-	//CryptoContext<ILVector2n> cc = GenCryptoContextElementNull(8,32);
-	CryptoContext<ILVector2n> cc = GenCryptoContextElementFV(8,32);
-	//cc.Enable(LEVELEDSHE);
+	CryptoContext<ILDCRT2n> cc = GenCryptoContextElementArrayNull(8, 5, 32, 10);
+//	CryptoContext<ILDCRT2n> cc = GenCryptoContextElementNull(8,32);
+	//CryptoContext<ILDCRT2n> cc = GenCryptoContextElementLTV(8,32);
+	cc.Enable(LEVELEDSHE);
 
 //	IntPlaintextEncoding vecs[] = {
 //			{ 1,2,3,5 },
@@ -93,18 +93,18 @@ main(int argc, char *argv[])
 //	};
 	IntPlaintextEncoding ints[] = { { 7 }, { 3 } };
 
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	LPKeyPair<ILDCRT2n> kp = cc.KeyGen();
 	cc.EvalMultKeyGen(kp.secretKey);
 
-	//	vector< vector<shared_ptr<Ciphertext<ILVector2n>>> > cipherVecs;
+	//	vector< vector<shared_ptr<Ciphertext<ILDCRT2n>>> > cipherVecs;
 	//	for( size_t i = 0; i < sizeof(vecs)/sizeof(vecs[0]); i++ )
 	//		cipherVecs.push_back( cc.Encrypt(kp.publicKey, vecs[i]) );
 
-	vector< vector<shared_ptr<Ciphertext<ILVector2n>>> > intVecs;
+	vector< vector<shared_ptr<Ciphertext<ILDCRT2n>>> > intVecs;
 	for( size_t i = 0; i < sizeof(ints)/sizeof(ints[0]); i++ )
 		intVecs.push_back( cc.Encrypt(kp.publicKey, ints[i]) );
 
-	vector< vector<shared_ptr<Ciphertext<ILVector2n>>> > cipherVecs;
+	vector< vector<shared_ptr<Ciphertext<ILDCRT2n>>> > cipherVecs;
 	for( usint i = 0; i < MAXVECS; i++ )
 		cipherVecs.push_back( cc.Encrypt(kp.publicKey, IntPlaintextEncoding({i+1})) );
 
@@ -112,7 +112,7 @@ main(int argc, char *argv[])
 
 	auto emat = cc.EncryptMatrix(kp.publicKey, mat);
 
-	CircuitIO<ILVector2n> inputs;
+	CircuitIO<ILDCRT2n> inputs;
 
 	bool debug_parse = false;
 	bool print_input_graph = false;
@@ -215,8 +215,8 @@ main(int argc, char *argv[])
 		}
 
 		// Prepare to process the graph
-		if( verbose )
-			cout << "Crypto Parameters used:" << endl << *cc.GetCryptoParameters() << endl;
+//		if( verbose )
+//			cout << "Crypto Parameters used:" << endl << *cc.GetCryptoParameters() << endl;
 
 		// when in evaluation mode (preparing to estimate/run, then stop), save the CryptoContext
 		if( evaluation_list_mode ) {
@@ -238,7 +238,7 @@ main(int argc, char *argv[])
 				return 1;
 			}
 
-			if( CryptoContextFactory<ILVector2n>::DeserializeAndValidateParams(cc, serObj) == false ) {
+			if( CryptoContextFactory<ILDCRT2n>::DeserializeAndValidateParams(cc, serObj) == false ) {
 				cout << "Crypto context in file does not match" << endl;
 			}
 
@@ -300,7 +300,7 @@ main(int argc, char *argv[])
 			driver.graph.PrintRuntimeEstimates(cout);
 		}
 
-		PalisadeCircuit<ILVector2n>	cir(cc, driver.graph);
+		PalisadeCircuit<ILDCRT2n>	cir(cc, driver.graph);
 
 		if( verbose )
 			cir.CircuitDump();
@@ -343,14 +343,14 @@ main(int argc, char *argv[])
 		vector<TimingInfo>	times;
 		cc.StartTiming(&times);
 
-		CircuitIO<ILVector2n> outputs = cir.CircuitEval(inputs, verbose);
+		CircuitIO<ILDCRT2n> outputs = cir.CircuitEval(inputs, verbose);
 
 		cc.StopTiming();
 
 		if( verbose )
-			CircuitNodeWithValue<ILVector2n>::PrintLog(cout);
+			CircuitNodeWithValue<ILDCRT2n>::PrintLog(cout);
 
-		// apply the actial timings to the circuit
+		// apply the actual timings to the circuit
 		for( auto& node : cir.GetGraph().getAllNodes() ) {
 			int s = node.second->GetEvalSequenceNumber();
 			if( s < 0 ) continue;
@@ -379,7 +379,7 @@ main(int argc, char *argv[])
 
 		// we have the times for each node, now sum up for each output
 		for( auto& out : cir.GetGraph().getOutputs() ) {
-			CircuitNodeWithValue<ILVector2n> *n = cir.GetGraph().getNodeById(out);
+			CircuitNodeWithValue<ILDCRT2n> *n = cir.GetGraph().getNodeById(out);
 			cir.GetGraph().ClearVisited();
 			n->CircuitVisit(cir.GetGraph());
 			cout << "RUNTIME ACTUAL FOR Output " << out << " " << cir.GetGraph().GetRuntime() << endl;
@@ -391,6 +391,8 @@ main(int argc, char *argv[])
 				cout << times[i] << endl;
 			}
 		}
+
+		break;
 	}
 
 	return 0;
