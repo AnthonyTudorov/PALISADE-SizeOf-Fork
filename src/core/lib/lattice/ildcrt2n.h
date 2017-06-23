@@ -370,8 +370,8 @@ public:
 	*/
 	ILVectorArrayType AutomorphismTransform(const usint &i) const {
 		ILVectorArrayType result(*this);
-		for (usint i = 0; i < m_vectors.size(); i++) {
-			result.m_vectors[i] = m_vectors[i].AutomorphismTransform(i);
+		for (usint k = 0; k < m_vectors.size(); k++) {
+			result.m_vectors[k] = m_vectors[k].AutomorphismTransform(i);
 		}
 		return result;
 	}
