@@ -66,6 +66,7 @@ using namespace lbcrypto;
 void EvalMult();
 void ArbBVAutomorphismPackedArray(usint i);
 void ArbNullAutomorphismPackedArray(usint i);
+void ArbBVInnerProductPackedArray();
 
 int main() {
 
@@ -81,6 +82,9 @@ int main() {
 
 	std::cout << "\n===========NULL TESTS (EVALAUTOMORPHISM-ARBITRARY)===============: " << std::endl;
 	ArbNullAutomorphismPackedArray(3);
+
+	std::cout << "\n===========BV TESTS (EVALINNER-PRODUCT-ARBITRARY)===============: " << std::endl;
+	ArbBVInnerProductPackedArray();
 
 	std::cout << "Please press any key to continue..." << std::endl;
 
@@ -439,5 +443,106 @@ void ArbNullAutomorphismPackedArray(usint i) {
 
 }
 
+void ArbBVInnerProductPackedArray() {
 
+	float stdDev = 4;
+
+	usint batchSize = 8;
+
+
+	usint m = 22;
+	usint p = 89;
+
+	usint init_size = 7;
+	usint dcrtBits = 10;
+	usint dcrtBitsBig = 28;
+
+	usint mArb = 2 * m;
+	usint mNTT = pow(2, ceil(log2(2 * m - 1)));
+
+	// populate the towers for the small modulus
+
+	vector<native_int::BinaryInteger> init_moduli(init_size);
+	vector<native_int::BinaryInteger> init_rootsOfUnity(init_size);
+
+	native_int::BinaryInteger q = FirstPrime<native_int::BinaryInteger>(dcrtBits, mArb);
+	init_moduli[0] = q;
+	init_rootsOfUnity[0] = RootOfUnity(mArb, init_moduli[0]);
+
+	for (usint i = 1; i < init_size; i++) {
+		q = lbcrypto::NextPrime(q, mArb);
+		init_moduli[i] = q;
+		init_rootsOfUnity[i] = RootOfUnity(mArb, init_moduli[i]);
+		auto cycloPoly = GetCyclotomicPolynomial<native_int::BinaryVector, native_int::BinaryInteger>(m, q);
+		ChineseRemainderTransformArb<native_int::BinaryInteger, native_int::BinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, q);
+	}
+
+	// populate the towers for the big modulus
+
+	vector<native_int::BinaryInteger> init_moduli_NTT(init_size);
+	vector<native_int::BinaryInteger> init_rootsOfUnity_NTT(init_size);
+
+	q = FirstPrime<native_int::BinaryInteger>(dcrtBitsBig, mNTT);
+	init_moduli_NTT[0] = q;
+	init_rootsOfUnity_NTT[0] = RootOfUnity(mNTT, init_moduli_NTT[0]);
+
+	for (usint i = 1; i < init_size; i++) {
+		q = lbcrypto::NextPrime(q, mNTT);
+		init_moduli_NTT[i] = q;
+		init_rootsOfUnity_NTT[i] = RootOfUnity(mNTT, init_moduli_NTT[i]);
+		auto cycloPoly = GetCyclotomicPolynomial<native_int::BinaryVector, native_int::BinaryInteger>(m, q);
+		ChineseRemainderTransformArb<native_int::BinaryInteger, native_int::BinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, q);
+	}
+
+	shared_ptr<ILDCRTParams<BigBinaryInteger>> paramsDCRT(new ILDCRTParams<BigBinaryInteger>(m, init_moduli, init_rootsOfUnity, init_moduli_NTT, init_rootsOfUnity_NTT));
+
+	BigBinaryInteger modulusP(p);
+
+	PackedIntPlaintextEncoding::SetParams(modulusP, m);
+
+	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP), batchSize));
+
+	CryptoContext<ILDCRT2n> cc = CryptoContextFactory<ILDCRT2n>::genCryptoContextBV(paramsDCRT, encodingParams, 8, stdDev);
+
+	cc.Enable(ENCRYPTION);
+	cc.Enable(SHE);
+
+	// Initialize the public key containers.
+	LPKeyPair<ILDCRT2n> kp = cc.KeyGen();
+
+	vector<shared_ptr<Ciphertext<ILDCRT2n>>> ciphertext1;
+	vector<shared_ptr<Ciphertext<ILDCRT2n>>> ciphertext2;
+
+	std::vector<usint> vectorOfInts1 = { 1,2,3,4,5,6,7,8,0,0 };
+	PackedIntPlaintextEncoding intArray1(vectorOfInts1);
+
+	std::cout << "Input array 1 \n\t" << intArray1 << std::endl;
+
+
+	std::vector<usint> vectorOfInts2 = { 1,2,3,2,1,2,1,2,0,0 };
+	PackedIntPlaintextEncoding intArray2(vectorOfInts2);
+
+	std::cout << "Input array 2 \n\t" << intArray2 << std::endl;
+
+	cc.EvalSumKeyGen(kp.secretKey);
+	cc.EvalMultKeyGen(kp.secretKey);
+
+	ciphertext1 = cc.Encrypt(kp.publicKey, intArray1, false);
+	ciphertext2 = cc.Encrypt(kp.publicKey, intArray2, false);
+
+	auto result = cc.EvalInnerProduct(ciphertext1[0], ciphertext2[0], batchSize);
+
+	vector<shared_ptr<Ciphertext<ILDCRT2n>>> ciphertextSum;
+
+	ciphertextSum.push_back(result);
+
+	PackedIntPlaintextEncoding intArrayNew;
+
+	cc.Decrypt(kp.secretKey, ciphertextSum, &intArrayNew, false);
+
+	std::cout << "Sum = " << intArrayNew[0] << std::endl;
+
+	std::cout << "All components (other slots randomized) = " << intArrayNew << std::endl;
+
+}
 
