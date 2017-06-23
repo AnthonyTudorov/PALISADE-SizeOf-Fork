@@ -160,7 +160,7 @@ public:
 	 * ResetTiming - erases measurements
 	 */
 	void ResetTiming() {
-		timeSamples->clear();
+		this->timeSamples->clear();
 	}
 
 	/**
@@ -1136,6 +1136,7 @@ public:
 	EvalMultMatrix(const shared_ptr<Matrix<RationalCiphertext<Element>>> ct1, const shared_ptr<Matrix<RationalCiphertext<Element>>> ct2) const
 	{
 		// tests needed for context
+		std::cout << "Eval Mult Matrix doTiming" << doTiming << std::endl;
 
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
