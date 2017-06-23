@@ -75,10 +75,7 @@ public:
 		this->nodeId = nodeID;
 		this->nodeInputDepth = this->nodeOutputDepth = 0;
 		is_input = is_output = false;
-		noiseval = 0;
-		visited = false;
-		runtime = 0;
-		estimatedRun = 0;
+		Reset();
 	}
 	virtual ~CircuitNode() {}
 
@@ -116,6 +113,13 @@ public:
 	double GetEstimate() const { return estimatedRun; }
 	void SetRuntimeEstimate(TimingStatistics* n) { runtime = n; }
 	void MarkEstimate() { estimatedRun = runtime->GetEstimate(); }
+
+	void Reset() {
+		noiseval = 0;
+		visited = false;
+		runtime = 0;
+		estimatedRun = 0;
+	}
 
 	bool Visited() const { return visited; }
 	const void Visit() { visited = true; }
@@ -170,7 +174,7 @@ protected:
 	int				evalsequence;
 
 public:
-	CircuitNodeWithValue(CircuitNode *n) : node(n), noiseval(DEFAULTNOISEVAL), runtime(0), visited(false), evalsequence(-1) {}
+	CircuitNodeWithValue(CircuitNode *n) : node(n) { Reset(); }
 	virtual ~CircuitNodeWithValue() {}
 
 	wire_type GetType() const { return value.GetType(); }
@@ -193,6 +197,18 @@ public:
 
 	virtual Value<Element> eval(CryptoContext<Element>& cc, CircuitGraphWithValues<Element>& cg) {
 		return value;
+	}
+
+	void Reset() {
+		noiseval = DEFAULTNOISEVAL;
+		runtime = 0;
+		visited = false;
+		evalsequence = -1;
+		if( IsInput() == false ) {
+			std::cout << "Resetting node " << node->GetId() << " value from " << value.GetType() << std::endl;
+			value = Value<Element>();
+		}
+		node->Reset();
 	}
 
 	const double& GetRuntime() const { return runtime; }

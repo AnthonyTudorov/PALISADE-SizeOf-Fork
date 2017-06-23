@@ -158,7 +158,7 @@ main(int argc, char *argv[])
 		inputs[0] = A;
 		inputs[1] = B;
 
-		//cc.ResetTiming();
+		cc.ResetTiming();
 		cc.ResumeTiming();
 
 		CircuitIO<ILVector2n> outputs = cir.CircuitEval(inputs);
@@ -193,7 +193,7 @@ main(int argc, char *argv[])
 		inputs[0] = A;
 		inputs[1] = B;
 
-		//cc.ResetTiming();
+		cc.ResetTiming();
 		cc.ResumeTiming();
 
 		CircuitIO<ILVector2n> outputs = cir.CircuitEval(inputs);
@@ -223,7 +223,7 @@ main(int argc, char *argv[])
 		auto A = cc.Encrypt(kp.publicKey, packedArray1);
 		auto B = cc.Encrypt(kp.publicKey, packedArray2);
 
-		//cc.ResetTiming();
+		cc.ResetTiming();
 		cc.ResumeTiming();
 
 		auto result = cc.EvalInnerProduct(A[0], B[0], batchSize);
@@ -236,7 +236,7 @@ main(int argc, char *argv[])
 
 		cout << intArrayNew << endl;
 
-		cout << "Timing:" << endl;
+		cout << "TIMING RESULT:" << endl;
 		for( auto& t : times ) {
 			cout << t << endl;
 		}

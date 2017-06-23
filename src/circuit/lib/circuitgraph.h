@@ -74,7 +74,7 @@ public:
 	CircuitGraph() {}
 	virtual ~CircuitGraph() {}
 
-	int GenNodeNumber() { return allNodes.size() + 1; }
+	int GenNodeNumber() { return allNodes.size(); }
 
 	const map<usint,CircuitNode*>& getAllNodes() const { return allNodes; }
 
@@ -188,6 +188,12 @@ public:
 	void ClearVisited() {
 		for( auto node : allNodes )
 			node.second->ClearVisit();
+	}
+
+	void Reset() {
+		for( auto node : allNodes ) {
+			node.second->Reset();
+		}
 	}
 
 	double GetRuntime() const {

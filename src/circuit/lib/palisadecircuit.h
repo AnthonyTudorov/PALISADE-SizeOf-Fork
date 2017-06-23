@@ -58,6 +58,8 @@ public:
 	CircuitGraphWithValues<Element>&  GetGraph() { return g; }
 
 	CircuitIO<Element>	CircuitEval(const CircuitIO<Element>& inputs, bool verbose=false ) {
+		g.Reset();
+
 		if( verbose ) cout << "Setting inputs" << endl;
 		auto circuitInputs = g.getInputs();
 		if( verbose ) {
