@@ -83,10 +83,15 @@ int
 main(int argc, char *argv[])
 {
 	const usint MAXVECS = 30;
+	const usint m = 8;
+	const usint ptm = 32;
+	const usint mdim = 3;
+	const usint maxprint = 10;
 
-	CryptoContext<ILDCRT2n> cc = GenCryptoContextElementArrayNull(8, 5, 32, 10);
-//	CryptoContext<ILDCRT2n> cc = GenCryptoContextElementNull(8,32);
-	//CryptoContext<ILDCRT2n> cc = GenCryptoContextElementLTV(8,32);
+	//CryptoContext<ILDCRT2n> cc = GenCryptoContextElementArrayNull(m, 5, ptm, 20);
+	//CryptoContext<ILVector2n> cc = GenCryptoContextElementNull(m, ptm);
+	CryptoContext<ILDCRT2n> cc = GenCryptoContextElementArrayLTV(m, 5, ptm, 20);
+	//CryptoContext<ILVector2n> cc = GenCryptoContextElementLTV(m, ptm);
 	cc.Enable(LEVELEDSHE);
 
 //	IntPlaintextEncoding vecs[] = {
@@ -110,7 +115,10 @@ main(int argc, char *argv[])
 	for( usint i = 0; i < MAXVECS; i++ )
 		cipherVecs.push_back( cc.Encrypt(kp.publicKey, IntPlaintextEncoding({i+1})) );
 
-	Matrix<IntPlaintextEncoding> mat([](){return make_unique<IntPlaintextEncoding>();},3,3);
+	Matrix<IntPlaintextEncoding> mat([](){return make_unique<IntPlaintextEncoding>();},mdim,mdim);
+	for(usint r=0; r<mat.GetRows(); r++)
+		for(usint c=0; c<mat.GetCols(); c++)
+			mat(r,c) = { (r+1)*(c+1), 0, 0, 0 };
 
 	shared_ptr<Matrix<RationalCiphertext<ILDCRT2n>>> emat = cc.EncryptMatrix(kp.publicKey, mat);
 
@@ -130,7 +138,7 @@ main(int argc, char *argv[])
 	ostream	*resultGraph = &cout;
 	ofstream inGF, procGF, resultGF;
 
-	// Process user args
+	// PROCESS USER ARGS
 	for( int i=1; i<argc; i++ ) {
 		string arg(argv[i]);
 		string argf(arg);
@@ -220,7 +228,7 @@ main(int argc, char *argv[])
 //		if( verbose )
 //			cout << "Crypto Parameters used:" << endl << *cc.GetCryptoParameters() << endl;
 
-		// when in evaluation mode (preparing to estimate/run, then stop), save the CryptoContext
+		// when in evaluation mode (prepare to estimate/run, then stop), save the CryptoContext
 		if( evaluation_list_mode ) {
 			Serialized serObj;
 			serObj.SetObject();
@@ -241,7 +249,7 @@ main(int argc, char *argv[])
 			}
 
 			if( CryptoContextFactory<ILDCRT2n>::DeserializeAndValidateParams(cc, serObj) == false ) {
-				cout << "Crypto context in file does not match" << endl;
+				cout << "WARNING: Crypto context in file does not match" << endl;
 			}
 
 			while( SerializableHelper::StreamToSerialization(evalStatF, &serObj) == true ) {
@@ -252,7 +260,7 @@ main(int argc, char *argv[])
 			evalStatF.close();
 		}
 
-		// Parse the graph
+		// PARSE THE GRAPH
 		pdriver driver(debug_parse);
 
 		auto res = driver.parse(argv[i]);
@@ -271,7 +279,7 @@ main(int argc, char *argv[])
 				inGF.close();
 		}
 
-		// assign depths and optimize if you can
+		// ASSIGN DEPTHS (and, eventually, optimize)
 		if( verbose ) cout << "Preprocessing" << endl;
 		driver.graph.Preprocess();
 
@@ -294,7 +302,7 @@ main(int argc, char *argv[])
 			return 0;
 		}
 
-		// apply the estimates and determine how long the circuit's outputs should take to evaluate
+		// to calculate a runtime estimate, apply the estimates and determine how long the circuit's outputs should take to evaluate
 		if( evaluation_run_mode ) {
 			vector<CircuitSimulation> opslist;
 			driver.graph.GenerateOperationList(opslist);
@@ -310,15 +318,14 @@ main(int argc, char *argv[])
 		auto intypes = cir.GetGraph().GetInputTypes();
 		if( verbose ) {
 			cout << "Circuit takes " << intypes.size() << " inputs:" <<endl;
-			for( size_t i = 0; i < intypes.size(); i++ ) {
-				cout << "input " << i << ": type " << intypes[i] << endl;
-			}
 		}
 
 		size_t curVec = 0, maxVec = MAXVECS; //sizeof(vecs)/sizeof(vecs[0]);
 		size_t curInt = 0, maxInt = sizeof(ints)/sizeof(ints[0]);
 
 		for( size_t i = 0; i < intypes.size(); i++ ) {
+			if( verbose )
+				cout << "input " << i << ": type " << intypes[i] << endl;
 
 			switch(intypes[i]) {
 			case INT:
@@ -335,6 +342,20 @@ main(int argc, char *argv[])
 
 			case MATRIX_RAT:
 				inputs[i] = emat;
+				if( verbose ) {
+					for(usint r=0; r<mat.GetRows(); r++) {
+						cout << "Row " << r << endl;
+						for(usint c=0; c<mat.GetCols(); c++) {
+							cout << "Col " << c << ": [";
+							size_t i;
+							for( i=0; i < maxprint && i < cc.GetRingDimension(); i++ )
+								cout << mat(r,c)[i] << " ";
+							cout << (( i == maxprint ) ? "..." : "");
+							cout << "] ";
+						}
+						cout << endl;
+					}
+				}
 				break;
 
 			default:
@@ -361,8 +382,7 @@ main(int argc, char *argv[])
 
 		// print the output
 		for( auto& out : outputs ) {
-			cout << "For output " << out.first << endl;
-			cout << out.second.GetType() << endl;
+			cout << "For output " << out.first << " type " << out.second.GetType() << endl;
 			out.second.DecryptAndPrint(cc, kp.secretKey, cout);
 		}
 

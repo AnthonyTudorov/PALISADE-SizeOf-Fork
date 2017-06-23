@@ -789,12 +789,21 @@ public:
 
 				(*numerator)(row,col).Decode(privateKey->GetCryptoParameters()->GetPlaintextModulus(), &decryptedNumerator);
 
-				const shared_ptr<Ciphertext<Element>> ctD = (*ciphertext)(row, col).GetDenominator();
-
 				ILVector2n decryptedDenominator;
-				DecryptResult resultD = GetEncryptionAlgorithm()->Decrypt(privateKey, ctD, &decryptedDenominator);
+				if( (*ciphertext)(row,col).GetIntegerFlag() == true ) {
+					decryptedDenominator = decryptedNumerator.CloneParametersOnly();
+					decryptedDenominator.SetValuesToZero();
+					decryptedDenominator.SetValAtIndex(0,1);
+				}
+				else {
 
-				if (resultD.isValid == false) return resultD;
+					const shared_ptr<Ciphertext<Element>> ctD = (*ciphertext)(row, col).GetDenominator();
+
+					DecryptResult resultD = GetEncryptionAlgorithm()->Decrypt(privateKey, ctD, &decryptedDenominator);
+
+					if (resultD.isValid == false) return resultD;
+
+				}
 
 				(*denominator)(row, col).Decode(privateKey->GetCryptoParameters()->GetPlaintextModulus(), &decryptedDenominator);
 
@@ -1803,9 +1812,6 @@ public:
 			else if (parmstype == "LPCryptoParametersFV") {
 				return shared_ptr<LPPublicKeyEncryptionScheme<Element>>(new LPPublicKeyEncryptionSchemeFV<Element>());
 			}
-			else if (parmstype == "LPCryptoParametersDCRT") { // fixme
-				return shared_ptr<LPPublicKeyEncryptionScheme<Element>>(new LPPublicKeyEncryptionSchemeLTV<Element>());
-			}
 			else if (parmstype == "LPCryptoParametersStehleSteinfeld") {
 				return shared_ptr<LPPublicKeyEncryptionScheme<Element>>(new LPPublicKeyEncryptionSchemeStehleSteinfeld<Element>());
 			}
@@ -1846,22 +1852,28 @@ public:
 	* @return
 	*/
 	static bool DeserializeAndValidateParams(const CryptoContext<Element> ctx, const Serialized& serObj) {
+		bool dbg_flag = false;
 		shared_ptr<LPCryptoParameters<Element>> cp = GetParameterObject(serObj);
 
-		if (typeid(cp) != typeid(ctx.GetCryptoParameters())) {
+		if (cp == NULL) {
+			DEBUG("No Parameter Object in DeserializeAndValidateParams");
 			return false;
 		}
 
-		if (cp == NULL) {
+		if (typeid(cp) != typeid(ctx.GetCryptoParameters())) {
+			DEBUG("Type Mismatch in DeserializeAndValidateParams");
 			return false;
 		}
 
 		if (cp->Deserialize(serObj) == false) {
+			DEBUG("Deserialize failed in DeserializeAndValidateParams");
 			return false;
 		}
 
-		if( *cp != *ctx.GetCryptoParameters() )
+		if( *cp != *ctx.GetCryptoParameters() ) {
+			DEBUG("PARMS MISMATCH: ctx is " << *ctx.GetCryptoParameters() << "cp is " << *cp);
 			return false;
+		}
 
 		return true;
 	}
