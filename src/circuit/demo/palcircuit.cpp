@@ -78,7 +78,6 @@ void PrintLog(ostream& out, vector<CircuitSimulation>& timings) {
 		out << i << ": " << timings[i] << endl;
 }
 
-
 int
 main(int argc, char *argv[])
 {
@@ -88,9 +87,9 @@ main(int argc, char *argv[])
 	const usint mdim = 3;
 	const usint maxprint = 10;
 
-	//CryptoContext<ILDCRT2n> cc = GenCryptoContextElementArrayNull(m, 5, ptm, 20);
+	CryptoContext<ILDCRT2n> cc = GenCryptoContextElementArrayNull(m, 5, ptm, 20);
 	//CryptoContext<ILVector2n> cc = GenCryptoContextElementNull(m, ptm);
-	CryptoContext<ILDCRT2n> cc = GenCryptoContextElementArrayLTV(m, 5, ptm, 20);
+	//CryptoContext<ILDCRT2n> cc = GenCryptoContextElementArrayLTV(m, 5, ptm, 20);
 	//CryptoContext<ILVector2n> cc = GenCryptoContextElementLTV(m, ptm);
 	cc.Enable(LEVELEDSHE);
 
