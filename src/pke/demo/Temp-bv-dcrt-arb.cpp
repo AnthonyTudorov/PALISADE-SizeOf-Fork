@@ -392,8 +392,6 @@ void ArbNullAutomorphismPackedArray(usint i) {
 	//ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 
-	float stdDev = 4;
-
 	CryptoContext<ILDCRT2n> cc = CryptoContextFactory<ILDCRT2n>::genCryptoContextNull(paramsDCRT, p);
 
 	cc.Enable(ENCRYPTION);
