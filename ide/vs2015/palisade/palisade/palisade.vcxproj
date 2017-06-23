@@ -170,7 +170,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\src\pke\demo\Test-bv-dcrt-arb.cpp" />
+    <ClCompile Include="..\..\..\..\src\pke\demo\Temp-bv-dcrt-arb.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
