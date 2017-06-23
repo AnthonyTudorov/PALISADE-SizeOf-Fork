@@ -174,7 +174,7 @@ main(int argc, char *argv[])
 			cout << "numerator dimensions: " << numerator.GetRows() << "," << numerator.GetCols() << endl;
 			cout << "denominator dimensions: " << denominator.GetRows() << "," << denominator.GetCols() << endl;
 
-			cout << numerator(0,0) << "/" << denominator(0,0) << endl;
+			cout << numerator(0,0)[0] << endl;
 		}
 
 		cout << "Timing:" << endl;
@@ -209,7 +209,8 @@ main(int argc, char *argv[])
 			cout << "numerator dimensions: " << numerator.GetRows() << "," << numerator.GetCols() << endl;
 			cout << "denominator dimensions: " << denominator.GetRows() << "," << denominator.GetCols() << endl;
 
-			cout << numerator(0,0) << "/" << denominator(0,0) << endl;
+			uint32_t ptm = cc.GetCryptoParameters()->GetPlaintextModulus().ConvertToInt();
+			cout << numerator(0,0).EvalToInt(ptm) << endl;
 		}
 
 		cout << "Timing:" << endl;
@@ -234,7 +235,7 @@ main(int argc, char *argv[])
 
 		cc.Decrypt(kp.secretKey, {result}, &intArrayNew, false);
 
-		cout << intArrayNew << endl;
+		cout << intArrayNew[0] << endl;
 
 		cout << "TIMING RESULT:" << endl;
 		for( auto& t : times ) {
