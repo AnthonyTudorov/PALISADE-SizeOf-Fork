@@ -204,8 +204,7 @@ public:
 		runtime = 0;
 		visited = false;
 		evalsequence = -1;
-		if( IsInput() == false ) {
-			std::cout << "Resetting node " << node->GetId() << " value from " << value.GetType() << std::endl;
+		if( IsInput() == false && value.GetType() != UNKNOWN ) {
 			value = Value<Element>();
 		}
 		node->Reset();
