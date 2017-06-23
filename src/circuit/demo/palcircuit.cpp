@@ -81,7 +81,7 @@ void PrintLog(ostream& out, vector<CircuitSimulation>& timings) {
 int
 main(int argc, char *argv[])
 {
-	const usint MAXVECS = 30;
+	const usint MAXVECS = 9*4;
 	const usint m = 8;
 	const usint ptm = 32;
 	const usint mdim = 3;
@@ -111,13 +111,18 @@ main(int argc, char *argv[])
 		intVecs.push_back( cc.Encrypt(kp.publicKey, ints[i]) );
 
 	vector< vector<shared_ptr<Ciphertext<ILDCRT2n>>> > cipherVecs;
-	for( usint i = 0; i < MAXVECS; i++ )
-		cipherVecs.push_back( cc.Encrypt(kp.publicKey, IntPlaintextEncoding({i+1})) );
+	for( usint d = 0; d < 4; d++ )
+		for( usint i=1; i<10; i++ ){
+			IntPlaintextEncoding ie( {i} );
+			cipherVecs.push_back( cc.Encrypt(kp.publicKey, ie) );
+		}
 
 	Matrix<IntPlaintextEncoding> mat([](){return make_unique<IntPlaintextEncoding>();},mdim,mdim);
+	usint mi=1;
 	for(usint r=0; r<mat.GetRows(); r++)
-		for(usint c=0; c<mat.GetCols(); c++)
-			mat(r,c) = { (r+1)*(c+1), 0, 0, 0 };
+		for(usint c=0; c<mat.GetCols(); c++) {
+			mat(r,c) = { mi++, 0, 0, 0 };
+		}
 
 	shared_ptr<Matrix<RationalCiphertext<ILDCRT2n>>> emat = cc.EncryptMatrix(kp.publicKey, mat);
 
