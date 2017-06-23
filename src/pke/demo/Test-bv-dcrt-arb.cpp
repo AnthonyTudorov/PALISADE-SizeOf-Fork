@@ -63,6 +63,7 @@ using namespace lbcrypto;
 #include <iterator>
 
 //ILVector2n tests
+void EvalMult();
 void ArbBVAutomorphismPackedArray(usint i);
 
 int main() {
@@ -71,10 +72,10 @@ int main() {
 	usint m = 22;
 	std::vector<usint> totientList = GetTotientList(m);
 
-	std::cout << "\n===========BV TESTS (EVALAUTOMORPHISM-ARBITRARY)===============: " << std::endl;
+	std::cout << "\n===========BV TESTS (EVALMULT-ARBITRARY)===============: " << std::endl;
 
 	PackedIntPlaintextEncoding::Destroy();
-	ArbBVAutomorphismPackedArray(totientList[3]);
+	EvalMult();
 
 	std::cout << "Please press any key to continue..." << std::endl;
 
@@ -87,9 +88,9 @@ void ArbBVAutomorphismPackedArray(usint i) {
 
 	usint m = 22;
 
-	usint init_size = 6;
-	usint big_size = 14;
+	usint init_size = 7;
 	usint dcrtBits = 10;
+	usint dcrtBitsBig = 28;
 
 	usint mArb = 2 * m;
 	usint mNTT = pow(2, ceil(log2(2 * m - 1)));
@@ -103,85 +104,90 @@ void ArbBVAutomorphismPackedArray(usint i) {
 	init_moduli[0] = q;
 	init_rootsOfUnity[0] = RootOfUnity(mArb, init_moduli[0]);
 
-	BigBinaryInteger modulus(1);
-
 	for (usint i = 1; i < init_size; i++) {
 		q = lbcrypto::NextPrime(q, mArb);
 		init_moduli[i] = q;
 		init_rootsOfUnity[i] = RootOfUnity(mArb, init_moduli[i]);
-		modulus = modulus * BigBinaryInteger(init_moduli[i].ConvertToInt());
+		auto cycloPoly = GetCyclotomicPolynomial<native_int::BinaryVector, native_int::BinaryInteger>(m, q);
+		ChineseRemainderTransformArb<native_int::BinaryInteger, native_int::BinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, q);
 	}
 
 	// populate the towers for the big modulus
 
-	vector<native_int::BinaryInteger> init_moduli_NTT(big_size);
-	vector<native_int::BinaryInteger> init_rootsOfUnity_NTT(big_size);
+	vector<native_int::BinaryInteger> init_moduli_NTT(init_size);
+	vector<native_int::BinaryInteger> init_rootsOfUnity_NTT(init_size);
 
-	q = FirstPrime<native_int::BinaryInteger>(dcrtBits, mNTT);
+	q = FirstPrime<native_int::BinaryInteger>(dcrtBitsBig, mNTT);
 	init_moduli_NTT[0] = q;
 	init_rootsOfUnity_NTT[0] = RootOfUnity(mNTT, init_moduli_NTT[0]);
 
 	BigBinaryInteger modulus_NTT(1);
 
-	for (usint i = 1; i < big_size; i++) {
+	for (usint i = 1; i < init_size; i++) {
 		q = lbcrypto::NextPrime(q, mNTT);
 		init_moduli_NTT[i] = q;
 		init_rootsOfUnity_NTT[i] = RootOfUnity(mNTT, init_moduli_NTT[i]);
-		modulus_NTT = modulus_NTT * BigBinaryInteger(init_moduli_NTT[i].ConvertToInt());
+		auto cycloPoly = GetCyclotomicPolynomial<native_int::BinaryVector, native_int::BinaryInteger>(m, q);
+		ChineseRemainderTransformArb<native_int::BinaryInteger, native_int::BinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, q);
 	}
 
-	//shared_ptr<ILDCRTParams<BigBinaryInteger>> params(new ILDCRTParams<BigBinaryInteger>(m, init_moduli, init_rootsOfUnity));
+	shared_ptr<ILDCRTParams<BigBinaryInteger>> paramsDCRT(new ILDCRTParams<BigBinaryInteger>(m, init_moduli, init_rootsOfUnity, init_moduli_NTT, init_rootsOfUnity_NTT));
 
 	//usint m = 22;
 	usint p = 16787;
 
 	BigBinaryInteger modulusP(p);
 
-	BigBinaryInteger modulusQ("955263939794561");
-	BigBinaryInteger squareRootOfRoot("941018665059848");
+	//BigBinaryInteger modulusQ("955263939794561");
+	//BigBinaryInteger squareRootOfRoot("941018665059848");
 
-	BigBinaryInteger bigmodulus("80899135611688102162227204937217");
-	BigBinaryInteger bigroot("77936753846653065954043047918387");
+	//BigBinaryInteger bigmodulus("80899135611688102162227204937217");
+	//BigBinaryInteger bigroot("77936753846653065954043047918387");
 
-	auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulusQ);
-	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulusQ);
+	//auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulusQ);
+	//ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 
 	float stdDev = 4;
 
-	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
-
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, p, 8, stdDev);
+	CryptoContext<ILDCRT2n> cc = CryptoContextFactory<ILDCRT2n>::genCryptoContextBV(paramsDCRT, p, 8, stdDev);
 
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	LPKeyPair<ILDCRT2n> kp = cc.KeyGen();
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
+	vector<shared_ptr<Ciphertext<ILDCRT2n>>> ciphertext;
 
 	//std::vector<usint> vectorOfInts = { 0,1,0,2,0,3,0,4,0,5 };
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10 };
 	PackedIntPlaintextEncoding intArray(vectorOfInts);
 	//IntPlaintextEncoding intArray(vectorOfInts);
 
-	if (i == 3)
-		std::cout << "Input array\n\t" << intArray << std::endl;
-	//std::cout << intArray << std::endl;
-
 	ciphertext = cc.Encrypt(kp.publicKey, intArray, false);
+
+	vector<shared_ptr<Ciphertext<ILDCRT2n>>> ciphertext2;
+
+	std::vector<usint> vectorOfInts2 = { 2,3,4,4,5,6,7,8,9,101 };
+	PackedIntPlaintextEncoding intArray2(vectorOfInts2);
+
+	ciphertext2 = cc.Encrypt(kp.publicKey, intArray2, false);
 
 	std::vector<usint> indexList = GetTotientList(m);
 	indexList.erase(indexList.begin());
 
-	auto evalKeys = cc.EvalAutomorphismKeyGen(kp.secretKey, indexList);
+	//auto evalKeys = cc.EvalAutomorphismKeyGen(kp.secretKey, indexList);
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> permutedCiphertext;
+	cc.EvalMultKeyGen(kp.secretKey);
 
-	shared_ptr<Ciphertext<ILVector2n>> p1;
+	vector<shared_ptr<Ciphertext<ILDCRT2n>>> permutedCiphertext;
 
-	p1 = cc.EvalAutomorphism(ciphertext[0], i, *evalKeys);
+	shared_ptr<Ciphertext<ILDCRT2n>> p1;
+
+	p1 = cc.EvalMult(ciphertext[0],ciphertext2[0]);
+
+	//p1 = cc.EvalAutomorphism(ciphertext[0], i, *evalKeys);
 
 	permutedCiphertext.push_back(p1);
 
@@ -189,9 +195,136 @@ void ArbBVAutomorphismPackedArray(usint i) {
 	//IntPlaintextEncoding intArrayNew;
 
 	cc.Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew, false);
+	
 	//cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
 
+	std::cout << "Input array\n\t" << intArray << std::endl;
+
 	std::cout << "Automorphed array - at index " << i << " (using only odd coefficients)\n\t" << intArrayNew << std::endl;
+
+	//std::cout << intArrayNew << std::endl;
+
+}
+
+void EvalMult() {
+
+	usint m = 22;
+
+	usint init_size = 7;
+	usint dcrtBits = 10;
+	usint dcrtBitsBig = 28;
+
+	usint mArb = 2 * m;
+	usint mNTT = pow(2, ceil(log2(2 * m - 1)));
+
+	// populate the towers for the small modulus
+
+	vector<native_int::BinaryInteger> init_moduli(init_size);
+	vector<native_int::BinaryInteger> init_rootsOfUnity(init_size);
+
+	native_int::BinaryInteger q = FirstPrime<native_int::BinaryInteger>(dcrtBits, mArb);
+	init_moduli[0] = q;
+	init_rootsOfUnity[0] = RootOfUnity(mArb, init_moduli[0]);
+
+	for (usint i = 1; i < init_size; i++) {
+		q = lbcrypto::NextPrime(q, mArb);
+		init_moduli[i] = q;
+		init_rootsOfUnity[i] = RootOfUnity(mArb, init_moduli[i]);
+		auto cycloPoly = GetCyclotomicPolynomial<native_int::BinaryVector, native_int::BinaryInteger>(m, q);
+		ChineseRemainderTransformArb<native_int::BinaryInteger, native_int::BinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, q);
+	}
+
+	// populate the towers for the big modulus
+
+	vector<native_int::BinaryInteger> init_moduli_NTT(init_size);
+	vector<native_int::BinaryInteger> init_rootsOfUnity_NTT(init_size);
+
+	q = FirstPrime<native_int::BinaryInteger>(dcrtBitsBig, mNTT);
+	init_moduli_NTT[0] = q;
+	init_rootsOfUnity_NTT[0] = RootOfUnity(mNTT, init_moduli_NTT[0]);
+
+	BigBinaryInteger modulus_NTT(1);
+
+	for (usint i = 1; i < init_size; i++) {
+		q = lbcrypto::NextPrime(q, mNTT);
+		init_moduli_NTT[i] = q;
+		init_rootsOfUnity_NTT[i] = RootOfUnity(mNTT, init_moduli_NTT[i]);
+		auto cycloPoly = GetCyclotomicPolynomial<native_int::BinaryVector, native_int::BinaryInteger>(m, q);
+		ChineseRemainderTransformArb<native_int::BinaryInteger, native_int::BinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, q);
+	}
+
+	shared_ptr<ILDCRTParams<BigBinaryInteger>> paramsDCRT(new ILDCRTParams<BigBinaryInteger>(m, init_moduli, init_rootsOfUnity, init_moduli_NTT, init_rootsOfUnity_NTT));
+
+	//usint m = 22;
+	usint p = 16787;
+
+	BigBinaryInteger modulusP(p);
+
+	//BigBinaryInteger modulusQ("955263939794561");
+	//BigBinaryInteger squareRootOfRoot("941018665059848");
+
+	//BigBinaryInteger bigmodulus("80899135611688102162227204937217");
+	//BigBinaryInteger bigroot("77936753846653065954043047918387");
+
+	//auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulusQ);
+	//ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulusQ);
+
+
+	float stdDev = 4;
+
+	CryptoContext<ILDCRT2n> cc = CryptoContextFactory<ILDCRT2n>::genCryptoContextBV(paramsDCRT, p, 8, stdDev);
+
+	cc.Enable(ENCRYPTION);
+	cc.Enable(SHE);
+
+	// Initialize the public key containers.
+	LPKeyPair<ILDCRT2n> kp = cc.KeyGen();
+
+	vector<shared_ptr<Ciphertext<ILDCRT2n>>> ciphertext;
+
+	//std::vector<usint> vectorOfInts = { 0,1,0,2,0,3,0,4,0,5 };
+	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10 };
+	PackedIntPlaintextEncoding intArray(vectorOfInts);
+	//IntPlaintextEncoding intArray(vectorOfInts);
+
+	ciphertext = cc.Encrypt(kp.publicKey, intArray, false);
+
+	vector<shared_ptr<Ciphertext<ILDCRT2n>>> ciphertext2;
+
+	std::vector<usint> vectorOfInts2 = { 2,3,4,4,5,6,7,8,9,101 };
+	PackedIntPlaintextEncoding intArray2(vectorOfInts2);
+
+	ciphertext2 = cc.Encrypt(kp.publicKey, intArray2, false);
+
+	std::vector<usint> indexList = GetTotientList(m);
+	indexList.erase(indexList.begin());
+
+	//auto evalKeys = cc.EvalAutomorphismKeyGen(kp.secretKey, indexList);
+
+	cc.EvalMultKeyGen(kp.secretKey);
+
+	vector<shared_ptr<Ciphertext<ILDCRT2n>>> permutedCiphertext;
+
+	shared_ptr<Ciphertext<ILDCRT2n>> p1;
+
+	p1 = cc.EvalMult(ciphertext[0], ciphertext2[0]);
+
+	//p1 = cc.EvalAutomorphism(ciphertext[0], i, *evalKeys);
+
+	permutedCiphertext.push_back(p1);
+
+	PackedIntPlaintextEncoding intArrayNew;
+	//IntPlaintextEncoding intArrayNew;
+
+	cc.Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew, false);
+
+	//cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
+
+	std::cout << "Input array\n\t" << intArray << std::endl;
+
+	std::cout << "Input array 2\n\t" << intArray2 << std::endl;
+
+	std::cout << "SIMD product\n\t" << intArrayNew << std::endl;
 
 	//std::cout << intArrayNew << std::endl;
 

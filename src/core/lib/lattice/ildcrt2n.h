@@ -369,7 +369,11 @@ public:
 	* @return is the result of the automorphism transform.
 	*/
 	ILVectorArrayType AutomorphismTransform(const usint &i) const {
-		return ILVectorArrayType(*this);
+		ILVectorArrayType result(*this);
+		for (usint i = 0; i < m_vectors.size(); i++) {
+			result.m_vectors[i] = m_vectors[i].AutomorphismTransform(i);
+		}
+		return result;
 	}
 
 	/**
