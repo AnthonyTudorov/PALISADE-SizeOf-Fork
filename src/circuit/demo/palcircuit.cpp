@@ -83,13 +83,13 @@ main(int argc, char *argv[])
 {
 	const usint MAXVECS = 9*4;
 	const usint m = 8;
-	const usint ptm = 32;
+	const usint ptm = 256;
 	const usint mdim = 3;
 	const usint maxprint = 10;
 
-	CryptoContext<ILDCRT2n> cc = GenCryptoContextElementArrayNull(m, 5, ptm, 20);
+	//CryptoContext<ILDCRT2n> cc = GenCryptoContextElementArrayNull(m, 5, ptm, 20);
 	//CryptoContext<ILVector2n> cc = GenCryptoContextElementNull(m, ptm);
-	//CryptoContext<ILDCRT2n> cc = GenCryptoContextElementArrayLTV(m, 5, ptm, 20);
+	CryptoContext<ILDCRT2n> cc = GenCryptoContextElementArrayLTV(m, 5, ptm, 20);
 	//CryptoContext<ILVector2n> cc = GenCryptoContextElementLTV(m, ptm);
 	cc.Enable(LEVELEDSHE);
 

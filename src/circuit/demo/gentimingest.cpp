@@ -93,7 +93,6 @@ main(int argc, char *argv[])
 			cout << "Unrecognized op " << operation << endl;
 			return 1;
 		}
-		cout << operation << " added" << endl;
 		operations.insert(fop->second);
 	}
 	in.close();
@@ -166,7 +165,6 @@ main(int argc, char *argv[])
 	// time to assemble timing statistics
 	map<OpType,TimingStatistics> stats;
 	for( TimingInfo& sample : times ) {
-		cout << sample << endl;
 		TimingStatistics& st = stats[ sample.operation ];
 		if( st.operation == OpNOOP ) {
 			st.operation = sample.operation;
@@ -185,6 +183,8 @@ main(int argc, char *argv[])
 	for( auto &tstat : stats ) {
 		auto ts = tstat.second;
 		ts.average /= ts.samples;
+
+		cout << tstat.first << ':' << ts << endl;
 
 		Serialized ser;
 		if( ts.Serialize(&ser) == false ) {
