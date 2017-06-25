@@ -55,44 +55,11 @@ template class CircuitObject<ILVector2n>;
 int
 main(int argc, char *argv[])
 {
-//	const usint m = 64;
-//	const usint p = 129;
-
 	string filename;
 	if( argc != 2 )
 		filename = "src/circuit/demo/sample-matrix-mult.acirc";
 	else
 		filename = string(argv[1]);
-
-	usint m = 22;
-	usint p = 89;
-	BigBinaryInteger modulusP(p);
-	BigBinaryInteger modulusQ("955263939794561");
-	BigBinaryInteger squareRootOfRoot("941018665059848");
-	BigBinaryInteger bigmodulus("80899135611688102162227204937217");
-	BigBinaryInteger bigroot("77936753846653065954043047918387");
-
-	auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulusQ);
-	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulusQ);
-
-	PackedIntPlaintextEncoding::SetParams(modulusP, m);
-
-	float stdDev = 4;
-
-	usint batchSize = 8;
-
-	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
-
-	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP,PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP),batchSize));
-
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, encodingParams, 8, stdDev);
-
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
-
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
-	cc.EvalMultKeyGen(kp.secretKey);
-	cc.EvalSumKeyGen(kp.secretKey);
 
 	// PARSE THE GRAPH
 	pdriver driver(false);
@@ -103,53 +70,69 @@ main(int argc, char *argv[])
 		return 1;
 	}
 
-	PalisadeCircuit<ILVector2n>	cir(cc, driver.graph);
+	std::vector<usint> vectorOfInts;
 
-	std::vector<usint> vectorOfInts1 = { 1,2,3,4,5,6,7,8,0,0 };
-	PackedIntPlaintextEncoding packedArray1(vectorOfInts1);
+	for( int i=0; i<64; i++ )
+		vectorOfInts.push_back(i%16);
 
-	std::cout << "Input array 1 \n\t" << packedArray1 << std::endl;
-
-	std::vector<usint> vectorOfInts2 = { 1,2,3,2,1,2,1,2,0,0 };
-	PackedIntPlaintextEncoding packedArray2(vectorOfInts2);
-
-	std::cout << "Input array 2 \n\t" << packedArray2 << std::endl;
-
-	// construct matrix for first vector
-	Matrix<IntPlaintextEncoding> scalarMatrix1([](){return make_unique<IntPlaintextEncoding>();},
-			1,vectorOfInts1.size());
-	for( size_t c=0; c<vectorOfInts1.size(); c++ ) {
-		scalarMatrix1(0,c) = { vectorOfInts1[c] };
+	cout << "Inner product of this vector with itself:" << endl << "[ ";
+	for( size_t i=0; i<64; i++ ) {
+		cout << vectorOfInts[i] << " ";
+		if( i == 31 ) cout << endl << "  ";
 	}
+	cout << "]" << endl;
 
-	// construct matrix for second vector
-	Matrix<IntPlaintextEncoding> scalarMatrix2([](){return make_unique<IntPlaintextEncoding>();},
-			vectorOfInts2.size(), 1);
-	for( size_t r=0; r<vectorOfInts2.size(); r++ ) {
-		scalarMatrix2(r,0) = { vectorOfInts2[r] };
-	}
-
-	// construct bit matrix for first vector
-	Matrix<IntPlaintextEncoding> bitMatrix1([](){return make_unique<IntPlaintextEncoding>();},
-			1,vectorOfInts1.size());
-	for( size_t c=0; c<vectorOfInts1.size(); c++ ) {
-		bitMatrix1(0,c) = IntPlaintextEncoding(vectorOfInts1[c]);
-		bitMatrix1(0,c).resize( cc.GetRingDimension() );
-	}
-
-	// construct bit matrix for second vector
-	Matrix<IntPlaintextEncoding> bitMatrix2([](){return make_unique<IntPlaintextEncoding>();},
-			vectorOfInts2.size(), 1);
-	for( size_t r=0; r<vectorOfInts2.size(); r++ ) {
-		bitMatrix2(r,0) = IntPlaintextEncoding(vectorOfInts2[r]);
-		bitMatrix2(r,0).resize( cc.GetRingDimension() );
-	}
-
-	vector<TimingInfo>	times;
-	cc.StartTiming(&times);
-	cc.StopTiming();
+	cout << "Inner Product using SCALAR ENCODING" << endl;
 	{
-		cout << "SCALAR ENCODING" << endl;
+		usint relinWindow = 16;
+		float stdDev = 4;
+		usint assurance = 144;
+		usint m = 1811;
+		usint ptm = 10400;
+
+		BigBinaryInteger modulus("147573952589676481307");
+		BigBinaryInteger rootUnity("36745553101704677056");
+		BigBinaryInteger bigModulus("178405961588244985132285746181186892047872001");
+		BigBinaryInteger bigRootUnity("115052626582232218836484393614104952128652495");
+
+		shared_ptr<ILParams> params( new ILParams(m, modulus, rootUnity, bigModulus, bigRootUnity) );
+
+		shared_ptr<LPCryptoParametersBV<ILVector2n>> cparams( new LPCryptoParametersBV<ILVector2n>(
+				params,
+				BigBinaryInteger(ptm),
+				stdDev,
+				assurance,
+				1.006, // securityLevel,
+				relinWindow, // Relinearization Window
+				OPTIMIZED, //Mode of noise generation
+				1) );
+
+		shared_ptr<LPPublicKeyEncryptionScheme<ILVector2n>> scheme( new LPPublicKeyEncryptionSchemeBV<ILVector2n>() );
+
+		CryptoContext<ILVector2n> cc = CryptoContext<ILVector2n>(cparams, scheme);
+		cc.Enable(ENCRYPTION);
+		cc.Enable(SHE);
+
+		LPKeyPair<ILVector2n> kp = cc.KeyGen();
+		cc.EvalMultKeyGen(kp.secretKey);
+		cc.EvalSumKeyGen(kp.secretKey);
+
+		PalisadeCircuit<ILVector2n>	cir(cc, driver.graph);
+
+		// construct matrix for first vector
+		Matrix<IntPlaintextEncoding> scalarMatrix1([](){return make_unique<IntPlaintextEncoding>();},
+				1,vectorOfInts.size());
+		for( size_t c=0; c<vectorOfInts.size(); c++ ) {
+			scalarMatrix1(0,c) = { vectorOfInts[c] };
+		}
+
+		// construct matrix for second vector
+		Matrix<IntPlaintextEncoding> scalarMatrix2([](){return make_unique<IntPlaintextEncoding>();},
+				vectorOfInts.size(), 1);
+		for( size_t r=0; r<vectorOfInts.size(); r++ ) {
+			scalarMatrix2(r,0) = { vectorOfInts[r] };
+		}
+
 		shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> A = cc.EncryptMatrix(kp.publicKey, scalarMatrix1);
 		shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> B = cc.EncryptMatrix(kp.publicKey, scalarMatrix2);
 
@@ -158,8 +141,8 @@ main(int argc, char *argv[])
 		inputs[0] = A;
 		inputs[1] = B;
 
-		cc.ResetTiming();
-		cc.ResumeTiming();
+		vector<TimingInfo>	times;
+		cc.StartTiming(&times);
 
 		CircuitIO<ILVector2n> outputs = cir.CircuitEval(inputs);
 
@@ -171,20 +154,66 @@ main(int argc, char *argv[])
 			Matrix<IntPlaintextEncoding> denominator([](){return make_unique<IntPlaintextEncoding>();},m->GetRows(),m->GetCols());
 			cc.DecryptMatrix(kp.secretKey, m, &numerator, &denominator);
 
-			cout << "numerator dimensions: " << numerator.GetRows() << "," << numerator.GetCols() << endl;
-			cout << "denominator dimensions: " << denominator.GetRows() << "," << denominator.GetCols() << endl;
-
-			cout << numerator(0,0)[0] << endl;
+			cout << "INNER PRODUCT IS: " << numerator(0,0)[0] << endl;
 		}
 
-		cout << "Timing:" << endl;
-		for( auto& t : times ) {
-			cout << t << endl;
-		}
+		cout << "Timing, using circuit eval of " << times[0].operation << ", is " << times[0].timeval << "ms" << endl;
 	}
+	cout << endl << endl;
 
+	cout << "Inner Product using BIT ENCODING" << endl;
 	{
-		cout << "BIT ENCODING" << endl;
+		usint relinWindow = 16;
+		float stdDev = 4;
+		usint assurance = 144;
+		usint m = 1559;
+		usint ptm = 512;
+
+		BigBinaryInteger modulus("144115188075962143");
+		BigBinaryInteger rootUnity("62176233231091969");
+		BigBinaryInteger bigModulus("170141183460469231731687303715884605441");
+		BigBinaryInteger bigRootUnity("145253131385025115938671309869900439301");
+
+		shared_ptr<ILParams> params( new ILParams(m, modulus, rootUnity, bigModulus, bigRootUnity) );
+
+		shared_ptr<LPCryptoParametersBV<ILVector2n>> cparams( new LPCryptoParametersBV<ILVector2n>(
+				params,
+				BigBinaryInteger(ptm),
+				stdDev,
+				assurance,
+				1.006, // securityLevel,
+				relinWindow, // Relinearization Window
+				OPTIMIZED, //Mode of noise generation
+				1) );
+
+		shared_ptr<LPPublicKeyEncryptionScheme<ILVector2n>> scheme( new LPPublicKeyEncryptionSchemeBV<ILVector2n>() );
+
+		CryptoContext<ILVector2n> cc = CryptoContext<ILVector2n>(cparams, scheme);
+		cc.Enable(ENCRYPTION);
+		cc.Enable(SHE);
+
+		LPKeyPair<ILVector2n> kp = cc.KeyGen();
+		cc.EvalMultKeyGen(kp.secretKey);
+		cc.EvalSumKeyGen(kp.secretKey);
+
+		PalisadeCircuit<ILVector2n>	cir(cc, driver.graph);
+
+		// construct bit matrix for first vector
+		Matrix<IntPlaintextEncoding> bitMatrix1([](){return make_unique<IntPlaintextEncoding>();},
+				1,vectorOfInts.size());
+		for( size_t c=0; c<vectorOfInts.size(); c++ ) {
+			bitMatrix1(0,c) = IntPlaintextEncoding(vectorOfInts[c]);
+			bitMatrix1(0,c).resize( cc.GetRingDimension() );
+		}
+
+		// construct bit matrix for second vector
+		Matrix<IntPlaintextEncoding> bitMatrix2([](){return make_unique<IntPlaintextEncoding>();},
+				vectorOfInts.size(), 1);
+		for( size_t r=0; r<vectorOfInts.size(); r++ ) {
+			bitMatrix2(r,0) = IntPlaintextEncoding(vectorOfInts[r]);
+			bitMatrix2(r,0).resize( cc.GetRingDimension() );
+		}
+
 		shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> A = cc.EncryptMatrix(kp.publicKey, bitMatrix1);
 		shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> B = cc.EncryptMatrix(kp.publicKey, bitMatrix2);
 
@@ -193,8 +222,8 @@ main(int argc, char *argv[])
 		inputs[0] = A;
 		inputs[1] = B;
 
-		cc.ResetTiming();
-		cc.ResumeTiming();
+		vector<TimingInfo>	times;
+		cc.StartTiming(&times);
 
 		CircuitIO<ILVector2n> outputs = cir.CircuitEval(inputs);
 
@@ -206,41 +235,75 @@ main(int argc, char *argv[])
 			Matrix<IntPlaintextEncoding> denominator([](){return make_unique<IntPlaintextEncoding>();},m->GetRows(),m->GetCols());
 			cc.DecryptMatrix(kp.secretKey, m, &numerator, &denominator);
 
-			cout << "numerator dimensions: " << numerator.GetRows() << "," << numerator.GetCols() << endl;
-			cout << "denominator dimensions: " << denominator.GetRows() << "," << denominator.GetCols() << endl;
-
 			uint32_t ptm = cc.GetCryptoParameters()->GetPlaintextModulus().ConvertToInt();
-			cout << numerator(0,0).EvalToInt(ptm) << endl;
+			cout << "INNER PRODUCT IS: " << numerator(0,0).EvalToInt(ptm) << endl;
 		}
 
-		cout << "Timing:" << endl;
-		for( auto& t : times ) {
-			cout << t << endl;
-		}
+		cout << "Timing, using circuit eval of " << times[0].operation << ", is " << times[0].timeval << "ms" << endl;
 	}
+	cout << endl << endl;
 
+	cout << "Inner Product using PACKED ENCODING" << endl;
 	{
-		cout << "EvalLin for PACKED ENCODING" << endl;
+		usint relinWindow = 16;
+		float stdDev = 4;
+		usint assurance = 144;
+		usint batchSize = 64;
+		usint m = 1733;
+		usint ptm = 10399;
+
+		BigBinaryInteger modulus("1152921504606909071");
+		BigBinaryInteger rootUnity("44343872016735288");
+		BigBinaryInteger bigModulus("10889035741470030830827987437816582848513");
+		BigBinaryInteger bigRootUnity("5879632101734955395039618227388702592012");
+
+		PackedIntPlaintextEncoding::SetParams(ptm, m);
+
+		shared_ptr<ILParams> params( new ILParams(m, modulus, rootUnity, bigModulus, bigRootUnity) );
+
+		shared_ptr<EncodingParams> encodingParams(new EncodingParams(ptm,PackedIntPlaintextEncoding::GetAutomorphismGenerator(ptm),batchSize));
+
+		shared_ptr<LPCryptoParametersBV<ILVector2n>> cparams( new LPCryptoParametersBV<ILVector2n>(
+				params,
+				encodingParams,
+				stdDev,
+				assurance,
+				1.006, // securityLevel,
+				relinWindow, // Relinearization Window
+				OPTIMIZED, //Mode of noise generation
+				1) );
+
+		shared_ptr<LPPublicKeyEncryptionScheme<ILVector2n>> scheme( new LPPublicKeyEncryptionSchemeBV<ILVector2n>() );
+
+		CryptoContext<ILVector2n> cc = CryptoContext<ILVector2n>(cparams, scheme);
+		cc.Enable(ENCRYPTION);
+		cc.Enable(SHE);
+
+		LPKeyPair<ILVector2n> kp = cc.KeyGen();
+		cc.EvalMultKeyGen(kp.secretKey);
+		cc.EvalSumKeyGen(kp.secretKey);
+
+		PackedIntPlaintextEncoding packedArray1(vectorOfInts);
+		PackedIntPlaintextEncoding packedArray2(vectorOfInts);
+
 		auto A = cc.Encrypt(kp.publicKey, packedArray1);
 		auto B = cc.Encrypt(kp.publicKey, packedArray2);
 
-		cc.ResetTiming();
-		cc.ResumeTiming();
+		vector<TimingInfo>	times;
+		cc.StartTiming(&times);
 
 		auto result = cc.EvalInnerProduct(A[0], B[0], batchSize);
 
+		cc.StopTiming();
+
 		PackedIntPlaintextEncoding intArrayNew;
+		cc.Decrypt(kp.secretKey, {result}, &intArrayNew, false);
 
 		cc.StopTiming();
 
-		cc.Decrypt(kp.secretKey, {result}, &intArrayNew, false);
+		cout << "INNER PRODUCT IS: " << intArrayNew[0] << endl;
 
-		cout << intArrayNew[0] << endl;
-
-		cout << "TIMING RESULT:" << endl;
-		for( auto& t : times ) {
-			cout << t << endl;
-		}
+		cout << "Timing, using " << times[0].operation << ", is " << times[0].timeval << "ms" << endl;
 	}
 
 	return 0;
