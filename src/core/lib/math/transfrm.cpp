@@ -1115,18 +1115,24 @@ namespace lbcrypto {
 
 		//precompute bigroot of unity and inverse root of unity table if it's not yet computed.
 		if (BluesteinFFT<IntType, VecType>::GetInstance().m_rootOfUnityTableByModulus[bigMod].GetLength() == 0) {
+#pragma omp critical
+{
 			BluesteinFFT<IntType, VecType>::GetInstance().SetPreComputedNTTModulus(cycloOrder, modulus, bigMod);
 			BluesteinFFT<IntType, VecType>::GetInstance().SetRootTableForNTT(cycloOrder, modulus, bigMod, bigRoot);
+}
 		}
 
 		//precompute powers table
 		ModulusRoot<IntType> modulusRoot = { modulus, root };
 		if (BluesteinFFT<IntType, VecType>::GetInstance().m_powersTableByModulusRoot[modulusRoot].GetLength() == 0) {
+#pragma omp critical
+{
 			const auto rootInv(root.ModInverse(modulus));
 			BluesteinFFT<IntType, VecType>::GetInstance().PreComputePowers(cycloOrder, modulus, root);
 			BluesteinFFT<IntType, VecType>::GetInstance().PreComputePowers(cycloOrder, modulus, rootInv);
 			BluesteinFFT<IntType, VecType>::GetInstance().PreComputeRBTable(cycloOrder, modulus, root, bigMod, bigRoot);
 			BluesteinFFT<IntType, VecType>::GetInstance().PreComputeRBTable(cycloOrder, modulus, rootInv, bigMod, bigRoot);
+}
 		}
 
 		auto outputBluestein = BluesteinFFT<IntType, VecType>::GetInstance().ForwardTransform(inputToBluestein, root, cycloOrder);
@@ -1151,17 +1157,23 @@ namespace lbcrypto {
 
 		//precompute bigroot of unity and inverse root of unity table if it's not yet computed.
 		if (BluesteinFFT<IntType, VecType>::GetInstance().m_rootOfUnityTableByModulus[bigMod].GetLength() == 0) {
+#pragma omp critical
+{
 			BluesteinFFT<IntType, VecType>::GetInstance().SetPreComputedNTTModulus(cycloOrder, modulus, bigMod);
 			BluesteinFFT<IntType, VecType>::GetInstance().SetRootTableForNTT(cycloOrder, modulus, bigMod, bigRoot);
+}
 		}
 
 		//precompute powers table
 		ModulusRoot<IntType> modulusRoot = { modulus, root };
 		if (BluesteinFFT<IntType, VecType>::GetInstance().m_powersTableByModulusRoot[modulusRoot].GetLength() == 0) {
+#pragma omp critical
+{
 			BluesteinFFT<IntType, VecType>::GetInstance().PreComputePowers(cycloOrder, modulus, root);
 			BluesteinFFT<IntType, VecType>::GetInstance().PreComputePowers(cycloOrder, modulus, rootInverse);
 			BluesteinFFT<IntType, VecType>::GetInstance().PreComputeRBTable(cycloOrder, modulus, root, bigMod, bigRoot);
 			BluesteinFFT<IntType, VecType>::GetInstance().PreComputeRBTable(cycloOrder, modulus, rootInverse, bigMod, bigRoot);
+}
 		}
 
 		auto outputBluestein = BluesteinFFT<IntType, VecType>::GetInstance().ForwardTransform(inputToBluestein, rootInverse, cycloOrder);

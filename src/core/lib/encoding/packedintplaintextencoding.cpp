@@ -105,6 +105,8 @@ namespace lbcrypto {
 
 		//initialize the CRT coefficients if not initialized
 		if (m_initRoot[modulusNI].GetMSB() == 0) {
+#pragma omp critical
+{
 			native_int::BinaryInteger initRoot = RootOfUnity<native_int::BinaryInteger>(m, modulusNI);
 			native_int::BinaryInteger mm(m); // Hackish typecast
 			native_int::BinaryInteger automorphismGenerator = FindGeneratorCyclic<native_int::BinaryInteger>(mm);
@@ -113,6 +115,7 @@ namespace lbcrypto {
 			m_automorphismGenerator[modulusNI] = automorphismGenerator.ConvertToInt();
 			//initializes the CRT coefficient matrix
 			InitializeCRTCoefficients(m, modulusNI);
+}
 
 		}
 
