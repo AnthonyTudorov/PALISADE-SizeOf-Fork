@@ -305,6 +305,17 @@ namespace lbcrypto {
 		uint32_t size;
 	};
 
+	// struct used as a key in BlueStein transform
+	template<typename IntType>
+	struct ModulusRoot
+	{
+	 IntType modulus; IntType root;
+	};
+
+	// LessThanComparable - to be used as key in std::map
+	template<typename IntType>
+	bool operator< (ModulusRoot<IntType> a, ModulusRoot<IntType> b) { return std::make_pair(a.modulus, a.root) < std::make_pair(b.modulus, b.root); }
+
 	/**
 	* @brief Bluestein Fast Fourier Transform implemetation
 	*/
@@ -424,11 +435,11 @@ namespace lbcrypto {
 		//map to store the root of unity inverse table with modulus as key.
 		static std::map<IntType, VecType> m_rootOfUnityInverseTableByModulus;
 
-		//map to store the power of roots as a table with root of unity as key.
-		static std::map<IntType, VecType> m_powersTableByRoot;
+		//map to store the power of roots as a table with modulus + root of unity as key.
+		static std::map<ModulusRoot<IntType>, VecType> m_powersTableByModulusRoot;
 
-		//map to store the forward transform of power table with modulus as key.
-		static std::map<IntType, VecType> m_RBTableByRoot;
+		//map to store the forward transform of power table with modulus + root of unity as key.
+		static std::map<ModulusRoot<IntType>, VecType> m_RBTableByModulusRoot;
 
 	private:
 		//map to store the precomputed NTT modulus with modulus as key.

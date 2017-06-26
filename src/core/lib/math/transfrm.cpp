@@ -73,10 +73,10 @@ namespace lbcrypto {
 	std::map<IntType, VecType> BluesteinFFT<IntType, VecType>::m_rootOfUnityInverseTableByModulus;
 
 	template<typename IntType, typename VecType>
-	std::map<IntType, VecType> BluesteinFFT<IntType, VecType>::m_powersTableByRoot;
+	std::map<ModulusRoot<IntType>, VecType> BluesteinFFT<IntType, VecType>::m_powersTableByModulusRoot;
 
 	template<typename IntType, typename VecType>
-	std::map<IntType, VecType> BluesteinFFT<IntType, VecType>::m_RBTableByRoot;
+	std::map<ModulusRoot<IntType>, VecType> BluesteinFFT<IntType, VecType>::m_RBTableByModulusRoot;
 
 	template<typename IntType, typename VecType>
 	std::map<IntType, IntType> BluesteinFFT<IntType, VecType>::m_NTTModulus;
@@ -838,7 +838,8 @@ namespace lbcrypto {
 			auto val = root.ModExp(IntType(iSqr), modulus);
 			powers.SetValAtIndex(i, val);
 		}
-		m_powersTableByRoot[root] = std::move(powers);
+		ModulusRoot<IntType> modulusRoot = { modulus, root };
+		m_powersTableByModulusRoot[modulusRoot] = std::move(powers);
 
 	}
 
@@ -864,7 +865,8 @@ namespace lbcrypto {
 		Rb.SetModulus(bigMod);
 
 		auto RB = NumberTheoreticTransform<IntType, VecType>::GetInstance().ForwardTransformIterative(Rb, rootTable, k2);
-		m_RBTableByRoot[root] = std::move(RB);
+		ModulusRoot<IntType> modulusRoot = { modulus, root };
+		m_RBTableByModulusRoot[modulusRoot] = std::move(RB);
 
 	}
 
@@ -882,7 +884,8 @@ namespace lbcrypto {
 
 		const auto &rootTableInverse = m_rootOfUnityInverseTableByModulus[nttModulus]; //assumes rootTableInverse is precomputed
 
-		const VecType &powers = m_powersTableByRoot[root];
+		ModulusRoot<IntType> modulusRoot = { modulus, root };
+		const VecType &powers = m_powersTableByModulusRoot[modulusRoot];
 
 		VecType x(element*powers);
 
@@ -912,7 +915,7 @@ namespace lbcrypto {
 
 		auto RA = NumberTheoreticTransform<IntType, VecType>::GetInstance().ForwardTransformIterative(Ra, rootTable, k2);
 		//auto RB = NumberTheoreticTransform<IntType, VecType>::GetInstance().ForwardTransformIterative(Rb, rootTable, k2);
-		const auto &RB = m_RBTableByRoot[root];
+		const auto &RB = m_RBTableByModulusRoot[modulusRoot];
 
 		auto RC = RA*RB;
 		auto Rc = NumberTheoreticTransform<IntType, VecType>::GetInstance().InverseTransformIterative(RC, rootTableInverse, k2);
@@ -964,8 +967,8 @@ namespace lbcrypto {
 	void BluesteinFFT<IntType, VecType>::Destroy() {
 		m_rootOfUnityTableByModulus.clear();
 		m_rootOfUnityInverseTableByModulus.clear();
-		m_powersTableByRoot.clear();
-		m_RBTableByRoot.clear();
+		m_powersTableByModulusRoot.clear();
+		m_RBTableByModulusRoot.clear();
 		m_NTTModulus.clear();
 	}
 
@@ -1116,8 +1119,9 @@ namespace lbcrypto {
 			BluesteinFFT<IntType, VecType>::GetInstance().SetRootTableForNTT(cycloOrder, modulus, bigMod, bigRoot);
 		}
 
-		//precompute powers table 
-		if (BluesteinFFT<IntType, VecType>::GetInstance().m_powersTableByRoot[root].GetLength() == 0) {
+		//precompute powers table
+		ModulusRoot<IntType> modulusRoot = { modulus, root };
+		if (BluesteinFFT<IntType, VecType>::GetInstance().m_powersTableByModulusRoot[modulusRoot].GetLength() == 0) {
 			const auto rootInv(root.ModInverse(modulus));
 			BluesteinFFT<IntType, VecType>::GetInstance().PreComputePowers(cycloOrder, modulus, root);
 			BluesteinFFT<IntType, VecType>::GetInstance().PreComputePowers(cycloOrder, modulus, rootInv);
@@ -1152,7 +1156,8 @@ namespace lbcrypto {
 		}
 
 		//precompute powers table
-		if (BluesteinFFT<IntType, VecType>::GetInstance().m_powersTableByRoot[root].GetLength() == 0) {
+		ModulusRoot<IntType> modulusRoot = { modulus, root };
+		if (BluesteinFFT<IntType, VecType>::GetInstance().m_powersTableByModulusRoot[modulusRoot].GetLength() == 0) {
 			BluesteinFFT<IntType, VecType>::GetInstance().PreComputePowers(cycloOrder, modulus, root);
 			BluesteinFFT<IntType, VecType>::GetInstance().PreComputePowers(cycloOrder, modulus, rootInverse);
 			BluesteinFFT<IntType, VecType>::GetInstance().PreComputeRBTable(cycloOrder, modulus, root, bigMod, bigRoot);
