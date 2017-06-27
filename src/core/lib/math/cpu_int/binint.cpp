@@ -475,7 +475,7 @@ void BigBinaryInteger<uint_type,BITLENGTH>::PrintLimbsInDec() const{
 template<typename uint_type,usint BITLENGTH>
 void BigBinaryInteger<uint_type,BITLENGTH>::PrintLimbsInHex() const{
 
-	sint i= m_MSB%m_uintBitLength==0&&m_MSB!=0? m_MSB/m_uintBitLength:(sint)m_MSB/m_uintBitLength +1;
+	usint i= m_MSB%m_uintBitLength==0&&m_MSB!=0? m_MSB/m_uintBitLength:(sint)m_MSB/m_uintBitLength +1;
 	for(i=m_nSize-i;i<m_nSize;i++)//actual
     //(i=0;i<Nchar;i++)//for debug
 	  std::cout<<std::hex<<(uint_type)m_value[i]<<std::dec<<" ";

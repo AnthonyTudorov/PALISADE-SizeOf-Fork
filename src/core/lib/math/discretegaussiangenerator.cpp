@@ -273,10 +273,10 @@ namespace lbcrypto {
 		DEBUG("n "<<n);
 		DEBUG("t "<<t);
 
-		if (isinf(mean)) {
+		if (std::isinf(mean)) {
 			throw std::runtime_error("DiscreteGaussianGeneratorImpl called with mean == +-inf");
 		}
-		if (isinf(stddev)) {
+		if (std::isinf(stddev)) {
 			throw std::runtime_error("DiscreteGaussianGeneratorImpl called with stddev == +-inf");
 		}
 		IntType result;

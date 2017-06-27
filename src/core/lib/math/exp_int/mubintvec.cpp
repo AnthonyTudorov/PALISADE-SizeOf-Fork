@@ -1000,7 +1000,7 @@ template<class ubint_el_t>
     //build a string containing all vector elements concatenated
     if( pkVectorLength > 0 ) {
       std::string pkBufferString = "";
-      for (int i = 0; i < pkVectorLength; i++) {
+      for (size_t i = 0; i < pkVectorLength; i++) {
 	DEBUG("element "<<i<<" "<<this->m_data[i]);
 	std::string tmp = this->m_data[i].Serialize(this->GetModulus());
 	pkBufferString += tmp;
