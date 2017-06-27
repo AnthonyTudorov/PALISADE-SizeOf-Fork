@@ -27,6 +27,7 @@
   This code exercises the math libraries of the PALISADE lattice encryption library.
 */
 
+#define PROFILE
 #include "include/gtest/gtest.h"
 #include <iostream>
 
@@ -833,6 +834,27 @@ TEST(UTBinInt,mod_arithmetic){
   }
 }
 
+TEST(UTBinInt,big_modexp){
+  //very big modexp. 
+  {
+    TimeVar t;
+
+    TIC(t);
+    BigBinaryInteger m("150802716267100577727763462252");
+    BigBinaryInteger n("507060240091291760598681282151");
+    BigBinaryInteger q("1014120480182583521197362564303");
+
+    BigBinaryInteger calculatedResult = m.ModExp(n,q);
+    BigBinaryInteger expectedResult("187237443793760596004690725849");
+
+    EXPECT_EQ(expectedResult, calculatedResult)
+      << "Failure testing very big mod_exp_test";
+
+    
+    PROFILELOG("big_modexp time ns "<<TOC_NS(t));
+  }
+}
+
 TEST(UTBinInt,shift){
 
   /****************************/
@@ -1044,4 +1066,26 @@ TEST(UTBinInt,method_getDigitAtIndex) {
 	EXPECT_EQ(x.GetDigitAtIndexForBase(2,2), 1ULL);
 	EXPECT_EQ(x.GetDigitAtIndexForBase(3,2), 0ULL);
 	EXPECT_EQ(x.GetDigitAtIndexForBase(4,2), 1ULL);
+}
+
+TEST(UTBinInt, method_GetBitAtIndex){
+  bool dbg_flag = false;
+  BigBinaryInteger x(1);
+
+  x <<=(100); //x has one bit at 100
+
+  x+=BigBinaryInteger::TWO; //x has one bit at 2
+
+  DEBUG("x "<<x);
+  if (dbg_flag) x.PrintLimbsInHex();
+
+  // index is 1 for lsb!
+  EXPECT_EQ(x.GetBitAtIndex(1), 0);  
+  EXPECT_EQ(x.GetBitAtIndex(2), 1);  
+
+  for (auto idx = 3; idx < 100; idx++){
+    EXPECT_EQ(x.GetBitAtIndex(idx), 0);  
+  }
+  EXPECT_EQ(x.GetBitAtIndex(101), 1);  
+
 }

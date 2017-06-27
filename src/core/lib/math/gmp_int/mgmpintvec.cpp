@@ -31,11 +31,11 @@
  *
  */
 
-#if __linux__ && MATHBACKEND == 6
 
 #include "../../utils/serializable.h"
 
 #include "../backend.h"
+#if defined(__linux__) && MATHBACKEND == 6
 
 #include "mgmpintvec.h"
 
@@ -57,14 +57,14 @@ namespace NTL {
     DEBUG("in myVecP(myVecP&) length "<<a.length());
     DEBUG("input vector "<<a);
     DEBUG("input modulus "<<a.GetModulus());
-    this->CopyModulus(a);
-#if 0
-    for (auto i=0; i< a.length(); i++) {
-      (*this)[i]=a[i];
-    }
-#else
-    *this=a;
+    int rv = this->CopyModulus(a);
+    if (rv==-1) {
+#ifdef WARN_BAD_MODULUS
+      std::cerr<<"in myVecP(myVecP) Bad CopyModulus"<<std::endl;
 #endif
+    }
+    *this=a;
+
     DEBUG("output vector "<<*this);
     DEBUG("output modulus "<<this->GetModulus());
 
@@ -85,7 +85,12 @@ namespace NTL {
   {
     bool dbg_flag = false;
     DEBUG("in myVecP copymove, myvecP<myT> alength "<<a.length());
-    this->CopyModulus(a);
+    int rv = this->CopyModulus(a);
+    if (rv==-1) {
+#ifdef WARN_BAD_MODULUS
+      std::cerr<<"in myVecP(myVecP &&) Bad CopyModulus"<<std::endl;
+#endif
+    }
     this->move(a);
   }
 
@@ -316,17 +321,27 @@ namespace NTL {
   }
   
   //Assignment with initializer list of myZZ
-  // note, resizes the vector to the length of the initializer list
+  //if myZZ.size()>rhs.size()
+  // keeps current size, just fills elements from initializer list
+  // otherwise extends lhs and fills to rhs.size().
   //keeps current modulus
   template<class myT>
   const myVecP<myT>& myVecP<myT>::operator=(std::initializer_list<myT> rhs){
     bool dbg_flag = false;
     DEBUG("in op=initializerlist <myT>");
-    usint len = rhs.size();
-    this->SetLength(len);
-    for(usint i=0;i<len;i++){ // this loops over each entry
-      (*this)[i] =  myT(*(rhs.begin()+i));
+    size_t len = rhs.size();
+    if (this->size()< len){
+      this->SetLength(len);
+    };
+
+    for(usint i=0;i<this->size();i++){ // this loops over each entry
+      if (i<len) {
+	(*this)[i] =  myT(*(rhs.begin()+i));
+      }else{
+	(*this)[i] =  myT(0);
+      }
     }
+
     return *this;
     DEBUG("mubintvec assignment copy CTOR ubint init list length "<<this->length());
   }
@@ -337,12 +352,21 @@ namespace NTL {
   const myVecP<myT>& myVecP<myT>::operator=(std::initializer_list<usint> rhs){
     bool dbg_flag = false;
     DEBUG("in op=initializerlist <usint>");
-    usint len = rhs.size();
-    this->SetLength(len);
-    for(usint i=0;i<len;i++){ // this loops over each entry
-      (*this)[i] =  myZZ(*(rhs.begin()+i));
+
+    size_t len = rhs.size();
+    if (this->size()< len){
+      this->SetLength(len);
+    };
+
+    for(usint i=0;i<this->size();i++){ // this loops over each entry
+      if (i<len) {
+	(*this)[i] =  myT(*(rhs.begin()+i));
+      }else{
+	(*this)[i] =  myT(0);
+      }
     }
     return *this;
+
     DEBUG("mubintvec assignment copy CTOR usint init list length "<<this->length());
   }
 
@@ -352,11 +376,19 @@ namespace NTL {
   const myVecP<myT>& myVecP<myT>::operator=(std::initializer_list<int> rhs){
     bool dbg_flag = false;
     DEBUG("in op=initializerlist <int>");
-    usint len = rhs.size();
-    this->SetLength(len);
-    for(usint i=0;i<len;i++){ // this loops over each entry
-      (*this)[i] =  myZZ(*(rhs.begin()+i));
+    size_t len = rhs.size();
+    if (this->size()< len){
+      this->SetLength(len);
+    };
+
+    for(usint i=0;i<this->size();i++){ // this loops over each entry
+      if (i<len) {
+	(*this)[i] =  myT(*(rhs.begin()+i));
+      }else{
+	(*this)[i] =  myT(0);
+      }
     }
+
     return *this;
     DEBUG("mubintvec assignment copy CTOR int init list length "<<this->length());
   }
@@ -368,11 +400,19 @@ namespace NTL {
   const myVecP<myT>& myVecP<myT>::operator=(std::initializer_list<std::string> rhs){
     bool dbg_flag = false;
     DEBUG("in op=initializerlist <string>");
-    usint len = rhs.size();
-    this->SetLength(len);
-    for(usint i=0;i<len;i++){ // this loops over each entry
-      (*this)[i] =  myT(*(rhs.begin()+i));
+    size_t len = rhs.size();
+    if (this->size()< len){
+      this->SetLength(len);
+    };
+
+    for(usint i=0;i<this->size();i++){ // this loops over each entry
+      if (i<len) {
+	(*this)[i] =  myT(*(rhs.begin()+i));
+      }else{
+	(*this)[i] =  myT(0);
+      }
     }
+
     return *this;
     DEBUG("mubintvec assignment copy CTOR string init list length "<<this->size());
   }
@@ -385,11 +425,18 @@ namespace NTL {
   {
     bool dbg_flag = false;
     DEBUG("in op=initializerlist const char*");
-    usint len = rhs.size();
-    this->SetLength(len);
-    for(usint i=0;i<len;i++){ // this loops over each entry
-      (*this)[i] =  (myT(*(rhs.begin()+i)));
-    } 
+ size_t len = rhs.size();
+    if (this->size()< len){
+      this->SetLength(len);
+    };
+
+    for(usint i=0;i<this->size();i++){ // this loops over each entry
+      if (i<len) {
+	(*this)[i] =  myT(*(rhs.begin()+i));
+      }else{
+	(*this)[i] =  myT(0);
+      }
+    }
     return *this;
   }
   
@@ -449,7 +496,12 @@ namespace NTL {
     DEBUG("setting length "<<rhs.length());
     this->SetLength(rhs.length());
     DEBUG("setting length "<<rhs.length());
-    this->CopyModulus(rhs);
+    int rv = this->CopyModulus(rhs);
+    if (rv==-1) {
+#ifdef WARN_BAD_MODULUS
+      std::cerr<<"in operator=(myVecP) Bad CopyModulus"<<std::endl;
+#endif
+    }
     for (auto i = 0; i < rhs.length(); i++){
       (*this)[i] = rhs[i];
     }
@@ -463,8 +515,9 @@ namespace NTL {
 
   }
 
-  template<class myT>
-  void myVecP<myT>::clear(myVecP<myT>& x)
+  //todo " should this be (void)?
+  template<class myT>  
+  void myVecP<myT>::clear(myVecP<myT>& x) 
   {
     //sets all elements to zero, but does not change length
     bool dbg_flag = false;
@@ -475,7 +528,7 @@ namespace NTL {
     for (i = 0; i < n; i++){
       NTL_NAMESPACE::clear(x[i]);  
     }
-    NTL_NAMESPACE::clear(this->m_modulus);
+    NTL_NAMESPACE::clear(x.m_modulus);
   }
   
   //not enabled yet
@@ -568,7 +621,12 @@ namespace NTL {
   {
     unsigned int n = this->length();
     myVecP<myT> res(n);
-    res.CopyModulus(*this);
+    int rv = res.CopyModulus(*this);
+    if (rv==-1) {
+#ifdef WARN_BAD_MODULUS
+      std::cerr<<"in operator%(myZZ) Bad CopyModulus"<<std::endl;
+#endif
+    }
     for (unsigned int i = 0; i < n; i++){
       res[i] = (*this)[i]%b;
     }
@@ -588,28 +646,32 @@ namespace NTL {
     //ans.m_modulus = modulus;
     //ans. m_modulus_state = INITIALIZED;
     //return ans;
-    DEBUG("mubintvec MOD("<<modulus);
+    DEBUG("mgmpintvec" <<*this);
+    DEBUG("MOD("<<modulus<<")");
     if (modulus == myZZ::TWO) 
       return this->ModByTwo();
     else
       {
+	myZZ thisMod(this->GetModulus());
 	myVecP ans(*this);
-	ans.CopyModulus(*this);
-	DEBUG("ans.size"<<ans.size());
-	DEBUG("ans.modulus"<<ans.m_modulus);
-
-	myZZ halfQ(this->GetModulus() >> 1);
+	int rv = ans.CopyModulus(*this);
+	if (rv==-1) {
+#ifdef WARN_BAD_MODULUS
+	  std::cerr<<"in Mod Bad CopyModulus"<<std::endl;
+#endif
+	}
+	myZZ halfQ(thisMod >> 1);
 	DEBUG("halfQ = "<<halfQ);
 
 	for (usint i = 0; i<this->length(); i++) {
-	  ans[i] = ans[i].Mod(modulus);
+	  //ans[i] = ans[i].Mod(modulus);
 	  if (this->GetValAtIndex(i)>halfQ) {
-	    DEBUG("woohoo at i="<<i);
-	    //TODO note: this may be mixed modulus math BEWARE
+	    DEBUG("negative at i="<<i);
+	    //note: this may be mixed modulus math BEWARE
 	    myZZ tmp = ans[i]._ZZ_p__rep;
-	    tmp = tmp.ModSub(myZZ(this->GetModulus()), modulus);
-	    
-	    DEBUG("tmp["<<i<<"]="<<tmp);
+	    //a[i] = a[i].modsub(a->getmodulus, modulus);
+	    DEBUG("tmp "<<tmp<<" - "<<this->GetModulus()<< " % "<<modulus); 
+	    tmp = tmp.ModSub(this->GetModulus(), modulus);
 	    ans[i] = tmp;
 	    //ans.SetValAtIndex(i, this->GetValAtIndex(i).ModSub(this->GetModulus(), modulus));
 	  }
@@ -617,8 +679,6 @@ namespace NTL {
 	    ans[i] = ans[i].Mod(modulus);
 	  }
 	}
-	DEBUG("ans.GetModulus() "<<ans.GetModulus());
-	//ans.SetModulus(modulus);
 	DEBUG("ans.GetModulus() "<<ans.GetModulus());
 	
 	for (usint i = 0; i<ans.length(); i++) {
@@ -671,7 +731,12 @@ namespace NTL {
   {
     unsigned int n = this->length();
     myVecP<myT> res(n);
-    res.CopyModulus(*this);
+    int rv = res.CopyModulus(*this);
+    if (rv==-1) {
+#ifdef WARN_BAD_MODULUS
+      std::cerr<<"in operator+(myZZ) Bad CopyModulus"<<std::endl;
+#endif
+    }
     long i;
     for (i = 0; i < n; i++)
       //res[i] = (*this)[i]+b%m_modulus;
@@ -687,7 +752,12 @@ namespace NTL {
     DEBUG("in myVecP::operator+");
     ArgCheckVector(b, "myVecP operator+");
     myVecP<myT> res;
-    res.CopyModulus(*this);
+    int rv = res.CopyModulus(*this);
+    if (rv==-1) {
+#ifdef WARN_BAD_MODULUS
+	  std::cerr<<"in operator+(myVecP) Bad CopyModulus"<<std::endl;
+#endif
+    }
     myVecP<myT>::add(res, *this, b%m_modulus);
     //NTL_OPT_RETURN(myVecP<myT>, res);
     DEBUG("myVecP::operator+ returning modulus "<<res.m_modulus);
@@ -709,36 +779,67 @@ namespace NTL {
     return ans;
   }
 
-  
+
+  //Need to mimic Palisade use of signed modulus for modsub.
+
   //subtraction of scalar
   template<class myT>
   myVecP<myT> myVecP<myT>::operator-(const myZZ& b) const
   {
     unsigned int n = this->length();
     myVecP<myT> res(n);
-    res.CopyModulus(*this);
-    long i;
-    for (i = 0; i < n; i++)
-      res[i] = (*this)[i]-b%m_modulus;
+    myZZ mod(this->GetModulus());
+    res.SetModulus(mod);
+    myZZ_p b_el(b, mod);
+    //note we have to make these explicitly because [] does not seem to provide the right modulus.
+    for (size_t i = 0; i < n; i++) {
+      myZZ_p this_el((*this)[i], mod);
+      res[i] = this_el.ModSub(b_el);
+    }
     return(res);
-  }
+ }
 
   //subtraction of vector
   //why can't I inheret this?
+
   template<class myT>
   myVecP<myT> myVecP<myT>::operator-(const myVecP<myT> &b) const
   {
     bool dbg_flag = false;
     DEBUG("in myVecP::operator-");
     ArgCheckVector(b, "myVecP::op-");
-    myVecP<myT> res;
-    res.CopyModulus(*this);
-    myVecP<myT>::sub(res, *this, b);
-    //NTL_OPT_RETURN(myVecP<myT>, res);
+    myVecP<myT> res(b.size());
+    myZZ mod(this->GetModulus());
+    res.SetModulus(mod);
+
+
+    for (size_t i = 0; i < b.size(); i++) {
+      myZZ_p b_el(b[i], mod);
+      myZZ_p this_el((*this)[i], mod);
+      res[i] = this_el.ModSub(b_el);
+    }
+
+
     DEBUG("myVecP::operator- returning modulus "<<res.m_modulus);
     return(res);
   }
 
+  template<class myT>
+  myVecP<myT> myVecP<myT>::operator-(void) 
+  {
+    bool dbg_flag = false;
+    DEBUG("in myVecP::operator-negate");
+    myVecP<myT> tmp (this->size());
+    myVecP<myT>::clear(tmp);
+    int rv = tmp.CopyModulus(*this);
+    if (rv==-1) {
+#ifdef WARN_BAD_MODULUS
+      std::cerr<<"in operator-(void) Bad CopyModulus"<<std::endl;
+#endif    
+    }
+    return (tmp - *this);
+
+  }
 
   //multiplication vector by scalar
   template<class myT>
@@ -747,7 +848,12 @@ namespace NTL {
 
     unsigned int n = this->length();
     myVecP<myT> res(n);
-    res.CopyModulus(*this);
+    int rv = res.CopyModulus(*this);
+    if (rv==-1) {
+#ifdef WARN_BAD_MODULUS
+      std::cerr<<"in operator*(myZZ) Bad CopyModulus"<<std::endl;
+#endif
+    }
     long i;
     for (i = 0; i < n; i++)
       //res[i] = (*this)[i]*b%m_modulus;
@@ -764,7 +870,12 @@ namespace NTL {
     DEBUG("in myVecP::operator*");
     ArgCheckVector(b, "myVecP::operator*");
     myVecP<myT> res;
-    res.CopyModulus(*this);
+    int rv = res.CopyModulus(*this);
+    if (rv==-1) {
+#ifdef WARN_BAD_MODULUS
+      std::cerr<<"in operator*(myVecP) Bad CopyModulus"<<std::endl;
+#endif
+    }
     myVecP<myT>::mul(res, *this, b);
     //NTL_OPT_RETURN(myVecP<myT>, res);
     DEBUG("myVecP::operator* returning modulus "<<res.m_modulus);
@@ -842,61 +953,134 @@ namespace NTL {
     return ans;
   }
 
-  //new serialize and deserialise operations
-  //todo: not tested just added to satisfy compilier
-  //currently using the same map as bigBinaryVector, with modulus. 
-
-  // JSON FACILITY - Serialize Operation
+  // serialize and deserialise operations
   template<class myT>
-  bool myVecP<myT>::Serialize(lbcrypto::Serialized* serObj) const 
-  {
-    if( !serObj->IsObject() )
+  bool myVecP<myT>::Serialize(lbcrypto::Serialized* serObj) const {
+    bool dbg_flag = false;
+    if( !serObj->IsObject() ){
+      std::cerr<<"myVecP::Serialize failed bad object"<<std::endl;
       return false;
+    }
+    //serialize the modulus or mark as unknown
+    std::string modstring ="";
+    DEBUG("in vector Serialize");
+    if (this->isModulusSet()){
+      modstring = this->GetModulus().ToString();
+    }else{
+      modstring = "undefined";
+    }
+    DEBUG("modstring "<<modstring);
 
+    //build the map for the serialization
     lbcrypto::SerialItem bbvMap(rapidjson::kObjectType);
-    bbvMap.AddMember("Modulus", this->GetModulus().ToString(), serObj->GetAllocator()); 
+    //add modulus
+    bbvMap.AddMember("Modulus", modstring, serObj->GetAllocator()); 
+    //add Integer type
+    DEBUG("IntegerType "<<myZZ::IntegerTypeName());
+    bbvMap.AddMember("IntegerType", myZZ::IntegerTypeName(), 
+		     serObj->GetAllocator());
 
+    //determine vector length 
     size_t pkVectorLength = this->size();
+    DEBUG ("size "<<pkVectorLength);
+    bbvMap.AddMember("Length", std::to_string(pkVectorLength), 
+		     serObj->GetAllocator());
+
+    //build a string containing all vector elements concatenated
     if( pkVectorLength > 0 ) {
-      std::string pkBufferString = this->at(0).Serialize();
-      for (size_t i = 1; i < pkVectorLength; i++) {
-	pkBufferString += "|";
-	pkBufferString += this->at(i).Serialize();
+      std::string pkBufferString = "";
+      for (int i = 0; i < pkVectorLength; i++) {
+	DEBUG("element "<<i<<" "<<GetValAtIndex(i));
+	std::string tmp = GetValAtIndex(i).Serialize(this->GetModulus());
+	pkBufferString += tmp;
       }
+      DEBUG("add VectorValues");
       bbvMap.AddMember("VectorValues", pkBufferString, serObj->GetAllocator());
     }
-    serObj->AddMember("myVecP", bbvMap, serObj->GetAllocator());
+    //store the map.
+    DEBUG("add BigBinaryVectorImpl");
+    serObj->AddMember("BigBinaryVectorImpl", bbvMap, serObj->GetAllocator());
+
+    DEBUG("serialize done");
     return true;
   }
 
-  // JSON FACILITY - Deserialize Operation
+  // Deserialize
   template<class myT>
   bool myVecP<myT>::Deserialize(const lbcrypto::Serialized& serObj) {
+    bool dbg_flag = false;
+    DEBUG("in deserialize");
   
-  lbcrypto::Serialized::ConstMemberIterator mIter = serObj.FindMember("myVecP");
-  if( mIter == serObj.MemberEnd() )
+    //decode in reverse order from Serialize above
+    lbcrypto::Serialized::ConstMemberIterator mIter = serObj.FindMember("BigBinaryVectorImpl");
+    if( mIter == serObj.MemberEnd() ){
+      std::cerr<<"myVecP::Deserialize() failed"
+	       <<" BigBinaryVectorImpl not found"<<std::endl;
       return false;
+    }    
 
-    lbcrypto::SerialItem::ConstMemberIterator vIt;
-    if( (vIt = mIter->value.FindMember("Modulus")) == mIter->value.MemberEnd() )
+    lbcrypto::SerialItem::ConstMemberIterator vIt; //iterator over serial items
+    //look for IntegerType
+    if( (vIt = mIter->value.FindMember("IntegerType")) 
+	== mIter->value.MemberEnd() ){
+      std::cerr<<"myVecP::Deserialize() failed IntegerType not found"
+	       <<std::endl;
       return false;
-
-    myT bbiModulus(vIt->value.GetString());
-  if( (vIt = mIter->value.FindMember("VectorValues")) == 
-    mIter->value.MemberEnd() )
-      return false;
-    clear(*this);
-    this->SetModulus(bbiModulus);
-
-    myT vectorElem;
-    const char *vp = vIt->value.GetString();
-    while( *vp != '\0' ) {
-      vp = vectorElem.Deserialize(vp);
-      this->push_back(vectorElem);
-      if( *vp == '|' )
-	vp++;
     }
+    if( myZZ::IntegerTypeName() != vIt->value.GetString() ){
+      std::cerr<<"myVecP::Deserialize() failed IntegerType transltion"
+	       <<std::endl;
+      return false;
+    }
+    //look for Modulus
+    if( (vIt = mIter->value.FindMember("Modulus"))
+	== mIter->value.MemberEnd() ){
+      std::cerr<<"myVecP::Deserialize() failed Modulus not found"<<std::endl;
+      return false;
+    }
+    //decode modulus
+    std::string strval(vIt->value.GetString());
+    DEBUG("getting modulus string "<<strval);
+    myZZ bbiModulus;
+    if (strval !="undefined"){
+      bbiModulus =  myZZ(strval);
+    }
+    DEBUG("bbiModulus "<<bbiModulus);
 
+    //find length of vector
+    if( (vIt = mIter->value.FindMember("Length")) 
+	== mIter->value.MemberEnd() ){
+      std::cerr<<"myVecP::Deserialize() failed Length not found"<<std::endl;
+      return false;
+    }
+    usint vectorLength = std::stoi(vIt->value.GetString());
+    DEBUG("vectorLength "<<vectorLength);
+    
+  if( (vIt = mIter->value.FindMember("VectorValues")) == 
+	mIter->value.MemberEnd() ){
+      std::cerr<<"myVecP::Deserialize() failed VectorValues not found"
+	       <<std::endl;
+      return false;
+    }    
+
+    myVecP<myT> newVec(vectorLength, bbiModulus); //build new vector
+    myT vectorElem; //element to store decode
+    
+    const char *vp = vIt->value.GetString(); //concatenated str of coded values
+    DEBUG("vp is size "<<strlen(vp));
+
+    for( usint ePos = 0; ePos < vectorLength; ePos++ ) {
+      if( *vp == '\0' ) {
+	std::cerr<<"myVecP::Deserialize() premature end of vector"<<std::endl;
+	std::cerr<<"at position "<<ePos<<std::endl;
+	return false; // premature end of vector
+    }
+      DEBUG("loop "<<ePos<<" vp before is size "<<strlen(vp));
+      vp = vectorElem.Deserialize(vp, bbiModulus); //decode element
+      DEBUG("vp after is size "<<strlen(vp));
+      newVec[ePos] = vectorElem;//store it
+    }
+    *this = std::move(newVec);//save the overall vectol
     return true;
   }
 
@@ -1079,5 +1263,5 @@ namespace NTL {
 } // namespace NTL ends
  
 template class NTL::myVecP<NTL::myZZ_p>; //instantiate template here
-
-#endif
+ 
+#endif //__linux__

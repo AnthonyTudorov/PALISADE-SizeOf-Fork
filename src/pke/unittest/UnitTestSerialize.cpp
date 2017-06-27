@@ -126,20 +126,26 @@ TEST(UTPKESer, FV_ILVector2n_Serial) {
 
 // REMAINDER OF THE TESTS USE LTV AS A REPRESENTITIVE CONTEXT
 TEST(UTPKESer, LTV_keys_and_ciphertext) {
+        bool dbg_flag = false;
 	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("LTV5");
 	LPKeyPair<ILVector2n> kp = cc.KeyGen();
 	LPKeyPair<ILVector2n> kpnew;
 
+	DEBUG("step 1");
 	{
 		Serialized ser;
+
 		ser.SetObject();
+
+		DEBUG("step 1.1");
 		ASSERT_TRUE( kp.publicKey->Serialize(&ser) ) << "Public Key serialization failed";
 
+		DEBUG("step 1.2");
 		ASSERT_TRUE( (kpnew.publicKey = cc.deserializePublicKey(ser)) ) << "Public key deserialization failed";
-
+		DEBUG("step 1.3");
 		EXPECT_EQ( *kp.publicKey, *kpnew.publicKey ) << "Public key mismatch after ser/deser";
 	}
-
+	DEBUG("step 2");
 	{
 		Serialized ser;
 		ser.SetObject();
@@ -149,18 +155,20 @@ TEST(UTPKESer, LTV_keys_and_ciphertext) {
 
 		EXPECT_EQ( *kp.secretKey, *kpnew.secretKey ) << "Secret key mismatch after ser/deser";
 	}
-
+	DEBUG("step 3");
 	BytePlaintextEncoding plaintextShort("This is just a little test");
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext = cc.Encrypt(kp.publicKey, plaintextShort, true);
 
 	Serialized ser;
 	ser.SetObject();
 	ASSERT_TRUE( ciphertext[0]->Serialize(&ser) ) << "Ciphertext serialize failed";
+	DEBUG("step 4");
 	shared_ptr<Ciphertext<ILVector2n>> newC;
 	ASSERT_TRUE( (newC = cc.deserializeCiphertext(ser)) ) << "Ciphertext deserialization failed";
 
 	EXPECT_EQ( *ciphertext[0], *newC ) << "Ciphertext mismatch";
 
+	DEBUG("step 5");
 	ciphertext[0] = newC;
 	BytePlaintextEncoding plaintextShortNew;
 	cc.Decrypt(kp.secretKey, ciphertext, &plaintextShortNew, true);

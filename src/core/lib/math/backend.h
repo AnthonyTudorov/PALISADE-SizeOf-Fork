@@ -46,15 +46,35 @@
 // MATHBACKEND 4
 // 		This uses exp_int:: definition as default
 // 		This backend supports arbitrary bitwidths; no memory pool is used; can grow up to RAM limitation
-//		Configurable type of underlying integer
+//		Configurable type of underlying integer (either 32 or 64 bit)
+
+// passes all tests with UBINT_32
+// fails tests with UBINT_64
+// there is a bug in the way modulus is computed. do not use.
+
+//[ RUN      ] UTLTVBATCHING.ILVector_EVALMULT_Arb hangs
+//[ RUN      ] UTFV.ILVector2n_FV_ParamsGen_EvalMul hangs
+//[ RUN      ] UTFV.ILVector2n_FV_Optimized_Eval_Operations hangs
+//[ RUN      ] UTSHE.FV_ILVector2n_Add hangs
+//[ RUN      ] UTSHE.FV_ILVector2n_Mult hangs
+//[ RUN      ] UTStatisticalEval.FV_Eval_Lin_Regression_Int hangs
 
 // MATHBACKEND 6
 //		This uses gmp_int:: definition as default
-// 		GMP 6.1.1 / NTL 10.3.0 backend
+// 		GMP 6.1.2 / NTL 10.3.0 backend
+//passes all core tests except NTL specialized tests
+//pass all pke tests if WARN_BAD_MODULUS flag is set, not otherwise 
+//-- maybe it is not threadsafe.
+// fails
+// UTSignatureGPV.simple_sign_verify (throws in SampleC with inf mean) 
+// UTSignatureGPV.sign_verify_multiple_texts (throws GenerateInteger could not find success after repeated attempts mean is a very big negative number)
+// UTTrapdoor.TrapDoorGaussGqSampTest (throws in SampleC with inf mean)
+// UTTrapdoor.TrapDoorGaussSampTest (throws in SampleC with inf mean) 
+//UTSignatureGPV.sign_verify_multiple_keys fails
 
 // MATHBACKEND 7
 // 		This uses native_int:: as the default
-// 		This backend provides a maximum size of 64 bits
+// This backend provides a maximum size of 64 bits
 
 //To select backend, please UNCOMMENT the appropriate line rather than changing the number on the
 //uncommented line (and breaking the documentation of the line)
@@ -84,19 +104,21 @@ typedef BigBinaryVectorImpl<BinaryInteger> BinaryVector;
 
 ////////// for exp_int, decide if you want 32 bit or 64 bit underlying integers in the implementation
 #define UBINT_32
-//#define UBINT_64
+//#define UBINT_64                //DONT USE THIS IT DOESNT WORK - DBC
 
 #ifdef UBINT_32
 #define MATH_UBBITS	32
 typedef uint32_t expdtype;
+#undef UBINT_64 //cant have both accidentally
 #endif
 
 #ifdef UBINT_64
 #define MATH_UBBITS	64
 typedef uint64_t expdtype;
+#undef UBINT_32 //cant have both accidentally
 #endif
 
-#include "exp_int/ubint.h" //experimental dbc unsigned big integers or ubints
+#include "exp_int/ubint.h" //dynamically sized  unsigned big integers or ubints
 #include "exp_int/ubintvec.h" //vectors of experimental ubints
 #include "exp_int/mubintvec.h" //rings of ubints
 
@@ -111,7 +133,7 @@ typedef ubintvec<xubint> xubintvec;
 typedef mubintvec<xubint> xmubintvec;
 }
 
-#if __linux__ && MATHBACKEND == 6
+#if defined(__linux__) && MATHBACKEND == 6
 ////////// for gmp int
 #include "gmp_int/gmpint.h" //experimental gmp unsigned big ints
 #include "gmp_int/mgmpint.h" //experimental gmp modulo unsigned big ints
@@ -144,13 +166,15 @@ namespace lbcrypto {
 
 	typedef cpu_int::BinaryInteger BigBinaryInteger;
 	typedef cpu_int::BinaryVector BigBinaryVector;
-	
+
 #define MATH_DEFBITS BigBinaryIntegerBitLength
 
 #endif
 
 #if MATHBACKEND == 4
-
+        #ifdef UBINT_64
+	  #error MATHBACKEND 4 with UBINT_64 currently does not work do not use.
+	#endif
 	typedef exp_int::xubint BigBinaryInteger;
 	typedef exp_int::xmubintvec BigBinaryVector;
 
@@ -158,18 +182,16 @@ namespace lbcrypto {
 
 #endif
 
-#ifdef __linux__
-#if MATHBACKEND == 6
+#if defined(__linux__)&& MATHBACKEND == 6
 
 	/** Define the mapping for BigBinaryInteger */
 	typedef NTL::myZZ BigBinaryInteger;
 	
 	/** Define the mapping for BigBinaryVector */
-    typedef NTL::myVecP<NTL::myZZ_p> BigBinaryVector;
+        typedef NTL::myVecP<NTL::myZZ_p> BigBinaryVector;
 
 #define MATH_DEFBITS 0
 
-#endif
 #endif
 
 #if MATHBACKEND == 7

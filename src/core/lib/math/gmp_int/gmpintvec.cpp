@@ -27,10 +27,10 @@
  *
  */
 
-#if __linux__ && MATHBACKEND == 6
 
 #include "../../utils/serializable.h"
 #include "../backend.h"
+#if defined(__linux__) && MATHBACKEND == 6
 
 #include "gmpintvec.h"
 
@@ -59,15 +59,23 @@ namespace NTL {
   }
 
   //Assignment with initializer list of myZZ
-  // note, resizes the vector to the length of the initializer list
+  // does not resize the vector
+  // unless lhs size is too small
   template<class myT>
   const myVec<myT>& myVec<myT>::operator=(std::initializer_list<myT> rhs){
     bool dbg_flag = false;
     DEBUG("in op=initializerlist <myT>");
-    usint len = rhs.size();
-    this->SetLength(len);
-    for(usint i=0;i<len;i++){ // this loops over each entry
-      (*this)[i] =  myT(*(rhs.begin()+i));
+    size_t len = rhs.size();
+    if (this->size()< len){
+      this->SetLength(len);
+    };
+
+    for(usint i=0;i<this->size();i++){ // this loops over each entry
+      if (i<len) {
+	(*this)[i] =  myT(*(rhs.begin()+i));
+      }else{
+	(*this)[i] =  myT::ZERO;
+      }
     }
     return *this;
   }
@@ -77,23 +85,35 @@ namespace NTL {
   const myVec<myT>& myVec<myT>::operator=(std::initializer_list<usint> rhs){
     bool dbg_flag = false;
     DEBUG("in op=initializerlist <myT>");
-    usint len = rhs.size();
-    this->SetLength(len);
-    for(usint i=0;i<len;i++){ // this loops over each entry
-      (*this)[i] =  myT(*(rhs.begin()+i));
+    size_t len = rhs.size();
+    if (this->size()< len){
+      this->SetLength(len);
+    };
+    for(usint i=0;i<this->size();i++){ // this loops over each entry
+      if (i<len) {
+	(*this)[i] =  myT(*(rhs.begin()+i));
+      }else{
+	(*this)[i] =  myT::ZERO;
+      }
     }
     return *this;
   }
-
+  
   //Assignment with initializer list of strings
   template<class myT>
   const myVec<myT>& myVec<myT>::operator=(std::initializer_list<std::string> rhs){
     bool dbg_flag = false;
     DEBUG("in op=initializerlist <string>");
-    usint len = rhs.size();
-    this->SetLength(len);
-    for(usint i=0;i<len;i++){ // this loops over each entry
-      (*this)[i] =  myT(*(rhs.begin()+i));
+    size_t len = rhs.size();
+    if (this->size()< len){
+      this->SetLength(len);
+    };
+    for(usint i=0;i<this->size();i++){ // this loops over each entry
+      if (i<len) {
+	(*this)[i] =  myT(*(rhs.begin()+i));
+      }else{
+	(*this)[i] =  myT::ZERO;
+      }
     }
     return *this;
   }
@@ -105,10 +125,16 @@ namespace NTL {
   const myVec<myT>& myVec<myT>::operator=(std::initializer_list<const char *> rhs){
     bool dbg_flag = false;
     DEBUG("in op=initializerlist const char*");
-    usint len = rhs.size();
-    this->SetLength(len);
-    for(usint i=0;i<len;i++){ // this loops over each entry
-      (*this)[i] =  myT(*(rhs.begin()+i));
+    size_t len = rhs.size();
+    if (this->size()< len){
+      this->SetLength(len);
+    };
+    for(usint i=0;i<this->size();i++){ // this loops over each entry
+      if (i<len) {
+	(*this)[i] =  myT(*(rhs.begin()+i));
+      }else{
+	(*this)[i] =  myT::ZERO;
+      }
     }
     return *this;
   }

@@ -5,35 +5,44 @@
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
  * All rights reserved.
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
- * 1. Redistributions of source code must retain the above copyright notice, this
- * list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright notice, this
- * list of conditions and the following disclaimer in the documentation and/or other
- * materials provided with the distribution.
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
- * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
- * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met: 1. Redistributions of source code must retain the above
+ * copyright notice, this list of conditions and the following
+ * disclaimer.  2. Redistributions in binary form must reproduce the
+ * above copyright notice, this list of conditions and the following
+ * disclaimer in the documentation and/or other materials provided
+ * with the distribution.  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT
+ * HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
+ * OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ *
+ * @section DESCRIPTION
+ *
+ *
+ * This file contains the C++ code for implementing the main class for
+ * big integers: gmpint which replaces BBI and uses NTLLL
  */
 
 
-#if __linux__ && MATHBACKEND == 6
+
 #define _SECURE_SCL 0 // to speed up VS
 
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include "../backend.h"
-
+#if defined(__linux__) && MATHBACKEND == 6
 #include "gmpint.h"
 #include "mgmpint.h"
 
@@ -55,6 +64,7 @@ namespace NTL {
   myZZ::myZZ(long a): ZZ(a) {}
   myZZ::myZZ(unsigned long a): ZZ(a) {}
   myZZ::myZZ(const unsigned int &a): ZZ(a) {}
+  myZZ::myZZ(long long unsigned int a): ZZ(a) {}; //do I still need this?
   myZZ::myZZ(unsigned int &a): ZZ(a) {}
   myZZ::myZZ(INIT_SIZE_TYPE, long k): ZZ(INIT_SIZE, k) {m_MSB=0; }
   myZZ::myZZ(std::string s): ZZ(conv<ZZ>(s.c_str())) {}
@@ -74,24 +84,10 @@ namespace NTL {
     DEBUG("this "<<*this);
   };
 
-#if 0
-  myZZ::myZZ(NTL::ZZ &&a) : ZZ(a) {}
-  //  myZZ::myZZ(const NTL::myZZ_p &&a): ZZ(){*this = a._ZZ_p__rep;}
-  myZZ::myZZ(const NTL::myZZ_p &&a)
-    : ZZ(a._ZZ_p__rep)
-  {
-    bool dbg_flag = false; 
-    DEBUG("in ctor mzz(&&mzzp)");
-    DEBUG("a "<<a);
-    DEBUG("arep "<<a._ZZ_p__rep);
-  };
-#else
   myZZ::myZZ(NTL::ZZ &&a) : ZZ() {this->swap(a);}
   myZZ::myZZ(NTL::myZZ_p &&a): ZZ(){
     this->swap(a._ZZ_p__rep);
   }
-
-#endif  
 
   void myZZ::SetValue(const std::string& str) 
   {
@@ -242,37 +238,6 @@ namespace NTL {
     DEBUG("value ="<<value);    
     return(value);
 
-#if 0
-    usint cntr = ceilIntByUInt(len);
-    std::string val;
-
-    Dlimb_t partial_value = 0;
-
-    for (usint i = 0; i < cntr; i++) 	  {//loop over limbs
-
-      if (len>((i + 1)*NTL_ZZ_NBITS))
-	val = v.substr((len - (i + 1)*NTL_ZZ_NBITS), NTL_ZZ_NBITS);
-      else
-	val = v.substr(0, len%NTL_ZZ_NBITS);
-      for (usint j = 0; j < val.length(); j++){
-	partial_value += std::stoi(val.substr(j, 1));
-	partial_value <<= 1;
-      }
-      partial_value >>= 1;
-      value.m_value.push_back((limb_t)partial_value);
-      partial_value = 0;
-    }
-    value.m_MSB = (cntr - 1)*NTL_ZZ_NBITS;
-    value.m_MSB += GetMSBlimb_t(value.m_value.back());
-    DEBUG("computed msb" << value.m_MSB);
-    value.m_state = INITIALIZED;
-    value.SetMSB();
-    DEBUG("true msb" <<value.m_MSB);
-    return value;
-#else
-
-
-#endif
 
   }
 
@@ -308,18 +273,6 @@ namespace NTL {
     else if (index > m_MSB)
       return 0;
 
-#if 0
-    limb_t result;
-    sint idx =ceilIntByUInt(index)-1;//idx is the index of the limb array
-    limb_t temp = this->m_value[idx];
-    limb_t bmask_counter = index%m_limbBitLength==0? m_limbBitLength:index%m_limbBitLength;//bmask is the bit number in the 8 bit array
-    limb_t bmask = 1;
-    for(sint i=1;i<bmask_counter;i++)
-      bmask<<=1;//generate the bitmask number
-    result = temp&bmask;//finds the bit in  bit format
-    result>>=bmask_counter-1;//shifting operation gives bit either 1 or 0
-    return (uschar)result;
-#else
     ZZ_limb_t result;
     const ZZ_limb_t *zlp = ZZ_limbs_get(*this); //get access to limb array
     sint idx =ceilIntByUInt(index)-1;//idx is the index of the limb array
@@ -337,7 +290,6 @@ namespace NTL {
     result = temp&bmask;//finds the bit in  bit format
     result>>=bmask_counter-1;//shifting operation gives bit either 1 or 0
     return (uschar)result;
-#endif
   }
 
   //optimized ceiling function after division by number of bits in the limb data type.
@@ -358,6 +310,7 @@ namespace NTL {
   //const myZZ& myZZ::zero() {return myZZ(ZZ::zero());}
 
   //palisade conversion methods
+#if 0 //Deprecated
   usint myZZ::ConvertToUsint() const{
     bool dbg_flag = false;
 
@@ -365,27 +318,43 @@ namespace NTL {
     DEBUG("in myZZ::ConvertToUsint() this "<<*this);
     
  return (conv<usint>(*this)); }
-  usint myZZ::ConvertToInt() const{
+#endif
+
+
+  uint64_t myZZ::ConvertToInt() const{
     bool dbg_flag = false;
 
     DEBUG("in myZZ::ConvertToInt() this.size() "<<this->size());
     DEBUG("in myZZ::ConvertToInt() this "<<*this);
+    uint64_t result = conv<uint64_t>(*this);
+    if (this->GetMSB() >= 64) {
+      std::cerr<<"Warning myZZ::ConvertToInt() Loss of precision. "<<std::endl;
+      std::cerr<<"input  "<< *this<<std::endl;			
+      std::cerr<<"result  "<< result<<std::endl;			
+    }
+    return result; 
+  }
     
- return (conv<usint>(*this)); }
+  double myZZ::ConvertToDouble() const{ return (conv<double>(*this));}
+#if 0 //Deprecated
   uint32_t myZZ::ConvertToUint32() const { return (conv<uint32_t>(*this));}
 
-  //  uint64_t myZZ::ConvertToUint64() const{ return (conv<uint64_t>(*this));}
-  // on some platforms usint64_t is implemented as an unsigned long long which is not included in the
-  // conv functions in tools.h
-  // FIXME
-  uint64_t myZZ::ConvertToUint64() const { return (conv<uint32_t>(*this)); }
+  // warning on some platforms usint64_t is implemented as an unsigned
+  // long long which is not included in the conv functions in tools.h
+  // in which case the following does not compile. 
+
+   uint64_t myZZ::ConvertToUint64() const{
+     static_assert(sizeof(uint64_t) == sizeof(long), 
+		   "sizeof(uint64_t) != sizeof(long), edit myZZ ConvertToUint64()");
+     return (conv<uint64_t>(*this));}
 
   float myZZ::ConvertToFloat() const{ return (conv<float>(*this));}
-  double myZZ::ConvertToDouble() const{ return (conv<double>(*this));}
+
   long double myZZ::ConvertToLongDouble() const {
     std::cerr<<"can't convert to long double"<<std::endl; 
     return 0.0L;
   }
+#endif
 
   std::ostream& operator<<(std::ostream& os, const myZZ& ptr_obj){
     bool dbg_flag = false;
@@ -502,28 +471,19 @@ namespace NTL {
 #endif
 
 
-  //the following code is new serialize/deserialize code from
-  // binint.cpp 
-  // TODO: it has not been tested 
-  // the array and the next
-  // two functions convert a ubint in and out of a string of
-  // characters the encoding is Base64-like: the first 5 6-bit
-  // groupings are Base64 encoded, and the last 2 bits are A-D
-  
-  // Note this is, sadly, hardcoded for 32 bit integers and needs Some
-  // Work to handle arbitrary sizes
+  // helper functions convert a ubint in and out of a string of
+  // characters the encoding is Base64-like: the first 11 6-bit
+  // groupings are Base64 encoded
 
   // precomputed shift amounts for each 6 bit chunk
-  static const usint b64_shifts[] = { 0, 6, 12, 18, 24, 30 };
-  static const usint B64MASK = 0x3F;
+  static const usint b64_shifts[] = { 0, 6, 12, 18, 24, 30, 36, 42, 48, 54, 60};
+  static const ZZ_limb_t B64MASK = 0x3F; //6 bit mask
 
-
-#if 1 //OLD serialization code... 
-  // this for encoding...
+  // this for encoding...mapping 0.. 2^6-1 to an ascii char
   static char to_base64_char[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-  // and this for decoding...
-  static inline unsigned int base64_to_value(char b64) {
+  // this for decoding...
+  static inline ZZ_limb_t base64_to_value(char b64) {
     if( isupper(b64) )
       return b64 - 'A';
     else if( islower(b64) )
@@ -536,64 +496,70 @@ namespace NTL {
       return 63;
   }
 
-  /**
-   * This function is only used for serialization
-   *
-   * The scheme here is to take each of the limb_ts in the
-   * myZZ and turn it into 6 ascii characters. It's
-   * basically Base64 encoding: 6 bits per character times 5 is the
-   * first 30 bits. For efficiency's sake, the last two bits are encoded
-   * as A,B,C, or D and the code is implemented as unrolled loops
-   */
+  //Serialize myZZ by concatnating 6bits converted to an ascii character together, and terminating with '|'
+
   const std::string myZZ::Serialize(const myZZ& modulus) const {
-    //TODO: this function needs to be updated to match code in binint.cpp
+    bool dbg_flag = false;
 
     std::string ans = "";
-    //note limbs are now stored little endian in myZZ
+    //note limbs are stored little endian in myZZ
     const ZZ_limb_t *zlp = ZZ_limbs_get(*this);
     for (auto i = 0; i<this->size(); ++i){
+      DEBUG(" ser "<<i<<" "<<zlp[i]);
+      DEBUG(" ser "<<std::hex<<" "<<zlp[i]<<std::dec);      
+
+      //shift and convert 6 bits at a time
       ans += to_base64_char[((zlp[i]) >> b64_shifts[0]) & B64MASK];
       ans += to_base64_char[((zlp[i]) >> b64_shifts[1]) & B64MASK];
       ans += to_base64_char[((zlp[i]) >> b64_shifts[2]) & B64MASK];
       ans += to_base64_char[((zlp[i]) >> b64_shifts[3]) & B64MASK];
       ans += to_base64_char[((zlp[i]) >> b64_shifts[4]) & B64MASK];
-      ans += (((zlp[i]) >> b64_shifts[5])&0x3) + 'A';
-    }
+      ans += to_base64_char[((zlp[i]) >> b64_shifts[5]) & B64MASK];
+      ans += to_base64_char[((zlp[i]) >> b64_shifts[6]) & B64MASK];
+      ans += to_base64_char[((zlp[i]) >> b64_shifts[7]) & B64MASK];
+      ans += to_base64_char[((zlp[i]) >> b64_shifts[8]) & B64MASK];
+      ans += to_base64_char[((zlp[i]) >> b64_shifts[9]) & B64MASK];
+      ans += to_base64_char[((zlp[i]) >> b64_shifts[10]) & B64MASK];
 
+    }
+    ans += "|"; //mark end of word. 
     return ans;
   }
-
-  /**
-   * This function is only used for deserialization
-   */
-
+  //Deserialize myZZ by building limbs 6 bits at a time 
+  //returns input cp with stripped chars for decoded myZZ
   const char * myZZ::Deserialize(const char *cp, const myZZ& modulus){
+    bool dbg_flag = false;
     clear(*this);
 
     vector<ZZ_limb_t> cv;
 
-    while( *cp != '\0' && *cp != '|' ) {
+    while( *cp != '\0' && *cp != '|' ) {//till end of string or myZZ
+
       ZZ_limb_t converted =  base64_to_value(*cp++) << b64_shifts[0];
       converted |= base64_to_value(*cp++) << b64_shifts[1];
       converted |= base64_to_value(*cp++) << b64_shifts[2];
       converted |= base64_to_value(*cp++) << b64_shifts[3];
       converted |= base64_to_value(*cp++) << b64_shifts[4];
-      converted |= ((*cp++ - 'A')&0x3) << b64_shifts[5];
+      converted |= base64_to_value(*cp++) << b64_shifts[5];
+      converted |= base64_to_value(*cp++) << b64_shifts[6];
+      converted |= base64_to_value(*cp++) << b64_shifts[7];
+      converted |= base64_to_value(*cp++) << b64_shifts[8];
+      converted |= base64_to_value(*cp++) << b64_shifts[9];
+      converted |= base64_to_value(*cp++) << b64_shifts[10];
       
-
-
+      DEBUG(" deser "<<converted);      
+      DEBUG(" deser "<<std::hex<<" "<<converted<<std::dec);      
       cv.push_back(converted);
     }
-    ZZ_limbs_set(*this, cv.data(), cv.size());
+
+    ZZ_limbs_set(*this, cv.data(), cv.size()); //save value
     SetMSB();
+    if (*cp == '|') {		// if end of myZZ strip of separator
+      cp++;
+    }
     return cp;
   }
-#else
-
-
-#endif
-  
 
 } // namespace NTL ends
 
-#endif
+#endif //__linux__

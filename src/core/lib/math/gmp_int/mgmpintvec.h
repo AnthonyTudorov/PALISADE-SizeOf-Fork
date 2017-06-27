@@ -264,14 +264,25 @@ namespace NTL {
     
     myVecP operator-(myVecP const& b) const;
     myVecP operator-(myZZ const& b) const;
-    
+
+    myVecP operator-(void); //negation
+
 
     //scalar
     inline myVecP Sub(const myZZ& b) const {ModulusCheck("Warning: myVecP::Sub"); return (*this)-b%m_modulus;};
     inline myVecP ModSub(const myZZ& b) const {ModulusCheck("Warning: myVecP::ModSub"); return (*this)-b%m_modulus;};
     
     //vector
-    inline myVecP Sub(const myVecP& b) const {ArgCheckVector(b, "myVecP Sub()");  return (*this)-b;};
+    inline myVecP Sub(const myVecP& b) const {
+      bool dbg_flag = false;
+      DEBUG("in myVecP::Sub");
+      DEBUG(*this);
+      DEBUG(this->GetModulus());
+      DEBUG(b);
+      DEBUG(b.GetModulus());
+      ArgCheckVector(b, "myVecP Sub()");  
+      return (*this)-b;
+    };
     inline myVecP ModSub(const myVecP& b) const {ArgCheckVector(b, "myVecP ModSub()"); return (this->Sub(b));};
     
     //deprecated vector
@@ -425,17 +436,19 @@ namespace NTL {
       }
     };
     
-    inline void CopyModulus(const myVecP& rhs){
+    inline int CopyModulus(const myVecP& rhs){
       bool dbg_flag = false;
       DEBUG("CopyModulus(const myVecP& modulus is "<<rhs.m_modulus);
       DEBUG("CopyModulus(const myVecP& modulus_state is "<<rhs.m_modulus_state);
       this->m_modulus = rhs.m_modulus;
       this->m_modulus_state = rhs.m_modulus_state;
-      if (isModulusSet())
+      if (isModulusSet()){
 	ZZ_p::init(this->m_modulus);
-      else{
-	//std::cout<<"Warning: myZZ_p::CopyModulus() from uninitialized modulus"<<std::endl;
+	return (0);
+      } else{
+	//std::cout<<"Warning: myVec_p::CopyModulus() from uninitialized modulus"<<std::endl; //happens many many times
 	this->m_modulus_state = GARBAGE;
+	return (-1);
       }
     };
 
@@ -502,10 +515,48 @@ namespace NTL {
     // inline long operator>=( const myZZ_p& b) const
     // { return this->Compare(b) >= 0; }
 
+
+    /* operators to get a value at an index.
+       * @param idx is the index to get a value at.
+       * @return is the value at the index. return NULL if invalid index.
+       */
+#if 0 //this has problems 
+    inline myZZ_p& operator[](std::size_t idx) {
+      //myZZ_p tmp((*this)[idx]._ZZ_p__rep);
+      //tmp.SetModulus(this->GetModulus());
+      myZZ_p tmp = this->NTL::operator[](idx);
+      
+
+      if(! tmp.isModulusSet()){
+	std::cout<<"op[] mod not set"<<std::endl;
+	tmp.SetModulus(this->GetModulus());
+      }
+      return tmp;
+
+      //here we have the problem we return the element, but it never had it's modulus value set. 
+      //we need to somehow beable to set that modulus. 
+    }
+
+    inline const myZZ_p& operator[](std::size_t idx) const {
+      if(! (*this)[idx].isModulusSet()){
+	std::cout<<"const op[] mod not set"<<std::endl;
+	//(*this)[idx].SetModulus(this->GetModulus());
+      }
+	//how do we get this to work for the const???
+      return (*this)[idx];
+    }
+#endif
+ 
+
 #if 0
     // ostream 
     friend std::ostream& operator<<(std::ostream& os, const myVecP &ptr_obj);
 #endif
+
+
+    //Todo: get rid of printvalues everywhere
+    void PrintValues() const { std::cout << *this; }
+    
 
     //JSON FACILITY
     /**
@@ -570,7 +621,7 @@ namespace NTL {
       DEBUG("mgmpintvec Renormalize modulus"<<m_modulus);     
       DEBUG("mgmpintvec size"<< this->size());     
       //loop over each entry and fail if !=
-      for (size_t i = 0; i < this->size(); ++i) {
+      for (auto i = 0; i < this->size(); ++i) {
 	(*this)[i] %=m_modulus;
 	DEBUG("this ["<<i<<"] now "<< (*this)[i]);     
       }
@@ -596,7 +647,7 @@ namespace NTL {
   {
     if ((a.size()==b.size())) { 
       //loop over each entry and fail if !=
-      for (usint i = 0; i < a.size(); ++i) {
+      for (size_t i = 0; i < a.size(); ++i) {
 	if (a[i]!=b[i]){
 	  return false;
 	}

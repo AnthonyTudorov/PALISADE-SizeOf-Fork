@@ -177,6 +177,8 @@ CryptoContextFactory<T>::genCryptoContextFV(shared_ptr<typename T::Params> ep,
 		MODE mode, const std::string& bigmodulus, const std::string& bigrootofunity, int depth, int assuranceMeasure, float securityLevel,
 		const std::string& bigmodulusarb, const std::string& bigrootofunityarb)
 {
+        bool dbg_flag = false;
+	DEBUG("gen 1");
 	shared_ptr<LPCryptoParametersFV<T>> params(
 			new LPCryptoParametersFV<T>(ep,
 					BigBinaryInteger(plaintextmodulus),
@@ -191,9 +193,9 @@ CryptoContextFactory<T>::genCryptoContextFV(shared_ptr<typename T::Params> ep,
 					BigBinaryInteger(bigmodulusarb),
 					BigBinaryInteger(bigrootofunityarb),
 					depth) );
-
+	DEBUG("gen 2");
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeFV<T>() );
-
+	DEBUG("gen 3");
 	return CryptoContext<T>(params, scheme);
 }
 

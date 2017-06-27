@@ -90,6 +90,7 @@ namespace NTL{
     myZZ(long a);
     myZZ(unsigned long a);
     myZZ(const unsigned int &a);
+    myZZ(long long unsigned int a);
     myZZ(unsigned int &a);
     myZZ(INIT_SIZE_TYPE, long k);
     myZZ(std::string s);
@@ -122,21 +123,22 @@ namespace NTL{
     static const myZZ& zero();
 
     //palisade conversion methods 
-    usint ConvertToUsint() const;
-    usint ConvertToInt() const;
-    uint32_t ConvertToUint32() const;
+    //    usint ConvertToUsint() const;
+    uint64_t ConvertToInt() const;
+    //uint32_t ConvertToUint32() const;
     uint64_t ConvertToUint64() const;
-    float ConvertToFloat() const;
+    //float ConvertToFloat() const;
     double ConvertToDouble() const;
-    long double ConvertToLongDouble() const;
+    //long double ConvertToLongDouble() const;
 
     //comparison method inline for speed
     inline sint Compare(const myZZ& a) const { return compare(*this,a); };
 
     //associated comparison operators
     inline long operator==(const myZZ& b) const {return this->Compare(b)==0;};
+    inline long operator==(const usint& b) const {return this->Compare(b)==0;};
     inline long operator!=(const myZZ& b) const {return this->Compare(b)!= 0;};
-
+    inline long operator!=(const usint& b) const {return this->Compare(b)!= 0;};
   
     //palisade arithmetic methods all inline for speed
     inline myZZ Add(const myZZ& b) const {return *this+b;};
@@ -157,6 +159,13 @@ namespace NTL{
       return tmp ;
     };
 
+    inline myZZ operator+(const usint& b) const {
+      myZZ tmp;
+      myZZ bzz(b);
+      add(tmp, *this, bzz);
+      return tmp ;
+    }
+
     inline myZZ& operator +=(const myZZ &a) {
       *this = *this+a;
       return *this;
@@ -169,6 +178,16 @@ namespace NTL{
       }
       myZZ tmp;
       sub(tmp, *this, b);
+      return tmp ;
+    };
+
+    inline myZZ operator-(const usint &b) const {
+      myZZ bzz(b);
+      if (*this < bzz) { // should return 0
+	return myZZ(0);
+      }
+      myZZ tmp;
+      sub(tmp, *this, bzz);
       return tmp ;
     };
 
@@ -193,6 +212,13 @@ namespace NTL{
       mul(tmp, *this, b);
       return tmp ;
     }
+
+    inline myZZ operator*(const usint& b) const {
+      myZZ tmp;
+      myZZ bzz(b);
+      mul(tmp, *this, bzz);
+      return tmp ;
+    }
     inline myZZ Mul(const myZZ& b) const {return *this*b;};
     inline myZZ Times(const myZZ& b) const {return *this*b;}; //to be deprecated
     inline myZZ Div(const myZZ& b) const {return *this/b;};
@@ -213,19 +239,44 @@ namespace NTL{
     inline myZZ ModAdd(const myZZ& b, const myZZ& modulus) const {return myZZ(AddMod(*this%modulus, b%modulus, modulus));};
     //Fast version does not check for modulus bounds.
     inline myZZ ModAddFast(const myZZ& b, const myZZ& modulus) const {return AddMod(*this, b, modulus);};
+
+    //NOTE ModSub needs to return signed modulus (i.e. -1/2..q/2) in order
+    //to be consistent with BE 2
     inline myZZ ModSub(const myZZ& b, const myZZ& modulus) const
     {
+      bool dbg_flag = false;
       ZZ newthis(*this%modulus);
       ZZ newb(b%modulus);
-      return SubMod(newthis, newb, modulus);      
+
+      if (newthis>=newb) {
+	ZZ tmp(SubMod(newthis, newb, modulus));  //normal mod sub    
+	
+	DEBUG("in modsub submod tmp "<<tmp);
+	return tmp;
+
+      } else {
+	ZZ tmp(newthis+modulus -newb) ;  //signed mod
+	
+	DEBUG("in modsub alt tmp "<<tmp);
+	return tmp;
+      }
     };
 
     //Fast version does not check for modulus bounds.
     inline myZZ ModSubFast(const myZZ& b, const myZZ& modulus) const
     {
-    return SubMod(*this, b, modulus);
+      if (*this>=b) {
+	return SubMod(*this, b, modulus);  //normal mod sub    
+      } else {
+	return (*this+modulus -b) ;  //signed mod
+      }
+
     };
 
+
+    inline myZZ ModBarrettSub(const myZZ& b, const myZZ& modulus,const myZZ& mu) const {
+      return this->ModSub(b, modulus);
+    };
 
     inline myZZ ModMul(const myZZ& b, const myZZ& modulus) const {return myZZ(MulMod(*this%modulus, b%modulus, modulus));};
     //Fast version does not check for modulus bounds.
@@ -310,12 +361,12 @@ namespace NTL{
     usint GetLengthForBase(usint base) const {return GetMSB();};
 
     /**
-     * Get the number of digits using a specific base - only
+     * Get the integer value of the of a subfield of bits. 
      * power-of-2 bases are currently supported.
      *
-     * @param index is the location to return value from in the specific base.
-     * @param base is the base with which to determine length in.
-     * @return the length of the representation in a specific base.
+     * @param index is the bit location (lsb)
+     * @param base is the bitwidth of the subfield
+     * @return the integer value of the subfield
      */
     usint GetDigitAtIndexForBase(usint index, usint base) const;
 
@@ -327,9 +378,8 @@ namespace NTL{
     const std::string Serialize(const myZZ& mod = myZZ::ZERO) const;
     const char * Deserialize(const char * str, const myZZ& mod = myZZ::ZERO);
 
-  private:
-    //adapter kits
-    void SetMSB();
+    static const std::string IntegerTypeName() { return "NTL"; }
+
 
     /**
      * Gets the bit at the specified index.
@@ -338,6 +388,35 @@ namespace NTL{
      * @return resulting bit.
      */
     uschar GetBitAtIndex(usint index) const;
+
+    /**
+     * Gets 6 bits at the specified index. Right fill with 0
+     *
+     * @param index is the index of the bit to get.
+     * @return resulting bits.
+     */
+    uschar Get6BitsAtIndex(usint index) const;
+
+    
+    /**
+    * Prints the value of the internal limb storage
+    * in decimal format. Used primarily for debugging
+    */
+    void PrintLimbsInDec() const;
+
+    /**
+    * Prints the value of the internal limb storage
+    * in hexadecimal format. Used primarily for debugging
+    */
+    void PrintLimbsInHex() const;
+
+    //TODO: get rid of this insantiy
+    void PrintValues() const { std::cout << *this; };
+
+  private:
+    //adapter kits
+    void SetMSB();
+
     /**
      * function to return the ceiling of the input number divided by
      * the number of bits in the limb data type.  DBC this is to

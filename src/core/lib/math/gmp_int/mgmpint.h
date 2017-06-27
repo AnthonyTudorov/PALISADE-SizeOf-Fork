@@ -39,7 +39,8 @@
 #ifndef LBCRYPTO_MATH_MGMPINT_MGMPINT_H
 #define LBCRYPTO_MATH_MGMPINT_MGMPINT_H
 
-
+#define WARN_BAD_MODULUS  //define to cause code to report when a bad modulus is trapped.
+//#define PAUSE_BAD_MODULUS  //define to cause code to pause when a bad modulus is trapped.
 
 #include <iostream>
 #include <string>
@@ -128,11 +129,9 @@ namespace NTL{
     myZZ_p(NTL::ZZ_p &a, unsigned int q);
     myZZ_p(const NTL::ZZ_p &a, unsigned int q);
 
- 
-
     //inline myZZ_p& operator=(const unsigned int a) {return myZZ_p((unsigned int)a);}
 
-    //the following may be wrong, i am winging this.
+    // operator=
     inline myZZ_p& operator=(const char * s) {this->_ZZ_p__rep=conv<ZZ>(s); return *this;}
     inline myZZ_p& operator=(int a) {this->_ZZ_p__rep=conv<ZZ>(a); return *this;}
 
@@ -152,13 +151,13 @@ namespace NTL{
     static const myZZ_p& zero();
 
     //palisade conversion methods 
-    usint ConvertToUsint() const;
-    usint ConvertToInt() const;
-    uint32_t ConvertToUint32() const;
+    //usint ConvertToUsint() const;
+    uint64_t ConvertToInt() const;
+    //uint32_t ConvertToUint32() const;
     uint64_t ConvertToUint64() const;
-    float ConvertToFloat() const;
+    //float ConvertToFloat() const;
     double ConvertToDouble() const;
-    long double ConvertToLongDouble() const;
+    //long double ConvertToLongDouble() const;
 
     //it has problems finding which clear to use
 
@@ -236,15 +235,28 @@ namespace NTL{
     inline myZZ_p Add(const myZZ_p& b) const {return *this+b;};
     inline myZZ_p Plus(const myZZ_p& b) const {return *this+b;}; //to be deprecated
 
+    //NOTE ModSub needs to return signed modulus (i.e. -1/2..q/2) in order
+    //to be consistent with BE 2 
+
     inline myZZ_p Sub(const myZZ_p& b) const  {return(*this-b);};  
     inline myZZ_p Minus(const myZZ_p& b) const  {return(*this-b);}; //to be deprecated
     inline myZZ_p operator-(const myZZ_p &b) const {
-      myZZ_p tmp;
-      sub(tmp, *this, b);
-      return tmp ;
+      if (*this>=b) {
+	return this->ModSub(b);
+      } else { 
+	myZZ tmp;
+	myZZ mod = this->GetModulus();
+	tmp = this->_ZZ_p__rep + mod - b._ZZ_p__rep;
+	myZZ_p ret(tmp, mod);
+
+	return ret;
+
+      }
     };
+
     inline myZZ_p& operator-=(const myZZ_p &a) {
-      sub(*this, *this, a);
+      //sub(*this, *this, a);
+      *this = *this-a;
       return *this;
     };
 
@@ -340,19 +352,44 @@ namespace NTL{
 
     inline myZZ_p ModSub(const myZZ_p& b) const
     {
-      return *this-b;      
+      bool dbg_flag = false;
+      ZZ newthis(this->_ZZ_p__rep);
+      ZZ newb(b._ZZ_p__rep);
+      DEBUG("in myZZ_p::ModSub()this getOTM "<<this->m_getOTM());
+      DEBUG("in myZZ_p::ModSub()this GetModulus "<<this->GetModulus());
+
+      DEBUG("in myZZ_p::ModSub() b getOTM "<<b.m_getOTM());
+      DEBUG("in myZZ_p::ModSub() b GetModulus "<<b.GetModulus());
+
+      ZZ mod(this->GetModulus());
+      if (newthis>=newb) {
+	return myZZ_p(SubMod(newthis, newb, mod));  //normal mod sub    
+      } else {
+	return myZZ_p(newthis+mod -newb) ;  //signed mod
+      }
     };
 
     inline myZZ_p ModSub(const myZZ& b, const myZZ&modulus) const //to comply with BBI
     {
       ZZ newthis(this->_ZZ_p__rep%modulus);
       ZZ newb(b%modulus);
-      return myZZ_p(SubMod(newthis, newb, modulus));      
+      if (newthis>=newb) {
+	return myZZ_p(SubMod(newthis, newb, modulus));  //normal mod sub    
+      } else {
+	return myZZ_p(newthis+modulus -b) ;  //signed mod
+      }
+
     };
 
+    //Fast version does not check for modulus bounds.
     inline myZZ_p ModSubFast(const myZZ& b, const myZZ& modulus) const
     {
-      return myZZ_p(SubMod(this->_ZZ_p__rep, b, modulus));
+      ZZ newthis(this->_ZZ_p__rep);
+      if (newthis>=b) {
+	return myZZ_p(SubMod(newthis, b, modulus));  //normal mod sub    
+      } else {
+	return myZZ_p(newthis+modulus -b) ;  //signed mod
+      }
     };
 
 
@@ -392,6 +429,12 @@ namespace NTL{
     const std::string ToString() const;	
 
     //public modulus accessors
+
+    inline bool isModulusSet(void) const{
+      return(this->m_OTM_state == INITIALIZED);
+    };
+    
+ 
     inline void SetModulus(const usint& value){
       m_setOTM(myZZ(value));
     };
@@ -419,8 +462,8 @@ namespace NTL{
 
     //Serialization functions
 
-    const std::string Serialize() const;
-    const char * Deserialize(const char * str);
+    const std::string Serialize(const myZZ& modulus = myZZ::ZERO) const;
+    const char * Deserialize(const char *cp, const myZZ& modulus = myZZ::ZERO);
 
   private:
     //adapter kits
@@ -442,6 +485,13 @@ namespace NTL{
     static OTMState m_OTM_state;
     
   }; //class ends
+
+  //negation operator NOTE this mimics binvect.h
+
+
+
+  inline myZZ_p operator-(const myZZ_p &a) { return myZZ_p(0) - a; }
+
 
  //comparison operators with two operands defined outside the class
   inline long operator==(const myZZ &a, const myZZ_p& b) 

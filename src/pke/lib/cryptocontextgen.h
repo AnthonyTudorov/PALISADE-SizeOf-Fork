@@ -126,13 +126,17 @@ inline CryptoContext<ILDCRT2n> GenCryptoContextElementArrayBV(usint ORDER, usint
 
 
 inline CryptoContext<ILVector2n> GenCryptoContextElementFV(usint ORDER, usint ptm, usint bits=PrimeBits) {
-
+	bool dbg_flag = false;
+	DEBUG("1");
 	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(ptm, 1.006, 1, 4, 0, 2, 0);
-
+	DEBUG("2");
 	cc.Enable(ENCRYPTION);
-	cc.Enable(PRE);
-	cc.Enable(SHE);
 
+	DEBUG("3");
+	cc.Enable(PRE);
+	DEBUG("4");
+	cc.Enable(SHE);
+	DEBUG("5");
 	return cc;
 }
 

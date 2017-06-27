@@ -261,30 +261,58 @@ namespace lbcrypto {
 
 	template<typename IntType, typename VecType>
 	int32_t DiscreteGaussianGeneratorImpl<IntType,VecType>::GenerateInteger(double mean, double stddev, size_t n) const {
+		bool dbg_flag = false;
+		int32_t x;
 
+		#pragma omp critical 
+		{		
 		double t = log2(n)*stddev;  //this representation of log_2 is used for Visual Studio
+		DEBUG("DiscreteGaussianGeneratorImpl =========");
+		DEBUG("mean "<<mean);
+		DEBUG("stddev "<<stddev);
+		DEBUG("n "<<n);
+		DEBUG("t "<<t);
 
+		if (isinf(mean)) {
+			throw std::runtime_error("DiscreteGaussianGeneratorImpl called with mean == +-inf");
+		}
+		if (isinf(stddev)) {
+			throw std::runtime_error("DiscreteGaussianGeneratorImpl called with stddev == +-inf");
+		}
 		IntType result;
 
 		std::uniform_int_distribution<int32_t> uniform_int(floor(mean - t), ceil(mean + t));
+		DEBUG("uniform( "<<floor(mean - t)<<", "<<ceil(mean + t)<<")");
 		std::uniform_real_distribution<double> uniform_real(0.0, 1.0);
 
 		double sigmaFactor = -1 / (2. * stddev * stddev);
+		DEBUG("sigmaFactor "<<sigmaFactor);
 
 		bool flagSuccess = false;
-		int32_t x;
+
+		usint count = 0;
+		const usint limit =10000;
+		//throw std::runtime_error("dbg throw");
 
 		while (!flagSuccess) {
 			//  pick random int
 			x = uniform_int(PseudoRandomNumberGenerator::GetPRNG());
+
 			//  roll the uniform dice
 			double dice = uniform_real(PseudoRandomNumberGenerator::GetPRNG());
 			//  check if dice land below pdf
 			if (dice <= UnnormalizedGaussianPDFOptimized(mean, sigmaFactor, x)) {
 				flagSuccess = true;
 			}
+			//DEBUG("x "<<x<<" dice "<<dice);
+			count++;
+			if (count>limit) {
+				DEBUG("x "<<x<<" dice "<<dice);
+				throw std::runtime_error("GenerateInteger could not find success after repeated attempts");
 		}
 
+		}
+		}//end pragma
 		return x;
 
 	}

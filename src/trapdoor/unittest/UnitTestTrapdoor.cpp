@@ -213,6 +213,8 @@ TEST(UTTrapdoor,TrapDoorMultTest){
 }
 
 TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
+  bool dbg_flag = false;
+  DEBUG("start tests");
 	usint m = 16;
     usint n = m/2;
 	BigBinaryInteger modulus("67108913");
@@ -229,8 +231,10 @@ TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
 	ILVector2n::DugType dug = ILVector2n::DugType();
 	dug.SetModulus(modulus);
 
-	ILVector2n u(dug,params,COEFFICIENT);
 
+  DEBUG("1");
+	ILVector2n u(dug,params,COEFFICIENT);
+  DEBUG("2");
 	double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
 	//YSP check logTwo computation
 	double logTwo = log(val-1.0)/log(2)+1.0;
@@ -238,12 +242,19 @@ TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
 
 	Matrix<int32_t> zHatBBI([](){ return make_unique<int32_t>(); },  k, m/2);
 
+  DEBUG("3");
+  DEBUG("u "<<u);
+  DEBUG("sigma "<<sigma);
+  DEBUG("k "<<k);
+  DEBUG("modulus "<<modulus);
+  
 	LatticeGaussSampUtility::GaussSampGq(u,sigma,k,modulus, 2,dgg,&zHatBBI);
 
 	EXPECT_EQ(k,zHatBBI.GetRows())
 		<< "Failure testing number of rows";
 	EXPECT_EQ(u.GetLength(),zHatBBI.GetCols())
 		<< "Failure testing number of colums";
+  DEBUG("4");
     Matrix<ILVector2n> z = SplitInt32AltIntoILVector2nElements(zHatBBI, n, params);
 	z.SwitchFormat();
 
@@ -252,12 +263,13 @@ TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
 	uEst.SwitchFormat();
 
     EXPECT_EQ(u, uEst);
-
+  DEBUG("end tests");
 }
 
 // Test of Gaussian Sampling using the UCSD integer perturbation sampling algorithm
 TEST(UTTrapdoor, TrapDoorGaussSampTest) {
-
+        bool dbg_flag = false;
+	DEBUG("in test");
 	usint m = 16;
 	usint n = m / 2;
 
@@ -268,6 +280,12 @@ TEST(UTTrapdoor, TrapDoorGaussSampTest) {
 	double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
 	double logTwo = log(val - 1.0) / log(2) + 1.0;
 	usint k = (usint)floor(logTwo);// = this->m_cryptoParameters.GetModulus();
+
+	DEBUG("k = "<<k);
+	DEBUG("sigma = "<<sigma);
+	DEBUG("m = "<<m);
+	DEBUG("modulus = "<<modulus);
+	DEBUG("root = "<<rootOfUnity);
 
 	shared_ptr<ILParams> params(new ILParams(m, modulus, rootOfUnity));
 	//auto zero_alloc = ILVector2n::MakeAllocator(params, COEFFICIENT);
@@ -287,7 +305,10 @@ TEST(UTTrapdoor, TrapDoorGaussSampTest) {
 	ILVector2n::DggType dggLargeSigma(sqrt(s * s - c * c));
 
 	ILVector2n u(dug, params, COEFFICIENT);
+
+	DEBUG("u "<<u);
 	u.SwitchFormat();
+	DEBUG("u "<<u);
 
 	RingMat z = RLWETrapdoorUtility::GaussSamp(m / 2, k, trapPair.first, trapPair.second, u, sigma, dgg, dggLargeSigma);
 
@@ -299,6 +320,15 @@ TEST(UTTrapdoor, TrapDoorGaussSampTest) {
 		<< "Failure testing ring dimension for the first ring element";
 
 	ILVector2n uEst = (trapPair.first * z)(0, 0);
+
+	DEBUG("uEst "<<uEst);
+	DEBUG("u "<<u);
+
+	
+	DEBUG("uEst.GetModulus() "<<uEst.GetModulus());
+	DEBUG("u.GetModulus() "<<u.GetModulus());
+
+
 	uEst.SwitchFormat();
 	u.SwitchFormat();
 

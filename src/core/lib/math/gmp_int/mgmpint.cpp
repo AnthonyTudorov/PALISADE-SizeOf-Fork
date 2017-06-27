@@ -37,7 +37,6 @@
  * certain math operations.
  */
 
-#if __linux__ && MATHBACKEND == 6
 
 #define _SECURE_SCL 0 // to speed up VS
 
@@ -48,6 +47,7 @@
 
 #include "../backend.h"
 
+#if defined(__linux__) && MATHBACKEND == 6
 
 #include "gmpint.h"
 #include "mgmpint.h"
@@ -212,48 +212,82 @@ namespace NTL {
 
   bool myZZ_p::m_checkOTM(const myZZ &q) const 
   {
+#ifdef WARN_BAD_MODULUS
     if (m_OTM_state == GARBAGE){
       //throw std::logic_error("myZZ_p::m_checkOTM() called with uninitialized OTM");
       std::cout<<"myZZ_p::m_checkOTM() called with uninitialized OTM"<<std::endl;
+#ifdef PAUSE_BAD_MODULUS
+      std::string foo;
+      std::cin >> foo;
+#endif
+
     }
+#endif
     return (m_OTM == q);
   }
 
   myZZ& myZZ_p::m_getOTM(void) const 
   {
+#ifdef WARN_BAD_MODULUS
     if (m_OTM_state == GARBAGE){
-      //throw std::logic_error("myZZ_p::m_getOTM() called with uninitialized OTM");
+      //std::logic_error("myZZ_p::m_getOTM() called with uninitialized OTM");
       std::cout<<"myZZ_p::m_getOTM() called with uninitialized OTM"<<std::endl;
+#ifdef PAUSE_BAD_MODULUS
+      std::string foo;
+      std::cin >> foo;
+#endif
     }
+#endif
     return m_OTM;
   }
 
   //adapter kit
   //static const myZZ_p& myZZ_p::zero() {return const myZZ_p(0);}
 
-  //palisade conversion methods
-  usint myZZ_p::ConvertToUsint() const{
-    bool dbg_flag = false;
+  // //palisade conversion methods
+  // usint myZZ_p::ConvertToUsint() const{
+  //   bool dbg_flag = false;
 
-    DEBUG("in myZZ_p::ConvertToUsint() this "<<*this);
+  //   DEBUG("in myZZ_p::ConvertToUsint() this "<<*this);
 
-    return (conv<usint>(*this)); 
-  }
-  usint myZZ_p::ConvertToInt() const{ 
+  //   return (conv<usint>(*this)); 
+  // }
+  uint64_t myZZ_p::ConvertToInt() const{ 
    bool dbg_flag = false;
 
     DEBUG("in myZZ_p::ConvertToInt() this "<<*this);
 
-    return (conv<int>(*this)); }
-  uint32_t myZZ_p::ConvertToUint32() const { return (conv<uint32_t>(*this));}
-  // FIXME note uint64_t is a long long on some platforms which doesn't go with NTL
-  uint64_t myZZ_p::ConvertToUint64() const{ return (conv<uint32_t>(*this));}
-  float myZZ_p::ConvertToFloat() const{ return (conv<float>(this->_ZZ_p__rep));}
-  double myZZ_p::ConvertToDouble() const{ return (conv<double>(this->_ZZ_p__rep));}
-  long double myZZ_p::ConvertToLongDouble() const {
-    std::cerr<<"can't convert to long double"<<std::endl; 
-    return 0.0L;
+    uint64_t result = conv<uint64_t>(*this);
+    if (this->GetMSB() >= 64) {
+      std::cerr<<"Warning myZZ_p::ConvertToInt() Loss of precision. "<<std::endl;
+      std::cerr<<"input  "<< *this<<std::endl;			
+      std::cerr<<"result  "<< result<<std::endl;			
+    }
+    return result;
   }
+  // uint32_t myZZ_p::ConvertToUint32() const { return (conv<uint32_t>(*this));}
+
+ // warning on some platforms usint64_t is implemented as an unsigned
+  // long long which is not included in the conv functions in tools.h
+  // in which case the following does not compile. 
+
+  uint64_t myZZ_p::ConvertToUint64() const{ 
+    static_assert(sizeof(uint64_t) == sizeof(long), 
+		  "sizeof(uint64_t) != sizeof(long), edit myZZ ConvertToUint64()");
+    uint64_t result = conv<uint64_t>(*this);
+    if (this->GetMSB() >= 64) {
+      std::cerr<<"Warning myZZ_p::ConvertToInt() Loss of precision. "<<std::endl;
+      std::cerr<<"input  "<< *this<<std::endl;			
+      std::cerr<<"result  "<< result<<std::endl;			
+    }
+    return result;
+  }
+  //float myZZ_p::ConvertToFloat() const{ return (conv<float>(this->_ZZ_p__rep));}
+  double myZZ_p::ConvertToDouble() const{ return (conv<double>(this->_ZZ_p__rep));}
+  //long double myZZ_p::ConvertToLongDouble() const {
+  //  std::cerr<<"can't convert to long double"<<std::endl; 
+  //  return 0.0L;
+  //}
 
   std::ostream& operator<<(std::ostream& os, const myZZ_p& ptr_obj){
     os << (ZZ_p)ptr_obj;
@@ -281,7 +315,7 @@ namespace NTL {
     else
       return Number>>myZZ::m_log2LimbBitLength;
   }
-
+#if 0
   // friend or inherit this? it is the same as gmpint
  //the following code is new serialize/deserialize code from
 
@@ -314,47 +348,35 @@ namespace NTL {
       return 63;
   }
 
+#endif
+  // serialization of myZZ_p, calls myZZ.Serialize, 
+  const std::string myZZ_p::Serialize(const myZZ &modulus) const {
+    bool dbg_flag = false;
 
-  // friend or inherit this? it is the same as gmpint
-  const std::string myZZ_p::Serialize() const {
-
-    std::string ans = "";
-    //note limbs are now stored little endian in ubint
-    const ZZ_limb_t *zlp = ZZ_limbs_get(this->_ZZ_p__rep);
-    for (auto i = 0; i< rep(*this).size(); ++i){
-      ans += to_base64_char[((zlp[i]) >> b64_shifts[0]) & B64MASK];
-      ans += to_base64_char[((zlp[i]) >> b64_shifts[1]) & B64MASK];
-      ans += to_base64_char[((zlp[i]) >> b64_shifts[2]) & B64MASK];
-      ans += to_base64_char[((zlp[i]) >> b64_shifts[3]) & B64MASK];
-      ans += to_base64_char[((zlp[i]) >> b64_shifts[4]) & B64MASK];
-      ans += (((zlp[i]) >> b64_shifts[5])&0x3) + 'A';
-    }
-    return ans;
+    //note this does simple serialization, other libraries store small special values for 0 or  -1
+    //we ignore this
+    DEBUG("mgmp ser "<<*this);
+    return (myZZ(this->_ZZ_p__rep)).Serialize();
   }
 
-  /**
-   * This function is only used for deserialization
-   */
-
-  const char * myZZ_p::Deserialize(const char *cp){
+  // deserialization of myZZ_p, calls myZZ.Deserialize, 
+  // sets modulus to input  modulus. 
+  const char * myZZ_p::Deserialize(const char *cp, const myZZ &modulus){
+    bool dbg_flag = false;
+    const char *cpout;
     clear(*this);
-    myZZ(repZZ);
-    vector<ZZ_limb_t> cv;
+    myZZ(repZZ); //new value store decode
 
-    while( *cp != '\0' && *cp != '|' ) {
-      ZZ_limb_t converted =  base64_to_value(*cp++) << b64_shifts[0];
-      converted |= base64_to_value(*cp++) << b64_shifts[1];
-      converted |= base64_to_value(*cp++) << b64_shifts[2];
-      converted |= base64_to_value(*cp++) << b64_shifts[3];
-      converted |= base64_to_value(*cp++) << b64_shifts[4];
-      converted |= ((*cp++ - 'A')&0x3) << b64_shifts[5];
-      cv.push_back(converted);
-    }
-
-    ZZ_limbs_set(repZZ, cv.data(), cv.size());
+    //DEBUG("cp before in mgminp "<<cp);
+    cpout = repZZ.Deserialize(cp);    //cpout is rest of cp after decode
+    //DEBUG("cp after in mgminp "<<cpout);
+    //save
     *this=myZZ_p(repZZ);
+    this->SetModulus(modulus);
+    DEBUG("mgmp deser "<<*this);
     SetMSB();
-    return cp;
+
+    return cpout;
   }
 
   
