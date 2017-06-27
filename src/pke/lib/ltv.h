@@ -219,35 +219,7 @@ public:
 		int32_t evalMultCount = 0, int32_t keySwitchCount = 0) const;
 
 };
-/**
- * @brief Parameter generation for LTV.
- *
- * This is an implementation of the algorithm in the "Parameter Selection" section of
- * Rohloff & Cousins' "A Scalable Implementation of Fully Homomorphic Encryption Built on NTRU"
- *
- * @tparam Element a ring element.
- */
-template <class Element>
-class LPAlgorithmParamsGenLTV : public LPParameterGenerationAlgorithm<Element> {
-public:
 
-	/**
-	 * Default constructor
-	 */
-	LPAlgorithmParamsGenLTV() {}
-
-	/**
-	* Method for computing all derived parameters based on chosen primitive parameters
-	*
-	* @param cryptoParams the crypto parameters object to be populated with parameters.
-	* @param evalAddCount number of EvalAdds assuming no EvalMult and KeySwitch operations are performed.
-	* @param evalMultCount number of EvalMults assuming no EvalAdd and KeySwitch operations are performed.
-	* @param keySwitchCount number of KeySwitch operations assuming no EvalAdd and EvalMult operations are performed.
-	*/
-	bool ParamsGen(shared_ptr<LPCryptoParameters<Element>> cryptoParams, int32_t evalAddCount = 0,
-		int32_t evalMultCount = 0, int32_t keySwitchCount = 0) const;
-
-};
 /**
 * @brief This is the algorithms class for the basic public key encrypt, decrypt and key generation methods for the LTV encryption scheme.  
  * Note there have been recent advancements in the cryptanalysis of the LTV scheme, so this protocol should be used with care, if at all.  These weaknesses are derived from subfield lattice attacks which are descibed here:
