@@ -78,6 +78,14 @@ UnitTestEncryption(const CryptoContext<Element>& cc) {
 		intvec.push_back( rand() % ptm );
 	IntPlaintextEncoding plaintextInt(intvec);
 
+	vector<int32_t> sintvec;
+	for( size_t ii=0; ii<intSize; ii++) {
+		int rnum = rand() % ptm;
+		if( rnum > (int)ptm/2 ) rnum = ptm - rnum;
+		sintvec.push_back( rnum );
+	}
+	SignedIntPlaintextEncoding plaintextSInt(sintvec);
+
 	////////////////////////////////////////////////////////////
 	//Perform the key generation operation.
 	////////////////////////////////////////////////////////////
@@ -117,6 +125,11 @@ UnitTestEncryption(const CryptoContext<Element>& cc) {
 	IntPlaintextEncoding plaintextIntNew;
 	cc.Decrypt(kp.secretKey, ciphertext4, &plaintextIntNew, false);
 	EXPECT_EQ(plaintextIntNew, plaintextInt) << "Encrypt integer plaintext";
+
+	vector<shared_ptr<Ciphertext<Element>>> ciphertext5 = cc.Encrypt(kp.publicKey, plaintextSInt, false);
+	SignedIntPlaintextEncoding plaintextSIntNew;
+	cc.Decrypt(kp.secretKey, ciphertext5, &plaintextSIntNew, false);
+	EXPECT_EQ(plaintextSIntNew, plaintextSInt) << "Encrypt signed integer plaintext";
 }
 
 TEST(UTENCRYPT, LTV_ILVector2n_Encrypt_Decrypt) {

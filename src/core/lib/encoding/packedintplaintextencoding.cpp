@@ -241,7 +241,7 @@ namespace lbcrypto {
 	native_int::BinaryVector PackedIntPlaintextEncoding::FindPermutedSlots(const native_int::BinaryVector &orig, const native_int::BinaryVector & perm, const native_int::BinaryVector & rootList) {
 		native_int::BinaryVector newRootList(rootList.GetLength(), rootList.GetModulus());
 		usint idx = 0;
-		while (perm.GetValAtIndex(idx) != native_int::BinaryInteger::ONE)
+		while (perm.GetValAtIndex(idx) != 1 )
 			idx++;
 		usint n = rootList.GetLength();
 		for (usint i = 0; i < n; i++) {
@@ -296,7 +296,7 @@ namespace lbcrypto {
 		native_int::BinaryVector result(n, modulus);
 
 		//Precompute the Barrett mu parameter
-		native_int::BinaryInteger temp(native_int::BinaryInteger::ONE);
+		native_int::BinaryInteger temp(1);
 		temp <<= 2 * modulus.GetMSB() + 3;
 		native_int::BinaryInteger mu = temp.DividedBy(modulus);
 

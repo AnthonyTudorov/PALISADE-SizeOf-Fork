@@ -1033,7 +1033,7 @@ IntType SyntheticRemainder(const IntVector &dividend, const IntType &a, const In
 	auto val = dividend.GetValAtIndex(dividend.GetLength() - 1);
 
 	//Precompute the Barrett mu parameter
-	IntType temp(IntType::ONE);
+	IntType temp(1);
 	temp <<= 2 * modulus.GetMSB() + 3;
 	IntType mu = temp.DividedBy(modulus);
 
@@ -1072,7 +1072,7 @@ IntVector SyntheticPolynomialDivision(const IntVector &dividend, const IntType &
 	IntVector result(n, modulus);
 
 	//Precompute the Barrett mu parameter
-	IntType temp(IntType::ONE);
+	IntType temp(1);
 	temp <<= 2 * modulus.GetMSB() + 3;
 	IntType mu = temp.DividedBy(modulus);
 

@@ -253,7 +253,7 @@ std::vector<usint> ArbBVAutomorphismPackedArray(usint i) {
 
 	std::vector<usint> result(intArrayNew);
 
-	return std::move(result);
+	return result;
 
 }
 
@@ -300,7 +300,7 @@ std::vector<usint> LTVAutomorphismPackedArray(usint i) {
 
 	std::vector<usint> result(intArrayNew);
 
-	return std::move(result);
+	return result;
 
 }
 
@@ -348,7 +348,7 @@ std::vector<usint> BVAutomorphismPackedArray(usint i) {
 
 	std::vector<usint> result(intArrayNew);
 
-	return std::move(result);
+	return result;
 
 }
 
@@ -401,7 +401,7 @@ std::vector<usint> FVAutomorphismPackedArray(usint i) {
 
 	std::vector<usint> result(intArrayNew);
 
-	return std::move(result);
+	return result;
 
 }
 
@@ -416,7 +416,7 @@ std::vector<usint> Rotate(const std::vector<usint>& input, usint i)
 		result.at(newIndex) = input.at(j);
 	}
 
-	return std::move(result);
+	return result;
 }
 
 bool CheckAutomorphism(const std::vector<usint>& perm, const std::vector<usint>& init)

@@ -303,13 +303,6 @@ protected:
 		oneItemE.AddMember(keyE, valE, oneItemE.GetAllocator());
 
 		EncodingParams *json_encodingParams = new EncodingParams();
-		//		if( typeid(Element) == typeid(ILVector2n) )
-		//			json_ilParams = new ILParams();
-		//		else if( typeid(Element) == typeid(ILVectorArray2n) )
-		//			json_ilParams = new ILDCRTParams();
-		//		else {
-		//			throw std::logic_error("Unrecognized element type");
-		//		}
 
 		if (!json_encodingParams->Deserialize(oneItemE)) {
 			delete json_encodingParams;

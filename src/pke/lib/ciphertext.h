@@ -203,6 +203,12 @@ namespace lbcrypto {
 			return ! (*this == rhs);
 		}
 
+		Ciphertext<Element> operator+(const Ciphertext<Element> &other) const {
+			shared_ptr<Ciphertext<Element>> a(new Ciphertext<Element>(*this));
+			shared_ptr<Ciphertext<Element>> b(new Ciphertext<Element>(other));
+			return *cryptoContext.EvalAdd(a, b);
+		}
+
 		/**
 		* Performs an addition operation and returns the result.
 		*
@@ -225,8 +231,26 @@ namespace lbcrypto {
 			return *this;
 		}
 
+		Ciphertext<Element> operator-(const Ciphertext<Element> &other) const {
+			shared_ptr<Ciphertext<Element>> a(new Ciphertext<Element>(*this));
+			shared_ptr<Ciphertext<Element>> b(new Ciphertext<Element>(other));
+			return *cryptoContext.EvalSub(a, b);
+		}
+
 		const Ciphertext<Element>& operator-=(const Ciphertext<Element> &other) {
-			throw std::logic_error("operator-= not implemented for Ciphertext");
+			shared_ptr<Ciphertext<Element>> b(new Ciphertext<Element>(other));
+			// ciphertext object has no data yet, i.e., it is zero-initialized
+			if (m_elements.size() == 0)
+			{
+				cryptoContext = other.cryptoContext;
+				m_elements = other.m_elements;
+			}
+			else
+			{
+				shared_ptr<Ciphertext<Element>> a(new Ciphertext<Element>(*this));
+				*this = *(cryptoContext.EvalSub(a, b));
+			}
+			return *this;
 		}
 
 		/**
@@ -243,6 +267,34 @@ namespace lbcrypto {
 				shared_ptr<Ciphertext<Element>> a(new Ciphertext<Element>(*this));
 				return *(this->GetCryptoContext().EvalNegate(a));
 			}
+		}
+
+		Ciphertext<Element> operator*(const Ciphertext<Element> &other) const {
+			shared_ptr<Ciphertext<Element>> a(new Ciphertext<Element>(*this));
+			shared_ptr<Ciphertext<Element>> b(new Ciphertext<Element>(other));
+			return *cryptoContext.EvalMult(a, b);
+		}
+
+		/**
+		* Performs an addition operation and returns the result.
+		*
+		* @param &other is the ciphertext to add with.
+		* @return the result of the addition.
+		*/
+		const Ciphertext<Element>& operator*=(const Ciphertext<Element> &other) {
+			shared_ptr<Ciphertext<Element>> b(new Ciphertext<Element>(other));
+			// ciphertext object has no data yet, i.e., it is zero-initialized
+			if (m_elements.size() == 0)
+			{
+				cryptoContext = other.cryptoContext;
+				m_elements = other.m_elements;
+			}
+			else
+			{
+				shared_ptr<Ciphertext<Element>> a(new Ciphertext<Element>(*this));
+				*this = *(cryptoContext.EvalMult(a, b));
+			}
+			return *this;
 		}
 
 	private:

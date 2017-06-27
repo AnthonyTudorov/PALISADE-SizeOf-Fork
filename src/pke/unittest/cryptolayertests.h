@@ -31,6 +31,7 @@
 
 #include "encoding/byteplaintextencoding.h"
 #include "encoding/intplaintextencoding.h"
+#include "encoding/signedintplaintextencoding.h"
 #include "utils/parmfactory.h"
 
 using namespace lbcrypto;

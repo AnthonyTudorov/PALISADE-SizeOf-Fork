@@ -419,15 +419,15 @@ class LPLeveledSHEAlgorithmNull : public LPLeveledSHEAlgorithm<Element> {
 		shared_ptr<Ciphertext<Element>> ModReduce(shared_ptr<Ciphertext<Element>> cipherText) const {
 			shared_ptr<Ciphertext<Element>> newcipherText(new Ciphertext<Element>(*cipherText));
 
-			std::vector<Element> cipherTextElements(cipherText->GetElements());
-
-			typename Element::Integer plaintextModulus(cipherText->GetCryptoParameters()->GetPlaintextModulus());
-
-			for (auto &cipherTextElement : cipherTextElements) {
-				cipherTextElement.ModReduce(plaintextModulus);
-			}
-
-			newcipherText->SetElements(cipherTextElements);
+//			std::vector<Element> cipherTextElements(cipherText->GetElements());
+//
+//			typename Element::Integer plaintextModulus(cipherText->GetCryptoParameters()->GetPlaintextModulus());
+//
+//			for (auto &cipherTextElement : cipherTextElements) {
+//				cipherTextElement.ModReduce(plaintextModulus);
+//			}
+//
+//			newcipherText->SetElements(cipherTextElements);
 
 			return newcipherText;
 		}

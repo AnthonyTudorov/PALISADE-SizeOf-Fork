@@ -31,12 +31,16 @@ BM_OBJ = $(BM_SRC:.cc=.o)
 #this defines the benchmark library archive
 BM_LIB = $(BM_SRCDIR)/libbenchmark.a
 
-#note the following may need to be set automatically ala cmake
-
 REGEX_FLAG := -DHAVE_STD_REGEX  #note does not work for g++ <version 4.9
-#REGEX_FLAG := -DHAVE_POSIX_REGEX
 
-LIBBENCHMARK_FLAGS = $(REGEX_FLAG) -DHAVE_STEADY_CLOCK -DNDEBUG -Wno-unused-but-set-variable -Wno-unused-variable ##-Wextra -Wshadow -pedantic -pedantic-errors -Wfloat-equal -Wzero-as-null-pointer-constant -fstrict-aliasing -Wstrict-aliasing -Wno-nested-anon-types
+#### this warning flag should NOT be used with clang
+WARNING_FLAG := -Wno-unused-but-set-variable
+    UNAME_S := $(shell uname -s)
+    ifeq ($(UNAME_S),Darwin)
+	WARNING_FLAG :=
+    endif
+
+LIBBENCHMARK_FLAGS = $(REGEX_FLAG) -DHAVE_STEADY_CLOCK -DNDEBUG $(WARNING_FLAG) -Wno-unused-variable ##-Wextra -Wshadow -pedantic -pedantic-errors -Wfloat-equal -Wzero-as-null-pointer-constant -fstrict-aliasing -Wstrict-aliasing -Wno-nested-anon-types
 
 benchmark: libbenchmark benchmarktargets 
 
@@ -90,7 +94,7 @@ $(BENCHMARK_BUILD_DIR)/%.o: $(BENCHMARK_SRC_DIR)/%.cpp
 # this builds executables from objects for benchmarks
 $(BENCHMARK_BIN_DIR)/%$(EXESUFFIX): $(BENCHMARK_BUILD_DIR)/%.o $(BM_LIB) $(EXTLIBDIR)/$(PALISADETRAPDOORLIB) $(EXTLIBDIR)/$(PALISADEPKELIB) $(EXTLIBDIR)/$(PALISADECORELIB)
 	@mkdir -p $(BENCHMARK_BIN_DIR)
-	$(CC) $(CPPFLAGS) $(BENCHMARK_INC) $(LIBBENCHMARK_FLAGS)  $< -o $@ $(EXTLIBDIR)/$(PALISADETRAPDOORLIB) $(EXTLIBDIR)/$(PALISADEPKELIB) $(EXTLIBDIR)/$(PALISADECORELIB) $(RDYNAMIC) $(BM_LIB) $(EXTLIB)  $(MINGWREGEX)
+	$(CC) $(BENCHMARK_INC) $(LIBBENCHMARK_FLAGS)  $< -o $@ $(EXTLIBDIR)/$(PALISADETRAPDOORLIB) $(EXTLIBDIR)/$(PALISADEPKELIB) $(EXTLIBDIR)/$(PALISADECORELIB) $(RDYNAMIC) $(BM_LIB) $(EXTLIB)  $(MINGWREGEX)
 
 # this is the target that makes the actual benchmarks 
 .PHONY:benchmarktargets

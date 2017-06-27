@@ -34,7 +34,6 @@ COREBINDIR := src/core/bin
 CORETESTDIR := src/core/unittest
 COREDEMODIR := src/core/demo
 
-##CORESOURCES := $(wildcard $(CORESRCDIR)/lib/*/*.cpp) ##dbc can't find gmp_int directory
 CORESOURCES := $(shell find $(CORESRCDIR)/lib -name '*.cpp') 
 COREUNITSOURCES := $(wildcard $(CORESRCDIR)/unittest/*.cpp)
 COREDEMOSOURCES := $(wildcard $(CORESRCDIR)/demo/*.cpp)
@@ -57,7 +56,7 @@ allcoredemos: $(EXTLIBDIR)/$(PALISADECORELIB) $(patsubst $(COREBINDIR)/demo/%,bi
 
 bin/demo/core/%$(EXESUFFIX): src/core/bin/demo/%.o $(EXTLIBDIR)/$(PALISADECORELIB)
 	@mkdir -p $(@D)
-	$(CC) -o $@ $^ $(EXTLIB) 
+	$(CC) -o $@ $^ $(EXTLIB) -lPALISADEcore
 
 #this builds the palisade library out of the objects 
 $(EXTLIBDIR)/$(PALISADECORELIB): $(COREOBJECTS)
@@ -88,7 +87,7 @@ cleancore:
 # this links test executable  from objects in the test build directory
 $(TEST_TARGET): $(COREUNITOBJECTS) $(EXTLIBDIR)/$(PALISADECORELIB) 
 	@mkdir -p `dirname $(TEST_TARGET)`
-	$(CC) $(COREUNITOBJECTS) -o $(TEST_TARGET) -L$(EXTLIBDIR) -lPALISADEcore $(TEST_LIB) 
+	$(CC) -o $(TEST_TARGET) $^ $(EXTLIB) $(TEST_LIB) 
 
 #used to run tests from make
 .PHONY: testcore

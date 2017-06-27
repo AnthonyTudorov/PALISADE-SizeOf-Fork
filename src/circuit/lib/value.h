@@ -1,8 +1,10 @@
-// this is some helper code for benchmarking BBVs
 /**
+ * @file value.h -- representation of a value in a circuit
  * @author  TPOC: palisade@njit.edu
  *
- * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
+ * @section LICENSE
+ *
+ * Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -22,29 +24,20 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
+ * @section DESCRIPTION
+ *
+ * This code provides a representation for a value in a circuit
+ *
  */
 
-#ifndef _BBVHELPER_H_
-#define _BBVHELPER_H_
 
-#include <utility>
-#define _USE_MATH_DEFINES
-#include "math/backend.h"
+#ifndef SRC_CIRCUIT_LIB_VALUE_H_
+#define SRC_CIRCUIT_LIB_VALUE_H_
+
+#include "palisade.h"
+#include "circuitinput.h"
 using namespace lbcrypto;
 
-template<typename T>
-inline BigBinaryVector makeVector(shared_ptr<T> p) {
-	ILVector2n::DugType dug;
-	dug.SetModulus(p->GetModulus());
+template<typename Element> using Value = CircuitObject<Element>;
 
-	return dug.GenerateVector(p->GetCyclotomicOrder()/2);
-}
-
-inline native_int::BinaryVector makeNativeVector(shared_ptr<ILParams> p) {
-	native_int::ILVector2n::DugType dug;
-	dug.SetModulus(p->GetModulus().ConvertToInt());
-
-	return dug.GenerateVector(p->GetRingDimension());
-}
-
-#endif
+#endif /* SRC_CIRCUIT_LIB_VALUE_H_ */

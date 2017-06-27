@@ -84,6 +84,17 @@ namespace lbcrypto {
 		}
 
 		/**
+		* Construct a new rational ciphertext from two ciphertextpointers
+		*
+		* @param &numerator numerator ciphertext
+		* @param &denominator denominator ciphertext
+		*/
+		RationalCiphertext(const shared_ptr<Ciphertext<Element>> &numerator, const shared_ptr<Ciphertext<Element>> &denominator) {
+			m_numerator = numerator;
+			m_denominator = denominator;
+			m_integerFlag = false;
+		}
+		/**
 		* Copy constructor
 		*/
 		RationalCiphertext(const RationalCiphertext<Element> &ciphertext) {

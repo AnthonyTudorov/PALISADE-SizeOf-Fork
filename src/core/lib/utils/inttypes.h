@@ -77,10 +77,10 @@ enum Format{ EVALUATION=0, COEFFICIENT=1};
 enum PKESchemeFeature{ 
 	ENCRYPTION=0, 
 	PRE=1,
-	SHE=4,
-	FHE=5,
-	LEVELEDSHE=6,
-	MULTIPARTY=7
+	SHE=2,
+	FHE=3,
+	LEVELEDSHE=4,
+	MULTIPARTY=5
 };
 
 /**
@@ -91,7 +91,7 @@ enum MODE {
 	OPTIMIZED = 1
 };
 
-const uint8_t FEATURESETSIZE = 7;
+const uint8_t FEATURESETSIZE = 6;
 
 //} // namespace lbcrypto ends
 

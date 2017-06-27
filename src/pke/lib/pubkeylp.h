@@ -985,7 +985,7 @@ namespace lbcrypto {
 			* @return key pair including the private and public key
 			*/
 			virtual LPKeyPair<Element> MultipartyKeyGen(const CryptoContext<Element> cc,
-		const vector<shared_ptr<LPPrivateKey<Element>>>& secretKeys,
+				const vector<shared_ptr<LPPrivateKey<Element>>>& secretKeys,
 				bool makeSparse=false) const = 0;
 
 			/**
@@ -1231,7 +1231,7 @@ namespace lbcrypto {
 			const std::vector<usint> &indexList) const = 0;
 
 		/**
-		* Virtial function for evaluating automorphism of ciphertext at index i
+		* Virtual function for evaluating automorphism of ciphertext at index i
 		*
 		* @param ciphertext the input ciphertext.
 		* @param i automorphism index
