@@ -1,5 +1,5 @@
 /*
- * @file 
+ * @file demo-bit-packing.cpp This code shows multiple demonstrations of how to use bit packing features in PALISADE.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -23,42 +23,20 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
- /*
-This code exercises the Proxy Re-Encryption capabilities of the NJIT Lattice crypto library.
-In this code we:
-- Generate a key pair.
-- Encrypt a string of data.
-- Decrypt the data.
-- Generate a new key pair.
-- Generate a proxy re-encryption key.
-- Re-Encrypt the encrypted data.
-- Decrypt the re-encrypted data.
-We configured parameters (namely the ring dimension and ciphertext modulus) to provide a level of security roughly equivalent to a root hermite factor of 1.007 which is generally considered secure and conservatively comparable to AES-128 in terms of computational work factor and may be closer to AES-256.
-
-*/
 
 #include <iostream>
 #include <fstream>
-
-
+#include <random>
+#include <iterator>
 #include "palisade.h"
-
-
 #include "cryptocontexthelper.h"
-
+#include "utils/debug.h"
 #include "encoding/byteplaintextencoding.h"
 #include "encoding/packedintplaintextencoding.h"
-
-#include "utils/debug.h"
-#include <random>
-
 #include "math/nbtheory.h"
 
 using namespace std;
 using namespace lbcrypto;
-
-
-#include <iterator>
 
 void ArbLTVInnerProductPackedArray();
 void ArbBVInnerProductPackedArray();
@@ -67,23 +45,28 @@ void ArbFVEvalMultPackedArray();
 
 int main() {
 
-	//LTVAutomorphismIntArray();
+	std::cout << "\nThis code demonstrates the use of bit-pakcing on the FV, BV and LTV schemes. " << std::endl;
+	std::cout << "We show inner product operations for all schemes and a bit-packed EvalMult for the FV scheme. " << std::endl;
+	std::cout << "This code shows how parameters can be manually set in our library. " << std::endl;
+	std::cout << "We do not generally recommend the use of the LTV scheme due to security concerns. " << std::endl;
 
-	std::cout << "\n===========LTV TESTS (INNER-PRODUCT-ARBITRARY)===============: " << std::endl;
-
-	ArbLTVInnerProductPackedArray();
-
-	std::cout << "\n===========BV TESTS (INNER-PRODUCT-ARBITRARY)===============: " << std::endl;
-
-	ArbBVInnerProductPackedArray();
-
-	std::cout << "\n===========FV TESTS (INNER-PRODUCT-ARBITRARY)===============: " << std::endl;
+	std::cout << "\n=========== In this code block we demonstrate inner product operations using the FV scheme. ===============: " << std::endl;
 
 	ArbFVInnerProductPackedArray();
 
-	std::cout << "\n===========FV TESTS (EVALMULT-ARBITRARY)===============: " << std::endl;
+	std::cout << "\n=========== In this code block we demonstrate EvalMult operations using the FV scheme. ===============: " << std::endl;
 
 	ArbFVEvalMultPackedArray();
+
+
+	std::cout << "\n=========== In this code block we demonstrate inner product operations using the FV scheme. ===============: " << std::endl;
+
+	ArbLTVInnerProductPackedArray();
+
+	std::cout << "\n=========== In this code block we demonstrate inner product operations using the FV scheme. ===============: " << std::endl;
+
+	ArbBVInnerProductPackedArray();
+
 
 	std::cout << "Please press any key to continue..." << std::endl;
 

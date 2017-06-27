@@ -1,5 +1,5 @@
 /*
- * @file demo_she.cpp - PALISADE library.
+ * @file demo_pre.cpp - PALISADE library.
  * @author  TPOC: palisade@njit.edu
  *
  * @section LICENSE
@@ -45,29 +45,29 @@
 using namespace std;
 using namespace lbcrypto;
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
 
 	////////////////////////////////////////////////////////////
 	// Set-up of parameters
 	////////////////////////////////////////////////////////////
 
 
-	std::cout << "\nThis code demonstrates the use of the FV schemes for basic homomorphic encryption operations. " << std::endl;
+	std::cout << "\nThis code demonstrates the use of the FV schemes for basic proxy-re-encryption operations. " << std::endl;
 	std::cout << "This code shows how to auto-generate parameters during run-time based on desired plaintext moduli and security levels. " << std::endl;
-	std::cout << "In this demonstration we use three input plaintext and show how to both add them together and multiply them together. " << std::endl;
-
+	std::cout << "In this demonstration we encrypt data and then proxy re-encrypt it. " << std::endl;
 
 	//Generate parameters.
 	double diff, start, finish;
 
 	int relWindow = 1;
-	int plaintextModulus = 1024;
+	int plaintextModulus = 64;
 	double sigma = 4;
 	double rootHermiteFactor = 1.006;	
 
 	//Set Crypto Parameters	
 	CryptoContext<ILVector2n> cryptoContext = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
-			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 2, 0);
+			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 1, 0);
 
 	// enable features that you wish to use
 	cryptoContext.Enable(ENCRYPTION);
@@ -82,32 +82,37 @@ int main(int argc, char *argv[]) {
 
 	cout << "Param generation time: " << "\t" << diff << " ms" << endl;
 
+	//cryptoContext<ILVector2n> cryptoContext = GencryptoContextElementLTV(ORDER, PTM);
+
+	//Turn on features
+	cryptoContext.Enable(ENCRYPTION);
+	cryptoContext.Enable(PRE);
+
 	std::cout << "p = " << cryptoContext.GetCryptoParameters()->GetPlaintextModulus() << std::endl;
 	std::cout << "n = " << cryptoContext.GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
 	std::cout << "log2 q = " << log2(cryptoContext.GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
 
 	//std::cout << "Press any key to continue." << std::endl;
 	//std::cin.get();
-	
-	// Initialize Public Key Containers
-	LPKeyPair<ILVector2n> keyPair;
-	
+
 	////////////////////////////////////////////////////////////
 	// Perform Key Generation Operation
 	////////////////////////////////////////////////////////////
+
+	// Initialize Key Pair Containers
+	LPKeyPair<ILVector2n> keyPair1;
 
 	std::cout << "Running key generation (used for source data)..." << std::endl;
 
 	start = currentDateTime();
 
-	keyPair = cryptoContext.KeyGen();	
-	cryptoContext.EvalMultKeyGen(keyPair.secretKey);
+	keyPair1 = cryptoContext.KeyGen();
 
 	finish = currentDateTime();
 	diff = finish - start;
 	cout << "Key generation time: " << "\t" << diff << " ms" << endl;
 
-	if( !keyPair.good() ) {
+	if( !keyPair1.good() ) {
 		std::cout << "Key generation failed!" << std::endl;
 		exit(1);
 	}
@@ -116,12 +121,8 @@ int main(int argc, char *argv[]) {
 	// Encode source data
 	////////////////////////////////////////////////////////////
 
-	std::vector<uint32_t> vectorOfInts1 = {3,2,1,3,2,1,0,0,0,0,0,0};
-	std::vector<uint32_t> vectorOfInts2 = {2,0,0,0,0,0,0,0,0,0,0,0};
-	std::vector<uint32_t> vectorOfInts3 = {1,0,0,0,0,0,0,0,0,0,0,0};
-	IntPlaintextEncoding plaintext1(vectorOfInts1);
-	IntPlaintextEncoding plaintext2(vectorOfInts2);
-	IntPlaintextEncoding plaintext3(vectorOfInts3);
+	std::vector<uint32_t> vectorOfInts = {2,2,2,2,2,2,0,0,0,0,0,0};
+	IntPlaintextEncoding plaintext(vectorOfInts);
 
 	////////////////////////////////////////////////////////////
 	// Encryption
@@ -129,15 +130,11 @@ int main(int argc, char *argv[]) {
 
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext1;
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext2;
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext3;
 
 	start = currentDateTime();
 
-	ciphertext1 = cryptoContext.Encrypt(keyPair.publicKey, plaintext1, true);
-	ciphertext2 = cryptoContext.Encrypt(keyPair.publicKey, plaintext2, true);
-	ciphertext3 = cryptoContext.Encrypt(keyPair.publicKey, plaintext3, true);
-	
+	ciphertext1 = cryptoContext.Encrypt(keyPair1.publicKey, plaintext, true);
+
 	finish = currentDateTime();
 	diff = finish - start;
 	cout << "Encryption time: " << "\t" << diff << " ms" << endl;
@@ -146,15 +143,11 @@ int main(int argc, char *argv[]) {
 	//Decryption of Ciphertext
 	////////////////////////////////////////////////////////////
 
-	IntPlaintextEncoding plaintext1Dec;
-	IntPlaintextEncoding plaintext2Dec;
-	IntPlaintextEncoding plaintext3Dec;
+	IntPlaintextEncoding plaintextDec1;
 
 	start = currentDateTime();
 
-	cryptoContext.Decrypt(keyPair.secretKey, ciphertext1, &plaintext1Dec, true);
-	cryptoContext.Decrypt(keyPair.secretKey, ciphertext2, &plaintext2Dec, true);
-	cryptoContext.Decrypt(keyPair.secretKey, ciphertext3, &plaintext3Dec, true);
+	cryptoContext.Decrypt(keyPair1.secretKey, ciphertext1, &plaintextDec1, true);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -162,117 +155,96 @@ int main(int argc, char *argv[]) {
 
 	//std::cin.get();
 
-	plaintext1Dec.resize(plaintext1.size());
-	plaintext2Dec.resize(plaintext1.size());
-	plaintext3Dec.resize(plaintext1.size());
+	plaintextDec1.resize(plaintext.size());
 
 	cout << "\n Original Plaintext: \n";
-	cout << plaintext1 << endl;
-	cout << plaintext2 << endl;
-	cout << plaintext3 << endl;
+	cout << plaintext << endl;
 
-	cout << "\n Resulting Decryption of Ciphertext: \n";
-	cout << plaintext1Dec << endl;
-	cout << plaintext2Dec << endl;
-	cout << plaintext3Dec << endl;
+	cout << "\n Resulting Decryption of Ciphertext before Re-Encryption: \n";
+	cout << plaintextDec1 << endl;
 
 	cout << "\n";
 
 	////////////////////////////////////////////////////////////
-	// EvalAdd Operation
+	// Perform Key Generation Operation
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Ciphertext<ILVector2n>> ciphertextAdd12;
-	shared_ptr<Ciphertext<ILVector2n>> ciphertextAdd123;
+	// Initialize Key Pair Containers
+	LPKeyPair<ILVector2n> keyPair2;
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextAddVect;
+	std::cout << "Running key generation (used for source data)..." << std::endl;
 
 	start = currentDateTime();
 
-	ciphertextAdd12 = cryptoContext.EvalAdd(ciphertext1[0],ciphertext2[0]);
-	ciphertextAdd123 = cryptoContext.EvalAdd(ciphertextAdd12,ciphertext3[0]);
-
-	ciphertextAddVect.push_back(ciphertextAdd123);
+	keyPair2 = cryptoContext.KeyGen();
 
 	finish = currentDateTime();
 	diff = finish - start;
-	cout << "Re-Encrypted Data Evaluation time: " << "\t" << diff << " ms" << endl;
+	cout << "Key generation time: " << "\t" << diff << " ms" << endl;
 
+	if( !keyPair2.good() ) {
+		std::cout << "Key generation failed!" << std::endl;
+		exit(1);
+	}
 
 	////////////////////////////////////////////////////////////
-	//Decryption after Accumulation Operation
+	//Perform the proxy re-encryption key generation operation.
+	// This generates the keys which are used to perform the key switching.
 	////////////////////////////////////////////////////////////
 
-	IntPlaintextEncoding plaintextAdd;
+	std::cout <<"\n"<< "Generating proxy re-encryption key..." << std::endl;
+
+	shared_ptr<LPEvalKey<ILVector2n>> reencryptionKey12;
 
 	start = currentDateTime();
 
-	cryptoContext.Decrypt(keyPair.secretKey, ciphertextAddVect, &plaintextAdd, true);
+	reencryptionKey12 = cryptoContext.ReKeyGen(keyPair2.secretKey, keyPair1.secretKey);
 
 	finish = currentDateTime();
 	diff = finish - start;
+	cout << "Key generation time: " << "\t" << diff << " ms" << endl;
 
-	//std::cin.get();
+	////////////////////////////////////////////////////////////
+	// Re-Encryption
+	////////////////////////////////////////////////////////////
 
-	plaintextAdd.resize(plaintext1.size());
+	start = currentDateTime();
+
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext2;
+
+	ciphertext2 = cryptoContext.ReEncrypt(reencryptionKey12, ciphertext1);
+
+	finish = currentDateTime();
+	diff = finish - start;
+	cout << "Re-Encryption time: " << "\t" << diff << " ms" << endl;
+
+	////////////////////////////////////////////////////////////
+	//Decryption of Ciphertext
+	////////////////////////////////////////////////////////////
+
+	IntPlaintextEncoding plaintextDec2;
+
+	start = currentDateTime();
+
+	cryptoContext.Decrypt(keyPair2.secretKey, ciphertext2, &plaintextDec2, true);
+
+	finish = currentDateTime();
+	diff = finish - start;
+	cout << "Decryption time: " << "\t" << diff << " ms" << endl;
+
+	plaintextDec2.resize(plaintext.size());
 
 	cout << "\n Original Plaintext: \n";
-	cout << plaintext1 << endl;
-	cout << plaintext2 << endl;
-	cout << plaintext3 << endl;
+	cout << plaintext << endl;
 
-	cout << "\n Resulting Added Plaintext with Re-Encryption: \n";
-	cout << plaintextAdd << endl;
+	cout << "\n Resulting Decryption of Ciphertext before Re-Encryption: \n";
+	cout << plaintextDec1 << endl;
+
+	cout << "\n Resulting Decryption of Ciphertext after Re-Encryption: \n";
+	cout << plaintextDec2 << endl;
 
 	cout << "\n";
 
-	////////////////////////////////////////////////////////////
-	// EvalMult Operation
-	////////////////////////////////////////////////////////////
-
-	shared_ptr<Ciphertext<ILVector2n>> ciphertextMul12;
-	shared_ptr<Ciphertext<ILVector2n>> ciphertextMul123;
-
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextMulVect;
-
-	start = currentDateTime();
-
-	ciphertextMul12 = cryptoContext.EvalMult(ciphertext1[0],ciphertext2[0]);
-	ciphertextMul123 = cryptoContext.EvalMult(ciphertextMul12,ciphertext3[0]);
-
-	ciphertextMulVect.push_back(ciphertextMul123);
-
-	finish = currentDateTime();
-	diff = finish - start;
-	cout << "Re-Encrypted Data Evaluation time: " << "\t" << diff << " ms" << endl;
-
-
-	////////////////////////////////////////////////////////////
-	//Decryption after Accumulation Operation on Re-Encrypted Data
-	////////////////////////////////////////////////////////////
-
-	IntPlaintextEncoding plaintextMul;
-
-	start = currentDateTime();
-
-	cryptoContext.Decrypt(keyPair.secretKey, ciphertextMulVect, &plaintextMul, true);
-
-	finish = currentDateTime();
-	diff = finish - start;
-
-	//std::cin.get();
-
-	plaintextMul.resize(plaintext1.size());
-
-	cout << "\n Original Plaintext: \n";
-	cout << plaintext1 << endl;
-	cout << plaintext2 << endl;
-	cout << plaintext3 << endl;
-
-	cout << "\n Resulting Muled Plaintext with Re-Encryption: \n";
-	cout << plaintextMul << endl;
-
-	cout << "\n";
 	////////////////////////////////////////////////////////////
 	// Done
 	////////////////////////////////////////////////////////////

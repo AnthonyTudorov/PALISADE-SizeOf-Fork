@@ -1,5 +1,5 @@
 /*
- * @file 
+ * @file demo-linregress.cpp This code shows multiple demonstrations of how to perform linear regression in PALISADE.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -39,18 +39,16 @@ We configured parameters (namely the ring dimension and ciphertext modulus) to p
 
 #include <iostream>
 #include <fstream>
-
+#include <random>
+#include <iterator>
 
 #include "palisade.h"
-
-
 #include "cryptocontexthelper.h"
 
 #include "encoding/byteplaintextencoding.h"
 #include "encoding/packedintplaintextencoding.h"
 
 #include "utils/debug.h"
-#include <random>
 
 #include "math/nbtheory.h"
 #include "math/matrix.h"
@@ -60,20 +58,22 @@ using namespace std;
 using namespace lbcrypto;
 
 
-#include <iterator>
 
 void ArbBVLinearRegressionPackedArray();
-void ArbFVInnerProductPackedArray();
+void ArbFVLinearRegressionPackedArray();
 
 int main() {
 
+	std::cout << "\nThis code demonstrates the use of bit-pakcing for linear regression using the BV scheme. " << std::endl;
+	std::cout << "This code shows how parameters can be manually set in our library. " << std::endl;
+	
 	std::cout << "\n===========BV TESTS (LINEAR-REGRESSION-ARBITRARY)===============: " << std::endl;
 
 	ArbBVLinearRegressionPackedArray();
 
 	std::cout << "\n===========FV TESTS (INNER-PRODUCT-ARBITRARY)===============: " << std::endl;
 
-	ArbFVInnerProductPackedArray();
+	ArbFVLinearRegressionPackedArray();
 
 	std::cout << "Please press any key to continue..." << std::endl;
 
@@ -178,7 +178,7 @@ void ArbBVLinearRegressionPackedArray() {
 
 }
 
-void ArbFVInnerProductPackedArray() {
+void ArbFVLinearRegressionPackedArray() {
 
 	usint m = 22;
 
