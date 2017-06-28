@@ -23,6 +23,7 @@
     <ClCompile Include="..\..\..\..\src\core\lib\encoding\encodingparams.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\encoding\intplaintextencoding.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\encoding\packedintplaintextencoding.cpp" />
+    <ClCompile Include="..\..\..\..\src\core\lib\encoding\signedintplaintextencoding.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\lattice\elemparams.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\lattice\field2n.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\lattice\ildcrt2n-impl.cpp" />
@@ -60,6 +61,7 @@
     <ClInclude Include="..\..\..\..\src\core\lib\encoding\intplaintextencoding.h" />
     <ClInclude Include="..\..\..\..\src\core\lib\encoding\packedintplaintextencoding.h" />
     <ClInclude Include="..\..\..\..\src\core\lib\encoding\plaintext.h" />
+    <ClInclude Include="..\..\..\..\src\core\lib\encoding\signedintplaintextencoding.h" />
     <ClInclude Include="..\..\..\..\src\core\lib\lattice\elemparams.h" />
     <ClInclude Include="..\..\..\..\src\core\lib\lattice\field2n.h" />
     <ClInclude Include="..\..\..\..\src\core\lib\lattice\ildcrt2n.h" />
