@@ -27,13 +27,13 @@ fi
 $CC -v >/dev/null 2>&1
 [ $? -ne 0 ] && echo Compiler is not available && exit 1
 
-($CC -x c++ -o __test - <<XXX--end
+($CC -x c++ -o ./__test - <<XXX--end
 #if __cplusplus < 201103L
 #error This library requires a C++11 compliant compiler
 #endif
 int main() { return 0; }
 XXX--end
-) && __test && rm -f __test
+) && ./__test && rm -f ./__test
 
 [ $? -ne 0 ] && echo Compiler does not support C++11 && exit 1
 
@@ -65,7 +65,7 @@ echo bison is installed
 
 ### Open MP
 
-($CC -x c++ -o __test -fopenmp - <<XXX--end
+($CC -x c++ -o ./__test -fopenmp - <<XXX--end
 #include <omp.h>
 int main() {
 #pragma omp parallel
@@ -75,7 +75,7 @@ int t = omp_get_thread_num();
 return 0;
 }
 XXX--end
-) && __test && rm -f __test
+) && ./__test && rm -f ./__test
 
 [ $? -ne 0 ] && echo Environment does not support OpenMP && exit 1
 
