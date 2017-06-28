@@ -766,8 +766,8 @@ namespace exp_int{
     const std::string ToString() const;		
 
     //Serialization functions
-    const std::string Serialize(const ubint& mod = ubint::ZERO) const;
-    const char * Deserialize(const char * str, const ubint& mod = ubint::ZERO);
+    const std::string Serialize(const ubint& mod = 0) const;
+    const char * Deserialize(const char * str, const ubint& mod = 0);
 
 
     // helper functions

@@ -66,7 +66,7 @@ namespace exp_int {
 
     //this->m_data = new ubint_el_t*[m_length];
     for (usint i = 0; i < length; i++){
-      this->m_data[i] = ubint_el_t::ZERO;
+      this->m_data[i] = 0;
     }
     m_modulus = 0;
     m_modulus_state = GARBAGE;
@@ -79,7 +79,7 @@ namespace exp_int {
     bool dbg_flag = false;
     this->m_data.resize(length);
     for (usint i = 0; i < length; i++){
-      this->m_data[i] = ubint_el_t::ZERO;
+      this->m_data[i] = 0;
     }
     m_modulus = modulus;
     m_modulus_state = INITIALIZED;
@@ -95,7 +95,7 @@ namespace exp_int {
     bool dbg_flag = false;
     this->m_data.resize(length);
     for (usint i = 0; i < length; i++){
-      this->m_data[i] = ubint_el_t::ZERO;
+      this->m_data[i] = 0;
     }
     m_modulus = modulus;
     m_modulus_state = INITIALIZED;
@@ -153,7 +153,7 @@ namespace exp_int {
     bool dbg_flag = false;
     this->m_data.resize(length);
     for (usint i = 0; i < length; i++){
-      this->m_data[i] = ubint_el_t::ZERO;
+      this->m_data[i] = 0;
     }
     m_modulus = modulus;
     m_modulus_state = INITIALIZED;
@@ -337,7 +337,7 @@ namespace exp_int {
       if(i<len) {
 	this->m_data[i]= ubint_el_t(*(rhs.begin()+i));
       } else {
-	this->m_data[i]=ubint_el_t::ZERO;
+	this->m_data[i]=0;
       }
     }
     if (this->m_modulus_state == INITIALIZED) {
@@ -359,7 +359,7 @@ namespace exp_int {
       if(i<len) {
 	this->m_data[i] =  ubint_el_t(*(rhs.begin()+i));
       } else {
-	this->m_data[i] = ubint_el_t::ZERO;
+	this->m_data[i] = 0;
       }
     }
     if (this->m_modulus_state == INITIALIZED) {
@@ -383,7 +383,7 @@ namespace exp_int {
       if(i<len) {
 	this->m_data[i] = ubint_el_t(*(rhs.begin()+i));
       } else {
-	this->m_data[i] = ubint_el_t::ZERO;
+	this->m_data[i] = 0;
       }
     }
     if (this->m_modulus_state == INITIALIZED) {
@@ -405,7 +405,7 @@ namespace exp_int {
       if(i<len) {
 	this->m_data[i] =  ubint_el_t(*(rhs.begin()+i));
       } else {
-	this->m_data[i] = ubint_el_t::ZERO;
+	this->m_data[i] = 0;
       }
     }
     if (this->m_modulus_state == INITIALIZED) {
@@ -529,7 +529,7 @@ namespace exp_int {
     //ans. m_modulus_state = INITIALIZED;
     //return ans;
 
-	if (modulus == ubint_el_t::TWO)
+	if (modulus == 2)
 		return this->ModByTwo();
 	else
 	{
@@ -572,16 +572,16 @@ namespace exp_int {
     ubint_el_t halfQ(this->GetModulus() >> 1);
     for (usint i = 0; i<ans.GetLength(); i++) {
       if (this->GetValAtIndex(i)>halfQ) {
-	if (this->GetValAtIndex(i).Mod(ubint_el_t::TWO) == ubint_el_t::ONE)
-	  ans.SetValAtIndex(i, ubint_el_t::ZERO);
+	if (this->GetValAtIndex(i).Mod(2) == 1)
+	  ans.SetValAtIndex(i, ubint_el_t(0));
 	else
-	  ans.SetValAtIndex(i, ubint_el_t::ONE);
+	  ans.SetValAtIndex(i, ubint_el_t(1));
       }
       else {
-	if (this->GetValAtIndex(i).Mod(ubint_el_t::TWO) == ubint_el_t::ONE)
-	  ans.SetValAtIndex(i, ubint_el_t::ONE);
+	if (this->GetValAtIndex(i).Mod(2) == 1)
+	  ans.SetValAtIndex(i, ubint_el_t(1));
 	else
-	  ans.SetValAtIndex(i, ubint_el_t::ZERO);
+	  ans.SetValAtIndex(i, ubint_el_t(0));
       }
       
     }
