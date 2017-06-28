@@ -305,29 +305,19 @@ void FVAutomorphismPackedArray(usint i) {
 
 void ArbBVAutomorphismPackedArray(usint i) {
 
-	//usint m = 22;
-	//usint p = 16787;
-	////usint p = 23;
-	//BigBinaryInteger modulusP(p);
-	///*BigBinaryInteger modulusQ("577325471560727734926295560417311036005875689");
-	//BigBinaryInteger squareRootOfRoot("576597741275581172514290864170674379520285921");*/
-	//BigBinaryInteger modulusQ("955263939794561");
-	//BigBinaryInteger squareRootOfRoot("941018665059848");
-	////BigBinaryInteger squareRootOfRoot = RootOfUnity(2*m,modulusQ);
-	////std::cout << squareRootOfRoot << std::endl;
-	//BigBinaryInteger bigmodulus("80899135611688102162227204937217");
-	//BigBinaryInteger bigroot("77936753846653065954043047918387");
-	////std::cout << bigroot << std::endl;
-
-	usint m = 2*1031;
-	usint p = 2063;
+	usint m = 22;
+	usint p = 16787;
+	//usint p = 23;
 	BigBinaryInteger modulusP(p);
-
-	BigBinaryInteger modulusQ("1267650600228229401496703433421");
-	BigBinaryInteger squareRootOfRoot("258706884260419266544801292762");
-
-	BigBinaryInteger bigmodulus("13164036458569648337239753460458804039861886925068638906789969921");
-	BigBinaryInteger bigroot("2402265581759169013872817377872163314561846456810494824458272328");
+	/*BigBinaryInteger modulusQ("577325471560727734926295560417311036005875689");
+	BigBinaryInteger squareRootOfRoot("576597741275581172514290864170674379520285921");*/
+	BigBinaryInteger modulusQ("955263939794561");
+	BigBinaryInteger squareRootOfRoot("941018665059848");
+	//BigBinaryInteger squareRootOfRoot = RootOfUnity(2*m,modulusQ);
+	//std::cout << squareRootOfRoot << std::endl;
+	BigBinaryInteger bigmodulus("80899135611688102162227204937217");
+	BigBinaryInteger bigroot("77936753846653065954043047918387");
+	//std::cout << bigroot << std::endl;
 
 	auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulusQ);
 	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulusQ);
@@ -358,7 +348,7 @@ void ArbBVAutomorphismPackedArray(usint i) {
 
 	ciphertext = cc.Encrypt(kp.publicKey, intArray, false);
 
-	std::vector<usint> indexList = GetTotientList((usint)22);
+	std::vector<usint> indexList = GetTotientList(m);
 	indexList.erase(indexList.begin());
 
 	auto evalKeys = cc.EvalAutomorphismKeyGen(kp.secretKey, indexList);
