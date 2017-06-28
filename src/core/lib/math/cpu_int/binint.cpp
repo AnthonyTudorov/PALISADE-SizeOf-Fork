@@ -651,7 +651,7 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Min
         // DTS: (see Plus(), above) this function uses [signed] int for endValA and endValB, unlike all the similar loops in the previous functions. (why does this combine int and sint? sure, all the values should be small, )
 	BigBinaryInteger result(*this);
 	//array position in A to end substraction
-	int endValA = m_nSize-ceilIntByUInt(this->m_MSB);
+	volatile int endValA = m_nSize-ceilIntByUInt(this->m_MSB);
 	//array position in B to end substraction
 	int endValB = m_nSize-ceilIntByUInt(b.m_MSB);
 	sint i;

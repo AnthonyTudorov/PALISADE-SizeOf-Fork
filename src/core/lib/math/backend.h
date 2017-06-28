@@ -95,7 +95,7 @@ static_assert(cpu_int::DataTypeChecker<integral_dtype>::value,"Data type provide
 		The bitwidth can be decreased to the least value still supporting BBI multiplications for a specific application -
 		to achieve smaller runtimes
 	**/
-#define BigBinaryIntegerBitLength 320 //for documentation on tests
+#define BigBinaryIntegerBitLength 1500 //for documentation on tests
 
 namespace cpu_int {
 typedef BigBinaryInteger<integral_dtype,BigBinaryIntegerBitLength> BinaryInteger;
