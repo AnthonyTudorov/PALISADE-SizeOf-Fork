@@ -43,15 +43,15 @@
 
 namespace lbcrypto {
 
-//template <>
-//bool LPAlgorithmParamsGenLTV<ILVector2n>::ParamsGen(shared_ptr<LPCryptoParameters<ILVector2n>> cryptoParams,
-//		int32_t evalAddCount, int32_t evalMultCount, int32_t keySwitchCount) const
-//{
-//	return false;
-//}
+template <>
+bool LPAlgorithmParamsGenLTV<ILVector2n>::ParamsGen(shared_ptr<LPCryptoParameters<ILVector2n>> cryptoParams,
+		int32_t evalAddCount, int32_t evalMultCount, int32_t keySwitchCount) const
+{
+	return false;
+}
 
-template<typename Element>
-bool LPAlgorithmParamsGenLTV<Element>::ParamsGen(shared_ptr<LPCryptoParameters<Element>> cryptoParams,
+template<>
+bool LPAlgorithmParamsGenLTV<ILDCRT2n>::ParamsGen(shared_ptr<LPCryptoParameters<ILDCRT2n>> cryptoParams,
 		int32_t evalAddCount, int32_t evalMultCount, int32_t keySwitchCount) const
 {
 	if (!cryptoParams)
