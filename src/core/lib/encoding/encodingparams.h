@@ -66,8 +66,10 @@ public:
 	EncodingParamsImpl(
 		const IntType& plaintextModulus = IntType::ZERO,
 		usint plaintextGenerator = 0,
-		usint batchSize = 0) {
+		usint batchSize = 0,
+		const IntType& plaintextBigModulus = IntType::ZERO) {
 			m_plaintextModulus = plaintextModulus;
+			m_plaintextBigModulus = plaintextBigModulus;
 			m_plaintextGenerator = plaintextGenerator;
 			m_batchSize = batchSize;
 	}
@@ -78,7 +80,8 @@ public:
 	 * @param &rhs the input set of parameters which is copied.
 	 */
 	EncodingParamsImpl(const EncodingParamsImpl &rhs) {
-		m_plaintextModulus = rhs.m_plaintextGenerator;
+		m_plaintextModulus = rhs.m_plaintextModulus;
+		m_plaintextBigModulus = rhs.m_plaintextBigModulus;
 		m_plaintextGenerator = rhs.m_plaintextGenerator;
 		m_batchSize = rhs.m_batchSize;
 	}
@@ -89,7 +92,8 @@ public:
 	* @param &rhs the input set of parameters which is copied.
 	*/
 	EncodingParamsImpl(const EncodingParamsImpl &&rhs) {
-		m_plaintextModulus = std::move(rhs.m_plaintextGenerator);
+		m_plaintextModulus = std::move(rhs.m_plaintextModulus);
+		m_plaintextBigModulus = std::move(rhs.m_plaintextBigModulus);
 		m_plaintextGenerator = std::move(rhs.m_plaintextGenerator);
 		m_batchSize = rhs.m_batchSize;
 	}
@@ -101,7 +105,8 @@ public:
 	 * @return the resulting EncodingParamsImpl.
 	 */
 	const EncodingParamsImpl& operator=(const EncodingParamsImpl &rhs) {
-		m_plaintextModulus = rhs.m_plaintextGenerator;
+		m_plaintextModulus = rhs.m_plaintextModulus;
+		m_plaintextBigModulus = rhs.m_plaintextBigModulus;
 		m_plaintextGenerator = rhs.m_plaintextGenerator;
 		m_batchSize = rhs.m_batchSize;
 		return *this;
@@ -124,6 +129,30 @@ public:
 		return m_plaintextModulus; 
 	}
 	
+	/**
+	* @brief Setter for the plaintext modulus.
+	* @return The plaintext modulus.
+	*/
+	void SetPlaintextModulus(const IntType &plaintextModulus) {
+		m_plaintextModulus = plaintextModulus;
+	}
+
+	/**
+	* @brief Getter for the plaintext big modulus.
+	* @return The plaintext big modulus.
+	*/
+	const IntType &GetPlaintextBigModulus() const {
+		return m_plaintextBigModulus;
+	}
+
+	/**
+	* @brief Setter for the plaintext big modulus.
+	* @return The plaintext big modulus.
+	*/
+	void SetPlaintextBigModulus(const IntType &plaintextBigModulus) {
+		m_plaintextBigModulus = plaintextBigModulus;
+	}
+
 	/**
 	* @brief Getter for the plaintext generator.
 	* @return The plaintext generator.
@@ -153,6 +182,7 @@ public:
 	 */
 	bool operator==(const EncodingParamsImpl<IntType> &other) const {
 		return m_plaintextModulus == other.m_plaintextModulus &&
+			   m_plaintextBigModulus == other.m_plaintextBigModulus &&
 		       m_plaintextGenerator == other.m_plaintextGenerator &&
 		       m_batchSize == other.m_batchSize;
 	}
@@ -168,7 +198,9 @@ public:
 private:
 
 	std::ostream& doprint(std::ostream& out) const {
-		out << "[p=" << m_plaintextModulus << " g=" << m_plaintextGenerator
+		out << "[p=" << m_plaintextModulus
+			<< " p_big=" << m_plaintextBigModulus
+			<< " g=" << m_plaintextGenerator
 		    << " L=" << m_batchSize
 		    << "]";
 		return out;
@@ -176,6 +208,7 @@ private:
 
 	// plaintext modulus that is used by all schemes
 	IntType		m_plaintextModulus;
+	IntType		m_plaintextBigModulus;
 	// plaintext generator is used for packed encoding
 	usint		m_plaintextGenerator;
 	// maximum batch size used by EvalSumKeyGen for packed encoding
