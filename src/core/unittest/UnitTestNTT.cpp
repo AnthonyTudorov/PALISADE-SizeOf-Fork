@@ -76,8 +76,7 @@ protected:
 TEST(UTNTT, switch_format_simple_single_crt) {
 	usint m1 = 16;
 
-	BigBinaryInteger modulus(1);
-	modulus = NextPrime(modulus, m1);
+	BigBinaryInteger modulus = FirstPrime<BigBinaryInteger>(22, m1);
 	BigBinaryInteger rootOfUnity(RootOfUnity(m1, modulus));
 	ILParams params(m1, modulus, rootOfUnity);
 	ILParams params2(m1 / 2, modulus, rootOfUnity);
@@ -149,8 +148,7 @@ TEST(UTNTT, switch_format_decompose_single_crt) {
         bool dbg_flag = false;
 	usint m1 = 16;
 
-	BigBinaryInteger modulus(1);
-	modulus = NextPrime(modulus, m1);
+	BigBinaryInteger modulus = FirstPrime<BigBinaryInteger>(22, m1);
 	BigBinaryInteger rootOfUnity(RootOfUnity(m1, modulus));
 	shared_ptr<ILParams> params( new ILParams(m1, modulus, rootOfUnity) );
 	shared_ptr<ILParams> params2( new ILParams(m1 / 2, modulus, rootOfUnity) );

@@ -205,6 +205,80 @@ CryptoContextFactory<T>::genCryptoContextLTV(shared_ptr<typename T::Params> ep,
 	return CryptoContext<T>(params, scheme);
 }
 
+
+template <typename T>
+CryptoContext<T>
+CryptoContextFactory<T>::genCryptoContextLTV(
+		const usint plaintextModulus, float securityLevel, usint relinWindow, float dist,
+		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches)
+{
+	int nonZeroCount = 0;
+
+	if( numAdds > 0 ) nonZeroCount++;
+	if( numMults > 0 ) nonZeroCount++;
+	if( numKeyswitches > 0 ) nonZeroCount++;
+
+	if( nonZeroCount > 1 )
+		throw std::logic_error("only one of (numAdds,numMults,numKeyswitches) can be nonzero in LTV context constructor");
+
+	usint depth = numAdds + numMults + numKeyswitches + 1;
+
+	shared_ptr<typename T::Params> ep( new typename T::Params(0, BigBinaryInteger(0), BigBinaryInteger(0)) );
+
+	shared_ptr<LPCryptoParametersLTV<T>> params( new LPCryptoParametersLTV<T>() );
+
+	params->SetElementParams(ep);
+	params->SetPlaintextModulus(typename T::Integer(plaintextModulus));
+	params->SetSecurityLevel(securityLevel);
+	params->SetRelinWindow(relinWindow);
+	params->SetDistributionParameter(dist);
+	params->SetAssuranceMeasure(9.0);
+	params->SetDepth(depth);
+
+	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeLTV<T>() );
+
+	scheme->ParamsGen(params, numAdds, numMults, numKeyswitches);
+
+	return CryptoContext<T>(params, scheme);
+}
+
+template <typename T>
+CryptoContext<T>
+CryptoContextFactory<T>::genCryptoContextLTV(
+	shared_ptr<EncodingParams> encodingParams, float securityLevel, usint relinWindow, float dist,
+	unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches)
+{
+	int nonZeroCount = 0;
+
+	if (numAdds > 0) nonZeroCount++;
+	if (numMults > 0) nonZeroCount++;
+	if (numKeyswitches > 0) nonZeroCount++;
+
+	if (nonZeroCount > 1)
+		throw std::logic_error("only one of (numAdds,numMults,numKeyswitches) can be nonzero in LTV context constructor");
+
+	usint depth = numAdds + numMults + numKeyswitches + 1;
+
+	shared_ptr<typename T::Params> ep(new typename T::Params(0, BigBinaryInteger::ZERO, BigBinaryInteger::ZERO));
+
+	shared_ptr<LPCryptoParametersLTV<T>> params(new LPCryptoParametersLTV<T>());
+
+	params->SetElementParams(ep);
+	params->SetEncodingParams(encodingParams);
+	//params->SetPlaintextModulus(typename T::Integer(plaintextModulus));
+	params->SetSecurityLevel(securityLevel);
+	params->SetRelinWindow(relinWindow);
+	params->SetDistributionParameter(dist);
+	params->SetAssuranceMeasure(9.0);
+	params->SetDepth(depth);
+
+	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeLTV<T>());
+
+	scheme->ParamsGen(params, numAdds, numMults, numKeyswitches);
+
+	return CryptoContext<T>(params, scheme);
+}
+
 template <typename T>
 CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextFV(shared_ptr<typename T::Params> ep,
