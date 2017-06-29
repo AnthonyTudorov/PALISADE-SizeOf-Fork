@@ -230,7 +230,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::ParamsGen(typename Element::Dg
 		}
 	}
 
-	BigBinaryInteger qPrime = FindPrimeModulus<BigBinaryInteger>(2 * n, floor(log2(q) + 1) + 1);
+	BigBinaryInteger qPrime = FirstPrime<BigBinaryInteger>(floor(log2(q) + 1) + 1, 2*n);
 	BigBinaryInteger rootOfUnity = RootOfUnity<BigBinaryInteger>(2 * n, qPrime);
 
 	//Prepare for parameters.

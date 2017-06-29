@@ -34,4 +34,12 @@ template class LPAlgorithmLTV<ILVector2n>;
 template class LPAlgorithmPRELTV<ILVector2n>;
 template class LPAlgorithmSHELTV<ILVector2n>;
 template class LPLeveledSHEAlgorithmLTV<ILVector2n>;
+
+template <>
+bool LPAlgorithmParamsGenLTV<ILVector2n>::ParamsGen(shared_ptr<LPCryptoParameters<ILVector2n>> cryptoParams,
+		int32_t evalAddCount, int32_t evalMultCount, int32_t keySwitchCount) const
+{
+	return false;
+}
+
 }

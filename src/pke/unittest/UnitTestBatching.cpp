@@ -62,7 +62,7 @@ TEST(UTLTVBATCHING, ILVector2n_Encrypt_Decrypt) {
 	BigBinaryInteger modulus("2199023288321");
 	BigBinaryInteger rootOfUnity;
 
-	lbcrypto::NextQ(modulus, BigBinaryInteger(17), m, BigBinaryInteger("4000"), BigBinaryInteger("4000"));
+	modulus = NextPrime(modulus, m);
 	rootOfUnity = RootOfUnity(m, modulus);
 
 	std::vector<usint> vectorOfInts1 = { 1,2,3,4 };
@@ -116,7 +116,7 @@ TEST(UTLTVBATCHING, ILVector2n_EVALADD) {
 	BigBinaryInteger modulus("2199023288321");
 	BigBinaryInteger rootOfUnity;
 
-	lbcrypto::NextQ(modulus, BigBinaryInteger(17), m, BigBinaryInteger("4000"), BigBinaryInteger("4000"));
+	modulus = NextPrime(modulus, m);
 	rootOfUnity = RootOfUnity(m, modulus);
 
 	std::vector<usint> vectorOfInts1 = { 1,2,3,4 };
@@ -183,7 +183,7 @@ TEST(UTLTVBATCHING, ILVector2n_EVALMULT) {
 
 	BigBinaryInteger q("2199023288321");
 
-	lbcrypto::NextQ(q, BigBinaryInteger(ptMod), m, BigBinaryInteger("4000"), BigBinaryInteger("40000"));
+	q = NextPrime(q, m);
 	BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
 
 	shared_ptr<ILVector2n::Params> parms( new ILVector2n::Params(m, q, rootOfUnity) );

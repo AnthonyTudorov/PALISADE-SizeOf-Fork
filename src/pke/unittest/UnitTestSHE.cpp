@@ -333,10 +333,10 @@ TEST(UTSHE, keyswitch_sparse_key_SingleCRT_intArray) {
 	usint ptm = 2;
 	float stdDev = 4;
 
-	BigBinaryInteger q(1);
+	BigBinaryInteger q;
 	BigBinaryInteger temp;
 
-	lbcrypto::NextQ(q, BigBinaryInteger(ptm), m, BigBinaryInteger(40), BigBinaryInteger(4));
+	q = FirstPrime<BigBinaryInteger>(22, m);
 
 	BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
 	shared_ptr<ILVector2n::Params> params( new ILVector2n::Params(m, q, rootOfUnity) );
@@ -626,8 +626,8 @@ TEST(UTSHE, decomposeMult) {
   bool dbg_flag = false;
 	usint m1 = 16;
 
-	BigBinaryInteger modulus("1");
-	NextQ(modulus, BigBinaryInteger("2"), m1, BigBinaryInteger("4"), BigBinaryInteger("4"));
+	BigBinaryInteger modulus;
+	modulus = FirstPrime<BigBinaryInteger>(22, m1);
 	BigBinaryInteger rootOfUnity(RootOfUnity(m1, modulus));
 	shared_ptr<ILParams> params( new ILParams(m1, modulus, rootOfUnity) );
 	shared_ptr<ILParams> params2( new ILParams(m1 / 2, modulus, rootOfUnity) );

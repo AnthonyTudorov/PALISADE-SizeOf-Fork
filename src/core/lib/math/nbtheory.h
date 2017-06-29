@@ -139,33 +139,6 @@ namespace lbcrypto {
 	void PrimeFactorize( IntType n, std::set<IntType> &primeFactors);
 
 	/**
-	 * Finds a Prime Modulus Corresponding to a Given Cyclotomic Number.
-	 * Assumes that GCD((2^n)-1, M) == M, but this property is not currently tested.
-	 *
-	 * @param m the the ring parameter.
-	 * @param nBits the number of bits needed to be in q.
-	 *
-	 * @return the candidate prime modulus.  
-	 */
-	template<typename IntType>
-	IntType FindPrimeModulus(usint m, usint nBits);
-
-	/**
-	 * Finds the next number that is a prime number matching the methods criteria. Sigma and alpha are required to calculate a minimum bound. 
-	 * The prime number generated will equal to one modulus the cyclotomic order and the plaintext modulus.
-	 *
-	 * @param &q is the place holder for the new prime. The original value of q will be set a minimum unless it is less than the minimum bound which is dependant on sigma and alpha.
-	 * @param &plainTextModulus is the plaintext modulus the prime number will be used on.
-	 * @param &ringDimension is the plaintext ringDimension the prime number will be used on.
-	 * @param &sigma is parameter used for setting the minimum bound.
-	 * @param &alpha is parameter used for setting the minimum bound.
-	 *
-	 * @return the next prime modulus.  
-	 */
-	template<typename IntType>
-	void NextQ(IntType &q, const IntType &plainTextModulus, const usint cyclotomicOrder, const IntType &sigma, const IntType &alpha);
-
-	/**
 	* Finds the first prime that satisfies q = 1 mod m
 	*
 	* @param nBits the number of bits needed to be in q.

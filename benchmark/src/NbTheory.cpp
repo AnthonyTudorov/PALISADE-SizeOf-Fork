@@ -214,10 +214,10 @@ BENCHMARK(BM_FACT1);		// register benchmark
 // Prime Modulus tests
 //
 static BigBinaryInteger  PM_foundPrimeModulus(void){
-  usint m = 2048;
-  usint nBits = 30;
+  const usint m = 2048;
+  const usint nBits = 30;
 
-  return lbcrypto::FindPrimeModulus<BigBinaryInteger>(m, nBits);
+  return lbcrypto::FirstPrime<BigBinaryInteger>(nBits, m);
 }
 
 static void BM_PM1(benchmark::State& state) { // benchmark
@@ -241,7 +241,7 @@ static BigBinaryInteger& PM_returns_higher_bit_length(void){
   usint m=4096; 
   usint nBits=49;
 
-  BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus(m, nBits);
+  BigBinaryInteger primeModulus = lbcrypto::FirstPrime<BigBinaryInteger>(nBits, m);
   return (primeModulus);
 }
 
@@ -268,7 +268,7 @@ static string PROU_equals_m_not_equals_mbytwo(void){
   usint m=4096; 
   usint nBits=33;
 	
-  BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus<BigBinaryInteger>(m, nBits);
+  BigBinaryInteger primeModulus = lbcrypto::FirstPrime<BigBinaryInteger>(nBits, m);
   BigBinaryInteger primitiveRootOfUnity = lbcrypto::RootOfUnity<BigBinaryInteger>(m, primeModulus);
 
   BigBinaryInteger M(std::to_string(m)), MbyTwo(M.DividedBy(BigBinaryInteger::TWO));
@@ -305,7 +305,7 @@ static string PROU_equals_m_not_equals_mbytwo_mbyfour_single_input(void){
     MbyTwo(M.DividedBy(BigBinaryInteger::TWO)), 
     MbyFour(MbyTwo.DividedBy(BigBinaryInteger::TWO));
 
-  BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus(m, nBits);
+  BigBinaryInteger primeModulus = lbcrypto::FirstPrime<BigBinaryInteger>(nBits, m);
 
   BigBinaryInteger wpowerm("0");
   BigBinaryInteger wpowermbytwo("0");
@@ -381,7 +381,7 @@ static string PROU_equals_m_not_equals_mbytwo_mbyfour_multiple_inputs(void){
 
     BigBinaryInteger M(std::to_string(m)), MbyTwo(M.DividedBy(BigBinaryInteger::TWO)), MbyFour(MbyTwo.DividedBy(BigBinaryInteger::TWO));
 
-    BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus<BigBinaryInteger>(m, qBits);
+    BigBinaryInteger primeModulus = lbcrypto::FirstPrime<BigBinaryInteger>(qBits, m);
     BigBinaryInteger primitiveRootOfUnity(lbcrypto::RootOfUnity<BigBinaryInteger>(m, primeModulus));
     wpowerm = primitiveRootOfUnity.ModExp(M, primeModulus);
     wpowermbytwo = primitiveRootOfUnity.ModExp(MbyTwo, primeModulus);

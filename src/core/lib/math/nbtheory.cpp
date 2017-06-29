@@ -46,8 +46,6 @@ namespace lbcrypto {
 	template bool MillerRabinPrimalityTest(const BigBinaryInteger& p, const usint niter);
 	template const BigBinaryInteger PollardRhoFactorization(const BigBinaryInteger &n);
 	template void PrimeFactorize(BigBinaryInteger n, std::set<BigBinaryInteger> &primeFactors);
-	template BigBinaryInteger FindPrimeModulus(usint m, usint nBits);
-	template void NextQ(BigBinaryInteger &q, const BigBinaryInteger &plainTextModulus, const usint cyclotomicOrder, const BigBinaryInteger &sigma, const BigBinaryInteger &alpha);
 	template BigBinaryInteger FirstPrime(usint nBits, usint m);
 	template BigBinaryInteger NextPrime(const BigBinaryInteger &q, usint cyclotomicOrder);
 	template BigBinaryVector PolyMod(const BigBinaryVector &dividend, const BigBinaryVector &divisor, const BigBinaryInteger &modulus);
@@ -69,8 +67,6 @@ namespace lbcrypto {
 	template bool MillerRabinPrimalityTest(const native_int::BinaryInteger& p, const usint niter);
 	template const native_int::BinaryInteger PollardRhoFactorization(const native_int::BinaryInteger &n);
 	template void PrimeFactorize(native_int::BinaryInteger n, std::set<native_int::BinaryInteger> &primeFactors);
-	template native_int::BinaryInteger FindPrimeModulus(usint m, usint nBits);
-	template void NextQ(native_int::BinaryInteger &q, const native_int::BinaryInteger &plainTextModulus, const usint cyclotomicOrder, const native_int::BinaryInteger &sigma, const native_int::BinaryInteger &alpha);
 	template native_int::BinaryInteger FirstPrime(usint nBits, usint m);
 	template native_int::BinaryInteger NextPrime(const native_int::BinaryInteger &q, usint cyclotomicOrder);
 	template native_int::BinaryVector PolyMod(const native_int::BinaryVector &dividend, const native_int::BinaryVector &divisor, const native_int::BinaryInteger &modulus);
@@ -652,74 +648,6 @@ void PrimeFactorize( IntType n, std::set<IntType> &primeFactors)
 
 
  }
-
-/*
-	Finds a Prime Modulus Corresponding to a Given Cyclotomic Number
-	Assuming that "GreatestCommonDivisor(twoTonBitsminusone, M) == M"
-*/
-template<typename IntType>
-IntType FindPrimeModulus(usint m, usint nBits)
-{
-	IntType twoTonBitsminusone(1), M(m), q;
-	
-	for(usint i=0; i<nBits-1; i++)	// Iterating until initial search condition.
-		twoTonBitsminusone = twoTonBitsminusone * 2;
-	
-	q = twoTonBitsminusone + M + 1;
-	bool found = false;
-	while(!found) {  //Looping over invariant until test condition satisfied.
-		if((q-1).Mod(M) != 0) {
-			q += M;
-			continue;
-		}
-		if(!MillerRabinPrimalityTest(q)) {
-			q += M;
-			continue;
-		}
-		found = true;
-	}
-	return q;
-}
-
-template<typename IntType>
-void NextQ(IntType &q, const IntType &plainTextModulus, const usint cyc, const IntType &sigma, const IntType &alpha) {
-	IntType bigSixteen("16");
-	IntType lowerBound;
-	IntType cyclotomicOrder(cyc);
-
-	lowerBound = bigSixteen * cyclotomicOrder * sigma  * sigma * alpha;
-	if (!(q >= lowerBound)) {
-		q = lowerBound;
-	}
-	else {
-		q = q + 1;
-	}
-
-	while (q.Mod(plainTextModulus) != 1) {
-		q = q + 1;
-	}
-
-	//IntType cyclotomicOrder = ringDimensions * IntType::TWO;
-
-	while (q.Mod(cyclotomicOrder) != 1) {
-		q = q + plainTextModulus;
-	}
-
-	IntType productValue = cyclotomicOrder * plainTextModulus;
-
-	while (!MillerRabinPrimalityTest(q)) {
-		q = q + productValue;
-	}
-
-	IntType gcd;
-	gcd = GreatestCommonDivisor(q - 1, cyclotomicOrder);
-
-	if(!(cyclotomicOrder == gcd)){
-		q = q + 1;
-	  	NextQ(q, plainTextModulus, cyc, sigma, alpha);
-	}
-		
-}
 
 template<typename IntType>
 IntType FirstPrime(usint nBits, usint m) {

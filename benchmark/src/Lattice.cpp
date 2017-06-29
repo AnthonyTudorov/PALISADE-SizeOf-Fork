@@ -84,19 +84,17 @@ static shared_ptr<ILDCRTParams<BigBinaryInteger>> generate_DCRT_parms(int s) {
 	usint nTowers = Scenarios[s].bits/smbits;
 
 	vector<native_int::BinaryInteger> moduli(nTowers);
-
 	vector<native_int::BinaryInteger> rootsOfUnity(nTowers);
 
-	native_int::BinaryInteger q( (1<<smbits) -1 );
+	native_int::BinaryInteger q = FirstPrime(smbits, Scenarios[s].m);
 	native_int::BinaryInteger temp;
 	BigBinaryInteger modulus(1);
 
 	for(usint i=0; i < nTowers; i++){
-		lbcrypto::NextQ(q, native_int::BinaryInteger(2), Scenarios[s].m, native_int::BinaryInteger(4), native_int::BinaryInteger(4));
 		moduli[i] = q;
 		rootsOfUnity[i] = RootOfUnity(Scenarios[s].m,moduli[i]);
 		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
-
+		q = NextPrime(q, Scenarios[s].m);
 	}
 
 	return shared_ptr<ILDCRTParams<BigBinaryInteger>>( new ILDCRTParams<BigBinaryInteger>(Scenarios[s].m, moduli, rootsOfUnity) );

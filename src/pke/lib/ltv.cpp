@@ -43,37 +43,6 @@
 
 namespace lbcrypto {
 
-template <>
-bool LPAlgorithmParamsGenLTV<ILVector2n>::ParamsGen(shared_ptr<LPCryptoParameters<ILVector2n>> cryptoParams,
-		int32_t evalAddCount, int32_t evalMultCount, int32_t keySwitchCount) const
-{
-	return false;
-}
-
-template<>
-bool LPAlgorithmParamsGenLTV<ILDCRT2n>::ParamsGen(shared_ptr<LPCryptoParameters<ILDCRT2n>> cryptoParams,
-		int32_t evalAddCount, int32_t evalMultCount, int32_t keySwitchCount) const
-{
-	if (!cryptoParams)
-		return false;
-
-	const shared_ptr<LPCryptoParametersLTV<ILDCRT2n>> cParams = std::dynamic_pointer_cast<LPCryptoParametersLTV<ILDCRT2n>>(cryptoParams);
-
-//	double sigma = cryptoParamsFV->GetDistributionParameter();
-	double w = cParams->GetAssuranceMeasure();
-//	double hermiteFactor = cryptoParamsFV->GetSecurityLevel();
-
-	usint n = 512; // to start
-	double p = cParams->GetPlaintextModulus().ConvertToDouble();
-	uint32_t r = cParams->GetRelinWindow();
-
-	auto q1 = 4 * p * r * sqrt(n) * w;
-
-	std::cout << q1 << std::endl;
-
-	return false;
-}
-
 //template <class Element>
 //void ParameterSelection(LPCryptoParametersLTV<ILDCRT2n> *cryptoParams)
 //{

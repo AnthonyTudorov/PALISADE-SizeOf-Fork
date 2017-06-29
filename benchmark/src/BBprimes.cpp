@@ -49,7 +49,7 @@ int main( int argc, char *argv[] ) {
 	for( int o=8; o<=8192; o *= 2 ) {
 		for( size_t s = 0; s < sizeof(shifts)/sizeof(shifts[0]); s++ ) {
 			string pname = "parm_" + std::to_string(o) + "_" + std::to_string(shifts[s]);
-			mod = FindPrimeModulus<BigBinaryInteger>(o, shifts[s]);
+			mod = FirstPrime<BigBinaryInteger>(shifts[s], o);
 			rootUnity = RootOfUnity<BigBinaryInteger>(o, mod);
 
 			macrocode1 << "BENCHMARK(X)->ArgName(\"" << pname << "\")->Arg(" << parmindex << "); \\" << endl;

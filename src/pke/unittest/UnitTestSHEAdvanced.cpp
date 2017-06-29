@@ -200,16 +200,15 @@ TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 
 	vector<native_int::BinaryInteger> init_rootsOfUnity(init_size);
 
-	native_int::BinaryInteger q = FindPrimeModulus<native_int::BinaryInteger>(init_m, dcrtBits);
+	native_int::BinaryInteger q = FirstPrime<native_int::BinaryInteger>(dcrtBits, init_m);
 	native_int::BinaryInteger temp;
 	BigBinaryInteger modulus("1");
 
 	for (usint i = 0; i < init_size; i++) {
-		lbcrypto::NextQ(q, native_int::BinaryInteger(plaintextModulus), init_m, native_int::BinaryInteger(4), native_int::BinaryInteger(4));
 		init_moduli[i] = q;
 		init_rootsOfUnity[i] = RootOfUnity(init_m, init_moduli[i]);
 		modulus = modulus * BigBinaryInteger(init_moduli[i].ConvertToInt());
-
+		q = NextPrime(q, init_m);
 	}
 
 	shared_ptr<ILDCRTParams<BigBinaryInteger>> params(new ILDCRTParams<BigBinaryInteger>(init_m, init_moduli, init_rootsOfUnity));
@@ -376,17 +375,16 @@ TEST_F(UTSHEAdvanced, test_eval_add_double_crt) {
 
 	vector<native_int::BinaryInteger> init_rootsOfUnity(init_size);
 
-	native_int::BinaryInteger q = FindPrimeModulus<native_int::BinaryInteger>(init_m, dcrtBits);
+	native_int::BinaryInteger q = FirstPrime<native_int::BinaryInteger>(dcrtBits, init_m);
 	native_int::BinaryInteger temp;
 	BigBinaryInteger modulus(1);
 	DEBUG("1");
 
 	for (size_t i = 0; i < init_size; i++) {
-		lbcrypto::NextQ(q, native_int::BinaryInteger(plaintextModulus), init_m, native_int::BinaryInteger(4), native_int::BinaryInteger(4));
 		init_moduli[i] = q;
 		init_rootsOfUnity[i] = RootOfUnity(init_m, init_moduli[i]);
 		modulus = modulus * BigBinaryInteger(init_moduli[i].ConvertToInt());
-
+		q = NextPrime(q, init_m);
 	}
 	DEBUG("2");
 	shared_ptr<ILDCRTParams<BigBinaryInteger>> params(new ILDCRTParams<BigBinaryInteger>(init_m, init_moduli, init_rootsOfUnity));

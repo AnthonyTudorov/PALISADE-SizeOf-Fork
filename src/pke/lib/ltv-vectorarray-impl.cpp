@@ -34,4 +34,43 @@ template class LPAlgorithmLTV<ILDCRT2n>;
 template class LPAlgorithmPRELTV<ILDCRT2n>;
 template class LPAlgorithmSHELTV<ILDCRT2n>;
 template class LPLeveledSHEAlgorithmLTV<ILDCRT2n>;
+
+template<>
+bool LPAlgorithmParamsGenLTV<ILDCRT2n>::ParamsGen(shared_ptr<LPCryptoParameters<ILDCRT2n>> cryptoParams,
+		int32_t evalAddCount, int32_t evalMultCount, int32_t keySwitchCount) const
+{
+	if (!cryptoParams)
+		return false;
+
+	const shared_ptr<LPCryptoParametersLTV<ILDCRT2n>> cParams = std::dynamic_pointer_cast<LPCryptoParametersLTV<ILDCRT2n>>(cryptoParams);
+
+//	double sigma = cryptoParamsFV->GetDistributionParameter();
+	double w = cParams->GetAssuranceMeasure();
+//	double hermiteFactor = cParams->GetSecurityLevel();
+
+	usint n = 512; // to start
+	usint log2n = 9;
+	native_int::BinaryInteger q = FirstPrime<native_int::BinaryInteger>(log2n,n);
+
+	double p = cParams->GetPlaintextModulus().ConvertToDouble();
+	uint32_t r = cParams->GetRelinWindow();
+
+	double rootn = sqrt(n);
+	double psquared = p * p;
+	native_int::BinaryInteger qbound(4 * p * r * rootn * w);
+	native_int::BinaryInteger q2bound(4 * psquared * pow(r, 5) * pow(rootn, 3) * pow(w, 5));
+
+	while( q < qbound )
+		q = NextPrime(q, log2n);
+
+	vector<native_int::BinaryInteger> qvals;
+
+	qvals.push_back( q ); // q0
+	qvals.push_back( q2bound );
+
+	std::cout << qvals[0] << ":" << qvals[1] << std::endl;
+
+	return false;
+}
+
 }
