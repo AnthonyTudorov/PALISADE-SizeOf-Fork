@@ -31,7 +31,7 @@
 namespace lbcrypto {
 
 template <typename Element>
-void CryptoContext<Element>::EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> key) const {
+void CryptoContext<Element>::EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> key) {
 
 	if( key == NULL || key->GetCryptoContext() != *this )
 		throw std::logic_error("Key passed to EvalMultKeyGen were not generated with this crypto context");
@@ -63,7 +63,7 @@ const shared_ptr<LPEvalKey<Element>> CryptoContext<Element>::GetEvalMultKey() co
 template <typename Element>
 void CryptoContext<Element>::EvalSumKeyGen(
 	const shared_ptr<LPPrivateKey<Element>> privateKey,
-	const shared_ptr<LPPublicKey<Element>> publicKey) const {
+	const shared_ptr<LPPublicKey<Element>> publicKey) {
 
 	//need to add exception handling
 
@@ -147,6 +147,13 @@ CryptoContext<Element>::EvalLinRegressBatched(const shared_ptr<Matrix<RationalCi
 		timeSamples->push_back( TimingInfo(OpEvalLinRegressionBatched, currentDateTime() - start) );
 	}
 	return rv;
+}
+
+template <typename T>
+bool
+CryptoContext<T>::Serialize(Serialized* serObj) const
+{
+	return params->Serialize(serObj);
 }
 
 template <typename T>
@@ -341,7 +348,7 @@ template <typename T>
 CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextFV(
 		const usint plaintextModulus, float securityLevel, usint relinWindow, float dist,
-		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches)
+		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode)
 {
 	int nonZeroCount = 0;
 
@@ -361,8 +368,7 @@ CryptoContextFactory<T>::genCryptoContextFV(
 	params->SetSecurityLevel(securityLevel);
 	params->SetRelinWindow(relinWindow);
 	params->SetDistributionParameter(dist);
-	//params->SetMode(RLWE);
-	params->SetMode(OPTIMIZED);
+	params->SetMode(mode);
 	params->SetAssuranceMeasure(9.0);
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeFV<T>() );
@@ -376,7 +382,7 @@ template <typename T>
 CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextFV(
 	shared_ptr<EncodingParams> encodingParams, float securityLevel, usint relinWindow, float dist,
-	unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches)
+	unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode)
 {
 	int nonZeroCount = 0;
 
@@ -397,7 +403,7 @@ CryptoContextFactory<T>::genCryptoContextFV(
 	params->SetSecurityLevel(securityLevel);
 	params->SetRelinWindow(relinWindow);
 	params->SetDistributionParameter(dist);
-	params->SetMode(OPTIMIZED);
+	params->SetMode(mode);
 	params->SetAssuranceMeasure(9.0);
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeFV<T>());

@@ -177,7 +177,7 @@ TEST(UTSHE, FV_ILVector2n_Add) {
 
 ///
 template<class Element>
-void UnitTest_Mult(const CryptoContext<Element>& cc) {
+void UnitTest_Mult(CryptoContext<Element>& cc) {
 	bool dbg_flag = false;
   
 	std::vector<uint32_t> vectorOfInts1 = { 1,0,3,1,0,1,2,1 };

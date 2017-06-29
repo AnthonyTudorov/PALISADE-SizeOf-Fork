@@ -62,8 +62,8 @@ public:
 private:
 	shared_ptr<LPCryptoParameters<Element>>					params;			/*!< crypto parameters used for this context */
 	shared_ptr<LPPublicKeyEncryptionScheme<Element>>		scheme;			/*!< algorithm used; accesses all crypto methods */
-	static vector<shared_ptr<LPEvalKey<Element>>>			evalMultKeys;	/*!< cached evalmult keys */
-	static std::map<usint, shared_ptr<LPEvalKey<Element>>>	evalSumKeys;	/*!< cached evalsum keys */
+	vector<shared_ptr<LPEvalKey<Element>>>					evalMultKeys;	/*!< cached evalmult keys */
+	std::map<usint, shared_ptr<LPEvalKey<Element>>>			evalSumKeys;	/*!< cached evalsum keys */
 
 	bool doTiming;
 	vector<TimingInfo>* timeSamples;
@@ -112,6 +112,8 @@ public:
 		scheme = c.scheme;
 		doTiming = c.doTiming;
 		timeSamples = c.timeSamples;
+		evalMultKeys = c.evalMultKeys;
+		evalSumKeys = c.evalSumKeys;
 	}
 
 	/**
@@ -124,6 +126,8 @@ public:
 		scheme = rhs.scheme;
 		doTiming = rhs.doTiming;
 		timeSamples = rhs.timeSamples;
+		evalMultKeys = rhs.evalMultKeys;
+		evalSumKeys = rhs.evalSumKeys;
 		return *this;
 	}
 
@@ -169,7 +173,7 @@ public:
 	 * @param serObj - rapidJson object for the serializaion
 	 * @return true on success
 	 */
-	bool Serialize(Serialized* serObj) const { return params->Serialize(serObj); }
+	bool Serialize(Serialized* serObj) const;
 
 	/**
 	 * Deserialize the context AND initialize the algorithm
@@ -463,7 +467,7 @@ public:
 	* @param key
 	* @return new evaluation key
 	*/
-	void EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> key) const;
+	void EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> key);
 
 	void ClearEvalMultKeyCache();
 
@@ -1307,7 +1311,7 @@ public:
 	*/
 	void EvalSumKeyGen(
 		const shared_ptr<LPPrivateKey<Element>> privateKey, 
-		const shared_ptr<LPPublicKey<Element>> publicKey = nullptr) const;
+		const shared_ptr<LPPublicKey<Element>> publicKey = nullptr);
 
 	/**
 	* Returns evalsum keys
@@ -1704,7 +1708,7 @@ public:
 	*/
 	static CryptoContext<Element> genCryptoContextFV(
 		const usint plaintextModulus, float securityLevel, usint relinWindow, float dist,
-		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches);
+		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED);
 
 	/**
 	* construct a PALISADE CryptoContext for the FV Scheme using the scheme's ParamsGen methods
@@ -1717,7 +1721,7 @@ public:
 	*/
 	static CryptoContext<Element> genCryptoContextFV(
 		shared_ptr<EncodingParams> encodingParams, float securityLevel, usint relinWindow, float dist,
-		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches);
+		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED);
 
 	/**
 	* construct a PALISADE CryptoContext for the BV Scheme

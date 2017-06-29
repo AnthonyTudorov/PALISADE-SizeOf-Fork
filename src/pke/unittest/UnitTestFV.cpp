@@ -185,7 +185,7 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 
 }
 
-// Generates parameters for FV in the RWLE mode to support a single EvalMult and then validates that single EvalMult works correctly
+// Generates parameters for FV in the RLWE mode to support a single EvalMult and then validates that single EvalMult works correctly
 TEST(UTFV, ILVector2n_FV_ParamsGen_EvalMul) {
 
 	usint relWindow = 16;
@@ -193,7 +193,7 @@ TEST(UTFV, ILVector2n_FV_ParamsGen_EvalMul) {
 	float stdDev = 4;
 
 	//Set crypto parametes
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(plaintextModulus, 1.006, relWindow, stdDev, 0, 2, 0);
+	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(plaintextModulus, 1.006, relWindow, stdDev, 0, 2, 0, RLWE);
 	cc.Enable(ENCRYPTION);
 	cc.Enable(SHE);
 
