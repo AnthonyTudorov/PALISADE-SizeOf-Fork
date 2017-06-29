@@ -18,7 +18,7 @@ then
 	CC="g++ -std=gnu++11"
 elif [ "$KernelName" = "Darwin" ]
 then
-	CC="g++ -std=gnu++11"
+	CC="clang++ -std=c++11"
 else
 	echo $OS and $KernelName are not supported
 	exit 1
