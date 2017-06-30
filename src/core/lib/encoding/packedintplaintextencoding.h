@@ -202,14 +202,14 @@ public:
 private:
 	//initial root of unity for plaintext space
 	static std::map<native_int::BinaryInteger, native_int::BinaryInteger> m_initRoot;
-
-	//stores the crt coefficients used for packing of slot values
-	static std::map<native_int::BinaryInteger, std::vector<native_int::BinaryVector>> m_coefficientsCRT;
+	//modulus and root of unity to be used for Arbitrary CRT
+	static std::map<native_int::BinaryInteger, native_int::BinaryInteger> m_bigModulus;
+	static std::map<native_int::BinaryInteger, native_int::BinaryInteger> m_bigRoot;
 
 	//stores the list of primitive roots used in packing.
-	static std::map<native_int::BinaryInteger, native_int::BinaryVector> m_rootList;
-
 	static std::map<native_int::BinaryInteger, usint> m_automorphismGenerator;
+	static std::map<native_int::BinaryInteger, std::vector<usint>> m_toCRTPerm;
+	static std::map<native_int::BinaryInteger, std::vector<usint>> m_fromCRTPerm;
 
 	/**
 	* @brief Packs the slot values into aggregate plaintext space.
@@ -218,42 +218,6 @@ private:
 	* @param modulus is the plaintext modulus used for packing.
 	*/
 	void Pack(ILVector2n *ring, const BigBinaryInteger &modulus) const;
-
-	/**
-	* @brief Generates the permuted root list.
-	*
-	* @param orig is the vector of sequencial slot values.
-	* @param perm is permuted slot values.
-	* @param rootList is the original list of primitive roots.
-	*/
-	static native_int::BinaryVector FindPermutedSlots(const native_int::BinaryVector &orig, const native_int::BinaryVector & perm, const native_int::BinaryVector & rootList);
-
-	/**
-	* @brief Initializes the crt coefficients for polynomial interpolation.
-	*
-	* @param cycloOrder is the cyclotomic order of the polynomial ring.
-	* @param modulus is the plaintext modulus used for packing.
-	*/
-	static void InitializeCRTCoefficients(usint cycloOrder, const native_int::BinaryInteger & modulus);
-
-	/**
-	* @brief Generates a list of primitive roots by raising the m_initRoot to every value in totient list.
-	*
-	* @param cycloOrder is the cyclotomic order of the polynomial ring.
-	* @param modulus is the plaintext modulus used for packing.
-	* @return vector containing root list
-	*/
-	static native_int::BinaryVector GetRootVector(const native_int::BinaryInteger &modulus,usint cycloOrder);
-
-	/**
-	* @brief Performs Frobenius map and Unpack operation in an efficient way.
-	*
-	* @param input is the polynomial ring.
-	* @param power is the exponent in the frobenius map operation.
-	* @param rootListInit is the vector containing primitive roots.
-	* @return vector containing slots values.
-	*/
-	static native_int::BinaryVector SyntheticPolyPowerMod(const native_int::BinaryVector &input, const native_int::BinaryInteger &power, const native_int::BinaryVector &rootListInit);
 
 	/**
 	* @brief Unpacks the data from aggregated plaintext to slot values.

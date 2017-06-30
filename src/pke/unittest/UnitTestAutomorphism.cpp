@@ -142,7 +142,7 @@ TEST(UTAUTOMORPHISM, Test_FV_Automorphism_Arb) {
 
 std::vector<usint> ArbLTVAutomorphismPackedArray(usint i) {
 
-	usint m = 22;
+	usint m = 11;
 	usint p = 23;
 	BigBinaryInteger modulusP(p);
 	
@@ -200,7 +200,7 @@ std::vector<usint> ArbLTVAutomorphismPackedArray(usint i) {
 std::vector<usint> ArbBVAutomorphismPackedArray(usint i) {
 	
 	
-	usint m = 22;
+	usint m = 11;
 	usint p = 23;
 	BigBinaryInteger modulusP(p);
 	
