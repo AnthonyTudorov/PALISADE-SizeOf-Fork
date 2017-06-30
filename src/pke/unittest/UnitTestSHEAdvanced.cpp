@@ -490,9 +490,6 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 
 	shared_ptr<ILDCRTParams<BigBinaryInteger>> params = GenerateDCRTParams( init_m, ptm, init_size, dcrtBits );
 
-	for( size_t i=0; i<params->GetParams().size(); i++ )
-		cout << params->GetParams()[i]->GetModulus() << endl;
-
 	shared_ptr<ILDCRTParams<BigBinaryInteger>> paramsSmall( new ILDCRTParams<BigBinaryInteger>( *params ) );
 	paramsSmall->PopLastParam();
 
@@ -536,12 +533,6 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 	ciphertextElementTwo = cc.Encrypt(kp.publicKey, secondElementEncoding, false);
 
 	shared_ptr<Ciphertext<ILDCRT2n>> cResult = cc.ComposedEvalMult(ciphertextElementOne[0], ciphertextElementTwo[0]);
-	{
-		auto cResult = cc.EvalMult(ciphertextElementOne[0], ciphertextElementTwo[0]);
-
-		cc.Decrypt(kp.secretKey, { cResult }, &results, false);
-		cout << results << endl;
-	}
 
 	// ok let's try making the secret keys both have one less tower
 	// because ComposedEvalMult performs a ModReduce
@@ -560,21 +551,9 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 	shared_ptr<Ciphertext<ILDCRT2n>> cResultSmall( new Ciphertext<ILDCRT2n>(ccSmall) );
 	cResultSmall->SetElements( cResult->GetElements() );
 
-	try {
-	cout << "before:" << results << endl; results.clear();
-	ccSmall.Decrypt(kp1.secretKey, { cResult }, &results, false);
-	cout << "after :" << results << endl;
-	} catch (...) {
-
-	}
-
 	cResult = ccSmall.KeySwitch(KeySwitchHint, cResultSmall);
 
-	//vector<shared_ptr<Ciphertext<ILDCRT2n>>> tempvec2( { cResult } );
-
-	cout << "before:" << results << endl; results.clear();
 	ccSmall.Decrypt(kp1.secretKey, { cResult }, &results, false);
-	cout << "after :" << results << endl;
 
 	EXPECT_EQ(results.at(0), 2U);
 	EXPECT_EQ(results.at(1), 4U);
