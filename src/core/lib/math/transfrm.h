@@ -337,7 +337,7 @@ namespace lbcrypto {
 		* @param cycloOrder is the cyclotomic order.
 		* @return is the output result of the transform.
 		*/
-		VecType ForwardTransform(const VecType& element, const IntType& root, const usint cycloOrder);
+		VecType ForwardTransform(const VecType& element, const IntType& root, const usint cycloOrder, const IntType& bigRoot);
 
 		/**
 		* Inverse transform.
@@ -400,11 +400,10 @@ namespace lbcrypto {
 		/**
 		* @brief Sets the root of unity table that is needed for NTT operation in forward Bluestein transform.
 		* @param cycloOrder is the cyclotomic order of the ring.
-		* @param modulus is the modulus of the polynomial ring.
 		* @param nttMod is the precomputed modulus required for the NTT transform.
 		* @param nttRoot is the initial root of unity used to populate the root of unity table.
 		*/
-		static void SetRootTableForNTT(usint cyclotoOrder, const IntType &modulus, const IntType &nttMod, const IntType &nttRoot);
+		static void SetRootTableForNTT(usint cyclotoOrder, const IntType &nttMod, const IntType &nttRoot);
 
 		/**
 		* @brief precomputes the powers of root used in forward Bluestein transform.
@@ -430,10 +429,10 @@ namespace lbcrypto {
 		void Destroy();
 
 		//map to store the root of unity table with modulus as key.
-		static std::map<IntType, VecType> m_rootOfUnityTableByModulus;
+		static std::map<ModulusRoot<IntType>, VecType> m_rootOfUnityTableByModulusRoot;
 
 		//map to store the root of unity inverse table with modulus as key.
-		static std::map<IntType, VecType> m_rootOfUnityInverseTableByModulus;
+		static std::map<ModulusRoot<IntType>, VecType> m_rootOfUnityInverseTableByModulusRoot;
 
 		//map to store the power of roots as a table with modulus + root of unity as key.
 		static std::map<ModulusRoot<IntType>, VecType> m_powersTableByModulusRoot;
@@ -492,7 +491,6 @@ namespace lbcrypto {
 		* @return is the output result of the transform.
 		*/
 		VecType InverseTransform(const VecType& element, const IntType& root, const IntType& bigMod, const IntType& bigRoot, const usint cycloOrder);
-
 
 		/**
 		* Destructor.

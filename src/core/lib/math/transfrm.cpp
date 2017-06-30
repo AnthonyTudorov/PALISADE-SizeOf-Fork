@@ -67,10 +67,10 @@ template<typename IntType, typename VecType>
 	std::map<IntType, VecType> ChineseRemainderTransformArb<IntType, VecType>::m_cyclotomicPolyNTTMap;
 
 	template<typename IntType, typename VecType>
-std::map<IntType, VecType> BluesteinFFT<IntType, VecType>::m_rootOfUnityTableByModulus;
+std::map<ModulusRoot<IntType>, VecType> BluesteinFFT<IntType, VecType>::m_rootOfUnityTableByModulusRoot;
 
 template<typename IntType, typename VecType>
-std::map<IntType, VecType> BluesteinFFT<IntType, VecType>::m_rootOfUnityInverseTableByModulus;
+std::map<ModulusRoot<IntType>, VecType> BluesteinFFT<IntType, VecType>::m_rootOfUnityInverseTableByModulusRoot;
 
 	template<typename IntType, typename VecType>
 	std::map<ModulusRoot<IntType>, VecType> BluesteinFFT<IntType, VecType>::m_powersTableByModulusRoot;
@@ -769,33 +769,13 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 	void BluesteinFFT<IntType, VecType>::PreComputeRootTableForNTT(usint cycloOrder, const IntType &modulus) {
 		usint nttDim = pow(2, ceil(log2(2 * cycloOrder - 1)));
 		const auto &nttMod = m_NTTModulus[modulus];
+		auto nttRoot = RootOfUnity(nttDim, nttMod);
 
-		auto root = RootOfUnity(nttDim, nttMod);
-
-		auto rootInv = root.ModInverse(nttMod);
-
-		VecType rootTable(nttDim/2, nttMod);
-		VecType rootTableInverse(nttDim/2, nttMod);
-
-		IntType x(1);
-		for (usint i = 0; i<nttDim / 2; i++) {
-			rootTable.SetValAtIndex(i, x);
-			x = x.ModMul(root, nttMod);
-		}
-
-		x = 1;
-		for (usint i = 0; i<nttDim / 2; i++) {
-			rootTableInverse.SetValAtIndex(i, x);
-			x = x.ModMul(rootInv, nttMod);
-		}
-
-		m_rootOfUnityTableByModulus[nttMod] = rootTable;
-		m_rootOfUnityInverseTableByModulus[nttMod] = rootTableInverse;
-
+		SetRootTableForNTT(cycloOrder, nttMod, nttRoot);
 	}
 
 	template<typename IntType, typename VecType>
-	void BluesteinFFT<IntType, VecType>::SetRootTableForNTT(usint cyclotoOrder, const IntType &modulus, const IntType &nttMod, const IntType &nttRoot) {
+	void BluesteinFFT<IntType, VecType>::SetRootTableForNTT(usint cyclotoOrder, const IntType &nttMod, const IntType &nttRoot) {
 		usint nttDim = pow(2, ceil(log2(2 * cyclotoOrder - 1)));
 
 		IntType root(nttRoot);
@@ -808,22 +788,18 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 		IntType x(1);
 		for (usint i = 0; i<nttDim / 2; i++) {
 			rootTable.SetValAtIndex(i, x);
-			//rootTable.SetValAtIndex(i + nttDim / 2, nttMod - x);
 			x = x.ModMul(root, nttMod);
 		}
-
-		//rootTable.SetValAtIndex(nttDim, IntType::ONE);
 
 		x = 1;
 		for (usint i = 0; i<nttDim / 2; i++) {
 			rootTableInverse.SetValAtIndex(i, x);
-			//rootTableInverse.SetValAtIndex(i + nttDim / 2, nttMod - x);
 			x = x.ModMul(rootInv, nttMod);
 		}
-		//rootTableInverse.SetValAtIndex(nttDim, IntType::ONE);
 
-		m_rootOfUnityTableByModulus[nttMod] = rootTable;
-		m_rootOfUnityInverseTableByModulus[nttMod] = rootTableInverse;
+		ModulusRoot<IntType> nttModRoot = { nttMod,nttRoot };
+		m_rootOfUnityTableByModulusRoot[nttModRoot] = rootTable;
+		m_rootOfUnityInverseTableByModulusRoot[nttModRoot] = rootTableInverse;
 	}
 
 	template<typename IntType, typename VecType>
@@ -845,7 +821,8 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 	void BluesteinFFT<IntType, VecType>::PreComputeRBTable(usint cycloOrder, const IntType &modulus, const IntType &root, const IntType &bigMod, const IntType &bigRoot) {
 		
 
-		const auto &rootTable = m_rootOfUnityTableByModulus[bigMod]; //assumes rootTable is precomputed
+		ModulusRoot<IntType> bigModRoot = { bigMod, bigRoot };
+		const auto &rootTable = m_rootOfUnityTableByModulusRoot[bigModRoot]; //assumes rootTable is precomputed
 
 		usint k2 = pow(2, ceil(log2(2 * cycloOrder - 1)));
 
@@ -869,7 +846,7 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 	}
 
 	template<typename IntType, typename VecType>
-	VecType BluesteinFFT<IntType, VecType>::ForwardTransform(const VecType& element, const IntType& root, const usint cycloOrder) {
+	VecType BluesteinFFT<IntType, VecType>::ForwardTransform(const VecType& element, const IntType& root, const usint cycloOrder, const IntType& bigRoot) {
 		if (element.GetLength() != cycloOrder) {
 			throw std::runtime_error("expected size of element vector should be equal to cyclotomic order");
 		}
@@ -878,9 +855,9 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 
 		const auto &nttModulus = m_NTTModulus[modulus]; //assumes nttModulus is precomputed
 
-		const auto &rootTable = m_rootOfUnityTableByModulus[nttModulus]; //assumes rootTable is precomputed
-
-		const auto &rootTableInverse = m_rootOfUnityInverseTableByModulus[nttModulus]; //assumes rootTableInverse is precomputed
+		ModulusRoot<IntType> nttModRoot = { nttModulus,bigRoot };
+		const auto &rootTable = m_rootOfUnityTableByModulusRoot[nttModRoot]; //assumes rootTable is precomputed
+		const auto &rootTableInverse = m_rootOfUnityInverseTableByModulusRoot[nttModRoot]; //assumes rootTableInverse is precomputed
 
 		ModulusRoot<IntType> modulusRoot = { modulus, root };
 		const VecType &powers = m_powersTableByModulusRoot[modulusRoot];
@@ -963,8 +940,8 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 
 	template<typename IntType, typename VecType>
 	void BluesteinFFT<IntType, VecType>::Destroy() {
-		m_rootOfUnityTableByModulus.clear();
-		m_rootOfUnityInverseTableByModulus.clear();
+		m_rootOfUnityTableByModulusRoot.clear();
+		m_rootOfUnityInverseTableByModulusRoot.clear();
 		m_powersTableByModulusRoot.clear();
 		m_RBTableByModulusRoot.clear();
 		m_NTTModulus.clear();
@@ -997,7 +974,7 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 
 		BluesteinFFT<IntType, VecType>::GetInstance().SetPreComputedNTTModulus(cyclotoOrder, modulus, nttMod);
 
-		BluesteinFFT<IntType, VecType>::GetInstance().SetRootTableForNTT(cyclotoOrder, modulus, nttMod, nttRoot);
+		BluesteinFFT<IntType, VecType>::GetInstance().SetRootTableForNTT(cyclotoOrder, nttMod, nttRoot);
 	}
 
 	template<typename IntType, typename VecType>
@@ -1117,11 +1094,12 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 		VecType inputToBluestein = Pad(element, cycloOrder, true);
 
 		//precompute bigroot of unity and inverse root of unity table if it's not yet computed.
-		if (BluesteinFFT<IntType, VecType>::GetInstance().m_rootOfUnityTableByModulus[bigMod].GetLength() == 0) {
+		ModulusRoot<IntType> bigModulusRoot = { bigMod, bigRoot };
+		if (BluesteinFFT<IntType, VecType>::GetInstance().m_rootOfUnityTableByModulusRoot[bigModulusRoot].GetLength() == 0) {
 #pragma omp critical
 {
 			BluesteinFFT<IntType, VecType>::GetInstance().SetPreComputedNTTModulus(cycloOrder, modulus, bigMod);
-			BluesteinFFT<IntType, VecType>::GetInstance().SetRootTableForNTT(cycloOrder, modulus, bigMod, bigRoot);
+			BluesteinFFT<IntType, VecType>::GetInstance().SetRootTableForNTT(cycloOrder, bigMod, bigRoot);
 }
 		}
 
@@ -1138,7 +1116,7 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 }
 		}
 
-		auto outputBluestein = BluesteinFFT<IntType, VecType>::GetInstance().ForwardTransform(inputToBluestein, root, cycloOrder);
+		auto outputBluestein = BluesteinFFT<IntType, VecType>::GetInstance().ForwardTransform(inputToBluestein, root, cycloOrder, bigRoot);
 
 		VecType output = Drop(outputBluestein, cycloOrder, true, bigMod, bigRoot);
 		return output;
@@ -1159,11 +1137,12 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 		auto rootInverse(root.ModInverse(modulus));
 
 		//precompute bigroot of unity and inverse root of unity table if it's not yet computed.
-		if (BluesteinFFT<IntType, VecType>::GetInstance().m_rootOfUnityTableByModulus[bigMod].GetLength() == 0) {
+		ModulusRoot<IntType> bigModulusRoot = { bigMod, bigRoot };
+		if (BluesteinFFT<IntType, VecType>::GetInstance().m_rootOfUnityTableByModulusRoot[bigModulusRoot].GetLength() == 0) {
 #pragma omp critical
 {
 			BluesteinFFT<IntType, VecType>::GetInstance().SetPreComputedNTTModulus(cycloOrder, modulus, bigMod);
-			BluesteinFFT<IntType, VecType>::GetInstance().SetRootTableForNTT(cycloOrder, modulus, bigMod, bigRoot);
+			BluesteinFFT<IntType, VecType>::GetInstance().SetRootTableForNTT(cycloOrder, bigMod, bigRoot);
 }
 		}
 
@@ -1179,14 +1158,13 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 }
 		}
 
-		auto outputBluestein = BluesteinFFT<IntType, VecType>::GetInstance().ForwardTransform(inputToBluestein, rootInverse, cycloOrder);
+		auto outputBluestein = BluesteinFFT<IntType, VecType>::GetInstance().ForwardTransform(inputToBluestein, rootInverse, cycloOrder, bigRoot);
 		auto cyclotomicInverse = (IntType(cycloOrder)).ModInverse(modulus);
 		outputBluestein = outputBluestein*cyclotomicInverse;
 
 		VecType output= Drop(outputBluestein, cycloOrder, false, bigMod, bigRoot);
 		return output;
 	}
-
 
 	template<typename IntType, typename VecType>
 	VecType ChineseRemainderTransformArb<IntType, VecType>::Pad(const VecType& element, const usint cycloOrder, bool forward) {
