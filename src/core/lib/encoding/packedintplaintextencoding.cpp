@@ -132,6 +132,7 @@ namespace lbcrypto {
 			native_int::BinaryInteger M(m); // Hackish typecast
 			native_int::BinaryInteger automorphismGenerator = FindGeneratorCyclic<native_int::BinaryInteger>(M);
 			m_automorphismGenerator[modulusNI] = automorphismGenerator.ConvertToInt();
+			std::cout << m_automorphismGenerator[modulusNI] << std::endl;
 
 			// Create the permutations that interchange the automorphism and crt ordering
 			usint phim = GetTotient(m);
