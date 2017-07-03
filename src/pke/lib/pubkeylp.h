@@ -371,6 +371,14 @@ namespace lbcrypto {
 		virtual const Element &GetA() const {
 			throw std::runtime_error("GetA operation not supported");
 		}
+
+		friend bool operator==(const LPEvalKey& a, const LPEvalKey& b) {
+			return a.key_compare(b);
+		}
+
+		friend bool operator!=(const LPEvalKey& a, LPEvalKey& b) { return ! (a == b); }
+
+		virtual bool key_compare(const LPEvalKey& other) = 0;
 	};
 
 	/**
@@ -501,6 +509,21 @@ namespace lbcrypto {
 
 		bool Deserialize(const Serialized &serObj);
 
+		bool key_compare(const LPEvalKey<Element>& other) {
+			const LPEvalKeyRelin<Element> &oth = dynamic_cast<const LPEvalKeyRelin<Element> &>(other);
+
+			if( *this->GetCryptoParameters() != *oth.GetCryptoParameters() ) return false;
+			if( this->m_rKey.size() != oth.m_rKey.size() ) return false;
+			for( size_t i=0; i<this->m_rKey.size(); i++ ) {
+				if( this->m_rKey[i].size() != oth.m_rKey[i].size() ) return false;
+				for( size_t j=0; j<this->m_rKey[i].size(); j++ ) {
+					if( this->m_rKey[i][j] != oth.m_rKey[i][j] )
+						return false;
+				}
+			}
+			return true;
+		}
+
 	private:
 		//private member to store vector of vector of Element.
 		std::vector< std::vector<Element> > m_rKey;
@@ -613,6 +636,18 @@ namespace lbcrypto {
 		*/
 		bool Deserialize(const Serialized &serObj);
 		
+		bool key_compare(const LPEvalKey<Element>& other) {
+			const LPEvalKeyNTRURelin<Element> &oth = dynamic_cast<const LPEvalKeyNTRURelin<Element> &>(other);
+
+			if( *this->GetCryptoParameters() != *oth.GetCryptoParameters() ) return false;
+			if( this->m_rKey.size() != oth.m_rKey.size() ) return false;
+			for( size_t i=0; i<this->m_rKey.size(); i++ ) {
+				if( this->m_rKey[i] != oth.m_rKey[i] )
+					return false;
+			}
+			return true;
+		}
+
 	private:
 		//private member to store vector of Element.
 		std::vector<Element>  m_rKey;
@@ -748,6 +783,15 @@ namespace lbcrypto {
 
 			m_Key = pe;
 
+			return true;
+		}
+
+		bool key_compare(const LPEvalKey<Element>& other) {
+			const LPEvalKeyNTRU<Element> &oth = dynamic_cast<const LPEvalKeyNTRU<Element> &>(other);
+
+			if( *this->GetCryptoParameters() != *oth.GetCryptoParameters() ) return false;
+			if( this->m_Key != oth.m_Key )
+				return false;
 			return true;
 		}
 

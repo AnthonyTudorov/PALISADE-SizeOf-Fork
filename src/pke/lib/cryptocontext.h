@@ -82,10 +82,10 @@ private:
 				return false;
 
 		if( a.evalSumKeys.size() != b.evalSumKeys.size() ) return false;
-		for( const auto& kp : a.evalSumKeys ) {
+		for( typename std::map<usint, shared_ptr<LPEvalKey<Element>>>::iterator kp = a.evalSumKeys.begin() ; kp != a.evalSumKeys.end(); kp++ ) {
 			auto vb = b.evalSumKeys.find(kp.first);
 			if( vb == b.evalSumKeys.end() ) return false; // key in a not in b
-			if( *kp->second != *vb )
+			if( *kp.second != *vb )
 				return false; // mismatch
 		}
 		return true;
