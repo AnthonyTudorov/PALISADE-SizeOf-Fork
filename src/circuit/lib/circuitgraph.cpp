@@ -50,7 +50,7 @@ CircuitGraph::DisplayGraph(ostream* out) const
 
 template<typename Element>
 void
-CircuitGraphWithValues<Element>::SetStreamKey(CryptoContext<Element> cc, shared_ptr<LPPrivateKey<Element>> k) const {
+CircuitGraphWithValues<Element>::SetStreamKey(shared_ptr<CryptoContext<Element>> cc, shared_ptr<LPPrivateKey<Element>> k) const {
 	CircuitGraphWithValues<Element>::_graph_cc = cc;
 	CircuitGraphWithValues<Element>::_graph_key = k;
 }
@@ -64,7 +64,7 @@ CircuitGraphWithValues<Element>::DisplayGraph(ostream* f) const
 
 template<typename Element>
 void
-CircuitGraphWithValues<Element>::DisplayDecryptedGraph(ostream* f, CryptoContext<Element> cc, shared_ptr<LPPrivateKey<Element>> k) const
+CircuitGraphWithValues<Element>::DisplayDecryptedGraph(ostream* f, shared_ptr<CryptoContext<Element>> cc, shared_ptr<LPPrivateKey<Element>> k) const
 {
 	SetStreamKey(cc, k);
 	*f << "digraph G {" << endl;
@@ -134,7 +134,7 @@ CircuitGraph::PrintRuntimeEstimates(ostream& out)
 
 template<typename Element>
 void
-CircuitGraphWithValues<Element>::Execute(CryptoContext<Element> cc)
+CircuitGraphWithValues<Element>::Execute(shared_ptr<CryptoContext<Element>> cc)
 {
 	for( int output : getOutputs() ) {
 		CircuitNodeWithValue<Element> *out = getNodeById(output);

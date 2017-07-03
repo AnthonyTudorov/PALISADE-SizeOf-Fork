@@ -877,7 +877,6 @@ bool ILDCRTImpl<ModType,IntType,VecType,ParmType>::InverseExists() const
 	return true;
 }
 
-// JSON FACILITY - Serialize Operation
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
 bool ILDCRTImpl<ModType,IntType,VecType,ParmType>::Serialize(Serialized* serObj) const
 {
@@ -898,7 +897,6 @@ bool ILDCRTImpl<ModType,IntType,VecType,ParmType>::Serialize(Serialized* serObj)
 	return true;
 }
 
-// JSON FACILITY - Deserialize Operation
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
 bool ILDCRTImpl<ModType,IntType,VecType,ParmType>::Deserialize(const Serialized& serObj)
 {

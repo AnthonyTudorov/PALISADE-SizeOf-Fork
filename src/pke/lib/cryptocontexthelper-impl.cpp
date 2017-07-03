@@ -47,7 +47,7 @@ getValueForName(const map<string,string>& allvals, const string key, string& val
 }
 
 template <typename Element>
-static CryptoContext<Element>
+static shared_ptr<CryptoContext<Element>>
 buildContextFromSerialized(const map<string,string>& s, shared_ptr<typename Element::Params> parms)
 {
 	std::string parmtype;
@@ -193,9 +193,9 @@ inline shared_ptr<LPCryptoParameters<Element>> DeserializeAndValidateCryptoParam
 
 
 bool
-CryptoContextHelper::matchContextToSerialization(const CryptoContext<ILVector2n> cc, const Serialized& ser)
+CryptoContextHelper::matchContextToSerialization(const CryptoContext<ILVector2n> *cc, const Serialized& ser)
 {
-	shared_ptr<LPCryptoParameters<ILVector2n>> ctxParams = cc.GetCryptoParameters();
+	shared_ptr<LPCryptoParameters<ILVector2n>> ctxParams = cc->GetCryptoParameters();
 	shared_ptr<LPCryptoParameters<ILVector2n>> cParams = DeserializeCryptoParameters<ILVector2n>(ser);
 
 	if( !cParams ) return false;
@@ -204,9 +204,9 @@ CryptoContextHelper::matchContextToSerialization(const CryptoContext<ILVector2n>
 }
 
 bool
-CryptoContextHelper::matchContextToSerialization(const CryptoContext<ILDCRT2n> cc, const Serialized& ser)
+CryptoContextHelper::matchContextToSerialization(const CryptoContext<ILDCRT2n> *cc, const Serialized& ser)
 {
-	shared_ptr<LPCryptoParameters<ILDCRT2n>> ctxParams = cc.GetCryptoParameters();
+	shared_ptr<LPCryptoParameters<ILDCRT2n>> ctxParams = cc->GetCryptoParameters();
 	shared_ptr<LPCryptoParameters<ILDCRT2n>> cParams = DeserializeCryptoParameters<ILDCRT2n>(ser);
 
 	if( !cParams ) return false;
@@ -214,7 +214,7 @@ CryptoContextHelper::matchContextToSerialization(const CryptoContext<ILDCRT2n> c
 	return *ctxParams == *cParams;
 }
 
-CryptoContext<ILVector2n>
+shared_ptr<CryptoContext<ILVector2n>>
 CryptoContextHelper::getNewContext(const string& parmset)
 {
 	std::string parmtype;
@@ -250,7 +250,7 @@ CryptoContextHelper::getNewContext(const string& parmset)
 	return buildContextFromSerialized<ILVector2n>(it->second, parms);
 }
 
-CryptoContext<ILDCRT2n>
+shared_ptr<CryptoContext<ILDCRT2n>>
 CryptoContextHelper::getNewDCRTContext(const string& parmset, usint numTowers, usint primeBits)
 {
 	std::string parmtype;

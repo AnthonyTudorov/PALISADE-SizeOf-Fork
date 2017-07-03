@@ -262,13 +262,13 @@ private:
 * @tparam Element a ring element.
 */
 template <class Element>
-class LPEncryptionAlgorithmStehleSteinfeld : public LPAlgorithmLTV<Element> {
+class LPAlgorithmStSt : public LPAlgorithmLTV<Element> {
 public:
 
 	/**
 	* Default constructor
 	*/
-	LPEncryptionAlgorithmStehleSteinfeld() : LPAlgorithmLTV<Element>() {};
+	LPAlgorithmStSt() : LPAlgorithmLTV<Element>() {};
 
 	/**
 	 * Key Generation method for the StehleSteinfeld scheme.
@@ -281,11 +281,11 @@ public:
 	 * @param makeSparse True to generate a saprse key pair.
 	 * @return Public and private key pair.
 	 */
-	LPKeyPair<Element> KeyGen(const CryptoContext<Element> cc, bool makeSparse=false) const { 		//makeSparse is not used
+	LPKeyPair<Element> KeyGen(CryptoContext<Element>* cc, bool makeSparse=false) { 		//makeSparse is not used
 
 		LPKeyPair<Element>	kp(new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc));
 
-		const shared_ptr<LPCryptoParametersStehleSteinfeld<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersStehleSteinfeld<Element>>(cc.GetCryptoParameters());
+		const shared_ptr<LPCryptoParametersStehleSteinfeld<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersStehleSteinfeld<Element>>(cc->GetCryptoParameters());
 
 		const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
 
@@ -321,7 +321,16 @@ public:
 
 		return kp;
 	}
+};
 
+template <class Element>
+class LPAlgorithmSHEStSt : public LPAlgorithmSHELTV<Element> {
+public:
+
+	/**
+	* Default constructor
+	*/
+	LPAlgorithmSHEStSt() : LPAlgorithmSHELTV<Element>() {};
 	/**
 	* Unimplemented function to generate an evaluation key for the Stehle-Steinfeld scheme. 
 	* EvalMult is currently unsopported in the Stehle-Steinfeld scheme and there is no currently known method to 
@@ -331,7 +340,7 @@ public:
 	* @return resulting evalkeyswitch hint
 	*/
 	shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const {
-		std::string errMsg = "LPEncryptionAlgorithmStehleSteinfeld::EvalMultKeyGen is not implemented for the Stehle-Steinfeld Scheme.";
+		std::string errMsg = "LPAlgorithmStSt::EvalMultKeyGen is not implemented for the Stehle-Steinfeld Scheme.";
 		throw std::runtime_error(errMsg);
 	}
 
@@ -348,25 +357,23 @@ public:
 	shared_ptr<LPEvalKey<Element>> KeySwitchGen(
 		const shared_ptr<LPPrivateKey<Element>> k1,
 		const shared_ptr<LPPrivateKey<Element>> k2) const {
-		std::string errMsg = "LPEncryptionAlgorithmStehleSteinfeld::KeySwitchGen is not implemented for the Stehle-Steinfeld Scheme.";
+		std::string errMsg = "LPAlgorithmStSt::KeySwitchGen is not implemented for the Stehle-Steinfeld Scheme.";
 		throw std::runtime_error(errMsg);
 	}
 
 
 	/**
-	* Generate automophism keys for a given private key; Uses the private key for encryption.  This method is not currently supported.
-	*
-	* @param privateKey private key.
-	* @param size number of automorphims to be computed; maximum is ring dimension
-	* @param flagEvalSum if set to true, log_2{size} evaluation keys are generated to be used by EvalSum
-	* @return returns the evaluation keys
+	* Generate automophism keys for a given private key.  Thess methods are not currently supported.
 	*/
-	shared_ptr<std::vector<shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey,
-		usint size, bool flagEvalSum) const {
-		std::string errMsg = "LPAlgorithmSHELTV::EvalAutomorphismKeyGen is not implemented for Stehle-Steinfeld SHE Scheme.";
-		throw std::runtime_error(errMsg);
+	shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const shared_ptr<LPPublicKey<Element>> publicKey,
+		const shared_ptr<LPPrivateKey<Element>> origPrivateKey, const std::vector<usint> &indexList) const {
+		throw std::runtime_error("LPAlgorithmSHELTV::EvalAutomorphismKeyGen is not implemented for Stehle-Steinfeld SHE Scheme.");
 	}
 
+	shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey,
+		const std::vector<usint> &indexList) const {
+		throw std::runtime_error("LPAlgorithmSHELTV::EvalAutomorphismKeyGen is not implemented for Stehle-Steinfeld SHE Scheme.");
+	}
 
 };
 
@@ -399,11 +406,11 @@ public:
 	*/
 	LPPublicKeyEncryptionSchemeStehleSteinfeld(std::bitset<FEATURESETSIZE> mask) {
 		if (mask[ENCRYPTION] && this->m_algorithmEncryption == NULL)
-			this->m_algorithmEncryption = new LPEncryptionAlgorithmStehleSteinfeld<Element>();
+			this->m_algorithmEncryption = new LPAlgorithmStSt<Element>();
 		if (mask[PRE] && this->m_algorithmPRE == NULL)
 			this->m_algorithmPRE = new LPAlgorithmPRELTV<Element>();
 		if (mask[SHE] && this->m_algorithmSHE == NULL)
-			this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>();
+			this->m_algorithmSHE = new LPAlgorithmSHEStSt<Element>();
 		if (mask[MULTIPARTY] || mask[FHE] || mask[LEVELEDSHE])
 			throw std::logic_error("MULTIPARTY, FHE and LEVELEDSHE feature not supported for StehleSteinfeld scheme");
 	}
@@ -418,7 +425,7 @@ public:
 		{
 		case ENCRYPTION:
 			if (this->m_algorithmEncryption == NULL)
-				this->m_algorithmEncryption = new LPEncryptionAlgorithmStehleSteinfeld<Element>();
+				this->m_algorithmEncryption = new LPAlgorithmStSt<Element>();
 			break;
 		case PRE:
 			if (this->m_algorithmPRE == NULL)
@@ -426,7 +433,7 @@ public:
 			break;
 		case SHE:
 			if (this->m_algorithmSHE == NULL)
-				this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>();
+				this->m_algorithmSHE = new LPAlgorithmSHEStSt<Element>();
 			break;
 		case MULTIPARTY:
 			throw std::logic_error("MULTIPARTY feature not supported for StehleSteinfeld scheme");

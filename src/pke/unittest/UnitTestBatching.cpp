@@ -70,9 +70,9 @@ TEST(UTLTVBATCHING, ILVector2n_Encrypt_Decrypt) {
 	PackedIntPlaintextEncoding intArray1(vectorOfInts1);
 
 	shared_ptr<ILVector2n::Params> ep( new ILVector2n::Params(m, modulus, rootOfUnity) );
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(ep, 17, 8, stdDev);
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(ep, 17, 8, stdDev);
 
-	cc.Enable(ENCRYPTION);
+	cc->Enable(ENCRYPTION);
 
 	//Regular LWE-NTRU encryption algorithm
 
@@ -80,7 +80,7 @@ TEST(UTLTVBATCHING, ILVector2n_Encrypt_Decrypt) {
 	//Perform the key generation operation.
 	///////////////////////////////////////////////////////////
 
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	LPKeyPair<ILVector2n> kp = cc->KeyGen();
 
 
 	////////////////////////////////////////////////////////////
@@ -88,7 +88,7 @@ TEST(UTLTVBATCHING, ILVector2n_Encrypt_Decrypt) {
 	////////////////////////////////////////////////////////////
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
 
-	ciphertext = cc.Encrypt(kp.publicKey, intArray1, false);
+	ciphertext = cc->Encrypt(kp.publicKey, intArray1, false);
 
 
 	////////////////////////////////////////////////////////////
@@ -97,7 +97,7 @@ TEST(UTLTVBATCHING, ILVector2n_Encrypt_Decrypt) {
 
 	PackedIntPlaintextEncoding intArrayNew;
 
-	DecryptResult result = cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
+	DecryptResult result = cc->Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
 
 	if (!result.isValid) {
 		std::cout << "Decryption failed!" << std::endl;
@@ -130,9 +130,9 @@ TEST(UTLTVBATCHING, ILVector2n_EVALADD) {
 	std::vector<usint> vectorOfIntsExpected = { 5,5,5,5 };
 
 	shared_ptr<ILVector2n::Params> ep( new ILVector2n::Params(m, modulus, rootOfUnity) );
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(ep, 17, 8, stdDev);
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(ep, 17, 8, stdDev);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 
 	//Regular LWE-NTRU encryption algorithm
 
@@ -140,22 +140,22 @@ TEST(UTLTVBATCHING, ILVector2n_EVALADD) {
 	//Perform the key generation operation.
 	///////////////////////////////////////////////////////////
 
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	LPKeyPair<ILVector2n> kp = cc->KeyGen();
 
 
 	////////////////////////////////////////////////////////////
 	//Encryption
 	////////////////////////////////////////////////////////////
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext1 = cc.Encrypt(kp.publicKey, intArray1, false);
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext1 = cc->Encrypt(kp.publicKey, intArray1, false);
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext2 = cc.Encrypt(kp.publicKey, intArray2, false);
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext2 = cc->Encrypt(kp.publicKey, intArray2, false);
 
 
 	////////////////////////////////////////////////////////////
 	//EvalAdd Operation
 	////////////////////////////////////////////////////////////
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextResult;
-	ciphertextResult.insert(ciphertextResult.begin(), cc.EvalAdd(ciphertext1.at(0), ciphertext2.at(0)) );
+	ciphertextResult.insert(ciphertextResult.begin(), cc->EvalAdd(ciphertext1.at(0), ciphertext2.at(0)) );
 
 	////////////////////////////////////////////////////////////
 	//Decryption
@@ -163,7 +163,7 @@ TEST(UTLTVBATCHING, ILVector2n_EVALADD) {
 
 	PackedIntPlaintextEncoding intArrayNew;
 
-	DecryptResult result = cc.Decrypt(kp.secretKey, ciphertextResult, &intArrayNew, false);
+	DecryptResult result = cc->Decrypt(kp.secretKey, ciphertextResult, &intArrayNew, false);
 
 	if (!result.isValid) {
 		std::cout << "Decryption failed!" << std::endl;
@@ -188,11 +188,11 @@ TEST(UTLTVBATCHING, ILVector2n_EVALMULT) {
 
 	shared_ptr<ILVector2n::Params> parms( new ILVector2n::Params(m, q, rootOfUnity) );
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(parms, ptMod,
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(parms, ptMod,
 		relin, stdDev);
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
-	cc.Enable(LEVELEDSHE);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
+	cc->Enable(LEVELEDSHE);
 
 	//Initialize the public key containers.
 	LPKeyPair<ILVector2n> kp;
@@ -208,23 +208,23 @@ TEST(UTLTVBATCHING, ILVector2n_EVALMULT) {
 	std::vector<usint> vectorOfIntsExpected = { 4,6,6,4 };
 
 
-	kp = cc.KeyGen();
+	kp = cc->KeyGen();
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext1;
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext2;
 
-	ciphertext1 = cc.Encrypt(kp.publicKey, intArray1, false);
-	ciphertext2 = cc.Encrypt(kp.publicKey, intArray2, false);
+	ciphertext1 = cc->Encrypt(kp.publicKey, intArray1, false);
+	ciphertext2 = cc->Encrypt(kp.publicKey, intArray2, false);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextResults;
 
-	cc.EvalMultKeyGen(kp.secretKey);
+	cc->EvalMultKeyGen(kp.secretKey);
 
-	ciphertextResults.insert(ciphertextResults.begin(), cc.EvalMult(ciphertext1.at(0), ciphertext2.at(0)));
+	ciphertextResults.insert(ciphertextResults.begin(), cc->EvalMult(ciphertext1.at(0), ciphertext2.at(0)));
 	
 	PackedIntPlaintextEncoding results;
 
-	cc.Decrypt(kp.secretKey, ciphertextResults, &results, false);
+	cc->Decrypt(kp.secretKey, ciphertextResults, &results, false);
 
 	
 	EXPECT_EQ(results, vectorOfIntsExpected);
@@ -255,22 +255,22 @@ TEST(UTLTVBATCHING, ILVector_Encrypt_Decrypt_Arb) {
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, rootOfUnity, bigmodulus, bigroot));
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, p, 8, stdDev);
-	cc.Enable(ENCRYPTION);
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, p, 8, stdDev);
+	cc->Enable(ENCRYPTION);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	LPKeyPair<ILVector2n> kp = cc->KeyGen();
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
 
 	std::vector<usint> vectorOfInts = { 1,1,1,5,1,4,1,6,1,7 };
 	PackedIntPlaintextEncoding intArray(vectorOfInts);
 
-	ciphertext = cc.Encrypt(kp.publicKey, intArray, false);
+	ciphertext = cc->Encrypt(kp.publicKey, intArray, false);
 
 	PackedIntPlaintextEncoding intArrayNew;
 
-	cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
+	cc->Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
 
 	EXPECT_EQ(intArrayNew, vectorOfInts);
 }
@@ -292,13 +292,13 @@ TEST(UTLTVBATCHING, ILVector_EVALADD_Arb) {
 	float stdDev = 4;
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, rootOfUnity, bigmodulus, bigroot));
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, p, 8, stdDev);
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, p, 8, stdDev);
 
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	LPKeyPair<ILVector2n> kp = cc->KeyGen();
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext1;
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext2;
@@ -313,14 +313,14 @@ TEST(UTLTVBATCHING, ILVector_EVALADD_Arb) {
 	std::vector<usint> vectorOfIntsAdd;
 	std::transform(vectorOfInts1.begin(), vectorOfInts1.end(), vectorOfInts2.begin(), std::back_inserter(vectorOfIntsAdd), std::plus<usint>());
 
-	ciphertext1 = cc.Encrypt(kp.publicKey, intArray1, false);
-	ciphertext2 = cc.Encrypt(kp.publicKey, intArray2, false);
+	ciphertext1 = cc->Encrypt(kp.publicKey, intArray1, false);
+	ciphertext2 = cc->Encrypt(kp.publicKey, intArray2, false);
 
-	auto ciphertextAdd = cc.EvalAdd(ciphertext1.at(0), ciphertext2.at(0));
+	auto ciphertextAdd = cc->EvalAdd(ciphertext1.at(0), ciphertext2.at(0));
 	ciphertextResult.insert(ciphertextResult.begin(), ciphertextAdd);
 	PackedIntPlaintextEncoding intArrayNew;
 
-	cc.Decrypt(kp.secretKey, ciphertextResult, &intArrayNew, false);
+	cc->Decrypt(kp.secretKey, ciphertextResult, &intArrayNew, false);
 
 	EXPECT_EQ(intArrayNew, vectorOfIntsAdd);
 }
@@ -344,12 +344,12 @@ TEST(UTBVBATCHING, ILVector_EVALMULT_Arb) {
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, rootOfUnity, bigmodulus, bigroot));
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, p, 1, stdDev);
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, p, 1, stdDev);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	LPKeyPair<ILVector2n> kp = cc->KeyGen();
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext1;
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext2;
@@ -364,16 +364,16 @@ TEST(UTBVBATCHING, ILVector_EVALMULT_Arb) {
 	std::vector<usint> vectorOfIntsMult;
 	std::transform(vectorOfInts1.begin(), vectorOfInts1.end(), vectorOfInts2.begin(), std::back_inserter(vectorOfIntsMult), std::multiplies<usint>());
 
-	ciphertext1 = cc.Encrypt(kp.publicKey, intArray1, false);
-	ciphertext2 = cc.Encrypt(kp.publicKey, intArray2, false);
+	ciphertext1 = cc->Encrypt(kp.publicKey, intArray1, false);
+	ciphertext2 = cc->Encrypt(kp.publicKey, intArray2, false);
 
-	cc.EvalMultKeyGen(kp.secretKey);
+	cc->EvalMultKeyGen(kp.secretKey);
 
-	auto ciphertextMult = cc.EvalMult(ciphertext1.at(0), ciphertext2.at(0));
+	auto ciphertextMult = cc->EvalMult(ciphertext1.at(0), ciphertext2.at(0));
 	ciphertextResult.insert(ciphertextResult.begin(), ciphertextMult);
 	PackedIntPlaintextEncoding intArrayNew;
 
-	cc.Decrypt(kp.secretKey, ciphertextResult, &intArrayNew, false);
+	cc->Decrypt(kp.secretKey, ciphertextResult, &intArrayNew, false);
 
 	EXPECT_EQ(intArrayNew, vectorOfIntsMult);
 }
@@ -421,14 +421,14 @@ TEST(UTFVBATCHING, ILVector_EVALMULT_Arb) {
 	//	int depth = 0, int assuranceMeasure = 0, float securityLevel = 0,
 	//	const std::string& bigmodulusarb = "0", const std::string& bigrootofunityarb = "0")
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(params, encodingParams, 1, stdDev,delta.ToString(),OPTIMIZED,
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(params, encodingParams, 1, stdDev,delta.ToString(),OPTIMIZED,
 		bigEvalMultModulus.ToString(), bigEvalMultRootOfUnity.ToString(),1,9,1.006, bigEvalMultModulusAlt.ToString(), bigEvalMultRootOfUnityAlt.ToString());
 	
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	LPKeyPair<ILVector2n> kp = cc->KeyGen();
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext1;
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext2;
@@ -443,16 +443,16 @@ TEST(UTFVBATCHING, ILVector_EVALMULT_Arb) {
 	std::vector<usint> vectorOfIntsMult;
 	std::transform(vectorOfInts1.begin(), vectorOfInts1.end(), vectorOfInts2.begin(), std::back_inserter(vectorOfIntsMult), std::multiplies<usint>());
 
-	ciphertext1 = cc.Encrypt(kp.publicKey, intArray1, false);
-	ciphertext2 = cc.Encrypt(kp.publicKey, intArray2, false);
+	ciphertext1 = cc->Encrypt(kp.publicKey, intArray1, false);
+	ciphertext2 = cc->Encrypt(kp.publicKey, intArray2, false);
 
-	cc.EvalMultKeyGen(kp.secretKey);
+	cc->EvalMultKeyGen(kp.secretKey);
 
-	auto ciphertextMult = cc.EvalMult(ciphertext1.at(0), ciphertext2.at(0));
+	auto ciphertextMult = cc->EvalMult(ciphertext1.at(0), ciphertext2.at(0));
 	ciphertextResult.insert(ciphertextResult.begin(), ciphertextMult);
 	PackedIntPlaintextEncoding intArrayNew;
 
-	cc.Decrypt(kp.secretKey, ciphertextResult, &intArrayNew, false);
+	cc->Decrypt(kp.secretKey, ciphertextResult, &intArrayNew, false);
 
 	EXPECT_EQ(intArrayNew, vectorOfIntsMult);
 }

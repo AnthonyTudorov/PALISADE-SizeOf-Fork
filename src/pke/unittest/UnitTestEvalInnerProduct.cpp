@@ -154,13 +154,13 @@ usint ArbLTVInnerProductPackedArray(std::vector<usint> &input1, std::vector<usin
 
 	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP), batchSize));
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, encodingParams, 16, stdDev);
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, encodingParams, 16, stdDev);
 
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	LPKeyPair<ILVector2n> kp = cc->KeyGen();
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext1;
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext2;
@@ -172,13 +172,13 @@ usint ArbLTVInnerProductPackedArray(std::vector<usint> &input1, std::vector<usin
 	std::vector<usint> vectorOfInts2 = std::move(input2);
 	PackedIntPlaintextEncoding intArray2(vectorOfInts2);
 
-	cc.EvalSumKeyGen(kp.secretKey, kp.publicKey);
-	cc.EvalMultKeyGen(kp.secretKey);
+	cc->EvalSumKeyGen(kp.secretKey, kp.publicKey);
+	cc->EvalMultKeyGen(kp.secretKey);
 
-	ciphertext1 = cc.Encrypt(kp.publicKey, intArray1, false);
-	ciphertext2 = cc.Encrypt(kp.publicKey, intArray2, false);
+	ciphertext1 = cc->Encrypt(kp.publicKey, intArray1, false);
+	ciphertext2 = cc->Encrypt(kp.publicKey, intArray2, false);
 
-	auto result = cc.EvalInnerProduct(ciphertext1[0], ciphertext2[0], batchSize);
+	auto result = cc->EvalInnerProduct(ciphertext1[0], ciphertext2[0], batchSize);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextSum;
 
@@ -186,7 +186,7 @@ usint ArbLTVInnerProductPackedArray(std::vector<usint> &input1, std::vector<usin
 
 	PackedIntPlaintextEncoding intArrayNew;
 
-	cc.Decrypt(kp.secretKey, ciphertextSum, &intArrayNew, false);
+	cc->Decrypt(kp.secretKey, ciphertextSum, &intArrayNew, false);
 
 	return intArrayNew[0];
 
@@ -218,13 +218,13 @@ usint ArbBVInnerProductPackedArray(std::vector<usint> &input1, std::vector<usint
 
 	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP), batchSize));
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, encodingParams, 8, stdDev);
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, encodingParams, 8, stdDev);
 
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	LPKeyPair<ILVector2n> kp = cc->KeyGen();
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext1;
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext2;
@@ -236,13 +236,13 @@ usint ArbBVInnerProductPackedArray(std::vector<usint> &input1, std::vector<usint
 	std::vector<usint> vectorOfInts2 = std::move(input2);
 	PackedIntPlaintextEncoding intArray2(vectorOfInts2);
 
-	cc.EvalSumKeyGen(kp.secretKey);
-	cc.EvalMultKeyGen(kp.secretKey);
+	cc->EvalSumKeyGen(kp.secretKey);
+	cc->EvalMultKeyGen(kp.secretKey);
 
-	ciphertext1 = cc.Encrypt(kp.publicKey, intArray1, false);
-	ciphertext2 = cc.Encrypt(kp.publicKey, intArray2, false);
+	ciphertext1 = cc->Encrypt(kp.publicKey, intArray1, false);
+	ciphertext2 = cc->Encrypt(kp.publicKey, intArray2, false);
 
-	auto result = cc.EvalInnerProduct(ciphertext1[0], ciphertext2[0], batchSize);
+	auto result = cc->EvalInnerProduct(ciphertext1[0], ciphertext2[0], batchSize);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextSum;
 
@@ -250,7 +250,7 @@ usint ArbBVInnerProductPackedArray(std::vector<usint> &input1, std::vector<usint
 
 	PackedIntPlaintextEncoding intArrayNew;
 
-	cc.Decrypt(kp.secretKey, ciphertextSum, &intArrayNew, false);
+	cc->Decrypt(kp.secretKey, ciphertextSum, &intArrayNew, false);
 
 	return intArrayNew[0];
 
@@ -291,14 +291,14 @@ usint ArbFVInnerProductPackedArray(std::vector<usint> &input1, std::vector<usint
 
 	BigBinaryInteger delta(modulusQ.DividedBy(modulusP));
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(params, encodingParams, 1, stdDev, delta.ToString(), OPTIMIZED,
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(params, encodingParams, 1, stdDev, delta.ToString(), OPTIMIZED,
 		bigEvalMultModulus.ToString(), bigEvalMultRootOfUnity.ToString(), 1, 9, 1.006, bigEvalMultModulusAlt.ToString(), bigEvalMultRootOfUnityAlt.ToString());
 
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	LPKeyPair<ILVector2n> kp = cc->KeyGen();
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext1;
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext2;
@@ -310,13 +310,13 @@ usint ArbFVInnerProductPackedArray(std::vector<usint> &input1, std::vector<usint
 	std::vector<usint> vectorOfInts2 = std::move(input2);
 	PackedIntPlaintextEncoding intArray2(vectorOfInts2);
 
-	cc.EvalSumKeyGen(kp.secretKey);
-	cc.EvalMultKeyGen(kp.secretKey);
+	cc->EvalSumKeyGen(kp.secretKey);
+	cc->EvalMultKeyGen(kp.secretKey);
 
-	ciphertext1 = cc.Encrypt(kp.publicKey, intArray1, false);
-	ciphertext2 = cc.Encrypt(kp.publicKey, intArray2, false);
+	ciphertext1 = cc->Encrypt(kp.publicKey, intArray1, false);
+	ciphertext2 = cc->Encrypt(kp.publicKey, intArray2, false);
 
-	auto result = cc.EvalInnerProduct(ciphertext1[0], ciphertext2[0], batchSize);
+	auto result = cc->EvalInnerProduct(ciphertext1[0], ciphertext2[0], batchSize);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextSum;
 
@@ -324,7 +324,7 @@ usint ArbFVInnerProductPackedArray(std::vector<usint> &input1, std::vector<usint
 
 	PackedIntPlaintextEncoding intArrayNew;
 
-	cc.Decrypt(kp.secretKey, ciphertextSum, &intArrayNew, false);
+	cc->Decrypt(kp.secretKey, ciphertextSum, &intArrayNew, false);
 
 	return intArrayNew[0];
 

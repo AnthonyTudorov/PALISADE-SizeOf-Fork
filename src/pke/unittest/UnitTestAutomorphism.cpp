@@ -160,36 +160,36 @@ std::vector<usint> ArbLTVAutomorphismPackedArray(usint i) {
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, p, 1, stdDev);
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, p, 1, stdDev);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	LPKeyPair<ILVector2n> kp = cc->KeyGen();
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
 
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10 };
 	PackedIntPlaintextEncoding intArray(vectorOfInts);
 
-	ciphertext = cc.Encrypt(kp.publicKey, intArray, false);
+	ciphertext = cc->Encrypt(kp.publicKey, intArray, false);
 
 	std::vector<usint> indexList = GetTotientList(m);
 	indexList.erase(indexList.begin());
 
-	auto evalKeys = cc.EvalAutomorphismKeyGen(kp.publicKey, kp.secretKey, indexList);
+	auto evalKeys = cc->EvalAutomorphismKeyGen(kp.publicKey, kp.secretKey, indexList);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> permutedCiphertext;
 
 	shared_ptr<Ciphertext<ILVector2n>> p1;
 
-	p1 = cc.EvalAutomorphism(ciphertext[0], i, *evalKeys);
+	p1 = cc->EvalAutomorphism(ciphertext[0], i, *evalKeys);
 
 	permutedCiphertext.push_back(p1);
 
 	PackedIntPlaintextEncoding intArrayNew;
 
-	cc.Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew, false);
+	cc->Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew, false);
 	
 	std::vector<usint> result(intArrayNew);
 
@@ -219,37 +219,37 @@ std::vector<usint> ArbBVAutomorphismPackedArray(usint i) {
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, p, 8, stdDev);
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, p, 8, stdDev);
 
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	LPKeyPair<ILVector2n> kp = cc->KeyGen();
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
 
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10 };
 	PackedIntPlaintextEncoding intArray(vectorOfInts);
 
-	ciphertext = cc.Encrypt(kp.publicKey, intArray, false);
+	ciphertext = cc->Encrypt(kp.publicKey, intArray, false);
 
 	std::vector<usint> indexList = GetTotientList(m);
 	indexList.erase(indexList.begin());
 
-	auto evalKeys = cc.EvalAutomorphismKeyGen(kp.secretKey, indexList);
+	auto evalKeys = cc->EvalAutomorphismKeyGen(kp.secretKey, indexList);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> permutedCiphertext;
 
 	shared_ptr<Ciphertext<ILVector2n>> p1;
 
-	p1 = cc.EvalAutomorphism(ciphertext[0], i, *evalKeys);
+	p1 = cc->EvalAutomorphism(ciphertext[0], i, *evalKeys);
 
 	permutedCiphertext.push_back(p1);
 
 	PackedIntPlaintextEncoding intArrayNew;
 
-	cc.Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew, false);
+	cc->Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew, false);
 
 	std::vector<usint> result(intArrayNew);
 
@@ -268,35 +268,35 @@ std::vector<usint> LTVAutomorphismPackedArray(usint i) {
 
 	shared_ptr<ILParams> params(new ILParams(m, q, rootOfUnity));
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, plaintextModulus, 1, stdDev);
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, plaintextModulus, 1, stdDev);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	LPKeyPair<ILVector2n> kp = cc->KeyGen();
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
 
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8 };
 	PackedIntPlaintextEncoding intArray(vectorOfInts);
 
-	ciphertext = cc.Encrypt(kp.publicKey, intArray, false);
+	ciphertext = cc->Encrypt(kp.publicKey, intArray, false);
 
 	std::vector<usint> indexList = { 3,5,7,9,11,13,15 };
 
-	auto evalKeys = cc.EvalAutomorphismKeyGen(kp.publicKey, kp.secretKey, indexList);
+	auto evalKeys = cc->EvalAutomorphismKeyGen(kp.publicKey, kp.secretKey, indexList);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> permutedCiphertext;
 
 	shared_ptr<Ciphertext<ILVector2n>> p1;
 
-	p1 = cc.EvalAutomorphism(ciphertext[0], i, *evalKeys);
+	p1 = cc->EvalAutomorphism(ciphertext[0], i, *evalKeys);
 
 	permutedCiphertext.push_back(p1);
 
 	PackedIntPlaintextEncoding intArrayNew;
 
-	cc.Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew, false);
+	cc->Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew, false);
 
 	std::vector<usint> result(intArrayNew);
 
@@ -315,36 +315,36 @@ std::vector<usint> BVAutomorphismPackedArray(usint i) {
 
 	shared_ptr<ILParams> params(new ILParams(m, q, rootOfUnity));
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, plaintextModulus, 1, stdDev);
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, plaintextModulus, 1, stdDev);
 
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	LPKeyPair<ILVector2n> kp = cc->KeyGen();
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
 
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8 };
 	PackedIntPlaintextEncoding intArray(vectorOfInts);
 
-	ciphertext = cc.Encrypt(kp.publicKey, intArray, false);
+	ciphertext = cc->Encrypt(kp.publicKey, intArray, false);
 
 	std::vector<usint> indexList = { 3,5,7,9,11,13,15 };
 
-	auto evalKeys = cc.EvalAutomorphismKeyGen(kp.secretKey, indexList);
+	auto evalKeys = cc->EvalAutomorphismKeyGen(kp.secretKey, indexList);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> permutedCiphertext;
 
 	shared_ptr<Ciphertext<ILVector2n>> p1;
 
-	p1 = cc.EvalAutomorphism(ciphertext[0], i, *evalKeys);
+	p1 = cc->EvalAutomorphism(ciphertext[0], i, *evalKeys);
 
 	permutedCiphertext.push_back(p1);
 
 	PackedIntPlaintextEncoding intArrayNew;
 
-	cc.Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew, false);
+	cc->Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew, false);
 
 	std::vector<usint> result(intArrayNew);
 
@@ -366,38 +366,38 @@ std::vector<usint> FVAutomorphismPackedArray(usint i) {
 
 	shared_ptr<ILParams> params(new ILParams(m, q, rootOfUnity));
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
 		params, plaintextModulus,
 		relWindow, stdDev, delta.ToString());
 
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	LPKeyPair<ILVector2n> kp = cc->KeyGen();
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
 
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8 };
 	PackedIntPlaintextEncoding intArray(vectorOfInts);
 
-	ciphertext = cc.Encrypt(kp.publicKey, intArray, false);
+	ciphertext = cc->Encrypt(kp.publicKey, intArray, false);
 
 	std::vector<usint> indexList = { 3,5,7,9,11,13,15 };
 
-	auto evalKeys = cc.EvalAutomorphismKeyGen(kp.secretKey, indexList);
+	auto evalKeys = cc->EvalAutomorphismKeyGen(kp.secretKey, indexList);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> permutedCiphertext;
 
 	shared_ptr<Ciphertext<ILVector2n>> p1;
 
-	p1 = cc.EvalAutomorphism(ciphertext[0], i, *evalKeys);
+	p1 = cc->EvalAutomorphism(ciphertext[0], i, *evalKeys);
 
 	permutedCiphertext.push_back(p1);
 
 	PackedIntPlaintextEncoding intArrayNew;
 
-	cc.Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew, false);
+	cc->Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew, false);
 
 	std::vector<usint> result(intArrayNew);
 

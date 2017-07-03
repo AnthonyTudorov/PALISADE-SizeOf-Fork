@@ -99,17 +99,17 @@ usint BVCrossCorrelation() {
 
 	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP), batchSize));
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, encodingParams, 8, stdDev);
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, encodingParams, 8, stdDev);
 
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	LPKeyPair<ILVector2n> kp = cc->KeyGen();
 
 	// Compute evaluation keys
-	cc.EvalSumKeyGen(kp.secretKey);
-	cc.EvalMultKeyGen(kp.secretKey);
+	cc->EvalSumKeyGen(kp.secretKey);
+	cc->EvalMultKeyGen(kp.secretKey);
 
 	auto zeroAlloc = [=]() { return lbcrypto::make_unique<PackedIntPlaintextEncoding>(); };
 
@@ -127,16 +127,16 @@ usint BVCrossCorrelation() {
 	//Encryption
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> xEncrypted = cc.EncryptMatrix(kp.publicKey, x);
+	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> xEncrypted = cc->EncryptMatrix(kp.publicKey, x);
 
-	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> yEncrypted = cc.EncryptMatrix(kp.publicKey, y);
+	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> yEncrypted = cc->EncryptMatrix(kp.publicKey, y);
 
 
 	////////////////////////////////////////////////////////////
 	//Linear Regression
 	////////////////////////////////////////////////////////////
 
-	auto result = cc.EvalCrossCorrelation(xEncrypted, yEncrypted, batchSize);
+	auto result = cc->EvalCrossCorrelation(xEncrypted, yEncrypted, batchSize);
 
 	////////////////////////////////////////////////////////////
 	//Decryption
@@ -148,7 +148,7 @@ usint BVCrossCorrelation() {
 
 	PackedIntPlaintextEncoding intArrayNew;
 
-	cc.Decrypt(kp.secretKey, ciphertextCC, &intArrayNew, false);
+	cc->Decrypt(kp.secretKey, ciphertextCC, &intArrayNew, false);
 
 	return intArrayNew[0];
 }
@@ -188,18 +188,18 @@ usint FVCrossCorrelation() {
 
 	BigBinaryInteger delta(modulusQ.DividedBy(modulusP));
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(params, encodingParams, 1, stdDev, delta.ToString(), OPTIMIZED,
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(params, encodingParams, 1, stdDev, delta.ToString(), OPTIMIZED,
 		bigEvalMultModulus.ToString(), bigEvalMultRootOfUnity.ToString(), 1, 9, 1.006, bigEvalMultModulusAlt.ToString(), bigEvalMultRootOfUnityAlt.ToString());
 
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	LPKeyPair<ILVector2n> kp = cc->KeyGen();
 
 	// Compute evaluation keys
-	cc.EvalSumKeyGen(kp.secretKey);
-	cc.EvalMultKeyGen(kp.secretKey);
+	cc->EvalSumKeyGen(kp.secretKey);
+	cc->EvalMultKeyGen(kp.secretKey);
 
 	auto zeroAlloc = [=]() { return lbcrypto::make_unique<PackedIntPlaintextEncoding>(); };
 
@@ -217,16 +217,16 @@ usint FVCrossCorrelation() {
 	//Encryption
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> xEncrypted = cc.EncryptMatrix(kp.publicKey, x);
+	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> xEncrypted = cc->EncryptMatrix(kp.publicKey, x);
 
-	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> yEncrypted = cc.EncryptMatrix(kp.publicKey, y);
+	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> yEncrypted = cc->EncryptMatrix(kp.publicKey, y);
 
 
 	////////////////////////////////////////////////////////////
 	//Linear Regression
 	////////////////////////////////////////////////////////////
 
-	auto result = cc.EvalCrossCorrelation(xEncrypted, yEncrypted, batchSize);
+	auto result = cc->EvalCrossCorrelation(xEncrypted, yEncrypted, batchSize);
 
 	////////////////////////////////////////////////////////////
 	//Decryption
@@ -238,7 +238,7 @@ usint FVCrossCorrelation() {
 
 	PackedIntPlaintextEncoding intArrayNew;
 
-	cc.Decrypt(kp.secretKey, ciphertextCC, &intArrayNew, false);
+	cc->Decrypt(kp.secretKey, ciphertextCC, &intArrayNew, false);
 
 	return intArrayNew[0];
 

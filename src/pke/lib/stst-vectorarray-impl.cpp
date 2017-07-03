@@ -31,5 +31,5 @@
 namespace lbcrypto {
 template class LPCryptoParametersStehleSteinfeld<ILDCRT2n>;
 template class LPPublicKeyEncryptionSchemeStehleSteinfeld<ILDCRT2n>;
-template class LPEncryptionAlgorithmStehleSteinfeld<ILDCRT2n>;
+template class LPAlgorithmStSt<ILDCRT2n>;
 }

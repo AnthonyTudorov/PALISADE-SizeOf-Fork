@@ -195,7 +195,7 @@ public:
 	bool IsOutput() const { return node->IsOutput(); }
 	bool IsInput() const { return node->IsInput(); }
 
-	virtual Value<Element> eval(CryptoContext<Element>& cc, CircuitGraphWithValues<Element>& cg) {
+	virtual Value<Element> eval(shared_ptr<CryptoContext<Element>> cc, CircuitGraphWithValues<Element>& cg) {
 		return value;
 	}
 
@@ -320,7 +320,7 @@ class ModReduceNodeWithValue : public CircuitNodeWithValue<Element> {
 public:
 	ModReduceNodeWithValue(ModReduceNode* node) : CircuitNodeWithValue<Element>(node) {}
 
-	Value<Element> eval(CryptoContext<Element>& cc, CircuitGraphWithValues<Element>& cg);
+	Value<Element> eval(shared_ptr<CryptoContext<Element>> cc, CircuitGraphWithValues<Element>& cg);
 };
 
 class EvalNegNode : public CircuitNode {
@@ -339,7 +339,7 @@ class EvalNegNodeWithValue : public CircuitNodeWithValue<Element> {
 public:
 	EvalNegNodeWithValue(EvalNegNode* node) : CircuitNodeWithValue<Element>(node) {}
 
-	Value<Element> eval(CryptoContext<Element>& cc, CircuitGraphWithValues<Element>& cg);
+	Value<Element> eval(shared_ptr<CryptoContext<Element>> cc, CircuitGraphWithValues<Element>& cg);
 };
 
 class EvalAddNode : public CircuitNode {
@@ -358,7 +358,7 @@ class EvalAddNodeWithValue : public CircuitNodeWithValue<Element> {
 public:
 	EvalAddNodeWithValue(EvalAddNode* node) : CircuitNodeWithValue<Element>(node) {}
 
-	Value<Element> eval(CryptoContext<Element>& cc, CircuitGraphWithValues<Element>& cg);
+	Value<Element> eval(shared_ptr<CryptoContext<Element>> cc, CircuitGraphWithValues<Element>& cg);
 };
 
 class EvalSubNode : public CircuitNode {
@@ -377,7 +377,7 @@ class EvalSubNodeWithValue : public CircuitNodeWithValue<Element> {
 public:
 	EvalSubNodeWithValue(EvalSubNode* node) : CircuitNodeWithValue<Element>(node) {}
 
-	Value<Element> eval(CryptoContext<Element>& cc, CircuitGraphWithValues<Element>& cg);
+	Value<Element> eval(shared_ptr<CryptoContext<Element>> cc, CircuitGraphWithValues<Element>& cg);
 };
 
 class EvalMultNode : public CircuitNode {
@@ -397,7 +397,7 @@ class EvalMultNodeWithValue : public CircuitNodeWithValue<Element> {
 public:
 	EvalMultNodeWithValue(EvalMultNode* node) : CircuitNodeWithValue<Element>(node) {}
 
-	Value<Element> eval(CryptoContext<Element>& cc, CircuitGraphWithValues<Element>& cg);
+	Value<Element> eval(shared_ptr<CryptoContext<Element>> cc, CircuitGraphWithValues<Element>& cg);
 };
 
 }

@@ -27,19 +27,17 @@
 
 #include <iostream>
 #include <fstream>
-#include "obfuscation/lweconjunctionobfuscatev3.h"
-#include "obfuscation/lweconjunctionobfuscatev3.cpp"
 #include "time.h"
 #include <chrono>
+#include <thread>
 #include "utils/debug.h"
 #include <omp.h> //open MP header
 
 //using namespace std;
-using namespace lbcrypto;
+//using namespace lbcrypto;
 
 const uint32_t ARRAY_SIZE = 1000;
 
-//main()   need this for Kurts makefile to ignore this.
 int main(int argc, char* argv[]){
   
   //int array_size = 1000;

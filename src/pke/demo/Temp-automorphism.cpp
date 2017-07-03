@@ -141,12 +141,12 @@ void LTVAutomorphismPackedArray(usint i) {
 
 	shared_ptr<ILParams> params( new ILParams(m, q, rootOfUnity) );
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, plaintextModulus, 1, stdDev);
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, plaintextModulus, 1, stdDev);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	LPKeyPair<ILVector2n> kp = cc->KeyGen();
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
 
@@ -159,25 +159,25 @@ void LTVAutomorphismPackedArray(usint i) {
 		std::cout << "Input array\n\t" << intArray << std::endl;
 	//std::cout << intArray << std::endl;
 
-	ciphertext = cc.Encrypt(kp.publicKey, intArray, false);
+	ciphertext = cc->Encrypt(kp.publicKey, intArray, false);
 
 	std::vector<usint> indexList = {3,5,7,9,11,13,15};
 
-	auto evalKeys = cc.EvalAutomorphismKeyGen(kp.publicKey, kp.secretKey, indexList);
+	auto evalKeys = cc->EvalAutomorphismKeyGen(kp.publicKey, kp.secretKey, indexList);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> permutedCiphertext;
 
 	shared_ptr<Ciphertext<ILVector2n>> p1;
 
-	p1 = cc.EvalAutomorphism(ciphertext[0], i, *evalKeys);
+	p1 = cc->EvalAutomorphism(ciphertext[0], i, *evalKeys);
 
 	permutedCiphertext.push_back(p1);
 
 	PackedIntPlaintextEncoding intArrayNew;
 	//IntPlaintextEncoding intArrayNew;
 
-	cc.Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew, false);
-	//cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
+	cc->Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew, false);
+	//cc->Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
 
 	std::cout << "Automorphed array - at index " << i << " (using only odd coefficients)\n\t" << intArrayNew << std::endl;
 
@@ -197,13 +197,13 @@ void BVAutomorphismPackedArray(usint i) {
 
 	shared_ptr<ILParams> params( new ILParams(m, q, rootOfUnity) );
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, plaintextModulus, 1, stdDev);
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, plaintextModulus, 1, stdDev);
 
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	LPKeyPair<ILVector2n> kp = cc->KeyGen();
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
 
@@ -216,25 +216,25 @@ void BVAutomorphismPackedArray(usint i) {
 		std::cout << "Input array\n\t" << intArray << std::endl;
 		//std::cout << intArray << std::endl;
 
-	ciphertext = cc.Encrypt(kp.publicKey, intArray, false);
+	ciphertext = cc->Encrypt(kp.publicKey, intArray, false);
 
 	std::vector<usint> indexList = { 3,5,7,9,11,13,15 };
 
-	auto evalKeys = cc.EvalAutomorphismKeyGen(kp.secretKey, indexList);
+	auto evalKeys = cc->EvalAutomorphismKeyGen(kp.secretKey, indexList);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> permutedCiphertext;
 
 	shared_ptr<Ciphertext<ILVector2n>> p1;
 
-	p1 = cc.EvalAutomorphism(ciphertext[0], i, *evalKeys);
+	p1 = cc->EvalAutomorphism(ciphertext[0], i, *evalKeys);
 
 	permutedCiphertext.push_back(p1);
 
 	PackedIntPlaintextEncoding intArrayNew;
 	//IntPlaintextEncoding intArrayNew;
 
-	cc.Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew, false);
-	//cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
+	cc->Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew, false);
+	//cc->Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
 
 	std::cout << "Automorphed array - at index " << i << " (using only odd coefficients)\n\t" << intArrayNew << std::endl;
 
@@ -256,15 +256,15 @@ void FVAutomorphismPackedArray(usint i) {
 
 	shared_ptr<ILParams> params( new ILParams(m, q, rootOfUnity) );
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
 		params, plaintextModulus,
 		relWindow, stdDev, delta.ToString());
 
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	LPKeyPair<ILVector2n> kp = cc->KeyGen();
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
 
@@ -277,25 +277,25 @@ void FVAutomorphismPackedArray(usint i) {
 		std::cout << "Input array\n\t" << intArray << std::endl;
 	//std::cout << intArray << std::endl;
 
-	ciphertext = cc.Encrypt(kp.publicKey, intArray, false);
+	ciphertext = cc->Encrypt(kp.publicKey, intArray, false);
 
 	std::vector<usint> indexList = { 3,5,7,9,11,13,15 };
 	
-	auto evalKeys = cc.EvalAutomorphismKeyGen(kp.secretKey, indexList);
+	auto evalKeys = cc->EvalAutomorphismKeyGen(kp.secretKey, indexList);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> permutedCiphertext;
 
 	shared_ptr<Ciphertext<ILVector2n>> p1;
 
-	p1 = cc.EvalAutomorphism(ciphertext[0], i, *evalKeys);
+	p1 = cc->EvalAutomorphism(ciphertext[0], i, *evalKeys);
 
 	permutedCiphertext.push_back(p1);
 
 	PackedIntPlaintextEncoding intArrayNew;
 	//IntPlaintextEncoding intArrayNew;
 
-	cc.Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew, false);
-	//cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
+	cc->Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew, false);
+	//cc->Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
 
 	std::cout << "Automorphed array - at index " << i << " (using only odd coefficients)\n\t" << intArrayNew << std::endl;
 
@@ -327,13 +327,13 @@ void ArbBVAutomorphismPackedArray(usint i) {
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, p, 8, stdDev);
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, p, 8, stdDev);
 
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	LPKeyPair<ILVector2n> kp = cc->KeyGen();
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
 
@@ -346,26 +346,26 @@ void ArbBVAutomorphismPackedArray(usint i) {
 		std::cout << "Input array\n\t" << intArray << std::endl;
 	//std::cout << intArray << std::endl;
 
-	ciphertext = cc.Encrypt(kp.publicKey, intArray, false);
+	ciphertext = cc->Encrypt(kp.publicKey, intArray, false);
 
 	std::vector<usint> indexList = GetTotientList(m);
 	indexList.erase(indexList.begin());
 
-	auto evalKeys = cc.EvalAutomorphismKeyGen(kp.secretKey, indexList);
+	auto evalKeys = cc->EvalAutomorphismKeyGen(kp.secretKey, indexList);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> permutedCiphertext;
 
 	shared_ptr<Ciphertext<ILVector2n>> p1;
 
-	p1 = cc.EvalAutomorphism(ciphertext[0], i, *evalKeys);
+	p1 = cc->EvalAutomorphism(ciphertext[0], i, *evalKeys);
 
 	permutedCiphertext.push_back(p1);
 
 	PackedIntPlaintextEncoding intArrayNew;
 	//IntPlaintextEncoding intArrayNew;
 
-	cc.Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew, false);
-	//cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
+	cc->Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew, false);
+	//cc->Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
 
 	std::cout << "Automorphed array - at index " << i << " (using only odd coefficients)\n\t" << intArrayNew << std::endl;
 
@@ -397,12 +397,12 @@ void ArbLTVAutomorphismPackedArray(usint i) {
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, p, 8, stdDev);
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, p, 8, stdDev);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	LPKeyPair<ILVector2n> kp = cc->KeyGen();
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
 
@@ -415,26 +415,26 @@ void ArbLTVAutomorphismPackedArray(usint i) {
 		std::cout << "Input array\n\t" << intArray << std::endl;
 	//std::cout << intArray << std::endl;
 
-	ciphertext = cc.Encrypt(kp.publicKey, intArray, false);
+	ciphertext = cc->Encrypt(kp.publicKey, intArray, false);
 
 	std::vector<usint> indexList = GetTotientList(m);
 	indexList.erase(indexList.begin());
 
-	auto evalKeys = cc.EvalAutomorphismKeyGen(kp.publicKey, kp.secretKey, indexList);
+	auto evalKeys = cc->EvalAutomorphismKeyGen(kp.publicKey, kp.secretKey, indexList);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> permutedCiphertext;
 
 	shared_ptr<Ciphertext<ILVector2n>> p1;
 
-	p1 = cc.EvalAutomorphism(ciphertext[0], i, *evalKeys);
+	p1 = cc->EvalAutomorphism(ciphertext[0], i, *evalKeys);
 
 	permutedCiphertext.push_back(p1);
 
 	PackedIntPlaintextEncoding intArrayNew;
 	//IntPlaintextEncoding intArrayNew;
 
-	cc.Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew, false);
-	//cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
+	cc->Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew, false);
+	//cc->Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
 
 	std::cout << "Automorphed array - at index " << i << " (using only odd coefficients)\n\t" << intArrayNew << std::endl;
 
@@ -467,15 +467,15 @@ void ArbFVAutomorphismPackedArray(usint i) {
 
 	BigBinaryInteger delta(modulusQ.DividedBy(modulusP));
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
 		params, p,
 		8, stdDev, delta.ToString());
 
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	LPKeyPair<ILVector2n> kp = cc->KeyGen();
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
 
@@ -488,26 +488,26 @@ void ArbFVAutomorphismPackedArray(usint i) {
 		std::cout << "Input array\n\t" << intArray << std::endl;
 	//std::cout << intArray << std::endl;
 
-	ciphertext = cc.Encrypt(kp.publicKey, intArray, false);
+	ciphertext = cc->Encrypt(kp.publicKey, intArray, false);
 
 	std::vector<usint> indexList = GetTotientList(m);
 	indexList.erase(indexList.begin());
 
-	auto evalKeys = cc.EvalAutomorphismKeyGen(kp.secretKey, indexList);
+	auto evalKeys = cc->EvalAutomorphismKeyGen(kp.secretKey, indexList);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> permutedCiphertext;
 
 	shared_ptr<Ciphertext<ILVector2n>> p1;
 
-	p1 = cc.EvalAutomorphism(ciphertext[0], i, *evalKeys);
+	p1 = cc->EvalAutomorphism(ciphertext[0], i, *evalKeys);
 
 	permutedCiphertext.push_back(p1);
 
 	PackedIntPlaintextEncoding intArrayNew;
 	//IntPlaintextEncoding intArrayNew;
 
-	cc.Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew, false);
-	//cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
+	cc->Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew, false);
+	//cc->Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
 
 	std::cout << "Automorphed array - at index " << i << " (using only odd coefficients)\n\t" << intArrayNew << std::endl;
 
@@ -542,14 +542,14 @@ void ArbNullAutomorphismPackedArray(usint i) {
 
 	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP), batchSize));
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextNull(
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextNull(
 		params, encodingParams);
 
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	LPKeyPair<ILVector2n> kp = cc->KeyGen();
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
 
@@ -562,26 +562,26 @@ void ArbNullAutomorphismPackedArray(usint i) {
 		std::cout << "Input array\n\t" << intArray << std::endl;
 	//std::cout << intArray << std::endl;
 
-	ciphertext = cc.Encrypt(kp.publicKey, intArray, false);
+	ciphertext = cc->Encrypt(kp.publicKey, intArray, false);
 
 	std::vector<usint> indexList = GetTotientList(m);
 	indexList.erase(indexList.begin());
 
-	auto evalKeys = cc.EvalAutomorphismKeyGen(kp.secretKey, indexList);
+	auto evalKeys = cc->EvalAutomorphismKeyGen(kp.secretKey, indexList);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> permutedCiphertext;
 
 	shared_ptr<Ciphertext<ILVector2n>> p1;
 
-	p1 = cc.EvalAutomorphism(ciphertext[0], i, *evalKeys);
+	p1 = cc->EvalAutomorphism(ciphertext[0], i, *evalKeys);
 
 	permutedCiphertext.push_back(p1);
 
 	PackedIntPlaintextEncoding intArrayNew;
 	//IntPlaintextEncoding intArrayNew;
 
-	cc.Decrypt(kp.secretKey,  permutedCiphertext, &intArrayNew, false);
-	//cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
+	cc->Decrypt(kp.secretKey,  permutedCiphertext, &intArrayNew, false);
+	//cc->Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
 
 	std::cout << "Automorphed array - at index " << i << " (using only odd coefficients)\n\t" << intArrayNew << std::endl;
 

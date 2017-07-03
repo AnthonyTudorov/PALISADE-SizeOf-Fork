@@ -61,10 +61,10 @@ TEST(UTStatisticalEval, Null_Eval_Lin_Regression) {
 	typename ILVector2n::Integer rootOfUnity("268585022");
 
 	shared_ptr<ILVector2n::Params> ep( new ILVector2n::Params(m, modulus, rootOfUnity) );
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextNull(ep, plaintextModulus);
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextNull(ep, plaintextModulus);
 
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 
 	// Initialize the public key containers.
 	LPKeyPair<ILVector2n> kp;
@@ -100,23 +100,22 @@ TEST(UTStatisticalEval, Null_Eval_Lin_Regression) {
 	//Perform the key generation operations.
 	////////////////////////////////////////////////////////////
 
-	kp = cc.KeyGen();
-	cc.EvalMultKeyGen(kp.secretKey);
+	kp = cc->KeyGen();
+	cc->EvalMultKeyGen(kp.secretKey);
 
 	////////////////////////////////////////////////////////////
 	//Encryption
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> x = cc.EncryptMatrix(kp.publicKey, xP);
+	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> x = cc->EncryptMatrix(kp.publicKey, xP);
 
-
-	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> y = cc.EncryptMatrix(kp.publicKey, yP);
+	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> y = cc->EncryptMatrix(kp.publicKey, yP);
 
 	////////////////////////////////////////////////////////////
 	//Linear Regression
 	////////////////////////////////////////////////////////////
 
-	auto result = cc.EvalLinRegression(x, y);
+	auto result = cc->EvalLinRegression(x, y);
 
 	////////////////////////////////////////////////////////////
 	//Decryption
@@ -125,7 +124,7 @@ TEST(UTStatisticalEval, Null_Eval_Lin_Regression) {
 	Matrix<IntPlaintextEncoding> numerator = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
 	Matrix<IntPlaintextEncoding> denominator = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
 
-	cc.DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
+	cc->DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
 
 	////////////////////////////////////////////////////////////
 	// Correct output
@@ -158,9 +157,9 @@ TEST(UTStatisticalEval, Null_Eval_Lin_Regression_Int) {
 	typename ILVector2n::Integer rootOfUnity("268585022");
 
 	shared_ptr<ILVector2n::Params> ep( new ILVector2n::Params(m, modulus, rootOfUnity) );
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextNull(ep, plaintextModulus);
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextNull(ep, plaintextModulus);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 
 	// Initialize the public key containers.
 	LPKeyPair<ILVector2n> kp;
@@ -185,21 +184,22 @@ TEST(UTStatisticalEval, Null_Eval_Lin_Regression_Int) {
 	//Perform the key generation operations.
 	////////////////////////////////////////////////////////////
 
-	kp = cc.KeyGen();
+	kp = cc->KeyGen();
+	cc->EvalMultKeyGen(kp.secretKey);
 
 	////////////////////////////////////////////////////////////
 	//Encryption
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> x = cc.EncryptMatrix(kp.publicKey, xP);
+	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> x = cc->EncryptMatrix(kp.publicKey, xP);
 
-	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> y = cc.EncryptMatrix(kp.publicKey, yP);
+	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> y = cc->EncryptMatrix(kp.publicKey, yP);
 
 	////////////////////////////////////////////////////////////
 	//Linear Regression
 	////////////////////////////////////////////////////////////
 
-	auto result = cc.EvalLinRegression(x, y);
+	auto result = cc->EvalLinRegression(x, y);
 
 	////////////////////////////////////////////////////////////
 	//Decryption
@@ -208,7 +208,7 @@ TEST(UTStatisticalEval, Null_Eval_Lin_Regression_Int) {
 	Matrix<IntPlaintextEncoding> numerator = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
 	Matrix<IntPlaintextEncoding> denominator = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
 
-	cc.DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
+	cc->DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
 
 	////////////////////////////////////////////////////////////
 	// Correct output
@@ -237,9 +237,9 @@ TEST(UTStatisticalEval, FV_Eval_Lin_Regression_Int) {
 	float stdDev = 4;
 
 	//Set crypto parametes
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(plaintextModulus, 1.06, relWindow, stdDev, 0, 4, 0);
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(plaintextModulus, 1.06, relWindow, stdDev, 0, 4, 0);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 
 	// Initialize the public key containers.
 	LPKeyPair<ILVector2n> kp;
@@ -264,23 +264,23 @@ TEST(UTStatisticalEval, FV_Eval_Lin_Regression_Int) {
 	//Perform the key generation operations.
 	////////////////////////////////////////////////////////////
 
-	kp = cc.KeyGen();
+	kp = cc->KeyGen();
 
-	cc.EvalMultKeyGen(kp.secretKey);
+	cc->EvalMultKeyGen(kp.secretKey);
 
 	////////////////////////////////////////////////////////////
 	//Encryption
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> x = cc.EncryptMatrix(kp.publicKey, xP);
+	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> x = cc->EncryptMatrix(kp.publicKey, xP);
 
-	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> y = cc.EncryptMatrix(kp.publicKey, yP);
+	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> y = cc->EncryptMatrix(kp.publicKey, yP);
 
 	////////////////////////////////////////////////////////////
 	//Linear Regression
 	////////////////////////////////////////////////////////////
 
-	auto result = cc.EvalLinRegression(x, y);
+	auto result = cc->EvalLinRegression(x, y);
 
 	////////////////////////////////////////////////////////////
 	//Decryption
@@ -289,7 +289,7 @@ TEST(UTStatisticalEval, FV_Eval_Lin_Regression_Int) {
 	Matrix<IntPlaintextEncoding> numerator = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
 	Matrix<IntPlaintextEncoding> denominator = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
 
-	cc.DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
+	cc->DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
 
 	////////////////////////////////////////////////////////////
 	// Correct output

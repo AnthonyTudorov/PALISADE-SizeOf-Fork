@@ -68,7 +68,7 @@ static const usint PTM = 64;
 static const usint TOWERS = 3;
 
 template<class Element>
-void UnitTest_Add(const CryptoContext<Element>& cc) {
+void UnitTest_Add(shared_ptr<CryptoContext<Element>> cc) {
 	bool dbg_flag = false;
 	DEBUG("1.1");
 	std::vector<uint32_t> vectorOfInts1 = { 1,0,3,1,0,1,2,1 };
@@ -97,22 +97,22 @@ void UnitTest_Add(const CryptoContext<Element>& cc) {
 		//Perform the key generation operation.
 		////////////////////////////////////////////////////////////
 		DEBUG("2.4");
-		LPKeyPair<Element> kp = cc.KeyGen();
+		LPKeyPair<Element> kp = cc->KeyGen();
 		DEBUG("2.5");
 		vector<shared_ptr<Ciphertext<Element>>> ciphertext1 =
-				cc.Encrypt(kp.publicKey, intArray1,false);
+				cc->Encrypt(kp.publicKey, intArray1,false);
 		DEBUG("2.6");
 		vector<shared_ptr<Ciphertext<Element>>> ciphertext2 =
-				cc.Encrypt(kp.publicKey, intArray2,false);
+				cc->Encrypt(kp.publicKey, intArray2,false);
 		DEBUG("2.7");
 		vector<shared_ptr<Ciphertext<Element>>> cResult;
 		DEBUG("2.8");
-		cResult.insert( cResult.begin(), cc.EvalAdd(ciphertext1.at(0), ciphertext2.at(0)));
+		cResult.insert( cResult.begin(), cc->EvalAdd(ciphertext1.at(0), ciphertext2.at(0)));
 		DEBUG("2.9");
 		IntPlaintextEncoding results;
 
 		DEBUG("2.a");
-		cc.Decrypt(kp.secretKey, cResult, &results,false);
+		cc->Decrypt(kp.secretKey, cResult, &results,false);
 
 		DEBUG("2.b");
 		results.resize(intArrayExpected.size());
@@ -123,61 +123,61 @@ void UnitTest_Add(const CryptoContext<Element>& cc) {
 
 /// add
 TEST(UTSHE, LTV_ILVector2n_Add) {
-	CryptoContext<ILVector2n> cc = GenCryptoContextElementLTV(ORDER, PTM);
+	shared_ptr<CryptoContext<ILVector2n>> cc = GenCryptoContextElementLTV(ORDER, PTM);
 	UnitTest_Add<ILVector2n>(cc);
 }
 
 TEST(UTSHE, LTV_ILVectorArray2n_Add) {
-	CryptoContext<ILDCRT2n> cc = GenCryptoContextElementArrayLTV(ORDER, TOWERS, PTM, 30);
+	shared_ptr<CryptoContext<ILDCRT2n>> cc = GenCryptoContextElementArrayLTV(ORDER, TOWERS, PTM, 30);
 	UnitTest_Add<ILDCRT2n>(cc);
 }
 
 TEST(UTSHE, StSt_ILVector2n_Add) {
-	CryptoContext<ILVector2n> cc = GenCryptoContextElementStSt(ORDER, PTM);
+	shared_ptr<CryptoContext<ILVector2n>> cc = GenCryptoContextElementStSt(ORDER, PTM);
 	UnitTest_Add<ILVector2n>(cc);
 }
 
 TEST(UTSHE, StSt_ILVectorArray2n_Add) {
-	CryptoContext<ILDCRT2n> cc = GenCryptoContextElementArrayStSt(ORDER, TOWERS, PTM, 30);
+	shared_ptr<CryptoContext<ILDCRT2n>> cc = GenCryptoContextElementArrayStSt(ORDER, TOWERS, PTM, 30);
 	UnitTest_Add<ILDCRT2n>(cc);
 }
 
 TEST(UTSHE, Null_ILVector2n_Add) {
-	CryptoContext<ILVector2n> cc = GenCryptoContextElementNull(ORDER, PTM);
+	shared_ptr<CryptoContext<ILVector2n>> cc = GenCryptoContextElementNull(ORDER, PTM);
 	UnitTest_Add<ILVector2n>(cc);
 }
 
 TEST(UTSHE, Null_ILVectorArray2n_Add) {
-	CryptoContext<ILDCRT2n> cc = GenCryptoContextElementArrayNull(ORDER, TOWERS, PTM, 30);
+	shared_ptr<CryptoContext<ILDCRT2n>> cc = GenCryptoContextElementArrayNull(ORDER, TOWERS, PTM, 30);
 	UnitTest_Add<ILDCRT2n>(cc);
 }
 
 TEST(UTSHE, BV_ILVector2n_Add) {
-	CryptoContext<ILVector2n> cc = GenCryptoContextElementBV(ORDER, PTM);
+	shared_ptr<CryptoContext<ILVector2n>> cc = GenCryptoContextElementBV(ORDER, PTM);
 	UnitTest_Add<ILVector2n>(cc);
 }
 
 TEST(UTSHE, BV_ILVectorArray2n_Add) {
-	CryptoContext<ILDCRT2n> cc = GenCryptoContextElementArrayBV(ORDER, TOWERS, PTM, 30);
+	shared_ptr<CryptoContext<ILDCRT2n>> cc = GenCryptoContextElementArrayBV(ORDER, TOWERS, PTM, 30);
 	UnitTest_Add<ILDCRT2n>(cc);
 }
 
 TEST(UTSHE, FV_ILVector2n_Add) {
 	bool dbg_flag = false;
 	DEBUG("GenCryptoContextElementFV");
-	CryptoContext<ILVector2n> cc = GenCryptoContextElementFV(ORDER, PTM);
+	shared_ptr<CryptoContext<ILVector2n>> cc = GenCryptoContextElementFV(ORDER, PTM);
 	DEBUG("done");
 	UnitTest_Add<ILVector2n>(cc);
 }
 
 //TEST(UTSHE, FV_ILVectorArray2n_Add) {
-//	CryptoContext<ILDCRT2n> cc = GenCryptoContextElementArrayFV(ORDER, TOWERS, PTM);
+//	shared_ptr<CryptoContext<ILDCRT2n>> cc = GenCryptoContextElementArrayFV(ORDER, TOWERS, PTM);
 //	UnitTest_Add<ILDCRT2n>(cc);
 //}
 
 ///
 template<class Element>
-void UnitTest_Mult(CryptoContext<Element>& cc) {
+void UnitTest_Mult(shared_ptr<CryptoContext<Element>> cc) {
 	bool dbg_flag = false;
   
 	std::vector<uint32_t> vectorOfInts1 = { 1,0,3,1,0,1,2,1 };
@@ -195,26 +195,26 @@ void UnitTest_Mult(CryptoContext<Element>& cc) {
 
 		IntPlaintextEncoding intArray2(vectorOfInts2);
 
-		IntPlaintextEncoding intArrayExpected(cc.GetCyclotomicOrder() == 16 ? vectorOfIntsMult : vectorOfIntsMultLong);
+		IntPlaintextEncoding intArrayExpected(cc->GetCyclotomicOrder() == 16 ? vectorOfIntsMult : vectorOfIntsMultLong);
 
 		DEBUG("intArray1 "<<intArray1);
 		DEBUG("intArray2 "<<intArray2);
 		DEBUG("intArrayExpected "<<intArrayExpected);
 
 		// Initialize the public key containers.
-		LPKeyPair<Element> kp = cc.KeyGen();
+		LPKeyPair<Element> kp = cc->KeyGen();
 
 		DEBUG("kp.publicKey "<<kp.publicKey);
 		DEBUG("kp.secretKey "<<kp.secretKey);
 
 		vector<shared_ptr<Ciphertext<Element>>> ciphertext1 =
-			cc.Encrypt(kp.publicKey, intArray1,false);
+			cc->Encrypt(kp.publicKey, intArray1,false);
 
 		vector<shared_ptr<Ciphertext<Element>>> ciphertext2 =
-			cc.Encrypt(kp.publicKey, intArray2,false);
+			cc->Encrypt(kp.publicKey, intArray2,false);
 
 
-		cc.EvalMultKeyGen(kp.secretKey);
+		cc->EvalMultKeyGen(kp.secretKey);
 
 		for (size_t i = 0; i<ciphertext1.at(0)->GetElements().size(); i++){
 			DEBUG("ciphertext1.at(0) "<<i<<" "<<ciphertext1.at(0)->GetElements().at(i));
@@ -223,14 +223,14 @@ void UnitTest_Mult(CryptoContext<Element>& cc) {
 		}
 		vector<shared_ptr<Ciphertext<Element>>> cResult;
 		
-		cResult.insert(cResult.begin(), cc.EvalMult(ciphertext1.at(0), ciphertext2.at(0)));
+		cResult.insert(cResult.begin(), cc->EvalMult(ciphertext1.at(0), ciphertext2.at(0)));
 
 		for (size_t i = 0; i<cResult.at(0)->GetElements().size(); i++){
 			DEBUG("cResult.at(0) "<<i<<" "<<cResult.at(0)->GetElements().at(i));
 		}
 		IntPlaintextEncoding results;
 
-		cc.Decrypt(kp.secretKey, cResult, &results,false);
+		cc->Decrypt(kp.secretKey, cResult, &results,false);
 
 		DEBUG("reults first "<<results);
 		results.resize(intArrayExpected.size());
@@ -243,56 +243,56 @@ void UnitTest_Mult(CryptoContext<Element>& cc) {
 
 
 TEST(UTSHE, LTV_ILVector2n_Mult) {
-	CryptoContext<ILVector2n> cc = GenCryptoContextElementLTV(ORDER, PTM);
+	shared_ptr<CryptoContext<ILVector2n>> cc = GenCryptoContextElementLTV(ORDER, PTM);
 	UnitTest_Mult<ILVector2n>(cc);
 }
 
 #if !defined(_MSC_VER)
 TEST(UTSHE, LTV_ILVectorArray2n_Mult) {
-	CryptoContext<ILDCRT2n> cc = GenCryptoContextElementArrayLTV(ORDER, TOWERS, PTM);
+	shared_ptr<CryptoContext<ILDCRT2n>> cc = GenCryptoContextElementArrayLTV(ORDER, TOWERS, PTM);
 	UnitTest_Mult<ILDCRT2n>(cc);
 }
 #endif
 
 //TEST(UTSHE, StSt_ILVector2n_Mult) {
-//	CryptoContext<ILVector2n> cc = GenCryptoContextElementStSt(ORDER, PTM);
+//	shared_ptr<CryptoContext<ILVector2n>> cc = GenCryptoContextElementStSt(ORDER, PTM);
 //	UnitTest_Mult<ILVector2n>(cc);
 //}
 //
 //TEST(UTSHE, StSt_ILVectorArray2n_Mult) {
-//	CryptoContext<ILDCRT2n> cc = GenCryptoContextElementArrayStSt(ORDER, TOWERS, PTM);
+//	shared_ptr<CryptoContext<ILDCRT2n>> cc = GenCryptoContextElementArrayStSt(ORDER, TOWERS, PTM);
 //	UnitTest_Mult<ILDCRT2n>(cc);
 //}
 
 TEST(UTSHE, Null_ILVector2n_Mult) {
-	CryptoContext<ILVector2n> cc = GenCryptoContextElementNull(ORDER, PTM);
+	shared_ptr<CryptoContext<ILVector2n>> cc = GenCryptoContextElementNull(ORDER, PTM);
 	UnitTest_Mult<ILVector2n>(cc);
 }
 
 TEST(UTSHE, Null_ILVectorArray2n_Mult) {
-	CryptoContext<ILDCRT2n> cc = GenCryptoContextElementArrayNull(ORDER, TOWERS, PTM, 30);
+	shared_ptr<CryptoContext<ILDCRT2n>> cc = GenCryptoContextElementArrayNull(ORDER, TOWERS, PTM, 30);
 	UnitTest_Mult<ILDCRT2n>(cc);
 }
 
 TEST(UTSHE, BV_ILVector2n_Mult) {
-	CryptoContext<ILVector2n> cc = GenCryptoContextElementBV(ORDER, PTM);
+	shared_ptr<CryptoContext<ILVector2n>> cc = GenCryptoContextElementBV(ORDER, PTM);
 	UnitTest_Mult<ILVector2n>(cc);
 }
 
 #if !defined(_MSC_VER)
 TEST(UTSHE, BV_ILVectorArray2n_Mult) {
-	CryptoContext<ILDCRT2n> cc = GenCryptoContextElementArrayBV(ORDER, TOWERS, PTM);
+	shared_ptr<CryptoContext<ILDCRT2n>> cc = GenCryptoContextElementArrayBV(ORDER, TOWERS, PTM);
 	UnitTest_Mult<ILDCRT2n>(cc);
 }
 #endif
 
 TEST(UTSHE, FV_ILVector2n_Mult) {
-	CryptoContext<ILVector2n> cc = GenCryptoContextElementFV(ORDER, PTM);
+	shared_ptr<CryptoContext<ILVector2n>> cc = GenCryptoContextElementFV(ORDER, PTM);
 	UnitTest_Mult<ILVector2n>(cc);
 }
 
 //TEST(UTSHE, FV_ILVectorArray2n_Mult) {
-//	CryptoContext<ILDCRT2n> cc = GenCryptoContextElementArrayFV(ORDER, TOWERS, PTM);
+//	shared_ptr<CryptoContext<ILDCRT2n>> cc = GenCryptoContextElementArrayFV(ORDER, TOWERS, PTM);
 //	UnitTest_Mult<ILDCRT2n>(cc);
 //}
 
@@ -304,24 +304,24 @@ TEST(UTSHE, keyswitch_sparse_key_SingleCRT_byteplaintext) {
 
 	BytePlaintextEncoding plaintext("I am good, what are you?! 32 ch");
 
-	CryptoContext<ILVector2n> cc = GenCryptoContextElementLTV(m, plaintextModulus);
+	shared_ptr<CryptoContext<ILVector2n>> cc = GenCryptoContextElementLTV(m, plaintextModulus);
 
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	LPKeyPair<ILVector2n> kp = cc->KeyGen();
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext = cc.Encrypt(kp.publicKey, plaintext);
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext = cc->Encrypt(kp.publicKey, plaintext);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> newCiphertext;
 
-	LPKeyPair<ILVector2n> kp2 = cc.SparseKeyGen();
+	LPKeyPair<ILVector2n> kp2 = cc->SparseKeyGen();
 
-	shared_ptr<LPEvalKey<ILVector2n>> keySwitchHint = cc.KeySwitchGen(kp.secretKey, kp2.secretKey);
+	shared_ptr<LPEvalKey<ILVector2n>> keySwitchHint = cc->KeySwitchGen(kp.secretKey, kp2.secretKey);
 
-	shared_ptr<Ciphertext<ILVector2n>> newCt = cc.KeySwitch(keySwitchHint, ciphertext[0]);
+	shared_ptr<Ciphertext<ILVector2n>> newCt = cc->KeySwitch(keySwitchHint, ciphertext[0]);
 	newCiphertext.push_back(newCt);
 
 	BytePlaintextEncoding plaintextNew;
 
-	cc.Decrypt(kp2.secretKey, newCiphertext, &plaintextNew);
+	cc->Decrypt(kp2.secretKey, newCiphertext, &plaintextNew);
 
 	EXPECT_EQ(plaintext, plaintextNew);
 }
@@ -341,32 +341,32 @@ TEST(UTSHE, keyswitch_sparse_key_SingleCRT_intArray) {
 	BigBinaryInteger rootOfUnity(RootOfUnity(m, q));
 	shared_ptr<ILVector2n::Params> params( new ILVector2n::Params(m, q, rootOfUnity) );
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, ptm, 1, stdDev);
-	cc.Enable(ENCRYPTION);
-	cc.Enable(LEVELEDSHE);
-	cc.Enable(SHE);
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, ptm, 1, stdDev);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(LEVELEDSHE);
+	cc->Enable(SHE);
 
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	LPKeyPair<ILVector2n> kp = cc->KeyGen();
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
 
 	std::vector<usint> vectorOfInts = { 1,1,1,1,1,1,1,1 };
 	IntPlaintextEncoding intArray(vectorOfInts);
 
-	ciphertext = cc.Encrypt(kp.publicKey, intArray, false);
+	ciphertext = cc->Encrypt(kp.publicKey, intArray, false);
 	vector<shared_ptr<Ciphertext<ILVector2n>>> newCiphertext(ciphertext.size());
 
-	LPKeyPair<ILVector2n> kp2 = cc.SparseKeyGen();
+	LPKeyPair<ILVector2n> kp2 = cc->SparseKeyGen();
 
 	shared_ptr<LPEvalKey<ILVector2n>> keySwitchHint;
-	keySwitchHint = cc.KeySwitchGen(kp.secretKey, kp2.secretKey);
+	keySwitchHint = cc->KeySwitchGen(kp.secretKey, kp2.secretKey);
 
-	shared_ptr<Ciphertext<ILVector2n>> newCt = cc.KeySwitch(keySwitchHint, ciphertext[0]);
+	shared_ptr<Ciphertext<ILVector2n>> newCt = cc->KeySwitch(keySwitchHint, ciphertext[0]);
 	newCiphertext[0] = newCt;
 
 	IntPlaintextEncoding intArrayNew;
 
-	cc.Decrypt(kp2.secretKey, newCiphertext, &intArrayNew, false);
+	cc->Decrypt(kp2.secretKey, newCiphertext, &intArrayNew, false);
 
 	//this step is needed because there is no marker for padding in the case of IntPlaintextEncoding
 	intArrayNew.resize(intArray.size());
@@ -383,27 +383,27 @@ TEST(UTSHE, keyswitch_SingleCRT) {
 
 	shared_ptr<ILVector2n::Params> params = GenerateTestParams<ILVector2n::Params,ILVector2n::Integer>(m, 30);
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, 2, 1, stdDev);
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, 2, 1, stdDev);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	LPKeyPair<ILVector2n> kp = cc->KeyGen();
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext =
-			cc.Encrypt(kp.publicKey, plaintext);
+			cc->Encrypt(kp.publicKey, plaintext);
 	vector<shared_ptr<Ciphertext<ILVector2n>>> newCiphertext(ciphertext.size());
 
-	LPKeyPair<ILVector2n> kp2 = cc.KeyGen();
+	LPKeyPair<ILVector2n> kp2 = cc->KeyGen();
 
 	shared_ptr<LPEvalKey<ILVector2n>> keySwitchHint;
-	keySwitchHint = cc.KeySwitchGen(kp.secretKey, kp2.secretKey);
+	keySwitchHint = cc->KeySwitchGen(kp.secretKey, kp2.secretKey);
 
-	shared_ptr<Ciphertext<ILVector2n>> newCt = cc.KeySwitch(keySwitchHint, ciphertext[0]);
+	shared_ptr<Ciphertext<ILVector2n>> newCt = cc->KeySwitch(keySwitchHint, ciphertext[0]);
 	newCiphertext[0] = newCt;
 
 	BytePlaintextEncoding plaintextNew;
 
-	cc.Decrypt(kp2.secretKey, newCiphertext, &plaintextNew);
+	cc->Decrypt(kp2.secretKey, newCiphertext, &plaintextNew);
 
 	EXPECT_EQ(plaintext, plaintextNew);
 }
@@ -417,19 +417,19 @@ TEST(UTSHE, sparsekeygen_single_crt_encrypt_decrypt) {
 
 	shared_ptr<ILVector2n::Params> params = GenerateTestParams<ILVector2n::Params,ILVector2n::Integer>(m, 30);
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, 2, 1, stdDev);
-	cc.Enable(ENCRYPTION);
-	cc.Enable(LEVELEDSHE);
-	cc.Enable(SHE);
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, 2, 1, stdDev);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(LEVELEDSHE);
+	cc->Enable(SHE);
 
-	LPKeyPair<ILVector2n> kp = cc.SparseKeyGen();
+	LPKeyPair<ILVector2n> kp = cc->SparseKeyGen();
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext =
-			cc.Encrypt(kp.publicKey, plaintext);
+			cc->Encrypt(kp.publicKey, plaintext);
 
 	BytePlaintextEncoding plaintextNew;
 
-	cc.Decrypt(kp.secretKey, ciphertext, &plaintextNew);
+	cc->Decrypt(kp.secretKey, ciphertext, &plaintextNew);
 
 	EXPECT_EQ(plaintextNew, plaintext);
 	ILVector2n privateElement(kp.secretKey->GetPrivateElement());
@@ -452,44 +452,44 @@ TEST(UTSHE, keyswitch_ModReduce_DCRT) {
 
 	shared_ptr<ILDCRTParams<BigBinaryInteger>> params = GenerateDCRTParams( m, plaintextmodulus, size, 30 );
 
-	CryptoContext<ILDCRT2n> cc = CryptoContextFactory<ILDCRT2n>::genCryptoContextLTV(params, plaintextmodulus, relinWindow, stdDev);
+	shared_ptr<CryptoContext<ILDCRT2n>> cc = CryptoContextFactory<ILDCRT2n>::genCryptoContextLTV(params, plaintextmodulus, relinWindow, stdDev);
 
-	cc.Enable(ENCRYPTION);
-	cc.Enable(LEVELEDSHE);
-	cc.Enable(SHE);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(LEVELEDSHE);
+	cc->Enable(SHE);
 
-	LPKeyPair<ILDCRT2n> kp = cc.KeyGen();
+	LPKeyPair<ILDCRT2n> kp = cc->KeyGen();
 
 	vector<shared_ptr<Ciphertext<ILDCRT2n>>> ciphertext =
-			cc.Encrypt(kp.publicKey, plaintext);
+			cc->Encrypt(kp.publicKey, plaintext);
 
 	vector<shared_ptr<Ciphertext<ILDCRT2n>>> newCiphertext(1);
 
-	LPKeyPair<ILDCRT2n> kp2 = cc.KeyGen();
+	LPKeyPair<ILDCRT2n> kp2 = cc->KeyGen();
 
 	shared_ptr<LPEvalKey<ILDCRT2n>> keySwitchHint;
-	keySwitchHint = cc.KeySwitchGen(kp.secretKey, kp2.secretKey);
+	keySwitchHint = cc->KeySwitchGen(kp.secretKey, kp2.secretKey);
 
-	shared_ptr<Ciphertext<ILDCRT2n>> newCt = cc.KeySwitch(keySwitchHint, ciphertext[0]);
+	shared_ptr<Ciphertext<ILDCRT2n>> newCt = cc->KeySwitch(keySwitchHint, ciphertext[0]);
 	newCiphertext[0] = newCt;
 
 	BytePlaintextEncoding plaintextNewKeySwitch;
 
-	cc.Decrypt(kp2.secretKey, newCiphertext, &plaintextNewKeySwitch);
+	cc->Decrypt(kp2.secretKey, newCiphertext, &plaintextNewKeySwitch);
 
 	EXPECT_EQ(plaintext, plaintextNewKeySwitch) << "Key-Switched Decrypt fails";
 
 	/**************************KEYSWITCH TEST END******************************/
 	/**************************MODREDUCE TEST BEGIN******************************/
 
-	newCiphertext[0] = cc.ModReduce(newCiphertext[0]);
+	newCiphertext[0] = cc->ModReduce(newCiphertext[0]);
 	ILDCRT2n sk2PrivateElement(kp2.secretKey->GetPrivateElement());
 	sk2PrivateElement.DropLastElement();
 	kp2.secretKey->SetPrivateElement(sk2PrivateElement);
 
 	BytePlaintextEncoding plaintextNewModReduce;
 
-	cc.Decrypt(kp2.secretKey, newCiphertext, &plaintextNewModReduce);
+	cc->Decrypt(kp2.secretKey, newCiphertext, &plaintextNewModReduce);
 	
 	EXPECT_EQ(plaintext, plaintextNewModReduce) << "Mod Reduced Decrypt fails";
 }
@@ -501,33 +501,33 @@ TEST(UTSHE, ringreduce_single_crt) {
 
 	shared_ptr<ILVector2n::Params> params = GenerateTestParams<ILVector2n::Params,ILVector2n::Integer>(m, 30);
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, 2, 1, stdDev);
-	cc.Enable(ENCRYPTION);
-	cc.Enable(LEVELEDSHE);
-	cc.Enable(SHE);
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, 2, 1, stdDev);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(LEVELEDSHE);
+	cc->Enable(SHE);
 
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	LPKeyPair<ILVector2n> kp = cc->KeyGen();
 
 	std::vector<usint> vectorOfInts = { 1,1,1,1,1,1,1,1 };
 	IntPlaintextEncoding intArray(vectorOfInts);
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext = cc.Encrypt(kp.publicKey, intArray, false);
+	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext = cc->Encrypt(kp.publicKey, intArray, false);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> newCiphertext(ciphertext.size());
 
-	LPKeyPair<ILVector2n> kp2 = cc.SparseKeyGen();
+	LPKeyPair<ILVector2n> kp2 = cc->SparseKeyGen();
 
 	shared_ptr<LPEvalKey<ILVector2n>> keySwitchHint;
-	keySwitchHint = cc.KeySwitchGen(kp.secretKey, kp2.secretKey);
+	keySwitchHint = cc->KeySwitchGen(kp.secretKey, kp2.secretKey);
 
-	shared_ptr<Ciphertext<ILVector2n>> newCt = cc.KeySwitch(keySwitchHint, ciphertext[0]);
+	shared_ptr<Ciphertext<ILVector2n>> newCt = cc->KeySwitch(keySwitchHint, ciphertext[0]);
 	newCiphertext[0] = newCt;
 
 	IntPlaintextEncoding intArrayNew;
 
-	cc.Decrypt(kp2.secretKey, newCiphertext, &intArrayNew, false);
+	cc->Decrypt(kp2.secretKey, newCiphertext, &intArrayNew, false);
 
-	ciphertext = cc.RingReduce(ciphertext, keySwitchHint);
+	ciphertext = cc->RingReduce(ciphertext, keySwitchHint);
 
 	ILVector2n skSparseElement(kp2.secretKey->GetPrivateElement());
 	skSparseElement.SwitchFormat();
@@ -538,7 +538,7 @@ TEST(UTSHE, ringreduce_single_crt) {
 
 	IntPlaintextEncoding intArrayNewRR;
 
-	cc.Decrypt(kp2.secretKey, ciphertext, &intArrayNewRR, false);
+	cc->Decrypt(kp2.secretKey, ciphertext, &intArrayNewRR, false);
 
 	IntPlaintextEncoding intArrayExpected = {1,1,1,1};
 
@@ -555,33 +555,33 @@ TEST(UTSHE, ringreduce_double_crt) {
 
 	shared_ptr<ILDCRTParams<BigBinaryInteger>> params = GenerateDCRTParams( m, plaintextmodulus, size, 30 );
 
-	CryptoContext<ILDCRT2n> cc = CryptoContextFactory<ILDCRT2n>::genCryptoContextLTV(params, plaintextmodulus, relinWindow, stdDev);
-	cc.Enable(ENCRYPTION);
-	cc.Enable(LEVELEDSHE);
-	cc.Enable(SHE);
+	shared_ptr<CryptoContext<ILDCRT2n>> cc = CryptoContextFactory<ILDCRT2n>::genCryptoContextLTV(params, plaintextmodulus, relinWindow, stdDev);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(LEVELEDSHE);
+	cc->Enable(SHE);
 
-	LPKeyPair<ILDCRT2n> kp = cc.KeyGen();
+	LPKeyPair<ILDCRT2n> kp = cc->KeyGen();
 
 	vector<shared_ptr<Ciphertext<ILDCRT2n>>> ciphertext;
 
 	std::vector<usint> vectorOfInts = { 1,1,1,1,1,1,1,1 };
 	IntPlaintextEncoding intArray(vectorOfInts);
 
-	ciphertext = cc.Encrypt(kp.publicKey, intArray, false);
+	ciphertext = cc->Encrypt(kp.publicKey, intArray, false);
 
 	vector<shared_ptr<Ciphertext<ILDCRT2n>>> newCiphertext(ciphertext.size());
 
-	LPKeyPair<ILDCRT2n> kp2 = cc.SparseKeyGen();
+	LPKeyPair<ILDCRT2n> kp2 = cc->SparseKeyGen();
 
-	shared_ptr<LPEvalKey<ILDCRT2n>> keySwitchHint = cc.KeySwitchGen(kp.secretKey, kp2.secretKey);
+	shared_ptr<LPEvalKey<ILDCRT2n>> keySwitchHint = cc->KeySwitchGen(kp.secretKey, kp2.secretKey);
 
-	newCiphertext[0] = cc.KeySwitch(keySwitchHint, ciphertext[0]);
+	newCiphertext[0] = cc->KeySwitch(keySwitchHint, ciphertext[0]);
 
 	IntPlaintextEncoding intArrayNew;
 
-	cc.Decrypt(kp2.secretKey, newCiphertext, &intArrayNew, false);
+	cc->Decrypt(kp2.secretKey, newCiphertext, &intArrayNew, false);
 
-	ciphertext = cc.RingReduce(ciphertext, keySwitchHint);
+	ciphertext = cc->RingReduce(ciphertext, keySwitchHint);
 
 	ILDCRT2n skSparseElement(kp2.secretKey->GetPrivateElement());
 	skSparseElement.SwitchFormat();
@@ -592,7 +592,7 @@ TEST(UTSHE, ringreduce_double_crt) {
 
 	IntPlaintextEncoding intArrayNewRR;
 
-	cc.Decrypt(kp2.secretKey, ciphertext, &intArrayNewRR, false);
+	cc->Decrypt(kp2.secretKey, ciphertext, &intArrayNewRR, false);
 
 	IntPlaintextEncoding intArrayExpected({ 1,1,1,1 });
 

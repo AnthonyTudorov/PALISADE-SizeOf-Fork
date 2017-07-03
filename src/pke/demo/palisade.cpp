@@ -43,10 +43,10 @@ usint	IntVectorLen = 10; // default value
 
 void usage(const string& cmd, const string& msg = "");
 
-typedef void (*cmdparser)(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]);
+typedef void (*cmdparser)(shared_ptr<CryptoContext<ILVector2n>> ctx, string cmd, int argc, char *argv[]);
 
 void
-reencrypter(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
+reencrypter(shared_ptr<CryptoContext<ILVector2n>> ctx, string cmd, int argc, char *argv[]) {
 	if( argc != 3 ) {
 		usage(cmd, "missing arguments");
 		return;
@@ -62,7 +62,7 @@ reencrypter(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 		return;
 	}
 
-	shared_ptr<LPEvalKey<ILVector2n>> evalKey = ctx.deserializeEvalKey(kser);
+	shared_ptr<LPEvalKey<ILVector2n>> evalKey = ctx->deserializeEvalKey(kser);
 	if( evalKey == NULL ) {
 		cerr << "Could not deserialize re encryption key" << endl;
 		return;
@@ -81,7 +81,7 @@ reencrypter(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 		return;
 	}
 
-	ctx.ReEncryptStream(evalKey, inCt, outCt);
+	ctx->ReEncryptStream(evalKey, inCt, outCt);
 
 	inCt.close();
 	outCt.close();
@@ -89,7 +89,7 @@ reencrypter(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 }
 
 void
-decrypter(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
+decrypter(shared_ptr<CryptoContext<ILVector2n>> ctx, string cmd, int argc, char *argv[]) {
 	if( argc != 3 ) {
 		usage(cmd, "missing arguments");
 		return;
@@ -105,7 +105,7 @@ decrypter(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 		return;
 	}
 
-	shared_ptr<LPPrivateKey<ILVector2n>> sk = ctx.deserializeSecretKey(kser);
+	shared_ptr<LPPrivateKey<ILVector2n>> sk = ctx->deserializeSecretKey(kser);
 	if( !sk ) {
 		cerr << "Could not decrypt private key" << endl;
 		return;
@@ -125,7 +125,7 @@ decrypter(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 	}
 
 	if( CommandMode == BYTEMODE ) {
-		ctx.DecryptStream(sk, inCt, outF);
+		ctx->DecryptStream(sk, inCt, outF);
 	}
 	else {
 		Serialized	kser;
@@ -135,7 +135,7 @@ decrypter(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 		}
 
 		// Initialize the public key containers.
-		shared_ptr<Ciphertext<ILVector2n>> ct = ctx.deserializeCiphertext(kser);
+		shared_ptr<Ciphertext<ILVector2n>> ct = ctx->deserializeCiphertext(kser);
 		if( ct == NULL ) {
 			cerr << "Could not deserialize ciphertext" << endl;
 			return;
@@ -147,7 +147,7 @@ decrypter(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 		IntPlaintextEncoding iPlaintext;
 
 		// now decrypt iPlaintext
-		ctx.Decrypt(sk, ciphertext, &iPlaintext, false);
+		ctx->Decrypt(sk, ciphertext, &iPlaintext, false);
 
 		for( size_t i=0; i<IntVectorLen; i++ ) {
 			outF << iPlaintext.at(i) << ' ';
@@ -162,7 +162,7 @@ decrypter(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 }
 
 void
-encrypter(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
+encrypter(shared_ptr<CryptoContext<ILVector2n>> ctx, string cmd, int argc, char *argv[]) {
 	if( argc != 3 ) {
 		usage(cmd, "missing arguments");
 		return;
@@ -185,7 +185,7 @@ encrypter(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 	}
 
 	// Initialize the public key containers.
-	shared_ptr<LPPublicKey<ILVector2n>> pk = ctx.deserializePublicKey(kser);
+	shared_ptr<LPPublicKey<ILVector2n>> pk = ctx->deserializePublicKey(kser);
 
 	if( !pk ) {
 		cerr << "Could not deserialize public key" << endl;
@@ -202,7 +202,7 @@ encrypter(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 	}
 
 	if( CommandMode == BYTEMODE ) {
-		ctx.EncryptStream(pk, inf, ctSer);
+		ctx->EncryptStream(pk, inf, ctSer);
 	}
 	else {
 		ctSer.close();
@@ -222,7 +222,7 @@ encrypter(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 		}
 
 		// now encrypt iPlaintext
-		std::vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext = ctx.Encrypt(pk, iPlaintext, false);
+		std::vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext = ctx->Encrypt(pk, iPlaintext, false);
 
 		// FIXME: this works iff size == 1
 		if( ciphertext.size() != 1 ) {
@@ -255,7 +255,7 @@ encrypter(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 }
 
 void
-rekeymaker(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
+rekeymaker(shared_ptr<CryptoContext<ILVector2n>> ctx, string cmd, int argc, char *argv[]) {
 	if( argc != 3 ) {
 		usage(cmd, "missing arguments");
 		return;
@@ -272,7 +272,7 @@ rekeymaker(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 	}
 
 	// Initialize the public key containers.
-	shared_ptr<LPPublicKey<ILVector2n>> pk = ctx.deserializePublicKey(kser);
+	shared_ptr<LPPublicKey<ILVector2n>> pk = ctx->deserializePublicKey(kser);
 
 	Serialized	kser2;
 	if( SerializableHelper::ReadSerializationFromFile(privname, &kser2) == false ) {
@@ -280,7 +280,7 @@ rekeymaker(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 		return;
 	}
 
-	shared_ptr<LPPrivateKey<ILVector2n>> sk = ctx.deserializeSecretKey(kser2);
+	shared_ptr<LPPrivateKey<ILVector2n>> sk = ctx->deserializeSecretKey(kser2);
 
 	if( !pk ) {
 		cerr << "Could not deserialize public key" << endl;
@@ -292,7 +292,7 @@ rekeymaker(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 		return;
 	}
 
-	shared_ptr<LPEvalKey<ILVector2n>> evalKey = ctx.ReKeyGen(pk, sk);
+	shared_ptr<LPEvalKey<ILVector2n>> evalKey = ctx->ReKeyGen(pk, sk);
 
 	if( evalKey ) {
 		Serialized evalK;
@@ -315,7 +315,7 @@ rekeymaker(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 }
 
 void
-keymaker(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
+keymaker(shared_ptr<CryptoContext<ILVector2n>> ctx, string cmd, int argc, char *argv[]) {
 	if( argc != 1 ) {
 		usage(cmd, "missing keyname");
 		return;
@@ -324,7 +324,7 @@ keymaker(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 	string keyname(argv[0]);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = ctx.KeyGen();
+	LPKeyPair<ILVector2n> kp = ctx->KeyGen();
 
 	if( kp.publicKey && kp.secretKey ) {
 		Serialized pubK, privK;
@@ -358,7 +358,7 @@ keymaker(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 }
 
 void
-evaladder(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
+evaladder(shared_ptr<CryptoContext<ILVector2n>> ctx, string cmd, int argc, char *argv[]) {
 	if( argc != 3 ) {
 		usage(cmd, "missing arguments");
 		return;
@@ -375,7 +375,7 @@ evaladder(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 	}
 
 	// Initialize the public key containers.
-	shared_ptr<Ciphertext<ILVector2n>> c1 = ctx.deserializeCiphertext(kser);
+	shared_ptr<Ciphertext<ILVector2n>> c1 = ctx->deserializeCiphertext(kser);
 
 	if( !c1 ) {
 		cerr << "Could not deserialize cipher1" << endl;
@@ -389,7 +389,7 @@ evaladder(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 	}
 
 	// Initialize the public key containers.
-	shared_ptr<Ciphertext<ILVector2n>> c2 = ctx.deserializeCiphertext(kser2);
+	shared_ptr<Ciphertext<ILVector2n>> c2 = ctx->deserializeCiphertext(kser2);
 
 	if( !c2 ) {
 		cerr << "Could not deserialize cipher2" << endl;
@@ -401,7 +401,7 @@ evaladder(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 	cout << endl;
 	for( size_t i=0; i<IntVectorLen; i++ ) cout << c2->GetElement().GetValAtIndex(i) << " ";
 	cout << endl;
-	shared_ptr<Ciphertext<ILVector2n>> cdsum = ctx.EvalAdd(c1, c2);
+	shared_ptr<Ciphertext<ILVector2n>> cdsum = ctx->EvalAdd(c1, c2);
 	cout << "Result:" << endl;
 	for( size_t i=0; i<IntVectorLen; i++ ) cout << cdsum->GetElement().GetValAtIndex(i) << " ";
 	cout << endl;
@@ -426,7 +426,7 @@ evaladder(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 }
 
 void
-evalmulter(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
+evalmulter(shared_ptr<CryptoContext<ILVector2n>> ctx, string cmd, int argc, char *argv[]) {
 	if( argc != 3 ) {
 		usage(cmd, "missing arguments");
 		return;
@@ -443,7 +443,7 @@ evalmulter(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 	}
 
 	// Initialize the public key containers.
-	shared_ptr<Ciphertext<ILVector2n>> c1 = ctx.deserializeCiphertext(kser);
+	shared_ptr<Ciphertext<ILVector2n>> c1 = ctx->deserializeCiphertext(kser);
 
 	if( !c1 ) {
 		cerr << "Could not deserialize cipher1" << endl;
@@ -457,7 +457,7 @@ evalmulter(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 	}
 
 	// Initialize the public key containers.
-	shared_ptr<Ciphertext<ILVector2n>> c2 = ctx.deserializeCiphertext(kser2);
+	shared_ptr<Ciphertext<ILVector2n>> c2 = ctx->deserializeCiphertext(kser2);
 
 	if( !c2 ) {
 		cerr << "Could not deserialize cipher2" << endl;
@@ -469,7 +469,7 @@ evalmulter(CryptoContext<ILVector2n> ctx, string cmd, int argc, char *argv[]) {
 	cout << endl;
 	for( size_t i=0; i<IntVectorLen; i++ ) cout << c2->GetElement().GetValAtIndex(i) << " ";
 	cout << endl;
-	shared_ptr<Ciphertext<ILVector2n>> cdsum = ctx.EvalMult(c1, c2);
+	shared_ptr<Ciphertext<ILVector2n>> cdsum = ctx->EvalMult(c1, c2);
 	cout << "Result:" << endl;
 	for( size_t i=0; i<IntVectorLen; i++ ) cout << cdsum->GetElement().GetValAtIndex(i) << " ";
 	cout << endl;
@@ -548,7 +548,7 @@ main( int argc, char *argv[] )
 		return 0;
 	}
 
-	CryptoContext<ILVector2n> ctx;
+	shared_ptr<CryptoContext<ILVector2n>> ctx;
 
 	int cmdidx = 1;
 	while( cmdidx < argc ) {
@@ -599,9 +599,9 @@ main( int argc, char *argv[] )
 		return 1;
 	}
 
-	ctx.Enable(ENCRYPTION);
-	ctx.Enable(PRE);
-	ctx.Enable(SHE);
+	ctx->Enable(ENCRYPTION);
+	ctx->Enable(PRE);
+	ctx->Enable(SHE);
 
 	bool	rancmd = false;
 	string userCmd(argv[cmdidx]);
