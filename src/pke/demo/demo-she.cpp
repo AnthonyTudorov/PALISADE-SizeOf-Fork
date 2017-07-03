@@ -73,15 +73,6 @@ int main(int argc, char *argv[]) {
 	cryptoContext.Enable(ENCRYPTION);
 	cryptoContext.Enable(SHE);
 	
-	start = currentDateTime();
-
-	cryptoContext.GetEncryptionAlgorithm()->ParamsGen(cryptoContext.GetCryptoParameters(), 0, 1);
-
-	finish = currentDateTime();
-	diff = finish - start;
-
-	cout << "Param generation time: " << "\t" << diff << " ms" << endl;
-
 	std::cout << "p = " << cryptoContext.GetCryptoParameters()->GetPlaintextModulus() << std::endl;
 	std::cout << "n = " << cryptoContext.GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
 	std::cout << "log2 q = " << log2(cryptoContext.GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;

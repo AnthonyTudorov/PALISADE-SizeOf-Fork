@@ -174,13 +174,6 @@ public:
 	}
 
 	/**
-	 * ParameterSelection for LTV Crypto Parameters
-	 * FIXME this will be replaced by the new mechanism for crypto params
-	 * @param cryptoParams
-	 */
-	void ParameterSelection(LPCryptoParametersLTV<ILDCRT2n> *cryptoParams);
-
-	/**
 	 * == operator to compare to this instance of LPCryptoParametersLTV object.
 	 *
 	 * @param &rhs LPCryptoParameters to check equality against.
@@ -195,24 +188,36 @@ public:
 	void PrintParameters(std::ostream& os) const {
 		LPCryptoParametersRLWE<Element>::PrintParameters(os);
 	}
+};
 
-private:
+/**
+ * @brief Parameter generation for LTV.
+ *
+ * This is an implementation of the algorithm in the "Parameter Selection" section of
+ * Rohloff & Cousins' "A Scalable Implementation of Fully Homomorphic Encryption Built on NTRU"
+ *
+ * @tparam Element a ring element.
+ */
+template <class Element>
+class LPAlgorithmParamsGenLTV : public LPParameterGenerationAlgorithm<Element> {
+public:
 
-	//helper function for ParameterSelection. Splits the string 's' by the delimeter 'c'.
-	// FIXME This will soon be deprecated.
-	std::string split(const std::string s, char c){
-		std::string result;
-		const char *str = s.c_str();
-		const char *begin = str;
-		while(*str != c && *str)
-			str++;
-		result = std::string(begin, str);
-		return result;
-	}
+	/**
+	 * Default constructor
+	 */
+	LPAlgorithmParamsGenLTV() {}
 
-	//function for parameter selection. The public ParameterSelection function is a wrapper around this function.
-	// FIXME This will soon be deprecated.
-	void ParameterSelection(usint& n, vector<native_int::BinaryInteger> &moduli);
+	/**
+	* Method for computing all derived parameters based on chosen primitive parameters
+	*
+	* @param cryptoParams the crypto parameters object to be populated with parameters.
+	* @param evalAddCount number of EvalAdds assuming no EvalMult and KeySwitch operations are performed.
+	* @param evalMultCount number of EvalMults assuming no EvalAdd and KeySwitch operations are performed.
+	* @param keySwitchCount number of KeySwitch operations assuming no EvalAdd and EvalMult operations are performed.
+	*/
+	bool ParamsGen(shared_ptr<LPCryptoParameters<Element>> cryptoParams, int32_t evalAddCount = 0,
+		int32_t evalMultCount = 0, int32_t keySwitchCount = 0) const;
+
 };
 
 /**
@@ -715,7 +720,9 @@ public:
 	/**
 	* Inherited constructor
 	*/
-	LPPublicKeyEncryptionSchemeLTV() : LPPublicKeyEncryptionScheme<Element>() {}
+	LPPublicKeyEncryptionSchemeLTV() : LPPublicKeyEncryptionScheme<Element>() {
+		this->m_algorithmParamsGen = new LPAlgorithmParamsGenLTV<Element>();
+	}
 
 	/**
 	* Constructor that initalizes the mask

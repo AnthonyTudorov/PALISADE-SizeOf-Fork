@@ -51,7 +51,7 @@ inline shared_ptr<Params> GenerateTestParams(usint m, const Integer& modulus, co
 
 template<typename Params, typename Integer>
 inline shared_ptr<Params> GenerateTestParams(usint m, usint nbits) {
-	Integer modulus = FindPrimeModulus<Integer>(m, nbits);
+	Integer modulus = FirstPrime<Integer>(nbits, m);
 	Integer rootOfUnity = RootOfUnity<Integer>(m, modulus);
 	return shared_ptr<Params>(new Params(m, modulus, rootOfUnity));
 }
@@ -69,12 +69,11 @@ inline shared_ptr<ILDCRTParams<BigBinaryInteger>> GenerateDCRTParams(usint m, us
 		throw std::logic_error("Can't make parms with numOfTower == 0 ");
 
 	std::vector<native_int::BinaryInteger> moduli(numOfTower);
-
 	std::vector<native_int::BinaryInteger> rootsOfUnity(numOfTower);
 
 	native_int::BinaryInteger ptmI( ptm );
 
-	native_int::BinaryInteger q = FindPrimeModulus<native_int::BinaryInteger>(m, pbits);
+	native_int::BinaryInteger q = FirstPrime<native_int::BinaryInteger>(pbits, m);
 	BigBinaryInteger modulus(1);
 
 	usint j = 0;
@@ -85,7 +84,7 @@ inline shared_ptr<ILDCRTParams<BigBinaryInteger>> GenerateDCRTParams(usint m, us
 		if( ++j == numOfTower )
 			break;
 
-		lbcrypto::NextQ(q, ptmI, m, native_int::BinaryInteger(4), native_int::BinaryInteger(4));
+		q = NextPrime(q, m);
 	}
 
 	shared_ptr<ILDCRTParams<BigBinaryInteger>> params(new ILDCRTParams<BigBinaryInteger>(m, moduli, rootsOfUnity));

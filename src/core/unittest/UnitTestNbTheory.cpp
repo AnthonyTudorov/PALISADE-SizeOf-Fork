@@ -154,9 +154,9 @@ TEST(UTNbTheory, method_prime_modulus) {
     usint m = 2048;
     usint nBits = 30;
 
-    BigBinaryInteger expectedResult("536881153");
+    BigBinaryInteger expectedResult("1073750017");
 
-    EXPECT_EQ(expectedResult, lbcrypto::FindPrimeModulus<BigBinaryInteger>(m, nBits))
+    EXPECT_EQ(expectedResult, lbcrypto::FirstPrime<BigBinaryInteger>(nBits, m))
       <<"Failure foundPrimeModulus";
   }
   {
@@ -164,8 +164,8 @@ TEST(UTNbTheory, method_prime_modulus) {
     usint m=4096; 
     usint nBits=49;
 	
-    BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus<BigBinaryInteger>(m, nBits);
-    BigBinaryInteger expectedResult("281474976768001");
+    BigBinaryInteger primeModulus = lbcrypto::FirstPrime<BigBinaryInteger>(nBits, m);
+    BigBinaryInteger expectedResult("562949954203649");
     EXPECT_EQ(expectedResult, primeModulus)
       <<"Failure returns_higher_bit_length";
   }
@@ -178,7 +178,7 @@ TEST(UTNbTheory, method_primitive_root_of_unity_VERY_LONG){
     usint m=4096; 
     usint nBits=33;
 	
-    BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus<BigBinaryInteger>(m, nBits);
+    BigBinaryInteger primeModulus = lbcrypto::FirstPrime<BigBinaryInteger>(nBits, m);
     BigBinaryInteger primitiveRootOfUnity = lbcrypto::RootOfUnity<BigBinaryInteger>(m, primeModulus);
 
     BigBinaryInteger M(std::to_string(m)), MbyTwo(M.DividedBy(2));
@@ -201,7 +201,7 @@ TEST(UTNbTheory, method_primitive_root_of_unity_VERY_LONG){
 
     BigBinaryInteger M(std::to_string(m)), MbyTwo(M.DividedBy(2)), MbyFour(MbyTwo.DividedBy(2));
 
-    BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus<BigBinaryInteger>(m, nBits);
+    BigBinaryInteger primeModulus = lbcrypto::FirstPrime<BigBinaryInteger>(nBits, m);
 
     for(int i=0; i<ITERATIONS; i++) {
       BigBinaryInteger primitiveRootOfUnity = lbcrypto::RootOfUnity<BigBinaryInteger>(m, primeModulus);
@@ -264,7 +264,7 @@ TEST(UTNbTheory, method_primitive_root_of_unity_VERY_LONG){
 
 		// start = currentDateTime();
 		// fout << "m=" << m << ", qBits=" << qBits << ", M=" << M << ", MbyTwo=" << MbyTwo << endl;
-		BigBinaryInteger primeModulus = lbcrypto::FindPrimeModulus<BigBinaryInteger>(m, qBits);
+		BigBinaryInteger primeModulus = lbcrypto::FirstPrime<BigBinaryInteger>(qBits, m);
 		// fout << "Prime modulus for n = " << n << " and qbits = " << qBits << " is " << primeModulus << endl;
 
 		BigBinaryInteger primitiveRootOfUnity(lbcrypto::RootOfUnity<BigBinaryInteger>(m, primeModulus));
@@ -341,22 +341,25 @@ TEST(UTNbTheory, method_primitive_root_of_unity_VERY_LONG){
 }
 
 TEST(UTNbTheory, test_nextQ){
-	BigBinaryInteger q(1);
+	BigBinaryInteger q;
+	usint m = 2048;
+	usint bits = 22;
 
 	BigBinaryVector moduliBBV(10);
-	moduliBBV.SetValAtIndex(0, "2101249");
-	moduliBBV.SetValAtIndex(1, "2107393");
-	moduliBBV.SetValAtIndex(2, "2236417");
-	moduliBBV.SetValAtIndex(3, "2254849");
-	moduliBBV.SetValAtIndex(4, "2277377");
-	moduliBBV.SetValAtIndex(5, "2357249");
-	moduliBBV.SetValAtIndex(6, "2363393");
-	moduliBBV.SetValAtIndex(7, "2369537");
-	moduliBBV.SetValAtIndex(8, "2387969");
-	moduliBBV.SetValAtIndex(9, "2414593");
+    moduliBBV.SetValAtIndex(0, "4263937");
+    moduliBBV.SetValAtIndex(1, "4270081");
+    moduliBBV.SetValAtIndex(2, "4274177");
+    moduliBBV.SetValAtIndex(3, "4294657");
+    moduliBBV.SetValAtIndex(4, "4300801");
+    moduliBBV.SetValAtIndex(5, "4304897");
+    moduliBBV.SetValAtIndex(6, "4319233");
+    moduliBBV.SetValAtIndex(7, "4323329");
+    moduliBBV.SetValAtIndex(8, "4360193");
+    moduliBBV.SetValAtIndex(9, "4366337");
 
+	q = FirstPrime<BigBinaryInteger>(bits,m);
 	for(usint i=0; i<10; i++){
-        lbcrypto::NextQ(q, BigBinaryInteger(2), 2048, BigBinaryInteger(4), BigBinaryInteger(4));
+        q = NextPrime(q, m);
 		EXPECT_EQ(q, moduliBBV.GetValAtIndex(i));
 	}
 }

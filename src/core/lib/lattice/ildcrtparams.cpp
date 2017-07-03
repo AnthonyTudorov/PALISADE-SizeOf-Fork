@@ -33,9 +33,6 @@ namespace lbcrypto
 template<typename IntType>
 ILDCRTParams<IntType>::ILDCRTParams(usint order, usint depth, usint bits) : ElemParams<IntType>(order, 0, 0, 0, 0)
 {
-
-	static native_int::BinaryInteger FIVE(5);
-	static native_int::BinaryInteger FOUR(5);
 	if( order == 0 )
 		return;
 	if( depth == 0 )
@@ -46,7 +43,7 @@ ILDCRTParams<IntType>::ILDCRTParams(usint order, usint depth, usint bits) : Elem
 	m_parms.resize(depth);
 	this->ciphertextModulus = BigBinaryInteger(0);
 
-	native_int::BinaryInteger q = FindPrimeModulus<native_int::BinaryInteger>(order, bits);
+	native_int::BinaryInteger q = FirstPrime<native_int::BinaryInteger>(bits, order);
 
 	for(size_t j = 0; ;) {
 		native_int::BinaryInteger root = RootOfUnity<native_int::BinaryInteger>(order, q);
@@ -56,7 +53,7 @@ ILDCRTParams<IntType>::ILDCRTParams(usint order, usint depth, usint bits) : Elem
 		if( ++j >= depth )
 			break;
 
-		lbcrypto::NextQ<native_int::BinaryInteger>(q, FIVE, order, FOUR, FOUR);
+		q = NextPrime<native_int::BinaryInteger>(q, order);
 	}
 
 	RecalculateModulus();

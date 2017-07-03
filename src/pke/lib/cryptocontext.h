@@ -1616,6 +1616,32 @@ public:
 		usint relinWindow, float stDev, int depth = 1, int assuranceMeasure = 9, float securityLevel = 1.006);
 
 	/**
+	* construct a PALISADE CryptoContext for the LTV Scheme using the scheme's ParamsGen methods
+	* @param plaintextModulus
+	* @param securityLevel
+	* @param numAdds
+	* @param numMults
+	* @param numKeyswitches
+	* @return new context
+	*/
+	static CryptoContext<Element> genCryptoContextLTV(
+		const usint plaintextModulus, float securityLevel, usint relinWindow, float dist,
+		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches);
+
+	/**
+	* construct a PALISADE CryptoContext for the LTV Scheme using the scheme's ParamsGen methods
+	* @param encodingParams
+	* @param securityLevel
+	* @param numAdds
+	* @param numMults
+	* @param numKeyswitches
+	* @return new context
+	*/
+	static CryptoContext<Element> genCryptoContextLTV(
+		shared_ptr<EncodingParams> encodingParams, float securityLevel, usint relinWindow, float dist,
+		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches);
+
+	/**
 	* construct a PALISADE CryptoContext for the FV Scheme
 	* @param plaintextmodulus
 	* @param ringdim

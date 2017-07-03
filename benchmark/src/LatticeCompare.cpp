@@ -83,7 +83,7 @@ loadprimes()
 	ranloadprimes = true;
 	for( int mbits = 30; mbits <= 60; mbits *= 2 ) {
 		for( int n = 1024; n <=8192; n *= 2 ) {
-			primes[n][mbits] = FindPrimeModulus<BigBinaryInteger>(n, mbits).ToString();
+			primes[n][mbits] = FirstPrime<BigBinaryInteger>(mbits, n).ToString();
 			roots[n][mbits] = RootOfUnity<BigBinaryInteger>(n, BigBinaryInteger(primes[n][mbits])).ToString();
 		}
 	}

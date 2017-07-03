@@ -195,9 +195,6 @@ int main(int argc, char *argv[])
 	std::cout << "This code creates and saves keys to disk, loads the keys from disk, encrypts data and saves ciphertext to disk. " << std::endl;
 	std::cout << "The code then loads the ciphertext from disk and decrypts. " << std::endl;
 
-	//Generate parameters.
-	double diff, start, finish;
-
 	int relWindow = 1;
 	int plaintextModulus = 64;
 	double sigma = 4;
@@ -210,21 +207,6 @@ int main(int argc, char *argv[])
 	// enable features that you wish to use
 	cryptoContext.Enable(ENCRYPTION);
 	cryptoContext.Enable(SHE);
-
-	start = currentDateTime();
-
-	cryptoContext.GetEncryptionAlgorithm()->ParamsGen(cryptoContext.GetCryptoParameters(), 0, 1);
-
-	finish = currentDateTime();
-	diff = finish - start;
-
-	cout << "Param generation time: " << "\t" << diff << " ms" << endl;
-
-	//cryptoContext<ILVector2n> cryptoContext = GencryptoContextElementLTV(ORDER, PTM);
-
-	//Turn on features
-	cryptoContext.Enable(ENCRYPTION);
-	cryptoContext.Enable(PRE);
 
 	std::cout << "p = " << cryptoContext.GetCryptoParameters()->GetPlaintextModulus() << std::endl;
 	std::cout << "n = " << cryptoContext.GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;

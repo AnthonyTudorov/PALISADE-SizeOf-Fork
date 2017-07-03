@@ -1499,7 +1499,7 @@ void ensures_mod_operation_during_ops_on_two_ILVector2ns() {
 	usint order = 8;
 	usint nBits = 7;
 
-	IntType primeModulus = lbcrypto::FindPrimeModulus<IntType>(order, nBits);
+	IntType primeModulus = lbcrypto::FirstPrime<IntType>(nBits, order);
 	IntType primitiveRootOfUnity = lbcrypto::RootOfUnity<IntType>(order, primeModulus);
 
 	shared_ptr<ParmType> ilparams( new ParmType(order, primeModulus, primitiveRootOfUnity) );

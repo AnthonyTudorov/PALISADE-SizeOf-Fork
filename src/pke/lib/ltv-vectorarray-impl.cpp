@@ -34,4 +34,81 @@ template class LPAlgorithmLTV<ILDCRT2n>;
 template class LPAlgorithmPRELTV<ILDCRT2n>;
 template class LPAlgorithmSHELTV<ILDCRT2n>;
 template class LPLeveledSHEAlgorithmLTV<ILDCRT2n>;
+
+template<>
+bool LPAlgorithmParamsGenLTV<ILDCRT2n>::ParamsGen(shared_ptr<LPCryptoParameters<ILDCRT2n>> cryptoParams,
+		int32_t evalAddCount, int32_t evalMultCount, int32_t keySwitchCount) const
+{
+	if (!cryptoParams)
+		return false;
+
+	const shared_ptr<LPCryptoParametersLTV<ILDCRT2n>> cParams = std::dynamic_pointer_cast<LPCryptoParametersLTV<ILDCRT2n>>(cryptoParams);
+
+	double w = cParams->GetAssuranceMeasure();
+	double hermiteFactor = cParams->GetSecurityLevel();
+	usint depth = cParams->GetDepth();
+
+	double secD = 4 * log2(hermiteFactor);
+
+	double p = cParams->GetPlaintextModulus().ConvertToDouble();
+	uint32_t r = cParams->GetRelinWindow();
+
+	double psquared = p * p;
+	double rpow5 = pow(r,5);
+	double wpow5 = pow(w,5);
+
+	vector<native_int::BinaryInteger> qvals;
+
+	usint n = 512; // to start
+	for(;;) {
+		qvals.clear();
+
+
+		double rootn = sqrt(n);
+		double qboundD = 4 * p * r * rootn * w;
+		native_int::BinaryInteger qbound(qboundD);
+		double q2boundD = 4 * psquared * rpow5 * pow(rootn, 3) * wpow5;
+		native_int::BinaryInteger q2bound(q2boundD);
+
+		native_int::BinaryInteger q = FirstPrime<native_int::BinaryInteger>(static_cast<usint>(ceil(log2(qboundD))),n);
+		while( q < qbound )
+			q = NextPrime(q, n);
+
+		native_int::BinaryInteger q2 = FirstPrime<native_int::BinaryInteger>(static_cast<usint>(ceil(log2(q2boundD))), n);
+		while( q2 < q2bound )
+			q2 = NextPrime(q2, n);
+
+		qvals.push_back( q );
+		qvals.push_back( q2 );
+
+		for( usint i=2; i<depth; i++ ) {
+			q2 = NextPrime(q2, n);
+			qvals.push_back(q2);
+		}
+
+		BigBinaryInteger prod(1);
+		for( const auto& qv : qvals )
+			prod = prod * BigBinaryInteger(qv.ConvertToInt());
+
+		// check the correctness constraint
+		auto constraint = log2( prod.ConvertToDouble() ) / secD;
+
+		if( n >= constraint ) {
+			break;
+		}
+
+		n *= 2;
+	}
+
+	vector<native_int::BinaryInteger> roots;
+
+	for( const auto& qv : qvals )
+		roots.push_back( RootOfUnity(n, qv) );
+
+	shared_ptr<ILDCRTParams<BigBinaryInteger>> params(new ILDCRTParams<BigBinaryInteger>(n, qvals, roots));
+	cParams->SetElementParams( params );
+
+	return true;
+}
+
 }

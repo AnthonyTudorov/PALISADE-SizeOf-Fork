@@ -76,8 +76,7 @@ protected:
 TEST(UTNTT, switch_format_simple_single_crt) {
 	usint m1 = 16;
 
-	BigBinaryInteger modulus(1);
-	NextQ(modulus, BigBinaryInteger(2), m1, BigBinaryInteger(4), BigBinaryInteger(4));
+	BigBinaryInteger modulus = FirstPrime<BigBinaryInteger>(22, m1);
 	BigBinaryInteger rootOfUnity(RootOfUnity(m1, modulus));
 	ILParams params(m1, modulus, rootOfUnity);
 	ILParams params2(m1 / 2, modulus, rootOfUnity);
@@ -110,19 +109,17 @@ TEST(UTNTT, switch_format_simple_double_crt) {
 	usint init_size = 2;
 
 	vector<native_int::BinaryInteger> init_moduli(init_size);
-
 	vector<native_int::BinaryInteger> init_rootsOfUnity(init_size);
 
-	native_int::BinaryInteger q(1);
+	native_int::BinaryInteger q = FirstPrime<native_int::BinaryInteger>(28, init_m);
 	native_int::BinaryInteger temp;
 	BigBinaryInteger modulus(1);
 
 	for (size_t i = 0; i < init_size; i++) {
-		lbcrypto::NextQ(q, native_int::BinaryInteger(5), init_m, native_int::BinaryInteger(4), native_int::BinaryInteger(4));
 		init_moduli[i] = q;
 		init_rootsOfUnity[i] = RootOfUnity(init_m, init_moduli[i]);
 		modulus = modulus * BigBinaryInteger(init_moduli[i].ConvertToInt());
-
+		q = NextPrime(q, init_m);
 	}
 
 	DiscreteGaussianGenerator dgg(init_stdDev);
@@ -151,8 +148,7 @@ TEST(UTNTT, switch_format_decompose_single_crt) {
         bool dbg_flag = false;
 	usint m1 = 16;
 
-	BigBinaryInteger modulus(1);
-	NextQ(modulus, BigBinaryInteger(2), m1, BigBinaryInteger(4), BigBinaryInteger(4));
+	BigBinaryInteger modulus = FirstPrime<BigBinaryInteger>(22, m1);
 	BigBinaryInteger rootOfUnity(RootOfUnity(m1, modulus));
 	shared_ptr<ILParams> params( new ILParams(m1, modulus, rootOfUnity) );
 	shared_ptr<ILParams> params2( new ILParams(m1 / 2, modulus, rootOfUnity) );
