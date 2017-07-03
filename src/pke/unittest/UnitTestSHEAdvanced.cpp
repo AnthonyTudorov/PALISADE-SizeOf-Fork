@@ -437,7 +437,6 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 	secondElement[2] = 2;
 
 	IntPlaintextEncoding secondElementEncoding(secondElement);
-	IntPlaintextEncoding results;
 
 	vector<shared_ptr<Ciphertext<ILDCRT2n>>> ciphertextElementOne;
 	vector<shared_ptr<Ciphertext<ILDCRT2n>>> ciphertextElementTwo;
