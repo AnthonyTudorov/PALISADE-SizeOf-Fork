@@ -378,7 +378,7 @@ namespace lbcrypto {
 
 		friend bool operator!=(const LPEvalKey& a, LPEvalKey& b) { return ! (a == b); }
 
-		virtual bool key_compare(const LPEvalKey& other) = 0;
+		virtual bool key_compare(const LPEvalKey& other) const = 0;
 	};
 
 	/**
@@ -509,7 +509,7 @@ namespace lbcrypto {
 
 		bool Deserialize(const Serialized &serObj);
 
-		bool key_compare(const LPEvalKey<Element>& other) {
+		bool key_compare(const LPEvalKey<Element>& other) const {
 			const LPEvalKeyRelin<Element> &oth = dynamic_cast<const LPEvalKeyRelin<Element> &>(other);
 
 			if( *this->GetCryptoParameters() != *oth.GetCryptoParameters() ) return false;
@@ -636,7 +636,7 @@ namespace lbcrypto {
 		*/
 		bool Deserialize(const Serialized &serObj);
 		
-		bool key_compare(const LPEvalKey<Element>& other) {
+		bool key_compare(const LPEvalKey<Element>& other) const {
 			const LPEvalKeyNTRURelin<Element> &oth = dynamic_cast<const LPEvalKeyNTRURelin<Element> &>(other);
 
 			if( *this->GetCryptoParameters() != *oth.GetCryptoParameters() ) return false;
@@ -786,7 +786,7 @@ namespace lbcrypto {
 			return true;
 		}
 
-		bool key_compare(const LPEvalKey<Element>& other) {
+		bool key_compare(const LPEvalKey<Element>& other) const {
 			const LPEvalKeyNTRU<Element> &oth = dynamic_cast<const LPEvalKeyNTRU<Element> &>(other);
 
 			if( *this->GetCryptoParameters() != *oth.GetCryptoParameters() ) return false;
