@@ -87,46 +87,10 @@ main(int argc, char *argv[])
 	const usint mdim = 3;
 	const usint maxprint = 10;
 
-	CryptoContext<ILDCRT2n> cc = GenCryptoContextElementArrayNull(m, 5, ptm, 20);
+	shared_ptr<CryptoContext<ILDCRT2n>> cc = GenCryptoContextElementArrayNull(m, 5, ptm, 20);
 	//CryptoContext<ILVector2n> cc = GenCryptoContextElementNull(m, ptm);
-	//CryptoContext<ILDCRT2n> cc = GenCryptoContextElementArrayLTV(m, 5, ptm, 20);
+	//shared_ptr<CryptoContext<ILDCRT2n>> cc = GenCryptoContextElementArrayLTV(m, 5, ptm, 20);
 	//CryptoContext<ILVector2n> cc = GenCryptoContextElementLTV(m, ptm);
-	cc.Enable(LEVELEDSHE);
-
-//	IntPlaintextEncoding vecs[] = {
-//			{ 1,2,3,5 },
-//			{ 1,2,3,7 }
-//	};
-	IntPlaintextEncoding ints[] = { { 7 }, { 3 } };
-
-	LPKeyPair<ILDCRT2n> kp = cc.KeyGen();
-	cc.EvalMultKeyGen(kp.secretKey);
-
-	//	vector< vector<shared_ptr<Ciphertext<ILDCRT2n>>> > cipherVecs;
-	//	for( size_t i = 0; i < sizeof(vecs)/sizeof(vecs[0]); i++ )
-	//		cipherVecs.push_back( cc.Encrypt(kp.publicKey, vecs[i]) );
-
-	vector< vector<shared_ptr<Ciphertext<ILDCRT2n>>> > intVecs;
-	for( size_t i = 0; i < sizeof(ints)/sizeof(ints[0]); i++ )
-		intVecs.push_back( cc.Encrypt(kp.publicKey, ints[i]) );
-
-	vector< vector<shared_ptr<Ciphertext<ILDCRT2n>>> > cipherVecs;
-	for( usint d = 0; d < 4; d++ )
-		for( usint i=1; i<10; i++ ){
-			IntPlaintextEncoding ie( {i} );
-			cipherVecs.push_back( cc.Encrypt(kp.publicKey, ie) );
-		}
-
-	Matrix<IntPlaintextEncoding> mat([](){return make_unique<IntPlaintextEncoding>();},mdim,mdim);
-	usint mi=1;
-	for(usint r=0; r<mat.GetRows(); r++)
-		for(usint c=0; c<mat.GetCols(); c++) {
-			mat(r,c) = { mi++, 0, 0, 0 };
-		}
-
-	shared_ptr<Matrix<RationalCiphertext<ILDCRT2n>>> emat = cc.EncryptMatrix(kp.publicKey, mat);
-
-	CircuitIO<ILDCRT2n> inputs;
 
 	bool debug_parse = false;
 	bool print_input_graph = false;
@@ -229,14 +193,12 @@ main(int argc, char *argv[])
 		}
 
 		// Prepare to process the graph
-//		if( verbose )
-//			cout << "Crypto Parameters used:" << endl << *cc.GetCryptoParameters() << endl;
 
 		// when in evaluation mode (prepare to estimate/run, then stop), save the CryptoContext
 		if( evaluation_list_mode ) {
 			Serialized serObj;
 			serObj.SetObject();
-			if( cc.Serialize(&serObj) == false ) {
+			if( cc->Serialize(&serObj) == false ) {
 				cout << "Can't serialize CryptoContext" << endl;
 				return 1;
 			}
@@ -252,8 +214,10 @@ main(int argc, char *argv[])
 				return 1;
 			}
 
-			if( CryptoContextFactory<ILDCRT2n>::DeserializeAndValidateParams(cc, serObj) == false ) {
-				cout << "WARNING: Crypto context in file does not match" << endl;
+			if( (cc = CryptoContextFactory<ILDCRT2n>::DeserializeAndCreateContext(serObj)) == NULL ) {
+				cout << "Unable to deserialize and initialize from saved crypto context" << endl;
+				evalStatF.close();
+				return 1;
 			}
 
 			while( SerializableHelper::StreamToSerialization(evalStatF, &serObj) == true ) {
@@ -324,6 +288,37 @@ main(int argc, char *argv[])
 			cout << "Circuit takes " << intypes.size() << " inputs:" <<endl;
 		}
 
+		cc->Enable(ENCRYPTION);
+		cc->Enable(SHE);
+		cc->Enable(LEVELEDSHE);
+
+		IntPlaintextEncoding ints[] = { { 7 }, { 3 } };
+
+		LPKeyPair<ILDCRT2n> kp = cc->KeyGen();
+		cc->EvalMultKeyGen(kp.secretKey);
+
+		vector< vector<shared_ptr<Ciphertext<ILDCRT2n>>> > intVecs;
+		for( size_t i = 0; i < sizeof(ints)/sizeof(ints[0]); i++ )
+			intVecs.push_back( cc->Encrypt(kp.publicKey, ints[i]) );
+
+		vector< vector<shared_ptr<Ciphertext<ILDCRT2n>>> > cipherVecs;
+		for( usint d = 0; d < 4; d++ )
+			for( usint i=1; i<10; i++ ){
+				IntPlaintextEncoding ie( {i} );
+				cipherVecs.push_back( cc->Encrypt(kp.publicKey, ie) );
+			}
+
+		Matrix<IntPlaintextEncoding> mat([](){return make_unique<IntPlaintextEncoding>();},mdim,mdim);
+		usint mi=1;
+		for(usint r=0; r<mat.GetRows(); r++)
+			for(usint c=0; c<mat.GetCols(); c++) {
+				mat(r,c) = { mi++, 0, 0, 0 };
+			}
+
+		shared_ptr<Matrix<RationalCiphertext<ILDCRT2n>>> emat = cc->EncryptMatrix(kp.publicKey, mat);
+
+		CircuitIO<ILDCRT2n> inputs;
+
 		size_t curVec = 0, maxVec = MAXVECS; //sizeof(vecs)/sizeof(vecs[0]);
 		size_t curInt = 0, maxInt = sizeof(ints)/sizeof(ints[0]);
 
@@ -352,7 +347,7 @@ main(int argc, char *argv[])
 						for(usint c=0; c<mat.GetCols(); c++) {
 							cout << "Col " << c << ": [";
 							size_t i;
-							for( i=0; i < maxprint && i < cc.GetRingDimension(); i++ )
+							for( i=0; i < maxprint && i < cc->GetRingDimension(); i++ )
 								cout << mat(r,c)[i] << " ";
 							cout << (( i == maxprint ) ? "..." : "");
 							cout << "] ";
@@ -368,11 +363,11 @@ main(int argc, char *argv[])
 		}
 
 		vector<TimingInfo>	times;
-		cc.StartTiming(&times);
+		cc->StartTiming(&times);
 
 		CircuitIO<ILDCRT2n> outputs = cir.CircuitEval(inputs, verbose);
 
-		cc.StopTiming();
+		cc->StopTiming();
 
 		if( verbose )
 			CircuitNodeWithValue<ILDCRT2n>::PrintLog(cout);

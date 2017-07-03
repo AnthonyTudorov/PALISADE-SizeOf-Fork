@@ -98,7 +98,7 @@ bool Matrix<RationalCiphertext<ILVector2n>>::Deserialize(const Serialized& serOb
 	int mcols = std::stoi( mIter->value.GetString() );
 
 	auto tempElement = this->allocZero();
-	CryptoContext<ILVector2n> cc = tempElement->GetCryptoContext();
+	CryptoContext<ILVector2n>* cc = tempElement->GetCryptoContext();
 
 	if( bool(cc) == false )
 		return false;

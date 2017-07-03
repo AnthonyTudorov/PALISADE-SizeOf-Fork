@@ -60,7 +60,7 @@ std::ostream& operator<<(std::ostream& out, const CircuitObject<Element>& obj)
 }
 
 template<typename Element>
-void CircuitObject<Element>::DecryptAndPrint(CryptoContext<Element> cc, shared_ptr<LPPrivateKey<Element>> key, std::ostream& out) const
+void CircuitObject<Element>::DecryptAndPrint(shared_ptr<CryptoContext<Element>> cc, shared_ptr<LPPrivateKey<Element>> key, std::ostream& out) const
 {
 	const size_t n = 10;
 
@@ -68,10 +68,10 @@ void CircuitObject<Element>::DecryptAndPrint(CryptoContext<Element> cc, shared_p
 	case VECTOR_INT:
 	{
 		IntPlaintextEncoding result;
-		cc.Decrypt(key, {GetIntVecValue()}, &result);
+		cc->Decrypt(key, {GetIntVecValue()}, &result);
 
 		size_t i;
-		for( i=0; i < n && i < cc.GetRingDimension(); i++ )
+		for( i=0; i < n && i < cc->GetRingDimension(); i++ )
 			out << result[i] << " ";
 		out << (( i == n ) ? "..." : " ") << std::endl;
 	}
@@ -81,19 +81,19 @@ void CircuitObject<Element>::DecryptAndPrint(CryptoContext<Element> cc, shared_p
 	{
 		Matrix<IntPlaintextEncoding> numerator([](){return make_unique<IntPlaintextEncoding>();},GetIntMatValue()->GetRows(),GetIntMatValue()->GetCols());
 		Matrix<IntPlaintextEncoding> denominator([](){return make_unique<IntPlaintextEncoding>();},GetIntMatValue()->GetRows(),GetIntMatValue()->GetCols());
-		cc.DecryptMatrix(key, GetIntMatValue(), &numerator, &denominator);
+		cc->DecryptMatrix(key, GetIntMatValue(), &numerator, &denominator);
 
 		size_t r, c, i;
 		for( r=0; r < GetIntMatValue()->GetRows(); r++ ) {
 			out << "Row " << r << std::endl;
 			for( c=0; c < GetIntMatValue()->GetCols(); c++ ) {
 				out << "Col " << c << ": ([";
-				for( i=0; i < n && i < cc.GetRingDimension(); i++ ) {
+				for( i=0; i < n && i < cc->GetRingDimension(); i++ ) {
 					out << numerator(r,c)[i] << " ";
 				}
 				out << (( i == n ) ? "..." : "");
 				out << "]/[";
-				for( i=0; i < n && i < cc.GetRingDimension(); i++ ) {
+				for( i=0; i < n && i < cc->GetRingDimension(); i++ ) {
 					out << denominator(r,c)[i] << " ";
 				}
 				out << (( i == n ) ? "..." : "");

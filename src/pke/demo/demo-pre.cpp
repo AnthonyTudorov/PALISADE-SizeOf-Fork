@@ -66,16 +66,16 @@ int main(int argc, char *argv[])
 	double rootHermiteFactor = 1.006;	
 
 	//Set Crypto Parameters	
-	CryptoContext<ILVector2n> cryptoContext = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
+	shared_ptr<CryptoContext<ILVector2n>> cryptoContext = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
 			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 1, 0);
 
 	// enable features that you wish to use
-	cryptoContext.Enable(ENCRYPTION);
-	cryptoContext.Enable(SHE);
+	cryptoContext->Enable(ENCRYPTION);
+	cryptoContext->Enable(SHE);
 	
-	std::cout << "p = " << cryptoContext.GetCryptoParameters()->GetPlaintextModulus() << std::endl;
-	std::cout << "n = " << cryptoContext.GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
-	std::cout << "log2 q = " << log2(cryptoContext.GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
+	std::cout << "p = " << cryptoContext->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
+	std::cout << "n = " << cryptoContext->GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
+	std::cout << "log2 q = " << log2(cryptoContext->GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
 
 	//std::cout << "Press any key to continue." << std::endl;
 	//std::cin.get();
@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
 
 	start = currentDateTime();
 
-	keyPair1 = cryptoContext.KeyGen();
+	keyPair1 = cryptoContext->KeyGen();
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
 
 	start = currentDateTime();
 
-	ciphertext1 = cryptoContext.Encrypt(keyPair1.publicKey, plaintext, true);
+	ciphertext1 = cryptoContext->Encrypt(keyPair1.publicKey, plaintext, true);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
 
 	start = currentDateTime();
 
-	cryptoContext.Decrypt(keyPair1.secretKey, ciphertext1, &plaintextDec1, true);
+	cryptoContext->Decrypt(keyPair1.secretKey, ciphertext1, &plaintextDec1, true);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -161,7 +161,7 @@ int main(int argc, char *argv[])
 
 	start = currentDateTime();
 
-	keyPair2 = cryptoContext.KeyGen();
+	keyPair2 = cryptoContext->KeyGen();
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -183,7 +183,7 @@ int main(int argc, char *argv[])
 
 	start = currentDateTime();
 
-	reencryptionKey12 = cryptoContext.ReKeyGen(keyPair2.secretKey, keyPair1.secretKey);
+	reencryptionKey12 = cryptoContext->ReKeyGen(keyPair2.secretKey, keyPair1.secretKey);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -197,7 +197,7 @@ int main(int argc, char *argv[])
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext2;
 
-	ciphertext2 = cryptoContext.ReEncrypt(reencryptionKey12, ciphertext1);
+	ciphertext2 = cryptoContext->ReEncrypt(reencryptionKey12, ciphertext1);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -211,7 +211,7 @@ int main(int argc, char *argv[])
 
 	start = currentDateTime();
 
-	cryptoContext.Decrypt(keyPair2.secretKey, ciphertext2, &plaintextDec2, true);
+	cryptoContext->Decrypt(keyPair2.secretKey, ciphertext2, &plaintextDec2, true);
 
 	finish = currentDateTime();
 	diff = finish - start;

@@ -40,6 +40,9 @@ namespace lbcrypto {
 template <class Element>
 class CryptoContext;
 
+template <class Element>
+class CryptoObject;
+
 }
 
 #include "math/backend.h"

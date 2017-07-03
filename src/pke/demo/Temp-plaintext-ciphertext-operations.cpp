@@ -130,13 +130,13 @@ void LTVPlaintextPKE() {
 
 	//Create the context
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, encodingParams, 8, stdDev);
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, encodingParams, 8, stdDev);
 	
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	LPKeyPair<ILVector2n> kp = cc->KeyGen();
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
 
@@ -145,11 +145,11 @@ void LTVPlaintextPKE() {
 
 	std::cout << "Input array\n\t" << intArray << std::endl;
 
-	ciphertext = cc.Encrypt(kp.publicKey, intArray, false, false);
+	ciphertext = cc->Encrypt(kp.publicKey, intArray, false, false);
 
 	PackedIntPlaintextEncoding intArrayNew;
 
-	cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
+	cc->Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
 
 	std::cout << "Decrypted array: " << intArrayNew << std::endl;
 
@@ -185,13 +185,13 @@ void BVPlaintextPKE() {
 
 	//Create the context
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, encodingParams, 8, stdDev);
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, encodingParams, 8, stdDev);
 
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	LPKeyPair<ILVector2n> kp = cc->KeyGen();
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
 
@@ -200,11 +200,11 @@ void BVPlaintextPKE() {
 
 	std::cout << "Input array\n\t" << intArray << std::endl;
 
-	ciphertext = cc.Encrypt(kp.publicKey, intArray, false, false);
+	ciphertext = cc->Encrypt(kp.publicKey, intArray, false, false);
 
 	PackedIntPlaintextEncoding intArrayNew;
 
-	cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
+	cc->Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
 
 	std::cout << "Decrypted array: " << intArrayNew << std::endl;
 
@@ -241,15 +241,15 @@ void FVPlaintextPKE() {
 
 	//Create the context
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
 		params, encodingParams,
 		8, stdDev, delta.ToString());
 
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	LPKeyPair<ILVector2n> kp = cc->KeyGen();
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
 
@@ -258,11 +258,11 @@ void FVPlaintextPKE() {
 
 	std::cout << "Input array\n\t" << intArray << std::endl;
 
-	ciphertext = cc.Encrypt(kp.publicKey, intArray, false, false);
+	ciphertext = cc->Encrypt(kp.publicKey, intArray, false, false);
 
 	PackedIntPlaintextEncoding intArrayNew;
 
-	cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
+	cc->Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
 
 	std::cout << "Decrypted array: " << intArrayNew << std::endl;
 
@@ -297,13 +297,13 @@ void LTVEvalMultPlain() {
 
 	//Create the context
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, encodingParams, 8, stdDev);
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, encodingParams, 8, stdDev);
 
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	LPKeyPair<ILVector2n> kp = cc->KeyGen();
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext1;
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext2;
@@ -319,16 +319,16 @@ void LTVEvalMultPlain() {
 
 	std::cout << "Input array 2\n\t" << intArray2 << std::endl;
 
-	ciphertext1 = cc.Encrypt(kp.publicKey, intArray1, false);
+	ciphertext1 = cc->Encrypt(kp.publicKey, intArray1, false);
 
-	ciphertext2 = cc.Encrypt(kp.publicKey, intArray2, false, false);
+	ciphertext2 = cc->Encrypt(kp.publicKey, intArray2, false, false);
 
-	auto ciphertextMult = cc.EvalMultPlain(ciphertext1.at(0), ciphertext2.at(0));
+	auto ciphertextMult = cc->EvalMultPlain(ciphertext1.at(0), ciphertext2.at(0));
 	ciphertextResult.insert(ciphertextResult.begin(), ciphertextMult);
 
 	PackedIntPlaintextEncoding intArrayNew;
 
-	cc.Decrypt(kp.secretKey, ciphertextResult, &intArrayNew, false);
+	cc->Decrypt(kp.secretKey, ciphertextResult, &intArrayNew, false);
 
 	std::cout << "Decrypted array: " << intArrayNew << std::endl;
 	
@@ -364,13 +364,13 @@ void BVEvalMultPlain() {
 
 	//Create the context
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, encodingParams, 8, stdDev);
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, encodingParams, 8, stdDev);
 
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	LPKeyPair<ILVector2n> kp = cc->KeyGen();
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext1;
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext2;
@@ -386,16 +386,16 @@ void BVEvalMultPlain() {
 
 	std::cout << "Input array 2\n\t" << intArray2 << std::endl;
 
-	ciphertext1 = cc.Encrypt(kp.publicKey, intArray1, false);
+	ciphertext1 = cc->Encrypt(kp.publicKey, intArray1, false);
 
-	ciphertext2 = cc.Encrypt(kp.publicKey, intArray2, false, false);
+	ciphertext2 = cc->Encrypt(kp.publicKey, intArray2, false, false);
 
-	auto ciphertextMult = cc.EvalMultPlain(ciphertext1.at(0), ciphertext2.at(0));
+	auto ciphertextMult = cc->EvalMultPlain(ciphertext1.at(0), ciphertext2.at(0));
 	ciphertextResult.insert(ciphertextResult.begin(), ciphertextMult);
 
 	PackedIntPlaintextEncoding intArrayNew;
 
-	cc.Decrypt(kp.secretKey, ciphertextResult, &intArrayNew, false);
+	cc->Decrypt(kp.secretKey, ciphertextResult, &intArrayNew, false);
 
 	std::cout << "Decrypted array: " << intArrayNew << std::endl;
 
@@ -447,14 +447,14 @@ void FVEvalMultPlain() {
 
 	//Create the context
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(params, encodingParams, 1, stdDev, delta.ToString(), OPTIMIZED,
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(params, encodingParams, 1, stdDev, delta.ToString(), OPTIMIZED,
 		bigEvalMultModulus.ToString(), bigEvalMultRootOfUnity.ToString(), 1, 9, 1.006, bigEvalMultModulusAlt.ToString(), bigEvalMultRootOfUnityAlt.ToString());
 
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	LPKeyPair<ILVector2n> kp = cc->KeyGen();
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext1;
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext2;
@@ -470,16 +470,16 @@ void FVEvalMultPlain() {
 
 	std::cout << "Input array 2\n\t" << intArray2 << std::endl;
 
-	ciphertext1 = cc.Encrypt(kp.publicKey, intArray1, false);
+	ciphertext1 = cc->Encrypt(kp.publicKey, intArray1, false);
 
-	ciphertext2 = cc.Encrypt(kp.publicKey, intArray2, false, false);
+	ciphertext2 = cc->Encrypt(kp.publicKey, intArray2, false, false);
 
-	auto ciphertextMult = cc.EvalMultPlain(ciphertext1.at(0), ciphertext2.at(0));
+	auto ciphertextMult = cc->EvalMultPlain(ciphertext1.at(0), ciphertext2.at(0));
 	ciphertextResult.insert(ciphertextResult.begin(), ciphertextMult);
 
 	PackedIntPlaintextEncoding intArrayNew;
 
-	cc.Decrypt(kp.secretKey, ciphertextResult, &intArrayNew, false);
+	cc->Decrypt(kp.secretKey, ciphertextResult, &intArrayNew, false);
 
 	std::cout << "Decrypted array: " << intArrayNew << std::endl;
 

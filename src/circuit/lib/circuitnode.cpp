@@ -36,7 +36,7 @@
 namespace lbcrypto {
 
 template<typename Element>
-CryptoContext<Element> CircuitGraphWithValues<Element>::_graph_cc;
+shared_ptr<CryptoContext<Element>> CircuitGraphWithValues<Element>::_graph_cc;
 
 template<typename Element>
 shared_ptr<LPPrivateKey<Element>> CircuitGraphWithValues<Element>::_graph_key;
@@ -143,7 +143,7 @@ void EvalAddNode::simeval(CircuitGraph& g, vector<CircuitSimulation>& ops) {
 }
 
 template<typename Element>
-Value<Element> EvalAddNodeWithValue<Element>::eval(CryptoContext<Element>& cc, CircuitGraphWithValues<Element>& cg) {
+Value<Element> EvalAddNodeWithValue<Element>::eval(shared_ptr<CryptoContext<Element>> cc, CircuitGraphWithValues<Element>& cg) {
 	if( this->value.GetType() != UNKNOWN )
 		return this->value;
 
@@ -164,10 +164,10 @@ Value<Element> EvalAddNodeWithValue<Element>::eval(CryptoContext<Element>& cc, C
 		}
 
 		if( t0 == VECTOR_INT ) {
-			v0 = cc.EvalAdd(v0.GetIntVecValue(), v1.GetIntVecValue());
+			v0 = cc->EvalAdd(v0.GetIntVecValue(), v1.GetIntVecValue());
 		}
 		else if( t0 == MATRIX_RAT ) {
-			v0 = cc.EvalAddMatrix(v0.GetIntMatValue(), v1.GetIntMatValue());
+			v0 = cc->EvalAddMatrix(v0.GetIntMatValue(), v1.GetIntMatValue());
 		}
 		else {
 			throw std::logic_error("node " + std::to_string(this->getNode()->GetId()) + " eval add for types " + std::to_string(t0) + " and " + std::to_string(t1) + " not implemented");
@@ -213,7 +213,7 @@ void EvalSubNode::simeval(CircuitGraph& g, vector<CircuitSimulation>& ops) {
 }
 
 template<typename Element>
-Value<Element> EvalSubNodeWithValue<Element>::eval(CryptoContext<Element>& cc, CircuitGraphWithValues<Element>& cg) {
+Value<Element> EvalSubNodeWithValue<Element>::eval(shared_ptr<CryptoContext<Element>> cc, CircuitGraphWithValues<Element>& cg) {
 	if( this->value.GetType() != UNKNOWN )
 		return this->value;
 
@@ -224,13 +224,13 @@ Value<Element> EvalSubNodeWithValue<Element>::eval(CryptoContext<Element>& cc, C
 		auto t0 = v0.GetType();
 
 		if( t0 == VECTOR_INT ) {
-			this->value = cc.EvalNegate(v0.GetIntVecValue());
+			this->value = cc->EvalNegate(v0.GetIntVecValue());
 			this->SetNoise( n0->GetNoise() );
 			this->Log();
 			return this->value;
 		}
 		else if( t0 == MATRIX_RAT ) {
-			this->value = cc.EvalNegateMatrix(v0.GetIntMatValue());
+			this->value = cc->EvalNegateMatrix(v0.GetIntMatValue());
 			this->SetNoise( n0->GetNoise() );
 			this->Log();
 			return this->value;
@@ -257,10 +257,10 @@ Value<Element> EvalSubNodeWithValue<Element>::eval(CryptoContext<Element>& cc, C
 		}
 
 		if( t0 == VECTOR_INT ) {
-			v0 = cc.EvalSub(v0.GetIntVecValue(), v1.GetIntVecValue());
+			v0 = cc->EvalSub(v0.GetIntVecValue(), v1.GetIntVecValue());
 		}
 		else if( t0 == MATRIX_RAT ) {
-			v0 = cc.EvalSubMatrix(v0.GetIntMatValue(), v1.GetIntMatValue());
+			v0 = cc->EvalSubMatrix(v0.GetIntMatValue(), v1.GetIntMatValue());
 		}
 		else {
 			throw std::logic_error("node " + std::to_string(this->getNode()->GetId()) + " eval sub for types " + std::to_string(t0) + " and " + std::to_string(t1) + " are not implemented");
@@ -290,7 +290,7 @@ void EvalNegNode::simeval(CircuitGraph& g, vector<CircuitSimulation>& ops) {
 }
 
 template<typename Element>
-Value<Element> EvalNegNodeWithValue<Element>::eval(CryptoContext<Element>& cc, CircuitGraphWithValues<Element>& cg) {
+Value<Element> EvalNegNodeWithValue<Element>::eval(shared_ptr<CryptoContext<Element>> cc, CircuitGraphWithValues<Element>& cg) {
 	if( this->value.GetType() != UNKNOWN )
 		return this->value;
 
@@ -301,10 +301,10 @@ Value<Element> EvalNegNodeWithValue<Element>::eval(CryptoContext<Element>& cc, C
 	auto t0 = v0.GetType();
 
 	if( t0 == VECTOR_INT ) {
-		this->value = cc.EvalNegate(v0.GetIntVecValue());
+		this->value = cc->EvalNegate(v0.GetIntVecValue());
 	}
 	else if( t0 == MATRIX_RAT ) {
-		v0 = cc.EvalNegateMatrix(v0.GetIntMatValue());
+		v0 = cc->EvalNegateMatrix(v0.GetIntMatValue());
 	}
 	else {
 		throw std::logic_error("node " + std::to_string(this->getNode()->GetId()) + " eval negate for type " + std::to_string(t0) + " is not implemented");
@@ -333,7 +333,7 @@ void EvalMultNode::simeval(CircuitGraph& g, vector<CircuitSimulation>& ops) {
 }
 
 template<typename Element>
-Value<Element> EvalMultNodeWithValue<Element>::eval(CryptoContext<Element>& cc, CircuitGraphWithValues<Element>& cg) {
+Value<Element> EvalMultNodeWithValue<Element>::eval(shared_ptr<CryptoContext<Element>> cc, CircuitGraphWithValues<Element>& cg) {
 	if( this->value.GetType() != UNKNOWN )
 		return this->value;
 
@@ -351,10 +351,10 @@ Value<Element> EvalMultNodeWithValue<Element>::eval(CryptoContext<Element>& cc, 
 	}
 
 	if( t1 == VECTOR_INT ) {
-		this->value = cc.EvalMult(v0.GetIntVecValue(), v1.GetIntVecValue());
+		this->value = cc->EvalMult(v0.GetIntVecValue(), v1.GetIntVecValue());
 	}
 	else if( t0 == MATRIX_RAT ) {
-		this->value = cc.EvalMultMatrix(v0.GetIntMatValue(), v1.GetIntMatValue());
+		this->value = cc->EvalMultMatrix(v0.GetIntMatValue(), v1.GetIntMatValue());
 	}
 	else {
 		throw std::logic_error("node " + std::to_string(this->getNode()->GetId()) + " eval mult for types " + std::to_string(t0) + " and " + std::to_string(t1) + " are not implemented");
@@ -381,7 +381,7 @@ void ModReduceNode::simeval(CircuitGraph& g, vector<CircuitSimulation>& ops) {
 }
 
 template<typename Element>
-Value<Element> ModReduceNodeWithValue<Element>::eval(CryptoContext<Element>& cc, CircuitGraphWithValues<Element>& cg) {
+Value<Element> ModReduceNodeWithValue<Element>::eval(shared_ptr<CryptoContext<Element>> cc, CircuitGraphWithValues<Element>& cg) {
 	if( this->value.GetType() != UNKNOWN )
 		return this->value;
 
@@ -392,10 +392,10 @@ Value<Element> ModReduceNodeWithValue<Element>::eval(CryptoContext<Element>& cc,
 	auto t0 = v0.GetType();
 
 	if( t0 == VECTOR_INT ) {
-		this->value = cc.ModReduce(v0.GetIntVecValue());
+		this->value = cc->ModReduce(v0.GetIntVecValue());
 	}
 	else if( t0 == MATRIX_RAT ) {
-		this->value = cc.ModReduceMatrix(v0.GetIntMatValue());
+		this->value = cc->ModReduceMatrix(v0.GetIntMatValue());
 	}
 	else {
 		throw std::logic_error("node " + std::to_string(this->getNode()->GetId()) + " modreduce for type " + std::to_string(t0) + " is not implemented");

@@ -45,33 +45,30 @@
  */
 namespace lbcrypto {
 
-	//forward declaration of Ciphertext class; used to resolve circular header dependency
-	template <class Element>
+	//forward declarations, used to resolve circular header dependencies
+	template<typename Element>
 	class Ciphertext;
 
-	//forward declaration of RationalCiphertext class; used to resolve circular header dependency
-	template <class Element>
+	template<typename Element>
 	class RationalCiphertext;
 
-	//forward declaration of LPCryptoParameters class;
-	template <class Element>
+	template<typename Element>
 	class LPCryptoParameters;
 
-	//forward declaration of LPCryptoParametersLTV class;
-	template <class Element>
+	template<typename Element>
 	class LPCryptoParametersLTV;
 
-	//forward declaration of LPCryptoParametersBV class;
-	template <class Element>
+	template<typename Element>
 	class LPCryptoParametersBV;
 
-	//forward declaration of LPCryptoParametersFV class;
-	template <class Element>
+	template<typename Element>
 	class LPCryptoParametersFV;
 
-	//forward declaration of LPCryptoParametersStehleSteinfeld class;
-	template <class Element>
+	template<typename Element>
 	class LPCryptoParametersStehleSteinfeld;
+
+	template<typename Element>
+	class CryptoObject;
 
 	struct EncryptResult {
 
@@ -111,30 +108,17 @@ namespace lbcrypto {
 
 	/**
 	 * @brief Abstract interface class for LP Keys
+	 *
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
-	class LPKey : public Serializable {
+	class LPKey : public CryptoObject<Element>, public Serializable {
 	public:
+		LPKey(CryptoContext<Element>* cc) : CryptoObject<Element>(cc) {}
 
-		LPKey(const CryptoContext<Element>& cc) : cryptoContext(cc) {}
+		LPKey(shared_ptr<CryptoContext<Element>> cc) : CryptoObject<Element>(cc.get()) {}
 
 		virtual ~LPKey() {}
-
-		/**
-		 * Gets a read-only reference to an LPCryptoParameters-derived class
-		 * @return the crypto parameters.
-		 */
-		const CryptoContext<Element>& GetCryptoContext() const { return cryptoContext; }
-
-		/**
-		 * Gets a read-only reference to an LPCryptoParameters-derived class
-		 * @return the crypto parameters.
-		 */
-		const shared_ptr<LPCryptoParameters<Element>> GetCryptoParameters() const { return cryptoContext.GetCryptoParameters(); }
-
-	protected:
-		CryptoContext<Element>	cryptoContext;
 	};
 
 	/**
@@ -150,14 +134,14 @@ namespace lbcrypto {
 			*
 			* @param &cryptoParams is the reference to cryptoParams
 			*/
-			LPPublicKey(const CryptoContext<Element>& cc) : LPKey<Element>(cc) {}
+			LPPublicKey(CryptoContext<Element>* cc) : LPKey<Element>(cc) {}
 
 			/**
 			* Copy constructor
 			*
 			*@param &rhs LPPublicKey to copy from
 			*/
-			explicit LPPublicKey(const LPPublicKey<Element> &rhs) : LPKey<Element>(rhs.cryptoContext) {
+			explicit LPPublicKey(const LPPublicKey<Element> &rhs) : LPKey<Element>(rhs.GetCryptoContext()) {
 				m_h = rhs.m_h;
 			}
 
@@ -166,7 +150,7 @@ namespace lbcrypto {
 			*
 			*@param &rhs LPPublicKey to move from
 			*/
-			explicit LPPublicKey(LPPublicKey<Element> &&rhs) : LPKey<Element>(rhs.cryptoContext) {
+			explicit LPPublicKey(LPPublicKey<Element> &&rhs) : LPKey<Element>(rhs.GetCryptoContext()) {
 				m_h = std::move(rhs.m_h);
 			}
 
@@ -176,8 +160,8 @@ namespace lbcrypto {
 			* @param &rhs LPPublicKey to copy from
 			*/
 			const LPPublicKey<Element>& operator=(const LPPublicKey<Element> &rhs) {
+				this->context = rhs.context;
 				this->m_h = rhs.m_h;
-
 				return *this;
 			}
 
@@ -187,6 +171,8 @@ namespace lbcrypto {
 			* @param &rhs LPPublicKey to copy from
 			*/
 			const LPPublicKey<Element>& operator=(LPPublicKey<Element> &&rhs) {
+				this->context = rhs.context;
+				rhs.context = 0;
 				m_h = std::move(rhs.m_h);
 				return *this;
 			}
@@ -251,24 +237,23 @@ namespace lbcrypto {
 			bool Deserialize(const Serialized &serObj);
 
 			bool operator==(const LPPublicKey& other) const {
-				if( *this->cryptoContext.GetCryptoParameters() != *other.cryptoContext.GetCryptoParameters() )
+				if( *this->GetCryptoParameters() != *other.GetCryptoParameters() )
 					return false;
 
 				if( m_h.size() != other.m_h.size() )
 					return false;
 
 				for( size_t i = 0; i < m_h.size(); i++ )
-				  //if( m_h[i] != other.m_h[i] )
-				  if( m_h.at(i) != other.m_h.at(i)) 
+					if( m_h[i] != other.m_h[i] )
 						return false;
 
 				return true;
 			}
+
 			bool operator!=(const LPPublicKey& other) const { return ! (*this == other); }
 
 	private:
 		std::vector<Element> m_h;
-
 	};
 
 	/**
@@ -285,7 +270,9 @@ namespace lbcrypto {
 		* @param &cryptoParams is the reference to cryptoParams
 		*/
 
-		LPEvalKey(const CryptoContext<Element>& cc) : LPKey<Element>(cc) {}
+		LPEvalKey(CryptoContext<Element>* cc) : LPKey<Element>(cc) {}
+
+		virtual ~LPEvalKey() {}
 
 		/**
 		* Setter function to store Relinearization Element Vector A.
@@ -384,6 +371,14 @@ namespace lbcrypto {
 		virtual const Element &GetA() const {
 			throw std::runtime_error("GetA operation not supported");
 		}
+
+		friend bool operator==(const LPEvalKey& a, const LPEvalKey& b) {
+			return a.key_compare(b);
+		}
+
+		friend bool operator!=(const LPEvalKey& a, LPEvalKey& b) { return ! (a == b); }
+
+		virtual bool key_compare(const LPEvalKey& other) const = 0;
 	};
 
 	/**
@@ -399,7 +394,50 @@ namespace lbcrypto {
 		*
 		* @param &cryptoParams is the reference to cryptoParams
 		*/
-		LPEvalKeyRelin(const CryptoContext<Element>& cc) : LPEvalKey<Element>(cc) {}
+		LPEvalKeyRelin(CryptoContext<Element>* cc) : LPEvalKey<Element>(cc) {}
+
+		virtual ~LPEvalKeyRelin() {}
+
+		/**
+		* Copy constructor
+		*
+		*@param &rhs key to copy from
+		*/
+		explicit LPEvalKeyRelin(const LPEvalKeyRelin<Element> &rhs) : LPEvalKey<Element>(rhs.GetCryptoContext()) {
+			m_rKey = rhs.m_rKey;
+		}
+
+		/**
+		* Move constructor
+		*
+		*@param &rhs key to move from
+		*/
+		explicit LPEvalKeyRelin(LPEvalKeyRelin<Element> &&rhs) : LPEvalKey<Element>(rhs.GetCryptoContext()) {
+			m_rKey = std::move(rhs.m_rKey);
+		}
+
+		/**
+		* Assignment Operator.
+		*
+		* @param &rhs key to copy from
+		*/
+		const LPEvalKeyRelin<Element>& operator=(const LPEvalKeyRelin<Element> &rhs) {
+			this->context = rhs.context;
+			this->m_rKey = rhs.m_rKey;
+			return *this;
+		}
+
+		/**
+		* Move Assignment Operator.
+		*
+		* @param &rhs key to move from
+		*/
+		const LPEvalKeyRelin<Element>& operator=(LPEvalKeyRelin<Element> &&rhs) {
+			this->context = rhs.context;
+			rhs.context = 0;
+			m_rKey = std::move(rhs.m_rKey);
+			return *this;
+		}
 
 		/**
 		* Setter function to store Relinearization Element Vector A.
@@ -461,7 +499,6 @@ namespace lbcrypto {
 			return m_rKey.at(1);
 		}
 
-
 		/**
 		* Serialize the object into a Serialized
 		* @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
@@ -471,6 +508,21 @@ namespace lbcrypto {
 		bool Serialize(Serialized *serObj) const;
 
 		bool Deserialize(const Serialized &serObj);
+
+		bool key_compare(const LPEvalKey<Element>& other) const {
+			const LPEvalKeyRelin<Element> &oth = dynamic_cast<const LPEvalKeyRelin<Element> &>(other);
+
+			if( *this->GetCryptoParameters() != *oth.GetCryptoParameters() ) return false;
+			if( this->m_rKey.size() != oth.m_rKey.size() ) return false;
+			for( size_t i=0; i<this->m_rKey.size(); i++ ) {
+				if( this->m_rKey[i].size() != oth.m_rKey[i].size() ) return false;
+				for( size_t j=0; j<this->m_rKey[i].size(); j++ ) {
+					if( this->m_rKey[i][j] != oth.m_rKey[i][j] )
+						return false;
+				}
+			}
+			return true;
+		}
 
 	private:
 		//private member to store vector of vector of Element.
@@ -491,7 +543,50 @@ namespace lbcrypto {
 		* @param &cryptoParams is the reference to cryptoParams
 		*/
 
-		LPEvalKeyNTRURelin(const CryptoContext<Element>& cc) : LPEvalKey<Element>(cc) {}
+		LPEvalKeyNTRURelin(CryptoContext<Element>* cc) : LPEvalKey<Element>(cc) {}
+
+		virtual ~LPEvalKeyNTRURelin() {}
+
+		/**
+		* Copy constructor
+		*
+		*@param &rhs key to copy from
+		*/
+		explicit LPEvalKeyNTRURelin(const LPEvalKeyNTRURelin<Element> &rhs) : LPEvalKey<Element>(rhs.GetCryptoContext()) {
+			m_rKey = rhs.m_rKey;
+		}
+
+		/**
+		* Move constructor
+		*
+		*@param &rhs key to move from
+		*/
+		explicit LPEvalKeyNTRURelin(LPEvalKeyNTRURelin<Element> &&rhs) : LPEvalKey<Element>(rhs.GetCryptoContext()) {
+			m_rKey = std::move(rhs.m_rKey);
+		}
+
+		/**
+		* Assignment Operator.
+		*
+		* @param &rhs key to copy from
+		*/
+		const LPEvalKeyNTRURelin<Element>& operator=(const LPEvalKeyNTRURelin<Element> &rhs) {
+			this->context = rhs.context;
+			this->m_rKey = rhs.m_rKey;
+			return *this;
+		}
+
+		/**
+		* Move Assignment Operator.
+		*
+		* @param &rhs key to move from
+		*/
+		const LPEvalKeyNTRURelin<Element>& operator=(LPEvalKeyNTRURelin<Element> &&rhs) {
+			this->context = rhs.context;
+			rhs.context = 0;
+			m_rKey = std::move(rhs.m_rKey);
+			return *this;
+		}
 
 		/**
 		* Setter function to store Relinearization Element Vector A.
@@ -541,6 +636,18 @@ namespace lbcrypto {
 		*/
 		bool Deserialize(const Serialized &serObj);
 		
+		bool key_compare(const LPEvalKey<Element>& other) const {
+			const LPEvalKeyNTRURelin<Element> &oth = dynamic_cast<const LPEvalKeyNTRURelin<Element> &>(other);
+
+			if( *this->GetCryptoParameters() != *oth.GetCryptoParameters() ) return false;
+			if( this->m_rKey.size() != oth.m_rKey.size() ) return false;
+			for( size_t i=0; i<this->m_rKey.size(); i++ ) {
+				if( this->m_rKey[i] != oth.m_rKey[i] )
+					return false;
+			}
+			return true;
+		}
+
 	private:
 		//private member to store vector of Element.
 		std::vector<Element>  m_rKey;
@@ -560,7 +667,50 @@ namespace lbcrypto {
 		* @param &cryptoParams is the reference to cryptoParams
 		*/
 
-		LPEvalKeyNTRU(const CryptoContext<Element>& cc) : LPEvalKey<Element>(cc) {}
+		LPEvalKeyNTRU(CryptoContext<Element>* cc) : LPEvalKey<Element>(cc) {}
+
+		virtual ~LPEvalKeyNTRU() {}
+
+		/**
+		* Copy constructor
+		*
+		*@param &rhs key to copy from
+		*/
+		explicit LPEvalKeyNTRU(const LPEvalKeyNTRU<Element> &rhs) : LPEvalKey<Element>(rhs.GetCryptoContext()) {
+			m_Key = rhs.m_Key;
+		}
+
+		/**
+		* Move constructor
+		*
+		*@param &rhs key to move from
+		*/
+		explicit LPEvalKeyNTRU(LPEvalKeyNTRU<Element> &&rhs) : LPEvalKey<Element>(rhs.GetCryptoContext()) {
+			m_Key = std::move(rhs.m_Key);
+		}
+
+		/**
+		* Assignment Operator.
+		*
+		* @param &rhs key to copy from
+		*/
+		const LPEvalKeyNTRU<Element>& operator=(const LPEvalKeyNTRU<Element> &rhs) {
+			this->context = rhs.context;
+			this->m_Key = rhs.m_Key;
+			return *this;
+		}
+
+		/**
+		* Move Assignment Operator.
+		*
+		* @param &rhs key to move from
+		*/
+		const LPEvalKeyNTRU<Element>& operator=(LPEvalKeyNTRU<Element> &&rhs) {
+			this->context = rhs.context;
+			rhs.context = 0;
+			m_Key = std::move(rhs.m_Key);
+			return *this;
+		}
 
 		/**
 		* Setter function to store NTRU key switch element.
@@ -636,6 +786,15 @@ namespace lbcrypto {
 			return true;
 		}
 
+		bool key_compare(const LPEvalKey<Element>& other) const {
+			const LPEvalKeyNTRU<Element> &oth = dynamic_cast<const LPEvalKeyNTRU<Element> &>(other);
+
+			if( *this->GetCryptoParameters() != *oth.GetCryptoParameters() ) return false;
+			if( this->m_Key != oth.m_Key )
+				return false;
+			return true;
+		}
+
 	private:
 		/**
 		* private member Element to store key.
@@ -653,20 +812,24 @@ namespace lbcrypto {
 	public:
 
 		/**
-		* Basic constructor for setting crypto params
-		*
-		* @param &cryptoParams is the reference to cryptoParams.
+		* Construct in context
 		*/
 
-		LPPrivateKey(const CryptoContext<Element>& cc) : LPKey<Element>(cc) {}
+		LPPrivateKey(CryptoContext<Element>* cc) : LPKey<Element>(cc) {}
+
+		/**
+		* Construct in context
+		*/
+
+		LPPrivateKey(shared_ptr<CryptoContext<Element>> cc) : LPKey<Element>(cc) {}
 
 		/**
 		* Copy constructor
 		*@param &rhs the LPPrivateKey to copy from
 		*/
 		explicit LPPrivateKey(const LPPrivateKey<Element> &rhs) {
+			this->context = rhs.context;
 			this->m_sk = rhs.m_sk;
-			this->m_cryptoParameters = rhs.m_cryptoParameters;
 		}
 
 		/**
@@ -674,8 +837,9 @@ namespace lbcrypto {
 		*@param &rhs the LPPrivateKey to move from
 		*/
 		explicit LPPrivateKey(LPPrivateKey<Element> &&rhs) {
+			this->context = rhs.context;
+			rhs.context = 0;
 			this->m_sk = std::move(rhs.m_sk);
-			this->m_cryptoParameters = rhs.m_cryptoParameters;
 		}
 
 		/**
@@ -685,9 +849,8 @@ namespace lbcrypto {
 		* @return the resulting LPPrivateKey
 		*/
 		const LPPrivateKey<Element>& operator=(const LPPrivateKey<Element> &rhs) {
+			this->context = rhs.context;
 			this->m_sk = rhs.m_sk;
-			this->m_cryptoParameters = rhs.m_cryptoParameters;
-
 			return *this;
 		}
 
@@ -698,9 +861,9 @@ namespace lbcrypto {
 		* @return the resulting LPPrivateKey
 		*/
 		const LPPrivateKey<Element>& operator=(LPPrivateKey<Element> &&rhs) {
+			this->context = rhs.context;
+			rhs.context = 0;
 			this->m_sk = std::move(rhs.m_sk);
-			this->m_cryptoParameters = rhs.m_cryptoParameters;
-
 			return *this;
 		}
 
@@ -754,7 +917,7 @@ namespace lbcrypto {
 		}
 
 		bool operator==(const LPPrivateKey& other) const {
-			if( *this->cryptoContext.GetCryptoParameters() != *other.cryptoContext.GetCryptoParameters() )
+			if( *this->GetCryptoParameters() != *other.GetCryptoParameters() )
 				return false;
 
 			return m_sk == other.m_sk;
@@ -837,7 +1000,7 @@ namespace lbcrypto {
 			 * @param &privateKey private key used for decryption.
 			 * @return function ran correctly.
 			 */
-			virtual LPKeyPair<Element> KeyGen(const CryptoContext<Element> cc, bool makeSparse=false) const = 0;
+			virtual LPKeyPair<Element> KeyGen(CryptoContext<Element>* cc, bool makeSparse=false) = 0;
 
 	};
 
@@ -972,9 +1135,9 @@ namespace lbcrypto {
 			* @param makeSparse set to true if ring reduce by a factor of 2 is to be used.
 			* @return key pair including the private and public key
 			*/
-			virtual LPKeyPair<Element> MultipartyKeyGen(const CryptoContext<Element> cc,
+			virtual LPKeyPair<Element> MultipartyKeyGen(CryptoContext<Element>* cc,
 				const shared_ptr<LPPublicKey<Element>> pk1,
-				bool makeSparse=false) const = 0;
+				bool makeSparse=false) = 0;
 
 			/**
 			* Function to generate public and private keys for multiparty homomrophic encryption server key pair in coordination with secret keys of clients.
@@ -984,9 +1147,9 @@ namespace lbcrypto {
 			* @param makeSparse set to true if ring reduce by a factor of 2 is to be used.
 			* @return key pair including the private and public key
 			*/
-			virtual LPKeyPair<Element> MultipartyKeyGen(const CryptoContext<Element> cc,
+			virtual LPKeyPair<Element> MultipartyKeyGen(CryptoContext<Element>* cc,
 				const vector<shared_ptr<LPPrivateKey<Element>>>& secretKeys,
-				bool makeSparse=false) const = 0;
+				bool makeSparse=false) = 0;
 
 			/**
 			 * Method for main decryption operation run by most decryption clients for multiparty homomorphic encryption
@@ -1160,7 +1323,7 @@ namespace lbcrypto {
 
 			shared_ptr<LPPublicKey<Element>> pk(new LPPublicKey<Element>(cc));
 
-			shared_ptr<Ciphertext<Element>>  embeddedPlaintext = cc.GetEncryptionAlgorithm()->Encrypt(pk, encodedPlaintext, false);
+			shared_ptr<Ciphertext<Element>>  embeddedPlaintext = cc->GetEncryptionAlgorithm()->Encrypt(pk, encodedPlaintext, false);
 
 			return EvalAdd(ciphertext, embeddedPlaintext);
 
@@ -1677,7 +1840,7 @@ namespace lbcrypto {
 				}
 		}
 
-		LPKeyPair<Element> KeyGen(const CryptoContext<Element> cc, bool makeSparse) const {
+		LPKeyPair<Element> KeyGen(CryptoContext<Element>* cc, bool makeSparse) {
 				if(this->m_algorithmEncryption)
 					return this->m_algorithmEncryption->KeyGen(cc, makeSparse);
 				else {
@@ -1721,9 +1884,9 @@ namespace lbcrypto {
 		//
 
 		// Wrapper for Multiparty Key Gen
-		LPKeyPair<Element> MultipartyKeyGen(const CryptoContext<Element> cc,
+		LPKeyPair<Element> MultipartyKeyGen(CryptoContext<Element>* cc,
 			const shared_ptr<LPPublicKey<Element>> pk1,
-			bool makeSparse) const {
+			bool makeSparse) {
 				if(this->m_algorithmMultiparty)
 					return this->m_algorithmMultiparty->MultipartyKeyGen(cc, pk1, makeSparse);
 				else {
@@ -1732,9 +1895,9 @@ namespace lbcrypto {
 		}
 
 		// Wrapper for Multiparty Key Gen
-		LPKeyPair<Element> MultipartyKeyGen(const CryptoContext<Element> cc,
+		LPKeyPair<Element> MultipartyKeyGen(CryptoContext<Element>* cc,
 			const vector<shared_ptr<LPPrivateKey<Element>>>& secretKeys,
-			bool makeSparse) const {
+			bool makeSparse) {
 				if(this->m_algorithmMultiparty)
 					return this->m_algorithmMultiparty->MultipartyKeyGen(cc, secretKeys, makeSparse);
 				else {
@@ -2049,13 +2212,13 @@ namespace lbcrypto {
 		const LPEncryptionAlgorithm<Element>& getAlgorithm() const { return *m_algorithmEncryption; }
 
 	protected:
-		const LPParameterGenerationAlgorithm<Element> *m_algorithmParamsGen;
-		const LPEncryptionAlgorithm<Element> *m_algorithmEncryption;
-		const LPPREAlgorithm<Element> *m_algorithmPRE;
-		const LPMultipartyAlgorithm<Element> *m_algorithmMultiparty;
-		const LPSHEAlgorithm<Element> *m_algorithmSHE;
-		const LPFHEAlgorithm<Element> *m_algorithmFHE;
-		const LPLeveledSHEAlgorithm<Element> *m_algorithmLeveledSHE;
+		LPParameterGenerationAlgorithm<Element> *m_algorithmParamsGen;
+		LPEncryptionAlgorithm<Element> *m_algorithmEncryption;
+		LPPREAlgorithm<Element> *m_algorithmPRE;
+		LPMultipartyAlgorithm<Element> *m_algorithmMultiparty;
+		LPSHEAlgorithm<Element> *m_algorithmSHE;
+		LPFHEAlgorithm<Element> *m_algorithmFHE;
+		LPLeveledSHEAlgorithm<Element> *m_algorithmLeveledSHE;
 	};
 
 } // namespace lbcrypto ends

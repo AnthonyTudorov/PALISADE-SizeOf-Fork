@@ -72,18 +72,18 @@ main(int argc, char *argv[])
 		return 1;
 	}
 
-	CryptoContext<ILDCRT2n> cc = CryptoContextFactory<ILDCRT2n>::DeserializeAndCreateContext(serObj);
+	shared_ptr<CryptoContext<ILDCRT2n>> cc = CryptoContextFactory<ILDCRT2n>::DeserializeAndCreateContext(serObj);
 
-	if( cc != true ) {
+	if( cc == 0 ) {
 		cout << "Unable to deserialize CryptoContext" << endl;
 		return 1;
 	}
 
 	SerializableHelper::SerializationToStream(serObj, out);
 
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
-	cc.Enable(LEVELEDSHE);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
+	cc->Enable(LEVELEDSHE);
 
 	string operation;
 	set<OpType> operations;
@@ -98,40 +98,40 @@ main(int argc, char *argv[])
 	in.close();
 
 	// set up to encrypt some thingz
-	auto ptm = cc.GetCryptoParameters()->GetPlaintextModulus().ConvertToInt();
+	auto ptm = cc->GetCryptoParameters()->GetPlaintextModulus().ConvertToInt();
 	IntPlaintextEncoding inputs[NumInputs];
 	for( size_t i=0; i<NumInputs; i++ ) {
-		for( size_t n=0; n<cc.GetRingDimension(); n++ )
+		for( size_t n=0; n<cc->GetRingDimension(); n++ )
 			inputs[i].push_back( rand() % ptm );
 	}
 
 	vector<TimingInfo>	times;
-	cc.StartTiming(&times);
-	cc.StopTiming();
+	cc->StartTiming(&times);
+	cc->StopTiming();
 
 	if( operations.count(OpKeyGen) ||
 			operations.count(OpEncrypt) ||
 			operations.count(OpDecrypt) ) {
-		cc.ResumeTiming();
+		cc->ResumeTiming();
 		for( int reps=0; reps < MaxIterations; reps++ ) {
-			LPKeyPair<ILDCRT2n> kp = cc.KeyGen();
-			auto crypt = cc.Encrypt(kp.publicKey, inputs[0]);
+			LPKeyPair<ILDCRT2n> kp = cc->KeyGen();
+			auto crypt = cc->Encrypt(kp.publicKey, inputs[0]);
 			IntPlaintextEncoding decrypted;
-			cc.Decrypt(kp.secretKey, crypt, &decrypted);
+			cc->Decrypt(kp.secretKey, crypt, &decrypted);
 		}
-		cc.StopTiming();
+		cc->StopTiming();
 	}
 
 #define BINARY_SHE_OP(opfunc,ek) \
-		LPKeyPair<ILDCRT2n> kp = cc.KeyGen(); \
-		auto crypt0 = cc.Encrypt(kp.publicKey, inputs[0]); \
-		auto crypt1 = cc.Encrypt(kp.publicKey, inputs[1]); \
-		if( ek ) cc.EvalMultKeyGen(kp.secretKey); \
-		cc.ResumeTiming(); \
+		LPKeyPair<ILDCRT2n> kp = cc->KeyGen(); \
+		auto crypt0 = cc->Encrypt(kp.publicKey, inputs[0]); \
+		auto crypt1 = cc->Encrypt(kp.publicKey, inputs[1]); \
+		if( ek ) cc->EvalMultKeyGen(kp.secretKey); \
+		cc->ResumeTiming(); \
 		for (int reps = 0; reps < MaxIterations; reps++) { \
-			cc.opfunc(crypt0[0], crypt1[0]); \
+			cc->opfunc(crypt0[0], crypt1[0]); \
 		} \
-		cc.StopTiming();
+		cc->StopTiming();
 
 	if( operations.count(OpEvalAdd) ) {
 		BINARY_SHE_OP(EvalAdd,false);
@@ -146,13 +146,13 @@ main(int argc, char *argv[])
 	}
 
 #define UNARY_SHE_OP(opfunc) \
-		LPKeyPair<ILDCRT2n> kp = cc.KeyGen(); \
-		auto crypt0 = cc.Encrypt(kp.publicKey, inputs[0]); \
-		cc.ResumeTiming(); \
+		LPKeyPair<ILDCRT2n> kp = cc->KeyGen(); \
+		auto crypt0 = cc->Encrypt(kp.publicKey, inputs[0]); \
+		cc->ResumeTiming(); \
 		for (int reps = 0; reps < MaxIterations; reps++) { \
-			cc.opfunc(crypt0[0]); \
+			cc->opfunc(crypt0[0]); \
 		} \
-		cc.StopTiming();
+		cc->StopTiming();
 
 	if( operations.count(OpEvalNeg) ) {
 		UNARY_SHE_OP(EvalNegate);

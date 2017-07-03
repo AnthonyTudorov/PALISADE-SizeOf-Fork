@@ -181,24 +181,24 @@ usint ArbLTVEvalSumPackedArray(std::vector<usint> &clearVector) {
 
 	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP), batchSize));
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, encodingParams, 16, stdDev);
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, encodingParams, 16, stdDev);
 
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	LPKeyPair<ILVector2n> kp = cc->KeyGen();
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
 
 	std::vector<usint> vectorOfInts = std::move(clearVector);
 	PackedIntPlaintextEncoding intArray(vectorOfInts);
 
-	cc.EvalSumKeyGen(kp.secretKey, kp.publicKey);
+	cc->EvalSumKeyGen(kp.secretKey, kp.publicKey);
 
-	ciphertext = cc.Encrypt(kp.publicKey, intArray, false);
+	ciphertext = cc->Encrypt(kp.publicKey, intArray, false);
 
-	auto ciphertext1 = cc.EvalSum(ciphertext[0], batchSize);
+	auto ciphertext1 = cc->EvalSum(ciphertext[0], batchSize);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextSum;
 
@@ -206,7 +206,7 @@ usint ArbLTVEvalSumPackedArray(std::vector<usint> &clearVector) {
 
 	PackedIntPlaintextEncoding intArrayNew;
 
-	cc.Decrypt(kp.secretKey, ciphertextSum, &intArrayNew, false);
+	cc->Decrypt(kp.secretKey, ciphertextSum, &intArrayNew, false);
 
 	return intArrayNew[0];
 
@@ -238,24 +238,24 @@ usint ArbBVEvalSumPackedArray(std::vector<usint> &clearVector) {
 
 	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP), batchSize));
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, encodingParams, 8, stdDev);
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, encodingParams, 8, stdDev);
 
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	LPKeyPair<ILVector2n> kp = cc->KeyGen();
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
 
 	std::vector<usint> vectorOfInts = std::move(clearVector);
 	PackedIntPlaintextEncoding intArray(vectorOfInts);
 
-	cc.EvalSumKeyGen(kp.secretKey);
+	cc->EvalSumKeyGen(kp.secretKey);
 
-	ciphertext = cc.Encrypt(kp.publicKey, intArray, false);
+	ciphertext = cc->Encrypt(kp.publicKey, intArray, false);
 
-	auto ciphertext1 = cc.EvalSum(ciphertext[0], batchSize);
+	auto ciphertext1 = cc->EvalSum(ciphertext[0], batchSize);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextSum;
 
@@ -263,7 +263,7 @@ usint ArbBVEvalSumPackedArray(std::vector<usint> &clearVector) {
 
 	PackedIntPlaintextEncoding intArrayNew;
 
-	cc.Decrypt(kp.secretKey, ciphertextSum, &intArrayNew, false);
+	cc->Decrypt(kp.secretKey, ciphertextSum, &intArrayNew, false);
 
 	return intArrayNew[0];
 }
@@ -293,24 +293,24 @@ usint ArbBVEvalSumPackedArrayPrime(std::vector<usint> &clearVector) {
 
 	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP), batchSize));
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, encodingParams, 8, stdDev);
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, encodingParams, 8, stdDev);
 
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	LPKeyPair<ILVector2n> kp = cc->KeyGen();
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
 
 	std::vector<usint> vectorOfInts = std::move(clearVector);
 	PackedIntPlaintextEncoding intArray(vectorOfInts);
 
-	cc.EvalSumKeyGen(kp.secretKey);
+	cc->EvalSumKeyGen(kp.secretKey);
 
-	ciphertext = cc.Encrypt(kp.publicKey, intArray, false);
+	ciphertext = cc->Encrypt(kp.publicKey, intArray, false);
 
-	auto ciphertext1 = cc.EvalSum(ciphertext[0], batchSize);
+	auto ciphertext1 = cc->EvalSum(ciphertext[0], batchSize);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextSum;
 
@@ -318,7 +318,7 @@ usint ArbBVEvalSumPackedArrayPrime(std::vector<usint> &clearVector) {
 
 	PackedIntPlaintextEncoding intArrayNew;
 
-	cc.Decrypt(kp.secretKey, ciphertextSum, &intArrayNew, false);
+	cc->Decrypt(kp.secretKey, ciphertextSum, &intArrayNew, false);
 
 	return intArrayNew[0];
 }
@@ -352,24 +352,24 @@ usint ArbFVEvalSumPackedArray(std::vector<usint> &clearVector) {
 
 	BigBinaryInteger delta(modulusQ.DividedBy(modulusP));
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(params, encodingParams, 8, stdDev, delta.ToString());
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(params, encodingParams, 8, stdDev, delta.ToString());
 
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	LPKeyPair<ILVector2n> kp = cc->KeyGen();
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
 
 	std::vector<usint> vectorOfInts = std::move(clearVector);
 	PackedIntPlaintextEncoding intArray(vectorOfInts);
 
-	cc.EvalSumKeyGen(kp.secretKey);
+	cc->EvalSumKeyGen(kp.secretKey);
 
-	ciphertext = cc.Encrypt(kp.publicKey, intArray, false);
+	ciphertext = cc->Encrypt(kp.publicKey, intArray, false);
 
-	auto ciphertext1 = cc.EvalSum(ciphertext[0], batchSize);
+	auto ciphertext1 = cc->EvalSum(ciphertext[0], batchSize);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextSum;
 
@@ -377,7 +377,7 @@ usint ArbFVEvalSumPackedArray(std::vector<usint> &clearVector) {
 
 	PackedIntPlaintextEncoding intArrayNew;
 
-	cc.Decrypt(kp.secretKey, ciphertextSum, &intArrayNew, false);
+	cc->Decrypt(kp.secretKey, ciphertextSum, &intArrayNew, false);
 
 	return intArrayNew[0];
 

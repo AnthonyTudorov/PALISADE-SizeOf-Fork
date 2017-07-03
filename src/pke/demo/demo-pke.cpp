@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) {
 
 	start = currentDateTime();
 
-	CryptoContext<ILVector2n> cryptoContext = CryptoContextHelper::getNewContext(input);
+	shared_ptr<CryptoContext<ILVector2n>> cryptoContext = CryptoContextHelper::getNewContext(input);
 	if( !cryptoContext ) {
 		cout << "Error on " << input << endl;
 		return 0;
@@ -81,11 +81,11 @@ int main(int argc, char *argv[]) {
 	//cryptoContext<ILVector2n> cryptoContext = GencryptoContextElementLTV(ORDER, PTM);
 
 	//Turn on features
-	cryptoContext.Enable(ENCRYPTION);
+	cryptoContext->Enable(ENCRYPTION);
 
-	std::cout << "p = " << cryptoContext.GetCryptoParameters()->GetPlaintextModulus() << std::endl;
-	std::cout << "n = " << cryptoContext.GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
-	std::cout << "log2 q = " << log2(cryptoContext.GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
+	std::cout << "p = " << cryptoContext->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
+	std::cout << "n = " << cryptoContext->GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
+	std::cout << "log2 q = " << log2(cryptoContext->GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
 
 	//std::cout << "Press any key to continue." << std::endl;
 	//std::cin.get();
@@ -101,7 +101,7 @@ int main(int argc, char *argv[]) {
 
 	start = currentDateTime();
 
-	keyPair = cryptoContext.KeyGen();
+	keyPair = cryptoContext->KeyGen();
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -128,7 +128,7 @@ int main(int argc, char *argv[]) {
 
 	start = currentDateTime();
 
-	ciphertext = cryptoContext.Encrypt(keyPair.publicKey, plaintext, true);
+	ciphertext = cryptoContext->Encrypt(keyPair.publicKey, plaintext, true);
 	
 	finish = currentDateTime();
 	diff = finish - start;
@@ -142,7 +142,7 @@ int main(int argc, char *argv[]) {
 
 	start = currentDateTime();
 
-	cryptoContext.Decrypt(keyPair.secretKey, ciphertext, &plaintextDec, true);
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertext, &plaintextDec, true);
 
 	finish = currentDateTime();
 	diff = finish - start;

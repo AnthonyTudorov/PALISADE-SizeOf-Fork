@@ -51,7 +51,7 @@ public:
 
 template <class Element>
 void
-UnitTestMultiparty(const CryptoContext<Element>& cc, bool publicVersion) {
+UnitTestMultiparty(shared_ptr<CryptoContext<Element>> cc, bool publicVersion) {
 	
 	// Initialize Public Key Containers
 	LPKeyPair<ILVector2n> kp1;
@@ -68,9 +68,9 @@ UnitTestMultiparty(const CryptoContext<Element>& cc, bool publicVersion) {
 	// Perform Key Generation Operation
 	////////////////////////////////////////////////////////////
 
-	kp1 = cc.KeyGen();
-	kp2 = cc.MultipartyKeyGen(kp1.publicKey);
-	kp3 = cc.MultipartyKeyGen(kp1.publicKey);
+	kp1 = cc->KeyGen();
+	kp2 = cc->MultipartyKeyGen(kp1.publicKey);
+	kp3 = cc->MultipartyKeyGen(kp1.publicKey);
 
 	if( !kp1.good() ) {
 		std::cout << "Key generation failed!" << std::endl;
@@ -98,7 +98,7 @@ UnitTestMultiparty(const CryptoContext<Element>& cc, bool publicVersion) {
 	secretKeys.push_back(kp2.secretKey);
 	secretKeys.push_back(kp3.secretKey);
 
-	kpMultiparty = cc.MultipartyKeyGen(secretKeys);	// This is the same core key generation operation.
+	kpMultiparty = cc->MultipartyKeyGen(secretKeys);	// This is the same core key generation operation.
 
 	if( !kpMultiparty.good() ) {
 		std::cout << "Key generation failed!" << std::endl;
@@ -113,9 +113,9 @@ UnitTestMultiparty(const CryptoContext<Element>& cc, bool publicVersion) {
 	// This generates the keys which are used to perform the key switching.
 	////////////////////////////////////////////////////////////
 
-	evalKey1 = cc.ReKeyGen(kpMultiparty.secretKey, kp1.secretKey);
-	evalKey2 = cc.ReKeyGen(kpMultiparty.secretKey, kp2.secretKey);
-	evalKey3 = cc.ReKeyGen(kpMultiparty.secretKey, kp3.secretKey);
+	evalKey1 = cc->ReKeyGen(kpMultiparty.secretKey, kp1.secretKey);
+	evalKey2 = cc->ReKeyGen(kpMultiparty.secretKey, kp2.secretKey);
+	evalKey3 = cc->ReKeyGen(kpMultiparty.secretKey, kp3.secretKey);
 
 	//std::cout << "Press any key to continue." << std::endl;
 	//std::cin.get();	
@@ -147,9 +147,9 @@ UnitTestMultiparty(const CryptoContext<Element>& cc, bool publicVersion) {
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext2;
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext3;
 
-	ciphertext1 = cc.Encrypt(kp1.publicKey, plaintext1, true);
-	ciphertext2 = cc.Encrypt(kp2.publicKey, plaintext2, true);
-	ciphertext3 = cc.Encrypt(kp3.publicKey, plaintext3, true);
+	ciphertext1 = cc->Encrypt(kp1.publicKey, plaintext1, true);
+	ciphertext2 = cc->Encrypt(kp2.publicKey, plaintext2, true);
+	ciphertext3 = cc->Encrypt(kp3.publicKey, plaintext3, true);
 	
 	////////////////////////////////////////////////////////////
 	// Re-Encryption
@@ -159,9 +159,9 @@ UnitTestMultiparty(const CryptoContext<Element>& cc, bool publicVersion) {
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext2New;
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext3New;
 
-	ciphertext1New = cc.ReEncrypt(evalKey1, ciphertext1);
-	ciphertext2New = cc.ReEncrypt(evalKey2, ciphertext2);
-	ciphertext3New = cc.ReEncrypt(evalKey3, ciphertext3);
+	ciphertext1New = cc->ReEncrypt(evalKey1, ciphertext1);
+	ciphertext2New = cc->ReEncrypt(evalKey2, ciphertext2);
+	ciphertext3New = cc->ReEncrypt(evalKey3, ciphertext3);
 
 	////////////////////////////////////////////////////////////
 	// EvalAdd Operation on Re-Encrypted Data
@@ -172,8 +172,8 @@ UnitTestMultiparty(const CryptoContext<Element>& cc, bool publicVersion) {
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextAddVectNew;
 
-	ciphertextAddNew12 = cc.EvalAdd(ciphertext1New[0],ciphertext2New[0]);
-	ciphertextAddNew123 = cc.EvalAdd(ciphertextAddNew12,ciphertext3New[0]);
+	ciphertextAddNew12 = cc->EvalAdd(ciphertext1New[0],ciphertext2New[0]);
+	ciphertextAddNew123 = cc->EvalAdd(ciphertextAddNew12,ciphertext3New[0]);
 
 	ciphertextAddVectNew.push_back(ciphertextAddNew123);
 
@@ -186,7 +186,7 @@ UnitTestMultiparty(const CryptoContext<Element>& cc, bool publicVersion) {
 
 	IntPlaintextEncoding plaintextAddNew;
 
-	cc.Decrypt(kpMultiparty.secretKey, ciphertextAddVectNew, &plaintextAddNew, true);
+	cc->Decrypt(kpMultiparty.secretKey, ciphertextAddVectNew, &plaintextAddNew, true);
 
 	//std::cin.get();
 
@@ -217,16 +217,16 @@ UnitTestMultiparty(const CryptoContext<Element>& cc, bool publicVersion) {
 	const shared_ptr<LPCryptoParameters<ILVector2n>> cryptoParams = kp1.secretKey->GetCryptoParameters();
 	const shared_ptr<typename ILVector2n::Params> elementParams = cryptoParams->GetElementParams();
 
-	ciphertextPartial1 = cc.MultipartyDecryptLead(kp1.secretKey, ciphertextAddVectNew);
-	ciphertextPartial2 = cc.MultipartyDecryptMain(kp2.secretKey, ciphertextAddVectNew);
-	ciphertextPartial3 = cc.MultipartyDecryptMain(kp3.secretKey, ciphertextAddVectNew);
+	ciphertextPartial1 = cc->MultipartyDecryptLead(kp1.secretKey, ciphertextAddVectNew);
+	ciphertextPartial2 = cc->MultipartyDecryptMain(kp2.secretKey, ciphertextAddVectNew);
+	ciphertextPartial3 = cc->MultipartyDecryptMain(kp3.secretKey, ciphertextAddVectNew);
 
 	vector<vector<shared_ptr<Ciphertext<ILVector2n>>>> partialCiphertextVec;
 	partialCiphertextVec.push_back(ciphertextPartial1);
 	partialCiphertextVec.push_back(ciphertextPartial2);
 	partialCiphertextVec.push_back(ciphertextPartial3);
 
-	cc.MultipartyDecryptFusion(partialCiphertextVec, &plaintextMultipartyNew, true);
+	cc->MultipartyDecryptFusion(partialCiphertextVec, &plaintextMultipartyNew, true);
 
 	plaintextMultipartyNew.resize(plaintext1.size());
 
@@ -237,7 +237,7 @@ UnitTestMultiparty(const CryptoContext<Element>& cc, bool publicVersion) {
 }
 
 //TEST(UTMultiparty, LTV_ILVector2n_Multiparty_pub) {
-//	CryptoContext<ILVector2n> cc = GenCryptoContextElementLTV(ORDER, PTM);
+//	shared_ptr<CryptoContext<ILVector2n>> cc = GenCryptoContextElementLTV(ORDER, PTM);
 //	UnitTestMultiparty<ILVector2n>(cc, true);
 //}
 //
@@ -247,7 +247,7 @@ UnitTestMultiparty(const CryptoContext<Element>& cc, bool publicVersion) {
 //}
 
 //TEST(UTMultiparty, StSt_ILVector2n_Multiparty_pub) {
-//	CryptoContext<ILVector2n> cc = GenCryptoContextElementStSt(ORDER, PTM);
+//	shared_ptr<CryptoContext<ILVector2n>> cc = GenCryptoContextElementStSt(ORDER, PTM);
 //	UnitTestMultiparty<ILVector2n>(cc, true);
 //}
 //
@@ -258,11 +258,11 @@ UnitTestMultiparty(const CryptoContext<Element>& cc, bool publicVersion) {
 
 //TEST(UTMultiparty, Null_ILVector2n_Multiparty_pri) {
 //	string input = "NULL";
-	//CryptoContext<ILVector2n> cc = CryptoContextHelper::getNewContext(input);
-	//cc.Enable(ENCRYPTION);
-	//cc.Enable(SHE);
-	//cc.Enable(PRE);
-	//cc.Enable(MULTIPARTY);
+	//shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextHelper::getNewContext(input);
+	//cc->Enable(ENCRYPTION);
+	//cc->Enable(SHE);
+	//cc->Enable(PRE);
+	//cc->Enable(MULTIPARTY);
 	//UnitTestMultiparty<ILVector2n>(cc, true);
 //}
 
@@ -272,7 +272,7 @@ UnitTestMultiparty(const CryptoContext<Element>& cc, bool publicVersion) {
 //}
 
 //TEST(UTMultiparty, BV_ILVector2n_Multiparty_pri) {
-//	CryptoContext<ILVector2n> cc = GenCryptoContextElementBV(ORDER, PTM);
+//	shared_ptr<CryptoContext<ILVector2n>> cc = GenCryptoContextElementBV(ORDER, PTM);
 //	UnitTestMultiparty<ILVector2n>(cc, false);
 //}
 
@@ -283,91 +283,91 @@ UnitTestMultiparty(const CryptoContext<Element>& cc, bool publicVersion) {
 
 TEST(UTMultiparty, FV1_ILVector2n_Multiparty_pri) {
 	string input = "FV1";
-	CryptoContext<ILVector2n> cc = CryptoContextHelper::getNewContext(input);
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
-	cc.Enable(PRE);
-	cc.Enable(MULTIPARTY);
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextHelper::getNewContext(input);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
+	cc->Enable(PRE);
+	cc->Enable(MULTIPARTY);
 	UnitTestMultiparty<ILVector2n>(cc, true);
 }
 
 TEST(UTMultiparty, FV2_ILVector2n_Multiparty_pri) {
 	string input = "FV2";
-	CryptoContext<ILVector2n> cc = CryptoContextHelper::getNewContext(input);
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
-	cc.Enable(PRE);
-	cc.Enable(MULTIPARTY);
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextHelper::getNewContext(input);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
+	cc->Enable(PRE);
+	cc->Enable(MULTIPARTY);
 	UnitTestMultiparty<ILVector2n>(cc, true);
 }
 
 TEST(UTMultiparty, BV1_ILVector2n_Multiparty_pri) {
 	string input = "BV1";
-	CryptoContext<ILVector2n> cc = CryptoContextHelper::getNewContext(input);
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
-	cc.Enable(PRE);
-	cc.Enable(MULTIPARTY);
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextHelper::getNewContext(input);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
+	cc->Enable(PRE);
+	cc->Enable(MULTIPARTY);
 	UnitTestMultiparty<ILVector2n>(cc, true);
 }
 
 TEST(UTMultiparty, BV2_ILVector2n_Multiparty_pri) {
 	string input = "BV2";
-	CryptoContext<ILVector2n> cc = CryptoContextHelper::getNewContext(input);
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
-	cc.Enable(PRE);
-	cc.Enable(MULTIPARTY);
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextHelper::getNewContext(input);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
+	cc->Enable(PRE);
+	cc->Enable(MULTIPARTY);
 	UnitTestMultiparty<ILVector2n>(cc, true);
 }
 
 TEST(UTMultiparty, BV3_ILVector2n_Multiparty_pri) {
 	string input = "BV3";
-	CryptoContext<ILVector2n> cc = CryptoContextHelper::getNewContext(input);
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
-	cc.Enable(PRE);
-	cc.Enable(MULTIPARTY);
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextHelper::getNewContext(input);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
+	cc->Enable(PRE);
+	cc->Enable(MULTIPARTY);
 	UnitTestMultiparty<ILVector2n>(cc, true);
 }
 
 TEST(UTMultiparty, BV4_ILVector2n_Multiparty_pri) {
 	string input = "BV4";
-	CryptoContext<ILVector2n> cc = CryptoContextHelper::getNewContext(input);
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
-	cc.Enable(PRE);
-	cc.Enable(MULTIPARTY);
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextHelper::getNewContext(input);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
+	cc->Enable(PRE);
+	cc->Enable(MULTIPARTY);
 	UnitTestMultiparty<ILVector2n>(cc, true);
 }
 
 TEST(UTMultiparty, BV5_ILVector2n_Multiparty_pri) {
 	string input = "BV5";
-	CryptoContext<ILVector2n> cc = CryptoContextHelper::getNewContext(input);
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
-	cc.Enable(PRE);
-	cc.Enable(MULTIPARTY);
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextHelper::getNewContext(input);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
+	cc->Enable(PRE);
+	cc->Enable(MULTIPARTY);
 	UnitTestMultiparty<ILVector2n>(cc, true);
 }
 
 TEST(UTMultiparty, Null_ILVector2n_Multiparty_pri) {
 	string input = "Null";
-	CryptoContext<ILVector2n> cc = CryptoContextHelper::getNewContext(input);
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
-	cc.Enable(PRE);
-	cc.Enable(MULTIPARTY);
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextHelper::getNewContext(input);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
+	cc->Enable(PRE);
+	cc->Enable(MULTIPARTY);
 	UnitTestMultiparty<ILVector2n>(cc, true);
 }
 
 TEST(UTMultiparty, Null2_ILVector2n_Multiparty_pri) {
 	string input = "Null2";
-	CryptoContext<ILVector2n> cc = CryptoContextHelper::getNewContext(input);
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
-	cc.Enable(PRE);
-	cc.Enable(MULTIPARTY);
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextHelper::getNewContext(input);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
+	cc->Enable(PRE);
+	cc->Enable(MULTIPARTY);
 	UnitTestMultiparty<ILVector2n>(cc, true);
 }
 

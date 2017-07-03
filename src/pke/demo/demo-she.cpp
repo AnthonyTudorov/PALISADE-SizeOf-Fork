@@ -66,16 +66,16 @@ int main(int argc, char *argv[]) {
 	double rootHermiteFactor = 1.006;	
 
 	//Set Crypto Parameters	
-	CryptoContext<ILVector2n> cryptoContext = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
+	shared_ptr<CryptoContext<ILVector2n>> cryptoContext = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
 			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 2, 0);
 
 	// enable features that you wish to use
-	cryptoContext.Enable(ENCRYPTION);
-	cryptoContext.Enable(SHE);
+	cryptoContext->Enable(ENCRYPTION);
+	cryptoContext->Enable(SHE);
 	
-	std::cout << "p = " << cryptoContext.GetCryptoParameters()->GetPlaintextModulus() << std::endl;
-	std::cout << "n = " << cryptoContext.GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
-	std::cout << "log2 q = " << log2(cryptoContext.GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
+	std::cout << "p = " << cryptoContext->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
+	std::cout << "n = " << cryptoContext->GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
+	std::cout << "log2 q = " << log2(cryptoContext->GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
 
 	//std::cout << "Press any key to continue." << std::endl;
 	//std::cin.get();
@@ -91,8 +91,8 @@ int main(int argc, char *argv[]) {
 
 	start = currentDateTime();
 
-	keyPair = cryptoContext.KeyGen();	
-	cryptoContext.EvalMultKeyGen(keyPair.secretKey);
+	keyPair = cryptoContext->KeyGen();
+	cryptoContext->EvalMultKeyGen(keyPair.secretKey);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -125,9 +125,9 @@ int main(int argc, char *argv[]) {
 
 	start = currentDateTime();
 
-	ciphertext1 = cryptoContext.Encrypt(keyPair.publicKey, plaintext1, true);
-	ciphertext2 = cryptoContext.Encrypt(keyPair.publicKey, plaintext2, true);
-	ciphertext3 = cryptoContext.Encrypt(keyPair.publicKey, plaintext3, true);
+	ciphertext1 = cryptoContext->Encrypt(keyPair.publicKey, plaintext1, true);
+	ciphertext2 = cryptoContext->Encrypt(keyPair.publicKey, plaintext2, true);
+	ciphertext3 = cryptoContext->Encrypt(keyPair.publicKey, plaintext3, true);
 	
 	finish = currentDateTime();
 	diff = finish - start;
@@ -143,9 +143,9 @@ int main(int argc, char *argv[]) {
 
 	start = currentDateTime();
 
-	cryptoContext.Decrypt(keyPair.secretKey, ciphertext1, &plaintext1Dec, true);
-	cryptoContext.Decrypt(keyPair.secretKey, ciphertext2, &plaintext2Dec, true);
-	cryptoContext.Decrypt(keyPair.secretKey, ciphertext3, &plaintext3Dec, true);
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertext1, &plaintext1Dec, true);
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertext2, &plaintext2Dec, true);
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertext3, &plaintext3Dec, true);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -180,8 +180,8 @@ int main(int argc, char *argv[]) {
 
 	start = currentDateTime();
 
-	ciphertextAdd12 = cryptoContext.EvalAdd(ciphertext1[0],ciphertext2[0]);
-	ciphertextAdd123 = cryptoContext.EvalAdd(ciphertextAdd12,ciphertext3[0]);
+	ciphertextAdd12 = cryptoContext->EvalAdd(ciphertext1[0],ciphertext2[0]);
+	ciphertextAdd123 = cryptoContext->EvalAdd(ciphertextAdd12,ciphertext3[0]);
 
 	ciphertextAddVect.push_back(ciphertextAdd123);
 
@@ -198,7 +198,7 @@ int main(int argc, char *argv[]) {
 
 	start = currentDateTime();
 
-	cryptoContext.Decrypt(keyPair.secretKey, ciphertextAddVect, &plaintextAdd, true);
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertextAddVect, &plaintextAdd, true);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -228,8 +228,8 @@ int main(int argc, char *argv[]) {
 
 	start = currentDateTime();
 
-	ciphertextMul12 = cryptoContext.EvalMult(ciphertext1[0],ciphertext2[0]);
-	ciphertextMul123 = cryptoContext.EvalMult(ciphertextMul12,ciphertext3[0]);
+	ciphertextMul12 = cryptoContext->EvalMult(ciphertext1[0],ciphertext2[0]);
+	ciphertextMul123 = cryptoContext->EvalMult(ciphertextMul12,ciphertext3[0]);
 
 	ciphertextMulVect.push_back(ciphertextMul123);
 
@@ -246,7 +246,7 @@ int main(int argc, char *argv[]) {
 
 	start = currentDateTime();
 
-	cryptoContext.Decrypt(keyPair.secretKey, ciphertextMulVect, &plaintextMul, true);
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertextMulVect, &plaintextMul, true);
 
 	finish = currentDateTime();
 	diff = finish - start;

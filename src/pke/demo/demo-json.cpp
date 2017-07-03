@@ -49,11 +49,11 @@ using namespace lbcrypto;
 
 
 void
-keymaker(CryptoContext<ILVector2n> ctx, string keyname)
+keymaker(shared_ptr<CryptoContext<ILVector2n>> ctx, string keyname)
 {
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = ctx.KeyGen();
+	LPKeyPair<ILVector2n> kp = ctx->KeyGen();
 
 	if( kp.publicKey && kp.secretKey ) {
 		Serialized pubK, privK;
@@ -86,7 +86,7 @@ keymaker(CryptoContext<ILVector2n> ctx, string keyname)
 
 
 void
-encrypter(CryptoContext<ILVector2n> ctx, IntPlaintextEncoding iPlaintext, string pubkeyname, string ciphertextname)
+encrypter(shared_ptr<CryptoContext<ILVector2n>> ctx, IntPlaintextEncoding iPlaintext, string pubkeyname, string ciphertextname)
 {
 
 	ofstream ctSer(ciphertextname, ios::binary);
@@ -102,7 +102,7 @@ encrypter(CryptoContext<ILVector2n> ctx, IntPlaintextEncoding iPlaintext, string
 	}
 
 	// Initialize the public key containers.
-	shared_ptr<LPPublicKey<ILVector2n>> pk = ctx.deserializePublicKey(kser);
+	shared_ptr<LPPublicKey<ILVector2n>> pk = ctx->deserializePublicKey(kser);
 
 	if( !pk ) {
 		cerr << "Could not deserialize public key" << endl;
@@ -111,7 +111,7 @@ encrypter(CryptoContext<ILVector2n> ctx, IntPlaintextEncoding iPlaintext, string
 	}
 
 	// now encrypt iPlaintext
-	std::vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext = ctx.Encrypt(pk, iPlaintext, false);
+	std::vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext = ctx->Encrypt(pk, iPlaintext, false);
 
 	// FIXME: this works iff size == 1
 	if( ciphertext.size() != 1 ) {
@@ -139,7 +139,7 @@ encrypter(CryptoContext<ILVector2n> ctx, IntPlaintextEncoding iPlaintext, string
 
 
 void
-decrypter(CryptoContext<ILVector2n> ctx, string ciphertextname, string prikeyname, IntPlaintextEncoding &iPlaintext)
+decrypter(shared_ptr<CryptoContext<ILVector2n>> ctx, string ciphertextname, string prikeyname, IntPlaintextEncoding &iPlaintext)
 {
 
 	Serialized	kser;
@@ -148,7 +148,7 @@ decrypter(CryptoContext<ILVector2n> ctx, string ciphertextname, string prikeynam
 		return;
 	}
 
-	shared_ptr<LPPrivateKey<ILVector2n>> sk = ctx.deserializeSecretKey(kser);
+	shared_ptr<LPPrivateKey<ILVector2n>> sk = ctx->deserializeSecretKey(kser);
 	if( !sk ) {
 		cerr << "Could not deserialize private key" << endl;
 		return;
@@ -167,7 +167,7 @@ decrypter(CryptoContext<ILVector2n> ctx, string ciphertextname, string prikeynam
 	}
 
 	// Initialize the public key containers.
-	shared_ptr<Ciphertext<ILVector2n>> ct = ctx.deserializeCiphertext(kser);
+	shared_ptr<Ciphertext<ILVector2n>> ct = ctx->deserializeCiphertext(kser);
 	if( ct == NULL ) {
 		cerr << "Could not deserialize ciphertext" << endl;
 		return;
@@ -176,7 +176,7 @@ decrypter(CryptoContext<ILVector2n> ctx, string ciphertextname, string prikeynam
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext( { ct } );
 
 	// now decrypt iPlaintext
-	ctx.Decrypt(sk, ciphertext, &iPlaintext, false);
+	ctx->Decrypt(sk, ciphertext, &iPlaintext, false);
 
 	inCt.close();
 
@@ -201,16 +201,16 @@ int main(int argc, char *argv[])
 	double rootHermiteFactor = 1.006;
 
 	//Set Crypto Parameters
-	CryptoContext<ILVector2n> cryptoContext = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
+	shared_ptr<CryptoContext<ILVector2n>> cryptoContext = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
 	            plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 1, 0);
 
 	// enable features that you wish to use
-	cryptoContext.Enable(ENCRYPTION);
-	cryptoContext.Enable(SHE);
+	cryptoContext->Enable(ENCRYPTION);
+	cryptoContext->Enable(SHE);
 
-	std::cout << "p = " << cryptoContext.GetCryptoParameters()->GetPlaintextModulus() << std::endl;
-	std::cout << "n = " << cryptoContext.GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
-	std::cout << "log2 q = " << log2(cryptoContext.GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
+	std::cout << "p = " << cryptoContext->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
+	std::cout << "n = " << cryptoContext->GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
+	std::cout << "log2 q = " << log2(cryptoContext->GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
 
 	string keyFileName = "demo_json_key";
 	string keyFileNamePublic = "demo_json_keyPUB.txt";

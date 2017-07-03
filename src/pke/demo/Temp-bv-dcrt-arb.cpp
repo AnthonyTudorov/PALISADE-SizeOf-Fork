@@ -157,13 +157,13 @@ void ArbBVAutomorphismPackedArray(usint i) {
 
 	float stdDev = 4;
 
-	CryptoContext<ILDCRT2n> cc = CryptoContextFactory<ILDCRT2n>::genCryptoContextBV(paramsDCRT, p, 8, stdDev);
+	shared_ptr<CryptoContext<ILDCRT2n>> cc = CryptoContextFactory<ILDCRT2n>::genCryptoContextBV(paramsDCRT, p, 8, stdDev);
 
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILDCRT2n> kp = cc.KeyGen();
+	LPKeyPair<ILDCRT2n> kp = cc->KeyGen();
 
 	vector<shared_ptr<Ciphertext<ILDCRT2n>>> ciphertext;
 
@@ -172,31 +172,31 @@ void ArbBVAutomorphismPackedArray(usint i) {
 	PackedIntPlaintextEncoding intArray(vectorOfInts);
 	//IntPlaintextEncoding intArray(vectorOfInts);
 
-	ciphertext = cc.Encrypt(kp.publicKey, intArray, false);
+	ciphertext = cc->Encrypt(kp.publicKey, intArray, false);
 
 	std::vector<usint> indexList = GetTotientList(m);
 	indexList.erase(indexList.begin());
 
-	auto evalKeys = cc.EvalAutomorphismKeyGen(kp.secretKey, indexList);
+	auto evalKeys = cc->EvalAutomorphismKeyGen(kp.secretKey, indexList);
 
-	//cc.EvalMultKeyGen(kp.secretKey);
+	//cc->EvalMultKeyGen(kp.secretKey);
 
 	vector<shared_ptr<Ciphertext<ILDCRT2n>>> permutedCiphertext;
 
 	shared_ptr<Ciphertext<ILDCRT2n>> p1;
 
-	//p1 = cc.EvalMult(ciphertext[0],ciphertext2[0]);
+	//p1 = cc->EvalMult(ciphertext[0],ciphertext2[0]);
 
-	p1 = cc.EvalAutomorphism(ciphertext[0], i, *evalKeys);
+	p1 = cc->EvalAutomorphism(ciphertext[0], i, *evalKeys);
 
 	permutedCiphertext.push_back(p1);
 
 	PackedIntPlaintextEncoding intArrayNew;
 	//IntPlaintextEncoding intArrayNew;
 
-	cc.Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew, false);
+	cc->Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew, false);
 	
-	//cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
+	//cc->Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
 
 	std::cout << "Input array\n\t" << intArray << std::endl;
 
@@ -272,13 +272,13 @@ void EvalMult() {
 
 	float stdDev = 4;
 
-	CryptoContext<ILDCRT2n> cc = CryptoContextFactory<ILDCRT2n>::genCryptoContextBV(paramsDCRT, p, 8, stdDev);
+	shared_ptr<CryptoContext<ILDCRT2n>> cc = CryptoContextFactory<ILDCRT2n>::genCryptoContextBV(paramsDCRT, p, 8, stdDev);
 
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILDCRT2n> kp = cc.KeyGen();
+	LPKeyPair<ILDCRT2n> kp = cc->KeyGen();
 
 	vector<shared_ptr<Ciphertext<ILDCRT2n>>> ciphertext;
 
@@ -287,38 +287,38 @@ void EvalMult() {
 	PackedIntPlaintextEncoding intArray(vectorOfInts);
 	//IntPlaintextEncoding intArray(vectorOfInts);
 
-	ciphertext = cc.Encrypt(kp.publicKey, intArray, false);
+	ciphertext = cc->Encrypt(kp.publicKey, intArray, false);
 
 	vector<shared_ptr<Ciphertext<ILDCRT2n>>> ciphertext2;
 
 	std::vector<usint> vectorOfInts2 = { 2,3,4,4,5,6,7,8,9,101 };
 	PackedIntPlaintextEncoding intArray2(vectorOfInts2);
 
-	ciphertext2 = cc.Encrypt(kp.publicKey, intArray2, false);
+	ciphertext2 = cc->Encrypt(kp.publicKey, intArray2, false);
 
 	std::vector<usint> indexList = GetTotientList(m);
 	indexList.erase(indexList.begin());
 
-	//auto evalKeys = cc.EvalAutomorphismKeyGen(kp.secretKey, indexList);
+	//auto evalKeys = cc->EvalAutomorphismKeyGen(kp.secretKey, indexList);
 
-	cc.EvalMultKeyGen(kp.secretKey);
+	cc->EvalMultKeyGen(kp.secretKey);
 
 	vector<shared_ptr<Ciphertext<ILDCRT2n>>> permutedCiphertext;
 
 	shared_ptr<Ciphertext<ILDCRT2n>> p1;
 
-	p1 = cc.EvalMult(ciphertext[0], ciphertext2[0]);
+	p1 = cc->EvalMult(ciphertext[0], ciphertext2[0]);
 
-	//p1 = cc.EvalAutomorphism(ciphertext[0], i, *evalKeys);
+	//p1 = cc->EvalAutomorphism(ciphertext[0], i, *evalKeys);
 
 	permutedCiphertext.push_back(p1);
 
 	PackedIntPlaintextEncoding intArrayNew;
 	//IntPlaintextEncoding intArrayNew;
 
-	cc.Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew, false);
+	cc->Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew, false);
 
-	//cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
+	//cc->Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
 
 	std::cout << "Input array\n\t" << intArray << std::endl;
 
@@ -392,13 +392,13 @@ void ArbNullAutomorphismPackedArray(usint i) {
 	//ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 
-	CryptoContext<ILDCRT2n> cc = CryptoContextFactory<ILDCRT2n>::genCryptoContextNull(paramsDCRT, p);
+	shared_ptr<CryptoContext<ILDCRT2n>> cc = CryptoContextFactory<ILDCRT2n>::genCryptoContextNull(paramsDCRT, p);
 
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILDCRT2n> kp = cc.KeyGen();
+	LPKeyPair<ILDCRT2n> kp = cc->KeyGen();
 
 	vector<shared_ptr<Ciphertext<ILDCRT2n>>> ciphertext;
 
@@ -407,31 +407,31 @@ void ArbNullAutomorphismPackedArray(usint i) {
 	PackedIntPlaintextEncoding intArray(vectorOfInts);
 	//IntPlaintextEncoding intArray(vectorOfInts);
 
-	ciphertext = cc.Encrypt(kp.publicKey, intArray, false);
+	ciphertext = cc->Encrypt(kp.publicKey, intArray, false);
 
 	std::vector<usint> indexList = GetTotientList(m);
 	indexList.erase(indexList.begin());
 
-	auto evalKeys = cc.EvalAutomorphismKeyGen(kp.secretKey, indexList);
+	auto evalKeys = cc->EvalAutomorphismKeyGen(kp.secretKey, indexList);
 
-	//cc.EvalMultKeyGen(kp.secretKey);
+	//cc->EvalMultKeyGen(kp.secretKey);
 
 	vector<shared_ptr<Ciphertext<ILDCRT2n>>> permutedCiphertext;
 
 	shared_ptr<Ciphertext<ILDCRT2n>> p1;
 
-	//p1 = cc.EvalMult(ciphertext[0],ciphertext2[0]);
+	//p1 = cc->EvalMult(ciphertext[0],ciphertext2[0]);
 
-	p1 = cc.EvalAutomorphism(ciphertext[0], i, *evalKeys);
+	p1 = cc->EvalAutomorphism(ciphertext[0], i, *evalKeys);
 
 	permutedCiphertext.push_back(p1);
 
 	PackedIntPlaintextEncoding intArrayNew;
 	//IntPlaintextEncoding intArrayNew;
 
-	cc.Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew, false);
+	cc->Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew, false);
 
-	//cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
+	//cc->Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
 
 	std::cout << "Input array\n\t" << intArray << std::endl;
 
@@ -500,13 +500,13 @@ void ArbBVInnerProductPackedArray() {
 
 	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP), batchSize));
 
-	CryptoContext<ILDCRT2n> cc = CryptoContextFactory<ILDCRT2n>::genCryptoContextBV(paramsDCRT, encodingParams, 8, stdDev);
+	shared_ptr<CryptoContext<ILDCRT2n>> cc = CryptoContextFactory<ILDCRT2n>::genCryptoContextBV(paramsDCRT, encodingParams, 8, stdDev);
 
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILDCRT2n> kp = cc.KeyGen();
+	LPKeyPair<ILDCRT2n> kp = cc->KeyGen();
 
 	vector<shared_ptr<Ciphertext<ILDCRT2n>>> ciphertext1;
 	vector<shared_ptr<Ciphertext<ILDCRT2n>>> ciphertext2;
@@ -522,13 +522,13 @@ void ArbBVInnerProductPackedArray() {
 
 	std::cout << "Input array 2 \n\t" << intArray2 << std::endl;
 
-	cc.EvalSumKeyGen(kp.secretKey);
-	cc.EvalMultKeyGen(kp.secretKey);
+	cc->EvalSumKeyGen(kp.secretKey);
+	cc->EvalMultKeyGen(kp.secretKey);
 
-	ciphertext1 = cc.Encrypt(kp.publicKey, intArray1, false);
-	ciphertext2 = cc.Encrypt(kp.publicKey, intArray2, false);
+	ciphertext1 = cc->Encrypt(kp.publicKey, intArray1, false);
+	ciphertext2 = cc->Encrypt(kp.publicKey, intArray2, false);
 
-	auto result = cc.EvalInnerProduct(ciphertext1[0], ciphertext2[0], batchSize);
+	auto result = cc->EvalInnerProduct(ciphertext1[0], ciphertext2[0], batchSize);
 
 	vector<shared_ptr<Ciphertext<ILDCRT2n>>> ciphertextSum;
 
@@ -536,7 +536,7 @@ void ArbBVInnerProductPackedArray() {
 
 	PackedIntPlaintextEncoding intArrayNew;
 
-	cc.Decrypt(kp.secretKey, ciphertextSum, &intArrayNew, false);
+	cc->Decrypt(kp.secretKey, ciphertextSum, &intArrayNew, false);
 
 	std::cout << "Sum = " << intArrayNew[0] << std::endl;
 

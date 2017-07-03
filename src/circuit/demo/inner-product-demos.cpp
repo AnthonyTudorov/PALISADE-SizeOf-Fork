@@ -109,13 +109,13 @@ main(int argc, char *argv[])
 
 		shared_ptr<LPPublicKeyEncryptionScheme<ILVector2n>> scheme( new LPPublicKeyEncryptionSchemeBV<ILVector2n>() );
 
-		CryptoContext<ILVector2n> cc = CryptoContext<ILVector2n>(cparams, scheme);
-		cc.Enable(ENCRYPTION);
-		cc.Enable(SHE);
+		shared_ptr<CryptoContext<ILVector2n>> cc = shared_ptr<CryptoContext<ILVector2n>>( new CryptoContext<ILVector2n>(cparams, scheme) );
+		cc->Enable(ENCRYPTION);
+		cc->Enable(SHE);
 
-		LPKeyPair<ILVector2n> kp = cc.KeyGen();
-		cc.EvalMultKeyGen(kp.secretKey);
-		cc.EvalSumKeyGen(kp.secretKey);
+		LPKeyPair<ILVector2n> kp = cc->KeyGen();
+		cc->EvalMultKeyGen(kp.secretKey);
+		cc->EvalSumKeyGen(kp.secretKey);
 
 		PalisadeCircuit<ILVector2n>	cir(cc, driver.graph);
 
@@ -133,8 +133,8 @@ main(int argc, char *argv[])
 			scalarMatrix2(r,0) = { vectorOfInts[r] };
 		}
 
-		shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> A = cc.EncryptMatrix(kp.publicKey, scalarMatrix1);
-		shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> B = cc.EncryptMatrix(kp.publicKey, scalarMatrix2);
+		shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> A = cc->EncryptMatrix(kp.publicKey, scalarMatrix1);
+		shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> B = cc->EncryptMatrix(kp.publicKey, scalarMatrix2);
 
 		// evaluate in a circuit
 		CircuitIO<ILVector2n> inputs;
@@ -142,17 +142,17 @@ main(int argc, char *argv[])
 		inputs[1] = B;
 
 		vector<TimingInfo>	times;
-		cc.StartTiming(&times);
+		cc->StartTiming(&times);
 
 		CircuitIO<ILVector2n> outputs = cir.CircuitEval(inputs);
 
-		cc.StopTiming();
+		cc->StopTiming();
 
 		for( auto& out : outputs ) {
 			auto m = out.second.GetIntMatValue();
 			Matrix<IntPlaintextEncoding> numerator([](){return make_unique<IntPlaintextEncoding>();},m->GetRows(),m->GetCols());
 			Matrix<IntPlaintextEncoding> denominator([](){return make_unique<IntPlaintextEncoding>();},m->GetRows(),m->GetCols());
-			cc.DecryptMatrix(kp.secretKey, m, &numerator, &denominator);
+			cc->DecryptMatrix(kp.secretKey, m, &numerator, &denominator);
 
 			cout << "INNER PRODUCT IS: " << numerator(0,0)[0] << endl;
 		}
@@ -188,13 +188,13 @@ main(int argc, char *argv[])
 
 		shared_ptr<LPPublicKeyEncryptionScheme<ILVector2n>> scheme( new LPPublicKeyEncryptionSchemeBV<ILVector2n>() );
 
-		CryptoContext<ILVector2n> cc = CryptoContext<ILVector2n>(cparams, scheme);
-		cc.Enable(ENCRYPTION);
-		cc.Enable(SHE);
+		shared_ptr<CryptoContext<ILVector2n>> cc = shared_ptr<CryptoContext<ILVector2n>>( new CryptoContext<ILVector2n>(cparams, scheme) );
+		cc->Enable(ENCRYPTION);
+		cc->Enable(SHE);
 
-		LPKeyPair<ILVector2n> kp = cc.KeyGen();
-		cc.EvalMultKeyGen(kp.secretKey);
-		cc.EvalSumKeyGen(kp.secretKey);
+		LPKeyPair<ILVector2n> kp = cc->KeyGen();
+		cc->EvalMultKeyGen(kp.secretKey);
+		cc->EvalSumKeyGen(kp.secretKey);
 
 		PalisadeCircuit<ILVector2n>	cir(cc, driver.graph);
 
@@ -203,7 +203,7 @@ main(int argc, char *argv[])
 				1,vectorOfInts.size());
 		for( size_t c=0; c<vectorOfInts.size(); c++ ) {
 			bitMatrix1(0,c) = IntPlaintextEncoding(vectorOfInts[c]);
-			bitMatrix1(0,c).resize( cc.GetRingDimension() );
+			bitMatrix1(0,c).resize( cc->GetRingDimension() );
 		}
 
 		// construct bit matrix for second vector
@@ -211,11 +211,11 @@ main(int argc, char *argv[])
 				vectorOfInts.size(), 1);
 		for( size_t r=0; r<vectorOfInts.size(); r++ ) {
 			bitMatrix2(r,0) = IntPlaintextEncoding(vectorOfInts[r]);
-			bitMatrix2(r,0).resize( cc.GetRingDimension() );
+			bitMatrix2(r,0).resize( cc->GetRingDimension() );
 		}
 
-		shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> A = cc.EncryptMatrix(kp.publicKey, bitMatrix1);
-		shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> B = cc.EncryptMatrix(kp.publicKey, bitMatrix2);
+		shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> A = cc->EncryptMatrix(kp.publicKey, bitMatrix1);
+		shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> B = cc->EncryptMatrix(kp.publicKey, bitMatrix2);
 
 		// evaluate in a circuit
 		CircuitIO<ILVector2n> inputs;
@@ -223,19 +223,19 @@ main(int argc, char *argv[])
 		inputs[1] = B;
 
 		vector<TimingInfo>	times;
-		cc.StartTiming(&times);
+		cc->StartTiming(&times);
 
 		CircuitIO<ILVector2n> outputs = cir.CircuitEval(inputs);
 
-		cc.StopTiming();
+		cc->StopTiming();
 
 		for( auto& out : outputs ) {
 			auto m = out.second.GetIntMatValue();
 			Matrix<IntPlaintextEncoding> numerator([](){return make_unique<IntPlaintextEncoding>();},m->GetRows(),m->GetCols());
 			Matrix<IntPlaintextEncoding> denominator([](){return make_unique<IntPlaintextEncoding>();},m->GetRows(),m->GetCols());
-			cc.DecryptMatrix(kp.secretKey, m, &numerator, &denominator);
+			cc->DecryptMatrix(kp.secretKey, m, &numerator, &denominator);
 
-			uint32_t ptm = cc.GetCryptoParameters()->GetPlaintextModulus().ConvertToInt();
+			uint32_t ptm = cc->GetCryptoParameters()->GetPlaintextModulus().ConvertToInt();
 			cout << "INNER PRODUCT IS: " << numerator(0,0).EvalToInt(ptm) << endl;
 		}
 
@@ -275,31 +275,31 @@ main(int argc, char *argv[])
 
 		shared_ptr<LPPublicKeyEncryptionScheme<ILVector2n>> scheme( new LPPublicKeyEncryptionSchemeBV<ILVector2n>() );
 
-		CryptoContext<ILVector2n> cc = CryptoContext<ILVector2n>(cparams, scheme);
-		cc.Enable(ENCRYPTION);
-		cc.Enable(SHE);
+		shared_ptr<CryptoContext<ILVector2n>> cc = shared_ptr<CryptoContext<ILVector2n>>( new CryptoContext<ILVector2n>(cparams, scheme) );
+		cc->Enable(ENCRYPTION);
+		cc->Enable(SHE);
 
-		LPKeyPair<ILVector2n> kp = cc.KeyGen();
-		cc.EvalMultKeyGen(kp.secretKey);
-		cc.EvalSumKeyGen(kp.secretKey);
+		LPKeyPair<ILVector2n> kp = cc->KeyGen();
+		cc->EvalMultKeyGen(kp.secretKey);
+		cc->EvalSumKeyGen(kp.secretKey);
 
 		PackedIntPlaintextEncoding packedArray1(vectorOfInts);
 		PackedIntPlaintextEncoding packedArray2(vectorOfInts);
 
-		auto A = cc.Encrypt(kp.publicKey, packedArray1);
-		auto B = cc.Encrypt(kp.publicKey, packedArray2);
+		auto A = cc->Encrypt(kp.publicKey, packedArray1);
+		auto B = cc->Encrypt(kp.publicKey, packedArray2);
 
 		vector<TimingInfo>	times;
-		cc.StartTiming(&times);
+		cc->StartTiming(&times);
 
-		auto result = cc.EvalInnerProduct(A[0], B[0], batchSize);
+		auto result = cc->EvalInnerProduct(A[0], B[0], batchSize);
 
-		cc.StopTiming();
+		cc->StopTiming();
 
 		PackedIntPlaintextEncoding intArrayNew;
-		cc.Decrypt(kp.secretKey, {result}, &intArrayNew, false);
+		cc->Decrypt(kp.secretKey, {result}, &intArrayNew, false);
 
-		cc.StopTiming();
+		cc->StopTiming();
 
 		cout << "INNER PRODUCT IS: " << intArrayNew[0] << endl;
 

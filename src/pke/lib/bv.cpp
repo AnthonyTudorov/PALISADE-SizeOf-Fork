@@ -60,10 +60,10 @@ namespace lbcrypto {
 		SerialItem cryptoParamsMap(rapidjson::kObjectType);
 		if (this->SerializeRLWE(serObj, cryptoParamsMap) == false)
 			return false;
+		cryptoParamsMap.AddMember("mode", std::to_string(m_mode), serObj->GetAllocator());
 
 		serObj->AddMember("LPCryptoParametersBV", cryptoParamsMap.Move(), serObj->GetAllocator());
 		serObj->AddMember("LPCryptoParametersType", "LPCryptoParametersBV", serObj->GetAllocator());
-		serObj->AddMember("mode", std::to_string(m_mode), serObj->GetAllocator());
 
 		return true;
 	}
@@ -80,7 +80,7 @@ namespace lbcrypto {
 
 		SerialItem::ConstMemberIterator pIt;
 
-		if ((pIt = serObj.FindMember("mode")) == serObj.MemberEnd()) {
+		if ((pIt = mIter->value.FindMember("mode")) == serObj.MemberEnd()) {
 			return false;
 		}
 		MODE mode = (MODE)atoi(pIt->value.GetString());
@@ -92,12 +92,12 @@ namespace lbcrypto {
 
 	//makeSparse is not used by this scheme
 	template <class Element>
-	LPKeyPair<Element> LPAlgorithmBV<Element>::KeyGen(const CryptoContext<Element> cc, bool makeSparse) const
+	LPKeyPair<Element> LPAlgorithmBV<Element>::KeyGen(CryptoContext<Element>* cc, bool makeSparse)
 	{
 
 		LPKeyPair<Element>	kp(new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc));
 
-		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersBV<Element>>(cc.GetCryptoParameters());
+		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersBV<Element>>(cc->GetCryptoParameters());
 
 		const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 
@@ -533,7 +533,7 @@ namespace lbcrypto {
 	shared_ptr<LPEvalKey<Element>> LPAlgorithmPREBV<Element>::ReKeyGen(const shared_ptr<LPPrivateKey<Element>> newSK,
 		const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const
 	{
-		return origPrivateKey->GetCryptoContext().GetEncryptionAlgorithm()->KeySwitchGen(origPrivateKey,
+		return origPrivateKey->GetCryptoContext()->GetEncryptionAlgorithm()->KeySwitchGen(origPrivateKey,
 			newSK);
 	}
 
@@ -542,7 +542,7 @@ namespace lbcrypto {
 	shared_ptr<Ciphertext<Element>> LPAlgorithmPREBV<Element>::ReEncrypt(const shared_ptr<LPEvalKey<Element>> EK,
 		const shared_ptr<Ciphertext<Element>> ciphertext) const
 	{
-		return ciphertext->GetCryptoContext().GetEncryptionAlgorithm()->KeySwitch(EK, ciphertext);
+		return ciphertext->GetCryptoContext()->GetEncryptionAlgorithm()->KeySwitch(EK, ciphertext);
 
 	}
 
@@ -567,13 +567,13 @@ namespace lbcrypto {
 
 	//makeSparse is not used by this scheme
 	template <class Element>
-	LPKeyPair<Element> LPAlgorithmMultipartyBV<Element>::MultipartyKeyGen(const CryptoContext<Element> cc,
+	LPKeyPair<Element> LPAlgorithmMultipartyBV<Element>::MultipartyKeyGen(CryptoContext<Element>* cc,
 		const vector<shared_ptr<LPPrivateKey<Element>>>& secretKeys,
-		bool makeSparse) const
+		bool makeSparse)
 	{
 
 		LPKeyPair<Element>	kp(new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc));
-		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersBV<Element>>(cc.GetCryptoParameters());
+		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersBV<Element>>(cc->GetCryptoParameters());
 		const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 		const typename Element::Integer &p = cryptoParams->GetPlaintextModulus();
 		const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
@@ -610,13 +610,13 @@ namespace lbcrypto {
 
 //makeSparse is not used by this scheme
 template <class Element>
-LPKeyPair<Element> LPAlgorithmMultipartyBV<Element>::MultipartyKeyGen(const CryptoContext<Element> cc,
-		const shared_ptr<LPPublicKey<Element>> pk1, bool makeSparse) const
+LPKeyPair<Element> LPAlgorithmMultipartyBV<Element>::MultipartyKeyGen(CryptoContext<Element>* cc,
+		const shared_ptr<LPPublicKey<Element>> pk1, bool makeSparse)
 	{
 
 
 		LPKeyPair<Element>	kp(new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc));
-		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersBV<Element>>(cc.GetCryptoParameters());
+		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersBV<Element>>(cc->GetCryptoParameters());
 		const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 		const typename Element::Integer &p = cryptoParams->GetPlaintextModulus();
 		const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();

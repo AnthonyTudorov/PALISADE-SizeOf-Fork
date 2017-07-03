@@ -117,19 +117,19 @@ void ArbBVLinearRegressionPackedArray() {
 
 	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP,PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP),batchSize));
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, encodingParams, 8, stdDev, OPTIMIZED);
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, encodingParams, 8, stdDev, OPTIMIZED);
 
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 
 	std::cout << "Starting key generation" << std::endl;
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	LPKeyPair<ILVector2n> kp = cc->KeyGen();
 
 	// Compute evaluation keys
-	cc.EvalSumKeyGen(kp.secretKey);
-	cc.EvalMultKeyGen(kp.secretKey);
+	cc->EvalSumKeyGen(kp.secretKey);
+	cc->EvalMultKeyGen(kp.secretKey);
 
 	auto zeroAlloc = [=]() { return lbcrypto::make_unique<PackedIntPlaintextEncoding>(); };
 
@@ -152,17 +152,17 @@ void ArbBVLinearRegressionPackedArray() {
 
 	std::cout << "Starting encryption of x" << std::endl;
 
-	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> x = cc.EncryptMatrix(kp.publicKey, xP);
+	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> x = cc->EncryptMatrix(kp.publicKey, xP);
 
 	std::cout << "Starting encryption of y" << std::endl;
 
-	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> y = cc.EncryptMatrix(kp.publicKey, yP);
+	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> y = cc->EncryptMatrix(kp.publicKey, yP);
 
 	////////////////////////////////////////////////////////////
 	//Linear Regression
 	////////////////////////////////////////////////////////////
 
-	auto result = cc.EvalLinRegressBatched(x, y, 8);
+	auto result = cc->EvalLinRegressBatched(x, y, 8);
 
 	////////////////////////////////////////////////////////////
 	//Decryption
@@ -171,7 +171,7 @@ void ArbBVLinearRegressionPackedArray() {
 	Matrix<PackedIntPlaintextEncoding> numerator = Matrix<PackedIntPlaintextEncoding>(zeroAlloc, 2, 1);
 	Matrix<PackedIntPlaintextEncoding> denominator = Matrix<PackedIntPlaintextEncoding>(zeroAlloc, 2, 1);
 
-	cc.DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
+	cc->DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
 
 	std::cout << numerator(0, 0)[0] << "," << numerator(1, 0)[0] << std::endl;
 	std::cout << denominator(0, 0)[0] << "," << denominator(1, 0)[0] << std::endl;
@@ -222,20 +222,20 @@ void ArbFVInnerProductPackedArray() {
 	//	int depth = 0, int assuranceMeasure = 0, float securityLevel = 0,
 	//	const std::string& bigmodulusarb = "0", const std::string& bigrootofunityarb = "0")
 
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(params, encodingParams, 1, stdDev, delta.ToString(), OPTIMIZED,
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(params, encodingParams, 1, stdDev, delta.ToString(), OPTIMIZED,
 		bigEvalMultModulus.ToString(), bigEvalMultRootOfUnity.ToString(), 1, 9, 1.006, bigEvalMultModulusAlt.ToString(), bigEvalMultRootOfUnityAlt.ToString());
 
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 
 	std::cout << "Starting key generation" << std::endl;
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	LPKeyPair<ILVector2n> kp = cc->KeyGen();
 
 	// Compute evaluation keys
-	cc.EvalSumKeyGen(kp.secretKey);
-	cc.EvalMultKeyGen(kp.secretKey);
+	cc->EvalSumKeyGen(kp.secretKey);
+	cc->EvalMultKeyGen(kp.secretKey);
 
 	auto zeroAlloc = [=]() { return lbcrypto::make_unique<PackedIntPlaintextEncoding>(); };
 
@@ -258,17 +258,17 @@ void ArbFVInnerProductPackedArray() {
 
 	std::cout << "Starting encryption of x" << std::endl;
 
-	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> x = cc.EncryptMatrix(kp.publicKey, xP);
+	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> x = cc->EncryptMatrix(kp.publicKey, xP);
 
 	std::cout << "Starting encryption of y" << std::endl;
 
-	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> y = cc.EncryptMatrix(kp.publicKey, yP);
+	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> y = cc->EncryptMatrix(kp.publicKey, yP);
 
 	////////////////////////////////////////////////////////////
 	//Linear Regression
 	////////////////////////////////////////////////////////////
 
-	auto result = cc.EvalLinRegressBatched(x, y, 8);
+	auto result = cc->EvalLinRegressBatched(x, y, 8);
 
 	////////////////////////////////////////////////////////////
 	//Decryption
@@ -277,7 +277,7 @@ void ArbFVInnerProductPackedArray() {
 	Matrix<PackedIntPlaintextEncoding> numerator = Matrix<PackedIntPlaintextEncoding>(zeroAlloc, 2, 1);
 	Matrix<PackedIntPlaintextEncoding> denominator = Matrix<PackedIntPlaintextEncoding>(zeroAlloc, 2, 1);
 
-	cc.DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
+	cc->DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
 
 	std::cout << numerator(0, 0)[0] << "," << numerator(1, 0)[0] << std::endl;
 	std::cout << denominator(0, 0)[0] << "," << denominator(1, 0)[0] << std::endl;

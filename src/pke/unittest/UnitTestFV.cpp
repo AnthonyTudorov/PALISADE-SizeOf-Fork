@@ -49,6 +49,8 @@ protected:
 public:
 };
 
+//FIXME I think all of these operations are duplicated in other unit test files, so perhaps this entire file can be deleted
+
 //Tests EvalAdd, EvalSub, and EvalMul operations for FV in the RLWE mode
 TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 
@@ -68,11 +70,11 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 
 	//Set crypto parametes
 	BigBinaryInteger delta(modulus.DividedBy(plaintextModulus));
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(parms,
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(parms,
 			64, 1, stdDev, delta.ToString(), RLWE, bigModulus.ToString(),
 			bigRootOfUnity.ToString(), 0, 9, 1.006);
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 
 	// Initialize the public key containers.
 	LPKeyPair<ILVector2n> kp;
@@ -96,7 +98,7 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 	//Perform the key generation operation.
 	////////////////////////////////////////////////////////////
 
-	kp = cc.KeyGen();
+	kp = cc->KeyGen();
 
 	if (!kp.good()) {
 		std::cout << "Key generation failed!" << std::endl;
@@ -110,8 +112,8 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext1;
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext2;
 
-	ciphertext1 = cc.Encrypt(kp.publicKey, plaintext1, true);
-	ciphertext2 = cc.Encrypt(kp.publicKey, plaintext2, true);
+	ciphertext1 = cc->Encrypt(kp.publicKey, plaintext1, true);
+	ciphertext2 = cc->Encrypt(kp.publicKey, plaintext2, true);
 
 	////////////////////////////////////////////////////////////
 	//EvalAdd Operation
@@ -119,7 +121,7 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextAdd;
 
-	shared_ptr<Ciphertext<ILVector2n>> ciphertextTemp = cc.EvalAdd(ciphertext1[0], ciphertext2[0]);
+	shared_ptr<Ciphertext<ILVector2n>> ciphertextTemp = cc->EvalAdd(ciphertext1[0], ciphertext2[0]);
 
 	ciphertextAdd.push_back(ciphertextTemp);
 
@@ -129,7 +131,7 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 	//Decryption after EvalAdd Operation
 	////////////////////////////////////////////////////////////
 
-	DecryptResult result = cc.Decrypt(kp.secretKey, ciphertextAdd, &plaintextNew, true);
+	DecryptResult result = cc->Decrypt(kp.secretKey, ciphertextAdd, &plaintextNew, true);
 
 	//this step is needed because there is no marker for padding in the case of IntPlaintextEncoding
 	plaintextNew.resize(plaintextAdd.size());
@@ -142,7 +144,7 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextSub;
 
-	shared_ptr<Ciphertext<ILVector2n>> ciphertextTempSub = cc.EvalSub(ciphertext1[0], ciphertext2[0]);
+	shared_ptr<Ciphertext<ILVector2n>> ciphertextTempSub = cc->EvalSub(ciphertext1[0], ciphertext2[0]);
 
 	ciphertextSub.push_back(ciphertextTempSub);
 
@@ -152,7 +154,7 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 	//Decryption after EvalAdd Operation
 	////////////////////////////////////////////////////////////
 
-	result = cc.Decrypt(kp.secretKey, ciphertextSub, &plaintextNewSub, true);
+	result = cc->Decrypt(kp.secretKey, ciphertextSub, &plaintextNewSub, true);
 
 	plaintextNewSub.resize(plaintextSub.size());
 
@@ -163,11 +165,11 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 	//EvalMult Operation
 	////////////////////////////////////////////////////////////
 
-	cc.EvalMultKeyGen(kp.secretKey);
+	cc->EvalMultKeyGen(kp.secretKey);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextMult;
 
-	shared_ptr<Ciphertext<ILVector2n>> ciphertextTempMult = cc.EvalMult(ciphertext1[0], ciphertext2[0]);
+	shared_ptr<Ciphertext<ILVector2n>> ciphertextTempMult = cc->EvalMult(ciphertext1[0], ciphertext2[0]);
 
 	ciphertextMult.push_back(ciphertextTempMult);
 
@@ -177,7 +179,7 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 	//Decryption after EvalMult Operation
 	////////////////////////////////////////////////////////////
 
-	result = cc.Decrypt(kp.secretKey, ciphertextMult, &plaintextNewMult, true);
+	result = cc->Decrypt(kp.secretKey, ciphertextMult, &plaintextNewMult, true);
 
 	plaintextNewMult.resize(plaintextMult.size());
 
@@ -185,7 +187,7 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 
 }
 
-// Generates parameters for FV in the RWLE mode to support a single EvalMult and then validates that single EvalMult works correctly
+// Generates parameters for FV in the RLWE mode to support a single EvalMult and then validates that single EvalMult works correctly
 TEST(UTFV, ILVector2n_FV_ParamsGen_EvalMul) {
 
 	usint relWindow = 16;
@@ -193,9 +195,9 @@ TEST(UTFV, ILVector2n_FV_ParamsGen_EvalMul) {
 	float stdDev = 4;
 
 	//Set crypto parametes
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(plaintextModulus, 1.006, relWindow, stdDev, 0, 2, 0);
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(plaintextModulus, 1.006, relWindow, stdDev, 0, 2, 0, RLWE);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 
 	// Initialize the public key containers.
 	LPKeyPair<ILVector2n> kp;
@@ -213,7 +215,7 @@ TEST(UTFV, ILVector2n_FV_ParamsGen_EvalMul) {
 	//Perform the key generation operation.
 	////////////////////////////////////////////////////////////
 
-	kp = cc.KeyGen();
+	kp = cc->KeyGen();
 
 	if (!kp.good()) {
 		std::cout << "Key generation failed!" << std::endl;
@@ -227,18 +229,18 @@ TEST(UTFV, ILVector2n_FV_ParamsGen_EvalMul) {
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext1;
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext2;
 
-	ciphertext1 = cc.Encrypt(kp.publicKey, plaintext1, false);
-	ciphertext2 = cc.Encrypt(kp.publicKey, plaintext2, false);
+	ciphertext1 = cc->Encrypt(kp.publicKey, plaintext1, false);
+	ciphertext2 = cc->Encrypt(kp.publicKey, plaintext2, false);
 
 	////////////////////////////////////////////////////////////
 	//EvalMult Operation
 	////////////////////////////////////////////////////////////
 
-	cc.EvalMultKeyGen(kp.secretKey);
+	cc->EvalMultKeyGen(kp.secretKey);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextMult;
 
-	shared_ptr<Ciphertext<ILVector2n>> ciphertextTempMult = cc.EvalMult(ciphertext1[0], ciphertext2[0]);
+	shared_ptr<Ciphertext<ILVector2n>> ciphertextTempMult = cc->EvalMult(ciphertext1[0], ciphertext2[0]);
 
 	ciphertextMult.push_back(ciphertextTempMult);
 
@@ -248,7 +250,7 @@ TEST(UTFV, ILVector2n_FV_ParamsGen_EvalMul) {
 	//Decryption after EvalMult Operation
 	////////////////////////////////////////////////////////////
 
-	cc.Decrypt(kp.secretKey, ciphertextMult, &plaintextNewMult, true);
+	cc->Decrypt(kp.secretKey, ciphertextMult, &plaintextNewMult, true);
 
 	plaintextNewMult.resize(plaintextMult.size());
 
@@ -264,9 +266,9 @@ TEST(UTFV, ILVector2n_FV_Optimized_Eval_Operations) {
 	float stdDev = 4;
 
 	//Set crypto parameters
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(plaintextModulus, 1.006, relWindow, stdDev, 0, 1, 0);
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(plaintextModulus, 1.006, relWindow, stdDev, 0, 1, 0);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 
 	// Initialize the public key containers.
 	LPKeyPair<ILVector2n> kp;
@@ -290,7 +292,7 @@ TEST(UTFV, ILVector2n_FV_Optimized_Eval_Operations) {
 	//Perform the key generation operation.
 	////////////////////////////////////////////////////////////
 
-	kp = cc.KeyGen();
+	kp = cc->KeyGen();
 
 	if (!kp.good()) {
 		std::cout << "Key generation failed!" << std::endl;
@@ -304,8 +306,8 @@ TEST(UTFV, ILVector2n_FV_Optimized_Eval_Operations) {
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext1;
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext2;
 
-	ciphertext1 = cc.Encrypt(kp.publicKey, plaintext1, false);
-	ciphertext2 = cc.Encrypt(kp.publicKey, plaintext2, false);
+	ciphertext1 = cc->Encrypt(kp.publicKey, plaintext1, false);
+	ciphertext2 = cc->Encrypt(kp.publicKey, plaintext2, false);
 
 	////////////////////////////////////////////////////////////
 	//EvalAdd Operation
@@ -316,7 +318,7 @@ TEST(UTFV, ILVector2n_FV_Optimized_Eval_Operations) {
 	shared_ptr<Ciphertext<ILVector2n>> ciphertextTemp;
 
 	//YSP this needs to be switched to the CryptoUtility operation
-	ciphertextTemp = cc.EvalAdd(ciphertext1[0], ciphertext2[0]);
+	ciphertextTemp = cc->EvalAdd(ciphertext1[0], ciphertext2[0]);
 
 	ciphertextAdd.push_back(ciphertextTemp);
 
@@ -326,7 +328,7 @@ TEST(UTFV, ILVector2n_FV_Optimized_Eval_Operations) {
 	//Decryption after EvalAdd Operation
 	////////////////////////////////////////////////////////////
 
-	DecryptResult result = cc.Decrypt(kp.secretKey, ciphertextAdd, &plaintextNew, true);
+	DecryptResult result = cc->Decrypt(kp.secretKey, ciphertextAdd, &plaintextNew, true);
 
 	plaintextNew.resize(plaintextAdd.size());
 
@@ -340,7 +342,7 @@ TEST(UTFV, ILVector2n_FV_Optimized_Eval_Operations) {
 
 	shared_ptr<Ciphertext<ILVector2n>> ciphertextTempSub;
 
-	ciphertextTempSub = cc.EvalSub(ciphertext1[0], ciphertext2[0]);
+	ciphertextTempSub = cc->EvalSub(ciphertext1[0], ciphertext2[0]);
 
 	ciphertextSub.push_back(ciphertextTempSub);
 
@@ -350,7 +352,7 @@ TEST(UTFV, ILVector2n_FV_Optimized_Eval_Operations) {
 	//Decryption after EvalAdd Operation
 	////////////////////////////////////////////////////////////
 
-	result = cc.Decrypt(kp.secretKey, ciphertextSub, &plaintextNewSub, true);
+	result = cc->Decrypt(kp.secretKey, ciphertextSub, &plaintextNewSub, true);
 
 	plaintextNewSub.resize(plaintextSub.size());
 
@@ -361,13 +363,13 @@ TEST(UTFV, ILVector2n_FV_Optimized_Eval_Operations) {
 	//EvalMult Operation
 	////////////////////////////////////////////////////////////
 
-	cc.EvalMultKeyGen(kp.secretKey);
+	cc->EvalMultKeyGen(kp.secretKey);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextMult;
 
 	shared_ptr<Ciphertext<ILVector2n>> ciphertextTempMult;
 
-	ciphertextTempMult = cc.EvalMult(ciphertext1[0], ciphertext2[0]);
+	ciphertextTempMult = cc->EvalMult(ciphertext1[0], ciphertext2[0]);
 
 	ciphertextMult.push_back(ciphertextTempMult);
 
@@ -377,99 +379,10 @@ TEST(UTFV, ILVector2n_FV_Optimized_Eval_Operations) {
 	//Decryption after EvalMult Operation
 	////////////////////////////////////////////////////////////
 
-	result = cc.Decrypt(kp.secretKey, ciphertextMult, &plaintextNewMult, true);
+	result = cc->Decrypt(kp.secretKey, ciphertextMult, &plaintextNewMult, true);
 
 	plaintextNewMult.resize(plaintextMult.size());
 
 	EXPECT_EQ(plaintextMult, plaintextNewMult) << "FVOptimized.EvalMult gives incorrect results.\n";
-
-}
-
-// This test is currently disabled as FV.PRE functionality has not been enabled
-/*Simple Proxy re-encryption test for ILVector2n. The assumption is this test case is that everything with respect to the lattice
-* layer and cryptoparameters work. This test case is only testing if the resulting plaintext from an encrypt/decrypt returns the same
-* plaintext
-* The cyclotomic order is set 2048
-* The relinwindow is set to 1 and the modulus and root of unity are precomputed values that satisfy PRE conditions
-*/
-TEST(UTFV, ILVector2n_Encrypt_Decrypt_PRE) {
-
-	usint m = 2048;
-
-	BigBinaryInteger modulus("1099511678977");
-	BigBinaryInteger rootOfUnity("928976858506");
-
-	shared_ptr<ILVector2n::Params> params(new ILVector2n::Params(m, modulus, rootOfUnity));
-
-	BigBinaryInteger bigModulus("1237940039285380274899136513");
-	BigBinaryInteger bigRootOfUnity("1067388930511360414468370668");
-
-	BigBinaryInteger plaintextModulus("8");
-
-	float stdDev = 4;
-
-	//Set crypto parametes
-	BigBinaryInteger delta(modulus.DividedBy(plaintextModulus));
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
-		params, 8,
-		1, stdDev, delta.ToString(), RLWE, bigModulus.ToString(),
-		bigRootOfUnity.ToString(), 0, 9, 1.006);
-
-	cc.Enable(ENCRYPTION);
-	cc.Enable(PRE);
-	cc.Enable(SHE);
-
-	std::vector<usint> vectorOfInts1 = { 1,1,0,1,2,4,5 };
-
-	IntPlaintextEncoding intArray1(vectorOfInts1);
-
-	//Regular LWE-NTRU encryption algorithm
-
-	////////////////////////////////////////////////////////////
-	//Perform the key generation operation.
-	////////////////////////////////////////////////////////////
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
-
-	////////////////////////////////////////////////////////////
-	//Encryption
-	////////////////////////////////////////////////////////////
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext =
-		cc.Encrypt(kp.publicKey, intArray1, true);
-
-	//PRE SCHEME
-
-	////////////////////////////////////////////////////////////
-	//Perform the second key generation operation.
-	// This generates the keys which should be able to decrypt the ciphertext after the re-encryption operation.
-	////////////////////////////////////////////////////////////
-
-	LPKeyPair<ILVector2n> newKp = cc.KeyGen();
-
-	/*shared_ptr<LPEvalKey<ILDCRT2n>> evalKey =
-	cc.ReKeyGen(newKp.secretKey, kp.secretKey);*/
-	shared_ptr<LPEvalKey<ILVector2n>> evalKey =
-		cc.ReKeyGen(newKp.secretKey, kp.secretKey);
-
-	////////////////////////////////////////////////////////////
-	//Perform the proxy re-encryption operation.
-	// This switches the keys which are used to perform the key switching.
-	////////////////////////////////////////////////////////////
-	vector<shared_ptr<Ciphertext<ILVector2n>>> newCiphertext =
-		cc.ReEncrypt(evalKey, ciphertext);
-
-
-	////////////////////////////////////////////////////////////
-	//Decryption
-	////////////////////////////////////////////////////////////
-
-	IntPlaintextEncoding intArrayNew;
-
-	cc.Decrypt(newKp.secretKey, newCiphertext, &intArrayNew, true);
-
-	//DecryptResult result1 = cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew, true);
-
-	intArrayNew.resize(intArray1.size());
-
-	EXPECT_EQ(intArray1, intArrayNew);
 
 }

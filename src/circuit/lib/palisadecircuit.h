@@ -49,11 +49,11 @@ using CircuitIO = map<CircuitKey,CircuitObject<Element>>;
 
 template<typename Element>
 class PalisadeCircuit {
-	CryptoContext<Element>&	cc;
-	CircuitGraphWithValues<Element>	g;
+	shared_ptr<CryptoContext<Element>>	cc;
+	CircuitGraphWithValues<Element>		g;
 
 public:
-	PalisadeCircuit(CryptoContext<Element>& cc, CircuitGraph& cg) : cc(cc), g(cg) {}
+	PalisadeCircuit(shared_ptr<CryptoContext<Element>> cc, CircuitGraph& cg) : cc(cc), g(cg) {}
 
 	CircuitGraphWithValues<Element>&  GetGraph() { return g; }
 

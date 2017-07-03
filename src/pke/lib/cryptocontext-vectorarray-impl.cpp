@@ -30,9 +30,5 @@
 namespace lbcrypto {
 template class CryptoContextFactory<ILDCRT2n>;
 template class CryptoContext<ILDCRT2n>;
-
-template<class ILDCRT2n> vector<shared_ptr<LPEvalKey<ILDCRT2n>>> CryptoContext<ILDCRT2n>::evalMultKeys;
-template<class ILDCRT2n> std::map<usint, shared_ptr<LPEvalKey<ILDCRT2n>>> CryptoContext<ILDCRT2n>::evalSumKeys;
-
 }
 
