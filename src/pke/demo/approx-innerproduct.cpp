@@ -139,11 +139,15 @@ int main() {
 	// Initialize the public key containers.
 	LPKeyPair<ILVector2n> kp = cc.KeyGen();
 
-	std::vector<usint> vectorOfInts1(m-1, 2);
-	PackedIntPlaintextEncoding intArray1(vectorOfInts1);
+	std::vector<usint> vectorOfInts1(m-1);
+	std::vector<usint> vectorOfInts2(m-1, 1);
+	for (usint i=0; i<m-1; i++){
+		vectorOfInts1[i] = i % 8;
+	}
 
-	std::vector<usint> vectorOfInts2(m-1, 3);
+	PackedIntPlaintextEncoding intArray1(vectorOfInts1);
 	PackedIntPlaintextEncoding intArray2(vectorOfInts2);
+
 	shared_ptr<ILVector2n> plaintext(new ILVector2n(params, EVALUATION, true));
 	for(usint i=0; i<(m-1); i++){
 		plaintext->SetValAtIndex(i, BigBinaryInteger(vectorOfInts2[i]));
@@ -165,6 +169,7 @@ int main() {
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextResult;
 	auto ciphertextMult = cc.EvalMultPlain(ciphertext.at(0), ciphertext2.at(0));
 	auto ciphertextInnerProd = cc.EvalSum(ciphertextMult, batchSize);
+	auto ciphertextInnerProd2 = cc.EvalInnerProduct(ciphertext.at(0), ciphertext2.at(0), batchSize);
 	ciphertextResult.insert(ciphertextResult.begin(), ciphertextInnerProd);
 	PackedIntPlaintextEncoding intArrayNew;
 	cc.Decrypt(kp.secretKey, ciphertextResult, &intArrayNew, false);
