@@ -109,12 +109,9 @@ namespace lbcrypto {
 			// Power of two: m/2-point FTT. So we need the mth root of unity
 			m_initRoot[modulusNI] = RootOfUnity<native_int::BinaryInteger>(m, modulusNI);
 		} else {
-			// std::cout << "Setting Parameters for PackedIntPlaintextEncoding" << std::endl;
-			// std::cout << modulusNI << " " << m << std::endl;
 			// Arbitrary: Bluestein based CRT Arb. So we need the 2mth root of unity
 			native_int::BinaryInteger initRoot = RootOfUnity<native_int::BinaryInteger>(2*m, modulusNI);
 			m_initRoot[modulusNI] = initRoot;
-			// std::cout << m_initRoot[modulusNI] << std::endl;
 
 			// Find a compatible big-modulus and root of unity for CRTArb
 			usint nttDim = pow(2, ceil(log2(2*m - 1)));
@@ -124,15 +121,12 @@ namespace lbcrypto {
 				usint bigModulusSize = ceil(log2(2*m - 1)) + 2*modulusNI.GetMSB() + 1;
 				m_bigModulus[modulusNI] = FindPrimeModulus<native_int::BinaryInteger>(nttDim, bigModulusSize);
 			}
-			// std::cout << m_bigModulus[modulusNI] << std::endl;
 			m_bigRoot[modulusNI] = RootOfUnity<native_int::BinaryInteger>(nttDim, m_bigModulus[modulusNI]);
-			// std::cout << m_bigRoot[modulusNI] << std::endl;
 
 			// Find a generator for the automorphism group
 			native_int::BinaryInteger M(m); // Hackish typecast
 			native_int::BinaryInteger automorphismGenerator = FindGeneratorCyclic<native_int::BinaryInteger>(M);
 			m_automorphismGenerator[modulusNI] = automorphismGenerator.ConvertToInt();
-			// std::cout << m_automorphismGenerator[modulusNI] << std::endl;
 
 			// Create the permutations that interchange the automorphism and crt ordering
 			usint phim = GetTotient(m);
@@ -152,21 +146,6 @@ namespace lbcrypto {
 
 				curr_index = curr_index*m_automorphismGenerator[modulusNI] % m;
 			}
-
-			/*
-			for (usint i=0; i<phim; i++){
-				std::cout << tList[i] << " ";
-			}
-			std::cout << std::endl;
-			for (usint i=0; i<phim; i++){
-				std::cout << m_toCRTPerm[modulusNI][i] << " ";
-			}
-			std::cout << std::endl;
-			for (usint i=0; i<phim; i++){
-				std::cout << m_fromCRTPerm[modulusNI][i] << " ";
-			}
-			std::cout << std::endl;
-			*/
 		}
 }
 

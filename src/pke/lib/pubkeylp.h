@@ -1313,8 +1313,6 @@ namespace lbcrypto {
 				randomIntVector[i + 1] = randomVector.GetValAtIndex(i).ConvertToInt();
 			}
 
-			PackedIntPlaintextEncoding::SetParams(encodingParams->GetPlaintextModulus(), elementParams->GetCyclotomicOrder());
-
 			PackedIntPlaintextEncoding plaintext(randomIntVector);
 
 			ILVector2n encodedPlaintext(elementParams);
