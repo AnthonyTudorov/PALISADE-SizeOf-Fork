@@ -368,36 +368,6 @@ CryptoContextFactory<Element>::DeserializeAndCreateContext(const Serialized& ser
 	return cc;
 }
 
-template <typename Element>
-bool
-CryptoContextFactory<Element>::DeserializeAndValidateParams(CryptoContext<Element>* ctx, const Serialized& serObj) {
-	bool dbg_flag = false;
-
-	shared_ptr<LPCryptoParameters<Element>> cp;// = GetParameterObject(serObj);
-
-	if (cp == NULL) {
-		DEBUG("No Parameter Object in DeserializeAndValidateParams");
-		return false;
-	}
-
-	if (typeid(cp) != typeid(ctx->GetCryptoParameters())) {
-		DEBUG("Type Mismatch in DeserializeAndValidateParams");
-		return false;
-	}
-
-	if (cp->Deserialize(serObj) == false) {
-		DEBUG("Deserialize failed in DeserializeAndValidateParams");
-		return false;
-	}
-
-	if( *cp != *ctx->GetCryptoParameters() ) {
-		DEBUG("PARMS MISMATCH: ctx is " << *ctx->GetCryptoParameters() << "cp is " << *cp);
-		return false;
-	}
-
-	return true;
-}
-
 // factory methods for the different schemes
 
 template <typename T>

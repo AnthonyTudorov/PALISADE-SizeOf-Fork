@@ -1863,14 +1863,6 @@ public:
 	* @return new context
 	*/
 	static shared_ptr<CryptoContext<Element>> DeserializeAndCreateContext(const Serialized& serObj, bool noKeys = false);
-
-	/**
-	* Test if a serialization matches a given CryptoContext
-	* @param ctx
-	* @param serObj
-	* @return true if deserialization matches this context
-	*/
-	static bool DeserializeAndValidateParams(CryptoContext<Element>* ctx, const Serialized& serObj);
 };
 
 
