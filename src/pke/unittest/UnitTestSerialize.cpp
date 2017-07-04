@@ -84,6 +84,8 @@ void UnitTestContext(shared_ptr<CryptoContext<T>> cc) {
 	shared_ptr<CryptoContext<T>> newcc = CryptoContextFactory<T>::DeserializeAndCreateContext(ser);
 	ASSERT_TRUE( newcc ) << "Deserialization failed";
 
+	EXPECT_EQ( cc->GetEncryptionAlgorithm()->GetEnabled(), (ENCRYPTION|SHE) ) << "Enabled features mismatch after ser/deser";
+
 	EXPECT_EQ( *cc->GetCryptoParameters(), *newcc->GetCryptoParameters() ) << "Mismatch after ser/deser";
 }
 

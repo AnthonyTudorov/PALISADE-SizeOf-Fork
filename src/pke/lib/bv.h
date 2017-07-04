@@ -686,7 +686,6 @@ namespace lbcrypto {
 	class LPPublicKeyEncryptionSchemeBV : public LPPublicKeyEncryptionScheme<Element> {
 	public:
 		LPPublicKeyEncryptionSchemeBV() : LPPublicKeyEncryptionScheme<Element>() {}
-		LPPublicKeyEncryptionSchemeBV(std::bitset<FEATURESETSIZE> mask);
 
 		void Enable(PKESchemeFeature feature);
 	};

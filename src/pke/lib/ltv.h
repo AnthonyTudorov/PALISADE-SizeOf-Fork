@@ -725,13 +725,6 @@ public:
 	}
 
 	/**
-	* Constructor that initalizes the mask
-	*
-	*@param mask the mask to be initialized
-	*/
-	LPPublicKeyEncryptionSchemeLTV(std::bitset<FEATURESETSIZE> mask);
-	
-	/**
 	* Function to enable a scheme.
 	* FIXME This needs to be described better.
 	*

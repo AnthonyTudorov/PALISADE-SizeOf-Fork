@@ -732,7 +732,6 @@ namespace lbcrypto {
 		LPPublicKeyEncryptionSchemeFV() : LPPublicKeyEncryptionScheme<Element>() {
 			this->m_algorithmParamsGen = new LPAlgorithmParamsGenFV<Element>();
 		}
-		LPPublicKeyEncryptionSchemeFV(std::bitset<FEATURESETSIZE> mask);
 
 		void Enable(PKESchemeFeature feature);
 	};

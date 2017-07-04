@@ -209,6 +209,12 @@ public:
 	void Enable(PKESchemeFeature feature) { scheme->Enable(feature); }
 
 	/**
+	 * Enable several features at once
+	 * @param featureMask - bitwise or of several PKESchemeFeatures
+	 */
+	void Enable(usint featureMask) { scheme->Enable(featureMask); }
+
+	/**
 	* Getter for Scheme
 	* @return scheme
 	*/

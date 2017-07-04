@@ -716,36 +716,6 @@ DecryptResult LPAlgorithmMultipartyBV<Element>::MultipartyDecryptFusion(const ve
 
 }
 
-
-	// Constructor for LPPublicKeyEncryptionSchemeBV
-	template <class Element>
-	LPPublicKeyEncryptionSchemeBV<Element>::LPPublicKeyEncryptionSchemeBV(std::bitset<FEATURESETSIZE> mask)
-	: LPPublicKeyEncryptionScheme<Element>() {
-
-		if (mask[ENCRYPTION])
-			if (this->m_algorithmEncryption == NULL)
-				this->m_algorithmEncryption = new LPAlgorithmBV<Element>();
-
-		if (mask[PRE])
-			if (this->m_algorithmPRE == NULL)
-				this->m_algorithmPRE = new LPAlgorithmPREBV<Element>();
-
-		if (mask[SHE])
-			if (this->m_algorithmSHE == NULL)
-				this->m_algorithmSHE = new LPAlgorithmSHEBV<Element>();
-
-		if (mask[LEVELEDSHE])
-			if (this->m_algorithmLeveledSHE == NULL)
-				this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmBV<Element>();
-
-		if (mask[MULTIPARTY])
-			if (this->m_algorithmMultiparty == NULL)
-				this->m_algorithmMultiparty = new LPAlgorithmMultipartyBV<Element>();
-
-		if (mask[FHE])
-			throw std::logic_error("FHE feature not supported for BV scheme");
-	}
-
 	// Enable for LPPublicKeyEncryptionSchemeLTV
 	template <class Element>
 	void LPPublicKeyEncryptionSchemeBV<Element>::Enable(PKESchemeFeature feature) {
