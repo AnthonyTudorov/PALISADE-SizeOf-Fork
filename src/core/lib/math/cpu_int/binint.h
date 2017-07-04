@@ -885,13 +885,6 @@ namespace cpu_int{
 		static const BigBinaryInteger *m_modChain;
 		
 		/**
-		* function to return the MSB of a 32 bit number.
-		* @param x is the 32 bit integer.
-		* @return the MSB position in the 32 bit number x.
-		*/
-		
-		static usint GetMSB32(uint64_t x);
-		/**
 		* function to return the MSB of number.
 		* @param x is the number.
 		* @return the MSB position in the number x.

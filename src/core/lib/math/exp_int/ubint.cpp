@@ -123,7 +123,7 @@ namespace exp_int {
     //setting the MSB
     usint msb = 0;
 
-    msb = GetMSB64(init);
+    msb = lbcrypto::GetMSB64(init);
     DEBUG("ctor(uint64_t:"<<init<<")");
     DEBUG( "msb " <<msb);
     DEBUG( "maxlimb "<<m_MaxLimb);
@@ -2732,44 +2732,6 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
     }
     return true;
   }
-  template<typename limb_t>
-  inline uint32_t ubint<limb_t>::GetMSB32(uint32_t x)
-   {
-     static const usint bval[] =
-       {0,1,2,2,3,3,3,3,4,4,4,4,4,4,4,4};
-
-     uint32_t r = 0;
-
-     if (x & 0xFFFF0000) { r += 32/2; x >>= 32/2; }
-     if (x & 0x0000FF00) { r += 32/4; x >>= 32/4; }
-     if (x & 0x000000F0) { r += 32/8; x >>= 32/8; }
-     return r + bval[x];
-   }
-
-   template<typename limb_t>
-   inline  usint ubint<limb_t>::GetMSBlimb_t(limb_t x){
-
-#ifdef UBINT_32
-     return ubint<limb_t>::GetMSB32(x);
-#endif
-#ifdef UBINT_64
-     return ubint<limb_t>::GetMSB64(x);
-#endif
-   }
-
-
-   template<typename limb_t>
-   inline uint64_t ubint<limb_t>::GetMSB64(uint64_t x) {
-    static const usint bval[] =
-      {0,1,2,2,3,3,3,3,4,4,4,4,4,4,4,4};
-
-    uint64_t r = 0;
-    if (x & 0xFFFFFFFF00000000) { r += 32/1; x >>= 32/1; }
-    if (x & 0x00000000FFFF0000) { r += 32/2; x >>= 32/2; }
-    if (x & 0x000000000000FF00) { r += 32/4; x >>= 32/4; }
-    if (x & 0x00000000000000F0) { r += 32/8; x >>= 32/8; }
-    return r + bval[x];
-  }
 
   template<typename limb_t>
   usint ubint<limb_t>::GetDigitAtIndexForBase(usint index, usint base) const{
@@ -2851,11 +2813,6 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
     else return tmp * tmp * x;
   }
 
-
-  template<typename limb_t>
-  usint ubint<limb_t>::GetMSBDlimb_t(Dlimb_t x){
-    return ubint<limb_t>::GetMSB64(x);
-  }
 
   //Algoritm used is shift and add
   template<typename limb_t>

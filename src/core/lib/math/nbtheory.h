@@ -37,13 +37,11 @@
 #ifndef LBCRYPTO_MATH_NBTHEORY_H
 #define LBCRYPTO_MATH_NBTHEORY_H
 
-#include "backend.h"
 #include <vector>
 #include <set>
 #include <string>
 #include <random>
-
-#include "distributiongenerator.h"
+#include "../utils/inttypes.h"
 
 /**
  * @namespace lbcrypto
@@ -85,13 +83,26 @@ namespace lbcrypto {
 	usint ReverseBits(usint input, usint msb);
 
 	/**
-	 * Get MSB of an unisigned integer.
+	 * Get MSB of an unsigned 64 bit integer.
 	 *
 	 * @param x the input to find MSB of.
 	 * 
 	 * @return the index of the MSB bit location.	  
 	 */
-	usint GetMSB32(usint x);
+	inline usint GetMSB64(uint64_t x) {
+		if (x == 0) return 0;
+
+		// hardware instructions for finding MSB are used are used;
+#if defined(_MSC_VER)
+		// a wrapper for VC++
+		unsigned long msb;
+		_BitScanReverse64(&msb, x);
+		return msb + 1;
+#else
+		// a wrapper for GCC
+		return  64 - (sizeof(unsigned long) == 8 ? __builtin_clzl(x) : __builtin_clzll(x));
+#endif
+	}
 
 	/**
 	 * Return greatest common divisor of two big binary integers.

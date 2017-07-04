@@ -46,6 +46,7 @@
 #include <memory>
 #include "../../utils/inttypes.h"
 #include "../../utils/memory.h"
+#include "../nbtheory.h"
 
 #ifdef UBINT_64
 
@@ -1186,31 +1187,13 @@ namespace exp_int{
     //public: 
   private: 
     /**
-     * function to return the MSB of a 32 bit number.
-     * @param x is the 32 bit integer.
-     * @return the MSB position in the 32 bit number x. Note MSB(1) is 1 NOT zero!!!!!
-     */
-#if 0
-    inline static uint64_t GetMSB32(uint64_t x);
-#else
-    inline static uint32_t GetMSB32(uint32_t x);
-#endif
-    /**
      * function to return the MSB of number.
      * @param x is the number.
      * @return the MSB position in the number x.Note MSB(1) is 1 NOT zero!!!!!
      */
 		
-    inline static usint GetMSBlimb_t(limb_t x);
+    inline static usint GetMSBlimb_t(limb_t x) { return lbcrypto::GetMSB64(x); }
 		
-		
-    /**
-     * function to return the MSB of 64 bit number.
-     * @param x is the number.
-     * @return the MSB position in the number x. Note MSB(1) is 1 NOT zero!!!!!
-     */
-    inline static uint64_t GetMSB64(uint64_t x);
-    
     //Dlimb_t is the data type that has twice as many bits in the limb data type.
     typedef typename DoubleDataType<limb_t>::T Dlimb_t;
 
@@ -1231,7 +1214,7 @@ namespace exp_int{
      * @param x is the number.
      * @return the MSB position in the number x. Note MSB(1) is 1 NOT zero!!!!!
      */
-    static usint GetMSBDlimb_t(Dlimb_t x);
+    inline static usint GetMSBDlimb_t(Dlimb_t x) { return lbcrypto::GetMSB64(x); }
 
     //enum to store the state of the 
     State m_state;
