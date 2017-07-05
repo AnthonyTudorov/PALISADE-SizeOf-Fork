@@ -79,10 +79,10 @@
 //To select backend, please UNCOMMENT the appropriate line rather than changing the number on the
 //uncommented line (and breaking the documentation of the line)
 
-#define MATHBACKEND 2
+//#define MATHBACKEND 2
 //#define MATHBACKEND 4
 //#define MATHBACKEND 6 
-//#define MATHBACKEND 7
+#define MATHBACKEND 7
 
 ////////// cpu_int code
 #include "cpu_int/binint.cpp"
@@ -104,7 +104,7 @@ typedef BigBinaryVectorImpl<BinaryInteger> BinaryVector;
 
 ////////// for exp_int, decide if you want 32 bit or 64 bit underlying integers in the implementation
 #define UBINT_32
-//#define UBINT_64                //DONT USE THIS IT DOESNT WORK - DBC
+//#define UBINT_64
 
 #ifdef UBINT_32
 #define MATH_UBBITS	32
