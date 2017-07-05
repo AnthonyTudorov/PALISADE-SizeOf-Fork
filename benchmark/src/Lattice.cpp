@@ -86,7 +86,7 @@ static shared_ptr<ILDCRTParams<BigBinaryInteger>> generate_DCRT_parms(int s) {
 	vector<native_int::BinaryInteger> moduli(nTowers);
 	vector<native_int::BinaryInteger> rootsOfUnity(nTowers);
 
-	native_int::BinaryInteger q = FirstPrime(smbits, Scenarios[s].m);
+	native_int::BinaryInteger q = FirstPrime<native_int::BinaryInteger>(smbits, Scenarios[s].m);
 	native_int::BinaryInteger temp;
 	BigBinaryInteger modulus(1);
 

@@ -72,14 +72,14 @@ static void initializeBytes(int ring, const BigBinaryInteger& ptm,
 }
 
 
-static void setup_Encoding(CryptoContext<ILVector2n>& cc,
+static void setup_Encoding(shared_ptr<CryptoContext<ILVector2n>> cc,
 		IntPlaintextEncoding& plaintextInt,
 		PackedIntPlaintextEncoding& plaintextPacked,
 		BytePlaintextEncoding& plaintextShort,
 		BytePlaintextEncoding& plaintextFull,
 		BytePlaintextEncoding& plaintextLong) {
-	int nel = cc.GetRingDimension();
-	const BigBinaryInteger& ptm = cc.GetCryptoParameters()->GetPlaintextModulus();
+	int nel = cc->GetRingDimension();
+	const BigBinaryInteger& ptm = cc->GetCryptoParameters()->GetPlaintextModulus();
 	uint32_t ptmi = ptm.ConvertToInt();
 
 	vector<uint32_t> intvec;
@@ -92,7 +92,7 @@ static void setup_Encoding(CryptoContext<ILVector2n>& cc,
 }
 
 void BM_encoding_Int(benchmark::State& state) { // benchmark
-	CryptoContext<ILVector2n> cc;
+	shared_ptr<CryptoContext<ILVector2n>> cc;
 	IntPlaintextEncoding plaintextInt;
 	PackedIntPlaintextEncoding plaintextPacked;
 	BytePlaintextEncoding plaintextShort;
@@ -105,20 +105,20 @@ void BM_encoding_Int(benchmark::State& state) { // benchmark
 	if( state.thread_index == 0 ) {
 		state.PauseTiming();
 		cc = CryptoContextHelper::getNewContext(parms[state.range(0)]);
-		cc.Enable(ENCRYPTION);
-		cc.Enable(SHE);
+		cc->Enable(ENCRYPTION);
+		cc->Enable(SHE);
 
-		ptm = cc.GetCryptoParameters()->GetPlaintextModulus();
+		ptm = cc->GetCryptoParameters()->GetPlaintextModulus();
 		ptmi = ptm.ConvertToInt();
 
 		setup_Encoding(cc, plaintextInt, plaintextPacked, plaintextShort, plaintextFull, plaintextLong);
-		chunkSize = plaintextInt.GetChunksize(cc.GetRingDimension(), ptm);
+		chunkSize = plaintextInt.GetChunksize(cc->GetRingDimension(), ptm);
 		state.ResumeTiming();
 	}
 
 	while (state.KeepRunning()) {
 		state.PauseTiming();
-		ILVector2n pt(cc.GetElementParams());
+		ILVector2n pt(cc->GetElementParams());
 		state.ResumeTiming();
 
 		plaintextInt.Encode(ptm, &pt, 0, chunkSize);
@@ -128,7 +128,7 @@ void BM_encoding_Int(benchmark::State& state) { // benchmark
 BENCHMARK_PARMS(BM_encoding_Int)
 
 void BM_encoding_PackedInt(benchmark::State& state) { // benchmark
-	CryptoContext<ILVector2n> cc;
+	shared_ptr<CryptoContext<ILVector2n>> cc;
 	IntPlaintextEncoding plaintextInt;
 	PackedIntPlaintextEncoding plaintextPacked;
 	BytePlaintextEncoding plaintextShort;
@@ -141,20 +141,20 @@ void BM_encoding_PackedInt(benchmark::State& state) { // benchmark
 	if( state.thread_index == 0 ) {
 		state.PauseTiming();
 		cc = CryptoContextHelper::getNewContext(parms[state.range(0)]);
-		cc.Enable(ENCRYPTION);
-		cc.Enable(SHE);
+		cc->Enable(ENCRYPTION);
+		cc->Enable(SHE);
 
-		ptm = cc.GetCryptoParameters()->GetPlaintextModulus();
+		ptm = cc->GetCryptoParameters()->GetPlaintextModulus();
 		ptmi = ptm.ConvertToInt();
 
 		setup_Encoding(cc, plaintextInt, plaintextPacked, plaintextShort, plaintextFull, plaintextLong);
-		chunkSize = plaintextPacked.GetChunksize(cc.GetCryptoParameters()->GetElementParams()->GetRingDimension(), ptm);
+		chunkSize = plaintextPacked.GetChunksize(cc->GetCryptoParameters()->GetElementParams()->GetRingDimension(), ptm);
 		state.ResumeTiming();
 	}
 
 	while (state.KeepRunning()) {
 		state.PauseTiming();
-		ILVector2n pt(cc.GetCryptoParameters()->GetElementParams());
+		ILVector2n pt(cc->GetCryptoParameters()->GetElementParams());
 		state.ResumeTiming();
 
 		try {
@@ -169,7 +169,7 @@ void BM_encoding_PackedInt(benchmark::State& state) { // benchmark
 BENCHMARK_PARMS(BM_encoding_PackedInt)
 
 void BM_Encoding_StringShort(benchmark::State& state) { // benchmark
-	CryptoContext<ILVector2n> cc;
+	shared_ptr<CryptoContext<ILVector2n>> cc;
 	IntPlaintextEncoding plaintextInt;
 	PackedIntPlaintextEncoding plaintextPacked;
 	BytePlaintextEncoding plaintextShort;
@@ -184,14 +184,14 @@ void BM_Encoding_StringShort(benchmark::State& state) { // benchmark
 		state.PauseTiming();
 		cc = CryptoContextHelper::getNewContext(parms[state.range(0)]);
 
-		cc.Enable(ENCRYPTION);
-		cc.Enable(SHE);
+		cc->Enable(ENCRYPTION);
+		cc->Enable(SHE);
 
-		ptm = cc.GetCryptoParameters()->GetPlaintextModulus();
+		ptm = cc->GetCryptoParameters()->GetPlaintextModulus();
 		ptmi = ptm.ConvertToInt();
 
 		setup_Encoding(cc, plaintextInt, plaintextPacked, plaintextShort, plaintextFull, plaintextLong);
-		chunkSize = plaintextShort.GetChunksize(cc.GetCryptoParameters()->GetElementParams()->GetRingDimension(), ptm);
+		chunkSize = plaintextShort.GetChunksize(cc->GetCryptoParameters()->GetElementParams()->GetRingDimension(), ptm);
 
 		if( ptmi != 2 && ptmi != 4 && ptmi !=16 && ptmi != 256 ) {
 			string msg = "Cannot encode with a plaintext modulus of " + std::to_string(ptmi);
@@ -203,7 +203,7 @@ void BM_Encoding_StringShort(benchmark::State& state) { // benchmark
 
 	while (state.KeepRunning()) {
 		state.PauseTiming();
-		ILVector2n pt(cc.GetCryptoParameters()->GetElementParams());
+		ILVector2n pt(cc->GetCryptoParameters()->GetElementParams());
 		state.ResumeTiming();
 
 		plaintextShort.Encode(ptm, &pt, 0, chunkSize);
@@ -213,7 +213,7 @@ void BM_Encoding_StringShort(benchmark::State& state) { // benchmark
 BENCHMARK_PARMS(BM_Encoding_StringShort)
 
 void BM_Encoding_StringFull(benchmark::State& state) { // benchmark
-	CryptoContext<ILVector2n> cc;
+	shared_ptr<CryptoContext<ILVector2n>> cc;
 	IntPlaintextEncoding plaintextInt;
 	PackedIntPlaintextEncoding plaintextPacked;
 	BytePlaintextEncoding plaintextShort;
@@ -228,14 +228,14 @@ void BM_Encoding_StringFull(benchmark::State& state) { // benchmark
 		state.PauseTiming();
 		cc = CryptoContextHelper::getNewContext(parms[state.range(0)]);
 
-		cc.Enable(ENCRYPTION);
-		cc.Enable(SHE);
+		cc->Enable(ENCRYPTION);
+		cc->Enable(SHE);
 
-		ptm = cc.GetCryptoParameters()->GetPlaintextModulus();
+		ptm = cc->GetCryptoParameters()->GetPlaintextModulus();
 		ptmi = ptm.ConvertToInt();
 
 		setup_Encoding(cc, plaintextInt, plaintextPacked, plaintextShort, plaintextFull, plaintextLong);
-		chunkSize = plaintextFull.GetChunksize(cc.GetCryptoParameters()->GetElementParams()->GetRingDimension(), ptm);
+		chunkSize = plaintextFull.GetChunksize(cc->GetCryptoParameters()->GetElementParams()->GetRingDimension(), ptm);
 
 		if( ptmi != 2 && ptmi != 4 && ptmi !=16 && ptmi != 256 ) {
 			string msg = "Cannot encode with a plaintext modulus of " + std::to_string(ptmi);
@@ -247,7 +247,7 @@ void BM_Encoding_StringFull(benchmark::State& state) { // benchmark
 
 	while (state.KeepRunning()) {
 		state.PauseTiming();
-		ILVector2n pt(cc.GetCryptoParameters()->GetElementParams());
+		ILVector2n pt(cc->GetCryptoParameters()->GetElementParams());
 		state.ResumeTiming();
 
 		plaintextFull.Encode(ptm, &pt, 0, chunkSize);
@@ -257,7 +257,7 @@ void BM_Encoding_StringFull(benchmark::State& state) { // benchmark
 BENCHMARK_PARMS(BM_Encoding_StringFull)
 
 void BM_Encoding_StringLong(benchmark::State& state) { // benchmark
-	CryptoContext<ILVector2n> cc;
+	shared_ptr<CryptoContext<ILVector2n>> cc;
 	IntPlaintextEncoding plaintextInt;
 	PackedIntPlaintextEncoding plaintextPacked;
 	BytePlaintextEncoding plaintextShort;
@@ -272,14 +272,14 @@ void BM_Encoding_StringLong(benchmark::State& state) { // benchmark
 		state.PauseTiming();
 		cc = CryptoContextHelper::getNewContext(parms[state.range(0)]);
 
-		cc.Enable(ENCRYPTION);
-		cc.Enable(SHE);
+		cc->Enable(ENCRYPTION);
+		cc->Enable(SHE);
 
-		ptm = cc.GetCryptoParameters()->GetPlaintextModulus();
+		ptm = cc->GetCryptoParameters()->GetPlaintextModulus();
 		ptmi = ptm.ConvertToInt();
 
 		setup_Encoding(cc, plaintextInt, plaintextPacked, plaintextShort, plaintextFull, plaintextLong);
-		chunkSize = plaintextLong.GetChunksize(cc.GetCryptoParameters()->GetElementParams()->GetRingDimension(), ptm);
+		chunkSize = plaintextLong.GetChunksize(cc->GetCryptoParameters()->GetElementParams()->GetRingDimension(), ptm);
 
 		if( ptmi != 2 && ptmi != 4 && ptmi !=16 && ptmi != 256 ) {
 			string msg = "Cannot encode with a plaintext modulus of " + std::to_string(ptmi);
@@ -291,7 +291,7 @@ void BM_Encoding_StringLong(benchmark::State& state) { // benchmark
 
 	while (state.KeepRunning()) {
 		state.PauseTiming();
-		ILVector2n pt(cc.GetCryptoParameters()->GetElementParams());
+		ILVector2n pt(cc->GetCryptoParameters()->GetElementParams());
 		state.ResumeTiming();
 
 		plaintextLong.Encode(ptm, &pt, 0, chunkSize);
