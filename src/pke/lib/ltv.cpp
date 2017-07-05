@@ -561,23 +561,6 @@ bool LPLeveledSHEAlgorithmLTV<Element>::CanRingReduce(usint ringDimension, const
 	return rootHermiteFactor >= powerOfTwo;
 }
 
-// Constructor for LPPublicKeyEncryptionSchemeLTV
-template <class Element>
-LPPublicKeyEncryptionSchemeLTV<Element>::LPPublicKeyEncryptionSchemeLTV(std::bitset<FEATURESETSIZE> mask)
-	: LPPublicKeyEncryptionScheme<Element>() {
-
-	if (mask[ENCRYPTION])
-		this->m_algorithmEncryption = new LPAlgorithmLTV<Element>();
-	if (mask[PRE])
-		this->m_algorithmPRE = new LPAlgorithmPRELTV<Element>();
-	if (mask[SHE])
-		this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>();
-	if (mask[LEVELEDSHE])
-		this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmLTV<Element>();
-	if (mask[MULTIPARTY] || mask[FHE])
-		throw std::logic_error("FHE and MULTIPARTY feature not supported for LTV scheme");
-}
-
 // Enable for LPPublicKeyEncryptionSchemeLTV
 template <class Element>
 void LPPublicKeyEncryptionSchemeLTV<Element>::Enable(PKESchemeFeature feature) {

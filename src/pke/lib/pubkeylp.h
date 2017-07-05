@@ -1768,35 +1768,41 @@ namespace lbcrypto {
 				delete this->m_algorithmLeveledSHE;
 		}
 		
-		bool IsEnabled(PKESchemeFeature feature) const {
-			bool flag = false;
-			switch (feature)
-			  {
-				 case ENCRYPTION:
-					if (m_algorithmEncryption != NULL)
-						flag = true;
-					break;
-				 case PRE:
-					if (m_algorithmPRE!= NULL)
-						flag = true;
-					break;
-				 case SHE:
-					if (m_algorithmSHE!= NULL)
-						flag = true;
-					break;
-				 case FHE:
-					if (m_algorithmFHE!= NULL)
-						flag = true;
-					break;
-				 case LEVELEDSHE:
-					if (m_algorithmLeveledSHE!= NULL)
-						flag = true;
-					break;
-				 case MULTIPARTY:
-					if (m_algorithmMultiparty!= NULL)
-						flag = true;
-					break;
-			  }
+		/**
+		 * Enable features with a bit mast of PKESchemeFeature codes
+		 * @param mask
+		 */
+		void Enable(usint mask) {
+
+			if (mask&ENCRYPTION) Enable(ENCRYPTION);
+
+			if (mask&PRE) Enable(PRE);
+
+			if (mask&SHE) Enable(SHE);
+
+			if (mask&LEVELEDSHE) Enable(LEVELEDSHE);
+
+			if (mask&MULTIPARTY) Enable(MULTIPARTY);
+
+			if (mask&FHE) Enable(FHE);
+		}
+
+		usint GetEnabled() const {
+			usint flag = 0;
+
+			if (m_algorithmEncryption != NULL)
+				flag |= ENCRYPTION;
+			if (m_algorithmPRE != NULL)
+				flag |= PRE;
+			if (m_algorithmSHE != NULL)
+				flag |= SHE;
+			if (m_algorithmFHE != NULL)
+				flag |= FHE;
+			if (m_algorithmLeveledSHE != NULL)
+				flag |= LEVELEDSHE;
+			if (m_algorithmMultiparty != NULL)
+				flag |= MULTIPARTY;
+
 			return flag;
 		}
 

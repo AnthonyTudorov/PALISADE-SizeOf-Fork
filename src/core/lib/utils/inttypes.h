@@ -75,12 +75,12 @@ enum Format{ EVALUATION=0, COEFFICIENT=1};
  * @brief Lists all features supported by public key encryption schemes
  */
 enum PKESchemeFeature{ 
-	ENCRYPTION=0, 
-	PRE=1,
-	SHE=2,
-	FHE=3,
-	LEVELEDSHE=4,
-	MULTIPARTY=5
+	ENCRYPTION=0x01,
+	PRE=0x02,
+	SHE=0x04,
+	FHE=0x08,
+	LEVELEDSHE=0x10,
+	MULTIPARTY=0x20
 };
 
 /**
@@ -90,8 +90,6 @@ enum MODE {
 	RLWE = 0,
 	OPTIMIZED = 1
 };
-
-const uint8_t FEATURESETSIZE = 6;
 
 //} // namespace lbcrypto ends
 

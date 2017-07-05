@@ -171,6 +171,8 @@ CryptoContext<T>::Serialize(Serialized* serObj) const
 		SerializeMapOfPointers("EvalSumKeys", T::GetElementName(), this->evalSumKeys, &ccser);
 	}
 
+	ccser.AddMember("Schemes", std::to_string(this->scheme->GetEnabled()), serObj->GetAllocator());
+
 	serObj->AddMember("CryptoContext", ccser.Move(), serObj->GetAllocator());
 
 	return true;
@@ -275,6 +277,13 @@ CryptoContextFactory<Element>::DeserializeAndCreateContext(const Serialized& ser
 	shared_ptr<LPPublicKeyEncryptionScheme<Element>> scheme = GetSchemeObject<Element>(parmName);
 
 	shared_ptr<CryptoContext<Element>> cc(new CryptoContext<Element>(cp, scheme));
+
+	Serialized::ConstMemberIterator sIter = mIter->value.FindMember("Schemes");
+	if( sIter != mIter->value.MemberEnd() ) {
+		usint schemeBits = std::stoi(sIter->value.GetString());
+		cc->Enable(schemeBits);
+	}
+
 
 	if( noKeys )
 		return cc;

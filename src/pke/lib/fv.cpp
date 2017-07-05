@@ -918,25 +918,6 @@ DecryptResult LPAlgorithmMultipartyFV<Element>::MultipartyDecryptFusion(const ve
 	return DecryptResult(plaintext->GetLength());
 }
 
-// Constructor for LPPublicKeyEncryptionSchemeFV
-template <class Element>
-LPPublicKeyEncryptionSchemeFV<Element>::LPPublicKeyEncryptionSchemeFV(std::bitset<FEATURESETSIZE> mask)
-	: LPPublicKeyEncryptionScheme<Element>() {
-
-	if (mask[ENCRYPTION])
-		if (this->m_algorithmEncryption == NULL)
-		this->m_algorithmEncryption = new LPAlgorithmFV<Element>();
-	if (mask[SHE])
-		if (this->m_algorithmSHE == NULL)
-		this->m_algorithmSHE = new LPAlgorithmSHEFV<Element>();
-	if (mask[PRE])
-		if (this->m_algorithmPRE == NULL)
-		this->m_algorithmPRE = new LPAlgorithmPREFV<Element>(); 
-	if (mask[FHE] || mask[LEVELEDSHE])
-		throw std::logic_error("FHE and LEVELEDSHE feature not supported for FV scheme");
-}
-
-
 // Enable for LPPublicKeyEncryptionSchemeFV
 template <class Element>
 void LPPublicKeyEncryptionSchemeFV<Element>::Enable(PKESchemeFeature feature) {

@@ -399,21 +399,6 @@ public:
 	* Inherited constructor
 	*/
 	LPPublicKeyEncryptionSchemeStehleSteinfeld() : LPPublicKeyEncryptionSchemeLTV<Element>() {}
-	/**
-	* Constructor that initalizes the mask
-	*
-	*@param mask the mask to be initialized
-	*/
-	LPPublicKeyEncryptionSchemeStehleSteinfeld(std::bitset<FEATURESETSIZE> mask) {
-		if (mask[ENCRYPTION] && this->m_algorithmEncryption == NULL)
-			this->m_algorithmEncryption = new LPAlgorithmStSt<Element>();
-		if (mask[PRE] && this->m_algorithmPRE == NULL)
-			this->m_algorithmPRE = new LPAlgorithmPRELTV<Element>();
-		if (mask[SHE] && this->m_algorithmSHE == NULL)
-			this->m_algorithmSHE = new LPAlgorithmSHEStSt<Element>();
-		if (mask[MULTIPARTY] || mask[FHE] || mask[LEVELEDSHE])
-			throw std::logic_error("MULTIPARTY, FHE and LEVELEDSHE feature not supported for StehleSteinfeld scheme");
-	}
 
 	/**
 	* Function to enable a scheme.

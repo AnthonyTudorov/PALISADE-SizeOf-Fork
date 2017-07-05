@@ -795,28 +795,6 @@ public:
 		this->m_algorithmParamsGen = new LPAlgorithmParamsGenNull<Element>();
 	}
 
-	LPPublicKeyEncryptionSchemeNull(std::bitset<FEATURESETSIZE> mask) {
-
-		if (mask[ENCRYPTION])
-			if (this->m_algorithmEncryption == NULL)
-				this->m_algorithmEncryption = new LPAlgorithmNull<Element>();
-
-		if (mask[PRE])
-			if (this->m_algorithmPRE == NULL)
-				this->m_algorithmPRE = new LPAlgorithmPRENull<Element>();
-
-		if (mask[SHE])
-			if (this->m_algorithmSHE == NULL)
-				this->m_algorithmSHE = new LPAlgorithmSHENull<Element>();
-
-		if (mask[FHE])
-			throw std::logic_error("FHE feature not supported for Null scheme");
-
-		if (mask[LEVELEDSHE])
-			if (this->m_algorithmLeveledSHE == NULL)
-				this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmNull<Element>();
-	}
-
 	void Enable(PKESchemeFeature feature) {
 		switch (feature)
 		{
