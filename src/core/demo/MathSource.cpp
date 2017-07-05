@@ -32,15 +32,12 @@
 #include <fstream>
 #include "utils/inttypes.h"
 #include "math/backend.h"
-#if 1
 #include "math/nbtheory.h"
 #include "math/distrgen.h"
 #include "lattice/elemparams.h"
 #include "lattice/ilparams.h"
 #include "lattice/ildcrtparams.h"
 #include "lattice/ilelement.h"
-#include "obfuscation/obfuscatelp.h"
-#endif
 #include "time.h"
 #include <chrono>
 #include <exception>

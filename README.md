@@ -17,4 +17,10 @@ This is a software library for general lattice crypto.  We implement this librar
 
 The library includes unit tests and several sample application demos.
 
-The library is implemented in C++11.  We have tested it with the latest gcc and Visual Studio compilers.  The library depends on the latest version of boost.
+The library is implemented in C++11.
+
+We build and run the library on Windows, Linux and Mac OSX environments.
+
+We require a version of C++ compiler that supports the C++11 extensions. Recent vintages of GCC or Clang should work fine. The library can also be built under Visual Studio. We also use bison and flex in some parts of the library.
+
+To check if your environment will allow you to build and use PALISADE, run the configure.sh script in the root directory of the library software distribution.

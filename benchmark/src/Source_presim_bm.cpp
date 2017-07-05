@@ -149,9 +149,9 @@ void EncryptionSchemeSimulation(usint count){
 	//Set crypto parameters
 	shared_ptr<ILVector2n::Params> parms( new ILVector2n::Params(m, modulus, rootOfUnity) );
 
-	CryptoContext<ILVector2n> cc =  CryptoContextFactory<ILVector2n>::genCryptoContextLTV(parms, ptModulus, relWindow, stdDev);
-	cc.Enable(ENCRYPTION);
-	cc.Enable(PRE);
+	shared_ptr<CryptoContext<ILVector2n>> cc =  CryptoContextFactory<ILVector2n>::genCryptoContextLTV(parms, ptModulus, relWindow, stdDev);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(PRE);
 
 	//Precomputations for FTT
 	ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(rootOfUnity, m, modulus);
@@ -182,7 +182,7 @@ void EncryptionSchemeSimulation(usint count){
 
 		//Regular LWE-NTRU encryption algorithm
 
-		kp = cc.KeyGen();
+		kp = cc->KeyGen();
 
 		if (!kp.good()) {
 			std::cout << "Key generation failed!" << std::endl;
@@ -191,11 +191,11 @@ void EncryptionSchemeSimulation(usint count){
 
 		vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
 
-		ciphertext = cc.Encrypt(kp.publicKey, plaintext);
+		ciphertext = cc->Encrypt(kp.publicKey, plaintext);
 
 		BytePlaintextEncoding plaintextNew;
 
-		DecryptResult result = cc.Decrypt(kp.secretKey, ciphertext, &plaintextNew);
+		DecryptResult result = cc->Decrypt(kp.secretKey, ciphertext, &plaintextNew);
 
 		if (!result.isValid) {
 			std::cout << "Decryption failed!" << std::endl;
@@ -297,9 +297,9 @@ void PRESimulation(usint count, usint dataset){
 	//Set crypto parameters
 	shared_ptr<ILVector2n::Params> parms( new ILVector2n::Params(m, modulus, rootOfUnity) );
 
-	CryptoContext<ILVector2n> cc =  CryptoContextFactory<ILVector2n>::genCryptoContextLTV(parms, ptModulus, relWindow, stdDev);
-	cc.Enable(ENCRYPTION);
-	cc.Enable(PRE);
+	shared_ptr<CryptoContext<ILVector2n>> cc =  CryptoContextFactory<ILVector2n>::genCryptoContextLTV(parms, ptModulus, relWindow, stdDev);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(PRE);
 
 	// Precomputations for FTT
 	ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(rootOfUnity, m, modulus);
@@ -328,7 +328,7 @@ void PRESimulation(usint count, usint dataset){
 
 	//Regular LWE-NTRU encryption algorithm
 
-	kp = cc.KeyGen();
+	kp = cc->KeyGen();
 
 	if (!kp.good()) {
 		std::cout << "Key generation failed!" << std::endl;
@@ -342,9 +342,9 @@ void PRESimulation(usint count, usint dataset){
 
 		shared_ptr<LPEvalKey<ILVector2n>> evalKey;
 
-		LPKeyPair<ILVector2n> newKp = cc.KeyGen();
+		LPKeyPair<ILVector2n> newKp = cc->KeyGen();
 
-		evalKey = cc.ReKeyGen(newKp.publicKey, privateKeys[d]);  // This is the core re-encryption operation.
+		evalKey = cc->ReKeyGen(newKp.publicKey, privateKeys[d]);  // This is the core re-encryption operation.
 
 		publicKeys.push_back(newKp.publicKey);
 		privateKeys.push_back(newKp.secretKey);
@@ -368,7 +368,7 @@ void PRESimulation(usint count, usint dataset){
 	for (usint j = 0; j < count; j++){
 
 		vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext =
-				cc.Encrypt(kp.publicKey, arrPlaintext[j]);
+				cc->Encrypt(kp.publicKey, arrPlaintext[j]);
 		arrCiphertext[j] = ciphertext[0];
 
 	}
@@ -391,7 +391,7 @@ void PRESimulation(usint count, usint dataset){
 
 		vector<shared_ptr<Ciphertext<ILVector2n>>> ct;
 		ct.push_back(arrCiphertext[j]);
-		DecryptResult result = cc.Decrypt(kp.secretKey, ct, &plaintextNew[j]);
+		DecryptResult result = cc->Decrypt(kp.secretKey, ct, &plaintextNew[j]);
 		ct.clear();
 	}
 
@@ -426,7 +426,7 @@ void PRESimulation(usint count, usint dataset){
 			vector<shared_ptr<Ciphertext<ILVector2n>>> ctRe;
 
 			ct.push_back(arrCiphertext[j]);
-			ctRe = cc.ReEncrypt(evalKeys[d], ct);
+			ctRe = cc->ReEncrypt(evalKeys[d], ct);
 			arrCiphertextNew[j] = ctRe[0];
 			ct.clear();
 			ctRe.clear();
@@ -454,7 +454,7 @@ void PRESimulation(usint count, usint dataset){
 
 		vector<shared_ptr<Ciphertext<ILVector2n>>> ct;
 		ct.push_back(arrCiphertextNew[j]);
-		DecryptResult result = cc.Decrypt(privateKeys.back(), ct, &plaintextNew[j]);
+		DecryptResult result = cc->Decrypt(privateKeys.back(), ct, &plaintextNew[j]);
 		ct.clear();
 	}
 
