@@ -142,7 +142,7 @@ typedef mubintvec<xubint> xmubintvec;
 
 namespace gmp_int {
 typedef NTL::myZZ ubint;
-typedef NTL::myZZ_p mubint;
+//typedef NTL::myZZ_p mubint;
 }
 #endif
 

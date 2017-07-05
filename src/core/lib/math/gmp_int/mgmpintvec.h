@@ -46,7 +46,6 @@
 #include <NTL/vector.h>
 #include <NTL/vec_ZZ.h>
 #include <NTL/SmartPtr.h>
-#include <NTL/vec_ZZ_p.h>
 
 //defining this forces modulo when you write to the vector (except with SetValAtIndexWithoutMod)
 #define FORCE_NORMALIZATION 
@@ -362,8 +361,8 @@ namespace NTL {
       this->m_modulus= myZZ(value);
       this->m_modulus_state = INITIALIZED;
       DEBUG("this->modulus = "<<this->m_modulus);
-      ZZ_p::init(this->m_modulus);
-      this->Renormalize();
+      // ZZ_p::init(this->m_modulus);
+      //this->Renormalize();
     };
     
     //sets modulus and the NTL init function myZZ argument
@@ -376,8 +375,8 @@ namespace NTL {
       this->m_modulus= value;
       DEBUG("this->modulus = "<<this->m_modulus);
       this->m_modulus_state = INITIALIZED;
-      ZZ_p::init(this->m_modulus);
-      this->Renormalize();
+      //ZZ_p::init(this->m_modulus);
+      //this->Renormalize();
     };
     
 #if 0
@@ -392,8 +391,8 @@ namespace NTL {
       this->m_modulus= value.GetModulus();
       DEBUG("this->modulus = "<<this->m_modulus);
       this->m_modulus_state = INITIALIZED;
-      ZZ_p::init(this->m_modulus);
-      this->Renormalize();
+      //ZZ_p::init(this->m_modulus);
+      //this->Renormalize();
     };
 #endif    
     //sets modulus and the NTL init function string argument
@@ -406,8 +405,8 @@ namespace NTL {
       }
       this->m_modulus_state = INITIALIZED;
       DEBUG("this->modulus = "<<this->m_modulus);
-      ZZ_p::init(this->m_modulus);
-      this->Renormalize();
+      //ZZ_p::init(this->m_modulus);
+      //this->Renormalize();
     };
     //sets modulus and the NTL init function uses same modulus
     inline void SetModulus(const myVecP& value){
@@ -419,8 +418,8 @@ namespace NTL {
       }
       this->m_modulus_state = INITIALIZED;
       DEBUG("this->modulus = "<<this->m_modulus);
-      ZZ_p::init(this->m_modulus);
-      this->Renormalize();
+      //ZZ_p::init(this->m_modulus);
+      //this->Renormalize();
     };
 
     inline const myZZ& GetModulus() const{
@@ -441,7 +440,7 @@ namespace NTL {
       this->m_modulus = rhs.m_modulus;
       this->m_modulus_state = rhs.m_modulus_state;
       if (isModulusSet()){
-	ZZ_p::init(this->m_modulus);
+	//ZZ_p::init(this->m_modulus);
 	return (0);
       } else{
 	//std::cout<<"Warning: myVec_p::CopyModulus() from uninitialized modulus"<<std::endl; //happens many many times
@@ -584,7 +583,7 @@ namespace NTL {
       if (!isModulusSet()){
 	std::cout<<msg<<" uninitialized this->modulus"<<std::endl;
       } else {
-	ZZ_p::init(this->m_modulus); //set global modulus to this 
+	//ZZ_p::init(this->m_modulus); //set global modulus to this 
       }
     };
 #if 0
@@ -596,7 +595,7 @@ namespace NTL {
       } else if (!isModulusSet()) {
 	throw std::logic_error(fname+" modulus vector modulus scalar op GARBAGE  moduli");
       }
-      ZZ_p::init(this->m_modulus); //set global modulus to this 
+      //ZZ_p::init(this->m_modulus); //set global modulus to this 
     };
 #endif    
     //utility function to check argument consistency for vector vector fns
@@ -610,7 +609,7 @@ namespace NTL {
 	throw std::logic_error(fname +" vectors of different lengths");
       }
       
-      ZZ_p::init(this->m_modulus); //set global modulus to this 
+      //ZZ_p::init(this->m_modulus); //set global modulus to this 
     };
     
     //used to make sure all entries in this are <=current modulus

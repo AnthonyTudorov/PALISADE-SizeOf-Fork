@@ -44,7 +44,7 @@ a * modification, are permitted provided that the following conditions
 #include "../backend.h"
 #if defined(__linux__) && MATHBACKEND == 6
 #include "gmpint.h"
-#include "mgmpint.h"
+//include "mgmpint.h"
 
 namespace NTL {
 
@@ -74,6 +74,7 @@ namespace NTL {
   myZZ::myZZ(const NTL::ZZ &a): ZZ(a) {}
 
   //myZZ::myZZ(const NTL::myZZ_p &a): ZZ(){*this = a._ZZ_p__rep;}
+#if 0
   myZZ::myZZ(const NTL::myZZ_p &a)
     : ZZ(a._ZZ_p__rep)
   {
@@ -83,12 +84,13 @@ namespace NTL {
     DEBUG("arep "<<a._ZZ_p__rep);
     DEBUG("this "<<*this);
   };
-
+#endif
   myZZ::myZZ(NTL::ZZ &&a) : ZZ() {this->swap(a);}
+#if 0
   myZZ::myZZ(NTL::myZZ_p &&a): ZZ(){
     this->swap(a._ZZ_p__rep);
   }
-
+#endif
   void myZZ::SetValue(const std::string& str) 
   {
     *this = conv<ZZ>(str.c_str());
@@ -437,7 +439,7 @@ namespace NTL {
   
   
   //various operators on mixed operands
-  
+#if 0  
   myZZ myZZ::operator*(const myZZ_p &b) const {
     myZZ tmp;
     mul(tmp, *this, b._ZZ_p__rep);
@@ -448,6 +450,7 @@ namespace NTL {
     *this = *this*(myZZ)a._ZZ_p__rep;
     return *this;
   }
+#endif
 
   myZZ& myZZ::operator*=(const myZZ &a) {
     *this = *this*a;

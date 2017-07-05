@@ -57,7 +57,7 @@ namespace NTL{
   //todo: the following will be deprecated
   const usint BARRETT_LEVELS = 8;	
 
-  class myZZ_p; //forward declaration
+  //class myZZ_p; //forward declaration
 
 
   //log2 constants
@@ -97,11 +97,11 @@ namespace NTL{
     myZZ(const char * s);
     myZZ(NTL::ZZ &a);
     myZZ(const NTL::ZZ &a);
-    myZZ(const NTL::myZZ_p &a);
+    //myZZ(const NTL::myZZ_p &a);
 
     //movecopy allocators (very important for efficiency)
     myZZ(NTL::ZZ &&a);
-    myZZ(NTL::myZZ_p &&a);
+    //myZZ(NTL::myZZ_p &&a);
 
     //  myZZ& operator=(const myZZ &rhs);
     //myZZ( ZZ && zzin) : ZZ(zzin), m_MSB(5){};
@@ -201,10 +201,10 @@ namespace NTL{
     };// note this<a should return 0
 
 
-    myZZ operator*(const myZZ_p &b) const; 
+    //myZZ operator*(const myZZ_p &b) const; 
 
     myZZ& operator*=(const myZZ &a);
-    myZZ& operator*=(const myZZ_p &a);
+    //myZZ& operator*=(const myZZ_p &a);
 
 
     inline myZZ operator*(const myZZ& b) const {
