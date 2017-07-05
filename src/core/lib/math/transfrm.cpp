@@ -116,7 +116,7 @@ VecType NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(con
 	result.SetModulus(element.GetModulus());
 
 	//reverse coefficients (bit reversal)
-	usint msb = GetMSB32(n - 1);
+	usint msb = GetMSB64(n - 1);
 	for (size_t i = 0; i < n; i++)
 		result.SetValAtIndex(i, element.GetValAtIndex(ReverseBits(i, msb)));
 

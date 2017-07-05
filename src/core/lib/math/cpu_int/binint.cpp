@@ -27,6 +27,7 @@
 Description:
 	This class provides a class for big integers.
 */
+
 #include "binint.h"
 
 #if defined(_MSC_VER)
@@ -117,7 +118,7 @@ BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger()
 template<typename uint_type,usint BITLENGTH>
 BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger(uint64_t init){
 	//setting the MSB
-	usint msb = GetMSB32(init);
+	usint msb = lbcrypto::GetMSB64(init);
 
 	uint_type ceilInt = ceilIntByUInt(msb);
 	//setting the values of the array
@@ -1064,8 +1065,8 @@ void BigBinaryInteger<uint_type,BITLENGTH>::AssignVal(const std::string& v){
 		//division ends here
 #ifdef DEBUG
 		for(int i=zptr;i<arrSize;i++)
-			cout<<(short)DecValue[i];//for debug purpose
-		cout<<endl;
+			std::cout<<(short)DecValue[i];//for debug purpose
+		std::cout<<std::endl;
 #endif
 		cnt--;
 		if(cnt==-1){//cnt = -1 indicates bitArr is ready for transfer
@@ -1831,42 +1832,8 @@ bool BigBinaryInteger<uint_type,BITLENGTH>::operator<=(const BigBinaryInteger& a
 }
 
 template<typename uint_type,usint BITLENGTH>
-usint BigBinaryInteger<uint_type,BITLENGTH>::GetMSB32(uint64_t x)
-{
-
-	if (x != 0) {
-// hardware instructions for finding MSB are used are used;
-// a wrapper for VC++
-#if defined(_MSC_VER)
-		unsigned long msb;
-		_BitScanReverse64(&msb, x);
-		return msb + 1;
-#else
-// a wrapper for GCC
-		return  64 - (sizeof(unsigned long) == 8 ? __builtin_clzl(x) : __builtin_clzll(x));
-#endif
-	}
-	else
-		return 0;
-
-	//this code can be extended to support uint128_t
-	//in contrast to hardware instructions above 
-
-	//static const usint bval[] =
-	//{ 0,1,2,2,3,3,3,3,4,4,4,4,4,4,4,4 };
-
-	//uint64_t r = 0;
-	//if (x & 0xFFFFFFFF00000000) { r += 32 / 1; x >>= 32 / 1; }
-	//if (x & 0x00000000FFFF0000) { r += 32 / 2; x >>= 32 / 2; }
-	//if (x & 0x000000000000FF00) { r += 32 / 4; x >>= 32 / 4; }
-	//if (x & 0x00000000000000F0) { r += 32 / 8; x >>= 32 / 8; }
-	//return r + bval[x];
-
-}
-
-template<typename uint_type,usint BITLENGTH>
 usint BigBinaryInteger<uint_type,BITLENGTH>::GetMSBUint_type(uint_type x){
-	return BigBinaryInteger<uint_type,BITLENGTH>::GetMSB32(x);
+	return lbcrypto::GetMSB64(x);
 }
 
 template<typename uint_type,usint BITLENGTH>
@@ -2076,7 +2043,7 @@ BigBinaryInteger<uint_type, BITLENGTH> BigBinaryInteger<uint_type, BITLENGTH>::D
 
 template<typename uint_type,usint BITLENGTH>
 usint BigBinaryInteger<uint_type,BITLENGTH>::GetMSBDUint_type(Duint_type x){
-	return BigBinaryInteger<uint_type,BITLENGTH>::GetMSB32(x); //todo possible loss of data
+	return lbcrypto::GetMSB64(x);
 }
 
 //Algoritm used is shift and add
