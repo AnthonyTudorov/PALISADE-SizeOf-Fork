@@ -756,7 +756,7 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 	template<typename IntType, typename VecType>
 	void BluesteinFFT<IntType, VecType>::PreComputeDefaultNTTModulusRoot(usint cycloOrder, const IntType &modulus) {
 		usint nttDim = pow(2, ceil(log2(2 * cycloOrder - 1)));
-		const auto nttModulus = FindPrimeModulus<IntType>(nttDim, log2(nttDim) + 2 * modulus.GetMSB());
+		const auto nttModulus = FirstPrime<IntType>(log2(nttDim) + 2 * modulus.GetMSB(), nttDim);
 		const auto nttRoot = RootOfUnity(nttDim, nttModulus);
 		const ModulusRoot<IntType> nttModulusRoot = {nttModulus, nttRoot};
 		m_defaultNTTModulusRoot[modulus] = nttModulusRoot;

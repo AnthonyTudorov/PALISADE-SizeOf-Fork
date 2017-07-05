@@ -119,7 +119,7 @@ namespace lbcrypto {
 				m_bigModulus[modulusNI] = modulusNI;
 			} else {
 				usint bigModulusSize = ceil(log2(2*m - 1)) + 2*modulusNI.GetMSB() + 1;
-				m_bigModulus[modulusNI] = FindPrimeModulus<native_int::BinaryInteger>(nttDim, bigModulusSize);
+				m_bigModulus[modulusNI] = FirstPrime<native_int::BinaryInteger>(bigModulusSize, nttDim);
 			}
 			m_bigRoot[modulusNI] = RootOfUnity<native_int::BinaryInteger>(nttDim, m_bigModulus[modulusNI]);
 

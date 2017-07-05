@@ -75,69 +75,18 @@ int main() {
 
 	BigBinaryInteger delta(modulusQ.DividedBy(modulusP));
 
-	//genCryptoContextFV(shared_ptr<typename Element::Params> params,
-	//	shared_ptr<typename EncodingParams> encodingParams,
-	//	usint relinWindow, float stDev, const std::string& delta,
-	//	MODE mode = RLWE, const std::string& bigmodulus = "0", const std::string& bigrootofunity = "0",
-	//	int depth = 0, int assuranceMeasure = 0, float securityLevel = 0,
-	//	const std::string& bigmodulusarb = "0", const std::string& bigrootofunityarb = "0")
-	/*
-	usint phim = GetTotient(m);
-	BigBinaryVector x(phim, modulusQ);
-	for(usint i=0; i<phim; i++){
-		x.SetValAtIndex(i, BigBinaryInteger(i));
-	}
-	BigBinaryVector X = ChineseRemainderTransformArb<BigBinaryInteger,BigBinaryVector>::GetInstance()
-			.ForwardTransform(x, rootOfUnity, bigmodulus, bigroot, m);
-	BigBinaryVector xx = ChineseRemainderTransformArb<BigBinaryInteger,BigBinaryVector>::GetInstance()
-			.InverseTransform(X, rootOfUnity, bigmodulus, bigroot, m);
-	std::cout << "x: " << x << std::endl;
-	std::cout << "X: " << X << std::endl;
-	std::cout << "xx: " << xx << std::endl;
-
-	std::cout << "zinv: " << bigroot.ModExp(BigBinaryInteger(4096), bigmodulus) << std::endl;
-	//precompute bigroot of unity and inverse root of unity table if it's not yet computed.
-	ModulusRoot<BigBinaryInteger> bigmodulusroot = { bigmodulus, bigroot };
-	if (BluesteinFFT<BigBinaryInteger, BigBinaryVector>::GetInstance().m_rootOfUnityTableByModulusRoot[bigmodulusroot].GetLength() == 0) {
-		BluesteinFFT<BigBinaryInteger, BigBinaryVector>::GetInstance().SetPreComputedNTTModulus(m, modulusQ, bigmodulus);
-		BluesteinFFT<BigBinaryInteger, BigBinaryVector>::GetInstance().SetRootTableForNTT(m, bigmodulus, bigroot);
-	}
-
-	BigBinaryInteger rootInv(rootOfUnity.ModInverse(modulusQ));
-	ModulusRoot<BigBinaryInteger> modulusroot = { modulusQ, rootOfUnity };
-	//precompute powers table
-	if (BluesteinFFT<BigBinaryInteger, BigBinaryVector>::GetInstance().m_powersTableByModulusRoot[modulusroot].GetLength() == 0) {
-		BluesteinFFT<BigBinaryInteger, BigBinaryVector>::GetInstance().PreComputePowers(m, modulusQ, rootOfUnity);
-		BluesteinFFT<BigBinaryInteger, BigBinaryVector>::GetInstance().PreComputePowers(m, modulusQ, rootInv);
-		BluesteinFFT<BigBinaryInteger, BigBinaryVector>::GetInstance().PreComputeRBTable(m, modulusQ, rootOfUnity, bigmodulus, bigroot);
-		BluesteinFFT<BigBinaryInteger, BigBinaryVector>::GetInstance().PreComputeRBTable(m, modulusQ, rootInv, bigmodulus, bigroot);
-	}
-
-	BigBinaryVector y(m, modulusQ);
-	for(usint i=0; i<m; i++){
-		y.SetValAtIndex(i, BigBinaryInteger(i));
-	}
-	BigBinaryVector Y = BluesteinFFT<BigBinaryInteger,BigBinaryVector>::GetInstance()
-			.ForwardTransform(y, rootOfUnity, m, bigroot);
-	BigBinaryVector yy = BluesteinFFT<BigBinaryInteger,BigBinaryVector>::GetInstance()
-			.ForwardTransform(Y, rootInv, m, bigroot);
-	std::cout << "y: " << y << std::endl;
-	std::cout << "Y: " << Y << std::endl;
-	std::cout << "yy: " << yy*BigBinaryInteger(m).ModInverse(modulusQ) << std::endl;
-
-	*/
-	CryptoContext<ILVector2n> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(params, encodingParams, 8, stdDev, delta.ToString(), OPTIMIZED,
+	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(params, encodingParams, 8, stdDev, delta.ToString(), OPTIMIZED,
 		bigEvalMultModulus.ToString(), bigEvalMultRootOfUnity.ToString(), 1, 9, 1.006, bigEvalMultModulusAlt.ToString(), bigEvalMultRootOfUnityAlt.ToString());
 
 	//BigBinaryInteger modulusQ("955263939794561");
 	//BigBinaryInteger squareRootOfRoot("941018665059848");
 
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 	//------------------------------------------------------
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	LPKeyPair<ILVector2n> kp = cc->KeyGen();
 
 	std::vector<usint> vectorOfInts1(m-1);
 	std::vector<usint> vectorOfInts2(m-1, 1);
@@ -154,25 +103,25 @@ int main() {
 	}
 
 
-	cc.EvalSumKeyGen(kp.secretKey);
-	cc.EvalMultKeyGen(kp.secretKey);
+	cc->EvalSumKeyGen(kp.secretKey);
+	cc->EvalMultKeyGen(kp.secretKey);
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext2;
 
-	ciphertext = cc.Encrypt(kp.publicKey, intArray1, false, true);
-	ciphertext2 = cc.Encrypt(kp.publicKey, intArray2, false, false);
+	ciphertext = cc->Encrypt(kp.publicKey, intArray1, false, true);
+	ciphertext2 = cc->Encrypt(kp.publicKey, intArray2, false, false);
 
 	std::cout << "Input array 1 \n\t" << intArray1 << std::endl;
 	std::cout << "Input array 2 \n\t" << intArray2 << std::endl;
 
 	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextResult;
-	auto ciphertextMult = cc.EvalMultPlain(ciphertext.at(0), ciphertext2.at(0));
-	auto ciphertextInnerProd = cc.EvalSum(ciphertextMult, batchSize);
-	auto ciphertextInnerProd2 = cc.EvalInnerProduct(ciphertext.at(0), ciphertext2.at(0), batchSize);
+	auto ciphertextMult = cc->EvalMultPlain(ciphertext.at(0), ciphertext2.at(0));
+	auto ciphertextInnerProd = cc->EvalSum(ciphertextMult, batchSize);
+	auto ciphertextInnerProd2 = cc->EvalInnerProduct(ciphertext.at(0), ciphertext2.at(0), batchSize);
 	ciphertextResult.insert(ciphertextResult.begin(), ciphertextInnerProd);
 	PackedIntPlaintextEncoding intArrayNew;
-	cc.Decrypt(kp.secretKey, ciphertextResult, &intArrayNew, false);
+	cc->Decrypt(kp.secretKey, ciphertextResult, &intArrayNew, false);
 	std::cout << "Actual = " << intArrayNew << std::endl;
 
 	/*
