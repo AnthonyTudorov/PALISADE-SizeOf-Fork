@@ -256,7 +256,7 @@ void EvalMult() {
 	shared_ptr<ILDCRTParams<BigBinaryInteger>> paramsDCRT(new ILDCRTParams<BigBinaryInteger>(m, init_moduli, init_rootsOfUnity, init_moduli_NTT, init_rootsOfUnity_NTT));
 
 	//usint m = 22;
-	usint p = 16787;
+	usint p = 16633;
 
 	BigBinaryInteger modulusP(p);
 
