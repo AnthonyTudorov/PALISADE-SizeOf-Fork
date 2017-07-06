@@ -57,7 +57,7 @@
 // This backend provides a maximum size of 64 bits
 
 //To select backend, please UNCOMMENT the appropriate line rather than changing the number on the
-//uncommented line (and breaking the documentation of the line)
+//uncommented line
 
 #define MATHBACKEND 2
 //#define MATHBACKEND 4
