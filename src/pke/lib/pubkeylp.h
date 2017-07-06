@@ -1942,6 +1942,14 @@ namespace lbcrypto {
 		// the three functions below are wrappers for things in LPSHEAlgorithm (SHE)
 		//
 
+		shared_ptr<Ciphertext<Element>> AddRandomNoise(const shared_ptr<Ciphertext<Element>> ciphertext) const {
+
+			if (this->m_algorithmSHE)
+				return this->m_algorithmSHE->AddRandomNoise(ciphertext);
+			else {
+				throw std::logic_error("EvalAdd operation has not been enabled");
+			}
+		}
 		shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext1,
 			const shared_ptr<Ciphertext<Element>> ciphertext2) const {
 

@@ -294,12 +294,12 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr
 	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(publicKey->GetCryptoParameters());
 
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
-	const BigBinaryInteger &delta = cryptoParams->GetDelta();
 
 	Element plaintext(ptxt, elementParams);
 	plaintext.SwitchFormat();
 
 	if (doEncryption) {
+		const BigBinaryInteger &delta = cryptoParams->GetDelta();
 
 		const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 		typename Element::TugType tug;
@@ -326,15 +326,17 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr
 		c1 = p1*u + e2;
 
 		ciphertext->SetElements({ c0, c1 });
+		ciphertext->SetIsEncrypted(true);
 
 	}
 	else
 	{
 
-		Element c0(delta*plaintext);
+		Element c0(plaintext);
 		Element c1(elementParams, Format::EVALUATION, true);
 
 		ciphertext->SetElements({ c0, c1 });
+		ciphertext->SetIsEncrypted(false);
 
 	}
 
@@ -379,10 +381,19 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalAdd(const shared_
 	const std::vector<Element> &cipherText1Elements = ciphertext1->GetElements();
 	const std::vector<Element> &cipherText2Elements = ciphertext2->GetElements();
 
-	Element c0 = cipherText1Elements[0] + cipherText2Elements[0];
-	Element c1 = cipherText1Elements[1] + cipherText2Elements[1];
+	if(ciphertext2->GetIsEncrypted()){
+		Element c0 = cipherText1Elements[0] + cipherText2Elements[0];
+		Element c1 = cipherText1Elements[1] + cipherText2Elements[1];
 
-	newCiphertext->SetElements({ c0, c1 });
+		newCiphertext->SetElements({ c0, c1 });
+	} else {
+		auto fvParams = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(ciphertext1->GetCryptoParameters());
+		auto &delta = fvParams->GetDelta();
+		Element c0 = cipherText1Elements[0] + delta*cipherText2Elements[0];
+		Element c1 = cipherText1Elements[1];
+
+		newCiphertext->SetElements({ c0, c1 });
+	}
 	return newCiphertext;
 }
 
@@ -400,10 +411,19 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalSub(const shared_
 	const std::vector<Element> &cipherText1Elements = ciphertext1->GetElements();
 	const std::vector<Element> &cipherText2Elements = ciphertext2->GetElements();
 
-	Element c0 = cipherText1Elements[0] - cipherText2Elements[0];
-	Element c1 = cipherText1Elements[1] - cipherText2Elements[1];
+	if(ciphertext2->GetIsEncrypted()){
+		Element c0 = cipherText1Elements[0] - cipherText2Elements[0];
+		Element c1 = cipherText1Elements[1] - cipherText2Elements[1];
 
-	newCiphertext->SetElements({ c0, c1 });
+		newCiphertext->SetElements({ c0, c1 });
+	} else {
+		auto fvParams = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(ciphertext1->GetCryptoParameters());
+		auto &delta = fvParams->GetDelta();
+		Element c0 = cipherText1Elements[0] - delta*cipherText2Elements[0];
+		Element c1 = cipherText1Elements[1];
+
+		newCiphertext->SetElements({ c0, c1 });
+	}
 	return newCiphertext;
 }
 
@@ -501,61 +521,16 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMultPlain(const s
 	}
 
 	if (!(ciphertext->GetCryptoParameters() == plaintext->GetCryptoParameters())) {
-		std::string errMsg = "LPAlgorithmSHEFV::EvalMult crypto parameters are not the same";
-		throw std::runtime_error(errMsg);
+		throw std::runtime_error("LPAlgorithmSHEFV::EvalMult crypto parameters are not the same");
 	}
 
 	shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext->GetCryptoContext()));
 
-	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParamsLWE = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(ciphertext->GetCryptoContext()->GetCryptoParameters());
-
-	const shared_ptr<typename Element::Params> elementParams = cryptoParamsLWE->GetElementParams();
-	const BigBinaryInteger &p = cryptoParamsLWE->GetPlaintextModulus();
-	const BigBinaryInteger &q = elementParams->GetModulus();
-
-	const BigBinaryInteger &bigModulus = cryptoParamsLWE->GetBigModulus();
-	const BigBinaryInteger &bigRootOfUnity = cryptoParamsLWE->GetBigRootOfUnity();
-	const BigBinaryInteger &bigModulusArb = cryptoParamsLWE->GetBigModulusArb();
-	const BigBinaryInteger &bigRootOfUnityArb = cryptoParamsLWE->GetBigRootOfUnityArb();
-
 	std::vector<Element> cipherText1Elements = ciphertext->GetElements();
 	std::vector<Element> cipherText2Elements = plaintext->GetElements();
 
-	//converts the ciphertext elements to coefficient format so that the modulus switching can be done
-	cipherText1Elements[0].SwitchFormat();
-	cipherText1Elements[1].SwitchFormat();
-	cipherText2Elements[0].SwitchFormat();
-	//cipherText2Elements[1].SwitchFormat();
-
-	//switches the modulus to a larger value so that polynomial multiplication w/o mod q can be performed
-	cipherText1Elements[0].SwitchModulus(bigModulus, bigRootOfUnity, bigModulusArb, bigRootOfUnityArb);
-	cipherText1Elements[1].SwitchModulus(bigModulus, bigRootOfUnity, bigModulusArb, bigRootOfUnityArb);
-	cipherText2Elements[0].SwitchModulus(bigModulus, bigRootOfUnity, bigModulusArb, bigRootOfUnityArb);
-	//cipherText2Elements[1].SwitchModulus(bigModulus, bigRootOfUnity, bigModulusArb, bigRootOfUnityArb);
-
-	//converts the ciphertext elements back to evaluation representation
-	cipherText1Elements[0].SwitchFormat();
-	cipherText1Elements[1].SwitchFormat();
-	cipherText2Elements[0].SwitchFormat();
-	//cipherText2Elements[1].SwitchFormat();
-
 	Element c0 = cipherText1Elements[0] * cipherText2Elements[0];
 	Element c1 = cipherText1Elements[1] * cipherText2Elements[0];
-
-	//converts to coefficient representation before rounding
-	c0.SwitchFormat();
-	c1.SwitchFormat();
-
-	c0 = c0.MultiplyAndRound(p, q);
-	c1 = c1.MultiplyAndRound(p, q);
-
-	//switch the modulus back to the original value
-	c0.SwitchModulus(q, elementParams->GetRootOfUnity(), elementParams->GetBigModulus(), elementParams->GetBigRootOfUnity());
-	c1.SwitchModulus(q, elementParams->GetRootOfUnity(), elementParams->GetBigModulus(), elementParams->GetBigRootOfUnity());
-
-	//puts back in evaluation representation
-	c0.SwitchFormat();
-	c1.SwitchFormat();
 
 	newCiphertext->SetElements({ c0, c1});
 
@@ -621,6 +596,10 @@ template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
 	const shared_ptr<Ciphertext<Element>> ciphertext2,
 	const shared_ptr<LPEvalKey<Element>> ek) const {
+
+	if(!ciphertext2->GetIsEncrypted()) {
+		return EvalMultPlain(ciphertext1, ciphertext2);
+	}
 
 	shared_ptr<Ciphertext<Element>> newCiphertext = this->EvalMult(ciphertext1, ciphertext2);
 
