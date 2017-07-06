@@ -77,11 +77,6 @@ static_assert(cpu_int::DataTypeChecker<integral_dtype>::value,"Data type provide
 	**/
 #define BigIntegerBitLength 1500 //for documentation on tests
 
-//namespace cpu_int {
-//typedef BigInteger<integral_dtype,BigIntegerBitLength> cpu_int::BigInteger;
-//typedef BigVectorImpl<BigInteger> cpu_int::BigVector;
-//}
-
 ////////// for exp_int, decide if you want 32 bit or 64 bit underlying integers in the implementation
 #define UBINT_32
 //#define UBINT_64
