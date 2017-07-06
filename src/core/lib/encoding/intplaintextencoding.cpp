@@ -38,7 +38,7 @@ IntPlaintextEncoding::IntPlaintextEncoding(uint32_t value)
 }
 
 template <typename IntType, typename VecType, typename Element>
-void IntPlaintextEncoding::doEncode(const BigBinaryInteger &modulus, Element *ilVector, size_t startFrom, size_t length) const
+void IntPlaintextEncoding::doEncode(const BigInteger &modulus, Element *ilVector, size_t startFrom, size_t length) const
 {
 	size_t padlen = 0;
 	uint64_t mod = modulus.ConvertToInt();
@@ -70,13 +70,13 @@ void IntPlaintextEncoding::doEncode(const BigBinaryInteger &modulus, Element *il
 	ilVector->SetValues(temp,format);
 }
 
-void IntPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector, size_t start_from, size_t length) const
+void IntPlaintextEncoding::Encode(const BigInteger &modulus, Poly *ilVector, size_t start_from, size_t length) const
 {
-	doEncode<BigBinaryInteger,BigBinaryVector,ILVector2n>(modulus,ilVector,start_from,length);
+	doEncode<BigInteger,BigVector,Poly>(modulus,ilVector,start_from,length);
 }
 
 template <typename IntType, typename VecType, typename Element>
-void IntPlaintextEncoding::doDecode(const BigBinaryInteger &modulus, Element *ilVector)
+void IntPlaintextEncoding::doDecode(const BigInteger &modulus, Element *ilVector)
 {
 
 	for (usint i = 0; i<ilVector->GetValues().GetLength(); i++) {
@@ -84,13 +84,13 @@ void IntPlaintextEncoding::doDecode(const BigBinaryInteger &modulus, Element *il
 	}
 }
 
-void IntPlaintextEncoding::Decode(const BigBinaryInteger &modulus, ILVector2n *ilVector)
+void IntPlaintextEncoding::Decode(const BigInteger &modulus, Poly *ilVector)
 {
-	doDecode<BigBinaryInteger,BigBinaryVector,ILVector2n>(modulus,ilVector);
+	doDecode<BigInteger,BigVector,Poly>(modulus,ilVector);
 }
 
 size_t
-IntPlaintextEncoding::GetChunksize(const usint ring, const BigBinaryInteger&) const
+IntPlaintextEncoding::GetChunksize(const usint ring, const BigInteger&) const
 {
 	return ring;
 }

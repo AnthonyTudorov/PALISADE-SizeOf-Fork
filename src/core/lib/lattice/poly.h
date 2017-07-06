@@ -1,5 +1,5 @@
 /**
- * @file ilvector2n.h Represents integer lattice elements with power-of-2 dimensions.
+ * @file poly.h Represents integer lattice elements
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -24,8 +24,8 @@
  *
  */
 
-#ifndef LBCRYPTO_LATTICE_ILVECTOR2N_H
-#define LBCRYPTO_LATTICE_ILVECTOR2N_H
+#ifndef LBCRYPTO_LATTICE_POLY_H
+#define LBCRYPTO_LATTICE_POLY_H
 
 #include <vector>
 #include <functional>
@@ -50,19 +50,19 @@ namespace lbcrypto
 const usint SAMPLE_SIZE = 30; //!< @brief The maximum number of samples used for random variable sampling.
 
 /**
- * @class ILVectorImpl
- * @file ilvector2n.h
+ * @class PolyImpl
+ * @file poly.h
  * @brief Ideal lattice using a vector representation
  */
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-class ILVectorImpl : public ILElement<ILVectorImpl<ModType,IntType,VecType,ParmType>,ModType,IntType,VecType>
+class PolyImpl : public ILElement<PolyImpl<ModType,IntType,VecType,ParmType>,ModType,IntType,VecType>
 {
 public:
 
 	typedef ParmType Params;
 	typedef IntType Integer;
 	typedef VecType Vector;
-	typedef ILVectorImpl<ModType,IntType,VecType,ParmType> ILVectorType;
+	typedef PolyImpl<ModType,IntType,VecType,ParmType> PolyType;
 	typedef DiscreteGaussianGeneratorImpl<IntType,VecType> DggType;
 	typedef DiscreteUniformGeneratorImpl<IntType,VecType> DugType;
 	typedef TernaryUniformGeneratorImpl<IntType,VecType> TugType;
@@ -70,16 +70,16 @@ public:
 
 	/**
 	 * @brief Return the element name.
-	 * @return This method returns "ILVectorImpl".
+	 * @return This method returns "PolyImpl".
 	 */
 	static const std::string GetElementName() {
-		return "ILVectorImpl";
+		return "PolyImpl";
 	}
 
 	/**
 	 * @brief Default constructor
 	 */
-	ILVectorImpl();
+	PolyImpl();
 
 	/**
 	 * @brief Construct given parameters and format
@@ -87,9 +87,9 @@ public:
 	 * @param format - EVALUATION or COEFFICIENT
 	 * @param initializeElementToZero - if true, allocates an empty vector set to all 0s
 	 */
-	ILVectorImpl(const shared_ptr<ParmType> params, Format format = EVALUATION, bool initializeElementToZero = false);
+	PolyImpl(const shared_ptr<ParmType> params, Format format = EVALUATION, bool initializeElementToZero = false);
 
-	ILVectorImpl(const shared_ptr<ILDCRTParams<ModType>> params, Format format = EVALUATION, bool initializeElementToZero = false);
+	PolyImpl(const shared_ptr<ILDCRTParams<ModType>> params, Format format = EVALUATION, bool initializeElementToZero = false);
 
 	/**
 	 * @brief Construct given parameters and format
@@ -97,7 +97,7 @@ public:
 	 * @param params - element parameters
 	 * @param format - EVALUATION or COEFFICIENT
 	 */
-	ILVectorImpl(bool initializeElementToMax, const shared_ptr<ParmType> params, Format format);
+	PolyImpl(bool initializeElementToMax, const shared_ptr<ParmType> params, Format format);
 
 	/**
 	 * @brief Construct with a vector from a given generator
@@ -106,7 +106,7 @@ public:
 	 * @param &params the input params.
 	 * @param format - EVALUATION or COEFFICIENT
 	 */
-	ILVectorImpl(const DggType &dgg, const shared_ptr<ParmType> params, Format format = EVALUATION);
+	PolyImpl(const DggType &dgg, const shared_ptr<ParmType> params, Format format = EVALUATION);
 
 	/**
 	 * @brief Construct with a vector from a given generator
@@ -115,7 +115,7 @@ public:
 	 * @param &params the input params.
 	 * @param format - EVALUATION or COEFFICIENT
 	 */
-	ILVectorImpl(const BugType &bug, const shared_ptr<ParmType> params, Format format = EVALUATION);
+	PolyImpl(const BugType &bug, const shared_ptr<ParmType> params, Format format = EVALUATION);
 
 	/**
 	 * @brief Construct with a vector from a given generator
@@ -124,7 +124,7 @@ public:
 	 * @param &params the input params.
 	 * @param format - EVALUATION or COEFFICIENT
 	 */
-	ILVectorImpl(const TugType &tug, const shared_ptr<ParmType> params, Format format = EVALUATION);
+	PolyImpl(const TugType &tug, const shared_ptr<ParmType> params, Format format = EVALUATION);
 
 	/**
 	 * @brief Construct with a vector from a given generator
@@ -133,16 +133,16 @@ public:
 	 * @param &params the input params.
 	 * @param format - EVALUATION or COEFFICIENT
 	 */
-	ILVectorImpl( DugType &dug, const shared_ptr<ParmType> params, Format format = EVALUATION);
+	PolyImpl( DugType &dug, const shared_ptr<ParmType> params, Format format = EVALUATION);
 
 	/**
 	 * @brief Create lambda that allocates a zeroed element for the case when it is called from a templated class
 	 * @param params the params to use.
 	 * @param format - EVALUATION or COEFFICIENT
 	 */
-	inline static function<unique_ptr<ILVectorType>()> MakeAllocator(const shared_ptr<ParmType> params, Format format) {
+	inline static function<unique_ptr<PolyType>()> MakeAllocator(const shared_ptr<ParmType> params, Format format) {
 		return [=]() {
-			return lbcrypto::make_unique<ILVectorType>(params, format, true);
+			return lbcrypto::make_unique<PolyType>(params, format, true);
 		};
 	}
 
@@ -154,10 +154,10 @@ public:
 	 * @param stddev standard deviation for the discrete gaussian generator.
 	 * @return the resulting vector.
 	 */
-	inline static function<unique_ptr<ILVectorType>()> MakeDiscreteGaussianCoefficientAllocator(shared_ptr<ParmType> params, Format resultFormat, int stddev) {
+	inline static function<unique_ptr<PolyType>()> MakeDiscreteGaussianCoefficientAllocator(shared_ptr<ParmType> params, Format resultFormat, int stddev) {
 		return [=]() {
 			DiscreteGaussianGeneratorImpl<IntType,VecType> dgg(stddev);
-			auto ilvec = lbcrypto::make_unique<ILVectorType>(dgg, params, COEFFICIENT);
+			auto ilvec = lbcrypto::make_unique<PolyType>(dgg, params, COEFFICIENT);
 			ilvec->SetFormat(resultFormat);
 			return ilvec;
 		};
@@ -170,11 +170,11 @@ public:
 	 * @param format format for the polynomials generated.
 	 * @return the resulting vector.
 	 */
-	inline static function<unique_ptr<ILVectorType>()> MakeDiscreteUniformAllocator(shared_ptr<ParmType> params, Format format) {
+	inline static function<unique_ptr<PolyType>()> MakeDiscreteUniformAllocator(shared_ptr<ParmType> params, Format format) {
 		return [=]() {
 			DiscreteUniformGeneratorImpl<IntType,VecType> dug;
 			dug.SetModulus(params->GetModulus());
-			return lbcrypto::make_unique<ILVectorType>(dug, params, format);
+			return lbcrypto::make_unique<PolyType>(dug, params, format);
 		};
 	}
 
@@ -184,7 +184,7 @@ public:
 	 * @param &element the copied element.
 	 * @param parms ILParams instance that is is passed.
 	 */
-	ILVectorImpl(const ILVectorType &element, shared_ptr<ParmType> parms = 0);
+	PolyImpl(const PolyType &element, shared_ptr<ParmType> parms = 0);
 
 	/**
 	 * @brief Move constructor.
@@ -192,77 +192,77 @@ public:
 	 * @param &&element the copied element.
 	 * @param parms ILParams instance that is is passed.
 	 */
-	ILVectorImpl(ILVectorType &&element, shared_ptr<ParmType> parms = 0);
+	PolyImpl(PolyType &&element, shared_ptr<ParmType> parms = 0);
 
 	/**
 	 * @brief Clone the object by making a copy of it and returning the copy
 	 * @return new Element
 	 */
-	ILVectorType Clone() const {
-		return std::move(ILVectorImpl(*this));
+	PolyType Clone() const {
+		return std::move(PolyImpl(*this));
 	}
 
 	/**
 	 * @brief Clone the object, but have it contain nothing
 	 * @return new Element
 	 */
-	ILVectorType CloneEmpty() const {
-		return std::move( ILVectorImpl() );
+	PolyType CloneEmpty() const {
+		return std::move( PolyImpl() );
 	}
 
 	/**
-	 * @brief Clone method that creates a new ILVectorImpl and clones only the params.
+	 * @brief Clone method that creates a new PolyImpl and clones only the params.
 	 *  The tower values are empty. The tower values can be filled by another process/function or initializer list.
 	 * @return new Element
 	 */
-	ILVectorType CloneParametersOnly() const ;
+	PolyType CloneParametersOnly() const ;
 
 	/**
 	 * @brief Clone method with noise. 
-	 * Creates a new ILVectorImpl and clones the params. The tower values will be filled up with noise based on the discrete gaussian.
+	 * Creates a new PolyImpl and clones the params. The tower values will be filled up with noise based on the discrete gaussian.
 	 *
-	 * @param &dgg the input discrete Gaussian generator. The dgg will be the seed to populate the towers of the ILVectorImpl with random numbers.
+	 * @param &dgg the input discrete Gaussian generator. The dgg will be the seed to populate the towers of the PolyImpl with random numbers.
 	 * @return new Element
 	 */
-	ILVectorType CloneWithNoise(const DiscreteGaussianGeneratorImpl<IntType,VecType> &dgg, Format format) const;
+	PolyType CloneWithNoise(const DiscreteGaussianGeneratorImpl<IntType,VecType> &dgg, Format format) const;
 
 	/**
 	 * Destructor
 	 */
-	~ILVectorImpl();
+	~PolyImpl();
 
 	/**
 	 * @brief Assignment Operator.
 	 *
-	 * @param &rhs the ILVectorImpl to be copied.
-	 * @return the resulting ILVectorImpl.
+	 * @param &rhs the PolyImpl to be copied.
+	 * @return the resulting PolyImpl.
 	 */
-	const ILVectorType& operator=(const ILVectorType &rhs);
+	const PolyType& operator=(const PolyType &rhs);
 
 	/**
 	 * @brief Move Assignment.
 	 *
-	 * @param &rhs the ILVectorImpl to be copied.
-	 * @return the resulting ILVectorImpl.
+	 * @param &rhs the PolyImpl to be copied.
+	 * @return the resulting PolyImpl.
 	 */
-	const ILVectorType& operator=(ILVectorType &&rhs);
+	const PolyType& operator=(PolyType &&rhs);
 
 	/**
 	 * @brief Initalizer list
 	 *
-	 * @param &rhs the list to set the ILVectorImpl to.
-	 * @return the resulting ILVectorImpl.
+	 * @param &rhs the list to set the PolyImpl to.
+	 * @return the resulting PolyImpl.
 	 */
-	const ILVectorType& operator=(std::initializer_list<sint> rhs);
+	const PolyType& operator=(std::initializer_list<sint> rhs);
 	//todo: this should be changed from sint to usint!
 
 	/**
 	 * @brief Initalizer list
 	 *
-	 * @param &rhs the list to set the ILVectorImpl to.
-	 * @return the resulting ILVectorImpl.
+	 * @param &rhs the list to set the PolyImpl to.
+	 * @return the resulting PolyImpl.
 	 */
-	const ILVectorType& operator=(std::initializer_list<std::string> rhs);
+	const PolyType& operator=(std::initializer_list<std::string> rhs);
 
 	/**
 	 * @brief Assignment Operator. The usint val will be set at index zero and all other indices will be set to zero.
@@ -270,7 +270,7 @@ public:
 	 * @param val is the usint to assign to index zero.
 	 * @return the resulting vector.
 	 */
-	const ILVectorType& operator=(uint64_t val);
+	const PolyType& operator=(uint64_t val);
 
 	//GETTERS
 	/**
@@ -409,7 +409,7 @@ public:
 	 * @param &element is the element to add entry-wise.
 	 * @return is the return of the addition operation.
 	 */
-	ILVectorImpl Plus(const IntType &element) const;
+	PolyImpl Plus(const IntType &element) const;
 
 	/**
 	 * @brief Scalar subtraction - subtract an element to all entries.
@@ -417,7 +417,7 @@ public:
 	 * @param &element is the element to subtract entry-wise.
 	 * @return is the return value of the minus operation.
 	 */
-	ILVectorImpl Minus(const IntType &element) const;
+	PolyImpl Minus(const IntType &element) const;
 
 	/**
 	 * @brief Scalar multiplication - multiply all entries.
@@ -425,7 +425,7 @@ public:
 	 * @param &element is the element to multiply entry-wise.
 	 * @return is the return value of the times operation.
 	 */
-	ILVectorImpl Times(const IntType &element) const;
+	PolyImpl Times(const IntType &element) const;
 
 
 	// VECTOR OPERATIONS
@@ -434,8 +434,8 @@ public:
 	 * @brief Unary minus on a lattice element.
 	 * @return negation of the lattice element.
 	 */
-	ILVectorImpl operator-() const {
-		ILVectorImpl all0(this->GetParams(), this->GetFormat(), true);
+	PolyImpl operator-() const {
+		PolyImpl all0(this->GetParams(), this->GetFormat(), true);
 		return all0 - *this;
 	}
 	/**
@@ -444,7 +444,7 @@ public:
 	 * @param &element is the element to add with.
 	 * @return is the result of the addition.
 	 */
-	ILVectorImpl Plus(const ILVectorImpl &element) const;
+	PolyImpl Plus(const PolyImpl &element) const;
 
 	/**
 	 * @brief Performs a subtraction operation and returns the result.
@@ -452,7 +452,7 @@ public:
 	 * @param &element is the element to subtract with.
 	 * @return is the result of the subtraction.
 	 */
-	ILVectorImpl Minus(const ILVectorImpl &element) const;
+	PolyImpl Minus(const PolyImpl &element) const;
 
 	/**
 	 * @brief Performs a multiplication operation and returns the result.
@@ -460,7 +460,7 @@ public:
 	 * @param &element is the element to multiply with.
 	 * @return is the result of the multiplication.
 	 */
-	ILVectorImpl Times(const ILVectorImpl &element) const;
+	PolyImpl Times(const PolyImpl &element) const;
 
 	/**
 	 * @brief Performs += operation with a IntType and returns the result.
@@ -468,7 +468,7 @@ public:
 	 * @param &element is the element to add
 	 * @return is the result of the addition.
 	 */
-	const ILVectorImpl& operator+=(const IntType &element) {
+	const PolyImpl& operator+=(const IntType &element) {
 		return *this = this->Plus(element);
 	}
 
@@ -478,7 +478,7 @@ public:
 	 * @param &element is the element to subtract
 	 * @return is the result of the subtraction.
 	 */
-	const ILVectorImpl& operator-=(const IntType &element) {
+	const PolyImpl& operator-=(const IntType &element) {
 		SetValues( GetValues().ModSub(element), this->m_format );
 		return *this;
 	}
@@ -489,7 +489,7 @@ public:
 	 * @param &element is the element to multiply by
 	 * @return is the result of the multiplication.
 	 */
-	const ILVectorImpl& operator*=(const IntType &element) {
+	const PolyImpl& operator*=(const IntType &element) {
 		SetValues( GetValues().ModMul(element), this->m_format );
 		return *this;
 	}
@@ -500,7 +500,7 @@ public:
 	 * @param &element is the element to add
 	 * @return is the result of the addition.
 	 */
-	const ILVectorImpl& operator+=(const ILVectorImpl &element);
+	const PolyImpl& operator+=(const PolyImpl &element);
 
 	/**
 	 * @brief Performs an subtraction operation and returns the result.
@@ -508,7 +508,7 @@ public:
 	 * @param &element is the element to subtract
 	 * @return is the result of the subtract.
 	 */
-	const ILVectorImpl& operator-=(const ILVectorImpl &element);
+	const PolyImpl& operator-=(const PolyImpl &element);
 
 	/**
 	 * @brief Performs an multiplication operation and returns the result.
@@ -516,15 +516,15 @@ public:
 	 * @param &element is the element to multiply by
 	 * @return is the result of the multiplication.
 	 */
-	const ILVectorImpl& operator*=(const ILVectorImpl &element);
+	const PolyImpl& operator*=(const PolyImpl &element);
 
 	/**
 	 * @brief Equality operator compares this element to the input element.
 	 *
-	 * @param &rhs is the specified ILVectorImpl to be compared with this element.
-	 * @return true if this ILVectorImpl represents the same values as the specified element, false otherwise
+	 * @param &rhs is the specified PolyImpl to be compared with this element.
+	 * @return true if this PolyImpl represents the same values as the specified element, false otherwise
 	 */
-	inline bool operator==(const ILVectorImpl &rhs) const {
+	inline bool operator==(const PolyImpl &rhs) const {
 		if (this->GetFormat() != rhs.GetFormat()) {
 			return false;
 		}
@@ -544,7 +544,7 @@ public:
 	 * @param &q is the integer divisor.
 	 * @return is the return value of the multiply, divide and followed by rounding operation.
 	 */
-	ILVectorImpl MultiplyAndRound(const IntType &p, const IntType &q) const;
+	PolyImpl MultiplyAndRound(const IntType &p, const IntType &q) const;
 
 	/**
 	 * @brief Scalar division followed by rounding operation - operation on all entries.
@@ -552,19 +552,19 @@ public:
 	 * @param &q is the element to divide entry-wise.
 	 * @return is the return value of the divide, followed by rounding operation.
 	 */
-	ILVectorImpl DivideAndRound(const IntType &q) const;
+	PolyImpl DivideAndRound(const IntType &q) const;
 
 	/**
 	 * @brief Performs a negation operation and returns the result.
 	 *
 	 * @return is the result of the negation.
 	 */
-	ILVectorImpl Negate() const;
+	PolyImpl Negate() const;
 
 	// OTHER METHODS
 
 	/**
-	 * @brief Adds one to every entry of the ILVectorImpl.
+	 * @brief Adds one to every entry of the PolyImpl.
 	 */
 	void AddILElementOne();
 
@@ -574,15 +574,15 @@ public:
 	 * @param &i is the element to perform the automorphism transform with.
 	 * @return is the result of the automorphism transform.
 	 */
-	ILVectorImpl AutomorphismTransform(const usint &k) const;
+	PolyImpl AutomorphismTransform(const usint &k) const;
 
 	/**
 	 * @brief Interpolates based on the Chinese Remainder Transform Interpolation.
-	 * Does nothing for ILVectorImpl. Needed to support the 0linear CRT interpolation in ILDCRT2n.
+	 * Does nothing for PolyImpl. Needed to support the 0linear CRT interpolation in DCRTPoly.
 	 *
 	 * @return the original ring element.
 	 */
-	ILVectorImpl CRTInterpolate() const {
+	PolyImpl CRTInterpolate() const {
 		return *this;
 	}
 
@@ -591,21 +591,21 @@ public:
 	 *
 	 * @return is the result of the transposition.
 	 */
-	ILVectorImpl Transpose() const;
+	PolyImpl Transpose() const;
 
 	/**
 	 * @brief Performs a multiplicative inverse operation and returns the result.
 	 *
 	 * @return is the result of the multiplicative inverse.
 	 */
-	ILVectorImpl MultiplicativeInverse() const;
+	PolyImpl MultiplicativeInverse() const;
 
 	/**
 	 * @brief Perform a modulus by 2 operation.  Returns the least significant bit.
 	 *
 	 * @return is the return value of the modulus by 2, also the least significant bit.
 	 */
-	ILVectorImpl ModByTwo() const;
+	PolyImpl ModByTwo() const;
 
 	/**
 	 * @brief Modulus - perform a modulus operation. Does proper mapping of [-modulus/2, modulus/2) to [0, modulus)
@@ -613,7 +613,7 @@ public:
 	 * @param modulus is the modulus to use.
 	 * @return is the return value of the modulus.
 	 */
-	ILVectorImpl SignedMod(const IntType &modulus) const;
+	PolyImpl SignedMod(const IntType &modulus) const;
 
 	/**
 	 * @brief Switch modulus and adjust the values
@@ -674,7 +674,7 @@ public:
 	 * @param x is integer to round to.
 	 * @return is the result of the rounding operation.
 	 */
-	ILVectorImpl Round(const IntType& x) const;
+	PolyImpl Round(const IntType& x) const;
 
 	/**
 	 * @brief Write the element as \f$ \sum\limits{i=0}^{\lfloor {\log q/base} \rfloor} {(base^i u_i)} \f$ and
@@ -684,17 +684,17 @@ public:
 	 * @param baseBits is the number of bits in the base, i.e., \f$ base = 2^{baseBits} \f$.
 	 * @return is the pointer where the base decomposition vector is stored
 	 */
-	std::vector<ILVectorImpl> BaseDecompose(usint baseBits, bool evalModeAnswer=true) const;
+	std::vector<PolyImpl> BaseDecompose(usint baseBits, bool evalModeAnswer=true) const;
 
 	/**
-	 * @brief Generate a vector of ILVectorImpl's as \f$ \left\{x, {base}*x, {base}^2*x, ..., {base}^{\lfloor {\log q/{base}} \rfloor} \right\}*x \f$, 
-	 * where \f$ x \f$ is the current ILVectorImpl object;
+	 * @brief Generate a vector of PolyImpl's as \f$ \left\{x, {base}*x, {base}^2*x, ..., {base}^{\lfloor {\log q/{base}} \rfloor} \right\}*x \f$,
+	 * where \f$ x \f$ is the current PolyImpl object;
 	 * used as a subroutine in the relinearization procedure to get powers of a certain "base" for the secret key element
 	 *
 	 * @param baseBits is the number of bits in the base, i.e., \f$ base = 2^{baseBits} \f$.
 	 * @return is the pointer where the base decomposition vector is stored
 	 */
-	std::vector<ILVectorImpl> PowersOfBase(usint baseBits) const;
+	std::vector<PolyImpl> PowersOfBase(usint baseBits) const;
 
 	/**
 	 * @brief Shift entries in the vector left a specific number of entries.
@@ -702,7 +702,7 @@ public:
 	 * @param n the number of entries to shift left.
 	 * @return is the resulting vector from shifting left.
 	 */
-	ILVectorImpl ShiftLeft(unsigned int n) const;
+	PolyImpl ShiftLeft(unsigned int n) const;
 
 	/**
 	 * @brief Shift entries in the vector right a specific number of entries.
@@ -710,7 +710,7 @@ public:
 	 * @param n the number of entries to shift right.
 	 * @return is the resulting vector from shifting right.
 	 */
-	ILVectorImpl ShiftRight(unsigned int n) const;
+	PolyImpl ShiftRight(unsigned int n) const;
 
 	/**
 	 * @brief Pre computes the Dgg samples.
@@ -758,7 +758,7 @@ public:
 	 * @param vec the element to add to the output stream.
 	 * @return a resulting concatenated output stream
 	 */
-	friend inline std::ostream& operator<<(std::ostream& os, const ILVectorImpl& vec) {
+	friend inline std::ostream& operator<<(std::ostream& os, const PolyImpl& vec) {
 		os << (vec.m_format == EVALUATION ? "EVAL: " : "COEF: ") << vec.GetValues();
 		return os;
 	}
@@ -769,7 +769,7 @@ public:
 	 * @param b second element to add.
 	 * @return the result of the addition operation.
 	 */
-	friend inline ILVectorImpl operator+(const ILVectorImpl &a, const ILVectorImpl &b) {
+	friend inline PolyImpl operator+(const PolyImpl &a, const PolyImpl &b) {
 		return a.Plus(b);
 	}
 	
@@ -779,7 +779,7 @@ public:
 	 * @param b integer to add.
 	 * @return the result of the addition operation.
 	 */
-	friend inline ILVectorImpl operator+(const ILVectorImpl &a, const IntType &b) {
+	friend inline PolyImpl operator+(const PolyImpl &a, const IntType &b) {
 		return a.Plus(b);
 	}
 	
@@ -789,7 +789,7 @@ public:
 	 * @param b element to add.
 	 * @return the result of the addition operation.
 	 */
-	friend inline ILVectorImpl operator+(const IntType &a, const ILVectorImpl &b) {
+	friend inline PolyImpl operator+(const IntType &a, const PolyImpl &b) {
 		return b.Plus(a);
 	}
 	
@@ -799,7 +799,7 @@ public:
 	 * @param b element to subtract.
 	 * @return the result of the subtraction operation.
 	 */
-	friend inline ILVectorImpl operator-(const ILVectorImpl &a, const ILVectorImpl &b) {
+	friend inline PolyImpl operator-(const PolyImpl &a, const PolyImpl &b) {
 		return a.Minus(b);
 	}
 	
@@ -809,7 +809,7 @@ public:
 	 * @param b integer to subtract.
 	 * @return the result of the subtraction operation.
 	 */
-	friend inline ILVectorImpl operator-(const ILVectorImpl &a, const IntType &b) {
+	friend inline PolyImpl operator-(const PolyImpl &a, const IntType &b) {
 		return a.Minus(b);
 	}
 	
@@ -819,7 +819,7 @@ public:
 	 * @param b element to multiply.
 	 * @return the result of the multiplication operation.
 	 */
-	friend inline ILVectorImpl operator*(const ILVectorImpl &a, const ILVectorImpl &b) {
+	friend inline PolyImpl operator*(const PolyImpl &a, const PolyImpl &b) {
 		return a.Times(b);
 	}
 	
@@ -829,7 +829,7 @@ public:
 	 * @param b integer to multiply.
 	 * @return the result of the multiplication operation.
 	 */
-	friend inline ILVectorImpl operator*(const ILVectorImpl &a, const IntType &b) {
+	friend inline PolyImpl operator*(const PolyImpl &a, const IntType &b) {
 		return a.Times(b);
 	}
 	
@@ -839,7 +839,7 @@ public:
 	 * @param b element to multiply.
 	 * @return the result of the multiplication operation.
 	 */
-	friend inline ILVectorImpl operator*(const IntType &a, const ILVectorImpl &b) {
+	friend inline PolyImpl operator*(const IntType &a, const PolyImpl &b) {
 		return b.Times(a);
 	}
 
@@ -848,14 +848,14 @@ public:
 	 * @brief Gets a pre-computed sample discrete Gaussian polynomial element.
 	 * @return the sampled element.
 	 */
-	static const ILVectorImpl GetPrecomputedVector();
+	static const PolyImpl GetPrecomputedVector();
 
 	// gets a random polynomial generated using ternary uniform distribution
 	/**
 	 * @brief Gets a pre-computed sample ternary uniform distribution polynomial element.
 	 * @return the sampled element.
 	 */
-	static const ILVectorImpl GetPrecomputedTugVector();
+	static const PolyImpl GetPrecomputedTugVector();
 
 private:
 
@@ -872,11 +872,11 @@ private:
 	shared_ptr<ParmType> m_params;
 
 	// static variables to store pre-computed samples and the parms that went with them
-	static std::vector<ILVectorImpl> m_dggSamples;
+	static std::vector<PolyImpl> m_dggSamples;
 	static shared_ptr<ParmType> m_dggSamples_params;
 
 	// static variables to store pre-computed samples and the parms that went with them
-	static std::vector<ILVectorImpl> m_tugSamples;
+	static std::vector<PolyImpl> m_tugSamples;
 	static shared_ptr<ParmType> m_tugSamples_params;
 
 	// static variable to store the sample size for each set of ILParams
@@ -891,15 +891,15 @@ private:
 namespace native_int
 {
 
-typedef lbcrypto::ILVectorImpl<native_int::BinaryInteger, native_int::BinaryInteger, native_int::BinaryVector, native_int::ILParams> ILVector2n;
+typedef lbcrypto::PolyImpl<native_int::BigInteger, native_int::BigInteger, native_int::BigVector, native_int::ILParams> Poly;
 
 }
 
 namespace lbcrypto
 {
 
-template<typename ModType, typename IntType, typename VecType, typename ParmType> class ILVectorImpl;
-typedef ILVectorImpl<BigBinaryInteger, BigBinaryInteger, BigBinaryVector, ILParams> ILVector2n;
+template<typename ModType, typename IntType, typename VecType, typename ParmType> class PolyImpl;
+typedef PolyImpl<BigInteger, BigInteger, BigVector, ILParams> Poly;
 
 }
 

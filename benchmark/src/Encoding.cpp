@@ -43,7 +43,7 @@ bool runOnlyOnce = true;
 using namespace std;
 using namespace lbcrypto;
 
-static void initializeBytes(int ring, const BigBinaryInteger& ptm,
+static void initializeBytes(int ring, const BigInteger& ptm,
 		BytePlaintextEncoding& plaintextShort,
 		BytePlaintextEncoding& plaintextFull,
 		BytePlaintextEncoding& plaintextLong) {
@@ -72,14 +72,14 @@ static void initializeBytes(int ring, const BigBinaryInteger& ptm,
 }
 
 
-static void setup_Encoding(shared_ptr<CryptoContext<ILVector2n>> cc,
+static void setup_Encoding(shared_ptr<CryptoContext<Poly>> cc,
 		IntPlaintextEncoding& plaintextInt,
 		PackedIntPlaintextEncoding& plaintextPacked,
 		BytePlaintextEncoding& plaintextShort,
 		BytePlaintextEncoding& plaintextFull,
 		BytePlaintextEncoding& plaintextLong) {
 	int nel = cc->GetRingDimension();
-	const BigBinaryInteger& ptm = cc->GetCryptoParameters()->GetPlaintextModulus();
+	const BigInteger& ptm = cc->GetCryptoParameters()->GetPlaintextModulus();
 	uint32_t ptmi = ptm.ConvertToInt();
 
 	vector<uint32_t> intvec;
@@ -92,13 +92,13 @@ static void setup_Encoding(shared_ptr<CryptoContext<ILVector2n>> cc,
 }
 
 void BM_encoding_Int(benchmark::State& state) { // benchmark
-	shared_ptr<CryptoContext<ILVector2n>> cc;
+	shared_ptr<CryptoContext<Poly>> cc;
 	IntPlaintextEncoding plaintextInt;
 	PackedIntPlaintextEncoding plaintextPacked;
 	BytePlaintextEncoding plaintextShort;
 	BytePlaintextEncoding plaintextFull;
 	BytePlaintextEncoding plaintextLong;
-	BigBinaryInteger ptm;
+	BigInteger ptm;
 	usint ptmi;
 	size_t chunkSize = 0;
 
@@ -118,7 +118,7 @@ void BM_encoding_Int(benchmark::State& state) { // benchmark
 
 	while (state.KeepRunning()) {
 		state.PauseTiming();
-		ILVector2n pt(cc->GetElementParams());
+		Poly pt(cc->GetElementParams());
 		state.ResumeTiming();
 
 		plaintextInt.Encode(ptm, &pt, 0, chunkSize);
@@ -128,13 +128,13 @@ void BM_encoding_Int(benchmark::State& state) { // benchmark
 BENCHMARK_PARMS(BM_encoding_Int)
 
 void BM_encoding_PackedInt(benchmark::State& state) { // benchmark
-	shared_ptr<CryptoContext<ILVector2n>> cc;
+	shared_ptr<CryptoContext<Poly>> cc;
 	IntPlaintextEncoding plaintextInt;
 	PackedIntPlaintextEncoding plaintextPacked;
 	BytePlaintextEncoding plaintextShort;
 	BytePlaintextEncoding plaintextFull;
 	BytePlaintextEncoding plaintextLong;
-	BigBinaryInteger ptm;
+	BigInteger ptm;
 	usint ptmi;
 	size_t chunkSize = 0;
 
@@ -154,7 +154,7 @@ void BM_encoding_PackedInt(benchmark::State& state) { // benchmark
 
 	while (state.KeepRunning()) {
 		state.PauseTiming();
-		ILVector2n pt(cc->GetCryptoParameters()->GetElementParams());
+		Poly pt(cc->GetCryptoParameters()->GetElementParams());
 		state.ResumeTiming();
 
 		try {
@@ -169,16 +169,16 @@ void BM_encoding_PackedInt(benchmark::State& state) { // benchmark
 BENCHMARK_PARMS(BM_encoding_PackedInt)
 
 void BM_Encoding_StringShort(benchmark::State& state) { // benchmark
-	shared_ptr<CryptoContext<ILVector2n>> cc;
+	shared_ptr<CryptoContext<Poly>> cc;
 	IntPlaintextEncoding plaintextInt;
 	PackedIntPlaintextEncoding plaintextPacked;
 	BytePlaintextEncoding plaintextShort;
 	BytePlaintextEncoding plaintextFull;
 	BytePlaintextEncoding plaintextLong;
-	BigBinaryInteger ptm;
+	BigInteger ptm;
 	usint ptmi;
 	size_t chunkSize = 0;
-	shared_ptr<Ciphertext<ILVector2n>> ct1, ct2;
+	shared_ptr<Ciphertext<Poly>> ct1, ct2;
 
 	if( state.thread_index == 0 ) {
 		state.PauseTiming();
@@ -203,7 +203,7 @@ void BM_Encoding_StringShort(benchmark::State& state) { // benchmark
 
 	while (state.KeepRunning()) {
 		state.PauseTiming();
-		ILVector2n pt(cc->GetCryptoParameters()->GetElementParams());
+		Poly pt(cc->GetCryptoParameters()->GetElementParams());
 		state.ResumeTiming();
 
 		plaintextShort.Encode(ptm, &pt, 0, chunkSize);
@@ -213,16 +213,16 @@ void BM_Encoding_StringShort(benchmark::State& state) { // benchmark
 BENCHMARK_PARMS(BM_Encoding_StringShort)
 
 void BM_Encoding_StringFull(benchmark::State& state) { // benchmark
-	shared_ptr<CryptoContext<ILVector2n>> cc;
+	shared_ptr<CryptoContext<Poly>> cc;
 	IntPlaintextEncoding plaintextInt;
 	PackedIntPlaintextEncoding plaintextPacked;
 	BytePlaintextEncoding plaintextShort;
 	BytePlaintextEncoding plaintextFull;
 	BytePlaintextEncoding plaintextLong;
-	BigBinaryInteger ptm;
+	BigInteger ptm;
 	usint ptmi;
 	size_t chunkSize = 0;
-	shared_ptr<Ciphertext<ILVector2n>> ct1, ct2;
+	shared_ptr<Ciphertext<Poly>> ct1, ct2;
 
 	if( state.thread_index == 0 ) {
 		state.PauseTiming();
@@ -247,7 +247,7 @@ void BM_Encoding_StringFull(benchmark::State& state) { // benchmark
 
 	while (state.KeepRunning()) {
 		state.PauseTiming();
-		ILVector2n pt(cc->GetCryptoParameters()->GetElementParams());
+		Poly pt(cc->GetCryptoParameters()->GetElementParams());
 		state.ResumeTiming();
 
 		plaintextFull.Encode(ptm, &pt, 0, chunkSize);
@@ -257,16 +257,16 @@ void BM_Encoding_StringFull(benchmark::State& state) { // benchmark
 BENCHMARK_PARMS(BM_Encoding_StringFull)
 
 void BM_Encoding_StringLong(benchmark::State& state) { // benchmark
-	shared_ptr<CryptoContext<ILVector2n>> cc;
+	shared_ptr<CryptoContext<Poly>> cc;
 	IntPlaintextEncoding plaintextInt;
 	PackedIntPlaintextEncoding plaintextPacked;
 	BytePlaintextEncoding plaintextShort;
 	BytePlaintextEncoding plaintextFull;
 	BytePlaintextEncoding plaintextLong;
-	BigBinaryInteger ptm;
+	BigInteger ptm;
 	usint ptmi;
 	size_t chunkSize = 0;
-	shared_ptr<Ciphertext<ILVector2n>> ct1, ct2;
+	shared_ptr<Ciphertext<Poly>> ct1, ct2;
 
 	if( state.thread_index == 0 ) {
 		state.PauseTiming();
@@ -291,7 +291,7 @@ void BM_Encoding_StringLong(benchmark::State& state) { // benchmark
 
 	while (state.KeepRunning()) {
 		state.PauseTiming();
-		ILVector2n pt(cc->GetCryptoParameters()->GetElementParams());
+		Poly pt(cc->GetCryptoParameters()->GetElementParams());
 		state.ResumeTiming();
 
 		plaintextLong.Encode(ptm, &pt, 0, chunkSize);

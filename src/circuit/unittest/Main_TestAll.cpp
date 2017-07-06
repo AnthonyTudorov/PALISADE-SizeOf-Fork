@@ -11,8 +11,8 @@
 #include "lattice/ildcrtparams.h"
 #include "lattice/ilelement.h"
 #include "math/distrgen.h"
-#include "lattice/ilvector2n.h"
-#include "lattice/ildcrt2n.h"
+#include "lattice/poly.h"
+#include "lattice/dcrtpoly.h"
 #include "utils/utilities.h"
 
 using namespace std;

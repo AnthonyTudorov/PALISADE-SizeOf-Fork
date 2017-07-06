@@ -59,8 +59,8 @@
 #include "lattice/ildcrtparams.h"
 #include "lattice/ilelement.h"
 #include "math/distrgen.h"
-#include "lattice/ilvector2n.h"
-#include "../../src/core/lib/lattice/ildcrt2n.h"
+#include "lattice/poly.h"
+#include "../../src/core/lib/lattice/dcrtpoly.h"
 #include "utils/utilities.h"
 
 #include "BBVhelper.h"
@@ -72,11 +72,11 @@ using namespace lbcrypto;
 // add
 static void add_BBV(benchmark::State& state) {
 	state.PauseTiming();
-	BigBinaryVector a = makeVector(parmArray[state.range(0)]);
-	BigBinaryVector b = makeVector(parmArray[state.range(0)]);
+	BigVector a = makeVector(parmArray[state.range(0)]);
+	BigVector b = makeVector(parmArray[state.range(0)]);
 	state.ResumeTiming();
 
-	BigBinaryVector c1 = a+b;
+	BigVector c1 = a+b;
 }
 
 static void BM_BBV_Addition(benchmark::State& state) { // benchmark
@@ -91,11 +91,11 @@ DO_PARM_BENCHMARK(BM_BBV_Addition)
 // add
 static void mult_BBV(benchmark::State& state) {	// function
 	state.PauseTiming();
-	BigBinaryVector a = makeVector(parmArray[state.range(0)]);
-	BigBinaryVector b = makeVector(parmArray[state.range(0)]);
+	BigVector a = makeVector(parmArray[state.range(0)]);
+	BigVector b = makeVector(parmArray[state.range(0)]);
 	state.ResumeTiming();
 
-	BigBinaryVector c1 = a*b;
+	BigVector c1 = a*b;
 }
 
 static void BM_BBV_Multiplication(benchmark::State& state) { // benchmark

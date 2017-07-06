@@ -38,50 +38,50 @@ namespace cpu_int {
 
 //constant static member variable initialization of 0
 template<typename uint_type,usint BITLENGTH>
-const BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::ZERO = BigBinaryInteger(0);
+const BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ZERO = BigInteger(0);
 
 //constant static member variable initialization of 1
 template<typename uint_type,usint BITLENGTH>
-const BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::ONE = BigBinaryInteger(1);
+const BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ONE = BigInteger(1);
 
 //constant static member variable initialization of 2
 template<typename uint_type,usint BITLENGTH>
-const BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::TWO = BigBinaryInteger(2);
+const BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::TWO = BigInteger(2);
 
 //constant static member variable initialization of 3
 template<typename uint_type,usint BITLENGTH>
-const BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::THREE = BigBinaryInteger(3);
+const BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::THREE = BigInteger(3);
 
 //constant static member variable initialization of 4
 template<typename uint_type,usint BITLENGTH>
-const BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::FOUR = BigBinaryInteger(4);
+const BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::FOUR = BigInteger(4);
 
 //constant static member variable initialization of 5
 template<typename uint_type,usint BITLENGTH>
-const BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::FIVE = BigBinaryInteger(5);
+const BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::FIVE = BigInteger(5);
 
 //MOST REQUIRED STATIC CONSTANTS INITIALIZATION
 
 //constant static member variable initialization of m_uintBitLength which is equal to number of bits in the unit data type
 //permitted values: 8,16,32
 template<typename uint_type,usint BITLENGTH>
-const uschar BigBinaryInteger<uint_type,BITLENGTH>::m_uintBitLength = UIntBitWidth<uint_type>::value;
+const uschar BigInteger<uint_type,BITLENGTH>::m_uintBitLength = UIntBitWidth<uint_type>::value;
 
 template<typename uint_type,usint BITLENGTH>
-const usint BigBinaryInteger<uint_type,BITLENGTH>::m_numDigitInPrintval = BITLENGTH/cpu_int::LOG2_10;
+const usint BigInteger<uint_type,BITLENGTH>::m_numDigitInPrintval = BITLENGTH/cpu_int::LOG2_10;
 
 //constant static member variable initialization of m_logUintBitLength which is equal to log of number of bits in the unit data type
 //permitted values: 3,4,5
 template<typename uint_type,usint BITLENGTH>
-const uschar BigBinaryInteger<uint_type,BITLENGTH>::m_logUintBitLength = LogDtype<uint_type>::value;
+const uschar BigInteger<uint_type,BITLENGTH>::m_logUintBitLength = LogDtype<uint_type>::value;
 
 //constant static member variable initialization of m_nSize which is size of the array of unit data type
 template<typename uint_type,usint BITLENGTH>
-const usint BigBinaryInteger<uint_type,BITLENGTH>::m_nSize = BITLENGTH%m_uintBitLength==0 ? BITLENGTH/m_uintBitLength : BITLENGTH/m_uintBitLength + 1;
+const usint BigInteger<uint_type,BITLENGTH>::m_nSize = BITLENGTH%m_uintBitLength==0 ? BITLENGTH/m_uintBitLength : BITLENGTH/m_uintBitLength + 1;
 
 //constant static member variable initialization of m_uintMax which is maximum value of unit data type
 template<typename uint_type,usint BITLENGTH>
-const uint_type BigBinaryInteger<uint_type,BITLENGTH>::m_uintMax = std::numeric_limits<uint_type>::max();
+const uint_type BigInteger<uint_type,BITLENGTH>::m_uintMax = std::numeric_limits<uint_type>::max();
 
 // DTS:
 // this seems to be the traditional "round up to the next power of two" function, except that ceilIntByUInt(0) == 1
@@ -91,7 +91,7 @@ const uint_type BigBinaryInteger<uint_type,BITLENGTH>::m_uintMax = std::numeric_
 //
 //optimized ceiling function after division by number of bits in the interal data type.
 template<typename uint_type,usint BITLENGTH>
-uint_type BigBinaryInteger<uint_type,BITLENGTH>::ceilIntByUInt(const uint_type Number){
+uint_type BigInteger<uint_type,BITLENGTH>::ceilIntByUInt(const uint_type Number){
 	//mask to perform bitwise AND
 	//static uint_type mask = m_uintBitLength-1;
 	uint_type mask = m_uintBitLength - 1;
@@ -106,7 +106,7 @@ uint_type BigBinaryInteger<uint_type,BITLENGTH>::ceilIntByUInt(const uint_type N
 
 //CONSTRUCTORS
 template<typename uint_type,usint BITLENGTH>
-BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger()
+BigInteger<uint_type,BITLENGTH>::BigInteger()
 {
 	//last base-r digit set to 0
 	this->m_value[m_nSize-1] = 0;
@@ -116,7 +116,7 @@ BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger()
 }
 
 template<typename uint_type,usint BITLENGTH>
-BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger(uint64_t init){
+BigInteger<uint_type,BITLENGTH>::BigInteger(uint64_t init){
 	//setting the MSB
 	usint msb = lbcrypto::GetMSB64(init);
 
@@ -132,13 +132,13 @@ BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger(uint64_t init){
 }
 
 template<typename uint_type,usint BITLENGTH>
-BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger(const std::string& str){
+BigInteger<uint_type,BITLENGTH>::BigInteger(const std::string& str){
 	//setting the array values from the string
 	AssignVal(str);
 }
 
 template<typename uint_type,usint BITLENGTH>
-BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger(const BigBinaryInteger& bigInteger){
+BigInteger<uint_type,BITLENGTH>::BigInteger(const BigInteger& bigInteger){
 	m_MSB = bigInteger.m_MSB;
 	//copy array values
 	for (size_t i=0; i < m_nSize; ++i) {
@@ -147,21 +147,21 @@ BigBinaryInteger<uint_type,BITLENGTH>::BigBinaryInteger(const BigBinaryInteger& 
 }
 
 template<typename uint_type,usint BITLENGTH>
-unique_ptr<BigBinaryInteger<uint_type,BITLENGTH>> BigBinaryInteger<uint_type,BITLENGTH>::Allocator() {
-	return lbcrypto::make_unique<cpu_int::BigBinaryInteger<uint_type,BITLENGTH>>();
+unique_ptr<BigInteger<uint_type,BITLENGTH>> BigInteger<uint_type,BITLENGTH>::Allocator() {
+	return lbcrypto::make_unique<cpu_int::BigInteger<uint_type,BITLENGTH>>();
 };
 
 template<typename uint_type,usint BITLENGTH>
-BigBinaryInteger<uint_type,BITLENGTH>::~BigBinaryInteger()
+BigInteger<uint_type,BITLENGTH>::~BigInteger()
 {	
 }
 
 /*
-*Converts the BigBinaryInteger to unsigned integer or returns the first 32 bits of the BigBinaryInteger.
-*Splits the BigBinaryInteger into bit length of uint data type and then uses shift and add to form the 32 bit unsigned integer.
+*Converts the BigInteger to unsigned integer or returns the first 32 bits of the BigInteger.
+*Splits the BigInteger into bit length of uint data type and then uses shift and add to form the 32 bit unsigned integer.
 */
 template<typename uint_type, usint BITLENGTH>
-uint64_t BigBinaryInteger<uint_type, BITLENGTH>::ConvertToInt() const{
+uint64_t BigInteger<uint_type, BITLENGTH>::ConvertToInt() const{
 	uint64_t result = 0;
 
 	//set num to number of equisized chunks
@@ -181,14 +181,14 @@ uint64_t BigBinaryInteger<uint_type, BITLENGTH>::ConvertToInt() const{
 	return result;
 }
 
-//Converts the BigBinaryInteger to double using the std library functions.
+//Converts the BigInteger to double using the std library functions.
 template<typename uint_type, usint BITLENGTH>
-double BigBinaryInteger<uint_type,BITLENGTH>::ConvertToDouble() const{
+double BigInteger<uint_type,BITLENGTH>::ConvertToDouble() const{
 	return std::stod(this->ToString());
 }
 
 template<typename uint_type,usint BITLENGTH>
-const BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENGTH>::operator=(const BigBinaryInteger &rhs){
+const BigInteger<uint_type,BITLENGTH>&  BigInteger<uint_type,BITLENGTH>::operator=(const BigInteger &rhs){
 
 	if(this!=&rhs){
 	    this->m_MSB = rhs.m_MSB;
@@ -208,12 +208,12 @@ const BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENG
 *   Shifting is done by using bit shift operations and carry over propagation.
 */
 template<typename uint_type,usint BITLENGTH>
-BigBinaryInteger<uint_type,BITLENGTH>  BigBinaryInteger<uint_type,BITLENGTH>::operator<<(usshort shift) const{
+BigInteger<uint_type,BITLENGTH>  BigInteger<uint_type,BITLENGTH>::operator<<(usshort shift) const{
 
 	if(this->m_MSB==0)
-		return BigBinaryInteger(ZERO);
+		return BigInteger(ZERO);
 
-	BigBinaryInteger ans(*this);
+	BigInteger ans(*this);
 	//check for OVERFLOW
 	if((ans.m_MSB+shift) > BITLENGTH )
 		throw std::logic_error("OVERFLOW");
@@ -267,7 +267,7 @@ BigBinaryInteger<uint_type,BITLENGTH>  BigBinaryInteger<uint_type,BITLENGTH>::op
 *   Shifting is done by using bit shift operations and carry over propagation.
 */
 template<typename uint_type,usint BITLENGTH>
-const BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENGTH>::operator<<=(usshort shift){
+const BigInteger<uint_type,BITLENGTH>&  BigInteger<uint_type,BITLENGTH>::operator<<=(usshort shift){
 
 	if(this->m_MSB==0)
 		return *this;
@@ -327,14 +327,14 @@ const BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENG
 *   Shifting is done by using bit shift operations and carry over propagation.
 */
 template<typename uint_type,usint BITLENGTH>
-BigBinaryInteger<uint_type,BITLENGTH>  BigBinaryInteger<uint_type,BITLENGTH>::operator>>(usshort shift) const{
+BigInteger<uint_type,BITLENGTH>  BigInteger<uint_type,BITLENGTH>::operator>>(usshort shift) const{
 
 	//trivial cases
 	if(this->m_MSB==0 || this->m_MSB <= shift)
-		return BigBinaryInteger(0);
+		return BigInteger(0);
 	 
 	
-	BigBinaryInteger ans(*this);
+	BigInteger ans(*this);
 	//no of array shifts
 	usint shiftByUint = shift>>m_logUintBitLength;
 	//no of bit shifts
@@ -397,7 +397,7 @@ BigBinaryInteger<uint_type,BITLENGTH>  BigBinaryInteger<uint_type,BITLENGTH>::op
 *   Shifting is done by using bit shift operations and carry over propagation.
 */
 template<typename uint_type,usint BITLENGTH>
-BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENGTH>::operator>>=(usshort shift){
+BigInteger<uint_type,BITLENGTH>&  BigInteger<uint_type,BITLENGTH>::operator>>=(usshort shift){
 
 	if(this->m_MSB==0 )
 		return *this;
@@ -463,7 +463,7 @@ BigBinaryInteger<uint_type,BITLENGTH>&  BigBinaryInteger<uint_type,BITLENGTH>::o
 
 
 template<typename uint_type,usint BITLENGTH>
-void BigBinaryInteger<uint_type,BITLENGTH>::PrintLimbsInDec() const{
+void BigInteger<uint_type,BITLENGTH>::PrintLimbsInDec() const{
 
 	sint i= m_MSB%m_uintBitLength==0&&m_MSB!=0? m_MSB/m_uintBitLength:(sint)m_MSB/m_uintBitLength +1;
 	for(i=m_nSize-i;i<m_nSize;i++)//actual
@@ -474,7 +474,7 @@ void BigBinaryInteger<uint_type,BITLENGTH>::PrintLimbsInDec() const{
 }
 
 template<typename uint_type,usint BITLENGTH>
-void BigBinaryInteger<uint_type,BITLENGTH>::PrintLimbsInHex() const{
+void BigInteger<uint_type,BITLENGTH>::PrintLimbsInHex() const{
 
 	usint i= m_MSB%m_uintBitLength==0&&m_MSB!=0? m_MSB/m_uintBitLength:(sint)m_MSB/m_uintBitLength +1;
 	for(i=m_nSize-i;i<m_nSize;i++)//actual
@@ -492,12 +492,12 @@ void BigBinaryInteger<uint_type,BITLENGTH>::PrintLimbsInHex() const{
  * We preface with a base64 encoding of the length, followed by a sign (to delineate length from number)
  */
 template<typename uint_type,usint BITLENGTH>
-const std::string BigBinaryInteger<uint_type,BITLENGTH>::Serialize(const BigBinaryInteger& modulus) const {
+const std::string BigInteger<uint_type,BITLENGTH>::Serialize(const BigInteger& modulus) const {
 
 	// numbers go from high to low -1, -2, ... +modulus/2, modulus/2 - 1, ... ,1, 0
 	bool isneg = false;
-	BigBinaryInteger signedVal;
-	if( modulus == BigBinaryInteger::ZERO || *this < modulus>>1 ) // divide by 2
+	BigInteger signedVal;
+	if( modulus == BigInteger::ZERO || *this < modulus>>1 ) // divide by 2
 		signedVal = *this;
 	else {
 		signedVal = modulus - *this;
@@ -531,7 +531,7 @@ const std::string BigBinaryInteger<uint_type,BITLENGTH>::Serialize(const BigBina
 }
 
 template<typename uint_type, usint BITLENGTH>
-const char *BigBinaryInteger<uint_type, BITLENGTH>::Deserialize(const char *str, const BigBinaryInteger& modulus){
+const char *BigInteger<uint_type, BITLENGTH>::Deserialize(const char *str, const BigInteger& modulus){
 
 	// first decode the length
 	uint32_t len = 0;
@@ -546,14 +546,14 @@ const char *BigBinaryInteger<uint_type, BITLENGTH>::Deserialize(const char *str,
 		isneg = true;
 	}
 
-	BigBinaryInteger value(0);
+	BigInteger value(0);
 
 	for( ; len > 6 ; len -= 6 ) {
-		value = (value<<6) + BigBinaryInteger(lbcrypto::base64_to_value(*str++));
+		value = (value<<6) + BigInteger(lbcrypto::base64_to_value(*str++));
 	}
 
 	if( len )
-		value = (value<<len) + BigBinaryInteger(lbcrypto::base64_to_value(*str++));
+		value = (value<<len) + BigInteger(lbcrypto::base64_to_value(*str++));
 
 	if( isneg )
 		value = (modulus - value);
@@ -565,7 +565,7 @@ const char *BigBinaryInteger<uint_type, BITLENGTH>::Deserialize(const char *str,
 
 
 template<typename uint_type,usint BITLENGTH>
-usshort BigBinaryInteger<uint_type,BITLENGTH>::GetMSB()const{
+usshort BigInteger<uint_type,BITLENGTH>::GetMSB()const{
 	return m_MSB;
 }
 
@@ -573,11 +573,11 @@ usshort BigBinaryInteger<uint_type,BITLENGTH>::GetMSB()const{
 *  Algorithm used is usual school book sum and carry-over, expect for that radix is 2^m_bitLength.
 */
 template<typename uint_type,usint BITLENGTH>
-BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Plus(const BigBinaryInteger& b) const{
+BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::Plus(const BigInteger& b) const{
 	
 	//two operands A and B for addition, A is the greater one, B is the smaller one
-    const BigBinaryInteger* A = NULL;
-	const BigBinaryInteger* B = NULL;
+    const BigInteger* A = NULL;
+	const BigInteger* B = NULL;
 
 	//Assignment of pointers, A assigned the higher value and B assigned the lower value
 	if(*this>b){
@@ -586,9 +586,9 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Plu
 	else {A = &b; B = this;}
 
 	if(B->m_MSB==0)
-		return BigBinaryInteger(*A);
+		return BigInteger(*A);
 
-	BigBinaryInteger result;
+	BigInteger result;
 
 	//overflow variable
 	Duint_type ofl=0;
@@ -640,17 +640,17 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Plu
 *  Algorithm used is usual school book borrow and subtract, except for that radix is 2^m_bitLength.
 */
 template<typename uint_type,usint BITLENGTH>
-BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Minus(const BigBinaryInteger& b) const{
+BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::Minus(const BigInteger& b) const{
 
 	//return 0 if b is higher than *this as there is no support for negative number
 	if(!(*this>b))
-		return BigBinaryInteger(ZERO);
+		return BigInteger(ZERO);
 
         // DTS: note: these variables are confusing. if you look close you will find (a) they are only inside the inner if block (cntr=0 is superfluous); (b) current simply equals i (neither changes after the current=i assignment); and (c) the while loop needs to check cntr >= 0 (when m_value[] == 0...)
 	int cntr=0,current=0;
 	
         // DTS: (see Plus(), above) this function uses [signed] int for endValA and endValB, unlike all the similar loops in the previous functions. (why does this combine int and sint? sure, all the values should be small, )
-	BigBinaryInteger result(*this);
+	BigInteger result(*this);
 	//array position in A to end substraction
 	volatile int endValA = m_nSize-ceilIntByUInt(this->m_MSB);
 	//array position in B to end substraction
@@ -692,9 +692,9 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Min
 *  Algorithm used is usual school book shift and add after multiplication, except for that radix is 2^m_bitLength.
 */
 template<typename uint_type,usint BITLENGTH>
-void BigBinaryInteger<uint_type, BITLENGTH>::Times(const BigBinaryInteger& b, BigBinaryInteger *ans) const {
+void BigInteger<uint_type, BITLENGTH>::Times(const BigInteger& b, BigInteger *ans) const {
 
-	//BigBinaryInteger ans;
+	//BigInteger ans;
 
 	//if one of them is zero
 	if (b.m_MSB == 0 || this->m_MSB == 0) {
@@ -717,7 +717,7 @@ void BigBinaryInteger<uint_type, BITLENGTH>::Times(const BigBinaryInteger& b, Bi
 	uint_type ceilInt = ceilIntByUInt(b.m_MSB);
 	//Multiplication is done by getting a uint_type from b and multiplying it with *this
 	//after multiplication the result is shifted and added to the final answer
-	BigBinaryInteger temp;
+	BigInteger temp;
 	for(size_t i= m_nSize-1;i>= m_nSize-ceilInt;i--){
 		this->MulIntegerByCharInPlace(b.m_value[i], &temp);
 		*ans += temp<<=( m_nSize-1-i)*m_uintBitLength;
@@ -730,9 +730,9 @@ void BigBinaryInteger<uint_type, BITLENGTH>::Times(const BigBinaryInteger& b, Bi
 
 
 template<typename uint_type,usint BITLENGTH>
-const BigBinaryInteger<uint_type,BITLENGTH>& BigBinaryInteger<uint_type,BITLENGTH>::operator+=(const BigBinaryInteger &b){
-	const BigBinaryInteger* A = NULL;//two operands A and B for addition, A is the greater one, B is the smaller one
-	const BigBinaryInteger* B = NULL;
+const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::operator+=(const BigInteger &b){
+	const BigInteger* A = NULL;//two operands A and B for addition, A is the greater one, B is the smaller one
+	const BigInteger* B = NULL;
 
 	//check for trivial cases
 	if(b.m_MSB==0){
@@ -789,7 +789,7 @@ const BigBinaryInteger<uint_type,BITLENGTH>& BigBinaryInteger<uint_type,BITLENGT
 }
 
 template<typename uint_type,usint BITLENGTH>
-const BigBinaryInteger<uint_type,BITLENGTH>& BigBinaryInteger<uint_type,BITLENGTH>::operator-=(const BigBinaryInteger &b){
+const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::operator-=(const BigInteger &b){
 	
 	if(!(*this>b)){
 		*this=ZERO;
@@ -829,24 +829,24 @@ const BigBinaryInteger<uint_type,BITLENGTH>& BigBinaryInteger<uint_type,BITLENGT
 }
 
 template<typename uint_type, usint BITLENGTH>
-BigBinaryInteger<uint_type, BITLENGTH> BigBinaryInteger<uint_type, BITLENGTH>::operator*(const BigBinaryInteger &a) const{
-// the use of pointer variable for result in Times reduces the number of BigBinaryInteger instantiations (by one)
-	BigBinaryInteger result;
+BigInteger<uint_type, BITLENGTH> BigInteger<uint_type, BITLENGTH>::operator*(const BigInteger &a) const{
+// the use of pointer variable for result in Times reduces the number of BigInteger instantiations (by one)
+	BigInteger result;
 	this->Times(a, &result);
 	return result;
 }
 
 /* Times operation:
 *  Algorithm used is usual school book multiplication.
-*  This function is used in the Multiplication of two BigBinaryInteger objects
+*  This function is used in the Multiplication of two BigInteger objects
 */
 template<typename uint_type,usint BITLENGTH>
-BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::MulIntegerByChar(uint_type b) const{
+BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::MulIntegerByChar(uint_type b) const{
 	
 	if(b==0 || this->m_MSB==0)
-		return BigBinaryInteger(ZERO);
+		return BigInteger(ZERO);
 	
-	BigBinaryInteger ans;
+	BigInteger ans;
 	//position in the array to start multiplication
 	usint endVal = m_nSize-ceilIntByUInt(m_MSB);
 	//variable to capture the overflow
@@ -871,19 +871,19 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mul
 	return ans;
 }
 
-/* Times operation: Optimized version (with reduced number of BigBinaryInteger instantiations)
+/* Times operation: Optimized version (with reduced number of BigInteger instantiations)
 *  Algorithm used is usual school book multiplication.
-*  This function is used in the Multiplication of two BigBinaryInteger objects
+*  This function is used in the Multiplication of two BigInteger objects
 */
 template<typename uint_type, usint BITLENGTH>
-void BigBinaryInteger<uint_type, BITLENGTH>::MulIntegerByCharInPlace(uint_type b, BigBinaryInteger *ans) const {
+void BigInteger<uint_type, BITLENGTH>::MulIntegerByCharInPlace(uint_type b, BigInteger *ans) const {
 
 	if (b == 0 || this->m_MSB == 0) {
 		*ans = ZERO;
 		return;
 	}
 
-	//BigBinaryInteger ans;
+	//BigInteger ans;
 	//position in the array to start multiplication
 	usint endVal = m_nSize - ceilIntByUInt(m_MSB);
 	//variable to capture the overflow
@@ -913,31 +913,31 @@ void BigBinaryInteger<uint_type, BITLENGTH>::MulIntegerByCharInPlace(uint_type b
 *  Optimization done: Uses bit shift operation for logarithmic convergence.
 */
 template<typename uint_type,usint BITLENGTH>
-BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::DividedBy(const BigBinaryInteger& b) const{
+BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::DividedBy(const BigInteger& b) const{
 	
 	//check for the 0 condition
 	if(b==ZERO)
 		throw std::logic_error("DIVISION BY ZERO");
 
 	if(b.m_MSB>this->m_MSB)
-		return BigBinaryInteger(ZERO);
+		return BigInteger(ZERO);
 	else if(b==*this)
-		return BigBinaryInteger(ONE);
+		return BigInteger(ONE);
 	
-	BigBinaryInteger ans;
+	BigInteger ans;
 	
 	//normalised_dividend = result*quotient
-	BigBinaryInteger normalised_dividend( this->Minus( this->Mod(b) ) );
+	BigInteger normalised_dividend( this->Minus( this->Mod(b) ) );
 	//Number of array elements in Divisor
 	uint_type ncharInDivisor = ceilIntByUInt(b.m_MSB);
 	//Number of array elements in Normalised_dividend
 	uint_type ncharInNormalised_dividend = ceilIntByUInt(normalised_dividend.m_MSB);
 	//variable to store the running dividend
-	BigBinaryInteger running_dividend;
+	BigInteger running_dividend;
 	//variable to store the running remainder
-	BigBinaryInteger runningRemainder;
-	BigBinaryInteger expectedProd;
-	BigBinaryInteger estimateFinder;
+	BigInteger runningRemainder;
+	BigInteger expectedProd;
+	BigInteger estimateFinder;
 
 	//Initialize the running dividend
 	for(usint i=0;i<ncharInDivisor;i++){
@@ -1023,16 +1023,16 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Div
 }
 
 template<typename uint_type,usint BITLENGTH>
-inline BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::operator/=(const BigBinaryInteger &b){
+inline BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::operator/=(const BigInteger &b){
     *this = *this/b;
     return *this;
   }
 
-//Initializes the array of uint_array from the string equivalent of BigBinaryInteger
+//Initializes the array of uint_array from the string equivalent of BigInteger
 //Algorithm used is repeated division by 2
 //Reference:http://pctechtips.org/convert-from-decimal-to-binary-with-recursion-in-java/
 template<typename uint_type,usint BITLENGTH>
-void BigBinaryInteger<uint_type,BITLENGTH>::AssignVal(const std::string& v){
+void BigInteger<uint_type,BITLENGTH>::AssignVal(const std::string& v){
 
 	uschar *DecValue;//array of decimal values
 	int arrSize=v.length();
@@ -1083,7 +1083,7 @@ void BigBinaryInteger<uint_type,BITLENGTH>::AssignVal(const std::string& v){
 }
 
 template<typename uint_type,usint BITLENGTH>
-void BigBinaryInteger<uint_type,BITLENGTH>::SetMSB()
+void BigInteger<uint_type,BITLENGTH>::SetMSB()
 {
 
 	m_MSB = 0;
@@ -1099,31 +1099,31 @@ void BigBinaryInteger<uint_type,BITLENGTH>::SetMSB()
 
 //guessIdx is the index of largest uint_type number in array.
 template<typename uint_type, usint BITLENGTH>
-void BigBinaryInteger<uint_type, BITLENGTH>::SetMSB(usint guessIdxChar){
+void BigInteger<uint_type, BITLENGTH>::SetMSB(usint guessIdxChar){
 
 	m_MSB = (m_nSize - guessIdxChar - 1)*m_uintBitLength;
 	m_MSB += GetMSBUint_type(m_value[guessIdxChar]);
 }
 
 template<typename uint_type, usint BITLENGTH>
-void BigBinaryInteger<uint_type, BITLENGTH>::SetValue(const std::string& str){
+void BigInteger<uint_type, BITLENGTH>::SetValue(const std::string& str){
 	AssignVal(str);
 }
 
 //Algorithm used: Repeated substraction by a multiple of modulus, which will be referred to as "Classical Modulo Reduction Algorithm"
 //Complexity: O(log(*this)-log(modulus))
 template<typename uint_type,usint BITLENGTH>
-BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod(const BigBinaryInteger& modulus) const{
+BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::Mod(const BigInteger& modulus) const{
 	//return the same value if value is less than modulus
 	if(*this<modulus){
-		return BigBinaryInteger(*this);
+		return BigInteger(*this);
 	}
 	//masking operation if modulus is 2
 	if(modulus.m_MSB==2 && modulus.m_value[m_nSize-1]==2){
 		if(this->m_value[m_nSize-1]%2==0)
-			return BigBinaryInteger(ZERO);
+			return BigInteger(ZERO);
 		else
-			return BigBinaryInteger(ONE);
+			return BigInteger(ONE);
 	}
 	
 	Duint_type initial_shift = 0;
@@ -1132,12 +1132,12 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 		initial_shift=this->m_MSB - modulus.m_MSB -1;
 
 	
-	BigBinaryInteger j = modulus<<initial_shift;
+	BigInteger j = modulus<<initial_shift;
 
 	
-	BigBinaryInteger result(*this);
+	BigInteger result(*this);
 
-	BigBinaryInteger temp;
+	BigInteger temp;
 	while(true){
 		//exit criteria
 		if(result<modulus) break;
@@ -1178,17 +1178,17 @@ http://users.belgacom.net/dhem/these/these_public.pdf (Section 2.2.4).
 We take \alpha equal to n + 3. So in our case, \mu = 2^(n + \alpha) = 2^(2*n + 3).
 Generally speaking, the value of \alpha should be \ge \gamma + 1, where \gamma + n is the number of digits in the dividend.
 We use the upper bound of dividend assuming that none of the dividends will be larger than 2^(2*n + 3). The value of \mu
-is computed by BigBinaryVector::ModMult.
+is computed by BigVector::ModMult.
 
 */
 template<typename uint_type,usint BITLENGTH>
-BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::ModBarrett(const BigBinaryInteger& modulus, const BigBinaryInteger& mu) const{
+BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModBarrett(const BigInteger& modulus, const BigInteger& mu) const{
 	
 	if(*this<modulus){
-		return BigBinaryInteger(*this);
+		return BigInteger(*this);
 	}
-	BigBinaryInteger z(*this);
-	BigBinaryInteger q(*this);
+	BigInteger z(*this);
+	BigInteger q(*this);
 
 	usint n = modulus.m_MSB;
 	usint alpha = n + 3;
@@ -1220,17 +1220,17 @@ http://users.belgacom.net/dhem/these/these_public.pdf (Section 2.2.4).
 We take \alpha equal to n + 3. So in our case, \mu = 2^(n + \alpha) = 2^(2*n + 3).
 Generally speaking, the value of \alpha should be \ge \gamma + 1, where \gamma + n is the number of digits in the dividend.
 We use the upper bound of dividend assuming that none of the dividends will be larger than 2^(2*n + 3). The value of \mu
-is computed by BigBinaryVector::ModMult.
+is computed by BigVector::ModMult.
 
 */
 template<typename uint_type, usint BITLENGTH>
-void BigBinaryInteger<uint_type, BITLENGTH>::ModBarrettInPlace(const BigBinaryInteger& modulus, const BigBinaryInteger& mu) {
+void BigInteger<uint_type, BITLENGTH>::ModBarrettInPlace(const BigInteger& modulus, const BigInteger& mu) {
 
 	if (*this<modulus) {
 		return;
 	}
 
-	BigBinaryInteger q(*this);
+	BigInteger q(*this);
 
 	usint n = modulus.m_MSB;
 	usint alpha = n + 3;
@@ -1261,14 +1261,14 @@ http://users.belgacom.net/dhem/these/these_public.pdf (Section 2.2.4).
 We take \alpha equal to n + 3. In this case, we work with an array of precomputed \mu values.
 **/
 template<typename uint_type,usint BITLENGTH>
-BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::ModBarrett(const BigBinaryInteger& modulus, const BigBinaryInteger mu_arr[BARRETT_LEVELS+1]) const{
+BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModBarrett(const BigInteger& modulus, const BigInteger mu_arr[BARRETT_LEVELS+1]) const{
 
 	if(*this<modulus){
-		BigBinaryInteger z(*this);
+		BigInteger z(*this);
 		return z;
 	}
-	BigBinaryInteger z(*this);
-	BigBinaryInteger q(*this);
+	BigInteger z(*this);
+	BigInteger q(*this);
 
 	uschar n = modulus.m_MSB;
 	//level is set to the index between 0 and BARRET_LEVELS - 1
@@ -1278,7 +1278,7 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 	uschar alpha = gamma + 3;
 	schar beta = -2;
 
-	const BigBinaryInteger& mu = mu_arr[level];
+	const BigInteger& mu = mu_arr[level];
 
 	q>>=n + beta;
 	q=q*mu;
@@ -1294,20 +1294,20 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 
 //Extended Euclid algorithm used to find the multiplicative inverse
 template<typename uint_type,usint BITLENGTH>
-BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::ModInverse(const BigBinaryInteger& modulus) const{
+BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModInverse(const BigInteger& modulus) const{
 	
-	BigBinaryInteger result;
+	BigInteger result;
 
-	std::vector<BigBinaryInteger> mods;
-	std::vector<BigBinaryInteger> quotient;
-	mods.push_back(BigBinaryInteger(modulus));
+	std::vector<BigInteger> mods;
+	std::vector<BigInteger> quotient;
+	mods.push_back(BigInteger(modulus));
 	if (*this>modulus)
 		mods.push_back(this->Mod(modulus));
 	else
-		mods.push_back(BigBinaryInteger(*this));
+		mods.push_back(BigInteger(*this));
 
-	BigBinaryInteger first(mods[0]);
-	BigBinaryInteger second(mods[1]);
+	BigInteger first(mods[0]);
+	BigInteger second(mods[1]);
 	if(mods[1]==ONE){
 		result = ONE;
 		return result;
@@ -1336,8 +1336,8 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 	}
 
 	mods.clear();
-	mods.push_back(BigBinaryInteger(ZERO));
-	mods.push_back(BigBinaryInteger(ONE));
+	mods.push_back(BigInteger(ZERO));
+	mods.push_back(BigInteger(ONE));
 
 	first = mods[0];
 	second = mods[1];
@@ -1353,7 +1353,7 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 		result = (modulus - mods.back());
 	}
 	else{
-		result = BigBinaryInteger(mods.back());
+		result = BigInteger(mods.back());
 	}
 
 	mods.clear();
@@ -1364,25 +1364,25 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 }
 
 template<typename uint_type,usint BITLENGTH>
-BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::ModAdd(const BigBinaryInteger& b, const BigBinaryInteger& modulus) const{
+BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModAdd(const BigInteger& b, const BigInteger& modulus) const{
 	return this->Plus(b).Mod(modulus);
 }
 
 //Optimized Mod Addition using ModBarrett
 template<typename uint_type,usint BITLENGTH>
-BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::ModBarrettAdd(const BigBinaryInteger& b, const BigBinaryInteger& modulus,const BigBinaryInteger mu_arr[BARRETT_LEVELS]) const{
+BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModBarrettAdd(const BigInteger& b, const BigInteger& modulus,const BigInteger mu_arr[BARRETT_LEVELS]) const{
 	return this->Plus(b).ModBarrett(modulus,mu_arr);
 }
 
 template<typename uint_type,usint BITLENGTH>
-BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::ModBarrettAdd(const BigBinaryInteger& b, const BigBinaryInteger& modulus,const BigBinaryInteger& mu) const{
+BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModBarrettAdd(const BigInteger& b, const BigInteger& modulus,const BigInteger& mu) const{
 	return this->Plus(b).ModBarrett(modulus,mu);
 }
 
 template<typename uint_type,usint BITLENGTH>
-BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::ModSub(const BigBinaryInteger& b, const BigBinaryInteger& modulus) const{
-	BigBinaryInteger* a = const_cast<BigBinaryInteger*>(this);
-	BigBinaryInteger* b_op = const_cast<BigBinaryInteger*>(&b);
+BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModSub(const BigInteger& b, const BigInteger& modulus) const{
+	BigInteger* a = const_cast<BigInteger*>(this);
+	BigInteger* b_op = const_cast<BigInteger*>(&b);
 
 	//reduce this to a value lower than modulus
 	if(*this>modulus){
@@ -1404,10 +1404,10 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 
 //Optimized Mod Substraction using ModBarrett
 template<typename uint_type,usint BITLENGTH>
-BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::ModBarrettSub(const BigBinaryInteger& b, const BigBinaryInteger& modulus,const BigBinaryInteger& mu) const{
+BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModBarrettSub(const BigInteger& b, const BigInteger& modulus,const BigInteger& mu) const{
 
-	BigBinaryInteger* a = const_cast<BigBinaryInteger*>(this);
-	BigBinaryInteger* b_op = const_cast<BigBinaryInteger*>(&b);
+	BigInteger* a = const_cast<BigInteger*>(this);
+	BigInteger* b_op = const_cast<BigInteger*>(&b);
 
 	if(*this>modulus){
 		*a = this->ModBarrett(modulus,mu);
@@ -1428,23 +1428,23 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 
 
 template<typename uint_type,usint BITLENGTH>
-BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::ModBarrettSub(const BigBinaryInteger& b, const BigBinaryInteger& modulus,const BigBinaryInteger mu_arr[BARRETT_LEVELS]) const{
+BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModBarrettSub(const BigInteger& b, const BigInteger& modulus,const BigInteger mu_arr[BARRETT_LEVELS]) const{
 
-	BigBinaryInteger* a = NULL;
-	BigBinaryInteger* b_op = NULL;
+	BigInteger* a = NULL;
+	BigInteger* b_op = NULL;
 
 	if(*this>modulus){
 		*a = this->ModBarrett(modulus,mu_arr);
 	}
 	else{
-		a = const_cast<BigBinaryInteger*>(this);
+		a = const_cast<BigInteger*>(this);
 	}
 
 	if(b>modulus){
 		*b_op = b.ModBarrett(modulus,mu_arr);
 	}
 	else{
-		b_op = const_cast<BigBinaryInteger*>(&b);
+		b_op = const_cast<BigInteger*>(&b);
 	}
 
 	if(!(*a<*b_op)){
@@ -1458,9 +1458,9 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 }
 
 template<typename uint_type,usint BITLENGTH>
-BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::ModMul(const BigBinaryInteger& b, const BigBinaryInteger& modulus) const{
-	BigBinaryInteger a(*this);
-	BigBinaryInteger bb(b);
+BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModMul(const BigInteger& b, const BigInteger& modulus) const{
+	BigInteger a(*this);
+	BigInteger bb(b);
 
 	//if a is greater than q reduce a to its mod value
 	if(a>modulus){
@@ -1506,10 +1506,10 @@ This algorithm would most like give the biggest improvement but it sets constrai
 */
 
 template<typename uint_type,usint BITLENGTH>
-BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::ModBarrettMul(const BigBinaryInteger& b, const BigBinaryInteger& modulus,const BigBinaryInteger& mu) const{
+BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModBarrettMul(const BigInteger& b, const BigInteger& modulus,const BigInteger& mu) const{
 
-	BigBinaryInteger* a  = const_cast<BigBinaryInteger*>(this);
-	BigBinaryInteger* bb = const_cast<BigBinaryInteger*>(&b);
+	BigInteger* a  = const_cast<BigInteger*>(this);
+	BigInteger* bb = const_cast<BigInteger*>(&b);
 
 	//if a is greater than q reduce a to its mod value
 	if(*this>modulus)
@@ -1555,10 +1555,10 @@ This algorithm would most like give the biggest improvement but it sets constrai
 */
 
 template<typename uint_type, usint BITLENGTH>
-void BigBinaryInteger<uint_type, BITLENGTH>::ModBarrettMulInPlace(const BigBinaryInteger& b, const BigBinaryInteger& modulus, const BigBinaryInteger& mu) {
+void BigInteger<uint_type, BITLENGTH>::ModBarrettMulInPlace(const BigInteger& b, const BigInteger& modulus, const BigInteger& mu) {
 
-	//BigBinaryInteger* a = const_cast<BigBinaryInteger*>(this);
-	BigBinaryInteger* bb = const_cast<BigBinaryInteger*>(&b);
+	//BigInteger* a = const_cast<BigInteger*>(this);
+	BigInteger* bb = const_cast<BigInteger*>(&b);
 
 	//if a is greater than q reduce a to its mod value
 	if (*this>modulus)
@@ -1579,21 +1579,21 @@ void BigBinaryInteger<uint_type, BITLENGTH>::ModBarrettMulInPlace(const BigBinar
 
 
 template<typename uint_type,usint BITLENGTH>
-BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::ModBarrettMul(const BigBinaryInteger& b, const BigBinaryInteger& modulus,const BigBinaryInteger mu_arr[BARRETT_LEVELS]) const{
-	BigBinaryInteger* a  = NULL;
-	BigBinaryInteger* bb = NULL;
+BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModBarrettMul(const BigInteger& b, const BigInteger& modulus,const BigInteger mu_arr[BARRETT_LEVELS]) const{
+	BigInteger* a  = NULL;
+	BigInteger* bb = NULL;
 
 	//if a is greater than q reduce a to its mod value
 	if(*this>modulus)
 		*a = this->ModBarrett(modulus,mu_arr);
 	else
-		a = const_cast<BigBinaryInteger*>(this);
+		a = const_cast<BigInteger*>(this);
 
 	//if b is greater than q reduce b to its mod value
 	if(b>modulus)
 		*bb = b.ModBarrett(modulus,mu_arr);
 	else
-		bb = const_cast<BigBinaryInteger*>(&b);
+		bb = const_cast<BigInteger*>(&b);
 
 	//return a*b%q
 
@@ -1603,36 +1603,36 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 //Modular Multiplication using Square and Multiply Algorithm
 //reference:http://guan.cse.nsysu.edu.tw/note/expn.pdf
 template<typename uint_type,usint BITLENGTH>
-BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::ModExp(const BigBinaryInteger& b, const BigBinaryInteger& modulus) const{
+BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModExp(const BigInteger& b, const BigInteger& modulus) const{
 
 	#ifdef DEBUG_MODEXP
 		std::cout<<*this<<std::endl<<b<<std::endl<<modulus<<std::endl;
 	#endif
 
 	//mid is intermidiate value that calculates mid^2%q
-	BigBinaryInteger mid = this->Mod(modulus);	
+	BigInteger mid = this->Mod(modulus);	
 
 	#ifdef DEBUG_MODEXP
 		std::cout<<mid<<"  mid"<<std::endl;
 	#endif
 
 	//product calculates the running product of mod values
-	BigBinaryInteger product(ONE);
+	BigInteger product(ONE);
 
 	#ifdef DEBUG_MODEXP
 		std::cout<<*product<<"  product"<<std::endl;
 	#endif
 	//Exp is used for spliting b to bit values/ bit extraction
-	BigBinaryInteger Exp(b);
+	BigInteger Exp(b);
 
 	#ifdef DEBUG_MODEXP
 		std::cout<<Exp<<"  Exp"<<std::endl;
 	#endif
 
 	//Precompute the Barrett mu parameter
-	BigBinaryInteger temp(BigBinaryInteger::ONE);
+	BigInteger temp(BigInteger::ONE);
 	temp <<= 2 * modulus.GetMSB() + 3;
-	BigBinaryInteger mu = temp.DividedBy(modulus);
+	BigInteger mu = temp.DividedBy(modulus);
 
 	while(true){
 
@@ -1674,18 +1674,18 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 }
 
 template<typename uint_type,usint BITLENGTH>
-const std::string BigBinaryInteger<uint_type,BITLENGTH>::ToString() const{
+const std::string BigInteger<uint_type,BITLENGTH>::ToString() const{
 
-	//this string object will store this BigBinaryInteger's value
+	//this string object will store this BigInteger's value
 	std::string bbiString;
 
 	//create reference for the object to be printed
-	//BigBinaryInteger<uint_type,BITLENGTH> *print_obj;
+	//BigInteger<uint_type,BITLENGTH> *print_obj;
 
 	usint counter;
 
 	//initiate to object to be printed
-	//print_obj = new BigBinaryInteger<uint_type,BITLENGTH>(*this);
+	//print_obj = new BigInteger<uint_type,BITLENGTH>(*this);
 
 	//print_obj->PrintLimbsInDec();
 
@@ -1700,10 +1700,10 @@ const std::string BigBinaryInteger<uint_type,BITLENGTH>::ToString() const{
 	for(size_t i=this->m_MSB;i>0;i--){
 
 		//print_VALUE = print_VALUE*2
-		BigBinaryInteger<uint_type,BITLENGTH>::double_bitVal(print_VALUE);	
+		BigInteger<uint_type,BITLENGTH>::double_bitVal(print_VALUE);	
 
 		//adds the bit value to the print_VALUE
-		BigBinaryInteger<uint_type,BITLENGTH>::add_bitVal(print_VALUE,this->GetBitAtIndex(i));
+		BigInteger<uint_type,BITLENGTH>::add_bitVal(print_VALUE,this->GetBitAtIndex(i));
 
 
 	}
@@ -1713,7 +1713,7 @@ const std::string BigBinaryInteger<uint_type,BITLENGTH>::ToString() const{
 		if((sint)print_VALUE[counter]!=0)break;							
 	}
 
-	//append this BigBinaryInteger's digits to this method's returned string object
+	//append this BigInteger's digits to this method's returned string object
 	for (; counter < m_numDigitInPrintval; counter++) {
 		bbiString += std::to_string(print_VALUE[counter]);
 	}
@@ -1726,10 +1726,10 @@ const std::string BigBinaryInteger<uint_type,BITLENGTH>::ToString() const{
 
 }
 
-//Compares the current object with the BigBinaryInteger a.
+//Compares the current object with the BigInteger a.
 //Uses MSB comparision to output requisite value.
 template<typename uint_type,usint BITLENGTH>
-sint BigBinaryInteger<uint_type,BITLENGTH>::Compare(const BigBinaryInteger& a) const
+sint BigInteger<uint_type,BITLENGTH>::Compare(const BigInteger& a) const
 {
 
 	if(this->m_MSB<a.m_MSB)
@@ -1751,7 +1751,7 @@ sint BigBinaryInteger<uint_type,BITLENGTH>::Compare(const BigBinaryInteger& a) c
 }
 
 template<typename uint_type,usint BITLENGTH>
-bool BigBinaryInteger<uint_type,BITLENGTH>::operator==(const BigBinaryInteger& a) const{
+bool BigInteger<uint_type,BITLENGTH>::operator==(const BigInteger& a) const{
 
 	if(this->m_MSB!=a.m_MSB)
 		return false;
@@ -1766,7 +1766,7 @@ bool BigBinaryInteger<uint_type,BITLENGTH>::operator==(const BigBinaryInteger& a
 }
 
 template<typename uint_type,usint BITLENGTH>
-bool BigBinaryInteger<uint_type,BITLENGTH>::CheckIfPowerOfTwo(const BigBinaryInteger& m_numToCheck){
+bool BigInteger<uint_type,BITLENGTH>::CheckIfPowerOfTwo(const BigInteger& m_numToCheck){
 	usint m_MSB = m_numToCheck.m_MSB;
 	for(int i=m_MSB-1;i>0;i--){
 		if((sint)m_numToCheck.GetBitAtIndex(i)==(sint)1){
@@ -1777,12 +1777,12 @@ bool BigBinaryInteger<uint_type,BITLENGTH>::CheckIfPowerOfTwo(const BigBinaryInt
 }
 
 template<typename uint_type,usint BITLENGTH>
-bool BigBinaryInteger<uint_type,BITLENGTH>::operator!=(const BigBinaryInteger& a)const{
+bool BigInteger<uint_type,BITLENGTH>::operator!=(const BigInteger& a)const{
 	return !(*this==a);
 }
 
 template<typename uint_type,usint BITLENGTH>
-bool BigBinaryInteger<uint_type,BITLENGTH>::operator>(const BigBinaryInteger& a)const{
+bool BigInteger<uint_type,BITLENGTH>::operator>(const BigInteger& a)const{
 
 	if(this->m_MSB<a.m_MSB)
 		return false;
@@ -1802,12 +1802,12 @@ bool BigBinaryInteger<uint_type,BITLENGTH>::operator>(const BigBinaryInteger& a)
 }
 
 template<typename uint_type,usint BITLENGTH>
-bool BigBinaryInteger<uint_type,BITLENGTH>::operator>=(const BigBinaryInteger& a) const{
+bool BigInteger<uint_type,BITLENGTH>::operator>=(const BigInteger& a) const{
 	return (*this>a || *this==a);
 }
 
 template<typename uint_type,usint BITLENGTH>
-bool BigBinaryInteger<uint_type,BITLENGTH>::operator<(const BigBinaryInteger& a) const{
+bool BigInteger<uint_type,BITLENGTH>::operator<(const BigInteger& a) const{
 
 	if(this->m_MSB<a.m_MSB)
 		return true;
@@ -1828,17 +1828,17 @@ bool BigBinaryInteger<uint_type,BITLENGTH>::operator<(const BigBinaryInteger& a)
 }
 
 template<typename uint_type,usint BITLENGTH>
-bool BigBinaryInteger<uint_type,BITLENGTH>::operator<=(const BigBinaryInteger& a) const{
+bool BigInteger<uint_type,BITLENGTH>::operator<=(const BigInteger& a) const{
 	return (*this<a || *this==a);
 }
 
 template<typename uint_type,usint BITLENGTH>
-usint BigBinaryInteger<uint_type,BITLENGTH>::GetMSBUint_type(uint_type x){
+usint BigInteger<uint_type,BITLENGTH>::GetMSBUint_type(uint_type x){
 	return lbcrypto::GetMSB64(x);
 }
 
 template<typename uint_type,usint BITLENGTH>
-usint BigBinaryInteger<uint_type,BITLENGTH>::GetDigitAtIndexForBase(usint index, usint base) const{
+usint BigInteger<uint_type,BITLENGTH>::GetDigitAtIndexForBase(usint index, usint base) const{
 
 	usint digit = 0;
 	usint newIndex = index;
@@ -1852,9 +1852,9 @@ usint BigBinaryInteger<uint_type,BITLENGTH>::GetDigitAtIndexForBase(usint index,
 }
 
 template<typename uint_type, usint BITLENGTH>
-BigBinaryInteger<uint_type, BITLENGTH> BigBinaryInteger<uint_type, BITLENGTH>::BinaryStringToBigBinaryInt(const std::string& bitString) {
+BigInteger<uint_type, BITLENGTH> BigInteger<uint_type, BITLENGTH>::BitStringToBigInteger(const std::string& bitString) {
 
-	BigBinaryInteger value;
+	BigInteger value;
 	usint len = bitString.length();
 	usint cntr = ceilIntByUInt(len);
 	std::string val;
@@ -1893,19 +1893,19 @@ BigBinaryInteger<uint_type, BITLENGTH> BigBinaryInteger<uint_type, BITLENGTH>::B
 
 //Recursive Exponentiation function
 template<typename uint_type,usint BITLENGTH>
-BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Exp(usint p) const{
-	if (p == 0) return BigBinaryInteger(BigBinaryInteger::ONE);
-	BigBinaryInteger x(*this);
+BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::Exp(usint p) const{
+	if (p == 0) return BigInteger(BigInteger::ONE);
+	BigInteger x(*this);
   	if (p == 1) return x;
 
-	BigBinaryInteger tmp = x.Exp(p/2);
+	BigInteger tmp = x.Exp(p/2);
 	if (p%2 == 0) return tmp * tmp;
 	else return tmp * tmp * x;
 }
 
 template<typename uint_type, usint BITLENGTH>
-BigBinaryInteger<uint_type, BITLENGTH> BigBinaryInteger<uint_type, BITLENGTH>::MultiplyAndRound(const BigBinaryInteger &p, const BigBinaryInteger &q) const {
-	BigBinaryInteger ans(*this);
+BigInteger<uint_type, BITLENGTH> BigInteger<uint_type, BITLENGTH>::MultiplyAndRound(const BigInteger &p, const BigInteger &q) const {
+	BigInteger ans(*this);
 	ans = ans*p;
 	ans = ans.DivideAndRound(q);
 
@@ -1913,39 +1913,39 @@ BigBinaryInteger<uint_type, BITLENGTH> BigBinaryInteger<uint_type, BITLENGTH>::M
 }
 
 template<typename uint_type, usint BITLENGTH>
-BigBinaryInteger<uint_type, BITLENGTH> BigBinaryInteger<uint_type, BITLENGTH>::DivideAndRound(const BigBinaryInteger &q) const {
+BigInteger<uint_type, BITLENGTH> BigInteger<uint_type, BITLENGTH>::DivideAndRound(const BigInteger &q) const {
 
 	//check for garbage initialization and 0 condition
 	if (q == ZERO)
 		throw std::logic_error("DIVISION BY ZERO");
 
-	BigBinaryInteger halfQ(q>>1);
+	BigInteger halfQ(q>>1);
 	//std::cout<< "halfq "<<halfQ.ToString()<<std::endl;
 
 	if (*this < q) {
 		if (*this <= halfQ)
-			return BigBinaryInteger(ZERO);
+			return BigInteger(ZERO);
 		else
-			return BigBinaryInteger(ONE);
+			return BigInteger(ONE);
 	}
 
 	//std::cout<< "*this "<<this->ToString()<<std::endl;
 	//std::cout<< "q "<<q.ToString()<<std::endl;
 
-	BigBinaryInteger ans;
+	BigInteger ans;
 
 	//normalised_dividend = result*quotient
-	BigBinaryInteger normalised_dividend(*this);
+	BigInteger normalised_dividend(*this);
 	//Number of array elements in Divisor
 	uint_type ncharInDivisor = ceilIntByUInt(q.m_MSB);
 	//Number of array elements in Normalised_dividend
 	uint_type ncharInNormalised_dividend = ceilIntByUInt(normalised_dividend.m_MSB);
 	//variable to store the running dividend
-	BigBinaryInteger running_dividend;
+	BigInteger running_dividend;
 	//variable to store the running remainder
-	BigBinaryInteger runningRemainder;
-	BigBinaryInteger expectedProd;
-	BigBinaryInteger estimateFinder;
+	BigInteger runningRemainder;
+	BigInteger expectedProd;
+	BigInteger estimateFinder;
 
 	//Initialize the running dividend
 	for (usint i = 0; i<ncharInDivisor; i++) {
@@ -2043,13 +2043,13 @@ BigBinaryInteger<uint_type, BITLENGTH> BigBinaryInteger<uint_type, BITLENGTH>::D
 }
 
 template<typename uint_type,usint BITLENGTH>
-usint BigBinaryInteger<uint_type,BITLENGTH>::GetMSBDUint_type(Duint_type x){
+usint BigInteger<uint_type,BITLENGTH>::GetMSBDUint_type(Duint_type x){
 	return lbcrypto::GetMSB64(x);
 }
 
 //Algoritm used is shift and add
 template<typename uint_type,usint BITLENGTH>
- uint_type BigBinaryInteger<uint_type,BITLENGTH>::UintInBinaryToDecimal(uschar *a){
+ uint_type BigInteger<uint_type,BITLENGTH>::UintInBinaryToDecimal(uschar *a){
 	 uint_type Val = 0;
 	 uint_type one =1;
 	 for(sint i=m_uintBitLength-1;i>=0;i--){
@@ -2064,15 +2064,15 @@ template<typename uint_type,usint BITLENGTH>
 //Algorithm used is double and add
 //http://www.wikihow.com/Convert-from-Binary-to-Decimal
 template<typename uint_type_c,usint BITLENGTH_c>
-std::ostream& operator<<(std::ostream& os, const BigBinaryInteger<uint_type_c,BITLENGTH_c>& ptr_obj){
+std::ostream& operator<<(std::ostream& os, const BigInteger<uint_type_c,BITLENGTH_c>& ptr_obj){
 
 	//create reference for the object to be printed
-	BigBinaryInteger<uint_type_c,BITLENGTH_c> *print_obj;
+	BigInteger<uint_type_c,BITLENGTH_c> *print_obj;
 
 	usint counter;
 
 	//initiate to object to be printed
-	print_obj = new BigBinaryInteger<uint_type_c,BITLENGTH_c>(ptr_obj);
+	print_obj = new BigInteger<uint_type_c,BITLENGTH_c>(ptr_obj);
 
 	//print_obj->PrintLimbsInDec();
 
@@ -2087,14 +2087,14 @@ std::ostream& operator<<(std::ostream& os, const BigBinaryInteger<uint_type_c,BI
 	for(size_t i=print_obj->m_MSB;i>0;i--){
 
 		//print_VALUE = print_VALUE*2
-		BigBinaryInteger<uint_type_c,BITLENGTH_c>::double_bitVal(print_VALUE);	
+		BigInteger<uint_type_c,BITLENGTH_c>::double_bitVal(print_VALUE);	
 #ifdef DEBUG_OSTREAM
 		for(size_t i=0;i<ptr_obj.m_numDigitInPrintval;i++)
 		 std::cout<<(sint)*(print_VALUE+i);
 		std::cout<<endl;
 #endif
 		//adds the bit value to the print_VALUE
-		BigBinaryInteger<uint_type_c,BITLENGTH_c>::add_bitVal(print_VALUE,print_obj->GetBitAtIndex(i));
+		BigInteger<uint_type_c,BITLENGTH_c>::add_bitVal(print_VALUE,print_obj->GetBitAtIndex(i));
 #ifdef DEBUG_OSTREAM
 		for(size_t i=0;i<ptr_obj.m_numDigitInPrintval;i++)
 		 std::cout<<(sint)*(print_VALUE+i);
@@ -2122,7 +2122,7 @@ std::ostream& operator<<(std::ostream& os, const BigBinaryInteger<uint_type_c,BI
 
  
  template<typename uint_type,usint BITLENGTH>
- void BigBinaryInteger<uint_type,BITLENGTH>::double_bitVal(uschar* a){
+ void BigInteger<uint_type,BITLENGTH>::double_bitVal(uschar* a){
 	
 	uschar ofl=0;
 	for(sint i=m_numDigitInPrintval-1;i>-1;i--){
@@ -2140,7 +2140,7 @@ std::ostream& operator<<(std::ostream& os, const BigBinaryInteger<uint_type_c,BI
  }
 
  template<typename uint_type,usint BITLENGTH>
- void BigBinaryInteger<uint_type,BITLENGTH>::add_bitVal(uschar* a,uschar b){
+ void BigInteger<uint_type,BITLENGTH>::add_bitVal(uschar* a,uschar b){
 	uschar ofl=0;
 	*(a+m_numDigitInPrintval-1)+=b;
 	for(sint i=m_numDigitInPrintval-1;i>-1;i--){
@@ -2155,7 +2155,7 @@ std::ostream& operator<<(std::ostream& os, const BigBinaryInteger<uint_type_c,BI
 
 
 template<typename uint_type,usint BITLENGTH>
-uschar BigBinaryInteger<uint_type,BITLENGTH>::GetBitAtIndex(usint index) const{
+uschar BigInteger<uint_type,BITLENGTH>::GetBitAtIndex(usint index) const{
 	if(index<=0){
 		std::cout<<"Invalid index \n";
 		return 0;
@@ -2175,7 +2175,7 @@ uschar BigBinaryInteger<uint_type,BITLENGTH>::GetBitAtIndex(usint index) const{
 }
 
 template<typename uint_type,usint BITLENGTH>
-uschar BigBinaryInteger<uint_type,BITLENGTH>::Get6BitsAtIndex(usint index) const{
+uschar BigInteger<uint_type,BITLENGTH>::Get6BitsAtIndex(usint index) const{
 	if(index == 0 || index > m_MSB ) {
 		return 0;
 	}
@@ -2211,19 +2211,19 @@ uschar BigBinaryInteger<uint_type,BITLENGTH>::Get6BitsAtIndex(usint index) const
 
 
 template<typename uint_type, usint BITLENGTH>
-void BigBinaryInteger<uint_type, BITLENGTH>::SetIntAtIndex(usint idx, uint_type value){
+void BigInteger<uint_type, BITLENGTH>::SetIntAtIndex(usint idx, uint_type value){
 	if (idx >= m_nSize)
 		throw std::logic_error("Index Invalid");
 	this->m_value[idx] = value;
 }
 
 /*
-	This method can be used to convert int to BigBinaryInteger
+	This method can be used to convert int to BigInteger
 */
 template<typename uint_type,usint BITLENGTH>
-BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::intToBigBinaryInteger(usint m){
+BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::intToBigInteger(usint m){
 
-	return BigBinaryInteger(m);
+	return BigInteger(m);
 
 }
 

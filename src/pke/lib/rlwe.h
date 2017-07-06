@@ -28,9 +28,9 @@
 #define LBCRYPTO_CRYPTO_RLWE_H
 
 #include "utils/serializable.h"
-#include "lattice/ilvector2n.h"
+#include "lattice/poly.h"
 #include <string>
-#include "../../core/lib/lattice/ildcrt2n.h"
+#include "../../core/lib/lattice/dcrtpoly.h"
 
 namespace lbcrypto {
 
@@ -80,7 +80,7 @@ public:
 	 */
 	LPCryptoParametersRLWE(
 			shared_ptr<typename Element::Params> params,
-			const BigBinaryInteger &plaintextModulus,
+			const BigInteger &plaintextModulus,
 			float distributionParameter,
 			float assuranceMeasure,
 			float securityLevel,
@@ -314,7 +314,7 @@ protected:
 
 		if( (pIt = mIter->value.FindMember("PlaintextModulus")) == mIter->value.MemberEnd() )
 			return false;
-		BigBinaryInteger bbiPlaintextModulus(pIt->value.GetString());
+		BigInteger bbiPlaintextModulus(pIt->value.GetString());
 
 		if( (pIt = mIter->value.FindMember("DistributionParameter")) == mIter->value.MemberEnd() )
 			return false;

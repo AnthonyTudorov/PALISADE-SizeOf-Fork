@@ -28,15 +28,15 @@
 #include "ltv.cpp"
 
 namespace lbcrypto {
-template class LPCryptoParametersLTV<ILVector2n>;
-template class LPPublicKeyEncryptionSchemeLTV<ILVector2n>;
-template class LPAlgorithmLTV<ILVector2n>;
-template class LPAlgorithmPRELTV<ILVector2n>;
-template class LPAlgorithmSHELTV<ILVector2n>;
-template class LPLeveledSHEAlgorithmLTV<ILVector2n>;
+template class LPCryptoParametersLTV<Poly>;
+template class LPPublicKeyEncryptionSchemeLTV<Poly>;
+template class LPAlgorithmLTV<Poly>;
+template class LPAlgorithmPRELTV<Poly>;
+template class LPAlgorithmSHELTV<Poly>;
+template class LPLeveledSHEAlgorithmLTV<Poly>;
 
 template <>
-bool LPAlgorithmParamsGenLTV<ILVector2n>::ParamsGen(shared_ptr<LPCryptoParameters<ILVector2n>> cryptoParams,
+bool LPAlgorithmParamsGenLTV<Poly>::ParamsGen(shared_ptr<LPCryptoParameters<Poly>> cryptoParams,
 		int32_t evalAddCount, int32_t evalMultCount, int32_t keySwitchCount) const
 {
 	return false;

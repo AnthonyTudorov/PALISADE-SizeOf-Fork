@@ -32,10 +32,10 @@
 #include "../utils/inttypes.h"
 #include "../math/backend.h"
 #include "../lattice/elemparams.h"
-#include "../lattice/ildcrt2n.h"
+#include "../lattice/dcrtpoly.h"
 #include "../lattice/ilparams.h"
 #include "../lattice/ildcrtparams.h"
-#include "../lattice/ilvector2n.h"
+#include "../lattice/poly.h"
 
 namespace lbcrypto
 {
@@ -54,22 +54,22 @@ public:
 	virtual ~Plaintext() {}
 
 	/**
-	 * Interface for the operation of converting from current plaintext encoding to ILVector2n.
+	 * Interface for the operation of converting from current plaintext encoding to Poly.
 	 *
 	 * @param  modulus - used for encoding.
 	 * @param  *ilVector encoded plaintext - output argument.
 	 * @param  start_from - location to start from.  Defaults to 0.
 	 * @param  length - length of data to encode.  Defaults to 0.
 	 */
-	virtual void Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector, size_t start_from=0, size_t length=0) const = 0;
+	virtual void Encode(const BigInteger &modulus, Poly *ilVector, size_t start_from=0, size_t length=0) const = 0;
 
 	/**
-	 * Interface for the operation of converting from ILVector2n to current plaintext encoding.
+	 * Interface for the operation of converting from Poly to current plaintext encoding.
 	 *
 	 * @param  modulus - used for encoding.
 	 * @param  *ilVector encoded plaintext - input argument.
 	 */
-	virtual void Decode(const BigBinaryInteger &modulus, ILVector2n *ilVector) = 0;
+	virtual void Decode(const BigInteger &modulus, Poly *ilVector) = 0;
 
 	/**
 	 * Interface for the operation of stripping away unneeded trailing zeros to pad out a short plaintext until one with entries
@@ -77,7 +77,7 @@ public:
 	 *
 	 * @param  &modulus - used for encoding.
 	 */
-	virtual void Unpad(const BigBinaryInteger &modulus) = 0;
+	virtual void Unpad(const BigInteger &modulus) = 0;
 
 	/**
 	 * Getter for the ChunkSize data.
@@ -86,7 +86,7 @@ public:
 	 * @param  ptm - the plaintext modulus.
 	 * @return ring - the chunk size.
 	 */
-	virtual size_t GetChunksize(const usint ring, const BigBinaryInteger& ptm) const = 0;
+	virtual size_t GetChunksize(const usint ring, const BigInteger& ptm) const = 0;
 
 	/**
 	 * Get method to return the length of plaintext
@@ -122,13 +122,13 @@ public:
 	 * @param ptm - the plaintext modulus.
 	 * @return the plaintext modulus in native type.
 	 */
-	native_int::BinaryInteger ConvertToNativeModulus(const BigBinaryInteger& ptm) {
-		static BigBinaryInteger largestNative( ~((uint64_t)0) );
+	native_int::BigInteger ConvertToNativeModulus(const BigInteger& ptm) {
+		static BigInteger largestNative( ~((uint64_t)0) );
 
 		if( ptm > largestNative )
 			throw std::logic_error("plaintext modulus of " + ptm.ToString() + " is too big to convert to a native_int integer");
 
-		return native_int::BinaryInteger( ptm.ConvertToInt() );
+		return native_int::BigInteger( ptm.ConvertToInt() );
 	}
 };
 

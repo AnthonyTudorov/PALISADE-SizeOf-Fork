@@ -423,14 +423,14 @@ void MatrixStrassen<Element>::deepCopyData(data_t const& src) {
     }
 }
 
-inline MatrixStrassen<BigBinaryInteger> Rotate(MatrixStrassen<ILVector2n> const& inMat) {
-    MatrixStrassen<ILVector2n> mat(inMat);
+inline MatrixStrassen<BigInteger> Rotate(MatrixStrassen<Poly> const& inMat) {
+    MatrixStrassen<Poly> mat(inMat);
     mat.SetFormat(COEFFICIENT);
     size_t n = mat(0,0).GetLength();
-    BigBinaryInteger const& modulus = mat(0,0).GetModulus();
+    BigInteger const& modulus = mat(0,0).GetModulus();
     size_t rows = mat.GetRows() * n;
     size_t cols = mat.GetCols() * n;
-    MatrixStrassen<BigBinaryInteger> result(BigBinaryInteger::Allocator, rows, cols);
+    MatrixStrassen<BigInteger> result(BigInteger::Allocator, rows, cols);
     for (size_t row = 0; row < mat.GetRows(); ++row) {
         for (size_t col = 0; col < mat.GetCols(); ++col) {
             for (size_t rotRow = 0; rotRow < n; ++rotRow) {
@@ -455,21 +455,21 @@ inline MatrixStrassen<BigBinaryInteger> Rotate(MatrixStrassen<ILVector2n> const&
     *  Each element becomes a square matrix with columns of that element's
     *  rotations in coefficient form.
     */
-MatrixStrassen<BigBinaryVector> RotateVecResult(MatrixStrassen<ILVector2n> const& inMat) {
-    MatrixStrassen<ILVector2n> mat(inMat);
+MatrixStrassen<BigVector> RotateVecResult(MatrixStrassen<Poly> const& inMat) {
+    MatrixStrassen<Poly> mat(inMat);
     mat.SetFormat(COEFFICIENT);
     size_t n = mat(0,0).GetLength();
-    BigBinaryInteger const& modulus = mat(0,0).GetModulus();
-    BigBinaryVector zero(1, modulus);
+    BigInteger const& modulus = mat(0,0).GetModulus();
+    BigVector zero(1, modulus);
     size_t rows = mat.GetRows() * n;
     size_t cols = mat.GetCols() * n;
-    auto singleElemBinVecAlloc = [=](){ return make_unique<BigBinaryVector>(1, modulus); };
-    MatrixStrassen<BigBinaryVector> result(singleElemBinVecAlloc, rows, cols);
+    auto singleElemBinVecAlloc = [=](){ return make_unique<BigVector>(1, modulus); };
+    MatrixStrassen<BigVector> result(singleElemBinVecAlloc, rows, cols);
     for (size_t row = 0; row < mat.GetRows(); ++row) {
         for (size_t col = 0; col < mat.GetCols(); ++col) {
             for (size_t rotRow = 0; rotRow < n; ++rotRow) {
                 for (size_t rotCol = 0; rotCol < n; ++rotCol) {
-                    BigBinaryVector& elem = result(row*n + rotRow, col*n + rotCol);
+                    BigVector& elem = result(row*n + rotRow, col*n + rotCol);
                     elem.SetValAtIndex(0,
                         mat(row, col).GetValues().GetValAtIndex(
                             (rotRow - rotCol + n) % n
@@ -543,10 +543,10 @@ MatrixStrassen<double> Cholesky(const MatrixStrassen<int32_t> &input) {
 }
 
 //  Convert from Z_q to [-q/2, q/2]
-MatrixStrassen<int32_t> ConvertToInt32(const MatrixStrassen<BigBinaryInteger> &input, const BigBinaryInteger& modulus) {
+MatrixStrassen<int32_t> ConvertToInt32(const MatrixStrassen<BigInteger> &input, const BigInteger& modulus) {
     size_t rows = input.GetRows();
     size_t cols = input.GetCols();
-    BigBinaryInteger negativeThreshold(modulus / BigBinaryInteger::TWO);
+    BigInteger negativeThreshold(modulus / BigInteger::TWO);
     MatrixStrassen<int32_t> result([](){ return make_unique<int32_t>(); }, rows, cols);
     for (size_t i = 0; i < rows; ++i) {
         for (size_t j = 0; j < cols; ++j) {
@@ -560,14 +560,14 @@ MatrixStrassen<int32_t> ConvertToInt32(const MatrixStrassen<BigBinaryInteger> &i
     return result;
 }
 
-MatrixStrassen<int32_t> ConvertToInt32(const MatrixStrassen<BigBinaryVector> &input, const BigBinaryInteger& modulus) {
+MatrixStrassen<int32_t> ConvertToInt32(const MatrixStrassen<BigVector> &input, const BigInteger& modulus) {
     size_t rows = input.GetRows();
     size_t cols = input.GetCols();
-    BigBinaryInteger negativeThreshold(modulus / BigBinaryInteger::TWO);
+    BigInteger negativeThreshold(modulus / BigInteger::TWO);
     MatrixStrassen<int32_t> result([](){ return make_unique<int32_t>(); }, rows, cols);
     for (size_t i = 0; i < rows; ++i) {
         for (size_t j = 0; j < cols; ++j) {
-            const BigBinaryInteger& elem = input(i,j).GetValAtIndex(0);
+            const BigInteger& elem = input(i,j).GetValAtIndex(0);
             if (elem > negativeThreshold) {
                 result(i,j) = -1*(modulus - elem).ConvertToInt();
             } else {
@@ -579,29 +579,29 @@ MatrixStrassen<int32_t> ConvertToInt32(const MatrixStrassen<BigBinaryVector> &in
 }
 
 //  split a vector of int32_t into a vector of ring elements with ring dimension n
-MatrixStrassen<ILVector2n> SplitInt32IntoILVector2nElements(MatrixStrassen<int32_t> const& other, size_t n, const shared_ptr<ILParams> params) {
+MatrixStrassen<Poly> SplitInt32IntoPolyElements(MatrixStrassen<int32_t> const& other, size_t n, const shared_ptr<ILParams> params) {
 			
-	auto zero_alloc = ILVector2n::MakeAllocator(params, COEFFICIENT);
+	auto zero_alloc = Poly::MakeAllocator(params, COEFFICIENT);
 
 	size_t rows = other.GetRows()/n;
 
-    MatrixStrassen<ILVector2n> result(zero_alloc, rows, 1);
+    MatrixStrassen<Poly> result(zero_alloc, rows, 1);
 
     for (size_t row = 0; row < rows; ++row) {
-		BigBinaryVector tempBBV(n,params->GetModulus());
+		BigVector tempBBV(n,params->GetModulus());
 
         for (size_t i = 0; i < n; ++i) {
-			BigBinaryInteger tempBBI;
+			BigInteger tempBBI;
 			uint32_t tempInteger;
 			if (other(row*n + i,0) < 0)
 			{
 				tempInteger = -other(row*n + i,0);
-				tempBBI = params->GetModulus() - BigBinaryInteger(tempInteger);
+				tempBBI = params->GetModulus() - BigInteger(tempInteger);
 			}
 			else
 			{
 				tempInteger = other(row*n + i,0);
-				tempBBI = BigBinaryInteger(tempInteger);
+				tempBBI = BigInteger(tempInteger);
 			}
             tempBBV.SetValAtIndex(i,tempBBI);
         }
@@ -613,31 +613,31 @@ MatrixStrassen<ILVector2n> SplitInt32IntoILVector2nElements(MatrixStrassen<int32
 }
 
 //  split a vector of BBI into a vector of ring elements with ring dimension n
-MatrixStrassen<ILVector2n> SplitInt32AltIntoILVector2nElements(MatrixStrassen<int32_t> const& other, size_t n, const shared_ptr<ILParams> params) {
+MatrixStrassen<Poly> SplitInt32AltIntoPolyElements(MatrixStrassen<int32_t> const& other, size_t n, const shared_ptr<ILParams> params) {
 			
-	auto zero_alloc = ILVector2n::MakeAllocator(params, COEFFICIENT);
+	auto zero_alloc = Poly::MakeAllocator(params, COEFFICIENT);
 
 	size_t rows = other.GetRows();
 
-    MatrixStrassen<ILVector2n> result(zero_alloc, rows, 1);
+    MatrixStrassen<Poly> result(zero_alloc, rows, 1);
 
     for (size_t row = 0; row < rows; ++row) {
 
-		BigBinaryVector tempBBV(n,params->GetModulus());
+		BigVector tempBBV(n,params->GetModulus());
 
         for (size_t i = 0; i < n; ++i) {
 
-			BigBinaryInteger tempBBI;
+			BigInteger tempBBI;
 			uint32_t tempInteger;
 			if (other(row,i) < 0)
 			{
 				tempInteger = -other(row,i);
-				tempBBI = params->GetModulus() - BigBinaryInteger(tempInteger);
+				tempBBI = params->GetModulus() - BigInteger(tempInteger);
 			}
 			else
 			{
 				tempInteger = other(row,i);
-				tempBBI = BigBinaryInteger(tempInteger);
+				tempBBI = BigInteger(tempInteger);
 			}
 
 			tempBBV.SetValAtIndex(i,tempBBI);

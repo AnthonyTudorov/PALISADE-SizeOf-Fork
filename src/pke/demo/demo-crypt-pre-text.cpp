@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
 
 	if( beVerbose ) cout << "Initializing crypto system" << endl;
 
-	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextHelper::getNewContext(parmSetName);
+	shared_ptr<CryptoContext<Poly>> cc = CryptoContextHelper::getNewContext(parmSetName);
 
 	// enable features that you wish to use
 	cc->Enable(ENCRYPTION);
@@ -164,7 +164,7 @@ int main(int argc, char *argv[])
 
 	if( beVerbose ) cout << "Running key generation" << endl;
 
-	LPKeyPair<ILVector2n> kp = cc->KeyGen();
+	LPKeyPair<Poly> kp = cc->KeyGen();
 
 	if ( !kp.good() ) {
 		cout << "Key generation failed" << endl;
@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
 	// in the resulting table
 	////////////////////////////////////////////////////////////
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertext;
 
 	if( beVerbose ) cout << "Running encryption" << endl;
 
@@ -216,7 +216,7 @@ int main(int argc, char *argv[])
 
 	if( beVerbose ) cout << "Running second key generation (used for re-encryption)" << endl;
 
-	LPKeyPair<ILVector2n> newKp = cc->KeyGen();
+	LPKeyPair<Poly> newKp = cc->KeyGen();
 
 	if ( !newKp.good() ) {
 		cout << "Key generation failed" << endl;
@@ -230,7 +230,7 @@ int main(int argc, char *argv[])
 
 	if( beVerbose ) cout << "Generating proxy re-encryption key" << endl;
 
-	shared_ptr<LPEvalKey<ILVector2n>> evalKey;
+	shared_ptr<LPEvalKey<Poly>> evalKey;
 	try {
 		evalKey = cc->ReKeyGen(newKp.publicKey, kp.secretKey);
 	} catch( std::exception& e ) {
@@ -242,7 +242,7 @@ int main(int argc, char *argv[])
 	//Perform the proxy re-encryption operation.
 	////////////////////////////////////////////////////////////
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> newCiphertext;
+	vector<shared_ptr<Ciphertext<Poly>>> newCiphertext;
 
 	if( beVerbose ) cout << "Running re-encryption" << endl;
 

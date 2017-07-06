@@ -251,14 +251,14 @@ public:
 	 *
 	 * @return
 	 */
-	const BigBinaryInteger& GetModulus() const { return params->GetElementParams()->GetModulus(); }
+	const BigInteger& GetModulus() const { return params->GetElementParams()->GetModulus(); }
 
 	/**
 	 * Get the ciphertext modulus used for this context
 	 *
 	 * @return
 	 */
-	const BigBinaryInteger& GetRootOfUnity() const { return params->GetElementParams()->GetRootOfUnity(); }
+	const BigInteger& GetRootOfUnity() const { return params->GetElementParams()->GetRootOfUnity(); }
 
 	/**
 	* KeyGen generates a key pair using this algorithm's KeyGen method
@@ -411,7 +411,7 @@ public:
 				ciphertextVec.push_back(ciphertext[ch]);
 			}
 
-			ILVector2n decrypted;
+			Poly decrypted;
 			DecryptResult result = GetEncryptionAlgorithm()->MultipartyDecryptFusion(ciphertextVec, &decrypted);
 
 			if (result.isValid == false) return result;
@@ -554,7 +554,7 @@ public:
 		if( publicKey == NULL || publicKey->GetCryptoContext() != this )
 			throw std::logic_error("key passed to Encrypt was not generated with this crypto context");
 
-		const BigBinaryInteger& ptm = publicKey->GetCryptoParameters()->GetPlaintextModulus();
+		const BigInteger& ptm = publicKey->GetCryptoParameters()->GetPlaintextModulus();
 		size_t chunkSize = plaintext.GetChunksize(publicKey->GetCryptoContext()->GetRingDimension(), ptm);
 		size_t ptSize = plaintext.GetLength();
 		size_t rounds = ptSize / chunkSize;
@@ -572,7 +572,7 @@ public:
 		if( doTiming ) start = currentDateTime();
 		for (size_t bytes = 0, i = 0; i < rounds; bytes += chunkSize, i++) {
 
-			ILVector2n pt(publicKey->GetCryptoParameters()->GetElementParams());
+			Poly pt(publicKey->GetCryptoParameters()->GetElementParams());
 			plaintext.Encode(ptm, &pt, bytes, chunkSize);
 
 			shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, pt, doEncryption);
@@ -613,7 +613,7 @@ public:
 		if (publicKey == NULL || publicKey->GetCryptoContext() != this)
 			throw std::logic_error("key passed to EncryptMatrix was not generated with this crypto context");
 
-		const BigBinaryInteger& ptm = publicKey->GetCryptoParameters()->GetPlaintextModulus();
+		const BigInteger& ptm = publicKey->GetCryptoParameters()->GetPlaintextModulus();
 
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
@@ -621,7 +621,7 @@ public:
 		{
 			for (size_t col = 0; col < plaintext.GetCols(); col++)
 			{
-				ILVector2n pt(publicKey->GetCryptoParameters()->GetElementParams());
+				Poly pt(publicKey->GetCryptoParameters()->GetElementParams());
 				plaintext(row,col).Encode(ptm, &pt);
 
 				shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, pt, doEncryption);
@@ -658,7 +658,7 @@ public:
 		if (publicKey == NULL || publicKey->GetCryptoContext() != this)
 			throw std::logic_error("key passed to EncryptMatrix was not generated with this crypto context");
 
-		const BigBinaryInteger& ptm = publicKey->GetCryptoParameters()->GetPlaintextModulus();
+		const BigInteger& ptm = publicKey->GetCryptoParameters()->GetPlaintextModulus();
 
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
@@ -666,7 +666,7 @@ public:
 		{
 			for (size_t col = 0; col < plaintext.GetCols(); col++)
 			{
-				ILVector2n pt(publicKey->GetCryptoParameters()->GetElementParams());
+				Poly pt(publicKey->GetCryptoParameters()->GetElementParams());
 				plaintext(row, col).Encode(ptm, &pt);
 
 				shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, pt, doEncryption);
@@ -704,7 +704,7 @@ public:
 
 		bool padded = false;
 		BytePlaintextEncoding px;
-		const BigBinaryInteger& ptm = publicKey->GetCryptoContext()->GetCryptoParameters()->GetPlaintextModulus();
+		const BigInteger& ptm = publicKey->GetCryptoContext()->GetCryptoParameters()->GetPlaintextModulus();
 		size_t chunkSize = px.GetChunksize(publicKey->GetCryptoContext()->GetRingDimension(), ptm);
 		char *ptxt = new char[chunkSize];
 
@@ -721,7 +721,7 @@ public:
 				padded = true;
 			}
 
-			ILVector2n pt(publicKey->GetCryptoParameters()->GetElementParams());
+			Poly pt(publicKey->GetCryptoParameters()->GetElementParams());
 			px.Encode(publicKey->GetCryptoParameters()->GetPlaintextModulus(), &pt, 0, chunkSize);
 
 			shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, pt, doEncryption);
@@ -776,7 +776,7 @@ public:
 			if( ciphertext[ch] == NULL || ciphertext[ch]->GetCryptoContext() != this )
 				throw std::logic_error("A ciphertext passed to Decrypt was not generated with this crypto context");
 
-			ILVector2n decrypted;
+			Poly decrypted;
 			DecryptResult result = GetEncryptionAlgorithm()->Decrypt(privateKey, ciphertext[ch], &decrypted);
 
 			if (result.isValid == false) return result;
@@ -828,14 +828,14 @@ public:
 
 				const shared_ptr<Ciphertext<Element>> ctN = (*ciphertext)(row, col).GetNumerator();
 
-				ILVector2n decryptedNumerator;
+				Poly decryptedNumerator;
 				DecryptResult resultN = GetEncryptionAlgorithm()->Decrypt(privateKey, ctN, &decryptedNumerator);
 
 				if (resultN.isValid == false) return resultN;
 
 				(*numerator)(row,col).Decode(privateKey->GetCryptoParameters()->GetPlaintextModulus(), &decryptedNumerator);
 
-				ILVector2n decryptedDenominator;
+				Poly decryptedDenominator;
 				if( (*ciphertext)(row,col).GetIntegerFlag() == true ) {
 					decryptedDenominator = decryptedNumerator.CloneParametersOnly();
 					decryptedDenominator.SetValuesToZero();
@@ -899,7 +899,7 @@ public:
 
 				const shared_ptr<Ciphertext<Element>> ctN = (*ciphertext)(row, col).GetNumerator();
 
-				ILVector2n decryptedNumerator;
+				Poly decryptedNumerator;
 				DecryptResult resultN = GetEncryptionAlgorithm()->Decrypt(privateKey, ctN, &decryptedNumerator);
 
 				if (resultN.isValid == false) return resultN;
@@ -908,7 +908,7 @@ public:
 
 				const shared_ptr<Ciphertext<Element>> ctD = (*ciphertext)(row, col).GetDenominator();
 
-				ILVector2n decryptedDenominator;
+				Poly decryptedDenominator;
 				DecryptResult resultD = GetEncryptionAlgorithm()->Decrypt(privateKey, ctD, &decryptedDenominator);
 
 				if (resultD.isValid == false) return resultD;
@@ -952,7 +952,7 @@ public:
 		while( SerializableHelper::StreamToSerialization(instream, &serObj) ) {
 			shared_ptr<Ciphertext<Element>> ct;
 			if( (ct = deserializeCiphertext(serObj)) != NULL ) {
-				ILVector2n decrypted;
+				Poly decrypted;
 				DecryptResult res = GetEncryptionAlgorithm()->Decrypt(privateKey, ct, &decrypted);
 				if( !res.isValid )
 					return;

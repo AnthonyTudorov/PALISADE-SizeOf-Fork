@@ -143,7 +143,7 @@ namespace lbcrypto {
 
 	template <class Element>
 	shared_ptr<Ciphertext<Element>> LPAlgorithmBV<Element>::Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
-		ILVector2n &ptxt, bool doEncryption) const
+		Poly &ptxt, bool doEncryption) const
 	{
 
 		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(publicKey->GetCryptoParameters());
@@ -210,7 +210,7 @@ namespace lbcrypto {
 	template <class Element>
 	DecryptResult LPAlgorithmBV<Element>::Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const shared_ptr<Ciphertext<Element>> ciphertext,
-		ILVector2n *plaintext) const
+		Poly *plaintext) const
 	{
 		const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
 		const typename Element::Integer &p = cryptoParams->GetPlaintextModulus();
@@ -221,9 +221,9 @@ namespace lbcrypto {
 
 		b.SwitchFormat();
 
-		// Interpolation is needed in the case of Double-CRT interpolation, for example, ILDCRT2n
-		// CRTInterpolate does nothing when dealing with single-CRT ring elements, such as ILVector2n
-		ILVector2n interpolatedElement = b.CRTInterpolate();
+		// Interpolation is needed in the case of Double-CRT interpolation, for example, DCRTPoly
+		// CRTInterpolate does nothing when dealing with single-CRT ring elements, such as Poly
+		Poly interpolatedElement = b.CRTInterpolate();
 		*plaintext = interpolatedElement.SignedMod(p);
 
 		return DecryptResult(plaintext->GetLength());
@@ -364,7 +364,7 @@ namespace lbcrypto {
 
 		const shared_ptr<typename Element::Params> originalKeyParams = cryptoParams->GetElementParams();
 
-		const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
+		const BigInteger &p = cryptoParams->GetPlaintextModulus();
 
 		shared_ptr<LPEvalKey<Element>> keySwitchHintRelin(new LPEvalKeyRelin<Element>(originalPrivateKey->GetCryptoContext()));
 
@@ -553,7 +553,7 @@ namespace lbcrypto {
 
 		std::vector<Element> cipherTextElements(cipherText->GetElements());
 
-		BigBinaryInteger plaintextModulus(cipherText->GetCryptoParameters()->GetPlaintextModulus());
+		BigInteger plaintextModulus(cipherText->GetCryptoParameters()->GetPlaintextModulus());
 
 		for (auto &cipherTextElement : cipherTextElements) {
 			cipherTextElement.ModReduce(plaintextModulus); // this is being done at the lattice layer. The ciphertext is mod reduced.
@@ -690,11 +690,11 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmMultipartyBV<Element>::MultipartyDecr
 
 template <class Element>
 DecryptResult LPAlgorithmMultipartyBV<Element>::MultipartyDecryptFusion(const vector<shared_ptr<Ciphertext<Element>>>& ciphertextVec,
-		ILVector2n *plaintext) const
+		Poly *plaintext) const
 {
 
 	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = ciphertextVec[0]->GetCryptoParameters();
-	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
+	const BigInteger &p = cryptoParams->GetPlaintextModulus();
 
 	const std::vector<Element> &cElem = ciphertextVec[0]->GetElements();
 	Element b = cElem[0];
@@ -707,9 +707,9 @@ DecryptResult LPAlgorithmMultipartyBV<Element>::MultipartyDecryptFusion(const ve
 
 	b.SwitchFormat();	
 
-	// Interpolation is needed in the case of Double-CRT interpolation, for example, ILVectorArray2n
-	// CRTInterpolate does nothing when dealing with single-CRT ring elements, such as ILVector2n
-	ILVector2n interpolatedElement = b.CRTInterpolate();
+	// Interpolation is needed in the case of Double-CRT interpolation, for example, DCRTPoly
+	// CRTInterpolate does nothing when dealing with single-CRT ring elements, such as Poly
+	Poly interpolatedElement = b.CRTInterpolate();
 	*plaintext = interpolatedElement.SignedMod(p);
 
 	return DecryptResult(plaintext->GetLength());

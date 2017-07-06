@@ -387,7 +387,7 @@ CryptoContextFactory<T>::genCryptoContextLTV(shared_ptr<typename T::Params> ep,
 {
 	shared_ptr<LPCryptoParametersLTV<T>> params( new LPCryptoParametersLTV<T>(
 			ep,
-			BigBinaryInteger(plaintextmodulus),
+			BigInteger(plaintextmodulus),
 			stDev,
 			assuranceMeasure,
 			securityLevel,
@@ -437,7 +437,7 @@ CryptoContextFactory<T>::genCryptoContextLTV(
 
 	usint depth = numAdds + numMults + numKeyswitches + 1;
 
-	shared_ptr<typename T::Params> ep( new typename T::Params(0, BigBinaryInteger(0), BigBinaryInteger(0)) );
+	shared_ptr<typename T::Params> ep( new typename T::Params(0, BigInteger(0), BigInteger(0)) );
 
 	shared_ptr<LPCryptoParametersLTV<T>> params( new LPCryptoParametersLTV<T>() );
 
@@ -473,7 +473,7 @@ CryptoContextFactory<T>::genCryptoContextLTV(
 
 	usint depth = numAdds + numMults + numKeyswitches + 1;
 
-	shared_ptr<typename T::Params> ep(new typename T::Params(0, BigBinaryInteger::ZERO, BigBinaryInteger::ZERO));
+	shared_ptr<typename T::Params> ep(new typename T::Params(0, BigInteger::ZERO, BigInteger::ZERO));
 
 	shared_ptr<LPCryptoParametersLTV<T>> params(new LPCryptoParametersLTV<T>());
 
@@ -503,17 +503,17 @@ CryptoContextFactory<T>::genCryptoContextFV(shared_ptr<typename T::Params> ep,
 {
 	shared_ptr<LPCryptoParametersFV<T>> params(
 			new LPCryptoParametersFV<T>(ep,
-					BigBinaryInteger(plaintextmodulus),
+					BigInteger(plaintextmodulus),
 					stDev,
 					assuranceMeasure,
 					securityLevel,
 					relinWindow,
-					BigBinaryInteger(delta),
+					BigInteger(delta),
 					mode,
-					BigBinaryInteger(bigmodulus),
-					BigBinaryInteger(bigrootofunity),
-					BigBinaryInteger(bigmodulusarb),
-					BigBinaryInteger(bigrootofunityarb),
+					BigInteger(bigmodulus),
+					BigInteger(bigrootofunity),
+					BigInteger(bigmodulusarb),
+					BigInteger(bigrootofunityarb),
 					depth) );
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeFV<T>() );
@@ -536,12 +536,12 @@ CryptoContextFactory<T>::genCryptoContextFV(shared_ptr<typename T::Params> ep,
 			assuranceMeasure,
 			securityLevel,
 			relinWindow,
-			BigBinaryInteger(delta),
+			BigInteger(delta),
 			mode,
-			BigBinaryInteger(bigmodulus),
-			BigBinaryInteger(bigrootofunity),
-			BigBinaryInteger(bigmodulusarb),
-			BigBinaryInteger(bigrootofunityarb),
+			BigInteger(bigmodulus),
+			BigInteger(bigrootofunity),
+			BigInteger(bigmodulusarb),
+			BigInteger(bigrootofunityarb),
 			depth));
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeFV<T>());
@@ -564,7 +564,7 @@ CryptoContextFactory<T>::genCryptoContextFV(
 	if( nonZeroCount > 1 )
 		throw std::logic_error("only one of (numAdds,numMults,numKeyswitches) can be nonzero in FV context constructor");
 
-	shared_ptr<typename T::Params> ep( new typename T::Params(0, BigBinaryInteger(0), BigBinaryInteger(0)) );
+	shared_ptr<typename T::Params> ep( new typename T::Params(0, BigInteger(0), BigInteger(0)) );
 
 	shared_ptr<LPCryptoParametersFV<T>> params( new LPCryptoParametersFV<T>() );
 
@@ -598,7 +598,7 @@ CryptoContextFactory<T>::genCryptoContextFV(
 	if (nonZeroCount > 1)
 		throw std::logic_error("only one of (numAdds,numMults,numKeyswitches) can be nonzero in FV context constructor");
 
-	shared_ptr<typename T::Params> ep(new typename T::Params(0, BigBinaryInteger::ZERO, BigBinaryInteger::ZERO));
+	shared_ptr<typename T::Params> ep(new typename T::Params(0, BigInteger::ZERO, BigInteger::ZERO));
 
 	shared_ptr<LPCryptoParametersFV<T>> params(new LPCryptoParametersFV<T>());
 
@@ -628,7 +628,7 @@ CryptoContextFactory<T>::genCryptoContextBV(shared_ptr<typename T::Params> ep,
 {
 	shared_ptr<LPCryptoParametersBV<T>> params( new LPCryptoParametersBV<T>(
 		ep,
-		BigBinaryInteger(plaintextmodulus),
+		BigInteger(plaintextmodulus),
 		stDev,
 		9, // assuranceMeasure,
 		1.006, // securityLevel,
@@ -672,7 +672,7 @@ CryptoContextFactory<T>::genCryptoContextStehleSteinfeld(shared_ptr<typename T::
 {
 	shared_ptr<LPCryptoParametersStehleSteinfeld<T>> params( new LPCryptoParametersStehleSteinfeld<T>(
 			ep,
-			BigBinaryInteger(plaintextmodulus),
+			BigInteger(plaintextmodulus),
 			stDev,
 			assuranceMeasure,
 			securityLevel,
@@ -711,7 +711,7 @@ shared_ptr<CryptoContext<T>>
 CryptoContextFactory<T>::genCryptoContextNull(shared_ptr<typename T::Params> ep,
 		const usint ptModulus)
 {
-	shared_ptr<LPCryptoParametersNull<T>> params( new LPCryptoParametersNull<T>(ep, BigBinaryInteger(ptModulus)) );
+	shared_ptr<LPCryptoParametersNull<T>> params( new LPCryptoParametersNull<T>(ep, BigInteger(ptModulus)) );
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeNull<T>() );
 
 	return shared_ptr<CryptoContext<T>>(new CryptoContext<T>(params, scheme));

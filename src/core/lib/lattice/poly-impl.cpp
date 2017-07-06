@@ -1,6 +1,5 @@
 /*
- * @file ildcrt2n-impl.cpp - implementation of the integer lattice with power of 2 operations
- * using double-CRT representations.
+ * @file poly-impl.cpp - implementation of the integer lattice
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -26,24 +25,38 @@
  */
 
 #include "elemparams.cpp"
-#include "ildcrtparams.cpp"
+#include "ilparams.cpp"
 #include "../encoding/encodingparams.cpp"
-#include "ilvector2n.cpp"
 #include "../math/discretegaussiangenerator.cpp"
 #include "../math/discreteuniformgenerator.cpp"
 #include "../math/binaryuniformgenerator.cpp"
 #include "../math/ternaryuniformgenerator.cpp"
-#include "ildcrt2n.cpp"
+#include "poly.cpp"
 
-// This creates all the necessary class implementations for ILDCRT2n
+// This creates all the necessary class implementations for Poly
 
-namespace lbcrypto
-{
+namespace lbcrypto {
+template class DiscreteGaussianGeneratorImpl<BigInteger,BigVector>;
+template class BinaryUniformGeneratorImpl<BigInteger,BigVector>;
+template class TernaryUniformGeneratorImpl<BigInteger,BigVector>;
+template class DiscreteUniformGeneratorImpl<BigInteger,BigVector>;
 
-template class ElemParams<native_int::BinaryInteger>;
-template class ILParamsImpl<native_int::BinaryInteger>;
-template class ILDCRTParams<BigBinaryInteger>;
-template class EncodingParamsImpl<BigBinaryInteger>;
-template class ILDCRTImpl<BigBinaryInteger, BigBinaryInteger, BigBinaryVector, ILDCRTParams<BigBinaryInteger>>;
+}
+
+namespace lbcrypto {
+template class ElemParams<BigInteger>;
+template class ILParamsImpl<BigInteger>;
+template class EncodingParamsImpl<BigInteger>;
+template class PolyImpl<BigInteger,BigInteger,BigVector,ILParams>;
+
+template<>
+PolyImpl<BigInteger,BigInteger,BigVector,ILParams>::PolyImpl(const shared_ptr<ILDCRTParams<BigInteger>> params, Format format, bool initializeElementToZero) : m_values(nullptr), m_format(format) {
+	// construct a local params out of the stuff from the DCRT Params
+	m_params.reset( new ILParams(params->GetCyclotomicOrder(), params->GetModulus(), 1));
+
+	if (initializeElementToZero) {
+		this->SetValuesToZero();
+	}
+}
 
 }

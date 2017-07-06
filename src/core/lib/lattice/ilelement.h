@@ -220,7 +220,7 @@ public:
 
 	// overloaded op= operators
 	/**
-	 * @brief Performs += operation with a BigBinaryInteger and returns the result.
+	 * @brief Performs += operation with a BigInteger and returns the result.
 	 *
 	 * @param &element is the element to add
 	 * @return is the result of the addition.
@@ -228,7 +228,7 @@ public:
 	virtual const Element& operator+=(const IntType &element) = 0;
 
 	/**
-	 * @brief Performs -= operation with a BigBinaryInteger and returns the result.
+	 * @brief Performs -= operation with a BigInteger and returns the result.
 	 *
 	 * @param &element is the element to subtract
 	 * @return is the result of the addition.
@@ -236,7 +236,7 @@ public:
 	virtual const Element& operator-=(const IntType &element) = 0;
 
 	/**
-	 * @brief Performs *= operation with a BigBinaryInteger and returns the result.
+	 * @brief Performs *= operation with a BigInteger and returns the result.
 	 *
 	 * @param &element is the element to multiply by
 	 * @return is the result of the multiplication.
@@ -306,7 +306,7 @@ public:
 	virtual std::vector<Element> BaseDecompose(usint baseBits, bool evalModeAnswer=true) const = 0;
 
 	/**
-	 * @brief Interleaves values in the ILVector2n with odd indices being all zeros.
+	 * @brief Interleaves values in the Poly with odd indices being all zeros.
 	 */
 	virtual void Decompose() = 0;
 
@@ -364,9 +364,9 @@ public:
 
 	/**
 	 * @brief ModReduce reduces the composite modulus by dropping the last modulus from the chain of moduli as well as dropping the last tower.
-	 * This is only implemented in the derived class for ILDCRT2n
+	 * This is only implemented in the derived class for DCRTPoly
 	 *
-	 *@param plaintextModulus is the plaintextModulus used for the ILDCRT2n
+	 *@param plaintextModulus is the plaintextModulus used for the DCRTPoly
 	 */
 	virtual void ModReduce(const IntType &plaintextModulus) {
 		throw std::logic_error("ModReduce is not implemented");

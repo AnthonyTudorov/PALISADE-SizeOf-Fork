@@ -37,8 +37,8 @@
 #include "../math/backend.h"
 #include "../math/nbtheory.h"
 #include "../math/distrgen.h"
-#include "../lattice/ilvector2n.h"
-#include "../lattice/ildcrt2n.h"
+#include "../lattice/poly.h"
+#include "../lattice/dcrtpoly.h"
 #include "../encoding/intplaintextencoding.h"
 #include "../encoding/packedintplaintextencoding.h"
 #include "../utils/inttypes.h"
@@ -549,7 +549,7 @@ namespace lbcrypto {
 	* @param &inMat the matrix of power-of-2 cyclotomic ring elements to be rotated
 	* @return the resulting matrix of big binary integers
     */ 
-    Matrix<BigBinaryInteger> Rotate(Matrix<ILVector2n> const& inMat);
+    Matrix<BigInteger> Rotate(Matrix<Poly> const& inMat);
 
 	/**
     *  Each element becomes a square matrix with columns of that element's
@@ -558,7 +558,7 @@ namespace lbcrypto {
 	* @param &inMat the matrix of power-of-2 cyclotomic ring elements to be rotated
 	* @return the resulting matrix of big binary integers
     */ 
-    Matrix<BigBinaryVector> RotateVecResult(Matrix<ILVector2n> const& inMat);
+    Matrix<BigVector> RotateVecResult(Matrix<Poly> const& inMat);
 
 	/**
     *  Stream output operator
@@ -585,43 +585,43 @@ namespace lbcrypto {
 	void Cholesky(const Matrix<int32_t> &input, Matrix<double> &result);
 
 	/**
-    * Convert a matrix of integers from BigBinaryInteger to int32_t
+    * Convert a matrix of integers from BigInteger to int32_t
 	* Convert from Z_q to [-q/2, q/2]
 	*
 	* @param &input the input matrix
 	* @param &modulus the ring modulus
 	* @return the resulting matrix of int32_t
     */ 
-    Matrix<int32_t> ConvertToInt32(const Matrix<BigBinaryInteger> &input, const BigBinaryInteger& modulus);
+    Matrix<int32_t> ConvertToInt32(const Matrix<BigInteger> &input, const BigInteger& modulus);
 
 	/**
-    * Convert a matrix of BigBinaryVector to int32_t
+    * Convert a matrix of BigVector to int32_t
 	* Convert from Z_q to [-q/2, q/2]
 	*
 	* @param &input the input matrix
 	* @param &modulus the ring modulus
 	* @return the resulting matrix of int32_t
     */ 
-    Matrix<int32_t> ConvertToInt32(const Matrix<BigBinaryVector> &input, const BigBinaryInteger& modulus);
+    Matrix<int32_t> ConvertToInt32(const Matrix<BigVector> &input, const BigInteger& modulus);
 
 	/**
     * Split a vector of int32_t into a vector of ring elements with ring dimension n
 	*
 	* @param &other the input matrix
 	* @param &n the ring dimension
-	* @param &params ILVector2n element params
-	* @return the resulting matrix of ILVector2n
+	* @param &params Poly element params
+	* @return the resulting matrix of Poly
     */ 
-    Matrix<ILVector2n> SplitInt32IntoILVector2nElements(Matrix<int32_t> const& other, size_t n, const shared_ptr<ILParams> params);
+    Matrix<Poly> SplitInt32IntoPolyElements(Matrix<int32_t> const& other, size_t n, const shared_ptr<ILParams> params);
 
 	/**
     * Another method for splitting a vector of int32_t into a vector of ring elements with ring dimension n
 	*
 	* @param &other the input matrix
 	* @param &n the ring dimension
-	* @param &params ILVector2n element params
-	* @return the resulting matrix of ILVector2n
+	* @param &params Poly element params
+	* @return the resulting matrix of Poly
     */ 
-    Matrix<ILVector2n> SplitInt32AltIntoILVector2nElements(Matrix<int32_t> const& other, size_t n, const shared_ptr<ILParams> params);
+    Matrix<Poly> SplitInt32AltIntoPolyElements(Matrix<int32_t> const& other, size_t n, const shared_ptr<ILParams> params);
 }
 #endif // LBCRYPTO_MATH_MATRIX_H

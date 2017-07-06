@@ -45,8 +45,8 @@
 #include <unordered_map>
 
 #include "../math/backend.h"
-#include "../lattice/ilvector2n.h"
-#include "../lattice/ildcrt2n.h"
+#include "../lattice/poly.h"
+#include "../lattice/dcrtpoly.h"
 
 #define RAPIDJSON_NO_SIZETYPEDEFINE
 

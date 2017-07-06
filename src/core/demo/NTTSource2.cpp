@@ -74,8 +74,8 @@ int main(int argc, char* argv[]){
   return 0;
 }
 
-//function to compare two BigBinaryVectors and print differing indicies
-void vec_diff(BigBinaryVector &a, BigBinaryVector &b) {
+//function to compare two BigVectors and print differing indicies
+void vec_diff(BigVector &a, BigVector &b) {
   for (usint i= 0; i < a.GetLength(); ++i){  
     if (a.GetValAtIndex(i) != b.GetValAtIndex(i)) {
       cout << "i: "<< i << endl;
@@ -91,8 +91,8 @@ void vec_diff(BigBinaryVector &a, BigBinaryVector &b) {
 
 }
 
-//function to compare two ILVector2n and print differing values
-bool clonetest(ILVector2n &a, ILVector2n &b, string name){ 
+//function to compare two Poly and print differing values
+bool clonetest(Poly &a, Poly &b, string name){ 
   if (a != b){
     cout << name <<" FAILED "<<endl;
     return true;
@@ -117,20 +117,20 @@ void test_NTT (const usint level, const usint nloop) {
   double time3br, time3bf;
 
   cout<<"testing NTT backend "<<MATHBACKEND;
-  if (BigBinaryIntegerBitLength >0)
-    cout<<" BITLENGTH "<< BigBinaryIntegerBitLength;
+  if (BigIntegerBitLength >0)
+    cout<<" BITLENGTH "<< BigIntegerBitLength;
   cout <<endl;
 
   TIC(t_total);
   TIC(t_setup);
 
 
-  BigBinaryInteger q1 ("270337"); //test case 1 smaller than 32 bits
+  BigInteger q1 ("270337"); //test case 1 smaller than 32 bits
 
   usint m = 2048;
   cout << "m=" << m << endl;
 
-  BigBinaryInteger rootOfUnity1(RootOfUnity<BigBinaryInteger>(m, q1));
+  BigInteger rootOfUnity1(RootOfUnity<BigInteger>(m, q1));
   cout << "q1 = " << q1 << endl;
   cout << "rootOfUnity1 = " << rootOfUnity1 << endl;
 
@@ -138,12 +138,12 @@ void test_NTT (const usint level, const usint nloop) {
   ILParams params1(m, q1, rootOfUnity1);
   shared_ptr<ILParams> x1p(new ILParams(params1));
 
-  ILVector2n::DugType dug1;
+  Poly::DugType dug1;
   dug1.SetModulus(q1); //random # generator to use
 
   // two vectors
-  ILVector2n x1a(dug1, x1p, Format::COEFFICIENT); 
-  ILVector2n x1b(dug1, x1p, Format::COEFFICIENT);
+  Poly x1a(dug1, x1p, Format::COEFFICIENT); 
+  Poly x1b(dug1, x1p, Format::COEFFICIENT);
 
   for (size_t ix = 0; ix < m/2; ix++){
     if (x1a.GetValues().GetValAtIndex(ix)>=q1) {
@@ -155,28 +155,28 @@ void test_NTT (const usint level, const usint nloop) {
   }
 
   //make copies to compare against
-  ILVector2n x1aClone(x1a);
-  ILVector2n x1bClone(x1b);
+  Poly x1aClone(x1a);
+  Poly x1bClone(x1b);
   cout<<"setup 1 time "<<TOC_US(t_setup)<<" usec"<<endl;
   TIC(t_setup);
   //repeat for q2;
-  BigBinaryInteger q2 ("4503599627446273");   //test case 2 32 > x> 64 bits
+  BigInteger q2 ("4503599627446273");   //test case 2 32 > x> 64 bits
 
-  BigBinaryInteger rootOfUnity2(RootOfUnity<BigBinaryInteger>(m, q2));
+  BigInteger rootOfUnity2(RootOfUnity<BigInteger>(m, q2));
   cout << "q2 = " << q2 << endl;
   cout << "rootOfUnity2 = " << rootOfUnity2 << endl;
 
   ILParams params2(m, q2, rootOfUnity2);
   shared_ptr<ILParams> x2p(new ILParams(params2));
 
-  ILVector2n::DugType dug2;
+  Poly::DugType dug2;
   dug2.SetModulus(q1); //random # generator to use
 
-  ILVector2n x2a(dug2, x2p, Format::COEFFICIENT);
-  ILVector2n x2b(dug2, x2p, Format::COEFFICIENT);
+  Poly x2a(dug2, x2p, Format::COEFFICIENT);
+  Poly x2b(dug2, x2p, Format::COEFFICIENT);
 
-  ILVector2n x2aClone(x2a);
-  ILVector2n x2bClone(x2b);
+  Poly x2aClone(x2a);
+  Poly x2bClone(x2b);
 
   cout<<"setup 2 time "<<TOC_US(t_setup)<<" usec"<<endl;
   TIC(t_setup);
@@ -184,9 +184,9 @@ void test_NTT (const usint level, const usint nloop) {
   //repeat for q3
   //note computation of root of unity for big numbers takes forever
   //hardwire this case
-  BigBinaryInteger q3("13093562431584567480052758787310396608866568184172259157933165472384535185618698219533080369303616628603546736510240284036869026183541572213314110873601");
+  BigInteger q3("13093562431584567480052758787310396608866568184172259157933165472384535185618698219533080369303616628603546736510240284036869026183541572213314110873601");
 
-  BigBinaryInteger rootOfUnity3("12023848463855649466660377440069556144464267030949365165993725942220441412632799311989973938254823071405336623315668961501139592673000297887682895033094");
+  BigInteger rootOfUnity3("12023848463855649466660377440069556144464267030949365165993725942220441412632799311989973938254823071405336623315668961501139592673000297887682895033094");
 
   cout << "q3 : "<<q3.ToString()<<endl;
   cout << "rootOfUnity3 : "<<rootOfUnity3.ToString()<<endl;
@@ -194,26 +194,26 @@ void test_NTT (const usint level, const usint nloop) {
   ILParams params3(m, q3, rootOfUnity3);
   shared_ptr<ILParams> x3p(new ILParams(params3));
 
-  ILVector2n::DugType dug3;
+  Poly::DugType dug3;
   dug3.SetModulus(q1); //random # generator to use
 
   // two vectors
-  ILVector2n x3a(dug3, x3p, Format::COEFFICIENT); 
-  ILVector2n x3b(dug3, x3p, Format::COEFFICIENT);
+  Poly x3a(dug3, x3p, Format::COEFFICIENT); 
+  Poly x3b(dug3, x3p, Format::COEFFICIENT);
 
   //make copies to compare against
-  ILVector2n x3aClone(x3a);
-  ILVector2n x3bClone(x3b);
+  Poly x3aClone(x3a);
+  Poly x3bClone(x3b);
   cout<<"setup 3 time "<<TOC_US(t_setup)<<" usec"<<endl;
 
 
   //Precomputations for FTT
   TIC(t_setup);
-  ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(rootOfUnity1, m, q1);
-  ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(rootOfUnity2, m, q2);
+  ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(rootOfUnity1, m, q1);
+  ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(rootOfUnity2, m, q2);
   cout<<"CRT 2 setup time "<<TOC_US(t_setup)<<" usec"<<endl;
   TIC(t_setup);
-  ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(rootOfUnity3, m, q3);
+  ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(rootOfUnity3, m, q3);
   cout<<"CRT 3 setup time "<<TOC_US(t_setup)<<" usec"<<endl;
 
   time1af = 0.0;

@@ -86,52 +86,52 @@ public:
 	 * @brief Method to return the initial root.
 	 * @param modulus the initial root.
 	 */
-	static BigBinaryInteger GetInitRoot(const BigBinaryInteger &modulus) {
-		native_int::BinaryInteger modulusNI(modulus.ConvertToInt());
-		return BigBinaryInteger(modulusNI.ConvertToInt());
+	static BigInteger GetInitRoot(const BigInteger &modulus) {
+		native_int::BigInteger modulusNI(modulus.ConvertToInt());
+		return BigInteger(modulusNI.ConvertToInt());
 	}
 
-	static usint GetAutomorphismGenerator(const BigBinaryInteger &modulus) { 
-		native_int::BinaryInteger modulusNI(modulus.ConvertToInt());
+	static usint GetAutomorphismGenerator(const BigInteger &modulus) { 
+		native_int::BigInteger modulusNI(modulus.ConvertToInt());
 		return m_automorphismGenerator[modulusNI];  
 	}
 
-	/** The operation of converting from current plaintext encoding to ILVector2n.
+	/** The operation of converting from current plaintext encoding to Poly.
 	*
 	* @param  modulus - used for encoding.
 	* @param  *ilVector encoded plaintext - output argument.
 	* @param  start_from - location to start from.  Defaults to 0.
 	* @param  length - length of data to encode.  Defaults to 0.
 	*/
-	void Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector, size_t start_from = 0, size_t length = 0) const;
+	void Encode(const BigInteger &modulus, Poly *ilVector, size_t start_from = 0, size_t length = 0) const;
 
 	/**
-	 * Interface for the operation of converting from current plaintext encoding to ILVector2n.
+	 * Interface for the operation of converting from current plaintext encoding to Poly.
 	 *
 	 * @param  modulus - used for encoding.
 	 * @param  *ilVector encoded plaintext - output argument.
 	 * @param  start_from - location to start from.  Defaults to 0.
 	 * @param  length - length of data to encode.  Defaults to 0.
 	*/
-	void Encode(const BigBinaryInteger &modulus, ILDCRT2n *ilVector, size_t start_from = 0, size_t length = 0) const {
-		throw std::logic_error("Encode: Packed encoding is not currently supported for ILVectorArray2n");
+	void Encode(const BigInteger &modulus, DCRTPoly *ilVector, size_t start_from = 0, size_t length = 0) const {
+		throw std::logic_error("Encode: Packed encoding is not currently supported for DCRTPoly");
 	};
 
 	/**
-	 * Interface for the operation of converting from ILVector2n to current plaintext encoding.
+	 * Interface for the operation of converting from Poly to current plaintext encoding.
 	 *
 	 * @param  modulus - used for encoding.
 	 * @param  *ilVector encoded plaintext - input argument.
 	 */
-	void Decode(const BigBinaryInteger &modulus, ILVector2n *ilVector);
+	void Decode(const BigInteger &modulus, Poly *ilVector);
 
-	/** The operation of converting from ILVectorArray2n to current plaintext encoding.
+	/** The operation of converting from DCRTPoly to current plaintext encoding.
 	*
 	* @param  modulus - used for encoding.
 	* @param  *ilVector encoded plaintext - input argument.
 	*/
-	void Decode(const BigBinaryInteger &modulus, ILDCRT2n *ilVector) {
-		throw std::logic_error("Decode: Packed encoding is not currently supported for ILVectorArray2n");
+	void Decode(const BigInteger &modulus, DCRTPoly *ilVector) {
+		throw std::logic_error("Decode: Packed encoding is not currently supported for DCRTPoly");
 	}
 
 	/**
@@ -140,7 +140,7 @@ public:
 	 *
 	 * @param  &modulus - used for encoding.
 	 */
-	void Unpad(const BigBinaryInteger &modulus) {} // a null op; no padding in int
+	void Unpad(const BigInteger &modulus) {} // a null op; no padding in int
 
 	/**
 	 * Getter for the ChunkSize data.
@@ -149,7 +149,7 @@ public:
 	 * @param  ptm - the plaintext modulus.
 	 * @return ring - the chunk size.
 	 */
-	virtual size_t GetChunksize(const usint ring, const BigBinaryInteger& ptm) const;
+	virtual size_t GetChunksize(const usint ring, const BigInteger& ptm) const;
 
 	/**
 	 * Get method to return the length of plaintext
@@ -165,7 +165,7 @@ public:
 	 * @param modulus the encoding modulus.
 	 * @param m the encoding cyclotomic order.
 	 */
-	static void SetParams(const BigBinaryInteger &modulus, usint m);
+	static void SetParams(const BigInteger &modulus, usint m);
 
 	/**
 	 * Method to compare two plaintext to test for equivalence.  This method does not test that the plaintext are of the same type.
@@ -201,15 +201,15 @@ public:
 
 private:
 	//initial root of unity for plaintext space
-	static std::map<native_int::BinaryInteger, native_int::BinaryInteger> m_initRoot;
+	static std::map<native_int::BigInteger, native_int::BigInteger> m_initRoot;
 	//modulus and root of unity to be used for Arbitrary CRT
-	static std::map<native_int::BinaryInteger, native_int::BinaryInteger> m_bigModulus;
-	static std::map<native_int::BinaryInteger, native_int::BinaryInteger> m_bigRoot;
+	static std::map<native_int::BigInteger, native_int::BigInteger> m_bigModulus;
+	static std::map<native_int::BigInteger, native_int::BigInteger> m_bigRoot;
 
 	//stores the list of primitive roots used in packing.
-	static std::map<native_int::BinaryInteger, usint> m_automorphismGenerator;
-	static std::map<native_int::BinaryInteger, std::vector<usint>> m_toCRTPerm;
-	static std::map<native_int::BinaryInteger, std::vector<usint>> m_fromCRTPerm;
+	static std::map<native_int::BigInteger, usint> m_automorphismGenerator;
+	static std::map<native_int::BigInteger, std::vector<usint>> m_toCRTPerm;
+	static std::map<native_int::BigInteger, std::vector<usint>> m_fromCRTPerm;
 
 	/**
 	* @brief Packs the slot values into aggregate plaintext space.
@@ -217,7 +217,7 @@ private:
 	* @param ring is the element containing slot values.
 	* @param modulus is the plaintext modulus used for packing.
 	*/
-	void Pack(ILVector2n *ring, const BigBinaryInteger &modulus) const;
+	void Pack(Poly *ring, const BigInteger &modulus) const;
 
 	/**
 	* @brief Unpacks the data from aggregated plaintext to slot values.
@@ -225,7 +225,7 @@ private:
 	* @param ring is the input polynomial ring in aggregate plaintext.
 	* @param modulus is the plaintext modulus used in packing operation.
 	*/
-	void Unpack(ILVector2n *ring, const BigBinaryInteger &modulus) const;
+	void Unpack(Poly *ring, const BigInteger &modulus) const;
 
 };
 

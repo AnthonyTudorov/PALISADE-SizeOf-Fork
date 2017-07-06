@@ -50,18 +50,18 @@ static std::vector<uint32_t> makeVector(int siz, int ptmi) {
 	return elem;
 }
 
-static void setup_SHE(shared_ptr<CryptoContext<ILVector2n>> cc, shared_ptr<Ciphertext<ILVector2n>>& ct1, shared_ptr<Ciphertext<ILVector2n>>& ct2) {
+static void setup_SHE(shared_ptr<CryptoContext<Poly>> cc, shared_ptr<Ciphertext<Poly>>& ct1, shared_ptr<Ciphertext<Poly>>& ct2) {
 	int nel = cc->GetCyclotomicOrder()/2;
-	const BigBinaryInteger& ptm = cc->GetCryptoParameters()->GetPlaintextModulus();
+	const BigInteger& ptm = cc->GetCryptoParameters()->GetPlaintextModulus();
 	uint32_t ptmi = ptm.ConvertToInt();
 
-	LPKeyPair<ILVector2n> kp = cc->KeyGen();
+	LPKeyPair<Poly> kp = cc->KeyGen();
 
 	IntPlaintextEncoding p1( makeVector(nel, ptmi) );
 	IntPlaintextEncoding p2( makeVector(nel, ptmi) );
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ct1V = cc->Encrypt(kp.publicKey, p1, false);
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ct2V = cc->Encrypt(kp.publicKey, p2, false);
+	vector<shared_ptr<Ciphertext<Poly>>> ct1V = cc->Encrypt(kp.publicKey, p1, false);
+	vector<shared_ptr<Ciphertext<Poly>>> ct2V = cc->Encrypt(kp.publicKey, p2, false);
 
 	cc->EvalMultKeyGen(kp.secretKey);
 
@@ -70,8 +70,8 @@ static void setup_SHE(shared_ptr<CryptoContext<ILVector2n>> cc, shared_ptr<Ciphe
 }
 
 void BM_evalAdd_SHE(benchmark::State& state) { // benchmark
-	shared_ptr<CryptoContext<ILVector2n>> cc;
-	shared_ptr<Ciphertext<ILVector2n>> ct1, ct2;
+	shared_ptr<CryptoContext<Poly>> cc;
+	shared_ptr<Ciphertext<Poly>> ct1, ct2;
 
 	if( state.thread_index == 0 ) {
 		state.PauseTiming();
@@ -84,15 +84,15 @@ void BM_evalAdd_SHE(benchmark::State& state) { // benchmark
 	}
 
 	while (state.KeepRunning()) {
-		shared_ptr<Ciphertext<ILVector2n>> ctP = cc->EvalAdd(ct1, ct2);
+		shared_ptr<Ciphertext<Poly>> ctP = cc->EvalAdd(ct1, ct2);
 	}
 }
 
 BENCHMARK_PARMS(BM_evalAdd_SHE)
 
 void BM_evalMult_SHE(benchmark::State& state) { // benchmark
-	shared_ptr<CryptoContext<ILVector2n>> cc;
-	shared_ptr<Ciphertext<ILVector2n>> ct1, ct2;
+	shared_ptr<CryptoContext<Poly>> cc;
+	shared_ptr<Ciphertext<Poly>> ct1, ct2;
 
 	if( state.thread_index == 0 ) {
 		state.PauseTiming();
@@ -105,15 +105,15 @@ void BM_evalMult_SHE(benchmark::State& state) { // benchmark
 	}
 
 	while (state.KeepRunning()) {
-		shared_ptr<Ciphertext<ILVector2n>> ctP = cc->EvalMult(ct1, ct2);
+		shared_ptr<Ciphertext<Poly>> ctP = cc->EvalMult(ct1, ct2);
 	}
 }
 
 BENCHMARK_PARMS(BM_evalMult_SHE)
 
 void BM_baseDecompose_SHE(benchmark::State& state) { // benchmark
-	shared_ptr<CryptoContext<ILVector2n>> cc;
-	shared_ptr<Ciphertext<ILVector2n>> ct1, ct2;
+	shared_ptr<CryptoContext<Poly>> cc;
+	shared_ptr<Ciphertext<Poly>> ct1, ct2;
 
 	if( state.thread_index == 0 ) {
 		state.PauseTiming();
@@ -131,7 +131,7 @@ void BM_baseDecompose_SHE(benchmark::State& state) { // benchmark
 
 	while (state.KeepRunning()) {
 		try {
-			vector<ILVector2n> ctP = ct1->GetElements()[0].BaseDecompose(2);
+			vector<Poly> ctP = ct1->GetElements()[0].BaseDecompose(2);
 		} catch( std::exception& e ) {
 			state.SkipWithError( e.what() );
 			break;

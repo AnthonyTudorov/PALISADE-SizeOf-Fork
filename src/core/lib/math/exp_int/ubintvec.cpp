@@ -498,7 +498,7 @@ template<class ubint_el_t>
 
   //new serialize and deserialise operations
   //todo: not tested
-  //currently using the same map as bigBinaryVector, execpt without modulus. 
+  //currently using the same map as bigVector, execpt without modulus. 
   //mubintvec.cpp will have attached modulus.
 
   // JSON FACILITY - Serialize Operation

@@ -34,7 +34,7 @@
 // the objects in its namespace
 
 // Selecting a math backend by defining MATHBACKEND means defining which underlying implementation
-// is the default BigBinaryInteger and BigBinaryVector
+// is the default BigInteger and BigVector
 
 // note that we #define how many bits the underlying integer can store as a guide for users of the backends
 
@@ -48,36 +48,16 @@
 // 		This backend supports arbitrary bitwidths; no memory pool is used; can grow up to RAM limitation
 //		Configurable type of underlying integer (either 32 or 64 bit)
 
-// passes all tests with UBINT_32
-// fails tests with UBINT_64
-// there is a bug in the way modulus is computed. do not use.
-
-//[ RUN      ] UTLTVBATCHING.ILVector_EVALMULT_Arb hangs
-//[ RUN      ] UTFV.ILVector2n_FV_ParamsGen_EvalMul hangs
-//[ RUN      ] UTFV.ILVector2n_FV_Optimized_Eval_Operations hangs
-//[ RUN      ] UTSHE.FV_ILVector2n_Add hangs
-//[ RUN      ] UTSHE.FV_ILVector2n_Mult hangs
-//[ RUN      ] UTStatisticalEval.FV_Eval_Lin_Regression_Int hangs
-
 // MATHBACKEND 6
 //		This uses gmp_int:: definition as default
 // 		GMP 6.1.2 / NTL 10.3.0 backend
-//passes all core tests except NTL specialized tests
-//pass all pke tests if WARN_BAD_MODULUS flag is set, not otherwise 
-//-- maybe it is not threadsafe.
-// fails
-// UTSignatureGPV.simple_sign_verify (throws in SampleC with inf mean) 
-// UTSignatureGPV.sign_verify_multiple_texts (throws GenerateInteger could not find success after repeated attempts mean is a very big negative number)
-// UTTrapdoor.TrapDoorGaussGqSampTest (throws in SampleC with inf mean)
-// UTTrapdoor.TrapDoorGaussSampTest (throws in SampleC with inf mean) 
-//UTSignatureGPV.sign_verify_multiple_keys fails
 
 // MATHBACKEND 7
 // 		This uses native_int:: as the default
 // This backend provides a maximum size of 64 bits
 
 //To select backend, please UNCOMMENT the appropriate line rather than changing the number on the
-//uncommented line (and breaking the documentation of the line)
+//uncommented line
 
 #define MATHBACKEND 2
 //#define MATHBACKEND 4
@@ -88,23 +68,18 @@
 #include "cpu_int/binint.cpp"
 #include "cpu_int/binvect.cpp"
 typedef uint32_t integral_dtype;
-static_assert(cpu_int::DataTypeChecker<integral_dtype>::value,"Data type provided is not supported in BigBinaryInteger");
+static_assert(cpu_int::DataTypeChecker<integral_dtype>::value,"Data type provided is not supported in BigInteger");
 
-	/** Define the mapping for BigBinaryInteger
-	    1500 is the maximum bit width supported by BigBinaryIntegers, large enough for most use cases
+	/** Define the mapping for BigInteger
+	    1500 is the maximum bit width supported by BigIntegeregers, large enough for most use cases
 		The bitwidth can be decreased to the least value still supporting BBI multiplications for a specific application -
 		to achieve smaller runtimes
 	**/
-#define BigBinaryIntegerBitLength 1500 //for documentation on tests
-
-namespace cpu_int {
-typedef BigBinaryInteger<integral_dtype,BigBinaryIntegerBitLength> BinaryInteger;
-typedef BigBinaryVectorImpl<BinaryInteger> BinaryVector;
-}
+#define BigIntegerBitLength 1500 //for documentation on tests
 
 ////////// for exp_int, decide if you want 32 bit or 64 bit underlying integers in the implementation
 #define UBINT_32
-//#define UBINT_64                //DONT USE THIS IT DOESNT WORK - DBC
+//#define UBINT_64
 
 #ifdef UBINT_32
 #define MATH_UBBITS	32
@@ -123,7 +98,7 @@ typedef uint64_t expdtype;
 #include "exp_int/mubintvec.h" //rings of ubints
 
 namespace exp_int {
-/** Define the mapping for ExpBigBinaryInteger (experimental) */
+/** Define the mapping for ExpBigIntegereger (experimental) */
 typedef ubint<expdtype> xubint;
 
 /** Define the mapping for Big Integer Vector */
@@ -152,8 +127,8 @@ typedef NTL::myZZ_p mubint;
 #define MATH_NATIVEBITS	64
 
 namespace native_int {
-typedef NativeInteger<uint64_t> BinaryInteger;
-typedef cpu_int::BigBinaryVectorImpl<NativeInteger<uint64_t>> BinaryVector;
+typedef NativeInteger<uint64_t> BigInteger;
+typedef cpu_int::BigVectorImpl<NativeInteger<uint64_t>> BigVector;
 }
 
 /**
@@ -164,10 +139,10 @@ namespace lbcrypto {
 
 #if MATHBACKEND == 2
 
-	typedef cpu_int::BinaryInteger BigBinaryInteger;
-	typedef cpu_int::BinaryVector BigBinaryVector;
+	typedef cpu_int::BigInteger<integral_dtype,BigIntegerBitLength> BigInteger;
+	typedef cpu_int::BigVectorImpl<BigInteger> BigVector;
 
-#define MATH_DEFBITS BigBinaryIntegerBitLength
+#define MATH_DEFBITS BigIntegerBitLength
 
 #endif
 
@@ -175,8 +150,8 @@ namespace lbcrypto {
         #ifdef UBINT_64
 	  #error MATHBACKEND 4 with UBINT_64 currently does not work do not use.
 	#endif
-	typedef exp_int::xubint BigBinaryInteger;
-	typedef exp_int::xmubintvec BigBinaryVector;
+	typedef exp_int::xubint BigInteger;
+	typedef exp_int::xmubintvec BigVector;
 
 #define MATH_DEFBITS 0
 
@@ -184,11 +159,11 @@ namespace lbcrypto {
 
 #if defined(__linux__)&& MATHBACKEND == 6
 
-	/** Define the mapping for BigBinaryInteger */
-	typedef NTL::myZZ BigBinaryInteger;
+	/** Define the mapping for BigInteger */
+	typedef NTL::myZZ BigInteger;
 	
-	/** Define the mapping for BigBinaryVector */
-        typedef NTL::myVecP<NTL::myZZ_p> BigBinaryVector;
+	/** Define the mapping for BigVector */
+        typedef NTL::myVecP<NTL::myZZ_p> BigVector;
 
 #define MATH_DEFBITS 0
 
@@ -196,19 +171,19 @@ namespace lbcrypto {
 
 #if MATHBACKEND == 7
 
-	typedef native_int::BinaryInteger BigBinaryInteger;
-	typedef native_int::BinaryVector BigBinaryVector;
+	typedef native_int::BigInteger BigInteger;
+	typedef native_int::BigVector BigVector;
 
 #define MATH_DEFBITS MATH_NATIVEBITS
 #endif
 
 	template<typename IntType> class ILParamsImpl;
-	template<typename ModType, typename IntType, typename VecType, typename ParmType> class ILVectorImpl;
+	template<typename ModType, typename IntType, typename VecType, typename ParmType> class PolyImpl;
 
-	typedef ILParamsImpl<BigBinaryInteger> ILParams;
-	typedef ILVectorImpl<BigBinaryInteger, BigBinaryInteger, BigBinaryVector, ILParams> ILVector2n;
+	typedef ILParamsImpl<BigInteger> ILParams;
+	typedef PolyImpl<BigInteger, BigInteger, BigVector, ILParams> Poly;
 
-	typedef ILParamsImpl<native_int::BinaryInteger> ILNativeParams;
+	typedef ILParamsImpl<native_int::BigInteger> ILNativeParams;
 
 } // namespace lbcrypto ends
 

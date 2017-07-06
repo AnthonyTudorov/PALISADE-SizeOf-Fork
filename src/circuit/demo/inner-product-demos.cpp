@@ -47,9 +47,9 @@ using namespace std;
 #include "circuitinput.cpp"
 
 namespace lbcrypto {
-template class CircuitGraphWithValues<ILVector2n>;
-template class CircuitNodeWithValue<ILVector2n>;
-template class CircuitObject<ILVector2n>;
+template class CircuitGraphWithValues<Poly>;
+template class CircuitNodeWithValue<Poly>;
+template class CircuitObject<Poly>;
 }
 
 int
@@ -90,16 +90,16 @@ main(int argc, char *argv[])
 		usint m = 1811;
 		usint ptm = 10400;
 
-		BigBinaryInteger modulus("147573952589676481307");
-		BigBinaryInteger rootUnity("36745553101704677056");
-		BigBinaryInteger bigModulus("178405961588244985132285746181186892047872001");
-		BigBinaryInteger bigRootUnity("115052626582232218836484393614104952128652495");
+		BigInteger modulus("147573952589676481307");
+		BigInteger rootUnity("36745553101704677056");
+		BigInteger bigModulus("178405961588244985132285746181186892047872001");
+		BigInteger bigRootUnity("115052626582232218836484393614104952128652495");
 
 		shared_ptr<ILParams> params( new ILParams(m, modulus, rootUnity, bigModulus, bigRootUnity) );
 
-		shared_ptr<LPCryptoParametersBV<ILVector2n>> cparams( new LPCryptoParametersBV<ILVector2n>(
+		shared_ptr<LPCryptoParametersBV<Poly>> cparams( new LPCryptoParametersBV<Poly>(
 				params,
-				BigBinaryInteger(ptm),
+				BigInteger(ptm),
 				stdDev,
 				assurance,
 				1.006, // securityLevel,
@@ -107,17 +107,17 @@ main(int argc, char *argv[])
 				OPTIMIZED, //Mode of noise generation
 				1) );
 
-		shared_ptr<LPPublicKeyEncryptionScheme<ILVector2n>> scheme( new LPPublicKeyEncryptionSchemeBV<ILVector2n>() );
+		shared_ptr<LPPublicKeyEncryptionScheme<Poly>> scheme( new LPPublicKeyEncryptionSchemeBV<Poly>() );
 
-		shared_ptr<CryptoContext<ILVector2n>> cc = shared_ptr<CryptoContext<ILVector2n>>( new CryptoContext<ILVector2n>(cparams, scheme) );
+		shared_ptr<CryptoContext<Poly>> cc = shared_ptr<CryptoContext<Poly>>( new CryptoContext<Poly>(cparams, scheme) );
 		cc->Enable(ENCRYPTION);
 		cc->Enable(SHE);
 
-		LPKeyPair<ILVector2n> kp = cc->KeyGen();
+		LPKeyPair<Poly> kp = cc->KeyGen();
 		cc->EvalMultKeyGen(kp.secretKey);
 		cc->EvalSumKeyGen(kp.secretKey);
 
-		PalisadeCircuit<ILVector2n>	cir(cc, driver.graph);
+		PalisadeCircuit<Poly>	cir(cc, driver.graph);
 
 		// construct matrix for first vector
 		Matrix<IntPlaintextEncoding> scalarMatrix1([](){return make_unique<IntPlaintextEncoding>();},
@@ -133,18 +133,18 @@ main(int argc, char *argv[])
 			scalarMatrix2(r,0) = { vectorOfInts[r] };
 		}
 
-		shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> A = cc->EncryptMatrix(kp.publicKey, scalarMatrix1);
-		shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> B = cc->EncryptMatrix(kp.publicKey, scalarMatrix2);
+		shared_ptr<Matrix<RationalCiphertext<Poly>>> A = cc->EncryptMatrix(kp.publicKey, scalarMatrix1);
+		shared_ptr<Matrix<RationalCiphertext<Poly>>> B = cc->EncryptMatrix(kp.publicKey, scalarMatrix2);
 
 		// evaluate in a circuit
-		CircuitIO<ILVector2n> inputs;
+		CircuitIO<Poly> inputs;
 		inputs[0] = A;
 		inputs[1] = B;
 
 		vector<TimingInfo>	times;
 		cc->StartTiming(&times);
 
-		CircuitIO<ILVector2n> outputs = cir.CircuitEval(inputs);
+		CircuitIO<Poly> outputs = cir.CircuitEval(inputs);
 
 		cc->StopTiming();
 
@@ -169,16 +169,16 @@ main(int argc, char *argv[])
 		usint m = 1559;
 		usint ptm = 512;
 
-		BigBinaryInteger modulus("144115188075962143");
-		BigBinaryInteger rootUnity("62176233231091969");
-		BigBinaryInteger bigModulus("170141183460469231731687303715884605441");
-		BigBinaryInteger bigRootUnity("145253131385025115938671309869900439301");
+		BigInteger modulus("144115188075962143");
+		BigInteger rootUnity("62176233231091969");
+		BigInteger bigModulus("170141183460469231731687303715884605441");
+		BigInteger bigRootUnity("145253131385025115938671309869900439301");
 
 		shared_ptr<ILParams> params( new ILParams(m, modulus, rootUnity, bigModulus, bigRootUnity) );
 
-		shared_ptr<LPCryptoParametersBV<ILVector2n>> cparams( new LPCryptoParametersBV<ILVector2n>(
+		shared_ptr<LPCryptoParametersBV<Poly>> cparams( new LPCryptoParametersBV<Poly>(
 				params,
-				BigBinaryInteger(ptm),
+				BigInteger(ptm),
 				stdDev,
 				assurance,
 				1.006, // securityLevel,
@@ -186,17 +186,17 @@ main(int argc, char *argv[])
 				OPTIMIZED, //Mode of noise generation
 				1) );
 
-		shared_ptr<LPPublicKeyEncryptionScheme<ILVector2n>> scheme( new LPPublicKeyEncryptionSchemeBV<ILVector2n>() );
+		shared_ptr<LPPublicKeyEncryptionScheme<Poly>> scheme( new LPPublicKeyEncryptionSchemeBV<Poly>() );
 
-		shared_ptr<CryptoContext<ILVector2n>> cc = shared_ptr<CryptoContext<ILVector2n>>( new CryptoContext<ILVector2n>(cparams, scheme) );
+		shared_ptr<CryptoContext<Poly>> cc = shared_ptr<CryptoContext<Poly>>( new CryptoContext<Poly>(cparams, scheme) );
 		cc->Enable(ENCRYPTION);
 		cc->Enable(SHE);
 
-		LPKeyPair<ILVector2n> kp = cc->KeyGen();
+		LPKeyPair<Poly> kp = cc->KeyGen();
 		cc->EvalMultKeyGen(kp.secretKey);
 		cc->EvalSumKeyGen(kp.secretKey);
 
-		PalisadeCircuit<ILVector2n>	cir(cc, driver.graph);
+		PalisadeCircuit<Poly>	cir(cc, driver.graph);
 
 		// construct bit matrix for first vector
 		Matrix<IntPlaintextEncoding> bitMatrix1([](){return make_unique<IntPlaintextEncoding>();},
@@ -214,18 +214,18 @@ main(int argc, char *argv[])
 			bitMatrix2(r,0).resize( cc->GetRingDimension() );
 		}
 
-		shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> A = cc->EncryptMatrix(kp.publicKey, bitMatrix1);
-		shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> B = cc->EncryptMatrix(kp.publicKey, bitMatrix2);
+		shared_ptr<Matrix<RationalCiphertext<Poly>>> A = cc->EncryptMatrix(kp.publicKey, bitMatrix1);
+		shared_ptr<Matrix<RationalCiphertext<Poly>>> B = cc->EncryptMatrix(kp.publicKey, bitMatrix2);
 
 		// evaluate in a circuit
-		CircuitIO<ILVector2n> inputs;
+		CircuitIO<Poly> inputs;
 		inputs[0] = A;
 		inputs[1] = B;
 
 		vector<TimingInfo>	times;
 		cc->StartTiming(&times);
 
-		CircuitIO<ILVector2n> outputs = cir.CircuitEval(inputs);
+		CircuitIO<Poly> outputs = cir.CircuitEval(inputs);
 
 		cc->StopTiming();
 
@@ -252,10 +252,10 @@ main(int argc, char *argv[])
 		usint m = 1733;
 		usint ptm = 10399;
 
-		BigBinaryInteger modulus("1152921504606909071");
-		BigBinaryInteger rootUnity("44343872016735288");
-		BigBinaryInteger bigModulus("10889035741470030830827987437816582848513");
-		BigBinaryInteger bigRootUnity("5879632101734955395039618227388702592012");
+		BigInteger modulus("1152921504606909071");
+		BigInteger rootUnity("44343872016735288");
+		BigInteger bigModulus("10889035741470030830827987437816582848513");
+		BigInteger bigRootUnity("5879632101734955395039618227388702592012");
 
 		PackedIntPlaintextEncoding::SetParams(ptm, m);
 
@@ -263,7 +263,7 @@ main(int argc, char *argv[])
 
 		shared_ptr<EncodingParams> encodingParams(new EncodingParams(ptm,PackedIntPlaintextEncoding::GetAutomorphismGenerator(ptm),batchSize));
 
-		shared_ptr<LPCryptoParametersBV<ILVector2n>> cparams( new LPCryptoParametersBV<ILVector2n>(
+		shared_ptr<LPCryptoParametersBV<Poly>> cparams( new LPCryptoParametersBV<Poly>(
 				params,
 				encodingParams,
 				stdDev,
@@ -273,13 +273,13 @@ main(int argc, char *argv[])
 				OPTIMIZED, //Mode of noise generation
 				1) );
 
-		shared_ptr<LPPublicKeyEncryptionScheme<ILVector2n>> scheme( new LPPublicKeyEncryptionSchemeBV<ILVector2n>() );
+		shared_ptr<LPPublicKeyEncryptionScheme<Poly>> scheme( new LPPublicKeyEncryptionSchemeBV<Poly>() );
 
-		shared_ptr<CryptoContext<ILVector2n>> cc = shared_ptr<CryptoContext<ILVector2n>>( new CryptoContext<ILVector2n>(cparams, scheme) );
+		shared_ptr<CryptoContext<Poly>> cc = shared_ptr<CryptoContext<Poly>>( new CryptoContext<Poly>(cparams, scheme) );
 		cc->Enable(ENCRYPTION);
 		cc->Enable(SHE);
 
-		LPKeyPair<ILVector2n> kp = cc->KeyGen();
+		LPKeyPair<Poly> kp = cc->KeyGen();
 		cc->EvalMultKeyGen(kp.secretKey);
 		cc->EvalSumKeyGen(kp.secretKey);
 

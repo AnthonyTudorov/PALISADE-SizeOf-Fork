@@ -46,9 +46,9 @@ using std::ostream;
 #include "circuitinput.cpp"
 
 namespace lbcrypto {
-template class CircuitGraphWithValues<ILDCRT2n>;
-template class CircuitNodeWithValue<ILDCRT2n>;
-template class CircuitObject<ILDCRT2n>;
+template class CircuitGraphWithValues<DCRTPoly>;
+template class CircuitNodeWithValue<DCRTPoly>;
+template class CircuitObject<DCRTPoly>;
 }
 
 void usage() {
@@ -87,10 +87,10 @@ main(int argc, char *argv[])
 	const usint mdim = 3;
 	const usint maxprint = 10;
 
-	shared_ptr<CryptoContext<ILDCRT2n>> cc = GenCryptoContextElementArrayNull(m, 5, ptm, 20);
-	//CryptoContext<ILVector2n> cc = GenCryptoContextElementNull(m, ptm);
-	//shared_ptr<CryptoContext<ILDCRT2n>> cc = GenCryptoContextElementArrayLTV(m, 5, ptm, 20);
-	//CryptoContext<ILVector2n> cc = GenCryptoContextElementLTV(m, ptm);
+	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayNull(m, 5, ptm, 20);
+	//CryptoContext<Poly> cc = GenCryptoContextElementNull(m, ptm);
+	//shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayLTV(m, 5, ptm, 20);
+	//CryptoContext<Poly> cc = GenCryptoContextElementLTV(m, ptm);
 
 	bool debug_parse = false;
 	bool print_input_graph = false;
@@ -214,7 +214,7 @@ main(int argc, char *argv[])
 				return 1;
 			}
 
-			if( (cc = CryptoContextFactory<ILDCRT2n>::DeserializeAndCreateContext(serObj)) == NULL ) {
+			if( (cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(serObj)) == NULL ) {
 				cout << "Unable to deserialize and initialize from saved crypto context" << endl;
 				evalStatF.close();
 				return 1;
@@ -278,7 +278,7 @@ main(int argc, char *argv[])
 			driver.graph.PrintRuntimeEstimates(cout);
 		}
 
-		PalisadeCircuit<ILDCRT2n>	cir(cc, driver.graph);
+		PalisadeCircuit<DCRTPoly>	cir(cc, driver.graph);
 
 		if( verbose )
 			cir.CircuitDump();
@@ -294,14 +294,14 @@ main(int argc, char *argv[])
 
 		IntPlaintextEncoding ints[] = { { 7 }, { 3 } };
 
-		LPKeyPair<ILDCRT2n> kp = cc->KeyGen();
+		LPKeyPair<DCRTPoly> kp = cc->KeyGen();
 		cc->EvalMultKeyGen(kp.secretKey);
 
-		vector< vector<shared_ptr<Ciphertext<ILDCRT2n>>> > intVecs;
+		vector< vector<shared_ptr<Ciphertext<DCRTPoly>>> > intVecs;
 		for( size_t i = 0; i < sizeof(ints)/sizeof(ints[0]); i++ )
 			intVecs.push_back( cc->Encrypt(kp.publicKey, ints[i]) );
 
-		vector< vector<shared_ptr<Ciphertext<ILDCRT2n>>> > cipherVecs;
+		vector< vector<shared_ptr<Ciphertext<DCRTPoly>>> > cipherVecs;
 		for( usint d = 0; d < 4; d++ )
 			for( usint i=1; i<10; i++ ){
 				IntPlaintextEncoding ie( {i} );
@@ -315,9 +315,9 @@ main(int argc, char *argv[])
 				mat(r,c) = { mi++, 0, 0, 0 };
 			}
 
-		shared_ptr<Matrix<RationalCiphertext<ILDCRT2n>>> emat = cc->EncryptMatrix(kp.publicKey, mat);
+		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> emat = cc->EncryptMatrix(kp.publicKey, mat);
 
-		CircuitIO<ILDCRT2n> inputs;
+		CircuitIO<DCRTPoly> inputs;
 
 		size_t curVec = 0, maxVec = MAXVECS; //sizeof(vecs)/sizeof(vecs[0]);
 		size_t curInt = 0, maxInt = sizeof(ints)/sizeof(ints[0]);
@@ -365,12 +365,12 @@ main(int argc, char *argv[])
 		vector<TimingInfo>	times;
 		cc->StartTiming(&times);
 
-		CircuitIO<ILDCRT2n> outputs = cir.CircuitEval(inputs, verbose);
+		CircuitIO<DCRTPoly> outputs = cir.CircuitEval(inputs, verbose);
 
 		cc->StopTiming();
 
 		if( verbose )
-			CircuitNodeWithValue<ILDCRT2n>::PrintLog(cout);
+			CircuitNodeWithValue<DCRTPoly>::PrintLog(cout);
 
 		// apply the actual timings to the circuit
 		for( auto& node : cir.GetGraph().getAllNodes() ) {
@@ -393,7 +393,7 @@ main(int argc, char *argv[])
 
 		// we have the times for each node, now sum up for each output
 		for( auto& out : cir.GetGraph().getOutputs() ) {
-			CircuitNodeWithValue<ILDCRT2n> *n = cir.GetGraph().getNodeById(out);
+			CircuitNodeWithValue<DCRTPoly> *n = cir.GetGraph().getNodeById(out);
 			cir.GetGraph().ClearVisited();
 			n->CircuitVisit(cir.GetGraph());
 			cout << "RUNTIME ACTUAL FOR Output " << out << " " << cir.GetGraph().GetRuntime() << endl;

@@ -271,7 +271,7 @@ template<typename Element>
 class ConstInputWithValue : public CircuitNodeWithValue<Element> {
 public:
 	ConstInputWithValue(ConstInput* ci) : CircuitNodeWithValue<Element>(ci) {
-		this->value = BigBinaryInteger(ci->GetVal());
+		this->value = BigInteger(ci->GetVal());
 	}
 };
 

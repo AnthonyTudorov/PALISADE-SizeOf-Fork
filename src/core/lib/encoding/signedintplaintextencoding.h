@@ -54,23 +54,23 @@ public:
 
     SignedIntPlaintextEncoding() : std::vector<int32_t>() {}
 
-	/** Interface for the operation of converting from current plaintext encoding to ILVector2n.
+	/** Interface for the operation of converting from current plaintext encoding to Poly.
 	*
 	* @param  modulus - used for encoding.
 	* @param  *ilVector encoded plaintext - output argument.
 	*/
-	void Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector, size_t start_from=0, size_t length=0) const;
+	void Encode(const BigInteger &modulus, Poly *ilVector, size_t start_from=0, size_t length=0) const;
 
-	/** Interface for the operation of converting from ILVector2n to current plaintext encoding.
+	/** Interface for the operation of converting from Poly to current plaintext encoding.
 	*
 	* @param  modulus - used for encoding.
 	* @param  *ilVector encoded plaintext - input argument.
 	*/
-	void Decode(const BigBinaryInteger &modulus, ILVector2n *ilVector);
+	void Decode(const BigInteger &modulus, Poly *ilVector);
 
-	void Unpad(const BigBinaryInteger &modulus) {} // a null op; no padding in int
+	void Unpad(const BigInteger &modulus) {} // a null op; no padding in int
 
-	size_t GetChunksize(const usint ring, const BigBinaryInteger& ptm) const;
+	size_t GetChunksize(const usint ring, const BigInteger& ptm) const;
 
 	size_t GetLength() const { return this->size(); }
 
@@ -88,10 +88,10 @@ public:
 
 private:
     template <typename IntType, typename VecType, typename Element>
-	void doEncode(const BigBinaryInteger &modulus, Element *ilVector, size_t start_from, size_t length) const;
+	void doEncode(const BigInteger &modulus, Element *ilVector, size_t start_from, size_t length) const;
 
     template <typename IntType, typename VecType, typename Element>
-	void doDecode(const BigBinaryInteger &modulus, Element *ilVector);
+	void doDecode(const BigInteger &modulus, Element *ilVector);
 };
 
 } /* namespace lbcrypto */

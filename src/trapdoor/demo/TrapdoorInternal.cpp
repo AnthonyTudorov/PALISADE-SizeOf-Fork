@@ -48,8 +48,8 @@ int main() {
 		MultiThreadedRun(i);
 	}
 
-	ChineseRemainderTransformFTT<BigBinaryInteger, BigBinaryVector>::GetInstance().Destroy();
-	NumberTheoreticTransform<BigBinaryInteger, BigBinaryVector>::GetInstance().Destroy();
+	ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().Destroy();
+	NumberTheoreticTransform<BigInteger, BigVector>::GetInstance().Destroy();
 	DiscreteFourierTransform::GetInstance().Destroy();
 
 	return 0;
@@ -85,11 +85,11 @@ void MultiThreadedRun(int index) {
 
 	size_t counter = 20;
 	double start, finish;
-	DiscreteGaussianGeneratorImpl<BigBinaryInteger,BigBinaryVector> dgg(SIGMA);
+	DiscreteGaussianGeneratorImpl<BigInteger,BigVector> dgg(SIGMA);
 
 	usint sm = SECURE_PARAMS[index].m;
-	BigBinaryInteger smodulus(SECURE_PARAMS[index].modulus);
-	BigBinaryInteger srootOfUnity(SECURE_PARAMS[index].rootOfUnity);
+	BigInteger smodulus(SECURE_PARAMS[index].modulus);
+	BigInteger srootOfUnity(SECURE_PARAMS[index].rootOfUnity);
 
 	ILParams ilParams(sm, smodulus, srootOfUnity);
 	shared_ptr<ILParams> silParams = std::make_shared<ILParams>(ilParams);
@@ -97,9 +97,9 @@ void MultiThreadedRun(int index) {
 	std::cout << "m: " << sm << " q: " << smodulus << " rootOfUnity: " << srootOfUnity << std::endl;
 	std::cout << "Signature precomputations" << std::endl;
 	start = currentDateTime();
-	ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
+	ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
 	DiscreteFourierTransform::GetInstance().PreComputeTable(sm);
-	ILVector2n::PreComputeDggSamples(dgg, silParams);
+	Poly::PreComputeDggSamples(dgg, silParams);
 	finish = currentDateTime();
 	std::cout << "Precomputation time: " << finish - start << " ms" << std::endl;
 
@@ -110,11 +110,11 @@ void MultiThreadedRun(int index) {
 
 	//std::cout << "std = " << signParams.GetDiscreteGaussianGenerator().GetStd() << std::endl;
 
-	LPSignKeyGPVGM<ILVector2n> s_k_gm(signParams);
-	LPVerificationKeyGPVGM<ILVector2n> v_k_gm(signParams);
-	LPSignatureSchemeGPVGM<ILVector2n> scheme_gm;
+	LPSignKeyGPVGM<Poly> s_k_gm(signParams);
+	LPVerificationKeyGPVGM<Poly> v_k_gm(signParams);
+	LPSignatureSchemeGPVGM<Poly> scheme_gm;
 
-	vector<Signature<Matrix<ILVector2n>>> signature(counter);
+	vector<Signature<Matrix<Poly>>> signature(counter);
 
 	scheme_gm.KeyGen(&s_k_gm, &v_k_gm);
 
@@ -148,7 +148,7 @@ void MultiThreadedRun(int index) {
 		"10 Let's spice things up",
 	};
 
-	Signature<Matrix<ILVector2n>> precompSignature;
+	Signature<Matrix<Poly>> precompSignature;
 
 	scheme_gm.Sign(s_k_gm, text[5], &precompSignature);
 

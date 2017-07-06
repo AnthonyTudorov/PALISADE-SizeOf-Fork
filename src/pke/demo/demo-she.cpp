@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
 	double rootHermiteFactor = 1.006;	
 
 	//Set Crypto Parameters	
-	shared_ptr<CryptoContext<ILVector2n>> cryptoContext = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
+	shared_ptr<CryptoContext<Poly>> cryptoContext = CryptoContextFactory<Poly>::genCryptoContextFV(
 			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 2, 0);
 
 	// enable features that you wish to use
@@ -81,7 +81,7 @@ int main(int argc, char *argv[]) {
 	//std::cin.get();
 	
 	// Initialize Public Key Containers
-	LPKeyPair<ILVector2n> keyPair;
+	LPKeyPair<Poly> keyPair;
 	
 	////////////////////////////////////////////////////////////
 	// Perform Key Generation Operation
@@ -119,9 +119,9 @@ int main(int argc, char *argv[]) {
 	////////////////////////////////////////////////////////////
 
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext1;
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext2;
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext3;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertext1;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertext2;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertext3;
 
 	start = currentDateTime();
 
@@ -173,10 +173,10 @@ int main(int argc, char *argv[]) {
 	// EvalAdd Operation
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Ciphertext<ILVector2n>> ciphertextAdd12;
-	shared_ptr<Ciphertext<ILVector2n>> ciphertextAdd123;
+	shared_ptr<Ciphertext<Poly>> ciphertextAdd12;
+	shared_ptr<Ciphertext<Poly>> ciphertextAdd123;
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextAddVect;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertextAddVect;
 
 	start = currentDateTime();
 
@@ -221,10 +221,10 @@ int main(int argc, char *argv[]) {
 	// EvalMult Operation
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Ciphertext<ILVector2n>> ciphertextMul12;
-	shared_ptr<Ciphertext<ILVector2n>> ciphertextMul123;
+	shared_ptr<Ciphertext<Poly>> ciphertextMul12;
+	shared_ptr<Ciphertext<Poly>> ciphertextMul123;
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextMulVect;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertextMulVect;
 
 	start = currentDateTime();
 

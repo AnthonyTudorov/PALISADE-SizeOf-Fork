@@ -36,9 +36,9 @@ using namespace lbcrypto;
 
 static const usint PrimeBits = 50;
 
-inline shared_ptr<CryptoContext<ILVector2n>> GenCryptoContextElementNull(usint ORDER, usint ptm) {
-	shared_ptr<ILVector2n::Params> p( new ILVector2n::Params(ORDER, ILVector2n::Integer(ptm), ILVector2n::Integer::ONE) );
-	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextNull(p, ptm);
+inline shared_ptr<CryptoContext<Poly>> GenCryptoContextElementNull(usint ORDER, usint ptm) {
+	shared_ptr<Poly::Params> p( new Poly::Params(ORDER, Poly::Integer(ptm), Poly::Integer::ONE) );
+	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextNull(p, ptm);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(PRE);
 	cc->Enable(SHE);
@@ -46,10 +46,10 @@ inline shared_ptr<CryptoContext<ILVector2n>> GenCryptoContextElementNull(usint O
 	return cc;
 }
 
-inline shared_ptr<CryptoContext<ILDCRT2n>> GenCryptoContextElementArrayNull(usint ORDER, usint ntowers, usint ptm, usint bits=PrimeBits) {
-	shared_ptr<ILDCRT2n::Params> p = GenerateDCRTParams(ORDER, ptm, ntowers, bits);
+inline shared_ptr<CryptoContext<DCRTPoly>> GenCryptoContextElementArrayNull(usint ORDER, usint ntowers, usint ptm, usint bits=PrimeBits) {
+	shared_ptr<DCRTPoly::Params> p = GenerateDCRTParams(ORDER, ptm, ntowers, bits);
 
-	shared_ptr<CryptoContext<ILDCRT2n>> cc = CryptoContextFactory<ILDCRT2n>::genCryptoContextNull(p, ptm);
+	shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextNull(p, ptm);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(PRE);
 	cc->Enable(SHE);
@@ -57,10 +57,10 @@ inline shared_ptr<CryptoContext<ILDCRT2n>> GenCryptoContextElementArrayNull(usin
 	return cc;
 }
 
-inline shared_ptr<CryptoContext<ILVector2n>> GenCryptoContextElementLTV(usint ORDER, usint ptm, usint bits=PrimeBits) {
-	shared_ptr<ILVector2n::Params> p = GenerateTestParams<ILVector2n::Params,ILVector2n::Integer>(ORDER, bits);
+inline shared_ptr<CryptoContext<Poly>> GenCryptoContextElementLTV(usint ORDER, usint ptm, usint bits=PrimeBits) {
+	shared_ptr<Poly::Params> p = GenerateTestParams<Poly::Params,Poly::Integer>(ORDER, bits);
 
-	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(p, ptm, 1, 4);
+	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(p, ptm, 1, 4);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(PRE);
 	cc->Enable(SHE);
@@ -68,10 +68,10 @@ inline shared_ptr<CryptoContext<ILVector2n>> GenCryptoContextElementLTV(usint OR
 	return cc;
 }
 
-inline shared_ptr<CryptoContext<ILDCRT2n>> GenCryptoContextElementArrayLTV(usint ORDER, usint ntowers, usint ptm, usint bits=PrimeBits) {
-	shared_ptr<ILDCRT2n::Params> p = GenerateDCRTParams(ORDER, ptm, ntowers, bits);
+inline shared_ptr<CryptoContext<DCRTPoly>> GenCryptoContextElementArrayLTV(usint ORDER, usint ntowers, usint ptm, usint bits=PrimeBits) {
+	shared_ptr<DCRTPoly::Params> p = GenerateDCRTParams(ORDER, ptm, ntowers, bits);
 
-	shared_ptr<CryptoContext<ILDCRT2n>> cc = CryptoContextFactory<ILDCRT2n>::genCryptoContextLTV(p, ptm, 1, 4, ntowers);
+	shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextLTV(p, ptm, 1, 4, ntowers);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(PRE);
 	cc->Enable(SHE);
@@ -79,10 +79,10 @@ inline shared_ptr<CryptoContext<ILDCRT2n>> GenCryptoContextElementArrayLTV(usint
 	return cc;
 }
 
-inline shared_ptr<CryptoContext<ILVector2n>> GenCryptoContextElementStSt(usint ORDER, usint ptm, usint bits=PrimeBits) {
-	shared_ptr<ILVector2n::Params> p = GenerateTestParams<ILVector2n::Params,ILVector2n::Integer>(ORDER, bits);
+inline shared_ptr<CryptoContext<Poly>> GenCryptoContextElementStSt(usint ORDER, usint ptm, usint bits=PrimeBits) {
+	shared_ptr<Poly::Params> p = GenerateTestParams<Poly::Params,Poly::Integer>(ORDER, bits);
 
-	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextStehleSteinfeld(p, ptm, 1, 4, 41411.5);
+	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextStehleSteinfeld(p, ptm, 1, 4, 41411.5);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(PRE);
 	cc->Enable(SHE);
@@ -90,10 +90,10 @@ inline shared_ptr<CryptoContext<ILVector2n>> GenCryptoContextElementStSt(usint O
 	return cc;
 }
 
-inline shared_ptr<CryptoContext<ILDCRT2n>> GenCryptoContextElementArrayStSt(usint ORDER, usint ntowers, usint ptm, usint bits=PrimeBits) {
-	shared_ptr<ILDCRT2n::Params> p = GenerateDCRTParams(ORDER, ptm, ntowers, bits);
+inline shared_ptr<CryptoContext<DCRTPoly>> GenCryptoContextElementArrayStSt(usint ORDER, usint ntowers, usint ptm, usint bits=PrimeBits) {
+	shared_ptr<DCRTPoly::Params> p = GenerateDCRTParams(ORDER, ptm, ntowers, bits);
 
-	shared_ptr<CryptoContext<ILDCRT2n>> cc = CryptoContextFactory<ILDCRT2n>::genCryptoContextStehleSteinfeld(p, ptm, 1, 4, 41411.5, ntowers);
+	shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextStehleSteinfeld(p, ptm, 1, 4, 41411.5, ntowers);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(PRE);
 	cc->Enable(SHE);
@@ -101,10 +101,10 @@ inline shared_ptr<CryptoContext<ILDCRT2n>> GenCryptoContextElementArrayStSt(usin
 	return cc;
 }
 
-inline shared_ptr<CryptoContext<ILVector2n>> GenCryptoContextElementBV(usint ORDER, usint ptm, usint bits=PrimeBits) {
-	shared_ptr<ILVector2n::Params> p = GenerateTestParams<ILVector2n::Params,ILVector2n::Integer>(ORDER, bits);
+inline shared_ptr<CryptoContext<Poly>> GenCryptoContextElementBV(usint ORDER, usint ptm, usint bits=PrimeBits) {
+	shared_ptr<Poly::Params> p = GenerateTestParams<Poly::Params,Poly::Integer>(ORDER, bits);
 
-	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(p, ptm, 1, 4);
+	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextBV(p, ptm, 1, 4);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(PRE);
 	cc->Enable(SHE);
@@ -112,10 +112,10 @@ inline shared_ptr<CryptoContext<ILVector2n>> GenCryptoContextElementBV(usint ORD
 	return cc;
 }
 
-inline shared_ptr<CryptoContext<ILDCRT2n>> GenCryptoContextElementArrayBV(usint ORDER, usint ntowers, usint ptm, usint bits=PrimeBits) {
-	shared_ptr<ILDCRT2n::Params> p = GenerateDCRTParams(ORDER, ptm, ntowers, bits);
+inline shared_ptr<CryptoContext<DCRTPoly>> GenCryptoContextElementArrayBV(usint ORDER, usint ntowers, usint ptm, usint bits=PrimeBits) {
+	shared_ptr<DCRTPoly::Params> p = GenerateDCRTParams(ORDER, ptm, ntowers, bits);
 
-	shared_ptr<CryptoContext<ILDCRT2n>> cc = CryptoContextFactory<ILDCRT2n>::genCryptoContextBV(p, ptm, 1, 3, RLWE, ntowers);
+	shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBV(p, ptm, 1, 3, RLWE, ntowers);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(PRE);
 	cc->Enable(SHE);
@@ -124,17 +124,17 @@ inline shared_ptr<CryptoContext<ILDCRT2n>> GenCryptoContextElementArrayBV(usint 
 }
 
 
-inline shared_ptr<CryptoContext<ILVector2n>> GenCryptoContextElementFV(usint ORDER, usint ptm, usint bits=PrimeBits) {
-	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(ptm, 1.006, 1, 4, 0, 2, 0);
+inline shared_ptr<CryptoContext<Poly>> GenCryptoContextElementFV(usint ORDER, usint ptm, usint bits=PrimeBits) {
+	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextFV(ptm, 1.006, 1, 4, 0, 2, 0);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(PRE);
 	cc->Enable(SHE);
 	return cc;
 }
 
-inline shared_ptr<CryptoContext<ILDCRT2n>> GenCryptoContextElementArrayFV(usint ORDER, usint ntowers, usint ptm, usint bits=PrimeBits) {
+inline shared_ptr<CryptoContext<DCRTPoly>> GenCryptoContextElementArrayFV(usint ORDER, usint ntowers, usint ptm, usint bits=PrimeBits) {
 
-	shared_ptr<CryptoContext<ILDCRT2n>> cc = CryptoContextFactory<ILDCRT2n>::genCryptoContextFV(ptm, 1.006, 1, 4, 0, 2, 0);
+	shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextFV(ptm, 1.006, 1, 4, 0, 2, 0);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(PRE);
 	cc->Enable(SHE);

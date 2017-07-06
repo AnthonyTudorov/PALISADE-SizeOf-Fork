@@ -41,8 +41,8 @@
 #include "lattice/ildcrtparams.h"
 #include "lattice/ilelement.h"
 #include "math/distrgen.h"
-#include "lattice/ilvector2n.h"
-#include "../../src/core/lib/lattice/ildcrt2n.h"
+#include "lattice/poly.h"
+#include "../../src/core/lib/lattice/dcrtpoly.h"
 #include "utils/utilities.h"
 
 #include <vector>
@@ -75,34 +75,34 @@ struct Scenario {
 };
 
 static shared_ptr<ILParams> generate_IL_parms(int s) {
-	return shared_ptr<ILParams>( new ILParams(Scenarios[s].m, BigBinaryInteger(Scenarios[s].modulus), BigBinaryInteger(Scenarios[s].rootOfUnity)) );
+	return shared_ptr<ILParams>( new ILParams(Scenarios[s].m, BigInteger(Scenarios[s].modulus), BigInteger(Scenarios[s].rootOfUnity)) );
 }
 
 static const usint smbits = 28;
 
-static shared_ptr<ILDCRTParams<BigBinaryInteger>> generate_DCRT_parms(int s) {
+static shared_ptr<ILDCRTParams<BigInteger>> generate_DCRT_parms(int s) {
 	usint nTowers = Scenarios[s].bits/smbits;
 
-	vector<native_int::BinaryInteger> moduli(nTowers);
-	vector<native_int::BinaryInteger> rootsOfUnity(nTowers);
+	vector<native_int::BigInteger> moduli(nTowers);
+	vector<native_int::BigInteger> rootsOfUnity(nTowers);
 
-	native_int::BinaryInteger q = FirstPrime<native_int::BinaryInteger>(smbits, Scenarios[s].m);
-	native_int::BinaryInteger temp;
-	BigBinaryInteger modulus(1);
+	native_int::BigInteger q = FirstPrime<native_int::BigInteger>(smbits, Scenarios[s].m);
+	native_int::BigInteger temp;
+	BigInteger modulus(1);
 
 	for(usint i=0; i < nTowers; i++){
 		moduli[i] = q;
 		rootsOfUnity[i] = RootOfUnity(Scenarios[s].m,moduli[i]);
-		modulus = modulus * BigBinaryInteger(moduli[i].ConvertToInt());
+		modulus = modulus * BigInteger(moduli[i].ConvertToInt());
 		q = NextPrime(q, Scenarios[s].m);
 	}
 
-	return shared_ptr<ILDCRTParams<BigBinaryInteger>>( new ILDCRTParams<BigBinaryInteger>(Scenarios[s].m, moduli, rootsOfUnity) );
+	return shared_ptr<ILDCRTParams<BigInteger>>( new ILDCRTParams<BigInteger>(Scenarios[s].m, moduli, rootsOfUnity) );
 }
 
 // statically construct 'em
 vector<shared_ptr<ILParams>> vparms = { generate_IL_parms(0), generate_IL_parms(1) };
-vector<shared_ptr<ILDCRTParams<BigBinaryInteger>>> vaparms = { generate_DCRT_parms(0), generate_DCRT_parms(1) };
+vector<shared_ptr<ILDCRTParams<BigInteger>>> vaparms = { generate_DCRT_parms(0), generate_DCRT_parms(1) };
 
 template <class E>
 static void make_LATTICE_empty(shared_ptr<typename E::Params>& params) {
@@ -120,36 +120,36 @@ void BM_LATTICE_empty(benchmark::State& state) { // benchmark
 	}
 }
 
-DO_PARM_BENCHMARK_TEMPLATE(BM_LATTICE_empty,ILVector2n)
+DO_PARM_BENCHMARK_TEMPLATE(BM_LATTICE_empty,Poly)
 
 template <class E>
 static E makeElement(shared_ptr<ILParams> params) {
-	BigBinaryVector vec = makeVector(params);
+	BigVector vec = makeVector(params);
 	E			elem(params);
 	elem.SetValues(vec, elem.GetFormat());
 	return std::move(elem);
 }
 
 template <class E>
-static E makeElement(shared_ptr<ILDCRTParams<BigBinaryInteger>> p) {
-	shared_ptr<ILParams> params( new ILParams( p->GetCyclotomicOrder(), p->GetModulus(), BigBinaryInteger::ONE) );
-	BigBinaryVector vec = makeVector(params);
+static E makeElement(shared_ptr<ILDCRTParams<BigInteger>> p) {
+	shared_ptr<ILParams> params( new ILParams( p->GetCyclotomicOrder(), p->GetModulus(), BigInteger::ONE) );
+	BigVector vec = makeVector(params);
 
-	ILVector2n bigE(params);
+	Poly bigE(params);
 	bigE.SetValues(vec, bigE.GetFormat());
 
 	E			elem(bigE, p);
 	return std::move(elem);
 }
 
-vector<ILVector2n> vectors[] = {
-		{ makeElement<ILVector2n>(vparms[0]), makeElement<ILVector2n>(vparms[0]) },
-		{ makeElement<ILVector2n>(vparms[1]), makeElement<ILVector2n>(vparms[1]) },
+vector<Poly> vectors[] = {
+		{ makeElement<Poly>(vparms[0]), makeElement<Poly>(vparms[0]) },
+		{ makeElement<Poly>(vparms[1]), makeElement<Poly>(vparms[1]) },
 };
 
-vector<ILDCRT2n> avectors[] = {
-		{ makeElement<ILDCRT2n>(vaparms[0]), makeElement<ILDCRT2n>(vaparms[0]) },
-		{ makeElement<ILDCRT2n>(vaparms[1]), makeElement<ILDCRT2n>(vaparms[1]) },
+vector<DCRTPoly> avectors[] = {
+		{ makeElement<DCRTPoly>(vaparms[0]), makeElement<DCRTPoly>(vaparms[0]) },
+		{ makeElement<DCRTPoly>(vaparms[1]), makeElement<DCRTPoly>(vaparms[1]) },
 };
 
 // make variables
@@ -170,7 +170,7 @@ void BM_LATTICE_vector(benchmark::State& state) { // benchmark
 	}
 }
 
-DO_PARM_BENCHMARK_TEMPLATE(BM_LATTICE_vector,ILVector2n)
+DO_PARM_BENCHMARK_TEMPLATE(BM_LATTICE_vector,Poly)
 
 // add
 template <class E>
@@ -194,7 +194,7 @@ static void BM_add_LATTICE(benchmark::State& state) { // benchmark
 	}
 }
 
-DO_PARM_BENCHMARK_TEMPLATE(BM_add_LATTICE,ILVector2n)
+DO_PARM_BENCHMARK_TEMPLATE(BM_add_LATTICE,Poly)
 
 void BM_add_LATTICEARRAY(benchmark::State& state) { // benchmark
 	if( state.thread_index == 0 ) {
@@ -203,20 +203,20 @@ void BM_add_LATTICEARRAY(benchmark::State& state) { // benchmark
 
 	if( state.range(0) == 0 ) {
 		while (state.KeepRunning()) {
-			ILVector2n sum = vectors[state.range(1)][0] + vectors[state.range(1)][1];
+			Poly sum = vectors[state.range(1)][0] + vectors[state.range(1)][1];
 		}
 	}
 	else {
 		while (state.KeepRunning()) {
-			ILDCRT2n sum = avectors[state.range(1)][0] + avectors[state.range(1)][1];
+			DCRTPoly sum = avectors[state.range(1)][0] + avectors[state.range(1)][1];
 		}
 	}
 }
 
-BENCHMARK(BM_add_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("ILVector2n/scenario")->Args({0,0});
-BENCHMARK(BM_add_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("ILVector2n/scenario")->Args({0,1});
-BENCHMARK(BM_add_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("ILDCRT2n/scenario")->Args({1,0});
-BENCHMARK(BM_add_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("ILDCRT2n/scenario")->Args({1,1});
+BENCHMARK(BM_add_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("Poly/scenario")->Args({0,0});
+BENCHMARK(BM_add_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("Poly/scenario")->Args({0,1});
+BENCHMARK(BM_add_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("DCRTPoly/scenario")->Args({1,0});
+BENCHMARK(BM_add_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("DCRTPoly/scenario")->Args({1,1});
 
 template <class E>
 static void mult_LATTICE(benchmark::State& state, shared_ptr<typename E::Params>& params) {	// function
@@ -239,7 +239,7 @@ static void BM_mult_LATTICE(benchmark::State& state) { // benchmark
 	}
 }
 
-DO_PARM_BENCHMARK_TEMPLATE(BM_mult_LATTICE,ILVector2n)
+DO_PARM_BENCHMARK_TEMPLATE(BM_mult_LATTICE,Poly)
 
 void BM_mult_LATTICEARRAY(benchmark::State& state) { // benchmark
 	if( state.thread_index == 0 ) {
@@ -248,20 +248,20 @@ void BM_mult_LATTICEARRAY(benchmark::State& state) { // benchmark
 
 	if( state.range(0) == 0 ) {
 		while (state.KeepRunning()) {
-			ILVector2n sum = vectors[state.range(1)][0] * vectors[state.range(1)][1];
+			Poly sum = vectors[state.range(1)][0] * vectors[state.range(1)][1];
 		}
 	}
 	else {
 		while (state.KeepRunning()) {
-			ILDCRT2n sum = avectors[state.range(1)][0] * avectors[state.range(1)][1];
+			DCRTPoly sum = avectors[state.range(1)][0] * avectors[state.range(1)][1];
 		}
 	}
 }
 
-BENCHMARK(BM_mult_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("ILVector2n/scenario")->Args({0,0});
-BENCHMARK(BM_mult_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("ILVector2n/scenario")->Args({0,1});
-BENCHMARK(BM_mult_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("ILDCRT2n/scenario")->Args({1,0});
-BENCHMARK(BM_mult_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("ILDCRT2n/scenario")->Args({1,1});
+BENCHMARK(BM_mult_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("Poly/scenario")->Args({0,0});
+BENCHMARK(BM_mult_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("Poly/scenario")->Args({0,1});
+BENCHMARK(BM_mult_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("DCRTPoly/scenario")->Args({1,0});
+BENCHMARK(BM_mult_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("DCRTPoly/scenario")->Args({1,1});
 
 template <class E>
 static void switchformat_LATTICE(benchmark::State& state, shared_ptr<typename E::Params>& params) {
@@ -283,7 +283,7 @@ static void BM_switchformat_LATTICE(benchmark::State& state) { // benchmark
 	}
 }
 
-DO_PARM_BENCHMARK_TEMPLATE(BM_switchformat_LATTICE,ILVector2n)
+DO_PARM_BENCHMARK_TEMPLATE(BM_switchformat_LATTICE,Poly)
 
 template <class E>
 static void doubleswitchformat_LATTICE(benchmark::State& state, shared_ptr<typename E::Params>& params) {
@@ -306,7 +306,7 @@ static void BM_doubleswitchformat_LATTICE(benchmark::State& state) { // benchmar
 	}
 }
 
-DO_PARM_BENCHMARK_TEMPLATE(BM_doubleswitchformat_LATTICE,ILVector2n)
+DO_PARM_BENCHMARK_TEMPLATE(BM_doubleswitchformat_LATTICE,Poly)
 
 //execute the benchmarks
 BENCHMARK_MAIN()

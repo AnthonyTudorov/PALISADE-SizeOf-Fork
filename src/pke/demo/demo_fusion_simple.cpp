@@ -79,7 +79,7 @@ int main(int argc, char *argv[]) {
 
 	start = currentDateTime();
 
-	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextHelper::getNewContext(input);
+	shared_ptr<CryptoContext<Poly>> cc = CryptoContextHelper::getNewContext(input);
 	if( !cc ) {
 		cout << "Error on " << input << endl;
 		return 0;
@@ -90,7 +90,7 @@ int main(int argc, char *argv[]) {
 
 	cout << "Param generation time: " << "\t" << diff << " ms" << endl;
 
-	//shared_ptr<CryptoContext<ILVector2n>> cc = GenCryptoContextElementLTV(ORDER, PTM);
+	//shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementLTV(ORDER, PTM);
 
 	//Turn on features
 	cc->Enable(ENCRYPTION);
@@ -107,15 +107,15 @@ int main(int argc, char *argv[]) {
 	//std::cin.get();
 	
 	// Initialize Public Key Containers
-	LPKeyPair<ILVector2n> kp1;
-	LPKeyPair<ILVector2n> kp2;
-	LPKeyPair<ILVector2n> kp3;
+	LPKeyPair<Poly> kp1;
+	LPKeyPair<Poly> kp2;
+	LPKeyPair<Poly> kp3;
 
-	LPKeyPair<ILVector2n> kpMultiparty;
+	LPKeyPair<Poly> kpMultiparty;
 
-	shared_ptr<LPEvalKey<ILVector2n>> evalKey1;
-	shared_ptr<LPEvalKey<ILVector2n>> evalKey2;
-	shared_ptr<LPEvalKey<ILVector2n>> evalKey3;
+	shared_ptr<LPEvalKey<Poly>> evalKey1;
+	shared_ptr<LPEvalKey<Poly>> evalKey2;
+	shared_ptr<LPEvalKey<Poly>> evalKey3;
 	
 	////////////////////////////////////////////////////////////
 	// Perform Key Generation Operation
@@ -159,7 +159,7 @@ int main(int argc, char *argv[]) {
 	start = currentDateTime();
 
 
-	vector<shared_ptr<LPPrivateKey<ILVector2n>>> secretKeys;
+	vector<shared_ptr<LPPrivateKey<Poly>>> secretKeys;
 	secretKeys.push_back(kp1.secretKey);
 	secretKeys.push_back(kp2.secretKey);
 	secretKeys.push_back(kp3.secretKey);
@@ -225,9 +225,9 @@ int main(int argc, char *argv[]) {
 
 	start = currentDateTime();
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext1;
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext2;
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext3;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertext1;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertext2;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertext3;
 
 	ciphertext1 = cc->Encrypt(kp1.publicKey, plaintext1);
 	ciphertext2 = cc->Encrypt(kp2.publicKey, plaintext2);
@@ -247,9 +247,9 @@ int main(int argc, char *argv[]) {
 
 	start = currentDateTime();
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext1New;
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext2New;
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext3New;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertext1New;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertext2New;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertext3New;
 
 	ciphertext1New = cc->ReEncrypt(evalKey1, ciphertext1);
 	ciphertext2New = cc->ReEncrypt(evalKey2, ciphertext2);
@@ -266,10 +266,10 @@ int main(int argc, char *argv[]) {
 	// EvalAdd Operation on Re-Encrypted Data
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Ciphertext<ILVector2n>> ciphertextAddNew12;
-	shared_ptr<Ciphertext<ILVector2n>> ciphertextAddNew123;
+	shared_ptr<Ciphertext<Poly>> ciphertextAddNew12;
+	shared_ptr<Ciphertext<Poly>> ciphertextAddNew123;
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextAddVectNew;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertextAddVectNew;
 
 	start = currentDateTime();
 
@@ -320,19 +320,19 @@ int main(int argc, char *argv[]) {
 	IntPlaintextEncoding plaintextAddNew2;
 	IntPlaintextEncoding plaintextAddNew3;
 
-	ILVector2n partialPlaintext1;
-	ILVector2n partialPlaintext2;
-	ILVector2n partialPlaintext3;
+	Poly partialPlaintext1;
+	Poly partialPlaintext2;
+	Poly partialPlaintext3;
 	//IntPlaintextEncoding plaintextAddNewFinal;
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextPartial1;
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextPartial2;
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextPartial3;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertextPartial1;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertextPartial2;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertextPartial3;
 
 	IntPlaintextEncoding plaintextMultipartyNew;
 
-	const shared_ptr<LPCryptoParameters<ILVector2n>> cryptoParams = kp1.secretKey->GetCryptoParameters();
-	const shared_ptr<typename ILVector2n::Params> elementParams = cryptoParams->GetElementParams();
+	const shared_ptr<LPCryptoParameters<Poly>> cryptoParams = kp1.secretKey->GetCryptoParameters();
+	const shared_ptr<typename Poly::Params> elementParams = cryptoParams->GetElementParams();
 
 	start = currentDateTime();
 
@@ -340,7 +340,7 @@ int main(int argc, char *argv[]) {
 	ciphertextPartial2 = cc->MultipartyDecryptMain(kp2.secretKey, ciphertextAddVectNew);
 	ciphertextPartial3 = cc->MultipartyDecryptMain(kp3.secretKey, ciphertextAddVectNew);
 
-	vector<vector<shared_ptr<Ciphertext<ILVector2n>>>> partialCiphertextVec;
+	vector<vector<shared_ptr<Ciphertext<Poly>>>> partialCiphertextVec;
 	partialCiphertextVec.push_back(ciphertextPartial1);
 	partialCiphertextVec.push_back(ciphertextPartial2);
 	partialCiphertextVec.push_back(ciphertextPartial3);

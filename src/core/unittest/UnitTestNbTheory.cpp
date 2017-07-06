@@ -30,7 +30,7 @@
 #include "include/gtest/gtest.h"
 #include <iostream>
 
-#include "../lib/lattice/ildcrt2n.h"
+#include "../lib/lattice/dcrtpoly.h"
 #include "math/backend.h"
 #include "math/nbtheory.h"
 #include "math/distrgen.h"
@@ -38,7 +38,7 @@
 #include "lattice/ilparams.h"
 #include "lattice/ildcrtparams.h"
 #include "lattice/ilelement.h"
-#include "lattice/ilvector2n.h"
+#include "lattice/poly.h"
 #include "utils/inttypes.h"
 #include "utils/utilities.h"
 
@@ -68,8 +68,8 @@ class UnitTestNbTheory : public ::testing::Test {
 TEST(UTNbTheory, method_greatest_common_divisor){
   {
     // TEST CASE TO FIND GREATEST COMMON DIVISOR OF TWO SMALL NUMBERS
-    BigBinaryInteger a("10403"), b("103");
-    BigBinaryInteger c = lbcrypto::GreatestCommonDivisor(a, b);
+    BigInteger a("10403"), b("103");
+    BigInteger c = lbcrypto::GreatestCommonDivisor(a, b);
     
     uint64_t expectedResult = 103;
     
@@ -80,19 +80,19 @@ TEST(UTNbTheory, method_greatest_common_divisor){
     // TEST CASE TO FIND GREATEST COMMON DIVISOR OF TWO POWERS OF 2 NUMBERS
     
     
-    BigBinaryInteger a("1048576"), b("4096");
-    BigBinaryInteger c(lbcrypto::GreatestCommonDivisor(a, b));
+    BigInteger a("1048576"), b("4096");
+    BigInteger c(lbcrypto::GreatestCommonDivisor(a, b));
     
-    BigBinaryInteger expectedResult(b);
+    BigInteger expectedResult(b);
     
     EXPECT_EQ(expectedResult, c)
       <<"Failure equals_powers_of_two_numbers";
   }
   {
     //test that failed in Issue #409
-    BigBinaryInteger a("883035439563027"), b("3042269397984931");
-    BigBinaryInteger c(lbcrypto::GreatestCommonDivisor(a, b));
-    BigBinaryInteger expectedResult("1");
+    BigInteger a("883035439563027"), b("3042269397984931");
+    BigInteger c(lbcrypto::GreatestCommonDivisor(a, b));
+    BigInteger expectedResult("1");
     EXPECT_EQ(expectedResult, c)
       <<"Failure Issue 409";
   }
@@ -101,7 +101,7 @@ TEST(UTNbTheory, method_greatest_common_divisor){
 TEST(UTNbTheory, method_miller_rabin_primality) {
   {
     // TEST CASE FOR MILLER RABIN PRIMALITY TEST FOR SMALL PRIME
-    BigBinaryInteger prime("24469");
+    BigInteger prime("24469");
     EXPECT_TRUE(lbcrypto::MillerRabinPrimalityTest(prime))
       <<"Failure is_prime_small_prime";
   }
@@ -109,7 +109,7 @@ TEST(UTNbTheory, method_miller_rabin_primality) {
     // TEST CASE FOR MILLER RABIN PRIMALITY TEST FOR BIG PRIME
 
 
-    BigBinaryInteger prime("952229140957");
+    BigInteger prime("952229140957");
 
     EXPECT_TRUE(lbcrypto::MillerRabinPrimalityTest(prime))
       <<"Failure is_prime_big_prime";
@@ -118,7 +118,7 @@ TEST(UTNbTheory, method_miller_rabin_primality) {
     // TEST CASE FOR MILLER RABIN PRIMALITY TEST FOR SMALL COMPOSITE NUMBER
 
 
-    BigBinaryInteger isNotPrime("10403");
+    BigInteger isNotPrime("10403");
 
     EXPECT_FALSE(lbcrypto::MillerRabinPrimalityTest(isNotPrime))
       <<"Failure is_not_prime_small_composite_number";
@@ -127,7 +127,7 @@ TEST(UTNbTheory, method_miller_rabin_primality) {
     // TEST CASE FOR MILLER RABIN PRIMALITY TEST FOR BIG COMPOSITE NUMBER
 
 
-    BigBinaryInteger isNotPrime("952229140959");
+    BigInteger isNotPrime("952229140959");
 
     EXPECT_FALSE(lbcrypto::MillerRabinPrimalityTest(isNotPrime))
       <<"Failure is_not_prime_big_composite_number";
@@ -136,11 +136,11 @@ TEST(UTNbTheory, method_miller_rabin_primality) {
 // TEST CASE FOR FACTORIZATION
 
 TEST(UTNbTheory, method_factorize_returns_factors){
-	BigBinaryInteger comp("53093040");
-	std::set<BigBinaryInteger> factors;
+	BigInteger comp("53093040");
+	std::set<BigInteger> factors;
 	lbcrypto::PrimeFactorize(comp, factors);
 
-	for(std::set<BigBinaryInteger>::iterator it = factors.begin(); it != factors.end(); ++it) {
+	for(std::set<BigInteger>::iterator it = factors.begin(); it != factors.end(); ++it) {
 		// std::cout << *it << std::endl;
 		// ASSERT_THAT(*it, ElementsAre(2, 3, 5));
 	}
@@ -154,9 +154,9 @@ TEST(UTNbTheory, method_prime_modulus) {
     usint m = 2048;
     usint nBits = 30;
 
-    BigBinaryInteger expectedResult("1073750017");
+    BigInteger expectedResult("1073750017");
 
-    EXPECT_EQ(expectedResult, lbcrypto::FirstPrime<BigBinaryInteger>(nBits, m))
+    EXPECT_EQ(expectedResult, lbcrypto::FirstPrime<BigInteger>(nBits, m))
       <<"Failure foundPrimeModulus";
   }
   {
@@ -164,8 +164,8 @@ TEST(UTNbTheory, method_prime_modulus) {
     usint m=4096; 
     usint nBits=49;
 	
-    BigBinaryInteger primeModulus = lbcrypto::FirstPrime<BigBinaryInteger>(nBits, m);
-    BigBinaryInteger expectedResult("562949954203649");
+    BigInteger primeModulus = lbcrypto::FirstPrime<BigInteger>(nBits, m);
+    BigInteger expectedResult("562949954203649");
     EXPECT_EQ(expectedResult, primeModulus)
       <<"Failure returns_higher_bit_length";
   }
@@ -178,16 +178,16 @@ TEST(UTNbTheory, method_primitive_root_of_unity_VERY_LONG){
     usint m=4096; 
     usint nBits=33;
 	
-    BigBinaryInteger primeModulus = lbcrypto::FirstPrime<BigBinaryInteger>(nBits, m);
-    BigBinaryInteger primitiveRootOfUnity = lbcrypto::RootOfUnity<BigBinaryInteger>(m, primeModulus);
+    BigInteger primeModulus = lbcrypto::FirstPrime<BigInteger>(nBits, m);
+    BigInteger primitiveRootOfUnity = lbcrypto::RootOfUnity<BigInteger>(m, primeModulus);
 
-    BigBinaryInteger M(std::to_string(m)), MbyTwo(M.DividedBy(2));
+    BigInteger M(std::to_string(m)), MbyTwo(M.DividedBy(2));
 
-    BigBinaryInteger wpowerm = primitiveRootOfUnity.ModExp(M, primeModulus);
+    BigInteger wpowerm = primitiveRootOfUnity.ModExp(M, primeModulus);
     EXPECT_EQ(wpowerm, 1)
       <<"Failure single equal_m";
 
-    BigBinaryInteger wpowermbytwo = primitiveRootOfUnity.ModExp(MbyTwo, primeModulus);
+    BigInteger wpowermbytwo = primitiveRootOfUnity.ModExp(MbyTwo, primeModulus);
     EXPECT_NE(wpowermbytwo, 1)
       <<"Failure single not_equal_mbytwo";
   }
@@ -199,20 +199,20 @@ TEST(UTNbTheory, method_primitive_root_of_unity_VERY_LONG){
     const usint nBits=43;
     const int ITERATIONS = m*2;
 
-    BigBinaryInteger M(std::to_string(m)), MbyTwo(M.DividedBy(2)), MbyFour(MbyTwo.DividedBy(2));
+    BigInteger M(std::to_string(m)), MbyTwo(M.DividedBy(2)), MbyFour(MbyTwo.DividedBy(2));
 
-    BigBinaryInteger primeModulus = lbcrypto::FirstPrime<BigBinaryInteger>(nBits, m);
+    BigInteger primeModulus = lbcrypto::FirstPrime<BigInteger>(nBits, m);
 
     for(int i=0; i<ITERATIONS; i++) {
-      BigBinaryInteger primitiveRootOfUnity = lbcrypto::RootOfUnity<BigBinaryInteger>(m, primeModulus);
+      BigInteger primitiveRootOfUnity = lbcrypto::RootOfUnity<BigInteger>(m, primeModulus);
 
-      BigBinaryInteger wpowerm = primitiveRootOfUnity.ModExp(M, primeModulus);
+      BigInteger wpowerm = primitiveRootOfUnity.ModExp(M, primeModulus);
       EXPECT_EQ(wpowerm, 1)
 	<<"Failure single input iteration "<< i <<" equal_m";
-	BigBinaryInteger wpowermbytwo = primitiveRootOfUnity.ModExp(MbyTwo, primeModulus);
+	BigInteger wpowermbytwo = primitiveRootOfUnity.ModExp(MbyTwo, primeModulus);
       EXPECT_NE(wpowermbytwo, 1)
 	<<"Failure single input  iteration "<< i <<" not_equal_mbytwo";
-      BigBinaryInteger wpowermbyfour = primitiveRootOfUnity.ModExp(MbyFour, primeModulus);
+      BigInteger wpowermbyfour = primitiveRootOfUnity.ModExp(MbyFour, primeModulus);
       EXPECT_NE(wpowermbyfour, 1)
 	<<"Failure single input iteration "<< i <<"not_equal_mbyfour";
     }
@@ -251,7 +251,7 @@ TEST(UTNbTheory, method_primitive_root_of_unity_VERY_LONG){
 	int length = sizeof(nqBitsArray)/sizeof(nqBitsArray[0]);
 	// double diff, start, finish;
 	usint n, qBits, m;
-	// BigBinaryInteger M(std::to_string(m)), MbyTwo(M.DividedBy(2)), MbyFour(MbyTwo.DividedBy(2));
+	// BigInteger M(std::to_string(m)), MbyTwo(M.DividedBy(2)), MbyFour(MbyTwo.DividedBy(2));
 
 	for(int i=2; i<length; i += 2) {
 		// fout << "----------------------------------------------------------------------------------------------------------------------------------" << endl;
@@ -260,21 +260,21 @@ TEST(UTNbTheory, method_primitive_root_of_unity_VERY_LONG){
 		qBits = nqBitsArray[i+1];
 		m = 2 * n;
 
-		BigBinaryInteger M(std::to_string(m)), MbyTwo(M.DividedBy(2)), MbyFour(MbyTwo.DividedBy(2));
+		BigInteger M(std::to_string(m)), MbyTwo(M.DividedBy(2)), MbyFour(MbyTwo.DividedBy(2));
 
 		// start = currentDateTime();
 		// fout << "m=" << m << ", qBits=" << qBits << ", M=" << M << ", MbyTwo=" << MbyTwo << endl;
-		BigBinaryInteger primeModulus = lbcrypto::FirstPrime<BigBinaryInteger>(qBits, m);
+		BigInteger primeModulus = lbcrypto::FirstPrime<BigInteger>(qBits, m);
 		// fout << "Prime modulus for n = " << n << " and qbits = " << qBits << " is " << primeModulus << endl;
 
-		BigBinaryInteger primitiveRootOfUnity(lbcrypto::RootOfUnity<BigBinaryInteger>(m, primeModulus));
+		BigInteger primitiveRootOfUnity(lbcrypto::RootOfUnity<BigInteger>(m, primeModulus));
 
 		// fout << "The primitiveRootOfUnity is " << primitiveRootOfUnity << endl;
 
-		// std::set<BigBinaryInteger> rootsOfUnity = testRootsOfUnity(m, primeModulus);
+		// std::set<BigInteger> rootsOfUnity = testRootsOfUnity(m, primeModulus);
 
 		// fout << "Roots of unity for prime modulus " << primeModulus << " are: " << endl;
-		// for(std::set<BigBinaryInteger>::iterator it = rootsOfUnity.begin(); it != rootsOfUnity.end(); ++it) {
+		// for(std::set<BigInteger>::iterator it = rootsOfUnity.begin(); it != rootsOfUnity.end(); ++it) {
 		// 	fout << (*it) << ", ";
 		// }
 		// fout << endl;
@@ -283,17 +283,17 @@ TEST(UTNbTheory, method_primitive_root_of_unity_VERY_LONG){
 		// fout << "Computation time: " << "\t" << diff << " ms" << endl;
 		// fout << "----------------------------------------------------------------------------------------------------------------------------------" << endl;
 
-		BigBinaryInteger wpowerm = primitiveRootOfUnity.ModExp(M, primeModulus);
+		BigInteger wpowerm = primitiveRootOfUnity.ModExp(M, primeModulus);
 		// fout << "w^m = " << wpowerm << endl;
 		EXPECT_EQ(wpowerm, 1)
 		  <<"Failure multi input iteration "<< i <<" equal_m";
 
-		BigBinaryInteger wpowermbytwo = primitiveRootOfUnity.ModExp(MbyTwo, primeModulus);
+		BigInteger wpowermbytwo = primitiveRootOfUnity.ModExp(MbyTwo, primeModulus);
 		// fout << "w^(m/2) = " << wpowermbytwo << endl;
 		EXPECT_NE(wpowermbytwo, 1)
 		  <<"Failure multi input  iteration "<< i <<" not_equal_mbytwo";
 
-		BigBinaryInteger wpowermbyfour = primitiveRootOfUnity.ModExp(MbyFour, primeModulus);
+		BigInteger wpowermbyfour = primitiveRootOfUnity.ModExp(MbyFour, primeModulus);
 		// fout << "w^(m/4) = " << wpowermbyfour << endl;
 		EXPECT_NE(wpowermbyfour, 1)
 		  <<"Failure multi input  iteration "<< i <<" not_equal_mbyfour";
@@ -309,15 +309,15 @@ TEST(UTNbTheory, method_primitive_root_of_unity_VERY_LONG){
   {
 	bool dbg_flag = false;
 	int m = 32;
-	BigBinaryInteger modulus1("67108913"), modulus2("17729"), modulus3("2097169"), modulus4("8353"), modulus5("8369");
+	BigInteger modulus1("67108913"), modulus2("17729"), modulus3("2097169"), modulus4("8353"), modulus5("8369");
 
 	//note this example shows two ways of testing for an exception throw
-	BigBinaryInteger primitiveRootOfUnity1;
+	BigInteger primitiveRootOfUnity1;
 
 	//the first way is to catch the error and expect the result. 
 	int caught_error = 0;
 	try{
-	  primitiveRootOfUnity1 = lbcrypto::RootOfUnity<BigBinaryInteger>(m, modulus1);
+	  primitiveRootOfUnity1 = lbcrypto::RootOfUnity<BigInteger>(m, modulus1);
 	}
 	catch(...) {
 	  caught_error = 1;
@@ -326,12 +326,12 @@ TEST(UTNbTheory, method_primitive_root_of_unity_VERY_LONG){
 	
 	// the second way is to directly expect the throw. 
 	EXPECT_ANY_THROW(	// this call should throw 
-	  primitiveRootOfUnity1 = lbcrypto::RootOfUnity<BigBinaryInteger>(m, modulus1);
+	  primitiveRootOfUnity1 = lbcrypto::RootOfUnity<BigInteger>(m, modulus1);
 	)<<"RootOfUnity did not throw an error and should have";
 
-	BigBinaryInteger primitiveRootOfUnity2;
+	BigInteger primitiveRootOfUnity2;
 	EXPECT_NO_THROW(	// this call should NOT throw 
-	  primitiveRootOfUnity2 = lbcrypto::RootOfUnity<BigBinaryInteger>(m, modulus2);
+	  primitiveRootOfUnity2 = lbcrypto::RootOfUnity<BigInteger>(m, modulus2);
 	)<<"RootOfUnity threw an error and should not have";
 
 	DEBUG("RootOfUnity for " << modulus1 << " is " << primitiveRootOfUnity1);
@@ -341,11 +341,11 @@ TEST(UTNbTheory, method_primitive_root_of_unity_VERY_LONG){
 }
 
 TEST(UTNbTheory, test_nextQ){
-	BigBinaryInteger q;
+	BigInteger q;
 	usint m = 2048;
 	usint bits = 22;
 
-	BigBinaryVector moduliBBV(10);
+	BigVector moduliBBV(10);
     moduliBBV.SetValAtIndex(0, "4263937");
     moduliBBV.SetValAtIndex(1, "4270081");
     moduliBBV.SetValAtIndex(2, "4274177");
@@ -357,7 +357,7 @@ TEST(UTNbTheory, test_nextQ){
     moduliBBV.SetValAtIndex(8, "4360193");
     moduliBBV.SetValAtIndex(9, "4366337");
 
-	q = FirstPrime<BigBinaryInteger>(bits,m);
+	q = FirstPrime<BigInteger>(bits,m);
 	for(usint i=0; i<10; i++){
         q = NextPrime(q, m);
 		EXPECT_EQ(q, moduliBBV.GetValAtIndex(i));

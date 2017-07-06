@@ -37,7 +37,7 @@
 namespace lbcrypto {
 
 template <typename IntType, typename VecType, typename Element>
-void SignedIntPlaintextEncoding::doEncode(const BigBinaryInteger &modulus, Element *ilVector, size_t startFrom, size_t length) const
+void SignedIntPlaintextEncoding::doEncode(const BigInteger &modulus, Element *ilVector, size_t startFrom, size_t length) const
 {
 	size_t padlen = 0;
 	int64_t mod = modulus.ConvertToInt();
@@ -73,12 +73,12 @@ void SignedIntPlaintextEncoding::doEncode(const BigBinaryInteger &modulus, Eleme
 	ilVector->SetValues(temp,format);
 }
 
-void SignedIntPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector, size_t start_from, size_t length) const {
-	doEncode<BigBinaryInteger,BigBinaryVector,ILVector2n>(modulus,ilVector,start_from,length);
+void SignedIntPlaintextEncoding::Encode(const BigInteger &modulus, Poly *ilVector, size_t start_from, size_t length) const {
+	doEncode<BigInteger,BigVector,Poly>(modulus,ilVector,start_from,length);
 }
 
 template <typename IntType, typename VecType, typename Element>
-void SignedIntPlaintextEncoding::doDecode(const BigBinaryInteger &modulus, Element *ilVector) {
+void SignedIntPlaintextEncoding::doDecode(const BigInteger &modulus, Element *ilVector) {
 
 	uint64_t mod = modulus.ConvertToInt();
 	int64_t lim = mod/2;
@@ -89,12 +89,12 @@ void SignedIntPlaintextEncoding::doDecode(const BigBinaryInteger &modulus, Eleme
 	}
 }
 
-void SignedIntPlaintextEncoding::Decode(const BigBinaryInteger &modulus, ILVector2n *ilVector) {
-	doDecode<BigBinaryInteger,BigBinaryVector,ILVector2n>(modulus,ilVector);
+void SignedIntPlaintextEncoding::Decode(const BigInteger &modulus, Poly *ilVector) {
+	doDecode<BigInteger,BigVector,Poly>(modulus,ilVector);
 }
 
 size_t
-SignedIntPlaintextEncoding::GetChunksize(const usint ring, const BigBinaryInteger&) const
+SignedIntPlaintextEncoding::GetChunksize(const usint ring, const BigInteger&) const
 {
 	return ring;
 }

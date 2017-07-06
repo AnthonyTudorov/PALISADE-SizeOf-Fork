@@ -29,14 +29,14 @@ namespace lbcrypto
 {
 
 //Constructor from ring element
-Field2n::Field2n(const ILVector2n & element)
+Field2n::Field2n(const Poly & element)
 {
 	if (element.GetFormat() != COEFFICIENT) {
-		throw std::logic_error("ILVector2n not in coefficient representation");
+		throw std::logic_error("Poly not in coefficient representation");
 	} else {
 		// the value of element.GetValAtIndex(i) is usually small - so a 32-bit integer is more than enough
-		// this approach is much faster than BigBinaryInteger::ConvertToDouble
-		BigBinaryInteger negativeThreshold(element.GetModulus()/ 2);
+		// this approach is much faster than BigInteger::ConvertToDouble
+		BigInteger negativeThreshold(element.GetModulus()/ 2);
 		for (size_t i = 0; i < element.GetLength(); i++) {
 			if (element.GetValAtIndex(i) > negativeThreshold)
 				this->push_back((double)(int32_t)(-1 * (element.GetModulus() - element.GetValAtIndex(i)).ConvertToInt()));

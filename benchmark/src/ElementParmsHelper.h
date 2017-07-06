@@ -23,39 +23,39 @@
  *
  */
 
-shared_ptr<ILParams> parm_8_30( new ILParams(8, BigBinaryInteger("536871001"), BigBinaryInteger("322299632")) );
-shared_ptr<ILParams> parm_8_60( new ILParams(8, BigBinaryInteger("576460752303423649"), BigBinaryInteger("168966263632512486")) );
-shared_ptr<ILParams> parm_8_100( new ILParams(8, BigBinaryInteger("633825300114114700748351603497"), BigBinaryInteger("346785002350981855777149989030")) );
-shared_ptr<ILParams> parm_16_30( new ILParams(16, BigBinaryInteger("536871089"), BigBinaryInteger("453444631")) );
-shared_ptr<ILParams> parm_16_60( new ILParams(16, BigBinaryInteger("576460752303423649"), BigBinaryInteger("445222158767550178")) );
-shared_ptr<ILParams> parm_16_100( new ILParams(16, BigBinaryInteger("633825300114114700748351603777"), BigBinaryInteger("158526154030753428971875578867")) );
-shared_ptr<ILParams> parm_32_30( new ILParams(32, BigBinaryInteger("536871233"), BigBinaryInteger("270599745")) );
-shared_ptr<ILParams> parm_32_60( new ILParams(32, BigBinaryInteger("576460752303423649"), BigBinaryInteger("189737790501446066")) );
-shared_ptr<ILParams> parm_32_100( new ILParams(32, BigBinaryInteger("633825300114114700748351603777"), BigBinaryInteger("548092891331783023532813998227")) );
-shared_ptr<ILParams> parm_64_30( new ILParams(64, BigBinaryInteger("536871233"), BigBinaryInteger("268585022")) );
-shared_ptr<ILParams> parm_64_60( new ILParams(64, BigBinaryInteger("576460752303426241"), BigBinaryInteger("42065371588604318")) );
-shared_ptr<ILParams> parm_64_100( new ILParams(64, BigBinaryInteger("633825300114114700748351603777"), BigBinaryInteger("112238319142051274089073361078")) );
-shared_ptr<ILParams> parm_128_30( new ILParams(128, BigBinaryInteger("536872321"), BigBinaryInteger("536138614")) );
-shared_ptr<ILParams> parm_128_60( new ILParams(128, BigBinaryInteger("576460752303430529"), BigBinaryInteger("285497987503397922")) );
-shared_ptr<ILParams> parm_128_100( new ILParams(128, BigBinaryInteger("633825300114114700748351608961"), BigBinaryInteger("285911309737765344820779602428")) );
-shared_ptr<ILParams> parm_256_30( new ILParams(256, BigBinaryInteger("536874497"), BigBinaryInteger("20558990")) );
-shared_ptr<ILParams> parm_256_60( new ILParams(256, BigBinaryInteger("576460752303434497"), BigBinaryInteger("156313576129429466")) );
-shared_ptr<ILParams> parm_256_100( new ILParams(256, BigBinaryInteger("633825300114114700748351611393"), BigBinaryInteger("357592901114840193907394379371")) );
-shared_ptr<ILParams> parm_512_30( new ILParams(512, BigBinaryInteger("536874497"), BigBinaryInteger("2031030")) );
-shared_ptr<ILParams> parm_512_60( new ILParams(512, BigBinaryInteger("576460752303436801"), BigBinaryInteger("22441747419598564")) );
-shared_ptr<ILParams> parm_512_100( new ILParams(512, BigBinaryInteger("633825300114114700748351611393"), BigBinaryInteger("390541910591016109011030492388")) );
-shared_ptr<ILParams> parm_1024_30( new ILParams(1024, BigBinaryInteger("536881153"), BigBinaryInteger("295184143")) );
-shared_ptr<ILParams> parm_1024_60( new ILParams(1024, BigBinaryInteger("576460752303436801"), BigBinaryInteger("358469952161664325")) );
-shared_ptr<ILParams> parm_1024_100( new ILParams(1024, BigBinaryInteger("633825300114114700748351634433"), BigBinaryInteger("90487631240944978775994429419")) );
-shared_ptr<ILParams> parm_2048_30( new ILParams(2048, BigBinaryInteger("536881153"), BigBinaryInteger("27661536")) );
-shared_ptr<ILParams> parm_2048_60( new ILParams(2048, BigBinaryInteger("576460752303439873"), BigBinaryInteger("227218586376681578")) );
-shared_ptr<ILParams> parm_2048_100( new ILParams(2048, BigBinaryInteger("633825300114114700748351660033"), BigBinaryInteger("538656593806121444004599743100")) );
-shared_ptr<ILParams> parm_4096_30( new ILParams(4096, BigBinaryInteger("536903681"), BigBinaryInteger("316679111")) );
-shared_ptr<ILParams> parm_4096_60( new ILParams(4096, BigBinaryInteger("576460752303439873"), BigBinaryInteger("37211485026155169")) );
-shared_ptr<ILParams> parm_4096_100( new ILParams(4096, BigBinaryInteger("633825300114114700748351660033"), BigBinaryInteger("136971478753003267070551058410")) );
-shared_ptr<ILParams> parm_8192_30( new ILParams(8192, BigBinaryInteger("536903681"), BigBinaryInteger("242542334")) );
-shared_ptr<ILParams> parm_8192_60( new ILParams(8192, BigBinaryInteger("576460752303439873"), BigBinaryInteger("478250159403020681")) );
-shared_ptr<ILParams> parm_8192_100( new ILParams(8192, BigBinaryInteger("633825300114114700748351660033"), BigBinaryInteger("522089389445617342265930548090")) );
+shared_ptr<ILParams> parm_8_30( new ILParams(8, BigInteger("536871001"), BigInteger("322299632")) );
+shared_ptr<ILParams> parm_8_60( new ILParams(8, BigInteger("576460752303423649"), BigInteger("168966263632512486")) );
+shared_ptr<ILParams> parm_8_100( new ILParams(8, BigInteger("633825300114114700748351603497"), BigInteger("346785002350981855777149989030")) );
+shared_ptr<ILParams> parm_16_30( new ILParams(16, BigInteger("536871089"), BigInteger("453444631")) );
+shared_ptr<ILParams> parm_16_60( new ILParams(16, BigInteger("576460752303423649"), BigInteger("445222158767550178")) );
+shared_ptr<ILParams> parm_16_100( new ILParams(16, BigInteger("633825300114114700748351603777"), BigInteger("158526154030753428971875578867")) );
+shared_ptr<ILParams> parm_32_30( new ILParams(32, BigInteger("536871233"), BigInteger("270599745")) );
+shared_ptr<ILParams> parm_32_60( new ILParams(32, BigInteger("576460752303423649"), BigInteger("189737790501446066")) );
+shared_ptr<ILParams> parm_32_100( new ILParams(32, BigInteger("633825300114114700748351603777"), BigInteger("548092891331783023532813998227")) );
+shared_ptr<ILParams> parm_64_30( new ILParams(64, BigInteger("536871233"), BigInteger("268585022")) );
+shared_ptr<ILParams> parm_64_60( new ILParams(64, BigInteger("576460752303426241"), BigInteger("42065371588604318")) );
+shared_ptr<ILParams> parm_64_100( new ILParams(64, BigInteger("633825300114114700748351603777"), BigInteger("112238319142051274089073361078")) );
+shared_ptr<ILParams> parm_128_30( new ILParams(128, BigInteger("536872321"), BigInteger("536138614")) );
+shared_ptr<ILParams> parm_128_60( new ILParams(128, BigInteger("576460752303430529"), BigInteger("285497987503397922")) );
+shared_ptr<ILParams> parm_128_100( new ILParams(128, BigInteger("633825300114114700748351608961"), BigInteger("285911309737765344820779602428")) );
+shared_ptr<ILParams> parm_256_30( new ILParams(256, BigInteger("536874497"), BigInteger("20558990")) );
+shared_ptr<ILParams> parm_256_60( new ILParams(256, BigInteger("576460752303434497"), BigInteger("156313576129429466")) );
+shared_ptr<ILParams> parm_256_100( new ILParams(256, BigInteger("633825300114114700748351611393"), BigInteger("357592901114840193907394379371")) );
+shared_ptr<ILParams> parm_512_30( new ILParams(512, BigInteger("536874497"), BigInteger("2031030")) );
+shared_ptr<ILParams> parm_512_60( new ILParams(512, BigInteger("576460752303436801"), BigInteger("22441747419598564")) );
+shared_ptr<ILParams> parm_512_100( new ILParams(512, BigInteger("633825300114114700748351611393"), BigInteger("390541910591016109011030492388")) );
+shared_ptr<ILParams> parm_1024_30( new ILParams(1024, BigInteger("536881153"), BigInteger("295184143")) );
+shared_ptr<ILParams> parm_1024_60( new ILParams(1024, BigInteger("576460752303436801"), BigInteger("358469952161664325")) );
+shared_ptr<ILParams> parm_1024_100( new ILParams(1024, BigInteger("633825300114114700748351634433"), BigInteger("90487631240944978775994429419")) );
+shared_ptr<ILParams> parm_2048_30( new ILParams(2048, BigInteger("536881153"), BigInteger("27661536")) );
+shared_ptr<ILParams> parm_2048_60( new ILParams(2048, BigInteger("576460752303439873"), BigInteger("227218586376681578")) );
+shared_ptr<ILParams> parm_2048_100( new ILParams(2048, BigInteger("633825300114114700748351660033"), BigInteger("538656593806121444004599743100")) );
+shared_ptr<ILParams> parm_4096_30( new ILParams(4096, BigInteger("536903681"), BigInteger("316679111")) );
+shared_ptr<ILParams> parm_4096_60( new ILParams(4096, BigInteger("576460752303439873"), BigInteger("37211485026155169")) );
+shared_ptr<ILParams> parm_4096_100( new ILParams(4096, BigInteger("633825300114114700748351660033"), BigInteger("136971478753003267070551058410")) );
+shared_ptr<ILParams> parm_8192_30( new ILParams(8192, BigInteger("536903681"), BigInteger("242542334")) );
+shared_ptr<ILParams> parm_8192_60( new ILParams(8192, BigInteger("576460752303439873"), BigInteger("478250159403020681")) );
+shared_ptr<ILParams> parm_8192_100( new ILParams(8192, BigInteger("633825300114114700748351660033"), BigInteger("522089389445617342265930548090")) );
 
 shared_ptr<ILParams> parmArray[] = {
 parm_8_30,

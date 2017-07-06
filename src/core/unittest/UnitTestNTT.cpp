@@ -35,7 +35,7 @@ Test cases in this file make the following assumptions:
 #include "include/gtest/gtest.h"
 #include <iostream>
 
-#include "../lib/lattice/ildcrt2n.h"
+#include "../lib/lattice/dcrtpoly.h"
 #include "math/backend.h"
 #include "math/nbtheory.h"
 #include "math/distrgen.h"
@@ -43,7 +43,7 @@ Test cases in this file make the following assumptions:
 #include "lattice/ilparams.h"
 #include "lattice/ildcrtparams.h"
 #include "lattice/ilelement.h"
-#include "lattice/ilvector2n.h"
+#include "lattice/poly.h"
 #include "utils/inttypes.h"
 #include "utils/utilities.h"
 
@@ -76,21 +76,21 @@ protected:
 TEST(UTNTT, switch_format_simple_single_crt) {
 	usint m1 = 16;
 
-	BigBinaryInteger modulus = FirstPrime<BigBinaryInteger>(22, m1);
-	BigBinaryInteger rootOfUnity(RootOfUnity(m1, modulus));
+	BigInteger modulus = FirstPrime<BigInteger>(22, m1);
+	BigInteger rootOfUnity(RootOfUnity(m1, modulus));
 	ILParams params(m1, modulus, rootOfUnity);
 	ILParams params2(m1 / 2, modulus, rootOfUnity);
 	shared_ptr<ILParams> x1p( new ILParams(params) );
 	shared_ptr<ILParams> x2p( new ILParams(params2) );
 
-	ILVector2n x1( x1p, Format::COEFFICIENT );
+	Poly x1( x1p, Format::COEFFICIENT );
 	x1 = { 431,3414,1234,7845,2145,7415,5471,8452 };
 
-	ILVector2n x2( x2p, Format::COEFFICIENT );
+	Poly x2( x2p, Format::COEFFICIENT );
 	x2 = { 4127,9647,1987,5410 };
 
-	ILVector2n x1Clone(x1);
-	ILVector2n x2Clone(x2);
+	Poly x1Clone(x1);
+	Poly x2Clone(x2);
 
 	x1.SwitchFormat();
 	x2.SwitchFormat();
@@ -108,32 +108,32 @@ TEST(UTNTT, switch_format_simple_double_crt) {
 
 	usint init_size = 2;
 
-	vector<native_int::BinaryInteger> init_moduli(init_size);
-	vector<native_int::BinaryInteger> init_rootsOfUnity(init_size);
+	vector<native_int::BigInteger> init_moduli(init_size);
+	vector<native_int::BigInteger> init_rootsOfUnity(init_size);
 
-	native_int::BinaryInteger q = FirstPrime<native_int::BinaryInteger>(28, init_m);
-	native_int::BinaryInteger temp;
-	BigBinaryInteger modulus(1);
+	native_int::BigInteger q = FirstPrime<native_int::BigInteger>(28, init_m);
+	native_int::BigInteger temp;
+	BigInteger modulus(1);
 
 	for (size_t i = 0; i < init_size; i++) {
 		init_moduli[i] = q;
 		init_rootsOfUnity[i] = RootOfUnity(init_m, init_moduli[i]);
-		modulus = modulus * BigBinaryInteger(init_moduli[i].ConvertToInt());
+		modulus = modulus * BigInteger(init_moduli[i].ConvertToInt());
 		q = NextPrime(q, init_m);
 	}
 
 	DiscreteGaussianGenerator dgg(init_stdDev);
 
-	shared_ptr<ILDCRTParams<BigBinaryInteger>> params( new ILDCRTParams<BigBinaryInteger>(init_m, init_moduli, init_rootsOfUnity) );
+	shared_ptr<ILDCRTParams<BigInteger>> params( new ILDCRTParams<BigInteger>(init_m, init_moduli, init_rootsOfUnity) );
 
-	ILDCRT2n x1(params, Format::COEFFICIENT);
+	DCRTPoly x1(params, Format::COEFFICIENT);
 	x1 = { 431,3414,1234,7845,2145,7415,5471,8452 };
 
-	ILDCRT2n x2(params, Format::COEFFICIENT);
+	DCRTPoly x2(params, Format::COEFFICIENT);
 	x2 = { 4127,9647,1987,5410,6541,7014,9741,1256 };
 
-	ILDCRT2n x1Clone(x1);
-	ILDCRT2n x2Clone(x2);
+	DCRTPoly x1Clone(x1);
+	DCRTPoly x2Clone(x2);
 
 	x1.SwitchFormat();
 	x2.SwitchFormat();
@@ -148,15 +148,15 @@ TEST(UTNTT, switch_format_decompose_single_crt) {
         bool dbg_flag = false;
 	usint m1 = 16;
 
-	BigBinaryInteger modulus = FirstPrime<BigBinaryInteger>(22, m1);
-	BigBinaryInteger rootOfUnity(RootOfUnity(m1, modulus));
+	BigInteger modulus = FirstPrime<BigInteger>(22, m1);
+	BigInteger rootOfUnity(RootOfUnity(m1, modulus));
 	shared_ptr<ILParams> params( new ILParams(m1, modulus, rootOfUnity) );
 	shared_ptr<ILParams> params2( new ILParams(m1 / 2, modulus, rootOfUnity) );
 
-	ILVector2n x1(params, Format::COEFFICIENT);
+	Poly x1(params, Format::COEFFICIENT);
 	x1 = { 431,3414,1234,7845,2145,7415,5471,8452 };
 
-	ILVector2n x2(params, Format::COEFFICIENT);
+	Poly x2(params, Format::COEFFICIENT);
 	x2 = { 4127,9647,1987,5410,6541,7014,9741,1256 };
 
 	x1.SwitchFormat(); //EVAL
@@ -174,10 +174,10 @@ TEST(UTNTT, switch_format_decompose_single_crt) {
 	x1.SwitchFormat(); //EVAL
 	x2.SwitchFormat();
 
-	ILVector2n x1Expected(params2, Format::COEFFICIENT);
+	Poly x1Expected(params2, Format::COEFFICIENT);
 	x1Expected = { 431,1234,2145,5471};
 
-	ILVector2n x2Expected(params2, Format::COEFFICIENT);
+	Poly x2Expected(params2, Format::COEFFICIENT);
 	x2Expected = { 4127,1987,6541,9741 };
 
 	DEBUG("x1: "<<x1);
@@ -200,14 +200,14 @@ TEST(UTNTT, decomposeMult_double_crt) {
 
 	usint init_size = 2;
 
-	vector<native_int::BinaryInteger> init_moduli(init_size);
+	vector<native_int::BigInteger> init_moduli(init_size);
 
-	vector<native_int::BinaryInteger> init_rootsOfUnity(init_size);
+	vector<native_int::BigInteger> init_rootsOfUnity(init_size);
 
-	native_int::BinaryInteger temp;
+	native_int::BigInteger temp;
 	
-	init_moduli[0] = native_int::BinaryInteger("17729");
-	init_moduli[1] = native_int::BinaryInteger("17761");
+	init_moduli[0] = native_int::BigInteger("17729");
+	init_moduli[1] = native_int::BigInteger("17761");
 
 
 	for (size_t i = 0; i < init_size; i++) {
@@ -216,15 +216,15 @@ TEST(UTNTT, decomposeMult_double_crt) {
 
 	DiscreteGaussianGenerator dgg(init_stdDev);
 
-	shared_ptr<ILDCRTParams<BigBinaryInteger>> params( new ILDCRTParams<BigBinaryInteger>(init_m, init_moduli, init_rootsOfUnity) );
+	shared_ptr<ILDCRTParams<BigInteger>> params( new ILDCRTParams<BigInteger>(init_m, init_moduli, init_rootsOfUnity) );
 
-	ILDCRT2n x1(params, Format::COEFFICIENT);
+	DCRTPoly x1(params, Format::COEFFICIENT);
 	x1 = { 0,0,0,0,0,0,1,0 };
 
-	ILDCRT2n x2(params, Format::COEFFICIENT);
+	DCRTPoly x2(params, Format::COEFFICIENT);
 	x2 = { 0,0,0,0,0,0,1,0 };
 
-	ILDCRT2n resultsEval(x2.CloneParametersOnly());
+	DCRTPoly resultsEval(x2.CloneParametersOnly());
 	resultsEval = { 0,0,0,0,0,0,0,0 };
 	resultsEval.SwitchFormat();
 
@@ -249,12 +249,12 @@ TEST(UTNTT, decomposeMult_double_crt) {
 
 	EXPECT_EQ(resultsEval.GetElementAtIndex(0).GetValAtIndex(0), 0);
 	EXPECT_EQ(resultsEval.GetElementAtIndex(0).GetValAtIndex(1), 0);
-	EXPECT_EQ(resultsEval.GetElementAtIndex(0).GetValAtIndex(2), native_int::BinaryInteger("17728"));
+	EXPECT_EQ(resultsEval.GetElementAtIndex(0).GetValAtIndex(2), native_int::BigInteger("17728"));
 	EXPECT_EQ(resultsEval.GetElementAtIndex(0).GetValAtIndex(3), 0);
 
 	EXPECT_EQ(resultsEval.GetElementAtIndex(1).GetValAtIndex(0), 0);
 	EXPECT_EQ(resultsEval.GetElementAtIndex(1).GetValAtIndex(1), 0);
-	EXPECT_EQ(resultsEval.GetElementAtIndex(1).GetValAtIndex(2), native_int::BinaryInteger("17760"));
+	EXPECT_EQ(resultsEval.GetElementAtIndex(1).GetValAtIndex(2), native_int::BigInteger("17760"));
 	EXPECT_EQ(resultsEval.GetElementAtIndex(1).GetValAtIndex(3), 0);
 }
 
@@ -262,16 +262,16 @@ TEST(UTNTT, decomposeMult_single_crt) {
   bool dbg_flag = false;
 	usint m1 = 16;
 
-	BigBinaryInteger modulus("17729");
-	BigBinaryInteger rootOfUnity(RootOfUnity(m1, modulus));
+	BigInteger modulus("17729");
+	BigInteger rootOfUnity(RootOfUnity(m1, modulus));
 	shared_ptr<ILParams> params( new ILParams(m1, modulus, rootOfUnity) );
 	shared_ptr<ILParams> params2( new ILParams(m1 / 2, modulus, rootOfUnity) );
 
-	ILVector2n x1(params, Format::COEFFICIENT);
+	Poly x1(params, Format::COEFFICIENT);
 
 	x1 = { 0,0,0,0,0,0,1,0 };
 
-	ILVector2n x2(params, Format::COEFFICIENT);
+	Poly x2(params, Format::COEFFICIENT);
 	x2 = { 0,0,0,0,0,0,1,0 };
 
 	x1.SwitchFormat(); //dbc remember to remove thtese. 
@@ -285,7 +285,7 @@ TEST(UTNTT, decomposeMult_single_crt) {
 	DEBUG("x1.Decompose() "<<x1.GetValues());
 	DEBUG("x2.Decompose() "<<x2.GetValues());
 
-	ILVector2n resultsEval(params2, Format::EVALUATION);
+	Poly resultsEval(params2, Format::EVALUATION);
 	DEBUG("resultsEval.modulus"<< resultsEval.GetModulus());
 
 	x1.SwitchFormat();
@@ -303,7 +303,7 @@ TEST(UTNTT, decomposeMult_single_crt) {
 
 	EXPECT_EQ(resultsEval.GetValAtIndex(0), 0);
 	EXPECT_EQ(resultsEval.GetValAtIndex(1), 0);
-	EXPECT_EQ(resultsEval.GetValAtIndex(2), BigBinaryInteger("17728"));
+	EXPECT_EQ(resultsEval.GetValAtIndex(2), BigInteger("17728"));
 	EXPECT_EQ(resultsEval.GetValAtIndex(3), 0);
 
 }

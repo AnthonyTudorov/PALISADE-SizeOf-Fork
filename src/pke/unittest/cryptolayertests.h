@@ -46,7 +46,7 @@ using namespace lbcrypto;
  * @param plaintextFull
  * @param plaintextLong
  */
-inline void GenerateTestPlaintext(int cyclotomicOrder, const BigBinaryInteger& ptm,
+inline void GenerateTestPlaintext(int cyclotomicOrder, const BigInteger& ptm,
 	BytePlaintextEncoding& plaintextShort,
 	BytePlaintextEncoding& plaintextFull,
 	BytePlaintextEncoding& plaintextLong) {

@@ -35,12 +35,12 @@
 namespace lbcrypto
 {
 template<typename IntType> class ILParamsImpl;
-typedef ILParamsImpl<BigBinaryInteger> ILParams;
+typedef ILParamsImpl<BigInteger> ILParams;
 }
 
 namespace native_int
 {
-typedef lbcrypto::ILParamsImpl<native_int::BinaryInteger> ILParams;
+typedef lbcrypto::ILParamsImpl<native_int::BigInteger> ILParams;
 }
 
 namespace lbcrypto
@@ -120,8 +120,8 @@ public:
 	/**
 	 * @brief Equality operator compares ElemParams (which will be dynamic casted)
 	 *
-	 * @param &rhs is the specified ILVector2n to be compared with this ILVector2n.
-	 * @return True if this ILVector2n represents the same values as the specified ILDCRT2n, False otherwise
+	 * @param &rhs is the specified Poly to be compared with this Poly.
+	 * @return True if this Poly represents the same values as the specified DCRTPoly, False otherwise
 	 */
 	bool operator==(const ElemParams<IntType>& rhs) const {
 		if( dynamic_cast<const ILParamsImpl<IntType> *>(&rhs) == 0 )

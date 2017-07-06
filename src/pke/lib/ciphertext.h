@@ -301,7 +301,7 @@ namespace lbcrypto {
 	private:
 
 		//FUTURE ENHANCEMENT: current value of error norm
-		//BigBinaryInteger m_norm;
+		//BigInteger m_norm;
 
 		std::vector<Element> m_elements;		/*!< vector of ring elements for this Ciphertext */
 		bool m_isEncrypted;

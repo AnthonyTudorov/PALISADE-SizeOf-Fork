@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) {
 
 	start = currentDateTime();
 
-	shared_ptr<CryptoContext<ILVector2n>> cryptoContext = CryptoContextHelper::getNewContext(input);
+	shared_ptr<CryptoContext<Poly>> cryptoContext = CryptoContextHelper::getNewContext(input);
 	if( !cryptoContext ) {
 		cout << "Error on " << input << endl;
 		return 0;
@@ -78,7 +78,7 @@ int main(int argc, char *argv[]) {
 
 	cout << "Param generation time: " << "\t" << diff << " ms" << endl;
 
-	//cryptoContext<ILVector2n> cryptoContext = GencryptoContextElementLTV(ORDER, PTM);
+	//cryptoContext<Poly> cryptoContext = GencryptoContextElementLTV(ORDER, PTM);
 
 	//Turn on features
 	cryptoContext->Enable(ENCRYPTION);
@@ -91,7 +91,7 @@ int main(int argc, char *argv[]) {
 	//std::cin.get();
 	
 	// Initialize Public Key Containers
-	LPKeyPair<ILVector2n> keyPair;
+	LPKeyPair<Poly> keyPair;
 	
 	////////////////////////////////////////////////////////////
 	// Perform Key Generation Operation
@@ -124,7 +124,7 @@ int main(int argc, char *argv[]) {
 	////////////////////////////////////////////////////////////
 
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertext;
 
 	start = currentDateTime();
 

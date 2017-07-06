@@ -131,17 +131,17 @@ namespace lbcrypto {
 		/**
 		*Method for setting the ILParams held in this class
 		*
-		*@param params Parameters to be held, used in ILVector construction
+		*@param params Parameters to be held, used in Poly construction
 		*/
 		void SetElemParams(shared_ptr<ILParams> params) { 
 			m_params = params; 
-			const BigBinaryInteger & q = params->GetModulus();
+			const BigInteger & q = params->GetModulus();
 			size_t n = params->GetRingDimension();
 			double logTwo = log(q.ConvertToDouble() - 1.0) / log(2) + 1.0;
 			size_t k = (usint)floor(logTwo);
 			double c = 2 * SIGMA;
 			double s = SPECTRAL_BOUND(n, k);
-			dggLargeSigma = ILVector2n::DggType(sqrt(s * s - c * c));
+			dggLargeSigma = Poly::DggType(sqrt(s * s - c * c));
 		};
 
 		/**
@@ -156,14 +156,14 @@ namespace lbcrypto {
 		*
 		*@return DiscreteGaussianGenerator object held
 		*/
-		ILVector2n::DggType & GetDiscreteGaussianGenerator() { return dgg; }
+		Poly::DggType & GetDiscreteGaussianGenerator() { return dgg; }
 
 		/**
 		*Method for accessing the DiscreteGaussianGenerator object held in this class
 		*
 		*@return DiscreteGaussianGenerator object held
 		*/
-		ILVector2n::DggType & GetDiscreteGaussianGeneratorLargeSigma() { return dggLargeSigma; }
+		Poly::DggType & GetDiscreteGaussianGeneratorLargeSigma() { return dggLargeSigma; }
 
 		/**
 		*Default constructor
@@ -171,25 +171,25 @@ namespace lbcrypto {
 		LPSignatureParameters() {}
 		/**
 		*Constructor
-		*@param params Parameters used in ILVector construction
+		*@param params Parameters used in Poly construction
 		*@param dgg DiscreteGaussianGenerator used in sampling
 		*/
-		LPSignatureParameters(shared_ptr<ILParams> params, ILVector2n::DggType dgg) : dgg(dgg) {
+		LPSignatureParameters(shared_ptr<ILParams> params, Poly::DggType dgg) : dgg(dgg) {
 			m_params = params;
-			const BigBinaryInteger & q = params->GetModulus();
+			const BigInteger & q = params->GetModulus();
 			size_t n = params->GetRingDimension();
 			double logTwo = log(q.ConvertToDouble() - 1.0) / log(2) + 1.0;
 			size_t k = (usint)floor(logTwo);
 			double c = 2 * SIGMA;
 			double s = SPECTRAL_BOUND(n, k);
-			dggLargeSigma = ILVector2n::DggType(sqrt(s * s - c * c));
+			dggLargeSigma = Poly::DggType(sqrt(s * s - c * c));
 		}
 
 
 	private:
 		shared_ptr<ILParams> m_params;
-		ILVector2n::DggType dgg;
-		ILVector2n::DggType dggLargeSigma;
+		Poly::DggType dgg;
+		Poly::DggType dggLargeSigma;
 	};
 
 	/**

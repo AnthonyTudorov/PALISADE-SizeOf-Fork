@@ -41,7 +41,7 @@ int main( int argc, char *argv[] ) {
 	stringstream	parmarray;
 	int parmindex = 0;
 
-	BigBinaryInteger mod, rootUnity;
+	BigInteger mod, rootUnity;
 	int shifts[] = { 30, 60, 100, }; //300, 500 };
 
 	parmarray << "shared_ptr<ILParams> parmArray[] = {" << endl;
@@ -49,8 +49,8 @@ int main( int argc, char *argv[] ) {
 	for( int o=8; o<=8192; o *= 2 ) {
 		for( size_t s = 0; s < sizeof(shifts)/sizeof(shifts[0]); s++ ) {
 			string pname = "parm_" + std::to_string(o) + "_" + std::to_string(shifts[s]);
-			mod = FirstPrime<BigBinaryInteger>(shifts[s], o);
-			rootUnity = RootOfUnity<BigBinaryInteger>(o, mod);
+			mod = FirstPrime<BigInteger>(shifts[s], o);
+			rootUnity = RootOfUnity<BigInteger>(o, mod);
 
 			macrocode1 << "BENCHMARK(X)->ArgName(\"" << pname << "\")->Arg(" << parmindex << "); \\" << endl;
 			macrocode2 << "BENCHMARK_TEMPLATE(X,Y)->ArgName(\"" << pname << "\")->Arg(" << parmindex << "); \\" << endl;
@@ -59,7 +59,7 @@ int main( int argc, char *argv[] ) {
 			parmarray << pname << "," << endl;
 
 			cout << "shared_ptr<ILParams> " << pname << "( new ILParams(" << o 
-			<< ", BigBinaryInteger(\"" << mod << "\"), BigBinaryInteger(\"" << rootUnity
+			<< ", BigInteger(\"" << mod << "\"), BigInteger(\"" << rootUnity
 			<< "\")) );" << endl;
 		}
 	}

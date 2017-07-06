@@ -88,15 +88,15 @@ rationalInt ArbBVLinearRegressionPackedArray() {
 
 	usint m = 22;
 	usint p = 2333;
-	BigBinaryInteger modulusP(p);
-	BigBinaryInteger modulusQ("1267650600228229401496703214121");
-	BigBinaryInteger squareRootOfRoot("498618454049802547396506932253");
+	BigInteger modulusP(p);
+	BigInteger modulusQ("1267650600228229401496703214121");
+	BigInteger squareRootOfRoot("498618454049802547396506932253");
 
-	BigBinaryInteger bigmodulus("1645504557321206042154969182557350504982735865633579863348616321");
-	BigBinaryInteger bigroot("201473555181182026164891698186176997440470643522932663932844212");
+	BigInteger bigmodulus("1645504557321206042154969182557350504982735865633579863348616321");
+	BigInteger bigroot("201473555181182026164891698186176997440470643522932663932844212");
 	
-	auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulusQ);
-	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulusQ);
+	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
+	ChineseRemainderTransformArb<BigInteger, BigVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 	PackedIntPlaintextEncoding::SetParams(modulusP, m);
 
@@ -108,13 +108,13 @@ rationalInt ArbBVLinearRegressionPackedArray() {
 
 	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP), batchSize));
 
-	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, encodingParams, 8, stdDev, OPTIMIZED);
+	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, encodingParams, 8, stdDev, OPTIMIZED);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc->KeyGen();
+	LPKeyPair<Poly> kp = cc->KeyGen();
 
 	// Compute evaluation keys
 	cc->EvalSumKeyGen(kp.secretKey);
@@ -135,9 +135,9 @@ rationalInt ArbBVLinearRegressionPackedArray() {
 	//Encryption
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> x = cc->EncryptMatrix(kp.publicKey, xP);
+	shared_ptr<Matrix<RationalCiphertext<Poly>>> x = cc->EncryptMatrix(kp.publicKey, xP);
 
-	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> y = cc->EncryptMatrix(kp.publicKey, yP);
+	shared_ptr<Matrix<RationalCiphertext<Poly>>> y = cc->EncryptMatrix(kp.publicKey, yP);
 
 	////////////////////////////////////////////////////////////
 	//Linear Regression
@@ -163,32 +163,32 @@ rationalInt ArbBVLinearRegressionPackedArray() {
 
 rationalInt ArbFVLinearRegressionPackedArray() {
 
-	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().Destroy();
+	ChineseRemainderTransformArb<BigInteger, BigVector>::GetInstance().Destroy();
 
 	usint m = 22;
 
 	usint p = 2333; // we choose s.t. 2m|p-1 to leverage CRTArb
-	BigBinaryInteger modulusQ("1152921504606847009");
-	BigBinaryInteger modulusP(p);
-	BigBinaryInteger rootOfUnity("1147559132892757400");
+	BigInteger modulusQ("1152921504606847009");
+	BigInteger modulusP(p);
+	BigInteger rootOfUnity("1147559132892757400");
 
-	BigBinaryInteger bigmodulus("42535295865117307932921825928971026753");
-	BigBinaryInteger bigroot("13201431150704581233041184864526870950");
+	BigInteger bigmodulus("42535295865117307932921825928971026753");
+	BigInteger bigroot("13201431150704581233041184864526870950");
 
-	auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulusQ);
-	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
+	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
+	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 	float stdDev = 4;
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, rootOfUnity, bigmodulus, bigroot));
 
-	BigBinaryInteger bigEvalMultModulus("42535295865117307932921825928971026753");
-	BigBinaryInteger bigEvalMultRootOfUnity("22649103892665819561201725524201801241");
-	BigBinaryInteger bigEvalMultModulusAlt("115792089237316195423570985008687907853269984665640564039457584007913129642241");
-	BigBinaryInteger bigEvalMultRootOfUnityAlt("37861550304274465568523443986246841530644847113781666728121717722285667862085");
+	BigInteger bigEvalMultModulus("42535295865117307932921825928971026753");
+	BigInteger bigEvalMultRootOfUnity("22649103892665819561201725524201801241");
+	BigInteger bigEvalMultModulusAlt("115792089237316195423570985008687907853269984665640564039457584007913129642241");
+	BigInteger bigEvalMultRootOfUnityAlt("37861550304274465568523443986246841530644847113781666728121717722285667862085");
 
-	auto cycloPolyBig = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, bigEvalMultModulus);
-	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::SetCylotomicPolynomial(cycloPolyBig, bigEvalMultModulus);
+	auto cycloPolyBig = GetCyclotomicPolynomial<BigVector, BigInteger>(m, bigEvalMultModulus);
+	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPolyBig, bigEvalMultModulus);
 
 	PackedIntPlaintextEncoding::SetParams(modulusP, m);
 
@@ -196,7 +196,7 @@ rationalInt ArbFVLinearRegressionPackedArray() {
 
 	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP), batchSize));
 
-	BigBinaryInteger delta(modulusQ.DividedBy(modulusP));
+	BigInteger delta(modulusQ.DividedBy(modulusP));
 
 	//genCryptoContextFV(shared_ptr<typename Element::Params> params,
 	//	shared_ptr<typename EncodingParams> encodingParams,
@@ -205,14 +205,14 @@ rationalInt ArbFVLinearRegressionPackedArray() {
 	//	int depth = 0, int assuranceMeasure = 0, float securityLevel = 0,
 	//	const std::string& bigmodulusarb = "0", const std::string& bigrootofunityarb = "0")
 
-	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(params, encodingParams, 1, stdDev, delta.ToString(), OPTIMIZED,
+	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextFV(params, encodingParams, 1, stdDev, delta.ToString(), OPTIMIZED,
 		bigEvalMultModulus.ToString(), bigEvalMultRootOfUnity.ToString(), 1, 9, 1.006, bigEvalMultModulusAlt.ToString(), bigEvalMultRootOfUnityAlt.ToString());
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc->KeyGen();
+	LPKeyPair<Poly> kp = cc->KeyGen();
 
 	// Compute evaluation keys
 	cc->EvalSumKeyGen(kp.secretKey);
@@ -233,9 +233,9 @@ rationalInt ArbFVLinearRegressionPackedArray() {
 	//Encryption
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> x = cc->EncryptMatrix(kp.publicKey, xP);
+	shared_ptr<Matrix<RationalCiphertext<Poly>>> x = cc->EncryptMatrix(kp.publicKey, xP);
 
-	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> y = cc->EncryptMatrix(kp.publicKey, yP);
+	shared_ptr<Matrix<RationalCiphertext<Poly>>> y = cc->EncryptMatrix(kp.publicKey, yP);
 
 	////////////////////////////////////////////////////////////
 	//Linear Regression

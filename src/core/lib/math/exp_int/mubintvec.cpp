@@ -295,7 +295,7 @@ namespace exp_int {
 
   //ASSIGNMENT copy allocator const mubinvec to mubinvec
   //if two vectors are different sized, then it will resize target vector
-  //unlike BigBinaryVector which just throws.
+  //unlike BigVector which just throws.
   //will overwrite target modulus
   template<class ubint_el_t>
   const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::operator=(const mubintvec &rhs){
@@ -833,12 +833,12 @@ template<class ubint_el_t>
     ubint_el_t mu = temp.Div(this->GetModulus());
     
     //Precompute the Barrett mu values
-    /*BigBinaryInteger temp;
+    /*BigInteger temp;
       uschar gamma;
       uschar modulusLength = this->GetModulus().GetMSB() ;
-      BigBinaryInteger mu_arr[BARRETT_LEVELS+1];
+      BigInteger mu_arr[BARRETT_LEVELS+1];
       for(usint i=0;i<BARRETT_LEVELS+1;i++) {
-      temp = BigBinaryInteger::ONE;
+      temp = BigInteger::ONE;
       gamma = modulusLength*i/BARRETT_LEVELS;
       temp<<=modulusLength+gamma+3;
       mu_arr[i] = temp.DividedBy(this->GetModulus());
@@ -938,7 +938,7 @@ template<class ubint_el_t>
 
   //new serialize and deserialise operations
   //todo: not tested just added to satisfy compilier
-  //currently using the same map as bigBinaryVector, with modulus. 
+  //currently using the same map as bigVector, with modulus. 
 #if 0
   // JSON FACILITY - Serialize Operation
   template<class ubint_el_t>
@@ -1009,8 +1009,8 @@ template<class ubint_el_t>
       bbvMap.AddMember("VectorValues", pkBufferString, serObj->GetAllocator());
     }
     //store the map.
-    DEBUG("add BigBinaryVectorImpl");
-    serObj->AddMember("BigBinaryVectorImpl", bbvMap, serObj->GetAllocator());
+    DEBUG("add BigVectorImpl");
+    serObj->AddMember("BigVectorImpl", bbvMap, serObj->GetAllocator());
 
     DEBUG("serialize done");
     return true;
@@ -1059,10 +1059,10 @@ template<class ubint_el_t>
     DEBUG("in deserialize");
 
     //decode in reverse order from Serialize above
-    lbcrypto::Serialized::ConstMemberIterator mIter = serObj.FindMember("BigBinaryVectorImpl");
+    lbcrypto::Serialized::ConstMemberIterator mIter = serObj.FindMember("BigVectorImpl");
     if( mIter == serObj.MemberEnd() ){
       std::cerr<<"myVecP::Deserialize() failed"
-	       <<" BigBinaryVectorImpl not found"<<std::endl;
+	       <<" BigVectorImpl not found"<<std::endl;
       return false;
     }    
 

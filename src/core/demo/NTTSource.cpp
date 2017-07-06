@@ -85,17 +85,17 @@ int main(int argc, char* argv[]){
   } while (0);
 
 
-//helper function that bulds BigBinaryVector from a vector of strings
-BigBinaryVector BBVfromStrvec( std::vector<std::string> &s) {
-  BigBinaryVector a(s.size());
+//helper function that bulds BigVector from a vector of strings
+BigVector BBVfromStrvec( std::vector<std::string> &s) {
+  BigVector a(s.size());
   for (usint i = 0; i< s.size(); i++){
     a.SetValAtIndex(i,s[i]);
   }
   return a;
 }
 
-//function to compare two BigBinaryVectors and print differing indicies
-void vec_diff(BigBinaryVector &a, BigBinaryVector &b) {
+//function to compare two BigVectors and print differing indicies
+void vec_diff(BigVector &a, BigVector &b) {
   for (usint i= 0; i < a.GetLength(); ++i){  
     if (a.GetValAtIndex(i) != b.GetValAtIndex(i)) {
       cout << "i: "<< i << endl;
@@ -111,8 +111,8 @@ void vec_diff(BigBinaryVector &a, BigBinaryVector &b) {
 
 }
 
-//function to compare two ILVector2n and print differing values
-bool clonetest(ILVector2n &a, ILVector2n &b, string name){ 
+//function to compare two Poly and print differing values
+bool clonetest(Poly &a, Poly &b, string name){ 
 
   if (a != b){
     cout << name <<" FAILED "<<endl;
@@ -142,15 +142,15 @@ void test_NTT () {
   double time3br, time3bf;
 
   cout<<"testing NTT backend "<<MATHBACKEND;
-  if (BigBinaryIntegerBitLength >0)
-    cout<<" BITLENGTH "<< BigBinaryIntegerBitLength <<endl;
+  if (BigIntegerBitLength >0)
+    cout<<" BITLENGTH "<< BigIntegerBitLength <<endl;
 
   TIC(t_total);
   //there are three test cases, 1) small modulus 2) approx 48 bits. 
   //3) large numbers and two examples of each 
 
-  //note this fails BigBinaryInteger q1 = {"163841"};
-  BigBinaryInteger q1 ("163841");
+  //note this fails BigInteger q1 = {"163841"};
+  BigInteger q1 ("163841");
 
   // for each vector, define a, b inputs as vectors of strings
   std::vector<std::string> a1strvec = {
@@ -163,9 +163,9 @@ void test_NTT () {
     "100953", "077352",
     "132013", "057029", };
 
-  // this fails too!!! BigBinaryVector a1(a1string);
+  // this fails too!!! BigVector a1(a1string);
   // so I wrote this function
-  BigBinaryVector a1 = BBVfromStrvec(a1strvec);
+  BigVector a1 = BBVfromStrvec(a1strvec);
   a1.SetModulus(q1);
 
   //b:
@@ -179,11 +179,11 @@ void test_NTT () {
       "053647", "111689",
       "028502", "026401", };
   
-  BigBinaryVector b1  = BBVfromStrvec(b1strvec);
+  BigVector b1  = BBVfromStrvec(b1strvec);
   b1.SetModulus(q1);
   
   //test case 2
-  BigBinaryInteger q2 ("00004057816419532801");
+  BigInteger q2 ("00004057816419532801");
 
   std::vector<std::string> a2strvec = {
     "00000185225172798255", "00000098879665709163",
@@ -195,7 +195,7 @@ void test_NTT () {
     "00000375749152798379", "00003933203511673255",
     "00002293434116159938", "00001201413067178193", };
 
-  BigBinaryVector a2 = BBVfromStrvec(a2strvec);
+  BigVector a2 = BBVfromStrvec(a2strvec);
   a2.SetModulus(q2);
 
   std::vector<std::string> b2strvec = 
@@ -208,13 +208,13 @@ void test_NTT () {
       "00003976652902630043", "00003238750424196678",
       "00002978742255253796", "00002124827461185795", };
 
-  BigBinaryVector b2 = BBVfromStrvec(b2strvec);
+  BigVector b2 = BBVfromStrvec(b2strvec);
   b2.SetModulus(q2);
 
   //test case 3
 
   //q3: very large numbers.
-  BigBinaryInteger q3("3273390607896141870013189696827599152216642046043064789483291368096133796404674554883270092325904157150886684127560071009217256545885393053328527589431");
+  BigInteger q3("3273390607896141870013189696827599152216642046043064789483291368096133796404674554883270092325904157150886684127560071009217256545885393053328527589431");
 
   std::vector<std::string> a3strvec = {
     "2259002487796164904665772121894078584543401744155154298312726209247751689172189255653866355964200768484575418973864307364757237946940733747446643725054",
@@ -227,7 +227,7 @@ void test_NTT () {
     "297233451802123294436846683552230198845414118375785255038220841170372509047202030175469239142902723134737621108313142071558385068315554041062888072990"
   };
 
-  BigBinaryVector a3 = BBVfromStrvec(a3strvec);
+  BigVector a3 = BBVfromStrvec(a3strvec);
   a3.SetModulus(q3);
 
   std::vector<std::string> b3strvec = { 
@@ -241,72 +241,72 @@ void test_NTT () {
     "132216870748476988853044482759545262615616157934129470128771906579101230690441206392939162889560305016204867157725209170345968349185675785497832527174"
   };
 
-  BigBinaryVector b3 = BBVfromStrvec(b3strvec);
+  BigVector b3 = BBVfromStrvec(b3strvec);
   b3.SetModulus(q3);
 
 #if 1
   usint m = 32;
 
-  //  BigBinaryInteger modulus(q1);
+  //  BigInteger modulus(q1);
 
-  //  NextQ(modulus, BigBinaryInteger("2"), m1, BigBinaryInteger("4"), BigBinaryInteger("4"));
+  //  NextQ(modulus, BigInteger("2"), m1, BigInteger("4"), BigInteger("4"));
 #ifdef TEST1 
-  BigBinaryInteger rootOfUnity1(RootOfUnity<BigBinaryInteger>(m, q1));
+  BigInteger rootOfUnity1(RootOfUnity<BigInteger>(m, q1));
   ILParams params1(m, q1, rootOfUnity1);
   shared_ptr<ILParams> x1p(new ILParams(params1));
 
-  ILVector2n x1a(x1p, Format::COEFFICIENT);
+  Poly x1a(x1p, Format::COEFFICIENT);
   //a1.SetModulus(modulus); //note setting modulus does not perform a modulus.
   //a1.Mod(modulus);
   x1a.SetValues(a1, Format::COEFFICIENT);
 
-  ILVector2n x1b(x1p, Format::COEFFICIENT);
+  Poly x1b(x1p, Format::COEFFICIENT);
   //b1.SetModulus(modulus);
   //b1.Mod(modulus);
   x1b.SetValues(b1, Format::COEFFICIENT);
 
-  ILVector2n x1aClone(x1a);
-  ILVector2n x1bClone(x1b);
+  Poly x1aClone(x1a);
+  Poly x1bClone(x1b);
 #endif
 #ifdef TEST2
-  BigBinaryInteger rootOfUnity2(RootOfUnity<BigBinaryInteger>(m, q2));
+  BigInteger rootOfUnity2(RootOfUnity<BigInteger>(m, q2));
   ILParams params2(m, q2, rootOfUnity2);
   shared_ptr<ILParams> x2p(new ILParams(params2));
 
-  ILVector2n x2a(x2p, Format::COEFFICIENT);
+  Poly x2a(x2p, Format::COEFFICIENT);
   //a2.SetModulus(modulus); //note setting modulus does not perform a modulus.
   //a2.Mod(modulus);
   x2a.SetValues(a2, Format::COEFFICIENT);
 
-  ILVector2n x2b(x2p, Format::COEFFICIENT);
+  Poly x2b(x2p, Format::COEFFICIENT);
   //b2.SetModulus(modulus);
   //b2.Mod(modulus);
   x2b.SetValues(b2, Format::COEFFICIENT);
 
-  ILVector2n x2aClone(x2a);
-  ILVector2n x2bClone(x2b);
+  Poly x2aClone(x2a);
+  Poly x2bClone(x2b);
 #endif  
 #ifdef TEST3
-  NextQ(q3, BigBinaryInteger("2"), m, BigBinaryInteger("4"), BigBinaryInteger("4"));
+  NextQ(q3, BigInteger("2"), m, BigInteger("4"), BigInteger("4"));
   cout << "q3 : "<<q3.ToString()<<endl;
 
-  BigBinaryInteger rootOfUnity3(RootOfUnity<BigBinaryInteger>(m, q3));
+  BigInteger rootOfUnity3(RootOfUnity<BigInteger>(m, q3));
   cout << "rootOfUnity3 : "<<rootOfUnity3.ToString()<<endl;
   ILParams params3(m, q3, rootOfUnity3);
   shared_ptr<ILParams> x3p(new ILParams(params3));
 
-  ILVector2n x3a(x3p, Format::COEFFICIENT);
+  Poly x3a(x3p, Format::COEFFICIENT);
   //a3.SetModulus(modulus); //note setting modulus does not perform a modulus.
   //a3.Mod(modulus);
   x3a.SetValues(a3, Format::COEFFICIENT);
 
-  ILVector2n x3b(x3p, Format::COEFFICIENT);
+  Poly x3b(x3p, Format::COEFFICIENT);
   //b3.SetModulus(modulus);
   //b3.Mod(modulus);
   x3b.SetValues(b3, Format::COEFFICIENT);
 
-  ILVector2n x3aClone(x3a);
-  ILVector2n x3bClone(x3b);
+  Poly x3aClone(x3a);
+  Poly x3bClone(x3b);
 #endif
 
   time1af = 0.0;

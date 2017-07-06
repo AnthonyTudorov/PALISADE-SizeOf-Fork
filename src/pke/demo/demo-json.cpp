@@ -49,11 +49,11 @@ using namespace lbcrypto;
 
 
 void
-keymaker(shared_ptr<CryptoContext<ILVector2n>> ctx, string keyname)
+keymaker(shared_ptr<CryptoContext<Poly>> ctx, string keyname)
 {
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = ctx->KeyGen();
+	LPKeyPair<Poly> kp = ctx->KeyGen();
 
 	if( kp.publicKey && kp.secretKey ) {
 		Serialized pubK, privK;
@@ -86,7 +86,7 @@ keymaker(shared_ptr<CryptoContext<ILVector2n>> ctx, string keyname)
 
 
 void
-encrypter(shared_ptr<CryptoContext<ILVector2n>> ctx, IntPlaintextEncoding iPlaintext, string pubkeyname, string ciphertextname)
+encrypter(shared_ptr<CryptoContext<Poly>> ctx, IntPlaintextEncoding iPlaintext, string pubkeyname, string ciphertextname)
 {
 
 	ofstream ctSer(ciphertextname, ios::binary);
@@ -102,7 +102,7 @@ encrypter(shared_ptr<CryptoContext<ILVector2n>> ctx, IntPlaintextEncoding iPlain
 	}
 
 	// Initialize the public key containers.
-	shared_ptr<LPPublicKey<ILVector2n>> pk = ctx->deserializePublicKey(kser);
+	shared_ptr<LPPublicKey<Poly>> pk = ctx->deserializePublicKey(kser);
 
 	if( !pk ) {
 		cerr << "Could not deserialize public key" << endl;
@@ -111,7 +111,7 @@ encrypter(shared_ptr<CryptoContext<ILVector2n>> ctx, IntPlaintextEncoding iPlain
 	}
 
 	// now encrypt iPlaintext
-	std::vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext = ctx->Encrypt(pk, iPlaintext, false);
+	std::vector<shared_ptr<Ciphertext<Poly>>> ciphertext = ctx->Encrypt(pk, iPlaintext, false);
 
 	// FIXME: this works iff size == 1
 	if( ciphertext.size() != 1 ) {
@@ -139,7 +139,7 @@ encrypter(shared_ptr<CryptoContext<ILVector2n>> ctx, IntPlaintextEncoding iPlain
 
 
 void
-decrypter(shared_ptr<CryptoContext<ILVector2n>> ctx, string ciphertextname, string prikeyname, IntPlaintextEncoding &iPlaintext)
+decrypter(shared_ptr<CryptoContext<Poly>> ctx, string ciphertextname, string prikeyname, IntPlaintextEncoding &iPlaintext)
 {
 
 	Serialized	kser;
@@ -148,7 +148,7 @@ decrypter(shared_ptr<CryptoContext<ILVector2n>> ctx, string ciphertextname, stri
 		return;
 	}
 
-	shared_ptr<LPPrivateKey<ILVector2n>> sk = ctx->deserializeSecretKey(kser);
+	shared_ptr<LPPrivateKey<Poly>> sk = ctx->deserializeSecretKey(kser);
 	if( !sk ) {
 		cerr << "Could not deserialize private key" << endl;
 		return;
@@ -167,13 +167,13 @@ decrypter(shared_ptr<CryptoContext<ILVector2n>> ctx, string ciphertextname, stri
 	}
 
 	// Initialize the public key containers.
-	shared_ptr<Ciphertext<ILVector2n>> ct = ctx->deserializeCiphertext(kser);
+	shared_ptr<Ciphertext<Poly>> ct = ctx->deserializeCiphertext(kser);
 	if( ct == NULL ) {
 		cerr << "Could not deserialize ciphertext" << endl;
 		return;
 	}
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext( { ct } );
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertext( { ct } );
 
 	// now decrypt iPlaintext
 	ctx->Decrypt(sk, ciphertext, &iPlaintext, false);
@@ -201,7 +201,7 @@ int main(int argc, char *argv[])
 	double rootHermiteFactor = 1.006;
 
 	//Set Crypto Parameters
-	shared_ptr<CryptoContext<ILVector2n>> cryptoContext = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
+	shared_ptr<CryptoContext<Poly>> cryptoContext = CryptoContextFactory<Poly>::genCryptoContextFV(
 	            plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 1, 0);
 
 	// enable features that you wish to use

@@ -60,8 +60,8 @@
 #include "lattice/ildcrtparams.h"
 #include "lattice/ilelement.h"
 #include "math/distrgen.h"
-#include "lattice/ilvector2n.h"
-#include "../../src/core/lib/lattice/ildcrt2n.h"
+#include "lattice/poly.h"
+#include "../../src/core/lib/lattice/dcrtpoly.h"
 #include "utils/utilities.h"
 
 #include "BBVhelper.h"
@@ -73,11 +73,11 @@ using namespace lbcrypto;
 // add
 static void add_BBVNative(benchmark::State& state) {
 	state.PauseTiming();
-	native_int::BinaryVector a = makeNativeVector(parmArray[state.range(0)]);
-	native_int::BinaryVector b = makeNativeVector(parmArray[state.range(0)]);
+	native_int::BigVector a = makeNativeVector(parmArray[state.range(0)]);
+	native_int::BigVector b = makeNativeVector(parmArray[state.range(0)]);
 	state.ResumeTiming();
 
-	native_int::BinaryVector c1 = a+b;
+	native_int::BigVector c1 = a+b;
 }
 
 static void BM_BBVNative_Addition(benchmark::State& state) { // benchmark
@@ -92,11 +92,11 @@ DO_PARM_BENCHMARK(BM_BBVNative_Addition)
 // add
 static void mult_BBVNative(benchmark::State& state) {	// function
 	state.PauseTiming();
-	native_int::BinaryVector a = makeNativeVector(parmArray[state.range(0)]);
-	native_int::BinaryVector b = makeNativeVector(parmArray[state.range(0)]);
+	native_int::BigVector a = makeNativeVector(parmArray[state.range(0)]);
+	native_int::BigVector b = makeNativeVector(parmArray[state.range(0)]);
 	state.ResumeTiming();
 
-	native_int::BinaryVector c1 = a*b;
+	native_int::BigVector c1 = a*b;
 }
 
 static void BM_BBVNative_Multiplication(benchmark::State& state) { // benchmark

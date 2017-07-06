@@ -349,7 +349,7 @@ namespace NTL{
      * @return the  number represented as a ubint.
      */
     static myZZ FromBinaryString(const std::string& bitString);
-    static myZZ BinaryStringToBigBinaryInt(const std::string& bitString);
+    static myZZ BitStringToBigInteger(const std::string& bitString);
 
     /**
      * Get the number of digits using a specific base - support for

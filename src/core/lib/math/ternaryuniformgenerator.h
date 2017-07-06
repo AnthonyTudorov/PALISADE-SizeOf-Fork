@@ -35,7 +35,7 @@ namespace lbcrypto {
 template<typename IntType, typename VecType>
 class TernaryUniformGeneratorImpl;
 
-typedef TernaryUniformGeneratorImpl<BigBinaryInteger,BigBinaryVector> TernaryUniformGenerator;
+typedef TernaryUniformGeneratorImpl<BigInteger,BigVector> TernaryUniformGenerator;
 
 /**
 * @brief A generator of the Ternary Uniform Distribution.

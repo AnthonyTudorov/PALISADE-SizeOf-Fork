@@ -1,5 +1,5 @@
 /*
-* @file fv-vectorarray-impl.cpp - vector array implementation for the FV scheme.
+* @file fv-dcrtpoly-impl.cpp - vector array implementation for the FV scheme.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -28,8 +28,8 @@
 #include "fv.cpp"
 
 namespace lbcrypto {
-template class LPCryptoParametersFV<ILDCRT2n>;
-template class LPPublicKeyEncryptionSchemeFV<ILDCRT2n>;
-template class LPAlgorithmFV<ILDCRT2n>;
-template class LPAlgorithmParamsGenFV<ILDCRT2n>;
+template class LPCryptoParametersFV<DCRTPoly>;
+template class LPPublicKeyEncryptionSchemeFV<DCRTPoly>;
+template class LPAlgorithmFV<DCRTPoly>;
+template class LPAlgorithmParamsGenFV<DCRTPoly>;
 }

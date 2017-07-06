@@ -1,5 +1,5 @@
 /*
- * @file stst-vectorarray-impl.cpp - Stehle-Stenfeld vector array implementation.
+ * @file stst-dcrtpoly-impl.cpp - Stehle-Stenfeld vector array implementation.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -29,7 +29,7 @@
 #include "stst.h"
 
 namespace lbcrypto {
-template class LPCryptoParametersStehleSteinfeld<ILDCRT2n>;
-template class LPPublicKeyEncryptionSchemeStehleSteinfeld<ILDCRT2n>;
-template class LPAlgorithmStSt<ILDCRT2n>;
+template class LPCryptoParametersStehleSteinfeld<DCRTPoly>;
+template class LPPublicKeyEncryptionSchemeStehleSteinfeld<DCRTPoly>;
+template class LPAlgorithmStSt<DCRTPoly>;
 }
