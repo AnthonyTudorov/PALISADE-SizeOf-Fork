@@ -299,7 +299,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr
 	plaintext.SwitchFormat();
 
 	if (doEncryption) {
-		const BigBinaryInteger &delta = cryptoParams->GetDelta();
+		const BigInteger &delta = cryptoParams->GetDelta();
 
 		const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 		typename Element::TugType tug;

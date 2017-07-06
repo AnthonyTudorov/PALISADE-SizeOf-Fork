@@ -1704,7 +1704,7 @@ namespace lbcrypto {
 			m_encodingParams = std::make_shared<EncodingParams>(plaintextModulus);
 		}
 
-		LPCryptoParameters(shared_ptr<typename Element::Params> params, const BigInteger &plaintextModulus) : m_plaintextModulus(plaintextModulus) {
+		LPCryptoParameters(shared_ptr<typename Element::Params> params, const BigInteger &plaintextModulus) {
 			m_params = params;
 			m_encodingParams = std::make_shared<EncodingParams>(plaintextModulus);
 		}

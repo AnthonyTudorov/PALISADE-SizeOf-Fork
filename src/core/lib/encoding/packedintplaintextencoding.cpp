@@ -152,25 +152,15 @@ namespace lbcrypto {
 	}
 
 	void PackedIntPlaintextEncoding::Pack(Poly *ring, const BigInteger &modulus) const {
-
-		usint n = ring->GetRingDimension(); //ring dimension
 		usint m = ring->GetCyclotomicOrder();//cyclotomic order
 		native_int::BinaryInteger modulusNI(modulus.ConvertToInt());//native int modulus
 
 		//Do the precomputation if not initialized
 		if (this->m_initRoot[modulusNI].GetMSB() == 0) {
-			if (params->OrderIsPowerOfTwo())
-				m_initRoot[modulusNI] = RootOfUnity<native_int::BinaryInteger>(m, modulusNI);
-			else
-				SetParams(modulus, m);
-			//std::cout << "generator? = " << IsGenerator<BigInteger>(this->initRoot, BigInteger(m)) << std::endl;
-			//std::cout << "root found" << initRoot << std::endl;
+			SetParams(modulus, m);
 		}
 
-		//stores the ring modulus temporarily, after packing is done it is replaced back
-		BigInteger qMod(ring->GetModulus());
-
-		native_int::BinaryVector slotValues(ring->GetValues().GetLength(),modulusNI);
+		usint phim = ring->GetRingDimension();
 
 		//copy values from ring to the vector
 		native_int::BinaryVector slotValues(phim, modulusNI);
@@ -199,7 +189,7 @@ namespace lbcrypto {
 		//copy values into the slotValuesRing
 		BigVector slotValuesRing(phim, ring->GetModulus());
 		for (usint i = 0; i < phim; i++) {
-			slotValuesRing.SetValAtIndex(i, BigBinaryInteger(slotValues.GetValAtIndex(i).ConvertToInt()));
+			slotValuesRing.SetValAtIndex(i, BigInteger(slotValues.GetValAtIndex(i).ConvertToInt()));
 		}
 
 		ring->SetValues(slotValuesRing, Format::COEFFICIENT);
