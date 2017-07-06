@@ -109,7 +109,13 @@ namespace NTL{
     myZZ(NTL::ZZ &&a);
     //myZZ(NTL::myZZ_p &&a);
 
-    //  myZZ& operator=(const myZZ &rhs);
+    const myZZ& operator=(const myZZ &rhs);
+    //TODO: should this be uint_64_t?
+    inline const myZZ& operator=(usint val){
+      *this = myZZ(val);
+      return *this;
+    }
+
     //myZZ( ZZ && zzin) : ZZ(zzin), m_MSB(5){};
 
     static const myZZ ZERO;
@@ -120,7 +126,7 @@ namespace NTL{
     static const myZZ FIVE;
 
     /**
-     * A zero allocator that is called by the Matrix class. It is used to initialize a Matrix of ubint objects.
+     * A zero allocator that is called by the Matrix class. It is used to initialize a Matrix of myZZ objects.
      */
     static std::function<unique_ptr<myZZ>()> Allocator;
 
@@ -146,6 +152,10 @@ namespace NTL{
     inline long operator!=(const myZZ& b) const {return this->Compare(b)!= 0;};
     inline long operator!=(const usint& b) const {return this->Compare(b)!= 0;};
   
+    //set this int to 1
+    inline void SetIdentity(){*this=myZZ::ONE;};
+
+
     //palisade arithmetic methods all inline for speed
     inline myZZ Add(const myZZ& b) const {return *this+b;};
     inline myZZ Plus(const myZZ& b) const {return *this+b;}; //to be deprecated
@@ -207,6 +217,12 @@ namespace NTL{
     };// note this<a should return 0
 
 
+
+    // Unary minus on a lattice
+    myZZ operator-() const {
+      return myZZ(0).Minus(*this);
+    }
+
     //myZZ operator*(const myZZ_p &b) const; 
 
     myZZ& operator*=(const myZZ &a);
@@ -226,7 +242,8 @@ namespace NTL{
       return tmp ;
     }
     inline myZZ Mul(const myZZ& b) const {return *this*b;};
-    inline myZZ Times(const myZZ& b) const {return *this*b;}; //to be deprecated
+    //inline myZZ Times(const myZZ& b) const {return *this*b;}; //to be deprecated
+    void Times(const myZZ& b, myZZ *ans) const {*ans=(*this*b); return;}; 
     inline myZZ Div(const myZZ& b) const {return *this/b;};
     inline myZZ DividedBy(const myZZ& b) const {return *this/b;};
     inline myZZ Exp(const usint p) const {return power(*this,p);};
@@ -314,6 +331,8 @@ namespace NTL{
     //left and right shift operators
     inline myZZ operator>>(long n) const {return RightShift(*this, n);};
     inline myZZ operator<<(long n) const {return LeftShift(*this, n);};
+    inline const myZZ& operator>>=(long n) {return *this=RightShift(*this, n);};
+    inline const myZZ& operator<<=(long n) {return *this=LeftShift(*this, n);};
 
 #if 0
     // comparison operators to myZZ_p
@@ -337,7 +356,7 @@ namespace NTL{
      * @param str is the string representation of the ubint to be copied.
      */
     void SetValue(const std::string& str);
-    void SetValue(const char *s);
+    //void SetValue(const char *s);
 
     /**
      * Basic set method for setting the value of a myZZ

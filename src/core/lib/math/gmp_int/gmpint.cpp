@@ -101,12 +101,13 @@ namespace NTL {
     *this = conv<ZZ>(str.c_str());
     SetMSB();
   }
-
+#if 0
   void myZZ::SetValue(const char *s)
   {
     *this = conv<ZZ>(s);
     SetMSB();
   }
+#endif
 
   void myZZ::SetValue(const myZZ& a)
   {
@@ -362,6 +363,18 @@ namespace NTL {
     return 0.0L;
   }
 #endif
+
+
+
+
+  const myZZ& myZZ::operator=(const myZZ &rhs){
+    
+    if(this!=&rhs){
+      _ntl_gcopy(rhs.rep, &(this->rep));
+      this->m_MSB = rhs.m_MSB;
+    }
+    return *this;
+  }
 
   std::ostream& operator<<(std::ostream& os, const myZZ& ptr_obj){
     bool dbg_flag = false;

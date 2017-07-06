@@ -262,6 +262,8 @@ namespace cpu_int{
     * @param val is the unsigned integer value that is assigned.
     * @return the assigned Big Binary Integer ref.
     */
+
+    //TODO: should this be uint_64_t?
     inline const BigBinaryInteger& operator=(usint val) {
         *this = intToBigBinaryInteger(val);
         return *this;

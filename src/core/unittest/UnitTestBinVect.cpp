@@ -120,7 +120,7 @@ TEST(UTBinVect, SetModulusTest){
 TEST(UTBinVect,NTL_modulus_framework){
 #if MATHBACKEND  == 6 //NTL backend
 
-  bool dbg_flag = true;
+  bool dbg_flag = false;
 
   //code to test that the modulus framwork is ok
 
@@ -238,7 +238,7 @@ TEST(UTBinVect,ModAddBBITestBigModulus){
 // TEST CASE WHEN NUMBERS AFTER ADDITION ARE GREATER THAN MODULUS 
 
 TEST(UTBinVect,ModAddBBITestSmallerModulus){
-  bool dbg_flag = true;
+  bool dbg_flag = false;
 
 	BigBinaryInteger q("3534");	// constructor calling to set mod value
 	BigBinaryVector m(5,q);		// calling constructor to create a vector of length 5 and passing value of q
@@ -448,7 +448,7 @@ TEST(UTBinVect, modadd_vector_result_smaller_modulus){
 // TEST CASE WHEN NUMBERS AFTER ADDITION ARE GREATER THAN MODULUS 
 
 TEST(UTBinVect, modadd_vector_result_greater_modulus){
-
+        bool dbg_flag = false;
 	BigBinaryInteger q("657");		// constructor calling to set mod value
 	BigBinaryVector m(5,q);			// calling constructor to create a vector of length 5 and passing value of q
 	BigBinaryVector n(5,q);	
@@ -464,9 +464,15 @@ TEST(UTBinVect, modadd_vector_result_greater_modulus){
 	n.SetValAtIndex(2,"6756");
 	n.SetValAtIndex(3,"1233");
 	n.SetValAtIndex(4,"7897");
+
+	DEBUG("m "<<m);
+	DEBUG("m mod"<<m.GetModulus());
+	DEBUG("n "<<n);
+	DEBUG("n mod "<<n.GetModulus());
 	
 	BigBinaryVector calculatedResult = m.ModAdd(n);
 
+	DEBUG("result mod "<<calculatedResult.GetModulus());	
 	uint64_t expectedResult[5] = {604,573,141,291,604};
 
 	for (usint i=0;i<5;i++)

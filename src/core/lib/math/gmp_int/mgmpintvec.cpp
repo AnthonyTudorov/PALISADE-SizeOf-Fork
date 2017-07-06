@@ -120,7 +120,7 @@ namespace NTL {
     this->SetModulus(q);
     DEBUG("get modulus "<<GetModulus());
   }
-
+#if 0
   template<class myT>
   myVecP<myT>::myVecP(const INIT_SIZE_TYPE, const long n, const myZZ &q): Vec<myT>(INIT_SIZE,n)
   {
@@ -135,6 +135,7 @@ namespace NTL {
     }
     this->SetModulus(q);
   }
+#endif
 
 
   //constructors with moduli and initializer list
@@ -201,7 +202,7 @@ namespace NTL {
   { 
     this->SetModulus(myZZ(sq)); 
   }
-
+#if 0
   template<class myT>
   myVecP<myT>::myVecP(INIT_SIZE_TYPE, long n, const char *sq):Vec<myT>(INIT_SIZE, n) 
   { 
@@ -216,7 +217,7 @@ namespace NTL {
       (*this)[i] = a%this->m_modulus;
     }
   }
-  
+#endif  
   //copy with char * moduli
   template<class myT>
   myVecP<myT>::myVecP(const myVecP<myT> &a, const char *sq):Vec<myT>(a) 
@@ -240,7 +241,7 @@ namespace NTL {
   { 
     this->SetModulus(q); 
   }
-
+#if 0
   template<class myT>
   myVecP<myT>::myVecP(INIT_SIZE_TYPE, long n, usint q):Vec<myT>(INIT_SIZE, n) 
   { 
@@ -255,7 +256,7 @@ namespace NTL {
       (*this)[i] = a%q;
     }
   }
-
+#endif
   //copy with unsigned int moduli
   template<class myT>
   myVecP<myT>::myVecP(const myVecP<myT> &a, const usint q):Vec<myT>(a) 
@@ -327,6 +328,7 @@ namespace NTL {
   // keeps current size, just fills elements from initializer list
   // otherwise extends lhs and fills to rhs.size().
   //keeps current modulus
+#if 0
   template<class myT>
   const myVecP<myT>& myVecP<myT>::operator=(std::initializer_list<myT> rhs){
     bool dbg_flag = false;
@@ -347,11 +349,13 @@ namespace NTL {
     return *this;
     DEBUG("mubintvec assignment copy CTOR ubint init list length "<<this->length());
   }
+#endif
 
   //Assignment with initializer list of usints
   //keeps current modulus
+  //todo: should this be sints but rather usints?
   template<class myT>
-  const myVecP<myT>& myVecP<myT>::operator=(std::initializer_list<usint> rhs){
+  const myVecP<myT>& myVecP<myT>::operator=(std::initializer_list<sint> rhs){
     bool dbg_flag = false;
     DEBUG("in op=initializerlist <usint>");
 
@@ -371,7 +375,7 @@ namespace NTL {
 
     DEBUG("mubintvec assignment copy CTOR usint init list length "<<this->length());
   }
-
+#if 0
   //Assignment with initializer list of ints
   //keeps current modulus
   template<class myT>
@@ -394,7 +398,7 @@ namespace NTL {
     return *this;
     DEBUG("mubintvec assignment copy CTOR int init list length "<<this->length());
   }
-
+#endif
 
   //Assignment with initializer list of strings
   //keeps current modulus
@@ -418,7 +422,8 @@ namespace NTL {
     return *this;
     DEBUG("mubintvec assignment copy CTOR string init list length "<<this->size());
   }
-
+  
+#if 0 
   //Assignment with initializer list of const char *
   //not sure why this isn't taken care of by string above
   //keeps current modulus
@@ -427,7 +432,7 @@ namespace NTL {
   {
     bool dbg_flag = false;
     DEBUG("in op=initializerlist const char*");
- size_t len = rhs.size();
+    size_t len = rhs.size();
     if (this->size()< len){
       this->SetLength(len);
     };
@@ -441,10 +446,10 @@ namespace NTL {
     }
     return *this;
   }
+#endif  
+#if 0
   
-
   //keeps current modulus 
-  //DESIGN QUESTION do we keep modulus or use modulus of rhs?
   template<class myT>
   const myVecP<myT>& myVecP<myT>::operator=(const myT &rhs)
   {
@@ -455,7 +460,8 @@ namespace NTL {
     ModulusCheck("myVecP::op=myT");
     return *this;
   }
-
+#endif
+#if 0    
   //keeps current modulus  
   template<class myT>
   const myVecP<myT>& myVecP<myT>::operator=(myT &rhs)
@@ -478,14 +484,18 @@ namespace NTL {
     (*this)[0] =(unsigned int &)rhs;
     return *this;
   }
+#endif
   
   //keeps current modulus
   template<class myT>
-  const myVecP<myT>& myVecP<myT>::operator=(unsigned int rhs){
+  const myVecP<myT>& myVecP<myT>::operator=(unsigned int val)
+  {
     bool dbg_flag = false;
     DEBUG("in op=usint");
-    this->SetLength(1);
-    (*this)[0] = (unsigned int)rhs;
+    (*this)[0] = val;
+    for (size_t i = 1; i < GetLength(); ++i) {
+      (*this)[i] = myT::ZERO;
+    }
     return *this;
   }
 
@@ -504,12 +514,36 @@ namespace NTL {
       std::cerr<<"in operator=(myVecP) Bad CopyModulus"<<std::endl;
 #endif
     }
-    for (auto i = 0; i < rhs.length(); i++){
+    for (size_t i = 0; i < rhs.length(); i++){
       (*this)[i] = rhs[i];
     }
     return *this;
   }
-  
+
+  //move copy do not keep current modulus but copies from rhs.
+  template<class myT>
+  const myVecP<myT>& myVecP<myT>::operator=( myVecP<myT> &&rhs)
+  {
+    bool dbg_flag = false;
+
+    if (this != &rhs) {
+      DEBUG("in op=const myVecP<myT>&");
+      DEBUG("setting length "<<rhs.length());
+      this->SetLength(rhs.length());
+      DEBUG("setting length "<<rhs.length());
+      int rv = this->CopyModulus(rhs);
+      if (rv==-1) {
+#ifdef WARN_BAD_MODULUS
+        std::cerr<<"in operator=(myVecP) Bad CopyModulus"<<std::endl;
+#endif
+      }
+      this->move(rhs);
+    }
+
+    return *this;  
+  }
+
+
   //desctructor
   template<class myT>
   myVecP<myT>::~myVecP()
@@ -716,9 +750,10 @@ namespace NTL {
 #endif
     }
     long i;
+    myZZ bmod(b%m_modulus);
     for (i = 0; i < n; i++)
       //res[i] = (*this)[i]+b%m_modulus;
-      AddMod(res[i], (*this)[i], b%m_modulus, m_modulus);
+      res[i]= (*this)[i].ModAdd(bmod, m_modulus);
     return(res);
   }
   
@@ -882,7 +917,7 @@ namespace NTL {
     ModulusCheck("myVecP::MultiplyAndRound");
     myVecP ans(*this);
     myT halfQ(this->m_modulus >> 1);
-    for (usint i = 0; i<this->size(); i++) {
+    for (size_t i = 0; i<this->size(); i++) {
       if (ans[i] > halfQ) {
 	myT temp = this->m_modulus - ans[i];
 	ans[i] = this->m_modulus - temp.MultiplyAndRound(p, q);
@@ -1070,11 +1105,12 @@ namespace NTL {
     unsigned int i;
     DEBUG("myvecp::add a mod "<<a.m_modulus<<" b mod "<<b.m_modulus);    
     DEBUG("myvecp::add a length "<<a.size()<<"b "<<b.size());
-    
+    DEBUG("this->m_modulus "<<this->m_modulus);    
     for (i = 0; i < n; i++){
       DEBUG("myvecp::add i:"<<i<<"a "<<a[i]<<" b "<<b[i]);
-      AddMod(x[i],a[i],b[i],this->m_modulus); // modulo add
+      x[i]=a[i].ModAdd(b[i],m_modulus); // modulo add
     }
+    DEBUG("x "<<x);
     DEBUG("myvecp::done");
     //todo make modulus explicit.
   }
@@ -1181,6 +1217,7 @@ namespace NTL {
 	this->at(index) = myT(str);
     }
   }
+#if 0
   // set value at index from const char*
   template<class myT>
   void myVecP<myT>::SetValAtIndex(usint index, const char * str){
@@ -1197,15 +1234,16 @@ namespace NTL {
 	this->at(index) = myT(str);
     }
   }
+#endif
 
   template<class myT>
-  void myVecP<myT>::SetValAtIndexWithoutMod(usint index, const myZZ& value){
+  void myVecP<myT>::SetValAtIndexWithoutMod(usint index, const myT& value){
     if(!this->IndexCheck(index)){
       throw std::logic_error("myVecP index out of range");
     }
     else{
       //std::cout<<"Warning setting value to index without mod() first"<<std::endl;
-	this->at(index) = myT(value);
+	this->at(index) = value;
     }
   }
 

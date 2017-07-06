@@ -49,7 +49,7 @@
 #include <NTL/SmartPtr.h>
 
 //defining this forces modulo when you write to the vector (except with SetValAtIndexWithoutMod)
-#define FORCE_NORMALIZATION 
+//#define FORCE_NORMALIZATION 
 
 /**
  * @namespace NTL
@@ -75,8 +75,8 @@ namespace NTL {
 
   myVecP(): Vec<myT>() {};
     //constructors without moduli
-    explicit myVecP(const usint n): Vec<myT>(INIT_SIZE, n) {m_modulus_state = GARBAGE;}; 
-   myVecP(const INIT_SIZE_TYPE, const long n): Vec<myT>(INIT_SIZE, n) {m_modulus_state = GARBAGE;}; 
+    explicit myVecP(const usint length): Vec<myT>(INIT_SIZE, length) {m_modulus_state = GARBAGE;}; 
+   myVecP(const INIT_SIZE_TYPE, const long length): Vec<myT>(INIT_SIZE, length) {m_modulus_state = GARBAGE;}; 
 
 #if 0
    myVecP(const INIT_SIZE_TYPE, const long n,  myT const& a): Vec<myT>(INIT_SIZE, n, a)  {m_modulus_state = GARBAGE;}; 
@@ -94,8 +94,8 @@ namespace NTL {
     //constructors with moduli
     //ctor myZZ moduli
     myVecP(const long n, const myZZ &q);
-    myVecP(const INIT_SIZE_TYPE, const long n, const myZZ &q);
-    myVecP(const INIT_SIZE_TYPE, const long n, const myT& a, const myZZ &q);
+    //myVecP(const INIT_SIZE_TYPE, const long n, const myZZ &q);
+    //myVecP(const INIT_SIZE_TYPE, const long n, const myT& a, const myZZ &q);
 
     //constructors with moduli and initializer lists
     myVecP(const long n, const myZZ &q, std::initializer_list<usint> rhs);
@@ -107,8 +107,8 @@ namespace NTL {
     
     //ctor with char * moduli
     myVecP(usint n, const char *sq);
-    myVecP(INIT_SIZE_TYPE, long n, const char *sq);
-    myVecP(INIT_SIZE_TYPE, long n, const myT& a, const char *sq);
+    //myVecP(INIT_SIZE_TYPE, long n, const char *sq);
+    //myVecP(INIT_SIZE_TYPE, long n, const myT& a, const char *sq);
     
      //copy with char * moduli
      myVecP(const myVecP<myT> &a, const char *sq);
@@ -116,8 +116,8 @@ namespace NTL {
 
     //ctor with usint moduli
     myVecP(usint n, usint q);
-    myVecP(INIT_SIZE_TYPE, long n, usint q);
-    myVecP(INIT_SIZE_TYPE, long n, const myT& a, usint q);
+    //myVecP(INIT_SIZE_TYPE, long n, usint q);
+    //myVecP(INIT_SIZE_TYPE, long n, const myT& a, usint q);
 
     //copy with unsigned int moduli
     myVecP(const myVecP<myT> &a, const usint q);
@@ -134,16 +134,17 @@ namespace NTL {
     myVecP(std::vector<std::string>& s, const usint q); // with modulusu
 
     const myVecP& operator=(const myVecP &a);
+    const myVecP& operator=(myVecP &&a);
 
 
-    const myVecP& operator=(std::initializer_list<myT> rhs);
-    const myVecP& operator=(std::initializer_list<int> rhs);
-    const myVecP& operator=(std::initializer_list<usint> rhs);
+    //const myVecP& operator=(std::initializer_list<myT> rhs);
+    //const myVecP& operator=(std::initializer_list<int> rhs);
+    const myVecP& operator=(std::initializer_list<sint> rhs);
     const myVecP& operator=(std::initializer_list<std::string> rhs);
-    const myVecP& operator=(std::initializer_list<const char *> rhs);
-    const myVecP& operator=(myT &rhs);
-    const myVecP& operator=(const myT &rhs);
-    const myVecP& operator=(unsigned int &rhs);
+    //const myVecP& operator=(std::initializer_list<const char *> rhs);
+    //    const myVecP& operator=(myT &rhs);
+    //const myVecP& operator=(const myT &rhs);
+    //const myVecP& operator=(unsigned int &rhs);
     const myVecP& operator=(unsigned int rhs);
 
     void clear(myVecP& x); //why isn't this inhereted?
@@ -152,10 +153,10 @@ namespace NTL {
     // Note, SetValAtIndex should be deprecated by .at() and []
     void SetValAtIndex(usint index, const myT&value);
     //void SetValAtIndex(usint index, const myZZ&value);
-    void SetValAtIndex(usint index, const char *s);
+    //void SetValAtIndex(usint index, const char *s);
     void SetValAtIndex(usint index, const std::string& str);
 
-    void SetValAtIndexWithoutMod(usint index, const myZZ&value);
+    void SetValAtIndexWithoutMod(usint index, const myT&value);
 
     //DBC could not get & return to work!!!
     const myZZ GetValAtIndex(size_t index) const;
