@@ -107,9 +107,9 @@ namespace NTL {
   }
 
   //this is the zero allocator for the palisade matrix class
-  std::function<unique_ptr<myZZ>()> myZZ::Allocator = [](){
+  unique_ptr<myZZ> myZZ::Allocator() {
     return lbcrypto::make_unique<NTL::myZZ>();
-   };
+  };
 
   usint myZZ::GetMSB() const {
 

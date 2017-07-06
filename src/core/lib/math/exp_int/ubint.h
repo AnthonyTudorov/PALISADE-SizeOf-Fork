@@ -1055,7 +1055,7 @@ namespace exp_int{
     /**
      * A zero allocator that is called by the Matrix class. It is used to initialize a Matrix of ubint objects.
      */
-    static std::function<unique_ptr<ubint>()> Allocator;
+    static unique_ptr<ubint> Allocator();
 
     /**
      * Gets the MSB of the ubint from the internal value.

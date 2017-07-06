@@ -828,7 +828,7 @@ namespace cpu_int{
 	/**
 	* A zero allocator that is called by the Matrix class. It is used to initialize a Matrix of BigBinaryInteger objects.
 	*/
-	static std::function<unique_ptr<BigBinaryInteger>()> Allocator;
+	static unique_ptr<BigBinaryInteger> Allocator();
 
     protected:
     
