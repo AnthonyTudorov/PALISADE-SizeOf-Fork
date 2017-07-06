@@ -46,27 +46,28 @@ namespace lbcrypto {
 		/**
 		* Default constructor
 		*/
-		Ciphertext() {}
+		Ciphertext() : m_isEncrypted(true) {}
 
 		/**
 		 * Construct a new ciphertext in the given context
 		 *
 		 * @param cc
 		 */
-		Ciphertext(shared_ptr<CryptoContext<Element>> cc) : CryptoObject<Element>(cc.get()) {}
+		Ciphertext(shared_ptr<CryptoContext<Element>> cc) : CryptoObject<Element>(cc.get()), m_isEncrypted(true) {}
 
 		/**
 		 * Construct a new ciphertext in the given context
 		 *
 		 * @param cc
 		 */
-		Ciphertext(CryptoContext<Element>* cc) : CryptoObject<Element>(cc) {}
+		Ciphertext(CryptoContext<Element>* cc) : CryptoObject<Element>(cc), m_isEncrypted(true)  {}
 
 		/**
 		* Copy constructor
 		*/
 		Ciphertext(const Ciphertext<Element> &ciphertext) : CryptoObject<Element>(ciphertext.GetCryptoContext()) {
 			m_elements = ciphertext.m_elements;
+			m_isEncrypted = ciphertext.m_isEncrypted;
 		}
 
 		/**
@@ -74,6 +75,7 @@ namespace lbcrypto {
 		*/
 		Ciphertext(Ciphertext<Element> &&ciphertext) : CryptoObject<Element>(ciphertext.GetCryptoContext()) {
 			m_elements = std::move(ciphertext.m_elements);
+			m_isEncrypted = std::move(ciphertext.m_isEncrypted);
 		}
 
 		/**
@@ -110,6 +112,14 @@ namespace lbcrypto {
 			}
 
 			return *this;
+		}
+
+		const bool GetIsEncrypted() const {
+			return m_isEncrypted;
+		}
+
+		void SetIsEncrypted(bool isEncrypted) {
+			m_isEncrypted = isEncrypted;
 		}
 
 		/**
@@ -294,6 +304,7 @@ namespace lbcrypto {
 		//BigBinaryInteger m_norm;
 
 		std::vector<Element> m_elements;		/*!< vector of ring elements for this Ciphertext */
+		bool m_isEncrypted;
 
 	};
 
