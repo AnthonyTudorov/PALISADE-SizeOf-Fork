@@ -404,7 +404,7 @@ TEST(UTubint,right_shift){
 TEST(UTubint, compare){
   /* TESTING METHOD COMPARE and gt, lt, eq, neq FOR ALL CONDITIONS    */
 
-  // The method "Comapare" comapres two BigBinary Integers a,b
+  // The method "Comapare" comapres two BigIntegers a,b
   // Returns:
   //    1, when a>b
   //    0, when a=b

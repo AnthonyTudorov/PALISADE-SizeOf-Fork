@@ -40,7 +40,7 @@ typedef ILParamsImpl<BigInteger> ILParams;
 
 namespace native_int
 {
-typedef lbcrypto::ILParamsImpl<native_int::BinaryInteger> ILParams;
+typedef lbcrypto::ILParamsImpl<native_int::BigInteger> ILParams;
 }
 
 namespace lbcrypto

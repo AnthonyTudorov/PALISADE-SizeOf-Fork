@@ -938,7 +938,7 @@ template<class ubint_el_t>
 
   //new serialize and deserialise operations
   //todo: not tested just added to satisfy compilier
-  //currently using the same map as bigBinaryVector, with modulus. 
+  //currently using the same map as bigVector, with modulus. 
 #if 0
   // JSON FACILITY - Serialize Operation
   template<class ubint_el_t>
@@ -1009,8 +1009,8 @@ template<class ubint_el_t>
       bbvMap.AddMember("VectorValues", pkBufferString, serObj->GetAllocator());
     }
     //store the map.
-    DEBUG("add BigBinaryVectorImpl");
-    serObj->AddMember("BigBinaryVectorImpl", bbvMap, serObj->GetAllocator());
+    DEBUG("add BigVectorImpl");
+    serObj->AddMember("BigVectorImpl", bbvMap, serObj->GetAllocator());
 
     DEBUG("serialize done");
     return true;
@@ -1059,10 +1059,10 @@ template<class ubint_el_t>
     DEBUG("in deserialize");
 
     //decode in reverse order from Serialize above
-    lbcrypto::Serialized::ConstMemberIterator mIter = serObj.FindMember("BigBinaryVectorImpl");
+    lbcrypto::Serialized::ConstMemberIterator mIter = serObj.FindMember("BigVectorImpl");
     if( mIter == serObj.MemberEnd() ){
       std::cerr<<"myVecP::Deserialize() failed"
-	       <<" BigBinaryVectorImpl not found"<<std::endl;
+	       <<" BigVectorImpl not found"<<std::endl;
       return false;
     }    
 

@@ -31,7 +31,7 @@
 #include "include/gtest/gtest.h"
 #include <iostream>
 
-#include "../lib/lattice/ildcrt2n.h"
+#include "../lib/lattice/dcrtpoly.h"
 #include "math/backend.h"
 #include "math/nbtheory.h"
 #include "math/distrgen.h"
@@ -39,7 +39,7 @@
 #include "lattice/ilparams.h"
 #include "lattice/ildcrtparams.h"
 #include "lattice/ilelement.h"
-#include "lattice/ilvector2n.h"
+#include "lattice/poly.h"
 #include "utils/inttypes.h"
 #include "utils/utilities.h"
 
@@ -70,8 +70,8 @@ TEST(UTBinInt,basic_math){
   /************************************************/
   /* TESTING METHOD PLUS FOR ALL CONDITIONS       */
   /************************************************/
-  // The method "Plus" does addition on two BigBinary Integers a,b
-  // Returns a+b, which is stored in another BigBinary Integer
+  // The method "Plus" does addition on two BigIntegers a,b
+  // Returns a+b, which is stored in another BigInteger
   // calculatedResult ConvertToInt converts BigInteger
   // calculatedResult to integer
 
@@ -131,7 +131,7 @@ TEST(UTBinInt,basic_math){
   /* TESTING OPERATOR += FOR ALL CONDITIONS       */
   /************************************************/
 
-  // The operator "+=(Plus Equals)" does addition of two BigBinary
+  // The operator "+=(Plus Equals)" does addition of two Big
   // Integers a,b Calculates a+b, and stores result in a ConvertToInt
   // converts BigInteger a to integer
 
@@ -188,8 +188,8 @@ TEST(UTBinInt,basic_math){
   /* TESTING METHOD MINUS FOR ALL CONDITIONS      */
   /************************************************/
 
-  // The method "Minus" does subtraction on two BigBinary Integers a,b
-  // Returns a-b, which is stored in another BigBinary Integer
+  // The method "Minus" does subtraction on two BigIntegers a,b
+  // Returns a-b, which is stored in another BigInteger
   // calculatedResult When a<b, the result is 0, since there is no
   // support for negative numbers as of now ConvertToInt converts
   // BigInteger calculatedResult to integer
@@ -246,7 +246,7 @@ TEST(UTBinInt,basic_math){
   /* TESTING OPERATOR -= FOR ALL CONDITIONS       */
   /************************************************/
 
-  // The operator "-=(Minus Equals)" does subtractionn of two BigBinary
+  // The operator "-=(Minus Equals)" does subtractionn of two Big
   // Integers a,b Calculates a-b, and stores result in a Results to 0,
   // when a<b, since there is no concept of negative number as of now
   // ConvertToInt converts BigInteger a to integer
@@ -303,8 +303,8 @@ TEST(UTBinInt,basic_math){
   /* TESTING METHOD TIMES FOR ALL CONDITIONS      */
   /************************************************/
 
-  // The method "Times" does multiplication on two BigBinary Integers
-  // a,b Returns a*b, which is stored in another BigBinary Integer
+  // The method "Times" does multiplication on two BigIntegers
+  // a,b Returns a*b, which is stored in another BigInteger
   // calculatedResult ConvertToInt converts BigInteger
   // calculatedResult to integer
   {
@@ -322,9 +322,9 @@ TEST(UTBinInt,basic_math){
   /* TESTING METHOD DIVIDED_BY FOR ALL CONDITIONS */
   /************************************************/
 
-  // The method "Divided By" does division of BigBinary Integer a by
-  // another BigBinary Integer b Returns a/b, which is stored in another
-  // BigBinary Integer calculatedResult ConvertToInt converts
+  // The method "Divided By" does division of BigInteger a by
+  // another BigInteger b Returns a/b, which is stored in another
+  // BigInteger calculatedResult ConvertToInt converts
   // BigInteger calculatedResult to integer When b=0, throws
   // error, since division by Zero is not allowed When a<b, returns 0,
   // since decimal value is not returned
@@ -438,7 +438,7 @@ TEST(UTBinInt,basic_compare){
   /* TESTING METHOD COMPARE FOR ALL CONDITIONS    */
   /************************************************/
 
-  // The method "Comapare" comapres two BigBinary Integers a,b
+  // The method "Comapare" comapres two BigIntegers a,b
   // Returns:
   //    1, when a>b
   //    0, when a=b
@@ -491,8 +491,8 @@ TEST(UTBinInt,mod_operations){
   /* TESTING METHOD MOD FOR ALL CONDITIONS        */
   /************************************************/
 
-  // The method "Mod" does modulus operation on two BigBinary Integers
-  // m,p Returns (m mod p), which is stored in another BigBinary Integer
+  // The method "Mod" does modulus operation on two BigIntegers
+  // m,p Returns (m mod p), which is stored in another BigInteger
   // calculatedResult ConvertToInt converts BigInteger r to
   // integer
 
@@ -550,9 +550,9 @@ TEST(UTBinInt,mod_operations){
   /************************************************/
 
 
-  /* 	The method "Divided By" does division of BigBinary Integer m by another BigBinary Integer p
+  /* 	The method "Divided By" does division of BigInteger m by another BigInteger p
 	Function takes b as argument and operates on a
-  	Returns a/b, which is stored in another BigBinary Integer calculatedResult
+  	Returns a/b, which is stored in another BigInteger calculatedResult
 	ConvertToInt converts BigInteger calculatedResult to integer
 	When b=0, throws error, since division by Zero is not allowed
 	When a<b, returns 0, since decimal value is not returned
@@ -580,7 +580,7 @@ TEST(UTBinInt,mod_inverse){
   /*************************************************/
   /* TESTING METHOD MOD INVERSE FOR ALL CONDITIONS */
   /*************************************************/
-  // The method "Mod Inverse" operates on BigBinary Integers m,p
+  // The method "Mod Inverse" operates on BigIntegers m,p
   // Returns {(m)^(-1)}mod p
   //    which is multiplicative inverse of m with respect to p, and is
   //    uses extended Euclidean algorithm m and p are co-primes (i,e GCD
@@ -676,7 +676,7 @@ TEST(UTBinInt,mod_arithmetic){
   /************************************************/
   /* TESTING METHOD MODADD FOR ALL CONDITIONS     */
   /************************************************/
-  // The method "Mod Add" operates on BigBinary Integers m,n,q
+  // The method "Mod Add" operates on BigIntegers m,n,q
   //   Returns:
   //     (m+n)mod q
   //      = {(m mod q) + (n mod q)}mod q
@@ -738,7 +738,7 @@ TEST(UTBinInt,mod_arithmetic){
   /* TESTING METHOD MODSUB FOR ALL CONDITIONS -*/
   /************************************************/
 
-  // The method "Mod Sub" operates on BigBinary Integers m,n,q
+  // The method "Mod Sub" operates on BigIntegers m,n,q
   //   Returns:
   //    (m-n)mod q
   //    = {(m mod q) - (n mod q)}mod q	when m>n
@@ -795,7 +795,7 @@ TEST(UTBinInt,mod_arithmetic){
   /* TESTING METHOD MODMUL FOR ALL CONDITIONS     */
   /************************************************/
 
-  // The method "Mod Mul" operates on BigBinary Integers m,n,q
+  // The method "Mod Mul" operates on BigIntegers m,n,q
   //   Returns:  (m*n)mod q
   //              = {(m mod q)*(n mod q)}
   // ConvertToInt converts BigInteger calculatedResult to integer
@@ -816,7 +816,7 @@ TEST(UTBinInt,mod_arithmetic){
   /* TESTING METHOD MODEXP FOR ALL CONDITIONS     */
   /************************************************/
 
-  // The method "Mod Exp" operates on BigBinary Integers m,n,q
+  // The method "Mod Exp" operates on BigIntegers m,n,q
   // Returns:  (m^n)mod q
   //   = {(m mod q)^(n mod q)}mod q
   // ConvertToInt converts BigInteger calculatedResult to integer
@@ -865,10 +865,10 @@ TEST(UTBinInt,shift){
   /* TESTING OPERATOR LEFT SHIFT (<<) FOR ALL CONDITIONS */
   /*******************************************************/
 
-  // The operator 'Left Shift' operates on BigBinary Integer a, and it
+  // The operator 'Left Shift' operates on BigInteger a, and it
   // is shifted by a number
 
-  // Returns: a<<(num), and the result is stored in BigBinaryInterger
+  // Returns: a<<(num), and the result is stored in BigIntegererger
   // calculatedResult 'a' is left shifted by 'num' number of bits, and
   // filled up by 0s from right which is equivalent to a * (2^num)
   //
@@ -905,7 +905,7 @@ TEST(UTBinInt,shift){
   /* TESTING OPERATOR LEFT SHIFT EQUALS (<<=) FOR ALL CONDITIONS -*/
   /************************************************/
 
-  // The operator 'Left Shift Equals' operates on BigBinary Integer a,
+  // The operator 'Left Shift Equals' operates on BigInteger a,
   // and it is shifted by a number
   // Returns:
   // a<<(num), and the result is stored in 'a'
@@ -945,10 +945,10 @@ TEST(UTBinInt,shift){
   /********************************************************/
   /* TESTING OPERATOR RIGHT SHIFT (>>) FOR ALL CONDITIONS */
   /********************************************************/
-  // The operator 'Right Shift' operates on BigBinary Integer a, and it
+  // The operator 'Right Shift' operates on BigInteger a, and it
   // is shifted by a number
 
-  // Returns: a>>(num), and the result is stored in BigBinary Integer
+  // Returns: a>>(num), and the result is stored in BigInteger
   // calculated. Result 'a' is right shifted by 'num' number of bits,
   // and filled up by 0s from left which is equivalent to a / (2^num)
 
@@ -986,7 +986,7 @@ TEST(UTBinInt,shift){
   /* TESTING OPERATOR RIGHT SHIFT EQUALS(>>=) FOR ALL CONDITIONS */
   /***************************************************************/
 
-  // The operator 'Right Shift Equals' operates on BigBinary Integer a,
+  // The operator 'Right Shift Equals' operates on BigInteger a,
   // and it is shifted by a number
 
   // Returns: a>>=(num), and the result is stored in a 'a' is right
@@ -1024,19 +1024,19 @@ TEST(UTBinInt,shift){
 }
 
 /****************************************/
-/* TESTING METHOD  BinaryStringToBigBinaryInt */
+/* TESTING METHOD  BitStringToBigInteger */
 /****************************************/
 
 TEST(UTBinInt,method_binary_string_to_big_binary_integer){
-  //TEST CASE FOR STATIC METHOD BinaryStringToBigBinaryInt in BigInteger
+  //TEST CASE FOR STATIC METHOD BitStringToBigInteger in BigInteger
 
  std::string binaryString = "1011101101110001111010111011000000011";
   BigInteger b =
-    lbcrypto::BigInteger::BinaryStringToBigBinaryInt(binaryString);
+    lbcrypto::BigInteger::BitStringToBigInteger(binaryString);
 
   BigInteger expectedResult("100633769475");
   EXPECT_EQ(expectedResult, b)
-    << "Failure testing BinaryStringToBigBinaryInt";
+    << "Failure testing BitStringToBigInteger";
 }
 
 /****************************************/

@@ -125,7 +125,7 @@ namespace lbcrypto {
 
 		// Convert zHat from a matrix of BBI to a vector of Poly ring elements
 		// zHat is in the coefficient representation
-		RingMat zHat = SplitInt32AltIntoILVector2nElements(zHatBBI, n, params);
+		RingMat zHat = SplitInt32AltIntoPolyElements(zHatBBI, n, params);
 		// Now converting it to the evaluation representation before multiplication
 		zHat.SwitchFormat();
 
@@ -253,7 +253,7 @@ namespace lbcrypto {
 		}
 
 		//create k ring elements in coefficient representation
-		Matrix<Poly> p2 = SplitInt32IntoILVector2nElements(p2ZVector, n, va.GetParams());
+		Matrix<Poly> p2 = SplitInt32IntoPolyElements(p2ZVector, n, va.GetParams());
 
 		//now converting to evaluation representation before multiplication
 		p2.SwitchFormat();
@@ -276,7 +276,7 @@ namespace lbcrypto {
 		LatticeGaussSampUtility::ZSampleSigma2x2(a, b, d, c, dgg, &p1ZVector);
 
 		//create 2 ring elements in coefficient representation
-		Matrix<Poly> p1 = SplitInt32IntoILVector2nElements(p1ZVector, n, va.GetParams());
+		Matrix<Poly> p1 = SplitInt32IntoPolyElements(p1ZVector, n, va.GetParams());
 
 		//Converts p1 to Evaluation representation
 		p1.SwitchFormat();

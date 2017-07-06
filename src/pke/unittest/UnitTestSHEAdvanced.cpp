@@ -132,12 +132,12 @@ TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 
 	usint plaintextModulus = 9;
 
-	vector<native_int::BinaryInteger> init_moduli(init_size);
+	vector<native_int::BigInteger> init_moduli(init_size);
 
-	vector<native_int::BinaryInteger> init_rootsOfUnity(init_size);
+	vector<native_int::BigInteger> init_rootsOfUnity(init_size);
 
-	native_int::BinaryInteger q = FirstPrime<native_int::BinaryInteger>(dcrtBits, init_m);
-	native_int::BinaryInteger temp;
+	native_int::BigInteger q = FirstPrime<native_int::BigInteger>(dcrtBits, init_m);
+	native_int::BigInteger temp;
 	BigInteger modulus("1");
 
 	for (usint i = 0; i < init_size; i++) {
@@ -307,12 +307,12 @@ TEST_F(UTSHEAdvanced, test_eval_add_double_crt) {
 	usint init_size = 2;
 	usint plaintextModulus = 9;
 
-	vector<native_int::BinaryInteger> init_moduli(init_size);
+	vector<native_int::BigInteger> init_moduli(init_size);
 
-	vector<native_int::BinaryInteger> init_rootsOfUnity(init_size);
+	vector<native_int::BigInteger> init_rootsOfUnity(init_size);
 
-	native_int::BinaryInteger q = FirstPrime<native_int::BinaryInteger>(dcrtBits, init_m);
-	native_int::BinaryInteger temp;
+	native_int::BigInteger q = FirstPrime<native_int::BigInteger>(dcrtBits, init_m);
+	native_int::BigInteger temp;
 	BigInteger modulus(1);
 	DEBUG("1");
 

@@ -30,8 +30,8 @@
 
 namespace lbcrypto {
 
-	template <class BigInteger>
-	class BigBinaryIntegerInterface
+	template<typename BigInteger>
+	class BigIntegerInterface
 	{
 	public:
 
@@ -314,12 +314,12 @@ namespace lbcrypto {
 
 		//static methods cannot be added to the interface
 		/**
-		 * Convert a value from an int to a BigBinaryInt.
+		 * Convert a value from an int to a BigInteger.
 		 *
 		 * @param the value to convert from.
 		 * @return the int represented as a big binary int.	  
 		 */
-		//static BigInteger intToBigBinaryInteger(usint m);
+		//static BigInteger intToBigIntegereger(usint m);
 
 		////constant definations
 
@@ -402,7 +402,7 @@ namespace lbcrypto {
 		* @param b is the value to add.
 		* @return is the result of the addition operation.
 	*/
-	//inline BigBinaryIntegerInterface operator+(const BigBinaryIntegerInterface &a, const BigBinaryIntegerInterface &b) {return a.Plus(b);}
+	//inline BigIntegeregerInterface operator+(const BigIntegeregerInterface &a, const BigIntegeregerInterface &b) {return a.Plus(b);}
 
 	/**
 		* Subtraction operation.
@@ -411,7 +411,7 @@ namespace lbcrypto {
 		* @param b is the value to subtract.
 		* @return is the result of the subtraction operation.
 	*/
-	//inline BigBinaryIntegerInterface operator-(const BigBinaryIntegerInterface &a, const BigBinaryIntegerInterface &b) {return a.Minus(b);}
+	//inline BigIntegeregerInterface operator-(const BigIntegeregerInterface &a, const BigIntegeregerInterface &b) {return a.Minus(b);}
 
 	/**
 		* Multiplication operation.
@@ -420,7 +420,7 @@ namespace lbcrypto {
 		* @param b is the value to multiply with.
 		* @return is the result of the multiplication operation.
 	*/
-	//inline BigBinaryIntegerInterface operator*(const BigBinaryIntegerInterface &a, const BigBinaryIntegerInterface &b) {return a.Times(b);}
+	//inline BigIntegeregerInterface operator*(const BigIntegeregerInterface &a, const BigIntegeregerInterface &b) {return a.Times(b);}
 
 	/**
 		* Division operation.
@@ -429,11 +429,11 @@ namespace lbcrypto {
 		* @param b is the value to divide by.
 		* @return is the result of the division operation.
 	*/
-	//inline BigBinaryIntegerInterface operator/(const BigBinaryIntegerInterface &a, const BigBinaryIntegerInterface &b) {return a.DividedBy(b);}
+	//inline BigIntegeregerInterface operator/(const BigIntegeregerInterface &a, const BigIntegeregerInterface &b) {return a.DividedBy(b);}
 
 
-	class BigBinaryVectorInterface{}; //will be defined later; all methods will be pure virtual
-	class BigBinaryMatrixInterface{}; //will be defined later; all methods will be pure virtual
+	class BigVectorInterface{}; //will be defined later; all methods will be pure virtual
+	class BigMatrixInterface{}; //will be defined later; all methods will be pure virtual
 
 } // namespace lbcrypto ends
 

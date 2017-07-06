@@ -31,8 +31,8 @@ File Listing
   - [ildcrtparams.h](src/lib/lattice/ildcrtparams.h): This file represents a parameter class for the more advanced and computationally efficient double-CRT lattice parameters.  This class inherits from the class in [ilparams.h](src/lib/lattice/ilparams.h), [ilparams.cpp](src/lib/lattice/ilparams.cpp).
 * Element classes files
   - [ilelement.h](src/lib/lattice/ilelement.h): This file presents a basic interface class for elements from ideal lattices.
-  - [ilvector2n.h](src/lib/lattice/ilvector2n.h), [ilvector2n.cpp](src/lib/lattice/ilvector2n.cpp): These files present a basic class for elements from ideal lattices using a single-CRT representation assuming a ring dimension that is a power of 2.  This class inherits from the class in [ilelement.h](src/lib/lattice/ilelement.h).
-  - [ilvectorarray2n.h](src/lib/lattice/ilvectorarray2n.h), [ilvectorarray2n.cpp](src/lib/lattice/ilvectorarray2n.cpp): These files present a basic class for elements from ideal lattices using a double-CRT representation assuming a ring dimension that is a power of 2.  This class inherits from the class in [ilelement.h](src/lib/lattice/ilelement.h).
+  - [poly.h](src/lib/lattice/poly.h), [poly.cpp](src/lib/lattice/poly.cpp): These files present a basic class for elements from ideal lattices using a single-CRT representation.  This class inherits from the class in [ilelement.h](src/lib/lattice/ilelement.h).
+  - [dcrtpoly.h](src/lib/lattice/dcrtpoly.h), [dcrtpoly.cpp](src/lib/lattice/dcrtpoly.cpp): These files present a basic class for elements from ideal lattices using a double-CRT representation.  This class inherits from the class in [ilelement.h](src/lib/lattice/ilelement.h).
 * Documentation files
   - [README.md](src/lib/lattice/README.md): This file.
 

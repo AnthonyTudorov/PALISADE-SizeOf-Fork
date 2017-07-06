@@ -242,7 +242,7 @@ namespace NTL {
   }
 
   //deprecated version needs renaming
-  myZZ myZZ::BinaryStringToBigBinaryInt(const std::string& vin){ 
+  myZZ myZZ::BitStringToBigInteger(const std::string& vin){ 
     myZZ ans;
     return ans.FromBinaryString(vin);
   }

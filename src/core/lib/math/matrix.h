@@ -37,8 +37,8 @@
 #include "../math/backend.h"
 #include "../math/nbtheory.h"
 #include "../math/distrgen.h"
-#include "../lattice/ilvector2n.h"
-#include "../lattice/ildcrt2n.h"
+#include "../lattice/poly.h"
+#include "../lattice/dcrtpoly.h"
 #include "../encoding/intplaintextencoding.h"
 #include "../encoding/packedintplaintextencoding.h"
 #include "../utils/inttypes.h"
@@ -612,7 +612,7 @@ namespace lbcrypto {
 	* @param &params Poly element params
 	* @return the resulting matrix of Poly
     */ 
-    Matrix<Poly> SplitInt32IntoILVector2nElements(Matrix<int32_t> const& other, size_t n, const shared_ptr<ILParams> params);
+    Matrix<Poly> SplitInt32IntoPolyElements(Matrix<int32_t> const& other, size_t n, const shared_ptr<ILParams> params);
 
 	/**
     * Another method for splitting a vector of int32_t into a vector of ring elements with ring dimension n
@@ -622,6 +622,6 @@ namespace lbcrypto {
 	* @param &params Poly element params
 	* @return the resulting matrix of Poly
     */ 
-    Matrix<Poly> SplitInt32AltIntoILVector2nElements(Matrix<int32_t> const& other, size_t n, const shared_ptr<ILParams> params);
+    Matrix<Poly> SplitInt32AltIntoPolyElements(Matrix<int32_t> const& other, size_t n, const shared_ptr<ILParams> params);
 }
 #endif // LBCRYPTO_MATH_MATRIX_H

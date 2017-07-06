@@ -1,5 +1,5 @@
 /*
- * @file pubkeylp-vectorarray-impl.cpp - public key vector array implementation
+ * @file pubkeylp-dcrtpoly-impl.cpp - public key vector array implementation
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)

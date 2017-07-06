@@ -811,7 +811,7 @@ namespace exp_int{
      * @return the  number represented as a ubint.
      */
     static ubint BinaryStringToUbint(const std::string& bitString);
-    static ubint BinaryStringToBigBinaryInt(const std::string& bitString);
+    static ubint BitStringToBigInteger(const std::string& bitString);
 
     /**
      * Multiply and Rounding operation on a ubint x. 

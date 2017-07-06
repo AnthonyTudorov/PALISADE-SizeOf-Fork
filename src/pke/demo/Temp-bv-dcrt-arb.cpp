@@ -107,10 +107,10 @@ void ArbBVAutomorphismPackedArray(usint i) {
 
 	// populate the towers for the small modulus
 
-	vector<native_int::BinaryInteger> init_moduli(init_size);
-	vector<native_int::BinaryInteger> init_rootsOfUnity(init_size);
+	vector<native_int::BigInteger> init_moduli(init_size);
+	vector<native_int::BigInteger> init_rootsOfUnity(init_size);
 
-	native_int::BinaryInteger q = FirstPrime<native_int::BinaryInteger>(dcrtBits, mArb);
+	native_int::BigInteger q = FirstPrime<native_int::BigInteger>(dcrtBits, mArb);
 	init_moduli[0] = q;
 	init_rootsOfUnity[0] = RootOfUnity(mArb, init_moduli[0]);
 
@@ -118,16 +118,16 @@ void ArbBVAutomorphismPackedArray(usint i) {
 		q = lbcrypto::NextPrime(q, mArb);
 		init_moduli[i] = q;
 		init_rootsOfUnity[i] = RootOfUnity(mArb, init_moduli[i]);
-		auto cycloPoly = GetCyclotomicPolynomial<native_int::BinaryVector, native_int::BinaryInteger>(m, q);
-		ChineseRemainderTransformArb<native_int::BinaryInteger, native_int::BinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, q);
+		auto cycloPoly = GetCyclotomicPolynomial<native_int::BigVector, native_int::BigInteger>(m, q);
+		ChineseRemainderTransformArb<native_int::BigInteger, native_int::BigVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, q);
 	}
 
 	// populate the towers for the big modulus
 
-	vector<native_int::BinaryInteger> init_moduli_NTT(init_size);
-	vector<native_int::BinaryInteger> init_rootsOfUnity_NTT(init_size);
+	vector<native_int::BigInteger> init_moduli_NTT(init_size);
+	vector<native_int::BigInteger> init_rootsOfUnity_NTT(init_size);
 
-	q = FirstPrime<native_int::BinaryInteger>(dcrtBitsBig, mNTT);
+	q = FirstPrime<native_int::BigInteger>(dcrtBitsBig, mNTT);
 	init_moduli_NTT[0] = q;
 	init_rootsOfUnity_NTT[0] = RootOfUnity(mNTT, init_moduli_NTT[0]);
 
@@ -135,8 +135,8 @@ void ArbBVAutomorphismPackedArray(usint i) {
 		q = lbcrypto::NextPrime(q, mNTT);
 		init_moduli_NTT[i] = q;
 		init_rootsOfUnity_NTT[i] = RootOfUnity(mNTT, init_moduli_NTT[i]);
-		auto cycloPoly = GetCyclotomicPolynomial<native_int::BinaryVector, native_int::BinaryInteger>(m, q);
-		ChineseRemainderTransformArb<native_int::BinaryInteger, native_int::BinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, q);
+		auto cycloPoly = GetCyclotomicPolynomial<native_int::BigVector, native_int::BigInteger>(m, q);
+		ChineseRemainderTransformArb<native_int::BigInteger, native_int::BigVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, q);
 	}
 
 	shared_ptr<ILDCRTParams<BigInteger>> paramsDCRT(new ILDCRTParams<BigInteger>(m, init_moduli, init_rootsOfUnity, init_moduli_NTT, init_rootsOfUnity_NTT));
@@ -220,10 +220,10 @@ void EvalMult() {
 
 	// populate the towers for the small modulus
 
-	vector<native_int::BinaryInteger> init_moduli(init_size);
-	vector<native_int::BinaryInteger> init_rootsOfUnity(init_size);
+	vector<native_int::BigInteger> init_moduli(init_size);
+	vector<native_int::BigInteger> init_rootsOfUnity(init_size);
 
-	native_int::BinaryInteger q = FirstPrime<native_int::BinaryInteger>(dcrtBits, mArb);
+	native_int::BigInteger q = FirstPrime<native_int::BigInteger>(dcrtBits, mArb);
 	init_moduli[0] = q;
 	init_rootsOfUnity[0] = RootOfUnity(mArb, init_moduli[0]);
 
@@ -231,16 +231,16 @@ void EvalMult() {
 		q = lbcrypto::NextPrime(q, mArb);
 		init_moduli[i] = q;
 		init_rootsOfUnity[i] = RootOfUnity(mArb, init_moduli[i]);
-		auto cycloPoly = GetCyclotomicPolynomial<native_int::BinaryVector, native_int::BinaryInteger>(m, q);
-		ChineseRemainderTransformArb<native_int::BinaryInteger, native_int::BinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, q);
+		auto cycloPoly = GetCyclotomicPolynomial<native_int::BigVector, native_int::BigInteger>(m, q);
+		ChineseRemainderTransformArb<native_int::BigInteger, native_int::BigVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, q);
 	}
 
 	// populate the towers for the big modulus
 
-	vector<native_int::BinaryInteger> init_moduli_NTT(init_size);
-	vector<native_int::BinaryInteger> init_rootsOfUnity_NTT(init_size);
+	vector<native_int::BigInteger> init_moduli_NTT(init_size);
+	vector<native_int::BigInteger> init_rootsOfUnity_NTT(init_size);
 
-	q = FirstPrime<native_int::BinaryInteger>(dcrtBitsBig, mNTT);
+	q = FirstPrime<native_int::BigInteger>(dcrtBitsBig, mNTT);
 	init_moduli_NTT[0] = q;
 	init_rootsOfUnity_NTT[0] = RootOfUnity(mNTT, init_moduli_NTT[0]);
 
@@ -250,8 +250,8 @@ void EvalMult() {
 		q = lbcrypto::NextPrime(q, mNTT);
 		init_moduli_NTT[i] = q;
 		init_rootsOfUnity_NTT[i] = RootOfUnity(mNTT, init_moduli_NTT[i]);
-		auto cycloPoly = GetCyclotomicPolynomial<native_int::BinaryVector, native_int::BinaryInteger>(m, q);
-		ChineseRemainderTransformArb<native_int::BinaryInteger, native_int::BinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, q);
+		auto cycloPoly = GetCyclotomicPolynomial<native_int::BigVector, native_int::BigInteger>(m, q);
+		ChineseRemainderTransformArb<native_int::BigInteger, native_int::BigVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, q);
 	}
 
 	shared_ptr<ILDCRTParams<BigInteger>> paramsDCRT(new ILDCRTParams<BigInteger>(m, init_moduli, init_rootsOfUnity, init_moduli_NTT, init_rootsOfUnity_NTT));
@@ -344,10 +344,10 @@ void ArbNullAutomorphismPackedArray(usint i) {
 
 	// populate the towers for the small modulus
 
-	vector<native_int::BinaryInteger> init_moduli(init_size);
-	vector<native_int::BinaryInteger> init_rootsOfUnity(init_size);
+	vector<native_int::BigInteger> init_moduli(init_size);
+	vector<native_int::BigInteger> init_rootsOfUnity(init_size);
 
-	native_int::BinaryInteger q = FirstPrime<native_int::BinaryInteger>(dcrtBits, mArb);
+	native_int::BigInteger q = FirstPrime<native_int::BigInteger>(dcrtBits, mArb);
 	init_moduli[0] = q;
 	init_rootsOfUnity[0] = RootOfUnity(mArb, init_moduli[0]);
 
@@ -355,16 +355,16 @@ void ArbNullAutomorphismPackedArray(usint i) {
 		q = lbcrypto::NextPrime(q, mArb);
 		init_moduli[i] = q;
 		init_rootsOfUnity[i] = RootOfUnity(mArb, init_moduli[i]);
-		auto cycloPoly = GetCyclotomicPolynomial<native_int::BinaryVector, native_int::BinaryInteger>(m, q);
-		ChineseRemainderTransformArb<native_int::BinaryInteger, native_int::BinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, q);
+		auto cycloPoly = GetCyclotomicPolynomial<native_int::BigVector, native_int::BigInteger>(m, q);
+		ChineseRemainderTransformArb<native_int::BigInteger, native_int::BigVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, q);
 	}
 
 	// populate the towers for the big modulus
 
-	vector<native_int::BinaryInteger> init_moduli_NTT(init_size);
-	vector<native_int::BinaryInteger> init_rootsOfUnity_NTT(init_size);
+	vector<native_int::BigInteger> init_moduli_NTT(init_size);
+	vector<native_int::BigInteger> init_rootsOfUnity_NTT(init_size);
 
-	q = FirstPrime<native_int::BinaryInteger>(dcrtBitsBig, mNTT);
+	q = FirstPrime<native_int::BigInteger>(dcrtBitsBig, mNTT);
 	init_moduli_NTT[0] = q;
 	init_rootsOfUnity_NTT[0] = RootOfUnity(mNTT, init_moduli_NTT[0]);
 
@@ -372,8 +372,8 @@ void ArbNullAutomorphismPackedArray(usint i) {
 		q = lbcrypto::NextPrime(q, mNTT);
 		init_moduli_NTT[i] = q;
 		init_rootsOfUnity_NTT[i] = RootOfUnity(mNTT, init_moduli_NTT[i]);
-		auto cycloPoly = GetCyclotomicPolynomial<native_int::BinaryVector, native_int::BinaryInteger>(m, q);
-		ChineseRemainderTransformArb<native_int::BinaryInteger, native_int::BinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, q);
+		auto cycloPoly = GetCyclotomicPolynomial<native_int::BigVector, native_int::BigInteger>(m, q);
+		ChineseRemainderTransformArb<native_int::BigInteger, native_int::BigVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, q);
 	}
 
 	shared_ptr<ILDCRTParams<BigInteger>> paramsDCRT(new ILDCRTParams<BigInteger>(m, init_moduli, init_rootsOfUnity, init_moduli_NTT, init_rootsOfUnity_NTT));
@@ -461,10 +461,10 @@ void ArbBVInnerProductPackedArray() {
 
 	// populate the towers for the small modulus
 
-	vector<native_int::BinaryInteger> init_moduli(init_size);
-	vector<native_int::BinaryInteger> init_rootsOfUnity(init_size);
+	vector<native_int::BigInteger> init_moduli(init_size);
+	vector<native_int::BigInteger> init_rootsOfUnity(init_size);
 
-	native_int::BinaryInteger q = FirstPrime<native_int::BinaryInteger>(dcrtBits, mArb);
+	native_int::BigInteger q = FirstPrime<native_int::BigInteger>(dcrtBits, mArb);
 	init_moduli[0] = q;
 	init_rootsOfUnity[0] = RootOfUnity(mArb, init_moduli[0]);
 
@@ -472,16 +472,16 @@ void ArbBVInnerProductPackedArray() {
 		q = lbcrypto::NextPrime(q, mArb);
 		init_moduli[i] = q;
 		init_rootsOfUnity[i] = RootOfUnity(mArb, init_moduli[i]);
-		auto cycloPoly = GetCyclotomicPolynomial<native_int::BinaryVector, native_int::BinaryInteger>(m, q);
-		ChineseRemainderTransformArb<native_int::BinaryInteger, native_int::BinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, q);
+		auto cycloPoly = GetCyclotomicPolynomial<native_int::BigVector, native_int::BigInteger>(m, q);
+		ChineseRemainderTransformArb<native_int::BigInteger, native_int::BigVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, q);
 	}
 
 	// populate the towers for the big modulus
 
-	vector<native_int::BinaryInteger> init_moduli_NTT(init_size);
-	vector<native_int::BinaryInteger> init_rootsOfUnity_NTT(init_size);
+	vector<native_int::BigInteger> init_moduli_NTT(init_size);
+	vector<native_int::BigInteger> init_rootsOfUnity_NTT(init_size);
 
-	q = FirstPrime<native_int::BinaryInteger>(dcrtBitsBig, mNTT);
+	q = FirstPrime<native_int::BigInteger>(dcrtBitsBig, mNTT);
 	init_moduli_NTT[0] = q;
 	init_rootsOfUnity_NTT[0] = RootOfUnity(mNTT, init_moduli_NTT[0]);
 
@@ -489,8 +489,8 @@ void ArbBVInnerProductPackedArray() {
 		q = lbcrypto::NextPrime(q, mNTT);
 		init_moduli_NTT[i] = q;
 		init_rootsOfUnity_NTT[i] = RootOfUnity(mNTT, init_moduli_NTT[i]);
-		auto cycloPoly = GetCyclotomicPolynomial<native_int::BinaryVector, native_int::BinaryInteger>(m, q);
-		ChineseRemainderTransformArb<native_int::BinaryInteger, native_int::BinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, q);
+		auto cycloPoly = GetCyclotomicPolynomial<native_int::BigVector, native_int::BigInteger>(m, q);
+		ChineseRemainderTransformArb<native_int::BigInteger, native_int::BigVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, q);
 	}
 
 	shared_ptr<ILDCRTParams<BigInteger>> paramsDCRT(new ILDCRTParams<BigInteger>(m, init_moduli, init_rootsOfUnity, init_moduli_NTT, init_rootsOfUnity_NTT));

@@ -26,10 +26,10 @@
 #ifndef _SRC_LIB_LATTICE_SIGNATURE_FIELD2N_H
 #define _SRC_LIB_LATTICE_SIGNATURE_FIELD2N_H
 
-#include "ilvector2n.h"
+#include "poly.h"
 #include "../math/transfrm.h"
 #include "../math/matrix.h"
-#include "ildcrt2n.h"
+#include "dcrtpoly.h"
 
 namespace lbcrypto
 {

@@ -63,25 +63,25 @@ namespace lbcrypto {
 	template std::vector<usint> GetTotientList(const usint &n);
 
 #if MATHBACKEND != 7
-	template native_int::BinaryInteger RootOfUnity<native_int::BinaryInteger>(usint m, const native_int::BinaryInteger& modulo);
-	template std::vector<native_int::BinaryInteger> RootsOfUnity(usint m, const std::vector<native_int::BinaryInteger> moduli);
-	template native_int::BinaryInteger GreatestCommonDivisor(const native_int::BinaryInteger& a, const native_int::BinaryInteger& b);
-	template bool MillerRabinPrimalityTest(const native_int::BinaryInteger& p, const usint niter);
-	template const native_int::BinaryInteger PollardRhoFactorization(const native_int::BinaryInteger &n);
-	template void PrimeFactorize(native_int::BinaryInteger n, std::set<native_int::BinaryInteger> &primeFactors);
-	template native_int::BinaryInteger FirstPrime(usint nBits, usint m);
-	template native_int::BinaryInteger NextPrime(const native_int::BinaryInteger &q, usint cyclotomicOrder);
-	template native_int::BinaryVector PolyMod(const native_int::BinaryVector &dividend, const native_int::BinaryVector &divisor, const native_int::BinaryInteger &modulus);
-	template native_int::BinaryVector PolynomialMultiplication(const native_int::BinaryVector &a, const native_int::BinaryVector &b);
-	template native_int::BinaryVector GetCyclotomicPolynomial(usint m, const native_int::BinaryInteger &modulus);
-	template native_int::BinaryInteger SyntheticRemainder(const native_int::BinaryVector &dividend, const native_int::BinaryInteger &a, const native_int::BinaryInteger &modulus);
-	template native_int::BinaryVector SyntheticPolyRemainder(const native_int::BinaryVector &dividend, const native_int::BinaryVector &aList, const native_int::BinaryInteger &modulus);
-	template native_int::BinaryVector PolynomialPower<native_int::BinaryVector, native_int::BinaryInteger>(const native_int::BinaryVector &input, usint power);
-	template native_int::BinaryVector SyntheticPolynomialDivision(const native_int::BinaryVector &dividend, const native_int::BinaryInteger &a, const native_int::BinaryInteger &modulus);
-	template native_int::BinaryInteger FindGeneratorCyclic(const native_int::BinaryInteger& modulo);
-	template bool IsGenerator(const native_int::BinaryInteger& g, const native_int::BinaryInteger& modulo);
+	template native_int::BigInteger RootOfUnity<native_int::BigInteger>(usint m, const native_int::BigInteger& modulo);
+	template std::vector<native_int::BigInteger> RootsOfUnity(usint m, const std::vector<native_int::BigInteger> moduli);
+	template native_int::BigInteger GreatestCommonDivisor(const native_int::BigInteger& a, const native_int::BigInteger& b);
+	template bool MillerRabinPrimalityTest(const native_int::BigInteger& p, const usint niter);
+	template const native_int::BigInteger PollardRhoFactorization(const native_int::BigInteger &n);
+	template void PrimeFactorize(native_int::BigInteger n, std::set<native_int::BigInteger> &primeFactors);
+	template native_int::BigInteger FirstPrime(usint nBits, usint m);
+	template native_int::BigInteger NextPrime(const native_int::BigInteger &q, usint cyclotomicOrder);
+	template native_int::BigVector PolyMod(const native_int::BigVector &dividend, const native_int::BigVector &divisor, const native_int::BigInteger &modulus);
+	template native_int::BigVector PolynomialMultiplication(const native_int::BigVector &a, const native_int::BigVector &b);
+	template native_int::BigVector GetCyclotomicPolynomial(usint m, const native_int::BigInteger &modulus);
+	template native_int::BigInteger SyntheticRemainder(const native_int::BigVector &dividend, const native_int::BigInteger &a, const native_int::BigInteger &modulus);
+	template native_int::BigVector SyntheticPolyRemainder(const native_int::BigVector &dividend, const native_int::BigVector &aList, const native_int::BigInteger &modulus);
+	template native_int::BigVector PolynomialPower<native_int::BigVector, native_int::BigInteger>(const native_int::BigVector &input, usint power);
+	template native_int::BigVector SyntheticPolynomialDivision(const native_int::BigVector &dividend, const native_int::BigInteger &a, const native_int::BigInteger &modulus);
+	template native_int::BigInteger FindGeneratorCyclic(const native_int::BigInteger& modulo);
+	template bool IsGenerator(const native_int::BigInteger& g, const native_int::BigInteger& modulo);
 
-	template native_int::BinaryInteger ComputeMu(const native_int::BinaryInteger& q);
+	template native_int::BigInteger ComputeMu(const native_int::BigInteger& q);
 
 
 #endif
@@ -89,8 +89,8 @@ namespace lbcrypto {
 
 	/*
 		Generates a random number between 0 and n.
-		Input: BigBinaryInteger n.
-		Output: Randomly generated BigBinaryInteger between 0 and n.
+		Input: BigInteger n.
+		Output: Randomly generated BigInteger between 0 and n.
 	*/
 	template<typename IntType>
 	static IntType RNG(const IntType& modulus)
@@ -121,7 +121,7 @@ namespace lbcrypto {
 
 			result = 0;
 
-			// Generate random uint32_t "limbs" of the BigBinaryInteger
+			// Generate random uint32_t "limbs" of the BigInteger
 			for (usint i = 0; i < chunksPerValue; i++) {
 				//Generate an unsigned long integer
 				value = distribution(PseudoRandomNumberGenerator::GetPRNG());
@@ -200,7 +200,7 @@ namespace lbcrypto {
 
 	/*
 		A helper function to RootOfUnity function. This finds a generator for a given prime q.
-		Input: BigBinaryInteger q which is a prime.
+		Input: BigInteger q which is a prime.
 		Output: A generator of prime q
 	*/
 	template<typename IntType>
@@ -236,7 +236,7 @@ namespace lbcrypto {
 
 	/*
 	A helper function for arbitrary cyclotomics. This finds a generator for any composite q (cyclic group).
-	Input: BigBinaryInteger q (cyclic group).
+	Input: BigInteger q (cyclic group).
 	Output: A generator of prime q
 	*/
 	template<typename IntType>
@@ -314,9 +314,9 @@ namespace lbcrypto {
 	/*
 		finds roots of unity for given input.  Assumes the the input is a power of two.  Mostly likely does not give correct results otherwise.
 		input:	m as number which is cyclotomic(in format of int),
-				modulo which is used to find generator (in format of BigBinaryInteger)
+				modulo which is used to find generator (in format of BigInteger)
 
-		output:	root of unity (in format of BigBinaryInteger)
+		output:	root of unity (in format of BigInteger)
 	*/
 	template<typename IntType>
 	IntType RootOfUnity(usint m, const IntType& modulo)
@@ -716,12 +716,12 @@ namespace lbcrypto {
 
 	uint64_t GetTotient(const uint64_t n) {
 
-		std::set<native_int::BinaryInteger> factors;
-		native_int::BinaryInteger enn(n);
+		std::set<native_int::BigInteger> factors;
+		native_int::BigInteger enn(n);
 		PrimeFactorize(enn, factors);
 
-		native_int::BinaryInteger primeProd(1);
-		native_int::BinaryInteger numerator(1);
+		native_int::BigInteger primeProd(1);
+		native_int::BigInteger numerator(1);
 		for (auto &r : factors) {
 			numerator = numerator * (r - 1);
 			primeProd = primeProd * r;

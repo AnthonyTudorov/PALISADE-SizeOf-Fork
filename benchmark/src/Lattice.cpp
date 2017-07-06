@@ -41,8 +41,8 @@
 #include "lattice/ildcrtparams.h"
 #include "lattice/ilelement.h"
 #include "math/distrgen.h"
-#include "lattice/ilvector2n.h"
-#include "../../src/core/lib/lattice/ildcrt2n.h"
+#include "lattice/poly.h"
+#include "../../src/core/lib/lattice/dcrtpoly.h"
 #include "utils/utilities.h"
 
 #include <vector>
@@ -83,11 +83,11 @@ static const usint smbits = 28;
 static shared_ptr<ILDCRTParams<BigInteger>> generate_DCRT_parms(int s) {
 	usint nTowers = Scenarios[s].bits/smbits;
 
-	vector<native_int::BinaryInteger> moduli(nTowers);
-	vector<native_int::BinaryInteger> rootsOfUnity(nTowers);
+	vector<native_int::BigInteger> moduli(nTowers);
+	vector<native_int::BigInteger> rootsOfUnity(nTowers);
 
-	native_int::BinaryInteger q = FirstPrime<native_int::BinaryInteger>(smbits, Scenarios[s].m);
-	native_int::BinaryInteger temp;
+	native_int::BigInteger q = FirstPrime<native_int::BigInteger>(smbits, Scenarios[s].m);
+	native_int::BigInteger temp;
 	BigInteger modulus(1);
 
 	for(usint i=0; i < nTowers; i++){

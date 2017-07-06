@@ -39,8 +39,8 @@
 #include "lattice/ildcrtparams.h"
 #include "lattice/ilelement.h"
 #include "math/distrgen.h"
-#include "lattice/ilvector2n.h"
-#include "lattice/ildcrt2n.h"
+#include "lattice/poly.h"
+#include "lattice/dcrtpoly.h"
 #include "utils/utilities.h"
 
 #include <vector>
@@ -51,8 +51,8 @@
 using namespace std;
 using namespace lbcrypto;
 
-typedef ILParamsImpl<native_int::BinaryInteger> ILNativeParams;
-typedef ILVectorImpl< native_int::BinaryInteger, native_int::BinaryInteger, native_int::BinaryVector, ILNativeParams > ILVectorNative2n;
+typedef ILParamsImpl<native_int::BigInteger> ILNativeParams;
+typedef PolyImpl< native_int::BigInteger, native_int::BigInteger, native_int::BigVector, ILNativeParams > ILVectorNative2n;
 
 template <class E>
 static void make_NATIVELATTICE_empty(shared_ptr<ILParams>& params) {
@@ -82,7 +82,7 @@ static E makeElement(benchmark::State& state, shared_ptr<ILParams> params) {
 			new ILNativeParams(params->GetCyclotomicOrder(),
 					params->GetModulus().ConvertToInt(),
 					params->GetRootOfUnity().ConvertToInt()) );
-	native_int::BinaryVector vec = makeNativeVector(params);
+	native_int::BigVector vec = makeNativeVector(params);
 	E			elem(nparams);
 	elem.SetValues(vec, elem.GetFormat());
 	return std::move(elem);

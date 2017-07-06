@@ -54,7 +54,7 @@ public:
 * plaintext
 * The cyclotomic order is set 2048
 *tower size is set to 3*/
-TEST(UTLTVBATCHING, ILVector2n_Encrypt_Decrypt) {	
+TEST(UTLTVBATCHING, Poly_Encrypt_Decrypt) {	
 
 	float stdDev = 4;
 
@@ -108,7 +108,7 @@ TEST(UTLTVBATCHING, ILVector2n_Encrypt_Decrypt) {
 }
 
 
-TEST(UTLTVBATCHING, ILVector2n_EVALADD) {
+TEST(UTLTVBATCHING, Poly_EVALADD) {
 
 	float stdDev = 4;
 
@@ -173,7 +173,7 @@ TEST(UTLTVBATCHING, ILVector2n_EVALADD) {
 	EXPECT_EQ(intArrayNew, vectorOfIntsExpected);
 }
 
-TEST(UTLTVBATCHING, ILVector2n_EVALMULT) {
+TEST(UTLTVBATCHING, Poly_EVALMULT) {
 
 	usint ptMod = 17;
 

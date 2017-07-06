@@ -494,7 +494,7 @@ Matrix<int32_t> ConvertToInt32(const Matrix<BigVector> &input, const BigInteger&
 }
 
 //  split a vector of int32_t into a vector of ring elements with ring dimension n
-Matrix<Poly> SplitInt32IntoILVector2nElements(Matrix<int32_t> const& other, size_t n, const shared_ptr<ILParams> params) {
+Matrix<Poly> SplitInt32IntoPolyElements(Matrix<int32_t> const& other, size_t n, const shared_ptr<ILParams> params) {
 
 	auto zero_alloc = Poly::MakeAllocator(params, COEFFICIENT);
 
@@ -528,7 +528,7 @@ Matrix<Poly> SplitInt32IntoILVector2nElements(Matrix<int32_t> const& other, size
 }
 
 //  split a vector of BBI into a vector of ring elements with ring dimension n
-Matrix<Poly> SplitInt32AltIntoILVector2nElements(Matrix<int32_t> const& other, size_t n, const shared_ptr<ILParams> params) {
+Matrix<Poly> SplitInt32AltIntoPolyElements(Matrix<int32_t> const& other, size_t n, const shared_ptr<ILParams> params) {
 
 	auto zero_alloc = Poly::MakeAllocator(params, COEFFICIENT);
 

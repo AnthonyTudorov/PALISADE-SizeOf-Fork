@@ -43,17 +43,17 @@ ILDCRTParams<IntType>::ILDCRTParams(usint order, usint depth, usint bits) : Elem
 	m_parms.resize(depth);
 	this->ciphertextModulus = BigInteger(0);
 
-	native_int::BinaryInteger q = FirstPrime<native_int::BinaryInteger>(bits, order);
+	native_int::BigInteger q = FirstPrime<native_int::BigInteger>(bits, order);
 
 	for(size_t j = 0; ;) {
-		native_int::BinaryInteger root = RootOfUnity<native_int::BinaryInteger>(order, q);
+		native_int::BigInteger root = RootOfUnity<native_int::BigInteger>(order, q);
 		std::shared_ptr<native_int::ILParams> p( new native_int::ILParams(order, q, root) );
 		m_parms[j] = p;
 
 		if( ++j >= depth )
 			break;
 
-		q = NextPrime<native_int::BinaryInteger>(q, order);
+		q = NextPrime<native_int::BigInteger>(q, order);
 	}
 
 	RecalculateModulus();

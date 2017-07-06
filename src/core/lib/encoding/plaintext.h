@@ -32,10 +32,10 @@
 #include "../utils/inttypes.h"
 #include "../math/backend.h"
 #include "../lattice/elemparams.h"
-#include "../lattice/ildcrt2n.h"
+#include "../lattice/dcrtpoly.h"
 #include "../lattice/ilparams.h"
 #include "../lattice/ildcrtparams.h"
-#include "../lattice/ilvector2n.h"
+#include "../lattice/poly.h"
 
 namespace lbcrypto
 {
@@ -122,13 +122,13 @@ public:
 	 * @param ptm - the plaintext modulus.
 	 * @return the plaintext modulus in native type.
 	 */
-	native_int::BinaryInteger ConvertToNativeModulus(const BigInteger& ptm) {
+	native_int::BigInteger ConvertToNativeModulus(const BigInteger& ptm) {
 		static BigInteger largestNative( ~((uint64_t)0) );
 
 		if( ptm > largestNative )
 			throw std::logic_error("plaintext modulus of " + ptm.ToString() + " is too big to convert to a native_int integer");
 
-		return native_int::BinaryInteger( ptm.ConvertToInt() );
+		return native_int::BigInteger( ptm.ConvertToInt() );
 	}
 };
 

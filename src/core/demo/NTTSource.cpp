@@ -94,7 +94,7 @@ BigVector BBVfromStrvec( std::vector<std::string> &s) {
   return a;
 }
 
-//function to compare two BigBinaryVectors and print differing indicies
+//function to compare two BigVectors and print differing indicies
 void vec_diff(BigVector &a, BigVector &b) {
   for (usint i= 0; i < a.GetLength(); ++i){  
     if (a.GetValAtIndex(i) != b.GetValAtIndex(i)) {
@@ -142,8 +142,8 @@ void test_NTT () {
   double time3br, time3bf;
 
   cout<<"testing NTT backend "<<MATHBACKEND;
-  if (BigBinaryIntegerBitLength >0)
-    cout<<" BITLENGTH "<< BigBinaryIntegerBitLength <<endl;
+  if (BigIntegerBitLength >0)
+    cout<<" BITLENGTH "<< BigIntegerBitLength <<endl;
 
   TIC(t_total);
   //there are three test cases, 1) small modulus 2) approx 48 bits. 

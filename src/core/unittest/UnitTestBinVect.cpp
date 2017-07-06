@@ -30,7 +30,7 @@
 #include "include/gtest/gtest.h"
 #include <iostream>
 
-#include "../lib/lattice/ildcrt2n.h"
+#include "../lib/lattice/dcrtpoly.h"
 #include "math/backend.h"
 #include "utils/inttypes.h"
 #include "math/nbtheory.h"
@@ -39,7 +39,7 @@
 #include "lattice/ildcrtparams.h"
 #include "lattice/ilelement.h"
 #include "math/distrgen.h"
-#include "lattice/ilvector2n.h"
+#include "lattice/poly.h"
 #include "utils/utilities.h"
 #include "utils/debug.h"
 
@@ -70,8 +70,8 @@ Compares two integer values
 //---------------------TESTING INTEGER OPERATIONS ON VECTOR---------------------------------//
 
 /*
-	GetValAtIndex() operates on BigBinary Vector, retrieves the value at the given index of a vector
-	The functions returns BigBinaryInterger, which is passed to ConvertToInt() to convert to integer
+	GetValAtIndex() operates on Big Vector, retrieves the value at the given index of a vector
+	The functions returns BigIntegererger, which is passed to ConvertToInt() to convert to integer
 	One dimensional integer array expectedResult is created
 	Indivdual expected result for each index of the vector is store in array
 	EXPECT_EQ is given the above integer from GetValAtIndex, and the value of the expectedResult at the corresponding index
@@ -83,8 +83,8 @@ Compares two integer values
 
 /*--------------TESTING METHOD MODULUS FOR ALL CONDITIONS---------------------------*/
 
-/* 	The method "Mod" operates on BigBinary Vector m, BigBinary Integer q
-  	Returns:  m mod q, and the result is stored in BigBinary Vector calculatedResult.
+/* 	The method "Mod" operates on Big Vector m, BigInteger q
+  	Returns:  m mod q, and the result is stored in Big Vector calculatedResult.
 */
 TEST(UTBinVect, SetModulusTest){
 
@@ -205,8 +205,8 @@ TEST(UTBinVect, CTOR_Test){
 
 /*--------------TESTING METHOD MODADD FOR ALL CONDITIONS---------------------------*/
 
-/* 	The method "Mod Add" operates on BigBinary Vector m, BigBinary Integers n,q
-  	Returns:  (m+n)mod q, and the result is stored in BigBinary Vector calculatedResult.
+/* 	The method "Mod Add" operates on Big Vector m, BigIntegers n,q
+  	Returns:  (m+n)mod q, and the result is stored in Big Vector calculatedResult.
 */
 
 // TEST CASE WHEN NUMBERS AFTER ADDITION ARE SMALLER THAN MODULUS 
@@ -264,12 +264,12 @@ TEST(UTBinVect,ModAddBBITestSmallerModulus){
 
 /*--------------TESTING METHOD MODUSUB FOR ALL CONDITIONS---------------------------*/
 
-/* 	The method "Mod Sub" operates on BigBinary Vector m, BigBinary Integers n,q
+/* 	The method "Mod Sub" operates on Big Vector m, BigIntegers n,q
   	Returns:  
 		when m>n, (m-n)mod q
 		when m=n, 0 
 		when m<n, {(m mod q)+q-(n mod q)} mod q
-	and the result is stored in BigBinary Vector calculatedResult.
+	and the result is stored in Big Vector calculatedResult.
 */
 
 // TEST CASE WHEN FIRST NUMBER IS LESS THAN SECOND NUMBER 
@@ -321,9 +321,9 @@ TEST(UTBinVect,modsub_first_number_greater_than_second_number){
 
 /*--------------TESTING METHOD MODUMUL FOR ALL CONDITIONS---------------------------*/
 
-/* 	The method "Mod Mod" operates on BigBinary Vector m, BigBinary Integers n,q
+/* 	The method "Mod Mod" operates on Big Vector m, BigIntegers n,q
   	Returns:  (m*n)mod q
-	and the result is stored in BigBinary Vector calculatedResult.
+	and the result is stored in Big Vector calculatedResult.
 */
 TEST(UTBinVect,test_modmul_BBI){
 
@@ -350,9 +350,9 @@ TEST(UTBinVect,test_modmul_BBI){
 
 /*--------------TESTING METHOD MODEXP FOR ALL CONDITIONS---------------------------*/
 
-/* 	The method "Mod Exp" operates on BigBinary Vector m, BigBinary Integers n,q
+/* 	The method "Mod Exp" operates on Big Vector m, BigIntegers n,q
   	Returns:  (m^n)mod q
-	and the result is stored in BigBinary Vector calculatedResult.
+	and the result is stored in Big Vector calculatedResult.
 */
 TEST(UTBinVect,test_modexp){
   bool dbg_flag = false;
@@ -379,11 +379,11 @@ TEST(UTBinVect,test_modexp){
 
 /*--------------TESTING METHOD MODINVERSE FOR ALL CONDITIONS---------------------------*/
 
-/* 	The method "Mod ModInverse" operates on BigBinary Vector m, BigBinary Integer q
+/* 	The method "Mod ModInverse" operates on Big Vector m, BigInteger q
   	Returns:  (m^(-1))mod q
 		when m and q are co-prime (i,e GCD of m and q is 1)
 		and is calculated using extended Eucleadian Algorithm
-	and the result is stored in BigBinary Vector calculatedResult.
+	and the result is stored in Big Vector calculatedResult.
 */
 TEST(UTBinVect,test_modinv){
 
@@ -408,8 +408,8 @@ TEST(UTBinVect,test_modinv){
 
 /*--------------TESTING METHOD MODADD FOR ALL CONDITIONS---------------------------*/
 
-/* 	The method "Mod Add" operates on BigBinary Vectors m,n BigBinary Integer q
-  	Returns:  (m+n)mod q, and the result is stored in BigBinary Vector calculatedResult.
+/* 	The method "Mod Add" operates on Big Vectors m,n BigInteger q
+  	Returns:  (m+n)mod q, and the result is stored in Big Vector calculatedResult.
 */
 
 
@@ -478,8 +478,8 @@ TEST(UTBinVect, modadd_vector_result_greater_modulus){
 
 /*--------------TESTING METHOD PLUS EQUALS FOR ALL CONDITIONS---------------------------*/
 
-/* 	The operator "Plus Equals" operates on BigBinary Vectors m,n BigBinary Integer q
-  	Returns:  (m+n)mod q, and the result is stored in BigBinary Vector a.
+/* 	The operator "Plus Equals" operates on Big Vectors m,n BigInteger q
+  	Returns:  (m+n)mod q, and the result is stored in Big Vector a.
 */
 TEST(UTBinVect,method_plus_equals_vector_operation){
 	BigInteger q("657");	
@@ -510,8 +510,8 @@ TEST(UTBinVect,method_plus_equals_vector_operation){
 
 /*--------------TESTING METHOD MODMUL FOR ALL CONDITIONS---------------------------*/
 
-/* 	The operator "Mod Mul" operates on BigBinary Vectors m,n BigBinary Integer q
-  	Returns:  (m*n)mod q, and the result is stored in BigBinary Vector a.
+/* 	The operator "Mod Mul" operates on Big Vectors m,n BigInteger q
+  	Returns:  (m*n)mod q, and the result is stored in Big Vector a.
 */
 
 TEST(UTBinVect, modmul_vector){

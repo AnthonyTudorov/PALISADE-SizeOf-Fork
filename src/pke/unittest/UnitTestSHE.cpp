@@ -122,47 +122,47 @@ void UnitTest_Add(shared_ptr<CryptoContext<Element>> cc) {
 }
 
 /// add
-TEST(UTSHE, LTV_ILVector2n_Add) {
+TEST(UTSHE, LTV_Poly_Add) {
 	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementLTV(ORDER, PTM);
 	UnitTest_Add<Poly>(cc);
 }
 
-TEST(UTSHE, LTV_ILVectorArray2n_Add) {
+TEST(UTSHE, LTV_DCRTPoly_Add) {
 	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayLTV(ORDER, TOWERS, PTM, 30);
 	UnitTest_Add<DCRTPoly>(cc);
 }
 
-TEST(UTSHE, StSt_ILVector2n_Add) {
+TEST(UTSHE, StSt_Poly_Add) {
 	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementStSt(ORDER, PTM);
 	UnitTest_Add<Poly>(cc);
 }
 
-TEST(UTSHE, StSt_ILVectorArray2n_Add) {
+TEST(UTSHE, StSt_DCRTPoly_Add) {
 	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayStSt(ORDER, TOWERS, PTM, 30);
 	UnitTest_Add<DCRTPoly>(cc);
 }
 
-TEST(UTSHE, Null_ILVector2n_Add) {
+TEST(UTSHE, Null_Poly_Add) {
 	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementNull(ORDER, PTM);
 	UnitTest_Add<Poly>(cc);
 }
 
-TEST(UTSHE, Null_ILVectorArray2n_Add) {
+TEST(UTSHE, Null_DCRTPoly_Add) {
 	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayNull(ORDER, TOWERS, PTM, 30);
 	UnitTest_Add<DCRTPoly>(cc);
 }
 
-TEST(UTSHE, BV_ILVector2n_Add) {
+TEST(UTSHE, BV_Poly_Add) {
 	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementBV(ORDER, PTM);
 	UnitTest_Add<Poly>(cc);
 }
 
-TEST(UTSHE, BV_ILVectorArray2n_Add) {
+TEST(UTSHE, BV_DCRTPoly_Add) {
 	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayBV(ORDER, TOWERS, PTM, 30);
 	UnitTest_Add<DCRTPoly>(cc);
 }
 
-TEST(UTSHE, FV_ILVector2n_Add) {
+TEST(UTSHE, FV_Poly_Add) {
 	bool dbg_flag = false;
 	DEBUG("GenCryptoContextElementFV");
 	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementFV(ORDER, PTM);
@@ -170,7 +170,7 @@ TEST(UTSHE, FV_ILVector2n_Add) {
 	UnitTest_Add<Poly>(cc);
 }
 
-//TEST(UTSHE, FV_ILVectorArray2n_Add) {
+//TEST(UTSHE, FV_DCRTPoly_Add) {
 //	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayFV(ORDER, TOWERS, PTM);
 //	UnitTest_Add<DCRTPoly>(cc);
 //}
@@ -242,56 +242,56 @@ void UnitTest_Mult(shared_ptr<CryptoContext<Element>> cc) {
 }
 
 
-TEST(UTSHE, LTV_ILVector2n_Mult) {
+TEST(UTSHE, LTV_Poly_Mult) {
 	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementLTV(ORDER, PTM);
 	UnitTest_Mult<Poly>(cc);
 }
 
 #if !defined(_MSC_VER)
-TEST(UTSHE, LTV_ILVectorArray2n_Mult) {
+TEST(UTSHE, LTV_DCRTPoly_Mult) {
 	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayLTV(ORDER, TOWERS, PTM);
 	UnitTest_Mult<DCRTPoly>(cc);
 }
 #endif
 
-//TEST(UTSHE, StSt_ILVector2n_Mult) {
+//TEST(UTSHE, StSt_Poly_Mult) {
 //	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementStSt(ORDER, PTM);
 //	UnitTest_Mult<Poly>(cc);
 //}
 //
-//TEST(UTSHE, StSt_ILVectorArray2n_Mult) {
+//TEST(UTSHE, StSt_DCRTPoly_Mult) {
 //	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayStSt(ORDER, TOWERS, PTM);
 //	UnitTest_Mult<DCRTPoly>(cc);
 //}
 
-TEST(UTSHE, Null_ILVector2n_Mult) {
+TEST(UTSHE, Null_Poly_Mult) {
 	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementNull(ORDER, PTM);
 	UnitTest_Mult<Poly>(cc);
 }
 
-TEST(UTSHE, Null_ILVectorArray2n_Mult) {
+TEST(UTSHE, Null_DCRTPoly_Mult) {
 	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayNull(ORDER, TOWERS, PTM, 30);
 	UnitTest_Mult<DCRTPoly>(cc);
 }
 
-TEST(UTSHE, BV_ILVector2n_Mult) {
+TEST(UTSHE, BV_Poly_Mult) {
 	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementBV(ORDER, PTM);
 	UnitTest_Mult<Poly>(cc);
 }
 
 #if !defined(_MSC_VER)
-TEST(UTSHE, BV_ILVectorArray2n_Mult) {
+TEST(UTSHE, BV_DCRTPoly_Mult) {
 	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayBV(ORDER, TOWERS, PTM);
 	UnitTest_Mult<DCRTPoly>(cc);
 }
 #endif
 
-TEST(UTSHE, FV_ILVector2n_Mult) {
+TEST(UTSHE, FV_Poly_Mult) {
 	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementFV(ORDER, PTM);
 	UnitTest_Mult<Poly>(cc);
 }
 
-//TEST(UTSHE, FV_ILVectorArray2n_Mult) {
+//TEST(UTSHE, FV_DCRTPoly_Mult) {
 //	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayFV(ORDER, TOWERS, PTM);
 //	UnitTest_Mult<DCRTPoly>(cc);
 //}

@@ -31,7 +31,7 @@
 #include "math/backend.h"
 #include "math/nbtheory.h"
 #include "math/distrgen.h"
-#include "lattice/ilvector2n.h"
+#include "lattice/poly.h"
 #include "utils/inttypes.h"
 #include "utils/utilities.h"
 
@@ -255,7 +255,7 @@ TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
 	EXPECT_EQ(u.GetLength(),zHatBBI.GetCols())
 		<< "Failure testing number of colums";
   DEBUG("4");
-    Matrix<Poly> z = SplitInt32AltIntoILVector2nElements(zHatBBI, n, params);
+    Matrix<Poly> z = SplitInt32AltIntoPolyElements(zHatBBI, n, params);
 	z.SwitchFormat();
 
 	Poly uEst;

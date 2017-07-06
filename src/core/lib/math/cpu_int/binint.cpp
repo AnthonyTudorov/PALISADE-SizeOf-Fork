@@ -1852,7 +1852,7 @@ usint BigInteger<uint_type,BITLENGTH>::GetDigitAtIndexForBase(usint index, usint
 }
 
 template<typename uint_type, usint BITLENGTH>
-BigInteger<uint_type, BITLENGTH> BigInteger<uint_type, BITLENGTH>::BinaryStringToBigBinaryInt(const std::string& bitString) {
+BigInteger<uint_type, BITLENGTH> BigInteger<uint_type, BITLENGTH>::BitStringToBigInteger(const std::string& bitString) {
 
 	BigInteger value;
 	usint len = bitString.length();
@@ -2221,7 +2221,7 @@ void BigInteger<uint_type, BITLENGTH>::SetIntAtIndex(usint idx, uint_type value)
 	This method can be used to convert int to BigInteger
 */
 template<typename uint_type,usint BITLENGTH>
-BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::intToBigBinaryInteger(usint m){
+BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::intToBigInteger(usint m){
 
 	return BigInteger(m);
 

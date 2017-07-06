@@ -74,7 +74,7 @@ int main(int argc, char* argv[]){
   return 0;
 }
 
-//function to compare two BigBinaryVectors and print differing indicies
+//function to compare two BigVectors and print differing indicies
 void vec_diff(BigVector &a, BigVector &b) {
   for (usint i= 0; i < a.GetLength(); ++i){  
     if (a.GetValAtIndex(i) != b.GetValAtIndex(i)) {
@@ -117,8 +117,8 @@ void test_NTT (const usint level, const usint nloop) {
   double time3br, time3bf;
 
   cout<<"testing NTT backend "<<MATHBACKEND;
-  if (BigBinaryIntegerBitLength >0)
-    cout<<" BITLENGTH "<< BigBinaryIntegerBitLength;
+  if (BigIntegerBitLength >0)
+    cout<<" BITLENGTH "<< BigIntegerBitLength;
   cout <<endl;
 
   TIC(t_total);

@@ -579,7 +579,7 @@ MatrixStrassen<int32_t> ConvertToInt32(const MatrixStrassen<BigVector> &input, c
 }
 
 //  split a vector of int32_t into a vector of ring elements with ring dimension n
-MatrixStrassen<Poly> SplitInt32IntoILVector2nElements(MatrixStrassen<int32_t> const& other, size_t n, const shared_ptr<ILParams> params) {
+MatrixStrassen<Poly> SplitInt32IntoPolyElements(MatrixStrassen<int32_t> const& other, size_t n, const shared_ptr<ILParams> params) {
 			
 	auto zero_alloc = Poly::MakeAllocator(params, COEFFICIENT);
 
@@ -613,7 +613,7 @@ MatrixStrassen<Poly> SplitInt32IntoILVector2nElements(MatrixStrassen<int32_t> co
 }
 
 //  split a vector of BBI into a vector of ring elements with ring dimension n
-MatrixStrassen<Poly> SplitInt32AltIntoILVector2nElements(MatrixStrassen<int32_t> const& other, size_t n, const shared_ptr<ILParams> params) {
+MatrixStrassen<Poly> SplitInt32AltIntoPolyElements(MatrixStrassen<int32_t> const& other, size_t n, const shared_ptr<ILParams> params) {
 			
 	auto zero_alloc = Poly::MakeAllocator(params, COEFFICIENT);
 

@@ -998,8 +998,8 @@ namespace NTL {
       bbvMap.AddMember("VectorValues", pkBufferString, serObj->GetAllocator());
     }
     //store the map.
-    DEBUG("add BigBinaryVectorImpl");
-    serObj->AddMember("BigBinaryVectorImpl", bbvMap, serObj->GetAllocator());
+    DEBUG("add BigVectorImpl");
+    serObj->AddMember("BigVectorImpl", bbvMap, serObj->GetAllocator());
 
     DEBUG("serialize done");
     return true;
@@ -1012,10 +1012,10 @@ namespace NTL {
     DEBUG("in deserialize");
   
     //decode in reverse order from Serialize above
-    lbcrypto::Serialized::ConstMemberIterator mIter = serObj.FindMember("BigBinaryVectorImpl");
+    lbcrypto::Serialized::ConstMemberIterator mIter = serObj.FindMember("BigVectorImpl");
     if( mIter == serObj.MemberEnd() ){
       std::cerr<<"myVecP::Deserialize() failed"
-	       <<" BigBinaryVectorImpl not found"<<std::endl;
+	       <<" BigVectorImpl not found"<<std::endl;
       return false;
     }    
 

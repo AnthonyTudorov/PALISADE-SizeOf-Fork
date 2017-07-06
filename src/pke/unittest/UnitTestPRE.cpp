@@ -129,54 +129,54 @@ UnitTestReEncrypt(shared_ptr<CryptoContext<Element>> cc, bool publicVersion) {
 	EXPECT_EQ(plaintextIntNew, plaintextInt) << "ReEncrypt integer plaintext";
 }
 
-TEST(UTPRE, LTV_ILVector2n_ReEncrypt_pub) {
+TEST(UTPRE, LTV_Poly_ReEncrypt_pub) {
 	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementLTV(ORDER, PTM);
 	UnitTestReEncrypt<Poly>(cc, true);
 }
 
-//TEST(UTPRE, LTV_ILVectorArray2n_ReEncrypt_pub) {
+//TEST(UTPRE, LTV_DCRTPoly_ReEncrypt_pub) {
 //	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayLTV(ORDER, TOWERS, PTM);
 //	UnitTestReEncrypt<DCRTPoly>(cc, true);
 //}
 
-//TEST(UTPRE, StSt_ILVector2n_ReEncrypt_pub) {
+//TEST(UTPRE, StSt_Poly_ReEncrypt_pub) {
 //	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementStSt(ORDER, PTM);
 //	UnitTestReEncrypt<Poly>(cc, true);
 //}
 //
-//TEST(UTPRE, StSt_ILVectorArray2n_ReEncrypt_pub) {
+//TEST(UTPRE, StSt_DCRTPoly_ReEncrypt_pub) {
 //	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayStSt(ORDER, TOWERS, PTM);
 //	UnitTestReEncrypt<DCRTPoly>(cc, true);
 //}
 
-TEST(UTPRE, Null_ILVector2n_ReEncrypt_pub) {
+TEST(UTPRE, Null_Poly_ReEncrypt_pub) {
 	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementNull(ORDER, PTM);
 	UnitTestReEncrypt<Poly>(cc, true);
 }
 
-TEST(UTPRE, Null_ILVectorArray2n_ReEncrypt_pub) {
+TEST(UTPRE, Null_DCRTPoly_ReEncrypt_pub) {
 	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayNull(ORDER, TOWERS, PTM, 30);
 	UnitTestReEncrypt<DCRTPoly>(cc, true);
 }
 
-TEST(UTPRE, BV_ILVector2n_ReEncrypt_pri) {
+TEST(UTPRE, BV_Poly_ReEncrypt_pri) {
 	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementBV(ORDER, PTM);
 	UnitTestReEncrypt<Poly>(cc, false);
 }
 
 #if !defined(_MSC_VER)
-TEST(UTPRE, BV_ILVectorArray2n_ReEncrypt_pri) {
+TEST(UTPRE, BV_DCRTPoly_ReEncrypt_pri) {
 	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayBV(ORDER, TOWERS, PTM);
 	UnitTestReEncrypt<DCRTPoly>(cc, false);
 }
 #endif
 
-TEST(UTPRE, FV_ILVector2n_ReEncrypt_pri) {
+TEST(UTPRE, FV_Poly_ReEncrypt_pri) {
 	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementFV(ORDER, PTM);
 	UnitTestReEncrypt<Poly>(cc, false);
 }
 
-//TEST(UTPRE, FV_ILVectorArray2n_ReEncrypt_pri) {
+//TEST(UTPRE, FV_DCRTPoly_ReEncrypt_pri) {
 //	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayFV(ORDER, TOWERS, PTM);
 //	UnitTestReEncrypt<DCRTPoly>(cc, false);
 //}

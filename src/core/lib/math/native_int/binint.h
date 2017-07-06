@@ -205,7 +205,7 @@ public:
 	 * Assignment operator
 	 *
 	 * @param &rhs is the big binary integer to be assigned from.
-	 * @return assigned BigBinaryIntegr ref.
+	 * @return assigned BigInteger ref.
 	 */
 	const NativeInteger&  operator=(const NativeInteger &&rhs) {
 		this->m_value = rhs.m_value;
@@ -216,7 +216,7 @@ public:
 	 * Assignment operator from unsigned integer
 	 *
 	 * @param val is the unsigned integer value that is assigned.
-	 * @return the assigned Big Binary Integer ref.
+	 * @return the assigned BigInteger ref.
 	 */
 	const NativeInteger& operator=(const uint_type& val) {
 		this->m_value = val;
@@ -331,8 +331,8 @@ public:
 	/**
 	 * Addition operation.
 	 *
-	 * @param b is the value to add of type Big Binary Integer.
-	 * @return result of the addition operation of type BigBinary Integer.
+	 * @param b is the value to add of type BigInteger.
+	 * @return result of the addition operation of type BigInteger.
 	 */
 	NativeInteger Plus(const NativeInteger& b) const {
 		uint_type newv = m_value + b.m_value;
@@ -346,8 +346,8 @@ public:
 	/**
 	 * Addition accumulator.
 	 *
-	 * @param &b is the value to add of type Big Binary Integer.
-	 * @return result of the addition operation of type Big Binary Integer.
+	 * @param &b is the value to add of type BigInteger.
+	 * @return result of the addition operation of type BigInteger.
 	 */
 	const NativeInteger& operator+=(const NativeInteger &b) {
 		uint_type oldv = m_value;
@@ -362,8 +362,8 @@ public:
 	/**
 	 * Subtraction accumulator.
 	 *
-	 * @param &b is the value to subtract of type Big Binary Integer.
-	 * @return result of the subtraction operation of type Big Binary Integer.
+	 * @param &b is the value to subtract of type BigInteger.
+	 * @return result of the subtraction operation of type BigInteger.
 	 */
 	const NativeInteger& operator-=(const NativeInteger &b) {
 		if( m_value <= b.m_value )
@@ -376,8 +376,8 @@ public:
 	/**
 	 * Subtraction operation.
 	 *
-	 * @param b is the value to subtract of type Big Binary Integer.
-	 * @return result of the subtraction operation of type Big Binary Integer.
+	 * @param b is the value to subtract of type BigInteger.
+	 * @return result of the subtraction operation of type BigInteger.
 	 */
 	NativeInteger Minus(const NativeInteger& b) const {
 		return m_value <= b.m_value ? 0 : m_value - b.m_value;
@@ -386,8 +386,8 @@ public:
 	/**
 	 * Multiplication accumulator.
 	 *
-	 * @param &b is the value to multiply of type Big Binary Integer.
-	 * @return result of the muliplyaccumulate operation of type Big Binary Integer.
+	 * @param &b is the value to multiply of type BigInteger.
+	 * @return result of the muliplyaccumulate operation of type BigInteger.
 	 */
 	const NativeInteger& operator*=(const NativeInteger &b) {
 	        m_value *= b.m_value;
@@ -397,7 +397,7 @@ public:
 	/**
 	 * Multiplication operation.
 	 *
-	 * @param b of type Big Binary Integer is the value to multiply with.
+	 * @param b of type BigInteger is the value to multiply with.
 	 * @return result of the multiplication operation.
 	 */
 	NativeInteger Times(const NativeInteger& b) const {
@@ -421,8 +421,8 @@ public:
 	/**
 	 * Division accumulator.
 	 *
-	 * @param &b is the value of divisor of type Big Binary Integer.
-	 * @return result of the divide accumulate operation of type Big Binary Integer.
+	 * @param &b is the value of divisor of type BigInteger.
+	 * @return result of the divide accumulate operation of type BigInteger.
 	 */
 	const NativeInteger& operator/=(const NativeInteger &b) {
 	  m_value /= b.m_value;
@@ -866,12 +866,12 @@ public:
 	}
 
 	/**
-	 * Convert a string representation of a binary number to a decimal BigBinaryInt.
+	 * Convert a string representation of a binary number to a decimal BigInteger.
 	 *
 	 * @param bitString the binary num in string.
 	 * @return the binary number represented as a big binary int.
 	 */
-	static NativeInteger BinaryStringToBigBinaryInt(const std::string& bitString) {
+	static NativeInteger BitStringToBigInteger(const std::string& bitString) {
 		if( bitString.length() > m_uintBitLength ) {
 			throw std::logic_error("Bit string is too long to fit in a native_int");
 		}
@@ -891,7 +891,7 @@ public:
 	}
 
 	/**
-	 * Exponentiation of a bigBinaryInteger x. Returns x^p
+	 * Exponentiation of a BigInteger x. Returns x^p
 	 *
 	 * @param p the exponent.
 	 * @return the big binary integer x^p.
@@ -906,7 +906,7 @@ public:
 	}
 
 	/**
-	 * Multiply and Rounding operation on a bigBinaryInteger x. Returns [x*p/q] where [] is the rounding operation.
+	 * Multiply and Rounding operation on a BigInteger x. Returns [x*p/q] where [] is the rounding operation.
 	 *
 	 * @param p is the numerator to be multiplied.
 	 * @param q is the denominator to be divided.
@@ -918,7 +918,7 @@ public:
 	}
 
 	/**
-	 * Divide and Rounding operation on a bigBinaryInteger x. Returns [x/q] where [] is the rounding operation.
+	 * Divide and Rounding operation on a BigInteger x. Returns [x/q] where [] is the rounding operation.
 	 *
 	 * @param q is the denominator to be divided.
 	 * @return the result of divide and round.

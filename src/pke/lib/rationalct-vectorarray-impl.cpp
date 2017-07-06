@@ -1,5 +1,5 @@
 /*
-* @file rationalct-vectorarray-impl.cpp - rational ciphertext vector array class implementation
+* @file rationalct-dcrtpoly-impl.cpp - rational ciphertext vector array class implementation
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)

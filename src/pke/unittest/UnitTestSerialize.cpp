@@ -89,52 +89,52 @@ void UnitTestContext(shared_ptr<CryptoContext<T>> cc) {
 	EXPECT_EQ( *cc->GetCryptoParameters(), *newcc->GetCryptoParameters() ) << "Mismatch after ser/deser";
 }
 
-TEST(UTPKESer, LTV_ILVector2n_Serial) {
+TEST(UTPKESer, LTV_Poly_Serial) {
 	shared_ptr<CryptoContext<Poly>> cc = GenerateTestCryptoContext("LTV5");
 	UnitTestContext<Poly>(cc);
 }
 
-TEST(UTPKESer, LTV_ILVectorArray2n_Serial) {
+TEST(UTPKESer, LTV_DCRTPoly_Serial) {
 	shared_ptr<CryptoContext<DCRTPoly>> cc = GenerateTestDCRTCryptoContext("LTV5", 3, 20);
 	UnitTestContext<DCRTPoly>(cc);
 }
 
-TEST(UTPKESer, StSt_ILVector2n_Serial) {
+TEST(UTPKESer, StSt_Poly_Serial) {
 	shared_ptr<CryptoContext<Poly>> cc = GenerateTestCryptoContext("StSt6");
 	UnitTestContext<Poly>(cc);
 }
 
-TEST(UTPKESer, StSt_ILVectorArray2n_Serial) {
+TEST(UTPKESer, StSt_DCRTPoly_Serial) {
 	shared_ptr<CryptoContext<DCRTPoly>> cc = GenerateTestDCRTCryptoContext("StSt6", 3, 20);
 	UnitTestContext<DCRTPoly>(cc);
 }
 
-TEST(UTPKESer, BV_ILVector2n_Serial) {
+TEST(UTPKESer, BV_Poly_Serial) {
 	shared_ptr<CryptoContext<Poly>> cc = GenerateTestCryptoContext("BV2");
 	UnitTestContext<Poly>(cc);
 }
 
-TEST(UTPKESer, BV_ILVectorArray2n_Serial) {
+TEST(UTPKESer, BV_DCRTPoly_Serial) {
 	shared_ptr<CryptoContext<DCRTPoly>> cc = GenerateTestDCRTCryptoContext("BV2", 3, 20);
 	UnitTestContext<DCRTPoly>(cc);
 }
 
-TEST(UTPKESer, Null_ILVector2n_Serial) {
+TEST(UTPKESer, Null_Poly_Serial) {
 	shared_ptr<CryptoContext<Poly>> cc = GenerateTestCryptoContext("Null");
 	UnitTestContext<Poly>(cc);
 }
 
-TEST(UTPKESer, Null_ILVectorArray2n_Serial) {
+TEST(UTPKESer, Null_DCRTPoly_Serial) {
 	shared_ptr<CryptoContext<DCRTPoly>> cc = GenerateTestDCRTCryptoContext("Null", 3, 20);
 	UnitTestContext<DCRTPoly>(cc);
 }
 
-TEST(UTPKESer, FV_ILVector2n_Serial) {
+TEST(UTPKESer, FV_Poly_Serial) {
 	shared_ptr<CryptoContext<Poly>> cc = GenerateTestCryptoContext("FV2");
 	UnitTestContext<Poly>(cc);
 }
 
-//TEST(UTPKESer, FV_ILVectorArray2n_Serial) {
+//TEST(UTPKESer, FV_DCRTPoly_Serial) {
 //	shared_ptr<CryptoContext<DCRTPoly>> cc = GenerateTestDCRTCryptoContext("FV2", 3, 20);
 //	UnitTestContext<DCRTPoly>(cc);
 //}

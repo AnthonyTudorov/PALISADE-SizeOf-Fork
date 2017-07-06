@@ -34,7 +34,7 @@
 #include "math/backend.h"
 #include "math/nbtheory.h"
 #include "math/distrgen.h"
-#include "lattice/ilvector2n.h"
+#include "lattice/poly.h"
 #include "utils/inttypes.h"
 #include "utils/utilities.h"
 
@@ -176,7 +176,7 @@ TEST(UTMatrix, scalar_mult){
     //EXPECT_EQ(n**two, twos);
 }
 
-TEST(UTMatrix, ILVector2n_mult_square_matrix) {
+TEST(UTMatrix, Poly_mult_square_matrix) {
 
 	int32_t dimension = 8;
 
@@ -197,7 +197,7 @@ TEST(UTMatrix, ILVector2n_mult_square_matrix) {
 
 
 
-TEST(UTMatrix, ILVector2n_mult_square_matrix_caps) {
+TEST(UTMatrix, Poly_mult_square_matrix_caps) {
 
 	int32_t dimension = 16;
 

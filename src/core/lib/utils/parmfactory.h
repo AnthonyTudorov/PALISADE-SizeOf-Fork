@@ -29,7 +29,7 @@
 
 // useful for testing
 
-#include "../lattice/ildcrt2n.h"
+#include "../lattice/dcrtpoly.h"
 #include "math/backend.h"
 #include "math/distrgen.h"
 
@@ -39,7 +39,7 @@
 #include "lattice/ilparams.h"
 #include "lattice/ildcrtparams.h"
 #include "lattice/ilelement.h"
-#include "lattice/ilvector2n.h"
+#include "lattice/poly.h"
 
 using namespace lbcrypto;
 
@@ -68,12 +68,12 @@ inline shared_ptr<ILDCRTParams<BigInteger>> GenerateDCRTParams(usint m, usint pt
 	if( numOfTower == 0 )
 		throw std::logic_error("Can't make parms with numOfTower == 0 ");
 
-	std::vector<native_int::BinaryInteger> moduli(numOfTower);
-	std::vector<native_int::BinaryInteger> rootsOfUnity(numOfTower);
+	std::vector<native_int::BigInteger> moduli(numOfTower);
+	std::vector<native_int::BigInteger> rootsOfUnity(numOfTower);
 
-	native_int::BinaryInteger ptmI( ptm );
+	native_int::BigInteger ptmI( ptm );
 
-	native_int::BinaryInteger q = FirstPrime<native_int::BinaryInteger>(pbits, m);
+	native_int::BigInteger q = FirstPrime<native_int::BigInteger>(pbits, m);
 	BigInteger modulus(1);
 
 	usint j = 0;

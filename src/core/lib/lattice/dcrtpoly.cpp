@@ -1,6 +1,5 @@
 ﻿/*
- * @file ildcrt2n.cpp - implementation of the integer lattice with power of 2 operations
- * using double-CRT representations.
+ * @file dcrtpoly.cpp - implementation of the integer lattice using double-CRT representations.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -25,7 +24,7 @@
  *
  */
 
-#include "ildcrt2n.h"
+#include "dcrtpoly.h"
 #include <fstream>
 #include <memory>
 using std::shared_ptr;
@@ -38,14 +37,14 @@ namespace lbcrypto
 
 /*CONSTRUCTORS*/
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-ILDCRTImpl<ModType,IntType,VecType,ParmType>::ILDCRTImpl()
+DCRTPolyImpl<ModType,IntType,VecType,ParmType>::DCRTPolyImpl()
 {
 	m_format = EVALUATION;
 	m_params.reset( new ParmType(0,1) );
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-ILDCRTImpl<ModType,IntType,VecType,ParmType>::ILDCRTImpl(const shared_ptr<ParmType> dcrtParams, Format format, bool initializeElementToZero)
+DCRTPolyImpl<ModType,IntType,VecType,ParmType>::DCRTPolyImpl(const shared_ptr<ParmType> dcrtParams, Format format, bool initializeElementToZero)
 {
 	m_format = format;
 	m_params = dcrtParams;
@@ -59,7 +58,7 @@ ILDCRTImpl<ModType,IntType,VecType,ParmType>::ILDCRTImpl(const shared_ptr<ParmTy
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-ILDCRTImpl<ModType,IntType,VecType,ParmType>::ILDCRTImpl(const ILDCRTImpl &element)
+DCRTPolyImpl<ModType,IntType,VecType,ParmType>::DCRTPolyImpl(const DCRTPolyImpl &element)
 {
 	m_format = element.m_format;
 	m_vectors = element.m_vectors;
@@ -67,7 +66,7 @@ ILDCRTImpl<ModType,IntType,VecType,ParmType>::ILDCRTImpl(const ILDCRTImpl &eleme
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-void ILDCRTImpl<ModType,IntType,VecType,ParmType>::fillVectorArrayFromBigVector(const Poly &element, const shared_ptr<ParmType> params)
+void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FillPolyFromBigVector(const Poly &element, const shared_ptr<ParmType> params)
 {
 
 	if( element.GetModulus() > params->GetModulus() ) {
@@ -105,13 +104,13 @@ void ILDCRTImpl<ModType,IntType,VecType,ParmType>::fillVectorArrayFromBigVector(
 
 /* Construct from a single Poly. The format is derived from the passed in Poly.*/
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-ILDCRTImpl<ModType,IntType,VecType,ParmType>::ILDCRTImpl(const Poly &element, const shared_ptr<ParmType> params)
+DCRTPolyImpl<ModType,IntType,VecType,ParmType>::DCRTPolyImpl(const Poly &element, const shared_ptr<ParmType> params)
 {
 	Format format;
 	try {
 		format = element.GetFormat();
 	} catch (const std::exception& e) {
-		throw std::logic_error("There is an issue with the format of ILVectors passed to the constructor of ILDCRTImpl");
+		throw std::logic_error("There is an issue with the format of ILVectors passed to the constructor of DCRTPolyImpl");
 	}
 
 	if( element.GetCyclotomicOrder() != params->GetCyclotomicOrder() )
@@ -120,15 +119,15 @@ ILDCRTImpl<ModType,IntType,VecType,ParmType>::ILDCRTImpl(const Poly &element, co
 	m_format = format;
 	m_params = params;
 
-	fillVectorArrayFromBigVector(element, params);
+	FillPolyFromBigVector(element, params);
 
 }
 
 /* Construct using a tower of vectors.
- * The params and format for the ILDCRTImpl will be derived from the towers
+ * The params and format for the DCRTPolyImpl will be derived from the towers
  */
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-ILDCRTImpl<ModType,IntType,VecType,ParmType>::ILDCRTImpl(const std::vector<ILVectorType> &towers)
+DCRTPolyImpl<ModType,IntType,VecType,ParmType>::DCRTPolyImpl(const std::vector<ILVectorType> &towers)
 {
 	usint cyclotomicOrder = towers.at(0).GetCyclotomicOrder();
 	std::vector<std::shared_ptr<native_int::ILParams>> parms;
@@ -146,9 +145,9 @@ ILDCRTImpl<ModType,IntType,VecType,ParmType>::ILDCRTImpl(const std::vector<ILVec
 	m_format = m_vectors[0].GetFormat();
 }
 
-/*The dgg will be the seed to populate the towers of the ILDCRTImpl with random numbers. The algorithm to populate the towers can be seen below.*/
+/*The dgg will be the seed to populate the towers of the DCRTPolyImpl with random numbers. The algorithm to populate the towers can be seen below.*/
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-ILDCRTImpl<ModType,IntType,VecType,ParmType>::ILDCRTImpl(const DggType& dgg, const shared_ptr<ParmType> dcrtParams, Format format)
+DCRTPolyImpl<ModType,IntType,VecType,ParmType>::DCRTPolyImpl(const DggType& dgg, const shared_ptr<ParmType> dcrtParams, Format format)
 {
 	m_format = format;
 	m_params = dcrtParams;
@@ -161,7 +160,7 @@ ILDCRTImpl<ModType,IntType,VecType,ParmType>::ILDCRTImpl(const DggType& dgg, con
 
 	for(usint i = 0; i < vecSize; i++) {
 
-		native_int::BinaryVector ilDggValues(dcrtParams->GetRingDimension(), dcrtParams->GetParams()[i]->GetModulus());
+		native_int::BigVector ilDggValues(dcrtParams->GetRingDimension(), dcrtParams->GetParams()[i]->GetModulus());
 
 		for(usint j = 0; j < dcrtParams->GetRingDimension(); j++) {
 			uint64_t	entry;
@@ -188,7 +187,7 @@ ILDCRTImpl<ModType,IntType,VecType,ParmType>::ILDCRTImpl(const DggType& dgg, con
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-ILDCRTImpl<ModType,IntType,VecType,ParmType>::ILDCRTImpl(DugType& dug, const shared_ptr<ParmType> dcrtParams, Format format)
+DCRTPolyImpl<ModType,IntType,VecType,ParmType>::DCRTPolyImpl(DugType& dug, const shared_ptr<ParmType> dcrtParams, Format format)
 {
 
 	m_format = format;
@@ -200,7 +199,7 @@ ILDCRTImpl<ModType,IntType,VecType,ParmType>::ILDCRTImpl(DugType& dug, const sha
 	for (usint i = 0; i < numberOfTowers; i++) {
 
 		dug.SetModulus(dcrtParams->GetParams()[i]->GetModulus());
-		native_int::BinaryVector vals(dug.GenerateVector(dcrtParams->GetRingDimension()));
+		native_int::BigVector vals(dug.GenerateVector(dcrtParams->GetRingDimension()));
 		ILVectorType ilvector(dcrtParams->GetParams()[i]);
 
 		ilvector.SetValues(vals, Format::COEFFICIENT); // the random values are set in coefficient format
@@ -213,7 +212,7 @@ ILDCRTImpl<ModType,IntType,VecType,ParmType>::ILDCRTImpl(DugType& dug, const sha
 
 /*Move constructor*/
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-ILDCRTImpl<ModType,IntType,VecType,ParmType>::ILDCRTImpl(const ILDCRTImpl &&element)
+DCRTPolyImpl<ModType,IntType,VecType,ParmType>::DCRTPolyImpl(const DCRTPolyImpl &&element)
 {
 	m_format = element.m_format;
 	m_vectors = std::move(element.m_vectors);
@@ -221,18 +220,18 @@ ILDCRTImpl<ModType,IntType,VecType,ParmType>::ILDCRTImpl(const ILDCRTImpl &&elem
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-ILDCRTImpl<ModType,IntType,VecType,ParmType> ILDCRTImpl<ModType,IntType,VecType,ParmType>::CloneParametersOnly() const
+DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::CloneParametersOnly() const
 {
 
-	ILDCRTImpl res(this->m_params, this->m_format);
+	DCRTPolyImpl res(this->m_params, this->m_format);
 	return std::move(res);
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-ILDCRTImpl<ModType,IntType,VecType,ParmType> ILDCRTImpl<ModType,IntType,VecType,ParmType>::CloneWithNoise(const DiscreteGaussianGeneratorImpl<IntType,VecType> &dgg, Format format) const
+DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::CloneWithNoise(const DiscreteGaussianGeneratorImpl<IntType,VecType> &dgg, Format format) const
 {
 
-	ILDCRTImpl res = CloneParametersOnly();
+	DCRTPolyImpl res = CloneParametersOnly();
 
 	Poly randomElement = Poly::GetPrecomputedVector();
 	VecType randVec = VecType(randomElement.GetValues());
@@ -243,7 +242,7 @@ ILDCRTImpl<ModType,IntType,VecType,ParmType> ILDCRTImpl<ModType,IntType,VecType,
 	Poly element( parm );
 	element.SetValues( randVec, m_format );
 
-	res.fillVectorArrayFromBigVector(element, m_params);
+	res.FillPolyFromBigVector(element, m_params);
 
 	return std::move(res);
 }
@@ -251,50 +250,50 @@ ILDCRTImpl<ModType,IntType,VecType,ParmType> ILDCRTImpl<ModType,IntType,VecType,
 // DESTRUCTORS
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-ILDCRTImpl<ModType,IntType,VecType,ParmType>::~ILDCRTImpl() {}
+DCRTPolyImpl<ModType,IntType,VecType,ParmType>::~DCRTPolyImpl() {}
 
 // GET ACCESSORS
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-const typename ILDCRTImpl<ModType,IntType,VecType,ParmType>::ILVectorType& ILDCRTImpl<ModType,IntType,VecType,ParmType>::GetElementAtIndex (usint i) const
+const typename DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ILVectorType& DCRTPolyImpl<ModType,IntType,VecType,ParmType>::GetElementAtIndex (usint i) const
 {
 	if(m_vectors.empty())
-		throw std::logic_error("ILDCRTImpl's towers are not initialized.");
+		throw std::logic_error("DCRTPolyImpl's towers are not initialized.");
 	if(i > m_vectors.size()-1)
 		throw std::logic_error("Index: " + std::to_string(i) + " is out of range.");
 	return m_vectors[i];
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-usint ILDCRTImpl<ModType,IntType,VecType,ParmType>::GetNumOfElements() const
+usint DCRTPolyImpl<ModType,IntType,VecType,ParmType>::GetNumOfElements() const
 {
 	return m_vectors.size();
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-const std::vector<typename ILDCRTImpl<ModType,IntType,VecType,ParmType>::ILVectorType>& ILDCRTImpl<ModType,IntType,VecType,ParmType>::GetAllElements() const
+const std::vector<typename DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ILVectorType>& DCRTPolyImpl<ModType,IntType,VecType,ParmType>::GetAllElements() const
 {
 	return m_vectors;
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-Format ILDCRTImpl<ModType,IntType,VecType,ParmType>::GetFormat() const
+Format DCRTPolyImpl<ModType,IntType,VecType,ParmType>::GetFormat() const
 {
 	return m_format;
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-std::vector<ILDCRTImpl<ModType,IntType,VecType,ParmType>> ILDCRTImpl<ModType,IntType,VecType,ParmType>::BaseDecompose(usint baseBits, bool evalModeAnswer) const
+std::vector<DCRTPolyImpl<ModType,IntType,VecType,ParmType>> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::BaseDecompose(usint baseBits, bool evalModeAnswer) const
 {
 
 	Poly v( CRTInterpolate() );
 
 	std::vector<Poly> bdV = v.BaseDecompose(baseBits, false);
 
-	std::vector<ILDCRTImpl<ModType,IntType,VecType,ParmType>> result;
+	std::vector<DCRTPolyImpl<ModType,IntType,VecType,ParmType>> result;
 
 	// populate the result by converting each of the big vectors into a VectorArray
 	for( usint i=0; i<bdV.size(); i++ ) {
-		ILDCRTImpl<ModType,IntType,VecType,ParmType> dv(bdV[i], this->GetParams());
+		DCRTPolyImpl<ModType,IntType,VecType,ParmType> dv(bdV[i], this->GetParams());
 		if( evalModeAnswer )
 			dv.SwitchFormat();
 		result.push_back( std::move(dv) );
@@ -304,10 +303,10 @@ std::vector<ILDCRTImpl<ModType,IntType,VecType,ParmType>> ILDCRTImpl<ModType,Int
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-std::vector<ILDCRTImpl<ModType,IntType,VecType,ParmType>> ILDCRTImpl<ModType,IntType,VecType,ParmType>::PowersOfBase(usint baseBits) const
+std::vector<DCRTPolyImpl<ModType,IntType,VecType,ParmType>> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::PowersOfBase(usint baseBits) const
 {
 
-	std::vector<ILDCRTImpl<ModType,IntType,VecType,ParmType>> result;
+	std::vector<DCRTPolyImpl<ModType,IntType,VecType,ParmType>> result;
 
 	usint nBits = m_params->GetModulus().GetLengthForBase(2);
 
@@ -323,7 +322,7 @@ std::vector<ILDCRTImpl<ModType,IntType,VecType,ParmType>> ILDCRTImpl<ModType,Int
 		mods[i] = IntType(m_params->GetParams()[i]->GetModulus().ConvertToInt());
 
 	for( usint i = 0; i < nWindows; i++ ) {
-		ILVectorArrayType x( m_params, m_format );
+		DCRTPolyType x( m_params, m_format );
 
 		IntType twoPow( IntType(2).Exp( i*baseBits ) );
 		for( usint t = 0; t < m_params->GetParams().size(); t++ ) {
@@ -339,9 +338,9 @@ std::vector<ILDCRTImpl<ModType,IntType,VecType,ParmType>> ILDCRTImpl<ModType,Int
 /*VECTOR OPERATIONS*/
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-ILDCRTImpl<ModType,IntType,VecType,ParmType> ILDCRTImpl<ModType,IntType,VecType,ParmType>::MultiplicativeInverse() const
+DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::MultiplicativeInverse() const
 {
-	ILDCRTImpl<ModType,IntType,VecType,ParmType> tmp(*this);
+	DCRTPolyImpl<ModType,IntType,VecType,ParmType> tmp(*this);
 
 	for (usint i = 0; i < m_vectors.size(); i++) {
 		tmp.m_vectors[i] = m_vectors[i].MultiplicativeInverse();
@@ -350,9 +349,9 @@ ILDCRTImpl<ModType,IntType,VecType,ParmType> ILDCRTImpl<ModType,IntType,VecType,
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-ILDCRTImpl<ModType,IntType,VecType,ParmType> ILDCRTImpl<ModType,IntType,VecType,ParmType>::ModByTwo() const
+DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ModByTwo() const
 {
-	ILDCRTImpl<ModType,IntType,VecType,ParmType> tmp(*this);
+	DCRTPolyImpl<ModType,IntType,VecType,ParmType> tmp(*this);
 
 	for (usint i = 0; i < m_vectors.size(); i++) {
 		tmp.m_vectors[i] = m_vectors[i].ModByTwo();
@@ -361,9 +360,9 @@ ILDCRTImpl<ModType,IntType,VecType,ParmType> ILDCRTImpl<ModType,IntType,VecType,
 }
 
 //	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-//	ILDCRTImpl<ModType,IntType,VecType,ParmType> ILDCRTImpl<ModType,IntType,VecType,ParmType>::SignedMod(const IntType & modulus) const
+//	DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::SignedMod(const IntType & modulus) const
 //	{
-//		ILDCRTImpl tmp(*this);
+//		DCRTPolyImpl tmp(*this);
 //
 //		for (usint i = 0; i < m_vectors.size(); i++) {
 //			tmp.m_vectors[i] = m_vectors[i].SignedMod(modulus);
@@ -372,12 +371,12 @@ ILDCRTImpl<ModType,IntType,VecType,ParmType> ILDCRTImpl<ModType,IntType,VecType,
 //	}
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-ILDCRTImpl<ModType,IntType,VecType,ParmType> ILDCRTImpl<ModType,IntType,VecType,ParmType>::Plus(const ILDCRTImpl &element) const
+DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::Plus(const DCRTPolyImpl &element) const
 {
 	if( m_vectors.size() != element.m_vectors.size() ) {
 		throw std::logic_error("tower size mismatch; cannot add");
 	}
-	ILDCRTImpl<ModType,IntType,VecType,ParmType> tmp(*this);
+	DCRTPolyImpl<ModType,IntType,VecType,ParmType> tmp(*this);
 
 	for (usint i = 0; i < tmp.m_vectors.size(); i++) {
 		tmp.m_vectors[i] += element.GetElementAtIndex (i);
@@ -386,9 +385,9 @@ ILDCRTImpl<ModType,IntType,VecType,ParmType> ILDCRTImpl<ModType,IntType,VecType,
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-ILDCRTImpl<ModType,IntType,VecType,ParmType> ILDCRTImpl<ModType,IntType,VecType,ParmType>::Negate() const
+DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::Negate() const
 {
-	ILDCRTImpl<ModType,IntType,VecType,ParmType> tmp(this->CloneParametersOnly());
+	DCRTPolyImpl<ModType,IntType,VecType,ParmType> tmp(this->CloneParametersOnly());
 	tmp.m_vectors.clear();
 
 	for (usint i = 0; i < this->m_vectors.size(); i++) {
@@ -399,12 +398,12 @@ ILDCRTImpl<ModType,IntType,VecType,ParmType> ILDCRTImpl<ModType,IntType,VecType,
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-ILDCRTImpl<ModType,IntType,VecType,ParmType> ILDCRTImpl<ModType,IntType,VecType,ParmType>::Minus(const ILDCRTImpl &element) const
+DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::Minus(const DCRTPolyImpl &element) const
 {
 	if( m_vectors.size() != element.m_vectors.size() ) {
 		throw std::logic_error("tower size mismatch; cannot subtract");
 	}
-	ILDCRTImpl<ModType,IntType,VecType,ParmType> tmp(*this);
+	DCRTPolyImpl<ModType,IntType,VecType,ParmType> tmp(*this);
 
 	for (usint i = 0; i < tmp.m_vectors.size(); i++) {
 		tmp.m_vectors[i] -= element.GetElementAtIndex (i);
@@ -413,7 +412,7 @@ ILDCRTImpl<ModType,IntType,VecType,ParmType> ILDCRTImpl<ModType,IntType,VecType,
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-const ILDCRTImpl<ModType,IntType,VecType,ParmType>& ILDCRTImpl<ModType,IntType,VecType,ParmType>::operator+=(const ILDCRTImpl &rhs)
+const DCRTPolyImpl<ModType,IntType,VecType,ParmType>& DCRTPolyImpl<ModType,IntType,VecType,ParmType>::operator+=(const DCRTPolyImpl &rhs)
 {
 	for (usint i = 0; i < this->GetNumOfElements(); i++) {
 		this->m_vectors.at(i) += rhs.GetElementAtIndex(i);
@@ -423,7 +422,7 @@ const ILDCRTImpl<ModType,IntType,VecType,ParmType>& ILDCRTImpl<ModType,IntType,V
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-const ILDCRTImpl<ModType,IntType,VecType,ParmType>& ILDCRTImpl<ModType,IntType,VecType,ParmType>::operator-=(const ILDCRTImpl &rhs)
+const DCRTPolyImpl<ModType,IntType,VecType,ParmType>& DCRTPolyImpl<ModType,IntType,VecType,ParmType>::operator-=(const DCRTPolyImpl &rhs)
 {
 	for (usint i = 0; i < this->GetNumOfElements(); i++) {
 		this->m_vectors.at(i) -= rhs.GetElementAtIndex(i);
@@ -433,7 +432,7 @@ const ILDCRTImpl<ModType,IntType,VecType,ParmType>& ILDCRTImpl<ModType,IntType,V
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-const ILDCRTImpl<ModType,IntType,VecType,ParmType>& ILDCRTImpl<ModType,IntType,VecType,ParmType>::operator*=(const ILDCRTImpl &element)
+const DCRTPolyImpl<ModType,IntType,VecType,ParmType>& DCRTPolyImpl<ModType,IntType,VecType,ParmType>::operator*=(const DCRTPolyImpl &element)
 {
 	for (usint i = 0; i < this->m_vectors.size(); i++) {
 		this->m_vectors.at(i) *= element.m_vectors.at(i);
@@ -444,7 +443,7 @@ const ILDCRTImpl<ModType,IntType,VecType,ParmType>& ILDCRTImpl<ModType,IntType,V
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-bool ILDCRTImpl<ModType,IntType,VecType,ParmType>::operator==(const ILDCRTImpl &rhs) const
+bool DCRTPolyImpl<ModType,IntType,VecType,ParmType>::operator==(const DCRTPolyImpl &rhs) const
 {
 
 	if( GetCyclotomicOrder() != rhs.GetCyclotomicOrder() )
@@ -466,7 +465,7 @@ bool ILDCRTImpl<ModType,IntType,VecType,ParmType>::operator==(const ILDCRTImpl &
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-const ILDCRTImpl<ModType,IntType,VecType,ParmType> & ILDCRTImpl<ModType,IntType,VecType,ParmType>::operator=(const ILDCRTImpl & rhs)
+const DCRTPolyImpl<ModType,IntType,VecType,ParmType> & DCRTPolyImpl<ModType,IntType,VecType,ParmType>::operator=(const DCRTPolyImpl & rhs)
 {
 	if (this != &rhs) {
 		m_vectors = rhs.m_vectors;
@@ -477,7 +476,7 @@ const ILDCRTImpl<ModType,IntType,VecType,ParmType> & ILDCRTImpl<ModType,IntType,
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-const ILDCRTImpl<ModType,IntType,VecType,ParmType> & ILDCRTImpl<ModType,IntType,VecType,ParmType>::operator=(ILDCRTImpl&& rhs)
+const DCRTPolyImpl<ModType,IntType,VecType,ParmType> & DCRTPolyImpl<ModType,IntType,VecType,ParmType>::operator=(DCRTPolyImpl&& rhs)
 {
 	if (this != &rhs) {
 		m_vectors = std::move(rhs.m_vectors);
@@ -488,7 +487,7 @@ const ILDCRTImpl<ModType,IntType,VecType,ParmType> & ILDCRTImpl<ModType,IntType,
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-ILDCRTImpl<ModType,IntType,VecType,ParmType>& ILDCRTImpl<ModType,IntType,VecType,ParmType>::operator=(std::initializer_list<sint> rhs)
+DCRTPolyImpl<ModType,IntType,VecType,ParmType>& DCRTPolyImpl<ModType,IntType,VecType,ParmType>::operator=(std::initializer_list<sint> rhs)
 {
 	usint len = rhs.size();
 	static ILVectorType::Integer ZERO(0);
@@ -505,7 +504,7 @@ ILDCRTImpl<ModType,IntType,VecType,ParmType>& ILDCRTImpl<ModType,IntType,VecType
 		}
 	} else {
 		for(usint i=0; i<m_vectors.size(); i++) {
-			native_int::BinaryVector temp(m_params->GetRingDimension());
+			native_int::BigVector temp(m_params->GetRingDimension());
 			temp.SetModulus(m_vectors.at(i).GetModulus());
 			temp = rhs;
 			m_vectors.at(i).SetValues(std::move(temp),m_format);
@@ -518,9 +517,9 @@ ILDCRTImpl<ModType,IntType,VecType,ParmType>& ILDCRTImpl<ModType,IntType,VecType
 /*SCALAR OPERATIONS*/
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-ILDCRTImpl<ModType,IntType,VecType,ParmType> ILDCRTImpl<ModType,IntType,VecType,ParmType>::Plus(const IntType &element) const
+DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::Plus(const IntType &element) const
 {
-	ILDCRTImpl<ModType,IntType,VecType,ParmType> tmp(*this);
+	DCRTPolyImpl<ModType,IntType,VecType,ParmType> tmp(*this);
 
 	for (usint i = 0; i < tmp.m_vectors.size(); i++) {
 		tmp.m_vectors[i] += element.ConvertToInt();
@@ -529,9 +528,9 @@ ILDCRTImpl<ModType,IntType,VecType,ParmType> ILDCRTImpl<ModType,IntType,VecType,
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-ILDCRTImpl<ModType,IntType,VecType,ParmType> ILDCRTImpl<ModType,IntType,VecType,ParmType>::Minus(const IntType &element) const
+DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::Minus(const IntType &element) const
 {
-	ILDCRTImpl<ModType,IntType,VecType,ParmType> tmp(*this);
+	DCRTPolyImpl<ModType,IntType,VecType,ParmType> tmp(*this);
 
 	for (usint i = 0; i < tmp.m_vectors.size(); i++) {
 		tmp.m_vectors[i] -= element.ConvertToInt();
@@ -540,12 +539,12 @@ ILDCRTImpl<ModType,IntType,VecType,ParmType> ILDCRTImpl<ModType,IntType,VecType,
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-ILDCRTImpl<ModType,IntType,VecType,ParmType> ILDCRTImpl<ModType,IntType,VecType,ParmType>::Times(const ILDCRTImpl & element) const
+DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::Times(const DCRTPolyImpl & element) const
 {
 	if( m_vectors.size() != element.m_vectors.size() ) {
 		throw std::logic_error("tower size mismatch; cannot multiply");
 	}
-	ILDCRTImpl<ModType,IntType,VecType,ParmType> tmp(*this);
+	DCRTPolyImpl<ModType,IntType,VecType,ParmType> tmp(*this);
 
 	for (usint i = 0; i < m_vectors.size(); i++) {
 		//ModMul multiplies and performs a mod operation on the results. The mod is the modulus of each tower.
@@ -556,9 +555,9 @@ ILDCRTImpl<ModType,IntType,VecType,ParmType> ILDCRTImpl<ModType,IntType,VecType,
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-ILDCRTImpl<ModType,IntType,VecType,ParmType> ILDCRTImpl<ModType,IntType,VecType,ParmType>::Times(const IntType &element) const
+DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::Times(const IntType &element) const
 {
-	ILDCRTImpl<ModType,IntType,VecType,ParmType> tmp(*this);
+	DCRTPolyImpl<ModType,IntType,VecType,ParmType> tmp(*this);
 
 	for (usint i = 0; i < m_vectors.size(); i++) {
 		tmp.m_vectors[i] = tmp.m_vectors[i] * element.ConvertToInt(); // (element % IntType((*m_params)[i]->GetModulus().ConvertToInt())).ConvertToInt();
@@ -567,7 +566,7 @@ ILDCRTImpl<ModType,IntType,VecType,ParmType> ILDCRTImpl<ModType,IntType,VecType,
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-ILDCRTImpl<ModType,IntType,VecType,ParmType> ILDCRTImpl<ModType,IntType,VecType,ParmType>::MultiplyAndRound(const IntType &p, const IntType &q) const
+DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::MultiplyAndRound(const IntType &p, const IntType &q) const
 {
 	std::string errMsg = "Operation not implemented yet";
 	throw std::runtime_error(errMsg);
@@ -575,7 +574,7 @@ ILDCRTImpl<ModType,IntType,VecType,ParmType> ILDCRTImpl<ModType,IntType,VecType,
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-ILDCRTImpl<ModType,IntType,VecType,ParmType> ILDCRTImpl<ModType,IntType,VecType,ParmType>::DivideAndRound(const IntType &q) const
+DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::DivideAndRound(const IntType &q) const
 {
 	std::string errMsg = "Operation not implemented yet";
 	throw std::runtime_error(errMsg);
@@ -583,7 +582,7 @@ ILDCRTImpl<ModType,IntType,VecType,ParmType> ILDCRTImpl<ModType,IntType,VecType,
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-const ILDCRTImpl<ModType,IntType,VecType,ParmType>& ILDCRTImpl<ModType,IntType,VecType,ParmType>::operator*=(const IntType &element)
+const DCRTPolyImpl<ModType,IntType,VecType,ParmType>& DCRTPolyImpl<ModType,IntType,VecType,ParmType>::operator*=(const IntType &element)
 {
 	for (usint i = 0; i < this->m_vectors.size(); i++) {
 		this->m_vectors.at(i) *= element.ConvertToInt(); //this->m_vectors.at(i) * (element % IntType((*m_params)[i]->GetModulus().ConvertToInt())).ConvertToInt();
@@ -595,7 +594,7 @@ const ILDCRTImpl<ModType,IntType,VecType,ParmType>& ILDCRTImpl<ModType,IntType,V
 /*OTHER FUNCTIONS*/
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-void ILDCRTImpl<ModType,IntType,VecType,ParmType>::PrintValues() const
+void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::PrintValues() const
 {
 	std::cout<<"---START PRINT DOUBLE CRT-- WITH SIZE" <<m_vectors.size() << std::endl;
 	for(usint i = 0; i < m_vectors.size(); i++) {
@@ -606,17 +605,17 @@ void ILDCRTImpl<ModType,IntType,VecType,ParmType>::PrintValues() const
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-void ILDCRTImpl<ModType,IntType,VecType,ParmType>::AddILElementOne()
+void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::AddILElementOne()
 {
 	if(m_format != Format::EVALUATION)
-		throw std::runtime_error("ILDCRTImpl<ModType,IntType,VecType,ParmType>::AddILElementOne cannot be called on a ILDCRTImpl in COEFFICIENT format.");
+		throw std::runtime_error("DCRTPolyImpl<ModType,IntType,VecType,ParmType>::AddILElementOne cannot be called on a DCRTPolyImpl in COEFFICIENT format.");
 	for(usint i = 0; i < m_vectors.size(); i++) {
 		m_vectors[i].AddILElementOne();
 	}
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-void ILDCRTImpl<ModType,IntType,VecType,ParmType>::MakeSparse(const uint32_t &wFactor)
+void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::MakeSparse(const uint32_t &wFactor)
 {
 	for(usint i = 0; i < m_vectors.size(); i++) {
 		m_vectors[i].MakeSparse(wFactor);
@@ -626,11 +625,11 @@ void ILDCRTImpl<ModType,IntType,VecType,ParmType>::MakeSparse(const uint32_t &wF
 // This function modifies ILVectorArrayImpl to keep all the even indices in the tower.
 // It reduces the ring dimension of the tower by half.
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-void ILDCRTImpl<ModType,IntType,VecType,ParmType>::Decompose()
+void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::Decompose()
 {
 
 	if(m_format != Format::COEFFICIENT) {
-		std::string errMsg = "ILDCRTImpl not in COEFFICIENT format to perform Decompose.";
+		std::string errMsg = "DCRTPolyImpl not in COEFFICIENT format to perform Decompose.";
 		throw std::runtime_error(errMsg);
 	}
 
@@ -646,7 +645,7 @@ void ILDCRTImpl<ModType,IntType,VecType,ParmType>::Decompose()
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-bool ILDCRTImpl<ModType,IntType,VecType,ParmType>::IsEmpty() const
+bool DCRTPolyImpl<ModType,IntType,VecType,ParmType>::IsEmpty() const
 {
 	for(size_t i=0; i<m_vectors.size(); i++) {
 		if(!m_vectors.at(i).IsEmpty())
@@ -656,7 +655,7 @@ bool ILDCRTImpl<ModType,IntType,VecType,ParmType>::IsEmpty() const
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-void ILDCRTImpl<ModType,IntType,VecType,ParmType>::DropLastElement()
+void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::DropLastElement()
 {
 	if(m_vectors.size() == 0) {
 		throw std::out_of_range("Last element being removed from empty list");
@@ -674,7 +673,7 @@ void ILDCRTImpl<ModType,IntType,VecType,ParmType>::DropLastElement()
 * http://link.springer.com/chapter/10.1007/978-3-662-44774-1_18
 *
 * Modulus reduction reduces a ciphertext from modulus q to a smaller modulus q/qi. The qi is generally the largest. In the code below,
-* ModReduce is written for ILDCRTImpl and it drops the last tower while updating the necessary parameters.
+* ModReduce is written for DCRTPolyImpl and it drops the last tower while updating the necessary parameters.
 * The steps taken here are as follows:
 * 1. compute a short d in R such that d = c mod q
 * 2. compute a short delta in R such that delta = (vq′−1)·d mod (pq′). E.g., all of delta’s integer coefficients can be in the range [−pq′/2, pq′/2).
@@ -682,11 +681,11 @@ void ILDCRTImpl<ModType,IntType,VecType,ParmType>::DropLastElement()
 * 4. output (d′/q′) in R(q/q′).
 */
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-void ILDCRTImpl<ModType,IntType,VecType,ParmType>::ModReduce(const IntType &plaintextModulus)
+void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ModReduce(const IntType &plaintextModulus)
 {
 	bool dbg_flag = false;
 	if(m_format != Format::EVALUATION) {
-		throw std::logic_error("Mod Reduce function expects EVAL Formatted ILDCRTImpl. It was passed COEFF Formatted ILDCRTImpl.");
+		throw std::logic_error("Mod Reduce function expects EVAL Formatted DCRTPolyImpl. It was passed COEFF Formatted DCRTPolyImpl.");
 	}
 	this->SwitchFormat();
 
@@ -738,7 +737,7 @@ void ILDCRTImpl<ModType,IntType,VecType,ParmType>::ModReduce(const IntType &plai
 /*
  * This method applies the Chinese Remainder Interpolation on an ILVectoArray2n and produces an Poly
 * How the Algorithm works:
-* Consider the ILDCRTImpl as a 2-dimensional matrix M, with dimension ringDimension * Number of Towers.
+* Consider the DCRTPolyImpl as a 2-dimensional matrix M, with dimension ringDimension * Number of Towers.
 * For brevity , lets say this is r * t
 * Let qt denote the bigModulus (all the towers' moduli multiplied together) and qi denote the modulus of a particular tower.
 * Let V be a BigVector of size tower (tower size). Each coefficient of V is calculated as follows:
@@ -749,7 +748,7 @@ void ILDCRTImpl<ModType,IntType,VecType,ParmType>::ModReduce(const IntType &plai
 * for parameter selection of the Poly.
 */
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-Poly ILDCRTImpl<ModType,IntType,VecType,ParmType>::CRTInterpolate() const
+Poly DCRTPolyImpl<ModType,IntType,VecType,ParmType>::CRTInterpolate() const
 {
 	bool dbg_flag = false;
 
@@ -827,7 +826,7 @@ Poly ILDCRTImpl<ModType,IntType,VecType,ParmType>::CRTInterpolate() const
 
 /*Switch format calls IlVector2n's switchformat*/
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-void ILDCRTImpl<ModType,IntType,VecType,ParmType>::SwitchFormat()
+void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::SwitchFormat()
 {
 	if (m_format == COEFFICIENT) {
 		m_format = EVALUATION;
@@ -843,7 +842,7 @@ void ILDCRTImpl<ModType,IntType,VecType,ParmType>::SwitchFormat()
 
 #ifdef OUT
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-void ILDCRTImpl<ModType,IntType,VecType,ParmType>::SwitchModulus(const IntType &modulus, const IntType &rootOfUnity)
+void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::SwitchModulus(const IntType &modulus, const IntType &rootOfUnity)
 {
 	m_modulus = ModType::ONE;
 	for (usint i = 0; i < m_vectors.size(); ++i) {
@@ -856,11 +855,11 @@ void ILDCRTImpl<ModType,IntType,VecType,ParmType>::SwitchModulus(const IntType &
 #endif
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-void ILDCRTImpl<ModType,IntType,VecType,ParmType>::SwitchModulusAtIndex(usint index, const IntType &modulus, const IntType &rootOfUnity)
+void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::SwitchModulusAtIndex(usint index, const IntType &modulus, const IntType &rootOfUnity)
 {
 	if(index > m_vectors.size()-1) {
 		std::string errMsg;
-		errMsg = "ILDCRTImpl is of size = " + std::to_string(m_vectors.size()) + " but SwitchModulus for tower at index " + std::to_string(index) + "is called.";
+		errMsg = "DCRTPolyImpl is of size = " + std::to_string(m_vectors.size()) + " but SwitchModulus for tower at index " + std::to_string(index) + "is called.";
 		throw std::runtime_error(errMsg);
 	}
 
@@ -869,7 +868,7 @@ void ILDCRTImpl<ModType,IntType,VecType,ParmType>::SwitchModulusAtIndex(usint in
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-bool ILDCRTImpl<ModType,IntType,VecType,ParmType>::InverseExists() const
+bool DCRTPolyImpl<ModType,IntType,VecType,ParmType>::InverseExists() const
 {
 	for (usint i = 0; i < m_vectors.size(); i++) {
 		if (!m_vectors[i].InverseExists()) return false;
@@ -878,7 +877,7 @@ bool ILDCRTImpl<ModType,IntType,VecType,ParmType>::InverseExists() const
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-bool ILDCRTImpl<ModType,IntType,VecType,ParmType>::Serialize(Serialized* serObj) const
+bool DCRTPolyImpl<ModType,IntType,VecType,ParmType>::Serialize(Serialized* serObj) const
 {
 	if( !serObj->IsObject() )
 		return false;
@@ -890,17 +889,17 @@ bool ILDCRTImpl<ModType,IntType,VecType,ParmType>::Serialize(Serialized* serObj)
 
 	obj.AddMember("Format", std::to_string(this->GetFormat()), serObj->GetAllocator());
 
-	SerializeVector<ILVectorType>("Vectors", "ILVectorImpl", this->GetAllElements(), &obj);
+	SerializeVector<ILVectorType>("Vectors", "PolyImpl", this->GetAllElements(), &obj);
 
-	serObj->AddMember("ILDCRTImpl", obj, serObj->GetAllocator());
+	serObj->AddMember("DCRTPolyImpl", obj, serObj->GetAllocator());
 
 	return true;
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-bool ILDCRTImpl<ModType,IntType,VecType,ParmType>::Deserialize(const Serialized& serObj)
+bool DCRTPolyImpl<ModType,IntType,VecType,ParmType>::Deserialize(const Serialized& serObj)
 {
-	SerialItem::ConstMemberIterator it = serObj.FindMember("ILDCRTImpl");
+	SerialItem::ConstMemberIterator it = serObj.FindMember("DCRTPolyImpl");
 
 	if( it == serObj.MemberEnd() )
 		return false;
@@ -926,7 +925,7 @@ bool ILDCRTImpl<ModType,IntType,VecType,ParmType>::Deserialize(const Serialized&
 		return false;
 	}
 
-	bool ret = DeserializeVector<ILVectorType>("Vectors", "ILVectorImpl", mIt, &this->m_vectors);
+	bool ret = DeserializeVector<ILVectorType>("Vectors", "PolyImpl", mIt, &this->m_vectors);
 
 	return ret;
 }

@@ -28,9 +28,9 @@
 #define LBCRYPTO_CRYPTO_RLWE_H
 
 #include "utils/serializable.h"
-#include "lattice/ilvector2n.h"
+#include "lattice/poly.h"
 #include <string>
-#include "../../core/lib/lattice/ildcrt2n.h"
+#include "../../core/lib/lattice/dcrtpoly.h"
 
 namespace lbcrypto {
 

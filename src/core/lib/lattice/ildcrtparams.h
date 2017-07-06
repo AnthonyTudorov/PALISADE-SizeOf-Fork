@@ -35,7 +35,7 @@
 
 namespace lbcrypto
 {
-template<typename ModType, typename IntType, typename VecType, typename ParmType> class ILVectorImpl;
+template<typename ModType, typename IntType, typename VecType, typename ParmType> class PolyImpl;
 }
 
 namespace lbcrypto
@@ -84,8 +84,8 @@ public:
 	 * @return
 	 */
 	ILDCRTParams(const usint cyclotomic_order, 
-		const std::vector<native_int::BinaryInteger> &moduli, const std::vector<native_int::BinaryInteger>& rootsOfUnity,
-		const std::vector<native_int::BinaryInteger> &moduliBig = {}, const std::vector<native_int::BinaryInteger>& rootsOfUnityBig = {})
+		const std::vector<native_int::BigInteger> &moduli, const std::vector<native_int::BigInteger>& rootsOfUnity,
+		const std::vector<native_int::BigInteger> &moduliBig = {}, const std::vector<native_int::BigInteger>& rootsOfUnityBig = {})
 		: ElemParams<IntType>(cyclotomic_order, 0, 0, 0, 0) {
 		if( moduli.size() != rootsOfUnity.size() )
 			throw std::logic_error("sizes of moduli and roots of unity do not match");
@@ -112,7 +112,7 @@ public:
 	 * @param cyclotomic_order the order of the ciphertext
 	 * @param &moduli is the tower of moduli
 	 */
-	ILDCRTParams(const usint cyclotomic_order, const std::vector<native_int::BinaryInteger> &moduli)
+	ILDCRTParams(const usint cyclotomic_order, const std::vector<native_int::BigInteger> &moduli)
 		: ElemParams<IntType>(cyclotomic_order, 0, 0, 0, 0) {
 		for( size_t i=0; i<moduli.size(); i++ ) {
 			m_parms.push_back( std::shared_ptr<native_int::ILParams>( new native_int::ILParams(cyclotomic_order, moduli[i], 0, 0, 0) ) );

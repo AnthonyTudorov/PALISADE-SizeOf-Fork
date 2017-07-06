@@ -252,7 +252,7 @@ namespace cpu_int{
     * Assignment operator
     *
     * @param &rhs is the big binary integer to be assigned from.
-    * @return assigned BigBinaryIntegr ref.
+    * @return assigned BigInteger ref.
     */
     const BigInteger&  operator=(const BigInteger &rhs);
 
@@ -260,10 +260,10 @@ namespace cpu_int{
     * Assignment operator from unsigned integer
     *
     * @param val is the unsigned integer value that is assigned.
-    * @return the assigned Big Binary Integer ref.
+    * @return the assigned BigInteger ref.
     */
     inline const BigInteger& operator=(usint val) {
-        *this = intToBigBinaryInteger(val);
+        *this = intToBigInteger(val);
         return *this;
     }
 
@@ -351,20 +351,20 @@ namespace cpu_int{
     double ConvertToDouble() const;
 
 	/**
-	 * Convert a value from an int to a BigBinaryInt.
+	 * Convert a value from an int to a BigInteger.
 	 *
 	 * @param m the value to convert from.
 	 * @return int represented as a big binary int.
 	 */
-	static BigInteger intToBigBinaryInteger(usint m);
+	static BigInteger intToBigInteger(usint m);
 
 //Arithmetic Operations
 
     /**
     * Addition operation.
     *
-    * @param b is the value to add of type Big Binary Integer.
-    * @return result of the addition operation of type BigBinary Integer.
+    * @param b is the value to add of type BigInteger.
+    * @return result of the addition operation of type BigInteger.
     */
     BigInteger Plus(const BigInteger& b) const;
 
@@ -372,8 +372,8 @@ namespace cpu_int{
     /**
     * Addition accumulator.
     *
-    * @param &b is the value to add of type Big Binary Integer.
-    * @return result of the addition operation of type Big Binary Integer.
+    * @param &b is the value to add of type BigInteger.
+    * @return result of the addition operation of type BigInteger.
     */
     const BigInteger& operator+=(const BigInteger &b);
 
@@ -381,23 +381,23 @@ namespace cpu_int{
     /**
     * Subtraction accumulator.
     *
-    * @param &b is the value to subtract of type Big Binary Integer.
-    * @return result of the subtraction operation of type Big Binary Integer.
+    * @param &b is the value to subtract of type BigInteger.
+    * @return result of the subtraction operation of type BigInteger.
     */
     const BigInteger& operator-=(const BigInteger &b);
 
     /**
     * Subtraction operation.
     *
-    * @param b is the value to subtract of type Big Binary Integer.
-    * @return result of the subtraction operation of type Big Binary Integer.
+    * @param b is the value to subtract of type BigInteger.
+    * @return result of the subtraction operation of type BigInteger.
     */
     BigInteger Minus(const BigInteger& b) const;
       
     /**
     * Multiplication operation. Pointer is used to minimize the number of BigInteger instantiations.
     *
-    * @param b of type Big Binary Integer is the value to multiply with.
+    * @param b of type BigInteger is the value to multiply with.
 	* @param *ans - stores the result
     * @return result of the multiplication operation.
     */
@@ -611,15 +611,15 @@ namespace cpu_int{
     usint GetDigitAtIndexForBase(usint index, usint base) const;
 
 	/**
-	* Convert a string representation of a binary number to a decimal BigBinaryInt.
+	* Convert a string representation of a binary number to a decimal BigInteger.
 	*
 	* @param bitString the binary num in string.
 	* @return the binary number represented as a big binary int.
 	*/
-    static BigInteger BinaryStringToBigBinaryInt(const std::string& bitString);
+    static BigInteger BitStringToBigInteger(const std::string& bitString);
 
 	/**
-	* Exponentiation of a bigBinaryInteger x. Returns x^p
+	* Exponentiation of a BigInteger x. Returns x^p
 	*
 	* @param p the exponent.
 	* @return the big binary integer x^p.
@@ -627,7 +627,7 @@ namespace cpu_int{
     BigInteger Exp(usint p) const;
 
 	/**
-	* Multiply and Rounding operation on a bigBinaryInteger x. Returns [x*p/q] where [] is the rounding operation.
+	* Multiply and Rounding operation on a BigInteger x. Returns [x*p/q] where [] is the rounding operation.
 	*
 	* @param p is the numerator to be multiplied.
 	* @param q is the denominator to be divided.
@@ -636,7 +636,7 @@ namespace cpu_int{
 	BigInteger MultiplyAndRound(const BigInteger &p, const BigInteger &q) const;
 
 	/**
-	* Divide and Rounding operation on a bigBinaryInteger x. Returns [x/q] where [] is the rounding operation.
+	* Divide and Rounding operation on a BigInteger x. Returns [x/q] where [] is the rounding operation.
 	*
 	* @param q is the denominator to be divided.
 	* @return the result of divide and round.

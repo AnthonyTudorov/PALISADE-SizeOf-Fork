@@ -35,7 +35,7 @@ Test cases in this file make the following assumptions:
 #include "include/gtest/gtest.h"
 #include <iostream>
 
-#include "../lib/lattice/ildcrt2n.h"
+#include "../lib/lattice/dcrtpoly.h"
 #include "math/backend.h"
 #include "math/nbtheory.h"
 #include "math/distrgen.h"
@@ -43,7 +43,7 @@ Test cases in this file make the following assumptions:
 #include "lattice/ilparams.h"
 #include "lattice/ildcrtparams.h"
 #include "lattice/ilelement.h"
-#include "lattice/ilvector2n.h"
+#include "lattice/poly.h"
 #include "utils/inttypes.h"
 #include "utils/utilities.h"
 
@@ -108,11 +108,11 @@ TEST(UTNTT, switch_format_simple_double_crt) {
 
 	usint init_size = 2;
 
-	vector<native_int::BinaryInteger> init_moduli(init_size);
-	vector<native_int::BinaryInteger> init_rootsOfUnity(init_size);
+	vector<native_int::BigInteger> init_moduli(init_size);
+	vector<native_int::BigInteger> init_rootsOfUnity(init_size);
 
-	native_int::BinaryInteger q = FirstPrime<native_int::BinaryInteger>(28, init_m);
-	native_int::BinaryInteger temp;
+	native_int::BigInteger q = FirstPrime<native_int::BigInteger>(28, init_m);
+	native_int::BigInteger temp;
 	BigInteger modulus(1);
 
 	for (size_t i = 0; i < init_size; i++) {
@@ -200,14 +200,14 @@ TEST(UTNTT, decomposeMult_double_crt) {
 
 	usint init_size = 2;
 
-	vector<native_int::BinaryInteger> init_moduli(init_size);
+	vector<native_int::BigInteger> init_moduli(init_size);
 
-	vector<native_int::BinaryInteger> init_rootsOfUnity(init_size);
+	vector<native_int::BigInteger> init_rootsOfUnity(init_size);
 
-	native_int::BinaryInteger temp;
+	native_int::BigInteger temp;
 	
-	init_moduli[0] = native_int::BinaryInteger("17729");
-	init_moduli[1] = native_int::BinaryInteger("17761");
+	init_moduli[0] = native_int::BigInteger("17729");
+	init_moduli[1] = native_int::BigInteger("17761");
 
 
 	for (size_t i = 0; i < init_size; i++) {
@@ -249,12 +249,12 @@ TEST(UTNTT, decomposeMult_double_crt) {
 
 	EXPECT_EQ(resultsEval.GetElementAtIndex(0).GetValAtIndex(0), 0);
 	EXPECT_EQ(resultsEval.GetElementAtIndex(0).GetValAtIndex(1), 0);
-	EXPECT_EQ(resultsEval.GetElementAtIndex(0).GetValAtIndex(2), native_int::BinaryInteger("17728"));
+	EXPECT_EQ(resultsEval.GetElementAtIndex(0).GetValAtIndex(2), native_int::BigInteger("17728"));
 	EXPECT_EQ(resultsEval.GetElementAtIndex(0).GetValAtIndex(3), 0);
 
 	EXPECT_EQ(resultsEval.GetElementAtIndex(1).GetValAtIndex(0), 0);
 	EXPECT_EQ(resultsEval.GetElementAtIndex(1).GetValAtIndex(1), 0);
-	EXPECT_EQ(resultsEval.GetElementAtIndex(1).GetValAtIndex(2), native_int::BinaryInteger("17760"));
+	EXPECT_EQ(resultsEval.GetElementAtIndex(1).GetValAtIndex(2), native_int::BigInteger("17760"));
 	EXPECT_EQ(resultsEval.GetElementAtIndex(1).GetValAtIndex(3), 0);
 }
 

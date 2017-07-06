@@ -14,13 +14,19 @@ in this file:
 //To select backend, please UNCOMMENT the appropriate line rather than changing the number on the
 //uncommented line
 
+By selecting a particular value for MATHBACKEND, the programmer selects a particular default implementation for
+BigInteger, BigVector, and for the composite Poly and ciphertext modulus used in DCRTPoly
+
 The following is the status of the various MATHBACKEND implementations. We expect subsequent releases to remove these
 restrictions and expand available options
 
 * MATHBACKEND 2
-If the programmer selects MATHBACKEND 2, the maximum size of BigInteger will be BigIntegerBitLength, which defaults to 1500 bits.
-The underlying integer used in MATHBACKEND 2, defined by the typedef integral_dtype, MUST be uint32_t; using other types is an
-open work item.
+If the programmer selects MATHBACKEND 2, the maximum size of BigInteger will be set to BigIntegerBitLength, which is defined in
+backend.h and which has a default value of 1500 bits. It's advisable to select a value for BigIntegerBitLength that is at least
+60 bits larger than the largest integer that would need to be represented.
+
+The underlying implementation is a fixed-size array of native integers. The native integer used in MATHBACKEND 2, which is defined
+by the typedef integral_dtype, MUST be uint32_t; using other types is an open work item.
 
 * MATHBACKEND 4
 If the programmer selects MATHBACKEND 4, there is no explicit maximum size of BigInteger; the size grows dynamically as needed and

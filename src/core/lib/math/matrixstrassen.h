@@ -650,7 +650,7 @@ namespace lbcrypto {
 	* @param &params Poly element params
 	* @return the resulting matrix of Poly
     */ 
-    inline MatrixStrassen<Poly> SplitInt32IntoILVector2nElements(MatrixStrassen<int32_t> const& other, size_t n, const shared_ptr<ILParams> params);
+    inline MatrixStrassen<Poly> SplitInt32IntoPolyElements(MatrixStrassen<int32_t> const& other, size_t n, const shared_ptr<ILParams> params);
 
 	/**
     * Another method for splitting a vector of int32_t into a vector of ring elements with ring dimension n
@@ -660,6 +660,6 @@ namespace lbcrypto {
 	* @param &params Poly element params
 	* @return the resulting matrix of Poly
     */ 
-    inline MatrixStrassen<Poly> SplitInt32AltIntoILVector2nElements(MatrixStrassen<int32_t> const& other, size_t n, const shared_ptr<ILParams> params);
+    inline MatrixStrassen<Poly> SplitInt32AltIntoPolyElements(MatrixStrassen<int32_t> const& other, size_t n, const shared_ptr<ILParams> params);
 }
 #endif // LBCRYPTO_MATH_MATRIXSTRASSEN_H

@@ -38,7 +38,7 @@
 #include "lattice/ilparams.h"
 #include "lattice/ildcrtparams.h"
 #include "math/distrgen.h"
-#include "lattice/ilvector2n.h"
+#include "lattice/poly.h"
 #include "math/nbtheory.h"
 #include "lattice/elemparams.h"
 #include "lattice/ilelement.h"
@@ -47,7 +47,7 @@
 
 #include <omp.h>
 
-#include "../lib/lattice/ildcrt2n.h"
+#include "../lib/lattice/dcrtpoly.h"
 using namespace std;
 using namespace lbcrypto;
 
@@ -191,13 +191,13 @@ void testDiscreteUniformGenerator(BigInteger &modulus, std::string test_name){
     distrUniGen.SetModulus(modulus);
 
     usint size = 50000;
-    BigVector randBigBinaryVector = distrUniGen.GenerateVector(size);
+    BigVector randBigVector = distrUniGen.GenerateVector(size);
 
     double sum=0;
-    BigInteger length(std::to_string(randBigBinaryVector.GetLength()));
+    BigInteger length(std::to_string(randBigVector.GetLength()));
 
     for(usint index=0; index<size; index++) {
-      sum += (randBigBinaryVector.GetValAtIndex(index)).ConvertToDouble();
+      sum += (randBigVector.GetValAtIndex(index)).ConvertToDouble();
     }
 
     double computedMeanInDouble = sum/size;
@@ -215,7 +215,7 @@ void testDiscreteUniformGenerator(BigInteger &modulus, std::string test_name){
     sum=0;
     double temp;
     for(usint index=0; index<size; index++) {
-      temp = (randBigBinaryVector.GetValAtIndex(index)).ConvertToDouble() - expectedMeanInDouble;
+      temp = (randBigVector.GetValAtIndex(index)).ConvertToDouble() - expectedMeanInDouble;
       temp *= temp;
       sum += temp;
     }
@@ -258,18 +258,18 @@ void testParallelDiscreteUniformGenerator(BigInteger &modulus, std::string test_
   //usint size = omp_get_max_threads() * 4;
 
   bool dbg_flag = false;
-  vector <BigInteger> randBigBinaryVector;
+  vector <BigInteger> randBigVector;
 #pragma omp parallel // this is executed in parallel
   {
     //private copies of our vector
-    vector <BigInteger> randBigBinaryVectorPvt;
+    vector <BigInteger> randBigVectorPvt;
     Poly::DugType distrUniGen = Poly::DugType();
     distrUniGen.SetModulus(modulus);
     // build the vectors in parallel
 #pragma omp for nowait schedule(static)
     for(usint i=0; i<size; i++) {
       //build private copies in parallel
-      randBigBinaryVectorPvt.push_back(distrUniGen.GenerateInteger());
+      randBigVectorPvt.push_back(distrUniGen.GenerateInteger());
     }
     
 #pragma omp for schedule(static) ordered
@@ -278,9 +278,9 @@ void testParallelDiscreteUniformGenerator(BigInteger &modulus, std::string test_
 #pragma omp ordered
     	{
       DEBUG("thread #" << omp_get_thread_num() << " moving "
-	    << (int)randBigBinaryVectorPvt.size()  << " to starting point "
-	    << (int)randBigBinaryVector.size() );
-      randBigBinaryVector.insert(randBigBinaryVector.end(), randBigBinaryVectorPvt.begin(), randBigBinaryVectorPvt.end());
+	    << (int)randBigVectorPvt.size()  << " to starting point "
+	    << (int)randBigVector.size() );
+      randBigVector.insert(randBigVector.end(), randBigVectorPvt.begin(), randBigVectorPvt.end());
       DEBUG("thread #" << omp_get_thread_num() << " moved");
     	}
     }
@@ -289,10 +289,10 @@ void testParallelDiscreteUniformGenerator(BigInteger &modulus, std::string test_
 
   // now compute the sum over the entire vector
   double sum = 0;
-  BigInteger length(std::to_string(randBigBinaryVector.size()));
+  BigInteger length(std::to_string(randBigVector.size()));
   
   for(usint index=0; index<size; index++) {
-    sum += (randBigBinaryVector[index]).ConvertToDouble();
+    sum += (randBigVector[index]).ConvertToDouble();
   }
   // divide by the size (i.e. take mean)
   double computedMeanInDouble = sum/size;
@@ -309,7 +309,7 @@ void testParallelDiscreteUniformGenerator(BigInteger &modulus, std::string test_
   sum=0;
   double temp;
   for(usint index=0; index<size; index++) {
-    temp = (randBigBinaryVector[index]).ConvertToDouble() - expectedMeanInDouble;
+    temp = (randBigVector[index]).ConvertToDouble() - expectedMeanInDouble;
     temp *= temp;
     sum += temp;
   }
@@ -330,19 +330,19 @@ void testParallelDiscreteUniformGenerator(BigInteger &modulus, std::string test_
 //   {
 //     DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus, 12345);
   
-//     BigVector randBigBinaryVector1 = distrUniGen.GenerateVector(size);
+//     BigVector randBigVector1 = distrUniGen.GenerateVector(size);
   
   
 //     for(usint index=0; index<size; index++) {
-//       sum1 += (randBigBinaryVector1.GetValAtIndex(index)).ConvertToDouble();
+//       sum1 += (randBigVector1.GetValAtIndex(index)).ConvertToDouble();
 //     }
 //   }
 //   DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus, 12345);
-//   BigVector randBigBinaryVector2 = distrUniGen.GenerateVector(size);
+//   BigVector randBigVector2 = distrUniGen.GenerateVector(size);
 //   double sum2=0;
 
 //   for(usint index=0; index<size; index++) {
-//     sum2 += (randBigBinaryVector2.GetValAtIndex(index)).ConvertToDouble();
+//     sum2 += (randBigVector2.GetValAtIndex(index)).ConvertToDouble();
 //   }
   
 //   EXPECT_EQ(sum1, sum2) << "Failure, summs are different";
@@ -381,12 +381,12 @@ void testParallelDiscreteUniformGenerator(BigInteger &modulus, std::string test_
 
     usint length = 100000;
     BigInteger modulus = BigInteger("1041");
-    BigVector randBigBinaryVector = binaryUniGen.GenerateVector(length, modulus);
+    BigVector randBigVector = binaryUniGen.GenerateVector(length, modulus);
 
     usint sum = 0;
 
-    for(usint index=0; index<randBigBinaryVector.GetLength(); index++) {
-      sum += randBigBinaryVector.GetValAtIndex(index).ConvertToInt();
+    for(usint index=0; index<randBigVector.GetLength(); index++) {
+      sum += randBigVector.GetValAtIndex(index).ConvertToInt();
     }
     //std::cout << "Observed sum is " << sum << std::endl;
     //std::cout << "Length is " << length << std::endl;
@@ -411,15 +411,15 @@ void testParallelDiscreteUniformGenerator(BigInteger &modulus, std::string test_
 
 	 usint length = 100000;
 	 BigInteger modulus = BigInteger("1041");
-	 BigVector randBigBinaryVector = ternaryUniGen.GenerateVector(length, modulus);
+	 BigVector randBigVector = ternaryUniGen.GenerateVector(length, modulus);
 
 	 int32_t sum = 0;
 
-	 for (usint index = 0; index<randBigBinaryVector.GetLength(); index++) {
-		 if (randBigBinaryVector[index] == modulus - 1)
+	 for (usint index = 0; index<randBigVector.GetLength(); index++) {
+		 if (randBigVector[index] == modulus - 1)
 			 sum -= 1;
 		 else
-			 sum += randBigBinaryVector[index].ConvertToInt();
+			 sum += randBigVector[index].ConvertToInt();
 	 }
 
 	 float computedMean = (double)sum / (double)length;
@@ -470,13 +470,13 @@ TEST(UTDistrGen, DiscreteGaussianGenerator) {
     BigInteger modulus("10403");
     BigInteger modulusByTwo(modulus.DividedBy(2));
     DiscreteGaussianGenerator dgg = lbcrypto::DiscreteGaussianGenerator(stdev);
-    BigVector dggBigBinaryVector = dgg.GenerateVector(size,modulus);
+    BigVector dggBigVector = dgg.GenerateVector(size,modulus);
 
     usint countOfZero = 0;
     double mean = 0, current = 0;
 
     for(usint i=0; i<size; i++) {
-      current = std::stod(dggBigBinaryVector.GetValAtIndex(i).ToString());
+      current = std::stod(dggBigVector.GetValAtIndex(i).ToString());
       if(current == 0)
 	countOfZero++;
       mean += current;
@@ -552,19 +552,19 @@ TEST(UTDistrGen, ParallelDiscreteGaussianGenerator_VERY_LONG) {
     usint size = 100000;
     BigInteger modulus("10403");
     BigInteger modulusByTwo(modulus.DividedBy(2));
-    //BigVector dggBigBinaryVector = dgg.GenerateVector(size,modulus);
-    vector<BigInteger> dggBigBinaryVector;
+    //BigVector dggBigVector = dgg.GenerateVector(size,modulus);
+    vector<BigInteger> dggBigVector;
 #pragma omp parallel // this is executed in parallel
   {
     //private copies of our vector
-    vector <BigInteger> dggBigBinaryVectorPvt;
+    vector <BigInteger> dggBigVectorPvt;
     DiscreteGaussianGenerator dgg = lbcrypto::DiscreteGaussianGenerator(stdev);
 
     // build the vectors in parallel
 #pragma omp for nowait schedule(static)
     for(usint i=0; i<size; i++) {
       //build private copies in parallel
-      dggBigBinaryVectorPvt.push_back(dgg.GenerateInteger(modulus));
+      dggBigVectorPvt.push_back(dgg.GenerateInteger(modulus));
     }
     
 #pragma omp for schedule(static) ordered
@@ -573,9 +573,9 @@ TEST(UTDistrGen, ParallelDiscreteGaussianGenerator_VERY_LONG) {
 #pragma omp ordered
     	{
       DEBUG("thread #" << omp_get_thread_num() << " " << "moving "
-	    << (int)dggBigBinaryVectorPvt.size()  << " to starting point" 
-	    << (int)dggBigBinaryVector.size() );
-      dggBigBinaryVector.insert(dggBigBinaryVector.end(), dggBigBinaryVectorPvt.begin(), dggBigBinaryVectorPvt.end());
+	    << (int)dggBigVectorPvt.size()  << " to starting point" 
+	    << (int)dggBigVector.size() );
+      dggBigVector.insert(dggBigVector.end(), dggBigVectorPvt.begin(), dggBigVectorPvt.end());
     	}
     }
   }
@@ -584,7 +584,7 @@ TEST(UTDistrGen, ParallelDiscreteGaussianGenerator_VERY_LONG) {
     double mean = 0, current = 0;
 
     for(usint i=0; i<size; i++) {
-      current = std::stod(dggBigBinaryVector[i].ToString());
+      current = std::stod(dggBigVector[i].ToString());
       if(current == 0)
 	countOfZero++;
       mean += current;

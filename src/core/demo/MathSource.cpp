@@ -50,7 +50,7 @@ using namespace lbcrypto;
 
 //define the main sections of the test
 
-void test_BigBinaryVector(usint nloop); // test old version of big int vector
+void test_BigVector(usint nloop); // test old version of big int vector
 void test_ubintvec(usint nloop);	 // test new vector version
 
 
@@ -63,7 +63,7 @@ int main(int argc, char* argv[]){
   if (nloop < 1) nloop = 1;
   cout <<"running "<<argv[0]<<" nloop = "<<nloop<<endl;
 
-  test_BigBinaryVector(nloop);
+  test_BigVector(nloop);
   test_ubintvec(nloop);
   return 0;
 }
@@ -97,8 +97,8 @@ BigVector BBVfromStrvec( std::vector<std::string> &s) {
   return a;
 }
 
-//function to compare two BigBinaryVectors and print differing indicies
-void vec_diff(cpu_int::BinaryVector &a, cpu_int::BinaryVector &b) {
+//function to compare two BigVectors and print differing indicies
+void vec_diff(BigVector &a, BigVector &b) {
     for (usint i= 0; i < a.GetLength(); ++i){  
       if (a.GetValAtIndex(i) != b.GetValAtIndex(i)) {
         cout << "i: "<< i << endl;
@@ -116,7 +116,7 @@ void vec_diff(cpu_int::BinaryVector &a, cpu_int::BinaryVector &b) {
 
 
 //main BigVector test suite. tests math
-void test_BigBinaryVector (usint nloop) {
+void test_BigVector (usint nloop) {
   cout<<"testing BigVector"<<endl;
 
   TimeVar t1,t2,t3,t_total; // timers for TIC() TOC()

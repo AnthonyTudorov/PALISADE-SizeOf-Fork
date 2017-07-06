@@ -1,5 +1,5 @@
 /**
- * @file ildcrt2n.h Represents integer lattice elements with double-CRT and power-of-2 dimensions.
+ * @file dcrtpoly.h Represents integer lattice elements with double-CRT
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -24,8 +24,8 @@
  *
  */
 
-#ifndef LBCRYPTO_LATTICE_IL2VECTORARRAY2N_H
-#define LBCRYPTO_LATTICE_IL2VECTORARRAY2N_H
+#ifndef LBCRYPTO_LATTICE_DCRTPOLY_H
+#define LBCRYPTO_LATTICE_DCRTPOLY_H
 
 #include <vector>
 #include <string>
@@ -36,7 +36,7 @@
 #include "../lattice/ilparams.h"
 #include "../lattice/ildcrtparams.h"
 #include "../lattice/ilelement.h"
-#include "../lattice/ilvector2n.h"
+#include "../lattice/poly.h"
 #include "../math/nbtheory.h"
 #include "../math/transfrm.h"
 #include "../math/distrgen.h"
@@ -53,25 +53,25 @@ namespace lbcrypto
 *   - Gentry C., Halevi S., Smart N.P. (2012) Homomorphic Evaluation of the AES Circuit. In: Safavi-Naini R., Canetti R. (eds) Advances in Cryptology – CRYPTO 2012. Lecture Notes in Computer Science, vol 7417. Springer, Berlin, Heidelberg
 */
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-class ILDCRTImpl : public ILElement< ILDCRTImpl<ModType,IntType,VecType,ParmType>,ModType,IntType,VecType>
+class DCRTPolyImpl : public ILElement< DCRTPolyImpl<ModType,IntType,VecType,ParmType>,ModType,IntType,VecType>
 {
 public:
 	typedef ParmType Params;
 	typedef IntType Integer;
 	typedef VecType Vector;
 
-	typedef ILDCRTImpl<ModType,IntType,VecType,ParmType> ILVectorArrayType;
-	typedef DiscreteGaussianGeneratorImpl<native_int::BinaryInteger,native_int::BinaryVector> DggType;
-	typedef DiscreteUniformGeneratorImpl<native_int::BinaryInteger,native_int::BinaryVector> DugType;
-	typedef TernaryUniformGeneratorImpl<native_int::BinaryInteger,native_int::BinaryVector> TugType;
-	typedef BinaryUniformGeneratorImpl<native_int::BinaryInteger,native_int::BinaryVector> BugType;
+	typedef DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyType;
+	typedef DiscreteGaussianGeneratorImpl<native_int::BigInteger,native_int::BigVector> DggType;
+	typedef DiscreteUniformGeneratorImpl<native_int::BigInteger,native_int::BigVector> DugType;
+	typedef TernaryUniformGeneratorImpl<native_int::BigInteger,native_int::BigVector> TugType;
+	typedef BinaryUniformGeneratorImpl<native_int::BigInteger,native_int::BigVector> BugType;
 
 	// this class contains an array of these:
-	typedef ILVectorImpl<native_int::BinaryInteger,native_int::BinaryInteger,native_int::BinaryVector,native_int::ILParams> ILVectorType;
-	typedef ILVectorImpl<ModType,IntType,VecType,ILParams> ILVectorLargeType;
+	typedef PolyImpl<native_int::BigInteger,native_int::BigInteger,native_int::BigVector,native_int::ILParams> ILVectorType;
+	typedef PolyImpl<ModType,IntType,VecType,ILParams> ILVectorLargeType;
 
 	static const std::string GetElementName() {
-		return "ILDCRTImpl";
+		return "DCRTPolyImpl";
 	}
 
 	// CONSTRUCTORS
@@ -79,7 +79,7 @@ public:
 	/**
 	* @brief Constructor that initialized m_format to EVALUATION and calls m_params to nothing
 	*/
-	ILDCRTImpl();
+	DCRTPolyImpl();
 
 	/**
 	* Constructor that initializes parameters.
@@ -88,10 +88,10 @@ public:
 	*@param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 	*@param initializeElementToZero
 	*/
-	ILDCRTImpl(const shared_ptr<ParmType> params, Format format = EVALUATION, bool initializeElementToZero = false);
+	DCRTPolyImpl(const shared_ptr<ParmType> params, Format format = EVALUATION, bool initializeElementToZero = false);
 
 	// FIXME should be private?
-	void fillVectorArrayFromBigVector(const Poly& element, const shared_ptr<ParmType> params);
+	void FillPolyFromBigVector(const Poly& element, const shared_ptr<ParmType> params);
 
 	/**
 	* @brief Constructor based on discrete Gaussian generator.
@@ -100,7 +100,7 @@ public:
 	* @param params parameter set required for DCRTPoly.
 	* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 	*/
-	ILDCRTImpl(const DggType &dgg, const shared_ptr<ParmType> params, Format format = EVALUATION);
+	DCRTPolyImpl(const DggType &dgg, const shared_ptr<ParmType> params, Format format = EVALUATION);
 
 	/**
 	* @brief Constructor based on binary Gaussian generator. This is not implemented. Will throw a logic_error.
@@ -109,7 +109,7 @@ public:
 	* @param params parameter set required for DCRTPoly.
 	* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 	*/
-	ILDCRTImpl(const BugType &bug, const shared_ptr<ParmType> params, Format format = EVALUATION) {
+	DCRTPolyImpl(const BugType &bug, const shared_ptr<ParmType> params, Format format = EVALUATION) {
 		throw std::logic_error("Cannot use BinaryUniformGenerator with DCRTPoly; not implemented");
 	}
 
@@ -120,7 +120,7 @@ public:
 	* @param params parameter set required for DCRTPoly.
 	* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 	*/
-	ILDCRTImpl(const TugType &tug, const shared_ptr<ParmType> params, Format format = EVALUATION) {
+	DCRTPolyImpl(const TugType &tug, const shared_ptr<ParmType> params, Format format = EVALUATION) {
 		throw std::logic_error("Cannot use TernaryUniformGenerator with DCRTPoly; not implemented");
 	}
 
@@ -131,7 +131,7 @@ public:
 	* @param params the input params.
 	* @param &format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 	*/
-	ILDCRTImpl(DugType &dug, const shared_ptr<ParmType> params, Format format = EVALUATION);
+	DCRTPolyImpl(DugType &dug, const shared_ptr<ParmType> params, Format format = EVALUATION);
 
 	/**
 	* @brief Construct using a single Poly. The Poly is copied into every tower. Each tower will be reduced to it's corresponding modulus  via GetModuli(at tower index). The format is derived from the passed in Poly.
@@ -139,50 +139,50 @@ public:
 	* @param &element Poly to build other towers from.
 	* @param params parameter set required for DCRTPoly.
 	*/
-	ILDCRTImpl(const Poly &element, const shared_ptr<ParmType> params);
+	DCRTPolyImpl(const Poly &element, const shared_ptr<ParmType> params);
 
 	/**
 	* @brief Construct using an tower of ILVectro2ns. The params and format for the DCRTPoly will be derived from the towers.
 	*
-	* @param &towers vector of ILVector2ns which correspond to each tower of DCRTPoly.
+	* @param &towers vector of Polys which correspond to each tower of DCRTPoly.
 	*/
-	ILDCRTImpl(const std::vector<ILVectorType> &elements);
+	DCRTPolyImpl(const std::vector<ILVectorType> &elements);
 
 	/**
 	* @brief Copy constructor.
 	*
 	* @param &element DCRTPoly to copy from
 	*/
-	ILDCRTImpl(const ILVectorArrayType &element);
+	DCRTPolyImpl(const DCRTPolyType &element);
 
 	/**
 	* @brief Move constructor.
 	*
 	* @param &&element DCRTPoly to move from
 	*/
-	ILDCRTImpl(const ILVectorArrayType &&element);
+	DCRTPolyImpl(const DCRTPolyType &&element);
 
 	//CLONE OPERATIONS
 	/**
 	 * @brief Clone the object by making a copy of it and returning the copy
 	 * @return new Element
 	 */
-	ILVectorArrayType Clone() const {
-		return std::move(ILDCRTImpl(*this));
+	DCRTPolyType Clone() const {
+		return std::move(DCRTPolyImpl(*this));
 	}
 
 	/**
 	 * @brief Clone the object, but have it contain nothing
 	 * @return new Element
 	 */
-	ILVectorArrayType CloneEmpty() const {
-		return std::move( ILDCRTImpl() );
+	DCRTPolyType CloneEmpty() const {
+		return std::move( DCRTPolyImpl() );
 	}
 
 	/**
 	* @brief Clone method creates a new DCRTPoly and clones only the params. The tower values are empty. The tower values can be filled by another process/function or initializer list.
 	*/
-	ILVectorArrayType CloneParametersOnly() const;
+	DCRTPolyType CloneParametersOnly() const;
 
 	/**
 	* @brief Clone with noise.  This method creates a new DCRTPoly and clones the params. The tower values will be filled up with noise based on the discrete gaussian.
@@ -190,12 +190,12 @@ public:
 	* @param &dgg the input discrete Gaussian generator. The dgg will be the seed to populate the towers of the DCRTPoly with random numbers.
 	* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 	*/
-	ILVectorArrayType CloneWithNoise(const DiscreteGaussianGeneratorImpl<IntType,VecType> &dgg, Format format = EVALUATION) const;
+	DCRTPolyType CloneWithNoise(const DiscreteGaussianGeneratorImpl<IntType,VecType> &dgg, Format format = EVALUATION) const;
 
 	/**
 	* @brief Destructor.
 	*/
-	~ILDCRTImpl();
+	~DCRTPolyImpl();
 
 	//GETTERS
 
@@ -290,17 +290,17 @@ public:
 	 * @param baseBits is the number of bits in the base, i.e., \f$ base = 2^{baseBits} \f$.
 	 * @return is the pointer where the base decomposition vector is stored
 	 */
-	std::vector<ILVectorArrayType> BaseDecompose(usint baseBits, bool evalModeAnswer=true) const ;
+	std::vector<DCRTPolyType> BaseDecompose(usint baseBits, bool evalModeAnswer=true) const ;
 
 	/**
-	 * @brief Generate a vector of ILVectorImpl's as \f$ \left\{x, {base}*x, {base}^2*x, ..., {base}^{\lfloor {\log q/{base}} \rfloor} \right\}*x \f$,
-	 * where \f$ x \f$ is the current ILVectorImpl object;
+	 * @brief Generate a vector of PolyImpl's as \f$ \left\{x, {base}*x, {base}^2*x, ..., {base}^{\lfloor {\log q/{base}} \rfloor} \right\}*x \f$,
+	 * where \f$ x \f$ is the current PolyImpl object;
 	 * used as a subroutine in the relinearization procedure to get powers of a certain "base" for the secret key element.
 	 *
 	 * @param baseBits is the number of bits in the base, i.e., \f$ base = 2^{baseBits} \f$.
 	 * @return is the pointer where the base decomposition vector is stored
 	 */
-	std::vector<ILVectorArrayType> PowersOfBase(usint baseBits) const ;
+	std::vector<DCRTPolyType> PowersOfBase(usint baseBits) const ;
 
 
 	//VECTOR OPERATIONS
@@ -311,7 +311,7 @@ public:
 	* @param &rhs the copied element.
 	* @return the resulting element.
 	*/
-	const ILVectorArrayType& operator=(const ILVectorArrayType &rhs);
+	const DCRTPolyType& operator=(const DCRTPolyType &rhs);
 
 	/**
 	* @brief Move Assignment Operator.
@@ -319,7 +319,7 @@ public:
 	* @param &rhs the copied element.
 	* @return the resulting element.
 	*/
-	const ILVectorArrayType& operator=(ILVectorArrayType &&rhs);
+	const DCRTPolyType& operator=(DCRTPolyType &&rhs);
 
 	/**
 	* @brief Initalizer list
@@ -327,14 +327,14 @@ public:
 	* @param &rhs the list to initalized the element.
 	* @return the resulting element.
 	*/
-	ILVectorArrayType& operator=(std::initializer_list<sint> rhs);
+	DCRTPolyType& operator=(std::initializer_list<sint> rhs);
 
 	/**
 	 * @brief Unary minus on a element.
 	 * @return additive inverse of the an element.
 	 */
-	ILVectorArrayType operator-() const {
-		ILVectorArrayType all0(this->GetParams(), this->GetFormat(), true);
+	DCRTPolyType operator-() const {
+		DCRTPolyType all0(this->GetParams(), this->GetFormat(), true);
 		return all0 - *this;
 	}
 
@@ -344,7 +344,7 @@ public:
 	* @param &rhs is the specified element to be compared with this element.
 	* @return true if this element represents the same values as the specified element, false otherwise
 	*/
-	bool operator==(const ILVectorArrayType &rhs) const;
+	bool operator==(const DCRTPolyType &rhs) const;
 
 	/**
 	* @brief Performs an entry-wise addition over all elements of each tower with the towers of the element on the right hand side.
@@ -352,7 +352,7 @@ public:
 	* @param &rhs is the element to add with.
 	* @return is the result of the addition.
 	*/
-	const ILVectorArrayType& operator+=(const ILVectorArrayType &rhs);
+	const DCRTPolyType& operator+=(const DCRTPolyType &rhs);
 
 	/**
 	* @brief Performs an entry-wise subtraction over all elements of each tower with the towers of the element on the right hand side.
@@ -360,7 +360,7 @@ public:
 	* @param &rhs is the element to subtract from.
 	* @return is the result of the addition.
 	*/
-	const ILVectorArrayType& operator-=(const ILVectorArrayType &rhs);
+	const DCRTPolyType& operator-=(const DCRTPolyType &rhs);
 
 	/**
 	* @brief Permutes coefficients in a polynomial. Moves the ith index to the first one, it only supports odd indices.
@@ -368,8 +368,8 @@ public:
 	* @param &i is the element to perform the automorphism transform with.
 	* @return is the result of the automorphism transform.
 	*/
-	ILVectorArrayType AutomorphismTransform(const usint &i) const {
-		ILVectorArrayType result(*this);
+	DCRTPolyType AutomorphismTransform(const usint &i) const {
+		DCRTPolyType result(*this);
 		for (usint k = 0; k < m_vectors.size(); k++) {
 			result.m_vectors[k] = m_vectors[k].AutomorphismTransform(i);
 		}
@@ -382,7 +382,7 @@ public:
 	* @param &element is the element to add with.
 	* @return is the result of the addition.
 	*/
-	ILVectorArrayType Plus(const ILVectorArrayType &element) const;
+	DCRTPolyType Plus(const DCRTPolyType &element) const;
 
 	/**
 	* @brief Performs a multiplication operation and returns the result.
@@ -390,7 +390,7 @@ public:
 	* @param &element is the element to multiply with.
 	* @return is the result of the multiplication.
 	*/
-	ILVectorArrayType Times(const ILVectorArrayType &element) const;
+	DCRTPolyType Times(const DCRTPolyType &element) const;
 
 	/**
 	* @brief Performs a subtraction operation and returns the result.
@@ -398,7 +398,7 @@ public:
 	* @param &element is the element to subtract from.
 	* @return is the result of the subtraction.
 	*/
-	ILVectorArrayType Minus(const ILVectorArrayType &element) const;
+	DCRTPolyType Minus(const DCRTPolyType &element) const;
 
 	//SCALAR OPERATIONS
 
@@ -408,7 +408,7 @@ public:
 	* @param &element is the element to add entry-wise.
 	* @return is the result of the addition operation.
 	*/
-	ILVectorArrayType Plus(const IntType &element) const;
+	DCRTPolyType Plus(const IntType &element) const;
 
 	/**
 	* @brief Scalar subtraction - subtract an element to all entries.
@@ -416,7 +416,7 @@ public:
 	* @param &element is the element to subtract entry-wise.
 	* @return is the return value of the minus operation.
 	*/
-	ILVectorArrayType Minus(const IntType &element) const;
+	DCRTPolyType Minus(const IntType &element) const;
 
 	/**
 	* @brief Scalar multiplication - multiply all entries.
@@ -424,7 +424,7 @@ public:
 	* @param &element is the element to multiply entry-wise.
 	* @return is the return value of the times operation.
 	*/
-	ILVectorArrayType Times(const IntType &element) const;
+	DCRTPolyType Times(const IntType &element) const;
 
 	/**
 	* @brief Scalar multiplication followed by division and rounding operation - operation on all entries.
@@ -433,7 +433,7 @@ public:
 	* @param &q is the element to divide entry-wise.
 	* @return is the return value of the multiply, divide and followed by rounding operation.
 	*/
-	ILVectorArrayType MultiplyAndRound(const IntType &p, const IntType &q) const;
+	DCRTPolyType MultiplyAndRound(const IntType &p, const IntType &q) const;
 
 	/**
 	* @brief Scalar division followed by rounding operation - operation on all entries.
@@ -441,16 +441,16 @@ public:
 	* @param &q is the element to divide entry-wise.
 	* @return is the return value of the divide, followed by rounding operation.
 	*/
-	ILVectorArrayType DivideAndRound(const IntType &q) const;
+	DCRTPolyType DivideAndRound(const IntType &q) const;
 
 	/**
 	* @brief Performs a negation operation and returns the result.
 	*
 	* @return is the result of the negation.
 	*/
-	ILVectorArrayType Negate() const;
+	DCRTPolyType Negate() const;
 
-	const ILVectorArrayType& operator+=(const IntType &element) {
+	const DCRTPolyType& operator+=(const IntType &element) {
 		return *this = Plus(element);
 	}
 
@@ -460,7 +460,7 @@ public:
 	* @param &element is the element to subtract from.
 	* @return is the result of the subtraction.
 	*/
-	const ILVectorArrayType& operator-=(const IntType &element) {
+	const DCRTPolyType& operator-=(const IntType &element) {
 		return *this = Minus(element);
 	}
 
@@ -470,7 +470,7 @@ public:
 	* @param &element is the element to multiply by.
 	* @return is the result of the subtraction.
 	*/
-	const ILVectorArrayType& operator*=(const IntType &element);
+	const DCRTPolyType& operator*=(const IntType &element);
 
 	/**
 	* @brief Performs an multiplication operation and returns the result.
@@ -478,7 +478,7 @@ public:
 	* @param &element is the element to multiply with.
 	* @return is the result of the multiplication.
 	*/
-	const ILVectorArrayType& operator*=(const ILVectorArrayType &element);
+	const DCRTPolyType& operator*=(const DCRTPolyType &element);
 
 	// multiplicative inverse operation
 	/**
@@ -486,14 +486,14 @@ public:
 	*
 	* @return is the result of the multiplicative inverse.
 	*/
-	ILVectorArrayType MultiplicativeInverse() const;
+	DCRTPolyType MultiplicativeInverse() const;
 
 	/**
 	* @brief Perform a modulus by 2 operation.  Returns the least significant bit.
 	*
 	* @return is the resulting value.
 	*/
-	ILVectorArrayType ModByTwo() const;
+	DCRTPolyType ModByTwo() const;
 
 	/**
 	* @brief Modulus - perform a modulus operation. Does proper mapping of [-modulus/2, modulus/2) to [0, modulus)
@@ -501,7 +501,7 @@ public:
 	* @param modulus is the modulus to use.
 	* @return is the return value of the modulus.
 	*/
-	ILVectorArrayType SignedMod(const IntType &modulus) const {
+	DCRTPolyType SignedMod(const IntType &modulus) const {
 		throw std::logic_error("SignedMod of an IntType not implemented on DCRTPoly");
 	}
 
@@ -539,8 +539,8 @@ public:
 	/**
 	* @brief Add uniformly random values to all components except for the first one
 	*/
-	ILVectorArrayType AddRandomNoise(const IntType &modulus) const {
-		throw std::logic_error("AddRandomNoise is not currently implemented for ILVectorArray2n");
+	DCRTPolyType AddRandomNoise(const IntType &modulus) const {
+		throw std::logic_error("AddRandomNoise is not currently implemented for DCRTPoly");
 	}
 
 	/**
@@ -596,7 +596,7 @@ public:
 	* ASSUMPTION: This method assumes that the caller provides the correct rootOfUnity for the modulus
 	*/
 	void SwitchModulus(const IntType &modulus, const IntType &rootOfUnity, const IntType &modulusArb = IntType::ZERO, const IntType &rootOfUnityArb = IntType::ZERO) {
-		throw std::logic_error("SwitchModulus not implemented on ILVectorArray2n");
+		throw std::logic_error("SwitchModulus not implemented on DCRTPoly");
 	}
 
 	/**
@@ -639,7 +639,7 @@ public:
 	 * @param vec the element to add to the output stream.
 	 * @return a resulting concatenated output stream
 	 */
-	friend inline std::ostream& operator<<(std::ostream& os, const ILVectorArrayType& vec) {
+	friend inline std::ostream& operator<<(std::ostream& os, const DCRTPolyType& vec) {
 		for( usint i=0; i<vec.GetAllElements().size(); i++ ) {
 			os << i << ": ";
 			os << vec.GetAllElements()[i] << std::endl;
@@ -652,7 +652,7 @@ public:
 	 * @param b second element to add.
 	 * @return the result of the addition operation.
 	 */
-	friend inline ILVectorArrayType operator+(const ILVectorArrayType &a, const ILVectorArrayType &b) {
+	friend inline DCRTPolyType operator+(const DCRTPolyType &a, const DCRTPolyType &b) {
 		return a.Plus(b);
 	}
 	/**
@@ -661,7 +661,7 @@ public:
 	 * @param b integer to add.
 	 * @return the result of the addition operation.
 	 */
-	friend inline ILVectorArrayType operator+(const ILVectorArrayType &a, const IntType &b) {
+	friend inline DCRTPolyType operator+(const DCRTPolyType &a, const IntType &b) {
 		return a.Plus(b);
 	}
 	
@@ -671,7 +671,7 @@ public:
 	 * @param b element to add.
 	 * @return the result of the addition operation.
 	 */
-	friend inline ILVectorArrayType operator+(const IntType &a, const ILVectorArrayType &b) {
+	friend inline DCRTPolyType operator+(const IntType &a, const DCRTPolyType &b) {
 		return b.Plus(a);
 	}
 	
@@ -681,7 +681,7 @@ public:
 	 * @param b element to subtract.
 	 * @return the result of the subtraction operation.
 	 */
-	friend inline ILVectorArrayType operator-(const ILVectorArrayType &a, const ILVectorArrayType &b) {
+	friend inline DCRTPolyType operator-(const DCRTPolyType &a, const DCRTPolyType &b) {
 		return a.Minus(b);
 	}
 	
@@ -691,7 +691,7 @@ public:
 	 * @param b integer to subtract.
 	 * @return the result of the subtraction operation.
 	 */
-	friend inline ILVectorArrayType operator-(const ILVectorArrayType &a, const IntType &b) {
+	friend inline DCRTPolyType operator-(const DCRTPolyType &a, const IntType &b) {
 		return a.Minus(b);
 	}
 	
@@ -701,7 +701,7 @@ public:
 	 * @param b element to multiply.
 	 * @return the result of the multiplication operation.
 	 */
-	friend inline ILVectorArrayType operator*(const ILVectorArrayType &a, const ILVectorArrayType &b) {
+	friend inline DCRTPolyType operator*(const DCRTPolyType &a, const DCRTPolyType &b) {
 		return a.Times(b);
 	}
 	
@@ -711,7 +711,7 @@ public:
 	 * @param b integer to multiply.
 	 * @return the result of the multiplication operation.
 	 */
-	friend inline ILVectorArrayType operator*(const ILVectorArrayType &a, const IntType &b) {
+	friend inline DCRTPolyType operator*(const DCRTPolyType &a, const IntType &b) {
 		return a.Times(b);
 	}
 	
@@ -721,7 +721,7 @@ public:
 	 * @param b element to multiply.
 	 * @return the result of the multiplication operation.
 	 */
-	friend inline ILVectorArrayType operator*(const IntType &a, const ILVectorArrayType &b) {
+	friend inline DCRTPolyType operator*(const IntType &a, const DCRTPolyType &b) {
 		return b.Times(a);
 	}
 
@@ -740,7 +740,7 @@ private:
 namespace lbcrypto
 {
 
-typedef ILDCRTImpl<BigInteger, BigInteger, BigVector, ILDCRTParams<BigInteger>> DCRTPoly;
+typedef DCRTPolyImpl<BigInteger, BigInteger, BigVector, ILDCRTParams<BigInteger>> DCRTPoly;
 
 }
 

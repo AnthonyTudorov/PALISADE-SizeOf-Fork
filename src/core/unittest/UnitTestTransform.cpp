@@ -30,7 +30,7 @@
 #include "include/gtest/gtest.h"
 #include <iostream>
 
-#include "../lib/lattice/ildcrt2n.h"
+#include "../lib/lattice/dcrtpoly.h"
 #include "math/backend.h"
 #include "../lib/math/transfrm.h"
 #include "../lib/math/transfrm.cpp"
@@ -38,7 +38,7 @@
 #include "lattice/ilparams.h"
 #include "lattice/ildcrtparams.h"
 #include "math/distrgen.h"
-#include "lattice/ilvector2n.h"
+#include "lattice/poly.h"
 #include "math/nbtheory.h"
 #include "lattice/elemparams.h"
 #include "lattice/ilelement.h"

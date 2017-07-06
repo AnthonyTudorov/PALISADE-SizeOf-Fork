@@ -1,5 +1,5 @@
 /*
-* @file cryptocontext-vectorarray-impl.cpp - vector array for the crypto context.
+* @file cryptocontext-dcrtpoly-impl.cpp - vector array for the crypto context.
  * @author  TPOC: palisade@njit.edu
  *
  * @section LICENSE

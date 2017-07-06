@@ -87,12 +87,12 @@ public:
 	 * @param modulus the initial root.
 	 */
 	static BigInteger GetInitRoot(const BigInteger &modulus) {
-		native_int::BinaryInteger modulusNI(modulus.ConvertToInt());
+		native_int::BigInteger modulusNI(modulus.ConvertToInt());
 		return BigInteger(modulusNI.ConvertToInt());
 	}
 
 	static usint GetAutomorphismGenerator(const BigInteger &modulus) { 
-		native_int::BinaryInteger modulusNI(modulus.ConvertToInt());
+		native_int::BigInteger modulusNI(modulus.ConvertToInt());
 		return m_automorphismGenerator[modulusNI];  
 	}
 
@@ -114,7 +114,7 @@ public:
 	 * @param  length - length of data to encode.  Defaults to 0.
 	*/
 	void Encode(const BigInteger &modulus, DCRTPoly *ilVector, size_t start_from = 0, size_t length = 0) const {
-		throw std::logic_error("Encode: Packed encoding is not currently supported for ILVectorArray2n");
+		throw std::logic_error("Encode: Packed encoding is not currently supported for DCRTPoly");
 	};
 
 	/**
@@ -125,13 +125,13 @@ public:
 	 */
 	void Decode(const BigInteger &modulus, Poly *ilVector);
 
-	/** The operation of converting from ILVectorArray2n to current plaintext encoding.
+	/** The operation of converting from DCRTPoly to current plaintext encoding.
 	*
 	* @param  modulus - used for encoding.
 	* @param  *ilVector encoded plaintext - input argument.
 	*/
 	void Decode(const BigInteger &modulus, DCRTPoly *ilVector) {
-		throw std::logic_error("Decode: Packed encoding is not currently supported for ILVectorArray2n");
+		throw std::logic_error("Decode: Packed encoding is not currently supported for DCRTPoly");
 	}
 
 	/**
@@ -201,15 +201,15 @@ public:
 
 private:
 	//initial root of unity for plaintext space
-	static std::map<native_int::BinaryInteger, native_int::BinaryInteger> m_initRoot;
+	static std::map<native_int::BigInteger, native_int::BigInteger> m_initRoot;
 	//modulus and root of unity to be used for Arbitrary CRT
-	static std::map<native_int::BinaryInteger, native_int::BinaryInteger> m_bigModulus;
-	static std::map<native_int::BinaryInteger, native_int::BinaryInteger> m_bigRoot;
+	static std::map<native_int::BigInteger, native_int::BigInteger> m_bigModulus;
+	static std::map<native_int::BigInteger, native_int::BigInteger> m_bigRoot;
 
 	//stores the list of primitive roots used in packing.
-	static std::map<native_int::BinaryInteger, usint> m_automorphismGenerator;
-	static std::map<native_int::BinaryInteger, std::vector<usint>> m_toCRTPerm;
-	static std::map<native_int::BinaryInteger, std::vector<usint>> m_fromCRTPerm;
+	static std::map<native_int::BigInteger, usint> m_automorphismGenerator;
+	static std::map<native_int::BigInteger, std::vector<usint>> m_toCRTPerm;
+	static std::map<native_int::BigInteger, std::vector<usint>> m_fromCRTPerm;
 
 	/**
 	* @brief Packs the slot values into aggregate plaintext space.

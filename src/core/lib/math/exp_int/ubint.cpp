@@ -2795,7 +2795,7 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
 
   //deprecated vesion needs renaming
   template<typename limb_t>
-  ubint<limb_t> ubint<limb_t>::BinaryStringToBigBinaryInt(const std::string& vin){ 
+  ubint<limb_t> ubint<limb_t>::BitStringToBigInteger(const std::string& vin){ 
     ubint ans;
     return ans.BinaryStringToUbint(vin);
   }

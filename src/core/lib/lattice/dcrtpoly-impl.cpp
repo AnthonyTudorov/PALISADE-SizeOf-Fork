@@ -1,5 +1,5 @@
 /*
- * @file ilvector2n-impl.cpp - implementation of the integer lattice with power-of-2 dimension.
+ * @file dcrtpoly-impl.cpp - implementation of the integer lattice using double-CRT representations.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -25,38 +25,24 @@
  */
 
 #include "elemparams.cpp"
-#include "ilparams.cpp"
+#include "ildcrtparams.cpp"
 #include "../encoding/encodingparams.cpp"
-#include "ilvector2n.cpp"
 #include "../math/discretegaussiangenerator.cpp"
 #include "../math/discreteuniformgenerator.cpp"
 #include "../math/binaryuniformgenerator.cpp"
 #include "../math/ternaryuniformgenerator.cpp"
+#include "dcrtpoly.cpp"
+#include "poly.cpp"
 
-// This creates all the necessary class implementations for Poly
+// This creates all the necessary class implementations for DCRTPoly
 
-namespace lbcrypto {
-template class DiscreteGaussianGeneratorImpl<BigInteger,BigVector>;
-template class BinaryUniformGeneratorImpl<BigInteger,BigVector>;
-template class TernaryUniformGeneratorImpl<BigInteger,BigVector>;
-template class DiscreteUniformGeneratorImpl<BigInteger,BigVector>;
+namespace lbcrypto
+{
 
-}
-
-namespace lbcrypto {
-template class ElemParams<BigInteger>;
-template class ILParamsImpl<BigInteger>;
+template class ElemParams<native_int::BigInteger>;
+template class ILParamsImpl<native_int::BigInteger>;
+template class ILDCRTParams<BigInteger>;
 template class EncodingParamsImpl<BigInteger>;
-template class ILVectorImpl<BigInteger,BigInteger,BigVector,ILParams>;
-
-template<>
-ILVectorImpl<BigInteger,BigInteger,BigVector,ILParams>::ILVectorImpl(const shared_ptr<ILDCRTParams<BigInteger>> params, Format format, bool initializeElementToZero) : m_values(nullptr), m_format(format) {
-	// construct a local params out of the stuff from the DCRT Params
-	m_params.reset( new ILParams(params->GetCyclotomicOrder(), params->GetModulus(), 1));
-
-	if (initializeElementToZero) {
-		this->SetValuesToZero();
-	}
-}
+template class DCRTPolyImpl<BigInteger, BigInteger, BigVector, ILDCRTParams<BigInteger>>;
 
 }

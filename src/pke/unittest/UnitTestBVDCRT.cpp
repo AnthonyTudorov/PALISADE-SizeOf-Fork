@@ -52,7 +52,7 @@ public:
 //FIXME this test might be redundant in other files; perhaps this entire file can go
 
 #if !defined(_MSC_VER)
-TEST(UTBVDCRT, ILVector2n_bv_DCRT_MODREDUCE) {
+TEST(UTBVDCRT, Poly_bv_DCRT_MODREDUCE) {
 
 	usint m = 8;
 

@@ -24,8 +24,8 @@
  *
  */
 
+#include "../../core/lib/lattice/poly.cpp"
 #include "cryptocontext.h"
-#include "lattice/ilvector2n.cpp"
 #include "ciphertext.cpp"
 
 namespace lbcrypto {
