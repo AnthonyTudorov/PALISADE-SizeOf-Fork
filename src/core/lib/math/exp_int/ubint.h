@@ -701,6 +701,11 @@ namespace exp_int{
      */
     ubint ModAdd(const ubint& b, const ubint& modulus) const;
 
+    // this is wrapper for modadd
+    inline ubint ModBarrettAdd(const ubint& b, const ubint& modulus,const ubint& mu) const {
+      return this->ModAdd(b, modulus);
+    };
+
 
     /**
      * Scalar modular subtraction.

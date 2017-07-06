@@ -81,6 +81,9 @@ namespace lbcrypto {
 	template native_int::BinaryInteger FindGeneratorCyclic(const native_int::BinaryInteger& modulo);
 	template bool IsGenerator(const native_int::BinaryInteger& g, const native_int::BinaryInteger& modulo);
 
+	template native_int::BinaryInteger ComputeMu(const native_int::BinaryInteger& q);
+
+
 #endif
 
 
@@ -995,7 +998,7 @@ namespace lbcrypto {
 	template<typename IntType>
 	IntType ComputeMu(const IntType& q)
 	{
-#if MATHBACKEND == 6 || MATHBACKEND == 7
+#if MATHBACKEND == 4 || MATHBACKEND == 6 || MATHBACKEND == 7
 		return IntType(1);
 #else
 		//Precompute the Barrett mu parameter
