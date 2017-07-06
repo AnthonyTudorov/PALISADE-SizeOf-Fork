@@ -1145,7 +1145,7 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 					if (i%2 == 0) {
 						output.SetValAtIndex(i, output.GetValAtIndex(i).ModBarrettSub(coeff_n, modulus, mu));
 					} else {
-						output.SetValAtIndex(i, output.GetValAtIndex(i).ModBarettAdd(coeff_n, modulus, mu));
+						output.SetValAtIndex(i, output.GetValAtIndex(i).ModBarrettAdd(coeff_n, modulus, mu));
 					}
 				}
 			} else {
