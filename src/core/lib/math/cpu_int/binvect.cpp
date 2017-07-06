@@ -30,6 +30,7 @@
 
 #include "../../utils/serializable.h"
 #include "../cpu_int/binvect.h"
+#include "../nbtheory.h"
 #include "../../utils/debug.h"
 
 
