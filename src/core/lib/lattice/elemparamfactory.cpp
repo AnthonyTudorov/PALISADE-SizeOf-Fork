@@ -28,7 +28,7 @@
 
 namespace lbcrypto {
 
-struct ElemParamFactory::ElemParmSet DefaultSet[] = {
+struct ElemParamFactory::ElemParmSet ElemParamFactory::DefaultSet[] = {
 		{ 16, 8,
 				BigBinaryInteger("34359738641"),
 				BigBinaryInteger("5688225070")
