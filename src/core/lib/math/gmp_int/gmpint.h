@@ -86,6 +86,7 @@ namespace NTL{
   public:
 
     myZZ();
+#if 0
     myZZ(int a);
     myZZ(long a);
     myZZ(unsigned long a);
@@ -97,6 +98,11 @@ namespace NTL{
     myZZ(const char * s);
     myZZ(NTL::ZZ &a);
     myZZ(const NTL::ZZ &a);
+#else
+    myZZ(uint64_t a);
+    myZZ(const std::string &s);
+    myZZ(const NTL::ZZ &a);
+#endif
     //myZZ(const NTL::myZZ_p &a);
 
     //movecopy allocators (very important for efficiency)

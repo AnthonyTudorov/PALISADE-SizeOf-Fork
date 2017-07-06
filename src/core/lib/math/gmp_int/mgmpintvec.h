@@ -41,7 +41,8 @@
 #include "../../utils/inttypes.h"
 #include "../../utils/serializable.h"
 #include <initializer_list>
-#include "gmpintvec.h"
+//#include "gmpintvec.h"
+#include "gmpint.h"
 
 #include <NTL/vector.h>
 #include <NTL/vec_ZZ.h>
@@ -84,11 +85,11 @@ namespace NTL {
     //copy
     // copy ctors with vector inputs
     explicit myVecP(const myVecP<myT> &a);
-    explicit myVecP(const myVec<myZZ> &a);
+    //explicit myVecP(const myVec<myZZ> &a);
     
     //movecopy
     myVecP(myVecP<myT> &&a);
-    myVecP(myVec<myZZ> &&a);
+    //myVecP(myVec<myZZ> &&a);
     
     //constructors with moduli
     //ctor myZZ moduli
@@ -102,7 +103,7 @@ namespace NTL {
     
     //copy with myZZ moduli
     myVecP(const myVecP<myT> &a, const myZZ &q);
-    myVecP(const myVec<myZZ> &a, const myZZ &q);
+//myVecP(const myVec<myZZ> &a, const myZZ &q);
     
     //ctor with char * moduli
     myVecP(usint n, const char *sq);
@@ -111,7 +112,7 @@ namespace NTL {
     
      //copy with char * moduli
      myVecP(const myVecP<myT> &a, const char *sq);
-    myVecP(const myVec<myZZ> &a, const char *sq);
+//myVecP(const myVec<myZZ> &a, const char *sq);
 
     //ctor with usint moduli
     myVecP(usint n, usint q);
@@ -120,7 +121,7 @@ namespace NTL {
 
     //copy with unsigned int moduli
     myVecP(const myVecP<myT> &a, const usint q);
-    myVecP(const myVec<myZZ> &a, const usint q);
+//myVecP(const myVec<myZZ> &a, const usint q);
     
     //destructor
     ~myVecP();
@@ -482,6 +483,7 @@ namespace NTL {
     inline bool operator!=( const myVecP& b) const
     { return !(this->operator==(b)); };
     
+#if 0
     // myvecP and myvec<myZZ>
     inline bool operator==(const myVec<myZZ>& b) const
     { 
@@ -501,7 +503,7 @@ namespace NTL {
     
     inline bool operator!=( const myVec<myZZ>& b) const
     { return !(this->operator==(b)); };
-    
+#endif    
     
     // inline long operator<( const myZZ_p& b) const
     // { return this->Compare(b) < 0; }

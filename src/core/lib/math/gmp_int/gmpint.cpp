@@ -60,6 +60,7 @@ namespace NTL {
   const myZZ myZZ::FIVE=myZZ(5);
 
   myZZ::myZZ():ZZ() {}
+#if 0
   myZZ::myZZ(int a): ZZ(a) {}
   myZZ::myZZ(long a): ZZ(a) {}
   myZZ::myZZ(unsigned long a): ZZ(a) {}
@@ -69,10 +70,14 @@ namespace NTL {
   myZZ::myZZ(INIT_SIZE_TYPE, long k): ZZ(INIT_SIZE, k) {m_MSB=0; }
   myZZ::myZZ(std::string s): ZZ(conv<ZZ>(s.c_str())) {}
   myZZ::myZZ(const char *s): ZZ(conv<ZZ>(s)) {}
-
   myZZ::myZZ(NTL::ZZ &a): ZZ(a) {}
   myZZ::myZZ(const NTL::ZZ &a): ZZ(a) {}
+#else
 
+  myZZ::myZZ(uint64_t a): ZZ(a) {}
+  myZZ::myZZ(const std::string &s): ZZ(conv<ZZ>(s.c_str())) {}
+  myZZ::myZZ(const NTL::ZZ &a): ZZ(a) {}
+#endif
   //myZZ::myZZ(const NTL::myZZ_p &a): ZZ(){*this = a._ZZ_p__rep;}
 #if 0
   myZZ::myZZ(const NTL::myZZ_p &a)
