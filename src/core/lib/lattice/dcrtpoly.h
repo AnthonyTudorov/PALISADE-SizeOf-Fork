@@ -67,8 +67,8 @@ public:
 	typedef BinaryUniformGeneratorImpl<native_int::BigInteger,native_int::BigVector> BugType;
 
 	// this class contains an array of these:
-	typedef PolyImpl<native_int::BigInteger,native_int::BigInteger,native_int::BigVector,native_int::ILParams> ILVectorType;
-	typedef PolyImpl<ModType,IntType,VecType,ILParams> ILVectorLargeType;
+	typedef PolyImpl<native_int::BigInteger,native_int::BigInteger,native_int::BigVector,native_int::ILParams> PolyType;
+	typedef PolyImpl<ModType,IntType,VecType,ILParams> PolyLargeType;
 
 	static const std::string GetElementName() {
 		return "DCRTPolyImpl";
@@ -146,7 +146,7 @@ public:
 	*
 	* @param &towers vector of Polys which correspond to each tower of DCRTPoly.
 	*/
-	DCRTPolyImpl(const std::vector<ILVectorType> &elements);
+	DCRTPolyImpl(const std::vector<PolyType> &elements);
 
 	/**
 	* @brief Copy constructor.
@@ -259,7 +259,7 @@ public:
 	* @param i index of component element to be returned.
 	* @returns a reference to the component element at index i.
 	*/
-	const ILVectorType &GetElementAtIndex(usint i) const;
+	const PolyType &GetElementAtIndex(usint i) const;
 
 	/**
 	* @brief Get method of the number of component elements, also known as the number of towers.
@@ -273,7 +273,7 @@ public:
 	*
 	* @returns a vector of the component elements.
 	*/
-	const std::vector<ILVectorType>& GetAllElements() const;
+	const std::vector<PolyType>& GetAllElements() const;
 
 	/**
 	* @brief Get method of the format.
@@ -729,7 +729,7 @@ private:
 	shared_ptr<ParmType> m_params;
 
 	// array of vectors used for double-CRT presentation
-	std::vector<ILVectorType> m_vectors;
+	std::vector<PolyType> m_vectors;
 
 	// Either Format::EVALUATION (0) or Format::COEFFICIENT (1)
 	Format m_format;

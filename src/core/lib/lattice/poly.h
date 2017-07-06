@@ -62,7 +62,7 @@ public:
 	typedef ParmType Params;
 	typedef IntType Integer;
 	typedef VecType Vector;
-	typedef PolyImpl<ModType,IntType,VecType,ParmType> ILVectorType;
+	typedef PolyImpl<ModType,IntType,VecType,ParmType> PolyType;
 	typedef DiscreteGaussianGeneratorImpl<IntType,VecType> DggType;
 	typedef DiscreteUniformGeneratorImpl<IntType,VecType> DugType;
 	typedef TernaryUniformGeneratorImpl<IntType,VecType> TugType;
@@ -140,9 +140,9 @@ public:
 	 * @param params the params to use.
 	 * @param format - EVALUATION or COEFFICIENT
 	 */
-	inline static function<unique_ptr<ILVectorType>()> MakeAllocator(const shared_ptr<ParmType> params, Format format) {
+	inline static function<unique_ptr<PolyType>()> MakeAllocator(const shared_ptr<ParmType> params, Format format) {
 		return [=]() {
-			return lbcrypto::make_unique<ILVectorType>(params, format, true);
+			return lbcrypto::make_unique<PolyType>(params, format, true);
 		};
 	}
 
@@ -154,10 +154,10 @@ public:
 	 * @param stddev standard deviation for the discrete gaussian generator.
 	 * @return the resulting vector.
 	 */
-	inline static function<unique_ptr<ILVectorType>()> MakeDiscreteGaussianCoefficientAllocator(shared_ptr<ParmType> params, Format resultFormat, int stddev) {
+	inline static function<unique_ptr<PolyType>()> MakeDiscreteGaussianCoefficientAllocator(shared_ptr<ParmType> params, Format resultFormat, int stddev) {
 		return [=]() {
 			DiscreteGaussianGeneratorImpl<IntType,VecType> dgg(stddev);
-			auto ilvec = lbcrypto::make_unique<ILVectorType>(dgg, params, COEFFICIENT);
+			auto ilvec = lbcrypto::make_unique<PolyType>(dgg, params, COEFFICIENT);
 			ilvec->SetFormat(resultFormat);
 			return ilvec;
 		};
@@ -170,11 +170,11 @@ public:
 	 * @param format format for the polynomials generated.
 	 * @return the resulting vector.
 	 */
-	inline static function<unique_ptr<ILVectorType>()> MakeDiscreteUniformAllocator(shared_ptr<ParmType> params, Format format) {
+	inline static function<unique_ptr<PolyType>()> MakeDiscreteUniformAllocator(shared_ptr<ParmType> params, Format format) {
 		return [=]() {
 			DiscreteUniformGeneratorImpl<IntType,VecType> dug;
 			dug.SetModulus(params->GetModulus());
-			return lbcrypto::make_unique<ILVectorType>(dug, params, format);
+			return lbcrypto::make_unique<PolyType>(dug, params, format);
 		};
 	}
 
@@ -184,7 +184,7 @@ public:
 	 * @param &element the copied element.
 	 * @param parms ILParams instance that is is passed.
 	 */
-	PolyImpl(const ILVectorType &element, shared_ptr<ParmType> parms = 0);
+	PolyImpl(const PolyType &element, shared_ptr<ParmType> parms = 0);
 
 	/**
 	 * @brief Move constructor.
@@ -192,13 +192,13 @@ public:
 	 * @param &&element the copied element.
 	 * @param parms ILParams instance that is is passed.
 	 */
-	PolyImpl(ILVectorType &&element, shared_ptr<ParmType> parms = 0);
+	PolyImpl(PolyType &&element, shared_ptr<ParmType> parms = 0);
 
 	/**
 	 * @brief Clone the object by making a copy of it and returning the copy
 	 * @return new Element
 	 */
-	ILVectorType Clone() const {
+	PolyType Clone() const {
 		return std::move(PolyImpl(*this));
 	}
 
@@ -206,7 +206,7 @@ public:
 	 * @brief Clone the object, but have it contain nothing
 	 * @return new Element
 	 */
-	ILVectorType CloneEmpty() const {
+	PolyType CloneEmpty() const {
 		return std::move( PolyImpl() );
 	}
 
@@ -215,7 +215,7 @@ public:
 	 *  The tower values are empty. The tower values can be filled by another process/function or initializer list.
 	 * @return new Element
 	 */
-	ILVectorType CloneParametersOnly() const ;
+	PolyType CloneParametersOnly() const ;
 
 	/**
 	 * @brief Clone method with noise. 
@@ -224,7 +224,7 @@ public:
 	 * @param &dgg the input discrete Gaussian generator. The dgg will be the seed to populate the towers of the PolyImpl with random numbers.
 	 * @return new Element
 	 */
-	ILVectorType CloneWithNoise(const DiscreteGaussianGeneratorImpl<IntType,VecType> &dgg, Format format) const;
+	PolyType CloneWithNoise(const DiscreteGaussianGeneratorImpl<IntType,VecType> &dgg, Format format) const;
 
 	/**
 	 * Destructor
@@ -237,7 +237,7 @@ public:
 	 * @param &rhs the PolyImpl to be copied.
 	 * @return the resulting PolyImpl.
 	 */
-	const ILVectorType& operator=(const ILVectorType &rhs);
+	const PolyType& operator=(const PolyType &rhs);
 
 	/**
 	 * @brief Move Assignment.
@@ -245,7 +245,7 @@ public:
 	 * @param &rhs the PolyImpl to be copied.
 	 * @return the resulting PolyImpl.
 	 */
-	const ILVectorType& operator=(ILVectorType &&rhs);
+	const PolyType& operator=(PolyType &&rhs);
 
 	/**
 	 * @brief Initalizer list
@@ -253,7 +253,7 @@ public:
 	 * @param &rhs the list to set the PolyImpl to.
 	 * @return the resulting PolyImpl.
 	 */
-	const ILVectorType& operator=(std::initializer_list<sint> rhs);
+	const PolyType& operator=(std::initializer_list<sint> rhs);
 	//todo: this should be changed from sint to usint!
 
 	/**
@@ -262,7 +262,7 @@ public:
 	 * @param &rhs the list to set the PolyImpl to.
 	 * @return the resulting PolyImpl.
 	 */
-	const ILVectorType& operator=(std::initializer_list<std::string> rhs);
+	const PolyType& operator=(std::initializer_list<std::string> rhs);
 
 	/**
 	 * @brief Assignment Operator. The usint val will be set at index zero and all other indices will be set to zero.
@@ -270,7 +270,7 @@ public:
 	 * @param val is the usint to assign to index zero.
 	 * @return the resulting vector.
 	 */
-	const ILVectorType& operator=(uint64_t val);
+	const PolyType& operator=(uint64_t val);
 
 	//GETTERS
 	/**

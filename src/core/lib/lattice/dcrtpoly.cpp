@@ -53,7 +53,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::DCRTPolyImpl(const shared_ptr<Pa
 	m_vectors.reserve(vecSize);
 
 	for (usint i = 0; i < vecSize; i++) {
-		m_vectors.push_back(std::move(ILVectorType(dcrtParams->GetParams()[i],format,initializeElementToZero)));
+		m_vectors.push_back(std::move(PolyType(dcrtParams->GetParams()[i],format,initializeElementToZero)));
 	}
 }
 
@@ -78,7 +78,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FillPolyFromBigVector(const
 
 	// fill up with vectors with the proper moduli
 	for(usint i = 0; i < vecCount; i++ ) {
-		ILVectorType newvec(params->GetParams()[i], m_format, true);
+		PolyType newvec(params->GetParams()[i], m_format, true);
 		m_vectors.push_back( std::move(newvec) );
 	}
 
@@ -96,7 +96,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FillPolyFromBigVector(const
 			IntType tmp = element.GetValAtIndex(p) % bigmods[v];
 			m_vectors[v].SetValAtIndex(p, tmp.ConvertToInt());
 #else
-			m_vectors[v].SetValAtIndex(p, ILVectorType::Integer((element.GetValAtIndex(p) % bigmods[v]).ConvertToInt()));
+			m_vectors[v].SetValAtIndex(p, PolyType::Integer((element.GetValAtIndex(p) % bigmods[v]).ConvertToInt()));
 #endif
 		}
 	}
@@ -110,7 +110,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::DCRTPolyImpl(const Poly &element
 	try {
 		format = element.GetFormat();
 	} catch (const std::exception& e) {
-		throw std::logic_error("There is an issue with the format of ILVectors passed to the constructor of DCRTPolyImpl");
+		throw std::logic_error("There is an issue with the format of Polys passed to the constructor of DCRTPolyImpl");
 	}
 
 	if( element.GetCyclotomicOrder() != params->GetCyclotomicOrder() )
@@ -127,13 +127,13 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::DCRTPolyImpl(const Poly &element
  * The params and format for the DCRTPolyImpl will be derived from the towers
  */
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-DCRTPolyImpl<ModType,IntType,VecType,ParmType>::DCRTPolyImpl(const std::vector<ILVectorType> &towers)
+DCRTPolyImpl<ModType,IntType,VecType,ParmType>::DCRTPolyImpl(const std::vector<PolyType> &towers)
 {
 	usint cyclotomicOrder = towers.at(0).GetCyclotomicOrder();
 	std::vector<std::shared_ptr<native_int::ILParams>> parms;
 	for (usint i = 0; i < towers.size(); i++) {
 		if ( towers[i].GetCyclotomicOrder() != cyclotomicOrder ) {
-			throw std::logic_error("ILVectors provided to constructor must have the same ring dimension");
+			throw std::logic_error("Polys provided to constructor must have the same ring dimension");
 		}
 		parms.push_back( towers[i].GetParams() );
 	}
@@ -177,7 +177,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::DCRTPolyImpl(const DggType& dgg,
 			ilDggValues.SetValAtIndex(j,entry);
 		}
 
-		ILVectorType ilvector(dcrtParams->GetParams()[i]);
+		PolyType ilvector(dcrtParams->GetParams()[i]);
 		ilvector.SetValues(ilDggValues, Format::COEFFICIENT); // the random values are set in coefficient format
 		if(m_format == Format::EVALUATION) {  // if the input format is evaluation, then once random values are set in coefficient format, switch the format to achieve what the caller asked for.
 			ilvector.SwitchFormat();
@@ -200,7 +200,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::DCRTPolyImpl(DugType& dug, const
 
 		dug.SetModulus(dcrtParams->GetParams()[i]->GetModulus());
 		native_int::BigVector vals(dug.GenerateVector(dcrtParams->GetRingDimension()));
-		ILVectorType ilvector(dcrtParams->GetParams()[i]);
+		PolyType ilvector(dcrtParams->GetParams()[i]);
 
 		ilvector.SetValues(vals, Format::COEFFICIENT); // the random values are set in coefficient format
 		if (m_format == Format::EVALUATION) {  // if the input format is evaluation, then once random values are set in coefficient format, switch the format to achieve what the caller asked for.
@@ -254,7 +254,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::~DCRTPolyImpl() {}
 
 // GET ACCESSORS
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-const typename DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ILVectorType& DCRTPolyImpl<ModType,IntType,VecType,ParmType>::GetElementAtIndex (usint i) const
+const typename DCRTPolyImpl<ModType,IntType,VecType,ParmType>::PolyType& DCRTPolyImpl<ModType,IntType,VecType,ParmType>::GetElementAtIndex (usint i) const
 {
 	if(m_vectors.empty())
 		throw std::logic_error("DCRTPolyImpl's towers are not initialized.");
@@ -270,7 +270,7 @@ usint DCRTPolyImpl<ModType,IntType,VecType,ParmType>::GetNumOfElements() const
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-const std::vector<typename DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ILVectorType>& DCRTPolyImpl<ModType,IntType,VecType,ParmType>::GetAllElements() const
+const std::vector<typename DCRTPolyImpl<ModType,IntType,VecType,ParmType>::PolyType>& DCRTPolyImpl<ModType,IntType,VecType,ParmType>::GetAllElements() const
 {
 	return m_vectors;
 }
@@ -490,7 +490,7 @@ template<typename ModType, typename IntType, typename VecType, typename ParmType
 DCRTPolyImpl<ModType,IntType,VecType,ParmType>& DCRTPolyImpl<ModType,IntType,VecType,ParmType>::operator=(std::initializer_list<sint> rhs)
 {
 	usint len = rhs.size();
-	static ILVectorType::Integer ZERO(0);
+	static PolyType::Integer ZERO(0);
 	if(!IsEmpty()) {
 		usint vectorLength = this->m_vectors[0].GetLength();
 		for(usint i = 0; i < m_vectors.size(); ++i) { // this loops over each tower
@@ -622,7 +622,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::MakeSparse(const uint32_t &
 	}
 }
 
-// This function modifies ILVectorArrayImpl to keep all the even indices in the tower.
+// This function modifies PolyArrayImpl to keep all the even indices in the tower.
 // It reduces the ring dimension of the tower by half.
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
 void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::Decompose()
@@ -693,17 +693,17 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ModReduce(const IntType &pl
 
 	DEBUG("ModReduce(" << plaintextModulus << ") on tower size " << m_vectors.size()<< " m=" << GetCyclotomicOrder());
 
-	ILVectorType towerT(m_vectors[lastTowerIndex]); //last tower that will be dropped
-	ILVectorType d(towerT);
+	PolyType towerT(m_vectors[lastTowerIndex]); //last tower that will be dropped
+	PolyType d(towerT);
 
 	//precomputations
-	typename ILVectorType::Integer ptm(plaintextModulus.ConvertToInt());
-	typename ILVectorType::Integer qt(m_vectors[lastTowerIndex].GetModulus());
+	typename PolyType::Integer ptm(plaintextModulus.ConvertToInt());
+	typename PolyType::Integer qt(m_vectors[lastTowerIndex].GetModulus());
 	DEBUG("qt: "<< qt);
 	DEBUG("plaintextModulus: "<< ptm);
-	typename ILVectorType::Integer v(qt.ModInverse(ptm));
+	typename PolyType::Integer v(qt.ModInverse(ptm));
 	DEBUG("v: "<< v);
-	typename ILVectorType::Integer a((v * qt).ModSub(1, ptm*qt));
+	typename PolyType::Integer a((v * qt).ModSub(1, ptm*qt));
 	DEBUG("a:	"<<a);
 
 	// Since only positive values are being used for Discrete gaussian generator, a call to switch modulus needs to be done
@@ -711,12 +711,12 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ModReduce(const IntType &pl
 	// FIXME NOT CHANGING ROOT OF UNITY-TODO: What to do with SwitchModulus and is it necessary to pass rootOfUnity
 
 	// Calculating delta, step 2
-	ILVectorType delta(d.Times(a));
+	PolyType delta(d.Times(a));
 
 	// Calculating d' = c + delta mod q (step 3)
 	// no point in going to size() since the last tower's being dropped
 	for(usint i=0; i<m_vectors.size(); i++) {
-		ILVectorType temp(delta);
+		PolyType temp(delta);
 		temp.SwitchModulus(m_vectors[i].GetModulus(), m_vectors[i].GetRootOfUnity());
 		m_vectors[i] += temp;
 	}
@@ -724,9 +724,9 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ModReduce(const IntType &pl
 	//step 4
 	DropLastElement();
 
-	std::vector<ILVectorType::Integer> qtInverseModQi(m_vectors.size());
+	std::vector<PolyType::Integer> qtInverseModQi(m_vectors.size());
 	for(usint i=0; i<m_vectors.size(); i++) {
-		const ILVectorType::Integer& mod = m_vectors[i].GetModulus();
+		const PolyType::Integer& mod = m_vectors[i].GetModulus();
 		qtInverseModQi[i] = qt.ModInverse(mod);
 		m_vectors[i] = qtInverseModQi[i].ConvertToInt() * m_vectors[i];
 	}
@@ -782,11 +782,11 @@ Poly DCRTPolyImpl<ModType,IntType,VecType,ParmType>::CRTInterpolate() const
 
 	// if the vectors are not in COEFFICIENT form, they need to be, so we will need to make a copy
 	// of them and switchformat on them... otherwise we can just use what we have
-	const std::vector<ILVectorType> *vecs = &m_vectors;
-	std::vector<ILVectorType> coeffVecs;
+	const std::vector<PolyType> *vecs = &m_vectors;
+	std::vector<PolyType> coeffVecs;
 	if( m_format == EVALUATION ) {
 		for( usint i=0; i<m_vectors.size(); i++ ) {
-			ILVectorType vecCopy(m_vectors[i]);
+			PolyType vecCopy(m_vectors[i]);
 			vecCopy.SetFormat(COEFFICIENT);
 			coeffVecs.push_back( std::move(vecCopy) );
 		}
@@ -863,7 +863,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::SwitchModulusAtIndex(usint 
 		throw std::runtime_error(errMsg);
 	}
 
-	m_vectors[index].SwitchModulus(ILVectorType::Integer(modulus.ConvertToInt()), ILVectorType::Integer(rootOfUnity.ConvertToInt()));
+	m_vectors[index].SwitchModulus(PolyType::Integer(modulus.ConvertToInt()), PolyType::Integer(rootOfUnity.ConvertToInt()));
 	m_params->RecalculateModulus();
 }
 
@@ -889,7 +889,7 @@ bool DCRTPolyImpl<ModType,IntType,VecType,ParmType>::Serialize(Serialized* serOb
 
 	obj.AddMember("Format", std::to_string(this->GetFormat()), serObj->GetAllocator());
 
-	SerializeVector<ILVectorType>("Vectors", "PolyImpl", this->GetAllElements(), &obj);
+	SerializeVector<PolyType>("Vectors", "PolyImpl", this->GetAllElements(), &obj);
 
 	serObj->AddMember("DCRTPolyImpl", obj, serObj->GetAllocator());
 
@@ -925,7 +925,7 @@ bool DCRTPolyImpl<ModType,IntType,VecType,ParmType>::Deserialize(const Serialize
 		return false;
 	}
 
-	bool ret = DeserializeVector<ILVectorType>("Vectors", "PolyImpl", mIt, &this->m_vectors);
+	bool ret = DeserializeVector<PolyType>("Vectors", "PolyImpl", mIt, &this->m_vectors);
 
 	return ret;
 }

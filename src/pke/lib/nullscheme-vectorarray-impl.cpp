@@ -38,15 +38,15 @@ shared_ptr<Ciphertext<DCRTPoly>> LPAlgorithmSHENull<DCRTPoly>::EvalMult(const sh
 	const DCRTPoly& c1 = ciphertext1->GetElement();
 	const DCRTPoly& c2 = ciphertext2->GetElement();
 
-	const vector<typename DCRTPoly::ILVectorType>& c1e = c1.GetAllElements();
-	const vector<typename DCRTPoly::ILVectorType>& c2e = c2.GetAllElements();
+	const vector<typename DCRTPoly::PolyType>& c1e = c1.GetAllElements();
+	const vector<typename DCRTPoly::PolyType>& c2e = c2.GetAllElements();
 
 	const BigInteger& ptm = ciphertext1->GetCryptoParameters()->GetPlaintextModulus();
 
-	vector<typename DCRTPoly::ILVectorType> mResults;
+	vector<typename DCRTPoly::PolyType> mResults;
 
 	for( size_t i = 0; i < c1.GetNumOfElements(); i++ ) {
-		typename DCRTPoly::ILVectorType v = ElementNullSchemeMultiply(c1e.at(i), c2e.at(i), ptm);
+		typename DCRTPoly::PolyType v = ElementNullSchemeMultiply(c1e.at(i), c2e.at(i), ptm);
 		mResults.push_back(v);
 	}
 

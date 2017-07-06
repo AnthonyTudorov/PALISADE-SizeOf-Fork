@@ -52,7 +52,7 @@ using namespace std;
 using namespace lbcrypto;
 
 typedef ILParamsImpl<native_int::BigInteger> ILNativeParams;
-typedef PolyImpl< native_int::BigInteger, native_int::BigInteger, native_int::BigVector, ILNativeParams > ILVectorNative2n;
+typedef PolyImpl< native_int::BigInteger, native_int::BigInteger, native_int::BigVector, ILNativeParams > PolyNative2n;
 
 template <class E>
 static void make_NATIVELATTICE_empty(shared_ptr<ILParams>& params) {
@@ -74,7 +74,7 @@ void BM_NATIVELATTICE_empty(benchmark::State& state) { // benchmark
 	}
 }
 
-DO_PARM_BENCHMARK_TEMPLATE(BM_NATIVELATTICE_empty,ILVectorNative2n)
+DO_PARM_BENCHMARK_TEMPLATE(BM_NATIVELATTICE_empty,PolyNative2n)
 
 template <class E>
 static E makeElement(benchmark::State& state, shared_ptr<ILParams> params) {
@@ -106,7 +106,7 @@ void BM_NATIVELATTICE_vector(benchmark::State& state) { // benchmark
 	}
 }
 
-DO_PARM_BENCHMARK_TEMPLATE(BM_NATIVELATTICE_vector,ILVectorNative2n)
+DO_PARM_BENCHMARK_TEMPLATE(BM_NATIVELATTICE_vector,PolyNative2n)
 
 // add
 template <class E>
@@ -130,7 +130,7 @@ static void BM_add_NATIVELATTICE(benchmark::State& state) { // benchmark
 	}
 }
 
-DO_PARM_BENCHMARK_TEMPLATE(BM_add_NATIVELATTICE,ILVectorNative2n)
+DO_PARM_BENCHMARK_TEMPLATE(BM_add_NATIVELATTICE,PolyNative2n)
 
 template <class E>
 static void mult_NATIVELATTICE(benchmark::State& state, shared_ptr<ILParams>& params) {	// function
@@ -153,7 +153,7 @@ static void BM_mult_NATIVELATTICE(benchmark::State& state) { // benchmark
 	}
 }
 
-DO_PARM_BENCHMARK_TEMPLATE(BM_mult_NATIVELATTICE,ILVectorNative2n)
+DO_PARM_BENCHMARK_TEMPLATE(BM_mult_NATIVELATTICE,PolyNative2n)
 
 template <class E>
 static void switchformat_NATIVELATTICE(benchmark::State& state, shared_ptr<ILParams>& params) {
@@ -175,7 +175,7 @@ static void BM_switchformat_NATIVELATTICE(benchmark::State& state) { // benchmar
 	}
 }
 
-DO_PARM_BENCHMARK_TEMPLATE(BM_switchformat_NATIVELATTICE,ILVectorNative2n)
+DO_PARM_BENCHMARK_TEMPLATE(BM_switchformat_NATIVELATTICE,PolyNative2n)
 
 template <class E>
 static void doubleswitchformat_NATIVELATTICE(benchmark::State& state, shared_ptr<ILParams>& params) {
@@ -198,7 +198,7 @@ static void BM_doubleswitchformat_NATIVELATTICE(benchmark::State& state) { // be
 	}
 }
 
-DO_PARM_BENCHMARK_TEMPLATE(BM_doubleswitchformat_NATIVELATTICE,ILVectorNative2n)
+DO_PARM_BENCHMARK_TEMPLATE(BM_doubleswitchformat_NATIVELATTICE,PolyNative2n)
 
 //execute the benchmarks
 BENCHMARK_MAIN()

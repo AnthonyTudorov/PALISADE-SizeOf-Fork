@@ -712,18 +712,18 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		}
 
 	private:
-		typename Element::ILVectorType ElementNullSchemeMultiply(const typename Element::ILVectorType& c1, const typename Element::ILVectorType& c2,
+		typename Element::PolyType ElementNullSchemeMultiply(const typename Element::PolyType& c1, const typename Element::PolyType& c2,
 				const BigInteger& ptmod) const {
 
-			typename Element::ILVectorType cResult(c1.GetParams(), Format::COEFFICIENT, true);
+			typename Element::PolyType cResult(c1.GetParams(), Format::COEFFICIENT, true);
 
-			typename Element::ILVectorType cLarger(c1.GetParams(), Format::COEFFICIENT, true);
+			typename Element::PolyType cLarger(c1.GetParams(), Format::COEFFICIENT, true);
 
-			typename Element::ILVectorType::Integer ptm( ptmod.ConvertToInt() );
+			typename Element::PolyType::Integer ptm( ptmod.ConvertToInt() );
 
 			int	ringdim = c1.GetRingDimension();
 			for (int c1e = 0; c1e<ringdim; c1e++) {
-				typename Element::ILVectorType::Integer answer, c1val, c2val, prod;
+				typename Element::PolyType::Integer answer, c1val, c2val, prod;
 				c1val = c1.GetValAtIndex(c1e);
 				if (c1val != 0) {
 					for (int c2e = 0; c2e<ringdim; c2e++) {
@@ -746,7 +746,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 
 			// fold cLarger back into the answer
 			for (int i = 0; i<ringdim; i++) {
-				typename Element::ILVectorType::Integer adj;
+				typename Element::PolyType::Integer adj;
 				adj = cResult.GetValAtIndex(i) + (ptm - cLarger.GetValAtIndex(i)) % ptm;
 				cResult.SetValAtIndex(i, adj % ptm);
 			}

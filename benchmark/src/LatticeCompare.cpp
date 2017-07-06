@@ -97,7 +97,7 @@ static void CustomArguments(benchmark::internal::Benchmark* b) {
 	}
 }
 //should really be ModType,IntType
-//then PolyImpl<> becomes ILVectorType from poly.h
+//then PolyImpl<> becomes PolyType from poly.h
 
 template <typename IntType, typename VecType, typename ParamType>
 static PolyImpl<IntType,IntType,VecType,ParamType> makeElement(benchmark::State& state) {

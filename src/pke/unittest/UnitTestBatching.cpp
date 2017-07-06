@@ -231,12 +231,12 @@ TEST(UTLTVBATCHING, Poly_EVALMULT) {
 }
 
 
-/*Simple Encrypt-Decrypt check for ILVector. The assumption is this test case is that everything with respect to lattice and math
+/*Simple Encrypt-Decrypt check for Poly. The assumption is this test case is that everything with respect to lattice and math
 * layers and cryptoparameters work. This test case is only testing if the resulting plaintext from an encrypt/decrypt returns the same
 * plaintext
 * The cyclotomic order is set to 22
 *tower size is set to 3*/
-TEST(UTLTVBATCHING, ILVector_Encrypt_Decrypt_Arb) {
+TEST(UTLTVBATCHING, Poly_Encrypt_Decrypt_Arb) {
 	PackedIntPlaintextEncoding::Destroy();
 
 	usint m = 22;
@@ -275,7 +275,7 @@ TEST(UTLTVBATCHING, ILVector_Encrypt_Decrypt_Arb) {
 	EXPECT_EQ(intArrayNew, vectorOfInts);
 }
 
-TEST(UTLTVBATCHING, ILVector_EVALADD_Arb) {
+TEST(UTLTVBATCHING, Poly_EVALADD_Arb) {
 	PackedIntPlaintextEncoding::Destroy();
 	usint m = 22;
 	usint p = 89; // we choose s.t. 2m|p-1 to leverage CRTArb
@@ -325,7 +325,7 @@ TEST(UTLTVBATCHING, ILVector_EVALADD_Arb) {
 	EXPECT_EQ(intArrayNew, vectorOfIntsAdd);
 }
 
-TEST(UTBVBATCHING, ILVector_EVALMULT_Arb) {
+TEST(UTBVBATCHING, Poly_EVALMULT_Arb) {
 	PackedIntPlaintextEncoding::Destroy();
 
 	usint m = 22;
@@ -378,7 +378,7 @@ TEST(UTBVBATCHING, ILVector_EVALMULT_Arb) {
 	EXPECT_EQ(intArrayNew, vectorOfIntsMult);
 }
 
-TEST(UTFVBATCHING, ILVector_EVALMULT_Arb) {
+TEST(UTFVBATCHING, Poly_EVALMULT_Arb) {
 	PackedIntPlaintextEncoding::Destroy();
 
 	usint m = 22;

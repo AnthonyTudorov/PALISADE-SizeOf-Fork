@@ -185,13 +185,13 @@ TEST(UTMatrix, Poly_mult_square_matrix) {
 	Matrix<Poly> C = Matrix<Poly>(fastIL2nAlloc(), dimension, dimension, fastUniformIL2nAlloc());
 	Matrix<Poly> I = Matrix<Poly>(fastIL2nAlloc(), dimension, dimension).Identity();
 
-	EXPECT_EQ(A, A*I) << "Matrix multiplication of two ILVector2Ns: A = AI - failed.\n";
-	EXPECT_EQ(A, I*A) << "Matrix multiplication of two ILVector2Ns: A = IA - failed.\n";
+	EXPECT_EQ(A, A*I) << "Matrix multiplication of two Poly2Ns: A = AI - failed.\n";
+	EXPECT_EQ(A, I*A) << "Matrix multiplication of two Poly2Ns: A = IA - failed.\n";
 
-	EXPECT_EQ((A*B).Transpose(), B.Transpose()*A.Transpose()) << "Matrix multiplication of two ILVector2Ns: (A*B)^T = B^T*A^T - failed.\n";
+	EXPECT_EQ((A*B).Transpose(), B.Transpose()*A.Transpose()) << "Matrix multiplication of two Poly2Ns: (A*B)^T = B^T*A^T - failed.\n";
 
-	EXPECT_EQ(A*B*C, A*(B*C)) << "Matrix multiplication of two ILVector2Ns: A*B*C = A*(B*C) - failed.\n";
-	EXPECT_EQ(A*B*C, (A*B)*C) << "Matrix multiplication of two ILVector2Ns: A*B*C = (A*B)*C - failed.\n";
+	EXPECT_EQ(A*B*C, A*(B*C)) << "Matrix multiplication of two Poly2Ns: A*B*C = A*(B*C) - failed.\n";
+	EXPECT_EQ(A*B*C, (A*B)*C) << "Matrix multiplication of two Poly2Ns: A*B*C = (A*B)*C - failed.\n";
 
 }
 
@@ -206,14 +206,14 @@ TEST(UTMatrix, Poly_mult_square_matrix_caps) {
 	MatrixStrassen<Poly> C = MatrixStrassen<Poly>(fastIL2nAlloc(), dimension, dimension, fastUniformIL2nAlloc());
 	MatrixStrassen<Poly> I = MatrixStrassen<Poly>(fastIL2nAlloc(), dimension, dimension).Identity();
 
-	//EXPECT_EQ((A.Mult(B))(0, 0), (A.MultiplyCAPS(B, 2))(0, 0)) << "CAPS matrix multiplication of two ILVector2Ns doesn't agree with Mult: A.Mult(B), A.MultiplyCAPS(B,2) - failed.\n";
-	EXPECT_EQ(A, A.Mult(I, 2)) << "CAPS matrix multiplication of two ILVector2Ns: A = AI - failed.\n";
-	EXPECT_EQ(A, I.Mult(A, 2)) << "Matrix multiplication of two ILVector2Ns: A = IA - failed.\n";
+	//EXPECT_EQ((A.Mult(B))(0, 0), (A.MultiplyCAPS(B, 2))(0, 0)) << "CAPS matrix multiplication of two Poly2Ns doesn't agree with Mult: A.Mult(B), A.MultiplyCAPS(B,2) - failed.\n";
+	EXPECT_EQ(A, A.Mult(I, 2)) << "CAPS matrix multiplication of two Poly2Ns: A = AI - failed.\n";
+	EXPECT_EQ(A, I.Mult(A, 2)) << "Matrix multiplication of two Poly2Ns: A = IA - failed.\n";
 
-	EXPECT_EQ((A.Mult(B, 2)).Transpose(), B.Transpose().Mult(A.Transpose(), 2)) << "Matrix multiplication of two ILVector2Ns: (A.MultiplyCAPS(B,2)).Transpose(), B.Transpose().MultiplyCAPS(A.Transpose(),2) - failed.\n";
+	EXPECT_EQ((A.Mult(B, 2)).Transpose(), B.Transpose().Mult(A.Transpose(), 2)) << "Matrix multiplication of two Poly2Ns: (A.MultiplyCAPS(B,2)).Transpose(), B.Transpose().MultiplyCAPS(A.Transpose(),2) - failed.\n";
 
-	EXPECT_EQ(A.Mult(B, 2).Mult(C, 2), A.Mult((B.Mult(C, 2)), 2)) << "Matrix multiplication of two ILVector2Ns: A.MultiplyCAPS(B,2).MultiplyCAPS(C,2), A.MultiplyCAPS((B.MultiplyCAPS(C,2)),2) - failed.\n";
-	EXPECT_EQ(A.Mult(B, 2).Mult(C, 2), (A.Mult(B, 2)).Mult(C, 2)) << "Matrix multiplication of two ILVector2Ns: A.MultiplyCAPS(B,2).MultiplyCAPS(C,2), (A.MultiplyCAPS(B,2)).MultiplyCAPS(C,2) - failed.\n";
+	EXPECT_EQ(A.Mult(B, 2).Mult(C, 2), A.Mult((B.Mult(C, 2)), 2)) << "Matrix multiplication of two Poly2Ns: A.MultiplyCAPS(B,2).MultiplyCAPS(C,2), A.MultiplyCAPS((B.MultiplyCAPS(C,2)),2) - failed.\n";
+	EXPECT_EQ(A.Mult(B, 2).Mult(C, 2), (A.Mult(B, 2)).Mult(C, 2)) << "Matrix multiplication of two Poly2Ns: A.MultiplyCAPS(B,2).MultiplyCAPS(C,2), (A.MultiplyCAPS(B,2)).MultiplyCAPS(C,2) - failed.\n";
 
 }
 

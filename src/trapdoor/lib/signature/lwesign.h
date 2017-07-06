@@ -131,7 +131,7 @@ namespace lbcrypto {
 		/**
 		*Method for setting the ILParams held in this class
 		*
-		*@param params Parameters to be held, used in ILVector construction
+		*@param params Parameters to be held, used in Poly construction
 		*/
 		void SetElemParams(shared_ptr<ILParams> params) { 
 			m_params = params; 
@@ -171,7 +171,7 @@ namespace lbcrypto {
 		LPSignatureParameters() {}
 		/**
 		*Constructor
-		*@param params Parameters used in ILVector construction
+		*@param params Parameters used in Poly construction
 		*@param dgg DiscreteGaussianGenerator used in sampling
 		*/
 		LPSignatureParameters(shared_ptr<ILParams> params, Poly::DggType dgg) : dgg(dgg) {
