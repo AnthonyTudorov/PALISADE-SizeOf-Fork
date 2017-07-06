@@ -36,9 +36,10 @@ namespace lbcrypto {
 class ElemParamFactory {
 public:
 	static struct ElemParmSet {
-		usint				n;
-		BigBinaryInteger	q;
-		BigBinaryInteger	ru;
+		usint				m;	// cyclotomic order
+		usint				n;	// ring dimension
+		BigBinaryInteger	q;	// ciphertext modulus
+		BigBinaryInteger	ru;	// root of unity
 	} DefaultSet[];
 };
 
