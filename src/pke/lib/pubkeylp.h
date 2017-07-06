@@ -1426,18 +1426,27 @@ namespace lbcrypto {
 			const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 
 			usint batchSize = encodingParams->GetBatchSize();
-			usint g = encodingParams->GetPlaintextGenerator();
 			usint m = elementParams->GetCyclotomicOrder();
 
 			// stores automorphism indices needed for EvalSum
 			std::vector<usint> indices;
 
-			for (int i = 0; i < floor(log2(batchSize)); i++)
-			{
-				indices.push_back(g);
-				g = (g * g) % m;
+			if (!(m & (m-1))){ // Check if m is a power of 2
+				usint g = 5;
+				for (int i = 0; i < floor(log2(batchSize))-1; i++)
+				{
+					indices.push_back(g);
+					g = (g * g) % m;
+				}
+				indices.push_back(3);
+			} else { // Arbitray cyclotomics
+				usint g = encodingParams->GetPlaintextGenerator();
+				for (int i = 0; i < floor(log2(batchSize)); i++)
+				{
+					indices.push_back(g);
+					g = (g * g) % m;
+				}
 			}
-
 
 			if (publicKey)
 				// NTRU-based scheme
@@ -1465,13 +1474,23 @@ namespace lbcrypto {
 			const shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
 			const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 
-			usint g = encodingParams->GetPlaintextGenerator();
 			usint m = elementParams->GetCyclotomicOrder();
 
-			for (int i = 0; i < floor(log2(batchSize)); i++)
-			{
-				newCiphertext = EvalAdd(newCiphertext, EvalAutomorphism(newCiphertext, g, evalKeys));
-				g = (g * g) % m;
+			if (!(m & (m-1))){ // Check if m is a power of 2
+				usint g = 5;
+				for (int i = 0; i < floor(log2(batchSize))-1; i++)
+				{
+					newCiphertext = EvalAdd(newCiphertext, EvalAutomorphism(newCiphertext, g, evalKeys));
+					g = (g * g) % m;
+				}
+				newCiphertext = EvalAdd(newCiphertext, EvalAutomorphism(newCiphertext, 3, evalKeys));
+			} else { // Arbitray cyclotomics
+				usint g = encodingParams->GetPlaintextGenerator();
+				for (int i = 0; i < floor(log2(batchSize)); i++)
+				{
+					newCiphertext = EvalAdd(newCiphertext, EvalAutomorphism(newCiphertext, g, evalKeys));
+					g = (g * g) % m;
+				}
 			}
 
 			return newCiphertext;
