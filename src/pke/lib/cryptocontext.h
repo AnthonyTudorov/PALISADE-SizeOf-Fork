@@ -592,6 +592,54 @@ public:
 		return cipherResults;
 	}
 
+	std::vector<shared_ptr<Ciphertext<Element>>> Encrypt(
+		const shared_ptr<LPPrivateKey<Element>> privateKey,
+		const Plaintext& plaintext,
+		bool doPadding = true, bool doEncryption = true) const
+	{
+		std::vector<shared_ptr<Ciphertext<Element>>> cipherResults;
+
+		if( privateKey == NULL || privateKey->GetCryptoContext() != this )
+			throw std::logic_error("key passed to Encrypt was not generated with this crypto context");
+
+		const BigBinaryInteger& ptm = privateKey->GetCryptoParameters()->GetPlaintextModulus();
+		size_t chunkSize = plaintext.GetChunksize(privateKey->GetCryptoContext()->GetRingDimension(), ptm);
+		size_t ptSize = plaintext.GetLength();
+		size_t rounds = ptSize / chunkSize;
+
+		if (doPadding == false && ptSize%chunkSize != 0
+			&& typeid(plaintext) == typeid(BytePlaintextEncoding)) {
+			throw std::logic_error("Cannot Encrypt without padding with chunksize " + std::to_string(chunkSize) + " and plaintext size " + std::to_string(ptSize));
+		}
+
+		// if there is a partial chunk OR if there isn't but we need to pad
+		if (ptSize%chunkSize != 0 || doPadding == true)
+			rounds += 1;
+
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		for (size_t bytes = 0, i = 0; i < rounds; bytes += chunkSize, i++) {
+
+			ILVector2n pt(privateKey->GetCryptoParameters()->GetElementParams());
+			plaintext.Encode(ptm, &pt, bytes, chunkSize);
+
+			shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(privateKey, pt, doEncryption);
+
+			if (!ciphertext) {
+				cipherResults.clear();
+				break;
+			}
+
+			cipherResults.push_back(ciphertext);
+
+		}
+
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEncrypt, currentDateTime() - start) );
+		}
+		return cipherResults;
+	}
+	
 	/**
 	* Encrypt a matrix of plaintexts (integer encoding)
 	* @param publicKey - for encryption

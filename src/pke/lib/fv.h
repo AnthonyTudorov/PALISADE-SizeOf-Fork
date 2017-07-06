@@ -390,6 +390,17 @@ namespace lbcrypto {
 			Poly &plaintext, bool doEncryption = true) const;
 
 		/**
+		* Method for encrypting plaintext using FV.
+		*
+		* @param privateKey private key used for encryption.
+		* @param &plaintext the plaintext input.
+		* @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
+		* @return ciphertext which results from encryption.
+		*/
+		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
+			ILVector2n &plaintext, bool doEncryption = true) const;
+
+		/**
 		* Method for decrypting using FV. See the class description for citations on where the algorithms were
 	 	* taken from.
 		*

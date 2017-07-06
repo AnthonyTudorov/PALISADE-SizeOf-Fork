@@ -122,6 +122,50 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmLTV<Element>::Encrypt(const shared_pt
 }
 
 template <class Element>
+shared_ptr<Ciphertext<Element>> LPAlgorithmLTV<Element>::Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
+	ILVector2n &ptxt, bool doEncryption) const
+{
+	const shared_ptr<LPCryptoParametersRLWE<Element>> cryptoParams =
+		std::dynamic_pointer_cast<LPCryptoParametersRLWE<Element>>(privateKey->GetCryptoParameters());
+
+	shared_ptr<Ciphertext<Element>> ciphertext(new Ciphertext<Element>(privateKey->GetCryptoContext()));
+
+	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
+	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
+
+	Element plaintext(ptxt, elementParams);
+	plaintext.SwitchFormat();
+
+	if (doEncryption)
+	{
+
+		const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
+
+		// Placeholder implementation that is mostly correct
+		Element g(dgg, elementParams, Format::COEFFICIENT);
+		g.SwitchFormat();
+		const Element h = p*g*privateKey->GetPrivateElement().MultiplicativeInverse();
+
+		Element s(dgg, elementParams);
+
+		Element e(dgg, elementParams);
+
+		Element c(elementParams);
+
+		c = h*s + p*e + plaintext;
+
+		ciphertext->SetElement(c);
+
+	}
+	else
+	{
+		ciphertext->SetElement(plaintext);
+	}
+
+	return ciphertext;
+}
+
+template <class Element>
 DecryptResult LPAlgorithmLTV<Element>::Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
 	const shared_ptr<Ciphertext<Element>> ciphertext,
 	Poly *plaintext) const

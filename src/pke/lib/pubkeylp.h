@@ -980,6 +980,16 @@ namespace lbcrypto {
 			virtual shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, Poly &plaintext, bool doEncryption = true) const = 0;
 
 			/**
+			 * Method for encrypting plaintex using LBC
+			 *
+			 * @param &privateKey private key used for encryption.
+			 * @param &plaintext the plaintext input.
+			 * @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
+			 * @param *ciphertext ciphertext which results from encryption.
+			 */
+			virtual shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey, ILVector2n &plaintext, bool doEncryption = true) const = 0;
+
+			/**
 			 * Method for decrypting plaintext using LBC
 			 *
 			 * @param &privateKey private key used for decryption.
@@ -1848,6 +1858,16 @@ namespace lbcrypto {
 			Poly &plaintext, bool doEncryption = true) const {
 				if(this->m_algorithmEncryption) {
 					return this->m_algorithmEncryption->Encrypt(publicKey,plaintext,doEncryption);
+				}
+				else {
+					throw std::logic_error("Encrypt operation has not been enabled");
+				}
+		}
+
+		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
+			ILVector2n &plaintext, bool doEncryption = true) const {
+				if(this->m_algorithmEncryption) {
+					return this->m_algorithmEncryption->Encrypt(privateKey,plaintext,doEncryption);
 				}
 				else {
 					throw std::logic_error("Encrypt operation has not been enabled");
