@@ -116,7 +116,7 @@ namespace NTL{
     /**
      * A zero allocator that is called by the Matrix class. It is used to initialize a Matrix of ubint objects.
      */
-    static std::function<unique_ptr<myZZ>()> Allocator;
+    static unique_ptr<myZZ> Allocator();
 
     //adapter kit
     usint GetMSB() const ;

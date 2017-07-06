@@ -1119,7 +1119,7 @@ public:
 	 * A zero allocator that is called by the Matrix class.
 	 * It is used to initialize a Matrix of NativeInteger objects.
 	 */
-	static std::function<unique_ptr<NativeInteger<uint_type>>()> Allocator;
+	static unique_ptr<NativeInteger<uint_type>> Allocator();
 
 protected:
 
