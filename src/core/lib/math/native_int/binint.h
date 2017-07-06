@@ -499,8 +499,8 @@ public:
 			return result;
 		}
 
-		//Error if modulus is ZERO
-		if(this->m_value == 0) {
+		//Zero does not have a ModInverse
+		if(second == 0) {
 			throw std::logic_error("Zero does not have a ModInverse");
 		}
 

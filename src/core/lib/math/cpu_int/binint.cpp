@@ -1313,8 +1313,9 @@ BigBinaryInteger<uint_type,BITLENGTH> BigBinaryInteger<uint_type,BITLENGTH>::Mod
 		return result;
 	}
 
-	//Error if modulus is ZERO
-	if(*this==ZERO){
+	//Inverse of zero does not exist
+	if(second==ZERO)
+	{
 		throw std::logic_error("Zero does not have a ModInverse");
 	}
 
