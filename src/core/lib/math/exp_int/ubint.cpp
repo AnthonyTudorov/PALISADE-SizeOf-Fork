@@ -2057,10 +2057,10 @@ return result;
     }
 
     //Error if modulus is ZERO
-    if(*this==ZERO){
+    if(second==ZERO){
       //std::cout<<"ZERO HAS NO INVERSE\n";
       //system("pause");
-      throw std::logic_error("MOD INVERSE NOT FOUND");
+      throw std::logic_error("ZERO HAS NO INVERSE");
     }
 
 	
