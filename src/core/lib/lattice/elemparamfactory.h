@@ -27,11 +27,26 @@
 #ifndef SRC_CORE_LIB_LATTICE_ELEMPARAMFACTORY_H_
 #define SRC_CORE_LIB_LATTICE_ELEMPARAMFACTORY_H_
 
+#include <memory>
+using std::shared_ptr;
+
 #include "../math/backend.h"
+#include "ilparams.h"
+#include "ildcrtparams.h"
 
 namespace lbcrypto {
 
-// predefined values of n are 1024,2048,4096,8192 and 16384
+// predefined values of m are 16, 1024, 2048, 4096, 8192, 16384, 32768 and 65536
+
+enum ElementOrder {
+	M16 = 0,
+	M1024,
+	M2048,
+	M4096,
+	M8192,
+	M16384,
+	M32768
+};
 
 class ElemParamFactory {
 public:
@@ -41,6 +56,10 @@ public:
 		BigBinaryInteger	q;	// ciphertext modulus
 		BigBinaryInteger	ru;	// root of unity
 	} DefaultSet[];
+
+	static shared_ptr<ILParams> GenElemParams(ElementOrder o) {
+		return shared_ptr<ILParams>( new ILParams(DefaultSet[o].m, DefaultSet[o].q, DefaultSet[o].ru) );
+	}
 };
 
 } /* namespace lbcrypto */
