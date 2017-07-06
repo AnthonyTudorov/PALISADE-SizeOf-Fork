@@ -48,29 +48,9 @@
 // 		This backend supports arbitrary bitwidths; no memory pool is used; can grow up to RAM limitation
 //		Configurable type of underlying integer (either 32 or 64 bit)
 
-// passes all tests with UBINT_32
-// fails tests with UBINT_64
-// there is a bug in the way modulus is computed. do not use.
-
-//[ RUN      ] UTLTVBATCHING.ILVector_EVALMULT_Arb hangs
-//[ RUN      ] UTFV.ILVector2n_FV_ParamsGen_EvalMul hangs
-//[ RUN      ] UTFV.ILVector2n_FV_Optimized_Eval_Operations hangs
-//[ RUN      ] UTSHE.FV_ILVector2n_Add hangs
-//[ RUN      ] UTSHE.FV_ILVector2n_Mult hangs
-//[ RUN      ] UTStatisticalEval.FV_Eval_Lin_Regression_Int hangs
-
 // MATHBACKEND 6
 //		This uses gmp_int:: definition as default
 // 		GMP 6.1.2 / NTL 10.3.0 backend
-//passes all core tests except NTL specialized tests
-//pass all pke tests if WARN_BAD_MODULUS flag is set, not otherwise 
-//-- maybe it is not threadsafe.
-// fails
-// UTSignatureGPV.simple_sign_verify (throws in SampleC with inf mean) 
-// UTSignatureGPV.sign_verify_multiple_texts (throws GenerateInteger could not find success after repeated attempts mean is a very big negative number)
-// UTTrapdoor.TrapDoorGaussGqSampTest (throws in SampleC with inf mean)
-// UTTrapdoor.TrapDoorGaussSampTest (throws in SampleC with inf mean) 
-//UTSignatureGPV.sign_verify_multiple_keys fails
 
 // MATHBACKEND 7
 // 		This uses native_int:: as the default
@@ -79,10 +59,10 @@
 //To select backend, please UNCOMMENT the appropriate line rather than changing the number on the
 //uncommented line (and breaking the documentation of the line)
 
-//#define MATHBACKEND 2
+#define MATHBACKEND 2
 //#define MATHBACKEND 4
 //#define MATHBACKEND 6 
-#define MATHBACKEND 7
+//#define MATHBACKEND 7
 
 ////////// cpu_int code
 #include "cpu_int/binint.cpp"

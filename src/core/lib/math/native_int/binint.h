@@ -265,6 +265,14 @@ public:
 		return *this;
 	}
 
+    /**
+    * Prints the value of the internal limb storage
+    * in hexadecimal format. Used primarily for debugging
+    */
+    void PrintLimbsInHex() const {
+    	std::cout << std::hex << m_value << std::endl;
+    }
+
 	//Auxillary Functions
 
 	/**
