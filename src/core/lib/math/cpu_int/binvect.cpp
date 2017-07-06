@@ -389,15 +389,8 @@ BigBinaryVectorImpl<IntegerType> BigBinaryVectorImpl<IntegerType>::ModMul(const 
 
 	BigBinaryVectorImpl ans(*this);
 
-// YSP mu is not needed for native data types
-#if MATHBACKEND > 6
-	IntegerType mu(IntegerType::ONE);
-#else
 	//Precompute the Barrett mu parameter
-	IntegerType temp(1);
-	temp <<= 2 * this->GetModulus().GetMSB() + 3;
-	IntegerType mu = temp.DividedBy(m_modulus);
-#endif
+	IntegerType mu = lbcrypto::ComputeMu<IntegerType>(m_modulus);
 
 	for(usint i=0;i<this->m_length;i++){
 		//std::cout<< "before data: "<< ans.m_data[i]<< std::endl;
@@ -550,15 +543,8 @@ BigBinaryVectorImpl<IntegerType> BigBinaryVectorImpl<IntegerType>::ModMul(const 
 
 	BigBinaryVectorImpl ans(*this);
 
-//YSP mu is not needed for native data types
-#if MATHBACKEND > 6
-	IntegerType mu(IntegerType::ONE);
-#else
 	//Precompute the Barrett mu parameter
-	IntegerType temp(1);
-	temp <<= 2 * this->GetModulus().GetMSB() + 3;
-	IntegerType mu = temp.DividedBy(this->GetModulus());
-#endif
+	IntegerType mu = lbcrypto::ComputeMu<IntegerType>(this->GetModulus());
 
 	for(usint i=0;i<ans.m_length;i++){
 		//ans.m_data[i] = ans.m_data[i].ModMul(b.m_data[i],this->m_modulus);

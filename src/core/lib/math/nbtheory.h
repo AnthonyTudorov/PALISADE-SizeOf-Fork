@@ -305,6 +305,15 @@ namespace lbcrypto {
 	IntType FindGeneratorCyclic(const IntType& q);
 
 
+	/**
+	* Pre-computes the mu factor that is used in Barrett modulo reduction
+	* @param &q is the modulus
+	* @return the value of mu
+	*/
+	template<typename IntType>
+	IntType ComputeMu(const IntType& q);
+	
+
 } // namespace lbcrypto ends
 
 #endif
