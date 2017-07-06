@@ -53,8 +53,8 @@ public:
 	static struct ElemParmSet {
 		usint				m;	// cyclotomic order
 		usint				n;	// ring dimension
-		BigBinaryInteger	q;	// ciphertext modulus
-		BigBinaryInteger	ru;	// root of unity
+		BigInteger			q;	// ciphertext modulus
+		BigInteger			ru;	// root of unity
 	} DefaultSet[];
 
 	static shared_ptr<ILParams> GenElemParams(ElementOrder o) {
