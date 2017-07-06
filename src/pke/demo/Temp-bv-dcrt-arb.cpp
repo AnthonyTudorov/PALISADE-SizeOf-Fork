@@ -70,13 +70,6 @@ void ArbBVInnerProductPackedArray();
 
 int main() {
 
-	BigBinaryInteger a(55);
-
-	BigBinaryInteger b(5);
-
-	std::cout << a.ModInverse(5) << std::endl;
-
-
 
 	//LTVAutomorphismIntArray();
 	usint m = 22;
