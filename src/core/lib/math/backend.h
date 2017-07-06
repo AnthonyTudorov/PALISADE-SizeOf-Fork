@@ -34,7 +34,7 @@
 // the objects in its namespace
 
 // Selecting a math backend by defining MATHBACKEND means defining which underlying implementation
-// is the default BigBinaryInteger and BigBinaryVector
+// is the default BigInteger and BigVector
 
 // note that we #define how many bits the underlying integer can store as a guide for users of the backends
 
@@ -68,9 +68,9 @@
 #include "cpu_int/binint.cpp"
 #include "cpu_int/binvect.cpp"
 typedef uint32_t integral_dtype;
-static_assert(cpu_int::DataTypeChecker<integral_dtype>::value,"Data type provided is not supported in BigBinaryInteger");
+static_assert(cpu_int::DataTypeChecker<integral_dtype>::value,"Data type provided is not supported in BigInteger");
 
-	/** Define the mapping for BigBinaryInteger
+	/** Define the mapping for BigInteger
 	    1500 is the maximum bit width supported by BigBinaryIntegers, large enough for most use cases
 		The bitwidth can be decreased to the least value still supporting BBI multiplications for a specific application -
 		to achieve smaller runtimes
@@ -78,7 +78,7 @@ static_assert(cpu_int::DataTypeChecker<integral_dtype>::value,"Data type provide
 #define BigBinaryIntegerBitLength 1500 //for documentation on tests
 
 namespace cpu_int {
-typedef BigBinaryInteger<integral_dtype,BigBinaryIntegerBitLength> BinaryInteger;
+typedef BigInteger<integral_dtype,BigBinaryIntegerBitLength> BinaryInteger;
 typedef BigBinaryVectorImpl<BinaryInteger> BinaryVector;
 }
 
@@ -144,8 +144,8 @@ namespace lbcrypto {
 
 #if MATHBACKEND == 2
 
-	typedef cpu_int::BinaryInteger BigBinaryInteger;
-	typedef cpu_int::BinaryVector BigBinaryVector;
+	typedef cpu_int::BinaryInteger BigInteger;
+	typedef cpu_int::BinaryVector BigVector;
 
 #define MATH_DEFBITS BigBinaryIntegerBitLength
 
@@ -155,8 +155,8 @@ namespace lbcrypto {
         #ifdef UBINT_64
 	  #error MATHBACKEND 4 with UBINT_64 currently does not work do not use.
 	#endif
-	typedef exp_int::xubint BigBinaryInteger;
-	typedef exp_int::xmubintvec BigBinaryVector;
+	typedef exp_int::xubint BigInteger;
+	typedef exp_int::xmubintvec BigVector;
 
 #define MATH_DEFBITS 0
 
@@ -164,11 +164,11 @@ namespace lbcrypto {
 
 #if defined(__linux__)&& MATHBACKEND == 6
 
-	/** Define the mapping for BigBinaryInteger */
-	typedef NTL::myZZ BigBinaryInteger;
+	/** Define the mapping for BigInteger */
+	typedef NTL::myZZ BigInteger;
 	
-	/** Define the mapping for BigBinaryVector */
-        typedef NTL::myVecP<NTL::myZZ_p> BigBinaryVector;
+	/** Define the mapping for BigVector */
+        typedef NTL::myVecP<NTL::myZZ_p> BigVector;
 
 #define MATH_DEFBITS 0
 
@@ -176,8 +176,8 @@ namespace lbcrypto {
 
 #if MATHBACKEND == 7
 
-	typedef native_int::BinaryInteger BigBinaryInteger;
-	typedef native_int::BinaryVector BigBinaryVector;
+	typedef native_int::BinaryInteger BigInteger;
+	typedef native_int::BinaryVector BigVector;
 
 #define MATH_DEFBITS MATH_NATIVEBITS
 #endif
@@ -185,8 +185,8 @@ namespace lbcrypto {
 	template<typename IntType> class ILParamsImpl;
 	template<typename ModType, typename IntType, typename VecType, typename ParmType> class ILVectorImpl;
 
-	typedef ILParamsImpl<BigBinaryInteger> ILParams;
-	typedef ILVectorImpl<BigBinaryInteger, BigBinaryInteger, BigBinaryVector, ILParams> ILVector2n;
+	typedef ILParamsImpl<BigInteger> ILParams;
+	typedef ILVectorImpl<BigInteger, BigInteger, BigVector, ILParams> Poly;
 
 	typedef ILParamsImpl<native_int::BinaryInteger> ILNativeParams;
 

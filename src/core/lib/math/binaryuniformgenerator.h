@@ -36,7 +36,7 @@ namespace lbcrypto {
 template<typename IntType, typename VecType>
 class BinaryUniformGeneratorImpl;
 
-typedef BinaryUniformGeneratorImpl<BigBinaryInteger,BigBinaryVector> BinaryUniformGenerator;
+typedef BinaryUniformGeneratorImpl<BigInteger,BigVector> BinaryUniformGenerator;
 
 /**
 * @brief A generator of the Binary Uniform Distribution.

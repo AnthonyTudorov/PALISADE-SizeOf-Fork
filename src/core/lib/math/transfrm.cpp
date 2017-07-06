@@ -1215,10 +1215,10 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 	}
 
 
-	template class ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>;
-	template class NumberTheoreticTransform<BigBinaryInteger,BigBinaryVector>;
-	template class ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>;
-	template class BluesteinFFT<BigBinaryInteger, BigBinaryVector>;
+	template class ChineseRemainderTransformFTT<BigInteger,BigVector>;
+	template class NumberTheoreticTransform<BigInteger,BigVector>;
+	template class ChineseRemainderTransformArb<BigInteger, BigVector>;
+	template class BluesteinFFT<BigInteger, BigVector>;
 
 #if MATHBACKEND != 7
 	template class ChineseRemainderTransformFTT<native_int::BinaryInteger,native_int::BinaryVector>;

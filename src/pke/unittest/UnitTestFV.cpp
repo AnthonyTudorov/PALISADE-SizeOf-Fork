@@ -56,28 +56,28 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 
 	usint m = 2048;
 
-	BigBinaryInteger modulus("1099511678977");
-	BigBinaryInteger rootOfUnity("928976858506");
+	BigInteger modulus("1099511678977");
+	BigInteger rootOfUnity("928976858506");
 
-	BigBinaryInteger bigModulus("1237940039285380274899136513");
-	BigBinaryInteger bigRootOfUnity("1067388930511360414468370668");
+	BigInteger bigModulus("1237940039285380274899136513");
+	BigInteger bigRootOfUnity("1067388930511360414468370668");
 
-	BigBinaryInteger plaintextModulus("64");
+	BigInteger plaintextModulus("64");
 
 	float stdDev = 4;
 
-	shared_ptr<ILVector2n::Params> parms( new ILVector2n::Params(m, modulus, rootOfUnity) );
+	shared_ptr<Poly::Params> parms( new Poly::Params(m, modulus, rootOfUnity) );
 
 	//Set crypto parametes
-	BigBinaryInteger delta(modulus.DividedBy(plaintextModulus));
-	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(parms,
+	BigInteger delta(modulus.DividedBy(plaintextModulus));
+	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextFV(parms,
 			64, 1, stdDev, delta.ToString(), RLWE, bigModulus.ToString(),
 			bigRootOfUnity.ToString(), 0, 9, 1.006);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp;
+	LPKeyPair<Poly> kp;
 
 	std::vector<uint32_t> vectorOfInts1 = { 1,0,3,1,0,1,2,1 };
 	IntPlaintextEncoding plaintext1(vectorOfInts1);
@@ -109,8 +109,8 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 	//Encryption
 	////////////////////////////////////////////////////////////
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext1;
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext2;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertext1;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertext2;
 
 	ciphertext1 = cc->Encrypt(kp.publicKey, plaintext1, true);
 	ciphertext2 = cc->Encrypt(kp.publicKey, plaintext2, true);
@@ -119,9 +119,9 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 	//EvalAdd Operation
 	////////////////////////////////////////////////////////////
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextAdd;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertextAdd;
 
-	shared_ptr<Ciphertext<ILVector2n>> ciphertextTemp = cc->EvalAdd(ciphertext1[0], ciphertext2[0]);
+	shared_ptr<Ciphertext<Poly>> ciphertextTemp = cc->EvalAdd(ciphertext1[0], ciphertext2[0]);
 
 	ciphertextAdd.push_back(ciphertextTemp);
 
@@ -142,9 +142,9 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 	//EvalSub Operation
 	////////////////////////////////////////////////////////////
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextSub;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertextSub;
 
-	shared_ptr<Ciphertext<ILVector2n>> ciphertextTempSub = cc->EvalSub(ciphertext1[0], ciphertext2[0]);
+	shared_ptr<Ciphertext<Poly>> ciphertextTempSub = cc->EvalSub(ciphertext1[0], ciphertext2[0]);
 
 	ciphertextSub.push_back(ciphertextTempSub);
 
@@ -167,9 +167,9 @@ TEST(UTFV, ILVector2n_FV_Eval_Operations) {
 
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextMult;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertextMult;
 
-	shared_ptr<Ciphertext<ILVector2n>> ciphertextTempMult = cc->EvalMult(ciphertext1[0], ciphertext2[0]);
+	shared_ptr<Ciphertext<Poly>> ciphertextTempMult = cc->EvalMult(ciphertext1[0], ciphertext2[0]);
 
 	ciphertextMult.push_back(ciphertextTempMult);
 
@@ -195,12 +195,12 @@ TEST(UTFV, ILVector2n_FV_ParamsGen_EvalMul) {
 	float stdDev = 4;
 
 	//Set crypto parametes
-	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(plaintextModulus, 1.006, relWindow, stdDev, 0, 2, 0, RLWE);
+	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextFV(plaintextModulus, 1.006, relWindow, stdDev, 0, 2, 0, RLWE);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp;
+	LPKeyPair<Poly> kp;
 
 	std::vector<uint32_t> vectorOfInts1 = { 1,0,3,1,0,1,2,1 };
 	IntPlaintextEncoding plaintext1(vectorOfInts1);
@@ -226,8 +226,8 @@ TEST(UTFV, ILVector2n_FV_ParamsGen_EvalMul) {
 	//Encryption
 	////////////////////////////////////////////////////////////
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext1;
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext2;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertext1;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertext2;
 
 	ciphertext1 = cc->Encrypt(kp.publicKey, plaintext1, false);
 	ciphertext2 = cc->Encrypt(kp.publicKey, plaintext2, false);
@@ -238,9 +238,9 @@ TEST(UTFV, ILVector2n_FV_ParamsGen_EvalMul) {
 
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextMult;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertextMult;
 
-	shared_ptr<Ciphertext<ILVector2n>> ciphertextTempMult = cc->EvalMult(ciphertext1[0], ciphertext2[0]);
+	shared_ptr<Ciphertext<Poly>> ciphertextTempMult = cc->EvalMult(ciphertext1[0], ciphertext2[0]);
 
 	ciphertextMult.push_back(ciphertextTempMult);
 
@@ -266,12 +266,12 @@ TEST(UTFV, ILVector2n_FV_Optimized_Eval_Operations) {
 	float stdDev = 4;
 
 	//Set crypto parameters
-	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(plaintextModulus, 1.006, relWindow, stdDev, 0, 1, 0);
+	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextFV(plaintextModulus, 1.006, relWindow, stdDev, 0, 1, 0);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp;
+	LPKeyPair<Poly> kp;
 
 	std::vector<uint32_t> vectorOfInts1 = { 1,0,3,1,0,1,2,1 };
 	IntPlaintextEncoding plaintext1(vectorOfInts1);
@@ -303,8 +303,8 @@ TEST(UTFV, ILVector2n_FV_Optimized_Eval_Operations) {
 	//Encryption
 	////////////////////////////////////////////////////////////
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext1;
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext2;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertext1;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertext2;
 
 	ciphertext1 = cc->Encrypt(kp.publicKey, plaintext1, false);
 	ciphertext2 = cc->Encrypt(kp.publicKey, plaintext2, false);
@@ -313,9 +313,9 @@ TEST(UTFV, ILVector2n_FV_Optimized_Eval_Operations) {
 	//EvalAdd Operation
 	////////////////////////////////////////////////////////////
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextAdd;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertextAdd;
 
-	shared_ptr<Ciphertext<ILVector2n>> ciphertextTemp;
+	shared_ptr<Ciphertext<Poly>> ciphertextTemp;
 
 	//YSP this needs to be switched to the CryptoUtility operation
 	ciphertextTemp = cc->EvalAdd(ciphertext1[0], ciphertext2[0]);
@@ -338,9 +338,9 @@ TEST(UTFV, ILVector2n_FV_Optimized_Eval_Operations) {
 	//EvalSub Operation
 	////////////////////////////////////////////////////////////
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextSub;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertextSub;
 
-	shared_ptr<Ciphertext<ILVector2n>> ciphertextTempSub;
+	shared_ptr<Ciphertext<Poly>> ciphertextTempSub;
 
 	ciphertextTempSub = cc->EvalSub(ciphertext1[0], ciphertext2[0]);
 
@@ -365,9 +365,9 @@ TEST(UTFV, ILVector2n_FV_Optimized_Eval_Operations) {
 
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextMult;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertextMult;
 
-	shared_ptr<Ciphertext<ILVector2n>> ciphertextTempMult;
+	shared_ptr<Ciphertext<Poly>> ciphertextTempMult;
 
 	ciphertextTempMult = cc->EvalMult(ciphertext1[0], ciphertext2[0]);
 

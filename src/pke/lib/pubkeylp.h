@@ -979,7 +979,7 @@ namespace lbcrypto {
 			 * @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 			 * @param *ciphertext ciphertext which results from encryption.
 			 */
-			virtual shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, ILVector2n &plaintext, bool doEncryption = true) const = 0;
+			virtual shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, Poly &plaintext, bool doEncryption = true) const = 0;
 
 			/**
 			 * Method for decrypting plaintext using LBC
@@ -991,7 +991,7 @@ namespace lbcrypto {
 			 */
 			virtual DecryptResult Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
 				const shared_ptr<Ciphertext<Element>> ciphertext,
-				ILVector2n *plaintext) const = 0;
+				Poly *plaintext) const = 0;
 
 			/**
 			 * Function to generate public and private keys
@@ -1059,7 +1059,7 @@ namespace lbcrypto {
 			* @param &moduli is the vector of moduli that is used
 			* @param rootHermiteFactor is the security threshold
 			*/
-			virtual bool CanRingReduce(usint ringDimension, const std::vector<BigBinaryInteger> &moduli, const double rootHermiteFactor) const = 0;
+			virtual bool CanRingReduce(usint ringDimension, const std::vector<BigInteger> &moduli, const double rootHermiteFactor) const = 0;
 	};
 
 	/**
@@ -1178,7 +1178,7 @@ namespace lbcrypto {
 			 * @return the decoding result.
 			 */
 			virtual DecryptResult MultipartyDecryptFusion(const vector<shared_ptr<Ciphertext<Element>>>& ciphertextVec,
-				ILVector2n *plaintext) const = 0;
+				Poly *plaintext) const = 0;
 
 	};
 
@@ -1301,7 +1301,7 @@ namespace lbcrypto {
 
 			DiscreteUniformGenerator dug;
 			dug.SetModulus(encodingParams->GetPlaintextModulus());
-			BigBinaryVector randomVector = dug.GenerateVector(n - 1);
+			BigVector randomVector = dug.GenerateVector(n - 1);
 
 			std::vector<usint> randomIntVector(n);
 
@@ -1315,7 +1315,7 @@ namespace lbcrypto {
 
 			PackedIntPlaintextEncoding plaintext(randomIntVector);
 
-			ILVector2n encodedPlaintext(elementParams);
+			Poly encodedPlaintext(elementParams);
 
 			plaintext.Encode(encodingParams->GetPlaintextModulus(), &encodedPlaintext);
 
@@ -1704,7 +1704,7 @@ namespace lbcrypto {
 			m_encodingParams = std::make_shared<EncodingParams>(plaintextModulus);
 		}
 
-		LPCryptoParameters(shared_ptr<typename Element::Params> params, const BigBinaryInteger &plaintextModulus) {
+		LPCryptoParameters(shared_ptr<typename Element::Params> params, const BigInteger &plaintextModulus) : m_plaintextModulus(plaintextModulus) {
 			m_params = params;
 			m_encodingParams = std::make_shared<EncodingParams>(plaintextModulus);
 		}
@@ -1822,7 +1822,7 @@ namespace lbcrypto {
 		//
 
 		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
-			ILVector2n &plaintext, bool doEncryption = true) const {
+			Poly &plaintext, bool doEncryption = true) const {
 				if(this->m_algorithmEncryption) {
 					return this->m_algorithmEncryption->Encrypt(publicKey,plaintext,doEncryption);
 				}
@@ -1832,7 +1832,7 @@ namespace lbcrypto {
 		}
 
 		DecryptResult Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey, const shared_ptr<Ciphertext<Element>> ciphertext,
-				ILVector2n *plaintext) const {
+				Poly *plaintext) const {
 				if(this->m_algorithmEncryption)
 					return this->m_algorithmEncryption->Decrypt(privateKey,ciphertext,plaintext);
 				else {
@@ -1924,7 +1924,7 @@ namespace lbcrypto {
 		}
 
 		DecryptResult MultipartyDecryptFusion(const vector<shared_ptr<Ciphertext<Element>>>& ciphertextVec,
-				ILVector2n *plaintext) const {
+				Poly *plaintext) const {
 				if(this->m_algorithmMultiparty)
 					return this->m_algorithmMultiparty->MultipartyDecryptFusion(ciphertextVec,plaintext);
 				else {
@@ -2186,7 +2186,7 @@ namespace lbcrypto {
 			}
 		}
 
-		bool CanRingReduce(usint ringDimension, const std::vector<BigBinaryInteger> &moduli, const double rootHermiteFactor) const {
+		bool CanRingReduce(usint ringDimension, const std::vector<BigInteger> &moduli, const double rootHermiteFactor) const {
 			if (this->m_algorithmLeveledSHE) {
 				return this->m_algorithmLeveledSHE->CanRingReduce(ringDimension, moduli, rootHermiteFactor);
 			}

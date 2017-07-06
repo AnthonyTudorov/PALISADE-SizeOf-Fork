@@ -30,7 +30,7 @@
 
 namespace lbcrypto {
 
-	template <class BigBinaryInteger>
+	template <class BigInteger>
 	class BigBinaryIntegerInterface
 	{
 	public:
@@ -40,35 +40,35 @@ namespace lbcrypto {
 		/**
 		 * Basic constructor.	  	  
 		 */
-		// BigBinaryInteger() = 0;
+		// BigInteger() = 0;
 
 		/**
 		 * Basic constructor for initializing big binary integer from an unsigned integer.
 		 *
 		 * @param init is the initial integer.	  	  
 		 */
-		// explicit BigBinaryInteger(usint init);
+		// explicit BigInteger(usint init);
 
 		/**
 		 * Basic constructor for specifying the integer.
 		 *
 		 * @param str is the initial integer represented as a string.	  	  
 		 */
-		// explicit BigBinaryInteger(const std::string& str);
+		// explicit BigInteger(const std::string& str);
 
 		/**
 		 * Basic constructor for copying a big binary integer
 		 *
 		 * @param bigInteger is the big binary integer to be copied.  	  
 		 */
-		// explicit BigBinaryInteger(const BigBinaryInteger& bigInteger);
+		// explicit BigInteger(const BigInteger& bigInteger);
 
 		/**
 		 * Basic constructor for move copying a big binary integer
 		 *
 		 * @param &&bigInteger is the big binary integer to be copied.  	  
 		 */
-		// BigBinaryInteger(BigBinaryInteger &&bigInteger);//move copy constructor
+		// BigInteger(BigInteger &&bigInteger);//move copy constructor
 
 
 		/**
@@ -77,7 +77,7 @@ namespace lbcrypto {
 		 * @param &rhs is the big binary integer to test equality with.  
 		 * @return the return value.	  
 		 */
-		virtual BigBinaryInteger& operator=(const BigBinaryInteger &rhs) = 0;
+		virtual BigInteger& operator=(const BigInteger &rhs) = 0;
 
 		/**
 		 * ???
@@ -85,12 +85,12 @@ namespace lbcrypto {
 		 * @param &&rhs is the big binary integer to test equality with.  
 		 * @return the return value.	  
 		 */
-		virtual BigBinaryInteger&  operator=(BigBinaryInteger &&rhs) = 0;
+		virtual BigInteger&  operator=(BigInteger &&rhs) = 0;
 
 		/**
 		 * Destructor.	  
 		 */
-		// ~BigBinaryInteger();
+		// ~BigInteger();
 
 		//ACCESSORS
 
@@ -111,7 +111,7 @@ namespace lbcrypto {
 		 * @param b is the value to add.
 		 * @return is the result of the addition operation.
 		 */
-		virtual BigBinaryInteger Plus(const BigBinaryInteger& b) const = 0;
+		virtual BigInteger Plus(const BigInteger& b) const = 0;
 
 		///**
 		// * Subtraction operation.
@@ -119,7 +119,7 @@ namespace lbcrypto {
 		// * @param b is the value to subtract.
 		// * @return is the result of the subtraction operation.
 		// */
-		virtual BigBinaryInteger Minus(const BigBinaryInteger& b) const = 0;
+		virtual BigInteger Minus(const BigInteger& b) const = 0;
 
 		///**
 		// * Multiplication operation.
@@ -127,7 +127,7 @@ namespace lbcrypto {
 		// * @param b is the value to multiply with.
 		// * @return is the result of the multiplication operation.
 		// */
-		virtual BigBinaryInteger Times(const BigBinaryInteger& b) const = 0;
+		virtual BigInteger Times(const BigInteger& b) const = 0;
 
 		///**
 		// * Division operation.
@@ -135,7 +135,7 @@ namespace lbcrypto {
 		// * @param b is the value to divide by.
 		// * @return is the result of the division operation.
 		// */
-		virtual BigBinaryInteger DividedBy(const BigBinaryInteger& b) const = 0;
+		virtual BigInteger DividedBy(const BigInteger& b) const = 0;
 
 		//modular arithmetic operations
 
@@ -145,7 +145,7 @@ namespace lbcrypto {
 		 * @param modulus is the modulus to perform.
 		 * @return is the result of the modulus operation.
 		 */
-		virtual BigBinaryInteger Mod(const BigBinaryInteger& modulus) const = 0;
+		virtual BigInteger Mod(const BigInteger& modulus) const = 0;
 
 		//Barrett modular reduction algorithm - used in NTT
 
@@ -156,7 +156,7 @@ namespace lbcrypto {
 		 * @param mu is the Barrett value.
 		 * @return is the result of the modulus operation.
 		 */
-		virtual BigBinaryInteger ModBarrett(const BigBinaryInteger& modulus, const BigBinaryInteger& mu) const = 0;
+		virtual BigInteger ModBarrett(const BigInteger& modulus, const BigInteger& mu) const = 0;
 
 		/**
 		 * returns the modulus inverse with respect to the input value.
@@ -164,7 +164,7 @@ namespace lbcrypto {
 		 * @param modulus is the modulus to perform.
 		 * @return is the result of the modulus inverse operation.
 		 */
-		virtual BigBinaryInteger ModInverse(const BigBinaryInteger& modulus) const = 0;
+		virtual BigInteger ModInverse(const BigInteger& modulus) const = 0;
 
 		/**
 		 * Scalar modulus addition.
@@ -173,7 +173,7 @@ namespace lbcrypto {
 		 * @param modulus is the modulus to perform operations with.
 		 * @return is the result of the modulus addition operation.
 		 */
-		virtual BigBinaryInteger ModAdd(const BigBinaryInteger& b, const BigBinaryInteger& modulus) const = 0;
+		virtual BigInteger ModAdd(const BigInteger& b, const BigInteger& modulus) const = 0;
 
 		/**
 		 * Scalar modulus subtraction.
@@ -182,7 +182,7 @@ namespace lbcrypto {
 		 * @param modulus is the modulus to perform operations with.
 		 * @return is the result of the modulus subtraction operation.
 		 */
-		virtual BigBinaryInteger ModSub(const BigBinaryInteger& b, const BigBinaryInteger& modulus) const = 0;
+		virtual BigInteger ModSub(const BigInteger& b, const BigInteger& modulus) const = 0;
 
 		/**
 		 * Scalar modulus multiplication.
@@ -191,7 +191,7 @@ namespace lbcrypto {
 		 * @param modulus is the modulus to perform operations with.
 		 * @return is the result of the modulus multiplication operation.
 		 */
-		virtual BigBinaryInteger ModMul(const BigBinaryInteger& b, const BigBinaryInteger& modulus) const = 0;
+		virtual BigInteger ModMul(const BigInteger& b, const BigInteger& modulus) const = 0;
 
 		/**
 		 * Scalar Barrett modulus multiplication.
@@ -201,7 +201,7 @@ namespace lbcrypto {
 		 * @param mu is the Barrett value.
 		 * @return is the result of the modulus multiplication operation.
 		 */
-		virtual BigBinaryInteger ModBarrettMul(const BigBinaryInteger& b, const BigBinaryInteger& modulus,const BigBinaryInteger& mu) const = 0;
+		virtual BigInteger ModBarrettMul(const BigInteger& b, const BigInteger& modulus,const BigInteger& mu) const = 0;
 
 		/**
 		 * Scalar modulus exponentiation.
@@ -210,7 +210,7 @@ namespace lbcrypto {
 		 * @param modulus is the modulus to perform operations with.
 		 * @return is the result of the modulus exponentiation operation.
 		 */
-		virtual BigBinaryInteger ModExp(const BigBinaryInteger& b, const BigBinaryInteger& modulus) const = 0;
+		virtual BigInteger ModExp(const BigInteger& b, const BigInteger& modulus) const = 0;
 
 		/**
 		 * Addition accumulator.
@@ -218,7 +218,7 @@ namespace lbcrypto {
 		 * @param &b is the value to add.
 		 * @return is the result of the addition operation.
 		 */
-		virtual const BigBinaryInteger& operator+=(const BigBinaryInteger &b) = 0;
+		virtual const BigInteger& operator+=(const BigInteger &b) = 0;
 
 		/**
 		 * Subtraction accumulator.
@@ -226,7 +226,7 @@ namespace lbcrypto {
 		 * @param &b is the value to subtract.
 		 * @return is the result of the subtraction operation.
 		 */
-		virtual const BigBinaryInteger& operator-=(const BigBinaryInteger &b) = 0;
+		virtual const BigInteger& operator-=(const BigInteger &b) = 0;
 
 		////bit shifting operators
 
@@ -236,7 +236,7 @@ namespace lbcrypto {
 		 * @param shift is the amount to shift.
 		 * @return the result of the shift.	  
 		 */
-		virtual BigBinaryInteger  operator<<(usshort shift) const = 0;
+		virtual BigInteger  operator<<(usshort shift) const = 0;
 
 		/**
 		 * Right shift operator and creates a new variable as output.
@@ -244,7 +244,7 @@ namespace lbcrypto {
 		 * @param shift is the amount to shift.
 		 * @return the result of the shift.	  
 		 */
-		virtual BigBinaryInteger  operator>>(usshort shift) const = 0;
+		virtual BigInteger  operator>>(usshort shift) const = 0;
 
 		/**
 		 * Left shift operator uses in-place algorithm and operates on the same variable. It is used to reduce the copy constructor call.
@@ -252,7 +252,7 @@ namespace lbcrypto {
 		 * @param shift is the amount to shift.
 		 * @return the result of the shift.	  
 		 */
-		virtual const BigBinaryInteger& operator<<=(usshort shift) = 0;
+		virtual const BigInteger& operator<<=(usshort shift) = 0;
 
 		/**
 		 * Right shift operator uses in-place algorithm and operates on the same variable. It is used to reduce the copy constructor call.
@@ -260,7 +260,7 @@ namespace lbcrypto {
 		 * @param shift is the amount to shift.
 		 * @return the result of the shift.	  
 		 */
-		virtual const BigBinaryInteger& operator>>=(usshort shift) = 0;
+		virtual const BigInteger& operator>>=(usshort shift) = 0;
 
 		//virtual friend methods are not allowed in abstract classes
 		//input/output operators
@@ -271,13 +271,13 @@ namespace lbcrypto {
 		 * @param &ptr_obj ???.
 		 * @return the return value.	  
 		 */
-		//virtual friend std::ostream& operator<<(std::ostream& os, const BigBinaryInteger &ptr_obj);
+		//virtual friend std::ostream& operator<<(std::ostream& os, const BigInteger &ptr_obj);
 
 		/**
-		 * Stores the value of this BigBinaryInteger in a string object and returns it.
+		 * Stores the value of this BigInteger in a string object and returns it.
 		 * Added by Arnab Deb Gupta <ad479@njit.edu> on 9/21/15.
 		 *
-		 * @return the value of this BigBinaryInteger as a string.
+		 * @return the value of this BigInteger as a string.
 		 */
 		virtual std::string ToString() const = 0;
 
@@ -319,24 +319,24 @@ namespace lbcrypto {
 		 * @param the value to convert from.
 		 * @return the int represented as a big binary int.	  
 		 */
-		//static BigBinaryInteger intToBigBinaryInteger(usint m);
+		//static BigInteger intToBigBinaryInteger(usint m);
 
 		////constant definations
 
 		/**
 		 * Constant zero.	  
 		 */
-		//const static BigBinaryInteger ZERO;
+		//const static BigInteger ZERO;
 
 		/**
 		 * Constant one.	  
 		 */
-		//const static BigBinaryInteger ONE;
+		//const static BigInteger ONE;
 
 		/**
 		 * Constant two.	  
 		 */
-		//const static BigBinaryInteger TWO;
+		//const static BigInteger TWO;
 
 		/**
 		 * Test equality of the inputs.
@@ -345,7 +345,7 @@ namespace lbcrypto {
 		 * @param b second value to test.
 		 * @return true if the inputs are equal.	  
 		 */
-		//friend bool operator==(const BigBinaryInteger& a, const BigBinaryInteger& b);
+		//friend bool operator==(const BigInteger& a, const BigInteger& b);
 
 		/**
 		 * Test inequality of the inputs.
@@ -354,7 +354,7 @@ namespace lbcrypto {
 		 * @param b second value to test.
 		 * @return true if the inputs are inequal.	  
 		 */
-		//friend bool operator!=(const BigBinaryInteger& a, const BigBinaryInteger& b);
+		//friend bool operator!=(const BigInteger& a, const BigInteger& b);
 
 		/**
 		 * Test if first input is great than the second input.
@@ -363,7 +363,7 @@ namespace lbcrypto {
 		 * @param b second value to test.
 		 * @return true if the first inputs is greater.
 		 */
-		//friend bool operator> (const BigBinaryInteger& a, const BigBinaryInteger& b);
+		//friend bool operator> (const BigInteger& a, const BigInteger& b);
 
 		/**
 		 * Test if first input is great than or equal to the second input.
@@ -372,7 +372,7 @@ namespace lbcrypto {
 		 * @param b second value to test.
 		 * @return true if the first inputs is greater than or equal to the second input.
 		 */
-		//friend bool operator>=(const BigBinaryInteger& a, const BigBinaryInteger& b);
+		//friend bool operator>=(const BigInteger& a, const BigInteger& b);
 
 		/**
 		 * Test if first input is less than the second input.
@@ -381,7 +381,7 @@ namespace lbcrypto {
 		 * @param b second value to test.
 		 * @return true if the first inputs is lesser.
 		 */
-		//friend bool operator< (const BigBinaryInteger& a, const BigBinaryInteger& b);
+		//friend bool operator< (const BigInteger& a, const BigInteger& b);
 
 		/**
 		 * Test if first input is less than or equal to the second input.
@@ -390,7 +390,7 @@ namespace lbcrypto {
 		 * @param b second value to test.
 		 * @return true if the first inputs is less than or equal to the second input.
 		 */
-		//friend bool operator<=(const BigBinaryInteger& a, const BigBinaryInteger& b);
+		//friend bool operator<=(const BigInteger& a, const BigInteger& b);
 
 	}; 
 

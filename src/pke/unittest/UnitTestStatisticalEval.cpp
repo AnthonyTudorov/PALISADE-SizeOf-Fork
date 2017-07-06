@@ -57,17 +57,17 @@ TEST(UTStatisticalEval, Null_Eval_Lin_Regression) {
 
 	usint plaintextModulus = 256;
 	usint m = 64;
-	typename ILVector2n::Integer modulus("256");
-	typename ILVector2n::Integer rootOfUnity("268585022");
+	typename Poly::Integer modulus("256");
+	typename Poly::Integer rootOfUnity("268585022");
 
-	shared_ptr<ILVector2n::Params> ep( new ILVector2n::Params(m, modulus, rootOfUnity) );
-	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextNull(ep, plaintextModulus);
+	shared_ptr<Poly::Params> ep( new Poly::Params(m, modulus, rootOfUnity) );
+	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextNull(ep, plaintextModulus);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp;
+	LPKeyPair<Poly> kp;
 
 	// Set the plaintext matrices
 
@@ -107,9 +107,9 @@ TEST(UTStatisticalEval, Null_Eval_Lin_Regression) {
 	//Encryption
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> x = cc->EncryptMatrix(kp.publicKey, xP);
+	shared_ptr<Matrix<RationalCiphertext<Poly>>> x = cc->EncryptMatrix(kp.publicKey, xP);
 
-	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> y = cc->EncryptMatrix(kp.publicKey, yP);
+	shared_ptr<Matrix<RationalCiphertext<Poly>>> y = cc->EncryptMatrix(kp.publicKey, yP);
 
 	////////////////////////////////////////////////////////////
 	//Linear Regression
@@ -153,16 +153,16 @@ TEST(UTStatisticalEval, Null_Eval_Lin_Regression_Int) {
 
 	usint plaintextModulus = 256;
 	usint m = 64;
-	typename ILVector2n::Integer modulus("256");
-	typename ILVector2n::Integer rootOfUnity("268585022");
+	typename Poly::Integer modulus("256");
+	typename Poly::Integer rootOfUnity("268585022");
 
-	shared_ptr<ILVector2n::Params> ep( new ILVector2n::Params(m, modulus, rootOfUnity) );
-	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextNull(ep, plaintextModulus);
+	shared_ptr<Poly::Params> ep( new Poly::Params(m, modulus, rootOfUnity) );
+	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextNull(ep, plaintextModulus);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp;
+	LPKeyPair<Poly> kp;
 
 	// Set the plaintext matrices
 
@@ -191,9 +191,9 @@ TEST(UTStatisticalEval, Null_Eval_Lin_Regression_Int) {
 	//Encryption
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> x = cc->EncryptMatrix(kp.publicKey, xP);
+	shared_ptr<Matrix<RationalCiphertext<Poly>>> x = cc->EncryptMatrix(kp.publicKey, xP);
 
-	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> y = cc->EncryptMatrix(kp.publicKey, yP);
+	shared_ptr<Matrix<RationalCiphertext<Poly>>> y = cc->EncryptMatrix(kp.publicKey, yP);
 
 	////////////////////////////////////////////////////////////
 	//Linear Regression
@@ -237,12 +237,12 @@ TEST(UTStatisticalEval, FV_Eval_Lin_Regression_Int) {
 	float stdDev = 4;
 
 	//Set crypto parametes
-	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(plaintextModulus, 1.06, relWindow, stdDev, 0, 4, 0);
+	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextFV(plaintextModulus, 1.06, relWindow, stdDev, 0, 4, 0);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp;
+	LPKeyPair<Poly> kp;
 
 	// Set the plaintext matrices
 
@@ -272,9 +272,9 @@ TEST(UTStatisticalEval, FV_Eval_Lin_Regression_Int) {
 	//Encryption
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> x = cc->EncryptMatrix(kp.publicKey, xP);
+	shared_ptr<Matrix<RationalCiphertext<Poly>>> x = cc->EncryptMatrix(kp.publicKey, xP);
 
-	shared_ptr<Matrix<RationalCiphertext<ILVector2n>>> y = cc->EncryptMatrix(kp.publicKey, yP);
+	shared_ptr<Matrix<RationalCiphertext<Poly>>> y = cc->EncryptMatrix(kp.publicKey, yP);
 
 	////////////////////////////////////////////////////////////
 	//Linear Regression

@@ -36,9 +36,9 @@ using std::invalid_argument;
 
 namespace lbcrypto {
 
-template class Matrix<ILVector2n>;
-template class Matrix<BigBinaryInteger>;
-template class Matrix<BigBinaryVector>;
+template class Matrix<Poly>;
+template class Matrix<BigInteger>;
+template class Matrix<BigVector>;
 template class Matrix<double>;
 template class Matrix<int>;
 
@@ -63,27 +63,27 @@ bool Matrix<double>::Deserialize(const Serialized& serObj) {
 }
 
 template<>
-bool Matrix<BigBinaryInteger>::Serialize(Serialized* serObj) const {
+bool Matrix<BigInteger>::Serialize(Serialized* serObj) const {
 	return false;
 }
 
 template<>
-bool Matrix<BigBinaryInteger>::Deserialize(const Serialized& serObj) {
+bool Matrix<BigInteger>::Deserialize(const Serialized& serObj) {
 	return false;
 }
 
 template<>
-bool Matrix<BigBinaryVector>::Serialize(Serialized* serObj) const {
+bool Matrix<BigVector>::Serialize(Serialized* serObj) const {
 	return false;
 }
 
 template<>
-bool Matrix<BigBinaryVector>::Deserialize(const Serialized& serObj) {
+bool Matrix<BigVector>::Deserialize(const Serialized& serObj) {
 	return false;
 }
 
 template<>
-bool Matrix<ILVector2n>::Serialize(Serialized* serObj) const {
+bool Matrix<Poly>::Serialize(Serialized* serObj) const {
 	serObj->SetObject();
 	//SerializeVectorOfVector("Matrix", elementName<Element>(), this->data, serObj);
 
@@ -99,17 +99,17 @@ bool Matrix<ILVector2n>::Serialize(Serialized* serObj) const {
 }
 
 template<>
-bool Matrix<ILVector2n>::Deserialize(const Serialized& serObj) {
+bool Matrix<Poly>::Deserialize(const Serialized& serObj) {
 	return false;
 }
 
 template<>
-bool MatrixStrassen<ILVector2n>::Serialize(Serialized* serObj) const {
+bool MatrixStrassen<Poly>::Serialize(Serialized* serObj) const {
 	return false;
 }
 
 template<>
-bool MatrixStrassen<ILVector2n>::Deserialize(const Serialized& serObj) {
+bool MatrixStrassen<Poly>::Deserialize(const Serialized& serObj) {
 	return false;
 }
 
@@ -156,9 +156,9 @@ Matrix<T>& Matrix<T>::Ones() { \
 
 ONES_FOR_TYPE(int32_t)
 ONES_FOR_TYPE(double)
-ONES_FOR_TYPE(ILVector2n)
-ONES_FOR_TYPE(BigBinaryInteger)
-ONES_FOR_TYPE(BigBinaryVector)
+ONES_FOR_TYPE(Poly)
+ONES_FOR_TYPE(BigInteger)
+ONES_FOR_TYPE(BigVector)
 ONES_FOR_TYPE(IntPlaintextEncoding)
 ONES_FOR_TYPE(Field2n)
 
@@ -179,9 +179,9 @@ Matrix<T>& Matrix<T>::Identity() { \
 
 IDENTITY_FOR_TYPE(int32_t)
 IDENTITY_FOR_TYPE(double)
-IDENTITY_FOR_TYPE(ILVector2n)
-IDENTITY_FOR_TYPE(BigBinaryInteger)
-IDENTITY_FOR_TYPE(BigBinaryVector)
+IDENTITY_FOR_TYPE(Poly)
+IDENTITY_FOR_TYPE(BigInteger)
+IDENTITY_FOR_TYPE(BigVector)
 IDENTITY_FOR_TYPE(IntPlaintextEncoding)
 IDENTITY_FOR_TYPE(Field2n)
 
@@ -201,14 +201,14 @@ Matrix<T> Matrix<T>::GadgetVector() const { \
 
 GADGET_FOR_TYPE(int32_t)
 GADGET_FOR_TYPE(double)
-GADGET_FOR_TYPE(ILVector2n)
-GADGET_FOR_TYPE(BigBinaryInteger)
-GADGET_FOR_TYPE(BigBinaryVector)
+GADGET_FOR_TYPE(Poly)
+GADGET_FOR_TYPE(BigInteger)
+GADGET_FOR_TYPE(BigVector)
 //GADGET_FOR_TYPE(IntPlaintextEncoding)
 GADGET_FOR_TYPE(Field2n)
 
 template<>
-double Matrix<ILVector2n>::Norm() const {
+double Matrix<Poly>::Norm() const {
     double retVal = 0.0;
 	double locVal = 0.0;
 
@@ -236,12 +236,12 @@ double Matrix<T>::Norm() const { \
 
 NORM_FOR_TYPE(int32_t)
 NORM_FOR_TYPE(double)
-NORM_FOR_TYPE(BigBinaryInteger)
-NORM_FOR_TYPE(BigBinaryVector)
+NORM_FOR_TYPE(BigInteger)
+NORM_FOR_TYPE(BigVector)
 NORM_FOR_TYPE(Field2n)
 
 template<>
-void Matrix<ILVector2n>::SetFormat(Format format) {
+void Matrix<Poly>::SetFormat(Format format) {
     for (size_t row = 0; row < rows; ++row) {
         for (size_t col = 0; col < cols; ++col) {
             data[row][col]->SetFormat(format);
@@ -249,14 +249,14 @@ void Matrix<ILVector2n>::SetFormat(Format format) {
     }
 }
 
-Matrix<BigBinaryInteger> Rotate(Matrix<ILVector2n> const& inMat) {
-    Matrix<ILVector2n> mat(inMat);
+Matrix<BigInteger> Rotate(Matrix<Poly> const& inMat) {
+    Matrix<Poly> mat(inMat);
     mat.SetFormat(COEFFICIENT);
     size_t n = mat(0,0).GetLength();
-    BigBinaryInteger const& modulus = mat(0,0).GetModulus();
+    BigInteger const& modulus = mat(0,0).GetModulus();
     size_t rows = mat.GetRows() * n;
     size_t cols = mat.GetCols() * n;
-    Matrix<BigBinaryInteger> result(BigBinaryInteger::Allocator, rows, cols);
+    Matrix<BigInteger> result(BigInteger::Allocator, rows, cols);
     for (size_t row = 0; row < mat.GetRows(); ++row) {
         for (size_t col = 0; col < mat.GetCols(); ++col) {
             for (size_t rotRow = 0; rotRow < n; ++rotRow) {
@@ -281,21 +281,21 @@ Matrix<BigBinaryInteger> Rotate(Matrix<ILVector2n> const& inMat) {
     *  Each element becomes a square matrix with columns of that element's
     *  rotations in coefficient form.
     */
-Matrix<BigBinaryVector> RotateVecResult(Matrix<ILVector2n> const& inMat) {
-    Matrix<ILVector2n> mat(inMat);
+Matrix<BigVector> RotateVecResult(Matrix<Poly> const& inMat) {
+    Matrix<Poly> mat(inMat);
     mat.SetFormat(COEFFICIENT);
     size_t n = mat(0,0).GetLength();
-    BigBinaryInteger const& modulus = mat(0,0).GetModulus();
-    BigBinaryVector zero(1, modulus);
+    BigInteger const& modulus = mat(0,0).GetModulus();
+    BigVector zero(1, modulus);
     size_t rows = mat.GetRows() * n;
     size_t cols = mat.GetCols() * n;
-    auto singleElemBinVecAlloc = [=](){ return make_unique<BigBinaryVector>(1, modulus); };
-    Matrix<BigBinaryVector> result(singleElemBinVecAlloc, rows, cols);
+    auto singleElemBinVecAlloc = [=](){ return make_unique<BigVector>(1, modulus); };
+    Matrix<BigVector> result(singleElemBinVecAlloc, rows, cols);
     for (size_t row = 0; row < mat.GetRows(); ++row) {
         for (size_t col = 0; col < mat.GetCols(); ++col) {
             for (size_t rotRow = 0; rotRow < n; ++rotRow) {
                 for (size_t rotCol = 0; rotCol < n; ++rotCol) {
-                    BigBinaryVector& elem = result(row*n + rotRow, col*n + rotCol);
+                    BigVector& elem = result(row*n + rotRow, col*n + rotCol);
                     elem.SetValAtIndex(0,
                         mat(row, col).GetValues().GetValAtIndex(
                             (rotRow - rotCol + n) % n
@@ -313,7 +313,7 @@ Matrix<BigBinaryVector> RotateVecResult(Matrix<ILVector2n> const& inMat) {
 }
 
 template<>
-void Matrix<ILVector2n>::PrintValues() const {
+void Matrix<Poly>::PrintValues() const {
     for (size_t col = 0; col < cols; ++col) {
         for (size_t row = 0; row < rows; ++row) {
             data[row][col]->PrintValues();
@@ -324,7 +324,7 @@ void Matrix<ILVector2n>::PrintValues() const {
 }
 
 template<>
-void Matrix<BigBinaryInteger>::PrintValues() const {
+void Matrix<BigInteger>::PrintValues() const {
     for (size_t col = 0; col < cols; ++col) {
         for (size_t row = 0; row < rows; ++row) {
             data[row][col]->PrintValues();
@@ -335,7 +335,7 @@ void Matrix<BigBinaryInteger>::PrintValues() const {
 }
 
 template<>
-void Matrix<BigBinaryVector>::PrintValues() const {
+void Matrix<BigVector>::PrintValues() const {
     for (size_t col = 0; col < cols; ++col) {
         for (size_t row = 0; row < rows; ++row) {
             data[row][col]->PrintValues();
@@ -357,7 +357,7 @@ void Matrix<int>::PrintValues() const {
 }
 
 template<>
-void Matrix<ILVector2n>::SwitchFormat() {
+void Matrix<Poly>::SwitchFormat() {
 
 	if (rows == 1)
 	{
@@ -458,10 +458,10 @@ void Cholesky(const Matrix<int32_t> &input, Matrix<double> &result) {
 
 
 //  Convert from Z_q to [-q/2, q/2]
-Matrix<int32_t> ConvertToInt32(const Matrix<BigBinaryInteger> &input, const BigBinaryInteger& modulus) {
+Matrix<int32_t> ConvertToInt32(const Matrix<BigInteger> &input, const BigInteger& modulus) {
     size_t rows = input.GetRows();
     size_t cols = input.GetCols();
-    BigBinaryInteger negativeThreshold(modulus / BigBinaryInteger::TWO);
+    BigInteger negativeThreshold(modulus / BigInteger::TWO);
     Matrix<int32_t> result([](){ return make_unique<int32_t>(); }, rows, cols);
     for (size_t i = 0; i < rows; ++i) {
         for (size_t j = 0; j < cols; ++j) {
@@ -475,14 +475,14 @@ Matrix<int32_t> ConvertToInt32(const Matrix<BigBinaryInteger> &input, const BigB
     return result;
 }
 
-Matrix<int32_t> ConvertToInt32(const Matrix<BigBinaryVector> &input, const BigBinaryInteger& modulus) {
+Matrix<int32_t> ConvertToInt32(const Matrix<BigVector> &input, const BigInteger& modulus) {
     size_t rows = input.GetRows();
     size_t cols = input.GetCols();
-    BigBinaryInteger negativeThreshold(modulus / BigBinaryInteger::TWO);
+    BigInteger negativeThreshold(modulus / BigInteger::TWO);
     Matrix<int32_t> result([](){ return make_unique<int32_t>(); }, rows, cols);
     for (size_t i = 0; i < rows; ++i) {
         for (size_t j = 0; j < cols; ++j) {
-            const BigBinaryInteger& elem = input(i,j).GetValAtIndex(0);
+            const BigInteger& elem = input(i,j).GetValAtIndex(0);
             if (elem > negativeThreshold) {
                 result(i,j) = -1*(modulus - elem).ConvertToInt();
             } else {
@@ -494,29 +494,29 @@ Matrix<int32_t> ConvertToInt32(const Matrix<BigBinaryVector> &input, const BigBi
 }
 
 //  split a vector of int32_t into a vector of ring elements with ring dimension n
-Matrix<ILVector2n> SplitInt32IntoILVector2nElements(Matrix<int32_t> const& other, size_t n, const shared_ptr<ILParams> params) {
+Matrix<Poly> SplitInt32IntoILVector2nElements(Matrix<int32_t> const& other, size_t n, const shared_ptr<ILParams> params) {
 
-	auto zero_alloc = ILVector2n::MakeAllocator(params, COEFFICIENT);
+	auto zero_alloc = Poly::MakeAllocator(params, COEFFICIENT);
 
 	size_t rows = other.GetRows()/n;
 
-    Matrix<ILVector2n> result(zero_alloc, rows, 1);
+    Matrix<Poly> result(zero_alloc, rows, 1);
 
     for (size_t row = 0; row < rows; ++row) {
-		BigBinaryVector tempBBV(n,params->GetModulus());
+		BigVector tempBBV(n,params->GetModulus());
 
         for (size_t i = 0; i < n; ++i) {
-			BigBinaryInteger tempBBI;
+			BigInteger tempBBI;
 			uint32_t tempInteger;
 			if (other(row*n + i,0) < 0)
 			{
 				tempInteger = -other(row*n + i,0);
-				tempBBI = params->GetModulus() - BigBinaryInteger(tempInteger);
+				tempBBI = params->GetModulus() - BigInteger(tempInteger);
 			}
 			else
 			{
 				tempInteger = other(row*n + i,0);
-				tempBBI = BigBinaryInteger(tempInteger);
+				tempBBI = BigInteger(tempInteger);
 			}
             tempBBV.SetValAtIndex(i,tempBBI);
         }
@@ -528,31 +528,31 @@ Matrix<ILVector2n> SplitInt32IntoILVector2nElements(Matrix<int32_t> const& other
 }
 
 //  split a vector of BBI into a vector of ring elements with ring dimension n
-Matrix<ILVector2n> SplitInt32AltIntoILVector2nElements(Matrix<int32_t> const& other, size_t n, const shared_ptr<ILParams> params) {
+Matrix<Poly> SplitInt32AltIntoILVector2nElements(Matrix<int32_t> const& other, size_t n, const shared_ptr<ILParams> params) {
 
-	auto zero_alloc = ILVector2n::MakeAllocator(params, COEFFICIENT);
+	auto zero_alloc = Poly::MakeAllocator(params, COEFFICIENT);
 
 	size_t rows = other.GetRows();
 
-    Matrix<ILVector2n> result(zero_alloc, rows, 1);
+    Matrix<Poly> result(zero_alloc, rows, 1);
 
     for (size_t row = 0; row < rows; ++row) {
 
-		BigBinaryVector tempBBV(n,params->GetModulus());
+		BigVector tempBBV(n,params->GetModulus());
 
         for (size_t i = 0; i < n; ++i) {
 
-			BigBinaryInteger tempBBI;
+			BigInteger tempBBI;
 			uint32_t tempInteger;
 			if (other(row,i) < 0)
 			{
 				tempInteger = -other(row,i);
-				tempBBI = params->GetModulus() - BigBinaryInteger(tempInteger);
+				tempBBI = params->GetModulus() - BigInteger(tempInteger);
 			}
 			else
 			{
 				tempInteger = other(row,i);
-				tempBBI = BigBinaryInteger(tempInteger);
+				tempBBI = BigInteger(tempInteger);
 			}
 
 			tempBBV.SetValAtIndex(i,tempBBI);

@@ -88,9 +88,9 @@ int main(int argc, char* argv[]){
   } while (0);
 
 
-//helper function that bulds BigBinaryVector from a vector of strings
-BigBinaryVector BBVfromStrvec( std::vector<std::string> &s) {
-  BigBinaryVector a(s.size());
+//helper function that bulds BigVector from a vector of strings
+BigVector BBVfromStrvec( std::vector<std::string> &s) {
+  BigVector a(s.size());
   for (usint i = 0; i< s.size(); i++){
     a.SetValAtIndex(i,s[i]);
   }
@@ -115,9 +115,9 @@ void vec_diff(cpu_int::BinaryVector &a, cpu_int::BinaryVector &b) {
 }
 
 
-//main BigBinaryVector test suite. tests math
+//main BigVector test suite. tests math
 void test_BigBinaryVector (usint nloop) {
-  cout<<"testing BigBinaryVector"<<endl;
+  cout<<"testing BigVector"<<endl;
 
   TimeVar t1,t2,t3,t_total; // timers for TIC() TOC()
   double time2;
@@ -125,8 +125,8 @@ void test_BigBinaryVector (usint nloop) {
   //there are three test cases, 1) small modulus 2)approx 48 bits. 3)
   //very big numbers
 
-  //note this fails BigBinaryInteger q1 = {"00000000000000163841"};
-  BigBinaryInteger q1 ("00000000000000163841");
+  //note this fails BigInteger q1 = {"00000000000000163841"};
+  BigInteger q1 ("00000000000000163841");
 
   // for each vector, define a, b inputs as vectors of strings
   std::vector<std::string> a1strvec = {
@@ -139,9 +139,9 @@ void test_BigBinaryVector (usint nloop) {
     "00000000000000100953", "00000000000000077352",
     "00000000000000132013", "00000000000000057029", };
 
-  // this fails too!!! BigBinaryVector a1(a1string);
+  // this fails too!!! BigVector a1(a1string);
   // so I wrote this function
-  BigBinaryVector a1 = BBVfromStrvec(a1strvec);
+  BigVector a1 = BBVfromStrvec(a1strvec);
   a1.SetModulus(q1);
 
   //b:
@@ -155,10 +155,10 @@ void test_BigBinaryVector (usint nloop) {
       "00000000000000053647", "00000000000000111689",
       "00000000000000028502", "00000000000000026401", };
   
-  BigBinaryVector b1  = BBVfromStrvec(b1strvec);
+  BigVector b1  = BBVfromStrvec(b1strvec);
   b1.SetModulus(q1);
   
-  //now test all mod functions Note BigBinaryVector implies modulus ALWAYS
+  //now test all mod functions Note BigVector implies modulus ALWAYS
 
   //load correct values of math functions of a and b
   //modadd:
@@ -171,7 +171,7 @@ void test_BigBinaryVector (usint nloop) {
      "00000000000000038630", "00000000000000047611",
      "00000000000000154600", "00000000000000025200",
      "00000000000000160515", "00000000000000083430", };
-  BigBinaryVector modsum1 = BBVfromStrvec(modsum1strvec);
+  BigVector modsum1 = BBVfromStrvec(modsum1strvec);
   modsum1.SetModulus(q1);
   
   
@@ -185,7 +185,7 @@ void test_BigBinaryVector (usint nloop) {
 	"00000000000000025203", "00000000000000012638",
 	"00000000000000047306", "00000000000000129504",
 	"00000000000000103511", "00000000000000030628", };
-  BigBinaryVector moddiff1 = BBVfromStrvec(moddiff1strvec);
+  BigVector moddiff1 = BBVfromStrvec(moddiff1strvec);
   moddiff1.SetModulus(q1);
   //modmul:
   
@@ -200,10 +200,10 @@ void test_BigBinaryVector (usint nloop) {
       "00000000000000025961", "00000000000000087680", };
   
   
-  BigBinaryVector modmul1 = BBVfromStrvec(modmul1strvec);
+  BigVector modmul1 = BBVfromStrvec(modmul1strvec);
   modmul1.SetModulus(q1);
 
-  BigBinaryVector c1,c2,c3;	// result vectors
+  BigVector c1,c2,c3;	// result vectors
 
   // compute results for each function and compare.
 
@@ -216,7 +216,7 @@ void test_BigBinaryVector (usint nloop) {
   TESTIT(t1, c1, a1.ModMul(b1), modmul1, nloop);
 #endif
   //test case 2
-  BigBinaryInteger q2 ("00004057816419532801");
+  BigInteger q2 ("00004057816419532801");
 
   std::vector<std::string> a2strvec = {
     "00000185225172798255", "00000098879665709163",
@@ -228,7 +228,7 @@ void test_BigBinaryVector (usint nloop) {
     "00000375749152798379", "00003933203511673255",
     "00002293434116159938", "00001201413067178193", };
 
-  BigBinaryVector a2 = BBVfromStrvec(a2strvec);
+  BigVector a2 = BBVfromStrvec(a2strvec);
   a2.SetModulus(q2);
 
   std::vector<std::string> b2strvec = 
@@ -241,7 +241,7 @@ void test_BigBinaryVector (usint nloop) {
       "00003976652902630043", "00003238750424196678",
       "00002978742255253796", "00002124827461185795", };
 
-  BigBinaryVector b2 = BBVfromStrvec(b2strvec);
+  BigVector b2 = BBVfromStrvec(b2strvec);
   b2.SetModulus(q2);
 
   std::vector<std::string> modsum2strvec =
@@ -253,7 +253,7 @@ void test_BigBinaryVector (usint nloop) {
      "00001348899997572826", "00002152306408779744",
      "00000294585635895621", "00003114137516337132",
      "00001214359951880933", "00003326240528363988", };
-  BigBinaryVector modsum2 = BBVfromStrvec(modsum2strvec);
+  BigVector modsum2 = BBVfromStrvec(modsum2strvec);
   modsum2.SetModulus(q2);
   
   std::vector<std::string>  moddiff2strvec =
@@ -265,7 +265,7 @@ void test_BigBinaryVector (usint nloop) {
 	"00001202588881034661", "00001912733630447884",
 	"00000456912669701137", "00000694453087476577",
 	"00003372508280438943", "00003134402025525199", };
-  BigBinaryVector moddiff2 = BBVfromStrvec(moddiff2strvec);
+  BigVector moddiff2 = BBVfromStrvec(moddiff2strvec);
   moddiff2.SetModulus(q2);
   
   std::vector<std::string> modmul2strvec =
@@ -278,7 +278,7 @@ void test_BigBinaryVector (usint nloop) {
       "00000781959737898673", "00002334258943108700",
       "00002573793300043944", "00001273980645866111", };
 
-  BigBinaryVector modmul2 = BBVfromStrvec(modmul2strvec);
+  BigVector modmul2 = BBVfromStrvec(modmul2strvec);
   modmul2.SetModulus(q2);
 #if 1
   TESTIT(t2, c2, a2+b2, modsum2, nloop);
@@ -292,7 +292,7 @@ void test_BigBinaryVector (usint nloop) {
   //test case 3
 
   //q3: very large numbers.
-  BigBinaryInteger q3("3273390607896141870013189696827599152216642046043064789483291368096133796404674554883270092325904157150886684127560071009217256545885393053328527589431");
+  BigInteger q3("3273390607896141870013189696827599152216642046043064789483291368096133796404674554883270092325904157150886684127560071009217256545885393053328527589431");
 
   std::vector<std::string> a3strvec = {
     "2259002487796164904665772121894078584543401744155154298312726209247751689172189255653866355964200768484575418973864307364757237946940733747446643725054",
@@ -305,7 +305,7 @@ void test_BigBinaryVector (usint nloop) {
     "297233451802123294436846683552230198845414118375785255038220841170372509047202030175469239142902723134737621108313142071558385068315554041062888072990"
   };
 
-  BigBinaryVector a3 = BBVfromStrvec(a3strvec);
+  BigVector a3 = BBVfromStrvec(a3strvec);
   a3.SetModulus(q3);
 
   std::vector<std::string> b3strvec = { 
@@ -319,7 +319,7 @@ void test_BigBinaryVector (usint nloop) {
     "132216870748476988853044482759545262615616157934129470128771906579101230690441206392939162889560305016204867157725209170345968349185675785497832527174"
   };
 
-  BigBinaryVector b3 = BBVfromStrvec(b3strvec);
+  BigVector b3 = BBVfromStrvec(b3strvec);
   b3.SetModulus(q3);
 
   std::vector<std::string> modsum3strvec =
@@ -333,7 +333,7 @@ void test_BigBinaryVector (usint nloop) {
       "1963961166839109935958630686427211631758268415664486282780692695470499499487186103469461604166903659582068706589022694543822554406981111684423535524192",
       "429450322550600283289891166311775461461030276309914725166992747749473739737643236568408402032463028150942488266038351241904353417501229826560720600164",
     };
-  BigBinaryVector modsum3 = BBVfromStrvec(modsum3strvec);
+  BigVector modsum3 = BBVfromStrvec(modsum3strvec);
   modsum3.SetModulus(q3);
   
   std::vector<std::string>  moddiff3strvec =
@@ -347,7 +347,7 @@ void test_BigBinaryVector (usint nloop) {
       "2391797749376600579441197977047078160791084122445638582872412922268196751328156295695665483217670569843215892375267224089848674446364986290845863213758",
       "165016581053646305583802200792684936229797960441655784909448934591271278356760823782530076253342418118532753950587932901212416719129878255565055545816",
     };
-  BigBinaryVector moddiff3 = BBVfromStrvec(moddiff3strvec);
+  BigVector moddiff3 = BBVfromStrvec(moddiff3strvec);
   moddiff3.SetModulus(q3);
   
   std::vector<std::string> modmul3strvec =
@@ -362,7 +362,7 @@ void test_BigBinaryVector (usint nloop) {
       "477574462920419903543345320561430691498452711801747910227743781056369739411065806345235440677935972019383967954633150768168291144898135169751571023658",
     };
 
-  BigBinaryVector modmul3 = BBVfromStrvec(modmul3strvec);
+  BigVector modmul3 = BBVfromStrvec(modmul3strvec);
   modmul3.SetModulus(q3);
 
 #if 1

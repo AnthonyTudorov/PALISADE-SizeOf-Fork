@@ -42,7 +42,7 @@ namespace lbcrypto {
 template<typename IntType, typename VecType>
 class DiscreteGaussianGeneratorImpl;
 
-typedef DiscreteGaussianGeneratorImpl<BigBinaryInteger,BigBinaryVector> DiscreteGaussianGenerator;
+typedef DiscreteGaussianGeneratorImpl<BigInteger,BigVector> DiscreteGaussianGenerator;
 
 /**
 * @brief The class for Discrete Gaussion Distribution generator.
@@ -75,7 +75,7 @@ public:
 	*/
 	void SetStd (float std);
 
-	//BigBinaryVector DiscreteGaussianGenerator::GenerateIdentity(usint size, const BigBinaryInteger &modulus);
+	//BigVector DiscreteGaussianGenerator::GenerateIdentity(usint size, const BigInteger &modulus);
 
 	/**
 	* @brief      Returns a generated char.

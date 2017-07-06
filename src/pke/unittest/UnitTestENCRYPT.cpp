@@ -47,14 +47,14 @@ protected:
 public:
 };
 
-static shared_ptr<CryptoContext<ILVector2n>> GenerateTestCryptoContext(const string& parmsetName) {
-	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextHelper::getNewContext(parmsetName);
+static shared_ptr<CryptoContext<Poly>> GenerateTestCryptoContext(const string& parmsetName) {
+	shared_ptr<CryptoContext<Poly>> cc = CryptoContextHelper::getNewContext(parmsetName);
 	cc->Enable(ENCRYPTION);
 	return cc;
 }
 
-static shared_ptr<CryptoContext<ILDCRT2n>> GenerateTestDCRTCryptoContext(const string& parmsetName, usint nTower, usint pbits) {
-	shared_ptr<CryptoContext<ILDCRT2n>> cc = CryptoContextHelper::getNewDCRTContext(parmsetName, nTower, pbits);
+static shared_ptr<CryptoContext<DCRTPoly>> GenerateTestDCRTCryptoContext(const string& parmsetName, usint nTower, usint pbits) {
+	shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextHelper::getNewDCRTContext(parmsetName, nTower, pbits);
 	cc->Enable(ENCRYPTION);
 	return cc;
 }
@@ -133,51 +133,51 @@ UnitTestEncryption(const shared_ptr<CryptoContext<Element>> cc) {
 }
 
 TEST(UTENCRYPT, LTV_ILVector2n_Encrypt_Decrypt) {
-	shared_ptr<CryptoContext<ILVector2n>> cc = GenCryptoContextElementLTV(4096, 2, 20);
-	UnitTestEncryption<ILVector2n>(cc);
+	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementLTV(4096, 2, 20);
+	UnitTestEncryption<Poly>(cc);
 }
 
 TEST(UTENCRYPT, LTV_ILVectorArray2n_Encrypt_Decrypt) {
-	shared_ptr<CryptoContext<ILDCRT2n>> cc = GenCryptoContextElementArrayLTV(4096, 3, 2, 20);
-	UnitTestEncryption<ILDCRT2n>(cc);
+	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayLTV(4096, 3, 2, 20);
+	UnitTestEncryption<DCRTPoly>(cc);
 }
 
 TEST(UTENCRYPT, StSt_ILVector2n_Encrypt_Decrypt) {
-	shared_ptr<CryptoContext<ILVector2n>> cc = GenerateTestCryptoContext("StSt6");
-	UnitTestEncryption<ILVector2n>(cc);
+	shared_ptr<CryptoContext<Poly>> cc = GenerateTestCryptoContext("StSt6");
+	UnitTestEncryption<Poly>(cc);
 }
 
 TEST(UTENCRYPT, StSt_ILVectorArray2n_Encrypt_Decrypt) {
-	shared_ptr<CryptoContext<ILDCRT2n>> cc = GenerateTestDCRTCryptoContext("StSt6", 3, 20);
-	UnitTestEncryption<ILDCRT2n>(cc);
+	shared_ptr<CryptoContext<DCRTPoly>> cc = GenerateTestDCRTCryptoContext("StSt6", 3, 20);
+	UnitTestEncryption<DCRTPoly>(cc);
 }
 
 TEST(UTENCRYPT, BV_ILVector2n_Encrypt_Decrypt) {
-	shared_ptr<CryptoContext<ILVector2n>> cc = GenerateTestCryptoContext("BV2");
-	UnitTestEncryption<ILVector2n>(cc);
+	shared_ptr<CryptoContext<Poly>> cc = GenerateTestCryptoContext("BV2");
+	UnitTestEncryption<Poly>(cc);
 }
 
 TEST(UTENCRYPT, BV_ILVectorArray2n_Encrypt_Decrypt) {
-	shared_ptr<CryptoContext<ILDCRT2n>> cc = GenerateTestDCRTCryptoContext("BV2", 3, 20);
-	UnitTestEncryption<ILDCRT2n>(cc);
+	shared_ptr<CryptoContext<DCRTPoly>> cc = GenerateTestDCRTCryptoContext("BV2", 3, 20);
+	UnitTestEncryption<DCRTPoly>(cc);
 }
 
 TEST(UTENCRYPT, Null_ILVector2n_Encrypt_Decrypt) {
-	shared_ptr<CryptoContext<ILVector2n>> cc = GenerateTestCryptoContext("Null");
-	UnitTestEncryption<ILVector2n>(cc);
+	shared_ptr<CryptoContext<Poly>> cc = GenerateTestCryptoContext("Null");
+	UnitTestEncryption<Poly>(cc);
 }
 
 TEST(UTENCRYPT, Null_ILVectorArray2n_Encrypt_Decrypt) {
-	shared_ptr<CryptoContext<ILDCRT2n>> cc = GenerateTestDCRTCryptoContext("Null", 3, 20);
-	UnitTestEncryption<ILDCRT2n>(cc);
+	shared_ptr<CryptoContext<DCRTPoly>> cc = GenerateTestDCRTCryptoContext("Null", 3, 20);
+	UnitTestEncryption<DCRTPoly>(cc);
 }
 
 TEST(UTENCRYPT, FV_ILVector2n_Encrypt_Decrypt) {
-	shared_ptr<CryptoContext<ILVector2n>> cc = GenerateTestCryptoContext("FV2");
-	UnitTestEncryption<ILVector2n>(cc);
+	shared_ptr<CryptoContext<Poly>> cc = GenerateTestCryptoContext("FV2");
+	UnitTestEncryption<Poly>(cc);
 }
 
 //TEST(UTENCRYPT, FV_ILVectorArray2n_Encrypt_Decrypt) {
-//	shared_ptr<CryptoContext<ILDCRT2n>> cc = GenerateTestDCRTCryptoContext("FV2", 3, 20);
-//	UnitTestEncryption<ILDCRT2n>(cc);
+//	shared_ptr<CryptoContext<DCRTPoly>> cc = GenerateTestDCRTCryptoContext("FV2", 3, 20);
+//	UnitTestEncryption<DCRTPoly>(cc);
 //}

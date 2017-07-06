@@ -578,7 +578,7 @@ public:
 
 	/**
 	 * @brief Interpolates based on the Chinese Remainder Transform Interpolation.
-	 * Does nothing for ILVectorImpl. Needed to support the 0linear CRT interpolation in ILDCRT2n.
+	 * Does nothing for ILVectorImpl. Needed to support the 0linear CRT interpolation in DCRTPoly.
 	 *
 	 * @return the original ring element.
 	 */
@@ -891,7 +891,7 @@ private:
 namespace native_int
 {
 
-typedef lbcrypto::ILVectorImpl<native_int::BinaryInteger, native_int::BinaryInteger, native_int::BinaryVector, native_int::ILParams> ILVector2n;
+typedef lbcrypto::ILVectorImpl<native_int::BinaryInteger, native_int::BinaryInteger, native_int::BinaryVector, native_int::ILParams> Poly;
 
 }
 
@@ -899,7 +899,7 @@ namespace lbcrypto
 {
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType> class ILVectorImpl;
-typedef ILVectorImpl<BigBinaryInteger, BigBinaryInteger, BigBinaryVector, ILParams> ILVector2n;
+typedef ILVectorImpl<BigInteger, BigInteger, BigVector, ILParams> Poly;
 
 }
 

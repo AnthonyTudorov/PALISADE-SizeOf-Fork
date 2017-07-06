@@ -54,25 +54,25 @@ void Run() {
 
 	usint m = 16;
 	//54 bits
-	//BigBinaryInteger modulus("9007199254741169");
-	//BigBinaryInteger rootOfUnity("7629104920968175");
+	//BigInteger modulus("9007199254741169");
+	//BigInteger rootOfUnity("7629104920968175");
 
 	usint chunkSize = 2;
 	std::string inputPattern = "1?10?1";
-	ClearLWEConjunctionPattern<ILVector2n> clearPattern(inputPattern);
+	ClearLWEConjunctionPattern<Poly> clearPattern(inputPattern);
 
-	ObfuscatedLWEConjunctionPattern<ILVector2n> obfuscatedPattern;
+	ObfuscatedLWEConjunctionPattern<Poly> obfuscatedPattern;
 	obfuscatedPattern.SetChunkSize(chunkSize);
 	obfuscatedPattern.SetLength(clearPattern.GetLength());
 	obfuscatedPattern.SetRootHermiteFactor(1.006);
 
-	LWEConjunctionObfuscationAlgorithm<ILVector2n> algorithm;
+	LWEConjunctionObfuscationAlgorithm<Poly> algorithm;
 
 	double stdDev = SIGMA;
 
 	double diff, start, finish;
 
-	ILVector2n::DggType dgg(stdDev);			// Create the noise generator
+	Poly::DggType dgg(stdDev);			// Create the noise generator
 
 	//Finds q using the correctness constraint for the given value of n
 	algorithm.ParamsGen(dgg, &obfuscatedPattern, m / 2);
@@ -82,8 +82,8 @@ void Run() {
 
 	const shared_ptr<ILParams> ilParams = std::dynamic_pointer_cast<ILParams>(obfuscatedPattern.GetParameters());
 
-	const BigBinaryInteger &modulus = ilParams->GetModulus();
-	const BigBinaryInteger &rootOfUnity = ilParams->GetRootOfUnity();
+	const BigInteger &modulus = ilParams->GetModulus();
+	const BigInteger &rootOfUnity = ilParams->GetRootOfUnity();
 	m = ilParams->GetCyclotomicOrder();
 
 	std::cout << "q = " << modulus<< std::endl;
@@ -91,9 +91,9 @@ void Run() {
 	std::cout << "n = " << m/2 << std::endl;
 	std::cout << printf("delta=%lf", obfuscatedPattern.GetRootHermiteFactor()) << std::endl;
 
-	typename ILVector2n::DugType dug;
+	typename Poly::DugType dug;
 	dug.SetModulus(modulus);
-	typename ILVector2n::TugType tug;
+	typename Poly::TugType tug;
 
 	std::cout << " \nCryptosystem initialization: Performing precomputations..." << std::endl;
 
@@ -102,11 +102,11 @@ void Run() {
 	//This code is run only when performing execution time measurements
 
 	//Precomputations for FTT
-	ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(rootOfUnity, m, modulus);
+	ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(rootOfUnity, m, modulus);
 	DiscreteFourierTransform::GetInstance().PreComputeTable(m);
 
 	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(dgg, ilParams);
+	Poly::PreComputeDggSamples(dgg, ilParams);
 
 	finish = currentDateTime();
 	diff = finish - start;

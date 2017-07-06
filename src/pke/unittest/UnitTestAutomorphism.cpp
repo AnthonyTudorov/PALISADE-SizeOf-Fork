@@ -144,30 +144,30 @@ std::vector<usint> ArbLTVAutomorphismPackedArray(usint i) {
 
 	usint m = 22;
 	usint p = 2333;
-	BigBinaryInteger modulusP(p);
+	BigInteger modulusP(p);
 	
-	BigBinaryInteger modulusQ("955263939794561");
-	BigBinaryInteger squareRootOfRoot("941018665059848");
+	BigInteger modulusQ("955263939794561");
+	BigInteger squareRootOfRoot("941018665059848");
 	
 	//usint n = GetTotient(m);
-	BigBinaryInteger bigmodulus("80899135611688102162227204937217");
-	BigBinaryInteger bigroot("77936753846653065954043047918387");
+	BigInteger bigmodulus("80899135611688102162227204937217");
+	BigInteger bigroot("77936753846653065954043047918387");
 
-	auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulusQ);
-	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulusQ);
+	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
+	ChineseRemainderTransformArb<BigInteger, BigVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 	float stdDev = 4;
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
 
-	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, p, 1, stdDev);
+	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(params, p, 1, stdDev);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc->KeyGen();
+	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertext;
 
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10 };
 	PackedIntPlaintextEncoding intArray(vectorOfInts);
@@ -179,9 +179,9 @@ std::vector<usint> ArbLTVAutomorphismPackedArray(usint i) {
 
 	auto evalKeys = cc->EvalAutomorphismKeyGen(kp.publicKey, kp.secretKey, indexList);
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> permutedCiphertext;
+	vector<shared_ptr<Ciphertext<Poly>>> permutedCiphertext;
 
-	shared_ptr<Ciphertext<ILVector2n>> p1;
+	shared_ptr<Ciphertext<Poly>> p1;
 
 	p1 = cc->EvalAutomorphism(ciphertext[0], i, *evalKeys);
 
@@ -202,32 +202,32 @@ std::vector<usint> ArbBVAutomorphismPackedArray(usint i) {
 	
 	usint m = 22;
 	usint p = 2333;
-	BigBinaryInteger modulusP(p);
+	BigInteger modulusP(p);
 	
-	BigBinaryInteger modulusQ("955263939794561");
-	BigBinaryInteger squareRootOfRoot("941018665059848");
+	BigInteger modulusQ("955263939794561");
+	BigInteger squareRootOfRoot("941018665059848");
 	
 	//usint n = GetTotient(m);
-	BigBinaryInteger bigmodulus("80899135611688102162227204937217");
-	BigBinaryInteger bigroot("77936753846653065954043047918387");
+	BigInteger bigmodulus("80899135611688102162227204937217");
+	BigInteger bigroot("77936753846653065954043047918387");
 
-	auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulusQ);
-	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulusQ);
+	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
+	ChineseRemainderTransformArb<BigInteger, BigVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 
 	float stdDev = 4;
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
 
-	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, p, 8, stdDev);
+	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, p, 8, stdDev);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc->KeyGen();
+	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertext;
 
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10 };
 	PackedIntPlaintextEncoding intArray(vectorOfInts);
@@ -239,9 +239,9 @@ std::vector<usint> ArbBVAutomorphismPackedArray(usint i) {
 
 	auto evalKeys = cc->EvalAutomorphismKeyGen(kp.secretKey, indexList);
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> permutedCiphertext;
+	vector<shared_ptr<Ciphertext<Poly>>> permutedCiphertext;
 
-	shared_ptr<Ciphertext<ILVector2n>> p1;
+	shared_ptr<Ciphertext<Poly>> p1;
 
 	p1 = cc->EvalAutomorphism(ciphertext[0], i, *evalKeys);
 
@@ -260,22 +260,22 @@ std::vector<usint> ArbBVAutomorphismPackedArray(usint i) {
 std::vector<usint> LTVAutomorphismPackedArray(usint i) {
 
 	usint m = 16;
-	BigBinaryInteger q("67108913");
-	BigBinaryInteger rootOfUnity("61564");
+	BigInteger q("67108913");
+	BigInteger rootOfUnity("61564");
 	usint plaintextModulus = 17;
 
 	float stdDev = 4;
 
 	shared_ptr<ILParams> params(new ILParams(m, q, rootOfUnity));
 
-	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextLTV(params, plaintextModulus, 1, stdDev);
+	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(params, plaintextModulus, 1, stdDev);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc->KeyGen();
+	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertext;
 
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8 };
 	PackedIntPlaintextEncoding intArray(vectorOfInts);
@@ -286,9 +286,9 @@ std::vector<usint> LTVAutomorphismPackedArray(usint i) {
 
 	auto evalKeys = cc->EvalAutomorphismKeyGen(kp.publicKey, kp.secretKey, indexList);
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> permutedCiphertext;
+	vector<shared_ptr<Ciphertext<Poly>>> permutedCiphertext;
 
-	shared_ptr<Ciphertext<ILVector2n>> p1;
+	shared_ptr<Ciphertext<Poly>> p1;
 
 	p1 = cc->EvalAutomorphism(ciphertext[0], i, *evalKeys);
 
@@ -307,23 +307,23 @@ std::vector<usint> LTVAutomorphismPackedArray(usint i) {
 std::vector<usint> BVAutomorphismPackedArray(usint i) {
 
 	usint m = 16;
-	BigBinaryInteger q("67108913");
-	BigBinaryInteger rootOfUnity("61564");
+	BigInteger q("67108913");
+	BigInteger rootOfUnity("61564");
 	usint plaintextModulus = 17;
 
 	float stdDev = 4;
 
 	shared_ptr<ILParams> params(new ILParams(m, q, rootOfUnity));
 
-	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextBV(params, plaintextModulus, 1, stdDev);
+	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, plaintextModulus, 1, stdDev);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc->KeyGen();
+	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertext;
 
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8 };
 	PackedIntPlaintextEncoding intArray(vectorOfInts);
@@ -334,9 +334,9 @@ std::vector<usint> BVAutomorphismPackedArray(usint i) {
 
 	auto evalKeys = cc->EvalAutomorphismKeyGen(kp.secretKey, indexList);
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> permutedCiphertext;
+	vector<shared_ptr<Ciphertext<Poly>>> permutedCiphertext;
 
-	shared_ptr<Ciphertext<ILVector2n>> p1;
+	shared_ptr<Ciphertext<Poly>> p1;
 
 	p1 = cc->EvalAutomorphism(ciphertext[0], i, *evalKeys);
 
@@ -355,18 +355,18 @@ std::vector<usint> BVAutomorphismPackedArray(usint i) {
 std::vector<usint> FVAutomorphismPackedArray(usint i) {
 
 	usint m = 16;
-	BigBinaryInteger q("67108913");
-	BigBinaryInteger rootOfUnity("61564");
+	BigInteger q("67108913");
+	BigInteger rootOfUnity("61564");
 	usint plaintextModulus = 17;
 	usint relWindow = 1;
 	float stdDev = 4;
 
-	BigBinaryInteger BBIPlaintextModulus(plaintextModulus);
-	BigBinaryInteger delta(q.DividedBy(BBIPlaintextModulus));
+	BigInteger BBIPlaintextModulus(plaintextModulus);
+	BigInteger delta(q.DividedBy(BBIPlaintextModulus));
 
 	shared_ptr<ILParams> params(new ILParams(m, q, rootOfUnity));
 
-	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
+	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextFV(
 		params, plaintextModulus,
 		relWindow, stdDev, delta.ToString());
 
@@ -374,9 +374,9 @@ std::vector<usint> FVAutomorphismPackedArray(usint i) {
 	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc->KeyGen();
+	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertext;
 
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8 };
 	PackedIntPlaintextEncoding intArray(vectorOfInts);
@@ -387,9 +387,9 @@ std::vector<usint> FVAutomorphismPackedArray(usint i) {
 
 	auto evalKeys = cc->EvalAutomorphismKeyGen(kp.secretKey, indexList);
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> permutedCiphertext;
+	vector<shared_ptr<Ciphertext<Poly>>> permutedCiphertext;
 
-	shared_ptr<Ciphertext<ILVector2n>> p1;
+	shared_ptr<Ciphertext<Poly>> p1;
 
 	p1 = cc->EvalAutomorphism(ciphertext[0], i, *evalKeys);
 

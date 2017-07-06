@@ -362,7 +362,7 @@ public:
 	 * @return a new vector which is the result of the modulus exponentiation operation.
 	 */
 	BigBinaryVectorImpl ModExp(const IntegerType &b) const;
-	//BigBinaryVectorImpl& ScalarExp(const BigBinaryInteger &a) const;
+	//BigBinaryVectorImpl& ScalarExp(const BigInteger &a) const;
 	
 
 	/**

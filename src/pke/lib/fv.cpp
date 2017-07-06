@@ -83,7 +83,7 @@ bool LPCryptoParametersFV<Element>::Deserialize(const Serialized& serObj) {
 	SerialItem::ConstMemberIterator pIt;
 	if ((pIt = mIter->value.FindMember("delta")) == mIter->value.MemberEnd())
 		return false;
-	BigBinaryInteger delta(pIt->value.GetString());
+	BigInteger delta(pIt->value.GetString());
 
 	if ((pIt = mIter->value.FindMember("mode")) == mIter->value.MemberEnd())
 		return false;
@@ -91,19 +91,19 @@ bool LPCryptoParametersFV<Element>::Deserialize(const Serialized& serObj) {
 
 	if ((pIt = mIter->value.FindMember("bigmodulus")) == mIter->value.MemberEnd())
 		return false;
-	BigBinaryInteger bigmodulus(pIt->value.GetString());
+	BigInteger bigmodulus(pIt->value.GetString());
 
 	if ((pIt = mIter->value.FindMember("bigrootofunity")) == mIter->value.MemberEnd())
 		return false;
-	BigBinaryInteger bigrootofunity(pIt->value.GetString());
+	BigInteger bigrootofunity(pIt->value.GetString());
 
 	if ((pIt = mIter->value.FindMember("bigmodulusarb")) == mIter->value.MemberEnd())
 		return false;
-	BigBinaryInteger bigmodulusarb(pIt->value.GetString());
+	BigInteger bigmodulusarb(pIt->value.GetString());
 
 	if ((pIt = mIter->value.FindMember("bigrootofunityarb")) == mIter->value.MemberEnd())
 		return false;
-	BigBinaryInteger bigrootofunityarb(pIt->value.GetString());
+	BigInteger bigrootofunityarb(pIt->value.GetString());
 
 	this->SetBigModulus(bigmodulus);
 	this->SetBigRootOfUnity(bigrootofunity);
@@ -218,12 +218,12 @@ bool LPAlgorithmParamsGenFV<Element>::ParamsGen(shared_ptr<LPCryptoParameters<El
 
 	}
 
-	BigBinaryInteger qPrime = FirstPrime<BigBinaryInteger>(ceil(log2(q))+1, 2*n);
-	BigBinaryInteger rootOfUnity = RootOfUnity<BigBinaryInteger>(2 * n, qPrime);
+	BigInteger qPrime = FirstPrime<BigInteger>(ceil(log2(q))+1, 2*n);
+	BigInteger rootOfUnity = RootOfUnity<BigInteger>(2 * n, qPrime);
 
 	//reserves enough digits to avoid wrap-around when evaluating p*(c1*c2+c3*c4)
-	BigBinaryInteger qPrime2 = FirstPrime<BigBinaryInteger>(2*(ceil(log2(q)) + 1) + ceil(log2(p)) + 3, 2 * n);
-	BigBinaryInteger rootOfUnity2 = RootOfUnity<BigBinaryInteger>(2 * n, qPrime2);
+	BigInteger qPrime2 = FirstPrime<BigInteger>(2*(ceil(log2(q)) + 1) + ceil(log2(p)) + 3, 2 * n);
+	BigInteger rootOfUnity2 = RootOfUnity<BigInteger>(2 * n, qPrime2);
 
 	cryptoParamsFV->SetBigModulus(qPrime2);
 	cryptoParamsFV->SetBigRootOfUnity(rootOfUnity2);
@@ -287,7 +287,7 @@ LPKeyPair<Element> LPAlgorithmFV<Element>::KeyGen(CryptoContext<Element>* cc, bo
 
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
-		ILVector2n &ptxt, bool doEncryption) const
+		Poly &ptxt, bool doEncryption) const
 {
 	shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(publicKey->GetCryptoContext()) );
 
@@ -346,12 +346,12 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr
 template <class Element>
 DecryptResult LPAlgorithmFV<Element>::Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const shared_ptr<Ciphertext<Element>> ciphertext,
-		ILVector2n *plaintext) const
+		Poly *plaintext) const
 {
 	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
-	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
-	const BigBinaryInteger &q = elementParams->GetModulus();
+	const BigInteger &p = cryptoParams->GetPlaintextModulus();
+	const BigInteger &q = elementParams->GetModulus();
 
 	const std::vector<Element> &c = ciphertext->GetElements();
 
@@ -457,15 +457,15 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared
 	shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext1->GetCryptoContext()));
 
 	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParamsLWE = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(ciphertext1->GetCryptoContext()->GetCryptoParameters());
-	const BigBinaryInteger &p = cryptoParamsLWE->GetPlaintextModulus();
+	const BigInteger &p = cryptoParamsLWE->GetPlaintextModulus();
 
 	const shared_ptr<typename Element::Params> elementParams = cryptoParamsLWE->GetElementParams();
-	const BigBinaryInteger &q = elementParams->GetModulus();
+	const BigInteger &q = elementParams->GetModulus();
 
-	const BigBinaryInteger &bigModulus = cryptoParamsLWE->GetBigModulus();
-	const BigBinaryInteger &bigRootOfUnity = cryptoParamsLWE->GetBigRootOfUnity();
-	const BigBinaryInteger &bigModulusArb = cryptoParamsLWE->GetBigModulusArb();
-	const BigBinaryInteger &bigRootOfUnityArb = cryptoParamsLWE->GetBigRootOfUnityArb();
+	const BigInteger &bigModulus = cryptoParamsLWE->GetBigModulus();
+	const BigInteger &bigRootOfUnity = cryptoParamsLWE->GetBigRootOfUnity();
+	const BigInteger &bigModulusArb = cryptoParamsLWE->GetBigModulusArb();
+	const BigInteger &bigRootOfUnityArb = cryptoParamsLWE->GetBigRootOfUnityArb();
 
 	std::vector<Element> cipherText1Elements = ciphertext1->GetElements();
 	std::vector<Element> cipherText2Elements = ciphertext2->GetElements();
@@ -874,13 +874,13 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmMultipartyFV<Element>::MultipartyDecr
 
 template <class Element>
 DecryptResult LPAlgorithmMultipartyFV<Element>::MultipartyDecryptFusion(const vector<shared_ptr<Ciphertext<Element>>>& ciphertextVec,
-		ILVector2n *plaintext) const
+		Poly *plaintext) const
 {
 
 	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = ciphertextVec[0]->GetCryptoParameters();
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
-	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
-	const BigBinaryInteger &q = elementParams->GetModulus();
+	const BigInteger &p = cryptoParams->GetPlaintextModulus();
+	const BigInteger &q = elementParams->GetModulus();
 
 	const std::vector<Element> &cElem = ciphertextVec[0]->GetElements();
 	Element b = cElem[0];

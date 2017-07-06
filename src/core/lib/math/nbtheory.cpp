@@ -41,24 +41,24 @@
 namespace lbcrypto {
 
 
-	template BigBinaryInteger RootOfUnity<BigBinaryInteger>(usint m, const BigBinaryInteger& modulo);
-	template std::vector<BigBinaryInteger> RootsOfUnity(usint m, const std::vector<BigBinaryInteger> moduli);
-	template BigBinaryInteger GreatestCommonDivisor(const BigBinaryInteger& a, const BigBinaryInteger& b);
-	template bool MillerRabinPrimalityTest(const BigBinaryInteger& p, const usint niter);
-	template const BigBinaryInteger PollardRhoFactorization(const BigBinaryInteger &n);
-	template void PrimeFactorize(BigBinaryInteger n, std::set<BigBinaryInteger> &primeFactors);
-	template BigBinaryInteger FirstPrime(usint nBits, usint m);
-	template BigBinaryInteger NextPrime(const BigBinaryInteger &q, usint cyclotomicOrder);
-	template BigBinaryVector PolyMod(const BigBinaryVector &dividend, const BigBinaryVector &divisor, const BigBinaryInteger &modulus);
-	template BigBinaryVector PolynomialMultiplication(const BigBinaryVector &a, const BigBinaryVector &b);
-	template BigBinaryVector GetCyclotomicPolynomial(usint m, const BigBinaryInteger &modulus);
-	template BigBinaryInteger SyntheticRemainder(const BigBinaryVector &dividend, const BigBinaryInteger &a, const BigBinaryInteger &modulus);
-	template BigBinaryVector SyntheticPolyRemainder(const BigBinaryVector &dividend, const BigBinaryVector &aList, const BigBinaryInteger &modulus);
-	template BigBinaryVector PolynomialPower<BigBinaryVector, BigBinaryInteger>(const BigBinaryVector &input, usint power);
-	template BigBinaryVector SyntheticPolynomialDivision(const BigBinaryVector &dividend, const BigBinaryInteger &a, const BigBinaryInteger &modulus);
-	template BigBinaryInteger FindGeneratorCyclic(const BigBinaryInteger& modulo);
-	template bool IsGenerator(const BigBinaryInteger& g, const BigBinaryInteger& modulo);
-	template BigBinaryInteger ComputeMu(const BigBinaryInteger& q);
+	template BigInteger RootOfUnity<BigInteger>(usint m, const BigInteger& modulo);
+	template std::vector<BigInteger> RootsOfUnity(usint m, const std::vector<BigInteger> moduli);
+	template BigInteger GreatestCommonDivisor(const BigInteger& a, const BigInteger& b);
+	template bool MillerRabinPrimalityTest(const BigInteger& p, const usint niter);
+	template const BigInteger PollardRhoFactorization(const BigInteger &n);
+	template void PrimeFactorize(BigInteger n, std::set<BigInteger> &primeFactors);
+	template BigInteger FirstPrime(usint nBits, usint m);
+	template BigInteger NextPrime(const BigInteger &q, usint cyclotomicOrder);
+	template BigVector PolyMod(const BigVector &dividend, const BigVector &divisor, const BigInteger &modulus);
+	template BigVector PolynomialMultiplication(const BigVector &a, const BigVector &b);
+	template BigVector GetCyclotomicPolynomial(usint m, const BigInteger &modulus);
+	template BigInteger SyntheticRemainder(const BigVector &dividend, const BigInteger &a, const BigInteger &modulus);
+	template BigVector SyntheticPolyRemainder(const BigVector &dividend, const BigVector &aList, const BigInteger &modulus);
+	template BigVector PolynomialPower<BigVector, BigInteger>(const BigVector &input, usint power);
+	template BigVector SyntheticPolynomialDivision(const BigVector &dividend, const BigInteger &a, const BigInteger &modulus);
+	template BigInteger FindGeneratorCyclic(const BigInteger& modulo);
+	template bool IsGenerator(const BigInteger& g, const BigInteger& modulo);
+	template BigInteger ComputeMu(const BigInteger& q);
 
 	template std::vector<usint> GetTotientList(const usint &n);
 

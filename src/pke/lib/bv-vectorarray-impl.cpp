@@ -28,7 +28,7 @@
 #include "bv.cpp"
 
 namespace lbcrypto {
-template class LPCryptoParametersBV<ILDCRT2n>;
-template class LPPublicKeyEncryptionSchemeBV<ILDCRT2n>;
-template class LPAlgorithmBV<ILDCRT2n>;
+template class LPCryptoParametersBV<DCRTPoly>;
+template class LPPublicKeyEncryptionSchemeBV<DCRTPoly>;
+template class LPAlgorithmBV<DCRTPoly>;
 }

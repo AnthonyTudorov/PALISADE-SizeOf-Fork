@@ -28,8 +28,8 @@
 #include "fv.cpp"
 
 namespace lbcrypto {
-template class LPCryptoParametersFV<ILDCRT2n>;
-template class LPPublicKeyEncryptionSchemeFV<ILDCRT2n>;
-template class LPAlgorithmFV<ILDCRT2n>;
-template class LPAlgorithmParamsGenFV<ILDCRT2n>;
+template class LPCryptoParametersFV<DCRTPoly>;
+template class LPPublicKeyEncryptionSchemeFV<DCRTPoly>;
+template class LPAlgorithmFV<DCRTPoly>;
+template class LPAlgorithmParamsGenFV<DCRTPoly>;
 }

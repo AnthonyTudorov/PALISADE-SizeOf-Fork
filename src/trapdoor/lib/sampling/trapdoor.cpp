@@ -39,11 +39,11 @@
 namespace lbcrypto {
 
 	//Trapdoor generation method as described in section 3.2 of https://eprint.iacr.org/2013/297.pdf (Construction 1)
-	std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> RLWETrapdoorUtility::TrapdoorGen(shared_ptr<ILParams> params, int stddev)
+	std::pair<RingMat, RLWETrapdoorPair<Poly>> RLWETrapdoorUtility::TrapdoorGen(shared_ptr<ILParams> params, int stddev)
 	{
-		auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
-		auto gaussian_alloc = ILVector2n::MakeDiscreteGaussianCoefficientAllocator(params, COEFFICIENT, stddev);
-		auto uniform_alloc = ILVector2n::MakeDiscreteUniformAllocator(params, EVALUATION);
+		auto zero_alloc = Poly::MakeAllocator(params, EVALUATION);
+		auto gaussian_alloc = Poly::MakeDiscreteGaussianCoefficientAllocator(params, COEFFICIENT, stddev);
+		auto uniform_alloc = Poly::MakeDiscreteUniformAllocator(params, EVALUATION);
 
 		//  k ~= bitlength of q
 		// size_t k = params.GetModulus().GetMSB();
@@ -73,25 +73,25 @@ namespace lbcrypto {
 			A(0, i+2) = g(0, i) - (*a*r(0, i) + e(0, i));
 		}
 
-		return std::pair<RingMat, RLWETrapdoorPair<ILVector2n>>(A, RLWETrapdoorPair<ILVector2n>(r, e));
+		return std::pair<RingMat, RLWETrapdoorPair<Poly>>(A, RLWETrapdoorPair<Poly>(r, e));
 
 	}
 
 	// Gaussian sampling based on the UCSD integer perturbation sampling
 
 	RingMat RLWETrapdoorUtility::GaussSamp(size_t n, size_t k, const RingMat& A, 
-		const RLWETrapdoorPair<ILVector2n>& T, const ILVector2n &u,
-		double sigma, ILVector2n::DggType &dgg, ILVector2n::DggType &dggLargeSigma) {
+		const RLWETrapdoorPair<Poly>& T, const Poly &u,
+		double sigma, Poly::DggType &dgg, Poly::DggType &dggLargeSigma) {
 
 		const shared_ptr<ILParams> params = u.GetParams();
-		auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
+		auto zero_alloc = Poly::MakeAllocator(params, EVALUATION);
 
 		//We should convert this to a static variable later
 		//double c(2 * sqrt(log(2 * n*(1 + 1 / DG_ERROR)) / M_PI));
 
 		double c = 2 * SIGMA;
 
-		const BigBinaryInteger& modulus = A(0, 0).GetModulus();
+		const BigInteger& modulus = A(0, 0).GetModulus();
 
 		//spectral bound s
 		double s = SPECTRAL_BOUND(n,k);
@@ -113,9 +113,9 @@ namespace lbcrypto {
 
 		// YSP It is assumed that A has dimension 1 x (k + 2) and pHat has the dimension of (k + 2) x 1
 		// perturbedSyndrome is in the evaluation representation
-		ILVector2n perturbedSyndrome = u - (A.Mult(pHat))(0, 0);
+		Poly perturbedSyndrome = u - (A.Mult(pHat))(0, 0);
 
-		//Matrix<BigBinaryInteger> zHatBBI(BigBinaryInteger::Allocator, k, n);
+		//Matrix<BigInteger> zHatBBI(BigInteger::Allocator, k, n);
 		Matrix<int32_t> zHatBBI([]() { return make_unique<int32_t>(); }, k, n);
 
 		// converting perturbed syndrome to coefficient representation
@@ -123,7 +123,7 @@ namespace lbcrypto {
 
 		LatticeGaussSampUtility::GaussSampGq(perturbedSyndrome, sigma, k, modulus, 2, dgg, &zHatBBI);
 
-		// Convert zHat from a matrix of BBI to a vector of ILVector2n ring elements
+		// Convert zHat from a matrix of BBI to a vector of Poly ring elements
 		// zHat is in the coefficient representation
 		RingMat zHat = SplitInt32AltIntoILVector2nElements(zHatBBI, n, params);
 		// Now converting it to the evaluation representation before multiplication
@@ -140,42 +140,42 @@ namespace lbcrypto {
 		//This code is helpful in tightening parameter constraints
 
 		//zHatPrime(0, 0).SwitchFormat();
-		//ILVector2n z0 = zHatPrime(0, 0);
+		//Poly z0 = zHatPrime(0, 0);
 		//zHatPrime(0, 0).SwitchFormat();
 
 		//zHatPrime(1, 0).SwitchFormat();
-		//ILVector2n z1 = zHatPrime(1, 0);
+		//Poly z1 = zHatPrime(1, 0);
 		//zHatPrime(1, 0).SwitchFormat();
 
 		//std::cout << "z0=" << z0.Norm() << std::endl;
 		//std::cout << "z1=" << z1.Norm() << std::endl;
 
 		//zHatPrime(2, 0).SwitchFormat();
-		//ILVector2n z2 = zHatPrime(2, 0);
+		//Poly z2 = zHatPrime(2, 0);
 		//zHatPrime(2, 0).SwitchFormat();
 
 		//std::cout << "z2=" << z2.Norm() << std::endl;
 
 		//pHat(0, 0).SwitchFormat();
-		//ILVector2n pHat0 = pHat(0, 0);
+		//Poly pHat0 = pHat(0, 0);
 		//pHat(0, 0).SwitchFormat();
 
 		//std::cout << "pHat0=" << pHat0.Norm() << std::endl;
 
 		//pHat(1, 0).SwitchFormat();
-		//ILVector2n pHat1 = pHat(1, 0);
+		//Poly pHat1 = pHat(1, 0);
 		//pHat(1, 0).SwitchFormat();
 
 		//std::cout << "pHat1=" << pHat1.Norm() << std::endl;
 
 		//pHat(2, 0).SwitchFormat();
-		//ILVector2n pHat2 = pHat(2, 0);
+		//Poly pHat2 = pHat(2, 0);
 		//pHat(2, 0).SwitchFormat();
 
 		//std::cout << "pHat2=" << pHat2.Norm() << std::endl;
 
 		//zHat(0, 0).SwitchFormat();
-		//ILVector2n zHat2 = zHat(0, 0);
+		//Poly zHat2 = zHat(0, 0);
 		//zHat(0, 0).SwitchFormat();
 
 		//std::cout << "zHat=" << zHat2.Norm() << std::endl;
@@ -185,12 +185,12 @@ namespace lbcrypto {
 	}
 
 	void RLWETrapdoorUtility::ZSampleSigmaP(size_t n, double s, double sigma,
-		const RLWETrapdoorPair<ILVector2n>& Tprime,
-		const ILVector2n::DggType &dgg, const ILVector2n::DggType &dggLargeSigma,
+		const RLWETrapdoorPair<Poly>& Tprime,
+		const Poly::DggType &dgg, const Poly::DggType &dggLargeSigma,
 		RingMat *perturbationVector) {
 
-		Matrix<ILVector2n> Tprime0 = Tprime.m_e;
-		Matrix<ILVector2n> Tprime1 = Tprime.m_r;
+		Matrix<Poly> Tprime0 = Tprime.m_e;
+		Matrix<Poly> Tprime1 = Tprime.m_r;
 
 		// k is the bit length
 		size_t k = Tprime0.GetCols();
@@ -198,9 +198,9 @@ namespace lbcrypto {
 		const shared_ptr<ILParams> params = Tprime0(0, 0).GetParams();
 
 		// all three polynomials are initialized with "0" coefficients
-		ILVector2n va(params, EVALUATION, 1);
-		ILVector2n vb(params, EVALUATION, 1);
-		ILVector2n vd(params, EVALUATION, 1);
+		Poly va(params, EVALUATION, 1);
+		Poly vb(params, EVALUATION, 1);
+		Poly vd(params, EVALUATION, 1);
 
 		for (size_t i = 0; i < k; i++) {
 			va = va + Tprime0(0, i)*Tprime0(0, i).Transpose();
@@ -253,15 +253,15 @@ namespace lbcrypto {
 		}
 
 		//create k ring elements in coefficient representation
-		Matrix<ILVector2n> p2 = SplitInt32IntoILVector2nElements(p2ZVector, n, va.GetParams());
+		Matrix<Poly> p2 = SplitInt32IntoILVector2nElements(p2ZVector, n, va.GetParams());
 
 		//now converting to evaluation representation before multiplication
 		p2.SwitchFormat();
 
-		Matrix<ILVector2n> TprimeMatrix = Tprime0.VStack(Tprime1);
+		Matrix<Poly> TprimeMatrix = Tprime0.VStack(Tprime1);
 
 		//the dimension is 2x1 - a vector of 2 ring elements
-		Matrix<ILVector2n> Tp2 = TprimeMatrix * p2;
+		Matrix<Poly> Tp2 = TprimeMatrix * p2;
 
 		//change to coefficient representation before converting to field elements
 		Tp2.SwitchFormat();
@@ -276,7 +276,7 @@ namespace lbcrypto {
 		LatticeGaussSampUtility::ZSampleSigma2x2(a, b, d, c, dgg, &p1ZVector);
 
 		//create 2 ring elements in coefficient representation
-		Matrix<ILVector2n> p1 = SplitInt32IntoILVector2nElements(p1ZVector, n, va.GetParams());
+		Matrix<Poly> p1 = SplitInt32IntoILVector2nElements(p1ZVector, n, va.GetParams());
 
 		//Converts p1 to Evaluation representation
 		p1.SwitchFormat();

@@ -61,9 +61,9 @@ using namespace lbcrypto;
 // GCD benchmarks
 
 // this benchmark returns a reference to a BBI which can be used for output
-static BigBinaryInteger GCD_equals_small_numbers(void) { // function
-  BigBinaryInteger a("10403"), b("103");
-  BigBinaryInteger c(lbcrypto::GreatestCommonDivisor(a, b));
+static BigInteger GCD_equals_small_numbers(void) { // function
+  BigInteger a("10403"), b("103");
+  BigInteger c(lbcrypto::GreatestCommonDivisor(a, b));
   return(c);
 }
 
@@ -86,8 +86,8 @@ BENCHMARK(BM_GCD1);		// register benchmark
 // cannot be converted to an int (too big) so you need to return a
 // reference to the BBI instead. this time we can use an int. 
 static int GCD_equals_powers_of_two_numbers(void) {
-  BigBinaryInteger a("1048576"), b("4096");
-  BigBinaryInteger c(lbcrypto::GreatestCommonDivisor(a, b));
+  BigInteger a("1048576"), b("4096");
+  BigInteger c(lbcrypto::GreatestCommonDivisor(a, b));
   return(c.ConvertToInt());
 }
 
@@ -110,7 +110,7 @@ BENCHMARK(BM_GCD2);		// register benchmark
 // 
 // returns boolean
 static bool MRP_is_prime_small_prime(void){ // function
-  BigBinaryInteger prime("24469");
+  BigInteger prime("24469");
   return( lbcrypto::MillerRabinPrimalityTest(prime));
 }
 
@@ -130,7 +130,7 @@ BENCHMARK(BM_MRP1);		// register benchmark
 
 //
 static bool MRP_is_prime_big_prime(void){ // function
-  BigBinaryInteger prime("952229140957");
+  BigInteger prime("952229140957");
   return( lbcrypto::MillerRabinPrimalityTest(prime));
 }
 
@@ -150,7 +150,7 @@ BENCHMARK(BM_MRP2);		// register benchmark
 
 //
 static bool MRP_is_not_prime_small_composite_number(void){ // function
-  BigBinaryInteger isNotPrime("10403");
+  BigInteger isNotPrime("10403");
   return(lbcrypto::MillerRabinPrimalityTest(isNotPrime));
 }
 
@@ -170,7 +170,7 @@ BENCHMARK(BM_MRP3);		// register benchmark
 
 //
 static bool MRP_is_not_prime_big_composite_number(void){ // function
-  BigBinaryInteger isNotPrime("952229140959");
+  BigInteger isNotPrime("952229140959");
   return(lbcrypto::MillerRabinPrimalityTest(isNotPrime));
 }
 
@@ -192,8 +192,8 @@ BENCHMARK(BM_MRP4);		// register benchmark
 
 //the following does not return anything.. 
 static void factorize_returns_factors(void){
-  BigBinaryInteger comp("53093040");
-  std::set<BigBinaryInteger> factors;
+  BigInteger comp("53093040");
+  std::set<BigInteger> factors;
   lbcrypto::PrimeFactorize(comp, factors);
 }
 
@@ -213,15 +213,15 @@ BENCHMARK(BM_FACT1);		// register benchmark
 //======================================
 // Prime Modulus tests
 //
-static BigBinaryInteger  PM_foundPrimeModulus(void){
+static BigInteger  PM_foundPrimeModulus(void){
   const usint m = 2048;
   const usint nBits = 30;
 
-  return lbcrypto::FirstPrime<BigBinaryInteger>(nBits, m);
+  return lbcrypto::FirstPrime<BigInteger>(nBits, m);
 }
 
 static void BM_PM1(benchmark::State& state) { // benchmark
-  BigBinaryInteger out;
+  BigInteger out;
   while (state.KeepRunning()) {
     out = PM_foundPrimeModulus();
   }
@@ -237,18 +237,18 @@ BENCHMARK(BM_PM1);		// register benchmark
 
 
 //note this returns a refrence to BBI
-static BigBinaryInteger& PM_returns_higher_bit_length(void){
+static BigInteger& PM_returns_higher_bit_length(void){
   usint m=4096; 
   usint nBits=49;
 
-  BigBinaryInteger primeModulus = lbcrypto::FirstPrime<BigBinaryInteger>(nBits, m);
+  BigInteger primeModulus = lbcrypto::FirstPrime<BigInteger>(nBits, m);
   return (primeModulus);
 }
 
 // saving the reference to BBI for output adds some copy overhead
 static void BM_PM2(benchmark::State& state) {
     
-  BigBinaryInteger out;
+  BigInteger out;
   while (state.KeepRunning()) {
     out = PM_returns_higher_bit_length();
   }
@@ -268,13 +268,13 @@ static string PROU_equals_m_not_equals_mbytwo(void){
   usint m=4096; 
   usint nBits=33;
 	
-  BigBinaryInteger primeModulus = lbcrypto::FirstPrime<BigBinaryInteger>(nBits, m);
-  BigBinaryInteger primitiveRootOfUnity = lbcrypto::RootOfUnity<BigBinaryInteger>(m, primeModulus);
+  BigInteger primeModulus = lbcrypto::FirstPrime<BigInteger>(nBits, m);
+  BigInteger primitiveRootOfUnity = lbcrypto::RootOfUnity<BigInteger>(m, primeModulus);
 
-  BigBinaryInteger M(std::to_string(m)), MbyTwo(M.DividedBy(BigBinaryInteger::TWO));
+  BigInteger M(std::to_string(m)), MbyTwo(M.DividedBy(BigInteger::TWO));
 
-  BigBinaryInteger wpowerm = primitiveRootOfUnity.ModExp(M, primeModulus);
-  BigBinaryInteger wpowermbytwo = primitiveRootOfUnity.ModExp(MbyTwo, primeModulus);
+  BigInteger wpowerm = primitiveRootOfUnity.ModExp(M, primeModulus);
+  BigInteger wpowermbytwo = primitiveRootOfUnity.ModExp(MbyTwo, primeModulus);
   return(wpowerm.ToString()+ " " +
 	 wpowermbytwo.ToString());
 }
@@ -301,18 +301,18 @@ static string PROU_equals_m_not_equals_mbytwo_mbyfour_single_input(void){
   const usint nBits=43;
   const int ITERATIONS = m*2;
 
-  BigBinaryInteger M(std::to_string(m)), 
-    MbyTwo(M.DividedBy(BigBinaryInteger::TWO)), 
-    MbyFour(MbyTwo.DividedBy(BigBinaryInteger::TWO));
+  BigInteger M(std::to_string(m)), 
+    MbyTwo(M.DividedBy(BigInteger::TWO)), 
+    MbyFour(MbyTwo.DividedBy(BigInteger::TWO));
 
-  BigBinaryInteger primeModulus = lbcrypto::FirstPrime<BigBinaryInteger>(nBits, m);
+  BigInteger primeModulus = lbcrypto::FirstPrime<BigInteger>(nBits, m);
 
-  BigBinaryInteger wpowerm("0");
-  BigBinaryInteger wpowermbytwo("0");
-  BigBinaryInteger wpowermbyfour("0");
+  BigInteger wpowerm("0");
+  BigInteger wpowermbytwo("0");
+  BigInteger wpowermbyfour("0");
 
   for(int i=0; i<ITERATIONS; i++) {
-    BigBinaryInteger primitiveRootOfUnity = lbcrypto::RootOfUnity<BigBinaryInteger>(m, primeModulus);
+    BigInteger primitiveRootOfUnity = lbcrypto::RootOfUnity<BigInteger>(m, primeModulus);
 
     wpowerm = primitiveRootOfUnity.ModExp(M, primeModulus);
     wpowermbytwo = primitiveRootOfUnity.ModExp(MbyTwo, primeModulus);
@@ -370,19 +370,19 @@ static string PROU_equals_m_not_equals_mbytwo_mbyfour_multiple_inputs(void){
   int length = sizeof(nqBitsArray)/sizeof(nqBitsArray[0]);
 
   usint n, qBits, m;
-  BigBinaryInteger wpowerm("0");
-  BigBinaryInteger wpowermbytwo("0");
-  BigBinaryInteger wpowermbyfour("0");
+  BigInteger wpowerm("0");
+  BigInteger wpowermbytwo("0");
+  BigInteger wpowermbyfour("0");
 
   for(int i=2; i<length; i += 2) {
     n = nqBitsArray[i];
     qBits = nqBitsArray[i+1];
     m = 2 * n;
 
-    BigBinaryInteger M(std::to_string(m)), MbyTwo(M.DividedBy(BigBinaryInteger::TWO)), MbyFour(MbyTwo.DividedBy(BigBinaryInteger::TWO));
+    BigInteger M(std::to_string(m)), MbyTwo(M.DividedBy(BigInteger::TWO)), MbyFour(MbyTwo.DividedBy(BigInteger::TWO));
 
-    BigBinaryInteger primeModulus = lbcrypto::FirstPrime<BigBinaryInteger>(qBits, m);
-    BigBinaryInteger primitiveRootOfUnity(lbcrypto::RootOfUnity<BigBinaryInteger>(m, primeModulus));
+    BigInteger primeModulus = lbcrypto::FirstPrime<BigInteger>(qBits, m);
+    BigInteger primitiveRootOfUnity(lbcrypto::RootOfUnity<BigInteger>(m, primeModulus));
     wpowerm = primitiveRootOfUnity.ModExp(M, primeModulus);
     wpowermbytwo = primitiveRootOfUnity.ModExp(MbyTwo, primeModulus);
     wpowermbyfour = primitiveRootOfUnity.ModExp(MbyFour, primeModulus);

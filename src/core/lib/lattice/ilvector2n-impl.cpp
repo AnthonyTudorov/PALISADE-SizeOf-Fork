@@ -33,24 +33,24 @@
 #include "../math/binaryuniformgenerator.cpp"
 #include "../math/ternaryuniformgenerator.cpp"
 
-// This creates all the necessary class implementations for ILVector2n
+// This creates all the necessary class implementations for Poly
 
 namespace lbcrypto {
-template class DiscreteGaussianGeneratorImpl<BigBinaryInteger,BigBinaryVector>;
-template class BinaryUniformGeneratorImpl<BigBinaryInteger,BigBinaryVector>;
-template class TernaryUniformGeneratorImpl<BigBinaryInteger,BigBinaryVector>;
-template class DiscreteUniformGeneratorImpl<BigBinaryInteger,BigBinaryVector>;
+template class DiscreteGaussianGeneratorImpl<BigInteger,BigVector>;
+template class BinaryUniformGeneratorImpl<BigInteger,BigVector>;
+template class TernaryUniformGeneratorImpl<BigInteger,BigVector>;
+template class DiscreteUniformGeneratorImpl<BigInteger,BigVector>;
 
 }
 
 namespace lbcrypto {
-template class ElemParams<BigBinaryInteger>;
-template class ILParamsImpl<BigBinaryInteger>;
-template class EncodingParamsImpl<BigBinaryInteger>;
-template class ILVectorImpl<BigBinaryInteger,BigBinaryInteger,BigBinaryVector,ILParams>;
+template class ElemParams<BigInteger>;
+template class ILParamsImpl<BigInteger>;
+template class EncodingParamsImpl<BigInteger>;
+template class ILVectorImpl<BigInteger,BigInteger,BigVector,ILParams>;
 
 template<>
-ILVectorImpl<BigBinaryInteger,BigBinaryInteger,BigBinaryVector,ILParams>::ILVectorImpl(const shared_ptr<ILDCRTParams<BigBinaryInteger>> params, Format format, bool initializeElementToZero) : m_values(nullptr), m_format(format) {
+ILVectorImpl<BigInteger,BigInteger,BigVector,ILParams>::ILVectorImpl(const shared_ptr<ILDCRTParams<BigInteger>> params, Format format, bool initializeElementToZero) : m_values(nullptr), m_format(format) {
 	// construct a local params out of the stuff from the DCRT Params
 	m_params.reset( new ILParams(params->GetCyclotomicOrder(), params->GetModulus(), 1));
 

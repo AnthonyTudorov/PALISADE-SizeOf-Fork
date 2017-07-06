@@ -106,7 +106,7 @@ namespace lbcrypto {
 			 */
 			LPCryptoParametersBV(
 				shared_ptr<typename Element::Params> params,
-				const BigBinaryInteger &plaintextModulus, 
+				const BigInteger &plaintextModulus, 
 				float distributionParameter, 
 				float assuranceMeasure, 
 				float securityLevel, 
@@ -249,7 +249,7 @@ namespace lbcrypto {
 		* @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 		* @return ciphertext which results from encryption.
 		*/
-		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, ILVector2n &plaintext, bool doEncryption = true) const;
+		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, Poly &plaintext, bool doEncryption = true) const;
 
 		/**
 		* Method for decrypting plaintext using BV
@@ -261,7 +261,7 @@ namespace lbcrypto {
 		*/
 		DecryptResult Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
 			const shared_ptr<Ciphertext<Element>> ciphertext,
-			ILVector2n *plaintext) const;
+			Poly *plaintext) const;
 
 		/**
 		* Function to generate public and private keys
@@ -588,7 +588,7 @@ namespace lbcrypto {
 		 * @return the decoding result.
 		 */
 		DecryptResult MultipartyDecryptFusion(const vector<shared_ptr<Ciphertext<Element>>>& ciphertextVec,
-			ILVector2n *plaintext) const;
+			Poly *plaintext) const;
 	};
 
 
@@ -670,7 +670,7 @@ namespace lbcrypto {
 		* @param rootHermiteFactor is the security threshold
 		* @return boolean value that determines if the ring is reducable.
 		*/
-		virtual bool CanRingReduce(usint ringDimension, const std::vector<BigBinaryInteger> &moduli, const double rootHermiteFactor) const
+		virtual bool CanRingReduce(usint ringDimension, const std::vector<BigInteger> &moduli, const double rootHermiteFactor) const
 		{
 			std::string errMsg = "LPAlgorithmSHEBV::CanRingReduce is not currently implemented for the BV/BGV Scheme.";
 			throw std::runtime_error(errMsg);

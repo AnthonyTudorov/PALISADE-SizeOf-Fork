@@ -28,10 +28,10 @@
 #include "pubkeylp.cpp"
 
 namespace lbcrypto {
-extern template class CryptoContext<ILDCRT2n>;
+extern template class CryptoContext<DCRTPoly>;
 
-template class LPPublicKey<ILDCRT2n>;
-template class LPEvalKeyRelin<ILDCRT2n>;
-template class LPEvalKeyNTRURelin<ILDCRT2n>;
+template class LPPublicKey<DCRTPoly>;
+template class LPEvalKeyRelin<DCRTPoly>;
+template class LPEvalKeyNTRURelin<DCRTPoly>;
 }
 

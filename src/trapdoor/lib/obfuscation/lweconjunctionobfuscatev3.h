@@ -190,7 +190,7 @@ namespace lbcrypto {
 			 * Gets the modulus
 			 * @return the modulus
 			 */
-			const BigBinaryInteger GetModulus() const;
+			const BigInteger GetModulus() const;
 
 			/**
 			 * Gets the correctness constraint.
@@ -205,7 +205,7 @@ namespace lbcrypto {
 			 * Sets the modulus
 			 * @param &modulus the modulus
 			 */
-			void SetModulus(BigBinaryInteger &modulus);
+			void SetModulus(BigInteger &modulus);
 
 			/**
 			 * Gets the log of the modulus
@@ -219,7 +219,7 @@ namespace lbcrypto {
 			 * @param ek - vector of encoding keys.
 			 * @param sigma - vector of perturbation matrices.
 			 */
-			void SetKeys(shared_ptr<std::vector<Matrix<Element>>> pk, shared_ptr<std::vector<RLWETrapdoorPair<ILVector2n>>>   ek) {
+			void SetKeys(shared_ptr<std::vector<Matrix<Element>>> pk, shared_ptr<std::vector<RLWETrapdoorPair<Poly>>>   ek) {
 				this->m_pk = pk;
 				this->m_ek = ek;
 			}
@@ -259,7 +259,7 @@ namespace lbcrypto {
 			 * Gets the collection of private keys.
 			 * @return private keys.
 			 */
-			const std::vector<RLWETrapdoorPair<ILVector2n>> &GetEncodingKeys() const {
+			const std::vector<RLWETrapdoorPair<Poly>> &GetEncodingKeys() const {
 				return *(this->m_ek);
 			}
 
@@ -301,7 +301,7 @@ namespace lbcrypto {
 			shared_ptr<Matrix<Element>> m_Rl;
 
 			shared_ptr<std::vector<Matrix<Element>>> m_pk;
-			shared_ptr<std::vector<RLWETrapdoorPair<ILVector2n>>>   m_ek;
+			shared_ptr<std::vector<RLWETrapdoorPair<Poly>>>   m_ek;
 
 	};
 
@@ -370,7 +370,7 @@ namespace lbcrypto {
 			shared_ptr<Matrix<Element>> Encode(
 				const Matrix<Element> &Ai,
 				const Matrix<Element> &Aj,
-				const RLWETrapdoorPair<ILVector2n> &Ti,
+				const RLWETrapdoorPair<Poly> &Ti,
 				const Element &elemS,
 				typename Element::DggType &dgg,
 				typename Element::DggType &dggLargeSigma,

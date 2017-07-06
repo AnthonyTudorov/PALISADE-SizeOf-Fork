@@ -62,15 +62,15 @@ TEST(UTBVDCRT, ILVector2n_bv_DCRT_MODREDUCE) {
 
 	float stdDev = 4;
 
-	shared_ptr<ILDCRTParams<BigBinaryInteger>> params = GenerateDCRTParams(m, plaintextModulus, numOfTower, 40);
+	shared_ptr<ILDCRTParams<BigInteger>> params = GenerateDCRTParams(m, plaintextModulus, numOfTower, 40);
 
-	shared_ptr<CryptoContext<ILDCRT2n>> cc = CryptoContextFactory<ILDCRT2n>::genCryptoContextBV(params, plaintextModulus, m, stdDev);
+	shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBV(params, plaintextModulus, m, stdDev);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 	cc->Enable(LEVELEDSHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILDCRT2n> kp = cc->KeyGen();
+	LPKeyPair<DCRTPoly> kp = cc->KeyGen();
 
 	std::vector<usint> vectorOfInts1 = { 4,1,2,3 };
 
@@ -81,7 +81,7 @@ TEST(UTBVDCRT, ILVector2n_bv_DCRT_MODREDUCE) {
 	//Encryption
 	////////////////////////////////////////////////////////////
 
-	vector<shared_ptr<Ciphertext<ILDCRT2n>>> ciphertext = cc->Encrypt(kp.publicKey, intArray1, false);
+	vector<shared_ptr<Ciphertext<DCRTPoly>>> ciphertext = cc->Encrypt(kp.publicKey, intArray1, false);
 
 	{
 		cc->Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);

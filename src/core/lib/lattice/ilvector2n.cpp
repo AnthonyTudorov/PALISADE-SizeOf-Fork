@@ -645,7 +645,7 @@ void ILVectorImpl<ModType,IntType,VecType,ParmType>::SwitchFormat()
 
 	        bool dbg_flag = false;
 		if (m_values == nullptr) {
-		  std::string errMsg = "ILVector2n switch format to empty values";
+		  std::string errMsg = "Poly switch format to empty values";
 		  throw std::runtime_error(errMsg);
 		}
 
@@ -681,7 +681,7 @@ void ILVectorImpl<ModType,IntType,VecType,ParmType>::ArbitrarySwitchFormat()
 
 	        bool dbg_flag = false;
 		if (m_values == nullptr) {
-		  std::string errMsg = "ILVector2n switch format to empty values";
+		  std::string errMsg = "Poly switch format to empty values";
 		  throw std::runtime_error(errMsg);
 		}
 

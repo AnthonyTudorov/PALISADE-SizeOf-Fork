@@ -27,6 +27,6 @@
 #include "cryptocontext.cpp"
 
 namespace lbcrypto {
-template class CryptoContextFactory<ILVector2n>;
-template class CryptoContext<ILVector2n>;
+template class CryptoContextFactory<Poly>;
+template class CryptoContext<Poly>;
 }

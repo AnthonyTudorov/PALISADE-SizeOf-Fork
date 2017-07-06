@@ -88,7 +88,7 @@ Compares two integer values
 */
 TEST(UTBinVect, SetModulusTest){
 
-	BigBinaryVector m(10);
+	BigVector m(10);
 	
 	m.SetValAtIndex(0,"987968");
 	m.SetValAtIndex(1,"587679");
@@ -101,11 +101,11 @@ TEST(UTBinVect, SetModulusTest){
 	m.SetValAtIndex(8,"325328");
 	m.SetValAtIndex(9,"7698798");	
 
-	BigBinaryInteger q("233");
+	BigInteger q("233");
 
 	m.SetModulus(q);
 
-	BigBinaryVector calculatedResult = m.Mod(q);
+	BigVector calculatedResult = m.Mod(q);
 
 	uint64_t expectedResult[10] = {48,53,7,178,190,120,79,108,60,12};	// the expected values are stored as one dimensional integer array
 
@@ -175,16 +175,16 @@ TEST(UTBinVect,NTL_modulus_framework){
 
 TEST(UTBinVect, CTOR_Test){
   const usint len  = 10;
-  BigBinaryInteger q("233");
+  BigInteger q("233");
   usint expectedResult[10] = {48,53,7,178,190,120,79,108,60,12};
 
   {
-    BigBinaryVector m(len, q, 
+    BigVector m(len, q, 
 		    {"987968","587679","456454","234343",
 			"769789","465654","79","346346",
 			"325328","7698798"});	
 
-    BigBinaryVector calculatedResult = m.Mod(q);
+    BigVector calculatedResult = m.Mod(q);
 
 
     for (usint i=0;i<len;i++){
@@ -193,7 +193,7 @@ TEST(UTBinVect, CTOR_Test){
   }
 
   {
-    BigBinaryVector m(len, q,  {48,53,7,178,190,120,79,108,60,12});
+    BigVector m(len, q,  {48,53,7,178,190,120,79,108,60,12});
 
     for (usint i=0;i<len;i++){
       EXPECT_EQ (expectedResult[i], m.GetValAtIndex(i).ConvertToInt());
@@ -213,9 +213,9 @@ TEST(UTBinVect, CTOR_Test){
 
 TEST(UTBinVect,ModAddBBITestBigModulus){
 
-	BigBinaryInteger q("3435435");	// constructor calling to set mod value
-	BigBinaryVector m(5,q);		// calling constructor to create a vector of length 5 and passing value of q
-	BigBinaryInteger n("3");
+	BigInteger q("3435435");	// constructor calling to set mod value
+	BigVector m(5,q);		// calling constructor to create a vector of length 5 and passing value of q
+	BigInteger n("3");
 
 	m.SetValAtIndex(0,"9868");
 	m.SetValAtIndex(1,"5879");
@@ -223,7 +223,7 @@ TEST(UTBinVect,ModAddBBITestBigModulus){
 	m.SetValAtIndex(3,"2343");
 	m.SetValAtIndex(4,"9789");
 
-	BigBinaryVector calculatedResult = m.ModAdd(n);
+	BigVector calculatedResult = m.ModAdd(n);
 
 	uint64_t expectedResult[5] = {9871, 5882,4557,2346,9792};
 
@@ -239,9 +239,9 @@ TEST(UTBinVect,ModAddBBITestBigModulus){
 TEST(UTBinVect,ModAddBBITestSmallerModulus){
   bool dbg_flag = false;
 
-	BigBinaryInteger q("3534");	// constructor calling to set mod value
-	BigBinaryVector m(5,q);		// calling constructor to create a vector of length 5 and passing value of q
-	BigBinaryInteger n("34365");
+	BigInteger q("3534");	// constructor calling to set mod value
+	BigVector m(5,q);		// calling constructor to create a vector of length 5 and passing value of q
+	BigInteger n("34365");
 
 	DEBUG("m's modulus "<<m.GetModulus());
 	m.SetValAtIndex(0,"9868");
@@ -250,7 +250,7 @@ TEST(UTBinVect,ModAddBBITestSmallerModulus){
 	m.SetValAtIndex(3,"2343");
 	m.SetValAtIndex(4,"9789");
 	
-	BigBinaryVector calculatedResult = m.ModAdd(n);
+	BigVector calculatedResult = m.ModAdd(n);
 
 	DEBUG("m "<<m);
 	DEBUG("calculated result  "<< calculatedResult);
@@ -276,9 +276,9 @@ TEST(UTBinVect,ModAddBBITestSmallerModulus){
 
 TEST(UTBinVect,modsub_first_number_less_than_second_number){
 
-	BigBinaryInteger q("3534");			// constructor calling to set mod value
-	BigBinaryVector m(5,q);				// calling constructor to create a vector of length 5 and passing value of q
-	BigBinaryInteger n("34365");
+	BigInteger q("3534");			// constructor calling to set mod value
+	BigVector m(5,q);				// calling constructor to create a vector of length 5 and passing value of q
+	BigInteger n("34365");
 
 	m.SetValAtIndex(0,"9868");
 	m.SetValAtIndex(1,"5879");
@@ -286,7 +286,7 @@ TEST(UTBinVect,modsub_first_number_less_than_second_number){
 	m.SetValAtIndex(3,"2343");
 	m.SetValAtIndex(4,"9789");
 	
-	BigBinaryVector calculatedResult = m.ModSub(n);
+	BigVector calculatedResult = m.ModSub(n);
 
 	uint64_t expectedResult[5] = {241,3320,1995,3318,162};
 
@@ -299,9 +299,9 @@ TEST(UTBinVect,modsub_first_number_less_than_second_number){
 
 TEST(UTBinVect,modsub_first_number_greater_than_second_number){
 
-	BigBinaryInteger q("35");	// constructor calling to set mod value
-	BigBinaryVector m(5,q);		// calling constructor to create a vector of length 5 and passing value of q
-	BigBinaryInteger n("765");
+	BigInteger q("35");	// constructor calling to set mod value
+	BigVector m(5,q);		// calling constructor to create a vector of length 5 and passing value of q
+	BigInteger n("765");
 	
 	m.SetValAtIndex(0,"9868");
 	m.SetValAtIndex(1,"5879");
@@ -309,7 +309,7 @@ TEST(UTBinVect,modsub_first_number_greater_than_second_number){
 	m.SetValAtIndex(3,"2343");
 	m.SetValAtIndex(4,"9789");
 	
-	BigBinaryVector calculatedResult = m.ModSub(n);
+	BigVector calculatedResult = m.ModSub(n);
 
 	uint64_t expectedResult[5] = {3,4,9,3,29};
 
@@ -327,9 +327,9 @@ TEST(UTBinVect,modsub_first_number_greater_than_second_number){
 */
 TEST(UTBinVect,test_modmul_BBI){
 
-	BigBinaryInteger q("3534");			// constructor calling to set mod value
-	BigBinaryVector m(5,q);				// calling constructor to create a vector of length 5 and passing value of q
-	BigBinaryInteger n("46");
+	BigInteger q("3534");			// constructor calling to set mod value
+	BigVector m(5,q);				// calling constructor to create a vector of length 5 and passing value of q
+	BigInteger n("46");
 
 	m.SetValAtIndex(0,"9868");
 	m.SetValAtIndex(1,"5879");
@@ -337,7 +337,7 @@ TEST(UTBinVect,test_modmul_BBI){
 	m.SetValAtIndex(3,"2343");
 	m.SetValAtIndex(4,"9789");
 
-	BigBinaryVector calculatedResult = m.ModMul(n);
+	BigVector calculatedResult = m.ModMul(n);
 
 	uint64_t expectedResult[5] = {1576,1850,978,1758,1476};
 
@@ -356,9 +356,9 @@ TEST(UTBinVect,test_modmul_BBI){
 */
 TEST(UTBinVect,test_modexp){
   bool dbg_flag = false;
-	BigBinaryInteger q("3534");			// constructor calling to set mod value
-	BigBinaryVector m(5,q);				// calling constructor to create a vector of length 5 and passing value of q
-	BigBinaryInteger n("3");
+	BigInteger q("3534");			// constructor calling to set mod value
+	BigVector m(5,q);				// calling constructor to create a vector of length 5 and passing value of q
+	BigInteger n("3");
 
 	m.SetValAtIndex(0,"968");
 	m.SetValAtIndex(1,"579");
@@ -367,7 +367,7 @@ TEST(UTBinVect,test_modexp){
 	m.SetValAtIndex(4,"97");
 	DEBUG("m's modulus "<<m.GetModulus());
 	
-	BigBinaryVector calculatedResult = m.ModExp(n);
+	BigVector calculatedResult = m.ModExp(n);
 
 	uint64_t expectedResult[5] = {2792,3123,64,159,901};
 
@@ -387,8 +387,8 @@ TEST(UTBinVect,test_modexp){
 */
 TEST(UTBinVect,test_modinv){
 
-	BigBinaryInteger q("35");			// constructor calling to set mod value
-	BigBinaryVector m(5,q);				// calling constructor to create a vector of length 5 and passing value of q
+	BigInteger q("35");			// constructor calling to set mod value
+	BigVector m(5,q);				// calling constructor to create a vector of length 5 and passing value of q
 
 	m.SetValAtIndex(0,"968");
 	m.SetValAtIndex(1,"579");
@@ -396,7 +396,7 @@ TEST(UTBinVect,test_modinv){
 	m.SetValAtIndex(3,"2343");
 	m.SetValAtIndex(4,"97");
 	
-	BigBinaryVector calculatedResult = m.ModInverse();
+	BigVector calculatedResult = m.ModInverse();
 
 	uint64_t expectedResult[5] = {32,24,9,17,13};
 
@@ -417,9 +417,9 @@ TEST(UTBinVect,test_modinv){
 
 TEST(UTBinVect, modadd_vector_result_smaller_modulus){
 		
-	BigBinaryInteger q("878870");		// constructor calling to set mod value
-	BigBinaryVector m(5,q);			// calling constructor to create a vector of length 5 and passing value of q
-	BigBinaryVector n(5,q);
+	BigInteger q("878870");		// constructor calling to set mod value
+	BigVector m(5,q);			// calling constructor to create a vector of length 5 and passing value of q
+	BigVector n(5,q);
 
 	m.SetValAtIndex(0,"9868");
 	m.SetValAtIndex(1,"5879");
@@ -433,7 +433,7 @@ TEST(UTBinVect, modadd_vector_result_smaller_modulus){
 	n.SetValAtIndex(3,"1233");
 	n.SetValAtIndex(4,"7897");
 	
-	BigBinaryVector calculatedResult = m.ModAdd(n);
+	BigVector calculatedResult = m.ModAdd(n);
 
 	uint64_t expectedResult[5] = {14401,10428,11310,3576,17686};
 
@@ -448,9 +448,9 @@ TEST(UTBinVect, modadd_vector_result_smaller_modulus){
 
 TEST(UTBinVect, modadd_vector_result_greater_modulus){
 
-	BigBinaryInteger q("657");		// constructor calling to set mod value
-	BigBinaryVector m(5,q);			// calling constructor to create a vector of length 5 and passing value of q
-	BigBinaryVector n(5,q);	
+	BigInteger q("657");		// constructor calling to set mod value
+	BigVector m(5,q);			// calling constructor to create a vector of length 5 and passing value of q
+	BigVector n(5,q);	
 	
 	m.SetValAtIndex(0,"9868");
 	m.SetValAtIndex(1,"5879");
@@ -464,7 +464,7 @@ TEST(UTBinVect, modadd_vector_result_greater_modulus){
 	n.SetValAtIndex(3,"1233");
 	n.SetValAtIndex(4,"7897");
 	
-	BigBinaryVector calculatedResult = m.ModAdd(n);
+	BigVector calculatedResult = m.ModAdd(n);
 
 	uint64_t expectedResult[5] = {604,573,141,291,604};
 
@@ -482,9 +482,9 @@ TEST(UTBinVect, modadd_vector_result_greater_modulus){
   	Returns:  (m+n)mod q, and the result is stored in BigBinary Vector a.
 */
 TEST(UTBinVect,method_plus_equals_vector_operation){
-	BigBinaryInteger q("657");	
-	BigBinaryVector m(5,q); // calling constructor to create a vector of length 5 and passing value of q
-	BigBinaryVector n(5,q);
+	BigInteger q("657");	
+	BigVector m(5,q); // calling constructor to create a vector of length 5 and passing value of q
+	BigVector n(5,q);
 	
 	m.SetValAtIndex(0,"9868");
 	m.SetValAtIndex(1,"5879");
@@ -516,9 +516,9 @@ TEST(UTBinVect,method_plus_equals_vector_operation){
 
 TEST(UTBinVect, modmul_vector){
 
-	BigBinaryInteger q("657");		// constructor calling to set mod value
-	BigBinaryVector m(5,q);			// calling constructor to create a vector of length 5 and passing value of q
-	BigBinaryVector n(5,q);
+	BigInteger q("657");		// constructor calling to set mod value
+	BigVector m(5,q);			// calling constructor to create a vector of length 5 and passing value of q
+	BigVector n(5,q);
 
 	m.SetValAtIndex(0,"9868");
 	m.SetValAtIndex(1,"5879");
@@ -532,7 +532,7 @@ TEST(UTBinVect, modmul_vector){
 	n.SetValAtIndex(3,"33");
 	n.SetValAtIndex(4,"7");
 	
-	BigBinaryVector calculatedResult = m.ModMul(n);
+	BigVector calculatedResult = m.ModMul(n);
 
 	uint64_t expectedResult[5] = {52,351,315,450,195};
 

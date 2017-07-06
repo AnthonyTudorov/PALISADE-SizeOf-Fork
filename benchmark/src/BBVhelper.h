@@ -33,15 +33,15 @@
 using namespace lbcrypto;
 
 template<typename T>
-inline BigBinaryVector makeVector(shared_ptr<T> p) {
-	ILVector2n::DugType dug;
+inline BigVector makeVector(shared_ptr<T> p) {
+	Poly::DugType dug;
 	dug.SetModulus(p->GetModulus());
 
 	return dug.GenerateVector(p->GetCyclotomicOrder()/2);
 }
 
 inline native_int::BinaryVector makeNativeVector(shared_ptr<ILParams> p) {
-	native_int::ILVector2n::DugType dug;
+	native_int::Poly::DugType dug;
 	dug.SetModulus(p->GetModulus().ConvertToInt());
 
 	return dug.GenerateVector(p->GetRingDimension());

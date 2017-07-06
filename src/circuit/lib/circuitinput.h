@@ -76,8 +76,8 @@ namespace lbcrypto {
 template<typename Element>
 class CircuitObject {
 	wire_type	t;
-	BigBinaryInteger	ival;
-	BigBinaryInteger	dval;
+	BigInteger	ival;
+	BigInteger	dval;
 	shared_ptr<Ciphertext<Element>> ct;
 	shared_ptr<RationalCiphertext<Element>> rct;
 	shared_ptr<Matrix<Ciphertext<Element>>> mct;
@@ -85,8 +85,8 @@ class CircuitObject {
 
 public:
 	CircuitObject() : t(UNKNOWN) {}
-	CircuitObject(const BigBinaryInteger& ival) : t(INT), ival(ival) {}
-	CircuitObject(const BigBinaryInteger& ival, const BigBinaryInteger& dval) : t(RATIONAL), ival(ival), dval(dval) {}
+	CircuitObject(const BigInteger& ival) : t(INT), ival(ival) {}
+	CircuitObject(const BigInteger& ival, const BigInteger& dval) : t(RATIONAL), ival(ival), dval(dval) {}
 	CircuitObject(const shared_ptr<Ciphertext<Element>> ct) : t(VECTOR_INT), ct(ct) {}
 	CircuitObject(const shared_ptr<RationalCiphertext<Element>> rct) : t(VECTOR_RAT), rct(rct) {}
 	CircuitObject(const shared_ptr<Matrix<Ciphertext<Element>>> mct) : t(MATRIX_INT), mct(mct) {}

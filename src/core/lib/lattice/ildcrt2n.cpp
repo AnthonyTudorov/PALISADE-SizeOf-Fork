@@ -67,7 +67,7 @@ ILDCRTImpl<ModType,IntType,VecType,ParmType>::ILDCRTImpl(const ILDCRTImpl &eleme
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-void ILDCRTImpl<ModType,IntType,VecType,ParmType>::fillVectorArrayFromBigVector(const ILVector2n &element, const shared_ptr<ParmType> params)
+void ILDCRTImpl<ModType,IntType,VecType,ParmType>::fillVectorArrayFromBigVector(const Poly &element, const shared_ptr<ParmType> params)
 {
 
 	if( element.GetModulus() > params->GetModulus() ) {
@@ -103,9 +103,9 @@ void ILDCRTImpl<ModType,IntType,VecType,ParmType>::fillVectorArrayFromBigVector(
 	}
 }
 
-/* Construct from a single ILVector2n. The format is derived from the passed in ILVector2n.*/
+/* Construct from a single Poly. The format is derived from the passed in Poly.*/
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-ILDCRTImpl<ModType,IntType,VecType,ParmType>::ILDCRTImpl(const ILVector2n &element, const shared_ptr<ParmType> params)
+ILDCRTImpl<ModType,IntType,VecType,ParmType>::ILDCRTImpl(const Poly &element, const shared_ptr<ParmType> params)
 {
 	Format format;
 	try {
@@ -234,13 +234,13 @@ ILDCRTImpl<ModType,IntType,VecType,ParmType> ILDCRTImpl<ModType,IntType,VecType,
 
 	ILDCRTImpl res = CloneParametersOnly();
 
-	ILVector2n randomElement = ILVector2n::GetPrecomputedVector();
+	Poly randomElement = Poly::GetPrecomputedVector();
 	VecType randVec = VecType(randomElement.GetValues());
 
 	// create an Element to pull from
-	// create a dummy parm to use in the ILVector2n world
+	// create a dummy parm to use in the Poly world
 	shared_ptr<ILParams> parm( new ILParams(m_params->GetCyclotomicOrder(), m_params->GetModulus(), 1) );
-	ILVector2n element( parm );
+	Poly element( parm );
 	element.SetValues( randVec, m_format );
 
 	res.fillVectorArrayFromBigVector(element, m_params);
@@ -286,9 +286,9 @@ template<typename ModType, typename IntType, typename VecType, typename ParmType
 std::vector<ILDCRTImpl<ModType,IntType,VecType,ParmType>> ILDCRTImpl<ModType,IntType,VecType,ParmType>::BaseDecompose(usint baseBits, bool evalModeAnswer) const
 {
 
-	ILVector2n v( CRTInterpolate() );
+	Poly v( CRTInterpolate() );
 
-	std::vector<ILVector2n> bdV = v.BaseDecompose(baseBits, false);
+	std::vector<Poly> bdV = v.BaseDecompose(baseBits, false);
 
 	std::vector<ILDCRTImpl<ModType,IntType,VecType,ParmType>> result;
 
@@ -736,20 +736,20 @@ void ILDCRTImpl<ModType,IntType,VecType,ParmType>::ModReduce(const IntType &plai
 }
 
 /*
- * This method applies the Chinese Remainder Interpolation on an ILVectoArray2n and produces an ILVector2n
+ * This method applies the Chinese Remainder Interpolation on an ILVectoArray2n and produces an Poly
 * How the Algorithm works:
 * Consider the ILDCRTImpl as a 2-dimensional matrix M, with dimension ringDimension * Number of Towers.
 * For brevity , lets say this is r * t
 * Let qt denote the bigModulus (all the towers' moduli multiplied together) and qi denote the modulus of a particular tower.
-* Let V be a BigBinaryVector of size tower (tower size). Each coefficient of V is calculated as follows:
+* Let V be a BigVector of size tower (tower size). Each coefficient of V is calculated as follows:
 * for every r
 *   calculate: V[j]= {Sigma(i = 0 --> t-1) ValueOf M(r,i) * qt/qi *[ (qt/qi)^(-1) mod qi ]}mod qt
 *
-* Once we have the V values, we construct an ILVector2n from V, use qt as it's modulus, and calculate a root of unity
-* for parameter selection of the ILVector2n.
+* Once we have the V values, we construct an Poly from V, use qt as it's modulus, and calculate a root of unity
+* for parameter selection of the Poly.
 */
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-ILVector2n ILDCRTImpl<ModType,IntType,VecType,ParmType>::CRTInterpolate() const
+Poly ILDCRTImpl<ModType,IntType,VecType,ParmType>::CRTInterpolate() const
 {
 	bool dbg_flag = false;
 
@@ -761,21 +761,21 @@ ILVector2n ILDCRTImpl<ModType,IntType,VecType,ParmType>::CRTInterpolate() const
 	for( usint vi = 0; vi < nTowers; vi++ )
 		DEBUG("tower " << vi << " is " << m_vectors[vi]);
 
-	BigBinaryInteger bigModulus(GetModulus()); // qT
+	BigInteger bigModulus(GetModulus()); // qT
 
 	DEBUG("bigModulus " << bigModulus);
 
 	// this is the resulting vector of coefficients
-	BigBinaryVector coefficients(ringDimension, bigModulus);
+	BigVector coefficients(ringDimension, bigModulus);
 
 	// this will finally be  V[j]= {Sigma(i = 0 --> t-1) ValueOf M(r,i) * qt/qj *[ (qt/qj)^(-1) mod qj ]}modqt
 
 	// first, precompute qt/qj factors
-	vector<BigBinaryInteger> multiplier(nTowers);
+	vector<BigInteger> multiplier(nTowers);
 	for( usint vi = 0 ; vi < nTowers; vi++ ) {
-		BigBinaryInteger qj(m_vectors[vi].GetModulus().ConvertToInt());
-		BigBinaryInteger divBy = bigModulus / qj;
-		BigBinaryInteger modInv = divBy.ModInverse(qj).Mod(qj);
+		BigInteger qj(m_vectors[vi].GetModulus().ConvertToInt());
+		BigInteger divBy = bigModulus / qj;
+		BigInteger modInv = divBy.ModInverse(qj).Mod(qj);
 		multiplier[vi] = divBy * modInv;
 
 		DEBUG("multiplier " << vi << " " << qj << " " << multiplier[vi]);
@@ -801,7 +801,7 @@ ILVector2n ILDCRTImpl<ModType,IntType,VecType,ParmType>::CRTInterpolate() const
 	for( usint ri = 0; ri < ringDimension; ri++ ) {
 		coefficients[ri] = 0;
 		for( usint vi = 0; vi < nTowers; vi++ ) {
-			coefficients[ri] += (BigBinaryInteger((*vecs)[vi].GetValues()[ri].ConvertToInt()) * multiplier[vi]);
+			coefficients[ri] += (BigInteger((*vecs)[vi].GetValues()[ri].ConvertToInt()) * multiplier[vi]);
 		}
 		DEBUG( (*vecs)[0].GetValues()[ri] << " * " << multiplier[0] << " == " << coefficients[ri] );
 		coefficients[ri] = coefficients[ri] % bigModulus;
@@ -810,14 +810,14 @@ ILVector2n ILDCRTImpl<ModType,IntType,VecType,ParmType>::CRTInterpolate() const
 	DEBUG("passed loops");
 	DEBUG(coefficients);
 
-	// Create an ILVector2n for this BigBinaryVector
+	// Create an Poly for this BigVector
 
 	DEBUG("elementing after vectoring");
 	DEBUG("m_cyclotomicOrder " << GetCyclotomicOrder());
 	DEBUG("modulus "<< bigModulus);
 
 	// Setting the root of unity to ONE as the calculation is expensive and not required.
-	ILVector2n polynomialReconstructed( shared_ptr<ILParams>( new ILParams(GetCyclotomicOrder(), bigModulus, 1) ) );
+	Poly polynomialReconstructed( shared_ptr<ILParams>( new ILParams(GetCyclotomicOrder(), bigModulus, 1) ) );
 	polynomialReconstructed.SetValues(coefficients,COEFFICIENT);
 
 	DEBUG("answer: " << polynomialReconstructed);

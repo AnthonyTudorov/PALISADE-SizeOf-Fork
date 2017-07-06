@@ -57,7 +57,7 @@ using namespace lbcrypto;
 #include "EncryptHelper.h"
 
 void BM_keygen(benchmark::State& state) { // benchmark
-	shared_ptr<CryptoContext<ILVector2n>> cc;
+	shared_ptr<CryptoContext<Poly>> cc;
 
 	if( state.thread_index == 0 ) {
 		state.PauseTiming();
@@ -66,30 +66,30 @@ void BM_keygen(benchmark::State& state) { // benchmark
 		cc->Enable(PRE);
 
 		try {
-		ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(cc->GetRootOfUnity(),
+		ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(cc->GetRootOfUnity(),
 				cc->GetCyclotomicOrder(),
 				cc->GetModulus());
 		} catch( ... ) {}
 
 		try {
-			typename ILVector2n::DggType dgg = ILVector2n::DggType(4);			// Create the noise generator
-			ILVector2n::PreComputeDggSamples(dgg, cc->GetElementParams());
+			typename Poly::DggType dgg = Poly::DggType(4);			// Create the noise generator
+			Poly::PreComputeDggSamples(dgg, cc->GetElementParams());
 		} catch( ... ) {}
 
 		state.ResumeTiming();
 	}
 
 	while (state.KeepRunning()) {
-		LPKeyPair<ILVector2n> kp = cc->KeyGen();
+		LPKeyPair<Poly> kp = cc->KeyGen();
 	}
 }
 
 BENCHMARK_PARMS(BM_keygen)
 
 void BM_encrypt(benchmark::State& state) { // benchmark
-	shared_ptr<CryptoContext<ILVector2n>> cc;
-	LPKeyPair<ILVector2n> kp;
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
+	shared_ptr<CryptoContext<Poly>> cc;
+	LPKeyPair<Poly> kp;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertext;
 	BytePlaintextEncoding plaintext;
 
 	auto randchar = []() -> char {
@@ -109,14 +109,14 @@ void BM_encrypt(benchmark::State& state) { // benchmark
 		cc->Enable(PRE);
 
 		try {
-		ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(cc->GetRootOfUnity(),
+		ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(cc->GetRootOfUnity(),
 				cc->GetCyclotomicOrder(),
 				cc->GetModulus());
 		} catch( ... ) {}
 
 		try {
-			typename ILVector2n::DggType dgg = ILVector2n::DggType(4);			// Create the noise generator
-			ILVector2n::PreComputeDggSamples(dgg, cc->GetElementParams());
+			typename Poly::DggType dgg = Poly::DggType(4);			// Create the noise generator
+			Poly::PreComputeDggSamples(dgg, cc->GetElementParams());
 		} catch( ... ) {}
 
 		size_t strSize = plaintext.GetChunksize(cc->GetRingDimension(), cc->GetCryptoParameters()->GetPlaintextModulus());
@@ -134,7 +134,7 @@ void BM_encrypt(benchmark::State& state) { // benchmark
 
 	while (state.KeepRunning()) {
 		state.PauseTiming();
-		LPKeyPair<ILVector2n> kp = cc->KeyGen();
+		LPKeyPair<Poly> kp = cc->KeyGen();
 		state.ResumeTiming();
 
 		ciphertext = cc->Encrypt(kp.publicKey, plaintext);
@@ -148,9 +148,9 @@ void BM_encrypt(benchmark::State& state) { // benchmark
 BENCHMARK_PARMS(BM_encrypt)
 
 void BM_decrypt(benchmark::State& state) { // benchmark
-	shared_ptr<CryptoContext<ILVector2n>> cc;
-	LPKeyPair<ILVector2n> kp;
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
+	shared_ptr<CryptoContext<Poly>> cc;
+	LPKeyPair<Poly> kp;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertext;
 	BytePlaintextEncoding plaintext;
 	BytePlaintextEncoding plaintextNew;
 
@@ -171,14 +171,14 @@ void BM_decrypt(benchmark::State& state) { // benchmark
 		cc->Enable(PRE);
 
 		try {
-		ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(cc->GetRootOfUnity(),
+		ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(cc->GetRootOfUnity(),
 				cc->GetCyclotomicOrder(),
 				cc->GetModulus());
 		} catch( ... ) {}
 
 		try {
-			typename ILVector2n::DggType dgg = ILVector2n::DggType(4);			// Create the noise generator
-			ILVector2n::PreComputeDggSamples(dgg, cc->GetElementParams());
+			typename Poly::DggType dgg = Poly::DggType(4);			// Create the noise generator
+			Poly::PreComputeDggSamples(dgg, cc->GetElementParams());
 		} catch( ... ) {}
 
 		size_t strSize = plaintext.GetChunksize(cc->GetRingDimension(), cc->GetCryptoParameters()->GetPlaintextModulus());
@@ -196,7 +196,7 @@ void BM_decrypt(benchmark::State& state) { // benchmark
 
 	while (state.KeepRunning()) {
 		state.PauseTiming();
-		LPKeyPair<ILVector2n> kp = cc->KeyGen();
+		LPKeyPair<Poly> kp = cc->KeyGen();
 		ciphertext = cc->Encrypt(kp.publicKey, plaintext);
 		state.ResumeTiming();
 
@@ -211,9 +211,9 @@ void BM_decrypt(benchmark::State& state) { // benchmark
 BENCHMARK_PARMS(BM_decrypt)
 
 void BM_rekeygen(benchmark::State& state) { // benchmark
-	shared_ptr<CryptoContext<ILVector2n>> cc;
-	LPKeyPair<ILVector2n> kp;
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
+	shared_ptr<CryptoContext<Poly>> cc;
+	LPKeyPair<Poly> kp;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertext;
 	BytePlaintextEncoding plaintext;
 	BytePlaintextEncoding plaintextNew;
 
@@ -234,14 +234,14 @@ void BM_rekeygen(benchmark::State& state) { // benchmark
 		cc->Enable(PRE);
 
 		try {
-		ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(cc->GetRootOfUnity(),
+		ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(cc->GetRootOfUnity(),
 				cc->GetCyclotomicOrder(),
 				cc->GetModulus());
 		} catch( ... ) {}
 
 		try {
-			typename ILVector2n::DggType dgg = ILVector2n::DggType(4);			// Create the noise generator
-			ILVector2n::PreComputeDggSamples(dgg, cc->GetElementParams());
+			typename Poly::DggType dgg = Poly::DggType(4);			// Create the noise generator
+			Poly::PreComputeDggSamples(dgg, cc->GetElementParams());
 		} catch( ... ) {}
 
 		state.ResumeTiming();
@@ -249,11 +249,11 @@ void BM_rekeygen(benchmark::State& state) { // benchmark
 
 	while (state.KeepRunning()) {
 		state.PauseTiming();
-		LPKeyPair<ILVector2n> kp = cc->KeyGen();
-		LPKeyPair<ILVector2n> kp2 = cc->KeyGen();
+		LPKeyPair<Poly> kp = cc->KeyGen();
+		LPKeyPair<Poly> kp2 = cc->KeyGen();
 		state.ResumeTiming();
 
-		shared_ptr<LPEvalKey<ILVector2n>> evalKey;
+		shared_ptr<LPEvalKey<Poly>> evalKey;
 
 		try {
 			evalKey = cc->ReKeyGen(kp2.publicKey, kp.secretKey);
@@ -266,9 +266,9 @@ void BM_rekeygen(benchmark::State& state) { // benchmark
 BENCHMARK_PARMS(BM_rekeygen)
 
 void BM_reencrypt(benchmark::State& state) { // benchmark
-	shared_ptr<CryptoContext<ILVector2n>> cc;
-	LPKeyPair<ILVector2n> kp;
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
+	shared_ptr<CryptoContext<Poly>> cc;
+	LPKeyPair<Poly> kp;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertext;
 	BytePlaintextEncoding plaintext;
 	BytePlaintextEncoding plaintextNew;
 
@@ -289,14 +289,14 @@ void BM_reencrypt(benchmark::State& state) { // benchmark
 		cc->Enable(PRE);
 
 		try {
-		ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(cc->GetRootOfUnity(),
+		ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(cc->GetRootOfUnity(),
 				cc->GetCyclotomicOrder(),
 				cc->GetModulus());
 		} catch( ... ) {}
 
 		try {
-			typename ILVector2n::DggType dgg = ILVector2n::DggType(4);			// Create the noise generator
-			ILVector2n::PreComputeDggSamples(dgg, cc->GetElementParams());
+			typename Poly::DggType dgg = Poly::DggType(4);			// Create the noise generator
+			Poly::PreComputeDggSamples(dgg, cc->GetElementParams());
 		} catch( ... ) {}
 
 		size_t strSize = plaintext.GetChunksize(cc->GetRingDimension(), cc->GetCryptoParameters()->GetPlaintextModulus());
@@ -312,13 +312,13 @@ void BM_reencrypt(benchmark::State& state) { // benchmark
 		state.ResumeTiming();
 	}
 
-	shared_ptr<LPEvalKey<ILVector2n>> evalKey;
-	vector<shared_ptr<Ciphertext<ILVector2n>>> reciphertext;
+	shared_ptr<LPEvalKey<Poly>> evalKey;
+	vector<shared_ptr<Ciphertext<Poly>>> reciphertext;
 
 	while (state.KeepRunning()) {
 		state.PauseTiming();
-		LPKeyPair<ILVector2n> kp = cc->KeyGen();
-		LPKeyPair<ILVector2n> kp2 = cc->KeyGen();
+		LPKeyPair<Poly> kp = cc->KeyGen();
+		LPKeyPair<Poly> kp2 = cc->KeyGen();
 		try {
 			evalKey = cc->ReKeyGen(kp2.publicKey, kp.secretKey);
 		} catch( std::exception& e ) {
@@ -360,7 +360,7 @@ static void BM_SOURCE(benchmark::State& state) {
 	  NTRUPRE(state.range_x());
 
 	  //std::cin.get();
-	  ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().Destroy();
+	  ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().Destroy();
 	  NumberTheoreticTransform::GetInstance().Destroy();
 	}
 
@@ -391,15 +391,15 @@ void NTRUPRE(int input) {
 	// Remove the comments on the following to use a low-security, highly efficient parameterization for integration and debugging purposes.
 	/*
 	usint m = 16;
-	BigBinaryInteger modulus("67108913");
-	BigBinaryInteger rootOfUnity("61564");
+	BigInteger modulus("67108913");
+	BigInteger rootOfUnity("61564");
 	BytePlaintextEncoding plaintext = "N";
 	*/
 
 	// The comments below provide a high-security parameterization for prototype use.  If this code were verified/certified for high-security applications, we would say that the following parameters would be appropriate for "production" use.
 	//usint m = 2048;
-	//BigBinaryInteger modulus("8590983169");
-	//BigBinaryInteger rootOfUnity("4810681236");
+	//BigInteger modulus("8590983169");
+	//BigInteger rootOfUnity("4810681236");
 	//BytePlaintextEncoding plaintext = "NJIT_CRYPTOGRAPHY_LABORATORY_IS_DEVELOPING_NEW-NTRU_LIKE_PROXY_REENCRYPTION_SCHEME_USING_LATTICE_BASED_CRYPTOGRAPHY_ABCDEFGHIJKL";
 
 	SecureParams const SECURE_PARAMS[] = {
@@ -423,7 +423,7 @@ void NTRUPRE(int input) {
 
 	//Set crypto parametes
 
-	shared_ptr<CryptoContext<ILVector2n>> cc =  CryptoContextFactory<ILVector2n>::genCryptoContextLTV(
+	shared_ptr<CryptoContext<Poly>> cc =  CryptoContextFactory<Poly>::genCryptoContextLTV(
 			/* plaintextmodulus */ 2,
 			/* ringdim */ m,
 			modulus,
@@ -433,13 +433,13 @@ void NTRUPRE(int input) {
 
 	//This code is run only when performing execution time measurements
 	//Precomputations for FTT
-	ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(BigBinaryInteger(rootOfUnity), m, BigBinaryInteger(modulus));
+	ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(BigInteger(rootOfUnity), m, BigInteger(modulus));
 
 	//Precomputations for DGG
-	ILVector2n::PreComputeDggSamples(cc->GetGenerator(), cc->GetElementParams());
+	Poly::PreComputeDggSamples(cc->GetGenerator(), cc->GetElementParams());
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp;
+	LPKeyPair<Poly> kp;
 
 	//Regular LWE-NTRU encryption algorithm
 
@@ -463,7 +463,7 @@ void NTRUPRE(int input) {
 
 	// Begin the initial encryption operation.
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertext;
 
 	ciphertext = cc->Encrypt(kp.publicKey,plaintext);
 
@@ -487,7 +487,7 @@ void NTRUPRE(int input) {
 	// This generates the keys which should be able to decrypt the ciphertext after the re-encryption operation.
 	////////////////////////////////////////////////////////////
 
-	LPKeyPair<ILVector2n> newKp;
+	LPKeyPair<Poly> newKp;
 
 	std::cout << "Running second key generation (used for re-encryption)..." << std::endl;
 
@@ -508,7 +508,7 @@ void NTRUPRE(int input) {
 
 	std::cout <<"\n"<< "Generating proxy re-encryption key..." << std::endl;
 
-	shared_ptr<LPEvalKey<ILVector2n>> evalKey;
+	shared_ptr<LPEvalKey<Poly>> evalKey;
 
 	start = currentDateTime();
 
@@ -526,7 +526,7 @@ void NTRUPRE(int input) {
 	////////////////////////////////////////////////////////////
 
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> newCiphertext;
+	vector<shared_ptr<Ciphertext<Poly>>> newCiphertext;
 
 	std::cout <<"\n"<< "Running re-encryption..." << std::endl;
 

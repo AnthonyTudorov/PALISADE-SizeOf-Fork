@@ -62,7 +62,7 @@ using namespace lbcrypto;
 
 #include <iterator>
 
-//ILVector2n tests
+//Poly tests
 void EvalMult();
 void ArbBVAutomorphismPackedArray(usint i);
 void ArbNullAutomorphismPackedArray(usint i);
@@ -139,34 +139,34 @@ void ArbBVAutomorphismPackedArray(usint i) {
 		ChineseRemainderTransformArb<native_int::BinaryInteger, native_int::BinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, q);
 	}
 
-	shared_ptr<ILDCRTParams<BigBinaryInteger>> paramsDCRT(new ILDCRTParams<BigBinaryInteger>(m, init_moduli, init_rootsOfUnity, init_moduli_NTT, init_rootsOfUnity_NTT));
+	shared_ptr<ILDCRTParams<BigInteger>> paramsDCRT(new ILDCRTParams<BigInteger>(m, init_moduli, init_rootsOfUnity, init_moduli_NTT, init_rootsOfUnity_NTT));
 
 	//usint m = 22;
 	usint p = 89;
 
-	BigBinaryInteger modulusP(p);
+	BigInteger modulusP(p);
 
-	//BigBinaryInteger modulusQ("955263939794561");
-	//BigBinaryInteger squareRootOfRoot("941018665059848");
+	//BigInteger modulusQ("955263939794561");
+	//BigInteger squareRootOfRoot("941018665059848");
 
-	//BigBinaryInteger bigmodulus("80899135611688102162227204937217");
-	//BigBinaryInteger bigroot("77936753846653065954043047918387");
+	//BigInteger bigmodulus("80899135611688102162227204937217");
+	//BigInteger bigroot("77936753846653065954043047918387");
 
-	//auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulusQ);
-	//ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulusQ);
+	//auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
+	//ChineseRemainderTransformArb<BigInteger, BigVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 
 	float stdDev = 4;
 
-	shared_ptr<CryptoContext<ILDCRT2n>> cc = CryptoContextFactory<ILDCRT2n>::genCryptoContextBV(paramsDCRT, p, 8, stdDev);
+	shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBV(paramsDCRT, p, 8, stdDev);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILDCRT2n> kp = cc->KeyGen();
+	LPKeyPair<DCRTPoly> kp = cc->KeyGen();
 
-	vector<shared_ptr<Ciphertext<ILDCRT2n>>> ciphertext;
+	vector<shared_ptr<Ciphertext<DCRTPoly>>> ciphertext;
 
 	//std::vector<usint> vectorOfInts = { 0,1,0,2,0,3,0,4,0,5 };
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10 };
@@ -182,9 +182,9 @@ void ArbBVAutomorphismPackedArray(usint i) {
 
 	//cc->EvalMultKeyGen(kp.secretKey);
 
-	vector<shared_ptr<Ciphertext<ILDCRT2n>>> permutedCiphertext;
+	vector<shared_ptr<Ciphertext<DCRTPoly>>> permutedCiphertext;
 
-	shared_ptr<Ciphertext<ILDCRT2n>> p1;
+	shared_ptr<Ciphertext<DCRTPoly>> p1;
 
 	//p1 = cc->EvalMult(ciphertext[0],ciphertext2[0]);
 
@@ -244,7 +244,7 @@ void EvalMult() {
 	init_moduli_NTT[0] = q;
 	init_rootsOfUnity_NTT[0] = RootOfUnity(mNTT, init_moduli_NTT[0]);
 
-	BigBinaryInteger modulus_NTT(1);
+	BigInteger modulus_NTT(1);
 
 	for (usint i = 1; i < init_size; i++) {
 		q = lbcrypto::NextPrime(q, mNTT);
@@ -254,34 +254,34 @@ void EvalMult() {
 		ChineseRemainderTransformArb<native_int::BinaryInteger, native_int::BinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, q);
 	}
 
-	shared_ptr<ILDCRTParams<BigBinaryInteger>> paramsDCRT(new ILDCRTParams<BigBinaryInteger>(m, init_moduli, init_rootsOfUnity, init_moduli_NTT, init_rootsOfUnity_NTT));
+	shared_ptr<ILDCRTParams<BigInteger>> paramsDCRT(new ILDCRTParams<BigInteger>(m, init_moduli, init_rootsOfUnity, init_moduli_NTT, init_rootsOfUnity_NTT));
 
 	//usint m = 22;
 	usint p = 16633;
 
-	BigBinaryInteger modulusP(p);
+	BigInteger modulusP(p);
 
-	//BigBinaryInteger modulusQ("955263939794561");
-	//BigBinaryInteger squareRootOfRoot("941018665059848");
+	//BigInteger modulusQ("955263939794561");
+	//BigInteger squareRootOfRoot("941018665059848");
 
-	//BigBinaryInteger bigmodulus("80899135611688102162227204937217");
-	//BigBinaryInteger bigroot("77936753846653065954043047918387");
+	//BigInteger bigmodulus("80899135611688102162227204937217");
+	//BigInteger bigroot("77936753846653065954043047918387");
 
-	//auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulusQ);
-	//ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulusQ);
+	//auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
+	//ChineseRemainderTransformArb<BigInteger, BigVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 
 	float stdDev = 4;
 
-	shared_ptr<CryptoContext<ILDCRT2n>> cc = CryptoContextFactory<ILDCRT2n>::genCryptoContextBV(paramsDCRT, p, 8, stdDev);
+	shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBV(paramsDCRT, p, 8, stdDev);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILDCRT2n> kp = cc->KeyGen();
+	LPKeyPair<DCRTPoly> kp = cc->KeyGen();
 
-	vector<shared_ptr<Ciphertext<ILDCRT2n>>> ciphertext;
+	vector<shared_ptr<Ciphertext<DCRTPoly>>> ciphertext;
 
 	//std::vector<usint> vectorOfInts = { 0,1,0,2,0,3,0,4,0,5 };
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10 };
@@ -290,7 +290,7 @@ void EvalMult() {
 
 	ciphertext = cc->Encrypt(kp.publicKey, intArray, false);
 
-	vector<shared_ptr<Ciphertext<ILDCRT2n>>> ciphertext2;
+	vector<shared_ptr<Ciphertext<DCRTPoly>>> ciphertext2;
 
 	std::vector<usint> vectorOfInts2 = { 2,3,4,4,5,6,7,8,9,101 };
 	PackedIntPlaintextEncoding intArray2(vectorOfInts2);
@@ -304,9 +304,9 @@ void EvalMult() {
 
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	vector<shared_ptr<Ciphertext<ILDCRT2n>>> permutedCiphertext;
+	vector<shared_ptr<Ciphertext<DCRTPoly>>> permutedCiphertext;
 
-	shared_ptr<Ciphertext<ILDCRT2n>> p1;
+	shared_ptr<Ciphertext<DCRTPoly>> p1;
 
 	p1 = cc->EvalMult(ciphertext[0], ciphertext2[0]);
 
@@ -376,32 +376,32 @@ void ArbNullAutomorphismPackedArray(usint i) {
 		ChineseRemainderTransformArb<native_int::BinaryInteger, native_int::BinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, q);
 	}
 
-	shared_ptr<ILDCRTParams<BigBinaryInteger>> paramsDCRT(new ILDCRTParams<BigBinaryInteger>(m, init_moduli, init_rootsOfUnity, init_moduli_NTT, init_rootsOfUnity_NTT));
+	shared_ptr<ILDCRTParams<BigInteger>> paramsDCRT(new ILDCRTParams<BigInteger>(m, init_moduli, init_rootsOfUnity, init_moduli_NTT, init_rootsOfUnity_NTT));
 
 	//usint m = 22;
 	usint p = 89;
 
-	BigBinaryInteger modulusP(p);
+	BigInteger modulusP(p);
 
-	//BigBinaryInteger modulusQ("955263939794561");
-	//BigBinaryInteger squareRootOfRoot("941018665059848");
+	//BigInteger modulusQ("955263939794561");
+	//BigInteger squareRootOfRoot("941018665059848");
 
-	//BigBinaryInteger bigmodulus("80899135611688102162227204937217");
-	//BigBinaryInteger bigroot("77936753846653065954043047918387");
+	//BigInteger bigmodulus("80899135611688102162227204937217");
+	//BigInteger bigroot("77936753846653065954043047918387");
 
-	//auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulusQ);
-	//ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulusQ);
+	//auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
+	//ChineseRemainderTransformArb<BigInteger, BigVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 
-	shared_ptr<CryptoContext<ILDCRT2n>> cc = CryptoContextFactory<ILDCRT2n>::genCryptoContextNull(paramsDCRT, p);
+	shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextNull(paramsDCRT, p);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILDCRT2n> kp = cc->KeyGen();
+	LPKeyPair<DCRTPoly> kp = cc->KeyGen();
 
-	vector<shared_ptr<Ciphertext<ILDCRT2n>>> ciphertext;
+	vector<shared_ptr<Ciphertext<DCRTPoly>>> ciphertext;
 
 	//std::vector<usint> vectorOfInts = { 0,1,0,2,0,3,0,4,0,5 };
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10 };
@@ -417,9 +417,9 @@ void ArbNullAutomorphismPackedArray(usint i) {
 
 	//cc->EvalMultKeyGen(kp.secretKey);
 
-	vector<shared_ptr<Ciphertext<ILDCRT2n>>> permutedCiphertext;
+	vector<shared_ptr<Ciphertext<DCRTPoly>>> permutedCiphertext;
 
-	shared_ptr<Ciphertext<ILDCRT2n>> p1;
+	shared_ptr<Ciphertext<DCRTPoly>> p1;
 
 	//p1 = cc->EvalMult(ciphertext[0],ciphertext2[0]);
 
@@ -493,24 +493,24 @@ void ArbBVInnerProductPackedArray() {
 		ChineseRemainderTransformArb<native_int::BinaryInteger, native_int::BinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, q);
 	}
 
-	shared_ptr<ILDCRTParams<BigBinaryInteger>> paramsDCRT(new ILDCRTParams<BigBinaryInteger>(m, init_moduli, init_rootsOfUnity, init_moduli_NTT, init_rootsOfUnity_NTT));
+	shared_ptr<ILDCRTParams<BigInteger>> paramsDCRT(new ILDCRTParams<BigInteger>(m, init_moduli, init_rootsOfUnity, init_moduli_NTT, init_rootsOfUnity_NTT));
 
-	BigBinaryInteger modulusP(p);
+	BigInteger modulusP(p);
 
 	PackedIntPlaintextEncoding::SetParams(modulusP, m);
 
 	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP), batchSize));
 
-	shared_ptr<CryptoContext<ILDCRT2n>> cc = CryptoContextFactory<ILDCRT2n>::genCryptoContextBV(paramsDCRT, encodingParams, 8, stdDev);
+	shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBV(paramsDCRT, encodingParams, 8, stdDev);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 
 	// Initialize the public key containers.
-	LPKeyPair<ILDCRT2n> kp = cc->KeyGen();
+	LPKeyPair<DCRTPoly> kp = cc->KeyGen();
 
-	vector<shared_ptr<Ciphertext<ILDCRT2n>>> ciphertext1;
-	vector<shared_ptr<Ciphertext<ILDCRT2n>>> ciphertext2;
+	vector<shared_ptr<Ciphertext<DCRTPoly>>> ciphertext1;
+	vector<shared_ptr<Ciphertext<DCRTPoly>>> ciphertext2;
 
 	std::vector<usint> vectorOfInts1 = { 1,2,3,4,5,6,7,8,0,0 };
 	PackedIntPlaintextEncoding intArray1(vectorOfInts1);
@@ -531,7 +531,7 @@ void ArbBVInnerProductPackedArray() {
 
 	auto result = cc->EvalInnerProduct(ciphertext1[0], ciphertext2[0], batchSize);
 
-	vector<shared_ptr<Ciphertext<ILDCRT2n>>> ciphertextSum;
+	vector<shared_ptr<Ciphertext<DCRTPoly>>> ciphertextSum;
 
 	ciphertextSum.push_back(result);
 

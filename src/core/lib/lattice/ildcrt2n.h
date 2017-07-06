@@ -84,20 +84,20 @@ public:
 	/**
 	* Constructor that initializes parameters.
 	*
-	*@param params parameter set required for ILDCRT2n.
+	*@param params parameter set required for DCRTPoly.
 	*@param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 	*@param initializeElementToZero
 	*/
 	ILDCRTImpl(const shared_ptr<ParmType> params, Format format = EVALUATION, bool initializeElementToZero = false);
 
 	// FIXME should be private?
-	void fillVectorArrayFromBigVector(const ILVector2n& element, const shared_ptr<ParmType> params);
+	void fillVectorArrayFromBigVector(const Poly& element, const shared_ptr<ParmType> params);
 
 	/**
 	* @brief Constructor based on discrete Gaussian generator.
 	*
-	* @param &dgg the input discrete Gaussian generator. The dgg will be the seed to populate the towers of the ILDCRT2n with random numbers.
-	* @param params parameter set required for ILDCRT2n.
+	* @param &dgg the input discrete Gaussian generator. The dgg will be the seed to populate the towers of the DCRTPoly with random numbers.
+	* @param params parameter set required for DCRTPoly.
 	* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 	*/
 	ILDCRTImpl(const DggType &dgg, const shared_ptr<ParmType> params, Format format = EVALUATION);
@@ -105,23 +105,23 @@ public:
 	/**
 	* @brief Constructor based on binary Gaussian generator. This is not implemented. Will throw a logic_error.
 	*
-	* @param &bug the input binary uniform generator. The bug will be the seed to populate the towers of the ILDCRT2n with random numbers.
-	* @param params parameter set required for ILDCRT2n.
+	* @param &bug the input binary uniform generator. The bug will be the seed to populate the towers of the DCRTPoly with random numbers.
+	* @param params parameter set required for DCRTPoly.
 	* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 	*/
 	ILDCRTImpl(const BugType &bug, const shared_ptr<ParmType> params, Format format = EVALUATION) {
-		throw std::logic_error("Cannot use BinaryUniformGenerator with ILDCRT2n; not implemented");
+		throw std::logic_error("Cannot use BinaryUniformGenerator with DCRTPoly; not implemented");
 	}
 
 	/**
 	* @brief Constructor based on binary Gaussian generator. This is not implemented. Will throw a logic_error.
 	*
-	* @param &tug the input ternary uniform generator. The bug will be the seed to populate the towers of the ILDCRT2n with random numbers.
-	* @param params parameter set required for ILDCRT2n.
+	* @param &tug the input ternary uniform generator. The bug will be the seed to populate the towers of the DCRTPoly with random numbers.
+	* @param params parameter set required for DCRTPoly.
 	* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 	*/
 	ILDCRTImpl(const TugType &tug, const shared_ptr<ParmType> params, Format format = EVALUATION) {
-		throw std::logic_error("Cannot use TernaryUniformGenerator with ILDCRT2n; not implemented");
+		throw std::logic_error("Cannot use TernaryUniformGenerator with DCRTPoly; not implemented");
 	}
 
 	/**
@@ -134,31 +134,31 @@ public:
 	ILDCRTImpl(DugType &dug, const shared_ptr<ParmType> params, Format format = EVALUATION);
 
 	/**
-	* @brief Construct using a single ILVector2n. The ILVector2n is copied into every tower. Each tower will be reduced to it's corresponding modulus  via GetModuli(at tower index). The format is derived from the passed in ILVector2n.
+	* @brief Construct using a single Poly. The Poly is copied into every tower. Each tower will be reduced to it's corresponding modulus  via GetModuli(at tower index). The format is derived from the passed in Poly.
 	*
-	* @param &element ILVector2n to build other towers from.
-	* @param params parameter set required for ILDCRT2n.
+	* @param &element Poly to build other towers from.
+	* @param params parameter set required for DCRTPoly.
 	*/
-	ILDCRTImpl(const ILVector2n &element, const shared_ptr<ParmType> params);
+	ILDCRTImpl(const Poly &element, const shared_ptr<ParmType> params);
 
 	/**
-	* @brief Construct using an tower of ILVectro2ns. The params and format for the ILDCRT2n will be derived from the towers.
+	* @brief Construct using an tower of ILVectro2ns. The params and format for the DCRTPoly will be derived from the towers.
 	*
-	* @param &towers vector of ILVector2ns which correspond to each tower of ILDCRT2n.
+	* @param &towers vector of ILVector2ns which correspond to each tower of DCRTPoly.
 	*/
 	ILDCRTImpl(const std::vector<ILVectorType> &elements);
 
 	/**
 	* @brief Copy constructor.
 	*
-	* @param &element ILDCRT2n to copy from
+	* @param &element DCRTPoly to copy from
 	*/
 	ILDCRTImpl(const ILVectorArrayType &element);
 
 	/**
 	* @brief Move constructor.
 	*
-	* @param &&element ILDCRT2n to move from
+	* @param &&element DCRTPoly to move from
 	*/
 	ILDCRTImpl(const ILVectorArrayType &&element);
 
@@ -180,14 +180,14 @@ public:
 	}
 
 	/**
-	* @brief Clone method creates a new ILDCRT2n and clones only the params. The tower values are empty. The tower values can be filled by another process/function or initializer list.
+	* @brief Clone method creates a new DCRTPoly and clones only the params. The tower values are empty. The tower values can be filled by another process/function or initializer list.
 	*/
 	ILVectorArrayType CloneParametersOnly() const;
 
 	/**
-	* @brief Clone with noise.  This method creates a new ILDCRT2n and clones the params. The tower values will be filled up with noise based on the discrete gaussian.
+	* @brief Clone with noise.  This method creates a new DCRTPoly and clones the params. The tower values will be filled up with noise based on the discrete gaussian.
 	*
-	* @param &dgg the input discrete Gaussian generator. The dgg will be the seed to populate the towers of the ILDCRT2n with random numbers.
+	* @param &dgg the input discrete Gaussian generator. The dgg will be the seed to populate the towers of the DCRTPoly with random numbers.
 	* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 	*/
 	ILVectorArrayType CloneWithNoise(const DiscreteGaussianGeneratorImpl<IntType,VecType> &dgg, Format format = EVALUATION) const;
@@ -502,7 +502,7 @@ public:
 	* @return is the return value of the modulus.
 	*/
 	ILVectorArrayType SignedMod(const IntType &modulus) const {
-		throw std::logic_error("SignedMod of an IntType not implemented on ILDCRT2n");
+		throw std::logic_error("SignedMod of an IntType not implemented on DCRTPoly");
 	}
 
 	// OTHER FUNCTIONS AND UTILITIES
@@ -513,7 +513,7 @@ public:
 	* @return will throw a logic_error
 	*/
 	const VecType &GetValues() const {
-		throw std::logic_error("GetValues not implemented on ILDCRT2n");
+		throw std::logic_error("GetValues not implemented on DCRTPoly");
 	}
 
 	/**
@@ -523,7 +523,7 @@ public:
 	* @param format
 	*/
 	void SetValues(const VecType &values, Format format) {
-		throw std::logic_error("SetValues not implemented on ILDCRT2n");
+		throw std::logic_error("SetValues not implemented on DCRTPoly");
 	}
 
 	/**
@@ -544,14 +544,14 @@ public:
 	}
 
 	/**
-	* @brief Make ILDCRT2n Sparse. Sets every index of each tower not equal to zero mod the wFactor to zero.
+	* @brief Make DCRTPoly Sparse. Sets every index of each tower not equal to zero mod the wFactor to zero.
 	*
 	* @param &wFactor ratio between the sparse and none-sparse values.
 	*/
 	void MakeSparse(const uint32_t &wFactor);
 
 	/**
-	* @brief Performs ILVector2n::Decompose on each tower and adjusts the ILDCRT2n.m_parameters accordingly. This method also reduces the ring dimension by half.
+	* @brief Performs Poly::Decompose on each tower and adjusts the DCRTPoly.m_parameters accordingly. This method also reduces the ring dimension by half.
 	*/
 	void Decompose();
 
@@ -562,24 +562,24 @@ public:
 	bool IsEmpty() const;
 
 	/**
-	* @brief Drops the last element in the double-CRT representation. The resulting ILDCRT2n element will have one less tower.
+	* @brief Drops the last element in the double-CRT representation. The resulting DCRTPoly element will have one less tower.
 	*/
 	void DropLastElement();
 
 	/**
-	* @brief ModReduces reduces the ILDCRT2n element's composite modulus by dropping the last modulus from the chain of moduli as well as dropping the last tower.
+	* @brief ModReduces reduces the DCRTPoly element's composite modulus by dropping the last modulus from the chain of moduli as well as dropping the last tower.
 	*
-	* @param plaintextModulus is the plaintextModulus used for the ILDCRT2n
+	* @param plaintextModulus is the plaintextModulus used for the DCRTPoly
 	*/
 	void ModReduce(const IntType &plaintextModulus);
 
 	/**
-	* @brief Interpolates the ILDCRT2n to an ILVector2n based on the Chinese Remainder Transform Interpolation.
-	* and then returns an ILDCRT2n with that single element
+	* @brief Interpolates the DCRTPoly to an Poly based on the Chinese Remainder Transform Interpolation.
+	* and then returns an DCRTPoly with that single element
 	*
-	* @return the interpolated ring element embeded into ILDCRT2n.
+	* @return the interpolated ring element embeded into DCRTPoly.
 	*/
-	ILVector2n CRTInterpolate() const;
+	Poly CRTInterpolate() const;
 
 	/**
 	* @brief Convert from Coefficient to CRT or vice versa; calls FFT and inverse FFT.
@@ -740,7 +740,7 @@ private:
 namespace lbcrypto
 {
 
-typedef ILDCRTImpl<BigBinaryInteger, BigBinaryInteger, BigBinaryVector, ILDCRTParams<BigBinaryInteger>> ILDCRT2n;
+typedef ILDCRTImpl<BigInteger, BigInteger, BigVector, ILDCRTParams<BigInteger>> DCRTPoly;
 
 }
 

@@ -57,17 +57,17 @@ template class BigBinaryVectorImpl<native_int::NativeInteger<uint64_t>>;
 
 namespace lbcrypto
 {
-template class DiscreteGaussianGeneratorImpl<BigBinaryInteger,BigBinaryVector>;
-template class BinaryUniformGeneratorImpl<BigBinaryInteger,BigBinaryVector>;
-template class TernaryUniformGeneratorImpl<BigBinaryInteger,BigBinaryVector>;
-template class DiscreteUniformGeneratorImpl<BigBinaryInteger,BigBinaryVector>;
+template class DiscreteGaussianGeneratorImpl<BigInteger,BigVector>;
+template class BinaryUniformGeneratorImpl<BigInteger,BigVector>;
+template class TernaryUniformGeneratorImpl<BigInteger,BigVector>;
+template class DiscreteUniformGeneratorImpl<BigInteger,BigVector>;
 }
 
 namespace lbcrypto
 {
-template class ILParamsImpl<BigBinaryInteger>;
+template class ILParamsImpl<BigInteger>;
 
-template class ILVectorImpl<BigBinaryInteger,BigBinaryInteger,BigBinaryVector,ILParams>;
+template class ILVectorImpl<BigInteger,BigInteger,BigVector,ILParams>;
 
 //template<>
 //ILVectorImpl<native_int::BinaryInteger,native_int::BinaryInteger,native_int::BinaryVector,native_int::ILParams>::ILVectorImpl(const shared_ptr<ILDCRTParams> params, Format format, bool initializeElementToZero) : m_values(nullptr), m_format(format) {

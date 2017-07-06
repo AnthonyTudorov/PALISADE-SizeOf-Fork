@@ -76,7 +76,7 @@ IntType DiscreteUniformGeneratorImpl<IntType,VecType>::GenerateInteger () const 
 
 		result = 0;
 
-		// Generate random uint32_t "limbs" of the BigBinaryInteger
+		// Generate random uint32_t "limbs" of the BigInteger
 		for (usint i = 0; i < m_chunksPerValue; i++) {
 			//Generate an unsigned long integer
 			value = m_distribution(PseudoRandomNumberGenerator::GetPRNG());

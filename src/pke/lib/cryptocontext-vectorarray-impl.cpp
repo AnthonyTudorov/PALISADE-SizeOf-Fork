@@ -28,7 +28,7 @@
 #include "cryptocontext.cpp"
 
 namespace lbcrypto {
-template class CryptoContextFactory<ILDCRT2n>;
-template class CryptoContext<ILDCRT2n>;
+template class CryptoContextFactory<DCRTPoly>;
+template class CryptoContext<DCRTPoly>;
 }
 

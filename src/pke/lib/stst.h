@@ -102,7 +102,7 @@ public:
 	 */
 	LPCryptoParametersStehleSteinfeld(
 			shared_ptr<typename Element::Params> params,
-			const BigBinaryInteger &plaintextModulus,
+			const BigInteger &plaintextModulus,
 			float distributionParameter,
 			float assuranceMeasure,
 			float securityLevel,
@@ -287,7 +287,7 @@ public:
 
 		const shared_ptr<LPCryptoParametersStehleSteinfeld<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersStehleSteinfeld<Element>>(cc->GetCryptoParameters());
 
-		const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
+		const BigInteger &p = cryptoParams->GetPlaintextModulus();
 
 		const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGeneratorStSt();
 

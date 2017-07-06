@@ -40,8 +40,8 @@
 //using namespace std;
 using namespace lbcrypto;
 
-double CONOBF_run_ACS(TimeVar t1, LWEConjunctionObfuscationAlgorithm<ILVector2n> algorithm, ObfuscatedLWEConjunctionPattern<ILVector2n> obfuscatedPattern, std::string inputStr, bool expectedResult, int evalNum, bool *errorflag); //defined later
-double CONOBF_run(TimeVar t1, LWEConjunctionObfuscationAlgorithm<ILVector2n> algorithm, ObfuscatedLWEConjunctionPattern<ILVector2n> obfuscatedPattern, std::string inputStr, bool expectedResult, int evalNum, bool *errorflag); //defined later
+double CONOBF_run_ACS(TimeVar t1, LWEConjunctionObfuscationAlgorithm<Poly> algorithm, ObfuscatedLWEConjunctionPattern<Poly> obfuscatedPattern, std::string inputStr, bool expectedResult, int evalNum, bool *errorflag); //defined later
+double CONOBF_run(TimeVar t1, LWEConjunctionObfuscationAlgorithm<Poly> algorithm, ObfuscatedLWEConjunctionPattern<Poly> obfuscatedPattern, std::string inputStr, bool expectedResult, int evalNum, bool *errorflag); //defined later
 bool CONJOBF(bool dbg_flag, int n_evals, int n, bool use_ACS); //defined later
 
 
@@ -118,7 +118,7 @@ int main(int argc, char* argv[]){
 
 }
 //////////////////////////////////////////////////////////////////////
-double CONOBF_run_ACS(TimeVar t, LWEConjunctionObfuscationAlgorithm<ILVector2n> algorithm, ObfuscatedLWEConjunctionPattern<ILVector2n> obfuscatedPattern, std::string inputStr, bool expectedResult, int evalNum, bool *errorflag, bool dbg_flag){
+double CONOBF_run_ACS(TimeVar t, LWEConjunctionObfuscationAlgorithm<Poly> algorithm, ObfuscatedLWEConjunctionPattern<Poly> obfuscatedPattern, std::string inputStr, bool expectedResult, int evalNum, bool *errorflag, bool dbg_flag){
 	double timeEval(0.0), runTime(0.0);
 	bool result = false;
 
@@ -145,7 +145,7 @@ double CONOBF_run_ACS(TimeVar t, LWEConjunctionObfuscationAlgorithm<ILVector2n> 
 }
 
 //////////////////////////////////////////////////////////////////////
-double CONOBF_run(TimeVar t, LWEConjunctionObfuscationAlgorithm<ILVector2n> algorithm, ObfuscatedLWEConjunctionPattern<ILVector2n> obfuscatedPattern, std::string inputStr, bool expectedResult, int evalNum, bool *errorflag, bool dbg_flag){
+double CONOBF_run(TimeVar t, LWEConjunctionObfuscationAlgorithm<Poly> algorithm, ObfuscatedLWEConjunctionPattern<Poly> obfuscatedPattern, std::string inputStr, bool expectedResult, int evalNum, bool *errorflag, bool dbg_flag){
 	double timeEval(0.0), runTime(0.0);
 	bool result = false;
 
@@ -190,28 +190,28 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n, bool use_ACS) {
 
 	usint m = 2*n;
 	//54 bits
-	//BigBinaryInteger modulus("9007199254741169");
-	//BigBinaryInteger rootOfUnity("7629104920968175");
+	//BigInteger modulus("9007199254741169");
+	//BigInteger rootOfUnity("7629104920968175");
 
 	usint chunkSize = 1;
 
 	//Generate the test pattern
 	std::string inputPattern = "1?10";
-	ClearLWEConjunctionPattern<ILVector2n> clearPattern(inputPattern);
+	ClearLWEConjunctionPattern<Poly> clearPattern(inputPattern);
 
-	ObfuscatedLWEConjunctionPattern<ILVector2n> obfuscatedPattern;
+	ObfuscatedLWEConjunctionPattern<Poly> obfuscatedPattern;
 	obfuscatedPattern.SetChunkSize(chunkSize);
 	obfuscatedPattern.SetLength(clearPattern.GetLength());
 	obfuscatedPattern.SetRootHermiteFactor(1.006);
 
-	LWEConjunctionObfuscationAlgorithm<ILVector2n> algorithm;
+	LWEConjunctionObfuscationAlgorithm<Poly> algorithm;
 
 	//Variables for timing
 	double timeDGGSetup(0.0), timeKeyGen(0.0), timeObf(0.0), timeEval1(0.0), 
 		timeEval2(0.0), timeEval3(0.0), timeTotal(0.0);
 
 	double stdDev = SIGMA;
-	typename ILVector2n::DggType dgg(stdDev);			// Create the noise generator
+	typename Poly::DggType dgg(stdDev);			// Create the noise generator
 
 	//Finds q using the correctness constraint for the given value of n
 	algorithm.ParamsGen(dgg, &obfuscatedPattern, m / 2);
@@ -221,8 +221,8 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n, bool use_ACS) {
 
 	const shared_ptr<ILParams> ilParams = std::dynamic_pointer_cast<ILParams>(obfuscatedPattern.GetParameters());
 
-	const BigBinaryInteger &modulus = ilParams->GetModulus();
-	const BigBinaryInteger &rootOfUnity = ilParams->GetRootOfUnity();
+	const BigInteger &modulus = ilParams->GetModulus();
+	const BigInteger &rootOfUnity = ilParams->GetRootOfUnity();
 	m = ilParams->GetCyclotomicOrder();
 
 	PROFILELOG( "\nq = " << modulus);
@@ -230,21 +230,21 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n, bool use_ACS) {
 	PROFILELOG("n = " << m / 2 );
 	PROFILELOG(printf("delta=%lf", obfuscatedPattern.GetRootHermiteFactor()));
 
-	typename ILVector2n::DugType dug;
+	typename Poly::DugType dug;
 	dug.SetModulus(modulus);
-	typename ILVector2n::TugType tug;
+	typename Poly::TugType tug;
 
 	PROFILELOG("\nCryptosystem initialization: Performing precomputations...");
 
 	//This code is run only when performing execution time measurements
 
 	//Precomputations for FTT
-	ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(rootOfUnity, m, modulus);
+	ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(rootOfUnity, m, modulus);
 	DiscreteFourierTransform::GetInstance().PreComputeTable(m);
 
 	//Precomputations for DGG
 	TIC(t1);
-	ILVector2n::PreComputeDggSamples(dgg, ilParams);
+	Poly::PreComputeDggSamples(dgg, ilParams);
 	timeDGGSetup = TOC(t1);
 	PROFILELOG("DGG Precomputation time: " << "\t" << timeDGGSetup << " ms");
 
@@ -364,7 +364,7 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n, bool use_ACS) {
 		std::cout << "SUCCESS " << std::endl;
 	}
 
-	ILVector2n::DestroyPreComputedSamples();
+	Poly::DestroyPreComputedSamples();
 	DiscreteFourierTransform::GetInstance().Destroy();
 
 	return (errorflag);

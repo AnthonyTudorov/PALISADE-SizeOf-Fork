@@ -71,7 +71,7 @@ public:
 	 * @param &modulus is the modulus for the primary ciphertext.
 	 * @param rootsOfUnity is unused
 	 */
-	ILDCRTParams(const usint cyclotomic_order, const BigBinaryInteger &modulus, const BigBinaryInteger& rootsOfUnity)
+	ILDCRTParams(const usint cyclotomic_order, const BigInteger &modulus, const BigInteger& rootsOfUnity)
 		: ElemParams<IntType>(cyclotomic_order, modulus, 0, 0, 0) {}
 
 	/**

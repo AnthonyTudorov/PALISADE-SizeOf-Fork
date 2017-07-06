@@ -37,7 +37,7 @@ namespace lbcrypto {
 	std::map<native_int::BinaryInteger, std::vector<usint>> PackedIntPlaintextEncoding::m_toCRTPerm;
 	std::map<native_int::BinaryInteger, std::vector<usint>> PackedIntPlaintextEncoding::m_fromCRTPerm;
 
-	void PackedIntPlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector, size_t startFrom, size_t length) const
+	void PackedIntPlaintextEncoding::Encode(const BigInteger &modulus, Poly *ilVector, size_t startFrom, size_t length) const
 	{
 		size_t padlen = 0;
 		uint64_t mod = modulus.ConvertToInt();
@@ -50,19 +50,19 @@ namespace lbcrypto {
 			length = length - padlen;
 		}
 
-		BigBinaryVector temp(ilVector->GetRingDimension(), ilVector->GetModulus());
+		BigVector temp(ilVector->GetRingDimension(), ilVector->GetModulus());
 
 		for (size_t i = 0; i < length; i++) {
 			uint32_t entry = this->at(i + startFrom);
 			if (entry >= mod)
 				throw std::logic_error("Cannot encode integer at position " + std::to_string(i) + " because it is >= plaintext modulus " + std::to_string(mod));
-			BigBinaryInteger Val = BigBinaryInteger(entry);
+			BigInteger Val = BigInteger(entry);
 			temp.SetValAtIndex(i, Val);
 		}
 
-		//BigBinaryInteger Num = modulus - BigBinaryInteger::ONE;
+		//BigInteger Num = modulus - BigInteger::ONE;
 		for (size_t i = 0; i<padlen; i++) {
-			temp.SetValAtIndex(i + length, BigBinaryInteger(0));
+			temp.SetValAtIndex(i + length, BigInteger(0));
 		}
 
 		ilVector->SetValues(temp, Format::EVALUATION); //output was in coefficient format
@@ -71,7 +71,7 @@ namespace lbcrypto {
 
 	}
 
-	void PackedIntPlaintextEncoding::Decode(const BigBinaryInteger &modulus, ILVector2n *ilVector) {
+	void PackedIntPlaintextEncoding::Decode(const BigInteger &modulus, Poly *ilVector) {
 
 		this->Unpack(ilVector, modulus); //Format is in COEFFICIENT
 
@@ -82,7 +82,7 @@ namespace lbcrypto {
 	}
 
 
-	size_t PackedIntPlaintextEncoding::GetChunksize(const usint ring, const BigBinaryInteger& ptm) const
+	size_t PackedIntPlaintextEncoding::GetChunksize(const usint ring, const BigInteger& ptm) const
 	{
 		return ring;
 	}
@@ -98,7 +98,7 @@ namespace lbcrypto {
 		m_fromCRTPerm.clear();
 	}
 
-	void PackedIntPlaintextEncoding::SetParams(const BigBinaryInteger &modulus, usint m)
+	void PackedIntPlaintextEncoding::SetParams(const BigInteger &modulus, usint m)
 	{
 		native_int::BinaryInteger modulusNI(modulus.ConvertToInt()); //native int modulus
 
@@ -151,16 +151,26 @@ namespace lbcrypto {
 
 	}
 
-	void PackedIntPlaintextEncoding::Pack(ILVector2n *ring, const BigBinaryInteger &modulus) const {
+	void PackedIntPlaintextEncoding::Pack(Poly *ring, const BigInteger &modulus) const {
+
+		usint n = ring->GetRingDimension(); //ring dimension
 		usint m = ring->GetCyclotomicOrder();//cyclotomic order
 		native_int::BinaryInteger modulusNI(modulus.ConvertToInt());//native int modulus
 
 		//Do the precomputation if not initialized
 		if (this->m_initRoot[modulusNI].GetMSB() == 0) {
-			SetParams(modulus, m);
+			if (params->OrderIsPowerOfTwo())
+				m_initRoot[modulusNI] = RootOfUnity<native_int::BinaryInteger>(m, modulusNI);
+			else
+				SetParams(modulus, m);
+			//std::cout << "generator? = " << IsGenerator<BigInteger>(this->initRoot, BigInteger(m)) << std::endl;
+			//std::cout << "root found" << initRoot << std::endl;
 		}
 
-		usint phim = ring->GetRingDimension(); //ring dimension
+		//stores the ring modulus temporarily, after packing is done it is replaced back
+		BigInteger qMod(ring->GetModulus());
+
+		native_int::BinaryVector slotValues(ring->GetValues().GetLength(),modulusNI);
 
 		//copy values from ring to the vector
 		native_int::BinaryVector slotValues(phim, modulusNI);
@@ -187,7 +197,7 @@ namespace lbcrypto {
 		}
 
 		//copy values into the slotValuesRing
-		BigBinaryVector slotValuesRing(phim, ring->GetModulus());
+		BigVector slotValuesRing(phim, ring->GetModulus());
 		for (usint i = 0; i < phim; i++) {
 			slotValuesRing.SetValAtIndex(i, BigBinaryInteger(slotValues.GetValAtIndex(i).ConvertToInt()));
 		}
@@ -198,7 +208,8 @@ namespace lbcrypto {
 
 	}
 
-	void PackedIntPlaintextEncoding::Unpack(ILVector2n *ring, const BigBinaryInteger &modulus) const {
+	void PackedIntPlaintextEncoding::Unpack(Poly *ring, const BigInteger &modulus) const {
+
 		usint m = ring->GetCyclotomicOrder(); // cyclotomic order
 		native_int::BinaryInteger modulusNI(modulus.ConvertToInt()); //native int modulus
 
@@ -231,10 +242,10 @@ namespace lbcrypto {
 			}
 		}
 
-		BigBinaryVector packedVectorRing(phim, ring->GetModulus());
+		BigVector packedVectorRing(phim, ring->GetModulus());
 
 		for (usint i = 0; i < phim; i++) {
-			packedVectorRing.SetValAtIndex(i, BigBinaryInteger(packedVector.GetValAtIndex(i).ConvertToInt()));
+			packedVectorRing.SetValAtIndex(i, BigInteger(packedVector.GetValAtIndex(i).ConvertToInt()));
 		}
 
 		ring->SetValues(packedVectorRing, Format::COEFFICIENT);

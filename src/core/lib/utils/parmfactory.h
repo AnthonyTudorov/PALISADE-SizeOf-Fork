@@ -63,7 +63,7 @@ inline shared_ptr<Params> GenerateTestParams(usint m, usint nbits) {
  * @param pbits - number of bits in the prime, to start with
  * @return
  */
-inline shared_ptr<ILDCRTParams<BigBinaryInteger>> GenerateDCRTParams(usint m, usint ptm, usint numOfTower, usint pbits) {
+inline shared_ptr<ILDCRTParams<BigInteger>> GenerateDCRTParams(usint m, usint ptm, usint numOfTower, usint pbits) {
 
 	if( numOfTower == 0 )
 		throw std::logic_error("Can't make parms with numOfTower == 0 ");
@@ -74,20 +74,20 @@ inline shared_ptr<ILDCRTParams<BigBinaryInteger>> GenerateDCRTParams(usint m, us
 	native_int::BinaryInteger ptmI( ptm );
 
 	native_int::BinaryInteger q = FirstPrime<native_int::BinaryInteger>(pbits, m);
-	BigBinaryInteger modulus(1);
+	BigInteger modulus(1);
 
 	usint j = 0;
 	for(;;) {
 		moduli[j] = q;
 		rootsOfUnity[j] = RootOfUnity(m, q);
-		modulus = modulus * BigBinaryInteger(q.ConvertToInt());
+		modulus = modulus * BigInteger(q.ConvertToInt());
 		if( ++j == numOfTower )
 			break;
 
 		q = NextPrime(q, m);
 	}
 
-	shared_ptr<ILDCRTParams<BigBinaryInteger>> params(new ILDCRTParams<BigBinaryInteger>(m, moduli, rootsOfUnity));
+	shared_ptr<ILDCRTParams<BigInteger>> params(new ILDCRTParams<BigInteger>(m, moduli, rootsOfUnity));
 
 	return params;
 }

@@ -28,21 +28,21 @@
 #include "ltv.cpp"
 
 namespace lbcrypto {
-template class LPCryptoParametersLTV<ILDCRT2n>;
-template class LPPublicKeyEncryptionSchemeLTV<ILDCRT2n>;
-template class LPAlgorithmLTV<ILDCRT2n>;
-template class LPAlgorithmPRELTV<ILDCRT2n>;
-template class LPAlgorithmSHELTV<ILDCRT2n>;
-template class LPLeveledSHEAlgorithmLTV<ILDCRT2n>;
+template class LPCryptoParametersLTV<DCRTPoly>;
+template class LPPublicKeyEncryptionSchemeLTV<DCRTPoly>;
+template class LPAlgorithmLTV<DCRTPoly>;
+template class LPAlgorithmPRELTV<DCRTPoly>;
+template class LPAlgorithmSHELTV<DCRTPoly>;
+template class LPLeveledSHEAlgorithmLTV<DCRTPoly>;
 
 template<>
-bool LPAlgorithmParamsGenLTV<ILDCRT2n>::ParamsGen(shared_ptr<LPCryptoParameters<ILDCRT2n>> cryptoParams,
+bool LPAlgorithmParamsGenLTV<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams,
 		int32_t evalAddCount, int32_t evalMultCount, int32_t keySwitchCount) const
 {
 	if (!cryptoParams)
 		return false;
 
-	const shared_ptr<LPCryptoParametersLTV<ILDCRT2n>> cParams = std::dynamic_pointer_cast<LPCryptoParametersLTV<ILDCRT2n>>(cryptoParams);
+	const shared_ptr<LPCryptoParametersLTV<DCRTPoly>> cParams = std::dynamic_pointer_cast<LPCryptoParametersLTV<DCRTPoly>>(cryptoParams);
 
 	double w = cParams->GetAssuranceMeasure();
 	double hermiteFactor = cParams->GetSecurityLevel();
@@ -86,9 +86,9 @@ bool LPAlgorithmParamsGenLTV<ILDCRT2n>::ParamsGen(shared_ptr<LPCryptoParameters<
 			qvals.push_back(q2);
 		}
 
-		BigBinaryInteger prod(1);
+		BigInteger prod(1);
 		for( const auto& qv : qvals )
-			prod = prod * BigBinaryInteger(qv.ConvertToInt());
+			prod = prod * BigInteger(qv.ConvertToInt());
 
 		// check the correctness constraint
 		auto constraint = log2( prod.ConvertToDouble() ) / secD;
@@ -105,7 +105,7 @@ bool LPAlgorithmParamsGenLTV<ILDCRT2n>::ParamsGen(shared_ptr<LPCryptoParameters<
 	for( const auto& qv : qvals )
 		roots.push_back( RootOfUnity(n, qv) );
 
-	shared_ptr<ILDCRTParams<BigBinaryInteger>> params(new ILDCRTParams<BigBinaryInteger>(n, qvals, roots));
+	shared_ptr<ILDCRTParams<BigInteger>> params(new ILDCRTParams<BigInteger>(n, qvals, roots));
 	cParams->SetElementParams( params );
 
 	return true;

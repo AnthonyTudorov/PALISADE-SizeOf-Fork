@@ -87,7 +87,7 @@ public:
 	 */
 	LPCryptoParametersLTV(
 			shared_ptr<typename Element::Params> params,
-			const BigBinaryInteger &plaintextModulus,
+			const BigInteger &plaintextModulus,
 			float distributionParameter,
 			float assuranceMeasure,
 			float securityLevel,
@@ -252,7 +252,7 @@ public:
 	 * @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 	 * @return A shared pointer to the encrypted Ciphertext.
 	 */
-	shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, ILVector2n &plaintext, bool doEncryption = true) const;
+	shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, Poly &plaintext, bool doEncryption = true) const;
 
 	/**
 	 * Decrypt method for the LTV Scheme.  See the class description for citations on where the algorithms were
@@ -265,7 +265,7 @@ public:
 	 */
 	DecryptResult Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const shared_ptr<Ciphertext<Element>> ciphertext,
-		ILVector2n *plaintext) const;
+		Poly *plaintext) const;
 
 	/**
 	 * Key Generation method for the LTV scheme.
@@ -419,7 +419,7 @@ public:
 	* @return the success/fail result
 	*/
 	DecryptResult MultipartyDecryptFusion(const vector<shared_ptr<Ciphertext<Element>>>& ciphertextVec,
-		ILVector2n *plaintext) const {
+		Poly *plaintext) const {
 		std::string errMsg = "LPAlgorithmPREBV::MultipartyDecrypt is not implemented for the LTV Scheme.";
 		throw std::runtime_error(errMsg);
 	}
@@ -696,7 +696,7 @@ public:
 	* @param rootHermiteFactor The security threshold.
 	* @return True if the security threshold is satisfied in the new ring dimension.
 	*/
-	bool CanRingReduce(usint ringDimension, const std::vector<BigBinaryInteger> &moduli, const double rootHermiteFactor) const;
+	bool CanRingReduce(usint ringDimension, const std::vector<BigInteger> &moduli, const double rootHermiteFactor) const;
 };
 
 /**

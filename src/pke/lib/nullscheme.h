@@ -37,7 +37,7 @@ class LPCryptoParametersNull : public LPCryptoParameters<Element> {
 public:
 	LPCryptoParametersNull() : LPCryptoParameters<Element>() {}
 
-	LPCryptoParametersNull(const shared_ptr<typename Element::Params> ep, const BigBinaryInteger &plaintextModulus)
+	LPCryptoParametersNull(const shared_ptr<typename Element::Params> ep, const BigInteger &plaintextModulus)
 		: LPCryptoParameters<Element>(ep, plaintextModulus) {}
 
 	LPCryptoParametersNull(shared_ptr<typename Element::Params> ep, shared_ptr<EncodingParams> encodingParams)
@@ -47,7 +47,7 @@ public:
 
 	virtual ~LPCryptoParametersNull() {}
 
-	void SetPlaintextModulus(const BigBinaryInteger &plaintextModulus) {
+	void SetPlaintextModulus(const BigInteger &plaintextModulus) {
 		throw std::logic_error("plaintext modulus is fixed to be == ciphertext modulus and cannot be changed");
 	}
 
@@ -124,7 +124,7 @@ public:
 
 		if( (pIt = mIter->value.FindMember("PlaintextModulus")) == mIter->value.MemberEnd() )
 			return false;
-		BigBinaryInteger plaintextModulus(pIt->value.GetString());
+		BigInteger plaintextModulus(pIt->value.GetString());
 
 		LPCryptoParameters<Element>::SetPlaintextModulus(plaintextModulus);
 		return true;
@@ -163,7 +163,7 @@ public:
 	* @param *ciphertext ciphertext which results from encryption.
 	*/
 	shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> pubKey,
-		ILVector2n &ptxt, bool doEncryption = true) const {
+		Poly &ptxt, bool doEncryption = true) const {
 		shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(pubKey->GetCryptoContext()) );
 
 		Element plaintext(ptxt, pubKey->GetCryptoContext()->GetCryptoParameters()->GetElementParams());
@@ -184,9 +184,9 @@ public:
 	*/
 	DecryptResult Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const shared_ptr<Ciphertext<Element>> ciphertext,
-		ILVector2n *plaintext) const {
+		Poly *plaintext) const {
 		Element b = ciphertext->GetElement();
-		ILVector2n interpolatedElement = b.CRTInterpolate();
+		Poly interpolatedElement = b.CRTInterpolate();
 		*plaintext = interpolatedElement.SignedMod(ciphertext->GetCryptoContext()->GetCryptoParameters()->GetPlaintextModulus());
 		return DecryptResult(plaintext->GetLength());
 	}
@@ -390,9 +390,9 @@ public:
 		 * @return the decoding result.
 		 */
 	DecryptResult MultipartyDecryptFusion(const vector<shared_ptr<Ciphertext<Element>>>& ciphertextVec,
-		ILVector2n *plaintext) const {
+		Poly *plaintext) const {
 		Element b = ciphertextVec[0]->GetElement();
-		ILVector2n interpolatedElement = b.CRTInterpolate();
+		Poly interpolatedElement = b.CRTInterpolate();
 		*plaintext = interpolatedElement;
 		return DecryptResult(plaintext->GetLength());
 	}
@@ -469,7 +469,7 @@ class LPLeveledSHEAlgorithmNull : public LPLeveledSHEAlgorithm<Element> {
 		* @param &moduli is the vector of moduli that is used
 		* @param rootHermiteFactor is the security threshold
 		*/
-		bool CanRingReduce(usint ringDimension, const std::vector<BigBinaryInteger> &moduli, const double rootHermiteFactor) const {
+		bool CanRingReduce(usint ringDimension, const std::vector<BigInteger> &moduli, const double rootHermiteFactor) const {
 			throw std::logic_error("CanRingReduce not implemented for Null");
 		}
 };
@@ -528,11 +528,11 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		 * @param &ciphertext2 second input ciphertext.
 		 * @param *newCiphertext the new resulting ciphertext.
 		 */
-		shared_ptr<Ciphertext<ILVector2n>> EvalMult(const shared_ptr<Ciphertext<ILVector2n>> ciphertext1,
-			const shared_ptr<Ciphertext<ILVector2n>> ciphertext2) const;
+		shared_ptr<Ciphertext<Poly>> EvalMult(const shared_ptr<Ciphertext<Poly>> ciphertext1,
+			const shared_ptr<Ciphertext<Poly>> ciphertext2) const;
 
-		shared_ptr<Ciphertext<ILDCRT2n>> EvalMult(const shared_ptr<Ciphertext<ILDCRT2n>> ciphertext1,
-			const shared_ptr<Ciphertext<ILDCRT2n>> ciphertext2) const;
+		shared_ptr<Ciphertext<DCRTPoly>> EvalMult(const shared_ptr<Ciphertext<DCRTPoly>> ciphertext1,
+			const shared_ptr<Ciphertext<DCRTPoly>> ciphertext2) const;
 
 		/**
 		 * Function for evaluating multiplication on ciphertext followed by key switching operation.
@@ -713,7 +713,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 
 	private:
 		typename Element::ILVectorType ElementNullSchemeMultiply(const typename Element::ILVectorType& c1, const typename Element::ILVectorType& c2,
-				const BigBinaryInteger& ptmod) const {
+				const BigInteger& ptmod) const {
 
 			typename Element::ILVectorType cResult(c1.GetParams(), Format::COEFFICIENT, true);
 

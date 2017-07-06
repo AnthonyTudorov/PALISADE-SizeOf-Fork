@@ -37,9 +37,9 @@ namespace lbcrypto
  */
 template<typename IntType> class EncodingParamsImpl;
 /**
- * @brief defining typedef  EncodingParamsImpl<BigBinaryInteger> as EncodingParams. 
+ * @brief defining typedef  EncodingParamsImpl<BigInteger> as EncodingParams. 
  */
-typedef EncodingParamsImpl<BigBinaryInteger> EncodingParams;
+typedef EncodingParamsImpl<BigInteger> EncodingParams;
 }
 
 namespace lbcrypto

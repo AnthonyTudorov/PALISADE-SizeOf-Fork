@@ -53,7 +53,7 @@ BytePlaintextEncoding& BytePlaintextEncoding::operator=(const char* cstr) {
 
 template<typename IntType, typename VecType, typename ElementType>
 static void
-doEncode(const BytePlaintextEncoding& item, const BigBinaryInteger &modulus, ElementType *ilVector, size_t startFrom, size_t length)
+doEncode(const BytePlaintextEncoding& item, const BigInteger &modulus, ElementType *ilVector, size_t startFrom, size_t length)
 {
 	size_t		padlen = 0;
 
@@ -127,16 +127,16 @@ doDecode(BytePlaintextEncoding& item, const IntType &modulus, ElementType *ilVec
 	}
 }
 
-void BytePlaintextEncoding::Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector, size_t start_from, size_t length) const {
-	doEncode<BigBinaryInteger,BigBinaryVector,ILVector2n>(*this, modulus, ilVector, start_from, length);
+void BytePlaintextEncoding::Encode(const BigInteger &modulus, Poly *ilVector, size_t start_from, size_t length) const {
+	doEncode<BigInteger,BigVector,Poly>(*this, modulus, ilVector, start_from, length);
 }
 
-void BytePlaintextEncoding::Decode(const BigBinaryInteger &modulus, ILVector2n *ilVector) {
+void BytePlaintextEncoding::Decode(const BigInteger &modulus, Poly *ilVector) {
 	doDecode(*this, modulus, ilVector);
 }
 
 void
-BytePlaintextEncoding::Unpad(const BigBinaryInteger &)
+BytePlaintextEncoding::Unpad(const BigInteger &)
 {
 	usint nPadding = 0;
 	for (sint i = this->size() - 1; i >= 0; --i) { //todo: warning conversion from size_t
@@ -149,7 +149,7 @@ BytePlaintextEncoding::Unpad(const BigBinaryInteger &)
 }
 
 size_t
-BytePlaintextEncoding::GetChunksize(const usint ring, const BigBinaryInteger& ptm) const
+BytePlaintextEncoding::GetChunksize(const usint ring, const BigInteger& ptm) const
 {
 	return (ring / 8) * log2(ptm.ConvertToInt());
 }

@@ -29,7 +29,7 @@
 #include "stst.h"
 
 namespace lbcrypto {
-template class LPCryptoParametersStehleSteinfeld<ILDCRT2n>;
-template class LPPublicKeyEncryptionSchemeStehleSteinfeld<ILDCRT2n>;
-template class LPAlgorithmStSt<ILDCRT2n>;
+template class LPCryptoParametersStehleSteinfeld<DCRTPoly>;
+template class LPPublicKeyEncryptionSchemeStehleSteinfeld<DCRTPoly>;
+template class LPAlgorithmStSt<DCRTPoly>;
 }

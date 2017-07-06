@@ -30,24 +30,24 @@
 namespace lbcrypto {
 
 template<>
-shared_ptr<Ciphertext<ILVector2n>> LPAlgorithmSHENull<ILVector2n>::EvalMult(const shared_ptr<Ciphertext<ILVector2n>> ciphertext1,
-	const shared_ptr<Ciphertext<ILVector2n>> ciphertext2) const {
+shared_ptr<Ciphertext<Poly>> LPAlgorithmSHENull<Poly>::EvalMult(const shared_ptr<Ciphertext<Poly>> ciphertext1,
+	const shared_ptr<Ciphertext<Poly>> ciphertext2) const {
 
-	shared_ptr<Ciphertext<ILVector2n>> newCiphertext(new Ciphertext<ILVector2n>(ciphertext2->GetCryptoContext()));
+	shared_ptr<Ciphertext<Poly>> newCiphertext(new Ciphertext<Poly>(ciphertext2->GetCryptoContext()));
 
-	const ILVector2n& c1 = ciphertext1->GetElement();
-	const ILVector2n& c2 = ciphertext2->GetElement();
+	const Poly& c1 = ciphertext1->GetElement();
+	const Poly& c2 = ciphertext2->GetElement();
 
-	const BigBinaryInteger& ptm = ciphertext1->GetCryptoParameters()->GetPlaintextModulus();
+	const BigInteger& ptm = ciphertext1->GetCryptoParameters()->GetPlaintextModulus();
 
-	ILVector2n cResult = ElementNullSchemeMultiply(c1, c2, ptm);
+	Poly cResult = ElementNullSchemeMultiply(c1, c2, ptm);
 
 	newCiphertext->SetElement(cResult);
 
 	return newCiphertext;
 }
 
-template class LPCryptoParametersNull<ILVector2n>;
-template class LPPublicKeyEncryptionSchemeNull<ILVector2n>;
-template class LPAlgorithmNull<ILVector2n>;
+template class LPCryptoParametersNull<Poly>;
+template class LPPublicKeyEncryptionSchemeNull<Poly>;
+template class LPAlgorithmNull<Poly>;
 }

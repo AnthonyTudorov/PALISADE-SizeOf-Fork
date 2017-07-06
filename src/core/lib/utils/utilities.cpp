@@ -31,17 +31,17 @@ namespace lbcrypto {
 //Zero-Padd adds extra zeros to the Input polynomial
 //if Input polynomial has a length n less than CycloOrder,
 //then it adds CycloOrder-n zeros in the Input Polynomial
-BigBinaryVector ZeroPadForward(const BigBinaryVector &InputPoly,usint target_order){
+BigVector ZeroPadForward(const BigVector &InputPoly,usint target_order){
 
 	if(InputPoly.GetLength()<target_order){
 
-		BigBinaryVector ans(target_order);
+		BigVector ans(target_order);
 
 		for(usint i=0;i<InputPoly.GetLength();i++)
 			ans.SetValAtIndex(i,InputPoly.GetValAtIndex(i));
 
 		for(usint i=InputPoly.GetLength();i<target_order;i++)
-			ans.SetValAtIndex(i, BigBinaryInteger(0));
+			ans.SetValAtIndex(i, BigInteger(0));
 
 		ans.SetModulus(InputPoly.GetModulus());
 
@@ -50,20 +50,20 @@ BigBinaryVector ZeroPadForward(const BigBinaryVector &InputPoly,usint target_ord
 	}
 
 	else{
-		return BigBinaryVector(InputPoly);
+		return BigVector(InputPoly);
 	}
 }
 
-//Adds 0 between each BigBinaryInteger to support conversion from Inverse FFT to Inverse CRT
-BigBinaryVector ZeroPadInverse(const BigBinaryVector &InputPoly,usint target_order){
+//Adds 0 between each BigInteger to support conversion from Inverse FFT to Inverse CRT
+BigVector ZeroPadInverse(const BigVector &InputPoly,usint target_order){
 
 	if(InputPoly.GetLength()<target_order){
 
-		BigBinaryVector ans(target_order);
+		BigVector ans(target_order);
 
 		for(usint i=0;i<InputPoly.GetLength();i++)
 		{
-			ans.SetValAtIndex(2*i,BigBinaryInteger("0"));
+			ans.SetValAtIndex(2*i,BigInteger("0"));
 			ans.SetValAtIndex(2*i+1,InputPoly.GetValAtIndex(i));
 		}
 
@@ -73,7 +73,7 @@ BigBinaryVector ZeroPadInverse(const BigBinaryVector &InputPoly,usint target_ord
 	}
 
 	else{
-		return BigBinaryVector(InputPoly);
+		return BigVector(InputPoly);
 	}
 
 }

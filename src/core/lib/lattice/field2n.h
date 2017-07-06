@@ -60,7 +60,7 @@ public:
 	 * @brief Constructor from ring element
 	 * @param & element ring element
 	 */
-	explicit Field2n(const ILVector2n & element);
+	explicit Field2n(const Poly & element);
 
 	/** 
 	 * @brief Constructor from a ring element matrix

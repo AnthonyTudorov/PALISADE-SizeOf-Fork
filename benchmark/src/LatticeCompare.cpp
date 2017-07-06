@@ -64,12 +64,12 @@ typedef native_int::BinaryInteger nativeInt;
 typedef native_int::BinaryVector nativeVec;
 typedef native_int::ILParams nativeParams;
 
-//typedef cpu_int::BigBinaryInteger<uint32_t,64>  smallInt32_64;
-////template class cpu_int::BigBinaryInteger<uint32_t,64>;
+//typedef cpu_int::BigInteger<uint32_t,64>  smallInt32_64;
+////template class cpu_int::BigInteger<uint32_t,64>;
 //template class cpu_int::BigBinaryVectorImpl<smallInt32_64>;
 //
-//typedef cpu_int::BigBinaryInteger<uint32_t,128>  smallInt32_128;
-////template class cpu_int::BigBinaryInteger<uint32_t,128>;
+//typedef cpu_int::BigInteger<uint32_t,128>  smallInt32_128;
+////template class cpu_int::BigInteger<uint32_t,128>;
 //template class cpu_int::BigBinaryVectorImpl<smallInt32_128>;
 
 map<int,map<int,string>> primes;
@@ -83,8 +83,8 @@ loadprimes()
 	ranloadprimes = true;
 	for( int mbits = 30; mbits <= 60; mbits *= 2 ) {
 		for( int n = 1024; n <=8192; n *= 2 ) {
-			primes[n][mbits] = FirstPrime<BigBinaryInteger>(mbits, n).ToString();
-			roots[n][mbits] = RootOfUnity<BigBinaryInteger>(n, BigBinaryInteger(primes[n][mbits])).ToString();
+			primes[n][mbits] = FirstPrime<BigInteger>(mbits, n).ToString();
+			roots[n][mbits] = RootOfUnity<BigInteger>(n, BigInteger(primes[n][mbits])).ToString();
 		}
 	}
 }
@@ -130,7 +130,7 @@ static void BM_add_LATTICE(benchmark::State& state) { // benchmark
 }
 
 BENCHMARK_TEMPLATE(BM_add_LATTICE,nativeInt, nativeVec, nativeParams )->Apply(CustomArguments);
-BENCHMARK_TEMPLATE(BM_add_LATTICE,BigBinaryInteger, BigBinaryVector, ILParams)->Apply(CustomArguments);
+BENCHMARK_TEMPLATE(BM_add_LATTICE,BigInteger, BigVector, ILParams)->Apply(CustomArguments);
 
 template <class IntType, class VecType, typename ParamType>
 static void mult_LATTICE(benchmark::State& state) {	// function
@@ -151,7 +151,7 @@ static void BM_mult_LATTICE(benchmark::State& state) { // benchmark
 }
 
 BENCHMARK_TEMPLATE(BM_mult_LATTICE,nativeInt,nativeVec,nativeParams)->Apply(CustomArguments);
-BENCHMARK_TEMPLATE(BM_mult_LATTICE,BigBinaryInteger,BigBinaryVector,ILParams)->Apply(CustomArguments);
+BENCHMARK_TEMPLATE(BM_mult_LATTICE,BigInteger,BigVector,ILParams)->Apply(CustomArguments);
 
 template <class IntType, class VecType, class ParamType>
 static void switchformat_LATTICE(benchmark::State& state) {
@@ -171,7 +171,7 @@ static void BM_switchformat_LATTICE(benchmark::State& state) { // benchmark
 }
 
 BENCHMARK_TEMPLATE(BM_switchformat_LATTICE,nativeInt,nativeVec,nativeParams)->Apply(CustomArguments);
-BENCHMARK_TEMPLATE(BM_switchformat_LATTICE,BigBinaryInteger,BigBinaryVector,ILParams)->Apply(CustomArguments);
+BENCHMARK_TEMPLATE(BM_switchformat_LATTICE,BigInteger,BigVector,ILParams)->Apply(CustomArguments);
 
 //execute the benchmarks
 BENCHMARK_MAIN()

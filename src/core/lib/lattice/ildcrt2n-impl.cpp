@@ -35,15 +35,15 @@
 #include "../math/ternaryuniformgenerator.cpp"
 #include "ildcrt2n.cpp"
 
-// This creates all the necessary class implementations for ILDCRT2n
+// This creates all the necessary class implementations for DCRTPoly
 
 namespace lbcrypto
 {
 
 template class ElemParams<native_int::BinaryInteger>;
 template class ILParamsImpl<native_int::BinaryInteger>;
-template class ILDCRTParams<BigBinaryInteger>;
-template class EncodingParamsImpl<BigBinaryInteger>;
-template class ILDCRTImpl<BigBinaryInteger, BigBinaryInteger, BigBinaryVector, ILDCRTParams<BigBinaryInteger>>;
+template class ILDCRTParams<BigInteger>;
+template class EncodingParamsImpl<BigInteger>;
+template class ILDCRTImpl<BigInteger, BigInteger, BigVector, ILDCRTParams<BigInteger>>;
 
 }

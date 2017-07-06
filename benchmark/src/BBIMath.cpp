@@ -76,7 +76,7 @@ using namespace lbcrypto;
 
 // test BBI constants
 static void make_BBI_constants(void) {	// function
-	BigBinaryInteger one(BigBinaryInteger::ONE);
+	BigInteger one(BigInteger::ONE);
 }
 
 void BM_BBI_constants(benchmark::State& state) { // benchmark
@@ -92,7 +92,7 @@ BENCHMARK(BM_BBI_constants);		// register benchmark
 // make variables
 
 static void make_BBI_small_variables (void) {	// function
-	BigBinaryInteger a("10403"), b("103");
+	BigInteger a("10403"), b("103");
 }
 
 
@@ -108,7 +108,7 @@ BENCHMARK(BM_BBI_small_variables);		// register benchmark
 
 
 static void make_BBI_large_variables (void) {	// function
-	BigBinaryInteger a("18446744073709551616"), b("18446744073709551617");
+	BigInteger a("18446744073709551616"), b("18446744073709551617");
 }
 
 void BM_BBI_large_variables(benchmark::State& state) { // benchmark
@@ -119,18 +119,18 @@ void BM_BBI_large_variables(benchmark::State& state) { // benchmark
 
 BENCHMARK(BM_BBI_large_variables);
 
-static BigBinaryInteger smalla("10403"), smallb("103");
-static BigBinaryInteger largea("18446744073709551616"), largeb("18446744073709551617");
+static BigInteger smalla("10403"), smallb("103");
+static BigInteger largea("18446744073709551616"), largeb("18446744073709551617");
 
 
 // add
 static void add_BBI(benchmark::State& state) {	// function
 	state.PauseTiming();
-	BigBinaryInteger& a = state.range(0) == 0 ? smalla : largea;
-	BigBinaryInteger& b = state.range(0) == 0 ? smallb : largeb;
+	BigInteger& a = state.range(0) == 0 ? smalla : largea;
+	BigInteger& b = state.range(0) == 0 ? smallb : largeb;
 	state.ResumeTiming();
 
-	BigBinaryInteger c1 = a+b;
+	BigInteger c1 = a+b;
 }
 
 static void BM_BBI_Addition(benchmark::State& state) { // benchmark
@@ -146,11 +146,11 @@ BENCHMARK(BM_BBI_Addition)->ArgName("Large")->Arg(1);
 // add
 static void mult_BBI(benchmark::State& state) {	// function
 	state.PauseTiming();
-	BigBinaryInteger& a = state.range(0) == 0 ? smalla : largea;
-	BigBinaryInteger& b = state.range(0) == 0 ? smallb : largeb;
+	BigInteger& a = state.range(0) == 0 ? smalla : largea;
+	BigInteger& b = state.range(0) == 0 ? smallb : largeb;
 	state.ResumeTiming();
 
-	BigBinaryInteger c1 = a*b;
+	BigInteger c1 = a*b;
 }
 
 static void BM_BBI_Multiplication(benchmark::State& state) { // benchmark

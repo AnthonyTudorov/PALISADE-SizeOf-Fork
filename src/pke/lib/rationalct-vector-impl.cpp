@@ -29,8 +29,8 @@
 #include "rationalciphertext.cpp"
 
 namespace lbcrypto {
-extern template class CryptoContext<ILVector2n>;
+extern template class CryptoContext<Poly>;
 
-template class RationalCiphertext<ILVector2n>;
+template class RationalCiphertext<Poly>;
 }
 

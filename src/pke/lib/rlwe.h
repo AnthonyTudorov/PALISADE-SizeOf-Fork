@@ -80,7 +80,7 @@ public:
 	 */
 	LPCryptoParametersRLWE(
 			shared_ptr<typename Element::Params> params,
-			const BigBinaryInteger &plaintextModulus,
+			const BigInteger &plaintextModulus,
 			float distributionParameter,
 			float assuranceMeasure,
 			float securityLevel,
@@ -314,7 +314,7 @@ protected:
 
 		if( (pIt = mIter->value.FindMember("PlaintextModulus")) == mIter->value.MemberEnd() )
 			return false;
-		BigBinaryInteger bbiPlaintextModulus(pIt->value.GetString());
+		BigInteger bbiPlaintextModulus(pIt->value.GetString());
 
 		if( (pIt = mIter->value.FindMember("DistributionParameter")) == mIter->value.MemberEnd() )
 			return false;

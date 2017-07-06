@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
 	double rootHermiteFactor = 1.006;	
 
 	//Set Crypto Parameters	
-	shared_ptr<CryptoContext<ILVector2n>> cryptoContext = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
+	shared_ptr<CryptoContext<Poly>> cryptoContext = CryptoContextFactory<Poly>::genCryptoContextFV(
 			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 1, 0);
 
 	// enable features that you wish to use
@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
 	////////////////////////////////////////////////////////////
 
 	// Initialize Key Pair Containers
-	LPKeyPair<ILVector2n> keyPair1;
+	LPKeyPair<Poly> keyPair1;
 
 	std::cout << "Running key generation (used for source data)..." << std::endl;
 
@@ -114,7 +114,7 @@ int main(int argc, char *argv[])
 	////////////////////////////////////////////////////////////
 
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext1;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertext1;
 
 	start = currentDateTime();
 
@@ -155,7 +155,7 @@ int main(int argc, char *argv[])
 	////////////////////////////////////////////////////////////
 
 	// Initialize Key Pair Containers
-	LPKeyPair<ILVector2n> keyPair2;
+	LPKeyPair<Poly> keyPair2;
 
 	std::cout << "Running key generation (used for source data)..." << std::endl;
 
@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
 
 	std::cout <<"\n"<< "Generating proxy re-encryption key..." << std::endl;
 
-	shared_ptr<LPEvalKey<ILVector2n>> reencryptionKey12;
+	shared_ptr<LPEvalKey<Poly>> reencryptionKey12;
 
 	start = currentDateTime();
 
@@ -195,7 +195,7 @@ int main(int argc, char *argv[])
 
 	start = currentDateTime();
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext2;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertext2;
 
 	ciphertext2 = cryptoContext->ReEncrypt(reencryptionKey12, ciphertext1);
 
