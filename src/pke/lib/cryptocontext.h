@@ -587,7 +587,11 @@ public:
 		}
 
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpEncrypt, currentDateTime() - start) );
+			if(doEncryption) {
+				timeSamples->push_back( TimingInfo(OpEncryptPub, currentDateTime() - start) );
+			} else {
+				timeSamples->push_back( TimingInfo(OpEncryptPlain, currentDateTime() - start) );
+			}
 		}
 		return cipherResults;
 	}
@@ -635,7 +639,11 @@ public:
 		}
 
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpEncrypt, currentDateTime() - start) );
+			if(doEncryption) {
+				timeSamples->push_back( TimingInfo(OpEncryptPriv, currentDateTime() - start) );
+			} else {
+				timeSamples->push_back( TimingInfo(OpEncryptPlain, currentDateTime() - start) );
+			}
 		}
 		return cipherResults;
 	}

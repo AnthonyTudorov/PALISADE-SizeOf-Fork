@@ -400,7 +400,8 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr
 		Element e(dgg, elementParams, Format::EVALUATION);
 
 		Element c0(a*s + e + delta*plaintext);
-		Element c1(a*-1);
+		Element c1(elementParams, Format::EVALUATION, true);
+		c1 -= a;
 
 		ciphertext->SetElements({ c0, c1 });
 		ciphertext->SetIsEncrypted(true);
