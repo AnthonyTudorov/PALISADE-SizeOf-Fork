@@ -36,6 +36,7 @@
 #include "utils/debug.h"
 
 #include "cryptocontextgen.h"
+#include "lattice/elemparamfactory.h"
 
 using namespace std;
 using namespace lbcrypto;
@@ -381,7 +382,7 @@ TEST(UTSHE, keyswitch_SingleCRT) {
 	BytePlaintextEncoding plaintext("I am good, what are you?! 32 ch");
 	float stdDev = 4;
 
-	shared_ptr<Poly::Params> params = GenerateTestParams<Poly::Params,Poly::Integer>(m, 30);
+	shared_ptr<Poly::Params> params = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(m);
 
 	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(params, 2, 1, stdDev);
 	cc->Enable(ENCRYPTION);
@@ -415,7 +416,7 @@ TEST(UTSHE, sparsekeygen_single_crt_encrypt_decrypt) {
 	BytePlaintextEncoding plaintext("I am good, what are you?! 32 ch");
 	float stdDev = 4;
 
-	shared_ptr<Poly::Params> params = GenerateTestParams<Poly::Params,Poly::Integer>(m, 30);
+	shared_ptr<Poly::Params> params = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(m);
 
 	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(params, 2, 1, stdDev);
 	cc->Enable(ENCRYPTION);
@@ -499,7 +500,7 @@ TEST(UTSHE, ringreduce_single_crt) {
 
 	float stdDev = 4;
 
-	shared_ptr<Poly::Params> params = GenerateTestParams<Poly::Params,Poly::Integer>(m, 30);
+	shared_ptr<Poly::Params> params = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(m);
 
 	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(params, 2, 1, stdDev);
 	cc->Enable(ENCRYPTION);

@@ -30,6 +30,9 @@
 #include <memory>
 using std::shared_ptr;
 
+#include <string>
+using std::string;
+
 #include "../math/backend.h"
 #include "ilparams.h"
 #include "ildcrtparams.h"
@@ -53,12 +56,33 @@ public:
 	static struct ElemParmSet {
 		usint				m;	// cyclotomic order
 		usint				n;	// ring dimension
-		BigInteger			q;	// ciphertext modulus
-		BigInteger			ru;	// root of unity
+		string				q;	// ciphertext modulus
+		string				ru;	// root of unity
 	} DefaultSet[];
 
-	static shared_ptr<ILParams> GenElemParams(ElementOrder o) {
-		return shared_ptr<ILParams>( new ILParams(DefaultSet[o].m, DefaultSet[o].q, DefaultSet[o].ru) );
+	template<typename P, typename I>
+	static shared_ptr<P> GenElemParams(ElementOrder o) {
+		return shared_ptr<P>( new P(DefaultSet[o].m, I(DefaultSet[o].q), I(DefaultSet[o].ru)) );
+	}
+
+	template<typename P, typename I>
+	static shared_ptr<P> GenElemParams(usint m) {
+		size_t sIdx = 0;
+		if( DefaultSet[sIdx].m < m ) {
+			for( sIdx = 1; DefaultSet[sIdx].m != 0; sIdx++ ) {
+				if( m < DefaultSet[sIdx].m )
+					break;
+			}
+		}
+		if( DefaultSet[sIdx].m == 0 )
+			sIdx--;
+
+		return shared_ptr<P>( new P(DefaultSet[sIdx].m, I(DefaultSet[sIdx].q), I(DefaultSet[sIdx].ru)) );
+	}
+
+	template<typename P, typename I>
+	static shared_ptr<P> GenElemParams(usint m, const I& ctModulus, const I& rootUnity) {
+		return shared_ptr<P>( new P(m, ctModulus, rootUnity) );
 	}
 };
 
