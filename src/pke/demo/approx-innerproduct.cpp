@@ -54,16 +54,8 @@ int main() {
 	BigBinaryInteger delta(modulusQ.DividedBy(modulusP));
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, rootOfUnity));
 
-	auto cycloPoly = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, modulusQ);
-	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
-
-	BigBinaryInteger EvalMultModulus("4809848800078200833");
-	BigBinaryInteger EvalMultRootOfUnity("2595390732297411718");
-	//BigBinaryInteger EvalMultModulus("356811923176489970264571492362373785387532289");
-	//BigBinaryInteger EvalMultRootOfUnity("179395144627626817380314101250260867933074857");
-
-	auto cycloPolyBig = GetCyclotomicPolynomial<BigBinaryVector, BigBinaryInteger>(m, EvalMultModulus);
-	ChineseRemainderTransformArb<BigBinaryInteger, BigBinaryVector>::SetCylotomicPolynomial(cycloPolyBig, EvalMultModulus);
+	BigInteger EvalMultModulus("1182196001696382977");
+	BigInteger EvalMultRootOfUnity("983189421893510117");
 
 	usint relinWindow = 21;
 	float stdDev = 4;
