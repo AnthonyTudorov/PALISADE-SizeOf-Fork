@@ -348,10 +348,8 @@ DecryptResult LPAlgorithmFV<Element>::Decrypt(const shared_ptr<LPPrivateKey<Elem
 		const shared_ptr<Ciphertext<Element>> ciphertext,
 		Poly *plaintext) const
 {
-	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
+	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(privateKey->GetCryptoParameters());
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
-	const BigInteger &p = cryptoParams->GetPlaintextModulus();
-	const BigInteger &q = elementParams->GetModulus();
 
 	const std::vector<Element> &c = ciphertext->GetElements();
 
@@ -361,7 +359,15 @@ DecryptResult LPAlgorithmFV<Element>::Decrypt(const shared_ptr<LPPrivateKey<Elem
 
 	b.SwitchFormat();
 	
+	const BigInteger &p = cryptoParams->GetPlaintextModulus();
+#if MATHBACKEND == 7
+	const BigInteger &delta = cryptoParams->GetDelta();
+	Element ans = b.DivideAndRound(delta).SignedMod(p);
+#else
+	const BigInteger &q = elementParams->GetModulus();
 	Element ans = b.MultiplyAndRound(p, q).SignedMod(p);
+#endif
+
 	*plaintext = ans.CRTInterpolate();
 
 	return DecryptResult(plaintext->GetLength());
