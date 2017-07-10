@@ -360,13 +360,9 @@ DecryptResult LPAlgorithmFV<Element>::Decrypt(const shared_ptr<LPPrivateKey<Elem
 	b.SwitchFormat();
 	
 	const BigInteger &p = cryptoParams->GetPlaintextModulus();
-#if MATHBACKEND == 7
+
 	const BigInteger &delta = cryptoParams->GetDelta();
 	Element ans = b.DivideAndRound(delta).SignedMod(p);
-#else
-	const BigInteger &q = elementParams->GetModulus();
-	Element ans = b.MultiplyAndRound(p, q).SignedMod(p);
-#endif
 
 	*plaintext = ans.CRTInterpolate();
 
