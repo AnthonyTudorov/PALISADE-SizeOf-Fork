@@ -71,22 +71,22 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\git\palisade-student-edition\test;C:\git\palisade-student-edition\src\core\lib;C:\boost_1_62_0;$(IncludePath)</IncludePath>
+    <IncludePath>..\..\..\..\test;..\..\..\..\src\core\lib;C:\boost_1_62_0;$(IncludePath)</IncludePath>
     <LibraryPath>C:\boost_1_62_0\stage\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\git\palisade-student-edition\test;C:\git\palisade-student-edition\src\core\lib;C:\boost_1_62_0;$(IncludePath)</IncludePath>
+    <IncludePath>..\..\..\..\test;..\..\..\..\src\core\lib;C:\boost_1_62_0;$(IncludePath)</IncludePath>
     <LibraryPath>C:\boost_1_62_0\stage\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\git\palisade-student-edition\test;C:\git\palisade-student-edition\src\core\lib;$(IncludePath)</IncludePath>
+    <IncludePath>..\..\..\..\test;..\..\..\..\src\core\lib;$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\git\palisade-student-edition\test;C:\git\palisade-student-edition\src\core\lib;$(IncludePath)</IncludePath>
+    <IncludePath>..\..\..\..\test;..\..\..\..\src\core\lib;$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -154,29 +154,31 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\unittest\Main_TestAll.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\unittest\UnitTestBinInt.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\unittest\UnitTestBinVect.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\unittest\UnitTestDistrGen.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\unittest\UnitTestField2n.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\unittest\UnitTestLatticeElements.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\unittest\UnitTestMatrix.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\unittest\UnitTestMubintvec.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\unittest\UnitTestNbTheory.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\unittest\UnitTestNTT.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\unittest\UnitTestTransform.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\unittest\UnitTestUbint.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\core\unittest\UnitTestUbintvec.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\test\include\gtest\gtest-all.cc" />
-    <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestNative64.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\test\include\gtest\gtest.h" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\core\core.vcxproj">
       <Project>{ae8deb8d-de67-43b9-a36b-db1ce7517d8c}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\..\src\core\unittest\Main_TestAll.cpp" />
+    <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestBinInt.cpp" />
+    <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestBinVect.cpp" />
+    <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestDistrGen.cpp" />
+    <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestField2n.cpp" />
+    <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestLatticeElements.cpp" />
+    <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestMatrix.cpp" />
+    <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestMubint.cpp" />
+    <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestMubintvec.cpp" />
+    <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestNative64.cpp" />
+    <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestNbTheory.cpp" />
+    <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestNTT.cpp" />
+    <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestSerialize.cpp" />
+    <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestTransform.cpp" />
+    <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestUbint.cpp" />
+    <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestUbintvec.cpp" />
+    <ClCompile Include="..\..\..\..\test\include\gtest\gtest-all.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\..\test\include\gtest\gtest.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
