@@ -71,6 +71,7 @@ int main(int argc, char *argv[])
 
 	// enable features that you wish to use
 	cryptoContext->Enable(ENCRYPTION);
+	cryptoContext->Enable(PRE);
 	cryptoContext->Enable(SHE);
 	
 	std::cout << "p = " << cryptoContext->GetCryptoParameters()->GetPlaintextModulus() << std::endl;

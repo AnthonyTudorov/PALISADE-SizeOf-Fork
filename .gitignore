@@ -32,6 +32,9 @@ test/build
 .project
 .settings/
 RemoteSystemTempFiles/
+.classpath
+.externalToolBuilders/
+/Default/
 
 .DS_Store
 
