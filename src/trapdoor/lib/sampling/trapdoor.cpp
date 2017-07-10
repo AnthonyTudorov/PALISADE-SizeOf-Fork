@@ -33,6 +33,9 @@
 * This code provides the utility for working with trapdoor lattices.
 */
 
+#ifndef _SRC_LIB_CRYPTO_SIGNATURE_TRAPDOOR_CPP
+#define _SRC_LIB_CRYPTO_SIGNATURE_TRAPDOOR_CPP
+
 #include "cryptocontext.h"
 #include "trapdoor.h"
 
@@ -44,14 +47,14 @@ namespace lbcrypto {
 		auto zero_alloc = Poly::MakeAllocator(params, EVALUATION);
 		auto gaussian_alloc = Poly::MakeDiscreteGaussianCoefficientAllocator(params, COEFFICIENT, stddev);
 		auto uniform_alloc = Poly::MakeDiscreteUniformAllocator(params, EVALUATION);
-
+	//	size_t n = params->GetCyclotomicOrder() / 2;
 		//  k ~= bitlength of q
 		// size_t k = params.GetModulus().GetMSB();
 		double val = params->GetModulus().ConvertToDouble();
 		//std::cout << "val : " << val << std::endl;
 		double logTwo = log(val-1.0)/log(2)+1.0;
 		//std::cout << "logTwo : " << logTwo << std::endl;
-		size_t k = (usint) floor(logTwo);// = this->m_cryptoParameters.GetModulus();
+		size_t k = (usint) floor(logTwo) + 1;    // = this->m_cryptoParameters.GetModulus();
 		//std::cout << "BitLength in Trapdoor: " << k << std::endl;
 
 		auto a = uniform_alloc();
@@ -77,12 +80,48 @@ namespace lbcrypto {
 
 	}
 
+	//Trapdoor generation method as described in section 3.2 of https://eprint.iacr.org/2013/297.pdf (Construction 1)
+	std::pair<RingMat, RLWETrapdoorPair<Poly>> RLWETrapdoorUtility::TrapdoorGenwBase(shared_ptr<ILParams> params, int32_t base, int stddev)
+	{
+		auto zero_alloc = Poly::MakeAllocator(params, EVALUATION);
+		auto gaussian_alloc = Poly::MakeDiscreteGaussianCoefficientAllocator(params, COEFFICIENT, stddev);
+		auto uniform_alloc = Poly::MakeDiscreteUniformAllocator(params, EVALUATION);
+//		size_t n = params->GetCyclotomicOrder() / 2;
+
+		double val = params->GetModulus().ConvertToDouble();
+		double logBase = log(val-1.0)/log(base)+1.0;
+		size_t k = (usint) floor(logBase) + 1;  /* (+1) is for balanced representation */
+
+		auto a = uniform_alloc();
+
+		RingMat r(zero_alloc, 1, k, gaussian_alloc);
+		RingMat e(zero_alloc, 1, k, gaussian_alloc);
+
+		//Converts discrete gaussians to Evaluation representation
+		r.SwitchFormat();
+		e.SwitchFormat();
+
+//		RingMat g = RingMat(zero_alloc, 1, k).GadgetVector(base);
+		RingMat g = RingMat(zero_alloc, 1, k).GadgetVector(base);
+
+		RingMat A(zero_alloc, 1, k+2);
+		A(0,0) = 1;
+		A(0,1) = *a;
+
+		for (size_t i = 0; i < k; ++i) {
+			A(0, i+2) = g(0, i) - (*a*r(0, i) + e(0, i));
+		}
+
+		return std::pair<RingMat, RLWETrapdoorPair<Poly>>(A, RLWETrapdoorPair<Poly>(r, e));
+
+	}
+
+
 	// Gaussian sampling based on the UCSD integer perturbation sampling
 
 	RingMat RLWETrapdoorUtility::GaussSamp(size_t n, size_t k, const RingMat& A, 
-		const RLWETrapdoorPair<Poly>& T, const Poly &u,
+		const RLWETrapdoorPair<Poly>& T, const Poly &u, int32_t base,
 		double sigma, Poly::DggType &dgg, Poly::DggType &dggLargeSigma) {
-
 		const shared_ptr<ILParams> params = u.GetParams();
 		auto zero_alloc = Poly::MakeAllocator(params, EVALUATION);
 
@@ -121,7 +160,7 @@ namespace lbcrypto {
 		// converting perturbed syndrome to coefficient representation
 		perturbedSyndrome.SwitchFormat();
 
-		LatticeGaussSampUtility::GaussSampGq(perturbedSyndrome, sigma, k, modulus, 2, dgg, &zHatBBI);
+		LatticeGaussSampUtility::GaussSampGq(perturbedSyndrome, sigma, k, modulus, base, dgg, &zHatBBI);
 
 		// Convert zHat from a matrix of BBI to a vector of Poly ring elements
 		// zHat is in the coefficient representation
@@ -287,3 +326,5 @@ namespace lbcrypto {
 
 
 } //end namespace crypto
+
+#endif

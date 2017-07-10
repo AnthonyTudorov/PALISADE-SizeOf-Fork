@@ -221,7 +221,6 @@ Matrix<T> Matrix<T>::GadgetVector() const { \
     return g; \
 }
 
-
 GADGET_FOR_TYPE(int32_t)
 GADGET_FOR_TYPE(double)
 GADGET_FOR_TYPE(Poly)
@@ -229,6 +228,27 @@ GADGET_FOR_TYPE(BigInteger)
 GADGET_FOR_TYPE(BigVector)
 //GADGET_FOR_TYPE(IntPlaintextEncoding)
 GADGET_FOR_TYPE(Field2n)
+
+#define GADGET_FOR_TYPE_2(T) \
+template<> \
+Matrix<T> Matrix<T>::GadgetVector(usint base) const { \
+    Matrix<T> g(allocZero, rows, cols); \
+    auto base_matrix = allocZero(); \
+    *base_matrix = base; \
+    g(0, 0) = 1; \
+    for (size_t col = 1; col < cols; ++col) { \
+        g(0, col) = g(0, col-1) * *base_matrix; \
+    } \
+    return g; \
+}
+
+GADGET_FOR_TYPE_2(int32_t)
+GADGET_FOR_TYPE_2(double)
+GADGET_FOR_TYPE_2(Poly)
+GADGET_FOR_TYPE_2(BigInteger)
+GADGET_FOR_TYPE_2(BigVector)
+//GADGET_FOR_TYPE(IntPlaintextEncoding)
+GADGET_FOR_TYPE_2(Field2n)
 
 template<>
 double Matrix<Poly>::Norm() const {

@@ -150,6 +150,12 @@ namespace lbcrypto {
 			 * @return the resulting matrix
              */
             Matrix<Element> GadgetVector() const;
+            /**
+             * Sets the first row to be powers of two
+             *
+             * @return the resulting matrix
+             */
+             Matrix<Element> GadgetVector(usint base) const;
 
             /**
              * Computes the infinity norm
@@ -468,6 +474,29 @@ namespace lbcrypto {
 				return result;
 				//return *this;
 			}
+
+			/**
+			* Matrix rows extractor in a range from row_start to row_and; inclusive
+			*
+			* @param &row_start &row_end row indices
+			* @return the rows in the range delimited by indices inclusive
+			*/
+			inline Matrix<Element> ExtractRows(size_t row_start, size_t row_end) const {
+				Matrix<Element> result(this->allocZero,row_end-row_start+1,this->cols);
+
+				for(usint row=row_start; row<row_end+1; row++) {
+				    int i = 0;
+
+				    for (auto elem = this->GetData()[row].begin(); elem != this->GetData()[row].end(); ++elem) {
+									result(row-row_start,i) = **elem;
+									i++;
+								}
+						}
+
+					return result;
+
+			}
+
 
             /**
              * Print values of the matrix to the cout stream

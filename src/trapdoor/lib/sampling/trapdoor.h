@@ -38,6 +38,7 @@
 #define LBCRYPTO_LATTICE_TRAPDOOR_H
 
 #include "math/matrix.h"
+#include "math/matrix.cpp"
 #include "lattice/poly.h"
 #include "dgsampling.h"
 #include "dgsampling.cpp"
@@ -78,6 +79,8 @@ public:
 	*/
 	static inline std::pair<RingMat, RLWETrapdoorPair<Poly>> TrapdoorGen(shared_ptr<typename Poly::Params> params, int stddev);
 
+	static inline std::pair<RingMat, RLWETrapdoorPair<Poly>> TrapdoorGenwBase(shared_ptr<typename Poly::Params> params, int32_t base, int stddev);
+
 //	/**
 //	* Wrapper for TrapdoorGen(ILParams params, int stddev) - currently supports only Poly, support for other rings will be added later
 //	*
@@ -105,9 +108,8 @@ public:
 	* @return the sampled vector (matrix)
 	*/
 	static inline RingMat GaussSamp(size_t n, size_t k, const RingMat& A, 
-		const RLWETrapdoorPair<Poly>& T, const Poly &u,
+		const RLWETrapdoorPair<Poly>& T, const Poly &u, int32_t base,
 		double sigma, Poly::DggType &dgg, Poly::DggType &dggLargeSigma);
-
 	/**
 	* New method for perturbation generation based by the new paper
 	*

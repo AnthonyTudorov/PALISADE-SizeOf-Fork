@@ -1851,6 +1851,21 @@ usint BigInteger<uint_type,BITLENGTH>::GetDigitAtIndexForBase(usint index, usint
 
 }
 
+template<typename uint_type,usint BITLENGTH>
+usint BigInteger<uint_type,BITLENGTH>::GetDigitAtIndex(usint index, usint base) const{
+
+	usint DigitLen = ceil(log(base)/log(2));
+
+	usint digit = 0;
+	usint newIndex = 1+(index-1)*DigitLen;
+	for (usint i = 1; i < base; i = i*2)
+	{
+		digit += GetBitAtIndex(newIndex)*i;
+		newIndex++;
+	}
+	return digit;
+}
+
 template<typename uint_type, usint BITLENGTH>
 BigInteger<uint_type, BITLENGTH> BigInteger<uint_type, BITLENGTH>::BitStringToBigInteger(const std::string& bitString) {
 

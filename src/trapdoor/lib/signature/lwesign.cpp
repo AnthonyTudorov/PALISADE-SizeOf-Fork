@@ -100,7 +100,7 @@ namespace lbcrypto {
 		//double c = 2 * SIGMA;
 		//double s = SPECTRAL_BOUND(n, k);
 		typename Element::DggType & dggLargeSigma = signKey.GetSignatureParameters().GetDiscreteGaussianGeneratorLargeSigma();
-		Matrix<Poly> zHat = RLWETrapdoorUtility::GaussSamp(n,k,A,T,u,stddev,dgg,dggLargeSigma);
+		Matrix<Poly> zHat = RLWETrapdoorUtility::GaussSamp(n,k,A,T,u,2,stddev,dgg,dggLargeSigma);
 		signatureText->SetElement(zHat);
 
 	}

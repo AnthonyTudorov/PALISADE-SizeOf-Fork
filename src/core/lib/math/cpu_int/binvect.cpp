@@ -211,6 +211,25 @@ void BigVectorImpl<IntegerType>::SetModulus(const IntegerType& value){
 *  i > om/2
 *  i' = i-delta
 */	
+
+//Gets the ind
+template<class IntegerType>
+BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::GetBinaryDigitAtIndexForBase(usint index, usint base) const{
+	BigVectorImpl ans(*this);
+	IntegerType temp;
+	for(usint i=0;i<this->m_length;i++){
+		temp = IntegerType(ans.m_data[i].GetDigitAtIndexForBase(index,base));
+		if(temp == IntegerType("1")){
+			ans.m_data[i] = temp;
+		}
+		else
+		{
+			ans.m_data[i] = m_modulus - IntegerType("1");
+		}
+	//	std::cout << ans.m_data[i] << std::endl;
+	}
+	return ans;
+}
 template<class IntegerType>
 void BigVectorImpl<IntegerType>::SwitchModulus(const IntegerType& newModulus) {
     bool dbg_flag = false;

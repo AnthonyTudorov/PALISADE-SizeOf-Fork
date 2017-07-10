@@ -764,6 +764,51 @@ void PolyImpl<ModType,IntType,VecType,ParmType>::Decompose()
 		SetValues(decomposeValues, m_format);
 	}
 
+	// Write vector x(current value of the ILVectorImpl object) as \sum\limits{ i = 0 }^{\lfloor{ \log q / base } \rfloor} {(base^i u_i)} and
+		// return the vector of{ u_0, u_1,...,u_{ \lfloor{ \log q / base } \rfloor } } \in R_base^{ \lceil{ \log q / base } \rceil };
+		// used as a subroutine in the relinearization procedure
+		// baseBits is the number of bits in the base, i.e., base = 2^baseBits
+
+	// This function modifies PolyImpl to keep all the even indices. It reduces the ring dimension by half.
+	template<typename ModType, typename IntType, typename VecType, typename ParmType>
+	std::vector<PolyImpl<ModType, IntType,VecType,ParmType>> PolyImpl<ModType,IntType,VecType,ParmType>::BinaryDecompose(usint baseBits)
+const {
+
+			usint nBits = m_params->GetModulus().GetLengthForBase(2);
+
+			usint nWindows = nBits / baseBits;
+			if (nBits % baseBits > 0)
+				nWindows++;
+
+			PolyImpl<ModType, IntType,VecType,ParmType> xDigit(m_params);
+
+			std::vector<PolyImpl<ModType,IntType,VecType,ParmType>> result;
+			result.reserve(nWindows);
+			// convert the polynomial to coefficient representation
+			PolyImpl<ModType, IntType,VecType,ParmType> x(*this);
+			if (x.GetFormat() == EVALUATION)
+				x.SwitchFormat();
+
+			for (usint i = 0; i < nWindows; ++i)
+			{
+				xDigit = x.GetBinaryDigitAtIndexForBase(i*baseBits + 1, 1 << baseBits);
+				// convert the polynomial back to evaluation representation
+				xDigit.SwitchFormat();
+				result.push_back(xDigit);
+			}
+
+			return std::move(result);
+		}
+
+
+	template<typename ModType, typename IntType, typename VecType, typename ParmType>
+				PolyImpl<ModType, IntType,VecType,ParmType> PolyImpl<ModType, IntType,VecType,ParmType>::GetBinaryDigitAtIndexForBase(usint index, usint base) const {
+				PolyImpl tmp(*this);
+				 *tmp.m_values = GetValues().GetBinaryDigitAtIndexForBase(index, base);
+				return tmp;
+			}
+
+
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 bool PolyImpl<ModType,IntType,VecType,ParmType>::IsEmpty() const
 {
