@@ -1,5 +1,5 @@
 /*
- * @file demo-bit-packing.cpp This code shows multiple demonstrations of how to use bit packing features in PALISADE.
+ * @file demo-bit-packing.cpp This code shows multiple demonstrations of how to use packing features in PALISADE.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -45,7 +45,7 @@ void ArbFVEvalMultPackedArray();
 
 int main() {
 
-	std::cout << "\nThis code demonstrates the use of bit-pakcing on the FV, BV and LTV schemes. " << std::endl;
+	std::cout << "\nThis code demonstrates the use of packing on the FV, BV and LTV schemes. " << std::endl;
 	std::cout << "We show inner product operations for all schemes and a bit-packed EvalMult for the FV scheme. " << std::endl;
 	std::cout << "This code shows how parameters can be manually set in our library. " << std::endl;
 	std::cout << "We do not generally recommend the use of the LTV scheme due to security concerns. " << std::endl;
@@ -59,11 +59,11 @@ int main() {
 	ArbFVEvalMultPackedArray();
 
 
-	std::cout << "\n=========== In this code block we demonstrate inner product operations using the FV scheme. ===============: " << std::endl;
+	std::cout << "\n=========== In this code block we demonstrate inner product operations using the LTV scheme. ===============: " << std::endl;
 
 	ArbLTVInnerProductPackedArray();
 
-	std::cout << "\n=========== In this code block we demonstrate inner product operations using the FV scheme. ===============: " << std::endl;
+	std::cout << "\n=========== In this code block we demonstrate inner product operations using the BV scheme. ===============: " << std::endl;
 
 	ArbBVInnerProductPackedArray();
 
