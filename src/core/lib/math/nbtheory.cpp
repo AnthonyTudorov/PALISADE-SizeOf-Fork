@@ -647,7 +647,6 @@ namespace lbcrypto {
 		while (!MillerRabinPrimalityTest(qNew)) {
 			qNew += IntType(i*m);
 			i++;
-			std::cout << i << " " << qNew << std::endl;
 		}
 
 		return qNew;

@@ -111,12 +111,8 @@ namespace lbcrypto {
 		} else {
 			// Arbitrary: Bluestein based CRT Arb. So we need the 2mth root of unity
 
-			std::cout << "step 1" << std::endl;
 			native_int::BigInteger initRoot = RootOfUnity<native_int::BigInteger>(2*m, modulusNI);
 			m_initRoot[modulusNI] = initRoot;
-
-			std::cout << "step 2" << std::endl;
-
 
 			// Find a compatible big-modulus and root of unity for CRTArb
 			usint nttDim = pow(2, ceil(log2(2*m - 1)));
@@ -124,24 +120,14 @@ namespace lbcrypto {
 				m_bigModulus[modulusNI] = modulusNI;
 			} else {
 				usint bigModulusSize = ceil(log2(2*m - 1)) + 2*modulusNI.GetMSB() + 1;
-
-				std::cout << "big modulus = " << bigModulusSize << std::endl;
-				std::cout << "NTT dim = " << nttDim << std::endl;
-
 				m_bigModulus[modulusNI] = FirstPrime<native_int::BigInteger>(bigModulusSize, nttDim);
-
-				std::cout << "Still searching the prime " << std::endl;
 			}
 			m_bigRoot[modulusNI] = RootOfUnity<native_int::BigInteger>(nttDim, m_bigModulus[modulusNI]);
-
-			std::cout << "step 3" << std::endl;
 
 			// Find a generator for the automorphism group
 			native_int::BigInteger M(m); // Hackish typecast
 			native_int::BigInteger automorphismGenerator = FindGeneratorCyclic<native_int::BigInteger>(M);
 			m_automorphismGenerator[modulusNI] = automorphismGenerator.ConvertToInt();
-
-			std::cout << "step 4" << std::endl;
 
 			// Create the permutations that interchange the automorphism and crt ordering
 			usint phim = GetTotient(m);
@@ -150,8 +136,6 @@ namespace lbcrypto {
 			for(usint i=0; i<phim; i++){
 				tIdx[tList[i]] = i;
 			}
-
-			std::cout << "step 5" << std::endl;
 
 			m_toCRTPerm[modulusNI] = std::vector<usint>(phim);
 			m_fromCRTPerm[modulusNI] = std::vector<usint>(phim);

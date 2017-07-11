@@ -157,11 +157,7 @@ void KeyGen()
 
 		shared_ptr<ILDCRTParams<BigInteger>> paramsDCRT(new ILDCRTParams<BigInteger>(m, init_moduli, init_rootsOfUnity, init_moduli_NTT, init_rootsOfUnity_NTT));
 
-		std::cout << "generated parameters" << std::endl;
-
 		PackedIntPlaintextEncoding::SetParams(modulusP, m);
-
-		std::cout << "setting parameters" << std::endl;
 
 		shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP), batchSize));
 
