@@ -502,11 +502,22 @@ namespace lbcrypto {
 		/**
 		* Serialize the object into a Serialized
 		* @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-		* @param fileFlag is an object-specific parameter for the serialization
 		* @return true if successfully serialized
 		*/
 		bool Serialize(Serialized *serObj) const;
 
+		/**
+		* SerializeWithoutContext - serializes the object into a Serialized, withut the cryptocontext
+		* @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+		* @return true if successfully serialized
+		*/
+		bool SerializeWithoutContext(Serialized *serObj) const;
+
+		/**
+		 * Deserialize from the serialization
+		 * @param serObj - contains the serialization
+		 * @return true on success
+		 */
 		bool Deserialize(const Serialized &serObj);
 
 		bool key_compare(const LPEvalKey<Element>& other) const {
@@ -624,16 +635,22 @@ namespace lbcrypto {
 		/**
 		* Serialize the object into a Serialized
 		* @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-		* @param fileFlag is an object-specific parameter for the serialization
 		* @return true if successfully serialized
 		*/
 		bool Serialize(Serialized *serObj) const;
 
 		/**
-		* Populate the object from the deserialization of the Serialized
-		* @param &serObj contains the serialized object
-		* @return true on success
+		* SerializeWithoutContext - serializes the object into a Serialized, withut the cryptocontext
+		* @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+		* @return true if successfully serialized
 		*/
+		bool SerializeWithoutContext(Serialized *serObj) const;
+
+		/**
+		 * Deserialize from the serialization
+		 * @param serObj - contains the serialization
+		 * @return true on success
+		 */
 		bool Deserialize(const Serialized &serObj);
 		
 		bool key_compare(const LPEvalKey<Element>& other) const {
@@ -749,42 +766,23 @@ namespace lbcrypto {
 		/**
 		* Serialize the object into a Serialized
 		* @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-		* @param fileFlag is an object-specific parameter for the serialization
 		* @return true if successfully serialized
 		*/
-		bool Serialize(Serialized *serObj) const {
-			serObj->SetObject();
+		bool Serialize(Serialized *serObj) const;
 
-			serObj->AddMember("Object", "EvalKeyNTRU", serObj->GetAllocator());
+		/**
+		* SerializeWithoutContext - serializes the object into a Serialized, withut the cryptocontext
+		* @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+		* @return true if successfully serialized
+		*/
+		bool SerializeWithoutContext(Serialized *serObj) const;
 
-			if (!this->GetCryptoParameters()->Serialize(serObj)) {
-				return false;
-			}
-
-			const Element& pe = this->GetA();
-
-			if (!pe.Serialize(serObj)) {
-				return false;
-			}
-
-			return true;
-		}
-
-		bool Deserialize(const Serialized &serObj) {
-			Serialized::ConstMemberIterator mIt = serObj.FindMember("Object");
-			if( mIt == serObj.MemberEnd() || string(mIt->value.GetString()) != "EvalKeyNTRU" )
-				return false;
-
-			Element pe;
-
-			if( !pe.Deserialize(serObj) ) {
-				return false;
-			}
-
-			m_Key = pe;
-
-			return true;
-		}
+		/**
+		 * Deserialize from the serialization
+		 * @param serObj - contains the serialization
+		 * @return true on success
+		 */
+		bool Deserialize(const Serialized &serObj);
 
 		bool key_compare(const LPEvalKey<Element>& other) const {
 			const LPEvalKeyNTRU<Element> &oth = dynamic_cast<const LPEvalKeyNTRU<Element> &>(other);
@@ -796,6 +794,7 @@ namespace lbcrypto {
 		}
 
 	private:
+
 		/**
 		* private member Element to store key.
 		*/
@@ -889,11 +888,10 @@ namespace lbcrypto {
 
 			serObj->SetObject();
 
-			serObj->AddMember("Object", "PrivateKey", serObj->GetAllocator());
-
-			if (!this->GetCryptoParameters()->Serialize(serObj))
+			if (!this->context->Serialize(serObj))
 				return false;
 
+			serObj->AddMember("Object", "PrivateKey", serObj->GetAllocator());
 			return this->GetPrivateElement().Serialize(serObj);
 		}
 

@@ -1714,7 +1714,6 @@ public:
 	virtual ~CryptoObject() {}
 
 	CryptoContext<Element> *GetCryptoContext() const { return context; }
-	//void SetContext(shared_ptr<CryptoContext<Element>> cc) { context = cc; }
 	const shared_ptr<LPCryptoParameters<Element>> GetCryptoParameters() const { return context->GetCryptoParameters(); }
 };
 

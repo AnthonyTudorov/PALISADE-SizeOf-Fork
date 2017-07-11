@@ -119,11 +119,11 @@ buildContextFromSerialized(const map<string,string>& s, shared_ptr<typename Elem
 	return 0;
 }
 
-//declaration of DeserializeCryptoParameters function;
+// forward declaration of DeserializeCryptoParameters
 template <typename Element>
 inline shared_ptr<LPCryptoParameters<Element>> DeserializeCryptoParameters(const Serialized &serObj);
 
-//declaration of DeserializeAndValidateCryptoParameters function;
+// forward declaration of DeserializeAndValidateCryptoParameters
 template <typename Element>
 inline shared_ptr<LPCryptoParameters<Element>> DeserializeAndValidateCryptoParameters(const Serialized& serObj, const LPCryptoParameters<Element>& curP);
 
@@ -136,9 +136,15 @@ inline shared_ptr<LPCryptoParameters<Element>> DeserializeAndValidateCryptoParam
 template <typename Element>
 inline shared_ptr<LPCryptoParameters<Element>> DeserializeCryptoParameters(const Serialized &serObj)
 {
+	Serialized::ConstMemberIterator cit = serObj.FindMember("CryptoContext");
+	if (cit == serObj.MemberEnd()) return 0;
+
+	cit = cit->value.FindMember("Params");
+	if (cit == serObj.MemberEnd()) return 0;
+
 	LPCryptoParameters<Element>* parmPtr = 0;
 
-	Serialized::ConstMemberIterator it = serObj.FindMember("LPCryptoParametersType");
+	Serialized::ConstMemberIterator it = cit->value.FindMember("LPCryptoParametersType");
 	if (it == serObj.MemberEnd()) return 0;
 	std::string type = it->value.GetString();
 
@@ -160,7 +166,13 @@ inline shared_ptr<LPCryptoParameters<Element>> DeserializeCryptoParameters(const
 	else
 		return 0;
 
-	if (!parmPtr->Deserialize(serObj)) {
+	it = cit->value.FindMember(type);
+	if (it == serObj.MemberEnd()) return 0;
+
+	Serialized temp(rapidjson::kObjectType);
+	temp.AddMember(SerialItem(it->name, temp.GetAllocator()), SerialItem(it->value, temp.GetAllocator()), temp.GetAllocator());
+
+	if (!parmPtr->Deserialize(temp)) {
 		delete parmPtr;
 		return 0;
 	}

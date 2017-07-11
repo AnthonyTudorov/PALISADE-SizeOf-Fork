@@ -32,6 +32,7 @@ extern template class CryptoContext<Poly>;
 
 template class LPPublicKey<Poly>;
 template class LPEvalKeyRelin<Poly>;
+template class LPEvalKeyNTRU<Poly>;
 template class LPEvalKeyNTRURelin<Poly>;
 }
 

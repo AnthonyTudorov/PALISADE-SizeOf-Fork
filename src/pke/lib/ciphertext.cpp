@@ -32,11 +32,10 @@ template <typename Element>
 bool Ciphertext<Element>::Serialize(Serialized* serObj) const {
 	serObj->SetObject();
 
-	serObj->AddMember("Object", "Ciphertext", serObj->GetAllocator());
-
-	if( !this->GetCryptoParameters()->Serialize(serObj) )
+	if( !this->context->Serialize(serObj) )
 		return false;
 
+	serObj->AddMember("Object", "Ciphertext", serObj->GetAllocator());
 	SerializeVector("Elements", Element::GetElementName(), this->m_elements, serObj);
 
 	return true;

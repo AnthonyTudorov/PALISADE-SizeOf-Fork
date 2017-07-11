@@ -219,7 +219,7 @@ TEST(UTMatrix, Poly_mult_square_matrix_caps) {
 
 
 inline void expect_close(double a, double b) {
-	EXPECT_LE(abs(a - b), 10e-8);
+	EXPECT_LE(fabs(a - b), 10e-8);
 }
 
 TEST(UTMatrix, cholesky) {
@@ -229,15 +229,15 @@ TEST(UTMatrix, cholesky) {
 	m(1, 0) = 4;
 	m(1, 1) = 10;
 	auto c = Cholesky(m);
-	EXPECT_LE(abs(4.47213595 - c(0, 0)), 1e-8);
-	EXPECT_LE(abs(0 - c(0, 1)), 1e-8);
-	EXPECT_LE(abs(.89442719 - c(1, 0)), 1e-8);
-	EXPECT_LE(abs(3.03315018 - c(1, 1)), 1e-8);
+	EXPECT_LE(fabs(4.47213595 - c(0, 0)), 1e-8);
+	EXPECT_LE(fabs(0 - c(0, 1)), 1e-8);
+	EXPECT_LE(fabs(.89442719 - c(1, 0)), 1e-8);
+	EXPECT_LE(fabs(3.03315018 - c(1, 1)), 1e-8);
 	auto cc = c*c.Transpose();
-	EXPECT_LE(abs(m(0, 0) - cc(0, 0)), 1e-8);
-	EXPECT_LE(abs(m(0, 1) - cc(0, 1)), 1e-8);
-	EXPECT_LE(abs(m(1, 0) - cc(1, 0)), 1e-8);
-	EXPECT_LE(abs(m(1, 1) - cc(1, 1)), 1e-8);
+	EXPECT_LE(fabs(m(0, 0) - cc(0, 0)), 1e-8);
+	EXPECT_LE(fabs(m(0, 1) - cc(0, 1)), 1e-8);
+	EXPECT_LE(fabs(m(1, 0) - cc(1, 0)), 1e-8);
+	EXPECT_LE(fabs(m(1, 1) - cc(1, 1)), 1e-8);
 }
 
 TEST(UTMatrix, gadget_vector) {

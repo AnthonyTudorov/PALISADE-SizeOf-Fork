@@ -790,23 +790,32 @@ CryptoContext<T>::deserializeEvalKey(const Serialized& serObj)
 
 	shared_ptr<LPEvalKey<T>> key;
 	string oname = nIt->value.GetString();
-	if( oname == "EvalKeyRelin" )
-		key.reset( new LPEvalKeyRelin<T>(this) );
-	else if( oname == "EvalKeyNTRURelin" )
-		key.reset( new LPEvalKeyNTRURelin<T>(this) );
-	else if( oname == "EvalKeyNTRU" )
-		key.reset( new LPEvalKeyNTRU<T>(this) );
+	if( oname == "EvalKeyRelin" ) {
+		LPEvalKeyRelin<T> *k = new LPEvalKeyRelin<T>(this);
+		if( k->Deserialize(serObj) == false )
+			return 0;
+
+		key.reset( k );
+	}
+
+	else if( oname == "EvalKeyNTRURelin" ) {
+		LPEvalKeyNTRURelin<T> *k = new LPEvalKeyNTRURelin<T>(this);
+		if( k->Deserialize(serObj) == false )
+			return 0;
+
+		key.reset( k );
+	}
+	else if( oname == "EvalKeyNTRU" ) {
+		LPEvalKeyNTRU<T> *k = new LPEvalKeyNTRU<T>(this);
+		if( k->Deserialize(serObj) == false )
+			return 0;
+
+		key.reset( k );
+	}
 	else
 		throw std::logic_error("Unrecognized Eval Key type '" + oname + "'");
 
-	if( CryptoContextHelper::matchContextToSerialization(this, serObj) == false ) {
-		return 0;
-	}
-
-	if( key->Deserialize(serObj) )
-		return key;
-
-	return 0;
+	return key;
 }
 
 }
