@@ -32,16 +32,13 @@ void KeyGen();
 void Encrypt();
 void Compute();
 void Decrypt();
-bool DeserializeContext(const string& ccFileName, CryptoContext<DCRTPoly> &cc);
-void ReadCSVFile(string dataFileName, vector<string>& headers, vector<vector<double> >& dataColumns);
-void EncodeData(const vector<vector<double>>& dataColumns, Matrix<PackedIntPlaintextEncoding> &x, PackedIntPlaintextEncoding &y);
-void CRTInterpolate(const std::vector<Matrix<PackedIntPlaintextEncoding>> &crtVector, Matrix<native_int::BigInteger> &result);
-void DecodeData(const Matrix<double> &lr, std::vector<double> &result);
+shared_ptr<CryptoContext<DCRTPoly>> DeserializeContext(const string& ccFileName);
+native_int::BigInteger CRTInterpolate(const std::vector<PackedIntPlaintextEncoding> &crtVector);
 template<typename T> ostream& operator<<(ostream& output, const vector<T>& vector);
 
 // number of primitive prime plaintext moduli in the CRT representation of plaintext
 const size_t SIZE = 3;
-const size_t ROWS = 19;
+const size_t VECTORS = 30;
 
 
 int main(int argc, char* argv[]) {
@@ -303,34 +300,59 @@ void KeyGen()
 
 void Encrypt() {
 
-	string dataFileName = "data.csv";
+	size_t batchSize = 1024;
 
-	std::vector<string> headers;
-	vector<vector<double>> dataColumns;
+	auto singleAlloc = [=]() { return lbcrypto::make_unique<uint64_t>(); };
 
-	std::cout << "\nLOADING THE DATA\n" << std::endl;
+	Matrix<uint64_t> x(singleAlloc, VECTORS, batchSize);
+	Matrix<uint64_t> y(singleAlloc, VECTORS, batchSize);
 
-	// Read csv file into a two-dimensional vector
+	DiscreteUniformGenerator dug;
+	dug.SetModulus(BigInteger(255));
 
-	std::cout << "Reading the CSV file...";
+	//create the dataset for processing
+	for (size_t i = 0; i < VECTORS; i++)
+	{
+		BigVector randomVectorX = dug.GenerateVector(batchSize);
+		BigVector randomVectorY = dug.GenerateVector(batchSize);
+		for (size_t j = 0; j < batchSize; j++) {
+			x(i, j) = randomVectorX.GetValAtIndex(j).ConvertToInt();
+			y(i, j) = randomVectorY.GetValAtIndex(j).ConvertToInt();
+		}
+	}
 
-	ReadCSVFile(dataFileName, headers, dataColumns);
+	std::cout << "First loop completed" << std::endl;
 
-	std::cout << "Completed" << std::endl;
+	auto product = x * y.Transpose();
+	uint64_t result = 0;
 
-	// Transform the data and store in the Packed Encoding format
+	for (size_t i = 0; i < VECTORS; i++)
+	{
+		result += product(i,i);
+	}
+
+	std::cout << "Result of plaintext computation is " << result << std::endl;
+
 
 	std::cout << "Encoding the data...";
 
 	auto zeroAlloc = [=]() { return lbcrypto::make_unique<PackedIntPlaintextEncoding>(); };
 
-	Matrix<PackedIntPlaintextEncoding> xP = Matrix<PackedIntPlaintextEncoding>(zeroAlloc, 1, ROWS);
-	PackedIntPlaintextEncoding yP;
+	Matrix<PackedIntPlaintextEncoding> xP = Matrix<PackedIntPlaintextEncoding>(zeroAlloc, VECTORS, 1);
+	Matrix<PackedIntPlaintextEncoding> yP = Matrix<PackedIntPlaintextEncoding>(zeroAlloc, VECTORS, 1);
 
-	EncodeData(dataColumns, xP, yP);
-
-	//std::cout << " xp = " << xP(0,0) << std::endl;
-	//std::cout << " yp = " << yP << std::endl;
+	for (size_t i = 0; i < VECTORS; i++)
+	{
+		std::vector<usint> tempX(batchSize);
+		std::vector<usint> tempY(batchSize);
+		for (size_t j = 0; j < batchSize; j++)
+		{
+			tempX[j] = x(i, j);
+			tempY[j] = y(i, j);
+		}
+		xP(i,0) = tempX;
+		yP(i,0) = tempY;
+	}
 
 	std::cout << "Completed" << std::endl;
 
@@ -345,23 +367,20 @@ void Encrypt() {
 
 		// Deserialize the crypto context
 
-		CryptoContext<DCRTPoly> cc;
+		shared_ptr<CryptoContext<DCRTPoly>> cc = DeserializeContext(ccFileName);
 
-		if (!DeserializeContext(ccFileName, cc))
-			return;
-
-		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc.GetCryptoParameters();
+		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
 		const shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
 		const shared_ptr<ILDCRTParams<BigInteger>> elementParams = cryptoParams->GetElementParams();
-		;
+		
 		usint m = elementParams->GetCyclotomicOrder();
 
 		PackedIntPlaintextEncoding::SetParams(encodingParams->GetPlaintextModulus(), m);
 
-		cc.Enable(ENCRYPTION);
-		cc.Enable(SHE);
+		cc->Enable(ENCRYPTION);
+		cc->Enable(SHE);
 
-		//std::cout << "plaintext modulus = " << cc.GetCryptoParameters()->GetPlaintextModulus() << std::endl;
+		//std::cout << "plaintext modulus = " << cc->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
 
 		// Deserialize the public key
 
@@ -373,7 +392,7 @@ void Encrypt() {
 			return;
 		}
 
-		shared_ptr<LPPublicKey<DCRTPoly>> pk = cc.deserializePublicKey(pkSer);
+		shared_ptr<LPPublicKey<DCRTPoly>> pk = cc->deserializePublicKey(pkSer);
 
 		if (!pk) {
 			cerr << "Could not deserialize public key" << endl;
@@ -386,13 +405,13 @@ void Encrypt() {
 
 		std::cout << "Batching/encrypting X...";
 
-		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xC = cc.EncryptMatrix(pk, xP);
+		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xC = cc->EncryptMatrix(pk, xP);
 
 		std::cout << "Completed" << std::endl;
 
 		std::cout << "Batching/encrypting Y...";
 
-		std::vector<shared_ptr<Ciphertext<DCRTPoly>>> yC = cc.Encrypt(pk, yP);
+		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> yC = cc->EncryptMatrix(pk, yP);
 
 		std::cout << "Completed" << std::endl;
 
@@ -418,7 +437,7 @@ void Encrypt() {
 
 		std::cout << "Serializing y...";
 
-		if (yC[0]->Serialize(&ctxtSer)) {
+		if (yC->Serialize(&ctxtSer)) {
 			if (!SerializableHelper::WriteSerializationToFile(ctxtSer, "ciphertext-y-" + std::to_string(k) + ".txt")) {
 				cerr << "Error writing serialization of ciphertext y to " << "ciphertext-y-" + std::to_string(k) + ".txt" << endl;
 				return;
@@ -448,15 +467,12 @@ void Compute() {
 
 		// Deserialize the crypto context
 
-		shared_ptr<CryptoContext<DCRTPoly>> cc;
-
-		if (!DeserializeContext(ccFileName, *cc))
-			return;
+		shared_ptr<CryptoContext<DCRTPoly>> cc = DeserializeContext(ccFileName);
 
 		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
 		const shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
 		const shared_ptr<ILDCRTParams<BigInteger>> elementParams = cryptoParams->GetElementParams();
-		;
+		
 		usint m = elementParams->GetCyclotomicOrder();
 
 		PackedIntPlaintextEncoding::SetParams(encodingParams->GetPlaintextModulus(), m);
@@ -495,7 +511,7 @@ void Compute() {
 
 		std::map<usint, shared_ptr<LPEvalKey<DCRTPoly>>>	evalSumKeys;
 
-		//const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc.GetCryptoParameters();
+		//const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
 		//const shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
 		//const shared_ptr<ILDCRTParams<BigInteger>> elementParams = cryptoParams->GetElementParams();
 
@@ -566,7 +582,7 @@ void Compute() {
 			return;
 		}
 
-		shared_ptr<Ciphertext<DCRTPoly>> y(new Ciphertext<DCRTPoly>(cc));
+		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> y(new Matrix<RationalCiphertext<DCRTPoly>>(zeroAlloc));
 
 		if (!y->Deserialize(ySer)) {
 			cerr << "Could not deserialize ciphertext y" << endl;
@@ -575,98 +591,37 @@ void Compute() {
 
 		std::cout << "Completed" << std::endl;
 
-		// Compute X^T X
+		// Compute cross-correlation
 
-		std::cout << "Computing X^T X...";
+		std::cout << "Computing the cross-correlation ...";
 
 		double start, finish;
 
-		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xTx(new Matrix<RationalCiphertext<DCRTPoly>>(zeroAlloc, ROWS, ROWS));
-
 		start = currentDateTime();
 
-		//forces all inner-product precomputations to take place sequentially
-		const shared_ptr<Ciphertext<DCRTPoly>> x0 = (*x)(0, 0).GetNumerator();
-		(*xTx)(0, 0).SetNumerator(*cc->EvalInnerProduct(x0, x0, encodingParams->GetBatchSize()));
-
-		for (size_t i = 0; i < ROWS; i++)
-		{
-#pragma omp parallel for			
-			for (size_t k = i; k < ROWS; k++)
-			{
-				if (i + k > 0)
-				{
-					const shared_ptr<Ciphertext<DCRTPoly>> xi = (*x)(0, i).GetNumerator();
-					const shared_ptr<Ciphertext<DCRTPoly>> xk = (*x)(0, k).GetNumerator();
-					(*xTx)(i, k).SetNumerator(*cc->EvalInnerProduct(xi, xk, encodingParams->GetBatchSize()));
-					if (i != k)
-						(*xTx)(k, i).SetNumerator(*(*xTx)(i, k).GetNumerator());
-				}
-			}
-		}
+		shared_ptr<Ciphertext<DCRTPoly>> result = cc->EvalCrossCorrelation(x,y,batchSize);
 
 		finish = currentDateTime();
 
 		std::cout << "Completed" << std::endl;
 
-		std::cout << "X^T X computation time: " << "\t" << (finish - start) << " ms" << std::endl;
+		std::cout << "Cross-correlation computation time: " << "\t" << (finish - start) << " ms" << std::endl;
 
-		// Compute X^T y
+		// Serialize cross-correlation
 
-		std::cout << "Computing X^T Y...";
+		Serialized ccSer;
+		ccSer.SetObject();
 
-		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xTy(new Matrix<RationalCiphertext<DCRTPoly>>(zeroAlloc, ROWS, 1));
+		std::cout << "Serializing cross-correlation...";
 
-		start = currentDateTime();
-
-#pragma omp parallel for
-		for (size_t i = 0; i < ROWS; i++)
-		{
-			const shared_ptr<Ciphertext<DCRTPoly>> xi = (*x)(0, i).GetNumerator();
-			(*xTy)(i, 0).SetNumerator(*cc->EvalInnerProduct(xi, y, encodingParams->GetBatchSize()));
-		}
-
-		finish = currentDateTime();
-
-		std::cout << "Completed" << std::endl;
-
-		std::cout << "X^T y computation time: " << "\t" << (finish - start) << " ms" << std::endl;
-
-		// Serialize X^T X
-
-		Serialized xTxSer;
-		xTxSer.SetObject();
-
-		std::cout << "Serializing X^T X...";
-
-		if (xTx->Serialize(&xTxSer)) {
-			if (!SerializableHelper::WriteSerializationToFile(xTxSer, "ciphertext-xtx-" + std::to_string(k) + ".txt")) {
-				cerr << "Error writing serialization of ciphertext X^T X to " << "ciphertext-xtx-" + std::to_string(k) + ".txt" << endl;
+		if (result->Serialize(&ccSer)) {
+			if (!SerializableHelper::WriteSerializationToFile(ccSer, "ciphertext-cc-" + std::to_string(k) + ".txt")) {
+				cerr << "Error writing serialization of ciphertext X^T X to " << "ciphertext-cc-" + std::to_string(k) + ".txt" << endl;
 				return;
 			}
 		}
 		else {
-			cerr << "Error serializing ciphertext X^T X" << endl;
-			return;
-		}
-
-		std::cout << "Completed" << std::endl;
-
-		// Serialize X^T y
-
-		Serialized xTySer;
-		xTySer.SetObject();
-
-		std::cout << "Serializing X^T y...";
-
-		if (xTy->Serialize(&xTySer)) {
-			if (!SerializableHelper::WriteSerializationToFile(xTySer, "ciphertext-xty-" + std::to_string(k) + ".txt")) {
-				cerr << "Error writing serialization of ciphertext X^T y to " << "ciphertext-xty-" + std::to_string(k) + ".txt" << endl;
-				return;
-			}
-		}
-		else {
-			cerr << "Error serializing ciphertext X^T y" << endl;
+			cerr << "Error serializing ciphertext cross-correlation" << endl;
 			return;
 		}
 
@@ -678,8 +633,7 @@ void Compute() {
 
 void Decrypt() {
 
-	std::vector<Matrix<PackedIntPlaintextEncoding>> xTxCRT;
-	std::vector<Matrix<PackedIntPlaintextEncoding>> xTyCRT;
+	std::vector<PackedIntPlaintextEncoding> crossCorr;
 
 	for (size_t k = 0; k < SIZE; k++) {
 
@@ -690,15 +644,12 @@ void Decrypt() {
 
 		// Deserialize the crypto context
 
-		shared_ptr<CryptoContext<DCRTPoly>> cc;
-
-		if (!DeserializeContext(ccFileName, *cc))
-			return;
+		shared_ptr<CryptoContext<DCRTPoly>> cc = DeserializeContext(ccFileName);
 
 		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
 		const shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
 		const shared_ptr<ILDCRTParams<BigInteger>> elementParams = cryptoParams->GetElementParams();
-		;
+		
 		usint m = elementParams->GetCyclotomicOrder();
 
 		PackedIntPlaintextEncoding::SetParams(encodingParams->GetPlaintextModulus(), m);
@@ -725,103 +676,47 @@ void Decrypt() {
 
 		std::cout << "Completed" << std::endl;
 
-		// Deserialize X^T X
+		// Deserialize cross-correlation
 
-		string xtxFileName = "ciphertext-xtx-" + std::to_string(k) + ".txt";
+		string cFileName = "ciphertext-cc-" + std::to_string(k) + ".txt";
 
-		std::cout << "Deserializing matrix X^T X...";
+		std::cout << "Deserializing cross-correlation..";
 
-		Serialized	xtxSer;
-		if (SerializableHelper::ReadSerializationFromFile(xtxFileName, &xtxSer) == false) {
-			cerr << "Could not read ciphertext X^T X" << endl;
+		Serialized	cSer;
+		if (SerializableHelper::ReadSerializationFromFile(cFileName, &cSer) == false) {
+			cerr << "Could not read ciphertext" << endl;
 			return;
 		}
 
-		auto zeroAlloc = [=]() { return lbcrypto::make_unique<RationalCiphertext<DCRTPoly>>(cc); };
 
-		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xtx(new Matrix<RationalCiphertext<DCRTPoly>>(zeroAlloc));
+		shared_ptr<Ciphertext<DCRTPoly>> c((new Ciphertext<DCRTPoly>(cc)));
 
-		if (!xtx->Deserialize(xtxSer)) {
-			cerr << "Could not deserialize ciphertext X^T X" << endl;
+		if (!c->Deserialize(cSer)) {
+			cerr << "Could not deserialize ciphertext" << endl;
 			return;
 		}
 
 		std::cout << "Completed" << std::endl;
 
-		// Decrypt X^T X
+		// Decrypt cross-correlation
 
-		std::cout << "Decrypting matrix X^T X...";
+		std::cout << "Decrypting cross-correlation...";
 
-		auto zeroPackingAlloc = [=]() { return lbcrypto::make_unique<PackedIntPlaintextEncoding>(); };
+		vector<shared_ptr<Ciphertext<DCRTPoly>>> ciphertextCC;
 
-		Matrix<PackedIntPlaintextEncoding> numeratorXTX = Matrix<PackedIntPlaintextEncoding>(zeroPackingAlloc, ROWS, ROWS);
+		ciphertextCC.push_back(c);
 
-		double start, finish;
+		PackedIntPlaintextEncoding ccResult; 
 
-		start = currentDateTime();
-
-		cc->DecryptMatrixNumerator(sk, xtx, &numeratorXTX);
-
-		finish = currentDateTime();
-
-		std::cout << "Completed" << std::endl;
-
-		std::cout << "X^T X decryption time: " << "\t" << (finish - start) << " ms" << std::endl;
-
-		xTxCRT.push_back(numeratorXTX);
-
-		//std::cout << numeratorXTX(0, 0)[0] << std::endl;
-		//std::cout << numeratorXTX(0, 1)[0] << std::endl;
-		//std::cout << numeratorXTX(1, 0)[0] << std::endl;
-		//std::cout << numeratorXTX(18, 18)[0] << std::endl;
-
-		// Deserialize X^T y
-
-		string xtyFileName = "ciphertext-xty-" + std::to_string(k) + ".txt";
-
-		std::cout << "Deserializing matrix X^T y...";
-
-		Serialized	xtySer;
-		if (SerializableHelper::ReadSerializationFromFile(xtyFileName, &xtySer) == false) {
-			cerr << "Could not read ciphertext X^T y" << endl;
-			return;
-		}
-
-		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xty(new Matrix<RationalCiphertext<DCRTPoly>>(zeroAlloc));
-
-		if (!xty->Deserialize(xtySer)) {
-			cerr << "Could not deserialize ciphertext X^T y" << endl;
-			return;
-		}
+		cc->Decrypt(sk, ciphertextCC, &ccResult, true);
 
 		std::cout << "Completed" << std::endl;
 
 		// Decrypt X^T y
 
-		std::cout << "Decrypting matrix X^T y...";
-
-		Matrix<PackedIntPlaintextEncoding> numeratorXTY = Matrix<PackedIntPlaintextEncoding>(zeroPackingAlloc, ROWS, 1);
-
-		start = currentDateTime();
-
-		cc->DecryptMatrixNumerator(sk, xty, &numeratorXTY);
-
-		finish = currentDateTime();
-
-		std::cout << "Completed" << std::endl;
-
-		std::cout << "X^T y decryption time: " << "\t" << (finish - start) << " ms" << std::endl;
-
-		xTyCRT.push_back(numeratorXTY);
-
-		//std::cout << numeratorXTY(0, 0)[0] << std::endl;
-		//std::cout << numeratorXTY(1, 0)[0] << std::endl;
-		//std::cout << numeratorXTY(2, 0)[0] << std::endl;
-		//std::cout << numeratorXTY(18, 0)[0] << std::endl;
+		crossCorr.push_back(ccResult);
 
 	}
-
-	auto zeroAlloc64 = [=]() { return lbcrypto::make_unique<native_int::BigInteger>(); };
 
 	// Convert back to large plaintext modulus
 
@@ -829,27 +724,15 @@ void Decrypt() {
 
 	std::cout << "CRT Interpolation to transform to large plainext modulus...";
 
-	shared_ptr<Matrix<native_int::BigInteger>> XTX(new Matrix<native_int::BigInteger>(zeroAlloc64));
-	shared_ptr<Matrix<native_int::BigInteger>> XTY(new Matrix<native_int::BigInteger>(zeroAlloc64));
-
-	CRTInterpolate(xTxCRT, *XTX);
-	CRTInterpolate(xTyCRT, *XTY);
+	native_int::BigInteger result = CRTInterpolate(crossCorr);
 
 	std::cout << "Completed" << std::endl;
 
-	std::cout << "XTX(0,0) = " << (*XTX)(0, 0) << std::endl;
-	std::cout << "XTX(0,1) = " << (*XTX)(0, 1) << std::endl;
-	std::cout << "XTX(1,0) = " << (*XTX)(1, 0) << std::endl;
-	std::cout << "XTX(18,18) = " << (*XTX)(18, 18) << std::endl;
-
-
-	for (size_t i = 0; i < 3; i++)
-		std::cout << "XTY(" << std::to_string(i) << ",0) = " << (*XTY)(i, 0) << std::endl;
-	std::cout << "XTY(18,0) = " << (*XTY)(18, 0) << std::endl;
+	std::cout << "Ciphertext result: " << result << std::endl;
 
 }
 
-bool DeserializeContext(const string& ccFileName, CryptoContext<DCRTPoly> &cc)
+shared_ptr<CryptoContext<DCRTPoly>> DeserializeContext(const string& ccFileName)
 {
 
 	std::cout << "Deserializing the crypto context...";
@@ -860,84 +743,16 @@ bool DeserializeContext(const string& ccFileName, CryptoContext<DCRTPoly> &cc)
 		return false;
 	}
 
-	if (!cc.Deserialize(ccSer)) {
-		cerr << "Error deserializing the crypto context" << endl;
-		return false;
-	}
+	shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(ccSer);
 
 	std::cout << "Completed" << std::endl;
 
-	return true;
+	return cc;
 }
 
-void ReadCSVFile(string dataFileName, vector<string>& headers, vector<vector<double> >& dataColumns)
-{
+native_int::BigInteger CRTInterpolate(const std::vector<PackedIntPlaintextEncoding> &crtVector) {
 
-	ifstream file(dataFileName);
-	string line, value;
-
-	uint32_t cols;
-
-	if (file.good()) {
-		getline(file, line);
-		cols = std::count(line.begin(), line.end(), ',') + 1;
-		//std::cout << "Number of data columns:" << cols << std::endl;
-		stringstream ss(line);
-		vector<string> result;
-
-		for (uint32_t i = 0; i < cols; i++) {
-			string substr;
-			getline(ss, substr, ',');
-			headers.push_back(substr);
-			vector<double> dataCol;
-			dataColumns.push_back(dataCol);
-		}
-	}
-
-	//second line has some text - so we are ignoring this line
-	if (file.good())
-		getline(file, line);
-
-	while (file.good()) {
-		getline(file, line);
-		//std::cout << line << std::endl;
-		//std::cin.get();
-		//terminate if the line has no cols
-		if (line.find(",") == std::string::npos)
-			break;
-		stringstream ss(line);
-		for (uint32_t i = 0; i < cols; i++) {
-			string substr;
-			getline(ss, substr, ',');
-			double val = std::stod(substr, nullptr);
-			//std::cout << "val = " << val << std::endl;
-			//std::cin.get();
-			dataColumns[i].push_back(val);
-		}
-	}
-
-	//std::cout << "Read in data file: " << dataFileName << std::endl;
-}
-
-void EncodeData(const vector<vector<double>>& dataColumns, Matrix<PackedIntPlaintextEncoding> &x, PackedIntPlaintextEncoding &y) {
-
-	// i corresponds to columns
-	for (size_t i = 0; i < dataColumns.size(); i++)
-	{
-		// k corresponds to rows, i.e., patients
-		for (size_t k = 0; k < dataColumns[i].size(); k++)
-		{
-			int32_t value = dataColumns[i][k];
-			x(0, i).push_back(value);
-		}
-
-	}
-
-}
-
-void CRTInterpolate(const std::vector<Matrix<PackedIntPlaintextEncoding>> &crtVector, Matrix<native_int::BigInteger> &result) {
-
-	result.SetSize(crtVector[0].GetRows(), crtVector[0].GetCols());
+	native_int::BigInteger result(0);
 
 	std::vector<native_int::BigInteger> q = { 3623,3779,3803 };
 
@@ -951,18 +766,11 @@ void CRTInterpolate(const std::vector<Matrix<PackedIntPlaintextEncoding>> &crtVe
 		//std::cout << qInverse[i];
 	}
 
-	for (size_t k = 0; k < result.GetRows(); k++)
-	{
-		for (size_t j = 0; j < result.GetCols(); j++)
-		{
-			native_int::BigInteger value = 0;
-			for (size_t i = 0; i < crtVector.size(); i++) {
-				//std::cout << crtVector[i](k,j)[0] <<std::endl;
-				value += ((native_int::BigInteger(crtVector[i](k, j)[0])*qInverse[i]).Mod(q[i])*Q / q[i]).Mod(Q);
-			}
-			result(k, j) = value.Mod(Q);
-		}
+	for (size_t i = 0; i < crtVector.size(); i++) {
+		result += ((native_int::BigInteger(crtVector[i][0])*qInverse[i]).Mod(q[i])*Q / q[i]).Mod(Q);
 	}
+	
+	return result;
 
 }
 
