@@ -147,7 +147,6 @@ bool Matrix<RationalCiphertext<Poly>>::Deserialize(const Serialized& serObj) {
 
 template<>
 bool Matrix<RationalCiphertext<DCRTPoly>>::Serialize(Serialized* serObj) const {
-	return false;
 
 	serObj->SetObject();
 
@@ -183,7 +182,7 @@ bool Matrix<RationalCiphertext<DCRTPoly>>::Serialize(Serialized* serObj) const {
 
 template<>
 bool Matrix<RationalCiphertext<DCRTPoly>>::Deserialize(const Serialized& serObj) {
-	return false;
+
 	Serialized::ConstMemberIterator mIter = serObj.FindMember("Object");
 	if (mIter == serObj.MemberEnd() || string(mIter->value.GetString()) != "Matrix")
 		return false;

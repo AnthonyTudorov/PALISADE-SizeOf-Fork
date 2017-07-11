@@ -551,7 +551,7 @@ void Compute() {
 
 		string xFileName = "ciphertext-x-" + std::to_string(k) + ".txt";
 
-		std::cout << "Deserializing row vector X...";
+		std::cout << "Deserializing vector x...";
 
 		Serialized	xSer;
 		if (SerializableHelper::ReadSerializationFromFile(xFileName, &xSer) == false) {
@@ -574,7 +574,7 @@ void Compute() {
 
 		string yFileName = "ciphertext-y-" + std::to_string(k) + ".txt";
 
-		std::cout << "Deserializing y...";
+		std::cout << "Deserializing vector y...";
 
 		Serialized	ySer;
 		if (SerializableHelper::ReadSerializationFromFile(yFileName, &ySer) == false) {

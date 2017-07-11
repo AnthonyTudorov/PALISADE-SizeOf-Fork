@@ -500,6 +500,7 @@ public:
 	 * @return the key to use
 	 */
 	const shared_ptr<LPEvalKey<Element>> GetEvalMultKey() const {
+		std::cout << "size = " << evalMultKeys.size() << std::endl;
 		if( evalMultKeys.size() != 1 )
 			throw std::logic_error("You need to use EvalMultKeyGen so that you have an EvalMultKey available");
 		return evalMultKeys[0];
@@ -511,7 +512,7 @@ public:
 	 * @param evalMultKeys - new key map
 	 */
 	void SetEvalMultKeys(vector<shared_ptr<LPEvalKey<Element>>>& evalMultKeys) {
-		evalMultKeys.resize(0);
+		evalMultKeys.clear();
 		this->evalMultKeys = evalMultKeys;
 	}
 
