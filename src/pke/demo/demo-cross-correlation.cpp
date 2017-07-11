@@ -157,7 +157,11 @@ void KeyGen()
 
 		shared_ptr<ILDCRTParams<BigInteger>> paramsDCRT(new ILDCRTParams<BigInteger>(m, init_moduli, init_rootsOfUnity, init_moduli_NTT, init_rootsOfUnity_NTT));
 
+		std::cout << "generated parameters" << std::endl;
+
 		PackedIntPlaintextEncoding::SetParams(modulusP, m);
+
+		std::cout << "setting parameters" << std::endl;
 
 		shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP), batchSize));
 
@@ -448,12 +452,12 @@ void Compute() {
 
 		// Deserialize the crypto context
 
-		CryptoContext<DCRTPoly> cc;
+		shared_ptr<CryptoContext<DCRTPoly>> cc;
 
-		if (!DeserializeContext(ccFileName, cc))
+		if (!DeserializeContext(ccFileName, *cc))
 			return;
 
-		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc.GetCryptoParameters();
+		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
 		const shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
 		const shared_ptr<ILDCRTParams<BigInteger>> elementParams = cryptoParams->GetElementParams();
 		;
@@ -461,8 +465,8 @@ void Compute() {
 
 		PackedIntPlaintextEncoding::SetParams(encodingParams->GetPlaintextModulus(), m);
 
-		cc.Enable(ENCRYPTION);
-		cc.Enable(SHE);
+		cc->Enable(ENCRYPTION);
+		cc->Enable(SHE);
 
 		// Deserialize the eval mult key
 
@@ -474,7 +478,7 @@ void Compute() {
 			return;
 		}
 
-		shared_ptr<LPEvalKey<DCRTPoly>> em = cc.deserializeEvalKey(emSer);
+		shared_ptr<LPEvalKey<DCRTPoly>> em = cc->deserializeEvalKey(emSer);
 
 		if (!em) {
 			cerr << "Could not deserialize multiplication evaluation key" << endl;
@@ -484,7 +488,7 @@ void Compute() {
 		vector<shared_ptr<LPEvalKey<DCRTPoly>>> evalMultKeys;
 		evalMultKeys.push_back(em);
 
-		cc.SetEvalMultKeys(evalMultKeys);
+		cc->SetEvalMultKeys(evalMultKeys);
 
 		std::cout << "Completed" << std::endl;
 
@@ -515,7 +519,7 @@ void Compute() {
 				return;
 			}
 
-			shared_ptr<LPEvalKey<DCRTPoly>> es = cc.deserializeEvalKey(esSer);
+			shared_ptr<LPEvalKey<DCRTPoly>> es = cc->deserializeEvalKey(esSer);
 
 			if (!es) {
 				cerr << "Could not deserialize summation evaluation key at index " << g << endl;
@@ -527,7 +531,7 @@ void Compute() {
 			g = (g * g) % m;
 		}
 
-		cc.SetEvalSumKeys(evalKeys);
+		cc->SetEvalSumKeys(evalKeys);
 
 		std::cout << "Completed" << std::endl;
 
@@ -543,7 +547,7 @@ void Compute() {
 			return;
 		}
 
-		auto zeroAlloc = [=]() { return lbcrypto::make_unique<RationalCiphertext<DCRTPoly>>(&cc); };
+		auto zeroAlloc = [=]() { return lbcrypto::make_unique<RationalCiphertext<DCRTPoly>>(cc); };
 
 		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> x(new Matrix<RationalCiphertext<DCRTPoly>>(zeroAlloc));
 
@@ -566,7 +570,7 @@ void Compute() {
 			return;
 		}
 
-		shared_ptr<Ciphertext<DCRTPoly>> y(new Ciphertext<DCRTPoly>(&cc));
+		shared_ptr<Ciphertext<DCRTPoly>> y(new Ciphertext<DCRTPoly>(cc));
 
 		if (!y->Deserialize(ySer)) {
 			cerr << "Could not deserialize ciphertext y" << endl;
@@ -587,7 +591,7 @@ void Compute() {
 
 		//forces all inner-product precomputations to take place sequentially
 		const shared_ptr<Ciphertext<DCRTPoly>> x0 = (*x)(0, 0).GetNumerator();
-		(*xTx)(0, 0).SetNumerator(*cc.EvalInnerProduct(x0, x0, encodingParams->GetBatchSize()));
+		(*xTx)(0, 0).SetNumerator(*cc->EvalInnerProduct(x0, x0, encodingParams->GetBatchSize()));
 
 		for (size_t i = 0; i < ROWS; i++)
 		{
@@ -598,7 +602,7 @@ void Compute() {
 				{
 					const shared_ptr<Ciphertext<DCRTPoly>> xi = (*x)(0, i).GetNumerator();
 					const shared_ptr<Ciphertext<DCRTPoly>> xk = (*x)(0, k).GetNumerator();
-					(*xTx)(i, k).SetNumerator(*cc.EvalInnerProduct(xi, xk, encodingParams->GetBatchSize()));
+					(*xTx)(i, k).SetNumerator(*cc->EvalInnerProduct(xi, xk, encodingParams->GetBatchSize()));
 					if (i != k)
 						(*xTx)(k, i).SetNumerator(*(*xTx)(i, k).GetNumerator());
 				}
@@ -623,7 +627,7 @@ void Compute() {
 		for (size_t i = 0; i < ROWS; i++)
 		{
 			const shared_ptr<Ciphertext<DCRTPoly>> xi = (*x)(0, i).GetNumerator();
-			(*xTy)(i, 0).SetNumerator(*cc.EvalInnerProduct(xi, y, encodingParams->GetBatchSize()));
+			(*xTy)(i, 0).SetNumerator(*cc->EvalInnerProduct(xi, y, encodingParams->GetBatchSize()));
 		}
 
 		finish = currentDateTime();
@@ -690,12 +694,12 @@ void Decrypt() {
 
 		// Deserialize the crypto context
 
-		CryptoContext<DCRTPoly> cc;
+		shared_ptr<CryptoContext<DCRTPoly>> cc;
 
-		if (!DeserializeContext(ccFileName, cc))
+		if (!DeserializeContext(ccFileName, *cc))
 			return;
 
-		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc.GetCryptoParameters();
+		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
 		const shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
 		const shared_ptr<ILDCRTParams<BigInteger>> elementParams = cryptoParams->GetElementParams();
 		;
@@ -703,8 +707,8 @@ void Decrypt() {
 
 		PackedIntPlaintextEncoding::SetParams(encodingParams->GetPlaintextModulus(), m);
 
-		cc.Enable(ENCRYPTION);
-		cc.Enable(SHE);
+		cc->Enable(ENCRYPTION);
+		cc->Enable(SHE);
 
 		// Deserialize the private key
 
@@ -716,7 +720,7 @@ void Decrypt() {
 			return;
 		}
 
-		shared_ptr<LPPrivateKey<DCRTPoly>> sk = cc.deserializeSecretKey(skSer);
+		shared_ptr<LPPrivateKey<DCRTPoly>> sk = cc->deserializeSecretKey(skSer);
 
 		if (!sk) {
 			cerr << "Could not deserialize private key" << endl;
@@ -737,7 +741,7 @@ void Decrypt() {
 			return;
 		}
 
-		auto zeroAlloc = [=]() { return lbcrypto::make_unique<RationalCiphertext<DCRTPoly>>(&cc); };
+		auto zeroAlloc = [=]() { return lbcrypto::make_unique<RationalCiphertext<DCRTPoly>>(cc); };
 
 		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xtx(new Matrix<RationalCiphertext<DCRTPoly>>(zeroAlloc));
 
@@ -760,7 +764,7 @@ void Decrypt() {
 
 		start = currentDateTime();
 
-		cc.DecryptMatrixNumerator(sk, xtx, &numeratorXTX);
+		cc->DecryptMatrixNumerator(sk, xtx, &numeratorXTX);
 
 		finish = currentDateTime();
 
@@ -804,7 +808,7 @@ void Decrypt() {
 
 		start = currentDateTime();
 
-		cc.DecryptMatrixNumerator(sk, xty, &numeratorXTY);
+		cc->DecryptMatrixNumerator(sk, xty, &numeratorXTY);
 
 		finish = currentDateTime();
 
