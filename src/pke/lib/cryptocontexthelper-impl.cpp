@@ -92,7 +92,7 @@ buildContextFromSerialized(const map<string,string>& s, shared_ptr<typename Elem
 			return 0;
 
 		return CryptoContextFactory<Element>::genCryptoContextFV(stoul(plaintextModulus), stof(secLevel), 16, 4,
-				0, 1, 0);
+				0, 0, 1);
 
 	}
 	else if( parmtype == "BV" ) {
@@ -324,6 +324,21 @@ CryptoContextHelper::printAllParmSetNames(std::ostream& out)
 		out << ", " << it->first;
 	}
 	out << std::endl;
+}
+
+void
+CryptoContextHelper::printParmSetNamesByFilter(std::ostream& out, const string &filter)
+{
+	map<string, map<string, string>>::iterator it = CryptoContextParameterSets.begin();
+
+	out << it->first;
+
+	for (it++; it != CryptoContextParameterSets.end(); it++) {
+		if (it->first.find(filter) != string::npos)
+			out << ", " << it->first;
+	}
+	out << std::endl;
+
 }
 
 }

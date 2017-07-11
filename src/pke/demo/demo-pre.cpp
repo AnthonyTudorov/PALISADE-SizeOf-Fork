@@ -52,34 +52,41 @@ int main(int argc, char *argv[])
 	// Set-up of parameters
 	////////////////////////////////////////////////////////////
 
-
-	std::cout << "\nThis code demonstrates the use of the FV schemes for basic proxy-re-encryption operations. " << std::endl;
-	std::cout << "This code shows how to auto-generate parameters during run-time based on desired plaintext moduli and security levels. " << std::endl;
-	std::cout << "In this demonstration we encrypt data and then proxy re-encrypt it. " << std::endl;
-
 	//Generate parameters.
 	double diff, start, finish;
 
-	int relWindow = 1;
-	int plaintextModulus = 64;
-	double sigma = 4;
-	double rootHermiteFactor = 1.006;	
+	std::cout << "\nThis code demonstrates the use of the FV, BV, StSt, Null and LTV schemes for basic proxy-re-encryption operations. " ;
+	std::cout << "This code shows how to use schemes and pre-computed parameters for those schemes can be selected during run-time. " ;
+	std::cout << "In this demonstration we encrypt data and then proxy re-encrypt it. " ;
+	std::cout << "We do not generally recommend the use of the LTV scheme due to security concerns. " << std::endl;
 
-	//Set Crypto Parameters	
-	shared_ptr<CryptoContext<Poly>> cryptoContext = CryptoContextFactory<Poly>::genCryptoContextFV(
-			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 1, 0);
+	std::cout << "Choose parameter set: ";
+	CryptoContextHelper::printParmSetNamesByFilter(std::cout,"PRE");
 
-	// enable features that you wish to use
+	string input;
+	std::cin >> input;
+
+	start = currentDateTime();
+
+	shared_ptr<CryptoContext<Poly>> cryptoContext = CryptoContextHelper::getNewContext(input);
+	if (!cryptoContext) {
+		cout << "Error on " << input << endl;
+		return 0;
+	}
+
+	finish = currentDateTime();
+	diff = finish - start;
+
+	cout << "Param generation time: " << "\t" << diff << " ms" << endl;
+
+	//Turn on features
 	cryptoContext->Enable(ENCRYPTION);
-	cryptoContext->Enable(PRE);
 	cryptoContext->Enable(SHE);
-	
+	cryptoContext->Enable(PRE);
+
 	std::cout << "p = " << cryptoContext->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
 	std::cout << "n = " << cryptoContext->GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
 	std::cout << "log2 q = " << log2(cryptoContext->GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
-
-	//std::cout << "Press any key to continue." << std::endl;
-	//std::cin.get();
 
 	////////////////////////////////////////////////////////////
 	// Perform Key Generation Operation
@@ -107,7 +114,7 @@ int main(int argc, char *argv[])
 	// Encode source data
 	////////////////////////////////////////////////////////////
 
-	std::vector<uint32_t> vectorOfInts = {2,2,2,2,2,2,0,0,0,0,0,0};
+	std::vector<uint32_t> vectorOfInts = {1,0,1,1,1,1,0,1,1,1,0,1};
 	IntPlaintextEncoding plaintext(vectorOfInts);
 
 	////////////////////////////////////////////////////////////
@@ -178,13 +185,25 @@ int main(int argc, char *argv[])
 	// This generates the keys which are used to perform the key switching.
 	////////////////////////////////////////////////////////////
 
+	// Set a flag to determine which ReKeyGent interface is supported
+	// flagBV == true means BV or FV
+	// flagBV == false corresponds to LTV, StSt, and Null
+
+	bool flagBV = true;
+
+	if ((input.find("BV") == string::npos) && (input.find("FV") == string::npos))
+		flagBV = false;
+
 	std::cout <<"\n"<< "Generating proxy re-encryption key..." << std::endl;
 
 	shared_ptr<LPEvalKey<Poly>> reencryptionKey12;
 
 	start = currentDateTime();
 
-	reencryptionKey12 = cryptoContext->ReKeyGen(keyPair2.secretKey, keyPair1.secretKey);
+	if (flagBV)
+		reencryptionKey12 = cryptoContext->ReKeyGen(keyPair2.secretKey, keyPair1.secretKey);
+	else
+		reencryptionKey12 = cryptoContext->ReKeyGen(keyPair2.publicKey, keyPair1.secretKey);
 
 	finish = currentDateTime();
 	diff = finish - start;
