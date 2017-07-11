@@ -41,7 +41,6 @@
 #include "../../utils/inttypes.h"
 #include "../../utils/serializable.h"
 #include <initializer_list>
-//#include "gmpintvec.h"
 #include "gmpint.h"
 
 #include <NTL/vector.h>
@@ -59,9 +58,6 @@ namespace NTL {
   /**
    * @brief The class for representing vectors of ubint with associated modulo math
    */
-  //note this inherits from gmpintvec
-
-  //JSON FACILITY
 
   template<class myT>
     class myVecP : public NTL::Vec<myT> {
@@ -69,8 +65,6 @@ namespace NTL {
 
 
   public:
-    //note gmpint.h puts constructor bodies here, 
-    //mubint.h moves them to .cpp, so we may do that too. 
 
 
   myVecP(): Vec<myT>() {};
@@ -520,30 +514,21 @@ namespace NTL {
        * @param idx is the index to get a value at.
        * @return is the value at the index. return NULL if invalid index.
        */
-#if 0 //this has problems 
-    inline myZZ_p& operator[](std::size_t idx) {
+#if 0  //this should be ok from base class Vec
+    inline myT operator[](std::size_t idx) {
       //myZZ_p tmp((*this)[idx]._ZZ_p__rep);
       //tmp.SetModulus(this->GetModulus());
-      myZZ_p tmp = this->NTL::operator[](idx);
-      
-
-      if(! tmp.isModulusSet()){
-	std::cout<<"op[] mod not set"<<std::endl;
-	tmp.SetModulus(this->GetModulus());
-      }
+      myT tmp = this->NTL::Vec<ZZ>::operator[](idx);
       return tmp;
 
       //here we have the problem we return the element, but it never had it's modulus value set. 
       //we need to somehow beable to set that modulus. 
     }
 
-    inline const myZZ_p& operator[](std::size_t idx) const {
-      if(! (*this)[idx].isModulusSet()){
-	std::cout<<"const op[] mod not set"<<std::endl;
-	//(*this)[idx].SetModulus(this->GetModulus());
-      }
+    inline const myT& operator[](std::size_t idx) const {
 	//how do we get this to work for the const???
-      return (*this)[idx];
+      const myT tmp = this->Vec<ZZ>::operator[](idx);
+      return tmp;
     }
 #endif
  

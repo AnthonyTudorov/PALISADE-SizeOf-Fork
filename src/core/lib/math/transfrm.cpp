@@ -130,14 +130,14 @@ VecType NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(con
 	float ringDimensionFactor = ((float)rootOfUnityTable.GetLength()) / (float)cycloOrder;
 
 	//YSP mu is not needed for native data types or BE 6
-#if MATHBACKEND != 6
+#if 1//MATHBACKEND != 6
 	//Precompute the Barrett mu parameter
 	IntType temp(1);
 	temp <<= 2 * element.GetModulus().GetMSB() + 3;
 	IntType mu = temp.DividedBy(element.GetModulus());
 	//std::cout << "NTTFwd mod,tmp,mu" << element.GetModulus() << "," << temp << "," << mu << std::endl;
 #endif
-#if MATHBACKEND == 6
+#if 0//MATHBACKEND == 6
 	IntType modulus = element.GetModulus();
 #endif
 
@@ -163,7 +163,7 @@ VecType NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(con
 						omegaFactor = omega;
 					else
 					{
-#if MATHBACKEND !=6
+#if 1//MATHBACKEND !=6
 						//omegaFactor = omega*result.GetValAtIndex(indexOdd);
 						//omegaFactor.ModBarrettInPlace(element.GetModulus(), mu);
 						omegaFactor = omega.ModBarrettMul(result.GetValAtIndex(indexOdd),element.GetModulus(), mu);
@@ -173,7 +173,7 @@ VecType NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(con
 #endif
 						DEBUG("omegaFactor "<<omegaFactor);
 					}
-#if  MATHBACKEND !=6
+#if  1//MATHBACKEND !=6
 					butterflyPlus = result.GetValAtIndex(indexEven);
 					butterflyPlus += omegaFactor;
 					if (butterflyPlus >= element.GetModulus())

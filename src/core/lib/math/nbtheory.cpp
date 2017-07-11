@@ -146,7 +146,8 @@ static IntType RNG(const IntType& modulus)
 
 	return result;
  }
-#if MATHBACKEND ==6
+#if 0 //wait until backend 6 completely works
+  //#if MATHBACKEND ==6 
 //native NTL version
   static NTL::myZZ RNG(const NTL::myZZ& modulus)
   {
@@ -443,7 +444,8 @@ IntType GreatestCommonDivisor(const IntType& a, const IntType& b)
 	return m_a;
  }
   
-#if MATHBACKEND ==6
+  //#if MATHBACKEND ==6 wait until backend 6 completely works
+#if 0
   //define an NTL native implementation 
   NTL::myZZ GreatestCommonDivisor(const NTL::myZZ& a, const NTL::myZZ& b)
   {
@@ -490,7 +492,8 @@ IntType GreatestCommonDivisor(const IntType& a, const IntType& b)
  }
 
 
-#if MATHBACKEND ==6
+  //#if MATHBACKEND ==6
+#if 0 //wait until backend 6 completely works
   //NTL native version
 bool MillerRabinPrimalityTest(const NTL::myZZ& p, const usint niter)
  {

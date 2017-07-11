@@ -93,7 +93,7 @@ void ILDCRTImpl<ModType,IntType,VecType,ParmType>::fillVectorArrayFromBigVector(
 	for(usint p = 0; p < element.GetLength(); p++ ) {
 		for( usint v = 0; v < vecCount; v++ ) {
 
-#if MATHBACKEND ==6
+#if 1//MATHBACKEND ==6 //wait till backend 6 works
 			IntType tmp = element.GetValAtIndex(p) % bigmods[v];
 			m_vectors[v].SetValAtIndex(p, tmp.ConvertToInt());
 #else

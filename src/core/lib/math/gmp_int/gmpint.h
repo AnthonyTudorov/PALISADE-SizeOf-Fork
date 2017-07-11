@@ -251,8 +251,14 @@ namespace NTL{
     //palisade modular arithmetic methods all inline for speed
 
     inline myZZ Mod(const myZZ& modulus) const {return *this%modulus;};
+    inline myZZ& operator%(const myZZ &modulus) { 
+      ZZ tmp = *this;
+      ZZ tmod = modulus;
+      *this = tmp%modulus; 
+      return(*this);
 
-    //    inline myZZ& operator%=(const myZZ &modulus) {*this = *this%modulus; return *this;};  
+    }
+    inline myZZ& operator%=(const myZZ &modulus) {*this = *this%modulus; return *this;};  
 
     inline myZZ ModBarrett(const myZZ& modulus, const myZZ& mu) const {return *this%modulus;};
     void ModBarrettInPlace(const myZZ& modulus, const myZZ& mu) { *this%=modulus;};
