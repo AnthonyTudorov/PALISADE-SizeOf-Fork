@@ -172,6 +172,40 @@ bool LPAlgorithmParamsGenFV<Element>::ParamsGen(shared_ptr<LPCryptoParameters<El
 		}
 
 	} 
+	// this case supports re-encryption and automorphism w/o any other operations
+	else if ((evalMultCount == 0) && (keySwitchCount > 0) && (evalAddCount == 0)) {
+
+		//base for relinearization
+		double w = pow(2, r);
+
+		//Correctness constraint
+		auto qFV = [&](uint32_t n, double qPrev) -> double { return p*(2*(Vnorm(n) + keySwitchCount*delta(n)*(floor(log2(qPrev) / r) + 1)*w*Berr) + p);  };
+
+		//initial values
+		double qPrev = 1e6;
+		q = qFV(n, qPrev);
+		qPrev = q;
+
+		//this "while" condition is needed in case the iterative solution for q 
+		//changes the requirement for n, which is rare but still theortically possible
+		while (nRLWE(q) > n) {
+
+			while (nRLWE(q) > n) {
+				n = 2 * n;
+				q = qFV(n, qPrev);
+				qPrev = q;
+			}
+
+			q = qFV(n, qPrev);
+
+			while (std::abs(q - qPrev) > 0.001*q) {
+				qPrev = q;
+				q = qFV(n, qPrev);
+			}
+
+		}
+
+	}
 	//Only EvalMult operations are used in the correctness constraint
 	//the correctness constraint from section 3.5 of https://eprint.iacr.org/2014/062.pdf is used
 	else if ((evalAddCount == 0) && (evalMultCount > 0) && (keySwitchCount == 0))

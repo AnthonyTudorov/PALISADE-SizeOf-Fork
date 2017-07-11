@@ -152,7 +152,7 @@ map<string, map<string,string>> CryptoContextParameterSets = {
 		{ "FV1", {
 				{ "parameters", "FV" },
 				{ "plaintextModulus", "4" },
-				{ "securityLevel", "1.006" }
+				{ "securityLevel", "1.006" },
 		} },
 
 		{ "FV2", {
@@ -225,8 +225,47 @@ map<string, map<string,string>> CryptoContextParameterSets = {
 				{ "ring", "8" },
 				{ "modulus", "256" },
 				{ "rootOfUnity", "322299632" }
+		} },
+		{ "LTV-PRE" ,{
+				{ "parameters", "LTV" },
+				{ "plaintextModulus", "2" },
+				{ "ring",  "2048" },
+				{ "modulus", "8589987841" },
+				{ "rootOfUnity", "2678760785" },
+				{ "relinWindow", "8" },
+				{ "stDev", "4" }
+		} },
+		{ "StSt-PRE",{
+				{ "parameters", "StehleSteinfeld" },
+				{ "plaintextModulus", "2" },
+				{ "ring",  "2048" },
+				{ "modulus", "137439004673" },
+				{ "rootOfUnity", "7643730114" },
+				{ "relinWindow", "8" },
+				{ "stDev", "4" },
+				{ "stDevStSt", "214.9" }
+		} },
+		{ "FV-PRE",{
+				{ "parameters", "FV" },
+				{ "plaintextModulus", "2" },
+				{ "securityLevel", "1.006" }
+		} },
+		{ "BV-PRE",{
+				{ "parameters", "BV" },
+				{ "plaintextModulus", "2" },
+				{ "ring", "2048" },
+				{ "modulus", "8589987841" },
+				{ "rootOfUnity", "2678760785" },
+				{ "relinWindow", "16" },
+				{ "stDev", "4" },
+		} },
+		{ "Null-PRE",{
+				{ "parameters", "Null" },
+				{ "plaintextModulus", "2" },
+				{ "ring", "2048" },
+				{ "modulus", "2" },
+				{ "rootOfUnity", "1" }
 		} }
-
 
 };
 

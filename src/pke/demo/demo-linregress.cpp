@@ -64,7 +64,7 @@ void ArbFVLinearRegressionPackedArray();
 
 int main() {
 
-	std::cout << "\nThis code demonstrates the use of bit-pakcing for linear regression using the BV scheme. " << std::endl;
+	std::cout << "\nThis code demonstrates the use of packing for linear regression using the BV and FV schemes. " << std::endl;
 	std::cout << "This code shows how parameters can be manually set in our library. " << std::endl;
 	
 	std::cout << "\n===========BV TESTS (LINEAR-REGRESSION-ARBITRARY)===============: " << std::endl;

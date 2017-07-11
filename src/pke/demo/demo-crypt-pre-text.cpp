@@ -75,7 +75,7 @@ using namespace lbcrypto;
 int main(int argc, char *argv[])
 {
 	string parmSetName;
-	bool beVerbose = false;
+	bool beVerbose = true;
 	bool haveName = false;
 
 	// Process parameters, find the parameter set name specified on the command line
@@ -131,6 +131,7 @@ int main(int argc, char *argv[])
 
 	// enable features that you wish to use
 	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 	cc->Enable(PRE);
 
 	// Plaintext in this case is a BytePlaintextEncoding
@@ -228,11 +229,19 @@ int main(int argc, char *argv[])
 	// This generates the keys which are used to perform the key switching.
 	////////////////////////////////////////////////////////////
 
+	bool flagBV = true;
+
+	if ((parmSetName.find("BV") == string::npos) && (parmSetName.find("FV") == string::npos))
+		flagBV = false;
+
 	if( beVerbose ) cout << "Generating proxy re-encryption key" << endl;
 
 	shared_ptr<LPEvalKey<Poly>> evalKey;
 	try {
-		evalKey = cc->ReKeyGen(newKp.publicKey, kp.secretKey);
+		if (flagBV)
+			evalKey = cc->ReKeyGen(newKp.secretKey, kp.secretKey);
+		else
+			evalKey = cc->ReKeyGen(newKp.publicKey, kp.secretKey);
 	} catch( std::exception& e ) {
 		cout << e.what() << ", cannot proceed with PRE" << endl;
 		return 0;

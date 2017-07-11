@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
 	////////////////////////////////////////////////////////////
 
 
-	std::cout << "\nThis code demonstrates the use of the FV schemes for basic homomorphic encryption operations. " << std::endl;
+	std::cout << "\nThis code demonstrates the use of the FV scheme for basic homomorphic encryption operations. " << std::endl;
 	std::cout << "This code shows how to auto-generate parameters during run-time based on desired plaintext moduli and security levels. " << std::endl;
 	std::cout << "In this demonstration we use three input plaintext and show how to both add them together and multiply them together. " << std::endl;
 
@@ -187,7 +187,7 @@ int main(int argc, char *argv[]) {
 
 	finish = currentDateTime();
 	diff = finish - start;
-	cout << "Re-Encrypted Data Evaluation time: " << "\t" << diff << " ms" << endl;
+	cout << "EvalAdd time: " << "\t" << diff << " ms" << endl;
 
 
 	////////////////////////////////////////////////////////////
@@ -212,7 +212,7 @@ int main(int argc, char *argv[]) {
 	cout << plaintext2 << endl;
 	cout << plaintext3 << endl;
 
-	cout << "\n Resulting Added Plaintext with Re-Encryption: \n";
+	cout << "\n Resulting Added Plaintext: \n";
 	cout << plaintextAdd << endl;
 
 	cout << "\n";
@@ -235,7 +235,7 @@ int main(int argc, char *argv[]) {
 
 	finish = currentDateTime();
 	diff = finish - start;
-	cout << "Re-Encrypted Data Evaluation time: " << "\t" << diff << " ms" << endl;
+	cout << "EvalMult time: " << "\t" << diff << " ms" << endl;
 
 
 	////////////////////////////////////////////////////////////
@@ -260,7 +260,7 @@ int main(int argc, char *argv[]) {
 	cout << plaintext2 << endl;
 	cout << plaintext3 << endl;
 
-	cout << "\n Resulting Muled Plaintext with Re-Encryption: \n";
+	cout << "\n Resulting Plaintext (after polynomial multiplication): \n";
 	cout << plaintextMul << endl;
 
 	cout << "\n";
