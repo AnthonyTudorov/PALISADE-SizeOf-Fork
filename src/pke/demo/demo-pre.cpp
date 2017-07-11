@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
 	std::cout << "In this demonstration we encrypt data and then proxy re-encrypt it. " ;
 	std::cout << "We do not generally recommend the use of the LTV scheme due to security concerns. " << std::endl;
 
-	std::cout << "Choose parameter set: ";
+	std::cout << "\nChoose parameter set: ";
 	CryptoContextHelper::printParmSetNamesByFilter(std::cout,"PRE");
 
 	string input;
@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
 	finish = currentDateTime();
 	diff = finish - start;
 
-	cout << "Param generation time: " << "\t" << diff << " ms" << endl;
+	cout << "\nParam generation time: " << "\t" << diff << " ms" << endl;
 
 	//Turn on features
 	cryptoContext->Enable(ENCRYPTION);
@@ -87,6 +87,7 @@ int main(int argc, char *argv[])
 	std::cout << "p = " << cryptoContext->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
 	std::cout << "n = " << cryptoContext->GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
 	std::cout << "log2 q = " << log2(cryptoContext->GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
+	std::cout << "r = " << cryptoContext->GetCryptoParameters()->GetRelinWindow() << std::endl;
 
 	////////////////////////////////////////////////////////////
 	// Perform Key Generation Operation
@@ -95,7 +96,7 @@ int main(int argc, char *argv[])
 	// Initialize Key Pair Containers
 	LPKeyPair<Poly> keyPair1;
 
-	std::cout << "Running key generation (used for source data)..." << std::endl;
+	std::cout << "\nRunning key generation (used for source data)..." << std::endl;
 
 	start = currentDateTime();
 
