@@ -37,7 +37,7 @@ namespace lbcrypto {
 template<typename IntType, typename VecType>
 class DiscreteUniformGeneratorImpl;
 
-typedef DiscreteUniformGeneratorImpl<BigBinaryInteger,BigBinaryVector> DiscreteUniformGenerator;
+typedef DiscreteUniformGeneratorImpl<BigInteger,BigVector> DiscreteUniformGenerator;
 
 /**
 * @brief The class for Discrete Uniform Distribution generator over Zq.

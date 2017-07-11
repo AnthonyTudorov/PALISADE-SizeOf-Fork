@@ -51,9 +51,9 @@
 
 namespace pycrypto {
 
-	typedef lbcrypto::LWEConjunctionObfuscationAlgorithm<lbcrypto::ILVector2n> ObfAlgorithm;
-	typedef lbcrypto::ObfuscatedLWEConjunctionPattern<lbcrypto::ILVector2n> ObfPattern;
-	typedef lbcrypto::ClearLWEConjunctionPattern<lbcrypto::ILVector2n> ClearPattern;
+	typedef lbcrypto::LWEConjunctionObfuscationAlgorithm<lbcrypto::Poly> ObfAlgorithm;
+	typedef lbcrypto::ObfuscatedLWEConjunctionPattern<lbcrypto::Poly> ObfPattern;
+	typedef lbcrypto::ClearLWEConjunctionPattern<lbcrypto::Poly> ClearPattern;
 
 	class Obfuscator {
 

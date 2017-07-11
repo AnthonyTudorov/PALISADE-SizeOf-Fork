@@ -19,17 +19,17 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\trapdoor\lib\obfuscation\lweconjunctionobfuscatev3.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\trapdoor\lib\sampling\dgsampling.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\trapdoor\lib\sampling\trapdoor.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\trapdoor\lib\signature\lwesign.cpp" />
+    <ClCompile Include="..\..\..\..\src\trapdoor\lib\obfuscation\lweconjunctionobfuscatev3.cpp" />
+    <ClCompile Include="..\..\..\..\src\trapdoor\lib\sampling\dgsampling.cpp" />
+    <ClCompile Include="..\..\..\..\src\trapdoor\lib\sampling\trapdoor.cpp" />
+    <ClCompile Include="..\..\..\..\src\trapdoor\lib\signature\lwesign.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\trapdoor\lib\obfuscation\lweconjunctionobfuscatev3.h" />
-    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\trapdoor\lib\obfuscation\obfuscatelp.h" />
-    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\trapdoor\lib\sampling\dgsampling.h" />
-    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\trapdoor\lib\sampling\trapdoor.h" />
-    <ClInclude Include="..\..\..\..\..\..\..\git\palisade-student-edition\src\trapdoor\lib\signature\lwesign.h" />
+    <ClInclude Include="..\..\..\..\src\trapdoor\lib\obfuscation\lweconjunctionobfuscatev3.h" />
+    <ClInclude Include="..\..\..\..\src\trapdoor\lib\obfuscation\obfuscatelp.h" />
+    <ClInclude Include="..\..\..\..\src\trapdoor\lib\sampling\dgsampling.h" />
+    <ClInclude Include="..\..\..\..\src\trapdoor\lib\sampling\trapdoor.h" />
+    <ClInclude Include="..\..\..\..\src\trapdoor\lib\signature\lwesign.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{A2EC17D5-2F86-4785-848A-58762A65999A}</ProjectGuid>
@@ -83,19 +83,19 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\git\palisade-student-edition\src\pke\lib;C:\git\palisade-student-edition\src\core\lib;C:\boost_1_62_0;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\boost_1_62_0\stage\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\..\..\..\src\pke\lib;..\..\..\..\src\core\lib;$(IncludePath)</IncludePath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>C:\git\palisade-student-edition\src\pke\lib;C:\git\palisade-student-edition\src\core\lib;$(IncludePath)</IncludePath>
+    <IncludePath>..\..\..\..\src\pke\lib;..\..\..\..\src\core\lib;$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\git\palisade-student-edition\src\pke\lib;C:\git\palisade-student-edition\src\core\lib;C:\boost_1_62_0;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\boost_1_62_0\stage\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\..\..\..\src\pke\lib;..\..\..\..\src\core\lib;$(IncludePath)</IncludePath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\git\palisade-student-edition\src\pke\lib;C:\git\palisade-student-edition\src\core\lib;$(IncludePath)</IncludePath>
+    <IncludePath>..\..\..\..\src\pke\lib;..\..\..\..\src\core\lib;$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

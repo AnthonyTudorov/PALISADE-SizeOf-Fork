@@ -40,6 +40,9 @@ namespace lbcrypto {
 template <class Element>
 class CryptoContext;
 
+template <class Element>
+class CryptoObject;
+
 }
 
 #include "math/backend.h"
@@ -52,8 +55,8 @@ class CryptoContext;
 #include "lattice/ilparams.h"
 #include "lattice/ildcrtparams.h"
 #include "lattice/ilelement.h"
-#include "lattice/ilvector2n.h"
-#include "../../core/lib/lattice/ildcrt2n.h"
+#include "lattice/poly.h"
+#include "../../core/lib/lattice/dcrtpoly.h"
 
 #include "encoding/encodingparams.h"
 

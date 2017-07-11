@@ -35,7 +35,7 @@
 
 namespace lbcrypto
 {
-template<typename ModType, typename IntType, typename VecType, typename ParmType> class ILVectorImpl;
+template<typename ModType, typename IntType, typename VecType, typename ParmType> class PolyImpl;
 }
 
 namespace lbcrypto
@@ -71,7 +71,7 @@ public:
 	 * @param &modulus is the modulus for the primary ciphertext.
 	 * @param rootsOfUnity is unused
 	 */
-	ILDCRTParams(const usint cyclotomic_order, const BigBinaryInteger &modulus, const BigBinaryInteger& rootsOfUnity)
+	ILDCRTParams(const usint cyclotomic_order, const BigInteger &modulus, const BigInteger& rootsOfUnity)
 		: ElemParams<IntType>(cyclotomic_order, modulus, 0, 0, 0) {}
 
 	/**
@@ -79,15 +79,29 @@ public:
 	 * @param cyclotomic_order the order of the ciphertext
 	 * @param moduli the list of the smaller moduli of the component polynomials.
 	 * @param rootsOfUnity the list of the smaller roots of unity of the component polynomials.
+	 * @param moduliBig the list of the big moduli of the component polynomials (arbitrary cyclotomics).
+	 * @param rootsOfUnityBig the list of the roots of unity of the component polynomials for big moduli (arbitrary cyclotomics).
 	 * @return
 	 */
-	ILDCRTParams(const usint cyclotomic_order, const std::vector<native_int::BinaryInteger> &moduli, const std::vector<native_int::BinaryInteger>& rootsOfUnity)
+	ILDCRTParams(const usint cyclotomic_order, 
+		const std::vector<native_int::BigInteger> &moduli, const std::vector<native_int::BigInteger>& rootsOfUnity,
+		const std::vector<native_int::BigInteger> &moduliBig = {}, const std::vector<native_int::BigInteger>& rootsOfUnityBig = {})
 		: ElemParams<IntType>(cyclotomic_order, 0, 0, 0, 0) {
 		if( moduli.size() != rootsOfUnity.size() )
 			throw std::logic_error("sizes of moduli and roots of unity do not match");
 
-		for( size_t i=0; i<moduli.size(); i++ ) {
-			m_parms.push_back( std::shared_ptr<native_int::ILParams>( new native_int::ILParams(cyclotomic_order, moduli[i], rootsOfUnity[i]) ) );
+		if(moduliBig.size() == moduli.size())
+		{ 
+			for (size_t i = 0; i < moduli.size(); i++) {
+				m_parms.push_back(std::shared_ptr<native_int::ILParams>(new native_int::ILParams(cyclotomic_order, moduli[i], rootsOfUnity[i], moduliBig[i], rootsOfUnityBig[i])));
+			}
+			RecalculateBigModulus();
+		}
+		else
+		{
+			for (size_t i = 0; i < moduli.size(); i++) {
+				m_parms.push_back(std::shared_ptr<native_int::ILParams>(new native_int::ILParams(cyclotomic_order, moduli[i], rootsOfUnity[i])));
+			}
 		}
 		RecalculateModulus();
 	}
@@ -98,7 +112,7 @@ public:
 	 * @param cyclotomic_order the order of the ciphertext
 	 * @param &moduli is the tower of moduli
 	 */
-	ILDCRTParams(const usint cyclotomic_order, const std::vector<native_int::BinaryInteger> &moduli)
+	ILDCRTParams(const usint cyclotomic_order, const std::vector<native_int::BigInteger> &moduli)
 		: ElemParams<IntType>(cyclotomic_order, 0, 0, 0, 0) {
 		for( size_t i=0; i<moduli.size(); i++ ) {
 			m_parms.push_back( std::shared_ptr<native_int::ILParams>( new native_int::ILParams(cyclotomic_order, moduli[i], 0, 0, 0) ) );
@@ -207,6 +221,18 @@ public:
 
 		for(usint i = 0; i < m_parms.size(); i++) {
 			this->ciphertextModulus = this->ciphertextModulus * IntType(m_parms[i]->GetModulus().ConvertToInt());
+		}
+	}
+
+	/**
+	* @brief Method to recalculate the big composite modulus from the component moduli.
+	*/
+	void RecalculateBigModulus() {
+
+		this->bigCiphertextModulus = 1;
+
+		for (usint i = 0; i < m_parms.size(); i++) {
+			this->bigCiphertextModulus = this->bigCiphertextModulus * IntType(m_parms[i]->GetBigModulus().ConvertToInt());
 		}
 	}
 

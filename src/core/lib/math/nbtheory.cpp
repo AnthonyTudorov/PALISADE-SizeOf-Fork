@@ -25,6 +25,7 @@
  */
 
 #include "nbtheory.h"
+#include "distributiongenerator.h"
 
 #include "time.h"
 #include <chrono>
@@ -37,46 +38,61 @@
 #include <time.h>
 #include <sstream>
 
+//#define NTL_ACCELERATION
+
 namespace lbcrypto {
 
 
-	template BigBinaryInteger RootOfUnity<BigBinaryInteger>(usint m, const BigBinaryInteger& modulo);
-	template std::vector<BigBinaryInteger> RootsOfUnity(usint m, const std::vector<BigBinaryInteger> moduli);
-	template BigBinaryInteger GreatestCommonDivisor(const BigBinaryInteger& a, const BigBinaryInteger& b);
-	template bool MillerRabinPrimalityTest(const BigBinaryInteger& p, const usint niter);
-	template const BigBinaryInteger PollardRhoFactorization(const BigBinaryInteger &n);
-	template void PrimeFactorize(BigBinaryInteger n, std::set<BigBinaryInteger> &primeFactors);
-	template BigBinaryInteger FindPrimeModulus(usint m, usint nBits);
-	template void NextQ(BigBinaryInteger &q, const BigBinaryInteger &plainTextModulus, const usint cyclotomicOrder, const BigBinaryInteger &sigma, const BigBinaryInteger &alpha);
-	template BigBinaryVector PolyMod(const BigBinaryVector &dividend, const BigBinaryVector &divisor, const BigBinaryInteger &modulus);
-	template BigBinaryVector PolynomialMultiplication(const BigBinaryVector &a, const BigBinaryVector &b);
-	template BigBinaryVector GetCyclotomicPolynomial(usint m, const BigBinaryInteger &modulus);
-	template BigBinaryInteger FindGeneratorCyclic(const BigBinaryInteger& modulo);
-	template bool IsGenerator(const BigBinaryInteger& g, const BigBinaryInteger& modulo);
+	template BigInteger RootOfUnity<BigInteger>(usint m, const BigInteger& modulo);
+	template std::vector<BigInteger> RootsOfUnity(usint m, const std::vector<BigInteger> moduli);
+	template BigInteger GreatestCommonDivisor(const BigInteger& a, const BigInteger& b);
+	template bool MillerRabinPrimalityTest(const BigInteger& p, const usint niter);
+	template const BigInteger PollardRhoFactorization(const BigInteger &n);
+	template void PrimeFactorize(BigInteger n, std::set<BigInteger> &primeFactors);
+	template BigInteger FirstPrime(usint nBits, usint m);
+	template BigInteger NextPrime(const BigInteger &q, usint cyclotomicOrder);
+	template BigVector PolyMod(const BigVector &dividend, const BigVector &divisor, const BigInteger &modulus);
+	template BigVector PolynomialMultiplication(const BigVector &a, const BigVector &b);
+	template BigVector GetCyclotomicPolynomial(usint m, const BigInteger &modulus);
+	template BigInteger SyntheticRemainder(const BigVector &dividend, const BigInteger &a, const BigInteger &modulus);
+	template BigVector SyntheticPolyRemainder(const BigVector &dividend, const BigVector &aList, const BigInteger &modulus);
+	template BigVector PolynomialPower<BigVector, BigInteger>(const BigVector &input, usint power);
+	template BigVector SyntheticPolynomialDivision(const BigVector &dividend, const BigInteger &a, const BigInteger &modulus);
+	template BigInteger FindGeneratorCyclic(const BigInteger& modulo);
+	template bool IsGenerator(const BigInteger& g, const BigInteger& modulo);
+	template BigInteger ComputeMu(const BigInteger& q);
 
 	template std::vector<usint> GetTotientList(const usint &n);
 
 #if MATHBACKEND != 7
-	template native_int::BinaryInteger RootOfUnity<native_int::BinaryInteger>(usint m, const native_int::BinaryInteger& modulo);
-	template std::vector<native_int::BinaryInteger> RootsOfUnity(usint m, const std::vector<native_int::BinaryInteger> moduli);
-	template native_int::BinaryInteger GreatestCommonDivisor(const native_int::BinaryInteger& a, const native_int::BinaryInteger& b);
-	template bool MillerRabinPrimalityTest(const native_int::BinaryInteger& p, const usint niter);
-	template const native_int::BinaryInteger PollardRhoFactorization(const native_int::BinaryInteger &n);
-	template void PrimeFactorize(native_int::BinaryInteger n, std::set<native_int::BinaryInteger> &primeFactors);
-	template native_int::BinaryInteger FindPrimeModulus(usint m, usint nBits);
-	template void NextQ(native_int::BinaryInteger &q, const native_int::BinaryInteger &plainTextModulus, const usint cyclotomicOrder, const native_int::BinaryInteger &sigma, const native_int::BinaryInteger &alpha);
-	template native_int::BinaryVector PolyMod(const native_int::BinaryVector &dividend, const native_int::BinaryVector &divisor, const native_int::BinaryInteger &modulus);
-	template native_int::BinaryVector PolynomialMultiplication(const native_int::BinaryVector &a, const native_int::BinaryVector &b);
-	template native_int::BinaryVector GetCyclotomicPolynomial(usint m, const native_int::BinaryInteger &modulus);
-	template native_int::BinaryInteger FindGeneratorCyclic(const native_int::BinaryInteger& modulo);
-	template bool IsGenerator(const native_int::BinaryInteger& g, const native_int::BinaryInteger& modulo);
+	template native_int::BigInteger RootOfUnity<native_int::BigInteger>(usint m, const native_int::BigInteger& modulo);
+	template std::vector<native_int::BigInteger> RootsOfUnity(usint m, const std::vector<native_int::BigInteger> moduli);
+	template native_int::BigInteger GreatestCommonDivisor(const native_int::BigInteger& a, const native_int::BigInteger& b);
+	template bool MillerRabinPrimalityTest(const native_int::BigInteger& p, const usint niter);
+	template const native_int::BigInteger PollardRhoFactorization(const native_int::BigInteger &n);
+	template void PrimeFactorize(native_int::BigInteger n, std::set<native_int::BigInteger> &primeFactors);
+	template native_int::BigInteger FirstPrime(usint nBits, usint m);
+	template native_int::BigInteger NextPrime(const native_int::BigInteger &q, usint cyclotomicOrder);
+	template native_int::BigVector PolyMod(const native_int::BigVector &dividend, const native_int::BigVector &divisor, const native_int::BigInteger &modulus);
+	template native_int::BigVector PolynomialMultiplication(const native_int::BigVector &a, const native_int::BigVector &b);
+	template native_int::BigVector GetCyclotomicPolynomial(usint m, const native_int::BigInteger &modulus);
+	template native_int::BigInteger SyntheticRemainder(const native_int::BigVector &dividend, const native_int::BigInteger &a, const native_int::BigInteger &modulus);
+	template native_int::BigVector SyntheticPolyRemainder(const native_int::BigVector &dividend, const native_int::BigVector &aList, const native_int::BigInteger &modulus);
+	template native_int::BigVector PolynomialPower<native_int::BigVector, native_int::BigInteger>(const native_int::BigVector &input, usint power);
+	template native_int::BigVector SyntheticPolynomialDivision(const native_int::BigVector &dividend, const native_int::BigInteger &a, const native_int::BigInteger &modulus);
+	template native_int::BigInteger FindGeneratorCyclic(const native_int::BigInteger& modulo);
+	template bool IsGenerator(const native_int::BigInteger& g, const native_int::BigInteger& modulo);
+
+	template native_int::BigInteger ComputeMu(const native_int::BigInteger& q);
+
+
 #endif
 
 
 /*
 	Generates a random number between 0 and n.
-	Input: BigBinaryInteger n.
-	Output: Randomly generated BigBinaryInteger between 0 and n.
+		Input: BigInteger n.
+		Output: Randomly generated BigInteger between 0 and n.
 */
 template<typename IntType>
 static IntType RNG(const IntType& modulus)
@@ -107,7 +123,7 @@ static IntType RNG(const IntType& modulus)
 
 		result = 0;
 
-		// Generate random uint32_t "limbs" of the BigBinaryInteger
+		// Generate random uint32_t "limbs" of the BigInteger
 		for (usint i = 0; i < chunksPerValue; i++) {
 			//Generate an unsigned long integer
 			value = distribution(PseudoRandomNumberGenerator::GetPRNG());
@@ -146,8 +162,7 @@ static IntType RNG(const IntType& modulus)
 
 	return result;
  }
-#if 0 //wait until backend 6 completely works
-  //#if MATHBACKEND ==6 
+#ifdef NTL_SPEEDUP
 //native NTL version
   static NTL::myZZ RNG(const NTL::myZZ& modulus)
   {
@@ -187,7 +202,7 @@ static bool WitnessFunction(const IntType& a, const IntType& d, usint s, const I
 
 /*
 	A helper function to RootOfUnity function. This finds a generator for a given prime q.
-	Input: BigBinaryInteger q which is a prime.
+		Input: BigInteger q which is a prime.
 	Output: A generator of prime q
 */
 template<typename IntType>
@@ -223,7 +238,7 @@ static IntType FindGenerator(const IntType& q)
 
 /*
 A helper function for arbitrary cyclotomics. This finds a generator for any composite q (cyclic group).
-Input: BigBinaryInteger q (cyclic group).
+	Input: BigInteger q (cyclic group).
 Output: A generator of prime q
 */
 template<typename IntType>
@@ -301,9 +316,9 @@ bool IsGenerator(const IntType &g, const IntType& q)
 /*
 	finds roots of unity for given input.  Assumes the the input is a power of two.  Mostly likely does not give correct results otherwise.
 	input:	m as number which is cyclotomic(in format of int),
-			modulo which is used to find generator (in format of BigBinaryInteger)
+				modulo which is used to find generator (in format of BigInteger)
 	
-	output:	root of unity (in format of BigBinaryInteger)
+		output:	root of unity (in format of BigInteger)
 */
 template<typename IntType>
 IntType RootOfUnity(usint m, const IntType& modulo)
@@ -410,20 +425,6 @@ usint ReverseBits(usint num, usint msb)
 	}
 }
 
-//gets MSB for an unsigned integer
-usint GetMSB32(usint x)
-{
-    static const usint bval[] =
-    {0,1,2,2,3,3,3,3,4,4,4,4,4,4,4,4};
-
-    usint r = 0;
-    if (x & 0xFFFF0000) { r += 16/1; x >>= 16/1; }
-    if (x & 0x0000FF00) { r += 16/2; x >>= 16/2; }
-    if (x & 0x000000F0) { r += 16/4; x >>= 16/4; }
-    return r + bval[x];
-}
-
-
 template<typename IntType>
 IntType GreatestCommonDivisor(const IntType& a, const IntType& b)
  {
@@ -444,8 +445,7 @@ IntType GreatestCommonDivisor(const IntType& a, const IntType& b)
 	return m_a;
  }
   
-  //#if MATHBACKEND ==6 wait until backend 6 completely works
-#if 0
+#if NTL_SPEEDUP
   //define an NTL native implementation 
   NTL::myZZ GreatestCommonDivisor(const NTL::myZZ& a, const NTL::myZZ& b)
   {
@@ -492,8 +492,7 @@ IntType GreatestCommonDivisor(const IntType& a, const IntType& b)
  }
 
 
-  //#if MATHBACKEND ==6
-#if 0 //wait until backend 6 completely works
+#if defined(NTL_SPEEDUP)
   //NTL native version
 bool MillerRabinPrimalityTest(const NTL::myZZ& p, const usint niter)
  {
@@ -528,15 +527,12 @@ const IntType PollardRhoFactorization(const IntType &n)
  	if(n.Mod(2) == 0)
  		return IntType(2);
 
-#if MATHBACKEND == 6 || MATHBACKEND == 7
+#if defined(NTL_SPEEDUP)
 	IntType mu(1);
 #else
 	//Precompute the Barrett mu parameter
-	IntType temp(1);
-	temp <<= 2 * n.GetMSB() + 3;
-	IntType mu = temp.DividedBy(n);
+		IntType mu = ComputeMu<IntType>(n);
 #endif
-
  	do {
 		x = (x*x + c).ModBarrett(n,mu);
 		xx = (xx*xx + c).ModBarrett(n,mu);
@@ -644,71 +640,34 @@ void PrimeFactorize( IntType n, std::set<IntType> &primeFactors)
 
  }
 
-/*
-	Finds a Prime Modulus Corresponding to a Given Cyclotomic Number
-	Assuming that "GreatestCommonDivisor(twoTonBitsminusone, M) == M"
-*/
 template<typename IntType>
-IntType FindPrimeModulus(usint m, usint nBits)
-{
-	IntType twoTonBitsminusone(1), M(m), q;
+	IntType FirstPrime(usint nBits, usint m) {
 	
-	for(usint i=0; i<nBits-1; i++)	// Iterating until initial search condition.
-		twoTonBitsminusone = twoTonBitsminusone * 2;
+		IntType r = IntType(2).ModExp(nBits, m);
 	
-	q = twoTonBitsminusone + M + 1;
-	bool found = false;
-	while(!found) {  //Looping over invariant until test condition satisfied.
-		if((q-1).Mod(M) != 0) {
-			q += M;
-			continue;
-		}
-		if(!MillerRabinPrimalityTest(q)) {
-			q += M;
-			continue;
-		}
-		found = true;
-	}
-	return q;
-}
+		IntType qNew = (IntType(1) << nBits) + (IntType(m) - r) + IntType(1);
 
-template<typename IntType>
-void NextQ(IntType &q, const IntType &plainTextModulus, const usint cyc, const IntType &sigma, const IntType &alpha) {
-	IntType bigSixteen("16");
-	IntType lowerBound;
-	IntType cyclotomicOrder(cyc);
+		size_t i = 1;
 
-	lowerBound = bigSixteen * cyclotomicOrder * sigma  * sigma * alpha;
-	if (!(q >= lowerBound)) {
-		q = lowerBound;
-	}
-	else {
-		q = q + 1;
+		while (!MillerRabinPrimalityTest(qNew)) {
+			qNew += IntType(i*m);
+			i++;
 	}
 
-	while (q.Mod(plainTextModulus) != 1) {
-		q = q + 1;
+		return qNew;
+
 	}
 
-	//IntType cyclotomicOrder = ringDimensions * IntType::TWO;
+	template<typename IntType>
+	IntType NextPrime(const IntType &q, usint m) {
 
-	while (q.Mod(cyclotomicOrder) != 1) {
-		q = q + plainTextModulus;
+		IntType qNew = q + m;
+
+		while (!MillerRabinPrimalityTest(qNew)) {
+			qNew += m;
 	}
 
-	IntType productValue = cyclotomicOrder * plainTextModulus;
-
-	while (!MillerRabinPrimalityTest(q)) {
-		q = q + productValue;
-	}
-
-	IntType gcd;
-	gcd = GreatestCommonDivisor(q - 1, cyclotomicOrder);
-
-	if(!(cyclotomicOrder == gcd)){
-		q = q + 1;
-	  	NextQ(q, plainTextModulus, cyc, sigma, alpha);
-	}
+		return qNew;
 		
 }
 
@@ -762,12 +721,12 @@ IntType NextPowerOfTwo(const IntType &n) {
 
 uint64_t GetTotient(const uint64_t n) {
 
-	std::set<native_int::BinaryInteger> factors;
-	native_int::BinaryInteger enn(n);
+		std::set<native_int::BigInteger> factors;
+		native_int::BigInteger enn(n);
 	PrimeFactorize(enn, factors);
 
-	native_int::BinaryInteger primeProd(1);
-	native_int::BinaryInteger numerator(1);
+		native_int::BigInteger primeProd(1);
+		native_int::BigInteger numerator(1);
 	for (auto &r : factors) {
 		numerator = numerator * (r - 1);
 		primeProd = primeProd * r;
@@ -802,9 +761,7 @@ IntVector PolyMod(const IntVector &dividend, const IntVector &divisor, const Int
 	usint runs = dividendLength - divisorLength + 1; //no. of iterations
 
 	//Precompute the Barrett mu parameter
-	IntType temp(1);
-	temp <<= 2 * modulus.GetMSB() + 3;
-	IntType mu = temp.DividedBy(modulus);
+		IntType mu = ComputeMu<IntType>(modulus);
 
 	auto mat = [](const IntType &x, const IntType &y, const IntType &z, const IntType &mod, const IntType &muBarrett) {
 		IntType result(z.ModBarrettSub(x*y, mod, muBarrett));
@@ -987,13 +944,13 @@ IntVector GetCyclotomicPolynomial(usint m, const IntType &modulus) {
 
 }
 
-BigBinaryInteger SyntheticRemainder(const BigBinaryVector &dividend, const BigBinaryInteger &a, const BigBinaryInteger &modulus) {
+
+	template<typename IntVector, typename IntType>
+	IntType SyntheticRemainder(const IntVector &dividend, const IntType &a, const IntType &modulus) {
 	auto val = dividend.GetValAtIndex(dividend.GetLength() - 1);
 
 	//Precompute the Barrett mu parameter
-	BigBinaryInteger temp(BigBinaryInteger::ONE);
-	temp <<= 2 * modulus.GetMSB() + 3;
-	BigBinaryInteger mu = temp.DividedBy(modulus);
+		IntType mu = ComputeMu<IntType>(modulus);
 
 	for (int i = dividend.GetLength() - 2; i > -1; i--) {
 		val = dividend.GetValAtIndex(i) + a*val;
@@ -1003,8 +960,9 @@ BigBinaryInteger SyntheticRemainder(const BigBinaryVector &dividend, const BigBi
 	return val;
 }
 
-BigBinaryVector SyntheticPolyRemainder(const BigBinaryVector &dividend, const BigBinaryVector &aList, const BigBinaryInteger &modulus) {
-	BigBinaryVector result(aList.GetLength(),modulus);
+	template<typename IntVector, typename IntType>
+	IntVector SyntheticPolyRemainder(const IntVector &dividend, const IntVector &aList, const IntType &modulus) {
+		IntVector result(aList.GetLength(), modulus);
 	for (usint i = 0; i < aList.GetLength(); i++) {
 		result.SetValAtIndex(i, SyntheticRemainder(dividend, aList.GetValAtIndex(i), modulus));
 	}
@@ -1012,9 +970,10 @@ BigBinaryVector SyntheticPolyRemainder(const BigBinaryVector &dividend, const Bi
 	return result;
 }
 
-BigBinaryVector PolynomialPower(const BigBinaryVector &input, usint power) {
+	template<typename IntVector, typename IntType>
+	IntVector PolynomialPower(const IntVector &input, usint power) {
 	usint finalDegree = (input.GetLength() - 1)*power;
-	BigBinaryVector finalPoly(finalDegree + 1, input.GetModulus());
+		IntVector finalPoly(finalDegree + 1, input.GetModulus());
 	finalPoly.SetValAtIndex(0, input.GetValAtIndex(0));
 	for (usint i = 1; i < input.GetLength(); i++) {
 		finalPoly.SetValAtIndex(i*power, input.GetValAtIndex(i));
@@ -1022,14 +981,13 @@ BigBinaryVector PolynomialPower(const BigBinaryVector &input, usint power) {
 	return finalPoly;
 }
 
-BigBinaryVector SyntheticPolynomialDivision(const BigBinaryVector &dividend, const BigBinaryInteger &a, const BigBinaryInteger &modulus) {
+	template<typename IntVector, typename IntType>
+	IntVector SyntheticPolynomialDivision(const IntVector &dividend, const IntType &a, const IntType &modulus) {
 	usint n = dividend.GetLength() - 1;
-	BigBinaryVector result(n, modulus);
+		IntVector result(n, modulus);
 
 	//Precompute the Barrett mu parameter
-	BigBinaryInteger temp(BigBinaryInteger::ONE);
-	temp <<= 2 * modulus.GetMSB() + 3;
-	BigBinaryInteger mu = temp.DividedBy(modulus);
+		IntType mu = ComputeMu<IntType>(modulus);
 
 	result.SetValAtIndex(n - 1, dividend.GetValAtIndex(n));
 	auto val(dividend.GetValAtIndex(n));
@@ -1040,6 +998,19 @@ BigBinaryVector SyntheticPolynomialDivision(const BigBinaryVector &dividend, con
 	}
 
 	return result;
+	}
+
+	template<typename IntType>
+	IntType ComputeMu(const IntType& q)
+	{
+#if MATHBACKEND == 4 || MATHBACKEND == 6 || MATHBACKEND == 7
+		return IntType(1);
+#else
+		//Precompute the Barrett mu parameter
+		IntType temp(1);
+		temp <<= 2 * q.GetMSB() + 3;
+		return temp.DividedBy(q);
+#endif
 }
 
 }

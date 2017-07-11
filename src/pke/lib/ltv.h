@@ -87,7 +87,7 @@ public:
 	 */
 	LPCryptoParametersLTV(
 			shared_ptr<typename Element::Params> params,
-			const BigBinaryInteger &plaintextModulus,
+			const BigInteger &plaintextModulus,
 			float distributionParameter,
 			float assuranceMeasure,
 			float securityLevel,
@@ -174,13 +174,6 @@ public:
 	}
 
 	/**
-	 * ParameterSelection for LTV Crypto Parameters
-	 * FIXME this will be replaced by the new mechanism for crypto params
-	 * @param cryptoParams
-	 */
-	void ParameterSelection(LPCryptoParametersLTV<ILDCRT2n> *cryptoParams);
-
-	/**
 	 * == operator to compare to this instance of LPCryptoParametersLTV object.
 	 *
 	 * @param &rhs LPCryptoParameters to check equality against.
@@ -195,24 +188,36 @@ public:
 	void PrintParameters(std::ostream& os) const {
 		LPCryptoParametersRLWE<Element>::PrintParameters(os);
 	}
+};
 
-private:
+/**
+ * @brief Parameter generation for LTV.
+ *
+ * This is an implementation of the algorithm in the "Parameter Selection" section of
+ * Rohloff & Cousins' "A Scalable Implementation of Fully Homomorphic Encryption Built on NTRU"
+ *
+ * @tparam Element a ring element.
+ */
+template <class Element>
+class LPAlgorithmParamsGenLTV : public LPParameterGenerationAlgorithm<Element> {
+public:
 
-	//helper function for ParameterSelection. Splits the string 's' by the delimeter 'c'.
-	// FIXME This will soon be deprecated.
-	std::string split(const std::string s, char c){
-		std::string result;
-		const char *str = s.c_str();
-		const char *begin = str;
-		while(*str != c && *str)
-			str++;
-		result = std::string(begin, str);
-		return result;
-	}
+	/**
+	 * Default constructor
+	 */
+	LPAlgorithmParamsGenLTV() {}
 
-	//function for parameter selection. The public ParameterSelection function is a wrapper around this function.
-	// FIXME This will soon be deprecated.
-	void ParameterSelection(usint& n, vector<native_int::BinaryInteger> &moduli);
+	/**
+	* Method for computing all derived parameters based on chosen primitive parameters
+	*
+	* @param cryptoParams the crypto parameters object to be populated with parameters.
+	* @param evalAddCount number of EvalAdds assuming no EvalMult and KeySwitch operations are performed.
+	* @param evalMultCount number of EvalMults assuming no EvalAdd and KeySwitch operations are performed.
+	* @param keySwitchCount number of KeySwitch operations assuming no EvalAdd and EvalMult operations are performed.
+	*/
+	bool ParamsGen(shared_ptr<LPCryptoParameters<Element>> cryptoParams, int32_t evalAddCount = 0,
+		int32_t evalMultCount = 0, int32_t keySwitchCount = 0) const;
+
 };
 
 /**
@@ -247,7 +252,7 @@ public:
 	 * @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 	 * @return A shared pointer to the encrypted Ciphertext.
 	 */
-	shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, ILVector2n &plaintext, bool doEncryption = true) const;
+	shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, Poly &plaintext, bool doEncryption = true) const;
 
 	/**
 	 * Decrypt method for the LTV Scheme.  See the class description for citations on where the algorithms were
@@ -260,7 +265,7 @@ public:
 	 */
 	DecryptResult Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const shared_ptr<Ciphertext<Element>> ciphertext,
-		ILVector2n *plaintext) const;
+		Poly *plaintext) const;
 
 	/**
 	 * Key Generation method for the LTV scheme.
@@ -273,7 +278,7 @@ public:
 	 * @param makeSparse True to generate a sparse key pair.
 	 * @return Public and private key pair.
 	 */
-	LPKeyPair<Element> KeyGen(const CryptoContext<Element> cc, bool makeSparse = false) const;
+	LPKeyPair<Element> KeyGen(CryptoContext<Element>* cc, bool makeSparse = false);
 };
 
 /**
@@ -359,9 +364,9 @@ public:
 		* @param makeSparse set to true if ring reduce by a factor of 2 is to be used.
 		* @return key pair including the private and public key
 		*/
-	LPKeyPair<Element> MultipartyKeyGen(const CryptoContext<Element> cc,
+	LPKeyPair<Element> MultipartyKeyGen(CryptoContext<Element>* cc,
 		const shared_ptr<LPPublicKey<Element>> pk1,
-		bool makeSparse=false) const {
+		bool makeSparse=false) {
 		std::string errMsg = "LPAlgorithmPRELTV::MultipartyKeyGen using the new secret key is not implemented for the LTV Scheme.";
 		throw std::runtime_error(errMsg);
 	}
@@ -372,9 +377,9 @@ public:
 		 * @param privateKey private key used for decryption.
 		 * @param ciphertext ciphertext id decrypted.
 		 */
-	LPKeyPair<Element> MultipartyKeyGen(const CryptoContext<Element> cc,
+	LPKeyPair<Element> MultipartyKeyGen(CryptoContext<Element>* cc,
 		const vector<shared_ptr<LPPrivateKey<Element>>>& secretKeys,
-		bool makeSparse=false) const {
+		bool makeSparse=false) {
 		std::string errMsg = "LPAlgorithmPRELTV::MultipartyKeyGen using the new secret key is not implemented for the LTV Scheme.";
 		throw std::runtime_error(errMsg);
 	}
@@ -414,7 +419,7 @@ public:
 	* @return the success/fail result
 	*/
 	DecryptResult MultipartyDecryptFusion(const vector<shared_ptr<Ciphertext<Element>>>& ciphertextVec,
-		ILVector2n *plaintext) const {
+		Poly *plaintext) const {
 		std::string errMsg = "LPAlgorithmPREBV::MultipartyDecrypt is not implemented for the LTV Scheme.";
 		throw std::runtime_error(errMsg);
 	}
@@ -691,7 +696,7 @@ public:
 	* @param rootHermiteFactor The security threshold.
 	* @return True if the security threshold is satisfied in the new ring dimension.
 	*/
-	bool CanRingReduce(usint ringDimension, const std::vector<BigBinaryInteger> &moduli, const double rootHermiteFactor) const;
+	bool CanRingReduce(usint ringDimension, const std::vector<BigInteger> &moduli, const double rootHermiteFactor) const;
 };
 
 /**
@@ -715,15 +720,10 @@ public:
 	/**
 	* Inherited constructor
 	*/
-	LPPublicKeyEncryptionSchemeLTV() : LPPublicKeyEncryptionScheme<Element>() {}
+	LPPublicKeyEncryptionSchemeLTV() : LPPublicKeyEncryptionScheme<Element>() {
+		this->m_algorithmParamsGen = new LPAlgorithmParamsGenLTV<Element>();
+	}
 
-	/**
-	* Constructor that initalizes the mask
-	*
-	*@param mask the mask to be initialized
-	*/
-	LPPublicKeyEncryptionSchemeLTV(std::bitset<FEATURESETSIZE> mask);
-	
 	/**
 	* Function to enable a scheme.
 	* FIXME This needs to be described better.

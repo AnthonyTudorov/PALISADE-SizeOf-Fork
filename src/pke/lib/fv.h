@@ -60,12 +60,12 @@ namespace lbcrypto {
 			 * Default constructor.
 			 */
 			LPCryptoParametersFV() : LPCryptoParametersRLWE<Element>() {
-				m_delta = BigBinaryInteger(0);
+				m_delta = BigInteger(0);
 				m_mode = RLWE;
-				m_bigModulus = BigBinaryInteger(0);
-				m_bigRootOfUnity = BigBinaryInteger(0);
-				m_bigModulusArb = BigBinaryInteger(0);
-				m_bigRootOfUnityArb = BigBinaryInteger(0);
+				m_bigModulus = BigInteger(0);
+				m_bigRootOfUnity = BigInteger(0);
+				m_bigModulusArb = BigInteger(0);
+				m_bigRootOfUnityArb = BigInteger(0);
 			}
 
 			/**
@@ -104,17 +104,17 @@ namespace lbcrypto {
 			 * @param depth Depth is the depth of computation supprted which is set to 1 by default.  Use the default setting unless you're using SHE, levelled SHE or FHE operations.
 			 */
 			LPCryptoParametersFV(shared_ptr<typename Element::Params> params,
-				const BigBinaryInteger &plaintextModulus, 
+				const BigInteger &plaintextModulus, 
 				float distributionParameter, 
 				float assuranceMeasure, 
 				float securityLevel, 
 				usint relinWindow,
-				const BigBinaryInteger &delta,
+				const BigInteger &delta,
 				MODE mode,
-				const BigBinaryInteger &bigModulus,
-				const BigBinaryInteger &bigRootOfUnity,
-				const BigBinaryInteger &bigModulusArb,
-				const BigBinaryInteger &bigRootOfUnityArb,
+				const BigInteger &bigModulus,
+				const BigInteger &bigRootOfUnity,
+				const BigInteger &bigModulusArb,
+				const BigInteger &bigRootOfUnityArb,
 				int depth = 1)
 					: LPCryptoParametersRLWE<Element>(params,
 						plaintextModulus,
@@ -154,12 +154,12 @@ namespace lbcrypto {
 				float assuranceMeasure,
 				float securityLevel,
 				usint relinWindow,
-				const BigBinaryInteger &delta,
+				const BigInteger &delta,
 				MODE mode,
-				const BigBinaryInteger &bigModulus,
-				const BigBinaryInteger &bigRootOfUnity,
-				const BigBinaryInteger &bigModulusArb,
-				const BigBinaryInteger &bigRootOfUnityArb,
+				const BigInteger &bigModulus,
+				const BigInteger &bigRootOfUnity,
+				const BigInteger &bigModulusArb,
+				const BigInteger &bigRootOfUnityArb,
 				int depth = 1)
 				: LPCryptoParametersRLWE<Element>(params,
 					encodingParams,
@@ -200,7 +200,7 @@ namespace lbcrypto {
 			*
 			* @return the delta factor. It is an FV-specific factor that is multiplied by the plaintext polynomial.
 			*/
-			const BigBinaryInteger& GetDelta() const { return m_delta; }
+			const BigInteger& GetDelta() const { return m_delta; }
 
 			/**
 			* Gets the mode setting: RLWE or OPTIMIZED.
@@ -214,34 +214,34 @@ namespace lbcrypto {
 			*
 			* @return the modulus value.
 			*/
-			const BigBinaryInteger& GetBigModulus() const { return m_bigModulus; }
+			const BigInteger& GetBigModulus() const { return m_bigModulus; }
 
 			/**
 			* Gets the primitive root of unity used for polynomial multiplications in EvalMult
 			*
 			* @return the primitive root of unity value.
 			*/
-			const BigBinaryInteger& GetBigRootOfUnity() const { return m_bigRootOfUnity; }
+			const BigInteger& GetBigRootOfUnity() const { return m_bigRootOfUnity; }
 
 			/**
 			* Gets the modulus used for polynomial multiplications in EvalMult (arbitrary cyclotomics)
 			*
 			* @return the modulus value.
 			*/
-			const BigBinaryInteger& GetBigModulusArb() const { return m_bigModulusArb; }
+			const BigInteger& GetBigModulusArb() const { return m_bigModulusArb; }
 
 			/**
 			* Gets the primitive root of unity used for polynomial multiplications in EvalMult (arbitrary cyclotomics)
 			*
 			* @return the primitive root of unity value.
 			*/
-			const BigBinaryInteger& GetBigRootOfUnityArb() const { return m_bigRootOfUnityArb; }
+			const BigInteger& GetBigRootOfUnityArb() const { return m_bigRootOfUnityArb; }
 
 			/**
 			* Sets the value of the delta factor
 			* @param &delta is the delta factor
 			*/
-			void SetDelta(const BigBinaryInteger &delta) { m_delta = delta; }
+			void SetDelta(const BigInteger &delta) { m_delta = delta; }
 
 			/**
 			* Configures the mode for generating the secret key polynomial
@@ -254,23 +254,23 @@ namespace lbcrypto {
 			* 
 			* @param &bigModulus the modulus value.
 			*/
-			void SetBigModulus(const BigBinaryInteger &bigModulus) { m_bigModulus = bigModulus; }
+			void SetBigModulus(const BigInteger &bigModulus) { m_bigModulus = bigModulus; }
 
 			/**
 			* Sets primitive root of unity used for polynomial multiplications in EvalMult
 			* @param &bigRootOfUnity is the root of unity used for EvalMult operations.
 			*/
-			void SetBigRootOfUnity(const BigBinaryInteger &bigRootOfUnity) { m_bigRootOfUnity = bigRootOfUnity; }
+			void SetBigRootOfUnity(const BigInteger &bigRootOfUnity) { m_bigRootOfUnity = bigRootOfUnity; }
 
 			/**
 			* Sets the modulus used for polynomial multiplications in EvalMult (arbitrary cyclotomics)
 			*/
-			void SetBigModulusArb(const BigBinaryInteger &bigModulusArb) { m_bigModulusArb = bigModulusArb; }
+			void SetBigModulusArb(const BigInteger &bigModulusArb) { m_bigModulusArb = bigModulusArb; }
 
 			/**
 			* Sets primitive root of unity used for polynomial multiplications in EvalMult (arbitrary cyclotomics)
 			*/
-			void SetBigRootOfUnityArb(const BigBinaryInteger &bigRootOfUnityArb) { m_bigRootOfUnityArb = bigRootOfUnityArb; }
+			void SetBigRootOfUnityArb(const BigInteger &bigRootOfUnityArb) { m_bigRootOfUnityArb = bigRootOfUnityArb; }
 
 			/**
 			* == operator to compare to this instance of LPCryptoParametersFV object. 
@@ -306,23 +306,23 @@ namespace lbcrypto {
 		private:
 			// factor delta = floor(q/p) that is multipled by the plaintext polynomial 
 			// in FV (most significant bit ranges are used to represent the message)
-			BigBinaryInteger m_delta;
+			BigInteger m_delta;
 			
 			// specifies whether the keys are generated from discrete 
 			// Gaussian distribution or ternary distribution with the norm of unity
 			MODE m_mode;
 			
 			// larger modulus that is used in polynomial multiplications within EvalMult (before rounding is done)
-			BigBinaryInteger m_bigModulus;
+			BigInteger m_bigModulus;
 			
 			// primitive root of unity for m_bigModulus
-			BigBinaryInteger m_bigRootOfUnity;
+			BigInteger m_bigRootOfUnity;
 
 			// Large modulus used for CRT with m_bigModulus
-			BigBinaryInteger m_bigModulusArb;
+			BigInteger m_bigModulusArb;
 
 			// Primitive root of unity for m_bigModulusArb
-			BigBinaryInteger m_bigRootOfUnityArb;
+			BigInteger m_bigRootOfUnityArb;
 	};
 
 	/**
@@ -387,7 +387,7 @@ namespace lbcrypto {
 		* @return ciphertext which results from encryption.
 		*/
 		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
-			ILVector2n &plaintext, bool doEncryption = true) const;
+			Poly &plaintext, bool doEncryption = true) const;
 
 		/**
 		* Method for decrypting using FV. See the class description for citations on where the algorithms were
@@ -400,7 +400,7 @@ namespace lbcrypto {
 		*/
 		DecryptResult Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
 			const shared_ptr<Ciphertext<Element>> ciphertext,
-			ILVector2n *plaintext) const;
+			Poly *plaintext) const;
 
 		/**
 		* Function to generate public and private keys. See the class description for citations on where the algorithms were
@@ -410,7 +410,7 @@ namespace lbcrypto {
 		* @param makeSparse set to true if ring reduce by a factor of 2 is to be used.  Generally this should always be false.
 		* @return key pair including the private and public key
 		*/
-		LPKeyPair<Element> KeyGen(const CryptoContext<Element> cc, bool makeSparse=false) const;
+		LPKeyPair<Element> KeyGen(CryptoContext<Element>* cc, bool makeSparse=false);
 
 	};
 
@@ -675,9 +675,9 @@ namespace lbcrypto {
 		* @param makeSparse set to true if ring reduce by a factor of 2 is to be used.
 		* @return key pair including the private and public key
 		*/
-		LPKeyPair<Element> MultipartyKeyGen(const CryptoContext<Element> cc,
-		const shared_ptr<LPPublicKey<Element>> pk1,
-		bool makeSparse=false) const;
+		LPKeyPair<Element> MultipartyKeyGen(CryptoContext<Element>* cc,
+				const shared_ptr<LPPublicKey<Element>> pk1,
+				bool makeSparse=false);
 
 		/**
 		* Function to generate public and private keys for multiparty homomrophic encryption server key pair in coordination with secret keys of clients.
@@ -687,9 +687,9 @@ namespace lbcrypto {
 		* @param makeSparse set to true if ring reduce by a factor of 2 is to be used.
 		* @return key pair including the private and public key
 		*/
-		LPKeyPair<Element> MultipartyKeyGen(const CryptoContext<Element> cc,
-		const vector<shared_ptr<LPPrivateKey<Element>>>& secretKeys,
-		bool makeSparse=false) const;
+		LPKeyPair<Element> MultipartyKeyGen(CryptoContext<Element>* cc,
+				const vector<shared_ptr<LPPrivateKey<Element>>>& secretKeys,
+				bool makeSparse=false);
 
 		/**
 		 * Method for main decryption operation run by most decryption clients for multiparty homomorphic encryption
@@ -717,7 +717,7 @@ namespace lbcrypto {
 		 * @return the decoding result.
 		 */
 		DecryptResult MultipartyDecryptFusion(const vector<shared_ptr<Ciphertext<Element>>>& ciphertextVec,
-			ILVector2n *plaintext) const;
+			Poly *plaintext) const;
 
 	};
 
@@ -732,7 +732,6 @@ namespace lbcrypto {
 		LPPublicKeyEncryptionSchemeFV() : LPPublicKeyEncryptionScheme<Element>() {
 			this->m_algorithmParamsGen = new LPAlgorithmParamsGenFV<Element>();
 		}
-		LPPublicKeyEncryptionSchemeFV(std::bitset<FEATURESETSIZE> mask);
 
 		void Enable(PKESchemeFeature feature);
 	};

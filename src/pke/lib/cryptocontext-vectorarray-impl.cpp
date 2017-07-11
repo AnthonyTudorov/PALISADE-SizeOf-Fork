@@ -1,5 +1,5 @@
 /*
-* @file cryptocontext-vectorarray-impl.cpp - vector array for the crypto context.
+* @file cryptocontext-dcrtpoly-impl.cpp - vector array for the crypto context.
  * @author  TPOC: palisade@njit.edu
  *
  * @section LICENSE
@@ -28,11 +28,7 @@
 #include "cryptocontext.cpp"
 
 namespace lbcrypto {
-template class CryptoContextFactory<ILDCRT2n>;
-template class CryptoContext<ILDCRT2n>;
-
-template<class ILDCRT2n> vector<shared_ptr<LPEvalKey<ILDCRT2n>>> CryptoContext<ILDCRT2n>::evalMultKeys;
-template<class ILDCRT2n> std::map<usint, shared_ptr<LPEvalKey<ILDCRT2n>>> CryptoContext<ILDCRT2n>::evalSumKeys;
-
+template class CryptoContextFactory<DCRTPoly>;
+template class CryptoContext<DCRTPoly>;
 }
 

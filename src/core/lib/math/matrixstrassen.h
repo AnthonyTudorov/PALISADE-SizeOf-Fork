@@ -589,7 +589,7 @@ namespace lbcrypto {
 	* @param &inMat the matrix of power-of-2 cyclotomic ring elements to be rotated
 	* @return the resulting matrix of big binary integers
     */ 
-    inline MatrixStrassen<BigBinaryInteger> Rotate(MatrixStrassen<ILVector2n> const& inMat);
+    inline MatrixStrassen<BigInteger> Rotate(MatrixStrassen<Poly> const& inMat);
 
 	/**
     *  Each element becomes a square matrix with columns of that element's
@@ -598,7 +598,7 @@ namespace lbcrypto {
 	* @param &inMat the matrix of power-of-2 cyclotomic ring elements to be rotated
 	* @return the resulting matrix of big binary integers
     */ 
-    inline MatrixStrassen<BigBinaryVector> RotateVecResult(MatrixStrassen<ILVector2n> const& inMat);
+    inline MatrixStrassen<BigVector> RotateVecResult(MatrixStrassen<Poly> const& inMat);
 
 	/**
     *  Stream output operator
@@ -623,43 +623,43 @@ namespace lbcrypto {
     inline MatrixStrassen<double> Cholesky(const MatrixStrassen<int32_t> &input);
 
 	/**
-    * Convert a matrix of integers from BigBinaryInteger to int32_t
+    * Convert a matrix of integers from BigInteger to int32_t
 	* Convert from Z_q to [-q/2, q/2]
 	*
 	* @param &input the input matrix
 	* @param &modulus the ring modulus
 	* @return the resulting matrix of int32_t
     */ 
-    inline MatrixStrassen<int32_t> ConvertToInt32(const MatrixStrassen<BigBinaryInteger> &input, const BigBinaryInteger& modulus);
+    inline MatrixStrassen<int32_t> ConvertToInt32(const MatrixStrassen<BigInteger> &input, const BigInteger& modulus);
 
 	/**
-    * Convert a matrix of BigBinaryVector to int32_t
+    * Convert a matrix of BigVector to int32_t
 	* Convert from Z_q to [-q/2, q/2]
 	*
 	* @param &input the input matrix
 	* @param &modulus the ring modulus
 	* @return the resulting matrix of int32_t
     */ 
-    inline MatrixStrassen<int32_t> ConvertToInt32(const MatrixStrassen<BigBinaryVector> &input, const BigBinaryInteger& modulus);
+    inline MatrixStrassen<int32_t> ConvertToInt32(const MatrixStrassen<BigVector> &input, const BigInteger& modulus);
 
 	/**
     * Split a vector of int32_t into a vector of ring elements with ring dimension n
 	*
 	* @param &other the input matrix
 	* @param &n the ring dimension
-	* @param &params ILVector2n element params
-	* @return the resulting matrix of ILVector2n
+	* @param &params Poly element params
+	* @return the resulting matrix of Poly
     */ 
-    inline MatrixStrassen<ILVector2n> SplitInt32IntoILVector2nElements(MatrixStrassen<int32_t> const& other, size_t n, const shared_ptr<ILParams> params);
+    inline MatrixStrassen<Poly> SplitInt32IntoPolyElements(MatrixStrassen<int32_t> const& other, size_t n, const shared_ptr<ILParams> params);
 
 	/**
     * Another method for splitting a vector of int32_t into a vector of ring elements with ring dimension n
 	*
 	* @param &other the input matrix
 	* @param &n the ring dimension
-	* @param &params ILVector2n element params
-	* @return the resulting matrix of ILVector2n
+	* @param &params Poly element params
+	* @return the resulting matrix of Poly
     */ 
-    inline MatrixStrassen<ILVector2n> SplitInt32AltIntoILVector2nElements(MatrixStrassen<int32_t> const& other, size_t n, const shared_ptr<ILParams> params);
+    inline MatrixStrassen<Poly> SplitInt32AltIntoPolyElements(MatrixStrassen<int32_t> const& other, size_t n, const shared_ptr<ILParams> params);
 }
 #endif // LBCRYPTO_MATH_MATRIXSTRASSEN_H

@@ -1,5 +1,5 @@
 /*
- * @file pubkeylp-vectorarray-impl.cpp - public key vector array implementation
+ * @file pubkeylp-dcrtpoly-impl.cpp - public key vector array implementation
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -28,10 +28,10 @@
 #include "pubkeylp.cpp"
 
 namespace lbcrypto {
-extern template class CryptoContext<ILDCRT2n>;
+extern template class CryptoContext<DCRTPoly>;
 
-template class LPPublicKey<ILDCRT2n>;
-template class LPEvalKeyRelin<ILDCRT2n>;
-template class LPEvalKeyNTRURelin<ILDCRT2n>;
+template class LPPublicKey<DCRTPoly>;
+template class LPEvalKeyRelin<DCRTPoly>;
+template class LPEvalKeyNTRURelin<DCRTPoly>;
 }
 

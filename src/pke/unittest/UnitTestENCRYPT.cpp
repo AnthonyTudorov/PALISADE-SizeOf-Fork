@@ -47,43 +47,51 @@ protected:
 public:
 };
 
-static CryptoContext<ILVector2n> GenerateTestCryptoContext(const string& parmsetName) {
-	CryptoContext<ILVector2n> cc = CryptoContextHelper::getNewContext(parmsetName);
-	cc.Enable(ENCRYPTION);
+static shared_ptr<CryptoContext<Poly>> GenerateTestCryptoContext(const string& parmsetName) {
+	shared_ptr<CryptoContext<Poly>> cc = CryptoContextHelper::getNewContext(parmsetName);
+	cc->Enable(ENCRYPTION);
 	return cc;
 }
 
-static CryptoContext<ILDCRT2n> GenerateTestDCRTCryptoContext(const string& parmsetName, usint nTower, usint pbits) {
-	CryptoContext<ILDCRT2n> cc = CryptoContextHelper::getNewDCRTContext(parmsetName, nTower, pbits);
-	cc.Enable(ENCRYPTION);
+static shared_ptr<CryptoContext<DCRTPoly>> GenerateTestDCRTCryptoContext(const string& parmsetName, usint nTower, usint pbits) {
+	shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextHelper::getNewDCRTContext(parmsetName, nTower, pbits);
+	cc->Enable(ENCRYPTION);
 	return cc;
 }
 
 template <typename Element>
 void
-UnitTestEncryption(const CryptoContext<Element>& cc) {
+UnitTestEncryption(const shared_ptr<CryptoContext<Element>> cc) {
 	BytePlaintextEncoding plaintextShort;
 	BytePlaintextEncoding plaintextFull;
 	BytePlaintextEncoding plaintextLong;
 
-	GenerateTestPlaintext(cc.GetCyclotomicOrder(),
-			cc.GetCryptoParameters()->GetPlaintextModulus(),
+	GenerateTestPlaintext(cc->GetCyclotomicOrder(),
+			cc->GetCryptoParameters()->GetPlaintextModulus(),
 			plaintextShort, plaintextFull, plaintextLong);
 
-	size_t intSize = cc.GetCyclotomicOrder() / 2;
-	auto ptm = cc.GetCryptoParameters()->GetPlaintextModulus().ConvertToInt();
+	size_t intSize = cc->GetCyclotomicOrder() / 2;
+	auto ptm = cc->GetCryptoParameters()->GetPlaintextModulus().ConvertToInt();
 
 	vector<uint32_t> intvec;
 	for( size_t ii=0; ii<intSize; ii++)
 		intvec.push_back( rand() % ptm );
 	IntPlaintextEncoding plaintextInt(intvec);
 
+	vector<int32_t> sintvec;
+	for( size_t ii=0; ii<intSize; ii++) {
+		int rnum = rand() % ptm;
+		if( rnum > (int)ptm/2 ) rnum = ptm - rnum;
+		sintvec.push_back( rnum );
+	}
+	SignedIntPlaintextEncoding plaintextSInt(sintvec);
+
 	////////////////////////////////////////////////////////////
 	//Perform the key generation operation.
 	////////////////////////////////////////////////////////////
 
 	// Initialize the key containers.
-	LPKeyPair<Element> kp = cc.KeyGen();
+	LPKeyPair<Element> kp = cc->KeyGen();
 
 	if (!kp.good()) {
 		std::cout << "Key generation failed!" << std::endl;
@@ -97,74 +105,79 @@ UnitTestEncryption(const CryptoContext<Element>& cc) {
 	if( plaintextShort.size() == 0 ) {
 		std::cout << "This set of test parameters generated zero-length test strings, skipping string cases" << std::endl;
 	} else {
-		vector<shared_ptr<Ciphertext<Element>>> ciphertext = cc.Encrypt(kp.publicKey, plaintextShort, true);
+		vector<shared_ptr<Ciphertext<Element>>> ciphertext = cc->Encrypt(kp.publicKey, plaintextShort, true);
 		BytePlaintextEncoding plaintextShortNew;
-		cc.Decrypt(kp.secretKey, ciphertext, &plaintextShortNew, true);
+		cc->Decrypt(kp.secretKey, ciphertext, &plaintextShortNew, true);
 		EXPECT_EQ(plaintextShortNew, plaintextShort) << "Encrypt short plaintext with padding";
 
-		vector<shared_ptr<Ciphertext<Element>>> ciphertext2 = cc.Encrypt(kp.publicKey, plaintextFull, false);
+		vector<shared_ptr<Ciphertext<Element>>> ciphertext2 = cc->Encrypt(kp.publicKey, plaintextFull, false);
 		BytePlaintextEncoding plaintextFullNew;
-		cc.Decrypt(kp.secretKey, ciphertext2, &plaintextFullNew, false);
+		cc->Decrypt(kp.secretKey, ciphertext2, &plaintextFullNew, false);
 		EXPECT_EQ(plaintextFullNew, plaintextFull) << "Encrypt regular plaintext";
 
-		vector<shared_ptr<Ciphertext<Element>>> ciphertext3 = cc.Encrypt(kp.publicKey, plaintextLong, false);
+		vector<shared_ptr<Ciphertext<Element>>> ciphertext3 = cc->Encrypt(kp.publicKey, plaintextLong, false);
 		BytePlaintextEncoding plaintextLongNew;
-		cc.Decrypt(kp.secretKey, ciphertext3, &plaintextLongNew, false);
+		cc->Decrypt(kp.secretKey, ciphertext3, &plaintextLongNew, false);
 		EXPECT_EQ(plaintextLongNew, plaintextLong) << "Encrypt long plaintext";
 	}
 
-	vector<shared_ptr<Ciphertext<Element>>> ciphertext4 = cc.Encrypt(kp.publicKey, plaintextInt, false);
+	vector<shared_ptr<Ciphertext<Element>>> ciphertext4 = cc->Encrypt(kp.publicKey, plaintextInt, false);
 	IntPlaintextEncoding plaintextIntNew;
-	cc.Decrypt(kp.secretKey, ciphertext4, &plaintextIntNew, false);
+	cc->Decrypt(kp.secretKey, ciphertext4, &plaintextIntNew, false);
 	EXPECT_EQ(plaintextIntNew, plaintextInt) << "Encrypt integer plaintext";
+
+	vector<shared_ptr<Ciphertext<Element>>> ciphertext5 = cc->Encrypt(kp.publicKey, plaintextSInt, false);
+	SignedIntPlaintextEncoding plaintextSIntNew;
+	cc->Decrypt(kp.secretKey, ciphertext5, &plaintextSIntNew, false);
+	EXPECT_EQ(plaintextSIntNew, plaintextSInt) << "Encrypt signed integer plaintext";
 }
 
-TEST(UTENCRYPT, LTV_ILVector2n_Encrypt_Decrypt) {
-	CryptoContext<ILVector2n> cc = GenCryptoContextElementLTV(4096, 2, 20);
-	UnitTestEncryption<ILVector2n>(cc);
+TEST(UTENCRYPT, LTV_Poly_Encrypt_Decrypt) {
+	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementLTV(4096, 2, 20);
+	UnitTestEncryption<Poly>(cc);
 }
 
-TEST(UTENCRYPT, LTV_ILVectorArray2n_Encrypt_Decrypt) {
-	CryptoContext<ILDCRT2n> cc = GenCryptoContextElementArrayLTV(4096, 3, 2, 20);
-	UnitTestEncryption<ILDCRT2n>(cc);
+TEST(UTENCRYPT, LTV_DCRTPoly_Encrypt_Decrypt) {
+	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayLTV(4096, 3, 2, 20);
+	UnitTestEncryption<DCRTPoly>(cc);
 }
 
-TEST(UTENCRYPT, StSt_ILVector2n_Encrypt_Decrypt) {
-	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("StSt6");
-	UnitTestEncryption<ILVector2n>(cc);
+TEST(UTENCRYPT, StSt_Poly_Encrypt_Decrypt) {
+	shared_ptr<CryptoContext<Poly>> cc = GenerateTestCryptoContext("StSt6");
+	UnitTestEncryption<Poly>(cc);
 }
 
-TEST(UTENCRYPT, StSt_ILVectorArray2n_Encrypt_Decrypt) {
-	CryptoContext<ILDCRT2n> cc = GenerateTestDCRTCryptoContext("StSt6", 3, 20);
-	UnitTestEncryption<ILDCRT2n>(cc);
+TEST(UTENCRYPT, StSt_DCRTPoly_Encrypt_Decrypt) {
+	shared_ptr<CryptoContext<DCRTPoly>> cc = GenerateTestDCRTCryptoContext("StSt6", 3, 20);
+	UnitTestEncryption<DCRTPoly>(cc);
 }
 
-TEST(UTENCRYPT, BV_ILVector2n_Encrypt_Decrypt) {
-	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("BV2");
-	UnitTestEncryption<ILVector2n>(cc);
+TEST(UTENCRYPT, BV_Poly_Encrypt_Decrypt) {
+	shared_ptr<CryptoContext<Poly>> cc = GenerateTestCryptoContext("BV2");
+	UnitTestEncryption<Poly>(cc);
 }
 
-TEST(UTENCRYPT, BV_ILVectorArray2n_Encrypt_Decrypt) {
-	CryptoContext<ILDCRT2n> cc = GenerateTestDCRTCryptoContext("BV2", 3, 20);
-	UnitTestEncryption<ILDCRT2n>(cc);
+TEST(UTENCRYPT, BV_DCRTPoly_Encrypt_Decrypt) {
+	shared_ptr<CryptoContext<DCRTPoly>> cc = GenerateTestDCRTCryptoContext("BV2", 3, 20);
+	UnitTestEncryption<DCRTPoly>(cc);
 }
 
-TEST(UTENCRYPT, Null_ILVector2n_Encrypt_Decrypt) {
-	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("Null");
-	UnitTestEncryption<ILVector2n>(cc);
+TEST(UTENCRYPT, Null_Poly_Encrypt_Decrypt) {
+	shared_ptr<CryptoContext<Poly>> cc = GenerateTestCryptoContext("Null");
+	UnitTestEncryption<Poly>(cc);
 }
 
-TEST(UTENCRYPT, Null_ILVectorArray2n_Encrypt_Decrypt) {
-	CryptoContext<ILDCRT2n> cc = GenerateTestDCRTCryptoContext("Null", 3, 20);
-	UnitTestEncryption<ILDCRT2n>(cc);
+TEST(UTENCRYPT, Null_DCRTPoly_Encrypt_Decrypt) {
+	shared_ptr<CryptoContext<DCRTPoly>> cc = GenerateTestDCRTCryptoContext("Null", 3, 20);
+	UnitTestEncryption<DCRTPoly>(cc);
 }
 
-TEST(UTENCRYPT, FV_ILVector2n_Encrypt_Decrypt) {
-	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("FV2");
-	UnitTestEncryption<ILVector2n>(cc);
+TEST(UTENCRYPT, FV_Poly_Encrypt_Decrypt) {
+	shared_ptr<CryptoContext<Poly>> cc = GenerateTestCryptoContext("FV2");
+	UnitTestEncryption<Poly>(cc);
 }
 
-//TEST(UTENCRYPT, FV_ILVectorArray2n_Encrypt_Decrypt) {
-//	CryptoContext<ILDCRT2n> cc = GenerateTestDCRTCryptoContext("FV2", 3, 20);
-//	UnitTestEncryption<ILDCRT2n>(cc);
+//TEST(UTENCRYPT, FV_DCRTPoly_Encrypt_Decrypt) {
+//	shared_ptr<CryptoContext<DCRTPoly>> cc = GenerateTestDCRTCryptoContext("FV2", 3, 20);
+//	UnitTestEncryption<DCRTPoly>(cc);
 //}

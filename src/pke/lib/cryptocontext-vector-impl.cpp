@@ -27,9 +27,6 @@
 #include "cryptocontext.cpp"
 
 namespace lbcrypto {
-template class CryptoContextFactory<ILVector2n>;
-template class CryptoContext<ILVector2n>;
-
-template<class ILVector2n> vector<shared_ptr<LPEvalKey<ILVector2n>>> CryptoContext<ILVector2n>::evalMultKeys;
-template<class ILVector2n> std::map<usint, shared_ptr<LPEvalKey<ILVector2n>>> CryptoContext<ILVector2n>::evalSumKeys;
+template class CryptoContextFactory<Poly>;
+template class CryptoContext<Poly>;
 }

@@ -60,10 +60,10 @@ namespace lbcrypto {
 		SerialItem cryptoParamsMap(rapidjson::kObjectType);
 		if (this->SerializeRLWE(serObj, cryptoParamsMap) == false)
 			return false;
+		cryptoParamsMap.AddMember("mode", std::to_string(m_mode), serObj->GetAllocator());
 
 		serObj->AddMember("LPCryptoParametersBV", cryptoParamsMap.Move(), serObj->GetAllocator());
 		serObj->AddMember("LPCryptoParametersType", "LPCryptoParametersBV", serObj->GetAllocator());
-		serObj->AddMember("mode", std::to_string(m_mode), serObj->GetAllocator());
 
 		return true;
 	}
@@ -80,7 +80,7 @@ namespace lbcrypto {
 
 		SerialItem::ConstMemberIterator pIt;
 
-		if ((pIt = serObj.FindMember("mode")) == serObj.MemberEnd()) {
+		if ((pIt = mIter->value.FindMember("mode")) == serObj.MemberEnd()) {
 			return false;
 		}
 		MODE mode = (MODE)atoi(pIt->value.GetString());
@@ -92,12 +92,12 @@ namespace lbcrypto {
 
 	//makeSparse is not used by this scheme
 	template <class Element>
-	LPKeyPair<Element> LPAlgorithmBV<Element>::KeyGen(const CryptoContext<Element> cc, bool makeSparse) const
+	LPKeyPair<Element> LPAlgorithmBV<Element>::KeyGen(CryptoContext<Element>* cc, bool makeSparse)
 	{
 
 		LPKeyPair<Element>	kp(new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc));
 
-		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersBV<Element>>(cc.GetCryptoParameters());
+		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersBV<Element>>(cc->GetCryptoParameters());
 
 		const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 
@@ -143,7 +143,7 @@ namespace lbcrypto {
 
 	template <class Element>
 	shared_ptr<Ciphertext<Element>> LPAlgorithmBV<Element>::Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
-		ILVector2n &ptxt, bool doEncryption) const
+		Poly &ptxt, bool doEncryption) const
 	{
 
 		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(publicKey->GetCryptoParameters());
@@ -210,7 +210,7 @@ namespace lbcrypto {
 	template <class Element>
 	DecryptResult LPAlgorithmBV<Element>::Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const shared_ptr<Ciphertext<Element>> ciphertext,
-		ILVector2n *plaintext) const
+		Poly *plaintext) const
 	{
 		const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
 		const typename Element::Integer &p = cryptoParams->GetPlaintextModulus();
@@ -221,9 +221,9 @@ namespace lbcrypto {
 
 		b.SwitchFormat();
 
-		// Interpolation is needed in the case of Double-CRT interpolation, for example, ILDCRT2n
-		// CRTInterpolate does nothing when dealing with single-CRT ring elements, such as ILVector2n
-		ILVector2n interpolatedElement = b.CRTInterpolate();
+		// Interpolation is needed in the case of Double-CRT interpolation, for example, DCRTPoly
+		// CRTInterpolate does nothing when dealing with single-CRT ring elements, such as Poly
+		Poly interpolatedElement = b.CRTInterpolate();
 		*plaintext = interpolatedElement.SignedMod(p);
 
 		return DecryptResult(plaintext->GetLength());
@@ -364,7 +364,7 @@ namespace lbcrypto {
 
 		const shared_ptr<typename Element::Params> originalKeyParams = cryptoParams->GetElementParams();
 
-		const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
+		const BigInteger &p = cryptoParams->GetPlaintextModulus();
 
 		shared_ptr<LPEvalKey<Element>> keySwitchHintRelin(new LPEvalKeyRelin<Element>(originalPrivateKey->GetCryptoContext()));
 
@@ -533,7 +533,7 @@ namespace lbcrypto {
 	shared_ptr<LPEvalKey<Element>> LPAlgorithmPREBV<Element>::ReKeyGen(const shared_ptr<LPPrivateKey<Element>> newSK,
 		const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const
 	{
-		return origPrivateKey->GetCryptoContext().GetEncryptionAlgorithm()->KeySwitchGen(origPrivateKey,
+		return origPrivateKey->GetCryptoContext()->GetEncryptionAlgorithm()->KeySwitchGen(origPrivateKey,
 			newSK);
 	}
 
@@ -542,7 +542,7 @@ namespace lbcrypto {
 	shared_ptr<Ciphertext<Element>> LPAlgorithmPREBV<Element>::ReEncrypt(const shared_ptr<LPEvalKey<Element>> EK,
 		const shared_ptr<Ciphertext<Element>> ciphertext) const
 	{
-		return ciphertext->GetCryptoContext().GetEncryptionAlgorithm()->KeySwitch(EK, ciphertext);
+		return ciphertext->GetCryptoContext()->GetEncryptionAlgorithm()->KeySwitch(EK, ciphertext);
 
 	}
 
@@ -553,7 +553,7 @@ namespace lbcrypto {
 
 		std::vector<Element> cipherTextElements(cipherText->GetElements());
 
-		BigBinaryInteger plaintextModulus(cipherText->GetCryptoParameters()->GetPlaintextModulus());
+		BigInteger plaintextModulus(cipherText->GetCryptoParameters()->GetPlaintextModulus());
 
 		for (auto &cipherTextElement : cipherTextElements) {
 			cipherTextElement.ModReduce(plaintextModulus); // this is being done at the lattice layer. The ciphertext is mod reduced.
@@ -567,13 +567,13 @@ namespace lbcrypto {
 
 	//makeSparse is not used by this scheme
 	template <class Element>
-	LPKeyPair<Element> LPAlgorithmMultipartyBV<Element>::MultipartyKeyGen(const CryptoContext<Element> cc,
+	LPKeyPair<Element> LPAlgorithmMultipartyBV<Element>::MultipartyKeyGen(CryptoContext<Element>* cc,
 		const vector<shared_ptr<LPPrivateKey<Element>>>& secretKeys,
-		bool makeSparse) const
+		bool makeSparse)
 	{
 
 		LPKeyPair<Element>	kp(new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc));
-		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersBV<Element>>(cc.GetCryptoParameters());
+		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersBV<Element>>(cc->GetCryptoParameters());
 		const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 		const typename Element::Integer &p = cryptoParams->GetPlaintextModulus();
 		const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
@@ -610,13 +610,13 @@ namespace lbcrypto {
 
 //makeSparse is not used by this scheme
 template <class Element>
-LPKeyPair<Element> LPAlgorithmMultipartyBV<Element>::MultipartyKeyGen(const CryptoContext<Element> cc,
-		const shared_ptr<LPPublicKey<Element>> pk1, bool makeSparse) const
+LPKeyPair<Element> LPAlgorithmMultipartyBV<Element>::MultipartyKeyGen(CryptoContext<Element>* cc,
+		const shared_ptr<LPPublicKey<Element>> pk1, bool makeSparse)
 	{
 
 
 		LPKeyPair<Element>	kp(new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc));
-		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersBV<Element>>(cc.GetCryptoParameters());
+		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersBV<Element>>(cc->GetCryptoParameters());
 		const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 		const typename Element::Integer &p = cryptoParams->GetPlaintextModulus();
 		const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
@@ -690,11 +690,11 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmMultipartyBV<Element>::MultipartyDecr
 
 template <class Element>
 DecryptResult LPAlgorithmMultipartyBV<Element>::MultipartyDecryptFusion(const vector<shared_ptr<Ciphertext<Element>>>& ciphertextVec,
-		ILVector2n *plaintext) const
+		Poly *plaintext) const
 {
 
 	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = ciphertextVec[0]->GetCryptoParameters();
-	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
+	const BigInteger &p = cryptoParams->GetPlaintextModulus();
 
 	const std::vector<Element> &cElem = ciphertextVec[0]->GetElements();
 	Element b = cElem[0];
@@ -707,44 +707,14 @@ DecryptResult LPAlgorithmMultipartyBV<Element>::MultipartyDecryptFusion(const ve
 
 	b.SwitchFormat();	
 
-	// Interpolation is needed in the case of Double-CRT interpolation, for example, ILVectorArray2n
-	// CRTInterpolate does nothing when dealing with single-CRT ring elements, such as ILVector2n
-	ILVector2n interpolatedElement = b.CRTInterpolate();
+	// Interpolation is needed in the case of Double-CRT interpolation, for example, DCRTPoly
+	// CRTInterpolate does nothing when dealing with single-CRT ring elements, such as Poly
+	Poly interpolatedElement = b.CRTInterpolate();
 	*plaintext = interpolatedElement.SignedMod(p);
 
 	return DecryptResult(plaintext->GetLength());
 
 }
-
-
-	// Constructor for LPPublicKeyEncryptionSchemeBV
-	template <class Element>
-	LPPublicKeyEncryptionSchemeBV<Element>::LPPublicKeyEncryptionSchemeBV(std::bitset<FEATURESETSIZE> mask)
-	: LPPublicKeyEncryptionScheme<Element>() {
-
-		if (mask[ENCRYPTION])
-			if (this->m_algorithmEncryption == NULL)
-				this->m_algorithmEncryption = new LPAlgorithmBV<Element>();
-
-		if (mask[PRE])
-			if (this->m_algorithmPRE == NULL)
-				this->m_algorithmPRE = new LPAlgorithmPREBV<Element>();
-
-		if (mask[SHE])
-			if (this->m_algorithmSHE == NULL)
-				this->m_algorithmSHE = new LPAlgorithmSHEBV<Element>();
-
-		if (mask[LEVELEDSHE])
-			if (this->m_algorithmLeveledSHE == NULL)
-				this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmBV<Element>();
-
-		if (mask[MULTIPARTY])
-			if (this->m_algorithmMultiparty == NULL)
-				this->m_algorithmMultiparty = new LPAlgorithmMultipartyBV<Element>();
-
-		if (mask[FHE])
-			throw std::logic_error("FHE feature not supported for BV scheme");
-	}
 
 	// Enable for LPPublicKeyEncryptionSchemeLTV
 	template <class Element>

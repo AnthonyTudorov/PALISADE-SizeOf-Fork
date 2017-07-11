@@ -55,15 +55,15 @@ int main(){
 void RunUniform() {
 
 	usint m = 4096;
-	BigBinaryInteger modulus(BigBinaryInteger("18014398509506561"));
-	BigBinaryInteger rootOfUnity(BigBinaryInteger("5194839201355896"));
+	BigInteger modulus(BigInteger("18014398509506561"));
+	BigInteger rootOfUnity(BigInteger("5194839201355896"));
 
 	ILParams ilParams(m, modulus, rootOfUnity);
 	shared_ptr<ILParams> params = std::make_shared<ILParams>(ilParams);
 
-	auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
-	auto gaussian_alloc = ILVector2n::MakeDiscreteGaussianCoefficientAllocator(params, COEFFICIENT, SIGMA);
-	auto uniform_alloc = ILVector2n::MakeDiscreteUniformAllocator(params, COEFFICIENT);
+	auto zero_alloc = Poly::MakeAllocator(params, EVALUATION);
+	auto gaussian_alloc = Poly::MakeDiscreteGaussianCoefficientAllocator(params, COEFFICIENT, SIGMA);
+	auto uniform_alloc = Poly::MakeDiscreteUniformAllocator(params, COEFFICIENT);
 
 	double val = params->GetModulus().ConvertToDouble();
 	double logTwo = log(val - 1.0) / log(2) + 1.0;
@@ -85,26 +85,26 @@ void RunParamsGen() {
 
 	usint m = 4096;
 	//54 bits
-	//BigBinaryInteger modulus("9007199254741169");
-	//BigBinaryInteger rootOfUnity("7629104920968175");
+	//BigInteger modulus("9007199254741169");
+	//BigInteger rootOfUnity("7629104920968175");
 
 	usint chunkSize = 1;
 	std::string inputPattern = "1?101";
-	ClearLWEConjunctionPattern<ILVector2n> clearPattern(inputPattern);
+	ClearLWEConjunctionPattern<Poly> clearPattern(inputPattern);
 
-	ObfuscatedLWEConjunctionPattern<ILVector2n> obfuscatedPattern;
+	ObfuscatedLWEConjunctionPattern<Poly> obfuscatedPattern;
 	obfuscatedPattern.SetChunkSize(chunkSize);
 	obfuscatedPattern.SetLength(clearPattern.GetLength());
 	obfuscatedPattern.SetRootHermiteFactor(1.006);
 
-	LWEConjunctionObfuscationAlgorithm<ILVector2n> algorithm;
+	LWEConjunctionObfuscationAlgorithm<Poly> algorithm;
 
 	double stdDev = SIGMA;
 
 	double start, finish;
 
 
-	ILVector2n::DggType dgg(stdDev); // Create the noise generator
+	Poly::DggType dgg(stdDev); // Create the noise generator
 
 	start = currentDateTime();
 
@@ -120,8 +120,8 @@ void RunParamsGen() {
 
 	const shared_ptr<ILParams> ilParams = std::dynamic_pointer_cast<ILParams>(obfuscatedPattern.GetParameters());
 
-	const BigBinaryInteger &modulus = ilParams->GetModulus();
-	const BigBinaryInteger &rootOfUnity = ilParams->GetRootOfUnity();
+	const BigInteger &modulus = ilParams->GetModulus();
+	const BigInteger &rootOfUnity = ilParams->GetRootOfUnity();
 	m = ilParams->GetCyclotomicOrder();
 
 	std::cout << "q = " << modulus<< std::endl;

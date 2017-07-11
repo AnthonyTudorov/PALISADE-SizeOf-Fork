@@ -37,13 +37,11 @@
 #ifndef LBCRYPTO_MATH_NBTHEORY_H
 #define LBCRYPTO_MATH_NBTHEORY_H
 
-#include "backend.h"
 #include <vector>
 #include <set>
 #include <string>
 #include <random>
-
-#include "distributiongenerator.h"
+#include "../utils/inttypes.h"
 
 /**
  * @namespace lbcrypto
@@ -85,13 +83,26 @@ namespace lbcrypto {
 	usint ReverseBits(usint input, usint msb);
 
 	/**
-	 * Get MSB of an unisigned integer.
+	 * Get MSB of an unsigned 64 bit integer.
 	 *
 	 * @param x the input to find MSB of.
 	 * 
 	 * @return the index of the MSB bit location.	  
 	 */
-	usint GetMSB32(usint x);
+	inline usint GetMSB64(uint64_t x) {
+		if (x == 0) return 0;
+
+		// hardware instructions for finding MSB are used are used;
+#if defined(_MSC_VER)
+		// a wrapper for VC++
+		unsigned long msb;
+		_BitScanReverse64(&msb, x);
+		return msb + 1;
+#else
+		// a wrapper for GCC
+		return  64 - (sizeof(unsigned long) == 8 ? __builtin_clzl(x) : __builtin_clzll(x));
+#endif
+	}
 
 	/**
 	 * Return greatest common divisor of two big binary integers.
@@ -139,31 +150,25 @@ namespace lbcrypto {
 	void PrimeFactorize( IntType n, std::set<IntType> &primeFactors);
 
 	/**
-	 * Finds a Prime Modulus Corresponding to a Given Cyclotomic Number.
-	 * Assumes that GCD((2^n)-1, M) == M, but this property is not currently tested.
-	 *
-	 * @param m the the ring parameter.
-	 * @param nBits the number of bits needed to be in q.
-	 *
-	 * @return the candidate prime modulus.  
-	 */
+	* Finds the first prime that satisfies q = 1 mod m
+	*
+	* @param nBits the number of bits needed to be in q.
+	* @param m the the ring parameter.
+	*
+	* @return the next prime modulus.
+	*/
 	template<typename IntType>
-	IntType FindPrimeModulus(usint m, usint nBits);
+	IntType FirstPrime(usint nBits, usint m);
 
 	/**
-	 * Finds the next number that is a prime number matching the methods criteria. Sigma and alpha are required to calculate a minimum bound. 
-	 * The prime number generated will equal to one modulus the cyclotomic order and the plaintext modulus.
-	 *
-	 * @param &q is the place holder for the new prime. The original value of q will be set a minimum unless it is less than the minimum bound which is dependant on sigma and alpha.
-	 * @param &plainTextModulus is the plaintext modulus the prime number will be used on.
-	 * @param &ringDimension is the plaintext ringDimension the prime number will be used on.
-	 * @param &sigma is parameter used for setting the minimum bound.
-	 * @param &alpha is parameter used for setting the minimum bound.
-	 *
-	 * @return the next prime modulus.  
-	 */
+	* Finds the next prime that satisfies q = 1 mod m
+	*
+	* @param &q is the prime number to start from (the number itself is not included)
+	*
+	* @return the next prime modulus.
+	*/
 	template<typename IntType>
-	void NextQ(IntType &q, const IntType &plainTextModulus, const usint cyclotomicOrder, const IntType &sigma, const IntType &alpha);
+	IntType NextPrime(const IntType &q, usint cyclotomicOrder);
 
 	/**
 	 * Multiplicative inverse for primitive unsigned integer data types
@@ -249,7 +254,8 @@ namespace lbcrypto {
 	* @param &a is the integer in divisor[x-a].
 	* @return remainder after division with x-a.
 	*/
-	BigBinaryInteger SyntheticRemainder(const BigBinaryVector &dividend, const BigBinaryInteger &a, const BigBinaryInteger &modulus);
+	template<typename IntVector, typename IntType>
+	IntType SyntheticRemainder(const IntVector &dividend, const IntType &a, const IntType &modulus);
 
 	/**
 	* Returns the remainder vector after polynomial division of dividend with divisor = x-aList[i].
@@ -258,7 +264,8 @@ namespace lbcrypto {
 	* @param &aList is the integer vector for divisor[x-aList[i]].
 	* @return remainder vector after division with x-aList[i].
 	*/
-	BigBinaryVector SyntheticPolyRemainder(const BigBinaryVector &dividend, const BigBinaryVector &aList, const BigBinaryInteger &modulus);
+	template<typename IntVector, typename IntType>
+	IntVector SyntheticPolyRemainder(const IntVector &dividend, const IntVector &aList, const IntType &modulus);
 
 	/**
 	* Returns the polynomial after raising it by exponent = power.
@@ -267,7 +274,8 @@ namespace lbcrypto {
 	* @param &power is the exponent.
 	* @return exponentiated polynomial.
 	*/
-	BigBinaryVector PolynomialPower(const BigBinaryVector &input, usint power);
+	template<typename IntVector, typename IntType>
+	IntVector PolynomialPower(const IntVector &input, usint power);
 
 	/**
 	* Returns the quotient after polynomial division of dividend with divisor = x-a.
@@ -276,7 +284,8 @@ namespace lbcrypto {
 	* @param &a is the integer in divisor[x-a].
 	* @return quotient after division with x-a.
 	*/
-	BigBinaryVector SyntheticPolynomialDivision(const BigBinaryVector &dividend, const BigBinaryInteger &a, const BigBinaryInteger &modulus);
+	template<typename IntVector, typename IntType>
+	IntVector SyntheticPolynomialDivision(const IntVector &dividend, const IntType &a, const IntType &modulus);
 
 	/**
 	* Checkes if g is a generator for any cyclic group with modulus q (non-prime moduli are supported); currently q up to 64 bits only are supported
@@ -295,6 +304,15 @@ namespace lbcrypto {
 	template<typename IntType>
 	IntType FindGeneratorCyclic(const IntType& q);
 
+
+	/**
+	* Pre-computes the mu factor that is used in Barrett modulo reduction
+	* @param &q is the modulus
+	* @return the value of mu
+	*/
+	template<typename IntType>
+	IntType ComputeMu(const IntType& q);
+	
 
 } // namespace lbcrypto ends
 

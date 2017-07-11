@@ -75,7 +75,7 @@ using namespace lbcrypto;
 int main(int argc, char *argv[])
 {
 	string parmSetName;
-	bool beVerbose = false;
+	bool beVerbose = true;
 	bool haveName = false;
 
 	// Process parameters, find the parameter set name specified on the command line
@@ -127,17 +127,18 @@ int main(int argc, char *argv[])
 
 	if( beVerbose ) cout << "Initializing crypto system" << endl;
 
-	CryptoContext<ILVector2n> cc = CryptoContextHelper::getNewContext(parmSetName);
+	shared_ptr<CryptoContext<Poly>> cc = CryptoContextHelper::getNewContext(parmSetName);
 
 	// enable features that you wish to use
-	cc.Enable(ENCRYPTION);
-	cc.Enable(PRE);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
+	cc->Enable(PRE);
 
 	// Plaintext in this case is a BytePlaintextEncoding
 	BytePlaintextEncoding plaintext;
 
 	// The plaintext is broken up into chunks of size chunksize
-	size_t chunksize = plaintext.GetChunksize(cc.GetRingDimension(), cc.GetCryptoParameters()->GetPlaintextModulus());
+	size_t chunksize = plaintext.GetChunksize(cc->GetRingDimension(), cc->GetCryptoParameters()->GetPlaintextModulus());
 
 	if( beVerbose ) cout << "Encryption will be in chunks of size " << chunksize << endl;
 
@@ -164,7 +165,7 @@ int main(int argc, char *argv[])
 
 	if( beVerbose ) cout << "Running key generation" << endl;
 
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	LPKeyPair<Poly> kp = cc->KeyGen();
 
 	if ( !kp.good() ) {
 		cout << "Key generation failed" << endl;
@@ -179,13 +180,13 @@ int main(int argc, char *argv[])
 	// in the resulting table
 	////////////////////////////////////////////////////////////
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertext;
 
 	if( beVerbose ) cout << "Running encryption" << endl;
 
 	// we tell Encrypt not to pad this entry by using false for the third parameter;
 	// if we said true instead, padding would be added on Encrypt and removed on Decrypt
-	ciphertext = cc.Encrypt(kp.publicKey, plaintext, false);
+	ciphertext = cc->Encrypt(kp.publicKey, plaintext, false);
 
 	////////////////////////////////////////////////////////////
 	//Decryption
@@ -195,7 +196,7 @@ int main(int argc, char *argv[])
 
 	if( beVerbose ) cout << "Running decryption" << std::endl;
 
-	DecryptResult result = cc.Decrypt(kp.secretKey,ciphertext,&plaintextNew,false);
+	DecryptResult result = cc->Decrypt(kp.secretKey,ciphertext,&plaintextNew,false);
 
 	if (!result.isValid) {
 		cout << "Decryption failed" << endl;
@@ -216,7 +217,7 @@ int main(int argc, char *argv[])
 
 	if( beVerbose ) cout << "Running second key generation (used for re-encryption)" << endl;
 
-	LPKeyPair<ILVector2n> newKp = cc.KeyGen();
+	LPKeyPair<Poly> newKp = cc->KeyGen();
 
 	if ( !newKp.good() ) {
 		cout << "Key generation failed" << endl;
@@ -228,11 +229,19 @@ int main(int argc, char *argv[])
 	// This generates the keys which are used to perform the key switching.
 	////////////////////////////////////////////////////////////
 
+	bool flagBV = true;
+
+	if ((parmSetName.find("BV") == string::npos) && (parmSetName.find("FV") == string::npos))
+		flagBV = false;
+
 	if( beVerbose ) cout << "Generating proxy re-encryption key" << endl;
 
-	shared_ptr<LPEvalKey<ILVector2n>> evalKey;
+	shared_ptr<LPEvalKey<Poly>> evalKey;
 	try {
-		evalKey = cc.ReKeyGen(newKp.publicKey, kp.secretKey);
+		if (flagBV)
+			evalKey = cc->ReKeyGen(newKp.secretKey, kp.secretKey);
+		else
+			evalKey = cc->ReKeyGen(newKp.publicKey, kp.secretKey);
 	} catch( std::exception& e ) {
 		cout << e.what() << ", cannot proceed with PRE" << endl;
 		return 0;
@@ -242,11 +251,11 @@ int main(int argc, char *argv[])
 	//Perform the proxy re-encryption operation.
 	////////////////////////////////////////////////////////////
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> newCiphertext;
+	vector<shared_ptr<Ciphertext<Poly>>> newCiphertext;
 
 	if( beVerbose ) cout << "Running re-encryption" << endl;
 
-	newCiphertext = cc.ReEncrypt(evalKey, ciphertext);
+	newCiphertext = cc->ReEncrypt(evalKey, ciphertext);
 
 	////////////////////////////////////////////////////////////
 	//Decryption
@@ -256,7 +265,7 @@ int main(int argc, char *argv[])
 
 	if( beVerbose ) cout << "Running decryption of re-encrypted cipher" << endl;
 
-	DecryptResult result1 = cc.Decrypt(newKp.secretKey,newCiphertext,&plaintextNew2,false);
+	DecryptResult result1 = cc->Decrypt(newKp.secretKey,newCiphertext,&plaintextNew2,false);
 
 	if (!result1.isValid) {
 		std::cout<<"Decryption failed!"<<std::endl;

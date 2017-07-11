@@ -47,7 +47,7 @@ getValueForName(const map<string,string>& allvals, const string key, string& val
 }
 
 template <typename Element>
-static CryptoContext<Element>
+static shared_ptr<CryptoContext<Element>>
 buildContextFromSerialized(const map<string,string>& s, shared_ptr<typename Element::Params> parms)
 {
 	std::string parmtype;
@@ -92,7 +92,7 @@ buildContextFromSerialized(const map<string,string>& s, shared_ptr<typename Elem
 			return 0;
 
 		return CryptoContextFactory<Element>::genCryptoContextFV(stoul(plaintextModulus), stof(secLevel), 16, 4,
-				0, 1, 0);
+				0, 0, 1);
 
 	}
 	else if( parmtype == "BV" ) {
@@ -193,10 +193,10 @@ inline shared_ptr<LPCryptoParameters<Element>> DeserializeAndValidateCryptoParam
 
 
 bool
-CryptoContextHelper::matchContextToSerialization(const CryptoContext<ILVector2n> cc, const Serialized& ser)
+CryptoContextHelper::matchContextToSerialization(const CryptoContext<Poly> *cc, const Serialized& ser)
 {
-	shared_ptr<LPCryptoParameters<ILVector2n>> ctxParams = cc.GetCryptoParameters();
-	shared_ptr<LPCryptoParameters<ILVector2n>> cParams = DeserializeCryptoParameters<ILVector2n>(ser);
+	shared_ptr<LPCryptoParameters<Poly>> ctxParams = cc->GetCryptoParameters();
+	shared_ptr<LPCryptoParameters<Poly>> cParams = DeserializeCryptoParameters<Poly>(ser);
 
 	if( !cParams ) return false;
 
@@ -204,17 +204,17 @@ CryptoContextHelper::matchContextToSerialization(const CryptoContext<ILVector2n>
 }
 
 bool
-CryptoContextHelper::matchContextToSerialization(const CryptoContext<ILDCRT2n> cc, const Serialized& ser)
+CryptoContextHelper::matchContextToSerialization(const CryptoContext<DCRTPoly> *cc, const Serialized& ser)
 {
-	shared_ptr<LPCryptoParameters<ILDCRT2n>> ctxParams = cc.GetCryptoParameters();
-	shared_ptr<LPCryptoParameters<ILDCRT2n>> cParams = DeserializeCryptoParameters<ILDCRT2n>(ser);
+	shared_ptr<LPCryptoParameters<DCRTPoly>> ctxParams = cc->GetCryptoParameters();
+	shared_ptr<LPCryptoParameters<DCRTPoly>> cParams = DeserializeCryptoParameters<DCRTPoly>(ser);
 
 	if( !cParams ) return false;
 
 	return *ctxParams == *cParams;
 }
 
-CryptoContext<ILVector2n>
+shared_ptr<CryptoContext<Poly>>
 CryptoContextHelper::getNewContext(const string& parmset)
 {
 	std::string parmtype;
@@ -234,7 +234,7 @@ CryptoContextHelper::getNewContext(const string& parmset)
 	}
 
 	// FV uses parm generation so we skip this code for FV
-	shared_ptr<typename ILVector2n::Params> parms;
+	shared_ptr<typename Poly::Params> parms;
 	if( parmtype != "FV" ) {
 		if( !getValueForName(it->second, "ring", ring) ||
 				!getValueForName(it->second, "modulus", modulus) ||
@@ -242,15 +242,15 @@ CryptoContextHelper::getNewContext(const string& parmset)
 			return 0;
 		}
 
-		parms.reset( new typename ILVector2n::Params(stoul(ring),
-								typename ILVector2n::Integer(modulus),
-								typename ILVector2n::Integer(rootOfUnity)));
+		parms.reset( new typename Poly::Params(stoul(ring),
+								typename Poly::Integer(modulus),
+								typename Poly::Integer(rootOfUnity)));
 	}
 
-	return buildContextFromSerialized<ILVector2n>(it->second, parms);
+	return buildContextFromSerialized<Poly>(it->second, parms);
 }
 
-CryptoContext<ILDCRT2n>
+shared_ptr<CryptoContext<DCRTPoly>>
 CryptoContextHelper::getNewDCRTContext(const string& parmset, usint numTowers, usint primeBits)
 {
 	std::string parmtype;
@@ -269,7 +269,7 @@ CryptoContextHelper::getNewDCRTContext(const string& parmset, usint numTowers, u
 	}
 
 	// FV uses parm generation so we skip this code for FV
-	shared_ptr<ILDCRT2n::Params> parms;
+	shared_ptr<DCRTPoly::Params> parms;
 	if( parmtype != "FV" ) {
 		if( !getValueForName(it->second, "ring", ring) ||
 				!getValueForName(it->second, "plaintextModulus", plaintextModulus) ) {
@@ -279,7 +279,7 @@ CryptoContextHelper::getNewDCRTContext(const string& parmset, usint numTowers, u
 		parms = GenerateDCRTParams(stoul(ring), stoul(plaintextModulus), numTowers, primeBits);
 
 	}
-	return buildContextFromSerialized<ILDCRT2n>(it->second, parms);
+	return buildContextFromSerialized<DCRTPoly>(it->second, parms);
 }
 
 
@@ -324,6 +324,21 @@ CryptoContextHelper::printAllParmSetNames(std::ostream& out)
 		out << ", " << it->first;
 	}
 	out << std::endl;
+}
+
+void
+CryptoContextHelper::printParmSetNamesByFilter(std::ostream& out, const string &filter)
+{
+	map<string, map<string, string>>::iterator it = CryptoContextParameterSets.begin();
+
+	out << it->first;
+
+	for (it++; it != CryptoContextParameterSets.end(); it++) {
+		if (it->first.find(filter) != string::npos)
+			out << ", " << it->first;
+	}
+	out << std::endl;
+
 }
 
 }

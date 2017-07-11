@@ -45,8 +45,8 @@
 #include <unordered_map>
 
 #include "../math/backend.h"
-#include "../lattice/ilvector2n.h"
-#include "../lattice/ildcrt2n.h"
+#include "../lattice/poly.h"
+#include "../lattice/dcrtpoly.h"
 
 #define RAPIDJSON_NO_SIZETYPEDEFINE
 
@@ -107,7 +107,9 @@ public:
 
 template<typename T>
 void SerializeVector(const std::string& vectorName, const std::string& typeName, const std::vector<T> inVector, Serialized* serObj) {
+
 	Serialized ser(rapidjson::kObjectType, &serObj->GetAllocator());
+	ser.AddMember("Container", "Vector", serObj->GetAllocator());
 	ser.AddMember("Typename", typeName, serObj->GetAllocator());
 	ser.AddMember("Length", std::to_string(inVector.size()), serObj->GetAllocator());
 
@@ -129,6 +131,7 @@ template<typename T>
 void SerializeVectorOfPointers(const std::string& vectorName, const std::string& typeName, const std::vector<shared_ptr<T>> inVector, Serialized* serObj) {
 
 	Serialized ser(rapidjson::kObjectType, &serObj->GetAllocator());
+	ser.AddMember("Container", "VectorOfPointer", serObj->GetAllocator());
 	ser.AddMember("Typename", typeName, serObj->GetAllocator());
 	ser.AddMember("Length", std::to_string(inVector.size()), serObj->GetAllocator());
 
@@ -138,10 +141,32 @@ void SerializeVectorOfPointers(const std::string& vectorName, const std::string&
 		inVector[i]->Serialize(&oneEl);
 
 		SerialItem key( std::to_string(i), serObj->GetAllocator() );
-		serElements.AddMember(key, oneEl, serObj->GetAllocator());
+		serElements.AddMember(key, oneEl.Move(), serObj->GetAllocator());
 	}
 
-	ser.AddMember("Members", serElements, serObj->GetAllocator());
+	ser.AddMember("Members", serElements.Move(), serObj->GetAllocator());
+
+	serObj->AddMember(SerialItem(vectorName, serObj->GetAllocator()), ser, serObj->GetAllocator());
+}
+
+template<typename K, typename T>
+void SerializeMapOfPointers(const std::string& vectorName, const std::string& typeName, const std::map<K,shared_ptr<T>> inMap, Serialized* serObj) {
+
+	Serialized ser(rapidjson::kObjectType, &serObj->GetAllocator());
+	ser.AddMember("Container", "MapOfPointer", serObj->GetAllocator());
+	ser.AddMember("Typename", typeName, serObj->GetAllocator());
+
+	Serialized serElements(rapidjson::kObjectType, &serObj->GetAllocator());
+
+	for( const auto& kv : inMap ) {
+		Serialized oneEl(rapidjson::kObjectType, &serObj->GetAllocator());
+		kv.second->Serialize(&oneEl);
+
+		SerialItem key( std::to_string( kv.first ), serObj->GetAllocator() );
+		serElements.AddMember(key, oneEl.Move(), serObj->GetAllocator());
+	}
+
+	ser.AddMember("Members", serElements.Move(), serObj->GetAllocator());
 
 	serObj->AddMember(SerialItem(vectorName, serObj->GetAllocator()), ser, serObj->GetAllocator());
 }

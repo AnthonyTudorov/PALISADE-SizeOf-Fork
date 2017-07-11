@@ -65,11 +65,11 @@ void MultiThreadedRun() {
 
 	size_t counter = 50;
 	double start, finish;
-	DiscreteGaussianGeneratorImpl<BigBinaryInteger,BigBinaryVector> dgg(SIGMA);
+	DiscreteGaussianGeneratorImpl<BigInteger,BigVector> dgg(SIGMA);
 
 	usint sm = 2048;
-	BigBinaryInteger smodulus("67127297");
-	BigBinaryInteger srootOfUnity("19715182");
+	BigInteger smodulus("67127297");
+	BigInteger srootOfUnity("19715182");
 
 	ILParams ilParams(sm, smodulus, srootOfUnity);
 	shared_ptr<ILParams> silParams = std::make_shared<ILParams>(ilParams);
@@ -77,9 +77,9 @@ void MultiThreadedRun() {
 	std::cout << "m: " << sm << " q: " << smodulus << " rootOfUnity: " << srootOfUnity << std::endl;
 	std::cout << "Signature precomputations" << std::endl;
 	start = currentDateTime();
-	ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
+	ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
 	DiscreteFourierTransform::GetInstance().PreComputeTable(sm);
-	ILVector2n::PreComputeDggSamples(dgg, silParams);
+	Poly::PreComputeDggSamples(dgg, silParams);
 	finish = currentDateTime();
 	std::cout << "Precomputation time: " << finish - start << " ms" << std::endl;
 
@@ -88,11 +88,11 @@ void MultiThreadedRun() {
 signParams.SetElemParams(silParams);
 	std::cout << signParams.GetILParams()->GetCyclotomicOrder() << std::endl << std::endl;
 
-	LPSignKeyGPVGM<ILVector2n> s_k_gm(signParams);
-	LPVerificationKeyGPVGM<ILVector2n> v_k_gm(signParams);
-	LPSignatureSchemeGPVGM<ILVector2n> scheme_gm;
+	LPSignKeyGPVGM<Poly> s_k_gm(signParams);
+	LPVerificationKeyGPVGM<Poly> v_k_gm(signParams);
+	LPSignatureSchemeGPVGM<Poly> scheme_gm;
 
-	vector<Signature<Matrix<ILVector2n>>> signature(counter);
+	vector<Signature<Matrix<Poly>>> signature(counter);
 
 	scheme_gm.KeyGen(&s_k_gm, &v_k_gm);
 
@@ -106,7 +106,7 @@ signParams.SetElemParams(silParams);
 	Serialized ser;
 	std::string stringSer;
 
-Matrix<ILVector2n> publicKey = s_k_gm.GetPrivateElement().first;
+Matrix<Poly> publicKey = s_k_gm.GetPrivateElement().first;
 publicKey.SwitchFormat();
 
 	publicKey.Serialize(&ser);
@@ -114,7 +114,7 @@ publicKey.SwitchFormat();
 	//std::cout << stringSer << std::endl;
 	std::cout << "Length of public key is " << stringSer.length() << std::endl;
 
-Matrix<ILVector2n> privateKey1 = s_k_gm.GetPrivateElement().second.m_e;
+Matrix<Poly> privateKey1 = s_k_gm.GetPrivateElement().second.m_e;
 privateKey1.SwitchFormat();
 
 	privateKey1.Serialize(&ser);
@@ -122,7 +122,7 @@ privateKey1.SwitchFormat();
 	//std::cout << stringSer << std::endl;
 	std::cout << "Length of private key 1 is " << stringSer.length() << std::endl;
 
-Matrix<ILVector2n> privateKey2 = s_k_gm.GetPrivateElement().second.m_r;
+Matrix<Poly> privateKey2 = s_k_gm.GetPrivateElement().second.m_r;
 privateKey2.SwitchFormat();
 
 	privateKey2.Serialize(&ser);
@@ -184,8 +184,8 @@ privateKey2.SwitchFormat();
 	std::cout << "Verification counter : " << "\t" << verifyCounter << "\n" << std::endl;
 
 	std::cout << "Execution completed" << std::endl;
-	ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().Destroy();
-	NumberTheoreticTransform<BigBinaryInteger,BigBinaryVector>::GetInstance().Destroy();
+	ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().Destroy();
+	NumberTheoreticTransform<BigInteger,BigVector>::GetInstance().Destroy();
 	DiscreteFourierTransform::GetInstance().Destroy();
 
 }
@@ -194,31 +194,31 @@ void SingleThreadedRun() {
 
 		size_t counter = 10;
 		double start, finish;
-		ILVector2n::DggType dgg(SIGMA);
+		Poly::DggType dgg(SIGMA);
 		usint sm = 16;
-		BigBinaryInteger smodulus("1048609");
-		BigBinaryInteger srootOfUnity("389832");
+		BigInteger smodulus("1048609");
+		BigInteger srootOfUnity("389832");
 		ILParams ilParams(sm, smodulus, srootOfUnity);
 		shared_ptr<ILParams> silParams = std::make_shared<ILParams>(ilParams);
 		start = currentDateTime();
 		std::cout << "m: " << sm << " q: " << smodulus << " rootOfUnity: " << srootOfUnity << std::endl;
 		finish = currentDateTime();
 		std::cout << "Signature precomputations" << std::endl;
-		ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
+		ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
 		DiscreteFourierTransform::GetInstance().PreComputeTable(sm);
-		ILVector2n::PreComputeDggSamples(dgg, silParams);
+		Poly::PreComputeDggSamples(dgg, silParams);
 		std::cout << "Precomputation time: " << finish - start << " ms" << std::endl;
 		LPSignatureParameters signParams(silParams, dgg);
-		//LPSignKeyGPV<ILVector2n> s_k(signParams);
-		//LPVerificationKeyGPV<ILVector2n> v_k(signParams);
-		//LPSignatureSchemeGPV<ILVector2n> scheme;
+		//LPSignKeyGPV<Poly> s_k(signParams);
+		//LPVerificationKeyGPV<Poly> v_k(signParams);
+		//LPSignatureSchemeGPV<Poly> scheme;
 		start = currentDateTime();
 		//scheme.KeyGen(&s_k, &v_k);
 		finish = currentDateTime();
 		std::cout << "Key generation - Old : " << "\t" << finish - start << " ms" << std::endl;
 
 		std::cout << "Test" << std::endl;
-		Signature<Matrix<ILVector2n>> signature, signature2;
+		Signature<Matrix<Poly>> signature, signature2;
 
 		std::vector<BytePlaintextEncoding> text{
 			"1 Let's spice things up",
@@ -243,9 +243,9 @@ void SingleThreadedRun() {
 		finish = currentDateTime();
 		std::cout << "Verifying - Old : " << "\t" << finish - start << " ms" << std::endl << std::endl;
 
-		LPSignKeyGPVGM<ILVector2n> s_k_gm(signParams);
-		LPVerificationKeyGPVGM<ILVector2n> v_k_gm(signParams);
-		LPSignatureSchemeGPVGM<ILVector2n> scheme_gm;
+		LPSignKeyGPVGM<Poly> s_k_gm(signParams);
+		LPVerificationKeyGPVGM<Poly> v_k_gm(signParams);
+		LPSignatureSchemeGPVGM<Poly> scheme_gm;
 		start = currentDateTime();
 		scheme_gm.KeyGen(&s_k_gm, &v_k_gm);
 		finish = currentDateTime();
@@ -272,8 +272,8 @@ void SingleThreadedRun() {
 		std::cout << "m: " << sm << " q: " << smodulus << " rootOfUnity: " << srootOfUnity << std::endl;
 		std::cout << "Signature precomputations" << std::endl;
 		start = currentDateTime();
-		ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
-		ILVector2n::PreComputeDggSamples(dgg, silParams);
+		ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
+		Poly::PreComputeDggSamples(dgg, silParams);
 		finish = currentDateTime();
 		std::cout << "Precomputation time: " << finish - start << " ms" << std::endl;
 
@@ -324,9 +324,9 @@ void SingleThreadedRun() {
 		std::cout << "m: " << sm << " q: " << smodulus << " rootOfUnity: " << srootOfUnity << std::endl;
 		std::cout << "Signature precomputations" << std::endl;
 		start = currentDateTime();
-		ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
+		ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
 		DiscreteFourierTransform::GetInstance().PreComputeTable(sm);
-		ILVector2n::PreComputeDggSamples(dgg, silParams);
+		Poly::PreComputeDggSamples(dgg, silParams);
 		finish = currentDateTime();
 		std::cout << "Precomputation time: " << finish - start << " ms" << std::endl;
 
@@ -396,8 +396,8 @@ void SingleThreadedRun() {
 		std::cout << "m: " << sm << " q: " << smodulus << " rootOfUnity: " << srootOfUnity << std::endl;
 		std::cout << "Signature precomputations" << std::endl;
 		start = currentDateTime();
-		ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
-		ILVector2n::PreComputeDggSamples(dgg, silParams);
+		ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
+		Poly::PreComputeDggSamples(dgg, silParams);
 		DiscreteFourierTransform::GetInstance().PreComputeTable(sm);
 		finish = currentDateTime();
 		std::cout << "Precomputation time: " << finish - start << " ms" << std::endl << std::endl;
@@ -469,8 +469,8 @@ void SingleThreadedRun() {
 		std::cout << "m: " << sm << " q: " << smodulus << " rootOfUnity: " << srootOfUnity << std::endl;
 		std::cout << "Signature precomputations" << std::endl;
 		start = currentDateTime();
-		ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
-		ILVector2n::PreComputeDggSamples(dgg, silParams);
+		ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
+		Poly::PreComputeDggSamples(dgg, silParams);
 		DiscreteFourierTransform::GetInstance().PreComputeTable(sm);
 		finish = currentDateTime();
 		std::cout << "Precomputation time: " << finish - start << " ms" << std::endl;
@@ -536,8 +536,8 @@ void SingleThreadedRun() {
 		std::cout << "Verification counter : " << "\t" << verifyCounter << "\n" << std::endl;
 
 		std::cout << "Execution completed" << std::endl;
-		ChineseRemainderTransformFTT<BigBinaryInteger,BigBinaryVector>::GetInstance().Destroy();
-		NumberTheoreticTransform<BigBinaryInteger,BigBinaryVector>::GetInstance().Destroy();
+		ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().Destroy();
+		NumberTheoreticTransform<BigInteger,BigVector>::GetInstance().Destroy();
 		DiscreteFourierTransform::GetInstance().Destroy();
 
 		//std::cin.ignore();

@@ -26,10 +26,10 @@
 #ifndef _SRC_LIB_LATTICE_SIGNATURE_FIELD2N_H
 #define _SRC_LIB_LATTICE_SIGNATURE_FIELD2N_H
 
-#include "ilvector2n.h"
+#include "poly.h"
 #include "../math/transfrm.h"
 #include "../math/matrix.h"
-#include "ildcrt2n.h"
+#include "dcrtpoly.h"
 
 namespace lbcrypto
 {
@@ -60,7 +60,7 @@ public:
 	 * @brief Constructor from ring element
 	 * @param & element ring element
 	 */
-	explicit Field2n(const ILVector2n & element);
+	explicit Field2n(const Poly & element);
 
 	/** 
 	 * @brief Constructor from a ring element matrix

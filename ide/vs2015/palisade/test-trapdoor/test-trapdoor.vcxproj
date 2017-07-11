@@ -71,22 +71,22 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\git\palisade-student-edition\src\pke\lib;C:\git\palisade-student-edition\test;C:\git\palisade-student-edition\src\trapdoor\lib;C:\git\palisade-student-edition\src\core\lib;C:\boost_1_62_0;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\boost_1_62_0\stage\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\..\..\..\src\pke\lib;..\..\..\..\test;..\..\..\..\src\trapdoor\lib;..\..\..\..\src\core\lib;$(IncludePath)</IncludePath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\git\palisade-student-edition\src\pke\lib;C:\git\palisade-student-edition\test;C:\git\palisade-student-edition\src\trapdoor\lib;C:\git\palisade-student-edition\src\core\lib;C:\boost_1_62_0;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\boost_1_62_0\stage\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\..\..\..\src\pke\lib;..\..\..\..\test;..\..\..\..\src\trapdoor\lib;..\..\..\..\src\core\lib;$(IncludePath)</IncludePath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\git\palisade-student-edition\src\pke\lib;C:\git\palisade-student-edition\test;C:\git\palisade-student-edition\src\trapdoor\lib;C:\git\palisade-student-edition\src\core\lib;$(IncludePath)</IncludePath>
+    <IncludePath>..\..\..\..\src\pke\lib;..\..\..\..\test;..\..\..\..\src\trapdoor\lib;..\..\..\..\src\core\lib;$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\git\palisade-student-edition\src\pke\lib;C:\git\palisade-student-edition\test;C:\git\palisade-student-edition\src\trapdoor\lib;C:\git\palisade-student-edition\src\core\lib;$(IncludePath)</IncludePath>
+    <IncludePath>..\..\..\..\src\pke\lib;..\..\..\..\test;..\..\..\..\src\trapdoor\lib;..\..\..\..\src\core\lib;$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

@@ -49,87 +49,102 @@ protected:
   }
 };
 
-static CryptoContext<ILVector2n> GenerateTestCryptoContext(const string& parmsetName) {
-	CryptoContext<ILVector2n> cc = CryptoContextHelper::getNewContext(parmsetName);
-	cc.Enable(ENCRYPTION);
+static shared_ptr<CryptoContext<Poly>> GenerateTestCryptoContext(const string& parmsetName) {
+	BigInteger modulusP(256);
+	shared_ptr<CryptoContext<Poly>> cc = CryptoContextHelper::getNewContext(parmsetName);
+	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP,PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP),8));
+	cc->GetCryptoParameters()->SetEncodingParams(encodingParams);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 	return cc;
 }
 
-static CryptoContext<ILDCRT2n> GenerateTestDCRTCryptoContext(const string& parmsetName, usint nTower, usint pbits) {
-	CryptoContext<ILDCRT2n> cc = CryptoContextHelper::getNewDCRTContext(parmsetName, nTower, pbits);
-	cc.Enable(ENCRYPTION);
+static shared_ptr<CryptoContext<DCRTPoly>> GenerateTestDCRTCryptoContext(const string& parmsetName, usint nTower, usint pbits) {
+	shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextHelper::getNewDCRTContext(parmsetName, nTower, pbits);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
 	return cc;
 }
 
 template<typename T>
-void UnitTestContext(const CryptoContext<T>& cc) {
+void UnitTestContext(shared_ptr<CryptoContext<T>> cc) {
+
+	LPKeyPair<T> kp = cc->KeyGen();
+	try {
+		cc->EvalMultKeyGen(kp.secretKey);
+	} catch(...) {}
+	try {
+		cc->EvalSumKeyGen(kp.secretKey, kp.publicKey);
+	} catch(...) {}
 
 	Serialized ser;
 	ser.SetObject();
-	ASSERT_TRUE( cc.Serialize(&ser) ) << "Serialization failed";
+	ASSERT_TRUE( cc->Serialize(&ser) ) << "Serialization failed";
 
-	CryptoContext<T> newcc;
-	ASSERT_TRUE( newcc.Deserialize(ser) ) << "Deserialization failed";
+	shared_ptr<CryptoContext<T>> newcc = CryptoContextFactory<T>::DeserializeAndCreateContext(ser);
+	ASSERT_TRUE( newcc ) << "Deserialization failed";
 
-	EXPECT_EQ( *cc.GetCryptoParameters(), *newcc.GetCryptoParameters() ) << "Mismatch after ser/deser";
+	EXPECT_EQ( cc->GetEncryptionAlgorithm()->GetEnabled(), (usint)(ENCRYPTION|SHE) ) << "Enabled features mismatch after ser/deser";
+
+	EXPECT_EQ( *cc->GetCryptoParameters(), *newcc->GetCryptoParameters() ) << "Mismatch after ser/deser";
 }
 
-TEST(UTPKESer, LTV_ILVector2n_Serial) {
-	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("LTV5");
-	UnitTestContext<ILVector2n>(cc);
+TEST(UTPKESer, LTV_Poly_Serial) {
+	shared_ptr<CryptoContext<Poly>> cc = GenerateTestCryptoContext("LTV5");
+	UnitTestContext<Poly>(cc);
 }
 
-TEST(UTPKESer, LTV_ILVectorArray2n_Serial) {
-	CryptoContext<ILDCRT2n> cc = GenerateTestDCRTCryptoContext("LTV5", 3, 20);
-	UnitTestContext<ILDCRT2n>(cc);
+TEST(UTPKESer, LTV_DCRTPoly_Serial) {
+	shared_ptr<CryptoContext<DCRTPoly>> cc = GenerateTestDCRTCryptoContext("LTV5", 3, 20);
+	UnitTestContext<DCRTPoly>(cc);
 }
 
-TEST(UTPKESer, StSt_ILVector2n_Serial) {
-	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("StSt6");
-	UnitTestContext<ILVector2n>(cc);
+TEST(UTPKESer, StSt_Poly_Serial) {
+	shared_ptr<CryptoContext<Poly>> cc = GenerateTestCryptoContext("StSt6");
+	UnitTestContext<Poly>(cc);
 }
 
-TEST(UTPKESer, StSt_ILVectorArray2n_Serial) {
-	CryptoContext<ILDCRT2n> cc = GenerateTestDCRTCryptoContext("StSt6", 3, 20);
-	UnitTestContext<ILDCRT2n>(cc);
+TEST(UTPKESer, StSt_DCRTPoly_Serial) {
+	shared_ptr<CryptoContext<DCRTPoly>> cc = GenerateTestDCRTCryptoContext("StSt6", 3, 20);
+	UnitTestContext<DCRTPoly>(cc);
 }
 
-TEST(UTPKESer, BV_ILVector2n_Serial) {
-	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("BV2");
-	UnitTestContext<ILVector2n>(cc);
+TEST(UTPKESer, BV_Poly_Serial) {
+	shared_ptr<CryptoContext<Poly>> cc = GenerateTestCryptoContext("BV2");
+	UnitTestContext<Poly>(cc);
 }
 
-TEST(UTPKESer, BV_ILVectorArray2n_Serial) {
-	CryptoContext<ILDCRT2n> cc = GenerateTestDCRTCryptoContext("BV2", 3, 20);
-	UnitTestContext<ILDCRT2n>(cc);
+TEST(UTPKESer, BV_DCRTPoly_Serial) {
+	shared_ptr<CryptoContext<DCRTPoly>> cc = GenerateTestDCRTCryptoContext("BV2", 3, 20);
+	UnitTestContext<DCRTPoly>(cc);
 }
 
-TEST(UTPKESer, Null_ILVector2n_Serial) {
-	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("Null");
-	UnitTestContext<ILVector2n>(cc);
+TEST(UTPKESer, Null_Poly_Serial) {
+	shared_ptr<CryptoContext<Poly>> cc = GenerateTestCryptoContext("Null");
+	UnitTestContext<Poly>(cc);
 }
 
-TEST(UTPKESer, Null_ILVectorArray2n_Serial) {
-	CryptoContext<ILDCRT2n> cc = GenerateTestDCRTCryptoContext("Null", 3, 20);
-	UnitTestContext<ILDCRT2n>(cc);
+TEST(UTPKESer, Null_DCRTPoly_Serial) {
+	shared_ptr<CryptoContext<DCRTPoly>> cc = GenerateTestDCRTCryptoContext("Null", 3, 20);
+	UnitTestContext<DCRTPoly>(cc);
 }
 
-TEST(UTPKESer, FV_ILVector2n_Serial) {
-	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("FV2");
-	UnitTestContext<ILVector2n>(cc);
+TEST(UTPKESer, FV_Poly_Serial) {
+	shared_ptr<CryptoContext<Poly>> cc = GenerateTestCryptoContext("FV2");
+	UnitTestContext<Poly>(cc);
 }
 
-//TEST(UTPKESer, FV_ILVectorArray2n_Serial) {
-//	CryptoContext<ILDCRT2n> cc = GenerateTestDCRTCryptoContext("FV2", 3, 20);
-//	UnitTestContext<ILDCRT2n>(cc);
+//TEST(UTPKESer, FV_DCRTPoly_Serial) {
+//	shared_ptr<CryptoContext<DCRTPoly>> cc = GenerateTestDCRTCryptoContext("FV2", 3, 20);
+//	UnitTestContext<DCRTPoly>(cc);
 //}
 
 // REMAINDER OF THE TESTS USE LTV AS A REPRESENTITIVE CONTEXT
 TEST(UTPKESer, LTV_keys_and_ciphertext) {
         bool dbg_flag = false;
-	CryptoContext<ILVector2n> cc = GenerateTestCryptoContext("LTV5");
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
-	LPKeyPair<ILVector2n> kpnew;
+	shared_ptr<CryptoContext<Poly>> cc = GenerateTestCryptoContext("LTV5");
+	LPKeyPair<Poly> kp = cc->KeyGen();
+	LPKeyPair<Poly> kpnew;
 
 	DEBUG("step 1");
 	{
@@ -141,7 +156,7 @@ TEST(UTPKESer, LTV_keys_and_ciphertext) {
 		ASSERT_TRUE( kp.publicKey->Serialize(&ser) ) << "Public Key serialization failed";
 
 		DEBUG("step 1.2");
-		ASSERT_TRUE( (kpnew.publicKey = cc.deserializePublicKey(ser)) ) << "Public key deserialization failed";
+		ASSERT_TRUE( (kpnew.publicKey = cc->deserializePublicKey(ser)) ) << "Public key deserialization failed";
 		DEBUG("step 1.3");
 		EXPECT_EQ( *kp.publicKey, *kpnew.publicKey ) << "Public key mismatch after ser/deser";
 	}
@@ -151,26 +166,26 @@ TEST(UTPKESer, LTV_keys_and_ciphertext) {
 		ser.SetObject();
 		ASSERT_TRUE( kp.secretKey->Serialize(&ser) ) << "Secret Key serialization failed";
 
-		ASSERT_TRUE( (kpnew.secretKey = cc.deserializeSecretKey(ser)) ) << "Secret key deserialization failed";
+		ASSERT_TRUE( (kpnew.secretKey = cc->deserializeSecretKey(ser)) ) << "Secret key deserialization failed";
 
 		EXPECT_EQ( *kp.secretKey, *kpnew.secretKey ) << "Secret key mismatch after ser/deser";
 	}
 	DEBUG("step 3");
 	BytePlaintextEncoding plaintextShort("This is just a little test");
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext = cc.Encrypt(kp.publicKey, plaintextShort, true);
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertext = cc->Encrypt(kp.publicKey, plaintextShort, true);
 
 	Serialized ser;
 	ser.SetObject();
 	ASSERT_TRUE( ciphertext[0]->Serialize(&ser) ) << "Ciphertext serialize failed";
 	DEBUG("step 4");
-	shared_ptr<Ciphertext<ILVector2n>> newC;
-	ASSERT_TRUE( (newC = cc.deserializeCiphertext(ser)) ) << "Ciphertext deserialization failed";
+	shared_ptr<Ciphertext<Poly>> newC;
+	ASSERT_TRUE( (newC = cc->deserializeCiphertext(ser)) ) << "Ciphertext deserialization failed";
 
 	EXPECT_EQ( *ciphertext[0], *newC ) << "Ciphertext mismatch";
 
 	DEBUG("step 5");
 	ciphertext[0] = newC;
 	BytePlaintextEncoding plaintextShortNew;
-	cc.Decrypt(kp.secretKey, ciphertext, &plaintextShortNew, true);
+	cc->Decrypt(kp.secretKey, ciphertext, &plaintextShortNew, true);
 	EXPECT_EQ(plaintextShortNew, plaintextShort) << "Decrypted deserialize failed";
 }

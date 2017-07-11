@@ -38,14 +38,14 @@
 #define LBCRYPTO_LATTICE_TRAPDOOR_H
 
 #include "math/matrix.h"
-#include "lattice/ilvector2n.h"
+#include "lattice/poly.h"
 #include "dgsampling.h"
 #include "dgsampling.cpp"
 #include "utils/debug.h"
 
 namespace lbcrypto {
 
-typedef Matrix<ILVector2n> RingMat;
+typedef Matrix<Poly> RingMat;
 
 /**
 * @brief Class to store a lattice trapdoor pair generated using construction 1 in section 3.2 of https://eprint.iacr.org/2013/297.pdf
@@ -76,16 +76,16 @@ public:
 	* @param sttdev distribution parameter used in sampling noise polynomials of the trapdoor
 	* @return the trapdoor pair including the public key (matrix of rings) and trapdoor itself
 	*/
-	static inline std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> TrapdoorGen(shared_ptr<typename ILVector2n::Params> params, int stddev);
+	static inline std::pair<RingMat, RLWETrapdoorPair<Poly>> TrapdoorGen(shared_ptr<typename Poly::Params> params, int stddev);
 
 //	/**
-//	* Wrapper for TrapdoorGen(ILParams params, int stddev) - currently supports only ILVector2n, support for other rings will be added later
+//	* Wrapper for TrapdoorGen(ILParams params, int stddev) - currently supports only Poly, support for other rings will be added later
 //	*
 //	* @param params ring element parameters
 //	* @param sttdev distribution parameter used in sampling noise polynomials of the trapdoor
 //	* @return the trapdoor pair including the public key (matrix of rings) and trapdoor itself
 //	*/
-//	static inline std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> TrapdoorGen(const shared_ptr<typename ILVector2n::Params> params, int stddev)
+//	static inline std::pair<RingMat, RLWETrapdoorPair<Poly>> TrapdoorGen(const shared_ptr<typename Poly::Params> params, int stddev)
 //	{
 //		return TrapdoorGen(params, stddev);
 //	}
@@ -105,8 +105,8 @@ public:
 	* @return the sampled vector (matrix)
 	*/
 	static inline RingMat GaussSamp(size_t n, size_t k, const RingMat& A, 
-		const RLWETrapdoorPair<ILVector2n>& T, const ILVector2n &u,
-		double sigma, ILVector2n::DggType &dgg, ILVector2n::DggType &dggLargeSigma);
+		const RLWETrapdoorPair<Poly>& T, const Poly &u,
+		double sigma, Poly::DggType &dgg, Poly::DggType &dggLargeSigma);
 
 	/**
 	* New method for perturbation generation based by the new paper
@@ -120,8 +120,8 @@ public:
 	*@param *perturbationVector perturbation vector;output of the function
 	*/
 	static inline void ZSampleSigmaP(size_t n, double s, double sigma,
-		const RLWETrapdoorPair<ILVector2n> &Tprime,
-		const ILVector2n::DggType& dgg, const ILVector2n::DggType& dggLargeSigma,
+		const RLWETrapdoorPair<Poly> &Tprime,
+		const Poly::DggType& dgg, const Poly::DggType& dggLargeSigma,
 		RingMat *perturbationVector);
 
 };

@@ -37,9 +37,9 @@ namespace lbcrypto
  */
 template<typename IntType> class EncodingParamsImpl;
 /**
- * @brief defining typedef  EncodingParamsImpl<BigBinaryInteger> as EncodingParams. 
+ * @brief defining typedef  EncodingParamsImpl<BigInteger> as EncodingParams. 
  */
-typedef EncodingParamsImpl<BigBinaryInteger> EncodingParams;
+typedef EncodingParamsImpl<BigInteger> EncodingParams;
 }
 
 namespace lbcrypto
@@ -78,7 +78,7 @@ public:
 	 * @param &rhs the input set of parameters which is copied.
 	 */
 	EncodingParamsImpl(const EncodingParamsImpl &rhs) {
-		m_plaintextModulus = rhs.m_plaintextGenerator;
+		m_plaintextModulus = rhs.m_plaintextModulus;
 		m_plaintextGenerator = rhs.m_plaintextGenerator;
 		m_batchSize = rhs.m_batchSize;
 	}
@@ -89,7 +89,7 @@ public:
 	* @param &rhs the input set of parameters which is copied.
 	*/
 	EncodingParamsImpl(const EncodingParamsImpl &&rhs) {
-		m_plaintextModulus = std::move(rhs.m_plaintextGenerator);
+		m_plaintextModulus = std::move(rhs.m_plaintextModulus);
 		m_plaintextGenerator = std::move(rhs.m_plaintextGenerator);
 		m_batchSize = rhs.m_batchSize;
 	}
@@ -101,7 +101,7 @@ public:
 	 * @return the resulting EncodingParamsImpl.
 	 */
 	const EncodingParamsImpl& operator=(const EncodingParamsImpl &rhs) {
-		m_plaintextModulus = rhs.m_plaintextGenerator;
+		m_plaintextModulus = rhs.m_plaintextModulus;
 		m_plaintextGenerator = rhs.m_plaintextGenerator;
 		m_batchSize = rhs.m_batchSize;
 		return *this;
@@ -124,6 +124,14 @@ public:
 		return m_plaintextModulus; 
 	}
 	
+	/**
+	* @brief Setter for the plaintext modulus.
+	* @return The plaintext modulus.
+	*/
+	void SetPlaintextModulus(const IntType &plaintextModulus) {
+		m_plaintextModulus = plaintextModulus;
+	}
+
 	/**
 	* @brief Getter for the plaintext generator.
 	* @return The plaintext generator.
@@ -168,7 +176,8 @@ public:
 private:
 
 	std::ostream& doprint(std::ostream& out) const {
-		out << "[p=" << m_plaintextModulus << " g=" << m_plaintextGenerator
+		out << "[p=" << m_plaintextModulus
+			<< " g=" << m_plaintextGenerator
 		    << " L=" << m_batchSize
 		    << "]";
 		return out;

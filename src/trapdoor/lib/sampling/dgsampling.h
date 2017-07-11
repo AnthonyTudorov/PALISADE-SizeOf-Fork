@@ -76,8 +76,8 @@ public:
 	* @param dgg discrete Gaussian generator
 	* @param *z a set of k sampled polynomials corresponding to the gadget matrix G; represented as Z^(k x n)
 	*/
-	static inline void GaussSampG(const ILVector2n &u, double sttdev, size_t k,
-			ILVector2n::DggType &dgg, Matrix<BigBinaryInteger> *z);
+	static inline void GaussSampG(const Poly &u, double sttdev, size_t k,
+			Poly::DggType &dgg, Matrix<BigInteger> *z);
 
 	/**
 	* Gaussian sampling from lattice for gagdet matrix G and syndrome u and ARBITRARY MODULUS q - Improved algorithm
@@ -90,8 +90,8 @@ public:
 	* @param dgg discrete Gaussian generator
 	* @param *z a set of k sampled polynomials corresponding to the gadget matrix G; represented as Z^(k x n)
 	*/
-	static inline void GaussSampGq(const ILVector2n &u, double stddev, size_t k, const BigBinaryInteger &q, int32_t base, 
-				ILVector2n::DggType &dgg, Matrix<int32_t> *z);
+	static inline void GaussSampGq(const Poly &u, double stddev, size_t k, const BigInteger &q, int32_t base, 
+				Poly::DggType &dgg, Matrix<int32_t> *z);
 
 
 	/**
@@ -105,7 +105,7 @@ public:
 	* @param *p non-spherical perturbation vector; output of the function
 	*/
 	static inline void ZSampleSigma2x2(const Field2n & a, const Field2n & b,
-		const Field2n & d, const Matrix<Field2n> &c, const ILVector2n::DggType & dgg, Matrix<int32_t>* p);
+		const Field2n & d, const Matrix<Field2n> &c, const Poly::DggType & dgg, Matrix<int32_t>* p);
 
 	/**
 	* Subroutine used by ZSampleSigma2x2
@@ -116,19 +116,19 @@ public:
 	* @param n ring dimension used for rejection sampling
 	*/
 	static inline Matrix<int32_t> ZSampleF(const Field2n &f, const Field2n &c,
-		const ILVector2n::DggType &dgg, size_t n);
+		const Poly::DggType &dgg, size_t n);
 
 private:
 	
 	// subroutine used by GaussSampGqV2
 	// Algorithm was provided in a personal communication by Daniele Micciancio
 	static inline void Perturb(double sigma,  size_t k, size_t n, 
-		const vector<double> &l, const vector<double> &h, int32_t base, ILVector2n::DggType &dgg, vector<int32_t> *p);
+		const vector<double> &l, const vector<double> &h, int32_t base, Poly::DggType &dgg, vector<int32_t> *p);
 
 	// subroutine used by GaussSampGqV2
 	// Algorithm was provided in a personal communication by Daniele Micciancio
 	static inline void SampleC(const Matrix<double> &c, size_t k, size_t n, 
-		double sigma, ILVector2n::DggType &dgg, Matrix<double> *a, vector<int32_t> *z);
+		double sigma, Poly::DggType &dgg, Matrix<double> *a, vector<int32_t> *z);
 
 	//subroutine used by ZSampleF
 	//Algorithm utilizes the same permutation algorithm discussed in the GM17 paper

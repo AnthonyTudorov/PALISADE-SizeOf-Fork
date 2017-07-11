@@ -117,22 +117,22 @@ public:
 	BytePlaintextEncoding& operator= (const std::string& s);
 
 	/**
-	 * Interface for the operation of converting from current plaintext encoding to ILVector2n.
+	 * Interface for the operation of converting from current plaintext encoding to Poly.
 	 *
 	 * @param  modulus - used for encoding.
 	 * @param  *ilVector encoded plaintext - output argument.
 	 * @param  start_from - location to start from.  Defaults to 0.
 	 * @param  length - length of data to encode.  Defaults to 0.
 	 */
-	void Encode(const BigBinaryInteger &modulus, ILVector2n *ilVector, size_t start_from=0, size_t length=0) const;
+	void Encode(const BigInteger &modulus, Poly *ilVector, size_t start_from=0, size_t length=0) const;
 
 	/**
-	 * Interface for the operation of converting from ILVector2n to current plaintext encoding.
+	 * Interface for the operation of converting from Poly to current plaintext encoding.
 	 *
 	 * @param  modulus - used for encoding.
 	 * @param  *ilVector encoded plaintext - input argument.
 	 */
-	void Decode(const BigBinaryInteger &modulus, ILVector2n *ilVector);
+	void Decode(const BigInteger &modulus, Poly *ilVector);
 
 	/**
 	 * Interface for the operation of stripping away unneeded trailing zeros to pad out a short plaintext until one with entries
@@ -140,7 +140,7 @@ public:
 	 *
 	 * @param  &modulus - used for encoding.
 	 */
-	void Unpad(const BigBinaryInteger &modulus = 0);
+	void Unpad(const BigInteger &modulus = 0);
 
 	/**
 	 * Getter for the ChunkSize data.
@@ -149,7 +149,7 @@ public:
 	 * @param  ptm - the plaintext modulus.
 	 * @return ring - the chunk size.
 	 */
-	size_t GetChunksize(const usint ring, const BigBinaryInteger& ptm) const;
+	size_t GetChunksize(const usint ring, const BigInteger& ptm) const;
 
 	/**
 	 * Get method to return the length of plaintext

@@ -37,7 +37,7 @@ class LPCryptoParametersNull : public LPCryptoParameters<Element> {
 public:
 	LPCryptoParametersNull() : LPCryptoParameters<Element>() {}
 
-	LPCryptoParametersNull(const shared_ptr<typename Element::Params> ep, const BigBinaryInteger &plaintextModulus)
+	LPCryptoParametersNull(const shared_ptr<typename Element::Params> ep, const BigInteger &plaintextModulus)
 		: LPCryptoParameters<Element>(ep, plaintextModulus) {}
 
 	LPCryptoParametersNull(shared_ptr<typename Element::Params> ep, shared_ptr<EncodingParams> encodingParams)
@@ -47,7 +47,7 @@ public:
 
 	virtual ~LPCryptoParametersNull() {}
 
-	void SetPlaintextModulus(const BigBinaryInteger &plaintextModulus) {
+	void SetPlaintextModulus(const BigInteger &plaintextModulus) {
 		throw std::logic_error("plaintext modulus is fixed to be == ciphertext modulus and cannot be changed");
 	}
 
@@ -124,7 +124,7 @@ public:
 
 		if( (pIt = mIter->value.FindMember("PlaintextModulus")) == mIter->value.MemberEnd() )
 			return false;
-		BigBinaryInteger plaintextModulus(pIt->value.GetString());
+		BigInteger plaintextModulus(pIt->value.GetString());
 
 		LPCryptoParameters<Element>::SetPlaintextModulus(plaintextModulus);
 		return true;
@@ -163,10 +163,10 @@ public:
 	* @param *ciphertext ciphertext which results from encryption.
 	*/
 	shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> pubKey,
-		ILVector2n &ptxt, bool doEncryption = true) const {
+		Poly &ptxt, bool doEncryption = true) const {
 		shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(pubKey->GetCryptoContext()) );
 
-		Element plaintext(ptxt, pubKey->GetCryptoContext().GetCryptoParameters()->GetElementParams());
+		Element plaintext(ptxt, pubKey->GetCryptoContext()->GetCryptoParameters()->GetElementParams());
 
 		// no difference between Encryption and non-Encryption mode for the Null scheme
 		ciphertext->SetElement(plaintext);
@@ -184,10 +184,10 @@ public:
 	*/
 	DecryptResult Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const shared_ptr<Ciphertext<Element>> ciphertext,
-		ILVector2n *plaintext) const {
+		Poly *plaintext) const {
 		Element b = ciphertext->GetElement();
-		ILVector2n interpolatedElement = b.CRTInterpolate();
-		*plaintext = interpolatedElement.SignedMod(ciphertext->GetCryptoContext().GetCryptoParameters()->GetPlaintextModulus());
+		Poly interpolatedElement = b.CRTInterpolate();
+		*plaintext = interpolatedElement.SignedMod(ciphertext->GetCryptoContext()->GetCryptoParameters()->GetPlaintextModulus());
 		return DecryptResult(plaintext->GetLength());
 	}
 
@@ -198,10 +198,10 @@ public:
 	* @param &privateKey private key used for decryption.
 	* @return function ran correctly.
 	*/
-	virtual LPKeyPair<Element> KeyGen(const CryptoContext<Element> cc, bool makeSparse=false) const {
+	virtual LPKeyPair<Element> KeyGen(CryptoContext<Element>* cc, bool makeSparse=false) {
 		LPKeyPair<Element>	kp( new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc) );
 
-		Element a(cc.GetCryptoParameters()->GetElementParams(), Format::COEFFICIENT, true);
+		Element a(cc->GetCryptoParameters()->GetElementParams(), Format::COEFFICIENT, true);
 		kp.secretKey->SetPrivateElement(a);
 		kp.publicKey->SetPublicElementAtIndex(0, a);
 		kp.publicKey->SetPublicElementAtIndex(1, a);
@@ -238,7 +238,7 @@ public:
 		// create a new ReKey of the proper type, in this context
 		shared_ptr<LPEvalKeyNTRURelin<Element>> EK( new LPEvalKeyNTRURelin<Element>(newPrivateKey->GetCryptoContext()) );
 
-		Element a(newPrivateKey->GetCryptoContext().GetCryptoParameters()->GetElementParams(), Format::COEFFICIENT, true);
+		Element a(newPrivateKey->GetCryptoContext()->GetCryptoParameters()->GetElementParams(), Format::COEFFICIENT, true);
 		vector<Element> evalKeyElements;
 		evalKeyElements.push_back(std::move(a));
 
@@ -261,7 +261,7 @@ public:
 		// create a new ReKey of the proper type, in this context
 		shared_ptr<LPEvalKeyNTRURelin<Element>> EK(new LPEvalKeyNTRURelin<Element>(newPrivateKey->GetCryptoContext()));
 
-		Element a(newPrivateKey->GetCryptoContext().GetCryptoParameters()->GetElementParams(), Format::COEFFICIENT, true);
+		Element a(newPrivateKey->GetCryptoContext()->GetCryptoParameters()->GetElementParams(), Format::COEFFICIENT, true);
 		vector<Element> evalKeyElements;
 		evalKeyElements.push_back(std::move(a));
 
@@ -316,12 +316,12 @@ public:
 		* @param makeSparse set to true if ring reduce by a factor of 2 is to be used.
 		* @return key pair including the private and public key
 		*/
-	LPKeyPair<Element> MultipartyKeyGen(const CryptoContext<Element> cc,
+	LPKeyPair<Element> MultipartyKeyGen(CryptoContext<Element>* cc,
 		const shared_ptr<LPPublicKey<Element>> pk1,
-		bool makeSparse=false) const {
+		bool makeSparse=false) {
 		LPKeyPair<Element>	kp( new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc) );
 
-		Element a(cc.GetCryptoParameters()->GetElementParams(), Format::COEFFICIENT, true);
+		Element a(cc->GetCryptoParameters()->GetElementParams(), Format::COEFFICIENT, true);
 		kp.secretKey->SetPrivateElement(a);
 		kp.publicKey->SetPublicElementAtIndex(0, a);
 		kp.publicKey->SetPublicElementAtIndex(1, a);
@@ -337,12 +337,12 @@ public:
 		* @param makeSparse set to true if ring reduce by a factor of 2 is to be used.
 		* @return key pair including the private and public key
 		*/
-	LPKeyPair<Element> MultipartyKeyGen(const CryptoContext<Element> cc,
+	LPKeyPair<Element> MultipartyKeyGen(CryptoContext<Element>* cc,
 		const vector<shared_ptr<LPPrivateKey<Element>>>& secretKeys,
-		bool makeSparse=false) const {
+		bool makeSparse=false) {
 		LPKeyPair<Element>	kp( new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc) );
 
-		Element a(cc.GetCryptoParameters()->GetElementParams(), Format::COEFFICIENT, true);
+		Element a(cc->GetCryptoParameters()->GetElementParams(), Format::COEFFICIENT, true);
 		kp.secretKey->SetPrivateElement(a);
 		kp.publicKey->SetPublicElementAtIndex(0, a);
 		kp.publicKey->SetPublicElementAtIndex(1, a);
@@ -390,9 +390,9 @@ public:
 		 * @return the decoding result.
 		 */
 	DecryptResult MultipartyDecryptFusion(const vector<shared_ptr<Ciphertext<Element>>>& ciphertextVec,
-		ILVector2n *plaintext) const {
+		Poly *plaintext) const {
 		Element b = ciphertextVec[0]->GetElement();
-		ILVector2n interpolatedElement = b.CRTInterpolate();
+		Poly interpolatedElement = b.CRTInterpolate();
 		*plaintext = interpolatedElement;
 		return DecryptResult(plaintext->GetLength());
 	}
@@ -419,16 +419,6 @@ class LPLeveledSHEAlgorithmNull : public LPLeveledSHEAlgorithm<Element> {
 		shared_ptr<Ciphertext<Element>> ModReduce(shared_ptr<Ciphertext<Element>> cipherText) const {
 			shared_ptr<Ciphertext<Element>> newcipherText(new Ciphertext<Element>(*cipherText));
 
-			std::vector<Element> cipherTextElements(cipherText->GetElements());
-
-			typename Element::Integer plaintextModulus(cipherText->GetCryptoParameters()->GetPlaintextModulus());
-
-			for (auto &cipherTextElement : cipherTextElements) {
-				cipherTextElement.ModReduce(plaintextModulus);
-			}
-
-			newcipherText->SetElements(cipherTextElements);
-
 			return newcipherText;
 		}
 		/**
@@ -453,7 +443,7 @@ class LPLeveledSHEAlgorithmNull : public LPLeveledSHEAlgorithm<Element> {
 				const shared_ptr<Ciphertext<Element>> cipherText1,
 				const shared_ptr<Ciphertext<Element>> cipherText2,
 				const shared_ptr<LPEvalKey<Element>> quadKeySwitchHint) const {
-			shared_ptr<Ciphertext<Element>> prod = cipherText1->GetCryptoContext().GetEncryptionAlgorithm()->EvalMult(cipherText1, cipherText2);
+			shared_ptr<Ciphertext<Element>> prod = cipherText1->GetCryptoContext()->GetEncryptionAlgorithm()->EvalMult(cipherText1, cipherText2);
 
 			// it's nullscheme so there is no EvalMultKey in use
 
@@ -479,7 +469,7 @@ class LPLeveledSHEAlgorithmNull : public LPLeveledSHEAlgorithm<Element> {
 		* @param &moduli is the vector of moduli that is used
 		* @param rootHermiteFactor is the security threshold
 		*/
-		bool CanRingReduce(usint ringDimension, const std::vector<BigBinaryInteger> &moduli, const double rootHermiteFactor) const {
+		bool CanRingReduce(usint ringDimension, const std::vector<BigInteger> &moduli, const double rootHermiteFactor) const {
 			throw std::logic_error("CanRingReduce not implemented for Null");
 		}
 };
@@ -538,11 +528,11 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		 * @param &ciphertext2 second input ciphertext.
 		 * @param *newCiphertext the new resulting ciphertext.
 		 */
-		shared_ptr<Ciphertext<ILVector2n>> EvalMult(const shared_ptr<Ciphertext<ILVector2n>> ciphertext1,
-			const shared_ptr<Ciphertext<ILVector2n>> ciphertext2) const;
+		shared_ptr<Ciphertext<Poly>> EvalMult(const shared_ptr<Ciphertext<Poly>> ciphertext1,
+			const shared_ptr<Ciphertext<Poly>> ciphertext2) const;
 
-		shared_ptr<Ciphertext<ILDCRT2n>> EvalMult(const shared_ptr<Ciphertext<ILDCRT2n>> ciphertext1,
-			const shared_ptr<Ciphertext<ILDCRT2n>> ciphertext2) const;
+		shared_ptr<Ciphertext<DCRTPoly>> EvalMult(const shared_ptr<Ciphertext<DCRTPoly>> ciphertext1,
+			const shared_ptr<Ciphertext<DCRTPoly>> ciphertext2) const;
 
 		/**
 		 * Function for evaluating multiplication on ciphertext followed by key switching operation.
@@ -599,7 +589,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		* @param *keySwitchHint is where the resulting keySwitchHint will be placed.
 		*/
 		shared_ptr<LPEvalKey<Element>> KeySwitchGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey, const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
-			return shared_ptr<LPEvalKey<Element>>();
+			return shared_ptr<LPEvalKey<Element>>( new LPEvalKeyNTRURelin<Element>(originalPrivateKey->GetCryptoContext()));
 		}
 
 		/**
@@ -625,7 +615,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		*/
 		shared_ptr<LPEvalKey<Element>> KeySwitchRelinGen(const shared_ptr<LPPublicKey<Element>> newPublicKey,
 			const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const {
-			return shared_ptr<LPEvalKey<Element>>();
+			return shared_ptr<LPEvalKey<Element>>( new LPEvalKeyNTRURelin<Element>(origPrivateKey->GetCryptoContext()));
 		}
 
 		/**
@@ -648,9 +638,9 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		 * @param *keySwitchHint the key switch hint.
 		 */
 		shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const {
-			shared_ptr<LPEvalKey<Element>> EK( new LPEvalKeyRelin<Element>(originalPrivateKey->GetCryptoContext()) );
+			shared_ptr<LPEvalKey<Element>> EK( new LPEvalKeyNTRURelin<Element>(originalPrivateKey->GetCryptoContext()) );
 
-			Element a(originalPrivateKey->GetCryptoContext().GetCryptoParameters()->GetElementParams(), Format::COEFFICIENT, true);
+			Element a(originalPrivateKey->GetCryptoContext()->GetCryptoParameters()->GetElementParams(), Format::COEFFICIENT, true);
 			vector<Element> evalKeyElements;
 			evalKeyElements.push_back(std::move(a));
 
@@ -659,19 +649,6 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 			return EK;
 		}
 
-
-		/**
-		* Generate automophism keys for a given private key; works only with odd indices in the ciphertext (uses the RLWE relinerarization method)
-		*
-		* @param publicKey original public key.
-		* @param origPrivateKey original private key.
-		* @param indexList list of automorphism indices to be computed
-		* @return returns the evaluation keys; index 0 of the vector corresponds to plaintext index 2, index 1 to plaintex index 3, etc.
-		*/
-		shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const shared_ptr<LPPublicKey<Element>> publicKey,
-			const shared_ptr<LPPrivateKey<Element>> origPrivateKey, const std::vector<usint> &indexList) const {
-			return shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>>();
-		}
 
 		/**
 		* Function for evaluating automorphism of ciphertext at index i
@@ -703,30 +680,50 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		}
 
 		/**
-		* Generate automophism keys for a given private key; Uses the private key for encryption
+		* Generate automophism keys
 		*
 		* @param privateKey private key.
 		* @param indexList list of automorphism indices to be computed
 		* @return returns the evaluation keys
 		*/
+
+		shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const shared_ptr<LPPublicKey<Element>> publicKey,
+				const shared_ptr<LPPrivateKey<Element>> origPrivateKey, const std::vector<usint> &indexList) const {
+
+			shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> evalKeys(new std::map<usint, shared_ptr<LPEvalKey<Element>>>());
+
+			for( auto& i : indexList ) {
+				(*evalKeys)[i] = this->KeySwitchGen(origPrivateKey, origPrivateKey);
+			}
+
+			return evalKeys;
+		}
+
 		shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey,
-			const std::vector<usint> &indexList) const {
-			return shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>>();
+				const std::vector<usint> &indexList) const {
+
+			shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> evalKeys(new std::map<usint, shared_ptr<LPEvalKey<Element>>>());
+
+			for( auto& i : indexList ) {
+				(*evalKeys)[i] = this->KeySwitchGen(privateKey, privateKey);
+			}
+
+			return evalKeys;
 		}
 
 	private:
-		typename Element::ILVectorType ElementNullSchemeMultiply(const typename Element::ILVectorType& c1, const typename Element::ILVectorType& c2,
-				const BigBinaryInteger& ptmod) const {
+		typename Element::PolyType ElementNullSchemeMultiply(const typename Element::PolyType& c1, const typename Element::PolyType& c2,
+				const BigInteger& ptmod) const {
 
-			typename Element::ILVectorType cResult(c1.GetParams(), Format::COEFFICIENT, true);
+			typename Element::PolyType cResult(c1.GetParams(), Format::COEFFICIENT, true);
 
-			typename Element::ILVectorType cLarger(c1.GetParams(), Format::COEFFICIENT, true);
+			typename Element::PolyType cLarger(c1.GetParams(), Format::COEFFICIENT, true);
 
-			typename Element::ILVectorType::Integer ptm( ptmod.ConvertToInt() );
+			typename Element::PolyType::Integer ptm( ptmod.ConvertToInt() );
 
 			int	ringdim = c1.GetRingDimension();
 			for (int c1e = 0; c1e<ringdim; c1e++) {
-				typename Element::ILVectorType::Integer answer, c1val, c2val, prod;
+				typename Element::PolyType::Integer answer, c1val, c2val, prod;
 				c1val = c1.GetValAtIndex(c1e);
 				if (c1val != 0) {
 					for (int c2e = 0; c2e<ringdim; c2e++) {
@@ -749,7 +746,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 
 			// fold cLarger back into the answer
 			for (int i = 0; i<ringdim; i++) {
-				typename Element::ILVectorType::Integer adj;
+				typename Element::PolyType::Integer adj;
 				adj = cResult.GetValAtIndex(i) + (ptm - cLarger.GetValAtIndex(i)) % ptm;
 				cResult.SetValAtIndex(i, adj % ptm);
 			}
@@ -796,28 +793,6 @@ class LPPublicKeyEncryptionSchemeNull : public LPPublicKeyEncryptionScheme<Eleme
 public:
 	LPPublicKeyEncryptionSchemeNull() : LPPublicKeyEncryptionScheme<Element>() {
 		this->m_algorithmParamsGen = new LPAlgorithmParamsGenNull<Element>();
-	}
-
-	LPPublicKeyEncryptionSchemeNull(std::bitset<FEATURESETSIZE> mask) {
-
-		if (mask[ENCRYPTION])
-			if (this->m_algorithmEncryption == NULL)
-				this->m_algorithmEncryption = new LPAlgorithmNull<Element>();
-
-		if (mask[PRE])
-			if (this->m_algorithmPRE == NULL)
-				this->m_algorithmPRE = new LPAlgorithmPRENull<Element>();
-
-		if (mask[SHE])
-			if (this->m_algorithmSHE == NULL)
-				this->m_algorithmSHE = new LPAlgorithmSHENull<Element>();
-
-		if (mask[FHE])
-			throw std::logic_error("FHE feature not supported for Null scheme");
-
-		if (mask[LEVELEDSHE])
-			if (this->m_algorithmLeveledSHE == NULL)
-				this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmNull<Element>();
 	}
 
 	void Enable(PKESchemeFeature feature) {

@@ -44,7 +44,7 @@ namespace exp_int {
     m_data.resize(length);
 
     for (usint i = 0; i < length; i++){
-      m_data[i] = ubint_el_t::ZERO;
+      m_data[i] = 0;
     }
   }
 
@@ -111,7 +111,7 @@ namespace exp_int {
       if(i<len) {
 	m_data[i] =  ubint_el_t(*(rhs.begin()+i));
       } else {
-	m_data[i] = ubint_el_t::ZERO;
+	m_data[i] = 0;
       }
     }
 
@@ -131,7 +131,7 @@ namespace exp_int {
       if(i<len) {
 	m_data[i] = ubint_el_t(*(rhs.begin()+i));
       } else {
-	m_data[i] = ubint_el_t::ZERO;
+	m_data[i] = 0;
       }
     }
     return *this;
@@ -152,7 +152,7 @@ namespace exp_int {
       if(i<len) {
 	m_data[i] = ubint_el_t(*(rhs.begin()+i));
       } else {
-	m_data[i] = ubint_el_t::ZERO;
+	m_data[i] = 0;
       }
     }
     return *this;
@@ -498,7 +498,7 @@ template<class ubint_el_t>
 
   //new serialize and deserialise operations
   //todo: not tested
-  //currently using the same map as bigBinaryVector, execpt without modulus. 
+  //currently using the same map as bigVector, execpt without modulus. 
   //mubintvec.cpp will have attached modulus.
 
   // JSON FACILITY - Serialize Operation

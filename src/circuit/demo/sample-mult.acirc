@@ -1,0 +1,5 @@
+v0.1
+0 input 0 @ [ Integer ]
+1 input 1 @ [ Integer ]
+2 * 0 1
+:outputs 2

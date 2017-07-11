@@ -49,7 +49,7 @@ namespace lbcrypto {
 		shared_ptr<ILParams> params = signKey->GetSignatureParameters().GetILParams();
 		sint stddev = signKey->GetSignatureParameters().GetDiscreteGaussianGenerator().GetStd();
 		//Generate trapdoor based using parameters and 
-		std::pair<Matrix<ILVector2n>, RLWETrapdoorPair<ILVector2n>> keyPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev);
+		std::pair<Matrix<Poly>, RLWETrapdoorPair<Poly>> keyPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev);
 		//Format of vectors are changed to prevent complications in calculations 
 		keyPair.second.m_e.SetFormat(EVALUATION);
 		keyPair.second.m_r.SetFormat(EVALUATION);
@@ -60,7 +60,7 @@ namespace lbcrypto {
 
 
 		//Signing key will contain public key matrix of the trapdoor and the trapdoor matrices
-		signKey->SetPrivateElement(std::pair<Matrix<ILVector2n>, RLWETrapdoorPair<ILVector2n>>(keyPair));
+		signKey->SetPrivateElement(std::pair<Matrix<Poly>, RLWETrapdoorPair<Poly>>(keyPair));
 	}
 
 	//Method for signing given object
@@ -68,7 +68,7 @@ namespace lbcrypto {
 	void LPSignatureSchemeGPVGM<Element>::Sign(LPSignKeyGPVGM<Element> &signKey, const BytePlaintextEncoding &plainText,
 		Signature<Matrix<Element>> *signatureText) {
 		//Getting parameters for calculations
-		const BigBinaryInteger & q = signKey.GetSignatureParameters().GetILParams()->GetModulus();
+		const BigInteger & q = signKey.GetSignatureParameters().GetILParams()->GetModulus();
 		size_t n = signKey.GetSignatureParameters().GetILParams()->GetRingDimension();
 		double logTwo = log(q.ConvertToDouble() - 1.0) / log(2) + 1.0;
 		size_t k = (usint)floor(logTwo);
@@ -76,23 +76,23 @@ namespace lbcrypto {
 		//Encode the text into a vector so it can be used in signing process. TODO: Adding some kind of digestion algorithm
 		HashUtil util;
 		BytePlaintextEncoding hashedText = util.Hash(plainText, SHA_256);
-		ILVector2n u(signKey.GetSignatureParameters().GetILParams(), EVALUATION, false);
+		Poly u(signKey.GetSignatureParameters().GetILParams(), EVALUATION, false);
 		if (hashedText.size() > n) {
-			hashedText.Encode(BigBinaryInteger("256"), &u, 0, n);
+			hashedText.Encode(BigInteger("256"), &u, 0, n);
 		}
 		else {
 			usint remaining = n - hashedText.size();
 			for (size_t i = 0;i < remaining;i++) {
 				hashedText.push_back(0);
 			}
-			hashedText.Encode(BigBinaryInteger("256"), &u);
+			hashedText.Encode(BigInteger("256"), &u);
 		}
 		u.SwitchFormat();
 
 
 		//Getting the trapdoor, its public matrix, perturbation matrix and gaussian generator to use in sampling
 		RingMat A = signKey.GetPrivateElement().first;
-		RLWETrapdoorPair<ILVector2n> T = signKey.GetPrivateElement().second;
+		RLWETrapdoorPair<Poly> T = signKey.GetPrivateElement().second;
 		double stddev = signKey.GetSignatureParameters().GetDiscreteGaussianGenerator().GetStd();
 		typename Element::DggType & dgg = signKey.GetSignatureParameters().GetDiscreteGaussianGenerator();
 
@@ -100,7 +100,7 @@ namespace lbcrypto {
 		//double c = 2 * SIGMA;
 		//double s = SPECTRAL_BOUND(n, k);
 		typename Element::DggType & dggLargeSigma = signKey.GetSignatureParameters().GetDiscreteGaussianGeneratorLargeSigma();
-		Matrix<ILVector2n> zHat = RLWETrapdoorUtility::GaussSamp(n,k,A,T,u,stddev,dgg,dggLargeSigma);
+		Matrix<Poly> zHat = RLWETrapdoorUtility::GaussSamp(n,k,A,T,u,stddev,dgg,dggLargeSigma);
 		signatureText->SetElement(zHat);
 
 	}
@@ -115,16 +115,16 @@ namespace lbcrypto {
 		//Encode the text into a vector so it can be used in verification process. TODO: Adding some kind of digestion algorithm
 		HashUtil util;
 		BytePlaintextEncoding hashedText = util.Hash(plainText, SHA_256);
-		ILVector2n u(verificationKey.GetSignatureParameters().GetILParams());
+		Poly u(verificationKey.GetSignatureParameters().GetILParams());
 		if (hashedText.size() > n) {
-			hashedText.Encode(BigBinaryInteger("256"), &u, 0, n);
+			hashedText.Encode(BigInteger("256"), &u, 0, n);
 		}
 		else {
 			usint remaining = n - hashedText.size();
 			for (size_t i = 0;i < remaining;i++) {
 				hashedText.push_back(0);
 			}
-			hashedText.Encode(BigBinaryInteger("256"), &u);
+			hashedText.Encode(BigInteger("256"), &u);
 		}
 		u.SwitchFormat();
 
@@ -134,7 +134,7 @@ namespace lbcrypto {
 		RingMat R = A*z;
 
 		//Check the verified vector is actually the encoding of the object
-		ILVector2n r = R(0, 0);
+		Poly r = R(0, 0);
 		return r == u;
 	}
 

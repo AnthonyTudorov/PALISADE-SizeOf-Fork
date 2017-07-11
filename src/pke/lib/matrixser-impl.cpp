@@ -36,17 +36,17 @@ using std::invalid_argument;
 
 namespace lbcrypto {
 
-template class Matrix<Ciphertext<ILVector2n>>;
-template class Matrix<RationalCiphertext<ILVector2n>>;
-template class Matrix<Ciphertext<ILDCRT2n>>;
-template class Matrix<RationalCiphertext<ILDCRT2n>>;
+template class Matrix<Ciphertext<Poly>>;
+template class Matrix<RationalCiphertext<Poly>>;
+template class Matrix<Ciphertext<DCRTPoly>>;
+template class Matrix<RationalCiphertext<DCRTPoly>>;
 
 template<>
-bool Matrix<RationalCiphertext<ILVector2n>>::Serialize(Serialized* serObj) const {
+bool Matrix<RationalCiphertext<Poly>>::Serialize(Serialized* serObj) const {
 	serObj->SetObject();
 
 	serObj->AddMember("Object", "Matrix", serObj->GetAllocator());
-	serObj->AddMember("ElementObject", "RationalCiphertext<ILVector2n>", serObj->GetAllocator());
+	serObj->AddMember("ElementObject", "RationalCiphertext<Poly>", serObj->GetAllocator());
 	serObj->AddMember("Rows", std::to_string(rows), serObj->GetAllocator());
 	serObj->AddMember("Cols", std::to_string(cols), serObj->GetAllocator());
 
@@ -76,13 +76,13 @@ bool Matrix<RationalCiphertext<ILVector2n>>::Serialize(Serialized* serObj) const
 }
 
 template<>
-bool Matrix<RationalCiphertext<ILVector2n>>::Deserialize(const Serialized& serObj) {
+bool Matrix<RationalCiphertext<Poly>>::Deserialize(const Serialized& serObj) {
 	Serialized::ConstMemberIterator mIter = serObj.FindMember("Object");
 	if( mIter == serObj.MemberEnd() || string(mIter->value.GetString()) != "Matrix" )
 		return false;
 
 	mIter = serObj.FindMember("ElementObject");
-	if( mIter == serObj.MemberEnd() || string(mIter->value.GetString()) != "RationalCiphertext<ILVector2n>" )
+	if( mIter == serObj.MemberEnd() || string(mIter->value.GetString()) != "RationalCiphertext<Poly>" )
 		return false;
 
 	mIter = serObj.FindMember("Rows");
@@ -98,7 +98,7 @@ bool Matrix<RationalCiphertext<ILVector2n>>::Deserialize(const Serialized& serOb
 	int mcols = std::stoi( mIter->value.GetString() );
 
 	auto tempElement = this->allocZero();
-	CryptoContext<ILVector2n> cc = tempElement->GetCryptoContext();
+	CryptoContext<Poly>* cc = tempElement->GetCryptoContext();
 
 	if( bool(cc) == false )
 		return false;
@@ -134,7 +134,7 @@ bool Matrix<RationalCiphertext<ILVector2n>>::Deserialize(const Serialized& serOb
 		SerialItem mVal( mIter->value, mEntry.GetAllocator() );
 		mVal.Swap(mEntry);
 
-		RationalCiphertext<ILVector2n> entry(cc);
+		RationalCiphertext<Poly> entry(cc);
 
 		if( entry.Deserialize(mEntry) == false )
 			return false;
@@ -146,47 +146,47 @@ bool Matrix<RationalCiphertext<ILVector2n>>::Deserialize(const Serialized& serOb
 }
 
 template<>
-bool Matrix<RationalCiphertext<ILDCRT2n>>::Serialize(Serialized* serObj) const {
+bool Matrix<RationalCiphertext<DCRTPoly>>::Serialize(Serialized* serObj) const {
 	return false;
 }
 
 template<>
-bool Matrix<RationalCiphertext<ILDCRT2n>>::Deserialize(const Serialized& serObj) {
+bool Matrix<RationalCiphertext<DCRTPoly>>::Deserialize(const Serialized& serObj) {
 	return false;
 }
 
 template<>
-bool Matrix<Ciphertext<ILVector2n>>::Serialize(Serialized* serObj) const {
+bool Matrix<Ciphertext<Poly>>::Serialize(Serialized* serObj) const {
 	return false;
 }
 
 template<>
-bool Matrix<Ciphertext<ILVector2n>>::Deserialize(const Serialized& serObj) {
+bool Matrix<Ciphertext<Poly>>::Deserialize(const Serialized& serObj) {
 	return false;
 }
 
 template<>
-bool Matrix<Ciphertext<ILDCRT2n>>::Serialize(Serialized* serObj) const {
+bool Matrix<Ciphertext<DCRTPoly>>::Serialize(Serialized* serObj) const {
 	return false;
 }
 
 template<>
-bool Matrix<Ciphertext<ILDCRT2n>>::Deserialize(const Serialized& serObj) {
+bool Matrix<Ciphertext<DCRTPoly>>::Deserialize(const Serialized& serObj) {
 	return false;
 }
 
 template<>
-Matrix<RationalCiphertext<ILVector2n>>& Matrix<RationalCiphertext<ILVector2n>>::Ones() {
+Matrix<RationalCiphertext<Poly>>& Matrix<RationalCiphertext<Poly>>::Ones() {
 	throw std::logic_error("Cannot fill matrix of ciphertext with 1's");
 }
 
 template<>
-Matrix<RationalCiphertext<ILVector2n>>& Matrix<RationalCiphertext<ILVector2n>>::Identity() {
+Matrix<RationalCiphertext<Poly>>& Matrix<RationalCiphertext<Poly>>::Identity() {
 	throw std::logic_error("Cannot create identity matrix of ciphertext");
 }
 
 template<>
-Matrix<RationalCiphertext<ILVector2n>> Matrix<RationalCiphertext<ILVector2n>>::GadgetVector() const {
+Matrix<RationalCiphertext<Poly>> Matrix<RationalCiphertext<Poly>>::GadgetVector() const {
 	throw std::logic_error("Cannot create gadget matrix of ciphertext");
 }
 

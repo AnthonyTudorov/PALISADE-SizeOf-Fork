@@ -34,10 +34,11 @@
 #include "encoding/intplaintextencoding.h"
 #include "encoding/packedintplaintextencoding.h"
 #include "cryptocontexthelper.h"
+#include "cryptotiming.h"
 
 namespace lbcrypto {
 
-template <class Element>
+template<typename Element>
 class CryptoContextFactory;
 
 /**
@@ -53,15 +54,18 @@ class CryptoContextFactory;
  *
  * Contexts are created using the CryptoContextFactory, and can be serialized and recovered from a serialization
  */
-template <class Element>
+template<typename Element>
 class CryptoContext : public Serializable {
 	friend class CryptoContextFactory<Element>;
 
 private:
 	shared_ptr<LPCryptoParameters<Element>>					params;			/*!< crypto parameters used for this context */
 	shared_ptr<LPPublicKeyEncryptionScheme<Element>>		scheme;			/*!< algorithm used; accesses all crypto methods */
-	static vector<shared_ptr<LPEvalKey<Element>>>			evalMultKeys;	/*!< cached evalmult keys */
-	static std::map<usint, shared_ptr<LPEvalKey<Element>>>	evalSumKeys;	/*!< cached evalsum keys */
+	vector<shared_ptr<LPEvalKey<Element>>>					evalMultKeys;	/*!< cached evalmult keys */
+	std::map<usint, shared_ptr<LPEvalKey<Element>>>			evalSumKeys;	/*!< cached evalsum keys */
+
+	bool doTiming;
+	vector<TimingInfo>* timeSamples;
 
 	/**
 	 * Private methods to compare two contexts; this is only used internally and is not generally available
@@ -69,9 +73,27 @@ private:
 	 * @param b - this object, usually
 	 * @return true if the shared pointer is a pointer to "this"
 	 */
-	friend bool operator==(const CryptoContext<Element>& a, const CryptoContext<Element>& b) { return a.params.get() == b.params.get(); }
+	friend bool operator==(const CryptoContext<Element>& a, const CryptoContext<Element>& b) {
+		if( a.params.get() != b.params.get() ) return false;
 
-	friend bool operator!=(const CryptoContext<Element>& a, const CryptoContext<Element>& b) { return a.params.get() != b.params.get(); }
+		if( a.evalMultKeys.size() != b.evalMultKeys.size() ) return false;
+		for( size_t i=0; i<a.evalMultKeys.size(); i++ )
+			if( a.evalMultKeys[i].get() != b.evalMultKeys[i].get() )
+				return false;
+
+		if( a.evalSumKeys.size() != b.evalSumKeys.size() ) return false;
+		for (const auto& kp : a.evalSumKeys) {
+			const auto& vb = b.evalSumKeys.find(kp.first);
+			if( vb == b.evalSumKeys.end() ) return false; // key in a not in b
+			if( *kp.second != *vb->second )
+				return false; // mismatch
+		}
+		return true;
+	}
+
+	friend bool operator!=(const CryptoContext<Element>& a, const CryptoContext<Element>& b) {
+		return !( a == b );
+	}
 
 public:
 	/**
@@ -82,6 +104,8 @@ public:
 	CryptoContext(LPCryptoParameters<Element> *params = 0, LPPublicKeyEncryptionScheme<Element> *scheme = 0) {
 		this->params.reset(params);
 		this->scheme.reset(scheme);
+		this->doTiming = false;
+		this->timeSamples = 0;
 	}
 
 	/**
@@ -92,6 +116,8 @@ public:
 	CryptoContext(shared_ptr<LPCryptoParameters<Element>> params, shared_ptr<LPPublicKeyEncryptionScheme<Element>> scheme) {
 		this->params = params;
 		this->scheme = scheme;
+		this->doTiming = false;
+		this->timeSamples = 0;
 	}
 
 	/**
@@ -101,6 +127,10 @@ public:
 	CryptoContext(const CryptoContext<Element>& c) {
 		params = c.params;
 		scheme = c.scheme;
+		doTiming = c.doTiming;
+		timeSamples = c.timeSamples;
+		evalMultKeys = c.evalMultKeys;
+		evalSumKeys = c.evalSumKeys;
 	}
 
 	/**
@@ -111,6 +141,10 @@ public:
 	CryptoContext<Element>& operator=(const CryptoContext<Element>& rhs) {
 		params = rhs.params;
 		scheme = rhs.scheme;
+		doTiming = rhs.doTiming;
+		timeSamples = rhs.timeSamples;
+		evalMultKeys = rhs.evalMultKeys;
+		evalSumKeys = rhs.evalSumKeys;
 		return *this;
 	}
 
@@ -120,12 +154,43 @@ public:
 	operator bool() const { return bool(params) && bool(scheme); }
 
 	/**
+	 * StartTiming method activates timing of CryptoMethods
+	 *
+	 * @param timeSamples points to a vector in which timing samples will be stored
+	 */
+	void StartTiming(vector<TimingInfo>* timeSamples) {
+		this->timeSamples = timeSamples;
+		doTiming = true;
+	}
+
+	/*
+	 * StopTiming - turns off timing
+	 */
+	void StopTiming() {
+		doTiming = false;
+	}
+
+	/**
+	 * ResumeTiming - re-enables timing with existing TimingInfo vector
+	 */
+	void ResumeTiming() {
+		doTiming = true;
+	}
+
+	/**
+	 * ResetTiming - erases measurements
+	 */
+	void ResetTiming() {
+		this->timeSamples->clear();
+	}
+
+	/**
 	 * Serialize the CryptoContext
 	 *
 	 * @param serObj - rapidJson object for the serializaion
 	 * @return true on success
 	 */
-	bool Serialize(Serialized* serObj) const { return params->Serialize(serObj); }
+	bool Serialize(Serialized* serObj) const;
 
 	/**
 	 * Deserialize the context AND initialize the algorithm
@@ -133,13 +198,21 @@ public:
 	 * @param serObj
 	 * @return true on success
 	 */
-	bool Deserialize(const Serialized& serObj);
+	bool Deserialize(const Serialized& serObj) {
+		throw std::logic_error("Deserialize by using CryptoContextFactory::DeserializeAndCreateContext");
+	}
 
 	/**
 	 * Enable a particular feature for use with this CryptoContext
 	 * @param feature - the feature that should be enabled
 	 */
 	void Enable(PKESchemeFeature feature) { scheme->Enable(feature); }
+
+	/**
+	 * Enable several features at once
+	 * @param featureMask - bitwise or of several PKESchemeFeatures
+	 */
+	void Enable(usint featureMask) { scheme->Enable(featureMask); }
 
 	/**
 	* Getter for Scheme
@@ -178,21 +251,27 @@ public:
 	 *
 	 * @return
 	 */
-	const BigBinaryInteger& GetModulus() const { return params->GetElementParams()->GetModulus(); }
+	const BigInteger& GetModulus() const { return params->GetElementParams()->GetModulus(); }
 
 	/**
 	 * Get the ciphertext modulus used for this context
 	 *
 	 * @return
 	 */
-	const BigBinaryInteger& GetRootOfUnity() const { return params->GetElementParams()->GetRootOfUnity(); }
+	const BigInteger& GetRootOfUnity() const { return params->GetElementParams()->GetRootOfUnity(); }
 
 	/**
 	* KeyGen generates a key pair using this algorithm's KeyGen method
 	* @return a public/secret key pair
 	*/
-	LPKeyPair<Element> KeyGen() const {
-		return GetEncryptionAlgorithm()->KeyGen(*this, false);
+	LPKeyPair<Element> KeyGen() {
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto r = GetEncryptionAlgorithm()->KeyGen(this, false);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpKeyGen, currentDateTime() - start) );
+		}
+		return r;
 	}
 
 	/**
@@ -201,8 +280,14 @@ public:
 	* @return a public/secret key pair
 	*/
 	LPKeyPair<Element> MultipartyKeyGen(
-		const shared_ptr<LPPublicKey<Element>> pk) const {
-		return GetEncryptionAlgorithm()->MultipartyKeyGen(*this, pk, false);
+		const shared_ptr<LPPublicKey<Element>> pk) {
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto r = GetEncryptionAlgorithm()->MultipartyKeyGen(this, pk, false);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpMultiPartyKeyGenKey, currentDateTime() - start) );
+		}
+		return r;
 	}
 
 	/**
@@ -211,8 +296,14 @@ public:
 	* @return a public/secret key pair
 	*/
 	LPKeyPair<Element> MultipartyKeyGen(
-		const vector<shared_ptr<LPPrivateKey<Element>>>& secretKeys) const {
-		return GetEncryptionAlgorithm()->MultipartyKeyGen(*this, secretKeys, false);
+		const vector<shared_ptr<LPPrivateKey<Element>>>& secretKeys) {
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto r =  GetEncryptionAlgorithm()->MultipartyKeyGen(this, secretKeys, false);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpMultiPartyKeyGenKeyvec, currentDateTime() - start) );
+		}
+		return r;
 	}
 
 	/**
@@ -227,16 +318,21 @@ public:
 		const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const std::vector<shared_ptr<Ciphertext<Element>>>& ciphertext) const
 	{
-		if( privateKey == NULL || privateKey->GetCryptoContext() != *this )
-			throw std::logic_error("Information passed to Decrypt was not generated with this crypto context");
+		if( privateKey == NULL || privateKey->GetCryptoContext() != this )
+			throw std::logic_error("Information passed to MultipartyDecryptLead was not generated with this crypto context");
 
 		std::vector<shared_ptr<Ciphertext<Element>>> newCiphertext;
 
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
 		for( size_t i=0; i < ciphertext.size(); i++ ) {
-			if( ciphertext[i] == NULL || ciphertext[i]->GetCryptoContext() != *this )
-				throw std::logic_error("One of the ciphertexts passed to DecryptMater was not generated with this crypto context");
+			if( ciphertext[i] == NULL || ciphertext[i]->GetCryptoContext() != this )
+				throw std::logic_error("One of the ciphertexts passed to MultipartyDecryptLead was not generated with this crypto context");
 			newCiphertext.push_back( GetEncryptionAlgorithm()->MultipartyDecryptLead(privateKey, ciphertext[i]) );
 
+		}
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpMultiPartyDecryptLead, currentDateTime() - start) );
 		}
 		return newCiphertext;
 	}
@@ -253,15 +349,20 @@ public:
 		const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const std::vector<shared_ptr<Ciphertext<Element>>>& ciphertext) const
 	{
-		if( privateKey == NULL || privateKey->GetCryptoContext() != *this )
-			throw std::logic_error("Information passed to Decrypt was not generated with this crypto context");
+		if( privateKey == NULL || privateKey->GetCryptoContext() != this )
+			throw std::logic_error("Information passed to MultipartyDecryptMain was not generated with this crypto context");
 
 		std::vector<shared_ptr<Ciphertext<Element>>> newCiphertext;
 
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
 		for( size_t i=0; i < ciphertext.size(); i++ ) {
-			if( ciphertext[i] == NULL || ciphertext[i]->GetCryptoContext() != *this )
-				throw std::logic_error("One of the ciphertexts passed to DecryptMater was not generated with this crypto context");
+			if( ciphertext[i] == NULL || ciphertext[i]->GetCryptoContext() != this )
+				throw std::logic_error("One of the ciphertexts passed to MultipartyDecryptMain was not generated with this crypto context");
 			newCiphertext.push_back( GetEncryptionAlgorithm()->MultipartyDecryptMain(privateKey, ciphertext[i]) );
+		}
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpMultiPartyDecryptMain, currentDateTime() - start) );
 		}
 		return newCiphertext;
 	}
@@ -295,6 +396,8 @@ public:
 				return DecryptResult();
 		}
 
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
 		size_t lastone = partialCiphertextVec[0].size() - 1;
 		for( size_t ch = 0; ch < ciphertext_size; ch++ ) {
 
@@ -303,12 +406,12 @@ public:
 			for( size_t i = 0; i < last_ciphertext; i++ ) {
 				std::vector<shared_ptr<Ciphertext<Element>>> ciphertext = partialCiphertextVec[i];
 				// edge case
-				if (ciphertext[ch] == NULL || ciphertext[ch]->GetCryptoContext() != *this)
-					throw std::logic_error("A ciphertext passed to Decrypt was not generated with this crypto context");
+				if (ciphertext[ch] == NULL || ciphertext[ch]->GetCryptoContext() != this)
+					throw std::logic_error("A ciphertext passed to MultipartyDecryptFusion was not generated with this crypto context");
 				ciphertextVec.push_back(ciphertext[ch]);
 			}
 
-			ILVector2n decrypted;
+			Poly decrypted;
 			DecryptResult result = GetEncryptionAlgorithm()->MultipartyDecryptFusion(ciphertextVec, &decrypted);
 
 			if (result.isValid == false) return result;
@@ -318,6 +421,9 @@ public:
 			}
 		}
 
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpMultiPartyDecryptFusion, currentDateTime() - start) );
+		}
 		return DecryptResult(plaintext->GetLength());
 	}
 
@@ -327,8 +433,14 @@ public:
 	* for use in special cases like Ring Reduction
 	* @return a public/secret key pair
 	*/
-	LPKeyPair<Element> SparseKeyGen() const {
-		return GetEncryptionAlgorithm()->KeyGen(*this, true);
+	LPKeyPair<Element> SparseKeyGen() {
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto r = GetEncryptionAlgorithm()->KeyGen(this, true);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpSparseKeyGen, currentDateTime() - start) );
+		}
+		return r;
 	}
 
 	/**
@@ -341,10 +453,16 @@ public:
 		const shared_ptr<LPPublicKey<Element>> newKey,
 		const shared_ptr<LPPrivateKey<Element>> oldKey) const {
 
-		if( newKey == NULL || oldKey == NULL || newKey->GetCryptoContext() != *this || oldKey->GetCryptoContext() != *this )
+		if( newKey == NULL || oldKey == NULL || newKey->GetCryptoContext() != this || oldKey->GetCryptoContext() != this )
 			throw std::logic_error("Keys passed to ReKeyGen were not generated with this crypto context");
 
-		return GetEncryptionAlgorithm()->ReKeyGen(newKey, oldKey);
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto r = GetEncryptionAlgorithm()->ReKeyGen(newKey, oldKey);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpReKeyGenPubPri, currentDateTime() - start) );
+		}
+		return r;
 	}
 
 	/**
@@ -357,10 +475,16 @@ public:
 		const shared_ptr<LPPrivateKey<Element>> newKey,
 		const shared_ptr<LPPrivateKey<Element>> oldKey) const {
 
-		if (newKey == NULL || oldKey == NULL || newKey->GetCryptoContext() != *this || oldKey->GetCryptoContext() != *this)
+		if (newKey == NULL || oldKey == NULL || newKey->GetCryptoContext() != this || oldKey->GetCryptoContext() != this)
 			throw std::logic_error("Keys passed to ReKeyGen were not generated with this crypto context");
 
-		return GetEncryptionAlgorithm()->ReKeyGen(newKey, oldKey);
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto r = GetEncryptionAlgorithm()->ReKeyGen(newKey, oldKey);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpReKeyGenPriPri, currentDateTime() - start) );
+		}
+		return r;
 	}
 
 	/**
@@ -368,11 +492,28 @@ public:
 	* @param key
 	* @return new evaluation key
 	*/
-	void EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> key) const;
+	void EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> key);
 
-	void ClearEvalMultKeyCache();
+	/**
+	 * GetEvalMultKey fetches the cached eval mult keys
+	 *
+	 * @return the key to use
+	 */
+	const shared_ptr<LPEvalKey<Element>> GetEvalMultKey() const {
+		if( evalMultKeys.size() != 1 )
+			throw std::logic_error("You need to use EvalMultKeyGen so that you have an EvalMultKey available");
+		return evalMultKeys[0];
+	}
 
-	const shared_ptr<LPEvalKey<Element>> GetEvalMultKey() const;
+	/**
+	 * SetEvalMultKeys is used by the deserializer to initialize the keyset for EvalSum
+	 * FIXME should be private?
+	 * @param evalMultKeys - new key map
+	 */
+	void SetEvalMultKeys(vector<shared_ptr<LPEvalKey<Element>>>& evalMultKeys) {
+		evalMultKeys.resize(0);
+		this->evalMultKeys = evalMultKeys;
+	}
 
 	/**
 	* KeySwitchGen creates a key that can be used with the PALISADE KeySwitch operation
@@ -383,10 +524,16 @@ public:
 	shared_ptr<LPEvalKey<Element>> KeySwitchGen(
 		const shared_ptr<LPPrivateKey<Element>> key1, const shared_ptr<LPPrivateKey<Element>> key2) const {
 
-		if( key1 == NULL || key2 == NULL || key1->GetCryptoContext() != *this || key2->GetCryptoContext() != *this )
+		if( key1 == NULL || key2 == NULL || key1->GetCryptoContext() != this || key2->GetCryptoContext() != this )
 			throw std::logic_error("Keys passed to KeySwitchGen were not generated with this crypto context");
 
-		return GetEncryptionAlgorithm()->KeySwitchGen(key1, key2);
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto r = GetEncryptionAlgorithm()->KeySwitchGen(key1, key2);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpKeySwitchGen, currentDateTime() - start) );
+		}
+		return r;
 	}
 
 	/**
@@ -404,11 +551,11 @@ public:
 	{
 		std::vector<shared_ptr<Ciphertext<Element>>> cipherResults;
 
-		if( publicKey == NULL || publicKey->GetCryptoContext() != *this )
+		if( publicKey == NULL || publicKey->GetCryptoContext() != this )
 			throw std::logic_error("key passed to Encrypt was not generated with this crypto context");
 
-		const BigBinaryInteger& ptm = publicKey->GetCryptoParameters()->GetPlaintextModulus();
-		size_t chunkSize = plaintext.GetChunksize(publicKey->GetCryptoContext().GetRingDimension(), ptm);
+		const BigInteger& ptm = publicKey->GetCryptoParameters()->GetPlaintextModulus();
+		size_t chunkSize = plaintext.GetChunksize(publicKey->GetCryptoContext()->GetRingDimension(), ptm);
 		size_t ptSize = plaintext.GetLength();
 		size_t rounds = ptSize / chunkSize;
 
@@ -421,9 +568,11 @@ public:
 		if (ptSize%chunkSize != 0 || doPadding == true)
 			rounds += 1;
 
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
 		for (size_t bytes = 0, i = 0; i < rounds; bytes += chunkSize, i++) {
 
-			ILVector2n pt(publicKey->GetCryptoParameters()->GetElementParams());
+			Poly pt(publicKey->GetCryptoParameters()->GetElementParams());
 			plaintext.Encode(ptm, &pt, bytes, chunkSize);
 
 			shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, pt, doEncryption);
@@ -437,6 +586,9 @@ public:
 
 		}
 
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEncrypt, currentDateTime() - start) );
+		}
 		return cipherResults;
 	}
 
@@ -450,24 +602,26 @@ public:
 	shared_ptr<Matrix<RationalCiphertext<Element>>> EncryptMatrix(
 		const shared_ptr<LPPublicKey<Element>> publicKey,
 		const Matrix<IntPlaintextEncoding> &plaintext,
-		bool doEncryption = true) const
+		bool doEncryption = true)
 	{
 
-		auto zeroAlloc = [=]() { return make_unique<RationalCiphertext<Element>>(*this, true); };
+		auto zeroAlloc = [=]() { return make_unique<RationalCiphertext<Element>>(this, true); };
 
 		shared_ptr<Matrix<RationalCiphertext<Element>>> cipherResults(new Matrix<RationalCiphertext<Element>>
 			(zeroAlloc, plaintext.GetRows(), plaintext.GetCols()));
 
-		if (publicKey == NULL || publicKey->GetCryptoContext() != *this)
+		if (publicKey == NULL || publicKey->GetCryptoContext() != this)
 			throw std::logic_error("key passed to EncryptMatrix was not generated with this crypto context");
 
-		const BigBinaryInteger& ptm = publicKey->GetCryptoParameters()->GetPlaintextModulus();
+		const BigInteger& ptm = publicKey->GetCryptoParameters()->GetPlaintextModulus();
 
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
 		for (size_t row = 0; row < plaintext.GetRows(); row++)
 		{
 			for (size_t col = 0; col < plaintext.GetCols(); col++)
 			{
-				ILVector2n pt(publicKey->GetCryptoParameters()->GetElementParams());
+				Poly pt(publicKey->GetCryptoParameters()->GetElementParams());
 				plaintext(row,col).Encode(ptm, &pt);
 
 				shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, pt, doEncryption);
@@ -476,6 +630,9 @@ public:
 			}
 		}
 
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEncryptMatrixPlain, currentDateTime() - start) );
+		}
 		return cipherResults;
 
 	}
@@ -490,24 +647,26 @@ public:
 	shared_ptr<Matrix<RationalCiphertext<Element>>> EncryptMatrix(
 		const shared_ptr<LPPublicKey<Element>> publicKey,
 		const Matrix<PackedIntPlaintextEncoding> &plaintext,
-		bool doEncryption = true) const
+		bool doEncryption = true)
 	{
 
-		auto zeroAlloc = [=]() { return make_unique<RationalCiphertext<Element>>(*this, true); };
+		auto zeroAlloc = [=]() { return make_unique<RationalCiphertext<Element>>(this, true); };
 
 		shared_ptr<Matrix<RationalCiphertext<Element>>> cipherResults(new Matrix<RationalCiphertext<Element>>
 			(zeroAlloc, plaintext.GetRows(), plaintext.GetCols()));
 
-		if (publicKey == NULL || publicKey->GetCryptoContext() != *this)
+		if (publicKey == NULL || publicKey->GetCryptoContext() != this)
 			throw std::logic_error("key passed to EncryptMatrix was not generated with this crypto context");
 
-		const BigBinaryInteger& ptm = publicKey->GetCryptoParameters()->GetPlaintextModulus();
+		const BigInteger& ptm = publicKey->GetCryptoParameters()->GetPlaintextModulus();
 
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
 		for (size_t row = 0; row < plaintext.GetRows(); row++)
 		{
 			for (size_t col = 0; col < plaintext.GetCols(); col++)
 			{
-				ILVector2n pt(publicKey->GetCryptoParameters()->GetElementParams());
+				Poly pt(publicKey->GetCryptoParameters()->GetElementParams());
 				plaintext(row, col).Encode(ptm, &pt);
 
 				shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, pt, doEncryption);
@@ -516,6 +675,9 @@ public:
 			}
 		}
 
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEncryptMatrixPacked, currentDateTime() - start) );
+		}
 		return cipherResults;
 
 	}
@@ -535,13 +697,15 @@ public:
 		std::ostream& outstream,
 		bool doEncryption = true) const
 	{
-		if( publicKey == NULL || publicKey->GetCryptoContext() != *this )
+		// NOTE timing this operation is not supported
+
+		if( publicKey == NULL || publicKey->GetCryptoContext() != this )
 			throw std::logic_error("key passed to EncryptStream was not generated with this crypto context");
 
 		bool padded = false;
 		BytePlaintextEncoding px;
-		const BigBinaryInteger& ptm = publicKey->GetCryptoContext().GetCryptoParameters()->GetPlaintextModulus();
-		size_t chunkSize = px.GetChunksize(publicKey->GetCryptoContext().GetRingDimension(), ptm);
+		const BigInteger& ptm = publicKey->GetCryptoContext()->GetCryptoParameters()->GetPlaintextModulus();
+		size_t chunkSize = px.GetChunksize(publicKey->GetCryptoContext()->GetRingDimension(), ptm);
 		char *ptxt = new char[chunkSize];
 
 		while (instream.good()) {
@@ -557,7 +721,7 @@ public:
 				padded = true;
 			}
 
-			ILVector2n pt(publicKey->GetCryptoParameters()->GetElementParams());
+			Poly pt(publicKey->GetCryptoParameters()->GetElementParams());
 			px.Encode(publicKey->GetCryptoParameters()->GetPlaintextModulus(), &pt, 0, chunkSize);
 
 			shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, pt, doEncryption);
@@ -602,15 +766,17 @@ public:
 		if (ciphertext.size() == 0)
 			return DecryptResult();
 
-		if( privateKey == NULL || privateKey->GetCryptoContext() != *this )
+		if( privateKey == NULL || privateKey->GetCryptoContext() != this )
 			throw std::logic_error("Information passed to Decrypt was not generated with this crypto context");
 
 		size_t lastone = ciphertext.size() - 1;
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
 		for( size_t ch = 0; ch < ciphertext.size(); ch++ ) {
-			if( ciphertext[ch] == NULL || ciphertext[ch]->GetCryptoContext() != *this )
+			if( ciphertext[ch] == NULL || ciphertext[ch]->GetCryptoContext() != this )
 				throw std::logic_error("A ciphertext passed to Decrypt was not generated with this crypto context");
 
-			ILVector2n decrypted;
+			Poly decrypted;
 			DecryptResult result = GetEncryptionAlgorithm()->Decrypt(privateKey, ciphertext[ch], &decrypted);
 
 			if (result.isValid == false) return result;
@@ -620,6 +786,9 @@ public:
 			}
 		}
 
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpDecrypt, currentDateTime() - start) );
+		}
 		return DecryptResult(plaintext->GetLength());
 	}
 
@@ -645,37 +814,51 @@ public:
 			(ciphertext->GetCols() != denominator->GetCols()) || (ciphertext->GetRows() != denominator->GetRows()))
 			throw std::runtime_error("Ciphertext and plaintext matrices have different dimensions");
 
-		if (privateKey == NULL || privateKey->GetCryptoContext() != *this)
+		if (privateKey == NULL || privateKey->GetCryptoContext() != this)
 			throw std::runtime_error("Information passed to DecryptMatrix was not generated with this crypto context");
 
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
 		for (size_t row = 0; row < ciphertext->GetRows(); row++)
 		{
 			for (size_t col = 0; col < ciphertext->GetCols(); col++)
 			{
-				if ((*ciphertext)(row, col).GetCryptoContext() != *this)
+				if ((*ciphertext)(row, col).GetCryptoContext() != this)
 					throw std::runtime_error("A ciphertext passed to DecryptMatrix was not generated with this crypto context");
 
 				const shared_ptr<Ciphertext<Element>> ctN = (*ciphertext)(row, col).GetNumerator();
 
-				ILVector2n decryptedNumerator;
+				Poly decryptedNumerator;
 				DecryptResult resultN = GetEncryptionAlgorithm()->Decrypt(privateKey, ctN, &decryptedNumerator);
 
 				if (resultN.isValid == false) return resultN;
 
 				(*numerator)(row,col).Decode(privateKey->GetCryptoParameters()->GetPlaintextModulus(), &decryptedNumerator);
 
-				const shared_ptr<Ciphertext<Element>> ctD = (*ciphertext)(row, col).GetDenominator();
+				Poly decryptedDenominator;
+				if( (*ciphertext)(row,col).GetIntegerFlag() == true ) {
+					decryptedDenominator = decryptedNumerator.CloneParametersOnly();
+					decryptedDenominator.SetValuesToZero();
+					decryptedDenominator.SetValAtIndex(0,1);
+				}
+				else {
 
-				ILVector2n decryptedDenominator;
-				DecryptResult resultD = GetEncryptionAlgorithm()->Decrypt(privateKey, ctD, &decryptedDenominator);
+					const shared_ptr<Ciphertext<Element>> ctD = (*ciphertext)(row, col).GetDenominator();
 
-				if (resultD.isValid == false) return resultD;
+					DecryptResult resultD = GetEncryptionAlgorithm()->Decrypt(privateKey, ctD, &decryptedDenominator);
+
+					if (resultD.isValid == false) return resultD;
+
+				}
 
 				(*denominator)(row, col).Decode(privateKey->GetCryptoParameters()->GetPlaintextModulus(), &decryptedDenominator);
 
 			}
 		}
 
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpDecryptMatrixPlain, currentDateTime() - start) );
+		}
 		return DecryptResult((*numerator)(numerator->GetRows()-1,numerator->GetCols()-1).GetLength());
 
 	}
@@ -702,19 +885,21 @@ public:
 			(ciphertext->GetCols() != denominator->GetCols()) || (ciphertext->GetRows() != denominator->GetRows()))
 			throw std::runtime_error("Ciphertext and plaintext matrices have different dimensions");
 
-		if (privateKey == NULL || privateKey->GetCryptoContext() != *this)
+		if (privateKey == NULL || privateKey->GetCryptoContext() != this)
 			throw std::runtime_error("Information passed to DecryptMatrix was not generated with this crypto context");
 
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
 		for (size_t row = 0; row < ciphertext->GetRows(); row++)
 		{
 			for (size_t col = 0; col < ciphertext->GetCols(); col++)
 			{
-				if ((*ciphertext)(row, col).GetCryptoContext() != *this)
+				if ((*ciphertext)(row, col).GetCryptoContext() != this)
 					throw std::runtime_error("A ciphertext passed to DecryptMatrix was not generated with this crypto context");
 
 				const shared_ptr<Ciphertext<Element>> ctN = (*ciphertext)(row, col).GetNumerator();
 
-				ILVector2n decryptedNumerator;
+				Poly decryptedNumerator;
 				DecryptResult resultN = GetEncryptionAlgorithm()->Decrypt(privateKey, ctN, &decryptedNumerator);
 
 				if (resultN.isValid == false) return resultN;
@@ -723,7 +908,7 @@ public:
 
 				const shared_ptr<Ciphertext<Element>> ctD = (*ciphertext)(row, col).GetDenominator();
 
-				ILVector2n decryptedDenominator;
+				Poly decryptedDenominator;
 				DecryptResult resultD = GetEncryptionAlgorithm()->Decrypt(privateKey, ctD, &decryptedDenominator);
 
 				if (resultD.isValid == false) return resultD;
@@ -733,6 +918,9 @@ public:
 			}
 		}
 
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpDecryptMatrixPacked, currentDateTime() - start) );
+		}
 		return DecryptResult((*numerator)(numerator->GetRows() - 1, numerator->GetCols() - 1).GetLength());
 
 	}
@@ -747,9 +935,11 @@ public:
 	void DecryptStream(
 		const shared_ptr<LPPrivateKey<Element>> privateKey,
 		std::istream& instream,
-		std::ostream& outstream) const
+		std::ostream& outstream)
 	{
-		if( privateKey == NULL || privateKey->GetCryptoContext() != *this )
+		// NOTE timing this operation is not supported
+
+		if( privateKey == NULL || privateKey->GetCryptoContext() != this )
 			throw std::logic_error("Information passed to DecryptStream was not generated with this crypto context");
 
 		Serialized serObj;
@@ -762,7 +952,7 @@ public:
 		while( SerializableHelper::StreamToSerialization(instream, &serObj) ) {
 			shared_ptr<Ciphertext<Element>> ct;
 			if( (ct = deserializeCiphertext(serObj)) != NULL ) {
-				ILVector2n decrypted;
+				Poly decrypted;
 				DecryptResult res = GetEncryptionAlgorithm()->Decrypt(privateKey, ct, &decrypted);
 				if( !res.isValid )
 					return;
@@ -798,16 +988,21 @@ public:
 		shared_ptr<LPEvalKey<Element>> evalKey,
 		std::vector<shared_ptr<Ciphertext<Element>>>& ciphertext) const
 	{
-		if( evalKey == NULL || evalKey->GetCryptoContext() != *this )
+		if( evalKey == NULL || evalKey->GetCryptoContext() != this )
 			throw std::logic_error("Information passed to ReEncrypt was not generated with this crypto context");
 
 		std::vector<shared_ptr<Ciphertext<Element>>> newCiphertext;
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
 		for( size_t i=0; i < ciphertext.size(); i++ ) {
-			if( ciphertext[i] == NULL || ciphertext[i]->GetCryptoContext() != *this )
+			if( ciphertext[i] == NULL || ciphertext[i]->GetCryptoContext() != this )
 				throw std::logic_error("One of the ciphertexts passed to ReEncrypt was not generated with this crypto context");
 			newCiphertext.push_back( GetEncryptionAlgorithm()->ReEncrypt(evalKey, ciphertext[i]) );
 		}
 
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpReEncrypt, currentDateTime() - start) );
+		}
 		return newCiphertext;
 	}
 
@@ -820,9 +1015,11 @@ public:
 	void ReEncryptStream(
 		const shared_ptr<LPEvalKey<Element>> evalKey,
 		std::istream& instream,
-		std::ostream& outstream) const
+		std::ostream& outstream)
 	{
-		if( evalKey == NULL || evalKey->GetCryptoContext() != *this )
+		// NOTE timing this operation is not supported
+
+		if( evalKey == NULL || evalKey->GetCryptoContext() != this )
 			throw std::logic_error("Information passed to ReEncryptStream was not generated with this crypto context");
 
 		Serialized serObj;
@@ -859,10 +1056,31 @@ public:
 	shared_ptr<Ciphertext<Element>>
 	EvalAdd(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Ciphertext<Element>> ct2) const
 	{
-		if( ct1 == NULL || ct2 == NULL || ct1->GetCryptoContext() != *this || ct2->GetCryptoContext() != *this )
+		if( ct1 == NULL || ct2 == NULL || ct1->GetCryptoContext() != this || ct2->GetCryptoContext() != this )
 			throw std::logic_error("Information passed to EvalAdd was not generated with this crypto context");
 
-		return GetEncryptionAlgorithm()->EvalAdd(ct1, ct2);
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto rv = GetEncryptionAlgorithm()->EvalAdd(ct1, ct2);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalAdd, currentDateTime() - start) );
+		}
+		return rv;
+	}
+
+	shared_ptr<Matrix<RationalCiphertext<Element>>>
+	EvalAddMatrix(const shared_ptr<Matrix<RationalCiphertext<Element>>> ct1, const shared_ptr<Matrix<RationalCiphertext<Element>>> ct2) const
+	{
+		// tests needed for context
+
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		Matrix<RationalCiphertext<Element>> rv = *ct1 + *ct2;
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalAddMatrix, currentDateTime() - start) );
+		}
+		shared_ptr<Matrix<RationalCiphertext<Element>>> a(new Matrix<RationalCiphertext<Element>>(rv));
+		return a;
 	}
 
 	/**
@@ -874,10 +1092,31 @@ public:
 	shared_ptr<Ciphertext<Element>>
 	EvalSub(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Ciphertext<Element>> ct2) const
 	{
-		if( ct1 == NULL || ct2 == NULL || ct1->GetCryptoContext() != *this || ct2->GetCryptoContext() != *this )
+		if( ct1 == NULL || ct2 == NULL || ct1->GetCryptoContext() != this || ct2->GetCryptoContext() != this )
 			throw std::logic_error("Information passed to EvalSub was not generated with this crypto context");
 
-		return GetEncryptionAlgorithm()->EvalSub(ct1, ct2);
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto rv = GetEncryptionAlgorithm()->EvalSub(ct1, ct2);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalSub, currentDateTime() - start) );
+		}
+		return rv;
+	}
+
+	shared_ptr<Matrix<RationalCiphertext<Element>>>
+	EvalSubMatrix(const shared_ptr<Matrix<RationalCiphertext<Element>>> ct1, const shared_ptr<Matrix<RationalCiphertext<Element>>> ct2) const
+	{
+		// tests needed for context
+
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		Matrix<RationalCiphertext<Element>> rv = *ct1 - *ct2;
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalSubMatrix, currentDateTime() - start) );
+		}
+		shared_ptr<Matrix<RationalCiphertext<Element>>> a(new Matrix<RationalCiphertext<Element>>(rv));
+		return a;
 	}
 
 	/**
@@ -889,7 +1128,13 @@ public:
 	shared_ptr<Ciphertext<Element>>
 		EvalAddPlain(const shared_ptr<Ciphertext<Element>> ciphertext, const shared_ptr<Ciphertext<Element>> plaintext) const
 	{
-		return EvalAdd(ciphertext, plaintext);
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto rv = EvalAdd(ciphertext, plaintext);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalAddPlain, currentDateTime() - start) );
+		}
+		return rv;
 	}
 
 	/**
@@ -901,7 +1146,13 @@ public:
 	shared_ptr<Ciphertext<Element>>
 		EvalSubPlain(const shared_ptr<Ciphertext<Element>> ciphertext, const shared_ptr<Ciphertext<Element>> plaintext) const
 	{
-		return EvalSub(ciphertext, plaintext);
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto rv = EvalSub(ciphertext, plaintext);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalSubPlain, currentDateTime() - start) );
+		}
+		return rv;
 	}
 
 	/**
@@ -913,12 +1164,33 @@ public:
 	shared_ptr<Ciphertext<Element>>
 	EvalMult(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Ciphertext<Element>> ct2) const
 	{
-		if( ct1 == NULL || ct2 == NULL || ct1->GetCryptoContext() != *this || ct2->GetCryptoContext() != *this )
+		if( ct1 == NULL || ct2 == NULL || ct1->GetCryptoContext() != this || ct2->GetCryptoContext() != this )
 			throw std::logic_error("Information passed to EvalMult was not generated with this crypto context");
 
 		auto ek = GetEvalMultKey();
 
-		return GetEncryptionAlgorithm()->EvalMult(ct1, ct2, ek);
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto rv = GetEncryptionAlgorithm()->EvalMult(ct1, ct2, ek);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalMult, currentDateTime() - start) );
+		}
+		return rv;
+	}
+
+	shared_ptr<Matrix<RationalCiphertext<Element>>>
+	EvalMultMatrix(const shared_ptr<Matrix<RationalCiphertext<Element>>> ct1, const shared_ptr<Matrix<RationalCiphertext<Element>>> ct2) const
+	{
+		// tests needed for context
+
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		Matrix<RationalCiphertext<Element>> rv = *ct1 * *ct2;
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalMultMatrix, currentDateTime() - start) );
+		}
+		shared_ptr<Matrix<RationalCiphertext<Element>>> a(new Matrix<RationalCiphertext<Element>>(rv));
+		return a;
 	}
 
 	/**
@@ -930,10 +1202,16 @@ public:
 	shared_ptr<Ciphertext<Element>>
 		EvalMultPlain(const shared_ptr<Ciphertext<Element>> ciphertext, const shared_ptr<Ciphertext<Element>> plaintext) const
 	{
-		if (ciphertext == NULL || plaintext == NULL || ciphertext->GetCryptoContext() != *this || plaintext->GetCryptoContext() != *this)
+		if (ciphertext == NULL || plaintext == NULL || ciphertext->GetCryptoContext() != this || plaintext->GetCryptoContext() != this)
 			throw std::logic_error("Information passed to EvalMult was not generated with this crypto context");
 
-		return GetEncryptionAlgorithm()->EvalMultPlain(ciphertext, plaintext);
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto rv = GetEncryptionAlgorithm()->EvalMultPlain(ciphertext, plaintext);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalMultPlain, currentDateTime() - start) );
+		}
+		return rv;
 	}
 
 	/**
@@ -946,10 +1224,16 @@ public:
 	shared_ptr<Ciphertext<Element>>
 	EvalMult(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Ciphertext<Element>> ct2, const shared_ptr<LPEvalKey<Element>> ek) const
 	{
-		if( ct1 == NULL || ct2 == NULL || ek == NULL || ct1->GetCryptoContext() != *this || ct2->GetCryptoContext() != *this || ek->GetCryptoContext() != *this )
+		if( ct1 == NULL || ct2 == NULL || ek == NULL || ct1->GetCryptoContext() != this || ct2->GetCryptoContext() != this || ek->GetCryptoContext() != this )
 			throw std::logic_error("Information passed to EvalMult was not generated with this crypto context");
 
-		return GetEncryptionAlgorithm()->EvalMult(ct1, ct2, ek);
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto rv = GetEncryptionAlgorithm()->EvalMult(ct1, ct2, ek);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalMultKey, currentDateTime() - start) );
+		}
+		return rv;
 	}
 
 	/**
@@ -960,10 +1244,38 @@ public:
 	shared_ptr<Ciphertext<Element>>
 	EvalNegate(const shared_ptr<Ciphertext<Element>> ct) const
 	{
-		if (ct == NULL || ct->GetCryptoContext() != *this)
+		if (ct == NULL || ct->GetCryptoContext() != this)
 			throw std::logic_error("Information passed to EvalNegate was not generated with this crypto context");
 
-		return GetEncryptionAlgorithm()->EvalNegate(ct);
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto rv = GetEncryptionAlgorithm()->EvalNegate(ct);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalNeg, currentDateTime() - start) );
+		}
+		return rv;
+	}
+
+	/**
+	* EvalSub - PALISADE Negate method for a ciphertext
+	* @param ct
+	* @return new ciphertext -ct
+	*/
+	shared_ptr<Matrix<RationalCiphertext<Element>>>
+	EvalNegateMatrix(const shared_ptr<Matrix<RationalCiphertext<Element>>> ct) const
+	{
+
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		shared_ptr<Matrix<RationalCiphertext<Element>>> m(
+				new Matrix<RationalCiphertext<Element>>(ct->GetAllocator(), ct->GetRows(), ct->GetCols()));
+		for( size_t r = 0; r < m->GetRows(); r++ )
+			for( size_t c = 0; c < m->GetCols(); c++ )
+				(*m)(r,c) = -((*ct)(r,c));
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalNegMatrix, currentDateTime() - start) );
+		}
+		return m;
 	}
 
 	/**
@@ -979,8 +1291,13 @@ public:
 
 		//need to add exception handling
 
-		return GetEncryptionAlgorithm()->EvalAutomorphismKeyGen(publicKey, origPrivateKey, indexList);
-
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto rv = GetEncryptionAlgorithm()->EvalAutomorphismKeyGen(publicKey, origPrivateKey, indexList);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalAutomorphismKeyGen, currentDateTime() - start) );
+		}
+		return rv;
 	}
 
 
@@ -998,8 +1315,13 @@ public:
 
 		//need to add exception handling
 
-		return GetEncryptionAlgorithm()->EvalAutomorphism(ciphertext, i, evalKeys);
-
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto rv = GetEncryptionAlgorithm()->EvalAutomorphism(ciphertext, i, evalKeys);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalAutomorphismI, currentDateTime() - start) );
+		}
+		return rv;
 	}
 
 	/**
@@ -1014,26 +1336,40 @@ public:
 
 		//need to add exception handling
 
-		return GetEncryptionAlgorithm()->EvalAutomorphismKeyGen(privateKey, indexList);
-
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto rv = GetEncryptionAlgorithm()->EvalAutomorphismKeyGen(privateKey, indexList);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalAutomorphismK, currentDateTime() - start) );
+		}
+		return rv;
 	}
 
 	/**
-	* Generate evalsum keys
+	* EvalSumKeyGen Generates the key map to be used by evalsum
 	*
 	* @param privateKey private key.
 	* @param publicKey public key (used in NTRU schemes).
 	*/
 	void EvalSumKeyGen(
 		const shared_ptr<LPPrivateKey<Element>> privateKey, 
-		const shared_ptr<LPPublicKey<Element>> publicKey = nullptr) const;
+		const shared_ptr<LPPublicKey<Element>> publicKey = nullptr);
 
 	/**
-	* Returns evalsum keys
-	*
-	*/
-	const std::map<usint, shared_ptr<LPEvalKey<Element>>>& GetEvalSumKey() {
-		return evalSumKeys;
+	 * GetEvalSumKey  returns the map
+	 *
+	 * @return the EvalSum key map
+	 */
+	const std::map<usint, shared_ptr<LPEvalKey<Element>>>& GetEvalSumKey() const;
+
+	/**
+	 * SetEvalSumKeys - used by deserializer to set the keys for EvalSum
+	 * FIXME should be private?
+	 * @param evalSumKeys - new key map
+	 */
+	void SetEvalSumKeys(std::map<usint, shared_ptr<LPEvalKey<Element>>>& evalSumKeys) {
+		this->evalSumKeys.clear();
+		this->evalSumKeys = evalSumKeys;
 	}
 
 	/**
@@ -1091,10 +1427,16 @@ public:
 		EvalLinRegression(const shared_ptr<Matrix<RationalCiphertext<Element>>> x,
 			const shared_ptr<Matrix<RationalCiphertext<Element>>> y) const
 	{
-		//if (ct1 == NULL || ct2 == NULL || ct1->GetCryptoContext() != *this || ct2->GetCryptoContext() != *this)
+		//if (ct1 == NULL || ct2 == NULL || ct1->GetCryptoContext() != this || ct2->GetCryptoContext() != this)
 		//	throw std::logic_error("Information passed to EvalMult was not generated with this crypto context");
 
-		return GetEncryptionAlgorithm()->EvalLinRegression(x, y);
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto rv = GetEncryptionAlgorithm()->EvalLinRegression(x, y);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpLinRegression, currentDateTime() - start) );
+		}
+		return rv;
 	}
 
 	/**
@@ -1107,13 +1449,19 @@ public:
 		const shared_ptr<LPEvalKey<Element>> keySwitchHint,
 		const shared_ptr<Ciphertext<Element>> ciphertext) const
 	{
-		if( keySwitchHint == NULL || keySwitchHint->GetCryptoContext() != *this )
+		if( keySwitchHint == NULL || keySwitchHint->GetCryptoContext() != this )
 			throw std::logic_error("Key passed to KeySwitch was not generated with this crypto context");
 
-		if( ciphertext == NULL || ciphertext->GetCryptoContext() != *this )
+		if( ciphertext == NULL || ciphertext->GetCryptoContext() != this )
 			throw std::logic_error("Ciphertext passed to KeySwitch was not generated with this crypto context");
 
-		return GetEncryptionAlgorithm()->KeySwitch(keySwitchHint, ciphertext);
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto rv = GetEncryptionAlgorithm()->KeySwitch(keySwitchHint, ciphertext);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpKeySwitch, currentDateTime() - start) );
+		}
+		return rv;
 	}
 
 	/**
@@ -1122,10 +1470,54 @@ public:
 	 * @return vector of mod reduced ciphertext
 	 */
 	shared_ptr<Ciphertext<Element>> ModReduce(shared_ptr<Ciphertext<Element>> ciphertext) const {
-		if( ciphertext == NULL || ciphertext->GetCryptoContext() != *this )
+		if( ciphertext == NULL || ciphertext->GetCryptoContext() != this )
 			throw std::logic_error("Information passed to ModReduce was not generated with this crypto context");
 
-		return GetEncryptionAlgorithm()->ModReduce(ciphertext);
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto rv = GetEncryptionAlgorithm()->ModReduce(ciphertext);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpModReduce, currentDateTime() - start) );
+		}
+		return rv;
+	}
+
+	/**
+	 * ModReduce - PALISADE ModReduce method
+	 * @param ciphertext - vector of ciphertext
+	 * @return vector of mod reduced ciphertext
+	 */
+	RationalCiphertext<Element> ModReduceRational(RationalCiphertext<Element> ciphertext) const {
+
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		shared_ptr<Ciphertext<Element>> n = GetEncryptionAlgorithm()->ModReduce(ciphertext.GetNumerator());
+		shared_ptr<Ciphertext<Element>> d = GetEncryptionAlgorithm()->ModReduce(ciphertext.GetDenominator());
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpModReduce, currentDateTime() - start) );
+		}
+		return RationalCiphertext<Element>(n,d);
+	}
+
+	/**
+	 * ModReduce - PALISADE ModReduce method
+	 * @param ciphertext - vector of ciphertext
+	 * @return vector of mod reduced ciphertext
+	 */
+	shared_ptr<Matrix<RationalCiphertext<Element>>> ModReduceMatrix(shared_ptr<Matrix<RationalCiphertext<Element>>> ciphertext) const {
+		// needs context check
+
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		shared_ptr<Matrix<RationalCiphertext<Element>>> m(
+				new Matrix<RationalCiphertext<Element>>(ciphertext->GetAllocator(), ciphertext->GetRows(), ciphertext->GetCols()));
+		for( size_t r = 0; r < m->GetRows(); r++ )
+			for( size_t c = 0; c < m->GetCols(); c++ )
+				(*m)(r,c) = ModReduceRational((*ciphertext)(r,c));
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpModReduceMatrix, currentDateTime() - start) );
+		}
+		return m;
 	}
 
 	/**
@@ -1137,12 +1529,17 @@ public:
 	shared_ptr<Ciphertext<Element>> LevelReduce(const shared_ptr<Ciphertext<Element>> cipherText1,
 		const shared_ptr<LPEvalKeyNTRU<Element>> linearKeySwitchHint) const {
 
-		if( cipherText1 == NULL || linearKeySwitchHint == NULL || cipherText1->GetCryptoContext() != *this || linearKeySwitchHint->GetCryptoContext() != *this) {
+		if( cipherText1 == NULL || linearKeySwitchHint == NULL || cipherText1->GetCryptoContext() != this || linearKeySwitchHint->GetCryptoContext() != this) {
 			throw std::logic_error("Information passed to LevelReduce was not generated with this crypto context");
 		}
 
-
-		return GetEncryptionAlgorithm()->LevelReduce(cipherText1, linearKeySwitchHint);
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto rv = GetEncryptionAlgorithm()->LevelReduce(cipherText1, linearKeySwitchHint);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpLevelReduce, currentDateTime() - start) );
+		}
+		return rv;
 	}
 
 	/**
@@ -1156,18 +1553,23 @@ public:
 		std::vector<shared_ptr<Ciphertext<Element>>> ciphertext,
 		const shared_ptr<LPEvalKey<Element>> keySwitchHint) const
 	{
-		if( keySwitchHint == NULL || keySwitchHint->GetCryptoContext() != *this )
+		if( keySwitchHint == NULL || keySwitchHint->GetCryptoContext() != this )
 			throw std::logic_error("Key passed to RingReduce was not generated with this crypto context");
 
 		std::vector<shared_ptr<Ciphertext<Element>>> newCiphertext(ciphertext.size());
 
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
 		for (size_t i = 0; i < ciphertext.size(); i++) {
-			if( ciphertext[i] == NULL || ciphertext[i]->GetCryptoContext() != *this )
+			if( ciphertext[i] == NULL || ciphertext[i]->GetCryptoContext() != this )
 				throw std::logic_error("Ciphertext passed to RingReduce was not generated with this crypto context");
 
 			newCiphertext[i] = GetEncryptionAlgorithm()->RingReduce(ciphertext[i], keySwitchHint);
 		}
 
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpRingReduce, currentDateTime() - start) );
+		}
 		return newCiphertext;
 	}
 
@@ -1182,10 +1584,16 @@ public:
 		const shared_ptr<Ciphertext<Element>> ciphertext1,
 		const shared_ptr<Ciphertext<Element>> ciphertext2) const
 	{
-		if( ciphertext1 == NULL || ciphertext2 == NULL || ciphertext1->GetCryptoContext() != *this || ciphertext2->GetCryptoContext() != *this )
+		if( ciphertext1 == NULL || ciphertext2 == NULL || ciphertext1->GetCryptoContext() != this || ciphertext2->GetCryptoContext() != this )
 			throw std::logic_error("Ciphertexts passed to ComposedEvalMult was not generated with this crypto context");
 
-		return GetEncryptionAlgorithm()->ComposedEvalMult(ciphertext1, ciphertext2, GetEvalMultKey());
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto rv = GetEncryptionAlgorithm()->ComposedEvalMult(ciphertext1, ciphertext2, GetEvalMultKey());
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpComposedEvalMult, currentDateTime() - start) );
+		}
+		return rv;
 	}
 
 	/**
@@ -1193,45 +1601,56 @@ public:
 	* @param serObj
 	* @return deserialized object
 	*/
-	shared_ptr<LPPublicKey<Element>>	deserializePublicKey(const Serialized& serObj) const;
+	shared_ptr<LPPublicKey<Element>>	deserializePublicKey(const Serialized& serObj);
 
 	/**
 	* Deserialize into a Private Key
 	* @param serObj
 	* @return deserialized object
 	*/
-	shared_ptr<LPPrivateKey<Element>>	deserializeSecretKey(const Serialized& serObj) const;
+	shared_ptr<LPPrivateKey<Element>>	deserializeSecretKey(const Serialized& serObj);
 
 	/**
 	* Deserialize into a Ciphertext
 	* @param serObj
 	* @return deserialized object
 	*/
-	shared_ptr<Ciphertext<Element>>		deserializeCiphertext(const Serialized& serObj) const;
+	shared_ptr<Ciphertext<Element>>		deserializeCiphertext(const Serialized& serObj);
 
 	/**
 	* Deserialize into an Eval Key
 	* @param serObj
 	* @return deserialized object
 	*/
-	shared_ptr<LPEvalKey<Element>>		deserializeEvalKey(const Serialized& serObj) const;
-
-	/**
-	* Deserialize into an EvalMult Key
-	* @param serObj
-	* @return deserialized object
-	*/
-	shared_ptr<LPEvalKey<Element>>		deserializeEvalMultKey(const Serialized& serObj) const;
+	shared_ptr<LPEvalKey<Element>>		deserializeEvalKey(const Serialized& serObj);
 };
 
+/**
+ * @brief CryptoObject
+ *
+ * A class to aid in referring to the crypto context that an object belongs to
+ */
+template<typename Element>
+class CryptoObject {
+protected:
+	CryptoContext<Element>	*context;
+
+public:
+	CryptoObject(CryptoContext<Element> *cc = 0) : context(cc) {}
+	virtual ~CryptoObject() {}
+
+	CryptoContext<Element> *GetCryptoContext() const { return context; }
+	//void SetContext(shared_ptr<CryptoContext<Element>> cc) { context = cc; }
+	const shared_ptr<LPCryptoParameters<Element>> GetCryptoParameters() const { return context->GetCryptoParameters(); }
+};
 
 /**
-* @brief CryptoContextcc
+* @brief CryptoContextFactory
 *
 * A class that contains static methods to generate new crypto contexts from user parameters
 *
 */
-template <class Element>
+template<typename Element>
 class CryptoContextFactory {
 public:
 	/**
@@ -1245,7 +1664,7 @@ public:
 	* @param depth
 	* @return new context
 	*/
-	static CryptoContext<Element> genCryptoContextLTV(shared_ptr<typename Element::Params> params,
+	static shared_ptr<CryptoContext<Element>> genCryptoContextLTV(shared_ptr<typename Element::Params> params,
 		const usint plaintextmodulus,
 		usint relinWindow, float stDev, int depth = 1, int assuranceMeasure = 9, float securityLevel = 1.006);
 
@@ -1260,9 +1679,35 @@ public:
 	* @param depth
 	* @return new context
 	*/
-	static CryptoContext<Element> genCryptoContextLTV(shared_ptr<typename Element::Params> params,
+	static shared_ptr<CryptoContext<Element>> genCryptoContextLTV(shared_ptr<typename Element::Params> params,
 		shared_ptr<EncodingParams> encodingParams,
 		usint relinWindow, float stDev, int depth = 1, int assuranceMeasure = 9, float securityLevel = 1.006);
+
+	/**
+	* construct a PALISADE CryptoContext for the LTV Scheme using the scheme's ParamsGen methods
+	* @param plaintextModulus
+	* @param securityLevel
+	* @param numAdds
+	* @param numMults
+	* @param numKeyswitches
+	* @return new context
+	*/
+	static CryptoContext<Element> genCryptoContextLTV(
+		const usint plaintextModulus, float securityLevel, usint relinWindow, float dist,
+		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches);
+
+	/**
+	* construct a PALISADE CryptoContext for the LTV Scheme using the scheme's ParamsGen methods
+	* @param encodingParams
+	* @param securityLevel
+	* @param numAdds
+	* @param numMults
+	* @param numKeyswitches
+	* @return new context
+	*/
+	static CryptoContext<Element> genCryptoContextLTV(
+		shared_ptr<EncodingParams> encodingParams, float securityLevel, usint relinWindow, float dist,
+		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches);
 
 	/**
 	* construct a PALISADE CryptoContext for the FV Scheme
@@ -1283,7 +1728,7 @@ public:
 	* @param bigrootofunityarb
 	* @return new context
 	*/
-	static CryptoContext<Element> genCryptoContextFV(shared_ptr<typename Element::Params> params,
+	static shared_ptr<CryptoContext<Element>> genCryptoContextFV(shared_ptr<typename Element::Params> params,
 		const usint plaintextmodulus,
 		usint relinWindow, float stDev, const std::string& delta,
 		MODE mode = RLWE, const std::string& bigmodulus = "0", const std::string& bigrootofunity = "0",
@@ -1309,7 +1754,7 @@ public:
 	* @param bigrootofunityarb
 	* @return new context
 	*/
-	static CryptoContext<Element> genCryptoContextFV(shared_ptr<typename Element::Params> params,
+	static shared_ptr<CryptoContext<Element>> genCryptoContextFV(shared_ptr<typename Element::Params> params,
 		shared_ptr<EncodingParams> encodingParams,
 		usint relinWindow, float stDev, const std::string& delta,
 		MODE mode = RLWE, const std::string& bigmodulus = "0", const std::string& bigrootofunity = "0",
@@ -1325,9 +1770,9 @@ public:
 	* @param numKeyswitches
 	* @return new context
 	*/
-	static CryptoContext<Element> genCryptoContextFV(
+	static shared_ptr<CryptoContext<Element>> genCryptoContextFV(
 		const usint plaintextModulus, float securityLevel, usint relinWindow, float dist,
-		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches);
+		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED);
 
 	/**
 	* construct a PALISADE CryptoContext for the FV Scheme using the scheme's ParamsGen methods
@@ -1338,9 +1783,9 @@ public:
 	* @param numKeyswitches
 	* @return new context
 	*/
-	static CryptoContext<Element> genCryptoContextFV(
+	static shared_ptr<CryptoContext<Element>> genCryptoContextFV(
 		shared_ptr<EncodingParams> encodingParams, float securityLevel, usint relinWindow, float dist,
-		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches);
+		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED);
 
 	/**
 	* construct a PALISADE CryptoContext for the BV Scheme
@@ -1353,7 +1798,7 @@ public:
 	* @param mode
 	* @return new context
 	*/
-	static CryptoContext<Element> genCryptoContextBV(shared_ptr<typename Element::Params> params,
+	static shared_ptr<CryptoContext<Element>> genCryptoContextBV(shared_ptr<typename Element::Params> params,
 		const usint plaintextmodulus,
 		usint relinWindow, float stDev,
 		MODE mode = RLWE, int depth = 1);
@@ -1369,7 +1814,7 @@ public:
 	* @param mode
 	* @return new context
 	*/
-	static CryptoContext<Element> genCryptoContextBV(shared_ptr<typename Element::Params> params,
+	static shared_ptr<CryptoContext<Element>> genCryptoContextBV(shared_ptr<typename Element::Params> params,
 		shared_ptr<EncodingParams> encodingParams,
 		usint relinWindow, float stDev,
 		MODE mode = RLWE, int depth = 1);
@@ -1385,7 +1830,7 @@ public:
 	* @param stDevStSt
 	* @return new context
 	*/
-	static CryptoContext<Element> genCryptoContextStehleSteinfeld(shared_ptr<typename Element::Params> params,
+	static shared_ptr<CryptoContext<Element>> genCryptoContextStehleSteinfeld(shared_ptr<typename Element::Params> params,
 		const usint plaintextmodulus,
 		usint relinWindow, float stDev, float stDevStSt, int depth = 1, int assuranceMeasure = 9, float securityLevel = 1.006);
 
@@ -1400,7 +1845,7 @@ public:
 	* @param stDevStSt
 	* @return new context
 	*/
-	static CryptoContext<Element> genCryptoContextStehleSteinfeld(shared_ptr<typename Element::Params> params,
+	static shared_ptr<CryptoContext<Element>> genCryptoContextStehleSteinfeld(shared_ptr<typename Element::Params> params,
 		shared_ptr<EncodingParams> encodingParams,
 		usint relinWindow, float stDev, float stDevStSt, int depth = 1, int assuranceMeasure = 9, float securityLevel = 1.006);
 
@@ -1409,117 +1854,21 @@ public:
 	* @param modulus
 	* @return
 	*/
-	static CryptoContext<Element> genCryptoContextNull(shared_ptr<typename Element::Params> ep, const usint ptModulus);
+	static shared_ptr<CryptoContext<Element>> genCryptoContextNull(shared_ptr<typename Element::Params> ep, const usint ptModulus);
 
 	/**
 	* construct a PALISADE CryptoContext for the Null Scheme
 	* @param modulus
 	* @return
 	*/
-	static CryptoContext<Element> genCryptoContextNull(shared_ptr<typename Element::Params> ep, shared_ptr<EncodingParams> encodingParams);
-
-	// helper for deserialization of contexts
-	static shared_ptr<LPCryptoParameters<Element>> GetParameterObject(const Serialized& serObj) {
-
-		Serialized::ConstMemberIterator mIter = serObj.FindMember("LPCryptoParametersType");
-		if (mIter != serObj.MemberEnd()) {
-			string parmstype = mIter->value.GetString();
-
-			if (parmstype == "LPCryptoParametersLTV") {
-				return shared_ptr<LPCryptoParameters<Element>>(new LPCryptoParametersLTV<Element>());
-			}
-			else if (parmstype == "LPCryptoParametersBV") {
-				return shared_ptr<LPCryptoParameters<Element>>(new LPCryptoParametersBV<Element>());
-			}
-			else if (parmstype == "LPCryptoParametersFV") {
-				return shared_ptr<LPCryptoParameters<Element>>(new LPCryptoParametersFV<Element>());
-			}
-			else if (parmstype == "LPCryptoParametersStehleSteinfeld") {
-				return shared_ptr<LPCryptoParameters<Element>>(new LPCryptoParametersStehleSteinfeld<Element>());
-			}
-			else if (parmstype == "LPCryptoParametersNull") {
-				return shared_ptr<LPCryptoParameters<Element>>(new LPCryptoParametersNull<Element>());
-			}
-		}
-
-		return shared_ptr<LPCryptoParameters<Element>>();
-	}
-
-	// helper for deserialization of contexts
-	static shared_ptr<LPPublicKeyEncryptionScheme<Element>> GetSchemeObject(const Serialized& serObj) {
-
-		Serialized::ConstMemberIterator mIter = serObj.FindMember("LPCryptoParametersType");
-		if (mIter != serObj.MemberEnd()) {
-			string parmstype = mIter->value.GetString();
-
-			if (parmstype == "LPCryptoParametersLTV") {
-				return shared_ptr<LPPublicKeyEncryptionScheme<Element>>(new LPPublicKeyEncryptionSchemeLTV<Element>());
-			}
-			else if (parmstype == "LPCryptoParametersBV") {
-				return shared_ptr<LPPublicKeyEncryptionScheme<Element>>(new LPPublicKeyEncryptionSchemeBV<Element>());
-			}
-			else if (parmstype == "LPCryptoParametersFV") {
-				return shared_ptr<LPPublicKeyEncryptionScheme<Element>>(new LPPublicKeyEncryptionSchemeFV<Element>());
-			}
-			else if (parmstype == "LPCryptoParametersDCRT") { // fixme
-				return shared_ptr<LPPublicKeyEncryptionScheme<Element>>(new LPPublicKeyEncryptionSchemeLTV<Element>());
-			}
-			else if (parmstype == "LPCryptoParametersStehleSteinfeld") {
-				return shared_ptr<LPPublicKeyEncryptionScheme<Element>>(new LPPublicKeyEncryptionSchemeStehleSteinfeld<Element>());
-			}
-			else if (parmstype == "LPCryptoParametersNull") {
-				return shared_ptr<LPPublicKeyEncryptionScheme<Element>>(new LPPublicKeyEncryptionSchemeNull<Element>());
-			}
-		}
-
-		return shared_ptr<LPPublicKeyEncryptionScheme<Element>>();
-	}
+	static shared_ptr<CryptoContext<Element>> genCryptoContextNull(shared_ptr<typename Element::Params> ep, shared_ptr<EncodingParams> encodingParams);
 
 	/**
 	* Create a PALISADE CryptoContext from a serialization
 	* @param serObj
 	* @return new context
 	*/
-	static CryptoContext<Element> DeserializeAndCreateContext(const Serialized& serObj) {
-		shared_ptr<LPCryptoParameters<Element>> cp = GetParameterObject(serObj);
-
-		if (cp == NULL) {
-			throw std::logic_error("Unable to create crypto parameters");
-		}
-
-		if (!cp->Deserialize(serObj)) {
-			throw std::logic_error("Unable to deserialize crypto parameters");
-		}
-
-		shared_ptr<LPPublicKeyEncryptionScheme<Element>> scheme = GetSchemeObject(serObj);
-
-		CryptoContext<Element> cc(cp, scheme);
-		return cc;
-	}
-
-	/**
-	* Test if a serialization matches a given CryptoContext
-	* @param ctx
-	* @param serObj
-	* @return
-	*/
-	static bool DeserializeAndValidateParams(const CryptoContext<Element> ctx, const Serialized& serObj) {
-		shared_ptr<LPCryptoParameters<Element>> cp = GetParameterObject(serObj);
-
-		if (typeid(cp) != typeid(ctx.GetCryptoParameters())) {
-			return false;
-		}
-
-		if (cp == NULL) {
-			return false;
-		}
-
-		if (cp->Deserialize(serObj) == false) {
-			return false;
-		}
-
-		return false;
-	}
+	static shared_ptr<CryptoContext<Element>> DeserializeAndCreateContext(const Serialized& serObj, bool noKeys = false);
 };
 
 

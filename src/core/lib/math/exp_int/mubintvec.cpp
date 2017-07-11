@@ -66,7 +66,7 @@ namespace exp_int {
 
     //this->m_data = new ubint_el_t*[m_length];
     for (usint i = 0; i < length; i++){
-      this->m_data[i] = ubint_el_t::ZERO;
+      this->m_data[i] = 0;
     }
     m_modulus = 0;
     m_modulus_state = GARBAGE;
@@ -79,7 +79,7 @@ namespace exp_int {
     bool dbg_flag = false;
     this->m_data.resize(length);
     for (usint i = 0; i < length; i++){
-      this->m_data[i] = ubint_el_t::ZERO;
+      this->m_data[i] = 0;
     }
     m_modulus = modulus;
     m_modulus_state = INITIALIZED;
@@ -95,7 +95,7 @@ namespace exp_int {
     bool dbg_flag = false;
     this->m_data.resize(length);
     for (usint i = 0; i < length; i++){
-      this->m_data[i] = ubint_el_t::ZERO;
+      this->m_data[i] = 0;
     }
     m_modulus = modulus;
     m_modulus_state = INITIALIZED;
@@ -153,7 +153,7 @@ namespace exp_int {
     bool dbg_flag = false;
     this->m_data.resize(length);
     for (usint i = 0; i < length; i++){
-      this->m_data[i] = ubint_el_t::ZERO;
+      this->m_data[i] = 0;
     }
     m_modulus = modulus;
     m_modulus_state = INITIALIZED;
@@ -295,7 +295,7 @@ namespace exp_int {
 
   //ASSIGNMENT copy allocator const mubinvec to mubinvec
   //if two vectors are different sized, then it will resize target vector
-  //unlike BigBinaryVector which just throws.
+  //unlike BigVector which just throws.
   //will overwrite target modulus
   template<class ubint_el_t>
   const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::operator=(const mubintvec &rhs){
@@ -337,7 +337,7 @@ namespace exp_int {
       if(i<len) {
 	this->m_data[i]= ubint_el_t(*(rhs.begin()+i));
       } else {
-	this->m_data[i]=ubint_el_t::ZERO;
+	this->m_data[i]=0;
       }
     }
     if (this->m_modulus_state == INITIALIZED) {
@@ -359,7 +359,7 @@ namespace exp_int {
       if(i<len) {
 	this->m_data[i] =  ubint_el_t(*(rhs.begin()+i));
       } else {
-	this->m_data[i] = ubint_el_t::ZERO;
+	this->m_data[i] = 0;
       }
     }
     if (this->m_modulus_state == INITIALIZED) {
@@ -383,7 +383,7 @@ namespace exp_int {
       if(i<len) {
 	this->m_data[i] = ubint_el_t(*(rhs.begin()+i));
       } else {
-	this->m_data[i] = ubint_el_t::ZERO;
+	this->m_data[i] = 0;
       }
     }
     if (this->m_modulus_state == INITIALIZED) {
@@ -405,7 +405,7 @@ namespace exp_int {
       if(i<len) {
 	this->m_data[i] =  ubint_el_t(*(rhs.begin()+i));
       } else {
-	this->m_data[i] = ubint_el_t::ZERO;
+	this->m_data[i] = 0;
       }
     }
     if (this->m_modulus_state == INITIALIZED) {
@@ -529,7 +529,7 @@ namespace exp_int {
     //ans. m_modulus_state = INITIALIZED;
     //return ans;
 
-	if (modulus == ubint_el_t::TWO)
+	if (modulus == 2)
 		return this->ModByTwo();
 	else
 	{
@@ -572,16 +572,16 @@ namespace exp_int {
     ubint_el_t halfQ(this->GetModulus() >> 1);
     for (usint i = 0; i<ans.GetLength(); i++) {
       if (this->GetValAtIndex(i)>halfQ) {
-	if (this->GetValAtIndex(i).Mod(ubint_el_t::TWO) == ubint_el_t::ONE)
-	  ans.SetValAtIndex(i, ubint_el_t::ZERO);
+	if (this->GetValAtIndex(i).Mod(2) == 1)
+	  ans.SetValAtIndex(i, ubint_el_t(0));
 	else
-	  ans.SetValAtIndex(i, ubint_el_t::ONE);
+	  ans.SetValAtIndex(i, ubint_el_t(1));
       }
       else {
-	if (this->GetValAtIndex(i).Mod(ubint_el_t::TWO) == ubint_el_t::ONE)
-	  ans.SetValAtIndex(i, ubint_el_t::ONE);
+	if (this->GetValAtIndex(i).Mod(2) == 1)
+	  ans.SetValAtIndex(i, ubint_el_t(1));
 	else
-	  ans.SetValAtIndex(i, ubint_el_t::ZERO);
+	  ans.SetValAtIndex(i, ubint_el_t(0));
       }
       
     }
@@ -833,12 +833,12 @@ template<class ubint_el_t>
     ubint_el_t mu = temp.Div(this->GetModulus());
     
     //Precompute the Barrett mu values
-    /*BigBinaryInteger temp;
+    /*BigInteger temp;
       uschar gamma;
       uschar modulusLength = this->GetModulus().GetMSB() ;
-      BigBinaryInteger mu_arr[BARRETT_LEVELS+1];
+      BigInteger mu_arr[BARRETT_LEVELS+1];
       for(usint i=0;i<BARRETT_LEVELS+1;i++) {
-      temp = BigBinaryInteger::ONE;
+      temp = BigInteger::ONE;
       gamma = modulusLength*i/BARRETT_LEVELS;
       temp<<=modulusLength+gamma+3;
       mu_arr[i] = temp.DividedBy(this->GetModulus());
@@ -938,7 +938,7 @@ template<class ubint_el_t>
 
   //new serialize and deserialise operations
   //todo: not tested just added to satisfy compilier
-  //currently using the same map as bigBinaryVector, with modulus. 
+  //currently using the same map as bigVector, with modulus. 
 #if 0
   // JSON FACILITY - Serialize Operation
   template<class ubint_el_t>
@@ -1000,7 +1000,7 @@ template<class ubint_el_t>
     //build a string containing all vector elements concatenated
     if( pkVectorLength > 0 ) {
       std::string pkBufferString = "";
-      for (int i = 0; i < pkVectorLength; i++) {
+      for (size_t i = 0; i < pkVectorLength; i++) {
 	DEBUG("element "<<i<<" "<<this->m_data[i]);
 	std::string tmp = this->m_data[i].Serialize(this->GetModulus());
 	pkBufferString += tmp;
@@ -1009,8 +1009,8 @@ template<class ubint_el_t>
       bbvMap.AddMember("VectorValues", pkBufferString, serObj->GetAllocator());
     }
     //store the map.
-    DEBUG("add BigBinaryVectorImpl");
-    serObj->AddMember("BigBinaryVectorImpl", bbvMap, serObj->GetAllocator());
+    DEBUG("add BigVectorImpl");
+    serObj->AddMember("BigVectorImpl", bbvMap, serObj->GetAllocator());
 
     DEBUG("serialize done");
     return true;
@@ -1059,10 +1059,10 @@ template<class ubint_el_t>
     DEBUG("in deserialize");
 
     //decode in reverse order from Serialize above
-    lbcrypto::Serialized::ConstMemberIterator mIter = serObj.FindMember("BigBinaryVectorImpl");
+    lbcrypto::Serialized::ConstMemberIterator mIter = serObj.FindMember("BigVectorImpl");
     if( mIter == serObj.MemberEnd() ){
       std::cerr<<"myVecP::Deserialize() failed"
-	       <<" BigBinaryVectorImpl not found"<<std::endl;
+	       <<" BigVectorImpl not found"<<std::endl;
       return false;
     }    
 

@@ -33,9 +33,6 @@ namespace lbcrypto
 template<typename IntType>
 ILDCRTParams<IntType>::ILDCRTParams(usint order, usint depth, usint bits) : ElemParams<IntType>(order, 0, 0, 0, 0)
 {
-
-	static native_int::BinaryInteger FIVE(5);
-	static native_int::BinaryInteger FOUR(5);
 	if( order == 0 )
 		return;
 	if( depth == 0 )
@@ -44,19 +41,19 @@ ILDCRTParams<IntType>::ILDCRTParams(usint order, usint depth, usint bits) : Elem
 		throw std::logic_error("Invalid bits for ILDCRTParams");
 
 	m_parms.resize(depth);
-	this->ciphertextModulus = BigBinaryInteger(0);
+	this->ciphertextModulus = BigInteger(0);
 
-	native_int::BinaryInteger q = FindPrimeModulus<native_int::BinaryInteger>(order, bits);
+	native_int::BigInteger q = FirstPrime<native_int::BigInteger>(bits, order);
 
 	for(size_t j = 0; ;) {
-		native_int::BinaryInteger root = RootOfUnity<native_int::BinaryInteger>(order, q);
+		native_int::BigInteger root = RootOfUnity<native_int::BigInteger>(order, q);
 		std::shared_ptr<native_int::ILParams> p( new native_int::ILParams(order, q, root) );
 		m_parms[j] = p;
 
 		if( ++j >= depth )
 			break;
 
-		lbcrypto::NextQ<native_int::BinaryInteger>(q, FIVE, order, FOUR, FOUR);
+		q = NextPrime<native_int::BigInteger>(q, order);
 	}
 
 	RecalculateModulus();

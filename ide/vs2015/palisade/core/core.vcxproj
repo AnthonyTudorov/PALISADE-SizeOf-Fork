@@ -23,15 +23,16 @@
     <ClCompile Include="..\..\..\..\src\core\lib\encoding\encodingparams.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\encoding\intplaintextencoding.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\encoding\packedintplaintextencoding.cpp" />
+    <ClCompile Include="..\..\..\..\src\core\lib\encoding\signedintplaintextencoding.cpp" />
+    <ClCompile Include="..\..\..\..\src\core\lib\lattice\dcrtpoly-impl.cpp" />
+    <ClCompile Include="..\..\..\..\src\core\lib\lattice\dcrtpoly.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\lattice\elemparams.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\lattice\field2n.cpp" />
-    <ClCompile Include="..\..\..\..\src\core\lib\lattice\ildcrt2n-impl.cpp" />
-    <ClCompile Include="..\..\..\..\src\core\lib\lattice\ildcrt2n.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\lattice\ildcrtparams.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\lattice\ilparams.cpp" />
-    <ClCompile Include="..\..\..\..\src\core\lib\lattice\ilvector2n-impl.cpp" />
-    <ClCompile Include="..\..\..\..\src\core\lib\lattice\ilvector2n.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\lattice\native-impl.cpp" />
+    <ClCompile Include="..\..\..\..\src\core\lib\lattice\poly-impl.cpp" />
+    <ClCompile Include="..\..\..\..\src\core\lib\lattice\poly.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\math\binaryuniformgenerator.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\math\cpu_int\binint.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\math\cpu_int\binvect.cpp" />
@@ -60,13 +61,14 @@
     <ClInclude Include="..\..\..\..\src\core\lib\encoding\intplaintextencoding.h" />
     <ClInclude Include="..\..\..\..\src\core\lib\encoding\packedintplaintextencoding.h" />
     <ClInclude Include="..\..\..\..\src\core\lib\encoding\plaintext.h" />
+    <ClInclude Include="..\..\..\..\src\core\lib\encoding\signedintplaintextencoding.h" />
+    <ClInclude Include="..\..\..\..\src\core\lib\lattice\dcrtpoly.h" />
     <ClInclude Include="..\..\..\..\src\core\lib\lattice\elemparams.h" />
     <ClInclude Include="..\..\..\..\src\core\lib\lattice\field2n.h" />
-    <ClInclude Include="..\..\..\..\src\core\lib\lattice\ildcrt2n.h" />
     <ClInclude Include="..\..\..\..\src\core\lib\lattice\ildcrtparams.h" />
     <ClInclude Include="..\..\..\..\src\core\lib\lattice\ilelement.h" />
     <ClInclude Include="..\..\..\..\src\core\lib\lattice\ilparams.h" />
-    <ClInclude Include="..\..\..\..\src\core\lib\lattice\ilvector2n.h" />
+    <ClInclude Include="..\..\..\..\src\core\lib\lattice\poly.h" />
     <ClInclude Include="..\..\..\..\src\core\lib\math\backend.h" />
     <ClInclude Include="..\..\..\..\src\core\lib\math\binaryuniformgenerator.h" />
     <ClInclude Include="..\..\..\..\src\core\lib\math\cpu_int\binint.h" />
@@ -178,13 +180,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\boost_1_62_0;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\boost_1_62_0\stage\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(IncludePath)</IncludePath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\boost_1_62_0;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\boost_1_62_0\stage\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(IncludePath)</IncludePath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>

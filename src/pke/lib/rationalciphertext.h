@@ -41,20 +41,20 @@ namespace lbcrypto {
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
-	class RationalCiphertext : public Serializable {
+	class RationalCiphertext : public CryptoObject<Element>, public Serializable {
 	public:
 
 		/**
 		* Default constructor
 		*/
-		RationalCiphertext() {}
+		RationalCiphertext() : m_integerFlag(false) {}
 
 		/**
 		 * Construct a new ciphertext in the given context
 		 *
 		 * @param cc
 		 */
-		RationalCiphertext(CryptoContext<Element> cc, bool integerFlag = false) {
+		RationalCiphertext(CryptoContext<Element> *cc, bool integerFlag = false) : CryptoObject<Element>(cc) {
 			m_numerator = std::make_shared<Ciphertext<Element>>(cc);
 			if (!integerFlag)
 				m_denominator = std::make_shared<Ciphertext<Element>>(cc);
@@ -66,7 +66,7 @@ namespace lbcrypto {
 		*
 		* @param cc
 		*/
-		RationalCiphertext(const Ciphertext<Element> &numerator) {
+		RationalCiphertext(const Ciphertext<Element> &numerator) : CryptoObject<Element>(numerator.GetCryptoContext()) {
 			m_numerator = std::make_shared<Ciphertext<Element>>(numerator);
 			m_integerFlag = true;
 		}
@@ -78,15 +78,33 @@ namespace lbcrypto {
 		* @param &denominator denominator ciphertext
 		*/
 		RationalCiphertext(const Ciphertext<Element> &numerator, const Ciphertext<Element> &denominator) {
+			if( numerator.GetCryptoContext() != denominator.GetCryptoContext() )
+				throw std::logic_error("Numerator and denominator ciphertexts are from different crypto contexts");
+			this->context = numerator.GetCryptoContext();
 			m_numerator = std::make_shared<Ciphertext<Element>>(numerator);
 			m_denominator = std::make_shared<Ciphertext<Element>>(denominator);
 			m_integerFlag = false;
 		}
 
 		/**
+		* Construct a new rational ciphertext from two ciphertextpointers
+		*
+		* @param &numerator numerator ciphertext
+		* @param &denominator denominator ciphertext
+		*/
+		RationalCiphertext(const shared_ptr<Ciphertext<Element>> &numerator, const shared_ptr<Ciphertext<Element>> &denominator) {
+			if( numerator->GetCryptoContext() != denominator->GetCryptoContext() )
+				throw std::logic_error("Numerator and denominator ciphertexts are from different crypto contexts");
+			this->context = numerator->GetCryptoContext();
+			m_numerator = numerator;
+			m_denominator = denominator;
+			m_integerFlag = false;
+		}
+		/**
 		* Copy constructor
 		*/
 		RationalCiphertext(const RationalCiphertext<Element> &ciphertext) {
+			this->context = ciphertext.context;
 			m_numerator = std::make_shared<Ciphertext<Element>>(*ciphertext.m_numerator);
 			if (ciphertext.m_denominator != nullptr)
 				m_denominator = std::make_shared<Ciphertext<Element>>(*ciphertext.m_denominator);
@@ -97,6 +115,8 @@ namespace lbcrypto {
 		* Move constructor
 		*/
 		RationalCiphertext(RationalCiphertext<Element> &&ciphertext) {
+			this->context = ciphertext.context;
+			ciphertext.context = 0;
 			m_numerator = ciphertext.m_numerator;
 			m_denominator = ciphertext.m_denominator;
 			m_integerFlag = ciphertext.m_integerFlag;
@@ -114,6 +134,7 @@ namespace lbcrypto {
 		* @return this Ciphertext
 		*/
 		RationalCiphertext<Element>& operator=(const RationalCiphertext<Element> &rhs) {
+			this->context = rhs.context;
 			if (this != &rhs) {
 				*this->m_numerator = *rhs.m_numerator;
 				if (rhs.m_denominator != nullptr)
@@ -132,6 +153,8 @@ namespace lbcrypto {
 		*/
 		RationalCiphertext<Element>& operator=(RationalCiphertext<Element> &&rhs) {
 			if (this != &rhs) {
+				this->context = rhs.context;
+				rhs.context = 0;
 				this->m_numerator = rhs.m_numerator;
 				this->m_denominator = rhs.m_denominator;
 				this->m_integerFlag = rhs.m_integerFlag;
@@ -139,18 +162,6 @@ namespace lbcrypto {
 
 			return *this;
 		}
-
-		/**
-		* Get a reference to crypto parameters.
-		* @return the crypto parameters.
-		*/
-		const CryptoContext<Element>& GetCryptoContext() const { return m_numerator->GetCryptoContext(); }
-
-		/**
-		* Get a reference to crypto parameters.
-		* @return the crypto parameters.
-		*/
-		const shared_ptr<LPCryptoParameters<Element>> GetCryptoParameters() const { return m_numerator->GetCryptoContext().GetCryptoParameters(); }
 
 		/**
 		 * GetNumerator - get the numerator ciphertext element
@@ -219,7 +230,7 @@ namespace lbcrypto {
 			}
 			else
 			{
-				this->m_numerator = this->GetCryptoContext().EvalAdd(m_numerator, other.m_numerator);
+				this->m_numerator = this->GetCryptoContext()->EvalAdd(m_numerator, other.m_numerator);
 				//denominator is assumed to be the same in this initial implementation
 			}
 			return *this;
@@ -241,7 +252,7 @@ namespace lbcrypto {
 			else
 			{
 				RationalCiphertext<Element> a = RationalCiphertext<Element>(*this);
-				a.m_numerator = this->GetCryptoContext().EvalNegate(this->m_numerator);
+				a.m_numerator = this->GetCryptoContext()->EvalNegate(this->m_numerator);
 				return a;
 			}
 		}
@@ -282,7 +293,7 @@ namespace lbcrypto {
 	inline RationalCiphertext<Element> operator+(const RationalCiphertext<Element> &a, const RationalCiphertext<Element> &b) { 
 		RationalCiphertext<Element> result(b);
 		if (a.GetIntegerFlag() && b.GetIntegerFlag() && (a.GetNumerator()!= nullptr))
-			result.SetNumerator(*b.GetCryptoContext().EvalAdd(a.GetNumerator(), b.GetNumerator()));
+			result.SetNumerator(*b.GetCryptoContext()->EvalAdd(a.GetNumerator(), b.GetNumerator()));
 		return result;
 	}
 
@@ -299,7 +310,7 @@ namespace lbcrypto {
 	inline RationalCiphertext<Element> operator-(const RationalCiphertext<Element> &a, const RationalCiphertext<Element> &b) {
 		RationalCiphertext<Element> result(b);
 		if (a.GetIntegerFlag() && b.GetIntegerFlag() && (a.GetNumerator() != nullptr))
-			result.SetNumerator(*b.GetCryptoContext().EvalSub(a.GetNumerator(), b.GetNumerator()));
+			result.SetNumerator(*b.GetCryptoContext()->EvalSub(a.GetNumerator(), b.GetNumerator()));
 		return result;
 	}
 
@@ -316,7 +327,7 @@ namespace lbcrypto {
 	inline RationalCiphertext<Element> operator*(const RationalCiphertext<Element> &a, const RationalCiphertext<Element> &b) {
 		RationalCiphertext<Element> result(b);
 		if (a.GetIntegerFlag() && b.GetIntegerFlag() && (a.GetNumerator() != nullptr))
-			result.SetNumerator(*b.GetCryptoContext().EvalMult(a.GetNumerator(), b.GetNumerator()));
+			result.SetNumerator(*b.GetCryptoContext()->EvalMult(a.GetNumerator(), b.GetNumerator()));
 		return result;
 	}
 } // namespace lbcrypto ends

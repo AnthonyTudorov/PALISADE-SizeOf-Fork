@@ -45,7 +45,7 @@ namespace lbcrypto {
  * @param target_order is the intended target ordering.
  * @return is the output of the zero padding.	  	  
  */
-BigBinaryVector ZeroPadForward(const BigBinaryVector &InputPoly, usint target_order);
+BigVector ZeroPadForward(const BigVector &InputPoly, usint target_order);
 
 /**
  * Zero Pad Inverse of Elements.
@@ -56,7 +56,7 @@ BigBinaryVector ZeroPadForward(const BigBinaryVector &InputPoly, usint target_or
  * @param target_order is the intended target ordering.
  * @return is the output of the zero padding.	  	  
  */
-BigBinaryVector ZeroPadInverse(const BigBinaryVector &InputPoly, usint target_order);
+BigVector ZeroPadInverse(const BigVector &InputPoly, usint target_order);
 
 /**
  * Determines if a number is a power of 2.

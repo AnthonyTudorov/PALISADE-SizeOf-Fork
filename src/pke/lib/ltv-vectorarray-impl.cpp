@@ -1,5 +1,5 @@
 /*
-* @file ltv-vectorarray-impl.cpp - vector array implementation for the LTV scheme.
+* @file ltv-dcrtpoly-impl.cpp - vector array implementation for the LTV scheme.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -28,10 +28,87 @@
 #include "ltv.cpp"
 
 namespace lbcrypto {
-template class LPCryptoParametersLTV<ILDCRT2n>;
-template class LPPublicKeyEncryptionSchemeLTV<ILDCRT2n>;
-template class LPAlgorithmLTV<ILDCRT2n>;
-template class LPAlgorithmPRELTV<ILDCRT2n>;
-template class LPAlgorithmSHELTV<ILDCRT2n>;
-template class LPLeveledSHEAlgorithmLTV<ILDCRT2n>;
+template class LPCryptoParametersLTV<DCRTPoly>;
+template class LPPublicKeyEncryptionSchemeLTV<DCRTPoly>;
+template class LPAlgorithmLTV<DCRTPoly>;
+template class LPAlgorithmPRELTV<DCRTPoly>;
+template class LPAlgorithmSHELTV<DCRTPoly>;
+template class LPLeveledSHEAlgorithmLTV<DCRTPoly>;
+
+template<>
+bool LPAlgorithmParamsGenLTV<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams,
+		int32_t evalAddCount, int32_t evalMultCount, int32_t keySwitchCount) const
+{
+	if (!cryptoParams)
+		return false;
+
+	const shared_ptr<LPCryptoParametersLTV<DCRTPoly>> cParams = std::dynamic_pointer_cast<LPCryptoParametersLTV<DCRTPoly>>(cryptoParams);
+
+	double w = cParams->GetAssuranceMeasure();
+	double hermiteFactor = cParams->GetSecurityLevel();
+	usint depth = cParams->GetDepth();
+
+	double secD = 4 * log2(hermiteFactor);
+
+	double p = cParams->GetPlaintextModulus().ConvertToDouble();
+	uint32_t r = cParams->GetRelinWindow();
+
+	double psquared = p * p;
+	double rpow5 = pow(r,5);
+	double wpow5 = pow(w,5);
+
+	vector<native_int::BigInteger> qvals;
+
+	usint n = 512; // to start
+	for(;;) {
+		qvals.clear();
+
+
+		double rootn = sqrt(n);
+		double qboundD = 4 * p * r * rootn * w;
+		native_int::BigInteger qbound(qboundD);
+		double q2boundD = 4 * psquared * rpow5 * pow(rootn, 3) * wpow5;
+		native_int::BigInteger q2bound(q2boundD);
+
+		native_int::BigInteger q = FirstPrime<native_int::BigInteger>(static_cast<usint>(ceil(log2(qboundD))),n);
+		while( q < qbound )
+			q = NextPrime(q, n);
+
+		native_int::BigInteger q2 = FirstPrime<native_int::BigInteger>(static_cast<usint>(ceil(log2(q2boundD))), n);
+		while( q2 < q2bound )
+			q2 = NextPrime(q2, n);
+
+		qvals.push_back( q );
+		qvals.push_back( q2 );
+
+		for( usint i=2; i<depth; i++ ) {
+			q2 = NextPrime(q2, n);
+			qvals.push_back(q2);
+		}
+
+		BigInteger prod(1);
+		for( const auto& qv : qvals )
+			prod = prod * BigInteger(qv.ConvertToInt());
+
+		// check the correctness constraint
+		auto constraint = log2( prod.ConvertToDouble() ) / secD;
+
+		if( n >= constraint ) {
+			break;
+		}
+
+		n *= 2;
+	}
+
+	vector<native_int::BigInteger> roots;
+
+	for( const auto& qv : qvals )
+		roots.push_back( RootOfUnity(n, qv) );
+
+	shared_ptr<ILDCRTParams<BigInteger>> params(new ILDCRTParams<BigInteger>(n, qvals, roots));
+	cParams->SetElementParams( params );
+
+	return true;
+}
+
 }

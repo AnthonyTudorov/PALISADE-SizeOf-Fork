@@ -31,7 +31,7 @@
 #include "math/backend.h"
 #include "math/nbtheory.h"
 #include "math/distrgen.h"
-#include "lattice/ilvector2n.h"
+#include "lattice/poly.h"
 #include "utils/inttypes.h"
 #include "utils/utilities.h"
 
@@ -64,11 +64,11 @@ protected:
 /************************************************/
 
 #if 0 //TODO DBC FUNCTION IS UNUSED
-static function<unique_ptr<ILVector2n>()> fastIL2nAlloc() {
+static function<unique_ptr<Poly>()> fastIL2nAlloc() {
 	usint m = 16;
-	BigBinaryInteger modulus("67108913");
-	BigBinaryInteger rootOfUnity("61564");
-    return ILVector2n::MakeAllocator(
+	BigInteger modulus("67108913");
+	BigInteger rootOfUnity("61564");
+    return Poly::MakeAllocator(
         ILParams(
         m, modulus, rootOfUnity),
         EVALUATION
@@ -85,8 +85,8 @@ TEST(UTTrapdoor,randomized_round){
 
 TEST(UTTrapdoor,sizes){
 	usint m = 16;
-	BigBinaryInteger modulus("67108913");
-	BigBinaryInteger rootOfUnity("61564");
+	BigInteger modulus("67108913");
+	BigInteger rootOfUnity("61564");
 	float stddev = 4;
 
 	double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
@@ -94,7 +94,7 @@ TEST(UTTrapdoor,sizes){
 	usint k = (usint) floor(logTwo);// = this->m_cryptoParameters.GetModulus();
 
 	shared_ptr<ILParams> fastParams( new ILParams(m, modulus, rootOfUnity) );
-	std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> trapPair = RLWETrapdoorUtility::TrapdoorGen(fastParams, stddev);
+	std::pair<RingMat, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility::TrapdoorGen(fastParams, stddev);
 
 	EXPECT_EQ(1U,trapPair.first.GetRows())
 		<< "Failure testing number of rows";
@@ -116,8 +116,8 @@ TEST(UTTrapdoor,sizes){
 
 TEST(UTTrapdoor,TrapDoorPairTest){
 	usint m = 16;
-	BigBinaryInteger modulus("67108913");
-	BigBinaryInteger rootOfUnity("61564");
+	BigInteger modulus("67108913");
+	BigInteger rootOfUnity("61564");
 	float stddev = 4;
 
 	double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
@@ -125,9 +125,9 @@ TEST(UTTrapdoor,TrapDoorPairTest){
 	usint k = (usint) floor(logTwo);// = this->m_cryptoParameters.GetModulus();
 
 	shared_ptr<ILParams> params( new ILParams( m, modulus, rootOfUnity) );
-    auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
+    auto zero_alloc = Poly::MakeAllocator(params, EVALUATION);
 
-	std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev);
+	std::pair<RingMat, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev);
 
 	RingMat eHat = trapPair.second.m_e;
 	RingMat rHat = trapPair.second.m_r;
@@ -157,15 +157,15 @@ TEST(UTTrapdoor,TrapDoorPairTest){
 
 TEST(UTTrapdoor,GadgetTest){
 	usint m = 16;
-	BigBinaryInteger modulus("67108913");
-	BigBinaryInteger rootOfUnity("61564");
+	BigInteger modulus("67108913");
+	BigInteger rootOfUnity("61564");
 
 	double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
 	double logTwo = log(val-1.0)/log(2)+1.0;
 	usint k = (usint) floor(logTwo);// = this->m_cryptoParameters.GetModulus();
 
 	shared_ptr<ILParams> params( new ILParams( m, modulus, rootOfUnity) );
-        auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
+        auto zero_alloc = Poly::MakeAllocator(params, EVALUATION);
 
         RingMat g = RingMat(zero_alloc, 1, k).GadgetVector();
 
@@ -178,8 +178,8 @@ TEST(UTTrapdoor,GadgetTest){
 
 TEST(UTTrapdoor,TrapDoorMultTest){
 	usint m = 16;
-	BigBinaryInteger modulus("67108913");
-	BigBinaryInteger rootOfUnity("61564");
+	BigInteger modulus("67108913");
+	BigInteger rootOfUnity("61564");
 	float stddev = 4;
 
 	double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
@@ -187,9 +187,9 @@ TEST(UTTrapdoor,TrapDoorMultTest){
 	usint k = (usint) floor(logTwo);// = this->m_cryptoParameters.GetModulus();
 
 	shared_ptr<ILParams> params( new ILParams( m, modulus, rootOfUnity) );
-    auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
+    auto zero_alloc = Poly::MakeAllocator(params, EVALUATION);
 
-	std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev);
+	std::pair<RingMat, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev);
 
 	RingMat eHat = trapPair.second.m_e;
 	RingMat rHat = trapPair.second.m_r;
@@ -217,23 +217,23 @@ TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
   DEBUG("start tests");
 	usint m = 16;
     usint n = m/2;
-	BigBinaryInteger modulus("67108913");
-	BigBinaryInteger rootOfUnity("61564");
-	//BigBinaryInteger modulus("134218081");
-	//BigBinaryInteger rootOfUnity("19091337");
-	//BigBinaryInteger modulus("1048609");
-	//BigBinaryInteger rootOfUnity("389832");
+	BigInteger modulus("67108913");
+	BigInteger rootOfUnity("61564");
+	//BigInteger modulus("134218081");
+	//BigInteger rootOfUnity("19091337");
+	//BigInteger modulus("1048609");
+	//BigInteger rootOfUnity("389832");
 	shared_ptr<ILParams> params( new ILParams( m, modulus, rootOfUnity) );
-    auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
+    auto zero_alloc = Poly::MakeAllocator(params, EVALUATION);
 	double sigma = SIGMA;
 
-	ILVector2n::DggType dgg(sigma);
-	ILVector2n::DugType dug = ILVector2n::DugType();
+	Poly::DggType dgg(sigma);
+	Poly::DugType dug = Poly::DugType();
 	dug.SetModulus(modulus);
 
 
   DEBUG("1");
-	ILVector2n u(dug,params,COEFFICIENT);
+	Poly u(dug,params,COEFFICIENT);
   DEBUG("2");
 	double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
 	//YSP check logTwo computation
@@ -255,11 +255,11 @@ TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
 	EXPECT_EQ(u.GetLength(),zHatBBI.GetCols())
 		<< "Failure testing number of colums";
   DEBUG("4");
-    Matrix<ILVector2n> z = SplitInt32AltIntoILVector2nElements(zHatBBI, n, params);
+    Matrix<Poly> z = SplitInt32AltIntoPolyElements(zHatBBI, n, params);
 	z.SwitchFormat();
 
-	ILVector2n uEst;
-	uEst = (Matrix<ILVector2n>(zero_alloc, 1,  k).GadgetVector()*z)(0,0);
+	Poly uEst;
+	uEst = (Matrix<Poly>(zero_alloc, 1,  k).GadgetVector()*z)(0,0);
 	uEst.SwitchFormat();
 
     EXPECT_EQ(u, uEst);
@@ -273,8 +273,8 @@ TEST(UTTrapdoor, TrapDoorGaussSampTest) {
 	usint m = 16;
 	usint n = m / 2;
 
-	BigBinaryInteger modulus("67108913");
-	BigBinaryInteger rootOfUnity("61564");
+	BigInteger modulus("67108913");
+	BigInteger rootOfUnity("61564");
 	double sigma = SIGMA;
 
 	double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
@@ -288,23 +288,23 @@ TEST(UTTrapdoor, TrapDoorGaussSampTest) {
 	DEBUG("root = "<<rootOfUnity);
 
 	shared_ptr<ILParams> params(new ILParams(m, modulus, rootOfUnity));
-	//auto zero_alloc = ILVector2n::MakeAllocator(params, COEFFICIENT);
+	//auto zero_alloc = Poly::MakeAllocator(params, COEFFICIENT);
 
-	std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, sigma);
+	std::pair<RingMat, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, sigma);
 
 	RingMat eHat = trapPair.second.m_e;
 	RingMat rHat = trapPair.second.m_r;
-	//auto uniform_alloc = ILVector2n::MakeDiscreteUniformAllocator(params, EVALUATION);
+	//auto uniform_alloc = Poly::MakeDiscreteUniformAllocator(params, EVALUATION);
 
-	ILVector2n::DggType dgg(sigma);
-	ILVector2n::DugType dug = ILVector2n::DugType();
+	Poly::DggType dgg(sigma);
+	Poly::DugType dug = Poly::DugType();
 	dug.SetModulus(modulus);
 
 	double c = 2 * SIGMA;
 	double s = SPECTRAL_BOUND(n, k);
-	ILVector2n::DggType dggLargeSigma(sqrt(s * s - c * c));
+	Poly::DggType dggLargeSigma(sqrt(s * s - c * c));
 
-	ILVector2n u(dug, params, COEFFICIENT);
+	Poly u(dug, params, COEFFICIENT);
 
 	DEBUG("u "<<u);
 	u.SwitchFormat();
@@ -312,14 +312,14 @@ TEST(UTTrapdoor, TrapDoorGaussSampTest) {
 
 	RingMat z = RLWETrapdoorUtility::GaussSamp(m / 2, k, trapPair.first, trapPair.second, u, sigma, dgg, dggLargeSigma);
 
-	//Matrix<ILVector2n> uEst = trapPair.first * z;
+	//Matrix<Poly> uEst = trapPair.first * z;
 
 	EXPECT_EQ(trapPair.first.GetCols(), z.GetRows())
 		<< "Failure testing number of rows";
 	EXPECT_EQ(m / 2, z(0, 0).GetLength())
 		<< "Failure testing ring dimension for the first ring element";
 
-	ILVector2n uEst = (trapPair.first * z)(0, 0);
+	Poly uEst = (trapPair.first * z)(0, 0);
 
 	DEBUG("uEst "<<uEst);
 	DEBUG("u "<<u);
@@ -350,19 +350,19 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 	usint n = m / 2;
 
 	//for m = 16
-	BigBinaryInteger modulus("67108913");
-	BigBinaryInteger rootOfUnity("61564");
+	BigInteger modulus("67108913");
+	BigInteger rootOfUnity("61564");
 
 	//for m = 2048
-	//BigBinaryInteger modulus("134246401");
-	//BigBinaryInteger rootOfUnity("34044212");
+	//BigInteger modulus("134246401");
+	//BigInteger rootOfUnity("34044212");
 
 	//for m = 2^13
-	//BigBinaryInteger modulus("268460033");
-	//BigBinaryInteger rootOfUnity("154905983");
+	//BigInteger modulus("268460033");
+	//BigInteger rootOfUnity("154905983");
 
-	//BigBinaryInteger modulus("1237940039285380274899136513");
-	//BigBinaryInteger rootOfUnity("977145384161930579732228319");
+	//BigInteger modulus("1237940039285380274899136513");
+	//BigInteger rootOfUnity("977145384161930579732228319");
 
 	double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
 	double logTwo = log(val - 1.0) / log(2) + 1.0;
@@ -385,18 +385,18 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 
 	//std::cout << 50 / (c*sigma) << std::endl;
 
-	std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, sigma);
+	std::pair<RingMat, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, sigma);
 
 	RingMat eHat = trapPair.second.m_e;
 	RingMat rHat = trapPair.second.m_r;
 
-	ILVector2n::DggType dgg(sigma);
-	ILVector2n::DugType dug = ILVector2n::DugType();
+	Poly::DggType dgg(sigma);
+	Poly::DugType dug = Poly::DugType();
 	dug.SetModulus(modulus);
 
-	ILVector2n::DggType dggLargeSigma(sqrt(s * s - c * c));
+	Poly::DggType dggLargeSigma(sqrt(s * s - c * c));
 
-	auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
+	auto zero_alloc = Poly::MakeAllocator(params, EVALUATION);
 
 	//Do perturbation sampling
 	RingMat pHat(zero_alloc, k + 2, 1);
@@ -409,7 +409,7 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 
 	Matrix<int32_t> pTrapdoor([]() { return make_unique<int32_t>(); }, 2 * n, 1);
 
-	Matrix<BigBinaryInteger> bbiTrapdoor(BigBinaryInteger::Allocator, 2*n, 1);
+	Matrix<BigInteger> bbiTrapdoor(BigInteger::Allocator, 2*n, 1);
 
 	Matrix<int32_t> pTrapdoorAverage([]() { return make_unique<int32_t>(); }, 2 * n, 1);
 
@@ -436,13 +436,13 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 		pCovarianceMatrix = pCovarianceMatrix + pTrapdoor*pTrapdoor.Transpose();
 	}
 
-	Matrix<ILVector2n> Tprime0 = eHat;
-	Matrix<ILVector2n> Tprime1 = rHat;
+	Matrix<Poly> Tprime0 = eHat;
+	Matrix<Poly> Tprime1 = rHat;
 
 	// all three polynomials are initialized with "0" coefficients
-	ILVector2n va(params, EVALUATION, 1);
-	ILVector2n vb(params, EVALUATION, 1);
-	ILVector2n vd(params, EVALUATION, 1);
+	Poly va(params, EVALUATION, 1);
+	Poly vb(params, EVALUATION, 1);
+	Poly vd(params, EVALUATION, 1);
 
 	for (size_t i = 0; i < k; i++) {
 		va = va + Tprime0(0, i)*Tprime0(0, i).Transpose();
@@ -489,8 +489,8 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 //	usint m_cyclo = 16;
 //	usint n = m_cyclo/2;
 //
-//	BigBinaryInteger modulus("67108913");
-//	BigBinaryInteger rootOfUnity("61564");
+//	BigInteger modulus("67108913");
+//	BigInteger rootOfUnity("61564");
 //	float stddev = 4;
 //	usint chunkSize = 1;
 //
@@ -501,40 +501,40 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 //	double norm = 0;
 //
 //	shared_ptr<ILParams> params( new ILParams(m_cyclo, modulus, rootOfUnity) );
-//    	//auto zero_alloc = ILVector2n::MakeAllocator(params, COEFFICIENT);
+//    	//auto zero_alloc = Poly::MakeAllocator(params, COEFFICIENT);
 //
 //	DiscreteGaussianGenerator dgg(4);
 //
 //	// Precomputations for DGG
-//	ILVector2n::PreComputeDggSamples(dgg, params);
+//	Poly::PreComputeDggSamples(dgg, params);
 //
-//	ObfuscatedLWEConjunctionPattern<ILVector2n> obfuscatedPattern(params,chunkSize);
+//	ObfuscatedLWEConjunctionPattern<Poly> obfuscatedPattern(params,chunkSize);
 //	obfuscatedPattern.SetLength(1);
 //
 //	usint m = obfuscatedPattern.GetLogModulus() + 2;
 //
-//	DiscreteUniformGenerator dug = DiscreteUniformGenerator(BigBinaryInteger(m));
+//	DiscreteUniformGenerator dug = DiscreteUniformGenerator(BigInteger(m));
 //
-//	LWEConjunctionObfuscationAlgorithm<ILVector2n> algorithm;
+//	LWEConjunctionObfuscationAlgorithm<Poly> algorithm;
 //
 //	algorithm.KeyGen(dgg,&obfuscatedPattern);
 //
-//	const std::vector<Matrix<ILVector2n>> &Pk_vector = obfuscatedPattern.GetPublicKeys();
-//	const std::vector<RLWETrapdoorPair<ILVector2n>>   &Ek_vector = obfuscatedPattern.GetEncodingKeys();
+//	const std::vector<Matrix<Poly>> &Pk_vector = obfuscatedPattern.GetPublicKeys();
+//	const std::vector<RLWETrapdoorPair<Poly>>   &Ek_vector = obfuscatedPattern.GetEncodingKeys();
 //
 //	double constraint = obfuscatedPattern.GetConstraint();
 //
-//	auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
+//	auto zero_alloc = Poly::MakeAllocator(params, EVALUATION);
 //
-//	ILVector2n	s1(dgg,params,EVALUATION);
+//	Poly	s1(dgg,params,EVALUATION);
 //
-//	Matrix<ILVector2n> *encoded1 = new Matrix<ILVector2n>(zero_alloc, m, m);
+//	Matrix<Poly> *encoded1 = new Matrix<Poly>(zero_alloc, m, m);
 //	algorithm.Encode(Pk_vector[0],Pk_vector[1],Ek_vector[0],Sigma[0],s1,dgg,encoded1);
 //
-//	Matrix<ILVector2n> *encoded2 = new Matrix<ILVector2n>(zero_alloc, m, m);
+//	Matrix<Poly> *encoded2 = new Matrix<Poly>(zero_alloc, m, m);
 //	algorithm.Encode(Pk_vector[0],Pk_vector[1],Ek_vector[0],Sigma[0],s1,dgg,encoded2);	
 //
-//	Matrix<ILVector2n> CrossProd = Pk_vector[0]*(*encoded1 - *encoded2);
+//	Matrix<Poly> CrossProd = Pk_vector[0]*(*encoded1 - *encoded2);
 //
 //	CrossProd.SwitchFormat();
 //
@@ -551,7 +551,7 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 //	delete encoded2;
 //
 //	//cleans up precomputed samples
-//	//ILVector2n::DestroyPreComputedSamples();
+//	//Poly::DestroyPreComputedSamples();
 //
 //	
 //}
@@ -561,8 +561,8 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 //	usint m_cyclo = 16;
 //	usint n = m_cyclo/2;
 //
-//	BigBinaryInteger modulus("67108913");
-//	BigBinaryInteger rootOfUnity("61564");
+//	BigInteger modulus("67108913");
+//	BigInteger rootOfUnity("61564");
 //	float stddev = 4;
 //	usint chunkSize = 1;
 //
@@ -573,38 +573,38 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 //	double norm = 0;
 //
 //	shared_ptr<ILParams> params( new ILParams(m_cyclo, modulus, rootOfUnity) );
-//    //auto zero_alloc = ILVector2n::MakeAllocator(params, COEFFICIENT);
+//    //auto zero_alloc = Poly::MakeAllocator(params, COEFFICIENT);
 //
-//	ObfuscatedLWEConjunctionPatternV2<ILVector2n> obfuscatedPattern(params,chunkSize);
+//	ObfuscatedLWEConjunctionPatternV2<Poly> obfuscatedPattern(params,chunkSize);
 //	obfuscatedPattern.SetLength(1);
 //
 //	usint m = obfuscatedPattern.GetLogModulus() + 2;
 //
-//	LWEConjunctionObfuscationAlgorithmV2<ILVector2n> algorithm;
+//	LWEConjunctionObfuscationAlgorithmV2<Poly> algorithm;
 //
 //	DiscreteGaussianGenerator dgg(4);
-//	DiscreteUniformGenerator dug = DiscreteUniformGenerator(BigBinaryInteger(m));
+//	DiscreteUniformGenerator dug = DiscreteUniformGenerator(BigInteger(m));
 //
 //	algorithm.KeyGen(dgg,&obfuscatedPattern);
 //
-//	const std::vector<Matrix<ILVector2n>> &Pk_vector = obfuscatedPattern.GetPublicKeys();
-//	const std::vector<RLWETrapdoorPair<ILVector2n>>   &Ek_vector = obfuscatedPattern.GetEncodingKeys();
+//	const std::vector<Matrix<Poly>> &Pk_vector = obfuscatedPattern.GetPublicKeys();
+//	const std::vector<RLWETrapdoorPair<Poly>>   &Ek_vector = obfuscatedPattern.GetEncodingKeys();
 //	const std::vector<Matrix<LargeFloat>>   &Sigma = obfuscatedPattern.GetSigmaKeys();
 //
 //	double constraint = obfuscatedPattern.GetConstraint();
 //
-//	auto zero_alloc = ILVector2n::MakeAllocator(params, EVALUATION);
+//	auto zero_alloc = Poly::MakeAllocator(params, EVALUATION);
 //
-//	ILVector2n	s1(dgg,params,EVALUATION);
-//	ILVector2n	s2(dgg,params,EVALUATION);
+//	Poly	s1(dgg,params,EVALUATION);
+//	Poly	s2(dgg,params,EVALUATION);
 //
-//	Matrix<ILVector2n> *encoded1 = new Matrix<ILVector2n>(zero_alloc, m, m);
+//	Matrix<Poly> *encoded1 = new Matrix<Poly>(zero_alloc, m, m);
 //	algorithm.Encode(Pk_vector[0],Pk_vector[1],Ek_vector[0],Sigma[0],s1,dgg,encoded1);
 //
-//	Matrix<ILVector2n> *encoded2 = new Matrix<ILVector2n>(zero_alloc, m, m);
+//	Matrix<Poly> *encoded2 = new Matrix<Poly>(zero_alloc, m, m);
 //	algorithm.Encode(Pk_vector[0],Pk_vector[1],Ek_vector[0],Sigma[0],s2,dgg,encoded2);	
 //
-//	Matrix<ILVector2n> CrossProd = Pk_vector[0]*(*encoded1 - *encoded2);
+//	Matrix<Poly> CrossProd = Pk_vector[0]*(*encoded1 - *encoded2);
 //
 //	CrossProd.SwitchFormat();
 //

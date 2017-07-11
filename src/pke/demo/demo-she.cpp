@@ -1,8 +1,10 @@
 /*
- * @file 
+ * @file demo_she.cpp - PALISADE library.
  * @author  TPOC: palisade@njit.edu
  *
- * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
+ * @section LICENSE
+ *
+ * Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -22,235 +24,251 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */
- /*
-// This program demonstrates the use of the PALISADE library to perform SHE operations
-//
-// All PALISADE functionality takes place as a part of a CryptoContext, and so the first
-// step in using PALISADE is creating a CryptoContext
-//
-// A CryptoContext can be created on the fly by passing parameters into a method provided
-// in the CryptoContextFactory.
-// A CryptoContext can be custom tuned for your particular application by using parameter generation
-// A CryptoContext can be constructed from one of a group of named, predetermined parameter sets
-//
-// This program uses the "group of named predetermined sets" method. Pass the parameter set name to the
-// program and it will use that set. Pass no names and it will tell you all the available names.
-// Use the -v option and the program will be verbose as it operates
+ * @section DESCRIPTION
+ * Demo software for FV multiparty operations.
+ *
  */
 
 #include <iostream>
 #include <fstream>
-#include <string>
+#include <iterator>
+#include <chrono>
 #include <iterator>
 
 #include "palisade.h"
-
 #include "cryptocontexthelper.h"
-
+#include "cryptocontextgen.h"
 #include "encoding/byteplaintextencoding.h"
-#include "encoding/intplaintextencoding.h"
-
-#include "cryptocontextparametersets.h"
-
 #include "utils/debug.h"
+#include "utils/serializablehelper.h"
 
 using namespace std;
 using namespace lbcrypto;
 
-////////////////////////////////////////////////////////////
-// This program demonstrates the use of the PALISADE library to perform SHE operations
-//
-// All PALISADE functionality takes place as a part of a CryptoContext, and so the first
-// step in using PALISADE is creating a CryptoContext
-//
-// A CryptoContext can be created on the fly by passing parameters into a method provided
-// in the CryptoContextFactory.
-// A CryptoContext can be custom tuned for your particular application by using parameter generation
-// A CryptoContext can be constructed from one of a group of named, predetermined parameter sets
-//
-// This program uses the "group of named predetermined sets" method. Pass the parameter set name to the
-// program and it will use that set. Pass no names and it will tell you all the available names.
-// Use the -v option and the program will be verbose as it operates
+int main(int argc, char *argv[]) {
 
-int main(int argc, char *argv[])
-{
-	string parmSetName;
-	bool beVerbose = false;
-	bool haveName = false;
+	////////////////////////////////////////////////////////////
+	// Set-up of parameters
+	////////////////////////////////////////////////////////////
 
-	// Process parameters, find the parameter set name specified on the command line
-	for( int i=1; i<argc; i++ ) {
-		string parm( argv[i] );
 
-		if( parm[0] == '-' ) {
-			if( parm == "-v" )
-				beVerbose = true;
-			else {
-				cout << "Unrecognized parameter " << parm << endl;
-				return 1;
-			}
-		}
+	std::cout << "\nThis code demonstrates the use of the FV scheme for basic homomorphic encryption operations. " << std::endl;
+	std::cout << "This code shows how to auto-generate parameters during run-time based on desired plaintext moduli and security levels. " << std::endl;
+	std::cout << "In this demonstration we use three input plaintext and show how to both add them together and multiply them together. " << std::endl;
 
-		else {
-			if( haveName ) {
-				cout << "Cannot specify multiple parameter set names" << endl;
-				return 1;
-			}
 
-			haveName = true;
-			parmSetName = parm;
+	//Generate parameters.
+	double diff, start, finish;
 
-		}
-	}
+	int relWindow = 1;
+	int plaintextModulus = 1024;
+	double sigma = 4;
+	double rootHermiteFactor = 1.006;	
 
-	// If a name has been specified, make sure it is recognized
-	if( haveName ) {
-		auto parmfind = CryptoContextParameterSets.find(parmSetName);
-		if( parmfind == CryptoContextParameterSets.end() ) {
-			cout << "Parameter set " << parmSetName << " is not a recognized name" << endl;
-			haveName = false;
-		}
-	}
-
-	// no name specified? print out the names of all available parameter sets
-	if( !haveName ) {
-		cout << "Available crypto parameter sets are:" << endl;
-		CryptoContextHelper::printAllParmSetNames(cout);
-		return 1;
-	}
-
-	// Construct a crypto context for this parameter set
-
-	if( beVerbose ) cout << "Initializing crypto system" << endl;
-
-	CryptoContext<ILVector2n> cc = CryptoContextHelper::getNewContext(parmSetName);
+	//Set Crypto Parameters	
+	shared_ptr<CryptoContext<Poly>> cryptoContext = CryptoContextFactory<Poly>::genCryptoContextFV(
+			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 2, 0);
 
 	// enable features that you wish to use
-	cc.Enable(ENCRYPTION);
-	cc.Enable(SHE);
+	cryptoContext->Enable(ENCRYPTION);
+	cryptoContext->Enable(SHE);
+	
+	std::cout << "p = " << cryptoContext->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
+	std::cout << "n = " << cryptoContext->GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
+	std::cout << "log2 q = " << log2(cryptoContext->GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
 
-	// for this demo we reset the plaintext modulus and try ParamsGen
-	cc.GetCryptoParameters()->SetPlaintextModulus(4);
-
-	try {
-		if( beVerbose )
-			cout << "Running params gen" << endl;
-		cc.GetEncryptionAlgorithm()->ParamsGen(cc.GetCryptoParameters(), 0, 1);
-	} catch(...) {
-		// ignore for schemes w/o Param Gen
-		if( beVerbose )
-			cout << "Running params gen failed, continuing..." << endl;
-	}
-
-	if( beVerbose ) {
-		CryptoContextHelper::printParmSet(cout, parmSetName);
-		cout << *cc.GetCryptoParameters() << endl;
-	}
-
-	std::vector<uint32_t> vectorOfInts1 = { 1,0,3,1,0,1,2,1 };
-	IntPlaintextEncoding plaintext1(vectorOfInts1);
-
-	std::vector<uint32_t> vectorOfInts2 = { 2,1,3,2,2,1,3,0 };
-	IntPlaintextEncoding plaintext2(vectorOfInts2);
-
-	std::vector<uint32_t> vectorOfIntsAdd = { 3, 1, 2, 3, 2, 2, 1, 1 };
-	IntPlaintextEncoding plaintextAdd(vectorOfIntsAdd);
-
-	std::vector<uint32_t> vectorOfIntsMult = { 2, 1, 1, 3, 0, 0, 0, 0, 3, 0, 3, 3, 3, 3, 0, 0 };
-	IntPlaintextEncoding plaintextMult(vectorOfIntsMult);
-
+	//std::cout << "Press any key to continue." << std::endl;
+	//std::cin.get();
+	
+	// Initialize Public Key Containers
+	LPKeyPair<Poly> keyPair;
+	
 	////////////////////////////////////////////////////////////
-	//Perform the key generation operation.
+	// Perform Key Generation Operation
 	////////////////////////////////////////////////////////////
 
-	if( beVerbose ) cout << "Running key generation" << endl;
+	std::cout << "Running key generation (used for source data)..." << std::endl;
 
-	LPKeyPair<ILVector2n> kp = cc.KeyGen();
+	start = currentDateTime();
 
-	if( !kp.good() ) {
+	keyPair = cryptoContext->KeyGen();
+	cryptoContext->EvalMultKeyGen(keyPair.secretKey);
+
+	finish = currentDateTime();
+	diff = finish - start;
+	cout << "Key generation time: " << "\t" << diff << " ms" << endl;
+
+	if( !keyPair.good() ) {
 		std::cout << "Key generation failed!" << std::endl;
 		exit(1);
 	}
 
 	////////////////////////////////////////////////////////////
-	//Encryption
+	// Encode source data
 	////////////////////////////////////////////////////////////
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext1;
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext2;
-
-	if( beVerbose ) cout << "Running encryption" << endl;
-
-	ciphertext1 = cc.Encrypt(kp.publicKey, plaintext1);
-	ciphertext2 = cc.Encrypt(kp.publicKey, plaintext2);
-
-	////////////////////////////////////////////////////////////
-	//EvalAdd Operation
-	////////////////////////////////////////////////////////////
-
-	if( beVerbose ) cout << "Performing EvalAdd" << endl;
-
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextAdd;
-	shared_ptr<Ciphertext<ILVector2n>> ciphertextAddResult;
-
-	ciphertextAddResult = cc.EvalAdd(ciphertext1[0], ciphertext2[0]);
-	ciphertextAdd.push_back(ciphertextAddResult);
-
-	if( beVerbose ) cout << "Running decryption on Add result" << std::endl;
-
-	IntPlaintextEncoding plaintextAddTemp;
-
-	DecryptResult result = cc.Decrypt(kp.secretKey, ciphertextAdd, &plaintextAddTemp);
-
-	plaintextAddTemp.resize(plaintextAdd.size());
-
-	if( beVerbose ) {
-		cout << plaintext1 << " + \n" << plaintext2 << " = \n" << plaintextAddTemp;
-		if( plaintextAddTemp == plaintextAdd )
-			cout << " ... CORRECT!";
-		else
-			cout << " ... INCORRECT!";
-		cout << endl;
-	}
+	std::vector<uint32_t> vectorOfInts1 = {3,2,1,3,2,1,0,0,0,0,0,0};
+	std::vector<uint32_t> vectorOfInts2 = {2,0,0,0,0,0,0,0,0,0,0,0};
+	std::vector<uint32_t> vectorOfInts3 = {1,0,0,0,0,0,0,0,0,0,0,0};
+	IntPlaintextEncoding plaintext1(vectorOfInts1);
+	IntPlaintextEncoding plaintext2(vectorOfInts2);
+	IntPlaintextEncoding plaintext3(vectorOfInts3);
 
 	////////////////////////////////////////////////////////////
-	//EvalMult Operation
+	// Encryption
 	////////////////////////////////////////////////////////////
 
-	if( beVerbose ) cout << "Generating evaluation key" << endl;
 
-	cc.EvalMultKeyGen(kp.secretKey);
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertext1;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertext2;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertext3;
 
-	if( beVerbose ) cout << "Performing EvalMult" << endl;
+	start = currentDateTime();
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextMult;
-	shared_ptr<Ciphertext<ILVector2n>> ciphertextTempMult;
-
-	ciphertextTempMult = cc.EvalMult(ciphertext1[0], ciphertext2[0]);
-
-	ciphertextMult.push_back(ciphertextTempMult);
+	ciphertext1 = cryptoContext->Encrypt(keyPair.publicKey, plaintext1, true);
+	ciphertext2 = cryptoContext->Encrypt(keyPair.publicKey, plaintext2, true);
+	ciphertext3 = cryptoContext->Encrypt(keyPair.publicKey, plaintext3, true);
+	
+	finish = currentDateTime();
+	diff = finish - start;
+	cout << "Encryption time: " << "\t" << diff << " ms" << endl;
 
 	////////////////////////////////////////////////////////////
-	//Decryption after EvalMult Operation
+	//Decryption of Ciphertext
 	////////////////////////////////////////////////////////////
 
-	if( beVerbose ) cout << "Running decryption on Mult result" << endl;
+	IntPlaintextEncoding plaintext1Dec;
+	IntPlaintextEncoding plaintext2Dec;
+	IntPlaintextEncoding plaintext3Dec;
 
-	IntPlaintextEncoding plaintextNewMult;
+	start = currentDateTime();
 
-	result = cc.Decrypt(kp.secretKey, ciphertextMult, &plaintextNewMult);
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertext1, &plaintext1Dec, true);
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertext2, &plaintext2Dec, true);
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertext3, &plaintext3Dec, true);
 
-	plaintextNewMult.resize(plaintextMult.size());
+	finish = currentDateTime();
+	diff = finish - start;
+	cout << "Decryption time: " << "\t" << diff << " ms" << endl;
 
-	if( beVerbose ) {
-		cout << plaintext1 << " * \n" << plaintext2 << " = \n" << plaintextNewMult << endl;
-		if( plaintextNewMult == plaintextMult )
-			cout << " ... CORRECT!";
-		else
-			cout << " ... INCORRECT!";
-		cout << endl;
-	}
+	//std::cin.get();
+
+	plaintext1Dec.resize(plaintext1.size());
+	plaintext2Dec.resize(plaintext1.size());
+	plaintext3Dec.resize(plaintext1.size());
+
+	cout << "\n Original Plaintext: \n";
+	cout << plaintext1 << endl;
+	cout << plaintext2 << endl;
+	cout << plaintext3 << endl;
+
+	cout << "\n Resulting Decryption of Ciphertext: \n";
+	cout << plaintext1Dec << endl;
+	cout << plaintext2Dec << endl;
+	cout << plaintext3Dec << endl;
+
+	cout << "\n";
+
+	////////////////////////////////////////////////////////////
+	// EvalAdd Operation
+	////////////////////////////////////////////////////////////
+
+	shared_ptr<Ciphertext<Poly>> ciphertextAdd12;
+	shared_ptr<Ciphertext<Poly>> ciphertextAdd123;
+
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertextAddVect;
+
+	start = currentDateTime();
+
+	ciphertextAdd12 = cryptoContext->EvalAdd(ciphertext1[0],ciphertext2[0]);
+	ciphertextAdd123 = cryptoContext->EvalAdd(ciphertextAdd12,ciphertext3[0]);
+
+	ciphertextAddVect.push_back(ciphertextAdd123);
+
+	finish = currentDateTime();
+	diff = finish - start;
+	cout << "EvalAdd time: " << "\t" << diff << " ms" << endl;
+
+
+	////////////////////////////////////////////////////////////
+	//Decryption after Accumulation Operation
+	////////////////////////////////////////////////////////////
+
+	IntPlaintextEncoding plaintextAdd;
+
+	start = currentDateTime();
+
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertextAddVect, &plaintextAdd, true);
+
+	finish = currentDateTime();
+	diff = finish - start;
+
+	//std::cin.get();
+
+	plaintextAdd.resize(plaintext1.size());
+
+	cout << "\n Original Plaintext: \n";
+	cout << plaintext1 << endl;
+	cout << plaintext2 << endl;
+	cout << plaintext3 << endl;
+
+	cout << "\n Resulting Added Plaintext: \n";
+	cout << plaintextAdd << endl;
+
+	cout << "\n";
+
+	////////////////////////////////////////////////////////////
+	// EvalMult Operation
+	////////////////////////////////////////////////////////////
+
+	shared_ptr<Ciphertext<Poly>> ciphertextMul12;
+	shared_ptr<Ciphertext<Poly>> ciphertextMul123;
+
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertextMulVect;
+
+	start = currentDateTime();
+
+	ciphertextMul12 = cryptoContext->EvalMult(ciphertext1[0],ciphertext2[0]);
+	ciphertextMul123 = cryptoContext->EvalMult(ciphertextMul12,ciphertext3[0]);
+
+	ciphertextMulVect.push_back(ciphertextMul123);
+
+	finish = currentDateTime();
+	diff = finish - start;
+	cout << "EvalMult time: " << "\t" << diff << " ms" << endl;
+
+
+	////////////////////////////////////////////////////////////
+	//Decryption after Accumulation Operation on Re-Encrypted Data
+	////////////////////////////////////////////////////////////
+
+	IntPlaintextEncoding plaintextMul;
+
+	start = currentDateTime();
+
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertextMulVect, &plaintextMul, true);
+
+	finish = currentDateTime();
+	diff = finish - start;
+
+	//std::cin.get();
+
+	plaintextMul.resize(plaintext1.size());
+
+	cout << "\n Original Plaintext: \n";
+	cout << plaintext1 << endl;
+	cout << plaintext2 << endl;
+	cout << plaintext3 << endl;
+
+	cout << "\n Resulting Plaintext (after polynomial multiplication): \n";
+	cout << plaintextMul << endl;
+
+	cout << "\n";
+	////////////////////////////////////////////////////////////
+	// Done
+	////////////////////////////////////////////////////////////
+
+	std::cout << "Execution Completed." << std::endl;
 
 	return 0;
 }

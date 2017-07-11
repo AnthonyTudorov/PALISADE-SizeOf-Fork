@@ -46,6 +46,7 @@
 #include <memory>
 #include "../../utils/inttypes.h"
 #include "../../utils/memory.h"
+#include "../nbtheory.h"
 
 #ifdef UBINT_64
 
@@ -700,6 +701,11 @@ namespace exp_int{
      */
     ubint ModAdd(const ubint& b, const ubint& modulus) const;
 
+    // this is wrapper for modadd
+    inline ubint ModBarrettAdd(const ubint& b, const ubint& modulus,const ubint& mu) const {
+      return this->ModAdd(b, modulus);
+    };
+
 
     /**
      * Scalar modular subtraction.
@@ -766,8 +772,8 @@ namespace exp_int{
     const std::string ToString() const;		
 
     //Serialization functions
-    const std::string Serialize(const ubint& mod = ubint::ZERO) const;
-    const char * Deserialize(const char * str, const ubint& mod = ubint::ZERO);
+    const std::string Serialize(const ubint& mod = 0) const;
+    const char * Deserialize(const char * str, const ubint& mod = 0);
 
 
     // helper functions
@@ -805,7 +811,7 @@ namespace exp_int{
      * @return the  number represented as a ubint.
      */
     static ubint BinaryStringToUbint(const std::string& bitString);
-    static ubint BinaryStringToBigBinaryInt(const std::string& bitString);
+    static ubint BitStringToBigInteger(const std::string& bitString);
 
     /**
      * Multiply and Rounding operation on a ubint x. 
@@ -1054,7 +1060,7 @@ namespace exp_int{
     /**
      * A zero allocator that is called by the Matrix class. It is used to initialize a Matrix of ubint objects.
      */
-    static std::function<unique_ptr<ubint>()> Allocator;
+    static unique_ptr<ubint> Allocator();
 
     /**
      * Gets the MSB of the ubint from the internal value.
@@ -1186,31 +1192,13 @@ namespace exp_int{
     //public: 
   private: 
     /**
-     * function to return the MSB of a 32 bit number.
-     * @param x is the 32 bit integer.
-     * @return the MSB position in the 32 bit number x. Note MSB(1) is 1 NOT zero!!!!!
-     */
-#if 0
-    inline static uint64_t GetMSB32(uint64_t x);
-#else
-    inline static uint32_t GetMSB32(uint32_t x);
-#endif
-    /**
      * function to return the MSB of number.
      * @param x is the number.
      * @return the MSB position in the number x.Note MSB(1) is 1 NOT zero!!!!!
      */
 		
-    inline static usint GetMSBlimb_t(limb_t x);
+    inline static usint GetMSBlimb_t(limb_t x) { return lbcrypto::GetMSB64(x); }
 		
-		
-    /**
-     * function to return the MSB of 64 bit number.
-     * @param x is the number.
-     * @return the MSB position in the number x. Note MSB(1) is 1 NOT zero!!!!!
-     */
-    inline static uint64_t GetMSB64(uint64_t x);
-    
     //Dlimb_t is the data type that has twice as many bits in the limb data type.
     typedef typename DoubleDataType<limb_t>::T Dlimb_t;
 
@@ -1231,7 +1219,7 @@ namespace exp_int{
      * @param x is the number.
      * @return the MSB position in the number x. Note MSB(1) is 1 NOT zero!!!!!
      */
-    static usint GetMSBDlimb_t(Dlimb_t x);
+    inline static usint GetMSBDlimb_t(Dlimb_t x) { return lbcrypto::GetMSB64(x); }
 
     //enum to store the state of the 
     State m_state;

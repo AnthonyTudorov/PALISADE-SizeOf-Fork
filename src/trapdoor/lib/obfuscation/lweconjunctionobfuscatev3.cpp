@@ -99,8 +99,8 @@ void ObfuscatedLWEConjunctionPattern<Element>::SetLength(usint length) {
 };
 
 template <class Element>
-const BigBinaryInteger ObfuscatedLWEConjunctionPattern<Element>::GetModulus() const{
-	BigBinaryInteger q(m_elemParams->GetModulus());
+const BigInteger ObfuscatedLWEConjunctionPattern<Element>::GetModulus() const{
+	BigInteger q(m_elemParams->GetModulus());
 	return q;
 };
 
@@ -121,7 +121,7 @@ usint ObfuscatedLWEConjunctionPattern<Element>::GetLogModulus() const{
 };
 
 template <class Element>
-void ObfuscatedLWEConjunctionPattern<Element>::SetModulus(BigBinaryInteger &modulus) {
+void ObfuscatedLWEConjunctionPattern<Element>::SetModulus(BigInteger &modulus) {
 	this->m_elemParams.SetModulus(modulus);
 };
 
@@ -230,8 +230,8 @@ void LWEConjunctionObfuscationAlgorithm<Element>::ParamsGen(typename Element::Dg
 		}
 	}
 
-	BigBinaryInteger qPrime = FindPrimeModulus<BigBinaryInteger>(2 * n, floor(log2(q) + 1) + 1);
-	BigBinaryInteger rootOfUnity = RootOfUnity<BigBinaryInteger>(2 * n, qPrime);
+	BigInteger qPrime = FirstPrime<BigInteger>(floor(log2(q) + 1) + 1, 2*n);
+	BigInteger rootOfUnity = RootOfUnity<BigInteger>(2 * n, qPrime);
 
 	//Prepare for parameters.
 	shared_ptr<ILParams> ilParams(new ILParams(2*n, qPrime, rootOfUnity));
@@ -265,7 +265,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(typename Element::DggTy
 	 //parallelized method
 	// Initialize the Pk and Ek matrices.
 	shared_ptr<std::vector<Matrix<Element>>> Pk_vector (new std::vector<Matrix<Element>>());
-	shared_ptr<std::vector<RLWETrapdoorPair<ILVector2n>>>   Ek_vector (new std::vector<RLWETrapdoorPair<ILVector2n>>());
+	shared_ptr<std::vector<RLWETrapdoorPair<Poly>>>   Ek_vector (new std::vector<RLWETrapdoorPair<Poly>>());
 
 	DEBUG("keygen1: "<<TOC(t1) <<" ms");
 	DEBUG("l = "<<l);
@@ -276,12 +276,12 @@ void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(typename Element::DggTy
 		TimeVar tp; // for TIC TOC
 		//private copies of our vectors
 		shared_ptr<std::vector<Matrix<Element>>> Pk_vector_pvt (new std::vector<Matrix<Element>>());
-		shared_ptr<std::vector<RLWETrapdoorPair<ILVector2n>>>   Ek_vector_pvt (new std::vector<RLWETrapdoorPair<ILVector2n>>());
+		shared_ptr<std::vector<RLWETrapdoorPair<Poly>>>   Ek_vector_pvt (new std::vector<RLWETrapdoorPair<Poly>>());
 #pragma omp for nowait schedule(static)
 		for(size_t i=0; i<=adjustedLength+1; i++) {
 			//build private copies in parallel
 			TIC(tp);
-			std::pair<RingMat, RLWETrapdoorPair<ILVector2n>> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev); //TODO remove stddev
+			std::pair<RingMat, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev); //TODO remove stddev
 			DEBUG("keygen2.0:#"<< i << ": "<<TOC(tp) <<" ms");
 
 			TIC(tp);
@@ -309,7 +309,7 @@ template <class Element>
 shared_ptr<Matrix<Element>> LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 				const Matrix<Element> &Ai,
 				const Matrix<Element> &Aj,
-				const RLWETrapdoorPair<ILVector2n> &Ti,
+				const RLWETrapdoorPair<Poly> &Ti,
 				const Element &elemS,
 				typename Element::DggType &dgg,
 				typename Element::DggType &dggLargeSigma,
@@ -323,7 +323,7 @@ shared_ptr<Matrix<Element>> LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 	size_t m = Ai.GetCols();
 	size_t k = m - 2;
 	size_t n = elemS.GetRingDimension();
-	const BigBinaryInteger &modulus = elemS.GetParams()->GetModulus();
+	const BigInteger &modulus = elemS.GetParams()->GetModulus();
 	auto zero_alloc = Element::MakeAllocator(elemS.GetParams(), EVALUATION);
 
 	//generate a row vector of discrete Gaussian ring elements
@@ -380,7 +380,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 	obfuscatedPattern->SetLength(clearPattern.GetLength());
 	usint l = clearPattern.GetLength();
 	usint n = obfuscatedPattern->GetRingDimension();
-	BigBinaryInteger q(obfuscatedPattern->GetModulus());
+	BigInteger q(obfuscatedPattern->GetModulus());
 	usint m = obfuscatedPattern->GetLogModulus() + 2;
 	usint chunkSize = obfuscatedPattern->GetChunkSize();
 	usint adjustedLength = l/chunkSize;
@@ -399,7 +399,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 	//usint stddev = dgg.GetStd(); 
 
 	const std::vector<Matrix<Element>> &Pk_vector = obfuscatedPattern->GetPublicKeys();
-	const std::vector<RLWETrapdoorPair<ILVector2n>>   &Ek_vector = obfuscatedPattern->GetEncodingKeys();
+	const std::vector<RLWETrapdoorPair<Poly>>   &Ek_vector = obfuscatedPattern->GetEncodingKeys();
 
 	auto zero_alloc = Element::MakeAllocator(params, EVALUATION);
 
@@ -595,7 +595,7 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::EvaluateV2(
 
 	usint l = obfuscatedPattern.GetLength();
 	usint n = obfuscatedPattern.GetRingDimension();
-	BigBinaryInteger q(obfuscatedPattern.GetModulus());
+	BigInteger q(obfuscatedPattern.GetModulus());
 	usint m = obfuscatedPattern.GetLogModulus() + 2;
 	usint chunkSize = obfuscatedPattern.GetChunkSize();
 	usint adjustedLength = l/chunkSize;
@@ -703,7 +703,7 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::EvaluateACS(
 
 	usint l = obfuscatedPattern.GetLength();
 	//usint n = obfuscatedPattern.GetRingDimension();
-	BigBinaryInteger q(obfuscatedPattern.GetModulus());
+	BigInteger q(obfuscatedPattern.GetModulus());
 	usint m = obfuscatedPattern.GetLogModulus() + 2;
 	usint chunkSize = obfuscatedPattern.GetChunkSize();
 	usint adjustedLength = l/chunkSize;
@@ -823,7 +823,7 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 
 	usint l = obfuscatedPattern.GetLength();
 	//usint n = obfuscatedPattern.GetRingDimension();
-	BigBinaryInteger q(obfuscatedPattern.GetModulus());
+	BigInteger q(obfuscatedPattern.GetModulus());
 	usint m = obfuscatedPattern.GetLogModulus() + 2;
 	usint chunkSize = obfuscatedPattern.GetChunkSize();
 	usint adjustedLength = l/chunkSize;
