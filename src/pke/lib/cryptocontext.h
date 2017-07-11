@@ -926,6 +926,80 @@ public:
 	}
 
 	/**
+	* Decrypt method for numerators in a matrix of ciphertexts (packed encoding)
+	* @param privateKey - for decryption
+	* @param ciphertext - matrix of encrypted ciphertexts
+	* @param plaintext - pointer to the destination martrix of plaintexts
+	* @return size of plaintext
+	*/
+	DecryptResult DecryptMatrixNumerator(
+		const shared_ptr<LPPrivateKey<Element>> privateKey,
+		const shared_ptr<Matrix<RationalCiphertext<Element>>> ciphertext,
+		Matrix<PackedIntPlaintextEncoding> *numerator) const
+	{
+
+		// edge case
+		if ((ciphertext->GetCols() == 0) && (ciphertext->GetRows() == 0))
+			return DecryptResult();
+
+		if ((ciphertext->GetCols() != numerator->GetCols()) || (ciphertext->GetRows() != numerator->GetRows()))
+			throw std::runtime_error("Ciphertext and plaintext matrices have different dimensions");
+
+		if (privateKey == NULL || privateKey->GetCryptoContext() != this)
+			throw std::runtime_error("Information passed to DecryptMatrix was not generated with this crypto context");
+
+		double start = 0;
+		if (doTiming) start = currentDateTime();
+
+
+		//force all precomputations to take place in advance
+		if ((*ciphertext)(0, 0).GetCryptoContext() != this)
+			throw std::runtime_error("A ciphertext passed to DecryptMatrix was not generated with this crypto context");
+
+		const shared_ptr<Ciphertext<Element>> ctN = (*ciphertext)(0, 0).GetNumerator();
+
+		Poly decryptedNumerator;
+		//DecryptResult resultN = GetEncryptionAlgorithm()->Decrypt(privateKey, ctN, &decryptedNumerator);
+		GetEncryptionAlgorithm()->Decrypt(privateKey, ctN, &decryptedNumerator);
+
+		//if (resultN.isValid == false) return resultN;
+
+		(*numerator)(0, 0).Decode(privateKey->GetCryptoParameters()->GetPlaintextModulus(), &decryptedNumerator);
+
+
+		for (size_t row = 0; row < ciphertext->GetRows(); row++)
+		{
+#pragma omp parallel for
+			for (size_t col = 0; col < ciphertext->GetCols(); col++)
+			{
+
+				if (row + col > 0)
+				{
+					if ((*ciphertext)(row, col).GetCryptoContext() != this)
+						throw std::runtime_error("A ciphertext passed to DecryptMatrix was not generated with this crypto context");
+
+					const shared_ptr<Ciphertext<Element>> ctN = (*ciphertext)(row, col).GetNumerator();
+
+					Poly decryptedNumerator;
+					//DecryptResult resultN = GetEncryptionAlgorithm()->Decrypt(privateKey, ctN, &decryptedNumerator);
+					GetEncryptionAlgorithm()->Decrypt(privateKey, ctN, &decryptedNumerator);
+
+					//if (resultN.isValid == false) return resultN;
+
+					(*numerator)(row, col).Decode(privateKey->GetCryptoParameters()->GetPlaintextModulus(), &decryptedNumerator);
+				}
+
+			}
+		}
+
+		if (doTiming) {
+			timeSamples->push_back(TimingInfo(OpDecryptMatrixPacked, currentDateTime() - start));
+		}
+		return DecryptResult((*numerator)(numerator->GetRows() - 1, numerator->GetCols() - 1).GetLength());
+
+	}
+
+	/**
 	* read instream for a sequence of serialized ciphertext; deserialize it, decrypt it, and write it to outstream
 	* @param privateKey - reference to the decryption key
 	* @param instream - input stream with sequence of serialized ciphertexts
