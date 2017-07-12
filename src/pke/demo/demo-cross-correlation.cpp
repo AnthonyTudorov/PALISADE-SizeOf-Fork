@@ -69,21 +69,24 @@ int main(int argc, char* argv[]) {
 		std::cout << "  arg1 can be one of the following: keygen, encrypt, compute, or decrypt" << std::endl;
 	}
 
+
 	if (argc == 2) {
 
 		if (std::string(argv[1]) == "keygen")
 			KeyGen();
-		else if (std::string(argv[1]) == "encrypt")
-			Encrypt();
-		else if (std::string(argv[1]) == "compute")
-			Compute();
-		else if (std::string(argv[1]) == "decrypt")
-			Decrypt();
 		else {
-			std::cerr << "the argument is invalid";
-			return 1;
+			Serializable::DisableKeysInSerializedContext();
+			if (std::string(argv[1]) == "encrypt")
+				Encrypt();
+			else if (std::string(argv[1]) == "compute")
+				Compute();
+			else if (std::string(argv[1]) == "decrypt")
+				Decrypt();
+			else {
+				std::cerr << "the argument is invalid";
+				return 1;
+			}
 		}
-
 	}
 
 	//cin.get();
