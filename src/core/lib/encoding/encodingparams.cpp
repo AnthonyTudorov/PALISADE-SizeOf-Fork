@@ -47,6 +47,9 @@ template <typename IntType> bool EncodingParamsImpl<IntType>::Serialize(Serializ
 
 	SerialItem ser(rapidjson::kObjectType);
 	ser.AddMember("PlaintextModulus", this->m_plaintextModulus.ToString(), serObj->GetAllocator());
+	ser.AddMember("PlaintextRootOfUnity", this->m_plaintextRootOfUnity.ToString(), serObj->GetAllocator());
+	ser.AddMember("PlaintextBigModulus", this->m_plaintextBigModulus.ToString(), serObj->GetAllocator());
+	ser.AddMember("PlaintextBigRootOfUnity", this->m_plaintextBigRootOfUnity.ToString(), serObj->GetAllocator());
 	ser.AddMember("PlaintextGenerator", std::to_string(this->m_plaintextGenerator), serObj->GetAllocator());
 	ser.AddMember("BatchSize", std::to_string(this->m_batchSize), serObj->GetAllocator());
 
@@ -76,6 +79,18 @@ template <typename IntType> bool EncodingParamsImpl<IntType>::Deserialize(const 
 		return false;
 	IntType plaintextModulus(atoi(oIt->value.GetString()));
 
+	if ((oIt = mIter->value.FindMember("PlaintextRootOfUnity")) == mIter->value.MemberEnd())
+		return false;
+	IntType plaintextRootOfUnity(atoi(oIt->value.GetString()));
+
+	if ((oIt = mIter->value.FindMember("PlaintextBigModulus")) == mIter->value.MemberEnd())
+		return false;
+	IntType plaintextBigModulus(atoi(oIt->value.GetString()));
+
+	if ((oIt = mIter->value.FindMember("PlaintextBigRootOfUnity")) == mIter->value.MemberEnd())
+		return false;
+	IntType plaintextBigRootOfUnity(atoi(oIt->value.GetString()));
+
 	if ((oIt = mIter->value.FindMember("PlaintextGenerator")) == mIter->value.MemberEnd())
 		return false;
 	usint plaintextGenerator = atoi(oIt->value.GetString());
@@ -85,6 +100,9 @@ template <typename IntType> bool EncodingParamsImpl<IntType>::Deserialize(const 
 	usint batchSize = atoi(oIt->value.GetString());
 
 	this->m_plaintextModulus = plaintextModulus;
+	this->m_plaintextRootOfUnity = plaintextRootOfUnity;
+	this->m_plaintextBigModulus = plaintextBigModulus;
+	this->m_plaintextBigRootOfUnity = plaintextBigRootOfUnity;
 	this->m_plaintextGenerator = plaintextGenerator;
 	this->m_batchSize = batchSize;
 

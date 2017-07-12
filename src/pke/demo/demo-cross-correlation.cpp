@@ -151,9 +151,10 @@ void KeyGen()
 
 		shared_ptr<ILDCRTParams<BigInteger>> paramsDCRT(new ILDCRTParams<BigInteger>(m, init_moduli, init_rootsOfUnity, init_moduli_NTT, init_rootsOfUnity_NTT));
 
-		PackedIntPlaintextEncoding::SetParams(modulusP, m);
+		shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP));
 
-		shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP), batchSize));
+		PackedIntPlaintextEncoding::SetParams(m, encodingParams);
+		encodingParams->SetBatchSize(batchSize);
 
 		float stdDev = 4;
 
@@ -367,12 +368,12 @@ void Encrypt() {
 		shared_ptr<CryptoContext<DCRTPoly>> cc = DeserializeContext(DATAFOLDER + "/" + ccFileName);
 
 		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
-		const shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
+		shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
 		const shared_ptr<ILDCRTParams<BigInteger>> elementParams = cryptoParams->GetElementParams();
 		
 		usint m = elementParams->GetCyclotomicOrder();
 
-		PackedIntPlaintextEncoding::SetParams(encodingParams->GetPlaintextModulus(), m);
+		PackedIntPlaintextEncoding::SetParams(m, encodingParams);
 
 		cc->Enable(ENCRYPTION);
 		cc->Enable(SHE);
@@ -467,12 +468,12 @@ void Compute() {
 		shared_ptr<CryptoContext<DCRTPoly>> cc = DeserializeContext(DATAFOLDER + "/" + ccFileName);
 
 		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
-		const shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
+		shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
 		const shared_ptr<ILDCRTParams<BigInteger>> elementParams = cryptoParams->GetElementParams();
 		
 		usint m = elementParams->GetCyclotomicOrder();
 
-		PackedIntPlaintextEncoding::SetParams(encodingParams->GetPlaintextModulus(), m);
+		PackedIntPlaintextEncoding::SetParams(m, encodingParams);
 
 		cc->Enable(ENCRYPTION);
 		cc->Enable(SHE);
@@ -508,13 +509,8 @@ void Compute() {
 
 		std::map<usint, shared_ptr<LPEvalKey<DCRTPoly>>>	evalSumKeys;
 
-		//const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
-		//const shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
-		//const shared_ptr<ILDCRTParams<BigInteger>> elementParams = cryptoParams->GetElementParams();
-
 		usint batchSize = encodingParams->GetBatchSize();
 		usint g = encodingParams->GetPlaintextGenerator();
-		//usint m = elementParams->GetCyclotomicOrder();
 
 		std::map<usint, shared_ptr<LPEvalKey<DCRTPoly>>> evalKeys;
 
@@ -644,12 +640,12 @@ void Decrypt() {
 		shared_ptr<CryptoContext<DCRTPoly>> cc = DeserializeContext(DATAFOLDER + "/" + ccFileName);
 
 		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
-		const shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
+		shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
 		const shared_ptr<ILDCRTParams<BigInteger>> elementParams = cryptoParams->GetElementParams();
 		
 		usint m = elementParams->GetCyclotomicOrder();
 
-		PackedIntPlaintextEncoding::SetParams(encodingParams->GetPlaintextModulus(), m);
+		PackedIntPlaintextEncoding::SetParams(m, encodingParams);
 
 		cc->Enable(ENCRYPTION);
 		cc->Enable(SHE);
