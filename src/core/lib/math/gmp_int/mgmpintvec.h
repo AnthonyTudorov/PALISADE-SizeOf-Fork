@@ -76,7 +76,7 @@ namespace NTL {
 
   myVecP(): Vec<myT>() {};
     //constructors without moduli
-    explicit myVecP(const usint length): Vec<myT>(INIT_SIZE, length) {m_modulus_state = GARBAGE;}; 
+    explicit myVecP(const size_t length): Vec<myT>(INIT_SIZE, length) {m_modulus_state = GARBAGE;}; 
    myVecP(const INIT_SIZE_TYPE, const long length): Vec<myT>(INIT_SIZE, length) {m_modulus_state = GARBAGE;}; 
 
 
@@ -92,23 +92,23 @@ namespace NTL {
     myVecP(const long n, const myZZ &q);
 
     //constructors with moduli and initializer lists
-    myVecP(const long n, const myZZ &q, std::initializer_list<usint> rhs);
+    myVecP(const long n, const myZZ &q, std::initializer_list<uint64_t> rhs);
     myVecP(const long n, const myZZ &q, std::initializer_list<std::string> rhs);
     
     //copy with myZZ moduli
     myVecP(const myVecP<myT> &a, const myZZ &q);
     
     //ctor with char * moduli
-    myVecP(usint n, const char *sq);
+    myVecP(size_t n, const char *sq);
     
      //copy with char * moduli
      myVecP(const myVecP<myT> &a, const char *sq);
 
-    //ctor with usint moduli
-    myVecP(usint n, usint q);
+    //ctor with uint64_t moduli
+    myVecP(size_t n, uint64_t q);
 
-    //copy with unsigned int moduli
-    myVecP(const myVecP<myT> &a, const usint q);
+    //copy with uint64_t moduli
+    myVecP(const myVecP<myT> &a, const uint64_t q);
     
     //destructor
     ~myVecP();
@@ -118,25 +118,26 @@ namespace NTL {
     
     myVecP(std::vector<std::string>& s, const myZZ &q); // with modulus
     myVecP(std::vector<std::string>& s, const char *sq); // with modulus
-    myVecP(std::vector<std::string>& s, const usint q); // with modulusu
+    myVecP(std::vector<std::string>& s, const uint64_t q); // with modulusu
 
     const myVecP& operator=(const myVecP &a);
     const myVecP& operator=(myVecP &&a);
 
 
+    const myVecP& operator=(std::initializer_list<uint64_t> rhs);
     const myVecP& operator=(std::initializer_list<sint> rhs);
     const myVecP& operator=(std::initializer_list<std::string> rhs);
-    const myVecP& operator=(unsigned int rhs);
+    const myVecP& operator=(uint64_t rhs);
 
     void clear(myVecP& x); //why isn't this inhereted?
 
 
     // Note, SetValAtIndex should be deprecated by .at() and []
-    void SetValAtIndex(usint index, const myT&value);
-    void SetValAtIndex(usint index, const std::string& str);
+    void SetValAtIndex(size_t index, const myT&value);
+    void SetValAtIndex(size_t index, const std::string& str);
 
     //the following may be OBE, resolves to same as SVAI
-    void SetValAtIndexWithoutMod(usint index, const myT&value);
+    void SetValAtIndexWithoutMod(size_t index, const myT&value);
 
     const myZZ GetValAtIndex(size_t index) const;
 
@@ -149,7 +150,7 @@ namespace NTL {
      * @param base is the base to use for the operation.
      * @return is the resulting vector.
      */
-    myVecP  GetDigitAtIndexForBase(usint index, usint base) const;
+    myVecP  GetDigitAtIndexForBase(size_t index, usint base) const;
   
     inline void push_back(const myT& a) { this->append(a);};
 
@@ -212,7 +213,7 @@ namespace NTL {
 
     void modadd_p(myVecP& x, const myVecP& a, const myVecP& b) const; //define procedural version
     
-    myVecP ModAddAtIndex(usint i, const myZZ &b) const;
+    myVecP ModAddAtIndex(size_t i, const myZZ &b) const;
     
     //vector add
     inline myVecP Add(const myVecP& b) const { 
@@ -333,12 +334,12 @@ namespace NTL {
 	     (this->m_modulus == a.m_modulus));
     };
     
-    //sets modulus and the NTL init function usint argument
-    inline void SetModulus(const usint& value){
+    //sets modulus and the NTL init function uint64_t argument
+    inline void SetModulus(const uint64_t& value){
       bool dbg_flag = false;
-      DEBUG("SetModulus(const usint& "<<value<<")");
+      DEBUG("SetModulus(const uint64_t& "<<value<<")");
       if (value == 0) {
-	throw std::logic_error("SetModulus(usint) cannot be zero");
+	throw std::logic_error("SetModulus(uint64_t) cannot be zero");
       }
       this->m_modulus= myZZ(value);
       this->m_modulus_state = INITIALIZED;
@@ -542,7 +543,7 @@ namespace NTL {
     ModulusState m_modulus_state;
     
   protected:
-    bool IndexCheck(usint) const;
+    bool IndexCheck(size_t index) const;
   }; //template class ends
   
   

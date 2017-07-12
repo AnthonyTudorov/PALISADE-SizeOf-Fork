@@ -115,7 +115,7 @@ namespace NTL {
   //constructors with moduli and initializer list
   //ctor myZZ moduli
   template<class myT>
-  myVecP<myT>::myVecP(const long n, const myZZ &q, std::initializer_list<usint> rhs): Vec<myT>(INIT_SIZE,n)
+  myVecP<myT>::myVecP(const long n, const myZZ &q, std::initializer_list<uint64_t> rhs): Vec<myT>(INIT_SIZE,n)
   {
     bool dbg_flag = false;
     DEBUG("myVecP(n,ZZ) n:"<<n);
@@ -123,7 +123,7 @@ namespace NTL {
     this->SetModulus(q);
     DEBUG("get modulus "<<GetModulus());
     usint len = rhs.size();
-    for (usint i=0;i<n;i++){ // this loops over each entry
+    for (size_t i=0;i<n;i++){ // this loops over each entry
       if(i<len) {
 	(*this)[i] =  myT(*(rhs.begin()+i));  
       } else {
@@ -141,7 +141,7 @@ namespace NTL {
     this->SetModulus(q);
     DEBUG("get modulus "<<GetModulus());
     usint len = rhs.size();
-    for (usint i=0;i<n;i++){ // this loops over each entry
+    for (size_t i=0;i<n;i++){ // this loops over each entry
       if(i<len) {
 	(*this)[i] =  myT(*(rhs.begin()+i));  
       } else {
@@ -158,30 +158,30 @@ namespace NTL {
     (*this) %= q;
   }
 
-  //ctor with char * moduli
+  //ctor with string moduli
   template<class myT>
-  myVecP<myT>::myVecP(usint n, const char *sq):Vec<myT>(INIT_SIZE, n)
+    myVecP<myT>::myVecP(size_t n, const std::string &sq):Vec<myT>(INIT_SIZE, n)
   { 
     this->SetModulus(myZZ(sq)); 
   }
 
    //copy with char * moduli
   template<class myT>
-  myVecP<myT>::myVecP(const myVecP<myT> &a, const char *sq):Vec<myT>(a) 
+    myVecP<myT>::myVecP(const myVecP<myT> &a, const std::string &sq):Vec<myT>(a) 
   {
     this->SetModulus(myZZ(sq)); 
   }
 
-  //ctor with usint moduli
+  //ctor with uint64_t moduli
   template<class myT>
-  myVecP<myT>::myVecP(usint n, usint q):Vec<myT>(INIT_SIZE, n) 
+  myVecP<myT>::myVecP(size_t n, uint64_t q):Vec<myT>(INIT_SIZE, n) 
   { 
     this->SetModulus(q); 
   }
 
   //copy with unsigned int moduli
   template<class myT>
-  myVecP<myT>::myVecP(const myVecP<myT> &a, const usint q):Vec<myT>(a) 
+  myVecP<myT>::myVecP(const myVecP<myT> &a, const uint64_t q):Vec<myT>(a) 
   { 
     this->SetModulus(q); 
     for (auto i = 0; i < this->length(); i++){
@@ -194,7 +194,7 @@ namespace NTL {
   myVecP<myT>::myVecP(std::vector<std::string> &s){
     usint len = s.size();
     this->SetLength(len);
-    for (usint i = 0; i < len; i++){
+    for (size_t i = 0; i < len; i++){
       (*this)[i] = myT(s[i]);
     }
     this->m_modulus_state = GARBAGE; 
@@ -206,7 +206,7 @@ namespace NTL {
     usint len = s.size();
     this->SetLength(len);
     this->SetModulus(q);
-    for (usint i = 0; i < len; i++){
+    for (size_t i = 0; i < len; i++){
       (*this)[i] = myT(s[i])%q;
     }
   }
@@ -218,19 +218,19 @@ namespace NTL {
     this->SetLength(len);
     myZZ zzq(sq);
     this->SetModulus(zzq);
-    for (usint i = 0; i < len; i++){
+    for (size_t i = 0; i < len; i++){
       (*this)[i] = myT(s[i])%zzq;
     }
   }
 
   // constructor specifying the myvec as a vector of strings with modulus
   template<class myT>
-  myVecP<myT>::myVecP(std::vector<std::string> &s, const usint q){
+  myVecP<myT>::myVecP(std::vector<std::string> &s, const uint64_t q){
     usint len = s.size();
     this->SetLength(len);
     myZZ zzq(q);
     this->SetModulus(zzq);
-    for (usint i = 0; i < len; i++){
+    for (size_t i = 0; i < len; i++){
       (*this)[i] = myT(s[i])%zzq;
     }
   }
@@ -250,7 +250,7 @@ namespace NTL {
       this->SetLength(len);
     };
 
-    for(usint i=0;i<this->size();i++){ // this loops over each entry
+    for(size_t i=0;i<this->size();i++){ // this loops over each entry
       if (i<len) {
 	(*this)[i] =  myT(*(rhs.begin()+i));
       }else{
@@ -263,21 +263,20 @@ namespace NTL {
   }
 #endif
 
-  //Assignment with initializer list of usints
+  //Assignment with initializer list of uint64_ts
   //keeps current modulus
 
-  //todo: this is  sints shoudln't it be rather usints?
   template<class myT>
-  const myVecP<myT>& myVecP<myT>::operator=(std::initializer_list<sint> rhs){
+  const myVecP<myT>& myVecP<myT>::operator=(std::initializer_list<uint64_t> rhs){
     bool dbg_flag = false;
-    DEBUG("in op=initializerlist <usint>");
+    DEBUG("in op=initializerlist <uint64_t>");
 
     size_t len = rhs.size();
     if (this->size()< len){
       this->SetLength(len);
     };
 
-    for(usint i=0;i<this->size();i++){ // this loops over each entry
+    for(size_t i=0;i<this->size();i++){ // this loops over each entry
       if (i<len) {
 	(*this)[i] =  myT(*(rhs.begin()+i));
       }else{
@@ -286,7 +285,36 @@ namespace NTL {
     }
     return *this;
 
-    DEBUG("mubintvec assignment copy CTOR usint init list length "<<this->length());
+    DEBUG("mubintvec assignment copy CTOR uint64_t init list length "<<this->length());
+  }
+
+
+  //for some dumb reason they coded this., it is dangerous
+  template<class myT>
+  const myVecP<myT>& myVecP<myT>::operator=(std::initializer_list<sint> rhs){
+    bool dbg_flag = false;
+    DEBUG("in op=initializerlist <uint64_t>");
+
+    size_t len = rhs.size();
+    if (this->size()< len){
+      this->SetLength(len);
+    };
+
+    for(size_t i=0;i<this->size();i++){ // this loops over each entry
+      if (i<len) {
+	sint tmp = *(rhs.begin()+i);
+	if (tmp<0){
+	  std::cout<<"warning trying to assign negative integer value"<<std::endl;
+	}
+
+	(*this)[i] =  myT(tmp);
+      }else{
+	(*this)[i] =  myT(0);
+      }
+    }
+    return *this;
+
+    DEBUG("mubintvec assignment copy CTOR uint64_t init list length "<<this->length());
   }
 
   //Assignment with initializer list of strings
@@ -300,7 +328,7 @@ namespace NTL {
       this->SetLength(len);
     };
 
-    for(usint i=0;i<this->size();i++){ // this loops over each entry
+    for(size_t i=0;i<this->size();i++){ // this loops over each entry
       if (i<len) {
 	(*this)[i] =  myT(*(rhs.begin()+i));
       }else{
@@ -315,11 +343,11 @@ namespace NTL {
   //keeps current modulus
   //note this only assigns to the first element!!
   template<class myT>
-  const myVecP<myT>& myVecP<myT>::operator=(unsigned int val)
+  const myVecP<myT>& myVecP<myT>::operator=(uint64_t val)
   {
     bool dbg_flag = false;
-    DEBUG("in op=usint");
-    (*this)[0] = val;
+    DEBUG("in op=uint64_t");
+    (*this)[0] = myT(val);
     for (size_t i = 1; i < GetLength(); ++i) {
       (*this)[i] = myT::ZERO;
     }
@@ -426,7 +454,7 @@ namespace NTL {
     //  this->SetModulus(newModulus); // set now in order to write correct numbers.
     //  }
 #endif
-    for (usint i=0; i< this->GetLength(); i++) {
+    for (size_t i=0; i< this->GetLength(); i++) {
       n = conv<myZZ>(this->GetValAtIndex(i));
       DEBUG("i,n "<<i<<" "<< n);
       if(oldModulus < newModulus) {
@@ -630,7 +658,7 @@ namespace NTL {
   
   // method to add scalar to vector element at index i
   template<class myT>
-  myVecP<myT> myVecP<myT>::ModAddAtIndex(usint i, const myZZ &b) const{
+  myVecP<myT> myVecP<myT>::ModAddAtIndex(size_t i, const myZZ &b) const{
     if(i > this->GetLength()-1) {
       std::string errMsg = "myVecP::ModAddAtIndex. Index is out of range. i = " + i;
       throw std::runtime_error(errMsg);
@@ -745,7 +773,7 @@ namespace NTL {
   {
     myVecP ans(*this);
     ModulusCheck("myVecP::ModExp");
-    for(usint i=0;i<this->size();i++){
+    for(size_t i=0;i<this->size();i++){
       ans[i] = ans[i].ModExp(b%m_modulus, ans.m_modulus);
     }
     return ans;
@@ -782,7 +810,7 @@ namespace NTL {
   myVecP<myT> myVecP<myT>::DivideAndRound(const myT &q) const {
     ModulusCheck("myVecP::DivideAndRound");
     myVecP ans(*this);
-    for (usint i = 0; i<this->length(); i++) {
+    for (size_t i = 0; i<this->length(); i++) {
       ans[i] = ans[i].DivideAndRound(q);
     }
     return ans;
@@ -793,7 +821,7 @@ namespace NTL {
   {
     ModulusCheck("myVecP::ModInverse");
     myVecP ans(*this);
-    for(usint i=0;i<this->size();i++){
+    for(size_t i=0;i<this->size();i++){
       ans[i] = ans[i].ModInverse(this->m_modulus);
     }
     return ans;
@@ -801,10 +829,10 @@ namespace NTL {
 
   //not sure what this does..
   template<class myT>
-  myVecP<myT> myVecP<myT>::GetDigitAtIndexForBase(usint index, usint base) const
+  myVecP<myT> myVecP<myT>::GetDigitAtIndexForBase(size_t index, usint base) const
   {
     myVecP ans(*this);
-    for(usint i=0; i < this->size(); i++){
+    for(size_t i=0; i < this->size(); i++){
       ans[i] = ans[i].GetDigitAtIndexForBase(index,base);
     }
 
@@ -927,7 +955,7 @@ namespace NTL {
     const char *vp = vIt->value.GetString(); //concatenated str of coded values
     DEBUG("vp is size "<<strlen(vp));
 
-    for( usint ePos = 0; ePos < vectorLength; ePos++ ) {
+    for( size_t ePos = 0; ePos < vectorLength; ePos++ ) {
       if( *vp == '\0' ) {
 	std::cerr<<"myVecP::Deserialize() premature end of vector"<<std::endl;
 	std::cerr<<"at position "<<ePos<<std::endl;
@@ -1018,7 +1046,7 @@ namespace NTL {
   //////////////////////////////////////////////////
   // Set value at index 
   template<class myT>
-  void myVecP<myT>::SetValAtIndex(usint index, const myT& value){
+  void myVecP<myT>::SetValAtIndex(size_t index, const myT& value){
     if(!this->IndexCheck(index)){
       throw std::logic_error("myVecP index out of range");
     }
@@ -1035,7 +1063,7 @@ namespace NTL {
 
   // set value at index from string
   template<class myT>
-  void myVecP<myT>::SetValAtIndex(usint index, const std::string& str){
+  void myVecP<myT>::SetValAtIndex(size_t index, const std::string& str){
     if(!this->IndexCheck(index)){
       throw std::logic_error("myVecP index out of range");
     }
@@ -1055,7 +1083,7 @@ namespace NTL {
   // < modulus when in the array becauses of the way NTL requires it for its
   // built in modulo arithmetic. I think this may be eliminated soon 
   template<class myT>
-  void myVecP<myT>::SetValAtIndexWithoutMod(usint index, const myT& value){
+  void myVecP<myT>::SetValAtIndexWithoutMod(size_t index, const myT& value){
     if(!this->IndexCheck(index)){
       throw std::logic_error("myVecP index out of range");
     }
@@ -1078,8 +1106,8 @@ namespace NTL {
 
   //Private functions
   template<class myT>
-  bool myVecP<myT>::IndexCheck(usint length) const{
-    if(length>this->length())
+  bool myVecP<myT>::IndexCheck(size_t index) const{
+    if(index>=this->length())
       return false;
     return true;
   }

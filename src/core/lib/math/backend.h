@@ -77,47 +77,13 @@
 //[  FAILED  ] UTSHE.LTV_Poly_Mult
 //[  FAILED  ] UTSHE.BV_Poly_Mult
 //[  FAILED  ] UTSHE.BV_DCRTPoly_Mult
-//
-//if FORCE_NORMALIZATION is set then
-/* 
-[  FAILED  ] UTAUTOMORPHISM.Test_LTV_Automorphism_PowerOf2
-[  FAILED  ] UTAUTOMORPHISM.Test_BV_Automorphism_PowerOf2
-[  FAILED  ] UTAUTOMORPHISM.Test_FV_Automorphism_PowerOf2
-[  FAILED  ] UTAUTOMORPHISM.Test_LTV_Automorphism_Arb
-[  FAILED  ] UTAUTOMORPHISM.Test_BV_Automorphism_Arb
-[  FAILED  ] UTBVBATCHING.Poly_EVALMULT_Arb
-[  FAILED  ] UTFVBATCHING.Poly_EVALMULT_Arb
-[  FAILED  ] UTEvalCC.Test_BV_EvalCC
-[  FAILED  ] UTEvalCC.Test_FV_EvalCC
-[  FAILED  ] UTEvalIP.Test_LTV_EvalInnerProduct
-[  FAILED  ] UTEvalIP.Test_BV_EvalInnerProduct
-[  FAILED  ] UTEvalIP.Test_FV_EvalInnerProduct
-[  FAILED  ] UTEvalLR.Test_BV_EvalLR
-[  FAILED  ] UTEvalLR.Test_FV_EvalLR
-[  FAILED  ] UTEvalSum.Test_LTV_EvalSum
-[  FAILED  ] UTEvalSum.Test_BV_EvalSum
-[  FAILED  ] UTEvalSum.Test_FV_EvalSum
-[  FAILED  ] UTFV.Poly_FV_Eval_Operations
-[  FAILED  ] UTFV.Poly_FV_ParamsGen_EvalMul
-[  FAILED  ] UTFV.Poly_FV_Optimized_Eval_Operations
-[  FAILED  ] UTPRE.LTV_Poly_ReEncrypt_pub
-[  FAILED  ] UTPRE.BV_Poly_ReEncrypt_pri
-[  FAILED  ] UTPRE.BV_DCRTPoly_ReEncrypt_pri
-[  FAILED  ] UTPRE.FV_Poly_ReEncrypt_pri
-[  FAILED  ] UTSHE.LTV_Poly_Add
-[  FAILED  ] UTSHE.StSt_Poly_Add
-[  FAILED  ] UTSHE.BV_Poly_Add
-[  FAILED  ] UTSHE.LTV_Poly_Mult
-[  FAILED  ] UTSHE.BV_Poly_Mult
-[  FAILED  ] UTSHE.BV_DCRTPoly_Mult
-[  FAILED  ] UTSHE.FV_Poly_Mult
-[  FAILED  ] UTStatisticalEval.FV_Eval_Lin_Regression_Int
-*/
 
 /* // fails */
-UTSignatureGPV.sign_verify_multiple_texts
-UTTrapdoor.TrapDoorGaussGqSampTest
-UTTrapdoor.TrapDoorGaussSampTest
+//UTSignatureGPV.sign_verify_multiple_texts
+//UTTrapdoor.TrapDoorGaussGqSampTest
+//UTTrapdoor.TrapDoorGaussSampTest
+//
+//if FORCE_NORMALIZATION is set then 32 tests fail so dont use this.
 
 // MATHBACKEND 7
 // 		This uses native_int:: as the default
