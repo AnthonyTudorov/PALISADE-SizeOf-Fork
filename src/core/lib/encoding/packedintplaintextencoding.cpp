@@ -129,6 +129,10 @@ namespace lbcrypto {
 			native_int::BigInteger automorphismGenerator = FindGeneratorCyclic<native_int::BigInteger>(M);
 			m_automorphismGenerator[modulusNI] = automorphismGenerator.ConvertToInt();
 
+			std::cout << "regular root " << m_initRoot[modulusNI] << 
+				"big modulus " << m_bigModulus[modulusNI] << "; big Root = " << m_bigRoot[modulusNI] << "; automorphism Gen = " <<
+				m_automorphismGenerator[modulusNI] << std::endl;
+
 			// Create the permutations that interchange the automorphism and crt ordering
 			usint phim = GetTotient(m);
 			auto tList = GetTotientList(m);

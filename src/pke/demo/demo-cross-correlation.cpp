@@ -39,6 +39,7 @@ template<typename T> ostream& operator<<(ostream& output, const vector<T>& vecto
 // number of primitive prime plaintext moduli in the CRT representation of plaintext
 const size_t SIZE = 3;
 const size_t VECTORS = 30;
+const std::string DATAFOLDER = "demoData";
 
 
 int main(int argc, char* argv[]) {
@@ -131,8 +132,6 @@ void KeyGen()
 			q = lbcrypto::NextPrime(q, mArb);
 			init_moduli[i] = q;
 			init_rootsOfUnity[i] = RootOfUnity(mArb, init_moduli[i]);
-			//auto cycloPoly = GetCyclotomicPolynomial<native_int::BinaryVector, native_int::BigInteger>(m, q);
-			//ChineseRemainderTransformArb<native_int::BigInteger, native_int::BinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, q);
 		}
 
 		// populate the towers for the big modulus
@@ -148,8 +147,6 @@ void KeyGen()
 			q = lbcrypto::NextPrime(q, mNTT);
 			init_moduli_NTT[i] = q;
 			init_rootsOfUnity_NTT[i] = RootOfUnity(mNTT, init_moduli_NTT[i]);
-			//auto cycloPoly = GetCyclotomicPolynomial<native_int::BinaryVector, native_int::BigInteger>(m, q);
-			//ChineseRemainderTransformArb<native_int::BigInteger, native_int::BinaryVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, q);
 		}
 
 		shared_ptr<ILDCRTParams<BigInteger>> paramsDCRT(new ILDCRTParams<BigInteger>(m, init_moduli, init_rootsOfUnity, init_moduli_NTT, init_rootsOfUnity_NTT));
@@ -180,8 +177,8 @@ void KeyGen()
 			Serialized pubK, privK;
 
 			if (kp.publicKey->Serialize(&pubK)) {
-				if (!SerializableHelper::WriteSerializationToFile(pubK, "key-public" + std::to_string(k) + ".txt")) {
-					cerr << "Error writing serialization of public key to " << "key-public" + std::to_string(k) + ".txt" << endl;
+				if (!SerializableHelper::WriteSerializationToFile(pubK, DATAFOLDER + "/" + "key-public" + std::to_string(k) + ".txt")) {
+					cerr << "Error writing serialization of public key to key-public" + std::to_string(k) + ".txt" << endl;
 					return;
 				}
 			}
@@ -191,7 +188,7 @@ void KeyGen()
 			}
 
 			if (kp.secretKey->Serialize(&privK)) {
-				if (!SerializableHelper::WriteSerializationToFile(privK, "key-private" + std::to_string(k) + ".txt")) {
+				if (!SerializableHelper::WriteSerializationToFile(privK, DATAFOLDER + "/" +"key-private" + std::to_string(k) + ".txt")) {
 					cerr << "Error writing serialization of private key to key-private" + std::to_string(k) + ".txt" << endl;
 					return;
 				}
@@ -222,7 +219,7 @@ void KeyGen()
 			Serialized evalKey;
 
 			if (evalMultKey->Serialize(&evalKey)) {
-				if (!SerializableHelper::WriteSerializationToFile(evalKey, "key-eval-mult" + std::to_string(k) + ".txt")) {
+				if (!SerializableHelper::WriteSerializationToFile(evalKey, DATAFOLDER + "/" +  "key-eval-mult" + std::to_string(k) + ".txt")) {
 					cerr << "Error writing serialization of multiplication evaluation key to key-eval-mult" + std::to_string(k) + ".txt" << endl;
 					return;
 				}
@@ -257,7 +254,7 @@ void KeyGen()
 				Serialized evalKey;
 
 				if (it->second->Serialize(&evalKey)) {
-					if (!SerializableHelper::WriteSerializationToFile(evalKey, "key-eval-sum-" + std::to_string(k) + "-" + std::to_string(it->first) + ".txt")) {
+					if (!SerializableHelper::WriteSerializationToFile(evalKey, DATAFOLDER + "/" +  "key-eval-sum-" + std::to_string(k) + "-" + std::to_string(it->first) + ".txt")) {
 						cerr << "Error writing serialization of summation evaluation key to " << "key-eval-sum-" + std::to_string(k) + "-" + std::to_string(it->first) + ".txt" << endl;
 						return;
 					}
@@ -282,7 +279,7 @@ void KeyGen()
 		Serialized ctxt;
 
 		if (cc->Serialize(&ctxt)) {
-			if (!SerializableHelper::WriteSerializationToFile(ctxt, "cryptocontext" + std::to_string(k) + ".txt")) {
+			if (!SerializableHelper::WriteSerializationToFile(ctxt, DATAFOLDER + "/" + "cryptocontext" + std::to_string(k) + ".txt")) {
 				cerr << "Error writing serialization of the crypto context to cryptotext" + std::to_string(k) + ".txt" << endl;
 				return;
 			}
@@ -367,7 +364,7 @@ void Encrypt() {
 
 		// Deserialize the crypto context
 
-		shared_ptr<CryptoContext<DCRTPoly>> cc = DeserializeContext(ccFileName);
+		shared_ptr<CryptoContext<DCRTPoly>> cc = DeserializeContext(DATAFOLDER + "/" + ccFileName);
 
 		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
 		const shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
@@ -387,7 +384,7 @@ void Encrypt() {
 		std::cout << "Deserializing the public key...";
 
 		Serialized	pkSer;
-		if (SerializableHelper::ReadSerializationFromFile(pkFileName, &pkSer) == false) {
+		if (SerializableHelper::ReadSerializationFromFile(DATAFOLDER + "/" + pkFileName, &pkSer) == false) {
 			cerr << "Could not read public key" << endl;
 			return;
 		}
@@ -423,7 +420,7 @@ void Encrypt() {
 		std::cout << "Serializing X...";
 
 		if (xC->Serialize(&ctxtSer)) {
-			if (!SerializableHelper::WriteSerializationToFile(ctxtSer, "ciphertext-x-" + std::to_string(k) + ".txt")) {
+			if (!SerializableHelper::WriteSerializationToFile(ctxtSer, DATAFOLDER + "/" + "ciphertext-x-" + std::to_string(k) + ".txt")) {
 				cerr << "Error writing serialization of ciphertext X to " << "ciphertext-x-" + std::to_string(k) + ".txt" << endl;
 				return;
 			}
@@ -438,7 +435,7 @@ void Encrypt() {
 		std::cout << "Serializing y...";
 
 		if (yC->Serialize(&ctxtSer)) {
-			if (!SerializableHelper::WriteSerializationToFile(ctxtSer, "ciphertext-y-" + std::to_string(k) + ".txt")) {
+			if (!SerializableHelper::WriteSerializationToFile(ctxtSer, DATAFOLDER + "/" + "ciphertext-y-" + std::to_string(k) + ".txt")) {
 				cerr << "Error writing serialization of ciphertext y to " << "ciphertext-y-" + std::to_string(k) + ".txt" << endl;
 				return;
 			}
@@ -467,7 +464,7 @@ void Compute() {
 
 		// Deserialize the crypto context
 
-		shared_ptr<CryptoContext<DCRTPoly>> cc = DeserializeContext(ccFileName);
+		shared_ptr<CryptoContext<DCRTPoly>> cc = DeserializeContext(DATAFOLDER + "/" + ccFileName);
 
 		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
 		const shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
@@ -485,7 +482,7 @@ void Compute() {
 		std::cout << "Deserializing the multiplication evaluation key...";
 
 		Serialized	emSer;
-		if (SerializableHelper::ReadSerializationFromFile(emFileName, &emSer) == false) {
+		if (SerializableHelper::ReadSerializationFromFile(DATAFOLDER + "/" + emFileName, &emSer) == false) {
 			cerr << "Could not read mulplication evaluation key" << endl;
 			return;
 		}
@@ -525,7 +522,7 @@ void Compute() {
 		{
 
 			Serialized	esSer;
-			string tempFileName = esFileName + "-" + std::to_string(g) + ".txt";
+			string tempFileName = DATAFOLDER + "/" + esFileName + "-" + std::to_string(g) + ".txt";
 			if (SerializableHelper::ReadSerializationFromFile(tempFileName, &esSer) == false) {
 				cerr << "Could not read the evaluation key at index " << g << endl;
 				return;
@@ -549,7 +546,7 @@ void Compute() {
 
 		// Deserialize X
 
-		string xFileName = "ciphertext-x-" + std::to_string(k) + ".txt";
+		string xFileName = DATAFOLDER + "/" +  "ciphertext-x-" + std::to_string(k) + ".txt";
 
 		std::cout << "Deserializing vector x...";
 
@@ -572,7 +569,7 @@ void Compute() {
 
 		// Deserialize y
 
-		string yFileName = "ciphertext-y-" + std::to_string(k) + ".txt";
+		string yFileName = DATAFOLDER + "/" +  "ciphertext-y-" + std::to_string(k) + ".txt";
 
 		std::cout << "Deserializing vector y...";
 
@@ -615,7 +612,7 @@ void Compute() {
 		std::cout << "Serializing cross-correlation...";
 
 		if (result->Serialize(&ccSer)) {
-			if (!SerializableHelper::WriteSerializationToFile(ccSer, "ciphertext-cc-" + std::to_string(k) + ".txt")) {
+			if (!SerializableHelper::WriteSerializationToFile(ccSer, DATAFOLDER + "/" + "ciphertext-cc-" + std::to_string(k) + ".txt")) {
 				cerr << "Error writing serialization of ciphertext X^T X to " << "ciphertext-cc-" + std::to_string(k) + ".txt" << endl;
 				return;
 			}
@@ -644,7 +641,7 @@ void Decrypt() {
 
 		// Deserialize the crypto context
 
-		shared_ptr<CryptoContext<DCRTPoly>> cc = DeserializeContext(ccFileName);
+		shared_ptr<CryptoContext<DCRTPoly>> cc = DeserializeContext(DATAFOLDER + "/" + ccFileName);
 
 		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
 		const shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
@@ -662,7 +659,7 @@ void Decrypt() {
 		std::cout << "Deserializing the private key...";
 
 		Serialized	skSer;
-		if (SerializableHelper::ReadSerializationFromFile(skFileName, &skSer) == false) {
+		if (SerializableHelper::ReadSerializationFromFile(DATAFOLDER + "/" + skFileName, &skSer) == false) {
 			cerr << "Could not read private key" << endl;
 			return;
 		}
@@ -678,7 +675,7 @@ void Decrypt() {
 
 		// Deserialize cross-correlation
 
-		string cFileName = "ciphertext-cc-" + std::to_string(k) + ".txt";
+		string cFileName = DATAFOLDER + "/" + "ciphertext-cc-" + std::to_string(k) + ".txt";
 
 		std::cout << "Deserializing cross-correlation..";
 
