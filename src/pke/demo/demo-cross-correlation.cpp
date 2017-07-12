@@ -744,7 +744,7 @@ shared_ptr<CryptoContext<DCRTPoly>> DeserializeContext(const string& ccFileName)
 	Serialized	ccSer;
 	if (SerializableHelper::ReadSerializationFromFile(ccFileName, &ccSer) == false) {
 		cerr << "Could not read the cryptocontext file" << endl;
-		return false;
+		return 0;
 	}
 
 	shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(ccSer);
