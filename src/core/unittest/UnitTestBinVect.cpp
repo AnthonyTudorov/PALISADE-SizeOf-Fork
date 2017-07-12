@@ -127,7 +127,7 @@ TEST(UTBinVect,NTL_modulus_framework){
   NTL::myZZ q1("1234567"); // a bigger number
   NTL::myZZ q2("345"); // a smaller bigger number
 
-  NTL::myVecP<NTL::myZZ_p>  m(5); 
+  NTL::myVecP<NTL::myZZ>  m(5); 
   m = {"9868", "5879", "4554", "2343", "4624",}; 
   vector<usint> m_expected_1 = {9868, 5879, 4554, 2343, 4624,}; 
 
@@ -143,34 +143,27 @@ TEST(UTBinVect,NTL_modulus_framework){
   for (size_t i = 0; i < m.size(); i++){
     EXPECT_EQ(m_expected_1[i],m[i]) << "Failure in NTL ["<<i<<"]";
   }
-  NTL::myZZ_p elem = m[0]; //should inheret the modulus.
+  NTL::myZZ elem = m[0]; 
 
   EXPECT_EQ(9868U,elem) << "Failure in NTL elem 1";
-  EXPECT_EQ(qtest1,elem.GetModulus()) << "Failure in NTL elem.GetModulus() 1";
 
   //now switch the modulus.
   m.SetModulus(q2);
+  //but the vector values do not get updated!
 
   //test the modulus of the entire vector.
   NTL::myZZ qtest2 = m.GetModulus();
   DEBUG("m "<<m);
   DEBUG("q2 "<<q2);
   DEBUG("qtest2 "<<qtest2);
-  vector<usint> m_expected_2 = {208, 14, 69, 273, 139,}; 
+  vector<usint> m_modulus_2 = {208, 14, 69, 273, 139,}; 
   EXPECT_EQ(q2, qtest2)<<"Failure NTL vector.GetModulus() 2";
 
   for (size_t i = 0; i < m.size(); i++){
-    EXPECT_EQ(m_expected_2[i],m[i]) << "Failure in NTL ["<<i<<"]";
+    EXPECT_NE(m_modulus_2[i],m[i]) << "Failure in NTL ["<<i<<"]";
   }
 
-  NTL::myZZ_p elem2 = m[0];
-
-  EXPECT_EQ(208U,elem2) << "Failure in NTL elem";
-  EXPECT_EQ(qtest2,elem2.GetModulus()) << "Failure in NTL elem.GetModulus()";
  
-  EXPECT_NE(elem.GetModulus(), elem2.GetModulus())
-    << "Failure in NTL compare moduli()";
-
 #endif
 }
 

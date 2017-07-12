@@ -26,6 +26,12 @@
 
 #include "transfrm.h"
 
+
+//note defining these use  NTL speedups that could be used, once we are sure BE 6 is
+//working completely
+
+//#define NTL_SPEEDUP
+
 namespace lbcrypto {
 
 

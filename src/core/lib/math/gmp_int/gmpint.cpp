@@ -44,7 +44,6 @@ a * modification, are permitted provided that the following conditions
 #include "../backend.h"
 #if defined(__linux__) && MATHBACKEND == 6
 #include "gmpint.h"
-//include "mgmpint.h"
 
 namespace NTL {
 
@@ -60,54 +59,16 @@ namespace NTL {
   const myZZ myZZ::FIVE=myZZ(5);
 
   myZZ::myZZ():ZZ() {}
-#if 0
-  myZZ::myZZ(int a): ZZ(a) {}
-  myZZ::myZZ(long a): ZZ(a) {}
-  myZZ::myZZ(unsigned long a): ZZ(a) {}
-  myZZ::myZZ(const unsigned int &a): ZZ(a) {}
-  myZZ::myZZ(long long unsigned int a): ZZ(a) {}; //do I still need this?
-  myZZ::myZZ(unsigned int &a): ZZ(a) {}
-  myZZ::myZZ(INIT_SIZE_TYPE, long k): ZZ(INIT_SIZE, k) {m_MSB=0; }
-  myZZ::myZZ(std::string s): ZZ(conv<ZZ>(s.c_str())) {}
-  myZZ::myZZ(const char *s): ZZ(conv<ZZ>(s)) {}
-  myZZ::myZZ(NTL::ZZ &a): ZZ(a) {}
-  myZZ::myZZ(const NTL::ZZ &a): ZZ(a) {}
-#else
 
   myZZ::myZZ(uint64_t a): ZZ(a) {}
   myZZ::myZZ(const std::string &s): ZZ(conv<ZZ>(s.c_str())) {}
   myZZ::myZZ(const NTL::ZZ &a): ZZ(a) {}
-#endif
-  //myZZ::myZZ(const NTL::myZZ_p &a): ZZ(){*this = a._ZZ_p__rep;}
-#if 0
-  myZZ::myZZ(const NTL::myZZ_p &a)
-    : ZZ(a._ZZ_p__rep)
-  {
-    bool dbg_flag = false; 
-    DEBUG("in ctor mzz(&mzzp)");
-    DEBUG("a "<<a);
-    DEBUG("arep "<<a._ZZ_p__rep);
-    DEBUG("this "<<*this);
-  };
-#endif
   myZZ::myZZ(NTL::ZZ &&a) : ZZ() {this->swap(a);}
-#if 0
-  myZZ::myZZ(NTL::myZZ_p &&a): ZZ(){
-    this->swap(a._ZZ_p__rep);
-  }
-#endif
   void myZZ::SetValue(const std::string& str) 
   {
     *this = conv<ZZ>(str.c_str());
     SetMSB();
   }
-#if 0
-  void myZZ::SetValue(const char *s)
-  {
-    *this = conv<ZZ>(s);
-    SetMSB();
-  }
-#endif
 
   void myZZ::SetValue(const myZZ& a)
   {
@@ -186,8 +147,6 @@ namespace NTL {
     return r + bval[x];
   }
 
-  
-  ///&&&
   //Splits the binary string to equi sized chunks and then populates the internal array values.
   myZZ myZZ::FromBinaryString(const std::string& vin){
     bool dbg_flag = false;		// if true then print dbg output
@@ -249,16 +208,12 @@ namespace NTL {
 
   }
 
-  //deprecated version needs renaming
   myZZ myZZ::BitStringToBigInteger(const std::string& vin){ 
     myZZ ans;
     return ans.FromBinaryString(vin);
   }
-  ///&&&a
-
 
   usint myZZ::GetDigitAtIndexForBase(usint index, usint base) const{
-
     usint digit = 0;
     usint newIndex = index; 
     for (usint i = 1; i < base; i = i*2)
@@ -318,16 +273,6 @@ namespace NTL {
   //const myZZ& myZZ::zero() {return myZZ(ZZ::zero());}
 
   //palisade conversion methods
-#if 0 //Deprecated
-  usint myZZ::ConvertToUsint() const{
-    bool dbg_flag = false;
-
-    DEBUG("in myZZ::ConvertToUsint() this.size() "<<this->size());
-    DEBUG("in myZZ::ConvertToUsint() this "<<*this);
-    
- return (conv<usint>(*this)); }
-#endif
-
 
   uint64_t myZZ::ConvertToInt() const{
     bool dbg_flag = false;
@@ -344,28 +289,6 @@ namespace NTL {
   }
     
   double myZZ::ConvertToDouble() const{ return (conv<double>(*this));}
-#if 0 //Deprecated
-  uint32_t myZZ::ConvertToUint32() const { return (conv<uint32_t>(*this));}
-
-  // warning on some platforms usint64_t is implemented as an unsigned
-  // long long which is not included in the conv functions in tools.h
-  // in which case the following does not compile. 
-
-   uint64_t myZZ::ConvertToUint64() const{
-     static_assert(sizeof(uint64_t) == sizeof(long), 
-		   "sizeof(uint64_t) != sizeof(long), edit myZZ ConvertToUint64()");
-     return (conv<uint64_t>(*this));}
-
-  float myZZ::ConvertToFloat() const{ return (conv<float>(*this));}
-
-  long double myZZ::ConvertToLongDouble() const {
-    std::cerr<<"can't convert to long double"<<std::endl; 
-    return 0.0L;
-  }
-#endif
-
-
-
 
   const myZZ& myZZ::operator=(const myZZ &rhs){
     
@@ -384,7 +307,6 @@ namespace NTL {
     os << tmp;
     return os;
   }
-  
   
   const std::string myZZ::ToString() const
   {
@@ -457,40 +379,10 @@ namespace NTL {
   
   
   //various operators on mixed operands
-#if 0  
-  myZZ myZZ::operator*(const myZZ_p &b) const {
-    myZZ tmp;
-    mul(tmp, *this, b._ZZ_p__rep);
-    return tmp ;
-  }
-  
-  myZZ& myZZ::operator*=(const myZZ_p &a) {
-    *this = *this*(myZZ)a._ZZ_p__rep;
-    return *this;
-  }
-#endif
-
   myZZ& myZZ::operator*=(const myZZ &a) {
     *this = *this*a;
     return *this;
   }
-
-
-#if 0
-  inline long myZZ::operator<(const myZZ_p& b) const
-  { return b.Compare(*this) >= 0; };
-  inline long myZZ::operator>(const myZZ_p& b) const
-  { return b.Compare(*this) <= 0; };
-  inline long myZZ::operator<=(const myZZ_p& b) const
-  { return b.Compare(*this) > 0; }; 
-  inline long myZZ::operator>=( const myZZ_p& b) const
-  { return b.Compare(*this) < 0; };
-  inline long myZZ::operator==(const myZZ_p& b) const
-  { return b.Compare(*this) == 0; };
-  inline long myZZ::operator!=(const myZZ_p& b) const
-  { return b.Compare(*this) != 0; };
-#endif
-
 
   // helper functions convert a ubint in and out of a string of
   // characters the encoding is Base64-like: the first 11 6-bit

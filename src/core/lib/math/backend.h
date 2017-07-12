@@ -62,15 +62,62 @@
 // MATHBACKEND 6
 //		This uses gmp_int:: definition as default
 // 		GMP 6.1.2 / NTL 10.3.0 backend
-//passes all core tests except NTL specialized tests
-//pass all pke tests if WARN_BAD_MODULUS flag is set, not otherwise 
-//-- maybe it is not threadsafe.
-// fails
-// UTSignatureGPV.simple_sign_verify (throws in SampleC with inf mean) 
-// UTSignatureGPV.sign_verify_multiple_texts (throws GenerateInteger could not find success after repeated attempts mean is a very big negative number)
-// UTTrapdoor.TrapDoorGaussGqSampTest (throws in SampleC with inf mean)
-// UTTrapdoor.TrapDoorGaussSampTest (throws in SampleC with inf mean) 
-//UTSignatureGPV.sign_verify_multiple_keys fails
+//passes all core tests 
+//
+/// if FORCE_NORMALIZATION not set
+//fails
+//[  FAILED  ] UTFVBATCHING.Poly_EVALMULT_Arb
+//[  FAILED  ] UTEvalCC.Test_FV_EvalCC
+//[  FAILED  ] UTEvalIP.Test_FV_EvalInnerProduct
+//[  FAILED  ] UTEvalLR.Test_FV_EvalLR
+//[  FAILED  ] UTPRE.BV_DCRTPoly_ReEncrypt_pri
+//[  FAILED  ] UTSHE.LTV_Poly_Add
+//[  FAILED  ] UTSHE.StSt_Poly_Add
+//[  FAILED  ] UTSHE.BV_Poly_Add
+//[  FAILED  ] UTSHE.LTV_Poly_Mult
+//[  FAILED  ] UTSHE.BV_Poly_Mult
+//[  FAILED  ] UTSHE.BV_DCRTPoly_Mult
+//
+//if FORCE_NORMALIZATION is set then
+/* 
+[  FAILED  ] UTAUTOMORPHISM.Test_LTV_Automorphism_PowerOf2
+[  FAILED  ] UTAUTOMORPHISM.Test_BV_Automorphism_PowerOf2
+[  FAILED  ] UTAUTOMORPHISM.Test_FV_Automorphism_PowerOf2
+[  FAILED  ] UTAUTOMORPHISM.Test_LTV_Automorphism_Arb
+[  FAILED  ] UTAUTOMORPHISM.Test_BV_Automorphism_Arb
+[  FAILED  ] UTBVBATCHING.Poly_EVALMULT_Arb
+[  FAILED  ] UTFVBATCHING.Poly_EVALMULT_Arb
+[  FAILED  ] UTEvalCC.Test_BV_EvalCC
+[  FAILED  ] UTEvalCC.Test_FV_EvalCC
+[  FAILED  ] UTEvalIP.Test_LTV_EvalInnerProduct
+[  FAILED  ] UTEvalIP.Test_BV_EvalInnerProduct
+[  FAILED  ] UTEvalIP.Test_FV_EvalInnerProduct
+[  FAILED  ] UTEvalLR.Test_BV_EvalLR
+[  FAILED  ] UTEvalLR.Test_FV_EvalLR
+[  FAILED  ] UTEvalSum.Test_LTV_EvalSum
+[  FAILED  ] UTEvalSum.Test_BV_EvalSum
+[  FAILED  ] UTEvalSum.Test_FV_EvalSum
+[  FAILED  ] UTFV.Poly_FV_Eval_Operations
+[  FAILED  ] UTFV.Poly_FV_ParamsGen_EvalMul
+[  FAILED  ] UTFV.Poly_FV_Optimized_Eval_Operations
+[  FAILED  ] UTPRE.LTV_Poly_ReEncrypt_pub
+[  FAILED  ] UTPRE.BV_Poly_ReEncrypt_pri
+[  FAILED  ] UTPRE.BV_DCRTPoly_ReEncrypt_pri
+[  FAILED  ] UTPRE.FV_Poly_ReEncrypt_pri
+[  FAILED  ] UTSHE.LTV_Poly_Add
+[  FAILED  ] UTSHE.StSt_Poly_Add
+[  FAILED  ] UTSHE.BV_Poly_Add
+[  FAILED  ] UTSHE.LTV_Poly_Mult
+[  FAILED  ] UTSHE.BV_Poly_Mult
+[  FAILED  ] UTSHE.BV_DCRTPoly_Mult
+[  FAILED  ] UTSHE.FV_Poly_Mult
+[  FAILED  ] UTStatisticalEval.FV_Eval_Lin_Regression_Int
+*/
+
+/* // fails */
+UTSignatureGPV.sign_verify_multiple_texts
+UTTrapdoor.TrapDoorGaussGqSampTest
+UTTrapdoor.TrapDoorGaussSampTest
 
 // MATHBACKEND 7
 // 		This uses native_int:: as the default
@@ -80,8 +127,8 @@
 //uncommented line (and breaking the documentation of the line)
 
 //#define MATHBACKEND 2
-#define MATHBACKEND 4
-//#define MATHBACKEND 6 
+//#define MATHBACKEND 4
+#define MATHBACKEND 6 
 //#define MATHBACKEND 7
 
 ////////// cpu_int code
@@ -131,13 +178,13 @@ typedef mubintvec<xubint> xmubintvec;
 #if defined(__linux__) && MATHBACKEND == 6
 ////////// for gmp int
 #include "gmp_int/gmpint.h" //experimental gmp unsigned big ints
-#include "gmp_int/mgmpint.h" //experimental gmp modulo unsigned big ints
-#include "gmp_int/gmpintvec.h" //vectors of such
+//#include "gmp_int/mgmpint.h" //experimental gmp modulo unsigned big ints
+//#include "gmp_int/gmpintvec.h" //vectors of such
 #include "gmp_int/mgmpintvec.h" //rings of such
 
 namespace gmp_int {
 typedef NTL::myZZ ubint;
-typedef NTL::myZZ_p mubint;
+
 }
 #endif
 

@@ -48,7 +48,14 @@
 #include <NTL/SmartPtr.h>
 
 //defining this forces modulo when you write to the vector (except with SetValAtIndexWithoutMod)
+//this is becuase NTL required inputs to modmath to be < modulus but BU does not
+// play with this and you will see different tests in pke pass and fail.
+//I think this will go away soon
 //#define FORCE_NORMALIZATION 
+
+
+//defining this enables a run time warning when a vector with uninitialized modulus is used in math operations (A very bad thing) 
+//#define WARN_BAD_MODULUS
 
 /**
  * @namespace NTL
@@ -72,24 +79,17 @@ namespace NTL {
     explicit myVecP(const usint length): Vec<myT>(INIT_SIZE, length) {m_modulus_state = GARBAGE;}; 
    myVecP(const INIT_SIZE_TYPE, const long length): Vec<myT>(INIT_SIZE, length) {m_modulus_state = GARBAGE;}; 
 
-#if 0
-   myVecP(const INIT_SIZE_TYPE, const long n,  myT const& a): Vec<myT>(INIT_SIZE, n, a)  {m_modulus_state = GARBAGE;}; 
-#endif
 
     //copy
     // copy ctors with vector inputs
     explicit myVecP(const myVecP<myT> &a);
-    //explicit myVecP(const myVec<myZZ> &a);
     
     //movecopy
     myVecP(myVecP<myT> &&a);
-    //myVecP(myVec<myZZ> &&a);
     
     //constructors with moduli
     //ctor myZZ moduli
     myVecP(const long n, const myZZ &q);
-    //myVecP(const INIT_SIZE_TYPE, const long n, const myZZ &q);
-    //myVecP(const INIT_SIZE_TYPE, const long n, const myT& a, const myZZ &q);
 
     //constructors with moduli and initializer lists
     myVecP(const long n, const myZZ &q, std::initializer_list<usint> rhs);
@@ -97,25 +97,18 @@ namespace NTL {
     
     //copy with myZZ moduli
     myVecP(const myVecP<myT> &a, const myZZ &q);
-//myVecP(const myVec<myZZ> &a, const myZZ &q);
     
     //ctor with char * moduli
     myVecP(usint n, const char *sq);
-    //myVecP(INIT_SIZE_TYPE, long n, const char *sq);
-    //myVecP(INIT_SIZE_TYPE, long n, const myT& a, const char *sq);
     
      //copy with char * moduli
      myVecP(const myVecP<myT> &a, const char *sq);
-//myVecP(const myVec<myZZ> &a, const char *sq);
 
     //ctor with usint moduli
     myVecP(usint n, usint q);
-    //myVecP(INIT_SIZE_TYPE, long n, usint q);
-    //myVecP(INIT_SIZE_TYPE, long n, const myT& a, usint q);
 
     //copy with unsigned int moduli
     myVecP(const myVecP<myT> &a, const usint q);
-//myVecP(const myVec<myZZ> &a, const usint q);
     
     //destructor
     ~myVecP();
@@ -131,14 +124,8 @@ namespace NTL {
     const myVecP& operator=(myVecP &&a);
 
 
-    //const myVecP& operator=(std::initializer_list<myT> rhs);
-    //const myVecP& operator=(std::initializer_list<int> rhs);
     const myVecP& operator=(std::initializer_list<sint> rhs);
     const myVecP& operator=(std::initializer_list<std::string> rhs);
-    //const myVecP& operator=(std::initializer_list<const char *> rhs);
-    //    const myVecP& operator=(myT &rhs);
-    //const myVecP& operator=(const myT &rhs);
-    //const myVecP& operator=(unsigned int &rhs);
     const myVecP& operator=(unsigned int rhs);
 
     void clear(myVecP& x); //why isn't this inhereted?
@@ -146,13 +133,11 @@ namespace NTL {
 
     // Note, SetValAtIndex should be deprecated by .at() and []
     void SetValAtIndex(usint index, const myT&value);
-    //void SetValAtIndex(usint index, const myZZ&value);
-    //void SetValAtIndex(usint index, const char *s);
     void SetValAtIndex(usint index, const std::string& str);
 
+    //the following may be OBE, resolves to same as SVAI
     void SetValAtIndexWithoutMod(usint index, const myT&value);
 
-    //DBC could not get & return to work!!!
     const myZZ GetValAtIndex(size_t index) const;
 
     /**
@@ -225,7 +210,7 @@ namespace NTL {
     inline myVecP Add(const myZZ& b) const {ModulusCheck("Warning: myVecP::Add"); return (*this)+b%m_modulus; };
     inline myVecP ModAdd(const myZZ& b) const {ModulusCheck("Warning: myVecP::ModAdd"); return this->Add(b); };
 
-    void modadd_p(myVecP& x, const myVecP& a, const myVecP& b) const; //define procedural
+    void modadd_p(myVecP& x, const myVecP& a, const myVecP& b) const; //define procedural version
     
     myVecP ModAddAtIndex(usint i, const myZZ &b) const;
     
@@ -239,7 +224,8 @@ namespace NTL {
     };
     
     //Subtraction
-    //vector subtraction assignment
+    //vector subtraction assignment note uses DIFFERNT modsub than standard math
+    //this is a SIGNED mod sub
     inline myVecP& operator-=(const myVecP& a) {
       ArgCheckVector(a, "myVecP -="); 
       modsub_p(*this, *this, a);
@@ -375,22 +361,6 @@ namespace NTL {
       //this->Renormalize();
     };
     
-#if 0
-    //sets modulus and the NTL init function using myZZ_p.modulus argument
-    //note this is not the same as setting the modulus to value!
-    inline void SetModulus(const myZZ_p& value){
-      bool dbg_flag = false;
-      DEBUG("SetModulus(const myZZ_p& "<<value<<")");
-      if (value.GetModulus() == myZZ::ZERO) {
-	throw std::logic_error("SetModulus(myZZ_p) cannot be zero");
-      }
-      this->m_modulus= value.GetModulus();
-      DEBUG("this->modulus = "<<this->m_modulus);
-      this->m_modulus_state = INITIALIZED;
-      //ZZ_p::init(this->m_modulus);
-      //this->Renormalize();
-    };
-#endif    
     //sets modulus and the NTL init function string argument
     inline void SetModulus(const std::string& value){
       bool dbg_flag = false;
@@ -478,38 +448,6 @@ namespace NTL {
     inline bool operator!=( const myVecP& b) const
     { return !(this->operator==(b)); };
     
-#if 0
-    // myvecP and myvec<myZZ>
-    inline bool operator==(const myVec<myZZ>& b) const
-    { 
-      if ((this->size()==b.size())) { //TODO: define size() for b
-	//loop over each entry and fail if !=
-	for (size_t i = 0; i < this->size(); ++i) {
-	  if ((*this)[i]!=b[i]){
-	    return false;
-	  }
-	}
-	return true;// all entries ==
-	
-      }else{ //fails check of size
-	return false;
-      }
-    };
-    
-    inline bool operator!=( const myVec<myZZ>& b) const
-    { return !(this->operator==(b)); };
-#endif    
-    
-    // inline long operator<( const myZZ_p& b) const
-    // { return this->Compare(b) < 0; }
-    // inline long operator>( const myZZ_p& b) const
-    // { return this->Compare(b) > 0; }
-    // inline long operator<=( const myZZ_p& b) const
-    // { return this->Compare(b) <= 0; }
-    // inline long operator>=( const myZZ_p& b) const
-    // { return this->Compare(b) >= 0; }
-
-
     /* operators to get a value at an index.
        * @param idx is the index to get a value at.
        * @return is the value at the index. return NULL if invalid index.
@@ -532,16 +470,8 @@ namespace NTL {
     }
 #endif
  
-
-#if 0
-    // ostream 
-    friend std::ostream& operator<<(std::ostream& os, const myVecP &ptr_obj);
-#endif
-
-
     //Todo: get rid of printvalues everywhere
     void PrintValues() const { std::cout << *this; }
-    
 
     //JSON FACILITY
     /**
@@ -574,18 +504,8 @@ namespace NTL {
 	//ZZ_p::init(this->m_modulus); //set global modulus to this 
       }
     };
-#if 0
-    //utility function to check argument consistency for vector scalar fns
-    //use when argument to function is myZZ_p (myT)
-    inline void ArgCheckScalar(const myT &b, std::string fname) const {
-      if(this->m_modulus!=b.GetModulus()) {
-	throw std::logic_error(fname+" modulus vector modulus scalar op of different moduli");
-      } else if (!isModulusSet()) {
-	throw std::logic_error(fname+" modulus vector modulus scalar op GARBAGE  moduli");
-      }
-      //ZZ_p::init(this->m_modulus); //set global modulus to this 
-    };
-#endif    
+
+
     //utility function to check argument consistency for vector vector fns
     //use when argument to function is myVecP
     inline void ArgCheckVector(const myVecP &b, std::string fname) const {
@@ -614,6 +534,7 @@ namespace NTL {
     
     
     myZZ m_modulus;
+    //TODO: BE 2 has gotten rid of this, we may too.
     enum ModulusState {
       GARBAGE,INITIALIZED //note different order, Garbage is the default state
     };
@@ -624,28 +545,6 @@ namespace NTL {
     bool IndexCheck(usint) const;
   }; //template class ends
   
-  
-#if 0  
-  //comparison operators with two operands must be defined outside the class
-  //myVec<myZZ> and myVecP
-  inline long operator==(const myVec<myZZ> &a, const myVecP<myZZ_p> &b) 
-  {
-    if ((a.size()==b.size())) { 
-      //loop over each entry and fail if !=
-      for (size_t i = 0; i < a.size(); ++i) {
-	if (a[i]!=b[i]){
-	  return false;
-	}
-      }
-      return true;// all entries ==
-    }else{ //fails check of size
-      return false;
-    }
-  };
-  
-  inline long operator!=(const myVec<myZZ> &a, const myVecP<myZZ_p> &b) 
-  { return !(operator==(a,b)); };
-#endif  
   
   
 } // namespace NTL ends

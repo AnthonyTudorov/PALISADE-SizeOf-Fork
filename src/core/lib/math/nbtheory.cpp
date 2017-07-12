@@ -38,7 +38,11 @@
 #include <time.h>
 #include <sstream>
 
-//#define NTL_ACCELERATION
+
+//note defining these use  NTL speedups that could be used, once we are sure BE 6 is
+//working completely
+
+//#define NTL_SPEEDUP
 
 namespace lbcrypto {
 
@@ -445,7 +449,7 @@ IntType GreatestCommonDivisor(const IntType& a, const IntType& b)
 	return m_a;
  }
   
-#if NTL_SPEEDUP
+#ifdef NTL_SPEEDUP
   //define an NTL native implementation 
   NTL::myZZ GreatestCommonDivisor(const NTL::myZZ& a, const NTL::myZZ& b)
   {
@@ -492,7 +496,7 @@ IntType GreatestCommonDivisor(const IntType& a, const IntType& b)
  }
 
 
-#if defined(NTL_SPEEDUP)
+#ifdef NTL_SPEEDUP
   //NTL native version
 bool MillerRabinPrimalityTest(const NTL::myZZ& p, const usint niter)
  {
@@ -527,7 +531,7 @@ const IntType PollardRhoFactorization(const IntType &n)
  	if(n.Mod(2) == 0)
  		return IntType(2);
 
-#if defined(NTL_SPEEDUP)
+#ifdef NTL_SPEEDUP
 	IntType mu(1);
 #else
 	//Precompute the Barrett mu parameter

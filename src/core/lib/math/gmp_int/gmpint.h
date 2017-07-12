@@ -54,11 +54,9 @@
  */
 namespace NTL{
 
-  //todo: the following will be deprecated
+  //todo: note that this backend does NOT use BARRET_LEVELS or BARRET
+  // all BARRETT functions use standard MOD arithmetic calls. 
   const usint BARRETT_LEVELS = 8;	
-
-  //class myZZ_p; //forward declaration
-
 
   //log2 constants
   /**
@@ -86,37 +84,24 @@ namespace NTL{
   public:
 
     myZZ();
-#if 0
-    myZZ(int a);
-    myZZ(long a);
-    myZZ(unsigned long a);
-    myZZ(const unsigned int &a);
-    myZZ(long long unsigned int a);
-    myZZ(unsigned int &a);
-    myZZ(INIT_SIZE_TYPE, long k);
-    myZZ(std::string s);
-    myZZ(const char * s);
-    myZZ(NTL::ZZ &a);
-    myZZ(const NTL::ZZ &a);
-#else
     myZZ(uint64_t a);
     myZZ(const std::string &s);
     myZZ(const NTL::ZZ &a);
-#endif
-    //myZZ(const NTL::myZZ_p &a);
 
     //movecopy allocators (very important for efficiency)
     myZZ(NTL::ZZ &&a);
+
+    //todo: figure out how to do && for wrapper
     //myZZ(NTL::myZZ_p &&a);
 
     const myZZ& operator=(const myZZ &rhs);
-    //TODO: should this be uint_64_t?
+
+    //TODO: this mimics backend 2 should this be uint_64_t val?
+
     inline const myZZ& operator=(usint val){
       *this = myZZ(val);
       return *this;
     }
-
-    //myZZ( ZZ && zzin) : ZZ(zzin), m_MSB(5){};
 
     static const myZZ ZERO;
     static const myZZ ONE;
@@ -130,18 +115,15 @@ namespace NTL{
      */
     static unique_ptr<myZZ> Allocator();
 
-    //adapter kit
+    //adapter kit that wraps ZZ with BACKEND 2 functionality
+
     usint GetMSB() const ;
     static const myZZ& zero();
 
     //palisade conversion methods 
-    //    usint ConvertToUsint() const;
     uint64_t ConvertToInt() const;
-    //uint32_t ConvertToUint32() const;
     uint64_t ConvertToUint64() const;
-    //float ConvertToFloat() const;
     double ConvertToDouble() const;
-    //long double ConvertToLongDouble() const;
 
     //comparison method inline for speed
     inline sint Compare(const myZZ& a) const { return compare(*this,a); };
@@ -155,13 +137,14 @@ namespace NTL{
     //set this int to 1
     inline void SetIdentity(){*this=myZZ::ONE;};
 
-
     //palisade arithmetic methods all inline for speed
+    //note OLD code uses Plus, new code uses Add etc. 
     inline myZZ Add(const myZZ& b) const {return *this+b;};
     inline myZZ Plus(const myZZ& b) const {return *this+b;}; //to be deprecated
 
-    inline myZZ Sub(const myZZ& b) const  {return((*this<b)? ZZ(0):( *this-b));};  
-    inline myZZ Minus(const myZZ& b) const  {return((*this<b)? ZZ(0):( *this-b));}; //to be deprecated
+    //note that in Sub we return 0, if a<b
+    inline myZZ Sub(const myZZ& b) const {return((*this<b)? ZZ(0):( *this-b));};  
+    inline myZZ Minus(const myZZ& b) const {return((*this<b)? ZZ(0):( *this-b));}; //to be deprecated
 
     inline myZZ operator+(const myZZ &b) const {
       myZZ tmp;
@@ -169,13 +152,15 @@ namespace NTL{
       return tmp ;
     };
 
-    inline myZZ operator+(const ZZ &b) const {
-      myZZ tmp;
-      add(tmp, *this, b);
-      return tmp ;
-    };
+    //inline myZZ operator+(const ZZ &b) const {
+    //  myZZ tmp;
+    //  add(tmp, *this, b);
+    //  return tmp ;
+    //};
 
-    inline myZZ operator+(const usint& b) const {
+    // there are not equivalent versions of uint64_t in BE 2
+    // but we need them because otherwise NTL tries to use a default operation
+    inline myZZ operator+(const uint64_t& b) const {
       myZZ tmp;
       myZZ bzz(b);
       add(tmp, *this, bzz);
@@ -187,6 +172,10 @@ namespace NTL{
       return *this;
     };
 
+    inline myZZ& operator +=(const uint64_t a) {
+      *this = *this+a;
+      return *this;
+    };
 
     inline myZZ operator-(const myZZ &b) const {
       if (*this < b) { // should return 0
@@ -197,10 +186,10 @@ namespace NTL{
       return tmp ;
     };
 
-    inline myZZ operator-(const usint &b) const {
+    inline myZZ operator-(const uint64_t &b) const {
       myZZ bzz(b);
       if (*this < bzz) { // should return 0
-	return myZZ(0);
+    	return myZZ(0);
       }
       myZZ tmp;
       sub(tmp, *this, bzz);
@@ -209,7 +198,7 @@ namespace NTL{
 
     inline myZZ& operator -=(const myZZ &a) {
       if (*this<a) { // note b>a should return 0
-	*this = ZZ(0);
+	*this = myZZ(0);
 	return *this;
       }
       *this = *this-a;
@@ -217,17 +206,25 @@ namespace NTL{
     };// note this<a should return 0
 
 
+    inline myZZ& operator -=(const uint64_t a) {
+      myZZ azz(a);      
+      if (*this<azz) { // note b>a should return 0
+	*this = myZZ(0);
+	return *this;
+      }
+      *this = *this-azz;
+      return *this;
+    };// note this<a should return 0
+
 
     // Unary minus on a lattice
     myZZ operator-() const {
       return myZZ(0).Minus(*this);
     }
 
-    //myZZ operator*(const myZZ_p &b) const; 
-
     myZZ& operator*=(const myZZ &a);
-    //myZZ& operator*=(const myZZ_p &a);
 
+    myZZ& operator*=(const uint64_t &a);
 
     inline myZZ operator*(const myZZ& b) const {
       myZZ tmp;
@@ -235,12 +232,13 @@ namespace NTL{
       return tmp ;
     }
 
-    inline myZZ operator*(const usint& b) const {
+    inline myZZ operator*(const uint64_t b) const {
       myZZ tmp;
       myZZ bzz(b);
       mul(tmp, *this, bzz);
       return tmp ;
     }
+
     inline myZZ Mul(const myZZ& b) const {return *this*b;};
     //inline myZZ Times(const myZZ& b) const {return *this*b;}; //to be deprecated
     void Times(const myZZ& b, myZZ *ans) const {*ans=(*this*b); return;}; 
@@ -251,6 +249,7 @@ namespace NTL{
     //palisade modular arithmetic methods all inline for speed
 
     inline myZZ Mod(const myZZ& modulus) const {return *this%modulus;};
+
     inline myZZ& operator%(const myZZ &modulus) { 
       ZZ tmp = *this;
       ZZ tmod = modulus;
@@ -268,6 +267,12 @@ namespace NTL{
     inline myZZ ModAdd(const myZZ& b, const myZZ& modulus) const {return myZZ(AddMod(*this%modulus, b%modulus, modulus));};
     //Fast version does not check for modulus bounds.
     inline myZZ ModAddFast(const myZZ& b, const myZZ& modulus) const {return AddMod(*this, b, modulus);};
+
+
+    inline myZZ ModBarrettAdd(const myZZ& b, const myZZ& modulus,const myZZ& mu) const {
+      return this->ModAdd(b%modulus, modulus);
+    };
+
 
     //NOTE ModSub needs to return signed modulus (i.e. -1/2..q/2) in order
     //to be consistent with BE 2
