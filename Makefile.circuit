@@ -25,14 +25,90 @@
 
 
 ################
-# Makefile.circuit-disable ; no actual build
+# Makefile.circuit builds the circuit components of the PALISADE library
+# Includes unit tests and demos
 ################
 
-allcircuit:
+CIRCUITSRCDIR := src/circuit
+CIRCUITBINDIR := src/circuit/bin
+CIRCUITTESTDIR := src/circuit/unittest
+CIRCUITDEMODIR := src/circuit/demo
 
-allcircuitdemos:
+CIRCUITSOURCES := $(sort $(wildcard $(CIRCUITSRCDIR)/lib/*.cpp) $(CIRCUITSRCDIR)/lib/parse.cpp $(CIRCUITSRCDIR)/lib/scan.cpp)
+CIRCUITUNITSOURCES := $(wildcard $(CIRCUITSRCDIR)/unittest/*.cpp)
+CIRCUITDEMOSOURCES := $(wildcard $(CIRCUITDEMODIR)/*.cpp)
 
+CIRCUITOBJECTS = $(patsubst $(CIRCUITSRCDIR)/%,$(CIRCUITBINDIR)/%,$(patsubst %.cpp,%.o,$(CIRCUITSOURCES)))
+CIRCUITUNITOBJECTS := $(patsubst $(CIRCUITSRCDIR)/%,$(CIRCUITBINDIR)/%,$(patsubst %.cpp,%.o,$(CIRCUITUNITSOURCES)))
+CIRCUITUNITOBJECTS += test/include/gtest/gtest-all.o
+CIRCUITDEMOOBJECTS := $(patsubst $(CIRCUITSRCDIR)/%,$(CIRCUITBINDIR)/%,$(patsubst %.cpp,%.o,$(CIRCUITDEMOSOURCES)))
+
+CLIBS := $(EXTLIBDIR)/$(PALISADETRAPDOORLIB) $(EXTLIBDIR)/$(PALISADEPKELIB) $(EXTLIBDIR)/$(PALISADECORELIB)
+
+BISON ?= bison
+FLEX ?= flex
+
+CIRCUIT_TEST_TARGET := $(EXTTESTDIR)/circuit/tests$(EXESUFFIX)
+
+-include $(CIRCUITOBJECTS:.o=.d)
+-include $(CIRCUITUNITOBJECTS:.o=.d)
+-include $(CIRCUITDEMOOBJECTS:.o=.d)
+
+circuitstring:
+	@echo $(INC)
+
+.PHONY:allcircuit
+allcircuit: $(CLIBS) gram $(EXTLIBDIR)/$(PALISADECIRCUITLIB) $(CIRCUIT_TEST_TARGET) $(CIRCUITDEMOSOURCES) allcircuitdemos
+
+gram: $(CIRCUITSRCDIR)/lib/parse.cpp $(CIRCUITSRCDIR)/lib/parse.hpp $(CIRCUITSRCDIR)/lib/scan.cpp
+
+$(CIRCUITSRCDIR)/lib/parse.hpp: $(CIRCUITSRCDIR)/lib/parse.y
+
+$(CIRCUITSRCDIR)/lib/parse.cpp: $(CIRCUITSRCDIR)/lib/parse.y
+	$(BISON) --defines -o $@ $^
+
+$(CIRCUITSRCDIR)/lib/scan.cpp: $(CIRCUITSRCDIR)/lib/scan.l
+	$(FLEX) -o $@ $^
+
+allcircuitdemos: $(patsubst $(CIRCUITBINDIR)/demo/%,bin/demo/circuit/%,$(patsubst %.o,%$(EXESUFFIX),$(CIRCUITDEMOOBJECTS)))
+
+bin/demo/circuit/%$(EXESUFFIX): src/circuit/bin/demo/%.o $(EXTLIBDIR)/$(PALISADECIRCUITLIB)
+	@mkdir -p $(@D)
+	$(CC) -o $@ $^ $(EXTLIB) -lPALISADEcore -lPALISADEpke -lPALISADEtrapdoor -lPALISADEcircuit
+
+#this builds the palisade library out of the objects 
+$(EXTLIBDIR)/$(PALISADECIRCUITLIB): $(CIRCUITOBJECTS) $(CLIBS)
+	@echo " -- circuit:linking $@ from CIRCUITOBJECTS"
+	mkdir -p $(EXTLIBDIR)
+	$(CC) $(LIBCMD) -o $@ $(CIRCUITOBJECTS) -L$(EXTLIBDIR) -lPALISADEcore -lPALISADEpke -lPALISADEtrapdoor -lgomp 
+
+### #this builds the individual objects that make up the library .
+.PRECIOUS: $(CIRCUITBINDIR)/%
+$(CIRCUITBINDIR)/%:
+	@if [ "$(suffix $@)" = ".o" ] ;   \
+	then  \
+		mkdir -p $(@D)  ;\
+		echo $(CC) $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(CIRCUITBINDIR)/%,$(CIRCUITSRCDIR)/%,$(patsubst %.o,%.cpp,$@))  ;\
+		$(CC) -MM $(CPPFLAGS) $(INC) $(patsubst $(CIRCUITBINDIR)/%,$(CIRCUITSRCDIR)/%,$(patsubst %.o,%.cpp,$@)) > $(patsubst %.o,%.d,$@) ;\
+		mv -f $(patsubst %.o,%.d,$@) $(patsubst %.o,%.d.tmp,$@)  ;\
+		sed -e 's|.*\.o:|$(CIRCUITBINDIR)/$*:|' < $(patsubst %.o,%.d.tmp,$@) > $(patsubst %.o,%.d,$@)  ;\
+		rm -f $(patsubst %.o,%.d.tmp,$@)  ; \
+		$(CC) $(CPPFLAGS) -Wno-sign-compare $(INC) -c -o $@ $(patsubst $(CIRCUITBINDIR)/%,$(CIRCUITSRCDIR)/%,$(patsubst %.o,%.cpp,$@))  ;\
+	fi
+
+.PHONY: cleancircuit 
+
+#this target is used to cleanup, it is called from the top Makefile
 cleancircuit: 
+	$(RM) -fr $(CIRCUITBINDIR) $(EXTLIBDIR)/$(PALISADECIRCUITLIB) `dirname $(CIRCUIT_TEST_TARGET)` bin/demo/circuit $(CIRCUITSRCDIR)/lib/parse.cpp $(CIRCUITSRCDIR)/lib/scan.cpp $(CIRCUITSRCDIR)/lib/parse.hpp $(wildcard $(CIRCUITSRCDIR)/lib/*.hh)
 
-testcircuit:
+# this links test executable  from objects in the test build directory
+$(CIRCUIT_TEST_TARGET): $(CIRCUITUNITOBJECTS) $(CLIBS)
+	@mkdir -p `dirname $(CIRCUIT_TEST_TARGET)`
+	$(CC) $(CIRCUITUNITOBJECTS) -o $(CIRCUIT_TEST_TARGET) $(CLIBS) $(TEST_LIB)
+
+#used to run tests from make
+.PHONY: testcircuit
+testcircuit: $(CIRCUIT_TEST_TARGET)
+	$(CIRCUIT_TEST_TARGET)
 
