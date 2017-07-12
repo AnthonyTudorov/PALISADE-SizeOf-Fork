@@ -24,6 +24,8 @@
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestSHE.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestSHEAdvanced.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestStatisticalEval.cpp" />
+    <ClCompile Include="..\..\..\..\src\trapdoor\unittest\UnitTestSignatureGPV.cpp" />
+    <ClCompile Include="..\..\..\..\src\trapdoor\unittest\UnitTestTrapdoor.cpp" />
     <ClCompile Include="..\..\..\..\src\core\unittest\Main_TestAll.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestMultiparty.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestSerialize.cpp" />

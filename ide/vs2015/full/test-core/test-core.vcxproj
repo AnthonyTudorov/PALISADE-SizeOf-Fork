@@ -19,9 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{070EA5FE-DF19-4361-975A-803A2BD49112}</ProjectGuid>
+    <ProjectGuid>{F8BEC174-289E-4F24-8879-5F52E13F13AE}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>testall</RootNamespace>
+    <RootNamespace>testcore</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -71,22 +71,22 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>..\..\..\..\test;..\..\..\..\src\trapdoor\lib;..\..\..\..\src\pke\lib;..\..\..\..\src\core\lib;C:\boost_1_62_0;$(IncludePath)</IncludePath>
+    <IncludePath>..\..\..\..\test;..\..\..\..\src\core\lib;C:\boost_1_62_0;$(IncludePath)</IncludePath>
     <LibraryPath>C:\boost_1_62_0\stage\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>..\..\..\..\test;..\..\..\..\src\trapdoor\lib;..\..\..\..\src\pke\lib;..\..\..\..\src\core\lib;C:\boost_1_62_0;$(IncludePath)</IncludePath>
+    <IncludePath>..\..\..\..\test;..\..\..\..\src\core\lib;C:\boost_1_62_0;$(IncludePath)</IncludePath>
     <LibraryPath>C:\boost_1_62_0\stage\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>..\..\..\..\test;..\..\..\..\src\pke\lib;..\..\..\..\src\core\lib;$(IncludePath)</IncludePath>
+    <IncludePath>..\..\..\..\test;..\..\..\..\src\core\lib;$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>..\..\..\..\test;..\..\..\..\src\pke\lib;..\..\..\..\src\core\lib;$(IncludePath)</IncludePath>
+    <IncludePath>..\..\..\..\test;..\..\..\..\src\core\lib;$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -95,7 +95,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);_XKEYCHECK_H</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -109,7 +109,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);_XKEYCHECK_H</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -125,7 +125,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions);_XKEYCHECK_H</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -143,7 +143,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);_XKEYCHECK_H</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -153,6 +153,11 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\core\core.vcxproj">
+      <Project>{ae8deb8d-de67-43b9-a36b-db1ce7517d8c}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\src\core\unittest\Main_TestAll.cpp" />
     <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestBinInt.cpp" />
@@ -166,36 +171,13 @@
     <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestNative64.cpp" />
     <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestNbTheory.cpp" />
     <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestNTT.cpp" />
+    <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestSerialize.cpp" />
     <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestTransform.cpp" />
     <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestUbint.cpp" />
     <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestUbintvec.cpp" />
-    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestAutomorphism.cpp" />
-    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestBatching.cpp" />
-    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestBVDCRT.cpp" />
-    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestENCRYPT.cpp" />
-    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestEvalCrossCorrelation.cpp" />
-    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestEvalInnerProduct.cpp" />
-    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestEvalLinearRegression.cpp" />
-    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestEvalSum.cpp" />
-    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestFV.cpp" />
-    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestMultiparty.cpp" />
-    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestPRE.cpp" />
-    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestSerialize.cpp" />
-    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestSHE.cpp" />
-    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestSHEAdvanced.cpp" />
-    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestStatisticalEval.cpp" />
     <ClCompile Include="..\..\..\..\test\include\gtest\gtest-all.cc" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\core\core.vcxproj">
-      <Project>{ae8deb8d-de67-43b9-a36b-db1ce7517d8c}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\pke\pke.vcxproj">
-      <Project>{12a98ba2-2426-476d-9b25-fba1a2639fd6}</Project>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\..\..\src\pke\unittest\cryptolayertests.h" />
     <ClInclude Include="..\..\..\..\test\include\gtest\gtest.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
