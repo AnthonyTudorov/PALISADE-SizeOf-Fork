@@ -22,8 +22,7 @@ restrictions and expand available options
 
 * MATHBACKEND 2
 If the programmer selects MATHBACKEND 2, the maximum size of BigInteger will be set to BigIntegerBitLength, which is defined in
-backend.h and which has a default value of 1500 bits. It's advisable to select a value for BigIntegerBitLength that is at least
-60 bits larger than the largest integer that would need to be represented.
+backend.h and which has a default value of 1500 bits. It's advisable to select a value for BigIntegerBitLength that is larger than the double bitwidth of the largest (ciphertext) modulus. This parameter can be decreased for runtime/space optimization when the largest modulus is under 700 bits.
 
 The underlying implementation is a fixed-size array of native integers. The native integer used in MATHBACKEND 2, which is defined
 by the typedef integral_dtype, MUST be uint32_t; using other types is an open work item.

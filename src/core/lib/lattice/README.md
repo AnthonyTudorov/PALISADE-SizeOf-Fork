@@ -42,9 +42,11 @@ File Listing
 Directory Description
 =====================
 
-The primary objective of the code in this directory is to represent polynomial ring elements and manipulations on these elements.  The current implementations support polynomial rings that are of dimension a power of two (e.g. x^n + 1 where n is a power of 2).  A polynomial ring is defined as Rq := R/qR = Zq[X]/(f(X)), with f(X) a mononic irreducable polynomial of degree n, and q an integer modulus.
+The primary objective of the code in this directory is to represent polynomial ring elements and manipulations on these elements.  The current implementations support polynomial rings that are of dimension a power of two (e.g. x^n + 1 where n is a power of 2).  A polynomial ring is defined as Rq := R/qR = Zq[X]/(f(X)), with f(X) a mononic irreducable polynomial of degree n, and q an integer modulus. 
 
-The two main data classes in this layer are Poly and DCRTPoly. Both are designed to represent polynomial ring elements with power-of-2 dimensionality.  
+Support for arbitrary cyclotomic rings is also available but in experimental mode. The case of m = p and m = 2*p, where m is a cyclotomic order and p is a prime, have been tested relatively well. Other cases of m have not been tested.
+
+The two main data classes in this layer are Poly and DCRTPoly.
 
 The primary differences between Poly and DCRTPoly are that Poly uses single-CRT representation and DCRTPoly uses double-CRT representation.  In practice, this means that Poly uses a single large modulus q, while  DCRTPoly uses multiple smaller moduli.  Hence, Poly runs slower than DCRTPoly because DCRTPoly operations can be easier to fit into the native bitwidths of commodity processors.
 
