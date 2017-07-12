@@ -81,18 +81,9 @@ void KeyGen()
 
 		size_t batchSize = 1024;
 
-#if defined(_MSC_VER)
-
-		usint init_size = 7;
-		usint dcrtBits = 12;
-		usint dcrtBitsBig = 31;
-
-#else
-
 		usint init_size = 3;
-		usint dcrtBits = 23;
-		usint dcrtBitsBig = 57;
-#endif
+		usint dcrtBits = 24;
+		usint dcrtBitsBig = 59;
 
 		usint m;
 
@@ -611,7 +602,7 @@ void Compute() {
 
 		if (result->Serialize(&ccSer)) {
 			if (!SerializableHelper::WriteSerializationToFile(ccSer, DATAFOLDER + "/" + "ciphertext-cc-" + std::to_string(k) + ".txt")) {
-				cerr << "Error writing serialization of ciphertext X^T X to " << "ciphertext-cc-" + std::to_string(k) + ".txt" << endl;
+				cerr << "Error writing serialization of cross-correlation ciphertext to " << "ciphertext-cc-" + std::to_string(k) + ".txt" << endl;
 				return;
 			}
 		}
@@ -707,8 +698,6 @@ void Decrypt() {
 
 		std::cout << "Completed" << std::endl;
 
-		// Decrypt X^T y
-
 		crossCorr.push_back(ccResult);
 
 	}
@@ -765,7 +754,7 @@ native_int::BigInteger CRTInterpolate(const std::vector<PackedIntPlaintextEncodi
 		result += ((native_int::BigInteger(crtVector[i][0])*qInverse[i]).Mod(q[i])*Q / q[i]).Mod(Q);
 	}
 	
-	return result;
+	return result.Mod(Q);
 
 }
 
