@@ -182,6 +182,16 @@ namespace lbcrypto {
 				Poly &dtext
 			);
 
+			void EvalPKDeprecated(
+					shared_ptr<ILParams> ilParams,
+					const RingMat &B,
+					const usint x[],  // Attributes
+					const RingMat &Cin,
+					usint *y,
+					RingMat *Bf,
+					RingMat *Cf
+				);
+
 		private:
 			usint m_k; //number of bits of the modulus
 			usint m_ell; //number of attributes

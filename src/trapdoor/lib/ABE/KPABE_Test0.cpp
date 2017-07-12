@@ -137,14 +137,14 @@ int KPABE_BenchmarkCircuitTest(usint iter, int32_t base)
 		CA  = Cin.ExtractRow(0);  // CA is A^T * s + e 0,A
 
 		start = currentDateTime();
-		RECEIVER.EvalPK(ilParams, B, &Bf);
+	//	RECEIVER.EvalPK(ilParams, B, &Bf);
 		RECEIVER.EvalCT(ilParams, B, x, Cin.ExtractRows(1, ell+1), &y, &Cf);
-
 
 		finish = currentDateTime();
 		avg_eval += (finish - start);
 
 		start = currentDateTime();
+		PKG.EvalPK(ilParams, B, &Bf);
 		PKG.KeyGen(ilParams, A.first, Bf, beta, A.second, dgg, sKey);
 		finish = currentDateTime();
 		avg_keygen += (finish - start);
