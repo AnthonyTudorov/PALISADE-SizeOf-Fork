@@ -74,7 +74,7 @@ int KPABE_BenchmarkCircuitTest(usint iter, int32_t base)
 	ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().PreCompute(rootOfUnity, n, q);
 
 	// Trapdoor Generation
-	std::pair<RingMat, RLWETrapdoorPair<Poly>> A = RLWETrapdoorUtility::TrapdoorGenwBase(ilParams, base, SIGMA);
+	std::pair<RingMat, RLWETrapdoorPair<Poly>> A = RLWETrapdoorUtility::TrapdoorGenwBase(ilParams, base, SIGMA); // A.first is the public element
 
 	Poly beta(dug, ilParams, EVALUATION);
 
@@ -98,15 +98,20 @@ int KPABE_BenchmarkCircuitTest(usint iter, int32_t base)
 		if(EvalNANDTree(&x[1], ell) == 0)
 			found = 1;
 	}
+
+	for(usint i =0; i < ell+1;i++){
+		std::cout << x[i] << std::endl;
+	}
+
 	usint y;
 
 	// plaintext
 	Poly ptext(ilParams, COEFFICIENT, true);
 
 	// circuit outputs
-	RingMat Bf(Poly::MakeAllocator(ilParams, EVALUATION), 1, m);
-	RingMat Cf(Poly::MakeAllocator(ilParams, EVALUATION), 1, m);
-	RingMat CA(Poly::MakeAllocator(ilParams, EVALUATION), 1, m);
+	RingMat Bf(Poly::MakeAllocator(ilParams, EVALUATION), 1, m);  //evaluated Bs
+	RingMat Cf(Poly::MakeAllocator(ilParams, EVALUATION), 1, m);  // evaluated Cs
+	RingMat CA(Poly::MakeAllocator(ilParams, EVALUATION), 1, m); // CA
 
 	// secret key corresponding to the circuit output
 	RingMat sKey(zero_alloc, 2, m);
@@ -125,14 +130,17 @@ int KPABE_BenchmarkCircuitTest(usint iter, int32_t base)
 		ptext.SetValues(bug.GenerateVector(N, q), COEFFICIENT);
 		ptext.SwitchFormat();
 		start = currentDateTime();
-		SENDER.Encrypt(ilParams, A.first, B, beta, x, ptext, dgg, dug, bug, Cin, c1);
+		SENDER.Encrypt(ilParams, A.first, B, beta, x, ptext, dgg, dug, bug, Cin, c1); // Cin and c1 are the ciphertext
 		finish = currentDateTime();
 		avg_enc += (finish - start);
 
-		CA  = Cin.ExtractRow(0);
+		CA  = Cin.ExtractRow(0);  // CA is A^T * s + e 0,A
 
 		start = currentDateTime();
-		RECEIVER.EvalPK(ilParams, B, x, Cin.ExtractRows(1, ell+1), &y, &Bf, &Cf);
+		RECEIVER.EvalPK(ilParams, B, &Bf);
+		RECEIVER.EvalCT(ilParams, B, x, Cin.ExtractRows(1, ell+1), &y, &Cf);
+
+
 		finish = currentDateTime();
 		avg_eval += (finish - start);
 

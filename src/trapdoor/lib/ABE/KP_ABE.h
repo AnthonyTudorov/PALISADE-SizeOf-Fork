@@ -82,10 +82,19 @@ namespace lbcrypto {
 			void EvalPK(
 					shared_ptr<ILParams> ilParams,
 					const RingMat &B,
+					RingMat *Bf
+			);
+
+			/**
+			* Evaluation function for both public keys B_i and ciphertexts C_i
+			* for the benchmark circuit
+		    */
+			void EvalCT(
+			        shared_ptr<ILParams> ilParams,
+					const RingMat &B,
 					const usint x[],
 					const RingMat &Cin,
 					usint *y,
-					RingMat *Bf,
 					RingMat *Cf
 			);
 

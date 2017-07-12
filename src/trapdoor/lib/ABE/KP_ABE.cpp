@@ -215,16 +215,10 @@ namespace lbcrypto {
 	void KPABE::EvalPK(
 		shared_ptr<ILParams> ilParams,
 		const RingMat &B,
-		const usint x[],  // Attributes
-		const RingMat &Cin,
-		usint *y,
-		RingMat *Bf,
-		RingMat *Cf
+		RingMat *Bf
 	)
 	{
-		// Part pertaining to A (does not change)
-		for (usint i = 0; i < m_m; i++)
-			(*Cf)(0, i) = Cin(0, i);
+
 
 		auto zero_alloc = Poly::MakeAllocator(ilParams, EVALUATION);
 
@@ -232,9 +226,6 @@ namespace lbcrypto {
 
 		RingMat Psi(zero_alloc, m_m, m_m); // Needed for bit decomposition matrices
 		RingMat wB(zero_alloc, gateCnt, m_m);   // Bis associated with internal wires of the circuit
-		RingMat wCT(zero_alloc, gateCnt, m_m);  // Ciphertexts associated with internal wires of the circuit
-		usint *wX = new usint[gateCnt]; // Attribute values associated with internal wires of the circuit
-
 		// Temporary variables for bit decomposition operation
 		RingMat negB(zero_alloc, 1, m_m);       // EVALUATION (NTT domain)
 		std::vector<Poly> digitsC1(m_m);
@@ -244,48 +235,24 @@ namespace lbcrypto {
 //pragma omp parallel for /*schedule(dynamic,1)*/ firstprivate(negB, digitsC1)
 		for (usint i = 0; i < t; i++) // looping to evaluate and calculate w, wB, wC and R for all first level input gates
 		{
-			wX[i] = x[0] - x[2*i+1]*x[2*i+2]; // calculating binary wire value
 
 			for (usint j = 0; j < m_m; j++)     // Negating Bis for bit decomposition
 				negB(0, j) = B(2*i+1, j).Negate();
 
-			/*
-			 * This was how bit decomposition is previously done
-			 * for (int j = 0; j < m_m; j++) { // Performing bit decomposition, first loop is looping over every other Bi (as per the circuit)
-				digitsC1 = negB(0, j).BaseDecompose(1); // bit decomposing each polynomial in Bi, BitDecompose already gives you a vector based on least significant bit order
-				for (int k = 0; k < m_k; k++)  // Moving the decomposed polynomial into jth column of R
-					Psi(k, j) = digitsC1[k];
-				Psi(m_m-2, j).SetValuesToZero();
-				Psi(m_m-1, j).SetValuesToZero();
-			}
-			*/
 			//polyVec2NAFDecom (ilParams, m_k, negB, Psi);
 			polyVec2BalDecom (ilParams, m_base, m_k, negB, Psi);
-
-			/*Starting computation for a NAND circuit*/
-			/* x2 * C1 */
-			for (usint j = 0; j < m_m; j++) {
-				if(x[2*i+2]!=0)
-					wCT(i, j) = Cin(2*i+1, j);
-				else
-					wCT(i, j).SetValuesToZero();
-			}
 
 			/* Psi^T*C2 and B2*Psi */
 			for (usint j = 0; j < m_m; j++) { // the following two for loops are for vector matrix multiplication (a.k.a B(i+1) * BitDecompose(-Bi) and  gamma (0, 2) (for the second attribute of the circuit) * bitDecompose(-B))
 				wB(i, j) = B(2*i+2, 0)*Psi(0, j); // B2 * BD(-Bi)
-				wCT(i, j) += Psi(0, j)*Cin(2*i+2, 0);  // BD(-Bi)*C2
 				for (usint k = 1; k < m_m; k++) {
 					wB(i, j) += B(2*i+2, k)*Psi(k, j);
-					wCT(i, j) += Psi(k, j)*Cin(2*i+2, k);
 				}
 			}
 
-			/* B0 - B2*R and C0 - x2*C1 - C2*R */
 			for (usint j = 0; j < m_m; j++)
 			{
 				wB(i, j) = B(0, j) - wB(i, j);
-				wCT(i, j) = Cin(0, j) - wCT(i, j); // C0 - x2*C1 - R*C2
 			}
 		}
 
@@ -300,57 +267,26 @@ namespace lbcrypto {
 			usint OutStart = m_ell - (m_ell >> d);    // Starting index for the output wires in level d
 			usint gCntinLeveld = m_ell >> (d+1);      // number of gates in level d
 
-			/*std::cout << "Level: " << d << std::endl;
-			std::cout << "InStart: " << InStart << std::endl;
-			std::cout << "OutStart: " << OutStart << std::endl;
-			std::cout << "No of gates in the level: " << gCntinLeveld << std::endl;*/
-
 			//#pragma omp parallel for /*schedule(dynamic,1)*/ firstprivate(negB, digitsC1) /*num_threads((number_of_gates + 1)/depthFactor)*/
 			for (usint i = 0; i<gCntinLeveld; i++)
 			{
-				wX[OutStart+i] = x[0] - wX[InStart+2*i] * wX[InStart+2*i+1];
-
 				for (usint j = 0; j < m_m; j++)
 					negB(0, j) = wB(InStart+2*i, j).Negate();
 
-				/*
-				 * * This was how bit decomposition is previously done
-				for (int j = 0; j < m_m; j++)
-				{
-					digitsC1 = negB(0, j).BaseDecompose(1);
-					for (int k = 0; k < m_k; k++)
-						Psi(k, j) = digitsC1[k];
-					Psi(m_m-2, j).SetValuesToZero();
-					Psi(m_m-1, j).SetValuesToZero();
-				}
-				*
-				*/
-				//polyVec2NAFDecom (ilParams, m_k, negB, Psi);
 				polyVec2BalDecom (ilParams, m_base, m_k, negB, Psi);
-
-				// x2*C1
-				for (usint j = 0; j < m_m; j++) {
-					if(wX[InStart+2*i+1]!=0)
-						wCT(OutStart+i, j) = wCT(InStart+2*i, j);
-					else
-						wCT(OutStart+i, j).SetValuesToZero();
-				}
 
 				for (usint j = 0; j < m_m; j++)
 				{
 					wB(OutStart+i, j) = wB(InStart+2*i+1, 0) * Psi(0, j);  // B2 * Psi
-					wCT(OutStart+i, j) += Psi(0, j) * wCT(InStart+2*i+1, 0) ; // Psi * C2
 					for (usint k = 1; k < m_m; k++)
 					{
 						wB(OutStart+i, j) += wB(InStart+2*i+1, k)* Psi(k, j);  // B2 * Psi
-						wCT(OutStart+i, j) += Psi(k, j) * wCT(InStart+2*i+1, k);  // Psi * C2
 					}
 				}
 
 				for (usint j = 0; j < m_m; j++)
 				{
 					wB(OutStart+i, j) = B(0, j) - wB(OutStart+i, j);
-					wCT(OutStart+i, j) = Cin(0, j) - wCT(OutStart+i, j);
 				}
 			}
 		}
@@ -358,11 +294,166 @@ namespace lbcrypto {
 		for (usint j = 0; j < m_m; j++)
 		{
 			(*Bf)(0, j) = wB(gateCnt-1, j);
-			(*Cf)(0, j) = wCT(gateCnt-1, j);
 		}
-
-		(*y) = wX[gateCnt-1];
 	}
+
+
+
+	/*
+		 * Given public parameters, attribute values and ciphertexts corresponding to attributes,
+		 * computes the ciphertext and the public key Bf for the circuit of attributes
+		 * m_ell is the number of attributes and the circuit is assumed to be a binary tree of NAND gates
+		 * Thus, m_ell must be a power of two
+		 */
+		void KPABE::EvalCT(
+			shared_ptr<ILParams> ilParams,
+			const RingMat &B,
+			const usint x[],  // Attributes
+			const RingMat &Cin,
+			usint *y,
+			RingMat *Cf
+		)
+		{
+			// Part pertaining to A (does not change)
+			for (usint i = 0; i < m_m; i++)
+				(*Cf)(0, i) = Cin(0, i);
+
+			auto zero_alloc = Poly::MakeAllocator(ilParams, EVALUATION);
+
+			usint gateCnt = m_ell - 1;
+
+			RingMat Psi(zero_alloc, m_m, m_m); // Needed for bit decomposition matrices
+			RingMat wB(zero_alloc, gateCnt, m_m);   // Bis associated with internal wires of the circuit
+			RingMat wCT(zero_alloc, gateCnt, m_m);  // Ciphertexts associated with internal wires of the circuit
+			usint *wX = new usint[gateCnt]; // Attribute values associated with internal wires of the circuit
+
+			// Temporary variables for bit decomposition operation
+			RingMat negB(zero_alloc, 1, m_m);       // EVALUATION (NTT domain)
+			std::vector<Poly> digitsC1(m_m);
+
+			// Input level of the circuit
+			usint t = m_ell >> 1;  // the number of the gates in the first level (the number of input gates)
+	//pragma omp parallel for /*schedule(dynamic,1)*/ firstprivate(negB, digitsC1)
+			for (usint i = 0; i < t; i++) // looping to evaluate and calculate w, wB, wC and R for all first level input gates
+			{
+				wX[i] = x[0] - x[2*i+1]*x[2*i+2]; // calculating binary wire value
+
+				for (usint j = 0; j < m_m; j++)     // Negating Bis for bit decomposition
+					negB(0, j) = B(2*i+1, j).Negate();
+
+				/*
+				 * This was how bit decomposition is previously done
+				 * for (int j = 0; j < m_m; j++) { // Performing bit decomposition, first loop is looping over every other Bi (as per the circuit)
+					digitsC1 = negB(0, j).BaseDecompose(1); // bit decomposing each polynomial in Bi, BitDecompose already gives you a vector based on least significant bit order
+					for (int k = 0; k < m_k; k++)  // Moving the decomposed polynomial into jth column of R
+						Psi(k, j) = digitsC1[k];
+					Psi(m_m-2, j).SetValuesToZero();
+					Psi(m_m-1, j).SetValuesToZero();
+				}
+				*/
+				//polyVec2NAFDecom (ilParams, m_k, negB, Psi);
+				polyVec2BalDecom (ilParams, m_base, m_k, negB, Psi);
+
+				/*Starting computation for a NAND circuit*/
+				/* x2 * C1 */
+				for (usint j = 0; j < m_m; j++) {
+					if(x[2*i+2]!=0)
+						wCT(i, j) = Cin(2*i+1, j);
+					else
+						wCT(i, j).SetValuesToZero();
+				}
+
+				/* Psi^T*C2 and B2*Psi */
+				for (usint j = 0; j < m_m; j++) { // the following two for loops are for vector matrix multiplication (a.k.a B(i+1) * BitDecompose(-Bi) and  gamma (0, 2) (for the second attribute of the circuit) * bitDecompose(-B))
+					wB(i, j) = B(2*i+2, 0)*Psi(0, j); // B2 * BD(-Bi)
+					wCT(i, j) += Psi(0, j)*Cin(2*i+2, 0);  // BD(-Bi)*C2
+					for (usint k = 1; k < m_m; k++) {
+						wB(i, j) += B(2*i+2, k)*Psi(k, j);
+						wCT(i, j) += Psi(k, j)*Cin(2*i+2, k);
+					}
+				}
+
+				/* B0 - B2*R and C0 - x2*C1 - C2*R */
+				for (usint j = 0; j < m_m; j++)
+				{
+					wB(i, j) = B(0, j) - wB(i, j);
+					wCT(i, j) = Cin(0, j) - wCT(i, j); // C0 - x2*C1 - R*C2
+				}
+			}
+
+			/* For internal wires of the circuit.
+			 * Depth 0 refers to the circuit level where the input gates are located.
+			 * Thus, we start with depth 1
+			 */
+			usint depth = log2(m_ell);
+			for(usint d=1; d<depth; d++)
+			{
+				usint InStart = m_ell - (m_ell >> (d-1)); // Starting index for the input wires in level d
+				usint OutStart = m_ell - (m_ell >> d);    // Starting index for the output wires in level d
+				usint gCntinLeveld = m_ell >> (d+1);      // number of gates in level d
+
+				/*std::cout << "Level: " << d << std::endl;
+				std::cout << "InStart: " << InStart << std::endl;
+				std::cout << "OutStart: " << OutStart << std::endl;
+				std::cout << "No of gates in the level: " << gCntinLeveld << std::endl;*/
+
+				//#pragma omp parallel for /*schedule(dynamic,1)*/ firstprivate(negB, digitsC1) /*num_threads((number_of_gates + 1)/depthFactor)*/
+				for (usint i = 0; i<gCntinLeveld; i++)
+				{
+					wX[OutStart+i] = x[0] - wX[InStart+2*i] * wX[InStart+2*i+1];
+
+					for (usint j = 0; j < m_m; j++)
+						negB(0, j) = wB(InStart+2*i, j).Negate();
+
+					/*
+					 * * This was how bit decomposition is previously done
+					for (int j = 0; j < m_m; j++)
+					{
+						digitsC1 = negB(0, j).BaseDecompose(1);
+						for (int k = 0; k < m_k; k++)
+							Psi(k, j) = digitsC1[k];
+						Psi(m_m-2, j).SetValuesToZero();
+						Psi(m_m-1, j).SetValuesToZero();
+					}
+					*
+					*/
+					//polyVec2NAFDecom (ilParams, m_k, negB, Psi);
+					polyVec2BalDecom (ilParams, m_base, m_k, negB, Psi);
+
+					// x2*C1
+					for (usint j = 0; j < m_m; j++) {
+						if(wX[InStart+2*i+1]!=0)
+							wCT(OutStart+i, j) = wCT(InStart+2*i, j);
+						else
+							wCT(OutStart+i, j).SetValuesToZero();
+					}
+
+					for (usint j = 0; j < m_m; j++)
+					{
+						wB(OutStart+i, j) = wB(InStart+2*i+1, 0) * Psi(0, j);  // B2 * Psi
+						wCT(OutStart+i, j) += Psi(0, j) * wCT(InStart+2*i+1, 0) ; // Psi * C2
+						for (usint k = 1; k < m_m; k++)
+						{
+							wB(OutStart+i, j) += wB(InStart+2*i+1, k)* Psi(k, j);  // B2 * Psi
+							wCT(OutStart+i, j) += Psi(k, j) * wCT(InStart+2*i+1, k);  // Psi * C2
+						}
+					}
+
+					for (usint j = 0; j < m_m; j++)
+					{
+						wB(OutStart+i, j) = B(0, j) - wB(OutStart+i, j);
+						wCT(OutStart+i, j) = Cin(0, j) - wCT(OutStart+i, j);
+					}
+				}
+			}
+
+			for (usint j = 0; j < m_m; j++)
+			{
+				(*Cf)(0, j) = wCT(gateCnt-1, j);
+			}
+
+			(*y) = wX[gateCnt-1];
+		}
 
 	/* The encryption function takes public parameters A, B, and d, attribute values x and the plaintext pt
 	 * and generates the ciphertext pair c0 and c1
@@ -379,8 +470,8 @@ namespace lbcrypto {
 		DiscreteGaussianGenerator &dgg, // to generate error terms (Gaussian)
 		DiscreteUniformGenerator &dug,  // select according to uniform distribution
 		BinaryUniformGenerator &bug,    // select according to uniform distribution binary
-		RingMat &Cin,
-		Poly &c1
+		RingMat &Cin,                   // value set in this function
+		Poly &c1			            // value set in this function
 	)
 	{
 		// ***
@@ -408,7 +499,7 @@ namespace lbcrypto {
 		RingMat G = RingMat(zero_alloc, 1, m_k).GadgetVector(m_base);  // be careful here
 
 		RingMat errA(Poly::MakeDiscreteGaussianCoefficientAllocator(ilParams, EVALUATION, SIGMA), 1, m_m);
-		RingMat errBi(zero_alloc, 1, m_m);
+		RingMat errCin(zero_alloc, 1, m_m);
 
 		for(usint j=0; j<m_m; j++) {
 			Cin(0, j) = A(0, j)*s + errA(0, j);
@@ -416,12 +507,12 @@ namespace lbcrypto {
 		for(usint i=1; i<m_ell+2; i++) {
 			// Si values
 			for(usint si=0; si<m_m; si++) {
-				errBi(0, si).SetValuesToZero();
+				errCin(0, si).SetValuesToZero();
 				for(usint sj=0; sj<m_m; sj++) {
 					if(bug.GenerateInteger() == BigInteger::ONE)
-						errBi(0, si) += errA(0, sj);
+						errCin(0, si) += errA(0, sj);
 					else
-						errBi(0, si) -= errA(0, sj);
+						errCin(0, si) -= errA(0, sj);
 				}
 			}
 
@@ -429,12 +520,12 @@ namespace lbcrypto {
 				//if(i == 1)
 					//Cin(i, j) = (G(0, j) + B(i-1, j))*s + errBi(0, j);
 				if(x[i-1] != 0)
-					Cin(i, j) = (G(0, j) + B(i-1, j))*s + errBi(0, j);
+					Cin(i, j) = (G(0, j) + B(i-1, j))*s + errCin(0, j);
 				else
-					Cin(i, j) = B(i-1, j)*s + errBi(0, j);
+					Cin(i, j) = B(i-1, j)*s + errCin(0, j);
 			}
-			Cin(i, m_m-2) = B(i-1, m_m-2)*s + errBi(0, m_m-2);
-			Cin(i, m_m-1) = B(i-1, m_m-1)*s + errBi(0, m_m-1);
+			Cin(i, m_m-2) = B(i-1, m_m-2)*s + errCin(0, m_m-2);
+			Cin(i, m_m-1) = B(i-1, m_m-1)*s + errCin(0, m_m-1);
 		}
 	}
 

@@ -9,7 +9,7 @@ int main()
 	std::cout << "Merhaba Dunya!" << std::endl;
 
 	//KPABE_NANDGateTest(10, 32);  // second argument is the base
-//    KPABE_BenchmarkCircuitTest(10,4);
+      KPABE_BenchmarkCircuitTest(10,8);
 	//ErrorRatesSi(0);
 	//KPABE_ANDGateTest(100);
 	//KPABE_APolicyCircuitTest(10);
@@ -22,7 +22,7 @@ int main()
 	//TestBalDecomp (1, 32); // second argument is the base
 
 	//TestTernaryBase_01 (0);
-	CPABE_Test(10);
+	//CPABE_Test(10);
 
 
     //IBE_Test(10, 32);
