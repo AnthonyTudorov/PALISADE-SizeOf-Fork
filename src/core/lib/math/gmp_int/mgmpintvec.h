@@ -99,10 +99,10 @@ namespace NTL {
     myVecP(const myVecP<myT> &a, const myZZ &q);
     
     //ctor with char * moduli
-    myVecP(size_t n, const char *sq);
+    myVecP(size_t n, const std::string &sq);
     
      //copy with char * moduli
-     myVecP(const myVecP<myT> &a, const char *sq);
+    myVecP(const myVecP<myT> &a, const std::string &sq);
 
     //ctor with uint64_t moduli
     myVecP(size_t n, uint64_t q);
