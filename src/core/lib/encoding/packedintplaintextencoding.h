@@ -30,6 +30,7 @@
 #include <vector>
 #include <initializer_list>
 #include "plaintext.h"
+#include "encodingparams.h"
 #include <functional>
 #include <numeric>
 
@@ -161,10 +162,17 @@ public:
 	}
 
 	/**
-	 * @brief Method to set the modulus and cyclotomic order parameters
-	 * @param modulus the encoding modulus.
+	 * @brief Method to set encoding params
 	 * @param m the encoding cyclotomic order.
+	 * @params params data structure storing encoding parameters
 	 */
+	static void SetParams(usint m, shared_ptr<EncodingParams> params);
+
+	/**
+	* @brief Method to set encoding params (this method should eventually be replaced by void SetParams(usint m, shared_ptr<EncodingParams> params);)
+	* @params modulus is the plaintext modulus
+	* @param m the encoding cyclotomic order.
+	*/
 	static void SetParams(const BigInteger &modulus, usint m);
 
 	/**

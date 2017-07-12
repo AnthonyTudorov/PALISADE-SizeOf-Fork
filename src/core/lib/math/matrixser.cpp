@@ -51,6 +51,15 @@ template<>
 bool Matrix<int32_t>::Deserialize(const Serialized& serObj) {
 	return false;
 }
+template<>
+bool Matrix<uint64_t>::Serialize(Serialized* serObj) const {
+	return false;
+}
+
+template<>
+bool Matrix<uint64_t>::Deserialize(const Serialized& serObj) {
+	return false;
+}
 
 template<>
 bool Matrix<double>::Serialize(Serialized* serObj) const {
@@ -69,6 +78,16 @@ bool Matrix<BigInteger>::Serialize(Serialized* serObj) const {
 
 template<>
 bool Matrix<BigInteger>::Deserialize(const Serialized& serObj) {
+	return false;
+}
+
+template<>
+bool Matrix<native_int::BigInteger>::Serialize(Serialized* serObj) const {
+	return false;
+}
+
+template<>
+bool Matrix<native_int::BigInteger>::Deserialize(const Serialized& serObj) {
 	return false;
 }
 

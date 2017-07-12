@@ -45,8 +45,7 @@
 using namespace std;
 using namespace lbcrypto;
 
-
-
+const std::string DATAFOLDER = "demoData";
 
 void
 keymaker(shared_ptr<CryptoContext<Poly>> ctx, string keyname)
@@ -59,7 +58,7 @@ keymaker(shared_ptr<CryptoContext<Poly>> ctx, string keyname)
 		Serialized pubK, privK;
 
 		if( kp.publicKey->Serialize(&pubK) ) {
-			if( !SerializableHelper::WriteSerializationToFile(pubK, keyname + "PUB.txt") ) {
+			if( !SerializableHelper::WriteSerializationToFile(pubK, DATAFOLDER + "/" + keyname + "PUB.txt") ) {
 				cerr << "Error writing serialization of public key to " + keyname + "PUB.txt" << endl;
 				return;
 			}
@@ -69,7 +68,7 @@ keymaker(shared_ptr<CryptoContext<Poly>> ctx, string keyname)
 		}
 
 		if( kp.secretKey->Serialize(&privK) ) {
-			if( !SerializableHelper::WriteSerializationToFile(privK, keyname + "PRI.txt") ) {
+			if( !SerializableHelper::WriteSerializationToFile(privK, DATAFOLDER + "/" + keyname + "PRI.txt") ) {
 				cerr << "Error writing serialization of private key to " + keyname + "PRI.txt" << endl;
 				return;
 			}
@@ -89,14 +88,14 @@ void
 encrypter(shared_ptr<CryptoContext<Poly>> ctx, IntPlaintextEncoding iPlaintext, string pubkeyname, string ciphertextname)
 {
 
-	ofstream ctSer(ciphertextname, ios::binary);
+	ofstream ctSer(DATAFOLDER + "/" + ciphertextname, ios::binary);
 	if( !ctSer.is_open() ) {
 		cerr << "could not open output file " << ciphertextname << endl;
 		return;
 	}
 
 	Serialized	kser;
-	if( SerializableHelper::ReadSerializationFromFile(pubkeyname, &kser) == false ) {
+	if( SerializableHelper::ReadSerializationFromFile(DATAFOLDER + "/" + pubkeyname, &kser) == false ) {
 		cerr << "Could not read public key" << endl;
 		return;
 	}
@@ -122,7 +121,7 @@ encrypter(shared_ptr<CryptoContext<Poly>> ctx, IntPlaintextEncoding iPlaintext, 
 	for( size_t i=0; i<ciphertext.size(); i++ ) {
 		Serialized cSer;
 		if( ciphertext[i]->Serialize(&cSer) ) {
-			if( !SerializableHelper::WriteSerializationToFile(cSer, ciphertextname) ) {
+			if( !SerializableHelper::WriteSerializationToFile(cSer, DATAFOLDER + "/" + ciphertextname) ) {
 				cerr << "Error writing serialization of ciphertext to " + ciphertextname << endl;
 				return;
 			}
@@ -143,7 +142,7 @@ decrypter(shared_ptr<CryptoContext<Poly>> ctx, string ciphertextname, string pri
 {
 
 	Serialized	kser;
-	if( SerializableHelper::ReadSerializationFromFile(prikeyname, &kser) == false ) {
+	if( SerializableHelper::ReadSerializationFromFile(DATAFOLDER + "/" + prikeyname, &kser) == false ) {
 		cerr << "Could not read private key" << endl;
 		return;
 	}
@@ -154,14 +153,14 @@ decrypter(shared_ptr<CryptoContext<Poly>> ctx, string ciphertextname, string pri
 		return;
 	}
 
-	ifstream inCt(ciphertextname, ios::binary);
+	ifstream inCt(DATAFOLDER + "/" + ciphertextname, ios::binary);
 	if( !inCt.is_open() ) {
 		cerr << "Could not open ciphertext" << endl;
 		return;
 	}
 
 	//Serialized	kser;
-	if( SerializableHelper::ReadSerializationFromFile(ciphertextname, &kser) == false ) {
+	if( SerializableHelper::ReadSerializationFromFile(DATAFOLDER + "/" + ciphertextname, &kser) == false ) {
 		cerr << "Could not read ciphertext" << endl;
 		return;
 	}
