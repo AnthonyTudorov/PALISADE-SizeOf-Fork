@@ -83,7 +83,7 @@ void KeyGen()
 
 		usint init_size = 3;
 		usint dcrtBits = 24;
-		usint dcrtBitsBig = 59;
+		usint dcrtBitsBig = 58;
 
 		usint m;
 
