@@ -600,6 +600,8 @@ void Compute() {
 
 		std::cout << "Cross-correlation computation time: " << "\t" << (finish - start) << " ms" << std::endl;
 
+		std::cout << "Average inner product computation time: " << "\t" << (finish - start)/VECTORS << " ms" << std::endl;
+
 		// Serialize cross-correlation
 
 		Serialized ccSer;

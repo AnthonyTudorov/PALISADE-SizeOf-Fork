@@ -1589,6 +1589,7 @@ namespace lbcrypto {
 
 			result = EvalInnerProduct(x0, y0, batchSize, evalSumKeys, evalMultKey);
 
+#pragma omp parallel for
 			for (usint i = indexStart + 1; i < indexStart + length; i++)
 			{
 				shared_ptr<Ciphertext<Element>> xi = (*x)(i, 0).GetNumerator();

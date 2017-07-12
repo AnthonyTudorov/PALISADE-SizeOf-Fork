@@ -155,10 +155,6 @@ namespace lbcrypto {
 			else
 				m_automorphismGenerator[modulusNI] = params->GetPlaintextGenerator();
 
-			std::cout << "regular root " << m_initRoot[modulusNI] << 
-				"big modulus " << m_bigModulus[modulusNI] << "; big Root = " << m_bigRoot[modulusNI] << "; automorphism Gen = " <<
-				m_automorphismGenerator[modulusNI] << std::endl;
-
 			// Create the permutations that interchange the automorphism and crt ordering
 			usint phim = GetTotient(m);
 			auto tList = GetTotientList(m);

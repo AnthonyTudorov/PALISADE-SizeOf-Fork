@@ -85,11 +85,11 @@ template <typename IntType> bool EncodingParamsImpl<IntType>::Deserialize(const 
 
 	if ((oIt = mIter->value.FindMember("PlaintextBigModulus")) == mIter->value.MemberEnd())
 		return false;
-	IntType plaintextBigModulus(atoi(oIt->value.GetString()));
+	IntType plaintextBigModulus(oIt->value.GetString());
 
 	if ((oIt = mIter->value.FindMember("PlaintextBigRootOfUnity")) == mIter->value.MemberEnd())
 		return false;
-	IntType plaintextBigRootOfUnity(atoi(oIt->value.GetString()));
+	IntType plaintextBigRootOfUnity(oIt->value.GetString());
 
 	if ((oIt = mIter->value.FindMember("PlaintextGenerator")) == mIter->value.MemberEnd())
 		return false;
