@@ -67,10 +67,20 @@ namespace lbcrypto {
 		/**
 		* Serialize the object into a Serialized
 		* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-		* @param fileFlag is an optional tag for the serialization
 		* @return true if successfully serialized
 		*/
 		virtual bool Serialize(Serialized* serObj) const = 0;
+
+		/**
+		 * SerializeWithoutContext serializes the object but does NOT include the context -
+		 * used in places where the object is included in a context
+		 *
+		 * @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+		 * @return true if successfully serialized
+		 */
+		virtual bool SerializeWithoutContext(Serialized* serObj) const {
+			return Serialize(serObj);
+		}
 
 		/**
 		* Populate the object from the deserialization of the Serialized

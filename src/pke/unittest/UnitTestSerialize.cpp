@@ -87,6 +87,20 @@ void UnitTestContext(shared_ptr<CryptoContext<T>> cc) {
 	EXPECT_EQ( cc->GetEncryptionAlgorithm()->GetEnabled(), (usint)(ENCRYPTION|SHE) ) << "Enabled features mismatch after ser/deser";
 
 	EXPECT_EQ( *cc->GetCryptoParameters(), *newcc->GetCryptoParameters() ) << "Mismatch after ser/deser";
+
+	Serialized serK;
+	ASSERT_TRUE( kp.publicKey->Serialize(&serK) ) << "Key serialization failed";
+	shared_ptr<LPPublicKey<T>> newPub = cc->deserializePublicKey(serK);
+	ASSERT_TRUE( newPub ) << "Key deserialize failed";
+
+	EXPECT_EQ( *kp.publicKey, *newPub ) << "Key mismatch";
+
+	shared_ptr<CryptoContext<T>> newccFromkey = CryptoContextFactory<T>::DeserializeAndCreateContext(serK);
+	ASSERT_TRUE( newccFromkey ) << "Deserialization from key failed";
+
+	shared_ptr<LPPublicKey<T>> finalPub = newccFromkey->deserializePublicKey(serK);
+	ASSERT_TRUE( finalPub ) << "Key deserialize in new ctx failed";
+	EXPECT_EQ( *newPub, *finalPub ) << "Key mismatch from new ctx";
 }
 
 TEST(UTPKESer, LTV_Poly_Serial) {

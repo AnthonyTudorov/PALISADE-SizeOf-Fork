@@ -53,13 +53,12 @@ template <typename IntType> bool EncodingParamsImpl<IntType>::Serialize(Serializ
 	ser.AddMember("PlaintextGenerator", std::to_string(this->m_plaintextGenerator), serObj->GetAllocator());
 	ser.AddMember("BatchSize", std::to_string(this->m_batchSize), serObj->GetAllocator());
 
-	serObj->AddMember("EncodingParams", ser, serObj->GetAllocator());
+	serObj->AddMember("EncodingParams", ser.Move(), serObj->GetAllocator());
 
 	return true;
 
 }
 
-// JSON FACILITY
 /**
 * Sets this object's attribute name value pairs to deserialize this object from a JSON file.
 *

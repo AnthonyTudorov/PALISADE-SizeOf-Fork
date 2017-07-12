@@ -32,6 +32,7 @@ extern template class CryptoContext<DCRTPoly>;
 
 template class LPPublicKey<DCRTPoly>;
 template class LPEvalKeyRelin<DCRTPoly>;
+template class LPEvalKeyNTRU<DCRTPoly>;
 template class LPEvalKeyNTRURelin<DCRTPoly>;
 }
 

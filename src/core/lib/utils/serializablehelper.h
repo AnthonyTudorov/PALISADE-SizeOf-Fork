@@ -138,7 +138,7 @@ void SerializeVectorOfPointers(const std::string& vectorName, const std::string&
 	Serialized serElements(rapidjson::kObjectType, &serObj->GetAllocator());
 	for( size_t i=0; i<inVector.size(); i++ ) {
 		Serialized oneEl(rapidjson::kObjectType, &serObj->GetAllocator());
-		inVector[i]->Serialize(&oneEl);
+		inVector[i]->SerializeWithoutContext(&oneEl);
 
 		SerialItem key( std::to_string(i), serObj->GetAllocator() );
 		serElements.AddMember(key, oneEl.Move(), serObj->GetAllocator());
@@ -160,7 +160,7 @@ void SerializeMapOfPointers(const std::string& vectorName, const std::string& ty
 
 	for( const auto& kv : inMap ) {
 		Serialized oneEl(rapidjson::kObjectType, &serObj->GetAllocator());
-		kv.second->Serialize(&oneEl);
+		kv.second->SerializeWithoutContext(&oneEl);
 
 		SerialItem key( std::to_string( kv.first ), serObj->GetAllocator() );
 		serElements.AddMember(key, oneEl.Move(), serObj->GetAllocator());
