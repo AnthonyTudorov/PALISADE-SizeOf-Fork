@@ -102,7 +102,7 @@ void KeyGen()
 
 		size_t batchSize = 1024;
 
-		usint init_size = 3;
+		usint init_size = 4;
 		usint dcrtBits = 24;
 		usint dcrtBitsBig = 58;
 
