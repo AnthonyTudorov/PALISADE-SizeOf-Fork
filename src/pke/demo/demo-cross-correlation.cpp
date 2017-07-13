@@ -89,8 +89,6 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
-	//cin.get();
-
 	PackedIntPlaintextEncoding::Destroy();
 
 	return 0;
@@ -104,8 +102,8 @@ void KeyGen()
 
 		size_t batchSize = 1024;
 
-		usint init_size = 3;
-		usint dcrtBits = 24;
+		usint init_size = 4;
+		usint dcrtBits = 22;
 		usint dcrtBitsBig = 58;
 
 		usint m;
@@ -226,64 +224,11 @@ void KeyGen()
 
 		std::cout << "Completed" << std::endl;
 
-		const auto evalMultKey = cc->GetEvalMultKey();
-
-		std::cout << "Serializing multiplication evaluation key...";
-
-		if (evalMultKey) {
-			Serialized evalKey;
-
-			if (evalMultKey->Serialize(&evalKey)) {
-				if (!SerializableHelper::WriteSerializationToFile(evalKey, DATAFOLDER + "/" +  "key-eval-mult" + std::to_string(k) + ".txt")) {
-					cerr << "Error writing serialization of multiplication evaluation key to key-eval-mult" + std::to_string(k) + ".txt" << endl;
-					return;
-				}
-			}
-			else {
-				cerr << "Error serializing multiplication evaluation key" << endl;
-				return;
-			}
-
-		}
-		else {
-			cerr << "Failure in generating multiplication evaluation key" << endl;
-		}
-
-		std::cout << "Completed" << std::endl;
-
 		// EvalSumKey
 
 		std::cout << "Generating summation evaluation keys...";
 
 		cc->EvalSumKeyGen(kp.secretKey);
-
-		std::cout << "Completed" << std::endl;
-
-		auto evalSumKeys = cc->GetEvalSumKey();
-
-		std::cout << "Serializing summation evaluation keys...";
-
-		for (std::map<usint, shared_ptr<LPEvalKey<DCRTPoly>>>::iterator it = evalSumKeys.begin(); it != evalSumKeys.end(); ++it)
-		{
-			if (it->second) {
-				Serialized evalKey;
-
-				if (it->second->Serialize(&evalKey)) {
-					if (!SerializableHelper::WriteSerializationToFile(evalKey, DATAFOLDER + "/" +  "key-eval-sum-" + std::to_string(k) + "-" + std::to_string(it->first) + ".txt")) {
-						cerr << "Error writing serialization of summation evaluation key to " << "key-eval-sum-" + std::to_string(k) + "-" + std::to_string(it->first) + ".txt" << endl;
-						return;
-					}
-				}
-				else {
-					cerr << "Error serializing summation evaluation key with index " + std::to_string(it->first) << endl;
-					return;
-				}
-
-			}
-			else {
-				cerr << "Failure in generating summation evaluation key with index " + std::to_string(it->first) << endl;
-			}
-		}
 
 		std::cout << "Completed" << std::endl;
 
@@ -389,9 +334,6 @@ void Encrypt() {
 
 		PackedIntPlaintextEncoding::SetParams(m, encodingParams);
 
-		cc->Enable(ENCRYPTION);
-		cc->Enable(SHE);
-
 		//std::cout << "plaintext modulus = " << cc->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
 
 		// Deserialize the public key
@@ -489,70 +431,7 @@ void Compute() {
 
 		PackedIntPlaintextEncoding::SetParams(m, encodingParams);
 
-		cc->Enable(ENCRYPTION);
-		cc->Enable(SHE);
-
-		// Deserialize the eval mult key
-
-		std::cout << "Deserializing the multiplication evaluation key...";
-
-		Serialized	emSer;
-		if (SerializableHelper::ReadSerializationFromFile(DATAFOLDER + "/" + emFileName, &emSer) == false) {
-			cerr << "Could not read mulplication evaluation key" << endl;
-			return;
-		}
-
-		shared_ptr<LPEvalKey<DCRTPoly>> em = cc->deserializeEvalKey(emSer);
-
-		if (!em) {
-			cerr << "Could not deserialize multiplication evaluation key" << endl;
-			return;
-		}
-
-		vector<shared_ptr<LPEvalKey<DCRTPoly>>> evalMultKeys;
-		evalMultKeys.push_back(em);
-
-		cc->SetEvalMultKeys(evalMultKeys);
-
-		std::cout << "Completed" << std::endl;
-
-
-		// Deserialize the eval sum keys
-
-		std::cout << "Deserializing the summation evaluation keys...";
-
-		std::map<usint, shared_ptr<LPEvalKey<DCRTPoly>>>	evalSumKeys;
-
 		usint batchSize = encodingParams->GetBatchSize();
-		usint g = encodingParams->GetPlaintextGenerator();
-
-		std::map<usint, shared_ptr<LPEvalKey<DCRTPoly>>> evalKeys;
-
-		for (int i = 0; i < floor(log2(batchSize)); i++)
-		{
-
-			Serialized	esSer;
-			string tempFileName = DATAFOLDER + "/" + esFileName + "-" + std::to_string(g) + ".txt";
-			if (SerializableHelper::ReadSerializationFromFile(tempFileName, &esSer) == false) {
-				cerr << "Could not read the evaluation key at index " << g << endl;
-				return;
-			}
-
-			shared_ptr<LPEvalKey<DCRTPoly>> es = cc->deserializeEvalKey(esSer);
-
-			if (!es) {
-				cerr << "Could not deserialize summation evaluation key at index " << g << endl;
-				return;
-			}
-
-			evalKeys[g] = es;
-
-			g = (g * g) % m;
-		}
-
-		cc->SetEvalSumKeys(evalKeys);
-
-		std::cout << "Completed" << std::endl;
 
 		// Deserialize X
 
@@ -662,9 +541,6 @@ void Decrypt() {
 		usint m = elementParams->GetCyclotomicOrder();
 
 		PackedIntPlaintextEncoding::SetParams(m, encodingParams);
-
-		cc->Enable(ENCRYPTION);
-		cc->Enable(SHE);
 
 		// Deserialize the private key
 

@@ -1,0 +1,42 @@
+echo Shell copies whilelist of things to publish
+
+if [ $# -ne 1 ];
+then
+	echo You must specify a destination directory
+	exit 1
+fi
+
+if [ -e $1 ];
+then
+	echo That file already exists
+	exit 1
+fi
+
+dest=$1
+
+mkdir $1
+
+if [ ! -d $1 ];
+then
+	echo Failed to make the directory
+	exit 1
+fi
+
+cat PublicReleaseList | grep -v '#' | while read f;
+do
+	if [ -f $f ] ;
+	then
+		mkdir -p `dirname $dest/$f`
+		cp -p $f $dest
+	else
+		find $f -depth -print0 | cpio --null -pd $dest 
+	fi
+done
+
+## put the Makefiles for the disabled stuff in place
+for dm in $dest/Makefile.*-disable;
+do
+	mname=${dm%-disable}
+	rm -f $mname
+	mv $dm $mname
+done
