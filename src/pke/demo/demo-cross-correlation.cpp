@@ -102,8 +102,8 @@ void KeyGen()
 
 		size_t batchSize = 1024;
 
-		usint init_size = 4;
-		usint dcrtBits = 22;
+		usint init_size = 3;
+		usint dcrtBits = 24;
 		usint dcrtBitsBig = 58;
 
 		usint m;
@@ -277,8 +277,6 @@ void Encrypt() {
 			y(i, j) = randomVectorY.GetValAtIndex(j).ConvertToInt();
 		}
 	}
-
-	std::cout << "First loop completed" << std::endl;
 
 	auto product = x * y.Transpose();
 	uint64_t result = 0;
@@ -637,9 +635,13 @@ native_int::BigInteger CRTInterpolate(const std::vector<PackedIntPlaintextEncodi
 
 	native_int::BigInteger result(0);
 
-	std::vector<native_int::BigInteger> q = { 3623,3779,3803 };
+	std::vector<native_int::BigInteger> q = { 3623,3779,3803,3863 };
 
-	native_int::BigInteger Q(52068078551);
+	native_int::BigInteger Q(1);
+
+	for (size_t i = 0; i < crtVector.size(); i++) {
+		Q = Q*q[i];
+	}
 
 	std::vector<native_int::BigInteger> qInverse;
 
