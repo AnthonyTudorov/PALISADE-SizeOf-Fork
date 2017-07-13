@@ -193,11 +193,6 @@ public:
 	bool Serialize(Serialized* serObj) const;
 
 	/**
-	 * Serialize the CryptoContext but leave the embedded keys out
-	 */
-	bool SerializeWithoutKeys(Serialized* serObj) const;
-
-	/**
 	 * Deserialize the context AND initialize the algorithm
 	 *
 	 * @param serObj
