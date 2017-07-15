@@ -68,14 +68,15 @@ public:
 	template<typename P, typename I>
 	static shared_ptr<P> GenElemParams(usint m) {
 		size_t sIdx = 0;
-		if( DefaultSet[sIdx].m < m ) {
+		if( DefaultSet[0].m < m ) {
 			for( sIdx = 1; DefaultSet[sIdx].m != 0; sIdx++ ) {
-				if( m < DefaultSet[sIdx].m )
+				if( m <= DefaultSet[sIdx].m )
 					break;
 			}
 		}
 		if( DefaultSet[sIdx].m == 0 )
 			sIdx--;
+		std::cout << "selected " << DefaultSet[sIdx].m << std::endl;
 
 		return shared_ptr<P>( new P(DefaultSet[sIdx].m, I(DefaultSet[sIdx].q), I(DefaultSet[sIdx].ru)) );
 	}
