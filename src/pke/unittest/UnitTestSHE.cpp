@@ -134,7 +134,7 @@ TEST(UTSHE, LTV_DCRTPoly_Add) {
 }
 
 TEST(UTSHE, StSt_Poly_Add) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementStSt(ORDER, PTM);
+	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementStSt(ORDER, PTM, 50);
 	UnitTest_Add<Poly>(cc);
 }
 
@@ -164,10 +164,7 @@ TEST(UTSHE, BV_DCRTPoly_Add) {
 }
 
 TEST(UTSHE, FV_Poly_Add) {
-	bool dbg_flag = false;
-	DEBUG("GenCryptoContextElementFV");
 	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementFV(ORDER, PTM);
-	DEBUG("done");
 	UnitTest_Add<Poly>(cc);
 }
 
@@ -244,7 +241,7 @@ void UnitTest_Mult(shared_ptr<CryptoContext<Element>> cc) {
 
 
 TEST(UTSHE, LTV_Poly_Mult) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementLTV(ORDER, PTM);
+	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementLTV(ORDER, PTM, 50);
 	UnitTest_Mult<Poly>(cc);
 }
 
@@ -305,8 +302,7 @@ TEST(UTSHE, keyswitch_sparse_key_SingleCRT_byteplaintext) {
 
 	BytePlaintextEncoding plaintext("I am good, what are you?! 32 ch");
 
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementLTV(m, plaintextModulus);
-
+	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementLTV(m, plaintextModulus, 50);
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
 	vector<shared_ptr<Ciphertext<Poly>>> ciphertext = cc->Encrypt(kp.publicKey, plaintext);
@@ -382,7 +378,7 @@ TEST(UTSHE, keyswitch_SingleCRT) {
 	BytePlaintextEncoding plaintext("I am good, what are you?! 32 ch");
 	float stdDev = 4;
 
-	shared_ptr<Poly::Params> params = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(m);
+	shared_ptr<Poly::Params> params = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(m, 50);
 
 	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(params, 2, 1, stdDev);
 	cc->Enable(ENCRYPTION);

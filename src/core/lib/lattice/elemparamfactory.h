@@ -41,6 +41,7 @@ namespace lbcrypto {
 
 // predefined values of m are 16, 1024, 2048, 4096, 8192, 16384, 32768 and 65536
 
+// the items in ElementOrder are an index into DefaultSet[]
 enum ElementOrder {
 	M16 = 0,
 	M1024,
@@ -60,11 +61,23 @@ public:
 		string				ru;	// root of unity
 	} DefaultSet[];
 
+	/**
+	 * GenElemParams for a particular predefined cyclotomic order
+	 *
+	 * @param o - the order (an ElementOrder)
+	 * @return new params
+	 */
 	template<typename P, typename I>
 	static shared_ptr<P> GenElemParams(ElementOrder o) {
 		return shared_ptr<P>( new P(DefaultSet[o].m, I(DefaultSet[o].q), I(DefaultSet[o].ru)) );
 	}
 
+	/**
+	 * GenElemParams for a particular cyclotomic order - finds the predefined order that's >= m
+	 *
+	 * @param m - order
+	 * @return new params
+	 */
 	template<typename P, typename I>
 	static shared_ptr<P> GenElemParams(usint m) {
 		size_t sIdx = 0;
@@ -76,11 +89,33 @@ public:
 		}
 		if( DefaultSet[sIdx].m == 0 )
 			sIdx--;
-		std::cout << "selected " << DefaultSet[sIdx].m << std::endl;
 
 		return shared_ptr<P>( new P(DefaultSet[sIdx].m, I(DefaultSet[sIdx].q), I(DefaultSet[sIdx].ru)) );
 	}
 
+	/**
+	 * GenElemParams for a particular cyclotomic order and bits in q
+	 * NOTE this is deprecated and will go away once ParamsGen is fully implemented
+	 *
+	 * @param m - cyclotomic order
+	 * @param bits # of bits in q
+	 * @return new params
+	 */
+	template<typename P, typename I>
+	static shared_ptr<P> GenElemParams(usint m, usint bits) {
+		I q = FirstPrime<I>(bits,m);
+		I ru = RootOfUnity<I>(m, q);
+		return shared_ptr<P>( new P(m, q, ru) );
+	}
+
+	/**
+	 * GenElemParams given the three components directly
+	 *
+	 * @param m - cyclotomic order
+	 * @param ctModulus - ciphertext modulus
+	 * @param rootUnity - root of unity
+	 * @return
+	 */
 	template<typename P, typename I>
 	static shared_ptr<P> GenElemParams(usint m, const I& ctModulus, const I& rootUnity) {
 		return shared_ptr<P>( new P(m, ctModulus, rootUnity) );

@@ -68,7 +68,7 @@ TEST_F(UTSHEAdvanced, test_eval_mult_single_crt) {
 	usint relin = 1;
 	float stdDev = 4;
 
-	shared_ptr<Poly::Params> parms = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(m);
+	shared_ptr<Poly::Params> parms = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(m, 50);
 
 	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(parms, 5 + 4, relin, stdDev);
 	cc->Enable(ENCRYPTION);
