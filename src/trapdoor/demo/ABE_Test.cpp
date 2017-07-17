@@ -7,7 +7,7 @@ using namespace lbcrypto;
 int main()
 {
 
-	KPABE_NANDGateTest(10, 8);  // second argument is the base
+//	KPABE_NANDGateTest(10, 8);  // second argument is the base
   //  KPABE_BenchmarkCircuitTest(10,8);
 	//KPABE_ANDGateTest(100);
 	//KPABE_APolicyCircuitTest(10);
@@ -16,6 +16,6 @@ int main()
 //	CPABE_Test(10);
 
 
- //   IBE_Test(10, 16);
+    IBE_Test(10, 16);
 	return 0;
 }

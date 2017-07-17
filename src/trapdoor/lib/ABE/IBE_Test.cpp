@@ -92,7 +92,7 @@ int IBE_Test(int iter, int32_t base)
 	std::cout << "step 7" << std::endl;
 
 	// Secret key for the output of the circuit
-	RingMat sKey(zero_alloc, m, 1);
+	RingMat sk(zero_alloc, m, 1);
 
 	// plain text in $R_2$
 	Poly ptext(ilParams, COEFFICIENT, true);
@@ -101,8 +101,8 @@ int IBE_Test(int iter, int32_t base)
 	std::cout << "step 8" << std::endl;
 
 	// ciphertext first and second parts
-	RingMat C0(Poly::MakeAllocator(ilParams, EVALUATION), 1, m);
-	Poly c1(dug, ilParams, EVALUATION);
+	RingMat ctC0(Poly::MakeAllocator(ilParams, EVALUATION), 1, m);
+	Poly ctC1(dug, ilParams, EVALUATION);
 
 	int failure = 0;
 	avg_keygen = avg_enc = avg_dec = 0.0;
@@ -116,7 +116,7 @@ int IBE_Test(int iter, int32_t base)
 		Poly u(dug, ilParams, EVALUATION);
 
 		start = currentDateTime();
-		pkg.KeyGen(ilParams, A.first, u, A.second, dgg, sKey);
+		pkg.KeyGen(ilParams, A.first, u, A.second, dgg, &sk);
 		finish = currentDateTime();
 		avg_keygen += (finish - start);
 		std::cout << "Key generation time : " << "\t" << (finish - start) << " ms" << std::endl;
@@ -128,13 +128,13 @@ int IBE_Test(int iter, int32_t base)
 
 
 		start = currentDateTime();
-		sender.Encrypt(ilParams, A.first, u, ptext, dgg, dug, bug, C0, c1);
+		sender.Encrypt(ilParams, A.first, u, ptext, dgg, dug, bug, &ctC0, &ctC1);
 		finish = currentDateTime();
 		avg_enc += (finish - start);
 		std::cout << "Encryption time : " << "\t" << (finish - start) << " ms" << std::endl;
 
 		start = currentDateTime();
-		receiver.Decrypt(ilParams, sKey, C0, c1, dtext);
+		receiver.Decrypt(ilParams, sk, ctC0, ctC1, &dtext);
 		finish = currentDateTime();
 		avg_dec += (finish - start);
 		std::cout << "Decryption time : " << "\t" << (finish - start) << " ms" << std::endl;

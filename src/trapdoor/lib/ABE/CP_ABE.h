@@ -102,7 +102,7 @@ namespace lbcrypto {
 				const usint ell
 			);
 			/**
-			* Encrypt Function
+			* KeyGen Function
 			*
 			* @param ilParams parameter set
 			* @param &s[] Access rights of the user {0, 1}
