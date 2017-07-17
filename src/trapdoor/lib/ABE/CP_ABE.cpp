@@ -18,10 +18,10 @@ namespace lbcrypto {
 		shared_ptr<ILParams> ilParams,
 		int32_t base,
 		const usint ell, // number of attributes
-		DiscreteUniformGenerator &dug,  // select according to uniform distribution
-		Poly &u,
-		RingMat &B,
-		RingMat &nB
+		const DiscreteUniformGenerator &dug,  // select according to uniform distribution
+		Poly *u,			  // dug polynomial generated based on algorithm
+		RingMat *pubElemBPos, // Bi +, for each attribute, there is a vector of polynomials for when an attribute is equal to 1
+		RingMat *pubElemBNeg  // Bi -, for each attribute, there is a vector of polynomials for when an attribute is equal to 0
 	)
 	{
 		m_N = ilParams->GetCyclotomicOrder() >> 1;
@@ -35,25 +35,25 @@ namespace lbcrypto {
 		m_ell = ell;
 		m_base = base;
 
-		if(u.GetFormat() != COEFFICIENT)
-			u.SwitchFormat();
-		u.SetValues(dug.GenerateVector(m_N), COEFFICIENT); // always sample in COEFFICIENT format
-		u.SwitchFormat(); // always kept in EVALUATION format
+		if(u->GetFormat() != COEFFICIENT)
+			u->SwitchFormat();
+		u->SetValues(dug.GenerateVector(m_N), COEFFICIENT); // always sample in COEFFICIENT format
+		u->SwitchFormat(); // always kept in EVALUATION format
 
-		for (usint i = 0; i < B.GetRows(); i++)
-			for (usint j = 0; j < B.GetCols(); j++) {
-				if(B(i, j).GetFormat() != COEFFICIENT)
-					B(i,j).SwitchFormat();
-				B(i, j).SetValues(dug.GenerateVector(m_N), COEFFICIENT); // always sample in COEFFICIENT format
-				B(i, j).SwitchFormat(); // always kept in EVALUATION format
+		for (usint i = 0; i < pubElemBPos->GetRows(); i++)
+			for (usint j = 0; j < pubElemBPos->GetCols(); j++) {
+				if((*pubElemBPos)(i, j).GetFormat() != COEFFICIENT)
+					(*pubElemBPos)(i,j).SwitchFormat();
+				(*pubElemBPos)(i, j).SetValues(dug.GenerateVector(m_N), COEFFICIENT); // always sample in COEFFICIENT format
+				(*pubElemBPos)(i, j).SwitchFormat(); // always kept in EVALUATION format
 			}
 
-		for (usint i = 0; i < nB.GetRows(); i++)
-			for (usint j = 0; j < nB.GetCols(); j++) {
-				if(nB(i, j).GetFormat() != COEFFICIENT)
-					nB(i,j).SwitchFormat();
-				nB(i, j).SetValues(dug.GenerateVector(m_N), COEFFICIENT); // always sample in COEFFICIENT format
-				nB(i, j).SwitchFormat(); // always kept in EVALUATION format
+		for (usint i = 0; i < pubElemBNeg->GetRows(); i++)
+			for (usint j = 0; j < pubElemBNeg->GetCols(); j++) {
+				if((*pubElemBNeg)(i, j).GetFormat() != COEFFICIENT)
+					(*pubElemBNeg)(i,j).SwitchFormat();
+				(*pubElemBNeg)(i, j).SetValues(dug.GenerateVector(m_N), COEFFICIENT); // always sample in COEFFICIENT format
+				(*pubElemBNeg)(i, j).SwitchFormat(); // always kept in EVALUATION format
 			}
 
 		return RLWETrapdoorUtility::TrapdoorGenwBase(ilParams, base, SIGMA);
@@ -83,24 +83,22 @@ namespace lbcrypto {
 		m_base = base;
 	}
 
-	/* Given public parameter d and a public key B,
+	/* Given public parameter d and a public key B positive (pubElementBPos) and B Negative (pubElemBNeg),
 	it generates the corresponding secret key: skA for A and skB for B */
-	/* Note that only PKG can call this fcuntion as it needs the trapdoor T_A */
+	/* Note that only PKG can call this function as it needs the secret element of a trapdoor T_A */
 	void CPABE::KeyGen(
 		const shared_ptr<ILParams> ilParams,
-		const usint S[],							// Access rights of the user {0, 1}
-		const RingMat &A,                         	// Public parameter $B \in R_q^{ell \times k}$
-		const RingMat &B,                         	// Public parameter $B \in R_q^{ell \times k}$
-		const RingMat &nB,                         	// Public parameter $B \in R_q^{ell \times k}$
-		const Poly &u,                  		// public key $d \in R_q$
-		const RLWETrapdoorPair<Poly> &T_A, 	// Secret parameter $T_H \in R_q^{1 \times k} \times R_q^{1 \times k}$
+		const usint s[],							// Access rights of the user {0, 1}
+		const RingMat &pubTA,                         	// Public parameter from trapdoor sampled from R_q^{ell \times k}$
+		const RingMat &pubElemBPos,            // Public parameter B positive sampled from R_q^{ell \times k}$
+		const RingMat &pubElemBNeg,            // Public parameter B negative sampled from R_q^{ell \times k}$
+		const Poly &u,                  		// public parameter $d \in R_q$
+		const RLWETrapdoorPair<Poly> &secTA, 	// Secret parameter from trapdoor $T_H \in R_q^{1 \times k} \times R_q^{1 \times k}$
 		DiscreteGaussianGenerator &dgg,          	// to generate error terms (Gaussian)
-		RingMat &sKey                           	// Secret key
+		RingMat *sk                           	// Secret key
 	)
 	{
 		RingMat skB(Poly::MakeDiscreteGaussianCoefficientAllocator(ilParams, COEFFICIENT, SIGMA), m_m, m_ell);
-//		RingMat skB(Poly::MakeDiscreteGaussianCoefficientAllocator(ilParams, EVALUATION, SIGMA), m_m, m_ell);
-
 
 	#pragma omp parallel for
 		for(usint j=0; j < m_ell;j++){
@@ -112,20 +110,18 @@ namespace lbcrypto {
 		Poly z(ilParams, EVALUATION, true);
 		std::vector<Poly> z_vectors(m_ell);
 
-
 	#pragma omp parallel for firstprivate(z) num_threads(4)
 		for(usint i=0; i<m_ell; i++) {
-			if(S[i]==1) {
-				z = B(i, 0)*skB(0, i);
+			if(s[i]==1) {
+				z = pubElemBPos(i, 0)*skB(0, i);
 				for(usint j=1; j<m_m; j++)
-					z += B(i, j)*skB(j, i);
+					z += pubElemBPos(i, j)*skB(j, i);
 			}
 			else {
-				z = nB(i, 0)*skB(0, i);
+				z = pubElemBNeg(i, 0)*skB(0, i);
 				for(usint j=1; j<m_m; j++)
-					z += nB(i, j)*skB(j, i);
+					z += pubElemBNeg(i, j)*skB(j, i);
 			}
-		//		y += z;
 			z_vectors.at(i) = z;
 		}
 
@@ -136,49 +132,49 @@ namespace lbcrypto {
 		y = u - y;
 
 		double c = 2 * SIGMA;
-		double s = SPECTRAL_BOUND(m_N, m_m - 2);
-		DiscreteGaussianGenerator dggLargeSigma(sqrt(s * s - c * c));
+		double sb = SPECTRAL_BOUND(m_N, m_m - 2);
+		DiscreteGaussianGenerator dggLargeSigma(sqrt(sb * sb - c * c));
 		RingMat skA(Poly::MakeAllocator(ilParams, EVALUATION), m_m, 1);
 
-		skA = RLWETrapdoorUtility::GaussSamp(m_N, m_k, A, T_A, y, m_base, SIGMA, dgg, dggLargeSigma);
+		skA = RLWETrapdoorUtility::GaussSamp(m_N, m_k, pubTA, secTA, y, m_base, SIGMA, dgg, dggLargeSigma);
 
 		for(usint i=0; i<m_m; i++)
-			sKey(i, 0) = skA(i, 0);
+			(*sk)(i, 0) = skA(i, 0);
 
 	#pragma omp parallel for num_threads(4)
 		for(usint i=0; i<m_ell; i++)
 			for(usint j=0; j<m_m; j++)
-				sKey(j, i+1) = skB(j, i);
+				(*sk)(j, i+1) = skB(j, i);
 	}
 
 
-	/* The encryption function takes public parameters A, B, and d, attribute values x and the plaintext pt
+	/* The encryption function takes public parameters trapdoor pubTA, publicElemBPos and publicElemBNeg, and d (u), attribute values w and the plaintext pt
 	 * and generates the ciphertext pair c0 and c1
 	 * Note that B is two dimensional array of ring elements (matrix);
 	 * Each row corresponds B_i for i = 0, 1, ... ell, where ell is the number of attributes
 	 */
 	void CPABE::Encrypt(
 		shared_ptr<ILParams> ilParams,
-		const RingMat &A,
-		const RingMat &B,
-		const RingMat &nB,
+		const RingMat &pubTA,
+		const RingMat &publicElemBPos,
+		const RingMat &publicElemBNeg,
 		const Poly &u,
-		const int W[],                // Access structure {-1, 0, 1}
+		const int w[],                // Access structure {-1, 0, 1}
 		const Poly &pt,
 		DiscreteGaussianGenerator &dgg, // to generate error terms (Gaussian)
 		DiscreteUniformGenerator &dug,  // select according to uniform distribution
 		BinaryUniformGenerator &bug,    // select according to uniform distribution binary
-		RingMat &CW,
-		RingMat &C,
-		RingMat &nC,
-		Poly &c1
+		RingMat *ctW,
+		RingMat *cPos,
+		RingMat *cNeg,
+		Poly *ctC1
 	)
 	{
 		usint lenW = 0;
 		for(usint i=0; i<m_ell; i++)
-			if(W[i]!=0)
+			if(w[i]!=0)
 				lenW++;
-//		RingMat err(Poly::MakeDiscreteGaussianCoefficientAllocator(ilParams, EVALUATION, SIGMA), m_m, 2*m_ell+2-lenW);
+
 		RingMat err(Poly::MakeDiscreteGaussianCoefficientAllocator(ilParams, COEFFICIENT, SIGMA), m_m, 2*m_ell+2-lenW);
 #pragma omp parallel for
 		for(usint i=0; i < m_m;i++){
@@ -193,7 +189,7 @@ namespace lbcrypto {
 		usint iNoise = 0;
 //#pragma omp parallel for
 		for(usint j=0; j<m_m; j++)
-			CW(0, j) = A(0, j)*s + err(j, iNoise);
+			(*ctW)(0, j) = pubTA(0, j)*s + err(j, iNoise);
 		iNoise++;
 
 		// B part
@@ -202,22 +198,22 @@ namespace lbcrypto {
 //#pragma omp parallel for
 		for (usint i=0; i<m_ell; i++)
 		{
-			if(W[i] == 1) {
+			if(w[i] == 1) {
 				for(usint j=0; j<m_m; j++)
-					CW(iW+1, j) = B(i, j)*s  + err(j, iNoise);
+					(*ctW)(iW+1, j) = publicElemBPos(i, j)*s  + err(j, iNoise);
 				iNoise++;
 				iW++;
 			}
-			else if(W[i]==-1) {
+			else if(w[i]==-1) {
 				for(usint j=0; j<m_m; j++)
-					CW(iW+1, j) = nB(i, j)*s + err(j, iNoise);
+					(*ctW)(iW+1, j) = publicElemBNeg(i, j)*s + err(j, iNoise);
 				iNoise++;
 				iW++;
 			}
 			else {
 				for(usint j=0; j<m_m; j++) {
-					C(iAW, j) = B(i, j)*s  + err(j, iNoise);
-					nC(iAW, j) = nB(i, j)*s + err(j, iNoise+1);
+					(*cPos)(iAW, j) = publicElemBPos(i, j)*s  + err(j, iNoise);
+					(*cNeg)(iAW, j) = publicElemBNeg(i, j)*s + err(j, iNoise+1);
 
 				}
 				iNoise+=2;
@@ -225,7 +221,6 @@ namespace lbcrypto {
 			}
 		}
 
-		// ***
 		// compute c1
 		Poly qHalf(ilParams, COEFFICIENT, true);
 		qHalf += (m_q >> 1);
@@ -236,7 +231,7 @@ namespace lbcrypto {
 		err1.SetValues(dgg.GenerateVector(m_N, ilParams->GetModulus()), COEFFICIENT);
 		err1.SwitchFormat();
 
-		c1 = s*u + err1 + pt*qHalf;
+		*ctC1 = s*u + err1 + pt*qHalf;
 	}
 
 	/*
@@ -245,57 +240,57 @@ namespace lbcrypto {
 	 */
 	void CPABE::Decrypt(
 		const shared_ptr<ILParams> ilParams,
-		const int W[],                // Access structure {-1, 0, 1}
-		const usint S[],                // Users attributes {0, 1}
-		const RingMat &sKey,
-		const RingMat &CW,
-		const RingMat &C,
-		const RingMat &nC,
-		const Poly &c1,
-		Poly &dtext
+		const int w[],                // Access structure {-1, 0, 1}
+		const usint s[],                // Users attributes {0, 1}
+		const RingMat &sk,
+		const RingMat &ctW,
+		const RingMat &cPos,
+		const RingMat &cNeg,
+		const Poly &ctC1,
+		Poly *dtext
 	)
 	{
-		dtext.SetValuesToZero();
-		if(dtext.GetFormat() != EVALUATION)
-			dtext.SwitchFormat();
+		dtext->SetValuesToZero();
+		if(dtext->GetFormat() != EVALUATION)
+			dtext->SwitchFormat();
 
 		for(usint j=0; j<m_m; j++)
-			dtext += CW(0, j)*sKey(j, 0);
+			*dtext += ctW(0, j)*sk(j, 0);
 
 		usint iW=0;
 		usint iAW=0;
 //#pragma omp parallel for
 		for(usint i=0; i<m_ell; i++) {
-			if (W[i] == 1  || W[i] == -1) {
+			if (w[i] == 1  || w[i] == -1) {
 				for(usint j=0; j<m_m; j++)
-					dtext += CW(iW+1, j)*sKey(j, i+1);
+					*dtext += ctW(iW+1, j)*sk(j, i+1);
 				iW++;
 			}
 			else {
-				if(S[i]==1)
+				if(s[i]==1)
 					for(usint j=0; j<m_m; j++)
-						dtext += C(iAW, j)*sKey(j, i+1);
+						*dtext += cPos(iAW, j)*sk(j, i+1);
 				else
 					for(usint j=0; j<m_m; j++)
-						dtext += nC(iAW, j)*sKey(j, i+1);
+						*dtext += cNeg(iAW, j)*sk(j, i+1);
 				iAW++;
 			}
 		}
 
-		dtext = c1 - dtext;
-		dtext.SwitchFormat();
+		*dtext = ctC1 - *dtext;
+		dtext->SwitchFormat();
 
 		BigInteger dec, threshold = m_q >> 2, qHalf = m_q >> 1;
 		for (usint i = 0; i < m_N; i++)
 		{
-			dec = dtext.GetValAtIndex(i);
+			dec = dtext->GetValAtIndex(i);
 
 			if (dec > qHalf)
 				dec = m_q - dec;
 			if (dec > threshold)
-				dtext.SetValAtIndex(i, BigInteger::ONE);
+				dtext->SetValAtIndex(i, BigInteger::ONE);
 			else
-				dtext.SetValAtIndex(i, BigInteger::ZERO);
+				dtext->SetValAtIndex(i, BigInteger::ZERO);
 		}
 	}
 }

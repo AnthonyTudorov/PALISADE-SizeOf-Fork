@@ -73,9 +73,9 @@ int CPABE_Test(usint iter)
 	// Precompuations for FTT
 	ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().PreCompute(rootOfUnity, n, q);
 
-	RingMat B(zero_alloc, ell, m);
-	RingMat nB(zero_alloc, ell, m);
-	Poly u(B(0,0));
+	RingMat pubElemBPos(zero_alloc, ell, m);
+	RingMat pubElemBNeg(zero_alloc, ell, m);
+	Poly u(pubElemBPos(0,0));
 
 	// for timing
 	double start, finish, avg_keygen, avg_enc, avg_dec;
@@ -83,7 +83,7 @@ int CPABE_Test(usint iter)
 	CPABE pkg, sender, receiver;
 
 	start = currentDateTime();
-	auto A = pkg.Setup(ilParams, base, ell, dug, u, B, nB);
+	auto A = pkg.Setup(ilParams, base, ell, dug, &u, &pubElemBPos, &pubElemBNeg);
 	finish = currentDateTime();
 	std::cout << "Setup time : " << "\t" << (finish - start) << " ms" << std::endl;
 
@@ -94,10 +94,10 @@ int CPABE_Test(usint iter)
 	usint *S = new usint[ell];
 
 	// Access structure
-	int *W = new int[ell];
+	int *w = new int[ell];
 
 	// Secret key for the output of the circuit
-	RingMat sKey(zero_alloc, m, ell+1);
+	RingMat sk(zero_alloc, m, ell+1);
 
 	// plain text in $R_2$
 	Poly ptext(ilParams, COEFFICIENT, true);
@@ -116,37 +116,35 @@ int CPABE_Test(usint iter)
 			S[j] = rand()%2;
 
 		for(usint j=0; j<ell; j++)
-			W[j] = S[j];
+			w[j] = S[j];
 
 		for(usint j=0; j<ell; j++)
-			if(W[j]==1) {
-				W[j] = 0;
+			if(w[j]==1) {
+				w[j] = 0;
 				break;
 			}
 
 		for(usint j=0; j<ell; j++)
 			if(S[j]==0) {
-				W[j] = -1;
+				w[j] = -1;
 				break;
 			}
 
 		usint lenW = 0;
 		for(usint j=0; j<ell; j++)
-			if(W[j] != 0)
+			if(w[j] != 0)
 				lenW++;
 
-		//std::cout << "lenW: " << lenW << std::endl;
-
 		start = currentDateTime();
-		pkg.KeyGen(ilParams, S, A.first, B, nB, u, A.second, dgg, sKey);
+		pkg.KeyGen(ilParams, S, A.first, pubElemBPos, pubElemBNeg, u, A.second, dgg, &sk);
 		finish = currentDateTime();
 		avg_keygen += (finish - start);
 		std::cout << "Key generation time : " << "\t" << (finish - start) << " ms" << std::endl;
-		testKeyGen(ilParams, m, ell, S, A.first, B, nB, u, sKey);
+		testKeyGen(ilParams, m, ell, S, A.first, pubElemBPos, pubElemBNeg, u, sk);
 
 
-		RingMat CW(Poly::MakeAllocator(ilParams, EVALUATION), lenW+1, m);
-		RingMat C(Poly::MakeAllocator(ilParams, EVALUATION), ell-lenW, m);
+		RingMat ctW(Poly::MakeAllocator(ilParams, EVALUATION), lenW+1, m);
+		RingMat ctCPos(Poly::MakeAllocator(ilParams, EVALUATION), ell-lenW, m);
 		RingMat nC(Poly::MakeAllocator(ilParams, EVALUATION), ell-lenW, m);
 
 		// Encrypt a uniformly randomly selected message ptext (in ptext in $R_2$)
@@ -154,20 +152,18 @@ int CPABE_Test(usint iter)
 		ptext.SwitchFormat();
 
 		start = currentDateTime();
-		sender.Encrypt(ilParams, A.first, B, nB, u, W, ptext, dgg, dug, bug, CW, C, nC, c1);
+		sender.Encrypt(ilParams, A.first, pubElemBPos, pubElemBNeg, u, w, ptext, dgg, dug, bug, &ctW, &ctCPos, &nC, &c1);
 		finish = currentDateTime();
 		avg_enc += (finish - start);
 		std::cout << "Encryption time : " << "\t" << (finish - start) << " ms" << std::endl;
 
 		start = currentDateTime();
-		receiver.Decrypt(ilParams, W, S, sKey, CW, C, nC, c1, dtext);
+		receiver.Decrypt(ilParams, w, S, sk, ctW, ctCPos, nC, c1, &dtext);
 		finish = currentDateTime();
 		avg_dec += (finish - start);
 		std::cout << "Decryption time : " << "\t" << (finish - start) << " ms" << std::endl;
 
 		ptext.SwitchFormat();
-		//std::cout << "plaintext: " << ptext << std::endl;
-		//std::cout << "decrypted text: " << dtext << std::endl;
 		if(ptext != dtext) {
 			failure++;
 			std::cout << "Encryption fails in iter no. " << i << " \n";
@@ -181,7 +177,7 @@ int CPABE_Test(usint iter)
 		std::cout << "Average decryption time : " << "\t" << (avg_dec)/iter << " ms" << std::endl;
 	}
 
-	delete W;
+	delete w;
 	delete S;
 	return 0;
 }
@@ -191,10 +187,10 @@ int testKeyGen(
 	const shared_ptr<ILParams> ilParams,
 	const usint m,
 	const usint ell,
-	const usint S[],
-	const RingMat &A,
-	const RingMat &B,
-	const RingMat &nB,
+	const usint s[],
+	const RingMat &pubTA,
+	const RingMat &publicElemBPos,
+	const RingMat &publicElemBNeg,
 	const Poly &u,
 	RingMat &sKey
 )
@@ -203,22 +199,22 @@ int testKeyGen(
 	Poly t2(ilParams, EVALUATION, true);
 
 	for(usint i=0; i<ell; i++) {
-		if(S[i]==1) {
-			t2 = B(i, 0)*sKey(0, i+1);
+		if(s[i]==1) {
+			t2 = publicElemBPos(i, 0)*sKey(0, i+1);
 			for(usint j=1; j<m; j++)
-				t2 += B(i, j)*sKey(j, i+1);
+				t2 += publicElemBPos(i, j)*sKey(j, i+1);
 		}
 		else {
-			t2 = nB(i, 0)*sKey(0, i+1);
+			t2 = publicElemBNeg(i, 0)*sKey(0, i+1);
 			for(usint j=1; j<m; j++)
-				t2 += nB(i, j)*sKey(j, i+1);
+				t2 += publicElemBNeg(i, j)*sKey(j, i+1);
 		}
 		t1 += t2;
 	}
 
-	t2 = A(0, 0)*sKey(0, 0);
+	t2 = pubTA(0, 0)*sKey(0, 0);
 	for(usint j=1; j<m; j++)
-		t2 += A(0, j)*sKey(j, 0);
+		t2 += pubTA(0, j)*sKey(j, 0);
 
 	t1 += t2;
 

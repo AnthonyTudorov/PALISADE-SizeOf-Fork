@@ -28,7 +28,8 @@
  *
  * @section DESCRIPTION
  *
- * This code provides functionality for KP_ABE. The algorithms and naming conventions can be found from
+ * This code provides functionality for Key-policy attribute-based encryption
+ * (KP-ABE). The algorithms and naming conventions can be found from
  * this paper: https://eprint.iacr.org/2017/601.pdf
  */
 
