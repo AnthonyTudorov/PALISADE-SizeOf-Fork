@@ -189,9 +189,7 @@ int KPABE_APolicyCircuitTest(usint iter)
 	int32_t base = 2;
 
 	BigInteger q = BigInteger::ONE << (k-1);
-//	lbcrypto::NextQ(q, BigInteger::TWO, n, BigInteger("4"), BigInteger("4"));
-	lbcrypto::NextPrime(q,n);
-	BigInteger rootOfUnity(RootOfUnity(n, q));
+	q = lbcrypto::FirstPrime<BigInteger>(k,n);	BigInteger rootOfUnity(RootOfUnity(n, q));
 
 	double val = q.ConvertToDouble();
 	double logTwo = log(val-1.0)/log(base)+1.0;
@@ -319,8 +317,7 @@ int KPABE_NANDGateTest(usint iter, int32_t base)
 	usint ell = 2; // No of attributes for NAND gate
 
 	BigInteger q = BigInteger::ONE << (k-1);
-//	lbcrypto::NextQ(q, BigInteger::TWO, n, BigInteger("4"), BigInteger("4"));
-	lbcrypto::NextPrime(q,n);
+	q = lbcrypto::FirstPrime<BigInteger>(k,n);
 	BigInteger rootOfUnity(RootOfUnity(n, q));
 
 	double val = q.ConvertToDouble();
@@ -446,8 +443,7 @@ int KPABE_ANDGateTest(usint iter)
 	int32_t base = 2;
 
 	BigInteger q = BigInteger::ONE << (k-1);
-//	lbcrypto::NextQ(q, BigInteger::TWO, n, BigInteger("4"), BigInteger("4"));
-	lbcrypto::NextPrime(q,n);
+	q = lbcrypto::FirstPrime<BigInteger>(k,n);
 	BigInteger rootOfUnity(RootOfUnity(n, q));
 
 	double val = q.ConvertToDouble();
