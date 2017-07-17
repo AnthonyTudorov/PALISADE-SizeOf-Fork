@@ -1,8 +1,35 @@
-/*
- * Abe.h
+/**
+ * @file
+ * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
+ * @programmer Erkay Savas
+ * @version 00_05
  *
- *  Created on: Mar 23, 2017
- *      Author: savas
+ * @section LICENSE
+ *
+ * Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or other
+ * materials provided with the distribution.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+ * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * @section DESCRIPTION
+ *
+ * This code provides functionality for KP_ABE. The algorithms and naming conventions can be found from
+ * this paper: https://eprint.iacr.org/2017/601.pdf
  */
 
 #ifndef TRAPDOOR_LIB_ABE_ABE_H_
@@ -28,202 +55,291 @@
  */
 namespace lbcrypto {
 
-	/* Bit decomposition based on binary non-adjacent representation of integers
-	 * Limits noise growth
-	 * Temporarily here; but can be made a part of RingMat class
-	 */
-	int polyVec2NAFDecom (const shared_ptr<ILParams> ilParams, int k, const RingMat &B, RingMat &Psi);
-
-	/* Digit decomposition using higher bases with balanced representation
-	 * Limits noise growth
-	 * Temporarily here; but can be made a part of RingMat class
+	/**
+ 	* Bit decomposition based on binary non-adjacent representation of integers
+	* Limits noise growth
+	* Temporarily here; but can be made a part of RingMat class
+	*
+	* @param ilParams parameter set
+	* @param k bit size of modulus
+	* @param *publicElementB is a matrix where each column corresponds to the public vector of each attribute
+	* @param *psi bit decomposition of publicElementB
 	*/
-	int polyVec2BalDecom (const shared_ptr<ILParams> ilParams, int32_t base, int k, const RingMat &B, RingMat &Psi);
+	int polyVec2NAFDecom(
+			const shared_ptr<ILParams> ilParams,
+			int k,
+			const RingMat &publicElementB,
+			RingMat *psi
+		);
 
-	class KPABE{
-		public:
+    /**
+    * Setup function for Private Key Generator (PKG)
+    * Digit decomposition using higher bases with balanced representation
+    * Limits noise growth
+    * Temporarily here; but can be made a part of RingMat class
+    *
+    * @param ilParams parameter set
+    * @param base is a power of two
+    * @param k bit size of modulus
+    * @param *publicElementB is a matrix where each column corresponds to the public vector of each attribute
+	* @param *psi bit decomposition of publicElementB
+    */
+	int polyVec2BalDecom(
+			const shared_ptr<ILParams> ilParams,
+			int32_t base,
+			int k,
+			const RingMat &publicElementB,
+			RingMat *psi
+		);
 
-			/**
-			 * Default Constructor
-			 *
-			 * */
-			KPABE(){}
+class KPABE {
+public:
 
-			/**
-			 * Destructor for releasing dynamic memory
-			 * used for precomputed Psi
-			 */
-			~KPABE() { }
+	/**
+	 * Default Constructor
+	 *
+	 */
+	KPABE() {
+	}
 
-			/**
-			 * Setup function for Private Key Generator
-			 */
-			void Setup(
-					shared_ptr<ILParams> ilParams,
-					int32_t base,
-					const usint ell, // number of attributes
-					DiscreteUniformGenerator &dug,  // select according to uniform distribution
-					RingMat &B
-			);
+	/**
+	 * Destructor for releasing dynamic memory
+	 * used for precomputed psi
+	 *
+	 */
+	~KPABE() {
+	}
 
-			/**
-			 * Setup function for other users,
-			*/
-			void Setup(
-				const shared_ptr<ILParams> ilParams,
-				int32_t base,
-				const usint ell
-			);
+	/**
+	* Setup function for Private Key Generator (PKG)
+	*
+	* @param ilParams parameter set
+	* @param base is a power of two
+	* @param ell total number of attributes
+	* @param &dug
+	* @param *publicElementB is a matrix where each column corresponds to the public vector of each attribute
+	*/
+	void Setup(
+			const shared_ptr<ILParams> ilParams,
+			int32_t base,
+			usint ell, // number of attributes
+			const DiscreteUniformGenerator &dug, // select according to uniform distribution
+			RingMat *publicElementB
+		);
 
-			/**
-			 * Evaluation function for both public keys B_i and ciphertexts C_i
-			 * for the benchmark circuit
-			 */
-			void EvalPK(
-					shared_ptr<ILParams> ilParams,
-					const RingMat &B,
-					RingMat *Bf
-			);
+	/**
+	* Setup function for all parties except the Private Key Generator (PKG)
+	*
+	* @param ilParams parameter set
+	* @param base is a power of two
+	* @param ell total number of attributes
+	*/
+	void Setup(
+			const shared_ptr<ILParams> ilParams,
+			int32_t base,
+			const usint ell
+		);
 
-			/**
-			* Evaluation function for both public keys B_i and ciphertexts C_i
-			* for the benchmark circuit
-		    */
-			void EvalCT(
-			        shared_ptr<ILParams> ilParams,
-					const RingMat &B,
-					const usint x[],
-					const RingMat &Cin,
-					usint *y,
-					RingMat *Cf
-			);
+	/**
+	* Evaluation function for public vectors publicElementB
+	* for the benchmark circuit
+	*
+	* @param ilParams parameter set
+	* @param &publicElementB is a matrix where each column corresponds to the public vector of each attribute
+	* @param *evalPubElement total number of attributes
+	*/
+	void EvalPK(
+			const shared_ptr<ILParams> ilParams,
+			const RingMat &publicElementB,
+			RingMat *evalPubElementBf
+		);
 
-			/**
-			 * Evaluation of a single NAND gate
-			 * NAND gate is universal,
-			 * any Boolean function can be constructed from NAND gates
-			 */
-			void NANDGateEval(
-				shared_ptr<ILParams> ilParams,
-				const RingMat &B0,
-				const RingMat &C0,
-				const usint x[2],
-				const RingMat &B,
-				const RingMat &C,
-				usint *y,
-				RingMat *Bf,
-				RingMat *Cf
-			);
-			/**
-			* Evaluation of a single AND gate
-			*/
-			void ANDGateEval(
-				shared_ptr<ILParams> ilParams,
-				const usint x[2],
-				const RingMat &B,
-				const RingMat &C,
-				usint *y,
-				RingMat *Bf,
-				RingMat *Cf
-			);
-			void NANDwNAF(
-					shared_ptr<ILParams> ilParams,
-					const RingMat &B0,
-					const RingMat &C0,
-					const usint x[],
-					const RingMat &B,
-					const RingMat &C,
-					usint *y,
-					RingMat *Bf,
-					RingMat *Cf
-			);
+	/**
+	* Evaluation function for public vectors publicElementB
+	* for the benchmark circuit
+	*
+	* @param ilParams parameter set
+	* @param &publicElementB is a matrix where each column corresponds to the public vector of each attribute
+	* @param x[] array of attributes
+	* @param &origCT original ciphertext
+	* @param *evalAttribute evaluated value of circuit
+	* @param *evalCT evaluated ciphertext value
+	*/
+	void EvalCT(
+			const shared_ptr<ILParams> ilParams,
+			const RingMat &pubElementB,
+			const usint x[],  //attributes
+			const RingMat &origCT, // original ciphtertext
+			usint *evalAttribute, // evaluated circuit
+			RingMat *evalCT //evaluated ciphertext
+		);
 
-			/**
-			 * Encrypt function.
-			 *
-			 * */
-			void Encrypt(
-				shared_ptr<ILParams> ilParams,
-				const RingMat &A,
-				const RingMat &B,
-				const Poly &d,
-				const usint x[],
-				const Poly &pt,
-				DiscreteGaussianGenerator &dgg, // to generate error terms (Gaussian)
-				DiscreteUniformGenerator &dug,  // select according to uniform distribution
-				BinaryUniformGenerator &bug,    // select according to uniform distribution binary
-				RingMat &c0,
-				Poly &c1
-			);
+	/**
+	* Evaluation of a single NAND gate
+	* NAND gate is universal,
+	* any Boolean function can be constructed from NAND gates
+	*
+	* @param ilParams parameter set
+	* @param &B0
+	* @param &C0
+	* @param x[] array of attributes
+	* @param &origPubElementB original matrix of public vectors for each attribute
+	* @param &origCT original ciphertext
+	* @param *evalAttribute evaluated value of circuit
+	* @param *evalPubElementBf evaluated value of public element
+	* @param *evalCT evaluated ciphertext value
+	*/
+	void NANDGateEval(
+			const shared_ptr<ILParams> ilParams,
+			const RingMat &B0, //TBA
+			const RingMat &C0, //TBA
+			const usint x[2],
+			const RingMat &origPubElementB,
+			const RingMat &origCT,
+			usint *evalAttribute, //attribute results
+			RingMat *evalPubElementBf,
+			RingMat *evalCT
+		);
 
-			/**
-			 * KeyGen
-			 *
-			 * */
-			void KeyGen(
-				const shared_ptr<ILParams> ilParams,
-				const RingMat &A,                        // Public parameter $A \in R_q^{1 \times w}$
-				const RingMat &Bf,                        // Public parameter $B \in R_q^{ell \times k}$
-				const Poly &beta,                     // public key $d \in R_q$
-				const RLWETrapdoorPair<Poly> &T_A, // Secret parameter $T_H \in R_q^{1 \times k} \times R_q^{1 \times k}$
-				DiscreteGaussianGenerator &dgg,          // to generate error terms (Gaussian)
-				RingMat &sKey                           // Secret key
-			);
+	/**
+	*Evaluation of simple AND Gate
+	*
+	* @param ilParams parameter set
+	* @param &B0
+	* @param &C0
+	* @param x[] array of attributes
+	* @param &origPubElementB original matrix of public vectors for each attribute
+	* @param &origCT original ciphertext
+	* @param *evalAttribute evaluated value of circuit
+	* @param *evalPubElementBf evaluated value of public element
+	* @param *evalCT evaluated ciphertext value
+	*/
+	void ANDGateEval(
+			const shared_ptr<ILParams> ilParams,
+			const usint x[2], //TBA
+			const RingMat &origPubElementB,
+			const RingMat &origCT,
+			usint *evalAttribute,
+			RingMat *evalPubElement,
+			RingMat *evalCT
+		);
 
-			/**
-			 * Decrypt function
-			 * */
-			void Decrypt(
-				const shared_ptr<ILParams> ilParams,
-				const RingMat &sKey,
-				const RingMat &CA,
-				const RingMat &Cf,
-				const Poly &c1,
-				Poly &dtext
-			);
+	/**
+	* Evaluation of a single NAND gate NAF
+	* NAND with NAF gate is universal,
+	* any Boolean function can be constructed from NAND gates
+	* TO BE IMPLEMENTED
+	*
+	* @param ilParams parameter set
+	* @param &B0
+	* @param &C0
+	* @param x[] array of attributes
+	* @param &origPubElementB original matrix of public vectors for each attribute
+	* @param &origCT original ciphertext
+	* @param *evalAttribute evaluated value of circuit
+	* @param *evalPubElementBf evaluated value of public element
+	* @param *evalCT evaluated ciphertext value
+	*/
+	void NANDwNAF(
+			const shared_ptr<ILParams> ilParams,
+			const RingMat &B0, //TBA
+			const RingMat &C0, //TBA
+			const usint x[],
+			const RingMat &origPubElementB,
+			const RingMat &origCT,
+			usint *evalAttribute,
+			RingMat *evalPubElementBf,
+			RingMat *evalCT
+		);
 
-			void EvalPKDeprecated(
-					shared_ptr<ILParams> ilParams,
-					const RingMat &B,
-					const usint x[],  // Attributes
-					const RingMat &Cin,
-					usint *y,
-					RingMat *Bf,
-					RingMat *Cf
-				);
+	/**
+	* Encrypt Function
+	*
+	* @param ilParams parameter set
+	* @param &pubElementA
+	* @param &pubElementB
+	* @param &d
+	* @param x[] array of attributes
+	* @param &pt
+	* @param &dgg to generate error terms (Gaussian)
+	* @param &dug select according to uniform distribution
+	* @param &bug select according to uniform distribution binary
+	* @param *ctCin resulting ciphertext Cin as per algorithm
+	* @param *ctC1 c1, a separate part of the cipertext as per the algorithm
+	*/
+	void Encrypt(
+			shared_ptr<ILParams> ilParams,
+			const RingMat &pubElementA,
+			const RingMat &pubElementB,
+			const Poly &d, //TBA
+			const usint x[],
+			const Poly &pt,
+			DiscreteGaussianGenerator &dgg,
+			DiscreteUniformGenerator &dug,
+			BinaryUniformGenerator &bug,
+			RingMat *ctCin,
+			Poly *ctC1
+		);
 
-		private:
-			usint m_k; //number of bits of the modulus
-			usint m_ell; //number of attributes
-			usint m_N; // ring dimension
-			BigInteger m_q; // modulus
-			usint m_m; // m = k+2
-			int32_t m_base;
-	};
+	/**
+	* Encrypt Function
+	*
+	* @param ilParams parameter set
+	* @param &pubElementA Public parameter $A \in R_q^{1 \times w}$
+	* @param &pubElementB Public parameter $B \in R_q^{ell \times k}$
+	* @param &beta public key $d \in R_q$  TBA
+	* @param &secElemTA Secret parameter $T_H \in R_q^{1 \times k} \times R_q^{1 \times k}$
+	* @param &dgg to generate error terms (Gaussian)
+	* @param *sk secret key
+	*/
+	void KeyGen(
+			const shared_ptr<ILParams> ilParams,
+			const RingMat &pubElementA,
+			const RingMat &pubElementB,
+			const Poly &beta,
+			const RLWETrapdoorPair<Poly> &secElemTA,
+		    DiscreteGaussianGenerator &dgg,
+			RingMat *sk
+		);
 
-	const std::vector<std::vector<int>> ternaryLUT = {{1,2}, {3, 4,5}};
+	/**
+	* Encrypt Function
+	*
+	* @param ilParams parameter set
+	* @param &sk Secret Key
+	* @param &ctA ciphertext A as per paper
+	* @param &evalCT evaluated ciphertext Cf pertaining to a policy
+	* @param &ctC1 ciphertext C1
+	* @param *dtext decrypted ciphetext
+	*/
+	void Decrypt(
+		    const shared_ptr<ILParams> ilParams,
+		    const RingMat &sk,  //Secret key
+		    const RingMat &ctA, // ciphertext CA
+		    const RingMat &evalCT, //cipher text Cf
+		    const Poly &ctC1,   // ciphertext C1
+		    Poly *dtext         //decrypted plaintext
+		);
 
+private:
+	usint m_k; //number of bits of the modulus
+	usint m_ell; //number of attributes
+	usint m_N; // ring dimension
+	BigInteger m_q; // modulus
+	usint m_m; // m = k+2
+	int32_t m_base; //base, a power of two
+};
+
+const std::vector<std::vector<int>> ternaryLUT = { { 1, 2 }, { 3, 4, 5 } };
 
 }
 
 /*
  * Functions for testing
  */
-int ExpErrors(int argc);
-int Simulate(int argc);
-int KPABE_NANDGateTest_old(usint iter);
 int KPABE_NANDGateTest(usint iter, int32_t base);
 int KPABE_ANDGateTest(usint iter);
 int KPABE_BenchmarkCircuitTest(usint iter, int32_t base);
 int KPABE_APolicyCircuitTest(int iter);
-int ErrorRatesSi(int argc);
-int BitSizes(int depth, usint iter);
-int BitSizesBinaryDecompose(int depth, usint iter);
-int BitSizeswNAFDecompose(int depth, usint iter);
-int Decompose_Experiments (int base);
-int Poly2NAFDecompose(usint iter);
-int TestNAFDecomp (usint iter);
-int TestTernaryBase_01 (int arg);
-int TestBalDecomp (usint iter, int32_t base);
 
 #endif /* TRAPDOOR_LIB_ABE_ABE_H_ */

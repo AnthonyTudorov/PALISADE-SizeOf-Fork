@@ -78,15 +78,15 @@ int KPABE_BenchmarkCircuitTest(usint iter, int32_t base)
 
 	Poly beta(dug, ilParams, EVALUATION);
 
-	RingMat B(zero_alloc, ell+1, m);
+	RingMat publicElementB(zero_alloc, ell+1, m);
 	RingMat Cin(zero_alloc, ell+2, m);
 	Poly c1(dug, ilParams, EVALUATION);
 
-	KPABE PKG, SENDER, RECEIVER;
+	KPABE pkg, sender, receiver;
 
-	PKG.Setup(ilParams, base, ell, dug, B);
-	SENDER.Setup(ilParams, base, ell);
-	RECEIVER.Setup(ilParams, base, ell);
+	pkg.Setup(ilParams, base, ell, dug, &publicElementB);
+	sender.Setup(ilParams, base, ell);
+	receiver.Setup(ilParams, base, ell);
 
 	// Attribute values all are set to 1 for NAND gate evaluation
 	usint *x = new usint[ell+1];
@@ -130,7 +130,7 @@ int KPABE_BenchmarkCircuitTest(usint iter, int32_t base)
 		ptext.SetValues(bug.GenerateVector(N, q), COEFFICIENT);
 		ptext.SwitchFormat();
 		start = currentDateTime();
-		SENDER.Encrypt(ilParams, A.first, B, beta, x, ptext, dgg, dug, bug, Cin, c1); // Cin and c1 are the ciphertext
+		sender.Encrypt(ilParams, A.first, publicElementB, beta, x, ptext, dgg, dug, bug, &Cin, &c1); // Cin and c1 are the ciphertext
 		finish = currentDateTime();
 		avg_enc += (finish - start);
 
@@ -138,20 +138,20 @@ int KPABE_BenchmarkCircuitTest(usint iter, int32_t base)
 
 		start = currentDateTime();
 	//	RECEIVER.EvalPK(ilParams, B, &Bf);
-		RECEIVER.EvalCT(ilParams, B, x, Cin.ExtractRows(1, ell+1), &y, &Cf);
+		receiver.EvalCT(ilParams, publicElementB, x, Cin.ExtractRows(1, ell+1), &y, &Cf);
 
 		finish = currentDateTime();
 		avg_eval += (finish - start);
 
 		start = currentDateTime();
-		PKG.EvalPK(ilParams, B, &Bf);
-		PKG.KeyGen(ilParams, A.first, Bf, beta, A.second, dgg, sKey);
+		pkg.EvalPK(ilParams, publicElementB, &Bf);
+		pkg.KeyGen(ilParams, A.first, Bf, beta, A.second, dgg, &sKey);
 		finish = currentDateTime();
 		avg_keygen += (finish - start);
 		CheckSecretKey(m, A.first, Bf, sKey, beta);
 
 		start = currentDateTime();
-		RECEIVER.Decrypt(ilParams, sKey, CA, Cf, c1, dtext);
+		receiver.Decrypt(ilParams, sKey, CA, Cf, c1, &dtext);
 		finish = currentDateTime();
 		avg_dec += (finish - start);
 
@@ -220,13 +220,13 @@ int KPABE_APolicyCircuitTest(usint iter)
 
 	Poly beta(dug, ilParams, EVALUATION);
 
-	RingMat B(zero_alloc, ell+1, m);
+	RingMat publicElementB(zero_alloc, ell+1, m);
 	RingMat Cin(zero_alloc, ell+2, m);
 	Poly c1(dug, ilParams, EVALUATION);
 
 	KPABE PKG, SENDER, RECEIVER;
 
-	PKG.Setup(ilParams, base, ell, dug, B);
+	PKG.Setup(ilParams, base, ell, dug, &publicElementB);
 	SENDER.Setup(ilParams, base, ell);
 	RECEIVER.Setup(ilParams, base, ell);
 
@@ -268,20 +268,20 @@ int KPABE_APolicyCircuitTest(usint iter)
 		// Encrypt a uniformly randomly selected message ptext (in ptext in $R_2$)
 		ptext.SetValues(bug.GenerateVector(N, q), COEFFICIENT);
 		ptext.SwitchFormat();
-		SENDER.Encrypt(ilParams, A.first, B, beta, x, ptext, dgg, dug, bug, Cin, c1);
+		SENDER.Encrypt(ilParams, A.first, publicElementB, beta, x, ptext, dgg, dug, bug, &Cin, &c1);
 
 		CA  = Cin.ExtractRow(0);
-		auto B0 = B.ExtractRow(0);
+		auto B0 = publicElementB.ExtractRow(0);
 		auto C0 = Cin.ExtractRow(1);
 
-		RECEIVER.NANDGateEval(ilParams, B0, C0, &x[1], B.ExtractRows(1,2), Cin.ExtractRows(2,3), &wx[0], &tB, &tC);
+		RECEIVER.NANDGateEval(ilParams, B0, C0, &x[1], publicElementB.ExtractRows(1,2), Cin.ExtractRows(2,3), &wx[0], &tB, &tC);
 
 		for(usint i=0; i<m; i++) {
 			wB(0, i) = tB(0, i);
 			wC(0, i) = tC(0, i);
 		}
 
-		RECEIVER.NANDGateEval(ilParams, B0, C0, &x[3], B.ExtractRows(3,4), Cin.ExtractRows(4,5), &wx[1], &tB, &tC);
+		RECEIVER.NANDGateEval(ilParams, B0, C0, &x[3], publicElementB.ExtractRows(3,4), Cin.ExtractRows(4,5), &wx[1], &tB, &tC);
 
 		for(usint i=0; i<m; i++) {
 			wB(1, i) = tB(0, i);
@@ -290,10 +290,10 @@ int KPABE_APolicyCircuitTest(usint iter)
 
 		RECEIVER.ANDGateEval(ilParams, wx, wB, wC, &y, &Bf, &Cf);
 
-		PKG.KeyGen(ilParams, A.first, Bf, beta, A.second, dgg, sKey);
+		PKG.KeyGen(ilParams, A.first, Bf, beta, A.second, dgg, &sKey);
 		//CheckSecretKey(m, A.first, Bf, sKey, beta);
 
-		RECEIVER.Decrypt(ilParams, sKey, CA, Cf, c1, dtext);
+		RECEIVER.Decrypt(ilParams, sKey, CA, Cf, c1, &dtext);
 
 		ptext.SwitchFormat();
 		if(ptext != dtext) {
@@ -351,13 +351,13 @@ int KPABE_NANDGateTest(usint iter, int32_t base)
 
 	Poly beta(dug, ilParams, EVALUATION);
 
-	RingMat B(zero_alloc, ell+1, m);
+	RingMat publicElementB(zero_alloc, ell+1, m);
 	RingMat Cin(zero_alloc, ell+2, m);
 	Poly c1(dug, ilParams, EVALUATION);
 
 	KPABE PKG, SENDER, RECEIVER;
 
-	PKG.Setup(ilParams, base, ell, dug, B);
+	PKG.Setup(ilParams, base, ell, dug, &publicElementB);
 	SENDER.Setup(ilParams, base, ell);
 	RECEIVER.Setup(ilParams, base, ell);
 
@@ -392,7 +392,7 @@ int KPABE_NANDGateTest(usint iter, int32_t base)
 		ptext.SetValues(bug.GenerateVector(N, q), COEFFICIENT);
 		ptext.SwitchFormat();
 		start = currentDateTime();
-		SENDER.Encrypt(ilParams, A.first, B, beta, x, ptext, dgg, dug, bug, Cin, c1);
+		SENDER.Encrypt(ilParams, A.first, publicElementB, beta, x, ptext, dgg, dug, bug, &Cin, &c1);
 		finish = currentDateTime();
 		avg_enc += (finish - start);
 
@@ -403,19 +403,19 @@ int KPABE_NANDGateTest(usint iter, int32_t base)
 				&x[1], B.ExtractRows(1,2), Cin.ExtractRows(2,3), &y, &Bf, &Cf);*/
 		start = currentDateTime();
 		RECEIVER.KPABE::NANDGateEval(ilParams,
-				B.ExtractRow(0), Cin.ExtractRow(1),
-				&x[1], B.ExtractRows(1,2), Cin.ExtractRows(2,3), &y, &Bf, &Cf);
+				publicElementB.ExtractRow(0), Cin.ExtractRow(1),
+				&x[1], publicElementB.ExtractRows(1,2), Cin.ExtractRows(2,3), &y, &Bf, &Cf);
 		finish = currentDateTime();
 		avg_eval += (finish - start);
 		
 		start = currentDateTime();
-		PKG.KeyGen(ilParams, A.first, Bf, beta, A.second, dgg, sKey);
+		PKG.KeyGen(ilParams, A.first, Bf, beta, A.second, dgg, &sKey);
 		finish = currentDateTime();
 		avg_keygen += (finish - start);
 		//CheckSecretKey(m, A.first, Bf, sKey, beta);
 
 		start = currentDateTime();
-		RECEIVER.Decrypt(ilParams, sKey, CA, Cf, c1, dtext);
+		RECEIVER.Decrypt(ilParams, sKey, CA, Cf, c1, &dtext);
 		finish = currentDateTime();
 		avg_dec += (finish - start);
 
@@ -477,13 +477,13 @@ int KPABE_ANDGateTest(usint iter)
 
 	Poly beta(dug, ilParams, EVALUATION);
 
-	RingMat B(zero_alloc, ell+1, m);
+	RingMat publicElementB(zero_alloc, ell+1, m);
 	RingMat Cin(zero_alloc, ell+2, m);
 	Poly c1(dug, ilParams, EVALUATION);
 
 	KPABE PKG, SENDER, RECEIVER;
 
-	PKG.Setup(ilParams, base, ell, dug, B);
+	PKG.Setup(ilParams, base, ell, dug, &publicElementB);
 	SENDER.Setup(ilParams, base, ell);
 	RECEIVER.Setup(ilParams, base, ell);
 
@@ -515,15 +515,15 @@ int KPABE_ANDGateTest(usint iter)
 		// Encrypt a uniformly randomly selected message ptext (in ptext in $R_2$)
 		ptext.SetValues(bug.GenerateVector(N, q), COEFFICIENT);
 		ptext.SwitchFormat();
-		SENDER.Encrypt(ilParams, A.first, B, beta, x, ptext, dgg, dug, bug, Cin, c1);
+		SENDER.Encrypt(ilParams, A.first, publicElementB, beta, x, ptext, dgg, dug, bug, &Cin, &c1);
 
 		CA = Cin.ExtractRow(0);
 
-		RECEIVER.ANDGateEval(ilParams, &x[1], B.ExtractRows(1,2), Cin.ExtractRows(2,3), &y, &Bf, &Cf);
+		RECEIVER.ANDGateEval(ilParams, &x[1], publicElementB.ExtractRows(1,2), Cin.ExtractRows(2,3), &y, &Bf, &Cf);
 
-		PKG.KeyGen(ilParams, A.first, Bf, beta, A.second, dgg, sKey);
+		PKG.KeyGen(ilParams, A.first, Bf, beta, A.second, dgg, &sKey);
 
-		RECEIVER.Decrypt(ilParams, sKey, CA, Cf, c1, dtext);
+		RECEIVER.Decrypt(ilParams, sKey, CA, Cf, c1, &dtext);
 
 		ptext.SwitchFormat();
 		if(ptext != dtext) {
