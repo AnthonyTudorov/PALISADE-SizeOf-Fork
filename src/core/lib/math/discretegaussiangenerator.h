@@ -149,7 +149,9 @@ public:
 	* @brief Destructor
 	*/
 	~DiscreteGaussianGeneratorImpl() { if (probMatrix != nullptr) { delete[] probMatrix;} }
-
+	int32_t GenerateIntegerKarney(double mean, double stddev);
+	bool AlgorithmP(int n);
+	bool AlgorithmH();
 private:
 	usint FindInVector (const std::vector<double> &S, double search) const;
 
@@ -191,6 +193,8 @@ private:
 	*Mean of the distribution used for Knuth-Yao probability table
 	*/
 	double probMean;
+	double h_a = 0;
+	double h_b = 0;
 };
 
 }  // namespace lbcrypto

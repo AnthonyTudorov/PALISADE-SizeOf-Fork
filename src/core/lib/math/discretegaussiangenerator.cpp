@@ -316,6 +316,74 @@ namespace lbcrypto {
 		return x;
 
 	}
+	template<typename IntType, typename VecType>
+	int32_t DiscreteGaussianGeneratorImpl<IntType, VecType>::GenerateIntegerKarney(double mean, double stddev){
+
+		int32_t result;
+
+		std::uniform_int_distribution<int32_t> uniform_int(0,5);
+		std::uniform_real_distribution<double> uniform_real(0.0, 1.0);
+		std::uniform_int_distribution<int32_t> uniform_sign(0, 1);
+		std::uniform_int_distribution<int32_t> uniform_j(0, ceil(stddev));
+
+		double prob = 0;
+		double dice = 0;
+
+		bool flagSuccess = false;
+		int32_t k;
+
+		while (!flagSuccess) {
+			h_a = 0;
+			h_b = 0;
+			k = uniform_int(PseudoRandomNumberGenerator::GetPRNG());
+			if (!AlgorithmP(k * (k - 1))) continue;
+		
+			dice = uniform_real(PseudoRandomNumberGenerator::GetPRNG());
+			prob = pow(M_E, -k * (k - 1) / 2);
+			if (dice <= prob) {
+				int s = uniform_sign(PseudoRandomNumberGenerator::GetPRNG());
+				if (s == 0)
+					s = -1;
+				int32_t j = uniform_j(PseudoRandomNumberGenerator::GetPRNG());
+				int32_t i0 = ceil(stddev * k + s * mean);
+				double x0 = (i0 - (stddev * k + s * mean)) / stddev;
+				double x = x0 + j / stddev;
+				if (x < 1) {
+					if (!(x == 0 && s < 0 && k == 0)) {
+						dice = uniform_real(PseudoRandomNumberGenerator::GetPRNG());
+						prob = pow(M_E, -x*(2 * k + x) / 2);
+						if (dice <= prob) {
+							result = s*(i0 + j);
+							flagSuccess = true;
+						}
+
+
+					}
+
+				}
+
+			}
+		}
+		return result;
+
+	}
+	
+	template<typename IntType, typename VecType>
+	bool DiscreteGaussianGeneratorImpl<IntType, VecType>::AlgorithmP(int n){
+		while (n-- && AlgorithmH()){}; return n < 0;
+	}
+	template<typename IntType, typename VecType>
+	bool DiscreteGaussianGeneratorImpl<IntType, VecType>::AlgorithmH(){
+		std::uniform_real_distribution<double> dist(0.0, 1.0);
+		h_a = dist(PseudoRandomNumberGenerator::GetPRNG());
+		if(!(h_a<0.5)) return true;
+		for (;;) {
+			h_b = dist(PseudoRandomNumberGenerator::GetPRNG());
+			if (!(h_b<h_a)) return false;
+			h_a = dist(PseudoRandomNumberGenerator::GetPRNG());
+			if (!(h_a<h_b)) return true;
+		}
+	}
 
 	/**
 		*Generates the probability matrix of given distribution, which is used in Knuth-Yao method
