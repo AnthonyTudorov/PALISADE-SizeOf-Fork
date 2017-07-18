@@ -42,7 +42,7 @@ namespace lbcrypto {
 	 * Input: $k = \lceil \log_(base){q} \rceil$; i.e. the digit length of the modulus + 1 (in base)
 	 * Output: matrix of (k+2)x(k+2) elements of $R_2$ where the coefficients are in balanced representation
 	 */
-	int polyVec2BalDecom (const shared_ptr<ILParams> ilParams, int32_t base, int k, const RingMat &publicElementB, RingMat *psi)
+	int polyVec2BalDecom (const shared_ptr<ILParams> ilParams, int32_t base, int k, const RingMat &pubElemB, RingMat *psi)
 	{
 		usint ringDimesion = ilParams->GetCyclotomicOrder() >> 1;
 		usint m = k+2;
@@ -61,7 +61,7 @@ namespace lbcrypto {
 		for (usint ii=0; ii<m; ii++) {
 			int digit_i;
 
-			auto tB = publicElementB(0, ii);
+			auto tB = pubElemB(0, ii);
 			if(tB.GetFormat() != COEFFICIENT)
 				tB.SwitchFormat();
 
@@ -112,7 +112,7 @@ namespace lbcrypto {
 	 * Input: $k = \lceil \log_2{q} \rceil$; i.e. the bit length of the modulus + 1
 	 * Output: matrix of (k+2)x(k+2) elements of $R_2$ where the coefficients are in NAF
 	 */
-	int polyVec2NAFDecom (const shared_ptr<ILParams> ilParams, int k, const RingMat &publicElementB, RingMat *psi)
+	int polyVec2NAFDecom (const shared_ptr<ILParams> ilParams, int k, const RingMat &pubElemB, RingMat *psi)
 	{
 		usint ringDimension = ilParams->GetCyclotomicOrder() >> 1;
 		usint m = k+2;
@@ -134,7 +134,7 @@ namespace lbcrypto {
 		for (usint ii=0; ii<m; ii++) {
 			int k_i;
 
-			auto tB = publicElementB(0, ii);
+			auto tB = pubElemB(0, ii);
 			if(tB.GetFormat() != COEFFICIENT)
 				tB.SwitchFormat();
 
@@ -182,7 +182,7 @@ namespace lbcrypto {
 		int32_t base,
 		usint ell, // number of attributes
 		const DiscreteUniformGenerator &dug,  // select according to uniform distribution
-		RingMat *publicElementB
+		RingMat *pubElemB
 	)
 	{
 		m_N = ilParams->GetCyclotomicOrder() >> 1;
@@ -198,12 +198,12 @@ namespace lbcrypto {
 
 		m_ell = ell;
 
-		for (usint i = 0; i < (*publicElementB).GetRows(); i++)
-			for (usint j = 0; j < (*publicElementB).GetCols(); j++) {
-				if((*publicElementB)(i, j).GetFormat() != COEFFICIENT)
-					(*publicElementB)(i,j).SwitchFormat();
-				(*publicElementB)(i, j).SetValues(dug.GenerateVector(m_N), COEFFICIENT); // always sample in COEFFICIENT format
-				(*publicElementB)(i, j).SwitchFormat(); // always kept in EVALUATION format
+		for (usint i = 0; i < (*pubElemB).GetRows(); i++)
+			for (usint j = 0; j < (*pubElemB).GetCols(); j++) {
+				if((*pubElemB)(i, j).GetFormat() != COEFFICIENT)
+					(*pubElemB)(i,j).SwitchFormat();
+				(*pubElemB)(i, j).SetValues(dug.GenerateVector(m_N), COEFFICIENT); // always sample in COEFFICIENT format
+				(*pubElemB)(i, j).SwitchFormat(); // always kept in EVALUATION format
 			}
 	}
 
@@ -240,8 +240,8 @@ namespace lbcrypto {
 	 */
 	void KPABE::EvalPK(
 		const shared_ptr<ILParams> ilParams,
-		const RingMat &publicElementB,
-		RingMat *evalPubElementBf
+		const RingMat &pubElemB,
+		RingMat *evalPubElemBf
 	)
 	{
 		auto zero_alloc = Poly::MakeAllocator(ilParams, EVALUATION);
@@ -261,21 +261,21 @@ namespace lbcrypto {
 		{
 
 			for (usint j = 0; j < m_m; j++)     // Negating Bis for bit decomposition
-				negpublicElementB(0, j) = publicElementB(2*i+1, j).Negate();
+				negpublicElementB(0, j) = pubElemB(2*i+1, j).Negate();
 
 			polyVec2BalDecom (ilParams, m_base, m_k, negpublicElementB, &psi);
 
 			/* Psi^T*C2 and B2*Psi */
 			for (usint j = 0; j < m_m; j++) { // the following two for loops are for vector matrix multiplication (a.k.a B(i+1) * BitDecompose(-Bi) and  gamma (0, 2) (for the second attribute of the circuit) * bitDecompose(-B))
-				wpublicElementB(i, j) = publicElementB(2*i+2, 0)*psi(0, j); // B2 * BD(-Bi)
+				wpublicElementB(i, j) = pubElemB(2*i+2, 0)*psi(0, j); // B2 * BD(-Bi)
 				for (usint k = 1; k < m_m; k++) {
-					wpublicElementB(i, j) += publicElementB(2*i+2, k)*psi(k, j);
+					wpublicElementB(i, j) += pubElemB(2*i+2, k)*psi(k, j);
 				}
 			}
 
 			for (usint j = 0; j < m_m; j++)
 			{
-				wpublicElementB(i, j) = publicElementB(0, j) - wpublicElementB(i, j);
+				wpublicElementB(i, j) = pubElemB(0, j) - wpublicElementB(i, j);
 			}
 		}
 
@@ -308,14 +308,14 @@ namespace lbcrypto {
 
 				for (usint j = 0; j < m_m; j++)
 				{
-					wpublicElementB(outStart+i, j) = publicElementB(0, j) - wpublicElementB(outStart+i, j);
+					wpublicElementB(outStart+i, j) = pubElemB(0, j) - wpublicElementB(outStart+i, j);
 				}
 			}
 		}
 
 		for (usint j = 0; j < m_m; j++)
 		{
-			(*evalPubElementBf)(0, j) = wpublicElementB(gateCnt-1, j);
+			(*evalPubElemBf)(0, j) = wpublicElementB(gateCnt-1, j);
 		}
 	}
 
@@ -327,7 +327,7 @@ namespace lbcrypto {
 	*/
 	void KPABE::EvalCT(
 			const shared_ptr<ILParams> ilParams,
-			const RingMat &pubElementB,
+			const RingMat &pubElemB,
 			const usint x[],  // Attributes
 			const RingMat &origCT,
 			usint *evalAttributes,
@@ -360,7 +360,7 @@ namespace lbcrypto {
 				wX[i] = x[0] - x[2*i+1]*x[2*i+2]; // calculating binary wire value
 
 				for (usint j = 0; j < m_m; j++)     // Negating Bis for bit decomposition
-					negB(0, j) = pubElementB(2*i+1, j).Negate();
+					negB(0, j) = pubElemB(2*i+1, j).Negate();
 
 				polyVec2BalDecom (ilParams, m_base, m_k, negB, &psi);
 
@@ -375,10 +375,10 @@ namespace lbcrypto {
 
 				/* Psi^T*C2 and B2*Psi */
 				for (usint j = 0; j < m_m; j++) { // the following two for loops are for vector matrix multiplication (a.k.a B(i+1) * BitDecompose(-Bi) and  gamma (0, 2) (for the second attribute of the circuit) * bitDecompose(-B))
-					wPublicElementB(i, j) = pubElementB(2*i+2, 0)*psi(0, j); // B2 * BD(-Bi)
+					wPublicElementB(i, j) = pubElemB(2*i+2, 0)*psi(0, j); // B2 * BD(-Bi)
 					wCT(i, j) += psi(0, j)*origCT(2*i+2, 0);  // BD(-Bi)*C2
 					for (usint k = 1; k < m_m; k++) {
-						wPublicElementB(i, j) += pubElementB(2*i+2, k)*psi(k, j);
+						wPublicElementB(i, j) += pubElemB(2*i+2, k)*psi(k, j);
 						wCT(i, j) += psi(k, j)*origCT(2*i+2, k);
 					}
 				}
@@ -386,7 +386,7 @@ namespace lbcrypto {
 				/* B0 - B2*R and C0 - x2*C1 - C2*R */
 				for (usint j = 0; j < m_m; j++)
 				{
-					wPublicElementB(i, j) = pubElementB(0, j) - wPublicElementB(i, j);
+					wPublicElementB(i, j) = pubElemB(0, j) - wPublicElementB(i, j);
 					wCT(i, j) = origCT(0, j) - wCT(i, j); // C0 - x2*C1 - R*C2
 				}
 			}
@@ -434,7 +434,7 @@ namespace lbcrypto {
 
 					for (usint j = 0; j < m_m; j++)
 					{
-						wPublicElementB(OutStart+i, j) = pubElementB(0, j) - wPublicElementB(OutStart+i, j);
+						wPublicElementB(OutStart+i, j) = pubElemB(0, j) - wPublicElementB(OutStart+i, j);
 						wCT(OutStart+i, j) = origCT(0, j) - wCT(OutStart+i, j);
 					}
 				}
@@ -455,8 +455,8 @@ namespace lbcrypto {
 	 */
 	void KPABE::Encrypt(
 		shared_ptr<ILParams> ilParams,
-		const RingMat &pubElementA,
-		const RingMat &pubElementB,
+		const RingMat &pubElemA,
+		const RingMat &pubElemB,
 		const Poly &d, //TBA
 		const usint x[],
 		const Poly &ptext,
@@ -491,7 +491,7 @@ namespace lbcrypto {
 		RingMat errCin(zero_alloc, 1, m_m);
 
 		for(usint j=0; j<m_m; j++) {
-			(*ctCin)(0, j) = pubElementA(0, j)*s + errA(0, j);
+			(*ctCin)(0, j) = pubElemA(0, j)*s + errA(0, j);
 		}
 		for(usint i=1; i<m_ell+2; i++) {
 			// Si values
@@ -507,12 +507,12 @@ namespace lbcrypto {
 
 			for(usint j=0; j<m_k; j++) {
 				if(x[i-1] != 0)
-					(*ctCin)(i, j) = (g(0, j) + pubElementB(i-1, j))*s + errCin(0, j);
+					(*ctCin)(i, j) = (g(0, j) + pubElemB(i-1, j))*s + errCin(0, j);
 				else
-					(*ctCin)(i, j) = pubElementB(i-1, j)*s + errCin(0, j);
+					(*ctCin)(i, j) = pubElemB(i-1, j)*s + errCin(0, j);
 			}
-			(*ctCin)(i, m_m-2) = pubElementB(i-1, m_m-2)*s + errCin(0, m_m-2);
-			(*ctCin)(i, m_m-1) = pubElementB(i-1, m_m-1)*s + errCin(0, m_m-1);
+			(*ctCin)(i, m_m-2) = pubElemB(i-1, m_m-2)*s + errCin(0, m_m-2);
+			(*ctCin)(i, m_m-1) = pubElemB(i-1, m_m-1)*s + errCin(0, m_m-1);
 		}
 	}
 
@@ -524,10 +524,10 @@ namespace lbcrypto {
 		const RingMat &B0,
 		const RingMat &C0,
 		const usint x[],
-		const RingMat &origPubElement,
+		const RingMat &origPubElem,
 		const RingMat &origCT,
 		usint *evalAttribute,
-		RingMat *evalPubElement,
+		RingMat *evalPubElem,
 		RingMat *evalCT
 	)
 	{
@@ -542,7 +542,7 @@ namespace lbcrypto {
 
 		/* -B1 */
 		for (usint j = 0; j < m_m; j++)     // Negating B1 for bit decomposition
-			negB(0, j) = origPubElement(0, j).Negate();
+			negB(0, j) = origPubElem(0, j).Negate();
 
 		polyVec2BalDecom (ilParams, m_base, m_k, negB, &psi);
 
@@ -556,16 +556,16 @@ namespace lbcrypto {
 
 		/* B2*Psi; Psi*C2 */
 		for (usint i = 0; i < m_m; i++) {
-			(*evalPubElement)(0, i) = origPubElement(1, 0) * psi(0, i);
+			(*evalPubElem)(0, i) = origPubElem(1, 0) * psi(0, i);
 			(*evalCT)(0, i) += psi(0, i) * origCT(1, 0);
 			for (usint j = 1; j < m_m; j++) {
-				(*evalPubElement)(0, i) += origPubElement(1, j) * psi(j, i);
+				(*evalPubElem)(0, i) += origPubElem(1, j) * psi(j, i);
 				(*evalCT)(0, i) += psi(j, i) * origCT(1, j);
 			}
 		}
 
 		for (usint i = 0; i < m_m; i++) {
-			(*evalPubElement)(0, i) = B0(0, i) - (*evalPubElement)(0, i);
+			(*evalPubElem)(0, i) = B0(0, i) - (*evalPubElem)(0, i);
 			(*evalCT)(0, i) = C0(0, i) - (*evalCT)(0, i);
 		}
 	}
@@ -573,10 +573,10 @@ namespace lbcrypto {
 	void KPABE::ANDGateEval(
 		shared_ptr<ILParams> ilParams,
 		const usint x[],
-		const RingMat &origPubElementB,
+		const RingMat &origPubElemB,
 		const RingMat &origCT,
 		usint *evalAttribute,
-		RingMat *evalPubElementBf,
+		RingMat *evalPubElemBf,
 		RingMat *evalCT
 	)
 	{
@@ -591,7 +591,7 @@ namespace lbcrypto {
 
 		/* -B1 */
 		for (usint j = 0; j < m_m; j++)     // Negating B1 for bit decomposition
-			negB(0, j) = origPubElementB(0, j).Negate();
+			negB(0, j) = origPubElemB(0, j).Negate();
 
 		polyVec2NAFDecom (ilParams, m_k, negB, &Psi);
 
@@ -605,10 +605,10 @@ namespace lbcrypto {
 
 		/* B2*Psi; Psi*C2 */
 		for (usint i = 0; i < m_m; i++) {
-			(*evalPubElementBf)(0, i) = origPubElementB(1, 0) * Psi(0, i);
+			(*evalPubElemBf)(0, i) = origPubElemB(1, 0) * Psi(0, i);
 			(*evalCT)(0, i) += Psi(0, i) * origCT(1, 0);
 			for (usint j = 1; j < m_m; j++) {
-				(*evalPubElementBf)(0, i) += origPubElementB(1, j) * Psi(j, i);
+				(*evalPubElemBf)(0, i) += origPubElemB(1, j) * Psi(j, i);
 				(*evalCT)(0, i) += Psi(j, i) * origCT(1, j);
 			}
 		}
@@ -619,8 +619,8 @@ namespace lbcrypto {
 	/* Note that only PKG can call this fcuntion as it needs the trapdoor T_A */
 	void KPABE::KeyGen(
 		const shared_ptr<ILParams> ilParams,
-		const RingMat &pubElementA,               // Public parameter $A \in R_q^{1 \times w}$
-		const RingMat &evalPubElementBf,                        // Public parameter $B \in R_q^{ell \times k}$
+		const RingMat &pubElemA,               // Public parameter $A \in R_q^{1 \times w}$
+		const RingMat &evalPubElemBf,                        // Public parameter $B \in R_q^{ell \times k}$
 		const Poly &beta,                     // public key $d \in R_q$
 		const RLWETrapdoorPair<Poly> &secElemTA, // Secret parameter $T_H \in R_q^{1 \times k} \times R_q^{1 \times k}$
 		DiscreteGaussianGenerator &dgg,          // to generate error terms (Gaussian)
@@ -631,7 +631,7 @@ namespace lbcrypto {
 
 		Poly newChallenge(ilParams, EVALUATION, true);
 		for (usint j = 0; j<m_m; j++)
-			newChallenge += (evalPubElementBf(0, j)*skB(j, 0));
+			newChallenge += (evalPubElemBf(0, j)*skB(j, 0));
 
 		newChallenge = beta - newChallenge;
 
@@ -640,7 +640,7 @@ namespace lbcrypto {
 		DiscreteGaussianGenerator dggLargeSigma(sqrt(s * s - c * c));
 
 		RingMat skA(Poly::MakeAllocator(ilParams, EVALUATION), m_m, 1);
-		skA = RLWETrapdoorUtility::GaussSamp(m_N, m_k, pubElementA, secElemTA, newChallenge, SIGMA, dgg, dggLargeSigma, m_base);
+		skA = RLWETrapdoorUtility::GaussSamp(m_N, m_k, pubElemA, secElemTA, newChallenge, SIGMA, dgg, dggLargeSigma, m_base);
 
 		for(usint i=0; i<m_m; i++)
 			(*sk)(0, i) = skA(i, 0);

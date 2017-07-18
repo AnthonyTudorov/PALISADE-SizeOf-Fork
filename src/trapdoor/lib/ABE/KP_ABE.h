@@ -69,7 +69,7 @@ namespace lbcrypto {
 	int polyVec2NAFDecom(
 			const shared_ptr<ILParams> ilParams,
 			int k,
-			const RingMat &publicElementB,
+			const RingMat &pubElemB,
 			RingMat *psi
 		);
 
@@ -89,7 +89,7 @@ namespace lbcrypto {
 			const shared_ptr<ILParams> ilParams,
 			int32_t base,
 			int k,
-			const RingMat &publicElementB,
+			const RingMat &publElemB,
 			RingMat *psi
 		);
 
@@ -125,7 +125,7 @@ public:
 			int32_t base,
 			usint ell, // number of attributes
 			const DiscreteUniformGenerator &dug, // select according to uniform distribution
-			RingMat *publicElementB
+			RingMat *pubElemB
 		);
 
 	/**
@@ -151,7 +151,7 @@ public:
 	*/
 	void EvalPK(
 			const shared_ptr<ILParams> ilParams,
-			const RingMat &publicElementB,
+			const RingMat &pubElemB,
 			RingMat *evalPubElementBf
 		);
 
@@ -168,7 +168,7 @@ public:
 	*/
 	void EvalCT(
 			const shared_ptr<ILParams> ilParams,
-			const RingMat &pubElementB,
+			const RingMat &pubElemB,
 			const usint x[],  //attributes
 			const RingMat &origCT, // original ciphtertext
 			usint *evalAttribute, // evaluated circuit
@@ -195,10 +195,10 @@ public:
 			const RingMat &B0, //TBA
 			const RingMat &C0, //TBA
 			const usint x[2],
-			const RingMat &origPubElementB,
+			const RingMat &origPubElemB,
 			const RingMat &origCT,
 			usint *evalAttribute, //attribute results
-			RingMat *evalPubElementBf,
+			RingMat *evalPubElemBf,
 			RingMat *evalCT
 		);
 
@@ -218,10 +218,10 @@ public:
 	void ANDGateEval(
 			const shared_ptr<ILParams> ilParams,
 			const usint x[2], //TBA
-			const RingMat &origPubElementB,
+			const RingMat &origPubElemB,
 			const RingMat &origCT,
 			usint *evalAttribute,
-			RingMat *evalPubElement,
+			RingMat *evalPubElem,
 			RingMat *evalCT
 		);
 
@@ -246,10 +246,10 @@ public:
 			const RingMat &B0, //TBA
 			const RingMat &C0, //TBA
 			const usint x[],
-			const RingMat &origPubElementB,
+			const RingMat &origPubElemB,
 			const RingMat &origCT,
 			usint *evalAttribute,
-			RingMat *evalPubElementBf,
+			RingMat *evalPubElemBf,
 			RingMat *evalCT
 		);
 
@@ -270,8 +270,8 @@ public:
 	*/
 	void Encrypt(
 			shared_ptr<ILParams> ilParams,
-			const RingMat &pubElementA,
-			const RingMat &pubElementB,
+			const RingMat &pubElemA,
+			const RingMat &pubElemB,
 			const Poly &d, //TBA
 			const usint x[],
 			const Poly &pt,
@@ -295,8 +295,8 @@ public:
 	*/
 	void KeyGen(
 			const shared_ptr<ILParams> ilParams,
-			const RingMat &pubElementA,
-			const RingMat &pubElementB,
+			const RingMat &pubElemA,
+			const RingMat &pubElemB,
 			const Poly &beta,
 			const RLWETrapdoorPair<Poly> &secElemTA,
 		    DiscreteGaussianGenerator &dgg,

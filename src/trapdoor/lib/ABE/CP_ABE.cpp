@@ -156,8 +156,8 @@ namespace lbcrypto {
 	void CPABE::Encrypt(
 		shared_ptr<ILParams> ilParams,
 		const RingMat &pubTA,
-		const RingMat &publicElemBPos,
-		const RingMat &publicElemBNeg,
+		const RingMat &pubElemBPos,
+		const RingMat &pubElemBNeg,
 		const Poly &u,
 		const int w[],                // Access structure {-1, 0, 1}
 		const Poly &pt,
@@ -200,20 +200,20 @@ namespace lbcrypto {
 		{
 			if(w[i] == 1) {
 				for(usint j=0; j<m_m; j++)
-					(*ctW)(iW+1, j) = publicElemBPos(i, j)*s  + err(j, iNoise);
+					(*ctW)(iW+1, j) = pubElemBPos(i, j)*s  + err(j, iNoise);
 				iNoise++;
 				iW++;
 			}
 			else if(w[i]==-1) {
 				for(usint j=0; j<m_m; j++)
-					(*ctW)(iW+1, j) = publicElemBNeg(i, j)*s + err(j, iNoise);
+					(*ctW)(iW+1, j) = pubElemBNeg(i, j)*s + err(j, iNoise);
 				iNoise++;
 				iW++;
 			}
 			else {
 				for(usint j=0; j<m_m; j++) {
-					(*cPos)(iAW, j) = publicElemBPos(i, j)*s  + err(j, iNoise);
-					(*cNeg)(iAW, j) = publicElemBNeg(i, j)*s + err(j, iNoise+1);
+					(*cPos)(iAW, j) = pubElemBPos(i, j)*s  + err(j, iNoise);
+					(*cNeg)(iAW, j) = pubElemBNeg(i, j)*s + err(j, iNoise+1);
 
 				}
 				iNoise+=2;
