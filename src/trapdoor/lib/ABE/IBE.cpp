@@ -58,7 +58,7 @@ namespace lbcrypto {
 		m_m = m_k + 2;
 		m_base = base;
 
-		return RLWETrapdoorUtility::TrapdoorGenwBase(ilParams, base, SIGMA);
+		return RLWETrapdoorUtility::TrapdoorGen(ilParams, SIGMA, base, true);
 	}
 
 	/**
@@ -99,7 +99,7 @@ namespace lbcrypto {
 		double s = SPECTRAL_BOUND(m_N, m_m - 2);
 		DiscreteGaussianGenerator dggLargeSigma(sqrt(s * s - c * c));
 
-		*sk = RLWETrapdoorUtility::GaussSamp(m_N, m_k, pubA, secTA, u, m_base, SIGMA, dgg, dggLargeSigma);
+		*sk = RLWETrapdoorUtility::GaussSamp(m_N, m_k, pubA, secTA, u, SIGMA, dgg, dggLargeSigma, m_base);
 	}
 
 

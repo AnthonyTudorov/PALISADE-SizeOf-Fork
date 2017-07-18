@@ -268,7 +268,7 @@ TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
 
 // Test of Gaussian Sampling using the UCSD integer perturbation sampling algorithm
 TEST(UTTrapdoor, TrapDoorGaussSampTest) {
-/*        bool dbg_flag = false;
+        bool dbg_flag = false;
 	DEBUG("in test");
 	usint m = 16;
 	usint n = m / 2;
@@ -332,7 +332,7 @@ TEST(UTTrapdoor, TrapDoorGaussSampTest) {
 	uEst.SwitchFormat();
 	u.SwitchFormat();
 
-	EXPECT_EQ(u, uEst);*/
+	EXPECT_EQ(u, uEst);
 
 	//std::cout << z << std::endl;
 

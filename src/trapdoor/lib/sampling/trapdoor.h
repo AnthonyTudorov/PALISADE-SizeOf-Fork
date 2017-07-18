@@ -75,11 +75,13 @@ public:
 	*
 	* @param params ring element parameters
 	* @param sttdev distribution parameter used in sampling noise polynomials of the trapdoor
+	* @param base base for digits
+	* @param bal flag for balanced (true) versus not-balanced (false) digit representation
 	* @return the trapdoor pair including the public key (matrix of rings) and trapdoor itself
 	*/
-	static inline std::pair<RingMat, RLWETrapdoorPair<Poly>> TrapdoorGen(shared_ptr<typename Poly::Params> params, int stddev);
+	static inline std::pair<RingMat, RLWETrapdoorPair<Poly>> TrapdoorGen(shared_ptr<typename Poly::Params> params, int stddev, int32_t base = 2, bool bal = false);
 
-	static inline std::pair<RingMat, RLWETrapdoorPair<Poly>> TrapdoorGenwBase(shared_ptr<typename Poly::Params> params, int32_t base, int stddev);
+//	static inline std::pair<RingMat, RLWETrapdoorPair<Poly>> TrapdoorGenwBase(shared_ptr<typename Poly::Params> params, int32_t base, int stddev);
 
 //	/**
 //	* Wrapper for TrapdoorGen(ILParams params, int stddev) - currently supports only Poly, support for other rings will be added later
@@ -108,8 +110,8 @@ public:
 	* @return the sampled vector (matrix)
 	*/
 	static inline RingMat GaussSamp(size_t n, size_t k, const RingMat& A, 
-		const RLWETrapdoorPair<Poly>& T, const Poly &u, int32_t base,
-		double sigma, Poly::DggType &dgg, Poly::DggType &dggLargeSigma);
+		const RLWETrapdoorPair<Poly>& T, const Poly &u, double sigma,
+		Poly::DggType &dgg, Poly::DggType &dggLargeSigma, int32_t base = 2);
 	/**
 	* New method for perturbation generation based by the new paper
 	*

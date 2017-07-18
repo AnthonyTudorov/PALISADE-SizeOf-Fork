@@ -44,12 +44,10 @@ int IBE_Test(int iter, int32_t base)
 	usint n = N*2;
 	usint k = 36;
 
-	std::cout << "step 1" << std::endl;
 	BigInteger q = BigInteger::ONE << (k-1);
 	//lbcrypto::NextQ(q, BigInteger::TWO, n, BigInteger("4"), BigInteger("4"));
 	q = lbcrypto::FirstPrime<BigInteger>(k,n);
 	BigInteger rootOfUnity(RootOfUnity(n, q));
-	std::cout << "step 2" << std::endl;
 
 	double val = q.ConvertToDouble();
 	double logTwo = log(val-1.0)/log(base)+1.0;
@@ -58,7 +56,6 @@ int IBE_Test(int iter, int32_t base)
 	std::cout << "modulus length in base " << base << ": "<< k_ << std::endl;
 	std::cout << "root of unity: " << rootOfUnity << std::endl;
 	std::cout << "Standard deviation: " << SIGMA << std::endl;
-	std::cout << "step 3" << std::endl;
 
 	usint m = k_+2;
 
@@ -70,7 +67,6 @@ int IBE_Test(int iter, int32_t base)
 	Poly::DugType dug = Poly::DugType();
 	dug.SetModulus(q);
 	BinaryUniformGenerator bug = BinaryUniformGenerator();
-	std::cout << "step 4" << std::endl;
 
 	// Precompuations for FTT
 	ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().PreCompute(rootOfUnity, n, q);
@@ -79,17 +75,14 @@ int IBE_Test(int iter, int32_t base)
 	double start, finish, avg_keygen, avg_enc, avg_dec;
 
 	IBE pkg, sender, receiver;
-	std::cout << "step 5" << std::endl;
 
 	start = currentDateTime();
 	auto A = pkg.Setup(ilParams, base, dug);
 	finish = currentDateTime();
 	std::cout << "Setup time : " << "\t" << (finish - start) << " ms" << std::endl;
-	std::cout << "step 6" << std::endl;
 
 	sender.Setup(ilParams, base);
 	receiver.Setup(ilParams, base);
-	std::cout << "step 7" << std::endl;
 
 	// Secret key for the output of the circuit
 	RingMat sk(zero_alloc, m, 1);
@@ -98,7 +91,6 @@ int IBE_Test(int iter, int32_t base)
 	Poly ptext(ilParams, COEFFICIENT, true);
 	// text after the decryption
 	Poly dtext(ilParams, EVALUATION, true);
-	std::cout << "step 8" << std::endl;
 
 	// ciphertext first and second parts
 	RingMat ctC0(Poly::MakeAllocator(ilParams, EVALUATION), 1, m);
@@ -106,12 +98,10 @@ int IBE_Test(int iter, int32_t base)
 
 	int failure = 0;
 	avg_keygen = avg_enc = avg_dec = 0.0;
-	std::cout << "step 9" << std::endl;
 
 	for(int i=0; i<iter; i++)
 	{
-		std::cout << "Iter no. " << i << std::endl;
-		std::cout << "step 10" << std::endl;
+	//	std::cout << "Iter no. " << i << std::endl;
 
 		Poly u(dug, ilParams, EVALUATION);
 

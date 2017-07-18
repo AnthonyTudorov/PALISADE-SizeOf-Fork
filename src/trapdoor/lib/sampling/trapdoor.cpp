@@ -42,46 +42,7 @@
 namespace lbcrypto {
 
 	//Trapdoor generation method as described in section 3.2 of https://eprint.iacr.org/2013/297.pdf (Construction 1)
-	std::pair<RingMat, RLWETrapdoorPair<Poly>> RLWETrapdoorUtility::TrapdoorGen(shared_ptr<ILParams> params, int stddev)
-	{
-		auto zero_alloc = Poly::MakeAllocator(params, EVALUATION);
-		auto gaussian_alloc = Poly::MakeDiscreteGaussianCoefficientAllocator(params, COEFFICIENT, stddev);
-		auto uniform_alloc = Poly::MakeDiscreteUniformAllocator(params, EVALUATION);
-	//	size_t n = params->GetCyclotomicOrder() / 2;
-		//  k ~= bitlength of q
-		// size_t k = params.GetModulus().GetMSB();
-		double val = params->GetModulus().ConvertToDouble();
-		//std::cout << "val : " << val << std::endl;
-		double logTwo = log(val-1.0)/log(2)+1.0;
-		//std::cout << "logTwo : " << logTwo << std::endl;
-		size_t k = (usint) floor(logTwo) + 1;    // = this->m_cryptoParameters.GetModulus();
-		//std::cout << "BitLength in Trapdoor: " << k << std::endl;
-
-		auto a = uniform_alloc();
-
-		RingMat r(zero_alloc, 1, k, gaussian_alloc);
-		RingMat e(zero_alloc, 1, k, gaussian_alloc);
-
-		//Converts discrete gaussians to Evaluation representation
-		r.SwitchFormat();
-		e.SwitchFormat();
-
-		RingMat g = RingMat(zero_alloc, 1, k).GadgetVector();
-
-		RingMat A(zero_alloc, 1, k+2);
-		A(0,0) = 1;
-		A(0,1) = *a;
-
-		for (size_t i = 0; i < k; ++i) {
-			A(0, i+2) = g(0, i) - (*a*r(0, i) + e(0, i));
-		}
-
-		return std::pair<RingMat, RLWETrapdoorPair<Poly>>(A, RLWETrapdoorPair<Poly>(r, e));
-
-	}
-
-	//Trapdoor generation method as described in section 3.2 of https://eprint.iacr.org/2013/297.pdf (Construction 1)
-	std::pair<RingMat, RLWETrapdoorPair<Poly>> RLWETrapdoorUtility::TrapdoorGenwBase(shared_ptr<ILParams> params, int32_t base, int stddev)
+	std::pair<RingMat, RLWETrapdoorPair<Poly>> RLWETrapdoorUtility::TrapdoorGen(shared_ptr<ILParams> params, int stddev, int32_t base, bool bal)
 	{
 		auto zero_alloc = Poly::MakeAllocator(params, EVALUATION);
 		auto gaussian_alloc = Poly::MakeDiscreteGaussianCoefficientAllocator(params, COEFFICIENT, stddev);
@@ -90,7 +51,12 @@ namespace lbcrypto {
 
 		double val = params->GetModulus().ConvertToDouble();
 		double logBase = log(val-1.0)/log(base)+1.0;
-		size_t k = (usint) floor(logBase) + 1;  /* (+1) is for balanced representation */
+
+		size_t k = (usint) floor(logBase);  /* (+1) is for balanced representation */
+
+		if(bal == true){
+			k++; // for a balanced digit representation, there is an extra digit required
+		}
 
 		auto a = uniform_alloc();
 
@@ -101,7 +67,6 @@ namespace lbcrypto {
 		r.SwitchFormat();
 		e.SwitchFormat();
 
-//		RingMat g = RingMat(zero_alloc, 1, k).GadgetVector(base);
 		RingMat g = RingMat(zero_alloc, 1, k).GadgetVector(base);
 
 		RingMat A(zero_alloc, 1, k+2);
@@ -120,8 +85,9 @@ namespace lbcrypto {
 	// Gaussian sampling based on the UCSD integer perturbation sampling
 
 	RingMat RLWETrapdoorUtility::GaussSamp(size_t n, size_t k, const RingMat& A, 
-		const RLWETrapdoorPair<Poly>& T, const Poly &u, int32_t base,
-		double sigma, Poly::DggType &dgg, Poly::DggType &dggLargeSigma) {
+		const RLWETrapdoorPair<Poly>& T, const Poly &u, double sigma,
+		Poly::DggType &dgg, Poly::DggType &dggLargeSigma, int32_t base){
+
 		const shared_ptr<ILParams> params = u.GetParams();
 		auto zero_alloc = Poly::MakeAllocator(params, EVALUATION);
 

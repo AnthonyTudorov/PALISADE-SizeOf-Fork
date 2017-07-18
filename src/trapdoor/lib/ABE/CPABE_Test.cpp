@@ -110,7 +110,7 @@ int CPABE_Test(usint iter)
 	avg_keygen = avg_enc = avg_dec = 0.0;
 	for(usint i=0; i<iter; i++)
 	{
-		std::cout << "Iter no. " << i << std::endl;
+//		std::cout << "Iter no. " << i << std::endl;
 
 		for(usint j=0; j<ell; j++)
 			S[j] = rand()%2;

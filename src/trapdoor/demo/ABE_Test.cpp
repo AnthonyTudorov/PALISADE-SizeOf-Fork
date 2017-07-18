@@ -7,15 +7,17 @@ using namespace lbcrypto;
 int main()
 {
 
-//	KPABE_NANDGateTest(10, 8);  // second argument is the base
-  //  KPABE_BenchmarkCircuitTest(10,8);
-	//KPABE_ANDGateTest(100);
-	//KPABE_APolicyCircuitTest(10);
+	std::cout << "-------Start demo for KP-ABE-------" << std::endl;
+	KPABE_BenchmarkCircuitTest(1,8);
+	std::cout << "-------End demo for KP-ABE-------" << std::endl << std::endl;
 
+	std::cout << "-------Start demo for CP-ABE-------" << std::endl;
+	CPABE_Test(1);
+	std::cout << "-------End demo for CP-ABE-------" << std::endl << std::endl;
 
-//	CPABE_Test(10);
+	std::cout << "-------Start demo for IBE-------" << std::endl;
+	IBE_Test(1,16);
+	std::cout << "-------End demo for IBE-------" << std::endl << std::endl;
 
-
-    IBE_Test(10, 16);
 	return 0;
 }
