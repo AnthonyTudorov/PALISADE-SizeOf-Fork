@@ -134,7 +134,7 @@ namespace lbcrypto {
 			 *
 			 * @return the resulting matrix
              */
-            inline MatrixStrassen<Element> GadgetVector() const;
+            inline MatrixStrassen<Element> GadgetVector(int32_t base = 2) const;
 
             /**
              * Computes the infinity norm

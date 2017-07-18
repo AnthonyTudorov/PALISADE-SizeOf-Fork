@@ -145,17 +145,12 @@ namespace lbcrypto {
             Matrix<Element>& Identity();
 
             /**
-             * Sets the first row to be powers of two
-			 *
-			 * @return the resulting matrix
-             */
-            Matrix<Element> GadgetVector() const;
-            /**
-             * Sets the first row to be powers of two
+             * Sets the first row to be powers of two for when the base is two
              *
+             * @param base is the base the digits of the matrix are represented in
              * @return the resulting matrix
              */
-             Matrix<Element> GadgetVector(usint base) const;
+             Matrix<Element> GadgetVector(int32_t base = 2) const;
 
             /**
              * Computes the infinity norm
