@@ -650,14 +650,6 @@ public:
 	void Decompose();
 
 	/**
-	 * @brief Interleaves values in the element with odd indices being all zeros.
-	 */
-	std::vector<PolyImpl> BinaryDecompose(usint baseBits) const;
-
-
-	PolyImpl GetBinaryDigitAtIndexForBase(usint index, usint base) const;
-
-	/**
 	 * @brief Returns true if the vector is empty/ m_values==NULL
 	 */
 	bool IsEmpty() const;

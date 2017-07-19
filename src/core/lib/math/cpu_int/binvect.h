@@ -272,15 +272,6 @@ public:
 	}
 
 	/**
-		 * Returns a vector of digit at a specific index for all entries for a given number base.
-		 *
-		 * @param index is the index to return the digit from in all entries.
-		 * @param base is the base to use for the operation.
-		 * @return is the resulting vector.
-		*/
-		BigVectorImpl GetBinaryDigitAtIndexForBase(usint index, usint base) const;
-
-	/**
 	* operators to get a value at an index.
 	* @param idx is the index to get a value at.
 	* @return is the value at the index. return NULL if invalid index.
