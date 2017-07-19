@@ -873,7 +873,7 @@ std::vector<PolyImpl<ModType,IntType,VecType,ParmType>> PolyImpl<ModType,IntType
 
 
 	for (usint i = 0; i < nWindows; ++i) {
-			xDigit.SetValues( x.GetValues().GetDigitAtIndexForBase(i*baseBits + 1, 1 << baseBits), x.GetFormat() );
+			xDigit.SetValues( x.GetValues().GetDigitAtIndexForBase(i+1, 1 << baseBits), x.GetFormat() );
 			if( evalModeAnswer )
 				xDigit.SwitchFormat();
 			result.push_back(xDigit);

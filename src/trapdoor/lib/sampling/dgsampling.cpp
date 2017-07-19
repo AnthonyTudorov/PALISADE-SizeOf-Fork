@@ -107,18 +107,10 @@ namespace lbcrypto {
 			h[i] = sqrt(base*(1 - 1 / (k - (i - 1))));
 
 		// c can be pre-computed as it only depends on the modulus
-		if(base == 2)
-			c(0, 0) = modulus.GetDigitAtIndexForBase(1, base) / base;
-		else
-			c(0, 0) = modulus.GetDigitAtIndex(1, base) / base;
+		c(0, 0) = modulus.GetDigitAtIndexForBase(1, base) / base;
 
 		for (size_t i = 1; i < k; i++)
-		{
-			if(base == 2)
-				c(i, 0) = (c(i - 1, 0) + modulus.GetDigitAtIndexForBase(i + 1, base)) / base;
-			else
-				c(i, 0) = (c(i - 1, 0) + modulus.GetDigitAtIndex(i + 1, base)) / base;
-		}
+			c(i, 0) = (c(i - 1, 0) + modulus.GetDigitAtIndexForBase(i + 1, base)) / base;
 
 #pragma omp parallel for
 		for (size_t j = 0; j < u.GetLength(); j++)
@@ -134,36 +126,21 @@ namespace lbcrypto {
 			// int32_t cast is needed here as GetDigitAtIndexForBase returns an unsigned int
 			// when the result is negative, a(0,0) gets values close to 2^32 if the cast is not used
 			//****a(0, 0) = ((int32_t)(v.GetDigitAtIndexForBase(1, base)) - p[0]) / base;
-			if(base == 2)
-				a(0, 0) = ((int32_t)(v.GetDigitAtIndexForBase(1, base)) - p[0]) / base;
-			else
-				a(0, 0) = ((int32_t)(v.GetDigitAtIndex(1, base)) - p[0]) / base;
+			a(0, 0) = ((int32_t)(v.GetDigitAtIndexForBase(1, base)) - p[0]) / base;
 
 			for (size_t i = 1; i < k; i++){
-				if(base == 2)
-					a(i, 0) = (a(i - 1, 0) + (int32_t)(v.GetDigitAtIndexForBase(i + 1, base)) - p[i]) / base;
-				else
-					a(i, 0) = (a(i - 1, 0) + (int32_t)(v.GetDigitAtIndex(i + 1, base)) - p[i]) / base;
+				a(i, 0) = (a(i - 1, 0) + (int32_t)(v.GetDigitAtIndexForBase(i + 1, base)) - p[i]) / base;
 			}
 			vector<int32_t> zj(k);
 
 			LatticeGaussSampUtility::SampleC(c, k, u.GetLength(), sigma, dgg, &a, &zj);
 
-			if(base == 2)
-				(*z)(0, j) = base*zj[0] + modulus.GetDigitAtIndexForBase(1, base)*zj[k - 1] + v.GetDigitAtIndexForBase(1, base);
-			else
-				(*z)(0, j) = base*zj[0] + modulus.GetDigitAtIndex(1, base)*zj[k - 1] + v.GetDigitAtIndex(1, base);
+			(*z)(0, j) = base*zj[0] + modulus.GetDigitAtIndexForBase(1, base)*zj[k - 1] + v.GetDigitAtIndexForBase(1, base);
 
 			for (size_t i = 1; i < k - 1; i++){
-				if(base == 2)
 					(*z)(i, j) = base*zj[i] - zj[i - 1] + modulus.GetDigitAtIndexForBase(i + 1, base)*zj[k - 1] + v.GetDigitAtIndexForBase(i + 1, base);
-				else
-					(*z)(i, j) = base*zj[i] - zj[i - 1] + modulus.GetDigitAtIndex(i + 1, base)*zj[k - 1] + v.GetDigitAtIndex(i + 1, base);
 			}
-			if(base == 2)
-				(*z)(k - 1, j) = modulus.GetDigitAtIndexForBase(k, base)*zj[k - 1] - zj[k - 2] + v.GetDigitAtIndexForBase(k, base);
-			else
-				(*z)(k - 1, j) = modulus.GetDigitAtIndex(k, base)*zj[k - 1] - zj[k - 2] + v.GetDigitAtIndex(k, base);
+			(*z)(k - 1, j) = modulus.GetDigitAtIndexForBase(k, base)*zj[k - 1] - zj[k - 2] + v.GetDigitAtIndexForBase(k, base);
 		}
 
 	}

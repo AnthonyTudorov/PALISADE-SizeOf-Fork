@@ -601,23 +601,14 @@ namespace cpu_int{
     */
     usint GetLengthForBase(usint base) const {return GetMSB();}
 
-    /**
-    * Get the number of digits using a specific base - only power-of-2 bases are currently supported.
-    *
-    * @param index is the location to return value from in the specific base.
-    * @param base is the base with which to determine length in.
-    * @return the length of the representation in a specific base.
-    */
+	/**
+	* Get a specific digit at "digit" index; big integer is seen as an array of digits, where a 0 <= digit < base
+	*
+	* @param index is the "digit" index of the requested digit
+	* @param base is the base with which to determine length in.
+	* @return is the requested digit
+	*/
     usint GetDigitAtIndexForBase(usint index, usint base) const;
-
-    /**
-    * Get a specific digit at "digit" index; big integer is seen as an array of digits, where a 0 <= digit < base
-    *
-    * @param index is the "digit" index of the requested digit
-    * @param base is the base with which to determine length in.
-    * @return is the requested digit
-    */
-    usint GetDigitAtIndex(usint index, usint base) const;
 
 	/**
 	* Convert a string representation of a binary number to a decimal BigInteger.
