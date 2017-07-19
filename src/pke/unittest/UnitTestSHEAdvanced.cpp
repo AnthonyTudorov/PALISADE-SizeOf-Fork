@@ -35,6 +35,7 @@
 
 #include "utils/debug.h"
 #include "utils/parmfactory.h"
+#include "lattice/elemparamfactory.h"
 
 #include <cmath>
 
@@ -67,7 +68,7 @@ TEST_F(UTSHEAdvanced, test_eval_mult_single_crt) {
 	usint relin = 1;
 	float stdDev = 4;
 
-	shared_ptr<Poly::Params> parms = GenerateTestParams<Poly::Params, Poly::Integer>(m, dcrtBits);
+	shared_ptr<Poly::Params> parms = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(m, 50);
 
 	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(parms, 5 + 4, relin, stdDev);
 	cc->Enable(ENCRYPTION);
@@ -232,7 +233,7 @@ TEST_F(UTSHEAdvanced, test_eval_add_single_crt) {
 
 	float stdDev = 4;
 
-	shared_ptr<Poly::Params> parms = GenerateTestParams<Poly::Params, Poly::Integer>(m, dcrtBits);
+	shared_ptr<Poly::Params> parms = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(m);
 
 	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(parms, 8, 1, stdDev);
 	// plaintextmodulus // 5 + 3,

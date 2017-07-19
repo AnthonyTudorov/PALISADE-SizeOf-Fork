@@ -39,6 +39,7 @@
 #include "math/distrgen.h"
 #include "lattice/poly.h"
 #include "utils/parmfactory.h"
+#include "lattice/elemparamfactory.h"
 
 using namespace std;
 using namespace lbcrypto;
@@ -159,7 +160,7 @@ TEST(UTPoly, ops_tests) {
 	Poly::Integer primitiveRootOfUnity("22");
 
 	operators_tests<BigInteger, BigVector, ILParams, Poly>(
-			GenerateTestParams<ILParams,BigInteger>(m, primeModulus, primitiveRootOfUnity) );
+			ElemParamFactory::GenElemParams<ILParams,BigInteger>(m) );
 }
 
 TEST(UTILNativeVector2n, ops_tests) {
@@ -168,7 +169,7 @@ TEST(UTILNativeVector2n, ops_tests) {
 	native_int::BigInteger primitiveRootOfUnity("22");
 
 	operators_tests<native_int::BigInteger, native_int::BigVector, native_int::ILParams, native_int::Poly>(
-			GenerateTestParams<native_int::ILParams,native_int::BigInteger>(m, primeModulus, primitiveRootOfUnity) );
+			ElemParamFactory::GenElemParams<native_int::ILParams,native_int::BigInteger>(m) );
 }
 
 TEST(UTILDCRT2n, ops_tests) {

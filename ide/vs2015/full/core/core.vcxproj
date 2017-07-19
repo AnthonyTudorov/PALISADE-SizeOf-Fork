@@ -26,6 +26,7 @@
     <ClCompile Include="..\..\..\..\src\core\lib\encoding\signedintplaintextencoding.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\lattice\dcrtpoly-impl.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\lattice\dcrtpoly.cpp" />
+    <ClCompile Include="..\..\..\..\src\core\lib\lattice\elemparamfactory.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\lattice\elemparams.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\lattice\field2n.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\lattice\ildcrtparams.cpp" />
@@ -64,6 +65,7 @@
     <ClInclude Include="..\..\..\..\src\core\lib\encoding\plaintext.h" />
     <ClInclude Include="..\..\..\..\src\core\lib\encoding\signedintplaintextencoding.h" />
     <ClInclude Include="..\..\..\..\src\core\lib\lattice\dcrtpoly.h" />
+    <ClInclude Include="..\..\..\..\src\core\lib\lattice\elemparamfactory.h" />
     <ClInclude Include="..\..\..\..\src\core\lib\lattice\elemparams.h" />
     <ClInclude Include="..\..\..\..\src\core\lib\lattice\field2n.h" />
     <ClInclude Include="..\..\..\..\src\core\lib\lattice\ildcrtparams.h" />
