@@ -14,10 +14,12 @@ int KPABE_NANDGateTest(usint iter, int32_t base);
 int KPABE_ANDGateTest(usint iter);
 int KPABE_BenchmarkCircuitTest(usint iter, int32_t base);
 int KPABE_APolicyCircuitTest(usint iter);
-void CheckSecretKey(usint m, RingMat &a, RingMat &evalBf, RingMat &sk, Poly &pubElemBeta);
+void CheckSecretKeyKP(usint m, RingMat &a, RingMat &evalBf, RingMat &sk, Poly &pubElemBeta);
 usint EvalNANDTree(usint *x, usint ell);
 int IBE_Test(int iter, int32_t base);
-int testKeyGenCP(const shared_ptr<ILParams> ilParams, usint m, usint ell, const usint s[], const RingMat &a, const RingMat &pubElemBPos, const RingMat &pubElemBNeg, const Poly &pubElemU, RingMat &sk);
+int TestKeyGenCP(const shared_ptr<ILParams> ilParams, usint m, usint ell, const usint s[], const RingMat &a, const RingMat &pubElemBPos, const RingMat &pubElemBNeg, const Poly &pubElemU, RingMat &sk);
+int CPABE_Test(usint iter);
+
 
 int main()
 {
@@ -139,7 +141,7 @@ int KPABE_BenchmarkCircuitTest(usint iter, int32_t base)
 		pkg.KeyGen(ilParams, trapdoorA.first, evalBf, pubElemBeta, trapdoorA.second, dgg, &sk);
 		finish = currentDateTime();
 		avg_keygen += (finish - start);
-		CheckSecretKey(m, trapdoorA.first, evalBf, sk, pubElemBeta);
+		CheckSecretKeyKP(m, trapdoorA.first, evalBf, sk, pubElemBeta);
 
 		start = currentDateTime();
 		receiver.Decrypt(ilParams, sk, ctCA, evalCf, c1, &dtext);
@@ -277,7 +279,6 @@ int KPABE_APolicyCircuitTest(usint iter)
 		receiver.ANDGateEval(ilParams, wx, wB, wC, &y, &evalBf, &evalCf);
 
 		pkg.KeyGen(ilParams, A.first, evalBf, pubElemBeta, A.second, dgg, &sKey);
-		//CheckSecretKey(m, A.first, Bf, sKey, beta);
 
 		receiver.Decrypt(ilParams, sKey, ctCA, evalCf, c1, &dtext);
 
@@ -394,7 +395,6 @@ int KPABE_NANDGateTest(usint iter, int32_t base)
 		pkg.KeyGen(ilParams, A.first, pubElemBf, pubElemBeta, A.second, dgg, &sk);
 		finish = currentDateTime();
 		avg_keygen += (finish - start);
-		//CheckSecretKey(m, A.first, Bf, sKey, beta);
 
 		start = currentDateTime();
 		receiver.Decrypt(ilParams, sk, ctCA, ctCf, c1, &dtext);
@@ -521,7 +521,7 @@ int KPABE_ANDGateTest(usint iter)
 }
 
 
-void CheckSecretKey(usint m, RingMat &a, RingMat &evalBf, RingMat &sk, Poly &pubElemBeta)
+void CheckSecretKeyKP(usint m, RingMat &a, RingMat &evalBf, RingMat &sk, Poly &pubElemBeta)
 {
 	Poly t(pubElemBeta);
 	t.SetValuesToZero();
@@ -761,7 +761,7 @@ int CPABE_Test(usint iter)
 		finish = currentDateTime();
 		avg_keygen += (finish - start);
 		std::cout << "Key generation time : " << "\t" << (finish - start) << " ms" << std::endl;
-		testKeyGenCP(ilParams, m, ell, s, trapdoor.first, pubElemBPos, pubElemBNeg, u, sk);
+		TestKeyGenCP(ilParams, m, ell, s, trapdoor.first, pubElemBPos, pubElemBNeg, u, sk);
 
 
 		RingMat ctW(Poly::MakeAllocator(ilParams, EVALUATION), lenW+1, m);
@@ -803,8 +803,7 @@ int CPABE_Test(usint iter)
 	return 0;
 }
 
-
-int testKeyGenCP(
+int TestKeyGenCP(
 	const shared_ptr<ILParams> ilParams,
 	const usint m,
 	const usint ell,

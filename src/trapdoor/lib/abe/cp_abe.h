@@ -194,6 +194,4 @@ namespace lbcrypto {
 	};
 }
 
-int CPABE_Test(usint iter);
-
 #endif /* TRAPDOOR_LIB_CPABE_ABE_H_ */
