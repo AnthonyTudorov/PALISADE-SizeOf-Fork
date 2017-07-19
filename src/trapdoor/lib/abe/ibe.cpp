@@ -33,7 +33,7 @@
  * https://link.springer.com/content/pdf/10.1007/978-3-642-34704-7.pdf#page=333
  */
 
-#include "IBE.h"
+#include "ibe.h"
 
 namespace lbcrypto {
 
@@ -89,7 +89,7 @@ namespace lbcrypto {
 	void IBE::KeyGen(
 		const shared_ptr<ILParams> ilParams,
 		const RingMat &pubA,                         // Public parameter $B \in R_q^{ell \times k}$
-		const Poly &u,                  	  // public key of the user $u \in R_q$
+		const Poly &pubElemD,                  	  // public key of the user $u \in R_q$
 		const RLWETrapdoorPair<Poly> &secTA,  // Secret parameter $T_H \in R_q^{1 \times k} \times R_q^{1 \times k}$
 		DiscreteGaussianGenerator &dgg,           // to generate error terms (Gaussian)
 		RingMat *sk                             // Secret key                          	// Secret key
@@ -99,7 +99,7 @@ namespace lbcrypto {
 		double s = SPECTRAL_BOUND(m_N, m_m - 2);
 		DiscreteGaussianGenerator dggLargeSigma(sqrt(s * s - c * c));
 
-		*sk = RLWETrapdoorUtility::GaussSamp(m_N, m_k, pubA, secTA, u, SIGMA, dgg, dggLargeSigma, m_base);
+		*sk = RLWETrapdoorUtility::GaussSamp(m_N, m_k, pubA, secTA, pubElemD, SIGMA, dgg, dggLargeSigma, m_base);
 	}
 
 
@@ -109,7 +109,7 @@ namespace lbcrypto {
 	void IBE::Encrypt(
 		shared_ptr<ILParams> ilParams,
 		const RingMat &pubA,
-		const Poly &u,
+		const Poly &pubElemD,
 		const Poly &ptext,
 		const DiscreteGaussianGenerator &dgg, // to generate error terms (Gaussian)
 		DiscreteUniformGenerator &dug,  // select according to uniform distribution
@@ -132,7 +132,7 @@ namespace lbcrypto {
 		qHalf.SwitchFormat();
 		qHalf.AddILElementOne();
 
-		*ctC1 = s*u + ptext*qHalf  + err(m_m, 0);
+		*ctC1 = s*pubElemD + ptext*qHalf  + err(m_m, 0);
 	}
 
 	/*

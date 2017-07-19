@@ -85,7 +85,7 @@ namespace lbcrypto {
 				int32_t base,
 				const usint ell, // number of attributes
 				const DiscreteUniformGenerator &dug,  // select according to uniform distribution
-				Poly *u, //TBD
+				Poly *pubElemD,
 				RingMat *pubElemBPos,
 				RingMat *pubElemBNeg
 			);
@@ -120,7 +120,7 @@ namespace lbcrypto {
 				const RingMat &pubTA,                         // Public trapdoor parameter
 				const RingMat &pubElemBPos,                         // Public parameter $B \in R_q^{ell \times k}$
 				const RingMat &pubElemBNeg,                         // Public parameter $B \in R_q^{ell \times k}$
-				const Poly &u,                  // public key $d \in R_q$
+				const Poly &pubElemD,                  // public key $d \in R_q$
 				const RLWETrapdoorPair<Poly> &secTA, // Secret parameter $T_H \in R_q^{1 \times k} \times R_q^{1 \times k}$
 				DiscreteGaussianGenerator &dgg,          // to generate error terms (Gaussian)
 				RingMat *sk                           // Secret key

@@ -32,7 +32,7 @@
  * this paper: https://eprint.iacr.org/2017/601.pdf
  */
 
-#include "KP_ABE.h"
+#include "kp_abe.h"
 
 namespace lbcrypto {
 
@@ -76,7 +76,7 @@ namespace lbcrypto {
 #if MATHBACKEND == 7
 						coeff_i = coeff_i+base;    // math backend 7
 #else //if MATHBACKEND == 2
-						coeff_i = coeff_i+Bigbase;    // math backend 2
+						coeff_i = coeff_i+bigBase;    // math backend 2
 #endif
 						(*psi)(j, ii).SetValAtIndex(i, q-BigInteger(digit_i));
 					}
@@ -85,7 +85,7 @@ namespace lbcrypto {
 #if MATHBACKEND == 7
 							coeff_i = coeff_i+base;  // math backend 7
 #else //if MATHBACKEND == 2
-							coeff_i = coeff_i+Bigbase;    // math backend 2
+							coeff_i = coeff_i+bigBase;    // math backend 2
 #endif
 							(*psi)(j, ii).SetValAtIndex(i, q-BigInteger(digit_i));
 						}
@@ -521,8 +521,8 @@ namespace lbcrypto {
 	 */
 	void KPABE::NANDGateEval(
 		const shared_ptr<ILParams> ilParams,
-		const RingMat &B0,
-		const RingMat &C0,
+		const RingMat &pubElemB0,
+		const RingMat &ctC0,
 		const usint x[],
 		const RingMat &origPubElem,
 		const RingMat &origCT,
@@ -565,8 +565,8 @@ namespace lbcrypto {
 		}
 
 		for (usint i = 0; i < m_m; i++) {
-			(*evalPubElem)(0, i) = B0(0, i) - (*evalPubElem)(0, i);
-			(*evalCT)(0, i) = C0(0, i) - (*evalCT)(0, i);
+			(*evalPubElem)(0, i) = pubElemB0(0, i) - (*evalPubElem)(0, i);
+			(*evalCT)(0, i) = ctC0(0, i) - (*evalCT)(0, i);
 		}
 	}
 
@@ -621,7 +621,7 @@ namespace lbcrypto {
 		const shared_ptr<ILParams> ilParams,
 		const RingMat &pubElemA,               // Public parameter $A \in R_q^{1 \times w}$
 		const RingMat &evalPubElemBf,                        // Public parameter $B \in R_q^{ell \times k}$
-		const Poly &beta,                     // public key $d \in R_q$
+		const Poly &publicElemBeta,                     // public key $d \in R_q$
 		const RLWETrapdoorPair<Poly> &secElemTA, // Secret parameter $T_H \in R_q^{1 \times k} \times R_q^{1 \times k}$
 		DiscreteGaussianGenerator &dgg,          // to generate error terms (Gaussian)
 		RingMat *sk                           // Secret key
@@ -633,7 +633,7 @@ namespace lbcrypto {
 		for (usint j = 0; j<m_m; j++)
 			newChallenge += (evalPubElemBf(0, j)*skB(j, 0));
 
-		newChallenge = beta - newChallenge;
+		newChallenge = publicElemBeta - newChallenge;
 
 		double c = 2 * SIGMA;
 		double s = SPECTRAL_BOUND(m_N, m_m - 2);

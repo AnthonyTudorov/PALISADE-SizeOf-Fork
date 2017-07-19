@@ -181,8 +181,8 @@ public:
 	* any Boolean function can be constructed from NAND gates
 	*
 	* @param ilParams parameter set
-	* @param &B0
-	* @param &C0
+	* @param &pubElemB0
+	* @param &ctC0
 	* @param x[] array of attributes
 	* @param &origPubElementB original matrix of public vectors for each attribute
 	* @param &origCT original ciphertext
@@ -192,8 +192,8 @@ public:
 	*/
 	void NANDGateEval(
 			const shared_ptr<ILParams> ilParams,
-			const RingMat &B0, //TBA
-			const RingMat &C0, //TBA
+			const RingMat &pubElemB0, //TBA
+			const RingMat &ctC0, //TBA
 			const usint x[2],
 			const RingMat &origPubElemB,
 			const RingMat &origCT,
@@ -232,8 +232,8 @@ public:
 	* TO BE IMPLEMENTED
 	*
 	* @param ilParams parameter set
-	* @param &B0
-	* @param &C0
+	* @param &pubElemB0
+	* @param &ctC0
 	* @param x[] array of attributes
 	* @param &origPubElementB original matrix of public vectors for each attribute
 	* @param &origCT original ciphertext
@@ -243,8 +243,8 @@ public:
 	*/
 	void NANDwNAF(
 			const shared_ptr<ILParams> ilParams,
-			const RingMat &B0, //TBA
-			const RingMat &C0, //TBA
+			const RingMat &pubElemB0,
+			const RingMat &ctC0,
 			const usint x[],
 			const RingMat &origPubElemB,
 			const RingMat &origCT,
@@ -331,16 +331,6 @@ private:
 	int32_t m_base; //base, a power of two
 };
 
-const std::vector<std::vector<int>> ternaryLUT = { { 1, 2 }, { 3, 4, 5 } };
-
 }
-
-/*
- * Functions for testing
- */
-int KPABE_NANDGateTest(usint iter, int32_t base);
-int KPABE_ANDGateTest(usint iter);
-int KPABE_BenchmarkCircuitTest(usint iter, int32_t base);
-int KPABE_APolicyCircuitTest(int iter);
 
 #endif /* TRAPDOOR_LIB_ABE_ABE_H_ */

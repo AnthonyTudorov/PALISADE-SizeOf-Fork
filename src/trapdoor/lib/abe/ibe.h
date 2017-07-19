@@ -105,7 +105,7 @@ namespace lbcrypto {
 			void KeyGen(
 				const shared_ptr<ILParams> ilParams,
 				const RingMat &pubA,
-				const Poly &u,
+				const Poly &pubElemD,
 				const RLWETrapdoorPair<Poly> &secTA,
 				DiscreteGaussianGenerator &dgg,
 				RingMat *sk
@@ -114,7 +114,7 @@ namespace lbcrypto {
 			* Encrypt Function
 			*
 			* @param ilParams parameter set
-			* @param &pubA public element TBD
+			* @param &pubA public element
 			* @param &u TBD public element d sampled as dug
 			* @param &ptext plaintext
 			* @param &dgg to generate error terms (Gaussian)
@@ -159,7 +159,5 @@ namespace lbcrypto {
 			usint m_base;
 	};
 }
-
-int IBE_Test(int iter, int32_t base);
 
 #endif /* TRAPDOOR_LIB_CPABE_ABE_H_ */

@@ -5,7 +5,7 @@
  *      Author: savas
  */
 
-#include "CP_ABE.h"
+#include "cp_abe.h"
 
 namespace lbcrypto {
 
@@ -19,7 +19,7 @@ namespace lbcrypto {
 		int32_t base,
 		const usint ell, // number of attributes
 		const DiscreteUniformGenerator &dug,  // select according to uniform distribution
-		Poly *u,			  // dug polynomial generated based on algorithm
+		Poly *pubElemD,			  // dug polynomial generated based on algorithm
 		RingMat *pubElemBPos, // Bi +, for each attribute, there is a vector of polynomials for when an attribute is equal to 1
 		RingMat *pubElemBNeg  // Bi -, for each attribute, there is a vector of polynomials for when an attribute is equal to 0
 	)
@@ -35,10 +35,10 @@ namespace lbcrypto {
 		m_ell = ell;
 		m_base = base;
 
-		if(u->GetFormat() != COEFFICIENT)
-			u->SwitchFormat();
-		u->SetValues(dug.GenerateVector(m_N), COEFFICIENT); // always sample in COEFFICIENT format
-		u->SwitchFormat(); // always kept in EVALUATION format
+		if(pubElemD->GetFormat() != COEFFICIENT)
+			pubElemD->SwitchFormat();
+		pubElemD->SetValues(dug.GenerateVector(m_N), COEFFICIENT); // always sample in COEFFICIENT format
+		pubElemD->SwitchFormat(); // always kept in EVALUATION format
 
 		for (usint i = 0; i < pubElemBPos->GetRows(); i++)
 			for (usint j = 0; j < pubElemBPos->GetCols(); j++) {
@@ -92,7 +92,7 @@ namespace lbcrypto {
 		const RingMat &pubTA,                         	// Public parameter from trapdoor sampled from R_q^{ell \times k}$
 		const RingMat &pubElemBPos,            // Public parameter B positive sampled from R_q^{ell \times k}$
 		const RingMat &pubElemBNeg,            // Public parameter B negative sampled from R_q^{ell \times k}$
-		const Poly &u,                  		// public parameter $d \in R_q$
+		const Poly &pubElemD,                  		// public parameter $d \in R_q$
 		const RLWETrapdoorPair<Poly> &secTA, 	// Secret parameter from trapdoor $T_H \in R_q^{1 \times k} \times R_q^{1 \times k}$
 		DiscreteGaussianGenerator &dgg,          	// to generate error terms (Gaussian)
 		RingMat *sk                           	// Secret key
@@ -129,7 +129,7 @@ namespace lbcrypto {
 			y += z_vectors.at(i);
 		}
 
-		y = u - y;
+		y = pubElemD - y;
 
 		double c = 2 * SIGMA;
 		double sb = SPECTRAL_BOUND(m_N, m_m - 2);
@@ -158,9 +158,9 @@ namespace lbcrypto {
 		const RingMat &pubTA,
 		const RingMat &pubElemBPos,
 		const RingMat &pubElemBNeg,
-		const Poly &u,
+		const Poly &pubElemD,
 		const int w[],                // Access structure {-1, 0, 1}
-		const Poly &pt,
+		const Poly &ptext,
 		DiscreteGaussianGenerator &dgg, // to generate error terms (Gaussian)
 		DiscreteUniformGenerator &dug,  // select according to uniform distribution
 		BinaryUniformGenerator &bug,    // select according to uniform distribution binary
@@ -231,7 +231,7 @@ namespace lbcrypto {
 		err1.SetValues(dgg.GenerateVector(m_N, ilParams->GetModulus()), COEFFICIENT);
 		err1.SwitchFormat();
 
-		*ctC1 = s*u + err1 + pt*qHalf;
+		*ctC1 = s*pubElemD + err1 + ptext*qHalf;
 	}
 
 	/*
