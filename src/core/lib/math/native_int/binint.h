@@ -855,7 +855,7 @@ public:
 	*/
 	usint GetDigitAtIndexForBase(usint index, usint base) const {
 
-		usint DigitLen = ceil(log(base) / log(2));
+		usint DigitLen = ceil(log2(base));
 
 		usint digit = 0;
 		usint newIndex = 1 + (index - 1)*DigitLen;

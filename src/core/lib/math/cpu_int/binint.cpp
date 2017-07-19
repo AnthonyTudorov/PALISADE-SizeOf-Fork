@@ -1840,7 +1840,7 @@ usint BigInteger<uint_type,BITLENGTH>::GetMSBUint_type(uint_type x){
 template<typename uint_type,usint BITLENGTH>
 usint BigInteger<uint_type,BITLENGTH>::GetDigitAtIndexForBase(usint index, usint base) const{
 
-	usint DigitLen = ceil(log(base) / log(2));
+	usint DigitLen = ceil(log2(base));
 
 	usint digit = 0;
 	usint newIndex = 1 + (index - 1)*DigitLen;

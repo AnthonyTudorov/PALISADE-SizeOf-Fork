@@ -2736,7 +2736,7 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
   template<typename limb_t>
   usint ubint<limb_t>::GetDigitAtIndexForBase(usint index, usint base) const{
 
-	  usint DigitLen = ceil(log(base) / log(2));
+	  usint DigitLen = ceil(log2(base));
 
 	  usint digit = 0;
 	  usint newIndex = 1 + (index - 1)*DigitLen;
