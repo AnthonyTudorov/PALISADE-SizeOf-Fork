@@ -477,7 +477,7 @@ public:
 	//matrix product - used in FFT and IFFT; new_vector = A*this_vector
 
 	/**
-	 * Returns a vector of digit at a specific index for all entries for a given number base.
+	 * Returns a vector of digits at a specific index for all entries for a given number base.
 	 *
 	 * @param index is the index to return the digit from in all entries.
 	 * @param base is the base to use for the operation.

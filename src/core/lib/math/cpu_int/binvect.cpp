@@ -230,6 +230,7 @@ BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::GetBinaryDigitAtIndexForB
 	}
 	return ans;
 }
+
 template<class IntegerType>
 void BigVectorImpl<IntegerType>::SwitchModulus(const IntegerType& newModulus) {
     bool dbg_flag = false;
