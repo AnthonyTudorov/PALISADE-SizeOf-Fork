@@ -5,6 +5,9 @@
     <ClCompile Include="..\..\..\..\src\trapdoor\lib\sampling\dgsampling.cpp" />
     <ClCompile Include="..\..\..\..\src\trapdoor\lib\sampling\trapdoor.cpp" />
     <ClCompile Include="..\..\..\..\src\trapdoor\lib\signature\lwesign.cpp" />
+    <ClCompile Include="..\..\..\..\src\trapdoor\lib\abe\cp_abe.cpp" />
+    <ClCompile Include="..\..\..\..\src\trapdoor\lib\abe\ibe.cpp" />
+    <ClCompile Include="..\..\..\..\src\trapdoor\lib\abe\kp_abe.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\src\trapdoor\lib\obfuscation\lweconjunctionobfuscatev3.h" />
@@ -12,5 +15,8 @@
     <ClInclude Include="..\..\..\..\src\trapdoor\lib\sampling\dgsampling.h" />
     <ClInclude Include="..\..\..\..\src\trapdoor\lib\sampling\trapdoor.h" />
     <ClInclude Include="..\..\..\..\src\trapdoor\lib\signature\lwesign.h" />
+    <ClInclude Include="..\..\..\..\src\trapdoor\lib\abe\cp_abe.h" />
+    <ClInclude Include="..\..\..\..\src\trapdoor\lib\abe\ibe.h" />
+    <ClInclude Include="..\..\..\..\src\trapdoor\lib\abe\kp_abe.h" />
   </ItemGroup>
 </Project>

@@ -110,9 +110,7 @@ namespace lbcrypto {
 		c(0, 0) = modulus.GetDigitAtIndexForBase(1, base) / base;
 
 		for (size_t i = 1; i < k; i++)
-		{
 			c(i, 0) = (c(i - 1, 0) + modulus.GetDigitAtIndexForBase(i + 1, base)) / base;
-		}
 
 #pragma omp parallel for
 		for (size_t j = 0; j < u.GetLength(); j++)
@@ -127,22 +125,22 @@ namespace lbcrypto {
 
 			// int32_t cast is needed here as GetDigitAtIndexForBase returns an unsigned int
 			// when the result is negative, a(0,0) gets values close to 2^32 if the cast is not used
+			//****a(0, 0) = ((int32_t)(v.GetDigitAtIndexForBase(1, base)) - p[0]) / base;
 			a(0, 0) = ((int32_t)(v.GetDigitAtIndexForBase(1, base)) - p[0]) / base;
 
-			for (size_t i = 1; i < k; i++)
+			for (size_t i = 1; i < k; i++){
 				a(i, 0) = (a(i - 1, 0) + (int32_t)(v.GetDigitAtIndexForBase(i + 1, base)) - p[i]) / base;
-
+			}
 			vector<int32_t> zj(k);
 
 			LatticeGaussSampUtility::SampleC(c, k, u.GetLength(), sigma, dgg, &a, &zj);
 
 			(*z)(0, j) = base*zj[0] + modulus.GetDigitAtIndexForBase(1, base)*zj[k - 1] + v.GetDigitAtIndexForBase(1, base);
 
-			for (size_t i = 1; i < k - 1; i++)
-				(*z)(i, j) = base*zj[i] - zj[i - 1] + modulus.GetDigitAtIndexForBase(i + 1, base)*zj[k - 1] + v.GetDigitAtIndexForBase(i + 1, base);
-
+			for (size_t i = 1; i < k - 1; i++){
+					(*z)(i, j) = base*zj[i] - zj[i - 1] + modulus.GetDigitAtIndexForBase(i + 1, base)*zj[k - 1] + v.GetDigitAtIndexForBase(i + 1, base);
+			}
 			(*z)(k - 1, j) = modulus.GetDigitAtIndexForBase(k, base)*zj[k - 1] - zj[k - 2] + v.GetDigitAtIndexForBase(k, base);
-
 		}
 
 	}
@@ -301,7 +299,7 @@ namespace lbcrypto {
 		int evenPtr = 0;
 		int oddPtr = p->GetRows() / 2;
 		Matrix<int32_t> permuted([]() { return make_unique<int32_t>(); }, p->GetRows(), 1);
-		for (size_t i = 0;i < p->GetRows();i++) {
+		for (usint i = 0;i < p->GetRows();i++) {
 			if (i % 2 == 0) {
 				permuted(evenPtr,0) = (*p)(i,0);
 				evenPtr++;

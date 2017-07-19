@@ -90,7 +90,7 @@ public:
 	* @param dgg discrete Gaussian generator
 	* @param *z a set of k sampled polynomials corresponding to the gadget matrix G; represented as Z^(k x n)
 	*/
-	static inline void GaussSampGq(const Poly &u, double stddev, size_t k, const BigInteger &q, int32_t base, 
+	static inline void GaussSampGq(const Poly &u, double stddev, size_t k, const BigInteger &q, int32_t base,
 				Poly::DggType &dgg, Matrix<int32_t> *z);
 
 

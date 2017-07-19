@@ -88,13 +88,15 @@ MatrixStrassen<Element>& MatrixStrassen<Element>::Identity() {
 }
 
 template<class Element>
-MatrixStrassen<Element> MatrixStrassen<Element>::GadgetVector() const {
+MatrixStrassen<Element> MatrixStrassen<Element>::GadgetVector(int32_t base) const {
     MatrixStrassen<Element> g(allocZero, rows, cols);
-    auto two = allocZero();
-    *two = 2;
+    //auto two = allocZero();
+    auto base_matrix = allocZero();
+    *base_matrix = base;
     g(0, 0) = 1;
     for (size_t col = 1; col < cols; ++col) {
-        g(0, col) = g(0, col-1) * *two;
+      //  g(0, col) = g(0, col-1) * *two;
+    	g(0, col) = g(0, col-1) * *base_matrix;
     }
     return g;
 }
