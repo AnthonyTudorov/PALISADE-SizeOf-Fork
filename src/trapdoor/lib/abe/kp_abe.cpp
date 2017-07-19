@@ -70,7 +70,7 @@ namespace lbcrypto {
 				int j = 0;
 				int flip = 0;
 				while(coeff_i > big0) {
-					digit_i = coeff_i.GetDigitAtIndex(1, base);
+					digit_i = coeff_i.GetDigitAtIndexForBase(1, base);
 					if (digit_i > (base>>1)) {
 						digit_i = base-digit_i;
 #if MATHBACKEND == 7
