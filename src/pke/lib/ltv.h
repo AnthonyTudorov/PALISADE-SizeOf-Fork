@@ -95,7 +95,7 @@ public:
 			int depth = 1)
 	: LPCryptoParametersRLWE<Element>(
 			params,
-			plaintextModulus,
+			shared_ptr<EncodingParams>( new EncodingParams(plaintextModulus) ),
 			distributionParameter,
 			assuranceMeasure,
 			securityLevel,
@@ -775,11 +775,16 @@ public:
 		this->m_algorithmParamsGen = new LPAlgorithmParamsGenLTV<Element>();
 	}
 
+	bool operator==(const LPPublicKeyEncryptionScheme<Element>& sch) const {
+		if( dynamic_cast<const LPPublicKeyEncryptionSchemeLTV<Element> *>(&sch) == 0 )
+			return false;
+		return true;
+	}
+
 	/**
-	* Function to enable a scheme.
-	* FIXME This needs to be described better.
+	* Enable. Allows a particular feature set to be used
 	*
-	*@param feature is the feature to enable
+	*@param feature code for the feature to enable
 	*/
 	void Enable(PKESchemeFeature feature);
 };

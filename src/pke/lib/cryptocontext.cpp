@@ -226,6 +226,9 @@ static shared_ptr<LPPublicKeyEncryptionScheme<Element>> GetSchemeObject(string& 
 	return shared_ptr<LPPublicKeyEncryptionScheme<Element>>();
 }
 
+template <typename Element>
+vector<shared_ptr<CryptoContext<Element>>>	CryptoContextFactory<Element>::AllContexts;
+
 /**
 * Create a PALISADE CryptoContext from a serialization
 * @param serObj - the serialization
@@ -398,7 +401,7 @@ CryptoContextFactory<T>::genCryptoContextLTV(shared_ptr<typename T::Params> ep,
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeLTV<T>());
 
-	return shared_ptr<CryptoContext<T>>(new CryptoContext<T>(params, scheme));
+	return CryptoContextFactory<T>::GetContext(params,scheme);
 }
 
 template <typename T>
@@ -418,12 +421,12 @@ CryptoContextFactory<T>::genCryptoContextLTV(shared_ptr<typename T::Params> ep,
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeLTV<T>());
 
-	return shared_ptr<CryptoContext<T>>(new CryptoContext<T>(params, scheme));
+	return CryptoContextFactory<T>::GetContext(params,scheme);
 }
 
 
 template <typename T>
-CryptoContext<T>
+shared_ptr<CryptoContext<T>>
 CryptoContextFactory<T>::genCryptoContextLTV(
 		const usint plaintextModulus, float securityLevel, usint relinWindow, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches)
@@ -441,25 +444,24 @@ CryptoContextFactory<T>::genCryptoContextLTV(
 
 	shared_ptr<typename T::Params> ep( new typename T::Params(0, BigInteger(0), BigInteger(0)) );
 
-	shared_ptr<LPCryptoParametersLTV<T>> params( new LPCryptoParametersLTV<T>() );
-
-	params->SetElementParams(ep);
-	params->SetPlaintextModulus(typename T::Integer(plaintextModulus));
-	params->SetSecurityLevel(securityLevel);
-	params->SetRelinWindow(relinWindow);
-	params->SetDistributionParameter(dist);
-	params->SetAssuranceMeasure(9.0);
-	params->SetDepth(depth);
+	shared_ptr<LPCryptoParametersLTV<T>> params( new LPCryptoParametersLTV<T>(
+			ep,
+			shared_ptr<EncodingParams>( new EncodingParams(plaintextModulus) ),
+			dist,
+			9.0,
+			securityLevel,
+			relinWindow,
+			depth));
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeLTV<T>() );
 
 	scheme->ParamsGen(params, numAdds, numMults, numKeyswitches);
 
-	return CryptoContext<T>(params, scheme);
+	return CryptoContextFactory<T>::GetContext(params,scheme);
 }
 
 template <typename T>
-CryptoContext<T>
+shared_ptr<CryptoContext<T>>
 CryptoContextFactory<T>::genCryptoContextLTV(
 	shared_ptr<EncodingParams> encodingParams, float securityLevel, usint relinWindow, float dist,
 	unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches)
@@ -477,22 +479,21 @@ CryptoContextFactory<T>::genCryptoContextLTV(
 
 	shared_ptr<typename T::Params> ep(new typename T::Params(0, BigInteger::ZERO, BigInteger::ZERO));
 
-	shared_ptr<LPCryptoParametersLTV<T>> params(new LPCryptoParametersLTV<T>());
-
-	params->SetElementParams(ep);
-	params->SetEncodingParams(encodingParams);
-	//params->SetPlaintextModulus(typename T::Integer(plaintextModulus));
-	params->SetSecurityLevel(securityLevel);
-	params->SetRelinWindow(relinWindow);
-	params->SetDistributionParameter(dist);
-	params->SetAssuranceMeasure(9.0);
-	params->SetDepth(depth);
+	shared_ptr<LPCryptoParametersLTV<T>> params(
+			new LPCryptoParametersLTV<T>(
+				ep,
+				encodingParams,
+				dist,
+				9.0,
+				securityLevel,
+				relinWindow,
+				depth));
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeLTV<T>());
 
 	scheme->ParamsGen(params, numAdds, numMults, numKeyswitches);
 
-	return CryptoContext<T>(params, scheme);
+	return CryptoContextFactory<T>::GetContext(params,scheme);
 }
 
 template <typename T>
@@ -516,7 +517,8 @@ CryptoContextFactory<T>::genCryptoContextFV(shared_ptr<typename T::Params> ep,
 					BigInteger(bigrootofunity),
 					BigInteger(bigmodulusarb),
 					BigInteger(bigrootofunityarb),
-					depth) );
+					depth,
+					maxDepth) );
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeFV<T>() );
 
@@ -569,16 +571,21 @@ CryptoContextFactory<T>::genCryptoContextFV(
 
 	shared_ptr<typename T::Params> ep( new typename T::Params(0, BigInteger(0), BigInteger(0)) );
 
-	shared_ptr<LPCryptoParametersFV<T>> params( new LPCryptoParametersFV<T>() );
-
-	params->SetElementParams(ep);
-	params->SetPlaintextModulus(typename T::Integer(plaintextModulus));
-	params->SetSecurityLevel(securityLevel);
-	params->SetRelinWindow(relinWindow);
-	params->SetDistributionParameter(dist);
-	params->SetMode(mode);
-	params->SetAssuranceMeasure(9.0);
-	params->SetMaxDepth(maxDepth);
+	shared_ptr<LPCryptoParametersFV<T>> params( new LPCryptoParametersFV<T>(
+			ep,
+			shared_ptr<EncodingParams>(new EncodingParams(plaintextModulus)),
+			dist,
+			9.0,
+			securityLevel,
+			relinWindow,
+			BigInteger::ZERO,
+			mode,
+			BigInteger::ZERO,
+			BigInteger::ZERO,
+			BigInteger::ZERO,
+			BigInteger::ZERO,
+			1,
+			maxDepth) );
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeFV<T>() );
 
@@ -604,17 +611,22 @@ CryptoContextFactory<T>::genCryptoContextFV(
 
 	shared_ptr<typename T::Params> ep(new typename T::Params(0, BigInteger::ZERO, BigInteger::ZERO));
 
-	shared_ptr<LPCryptoParametersFV<T>> params(new LPCryptoParametersFV<T>());
-
-	params->SetElementParams(ep);
-	params->SetEncodingParams(encodingParams);
-	//params->SetPlaintextModulus(typename T::Integer(plaintextModulus));
-	params->SetSecurityLevel(securityLevel);
-	params->SetRelinWindow(relinWindow);
-	params->SetDistributionParameter(dist);
-	params->SetMode(mode);
-	params->SetAssuranceMeasure(9.0);
-	params->SetMaxDepth(maxDepth);
+	shared_ptr<LPCryptoParametersFV<T>> params(
+			new LPCryptoParametersFV<T>(
+				ep,
+				encodingParams,
+				dist,
+				9.0,
+				securityLevel,
+				relinWindow,
+				BigInteger::ZERO,
+				mode,
+				BigInteger::ZERO,
+				BigInteger::ZERO,
+				BigInteger::ZERO,
+				BigInteger::ZERO,
+				1,
+				maxDepth) );
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeFV<T>());
 

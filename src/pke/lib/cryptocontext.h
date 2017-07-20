@@ -233,6 +233,12 @@ public:
 	const shared_ptr<typename Element::Params> GetElementParams() const { return params->GetElementParams(); }
 
 	/**
+	 * Getter for encoding params
+	 * @return
+	 */
+	const shared_ptr<EncodingParams> GetEncodingParams() const { return params->GetEncodingParams(); }
+
+	/**
 	 * Get the cyclotomic order used for this context
 	 *
 	 * @return
@@ -1781,7 +1787,40 @@ public:
 */
 template<typename Element>
 class CryptoContextFactory {
+	static vector<shared_ptr<CryptoContext<Element>>>	AllContexts;
+
 public:
+	static void ReleaseAllContexts() {
+		AllContexts.clear();
+	}
+
+	static int GetContextCount() {
+		return AllContexts.size();
+	}
+
+	static shared_ptr<CryptoContext<Element>> GetSingleContext() {
+		if( GetContextCount() == 1 )
+			return AllContexts[0];
+		throw std::logic_error("More than one context"); // FIXME
+	}
+
+	static shared_ptr<CryptoContext<Element>> GetContext(
+			shared_ptr<LPCryptoParameters<Element>> params,
+			shared_ptr<LPPublicKeyEncryptionScheme<Element>> scheme) {
+
+		for( shared_ptr<CryptoContext<Element>> cc : AllContexts ) {
+			if( *cc->GetEncryptionAlgorithm().get() == *scheme.get() &&
+					*cc->GetCryptoParameters().get() == *params.get()
+					) {
+				return cc;
+			}
+		}
+
+		shared_ptr<CryptoContext<Element>> cc(new CryptoContext<Element>(params,scheme));
+		AllContexts.push_back(cc);
+		return cc;
+	}
+
 	/**
 	* construct a PALISADE CryptoContext for the LTV Scheme
 	* @param plaintextmodulus
@@ -1821,7 +1860,7 @@ public:
 	* @param numKeyswitches
 	* @return new context
 	*/
-	static CryptoContext<Element> genCryptoContextLTV(
+	static shared_ptr<CryptoContext<Element>> genCryptoContextLTV(
 		const usint plaintextModulus, float securityLevel, usint relinWindow, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches);
 
@@ -1834,7 +1873,7 @@ public:
 	* @param numKeyswitches
 	* @return new context
 	*/
-	static CryptoContext<Element> genCryptoContextLTV(
+	static shared_ptr<CryptoContext<Element>> genCryptoContextLTV(
 		shared_ptr<EncodingParams> encodingParams, float securityLevel, usint relinWindow, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches);
 

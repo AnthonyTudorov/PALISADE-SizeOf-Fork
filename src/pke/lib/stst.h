@@ -110,7 +110,7 @@ public:
 			float distributionParmStst,
 			int depth = 1)
 	: LPCryptoParametersRLWE<Element>(params,
-			plaintextModulus,
+			shared_ptr<EncodingParams>( new EncodingParams(plaintextModulus) ),
 			distributionParameter,
 			assuranceMeasure,
 			securityLevel,
@@ -424,6 +424,12 @@ public:
 	* Inherited constructor
 	*/
 	LPPublicKeyEncryptionSchemeStehleSteinfeld() : LPPublicKeyEncryptionSchemeLTV<Element>() {}
+
+	bool operator==(const LPPublicKeyEncryptionScheme<Element>& sch) const {
+		if( dynamic_cast<const LPPublicKeyEncryptionSchemeStehleSteinfeld<Element> *>(&sch) == 0 )
+			return false;
+		return true;
+	}
 
 	/**
 	* Function to enable a scheme.

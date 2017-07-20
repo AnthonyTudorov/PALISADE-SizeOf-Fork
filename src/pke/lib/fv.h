@@ -109,16 +109,16 @@ namespace lbcrypto {
 				float assuranceMeasure, 
 				float securityLevel, 
 				usint relinWindow,
-				const BigInteger &delta,
-				MODE mode,
-				const BigInteger &bigModulus,
-				const BigInteger &bigRootOfUnity,
-				const BigInteger &bigModulusArb,
-				const BigInteger &bigRootOfUnityArb,
+				const BigInteger &delta = BigInteger::ZERO,
+				MODE mode = RLWE,
+				const BigInteger &bigModulus = BigInteger::ZERO,
+				const BigInteger &bigRootOfUnity = BigInteger::ZERO,
+				const BigInteger &bigModulusArb = BigInteger::ZERO,
+				const BigInteger &bigRootOfUnityArb = BigInteger::ZERO,
 				int depth = 1,
 				int maxDepth = 2)
 					: LPCryptoParametersRLWE<Element>(params,
-						plaintextModulus,
+						shared_ptr<EncodingParams>( new EncodingParams(plaintextModulus) ),
 						distributionParameter,
 						assuranceMeasure,
 						securityLevel,
@@ -139,7 +139,7 @@ namespace lbcrypto {
 			* @param &params element parameters.
 			* @param &encodingParams plaintext space parameters.
 			* @param distributionParameter noise distribution parameter.
-			* @param assuranceMeasure assurance level.
+			* @param assuranceMeasure assurance level. = BigInteger::ZERO
 			* @param securityLevel security level (root Hermite factor).
 			* @param relinWindow the size of the relinearization window.
 			* @param delta FV-specific factor that is multiplied by the plaintext polynomial.
@@ -156,12 +156,12 @@ namespace lbcrypto {
 				float assuranceMeasure,
 				float securityLevel,
 				usint relinWindow,
-				const BigInteger &delta,
-				MODE mode,
-				const BigInteger &bigModulus,
-				const BigInteger &bigRootOfUnity,
-				const BigInteger &bigModulusArb,
-				const BigInteger &bigRootOfUnityArb,
+				const BigInteger &delta = BigInteger::ZERO,
+				MODE mode = RLWE,
+				const BigInteger &bigModulus = BigInteger::ZERO,
+				const BigInteger &bigRootOfUnity = BigInteger::ZERO,
+				const BigInteger &bigModulusArb = BigInteger::ZERO,
+				const BigInteger &bigRootOfUnityArb = BigInteger::ZERO,
 				int depth = 1,
 				int maxDepth = 2)
 				: LPCryptoParametersRLWE<Element>(params,
@@ -783,6 +783,12 @@ namespace lbcrypto {
 	public:
 		LPPublicKeyEncryptionSchemeFV() : LPPublicKeyEncryptionScheme<Element>() {
 			this->m_algorithmParamsGen = new LPAlgorithmParamsGenFV<Element>();
+		}
+
+		bool operator==(const LPPublicKeyEncryptionScheme<Element>& sch) const {
+			if( dynamic_cast<const LPPublicKeyEncryptionSchemeFV<Element> *>(&sch) == 0 )
+				return false;
+			return true;
 		}
 
 		void Enable(PKESchemeFeature feature);

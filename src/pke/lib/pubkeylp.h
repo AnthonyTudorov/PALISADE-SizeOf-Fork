@@ -1729,18 +1729,6 @@ namespace lbcrypto {
 		bool operator!=(const LPCryptoParameters<Element>& cmp) const { return !(*this == cmp); }
 
 		/**
-		 * Sets the reference to element params
-		 */
-		void SetElementParams(shared_ptr<typename Element::Params> params) { m_params = params; }
-
-		/**
-		* Sets the reference to element params
-		*/
-		void SetEncodingParams(shared_ptr<EncodingParams> encodingParams) {
-			m_encodingParams = encodingParams;
-		}
-
-		/**
 		 * Overload to allow printing of parameters to an iostream
 		 * NOTE that the implementation relies on calling the virtual PrintParameters method
 		 * @param out - the stream to print to
@@ -1756,6 +1744,21 @@ namespace lbcrypto {
 
 		virtual const typename Element::DggType &GetDiscreteGaussianGenerator() const {
 			throw std::logic_error("No DGG Available for this parameter set");
+		}
+
+		// FIXME these two ought to be protected
+		/**
+		 * Sets the reference to element params
+		 */
+		void SetElementParams(shared_ptr<typename Element::Params> params) {
+			m_params = params;
+		}
+
+        /**
+         * Sets the reference to encoding params
+         */
+		void SetEncodingParams(shared_ptr<EncodingParams> encodingParams) {
+			m_encodingParams = encodingParams;
 		}
 
 
@@ -1826,6 +1829,12 @@ namespace lbcrypto {
 				delete this->m_algorithmLeveledSHE;
 		}
 		
+		virtual bool operator==(const LPPublicKeyEncryptionScheme& sch) const = 0;
+
+		bool operator!=(const LPPublicKeyEncryptionScheme& sch) const {
+			return !(*this == sch);
+		}
+
 		/**
 		 * Enable features with a bit mast of PKESchemeFeature codes
 		 * @param mask

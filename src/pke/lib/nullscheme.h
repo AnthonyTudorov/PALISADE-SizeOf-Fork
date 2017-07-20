@@ -853,6 +853,12 @@ public:
 		this->m_algorithmParamsGen = new LPAlgorithmParamsGenNull<Element>();
 	}
 
+	bool operator==(const LPPublicKeyEncryptionScheme<Element>& sch) const {
+		if( dynamic_cast<const LPPublicKeyEncryptionSchemeNull<Element> *>(&sch) == 0 )
+			return false;
+		return true;
+	}
+
 	void Enable(PKESchemeFeature feature) {
 		switch (feature)
 		{

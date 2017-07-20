@@ -115,7 +115,7 @@ namespace lbcrypto {
 				int depth = 1)
 					: LPCryptoParametersRLWE<Element>(
 						params,
-						plaintextModulus,
+						shared_ptr<EncodingParams>( new EncodingParams(plaintextModulus) ),
 						distributionParameter,
 						assuranceMeasure,
 						securityLevel,
@@ -735,6 +735,12 @@ namespace lbcrypto {
 	class LPPublicKeyEncryptionSchemeBV : public LPPublicKeyEncryptionScheme<Element> {
 	public:
 		LPPublicKeyEncryptionSchemeBV() : LPPublicKeyEncryptionScheme<Element>() {}
+
+		bool operator==(const LPPublicKeyEncryptionScheme<Element>& sch) const {
+			if( dynamic_cast<const LPPublicKeyEncryptionSchemeBV<Element> *>(&sch) == 0 )
+				return false;
+			return true;
+		}
 
 		void Enable(PKESchemeFeature feature);
 	};

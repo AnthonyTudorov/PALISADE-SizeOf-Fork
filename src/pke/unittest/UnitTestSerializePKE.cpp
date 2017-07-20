@@ -51,9 +51,8 @@ protected:
 
 static shared_ptr<CryptoContext<Poly>> GenerateTestCryptoContext(const string& parmsetName) {
 	BigInteger modulusP(256);
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextHelper::getNewContext(parmsetName);
-	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP,PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP),8));
-	cc->GetCryptoParameters()->SetEncodingParams(encodingParams);
+	shared_ptr<CryptoContext<Poly>> cc = CryptoContextHelper::getNewContext(parmsetName,
+			shared_ptr<EncodingParams>(new EncodingParams(modulusP,PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP),8)));
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 	return cc;
@@ -64,6 +63,17 @@ static shared_ptr<CryptoContext<DCRTPoly>> GenerateTestDCRTCryptoContext(const s
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 	return cc;
+}
+
+TEST(UTPKESer, LTV_Context_Factory) {
+	shared_ptr<CryptoContext<Poly>> cc = GenerateTestCryptoContext("LTV5");
+	CryptoContextFactory<Poly>::ReleaseAllContexts();
+	EXPECT_EQ(CryptoContextFactory<Poly>::GetContextCount(), 0) << "Contexts not cleared";
+
+	cc = GenerateTestCryptoContext("LTV5");
+	shared_ptr<CryptoContext<Poly>> cc2 = GenerateTestCryptoContext("LTV5");
+	EXPECT_EQ(cc.get(), cc2.get()) << "Context mismatch";
+	EXPECT_EQ(CryptoContextFactory<Poly>::GetContextCount(), 1) << "Context count error";
 }
 
 template<typename T>
