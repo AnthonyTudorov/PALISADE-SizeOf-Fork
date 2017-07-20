@@ -399,7 +399,7 @@ namespace lbcrypto {
 		double z, r;
 
 		for (;; ++n) {
-		{
+		
 			z = dist(PseudoRandomNumberGenerator::GetPRNG());
 			if (!(z < y))
 				break;
