@@ -165,6 +165,7 @@ private:
 	static bool AlgorithmP(int n);
 	static int32_t AlgorithmG();
 	static bool AlgorithmH();
+	static bool AlgorithmHDouble();
 	static bool AlgorithmB(int32_t k, double x);
 
 
