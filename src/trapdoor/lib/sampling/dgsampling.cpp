@@ -157,7 +157,7 @@ namespace lbcrypto {
 
 		for (size_t i = 0; i < k; i++)
 		{
-			z[i] = dgg.GenerateInteger(d / l[i], sigma / l[i], n);
+			z[i] = dgg.GenerateIntegerKarney(d / l[i], sigma / l[i]);
 			d = -z[i] * h[i];
 		}
 
@@ -175,11 +175,11 @@ namespace lbcrypto {
 	void LatticeGaussSampUtility::SampleC(const Matrix<double> &c, size_t k, size_t n,
 		double sigma, Poly::DggType &dgg, Matrix<double> *a, vector<int32_t> *z)
 	{
-		(*z)[k - 1] = dgg.GenerateInteger(-(*a)(k - 1, 0) / c(k - 1, 0), sigma / c(k - 1, 0), n);
+		(*z)[k - 1] = dgg.GenerateIntegerKarney(-(*a)(k - 1, 0) / c(k - 1, 0), sigma / c(k - 1, 0));
 		*a = *a - ((double)((*z)[k - 1]))*c;
 
 		for (size_t i = 0; i < k - 1; i++)
-			(*z)[i] = dgg.GenerateInteger(-(*a)(i, 0), sigma, n);
+			(*z)[i] = dgg.GenerateIntegerKarney(-(*a)(i, 0), sigma);
 
 	}
 	
@@ -237,7 +237,7 @@ namespace lbcrypto {
 		if (f.Size() == 1)
 		{
 			Matrix<int32_t> p([]() { return make_unique<int32_t>(); }, 1, 1);
-			p(0, 0) = dgg.GenerateInteger(c[0].real(), sqrt(f[0].real()), n);
+			p(0, 0) = dgg.GenerateIntegerKarney(c[0].real(), sqrt(f[0].real()));
 			return p;
 		}
 		else {

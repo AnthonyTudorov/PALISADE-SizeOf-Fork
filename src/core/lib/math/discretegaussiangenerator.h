@@ -149,7 +149,7 @@ public:
 	* @brief Destructor
 	*/
 	~DiscreteGaussianGeneratorImpl() { if (probMatrix != nullptr) { delete[] probMatrix;} }
-	int32_t GenerateIntegerKarney(double mean, double stddev);
+	static int32_t GenerateIntegerKarney(double mean, double stddev);
 
 private:
 	usint FindInVector (const std::vector<double> &S, double search) const;
