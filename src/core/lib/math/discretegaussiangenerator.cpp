@@ -320,50 +320,47 @@ namespace lbcrypto {
 	int32_t DiscreteGaussianGeneratorImpl<IntType, VecType>::GenerateIntegerKarney(double mean, double stddev){
 
 		int32_t result;
-
-		std::uniform_int_distribution<int32_t> uniform_int(0,5);
-		std::uniform_real_distribution<double> uniform_real(0.0, 1.0);
 		std::uniform_int_distribution<int32_t> uniform_sign(0, 1);
 		std::uniform_int_distribution<int32_t> uniform_j(0, ceil(stddev));
-
-		double prob = 0;
-		double dice = 0;
 
 		bool flagSuccess = false;
 		int32_t k;
 
 		while (!flagSuccess) {
-			h_a = 0;
-			h_b = 0;
-			k = uniform_int(PseudoRandomNumberGenerator::GetPRNG());
+			
+			// STEP D1
+			k = AlgorithmG();
+
+			// STEP D2
 			if (!AlgorithmP(k * (k - 1))) continue;
 		
-			dice = uniform_real(PseudoRandomNumberGenerator::GetPRNG());
-			prob = pow(M_E, -k * (k - 1) / 2);
-			if (dice <= prob) {
-				int s = uniform_sign(PseudoRandomNumberGenerator::GetPRNG());
-				if (s == 0)
-					s = -1;
-				int32_t j = uniform_j(PseudoRandomNumberGenerator::GetPRNG());
-				int32_t i0 = ceil(stddev * k + s * mean);
-				double x0 = (i0 - (stddev * k + s * mean)) / stddev;
-				double x = x0 + j / stddev;
-				if (x < 1) {
-					if (!(x == 0 && s < 0 && k == 0)) {
-						dice = uniform_real(PseudoRandomNumberGenerator::GetPRNG());
-						prob = pow(M_E, -x*(2 * k + x) / 2);
-						if (dice <= prob) {
-							result = s*(i0 + j);
-							flagSuccess = true;
-						}
+			// STEP D3
+			int s = uniform_sign(PseudoRandomNumberGenerator::GetPRNG());
+			if (s == 0)
+				s = -1;
 
+			// STEP D4
+			double di0 = stddev * k + s * mean;
+			int32_t i0 = std::ceil(di0);
+			double x0 = (i0 - di0) / stddev;
+			int32_t j = uniform_j(PseudoRandomNumberGenerator::GetPRNG());
 
-					}
+			double x = x0 + j / stddev;
 
-				}
+			// STEPS D5 and D6
+			if (!(x < 1) || (x == 0 && s < 0 && k == 0))
+				continue;
 
-			}
+			// STEP D7
+			int32_t h = k + 1; while (h-- && AlgorithmB(k, x)) {};
+			if (!(h < 0)) continue;
+
+			// STEP D8
+			result = s*(i0 + j);
+			flagSuccess = true;
+
 		}
+
 		return result;
 
 	}
@@ -372,9 +369,17 @@ namespace lbcrypto {
 	bool DiscreteGaussianGeneratorImpl<IntType, VecType>::AlgorithmP(int n){
 		while (n-- && AlgorithmH()){}; return n < 0;
 	}
+
+	template<typename IntType, typename VecType>
+	int32_t DiscreteGaussianGeneratorImpl<IntType, VecType>::AlgorithmG()
+	{
+		int n = 0; while (AlgorithmH()) ++n; return n;
+	}
+
 	template<typename IntType, typename VecType>
 	bool DiscreteGaussianGeneratorImpl<IntType, VecType>::AlgorithmH(){
 		std::uniform_real_distribution<double> dist(0.0, 1.0);
+		double h_a, h_b;
 		h_a = dist(PseudoRandomNumberGenerator::GetPRNG());
 		if(!(h_a<0.5)) return true;
 		for (;;) {
@@ -383,6 +388,28 @@ namespace lbcrypto {
 			h_a = dist(PseudoRandomNumberGenerator::GetPRNG());
 			if (!(h_a<h_b)) return true;
 		}
+	}
+
+	template<typename IntType, typename VecType>
+	bool DiscreteGaussianGeneratorImpl<IntType, VecType>::AlgorithmB(int32_t k, double x) {
+		std::uniform_real_distribution<double> dist(0.0, 1.0);
+
+		double y = x;
+		int32_t n = 0, m = 2 * k + 2;
+		double z, r;
+
+		for (;; ++n) {
+		{
+			z = dist(PseudoRandomNumberGenerator::GetPRNG());
+			if (!(z < y))
+				break;
+			r = dist(PseudoRandomNumberGenerator::GetPRNG());
+			if (!(r < (2 * k + x) / m))
+				break;
+			y = z;
+		}
+
+		return (n % 2) == 0;
 	}
 
 	/**
