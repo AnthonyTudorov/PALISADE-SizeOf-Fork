@@ -133,14 +133,15 @@ namespace lbcrypto {
 		*
 		*@param params Parameters to be held, used in Poly construction
 		*/
-		void SetElemParams(shared_ptr<ILParams> params) { 
+		void SetElemParams(shared_ptr<ILParams> params, usint base = 2) {
 			m_params = params; 
+			m_base = base;
 			const BigInteger & q = params->GetModulus();
 			size_t n = params->GetRingDimension();
-			double logTwo = log(q.ConvertToDouble() - 1.0) / log(2) + 1.0;
-			size_t k = (usint)floor(logTwo);
+			usint nBits = floor(log2(q.ConvertToDouble() - 1.0) + 1.0);
+			m_k = ceil(nBits/log2(base));
 			double c = 2 * SIGMA;
-			double s = SPECTRAL_BOUND(n, k);
+			double s = SPECTRAL_BOUND(n, m_k);
 			dggLargeSigma = Poly::DggType(sqrt(s * s - c * c));
 		};
 
@@ -159,6 +160,20 @@ namespace lbcrypto {
 		Poly::DggType & GetDiscreteGaussianGenerator() { return dgg; }
 
 		/**
+		*Method for accessing the base for Gadget matrix
+		*
+		*@return the value of base held by the object
+		*/
+		usint & GetBase() { return m_base; }
+
+		/**
+		*Method for accessing the dimension for Gadget matrix
+		*
+		*@return the value of the dimension held by the object
+		*/
+		usint & GetK() { return m_k; }
+
+		/**
 		*Method for accessing the DiscreteGaussianGenerator object held in this class
 		*
 		*@return DiscreteGaussianGenerator object held
@@ -174,14 +189,14 @@ namespace lbcrypto {
 		*@param params Parameters used in Poly construction
 		*@param dgg DiscreteGaussianGenerator used in sampling
 		*/
-		LPSignatureParameters(shared_ptr<ILParams> params, Poly::DggType dgg) : dgg(dgg) {
+		LPSignatureParameters(shared_ptr<ILParams> params, Poly::DggType dgg, usint base = 2) : dgg(dgg), m_base(base) {
 			m_params = params;
 			const BigInteger & q = params->GetModulus();
 			size_t n = params->GetRingDimension();
-			double logTwo = log(q.ConvertToDouble() - 1.0) / log(2) + 1.0;
-			size_t k = (usint)floor(logTwo);
+			usint nBits = floor(log2(q.ConvertToDouble() - 1.0) + 1.0);
+			m_k = ceil(nBits / log2(base));
 			double c = 2 * SIGMA;
-			double s = SPECTRAL_BOUND(n, k);
+			double s = SPECTRAL_BOUND(n, m_k);
 			dggLargeSigma = Poly::DggType(sqrt(s * s - c * c));
 		}
 
@@ -190,6 +205,8 @@ namespace lbcrypto {
 		shared_ptr<ILParams> m_params;
 		Poly::DggType dgg;
 		Poly::DggType dggLargeSigma;
+		usint m_base;
+		usint m_k;
 	};
 
 	/**

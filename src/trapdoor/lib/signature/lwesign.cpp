@@ -48,8 +48,9 @@ namespace lbcrypto {
 		//Get parameters from keys
 		shared_ptr<ILParams> params = signKey->GetSignatureParameters().GetILParams();
 		sint stddev = signKey->GetSignatureParameters().GetDiscreteGaussianGenerator().GetStd();
+		usint base = signKey->GetSignatureParameters().GetBase();
 		//Generate trapdoor based using parameters and 
-		std::pair<Matrix<Poly>, RLWETrapdoorPair<Poly>> keyPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev);
+		std::pair<Matrix<Poly>, RLWETrapdoorPair<Poly>> keyPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev, base);
 		//Format of vectors are changed to prevent complications in calculations 
 		keyPair.second.m_e.SetFormat(EVALUATION);
 		keyPair.second.m_r.SetFormat(EVALUATION);
@@ -67,11 +68,11 @@ namespace lbcrypto {
 	template <class Element>
 	void LPSignatureSchemeGPVGM<Element>::Sign(LPSignKeyGPVGM<Element> &signKey, const BytePlaintextEncoding &plainText,
 		Signature<Matrix<Element>> *signatureText) {
+
 		//Getting parameters for calculations
-		const BigInteger & q = signKey.GetSignatureParameters().GetILParams()->GetModulus();
 		size_t n = signKey.GetSignatureParameters().GetILParams()->GetRingDimension();
-		double logTwo = log(q.ConvertToDouble() - 1.0) / log(2) + 1.0;
-		size_t k = (usint)floor(logTwo);
+		size_t k = signKey.GetSignatureParameters().GetK();
+		size_t base = signKey.GetSignatureParameters().GetBase();
 
 		//Encode the text into a vector so it can be used in signing process. TODO: Adding some kind of digestion algorithm
 		HashUtil util;
@@ -96,11 +97,9 @@ namespace lbcrypto {
 		double stddev = signKey.GetSignatureParameters().GetDiscreteGaussianGenerator().GetStd();
 		typename Element::DggType & dgg = signKey.GetSignatureParameters().GetDiscreteGaussianGenerator();
 
-		//Generating the signature via Gaussian sampling using the values above
-		//double c = 2 * SIGMA;
-		//double s = SPECTRAL_BOUND(n, k);
+
 		typename Element::DggType & dggLargeSigma = signKey.GetSignatureParameters().GetDiscreteGaussianGeneratorLargeSigma();
-		Matrix<Poly> zHat = RLWETrapdoorUtility::GaussSamp(n,k,A,T,u,stddev,dgg,dggLargeSigma);
+		Matrix<Poly> zHat = RLWETrapdoorUtility::GaussSamp(n,k,A,T,u,stddev,dgg,dggLargeSigma,base);
 		signatureText->SetElement(zHat);
 
 	}
