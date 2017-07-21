@@ -600,3 +600,42 @@ TEST(UTDistrGen, ParallelDiscreteGaussianGenerator_VERY_LONG) {
   }
 
 }
+
+//Mean test for Karney sampling
+TEST(UTDistrGen, Karney_Mean) {
+
+	sint stdev = 10000;
+	usint size = 1000;
+	double mean = 0;
+	double center = 100;
+	DiscreteGaussianGenerator dgg(stdev);
+	for (unsigned int i = 0;i < size;i++) {
+		mean += dgg.GenerateIntegerKarney(center, stdev);
+	}
+	mean /= size;
+	double difference = std::abs(mean - center);
+	difference /= center;
+	EXPECT_LE(difference, 0.05) << "Failure to create mean with difference  < 5%";
+
+}
+//Variance test for Karney sampling
+TEST(UTDistrGen, Karney_Variance) {
+
+	sint stdev = 10000;
+	usint size = 1000;
+	double mean = 0;
+	double variance = 0;
+	DiscreteGaussianGenerator dgg(stdev);
+	int numbers[1000];
+
+	for (unsigned int i = 0;i < size;i++) {
+		numbers[i] = dgg.GenerateIntegerKarney(0, stdev);
+		mean += numbers[i];
+	}
+	for (unsigned int i = 0;i < size;i++) {
+		variance += (numbers[i] - mean) * (numbers[i] - mean);
+	}
+	variance /= size - 1;
+	double difference = std::abs(variance - stdev * stdev) / (stdev * stdev);
+	EXPECT_LE(difference,0.05 ) << "Failure to create variance with difference  < 5%";
+}
