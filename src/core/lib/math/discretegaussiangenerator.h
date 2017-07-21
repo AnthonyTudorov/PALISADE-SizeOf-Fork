@@ -149,6 +149,7 @@ public:
 	* @brief Destructor
 	*/
 	~DiscreteGaussianGeneratorImpl() { if (probMatrix != nullptr) { delete[] probMatrix;} }
+	static int32_t GenerateIntegerKarney(double mean, double stddev);
 
 private:
 	usint FindInVector (const std::vector<double> &S, double search) const;
@@ -160,6 +161,13 @@ private:
 	static double UnnormalizedGaussianPDFOptimized(const double &mean, const double &sigmaFactor, int32_t x) {
 		return pow(M_E, sigmaFactor*(x - mean)*(x - mean));
 	}
+
+	static bool AlgorithmP(std::mt19937 &g, int n);
+	static int32_t AlgorithmG(std::mt19937 &g);
+	static bool AlgorithmH(std::mt19937 &g);
+	static bool AlgorithmHDouble(std::mt19937 &g);
+	static bool AlgorithmB(std::mt19937 &g, int32_t k, double x);
+	static bool AlgorithmBDouble(std::mt19937 &g, int32_t k, double x);
 
 
 	// Gyana to add precomputation methods and data members
@@ -191,6 +199,7 @@ private:
 	*Mean of the distribution used for Knuth-Yao probability table
 	*/
 	double probMean;
+
 };
 
 }  // namespace lbcrypto
