@@ -378,8 +378,8 @@ namespace lbcrypto {
 		int n = 0; while (AlgorithmH(g)) ++n; return n;
 	}
 
-	// Use 16 random bits in most cases; if a situation w/ not enough precision is encountered,
-	// Call the double-precision algorithm
+	// Use single floating-point precision in most cases; if a situation w/ not enough precision is encountered,
+	// call the double-precision algorithm
 	template<typename IntType, typename VecType>
 	bool DiscreteGaussianGeneratorImpl<IntType, VecType>::AlgorithmH(std::mt19937 &g){
 		
@@ -429,6 +429,40 @@ namespace lbcrypto {
 
 	template<typename IntType, typename VecType>
 	bool DiscreteGaussianGeneratorImpl<IntType, VecType>::AlgorithmB(std::mt19937 &g, int32_t k, double x) {
+
+		std::uniform_real_distribution<float> dist(0.0, 1.0);
+
+		float y = x;
+		int32_t n = 0, m = 2 * k + 2;
+		float z, r;
+		float rTemp;
+
+		for (;; ++n) {
+		
+			z = dist(g);
+			if (!(z < y))
+				break;
+			else if ((z < y))
+			{
+				r = dist(g);
+				rTemp = (2 * k + x) / m;
+				if (!(r < rTemp))
+					break;
+				else if (r < rTemp)
+					y = z;
+				else // r == Temp - need double precision
+					return AlgorithmBDouble(g, k, x);
+			}
+			else // z == x - need double precision
+				return AlgorithmBDouble(g, k, x);
+		}
+
+		return (n % 2) == 0;
+
+	}
+
+	template<typename IntType, typename VecType>
+	bool DiscreteGaussianGeneratorImpl<IntType, VecType>::AlgorithmBDouble(std::mt19937 &g, int32_t k, double x) {
 		std::uniform_real_distribution<double> dist(0.0, 1.0);
 
 		double y = x;
@@ -436,7 +470,7 @@ namespace lbcrypto {
 		double z, r;
 
 		for (;; ++n) {
-		
+
 			z = dist(g);
 			if (!(z < y))
 				break;

@@ -167,6 +167,7 @@ private:
 	static bool AlgorithmH(std::mt19937 &g);
 	static bool AlgorithmHDouble(std::mt19937 &g);
 	static bool AlgorithmB(std::mt19937 &g, int32_t k, double x);
+	static bool AlgorithmBDouble(std::mt19937 &g, int32_t k, double x);
 
 
 	// Gyana to add precomputation methods and data members
