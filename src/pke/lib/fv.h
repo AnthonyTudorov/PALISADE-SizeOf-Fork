@@ -398,7 +398,7 @@ namespace lbcrypto {
 		* @return ciphertext which results from encryption.
 		*/
 		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
-			ILVector2n &plaintext, bool doEncryption = true) const;
+			Poly &plaintext, bool doEncryption = true) const;
 
 		/**
 		* Method for decrypting using FV. See the class description for citations on where the algorithms were

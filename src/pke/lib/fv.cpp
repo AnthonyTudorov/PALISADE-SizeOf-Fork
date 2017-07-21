@@ -379,7 +379,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr
 
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
-		ILVector2n &ptxt, bool doEncryption) const
+		Poly &ptxt, bool doEncryption) const
 {
 	shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(privateKey->GetCryptoContext()) );
 
@@ -393,7 +393,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr
 	if (doEncryption) {
 		const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 		typename Element::DugType dug;
-		const BigBinaryInteger &delta = cryptoParams->GetDelta();
+		const BigInteger &delta = cryptoParams->GetDelta();
 
 		Element a(dug, elementParams, Format::EVALUATION);
 		const Element &s = privateKey->GetPrivateElement();

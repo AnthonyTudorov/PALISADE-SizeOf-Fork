@@ -43,15 +43,15 @@ int main() {
 	usint m = 2048;
 	usint phim = 1024;
 	usint p = 1093633; // we choose s.t. 2m|p-1 to leverage CRTArb
-	BigBinaryInteger modulusP(p);
+	BigInteger modulusP(p);
 	PackedIntPlaintextEncoding::SetParams(modulusP, m);
 
 	usint batchSize = 1024;
 	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP), batchSize));
 
-	BigBinaryInteger modulusQ("4809848800078200833");
-	BigBinaryInteger rootOfUnity("2595390732297411718");
-	BigBinaryInteger delta(modulusQ.DividedBy(modulusP));
+	BigInteger modulusQ("4809848800078200833");
+	BigInteger rootOfUnity("2595390732297411718");
+	BigInteger delta(modulusQ.DividedBy(modulusP));
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, rootOfUnity));
 
 	BigInteger EvalMultModulus("1182196001696382977");
@@ -59,7 +59,7 @@ int main() {
 
 	usint relinWindow = 21;
 	float stdDev = 4;
-	shared_ptr<CryptoContext<ILVector2n>> cc = CryptoContextFactory<ILVector2n>::genCryptoContextFV(
+	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextFV(
 			params, encodingParams, relinWindow, stdDev, delta.ToString(), OPTIMIZED,
 			EvalMultModulus.ToString(), EvalMultRootOfUnity.ToString(), 0, 9, 1.006
 		);
@@ -69,7 +69,7 @@ int main() {
 	//------------------------------------------------------
 
 	// Initialize the public key containers.
-	LPKeyPair<ILVector2n> kp = cc->KeyGen();
+	LPKeyPair<Poly> kp = cc->KeyGen();
 
 	std::vector<usint> vectorOfInts1(phim);
 	std::vector<usint> vectorOfInts2(phim, 1);
@@ -80,9 +80,9 @@ int main() {
 	PackedIntPlaintextEncoding intArray1(vectorOfInts1);
 	PackedIntPlaintextEncoding intArray2(vectorOfInts2);
 
-	shared_ptr<ILVector2n> plaintext(new ILVector2n(params, EVALUATION, true));
+	shared_ptr<Poly> plaintext(new Poly(params, EVALUATION, true));
 	for(usint i=0; i<phim; i++){
-		plaintext->SetValAtIndex(i, BigBinaryInteger(vectorOfInts2[i]));
+		plaintext->SetValAtIndex(i, BigInteger(vectorOfInts2[i]));
 	}
 
 	// std::cout << "Input array 1 \n\t" << intArray1 << std::endl;
@@ -91,9 +91,9 @@ int main() {
 	cc->EvalSumKeyGen(kp.secretKey);
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext_pub;
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext_priv;
-	vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertext_plain;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertext_pub;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertext_priv;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertext_plain;
 
 	vector<TimingInfo>	times;
 	cc->StartTiming(&times);
@@ -117,7 +117,7 @@ int main() {
 		ciphertext_pub = cc->Encrypt(kp.publicKey, intArray1, false, true);
 		ciphertext_plain = cc->Encrypt(kp.publicKey, intArray2, false, false);
 
-		vector<shared_ptr<Ciphertext<ILVector2n>>> ciphertextResult;
+		vector<shared_ptr<Ciphertext<Poly>>> ciphertextResult;
 		auto ciphertextMult = cc->EvalMultPlain(ciphertext_priv.at(0), ciphertext_plain.at(0));
 		auto ciphertextInnerProd = ciphertextMult;
 		for (usint i = 0; i < floor(log2(batchSize)); i++)

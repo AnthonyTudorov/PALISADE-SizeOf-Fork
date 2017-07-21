@@ -92,8 +92,8 @@ public:
 		return BigInteger(modulusNI.ConvertToInt());
 	}
 
-	static usint GetAutomorphismGenerator(const BigBinaryInteger &modulus) {
-		native_int::BinaryInteger modulusNI(modulus.ConvertToInt());
+	static usint GetAutomorphismGenerator(const BigInteger &modulus) {
+		native_int::BigInteger modulusNI(modulus.ConvertToInt());
 		return m_automorphismGenerator[modulusNI];
 	}
 

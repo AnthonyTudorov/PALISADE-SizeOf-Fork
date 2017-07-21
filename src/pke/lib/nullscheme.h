@@ -183,7 +183,7 @@ public:
 	* @param *ciphertext ciphertext which results from encryption.
 	*/
 	shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPrivateKey<Element>> privKey,
-		ILVector2n &ptxt, bool doEncryption = true) const {
+		Poly &ptxt, bool doEncryption = true) const {
 		shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(privKey->GetCryptoContext()) );
 
 		Element plaintext(ptxt, privKey->GetCryptoContext()->GetCryptoParameters()->GetElementParams());

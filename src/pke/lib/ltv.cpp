@@ -123,7 +123,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmLTV<Element>::Encrypt(const shared_pt
 
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmLTV<Element>::Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
-	ILVector2n &ptxt, bool doEncryption) const
+	Poly &ptxt, bool doEncryption) const
 {
 	const shared_ptr<LPCryptoParametersRLWE<Element>> cryptoParams =
 		std::dynamic_pointer_cast<LPCryptoParametersRLWE<Element>>(privateKey->GetCryptoParameters());
@@ -131,7 +131,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmLTV<Element>::Encrypt(const shared_pt
 	shared_ptr<Ciphertext<Element>> ciphertext(new Ciphertext<Element>(privateKey->GetCryptoContext()));
 
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
-	const BigBinaryInteger &p = cryptoParams->GetPlaintextModulus();
+	const BigInteger &p = cryptoParams->GetPlaintextModulus();
 
 	Element plaintext(ptxt, elementParams);
 	plaintext.SwitchFormat();

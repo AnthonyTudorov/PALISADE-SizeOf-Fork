@@ -606,7 +606,7 @@ public:
 		if( privateKey == NULL || privateKey->GetCryptoContext() != this )
 			throw std::logic_error("key passed to Encrypt was not generated with this crypto context");
 
-		const BigBinaryInteger& ptm = privateKey->GetCryptoParameters()->GetPlaintextModulus();
+		const BigInteger& ptm = privateKey->GetCryptoParameters()->GetPlaintextModulus();
 		size_t chunkSize = plaintext.GetChunksize(privateKey->GetCryptoContext()->GetRingDimension(), ptm);
 		size_t ptSize = plaintext.GetLength();
 		size_t rounds = ptSize / chunkSize;
@@ -624,7 +624,7 @@ public:
 		if( doTiming ) start = currentDateTime();
 		for (size_t bytes = 0, i = 0; i < rounds; bytes += chunkSize, i++) {
 
-			ILVector2n pt(privateKey->GetCryptoParameters()->GetElementParams());
+			Poly pt(privateKey->GetCryptoParameters()->GetElementParams());
 			plaintext.Encode(ptm, &pt, bytes, chunkSize);
 
 			shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(privateKey, pt, doEncryption);
