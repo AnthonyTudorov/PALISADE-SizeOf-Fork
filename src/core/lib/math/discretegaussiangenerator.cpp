@@ -323,6 +323,8 @@ namespace lbcrypto {
 		std::uniform_int_distribution<int32_t> uniform_sign(0, 1);
 		std::uniform_int_distribution<int32_t> uniform_j(0, ceil(stddev));
 
+		std::mt19937 &g = PseudoRandomNumberGenerator::GetPRNG();
+
 		bool flagSuccess = false;
 		int32_t k;
 
@@ -335,7 +337,7 @@ namespace lbcrypto {
 			if (!AlgorithmP(k * (k - 1))) continue;
 		
 			// STEP D3
-			int s = uniform_sign(PseudoRandomNumberGenerator::GetPRNG());
+			int s = uniform_sign(g);
 			if (s == 0)
 				s = -1;
 
@@ -343,7 +345,7 @@ namespace lbcrypto {
 			double di0 = stddev * k + s * mean;
 			int32_t i0 = std::ceil(di0);
 			double x0 = (i0 - di0) / stddev;
-			int32_t j = uniform_j(PseudoRandomNumberGenerator::GetPRNG());
+			int32_t j = uniform_j(g);
 
 			double x = x0 + j / stddev;
 
@@ -380,21 +382,23 @@ namespace lbcrypto {
 	// Call the double-precision algorithm
 	template<typename IntType, typename VecType>
 	bool DiscreteGaussianGeneratorImpl<IntType, VecType>::AlgorithmH(){
+
+		std::mt19937 &g = PseudoRandomNumberGenerator::GetPRNG();
 		
 		std::uniform_real_distribution<float> dist(0,1);
 		float h_a, h_b;
-		h_a = dist(PseudoRandomNumberGenerator::GetPRNG());
+		h_a = dist(g);
 
 		// less than the half
 		if (!(h_a < 0.5)) return true;
 		else if (h_a < 0.5)
 		{
 			for (;;) {
-				h_b = dist(PseudoRandomNumberGenerator::GetPRNG());
+				h_b = dist(g);
 				if (!(h_b < h_a))
 					return false;
 				else if (h_b < h_a)
-					h_a = dist(PseudoRandomNumberGenerator::GetPRNG());
+					h_a = dist(g);
 				else //numbers are equal - need higher precision
 					return AlgorithmHDouble();
 				if (!(h_a < h_b))
@@ -409,17 +413,20 @@ namespace lbcrypto {
 
 	template<typename IntType, typename VecType>
 	bool DiscreteGaussianGeneratorImpl<IntType, VecType>::AlgorithmHDouble() {
+
+		std::mt19937 &g = PseudoRandomNumberGenerator::GetPRNG();	
+	
 		std::uniform_real_distribution<double> dist(0, 1);
 		double h_a, h_b;
-		h_a = dist(PseudoRandomNumberGenerator::GetPRNG());
+		h_a = dist(g);
 		// less than the half
 		if (!(h_a < 0.5)) return true;
 		for (;;) {
-			h_b = dist(PseudoRandomNumberGenerator::GetPRNG());
+			h_b = dist(g);
 			if (!(h_b<h_a))
 				return false;
 			else
-				h_a = dist(PseudoRandomNumberGenerator::GetPRNG());
+				h_a = dist(g);
 			if (!(h_a<h_b)) return true;
 		}
 	}
@@ -432,12 +439,14 @@ namespace lbcrypto {
 		int32_t n = 0, m = 2 * k + 2;
 		double z, r;
 
+		std::mt19937 &g = PseudoRandomNumberGenerator::GetPRNG();
+
 		for (;; ++n) {
 		
-			z = dist(PseudoRandomNumberGenerator::GetPRNG());
+			z = dist(g);
 			if (!(z < y))
 				break;
-			r = dist(PseudoRandomNumberGenerator::GetPRNG());
+			r = dist(g);
 			if (!(r < (2 * k + x) / m))
 				break;
 			y = z;
