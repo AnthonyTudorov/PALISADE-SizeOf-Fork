@@ -306,12 +306,13 @@ namespace lbcrypto {
 			}
 			//DEBUG("x "<<x<<" dice "<<dice);
 			count++;
-			if (count>limit) {
-				DEBUG("x "<<x<<" dice "<<dice);
+			if (count > limit) {
+				DEBUG("x " << x << " dice " << dice);
 				throw std::runtime_error("GenerateInteger could not find success after repeated attempts");
-		}
+			}
 
 		}
+
 		}//end pragma
 		return x;
 
@@ -321,7 +322,7 @@ namespace lbcrypto {
 
 		int32_t result;
 		std::uniform_int_distribution<int32_t> uniform_sign(0, 1);
-		std::uniform_int_distribution<int32_t> uniform_j(0, ceil(stddev));
+		std::uniform_int_distribution<int32_t> uniform_j(0, ceil(stddev)-1);
 
 		std::mt19937 &g = PseudoRandomNumberGenerator::GetPRNG();
 
