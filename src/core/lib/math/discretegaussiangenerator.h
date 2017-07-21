@@ -162,11 +162,11 @@ private:
 		return pow(M_E, sigmaFactor*(x - mean)*(x - mean));
 	}
 
-	static bool AlgorithmP(int n);
-	static int32_t AlgorithmG();
-	static bool AlgorithmH();
-	static bool AlgorithmHDouble();
-	static bool AlgorithmB(int32_t k, double x);
+	static bool AlgorithmP(std::mt19937 &g, int n);
+	static int32_t AlgorithmG(std::mt19937 &g);
+	static bool AlgorithmH(std::mt19937 &g);
+	static bool AlgorithmHDouble(std::mt19937 &g);
+	static bool AlgorithmB(std::mt19937 &g, int32_t k, double x);
 
 
 	// Gyana to add precomputation methods and data members

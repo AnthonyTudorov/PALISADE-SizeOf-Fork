@@ -331,10 +331,10 @@ namespace lbcrypto {
 		while (!flagSuccess) {
 			
 			// STEP D1
-			k = AlgorithmG();
+			k = AlgorithmG(g);
 
 			// STEP D2
-			if (!AlgorithmP(k * (k - 1))) continue;
+			if (!AlgorithmP(g, k * (k - 1))) continue;
 		
 			// STEP D3
 			int s = uniform_sign(g);
@@ -354,7 +354,7 @@ namespace lbcrypto {
 				continue;
 
 			// STEP D7
-			int32_t h = k + 1; while (h-- && AlgorithmB(k, x)) {};
+			int32_t h = k + 1; while (h-- && AlgorithmB(g, k, x)) {};
 			if (!(h < 0)) continue;
 
 			// STEP D8
@@ -368,22 +368,20 @@ namespace lbcrypto {
 	}
 	
 	template<typename IntType, typename VecType>
-	bool DiscreteGaussianGeneratorImpl<IntType, VecType>::AlgorithmP(int n){
-		while (n-- && AlgorithmH()){}; return n < 0;
+	bool DiscreteGaussianGeneratorImpl<IntType, VecType>::AlgorithmP(std::mt19937 &g, int n){
+		while (n-- && AlgorithmH(g)){}; return n < 0;
 	}
 
 	template<typename IntType, typename VecType>
-	int32_t DiscreteGaussianGeneratorImpl<IntType, VecType>::AlgorithmG()
+	int32_t DiscreteGaussianGeneratorImpl<IntType, VecType>::AlgorithmG(std::mt19937 &g)
 	{
-		int n = 0; while (AlgorithmH()) ++n; return n;
+		int n = 0; while (AlgorithmH(g)) ++n; return n;
 	}
 
 	// Use 16 random bits in most cases; if a situation w/ not enough precision is encountered,
 	// Call the double-precision algorithm
 	template<typename IntType, typename VecType>
-	bool DiscreteGaussianGeneratorImpl<IntType, VecType>::AlgorithmH(){
-
-		std::mt19937 &g = PseudoRandomNumberGenerator::GetPRNG();
+	bool DiscreteGaussianGeneratorImpl<IntType, VecType>::AlgorithmH(std::mt19937 &g){
 		
 		std::uniform_real_distribution<float> dist(0,1);
 		float h_a, h_b;
@@ -400,21 +398,19 @@ namespace lbcrypto {
 				else if (h_b < h_a)
 					h_a = dist(g);
 				else //numbers are equal - need higher precision
-					return AlgorithmHDouble();
+					return AlgorithmHDouble(g);
 				if (!(h_a < h_b))
 					return true;
 				else if (h_a == h_b) //numbers are equal - need higher precision
-					return AlgorithmHDouble();
+					return AlgorithmHDouble(g);
 			}
 		}
 		else //numbers are equal - need higher precision
-			return AlgorithmHDouble();
+			return AlgorithmHDouble(g);
 	}
 
 	template<typename IntType, typename VecType>
-	bool DiscreteGaussianGeneratorImpl<IntType, VecType>::AlgorithmHDouble() {
-
-		std::mt19937 &g = PseudoRandomNumberGenerator::GetPRNG();	
+	bool DiscreteGaussianGeneratorImpl<IntType, VecType>::AlgorithmHDouble(std::mt19937 &g) {
 	
 		std::uniform_real_distribution<double> dist(0, 1);
 		double h_a, h_b;
@@ -432,14 +428,12 @@ namespace lbcrypto {
 	}
 
 	template<typename IntType, typename VecType>
-	bool DiscreteGaussianGeneratorImpl<IntType, VecType>::AlgorithmB(int32_t k, double x) {
+	bool DiscreteGaussianGeneratorImpl<IntType, VecType>::AlgorithmB(std::mt19937 &g, int32_t k, double x) {
 		std::uniform_real_distribution<double> dist(0.0, 1.0);
 
 		double y = x;
 		int32_t n = 0, m = 2 * k + 2;
 		double z, r;
-
-		std::mt19937 &g = PseudoRandomNumberGenerator::GetPRNG();
 
 		for (;; ++n) {
 		
