@@ -33,7 +33,7 @@ namespace lbcrypto {
 template <typename Element>
 void CryptoContext<Element>::EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> key) {
 
-	if( key == NULL || key->GetCryptoContext() != this )
+	if( key == NULL || Mismatched(key->GetCryptoContext()) )
 		throw std::logic_error("Key passed to EvalMultKeyGen were not generated with this crypto context");
 
 	double start = 0;
@@ -56,11 +56,11 @@ void CryptoContext<Element>::EvalSumKeyGen(
 	const shared_ptr<LPPrivateKey<Element>> privateKey,
 	const shared_ptr<LPPublicKey<Element>> publicKey) {
 
-	if( privateKey == NULL || privateKey->GetCryptoContext() != this ) {
+	if( privateKey == NULL || Mismatched(privateKey->GetCryptoContext()) ) {
 		throw std::logic_error("Private key passed to EvalSumKeyGen were not generated with this crypto context");
 	}
 
-	if( publicKey != NULL && publicKey->GetCryptoContext() != this ) {
+	if( publicKey != NULL && Mismatched(publicKey->GetCryptoContext()) ) {
 		throw std::logic_error("Public key passed to EvalSumKeyGen were not generated with this crypto context");
 	}
 
@@ -82,7 +82,7 @@ const std::map<usint, shared_ptr<LPEvalKey<Element>>>& CryptoContext<Element>::G
 template <typename Element>
 shared_ptr<Ciphertext<Element>> CryptoContext<Element>::EvalSum(const shared_ptr<Ciphertext<Element>> ciphertext, usint batchSize) const {
 
-	if( ciphertext == NULL || ciphertext->GetCryptoContext() != this )
+	if( ciphertext == NULL || Mismatched(ciphertext->GetCryptoContext()) )
 		throw std::logic_error("Information passed to EvalAdd was not generated with this crypto context");
 
 	double start = 0;
@@ -97,7 +97,9 @@ shared_ptr<Ciphertext<Element>> CryptoContext<Element>::EvalSum(const shared_ptr
 template <typename Element>
 shared_ptr<Ciphertext<Element>> CryptoContext<Element>::EvalInnerProduct(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Ciphertext<Element>> ct2, usint batchSize) const {
 
-	if( ct1 == NULL || ct2 == NULL || ct1->GetCryptoContext() != this || ct2->GetCryptoContext() != this )
+	if( ct1 == NULL || ct2 == NULL ||
+			Mismatched(ct1->GetCryptoContext()) ||
+			Mismatched(ct2->GetCryptoContext()) )
 		throw std::logic_error("Information passed to EvalAdd was not generated with this crypto context");
 
 	auto evalMultKey = GetEvalMultKey();
@@ -281,7 +283,8 @@ CryptoContextFactory<Element>::DeserializeAndCreateContext(const Serialized& ser
 
 	shared_ptr<LPPublicKeyEncryptionScheme<Element>> scheme = GetSchemeObject<Element>(parmName);
 
-	shared_ptr<CryptoContext<Element>> cc(new CryptoContext<Element>(cp, scheme));
+	shared_ptr<CryptoContext<Element>> cc =
+			CryptoContextFactory<Element>::GetContext(cp, scheme);
 
 	Serialized::ConstMemberIterator sIter = mIter->value.FindMember("Schemes");
 	if( sIter != mIter->value.MemberEnd() ) {
@@ -753,11 +756,12 @@ template <typename T>
 shared_ptr<LPPublicKey<T>>
 CryptoContext<T>::deserializePublicKey(const Serialized& serObj)
 {
-	if( CryptoContextHelper::matchContextToSerialization(this, serObj) == false ) {
-		return shared_ptr<LPPublicKey<T>>();
-	}
+	shared_ptr<CryptoContext<T>> cc = CryptoContextFactory<T>::DeserializeAndCreateContext(serObj);
+	if( cc == 0 )
+		return 0;
 
-	shared_ptr<LPPublicKey<T>> key( new LPPublicKey<T>(this) );
+
+	shared_ptr<LPPublicKey<T>> key( new LPPublicKey<T>(cc) );
 
 	if( key->Deserialize(serObj) )
 		return key;
@@ -769,11 +773,12 @@ template <typename T>
 shared_ptr<LPPrivateKey<T>>
 CryptoContext<T>::deserializeSecretKey(const Serialized& serObj)
 {
-	if( CryptoContextHelper::matchContextToSerialization(this, serObj) == false ) {
-		return shared_ptr<LPPrivateKey<T>>();
-	}
+	shared_ptr<CryptoContext<T>> cc = CryptoContextFactory<T>::DeserializeAndCreateContext(serObj);
+	if( cc == 0 )
+		return 0;
 
-	shared_ptr<LPPrivateKey<T>> key( new LPPrivateKey<T>(this) );
+
+	shared_ptr<LPPrivateKey<T>> key( new LPPrivateKey<T>(cc) );
 
 	if( key->Deserialize(serObj) )
 		return key;
@@ -785,11 +790,12 @@ template <typename T>
 shared_ptr<Ciphertext<T>>
 CryptoContext<T>::deserializeCiphertext(const Serialized& serObj)
 {
-	if( CryptoContextHelper::matchContextToSerialization(this, serObj) == false ) {
-		return shared_ptr<Ciphertext<T>>();
-	}
+	shared_ptr<CryptoContext<T>> cc = CryptoContextFactory<T>::DeserializeAndCreateContext(serObj);
+	if( cc == 0 )
+		return 0;
 
-	shared_ptr<Ciphertext<T>> ctxt( new Ciphertext<T>(this) );
+
+	shared_ptr<Ciphertext<T>> ctxt( new Ciphertext<T>( cc ) );
 
 	if( ctxt->Deserialize(serObj) )
 		return ctxt;
@@ -801,6 +807,10 @@ template <typename T>
 shared_ptr<LPEvalKey<T>>
 CryptoContext<T>::deserializeEvalKey(const Serialized& serObj)
 {
+	shared_ptr<CryptoContext<T>> cc = CryptoContextFactory<T>::DeserializeAndCreateContext(serObj);
+	if( cc == 0 )
+		return 0;
+
 	Serialized::ConstMemberIterator nIt = serObj.FindMember("Object");
 	if( nIt == serObj.MemberEnd() )
 		return 0;
@@ -808,7 +818,7 @@ CryptoContext<T>::deserializeEvalKey(const Serialized& serObj)
 	shared_ptr<LPEvalKey<T>> key;
 	string oname = nIt->value.GetString();
 	if( oname == "EvalKeyRelin" ) {
-		LPEvalKeyRelin<T> *k = new LPEvalKeyRelin<T>(this);
+		LPEvalKeyRelin<T> *k = new LPEvalKeyRelin<T>(cc);
 		if( k->Deserialize(serObj) == false )
 			return 0;
 
@@ -816,14 +826,14 @@ CryptoContext<T>::deserializeEvalKey(const Serialized& serObj)
 	}
 
 	else if( oname == "EvalKeyNTRURelin" ) {
-		LPEvalKeyNTRURelin<T> *k = new LPEvalKeyNTRURelin<T>(this);
+		LPEvalKeyNTRURelin<T> *k = new LPEvalKeyNTRURelin<T>(cc);
 		if( k->Deserialize(serObj) == false )
 			return 0;
 
 		key.reset( k );
 	}
 	else if( oname == "EvalKeyNTRU" ) {
-		LPEvalKeyNTRU<T> *k = new LPEvalKeyNTRU<T>(this);
+		LPEvalKeyNTRU<T> *k = new LPEvalKeyNTRU<T>(cc);
 		if( k->Deserialize(serObj) == false )
 			return 0;
 

@@ -218,7 +218,7 @@ public:
 	* @param &privateKey private key used for decryption.
 	* @return function ran correctly.
 	*/
-	virtual LPKeyPair<Element> KeyGen(CryptoContext<Element>* cc, bool makeSparse=false) {
+	virtual LPKeyPair<Element> KeyGen(shared_ptr<CryptoContext<Element>> cc, bool makeSparse=false) {
 		LPKeyPair<Element>	kp( new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc) );
 
 		Element a(cc->GetCryptoParameters()->GetElementParams(), Format::COEFFICIENT, true);
@@ -336,7 +336,7 @@ public:
 		* @param makeSparse set to true if ring reduce by a factor of 2 is to be used.
 		* @return key pair including the private and public key
 		*/
-	LPKeyPair<Element> MultipartyKeyGen(CryptoContext<Element>* cc,
+	LPKeyPair<Element> MultipartyKeyGen(shared_ptr<CryptoContext<Element>> cc,
 		const shared_ptr<LPPublicKey<Element>> pk1,
 		bool makeSparse=false) {
 		LPKeyPair<Element>	kp( new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc) );
@@ -357,7 +357,7 @@ public:
 		* @param makeSparse set to true if ring reduce by a factor of 2 is to be used.
 		* @return key pair including the private and public key
 		*/
-	LPKeyPair<Element> MultipartyKeyGen(CryptoContext<Element>* cc,
+	LPKeyPair<Element> MultipartyKeyGen(shared_ptr<CryptoContext<Element>> cc,
 		const vector<shared_ptr<LPPrivateKey<Element>>>& secretKeys,
 		bool makeSparse=false) {
 		LPKeyPair<Element>	kp( new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc) );

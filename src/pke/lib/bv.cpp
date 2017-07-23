@@ -92,7 +92,7 @@ namespace lbcrypto {
 
 	//makeSparse is not used by this scheme
 	template <class Element>
-	LPKeyPair<Element> LPAlgorithmBV<Element>::KeyGen(CryptoContext<Element>* cc, bool makeSparse)
+	LPKeyPair<Element> LPAlgorithmBV<Element>::KeyGen(shared_ptr<CryptoContext<Element>> cc, bool makeSparse)
 	{
 
 		LPKeyPair<Element>	kp(new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc));
@@ -619,7 +619,7 @@ namespace lbcrypto {
 
 	//makeSparse is not used by this scheme
 	template <class Element>
-	LPKeyPair<Element> LPAlgorithmMultipartyBV<Element>::MultipartyKeyGen(CryptoContext<Element>* cc,
+	LPKeyPair<Element> LPAlgorithmMultipartyBV<Element>::MultipartyKeyGen(shared_ptr<CryptoContext<Element>> cc,
 		const vector<shared_ptr<LPPrivateKey<Element>>>& secretKeys,
 		bool makeSparse)
 	{
@@ -662,7 +662,7 @@ namespace lbcrypto {
 
 //makeSparse is not used by this scheme
 template <class Element>
-LPKeyPair<Element> LPAlgorithmMultipartyBV<Element>::MultipartyKeyGen(CryptoContext<Element>* cc,
+LPKeyPair<Element> LPAlgorithmMultipartyBV<Element>::MultipartyKeyGen(shared_ptr<CryptoContext<Element>> cc,
 		const shared_ptr<LPPublicKey<Element>> pk1, bool makeSparse)
 	{
 

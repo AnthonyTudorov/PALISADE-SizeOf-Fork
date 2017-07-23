@@ -40,32 +40,34 @@ namespace lbcrypto {
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
-	class Ciphertext : public CryptoObject<Element>, public Serializable {
+	class Ciphertext : public CryptoObject<Element> {
 	public:
 
 		/**
 		* Default constructor
 		*/
-		Ciphertext() : m_isEncrypted(true), m_depth(1)  {}
+		Ciphertext() : CryptoObject<Element>(), m_isEncrypted(true), m_depth(1) {}
 
 		/**
 		 * Construct a new ciphertext in the given context
 		 *
 		 * @param cc
 		 */
-		Ciphertext(shared_ptr<CryptoContext<Element>> cc) : CryptoObject<Element>(cc.get()), m_isEncrypted(true), m_depth(1) {}
+		Ciphertext(shared_ptr<CryptoContext<Element>> cc, const string& id = "") :
+			CryptoObject<Element>(cc, id), m_isEncrypted(true), m_depth(1) {}
 
 		/**
-		 * Construct a new ciphertext in the given context
+		 * Construct a new ciphertext from the parameters of a given public key
 		 *
-		 * @param cc
+		 * @param k key whose CryptoObject parameters will get cloned
 		 */
-		Ciphertext(CryptoContext<Element>* cc) : CryptoObject<Element>(cc), m_isEncrypted(true), m_depth(1)  {}
+		Ciphertext(const shared_ptr<LPKey<Element>> k) :
+			CryptoObject<Element>(k->GetCryptoContext(), k->GetKeyTag()), m_isEncrypted(true), m_depth(1) {}
 
 		/**
 		* Copy constructor
 		*/
-		Ciphertext(const Ciphertext<Element> &ciphertext) : CryptoObject<Element>(ciphertext.GetCryptoContext()) {
+		Ciphertext(const Ciphertext<Element> &ciphertext) : CryptoObject<Element>(ciphertext) {
 			m_elements = ciphertext.m_elements;
 			m_isEncrypted = ciphertext.m_isEncrypted;
 			m_depth = ciphertext.m_depth;
@@ -74,10 +76,15 @@ namespace lbcrypto {
 		/**
 		* Move constructor
 		*/
-		Ciphertext(Ciphertext<Element> &&ciphertext) : CryptoObject<Element>(ciphertext.GetCryptoContext()) {
+		Ciphertext(Ciphertext<Element> &&ciphertext) : CryptoObject<Element>(ciphertext) {
 			m_elements = std::move(ciphertext.m_elements);
 			m_isEncrypted = std::move(ciphertext.m_isEncrypted);
 			m_depth = std::move(ciphertext.m_depth);
+		}
+
+		shared_ptr<Ciphertext<Element>> CloneEmpty() const {
+			shared_ptr<Ciphertext<Element>> ct( new Ciphertext<Element>(this->GetCryptoContext(), this->GetKeyTag()) );
+			return ct;
 		}
 
 		/**
@@ -93,7 +100,7 @@ namespace lbcrypto {
 		*/
 		Ciphertext<Element>& operator=(const Ciphertext<Element> &rhs) {
 			if (this != &rhs) {
-				this->context = rhs.context;
+				CryptoObject<Element>::operator=(rhs);
 				this->m_elements = rhs.m_elements;
 				this->m_depth = rhs.m_depth;
 			}
@@ -109,8 +116,7 @@ namespace lbcrypto {
 		*/
 		Ciphertext<Element>& operator=(Ciphertext<Element> &&rhs) {
 			if (this != &rhs) {
-				this->context = rhs.context;
-				rhs.context = 0;
+				CryptoObject<Element>::operator=(rhs);
 				m_elements = std::move(rhs.m_elements);
 				m_depth = std::move(rhs.m_depth);
 			}
@@ -204,8 +210,11 @@ namespace lbcrypto {
 		*/
 		bool Deserialize(const Serialized& serObj);
 
-		inline bool operator==(const Ciphertext<Element>& rhs) const {
-			if( *this->GetCryptoParameters() != *rhs.GetCryptoParameters() )
+		bool operator==(const Ciphertext<Element>& rhs) const {
+			if( !CryptoObject<Element>::operator==(rhs) )
+				return false;
+
+			if( this->m_depth != rhs.m_depth || this->m_isEncrypted != rhs.m_isEncrypted )
 				return false;
 
 			const std::vector<Element> &lhsE = this->GetElements();
@@ -223,7 +232,7 @@ namespace lbcrypto {
 			return true;
 		}
 
-		inline bool operator!=(const Ciphertext<Element>& rhs) const {
+		bool operator!=(const Ciphertext<Element>& rhs) const {
 			return ! (*this == rhs);
 		}
 

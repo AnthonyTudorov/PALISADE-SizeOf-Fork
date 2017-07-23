@@ -82,9 +82,6 @@ public:
 	 * @return newly constructed CryptoContext, or null on failure
 	 */
 	static shared_ptr<CryptoContext<DCRTPoly>> getNewDCRTContext(const string& parmsetname, usint numTowers, usint primeBits);
-
-	static bool matchContextToSerialization(const CryptoContext<Poly> *cc, const Serialized& ser);
-	static bool matchContextToSerialization(const CryptoContext<DCRTPoly> *cc, const Serialized& ser);
 };
 
 }

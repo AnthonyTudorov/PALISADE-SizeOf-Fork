@@ -273,7 +273,7 @@ bool LPAlgorithmParamsGenFV<Element>::ParamsGen(shared_ptr<LPCryptoParameters<El
 
 //makeSparse is not used by this scheme
 template <class Element>
-LPKeyPair<Element> LPAlgorithmFV<Element>::KeyGen(CryptoContext<Element>* cc, bool makeSparse)
+LPKeyPair<Element> LPAlgorithmFV<Element>::KeyGen(shared_ptr<CryptoContext<Element>> cc, bool makeSparse)
 {
 
 	LPKeyPair<Element>	kp( new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc) );
@@ -1016,7 +1016,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmPREFV<Element>::ReEncrypt(const share
 
 //makeSparse is not used by this scheme
 template <class Element>
-LPKeyPair<Element> LPAlgorithmMultipartyFV<Element>::MultipartyKeyGen(CryptoContext<Element>* cc,
+LPKeyPair<Element> LPAlgorithmMultipartyFV<Element>::MultipartyKeyGen(shared_ptr<CryptoContext<Element>> cc,
 		const vector<shared_ptr<LPPrivateKey<Element>>>& secretKeys,
 		bool makeSparse)
 {
@@ -1066,7 +1066,7 @@ LPKeyPair<Element> LPAlgorithmMultipartyFV<Element>::MultipartyKeyGen(CryptoCont
 
 //makeSparse is not used by this scheme
 template <class Element>
-LPKeyPair<Element> LPAlgorithmMultipartyFV<Element>::MultipartyKeyGen(CryptoContext<Element>* cc,
+LPKeyPair<Element> LPAlgorithmMultipartyFV<Element>::MultipartyKeyGen(shared_ptr<CryptoContext<Element>> cc,
 		const shared_ptr<LPPublicKey<Element>> pk1, bool makeSparse)
 {
 

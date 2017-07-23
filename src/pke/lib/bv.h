@@ -280,7 +280,7 @@ namespace lbcrypto {
 		* @param makeSparse is a boolean flag that species if the key is sparse(interleaved zeroes) or not.
 		* @return KeyPair containting private key and public key.
 		*/
-		LPKeyPair<Element> KeyGen(CryptoContext<Element>* cc, bool makeSparse=false);
+		LPKeyPair<Element> KeyGen(shared_ptr<CryptoContext<Element>> cc, bool makeSparse=false);
 
 	};
 
@@ -595,7 +595,7 @@ namespace lbcrypto {
 		* @param makeSparse set to true if ring reduce by a factor of 2 is to be used.
 		* @return key pair including the private and public key
 		*/
-		LPKeyPair<Element> MultipartyKeyGen(CryptoContext<Element>* cc,
+		LPKeyPair<Element> MultipartyKeyGen(shared_ptr<CryptoContext<Element>> cc,
 			const shared_ptr<LPPublicKey<Element>> pk1,
 			bool makeSparse=false);
 
@@ -607,7 +607,7 @@ namespace lbcrypto {
 		* @param makeSparse set to true if ring reduce by a factor of 2 is to be used.
 		* @return key pair including the private and public key
 		*/
-		LPKeyPair<Element> MultipartyKeyGen(CryptoContext<Element>* cc,
+		LPKeyPair<Element> MultipartyKeyGen(shared_ptr<CryptoContext<Element>> cc,
 		const vector<shared_ptr<LPPrivateKey<Element>>>& secretKeys,
 			bool makeSparse=false);
 

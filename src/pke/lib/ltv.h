@@ -289,7 +289,7 @@ public:
 	 * @param makeSparse True to generate a sparse key pair.
 	 * @return Public and private key pair.
 	 */
-	LPKeyPair<Element> KeyGen(CryptoContext<Element>* cc, bool makeSparse = false);
+	LPKeyPair<Element> KeyGen(shared_ptr<CryptoContext<Element>> cc, bool makeSparse = false);
 };
 
 /**
@@ -375,7 +375,7 @@ public:
 		* @param makeSparse set to true if ring reduce by a factor of 2 is to be used.
 		* @return key pair including the private and public key
 		*/
-	LPKeyPair<Element> MultipartyKeyGen(CryptoContext<Element>* cc,
+	LPKeyPair<Element> MultipartyKeyGen(shared_ptr<CryptoContext<Element>> cc,
 		const shared_ptr<LPPublicKey<Element>> pk1,
 		bool makeSparse=false) {
 		std::string errMsg = "LPAlgorithmPRELTV::MultipartyKeyGen using the new secret key is not implemented for the LTV Scheme.";
@@ -388,7 +388,7 @@ public:
 		 * @param privateKey private key used for decryption.
 		 * @param ciphertext ciphertext id decrypted.
 		 */
-	LPKeyPair<Element> MultipartyKeyGen(CryptoContext<Element>* cc,
+	LPKeyPair<Element> MultipartyKeyGen(shared_ptr<CryptoContext<Element>> cc,
 		const vector<shared_ptr<LPPrivateKey<Element>>>& secretKeys,
 		bool makeSparse=false) {
 		std::string errMsg = "LPAlgorithmPRELTV::MultipartyKeyGen using the new secret key is not implemented for the LTV Scheme.";

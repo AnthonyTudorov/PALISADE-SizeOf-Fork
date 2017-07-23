@@ -114,9 +114,7 @@ namespace lbcrypto {
 	template <class Element>
 	class LPKey : public CryptoObject<Element>, public Serializable {
 	public:
-		LPKey(CryptoContext<Element>* cc) : CryptoObject<Element>(cc) {}
-
-		LPKey(shared_ptr<CryptoContext<Element>> cc) : CryptoObject<Element>(cc.get()) {}
+		LPKey(shared_ptr<CryptoContext<Element>> cc) : CryptoObject<Element>(cc) {}
 
 		virtual ~LPKey() {}
 	};
@@ -134,7 +132,7 @@ namespace lbcrypto {
 			*
 			* @param &cryptoParams is the reference to cryptoParams
 			*/
-			LPPublicKey(CryptoContext<Element>* cc) : LPKey<Element>(cc) {}
+			LPPublicKey(shared_ptr<CryptoContext<Element>> cc) : LPKey<Element>(cc) {}
 
 			/**
 			* Copy constructor
@@ -270,7 +268,7 @@ namespace lbcrypto {
 		* @param &cryptoParams is the reference to cryptoParams
 		*/
 
-		LPEvalKey(CryptoContext<Element>* cc) : LPKey<Element>(cc) {}
+		LPEvalKey(shared_ptr<CryptoContext<Element>> cc) : LPKey<Element>(cc) {}
 
 		virtual ~LPEvalKey() {}
 
@@ -394,7 +392,7 @@ namespace lbcrypto {
 		*
 		* @param &cryptoParams is the reference to cryptoParams
 		*/
-		LPEvalKeyRelin(CryptoContext<Element>* cc) : LPEvalKey<Element>(cc) {}
+		LPEvalKeyRelin(shared_ptr<CryptoContext<Element>> cc) : LPEvalKey<Element>(cc) {}
 
 		virtual ~LPEvalKeyRelin() {}
 
@@ -554,7 +552,7 @@ namespace lbcrypto {
 		* @param &cryptoParams is the reference to cryptoParams
 		*/
 
-		LPEvalKeyNTRURelin(CryptoContext<Element>* cc) : LPEvalKey<Element>(cc) {}
+		LPEvalKeyNTRURelin(shared_ptr<CryptoContext<Element>> cc) : LPEvalKey<Element>(cc) {}
 
 		virtual ~LPEvalKeyNTRURelin() {}
 
@@ -684,7 +682,7 @@ namespace lbcrypto {
 		* @param &cryptoParams is the reference to cryptoParams
 		*/
 
-		LPEvalKeyNTRU(CryptoContext<Element>* cc) : LPEvalKey<Element>(cc) {}
+		LPEvalKeyNTRU(shared_ptr<CryptoContext<Element>> cc) : LPEvalKey<Element>(cc) {}
 
 		virtual ~LPEvalKeyNTRU() {}
 
@@ -1008,7 +1006,7 @@ namespace lbcrypto {
 			 * @param &privateKey private key used for decryption.
 			 * @return function ran correctly.
 			 */
-			virtual LPKeyPair<Element> KeyGen(CryptoContext<Element>* cc, bool makeSparse=false) = 0;
+			virtual LPKeyPair<Element> KeyGen(shared_ptr<CryptoContext<Element>> cc, bool makeSparse=false) = 0;
 
 	};
 
@@ -1143,7 +1141,7 @@ namespace lbcrypto {
 			* @param makeSparse set to true if ring reduce by a factor of 2 is to be used.
 			* @return key pair including the private and public key
 			*/
-			virtual LPKeyPair<Element> MultipartyKeyGen(CryptoContext<Element>* cc,
+			virtual LPKeyPair<Element> MultipartyKeyGen(shared_ptr<CryptoContext<Element>> cc,
 				const shared_ptr<LPPublicKey<Element>> pk1,
 				bool makeSparse=false) = 0;
 
@@ -1155,7 +1153,7 @@ namespace lbcrypto {
 			* @param makeSparse set to true if ring reduce by a factor of 2 is to be used.
 			* @return key pair including the private and public key
 			*/
-			virtual LPKeyPair<Element> MultipartyKeyGen(CryptoContext<Element>* cc,
+			virtual LPKeyPair<Element> MultipartyKeyGen(shared_ptr<CryptoContext<Element>> cc,
 				const vector<shared_ptr<LPPrivateKey<Element>>>& secretKeys,
 				bool makeSparse=false) = 0;
 
@@ -1923,7 +1921,7 @@ namespace lbcrypto {
 				}
 		}
 
-		LPKeyPair<Element> KeyGen(CryptoContext<Element>* cc, bool makeSparse) {
+		LPKeyPair<Element> KeyGen(shared_ptr<CryptoContext<Element>> cc, bool makeSparse) {
 				if(this->m_algorithmEncryption)
 					return this->m_algorithmEncryption->KeyGen(cc, makeSparse);
 				else {
@@ -1967,7 +1965,7 @@ namespace lbcrypto {
 		//
 
 		// Wrapper for Multiparty Key Gen
-		LPKeyPair<Element> MultipartyKeyGen(CryptoContext<Element>* cc,
+		LPKeyPair<Element> MultipartyKeyGen(shared_ptr<CryptoContext<Element>> cc,
 			const shared_ptr<LPPublicKey<Element>> pk1,
 			bool makeSparse) {
 				if(this->m_algorithmMultiparty)
@@ -1978,7 +1976,7 @@ namespace lbcrypto {
 		}
 
 		// Wrapper for Multiparty Key Gen
-		LPKeyPair<Element> MultipartyKeyGen(CryptoContext<Element>* cc,
+		LPKeyPair<Element> MultipartyKeyGen(shared_ptr<CryptoContext<Element>> cc,
 			const vector<shared_ptr<LPPrivateKey<Element>>>& secretKeys,
 			bool makeSparse) {
 				if(this->m_algorithmMultiparty)

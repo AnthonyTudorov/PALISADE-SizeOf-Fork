@@ -47,14 +47,14 @@ namespace lbcrypto {
 		/**
 		* Default constructor
 		*/
-		RationalCiphertext() : m_integerFlag(false) {}
+		RationalCiphertext() : CryptoObject<Element>(0), m_integerFlag(false) {}
 
 		/**
 		 * Construct a new ciphertext in the given context
 		 *
 		 * @param cc
 		 */
-		RationalCiphertext(CryptoContext<Element> *cc, bool integerFlag = false) : CryptoObject<Element>(cc) {
+		RationalCiphertext(shared_ptr<CryptoContext<Element>> cc, bool integerFlag = false) : CryptoObject<Element>(cc) {
 			m_numerator = std::make_shared<Ciphertext<Element>>(cc);
 			if (!integerFlag)
 				m_denominator = std::make_shared<Ciphertext<Element>>(cc);

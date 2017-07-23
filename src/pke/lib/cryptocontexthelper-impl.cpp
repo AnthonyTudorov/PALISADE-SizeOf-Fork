@@ -207,29 +207,6 @@ inline shared_ptr<LPCryptoParameters<Element>> DeserializeAndValidateCryptoParam
 	return 0;
 }
 
-
-bool
-CryptoContextHelper::matchContextToSerialization(const CryptoContext<Poly> *cc, const Serialized& ser)
-{
-	shared_ptr<LPCryptoParameters<Poly>> ctxParams = cc->GetCryptoParameters();
-	shared_ptr<LPCryptoParameters<Poly>> cParams = DeserializeCryptoParameters<Poly>(ser);
-
-	if( !cParams ) return false;
-
-	return *ctxParams == *cParams;
-}
-
-bool
-CryptoContextHelper::matchContextToSerialization(const CryptoContext<DCRTPoly> *cc, const Serialized& ser)
-{
-	shared_ptr<LPCryptoParameters<DCRTPoly>> ctxParams = cc->GetCryptoParameters();
-	shared_ptr<LPCryptoParameters<DCRTPoly>> cParams = DeserializeCryptoParameters<DCRTPoly>(ser);
-
-	if( !cParams ) return false;
-
-	return *ctxParams == *cParams;
-}
-
 shared_ptr<CryptoContext<Poly>>
 CryptoContextHelper::getNewContext(const string& parmset, shared_ptr<EncodingParams> ep)
 {
