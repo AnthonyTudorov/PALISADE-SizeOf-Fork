@@ -119,7 +119,7 @@ namespace lbcrypto {
 
 			vector<int32_t> p(k);
 
-			LatticeGaussSampUtility::Perturb(stddev, k, u.GetLength(), l, h, base, dgg, &p);
+			LatticeGaussSampUtility::Perturb(sigma, k, u.GetLength(), l, h, base, dgg, &p);
 
 			Matrix<double> a([]() { return make_unique<double>(); }, k, 1);
 

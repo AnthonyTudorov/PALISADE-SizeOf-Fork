@@ -177,6 +177,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::ParamsGen(typename Element::Dg
 	double hermiteFactor = obfuscatedPattern->GetRootHermiteFactor();
 
 	uint32_t length = obfuscatedPattern->GetLength() / obfuscatedPattern->GetChunkSize();
+	uint32_t base = obfuscatedPattern->GetBase();
 
 	//Computes the root Hermite factor for given values of q and n
 	auto delta = [&](uint32_t n, double q) { return pow(2,log2(q/sigma)/(4*n));  };
@@ -185,7 +186,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::ParamsGen(typename Element::Dg
 	auto nRLWE = [&](double q) -> double { return log2(q / sigma) / (4 * log2(hermiteFactor));  };
 
 	//Correctness constraint
-	auto qCorrectness = [&](uint32_t n, uint32_t m) -> double { return  32*Berr*(m-2)*sqrt(n)*pow(sqrt(m*n)*beta*SPECTRAL_BOUND(n,m-2),length);  };
+	auto qCorrectness = [&](uint32_t n, uint32_t m) -> double { return  32*Berr*(m-2)*sqrt(n)*pow(sqrt(m*n)*beta*SPECTRAL_BOUND(n,m-2,base),length);  };
 
 	double qPrev = 1e6;
 	double q = 0;
@@ -259,6 +260,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(typename Element::DggTy
 	usint l = obfuscatedPattern->GetLength();
 	const shared_ptr<typename Element::Params> params = obfuscatedPattern->GetParameters();
 	usint chunkSize = obfuscatedPattern->GetChunkSize();
+	usint base = obfuscatedPattern->GetBase();
 	usint adjustedLength = l/chunkSize;
 	usint stddev = dgg.GetStd(); 
 
@@ -281,7 +283,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(typename Element::DggTy
 		for(size_t i=0; i<=adjustedLength+1; i++) {
 			//build private copies in parallel
 			TIC(tp);
-			std::pair<RingMat, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev); //TODO remove stddev
+			std::pair<RingMat, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev, base); //TODO remove stddev
 			DEBUG("keygen2.0:#"<< i << ": "<<TOC(tp) <<" ms");
 
 			TIC(tp);
@@ -313,7 +315,8 @@ shared_ptr<Matrix<Element>> LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 				const Element &elemS,
 				typename Element::DggType &dgg,
 				typename Element::DggType &dggLargeSigma,
-				typename Element::DggType &dggEncoding) const {
+				typename Element::DggType &dggEncoding,
+				uint32_t base) const {
 
     TimeVar t1,t_total; // for TIC TOC
 	bool dbg_flag = 0;//set to 0 for no debug statements
@@ -349,7 +352,7 @@ shared_ptr<Matrix<Element>> LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 	for(size_t i=0; i<m; i++) {
 
 	  // the following takes approx 250 msec
-		Matrix<Element> gaussj = RLWETrapdoorUtility::GaussSamp(n,k,Ai,Ti,bj(0,i), dgg.GetStd(), dgg, dggLargeSigma);
+		Matrix<Element> gaussj = RLWETrapdoorUtility::GaussSamp(n,k,Ai,Ti,bj(0,i), dgg, dggLargeSigma, base);
 //		gaussj(0, 0).PrintValues();
 //		gaussj(1, 0).PrintValues();
 		// the following takes no time
@@ -383,12 +386,13 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 	BigInteger q(obfuscatedPattern->GetModulus());
 	usint m = obfuscatedPattern->GetLogModulus() + 2;
 	usint chunkSize = obfuscatedPattern->GetChunkSize();
+	usint base = obfuscatedPattern->GetBase();
 	usint adjustedLength = l/chunkSize;
 	usint chunkExponent = 1 << chunkSize;
 	const shared_ptr<typename Element::Params> params = obfuscatedPattern->GetParameters();
 
-	double c = 2 * SIGMA;
-	double s = SPECTRAL_BOUND(n, m - 2);
+	double c = (base + 1) * SIGMA;
+	double s = SPECTRAL_BOUND(n, m - 2, base);
 
 	typename Element::DggType dggLargeSigma(sqrt(s * s - c * c));
 
@@ -513,10 +517,10 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 
 		for(usint k=0; k<chunkExponent; k++) {
 
-			shared_ptr<Matrix<Element>> S_i = this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],s_small[i-1][k]*r_small[i-1][k],dgg, dggLargeSigma, dggEncoding);
+			shared_ptr<Matrix<Element>> S_i = this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],s_small[i-1][k]*r_small[i-1][k],dgg, dggLargeSigma, dggEncoding, base);
 			SVector.push_back(S_i);
 
-			shared_ptr<Matrix<Element>> R_i = this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],r_small[i-1][k],dgg, dggLargeSigma,dgg);
+			shared_ptr<Matrix<Element>> R_i = this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],r_small[i-1][k],dgg, dggLargeSigma,dgg, base);
 			RVector.push_back(R_i);
 
 		}
@@ -537,13 +541,13 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 	elemrl1.SwitchFormat();
 
 	shared_ptr<Matrix<Element>> Sl = 
-		this->Encode(Pk_vector[adjustedLength],Pk_vector[adjustedLength+1],Ek_vector[adjustedLength],elemrl1*s_prod,dgg, dggLargeSigma, dgg);
+		this->Encode(Pk_vector[adjustedLength],Pk_vector[adjustedLength+1],Ek_vector[adjustedLength],elemrl1*s_prod,dgg, dggLargeSigma, dgg, base);
 
 	//std::cout << "encode 1 for L ran" << std::endl;
 	//std::cout << elemrl1.GetValues() << std::endl;
 
 	shared_ptr<Matrix<Element>> Rl = 
-		this->Encode(Pk_vector[adjustedLength],Pk_vector[adjustedLength+1],Ek_vector[adjustedLength],elemrl1,dgg, dggLargeSigma, dggEncoding);
+		this->Encode(Pk_vector[adjustedLength],Pk_vector[adjustedLength+1],Ek_vector[adjustedLength],elemrl1,dgg, dggLargeSigma, dggEncoding, base);
 
 	//std::cout << "encode 2 for L ran" << std::endl;
 

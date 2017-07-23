@@ -283,6 +283,18 @@ namespace lbcrypto {
 			 */
 			shared_ptr<Matrix<Element>> GetR(usint i, const std::string &testVal) const;
 
+			/**
+			* Gets the base for G-sampling
+			* @return the base
+			*/
+			usint GetBase() const { return m_base; }
+
+			/**
+			* Sets the base for G-sampling
+			* @param base to be set;
+			*/
+			void SetBase(usint base) { m_base = base; }
+
 		private:
 
 			//length of the pattern
@@ -294,6 +306,9 @@ namespace lbcrypto {
 
 			//number of bits encoded by one matrix
 			usint m_chunkSize;
+
+			//base for G-sampling
+			usint m_base;
 
 			shared_ptr<vector< vector<shared_ptr<Matrix<Element>>> >> m_S_vec;
 			shared_ptr<vector< vector<shared_ptr<Matrix<Element>>> >> m_R_vec;
@@ -366,6 +381,7 @@ namespace lbcrypto {
 			 * @param &dgg the discrete Gaussian Generator.
 			 * @param &dggLargeSigma the discrete Gaussian Generator for perturbation sampling.
 			 * @param &dggEncoding DGG generator for encoding random ring elements.
+			 * @param base used in G-sampling
 			 */
 			shared_ptr<Matrix<Element>> Encode(
 				const Matrix<Element> &Ai,
@@ -374,7 +390,8 @@ namespace lbcrypto {
 				const Element &elemS,
 				typename Element::DggType &dgg,
 				typename Element::DggType &dggLargeSigma,
-				typename Element::DggType &EdggEncoding) const;
+				typename Element::DggType &EdggEncoding,
+				uint32_t base = 2) const;
 
 			/**
 			 * Method for evaluating the pattern - before matrix-vector optimization
