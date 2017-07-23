@@ -41,11 +41,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 using namespace std;
 using namespace lbcrypto;
 
-class UnitTestEvalLinearRegression : public ::testing::Test {
+class UTEvalLR : public ::testing::Test {
 protected:
-	virtual void SetUp() {}
+	void SetUp() {}
 
-	virtual void TearDown() {}
+	void TearDown() {
+		CryptoContextFactory<Poly>::ReleaseAllContexts();
+		CryptoContextFactory<DCRTPoly>::ReleaseAllContexts();
+	}
 
 public:
 };
@@ -61,7 +64,7 @@ rationalInt ArbBVLinearRegressionPackedArray();
 
 rationalInt ArbFVLinearRegressionPackedArray();
 
-TEST(UTEvalLR, Test_BV_EvalLR) {
+TEST_F(UTEvalLR, Test_BV_EvalLR) {
 	
 	rationalInt result = ArbBVLinearRegressionPackedArray();
 
@@ -72,7 +75,7 @@ TEST(UTEvalLR, Test_BV_EvalLR) {
 	
 }
 
-TEST(UTEvalLR, Test_FV_EvalLR) {
+TEST_F(UTEvalLR, Test_FV_EvalLR) {
 	
 	rationalInt result = ArbFVLinearRegressionPackedArray();
 

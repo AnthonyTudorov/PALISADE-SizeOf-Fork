@@ -39,22 +39,48 @@
 using namespace std;
 using namespace lbcrypto;
 
-class UnitTestBatching : public ::testing::Test {
+class UTLTVBATCHING : public ::testing::Test {
 protected:
-	virtual void SetUp() {}
+	void SetUp() {}
 
-	virtual void TearDown() {}
+	void TearDown() {
+		CryptoContextFactory<Poly>::ReleaseAllContexts();
+		CryptoContextFactory<DCRTPoly>::ReleaseAllContexts();
+	}
 
 public:
 };
 
+class UTFVBATCHING : public ::testing::Test {
+protected:
+	void SetUp() {}
+
+	void TearDown() {
+		CryptoContextFactory<Poly>::ReleaseAllContexts();
+		CryptoContextFactory<DCRTPoly>::ReleaseAllContexts();
+	}
+
+public:
+};
+
+class UTBVBATCHING : public ::testing::Test {
+protected:
+	void SetUp() {}
+
+	void TearDown() {
+		CryptoContextFactory<Poly>::ReleaseAllContexts();
+		CryptoContextFactory<DCRTPoly>::ReleaseAllContexts();
+	}
+
+public:
+};
 
 /*Simple Encrypt-Decrypt check for DCRTPoly. The assumption is this test case is that everything with respect to lattice and math
 * layers and cryptoparameters work. This test case is only testing if the resulting plaintext from an encrypt/decrypt returns the same
 * plaintext
 * The cyclotomic order is set 2048
 *tower size is set to 3*/
-TEST(UTLTVBATCHING, Poly_Encrypt_Decrypt) {	
+TEST_F(UTLTVBATCHING, Poly_Encrypt_Decrypt) {
 
 	float stdDev = 4;
 
@@ -108,7 +134,7 @@ TEST(UTLTVBATCHING, Poly_Encrypt_Decrypt) {
 }
 
 
-TEST(UTLTVBATCHING, Poly_EVALADD) {
+TEST_F(UTLTVBATCHING, Poly_EVALADD) {
 
 	float stdDev = 4;
 
@@ -173,7 +199,7 @@ TEST(UTLTVBATCHING, Poly_EVALADD) {
 	EXPECT_EQ(intArrayNew, vectorOfIntsExpected);
 }
 
-TEST(UTLTVBATCHING, Poly_EVALMULT) {
+TEST_F(UTLTVBATCHING, Poly_EVALMULT) {
 
 	usint ptMod = 17;
 
@@ -236,7 +262,7 @@ TEST(UTLTVBATCHING, Poly_EVALMULT) {
 * plaintext
 * The cyclotomic order is set to 22
 *tower size is set to 3*/
-TEST(UTLTVBATCHING, Poly_Encrypt_Decrypt_Arb) {
+TEST_F(UTLTVBATCHING, Poly_Encrypt_Decrypt_Arb) {
 	PackedIntPlaintextEncoding::Destroy();
 
 	usint m = 22;
@@ -275,7 +301,7 @@ TEST(UTLTVBATCHING, Poly_Encrypt_Decrypt_Arb) {
 	EXPECT_EQ(intArrayNew, vectorOfInts);
 }
 
-TEST(UTLTVBATCHING, Poly_EVALADD_Arb) {
+TEST_F(UTLTVBATCHING, Poly_EVALADD_Arb) {
 	PackedIntPlaintextEncoding::Destroy();
 	usint m = 22;
 	usint p = 89; // we choose s.t. 2m|p-1 to leverage CRTArb
@@ -325,7 +351,7 @@ TEST(UTLTVBATCHING, Poly_EVALADD_Arb) {
 	EXPECT_EQ(intArrayNew, vectorOfIntsAdd);
 }
 
-TEST(UTBVBATCHING, Poly_EVALMULT_Arb) {
+TEST_F(UTBVBATCHING, Poly_EVALMULT_Arb) {
 	PackedIntPlaintextEncoding::Destroy();
 
 	usint m = 22;
@@ -378,7 +404,7 @@ TEST(UTBVBATCHING, Poly_EVALMULT_Arb) {
 	EXPECT_EQ(intArrayNew, vectorOfIntsMult);
 }
 
-TEST(UTFVBATCHING, Poly_EVALMULT_Arb) {
+TEST_F(UTFVBATCHING, Poly_EVALMULT_Arb) {
 	PackedIntPlaintextEncoding::Destroy();
 
 	usint m = 22;

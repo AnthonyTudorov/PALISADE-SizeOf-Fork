@@ -231,6 +231,56 @@ static shared_ptr<LPPublicKeyEncryptionScheme<Element>> GetSchemeObject(string& 
 template <typename Element>
 vector<shared_ptr<CryptoContext<Element>>>	CryptoContextFactory<Element>::AllContexts;
 
+template <typename Element>
+void
+CryptoContextFactory<Element>::ReleaseAllContexts() {
+	AllContexts.clear();
+}
+
+template <typename Element>
+int
+CryptoContextFactory<Element>::GetContextCount() {
+	return AllContexts.size();
+}
+
+template <typename Element>
+shared_ptr<CryptoContext<Element>>
+CryptoContextFactory<Element>::GetSingleContext() {
+	if( GetContextCount() == 1 )
+		return AllContexts[0];
+	throw std::logic_error("More than one context"); // FIXME
+}
+
+template <typename Element>
+shared_ptr<CryptoContext<Element>>
+CryptoContextFactory<Element>::GetContext(
+		shared_ptr<LPCryptoParameters<Element>> params,
+		shared_ptr<LPPublicKeyEncryptionScheme<Element>> scheme) {
+
+	for( shared_ptr<CryptoContext<Element>> cc : AllContexts ) {
+		if( *cc->GetEncryptionAlgorithm().get() == *scheme.get() &&
+				*cc->GetCryptoParameters().get() == *params.get()
+		) {
+			return cc;
+		}
+	}
+
+	shared_ptr<CryptoContext<Element>> cc(new CryptoContext<Element>(params,scheme));
+	AllContexts.push_back(cc);
+	return cc;
+}
+
+template <typename Element>
+shared_ptr<CryptoContext<Element>>
+CryptoContextFactory<Element>::GetContextForPointer(
+		CryptoContext<Element>* cc) {
+	for( shared_ptr<CryptoContext<Element>> ctx : AllContexts ) {
+		if( ctx.get() == cc )
+			return ctx;
+	}
+	return 0;
+}
+
 /**
 * Create a PALISADE CryptoContext from a serialization
 * @param serObj - the serialization
@@ -339,7 +389,7 @@ CryptoContextFactory<Element>::DeserializeAndCreateContext(const Serialized& ser
 				t++;
 			}
 
-			kp = cc->deserializeEvalKey(kser);
+			kp = cc->deserializeEvalKeyInContext(kser,cc);
 
 			evalMultKeys.push_back(kp);
 		}
@@ -374,7 +424,7 @@ CryptoContextFactory<Element>::DeserializeAndCreateContext(const Serialized& ser
 				t++;
 			}
 
-			kp = cc->deserializeEvalKey(kser);
+			kp = cc->deserializeEvalKeyInContext(kser,cc);
 
 			evalSumKeys[k] = kp;
 		}
@@ -525,7 +575,7 @@ CryptoContextFactory<T>::genCryptoContextFV(shared_ptr<typename T::Params> ep,
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeFV<T>() );
 
-	return shared_ptr<CryptoContext<T>>(new CryptoContext<T>(params, scheme));
+	return CryptoContextFactory<T>::GetContext(params,scheme);
 }
 
 template <typename T>
@@ -554,7 +604,7 @@ CryptoContextFactory<T>::genCryptoContextFV(shared_ptr<typename T::Params> ep,
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeFV<T>());
 
-	return shared_ptr<CryptoContext<T>>(new CryptoContext<T>(params, scheme));
+	return CryptoContextFactory<T>::GetContext(params,scheme);
 }
 
 template <typename T>
@@ -594,7 +644,7 @@ CryptoContextFactory<T>::genCryptoContextFV(
 
 	scheme->ParamsGen(params, numAdds, numMults, numKeyswitches);
 
-	return shared_ptr<CryptoContext<T>>(new CryptoContext<T>(params, scheme));
+	return CryptoContextFactory<T>::GetContext(params,scheme);
 }
 
 template <typename T>
@@ -635,7 +685,7 @@ CryptoContextFactory<T>::genCryptoContextFV(
 
 	scheme->ParamsGen(params, numAdds, numMults, numKeyswitches);
 
-	return shared_ptr<CryptoContext<T>>(new CryptoContext<T>(params, scheme));
+	return CryptoContextFactory<T>::GetContext(params,scheme);
 }
 
 
@@ -658,7 +708,7 @@ CryptoContextFactory<T>::genCryptoContextBV(shared_ptr<typename T::Params> ep,
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeBV<T>() );
 
-	return shared_ptr<CryptoContext<T>>(new CryptoContext<T>(params, scheme));
+	return CryptoContextFactory<T>::GetContext(params,scheme);
 }
 
 template <typename T>
@@ -680,7 +730,7 @@ CryptoContextFactory<T>::genCryptoContextBV(shared_ptr<typename T::Params> ep,
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeBV<T>());
 
-	return shared_ptr<CryptoContext<T>>(new CryptoContext<T>(params, scheme));
+	return CryptoContextFactory<T>::GetContext(params,scheme);
 }
 
 
@@ -702,7 +752,7 @@ CryptoContextFactory<T>::genCryptoContextStehleSteinfeld(shared_ptr<typename T::
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeStehleSteinfeld<T>());
 
-	return shared_ptr<CryptoContext<T>>(new CryptoContext<T>(params, scheme));
+	return CryptoContextFactory<T>::GetContext(params,scheme);
 }
 
 template <typename T>
@@ -723,7 +773,7 @@ CryptoContextFactory<T>::genCryptoContextStehleSteinfeld(shared_ptr<typename T::
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeStehleSteinfeld<T>());
 
-	return shared_ptr<CryptoContext<T>>(new CryptoContext<T>(params, scheme));
+	return CryptoContextFactory<T>::GetContext(params,scheme);
 }
 
 template <typename T>
@@ -734,7 +784,7 @@ CryptoContextFactory<T>::genCryptoContextNull(shared_ptr<typename T::Params> ep,
 	shared_ptr<LPCryptoParametersNull<T>> params( new LPCryptoParametersNull<T>(ep, BigInteger(ptModulus)) );
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeNull<T>() );
 
-	return shared_ptr<CryptoContext<T>>(new CryptoContext<T>(params, scheme));
+	return CryptoContextFactory<T>::GetContext(params,scheme);
 }
 
 template <typename T>
@@ -745,7 +795,7 @@ CryptoContextFactory<T>::genCryptoContextNull(shared_ptr<typename T::Params> ep,
 	shared_ptr<LPCryptoParametersNull<T>> params(new LPCryptoParametersNull<T>(ep, encodingParams));
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeNull<T>());
 
-	return shared_ptr<CryptoContext<T>>(new CryptoContext<T>(params, scheme));
+	return CryptoContextFactory<T>::GetContext(params,scheme);
 }
 
 // the methods below allow me to deserialize a json object into this context
@@ -807,10 +857,19 @@ template <typename T>
 shared_ptr<LPEvalKey<T>>
 CryptoContext<T>::deserializeEvalKey(const Serialized& serObj)
 {
+
 	shared_ptr<CryptoContext<T>> cc = CryptoContextFactory<T>::DeserializeAndCreateContext(serObj);
 	if( cc == 0 )
 		return 0;
 
+	return CryptoContext<T>::deserializeEvalKeyInContext(serObj, cc);
+
+}
+
+template <typename T>
+shared_ptr<LPEvalKey<T>>
+CryptoContext<T>::deserializeEvalKeyInContext(const Serialized& serObj, shared_ptr<CryptoContext<T>> cc)
+{
 	Serialized::ConstMemberIterator nIt = serObj.FindMember("Object");
 	if( nIt == serObj.MemberEnd() )
 		return 0;

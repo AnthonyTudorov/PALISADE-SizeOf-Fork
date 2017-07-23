@@ -38,15 +38,15 @@ using namespace std;
 using namespace lbcrypto;
 
 
-class UnitTestPkeSerialize : public ::testing::Test {
+class UTPKESer : public ::testing::Test {
 protected:
-  virtual void SetUp() {
-  }
+	void SetUp() {
+	}
 
-  virtual void TearDown() {
-    // Code here will be called immediately after each test
-    // (right before the destructor).
-  }
+	void TearDown() {
+		CryptoContextFactory<Poly>::ReleaseAllContexts();
+		CryptoContextFactory<DCRTPoly>::ReleaseAllContexts();
+	}
 };
 
 static shared_ptr<CryptoContext<Poly>> GenerateTestCryptoContext(const string& parmsetName) {
@@ -65,7 +65,7 @@ static shared_ptr<CryptoContext<DCRTPoly>> GenerateTestDCRTCryptoContext(const s
 	return cc;
 }
 
-TEST(UTPKESer, LTV_Context_Factory) {
+TEST_F(UTPKESer, LTV_Context_Factory) {
 	shared_ptr<CryptoContext<Poly>> cc = GenerateTestCryptoContext("LTV5");
 	CryptoContextFactory<Poly>::ReleaseAllContexts();
 	EXPECT_EQ(CryptoContextFactory<Poly>::GetContextCount(), 0) << "Contexts not cleared";
@@ -113,58 +113,58 @@ void UnitTestContext(shared_ptr<CryptoContext<T>> cc) {
 	EXPECT_EQ( *newPub, *finalPub ) << "Key mismatch from new ctx";
 }
 
-TEST(UTPKESer, LTV_Poly_Serial) {
+TEST_F(UTPKESer, LTV_Poly_Serial) {
 	shared_ptr<CryptoContext<Poly>> cc = GenerateTestCryptoContext("LTV5");
 	UnitTestContext<Poly>(cc);
 }
 
-TEST(UTPKESer, LTV_DCRTPoly_Serial) {
+TEST_F(UTPKESer, LTV_DCRTPoly_Serial) {
 	shared_ptr<CryptoContext<DCRTPoly>> cc = GenerateTestDCRTCryptoContext("LTV5", 3, 20);
 	UnitTestContext<DCRTPoly>(cc);
 }
 
-TEST(UTPKESer, StSt_Poly_Serial) {
+TEST_F(UTPKESer, StSt_Poly_Serial) {
 	shared_ptr<CryptoContext<Poly>> cc = GenerateTestCryptoContext("StSt6");
 	UnitTestContext<Poly>(cc);
 }
 
-TEST(UTPKESer, StSt_DCRTPoly_Serial) {
+TEST_F(UTPKESer, StSt_DCRTPoly_Serial) {
 	shared_ptr<CryptoContext<DCRTPoly>> cc = GenerateTestDCRTCryptoContext("StSt6", 3, 20);
 	UnitTestContext<DCRTPoly>(cc);
 }
 
-TEST(UTPKESer, BV_Poly_Serial) {
+TEST_F(UTPKESer, BV_Poly_Serial) {
 	shared_ptr<CryptoContext<Poly>> cc = GenerateTestCryptoContext("BV2");
 	UnitTestContext<Poly>(cc);
 }
 
-TEST(UTPKESer, BV_DCRTPoly_Serial) {
+TEST_F(UTPKESer, BV_DCRTPoly_Serial) {
 	shared_ptr<CryptoContext<DCRTPoly>> cc = GenerateTestDCRTCryptoContext("BV2", 3, 20);
 	UnitTestContext<DCRTPoly>(cc);
 }
 
-TEST(UTPKESer, Null_Poly_Serial) {
+TEST_F(UTPKESer, Null_Poly_Serial) {
 	shared_ptr<CryptoContext<Poly>> cc = GenerateTestCryptoContext("Null");
 	UnitTestContext<Poly>(cc);
 }
 
-TEST(UTPKESer, Null_DCRTPoly_Serial) {
+TEST_F(UTPKESer, Null_DCRTPoly_Serial) {
 	shared_ptr<CryptoContext<DCRTPoly>> cc = GenerateTestDCRTCryptoContext("Null", 3, 20);
 	UnitTestContext<DCRTPoly>(cc);
 }
 
-TEST(UTPKESer, FV_Poly_Serial) {
+TEST_F(UTPKESer, FV_Poly_Serial) {
 	shared_ptr<CryptoContext<Poly>> cc = GenerateTestCryptoContext("FV2");
 	UnitTestContext<Poly>(cc);
 }
 
-//TEST(UTPKESer, FV_DCRTPoly_Serial) {
+//TEST_F(UTPKESer, FV_DCRTPoly_Serial) {
 //	shared_ptr<CryptoContext<DCRTPoly>> cc = GenerateTestDCRTCryptoContext("FV2", 3, 20);
 //	UnitTestContext<DCRTPoly>(cc);
 //}
 
 // REMAINDER OF THE TESTS USE LTV AS A REPRESENTITIVE CONTEXT
-TEST(UTPKESer, LTV_keys_and_ciphertext) {
+TEST_F(UTPKESer, LTV_keys_and_ciphertext) {
         bool dbg_flag = false;
 	shared_ptr<CryptoContext<Poly>> cc = GenerateTestCryptoContext("LTV5");
 	LPKeyPair<Poly> kp = cc->KeyGen();

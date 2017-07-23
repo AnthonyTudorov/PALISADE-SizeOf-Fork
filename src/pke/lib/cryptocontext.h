@@ -29,6 +29,7 @@
 #define SRC_DEMO_PRE_CRYPTOCONTEXT_H_
 
 #include "palisade.h"
+#include "encoding/encodingparams.h"
 #include "encoding/plaintext.h"
 #include "encoding/byteplaintextencoding.h"
 #include "encoding/intplaintextencoding.h"
@@ -680,7 +681,7 @@ public:
 		bool doEncryption = true)
 	{
 
-		auto zeroAlloc = [=]() { return make_unique<RationalCiphertext<Element>>(this, true); };
+		auto zeroAlloc = [=]() { return make_unique<RationalCiphertext<Element>>(CryptoContextFactory<Element>::GetContextForPointer(this), true); };
 
 		shared_ptr<Matrix<RationalCiphertext<Element>>> cipherResults(new Matrix<RationalCiphertext<Element>>
 			(zeroAlloc, plaintext.GetRows(), plaintext.GetCols()));
@@ -725,7 +726,7 @@ public:
 		bool doEncryption = true)
 	{
 
-		auto zeroAlloc = [=]() { return make_unique<RationalCiphertext<Element>>(this, true); };
+		auto zeroAlloc = [=]() { return make_unique<RationalCiphertext<Element>>(CryptoContextFactory<Element>::GetContextForPointer(this), true); };
 
 		shared_ptr<Matrix<RationalCiphertext<Element>>> cipherResults(new Matrix<RationalCiphertext<Element>>
 			(zeroAlloc, plaintext.GetRows(), plaintext.GetCols()));
@@ -1783,11 +1784,18 @@ public:
 	static shared_ptr<Ciphertext<Element>>		deserializeCiphertext(const Serialized& serObj);
 
 	/**
-	* Deserialize into an Eval Key
+	* Deserialize into an Eval Key in a given context
 	* @param serObj
 	* @return deserialized object
 	*/
 	static shared_ptr<LPEvalKey<Element>>		deserializeEvalKey(const Serialized& serObj);
+
+	/**
+	* Deserialize into an Eval Key
+	* @param serObj
+	* @return deserialized object
+	*/
+	static shared_ptr<LPEvalKey<Element>>		deserializeEvalKeyInContext(const Serialized& serObj, shared_ptr<CryptoContext<Element>> cc);
 };
 
 /**
@@ -1821,45 +1829,18 @@ class CryptoContextFactory {
 	static vector<shared_ptr<CryptoContext<Element>>>	AllContexts;
 
 public:
-	static void ReleaseAllContexts() {
-		AllContexts.clear();
-	}
+	static void ReleaseAllContexts();
 
-	static int GetContextCount() {
-		return AllContexts.size();
-	}
+	static int GetContextCount();
 
-	static shared_ptr<CryptoContext<Element>> GetSingleContext() {
-		if( GetContextCount() == 1 )
-			return AllContexts[0];
-		throw std::logic_error("More than one context"); // FIXME
-	}
+	static shared_ptr<CryptoContext<Element>> GetSingleContext();
 
 	static shared_ptr<CryptoContext<Element>> GetContext(
 			shared_ptr<LPCryptoParameters<Element>> params,
-			shared_ptr<LPPublicKeyEncryptionScheme<Element>> scheme) {
-
-		for( shared_ptr<CryptoContext<Element>> cc : AllContexts ) {
-			if( *cc->GetEncryptionAlgorithm().get() == *scheme.get() &&
-					*cc->GetCryptoParameters().get() == *params.get()
-					) {
-				return cc;
-			}
-		}
-
-		shared_ptr<CryptoContext<Element>> cc(new CryptoContext<Element>(params,scheme));
-		AllContexts.push_back(cc);
-		return cc;
-	}
+			shared_ptr<LPPublicKeyEncryptionScheme<Element>> scheme);
 
 	static shared_ptr<CryptoContext<Element>> GetContextForPointer(
-			CryptoContext<Element>* cc) {
-		for( shared_ptr<CryptoContext<Element>> ctx : AllContexts ) {
-			if( ctx.get() == cc )
-				return ctx;
-		}
-		return 0;
-	}
+			CryptoContext<Element>* cc);
 
 	/**
 	* construct a PALISADE CryptoContext for the LTV Scheme

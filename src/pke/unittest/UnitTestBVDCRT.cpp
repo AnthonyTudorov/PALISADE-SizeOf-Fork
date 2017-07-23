@@ -40,11 +40,14 @@
 using namespace std;
 using namespace lbcrypto;
 
-class UnitTestBV : public ::testing::Test {
+class UTBVDCRT : public ::testing::Test {
 protected:
-	virtual void SetUp() {}
+	void SetUp() {}
 
-	virtual void TearDown() {}
+	void TearDown() {
+		CryptoContextFactory<Poly>::ReleaseAllContexts();
+		CryptoContextFactory<DCRTPoly>::ReleaseAllContexts();
+	}
 
 public:
 };
@@ -52,7 +55,7 @@ public:
 //FIXME this test might be redundant in other files; perhaps this entire file can go
 
 #if !defined(_MSC_VER)
-TEST(UTBVDCRT, Poly_bv_DCRT_MODREDUCE) {
+TEST_F(UTBVDCRT, Poly_bv_DCRT_MODREDUCE) {
 
 	usint m = 8;
 

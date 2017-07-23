@@ -304,7 +304,6 @@ int KPABE_APolicyCircuitTest(usint iter)
 	if(failure == 0)
 		std::cout << "Encryption is successful after " << iter << " iterations!\n";
 
-
 	delete[] x;
 	delete[] wx;
 
