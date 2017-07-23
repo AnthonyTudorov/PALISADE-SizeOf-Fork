@@ -604,7 +604,7 @@ TEST(UTDistrGen, ParallelDiscreteGaussianGenerator_VERY_LONG) {
 //Mean test for Karney sampling
 TEST(UTDistrGen, Karney_Mean) {
 
-	sint stdev = 100;
+	sint stdev = 10;
 	usint size = 10000;
 	double mean = 0;
 	double center = 10;
@@ -621,7 +621,7 @@ TEST(UTDistrGen, Karney_Mean) {
 //Variance test for Karney sampling
 TEST(UTDistrGen, Karney_Variance) {
 
-	sint stdev = 10000;
+	sint stdev = 10;
 	usint size = 10000;
 	double mean = 0;
 	double variance = 0;
