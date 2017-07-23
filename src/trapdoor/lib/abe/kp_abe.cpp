@@ -42,7 +42,7 @@ namespace lbcrypto {
 	 * Input: $k = \lceil \log_(base){q} \rceil$; i.e. the digit length of the modulus + 1 (in base)
 	 * Output: matrix of (k+2)x(k+2) elements of $R_2$ where the coefficients are in balanced representation
 	 */
-	int polyVec2BalDecom (const shared_ptr<ILParams> ilParams, int32_t base, int k, const RingMat &pubElemB, RingMat *psi)
+	int PolyVec2BalDecom (const shared_ptr<ILParams> ilParams, int32_t base, int k, const RingMat &pubElemB, RingMat *psi)
 	{
 		usint ringDimesion = ilParams->GetCyclotomicOrder() >> 1;
 		usint m = k+2;
@@ -112,7 +112,7 @@ namespace lbcrypto {
 	 * Input: $k = \lceil \log_2{q} \rceil$; i.e. the bit length of the modulus + 1
 	 * Output: matrix of (k+2)x(k+2) elements of $R_2$ where the coefficients are in NAF
 	 */
-	int polyVec2NAFDecom (const shared_ptr<ILParams> ilParams, int k, const RingMat &pubElemB, RingMat *psi)
+	int PolyVec2NAFDecom (const shared_ptr<ILParams> ilParams, int k, const RingMat &pubElemB, RingMat *psi)
 	{
 		usint ringDimension = ilParams->GetCyclotomicOrder() >> 1;
 		usint m = k+2;
@@ -263,7 +263,7 @@ namespace lbcrypto {
 			for (usint j = 0; j < m_m; j++)     // Negating Bis for bit decomposition
 				negpublicElementB(0, j) = pubElemB(2*i+1, j).Negate();
 
-			polyVec2BalDecom (ilParams, m_base, m_k, negpublicElementB, &psi);
+			PolyVec2BalDecom (ilParams, m_base, m_k, negpublicElementB, &psi);
 
 			/* Psi^T*C2 and B2*Psi */
 			for (usint j = 0; j < m_m; j++) { // the following two for loops are for vector matrix multiplication (a.k.a B(i+1) * BitDecompose(-Bi) and  gamma (0, 2) (for the second attribute of the circuit) * bitDecompose(-B))
@@ -295,7 +295,7 @@ namespace lbcrypto {
 				for (usint j = 0; j < m_m; j++)
 					negpublicElementB(0, j) = wpublicElementB(inStart+2*i, j).Negate();
 
-				polyVec2BalDecom (ilParams, m_base, m_k, negpublicElementB, &psi);
+				PolyVec2BalDecom (ilParams, m_base, m_k, negpublicElementB, &psi);
 
 				for (usint j = 0; j < m_m; j++)
 				{
@@ -362,7 +362,7 @@ namespace lbcrypto {
 				for (usint j = 0; j < m_m; j++)     // Negating Bis for bit decomposition
 					negB(0, j) = pubElemB(2*i+1, j).Negate();
 
-				polyVec2BalDecom (ilParams, m_base, m_k, negB, &psi);
+				PolyVec2BalDecom (ilParams, m_base, m_k, negB, &psi);
 
 				/*Starting computation for a NAND circuit*/
 				/* x2 * C1 */
@@ -411,7 +411,7 @@ namespace lbcrypto {
 						negB(0, j) = wPublicElementB(InStart+2*i, j).Negate();
 
 
-					polyVec2BalDecom (ilParams, m_base, m_k, negB, &psi);
+					PolyVec2BalDecom (ilParams, m_base, m_k, negB, &psi);
 
 					// x2*C1
 					for (usint j = 0; j < m_m; j++) {
@@ -544,7 +544,7 @@ namespace lbcrypto {
 		for (usint j = 0; j < m_m; j++)     // Negating B1 for bit decomposition
 			negB(0, j) = origPubElem(0, j).Negate();
 
-		polyVec2BalDecom (ilParams, m_base, m_k, negB, &psi);
+		PolyVec2BalDecom (ilParams, m_base, m_k, negB, &psi);
 
 		/* x2*C1 */
 		for (usint i = 0; i < m_m; i++) {
@@ -593,7 +593,7 @@ namespace lbcrypto {
 		for (usint j = 0; j < m_m; j++)     // Negating B1 for bit decomposition
 			negB(0, j) = origPubElemB(0, j).Negate();
 
-		polyVec2NAFDecom (ilParams, m_k, negB, &Psi);
+		PolyVec2NAFDecom (ilParams, m_k, negB, &Psi);
 
 		/* x2*C1 */
 		for (usint i = 0; i < m_m; i++) {

@@ -66,7 +66,7 @@ namespace lbcrypto {
 	* @param *publicElementB is a matrix where each column corresponds to the public vector of each attribute
 	* @param *psi bit decomposition of publicElementB
 	*/
-	int polyVec2NAFDecom(
+	int PolyVec2NAFDecom(
 			const shared_ptr<ILParams> ilParams,
 			int k,
 			const RingMat &pubElemB,
@@ -85,7 +85,7 @@ namespace lbcrypto {
     * @param *publicElementB is a matrix where each column corresponds to the public vector of each attribute
 	* @param *psi bit decomposition of publicElementB
     */
-	int polyVec2BalDecom(
+	int PolyVec2BalDecom(
 			const shared_ptr<ILParams> ilParams,
 			int32_t base,
 			int k,

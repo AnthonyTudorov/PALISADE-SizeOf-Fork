@@ -90,7 +90,7 @@ int KPABE_BenchmarkCircuitTest(usint iter, int32_t base)
 
 	// Attribute values all are set to 1 for NAND gate evaluation
 	usint *x = new usint[ell+1];
-	x[0] = 1;
+
 	usint found  = 0;
 	while(found == 0) {
 		for(usint i=1; i<ell+1; i++)
@@ -157,7 +157,7 @@ int KPABE_BenchmarkCircuitTest(usint iter, int32_t base)
 
 	}
 	if(failure == 0) {
-		std::cout << "Encryption is successful after " << iter << " iterations!\n";
+		std::cout << "Encryption/Decryption is successful after " << iter << " iterations!\n";
 		std::cout << "Average key generation time : " << "\t" << (avg_keygen)/iter << " ms" << std::endl;
 		std::cout << "Average evaluation time : " << "\t" << (avg_eval)/iter << " ms" << std::endl;
 		std::cout << "Average encryption time : " << "\t" << (avg_enc)/iter << " ms" << std::endl;
@@ -165,10 +165,10 @@ int KPABE_BenchmarkCircuitTest(usint iter, int32_t base)
 	}
 
 	delete[] x;
+	ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().Destroy();
 
 	return 0;
 }
-
 
 /*
  * The access policy is x1*x2+x3*x4 = (1-x1x2)*(1-x3x4)
@@ -520,7 +520,6 @@ int KPABE_ANDGateTest(usint iter)
 	return 0;
 }
 
-
 void CheckSecretKeyKP(usint m, RingMat &a, RingMat &evalBf, RingMat &sk, Poly &pubElemBeta)
 {
 	Poly t(pubElemBeta);
@@ -536,7 +535,6 @@ void CheckSecretKeyKP(usint m, RingMat &a, RingMat &evalBf, RingMat &sk, Poly &p
 		std::cout << "Secret Key Generation Fails!\n";
 }
 
-
 usint EvalNANDTree(usint *x, usint ell)
 {
 	usint y;
@@ -551,7 +549,6 @@ usint EvalNANDTree(usint *x, usint ell)
 	}
 	return y;
 }
-
 
 int IBE_Test(int iter, int32_t base)
 {
@@ -651,11 +648,13 @@ int IBE_Test(int iter, int32_t base)
 		}
 	}
 	if(failure == 0) {
-		std::cout << "Encryption is successful after " << iter << " iterations!\n";
+		std::cout << "Encryption/Decryption is successful after " << iter << " iterations!\n";
 		std::cout << "Average key generation time : " << "\t" << (avg_keygen)/iter << " ms" << std::endl;
 		std::cout << "Average encryption time : " << "\t" << (avg_enc)/iter << " ms" << std::endl;
 		std::cout << "Average decryption time : " << "\t" << (avg_dec)/iter << " ms" << std::endl;
 	}
+
+	ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().Destroy();
 
 	return 0;
 }
@@ -712,10 +711,10 @@ int CPABE_Test(usint iter)
 	receiver.Setup(ilParams, base, ell);
 
 	// User attributes (randomly generated binary values)
-	usint *s = new usint[ell];
+	usint s[ell];
 
 	// Access structure
-	int *w = new int[ell];
+	int w[ell];
 
 	// Secret key for the output of the circuit
 	RingMat sk(zero_alloc, m, ell+1);
@@ -792,7 +791,7 @@ int CPABE_Test(usint iter)
 		}
 	}
 	if(failure == 0) {
-		std::cout << "Encryption is successful after " << iter << " iterations!\n";
+		std::cout << "Encryption/Decryption is successful after " << iter << " iterations!\n";
 		std::cout << "Average key generation time : " << "\t" << (avg_keygen)/iter << " ms" << std::endl;
 		std::cout << "Average encryption time : " << "\t" << (avg_enc)/iter << " ms" << std::endl;
 		std::cout << "Average decryption time : " << "\t" << (avg_dec)/iter << " ms" << std::endl;
@@ -800,6 +799,9 @@ int CPABE_Test(usint iter)
 
 	delete[] w;
 	delete[] s;
+
+	ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().Destroy();
+
 	return 0;
 }
 
