@@ -131,12 +131,12 @@ namespace lbcrypto {
 
 		y = pubElemD - y;
 
-		double c = 2 * SIGMA;
-		double sb = SPECTRAL_BOUND(m_N, m_m - 2);
+		double c = (m_base + 1) * SIGMA;
+		double sb = SPECTRAL_BOUND(m_N, m_m - 2, m_base);
 		DiscreteGaussianGenerator dggLargeSigma(sqrt(sb * sb - c * c));
 		RingMat skA(Poly::MakeAllocator(ilParams, EVALUATION), m_m, 1);
 
-		skA = RLWETrapdoorUtility::GaussSamp(m_N, m_k, pubTA, secTA, y, SIGMA, dgg, dggLargeSigma, m_base);
+		skA = RLWETrapdoorUtility::GaussSamp(m_N, m_k, pubTA, secTA, y, dgg, dggLargeSigma, m_base);
 
 		for(usint i=0; i<m_m; i++)
 			(*sk)(i, 0) = skA(i, 0);

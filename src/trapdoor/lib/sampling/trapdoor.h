@@ -104,13 +104,12 @@ public:
 	* @param &T trapdoor itself
 	* @param &SigmaP Cholesky decomposition matrix for the trapdoor
 	* @param &u syndrome vector where gaussian that Gaussian sampling is centered around
-	* @param sigma noise distriubution parameter
 	* @param &dgg discrete Gaussian generator for integers
 	* @param &dggLargeSigma discrete Gaussian generator for perturbation vector sampling
 	* @return the sampled vector (matrix)
 	*/
 	static inline RingMat GaussSamp(size_t n, size_t k, const RingMat& A, 
-		const RLWETrapdoorPair<Poly>& T, const Poly &u, double sigma,
+		const RLWETrapdoorPair<Poly>& T, const Poly &u, 
 		Poly::DggType &dgg, Poly::DggType &dggLargeSigma, int32_t base = 2);
 	/**
 	* New method for perturbation generation based by the new paper
