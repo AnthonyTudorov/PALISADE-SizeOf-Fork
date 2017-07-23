@@ -58,11 +58,13 @@ void Run() {
 	//BigInteger rootOfUnity("7629104920968175");
 
 	usint chunkSize = 2;
+	usint base = 2;
 	std::string inputPattern = "1?10?1";
 	ClearLWEConjunctionPattern<Poly> clearPattern(inputPattern);
 
 	ObfuscatedLWEConjunctionPattern<Poly> obfuscatedPattern;
 	obfuscatedPattern.SetChunkSize(chunkSize);
+	obfuscatedPattern.SetBase(base);
 	obfuscatedPattern.SetLength(clearPattern.GetLength());
 	obfuscatedPattern.SetRootHermiteFactor(1.006);
 

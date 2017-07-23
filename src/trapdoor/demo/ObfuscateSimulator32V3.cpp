@@ -131,6 +131,7 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 	//BigInteger rootOfUnity("7629104920968175");
 
 	usint chunkSize = 8;
+	usint base = 2;
 
 	//Generate the test pattern
 	std::string inputPattern = "1?10?10?1?10?10?1?10?10?1?10??0?";;
@@ -138,6 +139,7 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 
 	ObfuscatedLWEConjunctionPattern<Poly> obfuscatedPattern;
 	obfuscatedPattern.SetChunkSize(chunkSize);
+	obfuscatedPattern.SetBase(base);
 	obfuscatedPattern.SetLength(clearPattern.GetLength());
 	obfuscatedPattern.SetRootHermiteFactor(1.006);
 
