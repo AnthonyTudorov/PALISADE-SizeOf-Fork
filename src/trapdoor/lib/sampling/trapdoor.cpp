@@ -50,9 +50,9 @@ namespace lbcrypto {
 //		size_t n = params->GetCyclotomicOrder() / 2;
 
 		double val = params->GetModulus().ConvertToDouble();
-		double logBase = log(val-1.0)/log(base)+1.0;
+		double nBits = floor(log2(val)+1.0);
 
-		size_t k = (usint) floor(logBase);  /* (+1) is for balanced representation */
+		size_t k = std::ceil(nBits/log2(base));  /* (+1) is for balanced representation */
 
 		if(bal == true){
 			k++; // for a balanced digit representation, there is an extra digit required
@@ -85,7 +85,7 @@ namespace lbcrypto {
 	// Gaussian sampling based on the UCSD integer perturbation sampling
 
 	RingMat RLWETrapdoorUtility::GaussSamp(size_t n, size_t k, const RingMat& A, 
-		const RLWETrapdoorPair<Poly>& T, const Poly &u, double sigma,
+		const RLWETrapdoorPair<Poly>& T, const Poly &u,
 		Poly::DggType &dgg, Poly::DggType &dggLargeSigma, int32_t base){
 
 		const shared_ptr<ILParams> params = u.GetParams();
@@ -94,12 +94,12 @@ namespace lbcrypto {
 		//We should convert this to a static variable later
 		//double c(2 * sqrt(log(2 * n*(1 + 1 / DG_ERROR)) / M_PI));
 
-		double c = 2 * SIGMA;
+		double c = (base + 1) * SIGMA;
 
 		const BigInteger& modulus = A(0, 0).GetModulus();
 
 		//spectral bound s
-		double s = SPECTRAL_BOUND(n,k);
+		double s = SPECTRAL_BOUND(n,k,base);
 		//double s = 42 * std::sqrt(n*k);
 
 		//perturbation vector in evaluation representation
@@ -126,7 +126,7 @@ namespace lbcrypto {
 		// converting perturbed syndrome to coefficient representation
 		perturbedSyndrome.SwitchFormat();
 
-		LatticeGaussSampUtility::GaussSampGq(perturbedSyndrome, sigma, k, modulus, base, dgg, &zHatBBI);
+		LatticeGaussSampUtility::GaussSampGq(perturbedSyndrome, c, k, modulus, base, dgg, &zHatBBI);
 
 		// Convert zHat from a matrix of BBI to a vector of Poly ring elements
 		// zHat is in the coefficient representation

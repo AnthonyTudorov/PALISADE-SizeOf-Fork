@@ -45,7 +45,7 @@ void MultiThreadedRun(int index, usint base);
 int main() {
 
 	for (usint i = 0; i < 1; i++) {
-		for (usint j = 2; j < 64; j = 2*j) {
+		for (usint j = 2; j < 2048; j = 2*j) {
 			MultiThreadedRun(i, j);
 		}
 	}

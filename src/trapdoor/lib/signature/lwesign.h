@@ -138,10 +138,10 @@ namespace lbcrypto {
 			m_base = base;
 			const BigInteger & q = params->GetModulus();
 			size_t n = params->GetRingDimension();
-			usint nBits = floor(log2(q.ConvertToDouble() - 1.0) + 1.0);
+			usint nBits = floor(log2(q.ConvertToDouble()) + 1.0);
 			m_k = ceil(nBits/log2(base));
-			double c = 2 * SIGMA;
-			double s = SPECTRAL_BOUND(n, m_k);
+			double c = (base + 1) * SIGMA;
+			double s = SPECTRAL_BOUND(n, m_k, base);
 			dggLargeSigma = Poly::DggType(sqrt(s * s - c * c));
 		};
 
@@ -195,8 +195,8 @@ namespace lbcrypto {
 			size_t n = params->GetRingDimension();
 			usint nBits = floor(log2(q.ConvertToDouble() - 1.0) + 1.0);
 			m_k = ceil(nBits / log2(base));
-			double c = 2 * SIGMA;
-			double s = SPECTRAL_BOUND(n, m_k);
+			double c = (base + 1) * SIGMA;
+			double s = SPECTRAL_BOUND(n, m_k, base);
 			dggLargeSigma = Poly::DggType(sqrt(s * s - c * c));
 		}
 

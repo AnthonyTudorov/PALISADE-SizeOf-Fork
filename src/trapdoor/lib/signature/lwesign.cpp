@@ -94,12 +94,12 @@ namespace lbcrypto {
 		//Getting the trapdoor, its public matrix, perturbation matrix and gaussian generator to use in sampling
 		RingMat A = signKey.GetPrivateElement().first;
 		RLWETrapdoorPair<Poly> T = signKey.GetPrivateElement().second;
-		double stddev = signKey.GetSignatureParameters().GetDiscreteGaussianGenerator().GetStd();
+		//double stddev = signKey.GetSignatureParameters().GetDiscreteGaussianGenerator().GetStd();
 		typename Element::DggType & dgg = signKey.GetSignatureParameters().GetDiscreteGaussianGenerator();
 
 
 		typename Element::DggType & dggLargeSigma = signKey.GetSignatureParameters().GetDiscreteGaussianGeneratorLargeSigma();
-		Matrix<Poly> zHat = RLWETrapdoorUtility::GaussSamp(n,k,A,T,u,stddev,dgg,dggLargeSigma,base);
+		Matrix<Poly> zHat = RLWETrapdoorUtility::GaussSamp(n,k,A,T,u,dgg,dggLargeSigma,base);
 		signatureText->SetElement(zHat);
 
 	}

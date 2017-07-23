@@ -95,11 +95,11 @@ namespace lbcrypto {
 		RingMat *sk                             // Secret key                          	// Secret key
 	)
 	{
-		double c = 2 * SIGMA;
-		double s = SPECTRAL_BOUND(m_N, m_m - 2);
+		double c = (m_base + 1) * SIGMA;
+		double s = SPECTRAL_BOUND(m_N, m_m - 2, m_base);
 		DiscreteGaussianGenerator dggLargeSigma(sqrt(s * s - c * c));
 
-		*sk = RLWETrapdoorUtility::GaussSamp(m_N, m_k, pubA, secTA, pubElemD, SIGMA, dgg, dggLargeSigma, m_base);
+		*sk = RLWETrapdoorUtility::GaussSamp(m_N, m_k, pubA, secTA, pubElemD, dgg, dggLargeSigma, m_base);
 	}
 
 

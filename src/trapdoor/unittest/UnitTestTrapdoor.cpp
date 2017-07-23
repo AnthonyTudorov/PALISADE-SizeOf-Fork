@@ -225,7 +225,9 @@ TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
 	//BigInteger rootOfUnity("389832");
 	shared_ptr<ILParams> params( new ILParams( m, modulus, rootOfUnity) );
     auto zero_alloc = Poly::MakeAllocator(params, EVALUATION);
-	double sigma = SIGMA;
+
+	uint32_t base = 2;
+	double sigma = (base+1)*SIGMA;
 
 	Poly::DggType dgg(sigma);
 	Poly::DugType dug = Poly::DugType();
@@ -248,7 +250,7 @@ TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
   DEBUG("k "<<k);
   DEBUG("modulus "<<modulus);
   
-	LatticeGaussSampUtility::GaussSampGq(u,sigma,k,modulus, 2,dgg,&zHatBBI);
+	LatticeGaussSampUtility::GaussSampGq(u,sigma,k,modulus, base,dgg,&zHatBBI);
 
 	EXPECT_EQ(k,zHatBBI.GetRows())
 		<< "Failure testing number of rows";
@@ -300,8 +302,9 @@ TEST(UTTrapdoor, TrapDoorGaussSampTest) {
 	Poly::DugType dug = Poly::DugType();
 	dug.SetModulus(modulus);
 
-	double c = 2 * SIGMA;
-	double s = SPECTRAL_BOUND(n, k);
+	uint32_t base = 2;
+	double c = (base + 1) * SIGMA;
+	double s = SPECTRAL_BOUND(n, k, base);
 	Poly::DggType dggLargeSigma(sqrt(s * s - c * c));
 
 	Poly u(dug, params, COEFFICIENT);
@@ -310,7 +313,7 @@ TEST(UTTrapdoor, TrapDoorGaussSampTest) {
 	u.SwitchFormat();
 	DEBUG("u "<<u);
 
-	RingMat z = RLWETrapdoorUtility::GaussSamp(m / 2, k, trapPair.first, trapPair.second, u, sigma, dgg, dggLargeSigma);
+	RingMat z = RLWETrapdoorUtility::GaussSamp(m / 2, k, trapPair.first, trapPair.second, u, dgg, dggLargeSigma);
 
 	//Matrix<Poly> uEst = trapPair.first * z;
 
@@ -370,10 +373,11 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 
 	//smoothing parameter
 	//double c(2 * sqrt(log(2 * n*(1 + 1 / DG_ERROR)) / M_PI));
-	double c = 2 * SIGMA;
+	uint32_t base = 2;
+	double c = (base + 1) * SIGMA;
 
 	//spectral bound s
-	double s = SPECTRAL_BOUND(n, k);
+	double s = SPECTRAL_BOUND(n, k, base);
 
 	//std::cout << "sigma = " << SIGMA << std::endl;
 	//std::cout << "s = " << s << std::endl;
