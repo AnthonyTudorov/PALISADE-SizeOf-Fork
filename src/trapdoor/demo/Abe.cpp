@@ -25,7 +25,7 @@ int main()
 {
 
 	std::cout << "-------Start demo for KP-ABE-------" << std::endl;
-	KPABE_BenchmarkCircuitTest(1,8);
+	/*KPABE_BenchmarkCircuitTest(1,8);
 	std::cout << "-------End demo for KP-ABE-------" << std::endl << std::endl;
 
 	std::cout << "-------Start demo for CP-ABE-------" << std::endl;
@@ -35,6 +35,18 @@ int main()
 	std::cout << "-------Start demo for IBE-------" << std::endl;
 	IBE_Test(1,16);
 	std::cout << "-------End demo for IBE-------" << std::endl << std::endl;
+
+	std::cout << "-------Start demo for KP-ABE NAND GATE TEST-------" << std::endl;
+	KPABE_NANDGateTest(1,8);
+	std::cout << "-------End demo for KP-ABE NAND GATE TEST-------" << std::endl << std::endl;
+*/
+	std::cout << "-------Start demo for KP-ABE AND GATE TEST-------" << std::endl;
+	KPABE_ANDGateTest(1);
+	std::cout << "-------End demo for KP-ABE AND GATE TEST-------" << std::endl << std::endl;
+
+	std::cout << "-------Start demo for KP-ABE APolicyCircuit GATE TEST-------" << std::endl;
+	KPABE_APolicyCircuitTest(1);
+	std::cout << "-------End demo for APolicyCircuit GATE TEST------" << std::endl << std::endl;
 
 	return 0;
 }
@@ -179,10 +191,11 @@ int KPABE_APolicyCircuitTest(usint iter)
 	usint n = ringDimension*2;   // cyclotomic order
 	usint k = 42;
 	usint ell = 4; // No of attributes for NAND gate
-	int32_t base = 2;
+	int32_t base = 4;
 
 	BigInteger q = BigInteger::ONE << (k-1);
-	q = lbcrypto::FirstPrime<BigInteger>(k,n);	BigInteger rootOfUnity(RootOfUnity(n, q));
+	q = lbcrypto::FirstPrime<BigInteger>(k,n);
+	BigInteger rootOfUnity(RootOfUnity(n, q));
 
 	double val = q.ConvertToDouble();
 	double logTwo = log(val-1.0)/log(base)+1.0;
@@ -257,31 +270,22 @@ int KPABE_APolicyCircuitTest(usint iter)
 		ptext.SetValues(bug.GenerateVector(ringDimension, q), COEFFICIENT);
 		ptext.SwitchFormat();
 		sender.Encrypt(ilParams, A.first, publicElementB, pubElemBeta, x, ptext, dgg, dug, bug, &ctCin, &c1);
-
 		ctCA  = ctCin.ExtractRow(0);
 		auto pubElemB0 = publicElementB.ExtractRow(0);
 		auto ctC0 = ctCin.ExtractRow(1);
-
 		receiver.NANDGateEval(ilParams, pubElemB0, ctC0, &x[1], publicElementB.ExtractRows(1,2), ctCin.ExtractRows(2,3), &wx[0], &tB, &tC);
-
 		for(usint i=0; i<m; i++) {
 			wB(0, i) = tB(0, i);
 			wC(0, i) = tC(0, i);
 		}
-
 		receiver.NANDGateEval(ilParams, pubElemB0, ctC0, &x[3], publicElementB.ExtractRows(3,4), ctCin.ExtractRows(4,5), &wx[1], &tB, &tC);
-
 		for(usint i=0; i<m; i++) {
 			wB(1, i) = tB(0, i);
 			wC(1, i) = tC(0, i);
 		}
-
 		receiver.ANDGateEval(ilParams, wx, wB, wC, &y, &evalBf, &evalCf);
-
 		pkg.KeyGen(ilParams, A.first, evalBf, pubElemBeta, A.second, dgg, &sKey);
-
 		receiver.Decrypt(ilParams, sKey, ctCA, evalCf, c1, &dtext);
-
 		ptext.SwitchFormat();
 		if(ptext != dtext) {
 			failure++;
@@ -421,11 +425,11 @@ int KPABE_NANDGateTest(usint iter, int32_t base)
 
 int KPABE_ANDGateTest(usint iter)
 {
-	usint ringDimension = 1024;
+	usint ringDimension = 2048;
 	usint n = ringDimension*2;
-	usint k = 30;
-	usint ell = 2; // No of attributes for NAND gate
-	int32_t base = 2;
+	usint k = 42;
+	usint ell = 4; // No of attributes for NAND gate
+	int32_t base = 4;
 
 	BigInteger q = BigInteger::ONE << (k-1);
 	q = lbcrypto::FirstPrime<BigInteger>(k,n);
@@ -469,7 +473,7 @@ int KPABE_ANDGateTest(usint iter)
 	receiver.Setup(ilParams, base, ell);
 
 	// Attribute values all are set to 1 for NAND gate evaluation
-	usint *x = new usint[ell];
+	usint x[ell];
 	x[0] = x[1] = x[2] = 0;
 	usint y;
 	//x[1] = x[2] = 1;   // When uncommented this should fail (a policy circuit always outputs 0

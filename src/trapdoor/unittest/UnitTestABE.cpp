@@ -185,7 +185,7 @@ void UnitTestCPABE(int32_t base, usint k, usint ringDimension){
 				ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().Destroy();
 }
 
-void UnitTestKPABE(int32_t base, usint k, usint ringDimension){
+void UnitTestKPABEBenchMarkCircuit(int32_t base, usint k, usint ringDimension){
 		usint n = ringDimension*2;   // cyclotomic order
 		usint ell = 8; // No of attributes for NAND gate
 
@@ -337,6 +337,180 @@ void UnitTestIBE(int32_t base, usint k, usint ringDimension){
 	ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().Destroy();
 }
 
+void UnitTestKPABEANDGate(int32_t base, usint k, usint ringDimension){
+
+		usint n = ringDimension*2;
+		usint ell = 4; // No of attributes for NAND gate
+
+		BigInteger q = BigInteger::ONE << (k-1);
+		q = lbcrypto::FirstPrime<BigInteger>(k,n);
+		BigInteger rootOfUnity(RootOfUnity(n, q));
+
+		double val = q.ConvertToDouble();
+		double logTwo = log(val-1.0)/log(base)+1.0;
+		size_t k_ = (usint) floor(logTwo) + 1;  /* (+1) is For NAF */
+		usint m = k_+2;
+
+		shared_ptr<ILParams> ilParams(new ILParams(n, q, rootOfUnity));
+
+		auto zero_alloc = Poly::MakeAllocator(ilParams, COEFFICIENT);
+
+		DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(SIGMA);
+		Poly::DugType dug = Poly::DugType();
+		dug.SetModulus(q);
+		BinaryUniformGenerator bug = BinaryUniformGenerator();
+
+		// Precompuations for FTT
+		ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().PreCompute(rootOfUnity, n, q);
+
+		// Trapdoor Generation
+		std::pair<RingMat, RLWETrapdoorPair<Poly>> A = RLWETrapdoorUtility::TrapdoorGen(ilParams, SIGMA, base, true);
+
+		Poly pubElemBeta(dug, ilParams, EVALUATION);
+
+		RingMat publicElementB(zero_alloc, ell+1, m);
+		RingMat ctCin(zero_alloc, ell+2, m);
+		Poly c1(dug, ilParams, EVALUATION);
+
+		KPABE pkg, sender, receiver;
+
+		pkg.Setup(ilParams, base, ell, dug, &publicElementB);
+		sender.Setup(ilParams, base, ell);
+		receiver.Setup(ilParams, base, ell);
+
+		// Attribute values all are set to 1 for NAND gate evaluation
+		usint x[ell];
+		x[0] = x[1] = x[2] = 0;
+		usint y;
+
+		// plain text in $R_2$
+		Poly ptext(ilParams, COEFFICIENT, true);
+
+		// circuit outputs
+		RingMat pubElemBf(Poly::MakeAllocator(ilParams, EVALUATION), 1, m);
+		RingMat ctCf(Poly::MakeAllocator(ilParams, EVALUATION), 1, m);
+		RingMat ctCA(Poly::MakeAllocator(ilParams, EVALUATION), 1, m);
+
+		// Secret key for the output of the circuit
+		RingMat sk(zero_alloc, 2, m);
+
+		// text after the decryption
+		Poly dtext(ilParams, EVALUATION, true);
+
+		// Encrypt a uniformly randomly selected message ptext (in ptext in $R_2$)
+		ptext.SetValues(bug.GenerateVector(ringDimension, q), COEFFICIENT);
+		ptext.SwitchFormat();
+		sender.Encrypt(ilParams, A.first, publicElementB, pubElemBeta, x, ptext, dgg, dug, bug, &ctCin, &c1);
+
+		ctCA = ctCin.ExtractRow(0);
+
+		receiver.ANDGateEval(ilParams, &x[1], publicElementB.ExtractRows(1,2), ctCin.ExtractRows(2,3), &y, &pubElemBf, &ctCf);
+
+		pkg.KeyGen(ilParams, A.first, pubElemBf, pubElemBeta, A.second, dgg, &sk);
+
+		receiver.Decrypt(ilParams, sk, ctCA, ctCf, c1, &dtext);
+
+		ptext.SwitchFormat();
+		EXPECT_EQ(ptext, dtext);
+}
+
+void UnitTestAPolicyCircuitTest(int32_t base, usint k, usint ringDimension){
+
+		usint n = ringDimension*2;   // cyclotomic order
+		usint ell = 4; // No of attributes for NAND gate
+		BigInteger q = BigInteger::ONE << (k-1);
+		q = lbcrypto::FirstPrime<BigInteger>(k,n);
+		BigInteger rootOfUnity(RootOfUnity(n, q));
+
+		double val = q.ConvertToDouble();
+		double logTwo = log(val-1.0)/log(base)+1.0;
+		size_t k_ = (usint) floor(logTwo)+1; /* (+1) is For NAF */
+		std::cout << "q: " << q << std::endl;
+		std::cout << "modulus length: " << k_ << std::endl;
+		std::cout << "root of unity: " << rootOfUnity << std::endl;
+		std::cout << "Standard deviation: " << SIGMA << std::endl;
+
+		usint m = k_+2;
+
+		shared_ptr<ILParams> ilParams(new ILParams(n, q, rootOfUnity));
+
+		auto zero_alloc = Poly::MakeAllocator(ilParams, COEFFICIENT);
+
+		DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(SIGMA);
+		Poly::DugType dug = Poly::DugType();
+		dug.SetModulus(q);
+		BinaryUniformGenerator bug = BinaryUniformGenerator();
+
+		// Precompuations for FTT
+		ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().PreCompute(rootOfUnity, n, q);
+
+		// Trapdoor Generation
+		std::pair<RingMat, RLWETrapdoorPair<Poly>> A = RLWETrapdoorUtility::TrapdoorGen(ilParams, SIGMA, base, true);
+
+		Poly pubElemBeta(dug, ilParams, EVALUATION);
+
+		RingMat publicElementB(zero_alloc, ell+1, m);
+		RingMat ctCin(zero_alloc, ell+2, m);
+		Poly c1(dug, ilParams, EVALUATION);
+
+		KPABE pkg, sender, receiver;
+
+		pkg.Setup(ilParams, base, ell, dug, &publicElementB);
+		sender.Setup(ilParams, base, ell);
+		receiver.Setup(ilParams, base, ell);
+
+		// Attribute values all are set to 1 for NAND gate evaluation
+		usint x[ell+1];
+		for(usint i=0; i<ell+1; i++)
+			x[i] = 1;
+
+		// plaintext
+		Poly ptext(ilParams, COEFFICIENT, true);
+
+		// outputs of the input gates
+		RingMat tB(Poly::MakeAllocator(ilParams, EVALUATION), 1, m);
+		RingMat tC(Poly::MakeAllocator(ilParams, EVALUATION), 1, m);
+		RingMat wB(Poly::MakeAllocator(ilParams, EVALUATION), 2, m);
+		RingMat wC(Poly::MakeAllocator(ilParams, EVALUATION), 2, m);
+		usint wx[2];
+
+		// circuit outputs
+		RingMat evalBf(Poly::MakeAllocator(ilParams, EVALUATION), 1, m);
+		RingMat evalCf(Poly::MakeAllocator(ilParams, EVALUATION), 1, m);
+		RingMat ctCA(Poly::MakeAllocator(ilParams, EVALUATION), 1, m);
+		usint y;  // output of the circuit; for the policy (i.e., x1=x2=1 OR x3=x4=1) it should be 0
+
+		// secret key corresponding to the circuit output
+		RingMat sKey(zero_alloc, 2, m);
+
+		// decrypted text
+		Poly dtext(ilParams, EVALUATION, true);
+
+		// Encrypt a uniformly randomly selected message ptext (in ptext in $R_2$)
+		ptext.SetValues(bug.GenerateVector(ringDimension, q), COEFFICIENT);
+		ptext.SwitchFormat();
+		sender.Encrypt(ilParams, A.first, publicElementB, pubElemBeta, x, ptext, dgg, dug, bug, &ctCin, &c1);
+		ctCA  = ctCin.ExtractRow(0);
+		auto pubElemB0 = publicElementB.ExtractRow(0);
+		auto ctC0 = ctCin.ExtractRow(1);
+		receiver.NANDGateEval(ilParams, pubElemB0, ctC0, &x[1], publicElementB.ExtractRows(1,2), ctCin.ExtractRows(2,3), &wx[0], &tB, &tC);
+		for(usint i=0; i<m; i++) {
+			wB(0, i) = tB(0, i);
+			wC(0, i) = tC(0, i);
+		}
+		receiver.NANDGateEval(ilParams, pubElemB0, ctC0, &x[3], publicElementB.ExtractRows(3,4), ctCin.ExtractRows(4,5), &wx[1], &tB, &tC);
+		for(usint i=0; i<m; i++) {
+			wB(1, i) = tB(0, i);
+			wC(1, i) = tC(0, i);
+		}
+		receiver.ANDGateEval(ilParams, wx, wB, wC, &y, &evalBf, &evalCf);
+		pkg.KeyGen(ilParams, A.first, evalBf, pubElemBeta, A.second, dgg, &sKey);
+		receiver.Decrypt(ilParams, sKey, ctCA, evalCf, c1, &dtext);
+		ptext.SwitchFormat();
+
+		EXPECT_EQ(ptext,dtext);
+}
+
 TEST(UTABE, cp_abe_base_2) {
 	UnitTestCPABE(2,34, 1024);
 }
@@ -349,16 +523,32 @@ TEST(UTABE, cp_abe_base_16) {
 	UnitTestCPABE(16,34, 1024);
 }
 
-TEST(UTABE, kp_abe_base_2) {
-	UnitTestKPABE(2,51, 1024);
+TEST(UTABE, kp_abe_benchmarkcircuit_base_2) {
+	UnitTestKPABEBenchMarkCircuit(2,51, 1024);
 }
 
-TEST(UTABE, kp_abe_base_4) {
-	UnitTestKPABE(4,51, 2048);
+TEST(UTABE, kp_abe_benchmarkcircuit_base_4) {
+	UnitTestKPABEBenchMarkCircuit(4,51, 2048);
 }
 
-TEST(UTABE, kp_abe_base_16) {
-	UnitTestKPABE(8,51, 2048);
+TEST(UTABE, kp_abe_benchmarkcircuit_base_16) {
+	UnitTestKPABEBenchMarkCircuit(8,51, 2048);
+}
+
+TEST(UTABE, kp_abe_andgate_base_4) {
+	UnitTestKPABEANDGate(4,36,1024);
+}
+
+TEST(UTABE, kp_abe_andgate_base_2) {
+	UnitTestKPABEANDGate(2,36,1024);
+}
+
+TEST(UTABE, kp_abe_apolicy_base_2) {
+	UnitTestKPABEANDGate(2,36,1024);
+}
+
+TEST(UTABE, kp_abe_apolicy_base_4) {
+	UnitTestKPABEANDGate(4,36,1024);
 }
 
 TEST(UTABE, ibe_base_2) {

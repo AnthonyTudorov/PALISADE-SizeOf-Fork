@@ -133,17 +133,14 @@ namespace lbcrypto {
 
 		for (usint ii=0; ii<m; ii++) {
 			int k_i;
-
 			auto tB = pubElemB(0, ii);
 			if(tB.GetFormat() != COEFFICIENT)
 				tB.SwitchFormat();
-
 			for(usint i=0; i<ringDimension; i++) {
 				auto coeff_i = tB.GetValAtIndex(i);
 				int j = 0;
 				while(coeff_i > big0) {
 					k_i = coeff_i.GetBitAtIndex(1);
-
 					if(k_i == 1) {
 						k_i = 2 - coeff_i.Mod(big4).ConvertToInt();
 						if(k_i == 1)
@@ -155,17 +152,15 @@ namespace lbcrypto {
 						k_i = 0;
 
 					coeff_i = coeff_i.DividedBy(big2);
-
 					if(k_i == 1)
 						(*psi)(j, ii).SetValAtIndex(i, big1);
 					else if(k_i == -1)
 						(*psi)(j, ii).SetValAtIndex(i, q1);
 					else
-						(*psi)(j, ii).SetValAtIndex(i, big0);
+						(*psi)(j, ii).SetValAtIndex(i, big0);}
 					j++;
 				}
 			}
-		}
 
 		psi->SwitchFormat();
 
@@ -581,20 +576,16 @@ namespace lbcrypto {
 	)
 	{
 		auto zero_alloc = Poly::MakeAllocator(ilParams, EVALUATION);
-
 		RingMat Psi(zero_alloc, m_m, m_m);
-
 		RingMat negB(zero_alloc, 1, m_m);  			// EVALUATE (NTT domain)
 		std::vector<Poly> digitsC1(m_m);
-
 		(*evalAttribute) = x[0]*x[1];  // Boolean output
-
 		/* -B1 */
-		for (usint j = 0; j < m_m; j++)     // Negating B1 for bit decomposition
+		for (usint j = 0; j < m_m; j++) {    // Negating B1 for bit decomposition
 			negB(0, j) = origPubElemB(0, j).Negate();
-
-		PolyVec2NAFDecom (ilParams, m_k, negB, &Psi);
-
+		}
+	//	PolyVec2NAFDecom (ilParams, m_k, negB, &Psi);
+		PolyVec2BalDecom (ilParams, m_base, m_k, negB, &Psi);
 		/* x2*C1 */
 		for (usint i = 0; i < m_m; i++) {
 			if(x[1] != 0)
@@ -602,7 +593,6 @@ namespace lbcrypto {
 			else
 				(*evalCT)(0, i).SetValuesToZero();
 		}
-
 		/* B2*Psi; Psi*C2 */
 		for (usint i = 0; i < m_m; i++) {
 			(*evalPubElemBf)(0, i) = origPubElemB(1, 0) * Psi(0, i);
