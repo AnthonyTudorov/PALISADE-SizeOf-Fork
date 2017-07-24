@@ -25,7 +25,7 @@ int main()
 {
 
 	std::cout << "-------Start demo for KP-ABE-------" << std::endl;
-	/*KPABE_BenchmarkCircuitTest(1,8);
+	KPABE_BenchmarkCircuitTest(1,8);
 	std::cout << "-------End demo for KP-ABE-------" << std::endl << std::endl;
 
 	std::cout << "-------Start demo for CP-ABE-------" << std::endl;
@@ -39,7 +39,7 @@ int main()
 	std::cout << "-------Start demo for KP-ABE NAND GATE TEST-------" << std::endl;
 	KPABE_NANDGateTest(1,8);
 	std::cout << "-------End demo for KP-ABE NAND GATE TEST-------" << std::endl << std::endl;
-*/
+
 	std::cout << "-------Start demo for KP-ABE AND GATE TEST-------" << std::endl;
 	KPABE_ANDGateTest(1);
 	std::cout << "-------End demo for KP-ABE AND GATE TEST-------" << std::endl << std::endl;
@@ -181,7 +181,6 @@ int KPABE_BenchmarkCircuitTest(usint iter, int32_t base)
 
 	return 0;
 }
-
 /*
  * The access policy is x1*x2+x3*x4 = (1-x1x2)*(1-x3x4)
  */
