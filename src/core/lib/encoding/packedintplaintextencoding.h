@@ -219,6 +219,9 @@ private:
 	static std::map<native_int::BigInteger, std::vector<usint>> m_toCRTPerm;
 	static std::map<native_int::BigInteger, std::vector<usint>> m_fromCRTPerm;
 
+	static void SetParams_2n(usint m, const native_int::BigInteger &modulus);
+	static void SetParams_2n(usint m, shared_ptr<EncodingParams> params);
+
 	/**
 	* @brief Packs the slot values into aggregate plaintext space.
 	*
