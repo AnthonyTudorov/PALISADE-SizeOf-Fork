@@ -78,7 +78,11 @@ public:
 	 *
 	 * @param  value - integer to be converted to binary polynomial representation
 	 */
+	IntPlaintextEncoding(int32_t value);
 	IntPlaintextEncoding(uint32_t value);
+	IntPlaintextEncoding(int64_t value);
+	IntPlaintextEncoding(uint64_t value);
+	IntPlaintextEncoding(std::string value);
 
 	/**
 	 * @brief Default empty constructor with empty uninitialized data elements.

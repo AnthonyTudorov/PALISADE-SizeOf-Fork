@@ -29,11 +29,48 @@ namespace lbcrypto
 {
 
 // Forms a binary array from an integer; represents the integer as a binary polynomial
+IntPlaintextEncoding::IntPlaintextEncoding(int32_t value)
+{
+	this->reserve(32);
+	for (size_t i = 0; i < 32; i++, value>>=1) {
+		this->push_back(value & 1);
+	}
+}
+
+// Forms a binary array from an integer; represents the integer as a binary polynomial
 IntPlaintextEncoding::IntPlaintextEncoding(uint32_t value)
 {
-	for (size_t i = 0; i < 32; i++) {
+	this->reserve(32);
+	for (size_t i = 0; i < 32; i++, value>>=1) {
+		this->push_back(value & 1);
+	}
+}
+
+// Forms a binary array from an integer; represents the integer as a binary polynomial
+IntPlaintextEncoding::IntPlaintextEncoding(int64_t value)
+{
+	this->reserve(64);
+	for (size_t i = 0; i < 64; i++, value>>=1) {
+		this->push_back(value & 1);
+	}
+}
+// Forms a binary array from an integer; represents the integer as a binary polynomial
+IntPlaintextEncoding::IntPlaintextEncoding(uint64_t value)
+{
+	this->reserve(64);
+	for (size_t i = 0; i < 64; i++, value>>=1) {
+		this->push_back(value & 1);
+	}
+}
+
+// Forms a binary array from an integer; represents the integer as a binary polynomial
+IntPlaintextEncoding::IntPlaintextEncoding(std::string val)
+{
+	BigInteger value(val);
+	while (value > 0 ) {
 		// gets i-th bit of the 32-bit integer
-		this->push_back((value >> i) & 1);
+		this->push_back((value % 2).ConvertToInt());
+		value = value / 2;
 	}
 }
 
