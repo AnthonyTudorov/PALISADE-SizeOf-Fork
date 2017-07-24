@@ -73,16 +73,26 @@ public:
 	 */
 	IntPlaintextEncoding(std::initializer_list<uint32_t> arr) : std::vector<uint32_t>(arr) {}
 
-	/** Forms a binary array from an integer;
+	/** Forms a binary array from a 32 bit unsigned integer;
 	 * Represents the integer as a binary polynomial
 	 *
-	 * @param  value - integer to be converted to binary polynomial representation
+	 * @param  value - 32 bit integer to be converted to binary polynomial representation
 	 */
-	IntPlaintextEncoding(int32_t value);
 	IntPlaintextEncoding(uint32_t value);
-	IntPlaintextEncoding(int64_t value);
+
+	/** Forms a binary array from a 64 bit unsigned integer;
+	 * Represents the integer as a binary polynomial
+	 *
+	 * @param  value - 64 bit integer to be converted to binary polynomial representation
+	 */
 	IntPlaintextEncoding(uint64_t value);
-	IntPlaintextEncoding(std::string value);
+
+	/** Forms a binary array from a big integer;
+	 * Represents the integer as a binary polynomial
+	 *
+	 * @param  value - big 32 bit integer to be converted to binary polynomial representation
+	 */
+	IntPlaintextEncoding(const BigInteger& value);
 
 	/**
 	 * @brief Default empty constructor with empty uninitialized data elements.
