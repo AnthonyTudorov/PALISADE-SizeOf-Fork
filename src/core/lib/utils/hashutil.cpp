@@ -27,6 +27,7 @@
 #ifndef _SRC_LIB_UTILS_HASHUTIL_CPP
 #define _SRC_LIB_UTILS_HASHUTIL_CPP
 #include "hashutil.h"
+#include <sstream>
 #define RIGHT_ROT(x, n) (( x >> (n % (sizeof(x)*8) ) | ( x << ((sizeof(x)*8) - (n % (sizeof(x)*8))))))
 
 const uint32_t HashUtil::k_256[64] = { 0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
@@ -143,9 +144,7 @@ lbcrypto::BytePlaintextEncoding HashUtil::SHA256(lbcrypto::BytePlaintextEncoding
 }
 
 std::string
-HashUtil::HashString(std::string message) {
-	return std::string("foo");
-#if 0
+HashUtil::HashString(std::string text) {
 	uint32_t h_256[8] = { 0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19 };
 
 	uint64_t m_len = text.size() * 8;
@@ -221,7 +220,13 @@ HashUtil::HashString(std::string message) {
 		h_256[6] += g;
 		h_256[7] += h;
 	}
-#endif
+
+	std::stringstream s;
+	s << std::hex;
+	for( size_t ii=0; ii<8; ii++ )
+		s << h_256[ii];
+
+	return s.str();
 }
 
 #if 0

@@ -26,7 +26,6 @@ int main()
 	cout << "Empty string" << endl;
 	for( size_t ii=0; ii<32; ii++ ) {
 		cout << (int)shabytes[ii];
-		if( (ii+1)%4 == 0 ) cout << " ";
 	}
 	cout << endl << sha << endl;
 
@@ -37,7 +36,6 @@ int main()
 	cout << "The quick brown fox jumps over the lazy dog" << endl;
 	for( size_t ii=0; ii<32; ii++ ) {
 		cout << (int) shabytes2[ii];
-		if( (ii+1)%4 == 0 ) cout << " ";
 	}
 	cout << endl << sha << endl;
 
