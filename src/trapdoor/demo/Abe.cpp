@@ -23,7 +23,7 @@ int CPABE_Test(usint iter);
 int main()
 {
 
-	std::cout << "-------Start demo for KP-ABE-------" << std::endl;
+/*	std::cout << "-------Start demo for KP-ABE-------" << std::endl;
 	KPABE_BenchmarkCircuitTest(1,8);
 	std::cout << "-------End demo for KP-ABE-------" << std::endl << std::endl;
 
@@ -37,7 +37,7 @@ int main()
 
 	std::cout << "-------Start demo for KP-ABE NAND GATE TEST-------" << std::endl;
 	KPABE_NANDGateTest(1,8);
-	std::cout << "-------End demo for KP-ABE NAND GATE TEST-------" << std::endl << std::endl;
+	std::cout << "-------End demo for KP-ABE NAND GATE TEST-------" << std::endl << std::endl;*/
 
 	std::cout << "-------Start demo for KP-ABE AND GATE TEST-------" << std::endl;
 	KPABE_ANDGateTest(1);
@@ -222,13 +222,13 @@ int KPABE_APolicyCircuitTest(usint iter)
 
 	Poly pubElemBeta(dug, ilParams, EVALUATION);
 
-	RingMat publicElementB(zero_alloc, ell+1, m);
+	RingMat pubElemB(zero_alloc, ell+1, m);
 	RingMat ctCin(zero_alloc, ell+2, m);
 	Poly c1(dug, ilParams, EVALUATION);
 
 	KPABE pkg, sender, receiver;
 
-	pkg.Setup(ilParams, base, ell, dug, &publicElementB);
+	pkg.Setup(ilParams, base, ell, dug, &pubElemB);
 	sender.Setup(ilParams, base, ell);
 	receiver.Setup(ilParams, base, ell);
 
@@ -267,22 +267,31 @@ int KPABE_APolicyCircuitTest(usint iter)
 		// Encrypt a uniformly randomly selected message ptext (in ptext in $R_2$)
 		ptext.SetValues(bug.GenerateVector(ringDimension, q), COEFFICIENT);
 		ptext.SwitchFormat();
-		sender.Encrypt(ilParams, A.first, publicElementB, pubElemBeta, x, ptext, dgg, dug, bug, &ctCin, &c1);
+		sender.Encrypt(ilParams, A.first, pubElemB, pubElemBeta, x, ptext, dgg, dug, bug, &ctCin, &c1);
 		ctCA  = ctCin.ExtractRow(0);
-		auto pubElemB0 = publicElementB.ExtractRow(0);
+		auto pubElemB0 = pubElemB.ExtractRow(0);
 		auto ctC0 = ctCin.ExtractRow(1);
-		receiver.NANDGateEval(ilParams, pubElemB0, ctC0, &x[1], publicElementB.ExtractRows(1,2), ctCin.ExtractRows(2,3), &wx[0], &tB, &tC);
+
+		receiver.KPABE::NANDGateEvalPK(ilParams, pubElemB0, pubElemB.ExtractRows(1,2), &tB);
+		receiver.KPABE::NANDGateEvalCT(ilParams, ctC0, &x[1], pubElemB.ExtractRows(1,2), ctCin.ExtractRows(2,3), &wx[0], &tC);
+
 		for(usint i=0; i<m; i++) {
 			wB(0, i) = tB(0, i);
 			wC(0, i) = tC(0, i);
 		}
-		receiver.NANDGateEval(ilParams, pubElemB0, ctC0, &x[3], publicElementB.ExtractRows(3,4), ctCin.ExtractRows(4,5), &wx[1], &tB, &tC);
+
+		receiver.NANDGateEvalPK(ilParams, pubElemB0, pubElemB.ExtractRows(3,4), &tB);
+		receiver.NANDGateEvalCT(ilParams, ctC0, &x[3], pubElemB.ExtractRows(3,4), ctCin.ExtractRows(4,5), &wx[1], &tC);
+
 		for(usint i=0; i<m; i++) {
 			wB(1, i) = tB(0, i);
 			wC(1, i) = tC(0, i);
 		}
-		receiver.ANDGateEval(ilParams, wx, wB, wC, &y, &evalBf, &evalCf);
+		receiver.ANDGateEvalPK(ilParams, wB, &evalBf);
+
+		receiver.ANDGateEvalCT(ilParams, wx, wB, wC, &y, &evalCf);
 		pkg.KeyGen(ilParams, A.first, evalBf, pubElemBeta, A.second, dgg, &sKey);
+
 		receiver.Decrypt(ilParams, sKey, ctCA, evalCf, c1, &dtext);
 		ptext.SwitchFormat();
 		if(ptext != dtext) {
@@ -387,9 +396,11 @@ int KPABE_NANDGateTest(usint iter, int32_t base)
 		ctCA = ctCin.ExtractRow(0);
 
 		start = currentDateTime();
-		receiver.KPABE::NANDGateEval(ilParams,
-				publicElementB.ExtractRow(0), ctCin.ExtractRow(1),
-				&x[1], publicElementB.ExtractRows(1,2), ctCin.ExtractRows(2,3), &y, &pubElemBf, &ctCf);
+
+		receiver.KPABE::NANDGateEvalPK(ilParams, publicElementB.ExtractRow(0), publicElementB.ExtractRows(1,2), &pubElemBf);
+
+		receiver.KPABE::NANDGateEvalCT(ilParams, ctCin.ExtractRow(1),
+						&x[1], publicElementB.ExtractRows(1,2), ctCin.ExtractRows(2,3), &y, &ctCf);
 		finish = currentDateTime();
 		avg_eval += (finish - start);
 
@@ -502,7 +513,10 @@ int KPABE_ANDGateTest(usint iter)
 
 		ctCA = ctCin.ExtractRow(0);
 
-		receiver.ANDGateEval(ilParams, &x[1], publicElementB.ExtractRows(1,2), ctCin.ExtractRows(2,3), &y, &pubElemBf, &ctCf);
+		receiver.ANDGateEvalPK(ilParams, publicElementB.ExtractRows(1,2), &pubElemBf);
+
+		receiver.ANDGateEvalCT(ilParams, &x[1], publicElementB.ExtractRows(1,2), ctCin.ExtractRows(2,3), &y, &ctCf);
+
 
 		pkg.KeyGen(ilParams, A.first, pubElemBf, pubElemBeta, A.second, dgg, &sk);
 

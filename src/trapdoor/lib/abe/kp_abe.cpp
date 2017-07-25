@@ -449,15 +449,13 @@ namespace lbcrypto {
 	/*
 	 * This is method for evaluating a single NAND gate
 	 */
-	void KPABE::NANDGateEval(
+	void KPABE::NANDGateEvalCT(
 		const shared_ptr<ILParams> ilParams,
-		const RingMat &pubElemB0,
 		const RingMat &ctC0,
 		const usint x[],
 		const RingMat &origPubElem,
 		const RingMat &origCT,
 		usint *evalAttribute,
-		RingMat *evalPubElem,
 		RingMat *evalCT
 	)
 	{
@@ -486,27 +484,85 @@ namespace lbcrypto {
 
 		/* B2*Psi; Psi*C2 */
 		for (usint i = 0; i < m_m; i++) {
-			(*evalPubElem)(0, i) = origPubElem(1, 0) * psi(0, i);
 			(*evalCT)(0, i) += psi(0, i) * origCT(1, 0);
 			for (usint j = 1; j < m_m; j++) {
-				(*evalPubElem)(0, i) += origPubElem(1, j) * psi(j, i);
 				(*evalCT)(0, i) += psi(j, i) * origCT(1, j);
 			}
 		}
 
 		for (usint i = 0; i < m_m; i++) {
-			(*evalPubElem)(0, i) = pubElemB0(0, i) - (*evalPubElem)(0, i);
 			(*evalCT)(0, i) = ctC0(0, i) - (*evalCT)(0, i);
 		}
 	}
 
-	void KPABE::ANDGateEval(
+
+	/*
+	 * This is method for evaluating a single NAND gate
+	 */
+	void KPABE::NANDGateEvalPK(
+		const shared_ptr<ILParams> ilParams,
+		const RingMat &pubElemB0,
+		const RingMat &origPubElem,
+		RingMat *evalPubElem
+	)
+	{
+		auto zero_alloc = Poly::MakeAllocator(ilParams, EVALUATION);
+
+		RingMat psi(zero_alloc, m_m, m_m);
+
+		RingMat negB(zero_alloc, 1, m_m);  			// EVALUATE (NTT domain)
+
+		/* -B1 */
+		for (usint j = 0; j < m_m; j++)     // Negating B1 for bit decomposition
+			negB(0, j) = origPubElem(0, j).Negate();
+
+		PolyVec2BalDecom (ilParams, m_base, m_k, negB, &psi);
+
+		/* B2*Psi; Psi*C2 */
+		for (usint i = 0; i < m_m; i++) {
+			(*evalPubElem)(0, i) = origPubElem(1, 0) * psi(0, i);
+			for (usint j = 1; j < m_m; j++) {
+				(*evalPubElem)(0, i) += origPubElem(1, j) * psi(j, i);
+			}
+		}
+
+		for (usint i = 0; i < m_m; i++) {
+			(*evalPubElem)(0, i) = pubElemB0(0, i) - (*evalPubElem)(0, i);
+		}
+	}
+
+	void KPABE::ANDGateEvalPK(
+		shared_ptr<ILParams> ilParams,
+		const RingMat &origPubElemB,
+		RingMat *evalPubElemBf
+	)
+	{
+		auto zero_alloc = Poly::MakeAllocator(ilParams, EVALUATION);
+		RingMat psi(zero_alloc, m_m, m_m);
+		RingMat negB(zero_alloc, 1, m_m);  			// EVALUATE (NTT domain)
+		std::vector<Poly> digitsC1(m_m);
+
+		/* -B1 */
+		for (usint j = 0; j < m_m; j++) {    // Negating B1 for bit decomposition
+			negB(0, j) = origPubElemB(0, j).Negate();
+		}
+		PolyVec2BalDecom (ilParams, m_base, m_k, negB, &psi);
+
+		/* B2*Psi; Psi*C2 */
+		for (usint i = 0; i < m_m; i++) {
+			(*evalPubElemBf)(0, i) = origPubElemB(1, 0) * psi(0, i);
+			for (usint j = 1; j < m_m; j++) {
+				(*evalPubElemBf)(0, i) += origPubElemB(1, j) * psi(j, i);
+			}
+		}
+	}
+
+	void KPABE::ANDGateEvalCT(
 		shared_ptr<ILParams> ilParams,
 		const usint x[],
 		const RingMat &origPubElemB,
 		const RingMat &origCT,
 		usint *evalAttribute,
-		RingMat *evalPubElemBf,
 		RingMat *evalCT
 	)
 	{
@@ -529,10 +585,8 @@ namespace lbcrypto {
 		}
 		/* B2*Psi; Psi*C2 */
 		for (usint i = 0; i < m_m; i++) {
-			(*evalPubElemBf)(0, i) = origPubElemB(1, 0) * Psi(0, i);
 			(*evalCT)(0, i) += Psi(0, i) * origCT(1, 0);
 			for (usint j = 1; j < m_m; j++) {
-				(*evalPubElemBf)(0, i) += origPubElemB(1, j) * Psi(j, i);
 				(*evalCT)(0, i) += Psi(j, i) * origCT(1, j);
 			}
 		}
