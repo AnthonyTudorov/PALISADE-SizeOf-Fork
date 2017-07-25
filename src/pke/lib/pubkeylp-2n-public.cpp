@@ -1,5 +1,5 @@
 /*
- * @file pubkeylp-vector-impl.cpp - public key vector implementation.
+ * @file pubkeylp.cpp - public key implementation
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -23,17 +23,26 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-
+ 
 #include "cryptocontext.h"
-#include "pubkeylp.cpp"
+#include "pubkeylp.h"
 
 namespace lbcrypto {
-extern template class CryptoContext<Poly>;
 
-template class LPPublicKey<Poly>;
-template class LPEvalKeyRelin<Poly>;
-template class LPEvalKeyNTRU<Poly>;
-template class LPEvalKeyNTRURelin<Poly>;
-template class LPSHEAlgorithm<Poly>;
+	template<typename Element>
+	std::vector<usint> LPSHEAlgorithm<Element>::GenerateIndices_2n(usint batchSize) const {
+
+		throw std::runtime_error("EvalSum is not supported for power-of-two cyclotomics");
+
+	}
+
+	template<typename Element>
+	void LPSHEAlgorithm<Element>::EvalSum_2n(usint batchSize, const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalKeys,
+		shared_ptr<Ciphertext<Element>> newCiphertext) const {
+
+		throw std::runtime_error("EvalSum is not supported for power-of-two cyclotomics");
+
+	}
+
+
 }
-

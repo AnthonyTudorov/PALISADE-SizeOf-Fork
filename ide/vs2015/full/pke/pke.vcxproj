@@ -40,6 +40,7 @@
     <ClCompile Include="..\..\..\..\src\pke\lib\matrixser-impl.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\lib\nullscheme-vector-impl.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\lib\nullscheme-vectorarray-impl.cpp" />
+    <ClCompile Include="..\..\..\..\src\pke\lib\pubkeylp-2n-private.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\lib\pubkeylp-vector-impl.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\lib\pubkeylp-vectorarray-impl.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\lib\pubkeylp.cpp" />

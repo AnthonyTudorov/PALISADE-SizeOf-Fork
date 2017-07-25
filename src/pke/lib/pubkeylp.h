@@ -1442,14 +1442,11 @@ namespace lbcrypto {
 			std::vector<usint> indices;
 
 			if (!(m & (m-1))){ // Check if m is a power of 2
-				usint g = 5;
-				for (int i = 0; i < floor(log2(batchSize))-1; i++)
-				{
-					indices.push_back(g);
-					g = (g * g) % m;
-				}
-				indices.push_back(3);
+
+				indices = GenerateIndices_2n(batchSize);
+
 			} else { // Arbitray cyclotomics
+
 				usint g = encodingParams->GetPlaintextGenerator();
 				for (int i = 0; i < floor(log2(batchSize)); i++)
 				{
@@ -1487,13 +1484,9 @@ namespace lbcrypto {
 			usint m = elementParams->GetCyclotomicOrder();
 
 			if (!(m & (m-1))){ // Check if m is a power of 2
-				usint g = 5;
-				for (int i = 0; i < floor(log2(batchSize))-1; i++)
-				{
-					newCiphertext = EvalAdd(newCiphertext, EvalAutomorphism(newCiphertext, g, evalKeys));
-					g = (g * g) % m;
-				}
-				newCiphertext = EvalAdd(newCiphertext, EvalAutomorphism(newCiphertext, 3, evalKeys));
+
+				EvalSum_2n(batchSize, evalKeys,newCiphertext);
+
 			} else { // Arbitray cyclotomics
 				usint g = encodingParams->GetPlaintextGenerator();
 				for (int i = 0; i < floor(log2(batchSize)); i++)
@@ -1633,6 +1626,12 @@ namespace lbcrypto {
 			return result;
 
 		}
+
+		private:
+			std::vector<usint> GenerateIndices_2n(usint batchSize) const;
+			void EvalSum_2n(usint batchSize, const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalKeys,
+				shared_ptr<Ciphertext<Element>> newCiphertext) const;
+
 
 	};
 

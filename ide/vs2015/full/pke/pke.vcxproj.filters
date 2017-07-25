@@ -30,6 +30,7 @@
     <ClCompile Include="..\..\..\..\src\pke\lib\stst-vector-impl.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\lib\stst-vectorarray-impl.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\lib\cryptotiming-impl.cpp" />
+    <ClCompile Include="..\..\..\..\src\pke\lib\pubkeylp-2n-private.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\src\pke\lib\bv.h" />
