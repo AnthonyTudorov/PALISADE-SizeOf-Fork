@@ -73,13 +73,6 @@ public:
 	 */
 	IntPlaintextEncoding(std::initializer_list<uint32_t> arr) : std::vector<uint32_t>(arr) {}
 
-	/** Forms a binary array from a 32 bit unsigned integer;
-	 * Represents the integer as a binary polynomial
-	 *
-	 * @param  value - 32 bit integer to be converted to binary polynomial representation
-	 */
-	IntPlaintextEncoding(uint32_t value);
-
 	/** Forms a binary array from a 64 bit unsigned integer;
 	 * Represents the integer as a binary polynomial
 	 *
