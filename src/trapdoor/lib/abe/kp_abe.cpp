@@ -47,20 +47,16 @@ namespace lbcrypto {
 		usint ringDimesion = ilParams->GetCyclotomicOrder() >> 1;
 		usint m = k+2;
 		BigInteger q = ilParams->GetModulus();
-
 		auto big0 = BigInteger::ZERO;
 		auto bigBase = BigInteger(base);
-
 		for(usint i=0; i<m; i++)
 			for(usint j=0; j<m; j++) {
 				(*psi)(j, i).SetValuesToZero();
 				if ((*psi)(j, i).GetFormat() != COEFFICIENT)
 					(*psi)(j, i).SwitchFormat();
 			}
-
 		for (usint ii=0; ii<m; ii++) {
 			int digit_i;
-
 			auto tB = pubElemB(0, ii);
 			if(tB.GetFormat() != COEFFICIENT)
 				tB.SwitchFormat();
@@ -106,67 +102,6 @@ namespace lbcrypto {
 
 		return 0;
 	}
-
-	/*
-	 * Input: vector of (k+2) elements of $R_q$
-	 * Input: $k = \lceil \log_2{q} \rceil$; i.e. the bit length of the modulus + 1
-	 * Output: matrix of (k+2)x(k+2) elements of $R_2$ where the coefficients are in NAF
-	 */
-	int PolyVec2NAFDecom (const shared_ptr<ILParams> ilParams, int k, const RingMat &pubElemB, RingMat *psi)
-	{
-		usint ringDimension = ilParams->GetCyclotomicOrder() >> 1;
-		usint m = k+2;
-		BigInteger q = ilParams->GetModulus();
-		BigInteger q1 = q-BigInteger::ONE;
-
-		auto big0 = BigInteger::ZERO;
-		auto big1 = BigInteger::ONE;
-		auto big2 = BigInteger::TWO;
-		auto big4 = BigInteger::FOUR;
-
-		for(usint i=0; i<m; i++)
-			for(usint j=0; j<m; j++) {
-				(*psi)(j, i).SetValuesToZero();
-				if ((*psi)(j, i).GetFormat() != COEFFICIENT)
-					(*psi)(j, i).SwitchFormat();
-			}
-
-		for (usint ii=0; ii<m; ii++) {
-			int k_i;
-			auto tB = pubElemB(0, ii);
-			if(tB.GetFormat() != COEFFICIENT)
-				tB.SwitchFormat();
-			for(usint i=0; i<ringDimension; i++) {
-				auto coeff_i = tB.GetValAtIndex(i);
-				int j = 0;
-				while(coeff_i > big0) {
-					k_i = coeff_i.GetBitAtIndex(1);
-					if(k_i == 1) {
-						k_i = 2 - coeff_i.Mod(big4).ConvertToInt();
-						if(k_i == 1)
-							coeff_i = coeff_i - big1;
-						else
-							coeff_i = coeff_i + big1;
-					}
-					else
-						k_i = 0;
-
-					coeff_i = coeff_i.DividedBy(big2);
-					if(k_i == 1)
-						(*psi)(j, ii).SetValAtIndex(i, big1);
-					else if(k_i == -1)
-						(*psi)(j, ii).SetValAtIndex(i, q1);
-					else
-						(*psi)(j, ii).SetValAtIndex(i, big0);}
-					j++;
-				}
-			}
-
-		psi->SwitchFormat();
-
-		return 0;
-	}
-
 	/*
 	 * This is a setup function for Private Key Generator (PKG);
 	 * generates master public key (MPK) and master secret key
@@ -480,7 +415,7 @@ namespace lbcrypto {
 		// ***
 		// Compute Cin
 		auto zero_alloc = Poly::MakeAllocator(ilParams, EVALUATION);
-		RingMat g = RingMat(zero_alloc, 1, m_k).GadgetVector(m_base);  // be careful here
+		RingMat g = RingMat(zero_alloc, 1, m_k).GadgetVector(m_base);
 
 		RingMat errA(Poly::MakeDiscreteGaussianCoefficientAllocator(ilParams, EVALUATION, SIGMA), 1, m_m);
 		RingMat errCin(zero_alloc, 1, m_m);
@@ -584,7 +519,6 @@ namespace lbcrypto {
 		for (usint j = 0; j < m_m; j++) {    // Negating B1 for bit decomposition
 			negB(0, j) = origPubElemB(0, j).Negate();
 		}
-	//	PolyVec2NAFDecom (ilParams, m_k, negB, &Psi);
 		PolyVec2BalDecom (ilParams, m_base, m_k, negB, &Psi);
 		/* x2*C1 */
 		for (usint i = 0; i < m_m; i++) {

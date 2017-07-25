@@ -511,6 +511,46 @@ void UnitTestAPolicyCircuitTest(int32_t base, usint k, usint ringDimension){
 		EXPECT_EQ(ptext,dtext);
 }
 
+void UnitTestPolyVecDecomp(int32_t base, usint k, usint ringDimension){
+
+		usint n = ringDimension*2;   // cyclotomic order
+
+		BigInteger q = BigInteger::ONE << (k-1);
+		q = lbcrypto::FirstPrime<BigInteger>(k,n);
+		BigInteger rootOfUnity(RootOfUnity(n, q));
+
+		usint m = k +2;
+
+		shared_ptr<ILParams> ilParams(new ILParams(n, q, rootOfUnity));
+		auto zero_alloc = Poly::MakeAllocator(ilParams, EVALUATION);
+
+		RingMat matrixTobeDecomposed(zero_alloc, 1, m);
+
+		DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(SIGMA);
+		Poly::DugType dug = Poly::DugType();
+		dug.SetModulus(q);
+
+		for (usint i = 0; i < matrixTobeDecomposed.GetRows(); i++)
+			for (usint j = 0; j < matrixTobeDecomposed.GetCols(); j++) {
+				if(matrixTobeDecomposed(i, j).GetFormat() != COEFFICIENT)
+					matrixTobeDecomposed(i,j).SwitchFormat();
+				matrixTobeDecomposed(i, j).SetValues(dug.GenerateVector(ringDimension), COEFFICIENT); // always sample in COEFFICIENT format
+				matrixTobeDecomposed(i, j).SwitchFormat(); // always kept in EVALUATION format
+			}
+
+		RingMat results(matrixTobeDecomposed);
+		RingMat g = RingMat(zero_alloc, 1, m).GadgetVector(base);
+
+
+		RingMat psi(zero_alloc, m, m);
+		lbcrypto::PolyVec2BalDecom(ilParams, base, k, matrixTobeDecomposed, &psi);
+
+		results = g * psi;
+
+		EXPECT_EQ(results,matrixTobeDecomposed);
+
+}
+
 TEST(UTABE, cp_abe_base_2) {
 	UnitTestCPABE(2,34, 1024);
 }
@@ -521,6 +561,10 @@ TEST(UTABE, cp_abe_base_4) {
 
 TEST(UTABE, cp_abe_base_16) {
 	UnitTestCPABE(16,34, 1024);
+}
+
+TEST(UTABE, cp_abe_base_32) {
+	UnitTestCPABE(32,34, 1024);
 }
 
 TEST(UTABE, kp_abe_benchmarkcircuit_base_2) {
@@ -562,3 +606,20 @@ TEST(UTABE, ibe_base_4) {
 TEST(UTABE, ibe_base_16) {
 	UnitTestIBE(16,51,2048);
 }
+
+TEST(UTABE, ibe_base_32) {
+	UnitTestIBE(32,51,2048);
+}
+
+TEST(UTABE, polyVecBalDecompose_base_2) {
+	UnitTestPolyVecDecomp(4,34,1024);
+}
+
+TEST(UTABE, polyVecBalDecompose_base_4) {
+	UnitTestPolyVecDecomp(4,34,1024);
+}
+
+TEST(UTABE, polyVecBalDecompose_base_8) {
+	UnitTestPolyVecDecomp(8,34,1024);
+}
+

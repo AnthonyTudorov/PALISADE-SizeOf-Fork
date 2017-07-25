@@ -56,23 +56,6 @@
  */
 namespace lbcrypto {
 
-	/**
- 	* Bit decomposition based on binary non-adjacent representation of integers
-	* Limits noise growth
-	* Temporarily here; but can be made a part of RingMat class
-	*
-	* @param ilParams parameter set
-	* @param k bit size of modulus
-	* @param *publicElementB is a matrix where each column corresponds to the public vector of each attribute
-	* @param *psi bit decomposition of publicElementB
-	*/
-	int PolyVec2NAFDecom(
-			const shared_ptr<ILParams> ilParams,
-			int k,
-			const RingMat &pubElemB,
-			RingMat *psi
-		);
-
     /**
     * Setup function for Private Key Generator (PKG)
     * Digit decomposition using higher bases with balanced representation
@@ -82,8 +65,8 @@ namespace lbcrypto {
     * @param ilParams parameter set
     * @param base is a power of two
     * @param k bit size of modulus
-    * @param *publicElementB is a matrix where each column corresponds to the public vector of each attribute
-	* @param *psi bit decomposition of publicElementB
+    * @param &matrix to be decomposed
+	* @param *psi decomposed matrix
     */
 	int PolyVec2BalDecom(
 			const shared_ptr<ILParams> ilParams,

@@ -20,7 +20,6 @@ int IBE_Test(int iter, int32_t base);
 int TestKeyGenCP(const shared_ptr<ILParams> ilParams, usint m, usint ell, const usint s[], const RingMat &a, const RingMat &pubElemBPos, const RingMat &pubElemBNeg, const Poly &pubElemU, RingMat &sk);
 int CPABE_Test(usint iter);
 
-
 int main()
 {
 
