@@ -75,8 +75,7 @@ namespace lbcrypto {
 		size_t base = signKey.GetSignatureParameters().GetBase();
 
 		//Encode the text into a vector so it can be used in signing process. TODO: Adding some kind of digestion algorithm
-		HashUtil util;
-		BytePlaintextEncoding hashedText = util.Hash(plainText, SHA_256);
+		BytePlaintextEncoding hashedText = HashUtil::Hash(plainText, SHA_256);
 		Element u(signKey.GetSignatureParameters().GetILParams(), EVALUATION, false);
 		if (hashedText.size() > n) {
 			hashedText.Encode(typename Element::Integer("256"), &u, 0, n);
@@ -188,8 +187,7 @@ namespace lbcrypto {
 		size_t n = verificationKey.GetSignatureParameters().GetILParams()->GetRingDimension();
 
 		//Encode the text into a vector so it can be used in verification process. TODO: Adding some kind of digestion algorithm
-		HashUtil util;
-		BytePlaintextEncoding hashedText = util.Hash(plainText, SHA_256);
+		BytePlaintextEncoding hashedText = HashUtil::Hash(plainText, SHA_256);
 		Element u(verificationKey.GetSignatureParameters().GetILParams());
 		if (hashedText.size() > n) {
 			hashedText.Encode(typename Element::Integer("256"), &u, 0, n);
