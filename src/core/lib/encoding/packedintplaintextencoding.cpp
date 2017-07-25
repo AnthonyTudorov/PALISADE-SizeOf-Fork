@@ -249,16 +249,32 @@ namespace lbcrypto {
 			slotValues.SetValAtIndex(i, ring->GetValAtIndex(i).ConvertToInt());
 		}
 
-		// Permute to CRT Order
-		native_int::BigVector permutedSlots(phim, modulusNI);
-		for (usint i = 0; i < phim; i++) {
-			permutedSlots.SetValAtIndex(i, slotValues.GetValAtIndex(m_toCRTPerm[modulusNI][i]));
-		}
-
 		// Transform Eval to Coeff
 		if (!(m & (m-1))) { // Check if m is a power of 2
-			slotValues = ChineseRemainderTransformFTT<native_int::BigInteger, native_int::BigVector>::GetInstance().InverseTransform(permutedSlots, m_initRoot[modulusNI], m);
+
+			if (m_toCRTPerm[modulusNI].size() > 0)
+			{
+				// Permute to CRT Order
+				native_int::BigVector permutedSlots(phim, modulusNI);
+
+				for (usint i = 0; i < phim; i++) {
+					permutedSlots.SetValAtIndex(i, slotValues.GetValAtIndex(m_toCRTPerm[modulusNI][i]));
+				}
+				slotValues = ChineseRemainderTransformFTT<native_int::BigInteger, native_int::BigVector>::GetInstance().InverseTransform(permutedSlots, m_initRoot[modulusNI], m);
+			}
+			else
+			{
+				slotValues = ChineseRemainderTransformFTT<native_int::BigInteger, native_int::BigVector>::GetInstance().InverseTransform(slotValues, m_initRoot[modulusNI], m);
+			}
+
 		} else { // Arbitrary cyclotomic
+
+			// Permute to CRT Order
+			native_int::BigVector permutedSlots(phim, modulusNI);
+			for (usint i = 0; i < phim; i++) {
+				permutedSlots.SetValAtIndex(i, slotValues.GetValAtIndex(m_toCRTPerm[modulusNI][i]));
+			}
+
 			slotValues = ChineseRemainderTransformArb<native_int::BigInteger, native_int::BigVector>::GetInstance().
 					InverseTransform(permutedSlots, m_initRoot[modulusNI], m_bigModulus[modulusNI], m_bigRoot[modulusNI], m);
 		}
@@ -299,10 +315,14 @@ namespace lbcrypto {
 					ForwardTransform(packedVector, m_initRoot[modulusNI], m_bigModulus[modulusNI], m_bigRoot[modulusNI], m);
 		}
 
-		// Permute to automorphism Order
-		for (usint i = 0; i < phim; i++) {
-			packedVector.SetValAtIndex(i, permutedSlots.GetValAtIndex(m_fromCRTPerm[modulusNI][i]));
+		if (m_fromCRTPerm[modulusNI].size() > 0) {
+			// Permute to automorphism Order
+			for (usint i = 0; i < phim; i++) {
+				packedVector.SetValAtIndex(i, permutedSlots.GetValAtIndex(m_fromCRTPerm[modulusNI][i]));
+			}
 		}
+		else
+			packedVector = permutedSlots;
 
 		//copy values into the slotValuesRing
 		BigVector packedVectorRing(phim, ring->GetModulus());

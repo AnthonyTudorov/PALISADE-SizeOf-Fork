@@ -36,7 +36,7 @@ namespace lbcrypto {
 
 	}
 
-	void PackedIntPlaintextEncoding::SetParams_2n(usint m, shared_ptr<EncodingParams> params, PackedIntPlaintextEncoding &encoding) {
+	void PackedIntPlaintextEncoding::SetParams_2n(usint m, shared_ptr<EncodingParams> params) {
 
 		native_int::BigInteger modulusNI(params->GetPlaintextModulus().ConvertToInt()); //native int modulus
 
