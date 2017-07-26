@@ -521,6 +521,21 @@ public:
 		const shared_ptr<LPEvalKey<Element>> evalKey) const;
 
 	/**
+	* Unimplemented function to support  a multiplication with depth larger than 2 for the LTV scheme.
+	*
+	* @param ciphertext1 The first input ciphertext.
+	* @param ciphertext2 The second input ciphertext.
+	* @param evalKey The evaluation key input.
+	* @return A shared pointer to the ciphertext which is the EvalMult of the two inputs.
+	*/
+	shared_ptr<Ciphertext<Element>> EvalMultAndRelinearize(const shared_ptr<Ciphertext<Element>> ciphertext1,
+		const shared_ptr<Ciphertext<Element>> ciphertext2,
+		const shared_ptr<vector<LPEvalKey<Element>>> ek) const {
+		std::string errMsg = "LPAlgorithmLTV::EvalMultAndRelinearize is not implemented for the LTV Scheme.";
+		throw std::runtime_error(errMsg);
+	}
+
+	/**
 	* Function for homomorphic negation of ciphertexts.
 	* At a high level, this operation substracts the plaintext value encrypted in the ciphertext from the
 	* plaintext modulus p.
@@ -591,6 +606,19 @@ public:
 	* @return resulting evalkeyswitch hint
 	*/
 	shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const;
+
+	/**
+	* Function to generate key switch hint on a ciphertext of depth more than 2.
+	* This method is not currently supported.
+	* This method uses a key switch hint which is not secure, even without the subfield lattice attacks.
+	*
+	* @param originalPrivateKey private key to start from.
+	* @return resulting evalkeyswitch hint
+	*/
+	shared_ptr<vector<LPEvalKey<Element>>> EvalMultKeysGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const {
+		std::string errMsg = "LPAlgorithmSHELTV::EvalMultKeysGen is not implemented for LTV SHE Scheme.";
+		throw std::runtime_error(errMsg);
+	}
 
 	/**
 	* Function for evaluating automorphism of ciphertext at index i

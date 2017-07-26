@@ -344,6 +344,31 @@ public:
 		throw std::runtime_error(errMsg);
 	}
 
+	/**
+	* Unimplemented function to generate an evaluation key for the Stehle-Steinfeld scheme.
+	*
+	* @param originalPrivateKey private key to start from when key switching.
+	* @return resulting evalkeyswitch hint
+	*/
+	shared_ptr<vector<LPEvalKey<Element>>> EvalMultKeysGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const {
+		std::string errMsg = "LPAlgorithmStSt::EvalMultKeysGen is not implemented for the Stehle-Steinfeld Scheme.";
+		throw std::runtime_error(errMsg);
+	}
+
+	/**
+	* Unimplemented function to support  a multiplication with depth larger than 2 for the Stehle-Steinfeld scheme.
+	*
+	* @param ciphertext1 The first input ciphertext.
+	* @param ciphertext2 The second input ciphertext.
+	* @param evalKey The evaluation key input.
+	* @return A shared pointer to the ciphertext which is the EvalMult of the two inputs.
+	*/
+	shared_ptr<Ciphertext<Element>> EvalMultAndRelinearize(const shared_ptr<Ciphertext<Element>> ciphertext1,
+		const shared_ptr<Ciphertext<Element>> ciphertext2,
+		const shared_ptr<vector<LPEvalKey<Element>>> ek) const {
+		std::string errMsg = "LPAlgorithmStSt::EvalMultAndRelinearize is not implemented for the Stehle-Steinfeld Scheme.";
+		throw std::runtime_error(errMsg);
+	}
 
 	/**
 	* Unimplemented function to generate an evaluation key for the Stehle-Steinfeld scheme. 

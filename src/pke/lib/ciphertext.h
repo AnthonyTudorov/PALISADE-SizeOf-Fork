@@ -46,21 +46,21 @@ namespace lbcrypto {
 		/**
 		* Default constructor
 		*/
-		Ciphertext() : m_isEncrypted(true) {}
+		Ciphertext() : m_isEncrypted(true), m_depth(1)  {}
 
 		/**
 		 * Construct a new ciphertext in the given context
 		 *
 		 * @param cc
 		 */
-		Ciphertext(shared_ptr<CryptoContext<Element>> cc) : CryptoObject<Element>(cc.get()), m_isEncrypted(true) {}
+		Ciphertext(shared_ptr<CryptoContext<Element>> cc) : CryptoObject<Element>(cc.get()), m_isEncrypted(true), m_depth(1) {}
 
 		/**
 		 * Construct a new ciphertext in the given context
 		 *
 		 * @param cc
 		 */
-		Ciphertext(CryptoContext<Element>* cc) : CryptoObject<Element>(cc), m_isEncrypted(true)  {}
+		Ciphertext(CryptoContext<Element>* cc) : CryptoObject<Element>(cc), m_isEncrypted(true), m_depth(1)  {}
 
 		/**
 		* Copy constructor
@@ -68,6 +68,7 @@ namespace lbcrypto {
 		Ciphertext(const Ciphertext<Element> &ciphertext) : CryptoObject<Element>(ciphertext.GetCryptoContext()) {
 			m_elements = ciphertext.m_elements;
 			m_isEncrypted = ciphertext.m_isEncrypted;
+			m_depth = ciphertext.m_depth;
 		}
 
 		/**
@@ -76,6 +77,7 @@ namespace lbcrypto {
 		Ciphertext(Ciphertext<Element> &&ciphertext) : CryptoObject<Element>(ciphertext.GetCryptoContext()) {
 			m_elements = std::move(ciphertext.m_elements);
 			m_isEncrypted = std::move(ciphertext.m_isEncrypted);
+			m_depth = std::move(ciphertext.m_depth);
 		}
 
 		/**
@@ -93,6 +95,7 @@ namespace lbcrypto {
 			if (this != &rhs) {
 				this->context = rhs.context;
 				this->m_elements = rhs.m_elements;
+				this->m_depth = rhs.m_depth;
 			}
 
 			return *this;
@@ -109,6 +112,7 @@ namespace lbcrypto {
 				this->context = rhs.context;
 				rhs.context = 0;
 				m_elements = std::move(rhs.m_elements);
+				m_depth = std::move(rhs.m_depth);
 			}
 
 			return *this;
@@ -169,6 +173,22 @@ namespace lbcrypto {
 		* @param &&element is a polynomial ring element.
 		*/
 		void SetElements(const std::vector<Element> &&elements) { m_elements = std::move(elements); }
+
+		/**
+		* Get the depth of the ciphertext.
+		* It will be used in multiplication/addition/subtraction to handle the keyswitching.
+		*/
+		const size_t GetDepth() const {
+			return m_isEncrypted;
+		}
+
+		/**
+		* Set the depth of the ciphertext.
+		* It will be used in multiplication/addition/subtraction to handle the keyswitching.
+		*/
+		void SetDepth(size_t depth) {
+			m_depth = depth;
+		}
 
 		/**
 		* Serialize the object into a Serialized
@@ -305,6 +325,7 @@ namespace lbcrypto {
 
 		std::vector<Element> m_elements;		/*!< vector of ring elements for this Ciphertext */
 		bool m_isEncrypted;
+		size_t m_depth; // holds the multiplicative depth of the ciphertext.
 
 	};
 

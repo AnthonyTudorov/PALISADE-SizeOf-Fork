@@ -432,8 +432,13 @@ DecryptResult LPAlgorithmFV<Element>::Decrypt(const shared_ptr<LPPrivateKey<Elem
 	const std::vector<Element> &c = ciphertext->GetElements();
 
 	const Element &s = privateKey->GetPrivateElement();
+	Element sPower = s;
 
-	Element b = c[0] + s*c[1];
+	Element b = c[0];
+	for(size_t i=1; i<=ciphertext->GetDepth(); i++){
+		b += sPower*c[i];
+		sPower *= s;
+	}
 
 	b.SwitchFormat();
 	
@@ -537,6 +542,12 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared
 	shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext1->GetCryptoContext()));
 
 	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParamsLWE = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(ciphertext1->GetCryptoContext()->GetCryptoParameters());
+
+	if ( (ciphertext1->GetDepth() + ciphertext2->GetDepth()) > cryptoParamsLWE->GetMaxDepth() ) {
+			std::string errMsg = "LPAlgorithmSHEFV::EvalMult multiplicative depth is not supported";
+			throw std::runtime_error(errMsg);
+	}
+
 	const BigInteger &p = cryptoParamsLWE->GetPlaintextModulus();
 
 	const shared_ptr<typename Element::Params> elementParams = cryptoParamsLWE->GetElementParams();
@@ -551,42 +562,72 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared
 	std::vector<Element> cipherText2Elements = ciphertext2->GetElements();
 
 	//converts the ciphertext elements to coefficient format so that the modulus switching can be done
-	cipherText1Elements[0].SwitchFormat();
-	cipherText1Elements[1].SwitchFormat();
-	cipherText2Elements[0].SwitchFormat();
-	cipherText2Elements[1].SwitchFormat();
+	size_t cipherText1ElementsSize = cipherText1Elements.size();
+	size_t cipherText2ElementsSize = cipherText2Elements.size();
+	size_t cipherTextRElementsSize = cipherText1ElementsSize + cipherText2ElementsSize - 1;
+
+	std::cout << cipherText1ElementsSize << "\t" << cipherText2ElementsSize << std::endl;
+
+	std::vector<Element> c(cipherTextRElementsSize);
+	std::cout << c.size() << std::endl;
+//	c.reserve(cipherTextRElementsSize);
+	std::cout << "Debug Postion 1" << std::endl;
+	for(size_t i=0; i<cipherText1ElementsSize; i++)
+		cipherText1Elements[i].SwitchFormat();
+
+	for(size_t i=0; i<cipherText2ElementsSize; i++)
+		cipherText2Elements[i].SwitchFormat();
 
 	//switches the modulus to a larger value so that polynomial multiplication w/o mod q can be performed
-	cipherText1Elements[0].SwitchModulus(bigModulus, bigRootOfUnity, bigModulusArb, bigRootOfUnityArb);
-	cipherText1Elements[1].SwitchModulus(bigModulus, bigRootOfUnity, bigModulusArb, bigRootOfUnityArb);
-	cipherText2Elements[0].SwitchModulus(bigModulus, bigRootOfUnity, bigModulusArb, bigRootOfUnityArb);
-	cipherText2Elements[1].SwitchModulus(bigModulus, bigRootOfUnity, bigModulusArb, bigRootOfUnityArb);
+	std::cout << "Debug Postion 2" << std::endl;
+	for(size_t i=0; i<cipherText1ElementsSize; i++)
+		cipherText1Elements[i].SwitchModulus(bigModulus, bigRootOfUnity, bigModulusArb, bigRootOfUnityArb);
+
+	for(size_t i=0; i<cipherText2ElementsSize; i++)
+		cipherText2Elements[i].SwitchModulus(bigModulus, bigRootOfUnity, bigModulusArb, bigRootOfUnityArb);
 
 	//converts the ciphertext elements back to evaluation representation
-	cipherText1Elements[0].SwitchFormat();
-	cipherText1Elements[1].SwitchFormat();
-	cipherText2Elements[0].SwitchFormat();
-	cipherText2Elements[1].SwitchFormat();
+	std::cout << "Debug Postion 3" << std::endl;
+	for(size_t i=0; i<cipherText1ElementsSize; i++)
+		cipherText1Elements[i].SwitchFormat();
 
-	Element c0 = cipherText1Elements[0] * cipherText2Elements[0];
-	Element c1 = cipherText1Elements[0] * cipherText2Elements[1] + cipherText1Elements[1] * cipherText2Elements[0];
-	Element c2 = cipherText1Elements[1] * cipherText2Elements[1];
+  for(size_t i=0; i<cipherText2ElementsSize; i++)
+		cipherText2Elements[i].SwitchFormat();
+
+  //TODO: Check if initial Element is zero. If so, there is no need for boolean.
+	std::cout << "Debug Postion 4" << std::endl;
+	bool isFirstAdd[cipherTextRElementsSize];
+  std::fill_n(isFirstAdd, cipherTextRElementsSize, true);
+
+  for(size_t i=0; i<cipherText1ElementsSize; i++){
+		for(size_t j=0; j<cipherText2ElementsSize; j++){
+
+			if(isFirstAdd[i+j] == true){
+				std::cout << i << "\t" << j << std::endl;
+				c[i+j] = cipherText1Elements[i] * cipherText2Elements[j];
+				isFirstAdd[i+j] = false;
+			}
+			else{
+				c[i+j] += cipherText1Elements[i] * cipherText2Elements[j];
+			}
+		}
+	}
 
 	//converts to coefficient representation before rounding
-	c0.SwitchFormat();
-	c1.SwitchFormat();
-	c2.SwitchFormat();
+	std::cout << "Debug Postion 5" << std::endl;
+	for(size_t i=0; i<cipherTextRElementsSize; i++)
+		c[i].SwitchFormat();
 
-	c0 = c0.MultiplyAndRound(p, q);
-	c1 = c1.MultiplyAndRound(p, q);
-	c2 = c2.MultiplyAndRound(p, q);
+	for(size_t i=0; i<cipherTextRElementsSize; i++)
+		c[i] = c[i].MultiplyAndRound(p, q);
 
 	//switch the modulus back to the original value
-	c0.SwitchModulus(q, elementParams->GetRootOfUnity(), elementParams->GetBigModulus(), elementParams->GetBigRootOfUnity());
-	c1.SwitchModulus(q, elementParams->GetRootOfUnity(), elementParams->GetBigModulus(), elementParams->GetBigRootOfUnity());
-	c2.SwitchModulus(q, elementParams->GetRootOfUnity(), elementParams->GetBigModulus(), elementParams->GetBigRootOfUnity());
+	std::cout << "Debug Postion 6" << std::endl;
+	for(size_t i=0; i<cipherTextRElementsSize; i++)
+		c[i].SwitchModulus(q, elementParams->GetRootOfUnity(), elementParams->GetBigModulus(), elementParams->GetBigRootOfUnity());
 
-	newCiphertext->SetElements({ c0, c1, c2 });
+	newCiphertext->SetElements(c);
+	newCiphertext->SetDepth((ciphertext1->GetDepth() + ciphertext2->GetDepth()));
 
 	return newCiphertext;
 
@@ -688,6 +729,21 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared
 }
 
 template <class Element>
+shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMultAndRelinearize(const shared_ptr<Ciphertext<Element>> ciphertext1,
+	const shared_ptr<Ciphertext<Element>> ciphertext2,
+	const shared_ptr<vector<LPEvalKey<Element>>> ek) const {
+
+	if(!ciphertext2->GetIsEncrypted()) {
+		return EvalMultPlain(ciphertext1, ciphertext2);
+	}
+
+	shared_ptr<Ciphertext<Element>> newCiphertext = this->EvalMult(ciphertext1, ciphertext2);
+
+	return 0;//this->KeySwitch(ek, newCiphertext);
+
+}
+
+template <class Element>
 shared_ptr<LPEvalKey<Element>> LPAlgorithmSHEFV<Element>::KeySwitchGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
 	const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
 
@@ -736,6 +792,21 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmSHEFV<Element>::EvalMultKeyGen(
 
 	return this->KeySwitchGen(originalPrivateKeySquared, originalPrivateKey);
 	
+}
+
+template <class Element>
+shared_ptr<vector<LPEvalKey<Element>>> LPAlgorithmSHEFV<Element>::EvalMultKeysGen(
+			const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const
+{
+
+	shared_ptr<LPPrivateKey<Element>> originalPrivateKeySquared = std::shared_ptr<LPPrivateKey<Element>>(new LPPrivateKey<Element>(originalPrivateKey->GetCryptoContext()));
+
+	Element sSquare(originalPrivateKey->GetPrivateElement()*originalPrivateKey->GetPrivateElement());
+
+	originalPrivateKeySquared->SetPrivateElement(std::move(sSquare));
+
+	return 0;//this->KeySwitchGen(originalPrivateKeySquared, originalPrivateKey);
+
 }
 
 template <class Element>

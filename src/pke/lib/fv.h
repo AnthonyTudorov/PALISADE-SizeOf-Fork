@@ -115,14 +115,16 @@ namespace lbcrypto {
 				const BigInteger &bigRootOfUnity,
 				const BigInteger &bigModulusArb,
 				const BigInteger &bigRootOfUnityArb,
-				int depth = 1)
+				int depth = 1,
+				int maxDepth = 1)
 					: LPCryptoParametersRLWE<Element>(params,
 						plaintextModulus,
 						distributionParameter,
 						assuranceMeasure,
 						securityLevel,
 						relinWindow,
-						depth) {
+						depth,
+						maxDepth) {
 						m_delta = delta;
 						m_mode = mode;
 						m_bigModulus = bigModulus;
@@ -160,14 +162,16 @@ namespace lbcrypto {
 				const BigInteger &bigRootOfUnity,
 				const BigInteger &bigModulusArb,
 				const BigInteger &bigRootOfUnityArb,
-				int depth = 1)
+				int depth = 1,
+				int maxDepth = 1)
 				: LPCryptoParametersRLWE<Element>(params,
 					encodingParams,
 					distributionParameter,
 					assuranceMeasure,
 					securityLevel,
 					relinWindow,
-					depth) {
+					depth,
+					maxDepth) {
 				m_delta = delta;
 				m_mode = mode;
 				m_bigModulus = bigModulus;
@@ -500,6 +504,19 @@ namespace lbcrypto {
 			const shared_ptr<Ciphertext<Element>> ct, const shared_ptr<LPEvalKey<Element>> ek) const;
 
 		/**
+		* Function for evaluating multiplication on ciphertext followed by key switching operation.
+		* Currently it assumes that the input arguments have total depth smaller than the supported depth. Otherwise, it throws an error.
+		*
+		* @param ct1 first input ciphertext.
+		* @param ct2 second input ciphertext.
+		* @param ek is the evaluation key to make the newCiphertext
+		*  decryptable by the same secret key as that of ciphertext1 and ciphertext2.
+		* @param *newCiphertext the new resulting ciphertext.
+		*/
+		shared_ptr<Ciphertext<Element>> EvalMultAndRelinearize(const shared_ptr<Ciphertext<Element>> ct1,
+			const shared_ptr<Ciphertext<Element>> ct, const shared_ptr<vector<LPEvalKey<Element>>> ek) const;
+
+		/**
 		* Function for homomorphic negation of ciphertexts.
 		*
 		* @param ct first input ciphertext.
@@ -562,6 +579,15 @@ namespace lbcrypto {
 		* @return evaluation key.
 		*/
 		shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(
+					const shared_ptr<LPPrivateKey<Element>> k1) const;
+
+		/**
+		* Function to generate 1..log(q) encryptions for each bit of the square of the original private key
+		*
+		* @param k1 private key.
+		* @return evaluation key.
+		*/
+		shared_ptr<vector<LPEvalKey<Element>>> EvalMultKeysGen(
 					const shared_ptr<LPPrivateKey<Element>> k1) const;
 
 		/**

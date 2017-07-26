@@ -364,6 +364,21 @@ namespace lbcrypto {
 			const shared_ptr<LPEvalKey<Element>> ek) const;
 
 		/**
+		* Unimplemented function to support  a multiplication with depth larger than 2 for the BV scheme.
+		*
+		* @param ciphertext1 The first input ciphertext.
+		* @param ciphertext2 The second input ciphertext.
+		* @param evalKey The evaluation key input.
+		* @return A shared pointer to the ciphertext which is the EvalMult of the two inputs.
+		*/
+		shared_ptr<Ciphertext<Element>> EvalMultAndRelinearize(const shared_ptr<Ciphertext<Element>> ciphertext1,
+			const shared_ptr<Ciphertext<Element>> ciphertext2,
+			const shared_ptr<vector<LPEvalKey<Element>>> ek) const {
+			std::string errMsg = "LPAlgorithmStSt::EvalMultAndRelinearize is not implemented for the BV Scheme.";
+			throw std::runtime_error(errMsg);
+		}
+
+		/**
 		* Function for homomorphic negation of ciphertexts.
 		*
 		* @param ct first input ciphertext.
@@ -424,6 +439,18 @@ namespace lbcrypto {
 		* @return keySwitchHint generated to switch the ciphertext.
 		*/
 		shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const;
+
+		/**
+		* Function to generate key switch hint on a ciphertext for depth more than 2.
+		* Currently this method is not supported for BV.
+		*
+		* @param originalPrivateKey is the original private key used for generating ciphertext.
+		* @return keySwitchHint generated to switch the ciphertext.
+		*/
+		shared_ptr<vector<LPEvalKey<Element>>> EvalMultKeysGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const {
+			std::string errMsg = "LPAlgorithmSHEBV::EvalMultKeysGen is not implemented for BV SHE Scheme.";
+			throw std::runtime_error(errMsg);
+		}
 
 		/**
 		* Function for evaluating automorphism of ciphertext at index i
