@@ -34,6 +34,7 @@
 #include "lattice/ildcrtparams.h"
 #include "lattice/ilelement.h"
 #include "utils/inttypes.h"
+#include "utils/hashutil.h"
 #include "math/distrgen.h"
 #include "utils/serializablehelper.h"
 #include "encoding/encodingparams.h"
@@ -111,12 +112,19 @@ namespace lbcrypto {
 	 *
 	 * @tparam Element a ring element.
 	 */
+	// FIXME: serialize
 	template <class Element>
 	class LPKey : public CryptoObject<Element>, public Serializable {
+	protected:
+		string	skDigest;	// sha256 of secret key Element serialization
+
 	public:
 		LPKey(shared_ptr<CryptoContext<Element>> cc) : CryptoObject<Element>(cc) {}
 
 		virtual ~LPKey() {}
+
+		void SetDigest(const string& sha) { skDigest = sha; }
+		string GetDigest() const { return skDigest; }
 	};
 
 	/**
@@ -826,6 +834,7 @@ namespace lbcrypto {
 		*/
 		explicit LPPrivateKey(const LPPrivateKey<Element> &rhs) {
 			this->context = rhs.context;
+			this->skDigest = rhs.skDigest;
 			this->m_sk = rhs.m_sk;
 		}
 
@@ -836,6 +845,7 @@ namespace lbcrypto {
 		explicit LPPrivateKey(LPPrivateKey<Element> &&rhs) {
 			this->context = rhs.context;
 			rhs.context = 0;
+			this->skDigest = std::move(rhs.skDigest);
 			this->m_sk = std::move(rhs.m_sk);
 		}
 
@@ -847,6 +857,7 @@ namespace lbcrypto {
 		*/
 		const LPPrivateKey<Element>& operator=(const LPPrivateKey<Element> &rhs) {
 			this->context = rhs.context;
+			this->skDigest = rhs.skDigest;
 			this->m_sk = rhs.m_sk;
 			return *this;
 		}
@@ -860,6 +871,7 @@ namespace lbcrypto {
 		const LPPrivateKey<Element>& operator=(LPPrivateKey<Element> &&rhs) {
 			this->context = rhs.context;
 			rhs.context = 0;
+			this->skDigest = std::move(rhs.skDigest);
 			this->m_sk = std::move(rhs.m_sk);
 			return *this;
 		}
@@ -874,13 +886,19 @@ namespace lbcrypto {
 		* Set accessor for private element.
 		* @private &x private element to set to.
 		*/
-		void SetPrivateElement(const Element &x) { m_sk = x; }
+		void SetPrivateElement(const Element &x) {
+			m_sk = x;
+			CreateKeyDigest();
+		}
 
 		/**
 		* Set accessor for private element.
 		* @private &x private element to set to.
 		*/
-		void SetPrivateElement(Element &&x) { m_sk = std::move(x); }
+		void SetPrivateElement(Element &&x) {
+			m_sk = std::move(x);
+			CreateKeyDigest();
+		}
 
 		bool Serialize(Serialized *serObj) const {
 
@@ -921,6 +939,14 @@ namespace lbcrypto {
 		bool operator!=(const LPPrivateKey& other) const { return ! (*this == other); }
 
 	private:
+		void CreateKeyDigest() {
+			Serialized ser;
+			if( m_sk.Serialize(&ser) == false )
+				throw std::logic_error("Could not serialize element and create digest");
+			string sser;
+			SerializableHelper::SerializationToString(ser, sser);
+			this->SetDigest( HashUtil::HashString(sser) );
+		}
 		Element m_sk;
 	};
 
@@ -930,7 +956,7 @@ namespace lbcrypto {
 		shared_ptr<LPPublicKey<Element>>	publicKey;
 		shared_ptr<LPPrivateKey<Element>>	secretKey;
 
-		LPKeyPair(LPPublicKey<Element>* a=0, LPPrivateKey<Element>* b=0) : publicKey(a), secretKey(b) {}
+		LPKeyPair(LPPublicKey<Element>* a=0, LPPrivateKey<Element>* b=0): publicKey(a), secretKey(b) {}
 
 		bool good() { return publicKey && secretKey; }
 		
@@ -1922,8 +1948,11 @@ namespace lbcrypto {
 		}
 
 		LPKeyPair<Element> KeyGen(shared_ptr<CryptoContext<Element>> cc, bool makeSparse) {
-				if(this->m_algorithmEncryption)
-					return this->m_algorithmEncryption->KeyGen(cc, makeSparse);
+				if(this->m_algorithmEncryption) {
+					auto kp = this->m_algorithmEncryption->KeyGen(cc, makeSparse);
+					kp.publicKey->SetDigest( kp.secretKey->GetDigest() );
+					return kp;
+				}
 				else {
 					throw std::logic_error("KeyGen operation has not been enabled");
 				}
