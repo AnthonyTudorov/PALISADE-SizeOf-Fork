@@ -30,15 +30,15 @@
 namespace lbcrypto {
 
 	template<typename Element>
-	std::vector<usint> LPSHEAlgorithm<Element>::GenerateIndices_2n(usint batchSize) const {
+	std::vector<usint> LPSHEAlgorithm<Element>::GenerateIndices_2n(usint batchSize, usint m) const {
 
 		throw std::runtime_error("EvalSum is not supported for power-of-two cyclotomics");
 
 	}
 
 	template<typename Element>
-	void LPSHEAlgorithm<Element>::EvalSum_2n(usint batchSize, const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalKeys,
-		shared_ptr<Ciphertext<Element>> newCiphertext) const {
+	shared_ptr<Ciphertext<Element>> LPSHEAlgorithm<Element>::EvalSum_2n(usint batchSize, usint m, const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalKeys,
+		const shared_ptr<Ciphertext<Element>> newCiphertext) const {
 
 		throw std::runtime_error("EvalSum is not supported for power-of-two cyclotomics");
 

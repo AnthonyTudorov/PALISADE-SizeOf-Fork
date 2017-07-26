@@ -1443,7 +1443,7 @@ namespace lbcrypto {
 
 			if (!(m & (m-1))){ // Check if m is a power of 2
 
-				indices = GenerateIndices_2n(batchSize);
+				indices = GenerateIndices_2n(batchSize, m);
 
 			} else { // Arbitray cyclotomics
 
@@ -1485,7 +1485,7 @@ namespace lbcrypto {
 
 			if (!(m & (m-1))){ // Check if m is a power of 2
 
-				EvalSum_2n(batchSize, evalKeys,newCiphertext);
+				newCiphertext = EvalSum_2n(batchSize, m, evalKeys,newCiphertext);
 
 			} else { // Arbitray cyclotomics
 				usint g = encodingParams->GetPlaintextGenerator();
@@ -1628,9 +1628,9 @@ namespace lbcrypto {
 		}
 
 		private:
-			std::vector<usint> GenerateIndices_2n(usint batchSize) const;
-			void EvalSum_2n(usint batchSize, const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalKeys,
-				shared_ptr<Ciphertext<Element>> newCiphertext) const;
+			std::vector<usint> GenerateIndices_2n(usint batchSize, usint m) const;
+			shared_ptr<Ciphertext<Element>> EvalSum_2n(usint batchSize, usint m, const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalKeys,
+				const shared_ptr<Ciphertext<Element>> newCiphertext) const;
 
 
 	};

@@ -26,6 +26,7 @@
 
 #include "cryptocontext.h"
 #include "pubkeylp.cpp"
+#include "pubkeylp-2n-private.cpp"
 
 namespace lbcrypto {
 extern template class CryptoContext<DCRTPoly>;

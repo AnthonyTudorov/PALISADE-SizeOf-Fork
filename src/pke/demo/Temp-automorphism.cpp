@@ -121,8 +121,11 @@ int main() {
 	std::cout << "\n===========FV TESTS (EVALAUTOMORPHISM-POWER-OF-TWO)===============: " << std::endl;
 
 	PackedIntPlaintextEncoding::Destroy();
-	for (usint index = 1; index < 10; index++) {
-		ArbFVAutomorphismPackedArray2n(totientList[index]);
+	usint m2n = 32;
+	std::vector<usint> totientList2n = GetTotientList(m2n);
+
+	for (usint index = 1; index < 16; index++) {
+		ArbFVAutomorphismPackedArray2n(totientList2n[index]);
 	}
 
 	std::cout << "\n===========NULL TESTS (EVALAUTOMORPHISM-ARBITRARY)===============: " << std::endl;
