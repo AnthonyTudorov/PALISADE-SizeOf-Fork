@@ -1,5 +1,5 @@
 /*
- * @file pubkeylp-dcrtpoly-impl.cpp - public key vector array implementation
+ * @file packedintplaintextencoding.cpp Represents and defines plaintext encodings in Palisade with bit packing capabilities.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -24,17 +24,31 @@
  *
  */
 
-#include "cryptocontext.h"
-#include "pubkeylp.cpp"
-#include "pubkeylp-2n-private.cpp"
+ //#include "../crypto/cryptocontext.h"
+#include "packedintplaintextencoding.h"
 
 namespace lbcrypto {
-extern template class CryptoContext<DCRTPoly>;
 
-template class LPPublicKey<DCRTPoly>;
-template class LPEvalKeyRelin<DCRTPoly>;
-template class LPEvalKeyNTRU<DCRTPoly>;
-template class LPEvalKeyNTRURelin<DCRTPoly>;
-template class LPSHEAlgorithm<DCRTPoly>;
+	void PackedIntPlaintextEncoding::SetParams_2n(usint m, const native_int::BigInteger &modulusNI) {
+
+		// Power of two: m/2-point FTT. So we need the mth root of unity
+		m_initRoot[modulusNI] = RootOfUnity<native_int::BigInteger>(m, modulusNI);
+
+	}
+
+	void PackedIntPlaintextEncoding::SetParams_2n(usint m, shared_ptr<EncodingParams> params) {
+
+		native_int::BigInteger modulusNI(params->GetPlaintextModulus().ConvertToInt()); //native int modulus
+
+		// Power of two: m/2-point FTT. So we need the mth root of unity
+		if (params->GetPlaintextRootOfUnity() == 0)
+		{
+			m_initRoot[modulusNI] = RootOfUnity<native_int::BigInteger>(m, modulusNI);
+			params->SetPlaintextRootOfUnity(m_initRoot[modulusNI].ConvertToInt());
+		}
+		else
+			m_initRoot[modulusNI] = params->GetPlaintextRootOfUnity().ConvertToInt();
+
+	}
+
 }
-

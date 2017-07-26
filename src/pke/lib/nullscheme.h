@@ -175,6 +175,26 @@ public:
 	}
 
 	/**
+	* Method for encrypting plaintext using Null
+	*
+	* @param &publicKey public key used for encryption.
+	* @param &plaintext the plaintext input.
+	* @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
+	* @param *ciphertext ciphertext which results from encryption.
+	*/
+	shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPrivateKey<Element>> privKey,
+		Poly &ptxt, bool doEncryption = true) const {
+		shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(privKey->GetCryptoContext()) );
+
+		Element plaintext(ptxt, privKey->GetCryptoContext()->GetCryptoParameters()->GetElementParams());
+
+		// no difference between Encryption and non-Encryption mode for the Null scheme
+		ciphertext->SetElement(plaintext);
+
+		return ciphertext;
+	}
+
+	/**
 	* Method for decrypting plaintext using Null
 	*
 	* @param &privateKey private key used for decryption.

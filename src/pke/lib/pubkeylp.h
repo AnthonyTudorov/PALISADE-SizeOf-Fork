@@ -980,6 +980,16 @@ namespace lbcrypto {
 			virtual shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, Poly &plaintext, bool doEncryption = true) const = 0;
 
 			/**
+			 * Method for encrypting plaintex using LBC
+			 *
+			 * @param &privateKey private key used for encryption.
+			 * @param &plaintext the plaintext input.
+			 * @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
+			 * @param *ciphertext ciphertext which results from encryption.
+			 */
+			virtual shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey, Poly &plaintext, bool doEncryption = true) const = 0;
+
+			/**
 			 * Method for decrypting plaintext using LBC
 			 *
 			 * @param &privateKey private key used for decryption.
@@ -1426,18 +1436,24 @@ namespace lbcrypto {
 			const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 
 			usint batchSize = encodingParams->GetBatchSize();
-			usint g = encodingParams->GetPlaintextGenerator();
 			usint m = elementParams->GetCyclotomicOrder();
 
 			// stores automorphism indices needed for EvalSum
 			std::vector<usint> indices;
 
-			for (int i = 0; i < floor(log2(batchSize)); i++)
-			{
-				indices.push_back(g);
-				g = (g * g) % m;
-			}
+			if (!(m & (m-1))){ // Check if m is a power of 2
 
+				indices = GenerateIndices_2n(batchSize, m);
+
+			} else { // Arbitray cyclotomics
+
+				usint g = encodingParams->GetPlaintextGenerator();
+				for (int i = 0; i < floor(log2(batchSize)); i++)
+				{
+					indices.push_back(g);
+					g = (g * g) % m;
+				}
+			}
 
 			if (publicKey)
 				// NTRU-based scheme
@@ -1465,13 +1481,19 @@ namespace lbcrypto {
 			const shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
 			const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 
-			usint g = encodingParams->GetPlaintextGenerator();
 			usint m = elementParams->GetCyclotomicOrder();
 
-			for (int i = 0; i < floor(log2(batchSize)); i++)
-			{
-				newCiphertext = EvalAdd(newCiphertext, EvalAutomorphism(newCiphertext, g, evalKeys));
-				g = (g * g) % m;
+			if (!(m & (m-1))){ // Check if m is a power of 2
+
+				newCiphertext = EvalSum_2n(batchSize, m, evalKeys,newCiphertext);
+
+			} else { // Arbitray cyclotomics
+				usint g = encodingParams->GetPlaintextGenerator();
+				for (int i = 0; i < floor(log2(batchSize)); i++)
+				{
+					newCiphertext = EvalAdd(newCiphertext, EvalAutomorphism(newCiphertext, g, evalKeys));
+					g = (g * g) % m;
+				}
 			}
 
 			return newCiphertext;
@@ -1604,6 +1626,12 @@ namespace lbcrypto {
 			return result;
 
 		}
+
+		private:
+			std::vector<usint> GenerateIndices_2n(usint batchSize, usint m) const;
+			shared_ptr<Ciphertext<Element>> EvalSum_2n(usint batchSize, usint m, const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalKeys,
+				const shared_ptr<Ciphertext<Element>> newCiphertext) const;
+
 
 	};
 
@@ -1829,6 +1857,16 @@ namespace lbcrypto {
 			Poly &plaintext, bool doEncryption = true) const {
 				if(this->m_algorithmEncryption) {
 					return this->m_algorithmEncryption->Encrypt(publicKey,plaintext,doEncryption);
+				}
+				else {
+					throw std::logic_error("Encrypt operation has not been enabled");
+				}
+		}
+
+		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
+			Poly &plaintext, bool doEncryption = true) const {
+				if(this->m_algorithmEncryption) {
+					return this->m_algorithmEncryption->Encrypt(privateKey,plaintext,doEncryption);
 				}
 				else {
 					throw std::logic_error("Encrypt operation has not been enabled");

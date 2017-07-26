@@ -255,6 +255,17 @@ public:
 	shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, Poly &plaintext, bool doEncryption = true) const;
 
 	/**
+	 * Encrypt method for the LTV Scheme.  See the class description for citations on where the algorithms were
+	 * taken from.
+	 *
+	 * @param privateKey The encryption key.
+	 * @param plaintext Plaintext to be encrypted.
+	 * @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
+	 * @return A shared pointer to the encrypted Ciphertext.
+	 */
+	shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey, Poly &plaintext, bool doEncryption = true) const;
+
+	/**
 	 * Decrypt method for the LTV Scheme.  See the class description for citations on where the algorithms were
 	 * taken from.
 	 *

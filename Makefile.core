@@ -34,7 +34,7 @@ COREBINDIR := src/core/bin
 CORETESTDIR := src/core/unittest
 COREDEMODIR := src/core/demo
 
-CORESOURCES := $(shell find $(CORESRCDIR)/lib -name '*.cpp') 
+CORESOURCES := $(shell find $(CORESRCDIR)/lib -name '*.cpp' ! -name '*-public.cpp') 
 COREUNITSOURCES := $(wildcard $(CORESRCDIR)/unittest/*.cpp)
 COREDEMOSOURCES := $(wildcard $(CORESRCDIR)/demo/*.cpp)
 

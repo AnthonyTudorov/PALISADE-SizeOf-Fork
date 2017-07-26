@@ -106,17 +106,12 @@ namespace lbcrypto {
 #pragma omp critical
 {
 		if (!(m & (m-1))){ // Check if m is a power of 2
-			// Power of two: m/2-point FTT. So we need the mth root of unity
-			if (params->GetPlaintextRootOfUnity() == 0)
-			{
-				m_initRoot[modulusNI] = RootOfUnity<native_int::BigInteger>(m, modulusNI);
-				params->SetPlaintextRootOfUnity(m_initRoot[modulusNI].ConvertToInt());
-			}
-			else
-				m_initRoot[modulusNI] = params->GetPlaintextRootOfUnity().ConvertToInt();
-		} else {
-			// Arbitrary: Bluestein based CRT Arb. So we need the 2mth root of unity
 
+			SetParams_2n(m, params);
+
+		} else {
+
+			// Arbitrary: Bluestein based CRT Arb. So we need the 2mth root of unity
 			if (params->GetPlaintextRootOfUnity() == 0) {
 				native_int::BigInteger initRoot = RootOfUnity<native_int::BigInteger>(2 * m, modulusNI);
 				m_initRoot[modulusNI] = initRoot;
@@ -186,8 +181,9 @@ namespace lbcrypto {
 #pragma omp critical
 		{
 			if (!(m & (m - 1))) { // Check if m is a power of 2
-								  // Power of two: m/2-point FTT. So we need the mth root of unity
-					m_initRoot[modulusNI] = RootOfUnity<native_int::BigInteger>(m, modulusNI);
+
+				SetParams_2n(m, modulusNI);
+
 			}
 			else {
 				// Arbitrary: Bluestein based CRT Arb. So we need the 2mth root of unity
@@ -253,20 +249,32 @@ namespace lbcrypto {
 			slotValues.SetValAtIndex(i, ring->GetValAtIndex(i).ConvertToInt());
 		}
 
-		//std::cout << packedVector << std::endl;
-
+		// Transform Eval to Coeff
 		if (!(m & (m-1))) { // Check if m is a power of 2
-			//power of 2 cyclotomics can use inverse CRT as packing function.
-			slotValues = ChineseRemainderTransformFTT<native_int::BigInteger, native_int::BigVector>::GetInstance().InverseTransform(slotValues, m_initRoot[modulusNI], m);
-		} else {
-			// Arbitrary cyclotomic use CRTArb
+
+			if (m_toCRTPerm[modulusNI].size() > 0)
+			{
+				// Permute to CRT Order
+				native_int::BigVector permutedSlots(phim, modulusNI);
+
+				for (usint i = 0; i < phim; i++) {
+					permutedSlots.SetValAtIndex(i, slotValues.GetValAtIndex(m_toCRTPerm[modulusNI][i]));
+				}
+				slotValues = ChineseRemainderTransformFTT<native_int::BigInteger, native_int::BigVector>::GetInstance().InverseTransform(permutedSlots, m_initRoot[modulusNI], m);
+			}
+			else
+			{
+				slotValues = ChineseRemainderTransformFTT<native_int::BigInteger, native_int::BigVector>::GetInstance().InverseTransform(slotValues, m_initRoot[modulusNI], m);
+			}
+
+		} else { // Arbitrary cyclotomic
+
 			// Permute to CRT Order
 			native_int::BigVector permutedSlots(phim, modulusNI);
 			for (usint i = 0; i < phim; i++) {
 				permutedSlots.SetValAtIndex(i, slotValues.GetValAtIndex(m_toCRTPerm[modulusNI][i]));
 			}
 
-			// Transform eval-representation to coeff
 			slotValues = ChineseRemainderTransformArb<native_int::BigInteger, native_int::BigVector>::GetInstance().
 					InverseTransform(permutedSlots, m_initRoot[modulusNI], m_bigModulus[modulusNI], m_bigRoot[modulusNI], m);
 		}
@@ -278,9 +286,6 @@ namespace lbcrypto {
 		}
 
 		ring->SetValues(slotValuesRing, Format::COEFFICIENT);
-
-		//ring->PrintValues();
-
 	}
 
 	void PackedIntPlaintextEncoding::Unpack(Poly *ring, const BigInteger &modulus) const {
@@ -301,30 +306,31 @@ namespace lbcrypto {
 			packedVector.SetValAtIndex(i, native_int::BigInteger(ring->GetValAtIndex(i).ConvertToInt()));
 		}
 
+		// Transform Coeff to Eval
+		native_int::BigVector permutedSlots(phim, modulusNI);
 		if (!(m & (m-1))) { // Check if m is a power of 2
-			//power of 2 cyclotomics can use forward CRT for getting slot values
-			packedVector = ChineseRemainderTransformFTT<native_int::BigInteger, native_int::BigVector>::GetInstance().ForwardTransform(packedVector, m_initRoot[modulusNI], m);
-		} else {
-			// Arbitrary cyclotomic use CRTArb
-			// Transform coeff to eval representation
-			native_int::BigVector permutedSlots(phim, modulusNI);
+			permutedSlots = ChineseRemainderTransformFTT<native_int::BigInteger, native_int::BigVector>::GetInstance().ForwardTransform(packedVector, m_initRoot[modulusNI], m);
+		} else { // Arbitrary cyclotomic
 			permutedSlots = ChineseRemainderTransformArb<native_int::BigInteger, native_int::BigVector>::GetInstance().
 					ForwardTransform(packedVector, m_initRoot[modulusNI], m_bigModulus[modulusNI], m_bigRoot[modulusNI], m);
+		}
 
+		if (m_fromCRTPerm[modulusNI].size() > 0) {
 			// Permute to automorphism Order
 			for (usint i = 0; i < phim; i++) {
 				packedVector.SetValAtIndex(i, permutedSlots.GetValAtIndex(m_fromCRTPerm[modulusNI][i]));
 			}
 		}
+		else
+			packedVector = permutedSlots;
 
+		//copy values into the slotValuesRing
 		BigVector packedVectorRing(phim, ring->GetModulus());
-
 		for (usint i = 0; i < phim; i++) {
 			packedVectorRing.SetValAtIndex(i, BigInteger(packedVector.GetValAtIndex(i).ConvertToInt()));
 		}
 
 		ring->SetValues(packedVectorRing, Format::COEFFICIENT);
-
 	}
 
 }

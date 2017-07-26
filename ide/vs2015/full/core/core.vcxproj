@@ -22,6 +22,7 @@
     <ClCompile Include="..\..\..\..\src\core\lib\encoding\byteplaintextencoding.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\encoding\encodingparams.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\encoding\intplaintextencoding.cpp" />
+    <ClCompile Include="..\..\..\..\src\core\lib\encoding\packedintplaintextencoding-2n-private.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\encoding\packedintplaintextencoding.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\encoding\signedintplaintextencoding.cpp" />
     <ClCompile Include="..\..\..\..\src\core\lib\lattice\dcrtpoly-impl.cpp" />

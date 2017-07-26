@@ -378,6 +378,50 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr
 }
 
 template <class Element>
+shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
+		Poly &ptxt, bool doEncryption) const
+{
+	shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(privateKey->GetCryptoContext()) );
+
+	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(privateKey->GetCryptoParameters());
+
+	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
+
+	Element plaintext(ptxt, elementParams);
+	plaintext.SwitchFormat();
+
+	if (doEncryption) {
+		const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
+		typename Element::DugType dug;
+		const BigInteger &delta = cryptoParams->GetDelta();
+
+		Element a(dug, elementParams, Format::EVALUATION);
+		const Element &s = privateKey->GetPrivateElement();
+		Element e(dgg, elementParams, Format::EVALUATION);
+
+		Element c0(a*s + e + delta*plaintext);
+		Element c1(elementParams, Format::EVALUATION, true);
+		c1 -= a;
+
+		ciphertext->SetElements({ c0, c1 });
+		ciphertext->SetIsEncrypted(true);
+
+	}
+	else
+	{
+
+		Element c0(plaintext);
+		Element c1(elementParams, Format::EVALUATION, true);
+
+		ciphertext->SetElements({ c0, c1 });
+		ciphertext->SetIsEncrypted(false);
+
+	}
+
+	return ciphertext;
+}
+
+template <class Element>
 DecryptResult LPAlgorithmFV<Element>::Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const shared_ptr<Ciphertext<Element>> ciphertext,
 		Poly *plaintext) const

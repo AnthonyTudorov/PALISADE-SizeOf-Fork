@@ -252,6 +252,16 @@ namespace lbcrypto {
 		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, Poly &plaintext, bool doEncryption = true) const;
 
 		/**
+		* Method for encrypting plaintext using BV Scheme
+		*
+		* @param privateKey is the private key used for encryption.
+		* @param &plaintext the plaintext input.
+		* @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
+		* @return ciphertext which results from encryption.
+		*/
+		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey, Poly &plaintext, bool doEncryption = true) const;
+
+		/**
 		* Method for decrypting plaintext using BV
 		*
 		* @param &privateKey private key used for decryption.

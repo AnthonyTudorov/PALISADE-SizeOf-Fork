@@ -92,9 +92,9 @@ public:
 		return BigInteger(modulusNI.ConvertToInt());
 	}
 
-	static usint GetAutomorphismGenerator(const BigInteger &modulus) { 
+	static usint GetAutomorphismGenerator(const BigInteger &modulus) {
 		native_int::BigInteger modulusNI(modulus.ConvertToInt());
-		return m_automorphismGenerator[modulusNI];  
+		return m_automorphismGenerator[modulusNI];
 	}
 
 	/** The operation of converting from current plaintext encoding to Poly.
@@ -218,6 +218,9 @@ private:
 	static std::map<native_int::BigInteger, usint> m_automorphismGenerator;
 	static std::map<native_int::BigInteger, std::vector<usint>> m_toCRTPerm;
 	static std::map<native_int::BigInteger, std::vector<usint>> m_fromCRTPerm;
+
+	static void SetParams_2n(usint m, const native_int::BigInteger &modulus);
+	static void SetParams_2n(usint m, shared_ptr<EncodingParams> params);
 
 	/**
 	* @brief Packs the slot values into aggregate plaintext space.

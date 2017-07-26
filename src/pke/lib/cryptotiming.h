@@ -47,6 +47,7 @@ enum OpType {
 	OpReKeyGenPubPri, OpReKeyGenPriPri,
 	OpEvalMultKeyGen,
 	OpKeySwitchGen,
+	OpEncryptPub, OpEncryptPriv, OpEncryptPlain,
 	OpEncrypt, OpEncryptMatrixPlain, OpEncryptMatrixPacked,
 	OpDecrypt, OpDecryptMatrixPlain, OpDecryptMatrixPacked,
 	OpReEncrypt,
