@@ -29,11 +29,21 @@ namespace lbcrypto
 {
 
 // Forms a binary array from an integer; represents the integer as a binary polynomial
-IntPlaintextEncoding::IntPlaintextEncoding(uint32_t value)
+IntPlaintextEncoding::IntPlaintextEncoding(uint64_t value)
 {
-	for (size_t i = 0; i < 32; i++) {
-		// gets i-th bit of the 32-bit integer
-		this->push_back((value >> i) & 1);
+	while( value > 0 ) {
+		this->push_back(value & 0x01);
+		value >>= 1;
+	}
+}
+
+// Forms a binary array from an integer; represents the integer as a binary polynomial
+IntPlaintextEncoding::IntPlaintextEncoding(const BigInteger& val)
+{
+	BigInteger value(val);
+	while (value > 0 ) {
+		this->push_back((value % 2).ConvertToInt());
+		value = value / 2;
 	}
 }
 
@@ -44,6 +54,9 @@ void IntPlaintextEncoding::doEncode(const BigInteger &modulus, Element *ilVector
 	uint64_t mod = modulus.ConvertToInt();
 
 	if( length == 0 ) length = this->size();
+
+	if( ilVector->GetParams()->GetRingDimension() < length )
+		throw std::logic_error("Can not Encode integer vector that is longer than the ring dimension");
 
 	// length is usually chunk size; if start + length would go past the end of the item, add padding
 	if( (startFrom + length) > this->size() ) {

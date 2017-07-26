@@ -164,7 +164,7 @@ int KPABE_BenchmarkCircuitTest(usint iter, int32_t base)
 		std::cout << "Average decryption time : " << "\t" << (avg_dec)/iter << " ms" << std::endl;
 	}
 
-	delete x;
+	delete[] x;
 
 	return 0;
 }
@@ -293,7 +293,7 @@ int KPABE_APolicyCircuitTest(usint iter)
 	if(failure == 0)
 		std::cout << "Encryption is successful after " << iter << " iterations!\n";
 
-	delete x;
+	delete[] x;
 
 	return 0;
 }
@@ -798,8 +798,8 @@ int CPABE_Test(usint iter)
 		std::cout << "Average decryption time : " << "\t" << (avg_dec)/iter << " ms" << std::endl;
 	}
 
-	delete w;
-	delete s;
+	delete[] w;
+	delete[] s;
 	return 0;
 }
 
