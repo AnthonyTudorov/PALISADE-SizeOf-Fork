@@ -55,6 +55,9 @@ void IntPlaintextEncoding::doEncode(const BigInteger &modulus, Element *ilVector
 
 	if( length == 0 ) length = this->size();
 
+	if( ilVector->GetParams()->GetRingDimension() < length )
+		throw std::logic_error("Can not Encode integer vector that is longer than the ring dimension");
+
 	// length is usually chunk size; if start + length would go past the end of the item, add padding
 	if( (startFrom + length) > this->size() ) {
 		padlen = (startFrom + length) - this->size();
