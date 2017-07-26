@@ -31,9 +31,9 @@ namespace lbcrypto
 // Forms a binary array from an integer; represents the integer as a binary polynomial
 IntPlaintextEncoding::IntPlaintextEncoding(uint64_t value)
 {
-	this->reserve(64);
-	for (size_t i = 0; i < 64; i++, value>>=1) {
-		this->push_back(value & 1);
+	while( value > 0 ) {
+		this->push_back(value & 0x01);
+		value >>= 1;
 	}
 }
 
