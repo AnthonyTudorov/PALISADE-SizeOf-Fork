@@ -28,6 +28,8 @@
 #define _SRC_LIB_UTILS_HASHUTIL_CPP
 #include "hashutil.h"
 #include <sstream>
+#include <iomanip>
+
 #define RIGHT_ROT(x, n) (( x >> (n % (sizeof(x)*8) ) | ( x << ((sizeof(x)*8) - (n % (sizeof(x)*8))))))
 
 const uint32_t HashUtil::k_256[64] = { 0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
@@ -78,18 +80,6 @@ lbcrypto::BytePlaintextEncoding HashUtil::SHA256(lbcrypto::BytePlaintextEncoding
 	message.push_back((uint8_t)((m_len & 0x000000000000ff00) >> 8));
 	message.push_back((uint8_t)(m_len & 0x00000000000000ff));
 
-	std::cout << message << std::endl;
-	std::cout << m_len << ":" << pad_len << " " << message.size() << std::endl;
-	std::cout << (unsigned int)message.at(43) << std::endl;
-	std::cout << (int)message.at(56) << std::endl;
-	std::cout << (int)message.at(57) << std::endl;
-	std::cout << (int)message.at(58) << std::endl;
-	std::cout << (int)message.at(59) << std::endl;
-	std::cout << (int)message.at(60) << std::endl;
-	std::cout << (int)message.at(61) << std::endl;
-	std::cout << (int)message.at(62) << std::endl;
-	std::cout << (int)message.at(63) << std::endl;
-
 	for (usint n = 0;n < (message.size() * 8) / 512; n++) {
 		uint32_t w[64];
 		short counter = 0;
@@ -140,11 +130,6 @@ lbcrypto::BytePlaintextEncoding HashUtil::SHA256(lbcrypto::BytePlaintextEncoding
 		h_256[6] += g;
 		h_256[7] += h;
 	}
-
-	std::cout << "hash byteplaintextencoding" << std::endl;
-	std::cout << std::hex;
-	for( int i=0; i<8; i++ ) std::cout << h_256[i] << std::endl;
-	std::cout << std::dec;
 
 	lbcrypto::BytePlaintextEncoding digest;
 	for (int i = 0; i < 8; i++) {
@@ -167,7 +152,7 @@ HashUtil::HashString(std::string message) {
 		pad_len++;
 	}
 
-	message += ((char)(0x80 & 0xff));
+	message += (char)(0x80);
 	for (int a = 0;a < (pad_len) / 8 - 1;a++) {
 		message += (char)(0);
 	}
@@ -180,25 +165,11 @@ HashUtil::HashString(std::string message) {
 	message += ((char)((m_len & 0x000000000000ff00) >> 8));
 	message += ((char)(m_len & 0x00000000000000ff));
 
-	std::cout << message << std::endl;
-	std::cout << m_len << ":" << pad_len << " " << message.size() << std::endl;
-	std::cout << (unsigned int)message.at(43) << std::endl;
-	std::cout << std::hex << (unsigned int)message.at(43) << std::dec << std::endl;
-	std::cout << std::hex << (message.at(43)&0xff) << std::dec << std::endl;
-	std::cout << (unsigned int)message.at(56) << std::endl;
-	std::cout << (unsigned int)message.at(57) << std::endl;
-	std::cout << (unsigned int)message.at(58) << std::endl;
-	std::cout << (unsigned int)message.at(59) << std::endl;
-	std::cout << (unsigned int)message.at(60) << std::endl;
-	std::cout << (unsigned int)message.at(61) << std::endl;
-	std::cout << (unsigned int)message.at(62) << std::endl;
-	std::cout << (unsigned int)message.at(63) << std::endl;
-
 	for (usint n = 0;n < (message.size() * 8) / 512; n++) {
 		uint32_t w[64];
 		short counter = 0;
 		for (usint m = 64 * n;m < (64 * (n + 1));m += 4) {
-			w[counter] = ((uint32_t)message.at(m) << 24) ^ ((uint32_t)message.at(m + 1) << 16) ^ ((uint32_t)message.at(m + 2) << 8) ^ ((uint32_t)message.at(m + 3));
+			w[counter] = ((uint32_t)(message.at(m)&0xff) << 24) ^ ((uint32_t)(message.at(m + 1)&0xff) << 16) ^ ((uint32_t)(message.at(m + 2)&0xff) << 8) ^ ((uint32_t)(message.at(m + 3)&0xff));
 			counter++;
 		}
 		for (int i = 16;i < 64;i++) {
@@ -245,15 +216,11 @@ HashUtil::HashString(std::string message) {
 		h_256[7] += h;
 	}
 
-	std::cout << "hash string" << std::endl;
-	std::cout << std::hex;
-	for( int i=0; i<8; i++ ) std::cout << h_256[i] << std::endl;
-	std::cout << std::dec;
-
 	std::stringstream s;
+	s.fill('0');
 	s << std::hex;
 	for( size_t ii=0; ii<8; ii++ )
-		s << h_256[ii];
+		s << std::setw(8) << h_256[ii];
 
 	return s.str();
 }
