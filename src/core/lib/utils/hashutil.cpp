@@ -59,7 +59,7 @@ const uint64_t HashUtil::k_512[80] = { 0x428a2f98d728ae22, 0x7137449123ef65cd, 0
 lbcrypto::BytePlaintextEncoding HashUtil::SHA256(lbcrypto::BytePlaintextEncoding message) {
 	
 	uint32_t h_256[8] = { 0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19 };
-	
+
 	uint64_t m_len = message.size() * 8;
 	uint16_t pad_len = 1;
 	while ((m_len + pad_len) % 512 != 448) {
@@ -78,6 +78,17 @@ lbcrypto::BytePlaintextEncoding HashUtil::SHA256(lbcrypto::BytePlaintextEncoding
 	message.push_back((uint8_t)((m_len & 0x000000000000ff00) >> 8));
 	message.push_back((uint8_t)(m_len & 0x00000000000000ff));
 
+	std::cout << message << std::endl;
+	std::cout << m_len << ":" << pad_len << " " << message.size() << std::endl;
+	std::cout << (unsigned int)message.at(43) << std::endl;
+	std::cout << (int)message.at(56) << std::endl;
+	std::cout << (int)message.at(57) << std::endl;
+	std::cout << (int)message.at(58) << std::endl;
+	std::cout << (int)message.at(59) << std::endl;
+	std::cout << (int)message.at(60) << std::endl;
+	std::cout << (int)message.at(61) << std::endl;
+	std::cout << (int)message.at(62) << std::endl;
+	std::cout << (int)message.at(63) << std::endl;
 
 	for (usint n = 0;n < (message.size() * 8) / 512; n++) {
 		uint32_t w[64];
@@ -130,7 +141,10 @@ lbcrypto::BytePlaintextEncoding HashUtil::SHA256(lbcrypto::BytePlaintextEncoding
 		h_256[7] += h;
 	}
 
-	
+	std::cout << "hash byteplaintextencoding" << std::endl;
+	std::cout << std::hex;
+	for( int i=0; i<8; i++ ) std::cout << h_256[i] << std::endl;
+	std::cout << std::dec;
 
 	lbcrypto::BytePlaintextEncoding digest;
 	for (int i = 0; i < 8; i++) {
@@ -144,31 +158,41 @@ lbcrypto::BytePlaintextEncoding HashUtil::SHA256(lbcrypto::BytePlaintextEncoding
 }
 
 std::string
-HashUtil::HashString(std::string text) {
+HashUtil::HashString(std::string message) {
 	uint32_t h_256[8] = { 0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19 };
 
-	uint64_t m_len = text.size() * 8;
+	uint64_t m_len = message.size() * 8;
 	uint16_t pad_len = 1;
 	while ((m_len + pad_len) % 512 != 448) {
 		pad_len++;
 	}
 
-	std::string pad = "";
-	//pad.reserve(pad_len + 8);
-	pad += (char)(128);
+	message += ((char)(0x80 & 0xff));
 	for (int a = 0;a < (pad_len) / 8 - 1;a++) {
-		pad += (char)(0);
+		message += (char)(0);
 	}
-	pad += ((char)((m_len & 0xff00000000000000) >> 56));
-	pad += ((char)((m_len & 0x00ff000000000000) >> 48));
-	pad += ((char)((m_len & 0x0000ff0000000000) >> 40));
-	pad += ((char)((m_len & 0x000000ff00000000) >> 32));
-	pad += ((char)((m_len & 0x00000000ff000000) >> 24));
-	pad += ((char)((m_len & 0x0000000000ff0000) >> 16));
-	pad += ((char)((m_len & 0x000000000000ff00) >> 8));
-	pad += ((char)(m_len & 0x00000000000000ff));
+	message += ((char)((m_len & 0xff00000000000000) >> 56));
+	message += ((char)((m_len & 0x00ff000000000000) >> 48));
+	message += ((char)((m_len & 0x0000ff0000000000) >> 40));
+	message += ((char)((m_len & 0x000000ff00000000) >> 32));
+	message += ((char)((m_len & 0x00000000ff000000) >> 24));
+	message += ((char)((m_len & 0x0000000000ff0000) >> 16));
+	message += ((char)((m_len & 0x000000000000ff00) >> 8));
+	message += ((char)(m_len & 0x00000000000000ff));
 
-	std::string message = text + pad;
+	std::cout << message << std::endl;
+	std::cout << m_len << ":" << pad_len << " " << message.size() << std::endl;
+	std::cout << (unsigned int)message.at(43) << std::endl;
+	std::cout << std::hex << (unsigned int)message.at(43) << std::dec << std::endl;
+	std::cout << std::hex << (message.at(43)&0xff) << std::dec << std::endl;
+	std::cout << (unsigned int)message.at(56) << std::endl;
+	std::cout << (unsigned int)message.at(57) << std::endl;
+	std::cout << (unsigned int)message.at(58) << std::endl;
+	std::cout << (unsigned int)message.at(59) << std::endl;
+	std::cout << (unsigned int)message.at(60) << std::endl;
+	std::cout << (unsigned int)message.at(61) << std::endl;
+	std::cout << (unsigned int)message.at(62) << std::endl;
+	std::cout << (unsigned int)message.at(63) << std::endl;
 
 	for (usint n = 0;n < (message.size() * 8) / 512; n++) {
 		uint32_t w[64];
@@ -220,6 +244,11 @@ HashUtil::HashString(std::string text) {
 		h_256[6] += g;
 		h_256[7] += h;
 	}
+
+	std::cout << "hash string" << std::endl;
+	std::cout << std::hex;
+	for( int i=0; i<8; i++ ) std::cout << h_256[i] << std::endl;
+	std::cout << std::dec;
 
 	std::stringstream s;
 	s << std::hex;
