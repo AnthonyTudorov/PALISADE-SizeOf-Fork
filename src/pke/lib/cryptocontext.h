@@ -623,7 +623,7 @@ public:
 	{
 		std::vector<shared_ptr<Ciphertext<Element>>> cipherResults;
 
-		if( privateKey == NULL || privateKey->GetCryptoContext() != this )
+		if( privateKey == NULL || Mismatched(privateKey->GetCryptoContext()) )
 			throw std::logic_error("key passed to Encrypt was not generated with this crypto context");
 
 		const BigInteger& ptm = privateKey->GetCryptoParameters()->GetPlaintextModulus();
