@@ -34,7 +34,7 @@ PKEBINDIR := src/pke/bin
 PKETESTDIR := src/pke/unittest
 PKEDEMODIR := src/pke/demo
 
-PKESOURCES := $(shell find $(PKESRCDIR)/lib -name '*.cpp')
+PKESOURCES := $(shell find $(PKESRCDIR)/lib -name '*.cpp' ! -name '*-public.cpp')
 PKEUNITSOURCES := $(wildcard $(PKESRCDIR)/unittest/*.cpp)
 PKEDEMOSOURCES := $(wildcard $(PKESRCDIR)/demo/*.cpp)
 
