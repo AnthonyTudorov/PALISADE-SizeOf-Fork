@@ -100,9 +100,9 @@ void UnitTestCPABE(int32_t base, usint k, usint ringDimension){
 			// User attributes (randomly generated binary values)
 		//	usint *s = new usint[ell];
 
-			usint s[ell];
+			usint *s = new usint[ell];
 			// Access structure
-			int w[ell];
+			int *w = new int[ell];
 
 			// Secret key for the output of the circuit
 			RingMat sk(zero_alloc, m, ell+1);
@@ -183,6 +183,8 @@ void UnitTestCPABE(int32_t base, usint k, usint ringDimension){
 				EXPECT_EQ(ptext,dtext);
 
 				ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().Destroy();
+				delete s;
+				delete w;
 }
 
 void UnitTestKPABEBenchMarkCircuit(int32_t base, usint k, usint ringDimension){
@@ -379,7 +381,7 @@ void UnitTestKPABEANDGate(int32_t base, usint k, usint ringDimension){
 		receiver.Setup(ilParams, base, ell);
 
 		// Attribute values all are set to 1 for NAND gate evaluation
-		usint x[ell];
+		usint *x  = new usint[ell];
 		x[0] = x[1] = x[2] = 0;
 		usint y;
 
@@ -457,7 +459,7 @@ void UnitTestAPolicyCircuitTest(int32_t base, usint k, usint ringDimension){
 		receiver.Setup(ilParams, base, ell);
 
 		// Attribute values all are set to 1 for NAND gate evaluation
-		usint x[ell+1];
+		usint *x = new usint[ell+1];
 		for(usint i=0; i<ell+1; i++)
 			x[i] = 1;
 
@@ -469,7 +471,7 @@ void UnitTestAPolicyCircuitTest(int32_t base, usint k, usint ringDimension){
 		RingMat tC(Poly::MakeAllocator(ilParams, EVALUATION), 1, m);
 		RingMat wB(Poly::MakeAllocator(ilParams, EVALUATION), 2, m);
 		RingMat wC(Poly::MakeAllocator(ilParams, EVALUATION), 2, m);
-		usint wx[2];
+		usint *wx = new usint[2];
 
 		// circuit outputs
 		RingMat evalBf(Poly::MakeAllocator(ilParams, EVALUATION), 1, m);
@@ -515,6 +517,8 @@ void UnitTestAPolicyCircuitTest(int32_t base, usint k, usint ringDimension){
 		ptext.SwitchFormat();
 
 		EXPECT_EQ(ptext,dtext);
+		delete x;
+		delete wx;
 }
 
 void UnitTesKPABENANDGATE(int32_t base, usint k, usint ringDimension){
@@ -595,6 +599,7 @@ void UnitTesKPABENANDGATE(int32_t base, usint k, usint ringDimension){
 
 		ptext.SwitchFormat();
 		EXPECT_EQ(ptext, dtext);
+		delete x;
 }
 
 void UnitTestPolyVecDecomp(int32_t base, usint k, usint ringDimension){

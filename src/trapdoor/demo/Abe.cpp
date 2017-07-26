@@ -23,7 +23,7 @@ int CPABE_Test(usint iter);
 int main()
 {
 
-/*	std::cout << "-------Start demo for KP-ABE-------" << std::endl;
+	std::cout << "-------Start demo for KP-ABE-------" << std::endl;
 	KPABE_BenchmarkCircuitTest(1,8);
 	std::cout << "-------End demo for KP-ABE-------" << std::endl << std::endl;
 
@@ -37,7 +37,7 @@ int main()
 
 	std::cout << "-------Start demo for KP-ABE NAND GATE TEST-------" << std::endl;
 	KPABE_NANDGateTest(1,8);
-	std::cout << "-------End demo for KP-ABE NAND GATE TEST-------" << std::endl << std::endl;*/
+	std::cout << "-------End demo for KP-ABE NAND GATE TEST-------" << std::endl << std::endl;
 
 	std::cout << "-------Start demo for KP-ABE AND GATE TEST-------" << std::endl;
 	KPABE_ANDGateTest(1);
@@ -245,7 +245,7 @@ int KPABE_APolicyCircuitTest(usint iter)
 	RingMat tC(Poly::MakeAllocator(ilParams, EVALUATION), 1, m);
 	RingMat wB(Poly::MakeAllocator(ilParams, EVALUATION), 2, m);
 	RingMat wC(Poly::MakeAllocator(ilParams, EVALUATION), 2, m);
-	usint wx[2];
+	usint *wx = new usint[2] ;
 
 	// circuit outputs
 	RingMat evalBf(Poly::MakeAllocator(ilParams, EVALUATION), 1, m);
@@ -304,7 +304,9 @@ int KPABE_APolicyCircuitTest(usint iter)
 	if(failure == 0)
 		std::cout << "Encryption is successful after " << iter << " iterations!\n";
 
+
 	delete[] x;
+	delete[] wx;
 
 	return 0;
 }
@@ -482,7 +484,7 @@ int KPABE_ANDGateTest(usint iter)
 	receiver.Setup(ilParams, base, ell);
 
 	// Attribute values all are set to 1 for NAND gate evaluation
-	usint x[ell];
+	usint *x = new usint[ell];
 	x[0] = x[1] = x[2] = 0;
 	usint y;
 	//x[1] = x[2] = 1;   // When uncommented this should fail (a policy circuit always outputs 0
@@ -533,6 +535,7 @@ int KPABE_ANDGateTest(usint iter)
 	if(failure == 0)
 		std::cout << "Encryption is successful after " << iter << " iterations!\n";
 
+	delete x;
 	return 0;
 }
 
@@ -727,10 +730,10 @@ int CPABE_Test(usint iter)
 	receiver.Setup(ilParams, base, ell);
 
 	// User attributes (randomly generated binary values)
-	usint s[ell];
+	usint *s = new usint[ell];
 
 	// Access structure
-	int w[ell];
+	int *w  = new int[ell];
 
 	// Secret key for the output of the circuit
 	RingMat sk(zero_alloc, m, ell+1);
@@ -817,6 +820,8 @@ int CPABE_Test(usint iter)
 	delete[] s;
 
 	ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().Destroy();
+	delete s;
+	delete w;
 
 	return 0;
 }
