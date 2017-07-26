@@ -940,7 +940,7 @@ namespace lbcrypto {
 
 	private:
 		void CreateKeyDigest() {
-			Serialized ser;
+			Serialized ser(rapidjson::kObjectType);
 			if( m_sk.Serialize(&ser) == false )
 				throw std::logic_error("Could not serialize element and create digest");
 			string sser;
