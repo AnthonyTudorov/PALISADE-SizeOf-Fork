@@ -183,8 +183,8 @@ void UnitTestCPABE(int32_t base, usint k, usint ringDimension){
 				EXPECT_EQ(ptext,dtext);
 
 				ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().Destroy();
-				delete s;
-				delete w;
+				delete[] s;
+				delete[] w;
 }
 
 void UnitTestKPABEBenchMarkCircuit(int32_t base, usint k, usint ringDimension){
@@ -415,6 +415,7 @@ void UnitTestKPABEANDGate(int32_t base, usint k, usint ringDimension){
 
 		ptext.SwitchFormat();
 		EXPECT_EQ(ptext, dtext);
+		delete[] x;
 }
 
 void UnitTestAPolicyCircuitTest(int32_t base, usint k, usint ringDimension){
@@ -517,8 +518,8 @@ void UnitTestAPolicyCircuitTest(int32_t base, usint k, usint ringDimension){
 		ptext.SwitchFormat();
 
 		EXPECT_EQ(ptext,dtext);
-		delete x;
-		delete wx;
+		delete[] x;
+		delete[] wx;
 }
 
 void UnitTesKPABENANDGATE(int32_t base, usint k, usint ringDimension){
@@ -599,7 +600,7 @@ void UnitTesKPABENANDGATE(int32_t base, usint k, usint ringDimension){
 
 		ptext.SwitchFormat();
 		EXPECT_EQ(ptext, dtext);
-		delete x;
+		delete[] x;
 }
 
 void UnitTestPolyVecDecomp(int32_t base, usint k, usint ringDimension){

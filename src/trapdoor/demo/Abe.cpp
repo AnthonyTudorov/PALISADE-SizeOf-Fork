@@ -820,9 +820,6 @@ int CPABE_Test(usint iter)
 	delete[] s;
 
 	ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().Destroy();
-	delete s;
-	delete w;
-
 	return 0;
 }
 
