@@ -360,6 +360,23 @@ namespace lbcrypto {
 			Signature<Matrix<Element>>*signatureText);
 
 		/**
+		*Method for offline perturbation sampling
+		*@param signKey private signing key
+		*return perturbation vector
+		*/
+		shared_ptr<Matrix<Element>> SampleOffline(LPSignKeyGPVGM<Element> &signKey);
+
+		/**
+		*Method for signing given text
+		*@param signKey private signing key
+		*@param Pre-computed perturbation vector
+		*@param plainText encoding of the text to be signed
+		*@param signatureText signature generated after the signing process - output of the function
+		*/
+		void SignOnline(LPSignKeyGPVGM<Element> &signKey, const shared_ptr<Matrix<Element>> parturbationVector, const BytePlaintextEncoding &plainText,
+			Signature<Matrix<Element>>*signatureText);
+
+		/**
 		*Method for verifying given text & signature
 		*
 		*@param verificationKey public verification key

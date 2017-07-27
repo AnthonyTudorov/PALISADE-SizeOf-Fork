@@ -45,7 +45,7 @@ void MultiThreadedRun(int index, usint base);
 int main() {
 
 	for (usint i = 0; i < 1; i++) {
-		for (usint j = 256; j < 512; j = 2*j) {
+		for (usint j = 2; j < 1024; j = 2*j) {
 			MultiThreadedRun(i, j);
 		}
 	}
@@ -155,11 +155,29 @@ void MultiThreadedRun(int index, usint base) {
 
 	scheme_gm.Sign(s_k_gm, text[5], &precompSignature);
 
+	//offline perturbation sampling
+
+	std::vector<shared_ptr<Matrix<Poly>>> perturbationVectors;
+
 	start = currentDateTime();
 
 	for (usint i = 0; i < counter; i++) {
 
-		scheme_gm.Sign(s_k_gm, text[i % 10], &(signature[i]));
+		perturbationVectors.push_back(scheme_gm.SampleOffline(s_k_gm));
+
+	}
+
+	finish = currentDateTime();
+
+	std::cout << "Offline Perturbation Sampling : " << "\t" << (finish - start) / counter << " ms" << std::endl;
+
+	//online signing
+
+	start = currentDateTime();
+
+	for (usint i = 0; i < counter; i++) {
+
+		scheme_gm.SignOnline(s_k_gm, perturbationVectors[i], text[i % 10], &(signature[i]));
 
 	}
 		
@@ -167,7 +185,7 @@ void MultiThreadedRun(int index, usint base) {
 
 	signTime = finish - start;
 
-	std::cout << "Signing - New : " << "\t" << signTime / counter << " ms" << std::endl;
+	std::cout << "Online Signing : " << "\t" << signTime / counter << " ms" << std::endl;
 
 	start = currentDateTime();
 
@@ -185,7 +203,7 @@ void MultiThreadedRun(int index, usint base) {
 	verifyTime = finish - start;
 
 
-	std::cout << "Verifying - New : " << "\t" << verifyTime / counter << " ms" << std::endl;
+	std::cout << "Verification time : " << "\t" << verifyTime / counter << " ms" << std::endl;
 	std::cout << "Verification counter : " << "\t" << verifyCounter << "\n" << std::endl;
 
 	std::cout << "Execution completed" << std::endl;

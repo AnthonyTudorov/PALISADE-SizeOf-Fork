@@ -102,7 +102,6 @@ public:
 	* @param k matrix sample dimension; k = logq + 2
 	* @param &A public key of the trapdoor pair
 	* @param &T trapdoor itself
-	* @param &SigmaP Cholesky decomposition matrix for the trapdoor
 	* @param &u syndrome vector where gaussian that Gaussian sampling is centered around
 	* @param &dgg discrete Gaussian generator for integers
 	* @param &dggLargeSigma discrete Gaussian generator for perturbation vector sampling
@@ -111,6 +110,39 @@ public:
 	static inline RingMat GaussSamp(size_t n, size_t k, const RingMat& A, 
 		const RLWETrapdoorPair<Poly>& T, const Poly &u, 
 		Poly::DggType &dgg, Poly::DggType &dggLargeSigma, int32_t base = 2);
+
+	/**
+	* On-line stage of pre-image sampling
+	*
+	* @param n ring dimension
+	* @param k matrix sample dimension; k = logq + 2
+	* @param &A public key of the trapdoor pair
+	* @param &T trapdoor itself
+	* @param &u syndrome vector where gaussian that Gaussian sampling is centered around
+	* @param &dgg discrete Gaussian generator for integers
+	* @param &perturbationVector perturbation vector generated during the offline stage
+	* @param &base base for G-lattice
+	* @return the sampled vector (matrix)
+	*/
+	static inline RingMat GaussSampOnline(size_t n, size_t k, const RingMat& A,
+		const RLWETrapdoorPair<Poly>& T, const Poly &u, Poly::DggType &dgg,
+		 const shared_ptr<RingMat> perturbationVector, int32_t base = 2);
+
+	/**
+	* Of-line stage of pre-image sampling (perturbation sampling)
+	*
+	* @param n ring dimension
+	* @param k matrix sample dimension; k = logq + 2
+	* @param &T trapdoor itself
+	* @param &dgg discrete Gaussian generator for integers
+	* @param &dggLargeSigma discrete Gaussian generator for perturbation vector sampling
+	* @param &base base for G-lattice
+	* @return the sampled vector (matrix)
+	*/
+	static inline shared_ptr<RingMat> GaussSampOffline(size_t n, size_t k,
+		const RLWETrapdoorPair<Poly>& T,Poly::DggType &dgg, Poly::DggType &dggLargeSigma, 
+		int32_t base = 2);
+
 	/**
 	* New method for perturbation generation based by the new paper
 	*
@@ -125,7 +157,7 @@ public:
 	static inline void ZSampleSigmaP(size_t n, double s, double sigma,
 		const RLWETrapdoorPair<Poly> &Tprime,
 		const Poly::DggType& dgg, const Poly::DggType& dggLargeSigma,
-		RingMat *perturbationVector);
+		shared_ptr<RingMat> perturbationVector);
 
 };
 

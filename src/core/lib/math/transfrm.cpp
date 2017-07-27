@@ -661,32 +661,37 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 	}
 	std::vector<std::complex<double>> DiscreteFourierTransform::ForwardTransform(std::vector<std::complex<double>> A) {
 		int n = A.size();
+		A.resize(2 * n);
 		for (int i = 0;i < n;i++) {
-			A.push_back(0);
+			A[n + i] = 0;
+			//A.push_back(0);
 		}
 		if (rootOfUnityTable == NULL) {
 			PreComputeTable(2 * n);
 		}
 		std::vector<std::complex<double>> dft = FFTForwardTransform(A);
-		std::vector<std::complex<double>> dftRemainder;
+		std::vector<std::complex<double>> dftRemainder(dft.size()/2);
+		size_t k = 0;
 		for (int i = dft.size() - 1;i > 0;i--) {
 			if (i % 2 != 0) {
-				dftRemainder.push_back(dft.at(i));
+				dftRemainder[k] = dft.at(i);
+				k++;
+				//dftRemainder.push_back(dft.at(i));
 			}
 		}
 		return dftRemainder;
 	}
 	std::vector<std::complex<double>> DiscreteFourierTransform::InverseTransform(std::vector<std::complex<double>> A) {
 		size_t n = A.size();
-		std::vector<std::complex<double>> dft;
+		std::vector<std::complex<double>> dft(2*n);
 		for (size_t i = 0; i < n; i++) {
-			dft.push_back(0);
-			dft.push_back(A.at(i));
+			dft[2*i] = 0;
+			dft[2 * i + 1] = A.at(i);
 		}
 		std::vector<std::complex<double>> invDft = FFTInverseTransform(dft);
-		std::vector<std::complex<double>> invDftRemainder;
+		std::vector<std::complex<double>> invDftRemainder(invDft.size() / 2);
 		for (size_t i = 0;i<invDft.size() / 2;i++) {
-			invDftRemainder.push_back(invDft.at(i));
+			invDftRemainder[i] = invDft.at(i);
 		}
 		return invDftRemainder;
 	}
