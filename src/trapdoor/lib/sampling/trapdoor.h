@@ -125,8 +125,8 @@ public:
 	* @return the sampled vector (matrix)
 	*/
 	static inline RingMat GaussSampOnline(size_t n, size_t k, const RingMat& A,
-		const RLWETrapdoorPair<Poly>& T, const Poly &u,
-		Poly::DggType &dgg, const shared_ptr<RingMat> perturbationVector, int32_t base = 2);
+		const RLWETrapdoorPair<Poly>& T, const Poly &u, Poly::DggType &dgg,
+		 const shared_ptr<RingMat> perturbationVector, int32_t base = 2);
 
 	/**
 	* Of-line stage of pre-image sampling (perturbation sampling)

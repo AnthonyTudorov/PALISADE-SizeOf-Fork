@@ -189,6 +189,47 @@ namespace lbcrypto {
 
 	}
 
+	RingMat RLWETrapdoorUtility::GaussSampOnline(size_t n, size_t k, const RingMat& A,
+		const RLWETrapdoorPair<Poly>& T, const Poly &u,
+		Poly::DggType &dgg, const shared_ptr<RingMat> pHat, int32_t base) {
+
+		const shared_ptr<ILParams> params = u.GetParams();
+		auto zero_alloc = Poly::MakeAllocator(params, EVALUATION);
+
+		double c = (base + 1) * SIGMA;
+
+		const BigInteger& modulus = A(0, 0).GetModulus();
+
+		// YSP It is assumed that A has dimension 1 x (k + 2) and pHat has the dimension of (k + 2) x 1
+		// perturbedSyndrome is in the evaluation representation
+		Poly perturbedSyndrome = u - (A.Mult(*pHat))(0, 0);
+
+		//Matrix<BigInteger> zHatBBI(BigInteger::Allocator, k, n);
+		Matrix<int32_t> zHatBBI([]() { return make_unique<int32_t>(); }, k, n);
+
+		// converting perturbed syndrome to coefficient representation
+		perturbedSyndrome.SwitchFormat();
+
+		LatticeGaussSampUtility::GaussSampGq(perturbedSyndrome, c, k, modulus, base, dgg, &zHatBBI);
+
+		// Convert zHat from a matrix of BBI to a vector of Poly ring elements
+		// zHat is in the coefficient representation
+		RingMat zHat = SplitInt32AltIntoPolyElements(zHatBBI, n, params);
+		// Now converting it to the evaluation representation before multiplication
+		zHat.SwitchFormat();
+
+		RingMat zHatPrime(zero_alloc, k + 2, 1);
+
+		zHatPrime(0, 0) = (*pHat)(0, 0) + T.m_e.Mult(zHat)(0, 0);
+		zHatPrime(1, 0) = (*pHat)(1, 0) + T.m_r.Mult(zHat)(0, 0);
+
+		for (size_t row = 2; row < k + 2; ++row)
+			zHatPrime(row, 0) = (*pHat)(row, 0) + zHat(row - 2, 0);
+
+		return zHatPrime;
+
+	}
+
 	shared_ptr<RingMat> RLWETrapdoorUtility::GaussSampOffline(size_t n, size_t k,
 		const RLWETrapdoorPair<Poly>& T, Poly::DggType &dgg, Poly::DggType &dggLargeSigma,
 		int32_t base) {

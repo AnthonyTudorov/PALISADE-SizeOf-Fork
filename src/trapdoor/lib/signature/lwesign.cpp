@@ -103,6 +103,64 @@ namespace lbcrypto {
 		signatureText->SetElement(zHat);
 
 	}
+
+	//Method for signing given object
+	template <class Element>
+	shared_ptr<Matrix<Element>> LPSignatureSchemeGPVGM<Element>::SampleOffline(LPSignKeyGPVGM<Element> &signKey) {
+
+		//Getting parameters for calculations
+		size_t n = signKey.GetSignatureParameters().GetILParams()->GetRingDimension();
+		size_t k = signKey.GetSignatureParameters().GetK();
+		size_t base = signKey.GetSignatureParameters().GetBase();
+
+		//Getting the trapdoor and gaussian generatorw to use in sampling
+		RLWETrapdoorPair<Poly> T = signKey.GetPrivateElement().second;
+		typename Element::DggType & dgg = signKey.GetSignatureParameters().GetDiscreteGaussianGenerator();
+		typename Element::DggType & dggLargeSigma = signKey.GetSignatureParameters().GetDiscreteGaussianGeneratorLargeSigma();
+
+		return RLWETrapdoorUtility::GaussSampOffline(n, k, T, dgg, dggLargeSigma, base);
+
+	}
+
+	//Method for signing given object
+	template <class Element>
+	void LPSignatureSchemeGPVGM<Element>::SignOnline(LPSignKeyGPVGM<Element> &signKey, 
+		shared_ptr<Matrix<Element>> perturbationVector,	const BytePlaintextEncoding &plainText,
+		Signature<Matrix<Element>> *signatureText) {
+
+		//Getting parameters for calculations
+		size_t n = signKey.GetSignatureParameters().GetILParams()->GetRingDimension();
+		size_t k = signKey.GetSignatureParameters().GetK();
+		size_t base = signKey.GetSignatureParameters().GetBase();
+
+		//Encode the text into a vector so it can be used in signing process. TODO: Adding some kind of digestion algorithm
+		HashUtil util;
+		BytePlaintextEncoding hashedText = util.Hash(plainText, SHA_256);
+		Poly u(signKey.GetSignatureParameters().GetILParams(), EVALUATION, false);
+		if (hashedText.size() > n) {
+			hashedText.Encode(BigInteger("256"), &u, 0, n);
+		}
+		else {
+			usint remaining = n - hashedText.size();
+			for (size_t i = 0; i < remaining; i++) {
+				hashedText.push_back(0);
+			}
+			hashedText.Encode(BigInteger("256"), &u);
+		}
+		u.SwitchFormat();
+
+
+		//Getting the trapdoor, its public matrix, perturbation matrix and gaussian generator to use in sampling
+		RingMat A = signKey.GetPrivateElement().first;
+		RLWETrapdoorPair<Poly> T = signKey.GetPrivateElement().second;
+		//double stddev = signKey.GetSignatureParameters().GetDiscreteGaussianGenerator().GetStd();
+		typename Element::DggType & dgg = signKey.GetSignatureParameters().GetDiscreteGaussianGenerator();
+
+		Matrix<Poly> zHat = RLWETrapdoorUtility::GaussSampOnline(n, k, A, T, u, dgg, perturbationVector, base);
+		signatureText->SetElement(zHat);
+
+	}
+
 	
 	//Method for verifying given object & signature
 	template <class Element>
