@@ -92,7 +92,7 @@ int main(int argc, char *argv[]) {
 	start = currentDateTime();
 
 	keyPair = cryptoContext->KeyGen();
-	cryptoContext->EvalMultKeyGen(keyPair.secretKey);
+	shared_ptr<vector<shared_ptr<LPEvalKey<Poly>>>> evalKeys = cryptoContext->GetEncryptionAlgorithm()->EvalMultKeysGen(keyPair.secretKey);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -228,14 +228,17 @@ int main(int argc, char *argv[]) {
 
 	start = currentDateTime();
 
-	ciphertextMul12 = cryptoContext->EvalMult(ciphertext1[0],ciphertext2[0]);
-	ciphertextMul123 = cryptoContext->EvalMult(ciphertextMul12,ciphertext3[0]);
+	ciphertextMul12 = cryptoContext->GetEncryptionAlgorithm()->EvalMult(ciphertext1[0],ciphertext2[0]);
+//	ciphertextMul123 = cryptoContext->GetEncryptionAlgorithm()->EvalMult(ciphertextMul12,ciphertext3[0]);
+	ciphertextMul123 = cryptoContext->GetEncryptionAlgorithm()->EvalMultAndRelinearize(ciphertextMul12, ciphertext3[0], evalKeys);
 
 	ciphertextMulVect.push_back(ciphertextMul123);
 
 	finish = currentDateTime();
 	diff = finish - start;
 	cout << "EvalMult time: " << "\t" << diff << " ms" << endl;
+
+
 
 
 	////////////////////////////////////////////////////////////

@@ -1261,7 +1261,7 @@ namespace lbcrypto {
 		* @param *newCiphertext the new resulting ciphertext.
 		*/
 		virtual shared_ptr<Ciphertext<Element>> EvalMultAndRelinearize(const shared_ptr<Ciphertext<Element>> ct1,
-			const shared_ptr<Ciphertext<Element>> ct2, const shared_ptr<vector<LPEvalKey<Element>>> ek) const = 0;
+			const shared_ptr<Ciphertext<Element>> ct2, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> ek) const = 0;
 
 
 		/**
@@ -2234,7 +2234,7 @@ namespace lbcrypto {
 		}
 
 		shared_ptr<Ciphertext<Element>> EvalMultAndRelinearize(const shared_ptr<Ciphertext<Element>> ct1,
-			const shared_ptr<Ciphertext<Element>> ct2, const shared_ptr<vector<LPEvalKey<Element>>> ek) const {
+			const shared_ptr<Ciphertext<Element>> ct2, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> ek) const {
 				if(this->m_algorithmSHE)
 					return this->m_algorithmSHE->EvalMultAndRelinearize(ct1, ct2, ek);
 				else {

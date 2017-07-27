@@ -626,6 +626,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared
 	for(size_t i=0; i<cipherTextRElementsSize; i++)
 		c[i].SwitchModulus(q, elementParams->GetRootOfUnity(), elementParams->GetBigModulus(), elementParams->GetBigRootOfUnity());
 
+	std::cout << "Debug Postion 7" << std::endl;
 	newCiphertext->SetElements(c);
 	newCiphertext->SetDepth((ciphertext1->GetDepth() + ciphertext2->GetDepth()));
 
@@ -731,15 +732,49 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMultAndRelinearize(const shared_ptr<Ciphertext<Element>> ciphertext1,
 	const shared_ptr<Ciphertext<Element>> ciphertext2,
-	const shared_ptr<vector<LPEvalKey<Element>>> ek) const {
+	const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> ek) const {
 
 	if(!ciphertext2->GetIsEncrypted()) {
 		return EvalMultPlain(ciphertext1, ciphertext2);
 	}
+	// Multiply ciphertexts
+	std::cout << "Mult Start\t" << std::endl;
+	shared_ptr<Ciphertext<Element>> cipherText = this->EvalMult(ciphertext1, ciphertext2);
+	std::cout << "Mult Complete\t"<< cipherText->GetDepth() << std::endl;
 
-	shared_ptr<Ciphertext<Element>> newCiphertext = this->EvalMult(ciphertext1, ciphertext2);
+	shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(cipherText->GetCryptoContext()));
+	shared_ptr<Ciphertext<Element>> tempCiphertext(new Ciphertext<Element>(cipherText->GetCryptoContext()));
 
-	return 0;//this->KeySwitch(ek, newCiphertext);
+	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParamsLWE = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(ek->at(0)->GetCryptoParameters());
+	usint relinWindow = cryptoParamsLWE->GetRelinWindow();
+
+	std::vector<Element> digitsC2;
+	const std::vector<Element> &c = cipherText->GetElements();
+	Element ct0(c[0]);
+	Element ct1(c[1]);
+
+	if (c.size() > 2)
+		ct0.SwitchFormat();
+	ct1.SwitchFormat();
+	//TODO:Check depth again to see if -2 works. Currently, we should have depth 2 ciphertext eval key at location 0 of the array.
+	for(size_t i = cipherText->GetDepth()-2; i>=0; i--){
+
+		shared_ptr<LPEvalKeyRelin<Element>> evalKey = std::static_pointer_cast<LPEvalKeyRelin<Element>>(ek->at(i));
+
+		const std::vector<Element> &b = evalKey->GetAVector();
+		const std::vector<Element> &a = evalKey->GetBVector();
+
+		//in the case of EvalMult, c[0] is initially in coefficient format and needs to be switched to evaluation format
+		digitsC2 = c[i+2].BaseDecompose(relinWindow);
+
+		for (usint i = 0; i < digitsC2.size(); ++i){
+			ct0 += digitsC2[i] * b[i];
+			ct1 += digitsC2[i] * a[i];
+		}
+	}
+
+	newCiphertext->SetElements({ ct0, ct1 });
+	return newCiphertext;
 
 }
 

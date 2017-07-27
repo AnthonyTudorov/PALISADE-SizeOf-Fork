@@ -514,7 +514,7 @@ namespace lbcrypto {
 		* @param *newCiphertext the new resulting ciphertext.
 		*/
 		shared_ptr<Ciphertext<Element>> EvalMultAndRelinearize(const shared_ptr<Ciphertext<Element>> ct1,
-			const shared_ptr<Ciphertext<Element>> ct, const shared_ptr<vector<LPEvalKey<Element>>> ek) const;
+			const shared_ptr<Ciphertext<Element>> ct, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> ek) const;
 
 		/**
 		* Function for homomorphic negation of ciphertexts.
