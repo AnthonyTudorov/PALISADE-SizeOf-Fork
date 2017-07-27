@@ -1409,7 +1409,7 @@ namespace lbcrypto {
 		* @param &ek is the evaluation key to make the newCiphertext decryptable by the same secret key as that of ciphertext1 and ciphertext2.
 		* @param *newCiphertext the new resulting ciphertext.
 		*/
-		virtual	shared_ptr<vector<LPEvalKey<Element>>> EvalMultKeysGen(
+		virtual	shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> EvalMultKeysGen(
 			const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const = 0;
 
 		/**
@@ -2225,7 +2225,7 @@ namespace lbcrypto {
 				}
 		}
 		
-		shared_ptr<vector<LPEvalKey<Element>>> EvalMultKeysGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const {
+		shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> EvalMultKeysGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const {
 				if(this->m_algorithmSHE)
 					return this->m_algorithmSHE->EvalMultKeysGen(originalPrivateKey);
 				else {

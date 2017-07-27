@@ -691,7 +691,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		* @param &newPrivateKey private key for the new ciphertext.
 		* @param *keySwitchHint the key switch hint.
 		*/
-		shared_ptr<vector<LPEvalKey<Element>>> EvalMultKeysGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const {
+		shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> EvalMultKeysGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const {
 				std::string errMsg = "LPAlgorithmSHENULL::EvalMultKeysGen is not implemented for NULL SHE Scheme.";
 				throw std::runtime_error(errMsg);
 			}

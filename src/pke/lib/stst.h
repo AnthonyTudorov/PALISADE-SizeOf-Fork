@@ -350,7 +350,7 @@ public:
 	* @param originalPrivateKey private key to start from when key switching.
 	* @return resulting evalkeyswitch hint
 	*/
-	shared_ptr<vector<LPEvalKey<Element>>> EvalMultKeysGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const {
+	shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> EvalMultKeysGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const {
 		std::string errMsg = "LPAlgorithmStSt::EvalMultKeysGen is not implemented for the Stehle-Steinfeld Scheme.";
 		throw std::runtime_error(errMsg);
 	}

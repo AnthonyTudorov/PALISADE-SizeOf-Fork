@@ -795,17 +795,28 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmSHEFV<Element>::EvalMultKeyGen(
 }
 
 template <class Element>
-shared_ptr<vector<LPEvalKey<Element>>> LPAlgorithmSHEFV<Element>::EvalMultKeysGen(
+shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> LPAlgorithmSHEFV<Element>::EvalMultKeysGen(
 			const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const
 {
 
-	shared_ptr<LPPrivateKey<Element>> originalPrivateKeySquared = std::shared_ptr<LPPrivateKey<Element>>(new LPPrivateKey<Element>(originalPrivateKey->GetCryptoContext()));
+	shared_ptr<LPPrivateKey<Element>> originalPrivateKeyPowered = std::shared_ptr<LPPrivateKey<Element>>(new LPPrivateKey<Element>(originalPrivateKey->GetCryptoContext()));
 
-	Element sSquare(originalPrivateKey->GetPrivateElement()*originalPrivateKey->GetPrivateElement());
+	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParamsLWE = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(originalPrivateKey->GetCryptoParameters());
 
-	originalPrivateKeySquared->SetPrivateElement(std::move(sSquare));
+	shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> evalMultKeys (new vector<shared_ptr<LPEvalKey<Element>>>);
 
-	return 0;//this->KeySwitchGen(originalPrivateKeySquared, originalPrivateKey);
+	Element sPower(originalPrivateKey->GetPrivateElement());
+
+	for(size_t i=0; i<cryptoParamsLWE->GetMaxDepth(); i++){
+		sPower*=originalPrivateKey->GetPrivateElement();
+
+		originalPrivateKeyPowered->SetPrivateElement(std::move(sPower));
+
+		shared_ptr<LPEvalKey<Element>> ek = this->KeySwitchGen(originalPrivateKeyPowered, originalPrivateKey);
+		evalMultKeys->push_back(ek);
+	}
+
+	return evalMultKeys;
 
 }
 

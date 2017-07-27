@@ -587,7 +587,7 @@ namespace lbcrypto {
 		* @param k1 private key.
 		* @return evaluation key.
 		*/
-		shared_ptr<vector<LPEvalKey<Element>>> EvalMultKeysGen(
+		shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> EvalMultKeysGen(
 					const shared_ptr<LPPrivateKey<Element>> k1) const;
 
 		/**
