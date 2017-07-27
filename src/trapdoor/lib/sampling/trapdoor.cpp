@@ -103,9 +103,9 @@ namespace lbcrypto {
 		//double s = 42 * std::sqrt(n*k);
 
 		//perturbation vector in evaluation representation
-		RingMat pHat(zero_alloc, k + 2, 1);
+		shared_ptr<RingMat> pHat(new RingMat(zero_alloc, k + 2, 1));
 
-		ZSampleSigmaP(n, s, c, T, dgg, dggLargeSigma, &pHat);
+		ZSampleSigmaP(n, s, c, T, dgg, dggLargeSigma, pHat);
 
 		//pHat.SwitchFormat();
 
@@ -118,7 +118,7 @@ namespace lbcrypto {
 
 		// YSP It is assumed that A has dimension 1 x (k + 2) and pHat has the dimension of (k + 2) x 1
 		// perturbedSyndrome is in the evaluation representation
-		Poly perturbedSyndrome = u - (A.Mult(pHat))(0, 0);
+		Poly perturbedSyndrome = u - (A.Mult(*pHat))(0, 0);
 
 		//Matrix<BigInteger> zHatBBI(BigInteger::Allocator, k, n);
 		Matrix<int32_t> zHatBBI([]() { return make_unique<int32_t>(); }, k, n);
@@ -136,11 +136,11 @@ namespace lbcrypto {
 
 		RingMat zHatPrime(zero_alloc, k + 2, 1);
 
-		zHatPrime(0, 0) = pHat(0, 0) + T.m_e.Mult(zHat)(0, 0);
-		zHatPrime(1, 0) = pHat(1, 0) + T.m_r.Mult(zHat)(0, 0);
+		zHatPrime(0, 0) = (*pHat)(0, 0) + T.m_e.Mult(zHat)(0, 0);
+		zHatPrime(1, 0) = (*pHat)(1, 0) + T.m_r.Mult(zHat)(0, 0);
 
 		for (size_t row = 2; row < k + 2; ++row)
-			zHatPrime(row, 0) = pHat(row, 0) + zHat(row - 2, 0);
+			zHatPrime(row, 0) = (*pHat)(row, 0) + zHat(row - 2, 0);
 
 		//This code is helpful in tightening parameter constraints
 
@@ -189,10 +189,31 @@ namespace lbcrypto {
 
 	}
 
+	shared_ptr<RingMat> RLWETrapdoorUtility::GaussSampOffline(size_t n, size_t k,
+		const RLWETrapdoorPair<Poly>& T, Poly::DggType &dgg, Poly::DggType &dggLargeSigma,
+		int32_t base) {
+
+		const shared_ptr<ILParams> params = T.m_e(0, 0).GetParams();
+		auto zero_alloc = Poly::MakeAllocator(params, EVALUATION);
+
+		double c = (base + 1) * SIGMA;
+
+		//spectral bound s
+		double s = SPECTRAL_BOUND(n, k, base);
+
+		//perturbation vector in evaluation representation
+		shared_ptr<RingMat> result(new RingMat(zero_alloc, k + 2, 1));
+
+		ZSampleSigmaP(n, s, c, T, dgg, dggLargeSigma, result);
+
+		return result;
+
+	}
+
 	void RLWETrapdoorUtility::ZSampleSigmaP(size_t n, double s, double sigma,
 		const RLWETrapdoorPair<Poly>& Tprime,
 		const Poly::DggType &dgg, const Poly::DggType &dggLargeSigma,
-		RingMat *perturbationVector) {
+		shared_ptr<RingMat> perturbationVector) {
 
 		Matrix<Poly> Tprime0 = Tprime.m_e;
 		Matrix<Poly> Tprime1 = Tprime.m_r;

@@ -403,7 +403,7 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 	auto zero_alloc = Poly::MakeAllocator(params, EVALUATION);
 
 	//Do perturbation sampling
-	RingMat pHat(zero_alloc, k + 2, 1);
+	shared_ptr<RingMat> pHat(new RingMat(zero_alloc, k + 2, 1));
 
 	Matrix<int32_t> p([]() { return make_unique<int32_t>(); }, (2 + k)*n, 1);
 
@@ -420,14 +420,14 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 	size_t count = 100;
 
 	for (size_t i = 0; i < count; i++) {
-		RLWETrapdoorUtility::ZSampleSigmaP(n, s, c, trapPair.second, dgg, dggLargeSigma, &pHat);
+		RLWETrapdoorUtility::ZSampleSigmaP(n, s, c, trapPair.second, dgg, dggLargeSigma, pHat);
 
 		//convert to coefficient representation
-		pHat.SwitchFormat();
+		pHat->SwitchFormat();
 
 		for (size_t j = 0; j < n; j++) {
-			bbiTrapdoor(j, 0) = pHat(0, 0).GetValues().GetValAtIndex(j);
-			bbiTrapdoor(j+n, 0) = pHat(1, 0).GetValues().GetValAtIndex(j);
+			bbiTrapdoor(j, 0) = (*pHat)(0, 0).GetValues().GetValAtIndex(j);
+			bbiTrapdoor(j+n, 0) = (*pHat)(1, 0).GetValues().GetValAtIndex(j);
 		}
 
 		pTrapdoor = ConvertToInt32(bbiTrapdoor, modulus);
