@@ -38,6 +38,7 @@ bool LPPublicKey<Element>::Serialize(Serialized *serObj) const {
 	}
 
 	serObj->AddMember("Object", "PublicKey", serObj->GetAllocator());
+	serObj->AddMember("SUID", this->GetKeyID(), serObj->GetAllocator());
 	SerializeVector<Element>("Vectors", Element::GetElementName(), this->GetPublicElements(), serObj);
 
 	return true;
@@ -49,6 +50,10 @@ bool LPPublicKey<Element>::Deserialize(const Serialized &serObj) {
 	Serialized::ConstMemberIterator mIt = serObj.FindMember("Object");
 	if( mIt == serObj.MemberEnd() || string(mIt->value.GetString()) != "PublicKey" )
 		return false;
+
+	mIt = serObj.FindMember("SUID");
+	if( mIt != serObj.MemberEnd() )
+		this->SetKeyID( mIt->value.GetString() );
 
 	mIt = serObj.FindMember("Vectors");
 
@@ -72,6 +77,7 @@ static bool EvalKeyRelinSerializer(const LPEvalKeyRelin<Element> *item, Serializ
 	}
 
 	serObj->AddMember("Object", "EvalKeyRelin", serObj->GetAllocator());
+	serObj->AddMember("SUID", item->GetKeyID(), serObj->GetAllocator());
 	SerializeVector<Element>("AVector", Element::GetElementName(), item->GetAVector(), serObj);
 	SerializeVector<Element>("BVector", Element::GetElementName(), item->GetBVector(), serObj);
 
@@ -94,6 +100,10 @@ bool LPEvalKeyRelin<Element>::Deserialize(const Serialized &serObj) {
 	Serialized::ConstMemberIterator mIt = serObj.FindMember("Object");
 	if( mIt == serObj.MemberEnd() || string(mIt->value.GetString()) != "EvalKeyRelin" )
 		return false;
+
+	mIt = serObj.FindMember("SUID");
+	if( mIt != serObj.MemberEnd() )
+		this->SetKeyID( mIt->value.GetString() );
 
 	mIt = serObj.FindMember("AVector");
 
@@ -130,6 +140,7 @@ static bool EvalKeyNTRUSerializer(const LPEvalKeyNTRU<Element> *item, Serialized
 	}
 
 	serObj->AddMember("Object", "EvalKeyNTRU", serObj->GetAllocator());
+	serObj->AddMember("SUID", item->GetKeyID(), serObj->GetAllocator());
 
 	const Element& pe = item->GetA();
 
@@ -156,6 +167,10 @@ bool LPEvalKeyNTRU<Element>::Deserialize(const Serialized &serObj) {
 	if( mIt == serObj.MemberEnd() || string(mIt->value.GetString()) != "EvalKeyNTRU" )
 		return false;
 
+	mIt = serObj.FindMember("SUID");
+	if( mIt != serObj.MemberEnd() )
+		this->SetKeyID( mIt->value.GetString() );
+
 	Element pe;
 
 	if( !pe.Deserialize(serObj) ) {
@@ -178,6 +193,7 @@ static bool EvalKeyNTRURelinSerializer(const LPEvalKeyNTRURelin<Element> *item, 
 	}
 
 	serObj->AddMember("Object", "EvalKeyNTRURelin", serObj->GetAllocator());
+	serObj->AddMember("SUID", item->GetKeyID(), serObj->GetAllocator());
 	SerializeVector<Element>("Vectors", Element::GetElementName(), item->GetAVector(), serObj);
 
 	return true;
@@ -199,20 +215,57 @@ bool LPEvalKeyNTRURelin<Element>::Deserialize(const Serialized &serObj) {
 	if( mIt == serObj.MemberEnd() || string(mIt->value.GetString()) != "EvalKeyNTRURelin" )
 		return false;
 
-	SerialItem::ConstMemberIterator it = serObj.FindMember("Vectors");
+	mIt = serObj.FindMember("SUID");
+	if( mIt != serObj.MemberEnd() )
+		this->SetKeyID( mIt->value.GetString() );
 
-	if( it == serObj.MemberEnd() ) {
+	mIt = serObj.FindMember("Vectors");
+
+	if( mIt == serObj.MemberEnd() ) {
 		return false;
 	}
 
 	std::vector<Element> newElements;
-	if( DeserializeVector<Element>("Vectors", Element::GetElementName(), it, &newElements) ) {
+	if( DeserializeVector<Element>("Vectors", Element::GetElementName(), mIt, &newElements) ) {
 		this->SetAVector(newElements);
 		return true;
 	}
 
 	return false;
 }
+
+template<typename Element>
+bool LPPrivateKey<Element>::Serialize(Serialized *serObj) const {
+
+	serObj->SetObject();
+
+	if (!this->context->Serialize(serObj))
+		return false;
+
+	serObj->AddMember("Object", "PrivateKey", serObj->GetAllocator());
+	serObj->AddMember("SUID", this->GetKeyID(), serObj->GetAllocator());
+	return this->GetPrivateElement().Serialize(serObj);
+}
+
+template<typename Element>
+bool LPPrivateKey<Element>::Deserialize(const Serialized &serObj) {
+	Serialized::ConstMemberIterator mIt = serObj.FindMember("Object");
+	if( mIt == serObj.MemberEnd() || string(mIt->value.GetString()) != "PrivateKey" )
+		return false;
+
+	mIt = serObj.FindMember("SUID");
+	if( mIt != serObj.MemberEnd() )
+		this->SetKeyID( mIt->value.GetString() );
+
+	Element json_ilElement;
+	if (json_ilElement.Deserialize(serObj)) {
+		this->SetPrivateElement(json_ilElement);
+		return true;
+	}
+	return false;
+
+}
+
 
 
 }

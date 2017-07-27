@@ -261,11 +261,13 @@ CryptoContextFactory<Element>::GetContext(
 		if( *cc->GetEncryptionAlgorithm().get() == *scheme.get() &&
 				*cc->GetCryptoParameters().get() == *params.get()
 		) {
+			std::cout << "*** USING EXISTING CONTEXT:" << *cc->GetCryptoParameters() << std::endl;
 			return cc;
 		}
 	}
 
 	shared_ptr<CryptoContext<Element>> cc(new CryptoContext<Element>(params,scheme));
+	std::cout << "*** CREATED NEW CONTEXT:" << *cc->GetCryptoParameters() << std::endl;
 	AllContexts.push_back(cc);
 	return cc;
 }

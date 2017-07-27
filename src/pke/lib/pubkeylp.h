@@ -29,6 +29,7 @@
 
 //Includes Section
 #include <vector>
+#include <iomanip>
 #include "lattice/elemparams.h"
 #include "lattice/ilparams.h"
 #include "lattice/ildcrtparams.h"
@@ -112,19 +113,18 @@ namespace lbcrypto {
 	 *
 	 * @tparam Element a ring element.
 	 */
-	// FIXME: serialize
 	template <class Element>
 	class LPKey : public CryptoObject<Element>, public Serializable {
 	protected:
-		string	skDigest;	// sha256 of secret key Element serialization
+		string	skUniqueID;	// unique id for secret key
 
 	public:
-		LPKey(shared_ptr<CryptoContext<Element>> cc) : CryptoObject<Element>(cc) {}
+		LPKey(shared_ptr<CryptoContext<Element>> cc, const string& id = "") : CryptoObject<Element>(cc), skUniqueID(id) {}
 
 		virtual ~LPKey() {}
 
-		void SetDigest(const string& sha) { skDigest = sha; }
-		string GetDigest() const { return skDigest; }
+		void SetKeyID(const string& id) { skUniqueID = id; }
+		string GetKeyID() const { return skUniqueID; }
 	};
 
 	/**
@@ -244,6 +244,9 @@ namespace lbcrypto {
 
 			bool operator==(const LPPublicKey& other) const {
 				if( *this->GetCryptoParameters() != *other.GetCryptoParameters() )
+					return false;
+
+				if( this->GetKeyID() != other.GetKeyID() )
 					return false;
 
 				if( m_h.size() != other.m_h.size() )
@@ -530,6 +533,9 @@ namespace lbcrypto {
 			const LPEvalKeyRelin<Element> &oth = dynamic_cast<const LPEvalKeyRelin<Element> &>(other);
 
 			if( *this->GetCryptoParameters() != *oth.GetCryptoParameters() ) return false;
+			if( this->GetKeyID() != other.GetKeyID() )
+				return false;
+
 			if( this->m_rKey.size() != oth.m_rKey.size() ) return false;
 			for( size_t i=0; i<this->m_rKey.size(); i++ ) {
 				if( this->m_rKey[i].size() != oth.m_rKey[i].size() ) return false;
@@ -663,6 +669,9 @@ namespace lbcrypto {
 			const LPEvalKeyNTRURelin<Element> &oth = dynamic_cast<const LPEvalKeyNTRURelin<Element> &>(other);
 
 			if( *this->GetCryptoParameters() != *oth.GetCryptoParameters() ) return false;
+			if( this->GetKeyID() != other.GetKeyID() )
+				return false;
+
 			if( this->m_rKey.size() != oth.m_rKey.size() ) return false;
 			for( size_t i=0; i<this->m_rKey.size(); i++ ) {
 				if( this->m_rKey[i] != oth.m_rKey[i] )
@@ -793,9 +802,15 @@ namespace lbcrypto {
 		bool key_compare(const LPEvalKey<Element>& other) const {
 			const LPEvalKeyNTRU<Element> &oth = dynamic_cast<const LPEvalKeyNTRU<Element> &>(other);
 
-			if( *this->GetCryptoParameters() != *oth.GetCryptoParameters() ) return false;
+			if( *this->GetCryptoParameters() != *oth.GetCryptoParameters() )
+				return false;
+
+			if( this->GetKeyID() != other.GetKeyID() )
+				return false;
+
 			if( this->m_Key != oth.m_Key )
 				return false;
+
 			return true;
 		}
 
@@ -820,21 +835,13 @@ namespace lbcrypto {
 		* Construct in context
 		*/
 
-		LPPrivateKey(CryptoContext<Element>* cc) : LPKey<Element>(cc) {}
-
-		/**
-		* Construct in context
-		*/
-
-		LPPrivateKey(shared_ptr<CryptoContext<Element>> cc) : LPKey<Element>(cc) {}
+		LPPrivateKey(shared_ptr<CryptoContext<Element>> cc) : LPKey<Element>(cc, GenerateUniqueKeyID()) {}
 
 		/**
 		* Copy constructor
 		*@param &rhs the LPPrivateKey to copy from
 		*/
-		explicit LPPrivateKey(const LPPrivateKey<Element> &rhs) {
-			this->context = rhs.context;
-			this->skDigest = rhs.skDigest;
+		explicit LPPrivateKey(const LPPrivateKey<Element> &rhs) : LPKey<Element>(rhs.context, rhs.skUniqueID) {
 			this->m_sk = rhs.m_sk;
 		}
 
@@ -842,10 +849,9 @@ namespace lbcrypto {
 		* Move constructor
 		*@param &rhs the LPPrivateKey to move from
 		*/
-		explicit LPPrivateKey(LPPrivateKey<Element> &&rhs) {
-			this->context = rhs.context;
+		explicit LPPrivateKey(LPPrivateKey<Element> &&rhs) : LPKey<Element>(rhs.context, rhs.skUniqueID) {
 			rhs.context = 0;
-			this->skDigest = std::move(rhs.skDigest);
+			this->skUniqueID = "";
 			this->m_sk = std::move(rhs.m_sk);
 		}
 
@@ -857,7 +863,7 @@ namespace lbcrypto {
 		*/
 		const LPPrivateKey<Element>& operator=(const LPPrivateKey<Element> &rhs) {
 			this->context = rhs.context;
-			this->skDigest = rhs.skDigest;
+			this->skUniqueID = rhs.skUniqueID;
 			this->m_sk = rhs.m_sk;
 			return *this;
 		}
@@ -871,7 +877,7 @@ namespace lbcrypto {
 		const LPPrivateKey<Element>& operator=(LPPrivateKey<Element> &&rhs) {
 			this->context = rhs.context;
 			rhs.context = 0;
-			this->skDigest = std::move(rhs.skDigest);
+			this->skUniqueID = std::move(rhs.skUniqueID);
 			this->m_sk = std::move(rhs.m_sk);
 			return *this;
 		}
@@ -888,7 +894,6 @@ namespace lbcrypto {
 		*/
 		void SetPrivateElement(const Element &x) {
 			m_sk = x;
-			CreateKeyDigest();
 		}
 
 		/**
@@ -897,56 +902,43 @@ namespace lbcrypto {
 		*/
 		void SetPrivateElement(Element &&x) {
 			m_sk = std::move(x);
-			CreateKeyDigest();
 		}
 
-		bool Serialize(Serialized *serObj) const {
-
-			serObj->SetObject();
-
-			if (!this->context->Serialize(serObj))
-				return false;
-
-			serObj->AddMember("Object", "PrivateKey", serObj->GetAllocator());
-			return this->GetPrivateElement().Serialize(serObj);
-		}
+		/**
+		* Serialize the object into a Serialized
+		* @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+		* @return true if successfully serialized
+		*/
+		bool Serialize(Serialized *serObj) const;
 
 		/**
 		* Populate the object from the deserialization of the Setialized
 		* @param &serObj contains the serialized object
 		* @return true on success
 		*/
-		bool Deserialize(const Serialized &serObj) { 
-			Serialized::ConstMemberIterator mIt = serObj.FindMember("Object");
-			if( mIt == serObj.MemberEnd() || string(mIt->value.GetString()) != "PrivateKey" )
-				return false;
-
-			Element json_ilElement;
-			if (json_ilElement.Deserialize(serObj)) {
-				this->SetPrivateElement(json_ilElement);
-				return true;
-			}
-			return false;
-
-		}
+		bool Deserialize(const Serialized &serObj);
 
 		bool operator==(const LPPrivateKey& other) const {
-			if( *this->GetCryptoParameters() != *other.GetCryptoParameters() )
-				return false;
-
-			return m_sk == other.m_sk;
+			return *this->GetCryptoParameters() == *other.GetCryptoParameters() &&
+					this->GetKeyID() == other.GetKeyID() &&
+					m_sk == other.m_sk;
 		}
 		bool operator!=(const LPPrivateKey& other) const { return ! (*this == other); }
 
 	private:
-		void CreateKeyDigest() {
-			Serialized ser(rapidjson::kObjectType);
-			if( m_sk.Serialize(&ser) == false )
-				throw std::logic_error("Could not serialize element and create digest");
-			string sser;
-			SerializableHelper::SerializationToString(ser, sser);
-			this->SetDigest( HashUtil::HashString(sser) );
+
+		static const size_t intsInID = 128 / (sizeof(uint32_t) * 8);
+
+		static string GenerateUniqueKeyID() {
+			std::uniform_int_distribution<uint32_t> distribution(0, std::numeric_limits<uint32_t>::max());
+			std::stringstream s;
+			s.fill('0');
+			s << std::hex;
+			for( size_t i = 0; i < intsInID; i++ )
+				s << std::setw(8) << distribution(PseudoRandomNumberGenerator::GetPRNG());
+			return s.str();
 		}
+
 		Element m_sk;
 	};
 
@@ -1770,7 +1762,6 @@ namespace lbcrypto {
 			throw std::logic_error("No DGG Available for this parameter set");
 		}
 
-		// FIXME these two ought to be protected
 		/**
 		 * Sets the reference to element params
 		 */
@@ -1950,7 +1941,7 @@ namespace lbcrypto {
 		LPKeyPair<Element> KeyGen(shared_ptr<CryptoContext<Element>> cc, bool makeSparse) {
 				if(this->m_algorithmEncryption) {
 					auto kp = this->m_algorithmEncryption->KeyGen(cc, makeSparse);
-					kp.publicKey->SetDigest( kp.secretKey->GetDigest() );
+					kp.publicKey->SetKeyID( kp.secretKey->GetKeyID() );
 					return kp;
 				}
 				else {
@@ -1963,9 +1954,11 @@ namespace lbcrypto {
 		//
 
 		shared_ptr<LPEvalKey<Element>> ReKeyGen(const shared_ptr<LPPublicKey<Element>> newKey, const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const{
-				if(this->m_algorithmPRE)
-					return this->m_algorithmPRE->ReKeyGen(newKey,origPrivateKey);
-				else {
+				if(this->m_algorithmPRE) {
+					auto rk = this->m_algorithmPRE->ReKeyGen(newKey,origPrivateKey);
+					rk->SetKeyID( newKey->GetKeyID() );
+					return rk;
+				} else {
 					throw std::logic_error("ReKeyGen operation has not been enabled");
 				}
 		}
@@ -1973,7 +1966,7 @@ namespace lbcrypto {
 
 		shared_ptr<LPEvalKey<Element>> ReKeyGen(const shared_ptr<LPPrivateKey<Element>> newKey, const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const {
 			if (this->m_algorithmPRE)
-				return this->m_algorithmPRE->ReKeyGen(newKey, origPrivateKey);
+				return this->m_algorithmPRE->ReKeyGen(newKey,origPrivateKey);
 			else {
 				throw std::logic_error("ReKeyGen operation has not been enabled");
 			}
