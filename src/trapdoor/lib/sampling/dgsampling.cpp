@@ -247,6 +247,45 @@ namespace lbcrypto {
 		}
 		else {
 
+			Field2n f0 = f.ExtractEven();
+			Field2n f1 = f.ExtractOdd();
+
+			//converts to evaluation representation
+			f0.SwitchFormat();
+			f1.SwitchFormat();
+
+			usint n = f0.Size();
+
+			Matrix<int32_t> qZVector([]() { return make_unique<int32_t>(); },  n * 2, 1);
+
+			Matrix<Field2n> cPermuted([]() { return make_unique<Field2n>(); }, 2, 1);
+
+			cPermuted(0, 0) = c.ExtractEven();
+			cPermuted(1, 0) = c.ExtractOdd();
+
+			LatticeGaussSampUtility::ZSampleSigma2x2(f0, f1, f0, cPermuted, dgg, &qZVector);
+
+			return InversePermute(&qZVector);
+
+		}
+
+	}
+
+	//Subroutine used by ZSampleSigma2x2
+	//f is in Coefficient representation
+	//c is in Coefficient representation
+	Matrix<int32_t> LatticeGaussSampUtility::ZSampleFOld(const Field2n &f, const Field2n &c,
+		const Poly::DggType &dgg, size_t n) {
+
+		if (f.Size() == 1)
+		{
+			Matrix<int32_t> p([]() { return make_unique<int32_t>(); }, 1, 1);
+			p(0, 0) = dgg.GenerateIntegerKarney(c[0].real(), sqrt(f[0].real()));
+			//p(0, 0) = dgg.GenerateInteger(c[0].real(), sqrt(f[0].real()),n);
+			return p;
+		}
+		else {
+
 			// Here, we apply the inverse of the permutation matrix, which is the same as the transpose of the 
 			// permutation matrix since the permutation matrix is orthogonal
 			Field2n cNew(c.InversePermute());
@@ -267,7 +306,7 @@ namespace lbcrypto {
 
 			// c2 corresponds to odd coefficients
 			for (size_t i = 0; i < c2.Size(); i++) {
-				c2[i] = cNew[i+c1.Size()];
+				c2[i] = cNew[i + c1.Size()];
 			}
 
 			Matrix<int32_t> r2Int = ZSampleF(fe, c2, dgg, n);
@@ -293,13 +332,14 @@ namespace lbcrypto {
 			product2.SwitchFormat();
 
 			Matrix<int32_t> r1Int = ZSampleF(feCoeff - product2.ShiftRight(), c1, dgg, n);
-			
+
 			Matrix<int32_t> rInt = r1Int.VStack(r2Int);
 			return Permute(&rInt);
-			
+
 		}
 
 	}
+
 	Matrix<int32_t> LatticeGaussSampUtility::Permute(Matrix<int32_t> * p) {
 		int evenPtr = 0;
 		int oddPtr = p->GetRows() / 2;
@@ -315,6 +355,21 @@ namespace lbcrypto {
 			}
 		}
 		return permuted;
-	};
+	}
+
+	Matrix<int32_t> LatticeGaussSampUtility::InversePermute(Matrix<int32_t> *p)
+	{
+
+			Matrix<int32_t> invpermuted([]() { return make_unique<int32_t>(); }, p->GetRows(), 1);
+			size_t evenPtr = 0;
+			size_t oddPtr = p->GetRows() / 2;
+			for (size_t i = 0; evenPtr < p->GetRows() / 2; i += 2) {
+				invpermuted(i,0) = (*p)(evenPtr,0);
+				invpermuted(i + 1,0) = (*p)(oddPtr,0);
+				evenPtr++;
+				oddPtr++;
+			}
+			return invpermuted;
+	}
 	
 }

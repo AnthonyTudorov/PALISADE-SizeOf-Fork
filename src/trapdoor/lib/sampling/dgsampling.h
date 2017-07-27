@@ -115,6 +115,17 @@ public:
 	* @param dgg discrete Gaussian generator
 	* @param n ring dimension used for rejection sampling
 	*/
+	static inline Matrix<int32_t> ZSampleFOld(const Field2n &f, const Field2n &c,
+		const Poly::DggType &dgg, size_t n);
+
+	/**
+	* Subroutine used by ZSampleSigma2x2
+	*
+	* @param f field element in Coefficient format
+	* @param c field element in Coefficient format
+	* @param dgg discrete Gaussian generator
+	* @param n ring dimension used for rejection sampling
+	*/
 	static inline Matrix<int32_t> ZSampleF(const Field2n &f, const Field2n &c,
 		const Poly::DggType &dgg, size_t n);
 
@@ -131,8 +142,12 @@ private:
 		double sigma, Poly::DggType &dgg, Matrix<double> *a, vector<int32_t> *z);
 
 	//subroutine used by ZSampleF
-	//Algorithm utilizes the same permutation algorithm discussed in the GM17 paper
-	  static inline Matrix<int32_t> Permute(Matrix<int32_t> * p);
+	//Algorithm utilizes the same permutation algorithm as discussed in the GM17 paper
+	static inline Matrix<int32_t> Permute(Matrix<int32_t> *p);
+
+	//subroutine used by ZSampleF
+	//Algorithm utilizes the same inverse permutation algorithm as discussed in the GM17 paper
+	static inline Matrix<int32_t> InversePermute(Matrix<int32_t> *p);
 
 };
 
