@@ -556,10 +556,6 @@ TEST(UTABE, kp_abe_nandgate_base_32) {
 	UnitTesKPABENANDGATE(32,51,2048);
 }
 
-TEST(UTABE, ibe_base_16) {
-	UnitTestIBE(16,34,1024);
-}
-
 TEST(UTABE, ibe_base_32) {
 	UnitTestIBE(32,34,1024);
 }
