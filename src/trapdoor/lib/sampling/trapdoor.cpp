@@ -91,16 +91,12 @@ namespace lbcrypto {
 		const shared_ptr<ILParams> params = u.GetParams();
 		auto zero_alloc = Poly::MakeAllocator(params, EVALUATION);
 
-		//We should convert this to a static variable later
-		//double c(2 * sqrt(log(2 * n*(1 + 1 / DG_ERROR)) / M_PI));
-
 		double c = (base + 1) * SIGMA;
 
 		const BigInteger& modulus = A(0, 0).GetModulus();
 
 		//spectral bound s
 		double s = SPECTRAL_BOUND(n,k,base);
-		//double s = 42 * std::sqrt(n*k);
 
 		//perturbation vector in evaluation representation
 		shared_ptr<RingMat> pHat(new RingMat(zero_alloc, k + 2, 1));
@@ -120,7 +116,6 @@ namespace lbcrypto {
 		// perturbedSyndrome is in the evaluation representation
 		Poly perturbedSyndrome = u - (A.Mult(*pHat))(0, 0);
 
-		//Matrix<BigInteger> zHatBBI(BigInteger::Allocator, k, n);
 		Matrix<int32_t> zHatBBI([]() { return make_unique<int32_t>(); }, k, n);
 
 		// converting perturbed syndrome to coefficient representation
@@ -204,7 +199,6 @@ namespace lbcrypto {
 		// perturbedSyndrome is in the evaluation representation
 		Poly perturbedSyndrome = u - (A.Mult(*pHat))(0, 0);
 
-		//Matrix<BigInteger> zHatBBI(BigInteger::Allocator, k, n);
 		Matrix<int32_t> zHatBBI([]() { return make_unique<int32_t>(); }, k, n);
 
 		// converting perturbed syndrome to coefficient representation
@@ -312,7 +306,6 @@ namespace lbcrypto {
 		//}
 
 		//Peikert's inversion method is used
-		//YSP replace with smart pointers later
 		std::shared_ptr<sint> dggVector = dggLargeSigma.GenerateIntVector(n*k);
 
 		for (size_t i = 0; i < n * k; i++) {

@@ -80,7 +80,7 @@ namespace lbcrypto {
 
 	// Gaussian sampling from lattice for gagdet matrix G and syndrome u and ARBITRARY MODULUS q - Improved algorithm
 	// Algorithm was provided in a personal communication by Daniele Micciancio
-	// It will be published in GM17 (EuroCrypt)
+	// It will be published in GM17
 
 	void LatticeGaussSampUtility::GaussSampGq(const Poly &u, double stddev, size_t k, const BigInteger &q, int32_t base,
 		Poly::DggType &dgg, Matrix<int32_t> *z)
@@ -169,7 +169,7 @@ namespace lbcrypto {
 
 	}
 
-	// subroutine used by GaussSampGqV2
+	// subroutine used by GaussSampGq
 	// Algorithm was provided in a personal communication by Daniele Micciancio
 	// It will be published in GM17 (EuroCrypt)
 
