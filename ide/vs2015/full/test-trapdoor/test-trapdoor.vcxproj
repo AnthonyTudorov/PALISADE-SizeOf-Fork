@@ -155,6 +155,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\src\trapdoor\unittest\Main_TestAll.cpp" />
+    <ClCompile Include="..\..\..\..\src\trapdoor\unittest\UnitTestABE.cpp" />
     <ClCompile Include="..\..\..\..\src\trapdoor\unittest\UnitTestSignatureGPV.cpp" />
     <ClCompile Include="..\..\..\..\src\trapdoor\unittest\UnitTestTrapdoor.cpp" />
     <ClCompile Include="..\..\..\..\test\include\gtest\gtest-all.cc" />

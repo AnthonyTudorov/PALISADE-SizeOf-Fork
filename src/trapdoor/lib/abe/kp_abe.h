@@ -56,23 +56,6 @@
  */
 namespace lbcrypto {
 
-	/**
- 	* Bit decomposition based on binary non-adjacent representation of integers
-	* Limits noise growth
-	* Temporarily here; but can be made a part of RingMat class
-	*
-	* @param ilParams parameter set
-	* @param k bit size of modulus
-	* @param *publicElementB is a matrix where each column corresponds to the public vector of each attribute
-	* @param *psi bit decomposition of publicElementB
-	*/
-	int polyVec2NAFDecom(
-			const shared_ptr<ILParams> ilParams,
-			int k,
-			const RingMat &pubElemB,
-			RingMat *psi
-		);
-
     /**
     * Setup function for Private Key Generator (PKG)
     * Digit decomposition using higher bases with balanced representation
@@ -82,10 +65,10 @@ namespace lbcrypto {
     * @param ilParams parameter set
     * @param base is a power of two
     * @param k bit size of modulus
-    * @param *publicElementB is a matrix where each column corresponds to the public vector of each attribute
-	* @param *psi bit decomposition of publicElementB
+    * @param &matrix to be decomposed
+	* @param *psi decomposed matrix
     */
-	int polyVec2BalDecom(
+	int PolyVec2BalDecom(
 			const shared_ptr<ILParams> ilParams,
 			int32_t base,
 			int k,
@@ -182,74 +165,75 @@ public:
 	*
 	* @param ilParams parameter set
 	* @param &pubElemB0
+	* @param &origPubElem original matrix of public vectors for each attribute
+	* @param *evalPubElem evaluated value of public element
+	*/
+	/*
+	 * This is method for evaluating a single NAND gate
+	 */
+	void NANDGateEvalPK(
+		    const shared_ptr<ILParams> ilParams,
+		    const RingMat &pubElemB0,
+		    const RingMat &origPubElem,
+		    RingMat *evalPubElem
+	    );
+
+
+	/**
+	* Evaluation of a single NAND gate
+	* NAND gate is universal,
+	* any Boolean function can be constructed from NAND gates
+	*
+	* @param ilParams parameter set
 	* @param &ctC0
 	* @param x[] array of attributes
-	* @param &origPubElementB original matrix of public vectors for each attribute
+	* @param &origPubElem original matrix of public vectors for each attribute
 	* @param &origCT original ciphertext
 	* @param *evalAttribute evaluated value of circuit
-	* @param *evalPubElementBf evaluated value of public element
 	* @param *evalCT evaluated ciphertext value
 	*/
-	void NANDGateEval(
-			const shared_ptr<ILParams> ilParams,
-			const RingMat &pubElemB0, //TBA
-			const RingMat &ctC0, //TBA
-			const usint x[2],
-			const RingMat &origPubElemB,
-			const RingMat &origCT,
-			usint *evalAttribute, //attribute results
-			RingMat *evalPubElemBf,
-			RingMat *evalCT
-		);
+	/*
+	 * This is method for evaluating a single NAND gate
+	 */
+	void NANDGateEvalCT(
+		    const shared_ptr<ILParams> ilParams,
+		    const RingMat &ctC0,
+		    const usint x[],
+		    const RingMat &origPubElem,
+		    const RingMat &origCT,
+		    usint *evalAttribute,
+		    RingMat *evalCT
+ 	    );
+
 
 	/**
 	*Evaluation of simple AND Gate
 	*
 	* @param ilParams parameter set
-	* @param &B0
-	* @param &C0
-	* @param x[] array of attributes
 	* @param &origPubElementB original matrix of public vectors for each attribute
+	* @param *evalPubElementBf evaluated value of public element
+	*/
+	void ANDGateEvalPK(
+		shared_ptr<ILParams> ilParams,
+		const RingMat &origPubElemB,
+		RingMat *evalPubElemBf
+	);
+	/**
+	*Evaluation of simple AND Gate
+	*
+	* @param ilParams parameter set
+	* @param x[] array of attributes
+	* @param &origPubElemB original matrix of public vectors for each attribute
 	* @param &origCT original ciphertext
 	* @param *evalAttribute evaluated value of circuit
-	* @param *evalPubElementBf evaluated value of public element
 	* @param *evalCT evaluated ciphertext value
 	*/
-	void ANDGateEval(
+	void ANDGateEvalCT(
 			const shared_ptr<ILParams> ilParams,
 			const usint x[2], //TBA
 			const RingMat &origPubElemB,
 			const RingMat &origCT,
 			usint *evalAttribute,
-			RingMat *evalPubElem,
-			RingMat *evalCT
-		);
-
-	/**
-	* Evaluation of a single NAND gate NAF
-	* NAND with NAF gate is universal,
-	* any Boolean function can be constructed from NAND gates
-	* TO BE IMPLEMENTED
-	*
-	* @param ilParams parameter set
-	* @param &pubElemB0
-	* @param &ctC0
-	* @param x[] array of attributes
-	* @param &origPubElementB original matrix of public vectors for each attribute
-	* @param &origCT original ciphertext
-	* @param *evalAttribute evaluated value of circuit
-	* @param *evalPubElementBf evaluated value of public element
-	* @param *evalCT evaluated ciphertext value
-	*/
-	void NANDwNAF(
-			const shared_ptr<ILParams> ilParams,
-			const RingMat &pubElemB0,
-			const RingMat &ctC0,
-			const usint x[],
-			const RingMat &origPubElemB,
-			const RingMat &origCT,
-			usint *evalAttribute,
-			RingMat *evalPubElemBf,
 			RingMat *evalCT
 		);
 

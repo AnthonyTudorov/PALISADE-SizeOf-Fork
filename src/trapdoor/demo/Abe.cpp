@@ -20,7 +20,6 @@ int IBE_Test(int iter, int32_t base);
 int TestKeyGenCP(const shared_ptr<ILParams> ilParams, usint m, usint ell, const usint s[], const RingMat &a, const RingMat &pubElemBPos, const RingMat &pubElemBNeg, const Poly &pubElemU, RingMat &sk);
 int CPABE_Test(usint iter);
 
-
 int main()
 {
 
@@ -35,6 +34,18 @@ int main()
 	std::cout << "-------Start demo for IBE-------" << std::endl;
 	IBE_Test(1,16);
 	std::cout << "-------End demo for IBE-------" << std::endl << std::endl;
+
+	std::cout << "-------Start demo for KP-ABE NAND GATE TEST-------" << std::endl;
+	KPABE_NANDGateTest(1,8);
+	std::cout << "-------End demo for KP-ABE NAND GATE TEST-------" << std::endl << std::endl;
+
+	std::cout << "-------Start demo for KP-ABE AND GATE TEST-------" << std::endl;
+	KPABE_ANDGateTest(1);
+	std::cout << "-------End demo for KP-ABE AND GATE TEST-------" << std::endl << std::endl;
+
+	std::cout << "-------Start demo for KP-ABE APolicyCircuit GATE TEST-------" << std::endl;
+	KPABE_APolicyCircuitTest(1);
+	std::cout << "-------End demo for APolicyCircuit GATE TEST------" << std::endl << std::endl;
 
 	return 0;
 }
@@ -90,7 +101,7 @@ int KPABE_BenchmarkCircuitTest(usint iter, int32_t base)
 
 	// Attribute values all are set to 1 for NAND gate evaluation
 	usint *x = new usint[ell+1];
-	x[0] = 1;
+
 	usint found  = 0;
 	while(found == 0) {
 		for(usint i=1; i<ell+1; i++)
@@ -157,7 +168,7 @@ int KPABE_BenchmarkCircuitTest(usint iter, int32_t base)
 
 	}
 	if(failure == 0) {
-		std::cout << "Encryption is successful after " << iter << " iterations!\n";
+		std::cout << "Encryption/Decryption is successful after " << iter << " iterations!\n";
 		std::cout << "Average key generation time : " << "\t" << (avg_keygen)/iter << " ms" << std::endl;
 		std::cout << "Average evaluation time : " << "\t" << (avg_eval)/iter << " ms" << std::endl;
 		std::cout << "Average encryption time : " << "\t" << (avg_enc)/iter << " ms" << std::endl;
@@ -165,11 +176,10 @@ int KPABE_BenchmarkCircuitTest(usint iter, int32_t base)
 	}
 
 	delete[] x;
+	ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().Destroy();
 
 	return 0;
 }
-
-
 /*
  * The access policy is x1*x2+x3*x4 = (1-x1x2)*(1-x3x4)
  */
@@ -179,10 +189,11 @@ int KPABE_APolicyCircuitTest(usint iter)
 	usint n = ringDimension*2;   // cyclotomic order
 	usint k = 42;
 	usint ell = 4; // No of attributes for NAND gate
-	int32_t base = 2;
+	int32_t base = 4;
 
 	BigInteger q = BigInteger::ONE << (k-1);
-	q = lbcrypto::FirstPrime<BigInteger>(k,n);	BigInteger rootOfUnity(RootOfUnity(n, q));
+	q = lbcrypto::FirstPrime<BigInteger>(k,n);
+	BigInteger rootOfUnity(RootOfUnity(n, q));
 
 	double val = q.ConvertToDouble();
 	double logTwo = log(val-1.0)/log(base)+1.0;
@@ -211,13 +222,13 @@ int KPABE_APolicyCircuitTest(usint iter)
 
 	Poly pubElemBeta(dug, ilParams, EVALUATION);
 
-	RingMat publicElementB(zero_alloc, ell+1, m);
+	RingMat pubElemB(zero_alloc, ell+1, m);
 	RingMat ctCin(zero_alloc, ell+2, m);
 	Poly c1(dug, ilParams, EVALUATION);
 
 	KPABE pkg, sender, receiver;
 
-	pkg.Setup(ilParams, base, ell, dug, &publicElementB);
+	pkg.Setup(ilParams, base, ell, dug, &pubElemB);
 	sender.Setup(ilParams, base, ell);
 	receiver.Setup(ilParams, base, ell);
 
@@ -234,7 +245,7 @@ int KPABE_APolicyCircuitTest(usint iter)
 	RingMat tC(Poly::MakeAllocator(ilParams, EVALUATION), 1, m);
 	RingMat wB(Poly::MakeAllocator(ilParams, EVALUATION), 2, m);
 	RingMat wC(Poly::MakeAllocator(ilParams, EVALUATION), 2, m);
-	usint wx[2];
+	usint *wx = new usint[2] ;
 
 	// circuit outputs
 	RingMat evalBf(Poly::MakeAllocator(ilParams, EVALUATION), 1, m);
@@ -256,32 +267,32 @@ int KPABE_APolicyCircuitTest(usint iter)
 		// Encrypt a uniformly randomly selected message ptext (in ptext in $R_2$)
 		ptext.SetValues(bug.GenerateVector(ringDimension, q), COEFFICIENT);
 		ptext.SwitchFormat();
-		sender.Encrypt(ilParams, A.first, publicElementB, pubElemBeta, x, ptext, dgg, dug, bug, &ctCin, &c1);
-
+		sender.Encrypt(ilParams, A.first, pubElemB, pubElemBeta, x, ptext, dgg, dug, bug, &ctCin, &c1);
 		ctCA  = ctCin.ExtractRow(0);
-		auto pubElemB0 = publicElementB.ExtractRow(0);
+		auto pubElemB0 = pubElemB.ExtractRow(0);
 		auto ctC0 = ctCin.ExtractRow(1);
 
-		receiver.NANDGateEval(ilParams, pubElemB0, ctC0, &x[1], publicElementB.ExtractRows(1,2), ctCin.ExtractRows(2,3), &wx[0], &tB, &tC);
+		receiver.KPABE::NANDGateEvalPK(ilParams, pubElemB0, pubElemB.ExtractRows(1,2), &tB);
+		receiver.KPABE::NANDGateEvalCT(ilParams, ctC0, &x[1], pubElemB.ExtractRows(1,2), ctCin.ExtractRows(2,3), &wx[0], &tC);
 
 		for(usint i=0; i<m; i++) {
 			wB(0, i) = tB(0, i);
 			wC(0, i) = tC(0, i);
 		}
 
-		receiver.NANDGateEval(ilParams, pubElemB0, ctC0, &x[3], publicElementB.ExtractRows(3,4), ctCin.ExtractRows(4,5), &wx[1], &tB, &tC);
+		receiver.NANDGateEvalPK(ilParams, pubElemB0, pubElemB.ExtractRows(3,4), &tB);
+		receiver.NANDGateEvalCT(ilParams, ctC0, &x[3], pubElemB.ExtractRows(3,4), ctCin.ExtractRows(4,5), &wx[1], &tC);
 
 		for(usint i=0; i<m; i++) {
 			wB(1, i) = tB(0, i);
 			wC(1, i) = tC(0, i);
 		}
+		receiver.ANDGateEvalPK(ilParams, wB, &evalBf);
 
-		receiver.ANDGateEval(ilParams, wx, wB, wC, &y, &evalBf, &evalCf);
-
+		receiver.ANDGateEvalCT(ilParams, wx, wB, wC, &y, &evalCf);
 		pkg.KeyGen(ilParams, A.first, evalBf, pubElemBeta, A.second, dgg, &sKey);
 
 		receiver.Decrypt(ilParams, sKey, ctCA, evalCf, c1, &dtext);
-
 		ptext.SwitchFormat();
 		if(ptext != dtext) {
 			failure++;
@@ -293,7 +304,9 @@ int KPABE_APolicyCircuitTest(usint iter)
 	if(failure == 0)
 		std::cout << "Encryption is successful after " << iter << " iterations!\n";
 
+
 	delete[] x;
+	delete[] wx;
 
 	return 0;
 }
@@ -348,7 +361,7 @@ int KPABE_NANDGateTest(usint iter, int32_t base)
 	receiver.Setup(ilParams, base, ell);
 
 	// Attribute values all are set to 1 for NAND gate evaluation
-	usint *x = new usint[ell];
+	usint *x = new usint[ell+1];
 	x[0] = x[1] = x[2] = 1;
 	usint y;
 	//x[1] = 0;   // This should fail the NAND gate evaluation as now the output is 1 (should be 0 for a policy circuit)
@@ -385,9 +398,11 @@ int KPABE_NANDGateTest(usint iter, int32_t base)
 		ctCA = ctCin.ExtractRow(0);
 
 		start = currentDateTime();
-		receiver.KPABE::NANDGateEval(ilParams,
-				publicElementB.ExtractRow(0), ctCin.ExtractRow(1),
-				&x[1], publicElementB.ExtractRows(1,2), ctCin.ExtractRows(2,3), &y, &pubElemBf, &ctCf);
+
+		receiver.KPABE::NANDGateEvalPK(ilParams, publicElementB.ExtractRow(0), publicElementB.ExtractRows(1,2), &pubElemBf);
+
+		receiver.KPABE::NANDGateEvalCT(ilParams, ctCin.ExtractRow(1),
+						&x[1], publicElementB.ExtractRows(1,2), ctCin.ExtractRows(2,3), &y, &ctCf);
 		finish = currentDateTime();
 		avg_eval += (finish - start);
 
@@ -421,11 +436,11 @@ int KPABE_NANDGateTest(usint iter, int32_t base)
 
 int KPABE_ANDGateTest(usint iter)
 {
-	usint ringDimension = 1024;
+	usint ringDimension = 2048;
 	usint n = ringDimension*2;
-	usint k = 30;
-	usint ell = 2; // No of attributes for NAND gate
-	int32_t base = 2;
+	usint k = 42;
+	usint ell = 4; // No of attributes for NAND gate
+	int32_t base = 4;
 
 	BigInteger q = BigInteger::ONE << (k-1);
 	q = lbcrypto::FirstPrime<BigInteger>(k,n);
@@ -500,7 +515,10 @@ int KPABE_ANDGateTest(usint iter)
 
 		ctCA = ctCin.ExtractRow(0);
 
-		receiver.ANDGateEval(ilParams, &x[1], publicElementB.ExtractRows(1,2), ctCin.ExtractRows(2,3), &y, &pubElemBf, &ctCf);
+		receiver.ANDGateEvalPK(ilParams, publicElementB.ExtractRows(1,2), &pubElemBf);
+
+		receiver.ANDGateEvalCT(ilParams, &x[1], publicElementB.ExtractRows(1,2), ctCin.ExtractRows(2,3), &y, &ctCf);
+
 
 		pkg.KeyGen(ilParams, A.first, pubElemBf, pubElemBeta, A.second, dgg, &sk);
 
@@ -517,9 +535,9 @@ int KPABE_ANDGateTest(usint iter)
 	if(failure == 0)
 		std::cout << "Encryption is successful after " << iter << " iterations!\n";
 
+	delete x;
 	return 0;
 }
-
 
 void CheckSecretKeyKP(usint m, RingMat &a, RingMat &evalBf, RingMat &sk, Poly &pubElemBeta)
 {
@@ -536,7 +554,6 @@ void CheckSecretKeyKP(usint m, RingMat &a, RingMat &evalBf, RingMat &sk, Poly &p
 		std::cout << "Secret Key Generation Fails!\n";
 }
 
-
 usint EvalNANDTree(usint *x, usint ell)
 {
 	usint y;
@@ -551,7 +568,6 @@ usint EvalNANDTree(usint *x, usint ell)
 	}
 	return y;
 }
-
 
 int IBE_Test(int iter, int32_t base)
 {
@@ -651,11 +667,13 @@ int IBE_Test(int iter, int32_t base)
 		}
 	}
 	if(failure == 0) {
-		std::cout << "Encryption is successful after " << iter << " iterations!\n";
+		std::cout << "Encryption/Decryption is successful after " << iter << " iterations!\n";
 		std::cout << "Average key generation time : " << "\t" << (avg_keygen)/iter << " ms" << std::endl;
 		std::cout << "Average encryption time : " << "\t" << (avg_enc)/iter << " ms" << std::endl;
 		std::cout << "Average decryption time : " << "\t" << (avg_dec)/iter << " ms" << std::endl;
 	}
+
+	ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().Destroy();
 
 	return 0;
 }
@@ -715,7 +733,7 @@ int CPABE_Test(usint iter)
 	usint *s = new usint[ell];
 
 	// Access structure
-	int *w = new int[ell];
+	int *w  = new int[ell];
 
 	// Secret key for the output of the circuit
 	RingMat sk(zero_alloc, m, ell+1);
@@ -792,7 +810,7 @@ int CPABE_Test(usint iter)
 		}
 	}
 	if(failure == 0) {
-		std::cout << "Encryption is successful after " << iter << " iterations!\n";
+		std::cout << "Encryption/Decryption is successful after " << iter << " iterations!\n";
 		std::cout << "Average key generation time : " << "\t" << (avg_keygen)/iter << " ms" << std::endl;
 		std::cout << "Average encryption time : " << "\t" << (avg_enc)/iter << " ms" << std::endl;
 		std::cout << "Average decryption time : " << "\t" << (avg_dec)/iter << " ms" << std::endl;
@@ -800,6 +818,8 @@ int CPABE_Test(usint iter)
 
 	delete[] w;
 	delete[] s;
+
+	ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().Destroy();
 	return 0;
 }
 
