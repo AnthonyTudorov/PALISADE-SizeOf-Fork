@@ -115,17 +115,6 @@ public:
 	* @param dgg discrete Gaussian generator
 	* @param n ring dimension used for rejection sampling
 	*/
-	static inline Matrix<int32_t> ZSampleFOld(const Field2n &f, const Field2n &c,
-		const Poly::DggType &dgg, size_t n);
-
-	/**
-	* Subroutine used by ZSampleSigma2x2
-	*
-	* @param f field element in Coefficient format
-	* @param c field element in Coefficient format
-	* @param dgg discrete Gaussian generator
-	* @param n ring dimension used for rejection sampling
-	*/
 	static inline shared_ptr<Matrix<int32_t>> ZSampleF(const Field2n &f, const Field2n &c,
 		const Poly::DggType &dgg, size_t n);
 

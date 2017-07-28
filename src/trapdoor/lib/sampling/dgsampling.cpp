@@ -273,6 +273,63 @@ namespace lbcrypto {
 
 	}
 
+	Matrix<int32_t> LatticeGaussSampUtility::Permute(Matrix<int32_t> * p) {
+		int evenPtr = 0;
+		int oddPtr = p->GetRows() / 2;
+		Matrix<int32_t> permuted([]() { return make_unique<int32_t>(); }, p->GetRows(), 1);
+		for (usint i = 0;i < p->GetRows();i++) {
+			if (i % 2 == 0) {
+				permuted(evenPtr,0) = (*p)(i,0);
+				evenPtr++;
+			}
+			else {
+				permuted(oddPtr, 0) = (*p)(i, 0);
+				oddPtr++;
+			}
+		}
+		return permuted;
+	}
+
+	void LatticeGaussSampUtility::InversePermute(shared_ptr<Matrix<int32_t>> p)
+	{
+
+		// a vector of int32_t is used for intermediate storage because it is faster
+		// than a Matrix of unique pointers to int32_t
+
+		std::vector<int32_t> vectorPermuted(p->GetRows());
+
+		size_t evenPtr = 0;
+		size_t oddPtr = vectorPermuted.size() / 2;
+		for (size_t i = 0; evenPtr < vectorPermuted.size() / 2; i += 2) {
+			vectorPermuted[i] = (*p)(evenPtr, 0);
+			vectorPermuted[i + 1] = (*p)(oddPtr, 0);
+			evenPtr++;
+			oddPtr++;
+		}
+
+		for (size_t i = 0; i < vectorPermuted.size(); i++) {
+			(*p)(i, 0) = vectorPermuted[i];
+		}
+
+	}
+
+	// OLD CODE
+
+	//Matrix<int32_t> LatticeGaussSampUtility::InversePermute(Matrix<int32_t> *p)
+	//{
+
+	//		Matrix<int32_t> invpermuted([]() { return make_unique<int32_t>(); }, p->GetRows(), 1);
+	//		size_t evenPtr = 0;
+	//		size_t oddPtr = p->GetRows() / 2;
+	//		for (size_t i = 0; evenPtr < p->GetRows() / 2; i += 2) {
+	//			invpermuted(i,0) = (*p)(evenPtr,0);
+	//			invpermuted(i + 1,0) = (*p)(oddPtr,0);
+	//			evenPtr++;
+	//			oddPtr++;
+	//		}
+	//		return invpermuted;
+	//}
+
 	//Subroutine used by ZSampleSigma2x2
 	//f is in Coefficient representation
 	//c is in Coefficient representation
@@ -342,59 +399,4 @@ namespace lbcrypto {
 
 	//}
 
-	Matrix<int32_t> LatticeGaussSampUtility::Permute(Matrix<int32_t> * p) {
-		int evenPtr = 0;
-		int oddPtr = p->GetRows() / 2;
-		Matrix<int32_t> permuted([]() { return make_unique<int32_t>(); }, p->GetRows(), 1);
-		for (usint i = 0;i < p->GetRows();i++) {
-			if (i % 2 == 0) {
-				permuted(evenPtr,0) = (*p)(i,0);
-				evenPtr++;
-			}
-			else {
-				permuted(oddPtr, 0) = (*p)(i, 0);
-				oddPtr++;
-			}
-		}
-		return permuted;
-	}
-
-	//Matrix<int32_t> LatticeGaussSampUtility::InversePermute(Matrix<int32_t> *p)
-	//{
-
-	//		Matrix<int32_t> invpermuted([]() { return make_unique<int32_t>(); }, p->GetRows(), 1);
-	//		size_t evenPtr = 0;
-	//		size_t oddPtr = p->GetRows() / 2;
-	//		for (size_t i = 0; evenPtr < p->GetRows() / 2; i += 2) {
-	//			invpermuted(i,0) = (*p)(evenPtr,0);
-	//			invpermuted(i + 1,0) = (*p)(oddPtr,0);
-	//			evenPtr++;
-	//			oddPtr++;
-	//		}
-	//		return invpermuted;
-	//}
-
-	void LatticeGaussSampUtility::InversePermute(shared_ptr<Matrix<int32_t>> p)
-	{
-
-		// a vector of int32_t is used for intermediate storage because it is faster
-		// than a Matrix of unique pointers to int32_t
-
-		std::vector<int32_t> vectorPermuted(p->GetRows());
-
-		size_t evenPtr = 0;
-		size_t oddPtr = vectorPermuted.size() / 2;
-		for (size_t i = 0; evenPtr < vectorPermuted.size() / 2; i += 2) {
-			vectorPermuted[i] = (*p)(evenPtr, 0);
-			vectorPermuted[i + 1] = (*p)(oddPtr, 0);
-			evenPtr++;
-			oddPtr++;
-		}
-
-		for (size_t i = 0; i < vectorPermuted.size(); i++) {
-			(*p)(i, 0) = vectorPermuted[i];
-		}
-
-	}
-	
 }
