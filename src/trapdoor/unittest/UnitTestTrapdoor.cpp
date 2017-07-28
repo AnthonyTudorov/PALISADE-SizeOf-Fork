@@ -268,6 +268,67 @@ TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
   DEBUG("end tests");
 }
 
+TEST(UTTrapdoor, TrapDoorGaussGqSampTestBase4096) {
+	bool dbg_flag = false;
+	DEBUG("start tests");
+	
+	usint m = 1024;
+	usint n = m / 2;
+	BigInteger modulus("8399873");
+	BigInteger rootOfUnity("824894");
+	//BigInteger modulus("134218081");
+	//BigInteger rootOfUnity("19091337");
+	//BigInteger modulus("1048609");
+	//BigInteger rootOfUnity("389832");
+	shared_ptr<ILParams> params(new ILParams(m, modulus, rootOfUnity));
+	auto zero_alloc = Poly::MakeAllocator(params, EVALUATION);
+
+	uint32_t base = 1<<11;
+	double sigma = (base + 1)*SIGMA;
+
+	Poly::DggType dgg(SIGMA);
+	Poly::DugType dug = Poly::DugType();
+	dug.SetModulus(modulus);
+
+
+	DEBUG("1");
+	Poly u(dug, params, COEFFICIENT);
+	DEBUG("2");
+	double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
+											//YSP check logTwo computation
+	
+	usint nBits = floor(log2(modulus.ConvertToDouble() - 1.0) + 1.0);
+	usint k = ceil(nBits / log2(base));
+	
+	//double logTwo = log(val - 1.0) / log(2) + 1.0;
+	//usint k = (usint)floor(logTwo);
+
+	Matrix<int32_t> zHatBBI([]() { return make_unique<int32_t>(); }, k, m / 2);
+
+	DEBUG("3");
+	DEBUG("u " << u);
+	DEBUG("sigma " << sigma);
+	DEBUG("k " << k);
+	DEBUG("modulus " << modulus);
+
+	LatticeGaussSampUtility::GaussSampGq(u, sigma, k, modulus, base, dgg, &zHatBBI);
+
+	EXPECT_EQ(k, zHatBBI.GetRows())
+		<< "Failure testing number of rows";
+	EXPECT_EQ(u.GetLength(), zHatBBI.GetCols())
+		<< "Failure testing number of colums";
+	DEBUG("4");
+	Matrix<Poly> z = SplitInt32AltIntoPolyElements(zHatBBI, n, params);
+	z.SwitchFormat();
+
+	Poly uEst;
+	uEst = (Matrix<Poly>(zero_alloc, 1, k).GadgetVector(base)*z)(0, 0);
+	uEst.SwitchFormat();
+
+	EXPECT_EQ(u, uEst);
+	DEBUG("end tests");
+}
+
 // Test of Gaussian Sampling using the UCSD integer perturbation sampling algorithm
 TEST(UTTrapdoor, TrapDoorGaussSampTest) {
         bool dbg_flag = false;
