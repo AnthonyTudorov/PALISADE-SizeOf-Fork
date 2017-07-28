@@ -108,8 +108,8 @@ int main(int argc, char *argv[]) {
 	////////////////////////////////////////////////////////////
 
 	std::vector<uint32_t> vectorOfInts1 = {3,2,1,3,2,1,0,0,0,0,0,0};
-	std::vector<uint32_t> vectorOfInts2 = {2,0,0,0,0,0,0,0,0,0,0,0};
-	std::vector<uint32_t> vectorOfInts3 = {1,0,0,0,0,0,0,0,0,0,0,0};
+	std::vector<uint32_t> vectorOfInts2 = {3,0,0,0,0,0,0,0,0,0,0,0};
+	std::vector<uint32_t> vectorOfInts3 = {2,0,0,0,0,0,0,0,0,0,0,0};
 	IntPlaintextEncoding plaintext1(vectorOfInts1);
 	IntPlaintextEncoding plaintext2(vectorOfInts2);
 	IntPlaintextEncoding plaintext3(vectorOfInts3);
@@ -229,8 +229,11 @@ int main(int argc, char *argv[]) {
 	start = currentDateTime();
 
 	ciphertextMul12 = cryptoContext->GetEncryptionAlgorithm()->EvalMult(ciphertext1[0],ciphertext2[0]);
+//	ciphertextMul123 = cryptoContext->GetEncryptionAlgorithm()->KeySwitch(evalKeys->at(0), ciphertextMul12);//(ciphertext1[0],ciphertext2[0]);
+
 //	ciphertextMul123 = cryptoContext->GetEncryptionAlgorithm()->EvalMult(ciphertextMul12,ciphertext3[0]);
 	ciphertextMul123 = cryptoContext->GetEncryptionAlgorithm()->EvalMultAndRelinearize(ciphertextMul12, ciphertext3[0], evalKeys);
+//	ciphertextMul123 = cryptoContext->GetEncryptionAlgorithm()->EvalMultAndRelinearize(ciphertext1[0], ciphertext3[0], evalKeys);
 
 	ciphertextMulVect.push_back(ciphertextMul123);
 
@@ -239,11 +242,11 @@ int main(int argc, char *argv[]) {
 	cout << "EvalMult time: " << "\t" << diff << " ms" << endl;
 
 
-	const std::vector<Poly> &c0 = ciphertextMul12->GetElements();
-	const std::vector<Poly> &c1 = ciphertextMul123->GetElements();
+//	const std::vector<Poly> &c0 = ciphertextMul12->GetElements();
+//	const std::vector<Poly> &c1 = ciphertextMul123->GetElements();
 
 
-	std::cout << c0[0].GetFormat() << "\t" << c1[0].GetFormat() << std::endl;
+//	std::cout << c0[0].GetFormat() << "\t" << c1[0].GetFormat() << std::endl;
 
 	////////////////////////////////////////////////////////////
 	//Decryption after Accumulation Operation on Re-Encrypted Data
