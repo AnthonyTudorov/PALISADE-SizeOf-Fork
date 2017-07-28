@@ -460,7 +460,7 @@ void UnitTesKPABENANDGATE(int32_t base, usint k, usint ringDimension){
 		receiver.Setup(ilParams, base, ell);
 
 		// Attribute values all are set to 1 for NAND gate evaluation
-		usint *x = new usint[ell];
+		usint *x = new usint[ell+1];
 		x[0] = x[1] = x[2] = 1;
 		usint y;
 
