@@ -361,7 +361,7 @@ int KPABE_NANDGateTest(usint iter, int32_t base)
 	receiver.Setup(ilParams, base, ell);
 
 	// Attribute values all are set to 1 for NAND gate evaluation
-	usint *x = new usint[ell];
+	usint *x = new usint[ell+1];
 	x[0] = x[1] = x[2] = 1;
 	usint y;
 	//x[1] = 0;   // This should fail the NAND gate evaluation as now the output is 1 (should be 0 for a policy circuit)
