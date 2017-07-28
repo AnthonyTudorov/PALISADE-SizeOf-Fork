@@ -31,6 +31,9 @@
 namespace lbcrypto {
 
 template <typename Element>
+std::map<string,vector<shared_ptr<LPEvalKey<Element>>>>	CryptoContext<Element>::evalMultKeyMap;
+
+template <typename Element>
 void CryptoContext<Element>::EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> key) {
 
 	if( key == NULL || Mismatched(key->GetCryptoContext()) )
@@ -40,15 +43,17 @@ void CryptoContext<Element>::EvalMultKeyGen(const shared_ptr<LPPrivateKey<Elemen
 	if( doTiming ) start = currentDateTime();
 
 	shared_ptr<LPEvalKey<Element>> k = GetEncryptionAlgorithm()->EvalMultKeyGen(key);
-	if( evalMultKeys.size() == 0 )
-		evalMultKeys.push_back(k);
-	else
-		evalMultKeys[0] = k;
 
 	if( doTiming ) {
 		timeSamples->push_back( TimingInfo(OpEvalMultKeyGen, currentDateTime() - start) );
 	}
 
+	if( evalMultKeys.size() == 0 )
+		evalMultKeys.push_back(k);
+	else
+		evalMultKeys[0] = k;
+
+	evalMultKeyMap[ k->GetKeyID() ] = { k };
 }
 
 template <typename Element>

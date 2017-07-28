@@ -61,9 +61,11 @@ class CryptoContext : public Serializable {
 
 private:
 	shared_ptr<LPCryptoParameters<Element>>					params;			/*!< crypto parameters used for this context */
-	shared_ptr<LPPublicKeyEncryptionScheme<Element>>		scheme;			/*!< algorithm used; accesses all crypto methods */
+	shared_ptr<LPPublicKeyEncryptionScheme<Element>>			scheme;			/*!< algorithm used; accesses all crypto methods */
 	vector<shared_ptr<LPEvalKey<Element>>>					evalMultKeys;	/*!< cached evalmult keys */
-	std::map<usint, shared_ptr<LPEvalKey<Element>>>			evalSumKeys;	/*!< cached evalsum keys */
+	std::map<usint, shared_ptr<LPEvalKey<Element>>>			evalSumKeys;		/*!< cached evalsum keys */
+
+	static std::map<string,vector<shared_ptr<LPEvalKey<Element>>>>	evalMultKeyMap;	/*!< cached evalmult keys, by secret key UID */
 
 	bool doTiming;
 	vector<TimingInfo>* timeSamples;
@@ -574,6 +576,7 @@ public:
 		if( publicKey == NULL || Mismatched(publicKey->GetCryptoContext()) )
 			throw std::logic_error("key passed to Encrypt was not generated with this crypto context");
 
+		const string& keyID = publicKey->GetKeyID();
 		const BigInteger& ptm = publicKey->GetCryptoParameters()->GetPlaintextModulus();
 		size_t chunkSize = plaintext.GetChunksize(publicKey->GetCryptoContext()->GetRingDimension(), ptm);
 		size_t ptSize = plaintext.GetLength();
@@ -602,6 +605,7 @@ public:
 				break;
 			}
 
+			ciphertext->SetKeyID( keyID );
 			cipherResults.push_back(ciphertext);
 
 		}
@@ -626,6 +630,7 @@ public:
 		if( privateKey == NULL || Mismatched(privateKey->GetCryptoContext()) )
 			throw std::logic_error("key passed to Encrypt was not generated with this crypto context");
 
+		const string& keyID = privateKey->GetKeyID();
 		const BigInteger& ptm = privateKey->GetCryptoParameters()->GetPlaintextModulus();
 		size_t chunkSize = plaintext.GetChunksize(privateKey->GetCryptoContext()->GetRingDimension(), ptm);
 		size_t ptSize = plaintext.GetLength();
@@ -654,6 +659,7 @@ public:
 				break;
 			}
 
+			ciphertext->SetKeyID( keyID );
 			cipherResults.push_back(ciphertext);
 
 		}
@@ -689,6 +695,7 @@ public:
 		if (publicKey == NULL || Mismatched(publicKey->GetCryptoContext()) )
 			throw std::logic_error("key passed to EncryptMatrix was not generated with this crypto context");
 
+		const string& keyID = publicKey->GetKeyID();
 		const BigInteger& ptm = publicKey->GetCryptoParameters()->GetPlaintextModulus();
 
 		double start = 0;
@@ -702,6 +709,7 @@ public:
 
 				shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, pt, doEncryption);
 
+				ciphertext->SetKeyID( keyID );
 				(*cipherResults)(row, col).SetNumerator(*ciphertext);
 			}
 		}
@@ -734,6 +742,7 @@ public:
 		if (publicKey == NULL || Mismatched(publicKey->GetCryptoContext()) )
 			throw std::logic_error("key passed to EncryptMatrix was not generated with this crypto context");
 
+		const string& keyID = publicKey->GetKeyID();
 		const BigInteger& ptm = publicKey->GetCryptoParameters()->GetPlaintextModulus();
 
 		double start = 0;
@@ -747,6 +756,7 @@ public:
 
 				shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, pt, doEncryption);
 
+				ciphertext->SetKeyID( keyID );
 				(*cipherResults)(row, col).SetNumerator(*ciphertext);
 			}
 		}
@@ -780,6 +790,7 @@ public:
 
 		bool padded = false;
 		BytePlaintextEncoding px;
+		const string& keyID = publicKey->GetKeyID();
 		const BigInteger& ptm = publicKey->GetCryptoContext()->GetCryptoParameters()->GetPlaintextModulus();
 		size_t chunkSize = px.GetChunksize(publicKey->GetCryptoContext()->GetRingDimension(), ptm);
 		char *ptxt = new char[chunkSize];
@@ -805,6 +816,8 @@ public:
 				delete [] ptxt;
 				return;
 			}
+
+			ciphertext->SetKeyID( keyID );
 
 			Serialized cS;
 

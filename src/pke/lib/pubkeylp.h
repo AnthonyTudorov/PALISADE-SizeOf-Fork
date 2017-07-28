@@ -2263,9 +2263,11 @@ namespace lbcrypto {
 		}
 
 		shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const {
-				if(this->m_algorithmSHE)
-					return this->m_algorithmSHE->EvalMultKeyGen(originalPrivateKey);
-				else {
+				if(this->m_algorithmSHE) {
+					auto ek = this->m_algorithmSHE->EvalMultKeyGen(originalPrivateKey);
+					ek->SetKeyID( originalPrivateKey->GetKeyID() );
+					return ek;
+				} else {
 					throw std::logic_error("EvalMultKeyGen operation has not been enabled");
 				}
 		}
