@@ -331,12 +331,12 @@ namespace lbcrypto {
 		c(0, 0) = Field2n(Tp2(0, 0)).ScalarMult(-sigma * sigma / (s * s - sigma * sigma));
 		c(1, 0) = Field2n(Tp2(1, 0)).ScalarMult(-sigma * sigma / (s * s - sigma * sigma));
 
-		Matrix<int32_t> p1ZVector([]() { return make_unique<int32_t>(); }, n * 2, 1);
+		shared_ptr<Matrix<int32_t>> p1ZVector(new Matrix<int32_t>([]() { return make_unique<int32_t>(); }, n * 2, 1));
 
-		LatticeGaussSampUtility::ZSampleSigma2x2(a, b, d, c, dgg, &p1ZVector);
+		LatticeGaussSampUtility::ZSampleSigma2x2(a, b, d, c, dgg, p1ZVector);
 
 		//create 2 ring elements in coefficient representation
-		Matrix<Poly> p1 = SplitInt32IntoPolyElements(p1ZVector, n, va.GetParams());
+		Matrix<Poly> p1 = SplitInt32IntoPolyElements(*p1ZVector, n, va.GetParams());
 
 		//Converts p1 to Evaluation representation
 		p1.SwitchFormat();

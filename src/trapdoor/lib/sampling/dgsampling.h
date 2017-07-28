@@ -105,7 +105,7 @@ public:
 	* @param *p non-spherical perturbation vector; output of the function
 	*/
 	static inline void ZSampleSigma2x2(const Field2n & a, const Field2n & b,
-		const Field2n & d, const Matrix<Field2n> &c, const Poly::DggType & dgg, Matrix<int32_t>* p);
+		const Field2n & d, const Matrix<Field2n> &c, const Poly::DggType & dgg, shared_ptr<Matrix<int32_t>> p);
 
 	/**
 	* Subroutine used by ZSampleSigma2x2
@@ -126,7 +126,7 @@ public:
 	* @param dgg discrete Gaussian generator
 	* @param n ring dimension used for rejection sampling
 	*/
-	static inline Matrix<int32_t> ZSampleF(const Field2n &f, const Field2n &c,
+	static inline shared_ptr<Matrix<int32_t>> ZSampleF(const Field2n &f, const Field2n &c,
 		const Poly::DggType &dgg, size_t n);
 
 private:
@@ -147,7 +147,7 @@ private:
 
 	//subroutine used by ZSampleF
 	//Algorithm utilizes the same inverse permutation algorithm as discussed in the GM17 paper
-	static inline Matrix<int32_t> InversePermute(Matrix<int32_t> *p);
+	static inline void InversePermute(shared_ptr<Matrix<int32_t>> p);
 
 };
 
