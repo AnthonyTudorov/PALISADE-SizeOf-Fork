@@ -1965,9 +1965,11 @@ namespace lbcrypto {
 
 
 		shared_ptr<LPEvalKey<Element>> ReKeyGen(const shared_ptr<LPPrivateKey<Element>> newKey, const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const {
-			if (this->m_algorithmPRE)
-				return this->m_algorithmPRE->ReKeyGen(newKey,origPrivateKey);
-			else {
+			if (this->m_algorithmPRE) {
+				auto rk = this->m_algorithmPRE->ReKeyGen(newKey,origPrivateKey);
+				rk->SetKeyID( newKey->GetKeyID() );
+				return rk;
+			} else {
 				throw std::logic_error("ReKeyGen operation has not been enabled");
 			}
 		}
@@ -1975,9 +1977,11 @@ namespace lbcrypto {
 		//wrapper for ReEncrypt method
 		shared_ptr<Ciphertext<Element>> ReEncrypt(const shared_ptr<LPEvalKey<Element>> evalKey,
 				const shared_ptr<Ciphertext<Element>> ciphertext) const {
-				if(this->m_algorithmPRE)
-					return this->m_algorithmPRE->ReEncrypt(evalKey,ciphertext);
-				else {
+				if(this->m_algorithmPRE) {
+					auto ct = this->m_algorithmPRE->ReEncrypt(evalKey,ciphertext);
+					ct->SetKeyID( evalKey->GetKeyID() );
+					return ct;
+				} else {
 					throw std::logic_error("ReEncrypt operation has not been enabled");
 				}
 		}
@@ -2226,9 +2230,9 @@ namespace lbcrypto {
 		shared_ptr<LPEvalKey<Element>> KeySwitchGen(
 			const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
 			const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
-			if (this->m_algorithmSHE)
+			if (this->m_algorithmSHE) {
 				return  this->m_algorithmSHE->KeySwitchGen(originalPrivateKey, newPrivateKey);
-			else {
+			} else {
 				throw std::logic_error("KeySwitchGen operation has not been enabled");
 			}
 		}
