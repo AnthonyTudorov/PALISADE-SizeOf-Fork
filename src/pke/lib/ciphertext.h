@@ -179,7 +179,7 @@ namespace lbcrypto {
 		* It will be used in multiplication/addition/subtraction to handle the keyswitching.
 		*/
 		const size_t GetDepth() const {
-			return m_isEncrypted;
+			return m_depth;
 		}
 
 		/**

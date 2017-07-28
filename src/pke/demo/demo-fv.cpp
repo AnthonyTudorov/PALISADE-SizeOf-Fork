@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) {
 
 	//Set Crypto Parameters
 	shared_ptr<CryptoContext<Poly>> cryptoContext = CryptoContextFactory<Poly>::genCryptoContextFV(
-			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 2, 0, OPTIMIZED, 2);
+			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 2, 0, OPTIMIZED, 3);
 
 	// enable features that you wish to use
 	cryptoContext->Enable(ENCRYPTION);
@@ -239,7 +239,11 @@ int main(int argc, char *argv[]) {
 	cout << "EvalMult time: " << "\t" << diff << " ms" << endl;
 
 
+	const std::vector<Poly> &c0 = ciphertextMul12->GetElements();
+	const std::vector<Poly> &c1 = ciphertextMul123->GetElements();
 
+
+	std::cout << c0[0].GetFormat() << "\t" << c1[0].GetFormat() << std::endl;
 
 	////////////////////////////////////////////////////////////
 	//Decryption after Accumulation Operation on Re-Encrypted Data
