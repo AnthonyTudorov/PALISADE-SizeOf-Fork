@@ -98,16 +98,19 @@ namespace lbcrypto {
 		Matrix<double> c([]() { return make_unique<double>(); }, k, 1);
 
 		//  set the values of matrix L
+		// (double) is added to avoid integer division
 		l[0] = sqrt(base*(1 + 1 / k) + 1);
 		for (size_t i = 1; i < k; i++)
-			l[i] = sqrt(base*(1 + 1 / (k - i)));
+			l[i] = sqrt(base*(1 + 1 / (double)(k - i)));
 
 		h[0] = 0;
+		// (double) is added to avoid integer division
 		for (size_t i = 1; i < k; i++)
-			h[i] = sqrt(base*(1 - 1 / (k - (i - 1))));
+			h[i] = sqrt(base*(1 - 1 / (double)(k - (i - 1))));
 
 		// c can be pre-computed as it only depends on the modulus
-		c(0, 0) = modulus.GetDigitAtIndexForBase(1, base) / base;
+		// (double) is added to avoid integer division
+		c(0, 0) = modulus.GetDigitAtIndexForBase(1, base) / (double)base;
 
 		for (size_t i = 1; i < k; i++)
 			c(i, 0) = (c(i - 1, 0) + modulus.GetDigitAtIndexForBase(i + 1, base)) / base;
@@ -126,7 +129,8 @@ namespace lbcrypto {
 			// int32_t cast is needed here as GetDigitAtIndexForBase returns an unsigned int
 			// when the result is negative, a(0,0) gets values close to 2^32 if the cast is not used
 			//****a(0, 0) = ((int32_t)(v.GetDigitAtIndexForBase(1, base)) - p[0]) / base;
-			a(0, 0) = ((int32_t)(v.GetDigitAtIndexForBase(1, base)) - p[0]) / base;
+			// (double) is added to avoid integer division
+			a(0, 0) = ((int32_t)(v.GetDigitAtIndexForBase(1, base)) - p[0]) / (double)base;
 
 			for (size_t t = 1; t < k; t++){
 				a(t, 0) = (a(t - 1, 0) + (int32_t)(v.GetDigitAtIndexForBase(t + 1, base)) - p[t]) / base;

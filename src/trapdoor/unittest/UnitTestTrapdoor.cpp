@@ -283,7 +283,7 @@ TEST(UTTrapdoor, TrapDoorGaussGqSampTestBase4096) {
 	shared_ptr<ILParams> params(new ILParams(m, modulus, rootOfUnity));
 	auto zero_alloc = Poly::MakeAllocator(params, EVALUATION);
 
-	uint32_t base = 1<<11;
+	uint32_t base = 1<<10;
 	double sigma = (base + 1)*SIGMA;
 
 	Poly::DggType dgg(SIGMA);
@@ -310,6 +310,7 @@ TEST(UTTrapdoor, TrapDoorGaussGqSampTestBase4096) {
 	DEBUG("sigma " << sigma);
 	DEBUG("k " << k);
 	DEBUG("modulus " << modulus);
+	DEBUG("base = " << base);
 
 	LatticeGaussSampUtility::GaussSampGq(u, sigma, k, modulus, base, dgg, &zHatBBI);
 
@@ -318,12 +319,24 @@ TEST(UTTrapdoor, TrapDoorGaussGqSampTestBase4096) {
 	EXPECT_EQ(u.GetLength(), zHatBBI.GetCols())
 		<< "Failure testing number of colums";
 	DEBUG("4");
+
+	//int32_t maxValue = 0;
+
+	//for (size_t i = 0; i < zHatBBI.GetRows(); i++)
+	//	for (size_t j = 0; j < zHatBBI.GetCols(); j++)
+	//		if (std::abs(zHatBBI(i, j)) > maxValue)
+	//			maxValue = std::abs(zHatBBI(i, j));
+	//
+	//std::cout << maxValue << std::endl;
+
 	Matrix<Poly> z = SplitInt32AltIntoPolyElements(zHatBBI, n, params);
 	z.SwitchFormat();
 
 	Poly uEst;
 	uEst = (Matrix<Poly>(zero_alloc, 1, k).GadgetVector(base)*z)(0, 0);
 	uEst.SwitchFormat();
+
+	//std::cout << u - uEst << std::endl;
 
 	EXPECT_EQ(u, uEst);
 	DEBUG("end tests");
