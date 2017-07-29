@@ -294,7 +294,7 @@ TEST(UTTrapdoor, TrapDoorGaussGqSampTestBase4096) {
 	DEBUG("1");
 	Poly u(dug, params, COEFFICIENT);
 	DEBUG("2");
-	double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
+	//double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
 											//YSP check logTwo computation
 	
 	usint nBits = floor(log2(modulus.ConvertToDouble() - 1.0) + 1.0);
