@@ -300,16 +300,25 @@ namespace lbcrypto {
 
 		Matrix<int32_t> p2ZVector([]() { return make_unique<int32_t>(); }, n*k, 1);
 
-		//rejection method was used in the past
-		//for (size_t i = 0; i < n * k; i++) {
-		//	p2ZVector(i, 0) = dgg.GenerateInteger(0, sqrt(s * s - sigma * sigma), n);
-		//}
+		double sigmaLarge = dggLargeSigma.GetStd();
 
-		//Peikert's inversion method is used
-		std::shared_ptr<sint> dggVector = dggLargeSigma.GenerateIntVector(n*k);
+		if (sigmaLarge > 3e5) {
 
-		for (size_t i = 0; i < n * k; i++) {
-			p2ZVector(i, 0) = (dggVector.get())[i];
+			//Karney rejection method
+			for (size_t i = 0; i < n * k; i++) {
+				p2ZVector(i, 0) = dgg.GenerateIntegerKarney(0, sigmaLarge);
+			}
+		}
+		else
+		{
+
+			//Peikert's inversion method
+			std::shared_ptr<sint> dggVector = dggLargeSigma.GenerateIntVector(n*k);
+	
+			for (size_t i = 0; i < n * k; i++) {
+				p2ZVector(i, 0) = (dggVector.get())[i];
+			}
+
 		}
 
 		//create k ring elements in coefficient representation
@@ -331,12 +340,12 @@ namespace lbcrypto {
 		c(0, 0) = Field2n(Tp2(0, 0)).ScalarMult(-sigma * sigma / (s * s - sigma * sigma));
 		c(1, 0) = Field2n(Tp2(1, 0)).ScalarMult(-sigma * sigma / (s * s - sigma * sigma));
 
-		Matrix<int32_t> p1ZVector([]() { return make_unique<int32_t>(); }, n * 2, 1);
+		shared_ptr<Matrix<int32_t>> p1ZVector(new Matrix<int32_t>([]() { return make_unique<int32_t>(); }, n * 2, 1));
 
-		LatticeGaussSampUtility::ZSampleSigma2x2(a, b, d, c, dgg, &p1ZVector);
+		LatticeGaussSampUtility::ZSampleSigma2x2(a, b, d, c, dgg, p1ZVector);
 
 		//create 2 ring elements in coefficient representation
-		Matrix<Poly> p1 = SplitInt32IntoPolyElements(p1ZVector, n, va.GetParams());
+		Matrix<Poly> p1 = SplitInt32IntoPolyElements(*p1ZVector, n, va.GetParams());
 
 		//Converts p1 to Evaluation representation
 		p1.SwitchFormat();
