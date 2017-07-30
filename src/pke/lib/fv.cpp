@@ -744,32 +744,20 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMultAndRelineariz
 	if(!ciphertext2->GetIsEncrypted()) {
 		return EvalMultPlain(ciphertext1, ciphertext2);
 	}
-	// Multiply ciphertexts
-	std::cout << "Mult Start\t" << std::endl;
+
 	shared_ptr<Ciphertext<Element>> cipherText = this->EvalMult(ciphertext1, ciphertext2);
-	std::cout << "Mult Complete\t"<< cipherText->GetDepth() << std::endl;
 
 	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParamsLWE = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(ek->at(0)->GetCryptoParameters());
-	shared_ptr<Ciphertext<Element>> newCiphertext( new Ciphertext<Element>(ek->at(0)->GetCryptoContext()) );
-//	shared_ptr<Ciphertext<Element>> tempCiphertext(new Ciphertext<Element>(cipherText->GetCryptoContext()));
-
 	usint relinWindow = cryptoParamsLWE->GetRelinWindow();
 
-//	std::vector<Element> digitsC2;
+	shared_ptr<Ciphertext<Element>> newCiphertext( new Ciphertext<Element>(ek->at(0)->GetCryptoContext()) );
+
 	const std::vector<Element> &c = cipherText->GetElements();
 	Element ct0(c[0]);
 	Element ct1(c[1]);
 
-//	if (c.size() > 2)
-//		ct0.SwitchFormat();
-//	ct1.SwitchFormat();
-
-	std::cout << "Starting for Loop" << std::endl;
-	//TODO:Check depth again to see if -2 works. Currently, we should have depth 2 ciphertext eval key at location 0 of the array.
 	for(size_t j = 0; j<=cipherText->GetDepth()-2; j++){
 		size_t index = cipherText->GetDepth()-2-j;
-		std::cout << "Index:\t" << index << std::endl;
-		std::cout << j << std::endl;
 		shared_ptr<LPEvalKeyRelin<Element>> evalKey = std::static_pointer_cast<LPEvalKeyRelin<Element>>(ek->at(index));
 
 		const std::vector<Element> &b = evalKey->GetAVector();
@@ -777,20 +765,6 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMultAndRelineariz
 
 		//in the case of EvalMult, c[0] is initially in coefficient format and needs to be switched to evaluation format
 		std::vector<Element> digitsC2 = c[index+2].BaseDecompose(relinWindow);
-		std::cout << j << std::endl;
-
-		std::cout << "Size A\t" << a.size() << std::endl;
-		std::cout << "Size B\t" << b.size() << std::endl;
-		std::cout << "Size C\t" << c.size() << std::endl;
-		std::cout << "Size D\t" << digitsC2.size() << std::endl;
-
-		std::cout << "A Format\t" << a[0].GetFormat() << std::endl;
-		std::cout << "B Format\t" << b[0].GetFormat() << std::endl;
-		std::cout << "C0 Format\t" << ct0.GetFormat() << std::endl;
-		std::cout << "C1 Format\t" << ct1.GetFormat() << std::endl;
-		std::cout << "Ci Format\t" << c[index].GetFormat() << std::endl;
-//		std::cout << "Ci Format\t" << c[3].GetFormat() << std::endl;
-
 
 		for (usint i = 0; i < digitsC2.size(); ++i){
 			ct0 += digitsC2[i] * b[i];
@@ -800,11 +774,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMultAndRelineariz
 
 	}
 
-//	ct0.SwitchFormat();
-//	ct1.SwitchFormat();
-	std::cout << "E0" << std::endl;
 	newCiphertext->SetElements({ ct0, ct1 });
-	std::cout << "E1" << std::endl;
 
 	return newCiphertext;
 
@@ -865,43 +835,25 @@ template <class Element>
 shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> LPAlgorithmSHEFV<Element>::EvalMultKeysGen(
 			const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const
 {
-/*
+
+	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParamsLWE = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(originalPrivateKey->GetCryptoParameters());
+
 	shared_ptr<LPPrivateKey<Element>> originalPrivateKeyPowered = std::shared_ptr<LPPrivateKey<Element>>(new LPPrivateKey<Element>(originalPrivateKey->GetCryptoContext()));
 
-	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParamsLWE = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(originalPrivateKey->GetCryptoParameters());
-
 	shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> evalMultKeys (new vector<shared_ptr<LPEvalKey<Element>>>);
 
-	Element sPower(originalPrivateKey->GetPrivateElement());
+	std::vector<Element> sPower(cryptoParamsLWE->GetMaxDepth());
+	std::vector<shared_ptr<LPEvalKey<Element>>> ek(cryptoParamsLWE->GetMaxDepth());
+
+	sPower[0] = originalPrivateKey->GetPrivateElement()*originalPrivateKey->GetPrivateElement();
+	for(size_t i=1; i<cryptoParamsLWE->GetMaxDepth(); i++)
+		sPower[i] = sPower[i-1] * originalPrivateKey->GetPrivateElement();
 
 	for(size_t i=0; i<cryptoParamsLWE->GetMaxDepth(); i++){
-		std::cout << "KEysGen:\t" << i << std::endl;
-		sPower*=originalPrivateKey->GetPrivateElement();
-
-		originalPrivateKeyPowered->SetPrivateElement(std::move(sPower));
-
-		shared_ptr<LPEvalKey<Element>> ek = this->KeySwitchGen(originalPrivateKeyPowered, originalPrivateKey);
-		evalMultKeys->push_back(ek);
+		originalPrivateKeyPowered->SetPrivateElement(std::move(sPower[i]));
+		ek[i] = this->KeySwitchGen(originalPrivateKeyPowered, originalPrivateKey);
+		evalMultKeys->push_back(ek[i]);
 	}
-*/
-
-	shared_ptr<LPPrivateKey<Element>> originalPrivateKeyPowered1 = std::shared_ptr<LPPrivateKey<Element>>(new LPPrivateKey<Element>(originalPrivateKey->GetCryptoContext()));
-	shared_ptr<LPPrivateKey<Element>> originalPrivateKeyPowered2 = std::shared_ptr<LPPrivateKey<Element>>(new LPPrivateKey<Element>(originalPrivateKey->GetCryptoContext()));
-
-	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParamsLWE = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(originalPrivateKey->GetCryptoParameters());
-
-	shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> evalMultKeys (new vector<shared_ptr<LPEvalKey<Element>>>);
-	Element sPower1(originalPrivateKey->GetPrivateElement()*originalPrivateKey->GetPrivateElement());
-	Element sPower2(originalPrivateKey->GetPrivateElement()*originalPrivateKey->GetPrivateElement()*originalPrivateKey->GetPrivateElement());
-	originalPrivateKeyPowered1->SetPrivateElement(std::move(sPower1));
-	originalPrivateKeyPowered2->SetPrivateElement(std::move(sPower2));
-
-	shared_ptr<LPEvalKey<Element>> ek1 = this->KeySwitchGen(originalPrivateKeyPowered1, originalPrivateKey);
-	shared_ptr<LPEvalKey<Element>> ek2 = this->KeySwitchGen(originalPrivateKeyPowered2, originalPrivateKey);
-
-
-	evalMultKeys->push_back(ek1);
-	evalMultKeys->push_back(ek2);
 
 	return evalMultKeys;
 
