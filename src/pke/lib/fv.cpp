@@ -566,12 +566,8 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared
 	size_t cipherText2ElementsSize = cipherText2Elements.size();
 	size_t cipherTextRElementsSize = cipherText1ElementsSize + cipherText2ElementsSize - 1;
 
-	std::cout << cipherText1ElementsSize << "\t" << cipherText2ElementsSize << std::endl;
-
 	std::vector<Element> c(cipherTextRElementsSize);
-	std::cout << c.size() << std::endl;
-//	c.reserve(cipherTextRElementsSize);
-	std::cout << "Debug Postion 1" << std::endl;
+
 	for(size_t i=0; i<cipherText1ElementsSize; i++)
 		cipherText1Elements[i].SwitchFormat();
 
@@ -579,7 +575,6 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared
 		cipherText2Elements[i].SwitchFormat();
 
 	//switches the modulus to a larger value so that polynomial multiplication w/o mod q can be performed
-	std::cout << "Debug Postion 2" << std::endl;
 	for(size_t i=0; i<cipherText1ElementsSize; i++)
 		cipherText1Elements[i].SwitchModulus(bigModulus, bigRootOfUnity, bigModulusArb, bigRootOfUnityArb);
 
@@ -587,23 +582,20 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared
 		cipherText2Elements[i].SwitchModulus(bigModulus, bigRootOfUnity, bigModulusArb, bigRootOfUnityArb);
 
 	//converts the ciphertext elements back to evaluation representation
-	std::cout << "Debug Postion 3" << std::endl;
 	for(size_t i=0; i<cipherText1ElementsSize; i++)
 		cipherText1Elements[i].SwitchFormat();
 
-  for(size_t i=0; i<cipherText2ElementsSize; i++)
+	for(size_t i=0; i<cipherText2ElementsSize; i++)
 		cipherText2Elements[i].SwitchFormat();
 
-  //TODO: Check if initial Element is zero. If so, there is no need for boolean.
-	std::cout << "Debug Postion 4" << std::endl;
+	//TODO: Check if initial Element is zero. If so, there is no need for boolean.
 	bool isFirstAdd[cipherTextRElementsSize];
-  std::fill_n(isFirstAdd, cipherTextRElementsSize, true);
+	std::fill_n(isFirstAdd, cipherTextRElementsSize, true);
 
-  for(size_t i=0; i<cipherText1ElementsSize; i++){
+	for(size_t i=0; i<cipherText1ElementsSize; i++){
 		for(size_t j=0; j<cipherText2ElementsSize; j++){
 
 			if(isFirstAdd[i+j] == true){
-				std::cout << i << "\t" << j << std::endl;
 				c[i+j] = cipherText1Elements[i] * cipherText2Elements[j];
 				isFirstAdd[i+j] = false;
 			}
@@ -614,7 +606,6 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared
 	}
 
 	//converts to coefficient representation before rounding
-	std::cout << "Debug Postion 5" << std::endl;
 	for(size_t i=0; i<cipherTextRElementsSize; i++)
 		c[i].SwitchFormat();
 
@@ -622,21 +613,18 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared
 		c[i] = c[i].MultiplyAndRound(p, q);
 
 	//switch the modulus back to the original value
-	std::cout << "Debug Postion 6" << std::endl;
 	for(size_t i=0; i<cipherTextRElementsSize; i++)
 		c[i].SwitchModulus(q, elementParams->GetRootOfUnity(), elementParams->GetBigModulus(), elementParams->GetBigRootOfUnity());
 
 	//converts the ciphertext elements back to evaluation representation
 	//TODO: Originally EvalMult returns coeff format and KeySwitch converts it to evaluation format.
 	//However, Since we call EvalMult many times we need to store everything in eval format.
-	std::cout << "Debug Postion 7" << std::endl;
 	for(size_t i=0; i<cipherTextRElementsSize; i++)
 		c[i].SwitchFormat();
 
 	newCiphertext->SetElements(c);
 	newCiphertext->SetDepth((ciphertext1->GetDepth() + ciphertext2->GetDepth()));
 
-	std::cout << ciphertext1->GetDepth() << "\t" << ciphertext2->GetDepth() << "\t" << newCiphertext->GetDepth() << std::endl;
 	return newCiphertext;
 
 }
@@ -770,7 +758,6 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMultAndRelineariz
 			ct0 += digitsC2[i] * b[i];
 			ct1 += digitsC2[i] * a[i];
 		}
-		std::cout << j << std::endl;
 
 	}
 
