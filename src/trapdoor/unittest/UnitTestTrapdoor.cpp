@@ -268,7 +268,7 @@ TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
   DEBUG("end tests");
 }
 
-TEST(UTTrapdoor, TrapDoorGaussGqSampTestBase4096) {
+TEST(UTTrapdoor, TrapDoorGaussGqSampTestBase1024) {
 	bool dbg_flag = false;
 	DEBUG("start tests");
 	

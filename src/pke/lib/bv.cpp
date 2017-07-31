@@ -676,7 +676,7 @@ LPKeyPair<Element> LPAlgorithmMultipartyBV<Element>::MultipartyKeyGen(CryptoCont
 		typename Element::TugType tug;
 
 		//Generate the element "a" of the public key
-		Element a = pk1->GetPublicElements()[1];
+		Element a = pk1->GetPublicElements()[0];
 		//Generate the secret key
 		Element s;
 
@@ -696,7 +696,7 @@ LPKeyPair<Element> LPAlgorithmMultipartyBV<Element>::MultipartyKeyGen(CryptoCont
 		e.SwitchFormat();
 		//a.SwitchFormat();
 
-		Element b = a*s + p*e;
+		Element b = a*s + p*e + pk1->GetPublicElements()[1];
 
 		kp.secretKey->SetPrivateElement(std::move(s));
 		kp.publicKey->SetPublicElementAtIndex(0, std::move(a));
