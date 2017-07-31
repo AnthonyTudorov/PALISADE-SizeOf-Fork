@@ -466,19 +466,33 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalAdd(const shared_
 	const std::vector<Element> &cipherText1Elements = ciphertext1->GetElements();
 	const std::vector<Element> &cipherText2Elements = ciphertext2->GetElements();
 
-	if(ciphertext2->GetIsEncrypted()){
-		Element c0 = cipherText1Elements[0] + cipherText2Elements[0];
-		Element c1 = cipherText1Elements[1] + cipherText2Elements[1];
+	size_t cipherTextRElementsSize;
+	if(cipherText1Elements.size() > cipherText2Elements.size())
+		cipherTextRElementsSize = cipherText1Elements.size();
+	else
+		cipherTextRElementsSize = cipherText2Elements.size();
 
-		newCiphertext->SetElements({ c0, c1 });
-	} else {
+	std::vector<Element> c(cipherTextRElementsSize);
+
+	if(ciphertext2->GetIsEncrypted()){
+
+		for(size_t i=0; i<cipherTextRElementsSize; i++)
+			c[i] = cipherText1Elements[i] + cipherText2Elements[i];
+
+	}
+	else {
 		auto fvParams = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(ciphertext1->GetCryptoParameters());
 		auto &delta = fvParams->GetDelta();
-		Element c0 = cipherText1Elements[0] + delta*cipherText2Elements[0];
-		Element c1 = cipherText1Elements[1];
 
-		newCiphertext->SetElements({ c0, c1 });
+		c[0] = cipherText1Elements[0] + delta*cipherText2Elements[0];
+		for(size_t i=0; i<cipherTextRElementsSize; i++)
+			c[i] = cipherText1Elements[i];
+
 	}
+
+	newCiphertext->SetElements(c);
+	newCiphertext->SetDepth(cipherTextRElementsSize);
+
 	return newCiphertext;
 }
 
