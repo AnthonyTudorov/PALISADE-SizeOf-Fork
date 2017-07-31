@@ -197,55 +197,7 @@ int main(int argc, char *argv[]) {
 	cout << plaintext6Dec << endl;
 
 	cout << "\n";
-/*
-	////////////////////////////////////////////////////////////
-	// EvalAdd Operation
-	////////////////////////////////////////////////////////////
 
-	shared_ptr<Ciphertext<Poly>> ciphertextAdd12;
-	shared_ptr<Ciphertext<Poly>> ciphertextAdd123;
-
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertextAddVect;
-
-	start = currentDateTime();
-
-	ciphertextAdd12 = cryptoContext->EvalAdd(ciphertext1[0],ciphertext2[0]);
-	ciphertextAdd123 = cryptoContext->EvalAdd(ciphertextAdd12,ciphertext3[0]);
-
-	ciphertextAddVect.push_back(ciphertextAdd123);
-
-	finish = currentDateTime();
-	diff = finish - start;
-	cout << "EvalAdd time: " << "\t" << diff << " ms" << endl;
-
-
-	////////////////////////////////////////////////////////////
-	//Decryption after Accumulation Operation
-	////////////////////////////////////////////////////////////
-
-	IntPlaintextEncoding plaintextAdd;
-
-	start = currentDateTime();
-
-	cryptoContext->Decrypt(keyPair.secretKey, ciphertextAddVect, &plaintextAdd, true);
-
-	finish = currentDateTime();
-	diff = finish - start;
-
-	//std::cin.get();
-
-	plaintextAdd.resize(plaintext1.size());
-
-	cout << "\n Original Plaintext: \n";
-	cout << plaintext1 << endl;
-	cout << plaintext2 << endl;
-	cout << plaintext3 << endl;
-
-	cout << "\n Resulting Added Plaintext: \n";
-	cout << plaintextAdd << endl;
-
-	cout << "\n";
-*/
 	////////////////////////////////////////////////////////////
 	// EvalMult Operation
 	////////////////////////////////////////////////////////////
@@ -325,6 +277,62 @@ int main(int argc, char *argv[]) {
 	cout << plaintextMul5 << endl;
 
 	cout << "\n";
+
+	////////////////////////////////////////////////////////////
+	// EvalAdd Operation
+	////////////////////////////////////////////////////////////
+
+	shared_ptr<Ciphertext<Poly>> ciphertextAdd12;
+	shared_ptr<Ciphertext<Poly>> ciphertextAdd123;
+
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertextAddVect1;
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertextAddVect2;
+
+	start = currentDateTime();
+
+	ciphertextAdd12 = cryptoContext->EvalAdd(ciphertextMul12, ciphertextMul12345);
+	ciphertextAdd123 = cryptoContext->EvalAdd(ciphertextAdd12, ciphertextMul123456);
+
+	ciphertextAddVect1.push_back(ciphertextAdd12);
+	ciphertextAddVect2.push_back(ciphertextAdd123);
+
+	finish = currentDateTime();
+	diff = finish - start;
+	cout << "EvalAdd time: " << "\t" << diff << " ms" << endl;
+
+
+	////////////////////////////////////////////////////////////
+	//Decryption after Accumulation Operation
+	////////////////////////////////////////////////////////////
+
+	IntPlaintextEncoding plaintextAdd1;
+	IntPlaintextEncoding plaintextAdd2;
+
+	start = currentDateTime();
+
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertextAddVect1, &plaintextAdd1, true);
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertextAddVect2, &plaintextAdd2, true);
+
+	finish = currentDateTime();
+	diff = finish - start;
+
+	//std::cin.get();
+
+	plaintextAdd1.resize(plaintext1.size());
+	plaintextAdd2.resize(plaintext1.size());
+
+	cout << "\n Original Plaintext: \n";
+	cout << plaintextMul1 << endl;
+	cout << plaintextMul4 << endl;
+	cout << plaintextMul5 << endl;
+
+	cout << "\n Resulting Added Plaintext: \n";
+	cout << plaintextAdd1 << endl;
+	cout << plaintextAdd2 << endl;
+
+	cout << "\n";
+
+
 	////////////////////////////////////////////////////////////
 	// Done
 	////////////////////////////////////////////////////////////

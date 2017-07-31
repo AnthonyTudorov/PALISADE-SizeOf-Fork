@@ -474,11 +474,13 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalAdd(const shared_
 		isCipherText1Small = false;
 		cipherTextRElementsSize = cipherText1Elements.size();
 		cipherTextSmallElementsSize = cipherText2Elements.size();
+		newCiphertext->SetDepth(ciphertext1->GetDepth());
 	}
 	else {
 		isCipherText1Small = true;
 		cipherTextRElementsSize = cipherText2Elements.size();
 		cipherTextSmallElementsSize = cipherText1Elements.size();
+		newCiphertext->SetDepth(ciphertext2->GetDepth());
 	}
 
 	std::vector<Element> c(cipherTextRElementsSize);
@@ -506,7 +508,6 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalAdd(const shared_
 	}
 
 	newCiphertext->SetElements(c);
-	newCiphertext->SetDepth(cipherTextRElementsSize);
 
 	return newCiphertext;
 
@@ -534,11 +535,13 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalSub(const shared_
 		isCipherText1Small = false;
 		cipherTextRElementsSize = cipherText1Elements.size();
 		cipherTextSmallElementsSize = cipherText2Elements.size();
+		newCiphertext->SetDepth(ciphertext1->GetDepth());
 	}
 	else {
 		isCipherText1Small = true;
 		cipherTextRElementsSize = cipherText2Elements.size();
 		cipherTextSmallElementsSize = cipherText1Elements.size();
+		newCiphertext->SetDepth(ciphertext2->GetDepth());
 	}
 
 	std::vector<Element> c(cipherTextRElementsSize);
@@ -566,7 +569,6 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalSub(const shared_
 	}
 
 	newCiphertext->SetElements(c);
-	newCiphertext->SetDepth(cipherTextRElementsSize);
 
 	return newCiphertext;
 
