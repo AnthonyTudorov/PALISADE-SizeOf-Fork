@@ -48,11 +48,6 @@ void CryptoContext<Element>::EvalMultKeyGen(const shared_ptr<LPPrivateKey<Elemen
 		timeSamples->push_back( TimingInfo(OpEvalMultKeyGen, currentDateTime() - start) );
 	}
 
-	if( evalMultKeys.size() == 0 )
-		evalMultKeys.push_back(k);
-	else
-		evalMultKeys[0] = k;
-
 	evalMultKeyMap[ k->GetKeyID() ] = { k };
 }
 
@@ -110,16 +105,15 @@ shared_ptr<Ciphertext<Element>> CryptoContext<Element>::EvalSum(const shared_ptr
 template <typename Element>
 shared_ptr<Ciphertext<Element>> CryptoContext<Element>::EvalInnerProduct(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Ciphertext<Element>> ct2, usint batchSize) const {
 
-	if( ct1 == NULL || ct2 == NULL ||
-			Mismatched(ct1->GetCryptoContext()) ||
-			Mismatched(ct2->GetCryptoContext()) )
+	if( ct1 == NULL || ct2 == NULL || ct1->GetKeyID() != ct2->GetKeyID() ||
+			Mismatched(ct1->GetCryptoContext()) )
 		throw std::logic_error("Information passed to EvalAdd was not generated with this crypto context");
 
-	auto evalMultKey = GetEvalMultKey();
+	auto ek = GetEvalMultKeyVector(ct1->GetKeyID());
 
 	double start = 0;
 	if( doTiming ) start = currentDateTime();
-	auto rv = GetEncryptionAlgorithm()->EvalInnerProduct(ct1, ct2, batchSize, evalSumKeys, evalMultKey);
+	auto rv = GetEncryptionAlgorithm()->EvalInnerProduct(ct1, ct2, batchSize, evalSumKeys, ek[0]);
 	if( doTiming ) {
 		timeSamples->push_back( TimingInfo(OpEvalInnerProduct, currentDateTime() - start) );
 	}
@@ -134,11 +128,11 @@ CryptoContext<Element>::EvalCrossCorrelation(const shared_ptr<Matrix<RationalCip
 
 	//need to add exception handling
 
-	auto evalMultKey = GetEvalMultKey();
+	auto ek = GetEvalMultKeyVector((*x)(0,0).GetNumerator()->GetKeyID());
 
 	double start = 0;
 	if( doTiming ) start = currentDateTime();
-	auto rv = GetEncryptionAlgorithm()->EvalCrossCorrelation(x, y, batchSize, indexStart, length, evalSumKeys, evalMultKey);
+	auto rv = GetEncryptionAlgorithm()->EvalCrossCorrelation(x, y, batchSize, indexStart, length, evalSumKeys, ek[0]);
 	if( doTiming ) {
 		timeSamples->push_back( TimingInfo(OpEvalCrossCorrelation, currentDateTime() - start) );
 	}
@@ -152,11 +146,11 @@ CryptoContext<Element>::EvalLinRegressBatched(const shared_ptr<Matrix<RationalCi
 {
 	//need to add exception handling
 
-	auto evalMultKey = GetEvalMultKey();
+	auto ek = GetEvalMultKeyVector((*x)(0,0).GetNumerator()->GetKeyID());
 
 	double start = 0;
 	if( doTiming ) start = currentDateTime();
-	auto rv = GetEncryptionAlgorithm()->EvalLinRegressBatched(x, y, batchSize, evalSumKeys, evalMultKey);
+	auto rv = GetEncryptionAlgorithm()->EvalLinRegressBatched(x, y, batchSize, evalSumKeys, ek[0]);
 	if( doTiming ) {
 		timeSamples->push_back( TimingInfo(OpEvalLinRegressionBatched, currentDateTime() - start) );
 	}
@@ -179,10 +173,10 @@ CryptoContext<T>::Serialize(Serialized* serObj) const
 	Serialized kser(rapidjson::kObjectType, &serObj->GetAllocator());
 
 	if( Serializable::IncludeKeysInSerializedContext() ) {
-		if( this->evalMultKeys.size() > 0 ) {
-			SerializeVectorOfPointers<LPEvalKey<T>>("EvalMultKeys", "LPEvalKey", this->evalMultKeys, &ccser);
-		}
-
+//		if( this->evalMultKeys.size() > 0 ) {
+//			SerializeVectorOfPointers<LPEvalKey<T>>("EvalMultKeys", "LPEvalKey", this->evalMultKeys, &ccser);
+//		}
+//
 		if( this->evalSumKeys.size() > 0 ) {
 			SerializeMapOfPointers("EvalSumKeys", T::GetElementName(), this->evalSumKeys, &ccser);
 		}
@@ -406,8 +400,6 @@ CryptoContextFactory<Element>::DeserializeAndCreateContext(const Serialized& ser
 
 			evalMultKeys.push_back(kp);
 		}
-
-		cc->SetEvalMultKeys(evalMultKeys);
 	}
 
 	map<usint,shared_ptr<LPEvalKey<Element>>> evalSumKeys;

@@ -1316,7 +1316,7 @@ namespace lbcrypto {
 
 				for (size_t row = 0; row < result->GetRows(); row++)
 					for (size_t col = 0; col < result->GetCols(); col++)
-						(*result)(row, col).SetDenominator(*determinant.GetNumerator());
+						(*result)(row, col).SetDenominator(determinant.GetNumerator());
 
 			return result;
 
@@ -1338,6 +1338,7 @@ namespace lbcrypto {
 		*/
 		shared_ptr<Ciphertext<Element>> AddRandomNoise(const shared_ptr<Ciphertext<Element>> ciphertext) const {
 
+			string kID = ciphertext->GetKeyID();
 			const shared_ptr<LPCryptoParameters<Element>> cryptoParams = ciphertext->GetCryptoParameters();
 			const shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
 			const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
@@ -1370,8 +1371,13 @@ namespace lbcrypto {
 
 			shared_ptr<Ciphertext<Element>>  embeddedPlaintext = cc->GetEncryptionAlgorithm()->Encrypt(pk, encodedPlaintext, false);
 
-			return EvalAdd(ciphertext, embeddedPlaintext);
+			embeddedPlaintext->SetKeyID( kID );
 
+			auto ans = EvalAdd(ciphertext, embeddedPlaintext);
+
+			ans->SetKeyID( kID );
+
+			return ans;
 		};
 
 		/**
@@ -1562,14 +1568,21 @@ namespace lbcrypto {
 			const shared_ptr<Ciphertext<Element>> ciphertext2, usint batchSize,
 			const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalSumKeys,
 			const shared_ptr<LPEvalKey<Element>> evalMultKey) const {
-
+std::cout << "0..." << std::endl;
 			shared_ptr<Ciphertext<Element>> result = EvalMult(ciphertext1, ciphertext2, evalMultKey);
-
+			result->SetKeyID( evalMultKey->GetKeyID() );
+std::cout << "1 " << result->GetKeyID() << std::endl;
 			result = EvalSum(result, batchSize, evalSumKeys);
+			result->SetKeyID( evalMultKey->GetKeyID() );
+std::cout << "2 " << result->GetKeyID() << std::endl;
 
 			// add a random number to all slots except for the first one so that no information is leaked
-			return AddRandomNoise(result);
+			result = AddRandomNoise(result);
+std::cout << "2.5 " << result->GetKeyID() << std::endl;
+			result->SetKeyID( evalMultKey->GetKeyID() );
+std::cout << "3 " << result->GetKeyID() << std::endl;
 
+			return result;
 		}
 
 		/**
@@ -1593,10 +1606,10 @@ namespace lbcrypto {
 			shared_ptr<Ciphertext<Element>> y0 = (*y)(0, 0).GetNumerator();
 
 			//Compute the covariance matrix for X
-			covarianceMatrix(0, 0).SetNumerator(*EvalInnerProduct(x0, x0, batchSize, evalSumKeys, evalMultKey));
-			covarianceMatrix(0, 1).SetNumerator(*EvalInnerProduct(x0, x1, batchSize, evalSumKeys, evalMultKey));
+			covarianceMatrix(0, 0).SetNumerator(EvalInnerProduct(x0, x0, batchSize, evalSumKeys, evalMultKey));
+			covarianceMatrix(0, 1).SetNumerator(EvalInnerProduct(x0, x1, batchSize, evalSumKeys, evalMultKey));
 			covarianceMatrix(1, 0) = covarianceMatrix(0, 1);
-			covarianceMatrix(1, 1).SetNumerator(*EvalInnerProduct(x1, x1, batchSize, evalSumKeys, evalMultKey));
+			covarianceMatrix(1, 1).SetNumerator(EvalInnerProduct(x1, x1, batchSize, evalSumKeys, evalMultKey));
 
 			Matrix<RationalCiphertext<Element>> cofactorMatrix = covarianceMatrix.CofactorMatrix();
 
@@ -1604,8 +1617,8 @@ namespace lbcrypto {
 
 			shared_ptr<Matrix<RationalCiphertext<Element>>> result(new Matrix<RationalCiphertext<Element>>(x->GetAllocator(), 2, 1));
 
-			(*result)(0, 0).SetNumerator(*EvalInnerProduct(x0, y0, batchSize, evalSumKeys, evalMultKey));
-			(*result)(1, 0).SetNumerator(*EvalInnerProduct(x1, y0, batchSize, evalSumKeys, evalMultKey));
+			(*result)(0, 0).SetNumerator(EvalInnerProduct(x0, y0, batchSize, evalSumKeys, evalMultKey));
+			(*result)(1, 0).SetNumerator(EvalInnerProduct(x1, y0, batchSize, evalSumKeys, evalMultKey));
 
 			*result = adjugateMatrix * (*result);
 
@@ -1614,10 +1627,9 @@ namespace lbcrypto {
 
 			for (size_t row = 0; row < result->GetRows(); row++)
 				for (size_t col = 0; col < result->GetCols(); col++)
-					(*result)(row, col).SetDenominator(*determinant.GetNumerator());
+					(*result)(row, col).SetDenominator(determinant.GetNumerator());
 
 			return result;
-
 		}
 
 
@@ -1913,6 +1925,7 @@ namespace lbcrypto {
 			Poly &plaintext, bool doEncryption = true) const {
 				if(this->m_algorithmEncryption) {
 					auto ct = this->m_algorithmEncryption->Encrypt(publicKey,plaintext,doEncryption);
+if( publicKey->GetKeyID() == "" ) throw *((char*)0) = 'x';
 					ct->SetKeyID( publicKey->GetKeyID() );
 					return ct;
 				}
@@ -2213,8 +2226,11 @@ namespace lbcrypto {
 			const shared_ptr<LPEvalKey<Element>> evalMultKey) const {
 
 			if (this->m_algorithmSHE) {
+				std::cout << "Calling EvalInner" << std::endl;
 				auto ct = this->m_algorithmSHE->EvalInnerProduct(ciphertext1, ciphertext2, batchSize, evalSumKeys, evalMultKey);
+				std::cout << "Back from EvalInner " << ct->GetKeyID() << std::endl;
 				ct->SetKeyID( evalSumKeys.begin()->second->GetKeyID() );
+				std::cout << "And now " << ct->GetKeyID() << std::endl;
 				return ct;
 			} else
 				throw std::logic_error("EvalInnerProduct operation has not been enabled");
@@ -2228,8 +2244,13 @@ namespace lbcrypto {
 				const shared_ptr<LPEvalKey<Element>> evalMultKey) const {
 
 			if (this->m_algorithmSHE) {
+				std::cout << "start with EvalLinRegressBatched" << std::endl;
+				string kID = evalMultKey->GetKeyID();
 				auto ctm = this->m_algorithmSHE->EvalLinRegressBatched(x, y, batchSize, evalSumKeys, evalMultKey);
-				// FIXME mark every node... with which key???
+				for( size_t r = 0; r < ctm->GetRows(); r++ )
+					for( size_t c = 0; c < ctm->GetCols(); c++ )
+						(*ctm)(r,c).SetKeyID(kID);
+				std::cout << "done with EvalLinRegressBatched" << std::endl;
 				return ctm;
 			} else
 				throw std::logic_error("EvalLinRegressionBatched operation has not been enabled");
@@ -2245,6 +2266,7 @@ namespace lbcrypto {
 
 			if (this->m_algorithmSHE) {
 				auto ct = this->m_algorithmSHE->EvalCrossCorrelation(x, y, batchSize, indexStart, length, evalSumKeys, evalMultKey);
+				std::cout << "done with EvalCrossCorrelation" << std::endl;
 				// FIXME: mark with which key?
 				return ct;
 			} else
@@ -2265,6 +2287,7 @@ namespace lbcrypto {
 
 			if (this->m_algorithmSHE) {
 				auto ctm = this->m_algorithmSHE->EvalLinRegression(x, y);
+				std::cout << "done with EvalLinRegression" << std::endl;
 				// FIXME mark with which key??
 				return ctm;
 			} else {

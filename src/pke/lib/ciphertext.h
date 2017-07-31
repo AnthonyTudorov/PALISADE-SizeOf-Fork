@@ -217,6 +217,9 @@ namespace lbcrypto {
 			if( this->m_depth != rhs.m_depth || this->m_isEncrypted != rhs.m_isEncrypted )
 				return false;
 
+			if( this->GetKeyID() != rhs.GetKeyID() )
+				return false;
+
 			const std::vector<Element> &lhsE = this->GetElements();
 			const std::vector<Element> &rhsE = rhs.GetElements();
 

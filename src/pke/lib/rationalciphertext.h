@@ -127,6 +127,16 @@ namespace lbcrypto {
 		*/
 		~RationalCiphertext() {}
 
+		string GetKeyID() const {
+			if( m_numerator ) return m_numerator->GetKeyID();
+			return "";
+		}
+
+		void SetKeyID(const string& id) {
+			if( m_numerator ) m_numerator->SetKeyID( id );
+			if( m_denominator ) m_denominator->SetKeyID( id );
+		}
+
 		/**
 		* Assignment Operator.
 		*
@@ -185,16 +195,16 @@ namespace lbcrypto {
 		* Sets the numerator element
 		* @param &element ciphertext element.
 		*/
-		void SetNumerator(const Ciphertext<Element> &element) {
-			m_numerator = std::make_shared<Ciphertext<Element>>(element);
+		void SetNumerator(shared_ptr<Ciphertext<Element>> element) {
+			m_numerator = element;
 		}
 
 		/**
 		* Sets the denominator element
 		* @param &element ciphertext element.
 		*/
-		void SetDenominator(const Ciphertext<Element> &element) {
-			m_denominator = std::make_shared<Ciphertext<Element>>(element);
+		void SetDenominator(shared_ptr<Ciphertext<Element>> element) {
+			m_denominator = element;
 			m_integerFlag = false;
 		}
 
@@ -293,7 +303,7 @@ namespace lbcrypto {
 	inline RationalCiphertext<Element> operator+(const RationalCiphertext<Element> &a, const RationalCiphertext<Element> &b) { 
 		RationalCiphertext<Element> result(b);
 		if (a.GetIntegerFlag() && b.GetIntegerFlag() && (a.GetNumerator()!= nullptr))
-			result.SetNumerator(*b.GetCryptoContext()->EvalAdd(a.GetNumerator(), b.GetNumerator()));
+			result.SetNumerator(b.GetCryptoContext()->EvalAdd(a.GetNumerator(), b.GetNumerator()));
 		return result;
 	}
 
@@ -310,7 +320,7 @@ namespace lbcrypto {
 	inline RationalCiphertext<Element> operator-(const RationalCiphertext<Element> &a, const RationalCiphertext<Element> &b) {
 		RationalCiphertext<Element> result(b);
 		if (a.GetIntegerFlag() && b.GetIntegerFlag() && (a.GetNumerator() != nullptr))
-			result.SetNumerator(*b.GetCryptoContext()->EvalSub(a.GetNumerator(), b.GetNumerator()));
+			result.SetNumerator(b.GetCryptoContext()->EvalSub(a.GetNumerator(), b.GetNumerator()));
 		return result;
 	}
 
@@ -327,7 +337,7 @@ namespace lbcrypto {
 	inline RationalCiphertext<Element> operator*(const RationalCiphertext<Element> &a, const RationalCiphertext<Element> &b) {
 		RationalCiphertext<Element> result(b);
 		if (a.GetIntegerFlag() && b.GetIntegerFlag() && (a.GetNumerator() != nullptr))
-			result.SetNumerator(*b.GetCryptoContext()->EvalMult(a.GetNumerator(), b.GetNumerator()));
+			result.SetNumerator(b.GetCryptoContext()->EvalMult(a.GetNumerator(), b.GetNumerator()));
 		return result;
 	}
 } // namespace lbcrypto ends

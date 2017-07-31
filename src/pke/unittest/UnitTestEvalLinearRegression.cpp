@@ -145,7 +145,12 @@ rationalInt ArbBVLinearRegressionPackedArray() {
 	{
 		for( size_t r=0 ; r < x->GetRows(); r++ )
 			for( size_t c=0 ; c < x->GetCols(); c++ )
-				std::cout << r << "," << c << ": " << (*x)(r,c).GetNumerator()->GetKeyID() << std::endl;
+				std::cout << "x " << r << "," << c << ": " << (*x)(r,c).GetNumerator()->GetKeyID() << std::endl;
+	}
+	{
+		for( size_t r=0 ; r < y->GetRows(); r++ )
+			for( size_t c=0 ; c < y->GetCols(); c++ )
+				std::cout << "y " << r << "," << c << ": " << (*y)(r,c).GetNumerator()->GetKeyID() << std::endl;
 	}
 
 	////////////////////////////////////////////////////////////
@@ -153,6 +158,12 @@ rationalInt ArbBVLinearRegressionPackedArray() {
 	////////////////////////////////////////////////////////////
 
 	auto result = cc->EvalLinRegressBatched(x, y, 8);
+
+	{
+		for( size_t r=0 ; r < result->GetRows(); r++ )
+			for( size_t c=0 ; c < result->GetCols(); c++ )
+				std::cout << "result " << r << "," << c << ": " << (*result)(r,c).GetNumerator()->GetKeyID() << std::endl;
+	}
 
 	////////////////////////////////////////////////////////////
 	//Decryption

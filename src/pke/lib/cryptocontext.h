@@ -61,8 +61,7 @@ class CryptoContext : public Serializable {
 
 private:
 	shared_ptr<LPCryptoParameters<Element>>					params;			/*!< crypto parameters used for this context */
-	shared_ptr<LPPublicKeyEncryptionScheme<Element>>			scheme;			/*!< algorithm used; accesses all crypto methods */
-	vector<shared_ptr<LPEvalKey<Element>>>					evalMultKeys;	/*!< cached evalmult keys */
+	shared_ptr<LPPublicKeyEncryptionScheme<Element>>		scheme;			/*!< algorithm used; accesses all crypto methods */
 	std::map<usint, shared_ptr<LPEvalKey<Element>>>			evalSumKeys;		/*!< cached evalsum keys */
 
 	static std::map<string,vector<shared_ptr<LPEvalKey<Element>>>>	evalMultKeyMap;	/*!< cached evalmult keys, by secret key UID */
@@ -78,11 +77,6 @@ private:
 	 */
 	friend bool operator==(const CryptoContext<Element>& a, const CryptoContext<Element>& b) {
 		if( a.params.get() != b.params.get() ) return false;
-
-		if( a.evalMultKeys.size() != b.evalMultKeys.size() ) return false;
-		for( size_t i=0; i<a.evalMultKeys.size(); i++ )
-			if( a.evalMultKeys[i].get() != b.evalMultKeys[i].get() )
-				return false;
 
 		if( a.evalSumKeys.size() != b.evalSumKeys.size() ) return false;
 		for (const auto& kp : a.evalSumKeys) {
@@ -139,7 +133,6 @@ public:
 		scheme = c.scheme;
 		doTiming = c.doTiming;
 		timeSamples = c.timeSamples;
-		evalMultKeys = c.evalMultKeys;
 		evalSumKeys = c.evalSumKeys;
 	}
 
@@ -153,7 +146,6 @@ public:
 		scheme = rhs.scheme;
 		doTiming = rhs.doTiming;
 		timeSamples = rhs.timeSamples;
-		evalMultKeys = rhs.evalMultKeys;
 		evalSumKeys = rhs.evalSumKeys;
 		return *this;
 	}
@@ -522,27 +514,6 @@ public:
 	const vector<shared_ptr<LPEvalKey<Element>>> GetEvalMultKeyVector(const string& keyID) const;
 
 	/**
-	 * GetEvalMultKey fetches the cached eval mult keys
-	 *
-	 * @return the key to use
-	 */
-	const shared_ptr<LPEvalKey<Element>> GetEvalMultKey() const {
-		if( evalMultKeys.size() != 1 )
-			throw std::logic_error("You need to use EvalMultKeyGen so that you have an EvalMultKey available");
-		return evalMultKeys[0];
-	}
-
-	/**
-	 * SetEvalMultKeys is used by the deserializer to initialize the keyset for EvalSum
-	 * FIXME should be private?
-	 * @param evalMultKeys - new key map
-	 */
-	void SetEvalMultKeys(vector<shared_ptr<LPEvalKey<Element>>>& evalMultKeysNew) {
-		evalMultKeys.clear();
-		this->evalMultKeys = evalMultKeysNew;
-	}
-
-	/**
 	* KeySwitchGen creates a key that can be used with the PALISADE KeySwitch operation
 	* @param key1
 	* @param key2
@@ -710,8 +681,7 @@ public:
 				plaintext(row,col).Encode(ptm, &pt);
 
 				shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, pt, doEncryption);
-
-				(*cipherResults)(row, col).SetNumerator(*ciphertext);
+				(*cipherResults)(row, col).SetNumerator(ciphertext);
 			}
 		}
 
@@ -755,8 +725,7 @@ public:
 				plaintext(row, col).Encode(ptm, &pt);
 
 				shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, pt, doEncryption);
-
-				(*cipherResults)(row, col).SetNumerator(*ciphertext);
+				(*cipherResults)(row, col).SetNumerator(ciphertext);
 			}
 		}
 
@@ -1735,14 +1704,15 @@ public:
 		const shared_ptr<Ciphertext<Element>> ciphertext1,
 		const shared_ptr<Ciphertext<Element>> ciphertext2) const
 	{
-		if( ciphertext1 == NULL || ciphertext2 == NULL ||
-				Mismatched(ciphertext1->GetCryptoContext()) ||
-				Mismatched(ciphertext2->GetCryptoContext()) )
-			throw std::logic_error("Ciphertexts passed to ComposedEvalMult was not generated with this crypto context");
+		if( ciphertext1 == NULL || ciphertext2 == NULL || ciphertext1->GetKeyID() != ciphertext2->GetKeyID() ||
+				Mismatched(ciphertext1->GetCryptoContext()) )
+			throw std::logic_error("Ciphertexts passed to ComposedEvalMult were not generated with this crypto context");
+
+		auto ek = GetEvalMultKeyVector(ciphertext1->GetKeyID());
 
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
-		auto rv = GetEncryptionAlgorithm()->ComposedEvalMult(ciphertext1, ciphertext2, GetEvalMultKey());
+		auto rv = GetEncryptionAlgorithm()->ComposedEvalMult(ciphertext1, ciphertext2, ek[0]);
 		if( doTiming ) {
 			timeSamples->push_back( TimingInfo(OpComposedEvalMult, currentDateTime() - start) );
 		}
