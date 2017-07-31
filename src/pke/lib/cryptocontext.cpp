@@ -57,6 +57,14 @@ void CryptoContext<Element>::EvalMultKeyGen(const shared_ptr<LPPrivateKey<Elemen
 }
 
 template <typename Element>
+const vector<shared_ptr<LPEvalKey<Element>>> CryptoContext<Element>::GetEvalMultKeyVector(const string& keyID) const {
+	auto ekv = evalMultKeyMap.find(keyID);
+	if( ekv == evalMultKeyMap.end() )
+		throw std::logic_error("You need to use EvalMultKeyGen so that you have an EvalMultKey available for this ID");
+	return ekv->second;
+}
+
+template <typename Element>
 void CryptoContext<Element>::EvalSumKeyGen(
 	const shared_ptr<LPPrivateKey<Element>> privateKey,
 	const shared_ptr<LPPublicKey<Element>> publicKey) {
@@ -266,13 +274,11 @@ CryptoContextFactory<Element>::GetContext(
 		if( *cc->GetEncryptionAlgorithm().get() == *scheme.get() &&
 				*cc->GetCryptoParameters().get() == *params.get()
 		) {
-			std::cout << "*** USING EXISTING CONTEXT:" << *cc->GetCryptoParameters() << std::endl;
 			return cc;
 		}
 	}
 
 	shared_ptr<CryptoContext<Element>> cc(new CryptoContext<Element>(params,scheme));
-	std::cout << "*** CREATED NEW CONTEXT:" << *cc->GetCryptoParameters() << std::endl;
 	AllContexts.push_back(cc);
 	return cc;
 }

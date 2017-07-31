@@ -142,6 +142,12 @@ rationalInt ArbBVLinearRegressionPackedArray() {
 
 	shared_ptr<Matrix<RationalCiphertext<Poly>>> y = cc->EncryptMatrix(kp.publicKey, yP);
 
+	{
+		for( size_t r=0 ; r < x->GetRows(); r++ )
+			for( size_t c=0 ; c < x->GetCols(); c++ )
+				std::cout << r << "," << c << ": " << (*x)(r,c).GetNumerator()->GetKeyID() << std::endl;
+	}
+
 	////////////////////////////////////////////////////////////
 	//Linear Regression
 	////////////////////////////////////////////////////////////

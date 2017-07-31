@@ -515,6 +515,13 @@ public:
 	void EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> key);
 
 	/**
+	 * GetEvalMultKeyVector fetches the eval mult keys for a given KeyID
+	 * @param keyID
+	 * @return key vector from ID
+	 */
+	const vector<shared_ptr<LPEvalKey<Element>>> GetEvalMultKeyVector(const string& keyID) const;
+
+	/**
 	 * GetEvalMultKey fetches the cached eval mult keys
 	 *
 	 * @return the key to use
@@ -576,7 +583,6 @@ public:
 		if( publicKey == NULL || Mismatched(publicKey->GetCryptoContext()) )
 			throw std::logic_error("key passed to Encrypt was not generated with this crypto context");
 
-		const string& keyID = publicKey->GetKeyID();
 		const BigInteger& ptm = publicKey->GetCryptoParameters()->GetPlaintextModulus();
 		size_t chunkSize = plaintext.GetChunksize(publicKey->GetCryptoContext()->GetRingDimension(), ptm);
 		size_t ptSize = plaintext.GetLength();
@@ -605,7 +611,6 @@ public:
 				break;
 			}
 
-			ciphertext->SetKeyID( keyID );
 			cipherResults.push_back(ciphertext);
 
 		}
@@ -630,7 +635,6 @@ public:
 		if( privateKey == NULL || Mismatched(privateKey->GetCryptoContext()) )
 			throw std::logic_error("key passed to Encrypt was not generated with this crypto context");
 
-		const string& keyID = privateKey->GetKeyID();
 		const BigInteger& ptm = privateKey->GetCryptoParameters()->GetPlaintextModulus();
 		size_t chunkSize = plaintext.GetChunksize(privateKey->GetCryptoContext()->GetRingDimension(), ptm);
 		size_t ptSize = plaintext.GetLength();
@@ -659,7 +663,6 @@ public:
 				break;
 			}
 
-			ciphertext->SetKeyID( keyID );
 			cipherResults.push_back(ciphertext);
 
 		}
@@ -695,7 +698,6 @@ public:
 		if (publicKey == NULL || Mismatched(publicKey->GetCryptoContext()) )
 			throw std::logic_error("key passed to EncryptMatrix was not generated with this crypto context");
 
-		const string& keyID = publicKey->GetKeyID();
 		const BigInteger& ptm = publicKey->GetCryptoParameters()->GetPlaintextModulus();
 
 		double start = 0;
@@ -709,7 +711,6 @@ public:
 
 				shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, pt, doEncryption);
 
-				ciphertext->SetKeyID( keyID );
 				(*cipherResults)(row, col).SetNumerator(*ciphertext);
 			}
 		}
@@ -742,7 +743,6 @@ public:
 		if (publicKey == NULL || Mismatched(publicKey->GetCryptoContext()) )
 			throw std::logic_error("key passed to EncryptMatrix was not generated with this crypto context");
 
-		const string& keyID = publicKey->GetKeyID();
 		const BigInteger& ptm = publicKey->GetCryptoParameters()->GetPlaintextModulus();
 
 		double start = 0;
@@ -756,7 +756,6 @@ public:
 
 				shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, pt, doEncryption);
 
-				ciphertext->SetKeyID( keyID );
 				(*cipherResults)(row, col).SetNumerator(*ciphertext);
 			}
 		}
@@ -790,7 +789,6 @@ public:
 
 		bool padded = false;
 		BytePlaintextEncoding px;
-		const string& keyID = publicKey->GetKeyID();
 		const BigInteger& ptm = publicKey->GetCryptoContext()->GetCryptoParameters()->GetPlaintextModulus();
 		size_t chunkSize = px.GetChunksize(publicKey->GetCryptoContext()->GetRingDimension(), ptm);
 		char *ptxt = new char[chunkSize];
@@ -816,8 +814,6 @@ public:
 				delete [] ptxt;
 				return;
 			}
-
-			ciphertext->SetKeyID( keyID );
 
 			Serialized cS;
 
@@ -1331,16 +1327,19 @@ public:
 	shared_ptr<Ciphertext<Element>>
 	EvalMult(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Ciphertext<Element>> ct2) const
 	{
-		if( ct1 == NULL || ct2 == NULL ||
-				Mismatched(ct1->GetCryptoContext()) ||
-				Mismatched(ct2->GetCryptoContext()) )
-			throw std::logic_error("Information passed to EvalMult was not generated with this crypto context");
+		if( ct1 == NULL || ct2 == NULL )
+			throw std::logic_error("Null argument(s) passed to EvalMult");
+		if( ct1->GetKeyID() != ct2->GetKeyID() )
+			throw std::logic_error("Ciphertexts were not encrypted with same keys, cannot be used by EvalMult");
+		// Since the IDs match we know they're both from the same context; only need to check one
+		if( Mismatched(ct1->GetCryptoContext()) )
+			throw std::logic_error("Ciphertexts passed to EvalMult was not generated with this crypto context");
 
-		auto ek = GetEvalMultKey();
+		auto ek = GetEvalMultKeyVector(ct1->GetKeyID());
 
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
-		auto rv = GetEncryptionAlgorithm()->EvalMult(ct1, ct2, ek);
+		auto rv = GetEncryptionAlgorithm()->EvalMult(ct1, ct2, ek[0]);
 		if( doTiming ) {
 			timeSamples->push_back( TimingInfo(OpEvalMult, currentDateTime() - start) );
 		}
@@ -1381,31 +1380,6 @@ public:
 		auto rv = GetEncryptionAlgorithm()->EvalMultPlain(ciphertext, plaintext);
 		if( doTiming ) {
 			timeSamples->push_back( TimingInfo(OpEvalMultPlain, currentDateTime() - start) );
-		}
-		return rv;
-	}
-
-	/**
-	 * EvalMult - PALISADE EvalMult method for a pair of ciphertexts, followed by recrypt with given key
-	 * @param ct1
-	 * @param ct2
-	 * @param ek
-	 * @return new ciphertext for ct1 * ct2, recrypted with ek
-	 */
-	shared_ptr<Ciphertext<Element>>
-	EvalMult(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Ciphertext<Element>> ct2, const shared_ptr<LPEvalKey<Element>> ek) const
-	{
-		if( ct1 == NULL || ct2 == NULL || ek == NULL ||
-				Mismatched(ct1->GetCryptoContext()) ||
-				Mismatched(ct2->GetCryptoContext()) ||
-				Mismatched(ek->GetCryptoContext()) )
-			throw std::logic_error("Information passed to EvalMult was not generated with this crypto context");
-
-		double start = 0;
-		if( doTiming ) start = currentDateTime();
-		auto rv = GetEncryptionAlgorithm()->EvalMult(ct1, ct2, ek);
-		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpEvalMultKey, currentDateTime() - start) );
 		}
 		return rv;
 	}

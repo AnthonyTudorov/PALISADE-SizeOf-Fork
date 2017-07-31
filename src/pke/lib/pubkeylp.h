@@ -1912,7 +1912,9 @@ namespace lbcrypto {
 		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
 			Poly &plaintext, bool doEncryption = true) const {
 				if(this->m_algorithmEncryption) {
-					return this->m_algorithmEncryption->Encrypt(publicKey,plaintext,doEncryption);
+					auto ct = this->m_algorithmEncryption->Encrypt(publicKey,plaintext,doEncryption);
+					ct->SetKeyID( publicKey->GetKeyID() );
+					return ct;
 				}
 				else {
 					throw std::logic_error("Encrypt operation has not been enabled");
@@ -1922,7 +1924,9 @@ namespace lbcrypto {
 		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
 			Poly &plaintext, bool doEncryption = true) const {
 				if(this->m_algorithmEncryption) {
-					return this->m_algorithmEncryption->Encrypt(privateKey,plaintext,doEncryption);
+					auto ct = this->m_algorithmEncryption->Encrypt(privateKey,plaintext,doEncryption);
+					ct->SetKeyID( privateKey->GetKeyID() );
+					return ct;
 				}
 				else {
 					throw std::logic_error("Encrypt operation has not been enabled");
@@ -1991,6 +1995,7 @@ namespace lbcrypto {
 		//
 
 		// Wrapper for Multiparty Key Gen
+		// FIXME key IDs for multiparty
 		LPKeyPair<Element> MultipartyKeyGen(shared_ptr<CryptoContext<Element>> cc,
 			const shared_ptr<LPPublicKey<Element>> pk1,
 			bool makeSparse) {
@@ -2002,6 +2007,7 @@ namespace lbcrypto {
 		}
 
 		// Wrapper for Multiparty Key Gen
+		// FIXME key IDs for multiparty
 		LPKeyPair<Element> MultipartyKeyGen(shared_ptr<CryptoContext<Element>> cc,
 			const vector<shared_ptr<LPPrivateKey<Element>>>& secretKeys,
 			bool makeSparse) {
@@ -2012,29 +2018,35 @@ namespace lbcrypto {
 				}
 		}
 
+		// FIXME key IDs for multiparty
 		shared_ptr<Ciphertext<Element>> MultipartyDecryptMain(const shared_ptr<LPPrivateKey<Element>> privateKey, 
 				const shared_ptr<Ciphertext<Element>> ciphertext) const {
-				if(this->m_algorithmMultiparty)
-					return this->m_algorithmMultiparty->MultipartyDecryptMain(privateKey,ciphertext);
-				else {
+				if(this->m_algorithmMultiparty) {
+					auto ct = this->m_algorithmMultiparty->MultipartyDecryptMain(privateKey,ciphertext);
+					ct->SetKeyID( privateKey->GetKeyID() );
+					return ct;
+				} else {
 					throw std::logic_error("MultipartyDecryptMain operation has not been enabled");
 				}
 		}
 
+		// FIXME key IDs for multiparty
 		shared_ptr<Ciphertext<Element>> MultipartyDecryptLead(const shared_ptr<LPPrivateKey<Element>> privateKey, 
 				const shared_ptr<Ciphertext<Element>> ciphertext) const {
-				if(this->m_algorithmMultiparty)
-					return this->m_algorithmMultiparty->MultipartyDecryptLead(privateKey,ciphertext);
-				else {
+				if(this->m_algorithmMultiparty) {
+					auto ct = this->m_algorithmMultiparty->MultipartyDecryptLead(privateKey,ciphertext);
+					ct->SetKeyID( privateKey->GetKeyID() );
+					return ct;
+				} else {
 					throw std::logic_error("MultipartyDecryptLead operation has not been enabled");
 				}
 		}
 
 		DecryptResult MultipartyDecryptFusion(const vector<shared_ptr<Ciphertext<Element>>>& ciphertextVec,
 				Poly *plaintext) const {
-				if(this->m_algorithmMultiparty)
+				if(this->m_algorithmMultiparty) {
 					return this->m_algorithmMultiparty->MultipartyDecryptFusion(ciphertextVec,plaintext);
-				else {
+				} else {
 					throw std::logic_error("MultipartyDecrypt operation has not been enabled");
 				}
 		}
@@ -2048,15 +2060,17 @@ namespace lbcrypto {
 			if (this->m_algorithmSHE)
 				return this->m_algorithmSHE->AddRandomNoise(ciphertext);
 			else {
-				throw std::logic_error("EvalAdd operation has not been enabled");
+				throw std::logic_error("AddRandomNoise operation has not been enabled");
 			}
 		}
 		shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext1,
 			const shared_ptr<Ciphertext<Element>> ciphertext2) const {
 
-			if (this->m_algorithmSHE)
-				return this->m_algorithmSHE->EvalAdd(ciphertext1, ciphertext2);
-			else {
+			if (this->m_algorithmSHE) {
+				auto ct = this->m_algorithmSHE->EvalAdd(ciphertext1, ciphertext2);
+				ct->SetKeyID( ciphertext1->GetKeyID() );
+				return ct;
+			} else {
 				throw std::logic_error("EvalAdd operation has not been enabled");
 			}
 		}
@@ -2064,29 +2078,35 @@ namespace lbcrypto {
 		shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext1,
 			const shared_ptr<Ciphertext<Element>> ciphertext2) const {
 
-			if (this->m_algorithmSHE)
-				return this->m_algorithmSHE->EvalSub(ciphertext1, ciphertext2);
-			else {
+			if (this->m_algorithmSHE) {
+				auto ct = this->m_algorithmSHE->EvalSub(ciphertext1, ciphertext2);
+				ct->SetKeyID( ciphertext1->GetKeyID() );
+				return ct;
+			} else {
 				throw std::logic_error("EvalSub operation has not been enabled");
 			}
 		}
 
-		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
-			const shared_ptr<Ciphertext<Element>> ciphertext2) const {
-
-			if (this->m_algorithmSHE)
-				return this->m_algorithmSHE->EvalMult(ciphertext1, ciphertext2);
-			else {
-				throw std::logic_error("EvalMult operation has not been enabled");
-			}
-		}
+//		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
+//			const shared_ptr<Ciphertext<Element>> ciphertext2) const {
+//
+//			if (this->m_algorithmSHE) {
+//				auto ct = this->m_algorithmSHE->EvalMult(ciphertext1, ciphertext2);
+//				ct->SetKeyID( ciphertext1->GetKeyID() );
+//				return ct;
+//			} else {
+//				throw std::logic_error("EvalMult operation has not been enabled");
+//			}
+//		}
 
 		shared_ptr<Ciphertext<Element>> EvalMultPlain(const shared_ptr<Ciphertext<Element>> ciphertext,
 			const shared_ptr<Ciphertext<Element>> plaintext) const {
 
-			if (this->m_algorithmSHE)
-				return this->m_algorithmSHE->EvalMultPlain(ciphertext, plaintext);
-			else {
+			if (this->m_algorithmSHE) {
+				auto ct = this->m_algorithmSHE->EvalMultPlain(ciphertext, plaintext);
+				ct->SetKeyID( ciphertext->GetKeyID() );
+				return ct;
+			} else {
 				throw std::logic_error("EvalMult operation has not been enabled");
 			}
 		}
@@ -2095,9 +2115,11 @@ namespace lbcrypto {
 			const shared_ptr<Ciphertext<Element>> ciphertext2,
 			const shared_ptr<LPEvalKey<Element>> evalKey) const {
 
-			if (this->m_algorithmSHE)
-				return this->m_algorithmSHE->EvalMult(ciphertext1, ciphertext2, evalKey);
-			else {
+			if (this->m_algorithmSHE) {
+				auto ct = this->m_algorithmSHE->EvalMult(ciphertext1, ciphertext2, evalKey);
+				ct->SetKeyID( evalKey->GetKeyID() );
+				return ct;
+			} else {
 				throw std::logic_error("EvalMult operation has not been enabled");
 			}
 		}
@@ -2114,9 +2136,11 @@ namespace lbcrypto {
 
 		shared_ptr<Ciphertext<Element>> EvalNegate(const shared_ptr<Ciphertext<Element>> ciphertext) const {
 
-			if (this->m_algorithmSHE)
-				return this->m_algorithmSHE->EvalNegate(ciphertext);
-			else {
+			if (this->m_algorithmSHE) {
+				auto ct = this->m_algorithmSHE->EvalNegate(ciphertext);
+				ct->SetKeyID( ciphertext->GetKeyID() );
+				return ct;
+			} else {
 				throw std::logic_error("EvalNegate operation has not been enabled");
 			}
 		}
@@ -2125,27 +2149,35 @@ namespace lbcrypto {
 			const shared_ptr<LPPrivateKey<Element>> origPrivateKey,
 			const std::vector<usint> &indexList) const {
 
-			if (this->m_algorithmSHE)
-				return this->m_algorithmSHE->EvalAutomorphismKeyGen(publicKey,origPrivateKey,indexList);
-			else
+			if (this->m_algorithmSHE) {
+				auto km = this->m_algorithmSHE->EvalAutomorphismKeyGen(publicKey,origPrivateKey,indexList);
+				for( auto& k : *km )
+					k.second->SetKeyID( publicKey->GetKeyID() );
+				return km;
+			} else
 				throw std::logic_error("EvalAutomorphismKeyGen operation has not been enabled");
 		}
 
 		shared_ptr<Ciphertext<Element>> EvalAutomorphism(const shared_ptr<Ciphertext<Element>> ciphertext, usint i,
 			const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalKeys) const {
 
-			if (this->m_algorithmSHE)
-				return this->m_algorithmSHE->EvalAutomorphism(ciphertext, i, evalKeys);
-			else
+			if (this->m_algorithmSHE) {
+				auto ct = this->m_algorithmSHE->EvalAutomorphism(ciphertext, i, evalKeys);
+				ct->SetKeyID( evalKeys.begin()->second->GetKeyID() );
+				return ct;
+			} else
 				throw std::logic_error("EvalAutomorphism operation has not been enabled");
 		}
 
 		shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey,
 			const std::vector<usint> &indexList) const {
 
-			if (this->m_algorithmSHE)
-				return this->m_algorithmSHE->EvalAutomorphismKeyGen(privateKey, indexList);
-			else
+			if (this->m_algorithmSHE) {
+				auto km = this->m_algorithmSHE->EvalAutomorphismKeyGen(privateKey, indexList);
+				for( auto& k : *km )
+					k.second->SetKeyID( privateKey->GetKeyID() );
+				return km;
+			} else
 				throw std::logic_error("EvalAutomorphismKeyGen operation has not been enabled");
 		}
 
@@ -2153,18 +2185,24 @@ namespace lbcrypto {
 			const shared_ptr<LPPrivateKey<Element>> privateKey,
 			const shared_ptr<LPPublicKey<Element>> publicKey) const {
 
-			if (this->m_algorithmSHE)
-				return this->m_algorithmSHE->EvalSumKeyGen(privateKey,publicKey);
-			else
+			if (this->m_algorithmSHE) {
+				auto km = this->m_algorithmSHE->EvalSumKeyGen(privateKey,publicKey);
+				for( auto& k : *km ) {
+					k.second->SetKeyID( privateKey->GetKeyID() );
+				}
+				return km;
+			} else
 				throw std::logic_error("EvalSumKeyGen operation has not been enabled");
 		}
 
 		shared_ptr<Ciphertext<Element>> EvalSum(const shared_ptr<Ciphertext<Element>> ciphertext, usint batchSize,
 			const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalKeys) const {
 
-			if (this->m_algorithmSHE)
-				return this->m_algorithmSHE->EvalSum(ciphertext, batchSize, evalKeys);
-			else
+			if (this->m_algorithmSHE) {
+				auto ct = this->m_algorithmSHE->EvalSum(ciphertext, batchSize, evalKeys);
+				ct->SetKeyID( evalKeys.begin()->second->GetKeyID() );
+				return ct;
+			} else
 				throw std::logic_error("EvalSum operation has not been enabled");
 
 		}
@@ -2174,9 +2212,11 @@ namespace lbcrypto {
 			const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalSumKeys,
 			const shared_ptr<LPEvalKey<Element>> evalMultKey) const {
 
-			if (this->m_algorithmSHE)
-				return this->m_algorithmSHE->EvalInnerProduct(ciphertext1, ciphertext2, batchSize, evalSumKeys, evalMultKey);
-			else
+			if (this->m_algorithmSHE) {
+				auto ct = this->m_algorithmSHE->EvalInnerProduct(ciphertext1, ciphertext2, batchSize, evalSumKeys, evalMultKey);
+				ct->SetKeyID( evalSumKeys.begin()->second->GetKeyID() );
+				return ct;
+			} else
 				throw std::logic_error("EvalInnerProduct operation has not been enabled");
 
 		}
@@ -2187,9 +2227,11 @@ namespace lbcrypto {
 				const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalSumKeys,
 				const shared_ptr<LPEvalKey<Element>> evalMultKey) const {
 
-			if (this->m_algorithmSHE)
-				return this->m_algorithmSHE->EvalLinRegressBatched(x, y, batchSize, evalSumKeys, evalMultKey);
-			else
+			if (this->m_algorithmSHE) {
+				auto ctm = this->m_algorithmSHE->EvalLinRegressBatched(x, y, batchSize, evalSumKeys, evalMultKey);
+				// FIXME mark every node... with which key???
+				return ctm;
+			} else
 				throw std::logic_error("EvalLinRegressionBatched operation has not been enabled");
 		}
 
@@ -2201,9 +2243,11 @@ namespace lbcrypto {
 				const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalSumKeys,
 				const shared_ptr<LPEvalKey<Element>> evalMultKey) const {
 
-			if (this->m_algorithmSHE)
-				return this->m_algorithmSHE->EvalCrossCorrelation(x, y, batchSize, indexStart, length, evalSumKeys, evalMultKey);
-			else
+			if (this->m_algorithmSHE) {
+				auto ct = this->m_algorithmSHE->EvalCrossCorrelation(x, y, batchSize, indexStart, length, evalSumKeys, evalMultKey);
+				// FIXME: mark with which key?
+				return ct;
+			} else
 				throw std::logic_error("EvalCrossCorrelation operation has not been enabled");
 		}
 
@@ -2219,9 +2263,11 @@ namespace lbcrypto {
 				const shared_ptr<Matrix<RationalCiphertext<Element>>> y) const
 		{
 
-			if (this->m_algorithmSHE)
-				return this->m_algorithmSHE->EvalLinRegression(x, y);
-			else {
+			if (this->m_algorithmSHE) {
+				auto ctm = this->m_algorithmSHE->EvalLinRegression(x, y);
+				// FIXME mark with which key??
+				return ctm;
+			} else {
 				throw std::logic_error("EvalLinRegression operation has not been enabled");
 			}
 
@@ -2231,7 +2277,10 @@ namespace lbcrypto {
 			const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
 			const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
 			if (this->m_algorithmSHE) {
-				return  this->m_algorithmSHE->KeySwitchGen(originalPrivateKey, newPrivateKey);
+				auto kp = this->m_algorithmSHE->KeySwitchGen(originalPrivateKey, newPrivateKey);
+				kp->SetKeyID( newPrivateKey->GetKeyID() );
+				return kp;
+
 			} else {
 				throw std::logic_error("KeySwitchGen operation has not been enabled");
 			}
@@ -2242,7 +2291,10 @@ namespace lbcrypto {
 			const shared_ptr<Ciphertext<Element>> cipherText) const {
 
 			if (this->m_algorithmSHE) {
-				return this->m_algorithmSHE->KeySwitch(keySwitchHint, cipherText);
+				auto ct = this->m_algorithmSHE->KeySwitch(keySwitchHint, cipherText);
+				ct->SetKeyID( keySwitchHint->GetKeyID() );
+				return ct;
+
 			}
 			else {
 				throw std::logic_error("KeySwitch operation has not been enabled");
@@ -2250,18 +2302,22 @@ namespace lbcrypto {
 		}
 
 		shared_ptr<LPEvalKey<Element>> KeySwitchRelinGen(const shared_ptr<LPPublicKey<Element>> newKey, const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const {
-			if (this->m_algorithmSHE)
-				return this->m_algorithmSHE->KeySwitchRelinGen(newKey, origPrivateKey);
-			else {
+			if (this->m_algorithmSHE) {
+				auto kp = this->m_algorithmSHE->KeySwitchRelinGen(newKey, origPrivateKey);
+				kp->SetKeyID( newKey->GetKeyID() );
+				return kp;
+			} else {
 				throw std::logic_error("KeySwitchRelinGen operation has not been enabled");
 			}
 		}
 
 		shared_ptr<Ciphertext<Element>> KeySwitchRelin(const shared_ptr<LPEvalKey<Element>> evalKey,
 			const shared_ptr<Ciphertext<Element>> ciphertext) const {
-			if (this->m_algorithmSHE)
-				return this->m_algorithmSHE->KeySwitchRelin(evalKey, ciphertext);
-			else {
+			if (this->m_algorithmSHE) {
+				auto ct = this->m_algorithmSHE->KeySwitchRelin(evalKey, ciphertext);
+				ct->SetKeyID( evalKey->GetKeyID() );
+				return ct;
+			} else {
 				throw std::logic_error("KeySwitchRelin operation has not been enabled");
 			}
 		}
@@ -2305,8 +2361,10 @@ namespace lbcrypto {
 		//
 
 		shared_ptr<Ciphertext<Element>> ModReduce(shared_ptr<Ciphertext<Element>> cipherText) const {
-			if(this->m_algorithmLeveledSHE){
-				return this->m_algorithmLeveledSHE->ModReduce(cipherText);
+			if(this->m_algorithmLeveledSHE) {
+				auto ct = this->m_algorithmLeveledSHE->ModReduce(cipherText);
+				ct->SetKeyID( cipherText->GetKeyID() );
+				return ct;
 			}
 			else{
 				throw std::logic_error("ModReduce operation has not been enabled");
@@ -2315,7 +2373,9 @@ namespace lbcrypto {
 
 		shared_ptr<Ciphertext<Element>> RingReduce(shared_ptr<Ciphertext<Element>> cipherText, const shared_ptr<LPEvalKey<Element>> keySwitchHint) const {
 			if(this->m_algorithmLeveledSHE){
-				return this->m_algorithmLeveledSHE->RingReduce(cipherText,keySwitchHint);
+				auto ct = this->m_algorithmLeveledSHE->RingReduce(cipherText,keySwitchHint);
+				ct->SetKeyID( keySwitchHint->GetKeyID() );
+				return ct;
 			}
 			else{
 				throw std::logic_error("RingReduce operation has not been enabled");
@@ -2336,7 +2396,9 @@ namespace lbcrypto {
 							const shared_ptr<Ciphertext<Element>> cipherText2,
 							const shared_ptr<LPEvalKey<Element>> quadKeySwitchHint) const {
 			if(this->m_algorithmLeveledSHE){
-				return this->m_algorithmLeveledSHE->ComposedEvalMult(cipherText1,cipherText2,quadKeySwitchHint);
+				auto ct = this->m_algorithmLeveledSHE->ComposedEvalMult(cipherText1,cipherText2,quadKeySwitchHint);
+				ct->SetKeyID( quadKeySwitchHint->GetKeyID() );
+				return ct;
 			}
 			else{
 				throw std::logic_error("ComposedEvalMult operation has not been enabled");
@@ -2346,7 +2408,9 @@ namespace lbcrypto {
 		shared_ptr<Ciphertext<Element>> LevelReduce(const shared_ptr<Ciphertext<Element>> cipherText1,
 				const shared_ptr<LPEvalKeyNTRU<Element>> linearKeySwitchHint) const {
 			if(this->m_algorithmLeveledSHE){
-				return this->m_algorithmLeveledSHE->LevelReduce(cipherText1,linearKeySwitchHint);
+				auto ct = this->m_algorithmLeveledSHE->LevelReduce(cipherText1,linearKeySwitchHint);
+				ct->SetKeyID( linearKeySwitchHint->GetKeyID() );
+				return ct;
 			}
 			else{
 				throw std::logic_error("LevelReduce operation has not been enabled");

@@ -463,9 +463,7 @@ class LPLeveledSHEAlgorithmNull : public LPLeveledSHEAlgorithm<Element> {
 				const shared_ptr<Ciphertext<Element>> cipherText1,
 				const shared_ptr<Ciphertext<Element>> cipherText2,
 				const shared_ptr<LPEvalKey<Element>> quadKeySwitchHint) const {
-			shared_ptr<Ciphertext<Element>> prod = cipherText1->GetCryptoContext()->GetEncryptionAlgorithm()->EvalMult(cipherText1, cipherText2);
-
-			// it's nullscheme so there is no EvalMultKey in use
+			shared_ptr<Ciphertext<Element>> prod = cipherText1->GetCryptoContext()->GetEncryptionAlgorithm()->EvalMult(cipherText1, cipherText2, quadKeySwitchHint);
 
 			return this->ModReduce(prod);
 		}

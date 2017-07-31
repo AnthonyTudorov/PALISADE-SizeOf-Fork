@@ -271,12 +271,9 @@ template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
 	const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const {
 
-	const shared_ptr<LPPublicKeyEncryptionSchemeLTV<Element>> scheme =
-			std::dynamic_pointer_cast<LPPublicKeyEncryptionSchemeLTV<Element>>(ciphertext1->GetCryptoContext()->GetEncryptionAlgorithm());
+	shared_ptr<Ciphertext<Element>> newCiphertext = EvalMult(ciphertext1, ciphertext2);
 
-	shared_ptr<Ciphertext<Element>> newCiphertext = scheme->EvalMult(ciphertext1, ciphertext2); 
-
-	newCiphertext = scheme->KeySwitch(ek,newCiphertext);
+	newCiphertext = KeySwitch(ek, newCiphertext);
 
 	return newCiphertext;
 }
@@ -573,9 +570,7 @@ shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmLTV<Element>::ComposedEvalM
 	const shared_ptr<Ciphertext<Element>> cipherText2,
 	const shared_ptr<LPEvalKey<Element>> ek) const {
 
-	shared_ptr<Ciphertext<Element>> prod = cipherText1->GetCryptoContext()->GetEncryptionAlgorithm()->EvalMult(cipherText1, cipherText2);
-
-	prod = prod->GetCryptoContext()->GetEncryptionAlgorithm()->KeySwitch(ek, prod);
+	shared_ptr<Ciphertext<Element>> prod = cipherText1->GetCryptoContext()->GetEncryptionAlgorithm()->EvalMult(cipherText1, cipherText2, ek);
 
 	return this->ModReduce(prod);
 }
