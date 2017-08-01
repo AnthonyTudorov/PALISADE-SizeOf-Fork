@@ -535,6 +535,11 @@ public:
 		throw std::runtime_error(errMsg);
 	}
 
+	shared_ptr<Ciphertext<Element>> EvalMultMany(const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> ek, ...) const {
+		std::string errMsg = "LPAlgorithmLTV::EvalMultMany is not implemented for the LTV Scheme.";
+		throw std::runtime_error(errMsg);
+	}
+
 	/**
 	* Function for homomorphic negation of ciphertexts.
 	* At a high level, this operation substracts the plaintext value encrypted in the ciphertext from the

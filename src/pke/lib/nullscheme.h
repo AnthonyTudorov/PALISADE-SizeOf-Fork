@@ -592,7 +592,12 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		shared_ptr<Ciphertext<Element>> EvalMultAndRelinearize(const shared_ptr<Ciphertext<Element>> ciphertext1,
 			const shared_ptr<Ciphertext<Element>> ciphertext2,
 			const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> ek) const {
-			std::string errMsg = "LPAlgorithmStSt::EvalMultAndRelinearize is not implemented for the NULL Scheme.";
+			std::string errMsg = "LPAlgorithmNULL::EvalMultAndRelinearize is not implemented for the NULL Scheme.";
+			throw std::runtime_error(errMsg);
+		}
+
+		shared_ptr<Ciphertext<Element>> EvalMultMany(const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> ek, ...) const {
+			std::string errMsg = "LPAlgorithmNULL::EvalMultMany is not implemented for the NULL Scheme.";
 			throw std::runtime_error(errMsg);
 		}
 

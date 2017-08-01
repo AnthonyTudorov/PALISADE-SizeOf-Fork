@@ -374,7 +374,12 @@ namespace lbcrypto {
 		shared_ptr<Ciphertext<Element>> EvalMultAndRelinearize(const shared_ptr<Ciphertext<Element>> ciphertext1,
 			const shared_ptr<Ciphertext<Element>> ciphertext2,
 			const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> ek) const {
-			std::string errMsg = "LPAlgorithmStSt::EvalMultAndRelinearize is not implemented for the BV Scheme.";
+			std::string errMsg = "LPAlgorithmSHEBV::EvalMultAndRelinearize is not implemented for the BV Scheme.";
+			throw std::runtime_error(errMsg);
+		}
+
+		shared_ptr<Ciphertext<Element>> EvalMultMany(const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> ek, ...) const {
+			std::string errMsg = "LPAlgorithmSHEBV::EvalMultMany is not implemented for the BV Scheme.";
 			throw std::runtime_error(errMsg);
 		}
 

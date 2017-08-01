@@ -339,6 +339,12 @@ int main(int argc, char *argv[]) {
 	// Done
 	////////////////////////////////////////////////////////////
 
+	cryptoContext->GetEncryptionAlgorithm()->EvalMultMany(evalKeys, ciphertext1[0], ciphertext2[0]);
+
+
+
+
+
 	std::cout << "Execution Completed." << std::endl;
 
 	return 0;
