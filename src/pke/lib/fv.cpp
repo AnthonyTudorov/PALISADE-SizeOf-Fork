@@ -604,7 +604,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared
 	shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext1->GetCryptoContext()));
 
 	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParamsLWE = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(ciphertext1->GetCryptoContext()->GetCryptoParameters());
-
+	//Check if the multiplication supports the depth
 	if ( (ciphertext1->GetDepth() + ciphertext2->GetDepth()) > cryptoParamsLWE->GetMaxDepth() ) {
 			std::string errMsg = "LPAlgorithmSHEFV::EvalMult multiplicative depth is not supported";
 			throw std::runtime_error(errMsg);
@@ -619,7 +619,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared
 	const BigInteger &bigRootOfUnity = cryptoParamsLWE->GetBigRootOfUnity();
 	const BigInteger &bigModulusArb = cryptoParamsLWE->GetBigModulusArb();
 	const BigInteger &bigRootOfUnityArb = cryptoParamsLWE->GetBigRootOfUnityArb();
-
+	//Get the ciphertext elements
 	std::vector<Element> cipherText1Elements = ciphertext1->GetElements();
 	std::vector<Element> cipherText2Elements = ciphertext2->GetElements();
 
@@ -794,7 +794,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMultAndRelineariz
 	if(!ciphertext2->GetIsEncrypted()) {
 		return EvalMultPlain(ciphertext1, ciphertext2);
 	}
-
+	//Perform a multiplication
 	shared_ptr<Ciphertext<Element>> cipherText = this->EvalMult(ciphertext1, ciphertext2);
 
 	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParamsLWE = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(ek->at(0)->GetCryptoParameters());
@@ -805,7 +805,8 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMultAndRelineariz
 	const std::vector<Element> &c = cipherText->GetElements();
 	Element ct0(c[0]);
 	Element ct1(c[1]);
-
+	// Perform a keyswitching operation to result of the multiplication. It does it until it reaches to 2 elements.
+	//TODO: Maybe we can change the number of keyswitching and terminate early. For instance; perform keyswitching until 4 elements left.
 	for(size_t j = 0; j<=cipherText->GetDepth()-2; j++){
 		size_t index = cipherText->GetDepth()-2-j;
 		shared_ptr<LPEvalKeyRelin<Element>> evalKey = std::static_pointer_cast<LPEvalKeyRelin<Element>>(ek->at(index));
@@ -813,14 +814,12 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMultAndRelineariz
 		const std::vector<Element> &b = evalKey->GetAVector();
 		const std::vector<Element> &a = evalKey->GetBVector();
 
-		//in the case of EvalMult, c[0] is initially in coefficient format and needs to be switched to evaluation format
 		std::vector<Element> digitsC2 = c[index+2].BaseDecompose(relinWindow);
 
 		for (usint i = 0; i < digitsC2.size(); ++i){
 			ct0 += digitsC2[i] * b[i];
 			ct1 += digitsC2[i] * a[i];
 		}
-
 	}
 
 	newCiphertext->SetElements({ ct0, ct1 });
@@ -893,7 +892,7 @@ shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> LPAlgorithmSHEFV<Element>::Ev
 
 	std::vector<Element> sPower(cryptoParamsLWE->GetMaxDepth());
 	std::vector<shared_ptr<LPEvalKey<Element>>> ek(cryptoParamsLWE->GetMaxDepth());
-
+	//Create powers of original key to be used in keyswitching as evaluation keys after they are encrypted.
 	sPower[0] = originalPrivateKey->GetPrivateElement()*originalPrivateKey->GetPrivateElement();
 	for(size_t i=1; i<cryptoParamsLWE->GetMaxDepth(); i++)
 		sPower[i] = sPower[i-1] * originalPrivateKey->GetPrivateElement();

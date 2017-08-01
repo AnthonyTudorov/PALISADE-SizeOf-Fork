@@ -582,7 +582,9 @@ namespace lbcrypto {
 					const shared_ptr<LPPrivateKey<Element>> k1) const;
 
 		/**
-		* Function to generate 1..log(q) encryptions for each bit of the square of the original private key
+		* Function to generate 1..log(q) encryptions for each bit of the powers of the original private key.
+		* The number of the powers is determined by the depth. If we choose depth 4, it means we can decrypt
+		* ciphertexts with 5 elements. For c[i] being the ciphertext elements, we compute \sum_{i=0}^{i<5} c[i]*s^i.
 		*
 		* @param k1 private key.
 		* @return evaluation key.

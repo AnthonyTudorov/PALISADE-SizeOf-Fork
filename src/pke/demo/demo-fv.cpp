@@ -92,6 +92,8 @@ int main(int argc, char *argv[]) {
 	start = currentDateTime();
 
 	keyPair = cryptoContext->KeyGen();
+
+	//Create evaluation key vector to be used in keyswitching
 	shared_ptr<vector<shared_ptr<LPEvalKey<Poly>>>> evalKeys = cryptoContext->GetEncryptionAlgorithm()->EvalMultKeysGen(keyPair.secretKey);
 
 	finish = currentDateTime();
@@ -215,7 +217,7 @@ int main(int argc, char *argv[]) {
 	vector<shared_ptr<Ciphertext<Poly>>> ciphertextMulVect5;
 
 	start = currentDateTime();
-
+	//Perform consecutive multiplications and do a keyswtiching at the end.
 	ciphertextMul12     = cryptoContext->GetEncryptionAlgorithm()->EvalMult(ciphertext1[0],ciphertext2[0]);
 	ciphertextMul123    = cryptoContext->GetEncryptionAlgorithm()->EvalMult(ciphertextMul12, ciphertext3[0]);
 	ciphertextMul1234   = cryptoContext->GetEncryptionAlgorithm()->EvalMult(ciphertextMul123, ciphertext4[0]);
