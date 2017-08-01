@@ -114,7 +114,7 @@ template <class Element>
 usint ObfuscatedLWEConjunctionPattern<Element>::GetLogModulus() const{
 	double val = this->m_elemParams->GetModulus().ConvertToDouble();
 	//std::cout << "val : " << val << std::endl;
-	double logTwo = log(val-1.0)/log(2)+1.0;
+	double logTwo = log2(val-1.0)+1.0;
 	//std::cout << "logTwo : " << logTwo << std::endl;
 	usint logModulus = (usint) floor(logTwo);// = this->m_elemParams.GetModulus();
 	return logModulus;
@@ -190,6 +190,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::ParamsGen(typename Element::Dg
 
 	double qPrev = 1e6;
 	double q = 0;
+	usint k = 0;
 
 	//If ring dimension was provided as input
 	if ( n > 0 )
@@ -200,7 +201,8 @@ void LWEConjunctionObfuscationAlgorithm<Element>::ParamsGen(typename Element::Dg
 		//get a more accurate value of q
 		while (std::abs(q - qPrev) > 0.001*q) {
 			qPrev = q;
-			q = qCorrectness(n, floor(log2(qPrev) + 1) + 2);
+			k = ceil(floor(log2(qPrev-1) + 1)/log2(base));
+			q = qCorrectness(n, k + 2);
 		}
 	}
 	//compute ring dimension and modulus based on the root Hermite factor
@@ -208,7 +210,8 @@ void LWEConjunctionObfuscationAlgorithm<Element>::ParamsGen(typename Element::Dg
 	{
 		//initial values
 		n = 512;
-		q = qCorrectness(n, floor(log2(qPrev) + 1) + 2);
+		k = ceil(floor(log2(qPrev-1) + 1)/log2(base));
+		q = qCorrectness(n, k + 2);
 
 		//needed if the more accurate value of q bumps up the ring dimension requirement
 		//entered at most twice
@@ -217,7 +220,8 @@ void LWEConjunctionObfuscationAlgorithm<Element>::ParamsGen(typename Element::Dg
 			//get good estimates of n and q
 			while (nRLWE(q) > n) {
 				n = 2 * n;
-				q = qCorrectness(n, floor(log2(qPrev) + 1) + 2);
+				k = ceil(floor(log2(qPrev-1) + 1)/log2(base));
+				q = qCorrectness(n, k + 2);
 				qPrev = q;
 			}
 
@@ -225,7 +229,8 @@ void LWEConjunctionObfuscationAlgorithm<Element>::ParamsGen(typename Element::Dg
 			q = qCorrectness(n, floor(log2(qPrev) + 1) + 2);
 			while (std::abs(q - qPrev) > 0.001*q) {
 				qPrev = q;
-				q = qCorrectness(n, floor(log2(qPrev) + 1) + 2);
+				k = ceil(floor(log2(qPrev-1) + 1)/log2(base));
+				q = qCorrectness(n, k + 2);
 			}
 
 		}
@@ -384,9 +389,10 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 	usint l = clearPattern.GetLength();
 	usint n = obfuscatedPattern->GetRingDimension();
 	BigInteger q(obfuscatedPattern->GetModulus());
-	usint m = obfuscatedPattern->GetLogModulus() + 2;
-	usint chunkSize = obfuscatedPattern->GetChunkSize();
+	usint k = obfuscatedPattern->GetLogModulus();
 	usint base = obfuscatedPattern->GetBase();
+	usint m = ceil(k/log2(base)) + 2;
+	usint chunkSize = obfuscatedPattern->GetChunkSize();
 	usint adjustedLength = l/chunkSize;
 	usint chunkExponent = 1 << chunkSize;
 	const shared_ptr<typename Element::Params> params = obfuscatedPattern->GetParameters();
@@ -396,7 +402,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 
 	typename Element::DggType dggLargeSigma(sqrt(s * s - c * c));
 
-	typename Element::DggType dggEncoding((m-2)*sqrt(n)*SIGMA);
+	typename Element::DggType dggEncoding(k*sqrt(n)*SIGMA);
 
 	const std::string patternString = clearPattern.GetPatternString();
 
@@ -411,7 +417,8 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 	std::cout << "Pattern length \t l : " << l << std::endl;
 	std::cout << "Ring dimension \t n : " << n << std::endl;
 	std::cout << "Modulus \t q : " << q << std::endl;
-	std::cout << "Num bits + 2 \t m : " << m << std::endl;
+	std::cout << "Num bits \t k : " << k << std::endl;
+	std::cout << "Num digits + 2 \t m : " << m << std::endl;
 
 	// Initialize the s and r matrices.
 	vector<vector<Element>> s_small;
@@ -600,7 +607,9 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::EvaluateV2(
 	usint l = obfuscatedPattern.GetLength();
 	usint n = obfuscatedPattern.GetRingDimension();
 	BigInteger q(obfuscatedPattern.GetModulus());
-	usint m = obfuscatedPattern.GetLogModulus() + 2;
+	usint k = obfuscatedPattern.GetLogModulus();
+	usint base = obfuscatedPattern.GetBase();
+	usint m = ceil(k/log2(base)) + 2;
 	usint chunkSize = obfuscatedPattern.GetChunkSize();
 	usint adjustedLength = l/chunkSize;
 	double constraint = obfuscatedPattern.GetConstraint();
@@ -615,7 +624,7 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::EvaluateV2(
 	std::cout << "Pattern length \t l : " << l << std::endl;
 	std::cout << "Ring dimension \t n : " << n << std::endl;
 	std::cout << "Modulus \t q : " << q << std::endl;
-	std::cout << "Num bits \t m : " << m << std::endl;
+	std::cout << "Num digits \t m : " << m << std::endl;
 	std::cout << "Constraint \t : " << constraint << std::endl;
 
 	std::string testVal;
@@ -708,7 +717,9 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::EvaluateACS(
 	usint l = obfuscatedPattern.GetLength();
 	//usint n = obfuscatedPattern.GetRingDimension();
 	BigInteger q(obfuscatedPattern.GetModulus());
-	usint m = obfuscatedPattern.GetLogModulus() + 2;
+	usint k = obfuscatedPattern.GetLogModulus();
+	usint base = obfuscatedPattern.GetBase();
+	usint m = ceil(k/log2(base)) + 2;
 	usint chunkSize = obfuscatedPattern.GetChunkSize();
 	usint adjustedLength = l/chunkSize;
 	double constraint = obfuscatedPattern.GetConstraint();
@@ -724,7 +735,7 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::EvaluateACS(
 	//std::cout << "Pattern length \t l : " << l << std::endl;
 	//std::cout << "Ring dimension \t n : " << n << std::endl;
 	//std::cout << "Modulus \t q : " << q << std::endl;
-	//std::cout << "Num bits \t m : " << m << std::endl;
+	//std::cout << "Num digits \t m : " << m << std::endl;
 	//std::cout << "Constraint \t : " << constraint << std::endl;
 
 	std::string testVal;
@@ -828,7 +839,9 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 	usint l = obfuscatedPattern.GetLength();
 	//usint n = obfuscatedPattern.GetRingDimension();
 	BigInteger q(obfuscatedPattern.GetModulus());
-	usint m = obfuscatedPattern.GetLogModulus() + 2;
+	usint k = obfuscatedPattern.GetLogModulus();
+	usint base = obfuscatedPattern.GetBase();
+	usint m = ceil(k/log2(base)) + 2;
 	usint chunkSize = obfuscatedPattern.GetChunkSize();
 	usint adjustedLength = l/chunkSize;
 	double constraint = obfuscatedPattern.GetConstraint();
@@ -843,7 +856,7 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 	//std::cout << "Pattern length \t l : " << l << std::endl;
 	//std::cout << "Ring dimension \t n : " << n << std::endl;
 	//std::cout << "Modulus \t q : " << q << std::endl;
-	//std::cout << "Num bits \t m : " << m << std::endl;
+	//std::cout << "Num digits \t m : " << m << std::endl;
 	//std::cout << "Constraint \t : " << constraint << std::endl;
 
 	std::string testVal;
