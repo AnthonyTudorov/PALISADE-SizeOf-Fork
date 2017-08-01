@@ -435,8 +435,16 @@ DecryptResult LPAlgorithmFV<Element>::Decrypt(const shared_ptr<LPPrivateKey<Elem
 	Element sPower = s;
 
 	Element b = c[0];
+	if(b.GetFormat() == Format::COEFFICIENT)
+		b.SwitchFormat();
+
+	Element cTemp;
 	for(size_t i=1; i<=ciphertext->GetDepth(); i++){
-		b += sPower*c[i];
+		cTemp = c[i];
+		if(cTemp.GetFormat() == Format::COEFFICIENT)
+			cTemp.SwitchFormat();
+
+		b += sPower*cTemp;
 		sPower *= s;
 	}
 
@@ -592,9 +600,17 @@ template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
 	const shared_ptr<Ciphertext<Element>> ciphertext2) const {
 
-	if (ciphertext1->GetElements()[0].GetFormat() == Format::COEFFICIENT || ciphertext2->GetElements()[0].GetFormat() == Format::COEFFICIENT) {
-		throw std::runtime_error("LPAlgorithmSHEFV::EvalMult cannot multiply in COEFFICIENT domain.");
-	}
+//	if (ciphertext1->GetElements()[0].GetFormat() == Format::COEFFICIENT || ciphertext2->GetElements()[0].GetFormat() == Format::COEFFICIENT) {
+//		throw std::runtime_error("LPAlgorithmSHEFV::EvalMult cannot multiply in COEFFICIENT domain.");
+//	}
+	bool isCiphertext1FormatCoeff = false;
+	bool isCiphertext2FormatCoeff = false;
+
+	if(ciphertext1->GetElements()[0].GetFormat() == Format::COEFFICIENT)
+			isCiphertext1FormatCoeff = true;
+
+	if(ciphertext2->GetElements()[0].GetFormat() == Format::COEFFICIENT)
+			isCiphertext2FormatCoeff = true;
 
 	if (!(ciphertext1->GetCryptoParameters() == ciphertext2->GetCryptoParameters())) {
 		std::string errMsg = "LPAlgorithmSHEFV::EvalMult crypto parameters are not the same";
@@ -630,11 +646,13 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared
 
 	std::vector<Element> c(cipherTextRElementsSize);
 
-	for(size_t i=0; i<cipherText1ElementsSize; i++)
-		cipherText1Elements[i].SwitchFormat();
+	if(isCiphertext1FormatCoeff != true)
+		for(size_t i=0; i<cipherText1ElementsSize; i++)
+			cipherText1Elements[i].SwitchFormat();
 
-	for(size_t i=0; i<cipherText2ElementsSize; i++)
-		cipherText2Elements[i].SwitchFormat();
+	if(isCiphertext2FormatCoeff != true)
+		for(size_t i=0; i<cipherText2ElementsSize; i++)
+			cipherText2Elements[i].SwitchFormat();
 
 	//switches the modulus to a larger value so that polynomial multiplication w/o mod q can be performed
 	for(size_t i=0; i<cipherText1ElementsSize; i++)
@@ -681,8 +699,8 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared
 	//converts the ciphertext elements back to evaluation representation
 	//TODO: Originally EvalMult returns coeff format and KeySwitch converts it to evaluation format.
 	//However, Since we call EvalMult many times we need to store everything in eval format.
-	for(size_t i=0; i<cipherTextRElementsSize; i++)
-		c[i].SwitchFormat();
+//	for(size_t i=0; i<cipherTextRElementsSize; i++)
+//		c[i].SwitchFormat();
 
 	newCiphertext->SetElements(c);
 	newCiphertext->SetDepth((ciphertext1->GetDepth() + ciphertext2->GetDepth()));
@@ -802,7 +820,12 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMultAndRelineariz
 
 	shared_ptr<Ciphertext<Element>> newCiphertext( new Ciphertext<Element>(ek->at(0)->GetCryptoContext()) );
 
-	const std::vector<Element> &c = cipherText->GetElements();
+	std::vector<Element> c = cipherText->GetElements();
+
+	if(c[0].GetFormat() == Format::COEFFICIENT)
+		for(size_t i=0; i<c.size(); i++)
+			c[i].SwitchFormat();
+
 	Element ct0(c[0]);
 	Element ct1(c[1]);
 	// Perform a keyswitching operation to result of the multiplication. It does it until it reaches to 2 elements.
