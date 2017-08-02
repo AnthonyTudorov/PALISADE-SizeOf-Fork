@@ -186,23 +186,27 @@ void LWEConjunctionObfuscationAlgorithm<Element>::ParamsGen(typename Element::Dg
 	auto nRLWE = [&](double q) -> double { return log2(q / sigma) / (4 * log2(hermiteFactor));  };
 
 	//Correctness constraint
-	auto qCorrectness = [&](uint32_t n, uint32_t m) -> double { return  32*Berr*(m-2)*sqrt(n)*pow(sqrt(m*n)*beta*SPECTRAL_BOUND(n,m-2,base),length);  };
+	auto qCorrectness = [&](uint32_t n, uint32_t m, uint32_t k) -> double { return  32*Berr*k*sqrt(n)*pow(sqrt(m*n)*beta*SPECTRAL_BOUND(n,m-2,base),length);  };
 
 	double qPrev = 1e6;
 	double q = 0;
 	usint k = 0;
+	usint m = 0;
 
 	//If ring dimension was provided as input
 	if ( n > 0 )
 	{ 
 		//initial value
-		q = qCorrectness(n, floor(log2(qPrev)+1)+2);
+		k = ceil(log2(qPrev));
+		m = ceil(k / log2(base)) + 2;
+		q = qCorrectness(n, m, k);
 
 		//get a more accurate value of q
 		while (std::abs(q - qPrev) > 0.001*q) {
 			qPrev = q;
-			k = ceil(floor(log2(qPrev-1) + 1)/log2(base));
-			q = qCorrectness(n, k + 2);
+			k = ceil(log2(qPrev));
+			m = ceil(k / log2(base)) + 2;
+			q = qCorrectness(n, m, k);
 		}
 	}
 	//compute ring dimension and modulus based on the root Hermite factor
@@ -210,8 +214,9 @@ void LWEConjunctionObfuscationAlgorithm<Element>::ParamsGen(typename Element::Dg
 	{
 		//initial values
 		n = 512;
-		k = ceil(floor(log2(qPrev-1) + 1)/log2(base));
-		q = qCorrectness(n, k + 2);
+		k = ceil(log2(qPrev));
+		m = ceil(k / log2(base)) + 2;
+		q = qCorrectness(n, m, k);
 
 		//needed if the more accurate value of q bumps up the ring dimension requirement
 		//entered at most twice
@@ -220,23 +225,27 @@ void LWEConjunctionObfuscationAlgorithm<Element>::ParamsGen(typename Element::Dg
 			//get good estimates of n and q
 			while (nRLWE(q) > n) {
 				n = 2 * n;
-				k = ceil(floor(log2(qPrev-1) + 1)/log2(base));
-				q = qCorrectness(n, k + 2);
+				k = ceil(log2(qPrev));
+				m = ceil(k / log2(base)) + 2;
+				q = qCorrectness(n, m, k);
 				qPrev = q;
 			}
 
 			//find a more accurate value of q for this value of n
-			q = qCorrectness(n, floor(log2(qPrev) + 1) + 2);
+			k = ceil(log2(qPrev));
+			m = ceil(k / log2(base)) + 2;
+			q = qCorrectness(n, m, k);
 			while (std::abs(q - qPrev) > 0.001*q) {
 				qPrev = q;
-				k = ceil(floor(log2(qPrev-1) + 1)/log2(base));
-				q = qCorrectness(n, k + 2);
+				k = ceil(log2(qPrev));
+				m = ceil(k / log2(base)) + 2;
+				q = qCorrectness(n, m, k);
 			}
 
 		}
 	}
 
-	BigInteger qPrime = FirstPrime<BigInteger>(floor(log2(q) + 1) + 1, 2*n);
+	BigInteger qPrime = FirstPrime<BigInteger>(ceil(log2(q)), 2*n);
 	BigInteger rootOfUnity = RootOfUnity<BigInteger>(2 * n, qPrime);
 
 	//Prepare for parameters.
@@ -933,7 +942,7 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 	norm = CrossProd.Norm();
 	DEBUG("Eval5: " <<TOC(t1) <<" ms");
 
-	//std::cout << " Norm: " << norm << std::endl;
+	std::cout << " Norm: " << norm << std::endl;
 
 	return (norm <= constraint);
 

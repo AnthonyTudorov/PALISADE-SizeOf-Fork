@@ -58,7 +58,7 @@ void Run() {
 	//BigInteger rootOfUnity("7629104920968175");
 
 	usint chunkSize = 2;
-	usint base = 2;
+	usint base = 1<<9;
 	std::string inputPattern = "1?10?1";
 	ClearLWEConjunctionPattern<Poly> clearPattern(inputPattern);
 
