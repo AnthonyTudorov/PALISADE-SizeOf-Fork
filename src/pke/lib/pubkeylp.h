@@ -1251,6 +1251,15 @@ namespace lbcrypto {
 		virtual shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
 			const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const = 0;
 
+		/**
+		* Virtual function for evaluating multiplication of a ciphertext list which each multiplication is followed by relinearization operation.
+		*
+		* @param ek is the evaluation key to make the newCiphertext
+		*  decryptable by the same secret key as that of ciphertext list.
+  		* @param cipCount is the number of ciphertext in the argument list.
+		* @param args  is the ciphertext list.
+		* @param *newCiphertext the new resulting ciphertext.
+		*/
 		virtual shared_ptr<Ciphertext<Element>> EvalMultMany(const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> ek, int cipCount, va_list args) const = 0;
 
 		/**
@@ -1406,10 +1415,8 @@ namespace lbcrypto {
 		/**
 		* Virtual function to define the interface for generating a evaluation key which is used after each multiplication for depth more than 2.
 		*
-		* @param &ciphertext1 first input ciphertext.
-		* @param &ciphertext2 second input ciphertext.
-		* @param &ek is the evaluation key to make the newCiphertext decryptable by the same secret key as that of ciphertext1 and ciphertext2.
-		* @param *newCiphertext the new resulting ciphertext.
+		* @param &originalPrivateKey Original private key used for encryption.
+		* @param *evalMultKeys the resulting evalution key vector list.
 		*/
 		virtual	shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> EvalMultKeysGen(
 			const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const = 0;
