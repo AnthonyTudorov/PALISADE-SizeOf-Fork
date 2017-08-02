@@ -114,9 +114,7 @@ template <class Element>
 usint ObfuscatedLWEConjunctionPattern<Element>::GetLogModulus() const{
 	double val = this->m_elemParams->GetModulus().ConvertToDouble();
 	//std::cout << "val : " << val << std::endl;
-	double logTwo = log2(val-1.0)+1.0;
-	//std::cout << "logTwo : " << logTwo << std::endl;
-	usint logModulus = (usint) floor(logTwo);// = this->m_elemParams.GetModulus();
+	usint logModulus = floor(log2(val-1.0)+1.0);// = this->m_elemParams.GetModulus();
 	return logModulus;
 };
 
@@ -197,14 +195,14 @@ void LWEConjunctionObfuscationAlgorithm<Element>::ParamsGen(typename Element::Dg
 	if ( n > 0 )
 	{ 
 		//initial value
-		k = ceil(log2(qPrev));
+		k = floor(log2(qPrev-1.0)+1.0);
 		m = ceil(k / log2(base)) + 2;
 		q = qCorrectness(n, m, k);
 
 		//get a more accurate value of q
 		while (std::abs(q - qPrev) > 0.001*q) {
 			qPrev = q;
-			k = ceil(log2(qPrev));
+			k = floor(log2(qPrev - 1.0) + 1.0);
 			m = ceil(k / log2(base)) + 2;
 			q = qCorrectness(n, m, k);
 		}
@@ -214,7 +212,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::ParamsGen(typename Element::Dg
 	{
 		//initial values
 		n = 512;
-		k = ceil(log2(qPrev));
+		k = floor(log2(qPrev - 1.0) + 1.0);
 		m = ceil(k / log2(base)) + 2;
 		q = qCorrectness(n, m, k);
 
@@ -225,19 +223,19 @@ void LWEConjunctionObfuscationAlgorithm<Element>::ParamsGen(typename Element::Dg
 			//get good estimates of n and q
 			while (nRLWE(q) > n) {
 				n = 2 * n;
-				k = ceil(log2(qPrev));
+				k = floor(log2(qPrev - 1.0) + 1.0);
 				m = ceil(k / log2(base)) + 2;
 				q = qCorrectness(n, m, k);
 				qPrev = q;
 			}
 
 			//find a more accurate value of q for this value of n
-			k = ceil(log2(qPrev));
+			k = floor(log2(qPrev - 1.0) + 1.0);
 			m = ceil(k / log2(base)) + 2;
 			q = qCorrectness(n, m, k);
 			while (std::abs(q - qPrev) > 0.001*q) {
 				qPrev = q;
-				k = ceil(log2(qPrev));
+				k = floor(log2(qPrev - 1.0) + 1.0);
 				m = ceil(k / log2(base)) + 2;
 				q = qCorrectness(n, m, k);
 			}
@@ -245,7 +243,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::ParamsGen(typename Element::Dg
 		}
 	}
 
-	BigInteger qPrime = FirstPrime<BigInteger>(ceil(log2(q)), 2*n);
+	BigInteger qPrime = FirstPrime<BigInteger>(ceil(log2(q-1.0)+1.0), 2*n);
 	BigInteger rootOfUnity = RootOfUnity<BigInteger>(2 * n, qPrime);
 
 	//Prepare for parameters.

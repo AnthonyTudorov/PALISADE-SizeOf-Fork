@@ -50,7 +50,7 @@ namespace lbcrypto {
 //		size_t n = params->GetCyclotomicOrder() / 2;
 
 		double val = params->GetModulus().ConvertToDouble();
-		double nBits = ceil(log2(val));
+		double nBits = floor(log2(val-1.0)+1.0);
 
 		size_t k = std::ceil(nBits/log2(base));  /* (+1) is for balanced representation */
 
