@@ -322,7 +322,7 @@ void UnitTestIBE(int32_t base, usint k, usint ringDimension){
 
 	Poly u(dug, ilParams, EVALUATION);
 
-	EXPECT_NO_THROW(pkg.KeyGen(ilParams, pubElemA.first, u, pubElemA.second, dgg, &sk));
+	EXPECT_NO_THROW(pkg.KeyGen(pubElemA.first, u, pubElemA.second, dgg, &sk));
 
 	// Encrypt a uniformly randomly selected message ptext (in ptext in $R_2$)
 	ptext.SetValues(bug.GenerateVector(ringDimension, q), COEFFICIENT);

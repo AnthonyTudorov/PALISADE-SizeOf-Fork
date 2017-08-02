@@ -10,7 +10,7 @@
 
 using namespace lbcrypto;
 
-int IBE_Test(int iter, int32_t base);
+int IBE_Test(int iter, int32_t base, usint ringDimension, usint k, bool offline);
 int TestKeyGenCP(const shared_ptr<ILParams> ilParams, usint m, usint ell, const usint s[], const RingMat &a, const RingMat &pubElemBPos, const RingMat &pubElemBNeg, const Poly &pubElemU, RingMat &sk);
 int CPABE_Test(usint iter);
 
@@ -23,16 +23,15 @@ int main()
 	std::cout << "-------End demo for CP-ABE-------" << std::endl << std::endl;*/
 
 	std::cout << "-------Start demo for IBE-------" << std::endl;
-	IBE_Test(10000,4);
+	IBE_Test(10000, 1024, 1024, 49, true); //iter. ring dimension, k, bool offline
 	std::cout << "-------End demo for IBE-------" << std::endl << std::endl;
 
 	return 0;
 }
-int IBE_Test(int iter, int32_t base)
+
+int IBE_Test(int iter, int32_t base, usint ringDimension, usint k, bool offline)
 {
-	usint ringDimension = 1024;
 	usint n = ringDimension*2;
-	usint k = 31;
 
 	BigInteger q = BigInteger::ONE << (k-1);
 	q = lbcrypto::FirstPrime<BigInteger>(k,n);
@@ -40,7 +39,7 @@ int IBE_Test(int iter, int32_t base)
 
 	double val = q.ConvertToDouble();
 	double logTwo = log(val-1.0)/log(base)+1.0;
-	size_t k_ = (usint) floor(logTwo) + 1;  /* (+1) is For NAF */
+	size_t k_ = (usint) floor(logTwo); /*+ 1;  (+1) is For NAF */
 	std::cout << "q: " << q << std::endl;
 	std::cout << "modulus length in base " << base << ": "<< k_ << std::endl;
 	std::cout << "root of unity: " << rootOfUnity << std::endl;
@@ -94,8 +93,17 @@ int IBE_Test(int iter, int32_t base)
 
 		Poly u(dug, ilParams, EVALUATION);
 
+		shared_ptr<RingMat> perturbationVector;
+		
+		if(offline)
+			perturbationVector = pkg.KeyGenOffline(pubElemA.first, u, pubElemA.second, dgg);
 		start = currentDateTime();
-		pkg.KeyGen(ilParams, pubElemA.first, u, pubElemA.second, dgg, &sk);
+		
+		if(!offline)
+			pkg.KeyGen(pubElemA.first, u, pubElemA.second, dgg, &sk);
+		else
+			pkg.KeyGenOnline(pubElemA.first, u, pubElemA.second, dgg, perturbationVector, &sk);
+		
 		finish = currentDateTime();
 		avg_keygen += (finish - start);
 		std::cout << "Key generation time : " << "\t" << (finish - start) << " ms" << std::endl;

@@ -102,11 +102,46 @@ namespace lbcrypto {
 			* @param *sk secret key
 			*/
 			void KeyGen(
-				const shared_ptr<ILParams> ilParams,
 				const RingMat &pubA,
 				const Poly &pubElemD,
 				const RLWETrapdoorPair<Poly> &secTA,
 				DiscreteGaussianGenerator &dgg,
+				RingMat *sk
+			);
+
+			/**
+			* KeyGenOffline Function
+			*
+			* @param ilParams parameter set
+			* @param &pubA TBD
+			* @param &u TBD public element d sampled as dug
+			* @param &secTA secret component of trapdoor
+			* @param &dgg to generate error terms (Gaussian)
+			* @param *sk secret key
+			*/
+			shared_ptr<RingMat> KeyGenOffline(
+				const RingMat &pubA,
+				const Poly &pubElemD,
+				const RLWETrapdoorPair<Poly> &secTA,
+				DiscreteGaussianGenerator &dgg
+			);
+
+			/**
+			* KeyGenOnline Function
+			*
+			* @param ilParams parameter set
+			* @param &pubA TBD
+			* @param &u TBD public element d sampled as dug
+			* @param &secTA secret component of trapdoor
+			* @param &dgg to generate error terms (Gaussian)
+			* @param *sk secret key
+			*/
+			void KeyGenOnline(
+				const RingMat &pubA,
+				const Poly &pubElemD,
+				const RLWETrapdoorPair<Poly> &secTA,
+				DiscreteGaussianGenerator &dgg,
+				const shared_ptr<RingMat> perturbationVector,
 				RingMat *sk
 			);
 			/**
