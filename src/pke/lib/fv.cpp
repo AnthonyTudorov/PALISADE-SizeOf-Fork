@@ -736,21 +736,17 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMultPlain(const s
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMultMany(const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> ek, int cipCount, va_list args) const {
 
-	//size_t logCipCount = ceil(log(cipCount)/log(2.0));
-
-	std::cout << "Debug 1" << std::endl;
 	vector<shared_ptr<Ciphertext<Element>>> cipherTextList(cipCount*2-1);
 	for(int i=0; i<cipCount; i++)
 		cipherTextList[i] = (va_arg(args, shared_ptr<Ciphertext<Element>>));
 
-	std::cout << "Debug 2" << std::endl;
-
-	for(int i=0; i<(int)cipherTextList.size(); i=i+2){
-		cipherTextList[i] = (this->EvalMultAndRelinearize(cipherTextList[i], cipherTextList[i+1], ek));
+	size_t resultIndex = cipCount;
+	for(int i=0; i<(int)cipherTextList.size()-1; i=i+2){
+		cipherTextList[resultIndex] = (this->EvalMultAndRelinearize(cipherTextList[i], cipherTextList[i+1], ek));
+		resultIndex++;
 	}
-	std::cout << "Debug 3" << std::endl;
 
-	return cipherTextList[cipherTextList.size()-1];//this->EvalMultAndRelinearize(c0, c1, ek);
+	return cipherTextList[cipherTextList.size()-1];
 
 }
 

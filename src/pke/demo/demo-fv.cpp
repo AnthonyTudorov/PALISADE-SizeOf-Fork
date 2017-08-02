@@ -311,7 +311,7 @@ int main(int argc, char *argv[]) {
 	start = currentDateTime();
 
 	ciphertextAdd12 = cryptoContext->EvalAdd(ciphertextMul12, ciphertextMul12345);
-	ciphertextAdd123 = cryptoContext->EvalAdd(ciphertextAdd12, ciphertextMul123456);
+	ciphertextAdd123 = cryptoContext->EvalAdd(ciphertextAdd12, ciphertextMul123);
 
 	ciphertextAddVect1.push_back(ciphertextAdd12);
 	ciphertextAddVect2.push_back(ciphertextAdd123);
@@ -358,7 +358,7 @@ int main(int argc, char *argv[]) {
 	////////////////////////////////////////////////////////////
 	shared_ptr<Ciphertext<Poly>> ciphertextMul1234567;
 //	ciphertextMul1234567 = EvalMultManyH(cryptoContext, evalKeys, ciphertext1[0], ciphertext2[0]);
-	ciphertextMul1234567 = cryptoContext->GetEncryptionAlgorithm()->EvalMultMany(evalKeys, 2, ciphertext1[0], ciphertext2[0]);
+	ciphertextMul1234567 = cryptoContext->GetEncryptionAlgorithm()->EvalMultMany(evalKeys, 5, ciphertext1[0], ciphertext2[0], ciphertext3[0], ciphertext4[0], ciphertext5[0]);
 
 	vector<shared_ptr<Ciphertext<Poly>>> ciphertextMulVect8;
 	ciphertextMulVect8.push_back(ciphertextMul1234567);
