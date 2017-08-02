@@ -535,7 +535,7 @@ public:
 		throw std::runtime_error(errMsg);
 	}
 
-	shared_ptr<Ciphertext<Element>> EvalMultMany(const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> ek, ...) const {
+	shared_ptr<Ciphertext<Element>> EvalMultMany(const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> ek, int cipCount, va_list args) const {
 		std::string errMsg = "LPAlgorithmLTV::EvalMultMany is not implemented for the LTV Scheme.";
 		throw std::runtime_error(errMsg);
 	}

@@ -513,7 +513,7 @@ namespace lbcrypto {
 		*  decryptable by the same secret key as that of ciphertext1 and ciphertext2.
 		* @param *newCiphertext the new resulting ciphertext.
 		*/
-		shared_ptr<Ciphertext<Element>> EvalMultMany(const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> ek, ...) const;
+		shared_ptr<Ciphertext<Element>> EvalMultMany(const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> ek, int cipCount, va_list args) const;
 
 		/**
 		* Function for evaluating multiplication on ciphertext followed by key switching operation.
