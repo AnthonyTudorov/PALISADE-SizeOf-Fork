@@ -56,7 +56,7 @@ namespace lbcrypto {
 				(*pubElemBNeg)(i, j).SwitchFormat(); // always kept in EVALUATION format
 			}
 
-		return RLWETrapdoorUtility::TrapdoorGen(ilParams, SIGMA, base, true);
+		return RLWETrapdoorUtility<Poly>::TrapdoorGen(ilParams, SIGMA, base, true);
 	}
 
 	/**
@@ -136,7 +136,7 @@ namespace lbcrypto {
 		DiscreteGaussianGenerator dggLargeSigma(sqrt(sb * sb - c * c));
 		RingMat skA(Poly::MakeAllocator(ilParams, EVALUATION), m_m, 1);
 
-		skA = RLWETrapdoorUtility::GaussSamp(m_N, m_k, pubTA, secTA, y, dgg, dggLargeSigma, m_base);
+		skA = RLWETrapdoorUtility<Poly>::GaussSamp(m_N, m_k, pubTA, secTA, y, dgg, dggLargeSigma, m_base);
 
 		for(usint i=0; i<m_m; i++)
 			(*sk)(i, 0) = skA(i, 0);

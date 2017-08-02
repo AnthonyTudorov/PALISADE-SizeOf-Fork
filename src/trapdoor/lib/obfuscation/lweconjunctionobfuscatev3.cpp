@@ -8,7 +8,7 @@ List of Authors:
 	TPOC:
 		Dr. Kurt Rohloff, rohloff@njit.edu
 	Programmers:
-		Dr. Yuriy Polyakov, polyakov@njit.edu
+		Dr. Yuriy Elementakov, Elementakov@njit.edu
 Description:
 	This code provides the core entropic ring lwe obfuscation capability for conjunctions.
 
@@ -99,8 +99,8 @@ void ObfuscatedLWEConjunctionPattern<Element>::SetLength(usint length) {
 };
 
 template <class Element>
-const BigInteger ObfuscatedLWEConjunctionPattern<Element>::GetModulus() const{
-	BigInteger q(m_elemParams->GetModulus());
+const typename Element::Integer ObfuscatedLWEConjunctionPattern<Element>::GetModulus() const{
+	typename Element::Integer q(m_elemParams->GetModulus());
 	return q;
 };
 
@@ -119,7 +119,7 @@ usint ObfuscatedLWEConjunctionPattern<Element>::GetLogModulus() const{
 };
 
 template <class Element>
-void ObfuscatedLWEConjunctionPattern<Element>::SetModulus(BigInteger &modulus) {
+void ObfuscatedLWEConjunctionPattern<Element>::SetModulus(typename Element::Integer &modulus) {
 	this->m_elemParams.SetModulus(modulus);
 };
 
@@ -159,7 +159,7 @@ template <class Element>
 void LWEConjunctionObfuscationAlgorithm<Element>::ParamsGen(typename Element::DggType &dgg,
 	ObfuscatedLWEConjunctionPattern<Element> *obfuscatedPattern, uint32_t n) const {
 
-	//smoothing parameter - also standard deviation for noise polynomials
+	//smoothing parameter - also standard deviation for noise Elementnomials
 	double sigma = SIGMA;
 	
 	//assurance measure
@@ -168,7 +168,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::ParamsGen(typename Element::Dg
 	//empirical parameter
 	double beta = 6.0;
 
-	//Bound of the Gaussian error polynomial
+	//Bound of the Gaussian error Elementnomial
 	double Berr = sigma*sqrt(alpha);
 
 	//security parameter
@@ -243,13 +243,13 @@ void LWEConjunctionObfuscationAlgorithm<Element>::ParamsGen(typename Element::Dg
 		}
 	}
 
-	BigInteger qPrime = FirstPrime<BigInteger>(ceil(log2(q-1.0)+1.0), 2*n);
-	BigInteger rootOfUnity = RootOfUnity<BigInteger>(2 * n, qPrime);
+	typename Element::Integer qPrime = FirstPrime<typename Element::Integer>(ceil(log2(q-1.0)+1.0), 2*n);
+	typename Element::Integer rootOfUnity = RootOfUnity<typename Element::Integer>(2 * n, qPrime);
 
 	//Prepare for parameters.
-	shared_ptr<ILParams> ilParams(new ILParams(2*n, qPrime, rootOfUnity));
+	shared_ptr<typename Element::Params> params(new typename Element::Params(2*n, qPrime, rootOfUnity));
 
-	obfuscatedPattern->SetParameters(ilParams);
+	obfuscatedPattern->SetParameters(params);
 
 	//Sets, update the root Hermite factor
 	obfuscatedPattern->SetRootHermiteFactor(delta(n, qPrime.ConvertToDouble()));
@@ -279,7 +279,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(typename Element::DggTy
 	 //parallelized method
 	// Initialize the Pk and Ek matrices.
 	shared_ptr<std::vector<Matrix<Element>>> Pk_vector (new std::vector<Matrix<Element>>());
-	shared_ptr<std::vector<RLWETrapdoorPair<Poly>>>   Ek_vector (new std::vector<RLWETrapdoorPair<Poly>>());
+	shared_ptr<std::vector<RLWETrapdoorPair<Element>>>   Ek_vector (new std::vector<RLWETrapdoorPair<Element>>());
 
 	DEBUG("keygen1: "<<TOC(t1) <<" ms");
 	DEBUG("l = "<<l);
@@ -290,12 +290,12 @@ void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(typename Element::DggTy
 		TimeVar tp; // for TIC TOC
 		//private copies of our vectors
 		shared_ptr<std::vector<Matrix<Element>>> Pk_vector_pvt (new std::vector<Matrix<Element>>());
-		shared_ptr<std::vector<RLWETrapdoorPair<Poly>>>   Ek_vector_pvt (new std::vector<RLWETrapdoorPair<Poly>>());
+		shared_ptr<std::vector<RLWETrapdoorPair<Element>>>   Ek_vector_pvt (new std::vector<RLWETrapdoorPair<Element>>());
 #pragma omp for nowait schedule(static)
 		for(size_t i=0; i<=adjustedLength+1; i++) {
 			//build private copies in parallel
 			TIC(tp);
-			std::pair<RingMat, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev, base); //TODO remove stddev
+			std::pair<Matrix<Element>, RLWETrapdoorPair<Element>> trapPair = RLWETrapdoorUtility<Element>::TrapdoorGen(params, stddev, base); //TODO remove stddev
 			DEBUG("keygen2.0:#"<< i << ": "<<TOC(tp) <<" ms");
 
 			TIC(tp);
@@ -323,7 +323,7 @@ template <class Element>
 shared_ptr<Matrix<Element>> LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 				const Matrix<Element> &Ai,
 				const Matrix<Element> &Aj,
-				const RLWETrapdoorPair<Poly> &Ti,
+				const RLWETrapdoorPair<Element> &Ti,
 				const Element &elemS,
 				typename Element::DggType &dgg,
 				typename Element::DggType &dggLargeSigma,
@@ -338,7 +338,7 @@ shared_ptr<Matrix<Element>> LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 	size_t m = Ai.GetCols();
 	size_t k = m - 2;
 	size_t n = elemS.GetRingDimension();
-	const BigInteger &modulus = elemS.GetParams()->GetModulus();
+	const typename Element::Integer &modulus = elemS.GetParams()->GetModulus();
 	auto zero_alloc = Element::MakeAllocator(elemS.GetParams(), EVALUATION);
 
 	//generate a row vector of discrete Gaussian ring elements
@@ -364,7 +364,7 @@ shared_ptr<Matrix<Element>> LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 	for(size_t i=0; i<m; i++) {
 
 	  // the following takes approx 250 msec
-		Matrix<Element> gaussj = RLWETrapdoorUtility::GaussSamp(n,k,Ai,Ti,bj(0,i), dgg, dggLargeSigma, base);
+		Matrix<Element> gaussj = RLWETrapdoorUtility<Element>::GaussSamp(n,k,Ai,Ti,bj(0,i), dgg, dggLargeSigma, base);
 //		gaussj(0, 0).PrintValues();
 //		gaussj(1, 0).PrintValues();
 		// the following takes no time
@@ -395,7 +395,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 	obfuscatedPattern->SetLength(clearPattern.GetLength());
 	usint l = clearPattern.GetLength();
 	usint n = obfuscatedPattern->GetRingDimension();
-	BigInteger q(obfuscatedPattern->GetModulus());
+	typename Element::Integer q(obfuscatedPattern->GetModulus());
 	usint k = obfuscatedPattern->GetLogModulus();
 	usint base = obfuscatedPattern->GetBase();
 	usint m = ceil(k/log2(base)) + 2;
@@ -416,7 +416,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 	//usint stddev = dgg.GetStd(); 
 
 	const std::vector<Matrix<Element>> &Pk_vector = obfuscatedPattern->GetPublicKeys();
-	const std::vector<RLWETrapdoorPair<Poly>>   &Ek_vector = obfuscatedPattern->GetEncodingKeys();
+	const std::vector<RLWETrapdoorPair<Element>>   &Ek_vector = obfuscatedPattern->GetEncodingKeys();
 
 	auto zero_alloc = Element::MakeAllocator(params, EVALUATION);
 
@@ -613,7 +613,7 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::EvaluateV2(
 
 	usint l = obfuscatedPattern.GetLength();
 	usint n = obfuscatedPattern.GetRingDimension();
-	BigInteger q(obfuscatedPattern.GetModulus());
+	typename Element::Integer q(obfuscatedPattern.GetModulus());
 	usint k = obfuscatedPattern.GetLogModulus();
 	usint base = obfuscatedPattern.GetBase();
 	usint m = ceil(k/log2(base)) + 2;
@@ -723,7 +723,7 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::EvaluateACS(
 
 	usint l = obfuscatedPattern.GetLength();
 	//usint n = obfuscatedPattern.GetRingDimension();
-	BigInteger q(obfuscatedPattern.GetModulus());
+	typename Element::Integer q(obfuscatedPattern.GetModulus());
 	usint k = obfuscatedPattern.GetLogModulus();
 	usint base = obfuscatedPattern.GetBase();
 	usint m = ceil(k/log2(base)) + 2;
@@ -845,7 +845,7 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 
 	usint l = obfuscatedPattern.GetLength();
 	//usint n = obfuscatedPattern.GetRingDimension();
-	BigInteger q(obfuscatedPattern.GetModulus());
+	typename Element::Integer q(obfuscatedPattern.GetModulus());
 	usint k = obfuscatedPattern.GetLogModulus();
 	usint base = obfuscatedPattern.GetBase();
 	usint m = ceil(k/log2(base)) + 2;

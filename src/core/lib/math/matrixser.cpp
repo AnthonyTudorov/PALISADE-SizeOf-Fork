@@ -24,6 +24,9 @@
  *
  */
 
+#ifndef _SRC_LIB_CORE_MATH_MATRIXSER_CPP
+#define _SRC_LIB_CORE_MATH_MATRIXSER_CPP
+
 #include "../utils/serializablehelper.h"
 #include "../lattice/field2n.h"
 #include "matrix.cpp"
@@ -517,29 +520,30 @@ Matrix<int32_t> ConvertToInt32(const Matrix<BigVector> &input, const BigInteger&
 }
 
 //  split a vector of int32_t into a vector of ring elements with ring dimension n
-Matrix<Poly> SplitInt32IntoPolyElements(Matrix<int32_t> const& other, size_t n, const shared_ptr<ILParams> params) {
+template<class Element>
+Matrix<Element> SplitInt32IntoElements(Matrix<int32_t> const& other, size_t n, const shared_ptr<typename Element::Params> params) {
 
-	auto zero_alloc = Poly::MakeAllocator(params, COEFFICIENT);
+	auto zero_alloc = Element::MakeAllocator(params, COEFFICIENT);
 
 	size_t rows = other.GetRows()/n;
 
-    Matrix<Poly> result(zero_alloc, rows, 1);
+    Matrix<Element> result(zero_alloc, rows, 1);
 
     for (size_t row = 0; row < rows; ++row) {
-		BigVector tempBBV(n,params->GetModulus());
+		typename Element::Vector tempBBV(n,params->GetModulus());
 
         for (size_t i = 0; i < n; ++i) {
-			BigInteger tempBBI;
+			typename Element::Integer tempBBI;
 			uint32_t tempInteger;
 			if (other(row*n + i,0) < 0)
 			{
 				tempInteger = -other(row*n + i,0);
-				tempBBI = params->GetModulus() - BigInteger(tempInteger);
+				tempBBI = params->GetModulus() - typename Element::Integer(tempInteger);
 			}
 			else
 			{
 				tempInteger = other(row*n + i,0);
-				tempBBI = BigInteger(tempInteger);
+				tempBBI = typename Element::Integer(tempInteger);
 			}
             tempBBV.SetValAtIndex(i,tempBBI);
         }
@@ -551,31 +555,32 @@ Matrix<Poly> SplitInt32IntoPolyElements(Matrix<int32_t> const& other, size_t n, 
 }
 
 //  split a vector of BBI into a vector of ring elements with ring dimension n
-Matrix<Poly> SplitInt32AltIntoPolyElements(Matrix<int32_t> const& other, size_t n, const shared_ptr<ILParams> params) {
+template<class Element>
+Matrix<Element> SplitInt32AltIntoElements(Matrix<int32_t> const& other, size_t n, const shared_ptr<typename Element::Params> params) {
 
-	auto zero_alloc = Poly::MakeAllocator(params, COEFFICIENT);
+	auto zero_alloc = Element::MakeAllocator(params, COEFFICIENT);
 
 	size_t rows = other.GetRows();
 
-    Matrix<Poly> result(zero_alloc, rows, 1);
+    Matrix<Element> result(zero_alloc, rows, 1);
 
     for (size_t row = 0; row < rows; ++row) {
 
-		BigVector tempBBV(n,params->GetModulus());
+		typename Element::Vector tempBBV(n,params->GetModulus());
 
         for (size_t i = 0; i < n; ++i) {
 
-			BigInteger tempBBI;
+			typename Element::Integer tempBBI;
 			uint32_t tempInteger;
 			if (other(row,i) < 0)
 			{
 				tempInteger = -other(row,i);
-				tempBBI = params->GetModulus() - BigInteger(tempInteger);
+				tempBBI = params->GetModulus() - typename Element::Integer(tempInteger);
 			}
 			else
 			{
 				tempInteger = other(row,i);
-				tempBBI = BigInteger(tempInteger);
+				tempBBI = typename Element::Integer(tempInteger);
 			}
 
 			tempBBV.SetValAtIndex(i,tempBBI);
@@ -590,3 +595,4 @@ Matrix<Poly> SplitInt32AltIntoPolyElements(Matrix<int32_t> const& other, size_t 
 
 }
 
+#endif

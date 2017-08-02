@@ -34,8 +34,8 @@
 
 #ifndef _SRC_LIB_CRYPTO_SIGNATURE_LWESIGN_H
 #define _SRC_LIB_CRYPTO_SIGNATURE_LWESIGN_H
+
 #include "../sampling/trapdoor.h"
-#include "../sampling/trapdoor.cpp"
 #include "encoding/byteplaintextencoding.h"
 
 namespace lbcrypto {
@@ -126,24 +126,25 @@ namespace lbcrypto {
 	/**
 	* @brief  Class holding parameters required for calculations in signature schemes
 	*/
+	template <class Element>
 	class LPSignatureParameters {
 	public:
 		/**
 		*Method for setting the ILParams held in this class
 		*
-		*@param params Parameters to be held, used in Poly construction
+		*@param params Parameters to be held, used in Element construction
 		*/
-		void SetElemParams(shared_ptr<ILParams> params, usint base = 2) {
+		void SetElemParams(shared_ptr<typename Element::Params> params, usint base = 2) {
 			m_params = params; 
 			m_base = base;
-			const BigInteger & q = params->GetModulus();
+			const typename Element::Params & q = params->GetModulus();
 			size_t n = params->GetRingDimension();
 			usint nBits = floor(log2(q.ConvertToDouble() - 1.0) + 1.0);
 			m_k = ceil(nBits / log2(base));
 			double c = (base + 1) * SIGMA;
 			double s = SPECTRAL_BOUND(n, m_k, base);
 			if (sqrt(s * s - c * c) <= 3e5)
-				dggLargeSigma = Poly::DggType(sqrt(s * s - c * c));
+				dggLargeSigma = typename Element::DggType(sqrt(s * s - c * c));
 			else
 				dggLargeSigma = dgg;
 		};
@@ -153,14 +154,14 @@ namespace lbcrypto {
 		*
 		*@return Parameters held
 		*/
-		shared_ptr<ILParams> GetILParams() { return m_params; }
+		shared_ptr<typename Element::Params> GetILParams() { return m_params; }
 
 		/**
 		*Method for accessing the DiscreteGaussianGenerator object held in this class
 		*
 		*@return DiscreteGaussianGenerator object held
 		*/
-		Poly::DggType & GetDiscreteGaussianGenerator() { return dgg; }
+		typename Element::DggType & GetDiscreteGaussianGenerator() { return dgg; }
 
 		/**
 		*Method for accessing the base for Gadget matrix
@@ -181,7 +182,7 @@ namespace lbcrypto {
 		*
 		*@return DiscreteGaussianGenerator object held
 		*/
-		Poly::DggType & GetDiscreteGaussianGeneratorLargeSigma() { return dggLargeSigma; }
+		typename Element::DggType & GetDiscreteGaussianGeneratorLargeSigma() { return dggLargeSigma; }
 
 		/**
 		*Default constructor
@@ -189,28 +190,28 @@ namespace lbcrypto {
 		LPSignatureParameters() {}
 		/**
 		*Constructor
-		*@param params Parameters used in Poly construction
+		*@param params Parameters used in Element construction
 		*@param dgg DiscreteGaussianGenerator used in sampling
 		*/
-		LPSignatureParameters(shared_ptr<ILParams> params, Poly::DggType dgg, usint base = 2) : dgg(dgg), m_base(base) {
+		LPSignatureParameters(shared_ptr<typename Element::Params> params, typename Element::DggType dgg, usint base = 2) : dgg(dgg), m_base(base) {
 			m_params = params;
-			const BigInteger & q = params->GetModulus();
+			const typename Element::Integer & q = params->GetModulus();
 			size_t n = params->GetRingDimension();
 			usint nBits = floor(log2(q.ConvertToDouble()-1.0)+1.0);
 			m_k = ceil(nBits / log2(base));
 			double c = (base + 1) * SIGMA;
 			double s = SPECTRAL_BOUND(n, m_k, base);
 			if (sqrt(s * s - c * c) <= 3e5)
-				dggLargeSigma = Poly::DggType(sqrt(s * s - c * c));
+				dggLargeSigma = typename Element::DggType(sqrt(s * s - c * c));
 			else
 				dggLargeSigma = dgg;
 		}
 
 
 	private:
-		shared_ptr<ILParams> m_params;
-		Poly::DggType dgg;
-		Poly::DggType dggLargeSigma;
+		shared_ptr<typename Element::Params> m_params;
+		typename Element::DggType dgg;
+		typename Element::DggType dggLargeSigma;
 		usint m_base;
 		usint m_k;
 	};
@@ -231,7 +232,7 @@ namespace lbcrypto {
 		*
 		* @param signParams parameters used in signing process
 		*/
-		LPSignKeyGPVGM(LPSignatureParameters&signParams) {
+		LPSignKeyGPVGM(LPSignatureParameters<Element>&signParams) {
 			this->SetSignatureParameters(signParams);
 			m_sk = nullptr;
 		}
@@ -248,7 +249,7 @@ namespace lbcrypto {
 		*
 		*@return Parameters used in signing
 		*/
-		LPSignatureParameters & GetSignatureParameters() { return m_signParameters; }
+		LPSignatureParameters<Element> & GetSignatureParameters() { return m_signParameters; }
 
 		/**
 		*Method for accessing key in signing process
@@ -261,7 +262,7 @@ namespace lbcrypto {
 		*
 		*@param signParams Parameters used in signing
 		*/
-		void SetSignatureParameters(const LPSignatureParameters & signParams) { m_signParameters = signParams; }
+		void SetSignatureParameters(const LPSignatureParameters<Element> & signParams) { m_signParameters = signParams; }
 		/**
 		*Method for setting the private key used in the signing process
 		*
@@ -274,7 +275,7 @@ namespace lbcrypto {
 			m_sk = new std::pair<Matrix<Element>, RLWETrapdoorPair<Element>>(x);
 		}
 	private:
-		LPSignatureParameters m_signParameters;
+		LPSignatureParameters<Element> m_signParameters;
 		std::pair<Matrix<Element>, RLWETrapdoorPair<Element>>* m_sk;
 	};
 
@@ -295,7 +296,7 @@ namespace lbcrypto {
 		* Constructor
 		* @param signParams parameters used in verification process
 		*/
-		LPVerificationKeyGPVGM(LPSignatureParameters &signParams) {
+		LPVerificationKeyGPVGM(LPSignatureParameters<Element> &signParams) {
 			this->SetSignatureParameters(signParams);
 			m_vk = nullptr;
 		}
@@ -312,7 +313,7 @@ namespace lbcrypto {
 		*
 		*@return Parameters used in verification
 		*/
-		LPSignatureParameters & GetSignatureParameters() { return m_signParameters; }
+		LPSignatureParameters<Element> & GetSignatureParameters() { return m_signParameters; }
 
 		/**
 		*Method for accessing key in verification process
@@ -326,7 +327,7 @@ namespace lbcrypto {
 		*
 		* @param &signParams Parameters used in verification
 		*/
-		void SetSignatureParameters(const LPSignatureParameters & signParams) { m_signParameters = signParams; }
+		void SetSignatureParameters(const LPSignatureParameters<Element> & signParams) { m_signParameters = signParams; }
 
 		/**
 		* Method for setting key used in verification process
@@ -340,7 +341,7 @@ namespace lbcrypto {
 			m_vk = new Matrix<Element>(x);
 		}
 	private:
-		LPSignatureParameters m_signParameters;
+		LPSignatureParameters<Element> m_signParameters;
 		Matrix<Element>* m_vk;
 	};
 	

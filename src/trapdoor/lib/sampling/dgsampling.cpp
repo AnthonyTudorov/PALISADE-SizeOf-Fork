@@ -2,7 +2,7 @@
 * @file
 * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
 *	Programmers: 
-*		Dr. Yuriy Polyakov, <polyakov@njit.edu>
+*		Dr. Yuriy Elementakov, <Elementakov@njit.edu>
 *		Kevin King, kcking@mit.edu
 * @version 00_03
 *
@@ -33,6 +33,9 @@
 * This code provides the utility for lattice Gaussian sampling (needed by lattice trapdoors).
 */
 
+#ifndef _SRC_LIB_TRAPDOOR_DGSAMPLING_CPP
+#define _SRC_LIB_TRAPDOOR_DGSAMPLING_CPP
+
 #include "cryptocontext.h"
 #include "dgsampling.h"
 
@@ -40,14 +43,15 @@ namespace lbcrypto {
 
 	// Gaussian sampling from lattice for gagdet matrix G and syndrome u ONLY FOR A POWER-OF-TWO MODULUS; Has not been fully tested
 
-	void LatticeGaussSampUtility::GaussSampG(const Poly &u, double sttdev, size_t k,
-			Poly::DggType &dgg, Matrix<BigInteger> *z)
+	template <class Element>
+	void LatticeGaussSampUtility<Element>::GaussSampG(const Element &u, double sttdev, size_t k,
+			typename Element::DggType &dgg, Matrix<typename Element::Integer> *z)
 	{
-		const BigInteger& modulus = u.GetParams()->GetModulus();
+		const Element::Integer& modulus = u.GetParams()->GetModulus();
 		for (size_t i = 0; i < u.GetLength(); i++) {
 
 			//initial value of integer syndrome corresponding to component u_i
-			BigInteger t(u.GetValAtIndex(i));
+			Element::Integer t(u.GetValAtIndex(i));
 
 			for (size_t j = 0; j < k; j++) {
 
@@ -56,7 +60,7 @@ namespace lbcrypto {
 
 				//dgLSB keeps track of the least significant bit of discrete gaussian; initialized to 2 to make sure the loop is entered
 				uint32_t dgLSB = 2;
-				BigInteger sampleInteger;
+				Element::Integer sampleInteger;
 
 				//checks if the least significant bit of t matches the least signficant bit of a discrete Gaussian sample
 				while (dgLSB != lsb)
@@ -82,10 +86,11 @@ namespace lbcrypto {
 	// Algorithm was provided in a personal communication by Daniele Micciancio
 	// It will be published in GM17
 
-	void LatticeGaussSampUtility::GaussSampGq(const Poly &u, double stddev, size_t k, const BigInteger &q, int32_t base,
-		Poly::DggType &dgg, Matrix<int32_t> *z)
+	template <class Element>
+	void LatticeGaussSampUtility<Element>::GaussSampGq(const Element &u, double stddev, size_t k, const typename Element::Integer &q, int32_t base,
+		typename Element::DggType &dgg, Matrix<int32_t> *z)
 	{
-		const BigInteger& modulus = u.GetParams()->GetModulus();
+		const Element::Integer& modulus = u.GetParams()->GetModulus();
 		// std::cout << "modulus = " << modulus << std::endl; 
 		double sigma = stddev / (base + 1);
 
@@ -118,11 +123,11 @@ namespace lbcrypto {
 #pragma omp parallel for
 		for (size_t j = 0; j < u.GetLength(); j++)
 		{
-			BigInteger v(u.GetValAtIndex(j));
+			Element::Integer v(u.GetValAtIndex(j));
 
 			vector<int32_t> p(k);
 
-			LatticeGaussSampUtility::Perturb(sigma, k, u.GetLength(), l, h, base, dgg, &p);
+			LatticeGaussSampUtility<Element>::Perturb(sigma, k, u.GetLength(), l, h, base, dgg, &p);
 
 			Matrix<double> a([]() { return make_unique<double>(); }, k, 1);
 
@@ -137,7 +142,7 @@ namespace lbcrypto {
 			}
 			vector<int32_t> zj(k);
 
-			LatticeGaussSampUtility::SampleC(c, k, u.GetLength(), sigma, dgg, &a, &zj);
+			LatticeGaussSampUtility<Element>::SampleC(c, k, u.GetLength(), sigma, dgg, &a, &zj);
 
 			(*z)(0, j) = base*zj[0] + modulus.GetDigitAtIndexForBase(1, base)*zj[k - 1] + v.GetDigitAtIndexForBase(1, base);
 
@@ -153,8 +158,9 @@ namespace lbcrypto {
 	// Algorithm was provided in a personal communication by Daniele Micciancio
 	// It will be published in GM17 (EuroCrypt)
 
-	void LatticeGaussSampUtility::Perturb(double sigma, size_t k, size_t n,
-		const vector<double> &l, const vector<double> &h, int32_t base, Poly::DggType &dgg, vector<int32_t> *p) {
+	template <class Element>
+	void LatticeGaussSampUtility<Element>::Perturb(double sigma, size_t k, size_t n,
+		const vector<double> &l, const vector<double> &h, int32_t base, typename Element::DggType &dgg, vector<int32_t> *p) {
 
 		std::vector<int32_t> z(k);
 		double d = 0;
@@ -177,8 +183,9 @@ namespace lbcrypto {
 	// Algorithm was provided in a personal communication by Daniele Micciancio
 	// It will be published in GM17 (EuroCrypt)
 
-	void LatticeGaussSampUtility::SampleC(const Matrix<double> &c, size_t k, size_t n,
-		double sigma, Poly::DggType &dgg, Matrix<double> *a, vector<int32_t> *z)
+	template <class Element>
+	void LatticeGaussSampUtility<Element>::SampleC(const Matrix<double> &c, size_t k, size_t n,
+		double sigma, typename Element::DggType &dgg, Matrix<double> *a, vector<int32_t> *z)
 	{
 		(*z)[k - 1] = dgg.GenerateIntegerKarney(-(*a)(k - 1, 0) / c(k - 1, 0), sigma / c(k - 1, 0));
 		//(*z)[k - 1] = dgg.GenerateInteger(-(*a)(k - 1, 0) / c(k - 1, 0), sigma / c(k - 1, 0),n);
@@ -196,8 +203,9 @@ namespace lbcrypto {
 	// b - field element in DFT format
 	// d - field element in DFT format
 	// c - vector of field elements in Coefficient format
-	void LatticeGaussSampUtility::ZSampleSigma2x2(const Field2n &a, const Field2n &b,
-		const Field2n &d, const Matrix<Field2n> &c, const Poly::DggType & dgg, shared_ptr<Matrix<int32_t>> q) {
+	template <class Element>
+	void LatticeGaussSampUtility<Element>::ZSampleSigma2x2(const Field2n &a, const Field2n &b,
+		const Field2n &d, const Matrix<Field2n> &c, const typename Element::DggType & dgg, shared_ptr<Matrix<int32_t>> q) {
 
 			//size of the the lattice
 		    size_t n = a.Size();
@@ -239,8 +247,9 @@ namespace lbcrypto {
 	//Subroutine used by ZSampleSigma2x2
 	//f is in Coefficient representation
 	//c is in Coefficient representation
-	shared_ptr<Matrix<int32_t>> LatticeGaussSampUtility::ZSampleF(const Field2n &f, const Field2n &c,
-		const Poly::DggType &dgg, size_t n) {
+	template <class Element>
+	shared_ptr<Matrix<int32_t>> LatticeGaussSampUtility<Element>::ZSampleF(const Field2n &f, const Field2n &c,
+		const typename Element::DggType &dgg, size_t n) {
 
 		if (f.Size() == 1)
 		{
@@ -267,7 +276,7 @@ namespace lbcrypto {
 			cPermuted(0, 0) = c.ExtractEven();
 			cPermuted(1, 0) = c.ExtractOdd();
 
-			LatticeGaussSampUtility::ZSampleSigma2x2(f0, f1, f0, cPermuted, dgg, qZVector);
+			LatticeGaussSampUtility<Element>::ZSampleSigma2x2(f0, f1, f0, cPermuted, dgg, qZVector);
 
 			InversePermute(qZVector);
 
@@ -277,7 +286,8 @@ namespace lbcrypto {
 
 	}
 
-	Matrix<int32_t> LatticeGaussSampUtility::Permute(Matrix<int32_t> * p) {
+	template <class Element>
+	Matrix<int32_t> LatticeGaussSampUtility<Element>::Permute(Matrix<int32_t> * p) {
 		int evenPtr = 0;
 		int oddPtr = p->GetRows() / 2;
 		Matrix<int32_t> permuted([]() { return make_unique<int32_t>(); }, p->GetRows(), 1);
@@ -294,7 +304,8 @@ namespace lbcrypto {
 		return permuted;
 	}
 
-	void LatticeGaussSampUtility::InversePermute(shared_ptr<Matrix<int32_t>> p)
+	template <class Element>
+	void LatticeGaussSampUtility<Element>::InversePermute(shared_ptr<Matrix<int32_t>> p)
 	{
 
 		// a vector of int32_t is used for intermediate storage because it is faster
@@ -338,7 +349,7 @@ namespace lbcrypto {
 	//f is in Coefficient representation
 	//c is in Coefficient representation
 	//Matrix<int32_t> LatticeGaussSampUtility::ZSampleFOld(const Field2n &f, const Field2n &c,
-	//	const Poly::DggType &dgg, size_t n) {
+	//	const Element::DggType &dgg, size_t n) {
 
 	//	if (f.Size() == 1)
 	//	{
@@ -404,3 +415,5 @@ namespace lbcrypto {
 	//}
 
 }
+
+#endif

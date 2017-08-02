@@ -59,7 +59,7 @@ TEST(UTSignatureGPV,simple_sign_verify) {
   DEBUG("Step 3");
 	Poly::PreComputeDggSamples(dgg, silParams);
   DEBUG("Step 4");
-	LPSignatureParameters signParams(silParams, dgg);
+	LPSignatureParameters<Poly> signParams(silParams, dgg);
   DEBUG("Step 5");
 	LPSignKeyGPVGM<Poly> s_k(signParams);
   DEBUG("Step 6");
@@ -99,7 +99,7 @@ TEST(UTSignatureGPV, simple_sign_verify_two_phase) {
 	DEBUG("Step 3");
 	Poly::PreComputeDggSamples(dgg, silParams);
 	DEBUG("Step 4");
-	LPSignatureParameters signParams(silParams, dgg);
+	LPSignatureParameters<Poly> signParams(silParams, dgg);
 	DEBUG("Step 5");
 	LPSignKeyGPVGM<Poly> s_k(signParams);
 	DEBUG("Step 6");
@@ -134,7 +134,7 @@ TEST(UTSignatureGPV, sign_verify_multiple_texts) {
 	shared_ptr<ILParams> silParams( new ILParams(sm, smodulus, srootOfUnity) );
 	ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
 	Poly::PreComputeDggSamples(dgg, silParams);
-	LPSignatureParameters signParams(silParams, dgg);
+	LPSignatureParameters<Poly> signParams(silParams, dgg);
 	LPSignKeyGPVGM<Poly> s_k(signParams);
 	LPVerificationKeyGPVGM<Poly> v_k(signParams);
 	
@@ -172,7 +172,7 @@ TEST(UTSignatureGPV, sign_verify_multiple_keys) {
 	shared_ptr<ILParams> silParams( new ILParams(sm, smodulus, srootOfUnity) );
 	ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
 	Poly::PreComputeDggSamples(dgg, silParams);
-	LPSignatureParameters signParams(silParams, dgg);
+	LPSignatureParameters<Poly> signParams(silParams, dgg);
 	LPSignKeyGPVGM<Poly> s_k(signParams),s_k2(signParams);
 	LPVerificationKeyGPVGM<Poly> v_k(signParams),v_k2(signParams);
 

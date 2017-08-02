@@ -24,6 +24,9 @@
  *
  */
 
+#ifndef _SRC_LIB_CORE_MATH_MATRIX_CPP
+#define _SRC_LIB_CORE_MATH_MATRIX_CPP
+
 #include "../utils/serializablehelper.h"
 //#include "rationalciphertext.h"
 #include "matrix.h"
@@ -371,3 +374,4 @@ Matrix<Element> Matrix<Element>::MultByRandomVector(std::vector<int> ranvec) con
 
 }
 
+#endif

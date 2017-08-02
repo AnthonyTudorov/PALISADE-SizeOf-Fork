@@ -8,6 +8,7 @@
     <ClCompile Include="..\..\..\..\src\trapdoor\lib\abe\cp_abe.cpp" />
     <ClCompile Include="..\..\..\..\src\trapdoor\lib\abe\ibe.cpp" />
     <ClCompile Include="..\..\..\..\src\trapdoor\lib\abe\kp_abe.cpp" />
+    <ClCompile Include="..\..\..\..\src\trapdoor\lib\sampling\trapdoor-impl.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\src\trapdoor\lib\obfuscation\lweconjunctionobfuscatev3.h" />

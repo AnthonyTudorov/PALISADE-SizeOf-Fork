@@ -63,6 +63,7 @@ const auto SPECTRAL_BOUND = [](uint32_t n, uint32_t k, uint32_t base) -> double 
 * @brief Utility class containing operations needed for lattice sampling; Sources: https://eprint.iacr.org/2013/297.pdf & https://eprint.iacr.org/2011/501.pdf
 * This construction is based on the hardness of Ring-LWE problem 
 */
+template <class Element>
 class LatticeGaussSampUtility
 {
 public:
@@ -76,8 +77,8 @@ public:
 	* @param dgg discrete Gaussian generator
 	* @param *z a set of k sampled polynomials corresponding to the gadget matrix G; represented as Z^(k x n)
 	*/
-	static inline void GaussSampG(const Poly &u, double sttdev, size_t k,
-			Poly::DggType &dgg, Matrix<BigInteger> *z);
+	static inline void GaussSampG(const Element &u, double sttdev, size_t k,
+			typename Element::DggType &dgg, Matrix<typename Element::Integer> *z);
 
 	/**
 	* Gaussian sampling from lattice for gagdet matrix G and syndrome u and ARBITRARY MODULUS q - Improved algorithm
@@ -90,8 +91,8 @@ public:
 	* @param dgg discrete Gaussian generator
 	* @param *z a set of k sampled polynomials corresponding to the gadget matrix G; represented as Z^(k x n)
 	*/
-	static inline void GaussSampGq(const Poly &u, double stddev, size_t k, const BigInteger &q, int32_t base,
-				Poly::DggType &dgg, Matrix<int32_t> *z);
+	static inline void GaussSampGq(const Element &u, double stddev, size_t k, const typename Element::Integer &q, int32_t base,
+				typename Element::DggType &dgg, Matrix<int32_t> *z);
 
 
 	/**
@@ -105,7 +106,7 @@ public:
 	* @param *p non-spherical perturbation vector; output of the function
 	*/
 	static inline void ZSampleSigma2x2(const Field2n & a, const Field2n & b,
-		const Field2n & d, const Matrix<Field2n> &c, const Poly::DggType & dgg, shared_ptr<Matrix<int32_t>> p);
+		const Field2n & d, const Matrix<Field2n> &c, const typename Element::DggType & dgg, shared_ptr<Matrix<int32_t>> p);
 
 	/**
 	* Subroutine used by ZSampleSigma2x2
@@ -116,19 +117,19 @@ public:
 	* @param n ring dimension used for rejection sampling
 	*/
 	static inline shared_ptr<Matrix<int32_t>> ZSampleF(const Field2n &f, const Field2n &c,
-		const Poly::DggType &dgg, size_t n);
+		const typename Element::DggType &dgg, size_t n);
 
 private:
 	
 	// subroutine used by GaussSampGqV2
 	// Algorithm was provided in a personal communication by Daniele Micciancio
 	static inline void Perturb(double sigma,  size_t k, size_t n, 
-		const vector<double> &l, const vector<double> &h, int32_t base, Poly::DggType &dgg, vector<int32_t> *p);
+		const vector<double> &l, const vector<double> &h, int32_t base, typename Element::DggType &dgg, vector<int32_t> *p);
 
 	// subroutine used by GaussSampGqV2
 	// Algorithm was provided in a personal communication by Daniele Micciancio
 	static inline void SampleC(const Matrix<double> &c, size_t k, size_t n, 
-		double sigma, Poly::DggType &dgg, Matrix<double> *a, vector<int32_t> *z);
+		double sigma, typename Element::DggType &dgg, Matrix<double> *a, vector<int32_t> *z);
 
 	//subroutine used by ZSampleF
 	//Algorithm utilizes the same permutation algorithm as discussed in the GM17 paper

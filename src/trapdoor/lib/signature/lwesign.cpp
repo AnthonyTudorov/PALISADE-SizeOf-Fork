@@ -50,7 +50,7 @@ namespace lbcrypto {
 		sint stddev = signKey->GetSignatureParameters().GetDiscreteGaussianGenerator().GetStd();
 		usint base = signKey->GetSignatureParameters().GetBase();
 		//Generate trapdoor based using parameters and 
-		std::pair<Matrix<Poly>, RLWETrapdoorPair<Poly>> keyPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev, base);
+		std::pair<Matrix<Element>, RLWETrapdoorPair<Element>> keyPair = RLWETrapdoorUtility<Element>::TrapdoorGen(params, stddev, base);
 		//Format of vectors are changed to prevent complications in calculations 
 		keyPair.second.m_e.SetFormat(EVALUATION);
 		keyPair.second.m_r.SetFormat(EVALUATION);
@@ -61,7 +61,7 @@ namespace lbcrypto {
 
 
 		//Signing key will contain public key matrix of the trapdoor and the trapdoor matrices
-		signKey->SetPrivateElement(std::pair<Matrix<Poly>, RLWETrapdoorPair<Poly>>(keyPair));
+		signKey->SetPrivateElement(std::pair<Matrix<Element>, RLWETrapdoorPair<Element>>(keyPair));
 	}
 
 	//Method for signing given object
@@ -77,29 +77,29 @@ namespace lbcrypto {
 		//Encode the text into a vector so it can be used in signing process. TODO: Adding some kind of digestion algorithm
 		HashUtil util;
 		BytePlaintextEncoding hashedText = util.Hash(plainText, SHA_256);
-		Poly u(signKey.GetSignatureParameters().GetILParams(), EVALUATION, false);
+		Element u(signKey.GetSignatureParameters().GetILParams(), EVALUATION, false);
 		if (hashedText.size() > n) {
-			hashedText.Encode(BigInteger("256"), &u, 0, n);
+			hashedText.Encode(typename Element::Integer("256"), &u, 0, n);
 		}
 		else {
 			usint remaining = n - hashedText.size();
 			for (size_t i = 0;i < remaining;i++) {
 				hashedText.push_back(0);
 			}
-			hashedText.Encode(BigInteger("256"), &u);
+			hashedText.Encode(typename Element::Integer("256"), &u);
 		}
 		u.SwitchFormat();
 
 
 		//Getting the trapdoor, its public matrix, perturbation matrix and gaussian generator to use in sampling
-		RingMat A = signKey.GetPrivateElement().first;
-		RLWETrapdoorPair<Poly> T = signKey.GetPrivateElement().second;
+		Matrix<Element> A = signKey.GetPrivateElement().first;
+		RLWETrapdoorPair<Element> T = signKey.GetPrivateElement().second;
 		//double stddev = signKey.GetSignatureParameters().GetDiscreteGaussianGenerator().GetStd();
 		typename Element::DggType & dgg = signKey.GetSignatureParameters().GetDiscreteGaussianGenerator();
 
 
 		typename Element::DggType & dggLargeSigma = signKey.GetSignatureParameters().GetDiscreteGaussianGeneratorLargeSigma();
-		Matrix<Poly> zHat = RLWETrapdoorUtility::GaussSamp(n,k,A,T,u,dgg,dggLargeSigma,base);
+		Matrix<Element> zHat = RLWETrapdoorUtility<Element>::GaussSamp(n,k,A,T,u,dgg,dggLargeSigma,base);
 		signatureText->SetElement(zHat);
 
 	}
@@ -114,11 +114,11 @@ namespace lbcrypto {
 		size_t base = signKey.GetSignatureParameters().GetBase();
 
 		//Getting the trapdoor and gaussian generatorw to use in sampling
-		RLWETrapdoorPair<Poly> T = signKey.GetPrivateElement().second;
+		RLWETrapdoorPair<Element> T = signKey.GetPrivateElement().second;
 		typename Element::DggType & dgg = signKey.GetSignatureParameters().GetDiscreteGaussianGenerator();
 		typename Element::DggType & dggLargeSigma = signKey.GetSignatureParameters().GetDiscreteGaussianGeneratorLargeSigma();
 
-		return RLWETrapdoorUtility::GaussSampOffline(n, k, T, dgg, dggLargeSigma, base);
+		return RLWETrapdoorUtility<Element>::GaussSampOffline(n, k, T, dgg, dggLargeSigma, base);
 
 	}
 
@@ -136,27 +136,27 @@ namespace lbcrypto {
 		//Encode the text into a vector so it can be used in signing process. TODO: Adding some kind of digestion algorithm
 		HashUtil util;
 		BytePlaintextEncoding hashedText = util.Hash(plainText, SHA_256);
-		Poly u(signKey.GetSignatureParameters().GetILParams(), EVALUATION, false);
+		Element u(signKey.GetSignatureParameters().GetILParams(), EVALUATION, false);
 		if (hashedText.size() > n) {
-			hashedText.Encode(BigInteger("256"), &u, 0, n);
+			hashedText.Encode(typename Element::Integer("256"), &u, 0, n);
 		}
 		else {
 			usint remaining = n - hashedText.size();
 			for (size_t i = 0; i < remaining; i++) {
 				hashedText.push_back(0);
 			}
-			hashedText.Encode(BigInteger("256"), &u);
+			hashedText.Encode(typename Element::Integer("256"), &u);
 		}
 		u.SwitchFormat();
 
 
 		//Getting the trapdoor, its public matrix, perturbation matrix and gaussian generator to use in sampling
-		RingMat A = signKey.GetPrivateElement().first;
-		RLWETrapdoorPair<Poly> T = signKey.GetPrivateElement().second;
+		Matrix<Element> A = signKey.GetPrivateElement().first;
+		RLWETrapdoorPair<Element> T = signKey.GetPrivateElement().second;
 		//double stddev = signKey.GetSignatureParameters().GetDiscreteGaussianGenerator().GetStd();
 		typename Element::DggType & dgg = signKey.GetSignatureParameters().GetDiscreteGaussianGenerator();
 
-		Matrix<Poly> zHat = RLWETrapdoorUtility::GaussSampOnline(n, k, A, T, u, dgg, perturbationVector, base);
+		Matrix<Element> zHat = RLWETrapdoorUtility<Poly>::GaussSampOnline(n, k, A, T, u, dgg, perturbationVector, base);
 		signatureText->SetElement(zHat);
 
 	}
@@ -172,26 +172,26 @@ namespace lbcrypto {
 		//Encode the text into a vector so it can be used in verification process. TODO: Adding some kind of digestion algorithm
 		HashUtil util;
 		BytePlaintextEncoding hashedText = util.Hash(plainText, SHA_256);
-		Poly u(verificationKey.GetSignatureParameters().GetILParams());
+		Element u(verificationKey.GetSignatureParameters().GetILParams());
 		if (hashedText.size() > n) {
-			hashedText.Encode(BigInteger("256"), &u, 0, n);
+			hashedText.Encode(typename Element::Integer("256"), &u, 0, n);
 		}
 		else {
 			usint remaining = n - hashedText.size();
 			for (size_t i = 0;i < remaining;i++) {
 				hashedText.push_back(0);
 			}
-			hashedText.Encode(BigInteger("256"), &u);
+			hashedText.Encode(typename Element::Integer("256"), &u);
 		}
 		u.SwitchFormat();
 
 		//Multiply signature with the verification key
-		RingMat A = verificationKey.GetPublicElement();
-		RingMat z = signatureText.GetElement();
-		RingMat R = A*z;
+		Matrix<Element> A = verificationKey.GetPublicElement();
+		Matrix<Element> z = signatureText.GetElement();
+		Matrix<Element> R = A*z;
 
 		//Check the verified vector is actually the encoding of the object
-		Poly r = R(0, 0);
+		Element r = R(0, 0);
 		return r == u;
 	}
 

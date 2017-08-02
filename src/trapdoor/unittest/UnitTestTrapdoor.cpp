@@ -43,7 +43,6 @@
 //using namespace std;
 using namespace lbcrypto;
 
-
 class UnitTestTrapdoor : public ::testing::Test {
 protected:
   virtual void SetUp() {
@@ -94,7 +93,7 @@ TEST(UTTrapdoor,sizes){
 	usint k = (usint) floor(logTwo);// = this->m_cryptoParameters.GetModulus();
 
 	shared_ptr<ILParams> fastParams( new ILParams(m, modulus, rootOfUnity) );
-	std::pair<RingMat, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility::TrapdoorGen(fastParams, stddev);
+	std::pair<RingMat, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility<Poly>::TrapdoorGen(fastParams, stddev);
 
 	EXPECT_EQ(1U,trapPair.first.GetRows())
 		<< "Failure testing number of rows";
@@ -127,7 +126,7 @@ TEST(UTTrapdoor,TrapDoorPairTest){
 	shared_ptr<ILParams> params( new ILParams( m, modulus, rootOfUnity) );
     auto zero_alloc = Poly::MakeAllocator(params, EVALUATION);
 
-	std::pair<RingMat, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev);
+	std::pair<RingMat, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility<Poly>::TrapdoorGen(params, stddev);
 
 	RingMat eHat = trapPair.second.m_e;
 	RingMat rHat = trapPair.second.m_r;
@@ -189,7 +188,7 @@ TEST(UTTrapdoor,TrapDoorMultTest){
 	shared_ptr<ILParams> params( new ILParams( m, modulus, rootOfUnity) );
     auto zero_alloc = Poly::MakeAllocator(params, EVALUATION);
 
-	std::pair<RingMat, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev);
+	std::pair<RingMat, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility<Poly>::TrapdoorGen(params, stddev);
 
 	RingMat eHat = trapPair.second.m_e;
 	RingMat rHat = trapPair.second.m_r;
@@ -250,14 +249,14 @@ TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
   DEBUG("k "<<k);
   DEBUG("modulus "<<modulus);
   
-	LatticeGaussSampUtility::GaussSampGq(u,sigma,k,modulus, base,dgg,&zHatBBI);
+	LatticeGaussSampUtility<Poly>::GaussSampGq(u,sigma,k,modulus, base,dgg,&zHatBBI);
 
 	EXPECT_EQ(k,zHatBBI.GetRows())
 		<< "Failure testing number of rows";
 	EXPECT_EQ(u.GetLength(),zHatBBI.GetCols())
 		<< "Failure testing number of colums";
   DEBUG("4");
-    Matrix<Poly> z = SplitInt32AltIntoPolyElements(zHatBBI, n, params);
+    Matrix<Poly> z = SplitInt32AltIntoElements<Poly>(zHatBBI, n, params);
 	z.SwitchFormat();
 
 	Poly uEst;
@@ -312,7 +311,7 @@ TEST(UTTrapdoor, TrapDoorGaussGqSampTestBase1024) {
 	DEBUG("modulus " << modulus);
 	DEBUG("base = " << base);
 
-	LatticeGaussSampUtility::GaussSampGq(u, sigma, k, modulus, base, dgg, &zHatBBI);
+	LatticeGaussSampUtility<Poly>::GaussSampGq(u, sigma, k, modulus, base, dgg, &zHatBBI);
 
 	EXPECT_EQ(k, zHatBBI.GetRows())
 		<< "Failure testing number of rows";
@@ -329,7 +328,7 @@ TEST(UTTrapdoor, TrapDoorGaussGqSampTestBase1024) {
 	//
 	//std::cout << maxValue << std::endl;
 
-	Matrix<Poly> z = SplitInt32AltIntoPolyElements(zHatBBI, n, params);
+	Matrix<Poly> z = SplitInt32AltIntoElements<Poly>(zHatBBI, n, params);
 	z.SwitchFormat();
 
 	Poly uEst;
@@ -366,7 +365,7 @@ TEST(UTTrapdoor, TrapDoorGaussSampTest) {
 	shared_ptr<ILParams> params(new ILParams(m, modulus, rootOfUnity));
 	//auto zero_alloc = Poly::MakeAllocator(params, COEFFICIENT);
 
-	std::pair<RingMat, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, sigma);
+	std::pair<RingMat, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility<Poly>::TrapdoorGen(params, sigma);
 
 	RingMat eHat = trapPair.second.m_e;
 	RingMat rHat = trapPair.second.m_r;
@@ -387,7 +386,7 @@ TEST(UTTrapdoor, TrapDoorGaussSampTest) {
 	u.SwitchFormat();
 	DEBUG("u "<<u);
 
-	RingMat z = RLWETrapdoorUtility::GaussSamp(m / 2, k, trapPair.first, trapPair.second, u, dgg, dggLargeSigma);
+	RingMat z = RLWETrapdoorUtility<Poly>::GaussSamp(m / 2, k, trapPair.first, trapPair.second, u, dgg, dggLargeSigma);
 
 	//Matrix<Poly> uEst = trapPair.first * z;
 
@@ -463,7 +462,7 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 
 	//std::cout << 50 / (c*sigma) << std::endl;
 
-	std::pair<RingMat, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, sigma);
+	std::pair<RingMat, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility<Poly>::TrapdoorGen(params, sigma);
 
 	RingMat eHat = trapPair.second.m_e;
 	RingMat rHat = trapPair.second.m_r;
@@ -494,7 +493,7 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 	size_t count = 100;
 
 	for (size_t i = 0; i < count; i++) {
-		RLWETrapdoorUtility::ZSampleSigmaP(n, s, c, trapPair.second, dgg, dggLargeSigma, pHat);
+		RLWETrapdoorUtility<Poly>::ZSampleSigmaP(n, s, c, trapPair.second, dgg, dggLargeSigma, pHat);
 
 		//convert to coefficient representation
 		pHat->SwitchFormat();

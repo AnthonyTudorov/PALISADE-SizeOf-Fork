@@ -28,12 +28,12 @@
 #include <iostream>
 #include <vector>
 
-#include "../lib/cryptocontext.h"
+//#include "../lib/cryptocontext.h"
 #include "../lib/abe/cp_abe.h"
 #include "../lib/abe/kp_abe.h"
 #include "../lib/abe/ibe.h"
 
-#include "lattice/elemparamfactory.h"
+//#include "lattice/elemparamfactory.h"
 
 using namespace std;
 using namespace lbcrypto;
@@ -214,7 +214,7 @@ void UnitTestKPABEBenchMarkCircuit(int32_t base, usint k, usint ringDimension){
 		ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().PreCompute(rootOfUnity, n, q);
 
 		// Trapdoor Generation
-		std::pair<RingMat, RLWETrapdoorPair<Poly>> trapdoorA = RLWETrapdoorUtility::TrapdoorGen(ilParams, SIGMA, base, true); // A.first is the public element
+		std::pair<RingMat, RLWETrapdoorPair<Poly>> trapdoorA = RLWETrapdoorUtility<Poly>::TrapdoorGen(ilParams, SIGMA, base, true); // A.first is the public element
 
 		Poly pubElemBeta(dug, ilParams, EVALUATION);
 
@@ -366,7 +366,7 @@ void UnitTestKPABEANDGate(int32_t base, usint k, usint ringDimension){
 		ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().PreCompute(rootOfUnity, n, q);
 
 		// Trapdoor Generation
-		std::pair<RingMat, RLWETrapdoorPair<Poly>> A = RLWETrapdoorUtility::TrapdoorGen(ilParams, SIGMA, base, true);
+		std::pair<RingMat, RLWETrapdoorPair<Poly>> A = RLWETrapdoorUtility<Poly>::TrapdoorGen(ilParams, SIGMA, base, true);
 
 		Poly pubElemBeta(dug, ilParams, EVALUATION);
 
@@ -445,7 +445,7 @@ void UnitTesKPABENANDGATE(int32_t base, usint k, usint ringDimension){
 		ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().PreCompute(rootOfUnity, n, q);
 
 		// Trapdoor Generation
-		std::pair<RingMat, RLWETrapdoorPair<Poly>> A = RLWETrapdoorUtility::TrapdoorGen(ilParams, SIGMA, base, true);
+		std::pair<RingMat, RLWETrapdoorPair<Poly>> A = RLWETrapdoorUtility<Poly>::TrapdoorGen(ilParams, SIGMA, base, true);
 
 		Poly pubElemBeta(dug, ilParams, EVALUATION);
 
