@@ -47,11 +47,11 @@ namespace lbcrypto {
 	void LatticeGaussSampUtility<Element>::GaussSampG(const Element &u, double sttdev, size_t k,
 			typename Element::DggType &dgg, Matrix<typename Element::Integer> *z)
 	{
-		const Element::Integer& modulus = u.GetParams()->GetModulus();
+		const typename Element::Integer& modulus = u.GetParams()->GetModulus();
 		for (size_t i = 0; i < u.GetLength(); i++) {
 
 			//initial value of integer syndrome corresponding to component u_i
-			Element::Integer t(u.GetValAtIndex(i));
+			typename Element::Integer t(u.GetValAtIndex(i));
 
 			for (size_t j = 0; j < k; j++) {
 
@@ -60,7 +60,7 @@ namespace lbcrypto {
 
 				//dgLSB keeps track of the least significant bit of discrete gaussian; initialized to 2 to make sure the loop is entered
 				uint32_t dgLSB = 2;
-				Element::Integer sampleInteger;
+				typename Element::Integer sampleInteger;
 
 				//checks if the least significant bit of t matches the least signficant bit of a discrete Gaussian sample
 				while (dgLSB != lsb)
@@ -90,7 +90,7 @@ namespace lbcrypto {
 	void LatticeGaussSampUtility<Element>::GaussSampGq(const Element &u, double stddev, size_t k, const typename Element::Integer &q, int32_t base,
 		typename Element::DggType &dgg, Matrix<int32_t> *z)
 	{
-		const Element::Integer& modulus = u.GetParams()->GetModulus();
+		const typename Element::Integer& modulus = u.GetParams()->GetModulus();
 		// std::cout << "modulus = " << modulus << std::endl; 
 		double sigma = stddev / (base + 1);
 
@@ -123,7 +123,7 @@ namespace lbcrypto {
 #pragma omp parallel for
 		for (size_t j = 0; j < u.GetLength(); j++)
 		{
-			Element::Integer v(u.GetValAtIndex(j));
+			typename Element::Integer v(u.GetValAtIndex(j));
 
 			vector<int32_t> p(k);
 

@@ -104,7 +104,7 @@ void MultiThreadedRun(int index) {
 	std::cout << "Precomputation time: " << finish - start << " ms" << std::endl;
 
 	silParams = std::make_shared<ILParams>(ilParams);
-	LPSignatureParameters signParams(silParams, dgg);
+	LPSignatureParameters<Poly> signParams(silParams, dgg);
 	//signParams.SetElemParams(silParams);
 	std::cout << signParams.GetILParams()->GetCyclotomicOrder() << std::endl << std::endl;
 

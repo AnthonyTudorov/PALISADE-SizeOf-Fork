@@ -137,7 +137,7 @@ namespace lbcrypto {
 		void SetElemParams(shared_ptr<typename Element::Params> params, usint base = 2) {
 			m_params = params; 
 			m_base = base;
-			const typename Element::Params & q = params->GetModulus();
+			const typename Element::Integer & q = params->GetModulus();
 			size_t n = params->GetRingDimension();
 			usint nBits = floor(log2(q.ConvertToDouble() - 1.0) + 1.0);
 			m_k = ceil(nBits / log2(base));

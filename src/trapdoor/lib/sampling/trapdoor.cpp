@@ -95,7 +95,7 @@ namespace lbcrypto {
 
 		double c = (base + 1) * SIGMA;
 
-		const Element::Integer& modulus = A(0, 0).GetModulus();
+		const typename Element::Integer& modulus = A(0, 0).GetModulus();
 
 		//spectral bound s
 		double s = SPECTRAL_BOUND(n,k,base);

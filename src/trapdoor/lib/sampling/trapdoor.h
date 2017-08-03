@@ -77,7 +77,7 @@ public:
 	* @param bal flag for balanced (true) versus not-balanced (false) digit representation
 	* @return the trapdoor pair including the public key (matrix of rings) and trapdoor itself
 	*/
-	static inline std::pair<Matrix<Element>, RLWETrapdoorPair<Element>> TrapdoorGen(shared_ptr<typename Element::Params> params, int stddev, int32_t base = 2, bool bal = false);
+	static std::pair<Matrix<Element>, RLWETrapdoorPair<Element>> TrapdoorGen(shared_ptr<typename Element::Params> params, int stddev, int32_t base = 2, bool bal = false);
 
 //	static inline std::pair<Matrix<Element>, RLWETrapdoorPair<Element>> TrapdoorGenwBase(shared_ptr<typename Element::Params> params, int32_t base, int stddev);
 
@@ -105,7 +105,7 @@ public:
 	* @param &dggLargeSigma discrete Gaussian generator for perturbation vector sampling
 	* @return the sampled vector (matrix)
 	*/
-	static inline Matrix<Element> GaussSamp(size_t n, size_t k, const Matrix<Element>& A, 
+	static Matrix<Element> GaussSamp(size_t n, size_t k, const Matrix<Element>& A, 
 		const RLWETrapdoorPair<Element>& T, const Element &u, 
 		typename Element::DggType &dgg, typename Element::DggType &dggLargeSigma, int32_t base = 2);
 
@@ -122,7 +122,7 @@ public:
 	* @param &base base for G-lattice
 	* @return the sampled vector (matrix)
 	*/
-	static inline Matrix<Element> GaussSampOnline(size_t n, size_t k, const Matrix<Element>& A,
+	static Matrix<Element> GaussSampOnline(size_t n, size_t k, const Matrix<Element>& A,
 		const RLWETrapdoorPair<Element>& T, const Element &u, typename Element::DggType &dgg,
 		 const shared_ptr<Matrix<Element>> perturbationVector, int32_t base = 2);
 
@@ -137,7 +137,7 @@ public:
 	* @param &base base for G-lattice
 	* @return the sampled vector (matrix)
 	*/
-	static inline shared_ptr<Matrix<Element>> GaussSampOffline(size_t n, size_t k,
+	static shared_ptr<Matrix<Element>> GaussSampOffline(size_t n, size_t k,
 		const RLWETrapdoorPair<Element>& T,typename Element::DggType &dgg, typename Element::DggType &dggLargeSigma, 
 		int32_t base = 2);
 
@@ -152,7 +152,7 @@ public:
 	*@param &dggLargeSigma discrete Gaussian generator for perturbation vector sampling
 	*@param *perturbationVector perturbation vector;output of the function
 	*/
-	static inline void ZSampleSigmaP(size_t n, double s, double sigma,
+	static void ZSampleSigmaP(size_t n, double s, double sigma,
 		const RLWETrapdoorPair<Element> &Tprime,
 		const typename Element::DggType& dgg, const typename Element::DggType& dggLargeSigma,
 		shared_ptr<Matrix<Element>> perturbationVector);
