@@ -114,15 +114,13 @@ public:
 	}
 
 	/**
-	* @brief Constructor based on binary Gaussian generator. This is not implemented. Will throw a logic_error.
+	* @brief Constructor based on binary Gaussian generator.
 	*
 	* @param &tug the input ternary uniform generator. The bug will be the seed to populate the towers of the DCRTPoly with random numbers.
 	* @param params parameter set required for DCRTPoly.
 	* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 	*/
-	DCRTPolyImpl(const TugType &tug, const shared_ptr<ParmType> params, Format format = EVALUATION) {
-		throw std::logic_error("Cannot use TernaryUniformGenerator with DCRTPoly; not implemented");
-	}
+	DCRTPolyImpl(const TugType &tug, const shared_ptr<ParmType> params, Format format = EVALUATION);
 
 	/**
 	* @brief Constructor based on full methods.

@@ -281,6 +281,7 @@ shared_ptr<typename DCRTPoly::Params> LWEConjunctionObfuscationAlgorithm<DCRTPol
 	for (size_t i = 1; i < size; i++)
 	{
 		moduli[i] = NextPrime<native_int::BigInteger>(moduli[i-1], 2 * n);
+		std::cout << "moduli[" << i << "] " << moduli[i] << std::endl;
 		roots[i] = RootOfUnity<native_int::BigInteger>(2 * n, moduli[i]);
 	}
 
@@ -373,7 +374,7 @@ shared_ptr<Matrix<Element>> LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 	size_t m = Ai.GetCols();
 	size_t k = m - 2;
 	size_t n = elemS.GetRingDimension();
-	const typename Element::Integer &modulus = elemS.GetParams()->GetModulus();
+	//const typename Element::Integer &modulus = elemS.GetParams()->GetModulus();
 	auto zero_alloc = Element::MakeAllocator(elemS.GetParams(), EVALUATION);
 
 	//generate a row vector of discrete Gaussian ring elements

@@ -102,7 +102,7 @@ void Run() {
 	//This code is run only when performing execution time measurements
 
 	//Precomputations for FTT
-	ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(rootOfUnity, m, modulus);
+	//ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(rootOfUnity, m, modulus);
 	DiscreteFourierTransform::GetInstance().PreComputeTable(m);
 
 	//Precomputations for DGG
