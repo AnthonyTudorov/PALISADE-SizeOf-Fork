@@ -37,7 +37,7 @@
 #ifndef LBCRYPTO_LATTICE_TRAPDOOR_H
 #define LBCRYPTO_LATTICE_TRAPDOOR_H
 
-#include "utils/debug.h"
+//#include "utils/debug.h"
 #include "math/matrix.h"
 #include "dgsampling.h"
 

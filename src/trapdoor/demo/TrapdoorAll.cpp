@@ -36,8 +36,8 @@ using namespace lbcrypto;
 
 struct SecureParams {
 	usint m;			///< The ring parameter.
-	string modulus;	///< The modulus
-	string rootOfUnity;	///< The rootOfUnity
+	std::string modulus;	///< The modulus
+	std::string rootOfUnity;	///< The rootOfUnity
 };
 
 void MultiThreadedRun(int index);

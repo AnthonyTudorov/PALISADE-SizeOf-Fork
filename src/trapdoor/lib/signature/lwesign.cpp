@@ -34,9 +34,7 @@
 #ifndef _SRC_LIB_CRYPTO_SIGNATURE_LWESIGN_CPP
 #define _SRC_LIB_CRYPTO_SIGNATURE_LWESIGN_CPP
 
-#include "cryptocontext.h"
 #include "lwesign.h"
-#include "../sampling/trapdoor.h"
 #include "utils/hashutil.h"
 
 namespace lbcrypto {
