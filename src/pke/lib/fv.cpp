@@ -732,24 +732,24 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMultPlain(const s
 
 }
 
-//TODO:Convert int to size_t
 template <class Element>
-shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMultMany(const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> ek, int cipCount, va_list args) const {
+shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMultMany(const shared_ptr<vector<shared_ptr<Ciphertext<Element>>>> cipherTextList, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> evalKeys) const {
 
-	vector<shared_ptr<Ciphertext<Element>>> cipherTextList(cipCount*2-1);
-	for(int i=0; i<cipCount; i++)
-		cipherTextList[i] = (va_arg(args, shared_ptr<Ciphertext<Element>>));
+	shared_ptr<vector<shared_ptr<Ciphertext<Element>>>> cipherTextListTemp(new vector<shared_ptr<Ciphertext<Element>>>);
+	cipherTextListTemp->resize(cipherTextList->size()*2-1);
+	for(size_t i=0; i<cipherTextList->size(); i++){
+		cipherTextListTemp->at(i) = cipherTextList->at(i);
+	}
 
-	size_t resultIndex = cipCount;
-	for(int i=0; i<(int)cipherTextList.size()-1; i=i+2){
-		cipherTextList[resultIndex] = (this->EvalMultAndRelinearize(cipherTextList[i], cipherTextList[i+1], ek));
+	size_t resultIndex = cipherTextList->size();
+	for(size_t i=0; i<cipherTextListTemp->size()-1; i=i+2){
+		cipherTextListTemp->at(resultIndex) = (this->EvalMultAndRelinearize(cipherTextListTemp->at(i), cipherTextListTemp->at(i+1), evalKeys));
 		resultIndex++;
 	}
 
-	return cipherTextList[cipherTextList.size()-1];
+	return cipherTextListTemp->at(cipherTextListTemp->size()-1);
 
 }
-
 
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::KeySwitch(const shared_ptr<LPEvalKey<Element>> ek,

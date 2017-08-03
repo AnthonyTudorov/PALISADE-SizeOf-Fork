@@ -514,7 +514,7 @@ namespace lbcrypto {
 		* @param args  is the ciphertext list.
 		* @param *newCiphertext the new resulting ciphertext.
 		*/
-		shared_ptr<Ciphertext<Element>> EvalMultMany(const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> ek, int cipCount, va_list args) const;
+		shared_ptr<Ciphertext<Element>> EvalMultMany(const shared_ptr<vector<shared_ptr<Ciphertext<Element>>>> cipherTextList, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> evalKeys) const;
 
 		/**
 		* Function for evaluating multiplication on ciphertext followed by relinearization operation.

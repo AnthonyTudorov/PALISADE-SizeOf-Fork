@@ -45,24 +45,6 @@
 using namespace std;
 using namespace lbcrypto;
 
-shared_ptr<Ciphertext<Poly>> EvalMultManyH(shared_ptr<CryptoContext<Poly>> &Con, const shared_ptr<vector<shared_ptr<LPEvalKey<Poly>>>> ek, ...) {
-
-	std::cout << 1 << std::endl;
-	va_list ap;
-	va_start(ap, ek);
-	std::cout << 2 << std::endl;
-
-	shared_ptr<Ciphertext<Poly>> c0 = va_arg(ap, shared_ptr<Ciphertext<Poly>>);
-	shared_ptr<Ciphertext<Poly>> c1 = va_arg(ap, shared_ptr<Ciphertext<Poly>>);
-	std::cout << 3 << std::endl;
-
-	va_end(ap);
-	std::cout << 4 << std::endl;
-
-	return Con->GetEncryptionAlgorithm()->EvalMultAndRelinearize(c0, c1, ek);
-}
-
-
 int main(int argc, char *argv[]) {
 
 	////////////////////////////////////////////////////////////
@@ -357,8 +339,16 @@ int main(int argc, char *argv[]) {
 	// Done
 	////////////////////////////////////////////////////////////
 	shared_ptr<Ciphertext<Poly>> ciphertextMul1234567;
+	shared_ptr<vector<shared_ptr<Ciphertext<Poly>>>> cipherTextList(new vector<shared_ptr<Ciphertext<Poly>>>);
+
+	cipherTextList->push_back(ciphertext1[0]);
+	cipherTextList->push_back(ciphertext2[0]);
+	cipherTextList->push_back(ciphertext3[0]);
+	cipherTextList->push_back(ciphertext4[0]);
+	cipherTextList->push_back(ciphertext5[0]);
+
 //	ciphertextMul1234567 = EvalMultManyH(cryptoContext, evalKeys, ciphertext1[0], ciphertext2[0]);
-	ciphertextMul1234567 = cryptoContext->GetEncryptionAlgorithm()->EvalMultMany(evalKeys, 5, ciphertext1[0], ciphertext2[0], ciphertext3[0], ciphertext4[0], ciphertext5[0]);
+	ciphertextMul1234567 = cryptoContext->GetEncryptionAlgorithm()->EvalMultMany(cipherTextList, evalKeys);
 
 	vector<shared_ptr<Ciphertext<Poly>>> ciphertextMulVect8;
 	ciphertextMulVect8.push_back(ciphertextMul1234567);
