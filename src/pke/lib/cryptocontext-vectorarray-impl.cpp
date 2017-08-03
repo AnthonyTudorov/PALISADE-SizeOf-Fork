@@ -30,5 +30,6 @@
 namespace lbcrypto {
 template class CryptoContextFactory<DCRTPoly>;
 template class CryptoContext<DCRTPoly>;
+template class CryptoObject<DCRTPoly>;
 }
 

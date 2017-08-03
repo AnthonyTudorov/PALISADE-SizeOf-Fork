@@ -87,6 +87,11 @@ namespace lbcrypto {
 			return ct;
 		}
 
+		shared_ptr<Ciphertext<Element>> CloneEmpty() const {
+			shared_ptr<Ciphertext<Element>> ct( new Ciphertext<Element>(this->GetCryptoContext(), this->GetKeyTag()) );
+			return ct;
+		}
+
 		/**
 		* Destructor
 		*/
@@ -215,9 +220,6 @@ namespace lbcrypto {
 				return false;
 
 			if( this->m_depth != rhs.m_depth || this->m_isEncrypted != rhs.m_isEncrypted )
-				return false;
-
-			if( this->GetKeyID() != rhs.GetKeyID() )
 				return false;
 
 			const std::vector<Element> &lhsE = this->GetElements();

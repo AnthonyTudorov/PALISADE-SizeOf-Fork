@@ -33,12 +33,11 @@ template<typename Element>
 bool LPPublicKey<Element>::Serialize(Serialized *serObj) const {
 	serObj->SetObject();
 
-	if (!this->context->Serialize(serObj)) {
+	if( !this->SerializeCryptoObject(serObj) )
 		return false;
-	}
 
 	serObj->AddMember("Object", "PublicKey", serObj->GetAllocator());
-	serObj->AddMember("SUID", this->GetKeyID(), serObj->GetAllocator());
+	serObj->AddMember("KeyTag", this->GetKeyTag(), serObj->GetAllocator());
 	SerializeVector<Element>("Vectors", Element::GetElementName(), this->GetPublicElements(), serObj);
 
 	return true;
@@ -47,13 +46,17 @@ bool LPPublicKey<Element>::Serialize(Serialized *serObj) const {
 template<typename Element>
 bool LPPublicKey<Element>::Deserialize(const Serialized &serObj) {
 
+	// deserialization must be done in a crypto context; the context must be initialized before deserializing the elements
+	if( !this->GetCryptoContext() )
+		return false;
+
+	// get the KeyTag
+	if( !this->DeserializeCryptoObject(serObj, false) )
+		return false;
+
 	Serialized::ConstMemberIterator mIt = serObj.FindMember("Object");
 	if( mIt == serObj.MemberEnd() || string(mIt->value.GetString()) != "PublicKey" )
 		return false;
-
-	mIt = serObj.FindMember("SUID");
-	if( mIt != serObj.MemberEnd() )
-		this->SetKeyID( mIt->value.GetString() );
 
 	mIt = serObj.FindMember("Vectors");
 
@@ -70,14 +73,11 @@ template<typename Element>
 static bool EvalKeyRelinSerializer(const LPEvalKeyRelin<Element> *item, Serialized *serObj, bool doContext) {
 	serObj->SetObject();
 
-	if( doContext ) {
-		if (!item->GetCryptoContext()->Serialize(serObj)) {
-			return false;
-		}
-	}
+	if( !item->SerializeCryptoObject(serObj, doContext) )
+		return false;
 
 	serObj->AddMember("Object", "EvalKeyRelin", serObj->GetAllocator());
-	serObj->AddMember("SUID", item->GetKeyID(), serObj->GetAllocator());
+	serObj->AddMember("KeyTag", item->GetKeyTag(), serObj->GetAllocator());
 	SerializeVector<Element>("AVector", Element::GetElementName(), item->GetAVector(), serObj);
 	SerializeVector<Element>("BVector", Element::GetElementName(), item->GetBVector(), serObj);
 
@@ -97,13 +97,17 @@ bool LPEvalKeyRelin<Element>::SerializeWithoutContext(Serialized *serObj) const 
 template<typename Element>
 bool LPEvalKeyRelin<Element>::Deserialize(const Serialized &serObj) {
 
+	// deserialization must be done in a crypto context; the context must be initialized before deserializing the elements
+	if( !this->GetCryptoContext() )
+		return false;
+
+	// get the KeyTag
+	if( !this->DeserializeCryptoObject(serObj, false) )
+		return false;
+
 	Serialized::ConstMemberIterator mIt = serObj.FindMember("Object");
 	if( mIt == serObj.MemberEnd() || string(mIt->value.GetString()) != "EvalKeyRelin" )
 		return false;
-
-	mIt = serObj.FindMember("SUID");
-	if( mIt != serObj.MemberEnd() )
-		this->SetKeyID( mIt->value.GetString() );
 
 	mIt = serObj.FindMember("AVector");
 
@@ -133,14 +137,11 @@ template<typename Element>
 static bool EvalKeyNTRUSerializer(const LPEvalKeyNTRU<Element> *item, Serialized *serObj, bool doContext) {
 	serObj->SetObject();
 
-	if( doContext ) {
-		if (!item->GetCryptoContext()->Serialize(serObj)) {
-			return false;
-		}
-	}
+	if( !item->SerializeCryptoObject(serObj, doContext) )
+		return false;
 
 	serObj->AddMember("Object", "EvalKeyNTRU", serObj->GetAllocator());
-	serObj->AddMember("SUID", item->GetKeyID(), serObj->GetAllocator());
+	serObj->AddMember("KeyTag", item->GetKeyTag(), serObj->GetAllocator());
 
 	const Element& pe = item->GetA();
 
@@ -163,13 +164,17 @@ bool LPEvalKeyNTRU<Element>::SerializeWithoutContext(Serialized *serObj) const {
 
 template<typename Element>
 bool LPEvalKeyNTRU<Element>::Deserialize(const Serialized &serObj) {
+	// deserialization must be done in a crypto context; the context must be initialized before deserializing the elements
+	if( !this->GetCryptoContext() )
+		return false;
+
+	// get the KeyTag
+	if( !this->DeserializeCryptoObject(serObj, false) )
+		return false;
+
 	Serialized::ConstMemberIterator mIt = serObj.FindMember("Object");
 	if( mIt == serObj.MemberEnd() || string(mIt->value.GetString()) != "EvalKeyNTRU" )
 		return false;
-
-	mIt = serObj.FindMember("SUID");
-	if( mIt != serObj.MemberEnd() )
-		this->SetKeyID( mIt->value.GetString() );
 
 	Element pe;
 
@@ -186,14 +191,11 @@ template<typename Element>
 static bool EvalKeyNTRURelinSerializer(const LPEvalKeyNTRURelin<Element> *item, Serialized *serObj, bool doContext) {
 	serObj->SetObject();
 
-	if( doContext ) {
-		if (!item->GetCryptoContext()->Serialize(serObj)) {
-			return false;
-		}
-	}
+	if( !item->SerializeCryptoObject(serObj, doContext) )
+		return false;
 
 	serObj->AddMember("Object", "EvalKeyNTRURelin", serObj->GetAllocator());
-	serObj->AddMember("SUID", item->GetKeyID(), serObj->GetAllocator());
+	serObj->AddMember("KeyTag", item->GetKeyTag(), serObj->GetAllocator());
 	SerializeVector<Element>("Vectors", Element::GetElementName(), item->GetAVector(), serObj);
 
 	return true;
@@ -211,13 +213,17 @@ bool LPEvalKeyNTRURelin<Element>::SerializeWithoutContext(Serialized *serObj) co
 
 template<typename Element>
 bool LPEvalKeyNTRURelin<Element>::Deserialize(const Serialized &serObj) {
+	// deserialization must be done in a crypto context; the context must be initialized before deserializing the elements
+	if( !this->GetCryptoContext() )
+		return false;
+
+	// get the KeyTag
+	if( !this->DeserializeCryptoObject(serObj, false) )
+		return false;
+
 	Serialized::ConstMemberIterator mIt = serObj.FindMember("Object");
 	if( mIt == serObj.MemberEnd() || string(mIt->value.GetString()) != "EvalKeyNTRURelin" )
 		return false;
-
-	mIt = serObj.FindMember("SUID");
-	if( mIt != serObj.MemberEnd() )
-		this->SetKeyID( mIt->value.GetString() );
 
 	mIt = serObj.FindMember("Vectors");
 
@@ -236,26 +242,28 @@ bool LPEvalKeyNTRURelin<Element>::Deserialize(const Serialized &serObj) {
 
 template<typename Element>
 bool LPPrivateKey<Element>::Serialize(Serialized *serObj) const {
-
 	serObj->SetObject();
 
-	if (!this->context->Serialize(serObj))
+	if( !this->SerializeCryptoObject(serObj) )
 		return false;
 
 	serObj->AddMember("Object", "PrivateKey", serObj->GetAllocator());
-	serObj->AddMember("SUID", this->GetKeyID(), serObj->GetAllocator());
 	return this->GetPrivateElement().Serialize(serObj);
 }
 
 template<typename Element>
 bool LPPrivateKey<Element>::Deserialize(const Serialized &serObj) {
+	// deserialization must be done in a crypto context; the context must be initialized before deserializing the elements
+	if( !this->GetCryptoContext() )
+		return false;
+
+	// get the KeyTag
+	if( !this->DeserializeCryptoObject(serObj, false) )
+		return false;
+
 	Serialized::ConstMemberIterator mIt = serObj.FindMember("Object");
 	if( mIt == serObj.MemberEnd() || string(mIt->value.GetString()) != "PrivateKey" )
 		return false;
-
-	mIt = serObj.FindMember("SUID");
-	if( mIt != serObj.MemberEnd() )
-		this->SetKeyID( mIt->value.GetString() );
 
 	Element json_ilElement;
 	if (json_ilElement.Deserialize(serObj)) {
@@ -265,7 +273,5 @@ bool LPPrivateKey<Element>::Deserialize(const Serialized &serObj) {
 	return false;
 
 }
-
-
 
 }

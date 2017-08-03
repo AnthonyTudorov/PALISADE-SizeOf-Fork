@@ -47,7 +47,7 @@ namespace lbcrypto {
 		/**
 		* Default constructor
 		*/
-		RationalCiphertext() : CryptoObject<Element>(0), m_integerFlag(false) {}
+		RationalCiphertext() : CryptoObject<Element>(), m_integerFlag(false) {}
 
 		/**
 		 * Construct a new ciphertext in the given context
@@ -66,25 +66,25 @@ namespace lbcrypto {
 		*
 		* @param cc
 		*/
-		RationalCiphertext(const Ciphertext<Element> &numerator) : CryptoObject<Element>(numerator.GetCryptoContext()) {
-			m_numerator = std::make_shared<Ciphertext<Element>>(numerator);
+		RationalCiphertext(shared_ptr<Ciphertext<Element>> &numerator) : CryptoObject<Element>(numerator->GetCryptoContext(), numerator->GetKeyTag()) {
+			m_numerator = numerator;
 			m_integerFlag = true;
 		}
 
-		/**
-		* Construct a new rational ciphertext from two integer ciphertexts
-		*
-		* @param &numerator numerator ciphertext
-		* @param &denominator denominator ciphertext
-		*/
-		RationalCiphertext(const Ciphertext<Element> &numerator, const Ciphertext<Element> &denominator) {
-			if( numerator.GetCryptoContext() != denominator.GetCryptoContext() )
-				throw std::logic_error("Numerator and denominator ciphertexts are from different crypto contexts");
-			this->context = numerator.GetCryptoContext();
-			m_numerator = std::make_shared<Ciphertext<Element>>(numerator);
-			m_denominator = std::make_shared<Ciphertext<Element>>(denominator);
-			m_integerFlag = false;
-		}
+//		/**
+//		* Construct a new rational ciphertext from two integer ciphertexts
+//		*
+//		* @param &numerator numerator ciphertext
+//		* @param &denominator denominator ciphertext
+//		*/
+//		RationalCiphertext(const Ciphertext<Element> &numerator, const Ciphertext<Element> &denominator) {
+//			if( numerator.GetCryptoContext() != denominator.GetCryptoContext() )
+//				throw std::logic_error("Numerator and denominator ciphertexts are from different crypto contexts");
+//			this->context = numerator.GetCryptoContext();
+//			m_numerator = std::make_shared<Ciphertext<Element>>(numerator);
+//			m_denominator = std::make_shared<Ciphertext<Element>>(denominator);
+//			m_integerFlag = false;
+//		}
 
 		/**
 		* Construct a new rational ciphertext from two ciphertextpointers
@@ -92,10 +92,10 @@ namespace lbcrypto {
 		* @param &numerator numerator ciphertext
 		* @param &denominator denominator ciphertext
 		*/
-		RationalCiphertext(const shared_ptr<Ciphertext<Element>> &numerator, const shared_ptr<Ciphertext<Element>> &denominator) {
+		RationalCiphertext(const shared_ptr<Ciphertext<Element>> numerator, const shared_ptr<Ciphertext<Element>> denominator)
+			: CryptoObject<Element>(numerator->GetCryptoContext(), numerator->GetKeyTag()) {
 			if( numerator->GetCryptoContext() != denominator->GetCryptoContext() )
 				throw std::logic_error("Numerator and denominator ciphertexts are from different crypto contexts");
-			this->context = numerator->GetCryptoContext();
 			m_numerator = numerator;
 			m_denominator = denominator;
 			m_integerFlag = false;
@@ -103,7 +103,8 @@ namespace lbcrypto {
 		/**
 		* Copy constructor
 		*/
-		RationalCiphertext(const RationalCiphertext<Element> &ciphertext) {
+		RationalCiphertext(const RationalCiphertext<Element> &ciphertext)
+			: CryptoObject<Element>(ciphertext.GetNumerator()->GetCryptoContext(), ciphertext.GetNumerator()->GetKeyTag()) {
 			this->context = ciphertext.context;
 			m_numerator = std::make_shared<Ciphertext<Element>>(*ciphertext.m_numerator);
 			if (ciphertext.m_denominator != nullptr)
@@ -127,14 +128,14 @@ namespace lbcrypto {
 		*/
 		~RationalCiphertext() {}
 
-		string GetKeyID() const {
-			if( m_numerator ) return m_numerator->GetKeyID();
+		string GetKeyTag() const {
+			if( m_numerator ) return m_numerator->GetKeyTag();
 			return "";
 		}
 
-		void SetKeyID(const string& id) {
-			if( m_numerator ) m_numerator->SetKeyID( id );
-			if( m_denominator ) m_denominator->SetKeyID( id );
+		void SetKeyTag(const string& id) {
+			if( m_numerator ) m_numerator->SetKeyTag( id );
+			if( m_denominator ) m_denominator->SetKeyTag( id );
 		}
 
 		/**

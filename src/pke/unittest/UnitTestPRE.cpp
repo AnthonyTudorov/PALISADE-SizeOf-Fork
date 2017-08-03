@@ -63,13 +63,16 @@ UnitTestReEncrypt(shared_ptr<CryptoContext<Element>> cc, bool publicVersion) {
 			cc->GetCryptoParameters()->GetPlaintextModulus(),
 			plaintextShort, plaintextFull, plaintextLong);
 
-	size_t intSize = cc->GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2;
+	size_t intSize = cc->GetCryptoParameters()->GetElementParams()->GetRingDimension();
 	auto ptm = cc->GetCryptoParameters()->GetPlaintextModulus().ConvertToInt();
 
 	vector<uint32_t> intvec;
 	for( size_t ii=0; ii<intSize; ii++)
 		intvec.push_back( rand() % ptm );
 	IntPlaintextEncoding plaintextInt(intvec);
+
+	IntPlaintextEncoding ptInt1( {1,2,3,4} );
+	IntPlaintextEncoding ptInt2 = ptInt1;
 
 	////////////////////////////////////////////////////////////
 	//Perform the key generation operations
@@ -90,11 +93,15 @@ UnitTestReEncrypt(shared_ptr<CryptoContext<Element>> cc, bool publicVersion) {
 
 	LPKeyPair<Element> newKp = cc->KeyGen();
 
-
 	if (!newKp.good()) {
 		std::cout << "Key generation 2 failed!" << std::endl;
 		exit(1);
 	}
+
+	// generate eval mult keys for eval mult before and after
+	cc->EvalMultKeyGen(kp.secretKey);
+	cc->EvalMultKeyGen(newKp.secretKey);
+
 	////////////////////////////////////////////////////////////
 	//Perform the proxy re-encryption key generation operation.
 	// This generates the keys which are used to perform the key switching.
@@ -130,6 +137,19 @@ UnitTestReEncrypt(shared_ptr<CryptoContext<Element>> cc, bool publicVersion) {
 	vector<shared_ptr<Ciphertext<Element>>> reCiphertext4 = cc->ReEncrypt(evalKey, ciphertext4);
 	result = cc->Decrypt(newKp.secretKey, reCiphertext4, &plaintextIntNew, false);
 	EXPECT_EQ(plaintextIntNew, plaintextInt) << "ReEncrypt integer plaintext";
+
+	vector<shared_ptr<Ciphertext<Element>>> ctint1 = cc->Encrypt(kp.publicKey, ptInt1, false);
+	vector<shared_ptr<Ciphertext<Element>>> ctint2 = cc->Encrypt(kp.publicKey, ptInt2, false);
+	shared_ptr<Ciphertext<Element>> ctintProd = cc->EvalMult(ctint1[0],ctint2[0]);
+	IntPlaintextEncoding ptIntProd;
+	result = cc->Decrypt(kp.secretKey, {ctintProd}, &ptIntProd, false);
+
+	vector<shared_ptr<Ciphertext<Element>>> reint1 = cc->ReEncrypt(evalKey, ctint1);
+	vector<shared_ptr<Ciphertext<Element>>> reint2 = cc->ReEncrypt(evalKey, ctint2);
+	shared_ptr<Ciphertext<Element>> reintProd = cc->EvalMult(reint1[0],reint2[0]);
+	IntPlaintextEncoding reIntProd;
+	result = cc->Decrypt(newKp.secretKey, {reintProd}, &reIntProd, false);
+	EXPECT_EQ(ptIntProd,reIntProd) << "EvalMult of re-encrypted int vector";
 }
 
 TEST(UTPRE, LTV_Poly_ReEncrypt_pub) {

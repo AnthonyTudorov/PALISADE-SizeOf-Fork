@@ -164,7 +164,7 @@ public:
 	*/
 	shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> pubKey,
 		Poly &ptxt, bool doEncryption = true) const {
-		shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(pubKey->GetCryptoContext()) );
+		shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(pubKey) );
 
 		Element plaintext(ptxt, pubKey->GetCryptoContext()->GetCryptoParameters()->GetElementParams());
 
@@ -184,7 +184,7 @@ public:
 	*/
 	shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPrivateKey<Element>> privKey,
 		Poly &ptxt, bool doEncryption = true) const {
-		shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(privKey->GetCryptoContext()) );
+		shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(privKey) );
 
 		Element plaintext(ptxt, privKey->GetCryptoContext()->GetCryptoParameters()->GetElementParams());
 
@@ -218,7 +218,7 @@ public:
 	* @param &privateKey private key used for decryption.
 	* @return function ran correctly.
 	*/
-	virtual LPKeyPair<Element> KeyGen(shared_ptr<CryptoContext<Element>> cc, bool makeSparse=false) {
+	LPKeyPair<Element> KeyGen(shared_ptr<CryptoContext<Element>> cc, bool makeSparse=false) {
 		LPKeyPair<Element>	kp( new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc) );
 
 		Element a(cc->GetCryptoParameters()->GetElementParams(), Format::COEFFICIENT, true);
@@ -379,7 +379,7 @@ public:
 	shared_ptr<Ciphertext<Element>> MultipartyDecryptMain(const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const shared_ptr<Ciphertext<Element>> ciphertext) const {
 
-		shared_ptr<Ciphertext<Element>> ciphertext_out( new Ciphertext<Element>(privateKey->GetCryptoContext()) );
+		shared_ptr<Ciphertext<Element>> ciphertext_out( new Ciphertext<Element>(privateKey) );
 		Element plaintext(ciphertext->GetElement());
 		ciphertext_out->SetElement(plaintext);
 
@@ -395,7 +395,7 @@ public:
 	shared_ptr<Ciphertext<Element>> MultipartyDecryptLead(const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const shared_ptr<Ciphertext<Element>> ciphertext) const {
 
-		shared_ptr<Ciphertext<Element>> ciphertext_out( new Ciphertext<Element>(privateKey->GetCryptoContext()) );
+		shared_ptr<Ciphertext<Element>> ciphertext_out( new Ciphertext<Element>(privateKey) );
 		Element plaintext(ciphertext->GetElement());
 		ciphertext_out->SetElement(plaintext);
 
@@ -511,7 +511,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 
 		shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext1,
 			const shared_ptr<Ciphertext<Element>> ciphertext2) const {
-			shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext1->GetCryptoContext()));
+			shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext1->CloneEmpty();
 
 			const Element& c1 = ciphertext1->GetElement();
 			const Element& c2 = ciphertext2->GetElement();
@@ -526,7 +526,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 
 		shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext1,
 			const shared_ptr<Ciphertext<Element>> ciphertext2) const {
-			shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext1->GetCryptoContext()));
+			shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext1->CloneEmpty();
 
 			const Element& c1 = ciphertext1->GetElement();
 			const Element& c2 = ciphertext2->GetElement();
@@ -614,7 +614,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		*/
 
 		shared_ptr<Ciphertext<Element>> EvalNegate(const shared_ptr<Ciphertext<Element>> ciphertext) const {
-			shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext->GetCryptoContext()));
+			shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
 
 			const Element& c1 = ciphertext->GetElement();
 
@@ -647,8 +647,8 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		shared_ptr<Ciphertext<Element>> KeySwitch(
 			const shared_ptr<LPEvalKey<Element>> keySwitchHint,
 			const shared_ptr<Ciphertext<Element>> cipherText) const {
-			shared_ptr<Ciphertext<Element>> ans(new Ciphertext<Element>());
-			return ans;
+			shared_ptr<Ciphertext<Element>> newCiphertext = cipherText->CloneEmpty();
+			return newCiphertext;
 		}
 
 		/**
@@ -672,8 +672,8 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		*/
 		shared_ptr<Ciphertext<Element>> KeySwitchRelin(const shared_ptr<LPEvalKey<Element>> evalKey,
 			const shared_ptr<Ciphertext<Element>> ciphertext) const {
-			shared_ptr<Ciphertext<Element>> ans(new Ciphertext<Element>());
-			return ans;
+			shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
+			return newCiphertext;
 		}
 
 		/**

@@ -60,9 +60,9 @@ class CryptoContext : public Serializable {
 	friend class CryptoContextFactory<Element>;
 
 private:
-	shared_ptr<LPCryptoParameters<Element>>					params;			/*!< crypto parameters used for this context */
+	shared_ptr<LPCryptoParameters<Element>>				params;			/*!< crypto parameters used for this context */
 	shared_ptr<LPPublicKeyEncryptionScheme<Element>>		scheme;			/*!< algorithm used; accesses all crypto methods */
-	std::map<usint, shared_ptr<LPEvalKey<Element>>>			evalSumKeys;		/*!< cached evalsum keys */
+	std::map<usint, shared_ptr<LPEvalKey<Element>>>		evalSumKeys;		/*!< cached evalsum keys */
 
 	static std::map<string,vector<shared_ptr<LPEvalKey<Element>>>>	evalMultKeyMap;	/*!< cached evalmult keys, by secret key UID */
 
@@ -155,6 +155,7 @@ public:
 	 */
 	operator bool() const { return bool(params) && bool(scheme); }
 
+	// TIMING METHODS
 	/**
 	 * StartTiming method activates timing of CryptoMethods
 	 *
@@ -186,6 +187,7 @@ public:
 		this->timeSamples->clear();
 	}
 
+	// SERIALIZATION METHODS
 	/**
 	 * Serialize the CryptoContext
 	 *
@@ -203,6 +205,62 @@ public:
 	bool Deserialize(const Serialized& serObj) {
 		throw std::logic_error("Deserialize by using CryptoContextFactory::DeserializeAndCreateContext");
 	}
+
+	/**
+	 * SerializeEvalMultKey for all EvalMult keys
+	 * method will serialize each CryptoContext only once
+	 *
+	 * @param serObj - serialization
+	 * @return true on success
+	 */
+	static bool SerializeEvalMultKey(Serialized* serObj);
+
+	/**
+	 * SerializeEvalMultKey for a single EvalMult key
+	 * method will serialize entire key AND cryptocontext
+	 *
+	 * @param serObj - serialization
+	 * @param id for key to serialize
+	 * @return true on success (false on failure or key id not found)
+	 */
+	static bool SerializeEvalMultKey(Serialized* serObj, const string& id);
+
+	/**
+	 * SerializeEvalMultKey for all EvalMultKeys made in a given context
+	 * method will serialize the context only once
+	 *
+	 * @param serObj - serialization
+	 * @param cc whose keys should be serialized
+	 * @return true on success (false on failure or no keys found)
+	 */
+	static bool SerializeEvalMultKey(Serialized* serObj, const shared_ptr<CryptoContext> cc);
+
+	/**
+	 * DeserializeEvalMultKey deserialize all keys in the serialization
+	 * deserialized keys silently replace any existing matching keys
+	 * deserialization will create CryptoContext if necessary
+	 *
+	 * @param serObj - serialization
+	 * @return true on success
+	 */
+	static bool DeserializeEvalMultKey(const Serialized& serObj);
+
+	/**
+	 * ClearEvalMultKeys - flush EvalMultKey cache
+	 */
+	static void ClearEvalMultKeys();
+
+	/**
+	 * ClearEvalMultKeys - flush EvalMultKey cache for a given id
+	 * @param id
+	 */
+	static void ClearEvalMultKeys(const string& id);
+
+	/**
+	 * ClearEvalMultKeys - flush EvalMultKey cache for a given context
+	 * @param cc
+	 */
+	static void ClearEvalMultKeys(const shared_ptr<CryptoContext> cc);
 
 	/**
 	 * Enable a particular feature for use with this CryptoContext
@@ -1298,13 +1356,13 @@ public:
 	{
 		if( ct1 == NULL || ct2 == NULL )
 			throw std::logic_error("Null argument(s) passed to EvalMult");
-		if( ct1->GetKeyID() != ct2->GetKeyID() )
+		if( ct1->GetKeyTag() != ct2->GetKeyTag() )
 			throw std::logic_error("Ciphertexts were not encrypted with same keys, cannot be used by EvalMult");
 		// Since the IDs match we know they're both from the same context; only need to check one
 		if( Mismatched(ct1->GetCryptoContext()) )
 			throw std::logic_error("Ciphertexts passed to EvalMult was not generated with this crypto context");
 
-		auto ek = GetEvalMultKeyVector(ct1->GetKeyID());
+		auto ek = GetEvalMultKeyVector(ct1->GetKeyTag());
 
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
@@ -1704,11 +1762,11 @@ public:
 		const shared_ptr<Ciphertext<Element>> ciphertext1,
 		const shared_ptr<Ciphertext<Element>> ciphertext2) const
 	{
-		if( ciphertext1 == NULL || ciphertext2 == NULL || ciphertext1->GetKeyID() != ciphertext2->GetKeyID() ||
+		if( ciphertext1 == NULL || ciphertext2 == NULL || ciphertext1->GetKeyTag() != ciphertext2->GetKeyTag() ||
 				Mismatched(ciphertext1->GetCryptoContext()) )
 			throw std::logic_error("Ciphertexts passed to ComposedEvalMult were not generated with this crypto context");
 
-		auto ek = GetEvalMultKeyVector(ciphertext1->GetKeyID());
+		auto ek = GetEvalMultKeyVector(ciphertext1->GetKeyTag());
 
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
@@ -1763,16 +1821,64 @@ public:
 template<typename Element>
 class CryptoObject {
 protected:
-	shared_ptr<CryptoContext<Element>>	context;
+	shared_ptr<CryptoContext<Element>>	context;		/*!< crypto context this object belongs to */
+	string								keyTag;		/*!< tag used to find the evaluation key needed for SHE/FHE operations */
 
 public:
-	CryptoObject(shared_ptr<CryptoContext<Element>> cc = 0) : context(cc) {}
+	CryptoObject(shared_ptr<CryptoContext<Element>> cc = 0, const string& tag = "") : context(cc), keyTag(tag) {}
+
+	CryptoObject(const CryptoObject& rhs) {
+		context = rhs.context;
+		keyTag = rhs.keyTag;
+	}
+
+	CryptoObject(const CryptoObject&& rhs) {
+		context = std::move(rhs.context);
+		keyTag = std::move(rhs.keyTag);
+	}
+
 	virtual ~CryptoObject() {}
 
+	const CryptoObject& operator=(const CryptoObject& rhs) {
+		this->context = rhs.context;
+		this->keyTag = rhs.keyTag;
+		return *this;
+	}
+
+	const CryptoObject& operator=(const CryptoObject&& rhs) {
+		this->context = std::move(rhs.context);
+		this->keyTag = std::move(rhs.keyTag);
+		return *this;
+	}
+
+	bool operator==(const CryptoObject& rhs) const {
+		return context.get() == rhs.context.get() &&
+				keyTag == rhs.keyTag;
+	}
+
 	shared_ptr<CryptoContext<Element>> GetCryptoContext() const { return context; }
+
 	const shared_ptr<LPCryptoParameters<Element>> GetCryptoParameters() const { return context->GetCryptoParameters(); }
-	// FIXME elem const shared_ptr<LPCryptoParameters<Element>> GetCryptoParameters() const { return context->GetCryptoParameters(); }
-	//const shared_ptr<EncodingParams> GetEncodingParameters() const { return context->Be; }
+
+	const shared_ptr<EncodingParams> GetEncodingParameters() const { return context->GetCryptoParameters()->GetEncodingParams(); }
+
+	const string GetKeyTag() const { return keyTag; }
+
+	void SetKeyTag(const string& tag) { keyTag = tag; }
+
+	/**
+	* SerializeCryptoObject serializes this header into a Serialized
+	* @param serObj is used to store the serialized result.
+	* @return true if successfully serialized
+	*/
+	bool SerializeCryptoObject(Serialized* serObj, bool includeContext = true) const;
+
+	/**
+	* DeserializeCryptoObject Populates this header from the deserialization of the Serialized
+	* @param serObj contains the serialized object
+	* @return true on success
+	*/
+	bool DeserializeCryptoObject(const Serialized& serObj, bool includesContext = true);
 };
 
 /**

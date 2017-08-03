@@ -46,6 +46,8 @@ protected:
 	void TearDown() {
 		CryptoContextFactory<Poly>::ReleaseAllContexts();
 		CryptoContextFactory<DCRTPoly>::ReleaseAllContexts();
+		CryptoContext<Poly>::ClearEvalMultKeys();
+		CryptoContext<DCRTPoly>::ClearEvalMultKeys();
 	}
 };
 
@@ -165,7 +167,7 @@ TEST_F(UTPKESer, FV_Poly_Serial) {
 
 // REMAINDER OF THE TESTS USE LTV AS A REPRESENTITIVE CONTEXT
 TEST_F(UTPKESer, LTV_keys_and_ciphertext) {
-        bool dbg_flag = false;
+        bool dbg_flag = true;
 	shared_ptr<CryptoContext<Poly>> cc = GenerateTestCryptoContext("LTV5");
 	LPKeyPair<Poly> kp = cc->KeyGen();
 	LPKeyPair<Poly> kpnew;
@@ -212,4 +214,22 @@ TEST_F(UTPKESer, LTV_keys_and_ciphertext) {
 	BytePlaintextEncoding plaintextShortNew;
 	cc->Decrypt(kp.secretKey, ciphertext, &plaintextShortNew, true);
 	EXPECT_EQ(plaintextShortNew, plaintextShort) << "Decrypted deserialize failed";
+
+	DEBUG("step 6");
+	shared_ptr<CryptoContext<Poly>> cc2 = GenerateTestCryptoContext("LTV4");
+	LPKeyPair<Poly> kp2 = cc->KeyGen();
+	LPKeyPair<Poly> kp3 = cc2->KeyGen();
+
+	cc->EvalMultKeyGen(kp.secretKey);
+	cc->EvalMultKeyGen(kp2.secretKey);
+	cc2->EvalMultKeyGen(kp3.secretKey);
+
+	Serialized ser0;
+	CryptoContext<Poly>::SerializeEvalMultKey(&ser0, kp.secretKey->GetKeyTag());
+	Serialized ser2a;
+	Serialized ser2b;
+	CryptoContext<Poly>::SerializeEvalMultKey(&ser2a, cc);
+	CryptoContext<Poly>::SerializeEvalMultKey(&ser2b, cc2);
+	Serialized ser3;
+	CryptoContext<Poly>::SerializeEvalMultKey(&ser3);
 }
