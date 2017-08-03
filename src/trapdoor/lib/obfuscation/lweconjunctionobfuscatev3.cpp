@@ -243,18 +243,53 @@ void LWEConjunctionObfuscationAlgorithm<Element>::ParamsGen(typename Element::Dg
 		}
 	}
 
-	typename Element::Integer qPrime = FirstPrime<typename Element::Integer>(ceil(log2(q-1.0)+1.0), 2*n);
-	typename Element::Integer rootOfUnity = RootOfUnity<typename Element::Integer>(2 * n, qPrime);
-
 	//Prepare for parameters.
-	shared_ptr<typename Element::Params> params(new typename Element::Params(2*n, qPrime, rootOfUnity));
+	shared_ptr<typename Element::Params> params = GenerateElemParams(q, n);
 
 	obfuscatedPattern->SetParameters(params);
 
 	//Sets, update the root Hermite factor
-	obfuscatedPattern->SetRootHermiteFactor(delta(n, qPrime.ConvertToDouble()));
+	obfuscatedPattern->SetRootHermiteFactor(delta(n, q));
 
 }
+
+template <>
+shared_ptr<typename Poly::Params> LWEConjunctionObfuscationAlgorithm<Poly>::GenerateElemParams(double q, uint32_t n) const {
+
+	typename Poly::Integer qPrime = FirstPrime<typename Poly::Integer>(ceil(log2(q - 1.0) + 1.0), 2 * n);
+	typename Poly::Integer rootOfUnity = RootOfUnity<typename Poly::Integer>(2 * n, qPrime);
+
+	//Prepare for parameters.
+	shared_ptr<typename Poly::Params> params(new typename Poly::Params(2 * n, qPrime, rootOfUnity));
+
+	return params;
+
+}
+
+template <>
+shared_ptr<typename DCRTPoly::Params> LWEConjunctionObfuscationAlgorithm<DCRTPoly>::GenerateElemParams(double q, uint32_t n) const {
+
+	size_t dcrtBits = 60;
+	size_t size = ceil((log2(q - 1.0) + 1.0) / (double)dcrtBits);
+
+	vector<native_int::BigInteger> moduli(size);
+	vector<native_int::BigInteger> roots(size);
+
+	moduli[0] = FirstPrime<native_int::BigInteger>(dcrtBits, 2 * n);
+	roots[0] = RootOfUnity<native_int::BigInteger>(2 * n, moduli[0]);
+
+	for (size_t i = 1; i < size; i++)
+	{
+		moduli[i] = NextPrime<native_int::BigInteger>(moduli[i-1], 2 * n);
+		roots[i] = RootOfUnity<native_int::BigInteger>(2 * n, moduli[i]);
+	}
+
+	shared_ptr<ILDCRTParams<BigInteger>> params(new ILDCRTParams<BigInteger>(2 * n, moduli, roots));
+
+	return params;
+
+}
+
 
 template <class Element>
 void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(typename Element::DggType &dgg,
@@ -347,7 +382,8 @@ shared_ptr<Matrix<Element>> LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 	Matrix<Element> ej(zero_alloc, 1, m); 
 
 	for(size_t i=0; i<m; i++) {
-		ej(0,i).SetValues(dggEncoding.GenerateVector(n,modulus),COEFFICIENT);
+		ej(0,i) = Element(dggEncoding, elemS.GetParams(), COEFFICIENT);
+		//ej(0,i).SetValues(dggEncoding.GenerateVector(n,modulus),COEFFICIENT);
 		ej(0,i).SwitchFormat();
 	}
 

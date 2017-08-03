@@ -263,7 +263,7 @@ namespace lbcrypto {
 
 		const shared_ptr<typename Element::Params> params = Tprime0(0, 0).GetParams();
 
-		// all three Elementnomials are initialized with "0" coefficients
+		// all three Polynomials are initialized with "0" coefficients
 		Element va(params, EVALUATION, 1);
 		Element vb(params, EVALUATION, 1);
 		Element vd(params, EVALUATION, 1);
@@ -274,7 +274,7 @@ namespace lbcrypto {
 			vd = vd + Tprime1(0, i)*Tprime1(0, i).Transpose();
 		}
 
-		//Switch the ring elements (Elementnomials) to coefficient representation
+		//Switch the ring elements (Polynomials) to coefficient representation
 		va.SwitchFormat();
 		vb.SwitchFormat();
 		vd.SwitchFormat();

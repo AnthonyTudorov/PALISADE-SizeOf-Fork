@@ -514,6 +514,27 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>& DCRTPolyImpl<ModType,IntType,Vec
 	return *this;
 }
 
+// Used only inside a Matrix object; so an allocator already initializes the values
+template<typename ModType, typename IntType, typename VecType, typename ParmType>
+DCRTPolyImpl<ModType, IntType, VecType, ParmType>& DCRTPolyImpl<ModType, IntType, VecType, ParmType>::operator=(uint64_t val)
+{
+	if (!IsEmpty()) {
+		for (usint i = 0; i < m_vectors.size(); i++) {
+			m_vectors[i] = val;
+		}
+	}
+	else {
+		for (usint i = 0; i<m_vectors.size(); i++) {
+			native_int::BigVector temp(m_params->GetRingDimension());
+			temp.SetModulus(m_vectors.at(i).GetModulus());
+			temp = val;
+			m_vectors.at(i).SetValues(std::move(temp), m_format);
+		}
+	}
+
+	return *this;
+}
+
 /*SCALAR OPERATIONS*/
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
@@ -874,6 +895,13 @@ bool DCRTPolyImpl<ModType,IntType,VecType,ParmType>::InverseExists() const
 		if (!m_vectors[i].InverseExists()) return false;
 	}
 	return true;
+}
+
+template<typename ModType, typename IntType, typename VecType, typename ParmType>
+double DCRTPolyImpl<ModType, IntType, VecType, ParmType>::Norm() const
+{
+	Poly poly(CRTInterpolate());
+	return poly.Norm();
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>

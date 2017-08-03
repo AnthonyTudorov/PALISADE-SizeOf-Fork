@@ -70,6 +70,7 @@ public:
 
 	/**
 	* Gaussian sampling from lattice for gagdet matrix G and syndrome u ONLY FOR A POWER-OF-TWO MODULUS; Has not been fully tested
+	* DISABLED
 	*
 	* @param u syndrome (a polynomial)
 	* @param sttdev standard deviation
@@ -77,8 +78,8 @@ public:
 	* @param dgg discrete Gaussian generator
 	* @param *z a set of k sampled polynomials corresponding to the gadget matrix G; represented as Z^(k x n)
 	*/
-	static void GaussSampG(const Element &u, double sttdev, size_t k,
-			typename Element::DggType &dgg, Matrix<typename Element::Integer> *z);
+	//static void GaussSampG(const Element &u, double sttdev, size_t k,
+	//		typename Element::DggType &dgg, Matrix<typename Element::Integer> *z);
 
 	/**
 	* Gaussian sampling from lattice for gagdet matrix G and syndrome u and ARBITRARY MODULUS q - Improved algorithm

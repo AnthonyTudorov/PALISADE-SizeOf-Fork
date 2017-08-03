@@ -149,6 +149,49 @@ public:
 	DCRTPolyImpl(const std::vector<PolyType> &elements);
 
 	/**
+	* @brief Create lambda that allocates a zeroed element for the case when it is called from a templated class
+	* @param params the params to use.
+	* @param format - EVALUATION or COEFFICIENT
+	*/
+	inline static function<unique_ptr<DCRTPolyType>()> MakeAllocator(const shared_ptr<ParmType> params, Format format) {
+		return [=]() {
+			return lbcrypto::make_unique<DCRTPolyType>(params, format, true);
+		};
+	}
+
+	/**
+	* @brief Allocator for discrete uniform distribution.
+	*
+	* @param params Params instance that is is passed.
+	* @param resultFormat resultFormat for the polynomials generated.
+	* @param stddev standard deviation for the discrete gaussian generator.
+	* @return the resulting vector.
+	*/
+	inline static function<unique_ptr<DCRTPolyType>()> MakeDiscreteGaussianCoefficientAllocator(shared_ptr<ParmType> params, Format resultFormat, int stddev) {
+		return [=]() {
+			DggType dgg(stddev);
+			auto ilvec = lbcrypto::make_unique<DCRTPolyType>(dgg, params, COEFFICIENT);
+			ilvec->SetFormat(resultFormat);
+			return ilvec;
+		};
+	}
+
+	/**
+	* @brief Allocator for discrete uniform distribution.
+	*
+	* @param params Params instance that is is passed.
+	* @param format format for the polynomials generated.
+	* @return the resulting vector.
+	*/
+	inline static function<unique_ptr<DCRTPolyType>()> MakeDiscreteUniformAllocator(shared_ptr<ParmType> params, Format format) {
+		return [=]() {
+			DugType dug;
+			return lbcrypto::make_unique<DCRTPolyType>(dug, params, format);
+		};
+	}
+
+
+	/**
 	* @brief Copy constructor.
 	*
 	* @param &element DCRTPoly to copy from
@@ -330,6 +373,14 @@ public:
 	DCRTPolyType& operator=(std::initializer_list<sint> rhs);
 
 	/**
+	* @brief Assignment Operator. The usint val will be set at index zero and all other indices will be set to zero.
+	*
+	* @param val is the usint to assign to index zero.
+	* @return the resulting vector.
+	*/
+	DCRTPolyType& operator=(uint64_t val);
+
+	/**
 	 * @brief Unary minus on a element.
 	 * @return additive inverse of the an element.
 	 */
@@ -374,6 +425,22 @@ public:
 			result.m_vectors[k] = m_vectors[k].AutomorphismTransform(i);
 		}
 		return result;
+	}
+
+	/**
+	* @brief Transpose the ring element using the automorphism operation
+	*
+	* @return is the result of the transposition.
+	*/
+	DCRTPolyType Transpose() const {
+	
+		if (m_format == COEFFICIENT)
+			throw std::logic_error("DCRTPolyImpl element transposition is currently implemented only in the Evaluation representation.");
+		else {
+			usint m = m_params->GetCyclotomicOrder();
+			return AutomorphismTransform(2 * m - 1);
+		}
+
 	}
 
 	/**
@@ -615,6 +682,13 @@ public:
 	* @return is the Boolean representation of the existence of multiplicative inverse.
 	*/
 	bool InverseExists() const;
+
+	/**
+	* @brief Returns the infinity norm, basically the largest value in the ring element.
+	*
+	* @return is the largest value in the ring element.
+	*/
+	double Norm() const;
 
 	//JSON FACILITY
 	/**

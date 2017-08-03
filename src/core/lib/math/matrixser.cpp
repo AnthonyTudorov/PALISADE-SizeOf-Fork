@@ -130,6 +130,16 @@ bool Matrix<Poly>::Deserialize(const Serialized& serObj) {
 }
 
 template<>
+bool Matrix<DCRTPoly>::Serialize(Serialized* serObj) const {
+	return false;
+}
+
+template<>
+bool Matrix<DCRTPoly>::Deserialize(const Serialized& serObj) {
+	return false;
+}
+
+template<>
 bool MatrixStrassen<Poly>::Serialize(Serialized* serObj) const {
 	return false;
 }
@@ -227,44 +237,43 @@ Matrix<T> Matrix<T>::GadgetVector(int32_t base) const { \
 GADGET_FOR_TYPE(int32_t)
 GADGET_FOR_TYPE(double)
 GADGET_FOR_TYPE(Poly)
+GADGET_FOR_TYPE(DCRTPoly)
 GADGET_FOR_TYPE(BigInteger)
 GADGET_FOR_TYPE(BigVector)
 //GADGET_FOR_TYPE(IntPlaintextEncoding)
 GADGET_FOR_TYPE(Field2n)
 
-
-template<>
-double Matrix<Poly>::Norm() const {
-    double retVal = 0.0;
-	double locVal = 0.0;
-
-	//std::cout << " Norm: " << rows << "-" << cols << "-"  << locVal << "-"  << retVal << std::endl;
-
-	for (size_t row = 0; row < rows; ++row) {
-		for (size_t col = 0; col < cols; ++col) {
-			locVal = data[row][col]->Norm();
-			//std::cout << " Norm: " << row << "-" << col << "-"  << locVal << "-"  << retVal << std::endl;
-			if (locVal > retVal) {
-				retVal = locVal;
-			}
-		}
-	}
-
-    return retVal;
+#define NORM_FOR_TYPE(T) \
+template<> \
+double Matrix<T>::Norm() const { \
+    double retVal = 0.0; \
+	double locVal = 0.0; \
+	for (size_t row = 0; row < rows; ++row) { \
+		for (size_t col = 0; col < cols; ++col) { \
+			locVal = data[row][col]->Norm(); \
+			if (locVal > retVal) { \
+				retVal = locVal; \
+			} \
+		} \
+	} \
+    return retVal; \
 }
 
-#define NORM_FOR_TYPE(T) \
+NORM_FOR_TYPE(Poly)
+NORM_FOR_TYPE(DCRTPoly)
+
+
+#define NONORM_FOR_TYPE(T) \
 template<> \
 double Matrix<T>::Norm() const { \
     throw std::logic_error("Norm not defined for this type"); \
 }
 
-
-NORM_FOR_TYPE(int32_t)
-NORM_FOR_TYPE(double)
-NORM_FOR_TYPE(BigInteger)
-NORM_FOR_TYPE(BigVector)
-NORM_FOR_TYPE(Field2n)
+NONORM_FOR_TYPE(int32_t)
+NONORM_FOR_TYPE(double)
+NONORM_FOR_TYPE(BigInteger)
+NONORM_FOR_TYPE(BigVector)
+NONORM_FOR_TYPE(Field2n)
 
 template<>
 void Matrix<Poly>::SetFormat(Format format) {
@@ -384,6 +393,29 @@ void Matrix<int>::PrintValues() const {
 
 template<>
 void Matrix<Poly>::SwitchFormat() {
+
+	if (rows == 1)
+	{
+		for (size_t row = 0; row < rows; ++row) {
+#pragma omp parallel for
+			for (size_t col = 0; col < cols; ++col) {
+				data[row][col]->SwitchFormat();
+			}
+		}
+	}
+	else
+	{
+		for (size_t col = 0; col < cols; ++col) {
+#pragma omp parallel for
+			for (size_t row = 0; row < rows; ++row) {
+				data[row][col]->SwitchFormat();
+			}
+		}
+	}
+}
+
+template<>
+void Matrix<DCRTPoly>::SwitchFormat() {
 
 	if (rows == 1)
 	{

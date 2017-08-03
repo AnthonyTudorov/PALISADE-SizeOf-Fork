@@ -426,6 +426,16 @@ namespace lbcrypto {
 			bool Evaluate(const ObfuscatedLWEConjunctionPattern<Element> &obfuscatedPattern,
 				 const std::string &testString) const;
 
+		private:
+
+			/**
+			* Method to create element parameters for given q and n
+			*
+			* @param &q estimated value of modulus (based on correctness & security constraints)
+			* @param &n estimated ring dimension (based on correctness & security constraints).
+			*/
+			shared_ptr<typename Element::Params> GenerateElemParams(double q, uint32_t n) const;
+
 	};
 
 } // namespace lbcrypto ends

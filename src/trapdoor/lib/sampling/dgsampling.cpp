@@ -42,45 +42,46 @@
 namespace lbcrypto {
 
 	// Gaussian sampling from lattice for gagdet matrix G and syndrome u ONLY FOR A POWER-OF-TWO MODULUS; Has not been fully tested
+	// DISABLED
 
-	template <class Element>
-	void LatticeGaussSampUtility<Element>::GaussSampG(const Element &u, double sttdev, size_t k,
-			typename Element::DggType &dgg, Matrix<typename Element::Integer> *z)
-	{
-		const typename Element::Integer& modulus = u.GetParams()->GetModulus();
-		for (size_t i = 0; i < u.GetLength(); i++) {
+	//template <class Element>
+	//void LatticeGaussSampUtility<Element>::GaussSampG(const Element &u, double sttdev, size_t k,
+	//		typename Element::DggType &dgg, Matrix<typename Element::Integer> *z)
+	//{
+	//	const typename Element::Integer& modulus = u.GetParams()->GetModulus();
+	//	for (size_t i = 0; i < u.GetLength(); i++) {
 
-			//initial value of integer syndrome corresponding to component u_i
-			typename Element::Integer t(u.GetValAtIndex(i));
+	//		//initial value of integer syndrome corresponding to component u_i
+	//		typename Element::Integer t(u.GetValAtIndex(i));
 
-			for (size_t j = 0; j < k; j++) {
+	//		for (size_t j = 0; j < k; j++) {
 
-				//get the least significant digit of t; used for choosing the right coset to sample from 2Z or 2Z+1
-				uint32_t lsb = t.GetDigitAtIndexForBase(1, 2);
+	//			//get the least significant digit of t; used for choosing the right coset to sample from 2Z or 2Z+1
+	//			uint32_t lsb = t.GetDigitAtIndexForBase(1, 2);
 
-				//dgLSB keeps track of the least significant bit of discrete gaussian; initialized to 2 to make sure the loop is entered
-				uint32_t dgLSB = 2;
-				typename Element::Integer sampleInteger;
+	//			//dgLSB keeps track of the least significant bit of discrete gaussian; initialized to 2 to make sure the loop is entered
+	//			uint32_t dgLSB = 2;
+	//			typename Element::Integer sampleInteger;
 
-				//checks if the least significant bit of t matches the least signficant bit of a discrete Gaussian sample
-				while (dgLSB != lsb)
-				{
-					sampleInteger = dgg.GenerateInteger(modulus);
-					dgLSB = sampleInteger.GetDigitAtIndexForBase(1, 2);
-				}
+	//			//checks if the least significant bit of t matches the least signficant bit of a discrete Gaussian sample
+	//			while (dgLSB != lsb)
+	//			{
+	//				sampleInteger = dgg.GenerateInteger(modulus);
+	//				dgLSB = sampleInteger.GetDigitAtIndexForBase(1, 2);
+	//			}
 
-				(*z)(j, i) = sampleInteger;
+	//			(*z)(j, i) = sampleInteger;
 
-				//division by 2
-				// TODO: Probably incorrect, but this whole function is wrong anyways. Awaiting advice of Daniele
-				t = (t.ModSub((*z)(j, i), modulus)) >> 1;
-				//t = (t - (*z)(j,i))>>1;
+	//			//division by 2
+	//			// TODO: Probably incorrect, but this whole function is wrong anyways. Awaiting advice of Daniele
+	//			t = (t.ModSub((*z)(j, i), modulus)) >> 1;
+	//			//t = (t - (*z)(j,i))>>1;
 
-			}
+	//		}
 
-		}
+	//	}
 
-	}
+	//}
 
 	// Gaussian sampling from lattice for gagdet matrix G and syndrome u and ARBITRARY MODULUS q - Improved algorithm
 	// Algorithm was provided in a personal communication by Daniele Micciancio
