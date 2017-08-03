@@ -118,6 +118,19 @@ template <typename Element>
 bool CryptoContext<Element>::SerializeEvalMultKey(Serialized* serObj) {
 	serObj->SetObject();
 	serObj->AddMember("Object", "EvalMultKeys", serObj->GetAllocator());
+
+	// remember which contexts you serialized, and only serialize each one once
+	map<shared_ptr<CryptoContext<Element>>,bool> serializedContext;
+
+	for( const auto& k : evalMultKeyMap ) {
+		if( !serializedContext[k.second[0]->GetCryptoContext()] ) {
+			k.second[0]->GetCryptoContext()->Serialize(serObj);
+			std::cout << "CTX! " << k.second[0]->GetCryptoContext() << std::endl;
+			serializedContext[k.second[0]->GetCryptoContext()] = true;
+		}
+		SerializeVectorOfPointers<LPEvalKey<Element>>("EvalMultKeys", "LPEvalKey", k.second, serObj);
+		std::cout << "KEY!" << std::endl;
+	}
 	{
 		std::cout << " =============== " << std::endl;
 		Serialized::ConstMemberIterator pIter = serObj->MemberBegin();
