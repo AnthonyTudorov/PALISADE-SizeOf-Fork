@@ -37,7 +37,6 @@ bool LPPublicKey<Element>::Serialize(Serialized *serObj) const {
 		return false;
 
 	serObj->AddMember("Object", "PublicKey", serObj->GetAllocator());
-	serObj->AddMember("KeyTag", this->GetKeyTag(), serObj->GetAllocator());
 	SerializeVector<Element>("Vectors", Element::GetElementName(), this->GetPublicElements(), serObj);
 
 	return true;
@@ -77,7 +76,6 @@ static bool EvalKeyRelinSerializer(const LPEvalKeyRelin<Element> *item, Serializ
 		return false;
 
 	serObj->AddMember("Object", "EvalKeyRelin", serObj->GetAllocator());
-	serObj->AddMember("KeyTag", item->GetKeyTag(), serObj->GetAllocator());
 	SerializeVector<Element>("AVector", Element::GetElementName(), item->GetAVector(), serObj);
 	SerializeVector<Element>("BVector", Element::GetElementName(), item->GetBVector(), serObj);
 
@@ -141,7 +139,6 @@ static bool EvalKeyNTRUSerializer(const LPEvalKeyNTRU<Element> *item, Serialized
 		return false;
 
 	serObj->AddMember("Object", "EvalKeyNTRU", serObj->GetAllocator());
-	serObj->AddMember("KeyTag", item->GetKeyTag(), serObj->GetAllocator());
 
 	const Element& pe = item->GetA();
 
@@ -195,7 +192,6 @@ static bool EvalKeyNTRURelinSerializer(const LPEvalKeyNTRURelin<Element> *item, 
 		return false;
 
 	serObj->AddMember("Object", "EvalKeyNTRURelin", serObj->GetAllocator());
-	serObj->AddMember("KeyTag", item->GetKeyTag(), serObj->GetAllocator());
 	SerializeVector<Element>("Vectors", Element::GetElementName(), item->GetAVector(), serObj);
 
 	return true;

@@ -45,6 +45,7 @@ protected:
 
 	void TearDown() {
 		CryptoContextFactory<Poly>::ReleaseAllContexts();
+		std::cout << "count is " << CryptoContextFactory<Poly>::GetContextCount() << std::endl;
 		CryptoContextFactory<DCRTPoly>::ReleaseAllContexts();
 		CryptoContext<Poly>::ClearEvalMultKeys();
 		CryptoContext<DCRTPoly>::ClearEvalMultKeys();
@@ -232,4 +233,9 @@ TEST_F(UTPKESer, LTV_keys_and_ciphertext) {
 	CryptoContext<Poly>::SerializeEvalMultKey(&ser2b, cc2);
 	Serialized ser3;
 	CryptoContext<Poly>::SerializeEvalMultKey(&ser3);
+
+	CryptoContext<Poly>::ClearEvalMultKeys();
+	CryptoContextFactory<Poly>::ReleaseAllContexts();
+
+	CryptoContext<Poly>::DeserializeEvalMultKey(ser3);
 }

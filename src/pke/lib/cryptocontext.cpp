@@ -119,28 +119,26 @@ bool CryptoContext<Element>::SerializeEvalMultKey(Serialized* serObj) {
 	serObj->SetObject();
 	serObj->AddMember("Object", "EvalMultKeys", serObj->GetAllocator());
 
+	map<shared_ptr<CryptoContext<Element>>,Serialized>	serializations;
+
 	// remember which contexts you serialized, and only serialize each one once
 	map<shared_ptr<CryptoContext<Element>>,bool> serializedContext;
 
 	for( const auto& k : evalMultKeyMap ) {
 		if( !serializedContext[k.second[0]->GetCryptoContext()] ) {
-			k.second[0]->GetCryptoContext()->Serialize(serObj);
-			std::cout << "CTX! " << k.second[0]->GetCryptoContext() << std::endl;
+			serializations[k.second[0]->GetCryptoContext()].SetObject();
+			k.second[0]->GetCryptoContext()->Serialize(serializations[k.second[0]->GetCryptoContext()]);
 			serializedContext[k.second[0]->GetCryptoContext()] = true;
 		}
-		SerializeVectorOfPointers<LPEvalKey<Element>>("EvalMultKeys", "LPEvalKey", k.second, serObj);
-		std::cout << "KEY!" << std::endl;
+		SerializeVectorOfPointers<LPEvalKey<Element>>("EvalMultKeys", "LPEvalKey",
+				k.second,
+				serializations[k.second[0]->GetCryptoContext()]);
 	}
-	{
-		std::cout << " =============== " << std::endl;
-		Serialized::ConstMemberIterator pIter = serObj->MemberBegin();
-		while( pIter != serObj->MemberEnd() ) {
-			std::cout << pIter->name.GetString() << std::endl;
-			pIter++;
-		}
-		std::cout << " =============== " << std::endl;
+
+	for( const auto& s : serializations ) {
+		serObj->AddMember("CtxKeys", s.second, serObj->GetAllocator());
 	}
-	return false;
+	return true;
 }
 
 /**
@@ -155,18 +153,8 @@ bool CryptoContext<Element>::SerializeEvalMultKey(Serialized* serObj, const stri
 		return false; // no such id
 
 	serObj->SetObject();
-	serObj->AddMember("Object", "EvalMultKeys", serObj->GetAllocator());
+	serObj->AddMember("Object", "EvalMultKey", serObj->GetAllocator());
 	SerializeVectorOfPointers<LPEvalKey<Element>>("EvalMultKeys", "LPEvalKey", k->second, serObj);
-
-	{
-		std::cout << " =============== " << std::endl;
-		Serialized::ConstMemberIterator pIter = serObj->MemberBegin();
-		while( pIter != serObj->MemberEnd() ) {
-			std::cout << pIter->name.GetString() << std::endl;
-			pIter++;
-		}
-		std::cout << " =============== " << std::endl;
-	}
 	return true;
 }
 
@@ -181,32 +169,118 @@ bool CryptoContext<Element>::SerializeEvalMultKey(Serialized* serObj, const shar
 
 	serObj->SetObject();
 	cc->Serialize(serObj);
-	serObj->AddMember("Object", "EvalMultKeys", serObj->GetAllocator());
+	serObj->AddMember("Object", "EvalMultKeyOneContext", serObj->GetAllocator());
 	for( const auto& k : evalMultKeyMap ) {
 		if( k.second[0]->GetCryptoContext() == cc ) {
-			std::cout << "Yes";
 			foundKey = true;
 
 			SerializeVectorOfPointers<LPEvalKey<Element>>("EvalMultKeys", "LPEvalKey", k.second, serObj);
 		}
-		else
-			std::cout << "Skipping";
-		std::cout << std::endl;
-	}
-	{
-		std::cout << " =============== " << std::endl;
-		Serialized::ConstMemberIterator pIter = serObj->MemberBegin();
-		while( pIter != serObj->MemberEnd() ) {
-			std::cout << pIter->name.GetString() << std::endl;
-			pIter++;
-		}
-		std::cout << " =============== " << std::endl;
 	}
 	return foundKey;
 }
 
 template <typename Element>
-bool CryptoContext<Element>::DeserializeEvalMultKey(const Serialized& serObj) {
+bool CryptoContext<Element>::DeserializeEvalMultKey(const Serialized& ser) {
+	Serialized serObj;
+	serObj.CopyFrom(ser, serObj.GetAllocator()); // copy, because we will destroy it
+
+	{
+		Serialized::MemberIterator cIter = serObj.MemberBegin();
+		while( cIter != serObj.MemberEnd() ) {
+			std::cout << cIter->name.GetString() << std::endl;
+			cIter++;
+		}
+
+	}
+
+	Serialized::MemberIterator cIter = serObj.FindMember("Object");
+
+	// something different for EvalMultKey, EvalMultKeyOneContext, and EvalMultKeys
+	Serialized::MemberIterator kIter;
+	if( cIter == serObj.MemberEnd() || cIter->value.GetString() != string("EvalMultKeys") )
+		return false;
+
+	serObj.RemoveMember(cIter);
+
+	// find and deserialize all contexts
+	while( (cIter = serObj.FindMember("CryptoContext")) != serObj.MemberEnd() ) {
+		shared_ptr<CryptoContext<Element>> cc = CryptoContextFactory<Element>::DeserializeAndCreateContext(serObj);
+		std::cout << "deser ctx" << std::endl;
+
+		// now, find and deserialize all keys
+		while( kIter = cIter, (++kIter != serObj.MemberEnd()) && kIter->name.GetString() == string("EvalMultKeys")) {
+			// sadly we cannot DeserializeVectorOfPointers because of polymorphism in the pointer type...
+			vector<shared_ptr<LPEvalKey<Element>>> evalMultKeys;
+
+			evalMultKeys.clear();
+			Serialized kser(rapidjson::kObjectType);
+			kser.AddMember(SerialItem(kIter->name, kser.GetAllocator()), SerialItem(kIter->value, kser.GetAllocator()), kser.GetAllocator());
+
+			Serialized ktemp(rapidjson::kObjectType);
+			auto keyValue = SerialItem(kIter->value, ktemp.GetAllocator());
+
+			Serialized::ConstMemberIterator t = keyValue.FindMember("Length");
+			if( t == keyValue.MemberEnd() )
+				throw std::logic_error("Unable to find number of eval mult keys in serialization of crypto context");
+			usint nKeys = std::stoi(t->value.GetString());
+
+			t = keyValue.FindMember("Typename");
+			if( t == keyValue.MemberEnd() )
+				throw std::logic_error("Unable to find eval mult key type in serialization of crypto context");
+			string ty = t->value.GetString();
+
+			t = keyValue.FindMember("Members");
+			if( t == keyValue.MemberEnd() )
+				throw std::logic_error("Unable to find eval mult keys in serialization of crypto context");
+			const SerialItem& members = t->value;
+
+			for( size_t k = 0; k < nKeys; k++ ) {
+				shared_ptr<LPEvalKey<Element>> kp;
+
+				Serialized::ConstMemberIterator eIt = members.FindMember( std::to_string(k) );
+				if( eIt == members.MemberEnd() )
+					throw std::logic_error("Unable to find eval mult key #" + std::to_string(k) + " in serialization of crypto context");
+
+				auto keyMember = SerialItem(eIt->value, ktemp.GetAllocator());
+				Serialized kser(rapidjson::kObjectType);
+
+				Serialized::ConstMemberIterator t = keyMember.MemberBegin();
+				while( t != keyMember.MemberEnd() ) {
+					kser.AddMember(SerialItem(t->name, kser.GetAllocator()), SerialItem(t->value, kser.GetAllocator()), kser.GetAllocator());
+					t++;
+				}
+
+				kp = CryptoContext<Element>::deserializeEvalKeyInContext(kser,cc);
+				std::cout << "key " << kp.get() << std::endl;
+
+				evalMultKeys.push_back(kp);
+			}
+			serObj.EraseMember(kIter);
+			{
+				std::cout << "after erase kiter" << std::endl;
+				Serialized::MemberIterator cIter = serObj.MemberBegin();
+				while( cIter != serObj.MemberEnd() ) {
+					std::cout << cIter->name.GetString() << std::endl;
+					cIter++;
+				}
+				std::cout << "---------------------------" << std::endl;
+			}
+
+			evalMultKeyMap[evalMultKeys[0]->GetKeyTag()] = evalMultKeys;
+		}
+		serObj.EraseMember(cIter);
+		{
+			std::cout << "after erase citer" << std::endl;
+			Serialized::MemberIterator cIter = serObj.MemberBegin();
+			while( cIter != serObj.MemberEnd() ) {
+				std::cout << cIter->name.GetString() << std::endl;
+				cIter++;
+			}
+			std::cout << "---------------------------" << std::endl;
+		}
+	}
+
 	return false;
 }
 
