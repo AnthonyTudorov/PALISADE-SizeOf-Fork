@@ -636,7 +636,7 @@ namespace lbcrypto {
 	* @param &params Poly element params
 	* @return the resulting matrix of Poly
     */ 
-	template<class Element>
+	template<typename Element>
     Matrix<Element> SplitInt32IntoElements(Matrix<int32_t> const& other, size_t n, const shared_ptr<typename Element::Params> params);
 
 	/**
@@ -647,7 +647,7 @@ namespace lbcrypto {
 	* @param &params Poly element params
 	* @return the resulting matrix of Poly
     */ 
-	template<class Element>
+	template<typename Element>
     Matrix<Element> SplitInt32AltIntoElements(Matrix<int32_t> const& other, size_t n, const shared_ptr<typename Element::Params> params);
 }
 #endif // LBCRYPTO_MATH_MATRIX_H

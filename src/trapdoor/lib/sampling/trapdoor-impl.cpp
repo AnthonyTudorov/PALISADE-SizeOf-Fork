@@ -26,17 +26,14 @@
 
 // this is the implementation of matrixes of things that are in pke
 
-//#include "math/matrixser.cpp"
 #include "dgsampling.cpp"
 #include "trapdoor.cpp"
+#include "math/matrix.cpp"
 
 namespace lbcrypto {
 
 	template class LatticeGaussSampUtility<Poly>;
 	template class RLWETrapdoorPair<Poly>;
 	template class RLWETrapdoorUtility<Poly>;
-
-	template Matrix<Poly> SplitInt32IntoElements(Matrix<int32_t> const& other, size_t n, const shared_ptr<ILParams> params);
-	template Matrix<Poly> SplitInt32AltIntoElements(Matrix<int32_t> const& other, size_t n, const shared_ptr<ILParams> params);
 
 }
