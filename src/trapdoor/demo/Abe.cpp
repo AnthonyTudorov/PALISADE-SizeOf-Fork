@@ -12,19 +12,19 @@ using namespace lbcrypto;
 
 int IBE_Test(int iter, int32_t base, usint ringDimension, usint k, bool offline);
 int TestKeyGenCP(const shared_ptr<ILParams> ilParams, usint m, usint ell, const usint s[], const RingMat &a, const RingMat &pubElemBPos, const RingMat &pubElemBNeg, const Poly &pubElemU, RingMat &sk);
-int CPABE_Test(usint iter);
+int CPABE_Test(usint iter, bool offline);
 
 int main()
 {
 
 	
-/*	std::cout << "-------Start demo for CP-ABE-------" << std::endl;
-	CPABE_Test(1);
-	std::cout << "-------End demo for CP-ABE-------" << std::endl << std::endl;*/
+	std::cout << "-------Start demo for CP-ABE-------" << std::endl;
+	CPABE_Test(1, true);
+	std::cout << "-------End demo for CP-ABE-------" << std::endl << std::endl;
 
-	std::cout << "-------Start demo for IBE-------" << std::endl;
-	IBE_Test(10000, 1024, 1024, 49, true); //iter. ring dimension, k, bool offline
-	std::cout << "-------End demo for IBE-------" << std::endl << std::endl;
+/*	std::cout << "-------Start demo for IBE-------" << std::endl;
+	IBE_Test(10000, 16, 2048, 35, true); //iter. ring dimension, k, bool offline
+	std::cout << "-------End demo for IBE-------" << std::endl << std::endl;*/
 
 	return 0;
 }
@@ -144,7 +144,7 @@ int IBE_Test(int iter, int32_t base, usint ringDimension, usint k, bool offline)
 	return 0;
 }
 
-int CPABE_Test(usint iter)
+int CPABE_Test(usint iter, bool offline)
 {
 	usint ringDimension = 1024;
 	usint n = ringDimension*2;
@@ -241,7 +241,18 @@ int CPABE_Test(usint iter)
 				lenW++;
 
 		start = currentDateTime();
-		pkg.KeyGen(ilParams, s, trapdoor.first, pubElemBPos, pubElemBNeg, u, trapdoor.second, dgg, &sk);
+
+		shared_ptr<RingMat> perturbationVector;
+
+		if(offline)
+			perturbationVector = pkg.KeyGenOffline( trapdoor.second, dgg);
+		start = currentDateTime();
+		
+		if(offline)
+			pkg.KeyGenOnline(ilParams, s, trapdoor.first, pubElemBPos, pubElemBNeg, u, trapdoor.second, dgg, perturbationVector, &sk);
+		else
+			pkg.KeyGen(ilParams, s, trapdoor.first, pubElemBPos, pubElemBNeg, u, trapdoor.second, dgg, &sk);
+		
 		finish = currentDateTime();
 		avg_keygen += (finish - start);
 		std::cout << "Key generation time : " << "\t" << (finish - start) << " ms" << std::endl;

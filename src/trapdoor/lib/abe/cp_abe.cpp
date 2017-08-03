@@ -100,7 +100,7 @@ namespace lbcrypto {
 	{
 		RingMat skB(Poly::MakeDiscreteGaussianCoefficientAllocator(ilParams, COEFFICIENT, SIGMA), m_m, m_ell);
 
-	#pragma omp parallel for
+//	#pragma omp parallel for
 		for(usint j=0; j < m_ell;j++){
 			for(usint i = 0; i < m_m; i++)
 				skB(i,j).SwitchFormat();
@@ -110,7 +110,7 @@ namespace lbcrypto {
 		Poly z(ilParams, EVALUATION, true);
 		std::vector<Poly> z_vectors(m_ell);
 
-	#pragma omp parallel for firstprivate(z) num_threads(4)
+//	#pragma omp parallel for firstprivate(z) num_threads(4)
 		for(usint i=0; i<m_ell; i++) {
 			if(s[i]==1) {
 				z = pubElemBPos(i, 0)*skB(0, i);
@@ -133,7 +133,13 @@ namespace lbcrypto {
 
 		double c = (m_base + 1) * SIGMA;
 		double sb = SPECTRAL_BOUND(m_N, m_m - 2, m_base);
-		DiscreteGaussianGenerator dggLargeSigma(sqrt(sb * sb - c * c));
+		DiscreteGaussianGenerator dggLargeSigma;
+
+		if (sqrt(sb * sb - c * c) <= 3e5)
+			dggLargeSigma = Poly::DggType(sqrt(sb * sb - c * c));
+		else
+			dggLargeSigma = dgg;
+
 		RingMat skA(Poly::MakeAllocator(ilParams, EVALUATION), m_m, 1);
 
 		skA = RLWETrapdoorUtility<Poly>::GaussSamp(m_N, m_k, pubTA, secTA, y, dgg, dggLargeSigma, m_base);
@@ -141,13 +147,95 @@ namespace lbcrypto {
 		for(usint i=0; i<m_m; i++)
 			(*sk)(i, 0) = skA(i, 0);
 
-	#pragma omp parallel for num_threads(4)
+//	#pragma omp parallel for num_threads(4)
 		for(usint i=0; i<m_ell; i++)
 			for(usint j=0; j<m_m; j++)
 				(*sk)(j, i+1) = skB(j, i);
 	}
 
 
+/* Given public parameter d and a public key B positive (pubElementBPos) and B Negative (pubElemBNeg),
+	it generates the corresponding secret key: skA for A and skB for B */
+	/* Note that only PKG can call this function as it needs the secret element of a trapdoor T_A */
+	void CPABE::KeyGenOnline(
+		const shared_ptr<ILParams> ilParams,
+		const usint s[],							// Access rights of the user {0, 1}
+		const RingMat &pubTA,                         	// Public parameter from trapdoor sampled from R_q^{ell \times k}$
+		const RingMat &pubElemBPos,            // Public parameter B positive sampled from R_q^{ell \times k}$
+		const RingMat &pubElemBNeg,            // Public parameter B negative sampled from R_q^{ell \times k}$
+		const Poly &pubElemD,                  		// public parameter $d \in R_q$
+		const RLWETrapdoorPair<Poly> &secTA, 	// Secret parameter from trapdoor $T_H \in R_q^{1 \times k} \times R_q^{1 \times k}$
+		DiscreteGaussianGenerator &dgg,          	// to generate error terms (Gaussian)
+		const shared_ptr<RingMat> perturbationVector,
+		RingMat *sk                           	// Secret key
+	)
+	{
+		RingMat skB(Poly::MakeDiscreteGaussianCoefficientAllocator(ilParams, COEFFICIENT, SIGMA), m_m, m_ell);
+
+//	#pragma omp parallel for
+		for(usint j=0; j < m_ell;j++){
+			for(usint i = 0; i < m_m; i++)
+				skB(i,j).SwitchFormat();
+		}
+
+		Poly y(ilParams, EVALUATION, true);
+		Poly z(ilParams, EVALUATION, true);
+		std::vector<Poly> z_vectors(m_ell);
+
+//	#pragma omp parallel for firstprivate(z) num_threads(4)
+		for(usint i=0; i<m_ell; i++) {
+			if(s[i]==1) {
+				z = pubElemBPos(i, 0)*skB(0, i);
+				for(usint j=1; j<m_m; j++)
+					z += pubElemBPos(i, j)*skB(j, i);
+			}
+			else {
+				z = pubElemBNeg(i, 0)*skB(0, i);
+				for(usint j=1; j<m_m; j++)
+					z += pubElemBNeg(i, j)*skB(j, i);
+			}
+			z_vectors.at(i) = z;
+		}
+
+		for(usint i=0; i < m_ell;i++){
+			y += z_vectors.at(i);
+		}
+
+		y = pubElemD - y;
+
+		RingMat skA(Poly::MakeAllocator(ilParams, EVALUATION), m_m, 1);
+
+		skA = RLWETrapdoorUtility::GaussSampOnline(m_N, m_k, pubTA, secTA, y, dgg, perturbationVector, m_base);
+
+		for(usint i=0; i<m_m; i++)
+			(*sk)(i, 0) = skA(i, 0);
+
+//	#pragma omp parallel for num_threads(4)
+		for(usint i=0; i<m_ell; i++)
+			for(usint j=0; j<m_m; j++)
+				(*sk)(j, i+1) = skB(j, i);
+	}
+
+/* Given public parameter d and a public key B positive (pubElementBPos) and B Negative (pubElemBNeg),
+	it generates the corresponding secret key: skA for A and skB for B */
+	/* Note that only PKG can call this function as it needs the secret element of a trapdoor T_A */
+	shared_ptr<RingMat> CPABE::KeyGenOffline(
+		const RLWETrapdoorPair<Poly> &secTA, 	// Secret parameter from trapdoor $T_H \in R_q^{1 \times k} \times R_q^{1 \times k}$
+		DiscreteGaussianGenerator &dgg         	// to generate error terms (Gaussian)
+	)
+	{
+
+		double c = (m_base + 1) * SIGMA;
+		double s = SPECTRAL_BOUND(m_N, m_m - 2, m_base);
+		DiscreteGaussianGenerator dggLargeSigma;
+
+		if (sqrt(s * s - c * c) <= 3e5)
+			dggLargeSigma = Poly::DggType(sqrt(s * s - c * c));
+		else
+			dggLargeSigma = dgg;
+
+		return RLWETrapdoorUtility::GaussSampOffline(m_N, m_k, secTA, dgg, dggLargeSigma, m_base);
+	}
 	/* The encryption function takes public parameters trapdoor pubTA, publicElemBPos and publicElemBNeg, and d (u), attribute values w and the plaintext pt
 	 * and generates the ciphertext pair c0 and c1
 	 * Note that B is two dimensional array of ring elements (matrix);
@@ -176,7 +264,7 @@ namespace lbcrypto {
 				lenW++;
 
 		RingMat err(Poly::MakeDiscreteGaussianCoefficientAllocator(ilParams, COEFFICIENT, SIGMA), m_m, 2*m_ell+2-lenW);
-#pragma omp parallel for
+//#pragma omp parallel for
 		for(usint i=0; i < m_m;i++){
 			for(usint j = 0; j < 2*m_ell+2-lenW;j++)
 				err(i,j).SwitchFormat();

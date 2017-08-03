@@ -124,6 +124,50 @@ namespace lbcrypto {
 				DiscreteGaussianGenerator &dgg,          // to generate error terms (Gaussian)
 				RingMat *sk                           // Secret key
 			);
+
+			/**
+			* KeyGen Function
+			*
+			* @param ilParams parameter set
+			* @param &s[] Access rights of the user {0, 1}
+			* @param &pubTA Public parameter of trapdoor
+			* @param &pubElemBPos is a matrix where each column corresponds to the public vector of each attribute for when the attribute is equal to one
+			* @param *pubElemBNeg is a matrix where each column corresponds to the public vector of each attribute for when the attribute is equal to zero
+			* @param &u TBD public element d sampled as dug
+			* @param &secTA secret component of trapdoor
+			* @param &dgg to generate error terms (Gaussian)
+			* @param *sk secret key
+			*/
+			void KeyGenOnline(
+				const shared_ptr<ILParams> ilParams,
+				const usint s[],							//
+				const RingMat &pubTA,                         // Public trapdoor parameter
+				const RingMat &pubElemBPos,                         // Public parameter $B \in R_q^{ell \times k}$
+				const RingMat &pubElemBNeg,                         // Public parameter $B \in R_q^{ell \times k}$
+				const Poly &pubElemD,                  // public key $d \in R_q$
+				const RLWETrapdoorPair<Poly> &secTA, // Secret parameter $T_H \in R_q^{1 \times k} \times R_q^{1 \times k}$
+				DiscreteGaussianGenerator &dgg,          // to generate error terms (Gaussian)
+				const shared_ptr<RingMat> perturbationVector,
+				RingMat *sk                           // Secret key
+			);
+
+						/**
+			* KeyGen Function
+			*
+			* @param ilParams parameter set
+			* @param &s[] Access rights of the user {0, 1}
+			* @param &pubTA Public parameter of trapdoor
+			* @param &pubElemBPos is a matrix where each column corresponds to the public vector of each attribute for when the attribute is equal to one
+			* @param *pubElemBNeg is a matrix where each column corresponds to the public vector of each attribute for when the attribute is equal to zero
+			* @param &u TBD public element d sampled as dug
+			* @param &secTA secret component of trapdoor
+			* @param &dgg to generate error terms (Gaussian)
+			* @param *sk secret key
+			*/
+			shared_ptr<RingMat> KeyGenOffline(
+				const RLWETrapdoorPair<Poly> &secTA, // Secret parameter $T_H \in R_q^{1 \times k} \times R_q^{1 \times k}$
+				DiscreteGaussianGenerator &dgg          // to generate error terms (Gaussian)
+			);
 			/**
 			* Encrypt Function
 			*
