@@ -30,7 +30,7 @@ namespace lbcrypto {
 
 		double val = q.ConvertToDouble();
 		double logTwo = log(val - 1.0) / log(base) + 1.0;
-		m_k = (usint)floor(logTwo) + 1;
+		m_k = (usint)floor(logTwo) /*+ 1*/;
 		m_m = m_k + 2;
 		m_ell = ell;
 		m_base = base;
@@ -56,7 +56,7 @@ namespace lbcrypto {
 				(*pubElemBNeg)(i, j).SwitchFormat(); // always kept in EVALUATION format
 			}
 
-		return RLWETrapdoorUtility<Poly>::TrapdoorGen(ilParams, SIGMA, base, true);
+		return RLWETrapdoorUtility::TrapdoorGen(ilParams, SIGMA, base, false);
 	}
 
 	/**
@@ -76,7 +76,7 @@ namespace lbcrypto {
 
 		double val = q.ConvertToDouble();
 		double logTwo = log(val - 1.0) / log(base) + 1.0;
-		m_k = (usint)floor(logTwo) + 1;
+		m_k = (usint)floor(logTwo) /*+ 1*/;
 
 		m_m = m_k + 2;
 		m_ell = ell;

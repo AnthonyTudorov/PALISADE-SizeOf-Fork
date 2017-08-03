@@ -158,7 +158,7 @@ int CPABE_Test(usint iter, bool offline)
 
 	double val = q.ConvertToDouble();
 	double logTwo = log(val-1.0)/log(base)+1.0;
-	size_t k_ = (usint) floor(logTwo) + 1;  /* (+1) is For NAF */
+	size_t k_ = (usint) floor(logTwo); /*+ 1;   (+1) is For NAF */
 	std::cout << "q: " << q << std::endl;
 	std::cout << "modulus length in base " << base << ": "<< k_ << std::endl;
 	std::cout << "root of unity: " << rootOfUnity << std::endl;
