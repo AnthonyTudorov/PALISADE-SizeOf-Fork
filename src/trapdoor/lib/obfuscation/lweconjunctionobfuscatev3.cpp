@@ -256,7 +256,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::ParamsGen(typename Element::Dg
 template <>
 shared_ptr<typename Poly::Params> LWEConjunctionObfuscationAlgorithm<Poly>::GenerateElemParams(double q, uint32_t n) const {
 
-	typename Poly::Integer qPrime = FirstPrime<typename Poly::Integer>(ceil(log2(q - 1.0) + 1.0), 2 * n);
+	typename Poly::Integer qPrime = FirstPrime<typename Poly::Integer>(floor(log2(q - 1.0)) + 1.0, 2 * n);
 	typename Poly::Integer rootOfUnity = RootOfUnity<typename Poly::Integer>(2 * n, qPrime);
 
 	//Prepare for parameters.
@@ -269,8 +269,8 @@ shared_ptr<typename Poly::Params> LWEConjunctionObfuscationAlgorithm<Poly>::Gene
 template <>
 shared_ptr<typename DCRTPoly::Params> LWEConjunctionObfuscationAlgorithm<DCRTPoly>::GenerateElemParams(double q, uint32_t n) const {
 
-	size_t dcrtBits = 58;
-	size_t size = ceil((log2(q - 1.0) + 1.0) / (double)dcrtBits);
+	size_t dcrtBits = 60;
+	size_t size = ceil((floor(log2(q - 1.0)) + 2.0) / (double)dcrtBits);
 
 	vector<native_int::BigInteger> moduli(size);
 	vector<native_int::BigInteger> roots(size);
@@ -278,11 +278,15 @@ shared_ptr<typename DCRTPoly::Params> LWEConjunctionObfuscationAlgorithm<DCRTPol
 	moduli[0] = FirstPrime<native_int::BigInteger>(dcrtBits, 2 * n);
 	roots[0] = RootOfUnity<native_int::BigInteger>(2 * n, moduli[0]);
 
-	for (size_t i = 1; i < size; i++)
+	for (size_t i = 1; i < size - 1; i++)
 	{
-		moduli[i] = NextPrime<native_int::BigInteger>(moduli[i-1], 2 * n);
-		std::cout << "moduli[" << i << "] " << moduli[i] << std::endl;
+		//moduli[i] = NextPrime<native_int::BigInteger>(moduli[i-1], 2 * n);
 		roots[i] = RootOfUnity<native_int::BigInteger>(2 * n, moduli[i]);
+	}
+
+	if (size > 1) {
+		//moduli[size-1] = FirstPrime<native_int::BigInteger>(dcrtBits-1, 2 * n);
+		roots[size-1] = RootOfUnity<native_int::BigInteger>(2 * n, moduli[size-1]);
 	}
 
 	shared_ptr<ILDCRTParams<BigInteger>> params(new ILDCRTParams<BigInteger>(2 * n, moduli, roots));
