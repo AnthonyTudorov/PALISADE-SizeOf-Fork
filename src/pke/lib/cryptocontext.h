@@ -61,8 +61,8 @@ class CryptoContext : public Serializable {
 
 private:
 	shared_ptr<LPCryptoParameters<Element>>				params;			/*!< crypto parameters used for this context */
-	shared_ptr<LPPublicKeyEncryptionScheme<Element>>		scheme;			/*!< algorithm used; accesses all crypto methods */
-	std::map<usint, shared_ptr<LPEvalKey<Element>>>		evalSumKeys;		/*!< cached evalsum keys */
+	shared_ptr<LPPublicKeyEncryptionScheme<Element>>	scheme;			/*!< algorithm used; accesses all crypto methods */
+	std::map<usint, shared_ptr<LPEvalKey<Element>>>		evalSumKeys;	/*!< cached evalsum keys */
 
 	static std::map<string,vector<shared_ptr<LPEvalKey<Element>>>>	evalMultKeyMap;	/*!< cached evalmult keys, by secret key UID */
 
@@ -569,7 +569,11 @@ public:
 	 * @param keyID
 	 * @return key vector from ID
 	 */
-	const vector<shared_ptr<LPEvalKey<Element>>> GetEvalMultKeyVector(const string& keyID) const;
+	const vector<shared_ptr<LPEvalKey<Element>>>& GetEvalMultKeyVector(const string& keyID) const;
+
+	static const std::map<string,vector<shared_ptr<LPEvalKey<Element>>>>& GetEvalMultKeys() {
+		return evalMultKeyMap;
+	}
 
 	/**
 	* KeySwitchGen creates a key that can be used with the PALISADE KeySwitch operation
