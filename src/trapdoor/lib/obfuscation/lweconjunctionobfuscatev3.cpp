@@ -280,12 +280,12 @@ shared_ptr<typename DCRTPoly::Params> LWEConjunctionObfuscationAlgorithm<DCRTPol
 
 	for (size_t i = 1; i < size - 1; i++)
 	{
-		//moduli[i] = NextPrime<native_int::BigInteger>(moduli[i-1], 2 * n);
+		moduli[i] = NextPrime<native_int::BigInteger>(moduli[i-1], 2 * n);
 		roots[i] = RootOfUnity<native_int::BigInteger>(2 * n, moduli[i]);
 	}
 
 	if (size > 1) {
-		//moduli[size-1] = FirstPrime<native_int::BigInteger>(dcrtBits-1, 2 * n);
+		moduli[size-1] = FirstPrime<native_int::BigInteger>(dcrtBits-1, 2 * n);
 		roots[size-1] = RootOfUnity<native_int::BigInteger>(2 * n, moduli[size-1]);
 	}
 
