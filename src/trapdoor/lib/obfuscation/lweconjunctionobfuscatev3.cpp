@@ -448,7 +448,12 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 	double c = (base + 1) * SIGMA;
 	double s = SPECTRAL_BOUND(n, m - 2, base);
 
-	typename Element::DggType dggLargeSigma(sqrt(s * s - c * c));
+	typename Element::DggType dggLargeSigma;
+
+	if (sqrt(s * s - c * c) <= 3e5)
+		dggLargeSigma = typename Element::DggType(sqrt(s * s - c * c));
+	else
+		dggLargeSigma = dgg;
 
 	typename Element::DggType dggEncoding(k*sqrt(n)*SIGMA);
 

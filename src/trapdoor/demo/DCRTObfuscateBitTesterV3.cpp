@@ -138,7 +138,7 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 	//BigInteger rootOfUnity("7629104920968175");
 
 	usint chunkSize = 1;
-	usint base = 1<<10;
+	usint base = 1<<18;
 
 	//Generate the test pattern
 	std::string inputPattern = "1?10";
