@@ -257,6 +257,14 @@ public:
 	//todo: this should be changed from sint to usint!
 
 	/**
+	* @brief Creates a Poly from a vector of signed integers (used for trapdoor sampling)
+	*
+	* @param &rhs the vector to set the PolyImpl to.
+	* @return the resulting PolyImpl.
+	*/
+	const PolyType& operator=(std::vector<int32_t> rhs);
+
+	/**
 	 * @brief Initalizer list
 	 *
 	 * @param &rhs the list to set the PolyImpl to.

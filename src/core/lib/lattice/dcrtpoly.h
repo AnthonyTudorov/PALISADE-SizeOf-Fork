@@ -379,6 +379,14 @@ public:
 	DCRTPolyType& operator=(uint64_t val);
 
 	/**
+	* @brief Creates a Poly from a vector of signed integers (used for trapdoor sampling)
+	*
+	* @param &rhs the vector to set the PolyImpl to.
+	* @return the resulting PolyImpl.
+	*/
+	DCRTPolyType& operator=(std::vector<int32_t> rhs);
+
+	/**
 	 * @brief Unary minus on a element.
 	 * @return additive inverse of the an element.
 	 */

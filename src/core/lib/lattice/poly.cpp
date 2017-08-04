@@ -248,6 +248,67 @@ const PolyImpl<ModType,IntType,VecType,ParmType>& PolyImpl<ModType,IntType,VecTy
 		return *this;
 	}
 
+template<typename ModType, typename IntType, typename VecType, typename ParmType>
+const PolyImpl<ModType, IntType, VecType, ParmType>& PolyImpl<ModType, IntType, VecType, ParmType>::operator=(std::vector<int32_t> rhs)
+{
+	static IntType ZERO(0);
+	usint len = rhs.size();
+	if (!IsEmpty()) {
+		usint vectorLength = this->m_values->GetLength();
+
+		for (usint j = 0; j < vectorLength; ++j) { // loops within a tower
+			if (j < len) {
+				IntType tempBI;
+				uint32_t tempInteger;
+				if (*(rhs.begin() + j) < 0)
+				{
+					tempInteger = -*(rhs.begin() + j);
+					tempBI = m_params->GetModulus() - IntType(tempInteger);
+				}
+				else
+				{
+					tempInteger = *(rhs.begin() + j);
+					tempBI = IntType(tempInteger);
+				}
+				SetValAtIndex(j, tempBI);
+			}
+			else {
+				SetValAtIndex(j, ZERO);
+			}
+		}
+
+	}
+	else {
+
+		usint vectorLength = m_params->GetCyclotomicOrder() / 2;
+		VecType temp(vectorLength);
+		temp.SetModulus(m_params->GetModulus());
+		for (usint j = 0; j < vectorLength; ++j) { // loops within a tower
+			if (j < len) {
+				IntType tempBI;
+				uint32_t tempInteger;
+				if (*(rhs.begin() + j) < 0)
+				{
+					tempInteger = -*(rhs.begin() + j);
+					tempBI = m_params->GetModulus() - IntType(tempInteger);
+				}
+				else
+				{
+					tempInteger = *(rhs.begin() + j);
+					tempBI = IntType(tempInteger);
+				}
+				temp.SetValAtIndex(j, tempBI);
+			}
+			else {
+				temp.SetValAtIndex(j, ZERO);
+			}
+		}
+		this->SetValues(std::move(temp), m_format);
+	}
+	m_format = COEFFICIENT;
+	return *this;
+}
+
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 const PolyImpl<ModType,IntType,VecType,ParmType>& PolyImpl<ModType,IntType,VecType,ParmType>::operator=(std::initializer_list<std::string> rhs)

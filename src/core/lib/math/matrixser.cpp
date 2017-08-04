@@ -275,6 +275,44 @@ NONORM_FOR_TYPE(BigInteger)
 NONORM_FOR_TYPE(BigVector)
 NONORM_FOR_TYPE(Field2n)
 
+//  split a vector of int32_t into a vector of ring elements with ring dimension n
+#define SPLIT32_FOR_TYPE(T) \
+template<> \
+Matrix<T> SplitInt32IntoElements(Matrix<int32_t> const& other, size_t n, const shared_ptr<typename T::Params> params) { \
+	auto zero_alloc = T::MakeAllocator(params, COEFFICIENT); \
+	size_t rows = other.GetRows() / n; \
+	Matrix<T> result(zero_alloc, rows, 1); \
+	for (size_t row = 0; row < rows; ++row) { \
+		std::vector<int32_t> values(n); \
+		for (size_t i = 0; i < n; ++i) \
+			values[i] = other(row*n + i, 0); \
+		result(row, 0) = values; \
+	} \
+	return result; \
+}
+
+SPLIT32_FOR_TYPE(Poly)
+SPLIT32_FOR_TYPE(DCRTPoly)
+
+//  split a vector of BBI into a vector of ring elements with ring dimension n
+#define SPLIT32ALT_FOR_TYPE(T) \
+template<> \
+Matrix<T> SplitInt32AltIntoElements(Matrix<int32_t> const& other, size_t n, const shared_ptr<typename T::Params> params) { \
+	auto zero_alloc = T::MakeAllocator(params, COEFFICIENT); \
+	size_t rows = other.GetRows(); \
+	Matrix<T> result(zero_alloc, rows, 1); \
+	for (size_t row = 0; row < rows; ++row) { \
+		std::vector<int32_t> values(n); \
+		for (size_t i = 0; i < n; ++i) \
+			values[i] = other(row, i); \
+		result(row, 0) = values; \
+	} \
+	return result; \
+}
+
+SPLIT32ALT_FOR_TYPE(Poly)
+SPLIT32ALT_FOR_TYPE(DCRTPoly)
+
 template<>
 void Matrix<Poly>::SetFormat(Format format) {
     for (size_t row = 0; row < rows; ++row) {
