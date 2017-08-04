@@ -34,15 +34,39 @@ Field2n::Field2n(const Poly & element)
 	if (element.GetFormat() != COEFFICIENT) {
 		throw std::logic_error("Poly not in coefficient representation");
 	} else {
-		// the value of element.GetValAtIndex(i) is usually small - so a 32-bit integer is more than enough
+		// the value of element.GetValAtIndex(i) is usually small - so a 64-bit integer is more than enough
 		// this approach is much faster than BigInteger::ConvertToDouble
 		BigInteger negativeThreshold(element.GetModulus()/ 2);
 		for (size_t i = 0; i < element.GetLength(); i++) {
 			if (element.GetValAtIndex(i) > negativeThreshold)
-				this->push_back((double)(int32_t)(-1 * (element.GetModulus() - element.GetValAtIndex(i)).ConvertToInt()));
+				this->push_back((double)(int64_t)(-1 * (element.GetModulus() - element.GetValAtIndex(i)).ConvertToInt()));
 			//this->push_back(-(element.GetModulus() - element.GetValAtIndex(i)).ConvertToDouble());
 			else
-				this->push_back((double)(int32_t)(element.GetValAtIndex(i).ConvertToInt()));
+				this->push_back((double)(int64_t)(element.GetValAtIndex(i).ConvertToInt()));
+			//this->push_back(element.GetValAtIndex(i).ConvertToDouble());
+		}
+		this->format = COEFFICIENT;
+	}
+}
+
+//Constructor from DCRTPoly ring element
+Field2n::Field2n(const DCRTPoly & DCRTelement)
+{
+	if (DCRTelement.GetFormat() != COEFFICIENT) {
+		throw std::logic_error("DCRTPoly not in coefficient representation");
+	}
+	else {
+		// the value of element.GetValAtIndex(i) is usually small - so a 64-bit integer is more than enough
+		// Also it is assumed that the prime moduli are large enough (60 bits or more) - so the CRT interpolation is not needed
+		// this approach is much faster than BigInteger::ConvertToDouble
+		typename DCRTPoly::PolyType element = DCRTelement.GetElementAtIndex(0);
+		native_int::BigInteger negativeThreshold(element.GetModulus() / 2);
+		for (size_t i = 0; i < element.GetLength(); i++) {
+			if (element.GetValAtIndex(i) > negativeThreshold)
+				this->push_back((double)(int64_t)(-1 * (element.GetModulus() - element.GetValAtIndex(i)).ConvertToInt()));
+			//this->push_back(-(element.GetModulus() - element.GetValAtIndex(i)).ConvertToDouble());
+			else
+				this->push_back((double)(int64_t)(element.GetValAtIndex(i).ConvertToInt()));
 			//this->push_back(element.GetValAtIndex(i).ConvertToDouble());
 		}
 		this->format = COEFFICIENT;
@@ -179,7 +203,7 @@ Field2n Field2n::Transpose() const
 		return transpose;
 	} else {
 		usint m = this->size()*2;
-		return AutomorphismTransform(2 * m - 1);
+		return AutomorphismTransform(m - 1);
 	}
 }
 

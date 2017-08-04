@@ -1,5 +1,5 @@
 /*
- * @file ternaryuniformgenerator.cpp This code provides generation of a uniform distribution of binary values (modulus 2).
+ * @file trapdoor-impl.cpp - trapdoor implementation
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -23,44 +23,18 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
- 
-#include "ternaryuniformgenerator.h"
-#include <random>
+
+// this is the implementation of matrixes of things that are in pke
+
+#include "dgsampling.cpp"
+#include "trapdoor.cpp"
+#include "math/matrix.cpp"
 
 namespace lbcrypto {
 
-template<typename IntType, typename VecType>
-std::uniform_int_distribution<int> TernaryUniformGeneratorImpl<IntType,VecType>::m_distribution = std::uniform_int_distribution<int>(-1,1);
+	template class LatticeGaussSampUtility<Poly>;
+	template class RLWETrapdoorPair<Poly>;
+	template class RLWETrapdoorUtility<Poly>;
+	template class Matrix<Poly>;
 
-template<typename IntType, typename VecType>
-VecType TernaryUniformGeneratorImpl<IntType,VecType>::GenerateVector (usint size, const IntType &modulus) const {
-	
-	VecType v(size);
-	v.SetModulus(modulus);
-	int32_t randomNumber;
-
-	for (usint i = 0; i < size; i++) {
-		randomNumber = m_distribution(PseudoRandomNumberGenerator::GetPRNG());
-		if (randomNumber < 0)
-			v[i] = modulus - 1;
-		else
-			v[i] = IntType(randomNumber);
-	}
-
-	return v;
 }
-
-template<typename IntType, typename VecType>
-std::shared_ptr<sint> TernaryUniformGeneratorImpl<IntType,VecType>::GenerateIntVector (usint size) const {
-	
-	std::shared_ptr<sint> ans( new sint[size], std::default_delete<sint[]>() );
-
-	for (usint i = 0; i < size; i++) {
-		(ans.get())[i] = m_distribution(PseudoRandomNumberGenerator::GetPRNG());		
-
-	}
-
-	return ans;
-}
-
-} // namespace lbcrypto

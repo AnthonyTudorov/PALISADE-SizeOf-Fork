@@ -137,22 +137,22 @@ bool CONJOBF(bool dbg_flag, int n_evals, usint base) {
 
 	//Generate the test pattern
 	std::string inputPattern = "1?10?1";
-	ClearLWEConjunctionPattern<Poly> clearPattern(inputPattern);
+	ClearLWEConjunctionPattern<DCRTPoly> clearPattern(inputPattern);
 
-	ObfuscatedLWEConjunctionPattern<Poly> obfuscatedPattern;
+	ObfuscatedLWEConjunctionPattern<DCRTPoly> obfuscatedPattern;
 	obfuscatedPattern.SetChunkSize(chunkSize);
 	obfuscatedPattern.SetBase(base);
 	obfuscatedPattern.SetLength(clearPattern.GetLength());
 	obfuscatedPattern.SetRootHermiteFactor(1.006);
 
-	LWEConjunctionObfuscationAlgorithm<Poly> algorithm;
+	LWEConjunctionObfuscationAlgorithm<DCRTPoly> algorithm;
 
 	//Variables for timing
 	double timeDGGSetup(0.0), timeKeyGen(0.0), timeObf(0.0), timeEval1(0.0), 
 		timeEval2(0.0), timeEval3(0.0), timeTotal(0.0);
 
 	double stdDev = SIGMA;
-	Poly::DggType dgg(stdDev);			// Create the noise generator
+	DCRTPoly::DggType dgg(stdDev);			// Create the noise generator
 
 	//Finds q using the correctness constraint for the given value of n
 	algorithm.ParamsGen(dgg, &obfuscatedPattern, m / 2);
@@ -160,7 +160,7 @@ bool CONJOBF(bool dbg_flag, int n_evals, usint base) {
 	//this code finds the values of q and n corresponding to the root Hermite factor in obfuscatedPattern
 	//algorithm.ParamsGen(dgg, &obfuscatedPattern);
 
-	const shared_ptr<ILParams> ilParams = std::dynamic_pointer_cast<ILParams>(obfuscatedPattern.GetParameters());
+	const shared_ptr<typename DCRTPoly::Params> ilParams = obfuscatedPattern.GetParameters();
 
 	const BigInteger &modulus = ilParams->GetModulus();
 	const BigInteger &rootOfUnity = ilParams->GetRootOfUnity();
@@ -172,23 +172,15 @@ bool CONJOBF(bool dbg_flag, int n_evals, usint base) {
 	PROFILELOG("base = " << base );
 	PROFILELOG(printf("delta=%lf", obfuscatedPattern.GetRootHermiteFactor()));
 
-	typename Poly::DugType dug;
-	dug.SetModulus(modulus);
-	typename Poly::TugType tug;
+	typename DCRTPoly::DugType dug;
+	typename DCRTPoly::TugType tug;
 
 	PROFILELOG("\nCryptosystem initialization: Performing precomputations...");
 
 	//This code is run only when performing execution time measurements
 
 	//Precomputations for FTT
-	ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(rootOfUnity, m, modulus);
 	DiscreteFourierTransform::GetInstance().PreComputeTable(m);
-
-	//Precomputations for DGG
-	TIC(t1);
-	Poly::PreComputeDggSamples(dgg, ilParams);
-	timeDGGSetup = TOC(t1);
-	PROFILELOG("DGG Precomputation time: " << "\t" << timeDGGSetup << " ms");
 
 	////////////////////////////////////////////////////////////
 	//Test the cleartext pattern
@@ -297,7 +289,6 @@ bool CONJOBF(bool dbg_flag, int n_evals, usint base) {
 		std::cout << "SUCCESS " << std::endl;
 	}
 
-	Poly::DestroyPreComputedSamples();
 	DiscreteFourierTransform::GetInstance().Destroy();
 
 	return (errorflag);

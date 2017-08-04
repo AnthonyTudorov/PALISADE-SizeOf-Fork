@@ -618,7 +618,7 @@ namespace lbcrypto {
 		DiscreteGaussianGenerator dggLargeSigma(sqrt(s * s - c * c));
 
 		RingMat skA(Poly::MakeAllocator(ilParams, EVALUATION), m_m, 1);
-		skA = RLWETrapdoorUtility::GaussSamp(m_N, m_k, pubElemA, secElemTA, newChallenge, dgg, dggLargeSigma, m_base);
+		skA = RLWETrapdoorUtility<Poly>::GaussSamp(m_N, m_k, pubElemA, secElemTA, newChallenge, dgg, dggLargeSigma, m_base);
 
 		for(usint i=0; i<m_m; i++)
 			(*sk)(0, i) = skA(i, 0);

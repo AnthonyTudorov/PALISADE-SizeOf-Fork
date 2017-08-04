@@ -529,9 +529,9 @@ namespace lbcrypto {
 		IntType mu = ComputeMu<IntType>(n);
 
 		do {
-			x = (x*x + c).ModBarrett(n, mu);
-			xx = (xx*xx + c).ModBarrett(n, mu);
-			xx = (xx*xx + c).ModBarrett(n, mu);
+			x = x.ModBarrettMul(x, n, mu).ModBarrettAdd(c, n, mu);
+			xx = xx.ModBarrettMul(xx, n, mu).ModBarrettAdd(c, n, mu);
+			xx = xx.ModBarrettMul(xx, n, mu).ModBarrettAdd(c, n, mu);
 			divisor = GreatestCommonDivisor(((x - xx) > 0) ? x - xx : xx - x, n);
 			DEBUG("PRF divisor " << divisor.ToString());
 

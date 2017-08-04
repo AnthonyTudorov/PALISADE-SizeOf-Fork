@@ -210,6 +210,48 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::DCRTPolyImpl(DugType& dug, const
 	}
 }
 
+template<typename ModType, typename IntType, typename VecType, typename ParmType>
+DCRTPolyImpl<ModType,IntType,VecType,ParmType>::DCRTPolyImpl(const TugType& tug, const shared_ptr<ParmType> dcrtParams, Format format)
+{
+
+	m_format = format;
+	m_params = dcrtParams;
+
+	size_t numberOfTowers = dcrtParams->GetParams().size();
+	m_vectors.reserve(numberOfTowers);
+
+	//tug generating random values
+	std::shared_ptr<sint> tugValues = tug.GenerateIntVector(dcrtParams->GetRingDimension());
+
+	for (usint i = 0; i < numberOfTowers; i++) {
+
+		native_int::BigVector ilTugValues(dcrtParams->GetRingDimension(), dcrtParams->GetParams()[i]->GetModulus());
+
+		for(usint j = 0; j < dcrtParams->GetRingDimension(); j++) {
+			uint64_t	entry;
+			// if the random generated value is less than zero, then multiply it by (-1) and subtract the modulus of the current tower to set the coefficient
+			int64_t k = (tugValues.get())[j];
+			if(k < 0) {
+				k *= (-1);
+				entry = (uint64_t)dcrtParams->GetParams()[i]->GetModulus().ConvertToInt() - (uint64_t)k;
+			}
+			//if greater than or equal to zero, set it the value generated
+			else {
+				entry = k;
+			}
+			ilTugValues.SetValAtIndex(j,entry);
+		}
+
+		PolyType ilvector(dcrtParams->GetParams()[i]);
+		ilvector.SetValues(ilTugValues, Format::COEFFICIENT); // the random values are set in coefficient format
+		if(m_format == Format::EVALUATION) {  // if the input format is evaluation, then once random values are set in coefficient format, switch the format to achieve what the caller asked for.
+			ilvector.SwitchFormat();
+		}
+		m_vectors.push_back(ilvector);
+	}
+
+}
+
 /*Move constructor*/
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
 DCRTPolyImpl<ModType,IntType,VecType,ParmType>::DCRTPolyImpl(const DCRTPolyImpl &&element)
@@ -511,6 +553,50 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>& DCRTPolyImpl<ModType,IntType,Vec
 		}
 
 	}
+	return *this;
+}
+
+// Used only inside a Matrix object; so an allocator already initializes the values
+template<typename ModType, typename IntType, typename VecType, typename ParmType>
+DCRTPolyImpl<ModType, IntType, VecType, ParmType>& DCRTPolyImpl<ModType, IntType, VecType, ParmType>::operator=(uint64_t val)
+{
+	if (!IsEmpty()) {
+		for (usint i = 0; i < m_vectors.size(); i++) {
+			m_vectors[i] = val;
+		}
+	}
+	else {
+		for (usint i = 0; i<m_vectors.size(); i++) {
+			native_int::BigVector temp(m_params->GetRingDimension());
+			temp.SetModulus(m_vectors.at(i).GetModulus());
+			temp = val;
+			m_vectors.at(i).SetValues(std::move(temp), m_format);
+		}
+	}
+
+	return *this;
+}
+
+// Used only inside a Matrix object; so an allocator already initializes the values
+template<typename ModType, typename IntType, typename VecType, typename ParmType>
+DCRTPolyImpl<ModType, IntType, VecType, ParmType>& DCRTPolyImpl<ModType, IntType, VecType, ParmType>::operator=(std::vector<int32_t> val)
+{
+	if (!IsEmpty()) {
+		for (usint i = 0; i < m_vectors.size(); i++) {
+			m_vectors[i] = val;
+		}
+	}
+	else {
+		for (usint i = 0; i<m_vectors.size(); i++) {
+			native_int::BigVector temp(m_params->GetRingDimension());
+			temp.SetModulus(m_vectors.at(i).GetModulus());
+			m_vectors.at(i).SetValues(std::move(temp), m_format);
+			m_vectors[i] = val;
+		}
+	}
+
+	m_format = COEFFICIENT;
+
 	return *this;
 }
 
@@ -874,6 +960,13 @@ bool DCRTPolyImpl<ModType,IntType,VecType,ParmType>::InverseExists() const
 		if (!m_vectors[i].InverseExists()) return false;
 	}
 	return true;
+}
+
+template<typename ModType, typename IntType, typename VecType, typename ParmType>
+double DCRTPolyImpl<ModType, IntType, VecType, ParmType>::Norm() const
+{
+	Poly poly(CRTInterpolate());
+	return poly.Norm();
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>

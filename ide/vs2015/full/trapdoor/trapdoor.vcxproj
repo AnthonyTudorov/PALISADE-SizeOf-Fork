@@ -24,6 +24,8 @@
     <ClCompile Include="..\..\..\..\src\trapdoor\lib\abe\kp_abe.cpp" />
     <ClCompile Include="..\..\..\..\src\trapdoor\lib\obfuscation\lweconjunctionobfuscatev3.cpp" />
     <ClCompile Include="..\..\..\..\src\trapdoor\lib\sampling\dgsampling.cpp" />
+    <ClCompile Include="..\..\..\..\src\trapdoor\lib\sampling\trapdoor-vector-impl.cpp" />
+    <ClCompile Include="..\..\..\..\src\trapdoor\lib\sampling\trapdoor-vectorarray-impl.cpp" />
     <ClCompile Include="..\..\..\..\src\trapdoor\lib\sampling\trapdoor.cpp" />
     <ClCompile Include="..\..\..\..\src\trapdoor\lib\signature\lwesign.cpp" />
   </ItemGroup>

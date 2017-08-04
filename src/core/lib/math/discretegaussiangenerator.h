@@ -78,15 +78,15 @@ public:
 	//BigVector DiscreteGaussianGenerator::GenerateIdentity(usint size, const BigInteger &modulus);
 
 	/**
-	* @brief      Returns a generated char.
+	* @brief      Returns a generated signed integer.
 	* @return     an schar value generated with the distribution.
 	*/
 	sint GenerateInt () const;
 
 	/**
-	* @brief      Returns a generated char vector.
+	* @brief      Returns a generated integer vector.
 	* @param size The number of values to return.
-	* @return     A pointer to an array of schar values generated with the distribution.
+	* @return     A pointer to an array of integer values generated with the distribution.
 	*/
 	std::shared_ptr<sint> GenerateIntVector (usint size) const;
 

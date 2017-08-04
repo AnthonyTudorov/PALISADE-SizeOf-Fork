@@ -85,7 +85,7 @@ int KPABE_BenchmarkCircuitTest(usint iter, int32_t base)
 	ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().PreCompute(rootOfUnity, n, q);
 
 	// Trapdoor Generation
-	std::pair<RingMat, RLWETrapdoorPair<Poly>> trapdoorA = RLWETrapdoorUtility::TrapdoorGen(ilParams, SIGMA, base, true); // A.first is the public element
+	std::pair<RingMat, RLWETrapdoorPair<Poly>> trapdoorA = RLWETrapdoorUtility<Poly>::TrapdoorGen(ilParams, SIGMA, base, true); // A.first is the public element
 
 	Poly pubElemBeta(dug, ilParams, EVALUATION);
 
@@ -218,7 +218,7 @@ int KPABE_APolicyCircuitTest(usint iter)
 	ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().PreCompute(rootOfUnity, n, q);
 
 	// Trapdoor Generation
-	std::pair<RingMat, RLWETrapdoorPair<Poly>> A = RLWETrapdoorUtility::TrapdoorGen(ilParams, SIGMA, base, true);
+	std::pair<RingMat, RLWETrapdoorPair<Poly>> A = RLWETrapdoorUtility<Poly>::TrapdoorGen(ilParams, SIGMA, base, true);
 
 	Poly pubElemBeta(dug, ilParams, EVALUATION);
 
@@ -345,7 +345,7 @@ int KPABE_NANDGateTest(usint iter, int32_t base)
 	ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().PreCompute(rootOfUnity, n, q);
 
 	// Trapdoor Generation
-	std::pair<RingMat, RLWETrapdoorPair<Poly>> A = RLWETrapdoorUtility::TrapdoorGen(ilParams, SIGMA, base, true);
+	std::pair<RingMat, RLWETrapdoorPair<Poly>> A = RLWETrapdoorUtility<Poly>::TrapdoorGen(ilParams, SIGMA, base, true);
 
 
 	Poly pubElemBeta(dug, ilParams, EVALUATION);
@@ -469,7 +469,7 @@ int KPABE_ANDGateTest(usint iter)
 	ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().PreCompute(rootOfUnity, n, q);
 
 	// Trapdoor Generation
-	std::pair<RingMat, RLWETrapdoorPair<Poly>> A = RLWETrapdoorUtility::TrapdoorGen(ilParams, SIGMA, base, true);
+	std::pair<RingMat, RLWETrapdoorPair<Poly>> A = RLWETrapdoorUtility<Poly>::TrapdoorGen(ilParams, SIGMA, base, true);
 
 	Poly pubElemBeta(dug, ilParams, EVALUATION);
 

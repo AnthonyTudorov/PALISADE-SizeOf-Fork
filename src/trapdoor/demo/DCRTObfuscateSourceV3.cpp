@@ -60,21 +60,21 @@ void Run() {
 	usint chunkSize = 2;
 	usint base = 1<<6;
 	std::string inputPattern = "1?10?1";
-	ClearLWEConjunctionPattern<Poly> clearPattern(inputPattern);
+	ClearLWEConjunctionPattern<DCRTPoly> clearPattern(inputPattern);
 
-	ObfuscatedLWEConjunctionPattern<Poly> obfuscatedPattern;
+	ObfuscatedLWEConjunctionPattern<DCRTPoly> obfuscatedPattern;
 	obfuscatedPattern.SetChunkSize(chunkSize);
 	obfuscatedPattern.SetBase(base);
 	obfuscatedPattern.SetLength(clearPattern.GetLength());
 	obfuscatedPattern.SetRootHermiteFactor(1.006);
 
-	LWEConjunctionObfuscationAlgorithm<Poly> algorithm;
+	LWEConjunctionObfuscationAlgorithm<DCRTPoly> algorithm;
 
 	double stdDev = SIGMA;
 
 	double diff, start, finish;
 
-	Poly::DggType dgg(stdDev);			// Create the noise generator
+	DCRTPoly::DggType dgg(stdDev);			// Create the noise generator
 
 	//Finds q using the correctness constraint for the given value of n
 	algorithm.ParamsGen(dgg, &obfuscatedPattern, m / 2);
@@ -82,7 +82,7 @@ void Run() {
 	//this code finds the values of q and n corresponding to the root Hermite factor in obfuscatedPattern
 	//algorithm.ParamsGen(dgg, &obfuscatedPattern);
 
-	const shared_ptr<ILParams> ilParams = std::dynamic_pointer_cast<ILParams>(obfuscatedPattern.GetParameters());
+	const shared_ptr<typename DCRTPoly::Params> ilParams = obfuscatedPattern.GetParameters();
 
 	const BigInteger &modulus = ilParams->GetModulus();
 	const BigInteger &rootOfUnity = ilParams->GetRootOfUnity();
@@ -93,9 +93,7 @@ void Run() {
 	std::cout << "n = " << m/2 << std::endl;
 	std::cout << printf("delta=%lf", obfuscatedPattern.GetRootHermiteFactor()) << std::endl;
 
-	typename Poly::DugType dug;
-	dug.SetModulus(modulus);
-	typename Poly::TugType tug;
+	typename DCRTPoly::TugType tug;
 
 	std::cout << " \nCryptosystem initialization: Performing precomputations..." << std::endl;
 
@@ -104,11 +102,11 @@ void Run() {
 	//This code is run only when performing execution time measurements
 
 	//Precomputations for FTT
-	ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(rootOfUnity, m, modulus);
+	//ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(rootOfUnity, m, modulus);
 	DiscreteFourierTransform::GetInstance().PreComputeTable(m);
 
 	//Precomputations for DGG
-	Poly::PreComputeDggSamples(dgg, ilParams);
+	//DCRTPoly::PreComputeDggSamples(dgg, ilParams);
 
 	finish = currentDateTime();
 	diff = finish - start;
