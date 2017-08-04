@@ -62,9 +62,9 @@ class CryptoContext : public Serializable {
 private:
 	shared_ptr<LPCryptoParameters<Element>>				params;			/*!< crypto parameters used for this context */
 	shared_ptr<LPPublicKeyEncryptionScheme<Element>>	scheme;			/*!< algorithm used; accesses all crypto methods */
-	std::map<usint, shared_ptr<LPEvalKey<Element>>>		evalSumKeys;	/*!< cached evalsum keys */
 
-	static std::map<string,vector<shared_ptr<LPEvalKey<Element>>>>	evalMultKeyMap;	/*!< cached evalmult keys, by secret key UID */
+	static std::map<string,std::vector<shared_ptr<LPEvalKey<Element>>>>	evalMultKeyMap;			/*!< cached evalmult keys, by secret key UID */
+	static std::map<string,shared_ptr<std::map<usint,shared_ptr<LPEvalKey<Element>>>>>		evalSumKeyMap;	/*!< cached evalsum keys, by secret key UID */
 
 	bool doTiming;
 	vector<TimingInfo>* timeSamples;
@@ -77,14 +77,6 @@ private:
 	 */
 	friend bool operator==(const CryptoContext<Element>& a, const CryptoContext<Element>& b) {
 		if( a.params.get() != b.params.get() ) return false;
-
-		if( a.evalSumKeys.size() != b.evalSumKeys.size() ) return false;
-		for (const auto& kp : a.evalSumKeys) {
-			const auto& vb = b.evalSumKeys.find(kp.first);
-			if( vb == b.evalSumKeys.end() ) return false; // key in a not in b
-			if( *kp.second != *vb->second )
-				return false; // mismatch
-		}
 		return true;
 	}
 
@@ -133,7 +125,6 @@ public:
 		scheme = c.scheme;
 		doTiming = c.doTiming;
 		timeSamples = c.timeSamples;
-		evalSumKeys = c.evalSumKeys;
 	}
 
 	/**
@@ -146,7 +137,6 @@ public:
 		scheme = rhs.scheme;
 		doTiming = rhs.doTiming;
 		timeSamples = rhs.timeSamples;
-		evalSumKeys = rhs.evalSumKeys;
 		return *this;
 	}
 
@@ -262,6 +252,7 @@ public:
 	 */
 	static void ClearEvalMultKeys(const shared_ptr<CryptoContext> cc);
 
+	// TURN FEATURES ON
 	/**
 	 * Enable a particular feature for use with this CryptoContext
 	 * @param feature - the feature that should be enabled
@@ -569,9 +560,13 @@ public:
 	 * @param keyID
 	 * @return key vector from ID
 	 */
-	const vector<shared_ptr<LPEvalKey<Element>>>& GetEvalMultKeyVector(const string& keyID) const;
+	static const vector<shared_ptr<LPEvalKey<Element>>>& GetEvalMultKeyVector(const string& keyID);
 
-	static const std::map<string,vector<shared_ptr<LPEvalKey<Element>>>>& GetEvalMultKeys() {
+	/**
+	 * GetEvalMultKeys
+	 * @return map of all the keys
+	 */
+	static const std::map<string,std::vector<shared_ptr<LPEvalKey<Element>>>>& GetAllEvalMultKeys() {
 		return evalMultKeyMap;
 	}
 
@@ -1539,16 +1534,10 @@ public:
 	 *
 	 * @return the EvalSum key map
 	 */
-	const std::map<usint, shared_ptr<LPEvalKey<Element>>>& GetEvalSumKey() const;
+	static const std::map<usint, shared_ptr<LPEvalKey<Element>>>& GetEvalSumKeyMap(const string& id);
 
-	/**
-	 * SetEvalSumKeys - used by deserializer to set the keys for EvalSum
-	 * FIXME should be private?
-	 * @param evalSumKeys - new key map
-	 */
-	void SetEvalSumKeys(std::map<usint, shared_ptr<LPEvalKey<Element>>>& evalSumKeys) {
-		this->evalSumKeys.clear();
-		this->evalSumKeys = evalSumKeys;
+	static const std::map<string,shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>>>& GetAllEvalSumKeys() {
+		return evalSumKeyMap;
 	}
 
 	/**

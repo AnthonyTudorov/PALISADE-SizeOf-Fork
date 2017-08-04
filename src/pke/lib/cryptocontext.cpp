@@ -31,7 +31,10 @@
 namespace lbcrypto {
 
 template <typename Element>
-std::map<string,vector<shared_ptr<LPEvalKey<Element>>>>	CryptoContext<Element>::evalMultKeyMap;
+std::map<string,std::vector<shared_ptr<LPEvalKey<Element>>>>	CryptoContext<Element>::evalMultKeyMap;
+
+template <typename Element>
+std::map<string,shared_ptr<std::map<usint,shared_ptr<LPEvalKey<Element>>>>>	CryptoContext<Element>::evalSumKeyMap;
 
 template <typename Element>
 void CryptoContext<Element>::EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> key) {
@@ -52,7 +55,7 @@ void CryptoContext<Element>::EvalMultKeyGen(const shared_ptr<LPPrivateKey<Elemen
 }
 
 template <typename Element>
-const vector<shared_ptr<LPEvalKey<Element>>>& CryptoContext<Element>::GetEvalMultKeyVector(const string& keyID) const {
+const vector<shared_ptr<LPEvalKey<Element>>>& CryptoContext<Element>::GetEvalMultKeyVector(const string& keyID) {
 	auto ekv = evalMultKeyMap.find(keyID);
 	if( ekv == evalMultKeyMap.end() )
 		throw std::logic_error("You need to use EvalMultKeyGen so that you have an EvalMultKey available for this ID");
@@ -99,8 +102,8 @@ void CryptoContext<Element>::EvalSumKeyGen(
 		throw std::logic_error("Private key passed to EvalSumKeyGen were not generated with this crypto context");
 	}
 
-	if( publicKey != NULL && Mismatched(publicKey->GetCryptoContext()) ) {
-		throw std::logic_error("Public key passed to EvalSumKeyGen were not generated with this crypto context");
+	if( publicKey != NULL && privateKey->GetKeyTag() != publicKey->GetKeyTag() ) {
+		throw std::logic_error("Public key passed to EvalSumKeyGen does not match private key");
 	}
 
 	double start = 0;
@@ -110,12 +113,7 @@ void CryptoContext<Element>::EvalSumKeyGen(
 	if( doTiming ) {
 		timeSamples->push_back( TimingInfo(OpEvalSumKeyGen, currentDateTime() - start) );
 	}
-	evalSumKeys = *evalKeys;
-}
-
-template <typename Element>
-const std::map<usint, shared_ptr<LPEvalKey<Element>>>& CryptoContext<Element>::GetEvalSumKey() const {
-	return evalSumKeys;
+	evalSumKeyMap[privateKey->GetKeyTag()] = evalKeys;
 }
 
 /**
@@ -303,6 +301,7 @@ shared_ptr<Ciphertext<Element>> CryptoContext<Element>::EvalSum(const shared_ptr
 	if( ciphertext == NULL || Mismatched(ciphertext->GetCryptoContext()) )
 		throw std::logic_error("Information passed to EvalAdd was not generated with this crypto context");
 
+	auto evalSumKeys = CryptoContext<Element>::GetEvalSumKeyMap(ciphertext->GetKeyTag());
 	double start = 0;
 	if( doTiming ) start = currentDateTime();
 	auto rv = GetEncryptionAlgorithm()->EvalSum(ciphertext, batchSize, evalSumKeys);
@@ -319,6 +318,7 @@ shared_ptr<Ciphertext<Element>> CryptoContext<Element>::EvalInnerProduct(const s
 			Mismatched(ct1->GetCryptoContext()) )
 		throw std::logic_error("Information passed to EvalInnerProduct was not generated with this crypto context");
 
+	auto evalSumKeys = CryptoContext<Element>::GetEvalSumKeyMap(ct1->GetKeyTag());
 	auto ek = GetEvalMultKeyVector(ct1->GetKeyTag());
 
 	double start = 0;
@@ -338,6 +338,7 @@ CryptoContext<Element>::EvalCrossCorrelation(const shared_ptr<Matrix<RationalCip
 
 	//need to add exception handling
 
+	auto evalSumKeys = CryptoContext<Element>::GetEvalSumKeyMap((*x)(0,0).GetNumerator()->GetKeyTag());
 	auto ek = GetEvalMultKeyVector((*x)(0,0).GetNumerator()->GetKeyTag());
 
 	double start = 0;
@@ -356,6 +357,7 @@ CryptoContext<Element>::EvalLinRegressBatched(const shared_ptr<Matrix<RationalCi
 {
 	//need to add exception handling
 
+	auto evalSumKeys = CryptoContext<Element>::GetEvalSumKeyMap((*x)(0,0).GetNumerator()->GetKeyTag());
 	auto ek = GetEvalMultKeyVector((*x)(0,0).GetNumerator()->GetKeyTag());
 
 	double start = 0;
@@ -379,16 +381,8 @@ CryptoContext<T>::Serialize(Serialized* serObj) const
 	Serialized pser(rapidjson::kObjectType, &serObj->GetAllocator());
 	if( !params->Serialize(&pser) )
 		return false;
+
 	ccser.AddMember("Params", pser.Move(), serObj->GetAllocator());
-
-	Serialized kser(rapidjson::kObjectType, &serObj->GetAllocator());
-
-	if( Serializable::IncludeKeysInSerializedContext() ) {
-		if( this->evalSumKeys.size() > 0 ) {
-			SerializeMapOfPointers("EvalSumKeys", T::GetElementName(), this->evalSumKeys, &ccser);
-		}
-	}
-
 	ccser.AddMember("Schemes", std::to_string(this->scheme->GetEnabled()), serObj->GetAllocator());
 
 	serObj->AddMember("CryptoContext", ccser.Move(), serObj->GetAllocator());
@@ -673,7 +667,8 @@ CryptoContextFactory<Element>::DeserializeAndCreateContext(const Serialized& ser
 			evalSumKeys[k] = kp;
 		}
 
-		cc->SetEvalSumKeys(evalSumKeys);
+		// FIXME
+		//cc->SetEvalSumKeys(evalSumKeys);
 	}
 
 	return cc;

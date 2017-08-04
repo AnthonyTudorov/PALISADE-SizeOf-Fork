@@ -75,7 +75,6 @@ int main(int argc, char* argv[]) {
 		if (std::string(argv[1]) == "keygen")
 			KeyGen();
 		else {
-			Serializable::DisableKeysInSerializedContext();
 			if (std::string(argv[1]) == "encrypt")
 				Encrypt();
 			else if (std::string(argv[1]) == "compute")

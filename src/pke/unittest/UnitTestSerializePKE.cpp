@@ -237,23 +237,23 @@ TEST_F(UTPKESer, LTV_keys_and_ciphertext) {
 	CryptoContextFactory<Poly>::ReleaseAllContexts();
 	CryptoContext<Poly>::DeserializeEvalMultKey(ser0);
 	EXPECT_EQ(CryptoContextFactory<Poly>::GetContextCount(), 1) << "one-key deser, context";
-	EXPECT_EQ(CryptoContext<Poly>::GetEvalMultKeys().size(), 1U) << "one-key deser, keys";
+	EXPECT_EQ(CryptoContext<Poly>::GetAllEvalMultKeys().size(), 1U) << "one-key deser, keys";
 
 	CryptoContext<Poly>::ClearEvalMultKeys();
 	CryptoContextFactory<Poly>::ReleaseAllContexts();
 	CryptoContext<Poly>::DeserializeEvalMultKey(ser2a);
 	EXPECT_EQ(CryptoContextFactory<Poly>::GetContextCount(), 1) << "one-ctx deser, context";
-	EXPECT_EQ(CryptoContext<Poly>::GetEvalMultKeys().size(), 2U) << "one-ctx deser, keys";
+	EXPECT_EQ(CryptoContext<Poly>::GetAllEvalMultKeys().size(), 2U) << "one-ctx deser, keys";
 
 	CryptoContext<Poly>::ClearEvalMultKeys();
 	CryptoContextFactory<Poly>::ReleaseAllContexts();
 	CryptoContext<Poly>::DeserializeEvalMultKey(ser2b);
 	EXPECT_EQ(CryptoContextFactory<Poly>::GetContextCount(), 1) << "one-ctx deser2, context";
-	EXPECT_EQ(CryptoContext<Poly>::GetEvalMultKeys().size(), 1U) << "one-ctx deser2, keys";
+	EXPECT_EQ(CryptoContext<Poly>::GetAllEvalMultKeys().size(), 1U) << "one-ctx deser2, keys";
 
 	CryptoContext<Poly>::ClearEvalMultKeys();
 	CryptoContextFactory<Poly>::ReleaseAllContexts();
 	CryptoContext<Poly>::DeserializeEvalMultKey(ser3);
 	EXPECT_EQ(CryptoContextFactory<Poly>::GetContextCount(), 2) << "all-key deser, context";
-	EXPECT_EQ(CryptoContext<Poly>::GetEvalMultKeys().size(), 3U) << "all-key deser, keys";
+	EXPECT_EQ(CryptoContext<Poly>::GetAllEvalMultKeys().size(), 3U) << "all-key deser, keys";
 }

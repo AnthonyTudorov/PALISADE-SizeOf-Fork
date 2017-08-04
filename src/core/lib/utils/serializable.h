@@ -55,8 +55,6 @@ namespace lbcrypto {
 
 	class Serializable
 	{
-		static bool includeKeysInSerializedCryptoContext;
-
 		/**
 		* Version number of the serialization; defaults to 1
 		* @return version of the serialization
@@ -65,10 +63,6 @@ namespace lbcrypto {
 
 	public:
 		virtual ~Serializable() {}
-
-		static void EnableKeysInSerializedContext();
-		static void DisableKeysInSerializedContext();
-		static bool IncludeKeysInSerializedContext() { return includeKeysInSerializedCryptoContext; }
 
 		/**
 		* Serialize the object into a Serialized
