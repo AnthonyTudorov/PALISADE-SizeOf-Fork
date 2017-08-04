@@ -1889,7 +1889,7 @@ public:
 */
 template<typename Element>
 class CryptoContextFactory {
-	static vector<shared_ptr<CryptoContext<Element>>>	AllContexts;
+	static vector<shared_ptr<CryptoContext<Element>>>		AllContexts;
 
 public:
 	static void ReleaseAllContexts();
@@ -1904,6 +1904,8 @@ public:
 
 	static shared_ptr<CryptoContext<Element>> GetContextForPointer(
 			CryptoContext<Element>* cc);
+
+	static const vector<shared_ptr<CryptoContext<Element>>>& GetAllContexts() { return AllContexts; }
 
 	/**
 	* construct a PALISADE CryptoContext for the LTV Scheme

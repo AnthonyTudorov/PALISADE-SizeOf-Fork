@@ -45,7 +45,6 @@ protected:
 
 	void TearDown() {
 		CryptoContextFactory<Poly>::ReleaseAllContexts();
-		std::cout << "count is " << CryptoContextFactory<Poly>::GetContextCount() << std::endl;
 		CryptoContextFactory<DCRTPoly>::ReleaseAllContexts();
 		CryptoContext<Poly>::ClearEvalMultKeys();
 		CryptoContext<DCRTPoly>::ClearEvalMultKeys();
