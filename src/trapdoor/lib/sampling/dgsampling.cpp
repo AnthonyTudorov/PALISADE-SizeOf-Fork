@@ -88,9 +88,13 @@ namespace lbcrypto {
 	// It will be published in GM17
 
 	template <class Element>
-	void LatticeGaussSampUtility<Element>::GaussSampGq(const Element &u, double stddev, size_t k, const typename Element::Integer &q, int32_t base,
+	void LatticeGaussSampUtility<Element>::GaussSampGq(const Element &syndrome, double stddev, size_t k, const typename Element::Integer &q, int32_t base,
 		typename Element::DggType &dgg, Matrix<int32_t> *z)
 	{
+
+		// If DCRT is used, the polynomial is first converted from DCRT to large polynomial (in COEFFICIENT representation)		
+		Poly u = syndrome.CRTInterpolate();
+
 		const typename Element::Integer& modulus = u.GetParams()->GetModulus();
 		// std::cout << "modulus = " << modulus << std::endl; 
 		double sigma = stddev / (base + 1);
