@@ -116,7 +116,7 @@ namespace lbcrypto {
 				const BigInteger &bigModulusArb,
 				const BigInteger &bigRootOfUnityArb,
 				int depth = 1,
-				int maxDepth = 1)
+				int maxDepth = 2)
 					: LPCryptoParametersRLWE<Element>(params,
 						plaintextModulus,
 						distributionParameter,
@@ -163,7 +163,7 @@ namespace lbcrypto {
 				const BigInteger &bigModulusArb,
 				const BigInteger &bigRootOfUnityArb,
 				int depth = 1,
-				int maxDepth = 1)
+				int maxDepth = 2)
 				: LPCryptoParametersRLWE<Element>(params,
 					encodingParams,
 					distributionParameter,
