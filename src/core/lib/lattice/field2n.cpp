@@ -203,7 +203,7 @@ Field2n Field2n::Transpose() const
 		return transpose;
 	} else {
 		usint m = this->size()*2;
-		return AutomorphismTransform(2 * m - 1);
+		return AutomorphismTransform(m - 1);
 	}
 }
 

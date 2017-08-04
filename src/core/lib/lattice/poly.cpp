@@ -657,7 +657,7 @@ PolyImpl<ModType,IntType,VecType,ParmType> PolyImpl<ModType,IntType,VecType,Parm
 			throw std::logic_error("PolyImpl element transposition is currently implemented only in the Evaluation representation.");
 	else {
 			usint m = m_params->GetCyclotomicOrder();
-			return AutomorphismTransform(2 * m - 1);
+			return AutomorphismTransform(m - 1);
 		}
 	}
 

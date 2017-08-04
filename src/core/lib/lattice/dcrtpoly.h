@@ -103,7 +103,7 @@ public:
 	DCRTPolyImpl(const DggType &dgg, const shared_ptr<ParmType> params, Format format = EVALUATION);
 
 	/**
-	* @brief Constructor based on binary Gaussian generator. This is not implemented. Will throw a logic_error.
+	* @brief Constructor based on binary distribution generator. This is not implemented. Will throw a logic_error.
 	*
 	* @param &bug the input binary uniform generator. The bug will be the seed to populate the towers of the DCRTPoly with random numbers.
 	* @param params parameter set required for DCRTPoly.
@@ -114,7 +114,7 @@ public:
 	}
 
 	/**
-	* @brief Constructor based on binary Gaussian generator.
+	* @brief Constructor based on ternary distribution generator.
 	*
 	* @param &tug the input ternary uniform generator. The bug will be the seed to populate the towers of the DCRTPoly with random numbers.
 	* @param params parameter set required for DCRTPoly.
@@ -123,7 +123,7 @@ public:
 	DCRTPolyImpl(const TugType &tug, const shared_ptr<ParmType> params, Format format = EVALUATION);
 
 	/**
-	* @brief Constructor based on full methods.
+	* @brief Constructor based on discrete uniform generator.
 	*
 	* @param &dug the input discrete Uniform Generator.
 	* @param params the input params.
@@ -444,7 +444,7 @@ public:
 			throw std::logic_error("DCRTPolyImpl element transposition is currently implemented only in the Evaluation representation.");
 		else {
 			usint m = m_params->GetCyclotomicOrder();
-			return AutomorphismTransform(2 * m - 1);
+			return AutomorphismTransform(m - 1);
 		}
 
 	}
