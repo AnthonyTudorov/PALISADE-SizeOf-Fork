@@ -61,10 +61,10 @@ class CryptoContext : public Serializable {
 
 private:
 	shared_ptr<LPCryptoParameters<Element>>				params;			/*!< crypto parameters used for this context */
-	shared_ptr<LPPublicKeyEncryptionScheme<Element>>	scheme;			/*!< algorithm used; accesses all crypto methods */
+	shared_ptr<LPPublicKeyEncryptionScheme<Element>>		scheme;			/*!< algorithm used; accesses all crypto methods */
 
-	static std::map<string,std::vector<shared_ptr<LPEvalKey<Element>>>>	evalMultKeyMap;			/*!< cached evalmult keys, by secret key UID */
-	static std::map<string,shared_ptr<std::map<usint,shared_ptr<LPEvalKey<Element>>>>>		evalSumKeyMap;	/*!< cached evalsum keys, by secret key UID */
+	static std::map<string,std::vector<shared_ptr<LPEvalKey<Element>>>>					evalMultKeyMap;	/*!< cached evalmult keys, by secret key UID */
+	static std::map<string,shared_ptr<std::map<usint,shared_ptr<LPEvalKey<Element>>>>>	evalSumKeyMap;	/*!< cached evalsum keys, by secret key UID */
 
 	bool doTiming;
 	vector<TimingInfo>* timeSamples;
@@ -251,6 +251,62 @@ public:
 	 * @param cc
 	 */
 	static void ClearEvalMultKeys(const shared_ptr<CryptoContext> cc);
+
+	/**
+	 * SerializeEvalSumKey for all EvalSum keys
+	 * method will serialize each CryptoContext only once
+	 *
+	 * @param serObj - serialization
+	 * @return true on success
+	 */
+	static bool SerializeEvalSumKey(Serialized* serObj);
+
+	/**
+	 * SerializeEvalSumKey for a single EvalSum key
+	 * method will serialize entire key AND cryptocontext
+	 *
+	 * @param serObj - serialization
+	 * @param id for key to serialize
+	 * @return true on success (false on failure or key id not found)
+	 */
+	static bool SerializeEvalSumKey(Serialized* serObj, const string& id);
+
+	/**
+	 * SerializeEvalSumKey for all EvalSumKeys made in a given context
+	 * method will serialize the context only once
+	 *
+	 * @param serObj - serialization
+	 * @param cc whose keys should be serialized
+	 * @return true on success (false on failure or no keys found)
+	 */
+	static bool SerializeEvalSumKey(Serialized* serObj, const shared_ptr<CryptoContext> cc);
+
+	/**
+	 * DeserializeEvalSumKey deserialize all keys in the serialization
+	 * deserialized keys silently replace any existing matching keys
+	 * deserialization will create CryptoContext if necessary
+	 *
+	 * @param serObj - serialization
+	 * @return true on success
+	 */
+	static bool DeserializeEvalSumKey(const Serialized& serObj);
+
+	/**
+	 * ClearEvalSumKeys - flush EvalSumKey cache
+	 */
+	static void ClearEvalSumKeys();
+
+	/**
+	 * ClearEvalSumKeys - flush EvalSumKey cache for a given id
+	 * @param id
+	 */
+	static void ClearEvalSumKeys(const string& id);
+
+	/**
+	 * ClearEvalSumKeys - flush EvalSumKey cache for a given context
+	 * @param cc
+	 */
+	static void ClearEvalSumKeys(const shared_ptr<CryptoContext> cc);
 
 	// TURN FEATURES ON
 	/**
@@ -566,9 +622,7 @@ public:
 	 * GetEvalMultKeys
 	 * @return map of all the keys
 	 */
-	static const std::map<string,std::vector<shared_ptr<LPEvalKey<Element>>>>& GetAllEvalMultKeys() {
-		return evalMultKeyMap;
-	}
+	static const std::map<string,std::vector<shared_ptr<LPEvalKey<Element>>>>& GetAllEvalMultKeys();
 
 	/**
 	* KeySwitchGen creates a key that can be used with the PALISADE KeySwitch operation

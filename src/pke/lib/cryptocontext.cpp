@@ -63,6 +63,11 @@ const vector<shared_ptr<LPEvalKey<Element>>>& CryptoContext<Element>::GetEvalMul
 }
 
 template <typename Element>
+const std::map<string,std::vector<shared_ptr<LPEvalKey<Element>>>>& CryptoContext<Element>::GetAllEvalMultKeys() {
+	return evalMultKeyMap;
+}
+
+template <typename Element>
 void CryptoContext<Element>::ClearEvalMultKeys() {
 	evalMultKeyMap.clear();
 }
