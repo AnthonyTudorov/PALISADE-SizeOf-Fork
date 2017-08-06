@@ -913,7 +913,8 @@ CryptoContextFactory<T>::genCryptoContextLTV(
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeLTV<T>());
 
-	scheme->ParamsGen(params, numAdds, numMults, numKeyswitches);
+	if( scheme->ParamsGen(params, numAdds, numMults, numKeyswitches) == false )
+		return 0;
 
 	return CryptoContextFactory<T>::GetContext(params,scheme);
 }

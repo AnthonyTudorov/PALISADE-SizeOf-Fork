@@ -71,7 +71,7 @@ UnitTestReEncrypt(shared_ptr<CryptoContext<Element>> cc, bool publicVersion) {
 		intvec.push_back( rand() % ptm );
 	IntPlaintextEncoding plaintextInt(intvec);
 
-	IntPlaintextEncoding ptInt1( {1,2,3,4} );
+	IntPlaintextEncoding ptInt1( intvec );
 	IntPlaintextEncoding ptInt2 = ptInt1;
 
 	////////////////////////////////////////////////////////////
@@ -183,7 +183,7 @@ TEST_F(UTPRE, Null_DCRTPoly_ReEncrypt_pub) {
 }
 
 TEST_F(UTPRE, BV_Poly_ReEncrypt_pri) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementBV(ORDER, PTM);
+	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementBV(ORDER, 2);
 	UnitTestReEncrypt<Poly>(cc, false);
 }
 
