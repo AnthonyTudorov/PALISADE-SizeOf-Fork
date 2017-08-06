@@ -1590,9 +1590,7 @@ public:
 	 */
 	static const std::map<usint, shared_ptr<LPEvalKey<Element>>>& GetEvalSumKeyMap(const string& id);
 
-	static const std::map<string,shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>>>& GetAllEvalSumKeys() {
-		return evalSumKeyMap;
-	}
+	static const std::map<string,shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>>>& GetAllEvalSumKeys();
 
 	/**
 	* Function for evaluating a sum of all components
@@ -2169,7 +2167,7 @@ public:
 	* @param serObj
 	* @return new context
 	*/
-	static shared_ptr<CryptoContext<Element>> DeserializeAndCreateContext(const Serialized& serObj, bool noKeys = false);
+	static shared_ptr<CryptoContext<Element>> DeserializeAndCreateContext(const Serialized& serObj);
 };
 
 

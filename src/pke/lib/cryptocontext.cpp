@@ -121,6 +121,50 @@ void CryptoContext<Element>::EvalSumKeyGen(
 	evalSumKeyMap[privateKey->GetKeyTag()] = evalKeys;
 }
 
+template <typename Element>
+const std::map<usint, shared_ptr<LPEvalKey<Element>>>& CryptoContext<Element>::GetEvalSumKeyMap(const string& keyID) {
+	auto ekv = evalSumKeyMap.find(keyID);
+	if( ekv == evalSumKeyMap.end() )
+		throw std::logic_error("You need to use EvalSumKeyGen so that you have EvalSumKeys available for this ID");
+	return *ekv->second;
+}
+
+template <typename Element>
+const std::map<string,shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>>>& CryptoContext<Element>::GetAllEvalSumKeys() {
+	return evalSumKeyMap;
+}
+
+template <typename Element>
+void CryptoContext<Element>::ClearEvalSumKeys() {
+	evalSumKeyMap.clear();
+}
+
+/**
+ * ClearEvalMultKeys - flush EvalMultKey cache for a given id
+ * @param id
+ */
+template <typename Element>
+void CryptoContext<Element>::ClearEvalSumKeys(const string& id) {
+	auto kd = evalSumKeyMap.find(id);
+	if( kd != evalSumKeyMap.end() )
+		evalSumKeyMap.erase(kd);
+}
+
+/**
+ * ClearEvalMultKeys - flush EvalMultKey cache for a given context
+ * @param cc
+ */
+template <typename Element>
+void CryptoContext<Element>::ClearEvalSumKeys(const shared_ptr<CryptoContext> cc) {
+	for( auto it = evalSumKeyMap.begin(); it != evalSumKeyMap.end(); ) {
+		if( it->second->begin()->second->GetCryptoContext() == cc ) {
+			it = evalSumKeyMap.erase(it);
+		}
+		else
+			++it;
+	}
+}
+
 /**
  * SerializeEvalMultKey for all EvalMult keys
  * method will serialize each CryptoContext only once
@@ -257,17 +301,17 @@ bool CryptoContext<Element>::DeserializeEvalMultKey(const Serialized& ser) {
 
 			Serialized::ConstMemberIterator t = keyValue.FindMember("Length");
 			if( t == keyValue.MemberEnd() )
-				throw std::logic_error("Unable to find number of eval mult keys in serialization of crypto context");
+				throw std::logic_error("Unable to find number of eval mult keys in serialization");
 			usint nKeys = std::stoi(t->value.GetString());
 
 			t = keyValue.FindMember("Typename");
 			if( t == keyValue.MemberEnd() )
-				throw std::logic_error("Unable to find eval mult key type in serialization of crypto context");
+				throw std::logic_error("Unable to find eval mult key type in serialization");
 			string ty = t->value.GetString();
 
 			t = keyValue.FindMember("Members");
 			if( t == keyValue.MemberEnd() )
-				throw std::logic_error("Unable to find eval mult keys in serialization of crypto context");
+				throw std::logic_error("Unable to find eval mult keys in serialization");
 			const SerialItem& members = t->value;
 
 			for( size_t k = 0; k < nKeys; k++ ) {
@@ -275,7 +319,7 @@ bool CryptoContext<Element>::DeserializeEvalMultKey(const Serialized& ser) {
 
 				Serialized::ConstMemberIterator eIt = members.FindMember( std::to_string(k) );
 				if( eIt == members.MemberEnd() )
-					throw std::logic_error("Unable to find eval mult key #" + std::to_string(k) + " in serialization of crypto context");
+					throw std::logic_error("Unable to find eval mult key #" + std::to_string(k) + " in serialization");
 
 				auto keyMember = SerialItem(eIt->value, ktemp.GetAllocator());
 				Serialized kser(rapidjson::kObjectType);
@@ -293,6 +337,176 @@ bool CryptoContext<Element>::DeserializeEvalMultKey(const Serialized& ser) {
 			kIter = serPtr->EraseMember(kIter);
 
 			evalMultKeyMap[evalMultKeys[0]->GetKeyTag()] = evalMultKeys;
+		}
+	}
+
+	return false;
+}
+
+/**
+ * SerializeEvalSumKey for all EvalSum keys
+ * method will serialize each CryptoContext only once
+ */
+template <typename Element>
+bool CryptoContext<Element>::SerializeEvalSumKey(Serialized* serObj) {
+	serObj->SetObject();
+	serObj->AddMember("Object", "EvalSumKeys", serObj->GetAllocator());
+	serObj->AddMember("Count", std::to_string(CryptoContextFactory<Element>::GetContextCount()), serObj->GetAllocator());
+
+	int sCount = 0;
+
+	for( auto& cc : CryptoContextFactory<Element>::GetAllContexts() ) {
+		Serialized cSer(rapidjson::kObjectType, &serObj->GetAllocator());
+		if( CryptoContext<Element>::SerializeEvalSumKey(&cSer, cc) ) {
+			serObj->AddMember(SerialItem(std::to_string(sCount), serObj->GetAllocator()), cSer.Move(), serObj->GetAllocator());
+		}
+		++sCount;
+	}
+	return true;
+}
+
+/**
+ * SerializeEvalSumKey for a single EvalSum key
+ * method will serialize entire key AND cryptocontext
+ */
+template <typename Element>
+bool CryptoContext<Element>::SerializeEvalSumKey(Serialized* serObj, const string& id) {
+	auto k = evalSumKeyMap.find(id);
+
+	if( k == evalSumKeyMap.end() )
+		return false; // no such id
+
+	serObj->SetObject();
+	k->second->begin()->second->GetCryptoContext()->Serialize(serObj);
+	serObj->AddMember("Object", "EvalSumKey", serObj->GetAllocator());
+	SerializeMapOfPointers("EvalSumKeys", "LPEvalKey", *k->second, serObj);
+	return true;
+}
+
+/**
+ * SerializeEvalSumKey for all EvalSumKeys made in a given context
+ * method will serialize the context only once
+ */
+template <typename Element>
+bool CryptoContext<Element>::SerializeEvalSumKey(Serialized* serObj, const shared_ptr<CryptoContext> cc) {
+
+	serObj->SetObject();
+	cc->Serialize(serObj);
+	serObj->AddMember("Object", "EvalSumKeyOneContext", serObj->GetAllocator());
+	for( const auto& k : evalSumKeyMap ) {
+		if( k.second->begin()->second->GetCryptoContext() == cc ) {
+			SerializeMapOfPointers("EvalSumKeys", "LPEvalKey", *k.second, serObj);
+		}
+	}
+	return true;
+}
+
+template <typename Element>
+bool CryptoContext<Element>::DeserializeEvalSumKey(const Serialized& ser) {
+	Serialized serObj;
+	serObj.CopyFrom(ser, serObj.GetAllocator()); // copy, because we will destroy it
+
+	Serialized::MemberIterator cIter = serObj.FindMember("Object");
+	if( cIter == serObj.MemberEnd() )
+		return false;
+
+	// something different for EvalSumKey, EvalSumKeyOneContext, and EvalSumKeys
+
+	// figure out how many key sets there are
+	int cCount = 1;
+	bool singleton = true;
+	if( cIter->value.GetString() == string("EvalSumKeys") ) {
+		Serialized::ConstMemberIterator cntIter = serObj.FindMember("Count");
+		if( cntIter == serObj.MemberEnd() )
+			return false;
+
+		cCount = std::stoi(cntIter->value.GetString());
+		singleton = false;
+	}
+
+	if( singleton &&
+			cIter->value.GetString() != string("EvalSumKey") &&
+					cIter->value.GetString() != string("EvalSumKeyOneContext") ) {
+		throw std::logic_error("DeserializeEvalMultKey passed an unknown object type " + string(cIter->value.GetString()));
+	}
+
+	for( int keysets = 0; keysets < cCount; keysets++ ) {
+
+		// get the crypto context for this keyset
+		shared_ptr<CryptoContext<Element>> cc;
+		Serialized *serPtr;
+		Serialized oneSer;
+		if( singleton ) {
+			cc = CryptoContextFactory<Element>::DeserializeAndCreateContext(serObj);
+			serPtr = &serObj;
+		}
+		else {
+			Serialized::MemberIterator ksIter = serObj.FindMember(std::to_string(keysets));
+			if( ksIter == serObj.MemberEnd() )
+				return false;
+
+			oneSer.SetObject();
+			for( Serialized::MemberIterator i = ksIter->value.MemberBegin(); i != ksIter->value.MemberEnd(); i++ ) {
+				oneSer.AddMember( SerialItem(i->name,serObj.GetAllocator()),
+						SerialItem(i->value,serObj.GetAllocator()),
+						serObj.GetAllocator() );
+			}
+
+			serPtr = &oneSer;
+			cc = CryptoContextFactory<Element>::DeserializeAndCreateContext(oneSer);
+		}
+
+		Serialized::MemberIterator kIter;
+
+		// now, find and deserialize all keys
+		for( kIter = serPtr->MemberBegin(); kIter != serPtr->MemberEnd(); ) {
+			if( kIter->name.GetString() != string("EvalSumKeys") ) {
+				kIter = serPtr->RemoveMember(kIter);
+				continue;
+			}
+
+			shared_ptr<map<usint,shared_ptr<LPEvalKey<Element>>>> evalSumKeys( new map<usint,shared_ptr<LPEvalKey<Element>>>() );
+			string keyTag = "";
+
+			Serialized kser;
+			kser.SetObject();
+			kser.AddMember(SerialItem(kIter->name, kser.GetAllocator()), SerialItem(kIter->value, kser.GetAllocator()), kser.GetAllocator());
+
+			Serialized ktemp;
+			ktemp.SetObject();
+			auto keyValue = SerialItem(kIter->value, ktemp.GetAllocator());
+
+			Serialized::ConstMemberIterator t = keyValue.FindMember("Members");
+			if( t == keyValue.MemberEnd() )
+				throw std::logic_error("Unable to find eval sum keys in serialization");
+			const SerialItem& members = t->value;
+
+            for( Serialized::ConstMemberIterator mI = members.MemberBegin(); mI != members.MemberEnd(); mI++ ) {
+
+				shared_ptr<LPEvalKey<Element>> kp;
+
+                usint k = std::stoi( mI->name.GetString() );
+
+                Serialized kser(rapidjson::kObjectType);
+                auto keyMember = SerialItem(mI->value, kser.GetAllocator());
+
+                Serialized::ConstMemberIterator t = keyMember.MemberBegin();
+				while( t != keyMember.MemberEnd() ) {
+                    kser.AddMember(SerialItem(t->name, kser.GetAllocator()), SerialItem(t->value, kser.GetAllocator()), kser.GetAllocator());
+                    t++;
+				}
+
+				kp = cc->deserializeEvalKeyInContext(kser,cc);
+
+				if( keyTag == "" )
+					keyTag = kp->GetKeyTag();
+
+				(*evalSumKeys)[k] = kp;
+			}
+
+			kIter = serPtr->EraseMember(kIter);
+
+			evalSumKeyMap[keyTag] = evalSumKeys;
 		}
 	}
 
@@ -534,7 +748,7 @@ CryptoContextFactory<Element>::GetContextForPointer(
 */
 template <typename Element>
 shared_ptr<CryptoContext<Element>>
-CryptoContextFactory<Element>::DeserializeAndCreateContext(const Serialized& serObj, bool noKeys) {
+CryptoContextFactory<Element>::DeserializeAndCreateContext(const Serialized& serObj) {
 
 	Serialized::ConstMemberIterator mIter = serObj.FindMember("CryptoContext");
 	if( mIter == serObj.MemberEnd() )
@@ -585,95 +799,6 @@ CryptoContextFactory<Element>::DeserializeAndCreateContext(const Serialized& ser
 	if( sIter != mIter->value.MemberEnd() ) {
 		usint schemeBits = std::stoi(sIter->value.GetString());
 		cc->Enable(schemeBits);
-	}
-
-
-	if( noKeys )
-		return cc;
-
-	// sadly we cannot DeserializeVectorOfPointers because of polymorphism in the pointer type...
-	vector<shared_ptr<LPEvalKey<Element>>> evalMultKeys;
-	Serialized::ConstMemberIterator kIter = mIter->value.FindMember("EvalMultKeys");
-	if( kIter != mIter->value.MemberEnd() ) {
-
-		Serialized kser(rapidjson::kObjectType);
-		kser.AddMember(SerialItem(kIter->name, kser.GetAllocator()), SerialItem(kIter->value, kser.GetAllocator()), kser.GetAllocator());
-
-		Serialized ktemp(rapidjson::kObjectType);
-		auto keyValue = SerialItem(kIter->value, ktemp.GetAllocator());
-
-		Serialized::ConstMemberIterator t = keyValue.FindMember("Length");
-		if( t == keyValue.MemberEnd() )
-			throw std::logic_error("Unable to find number of eval mult keys in serialization of crypto context");
-		usint nKeys = std::stoi(t->value.GetString());
-
-		t = keyValue.FindMember("Typename");
-		if( t == keyValue.MemberEnd() )
-			throw std::logic_error("Unable to find eval mult key type in serialization of crypto context");
-		string ty = t->value.GetString();
-
-		t = keyValue.FindMember("Members");
-		if( t == keyValue.MemberEnd() )
-			throw std::logic_error("Unable to find eval mult keys in serialization of crypto context");
-		const SerialItem& members = t->value;
-
-		for( size_t k = 0; k < nKeys; k++ ) {
-
-			shared_ptr<LPEvalKey<Element>> kp;
-
-			Serialized::ConstMemberIterator eIt = members.FindMember( std::to_string(k) );
-			if( eIt == members.MemberEnd() )
-				throw std::logic_error("Unable to find eval mult key #" + std::to_string(k) + " in serialization of crypto context");
-
-			auto keyMember = SerialItem(eIt->value, ktemp.GetAllocator());
-			Serialized kser(rapidjson::kObjectType);
-
-			Serialized::ConstMemberIterator t = keyMember.MemberBegin();
-			while( t != keyMember.MemberEnd() ) {
-				kser.AddMember(SerialItem(t->name, kser.GetAllocator()), SerialItem(t->value, kser.GetAllocator()), kser.GetAllocator());
-				t++;
-			}
-
-			kp = cc->deserializeEvalKeyInContext(kser,cc);
-
-			evalMultKeys.push_back(kp);
-		}
-	}
-
-	map<usint,shared_ptr<LPEvalKey<Element>>> evalSumKeys;
-	kIter = mIter->value.FindMember("EvalSumKeys");
-
-	if( kIter != mIter->value.MemberEnd() ) {
-		Serialized esKeys(rapidjson::kObjectType);
-		esKeys.AddMember(SerialItem(kIter->name, parm.GetAllocator()), SerialItem(kIter->value, parm.GetAllocator()), parm.GetAllocator());
-
-		Serialized::ConstMemberIterator t = kIter->value.FindMember("Members");
-		if( t == kIter->value.MemberEnd() )
-			throw std::logic_error("Unable to find eval sum keys in serialization of crypto context");
-		const SerialItem& members = t->value;
-
-		for( Serialized::ConstMemberIterator mI = members.MemberBegin(); mI != members.MemberEnd(); mI++ ) {
-
-			shared_ptr<LPEvalKey<Element>> kp;
-
-			usint k = std::stoi( mI->name.GetString() );
-
-			Serialized kser(rapidjson::kObjectType);
-			auto keyMember = SerialItem(mI->value, kser.GetAllocator());
-
-			Serialized::ConstMemberIterator t = keyMember.MemberBegin();
-			while( t != keyMember.MemberEnd() ) {
-				kser.AddMember(SerialItem(t->name, kser.GetAllocator()), SerialItem(t->value, kser.GetAllocator()), kser.GetAllocator());
-				t++;
-			}
-
-			kp = cc->deserializeEvalKeyInContext(kser,cc);
-
-			evalSumKeys[k] = kp;
-		}
-
-		// FIXME
-		//cc->SetEvalSumKeys(evalSumKeys);
 	}
 
 	return cc;
