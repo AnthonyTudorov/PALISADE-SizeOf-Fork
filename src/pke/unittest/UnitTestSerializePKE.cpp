@@ -167,7 +167,7 @@ TEST_F(UTPKESer, FV_Poly_Serial) {
 
 // REMAINDER OF THE TESTS USE BV AS A REPRESENTITIVE CONTEXT
 TEST_F(UTPKESer, Keys_and_ciphertext) {
-        bool dbg_flag = true;
+        bool dbg_flag = false;
 
         // generate a context with encoding params
     	usint m = 22;
