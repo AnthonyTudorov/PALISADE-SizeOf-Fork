@@ -56,7 +56,7 @@ namespace lbcrypto {
 				(*pubElemBNeg)(i, j).SwitchFormat(); // always kept in EVALUATION format
 			}
 
-		return RLWETrapdoorUtility::TrapdoorGen(ilParams, SIGMA, base, false);
+		return RLWETrapdoorUtility<Poly>::TrapdoorGen(ilParams, SIGMA, base, false);
 	}
 
 	/**
@@ -205,7 +205,7 @@ namespace lbcrypto {
 
 		RingMat skA(Poly::MakeAllocator(ilParams, EVALUATION), m_m, 1);
 
-		skA = RLWETrapdoorUtility::GaussSampOnline(m_N, m_k, pubTA, secTA, y, dgg, perturbationVector, m_base);
+		skA = RLWETrapdoorUtility<Poly>::GaussSampOnline(m_N, m_k, pubTA, secTA, y, dgg, perturbationVector, m_base);
 
 		for(usint i=0; i<m_m; i++)
 			(*sk)(i, 0) = skA(i, 0);
@@ -234,7 +234,7 @@ namespace lbcrypto {
 		else
 			dggLargeSigma = dgg;
 
-		return RLWETrapdoorUtility::GaussSampOffline(m_N, m_k, secTA, dgg, dggLargeSigma, m_base);
+		return RLWETrapdoorUtility<Poly>::GaussSampOffline(m_N, m_k, secTA, dgg, dggLargeSigma, m_base);
 	}
 	/* The encryption function takes public parameters trapdoor pubTA, publicElemBPos and publicElemBNeg, and d (u), attribute values w and the plaintext pt
 	 * and generates the ciphertext pair c0 and c1

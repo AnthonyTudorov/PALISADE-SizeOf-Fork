@@ -58,7 +58,7 @@ namespace lbcrypto {
 		m_m = m_k + 2;
 		m_base = base;
 
-		return RLWETrapdoorUtility::TrapdoorGen(ilParams, SIGMA, base);
+		return RLWETrapdoorUtility<Poly>::TrapdoorGen(ilParams, SIGMA, base);
 	}
 
 	/**
@@ -125,7 +125,7 @@ namespace lbcrypto {
 		else
 			dggLargeSigma = dgg;
 
-		shared_ptr<RingMat> pertubationVector =  RLWETrapdoorUtility::GaussSampOffline(m_N, m_k, secTA, dgg, dggLargeSigma, m_base);
+		shared_ptr<RingMat> pertubationVector =  RLWETrapdoorUtility<Poly>::GaussSampOffline(m_N, m_k, secTA, dgg, dggLargeSigma, m_base);
 
 		return pertubationVector;
 
@@ -143,7 +143,7 @@ namespace lbcrypto {
 		RingMat *sk                             // Secret key                          	// Secret key
 	)
 	{
-		*sk = RLWETrapdoorUtility::GaussSampOnline(m_N, m_k, pubA, secTA, pubElemD, dgg, perturbationVector, m_base);
+		*sk = RLWETrapdoorUtility<Poly>::GaussSampOnline(m_N, m_k, pubA, secTA, pubElemD, dgg, perturbationVector, m_base);
 	}
 
 	/* The encryption function takes public parameters A, B, and d, attribute values x and the plaintext pt
