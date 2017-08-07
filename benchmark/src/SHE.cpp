@@ -50,7 +50,7 @@ static std::vector<uint32_t> makeVector(int siz, int ptmi) {
 	return elem;
 }
 
-static void setup_SHE(shared_ptr<CryptoContext<Poly>> cc, shared_ptr<Ciphertext<Poly>>& ct1, shared_ptr<Ciphertext<Poly>>& ct2) {
+static bool setup_SHE(shared_ptr<CryptoContext<Poly>> cc, shared_ptr<Ciphertext<Poly>>& ct1, shared_ptr<Ciphertext<Poly>>& ct2) {
 	int nel = cc->GetCyclotomicOrder()/2;
 	const BigInteger& ptm = cc->GetCryptoParameters()->GetPlaintextModulus();
 	uint32_t ptmi = ptm.ConvertToInt();
@@ -63,10 +63,16 @@ static void setup_SHE(shared_ptr<CryptoContext<Poly>> cc, shared_ptr<Ciphertext<
 	vector<shared_ptr<Ciphertext<Poly>>> ct1V = cc->Encrypt(kp.publicKey, p1, false);
 	vector<shared_ptr<Ciphertext<Poly>>> ct2V = cc->Encrypt(kp.publicKey, p2, false);
 
-	cc->EvalMultKeyGen(kp.secretKey);
+	try {
+		cc->EvalMultKeyGen(kp.secretKey);
+	} catch(...) {
+		cerr << "EvalMult Key Gen Failed";
+		return false;
+	}
 
 	ct1 = ct1V[0];
 	ct2 = ct2V[0];
+	return true;
 }
 
 void BM_evalAdd_SHE(benchmark::State& state) { // benchmark
@@ -100,8 +106,9 @@ void BM_evalMult_SHE(benchmark::State& state) { // benchmark
 		cc->Enable(ENCRYPTION);
 		cc->Enable(SHE);
 
-		setup_SHE(cc, ct1, ct2);
+		bool isSetup = setup_SHE(cc, ct1, ct2);
 		state.ResumeTiming();
+		if( !isSetup ) return;
 	}
 
 	while (state.KeepRunning()) {
@@ -143,6 +150,4 @@ BENCHMARK_PARMS(BM_baseDecompose_SHE)
 
 //execute the benchmarks
 BENCHMARK_MAIN()
-
-
 
