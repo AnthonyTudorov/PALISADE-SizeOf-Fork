@@ -25,13 +25,13 @@
 
 #include "lattice/elemparamfactory.h"
 
-shared_ptr<ILParams> parm_16 = ElemParamFactory::GenElemParams(M16);
-shared_ptr<ILParams> parm_1024 = ElemParamFactory::GenElemParams(M1024);
-shared_ptr<ILParams> parm_2048 = ElemParamFactory::GenElemParams(M2048);
-shared_ptr<ILParams> parm_4096 = ElemParamFactory::GenElemParams(M4096);
-shared_ptr<ILParams> parm_8192 = ElemParamFactory::GenElemParams(M8192);
-shared_ptr<ILParams> parm_16384 = ElemParamFactory::GenElemParams(M16384);
-shared_ptr<ILParams> parm_32768 = ElemParamFactory::GenElemParams(M32768);
+shared_ptr<ILParams> parm_16 = ElemParamFactory::GenElemParams<ILParams,BigInteger>(M16);
+shared_ptr<ILParams> parm_1024 = ElemParamFactory::GenElemParams<ILParams,BigInteger>(M1024);
+shared_ptr<ILParams> parm_2048 = ElemParamFactory::GenElemParams<ILParams,BigInteger>(M2048);
+shared_ptr<ILParams> parm_4096 = ElemParamFactory::GenElemParams<ILParams,BigInteger>(M4096);
+shared_ptr<ILParams> parm_8192 = ElemParamFactory::GenElemParams<ILParams,BigInteger>(M8192);
+shared_ptr<ILParams> parm_16384 = ElemParamFactory::GenElemParams<ILParams,BigInteger>(M16384);
+shared_ptr<ILParams> parm_32768 = ElemParamFactory::GenElemParams<ILParams,BigInteger>(M32768);
 
 shared_ptr<ILParams> parmArray[] = {
 parm_16,
