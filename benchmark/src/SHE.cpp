@@ -62,16 +62,15 @@ static bool setup_SHE(shared_ptr<CryptoContext<Poly>> cc, shared_ptr<Ciphertext<
 
 	vector<shared_ptr<Ciphertext<Poly>>> ct1V = cc->Encrypt(kp.publicKey, p1, false);
 	vector<shared_ptr<Ciphertext<Poly>>> ct2V = cc->Encrypt(kp.publicKey, p2, false);
+	ct1 = ct1V[0];
+	ct2 = ct2V[0];
 
 	try {
 		cc->EvalMultKeyGen(kp.secretKey);
 	} catch(...) {
-		cerr << "EvalMult Key Gen Failed";
 		return false;
 	}
 
-	ct1 = ct1V[0];
-	ct2 = ct2V[0];
 	return true;
 }
 
@@ -108,7 +107,8 @@ void BM_evalMult_SHE(benchmark::State& state) { // benchmark
 
 		bool isSetup = setup_SHE(cc, ct1, ct2);
 		state.ResumeTiming();
-		if( !isSetup ) return;
+		if( !isSetup )
+			state.SkipWithError("Setup failed: EvalMultKeyGen not supported?");
 	}
 
 	while (state.KeepRunning()) {
