@@ -886,6 +886,7 @@ Poly DCRTPolyImpl<ModType,IntType,VecType,ParmType>::CRTInterpolate() const
 	BigInteger mu = ComputeMu<BigInteger>(bigModulus);
 
 	// now, compute the values for the vector
+#pragma omp parallel for
 	for( usint ri = 0; ri < ringDimension; ri++ ) {
 		coefficients[ri] = 0;
 		for( usint vi = 0; vi < nTowers; vi++ ) {
