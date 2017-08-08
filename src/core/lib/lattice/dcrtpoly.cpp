@@ -882,6 +882,9 @@ Poly DCRTPolyImpl<ModType,IntType,VecType,ParmType>::CRTInterpolate() const
 	for( usint vi = 0; vi < nTowers; vi++ )
 		DEBUG("tower " << vi << " is " << (*vecs)[vi]);
 
+	//Precompute the Barrett mu parameter
+	BigInteger mu = ComputeMu<BigInteger>(bigModulus);
+
 	// now, compute the values for the vector
 	for( usint ri = 0; ri < ringDimension; ri++ ) {
 		coefficients[ri] = 0;
@@ -889,7 +892,7 @@ Poly DCRTPolyImpl<ModType,IntType,VecType,ParmType>::CRTInterpolate() const
 			coefficients[ri] += (BigInteger((*vecs)[vi].GetValues()[ri].ConvertToInt()) * multiplier[vi]);
 		}
 		DEBUG( (*vecs)[0].GetValues()[ri] << " * " << multiplier[0] << " == " << coefficients[ri] );
-		coefficients[ri] = coefficients[ri] % bigModulus;
+		coefficients[ri] = coefficients[ri].ModBarrett(bigModulus,mu);
 	}
 
 	DEBUG("passed loops");
