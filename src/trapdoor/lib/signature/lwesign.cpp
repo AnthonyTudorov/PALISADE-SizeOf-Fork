@@ -155,10 +155,10 @@ namespace lbcrypto {
 				rand.push_back(seed_bits);
 				BytePlaintextEncoding seed_out;
 				seed_out.push_back(1);
-				for (int i = 0;i < seed_in.size();i++) {
+				for (size_t i = 0;i < seed_in.size();i++) {
 					seed_out.push_back(seed_in[i]);
 				}
-				for (int j = 0;j < rand.size(); j++) {
+				for (size_t j = 0;j < rand.size(); j++) {
 					seed_out.push_back(rand[j]);
 				}
 				seed_in = seed_out;
@@ -209,10 +209,10 @@ namespace lbcrypto {
 				rand.push_back(seed_bits);
 				BytePlaintextEncoding seed_out;
 				seed_out.push_back(1);
-				for (int i = 0;i < seed_in.size();i++) {
+				for (size_t i = 0;i < seed_in.size();i++) {
 					seed_out.push_back(seed_in[i]);
 				}
-				for (int j = 0;j < rand.size(); j++) {
+				for (size_t j = 0;j < rand.size(); j++) {
 					seed_out.push_back(rand[j]);
 				}
 				seed_in = seed_out;
