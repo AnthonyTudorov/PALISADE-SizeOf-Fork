@@ -67,6 +67,7 @@ TEST(UTFVEVALMM, Poly_FV_Eval_Mult_Many_Operations) {
 	////////////////////////////////////////////////////////////
 	//Perform the key generation operation.
 	////////////////////////////////////////////////////////////
+
 	LPKeyPair<Poly> keyPair;
 	keyPair = cryptoContext->KeyGen();
 
@@ -139,8 +140,9 @@ TEST(UTFVEVALMM, Poly_FV_Eval_Mult_Many_Operations) {
 	ciphertextMulVect3.push_back(ciphertextMul1234);
 
 	////////////////////////////////////////////////////////////
-	//Decryption after Accumulation Operation on Re-Encrypted Data
+	//Decryption of multiplicative results with and without keyswtiching (depends on the level)
 	////////////////////////////////////////////////////////////
+
 	IntPlaintextEncoding plaintextMul1;
 	IntPlaintextEncoding plaintextMul2;
 	IntPlaintextEncoding plaintextMul3;
