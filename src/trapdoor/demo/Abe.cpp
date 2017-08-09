@@ -10,7 +10,7 @@
 
 using namespace lbcrypto;
 
-int IBE_Test(int iter, int32_t base, usint ringDimension, usint k, bool offline);
+int IBE_Test(int iter, int32_t base, usint ringDimension, usint k, BigInteger q, BigInteger rootOfUnity, bool offline);
 int TestKeyGenCP(const shared_ptr<ILParams> ilParams, usint m, usint ell, const usint s[], const RingMat &a, const RingMat &pubElemBPos, const RingMat &pubElemBNeg, const Poly &pubElemU, RingMat &sk);
 int CPABE_Test(int iter, int32_t base, usint ringDimension, usint k, usint ell, BigInteger q, BigInteger rootOfUnity, bool offline);
 
@@ -53,36 +53,41 @@ int main()
 */
 	std::cout << "-------Start demo for IBE-------" << std::endl;
 	Params_Set const ibe_params[] = {
-		{ 2, 31, 1024}, 
-		{ 4, 31, 1024},
-		{ 8, 33, 2048},
-		{ 16, 35, 2048},
-		{ 32, 38, 2048},
-		{ 64, 41, 2048},
-		{ 128, 43, 2048},
-		{ 256, 46, 2048},
-		{ 512, 48, 2048},
-		{ 1024, 49, 2048},
-		{ 2048, 51, 2048}
+		{ 2, 31, 1024, "1073753089", "95035528"}, 
+		{ 4, 31, 1024, "1073753089", "133472618"},
+		{ 8, 31, 1024, "1073753089", "95035528"},
+		{ 16, 31, 1024, "1073750017", "1070003821"},
+		{ 32, 32, 1024, "8590058497", "6739203861"},
+		{ 64, 33, 1024, "17179898881", "7826325759"}, // 3 digit number
+		{ 128, 34, 1024, "8590058497", "6739203861"}, 
+		{ 256, 36, 1024, "34359754753", "9616667887"}, // test 8590058497, 4260165125
+		{ 512, 35, 1024, "17179898881", "7826325759"},
+		{ 1024, 36, 1024, "34359754753", "9616667887"}
 	};	
 
 	for(usint i = 0; i < 10; i++){
-		IBE_Test(10, ibe_params[i].base, ibe_params[i].ringDimension, ibe_params[i].q, true); //iter. ring dimension, k, bool offline
+		IBE_Test(1000, ibe_params[i].base, ibe_params[i].ringDimension, ibe_params[i].q, ibe_params[i].modulus, ibe_params[i].rootOfUnity, true); //iter. ring dimension, k, bool offline
 	}	
 
 	std::cout << "-------End demo for IBE-------" << std::endl << std::endl;
 
+/*
+	BigInteger q = BigInteger::ONE;
+	q = lbcrypto::FirstPrime<BigInteger>(36,1024);
+	BigInteger rootOfUnity(RootOfUnity(1024, q));
+	std::cout << "q:" << q << std::endl;
+	std::cout << "root of unity:" << rootOfUnity << std::endl;*/
+
 	return 0;
 }
 
-int IBE_Test(int iter, int32_t base, usint ringDimension, usint k, bool offline)
+int IBE_Test(int iter, int32_t base, usint ringDimension, usint k, BigInteger q, BigInteger rootOfUnity, bool offline)
 {
 
 	usint n = ringDimension*2;
 
-	BigInteger q = BigInteger::ONE << (k-1);
-	q = lbcrypto::FirstPrime<BigInteger>(k,n);
-	BigInteger rootOfUnity(RootOfUnity(n, q));
+    q = lbcrypto::FirstPrime<BigInteger>(k,n);
+	rootOfUnity  = RootOfUnity(n, q);
 
 	double val = q.ConvertToDouble();
 	double logTwo = log(val-1.0)/log(base)+1.0;
@@ -115,22 +120,17 @@ int IBE_Test(int iter, int32_t base, usint ringDimension, usint k, bool offline)
 	auto pubElemA = pkg.Setup(ilParams, base, dug);
 	finish = currentDateTime();
 	std::cout << "Setup time : " << "\t" << (finish - start) << " ms" << std::endl;
-
 	sender.Setup(ilParams, base);
 	receiver.Setup(ilParams, base);
-
 	// Secret key for the output of the circuit
 	RingMat sk(zero_alloc, m, 1);
-
 	// plain text in $R_2$
 	Poly ptext(ilParams, COEFFICIENT, true);
 	// text after the decryption
 	Poly dtext(ilParams, EVALUATION, true);
-
 	// ciphertext first and second parts
 	RingMat ctC0(Poly::MakeAllocator(ilParams, EVALUATION), 1, m);
 	Poly ctC1(dug, ilParams, EVALUATION);
-
 	int failure = 0;
 	avg_keygen_online = avg_keygen_offline = avg_enc = avg_dec = 0.0;
 
@@ -139,9 +139,7 @@ int IBE_Test(int iter, int32_t base, usint ringDimension, usint k, bool offline)
 	//	std::cout << "Iter no. " << i << std::endl;
 
 		Poly u(dug, ilParams, EVALUATION);
-
 		shared_ptr<RingMat> perturbationVector;
-		
 		if(offline){
 			start = currentDateTime();
 			perturbationVector = pkg.KeyGenOffline(pubElemA.first, u, pubElemA.second, dgg);
@@ -151,10 +149,12 @@ int IBE_Test(int iter, int32_t base, usint ringDimension, usint k, bool offline)
 
 		start = currentDateTime();
 		
-		if(!offline)
-			pkg.KeyGen(pubElemA.first, u, pubElemA.second, dgg, &sk);
-		else
-			pkg.KeyGenOnline(pubElemA.first, u, pubElemA.second, dgg, perturbationVector, &sk);
+		if(!offline){
+			pkg.KeyGen(pubElemA.first, u, pubElemA.second, dgg, &sk);}
+		else{
+			pkg.KeyGenOnline(pubElemA.first, u, pubElemA.second, dgg, perturbationVector, &sk); 
+			
+		}
 		
 		finish = currentDateTime();
 		avg_keygen_online += (finish - start);
