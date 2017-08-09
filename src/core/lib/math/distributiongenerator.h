@@ -63,7 +63,9 @@ public:
 
 private:
 	static std::once_flag 					m_flag;
+	#pragma omp threadprivate(m_flag)
 	static std::shared_ptr<std::mt19937> 	m_prng;
+	#pragma omp threadprivate(m_prng)
 };
 
 // Base class for Distribution Generator by type

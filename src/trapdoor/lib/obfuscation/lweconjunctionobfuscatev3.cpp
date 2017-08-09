@@ -402,7 +402,7 @@ shared_ptr<Matrix<Element>> LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 
 	//DBC: this loop takes all the time in encode
 	//TODO (dcousins): move gaussj generation out of the loop to enable parallelisation
-	#pragma omp parallel for
+	#pragma omp parallel for schedule(dynamic)
 	for(size_t i=0; i<m; i++) {
 
 	  // the following takes approx 250 msec
