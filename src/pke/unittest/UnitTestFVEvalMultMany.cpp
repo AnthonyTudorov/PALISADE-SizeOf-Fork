@@ -49,10 +49,8 @@ protected:
 public:
 };
 
-//FIXME I think all of these operations are duplicated in other unit test files, so perhaps this entire file can be deleted
-
-//Tests EvalAdd, EvalSub, and EvalMul operations for FV in the RLWE mode
-TEST(UTFV, Poly_FV_Eval_Mult_Many_Operations) {
+//Tests EvalMult w/o keyswitching and EvalMultMany for FV in the RLWE mode
+TEST(UTFVEVALMM, Poly_FV_Eval_Mult_Many_Operations) {
 
 	int relWindow = 1;
 	int plaintextModulus = 256;
