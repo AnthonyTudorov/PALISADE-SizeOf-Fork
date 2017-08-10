@@ -77,9 +77,6 @@ int main(int argc, char *argv[]) {
 	std::cout << "n = " << cryptoContext->GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
 	std::cout << "log2 q = " << log2(cryptoContext->GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
 
-	//std::cout << "Press any key to continue." << std::endl;
-	//std::cin.get();
-
 	// Initialize Public Key Containers
 	LPKeyPair<Poly> keyPair;
 
@@ -347,7 +344,6 @@ int main(int argc, char *argv[]) {
 	cipherTextList->push_back(ciphertext4[0]);
 	cipherTextList->push_back(ciphertext5[0]);
 
-//	ciphertextMul1234567 = EvalMultManyH(cryptoContext, evalKeys, ciphertext1[0], ciphertext2[0]);
 	ciphertextMul1234567 = cryptoContext->GetEncryptionAlgorithm()->EvalMultMany(cipherTextList, evalKeys);
 
 	vector<shared_ptr<Ciphertext<Poly>>> ciphertextMulVect8;
@@ -358,8 +354,6 @@ int main(int argc, char *argv[]) {
 	plaintextMul7.resize(plaintext1.size());
 
 	cout << plaintextMul7 << endl;
-
-
 
 	std::cout << "Execution Completed." << std::endl;
 

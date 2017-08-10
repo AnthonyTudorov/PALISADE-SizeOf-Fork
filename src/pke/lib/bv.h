@@ -381,8 +381,8 @@ namespace lbcrypto {
 		/**
 		* Unimplemented function to support multiplication of a list of ciphertexts with depth larger than 2 for the BV scheme.
 		*
-		* @param evalKey The evaluation key input.
 		* @param cipCount is the number of input ciphertext.
+		* @param evalKey The evaluation key input.
 		* @return A shared pointer to the ciphertext which is the result of the multiplication.
 		*/
 		shared_ptr<Ciphertext<Element>> EvalMultMany(const shared_ptr<vector<shared_ptr<Ciphertext<Element>>>> cipherTextList, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> evalKeys) const {

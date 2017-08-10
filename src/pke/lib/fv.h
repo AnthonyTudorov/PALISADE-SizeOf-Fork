@@ -471,7 +471,8 @@ namespace lbcrypto {
 
 		/**
 		* Function for homomorphic evaluation of ciphertexts.
-		* Currently it assumes that the input arguments are fresh ciphertexts (of depth 1). Support for the input ciphertexts of higher depths will be added later.
+		* The multiplication is supported for a fixed level without keyswitching requirement (default level=2).
+		* If the total depth of the ciphertexts exceeds the supported level, it throws an error.
 		*
 		* @param ciphertext1 first input ciphertext.
 		* @param ciphertext2 second input ciphertext.
@@ -508,10 +509,9 @@ namespace lbcrypto {
 		* multiplication in a binary tree manner. Also, it reduces the number of elements in the ciphertext to two after each multiplication.
 		* Currently it assumes that the consecutive two input arguments have total depth smaller than the supported depth. Otherwise, it throws an error.
 		*
-		* @param ek is the evaluation key to make the newCiphertext
+		* @param cipherTextList  is the ciphertext list.
+		* @param evalKeys is the evaluation key to make the newCiphertext
 		*  decryptable by the same secret key as that of ciphertext list.
-  		* @param cipCount is the number of ciphertext in the argument list.
-		* @param args  is the ciphertext list.
 		* @param *newCiphertext the new resulting ciphertext.
 		*/
 		shared_ptr<Ciphertext<Element>> EvalMultMany(const shared_ptr<vector<shared_ptr<Ciphertext<Element>>>> cipherTextList, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> evalKeys) const;

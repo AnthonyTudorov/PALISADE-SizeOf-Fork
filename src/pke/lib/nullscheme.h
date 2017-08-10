@@ -599,8 +599,8 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		/**
 		* Unimplemented function to support multiplication of a list of ciphertexts with depth larger than 2 for the NULL scheme.
 		*
-		* @param evalKey The evaluation key input.
-		* @param cipCount is the number of input ciphertext.
+		* @param cipherTextList is the ciphertext list input.
+		* @param evalKeys is the evaluation key list input.
 		* @return A shared pointer to the ciphertext which is the result of the multiplication.
 		*/
 		shared_ptr<Ciphertext<Element>> EvalMultMany(const shared_ptr<vector<shared_ptr<Ciphertext<Element>>>> cipherTextList, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> evalKeys) const {
@@ -701,7 +701,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		* Currently it is not supported.
 		*
 		* @param &newPrivateKey private key for the new ciphertext.
-		* @param *keySwitchHint the key switch hint.
+		* @param *keySwitchHint the key switch hint list.
 		*/
 		shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> EvalMultKeysGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const {
 				std::string errMsg = "LPAlgorithmSHENULL::EvalMultKeysGen is not implemented for NULL SHE Scheme.";

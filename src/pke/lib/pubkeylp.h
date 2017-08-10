@@ -1253,10 +1253,9 @@ namespace lbcrypto {
 		/**
 		* Virtual function for evaluating multiplication of a ciphertext list which each multiplication is followed by relinearization operation.
 		*
-		* @param ek is the evaluation key to make the newCiphertext
+		* @param cipherTextList  is the ciphertext list.
+		* @param evalKeys is the evaluation key to make the newCiphertext
 		*  decryptable by the same secret key as that of ciphertext list.
-  		* @param cipCount is the number of ciphertext in the argument list.
-		* @param args  is the ciphertext list.
 		* @param *newCiphertext the new resulting ciphertext.
 		*/
 		virtual shared_ptr<Ciphertext<Element>> EvalMultMany(const shared_ptr<vector<shared_ptr<Ciphertext<Element>>>> cipherTextList, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> evalKeys) const = 0;

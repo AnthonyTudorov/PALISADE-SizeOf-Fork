@@ -665,7 +665,6 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared
 	for(size_t i=0; i<cipherText2ElementsSize; i++)
 		cipherText2Elements[i].SwitchFormat();
 
-	//TODO: Check if initial Element is zero. If so, there is no need for boolean.
 	bool isFirstAdd[cipherTextRElementsSize];
 	std::fill_n(isFirstAdd, cipherTextRElementsSize, true);
 
@@ -692,12 +691,6 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared
 	//switch the modulus back to the original value
 	for(size_t i=0; i<cipherTextRElementsSize; i++)
 		c[i].SwitchModulus(q, elementParams->GetRootOfUnity(), elementParams->GetBigModulus(), elementParams->GetBigRootOfUnity());
-
-	//converts the ciphertext elements back to evaluation representation
-	//TODO: Originally EvalMult returns coeff format and KeySwitch converts it to evaluation format.
-	//However, Since we call EvalMult many times we need to store everything in eval format.
-//	for(size_t i=0; i<cipherTextRElementsSize; i++)
-//		c[i].SwitchFormat();
 
 	newCiphertext->SetElements(c);
 	newCiphertext->SetDepth((ciphertext1->GetDepth() + ciphertext2->GetDepth()));

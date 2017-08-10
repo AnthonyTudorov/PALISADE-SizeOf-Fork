@@ -525,7 +525,7 @@ public:
 	*
 	* @param ciphertext1 The first input ciphertext.
 	* @param ciphertext2 The second input ciphertext.
-	* @param evalKey The evaluation key input.
+	* @param ek is the evaluation keys input.
 	* @return A shared pointer to the ciphertext which is the EvalMult of the two inputs.
 	*/
 	shared_ptr<Ciphertext<Element>> EvalMultAndRelinearize(const shared_ptr<Ciphertext<Element>> ciphertext1,
@@ -538,8 +538,8 @@ public:
 	/**
 	* Unimplemented function to support multiplication of a list of ciphertexts with depth larger than 2 for the LTV scheme.
 	*
-	* @param evalKey The evaluation key input.
-	* @param cipCount is the number of input ciphertext.
+	* @param cipherTextList is the input ciphertexts.
+	* @param evalKey is the evaluation keys input.
 	* @return A shared pointer to the ciphertext which is the result of the multiplication.
 	*/
 	shared_ptr<Ciphertext<Element>> EvalMultMany(const shared_ptr<vector<shared_ptr<Ciphertext<Element>>>> cipherTextList, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> evalKeys) const {
