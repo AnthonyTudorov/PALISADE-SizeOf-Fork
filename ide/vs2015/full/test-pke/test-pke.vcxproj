@@ -176,6 +176,7 @@
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestEvalLinearRegression.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestEvalSum.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestFV.cpp" />
+    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestFVEvalMultMany.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestMultiparty.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestPRE.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestSerializePKE.cpp" />
