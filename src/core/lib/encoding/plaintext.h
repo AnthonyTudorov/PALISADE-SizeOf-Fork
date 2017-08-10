@@ -29,6 +29,7 @@
 #include <vector>
 #include <initializer_list>
 #include <iostream>
+#include "encodingparams.h"
 #include "../utils/inttypes.h"
 #include "../math/backend.h"
 #include "../lattice/elemparams.h"
@@ -50,8 +51,21 @@ namespace lbcrypto
  */
 class Plaintext
 {
+private:
+	enum VectorType { UNKNOWN, USING_POLY, USING_DCRT }		vectorType;
+	bool											isEncoded;
+	Poly											polyVector;
+	DCRTPoly										DCRTVector;
+	shared_ptr<EncodingParams>					encodingParams;
+
 public:
+	Plaintext() : vectorType(UNKNOWN), isEncoded(false) {}
+
 	virtual ~Plaintext() {}
+
+	VectorType GetVectorType() const { return vectorType; }
+
+	bool IsEncoded() const { return isEncoded; }
 
 	/**
 	 * Interface for the operation of converting from current plaintext encoding to Poly.
