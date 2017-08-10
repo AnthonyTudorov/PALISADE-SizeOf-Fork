@@ -28,13 +28,14 @@
     <ClCompile Include="..\..\..\..\src\trapdoor\unittest\UnitTestTrapdoor.cpp" />
     <ClCompile Include="..\..\..\..\src\core\unittest\Main_TestAll.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestMultiparty.cpp" />
-    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestSerialize.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestAutomorphism.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestEvalSum.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestEvalInnerProduct.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestEvalCrossCorrelation.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestEvalLinearRegression.cpp" />
     <ClCompile Include="..\..\..\..\src\trapdoor\unittest\UnitTestABE.cpp" />
+    <ClCompile Include="..\..\..\..\src\core\unittest\UnitTestSerialize.cpp" />
+    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestSerializePKE.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\test\include\gtest\gtest.h" />

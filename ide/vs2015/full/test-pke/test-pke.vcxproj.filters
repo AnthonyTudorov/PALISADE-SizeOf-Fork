@@ -16,11 +16,11 @@
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestStatisticalEval.cpp" />
     <ClCompile Include="..\..\..\..\test\include\gtest\gtest-all.cc" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestMultiparty.cpp" />
-    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestSerialize.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestAutomorphism.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestEvalSum.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestEvalInnerProduct.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestEvalCrossCorrelation.cpp" />
     <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestEvalLinearRegression.cpp" />
+    <ClCompile Include="..\..\..\..\src\pke\unittest\UnitTestSerializePKE.cpp" />
   </ItemGroup>
 </Project>
