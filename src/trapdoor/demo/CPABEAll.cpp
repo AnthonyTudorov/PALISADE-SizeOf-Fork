@@ -30,13 +30,13 @@ int main()
 		{ 2, 31, 1024, "1073750017", "87849761"}, 
 		{ 4, 31, 1024, "1073750017", "143852881"},
 		{ 8, 31, 1024, "1073750017", "572531104"},
-		{ 16, 31, 1024, "1073750017", "708202841"},
-		{ 32, 32, 1024, "2147577857", "1347467842"},
+		{ 16, 32, 1024, "2147577857", "1347467842"},
+		{ 32, 33, 1024, "4295688193", "2328426645"},
 		{ 64, 33, 1024, "4295688193", "2328426645"}, 
 		{ 128, 34, 1024, "8590151681", "7863638704"}, 
 		{ 256, 36, 1024, "34359771137", "23564286758"}, 
-		{ 512, 35, 1024, "17180006401", "10612379958"},
-		{ 1024, 36, 1024, "34359771137", "28928837318"}
+		{ 512, 36, 1024, "34359771137", "23564286758"},
+		{ 1024, 37, 1024, "68719484929", "25395964250"}
 	};	
 
 	usint ell[] = { 6, 8, 16, 20, 32 }; 
@@ -44,11 +44,10 @@ int main()
 		BigInteger modulus(cpabe_params[i].modulus);
 		BigInteger rootOfUnity(cpabe_params[i].rootOfUnity);
 		for(usint j = 0; j < 5; j++){
-			CPABE_Test(10, cpabe_params[i].base, cpabe_params[i].ringDimension, cpabe_params[i].q, ell[j], modulus, rootOfUnity, true);
+			CPABE_Test(2000, cpabe_params[i].base, cpabe_params[i].ringDimension, cpabe_params[i].q, ell[j], modulus, rootOfUnity, true);
 		}
 	}	
 	std::cout << "-------End demo for CP-ABE-------" << std::endl << std::endl;
-
 
 	return 0;
 }
@@ -57,8 +56,12 @@ int main()
 
 int CPABE_Test(int iter, int32_t base, usint ringDimension, usint k, usint ell, BigInteger q, BigInteger rootOfUnity, bool offline)
 {
-	
+//	k = 36;
 	usint n = ringDimension*2;
+
+//	q = BigInteger::ONE << (k-1);
+//	q = lbcrypto::FirstPrime<BigInteger>(k,n);
+//	rootOfUnity = (RootOfUnity(n, q));
 	
 	double val = q.ConvertToDouble();
 	double logTwo = log(val-1.0)/log(base)+1.0;
