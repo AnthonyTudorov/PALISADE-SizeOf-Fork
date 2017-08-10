@@ -184,7 +184,7 @@ TEST(UTSer,ilparams_test) {
 
 
 TEST(UTSer,ildcrtparams_test) {
-	shared_ptr<ILDCRTParams<BigInteger>> p = GenerateDCRTParams(1024, 64, 5, 40);
+	shared_ptr<ILDCRTParams<BigInteger>> p = GenerateDCRTParams(1024, 64, 5, 30);
 	Serialized ser;
 	ser.SetObject();
 	ASSERT_TRUE( p->Serialize(&ser) ) << "Serialization failed";
@@ -212,7 +212,7 @@ TEST(UTSer,ilvector_test) {
 }
 
 TEST(UTSer,ildcrtpoly_test) {
-	shared_ptr<ILDCRTParams<BigInteger>> p = GenerateDCRTParams(1024, 64, 5, 40);
+	shared_ptr<ILDCRTParams<BigInteger>> p = GenerateDCRTParams(1024, 64, 5, 30);
 	DCRTPoly::DugType dug;
 	DCRTPoly vec(dug, p);
 

@@ -847,21 +847,25 @@ bool PolyImpl<ModType,IntType,VecType,ParmType>::InverseExists() const
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 double PolyImpl<ModType,IntType,VecType,ParmType>::Norm() const
 {
-		double retVal = 0.0;
-		double locVal = 0.0;
-		double q = m_params->GetModulus().ConvertToDouble();
+	IntType locVal;
+	IntType retVal;
+	const IntType &q = m_params->GetModulus();
+	const IntType &half = m_params->GetModulus() >> 1;
 
-		for (usint i = 0; i < GetValues().GetLength(); i++) {
-		if (m_values->GetValAtIndex(i) > (m_params->GetModulus() >> 1)) {
-				locVal = q - (m_values->GetValAtIndex(i)).ConvertToDouble();
-		} else
-				locVal = (m_values->GetValAtIndex(i)).ConvertToDouble();
+	for (usint i = 0; i < GetValues().GetLength(); i++) {
+		if (m_values->GetValAtIndex(i) > half) 
+			locVal = q - m_values->GetValAtIndex(i);
+		else
+			locVal = m_values->GetValAtIndex(i);
 
-			if (locVal > retVal)
-				retVal = locVal;
+		if (locVal > retVal)
+			retVal = locVal;
 		}
-		return retVal;
+
+	return retVal.ConvertToDouble();
+
 	}
+
 
 	// Write vector x(current value of the PolyImpl object) as \sum\limits{ i = 0 }^{\lfloor{ \log q / base } \rfloor} {(base^i u_i)} and
 	// return the vector of{ u_0, u_1,...,u_{ \lfloor{ \log q / base } \rfloor } } \in R_base^{ \lceil{ \log q / base } \rceil };

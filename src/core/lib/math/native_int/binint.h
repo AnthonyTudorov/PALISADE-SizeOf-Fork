@@ -719,6 +719,7 @@ public:
 
 	/**
 	* Scalar modular multiplication where Barrett modular reduction is used - In-place version
+	* Only used inside BigVector - it assumes that both multiplicands are already smaller than the modulus
 	* Implements generalized Barrett modular reduction algorithm (no interleaving between multiplication and modulo).
 	* Uses one precomputed value \mu.
 	* See the cpp file for details of the implementation.
@@ -729,7 +730,7 @@ public:
 	* @return is the result of the modulus multiplication operation.
 	*/
 	void ModBarrettMulInPlace(const NativeInteger& b, const NativeInteger& modulus, const NativeInteger& mu) {
-		*this = this->ModMul(b,modulus);
+		*this = this->ModMulFast(b,modulus);
 		return;
 	}
 

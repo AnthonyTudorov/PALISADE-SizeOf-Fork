@@ -166,7 +166,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::ParamsGen(typename Element::Dg
 	double alpha = 144;
 
 	//empirical parameter
-	double beta = 6.0;
+	double beta = 3.0;
 
 	//Bound of the Gaussian error Elementnomial
 	double Berr = sigma*sqrt(alpha);
@@ -386,13 +386,14 @@ shared_ptr<Matrix<Element>> LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 	//DBC all the following have insignificant timing
 	Matrix<Element> ej(zero_alloc, 1, m); 
 
+	#pragma omp parallel for
 	for(size_t i=0; i<m; i++) {
 		ej(0,i) = Element(dggEncoding, elemS.GetParams(), COEFFICIENT);
 		//ej(0,i).SetValues(dggEncoding.GenerateVector(n,modulus),COEFFICIENT);
 		ej(0,i).SwitchFormat();
 	}
 
-	Matrix<Element> bj = Aj.ScalarMult(elemS) + ej;
+	const Matrix<Element> &bj = Aj.ScalarMult(elemS) + ej;
 
 	//std::cout << "Encode: Computed bj, next will do GaussSamp" << std::endl; 
 	TIC(t1);	
@@ -401,11 +402,11 @@ shared_ptr<Matrix<Element>> LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 
 	//DBC: this loop takes all the time in encode
 	//TODO (dcousins): move gaussj generation out of the loop to enable parallelisation
-	#pragma omp parallel for
+	#pragma omp parallel for schedule(dynamic)
 	for(size_t i=0; i<m; i++) {
 
 	  // the following takes approx 250 msec
-		Matrix<Element> gaussj = RLWETrapdoorUtility<Element>::GaussSamp(n,k,Ai,Ti,bj(0,i), dgg, dggLargeSigma, base);
+		const Matrix<Element> &gaussj = RLWETrapdoorUtility<Element>::GaussSamp(n,k,Ai,Ti,bj(0,i), dgg, dggLargeSigma, base);
 //		gaussj(0, 0).PrintValues();
 //		gaussj(1, 0).PrintValues();
 		// the following takes no time
@@ -572,16 +573,16 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 
 		TIC(t1);
 
-		std::vector<shared_ptr<Matrix<Element>>> SVector;
-		std::vector<shared_ptr<Matrix<Element>>> RVector;
+		std::vector<shared_ptr<Matrix<Element>>> SVector(chunkExponent);
+		std::vector<shared_ptr<Matrix<Element>>> RVector(chunkExponent);
 
 		for(usint k=0; k<chunkExponent; k++) {
 
 			shared_ptr<Matrix<Element>> S_i = this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],s_small[i-1][k]*r_small[i-1][k],dgg, dggLargeSigma, dggEncoding, base);
-			SVector.push_back(S_i);
+			SVector[k] = S_i;
 
 			shared_ptr<Matrix<Element>> R_i = this->Encode(Pk_vector[i-1],Pk_vector[i],Ek_vector[i-1],r_small[i-1][k],dgg, dggLargeSigma,dgg, base);
-			RVector.push_back(R_i);
+			RVector[k] = R_i;
 
 		}
 
