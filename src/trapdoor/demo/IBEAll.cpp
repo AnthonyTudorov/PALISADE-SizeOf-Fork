@@ -38,7 +38,9 @@ int main()
 	};	
 
 	for(usint i = 0; i < 10; i++){
-		IBE_Test(100, ibe_params[i].base, ibe_params[i].ringDimension, ibe_params[i].q, ibe_params[i].modulus, ibe_params[i].rootOfUnity, true); //iter. ring dimension, k, bool offline
+		BigInteger modulus(ibe_params[i].modulus);
+		BigInteger rootOfUnity(ibe_params[i].rootOfUnity);
+		IBE_Test(100, ibe_params[i].base, ibe_params[i].ringDimension, ibe_params[i].q, modulus, rootOfUnity, true); //iter. ring dimension, k, bool offline
 	}	
 
 	std::cout << "-------End demo for IBE-------" << std::endl << std::endl; 
