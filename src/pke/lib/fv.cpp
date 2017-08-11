@@ -665,7 +665,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared
 	for(size_t i=0; i<cipherText2ElementsSize; i++)
 		cipherText2Elements[i].SwitchFormat();
 
-	bool isFirstAdd[cipherTextRElementsSize];
+	bool *isFirstAdd = new bool[cipherTextRElementsSize];
 	std::fill_n(isFirstAdd, cipherTextRElementsSize, true);
 
 	for(size_t i=0; i<cipherText1ElementsSize; i++){
@@ -680,6 +680,8 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared
 			}
 		}
 	}
+
+	delete []isFirstAdd;
 
 	//converts to coefficient representation before rounding
 	for(size_t i=0; i<cipherTextRElementsSize; i++)
