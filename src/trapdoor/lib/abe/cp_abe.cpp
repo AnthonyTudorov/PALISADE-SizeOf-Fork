@@ -251,7 +251,6 @@ namespace lbcrypto {
 		const Poly &ptext,
 		DiscreteGaussianGenerator &dgg, // to generate error terms (Gaussian)
 		DiscreteUniformGenerator &dug,  // select according to uniform distribution
-		BinaryUniformGenerator &bug,    // select according to uniform distribution binary
 		RingMat *ctW,
 		RingMat *cPos,
 		RingMat *cNeg,
@@ -327,7 +326,6 @@ namespace lbcrypto {
 	 * and yields the decrypted plaintext in COEFFICIENT form
 	 */
 	void CPABE::Decrypt(
-		const shared_ptr<ILParams> ilParams,
 		const int w[],                // Access structure {-1, 0, 1}
 		const usint s[],                // Users attributes {0, 1}
 		const RingMat &sk,

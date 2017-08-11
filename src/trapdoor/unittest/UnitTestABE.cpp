@@ -70,7 +70,7 @@ void UnitTestCPABE(int32_t base, usint k, usint ringDimension){
 
 			double val = q.ConvertToDouble();
 			double logTwo = log(val-1.0)/log(base)+1.0;
-			size_t k_ = (usint) floor(logTwo) + 1;  /* (+1) is For NAF */
+			size_t k_ = (usint) floor(logTwo);  
 
 			usint m = k_+2;
 
@@ -173,10 +173,10 @@ void UnitTestCPABE(int32_t base, usint k, usint ringDimension){
 				ptext.SetValues(bug.GenerateVector(ringDimension, q), COEFFICIENT);
 				ptext.SwitchFormat();
 
-				EXPECT_NO_THROW(sender.Encrypt(ilParams, trapdoor.first, pubElemBPos, pubElemBNeg, u, w, ptext, dgg, dug, bug, &ctW, &ctCPos, &nC, &c1));
+				EXPECT_NO_THROW(sender.Encrypt(ilParams, trapdoor.first, pubElemBPos, pubElemBNeg, u, w, ptext, dgg, dug, &ctW, &ctCPos, &nC, &c1));
 
 
-				EXPECT_NO_THROW(receiver.Decrypt(ilParams, w, s, sk, ctW, ctCPos, nC, c1, &dtext));
+				EXPECT_NO_THROW(receiver.Decrypt(w, s, sk, ctW, ctCPos, nC, c1, &dtext));
 
 				ptext.SwitchFormat();
 
@@ -285,7 +285,7 @@ void UnitTestIBE(int32_t base, usint k, usint ringDimension){
 
 	double val = q.ConvertToDouble();
 	double logTwo = log(val-1.0)/log(base)+1.0;
-	size_t k_ = (usint) floor(logTwo) + 1;  /* (+1) is For NAF */
+	size_t k_ = (usint)floor(logTwo);
 
 	usint m = k_+2;
 

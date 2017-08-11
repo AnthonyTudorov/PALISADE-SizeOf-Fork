@@ -179,13 +179,13 @@ int CPABE_Test(int iter, int32_t base, usint ringDimension, usint k, usint ell, 
 		ptext.SwitchFormat();
 
 		start = currentDateTime();
-		sender.Encrypt(ilParams, trapdoor.first, pubElemBPos, pubElemBNeg, u, w, ptext, dgg, dug, bug, &ctW, &ctCPos, &nC, &c1);
+		sender.Encrypt(ilParams, trapdoor.first, pubElemBPos, pubElemBNeg, u, w, ptext, dgg, dug, &ctW, &ctCPos, &nC, &c1);
 		finish = currentDateTime();
 		avg_enc += (finish - start);
 	//	std::cout << "Encryption time : " << "\t" << (finish - start) << " ms" << std::endl;
 
 		start = currentDateTime();
-		receiver.Decrypt(ilParams, w, s, sk, ctW, ctCPos, nC, c1, &dtext);
+		receiver.Decrypt(w, s, sk, ctW, ctCPos, nC, c1, &dtext);
 		finish = currentDateTime();
 		avg_dec += (finish - start);
 	//	std::cout << "Decryption time : " << "\t" << (finish - start) << " ms" << std::endl;
