@@ -210,7 +210,7 @@ namespace lbcrypto {
 	// c - vector of field elements in Coefficient format
 	template <class Element>
 	void LatticeGaussSampUtility<Element>::ZSampleSigma2x2(const Field2n &a, const Field2n &b,
-		const Field2n &d, const Matrix<Field2n> &c, const typename Element::DggType & dgg, shared_ptr<Matrix<int32_t>> q) {
+		const Field2n &d, const Matrix<Field2n> &c, const typename Element::DggType & dgg, shared_ptr<Matrix<int64_t>> q) {
 
 			//size of the the lattice
 		    size_t n = a.Size();
@@ -219,7 +219,7 @@ namespace lbcrypto {
 			//Converts to coefficient representation
 			dCoeff.SwitchFormat();
 
-			shared_ptr<Matrix<int32_t>> q2Int  = ZSampleF(dCoeff,c(1,0),dgg,n);
+			shared_ptr<Matrix<int64_t>> q2Int  = ZSampleF(dCoeff,c(1,0),dgg,n);
 			Field2n q2(*q2Int);
 			
 			Field2n q2Minusc2 = q2 - c(1, 0);
@@ -237,7 +237,7 @@ namespace lbcrypto {
 			//Convert to coefficient representation
 			f.SwitchFormat();
 
-			shared_ptr<Matrix<int32_t>> q1Int = ZSampleF(f, c1, dgg, n);
+			shared_ptr<Matrix<int64_t>> q1Int = ZSampleF(f, c1, dgg, n);
 
 			for (size_t i = 0; i < q1Int->GetRows(); i++) {
 				(*q)(i, 0) = (*q1Int)(i,0);
@@ -253,12 +253,13 @@ namespace lbcrypto {
 	//f is in Coefficient representation
 	//c is in Coefficient representation
 	template <class Element>
-	shared_ptr<Matrix<int32_t>> LatticeGaussSampUtility<Element>::ZSampleF(const Field2n &f, const Field2n &c,
+	shared_ptr<Matrix<int64_t>> LatticeGaussSampUtility<Element>::ZSampleF(const Field2n &f, const Field2n &c,
 		const typename Element::DggType &dgg, size_t n) {
 
 		if (f.Size() == 1)
 		{
-			shared_ptr<Matrix<int32_t>> p(new Matrix<int32_t>([]() { return make_unique<int32_t>(); }, 1, 1));
+			shared_ptr<Matrix<int64_t>> p(new Matrix<int64_t>([]() { return make_unique<int64_t>(); }, 1, 1));
+			//std::cout << "sigma = " << sqrt(f[0].real()) << "; c = " << c[0].real() << std::endl;
 			(*p)(0, 0) = dgg.GenerateIntegerKarney(c[0].real(), sqrt(f[0].real()));
 			//p(0, 0) = dgg.GenerateInteger(c[0].real(), sqrt(f[0].real()),n);
 			return p;
@@ -274,7 +275,7 @@ namespace lbcrypto {
 
 			usint n = f0.Size();
 
-			shared_ptr<Matrix<int32_t>> qZVector(new Matrix<int32_t>([]() { return make_unique<int32_t>(); },  n * 2, 1));
+			shared_ptr<Matrix<int64_t>> qZVector(new Matrix<int64_t>([]() { return make_unique<int64_t>(); },  n * 2, 1));
 
 			Matrix<Field2n> cPermuted([]() { return make_unique<Field2n>(); }, 2, 1);
 
@@ -310,13 +311,13 @@ namespace lbcrypto {
 	}
 
 	template <class Element>
-	void LatticeGaussSampUtility<Element>::InversePermute(shared_ptr<Matrix<int32_t>> p)
+	void LatticeGaussSampUtility<Element>::InversePermute(shared_ptr<Matrix<int64_t>> p)
 	{
 
 		// a vector of int32_t is used for intermediate storage because it is faster
 		// than a Matrix of unique pointers to int32_t
 
-		std::vector<int32_t> vectorPermuted(p->GetRows());
+		std::vector<int64_t> vectorPermuted(p->GetRows());
 
 		size_t evenPtr = 0;
 		size_t oddPtr = vectorPermuted.size() / 2;

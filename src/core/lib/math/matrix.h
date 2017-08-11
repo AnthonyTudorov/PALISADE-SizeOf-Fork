@@ -637,7 +637,7 @@ namespace lbcrypto {
 	* @return the resulting matrix of Poly
     */ 
 	template<typename Element>
-    Matrix<Element> SplitInt32IntoElements(Matrix<int32_t> const& other, size_t n, const shared_ptr<typename Element::Params> params);
+    Matrix<Element> SplitInt64IntoElements(Matrix<int64_t> const& other, size_t n, const shared_ptr<typename Element::Params> params);
 
 	/**
     * Another method for splitting a vector of int32_t into a vector of ring elements with ring dimension n

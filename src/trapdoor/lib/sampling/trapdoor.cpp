@@ -303,11 +303,14 @@ namespace lbcrypto {
 		b.SwitchFormat();
 		d.SwitchFormat();
 
-		Matrix<int32_t> p2ZVector([]() { return make_unique<int32_t>(); }, n*k, 1);
+		Matrix<int64_t> p2ZVector([]() { return make_unique<int64_t>(); }, n*k, 1);
 
-		double sigmaLarge = dggLargeSigma.GetStd();
+		double sigmaLarge = sqrt(s * s - sigma * sigma);
 
 		if (sigmaLarge > 3e5) {
+
+			//std::cout << "sigmaLarge = " << sigmaLarge << std::endl;
+			//std::cin.get();
 
 			//Karney rejection method
 			for (size_t i = 0; i < n * k; i++) {
@@ -327,7 +330,7 @@ namespace lbcrypto {
 		}
 
 		//create k ring elements in coefficient representation
-		Matrix<Element> p2 = SplitInt32IntoElements<Element>(p2ZVector, n, va.GetParams());
+		Matrix<Element> p2 = SplitInt64IntoElements<Element>(p2ZVector, n, va.GetParams());
 
 		//now converting to evaluation representation before multiplication
 		p2.SwitchFormat();
@@ -345,12 +348,12 @@ namespace lbcrypto {
 		c(0, 0) = Field2n(Tp2(0, 0)).ScalarMult(-sigma * sigma / (s * s - sigma * sigma));
 		c(1, 0) = Field2n(Tp2(1, 0)).ScalarMult(-sigma * sigma / (s * s - sigma * sigma));
 
-		shared_ptr<Matrix<int32_t>> p1ZVector(new Matrix<int32_t>([]() { return make_unique<int32_t>(); }, n * 2, 1));
+		shared_ptr<Matrix<int64_t>> p1ZVector(new Matrix<int64_t>([]() { return make_unique<int64_t>(); }, n * 2, 1));
 
 		LatticeGaussSampUtility<Element>::ZSampleSigma2x2(a, b, d, c, dgg, p1ZVector);
 
 		//create 2 ring elements in coefficient representation
-		Matrix<Element> p1 = SplitInt32IntoElements<Element>(*p1ZVector, n, va.GetParams());
+		Matrix<Element> p1 = SplitInt64IntoElements<Element>(*p1ZVector, n, va.GetParams());
 
 		//Converts p1 to Evaluation representation
 		p1.SwitchFormat();

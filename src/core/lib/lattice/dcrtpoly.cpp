@@ -579,6 +579,29 @@ DCRTPolyImpl<ModType, IntType, VecType, ParmType>& DCRTPolyImpl<ModType, IntType
 
 // Used only inside a Matrix object; so an allocator already initializes the values
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
+DCRTPolyImpl<ModType, IntType, VecType, ParmType>& DCRTPolyImpl<ModType, IntType, VecType, ParmType>::operator=(std::vector<int64_t> val)
+{
+	if (!IsEmpty()) {
+		for (usint i = 0; i < m_vectors.size(); i++) {
+			m_vectors[i] = val;
+		}
+	}
+	else {
+		for (usint i = 0; i<m_vectors.size(); i++) {
+			native_int::BigVector temp(m_params->GetRingDimension());
+			temp.SetModulus(m_vectors.at(i).GetModulus());
+			m_vectors.at(i).SetValues(std::move(temp), m_format);
+			m_vectors[i] = val;
+		}
+	}
+
+	m_format = COEFFICIENT;
+
+	return *this;
+}
+
+// Used only inside a Matrix object; so an allocator already initializes the values
+template<typename ModType, typename IntType, typename VecType, typename ParmType>
 DCRTPolyImpl<ModType, IntType, VecType, ParmType>& DCRTPolyImpl<ModType, IntType, VecType, ParmType>::operator=(std::vector<int32_t> val)
 {
 	if (!IsEmpty()) {
@@ -599,6 +622,7 @@ DCRTPolyImpl<ModType, IntType, VecType, ParmType>& DCRTPolyImpl<ModType, IntType
 
 	return *this;
 }
+
 
 /*SCALAR OPERATIONS*/
 
