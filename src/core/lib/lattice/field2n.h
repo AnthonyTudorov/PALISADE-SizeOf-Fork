@@ -72,7 +72,7 @@ public:
 	 * @brief Constructor from a ring element matrix
 	 * @param &element ring element matrix
 	 */
-	explicit Field2n(const Matrix<int32_t> & element);
+	explicit Field2n(const Matrix<int64_t> & element);
 
 	/**
 	 * @brief Method for getting the format/representation of the element

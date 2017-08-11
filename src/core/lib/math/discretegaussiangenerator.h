@@ -155,7 +155,7 @@ public:
 	* @param stddev standard deviation of discrete Gaussian distribution.
 	* @return A random value within this Discrete Gaussian Distribution.
 	*/
-	static int32_t GenerateIntegerKarney(double mean, double stddev);
+	static int64_t GenerateIntegerKarney(double mean, double stddev);
 
 private:
 	usint FindInVector (const std::vector<double> &S, double search) const;
@@ -174,7 +174,7 @@ private:
 	* @param n Number to test with exp(-n/2) probability
 	* @return Accept/Reject result
 	*/
-	static bool AlgorithmP(std::mt19937 &g, int n);
+	static bool AlgorithmP(std::mt19937 &g, int32_t n);
 	/**
 	* @brief Subroutine used by Karney's Method to generate an integer with probability exp(−k/2)(1 − exp(-1/2)).
 	* @param g Mersenne Twister Engine used for deviates

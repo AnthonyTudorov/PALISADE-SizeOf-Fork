@@ -93,7 +93,7 @@ int main(int argc, char* argv[]){
 		}
 	}
 
-	for (usint n = 1<<8; n < 1<<13; n=2*n)
+	for (usint n = 1<<8; n < 1<<14; n=2*n)
 	{
 		errorflag = CONJOBF(dbg_flag, n_evals, n);
 	}
@@ -134,7 +134,7 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 	usint base = 1<<15;
 
 	//Generate the test pattern
-	std::string inputPattern = "1?10?10?1?10?10?1?10?10?1?10??0?";;
+	std::string inputPattern = "1?10?10?1?10?10?1?10?10?1?10??0?1?10?10?1?10?10?1?10?10?1?10??0?";;
 	ClearLWEConjunctionPattern<DCRTPoly> clearPattern(inputPattern);
 
 	ObfuscatedLWEConjunctionPattern<DCRTPoly> obfuscatedPattern;
@@ -189,15 +189,15 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 	DEBUG(" \nCleartext pattern length: ");
 	DEBUG(clearPattern.GetLength());
 
-	std::string inputStr1 = "11100100111001001110010011100100";
+	std::string inputStr1 = "1110010011100100111001001110010011100100111001001110010011100100";
 	bool out1 = algorithm.Evaluate(clearPattern, inputStr1);
 	DEBUG(" \nCleartext pattern evaluation of: " << inputStr1 << " is " << out1);
 
-	std::string inputStr2 = "11001101110011011100110111001111";
+	std::string inputStr2 = "1100110111001101110011011100111111001101110011011100110111001111";
 	bool out2 = algorithm.Evaluate(clearPattern, inputStr2);
 	DEBUG(" \nCleartext pattern evaluation of: " << inputStr2 << " is " << out2);
 
-	std::string inputStr3 = "10101101101011011010110110101101";
+	std::string inputStr3 = "1010110110101101101011011010110110101101101011011010110110101101";
 	bool out3 = algorithm.Evaluate(clearPattern, inputStr3);
 	DEBUG(" \nCleartext pattern evaluation of: " << inputStr3 << " is " << out3);
 

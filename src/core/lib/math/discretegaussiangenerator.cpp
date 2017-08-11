@@ -318,11 +318,11 @@ namespace lbcrypto {
 
 	}
 	template<typename IntType, typename VecType>
-	int32_t DiscreteGaussianGeneratorImpl<IntType, VecType>::GenerateIntegerKarney(double mean, double stddev){
+	int64_t DiscreteGaussianGeneratorImpl<IntType, VecType>::GenerateIntegerKarney(double mean, double stddev){
 
-		int32_t result;
+		int64_t result;
 		std::uniform_int_distribution<int32_t> uniform_sign(0, 1);
-		std::uniform_int_distribution<int32_t> uniform_j(0, ceil(stddev)-1);
+		std::uniform_int_distribution<int64_t> uniform_j(0, ceil(stddev)-1);
 
 		std::mt19937 &g = PseudoRandomNumberGenerator::GetPRNG();
 
@@ -338,15 +338,15 @@ namespace lbcrypto {
 			if (!AlgorithmP(g, k * (k - 1))) continue;
 		
 			// STEP D3
-			int s = uniform_sign(g);
+			int32_t s = uniform_sign(g);
 			if (s == 0)
 				s = -1;
 
 			// STEP D4
 			double di0 = stddev * k + s * mean;
-			int32_t i0 = std::ceil(di0);
+			int64_t i0 = std::ceil(di0);
 			double x0 = (i0 - di0) / stddev;
-			int32_t j = uniform_j(g);
+			int64_t j = uniform_j(g);
 
 			double x = x0 + j / stddev;
 
