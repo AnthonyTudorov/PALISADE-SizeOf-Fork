@@ -163,10 +163,10 @@ void LWEConjunctionObfuscationAlgorithm<Element>::ParamsGen(typename Element::Dg
 	double sigma = SIGMA;
 	
 	//assurance measure
-	double alpha = 144;
+	double alpha = 36;
 
 	//empirical parameter
-	double beta = 3.0;
+	double beta = 2;
 
 	//Bound of the Gaussian error Elementnomial
 	double Berr = sigma*sqrt(alpha);

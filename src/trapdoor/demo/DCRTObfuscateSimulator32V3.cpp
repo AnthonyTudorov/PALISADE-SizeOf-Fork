@@ -93,9 +93,13 @@ int main(int argc, char* argv[]){
 		}
 	}
 
-	for (usint n = 1<<8; n < 1<<13; n=2*n)
+	for (usint n = 1<<11; n < 1<<13; n=2*n)
 	{
-		errorflag = CONJOBF(dbg_flag, n_evals, n);
+		for (usint i = 1; i < 3; i++) {
+			errorflag = CONJOBF(dbg_flag, n_evals, n);
+			if (errorflag)
+				return ((int)errorflag);
+		}
 	}
 
 	return ((int)errorflag);
