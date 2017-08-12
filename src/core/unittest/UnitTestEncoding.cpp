@@ -34,8 +34,10 @@
 #include "../lib/lattice/dcrtpoly.h"
 #include "math/backend.h"
 #include "encoding/intplaintextencoding.h"
+#include "encoding/scalarencoding.h"
 #include "utils/inttypes.h"
 #include "utils/utilities.h"
+#include "lattice/elemparamfactory.h"
 
 using namespace std;
 using namespace lbcrypto;
@@ -51,6 +53,17 @@ protected:
     // (right before the destructor).
   }
 };
+
+TEST_F(UTEncoding,scalar_encoding) {
+	usint m = 8;
+	Poly::Integer primeModulus("73");
+	Poly::Integer primitiveRootOfUnity("22");
+
+	shared_ptr<ILParams> lp =
+			ElemParamFactory::GenElemParams<ILParams,BigInteger>(m);
+	shared_ptr<EncodingParms> ep( new EncodingParms(32) );
+	ScalarEncoding	se(lp, ep, 47);
+}
 
 TEST_F(UTEncoding,binary_polynomial){
 	BigInteger b(1);

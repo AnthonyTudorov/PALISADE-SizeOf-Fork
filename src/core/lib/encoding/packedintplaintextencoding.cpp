@@ -24,7 +24,6 @@
  *
  */
 
- //#include "../crypto/cryptocontext.h"
 #include "packedintplaintextencoding.h"
 
 namespace lbcrypto {
@@ -37,7 +36,7 @@ namespace lbcrypto {
 	std::map<native_int::BigInteger, std::vector<usint>> PackedIntPlaintextEncoding::m_toCRTPerm;
 	std::map<native_int::BigInteger, std::vector<usint>> PackedIntPlaintextEncoding::m_fromCRTPerm;
 
-	void PackedIntPlaintextEncoding::Encode(const BigInteger &modulus, Poly *ilVector, size_t startFrom, size_t length) const
+	bool PackedIntPlaintextEncoding::Encode(const BigInteger &modulus, Poly *ilVector, size_t startFrom, size_t length) const
 	{
 		size_t padlen = 0;
 		uint64_t mod = modulus.ConvertToInt();
@@ -68,19 +67,18 @@ namespace lbcrypto {
 		ilVector->SetValues(temp, Format::EVALUATION); //output was in coefficient format
 
 		this->Pack(ilVector, modulus);//ilVector coefficients are packed and resulting ilVector is in COEFFICIENT form.
-
+		return true;
 	}
 
-	void PackedIntPlaintextEncoding::Decode(const BigInteger &modulus, Poly *ilVector) {
+	bool PackedIntPlaintextEncoding::Decode(const BigInteger &modulus, Poly *ilVector) {
 
 		this->Unpack(ilVector, modulus); //Format is in COEFFICIENT
 
 		for (usint i = 0; i<ilVector->GetValues().GetLength(); i++) {
 			this->push_back(ilVector->GetValues().GetValAtIndex(i).ConvertToInt());
 		}
-
+		return true;
 	}
-
 
 	size_t PackedIntPlaintextEncoding::GetChunksize(const usint ring, const BigInteger& ptm) const
 	{
@@ -288,7 +286,7 @@ namespace lbcrypto {
 		ring->SetValues(slotValuesRing, Format::COEFFICIENT);
 	}
 
-	void PackedIntPlaintextEncoding::Unpack(Poly *ring, const BigInteger &modulus) const {
+void PackedIntPlaintextEncoding::Unpack(Poly *ring, const BigInteger &modulus) const {
 
 		usint m = ring->GetCyclotomicOrder(); // cyclotomic order
 		native_int::BigInteger modulusNI(modulus.ConvertToInt()); //native int modulus

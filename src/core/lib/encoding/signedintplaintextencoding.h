@@ -46,27 +46,29 @@ namespace lbcrypto {
 class SignedIntPlaintextEncoding : public Plaintext, public std::vector<int32_t> {
 public:
 	SignedIntPlaintextEncoding(std::vector<int32_t>::const_iterator sIter, std::vector<int32_t>::const_iterator eIter)
-		: std::vector<int32_t>(std::vector<int32_t>(sIter, eIter)) {}
+		: Plaintext(shared_ptr<Poly::Params>(0),NULL), std::vector<int32_t>(std::vector<int32_t>(sIter, eIter)) {}
 
-	SignedIntPlaintextEncoding(const std::vector<int32_t> &rhs) : std::vector<int32_t>(rhs) {}
+	SignedIntPlaintextEncoding(const std::vector<int32_t> &rhs)
+		: Plaintext(shared_ptr<Poly::Params>(0),NULL), std::vector<int32_t>(rhs) {}
 
-	SignedIntPlaintextEncoding(std::initializer_list<int32_t> arr) : std::vector<int32_t>(arr) {}
+	SignedIntPlaintextEncoding(std::initializer_list<int32_t> arr)
+		: Plaintext(shared_ptr<Poly::Params>(0),NULL), std::vector<int32_t>(arr) {}
 
-    SignedIntPlaintextEncoding() : std::vector<int32_t>() {}
+    SignedIntPlaintextEncoding() : Plaintext(shared_ptr<Poly::Params>(0),NULL), std::vector<int32_t>() {}
 
 	/** Interface for the operation of converting from current plaintext encoding to Poly.
 	*
 	* @param  modulus - used for encoding.
 	* @param  *ilVector encoded plaintext - output argument.
 	*/
-	void Encode(const BigInteger &modulus, Poly *ilVector, size_t start_from=0, size_t length=0) const;
+	bool Encode(const BigInteger &modulus, Poly *ilVector, size_t start_from=0, size_t length=0) const;
 
 	/** Interface for the operation of converting from Poly to current plaintext encoding.
 	*
 	* @param  modulus - used for encoding.
 	* @param  *ilVector encoded plaintext - input argument.
 	*/
-	void Decode(const BigInteger &modulus, Poly *ilVector);
+	bool Decode(const BigInteger &modulus, Poly *ilVector);
 
 	void Unpad(const BigInteger &modulus) {} // a null op; no padding in int
 
@@ -88,10 +90,10 @@ public:
 
 private:
     template <typename IntType, typename VecType, typename Element>
-	void doEncode(const BigInteger &modulus, Element *ilVector, size_t start_from, size_t length) const;
+	bool doEncode(const BigInteger &modulus, Element *ilVector, size_t start_from, size_t length) const;
 
     template <typename IntType, typename VecType, typename Element>
-	void doDecode(const BigInteger &modulus, Element *ilVector);
+	bool doDecode(const BigInteger &modulus, Element *ilVector);
 };
 
 } /* namespace lbcrypto */

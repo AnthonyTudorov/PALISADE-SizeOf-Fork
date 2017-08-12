@@ -39,6 +39,7 @@ namespace lbcrypto
  * @brief Type used for representing IntArray types.
  * Provides conversion functions to encode and decode plaintext data as type vector<uint32_t>.
  */
+
 class IntPlaintextEncoding : public Plaintext, public std::vector<uint32_t>
 {
 public:
@@ -60,18 +61,20 @@ public:
 	 * points to elements of a type from which value_type objects can be constructed.
 	 */
 	IntPlaintextEncoding(std::vector<uint32_t>::const_iterator sIter, std::vector<uint32_t>::const_iterator eIter)
-		: std::vector<uint32_t>(std::vector<uint32_t>(sIter, eIter)) {}
+		: Plaintext(shared_ptr<Poly::Params>(0),NULL), std::vector<uint32_t>(std::vector<uint32_t>(sIter, eIter)) {}
 	/**
 	 * @brief Constructs a container with a copy of each of the elements in rhs, in the same order.
 	 * @param rhs - The input object to copy.
 	 */
-	IntPlaintextEncoding(const std::vector<uint32_t> &rhs) : std::vector<uint32_t>(rhs) {}
+	IntPlaintextEncoding(const std::vector<uint32_t> &rhs)
+		: Plaintext(shared_ptr<Poly::Params>(0), NULL), std::vector<uint32_t>(rhs) {}
 
 	/**
 	 * @brief Constructs a container with a copy of each of the elements in il, in the same order.
 	 * @param arr the list to copy.
 	 */
-	IntPlaintextEncoding(std::initializer_list<uint32_t> arr) : std::vector<uint32_t>(arr) {}
+	IntPlaintextEncoding(std::initializer_list<uint32_t> arr)
+		: Plaintext(shared_ptr<Poly::Params>(0),NULL), std::vector<uint32_t>(arr) {}
 
 	/** Forms a binary array from a 64 bit unsigned integer;
 	 * Represents the integer as a binary polynomial
@@ -90,9 +93,9 @@ public:
 	/**
 	 * @brief Default empty constructor with empty uninitialized data elements.
 	 */
-	IntPlaintextEncoding() : std::vector<uint32_t>() {}
+	IntPlaintextEncoding() : Plaintext(shared_ptr<Poly::Params>(0),NULL), std::vector<uint32_t>() {}
 
-	/**
+	/**: Plaintext(shared_ptr<Poly::Params>(0),NULL)
 	 * Interface for the operation of converting from current plaintext encoding to Poly.
 	 *
 	 * @param  modulus - used for encoding.
@@ -100,7 +103,7 @@ public:
 	 * @param  start_from - location to start from.  Defaults to 0.
 	 * @param  length - length of data to encode.  Defaults to 0.
 	*/
-	void Encode(const BigInteger &modulus, Poly *ilVector, size_t start_from=0, size_t length=0) const;
+	bool Encode(const BigInteger &modulus, Poly *ilVector, size_t start_from=0, size_t length=0) const;
 
 	/**
 	 * Interface for the operation of converting from Poly to current plaintext encoding.
@@ -108,7 +111,7 @@ public:
 	 * @param  modulus - used for encoding.
 	 * @param  *ilVector encoded plaintext - input argument.
 	 */
-	void Decode(const BigInteger &modulus, Poly *ilVector);
+	bool Decode(const BigInteger &modulus, Poly *ilVector);
 
 	/**
 	 * Interface for the operation of stripping away unneeded trailing zeros to pad out a short plaintext until one with entries
@@ -171,10 +174,10 @@ public:
 
 private:
 	template <typename IntType, typename VecType, typename Element>
-	void doEncode(const BigInteger &modulus, Element *ilVector, size_t start_from, size_t length) const;
+	bool doEncode(const BigInteger &modulus, Element *ilVector, size_t start_from, size_t length) const;
 
 	template <typename IntType, typename VecType, typename Element>
-	void doDecode(const BigInteger &modulus, Element *ilVector);
+	bool doDecode(const BigInteger &modulus, Element *ilVector);
 
 };
 

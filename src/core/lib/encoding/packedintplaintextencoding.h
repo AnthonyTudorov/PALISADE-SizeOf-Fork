@@ -43,6 +43,7 @@ namespace lbcrypto
  * Provides conversion functions to encode and decode plaintext data as type vector<uint32_t>.
  * This method uses bit packing techniques to enable efficient computing on vectors of integers.
  */
+
 class PackedIntPlaintextEncoding : public Plaintext, public std::vector<uint32_t>
 {
 
@@ -64,24 +65,27 @@ public:
 	 * points to elements of a type from which value_type objects can be constructed.
 	 */
 	PackedIntPlaintextEncoding(std::vector<uint32_t>::const_iterator sIter, std::vector<uint32_t>::const_iterator eIter)
-		: std::vector<uint32_t>(std::vector<uint32_t>(sIter, eIter)) {}
+		: Plaintext(shared_ptr<Poly::Params>(0),NULL), std::vector<uint32_t>(std::vector<uint32_t>(sIter, eIter)) {}
 
 	/**
 	 * @brief Constructs a container with a copy of each of the elements in rhs, in the same order.
 	 * @param rhs - The input object to copy.
 	 */
-	PackedIntPlaintextEncoding(const std::vector<uint32_t> &rhs) : std::vector<uint32_t>(rhs) {}
+	PackedIntPlaintextEncoding(const std::vector<uint32_t> &rhs)
+		: Plaintext(shared_ptr<Poly::Params>(0),NULL), std::vector<uint32_t>(rhs) {}
 
 	/**
 	 * @brief Constructs a container with a copy of each of the elements in il, in the same order.
 	 * @param arr the list to copy.
 	 */
-	PackedIntPlaintextEncoding(std::initializer_list<uint32_t> arr) : std::vector<uint32_t>(arr) {}
+	PackedIntPlaintextEncoding(std::initializer_list<uint32_t> arr)
+		: Plaintext(shared_ptr<Poly::Params>(0),NULL), std::vector<uint32_t>(arr) {}
 
 	/**
 	 * @brief Default empty constructor with empty uninitialized data elements.
 	 */
-	PackedIntPlaintextEncoding() : std::vector<uint32_t>() {}
+	PackedIntPlaintextEncoding()
+		: Plaintext(shared_ptr<Poly::Params>(0),NULL), std::vector<uint32_t>() {}
 
 	/**
 	 * @brief Method to return the initial root.
@@ -104,7 +108,7 @@ public:
 	* @param  start_from - location to start from.  Defaults to 0.
 	* @param  length - length of data to encode.  Defaults to 0.
 	*/
-	void Encode(const BigInteger &modulus, Poly *ilVector, size_t start_from = 0, size_t length = 0) const;
+	bool Encode(const BigInteger &modulus, Poly *ilVector, size_t start_from = 0, size_t length = 0) const;
 
 	/**
 	 * Interface for the operation of converting from current plaintext encoding to Poly.
@@ -114,7 +118,7 @@ public:
 	 * @param  start_from - location to start from.  Defaults to 0.
 	 * @param  length - length of data to encode.  Defaults to 0.
 	*/
-	void Encode(const BigInteger &modulus, DCRTPoly *ilVector, size_t start_from = 0, size_t length = 0) const {
+	bool Encode(const BigInteger &modulus, DCRTPoly *ilVector, size_t start_from = 0, size_t length = 0) const {
 		throw std::logic_error("Encode: Packed encoding is not currently supported for DCRTPoly");
 	};
 
@@ -124,14 +128,14 @@ public:
 	 * @param  modulus - used for encoding.
 	 * @param  *ilVector encoded plaintext - input argument.
 	 */
-	void Decode(const BigInteger &modulus, Poly *ilVector);
+	bool Decode(const BigInteger &modulus, Poly *ilVector);
 
 	/** The operation of converting from DCRTPoly to current plaintext encoding.
 	*
 	* @param  modulus - used for encoding.
 	* @param  *ilVector encoded plaintext - input argument.
 	*/
-	void Decode(const BigInteger &modulus, DCRTPoly *ilVector) {
+	bool Decode(const BigInteger &modulus, DCRTPoly *ilVector) {
 		throw std::logic_error("Decode: Packed encoding is not currently supported for DCRTPoly");
 	}
 

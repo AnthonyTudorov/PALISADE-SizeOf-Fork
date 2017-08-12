@@ -29,12 +29,14 @@
 
 namespace lbcrypto {
 
-BytePlaintextEncoding::BytePlaintextEncoding(const char* cstr) {
+BytePlaintextEncoding::BytePlaintextEncoding(const char* cstr)
+	: Plaintext(shared_ptr<Poly::Params>(0),NULL) {
 	std::string s(cstr);
 	*this = s;
 }
 
-BytePlaintextEncoding::BytePlaintextEncoding(const char* cstr, usint len) {
+BytePlaintextEncoding::BytePlaintextEncoding(const char* cstr, usint len)
+	: Plaintext(shared_ptr<Poly::Params>(0),NULL) {
 	std::string s(cstr, len);
 	*this = s;
 }
@@ -51,9 +53,9 @@ BytePlaintextEncoding& BytePlaintextEncoding::operator=(const char* cstr) {
 	return *this;
 }
 
-template<typename IntType, typename VecType, typename ElementType>
-static void
-doEncode(const BytePlaintextEncoding& item, const BigInteger &modulus, ElementType *ilVector, size_t startFrom, size_t length)
+template<typename IntType, typename VecType, typename Element>
+static bool
+doEncode(const BytePlaintextEncoding& item, const BigInteger &modulus, Element *ilVector, size_t startFrom, size_t length)
 {
 	size_t		padlen = 0;
 
@@ -106,11 +108,12 @@ doEncode(const BytePlaintextEncoding& item, const BigInteger &modulus, ElementTy
 	}
 
 	ilVector->SetValues(temp,format);
+	return true;
 }
 
-template<typename IntType, typename ElementType>
-static void
-doDecode(BytePlaintextEncoding& item, const IntType &modulus, ElementType *ilVector)
+template<typename IntType, typename Element>
+static bool
+doDecode(BytePlaintextEncoding& item, const IntType &modulus, Element *ilVector)
 {
     uint64_t mod = modulus.ConvertToInt();
     uint64_t p = ceil((float)log((double)255) / log((double)mod));
@@ -125,14 +128,15 @@ doDecode(BytePlaintextEncoding& item, const IntType &modulus, ElementType *ilVec
 		}
 		item.push_back(resultant_char);
 	}
+	return true;
 }
 
-void BytePlaintextEncoding::Encode(const BigInteger &modulus, Poly *ilVector, size_t start_from, size_t length) const {
-	doEncode<BigInteger,BigVector,Poly>(*this, modulus, ilVector, start_from, length);
+bool BytePlaintextEncoding::Encode(const BigInteger &modulus, Poly *ilVector, size_t start_from, size_t length) const {
+	return doEncode<BigInteger,BigVector,Poly>(*this, modulus, ilVector, start_from, length);
 }
 
-void BytePlaintextEncoding::Decode(const BigInteger &modulus, Poly *ilVector) {
-	doDecode(*this, modulus, ilVector);
+bool BytePlaintextEncoding::Decode(const BigInteger &modulus, Poly *ilVector) {
+	return doDecode(*this, modulus, ilVector);
 }
 
 void

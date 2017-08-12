@@ -1,5 +1,5 @@
-/*
- * @file packedintplaintextencoding.cpp Represents and defines plaintext encodings in Palisade with bit packing capabilities.
+/**
+ * @file plaintext.h Represents and defines plaintext objects in Palisade.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -24,30 +24,17 @@
  *
  */
 
-#include "packedintplaintextencoding.h"
+#include "scalarencoding.h"
 
 namespace lbcrypto {
 
-	void PackedIntPlaintextEncoding::SetParams_2n(usint m, const native_int::BigInteger &modulusNI) {
+bool
+ScalarEncoding::Encode() {
+	if( this->isEncoded ) return true;
 
-		// Power of two: m/2-point FTT. So we need the mth root of unity
-		m_initRoot[modulusNI] = RootOfUnity<native_int::BigInteger>(m, modulusNI);
-
-	}
-
-	void PackedIntPlaintextEncoding::SetParams_2n(usint m, shared_ptr<EncodingParams> params) {
-
-		native_int::BigInteger modulusNI(params->GetPlaintextModulus().ConvertToInt()); //native int modulus
-
-		// Power of two: m/2-point FTT. So we need the mth root of unity
-		if (params->GetPlaintextRootOfUnity() == 0)
-		{
-			m_initRoot[modulusNI] = RootOfUnity<native_int::BigInteger>(m, modulusNI);
-			params->SetPlaintextRootOfUnity(m_initRoot[modulusNI].ConvertToInt());
-		}
-		else
-			m_initRoot[modulusNI] = params->GetPlaintextRootOfUnity().ConvertToInt();
-
-	}
-
+	this->encodedVector.SetValuesToZero();
+	this->encodedVector.SetValAtIndex(0, value);
+	return true;
 }
+
+} /* namespace lbcrypto */

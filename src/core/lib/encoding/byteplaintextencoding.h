@@ -41,6 +41,7 @@ namespace lbcrypto
  * @brief Type used for representing string BytePlaintextEncoding types.
  * Provides conversion functions to vector<uint8_t> from standard string types.
  */
+
 class BytePlaintextEncoding : public Plaintext, public std::vector<uint8_t>
 {
 public:
@@ -51,7 +52,7 @@ public:
 	 * @return the resulting plaintext that encodes the bytes.
 	 */
 	BytePlaintextEncoding(const std::string& str)
-		: std::vector<uint8_t>(std::vector<uint8_t>(str.begin(), str.end())) {}
+		: Plaintext(shared_ptr<Poly::Params>(0),NULL), std::vector<uint8_t>(std::vector<uint8_t>(str.begin(), str.end())) {}
 
 	/**
 	 * @brief C-string string constructor.
@@ -85,24 +86,27 @@ public:
 	 * points to elements of a type from which value_type objects can be constructed.
 	 */
 	BytePlaintextEncoding(std::vector<uint8_t>::const_iterator sIter, std::vector<uint8_t>::const_iterator eIter)
-		: std::vector<uint8_t>(vector<uint8_t>(sIter, eIter)) {}
+		: Plaintext(shared_ptr<Poly::Params>(0),NULL), std::vector<uint8_t>(vector<uint8_t>(sIter, eIter)) {}
 
 	/**
 	 * @brief Constructs a container with a copy of each of the elements in rhs, in the same order.
 	 * @param rhs - The input object to copy.
 	 */
-	BytePlaintextEncoding(const std::vector<uint8_t> &rhs) : std::vector<uint8_t>(rhs) {}
+	BytePlaintextEncoding(const std::vector<uint8_t> &rhs)
+		: Plaintext(shared_ptr<Poly::Params>(0),NULL), std::vector<uint8_t>(rhs) {}
 
 	/**
 	 * @brief Constructs a container with a copy of each of the elements in il, in the same order.
 	 * @param arr the list to copy.
 	 */
-	BytePlaintextEncoding(std::initializer_list<uint8_t> arr) : std::vector<uint8_t>(arr) {}
+	BytePlaintextEncoding(std::initializer_list<uint8_t> arr)
+		: Plaintext(shared_ptr<Poly::Params>(0),NULL), std::vector<uint8_t>(arr) {}
 
 	/**
 	 * @brief Default empty constructor with empty uninitialized data elements.
 	 */
-	BytePlaintextEncoding() : std::vector<uint8_t>() {}
+	BytePlaintextEncoding()
+		: Plaintext(shared_ptr<Poly::Params>(0),NULL), std::vector<uint8_t>() {}
 
 	/**
 	 * @brief assignment copy operator.
@@ -124,7 +128,7 @@ public:
 	 * @param  start_from - location to start from.  Defaults to 0.
 	 * @param  length - length of data to encode.  Defaults to 0.
 	 */
-	void Encode(const BigInteger &modulus, Poly *ilVector, size_t start_from=0, size_t length=0) const;
+	bool Encode(const BigInteger &modulus, Poly *ilVector, size_t start_from=0, size_t length=0) const;
 
 	/**
 	 * Interface for the operation of converting from Poly to current plaintext encoding.
@@ -132,7 +136,7 @@ public:
 	 * @param  modulus - used for encoding.
 	 * @param  *ilVector encoded plaintext - input argument.
 	 */
-	void Decode(const BigInteger &modulus, Poly *ilVector);
+	bool Decode(const BigInteger &modulus, Poly *ilVector);
 
 	/**
 	 * Interface for the operation of stripping away unneeded trailing zeros to pad out a short plaintext until one with entries

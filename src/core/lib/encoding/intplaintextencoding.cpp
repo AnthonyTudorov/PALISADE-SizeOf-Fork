@@ -30,6 +30,7 @@ namespace lbcrypto
 
 // Forms a binary array from an integer; represents the integer as a binary polynomial
 IntPlaintextEncoding::IntPlaintextEncoding(uint64_t value)
+	: Plaintext(shared_ptr<Poly::Params>(0),NULL)
 {
 	while( value > 0 ) {
 		this->push_back(value & 0x01);
@@ -39,6 +40,7 @@ IntPlaintextEncoding::IntPlaintextEncoding(uint64_t value)
 
 // Forms a binary array from an integer; represents the integer as a binary polynomial
 IntPlaintextEncoding::IntPlaintextEncoding(const BigInteger& val)
+	: Plaintext(shared_ptr<Poly::Params>(0),NULL)
 {
 	BigInteger value(val);
 	while (value > 0 ) {
@@ -48,7 +50,7 @@ IntPlaintextEncoding::IntPlaintextEncoding(const BigInteger& val)
 }
 
 template <typename IntType, typename VecType, typename Element>
-void IntPlaintextEncoding::doEncode(const BigInteger &modulus, Element *ilVector, size_t startFrom, size_t length) const
+bool IntPlaintextEncoding::doEncode(const BigInteger &modulus, Element *ilVector, size_t startFrom, size_t length) const
 {
 	size_t padlen = 0;
 	uint64_t mod = modulus.ConvertToInt();
@@ -81,25 +83,28 @@ void IntPlaintextEncoding::doEncode(const BigInteger &modulus, Element *ilVector
 	}
 
 	ilVector->SetValues(temp,format);
+	return true;
 }
 
-void IntPlaintextEncoding::Encode(const BigInteger &modulus, Poly *ilVector, size_t start_from, size_t length) const
+bool
+IntPlaintextEncoding::Encode(const BigInteger &modulus, Poly *ilVector, size_t start_from, size_t length) const
 {
-	doEncode<BigInteger,BigVector,Poly>(modulus,ilVector,start_from,length);
+	return doEncode<BigInteger,BigVector>(modulus,ilVector,start_from,length);
 }
 
 template <typename IntType, typename VecType, typename Element>
-void IntPlaintextEncoding::doDecode(const BigInteger &modulus, Element *ilVector)
+bool IntPlaintextEncoding::doDecode(const BigInteger &modulus, Element *ilVector)
 {
-
 	for (usint i = 0; i<ilVector->GetValues().GetLength(); i++) {
 		this->push_back( ilVector->GetValues().GetValAtIndex(i).ConvertToInt() );
 	}
+	return true;
 }
 
-void IntPlaintextEncoding::Decode(const BigInteger &modulus, Poly *ilVector)
+bool
+IntPlaintextEncoding::Decode(const BigInteger &modulus, Poly *ilVector)
 {
-	doDecode<BigInteger,BigVector,Poly>(modulus,ilVector);
+	return doDecode<BigInteger,BigVector>(modulus,ilVector);
 }
 
 size_t
@@ -109,7 +114,8 @@ IntPlaintextEncoding::GetChunksize(const usint ring, const BigInteger&) const
 }
 
 // Evaluates the array of integers as a polynomial at x = 2
-int32_t IntPlaintextEncoding::EvalToInt(uint32_t modulus) const
+int32_t
+IntPlaintextEncoding::EvalToInt(uint32_t modulus) const
 {
 	int32_t result = 0;
 	uint32_t powerFactor = 1;

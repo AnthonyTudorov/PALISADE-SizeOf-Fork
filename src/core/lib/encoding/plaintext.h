@@ -23,6 +23,7 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
+
 #ifndef LBCRYPTO_UTILS_PLAINTEXT_H
 #define LBCRYPTO_UTILS_PLAINTEXT_H
 
@@ -51,21 +52,40 @@ namespace lbcrypto
  */
 class Plaintext
 {
-private:
-	enum VectorType { UNKNOWN, USING_POLY, USING_DCRT }		vectorType;
-	bool											isEncoded;
-	Poly											polyVector;
-	DCRTPoly										DCRTVector;
-	shared_ptr<EncodingParams>					encodingParams;
+protected:
+	bool								isEncoded;
+	Poly								encodedVector;
+	DCRTPoly							encodedVectorDCRT;
+	enum { IsPoly, IsDCRTPoly }			typeFlag;
+	shared_ptr<EncodingParams>			encodingParams;
 
 public:
-	Plaintext() : vectorType(UNKNOWN), isEncoded(false) {}
+	Plaintext(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep) :
+		isEncoded(false), encodedVector(vp,COEFFICIENT), typeFlag(IsPoly), encodingParams(ep) {}
+
+	Plaintext(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep) :
+		isEncoded(false), encodedVectorDCRT(vp,COEFFICIENT), typeFlag(IsDCRTPoly), encodingParams(ep) {}
 
 	virtual ~Plaintext() {}
 
-	VectorType GetVectorType() const { return vectorType; }
+	virtual std::string GetEncodingName() const { return "NONE"; } // FIXME s/b = 0
 
 	bool IsEncoded() const { return isEncoded; }
+
+	virtual bool Encode() { return false; } // FIXME s/b =0
+
+	template<typename Element>
+	Element& GetEncodedElement() {
+		if( !IsEncoded() ) {
+			if( !this->Encode() )
+				throw std::logic_error("Encode from within GetEncodedElement failed");
+		}
+		if( std::is_same<Element,Poly>::value )
+			return encodedVector;
+		if( std::is_same<Element,DCRTPoly>::value )
+			return encodedVectorDCRT;
+		throw std::logic_error("Unknown Element type name");
+	}
 
 	/**
 	 * Interface for the operation of converting from current plaintext encoding to Poly.
@@ -75,7 +95,7 @@ public:
 	 * @param  start_from - location to start from.  Defaults to 0.
 	 * @param  length - length of data to encode.  Defaults to 0.
 	 */
-	virtual void Encode(const BigInteger &modulus, Poly *ilVector, size_t start_from=0, size_t length=0) const = 0;
+	virtual bool Encode(const BigInteger &modulus, Poly *ilVector, size_t start_from=0, size_t length=0) const = 0;
 
 	/**
 	 * Interface for the operation of converting from Poly to current plaintext encoding.
@@ -83,7 +103,7 @@ public:
 	 * @param  modulus - used for encoding.
 	 * @param  *ilVector encoded plaintext - input argument.
 	 */
-	virtual void Decode(const BigInteger &modulus, Poly *ilVector) = 0;
+	virtual bool Decode(const BigInteger &modulus, Poly *ilVector) = 0;
 
 	/**
 	 * Interface for the operation of stripping away unneeded trailing zeros to pad out a short plaintext until one with entries

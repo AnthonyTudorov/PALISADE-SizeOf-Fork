@@ -72,16 +72,16 @@ static void operators_tests(shared_ptr<ParmType> ilparams) {
 	Element ilvector2n2(ilparams);
 	ilvector2n2 = {1,2,0,1};
 
-	EXPECT_EQ(ilvector2n1, ilvector2n2) << "Faiure: Operator ==";
+	EXPECT_EQ(ilvector2n1, ilvector2n2) << "Failure: Operator ==";
 
 	{//test constructor
 		Element ilv1(ilvector2n1);
-		EXPECT_EQ(ilvector2n1, ilv1) << "Faiure: copy constructor";
+		EXPECT_EQ(ilvector2n1, ilv1) << "Failure: copy constructor";
 	}
 
 	{//test operator=
 		Element ilv1 = ilvector2n1;
-		EXPECT_EQ(ilvector2n1, ilv1) << "Faiure: operator=";
+		EXPECT_EQ(ilvector2n1, ilv1) << "Failure: operator=";
 	}
 
 	{//test SwitchModulus, !=
@@ -89,12 +89,12 @@ static void operators_tests(shared_ptr<ParmType> ilparams) {
 		try {
 			ilv1.SwitchModulus(IntType("123467"), IntType("1234"));
 			EXPECT_NE(ilvector2n1, ilv1)
-				<< "Faiure: Operator!= switchmodulus comparison";
+				<< "Failure: Operator!= switchmodulus comparison";
 
 			Element ilv2 = ilvector2n1;
 			ilv2.SetValAtIndex(2, 2);
 			EXPECT_NE(ilvector2n1, ilv2)
-				<< "Faiure: Operator!= value comparison";
+				<< "Failure: Operator!= value comparison";
 		} catch (std::exception& e) {
 			// ignore for dcrtpoly
 		}
@@ -107,7 +107,7 @@ static void operators_tests(shared_ptr<ParmType> ilparams) {
 		ilv1 -= ilvector2n1;
 		for (usint i = 0; i < m/2; ++i) {
 			EXPECT_EQ(IntType::ZERO, ilv1.GetValAtIndex(i))
-				<< "Faiure: Operator-= @ index "<<i;
+				<< "Failure: Operator-= @ index "<<i;
 		}
 	}
 
@@ -118,7 +118,7 @@ static void operators_tests(shared_ptr<ParmType> ilparams) {
 			{//we expect a+a == 2*a
 			EXPECT_EQ(IntType::TWO * ilvector2n1.GetValAtIndex(i),
 				  ilv1.GetValAtIndex(i))
-				<< "Faiure: Operator+= @ index "<<i;
+				<< "Failure: Operator+= @ index "<<i;
 		}
 	}
 

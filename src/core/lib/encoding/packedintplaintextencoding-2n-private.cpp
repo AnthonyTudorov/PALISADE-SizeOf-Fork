@@ -24,7 +24,6 @@
 *
 */
 
-//#include "../crypto/cryptocontext.h"
 #include "packedintplaintextencoding.h"
 
 namespace lbcrypto {
