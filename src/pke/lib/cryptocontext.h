@@ -660,6 +660,39 @@ public:
 		return r;
 	}
 
+	// FIXME comments for the new one
+	shared_ptr<Ciphertext<Element>> NEWEncrypt(
+			const shared_ptr<LPPublicKey<Element>> publicKey,
+			Plaintext& plaintext,
+			EncryptResult* status = 0)
+	{
+
+		if( publicKey == NULL || publicKey->GetCryptoContext() != this )
+			throw std::logic_error("key passed to Encrypt was not generated with this crypto context");
+
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+std::cout << "NewEncrypt before encode " << plaintext.GetEncodedElement().GetFormat() << std::endl;
+		if( plaintext.Encode() == false ) {
+			return 0;
+		}
+		std::cout << "NewEncrypt after encode " << plaintext.GetEncodedElement().GetFormat() << std::endl;
+
+		shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, plaintext.GetEncodedElement());
+
+		if (ciphertext && status) {
+			status->SetResult(plaintext.GetLength());
+		}
+
+		ciphertext->SetEncodingType( plaintext.GetEncodingType() );
+
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEncryptPub, currentDateTime() - start) );
+		}
+		return ciphertext;
+	}
+
+
 	/**
 	* Encrypt method for PALISADE
 	* @param publicKey - for encryption
@@ -697,7 +730,9 @@ public:
 		for (size_t bytes = 0, i = 0; i < rounds; bytes += chunkSize, i++) {
 
 			Poly pt(publicKey->GetCryptoParameters()->GetElementParams());
+			std::cout << "Encrypt before encode " << pt.GetFormat() << std::endl;
 			plaintext.Encode(ptm, &pt, bytes, chunkSize);
+			std::cout << "Encrypt after encode " << pt.GetFormat() << std::endl;
 
 			shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, pt, doEncryption);
 
@@ -926,6 +961,60 @@ public:
 		return;
 	}
 
+	// FIXME make this private
+	static shared_ptr<Plaintext>
+	GetPlaintextForDecrypt(PlaintextEncodings pte, shared_ptr<typename Element::Params> vp, shared_ptr<EncodingParams> ep) {
+		shared_ptr<Plaintext> pt;
+
+		switch(pte) {
+		case Unknown:
+			break;
+		case Scalar:
+			std::cout << "SCALAR" << std::endl;
+			pt.reset( new ScalarEncoding(vp,ep) );
+			break;
+		case ScalarSigned:
+			std::cout << "SCALAR SIGNED" << std::endl;
+			pt.reset( new ScalarEncoding(vp,ep) );
+			break;
+		case Integer:
+		case CoeffPacked:
+		case Packed:
+		case String:
+			break;
+		}
+
+		return pt;
+	}
+
+	// FIXME comments for new decrypt
+	DecryptResult NEWDecrypt(
+			const shared_ptr<LPPrivateKey<Element>> privateKey,
+			const shared_ptr<Ciphertext<Element>> ciphertext,
+			shared_ptr<Plaintext>* plaintext)
+	{
+		if( privateKey == NULL || privateKey->GetCryptoContext() != this )
+			throw std::logic_error("Information passed to Decrypt was not generated with this crypto context");
+
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+
+		shared_ptr<Plaintext> decrypted = GetPlaintextForDecrypt(ciphertext->GetEncodingType(), privateKey->GetElementParms(), privateKey->GetEncodingParms());
+		DecryptResult result = GetEncryptionAlgorithm()->Decrypt(privateKey, ciphertext, &decrypted->GetEncodedElement());
+
+		if (result.isValid == false) return result;
+		std::cout << "NEWDecrypt before decode" << decrypted->GetEncodedElement().GetFormat() << std::endl;
+		decrypted->Decode();
+		std::cout << "NEWDecrypt after decode" << decrypted->GetEncodedElement().GetFormat() << std::endl;
+
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpDecrypt, currentDateTime() - start) );
+		}
+		*plaintext = decrypted;
+		return result;
+	}
+
+
 	/**
 	* Decrypt method for PALISADE
 	* @param privateKey - for decryption
@@ -955,10 +1044,14 @@ public:
 				throw std::logic_error("A ciphertext passed to Decrypt was not generated with this crypto context");
 
 			Poly decrypted;
+			std::cout << "Decrypt before decrypt" << decrypted.GetFormat() << std::endl;
 			DecryptResult result = GetEncryptionAlgorithm()->Decrypt(privateKey, ciphertext[ch], &decrypted);
+			std::cout << "Decrypt after decrypt" << decrypted.GetFormat() << std::endl;
 
 			if (result.isValid == false) return result;
+			std::cout << "Decrypt before decode" << decrypted.GetFormat() << std::endl;
 			plaintext->Decode(privateKey->GetCryptoParameters()->GetPlaintextModulus(), &decrypted);
+			std::cout << "Decrypt after decode" << decrypted.GetFormat() << std::endl;
 			if (ch == lastone && doPadding) {
 				plaintext->Unpad(privateKey->GetCryptoParameters()->GetPlaintextModulus());
 			}

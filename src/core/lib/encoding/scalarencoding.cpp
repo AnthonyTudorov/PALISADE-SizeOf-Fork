@@ -34,6 +34,14 @@ ScalarEncoding::Encode() {
 
 	this->encodedVector.SetValuesToZero();
 	this->encodedVector.SetValAtIndex(0, value);
+	this->encodedVector.SetFormat(COEFFICIENT);
+	this->isEncoded = true;
+	return true;
+}
+
+bool
+ScalarEncoding::Decode() {
+	this->value = this->encodedVector.GetValAtIndex(0).ConvertToInt();
 	return true;
 }
 

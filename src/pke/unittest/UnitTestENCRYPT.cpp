@@ -64,6 +64,40 @@ static shared_ptr<CryptoContext<DCRTPoly>> GenerateTestDCRTCryptoContext(const s
 
 template <typename Element>
 void
+UnitTestNewEncryptionScalar(const shared_ptr<CryptoContext<Element>> cc) {
+	uint32_t	value = 33;
+	ScalarEncoding plaintext(cc->GetElementParams(), cc->GetEncodingParms(), value);
+	cout << "*** " << plaintext.GetEncodedElement().GetFormat() << endl;
+
+	////////////////////////////////////////////////////////////
+	//Perform the key generation operation.
+	////////////////////////////////////////////////////////////
+
+	// Initialize the key containers.
+	LPKeyPair<Element> kp = cc->KeyGen();
+
+	if (!kp.good()) {
+		std::cout << "Key generation failed!" << std::endl;
+		exit(1);
+	}
+
+	////////////////////////////////////////////////////////////
+	//Encrypt and decrypt
+	////////////////////////////////////////////////////////////
+
+	shared_ptr<Ciphertext<Element>> ciphertext = cc->NEWEncrypt(kp.publicKey, plaintext);
+	shared_ptr<Plaintext> plaintextNew;
+	cc->NEWDecrypt(kp.secretKey, ciphertext, &plaintextNew);
+	EXPECT_EQ(plaintext, *plaintextNew);
+}
+
+TEST(UTENCRYPT, LTV_Poly_Encrypt_Decrypt_Scalar) {
+	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementLTV(4096, 2, 20);
+	UnitTestNewEncryptionScalar<Poly>(cc);
+}
+
+template <typename Element>
+void
 UnitTestEncryption(const shared_ptr<CryptoContext<Element>> cc) {
 	BytePlaintextEncoding plaintextShort;
 	BytePlaintextEncoding plaintextFull;

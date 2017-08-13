@@ -61,10 +61,10 @@ protected:
 
 public:
 	Plaintext(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep) :
-		isEncoded(false), encodedVector(vp,COEFFICIENT), typeFlag(IsPoly), encodingParams(ep) {}
+		isEncoded(false), typeFlag(IsPoly), encodingParams(ep), encodedVector(vp,EVALUATION) {}
 
 	Plaintext(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep) :
-		isEncoded(false), encodedVectorDCRT(vp,COEFFICIENT), typeFlag(IsDCRTPoly), encodingParams(ep) {}
+		isEncoded(false), typeFlag(IsDCRTPoly), encodingParams(ep), encodedVector(vp,EVALUATION) {}
 
 	virtual ~Plaintext() {}
 
