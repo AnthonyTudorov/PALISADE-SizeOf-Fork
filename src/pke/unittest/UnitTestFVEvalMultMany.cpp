@@ -55,7 +55,7 @@ TEST(UTFVEVALMM, Poly_FV_Eval_Mult_Many_Operations) {
 	int relWindow = 1;
 	int plaintextModulus = 256;
 	double sigma = 4;
-	double rootHermiteFactor = 1.006;
+	double rootHermiteFactor = 1.03;
 
 	//Set Crypto Parameters
 	shared_ptr<CryptoContext<Poly>> cryptoContext = CryptoContextFactory<Poly>::genCryptoContextFV(
