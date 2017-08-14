@@ -434,8 +434,8 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 	TimeVar t1; // for TIC TOC
 	bool dbg_flag = 0;
 
-	obfuscatedPattern->SetLength(clearPattern.GetLength());
-	usint l = clearPattern.GetLength();
+	//obfuscatedPattern->SetLength(clearPattern.GetLength());
+	usint l = obfuscatedPattern->GetLength();
 	usint n = obfuscatedPattern->GetRingDimension();
 	typename Element::Integer q(obfuscatedPattern->GetModulus());
 	usint k = obfuscatedPattern->GetLogModulus();
