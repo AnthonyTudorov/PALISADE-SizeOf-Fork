@@ -36,18 +36,33 @@ class ScalarEncoding : public Plaintext {
 	bool		isSigned;
 
 public:
+	// these two constructors are used inside of Decrypt
+	ScalarEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, bool isSigned = false) :
+		Plaintext(vp,ep,true), value(0), isSigned(isSigned) {}
+
+	ScalarEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, bool isSigned = false) :
+		Plaintext(vp,ep,true), value(0), isSigned(isSigned) {}
+
 	ScalarEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, int32_t scalar) :
 		Plaintext(vp,ep), value((int32_t)scalar), isSigned(true) {}
+
 	ScalarEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, uint32_t usscalar) :
 		Plaintext(vp,ep), value(usscalar), isSigned(false) {}
+
 	ScalarEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, int32_t scalar) :
 		Plaintext(vp,ep), value((int32_t)scalar), isSigned(true) {}
+
 	ScalarEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, uint32_t usscalar) :
 		Plaintext(vp,ep), value(usscalar), isSigned(false) {}
+
 	virtual ~ScalarEncoding() {}
 
-	std::string GetEncodingName() const {
-		return isSigned ? "SignedScalar" : "Scalar";
+	ScalarEncoding& operator=(int32_t val) {
+		if( isSigned )
+			value = (int32_t)val;
+		else
+			value = val;
+		return *this;
 	}
 
 	bool Encode();
@@ -99,6 +114,12 @@ public:
 		return oth.value == this->value && oth.isSigned == this->isSigned;
 	}
 
+	void PrintValue(std::ostream& out) const {
+		if( isSigned )
+			out << (int32_t)value;
+		else
+			out << value << "U";
+	}
 };
 
 } /* namespace lbcrypto */

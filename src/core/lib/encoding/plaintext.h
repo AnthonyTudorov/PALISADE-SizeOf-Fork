@@ -60,31 +60,36 @@ protected:
 	shared_ptr<EncodingParams>			encodingParams;
 
 public:
-	Plaintext(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep) :
-		isEncoded(false), typeFlag(IsPoly), encodingParams(ep), encodedVector(vp,EVALUATION) {}
+	Plaintext(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, bool isEncoded = false) :
+		isEncoded(isEncoded), typeFlag(IsPoly), encodingParams(ep), encodedVector(vp,COEFFICIENT) {}
 
-	Plaintext(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep) :
-		isEncoded(false), typeFlag(IsDCRTPoly), encodingParams(ep), encodedVector(vp,EVALUATION) {}
+	Plaintext(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, bool isEncoded = false) :
+		isEncoded(isEncoded), typeFlag(IsDCRTPoly), encodingParams(ep), encodedVector(vp,COEFFICIENT) {}
 
 	virtual ~Plaintext() {}
 
-	virtual std::string GetEncodingName() const { return "NONE"; } // FIXME s/b = 0
+	virtual PlaintextEncodings GetEncodingType() const = 0;
 
 	bool IsEncoded() const { return isEncoded; }
 
-	virtual bool Encode() { return false; } // FIXME s/b =0
+	/**
+	 * Encode converts the plaintext into a polynomial
+	 * @return
+	 */
+	virtual bool Encode() = 0;
 
-	template<typename Element>
-	Element& GetEncodedElement() {
+	virtual bool Decode() = 0;
+
+	Poly& GetElement() {
+		return encodedVector;
+	}
+
+	Poly& GetEncodedElement() {
 		if( !IsEncoded() ) {
 			if( !this->Encode() )
 				throw std::logic_error("Encode from within GetEncodedElement failed");
 		}
-		if( std::is_same<Element,Poly>::value )
-			return encodedVector;
-		if( std::is_same<Element,DCRTPoly>::value )
-			return encodedVectorDCRT;
-		throw std::logic_error("Unknown Element type name");
+		return encodedVector;
 	}
 
 	/**
@@ -150,6 +155,12 @@ public:
 		return CompareTo(other);
 	}
 
+	friend std::ostream& operator<<(std::ostream& out, const Plaintext& item);
+
+	virtual void PrintValue(std::ostream& out) const {
+		return;
+	}
+
 	/**
 	 * Method to convert plaintext modulus to a native data type.
 	 *
@@ -165,6 +176,13 @@ public:
 		return native_int::BigInteger( ptm.ConvertToInt() );
 	}
 };
+
+inline std::ostream& operator<<(std::ostream& out, const Plaintext& item)
+{
+	item.PrintValue(out);
+	return out;
+}
+
 
 }
 

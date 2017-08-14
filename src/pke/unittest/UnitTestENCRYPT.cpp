@@ -65,9 +65,8 @@ static shared_ptr<CryptoContext<DCRTPoly>> GenerateTestDCRTCryptoContext(const s
 template <typename Element>
 void
 UnitTestNewEncryptionScalar(const shared_ptr<CryptoContext<Element>> cc) {
-	uint32_t	value = 33;
-	ScalarEncoding plaintext(cc->GetElementParams(), cc->GetEncodingParms(), value);
-	cout << "*** " << plaintext.GetEncodedElement().GetFormat() << endl;
+	uint32_t		value = 29;
+	shared_ptr<Plaintext> plaintext = cc->MakeScalarPlaintext(value);
 
 	////////////////////////////////////////////////////////////
 	//Perform the key generation operation.
@@ -88,12 +87,65 @@ UnitTestNewEncryptionScalar(const shared_ptr<CryptoContext<Element>> cc) {
 	shared_ptr<Ciphertext<Element>> ciphertext = cc->NEWEncrypt(kp.publicKey, plaintext);
 	shared_ptr<Plaintext> plaintextNew;
 	cc->NEWDecrypt(kp.secretKey, ciphertext, &plaintextNew);
-	EXPECT_EQ(plaintext, *plaintextNew);
+	EXPECT_EQ(*plaintext, *plaintextNew) << "unsigned";
+
+	shared_ptr<Plaintext> plaintext2 = cc->MakeScalarPlaintext(-value, true);
+	ciphertext = cc->NEWEncrypt(kp.publicKey, plaintext2);
+	cc->NEWDecrypt(kp.secretKey, ciphertext, &plaintextNew);
+	EXPECT_EQ(*plaintext2, *plaintextNew) << "signed";
 }
 
 TEST(UTENCRYPT, LTV_Poly_Encrypt_Decrypt_Scalar) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementLTV(4096, 2, 20);
+	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementLTV(8, 64);
 	UnitTestNewEncryptionScalar<Poly>(cc);
+}
+
+TEST(UTENCRYPT, Null_Poly_Encrypt_Decrypt_Scalar) {
+	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementNull(8, 64);
+	UnitTestNewEncryptionScalar<Poly>(cc);
+}
+TEST(UTENCRYPT, StSt_Poly_Encrypt_Decrypt_Scalar) {
+	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementStSt(8, 64);
+	UnitTestNewEncryptionScalar<Poly>(cc);
+}
+
+TEST(UTENCRYPT, BV_Poly_Encrypt_Decrypt_Scalar) {
+	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementBV(8, 64);
+	UnitTestNewEncryptionScalar<Poly>(cc);
+}
+
+TEST(UTENCRYPT, FV_Poly_Encrypt_Decrypt_Scalar) {
+	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementFV(8, 64);
+	UnitTestNewEncryptionScalar<Poly>(cc);
+}
+
+TEST(UTENCRYPT, LTV_DCRT_Encrypt_Decrypt_Scalar) {
+	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayLTV(8, 3, 64);
+	UnitTestNewEncryptionScalar<DCRTPoly>(cc);
+}
+
+TEST(UTENCRYPT, Null_DCRT_Encrypt_Decrypt_Scalar) {
+	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayNull(8, 3, 64);
+	UnitTestNewEncryptionScalar<DCRTPoly>(cc);
+}
+TEST(UTENCRYPT, StSt_DCRT_Encrypt_Decrypt_Scalar) {
+	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayStSt(8, 3, 64);
+	UnitTestNewEncryptionScalar<DCRTPoly>(cc);
+}
+
+TEST(UTENCRYPT, BV_DCRT_Encrypt_Decrypt_Scalar) {
+	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayBV(8, 3, 64);
+	UnitTestNewEncryptionScalar<DCRTPoly>(cc);
+}
+
+TEST(UTENCRYPT, FV_DCRT_Encrypt_Decrypt_Scalar) {
+	cout << "DCRT not supported for FV" << endl;
+	SUCCEED();
+	return;
+	if( 0 ) {
+		shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayFV(8, 3, 64);
+		UnitTestNewEncryptionScalar<DCRTPoly>(cc);
+	}
 }
 
 template <typename Element>
