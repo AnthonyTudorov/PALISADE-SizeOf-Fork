@@ -582,6 +582,33 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		}
 
 		/**
+		* Unimplemented function to support  a multiplication with depth larger than 2 for the NULL scheme.
+		*
+		* @param ciphertext1 The first input ciphertext.
+		* @param ciphertext2 The second input ciphertext.
+		* @param evalKey The evaluation key input.
+		* @return A shared pointer to the ciphertext which is the EvalMult of the two inputs.
+		*/
+		shared_ptr<Ciphertext<Element>> EvalMultAndRelinearize(const shared_ptr<Ciphertext<Element>> ciphertext1,
+			const shared_ptr<Ciphertext<Element>> ciphertext2,
+			const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> evalKey) const {
+			std::string errMsg = "LPAlgorithmNULL::EvalMultAndRelinearize is not implemented for the NULL Scheme.";
+			throw std::runtime_error(errMsg);
+		}
+
+		/**
+		* Unimplemented function to support multiplication of a list of ciphertexts with depth larger than 2 for the NULL scheme.
+		*
+		* @param cipherTextList is the ciphertext list input.
+		* @param evalKeys is the evaluation key list input.
+		* @return A shared pointer to the ciphertext which is the result of the multiplication.
+		*/
+		shared_ptr<Ciphertext<Element>> EvalMultMany(const shared_ptr<vector<shared_ptr<Ciphertext<Element>>>> cipherTextList, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> evalKeys) const {
+			std::string errMsg = "LPAlgorithmNULL::EvalMultMany is not implemented for the NULL Scheme.";
+			throw std::runtime_error(errMsg);
+		}
+
+		/**
 		* Function for homomorpic negation of ciphertext.
 		*
 		* @param &ciphertext input ciphertext.
@@ -669,6 +696,17 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 			return EK;
 		}
 
+		/**
+		* Function to generate key switch hint on a ciphertext for depth more than 2.
+		* Currently it is not supported.
+		*
+		* @param &newPrivateKey private key for the new ciphertext.
+		* @param *keySwitchHint the key switch hint list.
+		*/
+		shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> EvalMultKeysGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const {
+				std::string errMsg = "LPAlgorithmSHENULL::EvalMultKeysGen is not implemented for NULL SHE Scheme.";
+				throw std::runtime_error(errMsg);
+			}
 
 		/**
 		* Function for evaluating automorphism of ciphertext at index i

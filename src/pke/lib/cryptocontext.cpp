@@ -501,7 +501,7 @@ CryptoContextFactory<T>::genCryptoContextFV(shared_ptr<typename T::Params> ep,
 		const usint plaintextmodulus,
 		usint relinWindow, float stDev, const std::string& delta,
 		MODE mode, const std::string& bigmodulus, const std::string& bigrootofunity, int depth, int assuranceMeasure, float securityLevel,
-		const std::string& bigmodulusarb, const std::string& bigrootofunityarb)
+		const std::string& bigmodulusarb, const std::string& bigrootofunityarb, int maxDepth)
 {
 	shared_ptr<LPCryptoParametersFV<T>> params(
 			new LPCryptoParametersFV<T>(ep,
@@ -529,7 +529,7 @@ CryptoContextFactory<T>::genCryptoContextFV(shared_ptr<typename T::Params> ep,
 	shared_ptr<EncodingParams> encodingParams,
 	usint relinWindow, float stDev, const std::string& delta,
 	MODE mode, const std::string& bigmodulus, const std::string& bigrootofunity, int depth, int assuranceMeasure, float securityLevel,
-	const std::string& bigmodulusarb, const std::string& bigrootofunityarb)
+	const std::string& bigmodulusarb, const std::string& bigrootofunityarb, int maxDepth)
 {
 	shared_ptr<LPCryptoParametersFV<T>> params(
 		new LPCryptoParametersFV<T>(ep,
@@ -544,7 +544,8 @@ CryptoContextFactory<T>::genCryptoContextFV(shared_ptr<typename T::Params> ep,
 			BigInteger(bigrootofunity),
 			BigInteger(bigmodulusarb),
 			BigInteger(bigrootofunityarb),
-			depth));
+			depth,
+			maxDepth));
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeFV<T>());
 
@@ -555,7 +556,7 @@ template <typename T>
 shared_ptr<CryptoContext<T>>
 CryptoContextFactory<T>::genCryptoContextFV(
 		const usint plaintextModulus, float securityLevel, usint relinWindow, float dist,
-		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode)
+		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode, int maxDepth)
 {
 	int nonZeroCount = 0;
 
@@ -577,6 +578,7 @@ CryptoContextFactory<T>::genCryptoContextFV(
 	params->SetDistributionParameter(dist);
 	params->SetMode(mode);
 	params->SetAssuranceMeasure(9.0);
+	params->SetMaxDepth(maxDepth);
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeFV<T>() );
 
@@ -589,7 +591,7 @@ template <typename T>
 shared_ptr<CryptoContext<T>>
 CryptoContextFactory<T>::genCryptoContextFV(
 	shared_ptr<EncodingParams> encodingParams, float securityLevel, usint relinWindow, float dist,
-	unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode)
+	unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode, int maxDepth)
 {
 	int nonZeroCount = 0;
 
@@ -612,6 +614,7 @@ CryptoContextFactory<T>::genCryptoContextFV(
 	params->SetDistributionParameter(dist);
 	params->SetMode(mode);
 	params->SetAssuranceMeasure(9.0);
+	params->SetMaxDepth(maxDepth);
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeFV<T>());
 

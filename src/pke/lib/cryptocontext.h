@@ -1862,7 +1862,7 @@ public:
 		usint relinWindow, float stDev, const std::string& delta,
 		MODE mode = RLWE, const std::string& bigmodulus = "0", const std::string& bigrootofunity = "0",
 		int depth = 0, int assuranceMeasure = 0, float securityLevel = 0,
-		const std::string& bigmodulusarb = "0", const std::string& bigrootofunityarb = "0");
+		const std::string& bigmodulusarb = "0", const std::string& bigrootofunityarb = "0", int maxDepth = 2);
 
 	/**
 	* construct a PALISADE CryptoContext for the FV Scheme
@@ -1888,7 +1888,7 @@ public:
 		usint relinWindow, float stDev, const std::string& delta,
 		MODE mode = RLWE, const std::string& bigmodulus = "0", const std::string& bigrootofunity = "0",
 		int depth = 0, int assuranceMeasure = 0, float securityLevel = 0,
-		const std::string& bigmodulusarb = "0", const std::string& bigrootofunityarb = "0");
+		const std::string& bigmodulusarb = "0", const std::string& bigrootofunityarb = "0", int maxDepth = 2);
 
 	/**
 	* construct a PALISADE CryptoContext for the FV Scheme using the scheme's ParamsGen methods
@@ -1901,7 +1901,7 @@ public:
 	*/
 	static shared_ptr<CryptoContext<Element>> genCryptoContextFV(
 		const usint plaintextModulus, float securityLevel, usint relinWindow, float dist,
-		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED);
+		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED, int maxDepth = 2);
 
 	/**
 	* construct a PALISADE CryptoContext for the FV Scheme using the scheme's ParamsGen methods
@@ -1914,7 +1914,7 @@ public:
 	*/
 	static shared_ptr<CryptoContext<Element>> genCryptoContextFV(
 		shared_ptr<EncodingParams> encodingParams, float securityLevel, usint relinWindow, float dist,
-		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED);
+		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED, int maxDepth = 2);
 
 	/**
 	* construct a PALISADE CryptoContext for the BV Scheme

@@ -52,6 +52,7 @@ public:
 		m_relinWindow = 1;
 		m_dgg.SetStd(m_distributionParameter);
 		m_depth = 0;
+		m_maxDepth = 1;
 	}
 
 	/**
@@ -65,6 +66,7 @@ public:
 		m_relinWindow = rhs.m_relinWindow;
 		m_dgg.SetStd(m_distributionParameter);
 		m_depth = rhs.m_depth;
+		m_maxDepth = rhs.m_maxDepth;
 	}
 
 	/**
@@ -85,7 +87,8 @@ public:
 			float assuranceMeasure,
 			float securityLevel,
 			usint relinWindow,
-			int depth = 1) : LPCryptoParameters<Element>(params, plaintextModulus)
+			int depth = 1,
+			int maxDepth = 1) : LPCryptoParameters<Element>(params, plaintextModulus)
 					{
 		m_distributionParameter = distributionParameter;
 		m_assuranceMeasure = assuranceMeasure;
@@ -93,6 +96,7 @@ public:
 		m_relinWindow = relinWindow;
 		m_dgg.SetStd(m_distributionParameter);
 		m_depth = depth;
+		m_maxDepth = maxDepth;
 					}
 
 	/**
@@ -113,7 +117,8 @@ public:
 		float assuranceMeasure,
 		float securityLevel,
 		usint relinWindow,
-		int depth = 1) : LPCryptoParameters<Element>(params, encodingParams)
+		int depth = 1,
+		int maxDepth = 1) : LPCryptoParameters<Element>(params, encodingParams)
 	{
 		m_distributionParameter = distributionParameter;
 		m_assuranceMeasure = assuranceMeasure;
@@ -121,6 +126,7 @@ public:
 		m_relinWindow = relinWindow;
 		m_dgg.SetStd(m_distributionParameter);
 		m_depth = depth;
+		m_maxDepth = maxDepth;
 	}
 
 	/**
@@ -162,6 +168,13 @@ public:
 	 * @return the computation depth supported d.
 	 */
 	int GetDepth() const {return m_depth;}
+
+	/**
+	 * Returns the value of computation depth d
+	 *
+	 * @return the computation depth supported d.
+	 */
+	size_t GetMaxDepth() const {return m_maxDepth;}
 
 	/**
 	 * Returns reference to Discrete Gaussian Generator
@@ -206,6 +219,12 @@ public:
 	void SetDepth(int depth) {m_depth = depth;}
 
 	/**
+	 * Sets the value of supported computation depth d
+	 * @param depth
+	 */
+	void SetMaxDepth(size_t maxDepth) {m_maxDepth = maxDepth;}
+
+	/**
 	 * == operator to compare to this instance of LPCryptoParametersLTV object.
 	 *
 	 * @param &rhs LPCryptoParameters to check equality against.
@@ -245,6 +264,8 @@ protected:
 	usint m_relinWindow;
 	//depth of computations; used for FHE
 	int m_depth;
+	//maximum depth support of a ciphertext without keyswitching
+	size_t m_maxDepth;
 
 	typename Element::DggType m_dgg;
 

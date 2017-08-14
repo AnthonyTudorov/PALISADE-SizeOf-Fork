@@ -1251,6 +1251,29 @@ namespace lbcrypto {
 			const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const = 0;
 
 		/**
+		* Virtual function for evaluating multiplication of a ciphertext list which each multiplication is followed by relinearization operation.
+		*
+		* @param cipherTextList  is the ciphertext list.
+		* @param evalKeys is the evaluation key to make the newCiphertext
+		*  decryptable by the same secret key as that of ciphertext list.
+		* @param *newCiphertext the new resulting ciphertext.
+		*/
+		virtual shared_ptr<Ciphertext<Element>> EvalMultMany(const shared_ptr<vector<shared_ptr<Ciphertext<Element>>>> cipherTextList, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> evalKeys) const = 0;
+
+		/**
+		* Virtual function to define the interface for multiplicative homomorphic evaluation of ciphertext using the evaluation key.
+		*
+		* @param ct1 first input ciphertext.
+		* @param ct2 second input ciphertext.
+		* @param ek is the evaluation key to make the newCiphertext
+		*  decryptable by the same secret key as that of ciphertext1 and ciphertext2.
+		* @param *newCiphertext the new resulting ciphertext.
+		*/
+		virtual shared_ptr<Ciphertext<Element>> EvalMultAndRelinearize(const shared_ptr<Ciphertext<Element>> ct1,
+			const shared_ptr<Ciphertext<Element>> ct2, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> ek) const = 0;
+
+
+		/**
 		* EvalLinRegression - Computes the parameter vector for linear regression using the least squares method
 		* @param x - matrix of regressors
 		* @param y - vector of dependent variables
@@ -1385,6 +1408,15 @@ namespace lbcrypto {
 		* @param *newCiphertext the new resulting ciphertext.
 		*/
 		virtual	shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(
+			const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const = 0;
+
+		/**
+		* Virtual function to define the interface for generating a evaluation key which is used after each multiplication for depth more than 2.
+		*
+		* @param &originalPrivateKey Original private key used for encryption.
+		* @param *evalMultKeys the resulting evalution key vector list.
+		*/
+		virtual	shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> EvalMultKeysGen(
 			const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const = 0;
 
 		/**
@@ -2026,13 +2058,22 @@ namespace lbcrypto {
 			}
 		}
 
-
 		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
 			const shared_ptr<Ciphertext<Element>> ciphertext2,
 			const shared_ptr<LPEvalKey<Element>> evalKey) const {
 
 			if (this->m_algorithmSHE)
 				return this->m_algorithmSHE->EvalMult(ciphertext1, ciphertext2, evalKey);
+			else {
+				throw std::logic_error("EvalMult operation has not been enabled");
+			}
+		}
+
+		shared_ptr<Ciphertext<Element>> EvalMultMany(const shared_ptr<vector<shared_ptr<Ciphertext<Element>>>> cipherTextList, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> evalKeys) const {
+
+			if (this->m_algorithmSHE){
+				return this->m_algorithmSHE->EvalMultMany(cipherTextList, evalKeys);
+			}
 			else {
 				throw std::logic_error("EvalMult operation has not been enabled");
 			}
@@ -2199,8 +2240,26 @@ namespace lbcrypto {
 					throw std::logic_error("EvalMultKeyGen operation has not been enabled");
 				}
 		}
-
 		
+		shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> EvalMultKeysGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const {
+				if(this->m_algorithmSHE)
+					return this->m_algorithmSHE->EvalMultKeysGen(originalPrivateKey);
+				else {
+					throw std::logic_error("EvalMultKeyGen operation has not been enabled");
+				}
+		}
+
+		shared_ptr<Ciphertext<Element>> EvalMultAndRelinearize(const shared_ptr<Ciphertext<Element>> ct1,
+			const shared_ptr<Ciphertext<Element>> ct2, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> ek) const {
+				if(this->m_algorithmSHE)
+					return this->m_algorithmSHE->EvalMultAndRelinearize(ct1, ct2, ek);
+				else {
+					throw std::logic_error("EvalMultKeyGen operation has not been enabled");
+				}
+			;
+		}
+
+
 		/////////////////////////////////////////
 		// the functions below are wrappers for things in LPFHEAlgorithm (FHE)
 		//
