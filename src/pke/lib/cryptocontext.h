@@ -36,6 +36,8 @@
 #include "encoding/packedintplaintextencoding.h"
 #include "encoding/scalarencoding.h"
 #include "encoding/stringencoding.h"
+#include "encoding/integerencoding.h"
+#include "encoding/coefpackedencoding.h"
 #include "cryptocontexthelper.h"
 #include "cryptotiming.h"
 
@@ -980,6 +982,19 @@ public:
 		return shared_ptr<Plaintext>( new StringEncoding( this->GetElementParams(), this->GetEncodingParms(), str ) );
 	}
 
+	shared_ptr<Plaintext> MakeIntegerPlaintext(uint32_t value) {
+		return shared_ptr<Plaintext>( new IntegerEncoding( this->GetElementParams(), this->GetEncodingParms(), value ) );
+	}
+
+	shared_ptr<Plaintext> MakeCoefPackedPlaintext(vector<uint32_t> value, bool isSigned = false) {
+		return shared_ptr<Plaintext>( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParms(), value, isSigned ) );
+	}
+
+	// FIXME
+	shared_ptr<Plaintext> MakeCoefPackedPlaintext(uint32_t value) {
+		return shared_ptr<Plaintext>( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParms(), value ) );
+	}
+
 	// FIXME make this private
 	static shared_ptr<Plaintext>
 	GetPlaintextForDecrypt(PlaintextEncodings pte, shared_ptr<typename Element::Params> vp, shared_ptr<EncodingParams> ep) {
@@ -995,7 +1010,14 @@ public:
 			pt.reset( new ScalarEncoding(vp,ep,true) );
 			break;
 		case Integer:
+			pt.reset( new IntegerEncoding(vp,ep) );
+			break;
 		case CoeffPacked:
+			pt.reset( new CoefPackedEncoding(vp,ep,false) );
+			break;
+		case CoeffPackedSigned:
+			pt.reset( new CoefPackedEncoding(vp,ep,true) );
+			break;
 		case Packed:
 			break;
 		case String:

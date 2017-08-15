@@ -1,5 +1,5 @@
 /**
- * @file scalarencoding.cpp Represents and defines scalar-encoded plaintext objects in Palisade.
+ * @file coefpackedencoding.h Represents and defines packing integers of plaintext objects into polynomial coefficients in Palisade.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -24,42 +24,8 @@
  *
  */
 
-#include "scalarencoding.h"
+#include "coefpackedencoding.h"
 
 namespace lbcrypto {
-
-bool
-ScalarEncoding::Encode() {
-	if( this->isEncoded ) return true;
-	int64_t mod = this->encodingParams->GetPlaintextModulus().ConvertToInt();
-	uint32_t entry = value;
-
-	if( this->isSigned ) {
-		if( mod % 2 != 0 ) {
-			throw std::logic_error("Plaintext modulus must be an even number for signed scalar encoding");
-		}
-		if( (int32_t)entry < 0 ) {
-			entry = mod + entry;
-		}
-	}
-
-	this->encodedVector.SetValuesToZero();
-	if( entry >= mod )
-		throw std::logic_error("Cannot encode integer " + std::to_string(entry) + " that is > plaintext modulus " + std::to_string(mod) );
-	this->encodedVector.SetValAtIndex(0, entry);
-	this->isEncoded = true;
-	return true;
-}
-
-bool
-ScalarEncoding::Decode() {
-	this->value = this->encodedVector.GetValAtIndex(0).ConvertToInt();
-	if( isSigned ) {
-		int64_t mod = this->encodingParams->GetPlaintextModulus().ConvertToInt();
-		if( this->value >  mod/2)
-			this->value -= mod;
-	}
-	return true;
-}
 
 } /* namespace lbcrypto */

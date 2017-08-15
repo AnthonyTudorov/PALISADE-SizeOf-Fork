@@ -41,6 +41,18 @@
 
 namespace lbcrypto
 {
+
+enum PlaintextEncodings {
+	Unknown,
+	Scalar,
+	ScalarSigned,
+	Integer,
+	CoeffPacked,
+	CoeffPackedSigned,
+	Packed,
+	String,
+};
+
 /**
  * @class Plaintext
  * @brief This class represents plaintext in the Palisade library.

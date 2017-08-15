@@ -1,5 +1,5 @@
 /**
- * @file stringencoding.h Represents and defines string-encoded plaintext objects in Palisade.
+ * @file coefpackedencoding.h Represents and defines packing integers of plaintext objects into polynomial coefficients in Palisade.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -24,44 +24,46 @@
  *
  */
 
-#ifndef SRC_CORE_LIB_ENCODING_STRINGENCODING_H_
-#define SRC_CORE_LIB_ENCODING_STRINGENCODING_H_
+#ifndef SRC_CORE_LIB_ENCODING_COEFPACKEDENCODING_H_
+#define SRC_CORE_LIB_ENCODING_COEFPACKEDENCODING_H_
 
 #include "plaintext.h"
-#include <string>
-using namespace std;
 
 namespace lbcrypto {
 
-class StringEncoding: public Plaintext {
-	string	ptx;
-	enum EncodingType { CHAR7bit } encoding = CHAR7bit;
+class CoefPackedEncoding: public Plaintext {
+	vector<uint32_t>		value;
+	bool					isSigned;
 
 public:
 	// these two constructors are used inside of Decrypt
-	StringEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep) :
-		Plaintext(vp,ep,true) {}
+	CoefPackedEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, bool isSigned = false) :
+		Plaintext(vp,ep,true), isSigned(isSigned) {}
 
-	StringEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep) :
-		Plaintext(vp,ep,true) {}
+	CoefPackedEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, bool isSigned = false) :
+		Plaintext(vp,ep,true), isSigned(isSigned) {}
 
-	StringEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, string str) :
-		Plaintext(vp,ep), ptx(str) {}
+	CoefPackedEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, vector<int32_t> coeffs) :
+		Plaintext(vp,ep), value(coeffs), isSigned(true) {}
 
-	StringEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, string str) :
-		Plaintext(vp,ep), ptx(str) {}
+	CoefPackedEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, vector<uint32_t> coeffs, bool isSigned=false) :
+		Plaintext(vp,ep), value(coeffs), isSigned(isSigned) {}
 
-	// TODO provide wide-character version (for unicode); right now this class only
-	// supports strings of 7-bit ASCII characters
+	CoefPackedEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, vector<int32_t> coeffs) :
+		Plaintext(vp,ep), value(coeffs), isSigned(true) {}
 
-	virtual ~StringEncoding() {}
+	CoefPackedEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, vector<uint32_t> coeffs, bool isSigned=false) :
+		Plaintext(vp,ep), value(coeffs), isSigned(isSigned) {}
+
+	virtual ~CoefPackedEncoding() {}
+
+	bool IsSigned() const { return isSigned; }
 
 	/**
-	 * GetStringValue
-	 * @return the un-encoded string
+	 * GetScalarValue
+	 * @return the un-encoded scalar
 	 */
-	string GetStringValue() const { return ptx; }
-
+	const vector<uint32_t>& GetCoeffsValue() const { return value; }
 
 	/**
 	 * Encode the plaintext into the Poly
@@ -99,7 +101,7 @@ public:
 	 * GetEncodingType
 	 * @return proper type
 	 */
-	PlaintextEncodings GetEncodingType() const { return String; }
+	PlaintextEncodings GetEncodingType() const { return isSigned ? ScalarSigned : Scalar; }
 
 	/**
 	 * Legacy padding op, does not apply
@@ -116,7 +118,7 @@ public:
 	 *
 	 * @return number of elements in this plaintext
 	 */
-	size_t GetLength() const { return ptx.size(); }
+	size_t GetLength() const { return value.size(); }
 
 	/**
 	 * Method to compare two plaintext to test for equivalence
@@ -126,8 +128,8 @@ public:
 	 * @return whether the two plaintext are equivalent.
 	 */
 	bool CompareTo(const Plaintext& other) const {
-		const StringEncoding& oth = dynamic_cast<const StringEncoding&>(other);
-		return oth.ptx == this->ptx;
+		const CoefPackedEncoding& oth = dynamic_cast<const CoefPackedEncoding&>(other);
+		return oth.value == this->value && oth.isSigned == this->isSigned;
 	}
 
 	/**
@@ -135,10 +137,24 @@ public:
 	 * @param out
 	 */
 	void PrintValue(std::ostream& out) const {
-		out << ptx;
+		// for sanity's sake, trailing zeros get elided into "..."
+		out << "(";
+		size_t i = value.size();
+		while( --i >= 0 )
+			if( value[i] != 0 )
+				break;
+
+		if( isSigned )
+			for( size_t j = 0; j < i; j++ )
+				out << ' ' << (int32_t)value[j];
+		else
+			for( size_t j = 0; j < i; j++ )
+				out << ' ' << value[j] << 'U';
+
+		out << " ... )";
 	}
 };
 
 } /* namespace lbcrypto */
 
-#endif /* SRC_CORE_LIB_ENCODING_STRINGENCODING_H_ */
+#endif /* SRC_CORE_LIB_ENCODING_COEFPACKEDENCODING_H_ */

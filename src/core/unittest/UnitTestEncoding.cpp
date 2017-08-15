@@ -33,9 +33,9 @@
 
 #include "../lib/lattice/dcrtpoly.h"
 #include "math/backend.h"
-#include "encoding/intplaintextencoding.h"
 #include "encoding/scalarencoding.h"
 #include "encoding/stringencoding.h"
+#include "encoding/integerencoding.h"
 #include "utils/inttypes.h"
 #include "utils/utilities.h"
 #include "lattice/elemparamfactory.h"
@@ -91,30 +91,27 @@ TEST_F(UTEncoding,string_encoding) {
 	StringEncoding	se2(lp2, ep2, value);
 	se2.Encode();
 	se2.Decode();
-	EXPECT_EQ( se2.GetStringValue(), value ) << "string truncate encode/decode";
+	EXPECT_EQ( se2.GetStringValue(), value.substr(0, lp2->GetRingDimension()) ) << "string truncate encode/decode";
 }
 
-TEST_F(UTEncoding,binary_polynomial){
-	BigInteger b(1);
-	b = (b << 70) + 1;
-	IntPlaintextEncoding small(9);
-	IntPlaintextEncoding medium( ((uint64_t)1<<33) + (uint64_t)1);
-	IntPlaintextEncoding large(b);
+TEST_F(UTEncoding,integer_encoding){
+	uint64_t	m = 64;
+	shared_ptr<ILParams> lp =
+			ElemParamFactory::GenElemParams<ILParams,BigInteger>(m);
+	shared_ptr<EncodingParams> ep( new EncodingParams(64) );
 
-	EXPECT_EQ( small[0], 1U );
-	EXPECT_EQ( small[1], 0U );
-	EXPECT_EQ( small[2], 0U );
-	EXPECT_EQ( small[3], 1U );
+	uint64_t mv = ((uint64_t)1<<33) + (uint64_t)1;
 
-	EXPECT_EQ( medium[0], 1U );
-	EXPECT_EQ( medium[33], 1U);
-	for( size_t ii=1; ii<33; ii++ )
-		EXPECT_EQ( medium[ii], 0U);
+	IntegerEncoding small(lp, ep, 9U);
+	IntegerEncoding medium(lp, ep, mv);
+	small.Encode();
+	medium.Encode();
+	small.Decode();
+	medium.Decode();
 
-	EXPECT_EQ( large[0], 1U );
-	EXPECT_EQ( large[70], 1U );
-	for( size_t ii=1; ii<70; ii++ )
-		EXPECT_EQ( large[ii], 0U);
+	EXPECT_EQ( small.GetIntegerValue(), 9U ) << "small";
+
+	EXPECT_EQ( medium.GetIntegerValue(), mv ) << "medium";
 }
 
 

@@ -57,6 +57,8 @@ public:
 
 	virtual ~ScalarEncoding() {}
 
+	bool IsSigned() const { return isSigned; }
+
 	/**
 	 * GetScalarValue
 	 * @return the un-encoded scalar

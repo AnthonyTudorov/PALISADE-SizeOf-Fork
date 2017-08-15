@@ -1,5 +1,5 @@
 /**
- * @file scalarencoding.cpp Represents and defines scalar-encoded plaintext objects in Palisade.
+ * @file integerencoding.h Represents and defines integer-encoded plaintext objects in Palisade.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -24,42 +24,59 @@
  *
  */
 
-#include "scalarencoding.h"
+#include "integerencoding.h"
 
 namespace lbcrypto {
 
 bool
-ScalarEncoding::Encode() {
+IntegerEncoding::Encode() {
 	if( this->isEncoded ) return true;
-	int64_t mod = this->encodingParams->GetPlaintextModulus().ConvertToInt();
-	uint32_t entry = value;
 
-	if( this->isSigned ) {
-		if( mod % 2 != 0 ) {
-			throw std::logic_error("Plaintext modulus must be an even number for signed scalar encoding");
-		}
-		if( (int32_t)entry < 0 ) {
-			entry = mod + entry;
-		}
-	}
+	uint64_t mod = this->encodingParams->GetPlaintextModulus().ConvertToInt();
+	if( mod < 2 )
+		throw std::logic_error("Plaintext modulus must be 2 or more for integer encoding");
 
 	this->encodedVector.SetValuesToZero();
-	if( entry >= mod )
-		throw std::logic_error("Cannot encode integer " + std::to_string(entry) + " that is > plaintext modulus " + std::to_string(mod) );
-	this->encodedVector.SetValAtIndex(0, entry);
+
+	if( log2((double)value) > (double)this->encodedVector.GetLength() )
+		throw std::logic_error("Plaintext value " + std::to_string(value) + " will not fit in encoding");
+
+	uint64_t val = this->value;
+	size_t i = 0;
+
+	while( val > 0 ) {
+		this->encodedVector.SetValAtIndex(i++, val & 0x01);
+		val >>= 1;
+	}
+
 	this->isEncoded = true;
 	return true;
 }
 
 bool
-ScalarEncoding::Decode() {
-	this->value = this->encodedVector.GetValAtIndex(0).ConvertToInt();
-	if( isSigned ) {
-		int64_t mod = this->encodingParams->GetPlaintextModulus().ConvertToInt();
-		if( this->value >  mod/2)
-			this->value -= mod;
+IntegerEncoding::Decode() {
+	uint64_t modulus = this->encodingParams->GetPlaintextModulus().ConvertToInt();
+	uint64_t result = 0;
+	uint64_t powerFactor = 1;
+	uint64_t half(modulus >> 1);
+	for (size_t i = 0; i < this->encodedVector.GetLength(); i++) {
+
+		auto val = this->encodedVector.GetValAtIndex(i).ConvertToInt();
+
+		if( val != 0 ) {
+			// deal with unsigned representation
+			if (val < half)
+				result += powerFactor * val;
+			else
+				result -= powerFactor * (modulus - val);
+		}
+
+		// multiply the power factor by 2
+		powerFactor <<= 1;
 	}
+	value = result;
 	return true;
 }
+
 
 } /* namespace lbcrypto */

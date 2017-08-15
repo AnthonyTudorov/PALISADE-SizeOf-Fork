@@ -150,6 +150,87 @@ TEST(UTENCRYPT, FV_DCRT_Encrypt_Decrypt_Scalar) {
 
 template <typename Element>
 void
+UnitTestNewEncryptionInteger(const shared_ptr<CryptoContext<Element>> cc) {
+	uint64_t		value = 256*256*256;
+	shared_ptr<Plaintext> plaintext = cc->MakeIntegerPlaintext(value);
+
+	////////////////////////////////////////////////////////////
+	//Perform the key generation operation.
+	////////////////////////////////////////////////////////////
+
+	// Initialize the key containers.
+	LPKeyPair<Element> kp = cc->KeyGen();
+
+	if (!kp.good()) {
+		std::cout << "Key generation failed!" << std::endl;
+		exit(1);
+	}
+
+	////////////////////////////////////////////////////////////
+	//Encrypt and decrypt
+	////////////////////////////////////////////////////////////
+
+	shared_ptr<Ciphertext<Element>> ciphertext = cc->NEWEncrypt(kp.publicKey, plaintext);
+	shared_ptr<Plaintext> plaintextNew;
+	cc->NEWDecrypt(kp.secretKey, ciphertext, &plaintextNew);
+	EXPECT_EQ(*plaintext, *plaintextNew);
+}
+
+TEST(UTENCRYPT, LTV_Poly_Encrypt_Decrypt_Integer) {
+	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementLTV(2048, 64);
+	UnitTestNewEncryptionInteger<Poly>(cc);
+}
+
+TEST(UTENCRYPT, Null_Poly_Encrypt_Decrypt_Integer) {
+	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementNull(128, 64);
+	UnitTestNewEncryptionInteger<Poly>(cc);
+}
+TEST(UTENCRYPT, StSt_Poly_Encrypt_Decrypt_Integer) {
+	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementStSt(4096, 64);
+	UnitTestNewEncryptionInteger<Poly>(cc);
+}
+
+TEST(UTENCRYPT, BV_Poly_Encrypt_Decrypt_Integer) {
+	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementBV(128, 64);
+	UnitTestNewEncryptionInteger<Poly>(cc);
+}
+
+TEST(UTENCRYPT, FV_Poly_Encrypt_Decrypt_Integer) {
+	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementFV(128, 64);
+	UnitTestNewEncryptionInteger<Poly>(cc);
+}
+
+TEST(UTENCRYPT, LTV_DCRT_Encrypt_Decrypt_Integer) {
+	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayLTV(128, 3, 64);
+	UnitTestNewEncryptionInteger<DCRTPoly>(cc);
+}
+
+TEST(UTENCRYPT, Null_DCRT_Encrypt_Decrypt_Integer) {
+	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayNull(128, 3, 64);
+	UnitTestNewEncryptionInteger<DCRTPoly>(cc);
+}
+TEST(UTENCRYPT, StSt_DCRT_Encrypt_Decrypt_Integer) {
+	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayStSt(128, 3, 64);
+	UnitTestNewEncryptionInteger<DCRTPoly>(cc);
+}
+
+TEST(UTENCRYPT, BV_DCRT_Encrypt_Decrypt_Integer) {
+	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayBV(128, 3, 64);
+	UnitTestNewEncryptionInteger<DCRTPoly>(cc);
+}
+
+TEST(UTENCRYPT, FV_DCRT_Encrypt_Decrypt_Integer) {
+	cout << "DCRT not supported for FV" << endl;
+	SUCCEED();
+	return;
+	if( 0 ) {
+		shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayFV(128, 3, 64);
+		UnitTestNewEncryptionInteger<DCRTPoly>(cc);
+	}
+}
+
+template <typename Element>
+void
 UnitTestNewEncryptionString(const shared_ptr<CryptoContext<Element>> cc) {
 	string		value = "You keep using that word. I do not think it means what you think it means";
 	shared_ptr<Plaintext> plaintext = cc->MakeStringPlaintext(value);

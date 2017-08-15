@@ -1,5 +1,5 @@
 /**
- * @file stringencoding.h Represents and defines string-encoded plaintext objects in Palisade.
+ * @file integerencoding.h Represents and defines integer-encoded plaintext objects in Palisade.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -24,44 +24,37 @@
  *
  */
 
-#ifndef SRC_CORE_LIB_ENCODING_STRINGENCODING_H_
-#define SRC_CORE_LIB_ENCODING_STRINGENCODING_H_
+#ifndef SRC_CORE_LIB_ENCODING_INTEGERENCODING_H_
+#define SRC_CORE_LIB_ENCODING_INTEGERENCODING_H_
 
 #include "plaintext.h"
-#include <string>
-using namespace std;
 
 namespace lbcrypto {
 
-class StringEncoding: public Plaintext {
-	string	ptx;
-	enum EncodingType { CHAR7bit } encoding = CHAR7bit;
+class IntegerEncoding: public Plaintext {
+	uint64_t		value;
 
 public:
 	// these two constructors are used inside of Decrypt
-	StringEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep) :
-		Plaintext(vp,ep,true) {}
+	IntegerEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep) :
+		Plaintext(vp,ep,true), value(0) {}
 
-	StringEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep) :
-		Plaintext(vp,ep,true) {}
+	IntegerEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep) :
+		Plaintext(vp,ep,true), value(0) {}
 
-	StringEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, string str) :
-		Plaintext(vp,ep), ptx(str) {}
+	IntegerEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, uint64_t scalar) :
+		Plaintext(vp,ep), value(scalar) {}
 
-	StringEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, string str) :
-		Plaintext(vp,ep), ptx(str) {}
+	IntegerEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, uint64_t scalar) :
+		Plaintext(vp,ep), value(scalar) {}
 
-	// TODO provide wide-character version (for unicode); right now this class only
-	// supports strings of 7-bit ASCII characters
-
-	virtual ~StringEncoding() {}
+	virtual ~IntegerEncoding() {}
 
 	/**
-	 * GetStringValue
-	 * @return the un-encoded string
+	 * GetScalarValue
+	 * @return the un-encoded scalar
 	 */
-	string GetStringValue() const { return ptx; }
-
+	uint64_t GetIntegerValue() const { return value; }
 
 	/**
 	 * Encode the plaintext into the Poly
@@ -99,7 +92,7 @@ public:
 	 * GetEncodingType
 	 * @return proper type
 	 */
-	PlaintextEncodings GetEncodingType() const { return String; }
+	PlaintextEncodings GetEncodingType() const { return Integer; }
 
 	/**
 	 * Legacy padding op, does not apply
@@ -116,7 +109,7 @@ public:
 	 *
 	 * @return number of elements in this plaintext
 	 */
-	size_t GetLength() const { return ptx.size(); }
+	size_t GetLength() const { return 1; }
 
 	/**
 	 * Method to compare two plaintext to test for equivalence
@@ -126,8 +119,8 @@ public:
 	 * @return whether the two plaintext are equivalent.
 	 */
 	bool CompareTo(const Plaintext& other) const {
-		const StringEncoding& oth = dynamic_cast<const StringEncoding&>(other);
-		return oth.ptx == this->ptx;
+		const IntegerEncoding& oth = dynamic_cast<const IntegerEncoding&>(other);
+		return oth.value == this->value;
 	}
 
 	/**
@@ -135,10 +128,10 @@ public:
 	 * @param out
 	 */
 	void PrintValue(std::ostream& out) const {
-		out << ptx;
+		out << value;
 	}
 };
 
 } /* namespace lbcrypto */
 
-#endif /* SRC_CORE_LIB_ENCODING_STRINGENCODING_H_ */
+#endif /* SRC_CORE_LIB_ENCODING_INTEGERENCODING_H_ */
