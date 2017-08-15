@@ -34,6 +34,8 @@
 #include "encoding/byteplaintextencoding.h"
 #include "encoding/intplaintextencoding.h"
 #include "encoding/packedintplaintextencoding.h"
+#include "encoding/scalarencoding.h"
+#include "encoding/stringencoding.h"
 #include "cryptocontexthelper.h"
 #include "cryptotiming.h"
 
@@ -974,6 +976,10 @@ public:
 			return shared_ptr<Plaintext>( new ScalarEncoding( this->GetElementParams(), this->GetEncodingParms(), value ) );
 	}
 
+	shared_ptr<Plaintext> MakeStringPlaintext(string str) {
+		return shared_ptr<Plaintext>( new StringEncoding( this->GetElementParams(), this->GetEncodingParms(), str ) );
+	}
+
 	// FIXME make this private
 	static shared_ptr<Plaintext>
 	GetPlaintextForDecrypt(PlaintextEncodings pte, shared_ptr<typename Element::Params> vp, shared_ptr<EncodingParams> ep) {
@@ -991,7 +997,9 @@ public:
 		case Integer:
 		case CoeffPacked:
 		case Packed:
+			break;
 		case String:
+			pt.reset( new StringEncoding(vp,ep) );
 			break;
 		}
 

@@ -68,22 +68,42 @@ public:
 
 	virtual ~Plaintext() {}
 
+	/**
+	 * GetEncodingTyoe
+	 * @return Encoding type used by the class
+	 */
 	virtual PlaintextEncodings GetEncodingType() const = 0;
 
+	/**
+	 * IsEncoded
+	 * @return true when encoding is done
+	 */
 	bool IsEncoded() const { return isEncoded; }
 
 	/**
-	 * Encode converts the plaintext into a polynomial
-	 * @return
+	 * Encode the plaintext into a polynomial
+	 * @return true on success
 	 */
 	virtual bool Encode() = 0;
 
+	/**
+	 * Decode the polynomial into the plaintext
+	 * @return
+	 */
 	virtual bool Decode() = 0;
 
+	/**
+	 * GetElement
+	 * @return the Polynomial that the element was encoded into
+	 */
 	Poly& GetElement() {
 		return encodedVector;
 	}
 
+	/**
+	 * GetEncodedElement encodes, if necessary
+	 * @return the Polynomial that the element was encoded into
+	 */
 	Poly& GetEncodedElement() {
 		if( !IsEncoded() ) {
 			if( !this->Encode() )
@@ -135,7 +155,8 @@ public:
 	virtual size_t GetLength() const = 0;
 
 	/**
-	 * Method to compare two plaintext to test for equivalence.  This method does not test that the plaintext are of the same type.
+	 * Method to compare two plaintext to test for equivalence.
+	 * This method is called by operator==
 	 *
 	 * @param other - the other plaintext to compare to.
 	 * @return whether the two plaintext are equivalent.
@@ -143,7 +164,7 @@ public:
 	virtual bool CompareTo(const Plaintext& other) const = 0;
 
 	/**
-	 * Method to compare two plaintext to test for euality to.  This method makes sure the plaintext are of the same type.
+	 * operator== for plaintexts.  This method makes sure the plaintext are of the same type.
 	 *
 	 * @param other - the other plaintext to compare to.
 	 * @return whether the two plaintext are the same.
@@ -155,8 +176,20 @@ public:
 		return CompareTo(other);
 	}
 
+	bool operator!=(const Plaintext& other) const { return !(*this == other); }
+
+	/**
+	 * operator<< for ostream integration - calls PrintValue
+	 * @param out
+	 * @param item
+	 * @return
+	 */
 	friend std::ostream& operator<<(std::ostream& out, const Plaintext& item);
 
+	/**
+	 * PrintValue is called by operator<<
+	 * @param out
+	 */
 	virtual void PrintValue(std::ostream& out) const {
 		return;
 	}

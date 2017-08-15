@@ -1,5 +1,5 @@
 /**
- * @file scalarencoding.h Represents and defines scalar-encoded plaintext objects in Palisade.
+ * @file stringencoding.h Represents and defines string-encoded plaintext objects in Palisade.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -24,38 +24,33 @@
  *
  */
 
-#ifndef SRC_CORE_LIB_ENCODING_SCALARENCODING_H_
-#define SRC_CORE_LIB_ENCODING_SCALARENCODING_H_
+#ifndef SRC_CORE_LIB_ENCODING_STRINGENCODING_H_
+#define SRC_CORE_LIB_ENCODING_STRINGENCODING_H_
 
 #include "plaintext.h"
+#include <string>
+using namespace std;
 
 namespace lbcrypto {
 
-class ScalarEncoding : public Plaintext {
-	uint32_t	value;
-	bool		isSigned;
+class StringEncoding: public Plaintext {
+	string	ptx;
 
 public:
 	// these two constructors are used inside of Decrypt
-	ScalarEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, bool isSigned = false) :
-		Plaintext(vp,ep,true), value(0), isSigned(isSigned) {}
+	StringEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep) :
+		Plaintext(vp,ep,true) {}
 
-	ScalarEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, bool isSigned = false) :
-		Plaintext(vp,ep,true), value(0), isSigned(isSigned) {}
+	StringEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep) :
+		Plaintext(vp,ep,true) {}
 
-	ScalarEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, int32_t scalar) :
-		Plaintext(vp,ep), value((int32_t)scalar), isSigned(true) {}
+	StringEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, string str) :
+		Plaintext(vp,ep), ptx(str) {}
 
-	ScalarEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, uint32_t usscalar) :
-		Plaintext(vp,ep), value(usscalar), isSigned(false) {}
+	StringEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, string str) :
+		Plaintext(vp,ep), ptx(str) {}
 
-	ScalarEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, int32_t scalar) :
-		Plaintext(vp,ep), value((int32_t)scalar), isSigned(true) {}
-
-	ScalarEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, uint32_t usscalar) :
-		Plaintext(vp,ep), value(usscalar), isSigned(false) {}
-
-	virtual ~ScalarEncoding() {}
+	virtual ~StringEncoding();
 
 	/**
 	 * Encode the plaintext into the Poly
@@ -93,7 +88,7 @@ public:
 	 * GetEncodingType
 	 * @return proper type
 	 */
-	PlaintextEncodings GetEncodingType() const { return isSigned ? ScalarSigned : Scalar; }
+	PlaintextEncodings GetEncodingType() const { return String; }
 
 	/**
 	 * Legacy padding op, does not apply
@@ -103,7 +98,7 @@ public:
 	/**
 	 * Legacy chunking op, does not apply
 	 */
-	size_t GetChunksize(const usint ring, const BigInteger& ptm) { return 0; }
+	size_t GetChunksize(const usint ring, const BigInteger& ptm) const { return 0; }
 
 	/**
 	 * Get length of the plaintext
@@ -120,8 +115,8 @@ public:
 	 * @return whether the two plaintext are equivalent.
 	 */
 	bool CompareTo(const Plaintext& other) const {
-		const ScalarEncoding& oth = dynamic_cast<const ScalarEncoding&>(other);
-		return oth.value == this->value && oth.isSigned == this->isSigned;
+		const StringEncoding& oth = dynamic_cast<const StringEncoding&>(other);
+		return oth.ptx == this->ptx;
 	}
 
 	/**
@@ -129,13 +124,10 @@ public:
 	 * @param out
 	 */
 	void PrintValue(std::ostream& out) const {
-		if( isSigned )
-			out << (int32_t)value;
-		else
-			out << value << "U";
+		out << ptx;
 	}
 };
 
 } /* namespace lbcrypto */
 
-#endif /* SRC_CORE_LIB_ENCODING_SCALARENCODING_H_ */
+#endif /* SRC_CORE_LIB_ENCODING_STRINGENCODING_H_ */

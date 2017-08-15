@@ -1,5 +1,5 @@
 /**
- * @file scalarencoding.cpp Represents and defines scalar-encoded plaintext objects in Palisade.
+ * @file stringencoding.h Represents and defines string-encoded plaintext objects in Palisade.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -24,41 +24,33 @@
  *
  */
 
-#include "scalarencoding.h"
+#include "stringencoding.h"
 
 namespace lbcrypto {
 
 bool
-ScalarEncoding::Encode() {
+StringEncoding::Encode() {
 	if( this->isEncoded ) return true;
 	int64_t mod = this->encodingParams->GetPlaintextModulus().ConvertToInt();
-	uint32_t entry = value;
 
-	if( this->isSigned ) {
-		if( mod % 2 != 0 ) {
-			throw std::logic_error("Plaintext modulus must be an even number for signed integer encoding");
-		}
-		if( (int32_t)entry < 0 ) {
-			entry = mod + entry;
-		}
+	if( mod != 1<<8 ) {
+		throw std::logic_error("Plaintext modulus must be 1<<8 for string encoding");
 	}
 
 	this->encodedVector.SetValuesToZero();
-	if( entry >= mod )
-		throw std::logic_error("Cannot encode integer " + std::to_string(entry) + " that is > plaintext modulus " + std::to_string(mod) );
-	this->encodedVector.SetValAtIndex(0, entry);
+	for( size_t i=0; i<ptx.size(); i++)
+		this->encodedVector.SetValAtIndex(i, ptx[i]);
+
 	this->isEncoded = true;
 	return true;
 }
 
 bool
-ScalarEncoding::Decode() {
-	this->value = this->encodedVector.GetValAtIndex(0).ConvertToInt();
-	if( isSigned ) {
-		int64_t mod = this->encodingParams->GetPlaintextModulus().ConvertToInt();
-		if( this->value >  mod/2)
-			this->value -= mod;
-	}
+StringEncoding::Decode() {
+	int64_t mod = this->encodingParams->GetPlaintextModulus().ConvertToInt();
+	this->ptx.clear();
+	for( size_t i=0; i<encodedVector.GetLength(); i++)
+		this->ptx += (char)((this->encodedVector.GetValAtIndex(i).ConvertToInt() % mod)&0xff);
 	return true;
 }
 
