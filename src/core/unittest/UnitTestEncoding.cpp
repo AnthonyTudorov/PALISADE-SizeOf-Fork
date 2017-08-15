@@ -35,6 +35,7 @@
 #include "math/backend.h"
 #include "encoding/intplaintextencoding.h"
 #include "encoding/scalarencoding.h"
+#include "encoding/stringencoding.h"
 #include "utils/inttypes.h"
 #include "utils/utilities.h"
 #include "lattice/elemparamfactory.h"
@@ -61,8 +62,36 @@ TEST_F(UTEncoding,scalar_encoding) {
 
 	shared_ptr<ILParams> lp =
 			ElemParamFactory::GenElemParams<ILParams,BigInteger>(m);
-	shared_ptr<EncodingParms> ep( new EncodingParms(32) );
-	ScalarEncoding	se(lp, ep, 47);
+	shared_ptr<EncodingParams> ep( new EncodingParams(64) );
+	ScalarEncoding	se(lp, ep, value);
+	se.Encode();
+	EXPECT_EQ( se.GetElement().GetValAtIndex(0), value );
+	EXPECT_EQ( se.GetElement().GetValAtIndex(1), 0 );
+
+	se.Decode();
+	EXPECT_EQ( se.GetScalarValue(), value );
+}
+
+TEST_F(UTEncoding,string_encoding) {
+	string value = "Hello, world!";
+	usint m = 64;
+
+	shared_ptr<ILParams> lp =
+			ElemParamFactory::GenElemParams<ILParams,BigInteger>(m);
+	shared_ptr<EncodingParams> ep( new EncodingParams(256) );
+	StringEncoding	se(lp, ep, value);
+	se.Encode();
+	se.Decode();
+	EXPECT_EQ( se.GetStringValue(), value ) << "string encode/decode";
+
+	// truncate!
+	shared_ptr<ILParams> lp2 =
+			ElemParamFactory::GenElemParams<ILParams,BigInteger>(4);
+	shared_ptr<EncodingParams> ep2( new EncodingParams(256) );
+	StringEncoding	se2(lp2, ep2, value);
+	se2.Encode();
+	se2.Decode();
+	EXPECT_EQ( se2.GetStringValue(), value ) << "string truncate encode/decode";
 }
 
 TEST_F(UTEncoding,binary_polynomial){

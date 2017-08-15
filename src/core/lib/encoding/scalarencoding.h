@@ -58,6 +58,12 @@ public:
 	virtual ~ScalarEncoding() {}
 
 	/**
+	 * GetScalarValue
+	 * @return the un-encoded scalar
+	 */
+	uint32_t GetScalarValue() const { return value; }
+
+	/**
 	 * Encode the plaintext into the Poly
 	 * @return true on success
 	 */

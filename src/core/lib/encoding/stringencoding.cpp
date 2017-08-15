@@ -28,18 +28,26 @@
 
 namespace lbcrypto {
 
+static const size_t		charPtm = (1<<8);
+static const uint32_t	CHARMARKER = (1<<7);
+
 bool
 StringEncoding::Encode() {
 	if( this->isEncoded ) return true;
 	int64_t mod = this->encodingParams->GetPlaintextModulus().ConvertToInt();
 
-	if( mod != 1<<8 ) {
-		throw std::logic_error("Plaintext modulus must be 1<<8 for string encoding");
+	if( mod != 256 ) {
+		throw std::logic_error("Plaintext modulus must be " + std::to_string(charPtm) + " for string encoding");
 	}
 
 	this->encodedVector.SetValuesToZero();
-	for( size_t i=0; i<ptx.size(); i++)
+	size_t i = 0;
+	for( ; i<ptx.size() && i<encodedVector.GetLength(); i++ ) {
 		this->encodedVector.SetValAtIndex(i, ptx[i]);
+	}
+	for( ; i<encodedVector.GetLength(); i++ ) {
+		this->encodedVector.SetValAtIndex(i, CHARMARKER);
+	}
 
 	this->isEncoded = true;
 	return true;
@@ -49,8 +57,12 @@ bool
 StringEncoding::Decode() {
 	int64_t mod = this->encodingParams->GetPlaintextModulus().ConvertToInt();
 	this->ptx.clear();
-	for( size_t i=0; i<encodedVector.GetLength(); i++)
-		this->ptx += (char)((this->encodedVector.GetValAtIndex(i).ConvertToInt() % mod)&0xff);
+	for( size_t i=0; i<encodedVector.GetLength(); i++) {
+		uint32_t ch = (this->encodedVector.GetValAtIndex(i).ConvertToInt() % mod) & 0xff;
+		if( ch == CHARMARKER )
+			break;
+		this->ptx += (char)(ch);
+	}
 	return true;
 }
 

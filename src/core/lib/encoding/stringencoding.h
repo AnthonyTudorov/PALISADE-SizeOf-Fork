@@ -35,6 +35,7 @@ namespace lbcrypto {
 
 class StringEncoding: public Plaintext {
 	string	ptx;
+	enum EncodingType { CHAR7bit } encoding = CHAR7bit;
 
 public:
 	// these two constructors are used inside of Decrypt
@@ -50,7 +51,17 @@ public:
 	StringEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, string str) :
 		Plaintext(vp,ep), ptx(str) {}
 
-	virtual ~StringEncoding();
+	// TODO provide wide-character version (for unicode); right now this class only
+	// supports strings of 7-bit ASCII characters
+
+	virtual ~StringEncoding() {}
+
+	/**
+	 * GetStringValue
+	 * @return the un-encoded string
+	 */
+	string GetStringValue() const { return ptx; }
+
 
 	/**
 	 * Encode the plaintext into the Poly
