@@ -405,7 +405,7 @@ namespace lbcrypto {
 		void KeyGen(LPSignKeyGPVGM<Element> *signKey,
 			LPVerificationKeyGPVGM<Element> *verificationKey);
 	private:
-		int32_t seed;
+		std::vector<char> seed;
 	};
 }
 #endif
