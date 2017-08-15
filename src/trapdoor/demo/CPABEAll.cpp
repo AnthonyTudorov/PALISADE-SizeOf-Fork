@@ -5,7 +5,7 @@
 #include <fstream>
 
 #include "utils/debug.h"
-#include <valgrind/callgrind.h>
+//#include <valgrind/callgrind.h>
 
 #include <omp.h> //open MP header
 
@@ -155,11 +155,11 @@ int CPABE_Test(int iter, int32_t base, usint ringDimension, usint k, usint ell,/
 		start = currentDateTime();
 
 		if(offline){
-			CALLGRIND_START_INSTRUMENTATION;
-			CALLGRIND_TOGGLE_COLLECT;
+	//		CALLGRIND_START_INSTRUMENTATION;
+	//		CALLGRIND_TOGGLE_COLLECT;
 			perturbationVector = pkg.KeyGenOffline( trapdoor.second, dgg);
-			CALLGRIND_TOGGLE_COLLECT;
-			CALLGRIND_STOP_INSTRUMENTATION;
+	//		CALLGRIND_TOGGLE_COLLECT;
+	//		CALLGRIND_STOP_INSTRUMENTATION;
 		}
 		finish = currentDateTime();
 		avg_keygen_offline += (finish - start);
