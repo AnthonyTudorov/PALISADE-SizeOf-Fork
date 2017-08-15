@@ -5,13 +5,14 @@
 #include <fstream>
 
 #include "utils/debug.h"
+#include <valgrind/callgrind.h>
 
 #include <omp.h> //open MP header
 
 using namespace lbcrypto;
 
 int TestKeyGenCP(const shared_ptr<ILParams> ilParams, usint m, usint ell, const usint s[], const RingMat &a, const RingMat &pubElemBPos, const RingMat &pubElemBNeg, const Poly &pubElemU, RingMat &sk);
-int CPABE_Test(int iter, int32_t base, usint ringDimension, usint k, usint ell, BigInteger q, BigInteger rootOfUnity, bool offline);
+int CPABE_Test(int iter, int32_t base, usint ringDimension, usint k, usint ell, /*BigInteger q, BigInteger rootOfUnity,*/ bool offline);
 
 struct Params_Set {
 	usint base;			// Base
@@ -27,24 +28,24 @@ int main()
 	std::cout << "-------Start demo for CP-ABE-------" << std::endl;
 
 	Params_Set const cpabe_params[] = {
-		{ 2, 31, 1024, "1073750017", "87849761"}, 
-		{ 4, 31, 1024, "1073750017", "143852881"},
-		{ 8, 31, 1024, "1073750017", "572531104"},
-		{ 16, 32, 1024, "2147577857", "1900992427"},
-		{ 32, 33, 1024, "4295688193", "2328426645"},
-		{ 64, 33, 1024, "8590151681", "2049477248"}, 
-		{ 128, 34, 1024, "8590151681", "7863638704"}, 
-		{ 256, 36, 1024, "34359771137", "23564286758"}, 
-		{ 512, 36, 1024, "34359771137", "23564286758"},
+		{ 2, 32, 1024, "1073750017", "87849761"},
+		{ 4, 32, 1024, "1073750017", "143852881"},
+		{ 8, 32, 1024, "1073750017", "572531104"},
+		{ 16, 33, 1024, "2147577857", "1900992427"},
+		{ 32, 34, 1024, "4295688193", "2328426645"},
+		{ 64, 35, 1024, "8590151681", "2049477248"},
+		{ 128, 36, 1024, "8590151681", "7863638704"},
+		{ 256, 37, 1024, "34359771137", "23564286758"},
+		{ 512, 37, 1024, "34359771137", "23564286758"},
 		{ 1024, 37, 1024, "68719484929", "25395964250"}
 	};	
 
 	usint ell[] = { 6, 8, 16, 20, 32 };  
-	for(usint i = 4; i < 7;i++){
+	for(usint i = 9; i < 10;i++){
 		BigInteger modulus(cpabe_params[i].modulus);
 		BigInteger rootOfUnity(cpabe_params[i].rootOfUnity);
 		for(usint j = 0; j < 5; j++){
-			CPABE_Test(2000, cpabe_params[i].base, cpabe_params[i].ringDimension, cpabe_params[i].q, ell[j], modulus, rootOfUnity, true);
+			CPABE_Test(1000, cpabe_params[i].base, cpabe_params[i].ringDimension, cpabe_params[i].q, ell[j],/* modulus, rootOfUnity,*/ true);
 		}
 	}	
 	std::cout << "-------End demo for CP-ABE-------" << std::endl << std::endl;
@@ -54,15 +55,15 @@ int main()
 
 
 
-int CPABE_Test(int iter, int32_t base, usint ringDimension, usint k, usint ell, BigInteger q, BigInteger rootOfUnity, bool offline)
+int CPABE_Test(int iter, int32_t base, usint ringDimension, usint k, usint ell,/* BigInteger q, BigInteger rootOfUnity,*/ bool offline)
 {
 //	k = 36;
 	usint n = ringDimension*2;
 
-/*	q = BigInteger::ONE << (k-1);
+	BigInteger q = BigInteger::ONE << (k-1);
 	q = lbcrypto::FirstPrime<BigInteger>(k,n);
-	rootOfUnity = (RootOfUnity(n, q));
-*/	
+	BigInteger rootOfUnity = (RootOfUnity(n, q));
+
 	double val = q.ConvertToDouble();
 	double logTwo = log(val-1.0)/log(base)+1.0;
 	size_t k_ = (usint) floor(logTwo); /*+ 1;   (+1) is For NAF */
@@ -152,9 +153,14 @@ int CPABE_Test(int iter, int32_t base, usint ringDimension, usint k, usint ell, 
 
 		shared_ptr<RingMat> perturbationVector;
 		start = currentDateTime();
-		if(offline)
-			perturbationVector = pkg.KeyGenOffline( trapdoor.second, dgg);
 
+		if(offline){
+			CALLGRIND_START_INSTRUMENTATION;
+			CALLGRIND_TOGGLE_COLLECT;
+			perturbationVector = pkg.KeyGenOffline( trapdoor.second, dgg);
+			CALLGRIND_TOGGLE_COLLECT;
+			CALLGRIND_STOP_INSTRUMENTATION;
+		}
 		finish = currentDateTime();
 		avg_keygen_offline += (finish - start);
 		
