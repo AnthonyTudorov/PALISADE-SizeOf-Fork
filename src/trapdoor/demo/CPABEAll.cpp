@@ -41,7 +41,7 @@ int main()
 	};	
 
 	usint ell[] = { 6, 8, 16, 20, 32 };  
-	for(usint i = 9; i < 10;i++){
+	for(usint i = 0; i < 10;i++){
 		BigInteger modulus(cpabe_params[i].modulus);
 		BigInteger rootOfUnity(cpabe_params[i].rootOfUnity);
 		for(usint j = 0; j < 5; j++){
