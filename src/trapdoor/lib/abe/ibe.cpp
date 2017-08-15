@@ -161,7 +161,14 @@ namespace lbcrypto {
 		Poly *ctC1
 	)
 	{
-		RingMat err(Poly::MakeDiscreteGaussianCoefficientAllocator(ilParams, EVALUATION, SIGMA), m_m+1, 1);
+//		RingMat err(Poly::MakeDiscreteGaussianCoefficientAllocator(ilParams, EVALUATION, SIGMA), m_m+1, 1);
+
+		RingMat err(Poly::MakeDiscreteGaussianCoefficientAllocator(ilParams, COEFFICIENT, SIGMA),m_m+1, 1);
+
+#pragma omp parallel for num_threads(4)
+		for(usint i=0; i < m_m+1;i++){
+				err(i,0).SwitchFormat();
+		}
 
 		Poly s(dug, ilParams, COEFFICIENT);
 		s.SwitchFormat();
