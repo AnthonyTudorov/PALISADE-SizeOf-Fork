@@ -263,7 +263,7 @@ namespace lbcrypto {
 				lenW++;
 
 		RingMat err(Poly::MakeDiscreteGaussianCoefficientAllocator(ilParams, COEFFICIENT, SIGMA), m_m, 2*m_ell+2-lenW);
-//#pragma omp parallel for
+#pragma omp parallel for num_threads(4)
 		for(usint i=0; i < m_m;i++){
 			for(usint j = 0; j < 2*m_ell+2-lenW;j++)
 				err(i,j).SwitchFormat();
@@ -274,7 +274,7 @@ namespace lbcrypto {
 
 		// A part
 		usint iNoise = 0;
-//#pragma omp parallel for
+//#pragma omp parallel for num_threads(4)
 		for(usint j=0; j<m_m; j++)
 			(*ctW)(0, j) = pubTA(0, j)*s + err(j, iNoise);
 		iNoise++;
@@ -282,7 +282,7 @@ namespace lbcrypto {
 		// B part
 		usint iW = 0;
 		usint iAW = 0;
-//#pragma omp parallel for
+//#pragma omp parallel for num_threads(4)
 		for (usint i=0; i<m_ell; i++)
 		{
 			if(w[i] == 1) {

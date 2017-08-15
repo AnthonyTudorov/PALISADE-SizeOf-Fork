@@ -45,7 +45,7 @@ int main()
 		BigInteger modulus(cpabe_params[i].modulus);
 		BigInteger rootOfUnity(cpabe_params[i].rootOfUnity);
 		for(usint j = 0; j < 5; j++){
-			CPABE_Test(1000, cpabe_params[i].base, cpabe_params[i].ringDimension, cpabe_params[i].q, ell[j],/* modulus, rootOfUnity,*/ true);
+			CPABE_Test(100, cpabe_params[i].base, cpabe_params[i].ringDimension, cpabe_params[i].q, ell[j],/* modulus, rootOfUnity,*/ true);
 		}
 	}	
 	std::cout << "-------End demo for CP-ABE-------" << std::endl << std::endl;
