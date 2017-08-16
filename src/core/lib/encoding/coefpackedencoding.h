@@ -28,11 +28,13 @@
 #define SRC_CORE_LIB_ENCODING_COEFPACKEDENCODING_H_
 
 #include "plaintext.h"
+#include <initializer_list>
 
 namespace lbcrypto {
 
 class CoefPackedEncoding: public Plaintext {
 	vector<uint32_t>		value;
+	vector<int32_t>		valueSigned;
 	bool					isSigned;
 
 public:
@@ -44,26 +46,63 @@ public:
 		Plaintext(vp,ep,true), isSigned(isSigned) {}
 
 	CoefPackedEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, vector<int32_t> coeffs) :
-		Plaintext(vp,ep), value(coeffs), isSigned(true) {}
-
-	CoefPackedEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, vector<uint32_t> coeffs, bool isSigned=false) :
-		Plaintext(vp,ep), value(coeffs), isSigned(isSigned) {}
+		Plaintext(vp,ep), valueSigned(coeffs), isSigned(true) {}
 
 	CoefPackedEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, vector<int32_t> coeffs) :
-		Plaintext(vp,ep), value(coeffs), isSigned(true) {}
+		Plaintext(vp,ep), valueSigned(coeffs), isSigned(true) {}
+
+	CoefPackedEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, vector<uint32_t> coeffs, bool isSigned=false) :
+		Plaintext(vp,ep), isSigned(isSigned) {
+		if( isSigned ) valueSigned.insert(valueSigned.begin(), coeffs.begin(),coeffs.end());
+		else value = coeffs;
+	}
 
 	CoefPackedEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, vector<uint32_t> coeffs, bool isSigned=false) :
-		Plaintext(vp,ep), value(coeffs), isSigned(isSigned) {}
+		Plaintext(vp,ep), isSigned(isSigned) {
+		if( isSigned ) valueSigned.insert(valueSigned.begin(), coeffs.begin(),coeffs.end());
+		else value = coeffs;
+	}
+
+	CoefPackedEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, std::initializer_list<int32_t> coeffs) :
+		Plaintext(vp,ep), valueSigned(coeffs), isSigned(true) {}
+
+	CoefPackedEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, std::initializer_list<int32_t> coeffs) :
+		Plaintext(vp,ep), valueSigned(coeffs), isSigned(true) {}
+
+	CoefPackedEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, std::initializer_list<uint32_t> coeffs, bool isSigned=false) :
+		Plaintext(vp,ep), isSigned(isSigned) {
+		if( isSigned ) valueSigned.insert(valueSigned.begin(), coeffs.begin(),coeffs.end());
+		else value = coeffs;
+	}
+
+	CoefPackedEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, std::initializer_list<uint32_t> coeffs, bool isSigned=false) :
+		Plaintext(vp,ep), isSigned(isSigned) {
+		if( isSigned ) valueSigned.insert(valueSigned.begin(), coeffs.begin(),coeffs.end());
+		else value = coeffs;
+	}
 
 	virtual ~CoefPackedEncoding() {}
 
 	bool IsSigned() const { return isSigned; }
 
 	/**
-	 * GetScalarValue
+	 * GetCoeffsValue
 	 * @return the un-encoded scalar
 	 */
 	const vector<uint32_t>& GetCoeffsValue() const { return value; }
+
+	/**
+	 * GetCoeffsValueSigned
+	 * @return
+	 */
+	const vector<int32_t>& GetCoeffsValueSigned() const { return valueSigned; }
+
+	void SetSize(size_t siz) {
+		if( isSigned )
+			valueSigned.resize(siz);
+		else
+			value.resize(siz);
+	}
 
 	/**
 	 * Encode the plaintext into the Poly
@@ -101,7 +140,7 @@ public:
 	 * GetEncodingType
 	 * @return proper type
 	 */
-	PlaintextEncodings GetEncodingType() const { return isSigned ? ScalarSigned : Scalar; }
+	PlaintextEncodings GetEncodingType() const { return isSigned ? CoefPackedSigned : CoefPacked; }
 
 	/**
 	 * Legacy padding op, does not apply
@@ -139,16 +178,16 @@ public:
 	void PrintValue(std::ostream& out) const {
 		// for sanity's sake, trailing zeros get elided into "..."
 		out << "(";
-		size_t i = value.size();
-		while( --i >= 0 )
-			if( value[i] != 0 )
+		size_t i = isSigned ? valueSigned.size() : value.size();
+		while( --i > 0 )
+			if( isSigned ? valueSigned[i] != 0 : value[i] != 0 )
 				break;
 
 		if( isSigned )
-			for( size_t j = 0; j < i; j++ )
-				out << ' ' << (int32_t)value[j];
+			for( size_t j = 0; j <= i; j++ )
+				out << ' ' << valueSigned[j];
 		else
-			for( size_t j = 0; j < i; j++ )
+			for( size_t j = 0; j <= i; j++ )
 				out << ' ' << value[j] << 'U';
 
 		out << " ... )";

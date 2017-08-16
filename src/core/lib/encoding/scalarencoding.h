@@ -32,28 +32,29 @@
 namespace lbcrypto {
 
 class ScalarEncoding : public Plaintext {
-	uint32_t	value;
-	bool		isSigned;
+	uint32_t		value;
+	int32_t		valueSigned;
+	bool			isSigned;
 
 public:
 	// these two constructors are used inside of Decrypt
 	ScalarEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, bool isSigned = false) :
-		Plaintext(vp,ep,true), value(0), isSigned(isSigned) {}
+		Plaintext(vp,ep,true), value(0), valueSigned(0), isSigned(isSigned) {}
 
 	ScalarEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, bool isSigned = false) :
-		Plaintext(vp,ep,true), value(0), isSigned(isSigned) {}
+		Plaintext(vp,ep,true), value(0), valueSigned(0), isSigned(isSigned) {}
 
 	ScalarEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, int32_t scalar) :
-		Plaintext(vp,ep), value((int32_t)scalar), isSigned(true) {}
+		Plaintext(vp,ep), value(0), valueSigned(scalar), isSigned(true) {}
 
-	ScalarEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, uint32_t usscalar) :
-		Plaintext(vp,ep), value(usscalar), isSigned(false) {}
+	ScalarEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, uint32_t scalar) :
+		Plaintext(vp,ep), value(scalar), valueSigned(0), isSigned(false) {}
 
 	ScalarEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, int32_t scalar) :
-		Plaintext(vp,ep), value((int32_t)scalar), isSigned(true) {}
+		Plaintext(vp,ep), value(0), valueSigned(scalar), isSigned(true) {}
 
-	ScalarEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, uint32_t usscalar) :
-		Plaintext(vp,ep), value(usscalar), isSigned(false) {}
+	ScalarEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, uint32_t scalar) :
+		Plaintext(vp,ep), value(scalar), valueSigned(0), isSigned(false) {}
 
 	virtual ~ScalarEncoding() {}
 
@@ -64,6 +65,12 @@ public:
 	 * @return the un-encoded scalar
 	 */
 	uint32_t GetScalarValue() const { return value; }
+
+	/**
+	 * GetScalarValueSigned
+	 * @return the un-encoded scalar
+	 */
+	uint32_t GetScalarValueSigned() const { return valueSigned; }
 
 	/**
 	 * Encode the plaintext into the Poly
@@ -138,7 +145,7 @@ public:
 	 */
 	void PrintValue(std::ostream& out) const {
 		if( isSigned )
-			out << (int32_t)value;
+			out << valueSigned;
 		else
 			out << value << "U";
 	}

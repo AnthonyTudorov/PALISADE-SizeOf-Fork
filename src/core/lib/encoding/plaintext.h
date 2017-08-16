@@ -47,8 +47,8 @@ enum PlaintextEncodings {
 	Scalar,
 	ScalarSigned,
 	Integer,
-	CoeffPacked,
-	CoeffPackedSigned,
+	CoefPacked,
+	CoefPackedSigned,
 	Packed,
 	String,
 };

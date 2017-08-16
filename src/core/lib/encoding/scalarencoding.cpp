@@ -31,15 +31,17 @@ namespace lbcrypto {
 bool
 ScalarEncoding::Encode() {
 	if( this->isEncoded ) return true;
-	int64_t mod = this->encodingParams->GetPlaintextModulus().ConvertToInt();
+	uint64_t mod = this->encodingParams->GetPlaintextModulus().ConvertToInt();
 	uint32_t entry = value;
 
 	if( this->isSigned ) {
 		if( mod % 2 != 0 ) {
 			throw std::logic_error("Plaintext modulus must be an even number for signed scalar encoding");
 		}
-		if( (int32_t)entry < 0 ) {
-			entry = mod + entry;
+
+		entry = valueSigned;
+		if( valueSigned < 0 ) {
+			entry = (int32_t)mod + valueSigned;
 		}
 	}
 
@@ -53,12 +55,14 @@ ScalarEncoding::Encode() {
 
 bool
 ScalarEncoding::Decode() {
-	this->value = this->encodedVector.GetValAtIndex(0).ConvertToInt();
 	if( isSigned ) {
-		int64_t mod = this->encodingParams->GetPlaintextModulus().ConvertToInt();
-		if( this->value >  mod/2)
-			this->value -= mod;
+		this->valueSigned = this->encodedVector.GetValAtIndex(0).ConvertToInt();
+		uint64_t mod = this->encodingParams->GetPlaintextModulus().ConvertToInt();
+		if( this->valueSigned >  mod/2)
+			this->valueSigned -= mod;
 	}
+	else
+		this->value = this->encodedVector.GetValAtIndex(0).ConvertToInt();
 	return true;
 }
 

@@ -36,6 +36,7 @@
 #include "encoding/scalarencoding.h"
 #include "encoding/stringencoding.h"
 #include "encoding/integerencoding.h"
+#include "encoding/coefpackedencoding.h"
 #include "utils/inttypes.h"
 #include "utils/utilities.h"
 #include "lattice/elemparamfactory.h"
@@ -56,20 +57,53 @@ protected:
 };
 
 TEST_F(UTEncoding,scalar_encoding) {
+	usint value = 47;
+	int	valueSigned = -47;
 	usint m = 8;
 	Poly::Integer primeModulus("73");
 	Poly::Integer primitiveRootOfUnity("22");
 
 	shared_ptr<ILParams> lp =
 			ElemParamFactory::GenElemParams<ILParams,BigInteger>(m);
-	shared_ptr<EncodingParams> ep( new EncodingParams(64) );
+	shared_ptr<EncodingParams> ep( new EncodingParams(128) );
 	ScalarEncoding	se(lp, ep, value);
 	se.Encode();
 	EXPECT_EQ( se.GetElement().GetValAtIndex(0), value );
 	EXPECT_EQ( se.GetElement().GetValAtIndex(1), 0 );
 
 	se.Decode();
-	EXPECT_EQ( se.GetScalarValue(), value );
+	EXPECT_EQ( se.GetScalarValue(), value ) << "unsigned";
+
+	ScalarEncoding	se2(lp, ep, valueSigned);
+	se2.Encode();
+	se2.Decode();
+	EXPECT_EQ( se2.GetScalarValueSigned(), valueSigned ) << "signed negative";
+
+	ScalarEncoding	se3(lp, ep, (int32_t)value);
+	se3.Encode();
+	se3.Decode();
+	EXPECT_EQ( se3.GetScalarValueSigned(), (int32_t)value ) << "signed positive";
+}
+
+TEST_F(UTEncoding,coef_packed_encoding) {
+	vector<usint> value = {32, 17, 8};
+	vector<int>	valueSigned = { -32, 22, -101, 6 };
+	usint m = 8;
+
+	shared_ptr<ILParams> lp =
+			ElemParamFactory::GenElemParams<ILParams,BigInteger>(m);
+	shared_ptr<EncodingParams> ep( new EncodingParams(256) );
+	CoefPackedEncoding	se(lp, ep, value);
+	se.Encode();
+	se.Decode();
+	se.SetSize( value.size() );
+	EXPECT_EQ( se.GetCoeffsValue(), value ) << "unsigned";
+
+	CoefPackedEncoding	se2(lp, ep, valueSigned);
+	se2.Encode();
+	se2.Decode();
+	se2.SetSize( valueSigned.size() );
+	EXPECT_EQ( se2.GetCoeffsValueSigned(), valueSigned ) << "signed negative";
 }
 
 TEST_F(UTEncoding,string_encoding) {

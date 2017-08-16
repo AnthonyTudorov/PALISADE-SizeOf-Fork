@@ -35,7 +35,7 @@ namespace lbcrypto {
 
 class StringEncoding: public Plaintext {
 	string	ptx;
-	enum EncodingType { CHAR7bit } encoding = CHAR7bit;
+	//enum EncodingType { CHAR7bit } encoding = CHAR7bit;
 
 public:
 	// these two constructors are used inside of Decrypt

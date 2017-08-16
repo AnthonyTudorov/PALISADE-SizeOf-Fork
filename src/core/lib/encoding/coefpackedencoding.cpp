@@ -28,4 +28,52 @@
 
 namespace lbcrypto {
 
+bool
+CoefPackedEncoding::Encode() {
+	if( this->isEncoded ) return true;
+	uint64_t mod = this->encodingParams->GetPlaintextModulus().ConvertToInt();
+
+	if( this->isSigned && mod % 2 != 0 ) {
+		throw std::logic_error("Plaintext modulus must be an even number for signed scalar encoding");
+	}
+
+	this->encodedVector.SetValuesToZero();
+
+	for( size_t i=0; isSigned ? i < valueSigned.size() : i < value.size(); i++ ) {
+		uint32_t entry = isSigned ? (uint32_t)valueSigned[i] : value[i];
+		if( isSigned && valueSigned[i] < 0 ) {
+			entry = mod + entry;
+		}
+
+		if( entry >= mod )
+			throw std::logic_error("Cannot encode integer " + std::to_string(entry) +
+					" at position " + std::to_string(i) +
+					" that is > plaintext modulus " + std::to_string(mod) );
+
+		this->encodedVector.SetValAtIndex(i, entry);
+	}
+	this->isEncoded = true;
+	return true;
+}
+
+bool
+CoefPackedEncoding::Decode() {
+
+	uint64_t mod = this->encodingParams->GetPlaintextModulus().ConvertToInt();
+	this->value.clear();
+	this->valueSigned.clear();
+	for( size_t i = 0; i < this->encodedVector.GetLength(); i++ ) {
+		uint64_t val = this->encodedVector.GetValAtIndex(i).ConvertToInt();
+		if( isSigned ) {
+			if( val >  mod/2)
+				val -= mod;
+			this->valueSigned.push_back(val);
+		}
+		else
+			this->value.push_back(val);
+	}
+	return true;
+}
+
+
 } /* namespace lbcrypto */

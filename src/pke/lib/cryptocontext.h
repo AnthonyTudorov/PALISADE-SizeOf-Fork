@@ -990,8 +990,15 @@ public:
 		return shared_ptr<Plaintext>( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParms(), value, isSigned ) );
 	}
 
-	// FIXME
-	shared_ptr<Plaintext> MakeCoefPackedPlaintext(uint32_t value) {
+	shared_ptr<Plaintext> MakeCoefPackedPlaintext(vector<int32_t> value) {
+		return shared_ptr<Plaintext>( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParms(), value ) );
+	}
+
+	shared_ptr<Plaintext> MakeCoefPackedPlaintext(std::initializer_list<uint32_t> value, bool isSigned = false) {
+		return shared_ptr<Plaintext>( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParms(), value, isSigned ) );
+	}
+
+	shared_ptr<Plaintext> MakeCoefPackedPlaintext(std::initializer_list<int32_t> value) {
 		return shared_ptr<Plaintext>( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParms(), value ) );
 	}
 
@@ -1012,10 +1019,10 @@ public:
 		case Integer:
 			pt.reset( new IntegerEncoding(vp,ep) );
 			break;
-		case CoeffPacked:
+		case CoefPacked:
 			pt.reset( new CoefPackedEncoding(vp,ep,false) );
 			break;
-		case CoeffPackedSigned:
+		case CoefPackedSigned:
 			pt.reset( new CoefPackedEncoding(vp,ep,true) );
 			break;
 		case Packed:
