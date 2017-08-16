@@ -372,7 +372,7 @@ TEST(UTENCRYPT, StSt_Poly_Encrypt_Decrypt_CoefPacked) {
 }
 
 TEST(UTENCRYPT, BV_Poly_Encrypt_Decrypt_CoefPacked) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementBV(1024, 256);
+	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementBV(2048, 256);
 	UnitTestNewEncryptionCoefPacked<Poly>(cc);
 }
 
