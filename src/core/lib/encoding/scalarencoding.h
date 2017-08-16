@@ -70,7 +70,7 @@ public:
 	 * GetScalarValueSigned
 	 * @return the un-encoded scalar
 	 */
-	uint32_t GetScalarValueSigned() const { return valueSigned; }
+	int32_t GetScalarValueSigned() const { return valueSigned; }
 
 	/**
 	 * Encode the plaintext into the Poly

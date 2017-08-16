@@ -35,21 +35,20 @@ public:
 	static lbcrypto::BytePlaintextEncoding Hash(lbcrypto::BytePlaintextEncoding message, HashAlgorithm algo) {
 		switch (algo) {
 		case SHA_256:
-			return SHA256(message);
+			return SHA256(message.GetString());
 		case SHA_512:
 		  std::cerr <<"error SHA512 disabled, returning SHA256 instead"<<std::endl;
-			return SHA256(message);
+			return SHA256(message.GetString());
 		default:
 			throw std::logic_error("ERROR: Unknown Hash Algorithm");
-			return lbcrypto::BytePlaintextEncoding();
 		}
 	}
 
 	static std::string HashString(std::string message);
 
 private:
-	static lbcrypto::BytePlaintextEncoding SHA256(lbcrypto::BytePlaintextEncoding message);
-	static lbcrypto::BytePlaintextEncoding SHA512(lbcrypto::BytePlaintextEncoding message);
+	static lbcrypto::BytePlaintextEncoding SHA256(std::string message);
+	static lbcrypto::BytePlaintextEncoding SHA512(std::string message);
 	static const uint32_t k_256[64];
 	static const uint64_t k_512[80];
 };

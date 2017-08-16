@@ -459,6 +459,7 @@ UnitTestEncryption(const shared_ptr<CryptoContext<Element>> cc) {
 	} else {
 		vector<shared_ptr<Ciphertext<Element>>> ciphertext = cc->Encrypt(kp.publicKey, plaintextShort, true);
 		BytePlaintextEncoding plaintextShortNew;
+		std::cout << ciphertext.size() << std::endl;
 		cc->Decrypt(kp.secretKey, ciphertext, &plaintextShortNew, true);
 		EXPECT_EQ(plaintextShortNew, plaintextShort) << "Encrypt short plaintext with padding";
 

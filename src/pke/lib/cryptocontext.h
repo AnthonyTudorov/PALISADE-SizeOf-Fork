@@ -911,8 +911,7 @@ public:
 	void EncryptStream(
 		const shared_ptr<LPPublicKey<Element>> publicKey,
 		std::istream& instream,
-		std::ostream& outstream,
-		bool doEncryption = true) const
+		std::ostream& outstream) const
 	{
 		// NOTE timing this operation is not supported
 
@@ -920,9 +919,8 @@ public:
 			throw std::logic_error("key passed to EncryptStream was not generated with this crypto context");
 
 		bool padded = false;
-		BytePlaintextEncoding px;
-		const BigInteger& ptm = publicKey->GetCryptoContext()->GetCryptoParameters()->GetPlaintextModulus();
-		size_t chunkSize = px.GetChunksize(publicKey->GetCryptoContext()->GetRingDimension(), ptm);
+		shared_ptr<Plaintext> px;
+		size_t chunkSize = this->GetRingDimension();
 		char *ptxt = new char[chunkSize];
 
 		while (instream.good()) {
@@ -932,32 +930,29 @@ public:
 			if (nRead <= 0 && padded)
 				break;
 
-			BytePlaintextEncoding px(ptxt, nRead);
+			px = this->MakeStringPlaintext(std::string(ptxt,nRead));
 
 			if (nRead < chunkSize) {
 				padded = true;
 			}
 
-			Poly pt(publicKey->GetCryptoParameters()->GetElementParams());
-			px.Encode(publicKey->GetCryptoParameters()->GetPlaintextModulus(), &pt, 0, chunkSize);
+			px->Encode();
 
-			shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, pt, doEncryption);
+			shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, px->GetElement());
 			if (!ciphertext) {
-				delete [] ptxt;
-				return;
+				break;
 			}
+			ciphertext->SetEncodingType( px->GetEncodingType() );
 
 			Serialized cS;
 
 			if (ciphertext->Serialize(&cS)) {
 				if (!SerializableHelper::SerializationToStream(cS, outstream)) {
-					delete [] ptxt;
-					return;
+					break;
 				}
 			}
 			else {
-				delete [] ptxt;
-				return;
+				break;
 			}
 		}
 
@@ -966,34 +961,34 @@ public:
 	}
 
 	// FIXME comments
-	shared_ptr<Plaintext> MakeScalarPlaintext(uint32_t value, bool isSigned = false) {
+	shared_ptr<Plaintext> MakeScalarPlaintext(uint32_t value, bool isSigned = false) const {
 		if( isSigned )
 			return shared_ptr<Plaintext>( new ScalarEncoding( this->GetElementParams(), this->GetEncodingParms(), (int32_t)value ) );
 		else
 			return shared_ptr<Plaintext>( new ScalarEncoding( this->GetElementParams(), this->GetEncodingParms(), value ) );
 	}
 
-	shared_ptr<Plaintext> MakeStringPlaintext(string str) {
+	shared_ptr<Plaintext> MakeStringPlaintext(string str) const {
 		return shared_ptr<Plaintext>( new StringEncoding( this->GetElementParams(), this->GetEncodingParms(), str ) );
 	}
 
-	shared_ptr<Plaintext> MakeIntegerPlaintext(uint32_t value) {
+	shared_ptr<Plaintext> MakeIntegerPlaintext(uint32_t value) const {
 		return shared_ptr<Plaintext>( new IntegerEncoding( this->GetElementParams(), this->GetEncodingParms(), value ) );
 	}
 
-	shared_ptr<Plaintext> MakeCoefPackedPlaintext(vector<uint32_t> value, bool isSigned = false) {
+	shared_ptr<Plaintext> MakeCoefPackedPlaintext(vector<uint32_t> value, bool isSigned = false) const {
 		return shared_ptr<Plaintext>( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParms(), value, isSigned ) );
 	}
 
-	shared_ptr<Plaintext> MakeCoefPackedPlaintext(vector<int32_t> value) {
+	shared_ptr<Plaintext> MakeCoefPackedPlaintext(vector<int32_t> value) const {
 		return shared_ptr<Plaintext>( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParms(), value ) );
 	}
 
-	shared_ptr<Plaintext> MakeCoefPackedPlaintext(std::initializer_list<uint32_t> value, bool isSigned = false) {
+	shared_ptr<Plaintext> MakeCoefPackedPlaintext(std::initializer_list<uint32_t> value, bool isSigned = false) const {
 		return shared_ptr<Plaintext>( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParms(), value, isSigned ) );
 	}
 
-	shared_ptr<Plaintext> MakeCoefPackedPlaintext(std::initializer_list<int32_t> value) {
+	shared_ptr<Plaintext> MakeCoefPackedPlaintext(std::initializer_list<int32_t> value) const {
 		return shared_ptr<Plaintext>( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParms(), value ) );
 	}
 
@@ -1042,7 +1037,7 @@ public:
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
 
-		shared_ptr<Plaintext> decrypted = GetPlaintextForDecrypt(ciphertext->GetEncodingType(), privateKey->GetElementParms(), privateKey->GetEncodingParms());
+		shared_ptr<Plaintext> decrypted = GetPlaintextForDecrypt(ciphertext->GetEncodingType(), this->GetElementParams(), this->GetEncodingParms());
 		DecryptResult result = GetEncryptionAlgorithm()->Decrypt(privateKey, ciphertext, &decrypted->GetElement());
 
 		if (result.isValid == false) return result;
@@ -1077,7 +1072,7 @@ public:
 		if( privateKey == NULL || Mismatched(privateKey->GetCryptoContext()) )
 			throw std::logic_error("Information passed to Decrypt was not generated with this crypto context");
 
-		size_t lastone = ciphertext.size() - 1;
+		//size_t lastone = ciphertext.size() - 1;
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
 		for( size_t ch = 0; ch < ciphertext.size(); ch++ ) {
@@ -1089,9 +1084,9 @@ public:
 
 			if (result.isValid == false) return result;
 			plaintext->Decode(privateKey->GetCryptoParameters()->GetPlaintextModulus(), &decrypted);
-			if (ch == lastone && doPadding) {
-				plaintext->Unpad(privateKey->GetCryptoParameters()->GetPlaintextModulus());
-			}
+//			if (ch == lastone && doPadding) {
+//				plaintext->Unpad(privateKey->GetCryptoParameters()->GetPlaintextModulus());
+//			}
 		}
 
 		if( doTiming ) {
@@ -1328,23 +1323,27 @@ public:
 		size_t tot = 0;
 
 		bool firstTime = true;
-		BytePlaintextEncoding pte[2];
+		shared_ptr<Plaintext> pte[2];
 		bool whichArray = false;
 
 		while( SerializableHelper::StreamToSerialization(instream, &serObj) ) {
 			shared_ptr<Ciphertext<Element>> ct;
 			if( (ct = deserializeCiphertext(serObj)) != NULL ) {
-				Poly decrypted;
-				DecryptResult res = GetEncryptionAlgorithm()->Decrypt(privateKey, ct, &decrypted);
+				if( ct->GetEncodingType() != String ) {
+					throw std::logic_error("Library can only stream string encodings");
+				}
+
+				pte[whichArray] = GetPlaintextForDecrypt(ct->GetEncodingType(), this->GetElementParams(), this->GetEncodingParms());
+				DecryptResult res = GetEncryptionAlgorithm()->Decrypt(privateKey, ct, &pte[whichArray]->GetElement());
 				if( !res.isValid )
 					return;
 				tot += res.messageLength;
 
-				pte[whichArray].Decode(privateKey->GetCryptoParameters()->GetPlaintextModulus(), &decrypted);
+				pte[whichArray]->Decode();
 
 				if( !firstTime ) {
-					outstream << pte[!whichArray];
-					pte[!whichArray].clear();
+					outstream << *pte[!whichArray];
+					pte[!whichArray].reset();
 				}
 				firstTime = false;
 				whichArray = !whichArray;
@@ -1354,8 +1353,8 @@ public:
 		}
 
 		// unpad and write the last one
-		pte[!whichArray].Unpad(privateKey->GetCryptoParameters()->GetPlaintextModulus());
-		outstream << pte[!whichArray];
+		//pte[!whichArray].Unpad(privateKey->GetCryptoParameters()->GetPlaintextModulus());
+		outstream << *pte[!whichArray];
 
 		return;
 	}

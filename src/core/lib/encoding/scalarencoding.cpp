@@ -57,7 +57,7 @@ bool
 ScalarEncoding::Decode() {
 	if( isSigned ) {
 		this->valueSigned = this->encodedVector.GetValAtIndex(0).ConvertToInt();
-		uint64_t mod = this->encodingParams->GetPlaintextModulus().ConvertToInt();
+		int64_t mod = this->encodingParams->GetPlaintextModulus().ConvertToInt();
 		if( this->valueSigned >  mod/2)
 			this->valueSigned -= mod;
 	}
