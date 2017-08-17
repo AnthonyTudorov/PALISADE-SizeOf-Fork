@@ -123,7 +123,7 @@ namespace NTL {
     this->SetModulus(q);
     DEBUG("get modulus "<<GetModulus());
     usint len = rhs.size();
-    for (size_t i=0;i<n;i++){ // this loops over each entry
+    for (size_t i=0;i<size_t(n);i++){ // this loops over each entry
       if(i<len) {
 	(*this)[i] =  myT(*(rhs.begin()+i));  
       } else {
@@ -141,7 +141,7 @@ namespace NTL {
     this->SetModulus(q);
     DEBUG("get modulus "<<GetModulus());
     usint len = rhs.size();
-    for (size_t i=0;i<n;i++){ // this loops over each entry
+    for (size_t i=0;i<size_t(n);i++){ // this loops over each entry
       if(i<len) {
 	(*this)[i] =  myT(*(rhs.begin()+i));  
       } else {
@@ -184,7 +184,7 @@ namespace NTL {
   myVecP<myT>::myVecP(const myVecP<myT> &a, const uint64_t q):Vec<myT>(a) 
   { 
     this->SetModulus(q); 
-    for (auto i = 0; i < this->length(); i++){
+    for (size_t i = 0; i < this->GetLength(); i++){
       (*this)[i] %=myT(q);
     }
   }
@@ -259,7 +259,7 @@ namespace NTL {
     }
 
     return *this;
-    DEBUG("mubintvec assignment copy CTOR ubint init list length "<<this->length());
+    DEBUG("mubintvec assignment copy CTOR ubint init list length "<<this->GetLength());
   }
 #endif
 
@@ -285,7 +285,7 @@ namespace NTL {
     }
     return *this;
 
-    DEBUG("mubintvec assignment copy CTOR uint64_t init list length "<<this->length());
+    DEBUG("mubintvec assignment copy CTOR uint64_t init list length "<<this->GetLength());
   }
 
 
@@ -314,7 +314,7 @@ namespace NTL {
     }
     return *this;
 
-    DEBUG("mubintvec assignment copy CTOR uint64_t init list length "<<this->length());
+    DEBUG("mubintvec assignment copy CTOR uint64_t init list length "<<this->GetLength());
   }
 
   //Assignment with initializer list of strings
@@ -360,16 +360,16 @@ namespace NTL {
   {
     bool dbg_flag = false;
     DEBUG("in op=const myVecP<myT>&");
-    DEBUG("setting length "<<rhs.length());
-    this->SetLength(rhs.length());
-    DEBUG("setting length "<<rhs.length());
+    DEBUG("setting length "<<rhs.GetLength());
+    this->SetLength(rhs.GetLength());
+    DEBUG("setting length "<<rhs.GetLength());
     int rv = this->CopyModulus(rhs);
     if (rv==-1) {
 #ifdef WARN_BAD_MODULUS
       std::cerr<<"in operator=(myVecP) Bad CopyModulus"<<std::endl;
 #endif
     }
-    for (size_t i = 0; i < rhs.length(); i++){
+    for (size_t i = 0; i < rhs.GetLength(); i++){
       (*this)[i] = rhs[i];
     }
     return *this;
@@ -383,9 +383,9 @@ namespace NTL {
 
     if (this != &rhs) {
       DEBUG("in op=const myVecP<myT>&");
-      DEBUG("setting length "<<rhs.length());
-      this->SetLength(rhs.length());
-      DEBUG("setting length "<<rhs.length());
+      DEBUG("setting length "<<rhs.GetLength());
+      this->SetLength(rhs.GetLength());
+      DEBUG("setting length "<<rhs.GetLength());
       int rv = this->CopyModulus(rhs);
       if (rv==-1) {
 #ifdef WARN_BAD_MODULUS
@@ -414,7 +414,7 @@ namespace NTL {
     bool dbg_flag = false;
     DEBUG("in clear myVec");
     //using NTL_NAMESPACE::clear;
-    long n = x.length();
+    long n = x.GetLength();
     long i;
     for (i = 0; i < n; i++){
       NTL_NAMESPACE::clear(x[i]);  
@@ -494,7 +494,7 @@ namespace NTL {
     myT diff ((oldModulus > newModulus) ? (oldModulus-newModulus) : (newModulus - oldModulus));
 
     DEBUG("Switch modulus diff :"<<diff);
-    for(size_t i=0; i< this->length(); i++) {
+    for(size_t i=0; i< this->GetLength(); i++) {
       n = this->GetValAtIndex(i);
       DEBUG("i,n "<<i<<" "<< n);
       if(oldModulus < newModulus) {
@@ -533,7 +533,7 @@ namespace NTL {
   template<class myT>
   myVecP<myT> myVecP<myT>::operator%( const myZZ& b) const  
   {
-    unsigned int n = this->length();
+    unsigned int n = this->GetLength();
     myVecP<myT> res(n);
     int rv = res.CopyModulus(*this);
     if (rv==-1) {
@@ -558,10 +558,10 @@ namespace NTL {
       return this->ModByTwo();
     } else {
 	myZZ thisMod(this->GetModulus());
-	myVecP ans(this->length(), thisMod); //zeroed out
+	myVecP ans(this->GetLength(), thisMod); //zeroed out
 	myZZ halfQ(thisMod >> 1);
 	DEBUG("halfQ = "<<halfQ);
-	for (size_t i = 0; i<this->length(); i++) {
+	for (size_t i = 0; i<this->GetLength(); i++) {
 	  if ((*this)[i]>halfQ) {
 	    DEBUG("negative at i="<<i);
 	    ans[i]=(*this)[i].ModSub(thisMod, modulus);
@@ -571,7 +571,7 @@ namespace NTL {
 	}
 	DEBUG("ans.GetModulus() "<<ans.GetModulus());
 	
-	for (size_t i = 0; i<ans.length(); i++) {
+	for (size_t i = 0; i<ans.GetLength(); i++) {
 	  DEBUG("ans ["<<i<<"] = "<<ans[i]);
 	}
 	return ans;
@@ -619,7 +619,7 @@ namespace NTL {
   template<class myT>
   myVecP<myT> myVecP<myT>::operator+(myZZ const& b) const
   {
-    unsigned int n = this->length();
+    unsigned int n = this->GetLength();
     myVecP<myT> res(n);
     int rv = res.CopyModulus(*this);
     if (rv==-1) {
@@ -676,7 +676,7 @@ namespace NTL {
   template<class myT>
   myVecP<myT> myVecP<myT>::operator-(const myZZ& b) const
   {
-    unsigned int n = this->length();
+    unsigned int n = this->GetLength();
     myVecP<myT> res(n);
     myZZ mod(this->GetModulus());
     res.SetModulus(mod);
@@ -731,7 +731,7 @@ namespace NTL {
   myVecP<myT> myVecP<myT>::operator*(myZZ const& b) const
   {
 
-    unsigned int n = this->length();
+    unsigned int n = this->GetLength();
     myVecP<myT> res(n);
     int rv = res.CopyModulus(*this);
     if (rv==-1) {
@@ -810,7 +810,7 @@ namespace NTL {
   myVecP<myT> myVecP<myT>::DivideAndRound(const myT &q) const {
     ModulusCheck("myVecP::DivideAndRound");
     myVecP ans(*this);
-    for (size_t i = 0; i<this->length(); i++) {
+    for (size_t i = 0; i<this->GetLength(); i++) {
       ans[i] = ans[i].DivideAndRound(q);
     }
     return ans;
@@ -875,7 +875,7 @@ namespace NTL {
     //build a string containing all vector elements concatenated
     if( pkVectorLength > 0 ) {
       std::string pkBufferString = "";
-      for (int i = 0; i < pkVectorLength; i++) {
+      for (size_t i = 0; i < pkVectorLength; i++) {
 	DEBUG("element "<<i<<" "<<GetValAtIndex(i));
 	std::string tmp = GetValAtIndex(i).Serialize(this->GetModulus());
 	pkBufferString += tmp;
@@ -976,8 +976,8 @@ namespace NTL {
   {
     bool dbg_flag = false;
     a.ArgCheckVector(b, "myVecP::modadd()");
-    unsigned int n = a.length();
-    if (b.length() != n) LogicError("myVecP<>vector add: dimension mismatch");
+    unsigned int n = a.GetLength();
+    if (b.GetLength() != n) LogicError("myVecP<>vector add: dimension mismatch");
 
     x.SetLength(n);
     unsigned int i;
@@ -999,8 +999,8 @@ namespace NTL {
     bool dbg_flag = false;
 
     a.ArgCheckVector(b, "myVecP::sub()");
-    unsigned int n = a.length();
-    if (b.length() != n) LogicError("myVecP<>vector sub: dimension mismatch");
+    unsigned int n = a.GetLength();
+    if (b.GetLength() != n) LogicError("myVecP<>vector sub: dimension mismatch");
 
     x.SetLength(n);
     DEBUG("myvecp::sub a mod "<<a.m_modulus<<" b mod "<<b.m_modulus);
@@ -1022,8 +1022,8 @@ namespace NTL {
   {
     bool dbg_flag = false;
     a.ArgCheckVector(b, "myVecP::mul()");
-    unsigned int n = a.length();
-    if (b.length() != n) LogicError("myVecP<>vector sub: dimension mismatch");
+    unsigned int n = a.GetLength();
+    if (b.GetLength() != n) LogicError("myVecP<>vector sub: dimension mismatch");
 
     x.SetLength(n);
     unsigned int i;
@@ -1107,7 +1107,7 @@ namespace NTL {
   //Private functions
   template<class myT>
   bool myVecP<myT>::IndexCheck(size_t index) const{
-    if(index>=this->length())
+    if(index>=this->GetLength())
       return false;
     return true;
   }

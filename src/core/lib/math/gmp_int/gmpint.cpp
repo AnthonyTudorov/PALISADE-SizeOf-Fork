@@ -58,12 +58,12 @@ namespace NTL {
   const myZZ myZZ::FOUR=myZZ(4);
   const myZZ myZZ::FIVE=myZZ(5);
 
-  myZZ::myZZ():ZZ() {}
+  myZZ::myZZ():ZZ() {SetMSB();}
 
-  myZZ::myZZ(uint64_t a): ZZ(a) {}
-  myZZ::myZZ(const std::string &s): ZZ(conv<ZZ>(s.c_str())) {}
-  myZZ::myZZ(const NTL::ZZ &a): ZZ(a) {}
-  myZZ::myZZ(NTL::ZZ &&a) : ZZ() {this->swap(a);}
+  myZZ::myZZ(uint64_t a): ZZ(a) {SetMSB();}
+  myZZ::myZZ(const std::string &s): ZZ(conv<ZZ>(s.c_str())) {SetMSB();}
+  myZZ::myZZ(const NTL::ZZ &a): ZZ(a) {SetMSB();}
+  myZZ::myZZ(NTL::ZZ &&a) : ZZ() {this->swap(a);SetMSB();}
   void myZZ::SetValue(const std::string& str) 
   {
     *this = conv<ZZ>(str.c_str());
@@ -73,6 +73,7 @@ namespace NTL {
   void myZZ::SetValue(const myZZ& a)
   {
     *this = a;
+    SetMSB();
   }
 
   //this is the zero allocator for the palisade matrix class
@@ -103,7 +104,7 @@ namespace NTL {
     usint tmp = GetMSBLimb_t(zlp[sz-1]); //add the value of that last limb.
 
     MSB+=tmp;
-
+    m_MSB = MSB;
     return(MSB);
 
 
@@ -229,6 +230,8 @@ namespace NTL {
   // note that msb is 1 like all other indicies. 
   //TODO: this code could be massively simplified
   uschar myZZ::GetBitAtIndex(usint index) const{
+    GetMSB();
+
     if(index<=0){
       std::cout<<"Invalid index \n";
       return 0;
@@ -242,7 +245,7 @@ namespace NTL {
 
     if (idx >= (this->size())){
       //std::cout <<"myZZ::GetBitAtIndex Warning idx > length"<<std::endl;
-      return (uschar)0;
+      return 0;
     }
 
     ZZ_limb_t temp = zlp[idx]; // point to correct limb

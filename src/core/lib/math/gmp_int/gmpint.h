@@ -250,11 +250,11 @@ namespace NTL{
 
     inline myZZ Mod(const myZZ& modulus) const {return *this%modulus;};
 
-    inline myZZ& operator%(const myZZ &modulus) { 
+    inline myZZ operator%(const myZZ &modulus) { 
       ZZ tmp = *this;
       ZZ tmod = modulus;
-      *this = tmp%modulus; 
-      return(*this);
+      myZZ ret = tmp%modulus; 
+      return(ret);
 
     }
     inline myZZ& operator%=(const myZZ &modulus) {*this = *this%modulus; return *this;};  
@@ -463,7 +463,7 @@ namespace NTL{
     //todo: rename to MSB2NLimbs()
     static usint ceilIntByUInt(const ZZ_limb_t Number); 
 
-    size_t m_MSB;
+    mutable size_t m_MSB;
     usint GetMSBLimb_t( ZZ_limb_t x) const;
   }; //class ends
 

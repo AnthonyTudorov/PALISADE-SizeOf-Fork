@@ -527,7 +527,7 @@ namespace NTL {
       DEBUG("mgmpintvec Renormalize modulus"<<m_modulus);     
       DEBUG("mgmpintvec size"<< this->size());     
       //loop over each entry and fail if !=
-      for (auto i = 0; i < this->size(); ++i) {
+      for (size_t i = 0; i < this->size(); ++i) {
 	(*this)[i] %=m_modulus;
 	DEBUG("this ["<<i<<"] now "<< (*this)[i]);     
       }

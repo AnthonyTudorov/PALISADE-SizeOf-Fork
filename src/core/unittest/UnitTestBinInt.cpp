@@ -1069,7 +1069,7 @@ TEST(UTBinInt,method_getDigitAtIndex) {
 }
 
 TEST(UTBinInt, method_GetBitAtIndex){
-  bool dbg_flag = false;
+  bool dbg_flag = true;
   BigInteger x(1);
 
   x <<=(100); //x has one bit at 100
@@ -1077,15 +1077,15 @@ TEST(UTBinInt, method_GetBitAtIndex){
   x+=BigInteger::TWO; //x has one bit at 2
 
   DEBUG("x "<<x);
-  if (dbg_flag) x.PrintLimbsInHex();
+  //if (dbg_flag) x.PrintLimbsInHex();
 
   // index is 1 for lsb!
-  EXPECT_EQ(x.GetBitAtIndex(1), 0);  
-  EXPECT_EQ(x.GetBitAtIndex(2), 1);  
+  EXPECT_EQ(sint(x.GetBitAtIndex(1)), 0);  
+  EXPECT_EQ(sint(x.GetBitAtIndex(2)), 1);  
 
   for (auto idx = 3; idx < 100; idx++){
-    EXPECT_EQ(x.GetBitAtIndex(idx), 0);  
+    EXPECT_EQ(sint(x.GetBitAtIndex(idx)), 0);  
   }
-  EXPECT_EQ(x.GetBitAtIndex(101), 1);  
+  EXPECT_EQ(sint(x.GetBitAtIndex(101)), 1);  
 
 }
