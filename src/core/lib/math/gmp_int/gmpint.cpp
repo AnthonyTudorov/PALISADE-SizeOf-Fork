@@ -71,11 +71,6 @@ namespace NTL {
     SetMSB();
   }
 
-  void myZZ::SetValue(const char *s)
-  {
-    *this = conv<ZZ>(s);
-    SetMSB();
-  }
 
   void myZZ::SetValue(const myZZ& a)
   {
@@ -111,7 +106,7 @@ namespace NTL {
     usint tmp = GetMSBLimb_t(zlp[sz-1]); //add the value of that last limb.
 
     MSB+=tmp;
-
+    m_MSB = MSB;
     return(MSB);
 
 
@@ -155,8 +150,6 @@ namespace NTL {
     return r + bval[x];
   }
 
-  
-  ///&&&
   //Splits the binary string to equi sized chunks and then populates the internal array values.
   myZZ myZZ::FromBinaryString(const std::string& vin){
     bool dbg_flag = false;		// if true then print dbg output
@@ -304,7 +297,7 @@ namespace NTL {
   }
     
   double myZZ::ConvertToDouble() const{ return (conv<double>(*this));}
-
+#if 0 //don't use
   // warning on some platforms usint64_t is implemented as an unsigned
   // long long which is not included in the conv functions in tools.h
   // in which case the following does not compile. 
@@ -320,6 +313,7 @@ namespace NTL {
     std::cerr<<"can't convert to long double"<<std::endl; 
     return 0.0L;
 }
+#endif
   const myZZ& myZZ::operator=(const myZZ &rhs){
     
     if(this!=&rhs){
