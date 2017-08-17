@@ -5,6 +5,7 @@
     <ClCompile Include="..\..\..\..\src\trapdoor\unittest\UnitTestSignatureGPV.cpp" />
     <ClCompile Include="..\..\..\..\src\trapdoor\unittest\UnitTestTrapdoor.cpp" />
     <ClCompile Include="..\..\..\..\test\include\gtest\gtest-all.cc" />
+    <ClCompile Include="..\..\..\..\src\trapdoor\unittest\UnitTestABE.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\test\include\gtest\gtest.h" />

@@ -43,7 +43,6 @@
 //using namespace std;
 using namespace lbcrypto;
 
-
 class UnitTestTrapdoor : public ::testing::Test {
 protected:
   virtual void SetUp() {
@@ -94,7 +93,7 @@ TEST(UTTrapdoor,sizes){
 	usint k = (usint) floor(logTwo);// = this->m_cryptoParameters.GetModulus();
 
 	shared_ptr<ILParams> fastParams( new ILParams(m, modulus, rootOfUnity) );
-	std::pair<RingMat, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility::TrapdoorGen(fastParams, stddev);
+	std::pair<RingMat, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility<Poly>::TrapdoorGen(fastParams, stddev);
 
 	EXPECT_EQ(1U,trapPair.first.GetRows())
 		<< "Failure testing number of rows";
@@ -127,7 +126,7 @@ TEST(UTTrapdoor,TrapDoorPairTest){
 	shared_ptr<ILParams> params( new ILParams( m, modulus, rootOfUnity) );
     auto zero_alloc = Poly::MakeAllocator(params, EVALUATION);
 
-	std::pair<RingMat, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev);
+	std::pair<RingMat, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility<Poly>::TrapdoorGen(params, stddev);
 
 	RingMat eHat = trapPair.second.m_e;
 	RingMat rHat = trapPair.second.m_r;
@@ -189,7 +188,7 @@ TEST(UTTrapdoor,TrapDoorMultTest){
 	shared_ptr<ILParams> params( new ILParams( m, modulus, rootOfUnity) );
     auto zero_alloc = Poly::MakeAllocator(params, EVALUATION);
 
-	std::pair<RingMat, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, stddev);
+	std::pair<RingMat, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility<Poly>::TrapdoorGen(params, stddev);
 
 	RingMat eHat = trapPair.second.m_e;
 	RingMat rHat = trapPair.second.m_r;
@@ -225,7 +224,9 @@ TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
 	//BigInteger rootOfUnity("389832");
 	shared_ptr<ILParams> params( new ILParams( m, modulus, rootOfUnity) );
     auto zero_alloc = Poly::MakeAllocator(params, EVALUATION);
-	double sigma = SIGMA;
+
+	uint32_t base = 2;
+	double sigma = (base+1)*SIGMA;
 
 	Poly::DggType dgg(sigma);
 	Poly::DugType dug = Poly::DugType();
@@ -248,14 +249,14 @@ TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
   DEBUG("k "<<k);
   DEBUG("modulus "<<modulus);
   
-	LatticeGaussSampUtility::GaussSampGq(u,sigma,k,modulus, 2,dgg,&zHatBBI);
+	LatticeGaussSampUtility<Poly>::GaussSampGq(u,sigma,k,modulus, base,dgg,&zHatBBI);
 
 	EXPECT_EQ(k,zHatBBI.GetRows())
 		<< "Failure testing number of rows";
 	EXPECT_EQ(u.GetLength(),zHatBBI.GetCols())
 		<< "Failure testing number of colums";
   DEBUG("4");
-    Matrix<Poly> z = SplitInt32AltIntoPolyElements(zHatBBI, n, params);
+    Matrix<Poly> z = SplitInt32AltIntoElements<Poly>(zHatBBI, n, params);
 	z.SwitchFormat();
 
 	Poly uEst;
@@ -264,6 +265,80 @@ TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
 
     EXPECT_EQ(u, uEst);
   DEBUG("end tests");
+}
+
+TEST(UTTrapdoor, TrapDoorGaussGqSampTestBase1024) {
+	bool dbg_flag = false;
+	DEBUG("start tests");
+	
+	usint m = 1024;
+	usint n = m / 2;
+	BigInteger modulus("8399873");
+	BigInteger rootOfUnity("824894");
+	//BigInteger modulus("134218081");
+	//BigInteger rootOfUnity("19091337");
+	//BigInteger modulus("1048609");
+	//BigInteger rootOfUnity("389832");
+	shared_ptr<ILParams> params(new ILParams(m, modulus, rootOfUnity));
+	auto zero_alloc = Poly::MakeAllocator(params, EVALUATION);
+
+	uint32_t base = 1<<10;
+	double sigma = (base + 1)*SIGMA;
+
+	Poly::DggType dgg(SIGMA);
+	Poly::DugType dug = Poly::DugType();
+	dug.SetModulus(modulus);
+
+
+	DEBUG("1");
+	Poly u(dug, params, COEFFICIENT);
+	DEBUG("2");
+	//double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
+											//YSP check logTwo computation
+	
+	usint nBits = floor(log2(modulus.ConvertToDouble() - 1.0) + 1.0);
+	usint k = ceil(nBits / log2(base));
+	
+	//double logTwo = log(val - 1.0) / log(2) + 1.0;
+	//usint k = (usint)floor(logTwo);
+
+	Matrix<int32_t> zHatBBI([]() { return make_unique<int32_t>(); }, k, m / 2);
+
+	DEBUG("3");
+	DEBUG("u " << u);
+	DEBUG("sigma " << sigma);
+	DEBUG("k " << k);
+	DEBUG("modulus " << modulus);
+	DEBUG("base = " << base);
+
+	LatticeGaussSampUtility<Poly>::GaussSampGq(u, sigma, k, modulus, base, dgg, &zHatBBI);
+
+	EXPECT_EQ(k, zHatBBI.GetRows())
+		<< "Failure testing number of rows";
+	EXPECT_EQ(u.GetLength(), zHatBBI.GetCols())
+		<< "Failure testing number of colums";
+	DEBUG("4");
+
+	//int32_t maxValue = 0;
+
+	//for (size_t i = 0; i < zHatBBI.GetRows(); i++)
+	//	for (size_t j = 0; j < zHatBBI.GetCols(); j++)
+	//		if (std::abs(zHatBBI(i, j)) > maxValue)
+	//			maxValue = std::abs(zHatBBI(i, j));
+	//
+	//std::cout << maxValue << std::endl;
+
+	Matrix<Poly> z = SplitInt32AltIntoElements<Poly>(zHatBBI, n, params);
+	z.SwitchFormat();
+
+	Poly uEst;
+	uEst = (Matrix<Poly>(zero_alloc, 1, k).GadgetVector(base)*z)(0, 0);
+	uEst.SwitchFormat();
+
+	//std::cout << u - uEst << std::endl;
+
+	EXPECT_EQ(u, uEst);
+	DEBUG("end tests");
 }
 
 // Test of Gaussian Sampling using the UCSD integer perturbation sampling algorithm
@@ -290,7 +365,7 @@ TEST(UTTrapdoor, TrapDoorGaussSampTest) {
 	shared_ptr<ILParams> params(new ILParams(m, modulus, rootOfUnity));
 	//auto zero_alloc = Poly::MakeAllocator(params, COEFFICIENT);
 
-	std::pair<RingMat, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, sigma);
+	std::pair<RingMat, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility<Poly>::TrapdoorGen(params, sigma);
 
 	RingMat eHat = trapPair.second.m_e;
 	RingMat rHat = trapPair.second.m_r;
@@ -300,8 +375,9 @@ TEST(UTTrapdoor, TrapDoorGaussSampTest) {
 	Poly::DugType dug = Poly::DugType();
 	dug.SetModulus(modulus);
 
-	double c = 2 * SIGMA;
-	double s = SPECTRAL_BOUND(n, k);
+	uint32_t base = 2;
+	double c = (base + 1) * SIGMA;
+	double s = SPECTRAL_BOUND(n, k, base);
 	Poly::DggType dggLargeSigma(sqrt(s * s - c * c));
 
 	Poly u(dug, params, COEFFICIENT);
@@ -310,7 +386,7 @@ TEST(UTTrapdoor, TrapDoorGaussSampTest) {
 	u.SwitchFormat();
 	DEBUG("u "<<u);
 
-	RingMat z = RLWETrapdoorUtility::GaussSamp(m / 2, k, trapPair.first, trapPair.second, u, sigma, dgg, dggLargeSigma);
+	RingMat z = RLWETrapdoorUtility<Poly>::GaussSamp(m / 2, k, trapPair.first, trapPair.second, u, dgg, dggLargeSigma);
 
 	//Matrix<Poly> uEst = trapPair.first * z;
 
@@ -370,10 +446,11 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 
 	//smoothing parameter
 	//double c(2 * sqrt(log(2 * n*(1 + 1 / DG_ERROR)) / M_PI));
-	double c = 2 * SIGMA;
+	uint32_t base = 2;
+	double c = (base + 1) * SIGMA;
 
 	//spectral bound s
-	double s = SPECTRAL_BOUND(n, k);
+	double s = SPECTRAL_BOUND(n, k, base);
 
 	//std::cout << "sigma = " << SIGMA << std::endl;
 	//std::cout << "s = " << s << std::endl;
@@ -385,7 +462,7 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 
 	//std::cout << 50 / (c*sigma) << std::endl;
 
-	std::pair<RingMat, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility::TrapdoorGen(params, sigma);
+	std::pair<RingMat, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility<Poly>::TrapdoorGen(params, sigma);
 
 	RingMat eHat = trapPair.second.m_e;
 	RingMat rHat = trapPair.second.m_r;
@@ -399,7 +476,7 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 	auto zero_alloc = Poly::MakeAllocator(params, EVALUATION);
 
 	//Do perturbation sampling
-	RingMat pHat(zero_alloc, k + 2, 1);
+	shared_ptr<RingMat> pHat(new RingMat(zero_alloc, k + 2, 1));
 
 	Matrix<int32_t> p([]() { return make_unique<int32_t>(); }, (2 + k)*n, 1);
 
@@ -416,14 +493,14 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 	size_t count = 100;
 
 	for (size_t i = 0; i < count; i++) {
-		RLWETrapdoorUtility::ZSampleSigmaP(n, s, c, trapPair.second, dgg, dggLargeSigma, &pHat);
+		RLWETrapdoorUtility<Poly>::ZSampleSigmaP(n, s, c, trapPair.second, dgg, dggLargeSigma, pHat);
 
 		//convert to coefficient representation
-		pHat.SwitchFormat();
+		pHat->SwitchFormat();
 
 		for (size_t j = 0; j < n; j++) {
-			bbiTrapdoor(j, 0) = pHat(0, 0).GetValues().GetValAtIndex(j);
-			bbiTrapdoor(j+n, 0) = pHat(1, 0).GetValues().GetValAtIndex(j);
+			bbiTrapdoor(j, 0) = (*pHat)(0, 0).GetValues().GetValAtIndex(j);
+			bbiTrapdoor(j+n, 0) = (*pHat)(1, 0).GetValues().GetValAtIndex(j);
 		}
 
 		pTrapdoor = ConvertToInt32(bbiTrapdoor, modulus);

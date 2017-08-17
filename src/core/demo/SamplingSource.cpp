@@ -58,6 +58,13 @@ int main() {
 	finish = currentDateTime();
 	std::cout << "Sampling 100000 integers (Peikert): " << finish - start << " ms\n";
 
+	start = currentDateTime();
+	for (size_t i = 0;i < count;i++) {
+		dgg.GenerateIntegerKarney(0, std);
+	}
+	finish = currentDateTime();
+	std::cout << "Sampling 100000 integers (Karney): " << finish - start << " ms\n";
+
 	std::cin.ignore();
 	std::cin.get();
 	return 0;

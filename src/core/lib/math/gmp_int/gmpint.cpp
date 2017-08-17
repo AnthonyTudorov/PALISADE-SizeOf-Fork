@@ -7,7 +7,7 @@
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
-a * modification, are permitted provided that the following conditions
+ * modification, are permitted provided that the following conditions
  * are met: 1. Redistributions of source code must retain the above
  * copyright notice, this list of conditions and the following
  * disclaimer.  2. Redistributions in binary form must reproduce the
@@ -45,6 +45,7 @@ a * modification, are permitted provided that the following conditions
 #if defined(__linux__) && MATHBACKEND == 6
 #include "gmpint.h"
 
+
 namespace NTL {
 
   // constant log2 of limb bitlength
@@ -67,6 +68,12 @@ namespace NTL {
   void myZZ::SetValue(const std::string& str) 
   {
     *this = conv<ZZ>(str.c_str());
+    SetMSB();
+  }
+
+  void myZZ::SetValue(const char *s)
+  {
+    *this = conv<ZZ>(s);
     SetMSB();
   }
 
@@ -104,7 +111,7 @@ namespace NTL {
     usint tmp = GetMSBLimb_t(zlp[sz-1]); //add the value of that last limb.
 
     MSB+=tmp;
-    m_MSB = MSB;
+
     return(MSB);
 
 
@@ -148,6 +155,8 @@ namespace NTL {
     return r + bval[x];
   }
 
+  
+  ///&&&
   //Splits the binary string to equi sized chunks and then populates the internal array values.
   myZZ myZZ::FromBinaryString(const std::string& vin){
     bool dbg_flag = false;		// if true then print dbg output
@@ -215,14 +224,17 @@ namespace NTL {
   }
 
   usint myZZ::GetDigitAtIndexForBase(usint index, usint base) const{
-    usint digit = 0;
-    usint newIndex = index; 
-    for (usint i = 1; i < base; i = i*2)
-      {
-	digit += GetBitAtIndex(newIndex)*i;
-	newIndex++;
-      }
-    return digit;
+
+	  usint DigitLen = ceil(log2(base));
+
+	  usint digit = 0;
+	  usint newIndex = 1 + (index - 1)*DigitLen;
+	  for (usint i = 1; i < base; i = i * 2)
+	  {
+		  digit += GetBitAtIndex(newIndex)*i;
+		  newIndex++;
+	  }
+	  return digit;
 
   }
 
@@ -245,7 +257,7 @@ namespace NTL {
 
     if (idx >= (this->size())){
       //std::cout <<"myZZ::GetBitAtIndex Warning idx > length"<<std::endl;
-      return 0;
+      return (uschar)0;
     }
 
     ZZ_limb_t temp = zlp[idx]; // point to correct limb
@@ -293,6 +305,21 @@ namespace NTL {
     
   double myZZ::ConvertToDouble() const{ return (conv<double>(*this));}
 
+  // warning on some platforms usint64_t is implemented as an unsigned
+  // long long which is not included in the conv functions in tools.h
+  // in which case the following does not compile. 
+
+   uint64_t myZZ::ConvertToUint64() const{
+     static_assert(sizeof(uint64_t) == sizeof(long), 
+		   "sizeof(uint64_t) != sizeof(long), edit myZZ ConvertToUint64()");
+     return (conv<uint64_t>(*this));}
+
+  float myZZ::ConvertToFloat() const{ return (conv<float>(*this));}
+
+  long double myZZ::ConvertToLongDouble() const {
+    std::cerr<<"can't convert to long double"<<std::endl; 
+    return 0.0L;
+}
   const myZZ& myZZ::operator=(const myZZ &rhs){
     
     if(this!=&rhs){

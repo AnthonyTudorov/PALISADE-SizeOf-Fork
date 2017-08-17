@@ -510,9 +510,9 @@ public:
 	 * FIXME should be private?
 	 * @param evalMultKeys - new key map
 	 */
-	void SetEvalMultKeys(vector<shared_ptr<LPEvalKey<Element>>>& evalMultKeys) {
-		evalMultKeys.resize(0);
-		this->evalMultKeys = evalMultKeys;
+	void SetEvalMultKeys(vector<shared_ptr<LPEvalKey<Element>>>& evalMultKeysNew) {
+		evalMultKeys.clear();
+		this->evalMultKeys = evalMultKeysNew;
 	}
 
 	/**
@@ -587,11 +587,67 @@ public:
 		}
 
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpEncrypt, currentDateTime() - start) );
+			if(doEncryption) {
+				timeSamples->push_back( TimingInfo(OpEncryptPub, currentDateTime() - start) );
+			} else {
+				timeSamples->push_back( TimingInfo(OpEncryptPlain, currentDateTime() - start) );
+			}
 		}
 		return cipherResults;
 	}
 
+	std::vector<shared_ptr<Ciphertext<Element>>> Encrypt(
+		const shared_ptr<LPPrivateKey<Element>> privateKey,
+		const Plaintext& plaintext,
+		bool doPadding = true, bool doEncryption = true) const
+	{
+		std::vector<shared_ptr<Ciphertext<Element>>> cipherResults;
+
+		if( privateKey == NULL || privateKey->GetCryptoContext() != this )
+			throw std::logic_error("key passed to Encrypt was not generated with this crypto context");
+
+		const BigInteger& ptm = privateKey->GetCryptoParameters()->GetPlaintextModulus();
+		size_t chunkSize = plaintext.GetChunksize(privateKey->GetCryptoContext()->GetRingDimension(), ptm);
+		size_t ptSize = plaintext.GetLength();
+		size_t rounds = ptSize / chunkSize;
+
+		if (doPadding == false && ptSize%chunkSize != 0
+			&& typeid(plaintext) == typeid(BytePlaintextEncoding)) {
+			throw std::logic_error("Cannot Encrypt without padding with chunksize " + std::to_string(chunkSize) + " and plaintext size " + std::to_string(ptSize));
+		}
+
+		// if there is a partial chunk OR if there isn't but we need to pad
+		if (ptSize%chunkSize != 0 || doPadding == true)
+			rounds += 1;
+
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		for (size_t bytes = 0, i = 0; i < rounds; bytes += chunkSize, i++) {
+
+			Poly pt(privateKey->GetCryptoParameters()->GetElementParams());
+			plaintext.Encode(ptm, &pt, bytes, chunkSize);
+
+			shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(privateKey, pt, doEncryption);
+
+			if (!ciphertext) {
+				cipherResults.clear();
+				break;
+			}
+
+			cipherResults.push_back(ciphertext);
+
+		}
+
+		if( doTiming ) {
+			if(doEncryption) {
+				timeSamples->push_back( TimingInfo(OpEncryptPriv, currentDateTime() - start) );
+			} else {
+				timeSamples->push_back( TimingInfo(OpEncryptPlain, currentDateTime() - start) );
+			}
+		}
+		return cipherResults;
+	}
+	
 	/**
 	* Encrypt a matrix of plaintexts (integer encoding)
 	* @param publicKey - for encryption
@@ -920,6 +976,80 @@ public:
 
 		if( doTiming ) {
 			timeSamples->push_back( TimingInfo(OpDecryptMatrixPacked, currentDateTime() - start) );
+		}
+		return DecryptResult((*numerator)(numerator->GetRows() - 1, numerator->GetCols() - 1).GetLength());
+
+	}
+
+	/**
+	* Decrypt method for numerators in a matrix of ciphertexts (packed encoding)
+	* @param privateKey - for decryption
+	* @param ciphertext - matrix of encrypted ciphertexts
+	* @param plaintext - pointer to the destination martrix of plaintexts
+	* @return size of plaintext
+	*/
+	DecryptResult DecryptMatrixNumerator(
+		const shared_ptr<LPPrivateKey<Element>> privateKey,
+		const shared_ptr<Matrix<RationalCiphertext<Element>>> ciphertext,
+		Matrix<PackedIntPlaintextEncoding> *numerator) const
+	{
+
+		// edge case
+		if ((ciphertext->GetCols() == 0) && (ciphertext->GetRows() == 0))
+			return DecryptResult();
+
+		if ((ciphertext->GetCols() != numerator->GetCols()) || (ciphertext->GetRows() != numerator->GetRows()))
+			throw std::runtime_error("Ciphertext and plaintext matrices have different dimensions");
+
+		if (privateKey == NULL || privateKey->GetCryptoContext() != this)
+			throw std::runtime_error("Information passed to DecryptMatrix was not generated with this crypto context");
+
+		double start = 0;
+		if (doTiming) start = currentDateTime();
+
+
+		//force all precomputations to take place in advance
+		if ((*ciphertext)(0, 0).GetCryptoContext() != this)
+			throw std::runtime_error("A ciphertext passed to DecryptMatrix was not generated with this crypto context");
+
+		const shared_ptr<Ciphertext<Element>> ctN = (*ciphertext)(0, 0).GetNumerator();
+
+		Poly decryptedNumerator;
+		//DecryptResult resultN = GetEncryptionAlgorithm()->Decrypt(privateKey, ctN, &decryptedNumerator);
+		GetEncryptionAlgorithm()->Decrypt(privateKey, ctN, &decryptedNumerator);
+
+		//if (resultN.isValid == false) return resultN;
+
+		(*numerator)(0, 0).Decode(privateKey->GetCryptoParameters()->GetPlaintextModulus(), &decryptedNumerator);
+
+
+		for (size_t row = 0; row < ciphertext->GetRows(); row++)
+		{
+#pragma omp parallel for
+			for (size_t col = 0; col < ciphertext->GetCols(); col++)
+			{
+
+				if (row + col > 0)
+				{
+					if ((*ciphertext)(row, col).GetCryptoContext() != this)
+						throw std::runtime_error("A ciphertext passed to DecryptMatrix was not generated with this crypto context");
+
+					const shared_ptr<Ciphertext<Element>> ctN = (*ciphertext)(row, col).GetNumerator();
+
+					Poly decryptedNumerator;
+					//DecryptResult resultN = GetEncryptionAlgorithm()->Decrypt(privateKey, ctN, &decryptedNumerator);
+					GetEncryptionAlgorithm()->Decrypt(privateKey, ctN, &decryptedNumerator);
+
+					//if (resultN.isValid == false) return resultN;
+
+					(*numerator)(row, col).Decode(privateKey->GetCryptoParameters()->GetPlaintextModulus(), &decryptedNumerator);
+				}
+
+			}
+		}
+
+		if (doTiming) {
+			timeSamples->push_back(TimingInfo(OpDecryptMatrixPacked, currentDateTime() - start));
 		}
 		return DecryptResult((*numerator)(numerator->GetRows() - 1, numerator->GetCols() - 1).GetLength());
 
@@ -1640,7 +1770,6 @@ public:
 	virtual ~CryptoObject() {}
 
 	CryptoContext<Element> *GetCryptoContext() const { return context; }
-	//void SetContext(shared_ptr<CryptoContext<Element>> cc) { context = cc; }
 	const shared_ptr<LPCryptoParameters<Element>> GetCryptoParameters() const { return context->GetCryptoParameters(); }
 };
 
@@ -1733,7 +1862,7 @@ public:
 		usint relinWindow, float stDev, const std::string& delta,
 		MODE mode = RLWE, const std::string& bigmodulus = "0", const std::string& bigrootofunity = "0",
 		int depth = 0, int assuranceMeasure = 0, float securityLevel = 0,
-		const std::string& bigmodulusarb = "0", const std::string& bigrootofunityarb = "0");
+		const std::string& bigmodulusarb = "0", const std::string& bigrootofunityarb = "0", int maxDepth = 2);
 
 	/**
 	* construct a PALISADE CryptoContext for the FV Scheme
@@ -1759,7 +1888,7 @@ public:
 		usint relinWindow, float stDev, const std::string& delta,
 		MODE mode = RLWE, const std::string& bigmodulus = "0", const std::string& bigrootofunity = "0",
 		int depth = 0, int assuranceMeasure = 0, float securityLevel = 0,
-		const std::string& bigmodulusarb = "0", const std::string& bigrootofunityarb = "0");
+		const std::string& bigmodulusarb = "0", const std::string& bigrootofunityarb = "0", int maxDepth = 2);
 
 	/**
 	* construct a PALISADE CryptoContext for the FV Scheme using the scheme's ParamsGen methods
@@ -1772,7 +1901,7 @@ public:
 	*/
 	static shared_ptr<CryptoContext<Element>> genCryptoContextFV(
 		const usint plaintextModulus, float securityLevel, usint relinWindow, float dist,
-		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED);
+		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED, int maxDepth = 2);
 
 	/**
 	* construct a PALISADE CryptoContext for the FV Scheme using the scheme's ParamsGen methods
@@ -1785,7 +1914,7 @@ public:
 	*/
 	static shared_ptr<CryptoContext<Element>> genCryptoContextFV(
 		shared_ptr<EncodingParams> encodingParams, float securityLevel, usint relinWindow, float dist,
-		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED);
+		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED, int maxDepth = 2);
 
 	/**
 	* construct a PALISADE CryptoContext for the BV Scheme

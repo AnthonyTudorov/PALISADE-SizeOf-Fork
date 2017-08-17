@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file discretegaussiangenerator.h This code provides generation of gaussian distibutions of discrete values. 
  * Discrete uniform generator relies on the built-in C++ generator for 32-bit unsigned integers defined in <random>.
  * @author  TPOC: palisade@njit.edu
@@ -78,15 +78,15 @@ public:
 	//BigVector DiscreteGaussianGenerator::GenerateIdentity(usint size, const BigInteger &modulus);
 
 	/**
-	* @brief      Returns a generated char.
+	* @brief      Returns a generated signed integer.
 	* @return     an schar value generated with the distribution.
 	*/
 	sint GenerateInt () const;
 
 	/**
-	* @brief      Returns a generated char vector.
+	* @brief      Returns a generated integer vector.
 	* @param size The number of values to return.
-	* @return     A pointer to an array of schar values generated with the distribution.
+	* @return     A pointer to an array of integer values generated with the distribution.
 	*/
 	std::shared_ptr<sint> GenerateIntVector (usint size) const;
 
@@ -149,6 +149,13 @@ public:
 	* @brief Destructor
 	*/
 	~DiscreteGaussianGeneratorImpl() { if (probMatrix != nullptr) { delete[] probMatrix;} }
+	/**
+	* @brief Returns a generated integer. Uses Karney's method defined as Algorithm D in https://arxiv.org/pdf/1303.6257.pdf
+	* @param mean center of discrecte Gaussian distribution.
+	* @param stddev standard deviation of discrete Gaussian distribution.
+	* @return A random value within this Discrete Gaussian Distribution.
+	*/
+	static int64_t GenerateIntegerKarney(double mean, double stddev);
 
 private:
 	usint FindInVector (const std::vector<double> &S, double search) const;
@@ -160,6 +167,48 @@ private:
 	static double UnnormalizedGaussianPDFOptimized(const double &mean, const double &sigmaFactor, int32_t x) {
 		return pow(M_E, sigmaFactor*(x - mean)*(x - mean));
 	}
+
+	/**
+	* @brief Subroutine used by Karney's Method to accept an integer with probability exp(−n/2).
+	* @param g Mersenne Twister Engine used for deviates
+	* @param n Number to test with exp(-n/2) probability
+	* @return Accept/Reject result
+	*/
+	static bool AlgorithmP(std::mt19937 &g, int32_t n);
+	/**
+	* @brief Subroutine used by Karney's Method to generate an integer with probability exp(−k/2)(1 − exp(-1/2)).
+	* @param g Mersenne Twister Engine used for deviates
+	* @return Random number k
+	*/
+	static int32_t AlgorithmG(std::mt19937 &g);
+	/**
+	* @brief Generates a Bernoulli random value H which is true with probability exp(-1/2).
+	* @param g Mersenne Twister Engine used for uniform deviates
+	* @return Bernoulli random value H
+	*/
+	static bool AlgorithmH(std::mt19937 &g);
+	/**
+	* @brief Generates a Bernoulli random value H which is true with probability exp(-1/2). Uses double precision.
+	* @param g Mersenne Twister Engine used for uniform deviates
+	* @return Bernoulli random value H
+	*/
+	static bool AlgorithmHDouble(std::mt19937 &g);
+	/**
+	* @brief Bernoulli trial with probability exp(−x(2k + x)/(2k + 2)).
+	* @param g Mersenne Twister Engine used for uniform deviates
+	* @param k Deviate k used for calculations
+	* @param x Deviate x used for calculations
+	* @return Whether the number of runs are even or not
+	*/
+	static bool AlgorithmB(std::mt19937 &g, int32_t k, double x);
+	/**
+	* @brief Bernoulli trial with probability exp(−x(2k + x)/(2k + 2)). Uses double precision.
+	* @param g Mersenne Twister Engine used for uniform deviates
+	* @param k Deviate k used for calculations
+	* @param x Deviate x used for calculations
+	* @return Whether the number of runs are even or not
+	*/
+	static bool AlgorithmBDouble(std::mt19937 &g, int32_t k, double x);
 
 
 	// Gyana to add precomputation methods and data members
@@ -191,6 +240,7 @@ private:
 	*Mean of the distribution used for Knuth-Yao probability table
 	*/
 	double probMean;
+
 };
 
 }  // namespace lbcrypto

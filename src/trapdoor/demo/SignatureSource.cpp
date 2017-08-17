@@ -83,8 +83,10 @@ void MultiThreadedRun() {
 	finish = currentDateTime();
 	std::cout << "Precomputation time: " << finish - start << " ms" << std::endl;
 
+	usint base = 2;
+
 	silParams = std::make_shared<ILParams>(ilParams);
-	LPSignatureParameters signParams(silParams, dgg);
+	LPSignatureParameters<Poly> signParams(silParams, dgg, base);
 signParams.SetElemParams(silParams);
 	std::cout << signParams.GetILParams()->GetCyclotomicOrder() << std::endl << std::endl;
 
@@ -208,7 +210,7 @@ void SingleThreadedRun() {
 		DiscreteFourierTransform::GetInstance().PreComputeTable(sm);
 		Poly::PreComputeDggSamples(dgg, silParams);
 		std::cout << "Precomputation time: " << finish - start << " ms" << std::endl;
-		LPSignatureParameters signParams(silParams, dgg);
+		LPSignatureParameters<Poly> signParams(silParams, dgg);
 		//LPSignKeyGPV<Poly> s_k(signParams);
 		//LPVerificationKeyGPV<Poly> v_k(signParams);
 		//LPSignatureSchemeGPV<Poly> scheme;

@@ -40,7 +40,7 @@
 //using namespace std;
 using namespace lbcrypto;
 
-bool CONJOBF(bool dbg_flag, int n_evals); //defined later
+bool CONJOBF(bool dbg_flag, int n_evals, usint base); //defined later
 
 
 //main()   need this for Kurts makefile to ignore this.
@@ -96,7 +96,9 @@ int main(int argc, char* argv[]){
 		}
 	}
 
-	errorflag = CONJOBF(dbg_flag, n_evals);
+	for(size_t base = 2; base < 1<<8; base=base*2)
+		errorflag = CONJOBF(dbg_flag, n_evals, base);
+	
 
 	//system("PAUSE");
 
@@ -105,7 +107,7 @@ int main(int argc, char* argv[]){
 }
 
 //////////////////////////////////////////////////////////////////////
-bool CONJOBF(bool dbg_flag, int n_evals) {
+bool CONJOBF(bool dbg_flag, int n_evals, usint base) {
 
 	//if dbg_flag == true; print debug outputs
 	// n_evals = 1,2,3 number of evaluations to perform
@@ -125,12 +127,13 @@ bool CONJOBF(bool dbg_flag, int n_evals) {
 	TimeVar t1,t_total; //for TIC TOC
 	TIC(t_total); //start timer for total time
 
-	usint m = 16;
+	usint m = 32;
 	//54 bits
 	//BigInteger modulus("9007199254741169");
 	//BigInteger rootOfUnity("7629104920968175");
 
 	usint chunkSize = 2;
+	//usint base = 2;
 
 	//Generate the test pattern
 	std::string inputPattern = "1?10?1";
@@ -138,6 +141,7 @@ bool CONJOBF(bool dbg_flag, int n_evals) {
 
 	ObfuscatedLWEConjunctionPattern<Poly> obfuscatedPattern;
 	obfuscatedPattern.SetChunkSize(chunkSize);
+	obfuscatedPattern.SetBase(base);
 	obfuscatedPattern.SetLength(clearPattern.GetLength());
 	obfuscatedPattern.SetRootHermiteFactor(1.006);
 
@@ -165,6 +169,7 @@ bool CONJOBF(bool dbg_flag, int n_evals) {
 	PROFILELOG( "\nq = " << modulus);
 	PROFILELOG("rootOfUnity = " << rootOfUnity);
 	PROFILELOG("n = " << m / 2 );
+	PROFILELOG("base = " << base );
 	PROFILELOG(printf("delta=%lf", obfuscatedPattern.GetRootHermiteFactor()));
 
 	typename Poly::DugType dug;

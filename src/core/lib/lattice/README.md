@@ -16,7 +16,8 @@ Lattice Directory Description
 
 Directory Objective
 -------------------
-The lattice directory support the lattice layer operations in the library.  As such, it is intended to be used to represent polynomial rings and support operations over polynomial rings.
+The files in the lattice directory support the lattice layer operations in the library.  The layer is used to represent polynomial rings
+and support operations over polynomial rings.
 
 This lattice layer is a middle layer in the library.
 The lattice layer supports higher-level calls for operations on ring elements necessary for lattice cryptography.
@@ -41,21 +42,24 @@ File Listing
 Directory Description
 =====================
 
-The primary objective of the code in this directory is to represent polynomial ring elements and manipulations on these elements.  The current implementations support polynomial rings that are of dimension a power of two (e.g. x^n + 1 where n is a power of 2).  A polynomial ring is defined as Rq := R/qR = Zq[X]/(f(X)), with f(X) a mononic irreducable polynomial of degree n, and q an integer modulus.
+The primary objective of the code in this directory is to represent polynomial ring elements and manipulations on these elements.  The current implementations support polynomial rings that are of dimension a power of two (e.g. x^n + 1 where n is a power of 2).  A polynomial ring is defined as Rq := R/qR = Zq[X]/(f(X)), with f(X) a mononic irreducable polynomial of degree n, and q an integer modulus. 
 
-The two main data classes in this layer are ILVector2n and ILVectorArray2n. Both are designed to represent polynomial ring elements with power-of-2 dimensionality.  
+Support for arbitrary cyclotomic rings is also available but in experimental mode. The case of m = p and m = 2*p, where m is a cyclotomic order and p is a prime, have been tested relatively well. Other cases of m have not been tested.
 
-The primary differences between ILVector2n and ILVectorArray2n are that ILVector2n uses single-CRT representation and ILVectorArray2n uses double-CRT representation.  In practice, this means that ILVector2n uses a single large modulus q, while  ILVectorArray2n uses multiple smaller moduli.  Hence, ILVector2n runs slower than ILVectorArray2n because ILVectorArray2n operations can be easier to fit into the native bitwidths of commodity processors.
+The two main data classes in this layer are Poly and DCRTPoly.
 
-ILVector2n and ILVectorArray2n implement the interface ILElement.  If new ring polynomials classes need to be built, we recommend building from ILElement, as we did with ILVector2n and ILVectorArray2n.
+The primary differences between Poly and DCRTPoly are that Poly uses single-CRT representation and DCRTPoly uses double-CRT representation.  In practice, this means that Poly uses a single large modulus q, while  DCRTPoly uses multiple smaller moduli.  Hence, Poly runs slower than DCRTPoly because DCRTPoly operations can be easier to fit into the native bitwidths of commodity processors.
 
-Supporting ILVector2n and ILVectorArray2n are the classes ILParams and ILDCRTParams which respectively contain parameters for the ring element representations.  In the case of ILVector2n, this includes the order, modulus and root of unity.  In the case of ILVectorArray2n, this includes the order, double-CRT width, moduli and roots of unity.
+Poly and DCRTPoly implement the interface ILElement.  If new ring polynomials classes need to be built, we recommend building from ILElement, as we did with Poly and DCRTPoly.
+
+Supporting Poly and DCRTPoly are the classes ILParams and ILDCRTParams which respectively contain parameters for the ring element representations.  In the case of Poly, this includes the order, modulus and root of unity.  In the case of DCRTPoly, this includes the order, double-CRT width, moduli and roots of unity.
 
 ILParams and ILDCRTParams implement the interface ElemParams.  If new ring polynomials classes need to be built, we recommend building from ElemParams, as we did with ILParams and ILDCRTParams.
 
 FORMAT
 ------
-The coefficients of the polynomial ring, in their initial form, are just coefficients. Translated into one of ILVector2n or ILVectorArray2n, can be simply seen
+The coefficients of the polynomial ring, in their initial form, are just coefficients.
+Translated into one of Poly or DCRTPoly, can be simply seen
 as vector's representing polynomial rings.
 
 We internally represent polynomial ring elements as being either in coefficient or evaluation format.  The initial or raw format, is noted as COEFFICIENT through out the code. By applying the Chinese-Remainder-Transform (CRT), which is a Number Theoretic Transform (NTT)  and variant of the Discrete Fourier Transform (DFT), we convert the ring elements into the EVALUATION format. The EVALUATION format, with respect to multiplying two or more ring polynomials, allows us to do element-wise multiplication on the vectors.

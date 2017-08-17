@@ -1,5 +1,5 @@
-// run this program and redirect the output into ElementParmsHelper.h
 /*
+ * @file
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -23,55 +23,56 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
+ /*
+  This code exercises the encoding libraries of the PALISADE lattice encryption library.
+*/
 
-#include <utility>
+#define PROFILE
+#include "include/gtest/gtest.h"
 #include <iostream>
-#include <sstream>
-#include <string>
 
-#define _USE_MATH_DEFINES
+#include "../lib/lattice/dcrtpoly.h"
 #include "math/backend.h"
-#include "math/nbtheory.h"
+#include "encoding/intplaintextencoding.h"
+#include "utils/inttypes.h"
+#include "utils/utilities.h"
 
 using namespace std;
 using namespace lbcrypto;
 
-int main( int argc, char *argv[] ) {
-	stringstream	macrocode1, macrocode2;
-	stringstream	parmarray;
-	int parmindex = 0;
 
-	BigInteger mod, rootUnity;
-	int shifts[] = { 30, 60, 100, }; //300, 500 };
+class UTEncoding : public ::testing::Test {
+protected:
+  virtual void SetUp() {
+  }
 
-	parmarray << "shared_ptr<ILParams> parmArray[] = {" << endl;
+  virtual void TearDown() {
+    // Code here will be called immediately after each test
+    // (right before the destructor).
+  }
+};
 
-	for( int o=8; o<=8192; o *= 2 ) {
-		for( size_t s = 0; s < sizeof(shifts)/sizeof(shifts[0]); s++ ) {
-			string pname = "parm_" + std::to_string(o) + "_" + std::to_string(shifts[s]);
-			mod = FirstPrime<BigInteger>(shifts[s], o);
-			rootUnity = RootOfUnity<BigInteger>(o, mod);
+TEST_F(UTEncoding,binary_polynomial){
+	BigInteger b(1);
+	b = (b << 70) + 1;
+	IntPlaintextEncoding small(9);
+	IntPlaintextEncoding medium( ((uint64_t)1<<33) + (uint64_t)1);
+	IntPlaintextEncoding large(b);
 
-			macrocode1 << "BENCHMARK(X)->ArgName(\"" << pname << "\")->Arg(" << parmindex << "); \\" << endl;
-			macrocode2 << "BENCHMARK_TEMPLATE(X,Y)->ArgName(\"" << pname << "\")->Arg(" << parmindex << "); \\" << endl;
-			parmindex++;
+	EXPECT_EQ( small[0], 1U );
+	EXPECT_EQ( small[1], 0U );
+	EXPECT_EQ( small[2], 0U );
+	EXPECT_EQ( small[3], 1U );
 
-			parmarray << pname << "," << endl;
+	EXPECT_EQ( medium[0], 1U );
+	EXPECT_EQ( medium[33], 1U);
+	for( size_t ii=1; ii<33; ii++ )
+		EXPECT_EQ( medium[ii], 0U);
 
-			cout << "shared_ptr<ILParams> " << pname << "( new ILParams(" << o 
-			<< ", BigInteger(\"" << mod << "\"), BigInteger(\"" << rootUnity
-			<< "\")) );" << endl;
-		}
-	}
-
-	cout << endl;
-	cout << parmarray.str() << "};" << endl << endl;
-
-	cout << "#define DO_PARM_BENCHMARK(X) \\" << endl;
-	cout << macrocode1.str() << endl << endl;
-	
-	cout << "#define DO_PARM_BENCHMARK_TEMPLATE(X,Y) \\" << endl;
-	cout << macrocode2.str() << endl << endl;
-
-	return 0;
+	EXPECT_EQ( large[0], 1U );
+	EXPECT_EQ( large[70], 1U );
+	for( size_t ii=1; ii<70; ii++ )
+		EXPECT_EQ( large[ii], 0U);
 }
+
+

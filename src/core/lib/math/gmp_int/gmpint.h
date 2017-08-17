@@ -257,7 +257,15 @@ namespace NTL{
       return(ret);
 
     }
-    inline myZZ& operator%=(const myZZ &modulus) {*this = *this%modulus; return *this;};  
+
+    inline myZZ operator%(int modulus) { 
+      ZZ tmp = *this;
+      ZZ tmod(modulus);
+      myZZ ret = tmp%modulus; 
+      return(ret);
+
+    }
+inline myZZ& operator%=(const myZZ &modulus) {*this = *this%modulus; return *this;};  
 
     inline myZZ ModBarrett(const myZZ& modulus, const myZZ& mu) const {return *this%modulus;};
     void ModBarrettInPlace(const myZZ& modulus, const myZZ& mu) { *this%=modulus;};

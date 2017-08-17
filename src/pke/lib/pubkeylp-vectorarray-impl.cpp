@@ -26,12 +26,15 @@
 
 #include "cryptocontext.h"
 #include "pubkeylp.cpp"
+#include "pubkeylp-2n-private.cpp"
 
 namespace lbcrypto {
 extern template class CryptoContext<DCRTPoly>;
 
 template class LPPublicKey<DCRTPoly>;
 template class LPEvalKeyRelin<DCRTPoly>;
+template class LPEvalKeyNTRU<DCRTPoly>;
 template class LPEvalKeyNTRURelin<DCRTPoly>;
+template class LPSHEAlgorithm<DCRTPoly>;
 }
 

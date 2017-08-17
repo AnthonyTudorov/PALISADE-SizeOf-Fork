@@ -502,11 +502,22 @@ namespace lbcrypto {
 		/**
 		* Serialize the object into a Serialized
 		* @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-		* @param fileFlag is an object-specific parameter for the serialization
 		* @return true if successfully serialized
 		*/
 		bool Serialize(Serialized *serObj) const;
 
+		/**
+		* SerializeWithoutContext - serializes the object into a Serialized, withut the cryptocontext
+		* @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+		* @return true if successfully serialized
+		*/
+		bool SerializeWithoutContext(Serialized *serObj) const;
+
+		/**
+		 * Deserialize from the serialization
+		 * @param serObj - contains the serialization
+		 * @return true on success
+		 */
 		bool Deserialize(const Serialized &serObj);
 
 		bool key_compare(const LPEvalKey<Element>& other) const {
@@ -624,16 +635,22 @@ namespace lbcrypto {
 		/**
 		* Serialize the object into a Serialized
 		* @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-		* @param fileFlag is an object-specific parameter for the serialization
 		* @return true if successfully serialized
 		*/
 		bool Serialize(Serialized *serObj) const;
 
 		/**
-		* Populate the object from the deserialization of the Serialized
-		* @param &serObj contains the serialized object
-		* @return true on success
+		* SerializeWithoutContext - serializes the object into a Serialized, withut the cryptocontext
+		* @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+		* @return true if successfully serialized
 		*/
+		bool SerializeWithoutContext(Serialized *serObj) const;
+
+		/**
+		 * Deserialize from the serialization
+		 * @param serObj - contains the serialization
+		 * @return true on success
+		 */
 		bool Deserialize(const Serialized &serObj);
 		
 		bool key_compare(const LPEvalKey<Element>& other) const {
@@ -749,42 +766,23 @@ namespace lbcrypto {
 		/**
 		* Serialize the object into a Serialized
 		* @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-		* @param fileFlag is an object-specific parameter for the serialization
 		* @return true if successfully serialized
 		*/
-		bool Serialize(Serialized *serObj) const {
-			serObj->SetObject();
+		bool Serialize(Serialized *serObj) const;
 
-			serObj->AddMember("Object", "EvalKeyNTRU", serObj->GetAllocator());
+		/**
+		* SerializeWithoutContext - serializes the object into a Serialized, withut the cryptocontext
+		* @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+		* @return true if successfully serialized
+		*/
+		bool SerializeWithoutContext(Serialized *serObj) const;
 
-			if (!this->GetCryptoParameters()->Serialize(serObj)) {
-				return false;
-			}
-
-			const Element& pe = this->GetA();
-
-			if (!pe.Serialize(serObj)) {
-				return false;
-			}
-
-			return true;
-		}
-
-		bool Deserialize(const Serialized &serObj) {
-			Serialized::ConstMemberIterator mIt = serObj.FindMember("Object");
-			if( mIt == serObj.MemberEnd() || string(mIt->value.GetString()) != "EvalKeyNTRU" )
-				return false;
-
-			Element pe;
-
-			if( !pe.Deserialize(serObj) ) {
-				return false;
-			}
-
-			m_Key = pe;
-
-			return true;
-		}
+		/**
+		 * Deserialize from the serialization
+		 * @param serObj - contains the serialization
+		 * @return true on success
+		 */
+		bool Deserialize(const Serialized &serObj);
 
 		bool key_compare(const LPEvalKey<Element>& other) const {
 			const LPEvalKeyNTRU<Element> &oth = dynamic_cast<const LPEvalKeyNTRU<Element> &>(other);
@@ -796,6 +794,7 @@ namespace lbcrypto {
 		}
 
 	private:
+
 		/**
 		* private member Element to store key.
 		*/
@@ -889,11 +888,10 @@ namespace lbcrypto {
 
 			serObj->SetObject();
 
-			serObj->AddMember("Object", "PrivateKey", serObj->GetAllocator());
-
-			if (!this->GetCryptoParameters()->Serialize(serObj))
+			if (!this->context->Serialize(serObj))
 				return false;
 
+			serObj->AddMember("Object", "PrivateKey", serObj->GetAllocator());
 			return this->GetPrivateElement().Serialize(serObj);
 		}
 
@@ -980,6 +978,16 @@ namespace lbcrypto {
 			 * @param *ciphertext ciphertext which results from encryption.
 			 */
 			virtual shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, Poly &plaintext, bool doEncryption = true) const = 0;
+
+			/**
+			 * Method for encrypting plaintex using LBC
+			 *
+			 * @param &privateKey private key used for encryption.
+			 * @param &plaintext the plaintext input.
+			 * @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
+			 * @param *ciphertext ciphertext which results from encryption.
+			 */
+			virtual shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey, Poly &plaintext, bool doEncryption = true) const = 0;
 
 			/**
 			 * Method for decrypting plaintext using LBC
@@ -1243,6 +1251,29 @@ namespace lbcrypto {
 			const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const = 0;
 
 		/**
+		* Virtual function for evaluating multiplication of a ciphertext list which each multiplication is followed by relinearization operation.
+		*
+		* @param cipherTextList  is the ciphertext list.
+		* @param evalKeys is the evaluation key to make the newCiphertext
+		*  decryptable by the same secret key as that of ciphertext list.
+		* @param *newCiphertext the new resulting ciphertext.
+		*/
+		virtual shared_ptr<Ciphertext<Element>> EvalMultMany(const shared_ptr<vector<shared_ptr<Ciphertext<Element>>>> cipherTextList, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> evalKeys) const = 0;
+
+		/**
+		* Virtual function to define the interface for multiplicative homomorphic evaluation of ciphertext using the evaluation key.
+		*
+		* @param ct1 first input ciphertext.
+		* @param ct2 second input ciphertext.
+		* @param ek is the evaluation key to make the newCiphertext
+		*  decryptable by the same secret key as that of ciphertext1 and ciphertext2.
+		* @param *newCiphertext the new resulting ciphertext.
+		*/
+		virtual shared_ptr<Ciphertext<Element>> EvalMultAndRelinearize(const shared_ptr<Ciphertext<Element>> ct1,
+			const shared_ptr<Ciphertext<Element>> ct2, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> ek) const = 0;
+
+
+		/**
 		* EvalLinRegression - Computes the parameter vector for linear regression using the least squares method
 		* @param x - matrix of regressors
 		* @param y - vector of dependent variables
@@ -1380,6 +1411,15 @@ namespace lbcrypto {
 			const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const = 0;
 
 		/**
+		* Virtual function to define the interface for generating a evaluation key which is used after each multiplication for depth more than 2.
+		*
+		* @param &originalPrivateKey Original private key used for encryption.
+		* @param *evalMultKeys the resulting evalution key vector list.
+		*/
+		virtual	shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> EvalMultKeysGen(
+			const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const = 0;
+
+		/**
 		 * Virtual function to generate all isomorphism keys for a given private key
 		 *
 		 * @param publicKey encryption key for the new ciphertext.
@@ -1428,18 +1468,24 @@ namespace lbcrypto {
 			const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 
 			usint batchSize = encodingParams->GetBatchSize();
-			usint g = encodingParams->GetPlaintextGenerator();
 			usint m = elementParams->GetCyclotomicOrder();
 
 			// stores automorphism indices needed for EvalSum
 			std::vector<usint> indices;
 
-			for (int i = 0; i < floor(log2(batchSize)); i++)
-			{
-				indices.push_back(g);
-				g = (g * g) % m;
-			}
+			if (!(m & (m-1))){ // Check if m is a power of 2
 
+				indices = GenerateIndices_2n(batchSize, m);
+
+			} else { // Arbitray cyclotomics
+
+				usint g = encodingParams->GetPlaintextGenerator();
+				for (int i = 0; i < floor(log2(batchSize)); i++)
+				{
+					indices.push_back(g);
+					g = (g * g) % m;
+				}
+			}
 
 			if (publicKey)
 				// NTRU-based scheme
@@ -1467,13 +1513,19 @@ namespace lbcrypto {
 			const shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
 			const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 
-			usint g = encodingParams->GetPlaintextGenerator();
 			usint m = elementParams->GetCyclotomicOrder();
 
-			for (int i = 0; i < floor(log2(batchSize)); i++)
-			{
-				newCiphertext = EvalAdd(newCiphertext, EvalAutomorphism(newCiphertext, g, evalKeys));
-				g = (g * g) % m;
+			if (!(m & (m-1))){ // Check if m is a power of 2
+
+				newCiphertext = EvalSum_2n(batchSize, m, evalKeys,newCiphertext);
+
+			} else { // Arbitray cyclotomics
+				usint g = encodingParams->GetPlaintextGenerator();
+				for (int i = 0; i < floor(log2(batchSize)); i++)
+				{
+					newCiphertext = EvalAdd(newCiphertext, EvalAutomorphism(newCiphertext, g, evalKeys));
+					g = (g * g) % m;
+				}
 			}
 
 			return newCiphertext;
@@ -1589,17 +1641,29 @@ namespace lbcrypto {
 
 			result = EvalInnerProduct(x0, y0, batchSize, evalSumKeys, evalMultKey);
 
+			#pragma omp parallel for ordered schedule(dynamic)
 			for (usint i = indexStart + 1; i < indexStart + length; i++)
 			{
 				shared_ptr<Ciphertext<Element>> xi = (*x)(i, 0).GetNumerator();
 				shared_ptr<Ciphertext<Element>> yi = (*y)(i, 0).GetNumerator();
+
+				auto product = EvalInnerProduct(xi, yi, batchSize, evalSumKeys, evalMultKey);
 				
-				result = EvalAdd(result,EvalInnerProduct(xi, yi, batchSize, evalSumKeys, evalMultKey));
+				#pragma omp ordered
+				{
+					result = EvalAdd(result,product);
+				}
 			}
 
 			return result;
 
 		}
+
+		private:
+			std::vector<usint> GenerateIndices_2n(usint batchSize, usint m) const;
+			shared_ptr<Ciphertext<Element>> EvalSum_2n(usint batchSize, usint m, const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalKeys,
+				const shared_ptr<Ciphertext<Element>> newCiphertext) const;
+
 
 	};
 
@@ -1831,6 +1895,16 @@ namespace lbcrypto {
 				}
 		}
 
+		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
+			Poly &plaintext, bool doEncryption = true) const {
+				if(this->m_algorithmEncryption) {
+					return this->m_algorithmEncryption->Encrypt(privateKey,plaintext,doEncryption);
+				}
+				else {
+					throw std::logic_error("Encrypt operation has not been enabled");
+				}
+		}
+
 		DecryptResult Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey, const shared_ptr<Ciphertext<Element>> ciphertext,
 				Poly *plaintext) const {
 				if(this->m_algorithmEncryption)
@@ -1984,13 +2058,22 @@ namespace lbcrypto {
 			}
 		}
 
-
 		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
 			const shared_ptr<Ciphertext<Element>> ciphertext2,
 			const shared_ptr<LPEvalKey<Element>> evalKey) const {
 
 			if (this->m_algorithmSHE)
 				return this->m_algorithmSHE->EvalMult(ciphertext1, ciphertext2, evalKey);
+			else {
+				throw std::logic_error("EvalMult operation has not been enabled");
+			}
+		}
+
+		shared_ptr<Ciphertext<Element>> EvalMultMany(const shared_ptr<vector<shared_ptr<Ciphertext<Element>>>> cipherTextList, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> evalKeys) const {
+
+			if (this->m_algorithmSHE){
+				return this->m_algorithmSHE->EvalMultMany(cipherTextList, evalKeys);
+			}
 			else {
 				throw std::logic_error("EvalMult operation has not been enabled");
 			}
@@ -2157,8 +2240,26 @@ namespace lbcrypto {
 					throw std::logic_error("EvalMultKeyGen operation has not been enabled");
 				}
 		}
-
 		
+		shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> EvalMultKeysGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const {
+				if(this->m_algorithmSHE)
+					return this->m_algorithmSHE->EvalMultKeysGen(originalPrivateKey);
+				else {
+					throw std::logic_error("EvalMultKeyGen operation has not been enabled");
+				}
+		}
+
+		shared_ptr<Ciphertext<Element>> EvalMultAndRelinearize(const shared_ptr<Ciphertext<Element>> ct1,
+			const shared_ptr<Ciphertext<Element>> ct2, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> ek) const {
+				if(this->m_algorithmSHE)
+					return this->m_algorithmSHE->EvalMultAndRelinearize(ct1, ct2, ek);
+				else {
+					throw std::logic_error("EvalMultKeyGen operation has not been enabled");
+				}
+			;
+		}
+
+
 		/////////////////////////////////////////
 		// the functions below are wrappers for things in LPFHEAlgorithm (FHE)
 		//

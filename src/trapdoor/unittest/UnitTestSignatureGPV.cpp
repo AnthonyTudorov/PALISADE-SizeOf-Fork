@@ -59,7 +59,7 @@ TEST(UTSignatureGPV,simple_sign_verify) {
   DEBUG("Step 3");
 	Poly::PreComputeDggSamples(dgg, silParams);
   DEBUG("Step 4");
-	LPSignatureParameters signParams(silParams, dgg);
+	LPSignatureParameters<Poly> signParams(silParams, dgg);
   DEBUG("Step 5");
 	LPSignKeyGPVGM<Poly> s_k(signParams);
   DEBUG("Step 6");
@@ -83,6 +83,48 @@ TEST(UTSignatureGPV,simple_sign_verify) {
 	Poly::DestroyPreComputedSamples();
 	DEBUG("Step 13");
 }
+//TEST FOR BASIC SIGNING & VERIFICATION PROCESS - TWO STEP PROCESS
+TEST(UTSignatureGPV, simple_sign_verify_two_phase) {
+	bool dbg_flag = false;
+
+	DEBUG("Step 1");
+	Poly::DggType dgg(4);
+	usint sm = 16;
+	BigInteger smodulus("1152921504606847009");
+	BigInteger srootOfUnity("405107564542978792");
+
+	shared_ptr<ILParams> silParams(new ILParams(sm, smodulus, srootOfUnity));
+	DEBUG("Step 2");
+	ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
+	DEBUG("Step 3");
+	Poly::PreComputeDggSamples(dgg, silParams);
+	DEBUG("Step 4");
+	LPSignatureParameters<Poly> signParams(silParams, dgg);
+	DEBUG("Step 5");
+	LPSignKeyGPVGM<Poly> s_k(signParams);
+	DEBUG("Step 6");
+	LPVerificationKeyGPVGM<Poly> v_k(signParams);
+	DEBUG("Step 7");
+	LPSignatureSchemeGPVGM<Poly> scheme;
+	DEBUG("Step 8");
+	scheme.KeyGen(&s_k, &v_k);
+	DEBUG("Step 9");
+	Signature<Matrix<Poly>> signature;
+	DEBUG("Step 10");
+	BytePlaintextEncoding text("Since hashing is integrated now");
+	DEBUG("Step 11");
+
+	shared_ptr<Matrix<Poly>> pVector = scheme.SampleOffline(s_k);
+
+	scheme.SignOnline(s_k, pVector, text, &signature);
+
+	EXPECT_EQ(true, scheme.Verify(v_k, signature, text))
+		<< "Failed verification";
+
+	DEBUG("Step 12");
+	Poly::DestroyPreComputedSamples();
+	DEBUG("Step 13");
+}
 //TEST FOR SIGNING AND VERIFYING SIGNATURES GENERATED FROM MULTIPLE TEXTS. ONLY SIGNATURES CORRESPONDING TO THEIR RESPECTIVE TEXT SHOULD VERIFY
 TEST(UTSignatureGPV, sign_verify_multiple_texts) {
 	Poly::DggType dgg(4);
@@ -92,7 +134,7 @@ TEST(UTSignatureGPV, sign_verify_multiple_texts) {
 	shared_ptr<ILParams> silParams( new ILParams(sm, smodulus, srootOfUnity) );
 	ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
 	Poly::PreComputeDggSamples(dgg, silParams);
-	LPSignatureParameters signParams(silParams, dgg);
+	LPSignatureParameters<Poly> signParams(silParams, dgg);
 	LPSignKeyGPVGM<Poly> s_k(signParams);
 	LPVerificationKeyGPVGM<Poly> v_k(signParams);
 	
@@ -130,7 +172,7 @@ TEST(UTSignatureGPV, sign_verify_multiple_keys) {
 	shared_ptr<ILParams> silParams( new ILParams(sm, smodulus, srootOfUnity) );
 	ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
 	Poly::PreComputeDggSamples(dgg, silParams);
-	LPSignatureParameters signParams(silParams, dgg);
+	LPSignatureParameters<Poly> signParams(silParams, dgg);
 	LPSignKeyGPVGM<Poly> s_k(signParams),s_k2(signParams);
 	LPVerificationKeyGPVGM<Poly> v_k(signParams),v_k2(signParams);
 
@@ -162,5 +204,4 @@ int main(int argc, char **argv) {
 	return RUN_ALL_TESTS();
 }
 */
-
 

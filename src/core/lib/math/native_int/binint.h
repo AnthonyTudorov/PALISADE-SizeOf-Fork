@@ -719,6 +719,7 @@ public:
 
 	/**
 	* Scalar modular multiplication where Barrett modular reduction is used - In-place version
+	* Only used inside BigVector - it assumes that both multiplicands are already smaller than the modulus
 	* Implements generalized Barrett modular reduction algorithm (no interleaving between multiplication and modulo).
 	* Uses one precomputed value \mu.
 	* See the cpp file for details of the implementation.
@@ -729,7 +730,7 @@ public:
 	* @return is the result of the modulus multiplication operation.
 	*/
 	void ModBarrettMulInPlace(const NativeInteger& b, const NativeInteger& modulus, const NativeInteger& mu) {
-		*this = this->ModMul(b,modulus);
+		*this = this->ModMulFast(b,modulus);
 		return;
 	}
 
@@ -847,22 +848,25 @@ public:
 	usint GetLengthForBase(usint base) const {return GetMSB();}
 
 	/**
-	 * Get the number of digits using a specific base - only power-of-2 bases are currently supported.
-	 *
-	 * @param index is the location to return value from in the specific base.
-	 * @param base is the base with which to determine length in.
-	 * @return the length of the representation in a specific base.
-	 */
+	* Get a specific digit at "digit" index; big integer is seen as an array of digits, where a 0 <= digit < base
+	*
+	* @param index is the "digit" index of the requested digit
+	* @param base is the base with which to determine length in.
+	* @return is the requested digit
+	*/
 	usint GetDigitAtIndexForBase(usint index, usint base) const {
 
-			usint digit = 0;
-			usint newIndex = index;
-			for (usint i = 1; i < base; i = i*2)
-			{
-				digit += GetBitAtIndex(newIndex)*i;
-				newIndex++;
-			}
-			return digit;
+		usint DigitLen = ceil(log2(base));
+
+		usint digit = 0;
+		usint newIndex = 1 + (index - 1)*DigitLen;
+		for (usint i = 1; i < base; i = i * 2)
+		{
+			digit += GetBitAtIndex(newIndex)*i;
+			newIndex++;
+		}
+		return digit;
+
 	}
 
 	/**

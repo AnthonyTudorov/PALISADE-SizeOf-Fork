@@ -1,7 +1,7 @@
 /**0
  * @file
  * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
- *	Programmers: Dr. Yuriy Polyakov, <polyakov@njit.edu>
+ *	Programmers: Dr. Yuriy Elementakov, <Elementakov@njit.edu>
  * @version 00_05
  *
  * @section LICENSE
@@ -45,7 +45,6 @@
 #include "lattice/ildcrtparams.h"
 #include "lattice/ilelement.h"
 #include "../sampling/trapdoor.h"
-#include "../sampling/trapdoor.cpp"
 
 /**
  * @namespace lbcrypto
@@ -190,7 +189,7 @@ namespace lbcrypto {
 			 * Gets the modulus
 			 * @return the modulus
 			 */
-			const BigInteger GetModulus() const;
+			const typename Element::Integer GetModulus() const;
 
 			/**
 			 * Gets the correctness constraint.
@@ -205,7 +204,7 @@ namespace lbcrypto {
 			 * Sets the modulus
 			 * @param &modulus the modulus
 			 */
-			void SetModulus(BigInteger &modulus);
+			void SetModulus(typename Element::Integer &modulus);
 
 			/**
 			 * Gets the log of the modulus
@@ -219,7 +218,7 @@ namespace lbcrypto {
 			 * @param ek - vector of encoding keys.
 			 * @param sigma - vector of perturbation matrices.
 			 */
-			void SetKeys(shared_ptr<std::vector<Matrix<Element>>> pk, shared_ptr<std::vector<RLWETrapdoorPair<Poly>>>   ek) {
+			void SetKeys(shared_ptr<std::vector<Matrix<Element>>> pk, shared_ptr<std::vector<RLWETrapdoorPair<Element>>>   ek) {
 				this->m_pk = pk;
 				this->m_ek = ek;
 			}
@@ -259,7 +258,7 @@ namespace lbcrypto {
 			 * Gets the collection of private keys.
 			 * @return private keys.
 			 */
-			const std::vector<RLWETrapdoorPair<Poly>> &GetEncodingKeys() const {
+			const std::vector<RLWETrapdoorPair<Element>> &GetEncodingKeys() const {
 				return *(this->m_ek);
 			}
 
@@ -283,6 +282,18 @@ namespace lbcrypto {
 			 */
 			shared_ptr<Matrix<Element>> GetR(usint i, const std::string &testVal) const;
 
+			/**
+			* Gets the base for G-sampling
+			* @return the base
+			*/
+			usint GetBase() const { return m_base; }
+
+			/**
+			* Sets the base for G-sampling
+			* @param base to be set;
+			*/
+			void SetBase(usint base) { m_base = base; }
+
 		private:
 
 			//length of the pattern
@@ -295,13 +306,16 @@ namespace lbcrypto {
 			//number of bits encoded by one matrix
 			usint m_chunkSize;
 
+			//base for G-sampling
+			usint m_base;
+
 			shared_ptr<vector< vector<shared_ptr<Matrix<Element>>> >> m_S_vec;
 			shared_ptr<vector< vector<shared_ptr<Matrix<Element>>> >> m_R_vec;
 			shared_ptr<Matrix<Element>> m_Sl;
 			shared_ptr<Matrix<Element>> m_Rl;
 
 			shared_ptr<std::vector<Matrix<Element>>> m_pk;
-			shared_ptr<std::vector<RLWETrapdoorPair<Poly>>>   m_ek;
+			shared_ptr<std::vector<RLWETrapdoorPair<Element>>>   m_ek;
 
 	};
 
@@ -366,15 +380,17 @@ namespace lbcrypto {
 			 * @param &dgg the discrete Gaussian Generator.
 			 * @param &dggLargeSigma the discrete Gaussian Generator for perturbation sampling.
 			 * @param &dggEncoding DGG generator for encoding random ring elements.
+			 * @param base used in G-sampling
 			 */
 			shared_ptr<Matrix<Element>> Encode(
 				const Matrix<Element> &Ai,
 				const Matrix<Element> &Aj,
-				const RLWETrapdoorPair<Poly> &Ti,
+				const RLWETrapdoorPair<Element> &Ti,
 				const Element &elemS,
 				typename Element::DggType &dgg,
 				typename Element::DggType &dggLargeSigma,
-				typename Element::DggType &EdggEncoding) const;
+				typename Element::DggType &EdggEncoding,
+				uint32_t base = 2) const;
 
 			/**
 			 * Method for evaluating the pattern - before matrix-vector optimization
@@ -409,6 +425,16 @@ namespace lbcrypto {
 			*/
 			bool Evaluate(const ObfuscatedLWEConjunctionPattern<Element> &obfuscatedPattern,
 				 const std::string &testString) const;
+
+		private:
+
+			/**
+			* Method to create element parameters for given q and n
+			*
+			* @param &q estimated value of modulus (based on correctness & security constraints)
+			* @param &n estimated ring dimension (based on correctness & security constraints).
+			*/
+			shared_ptr<typename Element::Params> GenerateElemParams(double q, uint32_t n) const;
 
 	};
 

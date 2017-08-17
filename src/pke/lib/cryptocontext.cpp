@@ -163,12 +163,14 @@ CryptoContext<T>::Serialize(Serialized* serObj) const
 
 	Serialized kser(rapidjson::kObjectType, &serObj->GetAllocator());
 
-	if( this->evalMultKeys.size() > 0 ) {
-		SerializeVectorOfPointers<LPEvalKey<T>>("EvalMultKeys", "LPEvalKey", this->evalMultKeys, &ccser);
-	}
+	if( Serializable::IncludeKeysInSerializedContext() ) {
+		if( this->evalMultKeys.size() > 0 ) {
+			SerializeVectorOfPointers<LPEvalKey<T>>("EvalMultKeys", "LPEvalKey", this->evalMultKeys, &ccser);
+		}
 
-	if( this->evalSumKeys.size() > 0 ) {
-		SerializeMapOfPointers("EvalSumKeys", T::GetElementName(), this->evalSumKeys, &ccser);
+		if( this->evalSumKeys.size() > 0 ) {
+			SerializeMapOfPointers("EvalSumKeys", T::GetElementName(), this->evalSumKeys, &ccser);
+		}
 	}
 
 	ccser.AddMember("Schemes", std::to_string(this->scheme->GetEnabled()), serObj->GetAllocator());
@@ -499,7 +501,7 @@ CryptoContextFactory<T>::genCryptoContextFV(shared_ptr<typename T::Params> ep,
 		const usint plaintextmodulus,
 		usint relinWindow, float stDev, const std::string& delta,
 		MODE mode, const std::string& bigmodulus, const std::string& bigrootofunity, int depth, int assuranceMeasure, float securityLevel,
-		const std::string& bigmodulusarb, const std::string& bigrootofunityarb)
+		const std::string& bigmodulusarb, const std::string& bigrootofunityarb, int maxDepth)
 {
 	shared_ptr<LPCryptoParametersFV<T>> params(
 			new LPCryptoParametersFV<T>(ep,
@@ -527,7 +529,7 @@ CryptoContextFactory<T>::genCryptoContextFV(shared_ptr<typename T::Params> ep,
 	shared_ptr<EncodingParams> encodingParams,
 	usint relinWindow, float stDev, const std::string& delta,
 	MODE mode, const std::string& bigmodulus, const std::string& bigrootofunity, int depth, int assuranceMeasure, float securityLevel,
-	const std::string& bigmodulusarb, const std::string& bigrootofunityarb)
+	const std::string& bigmodulusarb, const std::string& bigrootofunityarb, int maxDepth)
 {
 	shared_ptr<LPCryptoParametersFV<T>> params(
 		new LPCryptoParametersFV<T>(ep,
@@ -542,7 +544,8 @@ CryptoContextFactory<T>::genCryptoContextFV(shared_ptr<typename T::Params> ep,
 			BigInteger(bigrootofunity),
 			BigInteger(bigmodulusarb),
 			BigInteger(bigrootofunityarb),
-			depth));
+			depth,
+			maxDepth));
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeFV<T>());
 
@@ -553,7 +556,7 @@ template <typename T>
 shared_ptr<CryptoContext<T>>
 CryptoContextFactory<T>::genCryptoContextFV(
 		const usint plaintextModulus, float securityLevel, usint relinWindow, float dist,
-		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode)
+		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode, int maxDepth)
 {
 	int nonZeroCount = 0;
 
@@ -575,6 +578,7 @@ CryptoContextFactory<T>::genCryptoContextFV(
 	params->SetDistributionParameter(dist);
 	params->SetMode(mode);
 	params->SetAssuranceMeasure(9.0);
+	params->SetMaxDepth(maxDepth);
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeFV<T>() );
 
@@ -587,7 +591,7 @@ template <typename T>
 shared_ptr<CryptoContext<T>>
 CryptoContextFactory<T>::genCryptoContextFV(
 	shared_ptr<EncodingParams> encodingParams, float securityLevel, usint relinWindow, float dist,
-	unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode)
+	unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode, int maxDepth)
 {
 	int nonZeroCount = 0;
 
@@ -610,6 +614,7 @@ CryptoContextFactory<T>::genCryptoContextFV(
 	params->SetDistributionParameter(dist);
 	params->SetMode(mode);
 	params->SetAssuranceMeasure(9.0);
+	params->SetMaxDepth(maxDepth);
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeFV<T>());
 
@@ -790,23 +795,32 @@ CryptoContext<T>::deserializeEvalKey(const Serialized& serObj)
 
 	shared_ptr<LPEvalKey<T>> key;
 	string oname = nIt->value.GetString();
-	if( oname == "EvalKeyRelin" )
-		key.reset( new LPEvalKeyRelin<T>(this) );
-	else if( oname == "EvalKeyNTRURelin" )
-		key.reset( new LPEvalKeyNTRURelin<T>(this) );
-	else if( oname == "EvalKeyNTRU" )
-		key.reset( new LPEvalKeyNTRU<T>(this) );
+	if( oname == "EvalKeyRelin" ) {
+		LPEvalKeyRelin<T> *k = new LPEvalKeyRelin<T>(this);
+		if( k->Deserialize(serObj) == false )
+			return 0;
+
+		key.reset( k );
+	}
+
+	else if( oname == "EvalKeyNTRURelin" ) {
+		LPEvalKeyNTRURelin<T> *k = new LPEvalKeyNTRURelin<T>(this);
+		if( k->Deserialize(serObj) == false )
+			return 0;
+
+		key.reset( k );
+	}
+	else if( oname == "EvalKeyNTRU" ) {
+		LPEvalKeyNTRU<T> *k = new LPEvalKeyNTRU<T>(this);
+		if( k->Deserialize(serObj) == false )
+			return 0;
+
+		key.reset( k );
+	}
 	else
 		throw std::logic_error("Unrecognized Eval Key type '" + oname + "'");
 
-	if( CryptoContextHelper::matchContextToSerialization(this, serObj) == false ) {
-		return 0;
-	}
-
-	if( key->Deserialize(serObj) )
-		return key;
-
-	return 0;
+	return key;
 }
 
 }

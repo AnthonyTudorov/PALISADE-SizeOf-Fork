@@ -295,6 +295,13 @@ public:
 	virtual Element AutomorphismTransform(const usint& i) const = 0;
 
 	/**
+	* @brief Transpose the ring element using the automorphism operation
+	*
+	* @return is the result of the transposition.
+	*/
+	virtual Element Transpose() const = 0;
+
+	/**
 	 * @brief Write the element as \f$ \sum\limits{i=0}^{\lfloor {\log q/base} \rfloor} {(base^i u_i)} \f$ and
 	 * return the vector of \f$ \left\{u_0, u_1,...,u_{\lfloor {\log q/base} \rfloor} \right\} \in R_{{base}^{\lceil {\log q/base} \rceil}} \f$;
 	 * This is used as a subroutine in the relinearization procedure.
@@ -324,6 +331,13 @@ public:
 	 * @return true if there exists a multiplicative inverse.
 	 */
 	virtual bool InverseExists() const = 0;
+
+	/**
+	* @brief Returns the infinity norm, basically the largest value in the ring element.
+	*
+	* @return the largest value in the ring element.
+	*/
+	virtual double Norm() const = 0;
 
 	/**
 	 * @brief Returns true if the vector is empty/ m_values==NULL

@@ -2,7 +2,7 @@
 * @file
 * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
 *	Programmers: 
-*		Dr. Yuriy Polyakov, <polyakov@njit.edu>
+*		Dr. Yuriy Elementakov, <Elementakov@njit.edu>
 *		Kevin King, kcking@mit.edu
 * @version 00_03
 *
@@ -37,15 +37,13 @@
 #ifndef LBCRYPTO_LATTICE_TRAPDOOR_H
 #define LBCRYPTO_LATTICE_TRAPDOOR_H
 
+//#include "utils/debug.h"
 #include "math/matrix.h"
-#include "lattice/poly.h"
 #include "dgsampling.h"
-#include "dgsampling.cpp"
-#include "utils/debug.h"
 
 namespace lbcrypto {
 
-typedef Matrix<Poly> RingMat;
+	typedef Matrix<Poly> RingMat;
 
 /**
 * @brief Class to store a lattice trapdoor pair generated using construction 1 in section 3.2 of https://eprint.iacr.org/2013/297.pdf
@@ -54,7 +52,7 @@ typedef Matrix<Poly> RingMat;
 template <class Element>
 class RLWETrapdoorPair {
 public:
-	// matrix of noise polynomials
+	// matrix of noise Elementnomials
 	Matrix<Element> m_r;
 	// matrix 
 	Matrix<Element> m_e;
@@ -66,6 +64,7 @@ public:
 /**
 * @brief Static class implementing lattice trapdoor construction 1 in section 3.2 of https://eprint.iacr.org/2013/297.pdf
 */
+template <class Element>
 class RLWETrapdoorUtility
 {
 public:
@@ -73,19 +72,23 @@ public:
 	* Trapdoor generation method as described in section 3.2 of https://eprint.iacr.org/2013/297.pdf
 	*
 	* @param params ring element parameters
-	* @param sttdev distribution parameter used in sampling noise polynomials of the trapdoor
+	* @param sttdev distribution parameter used in sampling noise Elementnomials of the trapdoor
+	* @param base base for digits
+	* @param bal flag for balanced (true) versus not-balanced (false) digit representation
 	* @return the trapdoor pair including the public key (matrix of rings) and trapdoor itself
 	*/
-	static inline std::pair<RingMat, RLWETrapdoorPair<Poly>> TrapdoorGen(shared_ptr<typename Poly::Params> params, int stddev);
+	static std::pair<Matrix<Element>, RLWETrapdoorPair<Element>> TrapdoorGen(shared_ptr<typename Element::Params> params, int stddev, int32_t base = 2, bool bal = false);
+
+//	static inline std::pair<Matrix<Element>, RLWETrapdoorPair<Element>> TrapdoorGenwBase(shared_ptr<typename Element::Params> params, int32_t base, int stddev);
 
 //	/**
-//	* Wrapper for TrapdoorGen(ILParams params, int stddev) - currently supports only Poly, support for other rings will be added later
+//	* Wrapper for TrapdoorGen(ILParams params, int stddev) - currently supports only Element, support for other rings will be added later
 //	*
 //	* @param params ring element parameters
-//	* @param sttdev distribution parameter used in sampling noise polynomials of the trapdoor
+//	* @param sttdev distribution parameter used in sampling noise Elementnomials of the trapdoor
 //	* @return the trapdoor pair including the public key (matrix of rings) and trapdoor itself
 //	*/
-//	static inline std::pair<RingMat, RLWETrapdoorPair<Poly>> TrapdoorGen(const shared_ptr<typename Poly::Params> params, int stddev)
+//	static inline std::pair<Matrix<Element>, RLWETrapdoorPair<Element>> TrapdoorGen(const shared_ptr<typename Element::Params> params, int stddev)
 //	{
 //		return TrapdoorGen(params, stddev);
 //	}
@@ -97,16 +100,46 @@ public:
 	* @param k matrix sample dimension; k = logq + 2
 	* @param &A public key of the trapdoor pair
 	* @param &T trapdoor itself
-	* @param &SigmaP Cholesky decomposition matrix for the trapdoor
 	* @param &u syndrome vector where gaussian that Gaussian sampling is centered around
-	* @param sigma noise distriubution parameter
 	* @param &dgg discrete Gaussian generator for integers
 	* @param &dggLargeSigma discrete Gaussian generator for perturbation vector sampling
 	* @return the sampled vector (matrix)
 	*/
-	static inline RingMat GaussSamp(size_t n, size_t k, const RingMat& A, 
-		const RLWETrapdoorPair<Poly>& T, const Poly &u,
-		double sigma, Poly::DggType &dgg, Poly::DggType &dggLargeSigma);
+	static Matrix<Element> GaussSamp(size_t n, size_t k, const Matrix<Element>& A, 
+		const RLWETrapdoorPair<Element>& T, const Element &u, 
+		typename Element::DggType &dgg, typename Element::DggType &dggLargeSigma, int32_t base = 2);
+
+	/**
+	* On-line stage of pre-image sampling
+	*
+	* @param n ring dimension
+	* @param k matrix sample dimension; k = logq + 2
+	* @param &A public key of the trapdoor pair
+	* @param &T trapdoor itself
+	* @param &u syndrome vector where gaussian that Gaussian sampling is centered around
+	* @param &dgg discrete Gaussian generator for integers
+	* @param &perturbationVector perturbation vector generated during the offline stage
+	* @param &base base for G-lattice
+	* @return the sampled vector (matrix)
+	*/
+	static Matrix<Element> GaussSampOnline(size_t n, size_t k, const Matrix<Element>& A,
+		const RLWETrapdoorPair<Element>& T, const Element &u, typename Element::DggType &dgg,
+		 const shared_ptr<Matrix<Element>> perturbationVector, int32_t base = 2);
+
+	/**
+	* Of-line stage of pre-image sampling (perturbation sampling)
+	*
+	* @param n ring dimension
+	* @param k matrix sample dimension; k = logq + 2
+	* @param &T trapdoor itself
+	* @param &dgg discrete Gaussian generator for integers
+	* @param &dggLargeSigma discrete Gaussian generator for perturbation vector sampling
+	* @param &base base for G-lattice
+	* @return the sampled vector (matrix)
+	*/
+	static shared_ptr<Matrix<Element>> GaussSampOffline(size_t n, size_t k,
+		const RLWETrapdoorPair<Element>& T,typename Element::DggType &dgg, typename Element::DggType &dggLargeSigma, 
+		int32_t base = 2);
 
 	/**
 	* New method for perturbation generation based by the new paper
@@ -119,10 +152,10 @@ public:
 	*@param &dggLargeSigma discrete Gaussian generator for perturbation vector sampling
 	*@param *perturbationVector perturbation vector;output of the function
 	*/
-	static inline void ZSampleSigmaP(size_t n, double s, double sigma,
-		const RLWETrapdoorPair<Poly> &Tprime,
-		const Poly::DggType& dgg, const Poly::DggType& dggLargeSigma,
-		RingMat *perturbationVector);
+	static void ZSampleSigmaP(size_t n, double s, double sigma,
+		const RLWETrapdoorPair<Element> &Tprime,
+		const typename Element::DggType& dgg, const typename Element::DggType& dggLargeSigma,
+		shared_ptr<Matrix<Element>> perturbationVector);
 
 };
 

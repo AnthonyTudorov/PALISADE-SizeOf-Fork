@@ -248,6 +248,128 @@ const PolyImpl<ModType,IntType,VecType,ParmType>& PolyImpl<ModType,IntType,VecTy
 		return *this;
 	}
 
+template<typename ModType, typename IntType, typename VecType, typename ParmType>
+const PolyImpl<ModType, IntType, VecType, ParmType>& PolyImpl<ModType, IntType, VecType, ParmType>::operator=(std::vector<int64_t> rhs)
+{
+	static IntType ZERO(0);
+	usint len = rhs.size();
+	if (!IsEmpty()) {
+		usint vectorLength = this->m_values->GetLength();
+
+		for (usint j = 0; j < vectorLength; ++j) { // loops within a tower
+			if (j < len) {
+				IntType tempBI;
+				uint64_t tempInteger;
+				if (*(rhs.begin() + j) < 0)
+				{
+					tempInteger = -*(rhs.begin() + j);
+					tempBI = m_params->GetModulus() - IntType(tempInteger);
+				}
+				else
+				{
+					tempInteger = *(rhs.begin() + j);
+					tempBI = IntType(tempInteger);
+				}
+				SetValAtIndex(j, tempBI);
+			}
+			else {
+				SetValAtIndex(j, ZERO);
+			}
+		}
+
+	}
+	else {
+
+		usint vectorLength = m_params->GetCyclotomicOrder() / 2;
+		VecType temp(vectorLength);
+		temp.SetModulus(m_params->GetModulus());
+		for (usint j = 0; j < vectorLength; ++j) { // loops within a tower
+			if (j < len) {
+				IntType tempBI;
+				uint64_t tempInteger;
+				if (*(rhs.begin() + j) < 0)
+				{
+					tempInteger = -*(rhs.begin() + j);
+					tempBI = m_params->GetModulus() - IntType(tempInteger);
+				}
+				else
+				{
+					tempInteger = *(rhs.begin() + j);
+					tempBI = IntType(tempInteger);
+				}
+				temp.SetValAtIndex(j, tempBI);
+			}
+			else {
+				temp.SetValAtIndex(j, ZERO);
+			}
+		}
+		this->SetValues(std::move(temp), m_format);
+	}
+	m_format = COEFFICIENT;
+	return *this;
+}
+
+template<typename ModType, typename IntType, typename VecType, typename ParmType>
+const PolyImpl<ModType, IntType, VecType, ParmType>& PolyImpl<ModType, IntType, VecType, ParmType>::operator=(std::vector<int32_t> rhs)
+{
+	static IntType ZERO(0);
+	usint len = rhs.size();
+	if (!IsEmpty()) {
+		usint vectorLength = this->m_values->GetLength();
+
+		for (usint j = 0; j < vectorLength; ++j) { // loops within a tower
+			if (j < len) {
+				IntType tempBI;
+				uint32_t tempInteger;
+				if (*(rhs.begin() + j) < 0)
+				{
+					tempInteger = -*(rhs.begin() + j);
+					tempBI = m_params->GetModulus() - IntType(tempInteger);
+				}
+				else
+				{
+					tempInteger = *(rhs.begin() + j);
+					tempBI = IntType(tempInteger);
+				}
+				SetValAtIndex(j, tempBI);
+			}
+			else {
+				SetValAtIndex(j, ZERO);
+			}
+		}
+
+	}
+	else {
+
+		usint vectorLength = m_params->GetCyclotomicOrder() / 2;
+		VecType temp(vectorLength);
+		temp.SetModulus(m_params->GetModulus());
+		for (usint j = 0; j < vectorLength; ++j) { // loops within a tower
+			if (j < len) {
+				IntType tempBI;
+				uint32_t tempInteger;
+				if (*(rhs.begin() + j) < 0)
+				{
+					tempInteger = -*(rhs.begin() + j);
+					tempBI = m_params->GetModulus() - IntType(tempInteger);
+				}
+				else
+				{
+					tempInteger = *(rhs.begin() + j);
+					tempBI = IntType(tempInteger);
+				}
+				temp.SetValAtIndex(j, tempBI);
+			}
+			else {
+				temp.SetValAtIndex(j, ZERO);
+			}
+		}
+		this->SetValues(std::move(temp), m_format);
+	}
+	m_format = COEFFICIENT;
+	return *this;
+}
+
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 const PolyImpl<ModType,IntType,VecType,ParmType>& PolyImpl<ModType,IntType,VecType,ParmType>::operator=(std::initializer_list<std::string> rhs)
@@ -596,7 +718,7 @@ PolyImpl<ModType,IntType,VecType,ParmType> PolyImpl<ModType,IntType,VecType,Parm
 			throw std::logic_error("PolyImpl element transposition is currently implemented only in the Evaluation representation.");
 	else {
 			usint m = m_params->GetCyclotomicOrder();
-			return AutomorphismTransform(2 * m - 1);
+			return AutomorphismTransform(m - 1);
 		}
 	}
 
@@ -786,21 +908,25 @@ bool PolyImpl<ModType,IntType,VecType,ParmType>::InverseExists() const
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 double PolyImpl<ModType,IntType,VecType,ParmType>::Norm() const
 {
-		double retVal = 0.0;
-		double locVal = 0.0;
-		double q = m_params->GetModulus().ConvertToDouble();
+	IntType locVal;
+	IntType retVal;
+	const IntType &q = m_params->GetModulus();
+	const IntType &half = m_params->GetModulus() >> 1;
 
-		for (usint i = 0; i < GetValues().GetLength(); i++) {
-		if (m_values->GetValAtIndex(i) > (m_params->GetModulus() >> 1)) {
-				locVal = q - (m_values->GetValAtIndex(i)).ConvertToDouble();
-		} else
-				locVal = (m_values->GetValAtIndex(i)).ConvertToDouble();
+	for (usint i = 0; i < GetValues().GetLength(); i++) {
+		if (m_values->GetValAtIndex(i) > half) 
+			locVal = q - m_values->GetValAtIndex(i);
+		else
+			locVal = m_values->GetValAtIndex(i);
 
-			if (locVal > retVal)
-				retVal = locVal;
+		if (locVal > retVal)
+			retVal = locVal;
 		}
-		return retVal;
+
+	return retVal.ConvertToDouble();
+
 	}
+
 
 	// Write vector x(current value of the PolyImpl object) as \sum\limits{ i = 0 }^{\lfloor{ \log q / base } \rfloor} {(base^i u_i)} and
 	// return the vector of{ u_0, u_1,...,u_{ \lfloor{ \log q / base } \rfloor } } \in R_base^{ \lceil{ \log q / base } \rceil };
@@ -828,7 +954,7 @@ std::vector<PolyImpl<ModType,IntType,VecType,ParmType>> PolyImpl<ModType,IntType
 
 
 	for (usint i = 0; i < nWindows; ++i) {
-			xDigit.SetValues( x.GetValues().GetDigitAtIndexForBase(i*baseBits + 1, 1 << baseBits), x.GetFormat() );
+			xDigit.SetValues( x.GetValues().GetDigitAtIndexForBase(i+1, 1 << baseBits), x.GetFormat() );
 			if( evalModeAnswer )
 				xDigit.SwitchFormat();
 			result.push_back(xDigit);

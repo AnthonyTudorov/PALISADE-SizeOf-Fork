@@ -202,6 +202,7 @@ template<class IntegerType>
 void BigVectorImpl<IntegerType>::SetModulus(const IntegerType& value){
 	this->m_modulus = value;
 }
+
 /**Switches the integers in the vector to values corresponding to the new modulus
 *  Algorithm: Integer i, Old Modulus om, New Modulus nm, delta = abs(om-nm):
 *  Case 1: om < nm
@@ -210,7 +211,7 @@ void BigVectorImpl<IntegerType>::SetModulus(const IntegerType& value){
 *  Case 2: om > nm
 *  i > om/2
 *  i' = i-delta
-*/	
+*/
 template<class IntegerType>
 void BigVectorImpl<IntegerType>::SwitchModulus(const IntegerType& newModulus) {
     bool dbg_flag = false;

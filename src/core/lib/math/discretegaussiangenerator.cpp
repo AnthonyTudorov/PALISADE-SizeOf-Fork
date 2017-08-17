@@ -298,15 +298,182 @@ namespace lbcrypto {
 			}
 			//DEBUG("x "<<x<<" dice "<<dice);
 			count++;
-			if (count>limit) {
-				DEBUG("x "<<x<<" dice "<<dice);
+			if (count > limit) {
+				DEBUG("x " << x << " dice " << dice);
 				throw std::runtime_error("GenerateInteger could not find success after repeated attempts");
-		}
+			}
 
 		}
+
 		}//end pragma
 		return x;
 
+	}
+	template<typename IntType, typename VecType>
+	int64_t DiscreteGaussianGeneratorImpl<IntType, VecType>::GenerateIntegerKarney(double mean, double stddev){
+
+		int64_t result;
+		std::uniform_int_distribution<int32_t> uniform_sign(0, 1);
+		std::uniform_int_distribution<int64_t> uniform_j(0, ceil(stddev)-1);
+
+		std::mt19937 &g = PseudoRandomNumberGenerator::GetPRNG();
+
+		bool flagSuccess = false;
+		int32_t k;
+
+		while (!flagSuccess) {
+			
+			// STEP D1
+			k = AlgorithmG(g);
+
+			// STEP D2
+			if (!AlgorithmP(g, k * (k - 1))) continue;
+		
+			// STEP D3
+			int32_t s = uniform_sign(g);
+			if (s == 0)
+				s = -1;
+
+			// STEP D4
+			double di0 = stddev * k + s * mean;
+			int64_t i0 = std::ceil(di0);
+			double x0 = (i0 - di0) / stddev;
+			int64_t j = uniform_j(g);
+
+			double x = x0 + j / stddev;
+
+			// STEPS D5 and D6
+			if (!(x < 1) || (x == 0 && s < 0 && k == 0))
+				continue;
+
+			// STEP D7
+			int32_t h = k + 1; while (h-- && AlgorithmB(g, k, x)) {};
+			if (!(h < 0)) continue;
+
+			// STEP D8
+			result = s*(i0 + j);
+			flagSuccess = true;
+
+		}
+
+		return result;
+
+	}
+	
+	template<typename IntType, typename VecType>
+	bool DiscreteGaussianGeneratorImpl<IntType, VecType>::AlgorithmP(std::mt19937 &g, int n){
+		while (n-- && AlgorithmH(g)){}; return n < 0;
+	}
+
+	template<typename IntType, typename VecType>
+	int32_t DiscreteGaussianGeneratorImpl<IntType, VecType>::AlgorithmG(std::mt19937 &g)
+	{
+		int n = 0; while (AlgorithmH(g)) ++n; return n;
+	}
+
+	// Use single floating-point precision in most cases; if a situation w/ not enough precision is encountered,
+	// call the double-precision algorithm
+	template<typename IntType, typename VecType>
+	bool DiscreteGaussianGeneratorImpl<IntType, VecType>::AlgorithmH(std::mt19937 &g){
+		
+		std::uniform_real_distribution<float> dist(0,1);
+		float h_a, h_b;
+		h_a = dist(g);
+
+		// less than the half
+		if (!(h_a < 0.5)) return true;
+		else if (h_a < 0.5)
+		{
+			for (;;) {
+				h_b = dist(g);
+				if (!(h_b < h_a))
+					return false;
+				else if (h_b < h_a)
+					h_a = dist(g);
+				else //numbers are equal - need higher precision
+					return AlgorithmHDouble(g);
+				if (!(h_a < h_b))
+					return true;
+				else if (h_a == h_b) //numbers are equal - need higher precision
+					return AlgorithmHDouble(g);
+			}
+		}
+		else //numbers are equal - need higher precision
+			return AlgorithmHDouble(g);
+	}
+
+	template<typename IntType, typename VecType>
+	bool DiscreteGaussianGeneratorImpl<IntType, VecType>::AlgorithmHDouble(std::mt19937 &g) {
+	
+		std::uniform_real_distribution<double> dist(0, 1);
+		double h_a, h_b;
+		h_a = dist(g);
+		// less than the half
+		if (!(h_a < 0.5)) return true;
+		for (;;) {
+			h_b = dist(g);
+			if (!(h_b<h_a))
+				return false;
+			else
+				h_a = dist(g);
+			if (!(h_a<h_b)) return true;
+		}
+	}
+
+	template<typename IntType, typename VecType>
+	bool DiscreteGaussianGeneratorImpl<IntType, VecType>::AlgorithmB(std::mt19937 &g, int32_t k, double x) {
+
+		std::uniform_real_distribution<float> dist(0.0, 1.0);
+
+		float y = x;
+		int32_t n = 0, m = 2 * k + 2;
+		float z, r;
+		float rTemp;
+
+		for (;; ++n) {
+		
+			z = dist(g);
+			if (!(z < y))
+				break;
+			else if ((z < y))
+			{
+				r = dist(g);
+				rTemp = (2 * k + x) / m;
+				if (!(r < rTemp))
+					break;
+				else if (r < rTemp)
+					y = z;
+				else // r == Temp - need double precision
+					return AlgorithmBDouble(g, k, x);
+			}
+			else // z == x - need double precision
+				return AlgorithmBDouble(g, k, x);
+		}
+
+		return (n % 2) == 0;
+
+	}
+
+	template<typename IntType, typename VecType>
+	bool DiscreteGaussianGeneratorImpl<IntType, VecType>::AlgorithmBDouble(std::mt19937 &g, int32_t k, double x) {
+		std::uniform_real_distribution<double> dist(0.0, 1.0);
+
+		double y = x;
+		int32_t n = 0, m = 2 * k + 2;
+		double z, r;
+
+		for (;; ++n) {
+
+			z = dist(g);
+			if (!(z < y))
+				break;
+			r = dist(g);
+			if (!(r < (2 * k + x) / m))
+				break;
+			y = z;
+		}
+
+		return (n % 2) == 0;
 	}
 
 	/**

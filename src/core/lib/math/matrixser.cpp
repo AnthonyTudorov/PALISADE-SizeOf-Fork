@@ -24,6 +24,9 @@
  *
  */
 
+#ifndef _SRC_LIB_CORE_MATH_MATRIXSER_CPP
+#define _SRC_LIB_CORE_MATH_MATRIXSER_CPP
+
 #include "../utils/serializablehelper.h"
 #include "../lattice/field2n.h"
 #include "matrix.cpp"
@@ -41,6 +44,7 @@ template class Matrix<BigInteger>;
 template class Matrix<BigVector>;
 template class Matrix<double>;
 template class Matrix<int>;
+template class Matrix<int64_t>;
 
 template<>
 bool Matrix<int32_t>::Serialize(Serialized* serObj) const {
@@ -49,6 +53,24 @@ bool Matrix<int32_t>::Serialize(Serialized* serObj) const {
 
 template<>
 bool Matrix<int32_t>::Deserialize(const Serialized& serObj) {
+	return false;
+}
+template<>
+bool Matrix<int64_t>::Serialize(Serialized* serObj) const {
+	return false;
+}
+
+template<>
+bool Matrix<int64_t>::Deserialize(const Serialized& serObj) {
+	return false;
+}
+template<>
+bool Matrix<uint64_t>::Serialize(Serialized* serObj) const {
+	return false;
+}
+
+template<>
+bool Matrix<uint64_t>::Deserialize(const Serialized& serObj) {
 	return false;
 }
 
@@ -71,6 +93,20 @@ template<>
 bool Matrix<BigInteger>::Deserialize(const Serialized& serObj) {
 	return false;
 }
+
+#if MATHBACKEND != 7
+
+template<>
+bool Matrix<native_int::BigInteger>::Serialize(Serialized* serObj) const {
+	return false;
+}
+
+template<>
+bool Matrix<native_int::BigInteger>::Deserialize(const Serialized& serObj) {
+	return false;
+}
+
+#endif
 
 template<>
 bool Matrix<BigVector>::Serialize(Serialized* serObj) const {
@@ -100,6 +136,16 @@ bool Matrix<Poly>::Serialize(Serialized* serObj) const {
 
 template<>
 bool Matrix<Poly>::Deserialize(const Serialized& serObj) {
+	return false;
+}
+
+template<>
+bool Matrix<DCRTPoly>::Serialize(Serialized* serObj) const {
+	return false;
+}
+
+template<>
+bool Matrix<DCRTPoly>::Deserialize(const Serialized& serObj) {
 	return false;
 }
 
@@ -187,58 +233,95 @@ IDENTITY_FOR_TYPE(Field2n)
 
 #define GADGET_FOR_TYPE(T) \
 template<> \
-Matrix<T> Matrix<T>::GadgetVector() const { \
+Matrix<T> Matrix<T>::GadgetVector(int32_t base) const { \
     Matrix<T> g(allocZero, rows, cols); \
-    auto two = allocZero(); \
-    *two = 2; \
+    auto base_matrix = allocZero(); \
+    *base_matrix = base; \
     g(0, 0) = 1; \
     for (size_t col = 1; col < cols; ++col) { \
-        g(0, col) = g(0, col-1) * *two; \
+        g(0, col) = g(0, col-1) * *base_matrix; \
     } \
     return g; \
 }
 
-
 GADGET_FOR_TYPE(int32_t)
 GADGET_FOR_TYPE(double)
 GADGET_FOR_TYPE(Poly)
+GADGET_FOR_TYPE(DCRTPoly)
 GADGET_FOR_TYPE(BigInteger)
 GADGET_FOR_TYPE(BigVector)
 //GADGET_FOR_TYPE(IntPlaintextEncoding)
 GADGET_FOR_TYPE(Field2n)
 
-template<>
-double Matrix<Poly>::Norm() const {
-    double retVal = 0.0;
-	double locVal = 0.0;
-
-	//std::cout << " Norm: " << rows << "-" << cols << "-"  << locVal << "-"  << retVal << std::endl;
-
-	for (size_t row = 0; row < rows; ++row) {
-		for (size_t col = 0; col < cols; ++col) {
-			locVal = data[row][col]->Norm();
-			//std::cout << " Norm: " << row << "-" << col << "-"  << locVal << "-"  << retVal << std::endl;
-			if (locVal > retVal) {
-				retVal = locVal;
-			}
-		}
-	}
-
-    return retVal;
+#define NORM_FOR_TYPE(T) \
+template<> \
+double Matrix<T>::Norm() const { \
+    double retVal = 0.0; \
+	double locVal = 0.0; \
+	for (size_t row = 0; row < rows; ++row) { \
+		for (size_t col = 0; col < cols; ++col) { \
+			locVal = data[row][col]->Norm(); \
+			if (locVal > retVal) { \
+				retVal = locVal; \
+			} \
+		} \
+	} \
+    return retVal; \
 }
 
-#define NORM_FOR_TYPE(T) \
+NORM_FOR_TYPE(Poly)
+NORM_FOR_TYPE(DCRTPoly)
+
+
+#define NONORM_FOR_TYPE(T) \
 template<> \
 double Matrix<T>::Norm() const { \
     throw std::logic_error("Norm not defined for this type"); \
 }
 
+NONORM_FOR_TYPE(int32_t)
+NONORM_FOR_TYPE(double)
+NONORM_FOR_TYPE(BigInteger)
+NONORM_FOR_TYPE(BigVector)
+NONORM_FOR_TYPE(Field2n)
 
-NORM_FOR_TYPE(int32_t)
-NORM_FOR_TYPE(double)
-NORM_FOR_TYPE(BigInteger)
-NORM_FOR_TYPE(BigVector)
-NORM_FOR_TYPE(Field2n)
+//  split a vector of int32_t into a vector of ring elements with ring dimension n
+#define SPLIT64_FOR_TYPE(T) \
+template<> \
+Matrix<T> SplitInt64IntoElements(Matrix<int64_t> const& other, size_t n, const shared_ptr<typename T::Params> params) { \
+	auto zero_alloc = T::MakeAllocator(params, COEFFICIENT); \
+	size_t rows = other.GetRows() / n; \
+	Matrix<T> result(zero_alloc, rows, 1); \
+	for (size_t row = 0; row < rows; ++row) { \
+		std::vector<int64_t> values(n); \
+		for (size_t i = 0; i < n; ++i) \
+			values[i] = other(row*n + i, 0); \
+		result(row, 0) = values; \
+	} \
+	return result; \
+}
+
+SPLIT64_FOR_TYPE(Poly)
+SPLIT64_FOR_TYPE(DCRTPoly)
+
+//  split a vector of BBI into a vector of ring elements with ring dimension n
+#define SPLIT32ALT_FOR_TYPE(T) \
+template<> \
+Matrix<T> SplitInt32AltIntoElements(Matrix<int32_t> const& other, size_t n, const shared_ptr<typename T::Params> params) { \
+	auto zero_alloc = T::MakeAllocator(params, COEFFICIENT); \
+	size_t rows = other.GetRows(); \
+	Matrix<T> result(zero_alloc, rows, 1); \
+	for (size_t row = 0; row < rows; ++row) { \
+		std::vector<int32_t> values(n); \
+		for (size_t i = 0; i < n; ++i) \
+			values[i] = other(row, i); \
+		result(row, 0) = values; \
+	} \
+	return result; \
+}
+
+SPLIT32ALT_FOR_TYPE(Poly)
+SPLIT32ALT_FOR_TYPE(DCRTPoly)
 
 template<>
 void Matrix<Poly>::SetFormat(Format format) {
@@ -379,6 +462,29 @@ void Matrix<Poly>::SwitchFormat() {
 	}
 }
 
+template<>
+void Matrix<DCRTPoly>::SwitchFormat() {
+
+	if (rows == 1)
+	{
+		for (size_t row = 0; row < rows; ++row) {
+#pragma omp parallel for
+			for (size_t col = 0; col < cols; ++col) {
+				data[row][col]->SwitchFormat();
+			}
+		}
+	}
+	else
+	{
+		for (size_t col = 0; col < cols; ++col) {
+#pragma omp parallel for
+			for (size_t row = 0; row < rows; ++row) {
+				data[row][col]->SwitchFormat();
+			}
+		}
+	}
+}
+
 // YSP removed the Matrix class because it is not defined for all possible data types
 // needs to be checked to make sure input matrix is used in the right places
 // the assumption is that covariance matrix does not have large coefficients because it is formed by
@@ -493,77 +599,6 @@ Matrix<int32_t> ConvertToInt32(const Matrix<BigVector> &input, const BigInteger&
     return result;
 }
 
-//  split a vector of int32_t into a vector of ring elements with ring dimension n
-Matrix<Poly> SplitInt32IntoPolyElements(Matrix<int32_t> const& other, size_t n, const shared_ptr<ILParams> params) {
-
-	auto zero_alloc = Poly::MakeAllocator(params, COEFFICIENT);
-
-	size_t rows = other.GetRows()/n;
-
-    Matrix<Poly> result(zero_alloc, rows, 1);
-
-    for (size_t row = 0; row < rows; ++row) {
-		BigVector tempBBV(n,params->GetModulus());
-
-        for (size_t i = 0; i < n; ++i) {
-			BigInteger tempBBI;
-			uint32_t tempInteger;
-			if (other(row*n + i,0) < 0)
-			{
-				tempInteger = -other(row*n + i,0);
-				tempBBI = params->GetModulus() - BigInteger(tempInteger);
-			}
-			else
-			{
-				tempInteger = other(row*n + i,0);
-				tempBBI = BigInteger(tempInteger);
-			}
-            tempBBV.SetValAtIndex(i,tempBBI);
-        }
-
-		result(row,0).SetValues(tempBBV,COEFFICIENT);
-    }
-
-    return result;
 }
 
-//  split a vector of BBI into a vector of ring elements with ring dimension n
-Matrix<Poly> SplitInt32AltIntoPolyElements(Matrix<int32_t> const& other, size_t n, const shared_ptr<ILParams> params) {
-
-	auto zero_alloc = Poly::MakeAllocator(params, COEFFICIENT);
-
-	size_t rows = other.GetRows();
-
-    Matrix<Poly> result(zero_alloc, rows, 1);
-
-    for (size_t row = 0; row < rows; ++row) {
-
-		BigVector tempBBV(n,params->GetModulus());
-
-        for (size_t i = 0; i < n; ++i) {
-
-			BigInteger tempBBI;
-			uint32_t tempInteger;
-			if (other(row,i) < 0)
-			{
-				tempInteger = -other(row,i);
-				tempBBI = params->GetModulus() - BigInteger(tempInteger);
-			}
-			else
-			{
-				tempInteger = other(row,i);
-				tempBBI = BigInteger(tempInteger);
-			}
-
-			tempBBV.SetValAtIndex(i,tempBBI);
-        }
-
-		result(row,0).SetValues(tempBBV,COEFFICIENT);
-    }
-
-    return result;
-}
-
-
-}
-
+#endif

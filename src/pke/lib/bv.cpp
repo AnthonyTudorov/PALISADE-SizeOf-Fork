@@ -208,6 +208,58 @@ namespace lbcrypto {
 	}
 
 	template <class Element>
+	shared_ptr<Ciphertext<Element>> LPAlgorithmBV<Element>::Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
+		Poly &ptxt, bool doEncryption) const
+	{
+		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(privateKey->GetCryptoParameters());
+
+		shared_ptr<Ciphertext<Element>> ciphertext(new Ciphertext<Element>(privateKey->GetCryptoContext()));
+
+		const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
+		const typename Element::Integer &p = cryptoParams->GetPlaintextModulus();
+		const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
+
+		typename Element::DugType dug;
+
+		Element plaintext(ptxt, elementParams);
+
+		plaintext.SwitchFormat();
+
+		std::vector<Element> cVector;
+
+		if (doEncryption) {
+			Element a(dug, elementParams, Format::EVALUATION);
+			const Element &s = privateKey->GetPrivateElement();
+			Element e(dgg, elementParams, Format::EVALUATION);
+
+			Element c0(a*s + p*e + plaintext);
+			Element c1(a);
+
+			cVector.push_back(std::move(c0));
+			cVector.push_back(std::move(c1));
+
+			ciphertext->SetElements(std::move(cVector));
+
+		}
+		else
+		{
+
+			Element c0(plaintext);
+
+			Element c1(elementParams,Format::EVALUATION,true);
+
+			cVector.push_back(std::move(c0));
+
+			cVector.push_back(std::move(c1));
+
+			ciphertext->SetElements(std::move(cVector));
+
+		}
+
+		return ciphertext;
+	}
+
+	template <class Element>
 	DecryptResult LPAlgorithmBV<Element>::Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const shared_ptr<Ciphertext<Element>> ciphertext,
 		Poly *plaintext) const
@@ -624,7 +676,7 @@ LPKeyPair<Element> LPAlgorithmMultipartyBV<Element>::MultipartyKeyGen(CryptoCont
 		typename Element::TugType tug;
 
 		//Generate the element "a" of the public key
-		Element a = pk1->GetPublicElements()[1];
+		Element a = pk1->GetPublicElements()[0];
 		//Generate the secret key
 		Element s;
 
@@ -644,7 +696,7 @@ LPKeyPair<Element> LPAlgorithmMultipartyBV<Element>::MultipartyKeyGen(CryptoCont
 		e.SwitchFormat();
 		//a.SwitchFormat();
 
-		Element b = a*s + p*e;
+		Element b = a*s + p*e + pk1->GetPublicElements()[1];
 
 		kp.secretKey->SetPrivateElement(std::move(s));
 		kp.publicKey->SetPublicElementAtIndex(0, std::move(a));

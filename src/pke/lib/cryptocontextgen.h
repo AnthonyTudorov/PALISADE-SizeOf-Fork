@@ -31,6 +31,7 @@
 #include "palisade.h"
 #include "cryptocontext.h"
 #include "utils/parmfactory.h"
+#include "lattice/elemparamfactory.h"
 
 using namespace lbcrypto;
 
@@ -57,8 +58,19 @@ inline shared_ptr<CryptoContext<DCRTPoly>> GenCryptoContextElementArrayNull(usin
 	return cc;
 }
 
-inline shared_ptr<CryptoContext<Poly>> GenCryptoContextElementLTV(usint ORDER, usint ptm, usint bits=PrimeBits) {
-	shared_ptr<Poly::Params> p = GenerateTestParams<Poly::Params,Poly::Integer>(ORDER, bits);
+inline shared_ptr<CryptoContext<Poly>> GenCryptoContextElementLTV(usint ORDER, usint ptm) {
+	shared_ptr<Poly::Params> p = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(ORDER);
+
+	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(p, ptm, 1, 4);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(PRE);
+	cc->Enable(SHE);
+
+	return cc;
+}
+
+inline shared_ptr<CryptoContext<Poly>> GenCryptoContextElementLTV(usint ORDER, usint ptm, usint bits) {
+	shared_ptr<Poly::Params> p = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(ORDER, bits);
 
 	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(p, ptm, 1, 4);
 	cc->Enable(ENCRYPTION);
@@ -79,8 +91,19 @@ inline shared_ptr<CryptoContext<DCRTPoly>> GenCryptoContextElementArrayLTV(usint
 	return cc;
 }
 
-inline shared_ptr<CryptoContext<Poly>> GenCryptoContextElementStSt(usint ORDER, usint ptm, usint bits=PrimeBits) {
-	shared_ptr<Poly::Params> p = GenerateTestParams<Poly::Params,Poly::Integer>(ORDER, bits);
+inline shared_ptr<CryptoContext<Poly>> GenCryptoContextElementStSt(usint ORDER, usint ptm) {
+	shared_ptr<Poly::Params> p = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(ORDER);
+
+	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextStehleSteinfeld(p, ptm, 1, 4, 41411.5);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(PRE);
+	cc->Enable(SHE);
+
+	return cc;
+}
+
+inline shared_ptr<CryptoContext<Poly>> GenCryptoContextElementStSt(usint ORDER, usint ptm, usint bits) {
+	shared_ptr<Poly::Params> p = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(ORDER, bits);
 
 	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextStehleSteinfeld(p, ptm, 1, 4, 41411.5);
 	cc->Enable(ENCRYPTION);
@@ -102,7 +125,7 @@ inline shared_ptr<CryptoContext<DCRTPoly>> GenCryptoContextElementArrayStSt(usin
 }
 
 inline shared_ptr<CryptoContext<Poly>> GenCryptoContextElementBV(usint ORDER, usint ptm, usint bits=PrimeBits) {
-	shared_ptr<Poly::Params> p = GenerateTestParams<Poly::Params,Poly::Integer>(ORDER, bits);
+	shared_ptr<Poly::Params> p = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(ORDER);
 
 	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextBV(p, ptm, 1, 4);
 	cc->Enable(ENCRYPTION);

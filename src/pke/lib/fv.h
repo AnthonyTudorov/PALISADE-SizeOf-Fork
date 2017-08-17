@@ -115,14 +115,16 @@ namespace lbcrypto {
 				const BigInteger &bigRootOfUnity,
 				const BigInteger &bigModulusArb,
 				const BigInteger &bigRootOfUnityArb,
-				int depth = 1)
+				int depth = 1,
+				int maxDepth = 2)
 					: LPCryptoParametersRLWE<Element>(params,
 						plaintextModulus,
 						distributionParameter,
 						assuranceMeasure,
 						securityLevel,
 						relinWindow,
-						depth) {
+						depth,
+						maxDepth) {
 						m_delta = delta;
 						m_mode = mode;
 						m_bigModulus = bigModulus;
@@ -160,14 +162,16 @@ namespace lbcrypto {
 				const BigInteger &bigRootOfUnity,
 				const BigInteger &bigModulusArb,
 				const BigInteger &bigRootOfUnityArb,
-				int depth = 1)
+				int depth = 1,
+				int maxDepth = 2)
 				: LPCryptoParametersRLWE<Element>(params,
 					encodingParams,
 					distributionParameter,
 					assuranceMeasure,
 					securityLevel,
 					relinWindow,
-					depth) {
+					depth,
+					maxDepth) {
 				m_delta = delta;
 				m_mode = mode;
 				m_bigModulus = bigModulus;
@@ -390,6 +394,17 @@ namespace lbcrypto {
 			Poly &plaintext, bool doEncryption = true) const;
 
 		/**
+		* Method for encrypting plaintext using FV.
+		*
+		* @param privateKey private key used for encryption.
+		* @param &plaintext the plaintext input.
+		* @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
+		* @return ciphertext which results from encryption.
+		*/
+		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
+			Poly &plaintext, bool doEncryption = true) const;
+
+		/**
 		* Method for decrypting using FV. See the class description for citations on where the algorithms were
 	 	* taken from.
 		*
@@ -456,7 +471,8 @@ namespace lbcrypto {
 
 		/**
 		* Function for homomorphic evaluation of ciphertexts.
-		* Currently it assumes that the input arguments are fresh ciphertexts (of depth 1). Support for the input ciphertexts of higher depths will be added later.
+		* The multiplication is supported for a fixed level without keyswitching requirement (default level=2).
+		* If the total depth of the ciphertexts exceeds the supported level, it throws an error.
 		*
 		* @param ciphertext1 first input ciphertext.
 		* @param ciphertext2 second input ciphertext.
@@ -487,6 +503,31 @@ namespace lbcrypto {
 		*/
 		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ct1,
 			const shared_ptr<Ciphertext<Element>> ct, const shared_ptr<LPEvalKey<Element>> ek) const;
+
+		/**
+		* Function for evaluating multiplication on ciphertext followed by relinearization operation. It computes the
+		* multiplication in a binary tree manner. Also, it reduces the number of elements in the ciphertext to two after each multiplication.
+		* Currently it assumes that the consecutive two input arguments have total depth smaller than the supported depth. Otherwise, it throws an error.
+		*
+		* @param cipherTextList  is the ciphertext list.
+		* @param evalKeys is the evaluation key to make the newCiphertext
+		*  decryptable by the same secret key as that of ciphertext list.
+		* @param *newCiphertext the new resulting ciphertext.
+		*/
+		shared_ptr<Ciphertext<Element>> EvalMultMany(const shared_ptr<vector<shared_ptr<Ciphertext<Element>>>> cipherTextList, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> evalKeys) const;
+
+		/**
+		* Function for evaluating multiplication on ciphertext followed by relinearization operation.
+		* Currently it assumes that the input arguments have total depth smaller than the supported depth. Otherwise, it throws an error.
+		*
+		* @param ct1 first input ciphertext.
+		* @param ct2 second input ciphertext.
+		* @param ek is the evaluation key to make the newCiphertext
+		*  decryptable by the same secret key as that of ciphertext1 and ciphertext2.
+		* @param *newCiphertext the new resulting ciphertext.
+		*/
+		shared_ptr<Ciphertext<Element>> EvalMultAndRelinearize(const shared_ptr<Ciphertext<Element>> ct1,
+			const shared_ptr<Ciphertext<Element>> ct, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> ek) const;
 
 		/**
 		* Function for homomorphic negation of ciphertexts.
@@ -551,6 +592,17 @@ namespace lbcrypto {
 		* @return evaluation key.
 		*/
 		shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(
+					const shared_ptr<LPPrivateKey<Element>> k1) const;
+
+		/**
+		* Function to generate 1..log(q) encryptions for each bit of the powers of the original private key.
+		* The number of the powers is determined by the depth. If we choose depth 4, it means we can decrypt
+		* ciphertexts with 5 elements. For c[i] being the ciphertext elements, we compute \sum_{i=0}^{i<5} c[i]*s^i.
+		*
+		* @param k1 private key.
+		* @return evaluation key.
+		*/
+		shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> EvalMultKeysGen(
 					const shared_ptr<LPPrivateKey<Element>> k1) const;
 
 		/**

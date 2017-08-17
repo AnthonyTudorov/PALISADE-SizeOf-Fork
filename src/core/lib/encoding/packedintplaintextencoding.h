@@ -30,6 +30,7 @@
 #include <vector>
 #include <initializer_list>
 #include "plaintext.h"
+#include "encodingparams.h"
 #include <functional>
 #include <numeric>
 
@@ -91,9 +92,9 @@ public:
 		return BigInteger(modulusNI.ConvertToInt());
 	}
 
-	static usint GetAutomorphismGenerator(const BigInteger &modulus) { 
+	static usint GetAutomorphismGenerator(const BigInteger &modulus) {
 		native_int::BigInteger modulusNI(modulus.ConvertToInt());
-		return m_automorphismGenerator[modulusNI];  
+		return m_automorphismGenerator[modulusNI];
 	}
 
 	/** The operation of converting from current plaintext encoding to Poly.
@@ -161,10 +162,17 @@ public:
 	}
 
 	/**
-	 * @brief Method to set the modulus and cyclotomic order parameters
-	 * @param modulus the encoding modulus.
+	 * @brief Method to set encoding params
 	 * @param m the encoding cyclotomic order.
+	 * @params params data structure storing encoding parameters
 	 */
+	static void SetParams(usint m, shared_ptr<EncodingParams> params);
+
+	/**
+	* @brief Method to set encoding params (this method should eventually be replaced by void SetParams(usint m, shared_ptr<EncodingParams> params);)
+	* @params modulus is the plaintext modulus
+	* @param m the encoding cyclotomic order.
+	*/
 	static void SetParams(const BigInteger &modulus, usint m);
 
 	/**
@@ -210,6 +218,9 @@ private:
 	static std::map<native_int::BigInteger, usint> m_automorphismGenerator;
 	static std::map<native_int::BigInteger, std::vector<usint>> m_toCRTPerm;
 	static std::map<native_int::BigInteger, std::vector<usint>> m_fromCRTPerm;
+
+	static void SetParams_2n(usint m, const native_int::BigInteger &modulus);
+	static void SetParams_2n(usint m, shared_ptr<EncodingParams> params);
 
 	/**
 	* @brief Packs the slot values into aggregate plaintext space.

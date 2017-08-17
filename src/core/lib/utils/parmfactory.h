@@ -43,19 +43,6 @@
 
 using namespace lbcrypto;
 
-template<typename Params, typename Integer>
-inline shared_ptr<Params> GenerateTestParams(usint m, const Integer& modulus, const Integer& rootOfUnity) {
-	return shared_ptr<Params>(new Params(m, modulus, rootOfUnity));
-}
-
-
-template<typename Params, typename Integer>
-inline shared_ptr<Params> GenerateTestParams(usint m, usint nbits) {
-	Integer modulus = FirstPrime<Integer>(nbits, m);
-	Integer rootOfUnity = RootOfUnity<Integer>(m, modulus);
-	return shared_ptr<Params>(new Params(m, modulus, rootOfUnity));
-}
-
 /**
  * Generate an ILDCRTParams with a given number of parms, with cyphertext moduli of at least a given size
  * @param m - order

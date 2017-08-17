@@ -63,6 +63,7 @@ using namespace lbcrypto;
 
 void ArbLTVEvalSumPackedArray();
 void ArbBVEvalSumPackedArray();
+void BVEvalSumPackedArray2n();
 void ArbFVEvalSumPackedArray();
 
 int main() {
@@ -76,6 +77,10 @@ int main() {
 	std::cout << "\n===========BV TESTS (EVALSUM-ARBITRARY)===============: " << std::endl;
 
 	ArbBVEvalSumPackedArray();
+
+	std::cout << "\n===========BV TESTS (EVALSUM-POWER-OF-TWO)===============: " << std::endl;
+
+	BVEvalSumPackedArray2n();
 
 	std::cout << "\n===========FV TESTS (EVALSUM-ARBITRARY)===============: " << std::endl;
 
@@ -148,6 +153,57 @@ void ArbBVEvalSumPackedArray() {
 
 }
 
+void BVEvalSumPackedArray2n() {
+
+	usint m = 32;
+	//usint phim = 1024;
+	usint p = 193; // we choose s.t. 2m|p-1 to leverage CRTArb
+	BigInteger modulusP(p);
+	PackedIntPlaintextEncoding::SetParams(modulusP, m);
+
+	usint batchSize = 16;
+	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP), batchSize));
+
+	BigInteger modulusQ("4809848800078200833");
+	BigInteger rootOfUnity("1512511313188104877");
+
+	shared_ptr<ILParams> params(new ILParams(m, modulusQ, rootOfUnity));
+
+	usint relinWindow = 1;
+	float stdDev = 4;
+
+	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, encodingParams, relinWindow, stdDev);
+
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
+
+	// Initialize the public key containers.
+	LPKeyPair<Poly> kp = cc->KeyGen();
+
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertext;
+
+	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16 };
+	PackedIntPlaintextEncoding intArray(vectorOfInts);
+
+	std::cout << "Input array\n\t" << intArray << std::endl;
+
+	cc->EvalSumKeyGen(kp.secretKey);
+
+	ciphertext = cc->Encrypt(kp.publicKey, intArray, false);
+
+	auto ciphertext1 = cc->EvalSum(ciphertext[0], batchSize);
+
+	vector<shared_ptr<Ciphertext<Poly>>> ciphertextSum;
+
+	ciphertextSum.push_back(ciphertext1);
+
+	PackedIntPlaintextEncoding intArrayNew;
+
+	cc->Decrypt(kp.secretKey, ciphertextSum, &intArrayNew, false);
+
+	std::cout << "Sum = " << intArrayNew[0] << std::endl;
+
+}
 
 void ArbLTVEvalSumPackedArray() {
 

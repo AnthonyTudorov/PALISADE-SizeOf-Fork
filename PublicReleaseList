@@ -1,37 +1,18 @@
-./.gitignore
-./apidoc_warning_logfile.txt
-# ./benchmark
-./configure.sh
-./Contact.md
-./Contributors.md
-./doc
-./google
-./ide
-./lbcrypto-doxy-config
-./License.md
-./Makefile
-./Makefile.benchmark
-# ./Makefile.circuit
-./Makefile.circuit-disable
-./Makefile.common
-./Makefile.core
-./Makefile.docs
-./Makefile.gmp
-./Makefile.lin
-./Makefile.mac
-./Makefile.mingw64
-./Makefile.ntl
-./Makefile.pke
-# ./Makefile.trapdoor
-./Makefile.trapdoor-disable
-# ./Makefile.wrapper
-./Makefile.wrapper-disable
-./PALISADE_badger.jpg
-./README.md
-./src/core
-./src/pke
-# ./src/circuit
-# ./src/trapdoor
-# ./src/wrappers
-./test
-# ./third-party
+### TO CONVERT TO RELEASE BRANCH, YOU MUST DO THESE THINGS
+echo rm -fr ./Makefile.circuit
+echo rm -fr ./src/circuit
+echo rm -fr ./src/trapdoor
+echo rm -fr ./src/wrappers
+echo rm -fr ./third-party
+echo rm -fr ./Makefile.gmp
+echo rm -fr ./Makefile.ntl
+echo
+echo rm -f ./src/pke/demo/Temp-*
+echo rm -fr ./doc/obf
+echo rm -fr ./doc/presim
+echo
+echo mv ./Makefile.trapdoor-disable ./Makefile.trapdoor
+echo mv ./Makefile.circuit-disable ./Makefile.circuit
+echo mv ./Makefile.wrapper-disable ./Makefile.wrapper
+echo
+echo rm PublicReleaseList

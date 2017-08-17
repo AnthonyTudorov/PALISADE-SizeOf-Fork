@@ -66,8 +66,14 @@ public:
 	EncodingParamsImpl(
 		const IntType& plaintextModulus = IntType::ZERO,
 		usint plaintextGenerator = 0,
-		usint batchSize = 0) {
+		usint batchSize = 0,
+		const IntType& plaintextRootOfUnity = IntType::ZERO,
+		const IntType& plaintextBigModulus = IntType::ZERO,
+		const IntType& plaintextBigRootOfUnity = IntType::ZERO) {
 			m_plaintextModulus = plaintextModulus;
+			m_plaintextRootOfUnity = plaintextRootOfUnity;
+			m_plaintextBigModulus = plaintextBigModulus;
+			m_plaintextBigRootOfUnity = plaintextBigRootOfUnity;
 			m_plaintextGenerator = plaintextGenerator;
 			m_batchSize = batchSize;
 	}
@@ -79,6 +85,9 @@ public:
 	 */
 	EncodingParamsImpl(const EncodingParamsImpl &rhs) {
 		m_plaintextModulus = rhs.m_plaintextModulus;
+		m_plaintextRootOfUnity = rhs.m_plaintextRootOfUnity;
+		m_plaintextBigModulus = rhs.m_plaintextBigModulus;
+		m_plaintextBigRootOfUnity = rhs.m_plaintextBigRootOfUnity;
 		m_plaintextGenerator = rhs.m_plaintextGenerator;
 		m_batchSize = rhs.m_batchSize;
 	}
@@ -90,6 +99,9 @@ public:
 	*/
 	EncodingParamsImpl(const EncodingParamsImpl &&rhs) {
 		m_plaintextModulus = std::move(rhs.m_plaintextModulus);
+		m_plaintextRootOfUnity = std::move(rhs.m_plaintextRootOfUnity);
+		m_plaintextBigModulus = std::move(rhs.m_plaintextBigModulus);
+		m_plaintextBigRootOfUnity = std::move(rhs.m_plaintextBigRootOfUnity);
 		m_plaintextGenerator = std::move(rhs.m_plaintextGenerator);
 		m_batchSize = rhs.m_batchSize;
 	}
@@ -102,6 +114,9 @@ public:
 	 */
 	const EncodingParamsImpl& operator=(const EncodingParamsImpl &rhs) {
 		m_plaintextModulus = rhs.m_plaintextModulus;
+		m_plaintextRootOfUnity = rhs.m_plaintextRootOfUnity;
+		m_plaintextBigModulus = rhs.m_plaintextBigModulus;
+		m_plaintextBigRootOfUnity = rhs.m_plaintextBigRootOfUnity;
 		m_plaintextGenerator = rhs.m_plaintextGenerator;
 		m_batchSize = rhs.m_batchSize;
 		return *this;
@@ -126,10 +141,54 @@ public:
 	
 	/**
 	* @brief Setter for the plaintext modulus.
-	* @return The plaintext modulus.
 	*/
 	void SetPlaintextModulus(const IntType &plaintextModulus) {
 		m_plaintextModulus = plaintextModulus;
+	}
+
+	/**
+	* @brief Getter for the plaintext modulus root of unity.
+	* @return The plaintext modulus root of unity.
+	*/
+	const IntType &GetPlaintextRootOfUnity() const {
+		return m_plaintextRootOfUnity;
+	}
+
+	/**
+	* @brief Setter for the plaintext modulus root of unity.
+	*/
+	void SetPlaintextRootOfUnity(const IntType &plaintextRootOfUnity) {
+		m_plaintextRootOfUnity = plaintextRootOfUnity;
+	}
+
+	/**
+	* @brief Getter for the big plaintext modulus.
+	* @return The plaintext modulus.
+	*/
+	const IntType &GetPlaintextBigModulus() const {
+		return m_plaintextBigModulus;
+	}
+
+	/**
+	* @brief Setter for the big plaintext modulus.
+	*/
+	void SetPlaintextBigModulus(const IntType &plaintextBigModulus) {
+		m_plaintextBigModulus = plaintextBigModulus;
+	}
+
+	/**
+	* @brief Getter for the big plaintext modulus root of unity.
+	* @return The big plaintext modulus root of unity.
+	*/
+	const IntType &GetPlaintextBigRootOfUnity() const {
+		return m_plaintextBigRootOfUnity;
+	}
+
+	/**
+	* @brief Setter for the big plaintext modulus root of unity.
+	*/
+	void SetPlaintextBigRootOfUnity(const IntType &plaintextBigRootOfUnity) {
+		m_plaintextBigRootOfUnity = plaintextBigRootOfUnity;
 	}
 
 	/**
@@ -139,10 +198,24 @@ public:
 	const usint GetPlaintextGenerator() const { return m_plaintextGenerator; }
 
 	/**
+	* @brief Setter for the plaintext generator.
+	*/
+	void SetPlaintextGenerator(usint &plaintextGenerator) {
+		m_plaintextGenerator = plaintextGenerator;
+	}
+
+	/**
 	* @brief Getter for the plaintext batch size.
 	* @return The plaintext batch size.
 	*/
 	const usint GetBatchSize() const { return m_batchSize; }
+
+	/**
+	* @brief Setter for the batch size
+	*/
+	void SetBatchSize(usint batchSize) {
+		m_batchSize = batchSize;
+	}
 
 	// Operators
 	/**
@@ -161,6 +234,9 @@ public:
 	 */
 	bool operator==(const EncodingParamsImpl<IntType> &other) const {
 		return m_plaintextModulus == other.m_plaintextModulus &&
+			   m_plaintextRootOfUnity == other.m_plaintextRootOfUnity &&
+			   m_plaintextBigModulus == other.m_plaintextBigModulus &&
+			   m_plaintextBigRootOfUnity == other.m_plaintextBigRootOfUnity &&
 		       m_plaintextGenerator == other.m_plaintextGenerator &&
 		       m_batchSize == other.m_batchSize;
 	}
@@ -177,6 +253,9 @@ private:
 
 	std::ostream& doprint(std::ostream& out) const {
 		out << "[p=" << m_plaintextModulus
+			<< " rootP =" << m_plaintextRootOfUnity
+			<< " bigP =" << m_plaintextBigModulus
+			<< " rootBigP =" << m_plaintextBigRootOfUnity
 			<< " g=" << m_plaintextGenerator
 		    << " L=" << m_batchSize
 		    << "]";
@@ -185,7 +264,13 @@ private:
 
 	// plaintext modulus that is used by all schemes
 	IntType		m_plaintextModulus;
-	// plaintext generator is used for packed encoding
+	// root of unity for plaintext modulus
+	IntType		m_plaintextRootOfUnity;
+	// big plaintext modulus that is used for arbitrary cyclotomics
+	IntType		m_plaintextBigModulus;
+	// root of unity for big plaintext modulus
+	IntType		m_plaintextBigRootOfUnity;
+	// plaintext generator is used for packed encoding (to find the correct automorphism index)
 	usint		m_plaintextGenerator;
 	// maximum batch size used by EvalSumKeyGen for packed encoding
 	usint		m_batchSize;

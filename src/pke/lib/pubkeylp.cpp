@@ -33,12 +33,11 @@ template<typename Element>
 bool LPPublicKey<Element>::Serialize(Serialized *serObj) const {
 	serObj->SetObject();
 
-	serObj->AddMember("Object", "PublicKey", serObj->GetAllocator());
-
-	if (!this->GetCryptoParameters()->Serialize(serObj)) {
+	if (!this->context->Serialize(serObj)) {
 		return false;
 	}
 
+	serObj->AddMember("Object", "PublicKey", serObj->GetAllocator());
 	SerializeVector<Element>("Vectors", Element::GetElementName(), this->GetPublicElements(), serObj);
 
 	return true;
@@ -63,19 +62,30 @@ bool LPPublicKey<Element>::Deserialize(const Serialized &serObj) {
 }
 
 template<typename Element>
-bool LPEvalKeyRelin<Element>::Serialize(Serialized *serObj) const {
+static bool EvalKeyRelinSerializer(const LPEvalKeyRelin<Element> *item, Serialized *serObj, bool doContext) {
 	serObj->SetObject();
 
-	serObj->AddMember("Object", "EvalKeyRelin", serObj->GetAllocator());
-
-	if (!this->GetCryptoParameters()->Serialize(serObj)) {
-		return false;
+	if( doContext ) {
+		if (!item->GetCryptoContext()->Serialize(serObj)) {
+			return false;
+		}
 	}
 
-	SerializeVector<Element>("AVector", Element::GetElementName(), this->m_rKey[0], serObj);
-	SerializeVector<Element>("BVector", Element::GetElementName(), this->m_rKey[1], serObj);
+	serObj->AddMember("Object", "EvalKeyRelin", serObj->GetAllocator());
+	SerializeVector<Element>("AVector", Element::GetElementName(), item->GetAVector(), serObj);
+	SerializeVector<Element>("BVector", Element::GetElementName(), item->GetBVector(), serObj);
 
 	return true;
+}
+
+template<typename Element>
+bool LPEvalKeyRelin<Element>::Serialize(Serialized *serObj) const {
+	return EvalKeyRelinSerializer<Element>(this, serObj, true);
+}
+
+template<typename Element>
+bool LPEvalKeyRelin<Element>::SerializeWithoutContext(Serialized *serObj) const {
+	return EvalKeyRelinSerializer<Element>(this, serObj, false);
 }
 
 template<typename Element>
@@ -110,18 +120,77 @@ bool LPEvalKeyRelin<Element>::Deserialize(const Serialized &serObj) {
 }
 
 template<typename Element>
-bool LPEvalKeyNTRURelin<Element>::Serialize(Serialized *serObj) const {
+static bool EvalKeyNTRUSerializer(const LPEvalKeyNTRU<Element> *item, Serialized *serObj, bool doContext) {
 	serObj->SetObject();
 
-	serObj->AddMember("Object", "EvalKeyNTRURelin", serObj->GetAllocator());
+	if( doContext ) {
+		if (!item->GetCryptoContext()->Serialize(serObj)) {
+			return false;
+		}
+	}
 
-	if (!this->GetCryptoParameters()->Serialize(serObj)) {
+	serObj->AddMember("Object", "EvalKeyNTRU", serObj->GetAllocator());
+
+	const Element& pe = item->GetA();
+
+	if (!pe.Serialize(serObj)) {
 		return false;
 	}
 
-	SerializeVector<Element>("Vectors", Element::GetElementName(), this->GetAVector(), serObj);
+	return true;
+}
+
+template<typename Element>
+bool LPEvalKeyNTRU<Element>::Serialize(Serialized *serObj) const {
+	return EvalKeyNTRUSerializer<Element>(this, serObj, true);
+}
+
+template<typename Element>
+bool LPEvalKeyNTRU<Element>::SerializeWithoutContext(Serialized *serObj) const {
+	return EvalKeyNTRUSerializer<Element>(this, serObj, false);
+}
+
+template<typename Element>
+bool LPEvalKeyNTRU<Element>::Deserialize(const Serialized &serObj) {
+	Serialized::ConstMemberIterator mIt = serObj.FindMember("Object");
+	if( mIt == serObj.MemberEnd() || string(mIt->value.GetString()) != "EvalKeyNTRU" )
+		return false;
+
+	Element pe;
+
+	if( !pe.Deserialize(serObj) ) {
+		return false;
+	}
+
+	m_Key = pe;
 
 	return true;
+}
+
+template<typename Element>
+static bool EvalKeyNTRURelinSerializer(const LPEvalKeyNTRURelin<Element> *item, Serialized *serObj, bool doContext) {
+	serObj->SetObject();
+
+	if( doContext ) {
+		if (!item->GetCryptoContext()->Serialize(serObj)) {
+			return false;
+		}
+	}
+
+	serObj->AddMember("Object", "EvalKeyNTRURelin", serObj->GetAllocator());
+	SerializeVector<Element>("Vectors", Element::GetElementName(), item->GetAVector(), serObj);
+
+	return true;
+}
+
+template<typename Element>
+bool LPEvalKeyNTRURelin<Element>::Serialize(Serialized *serObj) const {
+	return EvalKeyNTRURelinSerializer<Element>(this, serObj, true);
+}
+
+template<typename Element>
+bool LPEvalKeyNTRURelin<Element>::SerializeWithoutContext(Serialized *serObj) const {
+	return EvalKeyNTRURelinSerializer<Element>(this, serObj, false);
 }
 
 template<typename Element>
