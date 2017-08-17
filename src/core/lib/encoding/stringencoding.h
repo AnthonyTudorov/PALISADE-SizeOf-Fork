@@ -97,14 +97,9 @@ public:
 
 	/**
 	 * GetEncodingType
-	 * @return proper type
+	 * @return this is a String encoding
 	 */
 	PlaintextEncodings GetEncodingType() const { return String; }
-
-	/**
-	 * Legacy padding op, does not apply
-	 */
-	void Unpad(const BigInteger &modulus) {}
 
 	/**
 	 * Legacy chunking op, does not apply

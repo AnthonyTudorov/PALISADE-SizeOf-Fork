@@ -50,18 +50,6 @@ protected:
 public:
 };
 
-static shared_ptr<CryptoContext<Poly>> GenerateTestCryptoContext(const string& parmsetName) {
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextHelper::getNewContext(parmsetName);
-	cc->Enable(ENCRYPTION);
-	return cc;
-}
-
-static shared_ptr<CryptoContext<DCRTPoly>> GenerateTestDCRTCryptoContext(const string& parmsetName, usint nTower, usint pbits) {
-	shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextHelper::getNewDCRTContext(parmsetName, nTower, pbits);
-	cc->Enable(ENCRYPTION);
-	return cc;
-}
-
 template <typename Element>
 void
 UnitTestNewEncryptionScalar(const shared_ptr<CryptoContext<Element>> cc) {
@@ -272,7 +260,7 @@ TEST(UTENCRYPT, StSt_Poly_Encrypt_Decrypt_String) {
 }
 
 TEST(UTENCRYPT, BV_Poly_Encrypt_Decrypt_String) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementBV(1024, 256);
+	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementBV(2048, 256);
 	UnitTestNewEncryptionString<Poly>(cc);
 }
 
@@ -422,7 +410,7 @@ UnitTestEncryption(const shared_ptr<CryptoContext<Element>> cc) {
 			cc->GetCryptoParameters()->GetPlaintextModulus(),
 			plaintextShort, plaintextFull, plaintextLong);
 
-	size_t intSize = cc->GetCyclotomicOrder() / 2;
+	size_t intSize = cc->GetRingDimension();
 	auto ptm = cc->GetCryptoParameters()->GetPlaintextModulus().ConvertToInt();
 
 	vector<uint32_t> intvec;
@@ -459,7 +447,6 @@ UnitTestEncryption(const shared_ptr<CryptoContext<Element>> cc) {
 	} else {
 		vector<shared_ptr<Ciphertext<Element>>> ciphertext = cc->Encrypt(kp.publicKey, plaintextShort, true);
 		BytePlaintextEncoding plaintextShortNew;
-		std::cout << ciphertext.size() << std::endl;
 		cc->Decrypt(kp.secretKey, ciphertext, &plaintextShortNew, true);
 		EXPECT_EQ(plaintextShortNew, plaintextShort) << "Encrypt short plaintext with padding";
 
@@ -485,52 +472,55 @@ UnitTestEncryption(const shared_ptr<CryptoContext<Element>> cc) {
 	EXPECT_EQ(plaintextSIntNew, plaintextSInt) << "Encrypt signed integer plaintext";
 }
 
-TEST_F(UTENCRYPT, LTV_Poly_Encrypt_Decrypt) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementLTV(4096, 2, 20);
+TEST(UTENCRYPT, LTV_Poly_Encrypt_Decrypt_Byte) {
+	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementLTV(2048, 256);
 	UnitTestEncryption<Poly>(cc);
 }
 
-TEST_F(UTENCRYPT, LTV_DCRTPoly_Encrypt_Decrypt) {
-	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayLTV(4096, 3, 2, 20);
+TEST(UTENCRYPT, Null_Poly_Encrypt_Decrypt_Byte) {
+	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementNull(512, 256);
+	UnitTestEncryption<Poly>(cc);
+}
+TEST(UTENCRYPT, StSt_Poly_Encrypt_Decrypt_Byte) {
+	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementStSt(4096, 256);
+	UnitTestEncryption<Poly>(cc);
+}
+
+TEST(UTENCRYPT, BV_Poly_Encrypt_Decrypt_Byte) {
+	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementBV(2048, 256);
+	UnitTestEncryption<Poly>(cc);
+}
+
+TEST(UTENCRYPT, FV_Poly_Encrypt_Decrypt_Byte) {
+	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementFV(512, 256);
+	UnitTestEncryption<Poly>(cc);
+}
+
+TEST(UTENCRYPT, LTV_DCRT_Encrypt_Decrypt_Byte) {
+	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayLTV(128, 3, 256);
 	UnitTestEncryption<DCRTPoly>(cc);
 }
 
-TEST_F(UTENCRYPT, StSt_Poly_Encrypt_Decrypt) {
-	shared_ptr<CryptoContext<Poly>> cc = GenerateTestCryptoContext("StSt6");
-	UnitTestEncryption<Poly>(cc);
+TEST(UTENCRYPT, Null_DCRT_Encrypt_Decrypt_Byte) {
+	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayNull(128, 3, 256);
+	UnitTestEncryption<DCRTPoly>(cc);
 }
-
-TEST_F(UTENCRYPT, StSt_DCRTPoly_Encrypt_Decrypt) {
-	shared_ptr<CryptoContext<DCRTPoly>> cc = GenerateTestDCRTCryptoContext("StSt6", 3, 20);
+TEST(UTENCRYPT, StSt_DCRT_Encrypt_Decrypt_Byte) {
+	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayStSt(128, 3, 256);
 	UnitTestEncryption<DCRTPoly>(cc);
 }
 
-TEST_F(UTENCRYPT, BV_Poly_Encrypt_Decrypt) {
-	shared_ptr<CryptoContext<Poly>> cc = GenerateTestCryptoContext("BV2");
-	UnitTestEncryption<Poly>(cc);
-}
-
-TEST_F(UTENCRYPT, BV_DCRTPoly_Encrypt_Decrypt) {
-	shared_ptr<CryptoContext<DCRTPoly>> cc = GenerateTestDCRTCryptoContext("BV2", 3, 20);
+TEST(UTENCRYPT, BV_DCRT_Encrypt_Decrypt_Byte) {
+	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayBV(128, 3, 256);
 	UnitTestEncryption<DCRTPoly>(cc);
 }
 
-TEST_F(UTENCRYPT, Null_Poly_Encrypt_Decrypt) {
-	shared_ptr<CryptoContext<Poly>> cc = GenerateTestCryptoContext("Null");
-	UnitTestEncryption<Poly>(cc);
+TEST(UTENCRYPT, FV_DCRT_Encrypt_Decrypt_Byte) {
+	cout << "DCRT not supported for FV" << endl;
+	SUCCEED();
+	return;
+	if( 0 ) {
+		shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayFV(128, 3, 256);
+		UnitTestEncryption<DCRTPoly>(cc);
+	}
 }
-
-TEST_F(UTENCRYPT, Null_DCRTPoly_Encrypt_Decrypt) {
-	shared_ptr<CryptoContext<DCRTPoly>> cc = GenerateTestDCRTCryptoContext("Null", 3, 20);
-	UnitTestEncryption<DCRTPoly>(cc);
-}
-
-TEST_F(UTENCRYPT, FV_Poly_Encrypt_Decrypt) {
-	shared_ptr<CryptoContext<Poly>> cc = GenerateTestCryptoContext("FV2");
-	UnitTestEncryption<Poly>(cc);
-}
-
-//TEST_F(UTENCRYPT, FV_DCRTPoly_Encrypt_Decrypt) {
-//	shared_ptr<CryptoContext<DCRTPoly>> cc = GenerateTestDCRTCryptoContext("FV2", 3, 20);
-//	UnitTestEncryption<DCRTPoly>(cc);
-//}

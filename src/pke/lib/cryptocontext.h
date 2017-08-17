@@ -528,7 +528,7 @@ public:
 
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
-		size_t lastone = partialCiphertextVec[0].size() - 1;
+
 		for( size_t ch = 0; ch < ciphertext_size; ch++ ) {
 
 			vector<shared_ptr<Ciphertext<Element>>> ciphertextVec;
@@ -546,9 +546,6 @@ public:
 
 			if (result.isValid == false) return result;
 			plaintext->Decode(ciphertextVec[0]->GetCryptoParameters()->GetPlaintextModulus(), &decrypted);
-			if (ch == lastone && doPadding) {
-				plaintext->Unpad(ciphertextVec[0]->GetCryptoParameters()->GetPlaintextModulus());
-			}
 		}
 
 		if( doTiming ) {
@@ -713,9 +710,9 @@ public:
 	* @return a vector of pointers to Ciphertexts created by encrypting the plaintext
 	*/
 	std::vector<shared_ptr<Ciphertext<Element>>> Encrypt(
-		const shared_ptr<LPPublicKey<Element>> publicKey,
-		const Plaintext& plaintext,
-		bool doPadding = true, bool doEncryption = true) const
+			const shared_ptr<LPPublicKey<Element>> publicKey,
+			Plaintext& plaintext,
+			bool doPadding = true, bool doEncryption = true) const
 	{
 		// IN TRANSITION TO NEW: ONE CT ONLY, NO PADDING
 		shared_ptr<Ciphertext<Element>> ciphertext;
@@ -723,31 +720,15 @@ public:
 		if( publicKey == NULL || Mismatched(publicKey->GetCryptoContext()) )
 			throw std::logic_error("key passed to Encrypt was not generated with this crypto context");
 
-		const BigInteger& ptm = this->GetEncodingParms()->GetPlaintextModulus();// publicKey->GetCryptoParameters()->GetPlaintextModulus();
-//		size_t chunkSize = this->GetRingDimension();
-//		size_t ptSize = plaintext.GetLength();
-//		size_t rounds = 1;
-
-//		if (doPadding == false && ptSize%chunkSize != 0
-//			&& typeid(plaintext) == typeid(BytePlaintextEncoding)) {
-//			throw std::logic_error("Cannot Encrypt without padding with chunksize " + std::to_string(chunkSize) + " and plaintext size " + std::to_string(ptSize));
-//		}
-//
-//		// if there is a partial chunk OR if there isn't but we need to pad
-//		if (ptSize%chunkSize != 0 || doPadding == true)
-//			rounds += 1;
+		const BigInteger& ptm = this->GetEncodingParms()->GetPlaintextModulus();
 
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
-		//for (size_t bytes = 0, i = 0; i < rounds; bytes += chunkSize, i++) {
 
-			Poly pt(this->GetElementParams());
-			std::cout << "plaintext length " << plaintext.GetLength() << std::endl;
-			plaintext.Encode(ptm, &pt, 0, plaintext.GetLength());
-			std::cout << "poly length " << pt.GetLength() << std::endl;
+		Poly pt(this->GetElementParams());
+		plaintext.Encode(ptm, &pt, 0, plaintext.GetLength());
 
-			ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, pt, doEncryption);
-		//}
+		ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, pt, doEncryption);
 
 		if( doTiming ) {
 			if(doEncryption) {
@@ -764,42 +745,22 @@ public:
 		const Plaintext& plaintext,
 		bool doPadding = true, bool doEncryption = true) const
 	{
-		std::vector<shared_ptr<Ciphertext<Element>>> cipherResults;
+		// IN TRANSITION TO NEW: ONE CT ONLY, NO PADDING
+		shared_ptr<Ciphertext<Element>> ciphertext;
 
 		if( privateKey == NULL || Mismatched(privateKey->GetCryptoContext()) )
 			throw std::logic_error("key passed to Encrypt was not generated with this crypto context");
 
-		const BigInteger& ptm = privateKey->GetCryptoParameters()->GetPlaintextModulus();
-		size_t chunkSize = plaintext.GetChunksize(privateKey->GetCryptoContext()->GetRingDimension(), ptm);
-		size_t ptSize = plaintext.GetLength();
-		size_t rounds = ptSize / chunkSize;
-
-		if (doPadding == false && ptSize%chunkSize != 0
-			&& typeid(plaintext) == typeid(BytePlaintextEncoding)) {
-			throw std::logic_error("Cannot Encrypt without padding with chunksize " + std::to_string(chunkSize) + " and plaintext size " + std::to_string(ptSize));
-		}
-
-		// if there is a partial chunk OR if there isn't but we need to pad
-		if (ptSize%chunkSize != 0 || doPadding == true)
-			rounds += 1;
+		const BigInteger& ptm = this->GetEncodingParms()->GetPlaintextModulus();
 
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
-		for (size_t bytes = 0, i = 0; i < rounds; bytes += chunkSize, i++) {
 
-			Poly pt(privateKey->GetCryptoParameters()->GetElementParams());
-			plaintext.Encode(ptm, &pt, bytes, chunkSize);
 
-			shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(privateKey, pt, doEncryption);
+		Poly pt(this->GetElementParams());
+		plaintext.Encode(ptm, &pt, 0, plaintext.GetLength());
 
-			if (!ciphertext) {
-				cipherResults.clear();
-				break;
-			}
-
-			cipherResults.push_back(ciphertext);
-
-		}
+		ciphertext = GetEncryptionAlgorithm()->Encrypt(privateKey, pt, doEncryption);
 
 		if( doTiming ) {
 			if(doEncryption) {
@@ -808,7 +769,7 @@ public:
 				timeSamples->push_back( TimingInfo(OpEncryptPlain, currentDateTime() - start) );
 			}
 		}
-		return cipherResults;
+		return { ciphertext };
 	}
 	
 	/**
@@ -999,6 +960,7 @@ public:
 
 		switch(pte) {
 		case Unknown:
+			throw std::logic_error("Unknown plaintext encoding type in GetPlaintextForDecrypt");
 			break;
 		case Scalar:
 			pt.reset( new ScalarEncoding(vp,ep,false) );
@@ -1016,6 +978,7 @@ public:
 			pt.reset( new CoefPackedEncoding(vp,ep,true) );
 			break;
 		case Packed:
+			throw std::logic_error("Packed plaintext encoding type in GetPlaintextForDecrypt NOT IMPLEMENTED");
 			break;
 		case String:
 			pt.reset( new StringEncoding(vp,ep) );
@@ -1037,7 +1000,9 @@ public:
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
 
+		// determine which type of plaintext that you need to decrypt into
 		shared_ptr<Plaintext> decrypted = GetPlaintextForDecrypt(ciphertext->GetEncodingType(), this->GetElementParams(), this->GetEncodingParms());
+
 		DecryptResult result = GetEncryptionAlgorithm()->Decrypt(privateKey, ciphertext, &decrypted->GetElement());
 
 		if (result.isValid == false) return result;
@@ -1046,6 +1011,7 @@ public:
 		if( doTiming ) {
 			timeSamples->push_back( TimingInfo(OpDecrypt, currentDateTime() - start) );
 		}
+
 		*plaintext = decrypted;
 		return result;
 	}
@@ -1084,9 +1050,6 @@ public:
 
 			if (result.isValid == false) return result;
 			plaintext->Decode(privateKey->GetCryptoParameters()->GetPlaintextModulus(), &decrypted);
-//			if (ch == lastone && doPadding) {
-//				plaintext->Unpad(privateKey->GetCryptoParameters()->GetPlaintextModulus());
-//			}
 		}
 
 		if( doTiming ) {
@@ -1343,7 +1306,6 @@ public:
 
 				if( !firstTime ) {
 					outstream << *pte[!whichArray];
-					pte[!whichArray].reset();
 				}
 				firstTime = false;
 				whichArray = !whichArray;
@@ -1352,8 +1314,6 @@ public:
 				return;
 		}
 
-		// unpad and write the last one
-		//pte[!whichArray].Unpad(privateKey->GetCryptoParameters()->GetPlaintextModulus());
 		outstream << *pte[!whichArray];
 
 		return;

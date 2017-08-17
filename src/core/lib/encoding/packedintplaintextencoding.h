@@ -140,12 +140,10 @@ public:
 	}
 
 	/**
-	 * Interface for the operation of stripping away unneeded trailing zeros to pad out a short plaintext until one with entries
-	 * for all dimensions.
-	 *
-	 * @param  &modulus - used for encoding.
+	 * GetEncodingType
+	 * @return this is a Packed encoding
 	 */
-	void Unpad(const BigInteger &modulus) {} // a null op; no padding in int
+	PlaintextEncodings GetEncodingType() const { return Packed; }
 
 	/**
 	 * Getter for the ChunkSize data.

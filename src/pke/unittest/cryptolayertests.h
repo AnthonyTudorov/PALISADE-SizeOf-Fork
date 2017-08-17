@@ -50,7 +50,7 @@ inline void GenerateTestPlaintext(int cyclotomicOrder, const BigInteger& ptm,
 	BytePlaintextEncoding& plaintextShort,
 	BytePlaintextEncoding& plaintextFull,
 	BytePlaintextEncoding& plaintextLong) {
-	size_t strSize = plaintextShort.GetChunksize(cyclotomicOrder, ptm);
+	size_t strSize = cyclotomicOrder/2;
 
 	auto randchar = []() -> char {
         const char charset[] =

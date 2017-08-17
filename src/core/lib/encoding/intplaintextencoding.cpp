@@ -58,7 +58,8 @@ bool IntPlaintextEncoding::doEncode(const BigInteger &modulus, Element *ilVector
 	if( length == 0 ) length = this->size();
 
 	if( ilVector->GetParams()->GetRingDimension() < length )
-		throw std::logic_error("Can not Encode integer vector that is longer than the ring dimension");
+		throw std::logic_error("Can not Encode integer vector of length " + std::to_string(length) +
+				" that is longer than the ring dimension of " + std::to_string(ilVector->GetParams()->GetRingDimension()));
 
 	// length is usually chunk size; if start + length would go past the end of the item, add padding
 	if( (startFrom + length) > this->size() ) {
@@ -87,7 +88,7 @@ bool IntPlaintextEncoding::doEncode(const BigInteger &modulus, Element *ilVector
 }
 
 bool
-IntPlaintextEncoding::Encode(const BigInteger &modulus, Poly *ilVector, size_t start_from, size_t length) const
+IntPlaintextEncoding::Encode(const BigInteger &modulus, Poly *ilVector, size_t start_from, size_t length)
 {
 	return doEncode<BigInteger,BigVector>(modulus,ilVector,start_from,length);
 }

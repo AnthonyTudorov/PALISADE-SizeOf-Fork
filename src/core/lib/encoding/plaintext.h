@@ -143,14 +143,6 @@ public:
 	virtual bool Decode(const BigInteger &modulus, Poly *ilVector) = 0;
 
 	/**
-	 * Interface for the operation of stripping away unneeded trailing zeros to pad out a short plaintext until one with entries
-	 * for all dimensions.
-	 *
-	 * @param  &modulus - used for encoding.
-	 */
-	virtual void Unpad(const BigInteger &modulus) = 0;
-
-	/**
 	 * Getter for the ChunkSize data.
 	 *
 	 * @param  ring - the ring dimension.

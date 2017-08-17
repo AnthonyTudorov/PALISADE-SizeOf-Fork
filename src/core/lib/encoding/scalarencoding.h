@@ -106,14 +106,9 @@ public:
 
 	/**
 	 * GetEncodingType
-	 * @return proper type
+	 * @return this is a Scalar encoding
 	 */
 	PlaintextEncodings GetEncodingType() const { return isSigned ? ScalarSigned : Scalar; }
-
-	/**
-	 * Legacy padding op, does not apply
-	 */
-	void Unpad(const BigInteger &modulus) {}
 
 	/**
 	 * Legacy chunking op, does not apply

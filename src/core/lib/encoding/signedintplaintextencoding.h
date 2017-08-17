@@ -70,7 +70,7 @@ public:
 	*/
 	bool Decode(const BigInteger &modulus, Poly *ilVector);
 
-	void Unpad(const BigInteger &modulus) {} // a null op; no padding in int
+	PlaintextEncodings GetEncodingType() const { return ScalarSigned; }
 
 	size_t GetChunksize(const usint ring, const BigInteger& ptm) const;
 

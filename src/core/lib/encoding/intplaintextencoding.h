@@ -38,6 +38,9 @@ namespace lbcrypto
  * @class IntPlaintextEncoding
  * @brief Type used for representing IntArray types.
  * Provides conversion functions to encode and decode plaintext data as type vector<uint32_t>.
+ *
+ * NOTE this is an older type and its use is deprecated.
+ * It will be a wrapper around Scalar, Integer or CoefPacked encoding
  */
 
 class IntPlaintextEncoding : public Plaintext, public std::vector<uint32_t>
@@ -95,6 +98,9 @@ public:
 	 */
 	IntPlaintextEncoding() : Plaintext(shared_ptr<Poly::Params>(0),NULL), std::vector<uint32_t>() {}
 
+	bool Encode() { return false; }
+	bool Decode() { return false; }
+
 	/**: Plaintext(shared_ptr<Poly::Params>(0),NULL)
 	 * Interface for the operation of converting from current plaintext encoding to Poly.
 	 *
@@ -103,7 +109,7 @@ public:
 	 * @param  start_from - location to start from.  Defaults to 0.
 	 * @param  length - length of data to encode.  Defaults to 0.
 	*/
-	bool Encode(const BigInteger &modulus, Poly *ilVector, size_t start_from=0, size_t length=0) const;
+	bool Encode(const BigInteger &modulus, Poly *ilVector, size_t start_from=0, size_t length=0);
 
 	/**
 	 * Interface for the operation of converting from Poly to current plaintext encoding.
@@ -114,12 +120,10 @@ public:
 	bool Decode(const BigInteger &modulus, Poly *ilVector);
 
 	/**
-	 * Interface for the operation of stripping away unneeded trailing zeros to pad out a short plaintext until one with entries
-	 * for all dimensions.
-	 *
-	 * @param  &modulus - used for encoding.
+	 * GetEncodingTyoe
+	 * @return this is an Integer encoding
 	 */
-	void Unpad(const BigInteger &modulus) {} // a null op; no padding in int
+	PlaintextEncodings GetEncodingType() const { return Integer; }
 
 	/**
 	 * Getter for the ChunkSize data.

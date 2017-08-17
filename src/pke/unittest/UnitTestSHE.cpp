@@ -330,7 +330,7 @@ TEST_F(UTSHE, FV_Poly_Mult) {
 TEST_F(UTSHE, keyswitch_sparse_key_SingleCRT_byteplaintext) {
 
 	usint m = 512;
-	usint plaintextModulus = 2;
+	usint plaintextModulus = 256;
 
 	BytePlaintextEncoding plaintext("I am good, what are you?! 32 ch");
 
@@ -412,7 +412,7 @@ TEST_F(UTSHE, keyswitch_SingleCRT) {
 
 	shared_ptr<Poly::Params> params = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(m, 50);
 
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(params, 2, 1, stdDev);
+	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(params, 256, 1, stdDev);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 
@@ -439,14 +439,14 @@ TEST_F(UTSHE, keyswitch_SingleCRT) {
 
 TEST_F(UTSHE, sparsekeygen_single_crt_encrypt_decrypt) {
 
-	usint m = 512;
+	usint m = 2048;
 
 	BytePlaintextEncoding plaintext("I am good, what are you?! 32 ch");
 	float stdDev = 4;
 
 	shared_ptr<Poly::Params> params = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(m);
 
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(params, 2, 1, stdDev);
+	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(params, 256, 1, stdDev);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(LEVELEDSHE);
 	cc->Enable(SHE);
@@ -476,7 +476,7 @@ TEST_F(UTSHE, keyswitch_ModReduce_DCRT) {
 	BytePlaintextEncoding plaintext("I am good, what are you?! 32 ch");
 	float stdDev = 4;
 	usint size = 4;
-	usint plaintextmodulus = 2;
+	usint plaintextmodulus = 256;
 	usint relinWindow = 1;
 
 	shared_ptr<ILDCRTParams<BigInteger>> params = GenerateDCRTParams( m, plaintextmodulus, size, 30 );
