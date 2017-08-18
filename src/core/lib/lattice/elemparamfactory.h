@@ -103,8 +103,13 @@ public:
 	 */
 	template<typename P, typename I>
 	static shared_ptr<P> GenElemParams(usint m, usint bits) {
+	        bool dbg_flag = false;
+		DEBUG("m = "<<m);
+		DEBUG("bits = "<<bits);
 		I q = FirstPrime<I>(bits,m);
+		DEBUG("q = "<<q);
 		I ru = RootOfUnity<I>(m, q);
+		DEBUG("ru = "<<ru);
 		return shared_ptr<P>( new P(m, q, ru) );
 	}
 

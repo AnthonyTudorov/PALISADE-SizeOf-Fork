@@ -134,7 +134,10 @@ TEST(UTSHE, LTV_DCRTPoly_Add) {
 }
 
 TEST(UTSHE, StSt_Poly_Add) {
+        bool dbg_flag = false;
+	DEBUG("in StSt_Poly_Add");
 	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementStSt(ORDER, PTM, 50);
+	DEBUG("cc "<<*cc);
 	UnitTest_Add<Poly>(cc);
 }
 

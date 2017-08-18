@@ -646,9 +646,9 @@ namespace lbcrypto {
 
 	template<typename IntType>
 	IntType FirstPrime(usint nBits, usint m) {
-
+		bool dbg_flag = false;
 		IntType r = IntType(2).ModExp(nBits, m);
-
+		DEBUG("r "<<r);
 		IntType qNew = (IntType(1) << nBits) + (IntType(m) - r) + IntType(1);
 
 		size_t i = 1;
@@ -1007,7 +1007,8 @@ namespace lbcrypto {
 	template<typename IntType>
 	IntType ComputeMu(const IntType& q)
 	{
-#if MATHBACKEND == 4 || MATHBACKEND == 6 || MATHBACKEND == 7
+	  //#if MATHBACKEND == 4 || MATHBACKEND == 6 || MATHBACKEND == 7
+ #if MATHBACKEND == 4 || MATHBACKEND == 7
 		return IntType(1);
 #else
 		//Precompute the Barrett mu parameter

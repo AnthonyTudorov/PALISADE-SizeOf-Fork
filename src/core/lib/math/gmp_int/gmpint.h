@@ -338,7 +338,7 @@ inline myZZ& operator%=(const myZZ &modulus) {*this = *this%modulus; return *thi
       DEBUG("ModExp b:"<< b);
       DEBUG("ModExp modulus:"<< modulus);
 
-      PowerMod (res, res%modulus, b%modulus, modulus); 
+     PowerMod (res, res%modulus, b, modulus); 
       DEBUG("ModExp res:"<< res);
       return res;
     }; //(this^b)%modulus
