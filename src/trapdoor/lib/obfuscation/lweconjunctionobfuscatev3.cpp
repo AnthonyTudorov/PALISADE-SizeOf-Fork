@@ -496,7 +496,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 
 		//std::cout << "mask = " << chunkMask << endl;
 
-		// build a an inverse chunk mask that maps "10??" to "1100" - ones correspond to wildcard character 
+		// build a an inverse chunk mask that maps "10??" to "1100" - ones correspond to non-wildcard character 
 		chunkTemp = replaceChar(chunk,'0','1');
 		chunkTemp = replaceChar(chunkTemp,'?','0');
 		// store the mask as integer for bitwise operations
