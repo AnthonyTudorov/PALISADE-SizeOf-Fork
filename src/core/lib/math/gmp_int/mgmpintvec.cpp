@@ -831,9 +831,12 @@ namespace NTL {
   template<class myT>
   myVecP<myT> myVecP<myT>::GetDigitAtIndexForBase(size_t index, usint base) const
   {
+    bool dbg_flag = false;
+    DEBUG("myVecP::GetDigitAtIndexForBase:  index = " << index << ", base = " << base);
     myVecP ans(*this);
     for(size_t i=0; i < this->size(); i++){
       ans[i] = ans[i].GetDigitAtIndexForBase(index,base);
+      DEBUG("ans.[" << i << "] = " << ans[i]);
     }
 
     return ans;

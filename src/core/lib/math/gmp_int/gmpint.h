@@ -251,21 +251,25 @@ namespace NTL{
     inline myZZ Mod(const myZZ& modulus) const {return *this%modulus;};
 
     inline myZZ operator%(const myZZ &modulus) { 
+#if 1 //dbc version not as efficient due to copies. 
       ZZ tmp = *this;
       ZZ tmod = modulus;
       myZZ ret = tmp%modulus; 
       return(ret);
-
+#else //Tom P version has compile error
+      return( myZZ((ZZ)(*this)) % (ZZ)modulus) );
+#endif
     }
 
-    inline myZZ operator%(int modulus) { 
+    inline myZZ operator%(int modulus) { //apparently this was required by compiler
       ZZ tmp = *this;
       ZZ tmod(modulus);
       myZZ ret = tmp%modulus; 
       return(ret);
 
     }
-inline myZZ& operator%=(const myZZ &modulus) {*this = *this%modulus; return *this;};  
+    inline myZZ& operator%=(const myZZ &modulus) {*this = *this%modulus; return *this;};  
+    inline myZZ& operator%=(const int &modulus) {*this = *this%modulus; return *this;};  
 
     inline myZZ ModBarrett(const myZZ& modulus, const myZZ& mu) const {return *this%modulus;};
     void ModBarrettInPlace(const myZZ& modulus, const myZZ& mu) { *this%=modulus;};
@@ -333,12 +337,14 @@ inline myZZ& operator%=(const myZZ &modulus) {*this = *this%modulus; return *thi
 
     inline myZZ ModExp(const myZZ& b, const myZZ& modulus) const {
       bool dbg_flag = false;
-      myZZ res(*this); 
+      //      myZZ res(*this);
+      myZZ res;
       DEBUG("ModExp this :"<< *this);
       DEBUG("ModExp b:"<< b);
       DEBUG("ModExp modulus:"<< modulus);
 
-     PowerMod (res, res%modulus, b, modulus); 
+      // PowerMod (res, res%modulus, b%modulus, modulus);
+      PowerMod( res, *this, b, modulus);
       DEBUG("ModExp res:"<< res);
       return res;
     }; //(this^b)%modulus

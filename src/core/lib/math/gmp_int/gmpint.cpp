@@ -45,7 +45,6 @@
 #if defined(__linux__) && MATHBACKEND == 6
 #include "gmpint.h"
 
-
 namespace NTL {
 
   // constant log2 of limb bitlength
@@ -70,7 +69,6 @@ namespace NTL {
     *this = conv<ZZ>(str.c_str());
     SetMSB();
   }
-
 
   void myZZ::SetValue(const myZZ& a)
   {
@@ -119,9 +117,8 @@ namespace NTL {
     //std::cout<<"size "<<sz <<" ";
     if (sz==0) { //special case for empty data
       m_MSB = 0;
-      return;
     }
-
+    else {
     m_MSB = (sz-1) * NTL_ZZ_NBITS; //figure out bit location of all but last limb
     //std::cout<<"msb starts with "<<m_MSB<< " ";
     //could also try
@@ -135,6 +132,9 @@ namespace NTL {
     //std::cout<< "tmp = "<<tmp<<std::endl;
     m_MSB+=tmp;
     //std::cout<<"msb ends with "<<m_MSB<< " " <<std::endl;
+  }
+    //std::cout << "myZZ::SetMSB(): this = " << *this << ", m_MSB = " << m_MSB << std::endl;
+    return;
   }
 
  // inline static usint GetMSBLimb_t(ZZ_limb_t x){
@@ -217,32 +217,39 @@ namespace NTL {
   }
 
   usint myZZ::GetDigitAtIndexForBase(usint index, usint base) const{
-
-	  usint DigitLen = ceil(log2(base));
-
-	  usint digit = 0;
-	  usint newIndex = 1 + (index - 1)*DigitLen;
-	  for (usint i = 1; i < base; i = i * 2)
-	  {
-		  digit += GetBitAtIndex(newIndex)*i;
-		  newIndex++;
-	  }
-	  return digit;
-
+    bool dbg_flag = false;		// if true then print dbg output
+    DEBUG("myZZ::GetDigitAtIndexForBase:  index = " << index
+	  << ", base = " << base);
+    
+    usint DigitLen = ceil(log2(base));
+    
+    usint digit = 0;
+    usint newIndex = 1 + (index - 1)*DigitLen;
+    for (usint i = 1; i < base; i = i * 2)
+      {
+	digit += GetBitAtIndex(newIndex)*i;
+	newIndex++;
+      }
+    DEBUG("digit = " << digit);
+    return digit;
   }
 
   // returns the bit at the index into the binary format of the big integer, 
   // note that msb is 1 like all other indicies. 
   //TODO: this code could be massively simplified
   uschar myZZ::GetBitAtIndex(usint index) const{
+    bool dbg_flag = false;		// if true then print dbg output
+    DEBUG("myZZ::GetBitAtIndex(" << index << "), this=" << *this);
     GetMSB();
 
     if(index<=0){
       std::cout<<"Invalid index \n";
       return 0;
     }
-    else if (index > m_MSB)
+    else if (index > m_MSB) {
+      //TP: std::cout << "index > m_MSB = " << m_MSB << std::endl;
       return 0;
+    }
 
     ZZ_limb_t result;
     const ZZ_limb_t *zlp = ZZ_limbs_get(*this); //get access to limb array
@@ -254,12 +261,16 @@ namespace NTL {
     }
 
     ZZ_limb_t temp = zlp[idx]; // point to correct limb
-    ZZ_limb_t bmask_counter = index%NTL_ZZ_NBITS==0? NTL_ZZ_NBITS:index%NTL_ZZ_NBITS;//bmask is the bit number in the limb
+    ZZ_limb_t bmask_counter = index%NTL_ZZ_NBITS==0? NTL_ZZ_NBITS:index%NTL_ZZ_NBITS; //bmask is the bit number in the limb
     ZZ_limb_t bmask = 1;
     for(usint i=1;i<bmask_counter;i++)
       bmask<<=1;//generate the bitmask number
+    DEBUG("temp = " << temp << ", bmask_counter = " << bmask_counter
+	  << ", bmask = " << bmask);
     result = temp&bmask;//finds the bit in  bit format
+    DEBUG("result = " << result);
     result>>=bmask_counter-1;//shifting operation gives bit either 1 or 0
+    DEBUG("result = " << result);
     return (uschar)result;
   }
 
@@ -297,23 +308,7 @@ namespace NTL {
   }
     
   double myZZ::ConvertToDouble() const{ return (conv<double>(*this));}
-#if 0 //don't use
-  // warning on some platforms usint64_t is implemented as an unsigned
-  // long long which is not included in the conv functions in tools.h
-  // in which case the following does not compile. 
 
-   uint64_t myZZ::ConvertToUint64() const{
-     static_assert(sizeof(uint64_t) == sizeof(long), 
-		   "sizeof(uint64_t) != sizeof(long), edit myZZ ConvertToUint64()");
-     return (conv<uint64_t>(*this));}
-
-  float myZZ::ConvertToFloat() const{ return (conv<float>(*this));}
-
-  long double myZZ::ConvertToLongDouble() const {
-    std::cerr<<"can't convert to long double"<<std::endl; 
-    return 0.0L;
-}
-#endif
   const myZZ& myZZ::operator=(const myZZ &rhs){
     
     if(this!=&rhs){

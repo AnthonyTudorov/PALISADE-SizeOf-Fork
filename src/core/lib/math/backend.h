@@ -105,7 +105,7 @@ static_assert(cpu_int::DataTypeChecker<integral_dtype>::value,"Data type provide
 
 	/** Define the mapping for BigInteger
 	    1500 is the maximum bit width supported by BigIntegeregers, large enough for most use cases
-		The bitwidth can be decreased to the least value still supporting BBI multiplications for a specific application -
+		The bitwidth can be decreased to the least value still supporting BigInteger operations for a specific application -
 		to achieve smaller runtimes
 	**/
 #define BigIntegerBitLength 1500 //for documentation on tests

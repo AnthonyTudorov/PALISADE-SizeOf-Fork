@@ -573,9 +573,12 @@ BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::MultWithOutMod(const BigV
 //Gets the ind
 template<class IntegerType>
 BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::GetDigitAtIndexForBase(usint index, usint base) const{
+	bool dbg_flag = false;
+	DEBUG("BigVectorImpl::GetDigitAtIndexForBase:  index = " << index << ", base = " << base);
 	BigVectorImpl ans(*this);
 	for(usint i=0;i<this->m_length;i++){
 		ans.m_data[i] = IntegerType(ans.m_data[i].GetDigitAtIndexForBase(index,base));
+		DEBUG("ans.m_data[" << i << "] = " << ans.m_data[i]);
 	}
 
 	return ans;

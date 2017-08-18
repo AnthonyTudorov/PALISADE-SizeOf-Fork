@@ -29,6 +29,7 @@ Description:
 */
 
 #include "binint.h"
+#include "../../utils/debug.h"
 
 #if defined(_MSC_VER)
 	#pragma intrinsic(_BitScanReverse64) 
@@ -1840,6 +1841,8 @@ usint BigInteger<uint_type,BITLENGTH>::GetMSBUint_type(uint_type x){
 template<typename uint_type,usint BITLENGTH>
 usint BigInteger<uint_type,BITLENGTH>::GetDigitAtIndexForBase(usint index, usint base) const{
 
+	bool dbg_flag = false;
+	DEBUG("BigInteger::GetDigitAtIndexForBase:  index = " << index << ", base = " << base);
 	usint DigitLen = ceil(log2(base));
 
 	usint digit = 0;
@@ -1849,6 +1852,7 @@ usint BigInteger<uint_type,BITLENGTH>::GetDigitAtIndexForBase(usint index, usint
 		digit += GetBitAtIndex(newIndex)*i;
 		newIndex++;
 	}
+	DEBUG("digit = " << digit);
 	return digit;
 
 }
@@ -2158,6 +2162,9 @@ std::ostream& operator<<(std::ostream& os, const BigInteger<uint_type_c,BITLENGT
 
 template<typename uint_type,usint BITLENGTH>
 uschar BigInteger<uint_type,BITLENGTH>::GetBitAtIndex(usint index) const{
+	bool dbg_flag = false;
+
+	DEBUG("BigInteger::GetBitAtIndex(" << index << ")");
 	if(index<=0){
 		std::cout<<"Invalid index \n";
 		return 0;
@@ -2171,8 +2178,12 @@ uschar BigInteger<uint_type,BITLENGTH>::GetBitAtIndex(usint index) const{
 	uint_type bmask = 1;
 	for(size_t i=1;i<bmask_counter;i++)
 		bmask<<=1;//generate the bitmask number
+	DEBUG("temp = " << temp << ", bmask_counter = " << bmask_counter
+	      << ", bmask = " << bmask);
 	result = temp&bmask;//finds the bit in  bit format
+	DEBUG("result = " << result);
 	result>>=bmask_counter-1;//shifting operation gives bit either 1 or 0
+	DEBUG("result = " << result);
 	return (uschar)result;
 }
 

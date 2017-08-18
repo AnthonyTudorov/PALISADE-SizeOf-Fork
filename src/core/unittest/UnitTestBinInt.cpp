@@ -855,6 +855,20 @@ TEST(UTBinInt,big_modexp){
   }
 }
 
+TEST(UTBinInt,power_2_modexp) {
+  {
+    BigInteger m("2");
+    BigInteger n("50");
+    BigInteger q("16");
+
+    BigInteger calculatedResult = m.ModExp(n,q);
+    BigInteger expectedResult("0");
+
+    EXPECT_EQ( expectedResult, calculatedResult ) << "Failure testing TWO.ModExp(50,16)";
+      
+  }
+}
+
 TEST(UTBinInt,shift){
 
   /****************************/
@@ -1069,7 +1083,7 @@ TEST(UTBinInt,method_getDigitAtIndex) {
 }
 
 TEST(UTBinInt, method_GetBitAtIndex){
-  bool dbg_flag = true;
+  bool dbg_flag = false;
   BigInteger x(1);
 
   x <<=(100); //x has one bit at 100
