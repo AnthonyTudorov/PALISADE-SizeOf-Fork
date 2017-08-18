@@ -77,17 +77,17 @@ TEST_F(UTEncoding,scalar_encoding) {
 	ScalarEncoding	se2(lp, ep, valueSigned);
 	se2.Encode();
 	se2.Decode();
-	EXPECT_EQ( se2.GetScalarValueSigned(), valueSigned ) << "signed negative";
+	EXPECT_EQ( se2.GetScalarSignedValue(), valueSigned ) << "signed negative";
 
 	ScalarEncoding	se3(lp, ep, (int32_t)value);
 	se3.Encode();
 	se3.Decode();
-	EXPECT_EQ( se3.GetScalarValueSigned(), (int32_t)value ) << "signed positive";
+	EXPECT_EQ( se3.GetScalarSignedValue(), (int32_t)value ) << "signed positive";
 }
 
 TEST_F(UTEncoding,coef_packed_encoding) {
-	vector<usint> value = {32, 17, 8};
-	vector<int>	valueSigned = { -32, 22, -101, 6 };
+	vector<uint32_t> value = {32, 17, 8};
+	vector<int32_t>	valueSigned = { -32, 22, -101, 6 };
 	usint m = 8;
 
 	shared_ptr<ILParams> lp =
@@ -96,14 +96,14 @@ TEST_F(UTEncoding,coef_packed_encoding) {
 	CoefPackedEncoding	se(lp, ep, value);
 	se.Encode();
 	se.Decode();
-	se.SetSize( value.size() );
-	EXPECT_EQ( se.GetCoeffsValue(), value ) << "unsigned";
+	se.SetLength( value.size() );
+	EXPECT_EQ( se.GetCoefPackedValue(), value ) << "unsigned";
 
 	CoefPackedEncoding	se2(lp, ep, valueSigned);
 	se2.Encode();
 	se2.Decode();
-	se2.SetSize( valueSigned.size() );
-	EXPECT_EQ( se2.GetCoeffsValueSigned(), valueSigned ) << "signed negative";
+	se2.SetLength( valueSigned.size() );
+	EXPECT_EQ( se2.GetCoefPackedSignedValue(), valueSigned ) << "signed negative";
 }
 
 TEST_F(UTEncoding,string_encoding) {

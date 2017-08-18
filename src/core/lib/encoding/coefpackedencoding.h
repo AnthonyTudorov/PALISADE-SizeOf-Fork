@@ -89,19 +89,20 @@ public:
 	 * GetCoeffsValue
 	 * @return the un-encoded scalar
 	 */
-	const vector<uint32_t>& GetCoeffsValue() const { return value; }
+	const vector<uint32_t>& GetCoefPackedValue() const {
+		if( !isSigned )
+			return value;
+		throw std::logic_error("not a packed coefficient vector");
+	}
 
 	/**
 	 * GetCoeffsValueSigned
 	 * @return
 	 */
-	const vector<int32_t>& GetCoeffsValueSigned() const { return valueSigned; }
-
-	void SetSize(size_t siz) {
+	const vector<int32_t>& GetCoefPackedSignedValue() const {
 		if( isSigned )
-			valueSigned.resize(siz);
-		else
-			value.resize(siz);
+			return valueSigned;
+		throw std::logic_error("not an unsigned packed coefficient vector");
 	}
 
 	/**
@@ -143,16 +144,22 @@ public:
 	PlaintextEncodings GetEncodingType() const { return isSigned ? CoefPackedSigned : CoefPacked; }
 
 	/**
-	 * Legacy chunking op, does not apply
-	 */
-	size_t GetChunksize(const usint ring, const BigInteger& ptm) const { return 0; }
-
-	/**
 	 * Get length of the plaintext
 	 *
 	 * @return number of elements in this plaintext
 	 */
 	size_t GetLength() const { return value.size(); }
+
+	/**
+	 * SetLength of the plaintext to the given size
+	 * @param siz
+	 */
+	void SetLength(size_t siz) {
+		if( isSigned )
+			valueSigned.resize(siz);
+		else
+			value.resize(siz);
+	}
 
 	/**
 	 * Method to compare two plaintext to test for equivalence

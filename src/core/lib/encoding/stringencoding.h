@@ -60,7 +60,7 @@ public:
 	 * GetStringValue
 	 * @return the un-encoded string
 	 */
-	string GetStringValue() const { return ptx; }
+	const string& GetStringValue() const { return ptx; }
 
 
 	/**
@@ -100,11 +100,6 @@ public:
 	 * @return this is a String encoding
 	 */
 	PlaintextEncodings GetEncodingType() const { return String; }
-
-	/**
-	 * Legacy chunking op, does not apply
-	 */
-	size_t GetChunksize(const usint ring, const BigInteger& ptm) const { return 0; }
 
 	/**
 	 * Get length of the plaintext

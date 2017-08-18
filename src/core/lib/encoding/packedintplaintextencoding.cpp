@@ -80,11 +80,6 @@ namespace lbcrypto {
 		return true;
 	}
 
-	size_t PackedIntPlaintextEncoding::GetChunksize(const usint ring, const BigInteger& ptm) const
-	{
-		return ring;
-	}
-
 	void PackedIntPlaintextEncoding::Destroy()
 	{
 		m_initRoot.clear();

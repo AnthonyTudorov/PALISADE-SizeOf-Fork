@@ -74,12 +74,12 @@ UnitTestNewEncryptionScalar(const shared_ptr<CryptoContext<Element>> cc) {
 
 	shared_ptr<Ciphertext<Element>> ciphertext = cc->NEWEncrypt(kp.publicKey, plaintext);
 	shared_ptr<Plaintext> plaintextNew;
-	cc->NEWDecrypt(kp.secretKey, ciphertext, &plaintextNew);
+	cc->Decrypt(kp.secretKey, ciphertext, &plaintextNew);
 	EXPECT_EQ(*plaintext, *plaintextNew) << "unsigned";
 
 	shared_ptr<Plaintext> plaintext2 = cc->MakeScalarPlaintext(-value, true);
 	ciphertext = cc->NEWEncrypt(kp.publicKey, plaintext2);
-	cc->NEWDecrypt(kp.secretKey, ciphertext, &plaintextNew);
+	cc->Decrypt(kp.secretKey, ciphertext, &plaintextNew);
 	EXPECT_EQ(*plaintext2, *plaintextNew) << "signed";
 }
 
@@ -160,7 +160,7 @@ UnitTestNewEncryptionInteger(const shared_ptr<CryptoContext<Element>> cc) {
 
 	shared_ptr<Ciphertext<Element>> ciphertext = cc->NEWEncrypt(kp.publicKey, plaintext);
 	shared_ptr<Plaintext> plaintextNew;
-	cc->NEWDecrypt(kp.secretKey, ciphertext, &plaintextNew);
+	cc->Decrypt(kp.secretKey, ciphertext, &plaintextNew);
 	EXPECT_EQ(*plaintext, *plaintextNew);
 }
 
@@ -241,7 +241,7 @@ UnitTestNewEncryptionString(const shared_ptr<CryptoContext<Element>> cc) {
 
 	shared_ptr<Ciphertext<Element>> ciphertext = cc->NEWEncrypt(kp.publicKey, plaintext);
 	shared_ptr<Plaintext> plaintextNew;
-	cc->NEWDecrypt(kp.secretKey, ciphertext, &plaintextNew);
+	cc->Decrypt(kp.secretKey, ciphertext, &plaintextNew);
 	EXPECT_EQ(*plaintext, *plaintextNew);
 }
 
@@ -336,12 +336,12 @@ UnitTestNewEncryptionCoefPacked(const shared_ptr<CryptoContext<Element>> cc) {
 
 	shared_ptr<Ciphertext<Element>> ciphertext4 = cc->NEWEncrypt(kp.publicKey, plaintextInt);
 	shared_ptr<Plaintext> plaintextIntNew;
-	cc->NEWDecrypt(kp.secretKey, ciphertext4, &plaintextIntNew);
+	cc->Decrypt(kp.secretKey, ciphertext4, &plaintextIntNew);
 	EXPECT_EQ(*plaintextIntNew, *plaintextInt) << "Encrypt integer plaintext";
 
 	shared_ptr<Ciphertext<Element>> ciphertext5 = cc->NEWEncrypt(kp.publicKey, plaintextSInt);
 	shared_ptr<Plaintext> plaintextSIntNew;
-	cc->NEWDecrypt(kp.secretKey, ciphertext5, &plaintextSIntNew);
+	cc->Decrypt(kp.secretKey, ciphertext5, &plaintextSIntNew);
 	EXPECT_EQ(*plaintextSIntNew, *plaintextSInt) << "Encrypt signed integer plaintext";
 }
 

@@ -100,7 +100,7 @@ TEST_F(UTBVDCRT, Poly_bv_DCRT_MODREDUCE) {
 	kp.secretKey->SetPrivateElement(skEl);
 
 	cc->Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
-	intArrayNew.resize(intArray1.size());
+	intArrayNew.SetLength(intArray1.size());
 
 	EXPECT_EQ(intArray1, intArrayNew) << "Decrypt after ModReduce fails";;
 

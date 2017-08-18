@@ -95,10 +95,4 @@ bool SignedIntPlaintextEncoding::Decode(const BigInteger &modulus, Poly *ilVecto
 	return doDecode<BigInteger,BigVector,Poly>(modulus,ilVector);
 }
 
-size_t
-SignedIntPlaintextEncoding::GetChunksize(const usint ring, const BigInteger&) const
-{
-	return ring;
-}
-
 } /* namespace lbcrypto */

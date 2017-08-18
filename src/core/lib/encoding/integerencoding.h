@@ -51,10 +51,10 @@ public:
 	virtual ~IntegerEncoding() {}
 
 	/**
-	 * GetScalarValue
+	 * GetIntegerValue
 	 * @return the un-encoded scalar
 	 */
-	uint64_t GetIntegerValue() const { return value; }
+	const uint64_t& GetIntegerValue() const { return value; }
 
 	/**
 	 * Encode the plaintext into the Poly
@@ -93,11 +93,6 @@ public:
 	 * @return this is an Integer encoding
 	 */
 	PlaintextEncodings GetEncodingType() const { return Integer; }
-
-	/**
-	 * Legacy chunking op, does not apply
-	 */
-	size_t GetChunksize(const usint ring, const BigInteger& ptm) const { return 0; }
 
 	/**
 	 * Get length of the plaintext

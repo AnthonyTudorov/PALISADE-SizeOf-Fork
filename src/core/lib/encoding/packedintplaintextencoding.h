@@ -146,15 +146,6 @@ public:
 	PlaintextEncodings GetEncodingType() const { return Packed; }
 
 	/**
-	 * Getter for the ChunkSize data.
-	 *
-	 * @param  ring - the ring dimension.
-	 * @param  ptm - the plaintext modulus.
-	 * @return ring - the chunk size.
-	 */
-	virtual size_t GetChunksize(const usint ring, const BigInteger& ptm) const;
-
-	/**
 	 * Get method to return the length of plaintext
 	 *
 	 * @return the length of the plaintext in terms of the number of bits.

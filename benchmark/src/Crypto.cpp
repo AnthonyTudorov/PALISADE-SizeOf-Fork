@@ -117,7 +117,7 @@ void BM_encrypt(benchmark::State& state) { // benchmark
 			typename Poly::DggType dgg = Poly::DggType(4);			// Create the noise generator
 		} catch( ... ) {}
 
-		size_t strSize = plaintext.GetChunksize(cc->GetRingDimension(), cc->GetCryptoParameters()->GetPlaintextModulus());
+		size_t strSize = cc->GetRingDimension();
 
 		if( strSize == 0 ) {
 			state.SkipWithError( "Chunk size is 0" );
@@ -178,7 +178,7 @@ void BM_decrypt(benchmark::State& state) { // benchmark
 			typename Poly::DggType dgg = Poly::DggType(4);			// Create the noise generator
 		} catch( ... ) {}
 
-		size_t strSize = plaintext.GetChunksize(cc->GetRingDimension(), cc->GetCryptoParameters()->GetPlaintextModulus());
+		size_t strSize = cc->GetRingDimension();
 
 		if( strSize == 0 ) {
 			state.SkipWithError( "Chunk size is 0" );
@@ -294,7 +294,7 @@ void BM_reencrypt(benchmark::State& state) { // benchmark
 			typename Poly::DggType dgg = Poly::DggType(4);			// Create the noise generator
 		} catch( ... ) {}
 
-		size_t strSize = plaintext.GetChunksize(cc->GetRingDimension(), cc->GetCryptoParameters()->GetPlaintextModulus());
+		size_t strSize = cc->GetRingDimension();
 
 		if( strSize == 0 ) {
 			state.SkipWithError( "Chunk size is 0" );

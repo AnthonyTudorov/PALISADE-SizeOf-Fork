@@ -72,8 +72,6 @@ public:
 
 	PlaintextEncodings GetEncodingType() const { return ScalarSigned; }
 
-	size_t GetChunksize(const usint ring, const BigInteger& ptm) const;
-
 	size_t GetLength() const { return this->size(); }
 
 	bool CompareTo(const Plaintext& other) const {

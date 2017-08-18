@@ -64,13 +64,21 @@ public:
 	 * GetScalarValue
 	 * @return the un-encoded scalar
 	 */
-	uint32_t GetScalarValue() const { return value; }
+	const uint32_t& GetScalarValue() const {
+		if( !isSigned )
+			return value;
+		throw std::logic_error("not an unsigned scalar");
+	}
 
 	/**
 	 * GetScalarValueSigned
 	 * @return the un-encoded scalar
 	 */
-	int32_t GetScalarValueSigned() const { return valueSigned; }
+	const int32_t& GetScalarSignedValue() const {
+		if( isSigned )
+			return valueSigned;
+		throw std::logic_error("not a signed scalar");
+	}
 
 	/**
 	 * Encode the plaintext into the Poly
@@ -109,11 +117,6 @@ public:
 	 * @return this is a Scalar encoding
 	 */
 	PlaintextEncodings GetEncodingType() const { return isSigned ? ScalarSigned : Scalar; }
-
-	/**
-	 * Legacy chunking op, does not apply
-	 */
-	size_t GetChunksize(const usint ring, const BigInteger& ptm) { return 0; }
 
 	/**
 	 * Get length of the plaintext

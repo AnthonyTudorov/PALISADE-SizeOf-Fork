@@ -143,20 +143,24 @@ public:
 	virtual bool Decode(const BigInteger &modulus, Poly *ilVector) = 0;
 
 	/**
-	 * Getter for the ChunkSize data.
-	 *
-	 * @param  ring - the ring dimension.
-	 * @param  ptm - the plaintext modulus.
-	 * @return ring - the chunk size.
-	 */
-	virtual size_t GetChunksize(const usint ring, const BigInteger& ptm) const = 0;
-
-	/**
 	 * Get method to return the length of plaintext
 	 *
 	 * @return the length of the plaintext in terms of the number of bits.
 	 */
 	virtual size_t GetLength() const = 0;
+
+	/**
+	 * resize the plaintext; only works for plaintexts that support a resizable vector (coefpacked)
+	 * @param newSize
+	 */
+	virtual void SetLength(size_t newSize) { throw std::logic_error("resize not supported"); }
+
+	virtual const std::string&		GetStringValue() const { throw std::logic_error("not a string"); }
+	virtual const uint64_t&			GetIntegerValue() const { throw std::logic_error("not an integer"); }
+	virtual const uint32_t&			GetScalarValue() const { throw std::logic_error("not a scalar"); }
+	virtual const int32_t&			GetScalarSignedValue() const { throw std::logic_error("not a signed scalar"); }
+	virtual const vector<uint32_t>&	GetCoefPackedValue() const { throw std::logic_error("not a packed coefficient vector"); }
+	virtual const vector<int32_t>&	GetCoefPackedSignedValue() const { throw std::logic_error("not a signed packed coefficient vector"); }
 
 	/**
 	 * Method to compare two plaintext to test for equivalence.

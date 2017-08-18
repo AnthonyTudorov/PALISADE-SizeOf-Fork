@@ -108,12 +108,6 @@ IntPlaintextEncoding::Decode(const BigInteger &modulus, Poly *ilVector)
 	return doDecode<BigInteger,BigVector>(modulus,ilVector);
 }
 
-size_t
-IntPlaintextEncoding::GetChunksize(const usint ring, const BigInteger&) const
-{
-	return ring;
-}
-
 // Evaluates the array of integers as a polynomial at x = 2
 int32_t
 IntPlaintextEncoding::EvalToInt(uint32_t modulus) const

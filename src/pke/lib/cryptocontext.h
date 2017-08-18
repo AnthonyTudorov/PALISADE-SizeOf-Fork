@@ -988,8 +988,15 @@ public:
 		return pt;
 	}
 
-	// FIXME comments for new decrypt
-	DecryptResult NEWDecrypt(
+	/**
+	 * Decrypt a single ciphertext into the appropriate plaintext
+	 *
+	 * @param privateKey - decryption key
+	 * @param ciphertext - ciphertext to decrypt
+	 * @param plaintext - resulting plaintext object pointer is here
+	 * @return
+	 */
+	DecryptResult Decrypt(
 			const shared_ptr<LPPrivateKey<Element>> privateKey,
 			const shared_ptr<Ciphertext<Element>> ciphertext,
 			shared_ptr<Plaintext>* plaintext)
@@ -1020,9 +1027,9 @@ public:
 	/**
 	* Decrypt method for PALISADE
 	* @param privateKey - for decryption
-	* @param ciphertext - vector of encrypted ciphertext
+	* @param ciphertext - vector of encrypted ciphertext - only uses one
 	* @param plaintext - pointer to destination for the result of decryption
-	* @param doPadding - true if input plaintext was padded; causes unpadding on last piece of ciphertext
+	* @param doPadding - legacy parameter, ignored
 	* @return size of plaintext
 	*/
 	DecryptResult Decrypt(
@@ -1038,7 +1045,6 @@ public:
 		if( privateKey == NULL || Mismatched(privateKey->GetCryptoContext()) )
 			throw std::logic_error("Information passed to Decrypt was not generated with this crypto context");
 
-		//size_t lastone = ciphertext.size() - 1;
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
 		for( size_t ch = 0; ch < ciphertext.size(); ch++ ) {

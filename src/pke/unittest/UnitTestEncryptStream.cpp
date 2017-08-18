@@ -1,6 +1,5 @@
 /*
- * @file byteplaintextencoding.cpp Represents and defines plaintext objects in Palisade 
- * that encodes bytes of data, notionally chars.
+ * @file UnitTestEncryptStream
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -25,8 +24,51 @@
  *
  */
 
-#include "byteplaintextencoding.h"
+#include "include/gtest/gtest.h"
+#include <iostream>
+#include <sstream>
+#include <vector>
 
-namespace lbcrypto {
+#include "../lib/cryptocontext.h"
 
+#include "encoding/byteplaintextencoding.h"
+#include "encoding/intplaintextencoding.h"
+
+#include "utils/debug.h"
+
+#include "cryptocontextgen.h"
+#include "lattice/elemparamfactory.h"
+
+using namespace std;
+using namespace lbcrypto;
+
+
+
+class UTEncryptStream : public ::testing::Test {
+
+public:
+	UTEncryptStream() {}
+
+	virtual void SetUp() {
+	}
+
+	virtual void TearDown() {
+
+	}
+};
+
+TEST_F(UTEncryptStream, Stream_Encryptor_Test)
+{
+	string	base = "Strange women lying in ponds distributing swords is no basis for a system of government";
+	stringstream		bigSource, mid, bigDest;
+	for( size_t i = 0; i < 10000; i++ )
+		bigSource << base;
+
+	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementFV(1024, 256);
+	LPKeyPair<Poly> kp = cc->KeyGen();
+
+	cc->EncryptStream(kp.publicKey, bigSource, mid);
+	cc->DecryptStream(kp.secretKey, mid, bigDest);
+
+	EXPECT_EQ(bigSource.str(), bigDest.str());
 }
