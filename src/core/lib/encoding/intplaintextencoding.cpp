@@ -28,26 +28,26 @@
 namespace lbcrypto
 {
 
-// Forms a binary array from an integer; represents the integer as a binary polynomial
-IntPlaintextEncoding::IntPlaintextEncoding(uint64_t value)
-	: Plaintext(shared_ptr<Poly::Params>(0),NULL)
-{
-	while( value > 0 ) {
-		this->push_back(value & 0x01);
-		value >>= 1;
-	}
-}
-
-// Forms a binary array from an integer; represents the integer as a binary polynomial
-IntPlaintextEncoding::IntPlaintextEncoding(const BigInteger& val)
-	: Plaintext(shared_ptr<Poly::Params>(0),NULL)
-{
-	BigInteger value(val);
-	while (value > 0 ) {
-		this->push_back((value % 2).ConvertToInt());
-		value = value / 2;
-	}
-}
+//// Forms a binary array from an integer; represents the integer as a binary polynomial
+//IntPlaintextEncoding::IntPlaintextEncoding(uint64_t value)
+//	: Plaintext(shared_ptr<Poly::Params>(0),NULL)
+//{
+//	while( value > 0 ) {
+//		this->push_back(value & 0x01);
+//		value >>= 1;
+//	}
+//}
+//
+//// Forms a binary array from an integer; represents the integer as a binary polynomial
+//IntPlaintextEncoding::IntPlaintextEncoding(const BigInteger& val)
+//	: Plaintext(shared_ptr<Poly::Params>(0),NULL)
+//{
+//	BigInteger value(val);
+//	while (value > 0 ) {
+//		this->push_back((value % 2).ConvertToInt());
+//		value = value / 2;
+//	}
+//}
 
 template <typename IntType, typename VecType, typename Element>
 bool IntPlaintextEncoding::doEncode(const BigInteger &modulus, Element *ilVector, size_t startFrom, size_t length) const

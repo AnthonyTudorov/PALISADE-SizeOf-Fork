@@ -169,19 +169,19 @@ TEST_F(UTStatisticalEval, Null_Eval_Lin_Regression_Int) {
 
 	// Set the plaintext matrices
 
-	auto zeroAlloc = [=]() { return make_unique<IntPlaintextEncoding>(); };
+	auto zeroAlloc = [=]() { return make_unique<shared_ptr<Plaintext>>(); };
 
-	Matrix<IntPlaintextEncoding> xP = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 2);
+	Matrix<shared_ptr<Plaintext>> xP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 2);
 
-	xP(0, 0) = 173;
-	xP(0, 1) = 107;
-	xP(1, 0) = 175;
-	xP(1, 1) = 105;
+	xP(0, 0) = cc->MakeIntegerPlaintext(173);
+	xP(0, 1) = cc->MakeIntegerPlaintext(107);
+	xP(1, 0) = cc->MakeIntegerPlaintext(175);
+	xP(1, 1) = cc->MakeIntegerPlaintext(105);
 
-	Matrix<IntPlaintextEncoding> yP = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
+	Matrix<shared_ptr<Plaintext>> yP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
 
-	yP(0, 0) = 167;
-	yP(1, 0) = 105;
+	yP(0, 0) = cc->MakeIntegerPlaintext(167);
+	yP(1, 0) = cc->MakeIntegerPlaintext(105);
 
 	////////////////////////////////////////////////////////////
 	//Perform the key generation operations.
@@ -208,8 +208,8 @@ TEST_F(UTStatisticalEval, Null_Eval_Lin_Regression_Int) {
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	Matrix<IntPlaintextEncoding> numerator = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
-	Matrix<IntPlaintextEncoding> denominator = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
+	Matrix<shared_ptr<Plaintext>> numerator = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
+	Matrix<shared_ptr<Plaintext>> denominator = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
 
 	cc->DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
 
@@ -221,10 +221,10 @@ TEST_F(UTStatisticalEval, Null_Eval_Lin_Regression_Int) {
 	int32_t numerator2 = 6193600;
 	int32_t denominatorExpected = 313600;
 
-	EXPECT_EQ(numerator1, numerator(0, 0).EvalToInt(plaintextModulus));
-	EXPECT_EQ(numerator2, numerator(1, 0).EvalToInt(plaintextModulus));
-	EXPECT_EQ(denominatorExpected, denominator(0, 0).EvalToInt(plaintextModulus));
-	EXPECT_EQ(denominatorExpected, denominator(1, 0).EvalToInt(plaintextModulus));
+	EXPECT_EQ(numerator1, numerator(0, 0)->GetIntegerValue());
+	EXPECT_EQ(numerator2, numerator(1, 0)->GetIntegerValue());
+	EXPECT_EQ(denominatorExpected, denominator(0, 0)->GetIntegerValue());
+	EXPECT_EQ(denominatorExpected, denominator(1, 0)->GetIntegerValue());
 
 }
 
@@ -249,19 +249,19 @@ TEST_F(UTStatisticalEval, FV_Eval_Lin_Regression_Int) {
 
 	// Set the plaintext matrices
 
-	auto zeroAlloc = [=]() { return make_unique<IntPlaintextEncoding>(); };
+	auto zeroAlloc = [=]() { return make_unique<shared_ptr<Plaintext>>(); };
 
-	Matrix<IntPlaintextEncoding> xP = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 2);
+	Matrix<shared_ptr<Plaintext>> xP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 2);
 
-	xP(0, 0) = 173;
-	xP(0, 1) = 107;
-	xP(1, 0) = 175;
-	xP(1, 1) = 105;
+	xP(0, 0) = cc->MakeIntegerPlaintext(173);
+	xP(0, 1) = cc->MakeIntegerPlaintext(107);
+	xP(1, 0) = cc->MakeIntegerPlaintext(175);
+	xP(1, 1) = cc->MakeIntegerPlaintext(105);
 
-	Matrix<IntPlaintextEncoding> yP = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
+	Matrix<shared_ptr<Plaintext>> yP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
 
-	yP(0, 0) = 167;
-	yP(1, 0) = 105;
+	yP(0, 0) = cc->MakeIntegerPlaintext(167);
+	yP(1, 0) = cc->MakeIntegerPlaintext(105);
 
 	////////////////////////////////////////////////////////////
 	//Perform the key generation operations.
@@ -289,8 +289,8 @@ TEST_F(UTStatisticalEval, FV_Eval_Lin_Regression_Int) {
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	Matrix<IntPlaintextEncoding> numerator = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
-	Matrix<IntPlaintextEncoding> denominator = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
+	Matrix<shared_ptr<Plaintext>> numerator = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
+	Matrix<shared_ptr<Plaintext>> denominator = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
 
 	cc->DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
 
@@ -302,10 +302,10 @@ TEST_F(UTStatisticalEval, FV_Eval_Lin_Regression_Int) {
 	int32_t numerator2 = 6193600;
 	int32_t denominatorExpected = 313600;
 
-	EXPECT_EQ(numerator1, numerator(0, 0).EvalToInt(plaintextModulus));
-	EXPECT_EQ(numerator2, numerator(1, 0).EvalToInt(plaintextModulus));
-	EXPECT_EQ(denominatorExpected, denominator(0, 0).EvalToInt(plaintextModulus));
-	EXPECT_EQ(denominatorExpected, denominator(1, 0).EvalToInt(plaintextModulus));
+	EXPECT_EQ(numerator1, numerator(0, 0)->GetIntegerValue());
+	EXPECT_EQ(numerator2, numerator(1, 0)->GetIntegerValue());
+	EXPECT_EQ(denominatorExpected, denominator(0, 0)->GetIntegerValue());
+	EXPECT_EQ(denominatorExpected, denominator(1, 0)->GetIntegerValue());
 
 }
 

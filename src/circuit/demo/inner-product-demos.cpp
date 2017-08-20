@@ -199,19 +199,19 @@ main(int argc, char *argv[])
 		PalisadeCircuit<Poly>	cir(cc, driver.graph);
 
 		// construct bit matrix for first vector
-		Matrix<IntPlaintextEncoding> bitMatrix1([](){return make_unique<IntPlaintextEncoding>();},
+		Matrix<shared_ptr<Plaintext>> bitMatrix1([](){return make_unique<shared_ptr<Plaintext>>();},
 				1,vectorOfInts.size());
 		for( size_t c=0; c<vectorOfInts.size(); c++ ) {
-			bitMatrix1(0,c) = IntPlaintextEncoding(vectorOfInts[c]);
-			bitMatrix1(0,c).resize( cc->GetRingDimension() );
+			bitMatrix1(0,c) = cc->MakeIntegerPlaintext(vectorOfInts[c]);
+			//bitMatrix1(0,c).resize( cc->GetRingDimension() );
 		}
 
 		// construct bit matrix for second vector
-		Matrix<IntPlaintextEncoding> bitMatrix2([](){return make_unique<IntPlaintextEncoding>();},
+		Matrix<shared_ptr<Plaintext>> bitMatrix2([](){return make_unique<shared_ptr<Plaintext>>();},
 				vectorOfInts.size(), 1);
 		for( size_t r=0; r<vectorOfInts.size(); r++ ) {
-			bitMatrix2(r,0) = IntPlaintextEncoding(vectorOfInts[r]);
-			bitMatrix2(r,0).resize( cc->GetRingDimension() );
+			bitMatrix2(r,0) = cc->MakeIntegerPlaintext(vectorOfInts[r]);
+//			bitMatrix2(r,0).resize( cc->GetRingDimension() );
 		}
 
 		shared_ptr<Matrix<RationalCiphertext<Poly>>> A = cc->EncryptMatrix(kp.publicKey, bitMatrix1);
