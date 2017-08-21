@@ -49,7 +49,26 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #define LBCRYPTO_CRYPTO_BV_C
 
 #include "bv.h"
+//#define DEMANGLER
+#ifdef DEMANGLER
+#include <string>
+#include <cstdlib>
+#include <cxxabi.h>
 
+template<typename T>
+std::string type_name()
+{
+    int status;
+    std::string tname = typeid(T).name();
+    char *demangled_name = abi::__cxa_demangle(tname.c_str(), NULL, NULL, &status);
+    if(status == 0) {
+        tname = demangled_name;
+        std::free(demangled_name);
+    }
+    return tname;
+}
+#endif
+// #define DEBUG_CAPTURE_CIPHERTEXT
 namespace lbcrypto {
 
 	template <class Element>
@@ -330,11 +349,14 @@ namespace lbcrypto {
 		const shared_ptr<Ciphertext<Element>> ciphertext1,
 		const shared_ptr<Ciphertext<Element>> ciphertext2) const
 	{
+		bool dbg_flag = false;
+		DEBUG("TP: LPAlgorithmSHEBV<Element>::EvalMult");
 
 		if (ciphertext1->GetElements()[0].GetFormat() == Format::COEFFICIENT || ciphertext2->GetElements()[0].GetFormat() == Format::COEFFICIENT) {
 			throw std::runtime_error("EvalMult cannot multiply in COEFFICIENT domain.");
 		}
 
+		// This should probably use a shared_ptr function to create this rather than new ... suggest Dave
 		shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext1->GetCryptoContext()));
 
 		const std::vector<Element> &c1 = ciphertext1->GetElements();
@@ -349,8 +371,35 @@ namespace lbcrypto {
 
 		cNew.push_back(std::move((c1[1] * c2[1]).Negate()));
 
+		DEBUG("c1[0] * c2[0] = " << c1[0] * c2[0] );
+		DEBUG("c1[0] * c2[1] + c1[1] * c2[0] = " << c1[0] * c2[1] + c1[1] * c2[0] );
+		DEBUG("(c1[1] * c2[1]).Negate()=" << (c1[1] * c2[1]).Negate() );
+
+		// The three print statements above produce the same output for BACKEND=2 and  BACKEND=6
+
+		DEBUG("<cNew>" );
+		for( auto i: cNew) {
+		  DEBUG(i);
+		}
+		DEBUG("</cNew>" );
+
+		// The output printed for cNew above is the same for BACKEND=2 and BACKEND=6
+
 		newCiphertext->SetElements(std::move(cNew));
 
+		for (size_t i = 0; i<newCiphertext->GetElements().size(); i++){
+		  DEBUG("newCiphertext.at(0)." << i << "= " << newCiphertext->GetElements().at(i) );
+		}
+#ifdef DEBUG_CAPTURE_CIPHERTEXT
+		Serialized serObj;
+		newCiphertext->Serialize(&serObj);
+		DEBUG("<newCiphertext>" );
+				if (!SerializableHelper::SerializationToStream(serObj, std::cout))
+					throw std::runtime_error ("Can't write the JSON string to cout!");
+				DEBUG(std::endl << "</newCiphertext>" );
+
+		//DEBUG("<newCiphertext>" ) << *newCiphertext <<  "</newCiphertext>" );
+#endif
 		return newCiphertext;
 
 	}
@@ -390,6 +439,14 @@ namespace lbcrypto {
 
 		shared_ptr<Ciphertext<Element>> newCiphertext = this->EvalMult(ciphertext1, ciphertext2);
 
+#ifdef DEBUG_CAPTURE_CIPHERTEXT
+		Serialized serObj;
+		ek->Serialize(&serObj);
+		std::cout << "<LPAlgorithmSHEBV.ek>" << std::endl;
+				if (!SerializableHelper::SerializationToStream(serObj, std::cout))
+					throw std::runtime_error ("Can't write the JSON string to cout!");
+				std::cout << std::endl << "</LPAlgorithmSHEBV.ek>" << std::endl;
+#endif
 		return this->KeySwitch(ek, newCiphertext);
 
 	}
@@ -411,7 +468,7 @@ namespace lbcrypto {
 
 	template <class Element>
 	shared_ptr<LPEvalKey<Element>> LPAlgorithmSHEBV<Element>::KeySwitchGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey, const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
-
+		bool dbg_flag = false;
 		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(originalPrivateKey->GetCryptoParameters());
 
 		const shared_ptr<typename Element::Params> originalKeyParams = cryptoParams->GetElementParams();
@@ -436,6 +493,12 @@ namespace lbcrypto {
 		usint relinWindow = cryptoParams->GetRelinWindow();
 
 		//Pushes the powers of base exponent of original key polynomial onto evalKeyElements.
+
+		// TO DO:  It seems likely that the following is being initialized differently for BACKEND 2 vs 6.  NEED TO CHECK
+#ifdef DEMANGLER		
+		DEBUG("Element is" << type_name<Element>() );
+#endif
+		// Element is lbcrypto::DCRTPolyImpl<NTL::myZZ, NTL::myZZ, NTL::myVecP<NTL::myZZ>, lbcrypto::ILDCRTParams<NTL::myZZ> >
 		std::vector<Element> evalKeyElements(s.PowersOfBase(relinWindow));
 
 		//evalKeyElementsGenerated hold the generated noise distribution.
@@ -446,14 +509,41 @@ namespace lbcrypto {
 			// Generate a_i vectors
 			Element a(dug, originalKeyParams, Format::EVALUATION);
 
+			//  a is identical for BACKEND 2 vs 6
+			DEBUG("a (i=" << i << ")" << a );
+
 			evalKeyElementsGenerated.push_back(a); //alpha's of i
+			DEBUG("evalKeyElements.at(" << i << ")" << evalKeyElements.at(i) );
 
 												   // Generate a_i * newSK + p * e - PowerOfBase(oldSK)
 			Element e(dgg, originalKeyParams, Format::EVALUATION);
 
+			// evalKeyElement.at(51) (and probably some following elements as well) is different for BACKEND 2 vs 6
+
 			evalKeyElements.at(i) = (a*sNew + p*e) - evalKeyElements.at(i);
 
+			DEBUG("a= " << a );
+			DEBUG("sNew= " << sNew );
+			DEBUG("p= " << p );
+			DEBUG("e= " << e );
+			// The values a, sNew, p, and e are identical for BACKEND 2 vs 6; evalKeyElements.at(51) and at least some following are different
+			DEBUG("evalKeyElements.at(" << i << ")" << evalKeyElements.at(i) );
 		}
+
+		// There are differences in evalKeyElements for BACKEND 2 vs 6 ... could this be due to DUG?
+		DEBUG("<LPAlgorithmSHEBV::EvalMultKeyGen.evalKeyElements>" );
+		for( auto i : evalKeyElements ) {
+			DEBUG(i );
+		}
+		DEBUG(std::endl << "</LPAlgorithmSHEBV::EvalMultKeyGen.evalKeyElements>" );
+
+		// evalKeyElementSGenerate IS THE SAME for BACKEND 2 vs 6
+
+		DEBUG("<LPAlgorithmSHEBV::EvalMultKeyGen.evalKeyElementsGenerated>" );
+		for( auto i : evalKeyElementsGenerated ) {
+			DEBUG(i );
+		}
+		DEBUG(std::endl << "</LPAlgorithmSHEBV::EvalMultKeyGen.evalKeyElementsGenerated>" );
 
 		keySwitchHintRelin->SetAVector(std::move(evalKeyElementsGenerated));
 
@@ -464,6 +554,15 @@ namespace lbcrypto {
 
 	template <class Element>
 	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::KeySwitch(const shared_ptr<LPEvalKey<Element>> keySwitchHint, const shared_ptr<Ciphertext<Element>> cipherText) const {
+		bool dbg_flag = false;
+		DEBUG("<LPAlgorithmSHEBV<Element>::KeySwitch.cipherText>" );
+		for (size_t i = 0; i<cipherText->GetElements().size(); i++){
+			DEBUG("cipherText.at(0)." << i << std::endl << cipherText->GetElements().at(i) );
+		}
+		DEBUG("</LPAlgorithmSHEBV<Element>::KeySwitch.cipherText>" );
+		DEBUG("");
+
+		//KeySwitch.ciphetText is the same for BACKEND=2 and BACKEND=6
 
 		shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(*cipherText));
 
@@ -474,6 +573,17 @@ namespace lbcrypto {
 		const std::vector<Element> &a = evalKey->GetAVector();
 		const std::vector<Element> &b = evalKey->GetBVector();
 
+		// A is the same, but B is different for BACKEND=2 vs BACKEND=6
+
+		DEBUG("<a>" );
+		for( auto i: a )
+			DEBUG(i );
+		DEBUG("</a>" );
+		DEBUG("<b>" );
+		for( auto i: b )
+			DEBUG(i );
+		DEBUG("</b>" );
+
 		usint relinWindow = cryptoParamsLWE->GetRelinWindow();
 
 		const std::vector<Element> &c = cipherText->GetElements();
@@ -483,13 +593,28 @@ namespace lbcrypto {
 
 		if (c.size() == 2) //case of PRE or automorphism
 		{
+			DEBUG("c.size = 2" );
 			digitsC1 = c[1].BaseDecompose(relinWindow);
 			ct1 = digitsC1[0] * a[0];
 		}
 		else //case of EvalMult
 		{
+			DEBUG("c.size != 2" );
 			digitsC1 = c[2].BaseDecompose(relinWindow);
 			ct1 = c[1] + digitsC1[0] * a[0];
+
+			// BUG!!  For MATHBACKEND=6, digitsC1 is all zeros; for MATHBACKEND=2, it's not
+			// Questions:
+			//   1. Is c[2] the same for the two backends?  Yes
+			//   2. Is relinWindow the same for the two backends?  Yes (=1)
+
+			DEBUG("relinWindow = " << relinWindow );
+			DEBUG("<c[2]>" << std::endl << c[2] << std::endl << "</c[2]>" );
+
+			DEBUG("<digitC1>" );
+			for( auto i: digitsC1 )
+				DEBUG(i );
+			DEBUG("</digitsC1>" );
 		}
 
 		Element ct0(c[0] + digitsC1[0] * b[0]);
@@ -501,6 +626,10 @@ namespace lbcrypto {
 			ct1 += digitsC1[i] * a[i];
 		}
 
+		// For MATHBACKEND=6, ct0 is element[0] of the original ciphertext & ct1 is element[1] of the original ciphertext
+		DEBUG("<ct0>" << std::endl << ct0 << std::endl << "</ct0>" );
+		DEBUG("<ct1>" << std::endl << ct1 << std::endl << "</ct1>" );
+
 		std::vector<Element> ctVector;
 
 		ctVector.push_back(std::move(ct0));
@@ -508,6 +637,13 @@ namespace lbcrypto {
 		ctVector.push_back(std::move(ct1));
 
 		newCiphertext->SetElements(std::move(ctVector));
+
+		DEBUG("<LPAlgorithmSHEBV<Element>::KeySwitch.newCiphertext>" );
+		for (size_t i = 0; i<newCiphertext->GetElements().size(); i++){
+			DEBUG("newCiphertext.at(0)." << i << std::endl << newCiphertext->GetElements().at(i) );
+		}
+  DEBUG("</LPAlgorithmSHEBV<Element>::KeySwitch.newCiphertext>" << std::endl);
+
 
 		return newCiphertext;
 
@@ -522,7 +658,25 @@ namespace lbcrypto {
 		Element sSquare(originalPrivateKey->GetPrivateElement()*originalPrivateKey->GetPrivateElement());
 
 		originalPrivateKeySquared->SetPrivateElement(std::move(sSquare));
+#ifdef DEBUG_CAPTURE_CIPHERTEXT
 
+
+		Serialized serObj;
+		originalPrivateKey->Serialize(&serObj);
+		std::cout << "<LPAlgorithmSHEBV::EvalMultKeyGen.originalPrivateKey>" << std::endl;
+		if (!SerializableHelper::SerializationToStream(serObj, std::cout))
+			throw std::runtime_error ("Can't write the JSON string to cout!");
+		std::cout << std::endl << "</LPAlgorithmSHEBV::EvalMultKeyGen.originalPrivateKey>" << std::endl;
+
+		originalPrivateKeySquared->Serialize(&serObj);
+		std::cout << "<LPAlgorithmSHEBV::EvalMultKeyGen.originalPrivateKeySquared>" << std::endl;
+		if (!SerializableHelper::SerializationToStream(serObj, std::cout))
+			throw std::runtime_error ("Can't write the JSON string to cout!");
+		std::cout << std::endl << "</LPAlgorithmSHEBV::EvalMultKeyGen.originalPrivateKeySquared>" << std::endl;
+
+		// originalPrivateKey and Original PrivateKeySquared seem to be identical for BACKEND 2 vs 6
+
+#endif
 		return this->KeySwitchGen(originalPrivateKeySquared, originalPrivateKey);
 
 	}
