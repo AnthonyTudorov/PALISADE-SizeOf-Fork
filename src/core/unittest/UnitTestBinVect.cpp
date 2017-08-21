@@ -120,7 +120,7 @@ TEST(UTBinVect, SetModulusTest){
 TEST(UTBinVect,NTL_modulus_framework){
 #if MATHBACKEND  == 6 //NTL backend
 
-  bool dbg_flag = true;
+  bool dbg_flag = false;
 
   //code to test that the modulus framwork is ok
 
