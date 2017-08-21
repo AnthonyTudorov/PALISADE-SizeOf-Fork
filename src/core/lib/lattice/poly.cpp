@@ -28,6 +28,30 @@
 #include <fstream>
 #include <cmath>
 
+#define DEMANGLER //used for the demangling type namefunction.
+
+#ifdef DEMANGLER
+
+#include <string>
+#include <cstdlib>
+#include <cxxabi.h>
+
+
+template<typename T>
+std::string type_name()
+{
+    int status;
+    std::string tname = typeid(T).name();
+    char *demangled_name = abi::__cxa_demangle(tname.c_str(), NULL, NULL, &status);
+    if(status == 0) {
+        tname = demangled_name;
+        std::free(demangled_name);
+    }
+    return tname;
+}
+
+
+#endif
 
 namespace lbcrypto
 {
@@ -477,28 +501,28 @@ usint PolyImpl<ModType,IntType,VecType,ParmType>::GetLength() const
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 void PolyImpl<ModType,IntType,VecType,ParmType>::SetValues(const VecType& values, Format format)
 {
-		if (m_params->GetRootOfUnity() == 0 || m_params->GetRingDimension() != values.GetLength() || m_params->GetModulus() != values.GetModulus()) {
-		  std::cout<<"PolyImpl::SetValues warning, mismatch in parameters"<<std::endl;
-		  if (m_params->GetRootOfUnity() == 0){
+	if (m_params->GetRootOfUnity() == 0 || m_params->GetRingDimension() != values.GetLength() || m_params->GetModulus() != values.GetModulus()) {
+		std::cout<<"PolyImpl::SetValues warning, mismatch in parameters"<<std::endl;
+		if (m_params->GetRootOfUnity() == 0){
 			std::cout<<"m_params->GetRootOfUnity "<<m_params->GetRootOfUnity()<<std::endl;
 		}
-		  if (m_params->GetRingDimension() != values.GetLength()){
-		    std::cout<<"m_params->GetRingDimension() "<<m_params->GetRingDimension()<<std::endl;
-		    std::cout<<"!= values.GetLength()"<< values.GetLength() <<std::endl;
+		if (m_params->GetRingDimension() != values.GetLength()){
+			std::cout<<"m_params->GetRingDimension() "<<m_params->GetRingDimension()<<std::endl;
+			std::cout<<"!= values.GetLength()"<< values.GetLength() <<std::endl;
 		}
-		  if ( m_params->GetModulus() != values.GetModulus()) {
-		    std::cout<<"m_params->GetModulus() "<<m_params->GetModulus()<<std::endl;
-		    std::cout<<"values->GetModulus() "<<values.GetModulus()<<std::endl;
+		if ( m_params->GetModulus() != values.GetModulus()) {
+			std::cout<<"m_params->GetModulus() "<<m_params->GetModulus()<<std::endl;
+			std::cout<<"values->GetModulus() "<<values.GetModulus()<<std::endl;
 		}
-		  //throw std::logic_error("Exisiting m_params do not match with the input parameter IntType& values.\n");
-		  // if (m_values != nullptr) { //dbc no need with smart pointers
-		  //   delete m_values;
-		  // }
-		}
-		m_values = make_unique<VecType>(values);
-		m_format = format;
+		//throw std::logic_error("Exisiting m_params do not match with the input parameter IntType& values.\n");
+		// if (m_values != nullptr) { //dbc no need with smart pointers
+		//   delete m_values;
+		// }
 	}
-
+	m_values = make_unique<VecType>(values);
+	m_format = format;
+}
+	
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 void PolyImpl<ModType,IntType,VecType,ParmType>::SetValuesToZero()
 {
@@ -936,7 +960,9 @@ double PolyImpl<ModType,IntType,VecType,ParmType>::Norm() const
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 std::vector<PolyImpl<ModType,IntType,VecType,ParmType>> PolyImpl<ModType,IntType,VecType,ParmType>::BaseDecompose(usint baseBits, bool evalModeAnswer) const
 {
+		bool dbg_flag = false;
 		
+		DEBUG("PolyImpl::BaseDecompose" );
 		usint nBits = m_params->GetModulus().GetLengthForBase(2);
 
 		usint nWindows = nBits / baseBits;
@@ -952,13 +978,34 @@ std::vector<PolyImpl<ModType,IntType,VecType,ParmType>> PolyImpl<ModType,IntType
 		PolyImpl<ModType,IntType,VecType,ParmType> x(*this);
 		x.SetFormat(COEFFICIENT);
 
+		DEBUG("<x>" );
+		//for( auto i : x ){
+			DEBUG(x );
+		//}
+		DEBUG("</x>" );
+
+		//TP: x is same for BACKEND 2 and 6
+
 
 	for (usint i = 0; i < nWindows; ++i) {
+			DEBUG("VecType is '" << type_name<VecType>() << "'" );
+
 			xDigit.SetValues( x.GetValues().GetDigitAtIndexForBase(i+1, 1 << baseBits), x.GetFormat() );
+			DEBUG("x.GetValue().GetDigitAtIndexForBase(i=" << i << ")" << std::endl << x.GetValues().GetDigitAtIndexForBase(i*baseBits + 1, 1 << baseBits) );
+			DEBUG("x.GetFormat()" << x.GetFormat() );
+			//TP: xDigit is all zeros for BACKEND=6, but not for BACKEND-2  *********************************************************
+			DEBUG("<xDigit." << i << ">" << std::endl << xDigit << "</xDigit." << i << ">" );
 			if( evalModeAnswer )
 				xDigit.SwitchFormat();
 			result.push_back(xDigit);
+			DEBUG("<xDigit.SwitchFormat." << i << ">" << std::endl << xDigit << "</xDigit.SwitchFormat." << i << ">" );
 		}
+
+		DEBUG("<result>" );
+		for( auto i : result){
+			DEBUG(i );
+		}
+		DEBUG("</result>" );
 
 		return std::move(result);
 	}
