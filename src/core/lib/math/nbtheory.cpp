@@ -538,9 +538,15 @@ namespace lbcrypto {
 		IntType mu = ComputeMu<IntType>(n);
 #endif
 		do {
+#ifdef NTL_SPEEDUP
+			x = (x*x + c).ModBarrett(n,mu);
+			xx = (xx*xx + c).ModBarrett(n,mu);
+			xx = (xx*xx + c).ModBarrett(n,mu);
+#else		
 			x = x.ModBarrettMul(x, n, mu).ModBarrettAdd(c, n, mu);
 			xx = xx.ModBarrettMul(xx, n, mu).ModBarrettAdd(c, n, mu);
 			xx = xx.ModBarrettMul(xx, n, mu).ModBarrettAdd(c, n, mu);
+#endif
 			divisor = GreatestCommonDivisor(((x - xx) > 0) ? x - xx : xx - x, n);
 			DEBUG("PRF divisor " << divisor.ToString());
 
@@ -652,8 +658,14 @@ namespace lbcrypto {
 		IntType qNew = (IntType(1) << nBits) + (IntType(m) - r) + IntType(1);
 
 		size_t i = 1;
+	        // TP: size_t is a system dependent size, i.e., not of a known size.  Seems like it would
+		// be better to make this a well-defined and system independent type.
+		//  Seems much better to match the type to m
 
 		while (!MillerRabinPrimalityTest(qNew)) {
+			// TP: Dangerous assumption?  This assumes that i*m is smaller than the maximum size of an arg to IntType, whihc
+			// is probably no bigger than 2^32-1 or 2^64-1.
+			// Also, should this really add a steadly increasing value to qNew or just keet adding m?
 			qNew += IntType(i*m);
 			i++;
 		}
@@ -1007,8 +1019,7 @@ namespace lbcrypto {
 	template<typename IntType>
 	IntType ComputeMu(const IntType& q)
 	{
-	  //#if MATHBACKEND == 4 || MATHBACKEND == 6 || MATHBACKEND == 7
- #if MATHBACKEND == 4 || MATHBACKEND == 7
+#if MATHBACKEND == 4 || MATHBACKEND == 7 || defined(NTL_SPEEDUP)
 		return IntType(1);
 #else
 		//Precompute the Barrett mu parameter
