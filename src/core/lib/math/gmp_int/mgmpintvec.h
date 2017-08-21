@@ -417,13 +417,21 @@ namespace NTL {
     };
 
     inline size_t GetLength(void) const{ //deprecated by size()
-      return this->length();
+      // size() is STL::Vector standard call for this functionality.
+      //note it returns size_type, but we will use size_t
+      return this->size();
     };
 
     inline size_t size(void) const{
+      //note length() returns a long in NTL, which triggers issues with
+      // comparison against  
       return this->length();
     };
 
+    inline void resize(size_t n) {
+      //resize is the STL::vector standard call for this functionality
+      this->SetLength(n); //SetLength() is an NTL call
+    }
 
     //need to add comparison operators == and !=
     //note these should fail if the modulii are different!
