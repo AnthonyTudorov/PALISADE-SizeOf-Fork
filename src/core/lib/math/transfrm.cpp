@@ -30,7 +30,7 @@
 //note defining these use  NTL speedups that could be used, once we are sure BE 6 is
 //working completely
 
-//#define NTL_SPEEDUP
+#define NTL_SPEEDUP
 
 namespace lbcrypto {
 
@@ -363,9 +363,7 @@ VecType ChineseRemainderTransformFTT<IntType,VecType>::ForwardTransform(const Ve
 	}
 
 
-#if defined(NTL_SPEEDUP)
-	IntType mu(1);
-#else
+#if !defined(NTL_SPEEDUP)
 	//Precompute the Barrett mu parameter
 	IntType mu = ComputeMu<IntType>(element.GetModulus());
 #endif
@@ -393,7 +391,11 @@ VecType ChineseRemainderTransformFTT<IntType,VecType>::ForwardTransform(const Ve
 
 			for (usint i = 0; i<CycloOrder / 2; i++) {
 				rTable.SetValAtIndex(i, x);
+#if defined(NTL_SPEEDUP)
+				x = x.ModMul(rootOfUnity, modulus);
+#else
 				x = x.ModBarrettMul(rootOfUnity, modulus, mu);
+#endif
 			}
 
 			rootOfUnityTable = &(m_rootOfUnityTableByModulus[modulus] = std::move(rTable));
@@ -407,7 +409,12 @@ VecType ChineseRemainderTransformFTT<IntType,VecType>::ForwardTransform(const Ve
 
 	//Fermat Theoretic Transform (FTT)
 	for (usint i = 0; i<CycloOrder / 2; i++)
+#if defined(NTL_SPEEDUP)
+		InputToFFT[i] = element[i].ModMul((*rootOfUnityTable)[i*ringDimensionFactor], element.GetModulus());
+#else
 		InputToFFT.SetValAtIndex(i, element.GetValAtIndex(i).ModBarrettMul(rootOfUnityTable->GetValAtIndex(i*ringDimensionFactor), element.GetModulus(), mu));
+#endif
+
 
 	OpFFT = NumberTheoreticTransform<IntType,VecType>::GetInstance().ForwardTransformIterative(InputToFFT, *rootOfUnityTable, CycloOrder / 2);
 
@@ -428,9 +435,7 @@ VecType ChineseRemainderTransformFTT<IntType,VecType>::InverseTransform(const Ve
 		throw std::logic_error(errMsg);
 	}
 
-#if defined(NTL_SPEEDUP)
-	IntType mu(1);
-#else
+#if !defined(NTL_SPEEDUP)
 	//Precompute the Barrett mu parameter
 	IntType mu = ComputeMu<IntType>(element.GetModulus());
 #endif
@@ -469,7 +474,11 @@ VecType ChineseRemainderTransformFTT<IntType,VecType>::InverseTransform(const Ve
 
 			for (usint i = 0; i<CycloOrder / 2; i++) {
 				TableI.SetValAtIndex(i, x);
+#if defined(NTL_SPEEDUP)
+				x = x.ModMul(rootofUnityInverse, element.GetModulus());
+#else
 				x = x.ModBarrettMul(rootofUnityInverse, element.GetModulus(), mu);
+#endif
 			}
 
 			rootOfUnityITable = &(m_rootOfUnityInverseTableByModulus[element.GetModulus()] = std::move(TableI));
@@ -483,17 +492,18 @@ VecType ChineseRemainderTransformFTT<IntType,VecType>::InverseTransform(const Ve
 
 	VecType rInvTable(*rootOfUnityITable);
 	for (usint i = 0; i<CycloOrder / 2; i++)
+#if defined(NTL_SPEEDUP)
+		OpIFFT[i] =  OpIFFT[i].ModMul(rInvTable[i*ringDimensionFactor], element.GetModulus());
+#else
 		OpIFFT.SetValAtIndex(i, OpIFFT.GetValAtIndex(i).ModBarrettMul(rInvTable.GetValAtIndex(i*ringDimensionFactor), element.GetModulus(), mu));
-
+#endif
 	return OpIFFT;
 }
 
 template<typename IntType, typename VecType>
 void ChineseRemainderTransformFTT<IntType,VecType>::PreCompute(const IntType& rootOfUnity, const usint CycloOrder, const IntType &modulus) {
 
-#if defined(NTL_SPEEDUP)
-	IntType mu(1);
-#else
+#if !defined(NTL_SPEEDUP)
 	//Precompute the Barrett mu parameter
 	IntType mu = ComputeMu<IntType>(modulus);
 #endif
@@ -509,7 +519,11 @@ void ChineseRemainderTransformFTT<IntType,VecType>::PreCompute(const IntType& ro
 
 		for (usint i = 0; i<CycloOrder / 2; i++) {
 			Table.SetValAtIndex(i, x);
+#if defined(NTL_SPEEDUP)
+			x = x.ModMul(rootOfUnity, modulus);
+#else
 			x = x.ModBarrettMul(rootOfUnity, modulus, mu);
+#endif
 		}
 
 		this->m_rootOfUnityTableByModulus[modulus] = std::move(Table);
@@ -525,7 +539,11 @@ void ChineseRemainderTransformFTT<IntType,VecType>::PreCompute(const IntType& ro
 
 		for (usint i = 0; i<CycloOrder / 2; i++) {
 			TableI.SetValAtIndex(i, x);
+#if defined(NTL_SPEEDUP)
+			x = x.ModMul(rootOfUnityInverse, modulus);
+#else
 			x = x.ModBarrettMul(rootOfUnityInverse, modulus, mu);
+#endif
 		}
 
 		this->m_rootOfUnityInverseTableByModulus[modulus] = std::move(TableI);
@@ -549,9 +567,7 @@ void ChineseRemainderTransformFTT<IntType,VecType>::PreCompute(std::vector<IntTy
 		IntType currentRoot(rootOfUnity[i]);
 		IntType currentMod(moduliiChain[i]);
 
-#if defined(NTL_SPEEDUP)
-     	IntType mu(1);
-#else
+#if !defined(NTL_SPEEDUP)
 		//Precompute the Barrett mu parameter
 		IntType mu = ComputeMu<IntType>(currentMod);
 #endif
@@ -569,7 +585,11 @@ void ChineseRemainderTransformFTT<IntType,VecType>::PreCompute(std::vector<IntTy
 
 		for (usint i = 0; i<CycloOrder / 2; i++) {
 			rTable.SetValAtIndex(i, x);
+#if defined(NTL_SPEEDUP)
+			x = x.ModMul(currentRoot, currentMod);
+#else
 			x = x.ModBarrettMul(currentRoot, currentMod, mu);
+#endif
 		}
 
 		this->m_rootOfUnityTableByModulus[currentMod] = std::move(rTable);
@@ -584,12 +604,14 @@ void ChineseRemainderTransformFTT<IntType,VecType>::PreCompute(std::vector<IntTy
 
 		for (usint i = 0; i<CycloOrder / 2; i++) {
 			rTableI.SetValAtIndex(i, x);
+#if defined(NTL_SPEEDUP)
+			x = x.ModMul(rootOfUnityInverse, currentMod);
+#else
 			x = x.ModBarrettMul(rootOfUnityInverse, currentMod, mu);
+#endif
 		}
 
 		this->m_rootOfUnityInverseTableByModulus[currentMod] = std::move(rTableI);
-
-
 	}
 
 
@@ -1006,9 +1028,7 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 		usint r = ceil(log2(power));
 		VecType h(1, modulus);//h is a unit polynomial
 		h.SetValAtIndex(0, 1);
-#if defined(NTL_SPEEDUP)
-		IntType mu(1);
-#else
+#if !defined(NTL_SPEEDUP)
 		//Precompute the Barrett mu parameter
 		IntType mu = ComputeMu<IntType>(modulus);
 #endif
@@ -1021,6 +1041,16 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 			auto a = h * IntType(2);
 			auto b = PolynomialMultiplication(hSquare, cycloPoly);
 			//b = 2h - gh^2
+#if defined(NTL_SPEEDUP)
+			for (usint j = 0; j < b.GetLength(); j++) {
+				if (j < a.GetLength()) {
+					b[j]= a[j].ModSub(b[j], modulus);
+				}
+				else
+					b[j]= modulus.ModSub(b[j], modulus);
+			}
+
+#else
 			for (usint j = 0; j < b.GetLength(); j++) {
 				if (j < a.GetLength()) {
 					b.SetValAtIndex(j, a.GetValAtIndex(j).ModBarrettSub(b.GetValAtIndex(j), modulus, mu));
@@ -1028,7 +1058,7 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 				else
 					b.SetValAtIndex(j, modulus.ModBarrettSub(b.GetValAtIndex(j), modulus, mu));
 			}
-
+#endif
 			h = PolyMod(b, q, modulus);
 
 		}
@@ -1156,18 +1186,24 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 				// cycloOrder is prime: Reduce mod Phi_{n+1}(x)
 				// Reduction involves subtracting the coeff of x^n from all terms
 				auto coeff_n = element.GetValAtIndex(n);
-
+#if !defined(NTL_SPEEDUP)
 				//Precompute the Barrett mu parameter
 				IntType mu = ComputeMu<IntType>(modulus);
 
 				for (usint i = 0; i < n; i++) {
 					output.SetValAtIndex(i, element.GetValAtIndex(i).ModBarrettSub(coeff_n, modulus, mu));
 				}
+#else
+				for (usint i = 0; i < n; i++) {
+					output[i]= element[i].ModSub(coeff_n, modulus);
+				}
+
+#endif
 			} else if ((n+1)*2 == cycloOrder){
 				// cycloOrder is 2*prime: 2 Step reduction
 				// First reduce mod x^(n+1)+1 (=(x+1)*Phi_{2*(n+1)}(x))
 				// Subtract co-efficient of x^(i+n+1) from x^(i)
-
+#if !defined(NTL_SPEEDUP)
 				//Precompute the Barrett mu parameter
 				IntType mu = ComputeMu<IntType>(modulus);
 
@@ -1188,6 +1224,24 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 						output.SetValAtIndex(i, output.GetValAtIndex(i).ModBarrettAdd(coeff_n, modulus, mu));
 					}
 				}
+#else
+				for (usint i = 0; i < n; i++) {
+					auto coeff_i = element[i];
+					auto coeff_ip = element[i+n+1];
+					output[i]= coeff_i.ModSub(coeff_ip, modulus);
+				}
+				auto coeff_n = element[n].ModSub(element[2*n+1], modulus);
+				// Now reduce mod Phi_{2*(n+1)}(x)
+				// Similar to the prime case but with alternating signs
+				for (usint i = 0; i < n; i++) {
+					if (i%2 == 0) {
+						output[i] = output[i].ModSub(coeff_n, modulus);
+					} else {
+						output[i] = output[i].ModAdd(coeff_n, modulus);
+					}
+				}
+
+#endif
 			} else {
 
 		//precompute root of unity tables for division NTT
@@ -1229,12 +1283,20 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 		quotient.SetModulus(modulus);
 		quotient = quotient.Mod(modulus);
 
-				//Precompute the Barrett mu parameter
-				IntType mu = ComputeMu<IntType>(modulus);
+#if !defined(NTL_SPEEDUP)
+		//Precompute the Barrett mu parameter
+		IntType mu = ComputeMu<IntType>(modulus);
 
 		for (usint i = 0; i < n; i++) {
 					output.SetValAtIndex(i, element.GetValAtIndex(i).ModBarrettSub(quotient.GetValAtIndex(cycloOrder - 1 - i), modulus, mu));
-				}
+		}
+#else
+		for (usint i = 0; i < n; i++) {
+			output[i] = element[i].ModSub(quotient[cycloOrder - 1 - i], modulus);
+		}
+
+#endif
+
 			}
 		}
 

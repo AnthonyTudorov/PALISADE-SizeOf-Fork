@@ -258,7 +258,7 @@ namespace NTL{
       return(ret);
 #else //Tom P version has compile error
       //return( myZZ((ZZ)(*this)) % (ZZ)modulus) );
-      return( myZZ(this->operator%(modulus) ));
+      return( myZZ(NTL::ZZ::operator%(*this,modulus)));
 #endif
     }
 
