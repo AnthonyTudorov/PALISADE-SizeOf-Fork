@@ -303,10 +303,10 @@ void UnitTestIBE(int32_t base, usint k, usint ringDimension){
 
 	IBE pkg, sender, receiver;
 
-	auto pubElemA = pkg.Setup(ilParams, base, dug);
+	auto pubElemA = pkg.SetupPKG(ilParams, base);
 
-	EXPECT_NO_THROW(sender.Setup(ilParams, base));
-	EXPECT_NO_THROW(receiver.Setup(ilParams, base));
+	EXPECT_NO_THROW(sender.SetupNonPKG(ilParams, base));
+	EXPECT_NO_THROW(receiver.SetupNonPKG(ilParams, base));
 
 	// Secret key for the output of the circuit
 	RingMat sk(zero_alloc, m, 1);
@@ -328,9 +328,9 @@ void UnitTestIBE(int32_t base, usint k, usint ringDimension){
 	ptext.SetValues(bug.GenerateVector(ringDimension, q), COEFFICIENT);
 	ptext.SwitchFormat();
 
-	EXPECT_NO_THROW(sender.Encrypt(ilParams, pubElemA.first, u, ptext, dgg, dug, bug, &ctC0, &ctC1));
+	EXPECT_NO_THROW(sender.Encrypt(ilParams, pubElemA.first, u, ptext, dug, &ctC0, &ctC1));
 
-	EXPECT_NO_THROW(receiver.Decrypt(ilParams, sk, ctC0, ctC1, &dtext));
+	EXPECT_NO_THROW(receiver.Decrypt(sk, ctC0, ctC1, &dtext));
 
 	ptext.SwitchFormat();
 

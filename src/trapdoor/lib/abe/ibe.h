@@ -74,12 +74,10 @@ namespace lbcrypto {
 			*
 			* @param ilParams parameter set
 			* @param base is a power of two
-			* @param &dug
 			*/
-			std::pair<RingMat, RLWETrapdoorPair<Poly>> Setup(
+			std::pair<RingMat, RLWETrapdoorPair<Poly>> SetupPKG(
 				const shared_ptr<ILParams> ilParams,
-				int32_t base,
-				const DiscreteUniformGenerator &dug  // select according to uniform distribution
+				int32_t base
 			);
 			/**
 			* Setup function for all parties except the Private Key Generator (PKG)
@@ -87,16 +85,15 @@ namespace lbcrypto {
 			* @param ilParams parameter set
 			* @param base is a power of two
 			*/
-			void Setup(
+			void SetupNonPKG(
 				const shared_ptr<ILParams> ilParams,
 				int32_t base
 			);
 			/**
 			* KeyGen Function
 			*
-			* @param ilParams parameter set
-			* @param &pubA TBD
-			* @param &u TBD public element d sampled as dug
+			* @param &pubA public Matrix A
+			* @param &pubElemD public element d sampled as dug
 			* @param &secTA secret component of trapdoor
 			* @param &dgg to generate error terms (Gaussian)
 			* @param *sk secret key
@@ -112,16 +109,12 @@ namespace lbcrypto {
 			/**
 			* KeyGenOffline Function
 			*
-			* @param ilParams parameter set
-			* @param &pubA TBD
-			* @param &u TBD public element d sampled as dug
 			* @param &secTA secret component of trapdoor
 			* @param &dgg to generate error terms (Gaussian)
-			* @param *sk secret key
+			*
+			* @return perturbation vector
 			*/
 			shared_ptr<RingMat> KeyGenOffline(
-				const RingMat &pubA,
-				const Poly &pubElemD,
 				const RLWETrapdoorPair<Poly> &secTA,
 				DiscreteGaussianGenerator &dgg
 			);
@@ -129,11 +122,11 @@ namespace lbcrypto {
 			/**
 			* KeyGenOnline Function
 			*
-			* @param ilParams parameter set
-			* @param &pubA TBD
-			* @param &u TBD public element d sampled as dug
+			* @param &pubA public Matrix A
+			* @param &pubElemD public element d sampled as dug
 			* @param &secTA secret component of trapdoor
 			* @param &dgg to generate error terms (Gaussian)
+			* @param perturbationVector pre-computed perturbation vector
 			* @param *sk secret key
 			*/
 			void KeyGenOnline(
@@ -149,36 +142,30 @@ namespace lbcrypto {
 			*
 			* @param ilParams parameter set
 			* @param &pubA public element
-			* @param &u TBD public element d sampled as dug
+			* @param &pubElemD  public element d sampled as dug
 			* @param &ptext plaintext
-			* @param &dgg to generate error terms (Gaussian)
 			* @param &dug select according to uniform distribution
-			* @param &bug select according to uniform distribution binary
 			* @param *ctC0 ciphertext C0
 			* @param *ctC1 ciphertext C1
 			*/
 			void Encrypt(
 				const shared_ptr<ILParams> ilParams,
 				const RingMat &pubA,
-				const Poly &u,
+				const Poly &pubElemD,
 				const Poly &ptext,
-				const DiscreteGaussianGenerator &dgg, // to generate error terms (Gaussian)
 				DiscreteUniformGenerator &dug,  // select according to uniform distribution
-				const BinaryUniformGenerator &bug,    // select according to uniform distribution binary
 				RingMat *ctC0,
 				Poly *ctC1
 			);
 			/**
 			* Decrypt Function
 			*
-			* @param ilParams parameter set
 			* @param &sk secret key
 			* @param &ctC0 c0
 			* @param &ctC1 c1
-			* *dtext decrypted ciphertext
+			* @param *dtext decrypted ciphertext
 			*/
 			void Decrypt(
-				const shared_ptr<ILParams> ilParams,
 				const RingMat &sk,
 				const RingMat &ctC0,
 				const Poly &ctC1,

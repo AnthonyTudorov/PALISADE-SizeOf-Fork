@@ -52,15 +52,7 @@ int IBE_Test(int iter, int32_t base, usint ringDimension, usint k/*, BigInteger 
 
 {
 
-	/*usint n = ringDimension*2;
-
-    q = lbcrypto::FirstPrime<BigInteger>(k,n);
-	rootOfUnity  = RootOfUnity(n, q);*/
-
-
-//	usint ringDimension = 1024;
 	usint n = ringDimension*2;
-//	usint k = 31;
 
 	BigInteger q = BigInteger::ONE << (k-1);
 	q = lbcrypto::FirstPrime<BigInteger>(k,n);
@@ -94,11 +86,11 @@ int IBE_Test(int iter, int32_t base, usint ringDimension, usint k/*, BigInteger 
 	IBE pkg, sender, receiver;
 
 	start = currentDateTime();
-	auto pubElemA = pkg.Setup(ilParams, base, dug);
+	auto pubElemA = pkg.SetupPKG(ilParams, base);
 	finish = currentDateTime();
 	std::cout << "Setup time : " << "\t" << (finish - start) << " ms" << std::endl;
-	sender.Setup(ilParams, base);
-	receiver.Setup(ilParams, base);
+	sender.SetupNonPKG(ilParams, base);
+	receiver.SetupNonPKG(ilParams, base);
 	// Secret key for the output of the circuit
 	RingMat sk(zero_alloc, m, 1);
 	// plain text in $R_2$
@@ -118,7 +110,7 @@ int IBE_Test(int iter, int32_t base, usint ringDimension, usint k/*, BigInteger 
 		shared_ptr<RingMat> perturbationVector;
 		if(offline){
 			start = currentDateTime();
-			perturbationVector = pkg.KeyGenOffline(pubElemA.first, u, pubElemA.second, dgg);
+			perturbationVector = pkg.KeyGenOffline(pubElemA.second, dgg);
 			finish = currentDateTime();
 			avg_keygen_offline += (finish - start);
 		}
@@ -128,7 +120,7 @@ int IBE_Test(int iter, int32_t base, usint ringDimension, usint k/*, BigInteger 
 		if(!offline){
 			pkg.KeyGen(pubElemA.first, u, pubElemA.second, dgg, &sk);}
 		else{
-			pkg.KeyGenOnline(pubElemA.first, u, pubElemA.second, dgg, perturbationVector, &sk); 
+			pkg.KeyGenOnline(pubElemA.first, u, pubElemA.second, dgg, perturbationVector, &sk);
 			
 		}
 		
@@ -141,12 +133,12 @@ int IBE_Test(int iter, int32_t base, usint ringDimension, usint k/*, BigInteger 
 
 
 		start = currentDateTime();
-		sender.Encrypt(ilParams, pubElemA.first, u, ptext, dgg, dug, bug, &ctC0, &ctC1);
+		sender.Encrypt(ilParams, pubElemA.first, u, ptext, dug, &ctC0, &ctC1);
 		finish = currentDateTime();
 		avg_enc += (finish - start);
 
 		start = currentDateTime();
-		receiver.Decrypt(ilParams, sk, ctC0, ctC1, &dtext);
+		receiver.Decrypt(sk, ctC0, ctC1, &dtext);
 		finish = currentDateTime();
 		avg_dec += (finish - start);
 

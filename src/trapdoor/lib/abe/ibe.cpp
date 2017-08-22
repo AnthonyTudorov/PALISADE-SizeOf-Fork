@@ -42,10 +42,9 @@ namespace lbcrypto {
 	 * generates master public key (MPK) and master secret key
 	 * m_ell is the number of attributes
 	 */
-	std::pair<RingMat, RLWETrapdoorPair<Poly>> IBE::Setup(
+	std::pair<RingMat, RLWETrapdoorPair<Poly>> IBE::SetupPKG(
 		const shared_ptr<ILParams> ilParams,
-		int32_t base,
-		const DiscreteUniformGenerator &dug  // select according to uniform distribution
+		int32_t base
 	)
 	{
 		m_N = ilParams->GetCyclotomicOrder() >> 1;
@@ -66,7 +65,7 @@ namespace lbcrypto {
 	 * Initialize private members of the object such as modulus, cyclotomic order, etc.
 	 * m_ell is the number of attributes
 	 */
-	void IBE::Setup(
+	void IBE::SetupNonPKG(
 		const shared_ptr<ILParams> ilParams,
 		int32_t base
 	)
@@ -110,20 +109,14 @@ namespace lbcrypto {
 	it generates the corresponding secret key: skA for A and skB for B */
 	/* Note that only PKG can call this fcuntion as it needs the trapdoor T_A */
 	shared_ptr<RingMat> IBE::KeyGenOffline(
-		const RingMat &pubA,                         // Public parameter $B \in R_q^{ell \times k}$
-		const Poly &pubElemD,                  	  // public key of the user $u \in R_q$
 		const RLWETrapdoorPair<Poly> &secTA,  // Secret parameter $T_H \in R_q^{1 \times k} \times R_q^{1 \times k}$
 		DiscreteGaussianGenerator &dgg           // to generate error terms (Gaussian)
 	)
 	{
-	//	double c = (m_base + 1) * SIGMA;
-	//	double s = SPECTRAL_BOUND(m_N, m_m - 2, m_base);
+
 		DiscreteGaussianGenerator dggLargeSigma;
-/*
-		if (sqrt(s * s - c * c) <= 3e5)
-			dggLargeSigma = Poly::DggType(sqrt(s * s - c * c));
-		else*/
-			dggLargeSigma = dgg;
+
+		dggLargeSigma = dgg;
 
 		shared_ptr<RingMat> pertubationVector =  RLWETrapdoorUtility<Poly>::GaussSampOffline(m_N, m_k, secTA, dgg, dggLargeSigma, m_base);
 
@@ -154,9 +147,7 @@ namespace lbcrypto {
 		const RingMat &pubA,
 		const Poly &pubElemD,
 		const Poly &ptext,
-		const DiscreteGaussianGenerator &dgg, // to generate error terms (Gaussian)
 		DiscreteUniformGenerator &dug,  // select according to uniform distribution
-		const BinaryUniformGenerator &bug,    // select according to uniform distribution binary
 		RingMat *ctC0,
 		Poly *ctC1
 	)
@@ -190,7 +181,6 @@ namespace lbcrypto {
 	 * and yields the decrypted plaintext in COEFFICIENT form
 	 */
 	void IBE::Decrypt(
-		const shared_ptr<ILParams> ilParams,
 		const RingMat &sk,
 		const RingMat &ctC0,
 		const Poly &ctC1,

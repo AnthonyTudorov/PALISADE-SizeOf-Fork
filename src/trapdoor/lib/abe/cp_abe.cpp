@@ -224,15 +224,8 @@ namespace lbcrypto {
 		DiscreteGaussianGenerator &dgg         	// to generate error terms (Gaussian)
 	)
 	{
-
-//		double c = (m_base + 1) * SIGMA;
-//		double s = SPECTRAL_BOUND(m_N, m_m - 2, m_base);
 		DiscreteGaussianGenerator dggLargeSigma;
-
-	/*	if (sqrt(s * s - c * c) <= 3e5)
-			dggLargeSigma = Poly::DggType(sqrt(s * s - c * c));
-		else*/
-			dggLargeSigma = dgg;
+		dggLargeSigma = dgg;
 
 		return RLWETrapdoorUtility<Poly>::GaussSampOffline(m_N, m_k, secTA, dgg, dggLargeSigma, m_base);
 	}
