@@ -108,9 +108,8 @@ public:
 	 * GetElement
 	 * @return the Polynomial that the element was encoded into
 	 */
-	Poly& GetElement() {
-		return encodedVector;
-	}
+	template <typename Element>
+	Element& GetElement();
 
 	/**
 	 * GetEncodedElement encodes, if necessary
@@ -124,23 +123,23 @@ public:
 		return encodedVector;
 	}
 
-	/**
-	 * Interface for the operation of converting from current plaintext encoding to Poly.
-	 *
-	 * @param  modulus - used for encoding.
-	 * @param  *ilVector encoded plaintext - output argument.
-	 * @param  start_from - location to start from.  Defaults to 0.
-	 * @param  length - length of data to encode.  Defaults to 0.
-	 */
-	virtual bool Encode(const BigInteger &modulus, Poly *ilVector, size_t start_from=0, size_t length=0) const = 0;
-
-	/**
-	 * Interface for the operation of converting from Poly to current plaintext encoding.
-	 *
-	 * @param  modulus - used for encoding.
-	 * @param  *ilVector encoded plaintext - input argument.
-	 */
-	virtual bool Decode(const BigInteger &modulus, Poly *ilVector) = 0;
+//	/**
+//	 * Interface for the operation of converting from current plaintext encoding to Poly.
+//	 *
+//	 * @param  modulus - used for encoding.
+//	 * @param  *ilVector encoded plaintext - output argument.
+//	 * @param  start_from - location to start from.  Defaults to 0.
+//	 * @param  length - length of data to encode.  Defaults to 0.
+//	 */
+//	virtual bool Encode(const BigInteger &modulus, Poly *ilVector, size_t start_from=0, size_t length=0) = 0;
+//
+//	/**
+//	 * Interface for the operation of converting from Poly to current plaintext encoding.
+//	 *
+//	 * @param  modulus - used for encoding.
+//	 * @param  *ilVector encoded plaintext - input argument.
+//	 */
+//	virtual bool Decode(const BigInteger &modulus, Poly *ilVector) = 0;
 
 	/**
 	 * Get method to return the length of plaintext
@@ -172,13 +171,19 @@ public:
 	virtual bool CompareTo(const Plaintext& other) const = 0;
 
 	/**
-	 * operator== for plaintexts.  This method makes sure the plaintext are of the same type.
+	 * operator== for plaintexts.  This method makes sure the plaintexts are of the same type.
 	 *
 	 * @param other - the other plaintext to compare to.
 	 * @return whether the two plaintext are the same.
 	 */
 	bool operator==(const Plaintext& other) const {
 		if( typeid(this) != typeid(&other) )
+			return false;
+
+		if( this->typeFlag != other.typeFlag )
+			return false;
+
+		if( this->encodingParams != other.encodingParams )
 			return false;
 
 		return CompareTo(other);
@@ -223,6 +228,25 @@ inline std::ostream& operator<<(std::ostream& out, const Plaintext& item)
 	item.PrintValue(out);
 	return out;
 }
+
+/**
+ * GetElement
+ * @return the Polynomial that the element was encoded into
+ */
+template <>
+inline Poly& Plaintext::GetElement<Poly>() {
+	return encodedVector;
+}
+
+/**
+ * GetElement
+ * @return the DCRTPolynomial that the element was encoded into
+ */
+template <>
+inline DCRTPoly& Plaintext::GetElement<DCRTPoly>() {
+	return encodedDCRTVector;
+}
+
 
 
 }

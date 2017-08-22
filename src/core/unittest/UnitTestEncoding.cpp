@@ -68,8 +68,8 @@ TEST_F(UTEncoding,scalar_encoding) {
 	shared_ptr<EncodingParams> ep( new EncodingParams(128) );
 	ScalarEncoding	se(lp, ep, value);
 	se.Encode();
-	EXPECT_EQ( se.GetElement().GetValAtIndex(0), value );
-	EXPECT_EQ( se.GetElement().GetValAtIndex(1), 0 );
+	EXPECT_EQ( se.GetElement<Poly>().GetValAtIndex(0), value );
+	EXPECT_EQ( se.GetElement<Poly>().GetValAtIndex(1), 0 );
 
 	se.Decode();
 	EXPECT_EQ( se.GetScalarValue(), value ) << "unsigned";

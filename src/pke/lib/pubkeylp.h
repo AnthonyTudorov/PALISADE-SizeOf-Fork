@@ -976,7 +976,7 @@ namespace lbcrypto {
 			 * @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 			 * @param *ciphertext ciphertext which results from encryption.
 			 */
-			virtual shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, Poly &plaintext, bool doEncryption = true) const = 0;
+			virtual shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, const Element &plaintext) const = 0;
 
 			/**
 			 * Method for encrypting plaintex using LBC
@@ -986,7 +986,7 @@ namespace lbcrypto {
 			 * @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 			 * @param *ciphertext ciphertext which results from encryption.
 			 */
-			virtual shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey, Poly &plaintext, bool doEncryption = true) const = 0;
+			virtual shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey, const Element &plaintext) const = 0;
 
 			/**
 			 * Method for decrypting plaintext using LBC
@@ -1352,7 +1352,7 @@ namespace lbcrypto {
 
 			shared_ptr<LPPublicKey<Element>> pk(new LPPublicKey<Element>(cc, kID));
 
-			shared_ptr<Ciphertext<Element>>  embeddedPlaintext = cc->GetEncryptionAlgorithm()->Encrypt(pk, encodedPlaintext, false);
+			shared_ptr<Ciphertext<Element>>  embeddedPlaintext = cc->GetEncryptionAlgorithm()->Encrypt(pk, encodedPlaintext);
 
 			auto ans = EvalAdd(ciphertext, embeddedPlaintext);
 
@@ -1895,11 +1895,9 @@ namespace lbcrypto {
 		//
 
 		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
-			Poly &plaintext, bool doEncryption = true) const {
+			const Element &plaintext) const {
 				if(this->m_algorithmEncryption) {
-					auto ct = this->m_algorithmEncryption->Encrypt(publicKey,plaintext,doEncryption);
-if( ct->GetKeyTag() == "" ) *((volatile char*)0) = 'x'; // FIXME this is a placeholder to discover errors; delete it!
-					return ct;
+					return this->m_algorithmEncryption->Encrypt(publicKey,plaintext);
 				}
 				else {
 					throw std::logic_error("Encrypt operation has not been enabled");
@@ -1907,10 +1905,9 @@ if( ct->GetKeyTag() == "" ) *((volatile char*)0) = 'x'; // FIXME this is a place
 		}
 
 		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
-			Poly &plaintext, bool doEncryption = true) const {
+			const Element &plaintext) const {
 				if(this->m_algorithmEncryption) {
-					auto ct = this->m_algorithmEncryption->Encrypt(privateKey,plaintext,doEncryption);
-					return ct;
+					return this->m_algorithmEncryption->Encrypt(privateKey,plaintext);
 				}
 				else {
 					throw std::logic_error("Encrypt operation has not been enabled");

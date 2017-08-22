@@ -95,35 +95,35 @@ public:
 
 	bool Decode() { return ptxt->Decode(); }
 
-	/**
-	 * Interface for the operation of converting from current plaintext encoding to Poly.
-	 *
-	 * @param  modulus - used for encoding.
-	 * @param  *ilVector encoded plaintext - output argument.
-	 * @param  start_from - location to start from.  Defaults to 0.
-	 * @param  length - length of data to encode.  Defaults to 0.
-	 */
-	bool Encode(const BigInteger &modulus, Poly *ilVector, size_t start_from=0, size_t length=0) {
-		shared_ptr<EncodingParams> ep( new EncodingParams(modulus) );
-		this->ptxt.reset( new StringEncoding(ilVector->GetParams(), ep, str.substr(0, ilVector->GetRingDimension())) );
-		this->Encode();
-		*ilVector = ptxt->GetEncodedElement();
-		return true;
-	}
-
-	/**
-	 * Interface for the operation of converting from Poly to current plaintext encoding.
-	 *
-	 * @param  modulus - used for encoding.
-	 * @param  *ilVector encoded plaintext - input argument.
-	 */
-	bool Decode(const BigInteger &modulus, Poly *ilVector) {
-		shared_ptr<EncodingParams> ep( new EncodingParams(modulus) );
-		this->ptxt.reset( new StringEncoding(ilVector->GetParams(), ep) );
-		this->ptxt->GetElement() = *ilVector;
-		this->Decode();
-		return true;
-	}
+//	/**
+//	 * Interface for the operation of converting from current plaintext encoding to Poly.
+//	 *
+//	 * @param  modulus - used for encoding.
+//	 * @param  *ilVector encoded plaintext - output argument.
+//	 * @param  start_from - location to start from.  Defaults to 0.
+//	 * @param  length - length of data to encode.  Defaults to 0.
+//	 */
+//	bool Encode(const BigInteger &modulus, Poly *ilVector, size_t start_from=0, size_t length=0) {
+//		shared_ptr<EncodingParams> ep( new EncodingParams(modulus) );
+//		this->ptxt.reset( new StringEncoding(ilVector->GetParams(), ep, str.substr(0, ilVector->GetRingDimension())) );
+//		this->Encode();
+//		*ilVector = ptxt->GetEncodedElement();
+//		return true;
+//	}
+//
+//	/**
+//	 * Interface for the operation of converting from Poly to current plaintext encoding.
+//	 *
+//	 * @param  modulus - used for encoding.
+//	 * @param  *ilVector encoded plaintext - input argument.
+//	 */
+//	bool Decode(const BigInteger &modulus, Poly *ilVector) {
+//		shared_ptr<EncodingParams> ep( new EncodingParams(modulus) );
+//		this->ptxt.reset( new StringEncoding(ilVector->GetParams(), ep) );
+//		this->ptxt->GetElement() = *ilVector;
+//		this->Decode();
+//		return true;
+//	}
 
 	/**
 	 * GetEncodingType

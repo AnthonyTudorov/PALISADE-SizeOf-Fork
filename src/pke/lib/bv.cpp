@@ -143,9 +143,8 @@ namespace lbcrypto {
 
 	template <class Element>
 	shared_ptr<Ciphertext<Element>> LPAlgorithmBV<Element>::Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
-		Poly &ptxt, bool doEncryption) const
+		const Element &ptxt) const
 	{
-
 		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(publicKey->GetCryptoParameters());
 
 		shared_ptr<Ciphertext<Element>> ciphertext(new Ciphertext<Element>(publicKey));
@@ -156,60 +155,42 @@ namespace lbcrypto {
 
 		typename Element::TugType tug;
 
-		Element plaintext(ptxt, elementParams);
-
+		Element plaintext = ptxt;
 		plaintext.SwitchFormat();
 
 		std::vector<Element> cVector;
 
-		if (doEncryption) {
+		const Element &a = publicKey->GetPublicElements().at(0);
+		const Element &b = publicKey->GetPublicElements().at(1);
 
-			const Element &a = publicKey->GetPublicElements().at(0);
-			const Element &b = publicKey->GetPublicElements().at(1);
+		Element v;
 
-			Element v;
-
-			//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
-			if (cryptoParams->GetMode() == RLWE)
-				v = Element(dgg, elementParams, Format::EVALUATION);
-			else
-				v = Element(tug, elementParams, Format::EVALUATION);
-
-			Element e0(dgg, elementParams, Format::EVALUATION);
-			Element e1(dgg, elementParams, Format::EVALUATION);
-
-			Element c0(b*v + p*e0 + plaintext);
-
-			Element c1(a*v + p*e1);
-
-			cVector.push_back(std::move(c0));
-
-			cVector.push_back(std::move(c1));
-
-			ciphertext->SetElements(std::move(cVector));
-
-		}
+		//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
+		if (cryptoParams->GetMode() == RLWE)
+			v = Element(dgg, elementParams, Format::EVALUATION);
 		else
-		{
+			v = Element(tug, elementParams, Format::EVALUATION);
 
-			Element c0(plaintext);
+		Element e0(dgg, elementParams, Format::EVALUATION);
+		Element e1(dgg, elementParams, Format::EVALUATION);
 
-			Element c1(elementParams,Format::EVALUATION,true);
+		Element c0(b*v + p*e0 + plaintext);
 
-			cVector.push_back(std::move(c0));
+		Element c1(a*v + p*e1);
 
-			cVector.push_back(std::move(c1));
+		cVector.push_back(std::move(c0));
 
-			ciphertext->SetElements(std::move(cVector));
+		cVector.push_back(std::move(c1));
 
-		}
+		ciphertext->SetElements(std::move(cVector));
+
 
 		return ciphertext;
 	}
 
 	template <class Element>
 	shared_ptr<Ciphertext<Element>> LPAlgorithmBV<Element>::Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
-		Poly &ptxt, bool doEncryption) const
+		const Element &ptxt) const
 	{
 		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(privateKey->GetCryptoParameters());
 
@@ -221,40 +202,22 @@ namespace lbcrypto {
 
 		typename Element::DugType dug;
 
-		Element plaintext(ptxt, elementParams);
-
+		Element plaintext = ptxt;
 		plaintext.SwitchFormat();
 
 		std::vector<Element> cVector;
 
-		if (doEncryption) {
-			Element a(dug, elementParams, Format::EVALUATION);
-			const Element &s = privateKey->GetPrivateElement();
-			Element e(dgg, elementParams, Format::EVALUATION);
+		Element a(dug, elementParams, Format::EVALUATION);
+		const Element &s = privateKey->GetPrivateElement();
+		Element e(dgg, elementParams, Format::EVALUATION);
 
-			Element c0(a*s + p*e + plaintext);
-			Element c1(a);
+		Element c0(a*s + p*e + plaintext);
+		Element c1(a);
 
-			cVector.push_back(std::move(c0));
-			cVector.push_back(std::move(c1));
+		cVector.push_back(std::move(c0));
+		cVector.push_back(std::move(c1));
 
-			ciphertext->SetElements(std::move(cVector));
-
-		}
-		else
-		{
-
-			Element c0(plaintext);
-
-			Element c1(elementParams,Format::EVALUATION,true);
-
-			cVector.push_back(std::move(c0));
-
-			cVector.push_back(std::move(c1));
-
-			ciphertext->SetElements(std::move(cVector));
-
-		}
+		ciphertext->SetElements(std::move(cVector));
 
 		return ciphertext;
 	}
