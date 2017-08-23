@@ -130,7 +130,7 @@ UnitTestReEncrypt(shared_ptr<CryptoContext<Element>> cc, bool publicVersion) {
 }
 
 TEST(UTPRE, LTV_Poly_ReEncrypt_pub) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementLTV(M4096, PTM);
+	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementLTV(4096, PTM);
 	UnitTestReEncrypt<Poly>(cc, true);
 }
 
