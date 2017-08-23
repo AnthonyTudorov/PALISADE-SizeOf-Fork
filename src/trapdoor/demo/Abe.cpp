@@ -535,7 +535,7 @@ int KPABE_ANDGateTest(usint iter)
 	if(failure == 0)
 		std::cout << "Encryption is successful after " << iter << " iterations!\n";
 
-	delete x;
+	delete[] x;
 	return 0;
 }
 
