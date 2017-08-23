@@ -98,7 +98,7 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
-	for (usint n = 1024; n < 2048; n = 2 * n)
+	for (usint n = 256; n < 2048; n = 2 * n)
 	{
 		errorflag = CONJOBF(dbg_flag, n_evals, n);
 		if (errorflag)
@@ -138,7 +138,7 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 	//BigInteger rootOfUnity("7629104920968175");
 
 	usint chunkSize = 1;
-	usint base = 1<<18;
+	usint base = 1<<20;
 
 	//Generate the test pattern
 	std::string inputPattern = "1?10";
@@ -230,7 +230,7 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 
 	DEBUG("Obfuscation Execution started");
 	TIC(t1);
-	algorithm.Obfuscate(clearPattern, dgg, tug, &obfuscatedPattern);
+	algorithm.Obfuscate(clearPattern, dgg, tug, &obfuscatedPattern, false);
 	timeObf = TOC(t1);
 	PROFILELOG("Obfuscation time: " << "\t" << timeObf << " ms");
 

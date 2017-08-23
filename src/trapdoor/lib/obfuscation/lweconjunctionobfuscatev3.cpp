@@ -429,7 +429,8 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 				const ClearLWEConjunctionPattern<Element> &clearPattern,
 				typename Element::DggType &dgg,
 				typename Element::TugType &tug,
-				ObfuscatedLWEConjunctionPattern<Element> *obfuscatedPattern) const {
+				ObfuscatedLWEConjunctionPattern<Element> *obfuscatedPattern,
+				bool optimized) const {
 
 	TimeVar t1; // for TIC TOC
 	bool dbg_flag = 0;
@@ -456,7 +457,11 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 	else
 		dggLargeSigma = dgg;
 
-	typename Element::DggType dggEncoding(k*sqrt(n)*SIGMA);
+	typename Element::DggType dggEncoding;
+	if (optimized)	
+		dggEncoding = typename Element::DggType(k*sqrt(n)*SIGMA);
+	else
+		dggEncoding = typename Element::DggType(k*SIGMA*6*sqrt(n)*SIGMA);
 
 	const std::string patternString = clearPattern.GetPatternString();
 
@@ -507,6 +512,8 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 		vector<Element> sVector;
 		vector<Element> rVector;
 
+		Element elems1, elemr1;
+
 		//cout << "before entering the loop " << endl;
 
 		for (usint k=0; k < chunkExponent; k++) {
@@ -519,7 +526,10 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 			// otherwise use an existing one that has already been created
 			if ((k & chunkMask)==0) {
 				//cout << "entered the non-mask condition " << endl;
-				Element elems1(tug,params,COEFFICIENT);
+				if (optimized)
+					elems1 = Element(tug,params,COEFFICIENT);
+				else
+					elems1 = Element(dgg,params,COEFFICIENT);
 				//Convert to Evaluation representation
 				elems1.SwitchFormat();
 				sVector.push_back(elems1);
@@ -531,7 +541,10 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 				sVector.push_back(elems1);
 			}
 			
-			Element elemr1(tug,params,COEFFICIENT);
+			if (optimized)
+				elemr1 = Element(tug,params,COEFFICIENT);
+			else
+				elemr1 = Element(dgg,params,COEFFICIENT);
 			//Convert to Evaluation representation
 			elemr1.SwitchFormat();
 			rVector.push_back(elemr1);
@@ -597,7 +610,12 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 
 	//std::cout << "encode started for L" << std::endl;
 
-	Element	elemrl1(tug,params,COEFFICIENT);
+	Element elemrl1;
+
+	if (optimized)
+		elemrl1 = Element(tug,params,COEFFICIENT);
+	else
+		elemrl1 = Element(dgg,params,COEFFICIENT);
 	//Convert to Evaluation representation
 	elemrl1.SwitchFormat();
 
