@@ -365,7 +365,7 @@ public:
 	*/
 	shared_ptr<Ciphertext<Element>> EvalMultAndRelinearize(const shared_ptr<Ciphertext<Element>> ciphertext1,
 		const shared_ptr<Ciphertext<Element>> ciphertext2,
-		const shared_ptr<vector<LPEvalKey<Element>>> ek) const {
+		const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> ek) const {
 		std::string errMsg = "LPAlgorithmStSt::EvalMultAndRelinearize is not implemented for the Stehle-Steinfeld Scheme.";
 		throw std::runtime_error(errMsg);
 	}

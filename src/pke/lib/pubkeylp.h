@@ -2254,7 +2254,7 @@ namespace lbcrypto {
 				if(this->m_algorithmSHE)
 					return this->m_algorithmSHE->EvalMultAndRelinearize(ct1, ct2, ek);
 				else {
-					throw std::logic_error("EvalMultKeyGen operation has not been enabled");
+					throw std::logic_error("EvalMultAndRelinearize operation has not been enabled");
 				}
 			;
 		}

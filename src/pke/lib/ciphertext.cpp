@@ -36,6 +36,8 @@ bool Ciphertext<Element>::Serialize(Serialized* serObj) const {
 		return false;
 
 	serObj->AddMember("Object", "Ciphertext", serObj->GetAllocator());
+	serObj->AddMember("IsEncrypted", m_isEncrypted ? std::to_string(1) : std::to_string(0), serObj->GetAllocator());
+	serObj->AddMember("Depth", std::to_string(m_depth), serObj->GetAllocator());
 	SerializeVector("Elements", Element::GetElementName(), this->m_elements, serObj);
 
 	return true;
@@ -50,6 +52,16 @@ bool Ciphertext<Element>::Deserialize(const Serialized& serObj) {
 	Serialized::ConstMemberIterator mIter = serObj.FindMember("Object");
 	if( mIter == serObj.MemberEnd() || string(mIter->value.GetString()) != "Ciphertext" )
 		return false;
+
+	mIter = serObj.FindMember("IsEncrypted");
+	if( mIter == serObj.MemberEnd() )
+		return false;
+	m_isEncrypted = mIter->value.GetString() == string("1") ? true : false;
+
+	mIter = serObj.FindMember("Depth");
+	if( mIter == serObj.MemberEnd() )
+		return false;
+	m_depth = std::stoul(mIter->value.GetString());
 
 	mIter = serObj.FindMember("Elements");
 	if( mIter == serObj.MemberEnd() )
