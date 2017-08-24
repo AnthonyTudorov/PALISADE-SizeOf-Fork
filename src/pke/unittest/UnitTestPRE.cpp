@@ -152,8 +152,8 @@ UnitTestReEncrypt(shared_ptr<CryptoContext<Element>> cc, bool publicVersion) {
 	EXPECT_EQ(ptIntProd,reIntProd) << "EvalMult of re-encrypted int vector";
 }
 
-TEST(UTPRE, LTV_Poly_ReEncrypt_pub) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementLTV(4096, PTM);
+TEST_F(UTPRE, LTV_Poly_ReEncrypt_pub) {
+	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementLTV(8192, PTM);
 	UnitTestReEncrypt<Poly>(cc, true);
 }
 

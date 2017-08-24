@@ -2074,6 +2074,17 @@ if( ct->GetKeyTag() == "" ) *((volatile char*)0) = 'x'; // FIXME this is a place
 			}
 		}
 
+		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
+			const shared_ptr<Ciphertext<Element>> ciphertext2) const {
+
+			if (this->m_algorithmSHE) {
+				auto ct = this->m_algorithmSHE->EvalMult(ciphertext1, ciphertext2);
+				return ct;
+			} else {
+				throw std::logic_error("EvalMult operation has not been enabled");
+			}
+		}
+
 		shared_ptr<Ciphertext<Element>> EvalMultPlain(const shared_ptr<Ciphertext<Element>> ciphertext,
 			const shared_ptr<Ciphertext<Element>> plaintext) const {
 
@@ -2081,13 +2092,13 @@ if( ct->GetKeyTag() == "" ) *((volatile char*)0) = 'x'; // FIXME this is a place
 				auto ct = this->m_algorithmSHE->EvalMultPlain(ciphertext, plaintext);
 				return ct;
 			} else {
-				throw std::logic_error("EvalMult operation has not been enabled");
+				throw std::logic_error("EvalMultPlain operation has not been enabled");
 			}
 		}
 
 		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
-			const shared_ptr<Ciphertext<Element>> ciphertext2,
-			const shared_ptr<LPEvalKey<Element>> evalKey) const {
+				const shared_ptr<Ciphertext<Element>> ciphertext2,
+				const shared_ptr<LPEvalKey<Element>> evalKey) const {
 
 			if (this->m_algorithmSHE) {
 				auto ct = this->m_algorithmSHE->EvalMult(ciphertext1, ciphertext2, evalKey);
@@ -2103,7 +2114,7 @@ if( ct->GetKeyTag() == "" ) *((volatile char*)0) = 'x'; // FIXME this is a place
 				return this->m_algorithmSHE->EvalMultMany(cipherTextList, evalKeys);
 			}
 			else {
-				throw std::logic_error("EvalMult operation has not been enabled");
+				throw std::logic_error("EvalMultMany operation has not been enabled");
 			}
 		}
 

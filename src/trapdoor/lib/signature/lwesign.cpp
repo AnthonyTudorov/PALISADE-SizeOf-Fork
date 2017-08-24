@@ -196,7 +196,7 @@ namespace lbcrypto {
 			BytePlaintextEncoding seed_in = plainText;
 			char seed_bits;
 			while (seed_in.size() < n) {
-				BytePlaintextEncoding rand = util.Hash(seed_in, SHA_256);
+				BytePlaintextEncoding rand = HashUtil::Hash(seed_in, SHA_256);
 				seed_bits = (seed >> 24) & 0xFF;
 				rand.push_back(seed_bits);
 				seed_bits = (seed >> 16) & 0xFF;
