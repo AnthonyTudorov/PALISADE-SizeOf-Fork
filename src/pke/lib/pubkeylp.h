@@ -2319,9 +2319,7 @@ if( ct->GetKeyTag() == "" ) *((volatile char*)0) = 'x'; // FIXME this is a place
 				else {
 					throw std::logic_error("EvalMultAndRelinearize operation has not been enabled");
 				}
-			;
 		}
-
 
 		/////////////////////////////////////////
 		// the functions below are wrappers for things in LPFHEAlgorithm (FHE)

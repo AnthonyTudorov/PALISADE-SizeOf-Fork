@@ -87,11 +87,6 @@ namespace lbcrypto {
 			return ct;
 		}
 
-		shared_ptr<Ciphertext<Element>> CloneEmpty() const {
-			shared_ptr<Ciphertext<Element>> ct( new Ciphertext<Element>(this->GetCryptoContext(), this->GetKeyTag()) );
-			return ct;
-		}
-
 		/**
 		* Destructor
 		*/
