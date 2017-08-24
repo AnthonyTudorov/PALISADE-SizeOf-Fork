@@ -35,7 +35,6 @@
 #include "kp_abe.h"
 
 namespace lbcrypto {
-#ifdef OUT
 	/*
 	 * Input: base
 	 * Input: vector of (k+2) elements of $R_q$
@@ -115,7 +114,7 @@ namespace lbcrypto {
 		psi->SwitchFormat();
 		return 0;
 	}
-#endif
+
 	/*
 	 * This is a setup function for Private Key Generator (PKG);
 	 * generates master public key (MPK) and master secret key
