@@ -772,7 +772,7 @@ public:
 		bool doEncryption = true)
 	{
 
-		auto zeroAlloc = [=]() { return make_unique<RationalCiphertext<Element>>(CryptoContextFactory<Element>::GetContextForPointer(this), true); };
+		auto zeroAlloc = [=]() { return lbcrypto::make_unique<RationalCiphertext<Element>>(CryptoContextFactory<Element>::GetContextForPointer(this), true); };
 
 		shared_ptr<Matrix<RationalCiphertext<Element>>> cipherResults(new Matrix<RationalCiphertext<Element>>
 			(zeroAlloc, plaintext.GetRows(), plaintext.GetCols()));
@@ -816,7 +816,7 @@ public:
 		bool doEncryption = true)
 	{
 
-		auto zeroAlloc = [=]() { return make_unique<RationalCiphertext<Element>>(CryptoContextFactory<Element>::GetContextForPointer(this), true); };
+		auto zeroAlloc = [=]() { return lbcrypto::make_unique<RationalCiphertext<Element>>(CryptoContextFactory<Element>::GetContextForPointer(this), true); };
 
 		shared_ptr<Matrix<RationalCiphertext<Element>>> cipherResults(new Matrix<RationalCiphertext<Element>>
 			(zeroAlloc, plaintext.GetRows(), plaintext.GetCols()));
