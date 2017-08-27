@@ -28,7 +28,6 @@
 #include <vector>
 
 #include "palisade.h"
-#include "cryptolayertests.h"
 #include "cryptocontextparametersets.h"
 #include "cryptocontexthelper.h"
 #include "cryptocontextgen.h"
@@ -72,13 +71,13 @@ UnitTestNewEncryptionScalar(const shared_ptr<CryptoContext<Element>> cc) {
 	//Encrypt and decrypt
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Ciphertext<Element>> ciphertext = cc->NEWEncrypt(kp.publicKey, plaintext);
+	shared_ptr<Ciphertext<Element>> ciphertext = cc->Encrypt(kp.publicKey, plaintext);
 	shared_ptr<Plaintext> plaintextNew;
 	cc->Decrypt(kp.secretKey, ciphertext, &plaintextNew);
 	EXPECT_EQ(*plaintext, *plaintextNew) << "unsigned";
 
 	shared_ptr<Plaintext> plaintext2 = cc->MakeScalarPlaintext(-value, true);
-	ciphertext = cc->NEWEncrypt(kp.publicKey, plaintext2);
+	ciphertext = cc->Encrypt(kp.publicKey, plaintext2);
 	cc->Decrypt(kp.secretKey, ciphertext, &plaintextNew);
 	EXPECT_EQ(*plaintext2, *plaintextNew) << "signed";
 }
@@ -158,7 +157,7 @@ UnitTestNewEncryptionInteger(const shared_ptr<CryptoContext<Element>> cc) {
 	//Encrypt and decrypt
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Ciphertext<Element>> ciphertext = cc->NEWEncrypt(kp.publicKey, plaintext);
+	shared_ptr<Ciphertext<Element>> ciphertext = cc->Encrypt(kp.publicKey, plaintext);
 	shared_ptr<Plaintext> plaintextNew;
 	cc->Decrypt(kp.secretKey, ciphertext, &plaintextNew);
 	EXPECT_EQ(*plaintext, *plaintextNew);
@@ -239,7 +238,7 @@ UnitTestNewEncryptionString(const shared_ptr<CryptoContext<Element>> cc) {
 	//Encrypt and decrypt
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Ciphertext<Element>> ciphertext = cc->NEWEncrypt(kp.publicKey, plaintext);
+	shared_ptr<Ciphertext<Element>> ciphertext = cc->Encrypt(kp.publicKey, plaintext);
 	shared_ptr<Plaintext> plaintextNew;
 	cc->Decrypt(kp.secretKey, ciphertext, &plaintextNew);
 	EXPECT_EQ(*plaintext, *plaintextNew);
@@ -334,12 +333,12 @@ UnitTestNewEncryptionCoefPacked(const shared_ptr<CryptoContext<Element>> cc) {
 	//Encrypt and decrypt short, with padding, full, and long
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Ciphertext<Element>> ciphertext4 = cc->NEWEncrypt(kp.publicKey, plaintextInt);
+	shared_ptr<Ciphertext<Element>> ciphertext4 = cc->Encrypt(kp.publicKey, plaintextInt);
 	shared_ptr<Plaintext> plaintextIntNew;
 	cc->Decrypt(kp.secretKey, ciphertext4, &plaintextIntNew);
 	EXPECT_EQ(*plaintextIntNew, *plaintextInt) << "Encrypt integer plaintext";
 
-	shared_ptr<Ciphertext<Element>> ciphertext5 = cc->NEWEncrypt(kp.publicKey, plaintextSInt);
+	shared_ptr<Ciphertext<Element>> ciphertext5 = cc->Encrypt(kp.publicKey, plaintextSInt);
 	shared_ptr<Plaintext> plaintextSIntNew;
 	cc->Decrypt(kp.secretKey, ciphertext5, &plaintextSIntNew);
 	EXPECT_EQ(*plaintextSIntNew, *plaintextSInt) << "Encrypt signed integer plaintext";
@@ -402,29 +401,43 @@ TEST(UTENCRYPT, FV_DCRT_Encrypt_Decrypt_CoefPacked) {
 template <typename Element>
 void
 UnitTestEncryption(const shared_ptr<CryptoContext<Element>> cc) {
-	BytePlaintextEncoding plaintextShort;
-	BytePlaintextEncoding plaintextFull;
-	BytePlaintextEncoding plaintextLong;
+	size_t vecSize = cc->GetRingDimension();
 
-	GenerateTestPlaintext(cc->GetCyclotomicOrder(),
-			cc->GetCryptoParameters()->GetPlaintextModulus(),
-			plaintextShort, plaintextFull, plaintextLong);
+	auto randchar = []() -> char {
+        const char charset[] =
+        "0123456789"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "abcdefghijklmnopqrstuvwxyz";
+        const size_t max_index = (sizeof(charset) - 1);
+        return charset[ rand() % max_index ];
+	};
 
-	size_t intSize = cc->GetRingDimension();
+	string shortStr(vecSize/2,0);
+	std::generate_n(shortStr.begin(), vecSize/2, randchar);
+	shared_ptr<Plaintext> plaintextShort( new StringEncoding(cc->GetElementParams(), cc->GetEncodingParms(), shortStr) );
+
+	string fullStr(vecSize,0);
+	std::generate_n(fullStr.begin(), vecSize, randchar);
+	shared_ptr<Plaintext> plaintextFull( new StringEncoding(cc->GetElementParams(), cc->GetEncodingParms(), fullStr) );
+
+	string longStr(vecSize*2,0);
+	std::generate_n(longStr.begin(), vecSize*2, randchar);
+	shared_ptr<Plaintext> plaintextLong( new StringEncoding(cc->GetElementParams(), cc->GetEncodingParms(), longStr) );
+
 	auto ptm = cc->GetCryptoParameters()->GetPlaintextModulus().ConvertToInt();
 
 	vector<uint32_t> intvec;
-	for( size_t ii=0; ii<intSize; ii++)
+	for( size_t ii=0; ii<vecSize; ii++)
 		intvec.push_back( rand() % ptm );
-	IntPlaintextEncoding plaintextInt(intvec);
+	shared_ptr<Plaintext> plaintextInt = cc->MakeCoefPackedPlaintext(intvec);
 
 	vector<int32_t> sintvec;
-	for( size_t ii=0; ii<intSize; ii++) {
+	for( size_t ii=0; ii<vecSize; ii++) {
 		int rnum = rand() % ptm;
 		if( rnum > (int)ptm/2 ) rnum = ptm - rnum;
 		sintvec.push_back( rnum );
 	}
-	SignedIntPlaintextEncoding plaintextSInt(sintvec);
+	shared_ptr<Plaintext> plaintextSInt = cc->MakeCoefPackedPlaintext(sintvec);
 
 	////////////////////////////////////////////////////////////
 	//Perform the key generation operation.
@@ -442,34 +455,34 @@ UnitTestEncryption(const shared_ptr<CryptoContext<Element>> cc) {
 	//Encrypt and decrypt short, with padding, full, and long
 	////////////////////////////////////////////////////////////
 
-	if( plaintextShort.size() == 0 ) {
+	if( plaintextShort->GetLength() == 0 ) {
 		std::cout << "This set of test parameters generated zero-length test strings, skipping string cases" << std::endl;
 	} else {
-		vector<shared_ptr<Ciphertext<Element>>> ciphertext = cc->Encrypt(kp.publicKey, plaintextShort, true);
-		BytePlaintextEncoding plaintextShortNew;
-		cc->Decrypt(kp.secretKey, ciphertext, &plaintextShortNew, true);
-		EXPECT_EQ(plaintextShortNew, plaintextShort) << "Encrypt short plaintext with padding";
+		shared_ptr<Ciphertext<Element>> ciphertext = cc->Encrypt(kp.publicKey, plaintextShort);
+		shared_ptr<Plaintext> plaintextShortNew;
+		cc->Decrypt(kp.secretKey, ciphertext, &plaintextShortNew);
+		EXPECT_EQ(plaintextShortNew->GetStringValue(), plaintextShort->GetStringValue()) << "Encrypt short plaintext with padding";
 
-		vector<shared_ptr<Ciphertext<Element>>> ciphertext2 = cc->Encrypt(kp.publicKey, plaintextFull, false);
-		BytePlaintextEncoding plaintextFullNew;
-		cc->Decrypt(kp.secretKey, ciphertext2, &plaintextFullNew, false);
-		EXPECT_EQ(plaintextFullNew, plaintextFull) << "Encrypt regular plaintext";
+		shared_ptr<Ciphertext<Element>> ciphertext2 = cc->Encrypt(kp.publicKey, plaintextFull);
+		shared_ptr<Plaintext> plaintextFullNew;
+		cc->Decrypt(kp.secretKey, ciphertext2, &plaintextFullNew);
+		EXPECT_EQ(plaintextFullNew->GetStringValue(), plaintextFull->GetStringValue()) << "Encrypt regular plaintext";
 
-		vector<shared_ptr<Ciphertext<Element>>> ciphertext3 = cc->Encrypt(kp.publicKey, plaintextLong, false);
-		BytePlaintextEncoding plaintextLongNew;
-		cc->Decrypt(kp.secretKey, ciphertext3, &plaintextLongNew, false);
-		EXPECT_EQ(plaintextLongNew, plaintextLong) << "Encrypt long plaintext";
+		shared_ptr<Ciphertext<Element>> ciphertext3 = cc->Encrypt(kp.publicKey, plaintextLong);
+		shared_ptr<Plaintext> plaintextLongNew;
+		cc->Decrypt(kp.secretKey, ciphertext3, &plaintextLongNew);
+		EXPECT_EQ(plaintextLongNew->GetStringValue(), plaintextLong->GetStringValue()) << "Encrypt long plaintext";
 	}
 
-	vector<shared_ptr<Ciphertext<Element>>> ciphertext4 = cc->Encrypt(kp.publicKey, plaintextInt, false);
-	IntPlaintextEncoding plaintextIntNew;
-	cc->Decrypt(kp.secretKey, ciphertext4, &plaintextIntNew, false);
-	EXPECT_EQ(plaintextIntNew, plaintextInt) << "Encrypt integer plaintext";
+	shared_ptr<Ciphertext<Element>> ciphertext4 = cc->Encrypt(kp.publicKey, plaintextInt);
+	shared_ptr<Plaintext> plaintextIntNew;
+	cc->Decrypt(kp.secretKey, ciphertext4, &plaintextIntNew);
+	EXPECT_EQ(plaintextIntNew->GetCoefPackedValue(), plaintextInt->GetCoefPackedValue()) << "Encrypt integer plaintext";
 
-	vector<shared_ptr<Ciphertext<Element>>> ciphertext5 = cc->Encrypt(kp.publicKey, plaintextSInt, false);
-	SignedIntPlaintextEncoding plaintextSIntNew;
-	cc->Decrypt(kp.secretKey, ciphertext5, &plaintextSIntNew, false);
-	EXPECT_EQ(plaintextSIntNew, plaintextSInt) << "Encrypt signed integer plaintext";
+	shared_ptr<Ciphertext<Element>> ciphertext5 = cc->Encrypt(kp.publicKey, plaintextSInt);
+	shared_ptr<Plaintext> plaintextSIntNew;
+	cc->Decrypt(kp.secretKey, ciphertext5, &plaintextSIntNew);
+	EXPECT_EQ(plaintextSIntNew->GetCoefPackedSignedValue(), plaintextSInt->GetCoefPackedSignedValue()) << "Encrypt signed integer plaintext";
 }
 
 TEST(UTENCRYPT, LTV_Poly_Encrypt_Decrypt_Byte) {

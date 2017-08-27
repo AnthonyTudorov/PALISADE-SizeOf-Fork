@@ -444,26 +444,27 @@ public:
 	* @param ciphertext vector of encrypted ciphertext
 	* @return vector of partially decrypted ciphertexts
 	*/
-	std::vector<shared_ptr<Ciphertext<Element>>> MultipartyDecryptLead(
+	shared_ptr<Ciphertext<Element>> MultipartyDecryptLead(
 		const shared_ptr<LPPrivateKey<Element>> privateKey,
-		const std::vector<shared_ptr<Ciphertext<Element>>>& ciphertext) const
+		const shared_ptr<Ciphertext<Element>> ciphertext) const
 	{
 		if( privateKey == NULL || Mismatched(privateKey->GetCryptoContext()) )
 			throw std::logic_error("Information passed to MultipartyDecryptLead was not generated with this crypto context");
 
-		std::vector<shared_ptr<Ciphertext<Element>>> newCiphertext;
+		if( ciphertext == NULL || ciphertext->GetCryptoContext() != this )
+			throw std::logic_error("The ciphertext passed to MultipartyDecryptLead was not generated with this crypto context");
+
+		shared_ptr<Ciphertext<Element>> newCiphertext;
 
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
-		for( size_t i=0; i < ciphertext.size(); i++ ) {
-			if( ciphertext[i] == NULL || Mismatched(ciphertext[i]->GetCryptoContext()) )
-				throw std::logic_error("One of the ciphertexts passed to MultipartyDecryptLead was not generated with this crypto context");
-			newCiphertext.push_back( GetEncryptionAlgorithm()->MultipartyDecryptLead(privateKey, ciphertext[i]) );
 
-		}
+		newCiphertext = GetEncryptionAlgorithm()->MultipartyDecryptLead(privateKey, ciphertext);
+
 		if( doTiming ) {
 			timeSamples->push_back( TimingInfo(OpMultiPartyDecryptLead, currentDateTime() - start) );
 		}
+
 		return newCiphertext;
 	}
 
@@ -475,25 +476,27 @@ public:
 	* @param ciphertext - vector of encrypted ciphertext
 	* @return vector of partially decrypted ciphertexts
 	*/
-	std::vector<shared_ptr<Ciphertext<Element>>> MultipartyDecryptMain(
+	shared_ptr<Ciphertext<Element>> MultipartyDecryptMain(
 		const shared_ptr<LPPrivateKey<Element>> privateKey,
-		const std::vector<shared_ptr<Ciphertext<Element>>>& ciphertext) const
+		const shared_ptr<Ciphertext<Element>> ciphertext) const
 	{
 		if( privateKey == NULL || Mismatched(privateKey->GetCryptoContext()) )
 			throw std::logic_error("Information passed to MultipartyDecryptMain was not generated with this crypto context");
 
-		std::vector<shared_ptr<Ciphertext<Element>>> newCiphertext;
+		if( ciphertext == NULL || ciphertext->GetCryptoContext() != this )
+			throw std::logic_error("The ciphertext passed to MultipartyDecryptMain was not generated with this crypto context");
+
+		shared_ptr<Ciphertext<Element>> newCiphertext;
 
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
-		for( size_t i=0; i < ciphertext.size(); i++ ) {
-			if( ciphertext[i] == NULL || Mismatched(ciphertext[i]->GetCryptoContext()) )
-				throw std::logic_error("One of the ciphertexts passed to MultipartyDecryptMain was not generated with this crypto context");
-			newCiphertext.push_back( GetEncryptionAlgorithm()->MultipartyDecryptMain(privateKey, ciphertext[i]) );
-		}
+
+		newCiphertext = GetEncryptionAlgorithm()->MultipartyDecryptMain(privateKey, ciphertext);
+
 		if( doTiming ) {
 			timeSamples->push_back( TimingInfo(OpMultiPartyDecryptMain, currentDateTime() - start) );
 		}
+
 		return newCiphertext;
 	}
 
@@ -507,7 +510,7 @@ public:
 	* @return size of plaintext
 	*/
 	DecryptResult MultipartyDecryptFusion(
-		const std::vector<vector<shared_ptr<Ciphertext<Element>>>>& partialCiphertextVec,
+		const vector<shared_ptr<Ciphertext<Element>>>& partialCiphertextVec,
 		shared_ptr<Plaintext> *plaintext) const
 	{
 
@@ -515,43 +518,28 @@ public:
 
 		//Make sure we're processing ciphertexts.
 		size_t last_ciphertext = partialCiphertextVec.size();
-		if (last_ciphertext < 1 )
+		if ( last_ciphertext < 1 )
 			return result;
-
-		//Make sure ciphertexts are of non-zero length and that they'r eof the same length/
-		size_t ciphertext_size = partialCiphertextVec[0].size();
-		for( size_t i = 0; i < last_ciphertext; i++ ) {
-			std::vector<shared_ptr<Ciphertext<Element>>> ciphertext = partialCiphertextVec[i];
-			// edge case
-			if (ciphertext.size() == 0 || ciphertext.size() != ciphertext_size)
-				return result;
-		}
 
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
 
-		for( size_t ch = 0; ch < ciphertext_size; ch++ ) {
-
-			vector<shared_ptr<Ciphertext<Element>>> ciphertextVec;
-
-			for( size_t i = 0; i < last_ciphertext; i++ ) {
-				std::vector<shared_ptr<Ciphertext<Element>>> ciphertext = partialCiphertextVec[i];
-				// edge case
-				if (ciphertext[ch] == NULL || Mismatched(ciphertext[ch]->GetCryptoContext()))
-					throw std::logic_error("A ciphertext passed to MultipartyDecryptFusion was not generated with this crypto context");
-				ciphertextVec.push_back(ciphertext[ch]);
-			}
-
-			// determine which type of plaintext that you need to decrypt into
-			shared_ptr<Plaintext> decrypted = GetPlaintextForDecrypt(ciphertextVec[0]->GetEncodingType(), this->GetElementParams(), this->GetEncodingParms());
-
-			DecryptResult result = GetEncryptionAlgorithm()->MultipartyDecryptFusion(ciphertextVec, &decrypted->GetElement<Poly>());
-
-			if (result.isValid == false) return result;
-			decrypted->Decode();
-
-			*plaintext = decrypted; // FIXME
+		for( size_t i = 0; i < last_ciphertext; i++ ) {
+			if (partialCiphertextVec[i] == NULL || partialCiphertextVec[i]->GetCryptoContext() != this)
+				throw std::logic_error("A ciphertext passed to MultipartyDecryptFusion was not generated with this crypto context");
+			if (partialCiphertextVec[i]->GetEncodingType() != partialCiphertextVec[0]->GetEncodingType())
+				throw std::logic_error("Ciphertexts passed to MultipartyDecryptFusion have mismatched encoding types");
 		}
+
+		// determine which type of plaintext that you need to decrypt into
+		shared_ptr<Plaintext> decrypted = GetPlaintextForDecrypt(partialCiphertextVec[0]->GetEncodingType(), this->GetElementParams(), this->GetEncodingParms());
+
+		result = GetEncryptionAlgorithm()->MultipartyDecryptFusion(partialCiphertextVec, &decrypted->GetElement<Poly>());
+
+		if (result.isValid == false) return result;
+		decrypted->Decode();
+
+		*plaintext = decrypted;
 
 		if( doTiming ) {
 			timeSamples->push_back( TimingInfo(OpMultiPartyDecryptFusion, currentDateTime() - start) );
@@ -990,6 +978,14 @@ public:
 		return shared_ptr<Plaintext>( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParms(), value ) );
 	}
 
+	shared_ptr<Plaintext> MakePackedPlaintext(vector<uint32_t> value) const {
+		return shared_ptr<Plaintext>( new PackedIntPlaintextEncoding( this->GetElementParams(), this->GetEncodingParms(), value ) );
+	}
+
+	shared_ptr<Plaintext> MakePackedPlaintext(std::initializer_list<uint32_t> value) const {
+		return shared_ptr<Plaintext>( new PackedIntPlaintextEncoding( this->GetElementParams(), this->GetEncodingParms(), value ) );
+	}
+
 	// FIXME make this private
 	static shared_ptr<Plaintext>
 	GetPlaintextForDecrypt(PlaintextEncodings pte, shared_ptr<typename Element::Params> vp, shared_ptr<EncodingParams> ep) {
@@ -1015,7 +1011,7 @@ public:
 			pt.reset( new CoefPackedEncoding(vp,ep,true) );
 			break;
 		case Packed:
-			throw std::logic_error("Packed plaintext encoding type in GetPlaintextForDecrypt NOT IMPLEMENTED");
+			pt.reset( new PackedIntPlaintextEncoding(vp,ep) );
 			break;
 		case String:
 			pt.reset( new StringEncoding(vp,ep) );
@@ -1399,25 +1395,25 @@ public:
 	* @param ciphertext - vector of shared pointers to encrypted Ciphertext
 	* @return vector of shared pointers to re-encrypted ciphertexts
 	*/
-	std::vector<shared_ptr<Ciphertext<Element>>> ReEncrypt(
+	shared_ptr<Ciphertext<Element>> ReEncrypt(
 		shared_ptr<LPEvalKey<Element>> evalKey,
-		std::vector<shared_ptr<Ciphertext<Element>>>& ciphertext) const
+		shared_ptr<Ciphertext<Element>> ciphertext) const
 	{
 		if( evalKey == NULL || Mismatched(evalKey->GetCryptoContext()) )
 			throw std::logic_error("Information passed to ReEncrypt was not generated with this crypto context");
 
-		std::vector<shared_ptr<Ciphertext<Element>>> newCiphertext;
+		if( ciphertext == NULL || ciphertext->GetCryptoContext() != this )
+			throw std::logic_error("The ciphertext passed to ReEncrypt was not generated with this crypto context");
+
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
-		for( size_t i=0; i < ciphertext.size(); i++ ) {
-			if( ciphertext[i] == NULL || Mismatched(ciphertext[i]->GetCryptoContext()) )
-				throw std::logic_error("One of the ciphertexts passed to ReEncrypt was not generated with this crypto context");
-			newCiphertext.push_back( GetEncryptionAlgorithm()->ReEncrypt(evalKey, ciphertext[i]) );
-		}
+
+		shared_ptr<Ciphertext<Element>> newCiphertext = GetEncryptionAlgorithm()->ReEncrypt(evalKey, ciphertext);
 
 		if( doTiming ) {
 			timeSamples->push_back( TimingInfo(OpReEncrypt, currentDateTime() - start) );
 		}
+
 		return newCiphertext;
 	}
 
@@ -1443,18 +1439,15 @@ public:
 			shared_ptr<Ciphertext<Element>> ct;
 			ct = deserializeCiphertext(serObj);
 			if( ct ) {
-				std::vector<shared_ptr<Ciphertext<Element>>> allCt;
-				allCt.push_back(ct);
-				std::vector<shared_ptr<Ciphertext<Element>>> reCt = ReEncrypt(evalKey, allCt);
+				shared_ptr<Ciphertext<Element>> reCt = ReEncrypt(evalKey, ct);
 
 				Serialized serReObj;
-				if( reCt[0]->Serialize(&serReObj) ) {
+				if( reCt->Serialize(&serReObj) ) {
 					SerializableHelper::SerializationToStream(serReObj, outstream);
 				}
 				else {
 					return;
 				}
-				allCt.clear();
 			}
 			else {
 				return;
@@ -1947,24 +1940,23 @@ public:
 	* @return vector of ring-reduced ciphertexts
 	*/
 
-	std::vector<shared_ptr<Ciphertext<Element>>> RingReduce(
-		std::vector<shared_ptr<Ciphertext<Element>>> ciphertext,
+	shared_ptr<Ciphertext<Element>> RingReduce(
+		shared_ptr<Ciphertext<Element>> ciphertext,
 		const shared_ptr<LPEvalKey<Element>> keySwitchHint) const
 	{
 		if( keySwitchHint == NULL ||
 				Mismatched(keySwitchHint->GetCryptoContext()) )
 			throw std::logic_error("Key passed to RingReduce was not generated with this crypto context");
 
-		std::vector<shared_ptr<Ciphertext<Element>>> newCiphertext(ciphertext.size());
+		if( ciphertext == NULL || ciphertext->GetCryptoContext() != this )
+			throw std::logic_error("Ciphertext passed to RingReduce was not generated with this crypto context");
+
+		shared_ptr<Ciphertext<Element>> newCiphertext;
 
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
-		for (size_t i = 0; i < ciphertext.size(); i++) {
-			if( ciphertext[i] == NULL || Mismatched(ciphertext[i]->GetCryptoContext()) )
-				throw std::logic_error("Ciphertext passed to RingReduce was not generated with this crypto context");
 
-			newCiphertext[i] = GetEncryptionAlgorithm()->RingReduce(ciphertext[i], keySwitchHint);
-		}
+		newCiphertext = GetEncryptionAlgorithm()->RingReduce(ciphertext, keySwitchHint);
 
 		if( doTiming ) {
 			timeSamples->push_back( TimingInfo(OpRingReduce, currentDateTime() - start) );

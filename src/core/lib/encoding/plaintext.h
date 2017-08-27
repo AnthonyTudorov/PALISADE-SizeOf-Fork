@@ -123,24 +123,6 @@ public:
 		return encodedVector;
 	}
 
-//	/**
-//	 * Interface for the operation of converting from current plaintext encoding to Poly.
-//	 *
-//	 * @param  modulus - used for encoding.
-//	 * @param  *ilVector encoded plaintext - output argument.
-//	 * @param  start_from - location to start from.  Defaults to 0.
-//	 * @param  length - length of data to encode.  Defaults to 0.
-//	 */
-//	virtual bool Encode(const BigInteger &modulus, Poly *ilVector, size_t start_from=0, size_t length=0) = 0;
-//
-//	/**
-//	 * Interface for the operation of converting from Poly to current plaintext encoding.
-//	 *
-//	 * @param  modulus - used for encoding.
-//	 * @param  *ilVector encoded plaintext - input argument.
-//	 */
-//	virtual bool Decode(const BigInteger &modulus, Poly *ilVector) = 0;
-
 	/**
 	 * Get method to return the length of plaintext
 	 *
@@ -160,6 +142,7 @@ public:
 	virtual const int32_t&			GetScalarSignedValue() const { throw std::logic_error("not a signed scalar"); }
 	virtual const vector<uint32_t>&	GetCoefPackedValue() const { throw std::logic_error("not a packed coefficient vector"); }
 	virtual const vector<int32_t>&	GetCoefPackedSignedValue() const { throw std::logic_error("not a signed packed coefficient vector"); }
+	virtual const vector<uint32_t>&	GetPackedValue() const { throw std::logic_error("not a packed coefficient vector"); }
 
 	/**
 	 * Method to compare two plaintext to test for equivalence.

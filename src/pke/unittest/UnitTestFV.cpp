@@ -35,8 +35,6 @@
 
 #include "utils/debug.h"
 
-#include "cryptolayertests.h"
-
 using namespace std;
 using namespace lbcrypto;
 
@@ -83,19 +81,19 @@ TEST_F(UTFV, Poly_FV_Eval_Operations) {
 	LPKeyPair<Poly> kp;
 
 	std::vector<uint32_t> vectorOfInts1 = { 1,0,3,1,0,1,2,1 };
-	IntPlaintextEncoding plaintext1(vectorOfInts1);
+	shared_ptr<Plaintext> plaintext1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
 
 	std::vector<uint32_t> vectorOfInts2 = { 2,1,3,2,2,1,3,0 };
-	IntPlaintextEncoding plaintext2(vectorOfInts2);
+	shared_ptr<Plaintext> plaintext2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
 
 	std::vector<uint32_t> vectorOfIntsAdd = { 3,1,6,3,2,2,5,1 };
-	IntPlaintextEncoding plaintextAdd(vectorOfIntsAdd);
+	shared_ptr<Plaintext> plaintextAdd = cc->MakeCoefPackedPlaintext(vectorOfIntsAdd);
 
 	std::vector<uint32_t> vectorOfIntsSub = { 63,63,0,63,62,0,63,1 };
-	IntPlaintextEncoding plaintextSub(vectorOfIntsSub);
+	shared_ptr<Plaintext> plaintextSub = cc->MakeCoefPackedPlaintext(vectorOfIntsSub);
 
 	std::vector<uint32_t> vectorOfIntsMult = { 2, 1, 9, 7, 12, 12, 16, 12, 19, 12, 7, 7, 7, 3 };
-	IntPlaintextEncoding plaintextMult(vectorOfIntsMult);
+	shared_ptr<Plaintext> plaintextMult = cc->MakeCoefPackedPlaintext(vectorOfIntsMult);
 
 	////////////////////////////////////////////////////////////
 	//Perform the key generation operation.
@@ -112,32 +110,28 @@ TEST_F(UTFV, Poly_FV_Eval_Operations) {
 	//Encryption
 	////////////////////////////////////////////////////////////
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext1;
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext2;
+	shared_ptr<Ciphertext<Poly>> ciphertext1;
+	shared_ptr<Ciphertext<Poly>> ciphertext2;
 
-	ciphertext1 = cc->Encrypt(kp.publicKey, plaintext1, true);
-	ciphertext2 = cc->Encrypt(kp.publicKey, plaintext2, true);
+	ciphertext1 = cc->Encrypt(kp.publicKey, plaintext1);
+	ciphertext2 = cc->Encrypt(kp.publicKey, plaintext2);
 
 	////////////////////////////////////////////////////////////
 	//EvalAdd Operation
 	////////////////////////////////////////////////////////////
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertextAdd;
+	shared_ptr<Ciphertext<Poly>> ciphertextAdd = cc->EvalAdd(ciphertext1, ciphertext2);
 
-	shared_ptr<Ciphertext<Poly>> ciphertextTemp = cc->EvalAdd(ciphertext1[0], ciphertext2[0]);
-
-	ciphertextAdd.push_back(ciphertextTemp);
-
-	IntPlaintextEncoding plaintextNew;
+	shared_ptr<Plaintext> plaintextNew;
 
 	////////////////////////////////////////////////////////////
 	//Decryption after EvalAdd Operation
 	////////////////////////////////////////////////////////////
 
-	DecryptResult result = cc->Decrypt(kp.secretKey, ciphertextAdd, &plaintextNew, true);
+	DecryptResult result = cc->Decrypt(kp.secretKey, ciphertextAdd, &plaintextNew);
 
-	//this step is needed because there is no marker for padding in the case of IntPlaintextEncoding
-	plaintextNew.resize(plaintextAdd.size());
+	//this step is needed because there is no marker for padding in the case of shared_ptr<Plaintext>
+	plaintextNew->SetLength(plaintextAdd->GetLength());
 
 	EXPECT_EQ(plaintextAdd, plaintextNew) << "FV.EvalAdd gives incorrect results.\n";
 
@@ -145,21 +139,17 @@ TEST_F(UTFV, Poly_FV_Eval_Operations) {
 	//EvalSub Operation
 	////////////////////////////////////////////////////////////
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertextSub;
+	shared_ptr<Ciphertext<Poly>> ciphertextSub = cc->EvalSub(ciphertext1, ciphertext2);
 
-	shared_ptr<Ciphertext<Poly>> ciphertextTempSub = cc->EvalSub(ciphertext1[0], ciphertext2[0]);
-
-	ciphertextSub.push_back(ciphertextTempSub);
-
-	IntPlaintextEncoding plaintextNewSub;
+	shared_ptr<Plaintext> plaintextNewSub;
 
 	////////////////////////////////////////////////////////////
 	//Decryption after EvalAdd Operation
 	////////////////////////////////////////////////////////////
 
-	result = cc->Decrypt(kp.secretKey, ciphertextSub, &plaintextNewSub, true);
+	result = cc->Decrypt(kp.secretKey, ciphertextSub, &plaintextNewSub);
 
-	plaintextNewSub.resize(plaintextSub.size());
+	plaintextNewSub->SetLength(plaintextSub->GetLength());
 
 	EXPECT_EQ(plaintextSub, plaintextNewSub) << "FV.EvalSub gives incorrect results.\n";
 
@@ -170,21 +160,17 @@ TEST_F(UTFV, Poly_FV_Eval_Operations) {
 
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertextMult;
+	shared_ptr<Ciphertext<Poly>> ciphertextMult = cc->EvalMult(ciphertext1, ciphertext2);
 
-	shared_ptr<Ciphertext<Poly>> ciphertextTempMult = cc->EvalMult(ciphertext1[0], ciphertext2[0]);
-
-	ciphertextMult.push_back(ciphertextTempMult);
-
-	IntPlaintextEncoding plaintextNewMult;
+	shared_ptr<Plaintext> plaintextNewMult;
 
 	////////////////////////////////////////////////////////////
 	//Decryption after EvalMult Operation
 	////////////////////////////////////////////////////////////
 
-	result = cc->Decrypt(kp.secretKey, ciphertextMult, &plaintextNewMult, true);
+	result = cc->Decrypt(kp.secretKey, ciphertextMult, &plaintextNewMult);
 
-	plaintextNewMult.resize(plaintextMult.size());
+	plaintextNewMult->SetLength(plaintextMult->GetLength());
 
 	EXPECT_EQ(plaintextMult, plaintextNewMult) << "FV.EvalMult gives incorrect results.\n";
 
@@ -206,13 +192,13 @@ TEST_F(UTFV, Poly_FV_ParamsGen_EvalMul) {
 	LPKeyPair<Poly> kp;
 
 	std::vector<uint32_t> vectorOfInts1 = { 1,0,3,1,0,1,2,1 };
-	IntPlaintextEncoding plaintext1(vectorOfInts1);
+	shared_ptr<Plaintext> plaintext1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
 
 	std::vector<uint32_t> vectorOfInts2 = { 2,1,3,2,2,1,3,0 };
-	IntPlaintextEncoding plaintext2(vectorOfInts2);
+	shared_ptr<Plaintext> plaintext2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
 
 	std::vector<uint32_t> vectorOfIntsMult = { 2, 1, 1, 3, 0, 0, 0, 0, 3, 0, 3, 3, 3, 3 };
-	IntPlaintextEncoding plaintextMult(vectorOfIntsMult);
+	shared_ptr<Plaintext> plaintextMult = cc->MakeCoefPackedPlaintext(vectorOfIntsMult);
 
 	////////////////////////////////////////////////////////////
 	//Perform the key generation operation.
@@ -229,11 +215,11 @@ TEST_F(UTFV, Poly_FV_ParamsGen_EvalMul) {
 	//Encryption
 	////////////////////////////////////////////////////////////
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext1;
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext2;
+	shared_ptr<Ciphertext<Poly>> ciphertext1;
+	shared_ptr<Ciphertext<Poly>> ciphertext2;
 
-	ciphertext1 = cc->Encrypt(kp.publicKey, plaintext1, false);
-	ciphertext2 = cc->Encrypt(kp.publicKey, plaintext2, false);
+	ciphertext1 = cc->Encrypt(kp.publicKey, plaintext1);
+	ciphertext2 = cc->Encrypt(kp.publicKey, plaintext2);
 
 	////////////////////////////////////////////////////////////
 	//EvalMult Operation
@@ -241,23 +227,19 @@ TEST_F(UTFV, Poly_FV_ParamsGen_EvalMul) {
 
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertextMult;
+	shared_ptr<Ciphertext<Poly>> ciphertextMult = cc->EvalMult(ciphertext1, ciphertext2);
 
-	shared_ptr<Ciphertext<Poly>> ciphertextTempMult = cc->EvalMult(ciphertext1[0], ciphertext2[0]);
-
-	ciphertextMult.push_back(ciphertextTempMult);
-
-	IntPlaintextEncoding plaintextNewMult;
+	shared_ptr<Plaintext> plaintextNewMult;
 
 	////////////////////////////////////////////////////////////
 	//Decryption after EvalMult Operation
 	////////////////////////////////////////////////////////////
 
-	cc->Decrypt(kp.secretKey, ciphertextMult, &plaintextNewMult, true);
+	cc->Decrypt(kp.secretKey, ciphertextMult, &plaintextNewMult);
 
-	plaintextNewMult.resize(plaintextMult.size());
+	plaintextNewMult->SetLength(plaintextMult->GetLength());
 
-	EXPECT_EQ(plaintextMult, plaintextNewMult) << "FV.EvalMult gives incorrect results when parameters are generated on the fly by ParamsGen.\n";
+	EXPECT_EQ(plaintextMult->GetCoefPackedValue(), plaintextNewMult->GetCoefPackedValue()) << "FV.EvalMult gives incorrect results when parameters are generated on the fly by ParamsGen.\n";
 
 }
 
@@ -277,19 +259,19 @@ TEST_F(UTFV, Poly_FV_Optimized_Eval_Operations) {
 	LPKeyPair<Poly> kp;
 
 	std::vector<uint32_t> vectorOfInts1 = { 1,0,3,1,0,1,2,1 };
-	IntPlaintextEncoding plaintext1(vectorOfInts1);
+	shared_ptr<Plaintext> plaintext1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
 
 	std::vector<uint32_t> vectorOfInts2 = { 2,1,3,2,2,1,3,0 };
-	IntPlaintextEncoding plaintext2(vectorOfInts2);
+	shared_ptr<Plaintext> plaintext2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
 
 	std::vector<uint32_t> vectorOfIntsAdd = { 3,1,6,3,2,2,5,1 };
-	IntPlaintextEncoding plaintextAdd(vectorOfIntsAdd);
+	shared_ptr<Plaintext> plaintextAdd = cc->MakeCoefPackedPlaintext(vectorOfIntsAdd);
 
 	std::vector<uint32_t> vectorOfIntsSub = { 63,63,0,63,62,0,63,1 };
-	IntPlaintextEncoding plaintextSub(vectorOfIntsSub);
+	shared_ptr<Plaintext> plaintextSub = cc->MakeCoefPackedPlaintext(vectorOfIntsSub);
 
 	std::vector<uint32_t> vectorOfIntsMult = { 2, 1, 9, 7, 12, 12, 16, 12, 19, 12, 7, 7, 7, 3 };
-	IntPlaintextEncoding plaintextMult(vectorOfIntsMult);
+	shared_ptr<Plaintext> plaintextMult = cc->MakeCoefPackedPlaintext(vectorOfIntsMult);
 
 	////////////////////////////////////////////////////////////
 	//Perform the key generation operation.
@@ -306,60 +288,47 @@ TEST_F(UTFV, Poly_FV_Optimized_Eval_Operations) {
 	//Encryption
 	////////////////////////////////////////////////////////////
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext1;
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext2;
+	shared_ptr<Ciphertext<Poly>> ciphertext1;
+	shared_ptr<Ciphertext<Poly>> ciphertext2;
 
-	ciphertext1 = cc->Encrypt(kp.publicKey, plaintext1, false);
-	ciphertext2 = cc->Encrypt(kp.publicKey, plaintext2, false);
+	ciphertext1 = cc->Encrypt(kp.publicKey, plaintext1);
+	ciphertext2 = cc->Encrypt(kp.publicKey, plaintext2);
 
 	////////////////////////////////////////////////////////////
 	//EvalAdd Operation
 	////////////////////////////////////////////////////////////
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertextAdd;
+	shared_ptr<Ciphertext<Poly>> ciphertextAdd = cc->EvalAdd(ciphertext1, ciphertext2);
 
-	shared_ptr<Ciphertext<Poly>> ciphertextTemp;
-
-	//YSP this needs to be switched to the CryptoUtility operation
-	ciphertextTemp = cc->EvalAdd(ciphertext1[0], ciphertext2[0]);
-
-	ciphertextAdd.push_back(ciphertextTemp);
-
-	IntPlaintextEncoding plaintextNew;
+	shared_ptr<Plaintext> plaintextNew;
 
 	////////////////////////////////////////////////////////////
 	//Decryption after EvalAdd Operation
 	////////////////////////////////////////////////////////////
 
-	DecryptResult result = cc->Decrypt(kp.secretKey, ciphertextAdd, &plaintextNew, true);
+	DecryptResult result = cc->Decrypt(kp.secretKey, ciphertextAdd, &plaintextNew);
 
-	plaintextNew.resize(plaintextAdd.size());
+	plaintextNew->SetLength(plaintextAdd->GetLength());
 
-	EXPECT_EQ(plaintextAdd, plaintextNew) << "FVOptimized.EvalAdd gives incorrect results.\n";
+	EXPECT_EQ(plaintextAdd->GetCoefPackedValue(), plaintextNew->GetCoefPackedValue()) << "FVOptimized.EvalAdd gives incorrect results.\n";
 
 	////////////////////////////////////////////////////////////
 	//EvalSub Operation
 	////////////////////////////////////////////////////////////
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertextSub;
+	shared_ptr<Ciphertext<Poly>> ciphertextSub = cc->EvalSub(ciphertext1, ciphertext2);
 
-	shared_ptr<Ciphertext<Poly>> ciphertextTempSub;
-
-	ciphertextTempSub = cc->EvalSub(ciphertext1[0], ciphertext2[0]);
-
-	ciphertextSub.push_back(ciphertextTempSub);
-
-	IntPlaintextEncoding plaintextNewSub;
+	shared_ptr<Plaintext> plaintextNewSub;
 
 	////////////////////////////////////////////////////////////
 	//Decryption after EvalAdd Operation
 	////////////////////////////////////////////////////////////
 
-	result = cc->Decrypt(kp.secretKey, ciphertextSub, &plaintextNewSub, true);
+	result = cc->Decrypt(kp.secretKey, ciphertextSub, &plaintextNewSub);
 
-	plaintextNewSub.resize(plaintextSub.size());
+	plaintextNewSub->SetLength(plaintextSub->GetLength());
 
-	EXPECT_EQ(plaintextSub, plaintextNewSub) << "FVOptimized.EvalSub gives incorrect results.\n";
+	EXPECT_EQ(plaintextSub->GetCoefPackedValue(), plaintextNewSub->GetCoefPackedValue()) << "FVOptimized.EvalSub gives incorrect results.\n";
 
 
 	////////////////////////////////////////////////////////////
@@ -368,24 +337,18 @@ TEST_F(UTFV, Poly_FV_Optimized_Eval_Operations) {
 
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertextMult;
+	shared_ptr<Ciphertext<Poly>> ciphertextMult = cc->EvalMult(ciphertext1, ciphertext2);
 
-	shared_ptr<Ciphertext<Poly>> ciphertextTempMult;
-
-	ciphertextTempMult = cc->EvalMult(ciphertext1[0], ciphertext2[0]);
-
-	ciphertextMult.push_back(ciphertextTempMult);
-
-	IntPlaintextEncoding plaintextNewMult;
+	shared_ptr<Plaintext> plaintextNewMult;
 
 	////////////////////////////////////////////////////////////
 	//Decryption after EvalMult Operation
 	////////////////////////////////////////////////////////////
 
-	result = cc->Decrypt(kp.secretKey, ciphertextMult, &plaintextNewMult, true);
+	result = cc->Decrypt(kp.secretKey, ciphertextMult, &plaintextNewMult);
 
-	plaintextNewMult.resize(plaintextMult.size());
+	plaintextNewMult->SetLength(plaintextMult->GetLength());
 
-	EXPECT_EQ(plaintextMult, plaintextNewMult) << "FVOptimized.EvalMult gives incorrect results.\n";
+	EXPECT_EQ(plaintextMult->GetCoefPackedValue(), plaintextNewMult->GetCoefPackedValue()) << "FVOptimized.EvalMult gives incorrect results.\n";
 
 }

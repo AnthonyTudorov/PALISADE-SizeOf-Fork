@@ -114,17 +114,17 @@ usint BVCrossCorrelation() {
 	cc->EvalSumKeyGen(kp.secretKey);
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	auto zeroAlloc = [=]() { return lbcrypto::make_unique<PackedIntPlaintextEncoding>(); };
+	auto zeroAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(); };
 
-	Matrix<PackedIntPlaintextEncoding> x = Matrix<PackedIntPlaintextEncoding>(zeroAlloc, 2, 1);
+	Matrix<shared_ptr<Plaintext>> x = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
 
-	x(0, 0) = { 0, 1, 1, 1, 0, 1, 1, 1 };
-	x(1, 0) = { 1, 0, 1, 1, 0, 1, 1, 0 };
+	x(0, 0) = cc->MakePackedPlaintext({ 0, 1, 1, 1, 0, 1, 1, 1 });
+	x(1, 0) = cc->MakePackedPlaintext({ 1, 0, 1, 1, 0, 1, 1, 0 });
 
-	Matrix<PackedIntPlaintextEncoding> y = Matrix<PackedIntPlaintextEncoding>(zeroAlloc, 2, 1);
+	Matrix<shared_ptr<Plaintext>> y = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
 
-	y(0, 0) = { 0, 1, 1, 1, 0, 1, 1, 1 };
-	y(1, 0) = { 1, 0, 1, 1, 0, 1, 1, 0 };
+	y(0, 0) = cc->MakePackedPlaintext({ 0, 1, 1, 1, 0, 1, 1, 1 });
+	y(1, 0) = cc->MakePackedPlaintext({ 1, 0, 1, 1, 0, 1, 1, 0 });
 
 	////////////////////////////////////////////////////////////
 	//Encryption
@@ -145,15 +145,11 @@ usint BVCrossCorrelation() {
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertextCC;
+	shared_ptr<Plaintext> intArrayNew;
 
-	ciphertextCC.push_back(result);
+	cc->Decrypt(kp.secretKey, result, &intArrayNew);
 
-	PackedIntPlaintextEncoding intArrayNew;
-
-	cc->Decrypt(kp.secretKey, ciphertextCC, &intArrayNew, false);
-
-	return intArrayNew[0];
+	return intArrayNew->GetPackedValue()[0];
 }
 
 
@@ -204,17 +200,17 @@ usint FVCrossCorrelation() {
 	cc->EvalSumKeyGen(kp.secretKey);
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	auto zeroAlloc = [=]() { return lbcrypto::make_unique<PackedIntPlaintextEncoding>(); };
+	auto zeroAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(); };
 
-	Matrix<PackedIntPlaintextEncoding> x = Matrix<PackedIntPlaintextEncoding>(zeroAlloc, 2, 1);
+	Matrix<shared_ptr<Plaintext>> x = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
 
-	x(0, 0) = { 0, 1, 1, 1, 0, 1, 1, 1 };
-	x(1, 0) = { 1, 0, 1, 1, 0, 1, 1, 0 };
+	x(0, 0) = cc->MakePackedPlaintext({ 0, 1, 1, 1, 0, 1, 1, 1 });
+	x(1, 0) = cc->MakePackedPlaintext({ 1, 0, 1, 1, 0, 1, 1, 0 });
 
-	Matrix<PackedIntPlaintextEncoding> y = Matrix<PackedIntPlaintextEncoding>(zeroAlloc, 2, 1);
+	Matrix<shared_ptr<Plaintext>> y = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
 
-	y(0, 0) = { 0, 1, 1, 1, 0, 1, 1, 1 };
-	y(1, 0) = { 1, 0, 1, 1, 0, 1, 1, 0 };
+	y(0, 0) = cc->MakePackedPlaintext({ 0, 1, 1, 1, 0, 1, 1, 1 });
+	y(1, 0) = cc->MakePackedPlaintext({ 1, 0, 1, 1, 0, 1, 1, 0 });
 
 	////////////////////////////////////////////////////////////
 	//Encryption
@@ -235,15 +231,11 @@ usint FVCrossCorrelation() {
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertextCC;
+	shared_ptr<Plaintext> intArrayNew;
 
-	ciphertextCC.push_back(result);
+	cc->Decrypt(kp.secretKey, result, &intArrayNew);
 
-	PackedIntPlaintextEncoding intArrayNew;
-
-	cc->Decrypt(kp.secretKey, ciphertextCC, &intArrayNew, false);
-
-	return intArrayNew[0];
+	return intArrayNew->GetPackedValue()[0];
 
 }
 

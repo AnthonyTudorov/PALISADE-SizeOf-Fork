@@ -35,7 +35,6 @@
 
 #include "utils/debug.h"
 #include "utils/parmfactory.h"
-#include "cryptolayertests.h"
 
 using namespace std;
 using namespace lbcrypto;
@@ -77,21 +76,21 @@ TEST_F(UTBVDCRT, Poly_bv_DCRT_MODREDUCE) {
 
 	std::vector<usint> vectorOfInts1 = { 4,1,2,3 };
 
-	IntPlaintextEncoding intArray1(vectorOfInts1);
-	IntPlaintextEncoding intArrayNew;
+	shared_ptr<Plaintext> intArray1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
+	shared_ptr<Plaintext> intArrayNew;
 
 	////////////////////////////////////////////////////////////
 	//Encryption
 	////////////////////////////////////////////////////////////
 
-	vector<shared_ptr<Ciphertext<DCRTPoly>>> ciphertext = cc->Encrypt(kp.publicKey, intArray1, false);
+	shared_ptr<Ciphertext<DCRTPoly>> ciphertext = cc->Encrypt(kp.publicKey, intArray1);
 
 	{
-		cc->Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
+		cc->Decrypt(kp.secretKey, ciphertext, &intArrayNew);
 		EXPECT_EQ(intArray1, intArrayNew) << "Decrypt fails";
 	}
 
-	ciphertext[0] = cc->ModReduce(ciphertext[0]);
+	ciphertext = cc->ModReduce(ciphertext);
 
 	//drop a tower from the secret key
 	
@@ -99,10 +98,10 @@ TEST_F(UTBVDCRT, Poly_bv_DCRT_MODREDUCE) {
 	skEl.DropLastElement();
 	kp.secretKey->SetPrivateElement(skEl);
 
-	cc->Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
-	intArrayNew.SetLength(intArray1.size());
+	cc->Decrypt(kp.secretKey, ciphertext, &intArrayNew);
+	intArrayNew->SetLength(intArray1->GetLength());
 
-	EXPECT_EQ(intArray1, intArrayNew) << "Decrypt after ModReduce fails";;
+	EXPECT_EQ(intArray1->GetCoefPackedValue(), intArrayNew->GetCoefPackedValue()) << "Decrypt after ModReduce fails";;
 
 }
 #endif

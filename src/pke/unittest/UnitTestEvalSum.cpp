@@ -192,26 +192,22 @@ usint ArbLTVEvalSumPackedArray(std::vector<usint> &clearVector) {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext;
+	shared_ptr<Ciphertext<Poly>> ciphertext;
 
 	std::vector<usint> vectorOfInts = std::move(clearVector);
-	PackedIntPlaintextEncoding intArray(vectorOfInts);
+	shared_ptr<Plaintext> intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	cc->EvalSumKeyGen(kp.secretKey, kp.publicKey);
 
-	ciphertext = cc->Encrypt(kp.publicKey, intArray, false);
+	ciphertext = cc->Encrypt(kp.publicKey, intArray);
 
-	auto ciphertext1 = cc->EvalSum(ciphertext[0], batchSize);
+	auto ciphertextSum = cc->EvalSum(ciphertext, batchSize);
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertextSum;
+	shared_ptr<Plaintext> intArrayNew;
 
-	ciphertextSum.push_back(ciphertext1);
+	cc->Decrypt(kp.secretKey, ciphertextSum, &intArrayNew);
 
-	PackedIntPlaintextEncoding intArrayNew;
-
-	cc->Decrypt(kp.secretKey, ciphertextSum, &intArrayNew, false);
-
-	return intArrayNew[0];
+	return intArrayNew->GetPackedValue()[0];
 
 }
 
@@ -249,26 +245,22 @@ usint ArbBVEvalSumPackedArray(std::vector<usint> &clearVector) {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext;
+	shared_ptr<Ciphertext<Poly>> ciphertext;
 
 	std::vector<usint> vectorOfInts = std::move(clearVector);
-	PackedIntPlaintextEncoding intArray(vectorOfInts);
+	shared_ptr<Plaintext> intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	cc->EvalSumKeyGen(kp.secretKey);
 
-	ciphertext = cc->Encrypt(kp.publicKey, intArray, false);
+	ciphertext = cc->Encrypt(kp.publicKey, intArray);
 
-	auto ciphertext1 = cc->EvalSum(ciphertext[0], batchSize);
+	auto ciphertextSum = cc->EvalSum(ciphertext, batchSize);
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertextSum;
+	shared_ptr<Plaintext> intArrayNew;
 
-	ciphertextSum.push_back(ciphertext1);
+	cc->Decrypt(kp.secretKey, ciphertextSum, &intArrayNew);
 
-	PackedIntPlaintextEncoding intArrayNew;
-
-	cc->Decrypt(kp.secretKey, ciphertextSum, &intArrayNew, false);
-
-	return intArrayNew[0];
+	return intArrayNew->GetPackedValue()[0];
 }
 
 usint ArbBVEvalSumPackedArrayPrime(std::vector<usint> &clearVector) {
@@ -304,26 +296,22 @@ usint ArbBVEvalSumPackedArrayPrime(std::vector<usint> &clearVector) {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext;
+	shared_ptr<Ciphertext<Poly>> ciphertext;
 
 	std::vector<usint> vectorOfInts = std::move(clearVector);
-	PackedIntPlaintextEncoding intArray(vectorOfInts);
+	shared_ptr<Plaintext> intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	cc->EvalSumKeyGen(kp.secretKey);
 
-	ciphertext = cc->Encrypt(kp.publicKey, intArray, false);
+	ciphertext = cc->Encrypt(kp.publicKey, intArray);
 
-	auto ciphertext1 = cc->EvalSum(ciphertext[0], batchSize);
+	auto ciphertextSum = cc->EvalSum(ciphertext, batchSize);
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertextSum;
+	shared_ptr<Plaintext> intArrayNew;
 
-	ciphertextSum.push_back(ciphertext1);
+	cc->Decrypt(kp.secretKey, ciphertextSum, &intArrayNew);
 
-	PackedIntPlaintextEncoding intArrayNew;
-
-	cc->Decrypt(kp.secretKey, ciphertextSum, &intArrayNew, false);
-
-	return intArrayNew[0];
+	return intArrayNew->GetPackedValue()[0];
 }
 
 
@@ -363,25 +351,21 @@ usint ArbFVEvalSumPackedArray(std::vector<usint> &clearVector) {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext;
+	shared_ptr<Ciphertext<Poly>> ciphertext;
 
 	std::vector<usint> vectorOfInts = std::move(clearVector);
-	PackedIntPlaintextEncoding intArray(vectorOfInts);
+	shared_ptr<Plaintext> intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	cc->EvalSumKeyGen(kp.secretKey);
 
-	ciphertext = cc->Encrypt(kp.publicKey, intArray, false);
+	ciphertext = cc->Encrypt(kp.publicKey, intArray);
 
-	auto ciphertext1 = cc->EvalSum(ciphertext[0], batchSize);
+	auto ciphertextSum = cc->EvalSum(ciphertext, batchSize);
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertextSum;
+	shared_ptr<Plaintext> intArrayNew;
 
-	ciphertextSum.push_back(ciphertext1);
+	cc->Decrypt(kp.secretKey, ciphertextSum, &intArrayNew);
 
-	PackedIntPlaintextEncoding intArrayNew;
-
-	cc->Decrypt(kp.secretKey, ciphertextSum, &intArrayNew, false);
-
-	return intArrayNew[0];
+	return intArrayNew->GetPackedValue()[0];
 
 }

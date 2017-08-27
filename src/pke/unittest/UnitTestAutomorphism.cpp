@@ -170,34 +170,27 @@ std::vector<usint> ArbLTVAutomorphismPackedArray(usint i) {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext;
+	shared_ptr<Ciphertext<Poly>> ciphertext;
 
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10 };
-	PackedIntPlaintextEncoding intArray(vectorOfInts);
+	shared_ptr<Plaintext> intArray = cc->MakePackedPlaintext(vectorOfInts);
 
-	ciphertext = cc->Encrypt(kp.publicKey, intArray, false);
+	ciphertext = cc->Encrypt(kp.publicKey, intArray);
 
 	std::vector<usint> indexList = GetTotientList(m);
 	indexList.erase(indexList.begin());
 
 	auto evalKeys = cc->EvalAutomorphismKeyGen(kp.publicKey, kp.secretKey, indexList);
 
-	vector<shared_ptr<Ciphertext<Poly>>> permutedCiphertext;
-
 	shared_ptr<Ciphertext<Poly>> p1;
 
-	p1 = cc->EvalAutomorphism(ciphertext[0], i, *evalKeys);
+	p1 = cc->EvalAutomorphism(ciphertext, i, *evalKeys);
 
-	permutedCiphertext.push_back(p1);
+	shared_ptr<Plaintext> intArrayNew;
 
-	PackedIntPlaintextEncoding intArrayNew;
-
-	cc->Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew, false);
+	cc->Decrypt(kp.secretKey, p1, &intArrayNew);
 	
-	std::vector<usint> result(intArrayNew);
-
-	return std::move(intArrayNew);
-
+	return intArrayNew->GetPackedValue();
 }
 
 std::vector<usint> ArbBVAutomorphismPackedArray(usint i) {
@@ -230,33 +223,27 @@ std::vector<usint> ArbBVAutomorphismPackedArray(usint i) {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext;
+	shared_ptr<Ciphertext<Poly>> ciphertext;
 
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10 };
-	PackedIntPlaintextEncoding intArray(vectorOfInts);
+	shared_ptr<Plaintext> intArray = cc->MakePackedPlaintext(vectorOfInts);
 
-	ciphertext = cc->Encrypt(kp.publicKey, intArray, false);
+	ciphertext = cc->Encrypt(kp.publicKey, intArray);
 
 	std::vector<usint> indexList = GetTotientList(m);
 	indexList.erase(indexList.begin());
 
 	auto evalKeys = cc->EvalAutomorphismKeyGen(kp.secretKey, indexList);
 
-	vector<shared_ptr<Ciphertext<Poly>>> permutedCiphertext;
-
 	shared_ptr<Ciphertext<Poly>> p1;
 
-	p1 = cc->EvalAutomorphism(ciphertext[0], i, *evalKeys);
+	p1 = cc->EvalAutomorphism(ciphertext, i, *evalKeys);
 
-	permutedCiphertext.push_back(p1);
+	shared_ptr<Plaintext> intArrayNew;
 
-	PackedIntPlaintextEncoding intArrayNew;
+	cc->Decrypt(kp.secretKey, p1, &intArrayNew);
 
-	cc->Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew, false);
-
-	std::vector<usint> result(intArrayNew);
-
-	return result;
+	return intArrayNew->GetPackedValue();
 
 }
 
@@ -278,32 +265,26 @@ std::vector<usint> LTVAutomorphismPackedArray(usint i) {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext;
+	shared_ptr<Ciphertext<Poly>> ciphertext;
 
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8 };
-	PackedIntPlaintextEncoding intArray(vectorOfInts);
+	shared_ptr<Plaintext> intArray = cc->MakePackedPlaintext(vectorOfInts);
 
-	ciphertext = cc->Encrypt(kp.publicKey, intArray, false);
+	ciphertext = cc->Encrypt(kp.publicKey, intArray);
 
 	std::vector<usint> indexList = { 3,5,7,9,11,13,15 };
 
 	auto evalKeys = cc->EvalAutomorphismKeyGen(kp.publicKey, kp.secretKey, indexList);
 
-	vector<shared_ptr<Ciphertext<Poly>>> permutedCiphertext;
-
 	shared_ptr<Ciphertext<Poly>> p1;
 
-	p1 = cc->EvalAutomorphism(ciphertext[0], i, *evalKeys);
+	p1 = cc->EvalAutomorphism(ciphertext, i, *evalKeys);
 
-	permutedCiphertext.push_back(p1);
+	shared_ptr<Plaintext> intArrayNew;
 
-	PackedIntPlaintextEncoding intArrayNew;
+	cc->Decrypt(kp.secretKey, p1, &intArrayNew);
 
-	cc->Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew, false);
-
-	std::vector<usint> result(intArrayNew);
-
-	return result;
+	return intArrayNew->GetPackedValue();
 
 }
 
@@ -326,32 +307,26 @@ std::vector<usint> BVAutomorphismPackedArray(usint i) {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext;
+	shared_ptr<Ciphertext<Poly>> ciphertext;
 
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8 };
-	PackedIntPlaintextEncoding intArray(vectorOfInts);
+	shared_ptr<Plaintext> intArray = cc->MakePackedPlaintext(vectorOfInts);
 
-	ciphertext = cc->Encrypt(kp.publicKey, intArray, false);
+	ciphertext = cc->Encrypt(kp.publicKey, intArray);
 
 	std::vector<usint> indexList = { 3,5,7,9,11,13,15 };
 
 	auto evalKeys = cc->EvalAutomorphismKeyGen(kp.secretKey, indexList);
 
-	vector<shared_ptr<Ciphertext<Poly>>> permutedCiphertext;
-
 	shared_ptr<Ciphertext<Poly>> p1;
 
-	p1 = cc->EvalAutomorphism(ciphertext[0], i, *evalKeys);
+	p1 = cc->EvalAutomorphism(ciphertext, i, *evalKeys);
 
-	permutedCiphertext.push_back(p1);
+	shared_ptr<Plaintext> intArrayNew;
 
-	PackedIntPlaintextEncoding intArrayNew;
+	cc->Decrypt(kp.secretKey, p1, &intArrayNew);
 
-	cc->Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew, false);
-
-	std::vector<usint> result(intArrayNew);
-
-	return result;
+	return intArrayNew->GetPackedValue();
 
 }
 
@@ -379,32 +354,26 @@ std::vector<usint> FVAutomorphismPackedArray(usint i) {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext;
+	shared_ptr<Ciphertext<Poly>> ciphertext;
 
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8 };
-	PackedIntPlaintextEncoding intArray(vectorOfInts);
+	shared_ptr<Plaintext> intArray = cc->MakePackedPlaintext(vectorOfInts);
 
-	ciphertext = cc->Encrypt(kp.publicKey, intArray, false);
+	ciphertext = cc->Encrypt(kp.publicKey, intArray);
 
 	std::vector<usint> indexList = { 3,5,7,9,11,13,15 };
 
 	auto evalKeys = cc->EvalAutomorphismKeyGen(kp.secretKey, indexList);
 
-	vector<shared_ptr<Ciphertext<Poly>>> permutedCiphertext;
-
 	shared_ptr<Ciphertext<Poly>> p1;
 
-	p1 = cc->EvalAutomorphism(ciphertext[0], i, *evalKeys);
+	p1 = cc->EvalAutomorphism(ciphertext, i, *evalKeys);
 
-	permutedCiphertext.push_back(p1);
+	shared_ptr<Plaintext> intArrayNew;
 
-	PackedIntPlaintextEncoding intArrayNew;
+	cc->Decrypt(kp.secretKey, p1, &intArrayNew);
 
-	cc->Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew, false);
-
-	std::vector<usint> result(intArrayNew);
-
-	return result;
+	return intArrayNew->GetPackedValue();
 
 }
 

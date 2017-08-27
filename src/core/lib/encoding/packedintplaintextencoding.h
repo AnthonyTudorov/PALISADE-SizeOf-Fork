@@ -44,48 +44,68 @@ namespace lbcrypto
  * This method uses bit packing techniques to enable efficient computing on vectors of integers.
  */
 
-class PackedIntPlaintextEncoding : public Plaintext, public std::vector<uint32_t>
+class PackedIntPlaintextEncoding : public Plaintext
 {
+	vector<uint32_t>		value;
 
 public:
-	/**
-	 * @brief Constructor method.
-	 * Constructs a container with as many elements as the range [first,last),
-	 * with each element emplace-constructed
-	 * from its corresponding element in that range, in the same order.
-	 * @param sIter Input iterators to the initial and final positions in a range.
-	 * The range used is [first,last), which includes all the elements between first
-	 * and last, including the element pointed by first but not the element pointed by last.
-	 * The function template argument InputIterator shall be an input iterator type that
-	 * points to elements of a type from which value_type objects can be constructed.
-	 * @param eIter Input iterators to the initial and final positions in a range.
-	 * The range used is [first,last), which includes all the elements between first
-	 * and last, including the element pointed by first but not the element pointed by last.
-	 * The function template argument InputIterator shall be an input iterator type that
-	 * points to elements of a type from which value_type objects can be constructed.
-	 */
-	PackedIntPlaintextEncoding(std::vector<uint32_t>::const_iterator sIter, std::vector<uint32_t>::const_iterator eIter)
-		: Plaintext(shared_ptr<Poly::Params>(0),NULL), std::vector<uint32_t>(std::vector<uint32_t>(sIter, eIter)) {}
+	// these two constructors are used inside of Decrypt
+	PackedIntPlaintextEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep) :
+		Plaintext(vp,ep,true) {}
+
+	PackedIntPlaintextEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep) :
+		Plaintext(vp,ep,true) {}
+
+	PackedIntPlaintextEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, vector<uint32_t> coeffs) :
+		Plaintext(vp,ep), value(coeffs) {}
+
+	PackedIntPlaintextEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, vector<uint32_t> coeffs) :
+		Plaintext(vp,ep), value(coeffs) {}
+
+	PackedIntPlaintextEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, std::initializer_list<uint32_t> coeffs) :
+		Plaintext(vp,ep), value(coeffs) {}
+
+	PackedIntPlaintextEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, std::initializer_list<uint32_t> coeffs) :
+		Plaintext(vp,ep), value(coeffs) {}
+
+//	/**
+//	 * @brief Constructor method.
+//	 * Constructs a container with as many elements as the range [first,last),
+//	 * with each element emplace-constructed
+//	 * from its corresponding element in that range, in the same order.
+//	 * @param sIter Input iterators to the initial and final positions in a range.
+//	 * The range used is [first,last), which includes all the elements between first
+//	 * and last, including the element pointed by first but not the element pointed by last.
+//	 * The function template argument InputIterator shall be an input iterator type that
+//	 * points to elements of a type from which value_type objects can be constructed.
+//	 * @param eIter Input iterators to the initial and final positions in a range.
+//	 * The range used is [first,last), which includes all the elements between first
+//	 * and last, including the element pointed by first but not the element pointed by last.
+//	 * The function template argument InputIterator shall be an input iterator type that
+//	 * points to elements of a type from which value_type objects can be constructed.
+//	 */
+//	PackedIntPlaintextEncoding(std::vector<uint32_t>::const_iterator sIter, std::vector<uint32_t>::const_iterator eIter)
+//		: Plaintext(shared_ptr<Poly::Params>(0),NULL), std::vector<uint32_t>(std::vector<uint32_t>(sIter, eIter)) {}
 
 	/**
 	 * @brief Constructs a container with a copy of each of the elements in rhs, in the same order.
 	 * @param rhs - The input object to copy.
 	 */
 	PackedIntPlaintextEncoding(const std::vector<uint32_t> &rhs)
-		: Plaintext(shared_ptr<Poly::Params>(0),NULL), std::vector<uint32_t>(rhs) {}
+		: Plaintext(shared_ptr<Poly::Params>(0),NULL), value(rhs) {}
 
 	/**
 	 * @brief Constructs a container with a copy of each of the elements in il, in the same order.
 	 * @param arr the list to copy.
 	 */
 	PackedIntPlaintextEncoding(std::initializer_list<uint32_t> arr)
-		: Plaintext(shared_ptr<Poly::Params>(0),NULL), std::vector<uint32_t>(arr) {}
+		: Plaintext(shared_ptr<Poly::Params>(0),NULL), value(arr) {}
 
 	/**
 	 * @brief Default empty constructor with empty uninitialized data elements.
 	 */
 	PackedIntPlaintextEncoding()
-		: Plaintext(shared_ptr<Poly::Params>(0),NULL), std::vector<uint32_t>() {}
+		: Plaintext(shared_ptr<Poly::Params>(0),NULL), value() {}
 
 	/**
 	 * @brief Method to return the initial root.
@@ -101,6 +121,10 @@ public:
 		return m_automorphismGenerator[modulusNI];
 	}
 
+	bool Encode();
+
+	bool Decode();
+
 	/** The operation of converting from current plaintext encoding to Poly.
 	*
 	* @param  modulus - used for encoding.
@@ -108,19 +132,9 @@ public:
 	* @param  start_from - location to start from.  Defaults to 0.
 	* @param  length - length of data to encode.  Defaults to 0.
 	*/
-	bool Encode(const BigInteger &modulus, Poly *ilVector, size_t start_from = 0, size_t length = 0) const;
+	bool Encode(const BigInteger &modulus, Poly *ilVector, size_t start_from = 0, size_t length = 0);
 
-	/**
-	 * Interface for the operation of converting from current plaintext encoding to Poly.
-	 *
-	 * @param  modulus - used for encoding.
-	 * @param  *ilVector encoded plaintext - output argument.
-	 * @param  start_from - location to start from.  Defaults to 0.
-	 * @param  length - length of data to encode.  Defaults to 0.
-	*/
-	bool Encode(const BigInteger &modulus, DCRTPoly *ilVector, size_t start_from = 0, size_t length = 0) const {
-		throw std::logic_error("Encode: Packed encoding is not currently supported for DCRTPoly");
-	};
+	const vector<uint32_t>&	GetPackedValue() const { return value; }
 
 	/**
 	 * Interface for the operation of converting from Poly to current plaintext encoding.
@@ -151,7 +165,7 @@ public:
 	 * @return the length of the plaintext in terms of the number of bits.
 	 */
 	size_t GetLength() const {
-		return this->size();
+		return value.size();
 	}
 
 	/**
@@ -194,9 +208,9 @@ public:
 	 */
 	friend std::ostream& operator<<(std::ostream& out, const PackedIntPlaintextEncoding& item) {
 		size_t i;
-		for (i = 0; i<item.size()-1; i++)
-			out << item.at(i) << ",";
-		out << item.at(i);
+		for (i = 0; i<item.value.size()-1; i++)
+			out << item.value[i] << ",";
+		out << item.value[i];
 		return out;
 	}
 

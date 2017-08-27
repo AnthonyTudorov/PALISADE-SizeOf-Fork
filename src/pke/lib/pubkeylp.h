@@ -1336,7 +1336,7 @@ namespace lbcrypto {
 
 			std::vector<usint> randomIntVector(n);
 
-			//first plainext slot does not need to change
+			//first plaintext slot does not need to change
 			randomIntVector[0] = 0;
 
 			for (usint i = 0; i < n - 1; i++)
@@ -1344,15 +1344,12 @@ namespace lbcrypto {
 				randomIntVector[i + 1] = randomVector.GetValAtIndex(i).ConvertToInt();
 			}
 
-			PackedIntPlaintextEncoding plaintext(randomIntVector);
-
-			Poly encodedPlaintext(elementParams);
-
-			plaintext.Encode(encodingParams->GetPlaintextModulus(), &encodedPlaintext);
+			shared_ptr<Plaintext> plaintext = cc->MakePackedPlaintext(randomIntVector);
 
 			shared_ptr<LPPublicKey<Element>> pk(new LPPublicKey<Element>(cc, kID));
+			plaintext->Encode();
 
-			shared_ptr<Ciphertext<Element>>  embeddedPlaintext = cc->GetEncryptionAlgorithm()->Encrypt(pk, encodedPlaintext);
+			shared_ptr<Ciphertext<Element>> embeddedPlaintext = cc->GetEncryptionAlgorithm()->Encrypt(pk, plaintext->GetElement<Element>());
 
 			auto ans = EvalAdd(ciphertext, embeddedPlaintext);
 

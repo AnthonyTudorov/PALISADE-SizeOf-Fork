@@ -120,17 +120,17 @@ main(int argc, char *argv[])
 		PalisadeCircuit<Poly>	cir(cc, driver.graph);
 
 		// construct matrix for first vector
-		Matrix<IntPlaintextEncoding> scalarMatrix1([](){return make_unique<IntPlaintextEncoding>();},
+		Matrix<shared_ptr<Plaintext>> scalarMatrix1([](){return make_unique<shared_ptr<Plaintext>>();},
 				1,vectorOfInts.size());
 		for( size_t c=0; c<vectorOfInts.size(); c++ ) {
-			scalarMatrix1(0,c) = { vectorOfInts[c] };
+			scalarMatrix1(0,c) = cc->MakeCoefPackedPlaintext({ vectorOfInts[c] });
 		}
 
 		// construct matrix for second vector
-		Matrix<IntPlaintextEncoding> scalarMatrix2([](){return make_unique<IntPlaintextEncoding>();},
+		Matrix<shared_ptr<Plaintext>> scalarMatrix2([](){return make_unique<shared_ptr<Plaintext>>();},
 				vectorOfInts.size(), 1);
 		for( size_t r=0; r<vectorOfInts.size(); r++ ) {
-			scalarMatrix2(r,0) = { vectorOfInts[r] };
+			scalarMatrix2(r,0) = cc->MakeCoefPackedPlaintext({ vectorOfInts[r] });
 		}
 
 		shared_ptr<Matrix<RationalCiphertext<Poly>>> A = cc->EncryptMatrix(kp.publicKey, scalarMatrix1);
@@ -150,11 +150,11 @@ main(int argc, char *argv[])
 
 		for( auto& out : outputs ) {
 			auto m = out.second.GetIntMatValue();
-			Matrix<IntPlaintextEncoding> numerator([](){return make_unique<IntPlaintextEncoding>();},m->GetRows(),m->GetCols());
-			Matrix<IntPlaintextEncoding> denominator([](){return make_unique<IntPlaintextEncoding>();},m->GetRows(),m->GetCols());
+			Matrix<shared_ptr<Plaintext>> numerator([](){return make_unique<shared_ptr<Plaintext>>();},m->GetRows(),m->GetCols());
+			Matrix<shared_ptr<Plaintext>> denominator([](){return make_unique<shared_ptr<Plaintext>>();},m->GetRows(),m->GetCols());
 			cc->DecryptMatrix(kp.secretKey, m, &numerator, &denominator);
 
-			cout << "INNER PRODUCT IS: " << numerator(0,0)[0] << endl;
+			cout << "INNER PRODUCT IS: " << numerator(0,0)->GetCoefPackedValue()[0] << endl;
 		}
 
 		cout << "Timing, using circuit eval of " << times[0].operation << ", is " << times[0].timeval << "ms" << endl;
@@ -231,12 +231,12 @@ main(int argc, char *argv[])
 
 		for( auto& out : outputs ) {
 			auto m = out.second.GetIntMatValue();
-			Matrix<IntPlaintextEncoding> numerator([](){return make_unique<IntPlaintextEncoding>();},m->GetRows(),m->GetCols());
-			Matrix<IntPlaintextEncoding> denominator([](){return make_unique<IntPlaintextEncoding>();},m->GetRows(),m->GetCols());
+			Matrix<shared_ptr<Plaintext>> numerator([](){return make_unique<shared_ptr<Plaintext>>();},m->GetRows(),m->GetCols());
+			Matrix<shared_ptr<Plaintext>> denominator([](){return make_unique<shared_ptr<Plaintext>>();},m->GetRows(),m->GetCols());
 			cc->DecryptMatrix(kp.secretKey, m, &numerator, &denominator);
 
 			uint32_t ptm = cc->GetCryptoParameters()->GetPlaintextModulus().ConvertToInt();
-			cout << "INNER PRODUCT IS: " << numerator(0,0).EvalToInt(ptm) << endl;
+			cout << "INNER PRODUCT IS: " << numerator(0,0)->GetIntegerValue() << endl;
 		}
 
 		cout << "Timing, using circuit eval of " << times[0].operation << ", is " << times[0].timeval << "ms" << endl;
@@ -283,8 +283,8 @@ main(int argc, char *argv[])
 		cc->EvalMultKeyGen(kp.secretKey);
 		cc->EvalSumKeyGen(kp.secretKey);
 
-		PackedIntPlaintextEncoding packedArray1(vectorOfInts);
-		PackedIntPlaintextEncoding packedArray2(vectorOfInts);
+		shared_ptr<Plaintext> packedArray1 = cc->MakePackedPlaintext(vectorOfInts);
+		shared_ptr<Plaintext> packedArray2 = cc->MakePackedPlaintext(vectorOfInts);
 
 		auto A = cc->Encrypt(kp.publicKey, packedArray1);
 		auto B = cc->Encrypt(kp.publicKey, packedArray2);
@@ -292,16 +292,16 @@ main(int argc, char *argv[])
 		vector<TimingInfo>	times;
 		cc->StartTiming(&times);
 
-		auto result = cc->EvalInnerProduct(A[0], B[0], batchSize);
+		auto result = cc->EvalInnerProduct(A, B, batchSize);
 
 		cc->StopTiming();
 
-		PackedIntPlaintextEncoding intArrayNew;
-		cc->Decrypt(kp.secretKey, {result}, &intArrayNew, false);
+		shared_ptr<Plaintext> intArrayNew;
+		cc->Decrypt(kp.secretKey, result, &intArrayNew);
 
 		cc->StopTiming();
 
-		cout << "INNER PRODUCT IS: " << intArrayNew[0] << endl;
+		cout << "INNER PRODUCT IS: " << intArrayNew->GetIntegerValue() << endl;
 
 		cout << "Timing, using " << times[0].operation << ", is " << times[0].timeval << "ms" << endl;
 	}

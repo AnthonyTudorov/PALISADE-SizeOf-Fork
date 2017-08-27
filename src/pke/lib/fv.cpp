@@ -465,26 +465,14 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalAdd(const shared_
 
 	std::vector<Element> c(cipherTextRElementsSize);
 
-	if(ciphertext2->GetIsEncrypted()){
+	for(size_t i=0; i<cipherTextSmallElementsSize; i++)
+		c[i] = cipherText1Elements[i] + cipherText2Elements[i];
 
-		for(size_t i=0; i<cipherTextSmallElementsSize; i++)
-			c[i] = cipherText1Elements[i] + cipherText2Elements[i];
-
-		for(size_t i=cipherTextSmallElementsSize; i<cipherTextRElementsSize; i++){
-			if(isCipherText1Small == true)
-				c[i] = cipherText2Elements[i];
-			else
-				c[i] = cipherText1Elements[i];
-		}
-	}
-	else {
-		auto fvParams = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(ciphertext1->GetCryptoParameters());
-		auto &delta = fvParams->GetDelta();
-
-		c[0] = cipherText1Elements[0] + delta*cipherText2Elements[0];
-		for(size_t i=0; i<cipherTextRElementsSize; i++)
+	for(size_t i=cipherTextSmallElementsSize; i<cipherTextRElementsSize; i++){
+		if(isCipherText1Small == true)
+			c[i] = cipherText2Elements[i];
+		else
 			c[i] = cipherText1Elements[i];
-
 	}
 
 	newCiphertext->SetElements(c);
@@ -526,26 +514,14 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalSub(const shared_
 
 	std::vector<Element> c(cipherTextRElementsSize);
 
-	if(ciphertext2->GetIsEncrypted()){
+	for(size_t i=0; i<cipherTextSmallElementsSize; i++)
+		c[i] = cipherText1Elements[i] - cipherText2Elements[i];
 
-		for(size_t i=0; i<cipherTextSmallElementsSize; i++)
-			c[i] = cipherText1Elements[i] - cipherText2Elements[i];
-
-		for(size_t i=cipherTextSmallElementsSize; i<cipherTextRElementsSize; i++){
-			if(isCipherText1Small == true)
-				c[i] = cipherText2Elements[i];
-			else
-				c[i] = cipherText1Elements[i];
-		}
-	}
-	else {
-		auto fvParams = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(ciphertext1->GetCryptoParameters());
-		auto &delta = fvParams->GetDelta();
-
-		c[0] = cipherText1Elements[0] - delta*cipherText2Elements[0];
-		for(size_t i=0; i<cipherTextRElementsSize; i++)
+	for(size_t i=cipherTextSmallElementsSize; i<cipherTextRElementsSize; i++){
+		if(isCipherText1Small == true)
+			c[i] = cipherText2Elements[i];
+		else
 			c[i] = cipherText1Elements[i];
-
 	}
 
 	newCiphertext->SetElements(c);
@@ -776,9 +752,9 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared
 	const shared_ptr<Ciphertext<Element>> ciphertext2,
 	const shared_ptr<LPEvalKey<Element>> ek) const {
 
-	if(!ciphertext2->GetIsEncrypted()) {
-		return EvalMultPlain(ciphertext1, ciphertext2);
-	}
+//	if(!ciphertext2->GetIsEncrypted()) { FIXME
+//		return EvalMultPlain(ciphertext1, ciphertext2);
+//	}
 
 	shared_ptr<Ciphertext<Element>> newCiphertext = this->EvalMult(ciphertext1, ciphertext2);
 

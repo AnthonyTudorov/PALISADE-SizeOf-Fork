@@ -80,22 +80,22 @@ TEST_F(UTSHEAdvanced, test_eval_mult_single_crt) {
 	LPKeyPair<Poly> kp;
 
 	std::vector<usint> vectorOfInts1 = { 2 };
-	IntPlaintextEncoding intArray1(vectorOfInts1);
+	shared_ptr<Plaintext> intArray1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
 
 	std::vector<usint> vectorOfInts2 = { 3 };
-	IntPlaintextEncoding intArray2(vectorOfInts2);
+	shared_ptr<Plaintext> intArray2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
 
 	kp = cc->KeyGen();
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext1;
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext2;
+	shared_ptr<Ciphertext<Poly>> ciphertext1;
+	shared_ptr<Ciphertext<Poly>> ciphertext2;
 
-	ciphertext1 = cc->Encrypt(kp.publicKey, intArray1, false);
-	ciphertext2 = cc->Encrypt(kp.publicKey, intArray2, false);
+	ciphertext1 = cc->Encrypt(kp.publicKey, intArray1);
+	ciphertext2 = cc->Encrypt(kp.publicKey, intArray2);
 
 	shared_ptr<Ciphertext<Poly>> cResult =
-		cc->EvalMult(ciphertext1.at(0), ciphertext2.at(0));
+		cc->EvalMult(ciphertext1, ciphertext2);
 
 	LPKeyPair<Poly> newKp = cc->KeyGen();
 
@@ -103,18 +103,15 @@ TEST_F(UTSHEAdvanced, test_eval_mult_single_crt) {
 
 	cResult = cc->KeySwitch(keySwitchHint2, cResult);
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertextResults(1);
-	ciphertextResults.at(0) = cResult;
-	IntPlaintextEncoding results;
+	shared_ptr<Plaintext> results;
 
-	cc->Decrypt(newKp.secretKey, ciphertextResults, &results, false);
+	cc->Decrypt(newKp.secretKey, cResult, &results);
 
-	EXPECT_EQ(results.at(0), 6U);
+	EXPECT_EQ(results->GetCoefPackedValue().at(0), 6U);
 }
 
 
 TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
-	bool dbg_flag = false;
 
 	usint init_m = 16;
 
@@ -154,40 +151,35 @@ TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 
 	//Generating new cryptoparameters for when modulus reduction is done. - not used?
 	std::vector<usint> vectorOfInts1 = { 2, 4 };
-	IntPlaintextEncoding intArray1(vectorOfInts1);
+	shared_ptr<Plaintext> intArray1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
 
 	std::vector<usint> vectorOfInts2 = { 3, 3 };
-	IntPlaintextEncoding intArray2(vectorOfInts2);
+	shared_ptr<Plaintext> intArray2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
 
 	kp = cc->KeyGen();
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	vector<shared_ptr<Ciphertext<DCRTPoly>>> ciphertext1;
-	vector<shared_ptr<Ciphertext<DCRTPoly>>> ciphertext2;
+	shared_ptr<Ciphertext<DCRTPoly>> ciphertext1;
+	shared_ptr<Ciphertext<DCRTPoly>> ciphertext2;
 
-	ciphertext1 = cc->Encrypt(kp.publicKey, intArray1, false);
-	ciphertext2 = cc->Encrypt(kp.publicKey, intArray2, false);
+	ciphertext1 = cc->Encrypt(kp.publicKey, intArray1);
+	ciphertext2 = cc->Encrypt(kp.publicKey, intArray2);
 
-	std::vector<shared_ptr<Ciphertext<DCRTPoly>>> cResult;
-	cResult.insert(cResult.begin(), cc->EvalMult(ciphertext1.at(0), ciphertext2.at(0)));
-
-	DEBUG("1 " << ciphertext1.at(0)->GetElement().GetLength());
-	DEBUG("2 " << ciphertext2.at(0)->GetElement().GetLength());
-	DEBUG("out " << cResult.at(0)->GetElement().GetLength());
+	std::shared_ptr<Ciphertext<DCRTPoly>> cResult = cc->EvalMult(ciphertext1, ciphertext2);
 
 	LPKeyPair<DCRTPoly> newKp = cc->KeyGen();
 
 	shared_ptr<LPEvalKey<DCRTPoly>> keySwitchHint2 = cc->KeySwitchGen(kp.secretKey, newKp.secretKey);
 
-	cResult.at(0) = cc->KeySwitch(keySwitchHint2, cResult.at(0));
+	cResult = cc->KeySwitch(keySwitchHint2, cResult);
 
-	IntPlaintextEncoding results;
+	shared_ptr<Plaintext> results;
 
-	cc->Decrypt(newKp.secretKey, cResult, &results, false);
+	cc->Decrypt(newKp.secretKey, cResult, &results);
 
-	EXPECT_EQ(6U, results.at(0));
-	EXPECT_EQ(0U, results.at(1));
-	EXPECT_EQ(3U, results.at(2));
+	EXPECT_EQ(6U, results->GetCoefPackedValue().at(0));
+	EXPECT_EQ(0U, results->GetCoefPackedValue().at(1));
+	EXPECT_EQ(3U, results->GetCoefPackedValue().at(2));
 }
 
 
@@ -210,38 +202,38 @@ TEST_F(UTSHEAdvanced, test_eval_add_single_crt) {
 
 	DEBUG("Filling 1");
 	std::vector<usint> vectorOfInts1 = { 2, 3, 1, 4 };
-	IntPlaintextEncoding intArray1(vectorOfInts1);
+	shared_ptr<Plaintext> intArray1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
 
 	DEBUG("Filling 2");
 	std::vector<usint> vectorOfInts2 = { 3, 6, 3, 1 };
-	IntPlaintextEncoding intArray2(vectorOfInts2);
+	shared_ptr<Plaintext> intArray2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
 
 	DEBUG("getting pairs");
 	kp = cc->KeyGen();
 
 	DEBUG("got pairs");
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext1;
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext2;
+	shared_ptr<Ciphertext<Poly>> ciphertext1;
+	shared_ptr<Ciphertext<Poly>> ciphertext2;
 
-	ciphertext1 = cc->Encrypt(kp.publicKey, intArray1, false);
+	ciphertext1 = cc->Encrypt(kp.publicKey, intArray1);
 	DEBUG("after crypt 1");
-	ciphertext2 = cc->Encrypt(kp.publicKey, intArray2, false);
+	ciphertext2 = cc->Encrypt(kp.publicKey, intArray2);
 	DEBUG("after crypt 2");
 
 	shared_ptr<Ciphertext<Poly>> cResult;
 	DEBUG("before EA");
-	cResult = cc->EvalAdd(ciphertext1.at(0), ciphertext2.at(0));
+	cResult = cc->EvalAdd(ciphertext1, ciphertext2);
 	DEBUG("after");
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertextResults({ cResult });
-	IntPlaintextEncoding results;
+	shared_ptr<Ciphertext<Poly>> ciphertextResults({ cResult });
+	shared_ptr<Plaintext> results;
 
-	cc->Decrypt(kp.secretKey, ciphertextResults, &results, false);
+	cc->Decrypt(kp.secretKey, ciphertextResults, &results);
 
-	EXPECT_EQ(5U, results.at(0));
-	EXPECT_EQ(1U, results.at(1));
-	EXPECT_EQ(4U, results.at(2));
-	EXPECT_EQ(5U, results.at(3));
+	EXPECT_EQ(5U, results->GetCoefPackedValue().at(0));
+	EXPECT_EQ(1U, results->GetCoefPackedValue().at(1));
+	EXPECT_EQ(4U, results->GetCoefPackedValue().at(2));
+	EXPECT_EQ(5U, results->GetCoefPackedValue().at(3));
 }
 
 
@@ -283,34 +275,34 @@ TEST_F(UTSHEAdvanced, test_eval_add_double_crt) {
 	cc->Enable(LEVELEDSHE);
 
 	std::vector<usint> vectorOfInts1 = { 2, 4, 8, 5 };
-	IntPlaintextEncoding intArray1(vectorOfInts1);
+	shared_ptr<Plaintext> intArray1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
 
 	std::vector<usint> vectorOfInts2 = { 3, 3, 4, 1 };
-	IntPlaintextEncoding intArray2(vectorOfInts2);
+	shared_ptr<Plaintext> intArray2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
 
 	//Generate the secret key for the initial ciphertext:
 	LPKeyPair<DCRTPoly> kp = cc->KeyGen();
 
-	vector<shared_ptr<Ciphertext<DCRTPoly>>> ciphertext1;
-	vector<shared_ptr<Ciphertext<DCRTPoly>>> ciphertext2;
+	shared_ptr<Ciphertext<DCRTPoly>> ciphertext1;
+	shared_ptr<Ciphertext<DCRTPoly>> ciphertext2;
 
-	ciphertext1 = cc->Encrypt(kp.publicKey, intArray1, false);
-	ciphertext2 = cc->Encrypt(kp.publicKey, intArray2, false);
+	ciphertext1 = cc->Encrypt(kp.publicKey, intArray1);
+	ciphertext2 = cc->Encrypt(kp.publicKey, intArray2);
 
 	shared_ptr<Ciphertext<DCRTPoly>> cResult;
 
-	cResult = cc->EvalAdd(ciphertext1.at(0), ciphertext2.at(0));
+	cResult = cc->EvalAdd(ciphertext1, ciphertext2);
 
 
-	vector<shared_ptr<Ciphertext<DCRTPoly>>> ciphertextResults({ cResult });
-	IntPlaintextEncoding results;
+	shared_ptr<Ciphertext<DCRTPoly>> ciphertextResults({ cResult });
+	shared_ptr<Plaintext> results;
 
-	cc->Decrypt(kp.secretKey, ciphertextResults, &results, false);
+	cc->Decrypt(kp.secretKey, ciphertextResults, &results);
 
-	EXPECT_EQ(results.at(0), 5U);
-	EXPECT_EQ(results.at(1), 7U);
-	EXPECT_EQ(results.at(2), 3U);
-	EXPECT_EQ(results.at(3), 6U);
+	EXPECT_EQ(results->GetCoefPackedValue().at(0), 5U);
+	EXPECT_EQ(results->GetCoefPackedValue().at(1), 7U);
+	EXPECT_EQ(results->GetCoefPackedValue().at(2), 3U);
+	EXPECT_EQ(results->GetCoefPackedValue().at(3), 6U);
 	DEBUG("13");
 }
 
@@ -348,18 +340,18 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 	cc->EvalMultKeyGen(kp.secretKey);
 
 	std::vector<usint> firstElement = { 8, 5, 4 };
-	IntPlaintextEncoding firstElementEncoding(firstElement);
+	shared_ptr<Plaintext> firstElementEncoding = cc->MakeCoefPackedPlaintext(firstElement);
 
 	std::vector<usint> secondElement = { 7, 4, 2 };
-	IntPlaintextEncoding secondElementEncoding(secondElement);
+	shared_ptr<Plaintext> secondElementEncoding = cc->MakeCoefPackedPlaintext(secondElement);
 
-	vector<shared_ptr<Ciphertext<DCRTPoly>>> ciphertextElementOne;
-	vector<shared_ptr<Ciphertext<DCRTPoly>>> ciphertextElementTwo;
+	shared_ptr<Ciphertext<DCRTPoly>> ciphertextElementOne;
+	shared_ptr<Ciphertext<DCRTPoly>> ciphertextElementTwo;
 
-	ciphertextElementOne = cc->Encrypt(kp.publicKey, firstElementEncoding, false);
-	ciphertextElementTwo = cc->Encrypt(kp.publicKey, secondElementEncoding, false);
+	ciphertextElementOne = cc->Encrypt(kp.publicKey, firstElementEncoding);
+	ciphertextElementTwo = cc->Encrypt(kp.publicKey, secondElementEncoding);
 
-	shared_ptr<Ciphertext<DCRTPoly>> cResult = cc->ComposedEvalMult(ciphertextElementOne[0], ciphertextElementTwo[0]);
+	shared_ptr<Ciphertext<DCRTPoly>> cResult = cc->ComposedEvalMult(ciphertextElementOne, ciphertextElementTwo);
 
 	// ok let's try making the secret keys both have one less tower
 	// because ComposedEvalMult performs a ModReduce
@@ -380,15 +372,14 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 
 	cResult = ccSmall->KeySwitch(KeySwitchHint, cResultSmall);
 
-	vector<shared_ptr<Ciphertext<DCRTPoly>>> tempvec2( { cResult } );
-	IntPlaintextEncoding results;
+	shared_ptr<Plaintext> results;
 
-	ccSmall->Decrypt(kp1.secretKey, tempvec2, &results, false);
+	ccSmall->Decrypt(kp1.secretKey, cResult, &results);
 
-	EXPECT_EQ(results.at(0), 2U);
-	EXPECT_EQ(results.at(1), 4U);
-	EXPECT_EQ(results.at(2), 1U);
-	EXPECT_EQ(results.at(3), 8U);
-	EXPECT_EQ(results.at(4), 8U);
+	EXPECT_EQ(results->GetCoefPackedValue().at(0), 2U);
+	EXPECT_EQ(results->GetCoefPackedValue().at(1), 4U);
+	EXPECT_EQ(results->GetCoefPackedValue().at(2), 1U);
+	EXPECT_EQ(results->GetCoefPackedValue().at(3), 8U);
+	EXPECT_EQ(results->GetCoefPackedValue().at(4), 8U);
 }
 #endif
