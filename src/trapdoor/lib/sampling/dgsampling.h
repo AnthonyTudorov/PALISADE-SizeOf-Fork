@@ -95,6 +95,20 @@ public:
 	static void GaussSampGq(const Element &u, double stddev, size_t k, const typename Element::Integer &q, int32_t base,
 				typename Element::DggType &dgg, Matrix<int32_t> *z);
 
+	/**
+	* Gaussian sampling from lattice for gagdet matrix G and syndrome u and ARBITRARY MODULUS q - Improved algorithm
+	* Algorithm was provided in a personal communication by Daniele Micciancio
+	*
+	* @param u syndrome (a polynomial)
+	* @param sttdev standard deviation
+	* @param k number of components in the gadget vector
+	* @param q integer modulus
+	* @param dgg discrete Gaussian generator
+	* @param *z a set of k sampled polynomials corresponding to the gadget matrix G; represented as Z^(k x n)
+	*/
+	static void GaussSampGqArbBase(const Element &u, double stddev, size_t k, const typename Element::Integer &q, int32_t base,
+		typename Element::DggType &dgg, Matrix<int32_t> *z);
+
 
 	/**
 	* Subroutine used by ZSampleSigmaP
@@ -126,6 +140,11 @@ private:
 	// Algorithm was provided in a personal communication by Daniele Micciancio
 	static void Perturb(double sigma,  size_t k, size_t n, 
 		const vector<double> &l, const vector<double> &h, int32_t base, typename Element::DggType &dgg, vector<int32_t> *p);
+
+	// subroutine used by GaussSampGqArbBase
+	// Algorithm was provided in a personal communication by Daniele Micciancio
+	static void PerturbFloat(double sigma, size_t k, size_t n,
+		const vector<double> &l, const vector<double> &h, int32_t base, typename Element::DggType &dgg, vector<double> *p);
 
 	// subroutine used by GaussSampGqV2
 	// Algorithm was provided in a personal communication by Daniele Micciancio
