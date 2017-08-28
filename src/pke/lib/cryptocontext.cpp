@@ -593,7 +593,7 @@ bool
 CryptoContext<T>::Serialize(Serialized* serObj) const
 {
 	if( ! serObj->IsObject() )
-		throw std::logic_error("serObj passed to CryptoContext::Serialized MUST be an Object");
+		serObj->SetObject();
 
 	Serialized ccser(rapidjson::kObjectType, &serObj->GetAllocator());
 
