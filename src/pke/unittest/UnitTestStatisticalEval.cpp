@@ -39,11 +39,14 @@
 
 using namespace lbcrypto;
 
-class UnitTestBV : public ::testing::Test {
+class UTStatisticalEval : public ::testing::Test {
 protected:
-	virtual void SetUp() {}
+	void SetUp() {}
 
-	virtual void TearDown() {}
+	void TearDown() {
+		CryptoContextFactory<Poly>::ReleaseAllContexts();
+		CryptoContextFactory<DCRTPoly>::ReleaseAllContexts();
+	}
 
 public:
 };
@@ -53,7 +56,7 @@ public:
 /** Tests linear regression for the Null scheme
 * based on of a design matrix of 2x2 and response vector of 2x1
 */
-TEST(UTStatisticalEval, Null_Eval_Lin_Regression) {
+TEST_F(UTStatisticalEval, Null_Eval_Lin_Regression) {
 
 	usint plaintextModulus = 256;
 	usint m = 64;
@@ -149,7 +152,7 @@ TEST(UTStatisticalEval, Null_Eval_Lin_Regression) {
 * In contrast to the previous test, this one also converts an integer
 * into a binary polynomial
 */
-TEST(UTStatisticalEval, Null_Eval_Lin_Regression_Int) {
+TEST_F(UTStatisticalEval, Null_Eval_Lin_Regression_Int) {
 
 	usint plaintextModulus = 256;
 	usint m = 64;
@@ -230,7 +233,7 @@ TEST(UTStatisticalEval, Null_Eval_Lin_Regression_Int) {
 * In contrast to the previous test, this one also converts an integer
 * into a binary polynomial
 */
-TEST(UTStatisticalEval, FV_Eval_Lin_Regression_Int) {
+TEST_F(UTStatisticalEval, FV_Eval_Lin_Regression_Int) {
 
 	usint plaintextModulus = 256;
 	usint relWindow = 8;

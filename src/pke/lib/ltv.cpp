@@ -44,7 +44,7 @@
 namespace lbcrypto {
 
 template <class Element>
-LPKeyPair<Element> LPAlgorithmLTV<Element>::KeyGen(CryptoContext<Element>* cc, bool makeSparse)
+LPKeyPair<Element> LPAlgorithmLTV<Element>::KeyGen(shared_ptr<CryptoContext<Element>> cc, bool makeSparse)
 {
 	LPKeyPair<Element>	kp(new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc));
 
@@ -87,7 +87,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmLTV<Element>::Encrypt(const shared_pt
 	const shared_ptr<LPCryptoParametersRLWE<Element>> cryptoParams =
 		std::dynamic_pointer_cast<LPCryptoParametersRLWE<Element>>(publicKey->GetCryptoParameters());
 
-	shared_ptr<Ciphertext<Element>> ciphertext(new Ciphertext<Element>(publicKey->GetCryptoContext()));
+	shared_ptr<Ciphertext<Element>> ciphertext(new Ciphertext<Element>(publicKey));
 
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 	const BigInteger &p = cryptoParams->GetPlaintextModulus();
@@ -128,7 +128,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmLTV<Element>::Encrypt(const shared_pt
 	const shared_ptr<LPCryptoParametersRLWE<Element>> cryptoParams =
 		std::dynamic_pointer_cast<LPCryptoParametersRLWE<Element>>(privateKey->GetCryptoParameters());
 
-	shared_ptr<Ciphertext<Element>> ciphertext(new Ciphertext<Element>(privateKey->GetCryptoContext()));
+	shared_ptr<Ciphertext<Element>> ciphertext(new Ciphertext<Element>(privateKey));
 
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 	const BigInteger &p = cryptoParams->GetPlaintextModulus();
@@ -201,7 +201,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalAdd(
 		throw std::runtime_error(errMsg);
 	}
 
-	shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext1->GetCryptoContext()));
+	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext1->CloneEmpty();
 
 	const Element& c1 = ciphertext1->GetElement();
 
@@ -224,7 +224,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalSub(
 		throw std::runtime_error(errMsg);
 	}
 
-	shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext1->GetCryptoContext()));
+	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext1->CloneEmpty();
 
 	const Element& c1 = ciphertext1->GetElement();
 
@@ -253,7 +253,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalMult(
 		throw std::runtime_error(errMsg);
 	}
 
-	shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext1->GetCryptoContext()));
+	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext1->CloneEmpty();
 
 	const Element& c1 = ciphertext1->GetElement();
 
@@ -271,12 +271,9 @@ template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
 	const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const {
 
-	const shared_ptr<LPPublicKeyEncryptionSchemeLTV<Element>> scheme =
-			std::dynamic_pointer_cast<LPPublicKeyEncryptionSchemeLTV<Element>>(ciphertext1->GetCryptoContext()->GetEncryptionAlgorithm());
+	shared_ptr<Ciphertext<Element>> newCiphertext = EvalMult(ciphertext1, ciphertext2);
 
-	shared_ptr<Ciphertext<Element>> newCiphertext = scheme->EvalMult(ciphertext1, ciphertext2); 
-
-	newCiphertext = scheme->KeySwitch(ek,newCiphertext);
+	newCiphertext = KeySwitch(ek, newCiphertext);
 
 	return newCiphertext;
 }
@@ -284,7 +281,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalMult(const share
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalNegate(const shared_ptr<Ciphertext<Element>> ciphertext) const {
 
-	shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext->GetCryptoContext()));
+	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
 
 	const Element& c1 = ciphertext->GetElement();
 
@@ -354,13 +351,13 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::KeySwitch(
 	//Get the EvalKeyNTRU to perform key swich, also verfies if proper EvalKey is instantiated.
 	const shared_ptr<LPEvalKeyNTRU<Element>> keyHint = std::dynamic_pointer_cast<LPEvalKeyNTRU<Element>>(keySwitchHint);
 
-	shared_ptr<Ciphertext<Element>> newCipherText(new Ciphertext<Element>(cipherText->GetCryptoContext()));
+	shared_ptr<Ciphertext<Element>> newCiphertext = cipherText->CloneEmpty();
 
 	Element newCipherTextElement = cipherText->GetElement() * keyHint->GetA();
 
-	newCipherText->SetElement(newCipherTextElement);
+	newCiphertext->SetElement(newCipherTextElement);
 
-	return newCipherText;
+	return newCiphertext;
 }
 
 
@@ -519,7 +516,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmPRELTV<Element>::ReEncrypt(const shar
 template<class Element> inline
 shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmLTV<Element>::ModReduce(shared_ptr<Ciphertext<Element>> cipherText) const {
 
-	shared_ptr<Ciphertext<Element>> newcipherText(new Ciphertext<Element>(cipherText->GetCryptoContext()));
+	shared_ptr<Ciphertext<Element>> newCiphertext = cipherText->CloneEmpty();
 
 	Element cipherTextElement(cipherText->GetElement());
 
@@ -527,9 +524,9 @@ shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmLTV<Element>::ModReduce(sha
 
 	cipherTextElement.ModReduce(plaintextModulus); // this is being done at the lattice layer. The ciphertext is mod reduced.
 
-	newcipherText->SetElement(cipherTextElement);
+	newCiphertext->SetElement(cipherTextElement);
 
-	return newcipherText;
+	return newCiphertext;
 
 }
 
@@ -573,9 +570,7 @@ shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmLTV<Element>::ComposedEvalM
 	const shared_ptr<Ciphertext<Element>> cipherText2,
 	const shared_ptr<LPEvalKey<Element>> ek) const {
 
-	shared_ptr<Ciphertext<Element>> prod = cipherText1->GetCryptoContext()->GetEncryptionAlgorithm()->EvalMult(cipherText1, cipherText2);
-
-	prod = prod->GetCryptoContext()->GetEncryptionAlgorithm()->KeySwitch(ek, prod);
+	shared_ptr<Ciphertext<Element>> prod = cipherText1->GetCryptoContext()->GetEncryptionAlgorithm()->EvalMult(cipherText1, cipherText2, ek);
 
 	return this->ModReduce(prod);
 }

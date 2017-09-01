@@ -53,7 +53,7 @@ enum OpType {
 	OpReEncrypt,
 	OpEvalAdd, OpEvalAddMatrix, OpEvalAddPlain,
 	OpEvalSub, OpEvalSubMatrix, OpEvalSubPlain,
-	OpEvalMult, OpEvalMultMatrix, OpEvalMultKey, OpEvalMultPlain,
+	OpEvalMult, OpEvalMultMatrix, OpEvalMultPlain,
 	OpEvalNeg, OpEvalNegMatrix,
 	OpEvalAutomorphismKeyGen,
 	OpEvalAutomorphismI,

@@ -48,7 +48,7 @@ getValueForName(const map<string,string>& allvals, const string key, string& val
 
 template <typename Element>
 static shared_ptr<CryptoContext<Element>>
-buildContextFromSerialized(const map<string,string>& s, shared_ptr<typename Element::Params> parms)
+buildContextFromSerialized(const map<string,string>& s, shared_ptr<typename Element::Params> parms, shared_ptr<EncodingParams> ep = 0)
 {
 	std::string parmtype;
 	std::string plaintextModulus;
@@ -71,6 +71,10 @@ buildContextFromSerialized(const map<string,string>& s, shared_ptr<typename Elem
 				!getValueForName(s, "stDev", stDev) ) {
 			return 0;
 		}
+
+		if( ep.get() != 0 )
+			return CryptoContextFactory<Element>::genCryptoContextLTV(parms, ep,
+					stoul(relinWindow), stof(stDev));
 
 		return CryptoContextFactory<Element>::genCryptoContextLTV(parms, stoul(plaintextModulus),
 				stoul(relinWindow), stof(stDev));
@@ -203,31 +207,8 @@ inline shared_ptr<LPCryptoParameters<Element>> DeserializeAndValidateCryptoParam
 	return 0;
 }
 
-
-bool
-CryptoContextHelper::matchContextToSerialization(const CryptoContext<Poly> *cc, const Serialized& ser)
-{
-	shared_ptr<LPCryptoParameters<Poly>> ctxParams = cc->GetCryptoParameters();
-	shared_ptr<LPCryptoParameters<Poly>> cParams = DeserializeCryptoParameters<Poly>(ser);
-
-	if( !cParams ) return false;
-
-	return *ctxParams == *cParams;
-}
-
-bool
-CryptoContextHelper::matchContextToSerialization(const CryptoContext<DCRTPoly> *cc, const Serialized& ser)
-{
-	shared_ptr<LPCryptoParameters<DCRTPoly>> ctxParams = cc->GetCryptoParameters();
-	shared_ptr<LPCryptoParameters<DCRTPoly>> cParams = DeserializeCryptoParameters<DCRTPoly>(ser);
-
-	if( !cParams ) return false;
-
-	return *ctxParams == *cParams;
-}
-
 shared_ptr<CryptoContext<Poly>>
-CryptoContextHelper::getNewContext(const string& parmset)
+CryptoContextHelper::getNewContext(const string& parmset, shared_ptr<EncodingParams> ep)
 {
 	std::string parmtype;
 	std::string ring;
@@ -259,7 +240,7 @@ CryptoContextHelper::getNewContext(const string& parmset)
 								typename Poly::Integer(rootOfUnity)));
 	}
 
-	return buildContextFromSerialized<Poly>(it->second, parms);
+	return buildContextFromSerialized<Poly>(it->second, parms, ep);
 }
 
 shared_ptr<CryptoContext<DCRTPoly>>

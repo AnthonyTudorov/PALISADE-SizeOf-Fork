@@ -27,6 +27,9 @@
 #ifndef _SRC_LIB_UTILS_HASHUTIL_CPP
 #define _SRC_LIB_UTILS_HASHUTIL_CPP
 #include "hashutil.h"
+#include <sstream>
+#include <iomanip>
+
 #define RIGHT_ROT(x, n) (( x >> (n % (sizeof(x)*8) ) | ( x << ((sizeof(x)*8) - (n % (sizeof(x)*8))))))
 
 const uint32_t HashUtil::k_256[64] = { 0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
@@ -58,7 +61,7 @@ const uint64_t HashUtil::k_512[80] = { 0x428a2f98d728ae22, 0x7137449123ef65cd, 0
 lbcrypto::BytePlaintextEncoding HashUtil::SHA256(lbcrypto::BytePlaintextEncoding message) {
 	
 	uint32_t h_256[8] = { 0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19 };
-	
+
 	uint64_t m_len = message.size() * 8;
 	uint16_t pad_len = 1;
 	while ((m_len + pad_len) % 512 != 448) {
@@ -76,7 +79,6 @@ lbcrypto::BytePlaintextEncoding HashUtil::SHA256(lbcrypto::BytePlaintextEncoding
 	message.push_back((uint8_t)((m_len & 0x0000000000ff0000) >> 16));
 	message.push_back((uint8_t)((m_len & 0x000000000000ff00) >> 8));
 	message.push_back((uint8_t)(m_len & 0x00000000000000ff));
-
 
 	for (usint n = 0;n < (message.size() * 8) / 512; n++) {
 		uint32_t w[64];
@@ -129,8 +131,6 @@ lbcrypto::BytePlaintextEncoding HashUtil::SHA256(lbcrypto::BytePlaintextEncoding
 		h_256[7] += h;
 	}
 
-	
-
 	lbcrypto::BytePlaintextEncoding digest;
 	for (int i = 0; i < 8; i++) {
 		digest.push_back((uint8_t)((h_256[i] & 0xff000000) >> 24));
@@ -141,6 +141,90 @@ lbcrypto::BytePlaintextEncoding HashUtil::SHA256(lbcrypto::BytePlaintextEncoding
 
 	return digest;
 }
+
+std::string
+HashUtil::HashString(std::string message) {
+	uint32_t h_256[8] = { 0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19 };
+
+	uint64_t m_len = message.size() * 8;
+	uint16_t pad_len = 1;
+	while ((m_len + pad_len) % 512 != 448) {
+		pad_len++;
+	}
+
+	message += (char)(0x80);
+	for (int a = 0;a < (pad_len) / 8 - 1;a++) {
+		message += (char)(0);
+	}
+	message += ((char)((m_len & 0xff00000000000000) >> 56));
+	message += ((char)((m_len & 0x00ff000000000000) >> 48));
+	message += ((char)((m_len & 0x0000ff0000000000) >> 40));
+	message += ((char)((m_len & 0x000000ff00000000) >> 32));
+	message += ((char)((m_len & 0x00000000ff000000) >> 24));
+	message += ((char)((m_len & 0x0000000000ff0000) >> 16));
+	message += ((char)((m_len & 0x000000000000ff00) >> 8));
+	message += ((char)(m_len & 0x00000000000000ff));
+
+	for (usint n = 0;n < (message.size() * 8) / 512; n++) {
+		uint32_t w[64];
+		short counter = 0;
+		for (usint m = 64 * n;m < (64 * (n + 1));m += 4) {
+			w[counter] = ((uint32_t)(message.at(m)&0xff) << 24) ^ ((uint32_t)(message.at(m + 1)&0xff) << 16) ^ ((uint32_t)(message.at(m + 2)&0xff) << 8) ^ ((uint32_t)(message.at(m + 3)&0xff));
+			counter++;
+		}
+		for (int i = 16;i < 64;i++) {
+			uint32_t s0 = ((uint32_t)RIGHT_ROT(w[i - 15], 7)) ^ ((uint32_t)(RIGHT_ROT(w[i - 15], 18))) ^ ((uint32_t)(w[i - 15] >> 3));
+			uint32_t s1 = ((uint32_t)RIGHT_ROT(w[i - 2], 17)) ^ ((uint32_t)RIGHT_ROT(w[i - 2], 19)) ^ ((uint32_t)(w[i - 2] >> 10));
+			w[i] = w[i - 16] + s0 + w[i - 7] + s1;
+		}
+
+		uint32_t a = h_256[0];
+		uint32_t b = h_256[1];
+		uint32_t c = h_256[2];
+		uint32_t d = h_256[3];
+		uint32_t e = h_256[4];
+		uint32_t f = h_256[5];
+		uint32_t g = h_256[6];
+		uint32_t h = h_256[7];
+
+		for (int i = 0; i < 64;i++) {
+			uint32_t S1 = ((uint32_t)RIGHT_ROT(e, 6)) ^ ((uint32_t)RIGHT_ROT(e, 11)) ^ ((uint32_t)RIGHT_ROT(e, 25));
+			uint32_t ch = (e & f) ^ ((~e) & g);
+			uint32_t temp1 = h + S1 + ch + k_256[i] + w[i];
+			uint32_t S0 = ((uint32_t)RIGHT_ROT(a, 2)) ^ ((uint32_t)RIGHT_ROT(a, 13)) ^ ((uint32_t)RIGHT_ROT(a, 22));
+			uint32_t maj = (a & b) ^ (a & c) ^ (b & c);
+			uint32_t temp2 = S0 + maj;
+
+			h = g;
+			g = f;
+			f = e;
+			e = d + temp1;
+			d = c;
+			c = b;
+			b = a;
+			a = temp1 + temp2;
+
+		}
+
+		h_256[0] += a;
+		h_256[1] += b;
+		h_256[2] += c;
+		h_256[3] += d;
+		h_256[4] += e;
+		h_256[5] += f;
+		h_256[6] += g;
+		h_256[7] += h;
+	}
+
+	std::stringstream s;
+	s.fill('0');
+	s << std::hex;
+	for( size_t ii=0; ii<8; ii++ )
+		s << std::setw(8) << h_256[ii];
+
+	return s.str();
+}
+
 #if 0
 lbcrypto::BytePlaintextEncoding HashUtil::SHA512(lbcrypto::BytePlaintextEncoding message) {
 	

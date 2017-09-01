@@ -41,26 +41,21 @@
 using namespace std;
 using namespace lbcrypto;
 
-
-
-template <class T>
 class UTSHE : public ::testing::Test {
 
 public:
 	const usint m = 16;
+	UTSHE() {}
+	~UTSHE() {}
 
 protected:
-	UTSHE() {}
-
-	virtual void SetUp() {
+	void SetUp() {
 	}
 
-	virtual void TearDown() {
-
+	void TearDown() {
+		CryptoContextFactory<Poly>::ReleaseAllContexts();
+		CryptoContextFactory<DCRTPoly>::ReleaseAllContexts();
 	}
-
-	virtual ~UTSHE() {  }
-
 };
 
 // NOTE the SHE tests are all based on these
@@ -123,52 +118,52 @@ void UnitTest_Add(shared_ptr<CryptoContext<Element>> cc) {
 }
 
 /// add
-TEST(UTSHE, LTV_Poly_Add) {
+TEST_F(UTSHE, LTV_Poly_Add) {
 	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementLTV(ORDER, PTM);
 	UnitTest_Add<Poly>(cc);
 }
 
-TEST(UTSHE, LTV_DCRTPoly_Add) {
+TEST_F(UTSHE, LTV_DCRTPoly_Add) {
 	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayLTV(ORDER, TOWERS, PTM, 30);
 	UnitTest_Add<DCRTPoly>(cc);
 }
 
-TEST(UTSHE, StSt_Poly_Add) {
+TEST_F(UTSHE, StSt_Poly_Add) {
 	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementStSt(ORDER, PTM, 50);
 	UnitTest_Add<Poly>(cc);
 }
 
-TEST(UTSHE, StSt_DCRTPoly_Add) {
+TEST_F(UTSHE, StSt_DCRTPoly_Add) {
 	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayStSt(ORDER, TOWERS, PTM, 30);
 	UnitTest_Add<DCRTPoly>(cc);
 }
 
-TEST(UTSHE, Null_Poly_Add) {
+TEST_F(UTSHE, Null_Poly_Add) {
 	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementNull(ORDER, PTM);
 	UnitTest_Add<Poly>(cc);
 }
 
-TEST(UTSHE, Null_DCRTPoly_Add) {
+TEST_F(UTSHE, Null_DCRTPoly_Add) {
 	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayNull(ORDER, TOWERS, PTM, 30);
 	UnitTest_Add<DCRTPoly>(cc);
 }
 
-TEST(UTSHE, BV_Poly_Add) {
+TEST_F(UTSHE, BV_Poly_Add) {
 	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementBV(ORDER, PTM);
 	UnitTest_Add<Poly>(cc);
 }
 
-TEST(UTSHE, BV_DCRTPoly_Add) {
+TEST_F(UTSHE, BV_DCRTPoly_Add) {
 	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayBV(ORDER, TOWERS, PTM, 30);
 	UnitTest_Add<DCRTPoly>(cc);
 }
 
-TEST(UTSHE, FV_Poly_Add) {
+TEST_F(UTSHE, FV_Poly_Add) {
 	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementFV(ORDER, PTM);
 	UnitTest_Add<Poly>(cc);
 }
 
-//TEST(UTSHE, FV_DCRTPoly_Add) {
+//TEST_F(UTSHE, FV_DCRTPoly_Add) {
 //	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayFV(ORDER, TOWERS, PTM);
 //	UnitTest_Add<DCRTPoly>(cc);
 //}
@@ -240,62 +235,62 @@ void UnitTest_Mult(shared_ptr<CryptoContext<Element>> cc) {
 }
 
 
-TEST(UTSHE, LTV_Poly_Mult) {
+TEST_F(UTSHE, LTV_Poly_Mult) {
 	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementLTV(ORDER, PTM, 50);
 	UnitTest_Mult<Poly>(cc);
 }
 
 #if !defined(_MSC_VER)
-TEST(UTSHE, LTV_DCRTPoly_Mult) {
+TEST_F(UTSHE, LTV_DCRTPoly_Mult) {
 	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayLTV(ORDER, TOWERS, PTM);
 	UnitTest_Mult<DCRTPoly>(cc);
 }
 #endif
 
-//TEST(UTSHE, StSt_Poly_Mult) {
+//TEST_F(UTSHE, StSt_Poly_Mult) {
 //	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementStSt(ORDER, PTM);
 //	UnitTest_Mult<Poly>(cc);
 //}
 //
-//TEST(UTSHE, StSt_DCRTPoly_Mult) {
+//TEST_F(UTSHE, StSt_DCRTPoly_Mult) {
 //	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayStSt(ORDER, TOWERS, PTM);
 //	UnitTest_Mult<DCRTPoly>(cc);
 //}
 
-TEST(UTSHE, Null_Poly_Mult) {
+TEST_F(UTSHE, Null_Poly_Mult) {
 	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementNull(ORDER, PTM);
 	UnitTest_Mult<Poly>(cc);
 }
 
-TEST(UTSHE, Null_DCRTPoly_Mult) {
+TEST_F(UTSHE, Null_DCRTPoly_Mult) {
 	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayNull(ORDER, TOWERS, PTM, 30);
 	UnitTest_Mult<DCRTPoly>(cc);
 }
 
-TEST(UTSHE, BV_Poly_Mult) {
+TEST_F(UTSHE, BV_Poly_Mult) {
 	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementBV(ORDER, PTM);
 	UnitTest_Mult<Poly>(cc);
 }
 
 #if !defined(_MSC_VER)
-TEST(UTSHE, BV_DCRTPoly_Mult) {
+TEST_F(UTSHE, BV_DCRTPoly_Mult) {
 	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayBV(ORDER, TOWERS, PTM);
 	UnitTest_Mult<DCRTPoly>(cc);
 }
 #endif
 
-TEST(UTSHE, FV_Poly_Mult) {
+TEST_F(UTSHE, FV_Poly_Mult) {
 	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementFV(ORDER, PTM);
 	UnitTest_Mult<Poly>(cc);
 }
 
-//TEST(UTSHE, FV_DCRTPoly_Mult) {
+//TEST_F(UTSHE, FV_DCRTPoly_Mult) {
 //	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayFV(ORDER, TOWERS, PTM);
 //	UnitTest_Mult<DCRTPoly>(cc);
 //}
 
 
-TEST(UTSHE, keyswitch_sparse_key_SingleCRT_byteplaintext) {
+TEST_F(UTSHE, keyswitch_sparse_key_SingleCRT_byteplaintext) {
 
 	usint m = 512;
 	usint plaintextModulus = 2;
@@ -323,7 +318,7 @@ TEST(UTSHE, keyswitch_sparse_key_SingleCRT_byteplaintext) {
 	EXPECT_EQ(plaintext, plaintextNew);
 }
 
-TEST(UTSHE, keyswitch_sparse_key_SingleCRT_intArray) {
+TEST_F(UTSHE, keyswitch_sparse_key_SingleCRT_intArray) {
 
 	//Poly::DestroyPreComputedSamples();
 	usint m = 16;
@@ -371,7 +366,7 @@ TEST(UTSHE, keyswitch_sparse_key_SingleCRT_intArray) {
 	EXPECT_EQ(intArray, intArrayNew);
 }
 
-TEST(UTSHE, keyswitch_SingleCRT) {
+TEST_F(UTSHE, keyswitch_SingleCRT) {
 
 	usint m = 512;
 
@@ -405,7 +400,7 @@ TEST(UTSHE, keyswitch_SingleCRT) {
 	EXPECT_EQ(plaintext, plaintextNew);
 }
 
-TEST(UTSHE, sparsekeygen_single_crt_encrypt_decrypt) {
+TEST_F(UTSHE, sparsekeygen_single_crt_encrypt_decrypt) {
 
 	usint m = 512;
 
@@ -437,7 +432,7 @@ TEST(UTSHE, sparsekeygen_single_crt_encrypt_decrypt) {
 	}
 }
 
-TEST(UTSHE, keyswitch_ModReduce_DCRT) {
+TEST_F(UTSHE, keyswitch_ModReduce_DCRT) {
 
 	usint m = 512;
 
@@ -491,7 +486,7 @@ TEST(UTSHE, keyswitch_ModReduce_DCRT) {
 	EXPECT_EQ(plaintext, plaintextNewModReduce) << "Mod Reduced Decrypt fails";
 }
 
-TEST(UTSHE, ringreduce_single_crt) {
+TEST_F(UTSHE, ringreduce_single_crt) {
 	usint m = 16;
 
 	float stdDev = 4;
@@ -542,7 +537,7 @@ TEST(UTSHE, ringreduce_single_crt) {
 	EXPECT_EQ(intArrayNewRR, intArrayExpected);
 }
 
-TEST(UTSHE, ringreduce_double_crt) {
+TEST_F(UTSHE, ringreduce_double_crt) {
 
 	usint m = 16;
 	float stdDev = 4;
@@ -599,7 +594,7 @@ TEST(UTSHE, ringreduce_double_crt) {
 
 }
 
-TEST(UTSHE, canringreduce) {
+TEST_F(UTSHE, canringreduce) {
 	BigInteger m1("17729");
 	BigInteger m2("17761");
 	std::vector<BigInteger> moduli;
@@ -619,7 +614,7 @@ TEST(UTSHE, canringreduce) {
 
 }
 
-TEST(UTSHE, decomposeMult) {
+TEST_F(UTSHE, decomposeMult) {
   bool dbg_flag = false;
 	usint m1 = 16;
 

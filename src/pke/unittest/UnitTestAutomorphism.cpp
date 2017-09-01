@@ -40,11 +40,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 using namespace std;
 using namespace lbcrypto;
 
-class UnitTestAutomorphism : public ::testing::Test {
+class UTAUTOMORPHISM : public ::testing::Test {
 protected:
-	virtual void SetUp() {}
+	void SetUp() {}
 
-	virtual void TearDown() {}
+	void TearDown() {
+		CryptoContextFactory<Poly>::ReleaseAllContexts();
+		CryptoContextFactory<DCRTPoly>::ReleaseAllContexts();
+	}
 
 public:
 };
@@ -64,7 +67,7 @@ std::vector<usint> Rotate(const std::vector<usint> &input,usint i);
 //Helper to function to check if the elements in perm are the same in the init vector.
 bool CheckAutomorphism(const std::vector<usint> &perm,const std::vector<usint> &init);
 
-TEST(UTAUTOMORPHISM, Test_LTV_Automorphism_PowerOf2) {
+TEST_F(UTAUTOMORPHISM, Test_LTV_Automorphism_PowerOf2) {
 	
 	PackedIntPlaintextEncoding::Destroy();
 	
@@ -78,7 +81,7 @@ TEST(UTAUTOMORPHISM, Test_LTV_Automorphism_PowerOf2) {
 }
 
 
-TEST(UTAUTOMORPHISM, Test_BV_Automorphism_PowerOf2) {
+TEST_F(UTAUTOMORPHISM, Test_BV_Automorphism_PowerOf2) {
 	PackedIntPlaintextEncoding::Destroy();
 	
 	std::vector<usint> initVector = { 1,2,3,4,5,6,7,8 };
@@ -90,7 +93,7 @@ TEST(UTAUTOMORPHISM, Test_BV_Automorphism_PowerOf2) {
 
 }
 
-TEST(UTAUTOMORPHISM, Test_FV_Automorphism_PowerOf2) {
+TEST_F(UTAUTOMORPHISM, Test_FV_Automorphism_PowerOf2) {
 	PackedIntPlaintextEncoding::Destroy();
 
 	std::vector<usint> initVector = { 1,2,3,4,5,6,7,8 };
@@ -102,7 +105,7 @@ TEST(UTAUTOMORPHISM, Test_FV_Automorphism_PowerOf2) {
 }
 
 
-TEST(UTAUTOMORPHISM, Test_LTV_Automorphism_Arb) {
+TEST_F(UTAUTOMORPHISM, Test_LTV_Automorphism_Arb) {
 	
 	PackedIntPlaintextEncoding::Destroy();
 
@@ -119,7 +122,7 @@ TEST(UTAUTOMORPHISM, Test_LTV_Automorphism_Arb) {
 	
 }
 
-TEST(UTAUTOMORPHISM, Test_BV_Automorphism_Arb) {
+TEST_F(UTAUTOMORPHISM, Test_BV_Automorphism_Arb) {
 	PackedIntPlaintextEncoding::Destroy();
 
 	usint m = 22;
@@ -134,7 +137,7 @@ TEST(UTAUTOMORPHISM, Test_BV_Automorphism_Arb) {
 
 }
 
-TEST(UTAUTOMORPHISM, Test_FV_Automorphism_Arb) {
+TEST_F(UTAUTOMORPHISM, Test_FV_Automorphism_Arb) {
 	
 
 	EXPECT_EQ(1,1);

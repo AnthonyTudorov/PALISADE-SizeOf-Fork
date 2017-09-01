@@ -35,11 +35,14 @@
 using namespace std;
 using namespace lbcrypto;
 
-class UnitTestPRE : public ::testing::Test {
+class UTPRE : public ::testing::Test {
 protected:
-	virtual void SetUp() {}
+	void SetUp() {}
 
-	virtual void TearDown() {}
+	void TearDown() {
+		CryptoContextFactory<Poly>::ReleaseAllContexts();
+		CryptoContextFactory<DCRTPoly>::ReleaseAllContexts();
+	}
 
 public:
 };
@@ -60,13 +63,16 @@ UnitTestReEncrypt(shared_ptr<CryptoContext<Element>> cc, bool publicVersion) {
 			cc->GetCryptoParameters()->GetPlaintextModulus(),
 			plaintextShort, plaintextFull, plaintextLong);
 
-	size_t intSize = cc->GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2;
+	size_t intSize = cc->GetCryptoParameters()->GetElementParams()->GetRingDimension();
 	auto ptm = cc->GetCryptoParameters()->GetPlaintextModulus().ConvertToInt();
 
 	vector<uint32_t> intvec;
 	for( size_t ii=0; ii<intSize; ii++)
 		intvec.push_back( rand() % ptm );
 	IntPlaintextEncoding plaintextInt(intvec);
+
+	IntPlaintextEncoding ptInt1( intvec );
+	IntPlaintextEncoding ptInt2 = ptInt1;
 
 	////////////////////////////////////////////////////////////
 	//Perform the key generation operations
@@ -87,11 +93,15 @@ UnitTestReEncrypt(shared_ptr<CryptoContext<Element>> cc, bool publicVersion) {
 
 	LPKeyPair<Element> newKp = cc->KeyGen();
 
-
 	if (!newKp.good()) {
 		std::cout << "Key generation 2 failed!" << std::endl;
 		exit(1);
 	}
+
+	// generate eval mult keys for eval mult before and after
+	cc->EvalMultKeyGen(kp.secretKey);
+	cc->EvalMultKeyGen(newKp.secretKey);
+
 	////////////////////////////////////////////////////////////
 	//Perform the proxy re-encryption key generation operation.
 	// This generates the keys which are used to perform the key switching.
@@ -127,56 +137,69 @@ UnitTestReEncrypt(shared_ptr<CryptoContext<Element>> cc, bool publicVersion) {
 	vector<shared_ptr<Ciphertext<Element>>> reCiphertext4 = cc->ReEncrypt(evalKey, ciphertext4);
 	result = cc->Decrypt(newKp.secretKey, reCiphertext4, &plaintextIntNew, false);
 	EXPECT_EQ(plaintextIntNew, plaintextInt) << "ReEncrypt integer plaintext";
+
+	vector<shared_ptr<Ciphertext<Element>>> ctint1 = cc->Encrypt(kp.publicKey, ptInt1, false);
+	vector<shared_ptr<Ciphertext<Element>>> ctint2 = cc->Encrypt(kp.publicKey, ptInt2, false);
+	shared_ptr<Ciphertext<Element>> ctintProd = cc->EvalMult(ctint1[0],ctint2[0]);
+	IntPlaintextEncoding ptIntProd;
+	result = cc->Decrypt(kp.secretKey, {ctintProd}, &ptIntProd, false);
+
+	vector<shared_ptr<Ciphertext<Element>>> reint1 = cc->ReEncrypt(evalKey, ctint1);
+	vector<shared_ptr<Ciphertext<Element>>> reint2 = cc->ReEncrypt(evalKey, ctint2);
+	shared_ptr<Ciphertext<Element>> reintProd = cc->EvalMult(reint1[0],reint2[0]);
+	IntPlaintextEncoding reIntProd;
+	result = cc->Decrypt(newKp.secretKey, {reintProd}, &reIntProd, false);
+	EXPECT_EQ(ptIntProd,reIntProd) << "EvalMult of re-encrypted int vector";
 }
 
-TEST(UTPRE, LTV_Poly_ReEncrypt_pub) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementLTV(4096, PTM);
+TEST_F(UTPRE, LTV_Poly_ReEncrypt_pub) {
+	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementLTV(16, 2);
 	UnitTestReEncrypt<Poly>(cc, true);
 }
 
-//TEST(UTPRE, LTV_DCRTPoly_ReEncrypt_pub) {
+//TEST_F(UTPRE, LTV_DCRTPoly_ReEncrypt_pub) {
 //	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayLTV(ORDER, TOWERS, PTM);
 //	UnitTestReEncrypt<DCRTPoly>(cc, true);
 //}
 
-//TEST(UTPRE, StSt_Poly_ReEncrypt_pub) {
+//TEST_F(UTPRE, StSt_Poly_ReEncrypt_pub) {
 //	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementStSt(ORDER, PTM);
 //	UnitTestReEncrypt<Poly>(cc, true);
 //}
 //
-//TEST(UTPRE, StSt_DCRTPoly_ReEncrypt_pub) {
+//TEST_F(UTPRE, StSt_DCRTPoly_ReEncrypt_pub) {
 //	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayStSt(ORDER, TOWERS, PTM);
 //	UnitTestReEncrypt<DCRTPoly>(cc, true);
 //}
 
-TEST(UTPRE, Null_Poly_ReEncrypt_pub) {
+TEST_F(UTPRE, Null_Poly_ReEncrypt_pub) {
 	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementNull(ORDER, PTM);
 	UnitTestReEncrypt<Poly>(cc, true);
 }
 
-TEST(UTPRE, Null_DCRTPoly_ReEncrypt_pub) {
+TEST_F(UTPRE, Null_DCRTPoly_ReEncrypt_pub) {
 	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayNull(ORDER, TOWERS, PTM, 30);
 	UnitTestReEncrypt<DCRTPoly>(cc, true);
 }
 
-TEST(UTPRE, BV_Poly_ReEncrypt_pri) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementBV(ORDER, PTM);
+TEST_F(UTPRE, BV_Poly_ReEncrypt_pri) {
+	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementBV(ORDER, 2);
 	UnitTestReEncrypt<Poly>(cc, false);
 }
 
 #if !defined(_MSC_VER)
-TEST(UTPRE, BV_DCRTPoly_ReEncrypt_pri) {
+TEST_F(UTPRE, BV_DCRTPoly_ReEncrypt_pri) {
 	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayBV(ORDER, TOWERS, PTM);
 	UnitTestReEncrypt<DCRTPoly>(cc, false);
 }
 #endif
 
-TEST(UTPRE, FV_Poly_ReEncrypt_pri) {
+TEST_F(UTPRE, FV_Poly_ReEncrypt_pri) {
 	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementFV(ORDER, PTM);
 	UnitTestReEncrypt<Poly>(cc, false);
 }
 
-//TEST(UTPRE, FV_DCRTPoly_ReEncrypt_pri) {
+//TEST_F(UTPRE, FV_DCRTPoly_ReEncrypt_pri) {
 //	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayFV(ORDER, TOWERS, PTM);
 //	UnitTestReEncrypt<DCRTPoly>(cc, false);
 //}

@@ -49,12 +49,13 @@ class UTSHEAdvanced : public testing::Test
 public:
 	UTSHEAdvanced() {}
 
-	virtual void SetUp()
+	void SetUp()
 	{
 	}
 
-	virtual void TearDown()
-	{
+	void TearDown() {
+		CryptoContextFactory<Poly>::ReleaseAllContexts();
+		CryptoContextFactory<DCRTPoly>::ReleaseAllContexts();
 	}
 };
 

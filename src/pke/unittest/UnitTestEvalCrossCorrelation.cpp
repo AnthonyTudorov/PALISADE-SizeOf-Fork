@@ -41,11 +41,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 using namespace std;
 using namespace lbcrypto;
 
-class UnitTestEvalCrossCorrelation : public ::testing::Test {
+class UTEvalCC : public ::testing::Test {
 protected:
-	virtual void SetUp() {}
+	void SetUp() {}
 
-	virtual void TearDown() {}
+	void TearDown() {
+		CryptoContextFactory<Poly>::ReleaseAllContexts();
+		CryptoContextFactory<DCRTPoly>::ReleaseAllContexts();
+	}
 
 public:
 };
@@ -54,7 +57,7 @@ usint BVCrossCorrelation();
 usint FVCrossCorrelation();
 
 
-TEST(UTEvalCC, Test_BV_EvalCC) {
+TEST_F(UTEvalCC, Test_BV_EvalCC) {
 
 	usint result = BVCrossCorrelation();
 	usint expectedResult = 11;
@@ -65,7 +68,7 @@ TEST(UTEvalCC, Test_BV_EvalCC) {
 }
 
 
-TEST(UTEvalCC, Test_FV_EvalCC) {
+TEST_F(UTEvalCC, Test_FV_EvalCC) {
 	
 	usint result = FVCrossCorrelation();
 	usint expectedResult = 11;

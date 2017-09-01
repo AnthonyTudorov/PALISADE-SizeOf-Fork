@@ -92,7 +92,7 @@ namespace lbcrypto {
 
 	//makeSparse is not used by this scheme
 	template <class Element>
-	LPKeyPair<Element> LPAlgorithmBV<Element>::KeyGen(CryptoContext<Element>* cc, bool makeSparse)
+	LPKeyPair<Element> LPAlgorithmBV<Element>::KeyGen(shared_ptr<CryptoContext<Element>> cc, bool makeSparse)
 	{
 
 		LPKeyPair<Element>	kp(new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc));
@@ -148,7 +148,7 @@ namespace lbcrypto {
 
 		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(publicKey->GetCryptoParameters());
 
-		shared_ptr<Ciphertext<Element>> ciphertext(new Ciphertext<Element>(publicKey->GetCryptoContext()));
+		shared_ptr<Ciphertext<Element>> ciphertext(new Ciphertext<Element>(publicKey));
 
 		const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 		const typename Element::Integer &p = cryptoParams->GetPlaintextModulus();
@@ -213,7 +213,7 @@ namespace lbcrypto {
 	{
 		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(privateKey->GetCryptoParameters());
 
-		shared_ptr<Ciphertext<Element>> ciphertext(new Ciphertext<Element>(privateKey->GetCryptoContext()));
+		shared_ptr<Ciphertext<Element>> ciphertext(new Ciphertext<Element>(privateKey));
 
 		const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 		const typename Element::Integer &p = cryptoParams->GetPlaintextModulus();
@@ -286,7 +286,7 @@ namespace lbcrypto {
 		const shared_ptr<Ciphertext<Element>> ciphertext1,
 		const shared_ptr<Ciphertext<Element>> ciphertext2) const
 	{
-		shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext1->GetCryptoContext()));
+		shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext1->CloneEmpty();
 
 		const std::vector<Element> &c1 = ciphertext1->GetElements();
 
@@ -308,7 +308,7 @@ namespace lbcrypto {
 	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext1,
 		const shared_ptr<Ciphertext<Element>> ciphertext2) const {
 
-		shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext1->GetCryptoContext()));
+		shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext1->CloneEmpty();
 
 		const std::vector<Element> &c1 = ciphertext1->GetElements();
 
@@ -335,7 +335,7 @@ namespace lbcrypto {
 			throw std::runtime_error("EvalMult cannot multiply in COEFFICIENT domain.");
 		}
 
-		shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext1->GetCryptoContext()));
+		shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext1->CloneEmpty();
 
 		const std::vector<Element> &c1 = ciphertext1->GetElements();
 
@@ -365,7 +365,7 @@ namespace lbcrypto {
 			throw std::runtime_error("EvalMult cannot multiply in COEFFICIENT domain.");
 		}
 
-		shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext->GetCryptoContext()));
+		shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
 
 		const std::vector<Element> &c1 = ciphertext->GetElements();
 
@@ -397,7 +397,7 @@ namespace lbcrypto {
 	template <class Element>
 	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::EvalNegate(const shared_ptr<Ciphertext<Element>> ciphertext) const {
 
-		shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext->GetCryptoContext()));
+		shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
 
 		const std::vector<Element> &cipherTextElements = ciphertext->GetElements();
 
@@ -619,7 +619,7 @@ namespace lbcrypto {
 
 	//makeSparse is not used by this scheme
 	template <class Element>
-	LPKeyPair<Element> LPAlgorithmMultipartyBV<Element>::MultipartyKeyGen(CryptoContext<Element>* cc,
+	LPKeyPair<Element> LPAlgorithmMultipartyBV<Element>::MultipartyKeyGen(shared_ptr<CryptoContext<Element>> cc,
 		const vector<shared_ptr<LPPrivateKey<Element>>>& secretKeys,
 		bool makeSparse)
 	{
@@ -662,7 +662,7 @@ namespace lbcrypto {
 
 //makeSparse is not used by this scheme
 template <class Element>
-LPKeyPair<Element> LPAlgorithmMultipartyBV<Element>::MultipartyKeyGen(CryptoContext<Element>* cc,
+LPKeyPair<Element> LPAlgorithmMultipartyBV<Element>::MultipartyKeyGen(shared_ptr<CryptoContext<Element>> cc,
 		const shared_ptr<LPPublicKey<Element>> pk1, bool makeSparse)
 	{
 
@@ -716,7 +716,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmMultipartyBV<Element>::MultipartyDecr
 
 		Element b = c[0] - s*c[1];
 
-		shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext->GetCryptoContext()));
+		shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
 		newCiphertext->SetElements({ b });
 
 		return newCiphertext;
@@ -733,7 +733,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmMultipartyBV<Element>::MultipartyDecr
 
 	Element b = s*c[1];
 
-	shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext->GetCryptoContext()));
+	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
 	newCiphertext->SetElements({ b });
 
 	return newCiphertext;

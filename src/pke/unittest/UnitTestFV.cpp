@@ -40,11 +40,14 @@
 using namespace std;
 using namespace lbcrypto;
 
-class UnitTestBV : public ::testing::Test {
+class UTFV : public ::testing::Test {
 protected:
-	virtual void SetUp() {}
+	void SetUp() {}
 
-	virtual void TearDown() {}
+	void TearDown() {
+		CryptoContextFactory<Poly>::ReleaseAllContexts();
+		CryptoContextFactory<DCRTPoly>::ReleaseAllContexts();
+	}
 
 public:
 };
@@ -52,7 +55,7 @@ public:
 //FIXME I think all of these operations are duplicated in other unit test files, so perhaps this entire file can be deleted
 
 //Tests EvalAdd, EvalSub, and EvalMul operations for FV in the RLWE mode
-TEST(UTFV, Poly_FV_Eval_Operations) {
+TEST_F(UTFV, Poly_FV_Eval_Operations) {
 
 	usint m = 2048;
 
@@ -188,7 +191,7 @@ TEST(UTFV, Poly_FV_Eval_Operations) {
 }
 
 // Generates parameters for FV in the RLWE mode to support a single EvalMult and then validates that single EvalMult works correctly
-TEST(UTFV, Poly_FV_ParamsGen_EvalMul) {
+TEST_F(UTFV, Poly_FV_ParamsGen_EvalMul) {
 
 	usint relWindow = 16;
 	usint plaintextModulus = 4;
@@ -259,7 +262,7 @@ TEST(UTFV, Poly_FV_ParamsGen_EvalMul) {
 }
 
 //Tests ParamsGen, EvalAdd, EvalSub, and EvalMul operations for FV in the OPTIMIZED mode
-TEST(UTFV, Poly_FV_Optimized_Eval_Operations) {
+TEST_F(UTFV, Poly_FV_Optimized_Eval_Operations) {
 
 	usint relWindow = 16;
 	usint plaintextModulus = 64;

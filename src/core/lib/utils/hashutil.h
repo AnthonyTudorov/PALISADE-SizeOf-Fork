@@ -44,6 +44,9 @@ public:
 			return lbcrypto::BytePlaintextEncoding();
 		}
 	}
+
+	static std::string HashString(std::string message);
+
 private:
 	static lbcrypto::BytePlaintextEncoding SHA256(lbcrypto::BytePlaintextEncoding message);
 	static lbcrypto::BytePlaintextEncoding SHA512(lbcrypto::BytePlaintextEncoding message);

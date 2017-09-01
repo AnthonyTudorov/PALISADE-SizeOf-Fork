@@ -14,7 +14,7 @@ third-party/include
 third-party/lib
 third-party/share
 gmon.out
-.gitattributes
+## .gitattributes
 # Except this file
 !.gitignore
 output.txt
