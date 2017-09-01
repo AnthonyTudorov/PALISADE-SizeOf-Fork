@@ -47,7 +47,6 @@ int main() {
 		MultiThreadedRun(i);
 	}
 
-	ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().Destroy();
 	NumberTheoreticTransform<BigInteger, BigVector>::GetInstance().Destroy();
 	DiscreteFourierTransform::GetInstance().Destroy();
 

@@ -185,7 +185,6 @@ privateKey2.SwitchFormat();
 	std::cout << "Verification counter : " << "\t" << verifyCounter << "\n" << std::endl;
 
 	std::cout << "Execution completed" << std::endl;
-	ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().Destroy();
 	NumberTheoreticTransform<BigInteger,BigVector>::GetInstance().Destroy();
 	DiscreteFourierTransform::GetInstance().Destroy();
 
@@ -533,7 +532,6 @@ void SingleThreadedRun() {
 		std::cout << "Verification counter : " << "\t" << verifyCounter << "\n" << std::endl;
 
 		std::cout << "Execution completed" << std::endl;
-		ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().Destroy();
 		NumberTheoreticTransform<BigInteger,BigVector>::GetInstance().Destroy();
 		DiscreteFourierTransform::GetInstance().Destroy();
 

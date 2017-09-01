@@ -50,7 +50,6 @@ int main() {
 		}
 	}
 
-	ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().Destroy();
 	NumberTheoreticTransform<BigInteger, BigVector>::GetInstance().Destroy();
 	DiscreteFourierTransform::GetInstance().Destroy();
 

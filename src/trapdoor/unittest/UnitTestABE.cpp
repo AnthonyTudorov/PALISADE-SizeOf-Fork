@@ -182,7 +182,6 @@ void UnitTestCPABE(int32_t base, usint k, usint ringDimension){
 
 	EXPECT_EQ(ptext,dtext);
 
-	ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().Destroy();
 	delete[] s;
 	delete[] w;
 }
@@ -272,8 +271,6 @@ void UnitTestKPABEBenchMarkCircuit(int32_t base, usint k, usint ringDimension){
 
 	EXPECT_EQ(ptext, dtext);
 
-	ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().Destroy();
-
 }
 
 void UnitTestIBE(int32_t base, usint k, usint ringDimension){
@@ -335,8 +332,6 @@ void UnitTestIBE(int32_t base, usint k, usint ringDimension){
 	ptext.SwitchFormat();
 
 	EXPECT_EQ(ptext,dtext);
-
-	ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().Destroy();
 }
 
 void UnitTestKPABEANDGate(int32_t base, usint k, usint ringDimension){

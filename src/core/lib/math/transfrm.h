@@ -82,7 +82,6 @@ namespace lbcrypto {
 		* @return is the output result of the inverse transform.
 		*/
 		virtual VecType InverseTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder) = 0;
-		//static VecType& ZeroPadd(const VecType&,usint);
 	};
 
 	/**
@@ -97,7 +96,10 @@ namespace lbcrypto {
 		*
 		* @return is this object.
 		*/
-		static NumberTheoreticTransform& GetInstance();
+		static NumberTheoreticTransform& GetInstance() {
+			static NumberTheoreticTransform	instance;
+			return instance;
+		}
 
 		/**
 		* Forward transform.
@@ -130,8 +132,8 @@ namespace lbcrypto {
 		* Destructor.
 		*/
 		void Destroy();
+
 	private:
-		static NumberTheoreticTransform *m_onlyInstance;
 		NumberTheoreticTransform() : m_element(0) {}
 		~NumberTheoreticTransform() {}
 		NumberTheoreticTransform(const NumberTheoreticTransform&) : m_element(0) {}
@@ -151,7 +153,10 @@ namespace lbcrypto {
 		*
 		* @return is this object.
 		*/
-		static ChineseRemainderTransform& GetInstance();
+		static ChineseRemainderTransform& GetInstance() {
+			static ChineseRemainderTransform	instance;
+			return instance;
+		}
 
 		/**
 		* Virtual forward transform.
@@ -177,14 +182,12 @@ namespace lbcrypto {
 		* Destructor.
 		*/
 		void Destroy();
+
 	private:
-		static ChineseRemainderTransform *m_onlyInstance;
 		static VecType *m_rootOfUnityTable;
 		static VecType *m_rootOfUnityInverseTable;
 		ChineseRemainderTransform() {}
 		~ChineseRemainderTransform() {}
-		ChineseRemainderTransform(const ChineseRemainderTransform&) {}
-		ChineseRemainderTransform& operator=(ChineseRemainderTransform const&) {};
 	};
 
 	/**
@@ -199,7 +202,10 @@ namespace lbcrypto {
 		*
 		* @return is this object.
 		*/
-		static ChineseRemainderTransformFTT& GetInstance();
+		static ChineseRemainderTransformFTT& GetInstance() {
+			static ChineseRemainderTransformFTT instance;
+			return instance;
+		}
 		/**
 		* Virtual forward transform.
 		*
@@ -237,24 +243,13 @@ namespace lbcrypto {
 		* @param &moduliiChain is the modulus
 		*/
 		void PreCompute(std::vector<IntType> &rootOfUnity, const usint CycloOrder, std::vector<IntType> &moduliiChain);
-		/**
-		* Destructor.
-		*/
-		void Destroy();
 
 	private:
-		static ChineseRemainderTransformFTT *m_onlyInstance;
 		static std::map<IntType, VecType> m_rootOfUnityTableByModulus;
 		static std::map<IntType, VecType> m_rootOfUnityInverseTableByModulus;
-		//static VecType *m_rootOfUnityTable;
 
-		//static VecType *m_rootOfUnityInverseTable;
-		//static VecType *m_phiTable;
-		//static VecType *m_phiInverseTable;
 		ChineseRemainderTransformFTT() {}
 		~ChineseRemainderTransformFTT() {}
-		ChineseRemainderTransformFTT(const ChineseRemainderTransformFTT<IntType, VecType>&) {}
-		//ChineseRemainderTransformFTT& operator=(ChineseRemainderTransformFTT<IntType,VecType> const&){};
 	};
 
 	/**
@@ -296,13 +291,19 @@ namespace lbcrypto {
 		std::vector<std::complex<double>> InverseTransform(std::vector<std::complex<double>> A);
 
 		void Destroy();
+
 		void PreComputeTable(uint32_t s);
-		static DiscreteFourierTransform& GetInstance();
+
+		static DiscreteFourierTransform& GetInstance() {
+			static DiscreteFourierTransform	instance;
+			return instance;
+		}
 
 	private:
-		static DiscreteFourierTransform* m_onlyInstance;
+		DiscreteFourierTransform() {}
+		~DiscreteFourierTransform() {}
+
 		static std::complex<double>* rootOfUnityTable;
-		uint32_t size;
 	};
 
 	// struct used as a key in BlueStein transform
@@ -323,7 +324,10 @@ namespace lbcrypto {
 		*
 		* @return is this object.
 		*/
-		static BluesteinFFT& GetInstance();
+		static BluesteinFFT& GetInstance() {
+			static BluesteinFFT	instance;
+			return instance;
+		}
 
 		/**
 		* Forward transform.
@@ -408,7 +412,6 @@ namespace lbcrypto {
 		//map to store the precomputed NTT modulus with modulus as key.
 		static std::map<IntType, ModulusRoot<IntType>> m_defaultNTTModulusRoot;
 		//pointer to the class to support sigleton class structure.
-		static BluesteinFFT *m_onlyInstance;
 		~BluesteinFFT() {}
 
 	};
@@ -424,7 +427,10 @@ namespace lbcrypto {
 		*
 		* @return is this object.
 		*/
-		static ChineseRemainderTransformArb& GetInstance();
+		static ChineseRemainderTransformArb& GetInstance() {
+			static ChineseRemainderTransformArb	instance;
+			return instance;
+		}
 
 		/**
 		* Sets the cyclotomic polynomial.
@@ -496,9 +502,7 @@ namespace lbcrypto {
 		static VecType InversePolyMod(const VecType &cycloPoly, const IntType &modulus, usint power);
 
 	private:
-		//pointer to the class to support sigleton class structure.
-		static ChineseRemainderTransformArb *m_onlyInstance;
-		//destructor
+		ChineseRemainderTransformArb() {}
 		~ChineseRemainderTransformArb() {}
 
 		VecType Pad(const VecType& element, const usint cycloOrder, bool forward);

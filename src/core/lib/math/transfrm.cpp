@@ -37,25 +37,10 @@ namespace lbcrypto {
 
 //static Initializations
 template<typename IntType, typename VecType>
-NumberTheoreticTransform<IntType,VecType>* NumberTheoreticTransform<IntType,VecType>::m_onlyInstance = 0;
-
-template<typename IntType, typename VecType>
-ChineseRemainderTransform<IntType,VecType>* ChineseRemainderTransform<IntType,VecType>::m_onlyInstance = 0;
-
-template<typename IntType, typename VecType>
 VecType* ChineseRemainderTransform<IntType,VecType>::m_rootOfUnityInverseTable = 0;
 
 template<typename IntType, typename VecType>
 VecType* ChineseRemainderTransform<IntType,VecType>::m_rootOfUnityTable = 0;
-
-template<typename IntType, typename VecType>
-ChineseRemainderTransformFTT<IntType,VecType>* ChineseRemainderTransformFTT<IntType,VecType>::m_onlyInstance = 0;
-
-template<typename IntType, typename VecType>
-BluesteinFFT<IntType, VecType>* BluesteinFFT<IntType, VecType>::m_onlyInstance = 0;
-
-template<typename IntType, typename VecType>
-ChineseRemainderTransformArb<IntType, VecType>* ChineseRemainderTransformArb<IntType, VecType>::m_onlyInstance = 0;
 
 template<typename IntType, typename VecType>
 std::map<IntType, VecType> ChineseRemainderTransformFTT<IntType,VecType>::m_rootOfUnityTableByModulus;
@@ -102,16 +87,7 @@ std::map<IntType, ModulusRoot<IntType>> BluesteinFFT<IntType, VecType>::m_defaul
 	template<typename IntType, typename VecType>
 	std::map<usint, usint> ChineseRemainderTransformArb<IntType, VecType>::m_nttDivisionDim;
 
-DiscreteFourierTransform* DiscreteFourierTransform::m_onlyInstance = 0;
 std::complex<double>* DiscreteFourierTransform::rootOfUnityTable = 0;
-
-template<typename IntType, typename VecType>
-NumberTheoreticTransform<IntType,VecType>& NumberTheoreticTransform<IntType,VecType>::GetInstance() {
-	if (m_onlyInstance == NULL) {
-		m_onlyInstance = new NumberTheoreticTransform<IntType,VecType>();//lazy instantiation
-	}
-	return *m_onlyInstance;
-}
 
 //Number Theoretic Transform - ITERATIVE IMPLEMENTATION -  twiddle factor table precomputed
 template<typename IntType, typename VecType>
@@ -234,26 +210,6 @@ void NumberTheoreticTransform<IntType,VecType>::Destroy() {
 	if( m_element != NULL ) delete m_element;
 	m_element = NULL;
 }
-
-
-template<typename IntType, typename VecType>
-ChineseRemainderTransform<IntType,VecType>& ChineseRemainderTransform<IntType,VecType>::GetInstance() {
-	if (m_onlyInstance == NULL) {
-		m_onlyInstance = new ChineseRemainderTransform<IntType,VecType>();
-	}
-
-	return *m_onlyInstance;
-}
-
-template<typename IntType, typename VecType>
-ChineseRemainderTransformFTT<IntType,VecType>& ChineseRemainderTransformFTT<IntType,VecType>::GetInstance() {
-	if (m_onlyInstance == NULL) {
-		m_onlyInstance = new ChineseRemainderTransformFTT<IntType,VecType>();
-	}
-
-	return *m_onlyInstance;
-}
-
 
 //main CRT Transform - uses iterative FFT as a subroutine
 //includes precomputation of twidle factor table
@@ -622,29 +578,17 @@ void ChineseRemainderTransform<IntType,VecType>::Destroy() {
 	if( m_rootOfUnityTable ) delete m_rootOfUnityTable;
 	if( m_rootOfUnityInverseTable ) delete m_rootOfUnityInverseTable;
 }
-
-template<typename IntType, typename VecType>
-void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
-	if( m_onlyInstance != NULL ) delete m_onlyInstance;
-	m_onlyInstance = NULL;
-}
 	
 	void DiscreteFourierTransform::Destroy() {
 		if (rootOfUnityTable) {
-			delete rootOfUnityTable;
+			delete[] rootOfUnityTable;
 			rootOfUnityTable = 0;
-		}
-		if (m_onlyInstance) {
-			delete m_onlyInstance; 
-			m_onlyInstance = 0;
 		}
 	}
+
 	void DiscreteFourierTransform::PreComputeTable(uint32_t s) {
-		size = s;
-		if (rootOfUnityTable) {
-			delete rootOfUnityTable;
-			rootOfUnityTable = 0;
-		}
+		Destroy();
+
 		rootOfUnityTable = new std::complex<double>[s];
 		for (size_t j = 0;j < s;j++) {
 			rootOfUnityTable[j] = std::polar(1.0, -2 * M_PI * j / s);
@@ -749,21 +693,6 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 			invDftRemainder[i] = invDft.at(i);
 		}
 		return invDftRemainder;
-	}
-
-	DiscreteFourierTransform& DiscreteFourierTransform::GetInstance() {
-		if (m_onlyInstance == NULL) {
-			m_onlyInstance = new DiscreteFourierTransform();//lazy instantiation
-		}
-		return *m_onlyInstance;
-	}
-
-	template<typename IntType, typename VecType>
-	BluesteinFFT<IntType, VecType>& BluesteinFFT<IntType, VecType>::GetInstance() {
-		if (m_onlyInstance == NULL) {
-			m_onlyInstance = new BluesteinFFT<IntType, VecType>();//lazy instantiation
-		}
-		return *m_onlyInstance;
 	}
 
 	template<typename IntType, typename VecType>
@@ -929,14 +858,6 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Destroy() {
 		m_powersTableByModulusRoot.clear();
 		m_RBTableByModulusRootPair.clear();
 		m_defaultNTTModulusRoot.clear();
-	}
-
-	template<typename IntType, typename VecType>
-	ChineseRemainderTransformArb<IntType, VecType>& ChineseRemainderTransformArb<IntType, VecType>::GetInstance() {
-		if (m_onlyInstance == NULL) {
-			m_onlyInstance = new ChineseRemainderTransformArb<IntType, VecType>();//lazy instantiation
-		}
-		return *m_onlyInstance;
 	}
 
 	template<typename IntType, typename VecType>
