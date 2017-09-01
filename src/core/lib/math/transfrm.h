@@ -48,59 +48,12 @@
 namespace lbcrypto {
 
 	/**
-	* @brief Generic transform class.
-	*/
-	class Transform
-	{
-	public:
-		virtual ~Transform() {}
-	};
-
-	/**
-	* @brief Generic linear transform class.
-	*/
-	template<typename IntType, typename VecType>
-	class LinearTransform : public Transform
-	{
-	public:
-		/**
-		* Virtual forward transform.
-		*
-		* @param &element is the element to perform the transform on.
-		* @param rootOfUnity the root of unity.
-		* @param CycloOrder is the cyclotomic order.
-		* @return is the output result of the transform.
-		*/
-		virtual VecType ForwardTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder) = 0;
-
-		/**
-		* Virtual inverse transform.
-		*
-		* @param &element is the element to perform the inverse transform on.
-		* @param rootOfUnity the root of unity.
-		* @param CycloOrder is the cyclotomic order.
-		* @return is the output result of the inverse transform.
-		*/
-		virtual VecType InverseTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder) = 0;
-	};
-
-	/**
 	* @brief Number Theoretic Transform implemetation
 	*/
 	template<typename IntType, typename VecType>
 	class NumberTheoreticTransform
 	{
 	public:
-		/**
-		* Get instance to return this object.
-		*
-		* @return is this object.
-		*/
-		static NumberTheoreticTransform& GetInstance() {
-			static NumberTheoreticTransform	instance;
-			return instance;
-		}
-
 		/**
 		* Forward transform.
 		*
@@ -109,7 +62,7 @@ namespace lbcrypto {
 		* @param cycloOrder is the cyclotomic order.
 		* @return is the output result of the transform.
 		*/
-		VecType ForwardTransformIterative(const VecType& element, const VecType& rootOfUnityTable, const usint cycloOrder);
+		static VecType ForwardTransformIterative(const VecType& element, const VecType& rootOfUnityTable, const usint cycloOrder);
 
 		/**
 		* Inverse transform.
@@ -119,45 +72,16 @@ namespace lbcrypto {
 		* @param cycloOrder is the cyclotomic order.
 		* @return is the output result of the transform.
 		*/
-		VecType InverseTransformIterative(const VecType& element, const VecType& rootOfUnityInverseTable, const usint cycloOrder);
-
-		/**
-		* Set the ring element.
-		*
-		* @param &element is the element to set.
-		*/
-		void SetElement(const VecType &element);
-
-		/**
-		* Destructor.
-		*/
-		void Destroy();
-
-	private:
-		NumberTheoreticTransform() : m_element(0) {}
-		~NumberTheoreticTransform() {}
-		NumberTheoreticTransform(const NumberTheoreticTransform&) : m_element(0) {}
-		//	NumberTheoreticTransform& operator=(NumberTheoreticTransform const&) {}
-		const VecType *m_element;
+		static VecType InverseTransformIterative(const VecType& element, const VecType& rootOfUnityInverseTable, const usint cycloOrder);
 	};
 
 	/**
 	* @brief Chinese Remainder Transform implemetation.  This is a refined, higher performance implementation.
 	*/
 	template<typename IntType, typename VecType>
-	class ChineseRemainderTransform : public LinearTransform<IntType, VecType>
+	class ChineseRemainderTransform
 	{
 	public:
-		/**
-		* Get instance to return this object.
-		*
-		* @return is this object.
-		*/
-		static ChineseRemainderTransform& GetInstance() {
-			static ChineseRemainderTransform	instance;
-			return instance;
-		}
-
 		/**
 		* Virtual forward transform.
 		*
@@ -166,7 +90,7 @@ namespace lbcrypto {
 		* @param CycloOrder is the cyclotomic order.
 		* @return is the output result of the transform.
 		*/
-		VecType ForwardTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder);
+		static VecType ForwardTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder);
 
 		/**
 		* Virtual inverse transform.
@@ -176,36 +100,25 @@ namespace lbcrypto {
 		* @param CycloOrder is the cyclotomic order.
 		* @return is the output result of the inverse transform.
 		*/
-		VecType InverseTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder);
+		static VecType InverseTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder);
 
 		/**
-		* Destructor.
+		* Reset cached values for the transform to empty.
 		*/
-		void Destroy();
+		static void Reset();
 
 	private:
 		static VecType *m_rootOfUnityTable;
 		static VecType *m_rootOfUnityInverseTable;
-		ChineseRemainderTransform() {}
-		~ChineseRemainderTransform() {}
 	};
 
 	/**
 	* @brief Golden Chinese Remainder Transform FFT implemetation.
 	*/
 	template<typename IntType, typename VecType>
-	class ChineseRemainderTransformFTT : public LinearTransform<IntType, VecType>
+	class ChineseRemainderTransformFTT
 	{
 	public:
-		/**
-		* Get instance to return this object.
-		*
-		* @return is this object.
-		*/
-		static ChineseRemainderTransformFTT& GetInstance() {
-			static ChineseRemainderTransformFTT instance;
-			return instance;
-		}
 		/**
 		* Virtual forward transform.
 		*
@@ -214,7 +127,7 @@ namespace lbcrypto {
 		* @param CycloOrder is the cyclotomic order.
 		* @return is the output result of the transform.
 		*/
-		VecType ForwardTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder);
+		static VecType ForwardTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder);
 
 		/**
 		* Virtual inverse transform.
@@ -224,7 +137,7 @@ namespace lbcrypto {
 		* @param CycloOrder is the cyclotomic order.
 		* @return is the output result of the inverse transform.
 		*/
-		VecType InverseTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder);
+		static VecType InverseTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder);
 
 		/**
 		* Precomputation of root of unity tables.
@@ -233,7 +146,7 @@ namespace lbcrypto {
 		* @param CycloOrder is the cyclotomic order.
 		* @param modulus is the modulus
 		*/
-		void PreCompute(const IntType& rootOfUnity, const usint CycloOrder, const IntType &modulus);
+		static void PreCompute(const IntType& rootOfUnity, const usint CycloOrder, const IntType &modulus);
 
 		/**
 		* Precomputation of root of unity tables.
@@ -242,14 +155,16 @@ namespace lbcrypto {
 		* @param CycloOrder is the cyclotomic order.
 		* @param &moduliiChain is the modulus
 		*/
-		void PreCompute(std::vector<IntType> &rootOfUnity, const usint CycloOrder, std::vector<IntType> &moduliiChain);
+		static void PreCompute(std::vector<IntType> &rootOfUnity, const usint CycloOrder, std::vector<IntType> &moduliiChain);
+
+		/**
+		* Reset cached values for the transform to empty.
+		*/
+		static void Reset();
 
 	private:
 		static std::map<IntType, VecType> m_rootOfUnityTableByModulus;
 		static std::map<IntType, VecType> m_rootOfUnityInverseTableByModulus;
-
-		ChineseRemainderTransformFTT() {}
-		~ChineseRemainderTransformFTT() {}
 	};
 
 	/**
@@ -264,7 +179,7 @@ namespace lbcrypto {
 		* @param A is the element to perform the transform on.
 		* @return is the output result of the transform.
 		*/
-		std::vector<std::complex<double>> FFTForwardTransform(std::vector<std::complex<double>>& A);
+		static std::vector<std::complex<double>> FFTForwardTransform(std::vector<std::complex<double>>& A);
 
 		/**
 		* Virtual FFT inverse transform.
@@ -272,7 +187,7 @@ namespace lbcrypto {
 		* @param A is the element to perform the inverse transform on.
 		* @return is the output result of the inverse transform.
 		*/
-		std::vector<std::complex<double>> FFTInverseTransform(std::vector<std::complex<double>>& A);
+		static std::vector<std::complex<double>> FFTInverseTransform(std::vector<std::complex<double>>& A);
 
 		/**
 		* Virtual forward transform.
@@ -280,7 +195,7 @@ namespace lbcrypto {
 		* @param A is the element to perform the transform on.
 		* @return is the output result of the transform.
 		*/
-		std::vector<std::complex<double>> ForwardTransform(std::vector<std::complex<double>> A);
+		static std::vector<std::complex<double>> ForwardTransform(std::vector<std::complex<double>> A);
 
 		/**
 		* Virtual inverse transform.
@@ -288,21 +203,16 @@ namespace lbcrypto {
 		* @param A is the element to perform the inverse transform on.
 		* @return is the output result of the inverse transform.
 		*/
-		std::vector<std::complex<double>> InverseTransform(std::vector<std::complex<double>> A);
+		static std::vector<std::complex<double>> InverseTransform(std::vector<std::complex<double>> A);
 
-		void Destroy();
+		/**
+		* Reset cached values for the transform to empty.
+		*/
+		static void Reset();
 
-		void PreComputeTable(uint32_t s);
-
-		static DiscreteFourierTransform& GetInstance() {
-			static DiscreteFourierTransform	instance;
-			return instance;
-		}
+		static void PreComputeTable(uint32_t s);
 
 	private:
-		DiscreteFourierTransform() {}
-		~DiscreteFourierTransform() {}
-
 		static std::complex<double>* rootOfUnityTable;
 	};
 
@@ -320,16 +230,6 @@ namespace lbcrypto {
 	class BluesteinFFT {
 	public:
 		/**
-		* Get instance to return this object.
-		*
-		* @return is this object.
-		*/
-		static BluesteinFFT& GetInstance() {
-			static BluesteinFFT	instance;
-			return instance;
-		}
-
-		/**
 		* Forward transform.
 		*
 		* @param element is the element to perform the transform on.
@@ -337,8 +237,8 @@ namespace lbcrypto {
 		* @param cycloOrder is the cyclotomic order.
 		* @return is the output result of the transform.
 		*/
-		VecType ForwardTransform(const VecType& element, const IntType& root, const usint cycloOrder);
-		VecType ForwardTransform(const VecType& element, const IntType& root, const usint cycloOrder, const ModulusRoot<IntType>& nttModulusRoot);
+		static VecType ForwardTransform(const VecType& element, const IntType& root, const usint cycloOrder);
+		static VecType ForwardTransform(const VecType& element, const IntType& root, const usint cycloOrder, const ModulusRoot<IntType>& nttModulusRoot);
 
 		/**
 		*
@@ -355,7 +255,7 @@ namespace lbcrypto {
 		* @param hi is higher coefficient index.
 		* @return output vector s.t output vector = a[lo]...a[hi].
 		*/
-		VecType Resize(const VecType &a, usint  lo, usint hi);
+		static VecType Resize(const VecType &a, usint  lo, usint hi);
 
 		// void PreComputeNTTModulus(usint cycloOrder, const std::vector<IntType> &modulii);
 
@@ -364,14 +264,14 @@ namespace lbcrypto {
 		* @param cycloOrder is the cyclotomic order of the polynomial.
 		* @param modulus is the modulus of the polynomial.
 		*/
-		void PreComputeDefaultNTTModulusRoot(usint cycloOrder, const IntType &modulus);
+		static void PreComputeDefaultNTTModulusRoot(usint cycloOrder, const IntType &modulus);
 
 		/**
 		* @brief Precomputes the root of unity table needed for NTT operation in forward Bluestein transform.
 		* @param cycloOrder is the cyclotomic order of the polynomial ring.
 		* @param modulus is the modulus of the polynomial.
 		*/
-		void PreComputeRootTableForNTT(usint cycloOrder, const ModulusRoot<IntType> &nttModulusRoot);
+		static void PreComputeRootTableForNTT(usint cycloOrder, const ModulusRoot<IntType> &nttModulusRoot);
 
 		/**
 		* @brief precomputes the powers of root used in forward Bluestein transform.
@@ -392,9 +292,9 @@ namespace lbcrypto {
 		static void PreComputeRBTable(usint cycloOrder, const ModulusRootPair<IntType> &modulusRootPair);
 
 		/**
-		* Destructor.
+		* Reset cached values for the transform to empty.
 		*/
-		void Destroy();
+		static void Reset();
 
 		//map to store the root of unity table with modulus as key.
 		static std::map<ModulusRoot<IntType>, VecType> m_rootOfUnityTableByModulusRoot;
@@ -411,8 +311,6 @@ namespace lbcrypto {
 	private:
 		//map to store the precomputed NTT modulus with modulus as key.
 		static std::map<IntType, ModulusRoot<IntType>> m_defaultNTTModulusRoot;
-		//pointer to the class to support sigleton class structure.
-		~BluesteinFFT() {}
 
 	};
 
@@ -422,16 +320,6 @@ namespace lbcrypto {
 	template<typename IntType, typename VecType>
 	class ChineseRemainderTransformArb {
 	public:
-		/**
-		* Get instance to return this object.
-		*
-		* @return is this object.
-		*/
-		static ChineseRemainderTransformArb& GetInstance() {
-			static ChineseRemainderTransformArb	instance;
-			return instance;
-		}
-
 		/**
 		* Sets the cyclotomic polynomial.
 		*
@@ -448,7 +336,7 @@ namespace lbcrypto {
 		* @param bigRoot is the addtional root of unity w.r.t bigMod needed for NTT operation.
 		* @return is the output result of the transform.
 		*/
-		VecType ForwardTransform(const VecType& element, const IntType& root, const IntType& bigMod, const IntType& bigRoot, const usint cycloOrder);
+		static VecType ForwardTransform(const VecType& element, const IntType& root, const IntType& bigMod, const IntType& bigRoot, const usint cycloOrder);
 
 		/**
 		* Inverse transform.
@@ -460,12 +348,12 @@ namespace lbcrypto {
 		* @param bigRoot is the addtional root of unity w.r.t bigMod needed for NTT operation.
 		* @return is the output result of the transform.
 		*/
-		VecType InverseTransform(const VecType& element, const IntType& root, const IntType& bigMod, const IntType& bigRoot, const usint cycloOrder);
+		static VecType InverseTransform(const VecType& element, const IntType& root, const IntType& bigMod, const IntType& bigRoot, const usint cycloOrder);
 
 		/**
-		* Destructor.
+		* Reset cached values for the transform to empty.
 		*/
-		void Destroy();
+		static void Reset();
 		
 		/**
 		* @brief Precomputes the root of unity and modulus needed for NTT operation in forward Bluestein transform.
@@ -502,12 +390,9 @@ namespace lbcrypto {
 		static VecType InversePolyMod(const VecType &cycloPoly, const IntType &modulus, usint power);
 
 	private:
-		ChineseRemainderTransformArb() {}
-		~ChineseRemainderTransformArb() {}
+		static VecType Pad(const VecType& element, const usint cycloOrder, bool forward);
 
-		VecType Pad(const VecType& element, const usint cycloOrder, bool forward);
-
-		VecType Drop(const VecType& element, const usint cycloOrder, bool forward, const IntType& bigMod, const IntType& bigRoot);
+		static VecType Drop(const VecType& element, const usint cycloOrder, bool forward, const IntType& bigMod, const IntType& bigRoot);
 
 		//map to store the cyclotomic polynomial with polynomial ring's modulus as key.
 		static std::map<IntType, VecType> m_cyclotomicPolyMap;

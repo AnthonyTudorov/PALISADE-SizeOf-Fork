@@ -145,7 +145,7 @@ usint ArbLTVInnerProductPackedArray(std::vector<usint> &input1, std::vector<usin
 	BigInteger bigroot("201473555181182026164891698186176997440470643522932663932844212");
 
 	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
-	ChineseRemainderTransformArb<BigInteger, BigVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulusQ);
+	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 	PackedIntPlaintextEncoding::SetParams(modulusP, m);
 
@@ -209,7 +209,7 @@ usint ArbBVInnerProductPackedArray(std::vector<usint> &input1, std::vector<usint
 	BigInteger bigroot("77936753846653065954043047918387");
 
 	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
-	ChineseRemainderTransformArb<BigInteger, BigVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulusQ);
+	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 	PackedIntPlaintextEncoding::SetParams(modulusP, m);
 

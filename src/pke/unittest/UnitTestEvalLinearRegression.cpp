@@ -99,7 +99,7 @@ rationalInt ArbBVLinearRegressionPackedArray() {
 	BigInteger bigroot("201473555181182026164891698186176997440470643522932663932844212");
 	
 	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
-	ChineseRemainderTransformArb<BigInteger, BigVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulusQ);
+	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 	PackedIntPlaintextEncoding::SetParams(modulusP, m);
 
@@ -166,7 +166,7 @@ rationalInt ArbBVLinearRegressionPackedArray() {
 
 rationalInt ArbFVLinearRegressionPackedArray() {
 
-	ChineseRemainderTransformArb<BigInteger, BigVector>::GetInstance().Destroy();
+	ChineseRemainderTransformArb<BigInteger, BigVector>::Reset();
 
 	usint m = 22;
 

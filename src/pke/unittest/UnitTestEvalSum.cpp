@@ -158,7 +158,7 @@ TEST_F(UTEvalSum, Test_FV_EvalSum) {
 usint ArbLTVEvalSumPackedArray(std::vector<usint> &clearVector) {
 
 	PackedIntPlaintextEncoding::Destroy();
-	ChineseRemainderTransformArb<BigInteger, BigVector>::GetInstance().Destroy();
+	ChineseRemainderTransformArb<BigInteger, BigVector>::Reset();
 
 	usint m = 22;
 	usint p = 89;
@@ -172,7 +172,7 @@ usint ArbLTVEvalSumPackedArray(std::vector<usint> &clearVector) {
 
 
 	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
-	ChineseRemainderTransformArb<BigInteger, BigVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulusQ);
+	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 	PackedIntPlaintextEncoding::SetParams(modulusP, m);
 
@@ -229,7 +229,7 @@ usint ArbBVEvalSumPackedArray(std::vector<usint> &clearVector) {
 	BigInteger bigroot("77936753846653065954043047918387");
 
 	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
-	ChineseRemainderTransformArb<BigInteger, BigVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulusQ);
+	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 	PackedIntPlaintextEncoding::SetParams(modulusP, m);
 
@@ -284,7 +284,7 @@ usint ArbBVEvalSumPackedArrayPrime(std::vector<usint> &clearVector) {
 	BigInteger bigroot("74771531227552428119450922526156");
 
 	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
-	ChineseRemainderTransformArb<BigInteger, BigVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulusQ);
+	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 	PackedIntPlaintextEncoding::SetParams(modulusP, m);
 
@@ -341,7 +341,7 @@ usint ArbFVEvalSumPackedArray(std::vector<usint> &clearVector) {
 	BigInteger bigroot("77936753846653065954043047918387");
 
 	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
-	ChineseRemainderTransformArb<BigInteger, BigVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulusQ);
+	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 	PackedIntPlaintextEncoding::SetParams(modulusP, m);
 

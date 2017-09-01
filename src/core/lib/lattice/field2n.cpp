@@ -290,7 +290,7 @@ Field2n Field2n::ScalarMult(double d)
 void Field2n::SwitchFormat()
 {
 	if (format == COEFFICIENT) {
-		std::vector<std::complex<double>> r = DiscreteFourierTransform::GetInstance().ForwardTransform(*this);
+		std::vector<std::complex<double>> r = DiscreteFourierTransform::ForwardTransform(*this);
 
 		for (size_t i = 0; i < r.size(); i++) {
 			this->at(i) = r.at(i);
@@ -298,7 +298,7 @@ void Field2n::SwitchFormat()
 
 		format = EVALUATION;
 	} else {
-		std::vector<std::complex<double>> r = DiscreteFourierTransform::GetInstance().InverseTransform(*this);
+		std::vector<std::complex<double>> r = DiscreteFourierTransform::InverseTransform(*this);
 
 		for (size_t i = 0; i < r.size(); i++) {
 			this->at(i) = r.at(i);

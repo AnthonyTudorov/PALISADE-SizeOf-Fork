@@ -272,18 +272,15 @@ int main() {
 		x.SetValAtIndex(i, BigInteger(i));
 	}
 	BigVector X, xx;
-	X = ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance()
-			.ForwardTransform(x, rootOfUnity, m);
-	xx = ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance()
-			.InverseTransform(X, rootOfUnity, m);
+	X = ChineseRemainderTransformFTT<BigInteger,BigVector>::ForwardTransform(x, rootOfUnity, m);
+	xx = ChineseRemainderTransformFTT<BigInteger,BigVector>::InverseTransform(X, rootOfUnity, m);
 	std::cout << X << std::endl;
 	std::cout << xx << std::endl;
 
 	nRep = 1000;
 	start = currentDateTime();
 	for(uint64_t n=0; n<nRep; n++){
-		X = ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance()
-				.ForwardTransform(x, rootOfUnity, m);
+		X = ChineseRemainderTransformFTT<BigInteger,BigVector>::ForwardTransform(x, rootOfUnity, m);
 	}
 	stop = currentDateTime();
 	std::cout << " Ttran: " << (stop-start)/nRep << std::endl;

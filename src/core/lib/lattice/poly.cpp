@@ -764,16 +764,16 @@ void PolyImpl<ModType,IntType,VecType,ParmType>::SwitchFormat()
 			//todo:: does this have an extra copy? 
 			DEBUG("transform to evaluation m_values was"<< *m_values);						  
 
-			m_values = make_unique<VecType>(ChineseRemainderTransformFTT<IntType,VecType>::GetInstance()
-							.ForwardTransform(*m_values, m_params->GetRootOfUnity(), 
+			m_values = make_unique<VecType>(ChineseRemainderTransformFTT<IntType,VecType>::
+							ForwardTransform(*m_values, m_params->GetRootOfUnity(),
 									  m_params->GetCyclotomicOrder()));
 			DEBUG("m_values now "<< *m_values);						  
 	} else {
 			m_format = COEFFICIENT;
 			DEBUG("transform to coefficient m_values was"<< *m_values);						  
 
-			m_values = make_unique<VecType>(ChineseRemainderTransformFTT<IntType,VecType>::GetInstance()
-							.InverseTransform(*m_values, m_params->GetRootOfUnity(), 
+			m_values = make_unique<VecType>(ChineseRemainderTransformFTT<IntType,VecType>::
+							InverseTransform(*m_values, m_params->GetRootOfUnity(),
 									  m_params->GetCyclotomicOrder()));
 			DEBUG("m_values now "<< *m_values);						  
 
@@ -795,16 +795,16 @@ void PolyImpl<ModType,IntType,VecType,ParmType>::ArbitrarySwitchFormat()
 			//todo:: does this have an extra copy?
 			DEBUG("transform to evaluation m_values was"<< *m_values);
 
-			m_values = make_unique<VecType>(ChineseRemainderTransformArb<IntType,VecType>::GetInstance()
-							.ForwardTransform(*m_values, m_params->GetRootOfUnity(),m_params->GetBigModulus(),
+			m_values = make_unique<VecType>(ChineseRemainderTransformArb<IntType,VecType>::
+							ForwardTransform(*m_values, m_params->GetRootOfUnity(),m_params->GetBigModulus(),
 								m_params->GetBigRootOfUnity(), m_params->GetCyclotomicOrder()));
 			DEBUG("m_values now "<< *m_values);
 	} else {
 			m_format = COEFFICIENT;
 			DEBUG("transform to coefficient m_values was"<< *m_values);
 
-			m_values = make_unique<VecType>(ChineseRemainderTransformArb<IntType,VecType>::GetInstance()
-							.InverseTransform(*m_values, m_params->GetRootOfUnity(), m_params->GetBigModulus(),
+			m_values = make_unique<VecType>(ChineseRemainderTransformArb<IntType,VecType>::
+							InverseTransform(*m_values, m_params->GetRootOfUnity(), m_params->GetBigModulus(),
 								m_params->GetBigRootOfUnity(), m_params->GetCyclotomicOrder()));
 			DEBUG("m_values now "<< *m_values);
 
