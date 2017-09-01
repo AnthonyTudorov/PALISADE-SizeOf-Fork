@@ -340,7 +340,7 @@ bool CryptoContext<Element>::DeserializeEvalMultKey(const Serialized& ser) {
 		}
 	}
 
-	return false;
+	return true;
 }
 
 /**
@@ -510,7 +510,7 @@ bool CryptoContext<Element>::DeserializeEvalSumKey(const Serialized& ser) {
 		}
 	}
 
-	return false;
+	return true;
 }
 
 
