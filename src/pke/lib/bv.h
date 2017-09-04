@@ -347,8 +347,8 @@ namespace lbcrypto {
 		* @param plaintext input plaintext embedded in the cryptocontext.
 		* @return result of the multiplication.
 		*/
-		shared_ptr<Ciphertext<Element>> EvalMultPlain(const shared_ptr<Ciphertext<Element>> ciphertext,
-			const shared_ptr<Ciphertext<Element>> plaintext) const;
+		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext,
+			const shared_ptr<Plaintext> plaintext) const;
 
 		/**
 		* Function for homomorphic multiplication of ciphertexts followed by key switching operation.
@@ -389,6 +389,18 @@ namespace lbcrypto {
 			std::string errMsg = "LPAlgorithmSHEBV::EvalMultMany is not implemented for the BV Scheme.";
 			throw std::runtime_error(errMsg);
 		}
+		/**
+		* Function for homomorphic multiplication of ciphertexts followed by key switching operation.
+		* Currently it assumes that the input arguments are fresh ciphertexts (of depth 1). Support for the input ciphertexts of higher depths will be added later.
+		*
+		* @param ciphertext1 first input ciphertext.
+		* @param ciphertext2 second input ciphertext.
+		* @param ek is the evaluation key to make the newCiphertext decryptable by the same secret key as that of ciphertext1 and ciphertext2.
+		* @return result of homomorphic multiplication of input ciphertexts.
+		*/
+		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
+			const shared_ptr<Plaintext> plaintext,
+			const shared_ptr<LPEvalKey<Element>> ek) const;
 
 		/**
 		* Function for homomorphic negation of ciphertexts.

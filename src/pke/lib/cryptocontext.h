@@ -1595,10 +1595,34 @@ public:
 		return rv;
 	}
 
+	shared_ptr<Ciphertext<Element>>
+	EvalMult(const shared_ptr<Plaintext> pt2, const shared_ptr<Ciphertext<Element>> ct1) const
+	{
+		return EvalMult(ct1, pt2);
+	}
+
+	shared_ptr<Ciphertext<Element>>
+	EvalMult(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Plaintext> pt2) const
+	{
+		if( ct1 == NULL || pt2 == NULL || ct1->GetCryptoContext() != this )
+			throw std::logic_error("Information passed to EvalMult was not generated with this crypto context");
+
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto rv = GetEncryptionAlgorithm()->EvalMult(ct1, pt2);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalMult, currentDateTime() - start) );
+		}
+		return rv;
+	}
+
 	shared_ptr<Matrix<RationalCiphertext<Element>>>
 	EvalMultMatrix(const shared_ptr<Matrix<RationalCiphertext<Element>>> ct1, const shared_ptr<Matrix<RationalCiphertext<Element>>> ct2) const
 	{
-		// tests needed for context
+		if (ciphertext == NULL || plaintext == NULL ||
+				Mismatched(ciphertext->GetCryptoContext()) ||
+				Mismatched(plaintext->GetCryptoContext()) )
+			throw std::logic_error("Information passed to EvalMult was not generated with this crypto context");
 
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
@@ -1610,28 +1634,26 @@ public:
 		return a;
 	}
 
-	/**
-	* EvalMult - PALISADE EvalMult method for a a multiplication of ciphertext by plaintext
-	* @param ct1
-	* @param ct2
-	* @return new ciphertext for ct1 * ct2
-	*/
-	shared_ptr<Ciphertext<Element>>
-		EvalMultPlain(const shared_ptr<Ciphertext<Element>> ciphertext, const shared_ptr<Ciphertext<Element>> plaintext) const
-	{
-		if (ciphertext == NULL || plaintext == NULL ||
-				Mismatched(ciphertext->GetCryptoContext()) ||
-				Mismatched(plaintext->GetCryptoContext()) )
-			throw std::logic_error("Information passed to EvalMult was not generated with this crypto context");
-
-		double start = 0;
-		if( doTiming ) start = currentDateTime();
-		auto rv = GetEncryptionAlgorithm()->EvalMultPlain(ciphertext, plaintext);
-		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpEvalMultPlain, currentDateTime() - start) );
-		}
-		return rv;
-	}
+//	/**
+//	* EvalMult - PALISADE EvalMult method for a a multiplication of ciphertext by plaintext
+//	* @param ct1
+//	* @param ct2
+//	* @return new ciphertext for ct1 * ct2
+//	*/
+//	shared_ptr<Ciphertext<Element>>
+//		EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext, const shared_ptr<Ciphertext<Element>> plaintext) const
+//	{
+//		if (ciphertext == NULL || plaintext == NULL || ciphertext->GetCryptoContext() != this || plaintext->GetCryptoContext() != this)
+//			throw std::logic_error("Information passed to EvalMult was not generated with this crypto context");
+//
+//		double start = 0;
+//		if( doTiming ) start = currentDateTime();
+//		auto rv = GetEncryptionAlgorithm()->EvalMult(ciphertext, plaintext);
+//		if( doTiming ) {
+//			timeSamples->push_back( TimingInfo(OpEvalMultPlain, currentDateTime() - start) );
+//		}
+//		return rv;
+//	}
 
 	/**
 	* EvalSub - PALISADE Negate method for a ciphertext
@@ -1779,6 +1801,16 @@ public:
 	* @return resulting ciphertext
 	*/
 	shared_ptr<Ciphertext<Element>> EvalInnerProduct(const shared_ptr<Ciphertext<Element>> ciphertext1, const shared_ptr<Ciphertext<Element>> ciphertext2, usint batchSize) const;
+
+	/**
+	* Evaluates inner product in batched encoding
+	*
+	* @param ciphertext1 first vector.
+	* @param ciphertext2 second vector.
+	* @param batchSize size of the batch to be summed up
+	* @return resulting ciphertext
+	*/
+	shared_ptr<Ciphertext<Element>> EvalInnerProduct(const shared_ptr<Ciphertext<Element>> ciphertext1, const shared_ptr<Plaintext> ciphertext2, usint batchSize) const;
 
 	/**
 	* EvalCrossCorrelation - Computes the sliding sum of inner products (known as

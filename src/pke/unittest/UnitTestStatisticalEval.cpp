@@ -74,29 +74,29 @@ TEST_F(UTStatisticalEval, Null_Eval_Lin_Regression) {
 
 	// Set the plaintext matrices
 
-	auto zeroAlloc = [=]() { return make_unique<IntPlaintextEncoding>(); };
+	auto zeroAlloc = [=]() { return make_unique<shared_ptr<Plaintext>>(); };
 
-	Matrix<IntPlaintextEncoding> xP = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 2);
+	Matrix<shared_ptr<Plaintext>> xP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 2);
 
 	std::vector<uint32_t> vectorOfInts1 = { 1,0,1,1,0,1,0,1 };
-	xP(0, 0) = vectorOfInts1;
+	xP(0, 0) = cc->MakeCoefPackedPlaintext(vectorOfInts1);
 
 	std::vector<uint32_t> vectorOfInts2 = { 1,1,0,1,0,1,1,0 };
-	xP(0, 1) = vectorOfInts2;
+	xP(0, 1) = cc->MakeCoefPackedPlaintext(vectorOfInts2);
 
 	std::vector<uint32_t> vectorOfInts3 = { 1,1,1,1,0,1,0,1 };
-	xP(1, 0) = vectorOfInts3;
+	xP(1, 0) = cc->MakeCoefPackedPlaintext(vectorOfInts3);
 
 	std::vector<uint32_t> vectorOfInts4 = { 1,0,0,1,0,1,1,0 };
-	xP(1, 1) = vectorOfInts4;
+	xP(1, 1) = cc->MakeCoefPackedPlaintext(vectorOfInts4);
 
-	Matrix<IntPlaintextEncoding> yP = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
+	Matrix<shared_ptr<Plaintext>> yP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
 
 	std::vector<uint32_t> vectorOfInts5 = { 1,1,1,0,0,1,0,1 };
-	yP(0, 0) = vectorOfInts5;
+	yP(0, 0) = cc->MakeCoefPackedPlaintext(vectorOfInts5);
 
 	std::vector<uint32_t> vectorOfInts6 = { 1,0,0,1,0,1,1,0 };
-	yP(1, 0) = vectorOfInts6;
+	yP(1, 0) = cc->MakeCoefPackedPlaintext(vectorOfInts6);
 
 
 	////////////////////////////////////////////////////////////
@@ -124,8 +124,8 @@ TEST_F(UTStatisticalEval, Null_Eval_Lin_Regression) {
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	Matrix<IntPlaintextEncoding> numerator = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
-	Matrix<IntPlaintextEncoding> denominator = Matrix<IntPlaintextEncoding>(zeroAlloc, 2, 1);
+	Matrix<shared_ptr<Plaintext>> numerator = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
+	Matrix<shared_ptr<Plaintext>> denominator = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
 
 	cc->DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
 
@@ -133,17 +133,17 @@ TEST_F(UTStatisticalEval, Null_Eval_Lin_Regression) {
 	// Correct output
 	////////////////////////////////////////////////////////////
 
-	IntPlaintextEncoding numerator1 = { 0, 0, 0, 254, 1, 0, 253, 5, 251, 255, 6, 251, 6, 1, 253, 3, 255, 1, 
+	std::vector<uint32_t> numerator1 = { 0, 0, 0, 254, 1, 0, 253, 5, 251, 255, 6, 251, 6, 1, 253, 3, 255, 1,
 		0, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-	IntPlaintextEncoding numerator2 = { 0, 0, 4, 6, 6, 11, 7, 8, 14, 8, 11, 8, 1, 7, 0, 4, 3, 254, 3, 254, 
+	std::vector<uint32_t> numerator2 = { 0, 0, 4, 6, 6, 11, 7, 8, 14, 8, 11, 8, 1, 7, 0, 4, 3, 254, 3, 254,
 		2, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-	IntPlaintextEncoding denominatorExpected = { 0, 0, 4, 4, 5, 10, 5, 12, 12, 10, 12, 6, 8, 4, 5, 2, 1, 0, 0, 0, 0, 
+	std::vector<uint32_t> denominatorExpected = { 0, 0, 4, 4, 5, 10, 5, 12, 12, 10, 12, 6, 8, 4, 5, 2, 1, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-	EXPECT_EQ(numerator1, numerator(0, 0));
-	EXPECT_EQ(numerator2, numerator(1, 0));
-	EXPECT_EQ(denominatorExpected, denominator(0, 0));
-	EXPECT_EQ(denominatorExpected, denominator(1, 0));
+	EXPECT_EQ(numerator1, numerator(0, 0)->GetCoefPackedValue());
+	EXPECT_EQ(numerator2, numerator(1, 0)->GetCoefPackedValue());
+	EXPECT_EQ(denominatorExpected, denominator(0, 0)->GetCoefPackedValue());
+	EXPECT_EQ(denominatorExpected, denominator(1, 0)->GetCoefPackedValue());
 
 }
 

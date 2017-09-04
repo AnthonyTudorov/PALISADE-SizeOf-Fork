@@ -52,8 +52,8 @@ void KeyGen();
 void Encrypt();
 void Compute();
 void Decrypt();
-shared_ptr<CryptoContext<DCRTPoly>> DeserializeContext(const string& ccFileName, const string& emKeyFileName, const string& esKeyFileName);
-native_int::BigInteger CRTInterpolate(const std::vector<PackedIntPlaintextEncoding> &crtVector);
+shared_ptr<CryptoContext<DCRTPoly>> DeserializeContext(const string& ccFileName);
+native_int::BigInteger CRTInterpolate(const std::vector<shared_ptr<Plaintext>> &crtVector);
 template<typename T> ostream& operator<<(ostream& output, const vector<T>& vector);
 
 // number of primitive prime plaintext moduli in the CRT representation of plaintext
@@ -313,29 +313,6 @@ void Encrypt() {
 
 	std::cout << "Result of plaintext computation is " << result << std::endl;
 
-
-	std::cout << "Encoding the data...";
-
-	auto zeroAlloc = [=]() { return lbcrypto::make_unique<PackedIntPlaintextEncoding>(); };
-
-	Matrix<PackedIntPlaintextEncoding> xP = Matrix<PackedIntPlaintextEncoding>(zeroAlloc, VECTORS, 1);
-	Matrix<PackedIntPlaintextEncoding> yP = Matrix<PackedIntPlaintextEncoding>(zeroAlloc, VECTORS, 1);
-
-	for (size_t i = 0; i < VECTORS; i++)
-	{
-		std::vector<usint> tempX(batchSize);
-		std::vector<usint> tempY(batchSize);
-		for (size_t j = 0; j < batchSize; j++)
-		{
-			tempX[j] = x(i, j);
-			tempY[j] = y(i, j);
-		}
-		xP(i,0) = tempX;
-		yP(i,0) = tempY;
-	}
-
-	std::cout << "Completed" << std::endl;
-
 	// Key deserialization is done here
 
 	for (size_t k = 0; k < SIZE; k++) {
@@ -379,6 +356,28 @@ void Encrypt() {
 		if (!pk) {
 			cerr << "Could not deserialize public key" << endl;
 			return;
+		}
+
+		std::cout << "Completed" << std::endl;
+
+		std::cout << "Encoding the data...";
+
+		auto zeroAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(); };
+
+		Matrix<shared_ptr<Plaintext>> xP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, VECTORS, 1);
+		Matrix<shared_ptr<Plaintext>> yP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, VECTORS, 1);
+
+		for (size_t i = 0; i < VECTORS; i++)
+		{
+			std::vector<usint> tempX(batchSize);
+			std::vector<usint> tempY(batchSize);
+			for (size_t j = 0; j < batchSize; j++)
+			{
+				tempX[j] = x(i, j);
+				tempY[j] = y(i, j);
+			}
+			xP(i,0) = cc->MakePackedPlaintext(tempX);
+			yP(i,0) = cc->MakePackedPlaintext(tempY);
 		}
 
 		std::cout << "Completed" << std::endl;
@@ -552,7 +551,7 @@ void Compute() {
 
 void Decrypt() {
 
-	std::vector<PackedIntPlaintextEncoding> crossCorr;
+	std::vector<shared_ptr<Plaintext>> crossCorr;
 
 	for (size_t k = 0; k < SIZE; k++) {
 
@@ -623,13 +622,9 @@ void Decrypt() {
 
 		std::cout << "Decrypting cross-correlation...";
 
-		vector<shared_ptr<Ciphertext<DCRTPoly>>> ciphertextCC;
+		shared_ptr<Plaintext> ccResult;
 
-		ciphertextCC.push_back(c);
-
-		PackedIntPlaintextEncoding ccResult; 
-
-		cc->Decrypt(sk, ciphertextCC, &ccResult, true);
+		cc->Decrypt(sk, c, &ccResult);
 
 		std::cout << "Completed" << std::endl;
 
@@ -689,7 +684,7 @@ shared_ptr<CryptoContext<DCRTPoly>> DeserializeContext(const string& ccFileName,
 	return cc;
 }
 
-native_int::BigInteger CRTInterpolate(const std::vector<PackedIntPlaintextEncoding> &crtVector) {
+native_int::BigInteger CRTInterpolate(const std::vector<shared_ptr<Plaintext>> &crtVector) {
 
 	native_int::BigInteger result(0);
 
@@ -710,7 +705,7 @@ native_int::BigInteger CRTInterpolate(const std::vector<PackedIntPlaintextEncodi
 	}
 
 	for (size_t i = 0; i < crtVector.size(); i++) {
-		result += ((native_int::BigInteger(crtVector[i][0])*qInverse[i]).Mod(q[i])*Q / q[i]).Mod(Q);
+		result += ((native_int::BigInteger(crtVector[i]->GetPackedValue()[0])*qInverse[i]).Mod(q[i])*Q / q[i]).Mod(Q);
 	}
 	
 	return result.Mod(Q);

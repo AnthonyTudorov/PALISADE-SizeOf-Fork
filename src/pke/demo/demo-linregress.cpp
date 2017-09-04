@@ -131,19 +131,19 @@ void ArbBVLinearRegressionPackedArray() {
 	cc->EvalSumKeyGen(kp.secretKey);
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	auto zeroAlloc = [=]() { return lbcrypto::make_unique<PackedIntPlaintextEncoding>(); };
+	auto zeroAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(); };
 
-	Matrix<PackedIntPlaintextEncoding> xP = Matrix<PackedIntPlaintextEncoding>(zeroAlloc, 1, 2);
+	Matrix<shared_ptr<Plaintext>> xP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 1, 2);
 
-	xP(0, 0) = { 0, 2, 1, 3,  2,  2, 1, 2 };
-	xP(0, 1) = { 1 , 1 , 2 , 1 , 1 , 1, 3 , 2 };
+	xP(0, 0) = cc->MakePackedPlaintext({ 0, 2, 1, 3,  2,  2, 1, 2 });
+	xP(0, 1) = cc->MakePackedPlaintext({ 1 , 1 , 2 , 1 , 1 , 1, 3 , 2 });
 
 	std::cout << "Input array X0 \n\t" << xP(0, 0) << std::endl;
 	std::cout << "Input array X1 \n\t" << xP(0, 1) << std::endl;
 
-	Matrix<PackedIntPlaintextEncoding> yP = Matrix<PackedIntPlaintextEncoding>(zeroAlloc, 2, 1);
+	Matrix<shared_ptr<Plaintext>> yP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
 
-	yP(0, 0) = { 0, 1, 2, 6, 1, 2, 3, 4};
+	yP(0, 0) = cc->MakePackedPlaintext({ 0, 1, 2, 6, 1, 2, 3, 4});
 	std::cout << "Input array Y \n\t" << yP(0, 0) << std::endl;
 
 	////////////////////////////////////////////////////////////
@@ -168,13 +168,13 @@ void ArbBVLinearRegressionPackedArray() {
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	Matrix<PackedIntPlaintextEncoding> numerator = Matrix<PackedIntPlaintextEncoding>(zeroAlloc, 2, 1);
-	Matrix<PackedIntPlaintextEncoding> denominator = Matrix<PackedIntPlaintextEncoding>(zeroAlloc, 2, 1);
+	Matrix<shared_ptr<Plaintext>> numerator = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
+	Matrix<shared_ptr<Plaintext>> denominator = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
 
 	cc->DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
 
-	std::cout << numerator(0, 0)[0] << "," << numerator(1, 0)[0] << std::endl;
-	std::cout << denominator(0, 0)[0] << "," << denominator(1, 0)[0] << std::endl;
+	std::cout << numerator(0, 0)->GetPackedValue()[0] << "," << numerator(1, 0)->GetPackedValue()[0] << std::endl;
+	std::cout << denominator(0, 0)->GetPackedValue()[0] << "," << denominator(1, 0)->GetPackedValue()[0] << std::endl;
 
 }
 
@@ -237,19 +237,19 @@ void ArbFVLinearRegressionPackedArray() {
 	cc->EvalSumKeyGen(kp.secretKey);
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	auto zeroAlloc = [=]() { return lbcrypto::make_unique<PackedIntPlaintextEncoding>(); };
+	auto zeroAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(); };
 
-	Matrix<PackedIntPlaintextEncoding> xP = Matrix<PackedIntPlaintextEncoding>(zeroAlloc, 1, 2);
+	Matrix<shared_ptr<Plaintext>> xP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 1, 2);
 
-	xP(0, 0) = { 0, 2, 1, 3,  2,  2, 1, 2 };
-	xP(0, 1) = { 1 , 1 , 2 , 1 , 1 , 1, 3 , 2 };
+	xP(0, 0) = cc->MakePackedPlaintext({ 0, 2, 1, 3,  2,  2, 1, 2 });
+	xP(0, 1) = cc->MakePackedPlaintext({ 1 , 1 , 2 , 1 , 1 , 1, 3 , 2 });
 
 	std::cout << "Input array X0 \n\t" << xP(0, 0) << std::endl;
 	std::cout << "Input array X1 \n\t" << xP(0, 1) << std::endl;
 
-	Matrix<PackedIntPlaintextEncoding> yP = Matrix<PackedIntPlaintextEncoding>(zeroAlloc, 2, 1);
+	Matrix<shared_ptr<Plaintext>> yP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
 
-	yP(0, 0) = { 0, 1, 2, 6, 1, 2, 3, 4 };
+	yP(0, 0) = cc->MakePackedPlaintext({ 0, 1, 2, 6, 1, 2, 3, 4 });
 	std::cout << "Input array Y \n\t" << yP(0, 0) << std::endl;
 
 	////////////////////////////////////////////////////////////
@@ -274,12 +274,12 @@ void ArbFVLinearRegressionPackedArray() {
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	Matrix<PackedIntPlaintextEncoding> numerator = Matrix<PackedIntPlaintextEncoding>(zeroAlloc, 2, 1);
-	Matrix<PackedIntPlaintextEncoding> denominator = Matrix<PackedIntPlaintextEncoding>(zeroAlloc, 2, 1);
+	Matrix<shared_ptr<Plaintext>> numerator = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
+	Matrix<shared_ptr<Plaintext>> denominator = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
 
 	cc->DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
 
-	std::cout << numerator(0, 0)[0] << "," << numerator(1, 0)[0] << std::endl;
-	std::cout << denominator(0, 0)[0] << "," << denominator(1, 0)[0] << std::endl;
+	std::cout << numerator(0, 0)->GetPackedValue()[0] << "," << numerator(1, 0)->GetPackedValue()[0] << std::endl;
+	std::cout << denominator(0, 0)->GetPackedValue()[0] << "," << denominator(1, 0)->GetPackedValue()[0] << std::endl;
 
 }

@@ -182,7 +182,7 @@ int main(int argc, char *argv[])
 
 	// we tell Encrypt not to pad this entry by using false for the third parameter;
 	// if we said true instead, padding would be added on Encrypt and removed on Decrypt
-	ciphertext = cc->NEWEncrypt(kp.publicKey, plaintext);
+	ciphertext = cc->Encrypt(kp.publicKey, plaintext);
 
 	////////////////////////////////////////////////////////////
 	//Decryption
@@ -247,12 +247,9 @@ int main(int argc, char *argv[])
 	//Perform the proxy re-encryption operation.
 	////////////////////////////////////////////////////////////
 
-	vector<shared_ptr<Ciphertext<Poly>>> oldCiphertext = { ciphertext };
-	vector<shared_ptr<Ciphertext<Poly>>> newCiphertext;
-
 	if( beVerbose ) cout << "Running re-encryption" << endl;
 
-	newCiphertext = cc->ReEncrypt(evalKey, oldCiphertext);
+	auto newCiphertext = cc->ReEncrypt(evalKey, ciphertext);
 
 	////////////////////////////////////////////////////////////
 	//Decryption
@@ -262,7 +259,7 @@ int main(int argc, char *argv[])
 
 	if( beVerbose ) cout << "Running decryption of re-encrypted cipher" << endl;
 
-	DecryptResult result1 = cc->Decrypt(newKp.secretKey,newCiphertext[0],&plaintextNew2);
+	DecryptResult result1 = cc->Decrypt(newKp.secretKey,newCiphertext,&plaintextNew2);
 
 	if (!result1.isValid) {
 		std::cout<<"Decryption failed!"<<std::endl;

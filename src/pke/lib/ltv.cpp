@@ -261,6 +261,44 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalMult(const share
 }
 
 template <class Element>
+shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalMult(
+	const shared_ptr<Ciphertext<Element>> ciphertext,
+	const shared_ptr<Plaintext> plaintext) const
+{
+
+	if (ciphertext->GetElement().GetFormat() == Format::COEFFICIENT || plaintext->GetElement<Element>().GetFormat() == Format::COEFFICIENT ) {
+		throw std::runtime_error("EvalMult cannot multiply in COEFFICIENT domain.");
+	}
+
+	shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext->GetCryptoContext()));
+
+	const Element& c1 = ciphertext->GetElement();
+
+	const Element& c2 = plaintext->GetElement<Element>();
+
+	Element cResult = c1 * c2;
+
+	newCiphertext->SetElement(cResult);
+
+	return newCiphertext;
+}
+
+// Homomorphic multiplication of ciphertexts with key switching
+template <class Element>
+shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
+	const shared_ptr<Plaintext> plaintext, const shared_ptr<LPEvalKey<Element>> ek) const {
+
+	const shared_ptr<LPPublicKeyEncryptionSchemeLTV<Element>> scheme =
+			std::dynamic_pointer_cast<LPPublicKeyEncryptionSchemeLTV<Element>>(ciphertext1->GetCryptoContext()->GetEncryptionAlgorithm());
+
+	shared_ptr<Ciphertext<Element>> newCiphertext = scheme->EvalMult(ciphertext1, plaintext);
+
+	newCiphertext = scheme->KeySwitch(ek,newCiphertext);
+
+	return newCiphertext;
+}
+
+template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalNegate(const shared_ptr<Ciphertext<Element>> ciphertext) const {
 
 	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();

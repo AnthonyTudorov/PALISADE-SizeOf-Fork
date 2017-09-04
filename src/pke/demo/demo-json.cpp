@@ -85,7 +85,7 @@ keymaker(shared_ptr<CryptoContext<Poly>> ctx, string keyname)
 
 
 void
-encrypter(shared_ptr<CryptoContext<Poly>> ctx, IntPlaintextEncoding iPlaintext, string pubkeyname, string ciphertextname)
+encrypter(shared_ptr<CryptoContext<Poly>> ctx, shared_ptr<Plaintext> iPlaintext, string pubkeyname, string ciphertextname)
 {
 
 	ofstream ctSer(DATAFOLDER + "/" + ciphertextname, ios::binary);
@@ -110,26 +110,17 @@ encrypter(shared_ptr<CryptoContext<Poly>> ctx, IntPlaintextEncoding iPlaintext, 
 	}
 
 	// now encrypt iPlaintext
-	std::vector<shared_ptr<Ciphertext<Poly>>> ciphertext = ctx->Encrypt(pk, iPlaintext, false);
+	auto ciphertext = ctx->Encrypt(pk, iPlaintext);
 
-	// FIXME: this works iff size == 1
-	if( ciphertext.size() != 1 ) {
-		cerr << ciphertext.size() << " is the wrong # of ciphertexts!!!" << endl;
-		return;
-	}
-
-	for( size_t i=0; i<ciphertext.size(); i++ ) {
-		Serialized cSer;
-		if( ciphertext[i]->Serialize(&cSer) ) {
-			if( !SerializableHelper::WriteSerializationToFile(cSer, DATAFOLDER + "/" + ciphertextname) ) {
-				cerr << "Error writing serialization of ciphertext to " + ciphertextname << endl;
-				return;
-			}
-		} else {
-			cerr << "Error serializing ciphertext" << endl;
+	Serialized cSer;
+	if( ciphertext->Serialize(&cSer) ) {
+		if( !SerializableHelper::WriteSerializationToFile(cSer, DATAFOLDER + "/" + ciphertextname) ) {
+			cerr << "Error writing serialization of ciphertext to " + ciphertextname << endl;
 			return;
 		}
-
+	} else {
+		cerr << "Error serializing ciphertext" << endl;
+		return;
 	}
 
 	ctSer.close();
@@ -137,49 +128,49 @@ encrypter(shared_ptr<CryptoContext<Poly>> ctx, IntPlaintextEncoding iPlaintext, 
 }
 
 
-void
-decrypter(shared_ptr<CryptoContext<Poly>> ctx, string ciphertextname, string prikeyname, IntPlaintextEncoding &iPlaintext)
+shared_ptr<Plaintext>
+decrypter(shared_ptr<CryptoContext<Poly>> ctx, string ciphertextname, string prikeyname)
 {
+	shared_ptr<Plaintext> iPlaintext;
 
 	Serialized	kser;
 	if( SerializableHelper::ReadSerializationFromFile(DATAFOLDER + "/" + prikeyname, &kser) == false ) {
 		cerr << "Could not read private key" << endl;
-		return;
+		return iPlaintext;
 	}
 
 	shared_ptr<LPPrivateKey<Poly>> sk = ctx->deserializeSecretKey(kser);
 	if( !sk ) {
 		cerr << "Could not deserialize private key" << endl;
-		return;
+		return iPlaintext;
 	}
 
 	ifstream inCt(DATAFOLDER + "/" + ciphertextname, ios::binary);
 	if( !inCt.is_open() ) {
 		cerr << "Could not open ciphertext" << endl;
-		return;
+		return iPlaintext;
 	}
 
 	//Serialized	kser;
 	if( SerializableHelper::ReadSerializationFromFile(DATAFOLDER + "/" + ciphertextname, &kser) == false ) {
 		cerr << "Could not read ciphertext" << endl;
-		return;
+		return iPlaintext;
 	}
 
 	// Initialize the public key containers.
 	shared_ptr<Ciphertext<Poly>> ct = ctx->deserializeCiphertext(kser);
 	if( ct == NULL ) {
 		cerr << "Could not deserialize ciphertext" << endl;
-		return;
+		return iPlaintext;
 	}
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext( { ct } );
 
 	// now decrypt iPlaintext
-	ctx->Decrypt(sk, ciphertext, &iPlaintext, false);
+	ctx->Decrypt(sk, ct, &iPlaintext);
 
 	inCt.close();
 
-	return;
+	return iPlaintext;
 }
 
 int main(int argc, char *argv[])
@@ -218,9 +209,9 @@ int main(int argc, char *argv[])
 	keymaker(cryptoContext, keyFileName);
 
 	std::vector<uint32_t> vectorOfInts1 = {3,1,4,2,1,1,0,1,0,0,0,0};
-	IntPlaintextEncoding plaintext1(vectorOfInts1);
+	shared_ptr<Plaintext> plaintext1 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts1);
 	std::vector<uint32_t> vectorOfInts2 = {1,1,1,0,1,1,0,1,0,0,0,0};
-	IntPlaintextEncoding plaintext2(vectorOfInts2);
+	shared_ptr<Plaintext> plaintext2 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts2);
 
 	string ciphertextFileName1 = "ciphertext1.txt";
 	string ciphertextFileName2 = "ciphertext2.txt";
@@ -228,14 +219,14 @@ int main(int argc, char *argv[])
 	encrypter(cryptoContext, plaintext1, keyFileNamePublic, ciphertextFileName1);
 	encrypter(cryptoContext, plaintext2, keyFileNamePublic, ciphertextFileName2);
 	
-	IntPlaintextEncoding plaintext1_dec;
-	IntPlaintextEncoding plaintext2_dec;
+	shared_ptr<Plaintext> plaintext1_dec;
+	shared_ptr<Plaintext> plaintext2_dec;
 
-	decrypter(cryptoContext, ciphertextFileName1, keyFileNamePrivate, plaintext1_dec);
-	decrypter(cryptoContext, ciphertextFileName2, keyFileNamePrivate, plaintext2_dec);
+	plaintext1_dec = decrypter(cryptoContext, ciphertextFileName1, keyFileNamePrivate);
+	plaintext2_dec = decrypter(cryptoContext, ciphertextFileName2, keyFileNamePrivate);
 
-	plaintext1_dec.resize(plaintext1.size());
-	plaintext2_dec.resize(plaintext2.size());
+	plaintext1_dec->SetLength(plaintext1->GetLength());
+	plaintext2_dec->SetLength(plaintext2->GetLength());
 
 	cout << "\n Original Plaintext: \n";
 	cout << plaintext1 << endl;

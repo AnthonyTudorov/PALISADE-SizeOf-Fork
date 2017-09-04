@@ -77,8 +77,8 @@ int main() {
 		vectorOfInts1[i] = i % 8;
 	}
 
-	PackedIntPlaintextEncoding intArray1(vectorOfInts1);
-	PackedIntPlaintextEncoding intArray2(vectorOfInts2);
+	shared_ptr<Plaintext> intArray1 = cc->MakePackedPlaintext(vectorOfInts1);
+	shared_ptr<Plaintext> intArray2 = cc->MakePackedPlaintext(vectorOfInts2);
 
 	shared_ptr<Poly> plaintext(new Poly(params, EVALUATION, true));
 	for(usint i=0; i<phim; i++){
@@ -91,9 +91,9 @@ int main() {
 	cc->EvalSumKeyGen(kp.secretKey);
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext_pub;
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext_priv;
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext_plain;
+	shared_ptr<Ciphertext<Poly>> ciphertext_pub;
+	shared_ptr<Ciphertext<Poly>> ciphertext_priv;
+	shared_ptr<Ciphertext<Poly>> ciphertext_plain;
 
 	vector<TimingInfo>	times;
 	cc->StartTiming(&times);
@@ -113,12 +113,12 @@ int main() {
 	for(usint n=0; n<=repeatCount; n++){
 		if(n == 1)
 			cc->ResumeTiming();
-		ciphertext_priv = cc->Encrypt(kp.secretKey, intArray1, false, true);
-		ciphertext_pub = cc->Encrypt(kp.publicKey, intArray1, false, true);
-		ciphertext_plain = cc->Encrypt(kp.publicKey, intArray2, false, false);
+		ciphertext_priv = cc->Encrypt(kp.secretKey, intArray1);
+		ciphertext_pub = cc->Encrypt(kp.publicKey, intArray1);
+		intArray2->Encode();
+		//ciphertext_plain = cc->Encrypt(kp.publicKey, intArray2, false, false);
 
-		vector<shared_ptr<Ciphertext<Poly>>> ciphertextResult;
-		auto ciphertextMult = cc->EvalMultPlain(ciphertext_priv.at(0), ciphertext_plain.at(0));
+		auto ciphertextMult = cc->EvalMult(ciphertext_priv, intArray2);
 		auto ciphertextInnerProd = ciphertextMult;
 		for (usint i = 0; i < floor(log2(batchSize)); i++)
 		{
@@ -128,10 +128,9 @@ int main() {
 		// auto ciphertextInnerProd = cc->EvalSum(ciphertextMult, batchSize);
 		// auto ciphertextFin = cc->GetEncryptionAlgorithm()->AddRandomNoise(ciphertextInnerProd);
 
-		auto ciphertextFin = cc->EvalInnerProduct(ciphertext_pub.at(0), ciphertext_plain.at(0), batchSize);
-		ciphertextResult.insert(ciphertextResult.begin(), ciphertextFin);
-		PackedIntPlaintextEncoding intArrayNew;
-		cc->Decrypt(kp.secretKey, ciphertextResult, &intArrayNew, false);
+		auto ciphertextResult = cc->EvalInnerProduct(ciphertext_pub, intArray2, batchSize);
+		shared_ptr<Plaintext> intArrayNew;
+		cc->Decrypt(kp.secretKey, ciphertextResult, &intArrayNew);
 		std::cout << "Actual = " << intArrayNew << std::endl;
 	}
 	cc->StopTiming();

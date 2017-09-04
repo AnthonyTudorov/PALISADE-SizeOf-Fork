@@ -61,9 +61,9 @@ using namespace lbcrypto;
 
 #include <iterator>
 
-void LTVPlaintextPKE();
-void BVPlaintextPKE();
-void FVPlaintextPKE();
+//void LTVPlaintextPKE();
+//void BVPlaintextPKE();
+//void FVPlaintextPKE();
 void LTVEvalMultPlain();
 void BVEvalMultPlain();
 void FVEvalMultPlain();
@@ -71,17 +71,17 @@ void FVEvalMultPlain();
 
 int main() {
 
-	std::cout << "\n===========LTV TESTS (PLAINTEXT PKE)===============: " << std::endl;
-
-	LTVPlaintextPKE();
-
-	std::cout << "\n===========BV TESTS (PLAINTEXT PKE)===============: " << std::endl;
-
-	BVPlaintextPKE();
-
-	std::cout << "\n===========FV TESTS (PLAINTEXT PKE)===============: " << std::endl;
-
-	FVPlaintextPKE();
+//	std::cout << "\n===========LTV TESTS (PLAINTEXT PKE)===============: " << std::endl;
+//
+//	LTVPlaintextPKE();
+//
+//	std::cout << "\n===========BV TESTS (PLAINTEXT PKE)===============: " << std::endl;
+//
+//	BVPlaintextPKE();
+//
+//	std::cout << "\n===========FV TESTS (PLAINTEXT PKE)===============: " << std::endl;
+//
+//	FVPlaintextPKE();
 
 	std::cout << "\n===========LTV TESTS (CIPHERTEXT-PLAINTEXT MULTIPLICATION)===============: " << std::endl;
 
@@ -101,6 +101,8 @@ int main() {
 	return 0;
 }
 
+#ifdef OUT
+// they aren't encrypted so there's no point to these
 void LTVPlaintextPKE() {
 
 	//Set the parameters
@@ -138,20 +140,19 @@ void LTVPlaintextPKE() {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext;
-
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10 };
-	PackedIntPlaintextEncoding intArray(vectorOfInts);
+	shared_ptr<Plaintext> intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	std::cout << "Input array\n\t" << intArray << std::endl;
 
-	ciphertext = cc->Encrypt(kp.publicKey, intArray, false, false);
-
-	PackedIntPlaintextEncoding intArrayNew;
-
-	cc->Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
-
-	std::cout << "Decrypted array: " << intArrayNew << std::endl;
+	// it's not a Ciphertext, so we don't encrypt it
+//	ciphertext = cc->Encrypt(kp.publicKey, intArray, false, false);
+//
+//	PackedIntPlaintextEncoding intArrayNew;
+//
+//	cc->Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
+//
+//	std::cout << "Decrypted array: " << intArrayNew << std::endl;
 
 }
 
@@ -267,6 +268,7 @@ void FVPlaintextPKE() {
 	std::cout << "Decrypted array: " << intArrayNew << std::endl;
 
 }
+#endif
 
 void LTVEvalMultPlain() {
 
@@ -305,30 +307,23 @@ void LTVEvalMultPlain() {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext1;
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext2;
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertextResult;
-
 	std::vector<usint> vectorOfInts1 = { 1,2,3,4,5,6,7,8,9,10 };
-	PackedIntPlaintextEncoding intArray1(vectorOfInts1);
+	shared_ptr<Plaintext> intArray1 = cc->MakePackedPlaintext(vectorOfInts1);
 
 	std::cout << "Input array 1\n\t" << intArray1 << std::endl;
 
 	std::vector<usint> vectorOfInts2 = { 1,2,3,2,2,1,2,2,3,4 };
-	PackedIntPlaintextEncoding intArray2(vectorOfInts2);
+	shared_ptr<Plaintext> intArray2 = cc->MakePackedPlaintext(vectorOfInts2);
 
 	std::cout << "Input array 2\n\t" << intArray2 << std::endl;
 
-	ciphertext1 = cc->Encrypt(kp.publicKey, intArray1, false);
+	auto ciphertext1 = cc->Encrypt(kp.publicKey, intArray1);
 
-	ciphertext2 = cc->Encrypt(kp.publicKey, intArray2, false, false);
+	auto ciphertextMult = cc->EvalMult(ciphertext1, intArray2);
 
-	auto ciphertextMult = cc->EvalMultPlain(ciphertext1.at(0), ciphertext2.at(0));
-	ciphertextResult.insert(ciphertextResult.begin(), ciphertextMult);
+	shared_ptr<Plaintext> intArrayNew;
 
-	PackedIntPlaintextEncoding intArrayNew;
-
-	cc->Decrypt(kp.secretKey, ciphertextResult, &intArrayNew, false);
+	cc->Decrypt(kp.secretKey, ciphertextMult, &intArrayNew);
 
 	std::cout << "Decrypted array: " << intArrayNew << std::endl;
 	
@@ -372,30 +367,23 @@ void BVEvalMultPlain() {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext1;
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext2;
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertextResult;
-
 	std::vector<usint> vectorOfInts1 = { 1,2,3,4,5,6,7,8,9,10 };
-	PackedIntPlaintextEncoding intArray1(vectorOfInts1);
+	shared_ptr<Plaintext> intArray1 = cc->MakePackedPlaintext(vectorOfInts1);
 
 	std::cout << "Input array 1\n\t" << intArray1 << std::endl;
 
 	std::vector<usint> vectorOfInts2 = { 1,2,3,2,2,1,2,2,3,4 };
-	PackedIntPlaintextEncoding intArray2(vectorOfInts2);
+	shared_ptr<Plaintext> intArray2 = cc->MakePackedPlaintext(vectorOfInts2);
 
 	std::cout << "Input array 2\n\t" << intArray2 << std::endl;
 
-	ciphertext1 = cc->Encrypt(kp.publicKey, intArray1, false);
+	auto ciphertext1 = cc->Encrypt(kp.publicKey, intArray1);
 
-	ciphertext2 = cc->Encrypt(kp.publicKey, intArray2, false, false);
+	auto ciphertextMult = cc->EvalMult(ciphertext1, intArray2);
 
-	auto ciphertextMult = cc->EvalMultPlain(ciphertext1.at(0), ciphertext2.at(0));
-	ciphertextResult.insert(ciphertextResult.begin(), ciphertextMult);
+	shared_ptr<Plaintext> intArrayNew;
 
-	PackedIntPlaintextEncoding intArrayNew;
-
-	cc->Decrypt(kp.secretKey, ciphertextResult, &intArrayNew, false);
+	cc->Decrypt(kp.secretKey, ciphertextMult, &intArrayNew);
 
 	std::cout << "Decrypted array: " << intArrayNew << std::endl;
 
@@ -456,30 +444,23 @@ void FVEvalMultPlain() {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext1;
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext2;
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertextResult;
-
 	std::vector<usint> vectorOfInts1 = { 1,2,3,4,5,6,7,8,9,10 };
-	PackedIntPlaintextEncoding intArray1(vectorOfInts1);
+	shared_ptr<Plaintext> intArray1 = cc->MakePackedPlaintext(vectorOfInts1);
 
 	std::cout << "Input array 1\n\t" << intArray1 << std::endl;
 
 	std::vector<usint> vectorOfInts2 = { 1,2,3,2,2,1,2,2,3,4 };
-	PackedIntPlaintextEncoding intArray2(vectorOfInts2);
+	shared_ptr<Plaintext> intArray2 = cc->MakePackedPlaintext(vectorOfInts2);
 
 	std::cout << "Input array 2\n\t" << intArray2 << std::endl;
 
-	ciphertext1 = cc->Encrypt(kp.publicKey, intArray1, false);
+	auto ciphertext1 = cc->Encrypt(kp.publicKey, intArray1);
 
-	ciphertext2 = cc->Encrypt(kp.publicKey, intArray2, false, false);
+	auto ciphertextMult = cc->EvalMult(ciphertext1, intArray2);
 
-	auto ciphertextMult = cc->EvalMultPlain(ciphertext1.at(0), ciphertext2.at(0));
-	ciphertextResult.insert(ciphertextResult.begin(), ciphertextMult);
+	shared_ptr<Plaintext> intArrayNew;
 
-	PackedIntPlaintextEncoding intArrayNew;
-
-	cc->Decrypt(kp.secretKey, ciphertextResult, &intArrayNew, false);
+	cc->Decrypt(kp.secretKey, ciphertextMult, &intArrayNew);
 
 	std::cout << "Decrypted array: " << intArrayNew << std::endl;
 

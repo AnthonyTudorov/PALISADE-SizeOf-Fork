@@ -117,20 +117,20 @@ void BVCrossCorrelation() {
 	cc->EvalSumKeyGen(kp.secretKey);
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	auto zeroAlloc = [=]() { return lbcrypto::make_unique<PackedIntPlaintextEncoding>(); };
+	auto zeroAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(); };
 
-	Matrix<PackedIntPlaintextEncoding> x = Matrix<PackedIntPlaintextEncoding>(zeroAlloc, 2, 1);
+	Matrix<shared_ptr<Plaintext>> x = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
 
-	x(0, 0) = { 0, 1, 1, 1, 0, 1, 1, 1 };
-	x(1, 0) = { 1, 0, 1, 1, 0, 1, 1, 0 };
+	x(0, 0) = cc->MakePackedPlaintext({ 0, 1, 1, 1, 0, 1, 1, 1 });
+	x(1, 0) = cc->MakePackedPlaintext({ 1, 0, 1, 1, 0, 1, 1, 0 });
 
 	std::cout << "Input array x0 \n\t" << x(0, 0) << std::endl;
 	std::cout << "Input array x1 \n\t" << x(1, 0) << std::endl;
 
-	Matrix<PackedIntPlaintextEncoding> y = Matrix<PackedIntPlaintextEncoding>(zeroAlloc, 2, 1);
+	Matrix<shared_ptr<Plaintext>> y = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
 
-	y(0, 0) = { 0, 1, 1, 1, 0, 1, 1, 1 };
-	y(1, 0) = { 1, 0, 1, 1, 0, 1, 1, 0 };
+	y(0, 0) = cc->MakePackedPlaintext({ 0, 1, 1, 1, 0, 1, 1, 1 });
+	y(1, 0) = cc->MakePackedPlaintext({ 1, 0, 1, 1, 0, 1, 1, 0 });
 
 	std::cout << "Input array y0 \n\t" << y(0, 0) << std::endl;
 	std::cout << "Input array y1 \n\t" << y(1, 0) << std::endl;
@@ -158,15 +158,11 @@ void BVCrossCorrelation() {
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertextCC;
+	shared_ptr<Plaintext> intArrayNew;
 
-	ciphertextCC.push_back(result);
+	cc->Decrypt(kp.secretKey, result, &intArrayNew);
 
-	PackedIntPlaintextEncoding intArrayNew;
-
-	cc->Decrypt(kp.secretKey, ciphertextCC, &intArrayNew, false);
-
-	std::cout << "Sum = " << intArrayNew[0] << std::endl;
+	std::cout << "Sum = " << intArrayNew->GetPackedValue()[0] << std::endl;
 
 }
 
@@ -219,20 +215,20 @@ void FVCrossCorrelation() {
 	cc->EvalSumKeyGen(kp.secretKey);
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	auto zeroAlloc = [=]() { return lbcrypto::make_unique<PackedIntPlaintextEncoding>(); };
+	auto zeroAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(); };
 
-	Matrix<PackedIntPlaintextEncoding> x = Matrix<PackedIntPlaintextEncoding>(zeroAlloc, 2, 1);
+	Matrix<shared_ptr<Plaintext>> x = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
 
-	x(0, 0) = { 0, 1, 1, 1, 0, 1, 1, 1 };
-	x(1, 0) = { 1, 0, 1, 1, 0, 1, 1, 0 };
+	x(0, 0) = cc->MakePackedPlaintext({ 0, 1, 1, 1, 0, 1, 1, 1 });
+	x(1, 0) = cc->MakePackedPlaintext({ 1, 0, 1, 1, 0, 1, 1, 0 });
 
 	std::cout << "Input array x0 \n\t" << x(0, 0) << std::endl;
 	std::cout << "Input array x1 \n\t" << x(1, 0) << std::endl;
 
-	Matrix<PackedIntPlaintextEncoding> y = Matrix<PackedIntPlaintextEncoding>(zeroAlloc, 2, 1);
+	Matrix<shared_ptr<Plaintext>> y = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
 
-	y(0, 0) = { 0, 1, 1, 1, 0, 1, 1, 1 };
-	y(1, 0) = { 1, 0, 1, 1, 0, 1, 1, 0 };
+	y(0, 0) = cc->MakePackedPlaintext({ 0, 1, 1, 1, 0, 1, 1, 1 });
+	y(1, 0) = cc->MakePackedPlaintext({ 1, 0, 1, 1, 0, 1, 1, 0 });
 
 	std::cout << "Input array y0 \n\t" << y(0, 0) << std::endl;
 	std::cout << "Input array y1 \n\t" << y(1, 0) << std::endl;
@@ -260,15 +256,11 @@ void FVCrossCorrelation() {
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertextCC;
+	shared_ptr<Plaintext> intArrayNew;
 
-	ciphertextCC.push_back(result);
+	cc->Decrypt(kp.secretKey, result, &intArrayNew);
 
-	PackedIntPlaintextEncoding intArrayNew;
-
-	cc->Decrypt(kp.secretKey, ciphertextCC, &intArrayNew, false);
-
-	std::cout << "Sum = " << intArrayNew[0] << std::endl;
+	std::cout << "Sum = " << intArrayNew->GetPackedValue()[0] << std::endl;
 
 }
 

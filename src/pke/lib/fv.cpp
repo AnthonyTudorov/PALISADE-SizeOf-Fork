@@ -650,26 +650,22 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared
 }
 
 template <class Element>
-shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMultPlain(const shared_ptr<Ciphertext<Element>> ciphertext,
-	const shared_ptr<Ciphertext<Element>> plaintext) const {
+shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext,
+	const shared_ptr<Plaintext> plaintext) const {
 
-	if (ciphertext->GetElements()[0].GetFormat() == Format::COEFFICIENT || plaintext->GetElements()[0].GetFormat() == Format::COEFFICIENT) {
+	if (ciphertext->GetElements()[0].GetFormat() == Format::COEFFICIENT || plaintext->GetElement<Element>().GetFormat() == Format::COEFFICIENT) {
 		throw std::runtime_error("LPAlgorithmSHEFV::EvalMult cannot multiply in COEFFICIENT domain.");
 	}
 
-	if (!(ciphertext->GetCryptoParameters() == plaintext->GetCryptoParameters())) {
-		throw std::runtime_error("LPAlgorithmSHEFV::EvalMult crypto parameters are not the same");
-	}
-
-	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
+	shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext->GetCryptoContext()));
 
 	std::vector<Element> cipherText1Elements = ciphertext->GetElements();
-	std::vector<Element> cipherText2Elements = plaintext->GetElements();
+	Element cipherText2Elements = plaintext->GetElement<Element>();
 
-	Element c0 = cipherText1Elements[0] * cipherText2Elements[0];
-	Element c1 = cipherText1Elements[1] * cipherText2Elements[0];
+	Element c0 = cipherText1Elements[0] * cipherText2Elements;
+	Element c1 = cipherText1Elements[1] * cipherText2Elements;
 
-	newCiphertext->SetElements({ c0, c1});
+	newCiphertext->SetElements({ c0, c1 });
 
 	return newCiphertext;
 
@@ -752,10 +748,6 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared
 	const shared_ptr<Ciphertext<Element>> ciphertext2,
 	const shared_ptr<LPEvalKey<Element>> ek) const {
 
-//	if(!ciphertext2->GetIsEncrypted()) { FIXME
-//		return EvalMultPlain(ciphertext1, ciphertext2);
-//	}
-
 	shared_ptr<Ciphertext<Element>> newCiphertext = this->EvalMult(ciphertext1, ciphertext2);
 
 	return this->KeySwitch(ek, newCiphertext);
@@ -806,6 +798,16 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMultAndRelineariz
 	newCiphertext->SetElements({ ct0, ct1 });
 
 	return newCiphertext;
+}
+
+template <class Element>
+shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
+	const shared_ptr<Plaintext> plaintext,
+	const shared_ptr<LPEvalKey<Element>> ek) const {
+
+	shared_ptr<Ciphertext<Element>> newCiphertext = this->EvalMult(ciphertext1, plaintext);
+
+	return this->KeySwitch(ek, newCiphertext);
 
 }
 

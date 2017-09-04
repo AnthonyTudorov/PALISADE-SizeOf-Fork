@@ -123,18 +123,15 @@ int main(int argc, char *argv[])
 	////////////////////////////////////////////////////////////
 
 	std::vector<uint32_t> vectorOfInts = {1,0,1,1,1,1,0,1,1,1,0,1};
-	IntPlaintextEncoding plaintext(vectorOfInts);
+	shared_ptr<Plaintext> plaintext = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts);
 
 	////////////////////////////////////////////////////////////
 	// Encryption
 	////////////////////////////////////////////////////////////
 
-
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext1;
-
 	start = currentDateTime();
 
-	ciphertext1 = cryptoContext->Encrypt(keyPair1.publicKey, plaintext, true);
+	auto ciphertext1 = cryptoContext->Encrypt(keyPair1.publicKey, plaintext);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -144,11 +141,11 @@ int main(int argc, char *argv[])
 	//Decryption of Ciphertext
 	////////////////////////////////////////////////////////////
 
-	IntPlaintextEncoding plaintextDec1;
+	shared_ptr<Plaintext> plaintextDec1;
 
 	start = currentDateTime();
 
-	cryptoContext->Decrypt(keyPair1.secretKey, ciphertext1, &plaintextDec1, true);
+	cryptoContext->Decrypt(keyPair1.secretKey, ciphertext1, &plaintextDec1);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -156,7 +153,7 @@ int main(int argc, char *argv[])
 
 	//std::cin.get();
 
-	plaintextDec1.resize(plaintext.size());
+	plaintextDec1->SetLength(plaintext->GetLength());
 
 	cout << "\n Original Plaintext: \n";
 	cout << plaintext << endl;
@@ -223,9 +220,7 @@ int main(int argc, char *argv[])
 
 	start = currentDateTime();
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext2;
-
-	ciphertext2 = cryptoContext->ReEncrypt(reencryptionKey12, ciphertext1);
+	auto ciphertext2 = cryptoContext->ReEncrypt(reencryptionKey12, ciphertext1);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -235,17 +230,17 @@ int main(int argc, char *argv[])
 	//Decryption of Ciphertext
 	////////////////////////////////////////////////////////////
 
-	IntPlaintextEncoding plaintextDec2;
+	shared_ptr<Plaintext> plaintextDec2;
 
 	start = currentDateTime();
 
-	cryptoContext->Decrypt(keyPair2.secretKey, ciphertext2, &plaintextDec2, true);
+	cryptoContext->Decrypt(keyPair2.secretKey, ciphertext2, &plaintextDec2);
 
 	finish = currentDateTime();
 	diff = finish - start;
 	cout << "Decryption time: " << "\t" << diff << " ms" << endl;
 
-	plaintextDec2.resize(plaintext.size());
+	plaintextDec2->SetLength(plaintext->GetLength());
 
 	cout << "\n Original Plaintext: \n";
 	cout << plaintext << endl;

@@ -498,12 +498,10 @@ public:
 	*
 	* @param ciphertext Input ciphertext.
 	* @param plaintext input plaintext.
-	* @return A shared pointer to the ciphertext which is the EvalMultPlain of the two inputs.
+	* @return A shared pointer to the ciphertext which is the EvalMult of the two inputs.
 	*/
-	shared_ptr<Ciphertext<Element>> EvalMultPlain(const shared_ptr<Ciphertext<Element>> ciphertext,
-		const shared_ptr<Ciphertext<Element>> plaintext) const {
-		return EvalMult(ciphertext, plaintext);
-	}
+	shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext,
+		const shared_ptr<Plaintext> plaintext) const;
 
 
 	/**
@@ -546,6 +544,20 @@ public:
 		std::string errMsg = "LPAlgorithmLTV::EvalMultMany is not implemented for the LTV Scheme.";
 		throw std::runtime_error(errMsg);
 	}
+
+	/**
+	* Function for evaluating multiplication on ciphertext, but with a key switch performed after the
+	* EvalMult using the Evaluation Key input.
+	* See the class description for citations on where the algorithms were taken from.
+	*
+	* @param ciphertext1 The first input ciphertext.
+	* @param ciphertext2 The second input ciphertext.
+	* @param evalKey The evaluation key input.
+	* @return A shared pointer to the ciphertext which is the EvalMult of the two inputs.
+	*/
+	shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
+		const shared_ptr<Plaintext> ciphertext2,
+		const shared_ptr<LPEvalKey<Element>> evalKey) const;
 
 	/**
 	* Function for homomorphic negation of ciphertexts.

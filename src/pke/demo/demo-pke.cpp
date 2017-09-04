@@ -123,7 +123,7 @@ int main(int argc, char *argv[]) {
 
 	start = currentDateTime();
 
-	ciphertext = cryptoContext->NEWEncrypt(keyPair.publicKey, plaintext);
+	ciphertext = cryptoContext->Encrypt(keyPair.publicKey, plaintext);
 	
 	finish = currentDateTime();
 	diff = finish - start;
