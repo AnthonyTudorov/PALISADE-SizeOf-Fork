@@ -105,13 +105,13 @@ int main(int argc, char* argv[]){
 	if (inputstring == "") {
 
 		std::cout << "Ring dimension unspecified.  Please choose the ring dimension (pattern length is 32 bits) as 2^i: " << std::endl;
-		std::cout << "8..1024: [8] ";
+		std::cout << "8..8192: [256] ";
 
 		std::getline(std::cin, inputstring);
 
 	}
 
-	int input = 8;
+	int input = 256;
 
 	if (!inputstring.empty())
 		input = std::stoi(inputstring);
@@ -148,22 +148,19 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 	TIC(t_total); //start timer for total time
 
 	usint m = 2 * n;
-	//54 bits
-	//BigInteger modulus("9007199254741169");
-	//BigInteger rootOfUnity("7629104920968175");
 
 	usint chunkSize = 8;
-	usint base = 2;
+	usint base = 1<<20;
 
 	//Generate the test pattern
-	std::string inputPattern = "1?10?10?1?10?10?1?10?10?1?10??0?";;
+	std::string inputPattern = "1?10?10?1?10?10?1?10?10?1?10??0?1?10?10?1?10?10?1?10?10?1?10??0?";;
 	ClearLWEConjunctionPattern<DCRTPoly> clearPattern(inputPattern);
 
 	ObfuscatedLWEConjunctionPattern<DCRTPoly> obfuscatedPattern;
 	obfuscatedPattern.SetChunkSize(chunkSize);
 	obfuscatedPattern.SetBase(base);
 	obfuscatedPattern.SetLength(clearPattern.GetLength());
-	obfuscatedPattern.SetRootHermiteFactor(1.006);
+	//obfuscatedPattern.SetRootHermiteFactor(1.006);
 
 	LWEConjunctionObfuscationAlgorithm<DCRTPoly> algorithm;
 
@@ -180,7 +177,7 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 	//this code finds the values of q and n corresponding to the root Hermite factor in obfuscatedPattern
 	//algorithm.ParamsGen(dgg, &obfuscatedPattern);
 
-	const shared_ptr<ILParams> ilParams = std::dynamic_pointer_cast<ILParams>(obfuscatedPattern.GetParameters());
+	const shared_ptr<typename DCRTPoly::Params> ilParams = obfuscatedPattern.GetParameters();
 
 	const BigInteger &modulus = ilParams->GetModulus();
 	const BigInteger &rootOfUnity = ilParams->GetRootOfUnity();
@@ -199,7 +196,6 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 	//This code is run only when performing execution time measurements
 
 	//Precomputations for FTT
-	ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(rootOfUnity, m, modulus);
 	DiscreteFourierTransform::GetInstance().PreComputeTable(m);
 
 	////////////////////////////////////////////////////////////
@@ -212,15 +208,15 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 	DEBUG(" \nCleartext pattern length: ");
 	DEBUG(clearPattern.GetLength());
 
-	std::string inputStr1 = "11100100111001001110010011100100";
+	std::string inputStr1 = "1110010011100100111001001110010011100100111001001110010011100100";
 	bool out1 = algorithm.Evaluate(clearPattern, inputStr1);
 	DEBUG(" \nCleartext pattern evaluation of: " << inputStr1 << " is " << out1);
 
-	std::string inputStr2 = "11001101110011011100110111001111";
+	std::string inputStr2 = "1100110111001101110011011100111111001101110011011100110111001111";
 	bool out2 = algorithm.Evaluate(clearPattern, inputStr2);
 	DEBUG(" \nCleartext pattern evaluation of: " << inputStr2 << " is " << out2);
 
-	std::string inputStr3 = "10101101101011011010110110101101";
+	std::string inputStr3 = "1010110110101101101011011010110110101101101011011010110110101101";
 	bool out3 = algorithm.Evaluate(clearPattern, inputStr3);
 	DEBUG(" \nCleartext pattern evaluation of: " << inputStr3 << " is " << out3);
 
