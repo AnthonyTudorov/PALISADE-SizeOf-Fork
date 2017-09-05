@@ -126,20 +126,12 @@ UnitTestMultiparty(shared_ptr<CryptoContext<Element>> cc, bool publicVersion) {
 	////////////////////////////////////////////////////////////
 	// Encode source data
 	////////////////////////////////////////////////////////////
-/*
-	std::vector<uint32_t> vectorOfInts1 = {2,2,2,2,2,2,0,0,0,0,0,0};
-	std::vector<uint32_t> vectorOfInts2 = {3,3,3,3,3,0,0,0,0,0,0,0};
-	std::vector<uint32_t> vectorOfInts3 = {1,1,1,1,0,0,0,0,0,0,0,0};
-*/
 	std::vector<uint32_t> vectorOfInts1 = {1,1,1,1,1,1,1,0,0,0,0,0};
 	std::vector<uint32_t> vectorOfInts2 = {1,0,0,1,1,0,0,0,0,0,0,0};
 	std::vector<uint32_t> vectorOfInts3 = {1,1,1,1,0,0,0,0,0,0,0,0};
 	shared_ptr<Plaintext> plaintext1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
 	shared_ptr<Plaintext> plaintext2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
 	shared_ptr<Plaintext> plaintext3 = cc->MakeCoefPackedPlaintext(vectorOfInts3);
-
-	//std::vector<uint32_t> vectorOfIntsAdd = { 2, 1, 1, 3, 0, 0, 0, 0, 3, 0, 3, 3, 3, 3 };
-	//IntPlaintextEncoding plaintextAdd(vectorOfIntsAdd);
 
 	////////////////////////////////////////////////////////////
 	// Encryption
@@ -192,14 +184,13 @@ UnitTestMultiparty(shared_ptr<CryptoContext<Element>> cc, bool publicVersion) {
 	//Decryption after Accumulation Operation on Re-Encrypted Data with Multiparty
 	////////////////////////////////////////////////////////////
 
-	IntPlaintextEncoding plaintextAddNew1;
-	IntPlaintextEncoding plaintextAddNew2;
-	IntPlaintextEncoding plaintextAddNew3;
+	shared_ptr<Plaintext> plaintextAddNew1;
+	shared_ptr<Plaintext> plaintextAddNew2;
+	shared_ptr<Plaintext> plaintextAddNew3;
 
 	Poly partialPlaintext1;
 	Poly partialPlaintext2;
 	Poly partialPlaintext3;
-	//IntPlaintextEncoding plaintextAddNewFinal;
 
 	shared_ptr<Ciphertext<Poly>> ciphertextPartial1;
 	shared_ptr<Ciphertext<Poly>> ciphertextPartial2;

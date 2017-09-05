@@ -31,7 +31,6 @@
 #include "palisade.h"
 #include "cryptocontexthelper.h"
 #include "utils/debug.h"
-#include "encoding/byteplaintextencoding.h"
 #include "encoding/packedintplaintextencoding.h"
 #include "math/nbtheory.h"
 

@@ -29,15 +29,6 @@
 #define SRC_DEMO_PRE_CRYPTOCONTEXT_H_
 
 #include "palisade.h"
-#include "encoding/encodingparams.h"
-#include "encoding/plaintext.h"
-#include "encoding/byteplaintextencoding.h"
-#include "encoding/intplaintextencoding.h"
-#include "encoding/packedintplaintextencoding.h"
-#include "encoding/scalarencoding.h"
-#include "encoding/stringencoding.h"
-#include "encoding/integerencoding.h"
-#include "encoding/coefpackedencoding.h"
 #include "cryptocontexthelper.h"
 #include "cryptotiming.h"
 

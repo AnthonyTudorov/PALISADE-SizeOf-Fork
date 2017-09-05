@@ -46,7 +46,6 @@ We configured parameters (namely the ring dimension and ciphertext modulus) to p
 
 #include "cryptocontexthelper.h"
 
-#include "encoding/byteplaintextencoding.h"
 #include "encoding/packedintplaintextencoding.h"
 
 #include "utils/debug.h"

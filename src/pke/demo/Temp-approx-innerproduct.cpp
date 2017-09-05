@@ -22,7 +22,6 @@ Copyright (c) 2017, Massachusetts Institute of Technology (MIT)
 
 #include "cryptocontexthelper.h"
 
-#include "encoding/byteplaintextencoding.h"
 #include "encoding/packedintplaintextencoding.h"
 
 #include "utils/debug.h"

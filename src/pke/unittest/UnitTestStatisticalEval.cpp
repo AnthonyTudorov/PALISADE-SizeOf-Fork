@@ -30,7 +30,6 @@
 
 #include "../lib/cryptocontext.h"
 
-#include "encoding/byteplaintextencoding.h"
 #include "encoding/intplaintextencoding.h"
 
 #include "utils/debug.h"

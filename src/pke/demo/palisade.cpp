@@ -33,8 +33,6 @@ using namespace std;
 #include "cryptocontexthelper.h"
 
 #include "utils/serializablehelper.h"
-#include "encoding/byteplaintextencoding.h"
-#include "encoding/intplaintextencoding.h"
 
 using namespace lbcrypto;
 

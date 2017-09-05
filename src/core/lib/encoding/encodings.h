@@ -1,6 +1,5 @@
-/*
- * @file byteplaintextencoding.cpp Represents and defines plaintext objects in Palisade 
- * that encodes bytes of data, notionally chars.
+/**
+ * @file encodings.h - all supported encodings of plaintext objects in Palisade.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -25,8 +24,19 @@
  *
  */
 
-#include "byteplaintextencoding.h"
 
-namespace lbcrypto {
+#ifndef SRC_CORE_LIB_ENCODING_ENCODINGS_H_
+#define SRC_CORE_LIB_ENCODING_ENCODINGS_H_
 
-}
+#include "encoding/plaintext.h"
+#include "encoding/encodingparams.h"
+#include "encoding/coefpackedencoding.h"
+#include "encoding/integerencoding.h"
+//#include "encoding/intplaintextencoding.h" // FIXME gone?
+//#include "encoding/signedintplaintextencoding.h" // FIXME gone?
+#include "encoding/packedintplaintextencoding.h"
+#include "encoding/scalarencoding.h"
+#include "encoding/stringencoding.h"
+
+
+#endif /* SRC_CORE_LIB_ENCODING_ENCODINGS_H_ */

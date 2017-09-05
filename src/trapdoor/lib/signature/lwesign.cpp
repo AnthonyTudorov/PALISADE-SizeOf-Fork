@@ -74,7 +74,7 @@ namespace lbcrypto {
 
 	//Method for signing given object
 	template <class Element>
-	void LPSignatureSchemeGPVGM<Element>::Sign(LPSignKeyGPVGM<Element> &signKey, const BytePlaintextEncoding &plainText,
+	void LPSignatureSchemeGPVGM<Element>::Sign(LPSignKeyGPVGM<Element> &signKey, const string &plainText,
 		Signature<Matrix<Element>> *signatureText) {
 
 		//Getting parameters for calculations
@@ -82,20 +82,18 @@ namespace lbcrypto {
 		size_t k = signKey.GetSignatureParameters().GetK();
 		size_t base = signKey.GetSignatureParameters().GetBase();
 
+		shared_ptr<EncodingParams> ep( new EncodingParams(typename Element::Integer("256")) );
+
 		//Encode the text into a vector so it can be used in signing process. TODO: Adding some kind of digestion algorithm
-		BytePlaintextEncoding hashedText = HashUtil::Hash(plainText, SHA_256);
-		Element u(signKey.GetSignatureParameters().GetILParams(), EVALUATION, false);
-		if (hashedText.size() > n) {
-			hashedText.Encode(typename Element::Integer("256"), &u, 0, n);
-		}
-		else {
-			for (size_t i = 0;i < n - 32;i = i + 4)
-				hashedText.push_back(seed[i]);
+		vector<uint8_t> digest;
+		HashUtil::Hash(plainText, SHA_256, digest);
+		shared_ptr<Plaintext> hashedText( new StringEncoding(signKey.GetSignatureParameters().GetILParams(), ep, digest) );
 
-			hashedText.Encode(typename Element::Integer("256"), &u, 0, n);
-		}
+		hashedText->Encode();
+
+		Element &u = hashedText->GetElement<Element>();
+
 		u.SwitchFormat();
-
 
 		//Getting the trapdoor, its public matrix, perturbation matrix and gaussian generator to use in sampling
 		Matrix<Element> A = signKey.GetPrivateElement().first;
@@ -131,7 +129,7 @@ namespace lbcrypto {
 	//Method for signing given object
 	template <class Element>
 	void LPSignatureSchemeGPVGM<Element>::SignOnline(LPSignKeyGPVGM<Element> &signKey, 
-		shared_ptr<Matrix<Element>> perturbationVector,	const BytePlaintextEncoding &plainText,
+		shared_ptr<Matrix<Element>> perturbationVector,	const string &plainText,
 		Signature<Matrix<Element>> *signatureText) {
 
 		//Getting parameters for calculations
@@ -139,18 +137,78 @@ namespace lbcrypto {
 		size_t k = signKey.GetSignatureParameters().GetK();
 		size_t base = signKey.GetSignatureParameters().GetBase();
 
+		shared_ptr<EncodingParams> ep( new EncodingParams(typename Element::Integer("256")) );
+
 		//Encode the text into a vector so it can be used in signing process. TODO: Adding some kind of digestion algorithm
-		HashUtil util;
-		BytePlaintextEncoding hashedText = util.Hash(plainText, SHA_256);
-		Element u(signKey.GetSignatureParameters().GetILParams(), EVALUATION, false);
-		if (hashedText.size() > n) {
+		vector<uint8_t> digest;
+
+		if( plainText.size() > n ) {
+			HashUtil::Hash(plainText.substr(0, n), SHA_256, digest);
+		}
+		else {
+			string seed_in = plainText;
+			char seed_bits;
+			while (seed_in.size() < n) {
+				vector<uint8_t> pDigest;
+				HashUtil::Hash(seed_in, SHA_256, pDigest);
+				seed_bits = (seed >> 24)& 0xFF;
+				pDigest.push_back(seed_bits);
+				seed_bits = (seed >> 16) & 0xFF;
+				pDigest.push_back(seed_bits);
+				seed_bits = (seed >> 8) & 0xFF;
+				pDigest.push_back(seed_bits);
+				seed_bits = (seed) & 0xFF;
+				pDigest.push_back(seed_bits);
+
+				string seed_out;
+				seed_out.push_back(1);
+				for (size_t i = 0;i < seed_in.size();i++) {
+					seed_out.push_back(seed_in[i]);
+				}
+				for (size_t j = 0;j < pDigest.size(); j++) {
+					seed_out.push_back(pDigest[j]);
+				}
+				seed_in = seed_out;
+			}
+		}
+		shared_ptr<Plaintext> hashedText( new StringEncoding(signKey.GetSignatureParameters().GetILParams(), ep, digest) );
+
+		hashedText->Encode();
+
+
+		if (plainText.size() > n) {
 			hashedText.Encode(typename Element::Integer("256"), &u, 0, n);
 		}
 		else {
-			for (size_t i = 0;i < n - 32;i = i + 4)
-				hashedText.push_back(seed[i]);
-			hashedText.Encode(typename Element::Integer("256"), &u, 0, n);
+			string seed_in = plainText;
+			char seed_bits;
+			while (seed_in.size() < n) {
+				vector<uint8_t> pDigest;
+				HashUtil::Hash(seed_in, SHA_256, pDigest);
+				seed_bits = (seed >> 24)& 0xFF;
+				pDigest.push_back(seed_bits);
+				seed_bits = (seed >> 16) & 0xFF;
+				pDigest.push_back(seed_bits);
+				seed_bits = (seed >> 8) & 0xFF;
+				pDigest.push_back(seed_bits);
+				seed_bits = (seed) & 0xFF;
+				pDigest.push_back(seed_bits);
+
+				string seed_out;
+				seed_out.push_back(1);
+				for (size_t i = 0;i < seed_in.size();i++) {
+					seed_out.push_back(seed_in[i]);
+				}
+				for (size_t j = 0;j < pDigest.size(); j++) {
+					seed_out.push_back(pDigest[j]);
+				}
+				seed_in = seed_out;
+			}
+
+			seed_in.Encode(typename Element::Integer("256"), &u,0,n);
 		}
+
+		Element &u = hashedText->GetElement<Element>();
 		u.SwitchFormat();
 
 
@@ -170,12 +228,20 @@ namespace lbcrypto {
 	template <class Element>
 	bool LPSignatureSchemeGPVGM<Element>::Verify(LPVerificationKeyGPVGM<Element> &verificationKey,
 		const Signature<Matrix<Element>> &signatureText,
-		const BytePlaintextEncoding & plainText) {
+		const string& plainText) {
 		size_t n = verificationKey.GetSignatureParameters().GetILParams()->GetRingDimension();
 
-		//Encode the text into a vector so it can be used in verification process. TODO: Adding some kind of digestion algorithm
-		BytePlaintextEncoding hashedText = HashUtil::Hash(plainText, SHA_256);
-		Element u(verificationKey.GetSignatureParameters().GetILParams());
+		shared_ptr<EncodingParams> ep( new EncodingParams(typename Element::Integer("256")) );
+
+		//Encode the text into a vector so it can be used in signing process. TODO: Adding some kind of digestion algorithm
+		vector<uint8_t> digest;
+		HashUtil::Hash(plainText, SHA_256, digest);
+		shared_ptr<Plaintext> hashedText( new StringEncoding(verificationKey.GetSignatureParameters().GetILParams(), ep, digest) );
+
+		hashedText->Encode();
+
+		Element &u = hashedText->GetElement<Element>();
+
 		if (hashedText.size() > n) {
 			hashedText.Encode(typename Element::Integer("256"), &u, 0, n);
 		}
