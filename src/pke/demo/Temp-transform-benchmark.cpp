@@ -274,8 +274,8 @@ int main() {
 	BigVector X, xx;
 	X = ChineseRemainderTransformFTT<BigInteger,BigVector>::ForwardTransform(x, rootOfUnity, m);
 	xx = ChineseRemainderTransformFTT<BigInteger,BigVector>::InverseTransform(X, rootOfUnity, m);
-	std::cout << X << std::endl;
-	std::cout << xx << std::endl;
+	//std::cout << X << std::endl;
+	//std::cout << xx << std::endl;
 
 	nRep = 1000;
 	start = currentDateTime();
@@ -292,8 +292,8 @@ int main() {
 	}
 	stop = currentDateTime();
 	std::cout << " Ttran_baseline: " << (stop-start)/nRep << std::endl;
-	std::cout << X << std::endl;
-	std::cout << output << std::endl;
+	//std::cout << X << std::endl;
+	//std::cout << output << std::endl;
 
 	BigVector rootOfUnityTable(phim, modulusQ);
 	BigInteger t(1);
@@ -308,8 +308,8 @@ int main() {
 	}
 	stop = currentDateTime();
 	std::cout << " Ttran_precomputed: " << (stop-start)/nRep << std::endl;
-	std::cout << X << std::endl;
-	std::cout << output << std::endl;
+	//std::cout << X << std::endl;
+	//std::cout << output << std::endl;
 
 	nRep = 10000;
 	BI q = 9223372036589678593;
@@ -328,10 +328,10 @@ int main() {
 	}
 	stop = currentDateTime();
 	std::cout << " Ttran_prim: " << (stop-start)/nRep << std::endl;
-	std::cout << X << std::endl;
+	//std::cout << X << std::endl;
 	std::cout << "[";
 	for(usint i = 0; i < phim; i++){
-		std::cout << outVec[i] << " " ;
+	//	std::cout << outVec[i] << " " ;
 	}
 	std::cout << "]" << std::endl;
 
