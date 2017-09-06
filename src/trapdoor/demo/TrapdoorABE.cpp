@@ -25,7 +25,7 @@
  */
 #include "signature/lwesign.h"
 #include "signature/lwesign.cpp"
-#include "encoding/byteplaintextencoding.h"
+#include "encoding/encodings.h"
 
 #include <omp.h> //open MP header
 
@@ -136,7 +136,7 @@ void MultiThreadedRun(int index) {
 	size_t verifyCounter = 0;
 	bool verifyBool = false;
 
-	std::vector<BytePlaintextEncoding> text{
+	std::vector<string> text{
 		"1 Let's spice things up",
 		"2 Let's spice things up",
 		"3 Let's spice things up",

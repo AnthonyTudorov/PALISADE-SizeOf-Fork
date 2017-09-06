@@ -68,7 +68,7 @@ void CircuitObject<Element>::DecryptAndPrint(shared_ptr<CryptoContext<Element>> 
 	case VECTOR_INT:
 	{
 		IntPlaintextEncoding result;
-		cc->Decrypt(key, {GetIntVecValue()}, &result);
+		cc->Decrypt(key, GetIntVecValue(), &result);
 
 		size_t i;
 		for( i=0; i < n && i < cc->GetRingDimension(); i++ )

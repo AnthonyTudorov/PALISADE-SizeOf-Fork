@@ -34,7 +34,7 @@
 
 #include "cryptocontexthelper.h"
 
-#include "encoding/byteplaintextencoding.h"
+#include "encoding/encodings.h"
 
 #include "EncryptHelper.h"
 

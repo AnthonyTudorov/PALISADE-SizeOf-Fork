@@ -34,7 +34,7 @@ bool runOnlyOnce = true;
 
 #include "cryptocontexthelper.h"
 
-#include "encoding/byteplaintextencoding.h"
+#include "encoding/encodings.h"
 #include "encoding/intplaintextencoding.h"
 #include "encoding/packedintplaintextencoding.h"
 

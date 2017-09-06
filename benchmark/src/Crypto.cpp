@@ -47,7 +47,7 @@ Description:
 
 #include "cryptocontexthelper.h"
 
-#include "encoding/byteplaintextencoding.h"
+#include "encoding/encodings.h"
 
 using namespace std;
 using namespace lbcrypto;

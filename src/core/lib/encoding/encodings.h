@@ -32,8 +32,6 @@
 #include "encoding/encodingparams.h"
 #include "encoding/coefpackedencoding.h"
 #include "encoding/integerencoding.h"
-//#include "encoding/intplaintextencoding.h" // FIXME gone?
-//#include "encoding/signedintplaintextencoding.h" // FIXME gone?
 #include "encoding/packedintplaintextencoding.h"
 #include "encoding/scalarencoding.h"
 #include "encoding/stringencoding.h"

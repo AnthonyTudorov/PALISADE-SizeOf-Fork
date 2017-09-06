@@ -18,7 +18,7 @@
 #include "../../lib/utils/cryptocontexthelper.cpp"
 
 #include "../../lib/utils/serializablehelper.h"
-#include "../../lib/encoding/byteplaintextencoding.h"
+#include "../../lib/encoding/encodings.h"
 
 using namespace std;
 using namespace lbcrypto;

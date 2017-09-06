@@ -48,7 +48,7 @@ Additionally we excercise the gnu benchmark library
 
 #include "cryptocontexthelper.h"
 
-#include "encoding/byteplaintextencoding.h"
+#include "encoding/encodings.h"
 #include "utils/debug.h"
 #include <vector>
 

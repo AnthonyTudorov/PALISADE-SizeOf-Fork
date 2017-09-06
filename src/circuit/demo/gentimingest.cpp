@@ -115,7 +115,7 @@ main(int argc, char *argv[])
 		cc->ResumeTiming();
 		for( int reps=0; reps < MaxIterations; reps++ ) {
 			LPKeyPair<DCRTPoly> kp = cc->KeyGen();
-			auto crypt = cc->Encrypt(kp.publicKey, inputs[0]);
+			auto crypt = cc->Encrypt(kp.publicKey, inputs);
 			IntPlaintextEncoding decrypted;
 			cc->Decrypt(kp.secretKey, crypt, &decrypted);
 		}

@@ -25,7 +25,7 @@
  */
 #include "signature/lwesign.h"
 #include "signature/lwesign.cpp"
-#include "encoding/byteplaintextencoding.h"
+#include "encoding/encodings.h"
 #include "utils/serializablehelper.h"
 
 #include <omp.h> //open MP header
@@ -136,7 +136,7 @@ privateKey2.SwitchFormat();
 	size_t verifyCounter = 0;
 	bool verifyBool = false;
 
-	std::vector<BytePlaintextEncoding> text{
+	std::vector<string> text{
 		"1 Let's spice things up",
 		"2 Let's spice things up",
 		"3 Let's spice things up",
@@ -218,7 +218,7 @@ void SingleThreadedRun() {
 		std::cout << "Test" << std::endl;
 		Signature<Matrix<Poly>> signature, signature2;
 
-		std::vector<BytePlaintextEncoding> text{
+		std::vector<string> text{
 			"1 Let's spice things up",
 			"2 Let's spice things up",
 			"3 Let's spice things up",

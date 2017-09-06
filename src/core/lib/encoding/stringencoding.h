@@ -51,6 +51,12 @@ public:
 	StringEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, string str) :
 		Plaintext(vp,ep), ptx(str) {}
 
+	StringEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, vector<uint8_t> vec) :
+		Plaintext(vp,ep), ptx(vec.begin(),vec.end()) {}
+
+	StringEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, vector<uint8_t> vec) :
+		Plaintext(vp,ep), ptx(vec.begin(),vec.end()) {}
+
 	// TODO provide wide-character version (for unicode); right now this class only
 	// supports strings of 7-bit ASCII characters
 

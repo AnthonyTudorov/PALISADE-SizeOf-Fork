@@ -79,10 +79,10 @@ void HashUtil::SHA256(string message, vector<uint8_t>& digest) {
 	message.push_back((uint8_t)((m_len & 0x000000000000ff00) >> 8));
 	message.push_back((uint8_t)(m_len & 0x00000000000000ff));
 
-	for (usint n = 0;n < (message.size() * 8) / 512; n++) {
+	for (size_t n = 0;n < (message.size() * 8) / 512; n++) {
 		uint32_t w[64];
 		short counter = 0;
-		for (usint m = 64 * n;m < (64 * (n + 1));m += 4) {
+		for (size_t m = 64 * n;m < (64 * (n + 1));m += 4) {
 			w[counter] = ((uint32_t)message.at(m) << 24) ^ ((uint32_t)message.at(m + 1) << 16) ^ ((uint32_t)message.at(m + 2) << 8) ^ ((uint32_t)message.at(m + 3));
 			counter++;
 		}
