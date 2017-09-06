@@ -93,7 +93,7 @@ int main(int argc, char* argv[]){
 		}
 	}
 
-	for (usint n = 1<<8; n < 1<<14; n=2*n)
+	for (usint n = 1<<10; n < 1<<14; n=2*n)
 	{
 		errorflag = CONJOBF(dbg_flag, n_evals, n);
 	}
@@ -126,12 +126,12 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 	TIC(t_total); //start timer for total time
 
 	usint m = 2*n;
-	//54 bits
-	//BigInteger modulus("9007199254741169");
-	//BigInteger rootOfUnity("7629104920968175");
 
 	usint chunkSize = 8;
-	usint base = 1<<15;
+	usint base = 1<<20;
+
+	if (n > 1<<11)
+		base = 1<<18;
 
 	//Generate the test pattern
 	std::string inputPattern = "1?10?10?1?10?10?1?10?10?1?10??0?1?10?10?1?10?10?1?10?10?1?10??0?";;
@@ -168,6 +168,7 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 	PROFILELOG("rootOfUnity = " << rootOfUnity);
 	PROFILELOG("n = " << m / 2);
 	PROFILELOG(printf("delta=%lf", obfuscatedPattern.GetRootHermiteFactor()));
+	PROFILELOG("\nbase = " << base);
 
 	typename DCRTPoly::DugType dug;
 	typename DCRTPoly::TugType tug;

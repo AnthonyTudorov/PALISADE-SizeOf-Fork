@@ -93,9 +93,9 @@ int main(int argc, char* argv[]){
 		}
 	}
 
-	for (usint n = 1<<11; n < 1<<13; n=2*n)
+	for (usint n = 1<<10; n < 1<<13; n=2*n)
 	{
-		for (usint i = 1; i < 3; i++) {
+		for (usint i = 1; i < 2; i++) {
 			errorflag = CONJOBF(dbg_flag, n_evals, n);
 			if (errorflag)
 				return ((int)errorflag);
@@ -135,7 +135,10 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 	//BigInteger rootOfUnity("7629104920968175");
 
 	usint chunkSize = 8;
-	usint base = 1<<15;
+	usint base = 1<<20;
+
+	if (n > 1<<10)
+		base = 1<<15;
 
 	//Generate the test pattern
 	std::string inputPattern = "1?10?10?1?10?10?1?10?10?1?10??0?";;
