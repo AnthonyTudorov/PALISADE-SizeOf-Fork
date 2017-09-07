@@ -52,20 +52,10 @@
 // fails tests with UBINT_64
 // there is a bug in the way modulus is computed. do not use.
 
-//[ RUN      ] UTLTVBATCHING.ILVector_EVALMULT_Arb hangs
-//[ RUN      ] UTFV.ILVector2n_FV_ParamsGen_EvalMul hangs
-//[ RUN      ] UTFV.ILVector2n_FV_Optimized_Eval_Operations hangs
-//[ RUN      ] UTSHE.FV_ILVector2n_Add hangs
-//[ RUN      ] UTSHE.FV_ILVector2n_Mult hangs
-//[ RUN      ] UTStatisticalEval.FV_Eval_Lin_Regression_Int hangs
-
 // MATHBACKEND 6
 //		This uses gmp_int:: definition as default
 // 		GMP 6.1.2 / NTL 10.3.0 backend
-//passes all core,pke,trapdoor, tests
-//currently fails in compile of src/pke/demo/Temp-transform-benchmark.cpp
-//
-/// 
+
 // MATHBACKEND 7
 // 		This uses native_int:: as the default
 // This backend provides a maximum size of 64 bits
@@ -73,10 +63,10 @@
 //To select backend, please UNCOMMENT the appropriate line rather than changing the number on the
 //uncommented line (and breaking the documentation of the line)
 
-#define MATHBACKEND 2
+//#define MATHBACKEND 2
 //#define MATHBACKEND 4
 //#define MATHBACKEND 6
-//#define MATHBACKEND 7
+#define MATHBACKEND 7
 
 ////////// cpu_int code
 #include "cpu_int/binint.cpp"

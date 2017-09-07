@@ -64,12 +64,12 @@ public:
 	 * @param batchSize sets the maximum batch size (as a power of 2) needed for EvalSum
 	 */
 	EncodingParamsImpl(
-		const IntType& plaintextModulus = IntType::ZERO,
+		const IntType& plaintextModulus = IntType(0),
 		usint plaintextGenerator = 0,
 		usint batchSize = 0,
-		const IntType& plaintextRootOfUnity = IntType::ZERO,
-		const IntType& plaintextBigModulus = IntType::ZERO,
-		const IntType& plaintextBigRootOfUnity = IntType::ZERO) {
+		const IntType& plaintextRootOfUnity = IntType(0),
+		const IntType& plaintextBigModulus = IntType(0),
+		const IntType& plaintextBigRootOfUnity = IntType(0)) {
 			m_plaintextModulus = plaintextModulus;
 			m_plaintextRootOfUnity = plaintextRootOfUnity;
 			m_plaintextBigModulus = plaintextBigModulus;

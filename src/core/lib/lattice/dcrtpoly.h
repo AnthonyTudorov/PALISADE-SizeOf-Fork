@@ -681,7 +681,7 @@ public:
 	* @param &rootOfUnityArb is the corresponding root of unity for the modulus
 	* ASSUMPTION: This method assumes that the caller provides the correct rootOfUnity for the modulus
 	*/
-	void SwitchModulus(const IntType &modulus, const IntType &rootOfUnity, const IntType &modulusArb = IntType::ZERO, const IntType &rootOfUnityArb = IntType::ZERO) {
+	void SwitchModulus(const IntType &modulus, const IntType &rootOfUnity, const IntType &modulusArb = IntType(0), const IntType &rootOfUnityArb = IntType(0)) {
 		throw std::logic_error("SwitchModulus not implemented on DCRTPoly");
 	}
 

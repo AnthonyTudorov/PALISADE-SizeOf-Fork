@@ -567,7 +567,7 @@ void Cholesky(const Matrix<int32_t> &input, Matrix<double> &result) {
 Matrix<int32_t> ConvertToInt32(const Matrix<BigInteger> &input, const BigInteger& modulus) {
     size_t rows = input.GetRows();
     size_t cols = input.GetCols();
-    BigInteger negativeThreshold(modulus / BigInteger::TWO);
+    BigInteger negativeThreshold(modulus / 2);
     Matrix<int32_t> result([](){ return make_unique<int32_t>(); }, rows, cols);
     for (size_t i = 0; i < rows; ++i) {
         for (size_t j = 0; j < cols; ++j) {
@@ -584,7 +584,7 @@ Matrix<int32_t> ConvertToInt32(const Matrix<BigInteger> &input, const BigInteger
 Matrix<int32_t> ConvertToInt32(const Matrix<BigVector> &input, const BigInteger& modulus) {
     size_t rows = input.GetRows();
     size_t cols = input.GetCols();
-    BigInteger negativeThreshold(modulus / BigInteger::TWO);
+    BigInteger negativeThreshold(modulus / 2);
     Matrix<int32_t> result([](){ return make_unique<int32_t>(); }, rows, cols);
     for (size_t i = 0; i < rows; ++i) {
         for (size_t j = 0; j < cols; ++j) {

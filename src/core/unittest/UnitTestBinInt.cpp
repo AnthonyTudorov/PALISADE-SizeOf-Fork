@@ -1088,7 +1088,7 @@ TEST(UTBinInt, method_GetBitAtIndex){
 
   x <<=(100); //x has one bit at 100
 
-  x+=BigInteger::TWO; //x has one bit at 2
+  x += 2; //x has one bit at 2
 
   DEBUG("x "<<x);
   //if (dbg_flag) x.PrintLimbsInHex();
