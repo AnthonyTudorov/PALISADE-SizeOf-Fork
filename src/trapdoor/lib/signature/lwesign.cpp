@@ -60,8 +60,16 @@ namespace lbcrypto {
 
 		//Signing key will contain public key matrix of the trapdoor and the trapdoor matrices
 		signKey->SetPrivateElement(std::pair<Matrix<Element>, RLWETrapdoorPair<Element>>(keyPair));
-
-		seed = (PseudoRandomNumberGenerator::GetPRNG())();
+		size_t n = params->GetCyclotomicOrder() / 2;
+		if (n > 32) {
+			for (size_t i = 0;i < n - 32;i = i + 4) {
+				int rand = (PseudoRandomNumberGenerator::GetPRNG())();
+				seed.push_back((rand >> 24) & 0xFF);
+				seed.push_back((rand >> 16) & 0xFF);
+				seed.push_back((rand >> 8) & 0xFF);
+				seed.push_back((rand) & 0xFF);
+			}
+		}
 	}
 
 	//Method for signing given object
@@ -81,11 +89,10 @@ namespace lbcrypto {
 			hashedText.Encode(typename Element::Integer("256"), &u, 0, n);
 		}
 		else {
-			usint remaining = n - hashedText.size();
-			for (size_t i = 0;i < remaining;i++) {
-				hashedText.push_back(0);
-			}
-			hashedText.Encode(typename Element::Integer("256"), &u);
+			for (size_t i = 0;i < n - 32;i = i + 4)
+				hashedText.push_back(seed[i]);
+
+			hashedText.Encode(typename Element::Integer("256"), &u, 0, n);
 		}
 		u.SwitchFormat();
 
@@ -140,29 +147,9 @@ namespace lbcrypto {
 			hashedText.Encode(typename Element::Integer("256"), &u, 0, n);
 		}
 		else {
-			BytePlaintextEncoding seed_in = plainText;
-			char seed_bits;
-			while (seed_in.size() < n) {
-				BytePlaintextEncoding rand = util.Hash(seed_in, SHA_256);
-				seed_bits = (seed >> 24)& 0xFF;
-				rand.push_back(seed_bits);
-				seed_bits = (seed >> 16) & 0xFF;
-				rand.push_back(seed_bits);
-				seed_bits = (seed >> 8) & 0xFF;
-				rand.push_back(seed_bits);
-				seed_bits = (seed) & 0xFF;
-				rand.push_back(seed_bits);
-				BytePlaintextEncoding seed_out;
-				seed_out.push_back(1);
-				for (size_t i = 0;i < seed_in.size();i++) {
-					seed_out.push_back(seed_in[i]);
-				}
-				for (size_t j = 0;j < rand.size(); j++) {
-					seed_out.push_back(rand[j]);
-				}
-				seed_in = seed_out;
-			}
-			seed_in.Encode(typename Element::Integer("256"), &u,0,n);
+			for (size_t i = 0;i < n - 32;i = i + 4)
+				hashedText.push_back(seed[i]);
+			hashedText.Encode(typename Element::Integer("256"), &u, 0, n);
 		}
 		u.SwitchFormat();
 
@@ -193,29 +180,9 @@ namespace lbcrypto {
 			hashedText.Encode(typename Element::Integer("256"), &u, 0, n);
 		}
 		else {
-			BytePlaintextEncoding seed_in = plainText;
-			char seed_bits;
-			while (seed_in.size() < n) {
-				BytePlaintextEncoding rand = HashUtil::Hash(seed_in, SHA_256);
-				seed_bits = (seed >> 24) & 0xFF;
-				rand.push_back(seed_bits);
-				seed_bits = (seed >> 16) & 0xFF;
-				rand.push_back(seed_bits);
-				seed_bits = (seed >> 8) & 0xFF;
-				rand.push_back(seed_bits);
-				seed_bits = (seed) & 0xFF;
-				rand.push_back(seed_bits);
-				BytePlaintextEncoding seed_out;
-				seed_out.push_back(1);
-				for (size_t i = 0;i < seed_in.size();i++) {
-					seed_out.push_back(seed_in[i]);
-				}
-				for (size_t j = 0;j < rand.size(); j++) {
-					seed_out.push_back(rand[j]);
-				}
-				seed_in = seed_out;
-			}
-			seed_in.Encode(typename Element::Integer("256"), &u, 0, n);
+			for (size_t i = 0;i < n - 32;i = i + 4)
+				hashedText.push_back(seed[i]);
+			hashedText.Encode(typename Element::Integer("256"), &u, 0, n);
 		}
 		u.SwitchFormat();
 
