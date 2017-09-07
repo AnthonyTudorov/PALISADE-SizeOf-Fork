@@ -60,9 +60,9 @@ namespace lbcrypto {
 
 		//Signing key will contain public key matrix of the trapdoor and the trapdoor matrices
 		signKey->SetPrivateElement(std::pair<Matrix<Element>, RLWETrapdoorPair<Element>>(keyPair));
-		int n = params->GetCyclotomicOrder() / 2;
+		size_t n = params->GetCyclotomicOrder() / 2;
 		if (n > 32) {
-			for (int i = 0;i < n - 32;i = i + 4) {
+			for (size_t i = 0;i < n - 32;i = i + 4) {
 				int rand = (PseudoRandomNumberGenerator::GetPRNG())();
 				seed.push_back((rand >> 24) & 0xFF);
 				seed.push_back((rand >> 16) & 0xFF);
@@ -89,7 +89,7 @@ namespace lbcrypto {
 			hashedText.Encode(typename Element::Integer("256"), &u, 0, n);
 		}
 		else {
-			for (int i = 0;i < n - 32;i = i + 4)
+			for (size_t i = 0;i < n - 32;i = i + 4)
 				hashedText.push_back(seed[i]);
 
 			hashedText.Encode(typename Element::Integer("256"), &u, 0, n);
@@ -147,7 +147,7 @@ namespace lbcrypto {
 			hashedText.Encode(typename Element::Integer("256"), &u, 0, n);
 		}
 		else {
-			for (int i = 0;i < n - 32;i = i + 4)
+			for (size_t i = 0;i < n - 32;i = i + 4)
 				hashedText.push_back(seed[i]);
 			hashedText.Encode(typename Element::Integer("256"), &u, 0, n);
 		}
@@ -180,7 +180,7 @@ namespace lbcrypto {
 			hashedText.Encode(typename Element::Integer("256"), &u, 0, n);
 		}
 		else {
-			for (int i = 0;i < n - 32;i = i + 4)
+			for (size_t i = 0;i < n - 32;i = i + 4)
 				hashedText.push_back(seed[i]);
 			hashedText.Encode(typename Element::Integer("256"), &u, 0, n);
 		}
