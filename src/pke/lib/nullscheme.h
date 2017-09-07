@@ -551,6 +551,19 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 			const shared_ptr<Ciphertext<DCRTPoly>> ciphertext2) const;
 
 		/**
+		* Function for evaluating multiplication of ciphertext by plaintext
+		*
+		* @param &ciphertext input ciphertext.
+		* @param &plaintext input plaintext embedded in cryptocontext.
+		* @param *newCiphertext the new resulting ciphertext.
+		*/
+		shared_ptr<Ciphertext<Poly>> EvalMult(const shared_ptr<Ciphertext<Poly>> ciphertext1,
+			const shared_ptr<Plaintext> ciphertext2) const;
+
+		shared_ptr<Ciphertext<DCRTPoly>> EvalMult(const shared_ptr<Ciphertext<DCRTPoly>> ciphertext1,
+			const shared_ptr<Plaintext> ciphertext2) const;
+
+		/**
 		 * Function for evaluating multiplication on ciphertext followed by key switching operation.
 		 *
 		 * @param &ciphertext1 first input ciphertext.

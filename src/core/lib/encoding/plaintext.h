@@ -76,7 +76,7 @@ public:
 		isEncoded(isEncoded), typeFlag(IsPoly), encodingParams(ep), encodedVector(vp,COEFFICIENT) {}
 
 	Plaintext(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, bool isEncoded = false) :
-		isEncoded(isEncoded), typeFlag(IsDCRTPoly), encodingParams(ep), encodedVector(vp,COEFFICIENT) {}
+		isEncoded(isEncoded), typeFlag(IsDCRTPoly), encodingParams(ep), encodedDCRTVector(vp,COEFFICIENT) {}
 
 	virtual ~Plaintext() {}
 

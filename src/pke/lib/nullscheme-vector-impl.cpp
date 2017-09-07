@@ -47,6 +47,24 @@ shared_ptr<Ciphertext<Poly>> LPAlgorithmSHENull<Poly>::EvalMult(const shared_ptr
 	return newCiphertext;
 }
 
+template<>
+shared_ptr<Ciphertext<Poly>> LPAlgorithmSHENull<Poly>::EvalMult(const shared_ptr<Ciphertext<Poly>> ciphertext1,
+	const shared_ptr<Plaintext> plaintext) const {
+
+	shared_ptr<Ciphertext<Poly>> newCiphertext(new Ciphertext<Poly>(ciphertext1->GetCryptoContext()));
+
+	const Poly& c1 = ciphertext1->GetElement();
+	const Poly& c2 = plaintext->GetElement<Poly>();
+
+	const BigInteger& ptm = ciphertext1->GetCryptoParameters()->GetPlaintextModulus();
+
+	Poly cResult = ElementNullSchemeMultiply(c1, c2, ptm);
+
+	newCiphertext->SetElement(cResult);
+
+	return newCiphertext;
+}
+
 template class LPCryptoParametersNull<Poly>;
 template class LPPublicKeyEncryptionSchemeNull<Poly>;
 template class LPAlgorithmNull<Poly>;
