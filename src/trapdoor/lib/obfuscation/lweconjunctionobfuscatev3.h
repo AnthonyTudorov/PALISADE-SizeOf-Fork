@@ -350,7 +350,7 @@ namespace lbcrypto {
 				const ClearLWEConjunctionPattern<Element> &clearPattern,
 				typename Element::DggType &dgg,
 				typename Element::TugType &tug,
-				ObfuscatedLWEConjunctionPattern<Element> *obfuscatedPattern) const;
+				ObfuscatedLWEConjunctionPattern<Element> *obfuscatedPattern, bool optimized = true) const;
 
 			/**
 			* Method to generate parameters.

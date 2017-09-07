@@ -39,28 +39,29 @@
 //using namespace std;
 using namespace lbcrypto;
 
-bool CONJOBF(bool dbg_flag, int n_evals, int  n); //defined later
+bool CONJOBF(bool dbg_flag, int n_evals, int n); //defined later
 
 //main()   need this for Kurts makefile to ignore this.
 int main(int argc, char* argv[]){
 	bool errorflag = false;
 
 	if (argc < 2) { // called with no arguments
-		std::cout << "arg 1 = debugflag 0:1 [0] " << std::endl;
-		std::cout << "arg 2 = num evals 1:3 [1] " << std::endl;
+		std::cout << "Usage is `ObfuscateSimulatorV3 arg1 arg2 arg3' where: " << std::endl;
+		std::cout << "  arg1 indicate verbosity of output. Possible values are 0 or 1 with 1 being verbose.  Default is 0." << std::endl;
+		std::cout << "  arg2 indicates number of evaluation operations to run.  Possible values are 1, 2 or 3.  Default is 1." << std::endl;
+		std::cout << "  arg3 indicates ring dimension to use with possible values of {8,16,32,64,128,256,512,1024}." << std::endl;
+		std::cout << "If no input is given, then this message is displayed, defaults are assumed and user is prompted for ring dimension." << std::endl;
 	}
-	bool dbg_flag = false; 
+	bool dbg_flag = false;
 
 	if (argc >= 2 ) {
 		if (atoi(argv[1]) != 0) {
-#ifndef NDEBUG
+#if !defined(NDEBUG)
 			dbg_flag = true;
-			std::cout << "setting dbg_flag true" << std::endl;
+			// std::cout << "setting dbg_flag true" << std::endl;
 #endif
 		}
 	}
-
-	std::cerr  <<"Running " << argv[0] <<" with "<< omp_get_num_procs() << " processors." << std::endl;
 
 	int n_evals = 1;
 
@@ -73,7 +74,8 @@ int main(int argc, char* argv[]){
 			n_evals = atoi(argv[2]);
 		}
 	}
-	std::cerr << "Running " << argv[0] << " with " << n_evals << " evaluations." << std::endl;
+
+	std::cerr  <<"Configured to run " << argv[0] <<" with "<< omp_get_num_procs() << " processor[s] and " << n_evals << " evaluation[s]." << std::endl;
 
 	int nthreads, tid;
 
@@ -93,16 +95,36 @@ int main(int argc, char* argv[]){
 		}
 	}
 
-	for (usint n = 1<<8; n < 1<<14; n=2*n)
-	{
-		errorflag = CONJOBF(dbg_flag, n_evals, n);
+	std::string inputstring;
+
+	if (argc == 4)
+		inputstring = argv[3];
+	else
+		inputstring = "";
+
+	if (inputstring == "") {
+
+		std::cout << "Ring dimension unspecified.  Please choose the ring dimension (pattern length is 32 bits) as 2^i: " << std::endl;
+		std::cout << "8..8192: [256] ";
+
+		std::getline(std::cin, inputstring);
+
 	}
+
+	int input = 256;
+
+	if (!inputstring.empty())
+		input = std::stoi(inputstring);
+
+	std::string optionSelected = "Selected ring dimension: " + inputstring + ".";
+
+	std::cout << optionSelected << std::endl;
+
+	errorflag = CONJOBF(dbg_flag, n_evals, input);
 
 	return ((int)errorflag);
 
-	//std::cin.get();
 }
-
 
 //////////////////////////////////////////////////////////////////////
 bool CONJOBF(bool dbg_flag, int n_evals, int n) {
@@ -125,13 +147,10 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 	TimeVar t1, t_total; //for TIC TOC
 	TIC(t_total); //start timer for total time
 
-	usint m = 2*n;
-	//54 bits
-	//BigInteger modulus("9007199254741169");
-	//BigInteger rootOfUnity("7629104920968175");
+	usint m = 2 * n;
 
 	usint chunkSize = 8;
-	usint base = 1<<15;
+	usint base = 1<<20;
 
 	//Generate the test pattern
 	std::string inputPattern = "1?10?10?1?10?10?1?10?10?1?10??0?1?10?10?1?10?10?1?10?10?1?10??0?";;
@@ -141,7 +160,7 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 	obfuscatedPattern.SetChunkSize(chunkSize);
 	obfuscatedPattern.SetBase(base);
 	obfuscatedPattern.SetLength(clearPattern.GetLength());
-	obfuscatedPattern.SetRootHermiteFactor(1.006);
+	//obfuscatedPattern.SetRootHermiteFactor(1.006);
 
 	LWEConjunctionObfuscationAlgorithm<DCRTPoly> algorithm;
 
@@ -278,7 +297,6 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 	std::cout << "T: Eval 1 execution time:  " << "\t" << timeEval1 << " ms" << std::endl;
 	std::cout << "T: Eval 2 execution time:  " << "\t" << timeEval2 << " ms" << std::endl;
 	std::cout << "T: Eval 3 execution time:  " << "\t" << timeEval3 << " ms" << std::endl;
-	std::cout << "T: Average evaluation execution time:  " << "\t" << (timeEval1+timeEval2+timeEval3)/3 << " ms" << std::endl;
 	std::cout << "T: Total execution time:       " << "\t" << timeTotal << " ms" << std::endl;
 
 	if (errorflag) {
@@ -292,5 +310,6 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 
 	return (errorflag);
 }
+
 
 

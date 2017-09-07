@@ -32,7 +32,6 @@
 #include "obfuscation/lweconjunctionobfuscatev3.h"
 #include "obfuscation/lweconjunctionobfuscatev3.cpp"
 
-
 #include "utils/debug.h"
 
 #include <omp.h> //open MP header
@@ -42,20 +41,20 @@ using namespace lbcrypto;
 
 bool CONJOBF(bool dbg_flag, int n_evals, int n); //defined later
 
-
-												 //main()   need this for Kurts makefile to ignore this.
-int main(int argc, char* argv[]) {
+//main()   need this for Kurts makefile to ignore this.
+int main(int argc, char* argv[]){
 	bool errorflag = false;
 
 	if (argc < 2) { // called with no arguments
-		std::cout << "Usage is `" << argv[0] << " arg1 arg2 arg3' where: " << std::endl;
+		std::cout << "Usage is `ObfuscateSimulatorV3 arg1 arg2 arg3' where: " << std::endl;
 		std::cout << "  arg1 indicate verbosity of output. Possible values are 0 or 1 with 1 being verbose.  Default is 0." << std::endl;
 		std::cout << "  arg2 indicates number of evaluation operations to run.  Possible values are 1, 2 or 3.  Default is 1." << std::endl;
+		std::cout << "  arg3 indicates ring dimension to use with possible values of {8,16,32,64,128,256,512,1024}." << std::endl;
 		std::cout << "If no input is given, then this message is displayed, defaults are assumed and user is prompted for ring dimension." << std::endl;
 	}
 	bool dbg_flag = false;
 
-	if (argc >= 2) {
+	if (argc >= 2 ) {
 		if (atoi(argv[1]) != 0) {
 #if !defined(NDEBUG)
 			dbg_flag = true;
@@ -66,25 +65,23 @@ int main(int argc, char* argv[]) {
 
 	int n_evals = 1;
 
-	if (argc >= 3) {
+	if (argc >= 3 ) {
 		if (atoi(argv[2]) < 0) {
 			n_evals = 1;
-		}
-		else if (atoi(argv[2]) >= 3) {
+		} else if (atoi(argv[2]) >= 3) {
 			n_evals = 3;
-		}
-		else {
+		} else {
 			n_evals = atoi(argv[2]);
 		}
 	}
 
-	std::cerr << "Configured to run " << argv[0] << " with " << omp_get_num_procs() << " processor[s] and " << n_evals << " evaluation[s]." << std::endl;
+	std::cerr  <<"Configured to run " << argv[0] <<" with "<< omp_get_num_procs() << " processor[s] and " << n_evals << " evaluation[s]." << std::endl;
 
 	int nthreads, tid;
 
 	// Fork a team of threads giving them their own copies of variables
 	//so we can see how many threads we have to work with
-#pragma omp parallel private(nthreads, tid)
+    #pragma omp parallel private(nthreads, tid)
 	{
 
 		/* Obtain thread number */
@@ -98,14 +95,32 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
-	for (usint n = 256; n < 2048; n = 2 * n)
-	{
-		errorflag = CONJOBF(dbg_flag, n_evals, n);
-		if (errorflag)
-			return ((int)errorflag);
+	std::string inputstring;
+
+	if (argc == 4)
+		inputstring = argv[3];
+	else
+		inputstring = "";
+
+	if (inputstring == "") {
+
+		std::cout << "Ring dimension unspecified.  Please choose the ring dimension (pattern length is 32 bits) as 2^i: " << std::endl;
+		std::cout << "8..8192: [256] ";
+
+		std::getline(std::cin, inputstring);
+
 	}
 
-	//system("PAUSE");
+	int input = 256;
+
+	if (!inputstring.empty())
+		input = std::stoi(inputstring);
+
+	std::string optionSelected = "Selected ring dimension: " + inputstring + ".";
+
+	std::cout << optionSelected << std::endl;
+
+	errorflag = CONJOBF(dbg_flag, n_evals, input);
 
 	return ((int)errorflag);
 
@@ -133,22 +148,19 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 	TIC(t_total); //start timer for total time
 
 	usint m = 2 * n;
-	//54 bits
-	//BigInteger modulus("9007199254741169");
-	//BigInteger rootOfUnity("7629104920968175");
 
-	usint chunkSize = 1;
+	usint chunkSize = 8;
 	usint base = 1<<20;
 
 	//Generate the test pattern
-	std::string inputPattern = "1?10";
+	std::string inputPattern = "1?10?10?1?10?10?1?10?10?1?10??0?";;
 	ClearLWEConjunctionPattern<DCRTPoly> clearPattern(inputPattern);
 
 	ObfuscatedLWEConjunctionPattern<DCRTPoly> obfuscatedPattern;
 	obfuscatedPattern.SetChunkSize(chunkSize);
 	obfuscatedPattern.SetBase(base);
 	obfuscatedPattern.SetLength(clearPattern.GetLength());
-	obfuscatedPattern.SetRootHermiteFactor(1.006);
+	//obfuscatedPattern.SetRootHermiteFactor(1.006);
 
 	LWEConjunctionObfuscationAlgorithm<DCRTPoly> algorithm;
 
@@ -157,7 +169,7 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 		timeEval2(0.0), timeEval3(0.0), timeTotal(0.0);
 
 	double stdDev = SIGMA;
-	typename DCRTPoly::DggType dgg = DCRTPoly::DggType(stdDev);			// Create the noise generator
+	DCRTPoly::DggType dgg(stdDev);			// Create the noise generator
 
 																				//Finds q using the correctness constraint for the given value of n
 	algorithm.ParamsGen(dgg, &obfuscatedPattern, m / 2);
@@ -175,7 +187,6 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 	PROFILELOG("rootOfUnity = " << rootOfUnity);
 	PROFILELOG("n = " << m / 2);
 	PROFILELOG(printf("delta=%lf", obfuscatedPattern.GetRootHermiteFactor()));
-	PROFILELOG("base=" << base);
 
 	typename DCRTPoly::DugType dug;
 	typename DCRTPoly::TugType tug;
@@ -197,15 +208,15 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 	DEBUG(" \nCleartext pattern length: ");
 	DEBUG(clearPattern.GetLength());
 
-	std::string inputStr1 = "1010";
+	std::string inputStr1 = "11100100111001001110010011100100";
 	bool out1 = algorithm.Evaluate(clearPattern, inputStr1);
 	DEBUG(" \nCleartext pattern evaluation of: " << inputStr1 << " is " << out1);
 
-	std::string inputStr2 = "1111";
+	std::string inputStr2 = "11001101110011011100110111001111";
 	bool out2 = algorithm.Evaluate(clearPattern, inputStr2);
 	DEBUG(" \nCleartext pattern evaluation of: " << inputStr2 << " is " << out2);
 
-	std::string inputStr3 = "1110";
+	std::string inputStr3 = "10101101101011011010110110101101";
 	bool out3 = algorithm.Evaluate(clearPattern, inputStr3);
 	DEBUG(" \nCleartext pattern evaluation of: " << inputStr3 << " is " << out3);
 
@@ -230,7 +241,7 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 
 	DEBUG("Obfuscation Execution started");
 	TIC(t1);
-	algorithm.Obfuscate(clearPattern, dgg, tug, &obfuscatedPattern, false);
+	algorithm.Obfuscate(clearPattern, dgg, tug, &obfuscatedPattern);
 	timeObf = TOC(t1);
 	PROFILELOG("Obfuscation time: " << "\t" << timeObf << " ms");
 
@@ -299,4 +310,6 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 
 	return (errorflag);
 }
+
+
 
