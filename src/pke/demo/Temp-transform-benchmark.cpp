@@ -21,7 +21,11 @@ using namespace lbcrypto;
 #include <iterator>
 
 typedef uint64_t BI;
+#if defined(_MSC_VER)
 typedef unsigned __int128 BBI;
+#else
+typedef __uint128_t BBI;
+#endif
 typedef std::vector<uint64_t> BV;
 
 inline BI mod_mul(BI a, BI b, BI m, BI d2){
@@ -262,7 +266,7 @@ int main() {
 
 	BigInteger modulusQ("9223372036589678593");
 	BigInteger rootOfUnity("5356268145311420142");
-	BigInteger delta(modulusQ.DividedBy(modulusP));
+	//BigInteger delta(modulusQ.DividedBy(modulusP));
 
 	uint64_t nRep;
 	double start, stop;

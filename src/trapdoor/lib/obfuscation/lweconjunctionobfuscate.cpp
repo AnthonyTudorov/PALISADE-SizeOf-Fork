@@ -647,7 +647,7 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 
 	usint l = obfuscatedPattern.GetLength();
 	//usint n = obfuscatedPattern.GetRingDimension();
-	typename Element::Integer q(obfuscatedPattern.GetModulus());
+	//typename Element::Integer q(obfuscatedPattern.GetModulus());
 	usint k = obfuscatedPattern.GetLogModulus();
 	usint base = obfuscatedPattern.GetBase();
 	usint m = ceil(k/log2(base)) + 2;

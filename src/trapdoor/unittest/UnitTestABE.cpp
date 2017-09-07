@@ -65,7 +65,7 @@ void UnitTestCPABE(int32_t base, usint k, usint ringDimension){
 	usint n = ringDimension*2;
 	usint ell = 4;
 
-	BigInteger q = BigInteger::ONE << (k-1);
+	BigInteger q = BigInteger(1) << (k-1);
 	q = lbcrypto::FirstPrime<BigInteger>(k,n);
 	BigInteger rootOfUnity(RootOfUnity(n, q));
 
@@ -190,7 +190,7 @@ void UnitTestKPABEBenchMarkCircuit(int32_t base, usint k, usint ringDimension){
 	usint n = ringDimension*2;   // cyclotomic order
 	usint ell = 2; // No of attributes
 
-	BigInteger q = BigInteger::ONE << (k-1);
+	BigInteger q = BigInteger(1) << (k-1);
 	q = lbcrypto::FirstPrime<BigInteger>(k,n);
 	BigInteger rootOfUnity(RootOfUnity(n, q));
 
@@ -276,7 +276,7 @@ void UnitTestKPABEBenchMarkCircuit(int32_t base, usint k, usint ringDimension){
 void UnitTestIBE(int32_t base, usint k, usint ringDimension){
 	usint n = ringDimension*2;
 
-	BigInteger q = BigInteger::ONE << (k-1);
+	BigInteger q = BigInteger(1) << (k-1);
 	q = lbcrypto::FirstPrime<BigInteger>(k,n);
 	BigInteger rootOfUnity(RootOfUnity(n, q));
 
@@ -339,7 +339,7 @@ void UnitTestKPABEANDGate(int32_t base, usint k, usint ringDimension){
 	usint n = ringDimension*2;
 	usint ell = 4; // No of attributes for AND gate
 
-	BigInteger q = BigInteger::ONE << (k-1);
+	BigInteger q = BigInteger(1) << (k-1);
 	q = lbcrypto::FirstPrime<BigInteger>(k,n);
 	BigInteger rootOfUnity(RootOfUnity(n, q));
 
@@ -421,7 +421,7 @@ void UnitTesKPABENANDGATE(int32_t base, usint k, usint ringDimension){
 	usint n = ringDimension*2;
 	usint ell = 2; // No of attributes for NAND gate
 
-	BigInteger q = BigInteger::ONE << (k-1);
+	BigInteger q = BigInteger(1) << (k-1);
 	q = lbcrypto::FirstPrime<BigInteger>(k,n);
 	BigInteger rootOfUnity(RootOfUnity(n, q));
 

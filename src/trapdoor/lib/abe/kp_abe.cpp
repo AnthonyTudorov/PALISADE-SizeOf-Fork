@@ -46,7 +46,7 @@ namespace lbcrypto {
 		usint ringDimesion = ilParams->GetCyclotomicOrder() >> 1;
 		usint m = k+2;
 		BigInteger q = ilParams->GetModulus();
-		auto big0 = BigInteger::ZERO;
+		auto big0 = BigInteger(0);
 		auto bigBase = BigInteger(base);
 		for(usint i=0; i<m; i++)
 			for(usint j=0; j<m; j++) {
