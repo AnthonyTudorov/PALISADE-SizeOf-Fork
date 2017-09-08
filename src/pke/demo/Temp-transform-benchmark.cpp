@@ -21,11 +21,7 @@ using namespace lbcrypto;
 #include <iterator>
 
 typedef uint64_t BI;
-#if defined(_MSC_VER)
 typedef unsigned __int128 BBI;
-#else
-typedef __uint128_t BBI;
-#endif
 typedef std::vector<uint64_t> BV;
 
 inline BI mod_mul(BI a, BI b, BI m, BI d2){
@@ -289,6 +285,16 @@ int main() {
 	stop = currentDateTime();
 	std::cout << " Ttran: " << (stop-start)/nRep << std::endl;
 
+
+	//nRep = 1000;
+	//ChineseRemainderTransformFTT<BigInteger,BigVector> &fft = ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance();
+	//start = currentDateTime();
+	//for(uint64_t n=0; n<nRep; n++){
+		//X = fft.ForwardTransform(x, rootOfUnity, m);
+	//}
+	//stop = currentDateTime();
+	//std::cout << " Ttran - Yuriy - using fft variable: " << (stop-start)/nRep << std::endl;
+
 	BigVector output;
 	start = currentDateTime();
 	for(uint64_t n=0; n<nRep; n++){
@@ -311,7 +317,7 @@ int main() {
 		output = precomputedTransform(10, modulusQ, x, rootOfUnityTable);
 	}
 	stop = currentDateTime();
-	std::cout << " Ttran_precomputed: " << (stop-start)/nRep << std::endl;
+	std::cout << " Ttran_precomputed - this is our target: " << (stop-start)/nRep << std::endl;
 	//std::cout << X << std::endl;
 	//std::cout << output << std::endl;
 
