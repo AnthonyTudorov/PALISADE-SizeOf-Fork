@@ -62,7 +62,7 @@ namespace lbcrypto {
 		* @param cycloOrder is the cyclotomic order.
 		* @return is the output result of the transform.
 		*/
-		static VecType ForwardTransformIterative(const VecType& element, const VecType& rootOfUnityTable, const usint cycloOrder);
+		static void ForwardTransformIterative(const VecType& element, const VecType& rootOfUnityTable, const usint cycloOrder, VecType *transform);
 
 		/**
 		* Inverse transform.
@@ -72,7 +72,7 @@ namespace lbcrypto {
 		* @param cycloOrder is the cyclotomic order.
 		* @return is the output result of the transform.
 		*/
-		static VecType InverseTransformIterative(const VecType& element, const VecType& rootOfUnityInverseTable, const usint cycloOrder);
+		static void InverseTransformIterative(const VecType& element, const VecType& rootOfUnityInverseTable, const usint cycloOrder, VecType *transform);
 	};
 
 	/**

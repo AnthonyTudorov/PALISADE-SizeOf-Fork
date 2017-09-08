@@ -91,16 +91,18 @@ std::complex<double>* DiscreteFourierTransform::rootOfUnityTable = 0;
 
 //Number Theoretic Transform - ITERATIVE IMPLEMENTATION -  twiddle factor table precomputed
 template<typename IntType, typename VecType>
-VecType NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(const VecType& element, const VecType &rootOfUnityTable, const usint cycloOrder) {
+void NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(const VecType& element, const VecType &rootOfUnityTable, const usint cycloOrder, VecType* result) {
         bool dbg_flag = false;
 	usint n = cycloOrder;
-	VecType result(n);
-	result.SetModulus(element.GetModulus());
+
+	if( result->GetLength() != n )
+		throw std::logic_error("result vector size needs to be == cyclotomic order");
+	result->SetModulus(element.GetModulus());
 
 	//reverse coefficients (bit reversal)
 	usint msb = GetMSB64(n - 1);
 	for (size_t i = 0; i < n; i++)
-		result.SetValAtIndex(i, element.GetValAtIndex(ReverseBits(i, msb)));
+		result->SetValAtIndex(i, element.GetValAtIndex(ReverseBits(i, msb)));
 
 	IntType omegaFactor;
 	IntType product;
@@ -133,36 +135,35 @@ VecType NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(con
 				usint indexEven = j + i;
 				usint indexOdd = j + i + m / 2;
 
-				if (result.GetValAtIndex(indexOdd).GetMSB()>0)
+				if (result->GetValAtIndex(indexOdd).GetMSB()>0)
 				{
 
-					if (result.GetValAtIndex(indexOdd).GetMSB() == 1)
+					if (result->GetValAtIndex(indexOdd).GetMSB() == 1)
 						omegaFactor = omega;
 					else
 					{
 #if !defined(NTL_SPEEDUP)
-						//omegaFactor = omega*result.GetValAtIndex(indexOdd);
-						//omegaFactor.ModBarrettInPlace(element.GetModulus(), mu);
-						omegaFactor = omega.ModBarrettMul(result.GetValAtIndex(indexOdd),element.GetModulus(), mu);
+
+						omegaFactor = omega.ModBarrettMul(result->GetValAtIndex(indexOdd),element.GetModulus(), mu);
 
 #else
-						omegaFactor = omega.ModMulFast(result.GetValAtIndex(indexOdd),modulus);
+						omegaFactor = omega.ModMulFast(result->GetValAtIndex(indexOdd),modulus);
 #endif
 						DEBUG("omegaFactor "<<omegaFactor);
 					}
 #if  !defined(NTL_SPEEDUP)
-					butterflyPlus = result.GetValAtIndex(indexEven);
+					butterflyPlus = result->GetValAtIndex(indexEven);
 					butterflyPlus += omegaFactor;
 					if (butterflyPlus >= element.GetModulus())
 						butterflyPlus -= element.GetModulus();
 
-					butterflyMinus = result.GetValAtIndex(indexEven);
-					if (result.GetValAtIndex(indexEven) < omegaFactor)
+					butterflyMinus = result->GetValAtIndex(indexEven);
+					if (result->GetValAtIndex(indexEven) < omegaFactor)
 						butterflyMinus += element.GetModulus();
 					butterflyMinus -= omegaFactor;
 
-					result.SetValAtIndex(indexEven, butterflyPlus);
-					result.SetValAtIndex(indexOdd, butterflyMinus);
+					result->SetValAtIndex(indexEven, butterflyPlus);
+					result->SetValAtIndex(indexOdd, butterflyMinus);
 #else
 					//result[indexOdd] = result[indexEven]-omegaFactor;
 					result[indexOdd] = result[indexEven].ModSubFast(omegaFactor,modulus);
@@ -179,37 +180,26 @@ VecType NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(con
 		}
 	}
 
-	return result;
+	return;
 
 }
 
 //Number Theoretic Transform - ITERATIVE IMPLEMENTATION -  twiddle factor table precomputed
 template<typename IntType, typename VecType>
-VecType NumberTheoreticTransform<IntType,VecType>::InverseTransformIterative(const VecType& element, const VecType& rootOfUnityInverseTable, const usint cycloOrder) {
+void NumberTheoreticTransform<IntType,VecType>::InverseTransformIterative(const VecType& element, const VecType& rootOfUnityInverseTable, const usint cycloOrder, VecType *ans) {
 
-	VecType ans = NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(element, rootOfUnityInverseTable, cycloOrder);
+	NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(element, rootOfUnityInverseTable, cycloOrder, ans);
 
-	ans.SetModulus(element.GetModulus());
+	ans->SetModulus(element.GetModulus());
 	//TODO:: note this could be stored
 #if !defined(NTL_SPEEDUP)
-	ans = ans.ModMul(IntType(cycloOrder).ModInverse(element.GetModulus()));
+	*ans = ans->ModMul(IntType(cycloOrder).ModInverse(element.GetModulus()));
 #else
-	ans *= (IntType(cycloOrder).ModInverse(element.GetModulus()));
+	*ans *= (IntType(cycloOrder).ModInverse(element.GetModulus()));
 #endif
 
-	return ans;
+	return;
 }
-
-//template<typename IntType, typename VecType>
-//void NumberTheoreticTransform<IntType,VecType>::SetElement(const VecType &element) {
-//	m_element = &element;
-//}
-//
-//template<typename IntType, typename VecType>
-//void NumberTheoreticTransform<IntType,VecType>::Destroy() {
-//	if( m_element != NULL ) delete m_element;
-//	m_element = NULL;
-//}
 
 //main CRT Transform - uses iterative FFT as a subroutine
 //includes precomputation of twidle factor table
@@ -358,7 +348,7 @@ VecType ChineseRemainderTransformFTT<IntType,VecType>::ForwardTransform(const Ve
 		}
 	}
 
-	VecType OpFFT;
+	VecType OpFFT(CycloOrder / 2);
 	VecType InputToFFT(element);
 
 	usint ringDimensionFactor = rootOfUnityTable->GetLength() / (CycloOrder / 2);
@@ -372,7 +362,7 @@ VecType ChineseRemainderTransformFTT<IntType,VecType>::ForwardTransform(const Ve
 #endif
 
 
-	OpFFT = NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(InputToFFT, *rootOfUnityTable, CycloOrder / 2);
+	NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(InputToFFT, *rootOfUnityTable, CycloOrder / 2, &OpFFT);
 
 	return OpFFT;
 }
@@ -441,8 +431,8 @@ VecType ChineseRemainderTransformFTT<IntType,VecType>::InverseTransform(const Ve
 		}
 	}
 
-	VecType OpIFFT;
-	OpIFFT = NumberTheoreticTransform<IntType,VecType>::InverseTransformIterative(element, *rootOfUnityITable, CycloOrder / 2);
+	VecType OpIFFT(CycloOrder/2);
+	NumberTheoreticTransform<IntType,VecType>::InverseTransformIterative(element, *rootOfUnityITable, CycloOrder / 2, &OpIFFT);
 
 	usint ringDimensionFactor = rootOfUnityITable->GetLength() / (CycloOrder / 2);
 
@@ -781,7 +771,8 @@ void ChineseRemainderTransform<IntType,VecType>::Reset() {
 		auto Rb = PadZeros(b, nttDim);
 		Rb.SetModulus(nttModulus);
 
-		auto RB = NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(Rb, rootTable, nttDim);
+		VecType RB(nttDim);
+		NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(Rb, rootTable, nttDim, &RB);
 		m_RBTableByModulusRootPair[modulusRootPair] = std::move(RB);
 
 	}
@@ -815,13 +806,15 @@ void ChineseRemainderTransform<IntType,VecType>::Reset() {
 		usint nttDim = pow(2, ceil(log2(2 * cycloOrder - 1)));
 		auto Ra = PadZeros(x, nttDim);
 		Ra.SetModulus(nttModulus);
-		auto RA = NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(Ra, rootTable, nttDim);
+		VecType RA(nttDim);
+		NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(Ra, rootTable, nttDim, &RA);
 
 		const ModulusRootPair<IntType> modulusRootPair = {modulusRoot, nttModulusRoot};
 		const auto &RB = m_RBTableByModulusRootPair[modulusRootPair];
 
 		auto RC = RA*RB;
-		auto Rc = NumberTheoreticTransform<IntType,VecType>::InverseTransformIterative(RC, rootTableInverse, nttDim);
+		VecType Rc(nttDim);
+		NumberTheoreticTransform<IntType,VecType>::InverseTransformIterative(RC, rootTableInverse, nttDim, &Rc);
 		auto resizeRc = Resize(Rc, cycloOrder - 1, 2 * (cycloOrder - 1));
 		resizeRc.SetModulus(modulus);
 
@@ -931,21 +924,21 @@ void ChineseRemainderTransform<IntType,VecType>::Reset() {
 		//std::cout << RevCPMPadded << std::endl;
 		//end of part1
 
-		auto RA = NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(RevCPMPadded, rootTable, nttDim);
+		VecType RA(nttDim);
+		NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(RevCPMPadded, rootTable, nttDim, &RA);
 		m_cyclotomicPolyReverseNTTMap[modulus] = std::move(RA);
 
 		const auto &cycloPoly = m_cyclotomicPolyMap[modulus];
 
-		VecType QForwardTansform(nttDim, nttMod);
+		VecType QForwardTransform(nttDim, nttMod);
 		for (usint i = 0; i < cycloPoly.GetLength(); i++) {
-			QForwardTansform.SetValAtIndex(i, cycloPoly.GetValAtIndex(i));
+			QForwardTransform.SetValAtIndex(i, cycloPoly.GetValAtIndex(i));
 		}
 
-		QForwardTansform = NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(QForwardTansform, rootTable, nttDim);
+		VecType QFwdResult(nttDim);
+		NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(QForwardTransform, rootTable, nttDim, &QFwdResult);
 
-		m_cyclotomicPolyNTTMap[modulus] = std::move(QForwardTansform);
-
-		//ChineseRemainderTransformArb<IntType, VecType>::SetRootTableForNTTDivision(cyclotoOrder, modulus, nttMod, nttRoot);
+		m_cyclotomicPolyNTTMap[modulus] = std::move(QFwdResult);
 	}
 
 	template<typename IntType, typename VecType>
@@ -1190,10 +1183,12 @@ void ChineseRemainderTransform<IntType,VecType>::Reset() {
 
 		//std::cout << aPadded2 << std::endl;
 
-		auto A = NumberTheoreticTransform<IntType, VecType>::GetInstance().ForwardTransformIterative(aPadded2, rootTable, m_nttDivisionDim[cycloOrder]);
+		VecType A(m_nttDivisionDim[cycloOrder]);
+		NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(aPadded2, rootTable, m_nttDivisionDim[cycloOrder], &A);
 		auto AB = A*m_cyclotomicPolyReverseNTTMap[modulus];
 		const auto &rootTableInverse = m_rootOfUnityDivisionInverseTableByModulus[nttMod];
-		auto a = NumberTheoreticTransform<IntType, VecType>::GetInstance().InverseTransformIterative(AB, rootTableInverse, m_nttDivisionDim[cycloOrder]);
+		VecType a(m_nttDivisionDim[cycloOrder]);
+		NumberTheoreticTransform<IntType,VecType>::InverseTransformIterative(AB, rootTableInverse, m_nttDivisionDim[cycloOrder], &a);
 
 		VecType quotient(m_nttDivisionDim[cycloOrder], modulus);
 		for (usint i = 0; i < power; i++) {
@@ -1202,20 +1197,22 @@ void ChineseRemainderTransform<IntType,VecType>::Reset() {
 		quotient = quotient.Mod(modulus);
 		quotient.SetModulus(nttMod);
 
-		quotient = NumberTheoreticTransform<IntType, VecType>::GetInstance().ForwardTransformIterative(quotient, rootTable, m_nttDivisionDim[cycloOrder]);
+		VecType newQuotient(m_nttDivisionDim[cycloOrder]);
+		NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(quotient, rootTable, m_nttDivisionDim[cycloOrder], &newQuotient);
 
-		quotient = quotient*m_cyclotomicPolyNTTMap[modulus];
+		newQuotient = newQuotient*m_cyclotomicPolyNTTMap[modulus];
 
-		quotient = NumberTheoreticTransform<IntType, VecType>::GetInstance().InverseTransformIterative(quotient, rootTableInverse, m_nttDivisionDim[cycloOrder]);
-		quotient.SetModulus(modulus);
-		quotient = quotient.Mod(modulus);
+		VecType newQuotient2(m_nttDivisionDim[cycloOrder]);
+		NumberTheoreticTransform<IntType,VecType>::InverseTransformIterative(newQuotient, rootTableInverse, m_nttDivisionDim[cycloOrder], &newQuotient2);
+		newQuotient2.SetModulus(modulus);
+		newQuotient2 = newQuotient2.Mod(modulus);
 
 #if !defined(NTL_SPEEDUP)
 		//Precompute the Barrett mu parameter
 		IntType mu = ComputeMu<IntType>(modulus);
 
 		for (usint i = 0; i < n; i++) {
-					output.SetValAtIndex(i, element.GetValAtIndex(i).ModBarrettSub(quotient.GetValAtIndex(cycloOrder - 1 - i), modulus, mu));
+			output.SetValAtIndex(i, element.GetValAtIndex(i).ModBarrettSub(quotient.GetValAtIndex(cycloOrder - 1 - i), modulus, mu));
 		}
 #else
 		for (usint i = 0; i < n; i++) {
