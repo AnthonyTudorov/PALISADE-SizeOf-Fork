@@ -79,12 +79,15 @@ TEST(UTTransform, CRT_polynomial_multiplication){
 	a.SetValAtIndex(3, "1");
 	BigVector b(a);
 
-	BigVector A = ChineseRemainderTransformFTT<BigInteger,BigVector>::ForwardTransform(a, primitiveRootOfUnity, cycloOrder);
-	BigVector B = ChineseRemainderTransformFTT<BigInteger,BigVector>::ForwardTransform(b, primitiveRootOfUnity, cycloOrder);
+	BigVector A(cycloOrder/2);
+	ChineseRemainderTransformFTT<BigInteger,BigVector>::ForwardTransform(a, primitiveRootOfUnity, cycloOrder, &A);
+	BigVector B(cycloOrder/2);
+	ChineseRemainderTransformFTT<BigInteger,BigVector>::ForwardTransform(b, primitiveRootOfUnity, cycloOrder, &B);
 
 	BigVector AB = A*B;
 
-	BigVector InverseFFTAB = ChineseRemainderTransformFTT<BigInteger,BigVector>::InverseTransform(AB, primitiveRootOfUnity, cycloOrder);
+	BigVector InverseFFTAB(cycloOrder/2);
+	ChineseRemainderTransformFTT<BigInteger,BigVector>::InverseTransform(AB, primitiveRootOfUnity, cycloOrder, &InverseFFTAB);
 
 	BigVector expectedResult(n, primeModulus);
 	expectedResult.SetValAtIndex(0, "94");

@@ -96,7 +96,7 @@ void NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(const 
 	usint n = cycloOrder;
 
 	if( result->GetLength() != n )
-		throw std::logic_error("result vector size needs to be == cyclotomic order");
+		throw std::logic_error("Vector for NumberTheoreticTransform::ForwardTransformIterative size needs to be == cyclotomic order");
 	result->SetModulus(element.GetModulus());
 
 	//reverse coefficients (bit reversal)
@@ -172,8 +172,7 @@ void NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(const 
 #endif
 				}
 				else
-				  //result.SetValAtIndex(indexOdd, result.GetValAtIndex(indexEven));
-				  result[indexOdd] = result[indexEven];
+				  (*result)[indexOdd] = (*result)[indexEven];
 
 			}
 
@@ -204,7 +203,17 @@ void NumberTheoreticTransform<IntType,VecType>::InverseTransformIterative(const 
 //main CRT Transform - uses iterative FFT as a subroutine
 //includes precomputation of twidle factor table
 template<typename IntType, typename VecType>
-VecType ChineseRemainderTransform<IntType,VecType>::ForwardTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder) {
+void ChineseRemainderTransform<IntType,VecType>::ForwardTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder, VecType *ans) {
+
+	if( ans->GetLength() != CycloOrder/2 )
+		throw std::logic_error("Vector for ChineseRemainderTransform::ForwardTransform size must be == CyclotomicOrder/2");
+
+	if (!IsPowerOfTwo(CycloOrder)) {
+		throw std::logic_error("CyclotomicOrder for ChineseRemainderTransform::ForwardTransform is not a power of two");
+	}
+
+	if (!IsPowerOfTwo(element.GetLength()))
+		throw std::logic_error("Input to ChineseRemainderTransform::ForwardTransform length is not a power of two");
 
 #pragma omp critical
 	if (m_rootOfUnityTable == NULL) {
@@ -220,43 +229,32 @@ VecType ChineseRemainderTransform<IntType,VecType>::ForwardTransform(const VecTy
 
 	}
 
-	if (!IsPowerOfTwo(CycloOrder)) {
-		std::cout << "Error in the FFT operation\n\n";
-		exit(-10);
-	}
-
-	VecType OpFFT;
+	VecType OpFFT(CycloOrder);
 	VecType InputToFFT = ZeroPadForward(element, CycloOrder);
 
-	if (!IsPowerOfTwo(element.GetLength())) {
-		std::cout << "Input to FFT is not a power of two\n ERROR BEFORE FFT\n";
-		OpFFT = NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(InputToFFT, *m_rootOfUnityTable, CycloOrder);
-	}
-	else {
-		OpFFT = NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(InputToFFT, *m_rootOfUnityTable, CycloOrder);
-	}
-
-	VecType ans(CycloOrder / 2);
+	NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(InputToFFT, *m_rootOfUnityTable, CycloOrder, &OpFFT);
 
 	for (usint i = 0; i<CycloOrder / 2; i++)
-		ans.SetValAtIndex(i, OpFFT.GetValAtIndex(2 * i + 1));
+		ans->SetValAtIndex(i, OpFFT.GetValAtIndex(2 * i + 1));
 
-	ans.SetModulus(OpFFT.GetModulus());
+	ans->SetModulus(OpFFT.GetModulus());
 
-	return ans;
+	return;
 }
 
 //main CRT Transform - uses iterative FFT as a subroutine
 //includes precomputation of inverse twidle factor table
 template<typename IntType, typename VecType>
-VecType ChineseRemainderTransform<IntType,VecType>::InverseTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder) {
+void ChineseRemainderTransform<IntType,VecType>::InverseTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder, VecType *ans) {
 
 	IntType rootOfUnityInverse = rootOfUnity.ModInverse(element.GetModulus());
 
 	if (!IsPowerOfTwo(CycloOrder)) {
-		std::cout << "Error in the FFT operation\n\n";
-		exit(-10);
+		throw std::logic_error("CyclotomicOrder for ChineseRemainderTransform::InverseTransform is not a power of two");
 	}
+
+	if (!IsPowerOfTwo(element.GetLength()))
+		throw std::logic_error("Input to ChineseRemainderTransform::InverseTransform length is not a power of two");
 
 #pragma omp critical
 	if (m_rootOfUnityInverseTable == NULL) {
@@ -272,41 +270,39 @@ VecType ChineseRemainderTransform<IntType,VecType>::InverseTransform(const VecTy
 
 	}
 
-	VecType OpIFFT;
+	VecType OpIFFT(CycloOrder);
 	VecType InputToFFT = ZeroPadInverse(element, CycloOrder);
 
-	if (!IsPowerOfTwo(element.GetLength())) {
-		std::cout << "Input to IFFT is not a power of two\n ERROR BEFORE FFT\n";
-		//HERE IS WHERE WE NEED ADD additional table of modinverse etc.
+//	if (!IsPowerOfTwo(element.GetLength())) {
+//		//HERE IS WHERE WE NEED ADD additional table of modinverse etc.
+//		OpIFFT = NumberTheoreticTransform<IntType,VecType>::InverseTransformIterative(InputToFFT, *m_rootOfUnityInverseTable, CycloOrder);
+//	}
+//	else {
 		OpIFFT = NumberTheoreticTransform<IntType,VecType>::InverseTransformIterative(InputToFFT, *m_rootOfUnityInverseTable, CycloOrder);
-	}
-	else {
-		OpIFFT = NumberTheoreticTransform<IntType,VecType>::InverseTransformIterative(InputToFFT, *m_rootOfUnityInverseTable, CycloOrder);
-	}
+//	}
 
-	VecType ans(CycloOrder / 2);
 	//TODO:: can this be done quicker?
 	for (usint i = 0; i<CycloOrder / 2; i++)
-		ans.SetValAtIndex(i, (OpIFFT).GetValAtIndex(i).ModMul(IntType::TWO, (OpIFFT).GetModulus()));
+		ans->SetValAtIndex(i, (OpIFFT).GetValAtIndex(i).ModMul(IntType::TWO, (OpIFFT).GetModulus()));
 
-	ans.SetModulus(OpIFFT.GetModulus());
+	ans->SetModulus(OpIFFT.GetModulus());
 
-	return ans;
+	return;
 }
 
 //main Forward CRT Transform - implements FTT - uses iterative NTT as a subroutine
 //includes precomputation of twidle factor table
 template<typename IntType, typename VecType>
-VecType ChineseRemainderTransformFTT<IntType,VecType>::ForwardTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder) {
-	std::string errMsg;
-	if (rootOfUnity == 1 || rootOfUnity == 0) {
-		errMsg = "Root of unity cannot be zero or one to perform a forward transform";
-		throw std::logic_error(errMsg);
-	}
-	if (!IsPowerOfTwo(CycloOrder)) {
-		errMsg = "cyclotomic order must be a power of 2 to perform a forward transform";
-		throw std::logic_error(errMsg);
-	}
+void ChineseRemainderTransformFTT<IntType,VecType>::ForwardTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder, VecType *OpFFT) {
+
+	if( OpFFT->GetLength() != CycloOrder/2 )
+		throw std::logic_error("Vector for ChineseRemainderTransformFTT::ForwardTransform size must be == CyclotomicOrder/2");
+
+	if (rootOfUnity == 1 || rootOfUnity == 0)
+		throw std::logic_error("Root of unity for ChineseRemainderTransformFTT::ForwardTransform cannot be zero or one");
+
+	if (!IsPowerOfTwo(CycloOrder))
+		throw std::logic_error("CyclotomicOrder for ChineseRemainderTransformFTT::ForwardTransform is not a power of two");
 
 
 #if !defined(NTL_SPEEDUP)
@@ -348,7 +344,6 @@ VecType ChineseRemainderTransformFTT<IntType,VecType>::ForwardTransform(const Ve
 		}
 	}
 
-	VecType OpFFT(CycloOrder / 2);
 	VecType InputToFFT(element);
 
 	usint ringDimensionFactor = rootOfUnityTable->GetLength() / (CycloOrder / 2);
@@ -362,24 +357,25 @@ VecType ChineseRemainderTransformFTT<IntType,VecType>::ForwardTransform(const Ve
 #endif
 
 
-	NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(InputToFFT, *rootOfUnityTable, CycloOrder / 2, &OpFFT);
+	NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(InputToFFT, *rootOfUnityTable, CycloOrder / 2, OpFFT);
 
-	return OpFFT;
+	return;
 }
 
 //main Inverse CRT Transform - implements FTT - uses iterative NTT as a subroutine
 //includes precomputation of inverse twidle factor table
 template<typename IntType, typename VecType>
-VecType ChineseRemainderTransformFTT<IntType,VecType>::InverseTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder) {
-	std::string errMsg;
-	if (rootOfUnity == 1 || rootOfUnity == 0) {
-		errMsg = "Root of unity cannot be zero or one to perform an inverse transform";
-		throw std::logic_error(errMsg);
-	}
-	if (!IsPowerOfTwo(CycloOrder)) {
-		errMsg = "cyclotomic order must be a power of 2 to perform an inverse transform";
-		throw std::logic_error(errMsg);
-	}
+void ChineseRemainderTransformFTT<IntType,VecType>::InverseTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder, VecType *OpIFFT) {
+
+	if( OpIFFT->GetLength() != CycloOrder/2 )
+		throw std::logic_error("Vector for ChineseRemainderTransformFTT::InverseTransform size must be == CyclotomicOrder/2");
+
+	if (rootOfUnity == 1 || rootOfUnity == 0)
+		throw std::logic_error("Root of unity for ChineseRemainderTransformFTT::InverseTransform cannot be zero or one");
+
+	if (!IsPowerOfTwo(CycloOrder))
+		throw std::logic_error("CyclotomicOrder for ChineseRemainderTransformFTT::InverseTransform is not a power of two");
+
 
 #if !defined(NTL_SPEEDUP)
 	//Precompute the Barrett mu parameter
@@ -394,8 +390,7 @@ VecType ChineseRemainderTransformFTT<IntType,VecType>::InverseTransform(const Ve
 		rootofUnityInverse = rootOfUnity.ModInverse(element.GetModulus());
 	}
 	catch (std::exception& e) {
-		errMsg = std::string(e.what()) + ": rootOfUnity " + rootOfUnity.ToString() + " has no inverse";
-		throw std::logic_error(errMsg);
+		throw std::logic_error(std::string(e.what()) + ": rootOfUnity " + rootOfUnity.ToString() + " has no inverse");
 	}
 
 	// check to see if the modulus is in the table
@@ -431,8 +426,7 @@ VecType ChineseRemainderTransformFTT<IntType,VecType>::InverseTransform(const Ve
 		}
 	}
 
-	VecType OpIFFT(CycloOrder/2);
-	NumberTheoreticTransform<IntType,VecType>::InverseTransformIterative(element, *rootOfUnityITable, CycloOrder / 2, &OpIFFT);
+	NumberTheoreticTransform<IntType,VecType>::InverseTransformIterative(element, *rootOfUnityITable, CycloOrder / 2, OpIFFT);
 
 	usint ringDimensionFactor = rootOfUnityITable->GetLength() / (CycloOrder / 2);
 
@@ -441,9 +435,9 @@ VecType ChineseRemainderTransformFTT<IntType,VecType>::InverseTransform(const Ve
 #if defined(NTL_SPEEDUP)
 		OpIFFT[i] =  OpIFFT[i].ModMul(rInvTable[i*ringDimensionFactor], element.GetModulus());
 #else
-		OpIFFT.SetValAtIndex(i, OpIFFT.GetValAtIndex(i).ModBarrettMul(rInvTable.GetValAtIndex(i*ringDimensionFactor), element.GetModulus(), mu));
+		OpIFFT->SetValAtIndex(i, OpIFFT->GetValAtIndex(i).ModBarrettMul(rInvTable.GetValAtIndex(i*ringDimensionFactor), element.GetModulus(), mu));
 #endif
-	return OpIFFT;
+	return;
 }
 
 template<typename IntType, typename VecType>

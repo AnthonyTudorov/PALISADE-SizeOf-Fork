@@ -748,37 +748,36 @@ void PolyImpl<ModType,IntType,VecType,ParmType>::SwitchModulus(const IntType &mo
 void PolyImpl<ModType,IntType,VecType,ParmType>::SwitchFormat()
 {
 
-	       bool dbg_flag = false;
+		bool dbg_flag = false;
 		if (m_values == nullptr) {
-		  std::string errMsg = "Poly switch format to empty values";
-		  throw std::runtime_error(errMsg);
+			std::string errMsg = "Poly switch format to empty values";
+			throw std::runtime_error(errMsg);
 		}
 
 		if (m_params->OrderIsPowerOfTwo() == false ) {
 			ArbitrarySwitchFormat();
 			return;
 		}
-    
+
+		VecType newValues(m_params->GetCyclotomicOrder()/ 2);
+
 		if (m_format == COEFFICIENT) {
 			m_format = EVALUATION;
-			//todo:: does this have an extra copy? 
+
 			DEBUG("transform to evaluation m_values was"<< *m_values);						  
 
-			m_values = make_unique<VecType>(ChineseRemainderTransformFTT<IntType,VecType>::
-							ForwardTransform(*m_values, m_params->GetRootOfUnity(),
-									  m_params->GetCyclotomicOrder()));
-			DEBUG("m_values now "<< *m_values);						  
-	} else {
+			ChineseRemainderTransformFTT<IntType,VecType>::ForwardTransform(*m_values, m_params->GetRootOfUnity(), m_params->GetCyclotomicOrder(), &newValues);
+			DEBUG("m_values now "<< newValues);
+		} else {
 			m_format = COEFFICIENT;
 			DEBUG("transform to coefficient m_values was"<< *m_values);						  
 
-			m_values = make_unique<VecType>(ChineseRemainderTransformFTT<IntType,VecType>::
-							InverseTransform(*m_values, m_params->GetRootOfUnity(),
-									  m_params->GetCyclotomicOrder()));
-			DEBUG("m_values now "<< *m_values);						  
-
+			ChineseRemainderTransformFTT<IntType,VecType>::InverseTransform(*m_values, m_params->GetRootOfUnity(), m_params->GetCyclotomicOrder(), &newValues);
+			DEBUG("m_values now "<< newValues);
 		}
-	}
+
+		*m_values = newValues;
+}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 void PolyImpl<ModType,IntType,VecType,ParmType>::ArbitrarySwitchFormat()

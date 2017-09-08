@@ -260,11 +260,11 @@ namespace lbcrypto {
 				for (usint i = 0; i < phim; i++) {
 					permutedSlots.SetValAtIndex(i, slotValues.GetValAtIndex(m_toCRTPerm[modulusNI][i]));
 				}
-				slotValues = ChineseRemainderTransformFTT<native_int::BigInteger, native_int::BigVector>::InverseTransform(permutedSlots, m_initRoot[modulusNI], m);
+				ChineseRemainderTransformFTT<native_int::BigInteger, native_int::BigVector>::InverseTransform(permutedSlots, m_initRoot[modulusNI], m, &slotValues);
 			}
 			else
 			{
-				slotValues = ChineseRemainderTransformFTT<native_int::BigInteger, native_int::BigVector>::InverseTransform(slotValues, m_initRoot[modulusNI], m);
+				ChineseRemainderTransformFTT<native_int::BigInteger, native_int::BigVector>::InverseTransform(slotValues, m_initRoot[modulusNI], m, &slotValues);
 			}
 
 		} else { // Arbitrary cyclotomic
@@ -309,7 +309,7 @@ namespace lbcrypto {
 		// Transform Coeff to Eval
 		native_int::BigVector permutedSlots(phim, modulusNI);
 		if (!(m & (m-1))) { // Check if m is a power of 2
-			permutedSlots = ChineseRemainderTransformFTT<native_int::BigInteger, native_int::BigVector>::ForwardTransform(packedVector, m_initRoot[modulusNI], m);
+			ChineseRemainderTransformFTT<native_int::BigInteger, native_int::BigVector>::ForwardTransform(packedVector, m_initRoot[modulusNI], m, &permutedSlots);
 		} else { // Arbitrary cyclotomic
 			permutedSlots = ChineseRemainderTransformArb<native_int::BigInteger, native_int::BigVector>::
 					ForwardTransform(packedVector, m_initRoot[modulusNI], m_bigModulus[modulusNI], m_bigRoot[modulusNI], m);

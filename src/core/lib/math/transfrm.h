@@ -90,7 +90,7 @@ namespace lbcrypto {
 		* @param CycloOrder is the cyclotomic order.
 		* @return is the output result of the transform.
 		*/
-		static VecType ForwardTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder);
+		static void ForwardTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder, VecType *transform);
 
 		/**
 		* Virtual inverse transform.
@@ -100,7 +100,7 @@ namespace lbcrypto {
 		* @param CycloOrder is the cyclotomic order.
 		* @return is the output result of the inverse transform.
 		*/
-		static VecType InverseTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder);
+		static void InverseTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder, VecType *transform);
 
 		/**
 		* Reset cached values for the transform to empty.
@@ -127,7 +127,7 @@ namespace lbcrypto {
 		* @param CycloOrder is the cyclotomic order.
 		* @return is the output result of the transform.
 		*/
-		static VecType ForwardTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder);
+		static void ForwardTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder, VecType *transform);
 
 		/**
 		* Virtual inverse transform.
@@ -137,7 +137,7 @@ namespace lbcrypto {
 		* @param CycloOrder is the cyclotomic order.
 		* @return is the output result of the inverse transform.
 		*/
-		static VecType InverseTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder);
+		static void InverseTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder, VecType *transform);
 
 		/**
 		* Precomputation of root of unity tables.

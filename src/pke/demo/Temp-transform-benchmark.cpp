@@ -271,29 +271,19 @@ int main() {
 	for(usint i=0; i<phim; i++){
 		x.SetValAtIndex(i, BigInteger(i));
 	}
-	BigVector X, xx;
-	X = ChineseRemainderTransformFTT<BigInteger,BigVector>::ForwardTransform(x, rootOfUnity, m);
-	xx = ChineseRemainderTransformFTT<BigInteger,BigVector>::InverseTransform(X, rootOfUnity, m);
+	BigVector X(m/2), xx(m/2);
+	ChineseRemainderTransformFTT<BigInteger,BigVector>::ForwardTransform(x, rootOfUnity, m, &X);
+	ChineseRemainderTransformFTT<BigInteger,BigVector>::InverseTransform(X, rootOfUnity, m, &xx);
 	//std::cout << X << std::endl;
 	//std::cout << xx << std::endl;
 
 	nRep = 1000;
 	start = currentDateTime();
 	for(uint64_t n=0; n<nRep; n++){
-		X = ChineseRemainderTransformFTT<BigInteger,BigVector>::ForwardTransform(x, rootOfUnity, m);
+		ChineseRemainderTransformFTT<BigInteger,BigVector>::ForwardTransform(x, rootOfUnity, m, &X);
 	}
 	stop = currentDateTime();
 	std::cout << " Ttran: " << (stop-start)/nRep << std::endl;
-
-
-	//nRep = 1000;
-	//ChineseRemainderTransformFTT<BigInteger,BigVector> &fft = ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance();
-	//start = currentDateTime();
-	//for(uint64_t n=0; n<nRep; n++){
-		//X = fft.ForwardTransform(x, rootOfUnity, m);
-	//}
-	//stop = currentDateTime();
-	//std::cout << " Ttran - Yuriy - using fft variable: " << (stop-start)/nRep << std::endl;
 
 	BigVector output;
 	start = currentDateTime();
