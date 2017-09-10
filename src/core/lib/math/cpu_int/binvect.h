@@ -299,14 +299,14 @@ public:
 	 *
 	 * @return the vector modulus.
 	 */
-	const IntegerType& GetModulus() const;
+	const IntegerType& GetModulus() const { return this->m_modulus; }
 
 	/**
 	 * Gets the vector length.
 	 *
 	 * @return vector length.
 	 */
-	usint GetLength() const;
+	usint GetLength() const { return this->m_length; }
 	
 	//METHODS
 

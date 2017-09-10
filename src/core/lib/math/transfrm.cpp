@@ -95,9 +95,11 @@ void NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(const 
         bool dbg_flag = false;
 	usint n = cycloOrder;
 
+	auto modulus = element.GetModulus();
+
 	if( result->GetLength() != n )
 		throw std::logic_error("Vector for NumberTheoreticTransform::ForwardTransformIterative size needs to be == cyclotomic order");
-	result->SetModulus(element.GetModulus());
+	result->SetModulus(modulus);
 
 	//reverse coefficients (bit reversal)
 	usint msb = GetMSB64(n - 1);
@@ -112,6 +114,8 @@ void NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(const 
 		  that was generated originally and the cyclotomic order of the current VecType. The twiddle table
 		  for lower cyclotomic orders is smaller. This trick only works for powers of two cyclotomics.*/ 
 	float ringDimensionFactor = ((float)rootOfUnityTable.GetLength()) / (float)cycloOrder;
+	DEBUG("table size " << rootOfUnityTable.GetLength());
+	DEBUG("ring dimension factor " << ringDimensionFactor);
 
 	//YSP mu is not needed for native data types or BE 6
 #if !defined(NTL_SPEEDUP)
@@ -122,23 +126,23 @@ void NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(const 
 #endif
 	for (usint m = 2; m <= n; m = 2 * m)
 	{
-
 		for (usint j = 0; j<n; j = j + m)
 		{
 			for (usint i = 0; i <= m / 2 - 1; i++)
 			{
-
 				usint x = (2 * i*n / m ) * ringDimensionFactor;
 
 				const IntType& omega = rootOfUnityTable.GetValAtIndex(x);
 
 				usint indexEven = j + i;
 				usint indexOdd = j + i + m / 2;
+				auto oddVal = result->GetValAtIndex(indexOdd);
+				auto oddMSB = oddVal.GetMSB();
+				auto evenVal = result->GetValAtIndex(indexEven);
 
-				if (result->GetValAtIndex(indexOdd).GetMSB()>0)
+				if (oddMSB > 0)
 				{
-
-					if (result->GetValAtIndex(indexOdd).GetMSB() == 1)
+					if (oddMSB == 1)
 						omegaFactor = omega;
 					else
 					{
@@ -151,15 +155,16 @@ void NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(const 
 #endif
 						DEBUG("omegaFactor "<<omegaFactor);
 					}
-#if  !defined(NTL_SPEEDUP)
-					butterflyPlus = result->GetValAtIndex(indexEven);
-					butterflyPlus += omegaFactor;
-					if (butterflyPlus >= element.GetModulus())
-						butterflyPlus -= element.GetModulus();
 
-					butterflyMinus = result->GetValAtIndex(indexEven);
-					if (result->GetValAtIndex(indexEven) < omegaFactor)
-						butterflyMinus += element.GetModulus();
+#if !defined(NTL_SPEEDUP)
+					butterflyPlus = evenVal;
+					butterflyPlus += omegaFactor;
+					if (butterflyPlus >= modulus)
+						butterflyPlus -= modulus;
+
+					butterflyMinus = evenVal;
+					if (evenVal < omegaFactor)
+						butterflyMinus += modulus;
 					butterflyMinus -= omegaFactor;
 
 					result->SetValAtIndex(indexEven, butterflyPlus);
@@ -173,9 +178,7 @@ void NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(const 
 				}
 				else
 				  (*result)[indexOdd] = (*result)[indexEven];
-
 			}
-
 		}
 	}
 

@@ -251,18 +251,18 @@ void BigVectorImpl<IntegerType>::SwitchModulus(const IntegerType& newModulus) {
 
 }
 
-template<class IntegerType>
-const IntegerType& BigVectorImpl<IntegerType>::GetModulus() const{
-
-	return this->m_modulus;
-
-}
-
-
-template<class IntegerType>
-usint BigVectorImpl<IntegerType>::GetLength() const{
-	return this->m_length;
-}
+//template<class IntegerType>
+//const IntegerType& BigVectorImpl<IntegerType>::GetModulus() const{
+//
+//	return this->m_modulus;
+//
+//}
+//
+//
+//template<class IntegerType>
+//usint BigVectorImpl<IntegerType>::GetLength() const{
+//	return this->m_length;
+//}
 
 template<class IntegerType>
 BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::Mod(const IntegerType& modulus) const{
