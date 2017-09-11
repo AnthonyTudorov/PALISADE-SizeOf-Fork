@@ -191,7 +191,6 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 
 	//Precomputations for DGG
 	TIC(t1);
-	Poly::PreComputeDggSamples(dgg, ilParams);
 	timeDGGSetup = TOC(t1);
 	PROFILELOG("DGG Precomputation time: " << "\t" << timeDGGSetup << " ms");
 
@@ -303,7 +302,6 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 		std::cout << "SUCCESS " << std::endl;
 	}
 
-	Poly::DestroyPreComputedSamples();
 	DiscreteFourierTransform::GetInstance().Destroy();
 
 	return (errorflag);
