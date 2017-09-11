@@ -47,10 +47,10 @@ namespace pycrypto {
 
 		// Create the noise generator
 		double stdDev = lbcrypto::SIGMA;
-		lbcrypto::DiscreteGaussianGenerator dgg(stdDev);	
+		typename lbcrypto::DCRTPoly::DggType dgg(stdDev);	
 
 		// Create the ternary uniform distribution generator
-		lbcrypto::TernaryUniformGenerator tug;
+		typename lbcrypto::DCRTPoly::TugType tug;
 		
 		// Parameter generation
 		std::cout << "Started parameter generation..." << std::endl;

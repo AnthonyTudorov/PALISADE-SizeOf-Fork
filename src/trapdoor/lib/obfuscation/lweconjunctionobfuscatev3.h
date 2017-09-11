@@ -434,7 +434,7 @@ namespace lbcrypto {
 			* @param &q estimated value of modulus (based on correctness & security constraints)
 			* @param &n estimated ring dimension (based on correctness & security constraints).
 			*/
-			shared_ptr<typename Element::Params> GenerateElemParams(double q, uint32_t n) const;
+			inline shared_ptr<typename Element::Params> GenerateElemParams(double q, uint32_t n) const;
 
 	};
 
