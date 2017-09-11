@@ -276,7 +276,7 @@ namespace lbcrypto {
 		// Interpolation is needed in the case of Double-CRT interpolation, for example, DCRTPoly
 		// CRTInterpolate does nothing when dealing with single-CRT ring elements, such as Poly
 		Poly interpolatedElement = b.CRTInterpolate();
-		*plaintext = interpolatedElement.SignedMod(p);
+		*plaintext = interpolatedElement.Mod(p);
 
 		return DecryptResult(plaintext->GetLength());
 	}
@@ -762,7 +762,7 @@ DecryptResult LPAlgorithmMultipartyBV<Element>::MultipartyDecryptFusion(const ve
 	// Interpolation is needed in the case of Double-CRT interpolation, for example, DCRTPoly
 	// CRTInterpolate does nothing when dealing with single-CRT ring elements, such as Poly
 	Poly interpolatedElement = b.CRTInterpolate();
-	*plaintext = interpolatedElement.SignedMod(p);
+	*plaintext = interpolatedElement.Mod(p);
 
 	return DecryptResult(plaintext->GetLength());
 

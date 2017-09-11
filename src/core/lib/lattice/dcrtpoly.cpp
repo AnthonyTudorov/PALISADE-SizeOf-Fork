@@ -400,17 +400,6 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 	return std::move(tmp);
 }
 
-//	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-//	DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::SignedMod(const IntType & modulus) const
-//	{
-//		DCRTPolyImpl tmp(*this);
-//
-//		for (usint i = 0; i < m_vectors.size(); i++) {
-//			tmp.m_vectors[i] = m_vectors[i].SignedMod(modulus);
-//		}
-//		return std::move(tmp);
-//	}
-
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
 DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::Plus(const DCRTPolyImpl &element) const
 {

@@ -207,7 +207,7 @@ public:
 		Poly *plaintext) const {
 		Element b = ciphertext->GetElement();
 		Poly interpolatedElement = b.CRTInterpolate();
-		*plaintext = interpolatedElement.SignedMod(ciphertext->GetCryptoContext()->GetCryptoParameters()->GetPlaintextModulus());
+		*plaintext = interpolatedElement.Mod(ciphertext->GetCryptoContext()->GetCryptoParameters()->GetPlaintextModulus());
 		return DecryptResult(plaintext->GetLength());
 	}
 

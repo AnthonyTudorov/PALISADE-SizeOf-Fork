@@ -453,7 +453,7 @@ DecryptResult LPAlgorithmFV<Element>::Decrypt(const shared_ptr<LPPrivateKey<Elem
 	const BigInteger &p = cryptoParams->GetPlaintextModulus();
 
 	const BigInteger &delta = cryptoParams->GetDelta();
-	Element ans = b.DivideAndRound(delta).SignedMod(p);
+	Element ans = b.DivideAndRound(delta).Mod(p);
 
 	*plaintext = ans.CRTInterpolate();
 
@@ -1173,7 +1173,7 @@ DecryptResult LPAlgorithmMultipartyFV<Element>::MultipartyDecryptFusion(const ve
 		b += c2[0];
 	}
 	
-	Element ans = b.MultiplyAndRound(p, q).SignedMod(p);
+	Element ans = b.MultiplyAndRound(p, q).Mod(p);
 	*plaintext = ans.CRTInterpolate();
 
 	return DecryptResult(plaintext->GetLength());

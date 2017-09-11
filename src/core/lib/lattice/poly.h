@@ -627,7 +627,7 @@ public:
 	 * @param modulus is the modulus to use.
 	 * @return is the return value of the modulus.
 	 */
-	PolyImpl SignedMod(const IntType &modulus) const;
+	PolyImpl Mod(const IntType &modulus) const;
 
 	/**
 	 * @brief Switch modulus and adjust the values
