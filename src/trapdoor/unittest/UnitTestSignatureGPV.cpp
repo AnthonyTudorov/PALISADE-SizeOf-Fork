@@ -56,8 +56,6 @@ TEST(UTSignatureGPV,simple_sign_verify) {
 	shared_ptr<ILParams> silParams( new ILParams(sm, smodulus, srootOfUnity) );
   DEBUG("Step 2");
 	ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
-  DEBUG("Step 3");
-	Poly::PreComputeDggSamples(dgg, silParams);
   DEBUG("Step 4");
 	LPSignatureParameters<Poly> signParams(silParams, dgg);
   DEBUG("Step 5");
@@ -80,8 +78,7 @@ TEST(UTSignatureGPV,simple_sign_verify) {
 		<<"Failed verification";
 
 	DEBUG("Step 12");
-	Poly::DestroyPreComputedSamples();
-	DEBUG("Step 13");
+
 }
 //TEST FOR BASIC SIGNING & VERIFICATION PROCESS - TWO STEP PROCESS
 TEST(UTSignatureGPV, simple_sign_verify_two_phase) {
@@ -96,8 +93,6 @@ TEST(UTSignatureGPV, simple_sign_verify_two_phase) {
 	shared_ptr<ILParams> silParams(new ILParams(sm, smodulus, srootOfUnity));
 	DEBUG("Step 2");
 	ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
-	DEBUG("Step 3");
-	Poly::PreComputeDggSamples(dgg, silParams);
 	DEBUG("Step 4");
 	LPSignatureParameters<Poly> signParams(silParams, dgg);
 	DEBUG("Step 5");
@@ -122,8 +117,7 @@ TEST(UTSignatureGPV, simple_sign_verify_two_phase) {
 		<< "Failed verification";
 
 	DEBUG("Step 12");
-	Poly::DestroyPreComputedSamples();
-	DEBUG("Step 13");
+
 }
 //TEST FOR SIGNING AND VERIFYING SIGNATURES GENERATED FROM MULTIPLE TEXTS. ONLY SIGNATURES CORRESPONDING TO THEIR RESPECTIVE TEXT SHOULD VERIFY
 TEST(UTSignatureGPV, sign_verify_multiple_texts) {
@@ -133,7 +127,6 @@ TEST(UTSignatureGPV, sign_verify_multiple_texts) {
 	BigInteger srootOfUnity("405107564542978792");
 	shared_ptr<ILParams> silParams( new ILParams(sm, smodulus, srootOfUnity) );
 	ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
-	Poly::PreComputeDggSamples(dgg, silParams);
 	LPSignatureParameters<Poly> signParams(silParams, dgg);
 	LPSignKeyGPVGM<Poly> s_k(signParams);
 	LPVerificationKeyGPVGM<Poly> v_k(signParams);
@@ -159,8 +152,6 @@ TEST(UTSignatureGPV, sign_verify_multiple_texts) {
 	EXPECT_NE(true, scheme.Verify(v_k, signature, text2))
 			<< "Failed signature 1 - text 2 verification";
 
-	Poly::DestroyPreComputedSamples();
-
 }
 
 //TEST FOR SIGNING AND VERIFYING SIGNATURES GENERATED FROM MULTIPLE KEYS. ONLY SIGNATURES CORRESPONDING TO THEIR RESPECTIVE SPECIFIC KEY SHOULD VERIFY
@@ -171,7 +162,6 @@ TEST(UTSignatureGPV, sign_verify_multiple_keys) {
 	BigInteger srootOfUnity("405107564542978792");
 	shared_ptr<ILParams> silParams( new ILParams(sm, smodulus, srootOfUnity) );
 	ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
-	Poly::PreComputeDggSamples(dgg, silParams);
 	LPSignatureParameters<Poly> signParams(silParams, dgg);
 	LPSignKeyGPVGM<Poly> s_k(signParams),s_k2(signParams);
 	LPVerificationKeyGPVGM<Poly> v_k(signParams),v_k2(signParams);
@@ -194,8 +184,6 @@ TEST(UTSignatureGPV, sign_verify_multiple_keys) {
 		<< "Failed signature 2 - key 1 verification";
 	EXPECT_NE(true, scheme.Verify(v_k2, signature, text))
 		<< "Failed signature 1 - key 2 verification";
-
-	Poly::DestroyPreComputedSamples();
 
 }
 /*
