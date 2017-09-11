@@ -47,8 +47,6 @@ using std::shared_ptr;
 namespace lbcrypto
 {
 
-const usint SAMPLE_SIZE = 30; //!< @brief The maximum number of samples used for random variable sampling.
-
 /**
  * @class PolyImpl
  * @file poly.h
@@ -729,32 +727,6 @@ public:
 	PolyImpl ShiftRight(unsigned int n) const;
 
 	/**
-	 * @brief Pre computes the Dgg samples.
-	 *
-	 * @param &dgg the discrete Gaussian Generator.
-	 * @param &params are the relevant ring parameters.
-	 */
-	static void PreComputeDggSamples(const DiscreteGaussianGeneratorImpl<IntType,VecType> &dgg, const shared_ptr<ParmType> params);
-
-	/**
-	 * @brief Pre computes the Tug samples.
-	 *
-	 * @param &tug the ternary uniform generator.
-	 * @param &params are the relevant ring parameters.
-	 */
-	static void PreComputeTugSamples(const TernaryUniformGeneratorImpl<IntType,VecType> &tug, const shared_ptr<ParmType> params);
-
-	/**
-	 * @brief Clear the pre-computed discrete Gaussian samples.
-	 */
-	static void DestroyPreComputedSamples();
-
-	/**
-	 * @brief Clear the pre-computed ternary uniform samples.
-	 */
-	static void DestroyPreComputedTugSamples();
-
-	/**
 	 * @brief Serialize the object into a Serialized
 	 * @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
 	 * @return true if successfully serialized
@@ -859,20 +831,6 @@ public:
 		return b.Times(a);
 	}
 
-	// 
-	/**
-	 * @brief Gets a pre-computed sample discrete Gaussian polynomial element.
-	 * @return the sampled element.
-	 */
-	static const PolyImpl GetPrecomputedVector();
-
-	// gets a random polynomial generated using ternary uniform distribution
-	/**
-	 * @brief Gets a pre-computed sample ternary uniform distribution polynomial element.
-	 * @return the sampled element.
-	 */
-	static const PolyImpl GetPrecomputedTugVector();
-
 private:
 
 	// stores either coefficient or evaluation representation
@@ -881,22 +839,8 @@ private:
 	// 1 for coefficient and 0 for evaluation format
 	Format m_format;
 
-	// noise norm associated with this vector - to be defined later
-	// IntType m_norm;
-
 	// parameters for ideal lattices
 	shared_ptr<ParmType> m_params;
-
-	// static variables to store pre-computed samples and the parms that went with them
-	static std::vector<PolyImpl> m_dggSamples;
-	static shared_ptr<ParmType> m_dggSamples_params;
-
-	// static variables to store pre-computed samples and the parms that went with them
-	static std::vector<PolyImpl> m_tugSamples;
-	static shared_ptr<ParmType> m_tugSamples_params;
-
-	// static variable to store the sample size for each set of ILParams
-	static const usint m_sampleSize = SAMPLE_SIZE;
 
 	void ArbitrarySwitchFormat();
 };

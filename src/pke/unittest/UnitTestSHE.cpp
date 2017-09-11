@@ -590,8 +590,6 @@ TEST_F(UTSHE, ringreduce_double_crt) {
 
 	EXPECT_EQ(intArrayNewRR, intArrayExpected);
 
-	Poly::DestroyPreComputedSamples();
-
 }
 
 TEST_F(UTSHE, canringreduce) {

@@ -275,8 +275,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 
 	DCRTPolyImpl res = CloneParametersOnly();
 
-	Poly randomElement = Poly::GetPrecomputedVector();
-	VecType randVec = VecType(randomElement.GetValues());
+	VecType randVec = dgg.GenerateVector(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus());
 
 	// create an Element to pull from
 	// create a dummy parm to use in the Poly world
