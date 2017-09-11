@@ -402,13 +402,13 @@ public:
 	//FIXME: it might be better to overload operator<<
 	
 	/**
-	 * @brief SignedMod - perform a modulus operation.
+	 * @brief Mod - perform a modulus operation.
 	 * Does proper mapping of [-modulus/2, modulus/2) to [0, modulus).
 	 *
 	 * @param modulus is the modulus to use.
 	 * @return is the return value of the modulus.
 	 */
-	virtual Element SignedMod(const IntType &modulus) const = 0;
+	virtual Element Mod(const IntType &modulus) const = 0;
 
 	/**
 	 * @brief Switch modulus and adjust the values

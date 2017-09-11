@@ -703,7 +703,7 @@ PolyImpl<ModType,IntType,VecType,ParmType> PolyImpl<ModType,IntType,VecType,Parm
   //TODO: why is this called Signed Mod, should BBV.Mod be called signed mod too?
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-PolyImpl<ModType,IntType,VecType,ParmType> PolyImpl<ModType,IntType,VecType,ParmType>::SignedMod(const IntType & modulus) const
+PolyImpl<ModType,IntType,VecType,ParmType> PolyImpl<ModType,IntType,VecType,ParmType>::Mod(const IntType & modulus) const
 {
 		PolyImpl tmp = CloneParametersOnly();
 		tmp.SetValues( GetValues().Mod(modulus), this->m_format );

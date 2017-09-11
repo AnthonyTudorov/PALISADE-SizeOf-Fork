@@ -582,8 +582,8 @@ public:
 	* @param modulus is the modulus to use.
 	* @return is the return value of the modulus.
 	*/
-	DCRTPolyType SignedMod(const IntType &modulus) const {
-		throw std::logic_error("SignedMod of an IntType not implemented on DCRTPoly");
+	DCRTPolyType Mod(const IntType &modulus) const {
+		throw std::logic_error("Mod of an IntType not implemented on DCRTPoly");
 	}
 
 	// OTHER FUNCTIONS AND UTILITIES
