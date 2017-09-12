@@ -230,7 +230,7 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 
 	DEBUG("Obfuscation Execution started");
 	TIC(t1);
-	algorithm.Obfuscate(clearPattern, dgg, tug, &obfuscatedPattern, false);
+	algorithm.Obfuscate(clearPattern, dgg, tug, &obfuscatedPattern);
 	timeObf = TOC(t1);
 	PROFILELOG("Obfuscation time: " << "\t" << timeObf << " ms");
 

@@ -42,31 +42,7 @@ namespace lbcrypto {
 	 * generates master public key (MPK) and master secret key
 	 * m_ell is the number of attributes
 	 */
-	std::pair<RingMat, RLWETrapdoorPair<Poly>> IBE::Setup(
-		const shared_ptr<ILParams> ilParams,
-		int32_t base,
-		const DiscreteUniformGenerator &dug  // select according to uniform distribution
-	)
-	{
-		m_N = ilParams->GetCyclotomicOrder() >> 1;
-		BigInteger q(ilParams->GetModulus());
-		m_q = q;
-
-		double val = q.ConvertToDouble();
-		double logTwo = log(val - 1.0) / log(base) + 1.0;
-		m_k = (usint)floor(logTwo) + 1;
-		m_m = m_k + 2;
-		m_base = base;
-
-		return RLWETrapdoorUtility<Poly>::TrapdoorGen(ilParams, SIGMA, base, true);
-	}
-
-	/**
-	 * This setup function is used by users; namely senders and receivers
-	 * Initialize private members of the object such as modulus, cyclotomic order, etc.
-	 * m_ell is the number of attributes
-	 */
-	void IBE::Setup(
+	std::pair<RingMat, RLWETrapdoorPair<Poly>> IBE::SetupPKG(
 		const shared_ptr<ILParams> ilParams,
 		int32_t base
 	)
@@ -77,7 +53,30 @@ namespace lbcrypto {
 
 		double val = q.ConvertToDouble();
 		double logTwo = log(val - 1.0) / log(base) + 1.0;
-		m_k = (usint)floor(logTwo) + 1;
+		m_k = (usint)floor(logTwo) /*+ 1*/;
+		m_m = m_k + 2;
+		m_base = base;
+
+		return RLWETrapdoorUtility<Poly>::TrapdoorGen(ilParams, SIGMA, base);
+	}
+
+	/**
+	 * This setup function is used by users; namely senders and receivers
+	 * Initialize private members of the object such as modulus, cyclotomic order, etc.
+	 * m_ell is the number of attributes
+	 */
+	void IBE::SetupNonPKG(
+		const shared_ptr<ILParams> ilParams,
+		int32_t base
+	)
+	{
+		m_N = ilParams->GetCyclotomicOrder() >> 1;
+		BigInteger q(ilParams->GetModulus());
+		m_q = q;
+
+		double val = q.ConvertToDouble();
+		double logTwo = log(val - 1.0) / log(base) + 1.0;
+		m_k = (usint)floor(logTwo) /*+ 1*/;
 
 		m_m = m_k + 2;
 		m_base = base;
@@ -87,7 +86,6 @@ namespace lbcrypto {
 	it generates the corresponding secret key: skA for A and skB for B */
 	/* Note that only PKG can call this fcuntion as it needs the trapdoor T_A */
 	void IBE::KeyGen(
-		const shared_ptr<ILParams> ilParams,
 		const RingMat &pubA,                         // Public parameter $B \in R_q^{ell \times k}$
 		const Poly &pubElemD,                  	  // public key of the user $u \in R_q$
 		const RLWETrapdoorPair<Poly> &secTA,  // Secret parameter $T_H \in R_q^{1 \times k} \times R_q^{1 \times k}$
@@ -95,13 +93,51 @@ namespace lbcrypto {
 		RingMat *sk                             // Secret key                          	// Secret key
 	)
 	{
-		double c = (m_base + 1) * SIGMA;
-		double s = SPECTRAL_BOUND(m_N, m_m - 2, m_base);
-		DiscreteGaussianGenerator dggLargeSigma(sqrt(s * s - c * c));
+//		double c = (m_base + 1) * SIGMA;
+//		double s = SPECTRAL_BOUND(m_N, m_m - 2, m_base);
+		DiscreteGaussianGenerator dggLargeSigma;
+
+/*		if (sqrt(s * s - c * c) <= 3e5)
+			dggLargeSigma = Poly::DggType(sqrt(s * s - c * c));
+		else */
+			dggLargeSigma = dgg;
 
 		*sk = RLWETrapdoorUtility<Poly>::GaussSamp(m_N, m_k, pubA, secTA, pubElemD, dgg, dggLargeSigma, m_base);
 	}
 
+	/* Given public parameter d and a public key B,
+	it generates the corresponding secret key: skA for A and skB for B */
+	/* Note that only PKG can call this fcuntion as it needs the trapdoor T_A */
+	shared_ptr<RingMat> IBE::KeyGenOffline(
+		const RLWETrapdoorPair<Poly> &secTA,  // Secret parameter $T_H \in R_q^{1 \times k} \times R_q^{1 \times k}$
+		DiscreteGaussianGenerator &dgg           // to generate error terms (Gaussian)
+	)
+	{
+
+		DiscreteGaussianGenerator dggLargeSigma;
+
+		dggLargeSigma = dgg;
+
+		shared_ptr<RingMat> pertubationVector =  RLWETrapdoorUtility<Poly>::GaussSampOffline(m_N, m_k, secTA, dgg, dggLargeSigma, m_base);
+
+		return pertubationVector;
+
+	}
+
+	/* Given public parameter d and a public key B,
+	it generates the corresponding secret key: skA for A and skB for B */
+	/* Note that only PKG can call this fcuntion as it needs the trapdoor T_A */
+	void IBE::KeyGenOnline(
+		const RingMat &pubA,                         // Public parameter $B \in R_q^{ell \times k}$
+		const Poly &pubElemD,                  	  // public key of the user $u \in R_q$
+		const RLWETrapdoorPair<Poly> &secTA,  // Secret parameter $T_H \in R_q^{1 \times k} \times R_q^{1 \times k}$
+		DiscreteGaussianGenerator &dgg,           // to generate error terms (Gaussian)
+		const shared_ptr<RingMat> perturbationVector, //perturbation vector
+		RingMat *sk                             // Secret key                          	// Secret key
+	)
+	{
+		*sk = RLWETrapdoorUtility<Poly>::GaussSampOnline(m_N, m_k, pubA, secTA, pubElemD, dgg, perturbationVector, m_base);
+	}
 
 	/* The encryption function takes public parameters A, B, and d, attribute values x and the plaintext pt
 	 * and generates the ciphertext pair c0 and c1
@@ -111,14 +147,19 @@ namespace lbcrypto {
 		const RingMat &pubA,
 		const Poly &pubElemD,
 		const Poly &ptext,
-		const DiscreteGaussianGenerator &dgg, // to generate error terms (Gaussian)
 		DiscreteUniformGenerator &dug,  // select according to uniform distribution
-		const BinaryUniformGenerator &bug,    // select according to uniform distribution binary
 		RingMat *ctC0,
 		Poly *ctC1
 	)
 	{
-		RingMat err(Poly::MakeDiscreteGaussianCoefficientAllocator(ilParams, EVALUATION, SIGMA), m_m+1, 1);
+//		RingMat err(Poly::MakeDiscreteGaussianCoefficientAllocator(ilParams, EVALUATION, SIGMA), m_m+1, 1);
+
+		RingMat err(Poly::MakeDiscreteGaussianCoefficientAllocator(ilParams, COEFFICIENT, SIGMA),m_m+1, 1);
+
+#pragma omp parallel for num_threads(4)
+		for(usint i=0; i < m_m+1;i++){
+				err(i,0).SwitchFormat();
+		}
 
 		Poly s(dug, ilParams, COEFFICIENT);
 		s.SwitchFormat();
@@ -140,7 +181,6 @@ namespace lbcrypto {
 	 * and yields the decrypted plaintext in COEFFICIENT form
 	 */
 	void IBE::Decrypt(
-		const shared_ptr<ILParams> ilParams,
 		const RingMat &sk,
 		const RingMat &ctC0,
 		const Poly &ctC1,
