@@ -39,18 +39,21 @@ namespace pycrypto {
 	void Obfuscator::Initialize(const std::string inputstring, size_t n, size_t chunkSize)
 	{
 		
+		uint32_t base = 1<<20;
+		
 		m_clearPattern = ClearPattern(inputstring);
 
 		m_obfuscatedPattern.SetChunkSize(chunkSize);
 		m_obfuscatedPattern.SetLength(m_clearPattern.GetLength());
+		m_obfuscatedPattern.SetBase(base);
 		//m_obfuscatedPattern.SetRootHermiteFactor(1.006); - Not used yet
 
 		// Create the noise generator
 		double stdDev = lbcrypto::SIGMA;
-		lbcrypto::DiscreteGaussianGenerator dgg(stdDev);	
+		typename lbcrypto::DCRTPoly::DggType dgg(stdDev);	
 
 		// Create the ternary uniform distribution generator
-		lbcrypto::TernaryUniformGenerator tug;
+		typename lbcrypto::DCRTPoly::TugType tug;
 		
 		// Parameter generation
 		std::cout << "Started parameter generation..." << std::endl;
