@@ -101,7 +101,7 @@ BV primitiveTransform(usint logn, const BI modulus, const BV& input, const BV& r
 	return result;
 }
 
-BigVector precomputedTransform(usint logn, BigInteger modulus, const BigVector& input, const BigVector& rootOfUnityTable){
+BigVector precomputedTransform(usint logn, const BigInteger& modulus, const BigVector& input, const BigVector& rootOfUnityTable){
 	usint n = (1 << logn);
 	BigInteger mu = ComputeMu<BigInteger>(modulus);
 	BigVector element(n, modulus);
@@ -169,7 +169,7 @@ BigVector precomputedTransform(usint logn, BigInteger modulus, const BigVector& 
 	return result;
 }
 
-BigVector baselineTransform(usint n, BigInteger modulus, BigVector input, BigInteger rootOfUnity){
+BigVector baselineTransform(usint n, const BigInteger& modulus, const BigVector& input, const BigInteger& rootOfUnity){
 	BigVector rootOfUnityTable(n, modulus);
 	BigInteger mu = ComputeMu<BigInteger>(modulus);
 	BigInteger t(1);
