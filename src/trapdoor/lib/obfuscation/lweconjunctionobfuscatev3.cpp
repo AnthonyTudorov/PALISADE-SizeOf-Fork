@@ -961,7 +961,7 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 	norm = CrossProd.Norm();
 	DEBUG("Eval5: " <<TOC(t1) <<" ms");
 
-	std::cout << " Norm: " << norm << std::endl;
+	//std::cout << " Norm: " << norm << std::endl;
 
 	return (norm <= constraint);
 
