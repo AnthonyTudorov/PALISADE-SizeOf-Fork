@@ -93,8 +93,8 @@ namespace lbcrypto {
 		RingMat *sk                             // Secret key                          	// Secret key
 	)
 	{
-		double c = (m_base + 1) * SIGMA;
-		double s = SPECTRAL_BOUND(m_N, m_m - 2, m_base);
+//		double c = (m_base + 1) * SIGMA;
+//		double s = SPECTRAL_BOUND(m_N, m_m - 2, m_base);
 		DiscreteGaussianGenerator dggLargeSigma;
 
 /*		if (sqrt(s * s - c * c) <= 3e5)

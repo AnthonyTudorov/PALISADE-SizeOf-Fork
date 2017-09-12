@@ -131,8 +131,8 @@ namespace lbcrypto {
 
 		y = pubElemD - y;
 
-		double c = (m_base + 1) * SIGMA;
-		double sb = SPECTRAL_BOUND(m_N, m_m - 2, m_base);
+//		double c = (m_base + 1) * SIGMA;
+//		double sb = SPECTRAL_BOUND(m_N, m_m - 2, m_base);
 		DiscreteGaussianGenerator dggLargeSigma;
 
 /*		if (sqrt(sb * sb - c * c) <= 3e5)
