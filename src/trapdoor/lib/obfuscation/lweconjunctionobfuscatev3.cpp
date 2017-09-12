@@ -22,6 +22,10 @@ Redistribution and use in source and binary forms, with or without modification,
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
+
+#ifndef LBCRYPTO_OBFUSCATE_LWECONJUNCTIONOBFUSCATEV3_CPP
+#define LBCRYPTO_OBFUSCATE_LWECONJUNCTIONOBFUSCATEV3_CPP
+
 #include "lweconjunctionobfuscatev3.h"
 
 #include "utils/memory.h"
@@ -116,11 +120,6 @@ usint ObfuscatedLWEConjunctionPattern<Element>::GetLogModulus() const{
 	//std::cout << "val : " << val << std::endl;
 	usint logModulus = floor(log2(val-1.0)+1.0);// = this->m_elemParams.GetModulus();
 	return logModulus;
-};
-
-template <class Element>
-void ObfuscatedLWEConjunctionPattern<Element>::SetModulus(typename Element::Integer &modulus) {
-	this->m_elemParams.SetModulus(modulus);
 };
 
 // Sets the matrices that define the obfuscated pattern.
@@ -252,49 +251,6 @@ void LWEConjunctionObfuscationAlgorithm<Element>::ParamsGen(typename Element::Dg
 	obfuscatedPattern->SetRootHermiteFactor(delta(n, q));
 
 }
-
-template <>
-shared_ptr<typename Poly::Params> LWEConjunctionObfuscationAlgorithm<Poly>::GenerateElemParams(double q, uint32_t n) const {
-
-	typename Poly::Integer qPrime = FirstPrime<typename Poly::Integer>(floor(log2(q - 1.0)) + 1.0, 2 * n);
-	typename Poly::Integer rootOfUnity = RootOfUnity<typename Poly::Integer>(2 * n, qPrime);
-
-	//Prepare for parameters.
-	shared_ptr<typename Poly::Params> params(new typename Poly::Params(2 * n, qPrime, rootOfUnity));
-
-	return params;
-
-}
-
-template <>
-shared_ptr<typename DCRTPoly::Params> LWEConjunctionObfuscationAlgorithm<DCRTPoly>::GenerateElemParams(double q, uint32_t n) const {
-
-	size_t dcrtBits = 60;
-	size_t size = ceil((floor(log2(q - 1.0)) + 2.0) / (double)dcrtBits);
-
-	vector<native_int::BigInteger> moduli(size);
-	vector<native_int::BigInteger> roots(size);
-
-	moduli[0] = FirstPrime<native_int::BigInteger>(dcrtBits, 2 * n);
-	roots[0] = RootOfUnity<native_int::BigInteger>(2 * n, moduli[0]);
-
-	for (size_t i = 1; i < size - 1; i++)
-	{
-		moduli[i] = NextPrime<native_int::BigInteger>(moduli[i-1], 2 * n);
-		roots[i] = RootOfUnity<native_int::BigInteger>(2 * n, moduli[i]);
-	}
-
-	if (size > 1) {
-		moduli[size-1] = FirstPrime<native_int::BigInteger>(dcrtBits-1, 2 * n);
-		roots[size-1] = RootOfUnity<native_int::BigInteger>(2 * n, moduli[size-1]);
-	}
-
-	shared_ptr<ILDCRTParams<BigInteger>> params(new ILDCRTParams<BigInteger>(2 * n, moduli, roots));
-
-	return params;
-
-}
-
 
 template <class Element>
 void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(typename Element::DggType &dgg,
@@ -667,115 +623,115 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 	return retVal;
 };
 
-template <class Element>
-bool LWEConjunctionObfuscationAlgorithm<Element>::EvaluateV2(
-				const ObfuscatedLWEConjunctionPattern<Element> &obfuscatedPattern,
-				const std::string &testString) const {
-	//Evaluation of Obfuscated Conjunction Pattern
-	TimeVar t1; // for TIC TOC
-	bool dbg_flag = 0;
-	TIC(t1);
-
-	usint l = obfuscatedPattern.GetLength();
-	usint n = obfuscatedPattern.GetRingDimension();
-	typename Element::Integer q(obfuscatedPattern.GetModulus());
-	usint k = obfuscatedPattern.GetLogModulus();
-	usint base = obfuscatedPattern.GetBase();
-	usint m = ceil(k/log2(base)) + 2;
-	usint chunkSize = obfuscatedPattern.GetChunkSize();
-	usint adjustedLength = l/chunkSize;
-	double constraint = obfuscatedPattern.GetConstraint();
-
-	const std::vector<Matrix<Element>> &Pk_vector = obfuscatedPattern.GetPublicKeys();
-
-	const shared_ptr<typename Element::Params> params = obfuscatedPattern.GetParameters();
-
-	auto zero_alloc = Element::MakeAllocator(params, EVALUATION);
-
-	std::cout << "" << std::endl;
-	std::cout << "Pattern length \t l : " << l << std::endl;
-	std::cout << "Ring dimension \t n : " << n << std::endl;
-	std::cout << "Modulus \t q : " << q << std::endl;
-	std::cout << "Num digits \t m : " << m << std::endl;
-	std::cout << "Constraint \t : " << constraint << std::endl;
-
-	std::string testVal;
-
-	double norm = constraint;
-
-	Matrix<Element> S_prod = Matrix<Element>(zero_alloc, m, m).Identity();
-	Matrix<Element> R_prod = Matrix<Element>(zero_alloc, m, m).Identity();
-
-	//S_prod.PrintValues();
-	//R_prod.PrintValues();
-
-	shared_ptr<Matrix<Element>> S_ib;
-	shared_ptr<Matrix<Element>> R_ib;
-
-	DEBUG("Eval1: "<<TOC(t1) <<" ms");
-
-	for (usint i=0; i<adjustedLength; i++) 	{
-		TIC(t1);
-
-		//pragma omp parallel sections
-		{
-			{
-				testVal = testString.substr(i*chunkSize,chunkSize);
-				std::cout << " Index: " << i << std::endl;
-				std::cout << " \t Input: \t" << testVal << std::endl;
-			}
-			S_ib = obfuscatedPattern.GetS(i,testVal);
-			R_ib = obfuscatedPattern.GetR(i,testVal);
-
-			//S_ib->PrintValues();
-			//R_ib->PrintValues();
-
-			S_prod = S_prod * (*S_ib);
-			R_prod = R_prod * (*R_ib);
-			//if (i==0)
-			//	std::cout << "does identity work correctly" << (S_prod == *S_ib) << std::endl;
-		}
-		DEBUG("Eval2:#"<< i << ": " <<TOC(t1) <<" ms");
-	}
-	TIC(t1);
-	//std::cout << " S_prod: " << std::endl;
-	//S_prod.PrintValues();
-	//std::cout << " R_prod: " << std::endl;
-	//R_prod.PrintValues();
-
-	shared_ptr<Matrix<Element>> Sl = obfuscatedPattern.GetSl();
-	shared_ptr<Matrix<Element>> Rl = obfuscatedPattern.GetRl();
-	
-	//std::cout << " Sl: " << std::endl;
-	//Sl->PrintValues();
-	//std::cout << " Rl: " << std::endl;
-	//Rl->PrintValues();
-
-	//std::cout << " Cross Product: " << std::endl;
-	Matrix<Element> CrossProd = Pk_vector[0]*((S_prod * (*Rl)) - (R_prod * (*Sl)));
-	//CrossProd.PrintValues();
-
-
-	DEBUG("Eval3: " <<TOC(t1) <<" ms");
-	TIC(t1);
-
-	//the norm can be estimated after all elements are converted to coefficient representation
-	CrossProd.SwitchFormat();
-	//DEBUG("Eval4: " <<TOC(t1) <<" ms");
-	//TIC(t1);
-	//CrossProd.PrintValues();
-
-	//std::cout << "cross product dimensions: " <<  CrossProd.GetRows() << ", " << CrossProd.GetCols() << std::endl;
-	//std::cout <<  CrossProd << std::endl;
-
-	norm = CrossProd.Norm();
-	DEBUG("Eval: " <<TOC(t1) <<" ms");
-
-	std::cout << " Original Norm: " << norm << std::endl;
-
-	return (norm <= constraint);
-
-};
+//template <class Element>
+//bool LWEConjunctionObfuscationAlgorithm<Element>::EvaluateV2(
+//				const ObfuscatedLWEConjunctionPattern<Element> &obfuscatedPattern,
+//				const std::string &testString) const {
+//	//Evaluation of Obfuscated Conjunction Pattern
+//	TimeVar t1; // for TIC TOC
+//	bool dbg_flag = 0;
+//	TIC(t1);
+//
+//	usint l = obfuscatedPattern.GetLength();
+//	usint n = obfuscatedPattern.GetRingDimension();
+//	typename Element::Integer q(obfuscatedPattern.GetModulus());
+//	usint k = obfuscatedPattern.GetLogModulus();
+//	usint base = obfuscatedPattern.GetBase();
+//	usint m = ceil(k/log2(base)) + 2;
+//	usint chunkSize = obfuscatedPattern.GetChunkSize();
+//	usint adjustedLength = l/chunkSize;
+//	double constraint = obfuscatedPattern.GetConstraint();
+//
+//	const std::vector<Matrix<Element>> &Pk_vector = obfuscatedPattern.GetPublicKeys();
+//
+//	const shared_ptr<typename Element::Params> params = obfuscatedPattern.GetParameters();
+//
+//	auto zero_alloc = Element::MakeAllocator(params, EVALUATION);
+//
+//	std::cout << "" << std::endl;
+//	std::cout << "Pattern length \t l : " << l << std::endl;
+//	std::cout << "Ring dimension \t n : " << n << std::endl;
+//	std::cout << "Modulus \t q : " << q << std::endl;
+//	std::cout << "Num digits \t m : " << m << std::endl;
+//	std::cout << "Constraint \t : " << constraint << std::endl;
+//
+//	std::string testVal;
+//
+//	double norm = constraint;
+//
+//	Matrix<Element> S_prod = Matrix<Element>(zero_alloc, m, m).Identity();
+//	Matrix<Element> R_prod = Matrix<Element>(zero_alloc, m, m).Identity();
+//
+//	//S_prod.PrintValues();
+//	//R_prod.PrintValues();
+//
+//	shared_ptr<Matrix<Element>> S_ib;
+//	shared_ptr<Matrix<Element>> R_ib;
+//
+//	DEBUG("Eval1: "<<TOC(t1) <<" ms");
+//
+//	for (usint i=0; i<adjustedLength; i++) 	{
+//		TIC(t1);
+//
+//		//pragma omp parallel sections
+//		{
+//			{
+//				testVal = testString.substr(i*chunkSize,chunkSize);
+//				std::cout << " Index: " << i << std::endl;
+//				std::cout << " \t Input: \t" << testVal << std::endl;
+//			}
+//			S_ib = obfuscatedPattern.GetS(i,testVal);
+//			R_ib = obfuscatedPattern.GetR(i,testVal);
+//
+//			//S_ib->PrintValues();
+//			//R_ib->PrintValues();
+//
+//			S_prod = S_prod * (*S_ib);
+//			R_prod = R_prod * (*R_ib);
+//			//if (i==0)
+//			//	std::cout << "does identity work correctly" << (S_prod == *S_ib) << std::endl;
+//		}
+//		DEBUG("Eval2:#"<< i << ": " <<TOC(t1) <<" ms");
+//	}
+//	TIC(t1);
+//	//std::cout << " S_prod: " << std::endl;
+//	//S_prod.PrintValues();
+//	//std::cout << " R_prod: " << std::endl;
+//	//R_prod.PrintValues();
+//
+//	shared_ptr<Matrix<Element>> Sl = obfuscatedPattern.GetSl();
+//	shared_ptr<Matrix<Element>> Rl = obfuscatedPattern.GetRl();
+//	
+//	//std::cout << " Sl: " << std::endl;
+//	//Sl->PrintValues();
+//	//std::cout << " Rl: " << std::endl;
+//	//Rl->PrintValues();
+//
+//	//std::cout << " Cross Product: " << std::endl;
+//	Matrix<Element> CrossProd = Pk_vector[0]*((S_prod * (*Rl)) - (R_prod * (*Sl)));
+//	//CrossProd.PrintValues();
+//
+//
+//	DEBUG("Eval3: " <<TOC(t1) <<" ms");
+//	TIC(t1);
+//
+//	//the norm can be estimated after all elements are converted to coefficient representation
+//	CrossProd.SwitchFormat();
+//	//DEBUG("Eval4: " <<TOC(t1) <<" ms");
+//	//TIC(t1);
+//	//CrossProd.PrintValues();
+//
+//	//std::cout << "cross product dimensions: " <<  CrossProd.GetRows() << ", " << CrossProd.GetCols() << std::endl;
+//	//std::cout <<  CrossProd << std::endl;
+//
+//	norm = CrossProd.Norm();
+//	DEBUG("Eval: " <<TOC(t1) <<" ms");
+//
+//	std::cout << " Original Norm: " << norm << std::endl;
+//
+//	return (norm <= constraint);
+//
+//};
 
 
 template <class Element>
@@ -1012,3 +968,4 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 };
 
 }
+#endif

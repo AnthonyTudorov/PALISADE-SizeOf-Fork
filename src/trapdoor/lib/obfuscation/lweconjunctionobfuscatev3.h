@@ -201,12 +201,6 @@ namespace lbcrypto {
 			};
 
 			/**
-			 * Sets the modulus
-			 * @param &modulus the modulus
-			 */
-			void SetModulus(typename Element::Integer &modulus);
-
-			/**
 			 * Gets the log of the modulus
 			 * @return the log of the modulus
 			 */
@@ -392,15 +386,15 @@ namespace lbcrypto {
 				typename Element::DggType &EdggEncoding,
 				uint32_t base = 2) const;
 
-			/**
-			 * Method for evaluating the pattern - before matrix-vector optimization
-			 *
-			 * @param &obfuscatedPattern the obfuscated pattern.
-			 * @param &testString cleartext pattern to test for.
-			 * @return true if the string matches the pattern and false otherwise.
-			 */
-			bool EvaluateV2(const ObfuscatedLWEConjunctionPattern<Element> &obfuscatedPattern,
-				 const std::string &testString) const;
+			///**
+			// * Method for evaluating the pattern - before matrix-vector optimization
+			// *
+			// * @param &obfuscatedPattern the obfuscated pattern.
+			// * @param &testString cleartext pattern to test for.
+			// * @return true if the string matches the pattern and false otherwise.
+			// */
+			//bool EvaluateV2(const ObfuscatedLWEConjunctionPattern<Element> &obfuscatedPattern,
+			//	 const std::string &testString) const;
 
 			/**
 			 * Method for evaluating the pattern, using the trick of multiplying a chain of matrix
@@ -434,7 +428,7 @@ namespace lbcrypto {
 			* @param &q estimated value of modulus (based on correctness & security constraints)
 			* @param &n estimated ring dimension (based on correctness & security constraints).
 			*/
-			inline shared_ptr<typename Element::Params> GenerateElemParams(double q, uint32_t n) const;
+			shared_ptr<typename Element::Params> GenerateElemParams(double q, uint32_t n) const;
 
 	};
 

@@ -41,7 +41,7 @@
 #include <fstream>
 
 #include "../../trapdoor/lib/obfuscation/lweconjunctionobfuscatev3.h"
-#include "../../trapdoor/lib/obfuscation/lweconjunctionobfuscatev3.cpp"
+
 #include "time.h"
 #include <chrono>
 #include "utils/debug.h"
