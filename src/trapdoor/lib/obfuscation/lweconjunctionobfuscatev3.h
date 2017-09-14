@@ -1,7 +1,7 @@
 /**0
  * @file
  * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
- *	Programmers: Dr. Yuriy Elementakov, <Elementakov@njit.edu>
+ *	Programmers: Dr. Yuriy Polyakov, <Polyakov@njit.edu>
  * @version 00_05
  *
  * @section LICENSE
