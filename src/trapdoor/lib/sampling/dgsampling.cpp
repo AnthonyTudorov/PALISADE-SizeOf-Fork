@@ -2,7 +2,7 @@
 * @file
 * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
 *	Programmers: 
-*		Dr. Yuriy Elementakov, <Elementakov@njit.edu>
+*		Dr. Yuriy Polyakov, <Polyakov@njit.edu>
 *		Kevin King, kcking@mit.edu
 * @version 00_03
 *

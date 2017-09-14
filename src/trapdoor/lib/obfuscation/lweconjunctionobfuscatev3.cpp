@@ -8,7 +8,7 @@ List of Authors:
 	TPOC:
 		Dr. Kurt Rohloff, rohloff@njit.edu
 	Programmers:
-		Dr. Yuriy Elementakov, Elementakov@njit.edu
+		Dr. Yuriy Polyakov, Polyakov@njit.edu
 Description:
 	This code provides the core entropic ring lwe obfuscation capability for conjunctions.
 
