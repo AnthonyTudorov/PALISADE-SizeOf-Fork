@@ -134,23 +134,26 @@ BigVector precomputedTransform(usint logn, const BigInteger& modulus, const BigV
 
 				usint indexEven = j + i;
 				usint indexOdd = j + i + (1 << (logm-1));
+				auto oddVal = result.GetValAtIndex(indexOdd);
+				auto oddMSB = oddVal.GetMSB();
+				auto evenVal = result.GetValAtIndex(indexEven);
 
-				if (result.GetValAtIndex(indexOdd).GetMSB()>0)
+				if (oddMSB > 0)
 				{
 
-					if (result.GetValAtIndex(indexOdd).GetMSB() == 1)
+					if (oddMSB == 1)
 						omegaFactor = omega;
 					else
-						omegaFactor = omega.ModBarrettMul(result.GetValAtIndex(indexOdd), modulus, mu);
+						omegaFactor = omega.ModBarrettMul(oddVal, modulus, mu);
 
-					butterflyPlus = result.GetValAtIndex(indexEven);
+					butterflyPlus = evenVal;
 					butterflyPlus += omegaFactor;
-					if (butterflyPlus >= element.GetModulus())
-						butterflyPlus -= element.GetModulus();
+					if (butterflyPlus >= modulus)
+						butterflyPlus -= modulus;
 
-					butterflyMinus = result.GetValAtIndex(indexEven);
-					if (result.GetValAtIndex(indexEven) < omegaFactor)
-						butterflyMinus += element.GetModulus();
+					butterflyMinus = evenVal;
+					if (butterflyMinus < omegaFactor)
+						butterflyMinus += modulus;
 					butterflyMinus -= omegaFactor;
 
 					result.SetValAtIndex(indexEven, butterflyPlus);
