@@ -65,6 +65,16 @@ namespace lbcrypto {
 		static void ForwardTransformIterative(const VecType& element, const VecType& rootOfUnityTable, const usint cycloOrder, VecType *transform);
 
 		/**
+		* Forward transform.
+		*
+		* @param element is the element to perform the transform on.
+		* @param rootOfUnityTable the root of unity table.
+		* @param cycloOrder is the cyclotomic order.
+		* @return is the output result of the transform.
+		*/
+		static void ForwardTransformIterative2(const VecType& element, const VecType& rootOfUnityTable, const usint cycloOrder, VecType *transform);
+
+		/**
 		* Inverse transform.
 		*
 		* @param element is the element to perform the transform on.
@@ -127,6 +137,16 @@ namespace lbcrypto {
 		* @param CycloOrder is the cyclotomic order.
 		* @return is the output result of the transform.
 		*/
+		static void ForwardTransform2(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder, VecType *transform);
+
+		/**
+		* Virtual forward transform.
+		*
+		* @param &element is the element to perform the transform on.
+		* @param rootOfUnity the root of unity.
+		* @param CycloOrder is the cyclotomic order.
+		* @return is the output result of the transform.
+		*/
 		static void ForwardTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder, VecType *transform);
 
 		/**
@@ -162,7 +182,7 @@ namespace lbcrypto {
 		*/
 		static void Reset();
 
-	private:
+	//private:
 		static std::map<IntType, VecType> m_rootOfUnityTableByModulus;
 		static std::map<IntType, VecType> m_rootOfUnityInverseTableByModulus;
 	};

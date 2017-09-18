@@ -247,6 +247,91 @@ BigVector baselineTransform(usint n, const BigInteger& modulus, const BigVector&
 	return result;
 }
 
+void LocalCRT(const BigVector& element, const BigInteger& rootOfUnity, usint m, BigVector *OpFFT) {
+	if( OpFFT->GetLength() != m/2 )
+		throw std::logic_error("Vector for ChineseRemainderTransformFTT::ForwardTransform size must be == CyclotomicOrder/2");
+
+	if (rootOfUnity == 1 || rootOfUnity == 0)
+		throw std::logic_error("Root of unity for ChineseRemainderTransformFTT::ForwardTransform cannot be zero or one");
+
+	if (!IsPowerOfTwo(m))
+		throw std::logic_error("CyclotomicOrder for ChineseRemainderTransformFTT::ForwardTransform is not a power of two");
+
+	//Precompute the Barrett mu parameter
+	BigInteger mu = ComputeMu<BigInteger>(element.GetModulus());
+
+	const BigVector *rootOfUnityTable = NULL;
+
+	// check to see if the modulus is in the table, and add it if it isn't
+	{
+		bool recompute = false;
+		auto mSearch = ChineseRemainderTransformFTT<BigInteger,BigVector>::m_rootOfUnityTableByModulus.find(element.GetModulus());
+
+		if( mSearch != ChineseRemainderTransformFTT<BigInteger,BigVector>::m_rootOfUnityTableByModulus.end() ) {
+			// i found it... make sure it's kosher
+			if( mSearch->second.GetLength() == 0 || mSearch->second.GetValAtIndex(1) != rootOfUnity ) {
+				recompute = true;
+			}
+			else
+				rootOfUnityTable = &mSearch->second;
+		}
+
+		if( mSearch == ChineseRemainderTransformFTT<BigInteger,BigVector>::m_rootOfUnityTableByModulus.end() || recompute ){
+			BigVector rTable(m / 2);
+			BigInteger modulus(element.GetModulus());
+			BigInteger x(1);
+
+			for (usint i = 0; i<m / 2; i++) {
+				rTable.SetValAtIndex(i, x);
+				x = x.ModBarrettMul(rootOfUnity, modulus, mu);
+			}
+
+			rootOfUnityTable = &(ChineseRemainderTransformFTT<BigInteger,BigVector>::m_rootOfUnityTableByModulus[modulus] = std::move(rTable));
+		}
+	}
+
+	BigVector RuTable = *rootOfUnityTable;
+
+	BigVector InputToFFT(element);
+
+	usint ringDimensionFactor = RuTable.GetLength() / (m / 2);
+
+	//Fermat Theoretic Transform (FTT)
+	for (usint i = 0; i<m / 2; i++)
+		InputToFFT.SetValAtIndex(i, element.GetValAtIndex(i).ModBarrettMul(RuTable.GetValAtIndex(i*ringDimensionFactor), element.GetModulus(), mu));
+
+	NumberTheoreticTransform<BigInteger,BigVector>::ForwardTransformIterative(InputToFFT, RuTable, m / 2, OpFFT);
+
+	return;
+}
+
+void LocalCRT2(const BigVector& element, const BigInteger& rootOfUnity, usint m, BigVector *OpFFT,
+		const BigVector& RuTable) {
+	if( OpFFT->GetLength() != m/2 )
+		throw std::logic_error("Vector for ChineseRemainderTransformFTT::ForwardTransform size must be == CyclotomicOrder/2");
+
+	if (rootOfUnity == 1 || rootOfUnity == 0)
+		throw std::logic_error("Root of unity for ChineseRemainderTransformFTT::ForwardTransform cannot be zero or one");
+
+	if (!IsPowerOfTwo(m))
+		throw std::logic_error("CyclotomicOrder for ChineseRemainderTransformFTT::ForwardTransform is not a power of two");
+
+	//Precompute the Barrett mu parameter
+	BigInteger mu = ComputeMu<BigInteger>(element.GetModulus());
+
+	BigVector InputToFFT(element);
+
+	usint ringDimensionFactor = RuTable.GetLength() / (m / 2);
+
+	//Fermat Theoretic Transform (FTT)
+	for (usint i = 0; i<m / 2; i++)
+		InputToFFT.SetValAtIndex(i, element.GetValAtIndex(i).ModBarrettMul(RuTable.GetValAtIndex(i*ringDimensionFactor), element.GetModulus(), mu));
+
+	NumberTheoreticTransform<BigInteger,BigVector>::ForwardTransformIterative(InputToFFT, RuTable, m / 2, OpFFT);
+
+	return;
+}
+
 int main() {
 
 #if MATHBACKEND == 6
@@ -280,13 +365,28 @@ int main() {
 	//std::cout << X << std::endl;
 	//std::cout << xx << std::endl;
 
-	nRep = 1000;
+	nRep = 2500;
 	start = currentDateTime();
 	for(uint64_t n=0; n<nRep; n++){
 		ChineseRemainderTransformFTT<BigInteger,BigVector>::ForwardTransform(x, rootOfUnity, m, &X);
 	}
 	stop = currentDateTime();
-	std::cout << " Ttran: " << (stop-start)/nRep << std::endl;
+	std::cout << " Library Transform: " << (stop-start)/nRep << std::endl;
+
+	start = currentDateTime();
+	for(uint64_t n=0; n<nRep; n++){
+		ChineseRemainderTransformFTT<BigInteger,BigVector>::ForwardTransform2(x, rootOfUnity, m, &X);
+	}
+	stop = currentDateTime();
+	std::cout << " Library Transform 2: " << (stop-start)/nRep << std::endl;
+
+	start = currentDateTime();
+	for(uint64_t n=0; n<nRep; n++){
+		LocalCRT(x, rootOfUnity, m, &X);
+	}
+	stop = currentDateTime();
+	std::cout << " Library ForwardTransformIterative only: " << (stop-start)/nRep << std::endl;
+
 
 	BigVector output;
 	start = currentDateTime();
@@ -305,6 +405,7 @@ int main() {
 		t = t.ModMul(rootOfUnity, modulusQ);
 	}
 
+	BigVector result(1<<10);
 	start = currentDateTime();
 	for(uint64_t n=0; n<nRep; n++){
 		output = precomputedTransform(10, modulusQ, x, rootOfUnityTable);
@@ -313,6 +414,13 @@ int main() {
 	std::cout << " Ttran_precomputed - this is our target: " << (stop-start)/nRep << std::endl;
 	//std::cout << X << std::endl;
 	//std::cout << output << std::endl;
+
+	start = currentDateTime();
+	for(uint64_t n=0; n<nRep; n++){
+		LocalCRT2(x, rootOfUnity, m, &X, rootOfUnityTable);
+	}
+	stop = currentDateTime();
+	std::cout << " Library ForwardTransformIterative local table: " << (stop-start)/nRep << std::endl;
 
 	nRep = 10000;
 	BI q = 9223372036589678593;
