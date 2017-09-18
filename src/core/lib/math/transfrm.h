@@ -62,17 +62,101 @@ namespace lbcrypto {
 		* @param cycloOrder is the cyclotomic order.
 		* @return is the output result of the transform.
 		*/
-		static void ForwardTransformIterative(const VecType& element, const VecType& rootOfUnityTable, const usint cycloOrder, VecType *transform);
+		static void ForwardTransformIterative(const VecType& element, const VecType &rootOfUnityTable, const usint cycloOrder, VecType* result) {
+	        bool dbg_flag = false;
+		usint n = cycloOrder;
 
-		/**
-		* Forward transform.
-		*
-		* @param element is the element to perform the transform on.
-		* @param rootOfUnityTable the root of unity table.
-		* @param cycloOrder is the cyclotomic order.
-		* @return is the output result of the transform.
-		*/
-		static void ForwardTransformIterative2(const VecType& element, const VecType& rootOfUnityTable, const usint cycloOrder, VecType *transform);
+		auto modulus = element.GetModulus();
+
+		if( result->GetLength() != n )
+			throw std::logic_error("Vector for NumberTheoreticTransform::ForwardTransformIterative size needs to be == cyclotomic order");
+		result->SetModulus(modulus);
+
+		//reverse coefficients (bit reversal)
+		usint msb = GetMSB64(n - 1);
+		for (size_t i = 0; i < n; i++)
+			result->SetValAtIndex(i, element.GetValAtIndex(ReverseBits(i, msb)));
+
+		IntType omegaFactor;
+		IntType product;
+		IntType butterflyPlus;
+		IntType butterflyMinus;
+		/*Ring dimension factor calculates the ratio between the cyclotomic order of the root of unity table
+			  that was generated originally and the cyclotomic order of the current VecType. The twiddle table
+			  for lower cyclotomic orders is smaller. This trick only works for powers of two cyclotomics.*/
+		float ringDimensionFactor = ((float)rootOfUnityTable.GetLength()) / (float)cycloOrder;
+		DEBUG("table size " << rootOfUnityTable.GetLength());
+		DEBUG("ring dimension factor " << ringDimensionFactor);
+
+		//Precompute the Barrett mu parameter
+#if !defined(NTL_SPEEDUP)
+		IntType mu = ComputeMu<IntType>(element.GetModulus());
+#else
+		IntType modulus = element.GetModulus();
+#endif
+
+		for (usint m = 2; m <= n; m = 2 * m)
+		{
+			for (usint j = 0; j<n; j = j + m)
+			{
+				for (usint i = 0; i <= m / 2 - 1; i++)
+				{
+					usint x = (2 * i*n / m ) * ringDimensionFactor;
+
+					const IntType& omega = rootOfUnityTable.GetValAtIndex(x);
+
+					usint indexEven = j + i;
+					usint indexOdd = j + i + m / 2;
+					auto oddVal = result->GetValAtIndex(indexOdd);
+					auto oddMSB = oddVal.GetMSB();
+					auto evenVal = result->GetValAtIndex(indexEven);
+
+					if (oddMSB > 0)
+					{
+						if (oddMSB == 1)
+							omegaFactor = omega;
+						else
+						{
+#if !defined(NTL_SPEEDUP)
+
+							omegaFactor = omega.ModBarrettMul(result->GetValAtIndex(indexOdd),element.GetModulus(), mu);
+
+#else
+							omegaFactor = omega.ModMulFast(result->GetValAtIndex(indexOdd),modulus);
+#endif
+							DEBUG("omegaFactor "<<omegaFactor);
+						}
+
+#if !defined(NTL_SPEEDUP)
+
+						butterflyPlus = evenVal;
+						butterflyPlus += omegaFactor;
+						if (butterflyPlus >= modulus)
+							butterflyPlus -= modulus;
+
+						butterflyMinus = evenVal;
+						if (evenVal < omegaFactor)
+							butterflyMinus += modulus;
+						butterflyMinus -= omegaFactor;
+
+						result->SetValAtIndex(indexEven, butterflyPlus);
+						result->SetValAtIndex(indexOdd, butterflyMinus);
+#else
+						(*result)[indexOdd] = (*result)[indexEven].ModSubFast(omegaFactor,modulus);
+						(*result)[indexEven] = (*result)[indexEven].ModAddFast(omegaFactor,modulus);
+#endif
+
+					}
+					else
+					  (*result)[indexOdd] = (*result)[indexEven];
+				}
+			}
+		}
+
+		return;
+
+	}
+
 
 		/**
 		* Inverse transform.
@@ -129,16 +213,6 @@ namespace lbcrypto {
 	class ChineseRemainderTransformFTT
 	{
 	public:
-		/**
-		* Virtual forward transform.
-		*
-		* @param &element is the element to perform the transform on.
-		* @param rootOfUnity the root of unity.
-		* @param CycloOrder is the cyclotomic order.
-		* @return is the output result of the transform.
-		*/
-		static void ForwardTransform2(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder, VecType *transform);
-
 		/**
 		* Virtual forward transform.
 		*
