@@ -184,7 +184,8 @@ namespace lbcrypto {
 		* @param CycloOrder is the cyclotomic order.
 		* @return is the output result of the transform.
 		*/
-		static void ForwardTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder, VecType *transform);
+		static void ForwardTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder, VecType *ans);
+
 
 		/**
 		* Virtual inverse transform.
@@ -221,7 +222,74 @@ namespace lbcrypto {
 		* @param CycloOrder is the cyclotomic order.
 		* @return is the output result of the transform.
 		*/
-		static void ForwardTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder, VecType *transform);
+		static void ForwardTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder, VecType *OpFFT) {
+
+			if( OpFFT->GetLength() != CycloOrder/2 )
+				throw std::logic_error("Vector for ChineseRemainderTransformFTT::ForwardTransform size must be == CyclotomicOrder/2");
+
+			if (rootOfUnity == 1 || rootOfUnity == 0)
+				throw std::logic_error("Root of unity for ChineseRemainderTransformFTT::ForwardTransform cannot be zero or one");
+
+			if (!IsPowerOfTwo(CycloOrder))
+				throw std::logic_error("CyclotomicOrder for ChineseRemainderTransformFTT::ForwardTransform is not a power of two");
+
+#if !defined(NTL_SPEEDUP)
+			//Precompute the Barrett mu parameter
+			IntType mu = ComputeMu<IntType>(element.GetModulus());
+#endif
+
+			const VecType *rootOfUnityTable = NULL;
+
+			// check to see if the modulus is in the table, and add it if it isn't
+		#pragma omp critical
+			{
+				bool recompute = false;
+				auto mSearch = m_rootOfUnityTableByModulus.find(element.GetModulus());
+
+				if( mSearch != m_rootOfUnityTableByModulus.end() ) {
+					// i found it... make sure it's kosher
+					if( mSearch->second.GetLength() == 0 || mSearch->second.GetValAtIndex(1) != rootOfUnity ) {
+						recompute = true;
+					}
+					else
+						rootOfUnityTable = &mSearch->second;
+				}
+
+				if( mSearch == m_rootOfUnityTableByModulus.end() || recompute ){
+					VecType rTable(CycloOrder / 2);
+					IntType modulus(element.GetModulus());
+					IntType x(1);
+
+					for (usint i = 0; i<CycloOrder / 2; i++) {
+						rTable.SetValAtIndex(i, x);
+#if defined(NTL_SPEEDUP)
+						x = x.ModMul(rootOfUnity, modulus);
+#else
+						x = x.ModBarrettMul(rootOfUnity, modulus, mu);
+#endif
+					}
+
+					rootOfUnityTable = &(m_rootOfUnityTableByModulus[modulus] = std::move(rTable));
+				}
+			}
+
+			VecType InputToFFT(element);
+
+			usint ringDimensionFactor = rootOfUnityTable->GetLength() / (CycloOrder / 2);
+
+			//Fermat Theoretic Transform (FTT)
+			for (usint i = 0; i<CycloOrder / 2; i++)
+#if defined(NTL_SPEEDUP)
+				InputToFFT[i] = element[i].ModMul((*rootOfUnityTable)[i*ringDimensionFactor], element.GetModulus());
+#else
+				InputToFFT.SetValAtIndex(i, element.GetValAtIndex(i).ModBarrettMul(rootOfUnityTable->GetValAtIndex(i*ringDimensionFactor), element.GetModulus(), mu));
+#endif
+
+			NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(InputToFFT, *rootOfUnityTable, CycloOrder / 2, OpFFT);
+
+			return;
+		}
+
 
 		/**
 		* Virtual inverse transform.
