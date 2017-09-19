@@ -1,7 +1,7 @@
 /**0
  * @file
  * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
- *	Programmers: Dr. Yuriy Elementakov, <Elementakov@njit.edu>
+ *	Programmers: Dr. Yuriy Polyakov, <Polyakov@njit.edu>
  * @version 00_05
  *
  * @section LICENSE
@@ -201,12 +201,6 @@ namespace lbcrypto {
 			};
 
 			/**
-			 * Sets the modulus
-			 * @param &modulus the modulus
-			 */
-			void SetModulus(typename Element::Integer &modulus);
-
-			/**
 			 * Gets the log of the modulus
 			 * @return the log of the modulus
 			 */
@@ -350,7 +344,7 @@ namespace lbcrypto {
 				const ClearLWEConjunctionPattern<Element> &clearPattern,
 				typename Element::DggType &dgg,
 				typename Element::TugType &tug,
-				ObfuscatedLWEConjunctionPattern<Element> *obfuscatedPattern) const;
+				ObfuscatedLWEConjunctionPattern<Element> *obfuscatedPattern, bool optimized = true) const;
 
 			/**
 			* Method to generate parameters.
@@ -392,15 +386,15 @@ namespace lbcrypto {
 				typename Element::DggType &EdggEncoding,
 				uint32_t base = 2) const;
 
-			/**
-			 * Method for evaluating the pattern - before matrix-vector optimization
-			 *
-			 * @param &obfuscatedPattern the obfuscated pattern.
-			 * @param &testString cleartext pattern to test for.
-			 * @return true if the string matches the pattern and false otherwise.
-			 */
-			bool EvaluateV2(const ObfuscatedLWEConjunctionPattern<Element> &obfuscatedPattern,
-				 const std::string &testString) const;
+			///**
+			// * Method for evaluating the pattern - before matrix-vector optimization
+			// *
+			// * @param &obfuscatedPattern the obfuscated pattern.
+			// * @param &testString cleartext pattern to test for.
+			// * @return true if the string matches the pattern and false otherwise.
+			// */
+			//bool EvaluateV2(const ObfuscatedLWEConjunctionPattern<Element> &obfuscatedPattern,
+			//	 const std::string &testString) const;
 
 			/**
 			 * Method for evaluating the pattern, using the trick of multiplying a chain of matrix

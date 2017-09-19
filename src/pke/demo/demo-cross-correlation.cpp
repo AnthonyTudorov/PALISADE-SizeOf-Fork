@@ -52,7 +52,7 @@ void KeyGen();
 void Encrypt();
 void Compute();
 void Decrypt();
-shared_ptr<CryptoContext<DCRTPoly>> DeserializeContext(const string& ccFileName);
+shared_ptr<CryptoContext<DCRTPoly>> DeserializeContext(const string& ccFileName, const string& emKeyFileName, const string& esKeyFileName);
 native_int::BigInteger CRTInterpolate(const std::vector<PackedIntPlaintextEncoding> &crtVector);
 template<typename T> ostream& operator<<(ostream& output, const vector<T>& vector);
 
@@ -75,7 +75,6 @@ int main(int argc, char* argv[]) {
 		if (std::string(argv[1]) == "keygen")
 			KeyGen();
 		else {
-			Serializable::DisableKeysInSerializedContext();
 			if (std::string(argv[1]) == "encrypt")
 				Encrypt();
 			else if (std::string(argv[1]) == "compute")
@@ -240,12 +239,38 @@ void KeyGen()
 
 		if (cc->Serialize(&ctxt)) {
 			if (!SerializableHelper::WriteSerializationToFile(ctxt, DATAFOLDER + "/" + "cryptocontext" + std::to_string(k) + ".txt")) {
-				cerr << "Error writing serialization of the crypto context to cryptotext" + std::to_string(k) + ".txt" << endl;
+				cerr << "Error writing serialization of the crypto context to cryptocontext" + std::to_string(k) + ".txt" << endl;
 				return;
 			}
 		}
 		else {
 			cerr << "Error serializing the crypto context" << endl;
+			return;
+		}
+
+		std::cout << "Serializing evaluation keys...";
+
+		Serialized emKeys, esKeys;
+
+		if (cc->SerializeEvalMultKey(&emKeys)) {
+			if (!SerializableHelper::WriteSerializationToFile(emKeys, DATAFOLDER + "/" + "key-eval-mult" + std::to_string(k) + ".txt")) {
+				cerr << "Error writing serialization of the eval mult keys to key-eval-mult" + std::to_string(k) + ".txt" << endl;
+				return;
+			}
+		}
+		else {
+			cerr << "Error serializing eval mult keys" << endl;
+			return;
+		}
+
+		if (cc->SerializeEvalSumKey(&esKeys)) {
+			if (!SerializableHelper::WriteSerializationToFile(esKeys, DATAFOLDER + "/" + "key-eval-sum" + std::to_string(k) + ".txt")) {
+				cerr << "Error writing serialization of the eval sum keys to key-eval-sum" + std::to_string(k) + ".txt" << endl;
+				return;
+			}
+		}
+		else {
+			cerr << "Error serializing eval sum keys" << endl;
 			return;
 		}
 
@@ -318,11 +343,16 @@ void Encrypt() {
 		std::cout << "\nDESERIALIZATION/ENCRYPTION FOR p #" << std::to_string(k + 1) << "\n" << std::endl;
 
 		string ccFileName = "cryptocontext" + std::to_string(k) + ".txt";
+		string emFileName = "key-eval-mult" + std::to_string(k) + ".txt";
+		string esFileName = "key-eval-sum" + std::to_string(k) + ".txt";
 		string pkFileName = "key-public" + std::to_string(k) + ".txt";
 
 		// Deserialize the crypto context
 
-		shared_ptr<CryptoContext<DCRTPoly>> cc = DeserializeContext(DATAFOLDER + "/" + ccFileName);
+		shared_ptr<CryptoContext<DCRTPoly>> cc = DeserializeContext(
+				DATAFOLDER + "/" + ccFileName,
+				DATAFOLDER + "/" + emFileName,
+				DATAFOLDER + "/" + esFileName);
 
 		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
 		shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
@@ -415,11 +445,14 @@ void Compute() {
 
 		string ccFileName = "cryptocontext" + std::to_string(k) + ".txt";
 		string emFileName = "key-eval-mult" + std::to_string(k) + ".txt";
-		string esFileName = "key-eval-sum-" + std::to_string(k);
+		string esFileName = "key-eval-sum" + std::to_string(k) + ".txt";
 
 		// Deserialize the crypto context
 
-		shared_ptr<CryptoContext<DCRTPoly>> cc = DeserializeContext(DATAFOLDER + "/" + ccFileName);
+		shared_ptr<CryptoContext<DCRTPoly>> cc = DeserializeContext(
+				DATAFOLDER + "/" + ccFileName,
+				DATAFOLDER + "/" + emFileName,
+				DATAFOLDER + "/" + esFileName);
 
 		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
 		shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
@@ -526,11 +559,16 @@ void Decrypt() {
 		std::cout << "\nDESERIALIZATION/DECRYPTION FOR p #" << std::to_string(k + 1) << "\n" << std::endl;
 
 		string ccFileName = "cryptocontext" + std::to_string(k) + ".txt";
+		string emFileName = "key-eval-mult" + std::to_string(k) + ".txt";
+		string esFileName = "key-eval-sum" + std::to_string(k) + ".txt";
 		string skFileName = "key-private" + std::to_string(k) + ".txt";
 
 		// Deserialize the crypto context
 
-		shared_ptr<CryptoContext<DCRTPoly>> cc = DeserializeContext(DATAFOLDER + "/" + ccFileName);
+		shared_ptr<CryptoContext<DCRTPoly>> cc = DeserializeContext(
+				DATAFOLDER + "/" + ccFileName,
+				DATAFOLDER + "/" + emFileName,
+				DATAFOLDER + "/" + esFileName);
 
 		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
 		shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
@@ -613,18 +651,38 @@ void Decrypt() {
 
 }
 
-shared_ptr<CryptoContext<DCRTPoly>> DeserializeContext(const string& ccFileName)
+shared_ptr<CryptoContext<DCRTPoly>> DeserializeContext(const string& ccFileName, const string& emFileName, const string& esFileName)
 {
 
 	std::cout << "Deserializing the crypto context...";
 
-	Serialized	ccSer;
+	Serialized	ccSer, emSer, esSer;
 	if (SerializableHelper::ReadSerializationFromFile(ccFileName, &ccSer) == false) {
 		cerr << "Could not read the cryptocontext file" << endl;
 		return 0;
 	}
 
+	if (SerializableHelper::ReadSerializationFromFile(emFileName, &emSer) == false) {
+		cerr << "Could not read the eval mult key file " << endl;
+		return 0;
+	}
+
+	if (SerializableHelper::ReadSerializationFromFile(esFileName, &esSer) == false) {
+		cerr << "Could not read the eval sum key file" << endl;
+		return 0;
+	}
+
 	shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(ccSer);
+
+	if( cc->DeserializeEvalMultKey(emSer) == false ) {
+		cerr << "Could not deserialize the eval mult key file" << endl;
+		return 0;
+	}
+
+	if( cc->DeserializeEvalSumKey(esSer) == false ) {
+		cerr << "Could not deserialize the eval sum key file" << endl;
+		return 0;
+	}
 
 	std::cout << "Completed" << std::endl;
 

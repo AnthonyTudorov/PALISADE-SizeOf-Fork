@@ -57,7 +57,7 @@ public:
 	/**
 	 * Main constructor. Supports (1) default constructor, (2) regular encoding with plaintext modulus set,
 	 * (3) packed encoding with at least first two parameters set.
-	 * All of the private members not explicitly included as aerguments will be initialized to zero.
+	 * All of the private members not explicitly included as arguments will be initialized to zero.
 	 *
 	 * @param plaintextModulus plainext modulus (used by all encodings)
 	 * @param plaintextGenerator (used by packed encoding for plaintext slot rotation)

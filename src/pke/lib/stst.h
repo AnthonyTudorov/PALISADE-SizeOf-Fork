@@ -110,7 +110,7 @@ public:
 			float distributionParmStst,
 			int depth = 1)
 	: LPCryptoParametersRLWE<Element>(params,
-			plaintextModulus,
+			shared_ptr<EncodingParams>( new EncodingParams(plaintextModulus) ),
 			distributionParameter,
 			assuranceMeasure,
 			securityLevel,
@@ -281,7 +281,7 @@ public:
 	 * @param makeSparse True to generate a saprse key pair.
 	 * @return Public and private key pair.
 	 */
-	LPKeyPair<Element> KeyGen(CryptoContext<Element>* cc, bool makeSparse=false) { 		//makeSparse is not used
+	LPKeyPair<Element> KeyGen(shared_ptr<CryptoContext<Element>> cc, bool makeSparse=false) { 		//makeSparse is not used
 
 		LPKeyPair<Element>	kp(new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc));
 
@@ -365,7 +365,7 @@ public:
 	*/
 	shared_ptr<Ciphertext<Element>> EvalMultAndRelinearize(const shared_ptr<Ciphertext<Element>> ciphertext1,
 		const shared_ptr<Ciphertext<Element>> ciphertext2,
-		const shared_ptr<vector<LPEvalKey<Element>>> ek) const {
+		const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> ek) const {
 		std::string errMsg = "LPAlgorithmStSt::EvalMultAndRelinearize is not implemented for the Stehle-Steinfeld Scheme.";
 		throw std::runtime_error(errMsg);
 	}
@@ -424,6 +424,12 @@ public:
 	* Inherited constructor
 	*/
 	LPPublicKeyEncryptionSchemeStehleSteinfeld() : LPPublicKeyEncryptionSchemeLTV<Element>() {}
+
+	bool operator==(const LPPublicKeyEncryptionScheme<Element>& sch) const {
+		if( dynamic_cast<const LPPublicKeyEncryptionSchemeStehleSteinfeld<Element> *>(&sch) == 0 )
+			return false;
+		return true;
+	}
 
 	/**
 	* Function to enable a scheme.

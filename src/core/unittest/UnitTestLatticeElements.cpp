@@ -1023,20 +1023,20 @@ void signed_mod_tests() {
 
 	{
 		Element ilv1(ilparams, COEFFICIENT);
-		ilv1 = ilvector2n1.SignedMod(2);
+		ilv1 = ilvector2n1.Mod(2);
 		VecType expected(4, primeModulus);
 		expected = {"1","1","0","0"};
 		EXPECT_EQ(expected, ilv1.GetValues())
-			<<"Failure: ilv1.SignedMod(TWO)";
+			<<"Failure: ilv1.Mod(TWO)";
 	}
 
 	{
 		Element ilv1(ilparams, COEFFICIENT);
-		ilv1 = ilvector2n1.SignedMod(5);
+		ilv1 = ilvector2n1.Mod(5);
 		VecType expected(4, primeModulus);
 		expected = {"4","2","2","3"};
 		EXPECT_EQ(expected, ilv1.GetValues())
-			<<"Failure: ilv1.SignedMod(FIVE)";
+			<<"Failure: ilv1.Mod(FIVE)";
 	}
 }
 //Instantiations of signed_mod_tests()

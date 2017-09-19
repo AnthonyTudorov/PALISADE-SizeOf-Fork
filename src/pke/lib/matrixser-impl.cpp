@@ -98,7 +98,7 @@ bool Matrix<RationalCiphertext<Poly>>::Deserialize(const Serialized& serObj) {
 	int mcols = std::stoi( mIter->value.GetString() );
 
 	auto tempElement = this->allocZero();
-	CryptoContext<Poly>* cc = tempElement->GetCryptoContext();
+	shared_ptr<CryptoContext<Poly>> cc = tempElement->GetCryptoContext();
 
 	if( bool(cc) == false )
 		return false;
@@ -204,7 +204,7 @@ bool Matrix<RationalCiphertext<DCRTPoly>>::Deserialize(const Serialized& serObj)
 	int mcols = std::stoi(mIter->value.GetString());
 
 	auto tempElement = this->allocZero();
-	CryptoContext<DCRTPoly>* cc = tempElement->GetCryptoContext();
+	shared_ptr<CryptoContext<DCRTPoly>> cc = tempElement->GetCryptoContext();
 
 	if (bool(cc) == false)
 		return false;

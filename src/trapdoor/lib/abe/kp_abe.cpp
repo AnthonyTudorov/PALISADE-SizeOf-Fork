@@ -35,7 +35,6 @@
 #include "kp_abe.h"
 
 namespace lbcrypto {
-
 	/*
 	 * Input: base
 	 * Input: vector of (k+2) elements of $R_q$
@@ -66,7 +65,21 @@ namespace lbcrypto {
 				int j = 0;
 				int flip = 0;
 				while(coeff_i > big0) {
+#ifdef STRANGE_MINGW_COMPILER_ERROR
+					// the following line of code, with -O2 or -O3 on, crashes the mingw64 compiler
+					// replaced with the bracketed code below
 					digit_i = coeff_i.GetDigitAtIndexForBase(1, base);
+#endif
+					{
+						digit_i = 0;
+						usint newIndex = 1;
+						for (int32_t i = 1; i < base; i = i * 2)
+						{
+							digit_i += coeff_i.GetBitAtIndex(newIndex)*i;
+							newIndex++;
+						}
+					}
+
 					if (digit_i > (base>>1)) {
 						digit_i = base-digit_i;
 #if MATHBACKEND == 7
@@ -99,9 +112,9 @@ namespace lbcrypto {
 		}
 
 		psi->SwitchFormat();
-
 		return 0;
 	}
+
 	/*
 	 * This is a setup function for Private Key Generator (PKG);
 	 * generates master public key (MPK) and master secret key

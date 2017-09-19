@@ -381,18 +381,19 @@ namespace lbcrypto {
 		h_a = dist(g);
 
 		// less than the half
-		if (!(h_a < 0.5)) return true;
+		if (h_a > 0.5) 
+			return true;
 		else if (h_a < 0.5)
 		{
 			for (;;) {
 				h_b = dist(g);
-				if (!(h_b < h_a))
+				if (h_b > h_a)
 					return false;
 				else if (h_b < h_a)
 					h_a = dist(g);
 				else //numbers are equal - need higher precision
 					return AlgorithmHDouble(g);
-				if (!(h_a < h_b))
+				if (h_a > h_b)
 					return true;
 				else if (h_a == h_b) //numbers are equal - need higher precision
 					return AlgorithmHDouble(g);
@@ -433,13 +434,13 @@ namespace lbcrypto {
 		for (;; ++n) {
 		
 			z = dist(g);
-			if (!(z < y))
+			if (z > y)
 				break;
-			else if ((z < y))
+			else if (z < y)
 			{
 				r = dist(g);
 				rTemp = (2 * k + x) / m;
-				if (!(r < rTemp))
+				if (r > rTemp)
 					break;
 				else if (r < rTemp)
 					y = z;

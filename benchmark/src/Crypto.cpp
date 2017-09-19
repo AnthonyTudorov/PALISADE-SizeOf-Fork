@@ -73,7 +73,6 @@ void BM_keygen(benchmark::State& state) { // benchmark
 
 		try {
 			typename Poly::DggType dgg = Poly::DggType(4);			// Create the noise generator
-			Poly::PreComputeDggSamples(dgg, cc->GetElementParams());
 		} catch( ... ) {}
 
 		state.ResumeTiming();
@@ -116,7 +115,6 @@ void BM_encrypt(benchmark::State& state) { // benchmark
 
 		try {
 			typename Poly::DggType dgg = Poly::DggType(4);			// Create the noise generator
-			Poly::PreComputeDggSamples(dgg, cc->GetElementParams());
 		} catch( ... ) {}
 
 		size_t strSize = plaintext.GetChunksize(cc->GetRingDimension(), cc->GetCryptoParameters()->GetPlaintextModulus());
@@ -178,7 +176,6 @@ void BM_decrypt(benchmark::State& state) { // benchmark
 
 		try {
 			typename Poly::DggType dgg = Poly::DggType(4);			// Create the noise generator
-			Poly::PreComputeDggSamples(dgg, cc->GetElementParams());
 		} catch( ... ) {}
 
 		size_t strSize = plaintext.GetChunksize(cc->GetRingDimension(), cc->GetCryptoParameters()->GetPlaintextModulus());
@@ -241,7 +238,6 @@ void BM_rekeygen(benchmark::State& state) { // benchmark
 
 		try {
 			typename Poly::DggType dgg = Poly::DggType(4);			// Create the noise generator
-			Poly::PreComputeDggSamples(dgg, cc->GetElementParams());
 		} catch( ... ) {}
 
 		state.ResumeTiming();
@@ -296,7 +292,6 @@ void BM_reencrypt(benchmark::State& state) { // benchmark
 
 		try {
 			typename Poly::DggType dgg = Poly::DggType(4);			// Create the noise generator
-			Poly::PreComputeDggSamples(dgg, cc->GetElementParams());
 		} catch( ... ) {}
 
 		size_t strSize = plaintext.GetChunksize(cc->GetRingDimension(), cc->GetCryptoParameters()->GetPlaintextModulus());
@@ -434,9 +429,6 @@ void NTRUPRE(int input) {
 	//This code is run only when performing execution time measurements
 	//Precomputations for FTT
 	ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(BigInteger(rootOfUnity), m, BigInteger(modulus));
-
-	//Precomputations for DGG
-	Poly::PreComputeDggSamples(cc->GetGenerator(), cc->GetElementParams());
 
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp;

@@ -102,7 +102,6 @@ void MultiThreadedRun(int index, usint base) {
 	start = currentDateTime();
 	ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
 	DiscreteFourierTransform::GetInstance().PreComputeTable(sm);
-	Poly::PreComputeDggSamples(dgg, silParams);
 	finish = currentDateTime();
 	std::cout << "Precomputation time: " << finish - start << " ms" << std::endl;
 

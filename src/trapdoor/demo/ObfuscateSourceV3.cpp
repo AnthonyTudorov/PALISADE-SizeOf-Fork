@@ -107,9 +107,6 @@ void Run() {
 	ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(rootOfUnity, m, modulus);
 	DiscreteFourierTransform::GetInstance().PreComputeTable(m);
 
-	//Precomputations for DGG
-	Poly::PreComputeDggSamples(dgg, ilParams);
-
 	finish = currentDateTime();
 	diff = finish - start;
 

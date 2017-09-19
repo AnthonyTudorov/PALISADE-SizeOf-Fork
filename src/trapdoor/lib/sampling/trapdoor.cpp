@@ -2,7 +2,7 @@
 * @file
 * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
 *	Programmers: 
-*		Dr. Yuriy Elementakov, <Elementakov@njit.edu>
+*		Dr. Yuriy Polyakov, <Polyakov@njit.edu>
 *		Kevin King, kcking@mit.edu
 * @version 00_03
 *
@@ -123,7 +123,7 @@ namespace lbcrypto {
 		// converting perturbed syndrome to coefficient representation
 		perturbedSyndrome.SwitchFormat();
 
-		LatticeGaussSampUtility<Element>::GaussSampGq(perturbedSyndrome, c, k, modulus, base, dgg, &zHatBBI);
+		LatticeGaussSampUtility<Element>::GaussSampGqArbBase(perturbedSyndrome, c, k, modulus, base, dgg, &zHatBBI);
 
 		// Convert zHat from a matrix of BBI to a vector of Element ring elements
 		// zHat is in the coefficient representation
@@ -207,7 +207,7 @@ namespace lbcrypto {
 		// converting perturbed syndrome to coefficient representation
 		perturbedSyndrome.SwitchFormat();
 
-		LatticeGaussSampUtility<Element>::GaussSampGq(perturbedSyndrome, c, k, modulus, base, dgg, &zHatBBI);
+		LatticeGaussSampUtility<Element>::GaussSampGqArbBase(perturbedSyndrome, c, k, modulus, base, dgg, &zHatBBI);
 
 		// Convert zHat from a matrix of BBI to a vector of Element ring elements
 		// zHat is in the coefficient representation

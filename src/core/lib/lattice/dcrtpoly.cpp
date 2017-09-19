@@ -275,8 +275,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 
 	DCRTPolyImpl res = CloneParametersOnly();
 
-	Poly randomElement = Poly::GetPrecomputedVector();
-	VecType randVec = VecType(randomElement.GetValues());
+	VecType randVec = dgg.GenerateVector(m_params->GetCyclotomicOrder() / 2, m_params->GetModulus());
 
 	// create an Element to pull from
 	// create a dummy parm to use in the Poly world
@@ -430,17 +429,6 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 	}
 	return std::move(tmp);
 }
-
-//	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-//	DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::SignedMod(const IntType & modulus) const
-//	{
-//		DCRTPolyImpl tmp(*this);
-//
-//		for (usint i = 0; i < m_vectors.size(); i++) {
-//			tmp.m_vectors[i] = m_vectors[i].SignedMod(modulus);
-//		}
-//		return std::move(tmp);
-//	}
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
 DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::Plus(const DCRTPolyImpl &element) const

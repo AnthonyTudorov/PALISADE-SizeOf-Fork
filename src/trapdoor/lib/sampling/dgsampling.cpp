@@ -2,7 +2,7 @@
 * @file
 * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
 *	Programmers: 
-*		Dr. Yuriy Elementakov, <Elementakov@njit.edu>
+*		Dr. Yuriy Polyakov, <Polyakov@njit.edu>
 *		Kevin King, kcking@mit.edu
 * @version 00_03
 *
@@ -159,6 +159,84 @@ namespace lbcrypto {
 
 	}
 
+	// Gaussian sampling from lattice for gagdet matrix G and syndrome u and ARBITRARY MODULUS q - Improved algorithm
+	// Algorithm was provided in a personal communication by Daniele Micciancio
+	// It will be published in GM17
+
+	template <class Element>
+	void LatticeGaussSampUtility<Element>::GaussSampGqArbBase(const Element &syndrome, double stddev, size_t k, const typename Element::Integer &q, int32_t base,
+		typename Element::DggType &dgg, Matrix<int32_t> *z)
+	{
+
+		// If DCRT is used, the polynomial is first converted from DCRT to large polynomial (in COEFFICIENT representation)		
+		Poly u = syndrome.CRTInterpolate();
+
+		const typename Element::Integer& modulus = u.GetParams()->GetModulus();
+		// std::cout << "modulus = " << modulus << std::endl; 
+		double sigma = stddev / (base + 1);
+
+		// main diagonal of matrix L
+		std::vector<double> l(k);
+		//upper diagonal of matrix L
+		std::vector<double> h(k);
+
+		//Matrix<double> a([]() { return make_unique<double>(); }, k, 1);
+		Matrix<double> c([]() { return make_unique<double>(); }, k, 1);
+
+		//  set the values of matrix L
+		// (double) is added to avoid integer division
+		l[0] = sqrt(base*(1 + 1 / k) + 1);
+		for (size_t i = 1; i < k; i++)
+			l[i] = sqrt(base*(1 + 1 / (double)(k - i)));
+
+		h[0] = 0;
+		// (double) is added to avoid integer division
+		for (size_t i = 1; i < k; i++)
+			h[i] = sqrt(base*(1 - 1 / (double)(k - (i - 1))));
+
+		// c can be pre-computed as it only depends on the modulus
+		// (double) is added to avoid integer division
+		c(0, 0) = modulus.GetDigitAtIndexForBase(1, base) / (double)base;
+
+		for (size_t i = 1; i < k; i++)
+			c(i, 0) = (c(i - 1, 0) + modulus.GetDigitAtIndexForBase(i + 1, base)) / base;
+
+#pragma omp parallel for
+		for (size_t j = 0; j < u.GetLength(); j++)
+		{
+			typename Element::Integer v(u.GetValAtIndex(j));
+
+			vector<double> p(k);
+
+			LatticeGaussSampUtility<Element>::PerturbFloat(sigma, k, u.GetLength(), l, h, base, dgg, &p);
+
+			Matrix<double> a([]() { return make_unique<double>(); }, k, 1);
+
+			// int32_t cast is needed here as GetDigitAtIndexForBase returns an unsigned int
+			// when the result is negative, a(0,0) gets values close to 2^32 if the cast is not used
+			//****a(0, 0) = ((int32_t)(v.GetDigitAtIndexForBase(1, base)) - p[0]) / base;
+			// (double) is added to avoid integer division
+
+			a(0, 0) = ((int32_t)(v.GetDigitAtIndexForBase(1, base)) - p[0]) / (double)base;
+
+			for (size_t t = 1; t < k; t++) {
+				a(t, 0) = (a(t - 1, 0) + (int32_t)(v.GetDigitAtIndexForBase(t + 1, base)) - p[t]) / base;
+			}
+			vector<int32_t> zj(k);
+
+			LatticeGaussSampUtility<Element>::SampleC(c, k, u.GetLength(), sigma, dgg, &a, &zj);
+
+			(*z)(0, j) = base*zj[0] + modulus.GetDigitAtIndexForBase(1, base)*zj[k - 1] + v.GetDigitAtIndexForBase(1, base);
+
+			for (size_t t = 1; t < k - 1; t++) {
+				(*z)(t, j) = base*zj[t] - zj[t - 1] + modulus.GetDigitAtIndexForBase(t + 1, base)*zj[k - 1] + v.GetDigitAtIndexForBase(t + 1, base);
+			}
+			(*z)(k - 1, j) = modulus.GetDigitAtIndexForBase(k, base)*zj[k - 1] - zj[k - 2] + v.GetDigitAtIndexForBase(k, base);
+		}
+
+	}
+
+
 	// subroutine used by GaussSampGqV2
 	// Algorithm was provided in a personal communication by Daniele Micciancio
 	// It will be published in GM17 (EuroCrypt)
@@ -181,6 +259,32 @@ namespace lbcrypto {
 		for (size_t i = 1; i < k - 1; i++)
 			(*p)[i] = base*(z[i - 1] + 2 * z[i] + z[i + 1]);
 		(*p)[k - 1] = base*(z[k - 2] + 2 * z[k - 1]);
+
+	}
+
+	// subroutine used by GaussSampGqArbBase
+	// Algorithm was provided in a personal communication by Daniele Micciancio
+
+	template <class Element>
+	void LatticeGaussSampUtility<Element>::PerturbFloat(double sigma, size_t k, size_t n,
+		const vector<double> &l, const vector<double> &h, int32_t base, typename Element::DggType &dgg, vector<double> *p) {
+
+		std::normal_distribution<> d(0, sigma);
+
+		std::mt19937 &g = PseudoRandomNumberGenerator::GetPRNG();
+
+		std::vector<double> z(k);
+		
+		// Generate a vector using continuous Gaussian distribution
+		for (size_t i = 0; i < k; i++)
+			z[i] = d(g);
+
+		// Compute matrix-vector product Lz (apply linear transformation)
+		for (size_t i = 0; i < k-1; i++) {
+			p->at(i) = l[i] * z[i] + h[i + 1] * z[i + 1];
+		}
+
+		p->at(k - 1) = h[k - 1] * z[k - 1];
 
 	}
 

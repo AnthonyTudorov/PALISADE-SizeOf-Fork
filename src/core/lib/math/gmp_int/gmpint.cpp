@@ -220,18 +220,18 @@ namespace NTL {
     bool dbg_flag = false;		// if true then print dbg output
     DEBUG("myZZ::GetDigitAtIndexForBase:  index = " << index
 	  << ", base = " << base);
-    
-    usint DigitLen = ceil(log2(base));
-    
-    usint digit = 0;
-    usint newIndex = 1 + (index - 1)*DigitLen;
-    for (usint i = 1; i < base; i = i * 2)
-      {
-	digit += GetBitAtIndex(newIndex)*i;
-	newIndex++;
-      }
+
+	  usint DigitLen = ceil(log2(base));
+
+	  usint digit = 0;
+	  usint newIndex = 1 + (index - 1)*DigitLen;
+	  for (usint i = 1; i < base; i = i * 2)
+	  {
+		  digit += GetBitAtIndex(newIndex)*i;
+		  newIndex++;
+	  }
     DEBUG("digit = " << digit);
-    return digit;
+	  return digit;
   }
 
   // returns the bit at the index into the binary format of the big integer, 
@@ -261,7 +261,7 @@ namespace NTL {
     }
 
     ZZ_limb_t temp = zlp[idx]; // point to correct limb
-    ZZ_limb_t bmask_counter = index%NTL_ZZ_NBITS==0? NTL_ZZ_NBITS:index%NTL_ZZ_NBITS; //bmask is the bit number in the limb
+    ZZ_limb_t bmask_counter = index%NTL_ZZ_NBITS==0? NTL_ZZ_NBITS:index%NTL_ZZ_NBITS;//bmask is the bit number in the limb
     ZZ_limb_t bmask = 1;
     for(usint i=1;i<bmask_counter;i++)
       bmask<<=1;//generate the bitmask number
@@ -310,11 +310,11 @@ namespace NTL {
   double myZZ::ConvertToDouble() const{ return (conv<double>(*this));}
 
   const myZZ& myZZ::operator=(const myZZ &rhs){
-    
+
     if(this!=&rhs){
       _ntl_gcopy(rhs.rep, &(this->rep));
       this->m_MSB = rhs.m_MSB;
-    }
+  }
     return *this;
   }
 

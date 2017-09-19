@@ -56,19 +56,6 @@ std::string type_name()
 namespace lbcrypto
 {
 
-	// static members
-	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	std::vector<PolyImpl<ModType, IntType,VecType,ParmType>> PolyImpl<ModType,IntType,VecType,ParmType>::m_dggSamples;
-
-	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	shared_ptr<ParmType> PolyImpl<ModType,IntType,VecType,ParmType>::m_dggSamples_params;
-
-	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	std::vector<PolyImpl<ModType,IntType,VecType,ParmType>> PolyImpl<ModType,IntType,VecType,ParmType>::m_tugSamples;
-
-	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	shared_ptr<ParmType> PolyImpl<ModType,IntType,VecType,ParmType>::m_tugSamples_params;
-
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 PolyImpl<ModType,IntType,VecType,ParmType>::PolyImpl() : m_values(nullptr), m_format(EVALUATION)
 {
@@ -101,29 +88,15 @@ PolyImpl<ModType,IntType,VecType,ParmType>::PolyImpl(const DggType &dgg, const s
 
 		m_params = params;
 
-	if (format == COEFFICIENT) {
-			usint vectorSize = params->GetRingDimension();
-			m_values = make_unique<VecType>(dgg.GenerateVector(vectorSize, params->GetModulus()));
-			(*m_values).SetModulus(params->GetModulus());
-			m_format = COEFFICIENT;
-	} else {
-
 		usint vectorSize = params->GetRingDimension();
 		m_values = make_unique<VecType>(dgg.GenerateVector(vectorSize, params->GetModulus()));
-			(*m_values).SetModulus(params->GetModulus());
+		(*m_values).SetModulus(params->GetModulus());
 		m_format = COEFFICIENT;
 
-		this->SwitchFormat();
+		if (format == EVALUATION)
+			this->SwitchFormat();
 
-		//PreComputeDggSamples(dgg, m_params);
-
-		//const PolyImpl<ModType,IntType,VecType,ParmType> randomElement = GetPrecomputedVector();
-		//m_values = make_unique<VecType>(*randomElement.m_values);
-		//(*m_values).SetModulus(params->GetModulus());
-		//m_format = EVALUATION;
-		}
-	}
-
+}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 PolyImpl<ModType,IntType,VecType,ParmType>::PolyImpl( DiscreteUniformGeneratorImpl<IntType,VecType> &dug, const shared_ptr<ParmType> params, Format format)
@@ -165,27 +138,15 @@ PolyImpl<ModType,IntType,VecType,ParmType>::PolyImpl(const TernaryUniformGenerat
 
 		m_params = params;
 
-	if (format == COEFFICIENT) {
-			usint vectorSize = params->GetRingDimension();
-			m_values = make_unique<VecType>(tug.GenerateVector(vectorSize, params->GetModulus()));
-			(*m_values).SetModulus(params->GetModulus());
-			m_format = COEFFICIENT;
-	} else {
 		usint vectorSize = params->GetRingDimension();
 		m_values = make_unique<VecType>(tug.GenerateVector(vectorSize, params->GetModulus()));
 		(*m_values).SetModulus(params->GetModulus());
 		m_format = COEFFICIENT;
 
-		this->SwitchFormat();
+		if (format == EVALUATION)
+			this->SwitchFormat();
 
-		//PreComputeTugSamples(tug, m_params);
-
-		//const PolyImpl randomElement = GetPrecomputedTugVector();
-		//m_values = make_unique<VecType>(*randomElement.m_values);
-		//(*m_values).SetModulus(params->GetModulus());
-		//m_format = EVALUATION;
-		}
-	}
+}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 	PolyImpl<ModType,IntType,VecType,ParmType>::PolyImpl(const PolyImpl &element, shared_ptr<ParmType>) : m_format(element.m_format), m_params(element.m_params)
@@ -464,9 +425,7 @@ const PolyImpl<ModType,IntType,VecType,ParmType>& PolyImpl<ModType,IntType,VecTy
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	PolyImpl<ModType,IntType,VecType,ParmType>::~PolyImpl()
-	{
-	}
+	PolyImpl<ModType,IntType,VecType,ParmType>::~PolyImpl()	{}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 const VecType &PolyImpl<ModType,IntType,VecType,ParmType>::GetValues() const
@@ -768,7 +727,7 @@ PolyImpl<ModType,IntType,VecType,ParmType> PolyImpl<ModType,IntType,VecType,Parm
   //TODO: why is this called Signed Mod, should BBV.Mod be called signed mod too?
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-PolyImpl<ModType,IntType,VecType,ParmType> PolyImpl<ModType,IntType,VecType,ParmType>::SignedMod(const IntType & modulus) const
+PolyImpl<ModType,IntType,VecType,ParmType> PolyImpl<ModType,IntType,VecType,ParmType>::Mod(const IntType & modulus) const
 {
 		PolyImpl tmp = CloneParametersOnly();
 		tmp.SetValues( GetValues().Mod(modulus), this->m_format );
@@ -1037,84 +996,6 @@ std::vector<PolyImpl<ModType,IntType,VecType,ParmType>> PolyImpl<ModType,IntType
 		return std::move(result);
 
 	}
-
-	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-void PolyImpl<ModType,IntType,VecType,ParmType>::PreComputeDggSamples(const DiscreteGaussianGeneratorImpl<IntType,VecType> &dgg, const shared_ptr<ParmType> params)
-		{
-	if (m_dggSamples.size() == 0 || m_dggSamples_params != params) {
-			DestroyPreComputedSamples();
-			m_dggSamples_params = params;
-		for (usint i = 0; i < m_sampleSize; ++i) {
-				PolyImpl current(m_dggSamples_params);
-				usint vectorSize = m_dggSamples_params->GetRingDimension();
-				current.m_values = make_unique<VecType>(dgg.GenerateVector(vectorSize, m_dggSamples_params->GetModulus()));
-				current.m_values->SetModulus(m_dggSamples_params->GetModulus());
-				current.m_format = COEFFICIENT;
-
-				current.SwitchFormat();
-
-				m_dggSamples.push_back(current);
-			}
-		}
-	}
-
-	//Select a precomputed vector randomly
-	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-const PolyImpl<ModType,IntType,VecType,ParmType> PolyImpl<ModType,IntType,VecType,ParmType>::GetPrecomputedVector()
-{
-
-		//std::default_random_engine generator;
-		//std::uniform_real_distribution<int> distribution(0,SAMPLE_SIZE-1);
-		//int randomIndex = distribution(generator);
-
-		int randomIndex = rand() % SAMPLE_SIZE;
-		return m_dggSamples[randomIndex];
-	}
-
-	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-void PolyImpl<ModType,IntType,VecType,ParmType>::PreComputeTugSamples(const TernaryUniformGeneratorImpl<IntType,VecType> &tug, const shared_ptr<ParmType> params)
-		{
-	if (m_tugSamples.size() == 0 || m_tugSamples_params != params) {
-			DestroyPreComputedTugSamples();
-			m_tugSamples_params = params;
-		for (usint i = 0; i < m_sampleSize; ++i) {
-				PolyImpl current(m_tugSamples_params);
-				usint vectorSize = m_tugSamples_params->GetRingDimension();
-				current.m_values = make_unique<VecType>(tug.GenerateVector(vectorSize, m_tugSamples_params->GetModulus()));
-				current.m_values->SetModulus(m_tugSamples_params->GetModulus());
-				current.m_format = COEFFICIENT;
-
-				current.SwitchFormat();
-
-				m_tugSamples.push_back(current);
-			}
-		}
-	}
-
-	//Select a precomputed vector randomly
-	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-const PolyImpl<ModType,IntType,VecType,ParmType> PolyImpl<ModType,IntType,VecType,ParmType>::GetPrecomputedTugVector()
-{
-
-		int randomIndex = rand() % SAMPLE_SIZE;
-		return m_tugSamples[randomIndex];
-	}
-
-	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-void PolyImpl<ModType,IntType,VecType,ParmType>::DestroyPreComputedSamples()
-{
-		m_dggSamples.clear();
-	}
-
-	/**
-	 * Clear the pre-computed ternary uniform samples.
-	 */
-	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-void PolyImpl<ModType,IntType,VecType,ParmType>::DestroyPreComputedTugSamples()
-{
-		m_tugSamples.clear();
-	}
-
 
 
 	// JSON FACILITY - Serialize Operation

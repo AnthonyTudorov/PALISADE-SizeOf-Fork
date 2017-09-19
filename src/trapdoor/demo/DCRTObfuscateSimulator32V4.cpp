@@ -32,7 +32,6 @@
 #include "obfuscation/lweconjunctionobfuscatev3.h"
 #include "obfuscation/lweconjunctionobfuscatev3.cpp"
 
-
 #include "utils/debug.h"
 
 #include <omp.h> //open MP header
@@ -40,51 +39,47 @@
 //using namespace std;
 using namespace lbcrypto;
 
-bool CONJOBF(bool dbg_flag, int n_evals, int n); //defined later
+bool CONJOBF(bool dbg_flag, int n_evals, int  n); //defined later
 
-
-												 //main()   need this for Kurts makefile to ignore this.
-int main(int argc, char* argv[]) {
+//main()   need this for Kurts makefile to ignore this.
+int main(int argc, char* argv[]){
 	bool errorflag = false;
 
 	if (argc < 2) { // called with no arguments
-		std::cout << "Usage is `" << argv[0] << " arg1 arg2 arg3' where: " << std::endl;
-		std::cout << "  arg1 indicate verbosity of output. Possible values are 0 or 1 with 1 being verbose.  Default is 0." << std::endl;
-		std::cout << "  arg2 indicates number of evaluation operations to run.  Possible values are 1, 2 or 3.  Default is 1." << std::endl;
-		std::cout << "If no input is given, then this message is displayed, defaults are assumed and user is prompted for ring dimension." << std::endl;
+		std::cout << "arg 1 = debugflag 0:1 [0] " << std::endl;
+		std::cout << "arg 2 = num evals 1:3 [1] " << std::endl;
 	}
-	bool dbg_flag = false;
+	bool dbg_flag = false; 
 
-	if (argc >= 2) {
+	if (argc >= 2 ) {
 		if (atoi(argv[1]) != 0) {
-#if !defined(NDEBUG)
+#ifndef NDEBUG
 			dbg_flag = true;
-			// std::cout << "setting dbg_flag true" << std::endl;
+			std::cout << "setting dbg_flag true" << std::endl;
 #endif
 		}
 	}
 
+	std::cerr  <<"Running " << argv[0] <<" with "<< omp_get_num_procs() << " processors." << std::endl;
+
 	int n_evals = 1;
 
-	if (argc >= 3) {
+	if (argc >= 3 ) {
 		if (atoi(argv[2]) < 0) {
 			n_evals = 1;
-		}
-		else if (atoi(argv[2]) >= 3) {
+		} else if (atoi(argv[2]) >= 3) {
 			n_evals = 3;
-		}
-		else {
+		} else {
 			n_evals = atoi(argv[2]);
 		}
 	}
-
-	std::cerr << "Configured to run " << argv[0] << " with " << omp_get_num_procs() << " processor[s] and " << n_evals << " evaluation[s]." << std::endl;
+	std::cerr << "Running " << argv[0] << " with " << n_evals << " evaluations." << std::endl;
 
 	int nthreads, tid;
 
 	// Fork a team of threads giving them their own copies of variables
 	//so we can see how many threads we have to work with
-#pragma omp parallel private(nthreads, tid)
+    #pragma omp parallel private(nthreads, tid)
 	{
 
 		/* Obtain thread number */
@@ -98,18 +93,20 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
-	for (usint n = 8; n < 2048; n = 2 * n)
+	for (usint n = 1<<10; n < 1<<13; n=2*n)
 	{
-		errorflag = CONJOBF(dbg_flag, n_evals, n);
-		if (errorflag)
-			return ((int)errorflag);
+		for (usint i = 1; i < 2; i++) {
+			errorflag = CONJOBF(dbg_flag, n_evals, n);
+			if (errorflag)
+				return ((int)errorflag);
+		}
 	}
-
-	//system("PAUSE");
 
 	return ((int)errorflag);
 
+	//std::cin.get();
 }
+
 
 //////////////////////////////////////////////////////////////////////
 bool CONJOBF(bool dbg_flag, int n_evals, int n) {
@@ -132,32 +129,35 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 	TimeVar t1, t_total; //for TIC TOC
 	TIC(t_total); //start timer for total time
 
-	usint m = 2 * n;
+	usint m = 2*n;
 	//54 bits
 	//BigInteger modulus("9007199254741169");
 	//BigInteger rootOfUnity("7629104920968175");
 
-	usint chunkSize = 1;
-	usint base = 4;
+	usint chunkSize = 8;
+	usint base = 1<<20;
+
+	if (n > 1<<10)
+		base = 1<<15;
 
 	//Generate the test pattern
-	std::string inputPattern = "1?10";
-	ClearLWEConjunctionPattern<Poly> clearPattern(inputPattern);
+	std::string inputPattern = "1?10?10?1?10?10?1?10?10?1?10??0?";;
+	ClearLWEConjunctionPattern<DCRTPoly> clearPattern(inputPattern);
 
-	ObfuscatedLWEConjunctionPattern<Poly> obfuscatedPattern;
+	ObfuscatedLWEConjunctionPattern<DCRTPoly> obfuscatedPattern;
 	obfuscatedPattern.SetChunkSize(chunkSize);
 	obfuscatedPattern.SetBase(base);
 	obfuscatedPattern.SetLength(clearPattern.GetLength());
 	obfuscatedPattern.SetRootHermiteFactor(1.006);
 
-	LWEConjunctionObfuscationAlgorithm<Poly> algorithm;
+	LWEConjunctionObfuscationAlgorithm<DCRTPoly> algorithm;
 
 	//Variables for timing
 	double timeDGGSetup(0.0), timeKeyGen(0.0), timeObf(0.0), timeEval1(0.0),
 		timeEval2(0.0), timeEval3(0.0), timeTotal(0.0);
 
 	double stdDev = SIGMA;
-	typename Poly::DggType dgg = Poly::DggType(stdDev);			// Create the noise generator
+	DCRTPoly::DggType dgg(stdDev);			// Create the noise generator
 
 																				//Finds q using the correctness constraint for the given value of n
 	algorithm.ParamsGen(dgg, &obfuscatedPattern, m / 2);
@@ -165,7 +165,7 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 	//this code finds the values of q and n corresponding to the root Hermite factor in obfuscatedPattern
 	//algorithm.ParamsGen(dgg, &obfuscatedPattern);
 
-	const shared_ptr<ILParams> ilParams = std::dynamic_pointer_cast<ILParams>(obfuscatedPattern.GetParameters());
+	const shared_ptr<typename DCRTPoly::Params> ilParams = obfuscatedPattern.GetParameters();
 
 	const BigInteger &modulus = ilParams->GetModulus();
 	const BigInteger &rootOfUnity = ilParams->GetRootOfUnity();
@@ -175,24 +175,16 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 	PROFILELOG("rootOfUnity = " << rootOfUnity);
 	PROFILELOG("n = " << m / 2);
 	PROFILELOG(printf("delta=%lf", obfuscatedPattern.GetRootHermiteFactor()));
-	PROFILELOG("base=" << base);
 
-	typename Poly::DugType dug;
-	dug.SetModulus(modulus);
-	typename Poly::TugType tug;
+	typename DCRTPoly::DugType dug;
+	typename DCRTPoly::TugType tug;
 
 	PROFILELOG("\nCryptosystem initialization: Performing precomputations...");
 
 	//This code is run only when performing execution time measurements
 
 	//Precomputations for FTT
-	ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(rootOfUnity, m, modulus);
 	DiscreteFourierTransform::GetInstance().PreComputeTable(m);
-
-	//Precomputations for DGG
-	TIC(t1);
-	timeDGGSetup = TOC(t1);
-	PROFILELOG("DGG Precomputation time: " << "\t" << timeDGGSetup << " ms");
 
 	////////////////////////////////////////////////////////////
 	//Test the cleartext pattern
@@ -204,15 +196,15 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 	DEBUG(" \nCleartext pattern length: ");
 	DEBUG(clearPattern.GetLength());
 
-	std::string inputStr1 = "1010";
+	std::string inputStr1 = "11100100111001001110010011100100";
 	bool out1 = algorithm.Evaluate(clearPattern, inputStr1);
 	DEBUG(" \nCleartext pattern evaluation of: " << inputStr1 << " is " << out1);
 
-	std::string inputStr2 = "1111";
+	std::string inputStr2 = "11001101110011011100110111001111";
 	bool out2 = algorithm.Evaluate(clearPattern, inputStr2);
 	DEBUG(" \nCleartext pattern evaluation of: " << inputStr2 << " is " << out2);
 
-	std::string inputStr3 = "1110";
+	std::string inputStr3 = "10101101101011011010110110101101";
 	bool out3 = algorithm.Evaluate(clearPattern, inputStr3);
 	DEBUG(" \nCleartext pattern evaluation of: " << inputStr3 << " is " << out3);
 
@@ -293,6 +285,7 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 	std::cout << "T: Eval 1 execution time:  " << "\t" << timeEval1 << " ms" << std::endl;
 	std::cout << "T: Eval 2 execution time:  " << "\t" << timeEval2 << " ms" << std::endl;
 	std::cout << "T: Eval 3 execution time:  " << "\t" << timeEval3 << " ms" << std::endl;
+	std::cout << "T: Average evaluation execution time:  " << "\t" << (timeEval1+timeEval2+timeEval3)/3 << " ms" << std::endl;
 	std::cout << "T: Total execution time:       " << "\t" << timeTotal << " ms" << std::endl;
 
 	if (errorflag) {
@@ -306,4 +299,5 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 
 	return (errorflag);
 }
+
 

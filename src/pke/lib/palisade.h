@@ -35,6 +35,9 @@ using std::string;
 #include <memory>
 using std::shared_ptr;
 
+#include <utility>
+using std::move;
+
 namespace lbcrypto {
 
 template <class Element>

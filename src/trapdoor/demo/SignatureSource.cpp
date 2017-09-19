@@ -79,7 +79,6 @@ void MultiThreadedRun() {
 	start = currentDateTime();
 	ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
 	DiscreteFourierTransform::GetInstance().PreComputeTable(sm);
-	Poly::PreComputeDggSamples(dgg, silParams);
 	finish = currentDateTime();
 	std::cout << "Precomputation time: " << finish - start << " ms" << std::endl;
 
@@ -208,7 +207,6 @@ void SingleThreadedRun() {
 		std::cout << "Signature precomputations" << std::endl;
 		ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
 		DiscreteFourierTransform::GetInstance().PreComputeTable(sm);
-		Poly::PreComputeDggSamples(dgg, silParams);
 		std::cout << "Precomputation time: " << finish - start << " ms" << std::endl;
 		LPSignatureParameters<Poly> signParams(silParams, dgg);
 		//LPSignKeyGPV<Poly> s_k(signParams);
@@ -328,7 +326,6 @@ void SingleThreadedRun() {
 		start = currentDateTime();
 		ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
 		DiscreteFourierTransform::GetInstance().PreComputeTable(sm);
-		Poly::PreComputeDggSamples(dgg, silParams);
 		finish = currentDateTime();
 		std::cout << "Precomputation time: " << finish - start << " ms" << std::endl;
 
@@ -399,7 +396,6 @@ void SingleThreadedRun() {
 		std::cout << "Signature precomputations" << std::endl;
 		start = currentDateTime();
 		ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
-		Poly::PreComputeDggSamples(dgg, silParams);
 		DiscreteFourierTransform::GetInstance().PreComputeTable(sm);
 		finish = currentDateTime();
 		std::cout << "Precomputation time: " << finish - start << " ms" << std::endl << std::endl;
@@ -472,7 +468,6 @@ void SingleThreadedRun() {
 		std::cout << "Signature precomputations" << std::endl;
 		start = currentDateTime();
 		ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
-		Poly::PreComputeDggSamples(dgg, silParams);
 		DiscreteFourierTransform::GetInstance().PreComputeTable(sm);
 		finish = currentDateTime();
 		std::cout << "Precomputation time: " << finish - start << " ms" << std::endl;

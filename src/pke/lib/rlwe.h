@@ -70,36 +70,6 @@ public:
 	}
 
 	/**
-	 * Constructor that initializes values.
-	 *
-	 * @param &params element parameters.
-	 * @param &plaintextModulus plaintext modulus.
-	 * @param distributionParameter noise distribution parameter.
-	 * @param assuranceMeasure assurance level.
-	 * @param securityLevel security level.
-	 * @param relinWindow the size of the relinearization window.
-	 * @param depth depth which defaults to 1.
-	 */
-	LPCryptoParametersRLWE(
-			shared_ptr<typename Element::Params> params,
-			const BigInteger &plaintextModulus,
-			float distributionParameter,
-			float assuranceMeasure,
-			float securityLevel,
-			usint relinWindow,
-			int depth = 1,
-			int maxDepth = 1) : LPCryptoParameters<Element>(params, plaintextModulus)
-					{
-		m_distributionParameter = distributionParameter;
-		m_assuranceMeasure = assuranceMeasure;
-		m_securityLevel = securityLevel;
-		m_relinWindow = relinWindow;
-		m_dgg.SetStd(m_distributionParameter);
-		m_depth = depth;
-		m_maxDepth = maxDepth;
-					}
-
-	/**
 	* Constructor that initializes values.
 	*
 	* @param &params element parameters.

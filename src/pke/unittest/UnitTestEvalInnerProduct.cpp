@@ -41,11 +41,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 using namespace std;
 using namespace lbcrypto;
 
-class UnitTestEvalInnerProduct : public ::testing::Test {
+class UTEvalIP : public ::testing::Test {
 protected:
-	virtual void SetUp() {}
+	void SetUp() {}
 
-	virtual void TearDown() {}
+	void TearDown() {
+		CryptoContextFactory<Poly>::ReleaseAllContexts();
+		CryptoContextFactory<DCRTPoly>::ReleaseAllContexts();
+	}
 
 public:
 };
@@ -54,7 +57,7 @@ usint ArbLTVInnerProductPackedArray(std::vector<usint> &input1,std::vector<usint
 usint ArbBVInnerProductPackedArray(std::vector<usint> &input1, std::vector<usint> &input2);
 usint ArbFVInnerProductPackedArray(std::vector<usint> &input1, std::vector<usint> &input2);
 
-TEST(UTEvalIP, Test_LTV_EvalInnerProduct) {
+TEST_F(UTEvalIP, Test_LTV_EvalInnerProduct) {
 
 	usint size = 10;
 	std::vector<usint> input1(size, 0);
@@ -79,7 +82,7 @@ TEST(UTEvalIP, Test_LTV_EvalInnerProduct) {
 	
 }
 
-TEST(UTEvalIP, Test_BV_EvalInnerProduct) {
+TEST_F(UTEvalIP, Test_BV_EvalInnerProduct) {
 	usint size = 10;
 	std::vector<usint> input1(size, 0);
 	std::vector<usint> input2(size, 0);
@@ -103,7 +106,7 @@ TEST(UTEvalIP, Test_BV_EvalInnerProduct) {
 
 }
 
-TEST(UTEvalIP, Test_FV_EvalInnerProduct) {
+TEST_F(UTEvalIP, Test_FV_EvalInnerProduct) {
 	
 	usint size = 10;
 	std::vector<usint> input1(size, 0);

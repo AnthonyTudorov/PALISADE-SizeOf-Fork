@@ -41,7 +41,7 @@
 #include <fstream>
 
 #include "../../trapdoor/lib/obfuscation/lweconjunctionobfuscatev3.h"
-#include "../../trapdoor/lib/obfuscation/lweconjunctionobfuscatev3.cpp"
+
 #include "time.h"
 #include <chrono>
 #include "utils/debug.h"
@@ -51,9 +51,9 @@
 
 namespace pycrypto {
 
-	typedef lbcrypto::LWEConjunctionObfuscationAlgorithm<lbcrypto::Poly> ObfAlgorithm;
-	typedef lbcrypto::ObfuscatedLWEConjunctionPattern<lbcrypto::Poly> ObfPattern;
-	typedef lbcrypto::ClearLWEConjunctionPattern<lbcrypto::Poly> ClearPattern;
+	typedef lbcrypto::LWEConjunctionObfuscationAlgorithm<lbcrypto::DCRTPoly> ObfAlgorithm;
+	typedef lbcrypto::ObfuscatedLWEConjunctionPattern<lbcrypto::DCRTPoly> ObfPattern;
+	typedef lbcrypto::ClearLWEConjunctionPattern<lbcrypto::DCRTPoly> ClearPattern;
 
 	class Obfuscator {
 

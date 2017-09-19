@@ -4,11 +4,11 @@ obfuscator = pycrypto.Obfuscator()
 
 obfPattern = "1?0"
 
-obfuscator.Initialize(obfPattern,8,1)
+obfuscator.Initialize(obfPattern,256,1)
 
 print ("Pattern to be obfuscated: " + obfPattern)
 
-print "Obfuscation completed."
+#print "Obfuscation completed."
 
 testpattern1 = "110"
 testpattern2 = "010"

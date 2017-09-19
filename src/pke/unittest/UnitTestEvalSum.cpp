@@ -41,11 +41,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 using namespace std;
 using namespace lbcrypto;
 
-class UnitTestEvalSum : public ::testing::Test {
+class UTEvalSum : public ::testing::Test {
 protected:
-	virtual void SetUp() {}
+	void SetUp() {}
 
-	virtual void TearDown() {}
+	void TearDown() {
+		CryptoContextFactory<Poly>::ReleaseAllContexts();
+		CryptoContextFactory<DCRTPoly>::ReleaseAllContexts();
+	}
 
 public:
 };
@@ -57,7 +60,7 @@ usint ArbBVEvalSumPackedArrayPrime(std::vector<usint> &clearVector);
 usint ArbFVEvalSumPackedArray(std::vector<usint> &clearVector);
 
 
-TEST(UTEvalSum, Test_LTV_EvalSum) {
+TEST_F(UTEvalSum, Test_LTV_EvalSum) {
 
 	usint size = 10;
 	std::vector<usint> input(size,0);
@@ -82,7 +85,7 @@ TEST(UTEvalSum, Test_LTV_EvalSum) {
 }
 
 
-TEST(UTEvalSum, Test_BV_EvalSum) {
+TEST_F(UTEvalSum, Test_BV_EvalSum) {
 	usint size = 10;
 	std::vector<usint> input(size,0);
 	usint limit = 15;
@@ -104,7 +107,7 @@ TEST(UTEvalSum, Test_BV_EvalSum) {
 	EXPECT_EQ(result, expectedSum);
 }
 
-TEST(UTEvalSum, Test_BV_EvalSum_Prime_Cyclotomics) {
+TEST_F(UTEvalSum, Test_BV_EvalSum_Prime_Cyclotomics) {
 	usint size = 10;
 	std::vector<usint> input(size, 0);
 	usint limit = 15;
@@ -126,7 +129,7 @@ TEST(UTEvalSum, Test_BV_EvalSum_Prime_Cyclotomics) {
 	EXPECT_EQ(result, expectedSum);
 }
 
-TEST(UTEvalSum, Test_FV_EvalSum) {
+TEST_F(UTEvalSum, Test_FV_EvalSum) {
 	
 	usint size = 10;
 	std::vector<usint> input(size,0);
