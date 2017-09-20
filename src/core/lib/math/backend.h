@@ -62,29 +62,10 @@
 // MATHBACKEND 6
 //		This uses gmp_int:: definition as default
 // 		GMP 6.1.2 / NTL 10.3.0 backend
-//passes all core tests 
+//passes all core,pke,trapdoor, tests
+//currently fails in compile of src/pke/demo/Temp-transform-benchmark.cpp
 //
-/// if FORCE_NORMALIZATION not set
-//fails
-//[  FAILED  ] UTFVBATCHING.Poly_EVALMULT_Arb
-//[  FAILED  ] UTEvalCC.Test_FV_EvalCC
-//[  FAILED  ] UTEvalIP.Test_FV_EvalInnerProduct
-//[  FAILED  ] UTEvalLR.Test_FV_EvalLR
-//[  FAILED  ] UTPRE.BV_DCRTPoly_ReEncrypt_pri
-//[  FAILED  ] UTSHE.LTV_Poly_Add
-//[  FAILED  ] UTSHE.StSt_Poly_Add
-//[  FAILED  ] UTSHE.BV_Poly_Add
-//[  FAILED  ] UTSHE.LTV_Poly_Mult
-//[  FAILED  ] UTSHE.BV_Poly_Mult
-//[  FAILED  ] UTSHE.BV_DCRTPoly_Mult
-
-/* // fails */
-//UTSignatureGPV.sign_verify_multiple_texts
-//UTTrapdoor.TrapDoorGaussGqSampTest
-//UTTrapdoor.TrapDoorGaussSampTest
-//
-//if FORCE_NORMALIZATION is set then 32 tests fail so dont use this.
-
+/// 
 // MATHBACKEND 7
 // 		This uses native_int:: as the default
 // This backend provides a maximum size of 64 bits
