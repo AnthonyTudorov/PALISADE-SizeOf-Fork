@@ -30,7 +30,8 @@
  * NOTE: this has been refactored so that implied modulo (ring)  aritmetic is in mbintvec
  *
  */
-
+#define FASTNLOOSE
+#define FORCE_NORMALIZATION
 
 #include "../../utils/serializable.h"
 
@@ -86,22 +87,6 @@ namespace NTL {
     }
     this->move(a);
   }
-
-  //movecopy ctor
-#if 0 //figure out how to do this correctly
-  template<class myT>
-  myVecP<myT>::myVecP(myVec<myZZ> &&a) : Vec<myT>(INIT_SIZE, a.length()) 
-    //note use .length() here to return long which Vec expects
-  {
-    bool dbg_flag = false;
-    DEBUG("in myVecP copymove myVec<myZZ>, alength "<<a.length());
-    // wasn't able to use Victor's move(a);
-    for (size_t i=0; i< a.size(); i++) {
-      (*this)[i]=a[i];
-    }
-    this->m_modulus_state = GARBAGE;
-  }
-#endif
 
   //constructors with moduli
   //ctor myZZ moduli
@@ -440,51 +425,6 @@ namespace NTL {
   template<class myT>
   void myVecP<myT>::SwitchModulus(const myZZ& newModulus) 
   {
-#if 0 //old mgmpintvec way
-    bool dbg_flag = false;
-    DEBUG("Switch modulus old mod :"<<this->m_modulus);
-    DEBUG("Switch modulus old this :"<<*this);
-
-    
-    myZZ oldModulus(this->m_modulus);
-    myZZ n;
-    myZZ oldModulusByTwo(oldModulus>>1);
-    myZZ diff ((oldModulus > newModulus) ? (oldModulus-newModulus) : (newModulus - oldModulus));
-    DEBUG("Switch modulus diff :"<<diff);
-#ifdef FORCE_NORMALIZATION
-    //    if (newModulus > oldModulus) {
-    //  this->SetModulus(newModulus); // set now in order to write correct numbers.
-    //  }
-#endif
-    for (size_t i=0; i< this->size(); i++) {
-      n = conv<myZZ>(this->GetValAtIndex(i));
-      DEBUG("i,n "<<i<<" "<< n);
-      if(oldModulus < newModulus) {
-	if(n > oldModulusByTwo) {
-	  DEBUG("s1 "<<n.ModAdd(diff, newModulus));
-	  this->SetValAtIndexWithoutMod(i, n.ModAdd(diff, newModulus));
-	} else {
-	  DEBUG("s2 "<<n.Mod(newModulus));
-	  this->SetValAtIndexWithoutMod(i, n.Mod(newModulus));
-	}
-      } else {
-	if(n > oldModulusByTwo) {
-	  DEBUG("s3 "<<n.ModSub(diff, newModulus));
-	  this->SetValAtIndexWithoutMod(i, n.ModSub(diff, newModulus));
-	} else {
-	  DEBUG("s4 "<<n.Mod(newModulus));
-	  this->SetValAtIndexWithoutMod(i, n.Mod(newModulus));
-	}
-      }
-    }
-    DEBUG("Switch modulus this before set :"<<*this);
-    //if (newModulus < oldModulus) {
-      this->SetModulus(newModulus); // set now to correct output
-      //}
-    DEBUG("Switch modulus new modulus :"<<this->m_modulus);
-    DEBUG("Switch modulus new this :"<<*this);
-
-#else //direct port of current binvect BE 2
 
     bool dbg_flag = false;
     DEBUG("Switch modulus old mod :"<<this->m_modulus);
@@ -502,18 +442,18 @@ namespace NTL {
       if(oldModulus < newModulus) {
 	if(n > oldModulusByTwo) {
 	  DEBUG("s1 "<<n.ModAdd(diff, newModulus));
-	  this->SetValAtIndex(i, n.ModAdd(diff, newModulus));
+	  this->SetValAtIndexWithoutMod(i, n.ModAdd(diff, newModulus));
 	} else {
 	  DEBUG("s2 "<<n.Mod(newModulus));
-	  this->SetValAtIndex(i, n.Mod(newModulus));
+	  this->SetValAtIndexWithoutMod(i, n.Mod(newModulus));
 	}
       } else {
 	if(n > oldModulusByTwo) {
 	  DEBUG("s3 "<<n.ModSub(diff, newModulus));				
-	  this->SetValAtIndex(i, n.ModSub(diff, newModulus));
+	  this->SetValAtIndexWithoutMod(i, n.ModSub(diff, newModulus));
 	} else {
 	  DEBUG("s4 "<<n.Mod(newModulus));
-	  this->SetValAtIndex(i, n.Mod(newModulus));
+	  this->SetValAtIndexWithoutMod(i, n.Mod(newModulus));
 	}
       }
     }
@@ -521,8 +461,6 @@ namespace NTL {
     this->SetModulus(newModulus);
     DEBUG("Switch modulus new modulus :"<<this->m_modulus);
     DEBUG("Switch modulus new this :"<<*this);
-
-#endif
 
   }
   
@@ -652,7 +590,8 @@ namespace NTL {
 #endif
     }
 
-    myVecP<myT>::modadd_p(res, *this, b%m_modulus);
+    //myVecP<myT>::modadd_p(res, *this, b%m_modulus);
+    myVecP<myT>::modadd_p(res, *this, b);
     //NTL_OPT_RETURN(myVecP<myT>, res);
     DEBUG("myVecP::operator+ returning modulus "<<res.m_modulus);
     return(res);
@@ -763,7 +702,7 @@ namespace NTL {
       std::cerr<<"in operator*(myVecP) Bad CopyModulus"<<std::endl;
 #endif
     }
-  myVecP<myT>::modmul_p(res, *this, b);
+    myVecP<myT>::modmul_p(res, *this, b);
     //NTL_OPT_RETURN(myVecP<myT>, res);
     DEBUG("myVecP::operator* returning modulus "<<res.m_modulus);
     return(res);
@@ -976,7 +915,7 @@ namespace NTL {
 
   //procedural addition
   template<class myT>
-    void  myVecP<myT>::modadd_p(myVecP<myT>& x, myVecP<myT> const& a, myVecP<myT> const& b) const
+  inline  void  myVecP<myT>::modadd_p(myVecP<myT>& x, myVecP<myT> const& a, myVecP<myT> const& b) const
   {
     bool dbg_flag = false;
     a.ArgCheckVector(b, "myVecP::modadd()");
@@ -990,7 +929,11 @@ namespace NTL {
     DEBUG("this->m_modulus "<<this->m_modulus);    
     for (size_t i = 0; i < n; i++){
       DEBUG("myvecp::add i:"<<i<<"a "<<a[i]<<" b "<<b[i]);
+#ifndef FASTNLOOSE 
       x[i]=a[i].ModAdd(b[i],m_modulus); // modulo add
+#else
+      x[i]=a[i].ModAddFast(b[i],m_modulus); // modulo add
+#endif
     }
     DEBUG("x "<<x);
     DEBUG("myvecp::done");
@@ -1014,7 +957,11 @@ namespace NTL {
 
     for (size_t i = 0; i < n; i++){
       DEBUG("myvecp::sub i:"<<i<<"a "<<a[i]<<" b "<<b[i]);
+#ifndef FASTNLOOSE 
       x[i]=a[i].ModSub(b[i],m_modulus); //inmplicit modulo sub
+#else
+      x[i]=a[i].ModSubFast(b[i],m_modulus); //inmplicit modulo sub
+#endif
     }
     DEBUG("myvecp::done");
     //todo make modulus explicit.
@@ -1022,7 +969,7 @@ namespace NTL {
 
 
   template<class myT>
-  void  myVecP<myT>::modmul_p(myVecP<myT>& x, myVecP<myT> const& a, myVecP<myT> const& b) const
+  inline void  myVecP<myT>::modmul_p(myVecP<myT>& x, myVecP<myT> const& a, myVecP<myT> const& b) const
   {
     bool dbg_flag = false;
     a.ArgCheckVector(b, "myVecP::mul()");
@@ -1040,8 +987,11 @@ namespace NTL {
 
     for (i = 0; i < n; i++){
       DEBUG("myvecp::mul i:"<<i<<"a "<<a[i]<<" b "<<b[i]);
-
+#ifndef FASTNLOOSE 
       x[i]=a[i].ModMul(b[i],m_modulus); //inmplicit modulo mul
+#else
+      x[i]=a[i].ModMulFast(b[i],m_modulus); //inmplicit modulo mul
+#endif
     }
     DEBUG("myvecp::done");
     //todo make modulus explicit.
