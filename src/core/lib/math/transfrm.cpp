@@ -27,10 +27,10 @@
 #include "transfrm.h"
 
 
-//note defining these use  NTL speedups that could be used, once we are sure BE 6 is
-//working completely
-
+#if MATHBACKEND == 6
+//note these NTL speedups only work with MATH BACKEND 6
 #define NTL_SPEEDUP
+#endif
 
 namespace lbcrypto {
 
