@@ -1,0 +1,2 @@
+echo "bin/demo/trapdoor/DCRTObfuscateSimulator32V4 1 3 "
+bin/demo/trapdoor/DCRTObfuscateSimulator32V4 1 3 
