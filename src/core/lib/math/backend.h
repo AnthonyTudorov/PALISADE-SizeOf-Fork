@@ -73,9 +73,9 @@
 //To select backend, please UNCOMMENT the appropriate line rather than changing the number on the
 //uncommented line (and breaking the documentation of the line)
 
-//#define MATHBACKEND 2
+#define MATHBACKEND 2
 //#define MATHBACKEND 4
-#define MATHBACKEND 6 
+//#define MATHBACKEND 6 
 //#define MATHBACKEND 7
 
 ////////// cpu_int code
@@ -89,7 +89,7 @@ static_assert(cpu_int::DataTypeChecker<integral_dtype>::value,"Data type provide
 		The bitwidth can be decreased to the least value still supporting BigInteger operations for a specific application -
 		to achieve smaller runtimes
 	**/
-#define BigIntegerBitLength 365 //for documentation on tests
+#define BigIntegerBitLength 1500 //for documentation on tests
 
 ////////// for exp_int, decide if you want 32 bit or 64 bit underlying integers in the implementation
 #define UBINT_32
