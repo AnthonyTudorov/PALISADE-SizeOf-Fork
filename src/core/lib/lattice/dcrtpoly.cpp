@@ -719,6 +719,14 @@ const DCRTPolyImpl<ModType,IntType,VecType,ParmType>& DCRTPolyImpl<ModType,IntTy
 	return *this;
 }
 
+
+template<typename ModType, typename IntType, typename VecType, typename ParmType>
+  void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::SetValuesToZero()
+  {
+  	for(usint i = 0; i < m_vectors.size(); i++) {
+  		m_vectors[i].SetValuesToZero();
+  	}
+  }
 /*OTHER FUNCTIONS*/
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>

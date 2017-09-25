@@ -1,5 +1,3 @@
-#include "abe/kp_abe.h"
-#include "abe/cp_abe.h"
 #include "abe/ibe.h"
 #include <iostream>
 #include <fstream>

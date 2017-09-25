@@ -74,6 +74,7 @@ namespace lbcrypto {
 			RingMat *psi
 		);
 
+template <class Element, class Element2>
 class KPABE {
 public:
 
@@ -102,11 +103,11 @@ public:
 	* @param *publicElementB is a matrix where each column corresponds to the public vector of each attribute
 	*/
 	void Setup(
-			const shared_ptr<ILParams> ilParams,
+			const shared_ptr<typename Element::Params> params,
 			int32_t base,
 			usint ell, // number of attributes
-			const DiscreteUniformGenerator &dug, // select according to uniform distribution
-			RingMat *pubElemB
+			typename Element::DugType &dug, // select according to uniform distribution
+			Matrix<Element> *pubElemB
 		);
 
 	/**
@@ -117,7 +118,7 @@ public:
 	* @param ell total number of attributes
 	*/
 	void Setup(
-			const shared_ptr<ILParams> ilParams,
+			const shared_ptr<typename Element::Params> params,
 			int32_t base,
 			const usint ell
 		);
@@ -131,9 +132,45 @@ public:
 	* @param *evalPubElement total number of attributes
 	*/
 	void EvalPK(
-			const shared_ptr<ILParams> ilParams,
-			const RingMat &pubElemB,
-			RingMat *evalPubElementBf
+			const shared_ptr<typename Element::Params> params,
+			const Matrix<Element> &pubElemB,
+			Matrix<Element> *evalPubElementBf
+		);
+
+	/**
+	* Evaluation function for public vectors publicElementB
+	* for the benchmark circuit
+	*
+	* @param params parameter set
+	* @param &publicElementB is a matrix where each column corresponds to the public vector of each attribute
+	* @param *evalPubElement total number of attributes
+	*/
+	void EvalPKDCRT(
+			const shared_ptr<typename Element::Params> params,
+			const Matrix<Element> &pubElemB,
+			Matrix<Element> *evalPubElementBf,
+			const shared_ptr<typename Element2::Params> ilParams
+		);
+
+	/**
+	* Evaluation function for public vectors publicElementB
+	* for the benchmark circuit
+	*
+	* @param params parameter set
+	* @param &publicElementB is a matrix where each column corresponds to the public vector of each attribute
+	* @param x[] array of attributes
+	* @param &origCT original ciphertext
+	* @param *evalAttribute evaluated value of circuit
+	* @param *evalCT evaluated ciphertext value
+	*/
+	void EvalCTDCRT(
+			const shared_ptr<typename Element::Params> params,
+			const Matrix<Element> &pubElemB,
+			const usint x[],  //attributes
+			const Matrix<Element> &origCT, // original ciphtertext
+			usint *evalAttribute, // evaluated circuit
+			Matrix<Element> *evalCT, //evaluated ciphertext,
+			const shared_ptr<typename Element2::Params> ilParams
 		);
 
 	/**
@@ -251,23 +288,23 @@ public:
 	* @param *ctC1 c1, a separate part of the cipertext as per the algorithm
 	*/
 	void Encrypt(
-			shared_ptr<ILParams> ilParams,
-			const RingMat &pubElemA,
-			const RingMat &pubElemB,
-			const Poly &d, //TBA
+			const shared_ptr<typename Element::Params> params,
+			const Matrix<Element> &pubElemA,
+			const Matrix<Element> &pubElemB,
+			const Element &d, //TBA
 			const usint x[],
-			const Poly &pt,
-			DiscreteGaussianGenerator &dgg,
-			DiscreteUniformGenerator &dug,
+			const Element &pt,
+			typename Element::DggType &dgg,
+			typename Element::DugType &dug,
 			BinaryUniformGenerator &bug,
-			RingMat *ctCin,
-			Poly *ctC1
+			Matrix<Element> *ctCin,
+			Element *ctC1
 		);
 
 	/**
-	* Encrypt Function
+	* KeyGen Function
 	*
-	* @param ilParams parameter set
+	* @param params parameter set
 	* @param &pubElementA Public parameter $A \in R_q^{1 \times w}$
 	* @param &pubElementB Public parameter $B \in R_q^{ell \times k}$
 	* @param &beta public key $d \in R_q$  TBA
@@ -276,19 +313,19 @@ public:
 	* @param *sk secret key
 	*/
 	void KeyGen(
-			const shared_ptr<ILParams> ilParams,
-			const RingMat &pubElemA,
-			const RingMat &pubElemB,
-			const Poly &beta,
-			const RLWETrapdoorPair<Poly> &secElemTA,
-		    DiscreteGaussianGenerator &dgg,
-			RingMat *sk
+			const shared_ptr<typename Element::Params> params,
+			const Matrix<Element> &pubElemA,
+			const Matrix<Element> &pubElemB,
+			const Element &beta,
+			const RLWETrapdoorPair<Element> &secElemTA,
+			typename Element::DggType &dgg,
+			Matrix<Element> *sk
 		);
 
 	/**
-	* Encrypt Function
+	* Decrypt Function
 	*
-	* @param ilParams parameter set
+	* @param params parameter set
 	* @param &sk Secret Key
 	* @param &ctA ciphertext A as per paper
 	* @param &evalCT evaluated ciphertext Cf pertaining to a policy
@@ -296,13 +333,23 @@ public:
 	* @param *dtext decrypted ciphetext
 	*/
 	void Decrypt(
-		    const shared_ptr<ILParams> ilParams,
-		    const RingMat &sk,  //Secret key
-		    const RingMat &ctA, // ciphertext CA
-		    const RingMat &evalCT, //cipher text Cf
-		    const Poly &ctC1,   // ciphertext C1
-		    Poly *dtext         //decrypted plaintext
+		    const shared_ptr<typename Element::Params> params,
+		    const Matrix<Element> &sk,  //Secret key
+		    const Matrix<Element> &ctA, // ciphertext CA
+		    const Matrix<Element> &evalCT, //cipher text Cf
+		    const Element &ctC1,   // ciphertext C1
+			Element *dtext         //decrypted plaintext
 		);
+
+	/**
+	* Decode Function
+	*
+	* @param *dtext decoded ciphertext
+	*/
+	void Decode(
+			Poly *dtext         //decrypted plaintext
+		);
+
 
 private:
 	usint m_k; //number of bits of the modulus
