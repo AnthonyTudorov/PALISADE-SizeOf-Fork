@@ -1034,7 +1034,7 @@ inline BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::operator
 //Reference:http://pctechtips.org/convert-from-decimal-to-binary-with-recursion-in-java/
 template<typename uint_type,usint BITLENGTH>
 void BigInteger<uint_type,BITLENGTH>::AssignVal(const std::string& v){
-
+        bool dbg_flag = false;
 	uschar *DecValue;//array of decimal values
 	int arrSize=v.length();
 	
@@ -1064,11 +1064,11 @@ void BigInteger<uint_type,BITLENGTH>::AssignVal(const std::string& v){
 		}
 		DecValue[arrSize-1]>>=1;
 		//division ends here
-#ifdef DEBUG
-		for(int i=zptr;i<arrSize;i++)
-			std::cout<<(short)DecValue[i];//for debug purpose
-		std::cout<<std::endl;
-#endif
+		if (dbg_flag) {
+			for(int i=zptr;i<arrSize;i++)
+				std::cout<<(short)DecValue[i];//for debug purpose
+			std::cout<<std::endl;
+		}
 		cnt--;
 		if(cnt==-1){//cnt = -1 indicates bitArr is ready for transfer
 			cnt=m_uintBitLength-1;
