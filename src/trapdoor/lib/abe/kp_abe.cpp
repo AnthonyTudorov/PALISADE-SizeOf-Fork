@@ -53,7 +53,6 @@ namespace lbcrypto {
 				(*psi)(j, i).SetValuesToZero();
 				if ((*psi)(j, i).GetFormat() != COEFFICIENT){
 					(*psi)(j, i).SwitchFormat();
-					std::cout << "We are being called" << std::endl;
 				}
 			}
 		for (usint ii=0; ii<m; ii++) {
@@ -61,7 +60,6 @@ namespace lbcrypto {
 			auto tB = pubElemB(0, ii);
 			if(tB.GetFormat() != COEFFICIENT){
 				tB.SwitchFormat();
-				std::cout << "We are being called" << std::endl;
 			}
 
 			for(usint i=0; i<ringDimesion; i++) {
@@ -115,7 +113,6 @@ namespace lbcrypto {
 			}
 		}
 
-	//	psi->SwitchFormat();
 		return 0;
 	}
 
@@ -198,12 +195,12 @@ namespace lbcrypto {
 
 			usint gateCnt = m_ell - 1;
 
-			RingMat psi(zero_alloc, m_m, m_m); // Needed for bit decomposition matrices
+			Matrix<Element> psi(zero_alloc, m_m, m_m); // Needed for bit decomposition matrices
 			// w stands for wire
-			RingMat wpublicElementB(zero_alloc, gateCnt, m_m);   // Bis associated with internal wires of the circuit
+			Matrix<Element> wpublicElementB(zero_alloc, gateCnt, m_m);   // Bis associated with internal wires of the circuit
 			// Temporary variables for bit decomposition operation
 			RingMat negpublicElementB(zero_alloc, 1, m_m);       // EVALUATION (NTT domain)
-			std::vector<Poly> digitsC1(m_m);
+			std::vector<Element> digitsC1(m_m);
 
 			// Input level of the circuit
 			usint t = m_ell >> 1;  // the number of the gates in the first level (the number of input gates)
@@ -215,7 +212,7 @@ namespace lbcrypto {
 
 				PolyVec2BalDecom (params, m_base, m_k, negpublicElementB, &psi);
 
-	//			psi.SwitchFormat();
+				psi.SwitchFormat();
 
 				/* Psi^T*C2 and B2*Psi */
 				for (usint j = 0; j < m_m; j++) { // the following two for loops are for vector matrix multiplication (a.k.a B(i+1) * BitDecompose(-Bi) and  gamma (0, 2) (for the second attribute of the circuit) * bitDecompose(-B))
@@ -249,7 +246,7 @@ namespace lbcrypto {
 
 					PolyVec2BalDecom (params, m_base, m_k, negpublicElementB, &psi);
 
-		//			psi.SwitchFormat();
+					psi.SwitchFormat();
 
 					for (usint j = 0; j < m_m; j++)
 					{
@@ -302,9 +299,9 @@ namespace lbcrypto {
 		//Added for dcrt
 		auto zero_alloc_poly = Poly::MakeAllocator(ilParamsConsolidated, COEFFICIENT);
 
-		Matrix<Poly> psiPoly(zero_alloc_poly, m_m, m_m); // Needed for Bit Decomposition (BD) matrices
+		Matrix<Element2> psiPoly(zero_alloc_poly, m_m, m_m); // Needed for Bit Decomposition (BD) matrices
 
-		Matrix<Poly> negBPolyMatrix(zero_alloc_poly, 1, m_m);
+		Matrix<Element2> negBPolyMatrix(zero_alloc_poly, 1, m_m);
 
 
 		// Input level of the circuit
@@ -324,24 +321,6 @@ namespace lbcrypto {
 					}
 				}
 
-/*
-
-			std::cout << "FORMAT NEGPUBELEM: " <<negPubElemB(0,3).GetFormat() << std::endl;
-//			negBPolyMatrix(0,3).PrintValues();
-
-
-			Element tempTest(negBPolyMatrix(0,3), params);
-			std::cout << "TEMP TEST FORMAT: " << tempTest.GetFormat() << std::endl;
-
-			std::cout << "Printing before reconstruction" << std::endl;
-			negPubElemB(0,3).SwitchFormat();
-			negPubElemB(0,3).PrintValues();
-			std::cout << "Printing after reconstruction" << std::endl;
-			tempTest.PrintValues();
-*/
-
-			//	Poly x(tempTest.CRTInterpolate());
-		//	x.PrintValues();
 
 			PolyVec2BalDecom(ilParamsConsolidated, m_base, m_k, negBPolyMatrix, &psiPoly);
 
@@ -375,8 +354,8 @@ namespace lbcrypto {
 		 * Thus, we start with depth 1
 		 */
 
-		Matrix<Poly> negBPolyMatrix_Two(zero_alloc_poly, 1, m_m);
-		Matrix<Poly> psiPoly_Two(zero_alloc_poly, m_m, m_m); // Needed for Bit Decomposition (BD) matrices
+		Matrix<Element2> negBPolyMatrix_Two(zero_alloc_poly, 1, m_m);
+		Matrix<Element2> psiPoly_Two(zero_alloc_poly, m_m, m_m); // Needed for Bit Decomposition (BD) matrices
 
 		usint depth = log2(m_ell);
 		for(usint d=1; d<depth; d++)
@@ -458,15 +437,15 @@ template <class Element, class Element2>
 				auto zero_alloc = Poly::MakeAllocator(ilParams, EVALUATION);
 
 				usint gateCnt = m_ell - 1;
-				RingMat psi(zero_alloc, m_m, m_m); // Needed for Bit Decomposition (BD) matrices
+				Matrix<Element> psi(zero_alloc, m_m, m_m); // Needed for Bit Decomposition (BD) matrices
 
 				// w stands for Wire
-				RingMat wPublicElementB(zero_alloc, gateCnt, m_m);   // Bis associated with internal wires of the circuit
-				RingMat wCT(zero_alloc, gateCnt, m_m);  // Ciphertexts associated with internal wires of the circuit
+				Matrix<Element> wPublicElementB(zero_alloc, gateCnt, m_m);   // Bis associated with internal wires of the circuit
+				Matrix<Element> wCT(zero_alloc, gateCnt, m_m);  // Ciphertexts associated with internal wires of the circuit
 				usint *wX = new usint[gateCnt]; // Attribute values associated with internal wires of the circuit
 
 				// Temporary variables for bit decomposition operation
-				RingMat negB(zero_alloc, 1, m_m);       // EVALUATION (NTT domain)
+				Matrix<Element> negB(zero_alloc, 1, m_m);       // EVALUATION (NTT domain)
 				std::vector<Poly> digitsC1(m_m);
 
 				// Input level of the circuit
@@ -481,7 +460,7 @@ template <class Element, class Element2>
 
 					PolyVec2BalDecom (ilParams, m_base, m_k, negB, &psi);
 
-			//		psi.SwitchFormat();
+					psi.SwitchFormat();
 
 					/*Starting computation for a NAND circuit*/
 					/* x2 * C1 */
@@ -532,7 +511,7 @@ template <class Element, class Element2>
 
 						PolyVec2BalDecom (ilParams, m_base, m_k, negB, &psi);
 
-				//		psi.SwitchFormat();
+						psi.SwitchFormat();
 
 						// x2*C1
 						for (usint j = 0; j < m_m; j++) {
@@ -755,8 +734,8 @@ template <class Element, class Element2>
 	 * Note that B is two dimensional array of ring elements (matrix);
 	 * Each row corresponds B_i for i = 0, 1, ... ell, where ell is the number of attributes
 	 */
-	template <class Element, class Element2>
-		void KPABE<Element, Element2>::Encrypt(
+template <class Element, class Element2>
+	void KPABE<Element, Element2>::Encrypt(
 			const shared_ptr<typename Element::Params> params,
 			const Matrix<Element> &pubElemA,
 			const Matrix<Element> &pubElemB,
@@ -779,8 +758,6 @@ template <class Element, class Element2>
 			qHalf.SwitchFormat();
 			qHalf.AddILElementOne();
 
-		//	Element err1(params, COEFFICIENT, true); // error term
-		//	err1.SetValues(dgg.GenerateVector(m_N, params->GetModulus()), COEFFICIENT);
 			Element err1 = Element(dgg, params, COEFFICIENT);
 			err1.SwitchFormat();
 
@@ -846,7 +823,6 @@ template <class Element, class Element2>
 
 			double c = (m_base + 1) * SIGMA;
 			double s = SPECTRAL_BOUND(m_N, m_m - 2, m_base);
-		//	DiscreteGaussianGenerator dggLargeSigma(sqrt(s * s - c * c));
 			typename Element::DggType dggLargeSigma = typename Element::DggType(sqrt(s * s - c * c));
 
 			Matrix<Element> skA(Element::MakeAllocator(params, EVALUATION), m_m, 1);
@@ -910,6 +886,97 @@ template <class Element, class Element2>
 			}
 
 		}
+
+/*
+ * This is method for evaluating a single NAND gate
+ */
+template <class Element, class Element2>
+void KPABE<Element, Element2>::NANDGateEvalCT(
+	const shared_ptr<ILParams> ilParams,
+	const RingMat &ctC0,
+	const usint x[],
+	const RingMat &origPubElem,
+	const RingMat &origCT,
+	usint *evalAttribute,
+	RingMat *evalCT
+)
+{
+	auto zero_alloc = Poly::MakeAllocator(ilParams, EVALUATION);
+
+	RingMat psi(zero_alloc, m_m, m_m);
+
+	RingMat negB(zero_alloc, 1, m_m);  			// EVALUATE (NTT domain)
+	std::vector<Poly> digitsC1(m_m);
+
+	(*evalAttribute) = 1 - x[0]*x[1];  // Boolean output
+
+	/* -B1 */
+	for (usint j = 0; j < m_m; j++)     // Negating B1 for bit decomposition
+		negB(0, j) = origPubElem(0, j).Negate();
+
+	PolyVec2BalDecom (ilParams, m_base, m_k, negB, &psi);
+
+	psi.SwitchFormat();
+
+	/* x2*C1 */
+	for (usint i = 0; i < m_m; i++) {
+		if(x[1] != 0)
+			(*evalCT)(0, i) = origCT(0, i);
+		else
+			(*evalCT)(0, i).SetValuesToZero();
+	}
+
+	/* B2*Psi; Psi*C2 */
+	for (usint i = 0; i < m_m; i++) {
+		(*evalCT)(0, i) += psi(0, i) * origCT(1, 0);
+		for (usint j = 1; j < m_m; j++) {
+			(*evalCT)(0, i) += psi(j, i) * origCT(1, j);
+		}
+	}
+
+	for (usint i = 0; i < m_m; i++) {
+		(*evalCT)(0, i) = ctC0(0, i) - (*evalCT)(0, i);
+	}
+}
+
+
+/*
+ * This is method for evaluating a single NAND gate
+ */
+template <class Element, class Element2>
+void KPABE<Element, Element2>::NANDGateEvalPK(
+	const shared_ptr<ILParams> ilParams,
+	const RingMat &pubElemB0,
+	const RingMat &origPubElem,
+	RingMat *evalPubElem
+)
+{
+	auto zero_alloc = Poly::MakeAllocator(ilParams, EVALUATION);
+
+	RingMat psi(zero_alloc, m_m, m_m);
+
+	RingMat negB(zero_alloc, 1, m_m);  			// EVALUATE (NTT domain)
+
+	/* -B1 */
+	for (usint j = 0; j < m_m; j++)     // Negating B1 for bit decomposition
+		negB(0, j) = origPubElem(0, j).Negate();
+
+	PolyVec2BalDecom (ilParams, m_base, m_k, negB, &psi);
+
+	psi.SwitchFormat();
+
+	/* B2*Psi; Psi*C2 */
+	for (usint i = 0; i < m_m; i++) {
+		(*evalPubElem)(0, i) = origPubElem(1, 0) * psi(0, i);
+		for (usint j = 1; j < m_m; j++) {
+			(*evalPubElem)(0, i) += origPubElem(1, j) * psi(j, i);
+		}
+	}
+
+	for (usint i = 0; i < m_m; i++) {
+		(*evalPubElem)(0, i) = pubElemB0(0, i) - (*evalPubElem)(0, i);
+	}
+}
 
 
 }

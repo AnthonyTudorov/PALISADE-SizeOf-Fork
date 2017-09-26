@@ -19,6 +19,8 @@ int main()
 {
 
 	KPABE_BenchmarkCircuitTestDCRT(4, 32);
+	KPABEBenchMarkCircuit(4, 32, 2048);
+
 
 	return 0;
 }
@@ -120,7 +122,7 @@ int KPABE_BenchmarkCircuitTestDCRT(usint iter, int32_t base)
 	usint ringDimension = 2048;   // ring dimension
 	usint n = ringDimension * 2;   // cyclotomic order
 //	usint k = 21;
-	usint ell = 2; // No of attributes for NAND gate
+	usint ell = 8; // No of attributes
 
 //	native_int::BigInteger q = native_int::BigInteger::ONE << (k - 1);
 //	q = lbcrypto::FirstPrime<native_int::BigInteger>(k, n);
