@@ -351,6 +351,56 @@ public:
 		);
 
 
+	/**
+	* Evaluation of a single NAND gate
+	* NAND gate is universal,
+	* any Boolean function can be constructed from NAND gates
+	*
+	* @param ilParams parameter set
+	* @param &pubElemB0
+	* @param &origPubElem original matrix of public vectors for each attribute
+	* @param *evalPubElem evaluated value of public element
+	*/
+	/*
+	 * This is method for evaluating a single NAND gate
+	 */
+	void NANDGateEvalPKDCRT(
+			const shared_ptr<typename Element::Params> params,
+		    const Matrix<Element> &pubElemB0,
+		    const Matrix<Element> &origPubElem,
+			Matrix<Element> *evalPubElem,
+			const shared_ptr<ILParams> ilParamsConsolidated
+	    );
+
+
+	/**
+	* Evaluation of a single NAND gate
+	* NAND gate is universal,
+	* any Boolean function can be constructed from NAND gates
+	*
+	* @param ilParams parameter set
+	* @param &ctC0
+	* @param x[] array of attributes
+	* @param &origPubElem original matrix of public vectors for each attribute
+	* @param &origCT original ciphertext
+	* @param *evalAttribute evaluated value of circuit
+	* @param *evalCT evaluated ciphertext value
+	*/
+	/*
+	 * This is method for evaluating a single NAND gate
+	 */
+	void NANDGateEvalCTDCRT(
+			const shared_ptr<typename Element::Params> params,
+		    const Matrix<Element> &ctC0,
+		    const usint x[],
+		    const Matrix<Element> &origPubElem,
+		    const Matrix<Element> &origCT,
+		    usint *evalAttribute,
+			Matrix<Element> *evalCT,
+		    const shared_ptr<ILParams> ilParamsConsolidated
+ 	    );
+
+
 private:
 	usint m_k; //number of bits of the modulus
 	usint m_ell; //number of attributes
