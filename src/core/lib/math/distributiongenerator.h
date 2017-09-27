@@ -40,7 +40,7 @@
 #include <thread>
 #include "backend.h"
 
-//#define FIXED_SEED // if defined, then uses a fixed seed number for reproducable results during debug
+//#define FIXED_SEED // if defined, then uses a fixed seed number for reproducable results during debug. Use only one OMP thread to ensure reproducability 
 
 namespace lbcrypto {
 
@@ -59,7 +59,7 @@ public:
 			std::random_device rd;
 #if defined(FIXED_SEED)
 			//TP: Need reproducibility to debug NTL.
-			std::cerr << "**FOR DEBUGGING ONLY!!!!  Using fixed initializer for PRNG." << std::endl;
+			std::cerr << "**FOR DEBUGGING ONLY!!!!  Using fixed initializer for PRNG. Use a single thread only!" << std::endl;
 			std::mt19937 *gen;
 			gen = new std::mt19937(1);
 			gen->seed(1);
@@ -76,12 +76,14 @@ public:
 
 private:
 	static std::once_flag 					m_flag;
-#if defined(FIXED_SEED)
+#if !defined(FIXED_SEED)
+	// avoid contention on m_flag 
 	#pragma omp threadprivate(m_flag)
 #endif
 	static std::shared_ptr<std::mt19937> 	m_prng;
-#if defined(FIXED_SEED)
-	#pragma omp threadprivate(m_prng)
+#if !defined(FIXED_SEED)
+	// avoid contention on m_prng 
+        #pragma omp threadprivate(m_prng)
 #endif
 };
 
