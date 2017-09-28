@@ -984,7 +984,7 @@ void KPABE<Element, Element2>::NANDGateEvalPKDCRT(
 			const Matrix<Element> &pubElemB0,
 			const Matrix<Element> &origPubElem,
 			Matrix<Element> *evalPubElem,
-			const shared_ptr<ILParams> ilParamsConsolidated
+			const shared_ptr<typename Element2::Params> ilParamsConsolidated
 	    )
 		{
 				auto zero_alloc = Element::MakeAllocator(params, EVALUATION);
@@ -1045,7 +1045,7 @@ void KPABE<Element, Element2>::NANDGateEvalCTDCRT(
 		    const Matrix<Element> &origCT,
 		    usint *evalAttribute,
 			Matrix<Element> *evalCT,
-		    const shared_ptr<ILParams> ilParamsConsolidated
+		    const shared_ptr<typename Element2::Params> ilParamsConsolidated
  	    )
 		{
 				auto zero_alloc = Element::MakeAllocator(params, EVALUATION);
@@ -1106,6 +1106,192 @@ void KPABE<Element, Element2>::NANDGateEvalCTDCRT(
 				}
 
 		}
+
+template <class Element, class Element2>
+void KPABE<Element, Element2>::ANDGateEvalPK(
+		shared_ptr<ILParams> ilParams,
+		const RingMat &origPubElemB,
+		RingMat *evalPubElemBf
+	)
+	{
+		auto zero_alloc = Poly::MakeAllocator(ilParams, EVALUATION);
+		RingMat psi(zero_alloc, m_m, m_m);
+		RingMat negB(zero_alloc, 1, m_m);  			// EVALUATE (NTT domain)
+
+		/* -B1 */
+		for (usint j = 0; j < m_m; j++) {    // Negating B1 for bit decomposition
+			negB(0, j) = origPubElemB(0, j).Negate();
+		}
+
+		PolyVec2BalDecom (ilParams, m_base, m_k, negB, &psi);
+
+		psi.SwitchFormat();
+
+		/* B2*Psi; Psi*C2 */
+		for (usint i = 0; i < m_m; i++) {
+			(*evalPubElemBf)(0, i) = origPubElemB(1, 0) * psi(0, i);
+			for (usint j = 1; j < m_m; j++) {
+				(*evalPubElemBf)(0, i) += origPubElemB(1, j) * psi(j, i);
+			}
+		}
+	}
+
+
+template <class Element, class Element2>
+void KPABE<Element, Element2>::ANDGateEvalCT(
+		shared_ptr<ILParams> ilParams,
+		const usint x[],
+		const RingMat &origPubElemB,
+		const RingMat &origCT,
+		usint *evalAttribute,
+		RingMat *evalCT
+	)
+	{
+		auto zero_alloc = Element::MakeAllocator(ilParams, EVALUATION);
+		Matrix<Element> psi(zero_alloc, m_m, m_m);
+		Matrix<Element> negB(zero_alloc, 1, m_m);  			// EVALUATE (NTT domain)
+		(*evalAttribute) = x[0]*x[1];  // Boolean output
+		/* -B1 */
+		for (usint j = 0; j < m_m; j++) {    // Negating B1 for bit decomposition
+			negB(0, j) = origPubElemB(0, j).Negate();
+		}
+
+		PolyVec2BalDecom (ilParams, m_base, m_k, negB, &psi);
+
+		psi.SwitchFormat();
+		/* x2*C1 */
+		for (usint i = 0; i < m_m; i++) {
+			if(x[1] != 0)
+				(*evalCT)(0, i) = origCT(0, i);
+			else
+				(*evalCT)(0, i).SetValuesToZero();
+		}
+		/* B2*Psi; Psi*C2 */
+		for (usint i = 0; i < m_m; i++) {
+			(*evalCT)(0, i) += psi(0, i) * origCT(1, 0);
+			for (usint j = 1; j < m_m; j++) {
+				(*evalCT)(0, i) += psi(j, i) * origCT(1, j);
+			}
+		}
+	}
+
+
+template <class Element, class Element2>
+void KPABE<Element, Element2>::ANDGateEvalPKDCRT(
+		const shared_ptr<typename Element::Params> params,
+		const Matrix<Element> &origPubElemB,
+		Matrix<Element> *evalPubElemBf,
+		const shared_ptr<typename Element2::Params> ilParamsConsolidated
+	)
+	{
+		auto zero_alloc = Element::MakeAllocator(params, EVALUATION);
+		Matrix<Element> psi(zero_alloc, m_m, m_m);
+		Matrix<Element> negB(zero_alloc, 1, m_m);  			// EVALUATE (NTT domain)
+
+
+		auto zero_alloc_poly = Element2::MakeAllocator(ilParamsConsolidated, COEFFICIENT);
+
+		Matrix<Element2> psiPoly(zero_alloc_poly, m_m, m_m); // Needed for Bit Decomposition (BD) matrices
+
+		Matrix<Element2> negBPolyMatrix(zero_alloc_poly, 1, m_m);
+
+		/* -B1 */
+		for (usint j = 0; j < m_m; j++) {    // Negating B1 for bit decomposition
+			negB(0, j) = origPubElemB(0, j).Negate();
+		}
+
+		for(usint i = 0; i < negB.GetRows(); i++){
+			for(usint j = 0; j < negB.GetCols();j++){
+				negBPolyMatrix(i,j) = negB(i,j).CRTInterpolate();
+			}
+		}
+
+
+		PolyVec2BalDecom (ilParamsConsolidated, m_base, m_k, negBPolyMatrix, &psiPoly);
+
+		// DCRT CREATE
+
+		for(usint i = 0; i < psiPoly.GetRows(); i++){
+			for(usint j = 0; j < psiPoly.GetCols();j++){
+				Element temp(psiPoly(i,j),params);
+				psi(i,j) = temp;
+			}
+		}
+
+		psi.SwitchFormat();
+
+		/* B2*Psi; Psi*C2 */
+		for (usint i = 0; i < m_m; i++) {
+			(*evalPubElemBf)(0, i) = origPubElemB(1, 0) * psi(0, i);
+			for (usint j = 1; j < m_m; j++) {
+				(*evalPubElemBf)(0, i) += origPubElemB(1, j) * psi(j, i);
+			}
+		}
+	 }
+
+template <class Element, class Element2>
+void KPABE<Element, Element2>::ANDGateEvalCTDCRT(
+		const shared_ptr<typename Element::Params> params,
+		const usint x[2], //TBA
+		const Matrix<Element> &origPubElemB,
+		const Matrix<Element> &origCT,
+		usint *evalAttribute,
+		Matrix<Element> *evalCT,
+		const shared_ptr<typename Element2::Params> ilParamsConsolidated
+	)
+	{
+		auto zero_alloc = Element::MakeAllocator(params, EVALUATION);
+		Matrix<Element> psi(zero_alloc, m_m, m_m);
+		Matrix<Element> negB(zero_alloc, 1, m_m);  			// EVALUATE (NTT domain)
+		(*evalAttribute) = x[0]*x[1];  // Boolean output
+
+
+		auto zero_alloc_poly = Element2::MakeAllocator(ilParamsConsolidated, COEFFICIENT);
+
+		Matrix<Element2> psiPoly(zero_alloc_poly, m_m, m_m); // Needed for Bit Decomposition (BD) matrices
+
+		Matrix<Element2> negBPolyMatrix(zero_alloc_poly, 1, m_m);
+
+		/* -B1 */
+		for (usint j = 0; j < m_m; j++) {    // Negating B1 for bit decomposition
+			negB(0, j) = origPubElemB(0, j).Negate();
+		}
+
+		for(usint i = 0; i < negB.GetRows(); i++){
+			for(usint j = 0; j < negB.GetCols();j++){
+				negBPolyMatrix(i,j) = negB(i,j).CRTInterpolate();
+			}
+		}
+
+		PolyVec2BalDecom (ilParamsConsolidated, m_base, m_k, negBPolyMatrix, &psiPoly);
+
+		// DCRT CREATE
+
+		for(usint i = 0; i < psiPoly.GetRows(); i++){
+			for(usint j = 0; j < psiPoly.GetCols();j++){
+				Element temp(psiPoly(i,j),params);
+				psi(i,j) = temp;
+			}
+		}
+
+		psi.SwitchFormat();
+
+		/* x2*C1 */
+		for (usint i = 0; i < m_m; i++) {
+			if(x[1] != 0)
+				(*evalCT)(0, i) = origCT(0, i);
+			else
+				(*evalCT)(0, i).SetValuesToZero();
+		}
+		/* B2*Psi; Psi*C2 */
+		for (usint i = 0; i < m_m; i++) {
+			(*evalCT)(0, i) += psi(0, i) * origCT(1, 0);
+			for (usint j = 1; j < m_m; j++) {
+				(*evalCT)(0, i) += psi(j, i) * origCT(1, j);
+			}
+		}
+
+	 }
 
 }
 

@@ -369,7 +369,7 @@ public:
 		    const Matrix<Element> &pubElemB0,
 		    const Matrix<Element> &origPubElem,
 			Matrix<Element> *evalPubElem,
-			const shared_ptr<ILParams> ilParamsConsolidated
+			const shared_ptr<typename Element2::Params> ilParamsConsolidated
 	    );
 
 
@@ -397,8 +397,42 @@ public:
 		    const Matrix<Element> &origCT,
 		    usint *evalAttribute,
 			Matrix<Element> *evalCT,
-		    const shared_ptr<ILParams> ilParamsConsolidated
+		    const shared_ptr<typename Element2::Params> ilParamsConsolidated
  	    );
+
+
+	/**
+	*Evaluation of simple AND Gate
+	*
+	* @param ilParams parameter set
+	* @param &origPubElementB original matrix of public vectors for each attribute
+	* @param *evalPubElementBf evaluated value of public element
+	*/
+	void ANDGateEvalPKDCRT(
+		const shared_ptr<typename Element::Params> params,
+		const Matrix<Element> &origPubElemB,
+		Matrix<Element> *evalPubElemBf,
+		const shared_ptr<typename Element2::Params> ilParamsConsolidated
+	);
+	/**
+	*Evaluation of simple AND Gate
+	*
+	* @param ilParams parameter set
+	* @param x[] array of attributes
+	* @param &origPubElemB original matrix of public vectors for each attribute
+	* @param &origCT original ciphertext
+	* @param *evalAttribute evaluated value of circuit
+	* @param *evalCT evaluated ciphertext value
+	*/
+	void ANDGateEvalCTDCRT(
+			const shared_ptr<typename Element::Params> params,
+			const usint x[2], //TBA
+			const Matrix<Element> &origPubElemB,
+			const Matrix<Element> &origCT,
+			usint *evalAttribute,
+			Matrix<Element> *evalCT,
+			const shared_ptr<typename Element2::Params> ilParamsConsolidated
+	);
 
 
 private:
