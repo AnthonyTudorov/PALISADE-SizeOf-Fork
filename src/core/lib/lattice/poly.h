@@ -388,7 +388,7 @@ public:
 	 * @param val the value to assign.
 	 */
 	inline void SetValAtIndexWithoutMod(size_t index, const IntType& val) {
-#if MATHBACKEND !=6
+#if 1 //MATHBACKEND !=6
 		m_values->SetValAtIndex(index, val);
 #else
 		m_values->SetValAtIndexWithoutMod(index, val);

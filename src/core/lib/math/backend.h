@@ -48,20 +48,34 @@
 // 		This backend supports arbitrary bitwidths; no memory pool is used; can grow up to RAM limitation
 //		Configurable type of underlying integer (either 32 or 64 bit)
 
+// passes all tests with UBINT_32
+// fails tests with UBINT_64
+// there is a bug in the way modulus is computed. do not use.
+
+//[ RUN      ] UTLTVBATCHING.ILVector_EVALMULT_Arb hangs
+//[ RUN      ] UTFV.ILVector2n_FV_ParamsGen_EvalMul hangs
+//[ RUN      ] UTFV.ILVector2n_FV_Optimized_Eval_Operations hangs
+//[ RUN      ] UTSHE.FV_ILVector2n_Add hangs
+//[ RUN      ] UTSHE.FV_ILVector2n_Mult hangs
+//[ RUN      ] UTStatisticalEval.FV_Eval_Lin_Regression_Int hangs
+
 // MATHBACKEND 6
 //		This uses gmp_int:: definition as default
 // 		GMP 6.1.2 / NTL 10.3.0 backend
-
+//passes all core,pke,trapdoor, tests
+//currently fails in compile of src/pke/demo/Temp-transform-benchmark.cpp
+//
+/// 
 // MATHBACKEND 7
 // 		This uses native_int:: as the default
 // This backend provides a maximum size of 64 bits
 
 //To select backend, please UNCOMMENT the appropriate line rather than changing the number on the
-//uncommented line
+//uncommented line (and breaking the documentation of the line)
 
 #define MATHBACKEND 2
 //#define MATHBACKEND 4
-//#define MATHBACKEND 6 
+//#define MATHBACKEND 6
 //#define MATHBACKEND 7
 
 ////////// cpu_int code
@@ -72,7 +86,7 @@ static_assert(cpu_int::DataTypeChecker<integral_dtype>::value,"Data type provide
 
 	/** Define the mapping for BigInteger
 	    1500 is the maximum bit width supported by BigIntegeregers, large enough for most use cases
-		The bitwidth can be decreased to the least value still supporting BBI multiplications for a specific application -
+		The bitwidth can be decreased to the least value still supporting BigInteger operations for a specific application -
 		to achieve smaller runtimes
 	**/
 #define BigIntegerBitLength 1500 //for documentation on tests
@@ -98,7 +112,7 @@ typedef uint64_t expdtype;
 #include "exp_int/mubintvec.h" //rings of ubints
 
 namespace exp_int {
-/** Define the mapping for ExpBigIntegereger (experimental) */
+/** Define the mapping for ExpBigInteger (experimental) */
 typedef ubint<expdtype> xubint;
 
 /** Define the mapping for Big Integer Vector */
@@ -111,13 +125,13 @@ typedef mubintvec<xubint> xmubintvec;
 #if defined(__linux__) && MATHBACKEND == 6
 ////////// for gmp int
 #include "gmp_int/gmpint.h" //experimental gmp unsigned big ints
-#include "gmp_int/mgmpint.h" //experimental gmp modulo unsigned big ints
-#include "gmp_int/gmpintvec.h" //vectors of such
+//#include "gmp_int/mgmpint.h" //experimental gmp modulo unsigned big ints
+//#include "gmp_int/gmpintvec.h" //vectors of such
 #include "gmp_int/mgmpintvec.h" //rings of such
 
 namespace gmp_int {
 typedef NTL::myZZ ubint;
-typedef NTL::myZZ_p mubint;
+
 }
 #endif
 
@@ -163,7 +177,7 @@ namespace lbcrypto {
 	typedef NTL::myZZ BigInteger;
 	
 	/** Define the mapping for BigVector */
-        typedef NTL::myVecP<NTL::myZZ_p> BigVector;
+        typedef NTL::myVecP<NTL::myZZ> BigVector;
 
 #define MATH_DEFBITS 0
 

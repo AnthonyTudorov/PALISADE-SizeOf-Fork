@@ -148,7 +148,6 @@ TEST(UTTransform, CRT_polynomial_multiplication_small) {
 // TEST CASE TO TEST POLYNOMIAL MULTIPLICATION IN ARBITRARY CYCLOTOMIC FILED USING CHINESE REMAINDER THEOREM
 
 TEST(UTTransform, CRT_polynomial_multiplication_big_ring) {
-
 	usint m = 1800;
 
 	BigInteger modulus(14401);
@@ -184,7 +183,7 @@ TEST(UTTransform, CRT_polynomial_multiplication_big_ring) {
 }
 
 TEST(UTTransform, CRT_polynomial_multiplication_big_ring_prime_cyclotomics) {
-
+        bool dbg_flag = false;
 
 	//usint m = 1733;
 	//usint p = 2 * m + 1;
@@ -223,11 +222,15 @@ TEST(UTTransform, CRT_polynomial_multiplication_big_ring_prime_cyclotomics) {
 	auto cCheck = PolynomialMultiplication(a, b);
 
 	cCheck = PolyMod(cCheck, cycloPoly, modulus);
-
+	DEBUG("c "<<c);
+	DEBUG("cCheck "<<cCheck);
+#if 0
 	for (usint i = 0; i < n; i++) {
 		EXPECT_EQ(cCheck.GetValAtIndex(i), c.GetValAtIndex(i));
 	}
-
+#else
+	EXPECT_EQ(cCheck, c);
+#endif
 }
 
 

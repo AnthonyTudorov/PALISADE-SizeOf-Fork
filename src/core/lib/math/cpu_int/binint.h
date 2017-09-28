@@ -262,7 +262,8 @@ namespace cpu_int{
     * @param val is the unsigned integer value that is assigned.
     * @return the assigned BigInteger ref.
     */
-    inline const BigInteger& operator=(usint val) {
+    //TODO: should this be uint_64_t?    
+	inline const BigInteger& operator=(usint val) {
         *this = intToBigInteger(val);
         return *this;
     }

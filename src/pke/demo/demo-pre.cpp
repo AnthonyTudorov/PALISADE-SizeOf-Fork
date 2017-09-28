@@ -54,23 +54,30 @@ int main(int argc, char *argv[])
 
 	//Generate parameters.
 	double diff, start, finish;
-
-	std::cout << "\nThis code demonstrates the use of the FV, BV, StSt, Null and LTV schemes for basic proxy-re-encryption operations. " ;
-	std::cout << "This code shows how to use schemes and pre-computed parameters for those schemes can be selected during run-time. " ;
-	std::cout << "In this demonstration we encrypt data and then proxy re-encrypt it. " ;
-	std::cout << "We do not generally recommend the use of the LTV scheme due to security concerns. " << std::endl;
-
-	std::cout << "\nChoose parameter set: ";
-	CryptoContextHelper::printParmSetNamesByFilter(std::cout,"PRE");
-
 	string input;
-	std::cin >> input;
 
+	if (argc < 2) {
+	  std::cout << "\nThis code demonstrates the use of the FV, BV, StSt, Null and LTV schemes for basic proxy-re-encryption operations. " ;
+	  std::cout << "This code shows how to use schemes and pre-computed parameters for those schemes can be selected during run-time. " ;
+	  std::cout << "In this demonstration we encrypt data and then proxy re-encrypt it. " ;
+	  std::cout << "We do not generally recommend the use of the LTV scheme due to security concerns. " << std::endl;
+
+	  std::cout << "\nThis demo can be run as "<<argv[0]<<" <PARAMETER SET> " <<std::endl;
+	  std::cout << "\nChoose parameter set: ";
+	  CryptoContextHelper::printParmSetNamesByFilter(std::cout,"PRE");
+	  
+	  std::cin >> input;
+	} else {
+	  input = argv[1];
+	}
+
+	std::cout << "time using Math backend "<<MATHBACKEND <<std::endl;
+	
 	start = currentDateTime();
 
 	shared_ptr<CryptoContext<Poly>> cryptoContext = CryptoContextHelper::getNewContext(input);
 	if (!cryptoContext) {
-		cout << "Error on " << input << endl;
+		cout << "Error on parameter set:" << input << endl;
 		return 0;
 	}
 

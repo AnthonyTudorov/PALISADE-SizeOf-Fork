@@ -855,6 +855,20 @@ TEST(UTBinInt,big_modexp){
   }
 }
 
+TEST(UTBinInt,power_2_modexp) {
+  {
+    BigInteger m("2");
+    BigInteger n("50");
+    BigInteger q("16");
+
+    BigInteger calculatedResult = m.ModExp(n,q);
+    BigInteger expectedResult("0");
+
+    EXPECT_EQ( expectedResult, calculatedResult ) << "Failure testing TWO.ModExp(50,16)";
+      
+  }
+}
+
 TEST(UTBinInt,shift){
 
   /****************************/
@@ -1077,15 +1091,15 @@ TEST(UTBinInt, method_GetBitAtIndex){
   x+=BigInteger::TWO; //x has one bit at 2
 
   DEBUG("x "<<x);
-  if (dbg_flag) x.PrintLimbsInHex();
+  //if (dbg_flag) x.PrintLimbsInHex();
 
   // index is 1 for lsb!
-  EXPECT_EQ(x.GetBitAtIndex(1), 0);  
-  EXPECT_EQ(x.GetBitAtIndex(2), 1);  
+  EXPECT_EQ(sint(x.GetBitAtIndex(1)), 0);  
+  EXPECT_EQ(sint(x.GetBitAtIndex(2)), 1);  
 
   for (auto idx = 3; idx < 100; idx++){
-    EXPECT_EQ(x.GetBitAtIndex(idx), 0);  
+    EXPECT_EQ(sint(x.GetBitAtIndex(idx)), 0);  
   }
-  EXPECT_EQ(x.GetBitAtIndex(101), 1);  
+  EXPECT_EQ(sint(x.GetBitAtIndex(101)), 1);  
 
 }

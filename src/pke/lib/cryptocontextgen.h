@@ -92,6 +92,7 @@ inline shared_ptr<CryptoContext<DCRTPoly>> GenCryptoContextElementArrayLTV(usint
 }
 
 inline shared_ptr<CryptoContext<Poly>> GenCryptoContextElementStSt(usint ORDER, usint ptm) {
+
 	shared_ptr<Poly::Params> p = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(ORDER);
 
 	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextStehleSteinfeld(p, ptm, 1, 4, 41411.5);
@@ -103,7 +104,11 @@ inline shared_ptr<CryptoContext<Poly>> GenCryptoContextElementStSt(usint ORDER, 
 }
 
 inline shared_ptr<CryptoContext<Poly>> GenCryptoContextElementStSt(usint ORDER, usint ptm, usint bits) {
+        bool dbg_flag = false;
+	DEBUG("in GenCryptoContextElementStSt");
+
 	shared_ptr<Poly::Params> p = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(ORDER, bits);
+	DEBUG("p "<<p);
 
 	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextStehleSteinfeld(p, ptm, 1, 4, 41411.5);
 	cc->Enable(ENCRYPTION);

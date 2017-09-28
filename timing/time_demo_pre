@@ -1,0 +1,10 @@
+echo "bin/demo/pke/demo-pre BV-PRE"
+bin/demo/pke/demo-pre BV-PRE |grep time
+echo "bin/demo/pke/demo-pre FV-PRE"
+bin/demo/pke/demo-pre FV-PRE |grep time
+echo "bin/demo/pke/demo-pre LTV-PRE"
+bin/demo/pke/demo-pre LTV-PRE |grep time
+echo "bin/demo/pke/demo-pre Null-PRE" 	    
+bin/demo/pke/demo-pre Null-PRE |grep time
+echo "bin/demo/pke/demo-pre StSt-PRE"
+bin/demo/pke/demo-pre StSt-PRE |grep time

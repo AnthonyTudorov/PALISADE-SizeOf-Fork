@@ -44,7 +44,6 @@
 #include "../backend.h"
 #if defined(__linux__) && MATHBACKEND == 6
 #include "gmpint.h"
-#include "mgmpint.h"
 
 namespace NTL {
 
@@ -59,51 +58,22 @@ namespace NTL {
   const myZZ myZZ::FOUR=myZZ(4);
   const myZZ myZZ::FIVE=myZZ(5);
 
-  myZZ::myZZ():ZZ() {}
-  myZZ::myZZ(int a): ZZ(a) {}
-  myZZ::myZZ(long a): ZZ(a) {}
-  myZZ::myZZ(unsigned long a): ZZ(a) {}
-  myZZ::myZZ(const unsigned int &a): ZZ(a) {}
-  myZZ::myZZ(long long unsigned int a): ZZ(a) {}; //do I still need this?
-  myZZ::myZZ(unsigned int &a): ZZ(a) {}
-  myZZ::myZZ(INIT_SIZE_TYPE, long k): ZZ(INIT_SIZE, k) {m_MSB=0; }
-  myZZ::myZZ(std::string s): ZZ(conv<ZZ>(s.c_str())) {}
-  myZZ::myZZ(const char *s): ZZ(conv<ZZ>(s)) {}
+  myZZ::myZZ():ZZ() {SetMSB();}
 
-  myZZ::myZZ(NTL::ZZ &a): ZZ(a) {}
-  myZZ::myZZ(const NTL::ZZ &a): ZZ(a) {}
-
-  //myZZ::myZZ(const NTL::myZZ_p &a): ZZ(){*this = a._ZZ_p__rep;}
-  myZZ::myZZ(const NTL::myZZ_p &a)
-    : ZZ(a._ZZ_p__rep)
-  {
-    bool dbg_flag = false; 
-    DEBUG("in ctor mzz(&mzzp)");
-    DEBUG("a "<<a);
-    DEBUG("arep "<<a._ZZ_p__rep);
-    DEBUG("this "<<*this);
-  };
-
-  myZZ::myZZ(NTL::ZZ &&a) : ZZ() {this->swap(a);}
-  myZZ::myZZ(NTL::myZZ_p &&a): ZZ(){
-    this->swap(a._ZZ_p__rep);
-  }
-
+  myZZ::myZZ(uint64_t a): ZZ(a) {SetMSB();}
+  myZZ::myZZ(const std::string &s): ZZ(conv<ZZ>(s.c_str())) {SetMSB();}
+  myZZ::myZZ(const NTL::ZZ &a): ZZ(a) {SetMSB();}
+  myZZ::myZZ(NTL::ZZ &&a) : ZZ() {this->swap(a);SetMSB();}
   void myZZ::SetValue(const std::string& str) 
   {
     *this = conv<ZZ>(str.c_str());
     SetMSB();
   }
 
-  void myZZ::SetValue(const char *s)
-  {
-    *this = conv<ZZ>(s);
-    SetMSB();
-  }
-
   void myZZ::SetValue(const myZZ& a)
   {
     *this = a;
+    SetMSB();
   }
 
   //this is the zero allocator for the palisade matrix class
@@ -134,7 +104,7 @@ namespace NTL {
     usint tmp = GetMSBLimb_t(zlp[sz-1]); //add the value of that last limb.
 
     MSB+=tmp;
-
+    m_MSB = MSB;
     return(MSB);
 
 
@@ -147,9 +117,8 @@ namespace NTL {
     //std::cout<<"size "<<sz <<" ";
     if (sz==0) { //special case for empty data
       m_MSB = 0;
-      return;
     }
-
+    else {
     m_MSB = (sz-1) * NTL_ZZ_NBITS; //figure out bit location of all but last limb
     //std::cout<<"msb starts with "<<m_MSB<< " ";
     //could also try
@@ -163,6 +132,9 @@ namespace NTL {
     //std::cout<< "tmp = "<<tmp<<std::endl;
     m_MSB+=tmp;
     //std::cout<<"msb ends with "<<m_MSB<< " " <<std::endl;
+  }
+    //std::cout << "myZZ::SetMSB(): this = " << *this << ", m_MSB = " << m_MSB << std::endl;
+    return;
   }
 
  // inline static usint GetMSBLimb_t(ZZ_limb_t x){
@@ -178,8 +150,6 @@ namespace NTL {
     return r + bval[x];
   }
 
-  
-  ///&&&
   //Splits the binary string to equi sized chunks and then populates the internal array values.
   myZZ myZZ::FromBinaryString(const std::string& vin){
     bool dbg_flag = false;		// if true then print dbg output
@@ -241,15 +211,15 @@ namespace NTL {
 
   }
 
-  //deprecated version needs renaming
   myZZ myZZ::BitStringToBigInteger(const std::string& vin){ 
     myZZ ans;
     return ans.FromBinaryString(vin);
   }
-  ///&&&a
-
 
   usint myZZ::GetDigitAtIndexForBase(usint index, usint base) const{
+    bool dbg_flag = false;		// if true then print dbg output
+    DEBUG("myZZ::GetDigitAtIndexForBase:  index = " << index
+	  << ", base = " << base);
 
 	  usint DigitLen = ceil(log2(base));
 
@@ -260,20 +230,26 @@ namespace NTL {
 		  digit += GetBitAtIndex(newIndex)*i;
 		  newIndex++;
 	  }
+    DEBUG("digit = " << digit);
 	  return digit;
-
   }
 
   // returns the bit at the index into the binary format of the big integer, 
   // note that msb is 1 like all other indicies. 
   //TODO: this code could be massively simplified
   uschar myZZ::GetBitAtIndex(usint index) const{
+    bool dbg_flag = false;		// if true then print dbg output
+    DEBUG("myZZ::GetBitAtIndex(" << index << "), this=" << *this);
+    GetMSB();
+
     if(index<=0){
       std::cout<<"Invalid index \n";
       return 0;
     }
-    else if (index > m_MSB)
+    else if (index > m_MSB) {
+      //TP: std::cout << "index > m_MSB = " << m_MSB << std::endl;
       return 0;
+    }
 
     ZZ_limb_t result;
     const ZZ_limb_t *zlp = ZZ_limbs_get(*this); //get access to limb array
@@ -289,8 +265,12 @@ namespace NTL {
     ZZ_limb_t bmask = 1;
     for(usint i=1;i<bmask_counter;i++)
       bmask<<=1;//generate the bitmask number
+    DEBUG("temp = " << temp << ", bmask_counter = " << bmask_counter
+	  << ", bmask = " << bmask);
     result = temp&bmask;//finds the bit in  bit format
+    DEBUG("result = " << result);
     result>>=bmask_counter-1;//shifting operation gives bit either 1 or 0
+    DEBUG("result = " << result);
     return (uschar)result;
   }
 
@@ -312,16 +292,6 @@ namespace NTL {
   //const myZZ& myZZ::zero() {return myZZ(ZZ::zero());}
 
   //palisade conversion methods
-#if 0 //Deprecated
-  usint myZZ::ConvertToUsint() const{
-    bool dbg_flag = false;
-
-    DEBUG("in myZZ::ConvertToUsint() this.size() "<<this->size());
-    DEBUG("in myZZ::ConvertToUsint() this "<<*this);
-    
- return (conv<usint>(*this)); }
-#endif
-
 
   uint64_t myZZ::ConvertToInt() const{
     bool dbg_flag = false;
@@ -338,25 +308,15 @@ namespace NTL {
   }
     
   double myZZ::ConvertToDouble() const{ return (conv<double>(*this));}
-#if 0 //Deprecated
-  uint32_t myZZ::ConvertToUint32() const { return (conv<uint32_t>(*this));}
 
-  // warning on some platforms usint64_t is implemented as an unsigned
-  // long long which is not included in the conv functions in tools.h
-  // in which case the following does not compile. 
+  const myZZ& myZZ::operator=(const myZZ &rhs){
 
-   uint64_t myZZ::ConvertToUint64() const{
-     static_assert(sizeof(uint64_t) == sizeof(long), 
-		   "sizeof(uint64_t) != sizeof(long), edit myZZ ConvertToUint64()");
-     return (conv<uint64_t>(*this));}
-
-  float myZZ::ConvertToFloat() const{ return (conv<float>(*this));}
-
-  long double myZZ::ConvertToLongDouble() const {
-    std::cerr<<"can't convert to long double"<<std::endl; 
-    return 0.0L;
+    if(this!=&rhs){
+      _ntl_gcopy(rhs.rep, &(this->rep));
+      this->m_MSB = rhs.m_MSB;
   }
-#endif
+    return *this;
+  }
 
   std::ostream& operator<<(std::ostream& os, const myZZ& ptr_obj){
     bool dbg_flag = false;
@@ -366,7 +326,6 @@ namespace NTL {
     os << tmp;
     return os;
   }
-  
   
   const std::string myZZ::ToString() const
   {
@@ -439,39 +398,10 @@ namespace NTL {
   
   
   //various operators on mixed operands
-  
-  myZZ myZZ::operator*(const myZZ_p &b) const {
-    myZZ tmp;
-    mul(tmp, *this, b._ZZ_p__rep);
-    return tmp ;
-  }
-  
-  myZZ& myZZ::operator*=(const myZZ_p &a) {
-    *this = *this*(myZZ)a._ZZ_p__rep;
-    return *this;
-  }
-
   myZZ& myZZ::operator*=(const myZZ &a) {
     *this = *this*a;
     return *this;
   }
-
-
-#if 0
-  inline long myZZ::operator<(const myZZ_p& b) const
-  { return b.Compare(*this) >= 0; };
-  inline long myZZ::operator>(const myZZ_p& b) const
-  { return b.Compare(*this) <= 0; };
-  inline long myZZ::operator<=(const myZZ_p& b) const
-  { return b.Compare(*this) > 0; }; 
-  inline long myZZ::operator>=( const myZZ_p& b) const
-  { return b.Compare(*this) < 0; };
-  inline long myZZ::operator==(const myZZ_p& b) const
-  { return b.Compare(*this) == 0; };
-  inline long myZZ::operator!=(const myZZ_p& b) const
-  { return b.Compare(*this) != 0; };
-#endif
-
 
   // helper functions convert a ubint in and out of a string of
   // characters the encoding is Base64-like: the first 11 6-bit

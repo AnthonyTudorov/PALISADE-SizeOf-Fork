@@ -119,8 +119,14 @@ void UnitTest_Add(shared_ptr<CryptoContext<Element>> cc) {
 
 /// add
 TEST_F(UTSHE, LTV_Poly_Add) {
+ bool dbg_flag = false;
+	DEBUG("LTV_Poly_Add");
+	DEBUG("0.1");
 	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementLTV(ORDER, PTM);
+	DEBUG("0.2");
 	UnitTest_Add<Poly>(cc);
+	DEBUG("0.3");
+
 }
 
 TEST_F(UTSHE, LTV_DCRTPoly_Add) {
@@ -129,7 +135,10 @@ TEST_F(UTSHE, LTV_DCRTPoly_Add) {
 }
 
 TEST_F(UTSHE, StSt_Poly_Add) {
+        bool dbg_flag = false;
+	DEBUG("in StSt_Poly_Add");
 	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementStSt(ORDER, PTM, 50);
+	DEBUG("cc "<<*cc);
 	UnitTest_Add<Poly>(cc);
 }
 
@@ -159,7 +168,10 @@ TEST_F(UTSHE, BV_DCRTPoly_Add) {
 }
 
 TEST_F(UTSHE, FV_Poly_Add) {
+	bool dbg_flag = false;
+	DEBUG("GenCryptoContextElementFV");
 	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementFV(ORDER, PTM);
+	DEBUG("done");
 	UnitTest_Add<Poly>(cc);
 }
 
@@ -179,6 +191,7 @@ void UnitTest_Mult(shared_ptr<CryptoContext<Element>> cc) {
 	std::vector<uint32_t> vectorOfInts2 = { 2,1,3,2,2,1,3,0 };
 	IntPlaintextEncoding plaintext2(vectorOfInts2);
 
+	// For cyclotomic order != 16, the expected result is the convolution of vectorOfInt21 and vectorOfInts2
 	std::vector<uint32_t> vectorOfIntsMultLong = { 2, 1, 9, 7, 12, 12, 16, 12, 19, 12, 7, 7, 7, 3 };
 	std::vector<uint32_t> vectorOfIntsMult = { 47, 53, 2, 0, 5, 9, 16, 12 };
 
@@ -199,6 +212,30 @@ void UnitTest_Mult(shared_ptr<CryptoContext<Element>> cc) {
 
 		DEBUG("kp.publicKey "<<kp.publicKey);
 		DEBUG("kp.secretKey "<<kp.secretKey);
+
+#if DEBUG_CAPTURE_KEYS		
+		std::cout << "UnitTest_Mult, MATHBACKEND = " << MATHBACKEND << std::endl;
+
+		Serialized serObj;
+
+		cc->Serialize(&serObj);
+		std::ofstream of ("cc" + std::to_string(MATHBACKEND) + ".json");
+		if (!SerializableHelper::SerializationToStream(serObj, of))
+			throw std::runtime_error ("Can't write the JSON string to the file!");
+		of.close();
+
+		kp.publicKey.get()->Serialize(&serObj);
+		std::ofstream ofpk ("pk" + std::to_string(MATHBACKEND) + ".json");
+		if (!SerializableHelper::SerializationToStream(serObj, ofpk))
+			throw std::runtime_error ("Can't write the JSON string to the file!");
+		ofpk.close();
+
+		kp.secretKey.get()->Serialize(&serObj);
+		std::ofstream ofsk ("sk" + std::to_string(MATHBACKEND) + ".json");
+		if (!SerializableHelper::SerializationToStream(serObj, ofsk))
+			throw std::runtime_error ("Can't write the JSON string to the file!");
+		ofsk.close();
+#endif
 
 		vector<shared_ptr<Ciphertext<Element>>> ciphertext1 =
 			cc->Encrypt(kp.publicKey, intArray1,false);

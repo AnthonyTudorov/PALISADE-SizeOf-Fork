@@ -92,7 +92,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FillPolyFromBigVector(const
 	for(usint p = 0; p < element.GetLength(); p++ ) {
 		for( usint v = 0; v < vecCount; v++ ) {
 
-#if MATHBACKEND ==6
+#if 1//MATHBACKEND ==6 //wait till backend 6 works
 			IntType tmp = element.GetValAtIndex(p) % bigmods[v];
 			m_vectors[v].SetValAtIndex(p, tmp.ConvertToInt());
 #else
@@ -325,10 +325,22 @@ Format DCRTPolyImpl<ModType,IntType,VecType,ParmType>::GetFormat() const
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
 std::vector<DCRTPolyImpl<ModType,IntType,VecType,ParmType>> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::BaseDecompose(usint baseBits, bool evalModeAnswer) const
 {
+	bool dbg_flag = false;
+	DEBUG("...::BaseDecompose" );
+	// baseBits is the same for MATHBACKEND=2 and 6
+	DEBUG("baseBits=" << baseBits );
 
 	Poly v( CRTInterpolate() );
 
+	DEBUG("<v>" << std::endl << v << "</v>" );
+
 	std::vector<Poly> bdV = v.BaseDecompose(baseBits, false);
+
+	// bdV is all zeros for MATHBACKEND=6, it is a mix of 1's and 0's for MATHBACKEND=2
+	DEBUG("<bdV>" );
+	for( auto i : bdV )
+		DEBUG(i );
+	DEBUG("</bdV>" );
 
 	std::vector<DCRTPolyImpl<ModType,IntType,VecType,ParmType>> result;
 
@@ -340,12 +352,19 @@ std::vector<DCRTPolyImpl<ModType,IntType,VecType,ParmType>> DCRTPolyImpl<ModType
 		result.push_back( std::move(dv) );
 	}
 
+	// result is all zeroes for MATHBACKEND=6, but not for MATHBACKEND=2
+	DEBUG("<BaseDecompose.result>" );
+	for( auto i : result )
+		DEBUG(i );
+	DEBUG("</BaseDecompose.result>" );
+
 	return std::move(result);
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
 std::vector<DCRTPolyImpl<ModType,IntType,VecType,ParmType>> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::PowersOfBase(usint baseBits) const
 {
+	bool dbg_flag = false;
 
 	std::vector<DCRTPolyImpl<ModType,IntType,VecType,ParmType>> result;
 
@@ -359,16 +378,27 @@ std::vector<DCRTPolyImpl<ModType,IntType,VecType,ParmType>> DCRTPolyImpl<ModType
 
 	// prepare for the calculations by gathering a big integer version of each of the little moduli
 	std::vector<IntType> mods(m_params->GetParams().size());
-	for( usint i = 0; i < m_params->GetParams().size(); i++ )
+	for( usint i = 0; i < m_params->GetParams().size(); i++ ) {
 		mods[i] = IntType(m_params->GetParams()[i]->GetModulus().ConvertToInt());
+		DEBUG("DCRTPolyImpl::PowersOfBase.mods[" << i << "] = " << mods[i] );
+	}
+
 
 	for( usint i = 0; i < nWindows; i++ ) {
 		DCRTPolyType x( m_params, m_format );
 
+		// Shouldn't this be IntType twoPow ( IntType::ONE << (i*baseBits)  ??
 		IntType twoPow( IntType(2).Exp( i*baseBits ) );
+		DEBUG("DCRTPolyImpl::PowersOfBase.twoPow (" << i << ") = " << twoPow );
 		for( usint t = 0; t < m_params->GetParams().size(); t++ ) {
+			DEBUG("@(" << i << ", " << t << ")" );
+			DEBUG("twoPow= " << twoPow << ", mods[" << t << "]" << mods[t] );
 			IntType pI (twoPow % mods[t]);
+			DEBUG("twoPow= " << twoPow << ", mods[" << t << "]" << mods[t] << ";   pI.ConvertToInt=" << pI.ConvertToInt() << ";   pI=" << pI );
+			DEBUG("m_vectors= " << m_vectors[t] );
+
 			x.m_vectors[t] = m_vectors[t] * pI.ConvertToInt();
+			DEBUG("DCRTPolyImpl::PowersOfBase.x.m_vectors[" << t << ", " << i << "]" << x.m_vectors[t] );
 		}
 		result.push_back( x );
 	}
