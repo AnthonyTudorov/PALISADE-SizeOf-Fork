@@ -36,93 +36,93 @@ int main()
 }
 
 void KPABEBenchMarkCircuit(int32_t base, usint k, usint ringDimension){
-		usint n = ringDimension*2;   // cyclotomic order
-		usint ell = 2; // No of attributes
+	usint n = ringDimension*2;   // cyclotomic order
+	usint ell = 2; // No of attributes
 
-		BigInteger q = BigInteger::ONE << (k-1);
-		q = lbcrypto::FirstPrime<BigInteger>(k,n);
-		BigInteger rootOfUnity(RootOfUnity(n, q));
+	BigInteger q = BigInteger::ONE << (k-1);
+	q = lbcrypto::FirstPrime<BigInteger>(k,n);
+	BigInteger rootOfUnity(RootOfUnity(n, q));
 
-		double val = q.ConvertToDouble();
-		double logTwo = log(val-1.0)/log(base)+1.0;
-		size_t k_ = (usint) floor(logTwo) + 1;
+	double val = q.ConvertToDouble();
+	double logTwo = log(val-1.0)/log(base)+1.0;
+	size_t k_ = (usint) floor(logTwo) + 1;
 
-		usint m = k_+2;
+	usint m = k_+2;
 
-		shared_ptr<ILParams> ilParams(new ILParams(n, q, rootOfUnity));
+	shared_ptr<ILParams> ilParams(new ILParams(n, q, rootOfUnity));
 
-		auto zero_alloc = Poly::MakeAllocator(ilParams, COEFFICIENT);
+	auto zero_alloc = Poly::MakeAllocator(ilParams, COEFFICIENT);
 
-		DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(SIGMA);
-		Poly::DugType dug = Poly::DugType();
-		dug.SetModulus(q);
-		BinaryUniformGenerator bug = BinaryUniformGenerator();
+	DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(SIGMA);
+	Poly::DugType dug = Poly::DugType();
+	dug.SetModulus(q);
+	BinaryUniformGenerator bug = BinaryUniformGenerator();
 
-		// Precompuations for FTT
-		ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().PreCompute(rootOfUnity, n, q);
+	// Precompuations for FTT
+	ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().PreCompute(rootOfUnity, n, q);
 
-		// Trapdoor Generation
-		std::pair<RingMat, RLWETrapdoorPair<Poly>> trapdoorA = RLWETrapdoorUtility<Poly>::TrapdoorGen(ilParams, SIGMA, base, true); // A.first is the public element
+	// Trapdoor Generation
+	std::pair<RingMat, RLWETrapdoorPair<Poly>> trapdoorA = RLWETrapdoorUtility<Poly>::TrapdoorGen(ilParams, SIGMA, base, true); // A.first is the public element
 
-		Poly pubElemBeta(dug, ilParams, EVALUATION);
+	Poly pubElemBeta(dug, ilParams, EVALUATION);
 
-		RingMat publicElementB(zero_alloc, ell+1, m);
-		RingMat ctCin(zero_alloc, ell+2, m);
-		Poly c1(dug, ilParams, EVALUATION);
+	RingMat publicElementB(zero_alloc, ell+1, m);
+	RingMat ctCin(zero_alloc, ell+2, m);
+	Poly c1(dug, ilParams, EVALUATION);
 
-		KPABE<Poly, Poly> pkg, sender, receiver;
+	KPABE<Poly, Poly> pkg, sender, receiver;
 
-		pkg.Setup(ilParams, base, ell, dug, &publicElementB);
-		sender.Setup(ilParams, base, ell);
-		receiver.Setup(ilParams, base, ell);
+	pkg.Setup(ilParams, base, ell, dug, &publicElementB);
+	sender.Setup(ilParams, base, ell);
+	receiver.Setup(ilParams, base, ell);
 
-		usint x[] = {1,1,1}; // array of attributes, everything is set to 1 for NAND gate evaluation, values set based on experimental results
+	usint x[] = {1,1,1}; // array of attributes, everything is set to 1 for NAND gate evaluation, values set based on experimental results
 
-		usint y;
+	usint y;
 
-		// plaintext
-		Poly ptext(ilParams, COEFFICIENT, true);
+	// plaintext
+	Poly ptext(ilParams, COEFFICIENT, true);
 
-		// circuit outputs
-		RingMat evalBf(Poly::MakeAllocator(ilParams, EVALUATION), 1, m);  //evaluated Bs
-		RingMat evalCf(Poly::MakeAllocator(ilParams, EVALUATION), 1, m);  // evaluated Cs
-		RingMat ctCA(Poly::MakeAllocator(ilParams, EVALUATION), 1, m); // CA
+	// circuit outputs
+	RingMat evalBf(Poly::MakeAllocator(ilParams, EVALUATION), 1, m);  //evaluated Bs
+	RingMat evalCf(Poly::MakeAllocator(ilParams, EVALUATION), 1, m);  // evaluated Cs
+	RingMat ctCA(Poly::MakeAllocator(ilParams, EVALUATION), 1, m); // CA
 
-		// secret key corresponding to the circuit output
-		RingMat sk(zero_alloc, 2, m);
+	// secret key corresponding to the circuit output
+	RingMat sk(zero_alloc, 2, m);
 
-		// decrypted text
-		Poly dtext(ilParams, EVALUATION, true);
-	// Encrypt a uniformly randomly selected message ptext (in ptext in $R_2$)
-		ptext.SetValues(bug.GenerateVector(ringDimension, q), COEFFICIENT);
-		ptext.SwitchFormat();
-		sender.Encrypt(ilParams, trapdoorA.first, publicElementB, pubElemBeta, x, ptext, dgg, dug, bug, &ctCin, &c1); // Cin and c1 are the ciphertext
+	// decrypted text
+	Poly dtext(ilParams, EVALUATION, true);
+// Encrypt a uniformly randomly selected message ptext (in ptext in $R_2$)
+	ptext.SetValues(bug.GenerateVector(ringDimension, q), COEFFICIENT);
+	ptext.SwitchFormat();
+	sender.Encrypt(ilParams, trapdoorA.first, publicElementB, pubElemBeta, x, ptext, dgg, dug, bug, &ctCin, &c1); // Cin and c1 are the ciphertext
 
-		ctCA  = ctCin.ExtractRow(0);  // CA is A^T * s + e 0,A
+	ctCA  = ctCin.ExtractRow(0);  // CA is A^T * s + e 0,A
 
-		receiver.EvalCT(ilParams, publicElementB, x, ctCin.ExtractRows(1, ell+1), &y, &evalCf);
+	receiver.EvalCT(ilParams, publicElementB, x, ctCin.ExtractRows(1, ell+1), &y, &evalCf);
 
-		pkg.EvalPK(ilParams, publicElementB, &evalBf);
-		pkg.KeyGen(ilParams, trapdoorA.first, evalBf, pubElemBeta, trapdoorA.second, dgg, &sk);
+	pkg.EvalPK(ilParams, publicElementB, &evalBf);
+	pkg.KeyGen(ilParams, trapdoorA.first, evalBf, pubElemBeta, trapdoorA.second, dgg, &sk);
 
-		Poly t(pubElemBeta);
-		t.SetValuesToZero();
+	Poly t(pubElemBeta);
+	t.SetValuesToZero();
 
-		for (usint i=0; i<m; i++) {
-			t += (trapdoorA.first(0, i)*sk(0, i));
-			t += (evalBf(0, i)*sk(1, i));
-		}
+	for (usint i=0; i<m; i++) {
+		t += (trapdoorA.first(0, i)*sk(0, i));
+		t += (evalBf(0, i)*sk(1, i));
+	}
 
-		receiver.Decrypt(ilParams, sk, ctCA, evalCf, c1, &dtext);
-		receiver.Decode(&dtext);
+	receiver.Decrypt(ilParams, sk, ctCA, evalCf, c1, &dtext);
+	receiver.Decode(&dtext);
 
-		ptext.SwitchFormat();
+	ptext.SwitchFormat();
 
-		if(ptext.GetValues() == dtext.GetValues()){
-			std::cout << "Decrypted Properly" << std::endl;
-		}
+	if(ptext.GetValues() == dtext.GetValues()){
+		std::cout << "Decrypted Properly" << std::endl;
+	}
 
-		ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().Destroy();
+	ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().Destroy();
 
 }
 
@@ -306,86 +306,86 @@ int KPABE_BenchmarkCircuitTestDCRT(usint iter, int32_t base)
 template <class Element, class Element2>
 void TestDCRTVecDecompose(int32_t base, usint k, usint ringDimension){
 
-			usint n = ringDimension*2;   // cyclotomic order
+	usint n = ringDimension*2;   // cyclotomic order
 
-			native_int::BigInteger q = native_int::BigInteger::ONE << (k-1);
-			q = lbcrypto::FirstPrime<native_int::BigInteger>(k,n);
-			native_int::BigInteger rootOfUnity(RootOfUnity<native_int::BigInteger>(n, q));
+	native_int::BigInteger q = native_int::BigInteger::ONE << (k-1);
+	q = lbcrypto::FirstPrime<native_int::BigInteger>(k,n);
+	native_int::BigInteger rootOfUnity(RootOfUnity<native_int::BigInteger>(n, q));
 
-			native_int::BigInteger nextQ = native_int::BigInteger::ONE << (k-1);
-			nextQ = lbcrypto::NextPrime<native_int::BigInteger>(q, n);
-			native_int::BigInteger nextRootOfUnity(RootOfUnity<native_int::BigInteger>(n, nextQ));
+	native_int::BigInteger nextQ = native_int::BigInteger::ONE << (k-1);
+	nextQ = lbcrypto::NextPrime<native_int::BigInteger>(q, n);
+	native_int::BigInteger nextRootOfUnity(RootOfUnity<native_int::BigInteger>(n, nextQ));
 
-			usint m = k + k +2;
+	usint m = k + k +2;
 
-			std::vector<native_int::BigInteger> moduli;
-			std::vector<native_int::BigInteger> roots_Of_Unity;
-			moduli.reserve(2);
-			roots_Of_Unity.reserve(2);
+	std::vector<native_int::BigInteger> moduli;
+	std::vector<native_int::BigInteger> roots_Of_Unity;
+	moduli.reserve(2);
+	roots_Of_Unity.reserve(2);
 
-			moduli.push_back(q);
-			moduli.push_back(nextQ);
+	moduli.push_back(q);
+	moduli.push_back(nextQ);
 
-			roots_Of_Unity.push_back(rootOfUnity);
-			roots_Of_Unity.push_back(nextRootOfUnity);
+	roots_Of_Unity.push_back(rootOfUnity);
+	roots_Of_Unity.push_back(nextRootOfUnity);
 
-			BigInteger bigModulus("1");
-			long double qDouble = q.ConvertToDouble();
-			long double nextQdouble = nextQ.ConvertToDouble();
+	BigInteger bigModulus("1");
+	long double qDouble = q.ConvertToDouble();
+	long double nextQdouble = nextQ.ConvertToDouble();
 
-			bigModulus = BigInteger(qDouble)* BigInteger(nextQdouble);
+	bigModulus = BigInteger(qDouble)* BigInteger(nextQdouble);
 
-			BigInteger bigRootOfUnity(RootOfUnity(n,bigModulus));
+	BigInteger bigRootOfUnity(RootOfUnity(n,bigModulus));
 
-			shared_ptr<ILDCRTParams<BigInteger>> params(new ILDCRTParams<BigInteger>(n, moduli, roots_Of_Unity));
-			shared_ptr<ILParams> ilParams(new ILParams(n, bigModulus, bigRootOfUnity));
+	shared_ptr<ILDCRTParams<BigInteger>> params(new ILDCRTParams<BigInteger>(n, moduli, roots_Of_Unity));
+	shared_ptr<ILParams> ilParams(new ILParams(n, bigModulus, bigRootOfUnity));
 
-			auto zero_alloc_poly = Element2::MakeAllocator(ilParams, COEFFICIENT);
-			auto zero_alloc = Element::MakeAllocator(params, COEFFICIENT);
-			auto zero_alloc_eval = DCRTPoly::MakeAllocator(params, EVALUATION);
+	auto zero_alloc_poly = Element2::MakeAllocator(ilParams, COEFFICIENT);
+	auto zero_alloc = Element::MakeAllocator(params, COEFFICIENT);
+	auto zero_alloc_eval = DCRTPoly::MakeAllocator(params, EVALUATION);
 
-			RingMatDCRT matrixTobeDecomposed(zero_alloc, 1, m);
+	RingMatDCRT matrixTobeDecomposed(zero_alloc, 1, m);
 
-			DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(SIGMA);
-			DCRTPoly::DugType dug = DCRTPoly::DugType();
+	DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(SIGMA);
+	DCRTPoly::DugType dug = DCRTPoly::DugType();
 
-			for (usint i = 0; i < matrixTobeDecomposed.GetRows(); i++)
-				for (usint j = 0; j < matrixTobeDecomposed.GetCols(); j++) {
-					if(matrixTobeDecomposed(i, j).GetFormat() != COEFFICIENT)
-						matrixTobeDecomposed(i,j).SwitchFormat();
-						matrixTobeDecomposed(i,j) = Element(dug, params, COEFFICIENT);
-						matrixTobeDecomposed(i, j).SwitchFormat(); // always kept in EVALUATION format
-					}
-
-			RingMatDCRT results(zero_alloc_eval,1,m);
-			RingMatDCRT g = RingMatDCRT(zero_alloc_eval, 1, m).GadgetVector(base);
-
-			RingMatDCRT psiDCRT(zero_alloc, m, m);
-			RingMat psi(zero_alloc_poly, m, m);
-
-			RingMat matrixDecomposePoly(zero_alloc_poly, 1, m);
-
-			for(usint i = 0; i < m; i++){
-				matrixDecomposePoly(0,i) = matrixTobeDecomposed(0,i).CRTInterpolate();
+	for (usint i = 0; i < matrixTobeDecomposed.GetRows(); i++)
+		for (usint j = 0; j < matrixTobeDecomposed.GetCols(); j++) {
+			if(matrixTobeDecomposed(i, j).GetFormat() != COEFFICIENT)
+				matrixTobeDecomposed(i,j).SwitchFormat();
+				matrixTobeDecomposed(i,j) = Element(dug, params, COEFFICIENT);
+				matrixTobeDecomposed(i, j).SwitchFormat(); // always kept in EVALUATION format
 			}
 
-			lbcrypto::PolyVec2BalDecom(ilParams, base, k+k, matrixDecomposePoly, &psi);
+	RingMatDCRT results(zero_alloc_eval,1,m);
+	RingMatDCRT g = RingMatDCRT(zero_alloc_eval, 1, m).GadgetVector(base);
 
-			for(usint i = 0; i < psi.GetRows(); i++){
-						for(usint j = 0; j < psi.GetCols();j++){
-							Element temp(psi(i,j), params);
-							psiDCRT(i,j) = temp;
-						}
-					}
-			psiDCRT.SwitchFormat();
-			results = g * psiDCRT;
+	RingMatDCRT psiDCRT(zero_alloc, m, m);
+	RingMat psi(zero_alloc_poly, m, m);
 
-			for(usint i = 0; i < results.GetRows(); i++){
-				for(usint j =0; j < results.GetCols(); j++){
-			    	results(i,j).PrintValues();
-			    	matrixTobeDecomposed(i,j).PrintValues();
+	RingMat matrixDecomposePoly(zero_alloc_poly, 1, m);
+
+	for(usint i = 0; i < m; i++){
+		matrixDecomposePoly(0,i) = matrixTobeDecomposed(0,i).CRTInterpolate();
+	}
+
+	lbcrypto::PolyVec2BalDecom(ilParams, base, k+k, matrixDecomposePoly, &psi);
+
+	for(usint i = 0; i < psi.GetRows(); i++){
+				for(usint j = 0; j < psi.GetCols();j++){
+					Element temp(psi(i,j), params);
+					psiDCRT(i,j) = temp;
 				}
 			}
+	psiDCRT.SwitchFormat();
+	results = g * psiDCRT;
+
+	for(usint i = 0; i < results.GetRows(); i++){
+		for(usint j =0; j < results.GetCols(); j++){
+			results(i,j).PrintValues();
+			matrixTobeDecomposed(i,j).PrintValues();
+		}
+	}
 
 }
 
@@ -489,134 +489,134 @@ void KPABE_NANDGATE(int32_t base, usint k, usint ringDimension){
 }
 
 void KPABE_NANDGATEDCRT(int32_t base, usint k, usint ringDimension){
-			usint n = ringDimension * 2;   // cyclotomic order
-		//	usint k = 21;
-			usint ell = 4; // No of attributes
+		usint n = ringDimension * 2;   // cyclotomic order
+	//	usint k = 21;
+		usint ell = 4; // No of attributes
 
-		//	native_int::BigInteger q = native_int::BigInteger::ONE << (k - 1);
-		//	q = lbcrypto::FirstPrime<native_int::BigInteger>(k, n);
+	//	native_int::BigInteger q = native_int::BigInteger::ONE << (k - 1);
+	//	q = lbcrypto::FirstPrime<native_int::BigInteger>(k, n);
 
-			native_int::BigInteger q("2101249");
+		native_int::BigInteger q("2101249");
 
-			native_int::BigInteger rootOfUnity(RootOfUnity(n, q));
+		native_int::BigInteger rootOfUnity(RootOfUnity(n, q));
 
-		//	native_int::BigInteger rootOfUnity("794438271477401");
+	//	native_int::BigInteger rootOfUnity("794438271477401");
 
-			double val = q.ConvertToDouble();
-			double logTwo = log(val - 1.0) / log(base) + 1.0;
-			size_t k_ = (usint)floor(logTwo) + 1; //  (+1) is For NAF
-			std::cout << "q: " << q << std::endl;
-			std::cout << "modulus length: " << k_ << std::endl;
-			std::cout << "root of unity: " << rootOfUnity << std::endl;
-			std::cout << "Standard deviation: " << SIGMA << std::endl;
-
-
-		//	native_int::BigInteger nextQ = native_int::BigInteger::ONE << (k-1);
-		//	nextQ = lbcrypto::NextPrime<native_int::BigInteger>(q, n);
-		//	std::cout << "nextQ: " << nextQ << std::endl;
-
-			native_int::BigInteger nextQ("2236417");
-
-			native_int::BigInteger nextRootOfUnity(RootOfUnity<native_int::BigInteger>(n, nextQ));
+		double val = q.ConvertToDouble();
+		double logTwo = log(val - 1.0) / log(base) + 1.0;
+		size_t k_ = (usint)floor(logTwo) + 1; //  (+1) is For NAF
+		std::cout << "q: " << q << std::endl;
+		std::cout << "modulus length: " << k_ << std::endl;
+		std::cout << "root of unity: " << rootOfUnity << std::endl;
+		std::cout << "Standard deviation: " << SIGMA << std::endl;
 
 
-		//	native_int::BigInteger nextQ2 = native_int::BigInteger::ONE << (k-1);
-		//	nextQ2 = lbcrypto::NextPrime<native_int::BigInteger>(nextQ, n);
+	//	native_int::BigInteger nextQ = native_int::BigInteger::ONE << (k-1);
+	//	nextQ = lbcrypto::NextPrime<native_int::BigInteger>(q, n);
+	//	std::cout << "nextQ: " << nextQ << std::endl;
 
-			native_int::BigInteger nextQ2("2277377");
-			native_int::BigInteger nextRootOfUnity2(RootOfUnity<native_int::BigInteger>(n, nextQ2));
+		native_int::BigInteger nextQ("2236417");
 
-			usint m = 3 *  k_ + 2;
-
-			std::vector<native_int::BigInteger> moduli;
-			std::vector<native_int::BigInteger> roots_Of_Unity;
-			moduli.reserve(3);
-			roots_Of_Unity.reserve(3);
-
-			moduli.push_back(q);
-			moduli.push_back(nextQ);
-			moduli.push_back(nextQ2);
-
-			roots_Of_Unity.push_back(rootOfUnity);
-			roots_Of_Unity.push_back(nextRootOfUnity);
-			roots_Of_Unity.push_back(nextRootOfUnity2);
+		native_int::BigInteger nextRootOfUnity(RootOfUnity<native_int::BigInteger>(n, nextQ));
 
 
-			BigInteger bigModulus = BigInteger("2101249") * BigInteger("2236417") * BigInteger("2277377");
+	//	native_int::BigInteger nextQ2 = native_int::BigInteger::ONE << (k-1);
+	//	nextQ2 = lbcrypto::NextPrime<native_int::BigInteger>(nextQ, n);
 
-			BigInteger bigRootOfUnity(RootOfUnity(n,bigModulus));
+		native_int::BigInteger nextQ2("2277377");
+		native_int::BigInteger nextRootOfUnity2(RootOfUnity<native_int::BigInteger>(n, nextQ2));
 
-			BinaryUniformGenerator bug = BinaryUniformGenerator();
+		usint m = 3 *  k_ + 2;
+
+		std::vector<native_int::BigInteger> moduli;
+		std::vector<native_int::BigInteger> roots_Of_Unity;
+		moduli.reserve(3);
+		roots_Of_Unity.reserve(3);
+
+		moduli.push_back(q);
+		moduli.push_back(nextQ);
+		moduli.push_back(nextQ2);
+
+		roots_Of_Unity.push_back(rootOfUnity);
+		roots_Of_Unity.push_back(nextRootOfUnity);
+		roots_Of_Unity.push_back(nextRootOfUnity2);
 
 
-			shared_ptr<ILDCRTParams<BigInteger>> ilDCRTParams(new ILDCRTParams<BigInteger>(n, moduli, roots_Of_Unity));
+		BigInteger bigModulus = BigInteger("2101249") * BigInteger("2236417") * BigInteger("2277377");
 
-			shared_ptr<ILParams> ilParamsConsolidated(new ILParams(n, bigModulus, bigRootOfUnity));
+		BigInteger bigRootOfUnity(RootOfUnity(n,bigModulus));
 
-			auto zero_alloc = DCRTPoly::MakeAllocator(ilDCRTParams, COEFFICIENT);
+		BinaryUniformGenerator bug = BinaryUniformGenerator();
 
-			DCRTPoly::DggType dgg = DCRTPoly::DggType(SIGMA);
-			DCRTPoly::DugType dug = DCRTPoly::DugType();
 
-			// Trapdoor Generation
-			std::pair<RingMatDCRT, RLWETrapdoorPair<DCRTPoly>> trapdoorA = RLWETrapdoorUtility<DCRTPoly>::TrapdoorGen(ilDCRTParams, SIGMA, base, true); // A.first is the public element
+		shared_ptr<ILDCRTParams<BigInteger>> ilDCRTParams(new ILDCRTParams<BigInteger>(n, moduli, roots_Of_Unity));
 
-			DCRTPoly pubElemBeta(dug, ilDCRTParams, EVALUATION);
+		shared_ptr<ILParams> ilParamsConsolidated(new ILParams(n, bigModulus, bigRootOfUnity));
 
-			RingMatDCRT publicElementB(zero_alloc, ell + 1, m);
-			RingMatDCRT ctCin(zero_alloc, ell + 2, m);
-			DCRTPoly c1(dug, ilDCRTParams, EVALUATION);
+		auto zero_alloc = DCRTPoly::MakeAllocator(ilDCRTParams, COEFFICIENT);
 
-			KPABE<DCRTPoly, Poly> pkg, sender, receiver;
+		DCRTPoly::DggType dgg = DCRTPoly::DggType(SIGMA);
+		DCRTPoly::DugType dug = DCRTPoly::DugType();
 
-			pkg.Setup(ilDCRTParams, base, ell, dug, &publicElementB);
-			sender.Setup(ilDCRTParams, base, ell);
-			receiver.Setup(ilDCRTParams, base, ell);
+		// Trapdoor Generation
+		std::pair<RingMatDCRT, RLWETrapdoorPair<DCRTPoly>> trapdoorA = RLWETrapdoorUtility<DCRTPoly>::TrapdoorGen(ilDCRTParams, SIGMA, base, true); // A.first is the public element
 
-			// Attribute values all are set to 1 for NAND gate evaluation
-			usint *x = new usint[ell+1];
-			x[0] = x[1] = x[2] = 1;
-			usint y;
+		DCRTPoly pubElemBeta(dug, ilDCRTParams, EVALUATION);
 
-			Poly ptext1(ilParamsConsolidated, COEFFICIENT, true);
-			ptext1.SetValues(bug.GenerateVector(ringDimension, bigModulus), COEFFICIENT);
+		RingMatDCRT publicElementB(zero_alloc, ell + 1, m);
+		RingMatDCRT ctCin(zero_alloc, ell + 2, m);
+		DCRTPoly c1(dug, ilDCRTParams, EVALUATION);
 
-			DCRTPoly ptext(ptext1, ilDCRTParams);
+		KPABE<DCRTPoly, Poly> pkg, sender, receiver;
 
-			// circuit outputs
-			RingMatDCRT pubElemBf(DCRTPoly::MakeAllocator(ilDCRTParams, EVALUATION), 1, m);  //evaluated Bs
-			RingMatDCRT ctCf(DCRTPoly::MakeAllocator(ilDCRTParams, EVALUATION), 1, m);  // evaluated Cs
-			RingMatDCRT ctCA(DCRTPoly::MakeAllocator(ilDCRTParams, EVALUATION), 1, m); // CA
+		pkg.Setup(ilDCRTParams, base, ell, dug, &publicElementB);
+		sender.Setup(ilDCRTParams, base, ell);
+		receiver.Setup(ilDCRTParams, base, ell);
 
-																		   // secret key corresponding to the circuit output
-			RingMatDCRT sk(zero_alloc, 2, m);
+		// Attribute values all are set to 1 for NAND gate evaluation
+		usint *x = new usint[ell+1];
+		x[0] = x[1] = x[2] = 1;
+		usint y;
 
-			// decrypted text
-			DCRTPoly dtext(ilDCRTParams, EVALUATION, true);
+		Poly ptext1(ilParamsConsolidated, COEFFICIENT, true);
+		ptext1.SetValues(bug.GenerateVector(ringDimension, bigModulus), COEFFICIENT);
 
-			ptext.SwitchFormat();
+		DCRTPoly ptext(ptext1, ilDCRTParams);
 
-			sender.Encrypt(ilDCRTParams, trapdoorA.first, publicElementB, pubElemBeta, x, ptext, dgg, dug, bug, &ctCin, &c1);
+		// circuit outputs
+		RingMatDCRT pubElemBf(DCRTPoly::MakeAllocator(ilDCRTParams, EVALUATION), 1, m);  //evaluated Bs
+		RingMatDCRT ctCf(DCRTPoly::MakeAllocator(ilDCRTParams, EVALUATION), 1, m);  // evaluated Cs
+		RingMatDCRT ctCA(DCRTPoly::MakeAllocator(ilDCRTParams, EVALUATION), 1, m); // CA
 
-			ctCA = ctCin.ExtractRow(0);
+																	   // secret key corresponding to the circuit output
+		RingMatDCRT sk(zero_alloc, 2, m);
 
-			receiver.NANDGateEvalPKDCRT(ilDCRTParams, publicElementB.ExtractRow(0), publicElementB.ExtractRows(1,2), &pubElemBf, ilParamsConsolidated);
+		// decrypted text
+		DCRTPoly dtext(ilDCRTParams, EVALUATION, true);
 
-			receiver.NANDGateEvalCTDCRT(ilDCRTParams, ctCin.ExtractRow(1), &x[1], publicElementB.ExtractRows(1,2), ctCin.ExtractRows(2,3), &y, &ctCf, ilParamsConsolidated);
+		ptext.SwitchFormat();
 
-			pkg.KeyGen(ilDCRTParams, trapdoorA.first, pubElemBf, pubElemBeta,trapdoorA.second, dgg, &sk);
+		sender.Encrypt(ilDCRTParams, trapdoorA.first, publicElementB, pubElemBeta, x, ptext, dgg, dug, bug, &ctCin, &c1);
 
-			receiver.Decrypt(ilDCRTParams, sk, ctCA, ctCf, c1, &dtext);
+		ctCA = ctCin.ExtractRow(0);
 
-			Poly dtextPoly(dtext.CRTInterpolate());
+		receiver.NANDGateEvalPKDCRT(ilDCRTParams, publicElementB.ExtractRow(0), publicElementB.ExtractRows(1,2), &pubElemBf, ilParamsConsolidated);
 
-			receiver.Decode(&dtextPoly);
+		receiver.NANDGateEvalCTDCRT(ilDCRTParams, ctCin.ExtractRow(1), &x[1], publicElementB.ExtractRows(1,2), ctCin.ExtractRows(2,3), &y, &ctCf, ilParamsConsolidated);
 
-			ptext.SwitchFormat();
-			if(ptext1.GetValues() ==  dtextPoly.GetValues()){
-				std::cout << "Success" << std::endl;
-			}
-			delete[] x;
+		pkg.KeyGen(ilDCRTParams, trapdoorA.first, pubElemBf, pubElemBeta,trapdoorA.second, dgg, &sk);
+
+		receiver.Decrypt(ilDCRTParams, sk, ctCA, ctCf, c1, &dtext);
+
+		Poly dtextPoly(dtext.CRTInterpolate());
+
+		receiver.Decode(&dtextPoly);
+
+		ptext.SwitchFormat();
+		if(ptext1.GetValues() ==  dtextPoly.GetValues()){
+			std::cout << "Success" << std::endl;
+		}
+		delete[] x;
 }
 
 void KPABEANDGate(int32_t base, usint k, usint ringDimension){
@@ -703,134 +703,134 @@ void KPABEANDGate(int32_t base, usint k, usint ringDimension){
 
 void KPABEANDGateDCRT(int32_t base, usint k, usint ringDimension){
 
-		usint n = ringDimension * 2;   // cyclotomic order
-	//	usint k = 21;
-		usint ell = 4; // No of attributes
+	usint n = ringDimension * 2;   // cyclotomic order
+//	usint k = 21;
+	usint ell = 4; // No of attributes
 
-	//	native_int::BigInteger q = native_int::BigInteger::ONE << (k - 1);
-	//	q = lbcrypto::FirstPrime<native_int::BigInteger>(k, n);
+//	native_int::BigInteger q = native_int::BigInteger::ONE << (k - 1);
+//	q = lbcrypto::FirstPrime<native_int::BigInteger>(k, n);
 
-		native_int::BigInteger q("2101249");
+	native_int::BigInteger q("2101249");
 
-		native_int::BigInteger rootOfUnity(RootOfUnity(n, q));
+	native_int::BigInteger rootOfUnity(RootOfUnity(n, q));
 
-	//	native_int::BigInteger rootOfUnity("794438271477401");
+//	native_int::BigInteger rootOfUnity("794438271477401");
 
-		double val = q.ConvertToDouble();
-		double logTwo = log(val - 1.0) / log(base) + 1.0;
-		size_t k_ = (usint)floor(logTwo) + 1; //  (+1) is For NAF
-		std::cout << "q: " << q << std::endl;
-		std::cout << "modulus length: " << k_ << std::endl;
-		std::cout << "root of unity: " << rootOfUnity << std::endl;
-		std::cout << "Standard deviation: " << SIGMA << std::endl;
-
-
-	//	native_int::BigInteger nextQ = native_int::BigInteger::ONE << (k-1);
-	//	nextQ = lbcrypto::NextPrime<native_int::BigInteger>(q, n);
-	//	std::cout << "nextQ: " << nextQ << std::endl;
-
-		native_int::BigInteger nextQ("2236417");
-
-		native_int::BigInteger nextRootOfUnity(RootOfUnity<native_int::BigInteger>(n, nextQ));
+	double val = q.ConvertToDouble();
+	double logTwo = log(val - 1.0) / log(base) + 1.0;
+	size_t k_ = (usint)floor(logTwo) + 1; //  (+1) is For NAF
+	std::cout << "q: " << q << std::endl;
+	std::cout << "modulus length: " << k_ << std::endl;
+	std::cout << "root of unity: " << rootOfUnity << std::endl;
+	std::cout << "Standard deviation: " << SIGMA << std::endl;
 
 
-	//	native_int::BigInteger nextQ2 = native_int::BigInteger::ONE << (k-1);
-	//	nextQ2 = lbcrypto::NextPrime<native_int::BigInteger>(nextQ, n);
+//	native_int::BigInteger nextQ = native_int::BigInteger::ONE << (k-1);
+//	nextQ = lbcrypto::NextPrime<native_int::BigInteger>(q, n);
+//	std::cout << "nextQ: " << nextQ << std::endl;
 
-		native_int::BigInteger nextQ2("2277377");
-		native_int::BigInteger nextRootOfUnity2(RootOfUnity<native_int::BigInteger>(n, nextQ2));
+	native_int::BigInteger nextQ("2236417");
 
-		usint m = 3 *  k_ + 2;
-
-		std::vector<native_int::BigInteger> moduli;
-		std::vector<native_int::BigInteger> roots_Of_Unity;
-		moduli.reserve(3);
-		roots_Of_Unity.reserve(3);
-
-		moduli.push_back(q);
-		moduli.push_back(nextQ);
-		moduli.push_back(nextQ2);
-
-		roots_Of_Unity.push_back(rootOfUnity);
-		roots_Of_Unity.push_back(nextRootOfUnity);
-		roots_Of_Unity.push_back(nextRootOfUnity2);
+	native_int::BigInteger nextRootOfUnity(RootOfUnity<native_int::BigInteger>(n, nextQ));
 
 
-		BigInteger bigModulus = BigInteger("2101249") * BigInteger("2236417") * BigInteger("2277377");
+//	native_int::BigInteger nextQ2 = native_int::BigInteger::ONE << (k-1);
+//	nextQ2 = lbcrypto::NextPrime<native_int::BigInteger>(nextQ, n);
 
-		BigInteger bigRootOfUnity(RootOfUnity(n,bigModulus));
+	native_int::BigInteger nextQ2("2277377");
+	native_int::BigInteger nextRootOfUnity2(RootOfUnity<native_int::BigInteger>(n, nextQ2));
 
-		BinaryUniformGenerator bug = BinaryUniformGenerator();
+	usint m = 3 *  k_ + 2;
 
+	std::vector<native_int::BigInteger> moduli;
+	std::vector<native_int::BigInteger> roots_Of_Unity;
+	moduli.reserve(3);
+	roots_Of_Unity.reserve(3);
 
-		shared_ptr<ILDCRTParams<BigInteger>> ilDCRTParams(new ILDCRTParams<BigInteger>(n, moduli, roots_Of_Unity));
+	moduli.push_back(q);
+	moduli.push_back(nextQ);
+	moduli.push_back(nextQ2);
 
-		shared_ptr<ILParams> ilParamsConsolidated(new ILParams(n, bigModulus, bigRootOfUnity));
-
-		auto zero_alloc = DCRTPoly::MakeAllocator(ilDCRTParams, COEFFICIENT);
-
-		DCRTPoly::DggType dgg = DCRTPoly::DggType(SIGMA);
-		DCRTPoly::DugType dug = DCRTPoly::DugType();
-
-		// Trapdoor Generation
-		std::pair<RingMatDCRT, RLWETrapdoorPair<DCRTPoly>> trapdoorA = RLWETrapdoorUtility<DCRTPoly>::TrapdoorGen(ilDCRTParams, SIGMA, base, true); // A.first is the public element
-
-		DCRTPoly pubElemBeta(dug, ilDCRTParams, EVALUATION);
-
-		RingMatDCRT publicElementB(zero_alloc, ell + 1, m);
-		RingMatDCRT ctCin(zero_alloc, ell + 2, m);
-		DCRTPoly c1(dug, ilDCRTParams, EVALUATION);
-
-		KPABE<DCRTPoly, Poly> pkg, sender, receiver;
-
-		pkg.Setup(ilDCRTParams, base, ell, dug, &publicElementB);
-		sender.Setup(ilDCRTParams, base, ell);
-		receiver.Setup(ilDCRTParams, base, ell);
+	roots_Of_Unity.push_back(rootOfUnity);
+	roots_Of_Unity.push_back(nextRootOfUnity);
+	roots_Of_Unity.push_back(nextRootOfUnity2);
 
 
-		// Attribute values all are set to 1 for NAND gate evaluation
-		usint *x  = new usint[ell];
-		x[0] = x[1] = x[2] = 0;
-		usint y;
+	BigInteger bigModulus = BigInteger("2101249") * BigInteger("2236417") * BigInteger("2277377");
 
-		Poly ptext1(ilParamsConsolidated, COEFFICIENT, true);
-		ptext1.SetValues(bug.GenerateVector(ringDimension, bigModulus), COEFFICIENT);
+	BigInteger bigRootOfUnity(RootOfUnity(n,bigModulus));
 
-		DCRTPoly ptext(ptext1, ilDCRTParams);
+	BinaryUniformGenerator bug = BinaryUniformGenerator();
 
-		// circuit outputs
-		RingMatDCRT pubElemBf(DCRTPoly::MakeAllocator(ilDCRTParams, EVALUATION), 1, m);  //evaluated Bs
-		RingMatDCRT ctCf(DCRTPoly::MakeAllocator(ilDCRTParams, EVALUATION), 1, m);  // evaluated Cs
-		RingMatDCRT ctCA(DCRTPoly::MakeAllocator(ilDCRTParams, EVALUATION), 1, m); // CA
 
-																	   // secret key corresponding to the circuit output
-		RingMatDCRT sk(zero_alloc, 2, m);
+	shared_ptr<ILDCRTParams<BigInteger>> ilDCRTParams(new ILDCRTParams<BigInteger>(n, moduli, roots_Of_Unity));
 
-		// decrypted text
-		DCRTPoly dtext(ilDCRTParams, EVALUATION, true);
+	shared_ptr<ILParams> ilParamsConsolidated(new ILParams(n, bigModulus, bigRootOfUnity));
 
-		ptext.SwitchFormat();
+	auto zero_alloc = DCRTPoly::MakeAllocator(ilDCRTParams, COEFFICIENT);
 
-		sender.Encrypt(ilDCRTParams, trapdoorA.first, publicElementB, pubElemBeta, x, ptext, dgg, dug, bug, &ctCin, &c1);
+	DCRTPoly::DggType dgg = DCRTPoly::DggType(SIGMA);
+	DCRTPoly::DugType dug = DCRTPoly::DugType();
 
-		ctCA = ctCin.ExtractRow(0);
+	// Trapdoor Generation
+	std::pair<RingMatDCRT, RLWETrapdoorPair<DCRTPoly>> trapdoorA = RLWETrapdoorUtility<DCRTPoly>::TrapdoorGen(ilDCRTParams, SIGMA, base, true); // A.first is the public element
 
-		receiver.ANDGateEvalPKDCRT(ilDCRTParams, publicElementB.ExtractRows(1,2), &pubElemBf, ilParamsConsolidated);
-		receiver.ANDGateEvalCTDCRT(ilDCRTParams, &x[1], publicElementB.ExtractRows(1,2), ctCin.ExtractRows(2,3), &y, &ctCf, ilParamsConsolidated);
+	DCRTPoly pubElemBeta(dug, ilDCRTParams, EVALUATION);
 
-		pkg.KeyGen(ilDCRTParams, trapdoorA.first, pubElemBf, pubElemBeta,trapdoorA.second, dgg, &sk);
+	RingMatDCRT publicElementB(zero_alloc, ell + 1, m);
+	RingMatDCRT ctCin(zero_alloc, ell + 2, m);
+	DCRTPoly c1(dug, ilDCRTParams, EVALUATION);
 
-		receiver.Decrypt(ilDCRTParams, sk, ctCA, ctCf, c1, &dtext);
+	KPABE<DCRTPoly, Poly> pkg, sender, receiver;
 
-		Poly dtextPoly(dtext.CRTInterpolate());
+	pkg.Setup(ilDCRTParams, base, ell, dug, &publicElementB);
+	sender.Setup(ilDCRTParams, base, ell);
+	receiver.Setup(ilDCRTParams, base, ell);
 
-		receiver.Decode(&dtextPoly);
 
-		ptext.SwitchFormat();
-		if(ptext1.GetValues() ==  dtextPoly.GetValues()){
-			std::cout << "Success" << std::endl;
-		}
-		delete[] x;
+	// Attribute values all are set to 1 for NAND gate evaluation
+	usint *x  = new usint[ell];
+	x[0] = x[1] = x[2] = 0;
+	usint y;
+
+	Poly ptext1(ilParamsConsolidated, COEFFICIENT, true);
+	ptext1.SetValues(bug.GenerateVector(ringDimension, bigModulus), COEFFICIENT);
+
+	DCRTPoly ptext(ptext1, ilDCRTParams);
+
+	// circuit outputs
+	RingMatDCRT pubElemBf(DCRTPoly::MakeAllocator(ilDCRTParams, EVALUATION), 1, m);  //evaluated Bs
+	RingMatDCRT ctCf(DCRTPoly::MakeAllocator(ilDCRTParams, EVALUATION), 1, m);  // evaluated Cs
+	RingMatDCRT ctCA(DCRTPoly::MakeAllocator(ilDCRTParams, EVALUATION), 1, m); // CA
+
+																   // secret key corresponding to the circuit output
+	RingMatDCRT sk(zero_alloc, 2, m);
+
+	// decrypted text
+	DCRTPoly dtext(ilDCRTParams, EVALUATION, true);
+
+	ptext.SwitchFormat();
+
+	sender.Encrypt(ilDCRTParams, trapdoorA.first, publicElementB, pubElemBeta, x, ptext, dgg, dug, bug, &ctCin, &c1);
+
+	ctCA = ctCin.ExtractRow(0);
+
+	receiver.ANDGateEvalPKDCRT(ilDCRTParams, publicElementB.ExtractRows(1,2), &pubElemBf, ilParamsConsolidated);
+	receiver.ANDGateEvalCTDCRT(ilDCRTParams, &x[1], publicElementB.ExtractRows(1,2), ctCin.ExtractRows(2,3), &y, &ctCf, ilParamsConsolidated);
+
+	pkg.KeyGen(ilDCRTParams, trapdoorA.first, pubElemBf, pubElemBeta,trapdoorA.second, dgg, &sk);
+
+	receiver.Decrypt(ilDCRTParams, sk, ctCA, ctCf, c1, &dtext);
+
+	Poly dtextPoly(dtext.CRTInterpolate());
+
+	receiver.Decode(&dtextPoly);
+
+	ptext.SwitchFormat();
+	if(ptext1.GetValues() ==  dtextPoly.GetValues()){
+		std::cout << "Success" << std::endl;
+	}
+	delete[] x;
 
 }
 

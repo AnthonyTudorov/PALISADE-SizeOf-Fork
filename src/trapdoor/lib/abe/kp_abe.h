@@ -67,42 +67,42 @@ namespace lbcrypto {
 	* @param *psi decomposed matrix
     */
 	int PolyVec2BalDecom(
-			const shared_ptr<ILParams> ilParams,
-			int32_t base,
-			int k,
-			const RingMat &publElemB,
-			RingMat *psi
-		);
+		const shared_ptr<ILParams> ilParams,
+		int32_t base,
+		int k,
+		const RingMat &publElemB,
+		RingMat *psi
+	);
 
-template <class Element, class Element2>
-class KPABE {
-public:
+	template <class Element, class Element2>
+	class KPABE {
+	public:
 
-	/**
-	 * Default Constructor
-	 *
-	 */
-	KPABE() {
-	}
+		/**
+		 * Default Constructor
+		 *
+		 */
+		KPABE() {
+		}
 
-	/**
-	 * Destructor for releasing dynamic memory
-	 * used for precomputed psi
-	 *
-	 */
-	~KPABE() {
-	}
+		/**
+		 * Destructor for releasing dynamic memory
+		 * used for precomputed psi
+		 *
+		 */
+		~KPABE() {
+		}
 
-	/**
-	* Setup function for Private Key Generator (PKG)
-	*
-	* @param ilParams parameter set
-	* @param base is a power of two
-	* @param ell total number of attributes
-	* @param &dug
-	* @param *publicElementB is a matrix where each column corresponds to the public vector of each attribute
-	*/
-	void Setup(
+		/**
+		* Setup function for Private Key Generator (PKG)
+		*
+		* @param ilParams parameter set
+		* @param base is a power of two
+		* @param ell total number of attributes
+		* @param &dug
+		* @param *publicElementB is a matrix where each column corresponds to the public vector of each attribute
+		*/
+		void Setup(
 			const shared_ptr<typename Element::Params> params,
 			int32_t base,
 			usint ell, // number of attributes
@@ -110,60 +110,60 @@ public:
 			Matrix<Element> *pubElemB
 		);
 
-	/**
-	* Setup function for all parties except the Private Key Generator (PKG)
-	*
-	* @param ilParams parameter set
-	* @param base is a power of two
-	* @param ell total number of attributes
-	*/
-	void Setup(
+		/**
+		* Setup function for all parties except the Private Key Generator (PKG)
+		*
+		* @param ilParams parameter set
+		* @param base is a power of two
+		* @param ell total number of attributes
+		*/
+		void Setup(
 			const shared_ptr<typename Element::Params> params,
 			int32_t base,
 			const usint ell
 		);
 
-	/**
-	* Evaluation function for public vectors publicElementB
-	* for the benchmark circuit
-	*
-	* @param ilParams parameter set
-	* @param &publicElementB is a matrix where each column corresponds to the public vector of each attribute
-	* @param *evalPubElement total number of attributes
-	*/
-	void EvalPK(
+		/**
+		* Evaluation function for public vectors publicElementB
+		* for the benchmark circuit
+		*
+		* @param ilParams parameter set
+		* @param &publicElementB is a matrix where each column corresponds to the public vector of each attribute
+		* @param *evalPubElement total number of attributes
+		*/
+		void EvalPK(
 			const shared_ptr<typename Element::Params> params,
 			const Matrix<Element> &pubElemB,
 			Matrix<Element> *evalPubElementBf
 		);
 
-	/**
-	* Evaluation function for public vectors publicElementB
-	* for the benchmark circuit
-	*
-	* @param params parameter set
-	* @param &publicElementB is a matrix where each column corresponds to the public vector of each attribute
-	* @param *evalPubElement total number of attributes
-	*/
-	void EvalPKDCRT(
+		/**
+		* Evaluation function for public vectors publicElementB
+		* for the benchmark circuit
+		*
+		* @param params parameter set
+		* @param &publicElementB is a matrix where each column corresponds to the public vector of each attribute
+		* @param *evalPubElement total number of attributes
+		*/
+		void EvalPKDCRT(
 			const shared_ptr<typename Element::Params> params,
 			const Matrix<Element> &pubElemB,
 			Matrix<Element> *evalPubElementBf,
 			const shared_ptr<typename Element2::Params> ilParams
 		);
 
-	/**
-	* Evaluation function for public vectors publicElementB
-	* for the benchmark circuit
-	*
-	* @param params parameter set
-	* @param &publicElementB is a matrix where each column corresponds to the public vector of each attribute
-	* @param x[] array of attributes
-	* @param &origCT original ciphertext
-	* @param *evalAttribute evaluated value of circuit
-	* @param *evalCT evaluated ciphertext value
-	*/
-	void EvalCTDCRT(
+		/**
+		* Evaluation function for public vectors publicElementB
+		* for the benchmark circuit
+		*
+		* @param params parameter set
+		* @param &publicElementB is a matrix where each column corresponds to the public vector of each attribute
+		* @param x[] array of attributes
+		* @param &origCT original ciphertext
+		* @param *evalAttribute evaluated value of circuit
+		* @param *evalCT evaluated ciphertext value
+		*/
+		void EvalCTDCRT(
 			const shared_ptr<typename Element::Params> params,
 			const Matrix<Element> &pubElemB,
 			const usint x[],  //attributes
@@ -173,18 +173,18 @@ public:
 			const shared_ptr<typename Element2::Params> ilParams
 		);
 
-	/**
-	* Evaluation function for public vectors publicElementB
-	* for the benchmark circuit
-	*
-	* @param ilParams parameter set
-	* @param &publicElementB is a matrix where each column corresponds to the public vector of each attribute
-	* @param x[] array of attributes
-	* @param &origCT original ciphertext
-	* @param *evalAttribute evaluated value of circuit
-	* @param *evalCT evaluated ciphertext value
-	*/
-	void EvalCT(
+		/**
+		* Evaluation function for public vectors publicElementB
+		* for the benchmark circuit
+		*
+		* @param ilParams parameter set
+		* @param &publicElementB is a matrix where each column corresponds to the public vector of each attribute
+		* @param x[] array of attributes
+		* @param &origCT original ciphertext
+		* @param *evalAttribute evaluated value of circuit
+		* @param *evalCT evaluated ciphertext value
+		*/
+		void EvalCT(
 			const shared_ptr<ILParams> ilParams,
 			const RingMat &pubElemB,
 			const usint x[],  //attributes
@@ -193,77 +193,77 @@ public:
 			RingMat *evalCT //evaluated ciphertext
 		);
 
-	/**
-	* Evaluation of a single NAND gate
-	* NAND gate is universal,
-	* any Boolean function can be constructed from NAND gates
-	*
-	* @param ilParams parameter set
-	* @param &pubElemB0
-	* @param &origPubElem original matrix of public vectors for each attribute
-	* @param *evalPubElem evaluated value of public element
-	*/
-	/*
-	 * This is method for evaluating a single NAND gate
-	 */
-	void NANDGateEvalPK(
-		    const shared_ptr<ILParams> ilParams,
-		    const RingMat &pubElemB0,
-		    const RingMat &origPubElem,
-		    RingMat *evalPubElem
-	    );
+		/**
+		* Evaluation of a single NAND gate
+		* NAND gate is universal,
+		* any Boolean function can be constructed from NAND gates
+		*
+		* @param ilParams parameter set
+		* @param &pubElemB0
+		* @param &origPubElem original matrix of public vectors for each attribute
+		* @param *evalPubElem evaluated value of public element
+		*/
+		/*
+		 * This is method for evaluating a single NAND gate
+		 */
+		void NANDGateEvalPK(
+			const shared_ptr<ILParams> ilParams,
+			const RingMat &pubElemB0,
+			const RingMat &origPubElem,
+			RingMat *evalPubElem
+		);
 
 
-	/**
-	* Evaluation of a single NAND gate
-	* NAND gate is universal,
-	* any Boolean function can be constructed from NAND gates
-	*
-	* @param ilParams parameter set
-	* @param &ctC0
-	* @param x[] array of attributes
-	* @param &origPubElem original matrix of public vectors for each attribute
-	* @param &origCT original ciphertext
-	* @param *evalAttribute evaluated value of circuit
-	* @param *evalCT evaluated ciphertext value
-	*/
-	/*
-	 * This is method for evaluating a single NAND gate
-	 */
-	void NANDGateEvalCT(
-		    const shared_ptr<ILParams> ilParams,
-		    const RingMat &ctC0,
-		    const usint x[],
-		    const RingMat &origPubElem,
-		    const RingMat &origCT,
-		    usint *evalAttribute,
-		    RingMat *evalCT
- 	    );
+		/**
+		* Evaluation of a single NAND gate
+		* NAND gate is universal,
+		* any Boolean function can be constructed from NAND gates
+		*
+		* @param ilParams parameter set
+		* @param &ctC0
+		* @param x[] array of attributes
+		* @param &origPubElem original matrix of public vectors for each attribute
+		* @param &origCT original ciphertext
+		* @param *evalAttribute evaluated value of circuit
+		* @param *evalCT evaluated ciphertext value
+		*/
+		/*
+		 * This is method for evaluating a single NAND gate
+		 */
+		void NANDGateEvalCT(
+			const shared_ptr<ILParams> ilParams,
+			const RingMat &ctC0,
+			const usint x[],
+			const RingMat &origPubElem,
+			const RingMat &origCT,
+			usint *evalAttribute,
+			RingMat *evalCT
+		);
 
 
-	/**
-	*Evaluation of simple AND Gate
-	*
-	* @param ilParams parameter set
-	* @param &origPubElementB original matrix of public vectors for each attribute
-	* @param *evalPubElementBf evaluated value of public element
-	*/
-	void ANDGateEvalPK(
-		shared_ptr<ILParams> ilParams,
-		const RingMat &origPubElemB,
-		RingMat *evalPubElemBf
-	);
-	/**
-	*Evaluation of simple AND Gate
-	*
-	* @param ilParams parameter set
-	* @param x[] array of attributes
-	* @param &origPubElemB original matrix of public vectors for each attribute
-	* @param &origCT original ciphertext
-	* @param *evalAttribute evaluated value of circuit
-	* @param *evalCT evaluated ciphertext value
-	*/
-	void ANDGateEvalCT(
+		/**
+		*Evaluation of simple AND Gate
+		*
+		* @param ilParams parameter set
+		* @param &origPubElementB original matrix of public vectors for each attribute
+		* @param *evalPubElementBf evaluated value of public element
+		*/
+		void ANDGateEvalPK(
+			shared_ptr<ILParams> ilParams,
+			const RingMat &origPubElemB,
+			RingMat *evalPubElemBf
+		);
+		/**
+		*Evaluation of simple AND Gate
+		*
+		* @param ilParams parameter set
+		* @param x[] array of attributes
+		* @param &origPubElemB original matrix of public vectors for each attribute
+		* @param &origCT original ciphertext
+		* @param *evalAttribute evaluated value of circuit
+		* @param *evalCT evaluated ciphertext value
+		*/
+		void ANDGateEvalCT(
 			const shared_ptr<ILParams> ilParams,
 			const usint x[2], //TBA
 			const RingMat &origPubElemB,
@@ -272,22 +272,22 @@ public:
 			RingMat *evalCT
 		);
 
-	/**
-	* Encrypt Function
-	*
-	* @param ilParams parameter set
-	* @param &pubElementA
-	* @param &pubElementB
-	* @param &d
-	* @param x[] array of attributes
-	* @param &pt
-	* @param &dgg to generate error terms (Gaussian)
-	* @param &dug select according to uniform distribution
-	* @param &bug select according to uniform distribution binary
-	* @param *ctCin resulting ciphertext Cin as per algorithm
-	* @param *ctC1 c1, a separate part of the cipertext as per the algorithm
-	*/
-	void Encrypt(
+		/**
+		* Encrypt Function
+		*
+		* @param ilParams parameter set
+		* @param &pubElementA
+		* @param &pubElementB
+		* @param &d
+		* @param x[] array of attributes
+		* @param &pt
+		* @param &dgg to generate error terms (Gaussian)
+		* @param &dug select according to uniform distribution
+		* @param &bug select according to uniform distribution binary
+		* @param *ctCin resulting ciphertext Cin as per algorithm
+		* @param *ctC1 c1, a separate part of the cipertext as per the algorithm
+		*/
+		void Encrypt(
 			const shared_ptr<typename Element::Params> params,
 			const Matrix<Element> &pubElemA,
 			const Matrix<Element> &pubElemB,
@@ -301,18 +301,18 @@ public:
 			Element *ctC1
 		);
 
-	/**
-	* KeyGen Function
-	*
-	* @param params parameter set
-	* @param &pubElementA Public parameter $A \in R_q^{1 \times w}$
-	* @param &pubElementB Public parameter $B \in R_q^{ell \times k}$
-	* @param &beta public key $d \in R_q$  TBA
-	* @param &secElemTA Secret parameter $T_H \in R_q^{1 \times k} \times R_q^{1 \times k}$
-	* @param &dgg to generate error terms (Gaussian)
-	* @param *sk secret key
-	*/
-	void KeyGen(
+		/**
+		* KeyGen Function
+		*
+		* @param params parameter set
+		* @param &pubElementA Public parameter $A \in R_q^{1 \times w}$
+		* @param &pubElementB Public parameter $B \in R_q^{ell \times k}$
+		* @param &beta public key $d \in R_q$  TBA
+		* @param &secElemTA Secret parameter $T_H \in R_q^{1 \times k} \times R_q^{1 \times k}$
+		* @param &dgg to generate error terms (Gaussian)
+		* @param *sk secret key
+		*/
+		void KeyGen(
 			const shared_ptr<typename Element::Params> params,
 			const Matrix<Element> &pubElemA,
 			const Matrix<Element> &pubElemB,
@@ -322,109 +322,113 @@ public:
 			Matrix<Element> *sk
 		);
 
-	/**
-	* Decrypt Function
-	*
-	* @param params parameter set
-	* @param &sk Secret Key
-	* @param &ctA ciphertext A as per paper
-	* @param &evalCT evaluated ciphertext Cf pertaining to a policy
-	* @param &ctC1 ciphertext C1
-	* @param *dtext decrypted ciphetext
-	*/
-	void Decrypt(
-		    const shared_ptr<typename Element::Params> params,
-		    const Matrix<Element> &sk,  //Secret key
-		    const Matrix<Element> &ctA, // ciphertext CA
-		    const Matrix<Element> &evalCT, //cipher text Cf
-		    const Element &ctC1,   // ciphertext C1
+		/**
+		* Decrypt Function
+		*
+		* @param params parameter set
+		* @param &sk Secret Key
+		* @param &ctA ciphertext A as per paper
+		* @param &evalCT evaluated ciphertext Cf pertaining to a policy
+		* @param &ctC1 ciphertext C1
+		* @param *dtext decrypted ciphetext
+		*/
+		void Decrypt(
+			const shared_ptr<typename Element::Params> params,
+			const Matrix<Element> &sk,  //Secret key
+			const Matrix<Element> &ctA, // ciphertext CA
+			const Matrix<Element> &evalCT, //cipher text Cf
+			const Element &ctC1,   // ciphertext C1
 			Element *dtext         //decrypted plaintext
 		);
 
-	/**
-	* Decode Function
-	*
-	* @param *dtext decoded ciphertext
-	*/
-	void Decode(
-			Poly *dtext         //decrypted plaintext
+		/**
+		* Decode Function
+		*
+		* @param *dtext decoded ciphertext
+		*/
+		void Decode(
+				Poly *dtext         //decrypted plaintext
+			);
+
+
+		/**
+		* Evaluation of a single NAND gate
+		* NAND gate is universal,
+		* any Boolean function can be constructed from NAND gates
+		*
+		* @param params parameter set
+		* @param &pubElemB0
+		* @param &origPubElem original matrix of public vectors for each attribute
+		* @param *evalPubElem evaluated value of public element
+		* @param ilParamsConsolidated consolidated params
+		*/
+		/*
+		 * This is method for evaluating a single NAND gate
+		 */
+		void NANDGateEvalPKDCRT(
+			const shared_ptr<typename Element::Params> params,
+			const Matrix<Element> &pubElemB0,
+			const Matrix<Element> &origPubElem,
+			Matrix<Element> *evalPubElem,
+			const shared_ptr<typename Element2::Params> ilParamsConsolidated
 		);
 
 
-	/**
-	* Evaluation of a single NAND gate
-	* NAND gate is universal,
-	* any Boolean function can be constructed from NAND gates
-	*
-	* @param ilParams parameter set
-	* @param &pubElemB0
-	* @param &origPubElem original matrix of public vectors for each attribute
-	* @param *evalPubElem evaluated value of public element
-	*/
-	/*
-	 * This is method for evaluating a single NAND gate
-	 */
-	void NANDGateEvalPKDCRT(
+		/**
+		* Evaluation of a single NAND gate
+		* NAND gate is universal,
+		* any Boolean function can be constructed from NAND gates
+		*
+		* @param params parameter set
+		* @param &ctC0
+		* @param x[] array of attributes
+		* @param &origPubElem original matrix of public vectors for each attribute
+		* @param &origCT original ciphertext
+		* @param *evalAttribute evaluated value of circuit
+		* @param *evalCT evaluated ciphertext value
+		* @param ilParamsConsolidated consolidated params
+		*/
+		/*
+		 * This is method for evaluating a single NAND gate
+		 */
+		void NANDGateEvalCTDCRT(
 			const shared_ptr<typename Element::Params> params,
-		    const Matrix<Element> &pubElemB0,
-		    const Matrix<Element> &origPubElem,
-			Matrix<Element> *evalPubElem,
-			const shared_ptr<typename Element2::Params> ilParamsConsolidated
-	    );
-
-
-	/**
-	* Evaluation of a single NAND gate
-	* NAND gate is universal,
-	* any Boolean function can be constructed from NAND gates
-	*
-	* @param ilParams parameter set
-	* @param &ctC0
-	* @param x[] array of attributes
-	* @param &origPubElem original matrix of public vectors for each attribute
-	* @param &origCT original ciphertext
-	* @param *evalAttribute evaluated value of circuit
-	* @param *evalCT evaluated ciphertext value
-	*/
-	/*
-	 * This is method for evaluating a single NAND gate
-	 */
-	void NANDGateEvalCTDCRT(
-			const shared_ptr<typename Element::Params> params,
-		    const Matrix<Element> &ctC0,
-		    const usint x[],
-		    const Matrix<Element> &origPubElem,
-		    const Matrix<Element> &origCT,
-		    usint *evalAttribute,
+			const Matrix<Element> &ctC0,
+			const usint x[],
+			const Matrix<Element> &origPubElem,
+			const Matrix<Element> &origCT,
+			usint *evalAttribute,
 			Matrix<Element> *evalCT,
-		    const shared_ptr<typename Element2::Params> ilParamsConsolidated
- 	    );
+			const shared_ptr<typename Element2::Params> ilParamsConsolidated
+		);
 
 
-	/**
-	*Evaluation of simple AND Gate
-	*
-	* @param ilParams parameter set
-	* @param &origPubElementB original matrix of public vectors for each attribute
-	* @param *evalPubElementBf evaluated value of public element
-	*/
-	void ANDGateEvalPKDCRT(
-		const shared_ptr<typename Element::Params> params,
-		const Matrix<Element> &origPubElemB,
-		Matrix<Element> *evalPubElemBf,
-		const shared_ptr<typename Element2::Params> ilParamsConsolidated
-	);
-	/**
-	*Evaluation of simple AND Gate
-	*
-	* @param ilParams parameter set
-	* @param x[] array of attributes
-	* @param &origPubElemB original matrix of public vectors for each attribute
-	* @param &origCT original ciphertext
-	* @param *evalAttribute evaluated value of circuit
-	* @param *evalCT evaluated ciphertext value
-	*/
-	void ANDGateEvalCTDCRT(
+		/**
+		*Evaluation of simple Public key AND Gate DCRT
+		*
+		* @param params parameter set
+		* @param &origPubElementB original matrix of public vectors for each attribute
+		* @param *evalPubElementBf evaluated value of public element
+		* @param ilParamsConsolidated consolidated params
+		*/
+		void ANDGateEvalPKDCRT(
+			const shared_ptr<typename Element::Params> params,
+			const Matrix<Element> &origPubElemB,
+			Matrix<Element> *evalPubElemBf,
+			const shared_ptr<typename Element2::Params> ilParamsConsolidated
+		);
+		/**
+		*Evaluation of simple Ciphertext AND Gate
+		*
+		* @param params parameter set
+		* @param x[] array of attributes
+		* @param &origPubElemB original matrix of public vectors for each attribute
+		* @param &origCT original ciphertext
+		* @param *evalAttribute evaluated value of circuit
+		* @param *evalCT evaluated ciphertext value
+		* @param ilParamsConsolidated consolidated params
+		*/
+		void ANDGateEvalCTDCRT(
 			const shared_ptr<typename Element::Params> params,
 			const usint x[2], //TBA
 			const Matrix<Element> &origPubElemB,
@@ -435,14 +439,14 @@ public:
 	);
 
 
-private:
-	usint m_k; //number of bits of the modulus
-	usint m_ell; //number of attributes
-	usint m_N; // ring dimension
-	BigInteger m_q; // modulus
-	usint m_m; // m = k+2
-	int32_t m_base; //base, a power of two
-};
+	private:
+		usint m_k; //number of bits of the modulus
+		usint m_ell; //number of attributes
+		usint m_N; // ring dimension
+		BigInteger m_q; // modulus
+		usint m_m; // m = k+2
+		int32_t m_base; //base, a power of two
+	};
 
 }
 
