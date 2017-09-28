@@ -505,40 +505,87 @@ void UnitTestPolyVecDecomp(int32_t base, usint k, usint ringDimension){
 
 		usint n = ringDimension*2;   // cyclotomic order
 
-		BigInteger q = BigInteger::ONE << (k-1);
-		q = lbcrypto::FirstPrime<BigInteger>(k,n);
-		BigInteger rootOfUnity(RootOfUnity(n, q));
+		native_int::BigInteger q = native_int::BigInteger::ONE << (k-1);
+		q = lbcrypto::FirstPrime<native_int::BigInteger>(k,n);
+		native_int::BigInteger rootOfUnity(RootOfUnity<native_int::BigInteger>(n, q));
 
-		usint m = k +2;
+		native_int::BigInteger nextQ = native_int::BigInteger::ONE << (k-1);
+		nextQ = lbcrypto::NextPrime<native_int::BigInteger>(q, n);
+		native_int::BigInteger nextRootOfUnity(RootOfUnity<native_int::BigInteger>(n, nextQ));
 
-		shared_ptr<ILParams> ilParams(new ILParams(n, q, rootOfUnity));
-		auto zero_alloc = Poly::MakeAllocator(ilParams, EVALUATION);
+		usint m = k + k +2;
 
-		RingMat matrixTobeDecomposed(zero_alloc, 1, m);
+		std::vector<native_int::BigInteger> moduli;
+		std::vector<native_int::BigInteger> roots_Of_Unity;
+		moduli.reserve(2);
+		roots_Of_Unity.reserve(2);
+
+		moduli.push_back(q);
+		moduli.push_back(nextQ);
+
+		roots_Of_Unity.push_back(rootOfUnity);
+		roots_Of_Unity.push_back(nextRootOfUnity);
+
+		BigInteger bigModulus("1");
+		long double qDouble = q.ConvertToDouble();
+		long double nextQdouble = nextQ.ConvertToDouble();
+
+		bigModulus = BigInteger(qDouble)* BigInteger(nextQdouble);
+
+		BigInteger bigRootOfUnity(RootOfUnity(n,bigModulus));
+
+		shared_ptr<ILDCRTParams<BigInteger>> params(new ILDCRTParams<BigInteger>(n, moduli, roots_Of_Unity));
+		shared_ptr<ILParams> ilParams(new ILParams(n, bigModulus, bigRootOfUnity));
+
+		auto zero_alloc_poly = Poly::MakeAllocator(ilParams, COEFFICIENT);
+		auto zero_alloc = DCRTPoly::MakeAllocator(params, COEFFICIENT);
+		auto zero_alloc_eval = DCRTPoly::MakeAllocator(params, EVALUATION);
+
+		RingMatDCRT matrixTobeDecomposed(zero_alloc, 1, m);
 
 		DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(SIGMA);
-		Poly::DugType dug = Poly::DugType();
-		dug.SetModulus(q);
+		DCRTPoly::DugType dug = DCRTPoly::DugType();
 
 		for (usint i = 0; i < matrixTobeDecomposed.GetRows(); i++)
 			for (usint j = 0; j < matrixTobeDecomposed.GetCols(); j++) {
 				if(matrixTobeDecomposed(i, j).GetFormat() != COEFFICIENT)
 					matrixTobeDecomposed(i,j).SwitchFormat();
-				matrixTobeDecomposed(i, j).SetValues(dug.GenerateVector(ringDimension), COEFFICIENT); // always sample in COEFFICIENT format
-				matrixTobeDecomposed(i, j).SwitchFormat(); // always kept in EVALUATION format
+					matrixTobeDecomposed(i,j) = DCRTPoly(dug, params, COEFFICIENT);
+					matrixTobeDecomposed(i, j).SwitchFormat(); // always kept in EVALUATION format
+				}
+
+		RingMatDCRT results(zero_alloc_eval, 1, m);
+		RingMatDCRT g = RingMatDCRT(zero_alloc_eval, 1, m).GadgetVector(base);
+
+		RingMatDCRT psiDCRT(zero_alloc, m, m);
+		RingMat psi(zero_alloc_poly, m, m);
+
+		RingMat matrixDecomposePoly(zero_alloc_poly, 1, m);
+
+		for(usint i = 0; i < m; i++){
+			matrixDecomposePoly(0,i) = matrixTobeDecomposed(0,i).CRTInterpolate();
+		}
+
+		lbcrypto::PolyVec2BalDecom(ilParams, base, k+k, matrixDecomposePoly, &psi);
+
+		for(usint i = 0; i < psi.GetRows(); i++){
+					for(usint j = 0; j < psi.GetCols();j++){
+						DCRTPoly temp(psi(i,j), params);
+						psiDCRT(i,j) = temp;
+					}
+				}
+
+		psiDCRT.SwitchFormat();
+
+		results = g * psiDCRT;
+
+
+
+		for(usint i = 0; i < results.GetRows(); i++){
+			for(usint j =0; j < results.GetCols(); j++){
+				EXPECT_EQ(results(i,j), matrixTobeDecomposed(i,j));
 			}
-
-		RingMat results(matrixTobeDecomposed);
-		RingMat g = RingMat(zero_alloc, 1, m).GadgetVector(base);
-
-
-		RingMat psi(zero_alloc, m, m);
-		lbcrypto::PolyVec2BalDecom(ilParams, base, k, matrixTobeDecomposed, &psi);
-
-//		results = g * psi;
-
-//		EXPECT_EQ(results,matrixTobeDecomposed);
-	//	ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().Destroy();
+		}
 
 }
 
@@ -564,6 +611,6 @@ TEST(UTABE, ibe_base_32) {
 }
 
 TEST(UTABE, polyVecBalDecompose_base_16) {
-	UnitTestPolyVecDecomp(16,34,1024);
+	UnitTestPolyVecDecomp(16,32,1024);
 }
 

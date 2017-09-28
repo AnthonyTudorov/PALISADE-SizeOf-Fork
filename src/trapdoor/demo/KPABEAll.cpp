@@ -30,6 +30,8 @@ int main()
 	KPABEANDGate(32,51,2048);
 	KPABEANDGateDCRT(16, 8, 2048);
 
+	TestDCRTVecDecompose<DCRTPoly, Poly>(16,51,32);
+
 	return 0;
 }
 
@@ -318,8 +320,6 @@ void TestDCRTVecDecompose(int32_t base, usint k, usint ringDimension){
 
 			std::vector<native_int::BigInteger> moduli;
 			std::vector<native_int::BigInteger> roots_Of_Unity;
-//			std::vector<BigInteger> moduli;
-//			std::vector<BigInteger> roots_Of_Unity;
 			moduli.reserve(2);
 			roots_Of_Unity.reserve(2);
 
@@ -342,12 +342,12 @@ void TestDCRTVecDecompose(int32_t base, usint k, usint ringDimension){
 
 			auto zero_alloc_poly = Element2::MakeAllocator(ilParams, COEFFICIENT);
 			auto zero_alloc = Element::MakeAllocator(params, COEFFICIENT);
+			auto zero_alloc_eval = DCRTPoly::MakeAllocator(params, EVALUATION);
 
 			RingMatDCRT matrixTobeDecomposed(zero_alloc, 1, m);
 
 			DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(SIGMA);
 			DCRTPoly::DugType dug = DCRTPoly::DugType();
-	//		dug.SetModulus(q);
 
 			for (usint i = 0; i < matrixTobeDecomposed.GetRows(); i++)
 				for (usint j = 0; j < matrixTobeDecomposed.GetCols(); j++) {
@@ -357,8 +357,8 @@ void TestDCRTVecDecompose(int32_t base, usint k, usint ringDimension){
 						matrixTobeDecomposed(i, j).SwitchFormat(); // always kept in EVALUATION format
 					}
 
-			RingMatDCRT results(matrixTobeDecomposed);
-			RingMatDCRT g = RingMatDCRT(zero_alloc, 1, m).GadgetVector(base);
+			RingMatDCRT results(zero_alloc_eval,1,m);
+			RingMatDCRT g = RingMatDCRT(zero_alloc_eval, 1, m).GadgetVector(base);
 
 			RingMatDCRT psiDCRT(zero_alloc, m, m);
 			RingMat psi(zero_alloc_poly, m, m);
@@ -384,22 +384,7 @@ void TestDCRTVecDecompose(int32_t base, usint k, usint ringDimension){
 				for(usint j =0; j < results.GetCols(); j++){
 			    	results(i,j).PrintValues();
 			    	matrixTobeDecomposed(i,j).PrintValues();
-			    	std::cout << results(i,j).GetFormat() << std::endl;
-			    	std::cout << matrixDecomposePoly(i,j).GetFormat() << std::endl;
 				}
-			}
-
-			std::cout << results.GetRows() << std::endl;
-			std::cout << matrixDecomposePoly.GetRows() << std::endl;
-
-			std::cout << results.GetCols() << std::endl;
-			std::cout << matrixDecomposePoly.GetCols() << std::endl;
-
-			if( results == matrixTobeDecomposed){
-				std::cout << "Success" << std::endl;
-			}
-			else{
-				std::cout << "Failure" << std::endl;
 			}
 
 }
