@@ -48,6 +48,7 @@ int main(int argc, char* argv[]){
 	if (argc < 2) { // called with no arguments
 		std::cout << "arg 1 = debugflag 0:1 [0] " << std::endl;
 		std::cout << "arg 2 = num evals 1:3 [1] " << std::endl;
+		std::cout << "arg 3 = num bit range 0+ [3] " << std::endl;
 	}
 	bool dbg_flag = false; 
 
@@ -75,6 +76,18 @@ int main(int argc, char* argv[]){
 	}
 	std::cerr << "Running " << argv[0] << " with " << n_evals << " evaluations." << std::endl;
 
+
+	unsigned int n_bit_range = 3;
+
+	if (argc >= 4 ) {
+    	     n_bit_range = atoi(argv[3]);
+	     if (n_bit_range < 0) {
+		 n_bit_range = 0;
+	     }
+	}
+	std::cerr << "Running " << argv[0] << " with " << n_bit_range << " bit ranges." << std::endl;
+
+	
 	int nthreads, tid;
 
 	// Fork a team of threads giving them their own copies of variables
@@ -92,8 +105,8 @@ int main(int argc, char* argv[]){
 			std::cout << "Number of threads = " << nthreads << std::endl;
 		}
 	}
-
-	for (usint n = 1<<10; n < 1<<13; n=2*n)
+	unsigned int limit = 1<<(10+n_bit_range);
+	for (usint n = 1<<10; n < limit; n=2*n)
 	{
 		for (usint i = 1; i < 2; i++) {
 			errorflag = CONJOBF(dbg_flag, n_evals, n);
@@ -113,6 +126,7 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 
 	//if dbg_flag == true; print debug outputs
 	// n_evals = 1,2,3 number of evaluations to perform
+
 	//returns
 	//  errorflag = # of bad evaluations
 
