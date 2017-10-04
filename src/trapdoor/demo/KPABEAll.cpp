@@ -117,8 +117,6 @@ void KPABEBenchMarkCircuit(int32_t base, usint k, usint ringDimension, usint ite
 	}
 
 
-
-
 	receiver.Decrypt(ilParams, sk, ctCA, evalCf, c1, &dtext);
 	receiver.Decode(&dtext);
 
@@ -128,21 +126,9 @@ void KPABEBenchMarkCircuit(int32_t base, usint k, usint ringDimension, usint ite
 		std::cout << "Decrypted Properly" << std::endl;
 	}
 
-/*	if(sk(0,0).GetFormat() == EVALUATION)
-		sk.SwitchFormat();
-
-
-
-	if(max_norm_secretkey < sk.Norm())
-		max_norm_secretkey = sk.Norm();
-
-
-
-	}
-
-//	std::cout << "Max norm secret key: " << max_norm_secretkey << " with bit size " << log2(max_norm_secretkey) << std::endl;
 	ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().Destroy();
 
+	}
 }
 
 int KPABE_BenchmarkCircuitTestDCRT(usint iter, int32_t base)
