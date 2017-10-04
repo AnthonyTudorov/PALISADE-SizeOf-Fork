@@ -45,7 +45,6 @@ void KPABEBenchMarkCircuit(int32_t base, usint k, usint ringDimension, usint ite
 
 	double val = q.ConvertToDouble();
 	double logTwo = log(val-1.0)/log(base)+1.0;
-	double max_norm_secretkey = 0.0;
 	size_t k_ = (usint) floor(logTwo) + 1;
 
 	usint m = k_+2;
