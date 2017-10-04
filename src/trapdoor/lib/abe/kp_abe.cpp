@@ -811,7 +811,10 @@ template <class Element, class Element2>
 		Matrix<Element> *sk                           // Secret key
 	)
 	{
-		Matrix<Element> skB(Element::MakeDiscreteGaussianCoefficientAllocator(params, EVALUATION, SIGMA), m_m, 1);
+
+		double s = SPECTRAL_BOUND(m_N, m_m - 2, m_base);
+//		Matrix<Element> skB(Element::MakeDiscreteGaussianCoefficientAllocator(params, EVALUATION, SIGMA), m_m, 1);
+		Matrix<Element> skB(Element::MakeDiscreteGaussianCoefficientAllocator(params, EVALUATION, s), m_m, 1);
 
 		Element newChallenge(params, EVALUATION, true);
 		for (usint j = 0; j<m_m; j++)
@@ -820,7 +823,7 @@ template <class Element, class Element2>
 		newChallenge = publicElemBeta - newChallenge;
 
 		double c = (m_base + 1) * SIGMA;
-		double s = SPECTRAL_BOUND(m_N, m_m - 2, m_base);
+
 		typename Element::DggType dggLargeSigma = typename Element::DggType(sqrt(s * s - c * c));
 
 		Matrix<Element> skA(Element::MakeAllocator(params, EVALUATION), m_m, 1);

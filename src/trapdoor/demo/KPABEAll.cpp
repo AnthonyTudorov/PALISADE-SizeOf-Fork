@@ -9,7 +9,7 @@
 
 using namespace lbcrypto;
 
-	void KPABEBenchMarkCircuit(int32_t base, usint k, usint ringDimension);
+	void KPABEBenchMarkCircuit(int32_t base, usint k, usint ringDimension, usint iter);
 template <class Element, class Element2>
 	void TestDCRTVecDecompose(int32_t base, usint k, usint ringDimension);
 	int KPABE_BenchmarkCircuitTestDCRT(usint iter, int32_t base);
@@ -24,7 +24,7 @@ int main()
 
 
 	KPABE_BenchmarkCircuitTestDCRT(4, 32);
-	KPABEBenchMarkCircuit(4, 32, 2048);
+	KPABEBenchMarkCircuit(2, 51, 2048, 100);
 	KPABE_NANDGATE(32,51,2048);
 	KPABE_NANDGATEDCRT(16, 8, 2048);
 	KPABEANDGate(32,51,2048);
@@ -35,9 +35,9 @@ int main()
 	return 0;
 }
 
-void KPABEBenchMarkCircuit(int32_t base, usint k, usint ringDimension){
+void KPABEBenchMarkCircuit(int32_t base, usint k, usint ringDimension, usint iter){
 	usint n = ringDimension*2;   // cyclotomic order
-	usint ell = 2; // No of attributes
+	usint ell = 4; // No of attributes
 
 	BigInteger q = BigInteger::ONE << (k-1);
 	q = lbcrypto::FirstPrime<BigInteger>(k,n);
@@ -45,6 +45,7 @@ void KPABEBenchMarkCircuit(int32_t base, usint k, usint ringDimension){
 
 	double val = q.ConvertToDouble();
 	double logTwo = log(val-1.0)/log(base)+1.0;
+	double max_norm_secretkey = 0.0;
 	size_t k_ = (usint) floor(logTwo) + 1;
 
 	usint m = k_+2;
@@ -88,6 +89,8 @@ void KPABEBenchMarkCircuit(int32_t base, usint k, usint ringDimension){
 	RingMat evalCf(Poly::MakeAllocator(ilParams, EVALUATION), 1, m);  // evaluated Cs
 	RingMat ctCA(Poly::MakeAllocator(ilParams, EVALUATION), 1, m); // CA
 
+
+	for(usint i = 0; i < iter; i++){
 	// secret key corresponding to the circuit output
 	RingMat sk(zero_alloc, 2, m);
 
@@ -113,6 +116,9 @@ void KPABEBenchMarkCircuit(int32_t base, usint k, usint ringDimension){
 		t += (evalBf(0, i)*sk(1, i));
 	}
 
+
+
+
 	receiver.Decrypt(ilParams, sk, ctCA, evalCf, c1, &dtext);
 	receiver.Decode(&dtext);
 
@@ -122,6 +128,19 @@ void KPABEBenchMarkCircuit(int32_t base, usint k, usint ringDimension){
 		std::cout << "Decrypted Properly" << std::endl;
 	}
 
+/*	if(sk(0,0).GetFormat() == EVALUATION)
+		sk.SwitchFormat();
+
+
+
+	if(max_norm_secretkey < sk.Norm())
+		max_norm_secretkey = sk.Norm();
+
+
+
+	}
+
+//	std::cout << "Max norm secret key: " << max_norm_secretkey << " with bit size " << log2(max_norm_secretkey) << std::endl;
 	ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().Destroy();
 
 }
