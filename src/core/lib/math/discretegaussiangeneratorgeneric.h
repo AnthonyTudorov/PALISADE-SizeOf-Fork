@@ -101,37 +101,7 @@ namespace lbcrypto {
 		* @brief Destructor
 		*/
 		~DiscreteGaussianGeneratorGeneric() {
-			/*if (probMatrix != nullptr) {
-				for (unsigned int i = 0;i < tableCount;i++) {
-					delete[] probMatrix[i];
-				}
-				delete[] probMatrix;
-			}*/
-			/*
-			if (probMean != nullptr) { delete[] probMean; }
-			if (firstNonZero != nullptr) { delete[] firstNonZero; }
-			if (lastLevel != nullptr) { delete[] lastLevel; }
-			if (hammingWeights != nullptr) {
-				for (unsigned int i = 0;i < tableCount;i++) {
-					delete[] hammingWeights[i];
-				}
-				delete[] hammingWeights;
-			}
-			if ( DDGTree!= nullptr) {
-				for (unsigned int i = 0;i <tableCount;i++) {
-					for (unsigned int j = 0;j < DDGSize[i];j++) {
-						delete[] DDGTree[i][j];
-					}
-					delete[] DDGTree[i];
-				}
-				delete[] DDGTree;
-			}
-			*/
-			//if (DDGSize != nullptr) { delete[] DDGSize; }
 			if (DDGColumn != nullptr) { delete[] DDGColumn;}
-
-			//if (m_z != nullptr) {delete m_z;}
-			//if (m_sigma != nullptr) {delete m_sigma;}
 		}
 
 		void PreCompute(int32_t b, int32_t k, double stddev);
@@ -187,14 +157,13 @@ namespace lbcrypto {
 		/**
 		*Mean of the distribution used for Knuth-Yao probability table
 		*/
-		//double* probMean = nullptr;
 		std::vector<double> probMean;
-		//uint64_t* DDGSize =nullptr;
-		std::vector<uint64_t> DDGSize;
-		//int32_t* firstNonZero = nullptr;
+
+		/**
+		 *Index of first bit with non zero Hamming weight in the probability table
+		 */
 		std::vector<int32_t> firstNonZero;
-		//int32_t* lastLevel = nullptr;
-		std::vector<int32_t>  lastLevel;
+
 
 
 		int32_t SampleI(int32_t i);

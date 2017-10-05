@@ -32,9 +32,10 @@ int main() {
 	//double std = 1000;
 	//double std = 10000;
 
-	double stdBase = 20;
+	double stdBase = 100;
 	double std = (1<<22);
 	int CENTER_COUNT = 1024;
+
 
 	DiscreteGaussianGenerator dgg(4);
 	DiscreteGaussianGenerator dggRejection(4);
@@ -83,25 +84,17 @@ int main() {
 	}
 	finish = currentDateTime();
 	std::cout << "Sampling " << std::to_string(count) << " integers (Generic - Peikert): " << (finish - start)/CENTER_COUNT << " ms\n";
-/*
-	start = currentDateTime();
-	for (int k = 0; k < CENTER_COUNT; k++) {
-		dgg4.GenerateIntVector(count);
-	}
-	finish = currentDateTime();
-	std::cout << "Sampling " << std::to_string(count) << " integers (Peikert): " << (finish - start)/CENTER_COUNT << " ms\n";
-*/
 
-//	std::cout<<"Started precomputation"<<std::endl;
+
+
 	dgg3.PreCompute(CENTER_COUNT, std::ceil(30/log2(CENTER_COUNT)), stdBase);
 	//dgg3.GenerateProbMatrix(stdBase,0,1);
-	//std::cout<<"Ended precomputation"<<std::endl;
 	start = currentDateTime();
 	for (int k = 0; k < CENTER_COUNT; k++) {
-	double center = k/(double)CENTER_COUNT;
+		double center = k/(double)CENTER_COUNT;
 		for (size_t i = 0;i < count;i++) {
 			dgg3.GenerateInteger(center,std);
-		//	dgg3.GenerateIntegerKnuthYaoAlt(0);
+			//dgg3.GenerateIntegerKnuthYaoAlt(0);
 		}
 	}
 	finish = currentDateTime();

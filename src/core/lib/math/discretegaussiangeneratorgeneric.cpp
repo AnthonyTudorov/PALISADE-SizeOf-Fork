@@ -34,7 +34,8 @@ namespace lbcrypto {
 	const int32_t N_MAX = 16384;
 	const double SIGMA = std::sqrt(std::log(2 * N_MAX / DG_ERROR) / M_PI);
 	const int32_t STDDEV_COUNT=7;
-	const int32_t DDG_DEPTH = 18;
+	//const int32_t DDG_DEPTH = 13;
+	const int32_t MIN_TREE_DEPTH = 44;
 
 	//	template<typename IntType, typename VecType>
 	//	DiscreteGaussianGeneratorImpl<IntType,VecType>::DiscreteGaussianGeneratorImpl() : DistributionGenerator<IntType,VecType>() {
@@ -63,37 +64,7 @@ namespace lbcrypto {
 	*Generates the probability matrix of given distribution, which is used in Knuth-Yao method
 	*/
 	void DiscreteGaussianGeneratorGeneric::GenerateProbMatrix(double stddev, double mean, int tCount) {
-		/*if (probMatrix != nullptr) {
-			for (unsigned int i = 0;i < tableCount;i++) {
-				delete[] probMatrix[i];
-			}
-			delete[] probMatrix;
-		}*/
-		/*if (probMean != nullptr) {
-			delete[] probMean;
-		}
-		if (firstNonZero != nullptr) {
-			delete[] firstNonZero;
-		}
-		if (hammingWeights != nullptr) {
-			for (unsigned int i = 0;i < tableCount;i++) {
-				delete[] hammingWeights[i];
-			}
-			delete[] hammingWeights;
-		}
-		if (DDGTree != nullptr) {
-			for (unsigned int i = 0;i < tableCount;i++) {
-				for (unsigned int j = 0;j < DDGSize[i];j++) {
-					delete[] DDGTree[i][j];
-				}
-				delete[] DDGTree[i];
-			}
-			delete[] DDGTree;
-		}
-		if (DDGSize != nullptr) {
-			delete[] DDGSize;
-		}
-		*/
+
 		if (DDGColumn != nullptr) {
 			delete[] DDGColumn;
 		}
@@ -101,65 +72,27 @@ namespace lbcrypto {
 		probMatrixSize = 2*STDDEV_COUNT * stddev +1;
 		tableCount = tCount;
 
-		//probMatrix = new uint64_t*[tableCount];
 		probMatrix.resize(tableCount);
-		//firstNonZero = new int32_t[tableCount];
 		firstNonZero.resize(tableCount);
-		DDGSize.resize(tableCount);
-		//DDGSize = new uint64_t[tableCount];
-		//DDGTree = new short**[tableCount];
 		DDGTree.resize(tableCount);
-		//lastLevel = new int32_t[tableCount];
-		lastLevel.resize(tableCount);
-		//hammingWeights = new uint32_t*[tableCount];
 		hammingWeights.resize(tableCount);
+
 		for (unsigned int a = 0;a < tableCount;a++) {
-			//hammingWeights[a] = new uint32_t[64];
 			hammingWeights[a].resize(64,0);
-			/*for (int c = 0;c < 64;c++) {
-				hammingWeights[a][c] = 0;
-			}*/
 		}
 
 		for (unsigned a = 0;a < tableCount;a++) {
-			//probMatrix[a] = new uint64_t[probMatrixSize];
 			probMatrix[a].resize(probMatrixSize);
 		}
-		//probMean = new double[tableCount];
+
 		probMean.resize(tableCount);
 		m_std = stddev;
-		//double error = 1;
 		for (unsigned int b = 0; b < tableCount;b++) {
 			probMean[b] = (mean + b) / (tableCount);
 			for (int i = -1* STDDEV_COUNT * stddev;i <= STDDEV_COUNT * stddev;i++) {
 				double prob = pow(M_E, -pow((i+probMean[b]) - probMean[b], 2) / (2. * stddev * stddev)) / (stddev * sqrt(2.*M_PI));
 				probMatrix[b][i+STDDEV_COUNT * stddev] = prob * /*(1<<64)*/ pow(2,64);
 			}
-			//probMatrix[b][probMatrixSize - 1] = error * pow(2, 64);
-
-			/*
-			bool same = true;
-			int compressCount = 0;
-			for(int i =0;i<64 && same;i++){
-				int numberOfOnes=0;int numberOfZeroes = 0;
-				for(int j=0;j<(probMatrixSize-1);j++){
-					int bit = (probMatrix[b][j]>>(63-i)) & 1;
-					if(bit == 0)
-						numberOfZeroes++;
-
-				}
-				if(numberOfZeroes==0)
-					compressCount++;
-				else
-					same = false;
-			}
-			compressCount -= 1;
-			std::cout << compressCount;
-
-			for(int j=0;j<(probMatrixSize-1) && compressCount!=0;j++){
-				probMatrix[b][j]=(probMatrix[b][j]<<1);
-
-			}*/
 			for (int i = 0;i < probMatrixSize;i++) {
 				for (int j = 0;j < 64;j++) {
 					hammingWeights[b][j] += ((probMatrix[b][i] >> (63 - j)) & 1);
@@ -171,7 +104,7 @@ namespace lbcrypto {
 
 	/**
 	* Returns a generated integer. Uses Knuth-Yao method defined as Algorithm 1 in http://link.springer.com/chapter/10.1007%2F978-3-662-43414-7_19#page-1
-	*/
+	* Not used at the moment
 	int32_t DiscreteGaussianGeneratorGeneric::GenerateIntegerKnuthYao(int tableID) {
 		int32_t S = 0;
 		bool discard = true;
@@ -226,46 +159,41 @@ namespace lbcrypto {
 		ky_counter++;
 		return  sign*S + probMean[tableID];
 	}
-
+	*/
 	void DiscreteGaussianGeneratorGeneric::GenerateDDGTree(int tableID) {
 
 		firstNonZero[tableID] = -1;
-		lastLevel[tableID]=-1;
 		for (int i = 0;i < 64 && firstNonZero[tableID] == -1;i++)
 			if (hammingWeights[tableID][i] != 0)
 				firstNonZero[tableID] = i;
 
-		DDGSize[tableID] = 1<<DDG_DEPTH;
-		//DDGTree[tableID] = new short *[DDGSize[tableID]];
-		DDGTree[tableID].resize(DDGSize[tableID]);
-
 		uint32_t iNodeCount = 1;
-		for (int i = 0; i < firstNonZero[tableID];i++) {
-			iNodeCount *= 2;
-		}
-		for (unsigned int i = firstNonZero[tableID];i < 64 && lastLevel[tableID]==-1;i++) {
-			iNodeCount *= 2;
-			iNodeCount -= hammingWeights[tableID][i];
-			if(iNodeCount>DDGSize[tableID])
-				lastLevel[tableID]=i-1;
-		}
+				for (int i = 0; i < firstNonZero[tableID];i++) {
+					iNodeCount *= 2;
+				}
+				unsigned int maxNodeCount = iNodeCount;
+				for (int i = firstNonZero[tableID];i < firstNonZero[tableID]+MIN_TREE_DEPTH;i++) {
+					iNodeCount *= 2;
+					iNodeCount -= hammingWeights[tableID][i];
+					if(iNodeCount>=maxNodeCount)
+						maxNodeCount = iNodeCount;
+				}
 
-		int size =63;
-		if(lastLevel[tableID]!=-1)
-		 size=lastLevel[tableID];
-		for (unsigned int i = 0;i < DDGSize[tableID];i++) {
-			//DDGTree[tableID][i] = new short[64 - firstNonZero[tableID]];
 
-			DDGTree[tableID][i].resize(size - firstNonZero[tableID]+1,-2);
-			/*for (int a = 0;a < 64 - firstNonZero[tableID];a++) {
-				DDGTree[tableID][i][a] = -2;
-			}*/
+		int depth = log2(maxNodeCount);
+		uint64_t size = 1<<(depth+1);
+		DDGTree[tableID].resize(size);
+
+
+
+		for (unsigned int i = 0;i < size;i++) {
+			DDGTree[tableID][i].resize(MIN_TREE_DEPTH,-2);
 		}
 		iNodeCount = 1;
 		for (int i = 0; i < firstNonZero[tableID];i++) {
 			iNodeCount *= 2;
 		}
-		for (int i = firstNonZero[tableID];i <=size;i++){
+		for (int i = firstNonZero[tableID];i <firstNonZero[tableID]+MIN_TREE_DEPTH;i++){
 			iNodeCount*=2;
 			iNodeCount -= hammingWeights[tableID][i];
 			for (unsigned int j = 0;j < iNodeCount;j++) {
@@ -290,7 +218,7 @@ namespace lbcrypto {
 			uint32_t nodeIndex = 0;
 			int64_t nodeCount = 1;
 			bool error = false;
-			for (int i = 0;i < (int)64 && !hit && !error;i++) {
+			for (int i = 0; i <64 && !hit && !error;i++) {
 				if (ky_counter % 31 == 0) {
 					ky_seed = (PseudoRandomNumberGenerator::GetPRNG())();
 					ky_seed = ky_seed << 1;
@@ -304,7 +232,7 @@ namespace lbcrypto {
 					nodeIndex += 1;
 				}
 				if (firstNonZero[tableID] <= i) {
-					if(lastLevel[tableID]==-1 || i<=lastLevel[tableID]){
+					if(i<firstNonZero[tableID]+MIN_TREE_DEPTH){
 						ans = DDGTree[tableID][nodeIndex][i-firstNonZero[tableID]];
 					}
 					else{
@@ -434,17 +362,10 @@ namespace lbcrypto {
 	void DiscreteGaussianGeneratorGeneric::PreCompute(int32_t b, int32_t k, double stddev) {
 		m_Sample_b = b;
 		m_Sample_k = k;
-		/*
-		if (m_z != nullptr) {
-			delete m_z;
-		}
-		if (m_sigma != nullptr) {
-			delete m_sigma;
-		}*/
 
-		//m_z = new int32_t[(int)(b*k)];
+
+
 		m_z.resize((int)(b*k));
-		//m_sigma = new double[(int)(b*k)];
 		m_sigma.resize((int)(b*k));
 
 		m_sigma[0] = stddev;
