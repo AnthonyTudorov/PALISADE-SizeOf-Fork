@@ -23,49 +23,80 @@
  *
  */
 #include "math/discretegaussiangenerator.h"
+#include "math/discretegaussiangeneratorgeneric.h"
 #include "utils/debug.h"
 //#include <vld.h>
 using namespace lbcrypto;
 
 int main() {
-	double std = 10000;
-	DiscreteGaussianGenerator dgg(std);
-	double start, finish;
+	//double std = 1000;
+	//double std = 10000;
 
-	size_t count = 100000;
+	double stdBase = 100;
+	double std = (1<<22);
+	int CENTER_COUNT = 1024;
+
+
+	DiscreteGaussianGenerator dgg(4);
+	DiscreteGaussianGenerator dggRejection(4);
+	DiscreteGaussianGeneratorGeneric dgg2(100);
+	DiscreteGaussianGeneratorGeneric dgg3(stdBase, KNUTH_YAO);
+	DiscreteGaussianGenerator dgg4(stdBase); //for Peikert's method
+	double start, finish;
+	size_t count = 10000;
+
+	std::cout << "Distribution parameter = " << std << std::endl;
+
+
 
 	start = currentDateTime();
-	dgg.GenerateProbMatrix(std, 0);
+	for (int k = 0; k < CENTER_COUNT; k++) {
+		double center = k/(double)CENTER_COUNT;
+		for (size_t i = 0;i < count;i++) {
+			dggRejection.GenerateInteger(center, std, 8192);
+		}
+	}
+	finish = currentDateTime();
+	std::cout << "Sampling " << std::to_string(count) << " integers (Rejection): " << (finish - start)/CENTER_COUNT << " ms\n";
+
+	start = currentDateTime();
+	for (int k = 0;k < CENTER_COUNT;k++) {
+		double center = k/(double)CENTER_COUNT;
+		for (size_t i = 0;i < count;i++) {
+			dgg.GenerateIntegerKarney(center, std);
+		}
+	}
+
+	finish = currentDateTime();
+	std::cout << "Sampling " << std::to_string(count) << " integers (Karney): " << (finish - start)/CENTER_COUNT << " ms\n";
+
+	start = currentDateTime();
+	dgg2.PreCompute(CENTER_COUNT, std::ceil(30/log2(CENTER_COUNT)), stdBase);
 	finish = currentDateTime();
 	std::cout << "Probability matrix generation: " << finish - start << " ms\n";
 
 	start = currentDateTime();
-	for (size_t i = 0;i < count;i++) {
-		dgg.GenerateInteger(0, std, 1024);
+	for (int k = 0; k < CENTER_COUNT; k++) {
+		double center = k/(double)CENTER_COUNT;
+		for (size_t i = 0;i < count;i++) {
+			dgg2.GenerateInteger(center, std); //k/CENTER_COUNT
+		}
 	}
 	finish = currentDateTime();
-	std::cout << "Sampling 100000 integers (Rejection): " << finish - start << " ms\n";
+	std::cout << "Sampling " << std::to_string(count) << " integers (Generic - Peikert): " << (finish - start)/CENTER_COUNT << " ms\n";
 
+
+
+	dgg3.PreCompute(CENTER_COUNT, std::ceil(30/log2(CENTER_COUNT)), stdBase);
+	//dgg3.GenerateProbMatrix(stdBase,0,1);
 	start = currentDateTime();
-	for (size_t i = 0;i < count;i++) {
-		//dgg.GenerateIntegerKnuthYao();
+	for (int k = 0; k < CENTER_COUNT; k++) {
+		double center = k/(double)CENTER_COUNT;
+		for (size_t i = 0;i < count;i++) {
+			dgg3.GenerateInteger(center,std);
+			//dgg3.GenerateIntegerKnuthYaoAlt(0);
+		}
 	}
 	finish = currentDateTime();
-	std::cout << "Sampling 100000 integers (Knuth-Yao): " << finish - start << " ms\n";
-
-	start = currentDateTime();
-	dgg.GenerateIntVector(count);
-	finish = currentDateTime();
-	std::cout << "Sampling 100000 integers (Peikert): " << finish - start << " ms\n";
-
-	start = currentDateTime();
-	for (size_t i = 0;i < count;i++) {
-		dgg.GenerateIntegerKarney(0, std);
-	}
-	finish = currentDateTime();
-	std::cout << "Sampling 100000 integers (Karney): " << finish - start << " ms\n";
-
-	std::cin.ignore();
-	std::cin.get();
-	return 0;
+	std::cout << "Sampling " << std::to_string(count) << " integers (Generic - Knuth Yao): " << (finish - start)/CENTER_COUNT << " ms\n";
 }

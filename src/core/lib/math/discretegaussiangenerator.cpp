@@ -205,10 +205,18 @@ namespace lbcrypto {
 			sint v = (result.get())[i];
 			if (v < 0) {
 				v *= -1;
+#if MATHBACKEND != 6
 				ans.SetValAtIndex(i, modulus - IntType(v));
+#else
+				ans.SetValAtIndexWithoutMod(i, modulus - IntType(v));
+#endif
 			}
 			else {
+#if MATHBACKEND != 6
+				ans.SetValAtIndex(i, IntType(v));
+#else
 				ans.SetValAtIndexWithoutMod(i, IntType(v));
+#endif
 			}
 		}
 
@@ -476,95 +484,4 @@ namespace lbcrypto {
 
 		return (n % 2) == 0;
 	}
-
-	/**
-		*Generates the probability matrix of given distribution, which is used in Knuth-Yao method
-	*/
-	template<typename IntType, typename VecType>
-	void DiscreteGaussianGeneratorImpl<IntType,VecType>::GenerateProbMatrix(double stddev, double mean) {
-		if (probMatrix != nullptr) {
-			delete[] probMatrix;
-		}
-		probMean = mean;
-		probMatrixSize = 10 * stddev + 2;
-		probMatrix = new uint32_t[probMatrixSize];
-		double error = 1;
-		for (int i = -5 * stddev + mean;i <= 5 * stddev + mean;i++) {
-			double prob = pow(M_E, -pow(i - mean, 2) / (2. * stddev * stddev)) / (stddev * sqrt(2.*M_PI));
-
-			error -= prob;
-			probMatrix[int(i + 5 * stddev - mean)] = prob * pow(2, 32);
-			//Hamming weights are disabled for now
-			/*
-			for (int j = 0;j < 32;j++) {
-				hammingWeights[j] += ((probMatrix[int(i + m / 2)] >> (31 - j)) & 1);
-
-			}
-			*/
-		}
-		//std::cout << "Error probability: "<< error << std::endl;
-		probMatrix[probMatrixSize - 1] = error * pow(2, 32);
-		//Hamming weights are disabled for now
-		/*
-		for (int k = 0;k< 32;k++) {
-			hammingWeights[k] += ((probMatrix[probMatrixSize - 1] >> (31 - k)) & 1);
-		}
-		*/
-	}
-
-	/**
-	* Returns a generated integer. Uses Knuth-Yao method defined as Algorithm 1 in http://link.springer.com/chapter/10.1007%2F978-3-662-43414-7_19#page-1
-	*/
-	template<typename IntType, typename VecType>
-	int32_t DiscreteGaussianGeneratorImpl<IntType,VecType>::GenerateIntegerKnuthYao() {
-		int32_t S = 0;
-		bool discard = true;
-		std::uniform_int_distribution<int32_t> uniform_int(std::numeric_limits<int32_t>::min(), std::numeric_limits<int32_t>::max());
-		uint32_t seed = 0;
-		char counter = 0;
-		int32_t MAX_ROW = probMatrixSize - 1;
-		while (discard == true) {
-			//The distance
-			int32_t d = 0;
-			//Whether a terminal node is hit or not
-			uint32_t hit = 0;
-			//Indicator of column
-			short col = 0;
-			//bool scanningInitialized = false;
-			//To generate random bit a 32 bit integer is generated in every 32 iterations and each single bit is used in order to save cycles
-			while (hit == 0 && col <= 31) {
-				if (counter % 32 == 0) {
-					seed = uniform_int(PseudoRandomNumberGenerator::GetPRNG());
-					counter = 0;
-				}
-				uint32_t r = seed >> counter;
-				d = 2 * d + (~r & 1);
-				//if (d < hammingWeights[col] || scanningInitialized){
-					//scanningInitialized = true;
-
-				for (int32_t row = MAX_ROW;row > -1 && hit == 0;row--) {
-					d -= ((probMatrix[row] >> (31 - col)) & 1);
-					if (d == -1) {
-						hit = 1;
-						//If the terminal node is found on the last row, it means that it hit an error column therefore the sample is discarded
-						if (row == MAX_ROW) {
-							//std::cout << "Hit error row, discarding sample..." << std::endl;
-						}
-						else {
-							//Result is the row that the terminal node found in
-							S = row;
-							discard = false;
-						}
-					}
-				}
-				//}
-				col++;
-				counter++;
-			}
-		}
-		//The calculation to understand what integer the column actually corresponds to in probability matrix
-		return  S - (MAX_ROW - 1) / 2 + probMean;
-	}
-
-
 } // namespace lbcrypto
