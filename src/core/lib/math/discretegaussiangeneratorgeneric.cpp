@@ -313,7 +313,7 @@ namespace lbcrypto {
 
 		double cPrime = floor(k2c) / k2 + Beta(PseudoRandomNumberGenerator::GetPRNG());
 
-		// YSP cPrime is actually rational \in 2^{-k} Z
+		// cPrime is actually rational \in 2^{-k} Z
 		int32_t y = SampleC(cPrime, m_Sample_k);
 		return y;
 	}
@@ -341,10 +341,7 @@ namespace lbcrypto {
 		if (k == 0) {
 			return 0;
 		}
-		//YSP It is incorrect to do the plain addition here
-		//YSP instead we should sample using cosets \in Z/b;
-		//YSP Basically we should use 1/b as the center, then 2/b and so on until (b-1)/b
-		//YSP This means we need to build b CDF's using Peikert's method
+
 		double g;
 		int64_t a = std::abs(((int64_t)(pow(m_Sample_b, (k - 1)) * c)) % m_Sample_b);
 		if (bType == KNUTH_YAO) {
@@ -440,34 +437,7 @@ namespace lbcrypto {
 	}
 
 	int32_t DiscreteGaussianGeneratorGeneric::GenerateIntegerPeikert(int64_t b) const {
-		/*
-		  int32_t val = 0;
-		  double seed;
-		  int32_t ans;
-		  std::uniform_real_distribution<double> distribution(0.0, 1.0);
 
-		  seed = distribution(PseudoRandomNumberGenerator::GetPRNG()) - 0.5;
-
-		  if (std::abs(seed) <= m_a / 2) {
-			  val = 0;
-		  }
-		  else if (seed > 0) {
-			  val = FindInVector(m_vals[b], (std::abs(seed) - m_a / 2));
-		  }
-		  else {
-			  val = -(int)FindInVector(m_vals[b], (std::abs(seed) - m_a / 2));
-		  }
-
-		  if (val < 0)
-		  {
-			  val *= -1;
-			  ans = modulus - int32_t(val);
-		  }
-		  else
-			  ans = int32_t(val);
-
-		  return ans;
-	  */
 		std::uniform_real_distribution<double> distribution(0.0, 1.0);
 
 		usint val = 0;
