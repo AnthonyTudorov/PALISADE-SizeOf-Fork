@@ -210,7 +210,7 @@ namespace lbcrypto {
 	}
 
 
-	int32_t DiscreteGaussianGeneratorGeneric::GenerateIntegerKnuthYaoAlt(int tableID) {
+	int32_t DiscreteGaussianGeneratorGeneric::GenerateIntegerKnuthYaoAlt(int64_t tableID) {
 		int32_t ans = 0;
 		bool hit = false;
 
@@ -346,7 +346,7 @@ namespace lbcrypto {
 		//YSP Basically we should use 1/b as the center, then 2/b and so on until (b-1)/b
 		//YSP This means we need to build b CDF's using Peikert's method
 		double g;
-		int a = std::abs(((int)(pow(m_Sample_b, (k - 1)) * c)) % m_Sample_b);
+		int64_t a = std::abs(((int64_t)(pow(m_Sample_b, (k - 1)) * c)) % m_Sample_b);
 		if (bType == KNUTH_YAO) {
 			g = pow(m_Sample_b, -k + 1) * GenerateIntegerKnuthYaoAlt(a) + pow(m_Sample_b, (k - 1)) * c;
 		}
@@ -362,8 +362,6 @@ namespace lbcrypto {
 	void DiscreteGaussianGeneratorGeneric::PreCompute(int32_t b, int32_t k, double stddev) {
 		m_Sample_b = b;
 		m_Sample_k = k;
-
-
 
 		m_z.resize((int)(b*k));
 		m_sigma.resize((int)(b*k));
@@ -441,7 +439,7 @@ namespace lbcrypto {
 		}
 	}
 
-	int32_t DiscreteGaussianGeneratorGeneric::GenerateIntegerPeikert(int b) const {
+	int32_t DiscreteGaussianGeneratorGeneric::GenerateIntegerPeikert(int64_t b) const {
 		/*
 		  int32_t val = 0;
 		  double seed;

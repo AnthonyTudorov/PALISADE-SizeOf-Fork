@@ -88,7 +88,7 @@ namespace lbcrypto {
 		* @ param tableID Identifier for the probability table
 		* @ return A random value within the Discrete Gaussian Distribution
 		*/
-		int32_t GenerateIntegerKnuthYaoAlt(int tableID);
+		int32_t GenerateIntegerKnuthYaoAlt(int64_t tableID);
 
 
 		/**
@@ -96,7 +96,7 @@ namespace lbcrypto {
 		* @ param tableID Identifier for the probability table
 		* @ return A random value within the Discrete Gaussian Distribution
 		*/
-		int32_t GenerateIntegerKnuthYao(int tableID);
+		int32_t GenerateIntegerKnuthYao(int64_t tableID);
 		/**
 		* @brief Destructor
 		*/
@@ -119,7 +119,8 @@ namespace lbcrypto {
 		* @param b The index of the table to be sampled from
 		* @return A random value within this Discrete Gaussian Distribution.
 		*/
-		int32_t GenerateIntegerPeikert(int b) const;
+		int32_t GenerateIntegerPeikert(int64_t b) const;
+
 
 	private:
 
@@ -184,6 +185,7 @@ namespace lbcrypto {
 
 		uint32_t ky_seed = 0;
 		char ky_counter = 0;
+
 
 
 
