@@ -43,7 +43,7 @@ ntl_unpack:
 ntl_config:
 	@echo 'Configuring ntl for Palisade in $(NTL_DISTRO_DIR)'
 	cd $(NTL_DISTRO_DIR); \
-	./configure PREFIX=$(THIRD_PARTY_DIR) GMP_PREFIX=$(THIRD_PARTY_DIR) NTL_THREADS=on NTL_THREAD_BOOST=on NTL_EXCEPTIONS=off SHARED=on NTL_STD_CXX11=on 
+	./configure PREFIX=$(THIRD_PARTY_DIR) GMP_PREFIX=$(THIRD_PARTY_DIR) NTL_THREADS=on NTL_THREAD_BOOST=on NTL_EXCEPTIONS=off SHARED=on NTL_STD_CXX11=on NTL_SAFE_VECTORS=off
 
 ntl_make:
 	@echo 'making ntl for Palisade in $(NTL_DISTRO_DIR)'
