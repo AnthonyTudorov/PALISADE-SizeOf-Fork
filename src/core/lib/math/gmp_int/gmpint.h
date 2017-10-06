@@ -482,7 +482,7 @@ namespace NTL{
     usint GetMSBLimb_t( ZZ_limb_t x) const;
   }; //class ends
 
-
+   NTL_DECLARE_RELOCATABLE((myZZ*))
 }//namespace ends
 
 #endif //LBCRYPTO_MATH_GMPINT_GMPINT_H
