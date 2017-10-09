@@ -1,37 +1,28 @@
 /**
-* @file
-* @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
-*	Programmers: 
-*		Dr. Yuriy Polyakov, <Polyakov@njit.edu>
-*		Kevin King, kcking@mit.edu
-* @version 00_03
-*
-* @section LICENSE
-*
-* Copyright (c) 2016, New Jersey Institute of Technology (NJIT)
-* All rights reserved.
-* Redistribution and use in source and binary forms, with or without modification,
-* are permitted provided that the following conditions are met:
-* 1. Redistributions of source code must retain the above copyright notice, this
-* list of conditions and the following disclaimer.
-* 2. Redistributions in binary form must reproduce the above copyright notice, this
-* list of conditions and the following disclaimer in the documentation and/or other
-* materials provided with the distribution.
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONT0RIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
-* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-* (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
-* OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-* THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-* NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
-* IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-* @section DESCRIPTION
-*
-* This code provides the utility for lattice Gaussian sampling (needed by lattice trapdoors).
-*/
+ * @file dgsampling.cpp Provides detailed algorithms for G-sampling and perturbation sampling as described in https://eprint.iacr.org/2017/844.pdf
+ * @author  TPOC: palisade@njit.edu
+ *
+ * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or other
+ * materials provided with the distribution.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+ * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
 
 #ifndef _SRC_LIB_TRAPDOOR_DGSAMPLING_CPP
 #define _SRC_LIB_TRAPDOOR_DGSAMPLING_CPP
@@ -41,51 +32,9 @@
 
 namespace lbcrypto {
 
-	// Gaussian sampling from lattice for gagdet matrix G and syndrome u ONLY FOR A POWER-OF-TWO MODULUS; Has not been fully tested
-	// DISABLED
-
-	//template <class Element>
-	//void LatticeGaussSampUtility<Element>::GaussSampG(const Element &u, double sttdev, size_t k,
-	//		typename Element::DggType &dgg, Matrix<typename Element::Integer> *z)
-	//{
-	//	const typename Element::Integer& modulus = u.GetParams()->GetModulus();
-	//	for (size_t i = 0; i < u.GetLength(); i++) {
-
-	//		//initial value of integer syndrome corresponding to component u_i
-	//		typename Element::Integer t(u.GetValAtIndex(i));
-
-	//		for (size_t j = 0; j < k; j++) {
-
-	//			//get the least significant digit of t; used for choosing the right coset to sample from 2Z or 2Z+1
-	//			uint32_t lsb = t.GetDigitAtIndexForBase(1, 2);
-
-	//			//dgLSB keeps track of the least significant bit of discrete gaussian; initialized to 2 to make sure the loop is entered
-	//			uint32_t dgLSB = 2;
-	//			typename Element::Integer sampleInteger;
-
-	//			//checks if the least significant bit of t matches the least signficant bit of a discrete Gaussian sample
-	//			while (dgLSB != lsb)
-	//			{
-	//				sampleInteger = dgg.GenerateInteger(modulus);
-	//				dgLSB = sampleInteger.GetDigitAtIndexForBase(1, 2);
-	//			}
-
-	//			(*z)(j, i) = sampleInteger;
-
-	//			//division by 2
-	//			// TODO: Probably incorrect, but this whole function is wrong anyways. Awaiting advice of Daniele
-	//			t = (t.ModSub((*z)(j, i), modulus)) >> 1;
-	//			//t = (t - (*z)(j,i))>>1;
-
-	//		}
-
-	//	}
-
-	//}
-
-	// Gaussian sampling from lattice for gagdet matrix G and syndrome u and ARBITRARY MODULUS q - Improved algorithm
-	// Algorithm was provided in a personal communication by Daniele Micciancio
-	// It will be published in GM17
+	// Gaussian sampling from lattice for gagdet matrix G, syndrome u, and arbitrary modulus q
+	// Discrete sampling variant
+	// As described in Figure 2 of https://eprint.iacr.org/2017/308.pdf
 
 	template <class Element>
 	void LatticeGaussSampUtility<Element>::GaussSampGq(const Element &syndrome, double stddev, size_t k, const typename Element::Integer &q, int32_t base,
@@ -159,9 +108,9 @@ namespace lbcrypto {
 
 	}
 
-	// Gaussian sampling from lattice for gagdet matrix G and syndrome u and ARBITRARY MODULUS q - Improved algorithm
-	// Algorithm was provided in a personal communication by Daniele Micciancio
-	// It will be published in GM17
+	// Gaussian sampling from lattice for gagdet matrix G, syndrome u, and arbitrary modulus q
+	// Continuous sampling variant
+	// As described in Algorithm 3 of https://eprint.iacr.org/2017/844.pdf
 
 	template <class Element>
 	void LatticeGaussSampUtility<Element>::GaussSampGqArbBase(const Element &syndrome, double stddev, size_t k, const typename Element::Integer &q, int32_t base,
@@ -237,9 +186,9 @@ namespace lbcrypto {
 	}
 
 
-	// subroutine used by GaussSampGqV2
-	// Algorithm was provided in a personal communication by Daniele Micciancio
-	// It will be published in GM17 (EuroCrypt)
+	// subroutine used by GaussSampGq
+	// Discrete sampling variant
+	// As described in Figure 2 of https://eprint.iacr.org/2017/308.pdf
 
 	template <class Element>
 	void LatticeGaussSampUtility<Element>::Perturb(double sigma, size_t k, size_t n,
@@ -263,7 +212,8 @@ namespace lbcrypto {
 	}
 
 	// subroutine used by GaussSampGqArbBase
-	// Algorithm was provided in a personal communication by Daniele Micciancio
+	// Continuous sampling variant
+	// As described in Algorithm 3 of https://eprint.iacr.org/2017/844.pdf
 
 	template <class Element>
 	void LatticeGaussSampUtility<Element>::PerturbFloat(double sigma, size_t k, size_t n,
@@ -289,8 +239,7 @@ namespace lbcrypto {
 	}
 
 	// subroutine used by GaussSampGq
-	// Algorithm was provided in a personal communication by Daniele Micciancio
-	// It will be published in GM17 (EuroCrypt)
+	// As described in Algorithm 3 of https://eprint.iacr.org/2017/844.pdf
 
 	template <class Element>
 	void LatticeGaussSampUtility<Element>::SampleC(const Matrix<double> &c, size_t k, size_t n,
@@ -307,7 +256,7 @@ namespace lbcrypto {
 
 	}
 	
-	//Subroutine used by ZSampleSigmaP
+	// Subroutine used by ZSampleSigmaP as described Algorithm 4 in https://eprint.iacr.org/2017/844.pdf
 	// a - field element in DFT format
 	// b - field element in DFT format
 	// d - field element in DFT format
@@ -353,9 +302,9 @@ namespace lbcrypto {
 
 	}
 
-	//Subroutine used by ZSampleSigma2x2
-	//f is in Coefficient representation
-	//c is in Coefficient representation
+	// Subroutine used by ZSampleSigma2x2 as described Algorithm 4 in https://eprint.iacr.org/2017/844.pdf
+	// f is in Coefficient representation
+	// c is in Coefficient representation
 	template <class Element>
 	shared_ptr<Matrix<int64_t>> LatticeGaussSampUtility<Element>::ZSampleF(const Field2n &f, const Field2n &c,
 		const typename Element::DggType &dgg, size_t n) {
@@ -396,6 +345,8 @@ namespace lbcrypto {
 
 	}
 
+	//subroutine earlier used by ZSampleF
+	//Algorithm utilizes the same permutation algorithm as discussed in https://eprint.iacr.org/2017/844.pdf
 	template <class Element>
 	Matrix<int32_t> LatticeGaussSampUtility<Element>::Permute(Matrix<int32_t> * p) {
 		int evenPtr = 0;
@@ -414,6 +365,8 @@ namespace lbcrypto {
 		return permuted;
 	}
 
+	//subroutine used by ZSampleF
+	//Algorithm utilizes the same permutation algorithm as discussed in https://eprint.iacr.org/2017/844.pdf
 	template <class Element>
 	void LatticeGaussSampUtility<Element>::InversePermute(shared_ptr<Matrix<int64_t>> p)
 	{
@@ -437,92 +390,6 @@ namespace lbcrypto {
 		}
 
 	}
-
-	// OLD CODE
-
-	//Matrix<int32_t> LatticeGaussSampUtility::InversePermute(Matrix<int32_t> *p)
-	//{
-
-	//		Matrix<int32_t> invpermuted([]() { return make_unique<int32_t>(); }, p->GetRows(), 1);
-	//		size_t evenPtr = 0;
-	//		size_t oddPtr = p->GetRows() / 2;
-	//		for (size_t i = 0; evenPtr < p->GetRows() / 2; i += 2) {
-	//			invpermuted(i,0) = (*p)(evenPtr,0);
-	//			invpermuted(i + 1,0) = (*p)(oddPtr,0);
-	//			evenPtr++;
-	//			oddPtr++;
-	//		}
-	//		return invpermuted;
-	//}
-
-	//Subroutine used by ZSampleSigma2x2
-	//f is in Coefficient representation
-	//c is in Coefficient representation
-	//Matrix<int32_t> LatticeGaussSampUtility::ZSampleFOld(const Field2n &f, const Field2n &c,
-	//	const Element::DggType &dgg, size_t n) {
-
-	//	if (f.Size() == 1)
-	//	{
-	//		Matrix<int32_t> p([]() { return make_unique<int32_t>(); }, 1, 1);
-	//		p(0, 0) = dgg.GenerateIntegerKarney(c[0].real(), sqrt(f[0].real()));
-	//		//p(0, 0) = dgg.GenerateInteger(c[0].real(), sqrt(f[0].real()),n);
-	//		return p;
-	//	}
-	//	else {
-
-	//		// Here, we apply the inverse of the permutation matrix, which is the same as the transpose of the 
-	//		// permutation matrix since the permutation matrix is orthogonal
-	//		Field2n cNew(c.InversePermute());
-
-	//		Field2n fe = f.ExtractEven();
-	//		Field2n fo = f.ExtractOdd();
-
-	//		// Stores fe in coefficient representation to be used later
-	//		Field2n feCoeff = fe;
-
-	//		Field2n c1(cNew.Size() / 2, COEFFICIENT);
-	//		Field2n c2(cNew.Size() / 2, COEFFICIENT);
-
-	//		// c1 corresponds to even coefficients
-	//		for (size_t i = 0; i < c1.Size(); i++) {
-	//			c1[i] = cNew[i];
-	//		}
-
-	//		// c2 corresponds to odd coefficients
-	//		for (size_t i = 0; i < c2.Size(); i++) {
-	//			c2[i] = cNew[i + c1.Size()];
-	//		}
-
-	//		Matrix<int32_t> r2Int = ZSampleF(fe, c2, dgg, n);
-	//		Field2n r2(r2Int);
-
-	//		Field2n r2Minusc2 = r2 - c2;
-	//		//Convert to DFT represenation prior to multiplication
-	//		r2Minusc2.SwitchFormat();
-
-	//		//Convert fo and fe to DFT Format
-	//		fe.SwitchFormat();
-	//		fo.SwitchFormat();
-
-	//		Field2n product = fo * fe.Inverse() * r2Minusc2;
-	//		//Convert the product to coefficient representation
-	//		product.SwitchFormat();
-
-	//		//Compute c1 in coefficient representation
-	//		c1 = c1 + product;
-
-	//		Field2n product2 = fo * fo * fe.Inverse();
-	//		//Convert the product to coefficient representation
-	//		product2.SwitchFormat();
-
-	//		Matrix<int32_t> r1Int = ZSampleF(feCoeff - product2.ShiftRight(), c1, dgg, n);
-
-	//		Matrix<int32_t> rInt = r1Int.VStack(r2Int);
-	//		return Permute(&rInt);
-
-	//	}
-
-	//}
 
 }
 

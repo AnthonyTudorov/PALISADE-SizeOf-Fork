@@ -1,12 +1,8 @@
-/**0
- * @file
- * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
- *	Programmers: Dr. Yuriy Polyakov, <Polyakov@njit.edu>
- * @version 00_05
+/**
+ * @file lweconjunctionobfuscate.h Implementation of conjunction obfuscator as described in https://eprint.iacr.org/2017/844.pdf
+ * @author  TPOC: palisade@njit.edu
  *
- * @section LICENSE
- *
- * Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
+ * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -26,9 +22,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * @section DESCRIPTION
- *
- * This code provides the core entropic ring lwe obfuscation capability for conjunctions.
  */
 
 #ifndef LBCRYPTO_OBFUSCATE_LWECONJUNCTIONOBFUSCATEV3_H
@@ -315,15 +308,15 @@ namespace lbcrypto {
 
 
 	/**
-	 * @brief Encryption algorithm implementation template for Ring-LWE NTRU-based schemes,
+	 * @brief Ring-LWE conjunction obfuscation scheme as described in https://eprint.iacr.org/2017/844.pdf
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
-	class LWEConjunctionObfuscationAlgorithm { // : public ObfuscationAlgorithm<Element>{
+	class LWEConjunctionObfuscationAlgorithm {
 		public:
 
 			/**
-			 * Method for evaluating the pattern
+			 * Method for evaluating the pattern in cleartext
 			 *
 			 * @param &clearPattern the obfuscated pattern.
 			 * @param &testString cleartext pattern to test for.
@@ -334,11 +327,13 @@ namespace lbcrypto {
 
 			/**
 			 * Method to obfuscate the cleartext pattern into an obfuscated pattern.
+			 * As described in Algorithm 7 of https://eprint.iacr.org/2017/844.pdf
 			 *
-			 * @param &obfuscatedPattern the obfuscated pattern.
 			 * @param &clearPattern cleartext pattern to obfuscate.
 			 * @param &dgg discrete Gaussian generator.
 			 * @param &tug ternary uniform generator.
+			 * @param &obfuscatedPattern the obfuscated pattern.
+			 * @param &optimized - true if small-secret RLWE used; false if error-polynomial-secret RLWE is used
 			 */
 			void Obfuscate(
 				const ClearLWEConjunctionPattern<Element> &clearPattern,
@@ -351,12 +346,13 @@ namespace lbcrypto {
 			*
 			* @param &dgg the discrete Gaussian Generator.
 			* @param &obfuscatedPattern the obfuscated pattern.
+			* @param &n ring dimension if specified by the user.
 			*/
 			void ParamsGen(typename Element::DggType &dgg,
 				ObfuscatedLWEConjunctionPattern<Element> *obfuscatedPattern, uint32_t n = 0) const;
 
 			/**
-			 * Method to generate keys.
+			 * Method to generate keys as described in Algorithm 5 of https://eprint.iacr.org/2017/844.pdf
 			 *
 			 * @param &dgg the discrete Gaussian Generator.
 			 * @param &obfuscatedPattern the obfuscated pattern.
@@ -365,16 +361,16 @@ namespace lbcrypto {
 				ObfuscatedLWEConjunctionPattern<Element> *obfuscatedPattern) const;
 
 			/**
-			 * Method to obfuscate the cleartext pattern into an obfuscated pattern.
+			 * Directed encoding method as described in Algorithm 6 of https://eprint.iacr.org/2017/844.pdf
 			 *
 			 * @param &Ai starting key.
 			 * @param &Aj ending key.
 			 * @param &Ti Trapdoor.
-			 * @param &elem a ring element.
+			 * @param &elemS a ring element.
 			 * @param &dgg the discrete Gaussian Generator.
 			 * @param &dggLargeSigma the discrete Gaussian Generator for perturbation sampling.
 			 * @param &dggEncoding DGG generator for encoding random ring elements.
-			 * @param base used in G-sampling
+			 * @param base base of gadget matrix
 			 */
 			shared_ptr<Matrix<Element>> Encode(
 				const Matrix<Element> &Ai,
@@ -386,32 +382,8 @@ namespace lbcrypto {
 				typename Element::DggType &EdggEncoding,
 				uint32_t base = 2) const;
 
-			///**
-			// * Method for evaluating the pattern - before matrix-vector optimization
-			// *
-			// * @param &obfuscatedPattern the obfuscated pattern.
-			// * @param &testString cleartext pattern to test for.
-			// * @return true if the string matches the pattern and false otherwise.
-			// */
-			//bool EvaluateV2(const ObfuscatedLWEConjunctionPattern<Element> &obfuscatedPattern,
-			//	 const std::string &testString) const;
-
 			/**
-			 * Method for evaluating the pattern, using the trick of multiplying a chain of matrix
-			 * multiplications by a vector.
-			 *
-			 * @param &obfuscatedPattern the obfuscated pattern.
-			 * @param &testString cleartext pattern to test for.
-			 * @param useRandomVector, if 1, menas that a vector of random 1s and 0s should be used.
-			 * Else, a vector of all 1s should be used.
-			 * @param useLargeConstraint means that the contraint q/8 should be multiplied by the sqrt of m.
-			 * @return true if the string matches the pattern and false otherwise.
-			 */
-			bool EvaluateACS(const ObfuscatedLWEConjunctionPattern<Element> &obfuscatedPattern,
-					const std::string &testString, const int useRandomVector) const;
-
-			/**
-			* Method for evaluating the pattern
+			* Method for evaluating the pattern as described in Algorithm 8 of https://eprint.iacr.org/2017/844.pdf
 			*
 			* @param &obfuscatedPattern the obfuscated pattern.
 			* @param &testString cleartext pattern to test for.
@@ -424,6 +396,7 @@ namespace lbcrypto {
 
 			/**
 			* Method to create element parameters for given q and n
+			* Used as a subroutine by ParamsGen
 			*
 			* @param &q estimated value of modulus (based on correctness & security constraints)
 			* @param &n estimated ring dimension (based on correctness & security constraints).
