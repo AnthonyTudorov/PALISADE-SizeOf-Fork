@@ -1,37 +1,28 @@
 /**
-* @file
-* @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
-*	Programmers: 
-*		Dr. Yuriy Polyakov, <Polyakov@njit.edu>
-*		Kevin King, kcking@mit.edu
-* @version 00_03
-*
-* @section LICENSE
-*
-* Copyright (c) 2016, New Jersey Institute of Technology (NJIT)
-* All rights reserved.
-* Redistribution and use in source and binary forms, with or without modification,
-* are permitted provided that the following conditions are met:
-* 1. Redistributions of source code must retain the above copyright notice, this
-* list of conditions and the following disclaimer.
-* 2. Redistributions in binary form must reproduce the above copyright notice, this
-* list of conditions and the following disclaimer in the documentation and/or other
-* materials provided with the distribution.
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONT0RIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
-* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-* (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
-* OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-* THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-* NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
-* IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-* @section DESCRIPTION
-*
-* This code provides the utility for working with trapdoor lattices.
-*/
+ * @file trapdoor.cpp Provides the utility for sampling trapdoor lattices as described in https://eprint.iacr.org/2017/844.pdf
+ * @author  TPOC: palisade@njit.edu
+ *
+ * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or other
+ * materials provided with the distribution.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+ * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
 
 #ifndef _SRC_LIB_CRYPTO_SIGNATURE_TRAPDOOR_CPP
 #define _SRC_LIB_CRYPTO_SIGNATURE_TRAPDOOR_CPP
@@ -41,14 +32,14 @@
 
 namespace lbcrypto {
 
-	//Trapdoor generation method as described in section 3.2 of https://eprint.iacr.org/2013/297.pdf (Construction 1)
+	//Trapdoor generation method as described in Algorithm 1 of https://eprint.iacr.org/2017/844.pdf
+
 	template <class Element>
 	std::pair<Matrix<Element>, RLWETrapdoorPair<Element>> RLWETrapdoorUtility<Element>::TrapdoorGen(shared_ptr<typename Element::Params> params, int stddev, int32_t base, bool bal)
 	{
 		auto zero_alloc = Element::MakeAllocator(params, EVALUATION);
 		auto gaussian_alloc = Element::MakeDiscreteGaussianCoefficientAllocator(params, COEFFICIENT, stddev);
 		auto uniform_alloc = Element::MakeDiscreteUniformAllocator(params, EVALUATION);
-//		size_t n = params->GetCyclotomicOrder() / 2;
 
 		double val = params->GetModulus().ConvertToDouble();
 		double nBits = floor(log2(val-1.0)+1.0);
@@ -83,7 +74,7 @@ namespace lbcrypto {
 	}
 
 
-	// Gaussian sampling based on the UCSD integer perturbation sampling
+	// Gaussian sampling as described in Alogorithm 2 of https://eprint.iacr.org/2017/844.pdf
 
 	template <class Element>
 	Matrix<Element> RLWETrapdoorUtility<Element>::GaussSamp(size_t n, size_t k, const Matrix<Element>& A, 
@@ -105,16 +96,7 @@ namespace lbcrypto {
 
 		ZSampleSigmaP(n, s, c, T, dgg, dggLargeSigma, pHat);
 
-		//pHat.SwitchFormat();
-
-		//std::cout << pHat(0, 0) << std::endl;
-		//std::cout << pHat(1, 0) << std::endl;
-		//std::cout << pHat(2, 0) << std::endl;
-		//std::cout << pHat(3, 0) << std::endl;
-
-		//pHat.SwitchFormat();
-
-		// YSP It is assumed that A has dimension 1 x (k + 2) and pHat has the dimension of (k + 2) x 1
+		// It is assumed that A has dimension 1 x (k + 2) and pHat has the dimension of (k + 2) x 1
 		// perturbedSyndrome is in the evaluation representation
 		Element perturbedSyndrome = u - (A.Mult(*pHat))(0, 0);
 
@@ -128,6 +110,7 @@ namespace lbcrypto {
 		// Convert zHat from a matrix of BBI to a vector of Element ring elements
 		// zHat is in the coefficient representation
 		Matrix<Element> zHat = SplitInt32AltIntoElements<Element>(zHatBBI, n, params);
+
 		// Now converting it to the evaluation representation before multiplication
 		zHat.SwitchFormat();
 
@@ -186,6 +169,8 @@ namespace lbcrypto {
 
 	}
 
+	// On-line stage of pre-image sampling (includes only G-sampling)
+
 	template <class Element>
 	Matrix<Element> RLWETrapdoorUtility<Element>::GaussSampOnline(size_t n, size_t k, const Matrix<Element>& A,
 		const RLWETrapdoorPair<Element>& T, const Element &u,
@@ -198,7 +183,7 @@ namespace lbcrypto {
 
 		const typename Element::Integer& modulus = A(0, 0).GetModulus();
 
-		// YSP It is assumed that A has dimension 1 x (k + 2) and pHat has the dimension of (k + 2) x 1
+		// It is assumed that A has dimension 1 x (k + 2) and pHat has the dimension of (k + 2) x 1
 		// perturbedSyndrome is in the evaluation representation
 		Element perturbedSyndrome = u - (A.Mult(*pHat))(0, 0);
 
@@ -209,7 +194,7 @@ namespace lbcrypto {
 
 		LatticeGaussSampUtility<Element>::GaussSampGqArbBase(perturbedSyndrome, c, k, modulus, base, dgg, &zHatBBI);
 
-		// Convert zHat from a matrix of BBI to a vector of Element ring elements
+		// Convert zHat from a matrix of integers to a vector of Element ring elements
 		// zHat is in the coefficient representation
 		Matrix<Element> zHat = SplitInt32AltIntoElements<Element>(zHatBBI, n, params);
 		// Now converting it to the evaluation representation before multiplication
@@ -226,6 +211,8 @@ namespace lbcrypto {
 		return zHatPrime;
 
 	}
+
+	// Offline stage of pre-image sampling (perturbation sampling)
 
 	template <class Element>
 	shared_ptr<Matrix<Element>> RLWETrapdoorUtility<Element>::GaussSampOffline(size_t n, size_t k,
@@ -279,13 +266,6 @@ namespace lbcrypto {
 		vb.SwitchFormat();
 		vd.SwitchFormat();
 
-		//std::cout << "a = " << std::endl;
-		//va.PrintValues();
-		//std::cout << "b = " << std::endl;
-		//vb.PrintValues();
-		//std::cout << "d = " << std::endl;
-		//vd.PrintValues();
-
 		//Create field elements from ring elements
 		Field2n a(va), b(vb), d(vd);
 
@@ -307,10 +287,9 @@ namespace lbcrypto {
 
 		double sigmaLarge = sqrt(s * s - sigma * sigma);
 
+		// for distribution parameters up to 3e5 (experimentally found threshold) use the Peikert's inversion method
+		// otherwise, use Karney's method
 		if (sigmaLarge > 3e5) {
-
-			//std::cout << "sigmaLarge = " << sigmaLarge << std::endl;
-			//std::cin.get();
 
 			//Karney rejection method
 			for (size_t i = 0; i < n * k; i++) {

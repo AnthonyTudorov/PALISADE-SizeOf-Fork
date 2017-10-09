@@ -1,5 +1,5 @@
-/*
- * @file trapdoor-impl.cpp - trapdoor implementation
+/**
+ * @file trapdoor-vectorarray-impl.cpp Provides the utility for sampling trapdoor lattices as described in https://eprint.iacr.org/2017/844.pdf
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -24,7 +24,7 @@
  *
  */
 
-// this is the implementation of matrixes of things that are in pke
+// Forward definition of implementation classes for DCRTPoly
 
 #include "dgsampling.cpp"
 #include "trapdoor.cpp"
