@@ -26,7 +26,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #ifndef LBCRYPTO_OBFUSCATE_LWECONJUNCTIONOBFUSCATEV3_CPP
 #define LBCRYPTO_OBFUSCATE_LWECONJUNCTIONOBFUSCATEV3_CPP
 
-#include "lweconjunctionobfuscatev3.h"
+#include "lweconjunctionobfuscate.h"
 
 #include "utils/memory.h"
 #include "utils/debug.h"

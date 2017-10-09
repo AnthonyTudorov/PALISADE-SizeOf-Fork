@@ -24,7 +24,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 */
 
 #include "math/matrix.cpp"
-#include "lweconjunctionobfuscatev3.cpp"
+#include "lweconjunctionobfuscate.cpp"
 
 namespace lbcrypto {
 

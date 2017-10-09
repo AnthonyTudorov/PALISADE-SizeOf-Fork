@@ -37,8 +37,8 @@
 
 #include "sampling/trapdoor.h"
 //#include "../../../src/lib/lattice/trapdoor.cpp"
-#include "obfuscation/lweconjunctionobfuscatev3.h"
-#include "obfuscation/lweconjunctionobfuscatev3.cpp"
+#include "obfuscation/lweconjunctionobfuscate.h"
+#include "obfuscation/lweconjunctionobfuscate.cpp"
 
 //using namespace std;
 using namespace lbcrypto;

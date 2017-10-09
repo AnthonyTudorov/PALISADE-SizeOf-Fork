@@ -29,8 +29,8 @@
 
 #include <iostream>
 #include <fstream>
-#include "obfuscation/lweconjunctionobfuscatev3.h"
-#include "obfuscation/lweconjunctionobfuscatev3.cpp"
+#include "obfuscation/lweconjunctionobfuscate.h"
+#include "obfuscation/lweconjunctionobfuscate.cpp"
 
 #include "utils/debug.h"
 
