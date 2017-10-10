@@ -120,6 +120,8 @@ BigVector precomputedTransform(usint logn, const BigInteger& modulus, const BigV
 	BigInteger product;
 	BigInteger butterflyPlus;
 	BigInteger butterflyMinus;
+cout << "Start precomputed" << endl;
+int calcCount = 0;
 
 	for (usint logm = 1; logm <= logn; logm++)
 	{
@@ -129,7 +131,8 @@ BigVector precomputedTransform(usint logn, const BigInteger& modulus, const BigV
 			{
 
 				usint x = (i << (1+logn-logm));
-
+cout << "i, j, n, logm, x " << i <<","<< j <<","<< n <<","<< logm <<","<< x << endl;
+++calcCount;
 				const BigInteger& omega = rootOfUnityTable.GetValAtIndex(x);
 
 				usint indexEven = j + i;
@@ -168,6 +171,7 @@ BigVector precomputedTransform(usint logn, const BigInteger& modulus, const BigV
 
 		}
 	}
+cout << "End precomputed, calc count " << calcCount << endl;
 
 	return result;
 }

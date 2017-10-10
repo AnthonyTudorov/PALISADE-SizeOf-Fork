@@ -63,7 +63,7 @@ namespace lbcrypto {
 		* @return is the output result of the transform.
 		*/
 		static void ForwardTransformIterative(const VecType& element, const VecType &rootOfUnityTable, const usint cycloOrder, VecType* result) {
-	        bool dbg_flag = false;
+	        bool dbg_flag = true;
 		usint n = cycloOrder;
 
 		auto modulus = element.GetModulus();
@@ -87,6 +87,7 @@ namespace lbcrypto {
 		int ringDimensionFactor = rootOfUnityTable.GetLength() / cycloOrder;
 		DEBUG("table size " << rootOfUnityTable.GetLength());
 		DEBUG("ring dimension factor " << ringDimensionFactor);
+int calcCount = 0;
 
 		//Precompute the Barrett mu parameter
 #if !defined(NTL_SPEEDUP)
@@ -102,6 +103,8 @@ namespace lbcrypto {
 				for (usint i = 0; i <= m / 2 - 1; i++)
 				{
 					usint x = (2 * i*n / m ) * ringDimensionFactor;
+					DEBUG("i, j, n, m, x: " << i << "," << j << "," << n << "," << m << "," << x);
+++calcCount;
 
 					const IntType& omega = rootOfUnityTable.GetValAtIndex(x);
 
@@ -152,6 +155,8 @@ namespace lbcrypto {
 				}
 			}
 		}
+
+		DEBUG("end lib calc count " << calcCount);
 
 		return;
 
