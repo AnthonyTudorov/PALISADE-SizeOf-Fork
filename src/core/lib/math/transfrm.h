@@ -81,6 +81,9 @@ namespace lbcrypto {
 		IntType product;
 		IntType butterflyPlus;
 		IntType butterflyMinus;
+		static bool oneTime = false;
+		if( oneTime ) dbg_flag = false;
+		oneTime = true;
 		/*Ring dimension factor calculates the ratio between the cyclotomic order of the root of unity table
 			  that was generated originally and the cyclotomic order of the current VecType. The twiddle table
 			  for lower cyclotomic orders is smaller. This trick only works for powers of two cyclotomics.*/
