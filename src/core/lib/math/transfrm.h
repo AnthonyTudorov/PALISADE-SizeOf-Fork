@@ -63,7 +63,7 @@ namespace lbcrypto {
 		* @return is the output result of the transform.
 		*/
 		static void ForwardTransformIterative(const VecType& element, const VecType &rootOfUnityTable, const usint cycloOrder, VecType* result) {
-	        bool dbg_flag = true;
+	        bool dbg_flag = false;
 		usint n = cycloOrder;
 
 		auto modulus = element.GetModulus();
@@ -81,16 +81,13 @@ namespace lbcrypto {
 		IntType product;
 		IntType butterflyPlus;
 		IntType butterflyMinus;
-		static bool oneTime = false;
-		if( oneTime ) dbg_flag = false;
-		oneTime = true;
+
 		/*Ring dimension factor calculates the ratio between the cyclotomic order of the root of unity table
 			  that was generated originally and the cyclotomic order of the current VecType. The twiddle table
 			  for lower cyclotomic orders is smaller. This trick only works for powers of two cyclotomics.*/
 		int ringDimensionFactor = rootOfUnityTable.GetLength() / cycloOrder;
 		DEBUG("table size " << rootOfUnityTable.GetLength());
 		DEBUG("ring dimension factor " << ringDimensionFactor);
-int calcCount = 0;
 
 		//Precompute the Barrett mu parameter
 #if !defined(NTL_SPEEDUP)
@@ -99,20 +96,27 @@ int calcCount = 0;
 		IntType modulus = element.GetModulus();
 #endif
 
-		for (usint m = 2; m <= n; m = 2 * m)
-		{
-			for (usint j = 0; j<n; j = j + m)
-			{
-				for (usint i = 0; i <= m / 2 - 1; i++)
-				{
-					usint x = (2 * i*n / m ) * ringDimensionFactor;
-					DEBUG("i, j, n, m, x: " << i << "," << j << "," << n << "," << m << "," << x);
-++calcCount;
+		usint logn = log2(n);
 
-					const IntType& omega = rootOfUnityTable.GetValAtIndex(x);
+		for (usint logm = 1; logm <= logn; logm++)
+		{
+			usint adj = logn-logm;
+			usint indexOddAdj = (1 << (logm-1));
+
+			// calculate the i indexes into the root table one time per loop
+			vector<usint> indexes(indexOddAdj);
+			for (usint i = 0; i < indexOddAdj; i++) {
+				indexes[i] = (i << (1+adj)) * ringDimensionFactor;
+			}
+
+			for (usint j = 0; j<n; j = j + (1 << logm))
+			{
+				for (usint i = 0; i < (usint)(1 << (logm-1)); i++)
+				{
+					const IntType& omega = rootOfUnityTable.GetValAtIndex(indexes[i]);
 
 					usint indexEven = j + i;
-					usint indexOdd = j + i + m / 2;
+					usint indexOdd = indexEven + indexOddAdj;
 					auto oddVal = result->GetValAtIndex(indexOdd);
 					auto oddMSB = oddVal.GetMSB();
 					auto evenVal = result->GetValAtIndex(indexEven);
@@ -158,8 +162,6 @@ int calcCount = 0;
 				}
 			}
 		}
-
-		DEBUG("end lib calc count " << calcCount);
 
 		return;
 
