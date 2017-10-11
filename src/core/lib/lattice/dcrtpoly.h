@@ -608,6 +608,11 @@ public:
 	}
 
 	/**
+	* @brief Sets all values of element to zero.
+	*/
+	void SetValuesToZero();
+
+	/**
 	* @brief Prints values of each tower
 	*/
 	void PrintValues() const;

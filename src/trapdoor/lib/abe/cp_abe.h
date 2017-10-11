@@ -58,165 +58,165 @@ namespace lbcrypto {
 	class CPABE{
 		public:
 
-			/**
-			 * Default Constructor
-			 *
-			 * */
-			CPABE(){}
-			/**
-			 * Destructor for releasing dynamic memory
-			 *
-			 */
-			~CPABE() { }
-			/**
-			* Setup function for Private Key Generator (PKG)
-			*
-			* @param ilParams parameter set
-			* @param base is a power of two
-			* @param ell total number of attributes
-			* @param &dug
-			* @param *pubElemD public element d sampled as dug
-			* @param *pubElemBPos is a matrix where each column corresponds to the public vector of each attribute for when the attribute is equal to one
-			* @param *pubElemBNeg is a matrix where each column corresponds to the public vector of each attribute for when the attribute is equal to zero
-			*/
-			std::pair<RingMat, RLWETrapdoorPair<Poly>> Setup(
-				const shared_ptr<ILParams> ilParams,
-				int32_t base,
-				const usint ell,
-				const DiscreteUniformGenerator &dug, 
-				Poly *pubElemD,
-				RingMat *pubElemBPos,
-				RingMat *pubElemBNeg
-			);
-			/**
-			* Setup function for all parties except the Private Key Generator (PKG)
-			*
-			* @param ilParams parameter set
-			* @param base is a power of two
-			* @param ell total number of attributes
-			*/
-			void Setup(
-				const shared_ptr<ILParams> ilParams,
-				int32_t base,
-				const usint ell
-			);
-			/**
-			* KeyGen Function
-			*
-			* @param ilParams parameter set
-			* @param &s[] Access rights of the user {0, 1}
-			* @param &pubTA Public parameter of trapdoor
-			* @param &pubElemBPos is a matrix where each column corresponds to the public vector of each attribute for when the attribute is equal to one
-			* @param *pubElemBNeg is a matrix where each column corresponds to the public vector of each attribute for when the attribute is equal to zero
-			* @param &pubElemD public element d sampled as dug
-			* @param &secTA secret component of trapdoor
-			* @param &dgg to generate error terms (Gaussian)
-			* @param *sk secret key
-			*/
-			void KeyGen(
-				const shared_ptr<ILParams> ilParams,
-				const usint s[],						
-				const RingMat &pubTA,                       
-				const RingMat &pubElemBPos,                      
-				const RingMat &pubElemBNeg,                     
-				const Poly &pubElemD,                  
-				const RLWETrapdoorPair<Poly> &secTA,
-				DiscreteGaussianGenerator &dgg,      
-				RingMat *sk                   
-			);
+		/**
+		 * Default Constructor
+		 *
+		 * */
+		CPABE(){}
+		/**
+		 * Destructor for releasing dynamic memory
+		 *
+		 */
+		~CPABE() { }
+		/**
+		* Setup function for Private Key Generator (PKG)
+		*
+		* @param ilParams parameter set
+		* @param base is a power of two
+		* @param ell total number of attributes
+		* @param &dug
+		* @param *pubElemD public element d sampled as dug
+		* @param *pubElemBPos is a matrix where each column corresponds to the public vector of each attribute for when the attribute is equal to one
+		* @param *pubElemBNeg is a matrix where each column corresponds to the public vector of each attribute for when the attribute is equal to zero
+		*/
+		std::pair<RingMat, RLWETrapdoorPair<Poly>> Setup(
+			const shared_ptr<ILParams> ilParams,
+			int32_t base,
+			const usint ell,
+			const DiscreteUniformGenerator &dug,
+			Poly *pubElemD,
+			RingMat *pubElemBPos,
+			RingMat *pubElemBNeg
+		);
+		/**
+		* Setup function for all parties except the Private Key Generator (PKG)
+		*
+		* @param ilParams parameter set
+		* @param base is a power of two
+		* @param ell total number of attributes
+		*/
+		void Setup(
+			const shared_ptr<ILParams> ilParams,
+			int32_t base,
+			const usint ell
+		);
+		/**
+		* KeyGen Function
+		*
+		* @param ilParams parameter set
+		* @param &s[] Access rights of the user {0, 1}
+		* @param &pubTA Public parameter of trapdoor
+		* @param &pubElemBPos is a matrix where each column corresponds to the public vector of each attribute for when the attribute is equal to one
+		* @param *pubElemBNeg is a matrix where each column corresponds to the public vector of each attribute for when the attribute is equal to zero
+		* @param &pubElemD public element d sampled as dug
+		* @param &secTA secret component of trapdoor
+		* @param &dgg to generate error terms (Gaussian)
+		* @param *sk secret key
+		*/
+		void KeyGen(
+			const shared_ptr<ILParams> ilParams,
+			const usint s[],
+			const RingMat &pubTA,
+			const RingMat &pubElemBPos,
+			const RingMat &pubElemBNeg,
+			const Poly &pubElemD,
+			const RLWETrapdoorPair<Poly> &secTA,
+			DiscreteGaussianGenerator &dgg,
+			RingMat *sk
+		);
 
-			/**
-			* KeyGen Function
-			*
-			* @param ilParams parameter set
-			* @param &s[] Access rights of the user {0, 1}
-			* @param &pubTA Public parameter of trapdoor
-			* @param &pubElemBPos is a matrix where each column corresponds to the public vector of each attribute for when the attribute is equal to one
-			* @param *pubElemBNeg is a matrix where each column corresponds to the public vector of each attribute for when the attribute is equal to zero
-			* @param &pubElemD public element d sampled as dug
-			* @param &secTA secret component of trapdoor
-			* @param &dgg to generate error terms (Gaussian)
-			* @param pertubationVector precomputed pertubation vector from offline sampling
-			* @param *sk secret key
-			*/
-			void KeyGenOnline(
-				const shared_ptr<ILParams> ilParams,
-				const usint s[],							
-				const RingMat &pubTA,                       
-				const RingMat &pubElemBPos,                      
-				const RingMat &pubElemBNeg,                       
-				const Poly &pubElemD,                 
-				const RLWETrapdoorPair<Poly> &secTA,
-				DiscreteGaussianGenerator &dgg,          
-				const shared_ptr<RingMat> perturbationVector,
-				RingMat *sk                          
-			);
+		/**
+		* KeyGen Function
+		*
+		* @param ilParams parameter set
+		* @param &s[] Access rights of the user {0, 1}
+		* @param &pubTA Public parameter of trapdoor
+		* @param &pubElemBPos is a matrix where each column corresponds to the public vector of each attribute for when the attribute is equal to one
+		* @param *pubElemBNeg is a matrix where each column corresponds to the public vector of each attribute for when the attribute is equal to zero
+		* @param &pubElemD public element d sampled as dug
+		* @param &secTA secret component of trapdoor
+		* @param &dgg to generate error terms (Gaussian)
+		* @param pertubationVector precomputed pertubation vector from offline sampling
+		* @param *sk secret key
+		*/
+		void KeyGenOnline(
+			const shared_ptr<ILParams> ilParams,
+			const usint s[],
+			const RingMat &pubTA,
+			const RingMat &pubElemBPos,
+			const RingMat &pubElemBNeg,
+			const Poly &pubElemD,
+			const RLWETrapdoorPair<Poly> &secTA,
+			DiscreteGaussianGenerator &dgg,
+			const shared_ptr<RingMat> perturbationVector,
+			RingMat *sk
+		);
 
-			/**
-			* KeyGen Function
-			*
-			* @param &secTA secret component of trapdoor
-			* @param &dgg to generate error terms (Gaussian)
-			* @return precomputed perturation vector
-			*/
-			shared_ptr<RingMat> KeyGenOffline(
-				const RLWETrapdoorPair<Poly> &secTA,
-				DiscreteGaussianGenerator &dgg         
-			);
-			/**
-			* Encrypt Function
-			*
-			* @param ilParams parameter set
-			* @param &pubTA public element of trapdoor
-			* @param &pubElemBPos is a matrix where each column corresponds to the public vector of each attribute for when the attribute is equal to one
-			* @param &pubElemBNeg is a matrix where each column corresponds to the public vector of each attribute for when the attribute is equal to zero
-			* @param &pubElemD public element d sampled as dug
-			* @param w[] access structure
-			* @param &ptext plaintext
-			* @param &dgg to generate error terms (Gaussian)
-			* @param &dug select according to uniform distribution
-			* @param *ctW ciphertext for attributes that are part of the attribute set w
-			* @param *ctPos ciphertext based on B positive for attributes not access structure w
-			* @param *ctNeg ciphertext based on B negative for attributes not access structure w
-			* @param *ctC1 B^t * s + e0 part of CP-ABE algorithm for encryption/decryption
-			*/
-			void Encrypt(
-				shared_ptr<ILParams> ilParams,
-				const RingMat &pubTA,
-				const RingMat &pubElemBPos,
-				const RingMat &pubElemBNeg,
-				const Poly &pubElemD,
-				const int w[],
-				const Poly &ptext,
-				DiscreteGaussianGenerator &dgg,
-				DiscreteUniformGenerator &dug,
-				RingMat *ctW,
-				RingMat *ctPos,
-				RingMat *ctNeg,
-				Poly *ctC1
-			);
-			/**
-			* Decrypt Function
-			*
-			* @param w[] access structure
-			* @param s[] user attributes
-			* @param &sk secret key
-			* @param &ctW for attributes that are part of the attribute set w
-			* @param &ctPos ciphertext based on B positive for attributes not access structure w
-			* @param &ctNeg ciphertext based on B negative for attributes not access structure w
-			* @param &ctC1 B^t * s + e0 part of CP-ABE algorithm for encryption/decryption
-			* @param *dtext decrypted ciphertext
-			*/
-			void Decrypt(
-				const int w[],
-				const usint s[],
-				const RingMat &sk,
-				const RingMat &ctW,
-				const RingMat &ctPos,
-				const RingMat &ctNeg,
-				const Poly &ctC1,
-				Poly *dtext
-			);
+		/**
+		* KeyGen Function
+		*
+		* @param &secTA secret component of trapdoor
+		* @param &dgg to generate error terms (Gaussian)
+		* @return precomputed perturation vector
+		*/
+		shared_ptr<RingMat> KeyGenOffline(
+			const RLWETrapdoorPair<Poly> &secTA,
+			DiscreteGaussianGenerator &dgg
+		);
+		/**
+		* Encrypt Function
+		*
+		* @param ilParams parameter set
+		* @param &pubTA public element of trapdoor
+		* @param &pubElemBPos is a matrix where each column corresponds to the public vector of each attribute for when the attribute is equal to one
+		* @param &pubElemBNeg is a matrix where each column corresponds to the public vector of each attribute for when the attribute is equal to zero
+		* @param &pubElemD public element d sampled as dug
+		* @param w[] access structure
+		* @param &ptext plaintext
+		* @param &dgg to generate error terms (Gaussian)
+		* @param &dug select according to uniform distribution
+		* @param *ctW ciphertext for attributes that are part of the attribute set w
+		* @param *ctPos ciphertext based on B positive for attributes not access structure w
+		* @param *ctNeg ciphertext based on B negative for attributes not access structure w
+		* @param *ctC1 B^t * s + e0 part of CP-ABE algorithm for encryption/decryption
+		*/
+		void Encrypt(
+			shared_ptr<ILParams> ilParams,
+			const RingMat &pubTA,
+			const RingMat &pubElemBPos,
+			const RingMat &pubElemBNeg,
+			const Poly &pubElemD,
+			const int w[],
+			const Poly &ptext,
+			DiscreteGaussianGenerator &dgg,
+			DiscreteUniformGenerator &dug,
+			RingMat *ctW,
+			RingMat *ctPos,
+			RingMat *ctNeg,
+			Poly *ctC1
+		);
+		/**
+		* Decrypt Function
+		*
+		* @param w[] access structure
+		* @param s[] user attributes
+		* @param &sk secret key
+		* @param &ctW for attributes that are part of the attribute set w
+		* @param &ctPos ciphertext based on B positive for attributes not access structure w
+		* @param &ctNeg ciphertext based on B negative for attributes not access structure w
+		* @param &ctC1 B^t * s + e0 part of CP-ABE algorithm for encryption/decryption
+		* @param *dtext decrypted ciphertext
+		*/
+		void Decrypt(
+			const int w[],
+			const usint s[],
+			const RingMat &sk,
+			const RingMat &ctW,
+			const RingMat &ctPos,
+			const RingMat &ctNeg,
+			const Poly &ctC1,
+			Poly *dtext
+		);
 
 		private:
 			usint m_k; //number of bits of the modulus

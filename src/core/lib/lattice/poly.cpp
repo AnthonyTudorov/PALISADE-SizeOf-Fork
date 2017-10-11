@@ -748,7 +748,7 @@ void PolyImpl<ModType,IntType,VecType,ParmType>::SwitchModulus(const IntType &mo
 void PolyImpl<ModType,IntType,VecType,ParmType>::SwitchFormat()
 {
 
-	        bool dbg_flag = false;
+	       bool dbg_flag = false;
 		if (m_values == nullptr) {
 		  std::string errMsg = "Poly switch format to empty values";
 		  throw std::runtime_error(errMsg);
