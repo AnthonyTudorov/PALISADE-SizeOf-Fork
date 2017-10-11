@@ -136,7 +136,7 @@ int KPABE_BenchmarkCircuitTestDCRT(usint iter, int32_t base)
 	usint ringDimension = 2048;   // ring dimension
 	usint n = ringDimension * 2;   // cyclotomic order
 //	usint k = 21;
-	usint ell = 8; // No of attributes
+	usint ell = 4; // No of attributes
 
 //	native_int::BigInteger q = native_int::BigInteger::ONE << (k - 1);
 //	q = lbcrypto::FirstPrime<native_int::BigInteger>(k, n);
@@ -353,13 +353,12 @@ void TestDCRTVecDecompose(int32_t base, usint k, usint ringDimension){
 	DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(SIGMA);
 	DCRTPoly::DugType dug = DCRTPoly::DugType();
 
-	for (usint i = 0; i < matrixTobeDecomposed.GetRows(); i++)
+	for (usint i = 0; i < matrixTobeDecomposed.GetRows(); i++){
 		for (usint j = 0; j < matrixTobeDecomposed.GetCols(); j++) {
-			if(matrixTobeDecomposed(i, j).GetFormat() != COEFFICIENT)
-				matrixTobeDecomposed(i,j).SwitchFormat();
 				matrixTobeDecomposed(i,j) = Element(dug, params, COEFFICIENT);
 				matrixTobeDecomposed(i, j).SwitchFormat(); // always kept in EVALUATION format
 			}
+	}
 
 	RingMatDCRT results(zero_alloc_eval,1,m);
 	RingMatDCRT g = RingMatDCRT(zero_alloc_eval, 1, m).GadgetVector(base);

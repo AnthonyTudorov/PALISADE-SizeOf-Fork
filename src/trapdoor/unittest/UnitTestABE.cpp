@@ -550,13 +550,12 @@ void UnitTestPolyVecDecomp(int32_t base, usint k, usint ringDimension){
 	DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(SIGMA);
 	DCRTPoly::DugType dug = DCRTPoly::DugType();
 
-	for (usint i = 0; i < matrixTobeDecomposed.GetRows(); i++)
+	for (usint i = 0; i < matrixTobeDecomposed.GetRows(); i++){
 		for (usint j = 0; j < matrixTobeDecomposed.GetCols(); j++) {
-			if(matrixTobeDecomposed(i, j).GetFormat() != COEFFICIENT)
-				matrixTobeDecomposed(i,j).SwitchFormat();
 				matrixTobeDecomposed(i,j) = DCRTPoly(dug, params, COEFFICIENT);
 				matrixTobeDecomposed(i, j).SwitchFormat(); // always kept in EVALUATION format
 			}
+	}
 
 	RingMatDCRT results(zero_alloc_eval, 1, m);
 	RingMatDCRT g = RingMatDCRT(zero_alloc_eval, 1, m).GadgetVector(base);

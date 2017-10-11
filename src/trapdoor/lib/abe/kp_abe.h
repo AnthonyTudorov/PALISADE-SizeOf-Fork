@@ -73,7 +73,7 @@ namespace lbcrypto {
 		const RingMat &publElemB,
 		RingMat *psi
 	);
-
+/*Element is the main ring element used, while Element2 is interpolated ring element. e.g. DCRTPoly is element and Poly is Element2*/
 	template <class Element, class Element2>
 	class KPABE {
 	public:
