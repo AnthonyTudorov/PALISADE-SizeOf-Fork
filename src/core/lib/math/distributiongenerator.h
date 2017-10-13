@@ -66,7 +66,8 @@ public:
 			m_prng.reset(gen);
 
 #else			
-			m_prng.reset(new std::mt19937(rd()));
+			//m_prng.reset(new std::mt19937(rd()));
+			m_prng.reset(new std::mt19937(time(0)));
 #endif		
 
 		});

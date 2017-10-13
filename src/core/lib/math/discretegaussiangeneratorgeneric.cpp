@@ -33,6 +33,8 @@ namespace lbcrypto {
 	const double DG_ERROR = 8.27181e-25;
 	const int32_t N_MAX = 16384;
 	const double SIGMA = std::sqrt(std::log(2 * N_MAX / DG_ERROR) / M_PI);
+	//const int32_t PRECISION = 128;
+	//const double TAIL_CUT = std::sqrt(log(2)*2*(double)(PRECISION));
 	const int32_t STDDEV_COUNT=7;
 	//const int32_t DDG_DEPTH = 13;
 	const int32_t MIN_TREE_DEPTH = 44;
@@ -267,14 +269,14 @@ namespace lbcrypto {
 				}
 			}
 		}
-		if (ky_counter % 31 == 0) {
+		/*if (ky_counter % 31 == 0) {
 			ky_seed = (PseudoRandomNumberGenerator::GetPRNG())();
 			ky_seed = ky_seed << 1;
 			ky_counter = 0;
 		}
 		int32_t sign = ((ky_seed >> (32 - ky_counter)) & 1) ? 1 : -1;
-		ky_counter++;
-		return  sign*(ans-STDDEV_COUNT * m_std) + probMean[tableID];
+		ky_counter++;*/
+		return  /*sign**/(ans-STDDEV_COUNT * m_std) + probMean[tableID];
 	}
 
 
@@ -467,7 +469,7 @@ namespace lbcrypto {
 		//STL binary search implementation
 		auto lower = std::lower_bound(S.begin(), S.end(), search);
 		if (lower != S.end())
-			return lower - S.begin();
+			return lower - S.begin() + 1;
 		else
 			throw std::runtime_error("DGG Inversion Sampling. FindInVector value not found: " + std::to_string(search));
 	}
