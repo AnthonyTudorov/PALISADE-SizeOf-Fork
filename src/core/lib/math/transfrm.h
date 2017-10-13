@@ -100,13 +100,10 @@ namespace lbcrypto {
 
 		for (usint logm = 1; logm <= logn; logm++)
 		{
-			usint adj = logn-logm;
-			usint indexOddAdj = (1 << (logm-1));
-
 			// calculate the i indexes into the root table one time per loop
-			vector<usint> indexes(indexOddAdj);
-			for (usint i = 0; i < indexOddAdj; i++) {
-				indexes[i] = (i << (1+adj)) * ringDimensionFactor;
+			vector<usint> indexes(1 << (logm-1));
+			for (usint i = 0; i < (usint)(1 << (logm-1)); i++) {
+				indexes[i] = (i << (1+logn-logm)) * ringDimensionFactor;
 			}
 
 			for (usint j = 0; j<n; j = j + (1 << logm))
@@ -116,7 +113,7 @@ namespace lbcrypto {
 					const IntType& omega = rootOfUnityTable.GetValAtIndex(indexes[i]);
 
 					usint indexEven = j + i;
-					usint indexOdd = indexEven + indexOddAdj;
+					usint indexOdd = indexEven + (1 << (logm-1));
 					auto oddVal = result->GetValAtIndex(indexOdd);
 					auto oddMSB = oddVal.GetMSB();
 					auto evenVal = result->GetValAtIndex(indexEven);

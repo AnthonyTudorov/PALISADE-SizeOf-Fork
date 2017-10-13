@@ -273,6 +273,14 @@ int main() {
 	for(usint i=0; i<phim; i++){
 		x.SetValAtIndex(i, BigInteger(i));
 	}
+
+	BigVector rootOfUnityTable(phim, modulusQ);
+	BigInteger t(1);
+	for (usint i = 0; i<phim; i++) {
+		rootOfUnityTable.SetValAtIndex(i, t);
+		t = t.ModMul(rootOfUnity, modulusQ);
+	}
+
 	BigVector X(m/2), xx(m/2);
 	ChineseRemainderTransformFTT<BigInteger,BigVector>::ForwardTransform(x, rootOfUnity, m, &X);
 	ChineseRemainderTransformFTT<BigInteger,BigVector>::InverseTransform(X, rootOfUnity, m, &xx);
@@ -287,6 +295,19 @@ int main() {
 	stop = currentDateTime();
 	std::cout << " Library Transform: " << (stop-start)/nRep << std::endl;
 
+	start = currentDateTime();
+	for(uint64_t n=0; n<nRep; n++){
+		BigVector InputToFFT(x);
+		usint ringDimensionFactor = rootOfUnityTable.GetLength() / (m / 2);
+		BigInteger mu = ComputeMu<BigInteger>(x.GetModulus());
+
+		for (usint i = 0; i<m / 2; i++)
+			InputToFFT.SetValAtIndex(i, x.GetValAtIndex(i).ModBarrettMul(rootOfUnityTable.GetValAtIndex(i*ringDimensionFactor), x.GetModulus(), mu));
+		NumberTheoreticTransform<BigInteger,BigVector>::ForwardTransformIterative(InputToFFT, rootOfUnityTable, m / 2, &X);
+	}
+	stop = currentDateTime();
+	std::cout << " Forward Iterative (with local cache) Transform: " << (stop-start)/nRep << std::endl;
+
 	BigVector output;
 	start = currentDateTime();
 	for(uint64_t n=0; n<nRep; n++){
@@ -296,13 +317,6 @@ int main() {
 	std::cout << " Ttran_baseline: " << (stop-start)/nRep << std::endl;
 	//std::cout << X << std::endl;
 	//std::cout << output << std::endl;
-
-	BigVector rootOfUnityTable(phim, modulusQ);
-	BigInteger t(1);
-	for (usint i = 0; i<phim; i++) {
-		rootOfUnityTable.SetValAtIndex(i, t);
-		t = t.ModMul(rootOfUnity, modulusQ);
-	}
 
 	BigVector result(1<<10);
 	start = currentDateTime();
