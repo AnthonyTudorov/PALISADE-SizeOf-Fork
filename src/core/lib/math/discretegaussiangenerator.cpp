@@ -30,7 +30,6 @@
 #include "backend.h"
 
 namespace lbcrypto {
-
 //	template<typename IntType, typename VecType>
 //	DiscreteGaussianGeneratorImpl<IntType,VecType>::DiscreteGaussianGeneratorImpl() : DistributionGenerator<IntType,VecType>() {
 //
@@ -139,11 +138,13 @@ namespace lbcrypto {
 			if (std::abs(seed) <= m_a / 2) {
 				val = 0;
 			}
-			else if (seed > 0) {
-				val = FindInVector(m_vals, (std::abs(seed) - m_a / 2));
-			}
-			else {
-				val = -(int)FindInVector(m_vals, (std::abs(seed) - m_a / 2));
+			else{
+				if (seed > 0) {
+					val = FindInVector(m_vals, (std::abs(seed) - m_a / 2));
+				}
+				else {
+					val = -(int)FindInVector(m_vals, (std::abs(seed) - m_a / 2));
+				}
 			}
 			(ans.get())[i] = val;
 		}
@@ -155,8 +156,10 @@ namespace lbcrypto {
 	usint DiscreteGaussianGeneratorImpl<IntType,VecType>::FindInVector(const std::vector<double> &S, double search) const {
 		//STL binary search implementation
 		auto lower = std::lower_bound(S.begin(), S.end(), search);
-		if (lower != S.end())
-			return lower - S.begin();
+		if (lower != S.end()){
+			return lower - S.begin() + 1;
+		}
+
 		else
 			throw std::runtime_error("DGG Inversion Sampling. FindInVector value not found: " + std::to_string(search));
 	}
