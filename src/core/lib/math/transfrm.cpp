@@ -196,6 +196,86 @@ void ChineseRemainderTransform<IntType,VecType>::InverseTransform(const VecType&
 	return;
 }
 
+//main Forward CRT Transform - implements FTT - uses iterative NTT as a subroutine
+//includes precomputation of twidle factor table
+template<typename IntType, typename VecType>
+void ChineseRemainderTransformFTT<IntType,VecType>::ForwardTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder, VecType *OpFFT) {
+
+	if( OpFFT->GetLength() != CycloOrder/2 )
+		throw std::logic_error("Vector for ChineseRemainderTransformFTT::ForwardTransform size must be == CyclotomicOrder/2");
+
+	if (rootOfUnity == 1 || rootOfUnity == 0)
+		throw std::logic_error("Root of unity for ChineseRemainderTransformFTT::ForwardTransform cannot be zero or one");
+
+	if (!IsPowerOfTwo(CycloOrder))
+		throw std::logic_error("CyclotomicOrder for ChineseRemainderTransformFTT::ForwardTransform is not a power of two");
+
+	//Precompute the Barrett mu parameter
+	IntType mu = ComputeMu<IntType>(element.GetModulus());
+
+	const VecType *rootOfUnityTable = NULL;
+
+	// check to see if the modulus is in the table, and add it if it isn't
+	const auto mapSearch = m_rootOfUnityTableByModulus.find(element.GetModulus());
+	if( mapSearch == m_rootOfUnityTableByModulus.end() ) {
+#pragma omp critical
+		{
+			VecType rTable(CycloOrder / 2);
+			IntType modulus(element.GetModulus());
+			IntType x(1);
+
+			for (usint i = 0; i<CycloOrder / 2; i++) {
+				rTable.SetValAtIndex(i, x);
+				x = x.ModBarrettMul(rootOfUnity, modulus, mu);
+			}
+
+			rootOfUnityTable = &(m_rootOfUnityTableByModulus[modulus] = std::move(rTable));
+		}
+	}
+	else {
+		rootOfUnityTable = &mapSearch->second;
+	}
+//#pragma omp critical
+//	{
+//		bool recompute = false;
+//		auto mSearch = m_rootOfUnityTableByModulus.find(element.GetModulus());
+//
+//		if( mSearch != m_rootOfUnityTableByModulus.end() ) {
+//			// i found it... make sure it's kosher
+//			if( mSearch->second.GetLength() == 0 || mSearch->second.GetValAtIndex(1) != rootOfUnity ) {
+//				recompute = true;
+//			}
+//			else
+//				rootOfUnityTable = &mSearch->second;
+//		}
+//
+//		if( mSearch == m_rootOfUnityTableByModulus.end() || recompute ){
+//			VecType rTable(CycloOrder / 2);
+//			IntType modulus(element.GetModulus());
+//			IntType x(1);
+//
+//			for (usint i = 0; i<CycloOrder / 2; i++) {
+//				rTable.SetValAtIndex(i, x);
+//				x = x.ModBarrettMul(rootOfUnity, modulus, mu);
+//			}
+//
+//			rootOfUnityTable = &(m_rootOfUnityTableByModulus[modulus] = std::move(rTable));
+//		}
+//	}
+
+	VecType InputToFFT(element);
+
+	usint ringDimensionFactor = rootOfUnityTable->GetLength() / (CycloOrder / 2);
+
+	//Fermat Theoretic Transform (FTT)
+	for (usint i = 0; i<CycloOrder / 2; i++)
+		InputToFFT.SetValAtIndex(i, element.GetValAtIndex(i).ModBarrettMul(rootOfUnityTable->GetValAtIndex(i*ringDimensionFactor), element.GetModulus(), mu));
+
+	NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(InputToFFT, *rootOfUnityTable, CycloOrder / 2, OpFFT);
+
+	return;
+}
+
 //main Inverse CRT Transform - implements FTT - uses iterative NTT as a subroutine
 //includes precomputation of inverse twidle factor table
 template<typename IntType, typename VecType>
