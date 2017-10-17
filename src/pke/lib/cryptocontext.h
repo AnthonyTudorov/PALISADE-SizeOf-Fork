@@ -253,6 +253,12 @@ public:
 	static void ClearEvalMultKeys(const shared_ptr<CryptoContext> cc);
 
 	/**
+	 * InsertEvalMultKey - add the given vector of keys to the map, replacing the existing vector if there
+	 * @param vectorToInsert
+	 */
+	static void InsertEvalMultKey(const std::vector<shared_ptr<LPEvalKey<Element>>>& vectorToInsert);
+
+	/**
 	 * SerializeEvalSumKey for all EvalSum keys
 	 * method will serialize each CryptoContext only once
 	 *
@@ -307,6 +313,13 @@ public:
 	 * @param cc
 	 */
 	static void ClearEvalSumKeys(const shared_ptr<CryptoContext> cc);
+
+	/**
+	 * InsertEvalSumKey - add the given map of keys to the map, replacing the existing map if there
+	 * @param mapToInsert
+	 */
+	static void InsertEvalSumKey(const shared_ptr<std::map<usint,shared_ptr<LPEvalKey<Element>>>> mapToInsert);
+
 
 	// TURN FEATURES ON
 	/**

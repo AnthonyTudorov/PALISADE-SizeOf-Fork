@@ -99,6 +99,11 @@ void CryptoContext<Element>::ClearEvalMultKeys(const shared_ptr<CryptoContext> c
 }
 
 template <typename Element>
+void CryptoContext<Element>::InsertEvalMultKey(const std::vector<shared_ptr<LPEvalKey<Element>>>& vectorToInsert) {
+	evalMultKeyMap[ vectorToInsert[0]->GetKeyTag() ] = vectorToInsert;
+}
+
+template <typename Element>
 void CryptoContext<Element>::EvalSumKeyGen(
 	const shared_ptr<LPPrivateKey<Element>> privateKey,
 	const shared_ptr<LPPublicKey<Element>> publicKey) {
@@ -163,6 +168,13 @@ void CryptoContext<Element>::ClearEvalSumKeys(const shared_ptr<CryptoContext> cc
 		else
 			++it;
 	}
+}
+
+template <typename Element>
+void CryptoContext<Element>::InsertEvalSumKey(const shared_ptr<std::map<usint,shared_ptr<LPEvalKey<Element>>>> mapToInsert) {
+	// find the tag
+	auto onekey = mapToInsert->begin();
+	evalSumKeyMap[ onekey->second->GetKeyTag() ] = mapToInsert;
 }
 
 /**
