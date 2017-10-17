@@ -56,7 +56,7 @@ allcoredemos: $(EXTLIBDIR)/$(PALISADECORELIB) $(patsubst $(COREBINDIR)/demo/%,bi
 
 bin/demo/core/%$(EXESUFFIX): src/core/bin/demo/%.o $(EXTLIBDIR)/$(PALISADECORELIB)
 	@mkdir -p $(@D)
-	$(CC) -o $@ $^ $(EXTLIB) -lPALISADEcore
+	$(CC) -o $@ $< $(EXTLIB) -lPALISADEcore
 
 #this builds the palisade library out of the objects 
 $(EXTLIBDIR)/$(PALISADECORELIB): $(COREOBJECTS)
@@ -87,7 +87,7 @@ cleancore:
 # this links test executable  from objects in the test build directory
 $(TEST_TARGET): $(COREUNITOBJECTS) $(EXTLIBDIR)/$(PALISADECORELIB) 
 	@mkdir -p `dirname $(TEST_TARGET)`
-	$(CC) -o $(TEST_TARGET) $^ $(EXTLIB) $(TEST_LIB) 
+	$(CC) -o $(TEST_TARGET) $(COREUNITOBJECTS) $(EXTLIB) -lPALISADEcore $(TEST_LIB) 
 
 #used to run tests from make
 .PHONY: testcore
