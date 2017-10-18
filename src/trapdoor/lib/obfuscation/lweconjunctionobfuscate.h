@@ -39,6 +39,9 @@
 #include "lattice/ilelement.h"
 #include "../sampling/trapdoor.h"
 
+#include "utils/serializable.h"
+#include "utils/serializablehelper.h"
+
 /**
  * @namespace lbcrypto
  * The namespace of lbcrypto
@@ -50,7 +53,7 @@ namespace lbcrypto {
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
-	class ClearLWEConjunctionPattern : public ClearPattern<Element>, public ConjunctionPattern<Element> {
+	class ClearLWEConjunctionPattern : public ClearPattern<Element>, public ConjunctionPattern<Element>  {
 	public:
 
 		/**
@@ -84,6 +87,33 @@ namespace lbcrypto {
 		* @return the length of the pattern.
 		*/
 		usint GetLength() const;
+
+		
+		/**
+		 * @brief Serialize the object into a Serialized
+		 * @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+		 * @return true if successfully serialized
+		 */
+		bool Serialize(Serialized* serObj) const;
+
+		/**
+		 * @brief Populate the object from the deserialization of the Setialized
+		 * @param serObj contains the serialized object
+		 * @return true on success
+		 */
+		bool Deserialize(const Serialized& serObj);
+
+	/**
+	 * @brief ostream operator
+	 * @param os the input preceding output stream
+	 * @param vec the element to add to the output stream.
+	 * @return a resulting concatenated output stream
+	 */
+	friend inline std::ostream& operator<<(std::ostream& os, const ClearLWEConjunctionPattern & pat) {
+	  os << pat.GetPatternString();
+	  return os;
+	}
+		
 	private:
 		// stores the local instance of the pattern string
 		std::string m_patternString;

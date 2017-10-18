@@ -31,7 +31,7 @@
 
 #include "utils/memory.h"
 #include "utils/debug.h"
-
+ 
 namespace lbcrypto {
 
 template <class Element>
@@ -55,6 +55,78 @@ usint ClearLWEConjunctionPattern<Element>::GetLength() const {
 	return m_patternString.length();
 };
 
+// Serialize Operation
+template<class Element>
+bool ClearLWEConjunctionPattern<Element>::Serialize(Serialized* serObj) const {
+  bool dbg_flag = true;
+  if( !serObj->IsObject() ){
+    DEBUG("ClearLWEConjunctionPattern::Serialize is obj failed");
+    return false;
+  }
+  Serialized obj(rapidjson::kObjectType, &serObj->GetAllocator());
+
+  obj.AddMember("PatternString", m_patternString, obj.GetAllocator());
+
+  serObj->AddMember("ClearLWEConjunctionPattern", obj.Move(), serObj->GetAllocator());
+
+  return true;
+};
+
+
+// Deserialize Operation
+template<class  Element>
+bool ClearLWEConjunctionPattern<Element>::Deserialize(const Serialized& serObj){
+    bool dbg_flag= true;
+    Serialized::ConstMemberIterator iMap = serObj.FindMember("ClearLWEConjunctionPattern");
+    if (iMap == serObj.MemberEnd()) {
+      DEBUG("clearLWEConjunctionPattern::Deserialize could not find ClearLWEConjunctionPattern<Element>");
+      return false;
+    }
+    
+    SerialItem::ConstMemberIterator pIt = iMap->value.FindMember("PatternString");
+   
+    
+    if (pIt == iMap->value.MemberEnd()) {
+      DEBUG("ClearLWEConjunctionPattern::Deserialize could not find PatternString");
+      return false;
+    }
+
+    if ((pIt = iMap->value.FindMember("Format")) == iMap->value.MemberEnd()) {
+      DEBUG("PolyImpl::Deserialize could not find format");
+      return false;
+    }
+    
+    this->m_patternString= pIt->value.GetString();
+
+    DEBUGEXP(this->m_patternString);
+    return true;
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
 template <class Element>
 ObfuscatedLWEConjunctionPattern<Element>::ObfuscatedLWEConjunctionPattern() {
 
