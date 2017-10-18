@@ -76,8 +76,16 @@ namespace lbcrypto {
 		std::string GetPatternString() const;
 
 		/**
+		* Method to set the pattern's string representation.
+		*
+		* @param patternString the string the plaintext pattern.
+		* @return void
+		*/
+		void SetPatternString(const std::string patternString);
+
+		/**
 		* Gets character at a specific location
-		* @param index the index of the pattern to return a value for.
+		* @param index the index into the pattern 
 		* @return the character at an index
 		*/
 		char GetIndex(usint index) const;

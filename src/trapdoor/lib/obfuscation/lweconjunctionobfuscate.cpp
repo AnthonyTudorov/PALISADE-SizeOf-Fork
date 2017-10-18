@@ -44,7 +44,12 @@ std::string ClearLWEConjunctionPattern<Element>::GetPatternString() const {
 	return m_patternString;
 };
 
-// Gets the ring at a specific location
+template <class Element>
+void ClearLWEConjunctionPattern<Element>::SetPatternString(const std::string patternString) {
+  this->m_patternString = patternString;
+};
+
+// Gets the character in the pattern  at a specific index
 template <class Element>
 char ClearLWEConjunctionPattern<Element>::GetIndex(usint loc) const {
 	return (char)m_patternString[loc];
@@ -91,10 +96,7 @@ bool ClearLWEConjunctionPattern<Element>::Deserialize(const Serialized& serObj){
       return false;
     }
 
-    if ((pIt = iMap->value.FindMember("Format")) == iMap->value.MemberEnd()) {
-      DEBUG("PolyImpl::Deserialize could not find format");
-      return false;
-    }
+
     
     this->m_patternString= pIt->value.GetString();
 
