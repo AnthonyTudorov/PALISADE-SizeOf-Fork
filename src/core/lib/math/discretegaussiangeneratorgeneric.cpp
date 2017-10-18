@@ -31,8 +31,8 @@
 namespace lbcrypto {
 
 	const double DG_ERROR = 8.27181e-25;
-	const int32_t N_MAX = 16384;
-	const double SIGMA = std::sqrt(std::log(2 * N_MAX / DG_ERROR) / M_PI);
+	//const int32_t N_MAX = 16384;
+	//const double SIGMA = std::sqrt(std::log(2 * N_MAX / DG_ERROR) / M_PI);
 	//const int32_t PRECISION = 128;
 	//const double TAIL_CUT = std::sqrt(log(2)*2*(double)(PRECISION));
 	const int32_t STDDEV_COUNT=7;

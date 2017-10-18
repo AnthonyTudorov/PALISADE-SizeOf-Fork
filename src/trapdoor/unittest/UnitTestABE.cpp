@@ -509,11 +509,11 @@ void UnitTestPolyVecDecomp(int32_t base, usint k, usint ringDimension){
 
 	usint n = ringDimension*2;   // cyclotomic order
 
-	native_int::BigInteger q = native_int::BigInteger::ONE << (k-1);
+	native_int::BigInteger q = native_int::BigInteger(1) << (k-1);
 	q = lbcrypto::FirstPrime<native_int::BigInteger>(k,n);
 	native_int::BigInteger rootOfUnity(RootOfUnity<native_int::BigInteger>(n, q));
 
-	native_int::BigInteger nextQ = native_int::BigInteger::ONE << (k-1);
+	native_int::BigInteger nextQ = native_int::BigInteger(1) << (k-1);
 	nextQ = lbcrypto::NextPrime<native_int::BigInteger>(q, n);
 	native_int::BigInteger nextRootOfUnity(RootOfUnity<native_int::BigInteger>(n, nextQ));
 

@@ -405,5 +405,11 @@ namespace lbcrypto {
 
 	};
 
+	template <>
+	shared_ptr<typename Poly::Params> LWEConjunctionObfuscationAlgorithm<Poly>::GenerateElemParams(double q, uint32_t n) const;
+
+	template <>
+	shared_ptr<typename DCRTPoly::Params> LWEConjunctionObfuscationAlgorithm<DCRTPoly>::GenerateElemParams(double q, uint32_t n) const;
+
 } // namespace lbcrypto ends
 #endif
