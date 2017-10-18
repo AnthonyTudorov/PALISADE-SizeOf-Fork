@@ -245,7 +245,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::ParamsGen(typename Element::Dg
 	}
 
 	//Prepare for parameters.
-	shared_ptr<typename Element::Params> params = GenerateElemParams(q, n);
+	auto params = GenerateElemParams(q, n);
 
 	obfuscatedPattern->SetParameters(params);
 

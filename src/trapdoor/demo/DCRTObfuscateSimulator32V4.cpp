@@ -77,7 +77,7 @@ int main(int argc, char* argv[]){
 	std::cerr << "Running " << argv[0] << " with " << n_evals << " evaluations." << std::endl;
 
 
-	unsigned int n_bit_range = 3;
+	int n_bit_range = 3;
 
 	if (argc >= 4 ) {
     	     n_bit_range = atoi(argv[3]);

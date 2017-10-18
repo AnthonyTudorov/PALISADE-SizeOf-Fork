@@ -74,13 +74,13 @@ allcircuitdemos: $(patsubst $(CIRCUITBINDIR)/demo/%,bin/demo/circuit/%,$(patsubs
 
 bin/demo/circuit/%$(EXESUFFIX): src/circuit/bin/demo/%.o $(EXTLIBDIR)/$(PALISADECIRCUITLIB)
 	@mkdir -p $(@D)
-	$(CC) -o $@ $^ $(EXTLIB) -lPALISADEcore -lPALISADEpke -lPALISADEtrapdoor -lPALISADEcircuit
+	$(CC) -o $@ $< $(EXTLIB) -lPALISADEcore -lPALISADEpke -lPALISADEtrapdoor -lPALISADEcircuit
 
 #this builds the palisade library out of the objects 
 $(EXTLIBDIR)/$(PALISADECIRCUITLIB): $(CIRCUITOBJECTS) $(CLIBS)
 	@echo " -- circuit:linking $@ from CIRCUITOBJECTS"
 	mkdir -p $(EXTLIBDIR)
-	$(CC) $(LIBCMD) -o $@ $(CIRCUITOBJECTS) -L$(EXTLIBDIR) -lPALISADEcore -lPALISADEpke -lPALISADEtrapdoor -lgomp 
+	$(CC) $(LIBCMD) -o $@ $(CIRCUITOBJECTS) $(EXTLIB) -lPALISADEcore -lPALISADEpke -lPALISADEtrapdoor -lgomp 
 
 ### #this builds the individual objects that make up the library .
 .PRECIOUS: $(CIRCUITBINDIR)/%
@@ -105,7 +105,7 @@ cleancircuit:
 # this links test executable  from objects in the test build directory
 $(CIRCUIT_TEST_TARGET): $(CIRCUITUNITOBJECTS) $(CLIBS)
 	@mkdir -p `dirname $(CIRCUIT_TEST_TARGET)`
-	$(CC) $(CIRCUITUNITOBJECTS) -o $(CIRCUIT_TEST_TARGET) $(CLIBS) $(TEST_LIB)
+	$(CC) -o $(CIRCUIT_TEST_TARGET) $(CIRCUITUNITOBJECTS) $(EXTLIB) -lPALISADEcircuit -lPALISADEtrapdoor -lPALISADEpke -lPALISADEcore $(TEST_LIB)
 
 #used to run tests from make
 .PHONY: testcircuit
