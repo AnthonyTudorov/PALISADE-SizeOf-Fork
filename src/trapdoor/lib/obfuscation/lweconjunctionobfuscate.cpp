@@ -332,11 +332,11 @@ shared_ptr<Matrix<Element>> LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 				typename Element::DggType &dggEncoding,
 				uint32_t base) const {
 
-    TimeVar t1,t_total; // for TIC TOC
-	bool dbg_flag = 0;//set to 0 for no debug statements
+        TimeVar t1,t2, t3, t_total; // for TIC TOC
+	bool dbg_flag = false;//set to 0 for no debug statements
 
 	TIC(t_total);	      // time the  overall Encode function with a timer;
-
+        TIC(t2);
 	size_t m = Ai.GetCols();
 	size_t k = m - 2;
 	size_t n = elemS.GetRingDimension();
@@ -357,13 +357,15 @@ shared_ptr<Matrix<Element>> LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 
 	const Matrix<Element> &bj = Aj.ScalarMult(elemS) + ej;
 
-	//std::cout << "Encode: Computed bj, next will do GaussSamp" << std::endl; 
+	//std::cout << "Encode: Computed bj, next will do GaussSamp" << std::endl;
+	DEBUG("Enc2: " << " "  << TOC(t2) << " ms");
 	TIC(t1);	
 
 	shared_ptr<Matrix<Element>> result(new Matrix<Element>(zero_alloc, m, m));
 
 	//DBC: this loop takes all the time in encode
 	//TODO (dcousins): move gaussj generation out of the loop to enable parallelisation
+	DEBUG("calling "<<m<<" gaussj");
 	#pragma omp parallel for schedule(dynamic)
 	for(size_t i=0; i<m; i++) {
 
@@ -380,7 +382,8 @@ shared_ptr<Matrix<Element>> LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 
 	}
 
-	DEBUG("Enc: " << " "  << TOC(t1) << " ms");
+	DEBUG("Enc1: " << " "  << TOC(t1) << " ms");
+
 	DEBUG("EncTot: " << " "  << TOC(t_total) << " ms");
 
 	return result;
@@ -399,7 +402,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 				bool optimized) const {
 
 	TimeVar t1; // for TIC TOC
-	bool dbg_flag = 0;
+	bool dbg_flag = false;
 
 	//obfuscatedPattern->SetLength(clearPattern.GetLength());
 	usint l = obfuscatedPattern->GetLength();
@@ -643,7 +646,7 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 
 	//Evaluation of Obfuscated Conjunction Pattern
 	TimeVar t1; // for TIC TOC
-	bool dbg_flag = 0;
+	bool dbg_flag = false;
 	TIC(t1);
 
 	usint l = obfuscatedPattern.GetLength();

@@ -96,6 +96,8 @@ int main(int argc, char* argv[]){
 	    << "For the csh or tcsh shell, enter: " << std::endl 
 	    << " setenv OMP_NUM_THREADS <number of threads to use>" << std::endl;
   std::cout <<" or use omp_set_num_threads() in your code."<< std::endl<<std::endl;
+
+  std::cout <<"HINT: use export OMP_DISPLAY_ENV=TRUE to see all your settings"<<std::endl; 
   
   int nthreads, tid;
   // determine how many threads we will have. 
