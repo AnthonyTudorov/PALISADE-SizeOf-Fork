@@ -103,31 +103,6 @@ bool ClearLWEConjunctionPattern<Element>::Deserialize(const Serialized& serObj){
     DEBUGEXP(this->m_patternString);
     return true;
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   
 template <class Element>
 ObfuscatedLWEConjunctionPattern<Element>::ObfuscatedLWEConjunctionPattern() {
@@ -229,6 +204,70 @@ shared_ptr<Matrix<Element>>  ObfuscatedLWEConjunctionPattern<Element>::GetS(usin
 	return this->m_S_vec->at(i).at(value);
 }
 
+template <class Element>
+bool ObfuscatedLWEConjunctionPattern<Element>::Serialize(Serialized* serObj) const {
+  bool dbg_flag = true;
+  if( !serObj->IsObject() ){
+    DEBUG("ObfuscatedLWEConjunctionPattern::Serialize is obj failed");
+    return false;
+  }
+  Serialized obj(rapidjson::kObjectType, &serObj->GetAllocator());
+
+  obj.AddMember("Length", std::to_string(this->GetLength()), obj.GetAllocator());
+
+  serObj->AddMember("ObfuscatedLWEConjunctionPattern", obj.Move(), serObj->GetAllocator());
+
+  return true;
+};
+
+
+
+// Deserialize Operation
+template<class  Element>
+bool ObfuscatedLWEConjunctionPattern<Element>::Deserialize(const Serialized& serObj){
+    bool dbg_flag= true;
+    Serialized::ConstMemberIterator iMap = serObj.FindMember("ObfuscatedLWEConjunctionPattern");
+    if (iMap == serObj.MemberEnd()) {
+      DEBUG("ObfuscatedLWEConjunctionPattern::Deserialize could not find ObfuscatedLWEConjunctionPattern<Element>");
+      return false;
+    }
+    
+    SerialItem::ConstMemberIterator pIt = iMap->value.FindMember("Length");
+   
+    
+    if (pIt == iMap->value.MemberEnd()) {
+      DEBUG("ClearLWEConjunctionPattern::Deserialize could not find Length");
+      return false;
+    }
+
+    this->m_length= atoi(pIt->value.GetString());
+
+    DEBUGEXP(this->m_length);
+
+#if 0
+    this->m_elemParams;
+
+    this->m_chunkSize;
+    
+    this->m_S_vec = NULL;
+    
+    this->m_R_vec = NULL;
+    
+    this->m_Sl = NULL;
+    this->m_Rl = NULL;
+    
+    this->m_pk = NULL;
+    this->m_ek = NULL;
+    
+#endif
+    return true;
+};
+  
+  
+  //////////////////////////////////////////////
+  // LWEConjunctionObfuscationAlgorithm Methods
+  //////////////////////////////////////////////
+  
 
 template <class Element>
 void LWEConjunctionObfuscationAlgorithm<Element>::ParamsGen(typename Element::DggType &dgg,
@@ -821,5 +860,9 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 
 };
 
+
+
+
+  
 }
 #endif
