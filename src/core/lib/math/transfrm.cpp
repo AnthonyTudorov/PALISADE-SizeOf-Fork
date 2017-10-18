@@ -211,7 +211,9 @@ void ChineseRemainderTransformFTT<IntType,VecType>::ForwardTransform(const VecTy
 		throw std::logic_error("CyclotomicOrder for ChineseRemainderTransformFTT::ForwardTransform is not a power of two");
 
 	//Precompute the Barrett mu parameter
+#if !defined(NTL_SPEEDUP)
 	IntType mu = ComputeMu<IntType>(element.GetModulus());
+#endif
 
 	const VecType *rootOfUnityTable = NULL;
 
@@ -226,7 +228,11 @@ void ChineseRemainderTransformFTT<IntType,VecType>::ForwardTransform(const VecTy
 
 			for (usint i = 0; i<CycloOrder / 2; i++) {
 				rTable.SetValAtIndex(i, x);
+#if defined(NTL_SPEEDUP)
+				x = x.ModMul(rootOfUnity, modulus);
+#else
 				x = x.ModBarrettMul(rootOfUnity, modulus, mu);
+#endif
 			}
 
 			rootOfUnityTable = &(m_rootOfUnityTableByModulus[modulus] = std::move(rTable));
@@ -235,33 +241,6 @@ void ChineseRemainderTransformFTT<IntType,VecType>::ForwardTransform(const VecTy
 	else {
 		rootOfUnityTable = &mapSearch->second;
 	}
-//#pragma omp critical
-//	{
-//		bool recompute = false;
-//		auto mSearch = m_rootOfUnityTableByModulus.find(element.GetModulus());
-//
-//		if( mSearch != m_rootOfUnityTableByModulus.end() ) {
-//			// i found it... make sure it's kosher
-//			if( mSearch->second.GetLength() == 0 || mSearch->second.GetValAtIndex(1) != rootOfUnity ) {
-//				recompute = true;
-//			}
-//			else
-//				rootOfUnityTable = &mSearch->second;
-//		}
-//
-//		if( mSearch == m_rootOfUnityTableByModulus.end() || recompute ){
-//			VecType rTable(CycloOrder / 2);
-//			IntType modulus(element.GetModulus());
-//			IntType x(1);
-//
-//			for (usint i = 0; i<CycloOrder / 2; i++) {
-//				rTable.SetValAtIndex(i, x);
-//				x = x.ModBarrettMul(rootOfUnity, modulus, mu);
-//			}
-//
-//			rootOfUnityTable = &(m_rootOfUnityTableByModulus[modulus] = std::move(rTable));
-//		}
-//	}
 
 	VecType InputToFFT(element);
 
@@ -269,7 +248,11 @@ void ChineseRemainderTransformFTT<IntType,VecType>::ForwardTransform(const VecTy
 
 	//Fermat Theoretic Transform (FTT)
 	for (usint i = 0; i<CycloOrder / 2; i++)
+#if defined(NTL_SPEEDUP)
+		InputToFFT[i] = element[i].ModMul((*rootOfUnityTable)[i*ringDimensionFactor], element.GetModulus());
+#else
 		InputToFFT.SetValAtIndex(i, element.GetValAtIndex(i).ModBarrettMul(rootOfUnityTable->GetValAtIndex(i*ringDimensionFactor), element.GetModulus(), mu));
+#endif
 
 	NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(InputToFFT, *rootOfUnityTable, CycloOrder / 2, OpFFT);
 
