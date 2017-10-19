@@ -43,7 +43,7 @@ CIRCUITUNITOBJECTS := $(patsubst $(CIRCUITSRCDIR)/%,$(CIRCUITBINDIR)/%,$(patsubs
 CIRCUITUNITOBJECTS += test/include/gtest/gtest-all.o
 CIRCUITDEMOOBJECTS := $(patsubst $(CIRCUITSRCDIR)/%,$(CIRCUITBINDIR)/%,$(patsubst %.cpp,%.o,$(CIRCUITDEMOSOURCES)))
 
-CLIBS := $(EXTLIBDIR)/$(PALISADETRAPDOORLIB) $(EXTLIBDIR)/$(PALISADEPKELIB) $(EXTLIBDIR)/$(PALISADECORELIB)
+CLIBS := $(EXTLIBDIR)/$(PALISADETRAPDOORLIB) $(EXTLIBDIR)/$(PALISADEPKELIB) $(EXTLIBDIR)/$(PALISADECORELIB) 
 
 BISON ?= bison
 FLEX ?= flex
@@ -64,20 +64,22 @@ gram: $(CIRCUITSRCDIR)/lib/parse.cpp $(CIRCUITSRCDIR)/lib/parse.hpp $(CIRCUITSRC
 
 $(CIRCUITSRCDIR)/lib/parse.hpp: $(CIRCUITSRCDIR)/lib/parse.y
 
-$(CIRCUITSRCDIR)/lib/parse.cpp: $(CIRCUITSRCDIR)/lib/parse.y
-	$(BISON) --defines -o $@ $^
+$(CIRCUITSRCDIR)/lib/parse.cpp: $(CIRCUITSRCDIR)/lib/parse.y $(CIRCUITSRCDIR)/lib/parse.hpp
+	$(BISON) --defines -o $@ $<
 
-$(CIRCUITSRCDIR)/lib/scan.cpp: $(CIRCUITSRCDIR)/lib/scan.l
-	$(FLEX) -o $@ $^
+$(CIRCUITBINDIR)/lib/parse.o: $(CIRCUITSRCDIR)/lib/parse.cpp
+
+$(CIRCUITSRCDIR)/lib/scan.cpp: $(CIRCUITSRCDIR)/lib/scan.l $(CIRCUITSRCDIR)/lib/parse.hpp
+	$(FLEX) -o $@ $<
 
 allcircuitdemos: $(patsubst $(CIRCUITBINDIR)/demo/%,bin/demo/circuit/%,$(patsubst %.o,%$(EXESUFFIX),$(CIRCUITDEMOOBJECTS)))
 
-bin/demo/circuit/%$(EXESUFFIX): src/circuit/bin/demo/%.o $(EXTLIBDIR)/$(PALISADECIRCUITLIB)
+bin/demo/circuit/%$(EXESUFFIX): src/circuit/bin/demo/%.o $(CLIBS) $(EXTLIBDIR)/$(PALISADECIRCUITLIB)
 	@mkdir -p $(@D)
 	$(CC) -o $@ $< $(EXTLIB) -lPALISADEcore -lPALISADEpke -lPALISADEtrapdoor -lPALISADEcircuit
 
 #this builds the palisade library out of the objects 
-$(EXTLIBDIR)/$(PALISADECIRCUITLIB): $(CIRCUITOBJECTS) $(CLIBS)
+$(EXTLIBDIR)/$(PALISADECIRCUITLIB): $(CIRCUITOBJECTS) $(CLIBS) 
 	@echo " -- circuit:linking $@ from CIRCUITOBJECTS"
 	mkdir -p $(EXTLIBDIR)
 	$(CC) $(LIBCMD) -o $@ $(CIRCUITOBJECTS) $(EXTLIB) -lPALISADEcore -lPALISADEpke -lPALISADEtrapdoor -lgomp 
@@ -103,7 +105,7 @@ cleancircuit:
 	$(RM) -fr $(CIRCUITBINDIR) $(EXTLIBDIR)/$(PALISADECIRCUITLIB) `dirname $(CIRCUIT_TEST_TARGET)` bin/demo/circuit $(CIRCUITSRCDIR)/lib/parse.cpp $(CIRCUITSRCDIR)/lib/scan.cpp $(CIRCUITSRCDIR)/lib/parse.hpp $(wildcard $(CIRCUITSRCDIR)/lib/*.hh)
 
 # this links test executable  from objects in the test build directory
-$(CIRCUIT_TEST_TARGET): $(CIRCUITUNITOBJECTS) $(CLIBS)
+$(CIRCUIT_TEST_TARGET): $(CIRCUITUNITOBJECTS) $(CLIBS) $(EXTLIBDIR)/$(PALISADECIRCUITLIB)
 	@mkdir -p `dirname $(CIRCUIT_TEST_TARGET)`
 	$(CC) -o $(CIRCUIT_TEST_TARGET) $(CIRCUITUNITOBJECTS) $(EXTLIB) -lPALISADEcircuit -lPALISADEtrapdoor -lPALISADEpke -lPALISADEcore $(TEST_LIB)
 
