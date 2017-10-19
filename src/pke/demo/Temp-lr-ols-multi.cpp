@@ -2598,7 +2598,7 @@ void EncodeData(const std::vector<string> &headers, const vector<vector<double>>
 		if ((headers[i] == "log.normalized.cost") || (headers[i] == "id"))
 			counter++;
 			*/
-		// k corresponds to rows, i.e., patients
+		// k corresponds to rows
 		for (size_t k = 0; k < dataColumns[i].size(); k++)
 		{
 			if (headers[i] == "fieldY") {
