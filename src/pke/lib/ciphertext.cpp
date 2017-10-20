@@ -39,7 +39,6 @@ bool Ciphertext<Element>::Serialize(Serialized* serObj) const {
 	serObj->AddMember("IsEncrypted", m_isEncrypted ? std::to_string(1) : std::to_string(0), serObj->GetAllocator());
 	serObj->AddMember("Depth", std::to_string(m_depth), serObj->GetAllocator());
 	SerializeVector("Elements", Element::GetElementName(), this->m_elements, serObj);
-	serObj->AddMember("IsEncrypted", this->m_isEncrypted ? std::to_string(1) : std::to_string(0), serObj->GetAllocator());
 
 	return true;
 }
