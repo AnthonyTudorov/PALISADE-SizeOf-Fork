@@ -413,8 +413,6 @@ void UnitTestKPABEANDGate(int32_t base, usint k, usint ringDimension){
 	ptext.SwitchFormat();
 	EXPECT_EQ(ptext, dtext);
 	delete[] x;
-
-	ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().Destroy();
 }
 
 void UnitTesKPABENANDGATE(int32_t base, usint k, usint ringDimension){
@@ -497,8 +495,6 @@ void UnitTesKPABENANDGATE(int32_t base, usint k, usint ringDimension){
 	ptext.SwitchFormat();
 	EXPECT_EQ(ptext, dtext);
 	delete[] x;
-
-	ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().Destroy();
 }
 
 void UnitTestPolyVecDecomp(int32_t base, usint k, usint ringDimension){

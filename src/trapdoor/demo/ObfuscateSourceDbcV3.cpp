@@ -296,7 +296,6 @@ bool CONJOBF(bool dbg_flag, int n_evals, usint base) {
 		std::cout << "SUCCESS " << std::endl;
 	}
 
-	Poly::DestroyPreComputedSamples();
 	DiscreteFourierTransform::Reset();
 
 	return (errorflag);

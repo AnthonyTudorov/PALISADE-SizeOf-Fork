@@ -39,7 +39,7 @@ void KPABEBenchMarkCircuit(int32_t base, usint k, usint ringDimension, usint ite
 	usint n = ringDimension*2;   // cyclotomic order
 	usint ell = 4; // No of attributes
 
-	BigInteger q = BigInteger::ONE << (k-1);
+	BigInteger q = BigInteger(1) << (k-1);
 	q = lbcrypto::FirstPrime<BigInteger>(k,n);
 	BigInteger rootOfUnity(RootOfUnity(n, q));
 
@@ -59,7 +59,7 @@ void KPABEBenchMarkCircuit(int32_t base, usint k, usint ringDimension, usint ite
 	BinaryUniformGenerator bug = BinaryUniformGenerator();
 
 	// Precompuations for FTT
-	ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().PreCompute(rootOfUnity, n, q);
+	ChineseRemainderTransformFTT<BigInteger, BigVector>::PreCompute(rootOfUnity, n, q);
 
 	// Trapdoor Generation
 	std::pair<RingMat, RLWETrapdoorPair<Poly>> trapdoorA = RLWETrapdoorUtility<Poly>::TrapdoorGen(ilParams, SIGMA, base, true); // A.first is the public element
@@ -124,8 +124,6 @@ void KPABEBenchMarkCircuit(int32_t base, usint k, usint ringDimension, usint ite
 	if(ptext.GetValues() == dtext.GetValues()){
 		std::cout << "Decrypted Properly" << std::endl;
 	}
-
-	ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().Destroy();
 
 	}
 }
@@ -202,7 +200,7 @@ int KPABE_BenchmarkCircuitTestDCRT(usint iter, int32_t base)
 	DCRTPoly::DugType dug = DCRTPoly::DugType();
 
 	// Precompuations for FTT
-//	ChineseRemainderTransformFTT<native_int::BigInteger, BigVector>::GetInstance().PreCompute(rootOfUnity, n, q);
+//	ChineseRemainderTransformFTT<native_int::BigInteger, BigVector>::PreCompute(rootOfUnity, n, q);
 
 	// Trapdoor Generation
 	std::pair<RingMatDCRT, RLWETrapdoorPair<DCRTPoly>> trapdoorA = RLWETrapdoorUtility<DCRTPoly>::TrapdoorGen(ilDCRTParams, SIGMA, base, true); // A.first is the public element
@@ -302,8 +300,6 @@ int KPABE_BenchmarkCircuitTestDCRT(usint iter, int32_t base)
 
 
 	delete[] x;
-//	ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().Destroy();
-
 	return 0;
 }
 
@@ -411,7 +407,7 @@ void KPABE_NANDGATE(int32_t base, usint k, usint ringDimension){
 			usint n = ringDimension*2;
 			usint ell = 2; // No of attributes for NAND gate
 
-			BigInteger q = BigInteger::ONE << (k-1);
+			BigInteger q = BigInteger(1) << (k-1);
 			q = lbcrypto::FirstPrime<BigInteger>(k,n);
 			BigInteger rootOfUnity(RootOfUnity(n, q));
 
@@ -431,7 +427,7 @@ void KPABE_NANDGATE(int32_t base, usint k, usint ringDimension){
 			BinaryUniformGenerator bug = BinaryUniformGenerator();
 
 			// Precompuations for FTT
-			ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().PreCompute(rootOfUnity, n, q);
+			ChineseRemainderTransformFTT<BigInteger, BigVector>::PreCompute(rootOfUnity, n, q);
 
 			// Trapdoor Generation
 			std::pair<RingMat, RLWETrapdoorPair<Poly>> A = RLWETrapdoorUtility<Poly>::TrapdoorGen(ilParams, SIGMA, base, true);
@@ -627,7 +623,7 @@ void KPABEANDGate(int32_t base, usint k, usint ringDimension){
 		usint n = ringDimension*2;
 		usint ell = 4; // No of attributes for AND gate
 
-		BigInteger q = BigInteger::ONE << (k-1);
+		BigInteger q = BigInteger(1) << (k-1);
 		q = lbcrypto::FirstPrime<BigInteger>(k,n);
 		BigInteger rootOfUnity(RootOfUnity(n, q));
 
@@ -646,7 +642,7 @@ void KPABEANDGate(int32_t base, usint k, usint ringDimension){
 		BinaryUniformGenerator bug = BinaryUniformGenerator();
 
 		// Precompuations for FTT
-		ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().PreCompute(rootOfUnity, n, q);
+		ChineseRemainderTransformFTT<BigInteger, BigVector>::PreCompute(rootOfUnity, n, q);
 
 		// Trapdoor Generation
 		std::pair<RingMat, RLWETrapdoorPair<Poly>> A = RLWETrapdoorUtility<Poly>::TrapdoorGen(ilParams, SIGMA, base, true);

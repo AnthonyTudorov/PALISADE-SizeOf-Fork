@@ -63,10 +63,10 @@
 //To select backend, please UNCOMMENT the appropriate line rather than changing the number on the
 //uncommented line (and breaking the documentation of the line)
 
-//#define MATHBACKEND 2
+#define MATHBACKEND 2
 //#define MATHBACKEND 4
 //#define MATHBACKEND 6
-#define MATHBACKEND 7
+//#define MATHBACKEND 7
 
 ////////// cpu_int code
 #include "cpu_int/binint.cpp"

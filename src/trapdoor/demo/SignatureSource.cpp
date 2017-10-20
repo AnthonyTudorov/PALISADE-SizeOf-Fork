@@ -79,7 +79,6 @@ void MultiThreadedRun() {
 	start = currentDateTime();
 	ChineseRemainderTransformFTT<BigInteger,BigVector>::PreCompute(srootOfUnity, sm, smodulus);
 	DiscreteFourierTransform::PreComputeTable(sm);
-	Poly::PreComputeDggSamples(dgg, silParams);
 	finish = currentDateTime();
 	std::cout << "Precomputation time: " << finish - start << " ms" << std::endl;
 
@@ -206,7 +205,6 @@ void SingleThreadedRun() {
 		std::cout << "Signature precomputations" << std::endl;
 		ChineseRemainderTransformFTT<BigInteger,BigVector>::PreCompute(srootOfUnity, sm, smodulus);
 		DiscreteFourierTransform::PreComputeTable(sm);
-		Poly::PreComputeDggSamples(dgg, silParams);
 		std::cout << "Precomputation time: " << finish - start << " ms" << std::endl;
 		LPSignatureParameters<Poly> signParams(silParams, dgg);
 		//LPSignKeyGPV<Poly> s_k(signParams);
@@ -273,7 +271,6 @@ void SingleThreadedRun() {
 		std::cout << "Signature precomputations" << std::endl;
 		start = currentDateTime();
 		ChineseRemainderTransformFTT<BigInteger,BigVector>::PreCompute(srootOfUnity, sm, smodulus);
-		Poly::PreComputeDggSamples(dgg, silParams);
 		finish = currentDateTime();
 		std::cout << "Precomputation time: " << finish - start << " ms" << std::endl;
 
@@ -326,7 +323,6 @@ void SingleThreadedRun() {
 		start = currentDateTime();
 		ChineseRemainderTransformFTT<BigInteger,BigVector>::PreCompute(srootOfUnity, sm, smodulus);
 		DiscreteFourierTransform::PreComputeTable(sm);
-		Poly::PreComputeDggSamples(dgg, silParams);
 		finish = currentDateTime();
 		std::cout << "Precomputation time: " << finish - start << " ms" << std::endl;
 
@@ -397,7 +393,6 @@ void SingleThreadedRun() {
 		std::cout << "Signature precomputations" << std::endl;
 		start = currentDateTime();
 		ChineseRemainderTransformFTT<BigInteger,BigVector>::PreCompute(srootOfUnity, sm, smodulus);
-		Poly::PreComputeDggSamples(dgg, silParams);
 		DiscreteFourierTransform::PreComputeTable(sm);
 		finish = currentDateTime();
 		std::cout << "Precomputation time: " << finish - start << " ms" << std::endl << std::endl;
@@ -470,7 +465,6 @@ void SingleThreadedRun() {
 		std::cout << "Signature precomputations" << std::endl;
 		start = currentDateTime();
 		ChineseRemainderTransformFTT<BigInteger,BigVector>::PreCompute(srootOfUnity, sm, smodulus);
-		Poly::PreComputeDggSamples(dgg, silParams);
 		DiscreteFourierTransform::PreComputeTable(sm);
 		finish = currentDateTime();
 		std::cout << "Precomputation time: " << finish - start << " ms" << std::endl;

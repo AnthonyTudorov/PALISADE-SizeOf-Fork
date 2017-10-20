@@ -103,7 +103,7 @@ TEST(UTTransform, CRT_polynomial_multiplication){
 
 TEST(UTTransform, CRT_polynomial_multiplication_small) {
 
-	bool dbg_flag = false;
+	bool dbg_flag = true;
 
 	usint m = 22;
 	BigInteger squareRootOfRoot(3750);
@@ -114,7 +114,7 @@ TEST(UTTransform, CRT_polynomial_multiplication_small) {
 
 	DEBUG("m is " << m << " and n is " << n);
 	auto cycloPoly =  GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulus);
-	DEBUG("2");
+	DEBUG("2 " << cycloPoly);
 
 	//ChineseRemainderTransformArb<BigInteger, BigVector>::PreCompute(m, modulus);
 	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly,modulus);
@@ -123,19 +123,19 @@ TEST(UTTransform, CRT_polynomial_multiplication_small) {
 	BigVector a(n, modulus);
 	a = { 1,2,3,4,5,6,7,8,9,10 };
 	auto A = ChineseRemainderTransformArb<BigInteger, BigVector>::ForwardTransform(a, squareRootOfRoot, bigModulus, bigRoot, m);
-	DEBUG("4");
+	DEBUG("4 " << A);
 
 	BigVector b(n, modulus);
 	b = { 5,6,7,8,9,10,11,12,13,14 };
 	auto B = ChineseRemainderTransformArb<BigInteger, BigVector>::ForwardTransform(b, squareRootOfRoot, bigModulus, bigRoot, m);
-	DEBUG("5");
+	DEBUG("5 " << B);
 
 	auto C = A*B;
-	DEBUG("6");
+	DEBUG("6 " << C);
 
 	auto c = ChineseRemainderTransformArb<BigInteger, BigVector>::InverseTransform(C, squareRootOfRoot, bigModulus, bigRoot, m);
 
-	DEBUG("7");
+	DEBUG("7 " << c );
 	auto cCheck = PolynomialMultiplication(a, b);
 
 	DEBUG("8");
