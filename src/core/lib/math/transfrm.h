@@ -68,6 +68,11 @@ namespace lbcrypto {
 
 		auto modulus = element.GetModulus();
 
+		//Precompute the Barrett mu parameter
+#if !defined(NTL_SPEEDUP)
+		IntType mu = ComputeMu<IntType>(modulus);
+#endif
+
 		if( result->GetLength() != n )
 			throw std::logic_error("Vector for NumberTheoreticTransform::ForwardTransformIterative size needs to be == cyclotomic order");
 		result->SetModulus(modulus);
@@ -85,16 +90,11 @@ namespace lbcrypto {
 		/*Ring dimension factor calculates the ratio between the cyclotomic order of the root of unity table
 			  that was generated originally and the cyclotomic order of the current VecType. The twiddle table
 			  for lower cyclotomic orders is smaller. This trick only works for powers of two cyclotomics.*/
-		int ringDimensionFactor = rootOfUnityTable.GetLength() / cycloOrder;
-		DEBUG("table size " << rootOfUnityTable.GetLength());
-		DEBUG("ring dimension factor " << ringDimensionFactor);
-
-		//Precompute the Barrett mu parameter
-#if !defined(NTL_SPEEDUP)
-		IntType mu = ComputeMu<IntType>(element.GetModulus());
-#else
-		IntType modulus = element.GetModulus();
-#endif
+		float ringDimensionFactor = (float)rootOfUnityTable.GetLength() / (float)cycloOrder;
+		DEBUG("rootOfUnityTable.GetLength() " << rootOfUnityTable.GetLength());
+		DEBUG("cycloOrder " << cycloOrder);
+		DEBUG("ringDimensionFactor " << ringDimensionFactor);
+		DEBUG("n " << n);
 
 		usint logn = log2(n);
 
@@ -125,13 +125,11 @@ namespace lbcrypto {
 						else
 						{
 #if !defined(NTL_SPEEDUP)
-
-							omegaFactor = omega.ModBarrettMul(result->GetValAtIndex(indexOdd),element.GetModulus(), mu);
-
+							omegaFactor = omega.ModBarrettMul(oddVal,modulus,mu);
 #else
-							omegaFactor = omega.ModMulFast(result->GetValAtIndex(indexOdd),modulus);
+							omegaFactor = omega.ModMulFast(oddVal,modulus);
 #endif
-							DEBUG("omegaFactor "<<omegaFactor);
+							//DEBUG("omegaFactor "<<omegaFactor);
 						}
 
 #if !defined(NTL_SPEEDUP)

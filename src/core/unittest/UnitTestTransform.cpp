@@ -103,7 +103,7 @@ TEST(UTTransform, CRT_polynomial_multiplication){
 
 TEST(UTTransform, CRT_polynomial_multiplication_small) {
 
-	bool dbg_flag = true;
+	bool dbg_flag = false;
 
 	usint m = 22;
 	BigInteger squareRootOfRoot(3750);
