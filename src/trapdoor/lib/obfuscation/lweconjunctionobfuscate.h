@@ -53,7 +53,7 @@ namespace lbcrypto {
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
-	class ClearLWEConjunctionPattern : public ClearPattern<Element>, public ConjunctionPattern<Element>  {
+	  class ClearLWEConjunctionPattern : public ClearPattern<Element>, public ConjunctionPattern<Element>, public Serializable {
 	public:
 
 		/**

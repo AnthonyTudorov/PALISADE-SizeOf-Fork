@@ -155,12 +155,26 @@ bool Matrix<NativePoly>::Deserialize(const Serialized& serObj) {
 
 template<>
 bool Matrix<DCRTPoly>::Serialize(Serialized* serObj) const {
-	return false;
+  std::cout <<" Matrix<DCRTPoly>::Serialize, unsupported, use SerializeMatrix"<<std::endl;
+  if( !serObj->IsObject() ) {
+    std::cout <<" Matrix<DCRTPoly>::Serialize, serObj is not an object"<<std::endl;
+    return false;
+  }
+  
+  for( size_t r=0; r<rows; r++ ) {
+    for( size_t c=0; c<cols; c++ ) {
+      data[r][c]->Serialize(serObj); //call the serialization for this matrix
+    }
+  }
+
+  return true;
 }
 
 template<>
 bool Matrix<DCRTPoly>::Deserialize(const Serialized& serObj) {
-	return false;
+    std::cout <<" Matrix<DCRTPoly>::DeSerialize, not written"<<std::endl;
+
+  return false;
 }
 
 template<>

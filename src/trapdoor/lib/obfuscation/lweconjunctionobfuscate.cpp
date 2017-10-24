@@ -211,12 +211,45 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Serialize(Serialized* serObj) con
     DEBUG("ObfuscatedLWEConjunctionPattern::Serialize is obj failed");
     return false;
   }
+
+  //build serialization object to append to
   Serialized obj(rapidjson::kObjectType, &serObj->GetAllocator());
-
+  
+#if 0  //seems not to have a version for NTL
+  if (!m_elemParams->Serialize(&obj)){
+    std::cout<<"ObfuscatedLWEConjunctionPattern<Element>::Serialize failed to serialize m_elemParams"<< std::endl;
+    return false;
+  };
+#endif
+  //length of the pattern
   obj.AddMember("Length", std::to_string(this->GetLength()), obj.GetAllocator());
+  
+  //lattice security parameter
+  obj.AddMember("RootHermiteFactor", std::to_string(this->GetRootHermiteFactor()), obj.GetAllocator());
+  
+  //number of bits encoded by one matrix
+  obj.AddMember("ChunkSize", std::to_string(this->GetChunkSize()), obj.GetAllocator());
+  //base for G-sampling
+  obj.AddMember("Base", std::to_string(this->GetBase()), obj.GetAllocator());
+  
+#if 0
+  shared_ptr<vector< vector<shared_ptr<Matrix<Element>>> >> m_S_vec;
+  shared_ptr<vector< vector<shared_ptr<Matrix<Element>>> >> m_R_vec;
+  
+#endif
+  // m_Sl;
+  SerializeMatrix<Element>("Sl", Element::GetElementName(), *this->GetSl(), &obj);
+  // m_Rl
+  SerializeMatrix<Element>("Rl", Element::GetElementName(), *this->GetRl(), &obj);
 
-  serObj->AddMember("ObfuscatedLWEConjunctionPattern", obj.Move(), serObj->GetAllocator());
+#if 0
+  shared_ptr<std::vector<Matrix<Element>>> m_pk;
+  shared_ptr<std::vector<RLWETrapdoorPair<Element>>>   m_ek;
+#endif
 
+  // add them all to the serObj
+  serObj->AddMember("ObfuscatedLWEConjunctionPattern", obj, serObj->GetAllocator());
+  
   return true;
 };
 
@@ -245,20 +278,26 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Deserialize(const Serialized& ser
     DEBUGEXP(this->m_length);
 
 #if 0
-    this->m_elemParams;
+			//length of the pattern
+			usint m_length;
+			shared_ptr<typename Element::Params> m_elemParams;
 
-    this->m_chunkSize;
-    
-    this->m_S_vec = NULL;
-    
-    this->m_R_vec = NULL;
-    
-    this->m_Sl = NULL;
-    this->m_Rl = NULL;
-    
-    this->m_pk = NULL;
-    this->m_ek = NULL;
-    
+			//lattice security parameter
+			double m_rootHermiteFactor;
+
+			//number of bits encoded by one matrix
+			usint m_chunkSize;
+
+			//base for G-sampling
+			usint m_base;
+
+			shared_ptr<vector< vector<shared_ptr<Matrix<Element>>> >> m_S_vec;
+			shared_ptr<vector< vector<shared_ptr<Matrix<Element>>> >> m_R_vec;
+			shared_ptr<Matrix<Element>> m_Sl;
+			shared_ptr<Matrix<Element>> m_Rl;
+
+			shared_ptr<std::vector<Matrix<Element>>> m_pk;
+			shared_ptr<std::vector<RLWETrapdoorPair<Element>>>   m_ek;
 #endif
     return true;
 };

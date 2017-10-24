@@ -45,6 +45,7 @@
 #include <unordered_map>
 
 #include "../math/backend.h"
+#include "../math/matrix.h"
 #include "../lattice/poly.h"
 #include "../lattice/dcrtpoly.h"
 
@@ -252,6 +253,46 @@ bool DeserializeVectorOfPointers(const std::string& vectorName, const std::strin
 	}
 
 	return true;
+}
+
+ 
+template<typename T>
+void SerializeMatrix(const std::string &matrixName, const std::string &typeName, const Matrix<T> &inMatrix, Serialized* serObj) {
+	size_t rows = inMatrix.GetRows();
+	size_t cols = inMatrix.GetCols();
+
+	Serialized ser(rapidjson::kObjectType, &serObj->GetAllocator());
+	ser.AddMember("Container", "Matrix", serObj->GetAllocator());
+	ser.AddMember("Typename", typeName, serObj->GetAllocator());
+
+
+	ser.AddMember("NumRows", std::to_string(rows), serObj->GetAllocator());
+	ser.AddMember("NumColumns", std::to_string(cols), serObj->GetAllocator());
+
+	Serialized serElements(rapidjson::kObjectType, &serObj->GetAllocator());
+
+	for( size_t i=0; i<rows; i++ ) {
+		for( size_t j=0; j<cols; j++ ) {
+			bool rc = 0;
+			Serialized oneEl(rapidjson::kObjectType, &serObj->GetAllocator());
+			rc = ((inMatrix.GetData())[i][j])->Serialize(&oneEl);
+			if (!rc) {
+				std::cout<<"Serialize Failure Matrix type "
+					 << typeName
+					 << " ["<<i<<"]["<<j<<"]"<<std::endl;
+				return;
+			}
+			std::string keystring =std::to_string(i)
+				+ "," + std::to_string(j);
+			
+			SerialItem key(keystring , serObj->GetAllocator() );
+			serElements.AddMember(key, oneEl, serObj->GetAllocator());
+		}
+	}
+
+	ser.AddMember("Members", serElements, serObj->GetAllocator());
+
+	serObj->AddMember(SerialItem(matrixName, serObj->GetAllocator()), ser, serObj->GetAllocator());
 }
 
 class IStreamWrapper {
