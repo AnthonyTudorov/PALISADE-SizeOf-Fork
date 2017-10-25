@@ -109,8 +109,7 @@ uint_type BigInteger<uint_type,BITLENGTH>::ceilIntByUInt(const uint_type Number)
 template<typename uint_type,usint BITLENGTH>
 BigInteger<uint_type,BITLENGTH>::BigInteger()
 {
-	//last base-r digit set to 0
-	this->m_value[m_nSize-1] = 0;
+	memset(this->m_value, 0, sizeof(this->m_value));
 	//MSB set to zero since value set to ZERO
 	this->m_MSB = 0;
 
@@ -120,16 +119,18 @@ template<typename uint_type,usint BITLENGTH>
 BigInteger<uint_type,BITLENGTH>::BigInteger(uint64_t init){
 	//setting the MSB
 	usint msb = lbcrypto::GetMSB64(init);
+	this->m_MSB = msb;
 
 	uint_type ceilInt = ceilIntByUInt(msb);
+	int i = m_nSize - 1;
 	//setting the values of the array
-	for(size_t i= m_nSize-1;i>= m_nSize-ceilInt;i--){
+	for(;i>= (int)(m_nSize-ceilInt);i--){
 		this->m_value[i] = (uint_type)init;
 		init>>=m_uintBitLength;
 	}
-
-	this->m_MSB = msb;
-
+	for(;i>=0;i--) {
+		this->m_value[i] = 0;
+	}
 }
 
 template<typename uint_type,usint BITLENGTH>
@@ -1054,7 +1055,7 @@ void BigInteger<uint_type,BITLENGTH>::AssignVal(const std::string& v){
 	//we increment the pointer to the next char when we get the complete value of the char array
 	
 	sint cnt=m_uintBitLength-1;
-	//cnt8 is a pointer to the bit position in bitArr, when bitArr is compelete it is ready to be transfered to Value
+	//cnt8 is a pointer to the bit position in bitArr, when bitArr is complete it is ready to be transfered to Value
 	while(zptr!=arrSize){
 		bitArr[cnt]=DecValue[arrSize-1]%2;
 		//start divide by 2 in the DecValue array
@@ -1072,11 +1073,14 @@ void BigInteger<uint_type,BITLENGTH>::AssignVal(const std::string& v){
 		cnt--;
 		if(cnt==-1){//cnt = -1 indicates bitArr is ready for transfer
 			cnt=m_uintBitLength-1;
+			if( bitValPtr < 0 )
+				throw std::logic_error("string " + v + " cannot fit into BigInteger");
 			m_value[bitValPtr--]= UintInBinaryToDecimal(bitArr);//UintInBinaryToDecimal converts bitArr to decimal and resets the content of bitArr.
 		}
 		if(DecValue[zptr]==0)zptr++;//division makes Most significant digit zero, hence we increment zptr to next value
 		if(zptr==arrSize&&DecValue[arrSize-1]==0)m_value[bitValPtr]=UintInBinaryToDecimal(bitArr);//Value assignment
 	}
+
 	SetMSB(bitValPtr);
 	delete []bitArr;
 	delete[] DecValue;//deallocate memory

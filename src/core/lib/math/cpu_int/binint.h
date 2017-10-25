@@ -44,6 +44,7 @@
 #include <stdexcept>
 #include <functional>
 #include <cstdlib>
+#include <cstring>
 #include <memory>
 #include "../../utils/inttypes.h"
 #include "../../utils/memory.h"
