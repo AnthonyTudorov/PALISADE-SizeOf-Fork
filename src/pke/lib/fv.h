@@ -242,6 +242,13 @@ namespace lbcrypto {
 			const BigInteger& GetBigRootOfUnityArb() const { return m_bigRootOfUnityArb; }
 
 			/**
+			* Gets the precomputed table of [(q/qi)^{-1}]_qi / qi
+			*
+			* @return the precomputed table
+			*/
+			const std::vector<double>& GetDCRTPolyDecryptionTable() const { return m_DCRTPolyDecryptionTable; }
+
+			/**
 			* Sets the value of the delta factor
 			* @param &delta is the delta factor
 			*/
@@ -275,6 +282,13 @@ namespace lbcrypto {
 			* Sets primitive root of unity used for polynomial multiplications in EvalMult (arbitrary cyclotomics)
 			*/
 			void SetBigRootOfUnityArb(const BigInteger &bigRootOfUnityArb) { m_bigRootOfUnityArb = bigRootOfUnityArb; }
+
+			/**
+			* Sets the precomputation table of [(q/qi)^{-1}]_qi / qi
+			*
+			* @param &DCRTPolyDecryptionTable is the precomputed table
+			*/
+			void SetDCRTPolyDecryptionTable(const std::vector<double> &DCRTPolyDecryptionTable) { m_DCRTPolyDecryptionTable = DCRTPolyDecryptionTable; }
 
 			/**
 			* == operator to compare to this instance of LPCryptoParametersFV object. 
@@ -327,6 +341,9 @@ namespace lbcrypto {
 
 			// Primitive root of unity for m_bigModulusArb
 			BigInteger m_bigRootOfUnityArb;
+
+			// DCRTPoly decryption ratios; stores a precomputed table of [(q/qi)^{-1}]_qi / qi
+			std::vector<double> m_DCRTPolyDecryptionTable;
 	};
 
 	/**

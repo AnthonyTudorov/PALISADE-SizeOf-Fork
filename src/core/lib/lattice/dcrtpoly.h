@@ -508,6 +508,14 @@ public:
 	DCRTPolyType Times(const IntType &element) const;
 
 	/**
+	* @brief Scalar multiplication by an integer represented in CRT Basis.
+	*
+	* @param &element is the element to multiply entry-wise.
+	* @return is the return value of the times operation.
+	*/
+	DCRTPolyType Times(const std::vector<native_int::BigInteger> &element) const;
+
+	/**
 	* @brief Scalar multiplication followed by division and rounding operation - operation on all entries.
 	*
 	* @param &p is the element to multiply entry-wise.
@@ -661,6 +669,15 @@ public:
 	* @return the interpolated ring element embeded into DCRTPoly.
 	*/
 	Poly CRTInterpolate() const;
+
+	/**
+	* @brief Computes [Round(\sum_i p*x_i*lyam_i)] mod p for fast rounding
+	*
+	* @param &p 64-bit integer (often corresponds to the plaintext modulus)
+	* @param &lyam a vector of precomputed floating-point numbers between 0 and 1
+	* @return the result of computation as a polynomial with native integers as coefficients
+	*/
+	Poly ScaleAndRound(const native_int::BigInteger &p, const std::vector<double> &lyam) const;
 
 	/**
 	* @brief Convert from Coefficient to CRT or vice versa; calls FFT and inverse FFT.

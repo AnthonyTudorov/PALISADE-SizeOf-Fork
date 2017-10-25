@@ -955,6 +955,35 @@ Poly DCRTPolyImpl<ModType,IntType,VecType,ParmType>::CRTInterpolate() const
 	return std::move( polynomialReconstructed );
 }
 
+template<typename ModType, typename IntType, typename VecType, typename ParmType>
+Poly DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const native_int::BigInteger &p, const std::vector<double> &lyam) const {
+
+	usint ringDimension = GetRingDimension();
+	usint nTowers = m_vectors.size();
+
+	BigInteger plaintextModulus = BigInteger(p.ConvertToInt());
+
+	// this is the resulting vector of coefficients
+	BigVector coefficients(ringDimension, plaintextModulus);
+
+	for( usint ri = 0; ri < ringDimension; ri++ ) {
+		uint64_t curIntSum = 0;
+		double curFloatSum = 0;
+		for( usint vi = 0; vi < nTowers; vi++ ) {
+			curIntSum += m_vectors[vi].GetValues()[ri].ConvertToInt()*p.ConvertToInt()/m_vectors[vi].GetModulus().ConvertToInt();
+			curFloatSum += ((m_vectors[vi].GetValues()[ri].ConvertToInt()*p.ConvertToInt())%m_vectors[vi].GetModulus().ConvertToInt())*lyam[vi];
+		}
+		coefficients[ri] = BigInteger(curIntSum + std::lround(curFloatSum)).Mod(plaintextModulus);
+	}
+
+	// Setting the root of unity to ONE as the calculation is expensive and not required.
+	Poly polynomialReconstructed( shared_ptr<ILParams>( new ILParams(GetCyclotomicOrder(), BigInteger(p.ConvertToInt()), 1) ) );
+	polynomialReconstructed.SetValues(coefficients,COEFFICIENT);
+
+	return std::move(polynomialReconstructed);
+
+}
+
 /*Switch format calls IlVector2n's switchformat*/
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
 void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::SwitchFormat()
