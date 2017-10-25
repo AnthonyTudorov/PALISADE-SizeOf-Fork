@@ -52,7 +52,7 @@ int IBE_Test(int iter, int32_t base, usint ringDimension, usint k/*, BigInteger 
 
 	usint n = ringDimension*2;
 
-	BigInteger q = BigInteger::ONE << (k-1);
+	BigInteger q = 1 << (k-1);
 	q = lbcrypto::FirstPrime<BigInteger>(k,n);
 	BigInteger rootOfUnity(RootOfUnity(n, q));
 
@@ -76,7 +76,7 @@ int IBE_Test(int iter, int32_t base, usint ringDimension, usint k/*, BigInteger 
 	BinaryUniformGenerator bug = BinaryUniformGenerator();
 
 	// Precompuations for FTT
-	ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().PreCompute(rootOfUnity, n, q);
+	ChineseRemainderTransformFTT<BigInteger, BigVector>::PreCompute(rootOfUnity, n, q);
 
 	// for timing
 	long double start, finish, avg_keygen_offline, avg_keygen_online, avg_enc, avg_dec;
@@ -156,8 +156,6 @@ int IBE_Test(int iter, int32_t base, usint ringDimension, usint k/*, BigInteger 
 		std::cout << "Average decryption time : " << "\t" << (avg_dec)/iter << " ms" << std::endl;
 		std::cout << "----------------------------------------------------------------" << std::endl;
 	}
-
-	ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().Destroy();
 
 	return 0;
 }

@@ -101,7 +101,7 @@ BV primitiveTransform(usint logn, const BI modulus, const BV& input, const BV& r
 	return result;
 }
 
-BigVector precomputedTransform(usint logn, BigInteger modulus, const BigVector& input, const BigVector& rootOfUnityTable){
+BigVector precomputedTransform(usint logn, const BigInteger& modulus, const BigVector& input, const BigVector& rootOfUnityTable){
 	usint n = (1 << logn);
 	BigInteger mu = ComputeMu<BigInteger>(modulus);
 	BigVector element(n, modulus);
@@ -134,23 +134,26 @@ BigVector precomputedTransform(usint logn, BigInteger modulus, const BigVector& 
 
 				usint indexEven = j + i;
 				usint indexOdd = j + i + (1 << (logm-1));
+				auto oddVal = result.GetValAtIndex(indexOdd);
+				auto oddMSB = oddVal.GetMSB();
+				auto evenVal = result.GetValAtIndex(indexEven);
 
-				if (result.GetValAtIndex(indexOdd).GetMSB()>0)
+				if (oddMSB > 0)
 				{
 
-					if (result.GetValAtIndex(indexOdd).GetMSB() == 1)
+					if (oddMSB == 1)
 						omegaFactor = omega;
 					else
-						omegaFactor = omega.ModBarrettMul(result.GetValAtIndex(indexOdd), modulus, mu);
+						omegaFactor = omega.ModBarrettMul(oddVal, modulus, mu);
 
-					butterflyPlus = result.GetValAtIndex(indexEven);
+					butterflyPlus = evenVal;
 					butterflyPlus += omegaFactor;
-					if (butterflyPlus >= element.GetModulus())
-						butterflyPlus -= element.GetModulus();
+					if (butterflyPlus >= modulus)
+						butterflyPlus -= modulus;
 
-					butterflyMinus = result.GetValAtIndex(indexEven);
-					if (result.GetValAtIndex(indexEven) < omegaFactor)
-						butterflyMinus += element.GetModulus();
+					butterflyMinus = evenVal;
+					if (butterflyMinus < omegaFactor)
+						butterflyMinus += modulus;
 					butterflyMinus -= omegaFactor;
 
 					result.SetValAtIndex(indexEven, butterflyPlus);
@@ -165,11 +168,10 @@ BigVector precomputedTransform(usint logn, BigInteger modulus, const BigVector& 
 
 		}
 	}
-
 	return result;
 }
 
-BigVector baselineTransform(usint n, BigInteger modulus, BigVector input, BigInteger rootOfUnity){
+BigVector baselineTransform(usint n, const BigInteger& modulus, const BigVector& input, const BigInteger& rootOfUnity){
 	BigVector rootOfUnityTable(n, modulus);
 	BigInteger mu = ComputeMu<BigInteger>(modulus);
 	BigInteger t(1);
@@ -262,7 +264,7 @@ int main() {
 
 	BigInteger modulusQ("9223372036589678593");
 	BigInteger rootOfUnity("5356268145311420142");
-	BigInteger delta(modulusQ.DividedBy(modulusP));
+	//BigInteger delta(modulusQ.DividedBy(modulusP));
 
 	uint64_t nRep;
 	double start, stop;
@@ -271,32 +273,6 @@ int main() {
 	for(usint i=0; i<phim; i++){
 		x.SetValAtIndex(i, BigInteger(i));
 	}
-	BigVector X, xx;
-	X = ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance()
-			.ForwardTransform(x, rootOfUnity, m);
-	xx = ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance()
-			.InverseTransform(X, rootOfUnity, m);
-	std::cout << X << std::endl;
-	std::cout << xx << std::endl;
-
-	nRep = 1000;
-	start = currentDateTime();
-	for(uint64_t n=0; n<nRep; n++){
-		X = ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance()
-				.ForwardTransform(x, rootOfUnity, m);
-	}
-	stop = currentDateTime();
-	std::cout << " Ttran: " << (stop-start)/nRep << std::endl;
-
-	BigVector output;
-	start = currentDateTime();
-	for(uint64_t n=0; n<nRep; n++){
-		output = baselineTransform(phim, modulusQ, x, rootOfUnity);
-	}
-	stop = currentDateTime();
-	std::cout << " Ttran_baseline: " << (stop-start)/nRep << std::endl;
-	std::cout << X << std::endl;
-	std::cout << output << std::endl;
 
 	BigVector rootOfUnityTable(phim, modulusQ);
 	BigInteger t(1);
@@ -305,14 +281,52 @@ int main() {
 		t = t.ModMul(rootOfUnity, modulusQ);
 	}
 
+	BigVector X(m/2), xx(m/2);
+	ChineseRemainderTransformFTT<BigInteger,BigVector>::ForwardTransform(x, rootOfUnity, m, &X);
+	ChineseRemainderTransformFTT<BigInteger,BigVector>::InverseTransform(X, rootOfUnity, m, &xx);
+	//std::cout << X << std::endl;
+	//std::cout << xx << std::endl;
+
+	nRep = 2500;
+	start = currentDateTime();
+	for(uint64_t n=0; n<nRep; n++){
+		ChineseRemainderTransformFTT<BigInteger,BigVector>::ForwardTransform(x, rootOfUnity, m, &X);
+	}
+	stop = currentDateTime();
+	std::cout << " Library Transform: " << (stop-start)/nRep << std::endl;
+
+	start = currentDateTime();
+	for(uint64_t n=0; n<nRep; n++){
+		BigVector InputToFFT(x);
+		usint ringDimensionFactor = rootOfUnityTable.GetLength() / (m / 2);
+		BigInteger mu = ComputeMu<BigInteger>(x.GetModulus());
+
+		for (usint i = 0; i<m / 2; i++)
+			InputToFFT.SetValAtIndex(i, x.GetValAtIndex(i).ModBarrettMul(rootOfUnityTable.GetValAtIndex(i*ringDimensionFactor), x.GetModulus(), mu));
+		NumberTheoreticTransform<BigInteger,BigVector>::ForwardTransformIterative(InputToFFT, rootOfUnityTable, m / 2, &X);
+	}
+	stop = currentDateTime();
+	std::cout << " Forward Iterative (with local cache) Transform: " << (stop-start)/nRep << std::endl;
+
+	BigVector output;
+	start = currentDateTime();
+	for(uint64_t n=0; n<nRep; n++){
+		output = baselineTransform(phim, modulusQ, x, rootOfUnity);
+	}
+	stop = currentDateTime();
+	std::cout << " Ttran_baseline: " << (stop-start)/nRep << std::endl;
+	//std::cout << X << std::endl;
+	//std::cout << output << std::endl;
+
+	BigVector result(1<<10);
 	start = currentDateTime();
 	for(uint64_t n=0; n<nRep; n++){
 		output = precomputedTransform(10, modulusQ, x, rootOfUnityTable);
 	}
 	stop = currentDateTime();
-	std::cout << " Ttran_precomputed: " << (stop-start)/nRep << std::endl;
-	std::cout << X << std::endl;
-	std::cout << output << std::endl;
+	std::cout << " Ttran_precomputed - this is our target: " << (stop-start)/nRep << std::endl;
+	//std::cout << X << std::endl;
+	//std::cout << output << std::endl;
 
 	nRep = 10000;
 	BI q = 9223372036589678593;
@@ -331,10 +345,10 @@ int main() {
 	}
 	stop = currentDateTime();
 	std::cout << " Ttran_prim: " << (stop-start)/nRep << std::endl;
-	std::cout << X << std::endl;
+	//std::cout << X << std::endl;
 	std::cout << "[";
 	for(usint i = 0; i < phim; i++){
-		std::cout << outVec[i] << " " ;
+	//	std::cout << outVec[i] << " " ;
 	}
 	std::cout << "]" << std::endl;
 

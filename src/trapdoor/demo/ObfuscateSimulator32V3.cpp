@@ -178,8 +178,8 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 	//This code is run only when performing execution time measurements
 
 	//Precomputations for FTT
-	ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(rootOfUnity, m, modulus);
-	DiscreteFourierTransform::GetInstance().PreComputeTable(m);
+	ChineseRemainderTransformFTT<BigInteger,BigVector>::PreCompute(rootOfUnity, m, modulus);
+	DiscreteFourierTransform::PreComputeTable(m);
 
 	//Precomputations for DGG
 	TIC(t1);
@@ -294,7 +294,7 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 		std::cout << "SUCCESS " << std::endl;
 	}
 
-	DiscreteFourierTransform::GetInstance().Destroy();
+	DiscreteFourierTransform::Reset();
 
 	return (errorflag);
 }

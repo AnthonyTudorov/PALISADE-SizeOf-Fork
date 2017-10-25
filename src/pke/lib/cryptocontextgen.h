@@ -38,7 +38,7 @@ using namespace lbcrypto;
 static const usint PrimeBits = 50;
 
 inline shared_ptr<CryptoContext<Poly>> GenCryptoContextElementNull(usint ORDER, usint ptm) {
-	shared_ptr<Poly::Params> p( new Poly::Params(ORDER, Poly::Integer(ptm), Poly::Integer::ONE) );
+	shared_ptr<Poly::Params> p( new Poly::Params(ORDER, Poly::Integer(ptm), 1) );
 	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextNull(p, ptm);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(PRE);

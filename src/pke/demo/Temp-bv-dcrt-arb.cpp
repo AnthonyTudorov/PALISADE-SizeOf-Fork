@@ -119,7 +119,7 @@ void ArbBVAutomorphismPackedArray(usint i) {
 		init_moduli[i] = q;
 		init_rootsOfUnity[i] = RootOfUnity(mArb, init_moduli[i]);
 		auto cycloPoly = GetCyclotomicPolynomial<native_int::BigVector, native_int::BigInteger>(m, q);
-		ChineseRemainderTransformArb<native_int::BigInteger, native_int::BigVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, q);
+		ChineseRemainderTransformArb<native_int::BigInteger, native_int::BigVector>::SetCylotomicPolynomial(cycloPoly, q);
 	}
 
 	// populate the towers for the big modulus
@@ -136,7 +136,7 @@ void ArbBVAutomorphismPackedArray(usint i) {
 		init_moduli_NTT[i] = q;
 		init_rootsOfUnity_NTT[i] = RootOfUnity(mNTT, init_moduli_NTT[i]);
 		auto cycloPoly = GetCyclotomicPolynomial<native_int::BigVector, native_int::BigInteger>(m, q);
-		ChineseRemainderTransformArb<native_int::BigInteger, native_int::BigVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, q);
+		ChineseRemainderTransformArb<native_int::BigInteger, native_int::BigVector>::SetCylotomicPolynomial(cycloPoly, q);
 	}
 
 	shared_ptr<ILDCRTParams<BigInteger>> paramsDCRT(new ILDCRTParams<BigInteger>(m, init_moduli, init_rootsOfUnity, init_moduli_NTT, init_rootsOfUnity_NTT));
@@ -153,7 +153,7 @@ void ArbBVAutomorphismPackedArray(usint i) {
 	//BigInteger bigroot("77936753846653065954043047918387");
 
 	//auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
-	//ChineseRemainderTransformArb<BigInteger, BigVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulusQ);
+	//ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 
 	float stdDev = 4;
@@ -232,7 +232,7 @@ void EvalMult() {
 		init_moduli[i] = q;
 		init_rootsOfUnity[i] = RootOfUnity(mArb, init_moduli[i]);
 		auto cycloPoly = GetCyclotomicPolynomial<native_int::BigVector, native_int::BigInteger>(m, q);
-		ChineseRemainderTransformArb<native_int::BigInteger, native_int::BigVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, q);
+		ChineseRemainderTransformArb<native_int::BigInteger, native_int::BigVector>::SetCylotomicPolynomial(cycloPoly, q);
 	}
 
 	// populate the towers for the big modulus
@@ -251,7 +251,7 @@ void EvalMult() {
 		init_moduli_NTT[i] = q;
 		init_rootsOfUnity_NTT[i] = RootOfUnity(mNTT, init_moduli_NTT[i]);
 		auto cycloPoly = GetCyclotomicPolynomial<native_int::BigVector, native_int::BigInteger>(m, q);
-		ChineseRemainderTransformArb<native_int::BigInteger, native_int::BigVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, q);
+		ChineseRemainderTransformArb<native_int::BigInteger, native_int::BigVector>::SetCylotomicPolynomial(cycloPoly, q);
 	}
 
 	shared_ptr<ILDCRTParams<BigInteger>> paramsDCRT(new ILDCRTParams<BigInteger>(m, init_moduli, init_rootsOfUnity, init_moduli_NTT, init_rootsOfUnity_NTT));
@@ -268,7 +268,7 @@ void EvalMult() {
 	//BigInteger bigroot("77936753846653065954043047918387");
 
 	//auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
-	//ChineseRemainderTransformArb<BigInteger, BigVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulusQ);
+	//ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 
 	float stdDev = 4;
@@ -356,7 +356,7 @@ void ArbNullAutomorphismPackedArray(usint i) {
 		init_moduli[i] = q;
 		init_rootsOfUnity[i] = RootOfUnity(mArb, init_moduli[i]);
 		auto cycloPoly = GetCyclotomicPolynomial<native_int::BigVector, native_int::BigInteger>(m, q);
-		ChineseRemainderTransformArb<native_int::BigInteger, native_int::BigVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, q);
+		ChineseRemainderTransformArb<native_int::BigInteger, native_int::BigVector>::SetCylotomicPolynomial(cycloPoly, q);
 	}
 
 	// populate the towers for the big modulus
@@ -373,7 +373,7 @@ void ArbNullAutomorphismPackedArray(usint i) {
 		init_moduli_NTT[i] = q;
 		init_rootsOfUnity_NTT[i] = RootOfUnity(mNTT, init_moduli_NTT[i]);
 		auto cycloPoly = GetCyclotomicPolynomial<native_int::BigVector, native_int::BigInteger>(m, q);
-		ChineseRemainderTransformArb<native_int::BigInteger, native_int::BigVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, q);
+		ChineseRemainderTransformArb<native_int::BigInteger, native_int::BigVector>::SetCylotomicPolynomial(cycloPoly, q);
 	}
 
 	shared_ptr<ILDCRTParams<BigInteger>> paramsDCRT(new ILDCRTParams<BigInteger>(m, init_moduli, init_rootsOfUnity, init_moduli_NTT, init_rootsOfUnity_NTT));
@@ -390,7 +390,7 @@ void ArbNullAutomorphismPackedArray(usint i) {
 	//BigInteger bigroot("77936753846653065954043047918387");
 
 	//auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
-	//ChineseRemainderTransformArb<BigInteger, BigVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, modulusQ);
+	//ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 
 	shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextNull(paramsDCRT, p);
@@ -473,7 +473,7 @@ void ArbBVInnerProductPackedArray() {
 		init_moduli[i] = q;
 		init_rootsOfUnity[i] = RootOfUnity(mArb, init_moduli[i]);
 		auto cycloPoly = GetCyclotomicPolynomial<native_int::BigVector, native_int::BigInteger>(m, q);
-		ChineseRemainderTransformArb<native_int::BigInteger, native_int::BigVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, q);
+		ChineseRemainderTransformArb<native_int::BigInteger, native_int::BigVector>::SetCylotomicPolynomial(cycloPoly, q);
 	}
 
 	// populate the towers for the big modulus
@@ -490,7 +490,7 @@ void ArbBVInnerProductPackedArray() {
 		init_moduli_NTT[i] = q;
 		init_rootsOfUnity_NTT[i] = RootOfUnity(mNTT, init_moduli_NTT[i]);
 		auto cycloPoly = GetCyclotomicPolynomial<native_int::BigVector, native_int::BigInteger>(m, q);
-		ChineseRemainderTransformArb<native_int::BigInteger, native_int::BigVector>::GetInstance().SetCylotomicPolynomial(cycloPoly, q);
+		ChineseRemainderTransformArb<native_int::BigInteger, native_int::BigVector>::SetCylotomicPolynomial(cycloPoly, q);
 	}
 
 	shared_ptr<ILDCRTParams<BigInteger>> paramsDCRT(new ILDCRTParams<BigInteger>(m, init_moduli, init_rootsOfUnity, init_moduli_NTT, init_rootsOfUnity_NTT));

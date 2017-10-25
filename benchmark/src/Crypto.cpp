@@ -66,7 +66,7 @@ void BM_keygen(benchmark::State& state) { // benchmark
 		cc->Enable(PRE);
 
 		try {
-		ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(cc->GetRootOfUnity(),
+		ChineseRemainderTransformFTT<BigInteger,BigVector>::PreCompute(cc->GetRootOfUnity(),
 				cc->GetCyclotomicOrder(),
 				cc->GetModulus());
 		} catch( ... ) {}
@@ -108,7 +108,7 @@ void BM_encrypt(benchmark::State& state) { // benchmark
 		cc->Enable(PRE);
 
 		try {
-		ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(cc->GetRootOfUnity(),
+		ChineseRemainderTransformFTT<BigInteger,BigVector>::PreCompute(cc->GetRootOfUnity(),
 				cc->GetCyclotomicOrder(),
 				cc->GetModulus());
 		} catch( ... ) {}
@@ -169,7 +169,7 @@ void BM_decrypt(benchmark::State& state) { // benchmark
 		cc->Enable(PRE);
 
 		try {
-		ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(cc->GetRootOfUnity(),
+		ChineseRemainderTransformFTT<BigInteger,BigVector>::PreCompute(cc->GetRootOfUnity(),
 				cc->GetCyclotomicOrder(),
 				cc->GetModulus());
 		} catch( ... ) {}
@@ -231,7 +231,7 @@ void BM_rekeygen(benchmark::State& state) { // benchmark
 		cc->Enable(PRE);
 
 		try {
-		ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(cc->GetRootOfUnity(),
+		ChineseRemainderTransformFTT<BigInteger,BigVector>::PreCompute(cc->GetRootOfUnity(),
 				cc->GetCyclotomicOrder(),
 				cc->GetModulus());
 		} catch( ... ) {}
@@ -285,7 +285,7 @@ void BM_reencrypt(benchmark::State& state) { // benchmark
 		cc->Enable(PRE);
 
 		try {
-		ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(cc->GetRootOfUnity(),
+		ChineseRemainderTransformFTT<BigInteger,BigVector>::PreCompute(cc->GetRootOfUnity(),
 				cc->GetCyclotomicOrder(),
 				cc->GetModulus());
 		} catch( ... ) {}
@@ -355,8 +355,8 @@ static void BM_SOURCE(benchmark::State& state) {
 	  NTRUPRE(state.range_x());
 
 	  //std::cin.get();
-	  ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().Destroy();
-	  NumberTheoreticTransform::GetInstance().Destroy();
+	  ChineseRemainderTransformFTT<BigInteger,BigVector>::Destroy();
+	  NumberTheoreticTransform::Destroy();
 	}
 
 	return ;
@@ -428,7 +428,7 @@ void NTRUPRE(int input) {
 
 	//This code is run only when performing execution time measurements
 	//Precomputations for FTT
-	ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(BigInteger(rootOfUnity), m, BigInteger(modulus));
+	ChineseRemainderTransformFTT<BigInteger,BigVector>::PreCompute(BigInteger(rootOfUnity), m, BigInteger(modulus));
 
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp;

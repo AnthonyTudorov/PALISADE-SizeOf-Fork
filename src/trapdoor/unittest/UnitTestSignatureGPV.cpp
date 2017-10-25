@@ -55,7 +55,7 @@ TEST(UTSignatureGPV,simple_sign_verify) {
 
 	shared_ptr<ILParams> silParams( new ILParams(sm, smodulus, srootOfUnity) );
   DEBUG("Step 2");
-	ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
+	ChineseRemainderTransformFTT<BigInteger,BigVector>::PreCompute(srootOfUnity, sm, smodulus);
   DEBUG("Step 4");
 	LPSignatureParameters<Poly> signParams(silParams, dgg);
   DEBUG("Step 5");
@@ -92,7 +92,7 @@ TEST(UTSignatureGPV, simple_sign_verify_two_phase) {
 
 	shared_ptr<ILParams> silParams(new ILParams(sm, smodulus, srootOfUnity));
 	DEBUG("Step 2");
-	ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
+	ChineseRemainderTransformFTT<BigInteger,BigVector>::PreCompute(srootOfUnity, sm, smodulus);
 	DEBUG("Step 4");
 	LPSignatureParameters<Poly> signParams(silParams, dgg);
 	DEBUG("Step 5");
@@ -126,7 +126,7 @@ TEST(UTSignatureGPV, sign_verify_multiple_texts) {
 	BigInteger smodulus("1152921504606847009");
 	BigInteger srootOfUnity("405107564542978792");
 	shared_ptr<ILParams> silParams( new ILParams(sm, smodulus, srootOfUnity) );
-	ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
+	ChineseRemainderTransformFTT<BigInteger,BigVector>::PreCompute(srootOfUnity, sm, smodulus);
 	LPSignatureParameters<Poly> signParams(silParams, dgg);
 	LPSignKeyGPVGM<Poly> s_k(signParams);
 	LPVerificationKeyGPVGM<Poly> v_k(signParams);
@@ -161,7 +161,7 @@ TEST(UTSignatureGPV, sign_verify_multiple_keys) {
 	BigInteger smodulus("1152921504606847009");
 	BigInteger srootOfUnity("405107564542978792");
 	shared_ptr<ILParams> silParams( new ILParams(sm, smodulus, srootOfUnity) );
-	ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
+	ChineseRemainderTransformFTT<BigInteger,BigVector>::PreCompute(srootOfUnity, sm, smodulus);
 	LPSignatureParameters<Poly> signParams(silParams, dgg);
 	LPSignKeyGPVGM<Poly> s_k(signParams),s_k2(signParams);
 	LPVerificationKeyGPVGM<Poly> v_k(signParams),v_k2(signParams);

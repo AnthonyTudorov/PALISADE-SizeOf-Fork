@@ -102,11 +102,8 @@ void Run() {
 	//This code is run only when performing execution time measurements
 
 	//Precomputations for FTT
-	//ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(rootOfUnity, m, modulus);
-	DiscreteFourierTransform::GetInstance().PreComputeTable(m);
-
-	//Precomputations for DGG
-	//DCRTPoly::PreComputeDggSamples(dgg, ilParams);
+	//ChineseRemainderTransformFTT<BigInteger,BigVector>::PreCompute(rootOfUnity, m, modulus);
+	DiscreteFourierTransform::PreComputeTable(m);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -195,7 +192,7 @@ void Run() {
 	std::cout << " \nObfuscated pattern evaluation of : " << inputStr3 << " is " << result << "." <<std::endl;
 	//system("pause");
 
-	DiscreteFourierTransform::GetInstance().Destroy();
+	DiscreteFourierTransform::Reset();
 }
 
 

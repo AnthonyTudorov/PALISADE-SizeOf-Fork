@@ -582,9 +582,6 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 //
 //	DiscreteGaussianGenerator dgg(4);
 //
-//	// Precomputations for DGG
-//	Poly::PreComputeDggSamples(dgg, params);
-//
 //	ObfuscatedLWEConjunctionPattern<Poly> obfuscatedPattern(params,chunkSize);
 //	obfuscatedPattern.SetLength(1);
 //

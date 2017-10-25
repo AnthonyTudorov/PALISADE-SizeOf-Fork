@@ -200,9 +200,9 @@ namespace lbcrypto {
 			if (dec > qHalf)
 				dec = m_q - dec;
 			if (dec > threshold)
-				dtext->SetValAtIndex(i, BigInteger::ONE);
+				dtext->SetValAtIndex(i, BigInteger(1));
 			else
-				dtext->SetValAtIndex(i, BigInteger::ZERO);
+				dtext->SetValAtIndex(i, BigInteger(0));
 		}
 	}
 }

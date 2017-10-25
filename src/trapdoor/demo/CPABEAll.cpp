@@ -60,7 +60,7 @@ int CPABE_Test(int iter, int32_t base, usint ringDimension, usint k, usint ell,/
 //	k = 36;
 	usint n = ringDimension*2;
 
-	BigInteger q = BigInteger::ONE << (k-1);
+	BigInteger q = BigInteger(1) << (k-1);
 	q = lbcrypto::FirstPrime<BigInteger>(k,n);
 	BigInteger rootOfUnity = (RootOfUnity(n, q));
 
@@ -85,7 +85,7 @@ int CPABE_Test(int iter, int32_t base, usint ringDimension, usint k, usint ell,/
 	BinaryUniformGenerator bug = BinaryUniformGenerator();
 
 	// Precompuations for FTT
-	ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().PreCompute(rootOfUnity, n, q);
+	ChineseRemainderTransformFTT<BigInteger, BigVector>::PreCompute(rootOfUnity, n, q);
 
 	RingMat pubElemBPos(zero_alloc, ell, m);
 	RingMat pubElemBNeg(zero_alloc, ell, m);
@@ -216,7 +216,6 @@ int CPABE_Test(int iter, int32_t base, usint ringDimension, usint k, usint ell,/
 	delete[] w;
 	delete[] s;
 
-	ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().Destroy();
 	return 0;
 }
 

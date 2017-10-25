@@ -154,7 +154,7 @@ void EncryptionSchemeSimulation(usint count){
 	cc->Enable(PRE);
 
 	//Precomputations for FTT
-	ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(rootOfUnity, m, modulus);
+	ChineseRemainderTransformFTT<BigInteger,BigVector>::PreCompute(rootOfUnity, m, modulus);
 
 	//prepare the plaintext
 	BytePlaintextEncoding plaintext;
@@ -221,7 +221,7 @@ void EncryptionSchemeSimulation(usint count){
 
 	ptextFile.close();
 
-	ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().Destroy();
+	ChineseRemainderTransformFTT<BigInteger,BigVector>::Destroy();
 }
 
 
@@ -302,7 +302,7 @@ void PRESimulation(usint count, usint dataset){
 	cc->Enable(PRE);
 
 	// Precomputations for FTT
-	ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(rootOfUnity, m, modulus);
+	ChineseRemainderTransformFTT<BigInteger,BigVector>::PreCompute(rootOfUnity, m, modulus);
 
 	// prepare the plaintext
 	BytePlaintextEncoding plaintext;
@@ -533,7 +533,7 @@ void PRESimulation(usint count, usint dataset){
 
 	ptextFile.close();
 
-	ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().Destroy();
+	ChineseRemainderTransformFTT<BigInteger,BigVector>::Destroy();
 }
 
 // double currentDateTime()

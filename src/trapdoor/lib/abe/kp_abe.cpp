@@ -46,7 +46,7 @@ namespace lbcrypto {
 		usint ringDimesion = ilParams->GetCyclotomicOrder() >> 1;
 		usint m = k+2;
 		BigInteger q = ilParams->GetModulus();
-		auto big0 = BigInteger::ZERO;
+		auto big0 = BigInteger(0);
 		auto bigBase = BigInteger(base);
 		for(usint i=0; i<m; i++)
 			for(usint j=0; j<m; j++) {
@@ -777,7 +777,7 @@ template <class Element, class Element2>
 			for(usint si=0; si<m_m; si++) {
 				errCin(0, si).SetValuesToZero();
 				for(usint sj=0; sj<m_m; sj++) {
-					if(bug.GenerateInteger() == BigInteger::ONE)
+					if(bug.GenerateInteger() == BigInteger(1))
 						errCin(0, si) += errA(0, sj);
 					else
 						errCin(0, si) -= errA(0, sj);
@@ -881,9 +881,9 @@ template <class Element, class Element2>
 				dec = m_q - dec;
 
 			if (dec > threshold)
-				dtext->SetValAtIndex(i, BigInteger::ONE);
+				dtext->SetValAtIndex(i, BigInteger(1));
 			else
-				dtext->SetValAtIndex(i, BigInteger::ZERO);
+				dtext->SetValAtIndex(i, BigInteger(0));
 		}
 
 	}

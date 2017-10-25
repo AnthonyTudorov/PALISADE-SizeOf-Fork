@@ -185,7 +185,7 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n, size_t depth) {
 	//This code is run only when performing execution time measurements
 
 	//Precomputations for FTT
-	DiscreteFourierTransform::GetInstance().PreComputeTable(m);
+	DiscreteFourierTransform::PreComputeTable(m);
 
 	////////////////////////////////////////////////////////////
 	//Test the cleartext pattern
@@ -294,8 +294,6 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n, size_t depth) {
 	else {
 		std::cout << "SUCCESS " << std::endl;
 	}
-
-	DiscreteFourierTransform::GetInstance().Destroy();
 
 	return (errorflag);
 }

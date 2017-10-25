@@ -68,7 +68,7 @@ BigVectorImpl<IntegerType>::BigVectorImpl(usint length, const IntegerType& modul
 		if(i<len) {
 			m_data[i] =  IntegerType(*(rhs.begin()+i));  
 		} else {
-			m_data[i] = IntegerType::ZERO;
+			m_data[i] = 0;
 		}
 	}
 
@@ -84,7 +84,7 @@ BigVectorImpl<IntegerType>::BigVectorImpl(usint length, const IntegerType& modul
 		if(i<len) {
 			m_data[i] =  IntegerType(*(rhs.begin()+i));  
 		} else {
-			m_data[i] = IntegerType::ZERO;
+			m_data[i] = 0;
 		}
 	}
 }
@@ -251,18 +251,18 @@ void BigVectorImpl<IntegerType>::SwitchModulus(const IntegerType& newModulus) {
 
 }
 
-template<class IntegerType>
-const IntegerType& BigVectorImpl<IntegerType>::GetModulus() const{
-
-	return this->m_modulus;
-
-}
-
-
-template<class IntegerType>
-usint BigVectorImpl<IntegerType>::GetLength() const{
-	return this->m_length;
-}
+//template<class IntegerType>
+//const IntegerType& BigVectorImpl<IntegerType>::GetModulus() const{
+//
+//	return this->m_modulus;
+//
+//}
+//
+//
+//template<class IntegerType>
+//usint BigVectorImpl<IntegerType>::GetLength() const{
+//	return this->m_length;
+//}
 
 template<class IntegerType>
 BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::Mod(const IntegerType& modulus) const{

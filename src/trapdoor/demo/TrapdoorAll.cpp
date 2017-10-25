@@ -48,9 +48,7 @@ int main() {
 		MultiThreadedRun(i);
 	}
 
-	ChineseRemainderTransformFTT<BigInteger, BigVector>::GetInstance().Destroy();
-	NumberTheoreticTransform<BigInteger, BigVector>::GetInstance().Destroy();
-	DiscreteFourierTransform::GetInstance().Destroy();
+	DiscreteFourierTransform::Reset();
 
 	return 0;
 }
@@ -97,8 +95,8 @@ void MultiThreadedRun(int index) {
 	std::cout << "m: " << sm << " q: " << smodulus << " rootOfUnity: " << srootOfUnity << std::endl;
 	std::cout << "Signature precomputations" << std::endl;
 	start = currentDateTime();
-	ChineseRemainderTransformFTT<BigInteger,BigVector>::GetInstance().PreCompute(srootOfUnity, sm, smodulus);
-	DiscreteFourierTransform::GetInstance().PreComputeTable(sm);
+	ChineseRemainderTransformFTT<BigInteger,BigVector>::PreCompute(srootOfUnity, sm, smodulus);
+	DiscreteFourierTransform::PreComputeTable(sm);
 	finish = currentDateTime();
 	std::cout << "Precomputation time: " << finish - start << " ms" << std::endl;
 
