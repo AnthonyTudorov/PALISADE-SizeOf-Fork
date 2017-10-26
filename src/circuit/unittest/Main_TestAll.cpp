@@ -23,9 +23,6 @@ int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   int rv = RUN_ALL_TESTS();
 
-  std::cout << rv << ", press return to continue..." << std::endl;
-  std::cin.get();
-
-  return 0;
+  return rv;
 }
 
