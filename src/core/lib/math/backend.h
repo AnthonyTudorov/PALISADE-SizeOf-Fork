@@ -97,6 +97,12 @@ static_assert(cpu_int::DataTypeChecker<integral_dtype>::value,"Data type provide
 #error "BigIntegerBitLength is too small"
 #endif
 
+inline const std::string& GetMathBackendParameters() {
+	static std::string id = "Backend " + std::to_string(MATHBACKEND) +
+			(MATHBACKEND == 2 ? " internal int size " + std::to_string(sizeof(integral_dtype)*8) + " BitLength " + std::to_string(BigIntegerBitLength) : "");
+	return id;
+}
+
 ////////// for exp_int, decide if you want 32 bit or 64 bit underlying integers in the implementation
 #define UBINT_32
 //#define UBINT_64
