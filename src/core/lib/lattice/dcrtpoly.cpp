@@ -985,6 +985,7 @@ Poly DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const typenam
 		for( usint vi = 0; vi < nTowers; vi++ ) {
 			const typename PolyType::Integer &xi = m_vectors[vi].GetValues()[ri];
 			const typename PolyType::Integer &qi = m_vectors[vi].GetModulus();
+			//YSP: MultiplyAndDivideQuotient and MultiplyAndDivideRemainder can be combined in one call
 			curIntSum += xi.MultiplyAndDivideQuotient(p,qi).ModMulFast(qInv[vi],p);
 			curFloatSum += xi.MultiplyAndDivideRemainder(p,qi).ConvertToInt()*lyam[vi];
 		}
