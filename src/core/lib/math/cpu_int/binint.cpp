@@ -754,16 +754,16 @@ const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::operator
 	uint_type ceilIntB = ceilIntByUInt(B->m_MSB);
 
 	//counter
-	size_t i;
+	int i;
         // DTS: watch sign/unsign compare!!!!
-	for(i=m_nSize-1;i>=m_nSize-ceilIntB;i--){
+	for(i=m_nSize-1;i>=(int)(m_nSize-ceilIntB);i--){
 		ofl =(Duint_type)A->m_value[i]+ (Duint_type)B->m_value[i]+ofl;//sum of the two apint and the carry over
 		this->m_value[i] = (uint_type)ofl;
 		ofl>>=m_uintBitLength;//current overflow
 	}
 
 	if(ofl){
-		for(;i>=(m_nSize-ceilIntA);i--){
+		for(;i>=(int)(m_nSize-ceilIntA);i--){
 			ofl = (Duint_type)A->m_value[i]+ofl;//sum of the two int and the carry over
 			this->m_value[i] = (uint_type)ofl;
 			ofl>>=m_uintBitLength;//current overflow
@@ -779,7 +779,7 @@ const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::operator
 		}
 	}
 	else{
-		for(;i>=(m_nSize-ceilIntA);i--) {
+		for(;i>=(int)(m_nSize-ceilIntA);i--) {
 			this->m_value[i] = A->m_value[i];
 		}
 		this->m_MSB = (m_nSize-i-2)*m_uintBitLength;
