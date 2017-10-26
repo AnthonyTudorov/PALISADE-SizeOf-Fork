@@ -762,10 +762,24 @@ namespace exp_int{
     const std::string ToString() const;		
 
     //Serialization functions
-    const std::string Serialize(const ubint& mod = 0) const;
-    const char * Deserialize(const char * str, const ubint& mod = 0);
+    const std::string SerializeToString(const ubint& mod = 0) const;
+    const char * DeserializeFromString(const char * str, const ubint& mod = 0);
 
 
+    /**
+     * Serialize the object into a Serialized
+     * @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+     * @return true if successfully serialized
+     */
+    bool Serialize(lbcrypto::Serialized* serObj) const;
+
+    /**
+     * Populate the object from the deserialization of the Serialized
+     * @param serObj contains the serialized object
+     * @return true on success
+     */
+    bool Deserialize(const lbcrypto::Serialized& serObj);
+    
     // helper functions
 
     /**

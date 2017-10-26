@@ -116,9 +116,12 @@ void SerializeVector(const std::string& vectorName, const std::string& typeName,
 
 	Serialized serElements(rapidjson::kObjectType, &serObj->GetAllocator());
 	for( size_t i=0; i<inVector.size(); i++ ) {
+		bool rc;
 		Serialized oneEl(rapidjson::kObjectType, &serObj->GetAllocator());
-		inVector[i].Serialize(&oneEl);
-
+		rc = inVector[i].Serialize(&oneEl);
+		if (!rc) {
+			std::cout<<"SerializeVector<"<<typeName<<"> element "<<i<<" serialilzation failed."<<std::endl;
+		}
 		SerialItem key( std::to_string(i), serObj->GetAllocator() );
 		serElements.AddMember(key, oneEl, serObj->GetAllocator());
 	}

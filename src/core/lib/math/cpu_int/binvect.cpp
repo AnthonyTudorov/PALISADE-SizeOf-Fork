@@ -562,7 +562,7 @@ bool BigVectorImpl<IntegerType>::Serialize(lbcrypto::Serialized* serObj) const {
 	if( pkVectorLength > 0 ) {
 		std::string pkBufferString = "";
 		for (size_t i = 0; i < pkVectorLength; i++) {
-			pkBufferString += at(i).Serialize(this->GetModulus());
+			pkBufferString += (*this)[i].Serialize(this->GetModulus());
 		}
 		bbvMap.AddMember("VectorValues", pkBufferString, serObj->GetAllocator());
 	}
@@ -606,7 +606,7 @@ bool BigVectorImpl<IntegerType>::Deserialize(const lbcrypto::Serialized& serObj)
 		if( *vp == '\0' ) {
 			return false; // premature end of vector
 		}
-		vp = vectorElem.Deserialize(vp, bbiModulus);
+		vp = vectorElem.DeserializeFromString(vp, bbiModulus);
 		newVec[ePos] = vectorElem;
 	}
 

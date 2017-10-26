@@ -60,7 +60,7 @@ protected:
   }
 };
 
-TEST(UTSer,cpu_int){
+TEST(UTSer,bigint){
 	bool dbg_flag = false;
 	BigInteger small(7);
 	BigInteger medium(1ULL<<27 | 1ULL<<22);
@@ -70,16 +70,16 @@ TEST(UTSer,cpu_int){
 	string ser;
 	BigInteger deser;
 
-	ser = small.Serialize();
-	deser.Deserialize(ser.c_str());
+	ser = small.SerializeToString();
+	deser.DeserializeFromString(ser.c_str());
 	EXPECT_EQ(small, deser) << "Small integer ser/deser fails";
 
-	ser = medium.Serialize();
-	deser.Deserialize(ser.c_str());
+	ser = medium.SerializeToString();
+	deser.DeserializeFromString(ser.c_str());
 	EXPECT_EQ(medium, deser) << "Medium integer ser/deser fails";
 
-	ser = larger.Serialize();
-	deser.Deserialize(ser.c_str());
+	ser = larger.SerializeToString();
+	deser.DeserializeFromString(ser.c_str());
 	EXPECT_EQ(larger, deser) << "Larger integer ser/deser fails";
 
 	if (dbg_flag){
@@ -87,11 +87,11 @@ TEST(UTSer,cpu_int){
 	  DEBUGEXP(deser.GetInternalRepresentation());
 	}
 
-	ser = yooge.Serialize();
+	ser = yooge.SerializeToString();
 
 	DEBUG("SER "<<ser);
 
-	deser.Deserialize(ser.c_str());
+	deser.DeserializeFromString(ser.c_str());
 	EXPECT_EQ(yooge, deser) << "Yooge integer ser/deser fails";
 }
 
@@ -103,20 +103,20 @@ TEST(UTSer,native_int){
 	string ser;
 	NativeInteger deser;
 
-	ser = small.Serialize();
-	deser.Deserialize(ser.c_str());
+	ser = small.SerializeToString();
+	deser.DeserializeFromString(ser.c_str());
 	EXPECT_EQ(small, deser) << "Small integer ser/deser fails";
 
-	ser = medium.Serialize();
-	deser.Deserialize(ser.c_str());
+	ser = medium.SerializeToString();
+	deser.DeserializeFromString(ser.c_str());
 	EXPECT_EQ(medium, deser) << "Medium integer ser/deser fails";
 
-	ser = larger.Serialize();
-	deser.Deserialize(ser.c_str());
+	ser = larger.SerializeToString();
+	deser.DeserializeFromString(ser.c_str());
 	EXPECT_EQ(larger, deser) << "Larger integer ser/deser fails";
 }
 
-TEST(UTSer,vector_of_cpu_int){
+TEST(UTSer,vector_of_bigint){
 	bool dbg_flag = false;
 	const int vecsize = 100;
 
@@ -242,4 +242,101 @@ TEST(UTSer,ildcrtpoly_test) {
 
 	EXPECT_EQ( vec, newvec ) << "Mismatch after ser/deser";
 
+}
+TEST(UTSer,serialize_vector_bigint){
+  //Serialize/DeserializeVector is a helper function to test
+  bool dbg_flag = false;
+  const int vecsize = 128;
+  
+  DEBUG("step 0");
+  const BigInteger mod((uint64_t)1<<40);
+  DEBUG("step 1");
+
+  vector<BigInteger>testvec(vecsize);
+  DEBUG("step 2");
+  Poly::DugType	dug;
+  DEBUG("step 3");
+  dug.SetModulus(mod);
+  BigInteger ranval;
+  const std::string BBITypeName = ranval.IntegerTypeName();
+  
+  for( int i=0; i<vecsize; i++ ) {
+    ranval = dug.GenerateInteger();
+    testvec.push_back(ranval);
+  }
+  
+  DEBUG("step 4");
+  Serialized	ser;
+  ser.SetObject();
+  
+  SerializeVector<BigInteger>("testvec", BBITypeName, testvec, &ser);
+#if 0
+  std::string jsonstring;
+
+  SerializableHelper::SerializationToString(ser, jsonstring);
+  std::cout<<jsonstring<<std::endl;
+#endif
+  DEBUG("step 5");
+  
+  vector <BigInteger>newvec;
+  SerialItem::ConstMemberIterator topIter = ser.FindMember("testvec");
+  STOPPED HERE
+
+  if ( topIter == ser.MemberEnd()){
+    ASSERT_TRUE(false)<< "Cant find testvec";
+  }
+  lbcrypto::SerialItem::ConstMemberIterator mIter=topIter->value.FindMember("Typename");
+
+  if( (vIt = mIter->value.FindMember("Container")) == mIter->value.MemberEnd() )
+	   ASSERT_TRUE(false)<< "Cant find Container";
+
+  if( mIter == ser.MemberEnd() || string(mIter->value.GetString()) != "Vector" )
+    ASSERT_TRUE(false)<< "can't find Vector in deserialization";
+  
+  DeserializeVector<BigInteger>("testvec", BBITypeName, mIter, &newvec); 
+    
+  DEBUG("step 6");
+  EXPECT_EQ( testvec, newvec ) << "Mismatch after ser/deser";
+}
+
+
+TEST(UTSer,serialize_matrix_bigint){
+  std::cout<<"needs to be written"<<std::endl;
+#if 0
+  bool dbg_flag = false;
+  const int vecsize = 128;
+  
+  DEBUG("step 0");
+  const BigInteger mod((uint64_t)1<<40);
+  DEBUG("step 1");
+  BigVector	testvec(vecsize, mod);
+  DEBUG("step 2");
+  Poly::DugType	dug;
+  DEBUG("step 3");
+  dug.SetModulus(mod);
+  BigInteger ranval;
+  
+  for( int i=0; i<vecsize; i++ ) {
+    ranval = dug.GenerateInteger();
+    testvec.SetValAtIndex(i, ranval);
+  }
+  
+  DEBUG("step 4");
+  Serialized	ser;
+  ser.SetObject();
+  
+  SerializeVector<BigInteger>("testvec", BigInteger::typename(), testvec, *ser);
+
+  DEBUG("step 5");
+  
+  BigVector newvec;
+  SerialItem::ConstMemberIterator mIter = ser.FindMember("Container");
+
+  if( mIter == serObj.MemberEnd() || string(mIter->value.GetString()) != "Vector" )
+		return false;
+  DeserializeVector<BigInteger>("testvec", BigInteger::typename(), mIter, &newvec.GetElements()); 
+    
+  DEBUG("step 6");
+  EXPECT_EQ( testvec, newvec ) << "Mismatch after ser/deser";
+#endif
 }

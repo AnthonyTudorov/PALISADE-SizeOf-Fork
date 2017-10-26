@@ -45,6 +45,7 @@
 #include <cstdlib>
 #include <memory>
 #include "../../utils/inttypes.h"
+#include "../../utils/serializable.h"
 #include "../../utils/memory.h"
 #include "../../utils/palisadebase64.h"
 #include "../nbtheory.h"
@@ -772,8 +773,11 @@ public:
 		return ss.str();
 	}
 
-	// Serialize using the modulus; convert value to signed, then serialize
-	const std::string Serialize(const NativeInteger& modulus = 0) const {
+	// note that for efficiency, we use [De]Serialize[To|From]String when serializing
+	// BigVectors, and [De]Serialize otherwise (to work the same as all
+	// other serialized objects.
+	// Serialize using the modulus; convert value to signed, then serialize to string
+	const std::string SerializeToString(const NativeInteger& modulus = 0) const {
 		// numbers go from high to low -1, -2, ... +modulus/2, modulus/2 - 1, ... ,1, 0
 		bool isneg = false;
 		NativeInteger signedVal;
@@ -793,7 +797,8 @@ public:
 		return ser;
 	}
 
-	const char * Deserialize(const char * str, const NativeInteger& modulus = 0) {
+	//deserialize from string
+	const char * DeserializeFromString(const char * str, const NativeInteger& modulus = 0) {
 		bool isneg = false;
 		if( *str == '-' ) {
 			++str;
@@ -816,7 +821,52 @@ public:
 		m_value = value;
 		return str;
 	}
+	/**
+	* Serialize the object into a Serialized
+	* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+	* @return true if successfully serialized
+	*/
+	bool Serialize(lbcrypto::Serialized* serObj) const{
 
+	  if( !serObj->IsObject() )
+	    return false;
+	  
+	  lbcrypto::SerialItem bbiMap(rapidjson::kObjectType);
+	  
+	  bbiMap.AddMember("IntegerType", IntegerTypeName(), serObj->GetAllocator());
+	  bbiMap.AddMember("Value", this->ToString(), serObj->GetAllocator());
+	  serObj->AddMember("BigIntegerImpl", bbiMap, serObj->GetAllocator());
+	  return true;
+	  
+	};
+	
+	/**
+	* Populate the object from the deserialization of the Serialized
+	* @param serObj contains the serialized object
+	* @return true on success
+	*/
+	bool Deserialize(const lbcrypto::Serialized& serObj){
+	  //find the outer name
+	  lbcrypto::Serialized::ConstMemberIterator mIter = serObj.FindMember("BigIntegerImpl");
+	  if( mIter == serObj.MemberEnd() )//not found, so fail
+	    return false;
+	  
+	  lbcrypto::SerialItem::ConstMemberIterator vIt; //interator within name
+	  
+	  //is this the correct integer type?
+	  if( (vIt = mIter->value.FindMember("IntegerType")) == mIter->value.MemberEnd() )
+	    return false;
+	  if( IntegerTypeName() != vIt->value.GetString() )
+	    return false;
+	  
+	  //find the value
+	  if( (vIt = mIter->value.FindMember("Value")) == mIter->value.MemberEnd() )
+	    return false;
+	  //assign the value found
+	  AssignVal(vIt->value.GetString());
+	  return true;
+	};
+	
     static const std::string IntegerTypeName() { return "NativeI"; }
 
 	/**

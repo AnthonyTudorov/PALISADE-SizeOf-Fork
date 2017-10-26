@@ -2634,7 +2634,7 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
   //Serialize ubint by concatnating 6bits converted to an ascii character together, and terminating with '|'
   //note modulus is ignored
   template<typename limb_t>
-  const std::string ubint<limb_t>::Serialize(const ubint<limb_t>& modulus) const {
+  const std::string ubint<limb_t>::SerializeToString(const ubint<limb_t>& modulus) const {
     bool dbg_flag = false;
 
     std::string ans = "";
@@ -2666,7 +2666,7 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
   //returns input cp with stripped chars for decoded myZZ
   //note modulus is ignored
   template<typename limb_t>
-    const char * ubint<limb_t>::Deserialize(const char *cp, const ubint<limb_t>& modulus){
+    const char * ubint<limb_t>::DeserializeFromString(const char *cp, const ubint<limb_t>& modulus){
     bool dbg_flag = false;
 
     m_value.clear();
@@ -2699,6 +2699,45 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
     return cp;
   }
 
+  template<typename limb_t>
+  bool ubint<limb_t>::Serialize(lbcrypto::Serialized* serObj) const{
+    
+    if( !serObj->IsObject() )
+      return false;
+    
+    lbcrypto::SerialItem bbiMap(rapidjson::kObjectType);
+    
+    bbiMap.AddMember("IntegerType", IntegerTypeName(), serObj->GetAllocator());
+    bbiMap.AddMember("Value", this->ToString(), serObj->GetAllocator());
+    serObj->AddMember("BigIntegerImpl", bbiMap, serObj->GetAllocator());
+    return true;
+  }
+
+  template<typename limb_t>
+  bool ubint<limb_t>::Deserialize(const lbcrypto::Serialized& serObj){
+    //find the outer name
+    lbcrypto::Serialized::ConstMemberIterator mIter = serObj.FindMember("BigIntegerImpl");
+    if( mIter == serObj.MemberEnd() )//not found, so fail
+      return false;
+    
+    lbcrypto::SerialItem::ConstMemberIterator vIt; //interator within name
+    
+    //is this the correct integer type?
+    if( (vIt = mIter->value.FindMember("IntegerType")) == mIter->value.MemberEnd() )
+      return false;
+    if( IntegerTypeName() != vIt->value.GetString() )
+      return false;
+    
+    //find the value
+    if( (vIt = mIter->value.FindMember("Value")) == mIter->value.MemberEnd() )
+      return false;
+  //assign the value found
+    AssignVal(vIt->value.GetString());
+    return true;
+  }
+  
+
+  
   //helper functions
   template<typename limb_t>
   bool ubint<limb_t>::isPowerOfTwo(const ubint& m_numToCheck){

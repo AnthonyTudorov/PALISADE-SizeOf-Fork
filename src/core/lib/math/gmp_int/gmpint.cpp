@@ -22,7 +22,7 @@
  * OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
  * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
- * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * OF LIABILITY, WHETHER IN CONTRACT, STRI CT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
@@ -434,7 +434,7 @@ namespace NTL {
 
   //Serialize myZZ by concatnating 6bits converted to an ascii character together, and terminating with '|'
 
-  const std::string myZZ::Serialize(const myZZ& modulus) const {
+  const std::string myZZ::SerializeToString(const myZZ& modulus) const {
     bool dbg_flag = false;
 
     std::string ans = "";
@@ -463,7 +463,7 @@ namespace NTL {
   }
   //Deserialize myZZ by building limbs 6 bits at a time 
   //returns input cp with stripped chars for decoded myZZ
-  const char * myZZ::Deserialize(const char *cp, const myZZ& modulus){
+  const char * myZZ::DeserializeFromString(const char *cp, const myZZ& modulus){
     bool dbg_flag = false;
     clear(*this);
 
@@ -496,4 +496,39 @@ namespace NTL {
     return cp;
   }
 
+  bool myZZ::Serialize(lbcrypto::Serialized* serObj) const{
+    
+    if( !serObj->IsObject() )
+      return false;
+    
+    lbcrypto::SerialItem bbiMap(rapidjson::kObjectType);
+    
+    bbiMap.AddMember("IntegerType", IntegerTypeName(), serObj->GetAllocator());
+    bbiMap.AddMember("Value", this->ToString(), serObj->GetAllocator());
+    serObj->AddMember("BigIntegerImpl", bbiMap, serObj->GetAllocator());
+    return true;
+  }
+
+  bool myZZ::Deserialize(const lbcrypto::Serialized& serObj){
+    //find the outer name
+    lbcrypto::Serialized::ConstMemberIterator mIter = serObj.FindMember("BigIntegerImpl");
+    if( mIter == serObj.MemberEnd() )//not found, so fail
+      return false;
+    
+    lbcrypto::SerialItem::ConstMemberIterator vIt; //interator within name
+    
+    //is this the correct integer type?
+    if( (vIt = mIter->value.FindMember("IntegerType")) == mIter->value.MemberEnd() )
+      return false;
+    if( IntegerTypeName() != vIt->value.GetString() )
+      return false;
+    
+    //find the value
+    if( (vIt = mIter->value.FindMember("Value")) == mIter->value.MemberEnd() )
+      return false;
+    //assign the value found
+    SetValue(vIt->value.GetString());
+    return true;
+  }
+  
 } // namespace NTL ends

@@ -629,10 +629,30 @@ namespace cpu_int{
 
 
 
-    const std::string Serialize(const BigInteger& mod = 0) const;
-    const char * Deserialize(const char * str, const BigInteger& mod = 0);
     static const std::string IntegerTypeName() { return "BBI"; }
 
+    // note that for efficiency, we use [De]Serialize[To|From]String when serializing
+    // BigVectors, and [De]Serialize otherwise (to work the same as all
+    // other serialized objects.
+
+    const std::string SerializeToString(const BigInteger& mod = BigInteger::ZERO) const;
+    const char * DeserializeFromString(const char * str, const BigInteger& mod = BigInteger::ZERO);
+
+    /**
+     * Serialize the object into a Serialized
+     * @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+     * @return true if successfully serialized
+     */
+    bool Serialize(lbcrypto::Serialized* serObj) const;
+
+    /**
+     * Populate the object from the deserialization of the Serialized
+     * @param serObj contains the serialized object
+     * @return true on success
+     */
+    bool Deserialize(const lbcrypto::Serialized& serObj);
+    
+    static const std::string IntegerTypeName() { return "BBI"; }
 
     /**
     * Tests whether the BigInteger is a power of 2.

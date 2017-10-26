@@ -471,7 +471,7 @@ BigInteger<uint_type,BITLENGTH>&  BigInteger<uint_type,BITLENGTH>::operator>>=(u
  * We preface with a base64 encoding of the length, followed by a sign (to delineate length from number)
  */
 template<typename uint_type,usint BITLENGTH>
-const std::string BigInteger<uint_type,BITLENGTH>::Serialize(const BigInteger& modulus) const {
+const std::string BigInteger<uint_type,BITLENGTH>::SerializeToString(const BigInteger& modulus) const {
 
 	// numbers go from high to low -1, -2, ... +modulus/2, modulus/2 - 1, ... ,1, 0
 	bool isneg = false;
@@ -510,7 +510,7 @@ const std::string BigInteger<uint_type,BITLENGTH>::Serialize(const BigInteger& m
 }
 
 template<typename uint_type, usint BITLENGTH>
-const char *BigInteger<uint_type, BITLENGTH>::Deserialize(const char *str, const BigInteger& modulus){
+const char *BigInteger<uint_type, BITLENGTH>::DeserializeFromString(const char *str, const BigInteger& modulus){
 
 	// first decode the length
 	uint32_t len = 0;
@@ -543,6 +543,44 @@ const char *BigInteger<uint_type, BITLENGTH>::Deserialize(const char *str, const
 }
 
 
+template<typename uint_type, usint BITLENGTH>
+bool BigInteger<uint_type, BITLENGTH>::Serialize(lbcrypto::Serialized* serObj) const{
+    
+    if( !serObj->IsObject() )
+      return false;
+    
+    lbcrypto::SerialItem bbiMap(rapidjson::kObjectType);
+    
+    bbiMap.AddMember("IntegerType", IntegerTypeName(), serObj->GetAllocator());
+    bbiMap.AddMember("Value", this->ToString(), serObj->GetAllocator());
+    serObj->AddMember("BigIntegerImpl", bbiMap, serObj->GetAllocator());
+    return true;
+    
+  }
+  
+template<typename uint_type, usint BITLENGTH>
+bool BigInteger<uint_type, BITLENGTH>::Deserialize(const lbcrypto::Serialized& serObj){
+  //find the outer name
+  lbcrypto::Serialized::ConstMemberIterator mIter = serObj.FindMember("BigIntegerImpl");
+  if( mIter == serObj.MemberEnd() )//not found, so fail
+    return false;
+  
+  lbcrypto::SerialItem::ConstMemberIterator vIt; //interator within name
+  
+  //is this the correct integer type?
+  if( (vIt = mIter->value.FindMember("IntegerType")) == mIter->value.MemberEnd() )
+    return false;
+  if( IntegerTypeName() != vIt->value.GetString() )
+    return false;
+  
+  //find the value
+  if( (vIt = mIter->value.FindMember("Value")) == mIter->value.MemberEnd() )
+    return false;
+  //assign the value found
+  AssignVal(vIt->value.GetString());
+  return true;
+}
+  
 template<typename uint_type,usint BITLENGTH>
 usshort BigInteger<uint_type,BITLENGTH>::GetMSB()const{
 	return m_MSB;

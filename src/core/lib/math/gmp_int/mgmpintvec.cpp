@@ -810,8 +810,8 @@ namespace NTL {
     if( pkVectorLength > 0 ) {
       std::string pkBufferString = "";
       for (size_t i = 0; i < pkVectorLength; i++) {
-	DEBUG("element "<<i<<" "<<this->at(i));
-	std::string tmp = this->at(i).Serialize(this->GetModulus());
+	DEBUG("element "<<i<<" "<<(*this)[i]);
+	std::string tmp = (*this)[i].SerializeToString(this->GetModulus());
 	pkBufferString += tmp;
       }
       DEBUG("add VectorValues");
@@ -896,7 +896,7 @@ namespace NTL {
 	return false; // premature end of vector
       }
       DEBUG("loop "<<ePos<<" vp before is size "<<strlen(vp));
-      vp = vectorElem.Deserialize(vp, bbiModulus); //decode element
+      vp = vectorElem.DeserializeFromString(vp, bbiModulus); //decode element
       DEBUG("vp after is size "<<strlen(vp));
       newVec[ePos] = vectorElem;//store it
     }
