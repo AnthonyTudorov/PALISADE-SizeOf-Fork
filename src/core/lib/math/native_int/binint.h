@@ -927,6 +927,34 @@ public:
 	}
 
 	/**
+	 * Computes the quotient of x*p/q, where x,p,q are all 64-bit numbers, x is the current value; uses 128-bit arithmetic
+	 *
+	 * @param p is the multiplicand
+	 * @param q is the divisor
+	 * @return the quotient
+	 */
+	NativeInteger MultiplyAndDivideQuotient(const NativeInteger &p, const NativeInteger &q) const {
+		Duint_type xD = m_value;
+		Duint_type pD = p.m_value;
+		Duint_type qD = q.m_value;
+		return (uint_type)(xD*pD/qD);
+	}
+
+	/**
+	 * Computes the remainder of x*p/q, where x,p,q are all 64-bit numbers, x is the current value; uses 128-bit arithmetic
+	 *
+	 * @param p is the multiplicand
+	 * @param q is the divisor
+	 * @return the remainder
+	 */
+	NativeInteger MultiplyAndDivideRemainder(const NativeInteger &p, const NativeInteger &q) const {
+		Duint_type xD = m_value;
+		Duint_type pD = p.m_value;
+		Duint_type qD = q.m_value;
+		return (uint_type)((xD*pD)%qD);
+	}
+
+	/**
 	 * Divide and Rounding operation on a BigInteger x. Returns [x/q] where [] is the rounding operation.
 	 *
 	 * @param q is the denominator to be divided.

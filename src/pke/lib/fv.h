@@ -249,6 +249,20 @@ namespace lbcrypto {
 			const std::vector<double>& GetDCRTPolyDecryptionTable() const { return m_DCRTPolyDecryptionTable; }
 
 			/**
+			* Gets the precomputed table of delta mod qi
+			*
+			* @return the precomputed table
+			*/
+			const std::vector<native_int::BigInteger>& GetDCRTPolyDeltaTable() const { return m_DCRTPolyDeltaTable; }
+
+			/**
+			* Gets the precomputed table of (q/qi)^{-1} mod qi
+			*
+			* @return the precomputed table
+			*/
+			const std::vector<native_int::BigInteger>& GetDCRTPolyInverseTable() const { return m_DCRTPolyInverseTable; }
+
+			/**
 			* Sets the value of the delta factor
 			* @param &delta is the delta factor
 			*/
@@ -288,7 +302,27 @@ namespace lbcrypto {
 			*
 			* @param &DCRTPolyDecryptionTable is the precomputed table
 			*/
-			void SetDCRTPolyDecryptionTable(const std::vector<double> &DCRTPolyDecryptionTable) { m_DCRTPolyDecryptionTable = DCRTPolyDecryptionTable; }
+			void SetDCRTPolyDecryptionTable(const std::vector<double> &DCRTPolyDecryptionTable) {
+				m_DCRTPolyDecryptionTable = DCRTPolyDecryptionTable;
+			}
+
+			/**
+			* Sets the precomputation table of delta mod qi
+			*
+			* @param &DCRTPolyDeltaTable is the precomputed table
+			*/
+			void SetDCRTPolyDeltaTable(const std::vector<native_int::BigInteger> &DCRTPolyDeltaTable) {
+				m_DCRTPolyDeltaTable = DCRTPolyDeltaTable;
+			}
+
+			/**
+			* Sets the precomputation table of (q/qi)^{-1} mod qi
+			*
+			* @param &DCRTPolyInverseTable is the precomputed table
+			*/
+			void SetDCRTPolyInverseTable(const std::vector<native_int::BigInteger> &DCRTPolyInverseTable) {
+				m_DCRTPolyInverseTable = DCRTPolyInverseTable;
+			}
 
 			/**
 			* == operator to compare to this instance of LPCryptoParametersFV object. 
@@ -344,6 +378,12 @@ namespace lbcrypto {
 
 			// DCRTPoly decryption ratios; stores a precomputed table of [(q/qi)^{-1}]_qi / qi
 			std::vector<double> m_DCRTPolyDecryptionTable;
+
+			// DCRTPoly delta table; stores precomputed floor(q/p) mod qi
+			std::vector<native_int::BigInteger> m_DCRTPolyDeltaTable;
+
+			// DCRTPoly - precomputed (q/qi)^{-1} mod qi table
+			std::vector<native_int::BigInteger> m_DCRTPolyInverseTable;
 	};
 
 	/**

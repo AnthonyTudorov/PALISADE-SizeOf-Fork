@@ -77,13 +77,13 @@ void PKE() {
 	double diff, start, finish;
 
 	int relWindow = 1;
-	int plaintextModulus = 256;
+	usint plaintextModulus = 1<<31;
 	double sigma = 3.2;
 	double rootHermiteFactor = 1.006;
 
 	//Set Crypto Parameters
 	shared_ptr<CryptoContext<DCRTPoly>> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextFV(
-			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 5, 0, OPTIMIZED,6);
+			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 10, 0, OPTIMIZED,11);
 
 	// enable features that you wish to use
 	cryptoContext->Enable(ENCRYPTION);
@@ -119,7 +119,7 @@ void PKE() {
 	// Encode source data
 	////////////////////////////////////////////////////////////
 
-	std::vector<uint32_t> vectorOfInts = {1,2,3,4,5,6,7,8,9,10,11,12};
+	std::vector<uint32_t> vectorOfInts = {1<<28,(1<<28)-1,1<<30,202,301,302,1<<30,402,501,502,601,602};
 	IntPlaintextEncoding plaintext(vectorOfInts);
 
 	////////////////////////////////////////////////////////////

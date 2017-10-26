@@ -675,9 +675,10 @@ public:
 	*
 	* @param &p 64-bit integer (often corresponds to the plaintext modulus)
 	* @param &lyam a vector of precomputed floating-point numbers between 0 and 1
+	* @param &invTable a vector of precomputed (q/qi^{-1} mod qi
 	* @return the result of computation as a polynomial with native integers as coefficients
 	*/
-	Poly ScaleAndRound(const native_int::BigInteger &p, const std::vector<double> &lyam) const;
+	Poly ScaleAndRound(const native_int::BigInteger &p, const std::vector<double> &lyam, const std::vector<native_int::BigInteger> &invTable) const;
 
 	/**
 	* @brief Convert from Coefficient to CRT or vice versa; calls FFT and inverse FFT.

@@ -694,6 +694,18 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
+DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::Times(
+		const std::vector<native_int::BigInteger> &element) const
+{
+	DCRTPolyImpl<ModType,IntType,VecType,ParmType> tmp(*this);
+
+	for (usint i = 0; i < m_vectors.size(); i++) {
+		tmp.m_vectors[i] = tmp.m_vectors[i] * element[i]; // (element % IntType((*m_params)[i]->GetModulus().ConvertToInt())).ConvertToInt();
+	}
+	return std::move(tmp);
+}
+
+template<typename ModType, typename IntType, typename VecType, typename ParmType>
 DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::MultiplyAndRound(const IntType &p, const IntType &q) const
 {
 	std::string errMsg = "Operation not implemented yet";
@@ -956,7 +968,8 @@ Poly DCRTPolyImpl<ModType,IntType,VecType,ParmType>::CRTInterpolate() const
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-Poly DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const native_int::BigInteger &p, const std::vector<double> &lyam) const {
+Poly DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const typename PolyType::Integer &p, const std::vector<double> &lyam,
+		const std::vector<typename PolyType::Integer> &qInv) const {
 
 	usint ringDimension = GetRingDimension();
 	usint nTowers = m_vectors.size();
@@ -967,20 +980,45 @@ Poly DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const native_
 	BigVector coefficients(ringDimension, plaintextModulus);
 
 	for( usint ri = 0; ri < ringDimension; ri++ ) {
-		uint64_t curIntSum = 0;
-		double curFloatSum = 0;
+		double curFloatSum = 0.0f;
+		typename PolyType::Integer curIntSum = 0;
 		for( usint vi = 0; vi < nTowers; vi++ ) {
-			curIntSum += m_vectors[vi].GetValues()[ri].ConvertToInt()*p.ConvertToInt()/m_vectors[vi].GetModulus().ConvertToInt();
-			curFloatSum += ((m_vectors[vi].GetValues()[ri].ConvertToInt()*p.ConvertToInt())%m_vectors[vi].GetModulus().ConvertToInt())*lyam[vi];
+			const typename PolyType::Integer &xi = m_vectors[vi].GetValues()[ri];
+			const typename PolyType::Integer &qi = m_vectors[vi].GetModulus();
+			curIntSum += xi.MultiplyAndDivideQuotient(p,qi).ModMulFast(qInv[vi],p);
+			curFloatSum += xi.MultiplyAndDivideRemainder(p,qi).ConvertToInt()*lyam[vi];
 		}
-		coefficients[ri] = BigInteger(curIntSum + std::lround(curFloatSum)).Mod(plaintextModulus);
+
+		coefficients[ri] = BigInteger((curIntSum + typename PolyType::Integer(std::llround(curFloatSum))).Mod(p).ConvertToInt());
 	}
 
 	// Setting the root of unity to ONE as the calculation is expensive and not required.
-	Poly polynomialReconstructed( shared_ptr<ILParams>( new ILParams(GetCyclotomicOrder(), BigInteger(p.ConvertToInt()), 1) ) );
+	Poly polynomialReconstructed( shared_ptr<ILParams>( new ILParams(GetCyclotomicOrder(), plaintextModulus, 1) ) );
 	polynomialReconstructed.SetValues(coefficients,COEFFICIENT);
 
 	return std::move(polynomialReconstructed);
+
+	/*
+	std::cout << "dcrt computation " << std::endl;
+	for (size_t i=0; i<12; i++)
+	{
+		std::cout << coefficients[i] << ", ";
+	}
+	std::cout<<std::endl;
+
+	Poly debugPoly = CRTInterpolate();
+
+	BigInteger delta = debugPoly.GetModulus().DividedBy(BigInteger(p.ConvertToInt()));
+
+	Poly ans = debugPoly.DivideAndRound(delta).Mod(BigInteger(p.ConvertToInt()));
+
+	std::cout << "regular computation " << std::endl;
+	for (size_t i=0; i<12; i++)
+	{
+		std::cout << ans.GetValAtIndex(i) << ", ";
+	}
+	std::cout<<std::endl;
+	*/
 
 }
 

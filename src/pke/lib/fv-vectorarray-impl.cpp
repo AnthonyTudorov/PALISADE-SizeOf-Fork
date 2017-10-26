@@ -167,7 +167,7 @@ bool LPAlgorithmParamsGenFV<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParameters<D
 
 	}
 
-	size_t dcrtBits = 50;
+	size_t dcrtBits = 45;
 	size_t size = ceil((floor(log2(q - 1.0)) + 2.0) / (double)dcrtBits);
 
 	vector<native_int::BigInteger> moduli(size);
@@ -203,10 +203,33 @@ bool LPAlgorithmParamsGenFV<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParameters<D
 
 	cryptoParamsFV->SetElementParams(params);
 
-	cryptoParamsFV->SetDelta(params->GetModulus().DividedBy(cryptoParamsFV->GetPlaintextModulus()));
+	const BigInteger deltaBig = params->GetModulus().DividedBy(cryptoParamsFV->GetPlaintextModulus());
+
+	std::cout << deltaBig << std::endl;
+
+	cryptoParamsFV->SetDelta(deltaBig);
+
+	std::vector<native_int::BigInteger> precomputedDCRTDeltaTable(size);
+
+	for (size_t i = 0; i < size; i++){
+		BigInteger qi = BigInteger(moduli[i].ConvertToInt());
+		BigInteger deltaI = deltaBig.Mod(qi);
+		precomputedDCRTDeltaTable[i] = native_int::BigInteger(deltaI.ConvertToInt());
+		std::cout << precomputedDCRTDeltaTable[i] << std::endl;
+	}
+
+	cryptoParamsFV->SetDCRTPolyDeltaTable(precomputedDCRTDeltaTable);
+
+	std::vector<native_int::BigInteger> qInv(size);
+	for( usint vi = 0 ; vi < size; vi++ ) {
+		BigInteger qi = BigInteger(moduli[vi].ConvertToInt());
+		BigInteger divBy = modulusQ / qi;
+		qInv[vi] = divBy.ModInverse(qi).Mod(qi).ConvertToInt();
+	}
+
+	cryptoParamsFV->SetDCRTPolyInverseTable(qInv);
 
 	return true;
-
 
 }
 
@@ -224,7 +247,8 @@ shared_ptr<Ciphertext<DCRTPoly>> LPAlgorithmFV<DCRTPoly>::Encrypt(const shared_p
 	plaintext.SwitchFormat();
 
 	if (doEncryption) {
-		const BigInteger &delta = cryptoParams->GetDelta();
+
+		const std::vector<native_int::BigInteger> &deltaTable = cryptoParams->GetDCRTPolyDeltaTable();
 
 		const typename DCRTPoly::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 		typename DCRTPoly::TugType tug;
@@ -246,7 +270,7 @@ shared_ptr<Ciphertext<DCRTPoly>> LPAlgorithmFV<DCRTPoly>::Encrypt(const shared_p
 		DCRTPoly c0(elementParams);
 		DCRTPoly c1(elementParams);
 
-		c0 = p0*u + e1 + delta*plaintext;
+		c0 = p0*u + e1 + plaintext.Times(deltaTable);
 
 		c1 = p1*u + e2;
 
@@ -303,8 +327,9 @@ DecryptResult LPAlgorithmFV<DCRTPoly>::Decrypt(const shared_ptr<LPPrivateKey<DCR
 	const native_int::BigInteger &p = cryptoParams->GetPlaintextModulus().ConvertToInt();
 
 	const std::vector<double> &lyamTable = cryptoParams->GetDCRTPolyDecryptionTable();
+	const std::vector<native_int::BigInteger> &invTable = cryptoParams->GetDCRTPolyInverseTable();
 
-	*plaintext = b.ScaleAndRound(p,lyamTable);
+	*plaintext = b.ScaleAndRound(p,lyamTable,invTable);
 
 	return DecryptResult(plaintext->GetLength());
 
