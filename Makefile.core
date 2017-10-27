@@ -40,7 +40,6 @@ COREDEMOSOURCES := $(wildcard $(CORESRCDIR)/demo/*.cpp)
 
 COREOBJECTS := $(patsubst $(CORESRCDIR)/%,$(COREBINDIR)/%,$(patsubst %.cpp,%.o,$(CORESOURCES)))
 COREUNITOBJECTS := $(patsubst $(CORESRCDIR)/%,$(COREBINDIR)/%,$(patsubst %.cpp,%.o,$(COREUNITSOURCES)))
-##### COREUNITOBJECTS += test/include/gtest/gtest-all.o
 COREDEMOOBJECTS := $(patsubst $(CORESRCDIR)/%,$(COREBINDIR)/%,$(patsubst %.cpp,%.o,$(COREDEMOSOURCES)))
 
 TEST_TARGET := $(EXTTESTDIR)/core/tests$(EXESUFFIX)
@@ -85,9 +84,9 @@ cleancore:
 	$(RM) -fr $(COREBINDIR) $(EXTLIBDIR)/$(PALISADECORELIB) `dirname $(TEST_TARGET)` bin/demo/core
 
 # this links test executable  from objects in the test build directory
-$(TEST_TARGET): $(COREUNITOBJECTS) $(EXTLIBDIR)/$(PALISADECORELIB) 
+$(TEST_TARGET): $(UNITTESTMAINOBJ) $(COREUNITOBJECTS) $(EXTLIBDIR)/$(PALISADECORELIB) 
 	@mkdir -p `dirname $(TEST_TARGET)`
-	$(CC) -o $(TEST_TARGET) $(COREUNITOBJECTS) $(EXTLIB) -lPALISADEcore $(TEST_LIB) 
+	$(CC) -o $(TEST_TARGET) $(UNITTESTMAINOBJ) $(COREUNITOBJECTS) $(EXTLIB) -lPALISADEcore $(TEST_LIB) 
 
 #used to run tests from make
 .PHONY: testcore

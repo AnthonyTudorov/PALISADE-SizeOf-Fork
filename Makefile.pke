@@ -41,7 +41,6 @@ PKEDEMOSOURCES := $(wildcard $(PKESRCDIR)/demo/*.cpp)
 PKEOBJECTSALL = $(patsubst $(PKESRCDIR)/%,$(PKEBINDIR)/%,$(patsubst %.cpp,%.o,$(PKESOURCES)))
 PKEOBJECTS = $(filter %-impl.o,$(PKEOBJECTSALL))
 PKEUNITOBJECTS := $(patsubst $(PKESRCDIR)/%,$(PKEBINDIR)/%,$(patsubst %.cpp,%.o,$(PKEUNITSOURCES)))
-PKEUNITOBJECTS += test/include/gtest/gtest-all.o
 PKEDEMOOBJECTS += $(patsubst $(PKESRCDIR)/%,$(PKEBINDIR)/%,$(patsubst %.cpp,%.o,$(PKEDEMOSOURCES)))
 
 PKE_TEST_TARGET := $(EXTTESTDIR)/pke/tests$(EXESUFFIX)
@@ -86,9 +85,9 @@ cleanpke:
 	$(RM) -fr $(PKEBINDIR) $(EXTLIBDIR)/$(PALISADEPKELIB) `dirname $(PKE_TEST_TARGET)` bin/demo/pke
 
 # this links test executable  from objects in the test build directory
-$(PKE_TEST_TARGET): $(PKEUNITOBJECTS) $(EXTLIBDIR)/$(PALISADEPKELIB) $(EXTLIBDIR)/$(PALISADECORELIB)
+$(PKE_TEST_TARGET): $(UNITTESTMAINOBJ) $(PKEUNITOBJECTS) $(EXTLIBDIR)/$(PALISADEPKELIB) $(EXTLIBDIR)/$(PALISADECORELIB)
 	@mkdir -p `dirname $(PKE_TEST_TARGET)`
-	$(CC) -o $(PKE_TEST_TARGET) $(PKEUNITOBJECTS) $(EXTLIB) -lPALISADEpke -lPALISADEcore $(TEST_LIB)
+	$(CC) -o $(PKE_TEST_TARGET) $(UNITTESTMAINOBJ) $(PKEUNITOBJECTS) $(EXTLIB) -lPALISADEpke -lPALISADEcore $(TEST_LIB)
 
 #used to run tests from make
 .PHONY: testpke
