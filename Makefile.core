@@ -40,7 +40,7 @@ COREDEMOSOURCES := $(wildcard $(CORESRCDIR)/demo/*.cpp)
 
 COREOBJECTS := $(patsubst $(CORESRCDIR)/%,$(COREBINDIR)/%,$(patsubst %.cpp,%.o,$(CORESOURCES)))
 COREUNITOBJECTS := $(patsubst $(CORESRCDIR)/%,$(COREBINDIR)/%,$(patsubst %.cpp,%.o,$(COREUNITSOURCES)))
-COREUNITOBJECTS += test/include/gtest/gtest-all.o
+##### COREUNITOBJECTS += test/include/gtest/gtest-all.o
 COREDEMOOBJECTS := $(patsubst $(CORESRCDIR)/%,$(COREBINDIR)/%,$(patsubst %.cpp,%.o,$(COREDEMOSOURCES)))
 
 TEST_TARGET := $(EXTTESTDIR)/core/tests$(EXESUFFIX)
