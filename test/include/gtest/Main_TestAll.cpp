@@ -45,12 +45,14 @@ using namespace std;
 using namespace lbcrypto;
 using namespace testing;
 
+static string lead = "****** ";
+
 class MinimalistPrinter : public EmptyTestEventListener {
 
 public:
 	void OnTestProgramStart(const ::testing::UnitTest& unit_test) {
-		cout << "Begin Test Run" << endl;
-		cout << GetMathBackendParameters() << endl;
+		cout << lead << "Begin Test Run" << endl;
+		cout << lead << GetMathBackendParameters() << endl;
 	}
 	void OnTestIterationStart(const ::testing::UnitTest& unit_test, int iteration) {}
 	void OnEnvironmentsSetUpStart(const ::testing::UnitTest& unit_test) {}
@@ -95,7 +97,9 @@ public:
 	void OnTestIterationEnd(const ::testing::UnitTest& unit_test, int iteration) {}
 
 	void OnTestProgramEnd(const ::testing::UnitTest& unit_test)  {
-		cout << "End Test Run of " << unit_test.test_to_run_count() << " cases, " << unit_test.successful_test_count() << " passed, " << unit_test.failed_test_count() << " failed" << endl;
+		cout << lead << "End Test Run of " << unit_test.test_to_run_count() << " cases, "
+			<< unit_test.successful_test_count() << " passed, "
+			<< unit_test.failed_test_count() << " failed" << endl;
 	}
 
 
@@ -132,8 +136,6 @@ int main(int argc, char **argv) {
 		std::cout << GetMathBackendParameters() << std::endl;
 	}
 
-	int rv = RUN_ALL_TESTS();
-
-	return rv;
+	return RUN_ALL_TESTS();
 }
 

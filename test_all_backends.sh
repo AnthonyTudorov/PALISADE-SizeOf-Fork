@@ -4,8 +4,13 @@ do
 	echo Building and testing MATHBACKEND $i
 	echo "****************************"
 	touch src/core/lib/math/backend.h
-	make -j8  CPPFLAGS+=-DMATHBACKEND=$i all # -DBigIntegerBitLength=128
-	make testall
+	make -j8  CPPFLAGS+=-DMATHBACKEND=$i all >/dev/null 2>&1  # -DBigIntegerBitLength=128
+	if [ $? -eq 0 ];
+	then
+		make testall
+	else
+		echo " ******** build failed!!!"
+	fi
 	echo "****************************"
 	echo DONE
 	echo "****************************"
