@@ -36,7 +36,7 @@
 #include "../../utils/serializable.h"
 
 #include "../backend.h"
-#if defined(__linux__) && MATHBACKEND == 6
+#if MATHBACKEND == 6
 
 #include "mgmpintvec.h"
 
@@ -601,7 +601,7 @@ namespace NTL {
   template<class myT>
   myVecP<myT> myVecP<myT>::ModAddAtIndex(size_t i, const myZZ &b) const{
     if(i > this->size()-1) {
-      std::string errMsg = "myVecP::ModAddAtIndex. Index is out of range. i = " + i;
+      std::string errMsg = "myVecP::ModAddAtIndex. Index is out of range. i = " + std::to_string(i);
       throw std::runtime_error(errMsg);
     }
     myVecP ans(*this); //copy vector
@@ -1070,4 +1070,4 @@ namespace NTL {
  
 template class NTL::myVecP<NTL::myZZ>; //instantiate template here
  
-#endif //__linux__
+#endif

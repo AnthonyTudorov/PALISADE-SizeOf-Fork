@@ -77,7 +77,7 @@ namespace NTL {
   myVecP(): Vec<myT>() {};
     //constructors without moduli
     explicit myVecP(const size_t length): Vec<myT>(INIT_SIZE, length) {m_modulus_state = GARBAGE;}; 
-   myVecP(const INIT_SIZE_TYPE, const long length): Vec<myT>(INIT_SIZE, length) {m_modulus_state = GARBAGE;}; 
+   myVecP(INIT_SIZE_TYPE, const long length): Vec<myT>(INIT_SIZE, length) {m_modulus_state = GARBAGE;};
 
 
     //copy
