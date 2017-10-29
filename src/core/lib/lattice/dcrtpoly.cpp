@@ -985,7 +985,7 @@ Poly DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const typenam
 		for( usint vi = 0; vi < nTowers; vi++ ) {
 			const typename PolyType::Integer &xi = m_vectors[vi].GetValues()[ri];
 			const typename PolyType::Integer &qi = m_vectors[vi].GetModulus();
-			//YSP: MultiplyAndDivideQuotient and MultiplyAndDivideRemainder can be combined in one call
+			//YSP: Optimization: MultiplyAndDivideQuotient and MultiplyAndDivideRemainder can be combined in one call
 			curIntSum += xi.MultiplyAndDivideQuotient(p,qi).ModMulFast(qInv[vi],p);
 			curFloatSum += xi.MultiplyAndDivideRemainder(p,qi).ConvertToInt()*lyam[vi];
 		}
@@ -1022,6 +1022,33 @@ Poly DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const typenam
 	*/
 
 }
+
+/*
+template<typename ModType, typename IntType, typename VecType, typename ParmType>
+DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::SwitchCRTBasis(
+		const shared_ptr<ParmType> params, const std::vector<typename PolyType::Integer> &precomputedTable, const std::vector<typename PolyType::Integer> &qInv) const{
+
+	DCRTPolyType ans(params,COEFFICIENT,true);
+
+	// We should check that the size of both CRT bases is the same
+
+	usint ringDimension = GetRingDimension();
+	usint nTowers = m_vectors.size();
+
+	for( usint ri = 0; ri < ringDimension; ri++ ) {
+		for( usint vi = 0; vi < nTowers; vi++ ) {
+			const typename PolyType::Integer &xi = m_vectors[vi].GetValues()[ri];
+			const typename PolyType::Integer &qi = m_vectors[vi].GetModulus();
+			ans.m_vectors[vi].SetValues(ri,xi.ModMulFast)
+			//YSP: MultiplyAndDivideQuotient and MultiplyAndDivideRemainder can be combined in one call
+			curIntSum += xi.MultiplyAndDivideQuotient(p,qi).ModMulFast(qInv[vi],p);
+			curFloatSum += xi.MultiplyAndDivideRemainder(p,qi).ConvertToInt()*lyam[vi];
+		}
+
+		coefficients[ri] = BigInteger((curIntSum + typename PolyType::Integer(std::llround(curFloatSum))).Mod(p).ConvertToInt());
+	}
+
+}*/
 
 /*Switch format calls IlVector2n's switchformat*/
 template<typename ModType, typename IntType, typename VecType, typename ParmType>

@@ -678,7 +678,10 @@ public:
 	* @param &invTable a vector of precomputed (q/qi^{-1} mod qi
 	* @return the result of computation as a polynomial with native integers as coefficients
 	*/
-	Poly ScaleAndRound(const native_int::BigInteger &p, const std::vector<double> &lyam, const std::vector<native_int::BigInteger> &invTable) const;
+	Poly ScaleAndRound(const typename PolyType::Integer &p, const std::vector<double> &lyam, const std::vector<typename PolyType::Integer> &invTable) const;
+
+	DCRTPolyType SwitchCRTBasis(const shared_ptr<ParmType> params, const std::vector<typename PolyType::Integer> &precomputedTable,
+			const std::vector<typename PolyType::Integer> &qInv) const;
 
 	/**
 	* @brief Convert from Coefficient to CRT or vice versa; calls FFT and inverse FFT.
