@@ -93,7 +93,7 @@ static_assert(cpu_int::DataTypeChecker<integral_dtype>::value,"Data type provide
 #if BigIntegerBitLength > 1500
 #error "BigIntegerBitLength is too large"
 #endif
-#if BigIntegerBitLength < 128
+#if BigIntegerBitLength < 600
 #error "BigIntegerBitLength is too small"
 #endif
 
@@ -134,7 +134,7 @@ typedef ubintvec<xubint> xubintvec;
 typedef mubintvec<xubint> xmubintvec;
 }
 
-#if defined(__linux__) && MATHBACKEND == 6
+#if MATHBACKEND == 6
 ////////// for gmp int
 #include "gmp_int/gmpint.h" //experimental gmp unsigned big ints
 //#include "gmp_int/mgmpint.h" //experimental gmp modulo unsigned big ints
@@ -183,7 +183,7 @@ namespace lbcrypto {
 
 #endif
 
-#if defined(__linux__)&& MATHBACKEND == 6
+#if MATHBACKEND == 6
 
 	/** Define the mapping for BigInteger */
 	typedef NTL::myZZ BigInteger;
