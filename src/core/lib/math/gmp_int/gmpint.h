@@ -459,9 +459,9 @@ namespace NTL{
     * Prints the value of the internal limb storage
     * in hexadecimal format. Used primarily for debugging
     */
-    void PrintLimbsInHex() const;
+    void PrintLimbsInHex() const { std::cout<<std::hex<<*this<<std::dec; }
 
-    //TODO: get rid of this insantiy
+    //TODO: get rid of this insanity
     void PrintValues() const { std::cout << *this; };
 
   private:

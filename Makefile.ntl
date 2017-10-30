@@ -1,6 +1,6 @@
 #Makefile to build and install ntl in palisade
 
-TAR ?= tar
+TAR ?= tar 
 
 #note change the following directory to the correct one on your install
 

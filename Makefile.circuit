@@ -30,7 +30,7 @@
 ################
 
 CIRCUITSRCDIR := src/circuit
-CIRCUITBINDIR := src/circuit/bin
+CIRCUITBINDIR := $(BINDIR)/build/circuit
 CIRCUITTESTDIR := src/circuit/unittest
 CIRCUITDEMODIR := src/circuit/demo
 
@@ -40,7 +40,6 @@ CIRCUITDEMOSOURCES := $(wildcard $(CIRCUITDEMODIR)/*.cpp)
 
 CIRCUITOBJECTS = $(patsubst $(CIRCUITSRCDIR)/%,$(CIRCUITBINDIR)/%,$(patsubst %.cpp,%.o,$(CIRCUITSOURCES)))
 CIRCUITUNITOBJECTS := $(patsubst $(CIRCUITSRCDIR)/%,$(CIRCUITBINDIR)/%,$(patsubst %.cpp,%.o,$(CIRCUITUNITSOURCES)))
-CIRCUITUNITOBJECTS += test/include/gtest/gtest-all.o
 CIRCUITDEMOOBJECTS := $(patsubst $(CIRCUITSRCDIR)/%,$(CIRCUITBINDIR)/%,$(patsubst %.cpp,%.o,$(CIRCUITDEMOSOURCES)))
 
 CLIBS := $(EXTLIBDIR)/$(PALISADETRAPDOORLIB) $(EXTLIBDIR)/$(PALISADEPKELIB) $(EXTLIBDIR)/$(PALISADECORELIB) 
@@ -72,16 +71,16 @@ $(CIRCUITBINDIR)/lib/parse.o: $(CIRCUITSRCDIR)/lib/parse.cpp
 $(CIRCUITSRCDIR)/lib/scan.cpp: $(CIRCUITSRCDIR)/lib/scan.l $(CIRCUITSRCDIR)/lib/parse.hpp
 	$(FLEX) -o $@ $<
 
-allcircuitdemos: $(patsubst $(CIRCUITBINDIR)/demo/%,bin/demo/circuit/%,$(patsubst %.o,%$(EXESUFFIX),$(CIRCUITDEMOOBJECTS)))
+allcircuitdemos: $(patsubst $(CIRCUITBINDIR)/demo/%,$(BINDIR)/demo/circuit/%,$(patsubst %.o,%$(EXESUFFIX),$(CIRCUITDEMOOBJECTS)))
 
-bin/demo/circuit/%$(EXESUFFIX): src/circuit/bin/demo/%.o $(CLIBS) $(EXTLIBDIR)/$(PALISADECIRCUITLIB)
+$(BINDIR)/demo/circuit/%$(EXESUFFIX): $(CIRCUITBINDIR)/demo/%.o $(CLIBS) $(EXTLIBDIR)/$(PALISADECIRCUITLIB)
 	@mkdir -p $(@D)
 	$(CC) -o $@ $< $(EXTLIB) -lPALISADEcore -lPALISADEpke -lPALISADEtrapdoor -lPALISADEcircuit
 
 #this builds the palisade library out of the objects 
 $(EXTLIBDIR)/$(PALISADECIRCUITLIB): $(CIRCUITOBJECTS) $(CLIBS) 
 	@echo " -- circuit:linking $@ from CIRCUITOBJECTS"
-	mkdir -p $(EXTLIBDIR)
+	@mkdir -p $(EXTLIBDIR)
 	$(CC) $(LIBCMD) -o $@ $(CIRCUITOBJECTS) $(EXTLIB) -lPALISADEcore -lPALISADEpke -lPALISADEtrapdoor -lgomp 
 
 ### #this builds the individual objects that make up the library .
@@ -102,12 +101,12 @@ $(CIRCUITBINDIR)/%:
 
 #this target is used to cleanup, it is called from the top Makefile
 cleancircuit: 
-	$(RM) -fr $(CIRCUITBINDIR) $(EXTLIBDIR)/$(PALISADECIRCUITLIB) `dirname $(CIRCUIT_TEST_TARGET)` bin/demo/circuit $(CIRCUITSRCDIR)/lib/parse.cpp $(CIRCUITSRCDIR)/lib/scan.cpp $(CIRCUITSRCDIR)/lib/parse.hpp $(wildcard $(CIRCUITSRCDIR)/lib/*.hh)
+	$(RM) -fr $(CIRCUITBINDIR) $(EXTLIBDIR)/$(PALISADECIRCUITLIB) `dirname $(CIRCUIT_TEST_TARGET)` $(BINDIR)/demo/circuit $(CIRCUITSRCDIR)/lib/parse.cpp $(CIRCUITSRCDIR)/lib/scan.cpp $(CIRCUITSRCDIR)/lib/parse.hpp $(wildcard $(CIRCUITSRCDIR)/lib/*.hh)
 
 # this links test executable  from objects in the test build directory
-$(CIRCUIT_TEST_TARGET): $(CIRCUITUNITOBJECTS) $(CLIBS) $(EXTLIBDIR)/$(PALISADECIRCUITLIB)
+$(CIRCUIT_TEST_TARGET): $(UNITTESTMAINOBJ) $(CIRCUITUNITOBJECTS) $(CLIBS) $(EXTLIBDIR)/$(PALISADECIRCUITLIB)
 	@mkdir -p `dirname $(CIRCUIT_TEST_TARGET)`
-	$(CC) -o $(CIRCUIT_TEST_TARGET) $(CIRCUITUNITOBJECTS) $(EXTLIB) -lPALISADEcircuit -lPALISADEtrapdoor -lPALISADEpke -lPALISADEcore $(TEST_LIB)
+	$(CC) -o $(CIRCUIT_TEST_TARGET) $(UNITTESTMAINOBJ) $(CIRCUITUNITOBJECTS) $(EXTLIB) -lPALISADEcircuit -lPALISADEtrapdoor -lPALISADEpke -lPALISADEcore $(TEST_LIB)
 
 #used to run tests from make
 .PHONY: testcircuit

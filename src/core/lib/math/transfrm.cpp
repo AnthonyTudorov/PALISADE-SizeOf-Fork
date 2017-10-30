@@ -331,7 +331,8 @@ void ChineseRemainderTransformFTT<IntType,VecType>::InverseTransform(const VecTy
 	VecType rInvTable(*rootOfUnityITable);
 	for (usint i = 0; i<CycloOrder / 2; i++)
 #if defined(NTL_SPEEDUP)
-		OpIFFT[i] =  OpIFFT[i].ModMul(rInvTable[i*ringDimensionFactor], element.GetModulus());
+		//OpIFFT[i] =  OpIFFT[i].ModMul(rInvTable[i*ringDimensionFactor], element.GetModulus());
+		OpIFFT->SetValAtIndex(i,  OpIFFT->GetValAtIndex(i).ModMul(rInvTable[i*ringDimensionFactor], element.GetModulus()));
 #else
 		OpIFFT->SetValAtIndex(i, OpIFFT->GetValAtIndex(i).ModBarrettMul(rInvTable.GetValAtIndex(i*ringDimensionFactor), element.GetModulus(), mu));
 #endif

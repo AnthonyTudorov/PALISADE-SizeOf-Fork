@@ -42,7 +42,7 @@
 #include <fstream>
 #include <sstream>
 #include "../backend.h"
-#if defined(__linux__) && MATHBACKEND == 6
+#if MATHBACKEND == 6
 #include "gmpint.h"
 
 namespace NTL {
@@ -298,7 +298,9 @@ namespace NTL {
 
     DEBUG("in myZZ::ConvertToInt() this.size() "<<this->size());
     DEBUG("in myZZ::ConvertToInt() this "<<*this);
-    uint64_t result = conv<uint64_t>(*this);
+
+    long result = conv<long>(*this);
+
     if (this->GetMSB() >= 64) {
       std::cerr<<"Warning myZZ::ConvertToInt() Loss of precision. "<<std::endl;
       std::cerr<<"input  "<< *this<<std::endl;			
@@ -494,4 +496,4 @@ namespace NTL {
 
 } // namespace NTL ends
 
-#endif //__linux__
+#endif

@@ -63,10 +63,16 @@
 //To select backend, please UNCOMMENT the appropriate line rather than changing the number on the
 //uncommented line (and breaking the documentation of the line)
 
+#ifndef MATHBACKEND
 #define MATHBACKEND 2
 //#define MATHBACKEND 4
 //#define MATHBACKEND 6
 //#define MATHBACKEND 7
+#endif
+
+#if MATHBACKEND != 2 && MATHBACKEND != 4 && MATHBACKEND != 6 && MATHBACKEND != 7
+#error "MATHBACKEND value is not valid"
+#endif
 
 ////////// cpu_int code
 #include "cpu_int/binint.cpp"
@@ -79,7 +85,23 @@ static_assert(cpu_int::DataTypeChecker<integral_dtype>::value,"Data type provide
 		The bitwidth can be decreased to the least value still supporting BigInteger operations for a specific application -
 		to achieve smaller runtimes
 	**/
+
+#ifndef BigIntegerBitLength
 #define BigIntegerBitLength 1500 //for documentation on tests
+#endif
+
+#if BigIntegerBitLength > 1500
+#error "BigIntegerBitLength is too large"
+#endif
+#if BigIntegerBitLength < 600
+#error "BigIntegerBitLength is too small"
+#endif
+
+inline const std::string& GetMathBackendParameters() {
+	static std::string id = "Backend " + std::to_string(MATHBACKEND) +
+			(MATHBACKEND == 2 ? " internal int size " + std::to_string(sizeof(integral_dtype)*8) + " BitLength " + std::to_string(BigIntegerBitLength) : "");
+	return id;
+}
 
 ////////// for exp_int, decide if you want 32 bit or 64 bit underlying integers in the implementation
 #define UBINT_32
@@ -112,7 +134,7 @@ typedef ubintvec<xubint> xubintvec;
 typedef mubintvec<xubint> xmubintvec;
 }
 
-#if defined(__linux__) && MATHBACKEND == 6
+#if MATHBACKEND == 6
 ////////// for gmp int
 #include "gmp_int/gmpint.h" //experimental gmp unsigned big ints
 //#include "gmp_int/mgmpint.h" //experimental gmp modulo unsigned big ints
@@ -161,7 +183,7 @@ namespace lbcrypto {
 
 #endif
 
-#if defined(__linux__)&& MATHBACKEND == 6
+#if MATHBACKEND == 6
 
 	/** Define the mapping for BigInteger */
 	typedef NTL::myZZ BigInteger;

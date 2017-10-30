@@ -409,17 +409,16 @@ BigInteger<uint_type,BITLENGTH>&  BigInteger<uint_type,BITLENGTH>::operator>>=(u
 	}
 
 	//no of array shifts
-	usint shiftByUint = shift>>m_logUintBitLength;
+	sint shiftByUint = shift>>m_logUintBitLength;
 	//no of bit shifts
 	uschar remShift = (shift&(m_uintBitLength-1));
 	//perform shifting in arrays
 	if(shiftByUint!=0){
 
-		usint endVal= m_nSize-ceilIntByUInt(this->m_MSB);
-		usint j= endVal;
+		sint endVal= m_nSize-ceilIntByUInt(this->m_MSB);
+		sint j= endVal;
 		
-                // DTS: watch sign/unsign compare!!!!
-		for(sint i= m_nSize-1-shiftByUint;i>=static_cast<sint>(endVal);i--){
+		for(sint i= m_nSize-1-shiftByUint; i>=endVal; i--){
 			this->m_value[i+shiftByUint] = this->m_value[i];
 		}
 		//adjust shift to reflect left shifting 
@@ -755,16 +754,16 @@ const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::operator
 	uint_type ceilIntB = ceilIntByUInt(B->m_MSB);
 
 	//counter
-	size_t i;
+	int i;
         // DTS: watch sign/unsign compare!!!!
-	for(i=m_nSize-1;i>=m_nSize-ceilIntB;i--){
+	for(i=m_nSize-1;i>=(int)(m_nSize-ceilIntB);i--){
 		ofl =(Duint_type)A->m_value[i]+ (Duint_type)B->m_value[i]+ofl;//sum of the two apint and the carry over
 		this->m_value[i] = (uint_type)ofl;
 		ofl>>=m_uintBitLength;//current overflow
 	}
 
 	if(ofl){
-		for(;i>=(m_nSize-ceilIntA);i--){
+		for(;i>=(int)(m_nSize-ceilIntA);i--){
 			ofl = (Duint_type)A->m_value[i]+ofl;//sum of the two int and the carry over
 			this->m_value[i] = (uint_type)ofl;
 			ofl>>=m_uintBitLength;//current overflow
@@ -780,7 +779,7 @@ const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::operator
 		}
 	}
 	else{
-		for(;i>=(m_nSize-ceilIntA);i--) {
+		for(;i>=(int)(m_nSize-ceilIntA);i--) {
 			this->m_value[i] = A->m_value[i];
 		}
 		this->m_MSB = (m_nSize-i-2)*m_uintBitLength;
@@ -807,11 +806,12 @@ const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::operator
 		if(this->m_value[i]<b.m_value[i]){
 			current=i;
 			cntr = current-1;
-			// DTS: added cntr >= 0 (see above; probably also need check cntr>=0 before "this->m_value[cntr]--")
 			while(cntr>=0 && this->m_value[cntr]==0){
-				this->m_value[cntr]=m_uintMax;cntr--;
+				this->m_value[cntr]=m_uintMax;
+				cntr--;
 			}
-			this->m_value[cntr]--;
+			if(cntr>=0)
+				this->m_value[cntr]--;
 			this->m_value[i]=this->m_value[i]+m_uintMax+1- b.m_value[i];		
 		}
 		else{
@@ -1044,7 +1044,12 @@ void BigInteger<uint_type,BITLENGTH>::AssignVal(const std::string& v){
 	
 	for(sint i=0;i<arrSize;i++)//store the string to decimal array
 		DecValue[i] = (uschar) atoi(v.substr(i,1).c_str());
-		//DecValue[i] = (uschar) stoi(v.substr(i,1));
+
+	DEBUG("v=" << v);
+	if( dbg_flag )
+		for( sint i=0;i<arrSize;i++)
+			DEBUG("DecValue[" << i << "]=" << (int)DecValue[i]);
+
 	sshort zptr = 0;
 	//index of highest non-zero number in decimal number
 	//define  bit register array
@@ -1055,6 +1060,7 @@ void BigInteger<uint_type,BITLENGTH>::AssignVal(const std::string& v){
 	//we increment the pointer to the next char when we get the complete value of the char array
 	
 	sint cnt=m_uintBitLength-1;
+	DEBUG("bitValPtr " << bitValPtr << " cnt " << cnt);
 	//cnt8 is a pointer to the bit position in bitArr, when bitArr is complete it is ready to be transfered to Value
 	while(zptr!=arrSize){
 		bitArr[cnt]=DecValue[arrSize-1]%2;
@@ -1065,20 +1071,23 @@ void BigInteger<uint_type,BITLENGTH>::AssignVal(const std::string& v){
 		}
 		DecValue[arrSize-1]>>=1;
 		//division ends here
-		if (dbg_flag) {
-			for(int i=zptr;i<arrSize;i++)
-				std::cout<<(short)DecValue[i];//for debug purpose
-			std::cout<<std::endl;
-		}
 		cnt--;
 		if(cnt==-1){//cnt = -1 indicates bitArr is ready for transfer
-			cnt=m_uintBitLength-1;
 			if( bitValPtr < 0 )
 				throw std::logic_error("string " + v + " cannot fit into BigInteger");
+
+			cnt=m_uintBitLength-1;
 			m_value[bitValPtr--]= UintInBinaryToDecimal(bitArr);//UintInBinaryToDecimal converts bitArr to decimal and resets the content of bitArr.
 		}
-		if(DecValue[zptr]==0)zptr++;//division makes Most significant digit zero, hence we increment zptr to next value
-		if(zptr==arrSize&&DecValue[arrSize-1]==0)m_value[bitValPtr]=UintInBinaryToDecimal(bitArr);//Value assignment
+
+		if(DecValue[zptr]==0)
+			zptr++;//division makes Most significant digit zero, hence we increment zptr to next value
+		if(zptr==arrSize && DecValue[arrSize-1]==0) {
+			if( bitValPtr < 0 )
+				throw std::logic_error("string " + v + " cannot fit into BigInteger");
+
+			m_value[bitValPtr]=UintInBinaryToDecimal(bitArr);//Value assignment
+		}
 	}
 
 	SetMSB(bitValPtr);
