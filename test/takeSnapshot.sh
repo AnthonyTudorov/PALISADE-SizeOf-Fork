@@ -1,3 +1,4 @@
+BMDIR=bin/benchmark
 # take benchmark snapshot
 
 if [ $# -ne 1 ]
@@ -20,12 +21,12 @@ echo "running, this will take a while..."
 for bm in BBIMath BBVMath NbTheory Lattice 
 do
 	echo $bm:
-	benchmark/bin/${bm}* ${smallbmargs} >> $1
+	$BMDIR/${bm}* ${smallbmargs} >> $1
 done
 
 for bm in Encoding Crypto SHE
 do
 	echo $bm:
-	benchmark/bin/${bm}* ${largebmargs} >> $1
+	$BMDIR/${bm}* ${largebmargs} >> $1
 done
 

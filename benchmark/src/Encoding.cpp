@@ -159,6 +159,9 @@ void BM_encoding_PackedInt(benchmark::State& state) { // benchmark
 
 		try {
 			plaintextPacked.Encode(ptm, &pt, 0, chunkSize);
+		} catch( std::runtime_error& e ) {
+			state.SkipWithError( e.what() );
+			break;
 		} catch( std::exception& e ) {
 			state.SkipWithError( e.what() );
 			break;

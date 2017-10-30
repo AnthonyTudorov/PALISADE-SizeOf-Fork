@@ -66,6 +66,7 @@ $(BMARK_BUILD)/%.o: $(BMLIB_SRCDIR)/%.cc
 
 .PRECIOUS: $(BMLIB_LIB)
 $(BMLIB_LIB): $(BMLIB_OBJ)
+	@mkdir -p $(BMARK_BIN)
 	ar cr $(BMLIB_LIB) $(BMLIB_OBJ)
 	ranlib $(BMLIB_LIB) 
 
