@@ -31,7 +31,7 @@ BMARK_BUILD := $(BINDIR)/build/benchmark
 BMLIB_SRCDIR := google/benchmark-master/src
 BMLIB_IFLAG := -I$(BMLIB_SRCDIR)/../include
 BMLIB_SRC := $(wildcard $(BMLIB_SRCDIR)/*.cc)
-BMLIB_OBJ := $(patsubst $(BMARK_BUILD)/%,$(BMLIB_SRCDIR)/%,$(BMLIB_SRC:.cc=.o)) 
+BMLIB_OBJ := $(patsubst $(BMLIB_SRCDIR)/%,$(BMARK_BUILD)/%,$(BMLIB_SRC:.cc=.o)) 
 
 #this defines the benchmark library archive
 BMLIB_LIB := $(BMARK_BIN)/libbenchmark.a
@@ -82,7 +82,7 @@ PLIBS := $(EXTLIBDIR)/$(PALISADEPKELIB) $(EXTLIBDIR)/$(PALISADECORELIB)
 # this builds executables from objects for benchmarks
 $(BMARK_BIN)/%$(EXESUFFIX): $(BMARK_BUILD)/%.o $(BMLIB_LIB) $(PLIBS)
 	@mkdir -p $(BMARK_BIN)
-	$(CC) $(BM_IFLAG) $(LIBBENCHMARK_FLAGS)  $< -o $@ $(PLIBS) $(RDYNAMIC) $(BMLIB_LIB) $(EXTLIB)  $(MINGWREGEX)
+	$(CC) $(BM_IFLAG) $(LIBBENCHMARK_FLAGS)  $(BMLIB_IFLAG) $< -o $@ $(PLIBS) $(RDYNAMIC) $(BMLIB_LIB) $(EXTLIB)  $(MINGWREGEX)
 
 # this builds objects from sources for benchmarks
 .PRECIOUS: benchmark/build/%.o
@@ -101,4 +101,8 @@ cleanbenchmark:
 	$(RM) -r $(BMARK_BIN) $(BMARK_BUILD) $(BMLIB_OBJ) $(BMLIB_LIB)
 
 bstrings:
-	@echo $(BMARKS)
+	@echo BMARKS is $(BMARKS)
+	@echo BMLIB_SRC is $(BMLIB_SRC)
+	@echo BMLIB_OBJ is $(BMLIB_OBJ)
+	@echo  $(BMLIB_SRC:.cc=.o)
+	@echo $(BMLIB_SRCDIR)
