@@ -20,23 +20,22 @@ int main()
 	string empty = "";
 	string demo = "The quick brown fox jumps over the lazy dog";
 
-	BytePlaintextEncoding ptxt(empty);
-	BytePlaintextEncoding shabytes = HashUtil::Hash(ptxt,SHA_256);
+	vector<uint8_t> digest;
+	HashUtil::Hash(empty,SHA_256,digest);
 	string sha = HashUtil::HashString(empty);
 
 	cout << "Empty string" << std::hex << endl;
 	for( size_t ii=0; ii<32; ii++ ) {
-		cout << std::setfill('0') << std::setw(2) << (int)shabytes[ii];
+		cout << std::setfill('0') << std::setw(2) << (int)digest[ii];
 	}
 	cout << endl << sha << std::dec << endl;
 
-	BytePlaintextEncoding ptxt2(demo);
-	BytePlaintextEncoding shabytes2 = HashUtil::Hash(ptxt2,SHA_256);
+	HashUtil::Hash(demo,SHA_256,digest);
 	sha = HashUtil::HashString(demo);
 
 	cout << "The quick brown fox jumps over the lazy dog" << std::hex << endl;
 	for( size_t ii=0; ii<32; ii++ ) {
-		cout << std::setfill('0') << std::setw(2) << (int) shabytes2[ii];
+		cout << std::setfill('0') << std::setw(2) << (int) digest[ii];
 	}
 	cout << endl << sha << std::dec << endl;
 

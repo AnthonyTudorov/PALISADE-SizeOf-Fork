@@ -25,6 +25,8 @@
  */
 
 #include "hashutil.h"
+#include <sstream>
+#include <iomanip>
 
 namespace lbcrypto {
 
@@ -165,10 +167,10 @@ HashUtil::HashString(std::string message) {
 	message += ((char)((m_len & 0x000000000000ff00) >> 8));
 	message += ((char)(m_len & 0x00000000000000ff));
 
-	for (usint n = 0;n < (message.size() * 8) / 512; n++) {
+	for (size_t n = 0;n < (message.size() * 8) / 512; n++) {
 		uint32_t w[64];
 		short counter = 0;
-		for (usint m = 64 * n;m < (64 * (n + 1));m += 4) {
+		for (size_t m = 64 * n;m < (64 * (n + 1));m += 4) {
 			w[counter] = ((uint32_t)(message.at(m)&0xff) << 24) ^ ((uint32_t)(message.at(m + 1)&0xff) << 16) ^ ((uint32_t)(message.at(m + 2)&0xff) << 8) ^ ((uint32_t)(message.at(m + 3)&0xff));
 			counter++;
 		}
