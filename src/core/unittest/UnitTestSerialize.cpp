@@ -245,8 +245,9 @@ TEST(UTSer,ildcrtpoly_test) {
 }
 TEST(UTSer,serialize_vector_bigint){
   //Serialize/DeserializeVector is a helper function to test
+  //note the object has to be created outside of the function. 
   bool dbg_flag = false;
-  const int vecsize = 128;
+  const int vecsize = 1024;
   
   DEBUG("step 0");
   const BigInteger mod((uint64_t)1<<40);
@@ -266,77 +267,120 @@ TEST(UTSer,serialize_vector_bigint){
   }
   
   DEBUG("step 4");
-  Serialized	ser;
-  ser.SetObject();
-  
-  SerializeVector<BigInteger>("testvec", BBITypeName, testvec, &ser);
-#if 0
-  std::string jsonstring;
+  //build the top level serial object
+  Serialized	serObj;
+  serObj.SetObject();
 
-  SerializableHelper::SerializationToString(ser, jsonstring);
+  //build the object to hold the vector
+  Serialized obj(rapidjson::kObjectType, &serObj.GetAllocator());
+
+  //serialize the vector
+  SerializeVector<BigInteger>("Vector", "BigIntegerImpl", testvec, &obj);
+
+  //add it to the top level object
+  serObj.AddMember("TestVector", obj, serObj.GetAllocator());
+  
+  // write the result to cout for debug
+  std::string jsonstring;
+  SerializableHelper::SerializationToString(serObj, jsonstring);
   std::cout<<jsonstring<<std::endl;
-#endif
+
   DEBUG("step 5");
   
   vector <BigInteger>newvec;
-  SerialItem::ConstMemberIterator topIter = ser.FindMember("testvec");
-  STOPPED HERE
-
-  if ( topIter == ser.MemberEnd()){
-    ASSERT_TRUE(false)<< "Cant find testvec";
-  }
-  lbcrypto::SerialItem::ConstMemberIterator mIter=topIter->value.FindMember("Typename");
-
-  if( (vIt = mIter->value.FindMember("Container")) == mIter->value.MemberEnd() )
-	   ASSERT_TRUE(false)<< "Cant find Container";
-
-  if( mIter == ser.MemberEnd() || string(mIter->value.GetString()) != "Vector" )
-    ASSERT_TRUE(false)<< "can't find Vector in deserialization";
-  
-  DeserializeVector<BigInteger>("testvec", BBITypeName, mIter, &newvec); 
-    
+  //top level iterator
+  SerialItem::ConstMemberIterator topIter = serObj.FindMember("TestVector");
   DEBUG("step 6");
+
+  
+  ASSERT_FALSE (topIter == serObj.MemberEnd()) << "Cant find TestVector";
+
+  //iterate over next level
+  SerialItem::ConstMemberIterator mIter=topIter->value.FindMember("Vector");
+
+  DEBUG("step 7");
+
+  ASSERT_FALSE (mIter == topIter->value.MemberEnd() )<< "Cant find Vector";
+  DEBUG("step 8");
+
+  DeserializeVector<BigInteger>("Vector", "BigIntegerImpl", mIter, &newvec);
+
+    
+  DEBUG("step 9");
   EXPECT_EQ( testvec, newvec ) << "Mismatch after ser/deser";
 }
 
 
 TEST(UTSer,serialize_matrix_bigint){
-  std::cout<<"needs to be written"<<std::endl;
-#if 0
-  bool dbg_flag = false;
-  const int vecsize = 128;
+  bool dbg_flag = true;
+  //dimensions of matrix. 
+  const int nrows = 4;
+  const int ncols = 8;
+
+  Matrix<BigInteger>::alloc_func zero_alloc = BigInteger::Allocator();
   
   DEBUG("step 0");
   const BigInteger mod((uint64_t)1<<40);
+
   DEBUG("step 1");
-  BigVector	testvec(vecsize, mod);
+  Matrix<BigInteger> testmat(zero_alloc, nrows, ncols);
+
   DEBUG("step 2");
   Poly::DugType	dug;
+
   DEBUG("step 3");
   dug.SetModulus(mod);
   BigInteger ranval;
-  
-  for( int i=0; i<vecsize; i++ ) {
-    ranval = dug.GenerateInteger();
-    testvec.SetValAtIndex(i, ranval);
+
+  //load up the matix with random values
+  for(size_t i=0; i<nrows; i++ ) {
+    for(size_t j=0; j<ncols; j++ ) {
+      ranval = dug.GenerateInteger();
+      testmat(i,j) = ranval;
+    }
   }
   
+  //build the top level serial object
+  Serialized serObj;
+  serObj.SetObject();
+
+  //build the object to hold the matrix
+  Serialized obj(rapidjson::kObjectType, &serObj.GetAllocator());
   DEBUG("step 4");
-  Serialized	ser;
-  ser.SetObject();
+  //serialize the Matrix
+
+  SerializeMatrix<BigInteger>("Matrix", "BigIntegerImpl", testmat, &obj);
+
+  //add it to the top level object
+  serObj.AddMember("TestMatrix", obj, serObj.GetAllocator());
   
-  SerializeVector<BigInteger>("testvec", BigInteger::typename(), testvec, *ser);
+  // write the result to cout for debug
+  std::string jsonstring;
+  SerializableHelper::SerializationToString(serObj, jsonstring);
+  std::cout<<jsonstring<<std::endl;
 
   DEBUG("step 5");
   
-  BigVector newvec;
-  SerialItem::ConstMemberIterator mIter = ser.FindMember("Container");
-
-  if( mIter == serObj.MemberEnd() || string(mIter->value.GetString()) != "Vector" )
-		return false;
-  DeserializeVector<BigInteger>("testvec", BigInteger::typename(), mIter, &newvec.GetElements()); 
-    
+  Matrix<BigInteger> newmat(zero_alloc, 0, 0); //empty matrix
+ //top level iterator
+  SerialItem::ConstMemberIterator topIter = serObj.FindMember("TestMatrix");
   DEBUG("step 6");
-  EXPECT_EQ( testvec, newvec ) << "Mismatch after ser/deser";
-#endif
+
+  
+  ASSERT_FALSE (topIter == serObj.MemberEnd()) << "Cant find TestMatrix";
+
+  //iterate over next level
+  SerialItem::ConstMemberIterator mIter=topIter->value.FindMember("Matrix");
+
+  DEBUG("step 7");
+
+  ASSERT_FALSE (mIter == topIter->value.MemberEnd() )<< "Cant find Matrix";
+  DEBUG("step 8");
+
+  DeserializeMatrix<BigInteger>("Matrix", "BigIntegerImpl", mIter, &newmat);
+
+    
+  DEBUG("step 9");
+  EXPECT_EQ( testmat, newmat ) << "Mismatch after ser/deser";
+
 }

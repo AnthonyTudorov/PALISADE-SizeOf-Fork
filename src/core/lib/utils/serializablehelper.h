@@ -106,9 +106,23 @@ public:
 
 };
 
-template<typename T>
-void SerializeVector(const std::string& vectorName, const std::string& typeName, const std::vector<T> inVector, Serialized* serObj) {
 
+	/** 
+	 * Adds the contents of an STL vector<foo> to 
+	 *  a serialized Palisade object as a nested JSON data structure
+	 * foo must be a serializable object as the function uses the 
+	 * foo.Serialize() method to serialize.
+	 * @param vectorName 
+	 * @param typeName 
+	 * @param inVector the STD vector to be sereialized
+	 * @param *serObj the serial object to be modfied 
+	 * @return success or failure
+	 */
+ 
+template<typename T>
+void SerializeVector(const std::string& vectorName, const std::string& typeName,
+		     const std::vector<T> inVector, Serialized* serObj) {
+	bool dbg_flag = false;
 	Serialized ser(rapidjson::kObjectType, &serObj->GetAllocator());
 	ser.AddMember("Container", "Vector", serObj->GetAllocator());
 	ser.AddMember("Typename", typeName, serObj->GetAllocator());
@@ -120,7 +134,8 @@ void SerializeVector(const std::string& vectorName, const std::string& typeName,
 		Serialized oneEl(rapidjson::kObjectType, &serObj->GetAllocator());
 		rc = inVector[i].Serialize(&oneEl);
 		if (!rc) {
-			std::cout<<"SerializeVector<"<<typeName<<"> element "<<i<<" serialilzation failed."<<std::endl;
+			DEBUG("SerializeVector<"<<typeName<<"> element "
+			      <<i<<" serialilzation failed.");
 		}
 		SerialItem key( std::to_string(i), serObj->GetAllocator() );
 		serElements.AddMember(key, oneEl, serObj->GetAllocator());
@@ -177,41 +192,65 @@ void SerializeMapOfPointers(const std::string& vectorName, const std::string& ty
 
 template<typename T>
 bool DeserializeVector(const std::string& vectorName, const std::string& typeName, const SerialItem::ConstMemberIterator& it, std::vector<T>* outVector) {
-
+	bool dbg_flag = false;
 	SerialItem::ConstMemberIterator mIt = it->value.FindMember("Typename");
 	if( mIt == it->value.MemberEnd() ) {
-		return false;
+		DEBUG("could not find Typename  ");							return false;
 	}
 
-	if( mIt->value.GetString() != typeName ) return false;
+	if( mIt->value.GetString() != typeName ) {
+		DEBUG("Wrong type name found: "<< mIt->value.GetString()
+		      << "expected :" <<typeName );
+		return false;
+	}
 	mIt = it->value.FindMember("Length");
-	if( mIt == it->value.MemberEnd() ) return false;
+	if( mIt == it->value.MemberEnd() ) {
+		DEBUG("could not find Length");
+		return false;
+	}
 
 	outVector->clear();
 	outVector->resize( std::stoi(mIt->value.GetString()) );
 
 	mIt = it->value.FindMember("Members");
-	if( mIt == it->value.MemberEnd() ) return false;
-
+	if( mIt == it->value.MemberEnd() ){
+		DEBUG("could not find Members");
+		return false;
+	}
 	const SerialItem& members = mIt->value;
 
 	for( size_t i=0; i<outVector->size(); i++ ) {
 		Serialized::ConstMemberIterator eIt = members.FindMember( std::to_string(i) );
-		if( eIt == members.MemberEnd() ) return false;
+		if( eIt == members.MemberEnd() ) {
+			DEBUG("could not find index "<< i);
+			return false;
+
+
+		}
 
 		T vectorElem;
 		SerialItem::ConstMemberIterator s2 = eIt->value.FindMember(typeName);
-		if( s2 == eIt->value.MemberEnd() )
+		if( s2 == eIt->value.MemberEnd() ){
+			DEBUG("could not find typename "<< typeName<< "for index "<<i);			
 			return false;
-
+		}
 		Serialized ser(rapidjson::kObjectType);
 		SerialItem k( typeName, ser.GetAllocator() );
 		SerialItem v( s2->value, ser.GetAllocator() );
-		ser.AddMember(k, v, ser.GetAllocator());
-
-		if( vectorElem.Deserialize(ser) ) {
-			outVector->at(i) = vectorElem;
+		DEBUGEXP(i);
+		if (s2->value.IsString()) {
+			DEBUGEXP(s2->value.GetString());
 		}
+		if (s2->value.IsUint64()){ 
+			DEBUGEXP(s2->value.GetUint64());
+		}
+		ser.AddMember(k, v, ser.GetAllocator());
+		if( vectorElem.Deserialize(ser) ) {
+			DEBUG("Deserialized "<< vectorElem);
+			outVector->at(i) = vectorElem;
+		} else {
+			DEBUG("Deserialization failed ");
+		}	
 	}
 
 	return true;
@@ -298,6 +337,10 @@ void SerializeMatrix(const std::string &matrixName, const std::string &typeName,
 	serObj->AddMember(SerialItem(matrixName, serObj->GetAllocator()), ser, serObj->GetAllocator());
 }
 
+
+// TODO: These functions appear to be used only in benchmark/src/diffSnapshot.cpp
+// they should be documented and possibly moved to another file in utils?
+ 
 class IStreamWrapper {
 public:
 	typedef char Ch;

@@ -497,12 +497,14 @@ namespace NTL {
   }
 
   bool myZZ::Serialize(lbcrypto::Serialized* serObj) const{
-    
+    bool dbg_flag = false;
     if( !serObj->IsObject() )
       return false;
     
     lbcrypto::SerialItem bbiMap(rapidjson::kObjectType);
-    
+
+    DEBUGEXP(IntegerTypeName());
+    DEBUGEXP(this->ToString());
     bbiMap.AddMember("IntegerType", IntegerTypeName(), serObj->GetAllocator());
     bbiMap.AddMember("Value", this->ToString(), serObj->GetAllocator());
     serObj->AddMember("BigIntegerImpl", bbiMap, serObj->GetAllocator());
@@ -510,6 +512,7 @@ namespace NTL {
   }
 
   bool myZZ::Deserialize(const lbcrypto::Serialized& serObj){
+    bool dbg_flag = false;
     //find the outer name
     lbcrypto::Serialized::ConstMemberIterator mIter = serObj.FindMember("BigIntegerImpl");
     if( mIter == serObj.MemberEnd() )//not found, so fail
@@ -527,6 +530,8 @@ namespace NTL {
     if( (vIt = mIter->value.FindMember("Value")) == mIter->value.MemberEnd() )
       return false;
     //assign the value found
+
+    DEBUGEXP(vIt->value.GetString());
     SetValue(vIt->value.GetString());
     return true;
   }
