@@ -35,19 +35,27 @@ int main() {
 	double stdBase = 100;
 	double std = (1<<22);
 	int CENTER_COUNT = 1024;
-
-
+	BaseSampler **peikert_samplers/*,**ky_samplers*/;
+	BitGenerator* bg = new BitGenerator();
 	DiscreteGaussianGenerator dgg(4);
 	DiscreteGaussianGenerator dggRejection(4);
-	DiscreteGaussianGeneratorGeneric dgg2(100);
-	DiscreteGaussianGeneratorGeneric dgg3(stdBase, KNUTH_YAO);
 	DiscreteGaussianGenerator dgg4(stdBase); //for Peikert's method
 	double start, finish;
 	size_t count = 10000;
 
 	std::cout << "Distribution parameter = " << std << std::endl;
 
+	peikert_samplers = new BaseSampler*[CENTER_COUNT];
+	//ky_samplers = new BaseSampler*[CENTER_COUNT];
 
+		//BaseSampler sampler(mean,std,bg,PEIKERT);
+		std::cout<<"Started creating base samplers"<<std::endl;
+		for(int i=0;i<CENTER_COUNT;i++){
+			double center = ((double)i/(double)CENTER_COUNT);
+			peikert_samplers[i]=new BaseSampler((double)center,1,bg,PEIKERT);
+			//ky_samplers[i] = new BaseSampler((double)center,1,bg,KNUTH_YAO);
+		}
+		std::cout<<"Ended creating base samplers, Started sampling"<<std::endl;
 
 	start = currentDateTime();
 	for (int k = 0; k < CENTER_COUNT; k++) {
@@ -70,11 +78,8 @@ int main() {
 	finish = currentDateTime();
 	std::cout << "Sampling " << std::to_string(count) << " integers (Karney): " << (finish - start)/CENTER_COUNT << " ms\n";
 
-	start = currentDateTime();
-	dgg2.PreCompute(CENTER_COUNT, std::ceil(30/log2(CENTER_COUNT)), stdBase);
-	finish = currentDateTime();
-	std::cout << "Probability matrix generation: " << finish - start << " ms\n";
-
+	int base = std::log(CENTER_COUNT)/std::log(2);
+	DiscreteGaussianGeneratorGeneric dgg2(peikert_samplers,1,base,5,60,35);
 	start = currentDateTime();
 	for (int k = 0; k < CENTER_COUNT; k++) {
 		double center = k/(double)CENTER_COUNT;
@@ -86,9 +91,8 @@ int main() {
 	std::cout << "Sampling " << std::to_string(count) << " integers (Generic - Peikert): " << (finish - start)/CENTER_COUNT << " ms\n";
 
 
-
-	dgg3.PreCompute(CENTER_COUNT, std::ceil(30/log2(CENTER_COUNT)), stdBase);
-	//dgg3.GenerateProbMatrix(stdBase,0,1);
+	/*
+	DiscreteGaussianGeneratorGeneric dgg3(ky_samplers,1,base,5,60,35);
 	start = currentDateTime();
 	for (int k = 0; k < CENTER_COUNT; k++) {
 		double center = k/(double)CENTER_COUNT;
@@ -99,4 +103,5 @@ int main() {
 	}
 	finish = currentDateTime();
 	std::cout << "Sampling " << std::to_string(count) << " integers (Generic - Knuth Yao): " << (finish - start)/CENTER_COUNT << " ms\n";
+	*/
 }
