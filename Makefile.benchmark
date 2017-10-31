@@ -83,7 +83,8 @@ PLIBS := $(EXTLIBDIR)/$(PALISADEPKELIB) $(EXTLIBDIR)/$(PALISADECORELIB)
 # this builds executables from objects for benchmarks
 $(BMARK_BIN)/%$(EXESUFFIX): $(BMARK_BUILD)/%.o $(BMLIB_LIB) $(PLIBS)
 	@mkdir -p $(BMARK_BIN)
-	$(CC) $(BM_IFLAG) $(LIBBENCHMARK_FLAGS)  $(BMLIB_IFLAG) $< -o $@ $(PLIBS) $(RDYNAMIC) $(BMLIB_LIB) $(EXTLIB)  $(MINGWREGEX)
+	$(CC) $(BM_IFLAG) $(LIBBENCHMARK_FLAGS)  $(BMLIB_IFLAG) $< -o $@ $(PLIBS) $(RDYNAMIC) $(BMLIB_LIB) $(EXTLIB) -lshlwapi
+
 
 # this builds objects from sources for benchmarks
 .PRECIOUS: benchmark/build/%.o
