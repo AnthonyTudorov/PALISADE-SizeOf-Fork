@@ -282,7 +282,7 @@ TEST(UTSer,serialize_vector_bigint){
   
   // write the result to cout for debug
   std::string jsonstring;
-  SerializableHelper::SerializationToString(serObj, jsonstring);
+  SerializableHelper::SerializationToPrettyString(serObj, jsonstring);
   std::cout<<jsonstring<<std::endl;
 
   DEBUG("step 5");
@@ -312,18 +312,17 @@ TEST(UTSer,serialize_vector_bigint){
 
 
 TEST(UTSer,serialize_matrix_bigint){
-  bool dbg_flag = true;
+  bool dbg_flag = false;
   //dimensions of matrix. 
   const int nrows = 4;
   const int ncols = 8;
 
-  Matrix<BigInteger>::alloc_func zero_alloc = BigInteger::Allocator();
   
   DEBUG("step 0");
   const BigInteger mod((uint64_t)1<<40);
 
   DEBUG("step 1");
-  Matrix<BigInteger> testmat(zero_alloc, nrows, ncols);
+  Matrix<BigInteger> testmat(BigInteger::Allocator, nrows, ncols);
 
   DEBUG("step 2");
   Poly::DugType	dug;
@@ -356,12 +355,12 @@ TEST(UTSer,serialize_matrix_bigint){
   
   // write the result to cout for debug
   std::string jsonstring;
-  SerializableHelper::SerializationToString(serObj, jsonstring);
+  SerializableHelper::SerializationToPrettyString(serObj, jsonstring);
   std::cout<<jsonstring<<std::endl;
 
   DEBUG("step 5");
   
-  Matrix<BigInteger> newmat(zero_alloc, 0, 0); //empty matrix
+  Matrix<BigInteger> newmat(BigInteger::Allocator, 0, 0); //empty matrix
  //top level iterator
   SerialItem::ConstMemberIterator topIter = serObj.FindMember("TestMatrix");
   DEBUG("step 6");

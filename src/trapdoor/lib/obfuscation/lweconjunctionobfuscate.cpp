@@ -65,9 +65,9 @@ template<class Element>
 bool ClearLWEConjunctionPattern<Element>::Serialize(Serialized* serObj) const {
   bool dbg_flag = true;
   if( !serObj->IsObject() ){
-    DEBUG("ClearLWEConjunctionPattern::Serialize is obj failed");
-    return false;
+    serObj->SetObject();
   }
+
   Serialized obj(rapidjson::kObjectType, &serObj->GetAllocator());
 
   obj.AddMember("PatternString", m_patternString, obj.GetAllocator());
@@ -82,21 +82,23 @@ bool ClearLWEConjunctionPattern<Element>::Serialize(Serialized* serObj) const {
 template<class  Element>
 bool ClearLWEConjunctionPattern<Element>::Deserialize(const Serialized& serObj){
     bool dbg_flag= true;
-    Serialized::ConstMemberIterator iMap = serObj.FindMember("ClearLWEConjunctionPattern");
+    Serialized::ConstMemberIterator iMap
+      = serObj.FindMember("ClearLWEConjunctionPattern");
+
     if (iMap == serObj.MemberEnd()) {
-      DEBUG("clearLWEConjunctionPattern::Deserialize could not find ClearLWEConjunctionPattern<Element>");
+      DEBUG("clearLWEConjunctionPattern::Deserialize could not find"
+	    <<" ClearLWEConjunctionPattern<Element>");
       return false;
     }
     
-    SerialItem::ConstMemberIterator pIt = iMap->value.FindMember("PatternString");
-   
-    
+    SerialItem::ConstMemberIterator pIt
+      = iMap->value.FindMember("PatternString");
+
     if (pIt == iMap->value.MemberEnd()) {
-      DEBUG("ClearLWEConjunctionPattern::Deserialize could not find PatternString");
+      DEBUG("ClearLWEConjunctionPattern::Deserialize could not find "
+	    <<" PatternString");
       return false;
     }
-
-
     
     this->m_patternString= pIt->value.GetString();
 
@@ -204,12 +206,15 @@ shared_ptr<Matrix<Element>>  ObfuscatedLWEConjunctionPattern<Element>::GetS(usin
 	return this->m_S_vec->at(i).at(value);
 }
 
-template <class Element>
+
+// Serialization  
+
+ template <class Element>
 bool ObfuscatedLWEConjunctionPattern<Element>::Serialize(Serialized* serObj) const {
   bool dbg_flag = true;
+  DEBUG("in ObfuscatedLWEConjunctionPattern::Serialize");
   if( !serObj->IsObject() ){
-    DEBUG("ObfuscatedLWEConjunctionPattern::Serialize is obj failed");
-    return false;
+    serObj->SetObject();
   }
 
   //build serialization object to append to
@@ -235,6 +240,15 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Serialize(Serialized* serObj) con
 #if 0
   shared_ptr<vector< vector<shared_ptr<Matrix<Element>>> >> m_S_vec;
   shared_ptr<vector< vector<shared_ptr<Matrix<Element>>> >> m_R_vec;
+
+
+  loop over outer vector {
+    loop over inner vector{
+        deference *Matrix
+           Serialize Matrix<Element>
+	  SerializeVectorOfVectorOfPointers   pointing To Matrix
+	  }
+  }
   
 #endif
   // m_Sl;
@@ -244,7 +258,22 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Serialize(Serialized* serObj) con
 
 #if 0
   shared_ptr<std::vector<Matrix<Element>>> m_pk;
+
+  loop over vector
+           Serialize Matrix<Element>
+    }
+
+
   shared_ptr<std::vector<RLWETrapdoorPair<Element>>>   m_ek;
+
+  loop over vector
+           Serialize RLWETrapdoorPair<Element>
+  (*m_ek)[i].m_r; is a matrix of element
+    (*m_ek)[i].m_e; is a matrix of element
+
+    should we RLWETrapdoorPair<Element>.Serialize this? maybe!!! 
+    }
+
 #endif
 
   // add them all to the serObj
