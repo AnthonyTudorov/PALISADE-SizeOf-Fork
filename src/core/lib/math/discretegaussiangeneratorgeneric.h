@@ -25,12 +25,30 @@
  *
  */
 
-/*Seperate base sampler from generic
- * Look at Michael's code
- * Base samplers should containt one single probability table
- * Handle seperate cosets as seperate sampler pointers in sampling
- * Replace NTL with Bernoulli distribution
- * */
+/*This is the header file for the Generic Sampler used for various Discrete Gaussian Sampling applications. This class
+ * implements the generic sampler by UCSD discussed in the https://eprint.iacr.org/2017/259.pdf and it is heavily based on
+ * Michael's code. Along the sides of the implementation there are also two different "base samplers", which are used for the generic
+ * sampler or can be used on their own depending on the requirements of needed application.
+ *
+ * The first base sampler uses Peikert's inversion method, discussed in section 4.1 of https://eprint.iacr.org/2010/088.pdf and
+ * summarized in section 3.2.2 of https://link.springer.com/content/pdf/10.1007%2Fs00200-014-0218-3.pdf. Peikert's method requires precomputation of
+ * CDF tables around a specific center and the table must be kept during the sampling process. Hence, Peikert's method works best if
+ * the DESIRED STANDARD DEVIATION IS SMALL and THE MEAN OF THE DISTRIBUTION IS FIXED, as each new center will require a new set of precomputations.
+ *
+ * Second base sampler, which is currently in WIP is the Knuth-Yao Sampler discussed in section 5 of https://link.springer.com/content/pdf/10.1007%2Fs00200-014-0218-3.pdf
+ * Currently, the sampler does not give a perfect Gaussian Distribution, therefore it is not recommended to use for distribution sensitive applications.
+ * Similar to Peikert's, Knuth-Yao precomputes the PDF's of the numbers based on standard deviation and the center, which is used during
+ * the sampling process. Therefore like Peikert's method,  Knuth-Yao works best method works best if the DESIRED STANDARD DEVIATION IS SMALL and
+ * THE MEAN OF THE DISTRIBUTION IS FIXED, as each new center will require a new set of precomputations, just like Peikert's inversion method.
+ *
+ * The "generic sampler" on the other hand, works independent from standard deviation of the distribution. It combines an array of previously discussed base samplers
+ * centered around 0 to (2^b-1) / 2^b through convolution. The base samplers however, must be precomputed beforehand; but they do not need to be recalculated at
+ * any time of the sampling process. The generic sampler at the moment does not give a perfect distribution either, however it is
+ * USABLE FOR ANY STANDARD DEVIATION AND MEAN with only one single precomputation.
+ *
+ * If a sampler with arbitrary standard deviation and mean suppport is needed, then it is recommended to refer to Karney's sampler in discretegaussiangenerator.cpp
+ * which uses Algorithm D from https://arxiv.org/pdf/1303.6257.pdf. It's statistical values pass the Gaussian Distribution tests and can be used for ANY STANDARD DEVIATION
+ * AND CENTER WITHOUT PRECOMPUTATION. However, it may be prone to timing attacks.*/
 
 #ifndef LBCRYPTO_MATH_DISCRETEGAUSSIANGENERATORGENERIC_H_
 #define LBCRYPTO_MATH_DISCRETEGAUSSIANGENERATORGENERIC_H_
@@ -53,9 +71,16 @@ class BaseSampler;
 class SamplerCombiner;
 class BitGenerator;
 
+/*
+ * @brief Class implementation to generate random bit. This is created for centralizing the random bit pools by the samplers.
+ */
 class BitGenerator{
 public:
 	BitGenerator(){}
+	/*
+	 * @brief Method for generating a random bit
+	 * @return A random bit
+	 */
 	short Generate(){
 		if (counter % 31 == 0) {
 			sequence = (PseudoRandomNumberGenerator::GetPRNG())();
@@ -71,17 +96,37 @@ private:
 	uint32_t sequence = 0;
 	char counter = 0;
 };
-
+/*
+ * @brief Class definiton for base samplers with precomputation that is used for UCSD generic sampler
+ */
 class BaseSampler{
 public:
+	/*
+	 * @brief Constructor
+	 * @param mean Mean of the distribution
+	 * @param std Standard deviation of the distribution
+	 * @param generator Pointer to the bit generator that the sampler will use the random bits from
+	 * @param bType Type of the base sampler
+	 */
 	BaseSampler(double mean,double std,BitGenerator* generator,BaseSamplerType bType);
 	BaseSampler(){};
+	/*
+	 * @brief Method for generating integer from the base sampler
+	 * @return A random integer from the distribution
+	 */
 	virtual int64_t GenerateInteger();
+	/*
+	 * @brief Destroyer for the base sampler
+	 */
 	virtual ~BaseSampler(){
 		if (DDGColumn != nullptr) {
 			delete[] DDGColumn;
 		}
 	}
+	/*
+	 * @brief Method for generating a random bit from the bit generator within
+	 * @return A random bit
+	 */
 	short RandomBit(){
 		return bg->Generate();
 	}
@@ -137,6 +182,12 @@ private:
 
 
 	std::vector<double> m_vals;
+	/**
+	 * @brief Sub-procedure called by Peikert's inversion sampling
+	 * @param S Vector containing the CDF values
+	 * @param search Searched probability value
+	 * @return Index that is the smallest bigger value than search
+	 */
 	usint FindInVector(const std::vector<double> &S, double search) const;
 	/**
 	 * @brief Generates DDG tree used through the sampling in Knuth-Yao
@@ -172,15 +223,34 @@ private:
 	int64_t GenerateIntegerPeikert() const;
 
 };
+/*
+ * @brief Class for combining samples from two base samplers, which is used for UCSD generic sampling
+ */
 class SamplerCombiner: public BaseSampler{
 public:
+	/**
+	 * @brief Constructor
+	 * @param s1 Pointer to the first sampler to be combined
+	 * @param s2 Pointer to the second sampler to be combined
+	 * @param z1 Coefficient for the first sampler
+	 * @param z2 Coefficient for the second sampler
+	 */
 	SamplerCombiner(BaseSampler* s1,BaseSampler* s2,int64_t z1,int64_t z2):sampler1(s1),sampler2(s1),x1(z1),x2(z2){}
+	/**
+	 * @brief Return the combined value for two samplers with given coefficients
+	 * @return Combined value of the samplers with given coefficents
+	 */
 	int64_t GenerateInteger(){
 		return x1*sampler1->GenerateInteger() + x2*sampler2->GenerateInteger();
 	}
+	/**
+	 * @brief Destructor
+	 */
 	~SamplerCombiner(){}
 private:
+	//Samplers to be combined
 	BaseSampler *sampler1, *sampler2;
+	//Coefficients that are used for combining
 	int64_t x1,x2;
 
 };
@@ -192,6 +262,12 @@ class DiscreteGaussianGeneratorGeneric: public DistributionGenerator<BigInteger,
 public:
 	/**
 	 * @brief Basic constructor which does the precomputations.
+	 * @param samplers Array containing the base samplers
+	 * @param std Standard deviation of the base samplers
+	 * @param base Log of number of centers that are used for calculating base samplers (Recall that base samplers are centered from 0 to (2^b-1)/2^b)
+	 * @param max_slevels Max number of recursive levels of sampling
+	 * @param precision Precision of the samplers (number of bits to be considered)
+	 * @param flips Maximum number of bits to round using Bernoulli distribution
 	 */
 	DiscreteGaussianGeneratorGeneric(BaseSampler** samplers, const double std,const int b, const int max_slevels, const int precision, const int flips);
 
@@ -205,9 +281,20 @@ public:
 	int64_t GenerateInteger(){
 		return base_samplers[0]->GenerateInteger();
 	}
+	/**
+	 * @brief Destructor
+	 */
 	~DiscreteGaussianGeneratorGeneric();
 private:
+	/**
+	 * @brief Subroutine used by Sample C
+	 * @param center Center of the distribution
+	 */
 	 int64_t flipAndRound(double center);
+	 /**
+	 	 * @brief Sample C defined in the paper
+	 	 * @param center Center of the distribution
+	 	 */
 	 int64_t SampleC(int64_t center);
 
 	    BaseSampler* wide_sampler;
