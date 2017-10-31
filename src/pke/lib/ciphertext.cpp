@@ -79,7 +79,6 @@ bool Ciphertext<Element>::Deserialize(const Serialized& serObj) {
 	if( mIter == serObj.MemberEnd() )
 		return false;
 
-	this->m_isEncrypted = (std::stoi(mIter->value.GetString()) == 1) ? true : false;
 	return true;
 }
 

@@ -334,13 +334,11 @@ namespace lbcrypto {
 
 		const Element &c2 = plaintext->GetElement<Element>();
 
-		Element zeroElement(ciphertext->GetElementParms(), Format::EVALUATION, true);
-
 		std::vector<Element> cNew;
 
 		cNew.push_back(std::move(c1[0] * c2));
 
-		cNew.push_back(std::move(zeroElement));
+		cNew.push_back(std::move(c1[1] * c2));
 
 		newCiphertext->SetElements(std::move(cNew));
 

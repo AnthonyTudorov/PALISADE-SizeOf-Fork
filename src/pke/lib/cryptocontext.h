@@ -442,7 +442,7 @@ public:
 		if( privateKey == NULL || Mismatched(privateKey->GetCryptoContext()) )
 			throw std::logic_error("Information passed to MultipartyDecryptLead was not generated with this crypto context");
 
-		if( ciphertext == NULL || ciphertext->GetCryptoContext() != this )
+		if( ciphertext == NULL || Mismatched(ciphertext->GetCryptoContext()) )
 			throw std::logic_error("The ciphertext passed to MultipartyDecryptLead was not generated with this crypto context");
 
 		shared_ptr<Ciphertext<Element>> newCiphertext;
@@ -474,7 +474,7 @@ public:
 		if( privateKey == NULL || Mismatched(privateKey->GetCryptoContext()) )
 			throw std::logic_error("Information passed to MultipartyDecryptMain was not generated with this crypto context");
 
-		if( ciphertext == NULL || ciphertext->GetCryptoContext() != this )
+		if( ciphertext == NULL || Mismatched(ciphertext->GetCryptoContext()) )
 			throw std::logic_error("The ciphertext passed to MultipartyDecryptMain was not generated with this crypto context");
 
 		shared_ptr<Ciphertext<Element>> newCiphertext;
@@ -516,14 +516,14 @@ public:
 		if( doTiming ) start = currentDateTime();
 
 		for( size_t i = 0; i < last_ciphertext; i++ ) {
-			if (partialCiphertextVec[i] == NULL || partialCiphertextVec[i]->GetCryptoContext() != this)
+			if (partialCiphertextVec[i] == NULL || Mismatched(partialCiphertextVec[i]->GetCryptoContext()))
 				throw std::logic_error("A ciphertext passed to MultipartyDecryptFusion was not generated with this crypto context");
 			if (partialCiphertextVec[i]->GetEncodingType() != partialCiphertextVec[0]->GetEncodingType())
 				throw std::logic_error("Ciphertexts passed to MultipartyDecryptFusion have mismatched encoding types");
 		}
 
 		// determine which type of plaintext that you need to decrypt into
-		shared_ptr<Plaintext> decrypted = GetPlaintextForDecrypt(partialCiphertextVec[0]->GetEncodingType(), this->GetElementParams(), this->GetEncodingParms());
+		shared_ptr<Plaintext> decrypted = GetPlaintextForDecrypt(partialCiphertextVec[0]->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
 
 		result = GetEncryptionAlgorithm()->MultipartyDecryptFusion(partialCiphertextVec, &decrypted->GetElement<Poly>());
 
@@ -661,7 +661,7 @@ public:
 		if( plaintext == NULL )
 			throw std::logic_error("null plaintext passed to Encrypt");
 
-		if( publicKey->GetCryptoContext() != this )
+		if( Mismatched(publicKey->GetCryptoContext()) )
 			throw std::logic_error("key passed to Encrypt was not generated with this crypto context");
 
 		double start = 0;
@@ -732,7 +732,7 @@ public:
 		if( plaintext == NULL )
 			throw std::logic_error("null plaintext passed to Encrypt");
 
-		if( privateKey->GetCryptoContext() != this )
+		if( Mismatched(privateKey->GetCryptoContext()) )
 			throw std::logic_error("key passed to Encrypt was not generated with this crypto context");
 
 		double start = 0;
@@ -765,7 +765,7 @@ public:
 		shared_ptr<Matrix<RationalCiphertext<Element>>> cipherResults(new Matrix<RationalCiphertext<Element>>
 			(zeroAlloc, plaintext.GetRows(), plaintext.GetCols()));
 
-		if (publicKey == NULL || publicKey->GetCryptoContext() != this)
+		if (publicKey == NULL || Mismatched(publicKey->GetCryptoContext()))
 			throw std::logic_error("key passed to EncryptMatrix was not generated with this crypto context");
 
 		double start = 0;
@@ -778,7 +778,7 @@ public:
 
 				shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, plaintext(row,col)->GetElement<Element>());
 
-				(*cipherResults)(row, col).SetNumerator(*ciphertext);
+				(*cipherResults)(row, col).SetNumerator(ciphertext);
 			}
 		}
 
@@ -940,41 +940,41 @@ public:
 	// FIXME comments
 	shared_ptr<Plaintext> MakeScalarPlaintext(uint32_t value, bool isSigned = false) const {
 		if( isSigned )
-			return shared_ptr<Plaintext>( new ScalarEncoding( this->GetElementParams(), this->GetEncodingParms(), (int32_t)value ) );
+			return shared_ptr<Plaintext>( new ScalarEncoding( this->GetElementParams(), this->GetEncodingParams(), (int32_t)value ) );
 		else
-			return shared_ptr<Plaintext>( new ScalarEncoding( this->GetElementParams(), this->GetEncodingParms(), value ) );
+			return shared_ptr<Plaintext>( new ScalarEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
 	}
 
 	shared_ptr<Plaintext> MakeStringPlaintext(string str) const {
-		return shared_ptr<Plaintext>( new StringEncoding( this->GetElementParams(), this->GetEncodingParms(), str ) );
+		return shared_ptr<Plaintext>( new StringEncoding( this->GetElementParams(), this->GetEncodingParams(), str ) );
 	}
 
 	shared_ptr<Plaintext> MakeIntegerPlaintext(uint32_t value) const {
-		return shared_ptr<Plaintext>( new IntegerEncoding( this->GetElementParams(), this->GetEncodingParms(), value ) );
+		return shared_ptr<Plaintext>( new IntegerEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
 	}
 
 	shared_ptr<Plaintext> MakeCoefPackedPlaintext(vector<uint32_t> value, bool isSigned = false) const {
-		return shared_ptr<Plaintext>( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParms(), value, isSigned ) );
+		return shared_ptr<Plaintext>( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value, isSigned ) );
 	}
 
 	shared_ptr<Plaintext> MakeCoefPackedPlaintext(vector<int32_t> value) const {
-		return shared_ptr<Plaintext>( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParms(), value ) );
+		return shared_ptr<Plaintext>( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
 	}
 
 	shared_ptr<Plaintext> MakeCoefPackedPlaintext(std::initializer_list<uint32_t> value, bool isSigned = false) const {
-		return shared_ptr<Plaintext>( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParms(), value, isSigned ) );
+		return shared_ptr<Plaintext>( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value, isSigned ) );
 	}
 
 	shared_ptr<Plaintext> MakeCoefPackedPlaintext(std::initializer_list<int32_t> value) const {
-		return shared_ptr<Plaintext>( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParms(), value ) );
+		return shared_ptr<Plaintext>( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
 	}
 
 	shared_ptr<Plaintext> MakePackedPlaintext(vector<uint32_t> value) const {
-		return shared_ptr<Plaintext>( new PackedIntPlaintextEncoding( this->GetElementParams(), this->GetEncodingParms(), value ) );
+		return shared_ptr<Plaintext>( new PackedIntPlaintextEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
 	}
 
 	shared_ptr<Plaintext> MakePackedPlaintext(std::initializer_list<uint32_t> value) const {
-		return shared_ptr<Plaintext>( new PackedIntPlaintextEncoding( this->GetElementParams(), this->GetEncodingParms(), value ) );
+		return shared_ptr<Plaintext>( new PackedIntPlaintextEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
 	}
 
 	// FIXME make this private
@@ -1025,14 +1025,14 @@ public:
 			const shared_ptr<Ciphertext<Element>> ciphertext,
 			shared_ptr<Plaintext>* plaintext)
 	{
-		if( privateKey == NULL || privateKey->GetCryptoContext() != this )
+		if( privateKey == NULL || Mismatched(privateKey->GetCryptoContext()) )
 			throw std::logic_error("Information passed to Decrypt was not generated with this crypto context");
 
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
 
 		// determine which type of plaintext that you need to decrypt into
-		shared_ptr<Plaintext> decrypted = GetPlaintextForDecrypt(ciphertext->GetEncodingType(), this->GetElementParams(), this->GetEncodingParms());
+		shared_ptr<Plaintext> decrypted = GetPlaintextForDecrypt(ciphertext->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
 
 		DecryptResult result = GetEncryptionAlgorithm()->Decrypt(privateKey, ciphertext, &decrypted->GetElement<Poly>());
 
@@ -1070,7 +1070,7 @@ public:
 			(ciphertext->GetCols() != denominator->GetCols()) || (ciphertext->GetRows() != denominator->GetRows()))
 			throw std::runtime_error("Ciphertext and plaintext matrices have different dimensions");
 
-		if (privateKey == NULL || privateKey->GetCryptoContext() != this)
+		if (privateKey == NULL || Mismatched(privateKey->GetCryptoContext()))
 			throw std::runtime_error("Information passed to DecryptMatrix was not generated with this crypto context");
 
 		double start = 0;
@@ -1079,20 +1079,20 @@ public:
 		{
 			for (size_t col = 0; col < ciphertext->GetCols(); col++)
 			{
-				if ((*ciphertext)(row, col).GetCryptoContext() != this)
+				if (Mismatched((*ciphertext)(row, col).GetCryptoContext()))
 					throw std::runtime_error("A ciphertext passed to DecryptMatrix was not generated with this crypto context");
 
 				const shared_ptr<Ciphertext<Element>> ctN = (*ciphertext)(row, col).GetNumerator();
 
 				// determine which type of plaintext that you need to decrypt into
-				shared_ptr<Plaintext> decryptedNumerator = GetPlaintextForDecrypt(ctN->GetEncodingType(), this->GetElementParams(), this->GetEncodingParms());
+				shared_ptr<Plaintext> decryptedNumerator = GetPlaintextForDecrypt(ctN->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
 				DecryptResult resultN = GetEncryptionAlgorithm()->Decrypt(privateKey, ctN, &decryptedNumerator->GetElement<Poly>());
 
 				if (resultN.isValid == false) return resultN;
 
 				(*numerator)(row,col)->Decode();
 
-				shared_ptr<Plaintext> decryptedDenominator = GetPlaintextForDecrypt(ctN->GetEncodingType(), this->GetElementParams(), this->GetEncodingParms());
+				shared_ptr<Plaintext> decryptedDenominator = GetPlaintextForDecrypt(ctN->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
 				if( (*ciphertext)(row,col).GetIntegerFlag() == true ) {
 					decryptedDenominator->GetElement<Poly>().SetValuesToZero();
 					decryptedDenominator->GetElement<Poly>().SetValAtIndex(0,1);
@@ -1357,7 +1357,7 @@ public:
 					throw std::logic_error("Library can only stream string encodings");
 				}
 
-				pte[whichArray] = GetPlaintextForDecrypt(ct->GetEncodingType(), this->GetElementParams(), this->GetEncodingParms());
+				pte[whichArray] = GetPlaintextForDecrypt(ct->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
 				DecryptResult res = GetEncryptionAlgorithm()->Decrypt(privateKey, ct, &pte[whichArray]->GetElement<Poly>());
 				if( !res.isValid )
 					return;
@@ -1393,7 +1393,7 @@ public:
 		if( evalKey == NULL || Mismatched(evalKey->GetCryptoContext()) )
 			throw std::logic_error("Information passed to ReEncrypt was not generated with this crypto context");
 
-		if( ciphertext == NULL || ciphertext->GetCryptoContext() != this )
+		if( ciphertext == NULL || Mismatched(ciphertext->GetCryptoContext()) )
 			throw std::logic_error("The ciphertext passed to ReEncrypt was not generated with this crypto context");
 
 		double start = 0;
@@ -1595,7 +1595,7 @@ public:
 	shared_ptr<Ciphertext<Element>>
 	EvalMult(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Plaintext> pt2) const
 	{
-		if( ct1 == NULL || pt2 == NULL || ct1->GetCryptoContext() != this )
+		if( ct1 == NULL || pt2 == NULL || Mismatched(ct1->GetCryptoContext()) )
 			throw std::logic_error("Information passed to EvalMult was not generated with this crypto context");
 
 		double start = 0;
@@ -1610,10 +1610,13 @@ public:
 	shared_ptr<Matrix<RationalCiphertext<Element>>>
 	EvalMultMatrix(const shared_ptr<Matrix<RationalCiphertext<Element>>> ct1, const shared_ptr<Matrix<RationalCiphertext<Element>>> ct2) const
 	{
-		if (ciphertext == NULL || plaintext == NULL ||
-				Mismatched(ciphertext->GetCryptoContext()) ||
-				Mismatched(plaintext->GetCryptoContext()) )
-			throw std::logic_error("Information passed to EvalMult was not generated with this crypto context");
+		if( ct1 == NULL || ct2 == NULL )
+			throw std::logic_error("Null argument(s) passed to EvalMultMatrix");
+		if( (*ct1)(0,0).GetKeyTag() != (*ct2)(0,0).GetKeyTag() )
+			throw std::logic_error("Ciphertexts were not encrypted with same keys, cannot be used by EvalMultMatrix");
+		// Since the IDs match we know they're both from the same context; only need to check one
+		if( Mismatched((*ct1)(0,0).GetCryptoContext()) )
+			throw std::logic_error("Ciphertexts passed to EvalMultMatrix was not generated with this crypto context");
 
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
@@ -1971,7 +1974,7 @@ public:
 				Mismatched(keySwitchHint->GetCryptoContext()) )
 			throw std::logic_error("Key passed to RingReduce was not generated with this crypto context");
 
-		if( ciphertext == NULL || ciphertext->GetCryptoContext() != this )
+		if( ciphertext == NULL || Mismatched(ciphertext->GetCryptoContext()) )
 			throw std::logic_error("Ciphertext passed to RingReduce was not generated with this crypto context");
 
 		shared_ptr<Ciphertext<Element>> newCiphertext;

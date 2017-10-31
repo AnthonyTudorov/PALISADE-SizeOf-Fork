@@ -2145,10 +2145,10 @@ namespace lbcrypto {
 			}
 		}
 
-		shared_ptr<Ciphertext<Element>> EvalNegate(const shared_ptr<Ciphertext<Element>> ciphertext) const {
+		shared_ptr<Ciphertext<Element>> EvalMultMany(const shared_ptr<Ciphertext<Element>> ciphertext, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> evalKeys) const {
 
 			if (this->m_algorithmSHE){
-				return this->m_algorithmSHE->EvalMultMany(cipherTextList, evalKeys);
+				return this->m_algorithmSHE->EvalMultMany(ciphertext, evalKeys);
 			}
 			else {
 				throw std::logic_error("EvalMultMany operation has not been enabled");

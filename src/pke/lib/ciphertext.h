@@ -54,7 +54,7 @@ namespace lbcrypto {
 		 * @param cc
 		 */
 		Ciphertext(shared_ptr<CryptoContext<Element>> cc, const string& id = "") :
-			CryptoObject<Element>(cc.get(), id), m_depth(1), encodingType(Unknown) {}
+			CryptoObject<Element>(cc, id), m_depth(1), encodingType(Unknown) {}
 
 		/**
 		 * Construct a new ciphertext from the parameters of a given public key
@@ -80,6 +80,11 @@ namespace lbcrypto {
 			m_elements = std::move(ciphertext.m_elements);
 			m_depth = std::move(ciphertext.m_depth);
 			encodingType = std::move(ciphertext.encodingType);
+		}
+
+		shared_ptr<Ciphertext<Element>> CloneEmpty() const {
+			shared_ptr<Ciphertext<Element>> ct( new Ciphertext<Element>(this->GetCryptoContext(), this->GetKeyTag()) );
+			return ct;
 		}
 
 		/**
@@ -215,7 +220,7 @@ namespace lbcrypto {
 			if( !CryptoObject<Element>::operator==(rhs) )
 				return false;
 
-			if( this->m_depth != rhs.m_depth || this->m_isEncrypted != rhs.m_isEncrypted )
+			if( this->m_depth != rhs.m_depth )
 				return false;
 
 			const std::vector<Element> &lhsE = this->GetElements();
