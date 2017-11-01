@@ -1023,10 +1023,11 @@ Poly DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const typenam
 
 }
 
-/*
+
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
 DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::SwitchCRTBasis(
-		const shared_ptr<ParmType> params, const std::vector<typename PolyType::Integer> &precomputedTable, const std::vector<typename PolyType::Integer> &qInv) const{
+		const shared_ptr<ParmType> params, const std::vector<typename PolyType::Integer> &qInvModqi,
+		const std::vector<typename PolyType::Integer> &qDivqiModsi, const std::vector<typename PolyType::Integer> &qModsi) const{
 
 	DCRTPolyType ans(params,COEFFICIENT,true);
 
@@ -1036,19 +1037,39 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 	usint nTowers = m_vectors.size();
 
 	for( usint ri = 0; ri < ringDimension; ri++ ) {
+		double lyam = 0.0;
+		typename PolyType::Integer curValue;
+
+		//first round - compute "fast conversion"
 		for( usint vi = 0; vi < nTowers; vi++ ) {
 			const typename PolyType::Integer &xi = m_vectors[vi].GetValues()[ri];
 			const typename PolyType::Integer &qi = m_vectors[vi].GetModulus();
-			ans.m_vectors[vi].SetValues(ri,xi.ModMulFast)
-			//YSP: MultiplyAndDivideQuotient and MultiplyAndDivideRemainder can be combined in one call
-			curIntSum += xi.MultiplyAndDivideQuotient(p,qi).ModMulFast(qInv[vi],p);
-			curFloatSum += xi.MultiplyAndDivideRemainder(p,qi).ConvertToInt()*lyam[vi];
+			const typename PolyType::Integer &si = ans.m_vectors[vi].GetModulus();
+
+			//computes [xi (q/qi)^{-1}]_qi
+			const typename PolyType::Integer &xInv = xi.ModMulFast(qInvModqi[vi],qi);
+
+			//computes [xi (q/qi)^{-1}]_qi / qi
+			lyam += (double)xInv.ConvertToInt()/(double)qi.ConvertToInt();
+
+			curValue = xInv.ModMulFast(qDivqiModsi[vi],si);
+
 		}
 
-		coefficients[ri] = BigInteger((curIntSum + typename PolyType::Integer(std::llround(curFloatSum))).Mod(p).ConvertToInt());
+		// alpha corresponds to the number of overflows
+		typename PolyType::Integer alpha = std::floor(lyam);
+
+		//second round - remove q-overflows
+		for( usint vi = 0; vi < nTowers; vi++ ) {
+			const typename PolyType::Integer &si = ans.m_vectors[vi].GetModulus();
+			ans.m_vectors[vi].SetValAtIndex(ri,curValue.ModSubFast(alpha.ModMulFast(qModsi[vi],si),si));
+		}
+
 	}
 
-}*/
+	return std::move(ans);
+
+}
 
 /*Switch format calls IlVector2n's switchformat*/
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
