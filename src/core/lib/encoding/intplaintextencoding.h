@@ -101,7 +101,7 @@ public:
 	bool Encode() { return false; }
 	bool Decode() { return false; }
 
-	/**: Plaintext(shared_ptr<Poly::Params>(0),NULL)
+	/**
 	 * Interface for the operation of converting from current plaintext encoding to Poly.
 	 *
 	 * @param  modulus - used for encoding.

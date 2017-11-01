@@ -18,8 +18,7 @@ bin/demo/pke/Temp-lr-ols decrypt demoData ccLR keyFileLinReg demoData lr-data-re
 
 #include "cryptocontexthelper.h"
 
-#include "encoding/byteplaintextencoding.h"
-#include "encoding/packedintplaintextencoding.h"
+#include "encoding/encodings.h"
 
 #include "utils/debug.h"
 #include <random>

@@ -56,6 +56,18 @@ public:
 
     SignedIntPlaintextEncoding() : Plaintext(shared_ptr<Poly::Params>(0),NULL), std::vector<int32_t>() {}
 
+	/**
+	 * Encode the plaintext into the Poly
+	 * @return true on success
+	 */
+	bool Encode();
+
+	/**
+	 * Decode the Poly into the string
+	 * @return true on success
+	 */
+	bool Decode();
+
 	/** Interface for the operation of converting from current plaintext encoding to Poly.
 	*
 	* @param  modulus - used for encoding.

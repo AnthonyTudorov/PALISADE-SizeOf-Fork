@@ -547,9 +547,6 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		shared_ptr<Ciphertext<Poly>> EvalMult(const shared_ptr<Ciphertext<Poly>> ciphertext1,
 			const shared_ptr<Ciphertext<Poly>> ciphertext2) const;
 
-		shared_ptr<Ciphertext<DCRTPoly>> EvalMult(const shared_ptr<Ciphertext<DCRTPoly>> ciphertext1,
-			const shared_ptr<Ciphertext<DCRTPoly>> ciphertext2) const;
-
 		/**
 		* Function for evaluating multiplication of ciphertext by plaintext
 		*
@@ -560,6 +557,23 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		shared_ptr<Ciphertext<Poly>> EvalMult(const shared_ptr<Ciphertext<Poly>> ciphertext1,
 			const shared_ptr<Plaintext> ciphertext2) const;
 
+		/**
+		 * Function for evaluating multiplication on ciphertext.
+		 *
+		 * @param &ciphertext1 first input ciphertext.
+		 * @param &ciphertext2 second input ciphertext.
+		 * @param *newCiphertext the new resulting ciphertext.
+		 */
+		shared_ptr<Ciphertext<DCRTPoly>> EvalMult(const shared_ptr<Ciphertext<DCRTPoly>> ciphertext1,
+			const shared_ptr<Ciphertext<DCRTPoly>> ciphertext2) const;
+
+		/**
+		* Function for evaluating multiplication of ciphertext by plaintext
+		*
+		* @param &ciphertext input ciphertext.
+		* @param &plaintext input plaintext embedded in cryptocontext.
+		* @param *newCiphertext the new resulting ciphertext.
+		*/
 		shared_ptr<Ciphertext<DCRTPoly>> EvalMult(const shared_ptr<Ciphertext<DCRTPoly>> ciphertext1,
 			const shared_ptr<Plaintext> ciphertext2) const;
 
@@ -590,16 +604,6 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 
 			return EvalMult(ciphertext1, ciphertext2);
 		}
-
-		/**
-		* Function for evaluating multiplication of ciphertext by plaintext
-		*
-		* @param &ciphertext input ciphertext.
-		* @param &plaintext input plaintext embedded in cryptocontext.
-		* @param *newCiphertext the new resulting ciphertext.
-		*/
-		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext,
-			const shared_ptr<Plaintext> plaintext) const;
 
 		/**
 		* Unimplemented function to support  a multiplication with depth larger than 2 for the NULL scheme.

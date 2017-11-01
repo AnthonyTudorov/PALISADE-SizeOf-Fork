@@ -50,8 +50,7 @@ bin/demo/pke/Temp-lr-ols-multi fusedecode demoData ccLRMulti demoData A demoData
 
 #include "cryptocontexthelper.h"
 
-#include "encoding/byteplaintextencoding.h"
-#include "encoding/packedintplaintextencoding.h"
+#include "encoding/encodings.h"
 
 #include "utils/debug.h"
 #include <random>

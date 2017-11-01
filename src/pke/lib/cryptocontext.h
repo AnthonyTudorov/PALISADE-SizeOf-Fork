@@ -703,7 +703,7 @@ public:
 //		if( publicKey == NULL || publicKey->GetCryptoContext() != this )
 //			throw std::logic_error("key passed to Encrypt was not generated with this crypto context");
 //
-//		const BigInteger& ptm = this->GetEncodingParms()->GetPlaintextModulus();
+//		const BigInteger& ptm = this->GetEncodingParams()->GetPlaintextModulus();
 //
 //		double start = 0;
 //		if( doTiming ) start = currentDateTime();
@@ -760,13 +760,13 @@ public:
 		const shared_ptr<LPPublicKey<Element>> publicKey,
 		Matrix<shared_ptr<Plaintext>> &plaintext)
 	{
-		auto zeroAlloc = [=]() { return make_unique<RationalCiphertext<Element>>(this, true); };
+		if (publicKey == NULL || Mismatched(publicKey->GetCryptoContext()))
+			throw std::logic_error("key passed to EncryptMatrix was not generated with this crypto context");
+
+		auto zeroAlloc = [=]() { return make_unique<RationalCiphertext<Element>>(publicKey->GetCryptoContext(), true); };
 
 		shared_ptr<Matrix<RationalCiphertext<Element>>> cipherResults(new Matrix<RationalCiphertext<Element>>
 			(zeroAlloc, plaintext.GetRows(), plaintext.GetCols()));
-
-		if (publicKey == NULL || Mismatched(publicKey->GetCryptoContext()))
-			throw std::logic_error("key passed to EncryptMatrix was not generated with this crypto context");
 
 		double start = 0;
 		if( doTiming ) start = currentDateTime();

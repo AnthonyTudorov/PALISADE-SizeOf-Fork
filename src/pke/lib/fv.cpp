@@ -759,9 +759,10 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMultAndRelineariz
 	const shared_ptr<Ciphertext<Element>> ciphertext2,
 	const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> ek) const {
 
-	if(!ciphertext2->GetIsEncrypted()) {
-		return EvalMultPlain(ciphertext1, ciphertext2);
-	}
+	// FIXME add a plaintext method for this
+//	if(!ciphertext2->GetIsEncrypted()) {
+//		return EvalMultPlain(ciphertext1, ciphertext2);
+//	}
 	//Perform a multiplication
 	shared_ptr<Ciphertext<Element>> cipherText = this->EvalMult(ciphertext1, ciphertext2);
 

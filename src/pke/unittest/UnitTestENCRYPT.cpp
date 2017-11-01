@@ -414,15 +414,15 @@ UnitTestEncryption(const shared_ptr<CryptoContext<Element>> cc) {
 
 	string shortStr(vecSize/2,0);
 	std::generate_n(shortStr.begin(), vecSize/2, randchar);
-	shared_ptr<Plaintext> plaintextShort( new StringEncoding(cc->GetElementParams(), cc->GetEncodingParms(), shortStr) );
+	shared_ptr<Plaintext> plaintextShort( new StringEncoding(cc->GetElementParams(), cc->GetEncodingParams(), shortStr) );
 
 	string fullStr(vecSize,0);
 	std::generate_n(fullStr.begin(), vecSize, randchar);
-	shared_ptr<Plaintext> plaintextFull( new StringEncoding(cc->GetElementParams(), cc->GetEncodingParms(), fullStr) );
+	shared_ptr<Plaintext> plaintextFull( new StringEncoding(cc->GetElementParams(), cc->GetEncodingParams(), fullStr) );
 
 	string longStr(vecSize*2,0);
 	std::generate_n(longStr.begin(), vecSize*2, randchar);
-	shared_ptr<Plaintext> plaintextLong( new StringEncoding(cc->GetElementParams(), cc->GetEncodingParms(), longStr) );
+	shared_ptr<Plaintext> plaintextLong( new StringEncoding(cc->GetElementParams(), cc->GetEncodingParams(), longStr) );
 
 	auto ptm = cc->GetCryptoParameters()->GetPlaintextModulus().ConvertToInt();
 

@@ -505,6 +505,20 @@ namespace lbcrypto {
 			const shared_ptr<Ciphertext<Element>> ct, const shared_ptr<LPEvalKey<Element>> ek) const;
 
 		/**
+		* Function for evaluating multiplication on ciphertext followed by relinearization operation.
+		* Currently it assumes that the input arguments have total depth smaller than the supported depth. Otherwise, it throws an error.
+		* Currently it assumes that the input arguments are fresh ciphertexts (of depth 1). Support for the input ciphertexts of higher depths will be added later.
+		*
+		* @param ct1 first input ciphertext.
+		* @param ct2 second input ciphertext.
+		* @param ek is the evaluation key to make the newCiphertext
+		*  decryptable by the same secret key as that of ciphertext1 and ciphertext2.
+		* @param *newCiphertext the new resulting ciphertext.
+		*/
+		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ct1,
+			const shared_ptr<Plaintext> ct, const shared_ptr<LPEvalKey<Element>> ek) const;
+
+		/**
 		* Function for evaluating multiplication on ciphertext followed by relinearization operation. It computes the
 		* multiplication in a binary tree manner. Also, it reduces the number of elements in the ciphertext to two after each multiplication.
 		* Currently it assumes that the consecutive two input arguments have total depth smaller than the supported depth. Otherwise, it throws an error.
@@ -519,7 +533,6 @@ namespace lbcrypto {
 		/**
 		* Function for evaluating multiplication on ciphertext followed by relinearization operation.
 		* Currently it assumes that the input arguments have total depth smaller than the supported depth. Otherwise, it throws an error.
-		* Currently it assumes that the input arguments are fresh ciphertexts (of depth 1). Support for the input ciphertexts of higher depths will be added later.
 		*
 		* @param ct1 first input ciphertext.
 		* @param ct2 second input ciphertext.
@@ -527,8 +540,8 @@ namespace lbcrypto {
 		*  decryptable by the same secret key as that of ciphertext1 and ciphertext2.
 		* @param *newCiphertext the new resulting ciphertext.
 		*/
-		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ct1,
-			const shared_ptr<Plaintext> ct, const shared_ptr<LPEvalKey<Element>> ek) const;
+		shared_ptr<Ciphertext<Element>> EvalMultAndRelinearize(const shared_ptr<Ciphertext<Element>> ct1,
+			const shared_ptr<Ciphertext<Element>> ct, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> ek) const;
 
 		/**
 		* Function for homomorphic negation of ciphertexts.

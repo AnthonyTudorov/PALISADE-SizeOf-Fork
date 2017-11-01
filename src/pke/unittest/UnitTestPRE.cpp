@@ -67,22 +67,22 @@ UnitTestReEncrypt(shared_ptr<CryptoContext<Element>> cc, bool publicVersion) {
 
 	string shortStr(vecSize/2,0);
 	std::generate_n(shortStr.begin(), vecSize/2, randchar);
-	shared_ptr<Plaintext> plaintextShort( new StringEncoding(cc->GetElementParams(), cc->GetEncodingParms(), shortStr) );
+	shared_ptr<Plaintext> plaintextShort( new StringEncoding(cc->GetElementParams(), cc->GetEncodingParams(), shortStr) );
 
 	string fullStr(vecSize,0);
 	std::generate_n(fullStr.begin(), vecSize, randchar);
-	shared_ptr<Plaintext> plaintextFull( new StringEncoding(cc->GetElementParams(), cc->GetEncodingParms(), fullStr) );
+	shared_ptr<Plaintext> plaintextFull( new StringEncoding(cc->GetElementParams(), cc->GetEncodingParams(), fullStr) );
 
 	string longStr(vecSize*2,0);
 	std::generate_n(longStr.begin(), vecSize*2, randchar);
-	shared_ptr<Plaintext> plaintextLong( new StringEncoding(cc->GetElementParams(), cc->GetEncodingParms(), longStr) );
+	shared_ptr<Plaintext> plaintextLong( new StringEncoding(cc->GetElementParams(), cc->GetEncodingParams(), longStr) );
 
 	auto ptm = cc->GetCryptoParameters()->GetPlaintextModulus().ConvertToInt();
 
 	vector<uint32_t> intvec;
 	for( size_t ii=0; ii<vecSize; ii++)
 		intvec.push_back( rand() % ptm );
-	shared_ptr<Plaintext> plaintextInt( new CoefPackedEncoding(cc->GetElementParams(), cc->GetEncodingParms(), intvec) );
+	shared_ptr<Plaintext> plaintextInt( new CoefPackedEncoding(cc->GetElementParams(), cc->GetEncodingParams(), intvec) );
 
 	IntPlaintextEncoding ptInt1( intvec );
 	IntPlaintextEncoding ptInt2 = ptInt1;

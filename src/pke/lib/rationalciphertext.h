@@ -41,7 +41,7 @@ namespace lbcrypto {
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
-	class RationalCiphertext : public CryptoObject<Element>, public Serializable {
+	class RationalCiphertext : public CryptoObject<Element> {
 	public:
 
 		/**
