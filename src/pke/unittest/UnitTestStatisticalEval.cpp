@@ -216,9 +216,9 @@ TEST_F(UTStatisticalEval, Null_Eval_Lin_Regression_Int) {
 	// Correct output
 	////////////////////////////////////////////////////////////
 
-	int32_t numerator1 = -3528000;
-	int32_t numerator2 = 6193600;
-	int32_t denominatorExpected = 313600;
+	uint32_t numerator1 = -3528000;
+	uint32_t numerator2 = 6193600;
+	uint32_t denominatorExpected = 313600;
 
 	EXPECT_EQ(numerator1, numerator(0, 0)->GetIntegerValue());
 	EXPECT_EQ(numerator2, numerator(1, 0)->GetIntegerValue());
@@ -297,9 +297,9 @@ TEST_F(UTStatisticalEval, FV_Eval_Lin_Regression_Int) {
 	// Correct output
 	////////////////////////////////////////////////////////////
 
-	int32_t numerator1 = -3528000;
-	int32_t numerator2 = 6193600;
-	int32_t denominatorExpected = 313600;
+	uint32_t numerator1 = -3528000;
+	uint32_t numerator2 = 6193600;
+	uint32_t denominatorExpected = 313600;
 
 	EXPECT_EQ(numerator1, numerator(0, 0)->GetIntegerValue());
 	EXPECT_EQ(numerator2, numerator(1, 0)->GetIntegerValue());

@@ -385,7 +385,7 @@ namespace lbcrypto {
 		* @param evalKey The evaluation key input.
 		* @return A shared pointer to the ciphertext which is the result of the multiplication.
 		*/
-		shared_ptr<Ciphertext<Element>> EvalMultMany(const shared_ptr<vector<shared_ptr<Ciphertext<Element>>>> cipherTextList, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> evalKeys) const {
+		shared_ptr<Ciphertext<Element>> EvalMultMany(const vector<shared_ptr<Ciphertext<Element>>>& cipherTextList, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> evalKeys) const {
 			std::string errMsg = "LPAlgorithmSHEBV::EvalMultMany is not implemented for the BV Scheme.";
 			throw std::runtime_error(errMsg);
 		}

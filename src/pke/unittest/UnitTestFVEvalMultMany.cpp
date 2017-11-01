@@ -141,21 +141,17 @@ TEST(UTFVEVALMM, Poly_FV_Eval_Mult_Many_Operations) {
 	cryptoContext->Decrypt(keyPair.secretKey, ciphertextMul123, &plaintextMul2);
 	cryptoContext->Decrypt(keyPair.secretKey, ciphertextMul1234, &plaintextMul3);
 
-	plaintextMul1.resize(plaintext1.size());
-	plaintextMul2.resize(plaintext1.size());
-	plaintextMul3.resize(plaintext1.size());
-
 	////////////////////////////////////////////////////////////
 	//Prepare EvalMultMany
 	////////////////////////////////////////////////////////////
 
 	shared_ptr<Ciphertext<Poly>> ciphertextMul12345;
-	shared_ptr<vector<shared_ptr<Ciphertext<Poly>>>> cipherTextList(new vector<shared_ptr<Ciphertext<Poly>>>);
+	vector<shared_ptr<Ciphertext<Poly>>> cipherTextList;
 
-	cipherTextList->push_back(ciphertext1[0]);
-	cipherTextList->push_back(ciphertext2[0]);
-	cipherTextList->push_back(ciphertext3[0]);
-	cipherTextList->push_back(ciphertext4[0]);
+	cipherTextList.push_back(ciphertext1);
+	cipherTextList.push_back(ciphertext2);
+	cipherTextList.push_back(ciphertext3);
+	cipherTextList.push_back(ciphertext4);
 
 	////////////////////////////////////////////////////////////
 	//Compute EvalMultMany
@@ -163,19 +159,15 @@ TEST(UTFVEVALMM, Poly_FV_Eval_Mult_Many_Operations) {
 
 	ciphertextMul12345 = cryptoContext->GetEncryptionAlgorithm()->EvalMultMany(cipherTextList, evalKeys);
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertextMulVectMany;
-	ciphertextMulVectMany.push_back(ciphertextMul12345);
-
 	////////////////////////////////////////////////////////////
 	//Decrypt EvalMultMany
 	////////////////////////////////////////////////////////////
 
-	IntPlaintextEncoding plaintextMulMany;
-	cryptoContext->Decrypt(keyPair.secretKey, ciphertextMulVectMany, &plaintextMulMany, true);
-	plaintextMulMany.resize(plaintext1.size());
+	shared_ptr<Plaintext> plaintextMulMany;
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertextMul12345, &plaintextMulMany);
 
 
-	EXPECT_EQ(plaintextMul1, plaintextResult1) << "FV.EvalMult gives incorrect results.\n";
+	EXPECT_EQ(*plaintextMul1, *plaintextResult1) << "FV.EvalMult gives incorrect results.\n";
 	EXPECT_EQ(plaintextMul2, plaintextResult2) << "FV.EvalMult gives incorrect results.\n";
 	EXPECT_EQ(plaintextMul3, plaintextResult3) << "FV.EvalMultAndRelinearize gives incorrect results.\n";
 	EXPECT_EQ(plaintextMulMany, plaintextResult3) << "FV.EvalMultMany gives incorrect results.\n";
