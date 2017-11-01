@@ -92,6 +92,26 @@ namespace lbcrypto {
   }
 
   /**
+   * Saves a prettyprinted serialized Palisade object's JSON string to file as a nested JSON data structure 
+   * @param doc is the serialized object's nested JSON data string.
+   * @param outputFileName is the name of the file to save JSON data string to.
+   */
+  bool SerializableHelper::WriteSerializationToPrettyFile(const Serialized& doc, std::string outputFileName) {
+
+    FILE *fp = fopen(outputFileName.c_str(), "w");
+    if( fp == 0 ) return false;
+
+    char writeBuffer[32768];
+    rapidjson::FileWriteStream os(fp, writeBuffer, sizeof(writeBuffer));
+
+    rapidjson::PrettyWriter<rapidjson::FileWriteStream> pwriter(os);
+    doc.Accept(pwriter);
+
+    fclose(fp);
+    return true;
+  }
+
+  /**
    * Generates a map of attribute name value pairs for deserializing a Palisade object from a JSON file
    * @param jsonFileName is the file to read in for the Palisade object's nested serialized JSON data structure.
    * @param serObj containing name value pairs for the attributes of the Palisade object to be deserialized.

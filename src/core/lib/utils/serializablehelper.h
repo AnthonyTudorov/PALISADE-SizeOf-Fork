@@ -117,6 +117,14 @@ namespace lbcrypto {
     static bool WriteSerializationToFile(const Serialized& serObj, std::string outputFileName);
 
     /**
+     * Saves a pretty serialized Palisade object's JSON string to file
+     * @param serObj is the serialized object
+     * @param outputFileName is the name of the file to save JSON data string to.
+     * @return success or failure
+     */
+    static bool WriteSerializationToPrettyFile(const Serialized& serObj, std::string outputFileName);
+
+    /**
      * Read a serialized Palisade object from a JSON file
      * @param jsonFileName is the file to read in for the Palisade object's 
      * nested serialized JSON data structure.
@@ -134,15 +142,15 @@ namespace lbcrypto {
    * foo.Serialize() method to serialize.
    * @param vectorName 
    * @param typeName of element within the vector
-   * @param inVector the STL vector to be serialized
+   * @param &inVector the STL vector to be serialized
    * @param *serObj the serial object to be modfied, if not a serial object
    * then it is made a serial object
    * @return void  TODO: add error code
    */
- 
+  //TODO: make inVector reference
   template<typename T>
     void SerializeVector(const std::string& vectorName, const std::string& typeName,
-			 const std::vector<T> inVector, Serialized* serObj) {
+			 const std::vector<T> &inVector, Serialized* serObj) {
     bool dbg_flag = false;
 
     //make sure the input is a rapidjson object
@@ -186,7 +194,7 @@ namespace lbcrypto {
    */
  
   template<typename T>
-    void SerializeVectorOfPointers(const std::string& vectorName, const std::string& typeName, const std::vector<shared_ptr<T>> inVector, Serialized* serObj) {
+    void SerializeVectorOfPointers(const std::string& vectorName, const std::string& typeName, const std::vector<shared_ptr<T>> &inVector, Serialized* serObj) {
 
     //make sure the input is a rapidjson object
     if( ! serObj->IsObject() )
@@ -250,6 +258,159 @@ namespace lbcrypto {
     serObj->AddMember(SerialItem(mapName, serObj->GetAllocator()), ser, serObj->GetAllocator());
   }
 
+
+  /** 
+   * Helper template Adds the contents of an STL vector<vector<*Matrix<foo>>>
+   * to a serialized Palisade object as a nested JSON data structure
+   * foo must be a pointer to a serializable object as the function uses the 
+   * foo->Serialize method to serialize.
+   * @param vectorName 
+   * @param typeName of element within the vector
+   * @param inVector the STL vector to be serialized
+   * @param *serObj the serial object to be modfied, if not a serial object
+   * then it is made a serial object
+   * @return void  TODO: add error code
+   */
+ 
+  template<typename T>
+    void SerializeVectorOfVectorOfPointersToMatrix(const std::string& vectorName, const std::string& typeName, const std::vector<vector<shared_ptr<Matrix<T>>>> &inVector, Serialized* serObj) {
+
+    //make sure the input is a rapidjson object
+    if( ! serObj->IsObject() )
+      serObj->SetObject();
+    
+    //make top level member
+    Serialized topser(rapidjson::kObjectType, &serObj->GetAllocator());
+    //add top member components
+    topser.AddMember("Container", "VectorOfVectorOfPointerToMatrix", serObj->GetAllocator());
+    topser.AddMember("Typename", typeName, serObj->GetAllocator());
+    topser.AddMember("Length", std::to_string(inVector.size()), serObj->GetAllocator());
+
+    // make member container for all elements
+    Serialized serElements(rapidjson::kObjectType, &serObj->GetAllocator());
+
+    for( size_t i=0; i<inVector.size(); i++ ) {//for each element
+      //serialize the ith element
+      Serialized oneEl(rapidjson::kObjectType, &serObj->GetAllocator());
+      
+      //inVector[i]->Serialize(&oneEl);
+      std::string elName  = vectorName+"_"+std::to_string(i);
+      SerializeVectorOfPointersToMatrix(elName, typeName, inVector[i], &oneEl);
+
+      //add it with the index as a key to the member container
+      SerialItem key( std::to_string(i), serObj->GetAllocator() );
+      serElements.AddMember(key, oneEl.Move(), serObj->GetAllocator());
+    }
+
+    //add the member container to the top level
+    topser.AddMember("Members", serElements.Move(), serObj->GetAllocator());
+
+    //add the top level to the inpupt serial item
+    serObj->AddMember(SerialItem(vectorName, serObj->GetAllocator()), topser, serObj->GetAllocator());
+  }
+
+
+
+    /** 
+   * Helper template Adds the contents of an STL vector<*Matrix<foo>>
+   * to a serialized Palisade object as a nested JSON data structure
+   * foo must be a pointer to a serializable object as the function uses the 
+   * foo->Serialize method to serialize.
+   * @param vectorName 
+   * @param typeName of element within the vector
+   * @param inVector the STL vector to be serialized
+   * @param *serObj the serial object to be modfied, if not a serial object
+   * then it is made a serial object
+   * @return void  TODO: add error code
+   */
+ 
+  template<typename T>
+    void SerializeVectorOfPointersToMatrix(const std::string& vectorName, const std::string& typeName, const std::vector<shared_ptr<Matrix<T>>> &inVector, Serialized* serObj) {
+
+    //make sure the input is a rapidjson object
+    if( ! serObj->IsObject() )
+      serObj->SetObject();
+    
+    //make top level member
+    Serialized topser(rapidjson::kObjectType, &serObj->GetAllocator());
+    //add top member components
+    topser.AddMember("Container", "VectorOfPointerToMatrix", serObj->GetAllocator());
+    topser.AddMember("Typename", typeName, serObj->GetAllocator());
+    topser.AddMember("Length", std::to_string(inVector.size()), serObj->GetAllocator());
+
+    // make member container for all elements
+    Serialized serElements(rapidjson::kObjectType, &serObj->GetAllocator());
+
+    for( size_t i=0; i<inVector.size(); i++ ) {//for each element
+      //serialize the ith element
+      Serialized oneEl(rapidjson::kObjectType, &serObj->GetAllocator());
+      
+      //inVector[i]->Serialize(&oneEl);
+      std::string elName  = "Matrix_"+std::to_string(i);
+      SerializeMatrix(elName, typeName, *inVector[i], &oneEl);
+
+      //add it with the index as a key to the member container
+      SerialItem key( std::to_string(i), serObj->GetAllocator() );
+      serElements.AddMember(key, oneEl.Move(), serObj->GetAllocator());
+    }
+
+    //add the member container to the top level
+    topser.AddMember("Members", serElements.Move(), serObj->GetAllocator());
+
+    //add the top level to the inpupt serial item
+    serObj->AddMember(SerialItem(vectorName, serObj->GetAllocator()), topser, serObj->GetAllocator());
+  }
+
+      /** 
+   * Helper template Adds the contents of an STL vector<Matrix<foo>>
+   * to a serialized Palisade object as a nested JSON data structure
+   * foo must be a pointer to a serializable object as the function uses the 
+   * foo->Serialize method to serialize.
+   * @param vectorName 
+   * @param typeName of element within the vector
+   * @param inVector the STL vector to be serialized
+   * @param *serObj the serial object to be modfied, if not a serial object
+   * then it is made a serial object
+   * @return void  TODO: add error code
+   */
+ 
+  template<typename T>
+    void SerializeVectorOfMatrix(const std::string& vectorName, const std::string& typeName, const std::vector<Matrix<T>> &inVector, Serialized* serObj) {
+
+    //make sure the input is a rapidjson object
+    if( ! serObj->IsObject() )
+      serObj->SetObject();
+    
+    //make top level member
+    Serialized topser(rapidjson::kObjectType, &serObj->GetAllocator());
+    //add top member components
+    topser.AddMember("Container", "VectorOfMatrix", serObj->GetAllocator());
+    topser.AddMember("Typename", typeName, serObj->GetAllocator());
+    topser.AddMember("Length", std::to_string(inVector.size()), serObj->GetAllocator());
+
+    // make member container for all elements
+    Serialized serElements(rapidjson::kObjectType, &serObj->GetAllocator());
+
+    for( size_t i=0; i<inVector.size(); i++ ) {//for each element
+      //serialize the ith element
+      Serialized oneEl(rapidjson::kObjectType, &serObj->GetAllocator());
+      
+      //inVector[i]->Serialize(&oneEl);
+      std::string elName  = "Matrix_"+std::to_string(i);
+      SerializeMatrix(elName, typeName, inVector[i], &oneEl);
+
+      //add it with the index as a key to the member container
+      SerialItem key( std::to_string(i), serObj->GetAllocator() );
+      serElements.AddMember(key, oneEl.Move(), serObj->GetAllocator());
+    }
+
+    //add the member container to the top level
+    topser.AddMember("Members", serElements.Move(), serObj->GetAllocator());
+
+    //add the top level to the inpupt serial item
+    serObj->AddMember(SerialItem(vectorName, serObj->GetAllocator()), topser, serObj->GetAllocator());
+  }
+
   /** 
    * Helper template fills  an STL vector<foo> with the contents of a 
    *  a serialized Palisade object made with SerializeVector
@@ -257,7 +418,7 @@ namespace lbcrypto {
    * foo.Deserialize() method to deserialize.
    * @param vectorName 
    * @param typeName of element within the vector
-   * @param inVector the STD vector to be deserialized
+   * @param *outVector pointer to the STD vector to be deserialized
    * @param it an iterator into the serial object to be deserialisesd
    * @return true if successful false otherwise
    */
@@ -392,7 +553,7 @@ namespace lbcrypto {
    * foo.Serialize() method to serialize.
    * @param matrixName 
    * @param typeName of element within the matrix
-   * @param inVector the STL vector to be serialized
+   * @param inVector the Palisade matrix to be serialized
    * @param *serObj the serial object to be modfied, if not a serial object
    * then it is made a serial object
    * @return void  TODO: add error code

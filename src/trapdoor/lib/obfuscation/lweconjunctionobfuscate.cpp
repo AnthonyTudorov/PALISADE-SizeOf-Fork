@@ -28,7 +28,8 @@
 #define LBCRYPTO_OBFUSCATE_LWECONJUNCTIONOBFUSCATEV3_CPP
 
 #include "lweconjunctionobfuscate.h"
-
+#include "utils/serializable.h"
+#include "utils/serializablehelper.h"
 #include "utils/memory.h"
 #include "utils/debug.h"
  
@@ -63,7 +64,7 @@ usint ClearLWEConjunctionPattern<Element>::GetLength() const {
 // Serialize Operation
 template<class Element>
 bool ClearLWEConjunctionPattern<Element>::Serialize(Serialized* serObj) const {
-  bool dbg_flag = true;
+  bool dbg_flag = false;
   if( !serObj->IsObject() ){
     serObj->SetObject();
   }
@@ -73,10 +74,15 @@ bool ClearLWEConjunctionPattern<Element>::Serialize(Serialized* serObj) const {
   obj.AddMember("PatternString", m_patternString, obj.GetAllocator());
 
   serObj->AddMember("ClearLWEConjunctionPattern", obj.Move(), serObj->GetAllocator());
-
+  
+  if (dbg_flag) {
+    // write the result to cout for debug
+    std::string jsonstring;
+    SerializableHelper::SerializationToPrettyString(*serObj, jsonstring);
+    std::cout<<jsonstring<<std::endl;
+  }
   return true;
 };
-
 
 // Deserialize Operation
 template<class  Element>
@@ -102,7 +108,6 @@ bool ClearLWEConjunctionPattern<Element>::Deserialize(const Serialized& serObj){
     
     this->m_patternString= pIt->value.GetString();
 
-    DEBUGEXP(this->m_patternString);
     return true;
 };
   
@@ -209,7 +214,7 @@ shared_ptr<Matrix<Element>>  ObfuscatedLWEConjunctionPattern<Element>::GetS(usin
 
 // Serialization  
 
- template <class Element>
+ template <typename Element>
 bool ObfuscatedLWEConjunctionPattern<Element>::Serialize(Serialized* serObj) const {
   bool dbg_flag = true;
   DEBUG("in ObfuscatedLWEConjunctionPattern::Serialize");
@@ -220,12 +225,11 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Serialize(Serialized* serObj) con
   //build serialization object to append to
   Serialized obj(rapidjson::kObjectType, &serObj->GetAllocator());
   
-#if 0  //seems not to have a version for NTL
   if (!m_elemParams->Serialize(&obj)){
     std::cout<<"ObfuscatedLWEConjunctionPattern<Element>::Serialize failed to serialize m_elemParams"<< std::endl;
     return false;
   };
-#endif
+
   //length of the pattern
   obj.AddMember("Length", std::to_string(this->GetLength()), obj.GetAllocator());
   
@@ -237,33 +241,19 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Serialize(Serialized* serObj) con
   //base for G-sampling
   obj.AddMember("Base", std::to_string(this->GetBase()), obj.GetAllocator());
   
-#if 0
-  shared_ptr<vector< vector<shared_ptr<Matrix<Element>>> >> m_S_vec;
-  shared_ptr<vector< vector<shared_ptr<Matrix<Element>>> >> m_R_vec;
 
-
-  loop over outer vector {
-    loop over inner vector{
-        deference *Matrix
-           Serialize Matrix<Element>
-	  SerializeVectorOfVectorOfPointers   pointing To Matrix
-	  }
-  }
+  SerializeVectorOfVectorOfPointersToMatrix("S_Vec", Element::GetElementName(), *(this->m_S_vec), &obj);
   
-#endif
+  SerializeVectorOfVectorOfPointersToMatrix("S_Vec", Element::GetElementName(), *(this->m_R_vec), &obj);
+  
   // m_Sl;
-  SerializeMatrix<Element>("Sl", Element::GetElementName(), *this->GetSl(), &obj);
+  SerializeMatrix("Sl", Element::GetElementName(), *this->GetSl(), &obj);
   // m_Rl
-  SerializeMatrix<Element>("Rl", Element::GetElementName(), *this->GetRl(), &obj);
+  SerializeMatrix("Rl", Element::GetElementName(), *this->GetRl(), &obj);
+
+  SerializeVectorOfMatrix("PK", Element::GetElementName(), *this->m_pk, &obj);
 
 #if 0
-  shared_ptr<std::vector<Matrix<Element>>> m_pk;
-
-  loop over vector
-           Serialize Matrix<Element>
-    }
-
-
   shared_ptr<std::vector<RLWETrapdoorPair<Element>>>   m_ek;
 
   loop over vector
@@ -288,6 +278,8 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Serialize(Serialized* serObj) con
 template<class  Element>
 bool ObfuscatedLWEConjunctionPattern<Element>::Deserialize(const Serialized& serObj){
     bool dbg_flag= true;
+
+    stopped here 
     Serialized::ConstMemberIterator iMap = serObj.FindMember("ObfuscatedLWEConjunctionPattern");
     if (iMap == serObj.MemberEnd()) {
       DEBUG("ObfuscatedLWEConjunctionPattern::Deserialize could not find ObfuscatedLWEConjunctionPattern<Element>");

@@ -280,10 +280,12 @@ TEST(UTSer,serialize_vector_bigint){
   //add it to the top level object
   serObj.AddMember("TestVector", obj, serObj.GetAllocator());
   
-  // write the result to cout for debug
-  std::string jsonstring;
-  SerializableHelper::SerializationToPrettyString(serObj, jsonstring);
-  std::cout<<jsonstring<<std::endl;
+  if (dbg_flag) {
+    // write the result to cout for debug
+    std::string jsonstring;
+    SerializableHelper::SerializationToPrettyString(serObj, jsonstring);
+    std::cout<<jsonstring<<std::endl;
+  }
 
   DEBUG("step 5");
   
@@ -353,11 +355,12 @@ TEST(UTSer,serialize_matrix_bigint){
   //add it to the top level object
   serObj.AddMember("TestMatrix", obj, serObj.GetAllocator());
   
-  // write the result to cout for debug
-  std::string jsonstring;
-  SerializableHelper::SerializationToPrettyString(serObj, jsonstring);
-  std::cout<<jsonstring<<std::endl;
-
+  if (dbg_flag) {
+    // write the result to cout for debug
+    std::string jsonstring;
+    SerializableHelper::SerializationToPrettyString(serObj, jsonstring);
+    std::cout<<jsonstring<<std::endl;
+  }
   DEBUG("step 5");
   
   Matrix<BigInteger> newmat(BigInteger::Allocator, 0, 0); //empty matrix
