@@ -47,7 +47,7 @@
  * USABLE FOR ANY STANDARD DEVIATION AND MEAN with only one single precomputation.
  *
  * If a sampler with arbitrary standard deviation and mean suppport is needed, then it is recommended to refer to Karney's sampler in discretegaussiangenerator.cpp
- * which uses Algorithm D from https://arxiv.org/pdf/1303.6257.pdf. It's statistical values pass the Gaussian Distribution tests and can be used for ANY STANDARD DEVIATION
+ * which uses Algorithm D from https://arxiv.org/pdf/1303.6257.pdf. Its statistical values pass the Gaussian Distribution tests and can be used for ANY STANDARD DEVIATION
  * AND CENTER WITHOUT PRECOMPUTATION. However, it may be prone to timing attacks.*/
 
 #ifndef LBCRYPTO_MATH_DISCRETEGAUSSIANGENERATORGENERIC_H_
@@ -153,7 +153,7 @@ private:
 	 */
 	BaseSamplerType b_type;
 
-
+	int fin;
 
 	/**
 	 *The probability matrix used in Knuth-Yao sampling

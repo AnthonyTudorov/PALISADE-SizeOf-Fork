@@ -358,16 +358,16 @@ void BaseSampler::Initialize(double mean) {
 	double acc = 1e-15;
 	double variance = b_std * b_std;
 
-	int fin = (int) ceil(b_std * sqrt(-2 * log(acc)));
+	fin = (int) ceil(b_std * sqrt(-2 * log(acc)));
 	//this value of fin (M) corresponds to the limit for double precision
 	// usually the bound of m_std * M is used, whe                                re M = 20 .. 40 - see DG14 for details
 	// M = 20 corresponds to 1e-87
 	//double mr = 20; // see DG14 for details
 	//int fin = (int)ceil(m_std * mr);
-	double cusum = 1.0;
+	double cusum = 0.0;
 
-	for (sint x = 1+mean; x <= fin; x++) {
-		cusum = cusum + 2* exp(-(x-mean) * (x-mean)/ (variance * 2));
+	for (sint x = -1*fin; x <= fin; x++) {
+		cusum = cusum + exp(-(x-mean) * (x-mean)/ (variance * 2));
 	}
 
 	b_a = 1 / cusum;
@@ -375,7 +375,7 @@ void BaseSampler::Initialize(double mean) {
 	//fin = (int)ceil(sqrt(-2 * variance * log(acc))); //not needed - same as above
 	double temp;
 
-	for (sint i = 1+mean; i <= fin; i++) {
+	for (sint i = -1*fin; i <= fin; i++) {
 		temp = b_a* exp(-((double) ((i - mean)* (i - mean) / (2 * variance))));
 		m_vals.push_back(temp);
 	}
@@ -397,35 +397,22 @@ int64_t BaseSampler::GenerateIntegerPeikert() const {
 
 	std::uniform_real_distribution<double> distribution(0.0, 1.0);
 
-	usint val = 0;
+	int64_t val = 0;
 	double seed;
 	int32_t ans = 0;
-	try {
-		seed = distribution(PseudoRandomNumberGenerator::GetPRNG()) - 0.5; //we need to use the binary uniform generator rathen than regular continuous distribution; see DG14 for details
-		if (std::abs(seed) <= b_a / 2) {
-			val = 0;
-		} else if (seed > 0) {
-			val = FindInVector(m_vals, (std::abs(seed) - b_a / 2));
-		} else {
-			val = -(int) FindInVector(m_vals, (std::abs(seed) - b_a / 2));
-		}
+	try{
+		seed = distribution(PseudoRandomNumberGenerator::GetPRNG()); //we need to use the binary uniform generator rathen than regular continuous distribution; see DG14 for details
+		val = FindInVector(m_vals,seed);
 		ans = val;
-	} catch (std::runtime_error e) {
-
-	}
-	int32_t mean_int = b_mean;
-	double diff = (b_mean - mean_int);
-	if(std::abs(diff)<0.5)
-		return ans+std::floor(b_mean);
-	else
-		return ans+std::ceil(b_mean);
+	}catch (std::runtime_error e) {}
+	return ans - fin;
 }
 
 usint BaseSampler::FindInVector(const std::vector<double> &S, double search) const {
 	//STL binary search implementation
 	auto lower = std::lower_bound(S.begin(), S.end(), search);
 	if (lower != S.end())
-		return lower - S.begin() + 1;
+		return lower - S.begin();
 	else
 		throw std::runtime_error("DGG Inversion Sampling. FindInVector value not found: "+ std::to_string(search));
 }
