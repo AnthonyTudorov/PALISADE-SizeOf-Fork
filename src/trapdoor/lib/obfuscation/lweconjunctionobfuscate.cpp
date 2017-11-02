@@ -222,36 +222,35 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Serialize(Serialized* serObj) con
     serObj->SetObject();
   }
 
-  //build serialization object to append to
-  Serialized obj(rapidjson::kObjectType, &serObj->GetAllocator());
+  //build serialization top object to append to
+  Serialized topobj(rapidjson::kObjectType, &serObj->GetAllocator());
   
-  if (!m_elemParams->Serialize(&obj)){
+  if (!m_elemParams->Serialize(&topobj)){
     std::cout<<"ObfuscatedLWEConjunctionPattern<Element>::Serialize failed to serialize m_elemParams"<< std::endl;
     return false;
   };
 
   //length of the pattern
-  obj.AddMember("Length", std::to_string(this->GetLength()), obj.GetAllocator());
+  topobj.AddMember("Length", std::to_string(this->GetLength()), topobj.GetAllocator());
   
   //lattice security parameter
-  obj.AddMember("RootHermiteFactor", std::to_string(this->GetRootHermiteFactor()), obj.GetAllocator());
+  topobj.AddMember("RootHermiteFactor", std::to_string(this->GetRootHermiteFactor()), topobj.GetAllocator());
   
   //number of bits encoded by one matrix
-  obj.AddMember("ChunkSize", std::to_string(this->GetChunkSize()), obj.GetAllocator());
+  topobj.AddMember("ChunkSize", std::to_string(this->GetChunkSize()), topobj.GetAllocator());
   //base for G-sampling
-  obj.AddMember("Base", std::to_string(this->GetBase()), obj.GetAllocator());
+  topobj.AddMember("Base", std::to_string(this->GetBase()), topobj.GetAllocator());
   
-
-  SerializeVectorOfVectorOfPointersToMatrix("S_Vec", Element::GetElementName(), *(this->m_S_vec), &obj);
+  SerializeVectorOfVectorOfPointersToMatrix("S_Vec", Element::GetElementName(), *(this->m_S_vec), &topobj);
   
-  SerializeVectorOfVectorOfPointersToMatrix("S_Vec", Element::GetElementName(), *(this->m_R_vec), &obj);
+  SerializeVectorOfVectorOfPointersToMatrix("S_Vec", Element::GetElementName(), *(this->m_R_vec), &topobj);
   
   // m_Sl;
-  SerializeMatrix("Sl", Element::GetElementName(), *this->GetSl(), &obj);
+  SerializeMatrix("Sl", Element::GetElementName(), *this->GetSl(), &topobj);
   // m_Rl
-  SerializeMatrix("Rl", Element::GetElementName(), *this->GetRl(), &obj);
+  SerializeMatrix("Rl", Element::GetElementName(), *this->GetRl(), &topobj);
 
-  SerializeVectorOfMatrix("PK", Element::GetElementName(), *this->m_pk, &obj);
+  SerializeVectorOfMatrix("PK", Element::GetElementName(), *this->m_pk, &topobj);
 
 #if 0
   shared_ptr<std::vector<RLWETrapdoorPair<Element>>>   m_ek;
@@ -266,8 +265,8 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Serialize(Serialized* serObj) con
 
 #endif
 
-  // add them all to the serObj
-  serObj->AddMember("ObfuscatedLWEConjunctionPattern", obj, serObj->GetAllocator());
+  // add them all to the input serObj
+  serObj->AddMember("ObfuscatedLWEConjunctionPattern", topobj, serObj->GetAllocator());
   
   return true;
 };
@@ -279,46 +278,88 @@ template<class  Element>
 bool ObfuscatedLWEConjunctionPattern<Element>::Deserialize(const Serialized& serObj){
     bool dbg_flag= true;
 
-    stopped here 
-    Serialized::ConstMemberIterator iMap = serObj.FindMember("ObfuscatedLWEConjunctionPattern");
-    if (iMap == serObj.MemberEnd()) {
+    //find the top object in the input object
+    Serialized::ConstMemberIterator iter = serObj.FindMember("ObfuscatedLWEConjunctionPattern");
+    if (iter == serObj.MemberEnd()) {
       DEBUG("ObfuscatedLWEConjunctionPattern::Deserialize could not find ObfuscatedLWEConjunctionPattern<Element>");
       return false;
     }
-    
-    SerialItem::ConstMemberIterator pIt = iMap->value.FindMember("Length");
-   
-    
-    if (pIt == iMap->value.MemberEnd()) {
-      DEBUG("ClearLWEConjunctionPattern::Deserialize could not find Length");
+
+    //deserialize the top level members in the opt object
+    SerialItem::ConstMemberIterator pIt;
+
+
+    //deserialize parameters
+    //find them
+    pIt = iter->value.FindMember("ILDCRTParams");
+    if (pIt == iter->value.MemberEnd()) {
+      DEBUG("ObfuscatedLWEConjunctionPattern::Deserialize could not ILDCRTParams");
       return false;
     }
-
-    this->m_length= atoi(pIt->value.GetString());
-
+    
+    //make a small serial item of just the parameters
+    Serialized parm(rapidjson::kObjectType); 
+    parm.AddMember(SerialItem(pIt->name, parm.GetAllocator()), SerialItem(pIt->value, parm.GetAllocator()), parm.GetAllocator());
+    
+    //build a pointer to the parameters
+    shared_ptr<typename Element::Params> deserialized_params(new typename Element::Params);
+    if (!deserialized_params->Deserialize(parm)){
+      DEBUG("ObfuscatedLWEConjunctionPattern::Deserialize could deserialize ILDCRTParams");      
+      return false;
+    }
+    this->m_elemParams = deserialized_params;
+    
+    
+    pIt= iter->value.FindMember("Length"); //find length of the pattern
+    
+    if (pIt == iter->value.MemberEnd()) {
+      DEBUG("ObfuscatedLWEConjunctionPattern::Deserialize could not find Length");
+      return false;
+    }
+    this->m_length = std::stoul(pIt->value.GetString(); //set length
     DEBUGEXP(this->m_length);
 
+    pIt= iter->value.FindMember("RootHermiteFactor"); //RootHermiteFactor
+    if (pIt == iter->value.MemberEnd()) {
+      DEBUG("ObfuscatedLWEConjunctionPattern::Deserialize could not find RootHermiteFactor");
+      return false;
+    }
+    this->m_rootHermiteFactor = std::stod(pIt->value.GetString()); //set it
+    DEBUGEXP(this->m_rootHermiteFactor);
+    
+    pIt= iter->value.FindMember("ChunkSize"); //ChunkSize
+    if (pIt == iter->value.MemberEnd()) {
+      DEBUG("ObfuscatedLWEConjunctionPattern::Deserialize could not find ChunkSize");
+      return false;
+    }
+    
+    this->m_chunkSize = std::stoul(pIt->value.GetString()); //set it
+    DEBUGEXP(this->m_chunkSize);
+
+    pIt= iter->value.FindMember("Base"); //Base	for G-sampling
+    if (pIt == iter->value.MemberEnd()) {
+      DEBUG("ObfuscatedLWEConjunctionPattern::Deserialize could not find Base");
+      return false;
+    }
+    this->m_base = std::stoul(pIt->value.GetString()); //set it
+    DEBUGEXP(this->m_base);
+
+    pIt= iter->value.FindMember("S_Vec"); //S_Vec
+    if (pIt == iter->value.MemberEnd()) {
+      DEBUG("ObfuscatedLWEConjunctionPattern::Deserialize could not find S_Vec");
+      return false;
+    }
+    
+    DeserializeVectorOfVectorOfPointersToMatrix("S_Vec", Element::GetElementName(), pIt, this->m_S_vec);
+  
+    DeserializeVectorOfVectorOfPointersToMatrix("S_Vec", Element::GetElementName(), pIt, this->m_R_vec);
+  
+    DeserializeMatrix("Sl", Element::GetElementName(), pIt, this->m_Sl);
+    DeserializeMatrix("Rl", Element::GetElementName(), pIt, this->m_Rl);
+
+    DeserializeVectorOfMatrix("PK", Element::GetElementName(), pIt, this->m_pk);
 #if 0
-			//length of the pattern
-			usint m_length;
-			shared_ptr<typename Element::Params> m_elemParams;
-
-			//lattice security parameter
-			double m_rootHermiteFactor;
-
-			//number of bits encoded by one matrix
-			usint m_chunkSize;
-
-			//base for G-sampling
-			usint m_base;
-
-			shared_ptr<vector< vector<shared_ptr<Matrix<Element>>> >> m_S_vec;
-			shared_ptr<vector< vector<shared_ptr<Matrix<Element>>> >> m_R_vec;
-			shared_ptr<Matrix<Element>> m_Sl;
-			shared_ptr<Matrix<Element>> m_Rl;
-
-			shared_ptr<std::vector<Matrix<Element>>> m_pk;
-			shared_ptr<std::vector<RLWETrapdoorPair<Element>>>   m_ek;
+    shared_ptr<std::vector<RLWETrapdoorPair<Element>>>   m_ek;
 #endif
     return true;
 };
