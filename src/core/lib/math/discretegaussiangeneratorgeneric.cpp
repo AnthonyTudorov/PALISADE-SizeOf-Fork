@@ -24,6 +24,13 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
+
+/**
+ * WARNING FOR PARAMETER SELECTION IN GENERIC SAMPLER
+ *
+ * MAKE SURE THAT PRECISION - BERNOULLI FLIPS IS ALWAYS DIVISIBLE BY LOG_BASE
+ * WHEN CHOOSING A STANDARD DEVIATION SIGMA_B FOR BASE SAMPLER, MAKE SURE THAT SIGMA_B>+=4*SQRT(2)*N WHERE N IS THE SMOOTHING PARAMETER
+ * */
 #include "discretegaussiangeneratorgeneric.h"
 #include "nbtheory.h"
 #include "backend.h"
@@ -38,6 +45,10 @@ const double DG_ERROR = 8.27181e-25;
 const int32_t STDDEV_COUNT = 7;
 //const int32_t DDG_DEPTH = 13;
 const int32_t MIN_TREE_DEPTH = 44;
+
+const int32_t PRECISION = 53;
+const int32_t BERNOULLI_FLIPS = 23;
+
 
 BaseSampler::BaseSampler(double mean,double std,BitGenerator* generator,BaseSamplerType type=PEIKERT):b_mean(mean),b_std(std),bg(generator),b_type(type){
 	if(b_type==PEIKERT)
@@ -418,45 +429,40 @@ usint BaseSampler::FindInVector(const std::vector<double> &S, double search) con
 }
 
 
-DiscreteGaussianGeneratorGeneric::DiscreteGaussianGeneratorGeneric(BaseSampler** samplers, const double std,const int b, const int max_slevels=4,  const int precision=60, const int flips=35) {
+DiscreteGaussianGeneratorGeneric::DiscreteGaussianGeneratorGeneric(BaseSampler** samplers, const double std,const int b, double N) {
 
-	//Smoothing parameter
-	double N(std::sqrt(std::log(2 + 2 / DG_ERROR) / M_PI));
 	//Precomputations for sigma bar
 	int x1, x2;
 	base_samplers = samplers;
-	this->max_slevels = max_slevels;
 	log_base = b;
 	double base_variance = std * std;
 	//SampleI Non-base case
 	wide_sampler = samplers[0];
-	wide_sigma2 = base_variance;
-	for (int i = 1; i < max_slevels; ++i) {
-		x1 = (int) floor(sqrt(wide_sigma2/(2*N*N)));
+	wide_variance = base_variance;
+	for (int i = 1; i < MAX_LEVELS; ++i) {
+		x1 = (int) floor(sqrt(wide_variance/(2*N*N)));
 		x2 = std::max(x1-1, 1);
 		wide_sampler = new SamplerCombiner(wide_sampler, wide_sampler, x1, x2);
 		combiners[i-1] = wide_sampler;
-		wide_sigma2 = (x1*x1 + x2*x2)*wide_sigma2;
+		wide_variance = (x1*x1 + x2*x2)*wide_variance;
 	}
 
-	// make sure (precision - flips) is divisible by b by reducing flips
-	k = (int)ceil((double)(precision-flips)/log_base);
-	this->flips = precision - log_base*k;
+	k = (int)ceil((double)(PRECISION-BERNOULLI_FLIPS)/log_base);
 	mask = (1UL << log_base) - 1;
 
 	// compute rr_sigma2
-	rr_sigma2 = 1;
+	sampler_variance = 1;
 	long double t = 1.0/ (1UL << (2*log_base));
 	long double s = 1;
 	for (int i = 1; i < k; ++i) {
 		s *= t;
-		rr_sigma2 += s;
+		sampler_variance += s;
 	}
-	rr_sigma2 *= base_variance;
+	sampler_variance *= base_variance;
 }
 
 DiscreteGaussianGeneratorGeneric::~DiscreteGaussianGeneratorGeneric() {
-	for (int i = 1; i < max_slevels; ++i) {
+	for (int i = 1; i < MAX_LEVELS; ++i) {
 		delete combiners[i-1];
 	}
 }
@@ -469,7 +475,7 @@ int64_t DiscreteGaussianGeneratorGeneric::GenerateInteger(double center, double 
 	x = wide_sampler->GenerateInteger();
 
 	// Center perturbation
-	c = center + x*(sqrt((variance - rr_sigma2)/wide_sigma2));
+	c = center + x*(sqrt((variance - sampler_variance)/wide_variance));
 
 	ci = floor(c);
 	c -= ci;
@@ -478,13 +484,13 @@ int64_t DiscreteGaussianGeneratorGeneric::GenerateInteger(double center, double 
 }
 //Part of SampleC
 int64_t DiscreteGaussianGeneratorGeneric::flipAndRound(double center) {
-	int precision = flips + log_base*k;
-	int64_t c = (int64_t) (center * (1UL << precision));
-	int64_t base_c = (c >> flips);
+
+	int64_t c = (int64_t) (center * (1ULL << PRECISION));
+	int64_t base_c = (c >> BERNOULLI_FLIPS);
 	short randomBit;
 
 	//Rounding the center based on the coin flip
-	for (int i = flips - 1; i >= 0; --i) {
+	for (int i = BERNOULLI_FLIPS - 1; i >= 0; --i) {
 		randomBit = base_samplers[0]->RandomBit();
 		if (randomBit > extractBit(c, i))
 			return SampleC((int64_t) base_c);

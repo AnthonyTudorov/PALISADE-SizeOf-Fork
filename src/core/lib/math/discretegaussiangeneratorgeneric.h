@@ -43,8 +43,7 @@
  *
  * The "generic sampler" on the other hand, works independent from standard deviation of the distribution. It combines an array of previously discussed base samplers
  * centered around 0 to (2^b-1) / 2^b through convolution. The base samplers however, must be precomputed beforehand; but they do not need to be recalculated at
- * any time of the sampling process. The generic sampler at the moment does not give a perfect distribution either, however it is
- * USABLE FOR ANY STANDARD DEVIATION AND MEAN with only one single precomputation.
+ * any time of the sampling process. It is USABLE FOR ANY STANDARD DEVIATION AND MEAN with only one single precomputation.
  *
  * If a sampler with arbitrary standard deviation and mean suppport is needed, then it is recommended to refer to Karney's sampler in discretegaussiangenerator.cpp
  * which uses Algorithm D from https://arxiv.org/pdf/1303.6257.pdf. Its statistical values pass the Gaussian Distribution tests and can be used for ANY STANDARD DEVIATION
@@ -53,7 +52,7 @@
 #ifndef LBCRYPTO_MATH_DISCRETEGAUSSIANGENERATORGENERIC_H_
 #define LBCRYPTO_MATH_DISCRETEGAUSSIANGENERATORGENERIC_H_
 
-#define MAX_SMP 4
+#define MAX_LEVELS 4
 
 #include <math.h>
 #include <random>
@@ -265,11 +264,9 @@ public:
 	 * @param samplers Array containing the base samplers
 	 * @param std Standard deviation of the base samplers
 	 * @param base Log of number of centers that are used for calculating base samplers (Recall that base samplers are centered from 0 to (2^b-1)/2^b)
-	 * @param max_slevels Max number of recursive levels of sampling
-	 * @param precision Precision of the samplers (number of bits to be considered)
-	 * @param flips Maximum number of bits to round using Bernoulli distribution
+	 * @param N smoothing parameter
 	 */
-	DiscreteGaussianGeneratorGeneric(BaseSampler** samplers, const double std,const int b, const int max_slevels, const int precision, const int flips);
+	DiscreteGaussianGeneratorGeneric(BaseSampler** samplers, const double std,const int b,double N);
 
 	/**
 	 * @ brief Returns a generated integer. Uses generic algorithm in UCSD paper, based on Sample Z
@@ -299,10 +296,10 @@ private:
 
 	    BaseSampler* wide_sampler;
 	    BaseSampler** base_samplers;
-	    BaseSampler* combiners[MAX_SMP];
-	    long double wide_sigma2, rr_sigma2, sigma2_0;
+	    BaseSampler* combiners[MAX_LEVELS];
+	    long double wide_variance, sampler_variance;
 	    double x, c, ci;
-	    int k, flips, max_slevels, log_base;
+	    int k,log_base;
 	    uint64_t mask;
 	 /**
 	  * @ brief Method to return the nth bit of a number

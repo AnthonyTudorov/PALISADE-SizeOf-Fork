@@ -32,7 +32,7 @@ int main() {
 	//double std = 1000;
 	//double std = 10000;
 
-	double stdBase = 100;
+	double stdBase = 34;
 	double std = (1<<22);
 	int CENTER_COUNT = 1024;
 	BaseSampler **peikert_samplers/*,**ky_samplers*/;
@@ -42,6 +42,7 @@ int main() {
 	DiscreteGaussianGenerator dgg4(stdBase); //for Peikert's method
 	double start, finish;
 	size_t count = 10000;
+	double SMOOTHING_PARAMETER =6;
 
 	std::cout << "Distribution parameter = " << std << std::endl;
 
@@ -52,7 +53,7 @@ int main() {
 		std::cout<<"Started creating base samplers"<<std::endl;
 		for(int i=0;i<CENTER_COUNT;i++){
 			double center = ((double)i/(double)CENTER_COUNT);
-			peikert_samplers[i]=new BaseSampler((double)center,1,bg,PEIKERT);
+			peikert_samplers[i]=new BaseSampler((double)center,stdBase,bg,PEIKERT);
 			//ky_samplers[i] = new BaseSampler((double)center,1,bg,KNUTH_YAO);
 		}
 		std::cout<<"Ended creating base samplers, Started sampling"<<std::endl;
@@ -79,7 +80,7 @@ int main() {
 	std::cout << "Sampling " << std::to_string(count) << " integers (Karney): " << (finish - start)/CENTER_COUNT << " ms\n";
 
 	int base = std::log(CENTER_COUNT)/std::log(2);
-	DiscreteGaussianGeneratorGeneric dgg2(peikert_samplers,1,base,5,60,35);
+	DiscreteGaussianGeneratorGeneric dgg2(peikert_samplers,stdBase,base,SMOOTHING_PARAMETER);
 	start = currentDateTime();
 	for (int k = 0; k < CENTER_COUNT; k++) {
 		double center = k/(double)CENTER_COUNT;
