@@ -83,11 +83,11 @@ PLIBS := $(EXTLIBDIR)/$(PALISADEPKELIB) $(EXTLIBDIR)/$(PALISADECORELIB)
 # this builds executables from objects for benchmarks
 $(BMARK_BIN)/%$(EXESUFFIX): $(BMARK_BUILD)/%.o $(BMLIB_LIB) $(PLIBS)
 	@mkdir -p $(BMARK_BIN)
-	$(CC) $(BM_IFLAG) $(LIBBENCHMARK_FLAGS)  $(BMLIB_IFLAG) $< -o $@ $(PLIBS) $(RDYNAMIC) $(BMLIB_LIB) $(EXTLIB) $(SHLWAPI)
+	$(CC) $(BM_IFLAG) $(LIBBENCHMARK_FLAGS)  $(BMLIB_IFLAG) $< -o $@ $(LOADTHREADFLAG) $(PLIBS) $(RDYNAMIC) $(BMLIB_LIB) $(EXTLIB) -lpthread $(SHLWAPI)
 
 
 # this builds objects from sources for benchmarks
-.PRECIOUS: benchmark/build/%.o
+.PRECIOUS: $(BMARK_BUILD)/%.o
 $(BMARK_BUILD)/%.o: $(BMARK_SRC)/%.cpp
 	@mkdir -p $(BMARK_BUILD)
 	@$(CC) -MM $(CPPFLAGS) $(BM_IFLAG) $(LIBBENCHMARK_FLAGS)  $(BM_IFLAG) $(patsubst $(BMARK_BUILD)/%,$(BMARK_SRC)/%,$(patsubst %.o,%.cpp,$@))  > $(patsubst %.o,%.d,$@)

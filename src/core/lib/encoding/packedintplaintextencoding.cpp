@@ -177,55 +177,62 @@ namespace lbcrypto {
 	{
 		native_int::BigInteger modulusNI(modulus.ConvertToInt()); //native int modulus
 
-																						//initialize the CRT coefficients if not initialized
+		//initialize the CRT coefficients if not initialized
+		if (!(m & (m - 1))) { // Check if m is a power of 2
+
+			std::cout << "pow 2" << std::endl;
+			// make sure it will work before hitting the critical region;
+			// the below code will throw an exception (but if it does in the critical region, yucko)
+			RootOfUnity<BigInteger>(2*m, modulus);
+
+#pragma omp critical
+			{
+				SetParams_2n(m, modulusNI);
+			}
+
+		}
+
 #pragma omp critical
 		{
-			if (!(m & (m - 1))) { // Check if m is a power of 2
+			// Arbitrary: Bluestein based CRT Arb. So we need the 2mth root of unity
 
-				SetParams_2n(m, modulusNI);
+			native_int::BigInteger initRoot = RootOfUnity<native_int::BigInteger>(2 * m, modulusNI);
+			m_initRoot[modulusNI] = initRoot;
 
+			// Find a compatible big-modulus and root of unity for CRTArb
+			usint nttDim = pow(2, ceil(log2(2 * m - 1)));
+			if ((modulusNI.ConvertToInt() - 1) % nttDim == 0) {
+				m_bigModulus[modulusNI] = modulusNI;
 			}
 			else {
-				// Arbitrary: Bluestein based CRT Arb. So we need the 2mth root of unity
-
-				native_int::BigInteger initRoot = RootOfUnity<native_int::BigInteger>(2 * m, modulusNI);
-				m_initRoot[modulusNI] = initRoot;
-
-				// Find a compatible big-modulus and root of unity for CRTArb
-				usint nttDim = pow(2, ceil(log2(2 * m - 1)));
-				if ((modulusNI.ConvertToInt() - 1) % nttDim == 0) {
-					m_bigModulus[modulusNI] = modulusNI;
-				}
-				else {
-					usint bigModulusSize = ceil(log2(2 * m - 1)) + 2 * modulusNI.GetMSB() + 1;
-					m_bigModulus[modulusNI] = FirstPrime<native_int::BigInteger>(bigModulusSize, nttDim);
-				}
-				m_bigRoot[modulusNI] = RootOfUnity<native_int::BigInteger>(nttDim, m_bigModulus[modulusNI]);
+				usint bigModulusSize = ceil(log2(2 * m - 1)) + 2 * modulusNI.GetMSB() + 1;
+				m_bigModulus[modulusNI] = FirstPrime<native_int::BigInteger>(bigModulusSize, nttDim);
+			}
+			m_bigRoot[modulusNI] = RootOfUnity<native_int::BigInteger>(nttDim, m_bigModulus[modulusNI]);
 
 
-				// Find a generator for the automorphism group
-				native_int::BigInteger M(m); // Hackish typecast
-				native_int::BigInteger automorphismGenerator = FindGeneratorCyclic<native_int::BigInteger>(M);
-				m_automorphismGenerator[modulusNI] = automorphismGenerator.ConvertToInt();
+			// Find a generator for the automorphism group
+			native_int::BigInteger M(m); // Hackish typecast
+			native_int::BigInteger automorphismGenerator = FindGeneratorCyclic<native_int::BigInteger>(M);
+			m_automorphismGenerator[modulusNI] = automorphismGenerator.ConvertToInt();
 
-				// Create the permutations that interchange the automorphism and crt ordering
-				usint phim = GetTotient(m);
-				auto tList = GetTotientList(m);
-				auto tIdx = std::vector<usint>(m, -1);
-				for (usint i = 0; i<phim; i++) {
-					tIdx[tList[i]] = i;
-				}
+			// Create the permutations that interchange the automorphism and crt ordering
+			usint phim = GetTotient(m);
+			auto tList = GetTotientList(m);
+			auto tIdx = std::vector<usint>(m, -1);
+			for (usint i = 0; i<phim; i++) {
+				tIdx[tList[i]] = i;
+			}
 
-				m_toCRTPerm[modulusNI] = std::vector<usint>(phim);
-				m_fromCRTPerm[modulusNI] = std::vector<usint>(phim);
+			m_toCRTPerm[modulusNI] = std::vector<usint>(phim);
+			m_fromCRTPerm[modulusNI] = std::vector<usint>(phim);
 
-				usint curr_index = 1;
-				for (usint i = 0; i<phim; i++) {
-					m_toCRTPerm[modulusNI][tIdx[curr_index]] = i;
-					m_fromCRTPerm[modulusNI][i] = tIdx[curr_index];
+			usint curr_index = 1;
+			for (usint i = 0; i<phim; i++) {
+				m_toCRTPerm[modulusNI][tIdx[curr_index]] = i;
+				m_fromCRTPerm[modulusNI][i] = tIdx[curr_index];
 
-					curr_index = curr_index*m_automorphismGenerator[modulusNI] % m;
-				}
+				curr_index = curr_index*m_automorphismGenerator[modulusNI] % m;
 			}
 		}
 

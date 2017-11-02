@@ -150,7 +150,7 @@ void BM_encoding_PackedInt(benchmark::State& state) { // benchmark
 
 			setup_Encoding(cc, plaintextInt, plaintextPacked, plaintextShort, plaintextFull, plaintextLong);
 			chunkSize = plaintextPacked.GetChunksize(cc->GetCryptoParameters()->GetElementParams()->GetRingDimension(), ptm);
-		} catch( std::exception& e ) {
+		} catch( const std::exception& e ) {
 			state.SkipWithError( e.what() );
 		}
 		state.ResumeTiming();
