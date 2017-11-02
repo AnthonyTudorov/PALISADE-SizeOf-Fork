@@ -316,9 +316,9 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Deserialize(const Serialized& ser
       DEBUG("ObfuscatedLWEConjunctionPattern::Deserialize could not find Length");
       return false;
     }
-    this->m_length = std::stoul(pIt->value.GetString(); //set length
+    this->m_length = std::stoul(pIt->value.GetString()); //set length
     DEBUGEXP(this->m_length);
-
+    
     pIt= iter->value.FindMember("RootHermiteFactor"); //RootHermiteFactor
     if (pIt == iter->value.MemberEnd()) {
       DEBUG("ObfuscatedLWEConjunctionPattern::Deserialize could not find RootHermiteFactor");
@@ -349,11 +349,26 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Deserialize(const Serialized& ser
       DEBUG("ObfuscatedLWEConjunctionPattern::Deserialize could not find S_Vec");
       return false;
     }
-    
-    DeserializeVectorOfVectorOfPointersToMatrix("S_Vec", Element::GetElementName(), pIt, this->m_S_vec);
+    //deserialize S_vec
+    shared_ptr<std::vector<std::vector<shared_ptr<Matrix<Element>>>>> S_vec (new std::vector<std::vector<shared_ptr<Matrix<Element>>>>());
+
+    DeserializeVectorOfVectorOfPointersToMatrix("S_Vec", Element::GetElementName(), pIt, S_vec);
+    this->m_S_vec = S_vec;
   
-    DeserializeVectorOfVectorOfPointersToMatrix("S_Vec", Element::GetElementName(), pIt, this->m_R_vec);
-  
+    //deserialize R_vec
+    shared_ptr<std::vector<std::vector<shared_ptr<Matrix<Element>>>>> R_vec (new std::vector<std::vector<shared_ptr<Matrix<Element>>>>());
+
+    DeserializeVectorOfVectorOfPointersToMatrix("R_Vec", Element::GetElementName(), pIt, R_vec);
+    this->m_R_vec = R_vec;
+
+    auto zero_alloc = Element::MakeAllocator(this->GetElParams(), EVALUATION);
+
+    //empty matrix
+    shared_ptr<Matrix<Element>> Sl(new Matrix<Element>(zero_alloc, 0, 0));
+    shared_ptr<Matrix<Element>> Rl(new Matrix<Element>(zero_alloc, 0, 0)); //empty matrix
+    this->m_Sl = Sl;
+    this->m_Rl = Rl;
+
     DeserializeMatrix("Sl", Element::GetElementName(), pIt, this->m_Sl);
     DeserializeMatrix("Rl", Element::GetElementName(), pIt, this->m_Rl);
 
