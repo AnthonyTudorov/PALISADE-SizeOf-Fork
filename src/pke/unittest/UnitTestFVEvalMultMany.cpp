@@ -94,9 +94,9 @@ TEST(UTFVEVALMM, Poly_FV_Eval_Mult_Many_Operations) {
 	shared_ptr<Plaintext> plaintext3 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts3);
 	shared_ptr<Plaintext> plaintext4 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts4);
 
-	IntPlaintextEncoding plaintextResult1(vectorOfInts5);
-	IntPlaintextEncoding plaintextResult2(vectorOfInts6);
-	IntPlaintextEncoding plaintextResult3(vectorOfInts7);
+	shared_ptr<Plaintext> plaintextResult1 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts5);
+	shared_ptr<Plaintext> plaintextResult2 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts6);
+	shared_ptr<Plaintext> plaintextResult3 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts7);
 
 	shared_ptr<Ciphertext<Poly>> ciphertext1;
 	shared_ptr<Ciphertext<Poly>> ciphertext2;
@@ -165,7 +165,6 @@ TEST(UTFVEVALMM, Poly_FV_Eval_Mult_Many_Operations) {
 
 	shared_ptr<Plaintext> plaintextMulMany;
 	cryptoContext->Decrypt(keyPair.secretKey, ciphertextMul12345, &plaintextMulMany);
-
 
 	EXPECT_EQ(*plaintextMul1, *plaintextResult1) << "FV.EvalMult gives incorrect results.\n";
 	EXPECT_EQ(plaintextMul2, plaintextResult2) << "FV.EvalMult gives incorrect results.\n";

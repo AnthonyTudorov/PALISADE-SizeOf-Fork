@@ -142,39 +142,14 @@ namespace lbcrypto {
 		//Encode the text into a vector so it can be used in signing process. TODO: Adding some kind of digestion algorithm
 		vector<uint8_t> digest;
 		shared_ptr<Plaintext> hashedText;
+		HashUtil::Hash(plainText, SHA_256, digest);
 
-		if( plainText.size() > n ) {
-			HashUtil::Hash(plainText.substr(0, n), SHA_256, digest);
-			hashedText.reset( new StringEncoding(signKey.GetSignatureParameters().GetILParams(), ep, digest) );
-		}
-		else {
-			string seed_in = plainText;
-			char seed_bits;
-			while (seed_in.size() < n) {
-				vector<uint8_t> pDigest;
-				HashUtil::Hash(seed_in, SHA_256, pDigest);
-				seed_bits = (seed >> 24)& 0xFF;
-				pDigest.push_back(seed_bits);
-				seed_bits = (seed >> 16) & 0xFF;
-				pDigest.push_back(seed_bits);
-				seed_bits = (seed >> 8) & 0xFF;
-				pDigest.push_back(seed_bits);
-				seed_bits = (seed) & 0xFF;
-				pDigest.push_back(seed_bits);
-
-				string seed_out;
-				seed_out.push_back(1);
-				for (size_t i = 0;i < seed_in.size();i++) {
-					seed_out.push_back(seed_in[i]);
-				}
-				for (size_t j = 0;j < pDigest.size(); j++) {
-					seed_out.push_back(pDigest[j]);
-				}
-				seed_in = seed_out;
-			}
-			hashedText.reset( new StringEncoding(signKey.GetSignatureParameters().GetILParams(), ep, seed_in) );
+		if( plainText.size() <= n ) {
+			for (size_t i = 0;i < n - 32;i = i + 4)
+				digest.push_back(seed[i]);
 		}
 
+		hashedText.reset( new StringEncoding(signKey.GetSignatureParameters().GetILParams(), ep, digest) );
 		hashedText->Encode();
 
 		Element &u = hashedText->GetElement<Element>();
@@ -204,41 +179,15 @@ namespace lbcrypto {
 
 		//Encode the text into a vector so it can be used in signing process. TODO: Adding some kind of digestion algorithm
 		vector<uint8_t> digest;
-		HashUtil::Hash(plainText, SHA_256, digest);
 		shared_ptr<Plaintext> hashedText;
+		HashUtil::Hash(plainText, SHA_256, digest);
 
-		if( plainText.size() > n ) {
-			HashUtil::Hash(plainText.substr(0, n), SHA_256, digest);
-			hashedText.reset( new StringEncoding(verificationKey.GetSignatureParameters().GetILParams(), ep, digest) );
-		}
-		else {
-			string seed_in = plainText;
-			char seed_bits;
-			while (seed_in.size() < n) {
-				vector<uint8_t> pDigest;
-				HashUtil::Hash(seed_in, SHA_256, pDigest);
-				seed_bits = (seed >> 24)& 0xFF;
-				pDigest.push_back(seed_bits);
-				seed_bits = (seed >> 16) & 0xFF;
-				pDigest.push_back(seed_bits);
-				seed_bits = (seed >> 8) & 0xFF;
-				pDigest.push_back(seed_bits);
-				seed_bits = (seed) & 0xFF;
-				pDigest.push_back(seed_bits);
-
-				string seed_out;
-				seed_out.push_back(1);
-				for (size_t i = 0;i < seed_in.size();i++) {
-					seed_out.push_back(seed_in[i]);
-				}
-				for (size_t j = 0;j < pDigest.size(); j++) {
-					seed_out.push_back(pDigest[j]);
-				}
-				seed_in = seed_out;
-			}
-			hashedText.reset( new StringEncoding(verificationKey.GetSignatureParameters().GetILParams(), ep, seed_in) );
+		if( plainText.size() <= n ) {
+			for (size_t i = 0;i < n - 32;i = i + 4)
+				digest.push_back(seed[i]);
 		}
 
+		hashedText.reset( new StringEncoding(verificationKey.GetSignatureParameters().GetILParams(), ep, digest) );
 		hashedText->Encode();
 
 		Element &u = hashedText->GetElement<Element>();

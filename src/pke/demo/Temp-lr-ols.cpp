@@ -362,10 +362,10 @@ void Encrypt(string keyDir,
 
     std::cout << "Encoding the data...";
 
-    auto zeroAlloc = [=]() { return lbcrypto::make_unique<PackedIntPlaintextEncoding>(); };
+    auto zeroAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(); };
 
-    Matrix<PackedIntPlaintextEncoding> xP = Matrix<PackedIntPlaintextEncoding>(zeroAlloc, 1, numRegressors);
-    PackedIntPlaintextEncoding yP;
+    Matrix<shared_ptr<Plaintext>> xP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 1, numRegressors);
+    shared_ptr<Plaintext> yP;
 
     EncodeData(dataColumns, xP, yP);
 
@@ -1045,35 +1045,35 @@ void ReadCSVFile(string dataFileName, vector<string>& headers, vector<vector<dou
 }
 
 void EncodeData(const vector<vector<double> >& dataColumns,
-                Matrix<PackedIntPlaintextEncoding>& x,
-                PackedIntPlaintextEncoding& y)
+		Matrix<shared_ptr<Plaintext>>& x,
+		shared_ptr<Plaintext>& y)
 {
 
-    // i corresponds to columns
-    for(size_t i = 0; i < dataColumns.size(); i++) {
-	// k corresponds to rows
-	cout<<i<<endl;
-	for(size_t k = 0; k < dataColumns[i].size(); k++) {
-	    switch(i) {
-	    case 0: {
-		x(0, i ).push_back(1);
-		break;
-	    }
-	    case 1: {
-		y.push_back(dataColumns[i][k]);
-		break;
-	    }
-	    default: {
-		uint32_t value = dataColumns[i][k];
-		x(0, i - 1).push_back(value);
-		break;
-	    }
-	    }
+	// i corresponds to columns
+	for(size_t i = 0; i < dataColumns.size(); i++) {
+		// k corresponds to rows
+		cout<<i<<endl;
+		for(size_t k = 0; k < dataColumns[i].size(); k++) {
+			switch(i) {
+			case 0: {
+				x(0, i ).push_back(1);
+				break;
+			}
+			case 1: {
+				y.push_back(dataColumns[i][k]);
+				break;
+			}
+			default: {
+				uint32_t value = dataColumns[i][k];
+				x(0, i - 1).push_back(value);
+				break;
+			}
+			}
+		}
 	}
-    }
 
-    // std::cout << x(0, 2) << std::endl;
-    // std::cout << x(0, 7) << std::endl;
+	// std::cout << x(0, 2) << std::endl;
+	// std::cout << x(0, 7) << std::endl;
 }
 
 void CRTInterpolate(const std::vector<Matrix<PackedIntPlaintextEncoding> >& crtVector,

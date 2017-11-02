@@ -324,11 +324,27 @@ void Encrypt() {
 		string pkFileName = "key-public" + std::to_string(k) + ".txt";
 
 		// Deserialize the crypto context
+		Serialized ccSer;
+		if ( !SerializableHelper::ReadSerializationFromFile(DATAFOLDER + "/" + ccFileName, &ccSer) ) {
+			cerr << "I cannot read serialization from " << DATAFOLDER + "/" + ccFileName << endl;
+			return;
+		}
 
-		shared_ptr<CryptoContext<DCRTPoly>> cc = DeserializeContext(
-				DATAFOLDER + "/" + ccFileName,
-				DATAFOLDER + "/" + emFileName,
-				DATAFOLDER + "/" + esFileName);
+		Serialized ccEmk;
+		if ( !SerializableHelper::ReadSerializationFromFile(DATAFOLDER + "/" + emFileName, &ccEmk) ) {
+			cerr << "I cannot read serialization from " << DATAFOLDER + "/" + emFileName << endl;
+			return;
+		}
+
+		Serialized ccEsk;
+		if ( !SerializableHelper::ReadSerializationFromFile(DATAFOLDER + "/" + esFileName, &ccEsk) ) {
+			cerr << "I cannot read serialization from " << DATAFOLDER + "/" + esFileName << endl;
+			return;
+		}
+
+		shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(ccSer);
+		cc->DeserializeEvalMultKey(ccEmk);
+		cc->DeserializeEvalSumKey(ccEsk);
 
 		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
 		shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
@@ -447,10 +463,27 @@ void Compute() {
 
 		// Deserialize the crypto context
 
-		shared_ptr<CryptoContext<DCRTPoly>> cc = DeserializeContext(
-				DATAFOLDER + "/" + ccFileName,
-				DATAFOLDER + "/" + emFileName,
-				DATAFOLDER + "/" + esFileName);
+		Serialized ccSer;
+		if ( !SerializableHelper::ReadSerializationFromFile(DATAFOLDER + "/" + ccFileName, &ccSer) ) {
+			cerr << "I cannot read serialization from " << DATAFOLDER + "/" + ccFileName << endl;
+			return;
+		}
+
+		Serialized ccEmk;
+		if ( !SerializableHelper::ReadSerializationFromFile(DATAFOLDER + "/" + emFileName, &ccEmk) ) {
+			cerr << "I cannot read serialization from " << DATAFOLDER + "/" + emFileName << endl;
+			return;
+		}
+
+		Serialized ccEsk;
+		if ( !SerializableHelper::ReadSerializationFromFile(DATAFOLDER + "/" + esFileName, &ccEsk) ) {
+			cerr << "I cannot read serialization from " << DATAFOLDER + "/" + esFileName << endl;
+			return;
+		}
+
+		shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(ccSer);
+		cc->DeserializeEvalMultKey(ccEmk);
+		cc->DeserializeEvalSumKey(ccEsk);
 
 		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
 		shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
@@ -526,13 +559,13 @@ void Compute() {
 
 		// Serialize cross-correlation
 
-		Serialized ccSer;
-		ccSer.SetObject();
+		Serialized crossSer;
+		crossSer.SetObject();
 
 		std::cout << "Serializing cross-correlation...";
 
-		if (result->Serialize(&ccSer)) {
-			if (!SerializableHelper::WriteSerializationToFile(ccSer, DATAFOLDER + "/" + "ciphertext-cc-" + std::to_string(k) + ".txt")) {
+		if (result->Serialize(&crossSer)) {
+			if (!SerializableHelper::WriteSerializationToFile(crossSer, DATAFOLDER + "/" + "ciphertext-cc-" + std::to_string(k) + ".txt")) {
 				cerr << "Error writing serialization of cross-correlation ciphertext to " << "ciphertext-cc-" + std::to_string(k) + ".txt" << endl;
 				return;
 			}
@@ -563,10 +596,27 @@ void Decrypt() {
 
 		// Deserialize the crypto context
 
-		shared_ptr<CryptoContext<DCRTPoly>> cc = DeserializeContext(
-				DATAFOLDER + "/" + ccFileName,
-				DATAFOLDER + "/" + emFileName,
-				DATAFOLDER + "/" + esFileName);
+		Serialized ccSer;
+		if ( !SerializableHelper::ReadSerializationFromFile(DATAFOLDER + "/" + ccFileName, &ccSer) ) {
+			cerr << "I cannot read serialization from " << DATAFOLDER + "/" + ccFileName << endl;
+			return;
+		}
+
+		Serialized ccEmk;
+		if ( !SerializableHelper::ReadSerializationFromFile(DATAFOLDER + "/" + emFileName, &ccEmk) ) {
+			cerr << "I cannot read serialization from " << DATAFOLDER + "/" + emFileName << endl;
+			return;
+		}
+
+		Serialized ccEsk;
+		if ( !SerializableHelper::ReadSerializationFromFile(DATAFOLDER + "/" + esFileName, &ccEsk) ) {
+			cerr << "I cannot read serialization from " << DATAFOLDER + "/" + esFileName << endl;
+			return;
+		}
+
+		shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(ccSer);
+		cc->DeserializeEvalMultKey(ccEmk);
+		cc->DeserializeEvalSumKey(ccEsk);
 
 		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
 		shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
