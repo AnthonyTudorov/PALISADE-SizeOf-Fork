@@ -272,6 +272,12 @@ namespace lbcrypto {
 
 			const std::vector<std::vector<native_int::BigInteger>>& GetDCRTPolyMultIntTable() const { return m_DCRTPolyMultIntTable; }
 
+			const std::vector<native_int::BigInteger>& GetDCRTPolySInverseTable() const { return m_DCRTPolySInverseTable; }
+
+			const std::vector<std::vector<native_int::BigInteger>>& GetDCRTPolysDivsiModqiTable() const { return m_DCRTPolysDivsiModqiTable; }
+
+			const std::vector<native_int::BigInteger>& GetDCRTPolysModqiTable() const { return m_DCRTPolysModqiTable; }
+
 			/**
 			* Sets the value of the delta factor
 			* @param &delta is the delta factor
@@ -354,6 +360,18 @@ namespace lbcrypto {
 				m_DCRTPolyMultIntTable= DCRTPolyMultIntTable;
 			}
 
+			void SetDCRTPolySInverseTable(const std::vector<native_int::BigInteger> &DCRTPolySInverseTable) {
+				m_DCRTPolySInverseTable = DCRTPolySInverseTable;
+			}
+
+			void SetDCRTPolysDivsiModqiTable(const std::vector<std::vector<native_int::BigInteger>> &DCRTPolysDivsiModqiTable) {
+				m_DCRTPolysDivsiModqiTable= DCRTPolysDivsiModqiTable;
+			}
+
+			void SetDCRTPolysModqiTable(const std::vector<native_int::BigInteger> &DCRTPolysModqiTable) {
+				m_DCRTPolysModqiTable = DCRTPolysModqiTable;
+			}
+
 
 			/**
 			* == operator to compare to this instance of LPCryptoParametersFV object. 
@@ -429,6 +447,15 @@ namespace lbcrypto {
 
 			// DCRTPoly - stores a precomputed table of [p*S*(Q*S/vi)^{-1}]_vi / vi
 			std::vector<double> m_DCRTPolyMultFloatTable;
+
+			// DCRTPoly - precomputed (S/si)^{-1} mod si table
+			std::vector<native_int::BigInteger> m_DCRTPolySInverseTable;
+
+			// DCRTPoly - precomputed (S/si) mod qi table
+			std::vector<std::vector<native_int::BigInteger>> m_DCRTPolysDivsiModqiTable;
+
+			// DCRTPoly - precomputed S mod qi table
+			std::vector<native_int::BigInteger> m_DCRTPolysModqiTable;
 	};
 
 	/**

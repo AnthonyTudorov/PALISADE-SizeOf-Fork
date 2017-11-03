@@ -1050,8 +1050,8 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 				const typename PolyType::Integer &xi = m_vectors[vIndex].GetValues()[rIndex];
 				const typename PolyType::Integer &qi = m_vectors[vIndex].GetModulus();
 
-				/*
-				if ((rIndex == 0) && (newvIndex == 0)) {
+
+				/*if ((rIndex == 0) && (newvIndex == 0)) {
 					std::cout << "xi = " << xi << std::endl;
 					std::cout << "qi = " << qi << std::endl;
 					std::cout << "si = " << si << std::endl;
@@ -1060,10 +1060,10 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 				//computes [xi (q/qi)^{-1}]_qi
 				const typename PolyType::Integer &xInv = xi.ModMulFast(qInvModqi[vIndex],qi);
 
-				/*
-				if (rIndex == 0)
-					std::cout << "xInv=" << xInv << std::endl;
-				*/
+
+				//if (rIndex == 0)
+				//	std::cout << "xInv=" << xInv << std::endl;
+
 
 				//computes [xi (q/qi)^{-1}]_qi / qi to keep track of the number of q-overflows
 				lyam += (double)xInv.ConvertToInt()/(double)qi.ConvertToInt();

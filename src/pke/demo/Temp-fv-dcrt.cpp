@@ -278,7 +278,7 @@ void Multiply() {
 	//DCRTPoly b(dug, params, Format::COEFFICIENT);
 	DCRTPoly b(params, Format::COEFFICIENT,true);
 
-	b = b + (uint64_t(1<<30) + 3);
+	b = b + (uint64_t)1976860313128;
 
 	Poly result = a.CRTInterpolate();
 
@@ -326,6 +326,13 @@ void Multiply() {
 	Poly resultRounded = rounded.CRTInterpolate();
 
 	std::cout << "result: " << resultRounded.GetValAtIndex(0) << std::endl;
+
+	DCRTPoly roundedQ = rounded.SwitchCRTBasis(params, cryptoParamsFV->GetDCRTPolySInverseTable(),
+			cryptoParamsFV->GetDCRTPolysDivsiModqiTable(), cryptoParamsFV->GetDCRTPolysModqiTable());
+
+	Poly resultRoundedQ = roundedQ.CRTInterpolate();
+
+	std::cout << "result in Q CRT basis: " << resultRoundedQ.GetValAtIndex(0) << std::endl;
 
 }
 
