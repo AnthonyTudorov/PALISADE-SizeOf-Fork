@@ -1029,7 +1029,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 		const shared_ptr<ParmType> params, const std::vector<typename PolyType::Integer> &qInvModqi,
 		const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsi, const std::vector<typename PolyType::Integer> &qModsi) const{
 
-	DCRTPolyType ans(params,COEFFICIENT,true);
+	DCRTPolyType ans(params,m_format,true);
 
 	// We should check that the size of both CRT bases is the same
 
@@ -1101,6 +1101,98 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 	}
 
 	return std::move(ans);
+
+}
+
+template<typename ModType, typename IntType, typename VecType, typename ParmType>
+void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ExpandCRTBasis(
+		const shared_ptr<ParmType> params, const std::vector<typename PolyType::Integer> &qInvModqi,
+		const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsi, const std::vector<typename PolyType::Integer> &qModsi) {
+
+	DCRTPolyType polyWithSwitchedCRTBasis = SwitchCRTBasis(params,qInvModqi,qDivqiModsi,qModsi);
+
+	size_t size = m_vectors.size();
+	size_t newSize = 2*size;
+	size_t ringDimension = GetRingDimension();
+
+	// The generation of paramsExpanded starts here
+	// This part can be precomputed and stored in the FV context
+
+	vector<typename PolyType::Integer> moduli(newSize);
+	vector<typename PolyType::Integer> roots(newSize);
+
+	// populate moduli for CRT basis Q
+	for (size_t i = 0; i < size; i++ ) {
+		moduli[i] = m_params->GetParams()[i]->GetModulus();
+		roots[i] = m_params->GetParams()[i]->GetRootOfUnity();
+	}
+
+	// populate moduli for CRT basis S
+	for (size_t i = 0; i < size; i++ ) {
+		moduli[size + i] = params->GetParams()[i]->GetModulus();
+		roots[size + i] = params->GetParams()[i]->GetRootOfUnity();
+	}
+
+	shared_ptr<ParmType> paramsExpanded(new ParmType(2 * ringDimension, moduli, roots));
+
+	// The generation of paramsExpanded ends here
+
+	m_vectors.resize(newSize);
+
+	// populate the towers corresponding to CRT basis S
+	for (size_t i = 0; i < size; i++ ) {
+		m_vectors[size + i] = polyWithSwitchedCRTBasis.GetElementAtIndex(i);
+	}
+
+	m_params = paramsExpanded;
+
+}
+
+template<typename ModType, typename IntType, typename VecType, typename ParmType>
+DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const shared_ptr<ParmType> params,
+		const std::vector<std::vector<typename PolyType::Integer>> &integerFactors,
+		const std::vector<double> &lyam) const {
+
+		DCRTPolyType ans(params,m_format,true);
+
+		// We should check that the size of both CRT bases is the same
+
+		usint ringDimension = GetRingDimension();
+		size_t size = m_vectors.size();
+		size_t newSize = size/2;
+
+		for( usint rIndex = 0; rIndex < ringDimension; rIndex++ ) {
+
+			for (usint newvIndex = 0; newvIndex < newSize; newvIndex ++ ) {
+
+				double curFloat = 0.0;
+				typename PolyType::Integer curValue = 0;
+
+				const typename PolyType::Integer &si = params->GetParams()[newvIndex]->GetModulus();
+
+				//first round - compute "fast conversion"
+				for( usint vIndex = 0; vIndex < size; vIndex++ ) {
+					const typename PolyType::Integer &xi = m_vectors[vIndex].GetValues()[rIndex];
+					//const typename PolyType::Integer &qi = m_vectors[vIndex].GetModulus();
+
+					curValue += integerFactors[vIndex][newvIndex].ModMulFast(xi,si);
+
+					curFloat += lyam[vIndex]*xi.ConvertToInt();
+
+				}
+
+				// Since we let current value to exceed si to avoid extra modulo reductions, we have apply mod si now
+				curValue = curValue.Mod(si);
+
+				typename PolyType::Integer rounded = std::llround(curFloat);
+
+				ans.m_vectors[newvIndex].SetValAtIndex(rIndex,curValue.ModAddFast(rounded.Mod(si),si));
+
+			}
+
+		}
+
+		return std::move(ans);
 
 }
 

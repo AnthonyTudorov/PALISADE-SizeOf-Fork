@@ -683,6 +683,14 @@ public:
 	DCRTPolyType SwitchCRTBasis(const shared_ptr<ParmType> params, const std::vector<typename PolyType::Integer> &qInvModqi,
 			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsi, const std::vector<typename PolyType::Integer> &qModsi) const;
 
+	void ExpandCRTBasis(const shared_ptr<ParmType> params, const std::vector<typename PolyType::Integer> &qInvModqi,
+			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsi, const std::vector<typename PolyType::Integer> &qModsi);
+
+	DCRTPolyType ScaleAndRound(const shared_ptr<ParmType> params,
+			const std::vector<std::vector<typename PolyType::Integer>> &integerFactors,
+			const std::vector<double> &lyam) const;
+
+
 	/**
 	* @brief Convert from Coefficient to CRT or vice versa; calls FFT and inverse FFT.
 	*/

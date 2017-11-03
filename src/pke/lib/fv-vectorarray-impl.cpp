@@ -275,6 +275,57 @@ bool LPAlgorithmParamsGenFV<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParameters<D
 
 	std::cout << "generated the qModsi table" << std::endl;
 
+
+	vector<native_int::BigInteger> moduliExpanded(2*size);
+	vector<native_int::BigInteger> rootsExpanded(2*size);
+
+	// populate moduli for CRT basis Q
+	for (size_t i = 0; i < size; i++ ) {
+		moduliExpanded[i] = moduli[i];
+		rootsExpanded[i] = roots[i];
+	}
+
+	// populate moduli for CRT basis S
+	for (size_t i = 0; i < size; i++ ) {
+		moduliExpanded[size + i] = moduliS[i];
+		rootsExpanded[size + i] = rootsS[i];
+	}
+
+	shared_ptr<ILDCRTParams<BigInteger>> paramsExpanded(new ILDCRTParams<BigInteger>(2 * n, moduliExpanded, rootsExpanded));
+
+	std::vector<double> precomputedDCRTMultFloatTable(2*size);
+
+	const BigInteger modulusS = paramsS->GetModulus();
+	const BigInteger modulusQS = paramsExpanded->GetModulus();
+
+	const BigInteger &modulusP = cryptoParamsFV->GetPlaintextModulus();
+
+	for (size_t i = 0; i < 2*size; i++){
+		BigInteger qi = BigInteger(moduliExpanded[i].ConvertToInt());
+		precomputedDCRTMultFloatTable[i] =
+				((modulusQS.DividedBy(qi)).ModInverse(qi)*modulusS*modulusP).Mod(qi).ConvertToDouble()/qi.ConvertToDouble();
+		//std::cout << precomputedDCRTDecryptionTable[i] << std::endl;
+	}
+
+	cryptoParamsFV->SetDCRTPolyMultFloatTable(precomputedDCRTMultFloatTable);
+
+	std::cout << "generated the MultFloat table" << std::endl;
+
+	std::vector<std::vector<native_int::BigInteger>> multInt(2*size);
+	for( usint newvIndex = 0 ; newvIndex < size; newvIndex++ ) {
+		BigInteger si = BigInteger(moduliS[newvIndex].ConvertToInt());
+		for( usint vIndex = 0 ; vIndex < 2*size; vIndex++ ) {
+			BigInteger qi = BigInteger(moduliExpanded[vIndex].ConvertToInt());
+			BigInteger num = modulusP*modulusS*((modulusQS.DividedBy(qi)).ModInverse(qi));
+			BigInteger divBy = num / qi;
+			multInt[vIndex].push_back(divBy.Mod(si).ConvertToInt());
+		}
+	}
+
+	cryptoParamsFV->SetDCRTPolyMultIntTable(multInt);
+
+	std::cout << "generated the MultInt table" << std::endl;
+
 	return true;
 
 }

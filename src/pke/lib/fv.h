@@ -268,6 +268,10 @@ namespace lbcrypto {
 
 			const shared_ptr<ILDCRTParams<BigInteger>> GetDCRTParamsS() const { return m_paramsS; }
 
+			const std::vector<double>& GetDCRTPolyMultFloatTable() const { return m_DCRTPolyMultFloatTable; }
+
+			const std::vector<std::vector<native_int::BigInteger>>& GetDCRTPolyMultIntTable() const { return m_DCRTPolyMultIntTable; }
+
 			/**
 			* Sets the value of the delta factor
 			* @param &delta is the delta factor
@@ -342,6 +346,15 @@ namespace lbcrypto {
 				m_paramsS = paramsS;
 			}
 
+			void SetDCRTPolyMultFloatTable(const std::vector<double> &DCRTPolyMultFloatTable) {
+				m_DCRTPolyMultFloatTable = DCRTPolyMultFloatTable;
+			}
+
+			void SetDCRTPolyMultIntTable(const std::vector<std::vector<native_int::BigInteger>> &DCRTPolyMultIntTable) {
+				m_DCRTPolyMultIntTable= DCRTPolyMultIntTable;
+			}
+
+
 			/**
 			* == operator to compare to this instance of LPCryptoParametersFV object. 
 			*
@@ -410,6 +423,12 @@ namespace lbcrypto {
 			std::vector<native_int::BigInteger> m_DCRTPolyqModsiTable;
 
 			shared_ptr<ILDCRTParams<BigInteger>> m_paramsS;
+
+			// DCRTPoly - precomputed Floor[p*S*[(Q*S/vi)^{-1}]_vi/vi] mod si table
+			std::vector<std::vector<native_int::BigInteger>> m_DCRTPolyMultIntTable;
+
+			// DCRTPoly - stores a precomputed table of [p*S*(Q*S/vi)^{-1}]_vi / vi
+			std::vector<double> m_DCRTPolyMultFloatTable;
 	};
 
 	/**
