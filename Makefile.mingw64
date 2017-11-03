@@ -23,8 +23,7 @@ LIBCMD := -s -shared -Wl,--subsystem,windows  -fopenmp
 LIBSUFFIX := .dll
 EXESUFFIX := .exe
 
-MINGWREGEX := -Lc:/Mingw64/mingw64/opt/lib -lregex -lshlwapi
-
+SHLWAPI := -lshlwapi
 RDYNAMIC := 
 
 JNIBUILD :=  -I "C:/Program Files/java/jdk1.8.0_91/include" -I "C:/Program Files/java/jdk1.8.0_91/include/win32"

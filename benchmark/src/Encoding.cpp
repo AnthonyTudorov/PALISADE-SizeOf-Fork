@@ -140,15 +140,19 @@ void BM_encoding_PackedInt(benchmark::State& state) { // benchmark
 
 	if( state.thread_index == 0 ) {
 		state.PauseTiming();
-		cc = CryptoContextHelper::getNewContext(parms[state.range(0)]);
-		cc->Enable(ENCRYPTION);
-		cc->Enable(SHE);
+		try {
+			cc = CryptoContextHelper::getNewContext(parms[state.range(0)]);
+			cc->Enable(ENCRYPTION);
+			cc->Enable(SHE);
 
-		ptm = cc->GetCryptoParameters()->GetPlaintextModulus();
-		ptmi = ptm.ConvertToInt();
+			ptm = cc->GetCryptoParameters()->GetPlaintextModulus();
+			ptmi = ptm.ConvertToInt();
 
-		setup_Encoding(cc, plaintextInt, plaintextPacked, plaintextShort, plaintextFull, plaintextLong);
-		chunkSize = plaintextPacked.GetChunksize(cc->GetCryptoParameters()->GetElementParams()->GetRingDimension(), ptm);
+			setup_Encoding(cc, plaintextInt, plaintextPacked, plaintextShort, plaintextFull, plaintextLong);
+			chunkSize = plaintextPacked.GetChunksize(cc->GetCryptoParameters()->GetElementParams()->GetRingDimension(), ptm);
+		} catch( const std::exception& e ) {
+			state.SkipWithError( e.what() );
+		}
 		state.ResumeTiming();
 	}
 

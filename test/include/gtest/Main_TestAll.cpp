@@ -109,7 +109,7 @@ int main(int argc, char **argv) {
 
 	::testing::InitGoogleTest(&argc, argv);
 
-	bool terse=true;
+	bool terse=false;
 	for( int i = 1; i < argc; i++ ) {
 		if( string(argv[i]) == "-t" ) {
 			terse=true;

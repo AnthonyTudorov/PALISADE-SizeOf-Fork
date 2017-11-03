@@ -220,8 +220,6 @@ void EncryptionSchemeSimulation(usint count){
 	fout.close();
 
 	ptextFile.close();
-
-	ChineseRemainderTransformFTT<BigInteger,BigVector>::Destroy();
 }
 
 
@@ -532,8 +530,6 @@ void PRESimulation(usint count, usint dataset){
 	fout.close();
 
 	ptextFile.close();
-
-	ChineseRemainderTransformFTT<BigInteger,BigVector>::Destroy();
 }
 
 // double currentDateTime()

@@ -4,10 +4,15 @@ do
 	echo Building and testing MATHBACKEND $i
 	echo "****************************"
 	touch src/core/lib/math/backend.h
-	make -j8  CPPFLAGS+=-DMATHBACKEND=$i all >/dev/null 2>&1  # -DBigIntegerBitLength=128
+	make -j16  BINDIR=bin/backend-$i CPPFLAGS+=-DMATHBACKEND=$i all >/dev/null 2>&1
 	if [ $? -eq 0 ];
 	then
-		make testall
+		(
+		export DYLD_LIBRARY_PATH=bin/backend-$i/lib:$LD_LIBRARY_PATH
+		export LD_LIBRARY_PATH=bin/backend-$i/lib:$LD_LIBRARY_PATH
+		export PATH=bin/backend-$i/lib:$LD_LIBRARY_PATH
+		bin/backend-$i/unittest/tests -t
+		)
 	else
 		echo " ******** build failed!!!"
 	fi
