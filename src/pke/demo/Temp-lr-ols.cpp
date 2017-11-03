@@ -1076,34 +1076,34 @@ void EncodeData(const vector<vector<double> >& dataColumns,
 	// std::cout << x(0, 7) << std::endl;
 }
 
-void CRTInterpolate(const std::vector<Matrix<PackedIntPlaintextEncoding> >& crtVector,
-                    Matrix<native_int::BigInteger>& result)
+void CRTInterpolate(const std::vector<Matrix<shared_ptr<Plaintext>> >& crtVector,
+		Matrix<native_int::BigInteger>& result)
 {
 
-    result.SetSize(crtVector[0].GetRows(), crtVector[0].GetCols());
+	result.SetSize(crtVector[0].GetRows(), crtVector[0].GetCols());
 
-    std::vector<native_int::BigInteger> q = { 40961, 59393 };
+	std::vector<native_int::BigInteger> q = { 40961, 59393 };
 
-    native_int::BigInteger Q(2432796673);
+	native_int::BigInteger Q(2432796673);
 
-    std::vector<native_int::BigInteger> qInverse;
+	std::vector<native_int::BigInteger> qInverse;
 
-    for(size_t i = 0; i < crtVector.size(); i++) {
+	for(size_t i = 0; i < crtVector.size(); i++) {
 
-	qInverse.push_back((Q / q[i]).ModInverse(q[i]));
-	// std::cout << qInverse[i];
-    }
-
-    for(size_t k = 0; k < result.GetRows(); k++) {
-	for(size_t j = 0; j < result.GetCols(); j++) {
-	    native_int::BigInteger value = 0;
-	    for(size_t i = 0; i < crtVector.size(); i++) {
-		// std::cout << crtVector[i](k,j)[0] <<std::endl;
-		value += ((native_int::BigInteger(crtVector[i](k, j)[0]) * qInverse[i]).Mod(q[i]) * Q / q[i]).Mod(Q);
-	    }
-	    result(k, j) = value.Mod(Q);
+		qInverse.push_back((Q / q[i]).ModInverse(q[i]));
+		// std::cout << qInverse[i];
 	}
-    }
+
+	for(size_t k = 0; k < result.GetRows(); k++) {
+		for(size_t j = 0; j < result.GetCols(); j++) {
+			native_int::BigInteger value = 0;
+			for(size_t i = 0; i < crtVector.size(); i++) {
+				// std::cout << crtVector[i](k,j)[0] <<std::endl;
+				value += ((native_int::BigInteger(crtVector[i](k, j)->GetIntegerValue()) * qInverse[i]).Mod(q[i]) * Q / q[i]).Mod(Q);
+			}
+			result(k, j) = value.Mod(Q);
+		}
+	}
 }
 
 void MatrixInverse(const Matrix<native_int::BigInteger>& in, Matrix<double>& out, uint32_t numRegressors)

@@ -292,7 +292,10 @@ main(int argc, char *argv[])
 		cc->Enable(SHE);
 		cc->Enable(LEVELEDSHE);
 
-		IntPlaintextEncoding ints[] = { { 7 }, { 3 } };
+		shared_ptr<Plaintext> ints[] = {
+				{ 7 },
+				{ 3 }
+		};
 
 		LPKeyPair<DCRTPoly> kp = cc->KeyGen();
 		cc->EvalMultKeyGen(kp.secretKey);
@@ -308,7 +311,7 @@ main(int argc, char *argv[])
 				cipherVecs.push_back( cc->Encrypt(kp.publicKey, ie) );
 			}
 
-		Matrix<IntPlaintextEncoding> mat([](){return make_unique<IntPlaintextEncoding>();},mdim,mdim);
+		Matrix<shared_ptr<Plaintext>> mat([](){return make_unique<shared_ptr<Plaintext>>();},mdim,mdim);
 		usint mi=1;
 		for(usint r=0; r<mat.GetRows(); r++)
 			for(usint c=0; c<mat.GetCols(); c++) {

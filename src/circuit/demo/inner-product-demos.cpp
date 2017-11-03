@@ -235,7 +235,6 @@ main(int argc, char *argv[])
 			Matrix<shared_ptr<Plaintext>> denominator([](){return make_unique<shared_ptr<Plaintext>>();},m->GetRows(),m->GetCols());
 			cc->DecryptMatrix(kp.secretKey, m, &numerator, &denominator);
 
-			uint32_t ptm = cc->GetCryptoParameters()->GetPlaintextModulus().ConvertToInt();
 			cout << "INNER PRODUCT IS: " << numerator(0,0)->GetIntegerValue() << endl;
 		}
 
