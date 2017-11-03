@@ -8,6 +8,7 @@ do
 	if [ $? -eq 0 ];
 	then
 		(
+		export DYLD_LIBRARY_PATH=bin/backend-$i/lib:$LD_LIBRARY_PATH
 		export LD_LIBRARY_PATH=bin/backend-$i/lib:$LD_LIBRARY_PATH
 		export PATH=bin/backend-$i/lib:$LD_LIBRARY_PATH
 		bin/backend-$i/unittest/tests -t
