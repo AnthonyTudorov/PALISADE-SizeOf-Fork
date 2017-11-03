@@ -60,9 +60,9 @@ shared_ptr<CryptoContext<DCRTPoly>> DeserializeContext(const string& ccFileName)
 shared_ptr<CryptoContext<DCRTPoly>> DeserializeContextWithEvalKeys(const string& ccFileName, const string& emFileName, const string& esFileName);
 void ReadCSVFile(string dataFileName, vector<string>& headers, vector<vector<double> >& dataColumns);
 void EncodeData(const vector<vector<double> >& dataColumns,
-                Matrix<PackedIntPlaintextEncoding>& x,
-                PackedIntPlaintextEncoding& y);
-void CRTInterpolate(const std::vector<Matrix<PackedIntPlaintextEncoding> >& crtVector,
+                Matrix<shared_ptr<Plaintext>>& x,
+				shared_ptr<Plaintext>& y);
+void CRTInterpolate(const std::vector<Matrix<shared_ptr<Plaintext>> >& crtVector,
                     Matrix<native_int::BigInteger>& result);
 void MatrixInverse(const Matrix<native_int::BigInteger>& in, Matrix<double>& out, uint32_t numRegressors);
 void DecodeData(const Matrix<double>& lr, const Matrix<native_int::BigInteger>& XTX, const Matrix<native_int::BigInteger>& XTY, std::vector<double>& result);
@@ -424,7 +424,7 @@ void Encrypt(string keyDir,
 
 	std::cout << "Batching/encrypting y...";
 
-	std::vector<shared_ptr<Ciphertext<DCRTPoly> > > yC = cc->Encrypt(pk, yP);
+	shared_ptr<Ciphertext<DCRTPoly>> yC = cc->Encrypt(pk, yP);
 
 	std::cout << "Completed" << std::endl;
 
@@ -450,7 +450,7 @@ void Encrypt(string keyDir,
 
 	std::cout << "Serializing y...";
 
-	if(yC[0]->Serialize(&ctxtSer)) {
+	if(yC->Serialize(&ctxtSer)) {
 	    if(!SerializableHelper::WriteSerializationToFile(ctxtSer, ciphertextDataDir+"/"+ciphertextDataFileName+"-ciphertext-y-" + std::to_string(k) + ".txt")) {
 		cerr << "Error writing serialization of ciphertext y to "
 		     << ciphertextDataDir+"/"+ciphertextDataFileName+"-ciphertext-y-" + std::to_string(k) + ".txt" << endl;
@@ -709,8 +709,8 @@ void Decrypt(string keyDir,
 	cout<<"Num Regressors: " << numRegressors << endl;
 	cout<<"REGRESSORS: " << REGRESSORS << endl;
 	
-    std::vector<Matrix<PackedIntPlaintextEncoding> > xTxCRT;
-    std::vector<Matrix<PackedIntPlaintextEncoding> > xTyCRT;
+    std::vector<Matrix<shared_ptr<Plaintext>> > xTxCRT;
+    std::vector<Matrix<shared_ptr<Plaintext>> > xTyCRT;
 
     for(size_t k = 0; k < SIZE; k++) {
 
@@ -775,10 +775,10 @@ void Decrypt(string keyDir,
 
 	std::cout << "Decrypting matrix X^T X...";
 
-	auto zeroPackingAlloc = [=]() { return lbcrypto::make_unique<PackedIntPlaintextEncoding>(); };
+	auto zeroPackingAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(); };
 
-	Matrix<PackedIntPlaintextEncoding> numeratorXTX =
-	    Matrix<PackedIntPlaintextEncoding>(zeroPackingAlloc, numRegressors, numRegressors);
+	Matrix<shared_ptr<Plaintext>> numeratorXTX =
+	    Matrix<shared_ptr<Plaintext>>(zeroPackingAlloc, numRegressors, numRegressors);
 
 	double start, finish;
 
@@ -825,8 +825,8 @@ void Decrypt(string keyDir,
 
 	std::cout << "Decrypting matrix X^T y...";
 
-	Matrix<PackedIntPlaintextEncoding> numeratorXTY =
-	    Matrix<PackedIntPlaintextEncoding>(zeroPackingAlloc, numRegressors, 1);
+	Matrix<shared_ptr<Plaintext>> numeratorXTY =
+	    Matrix<shared_ptr<Plaintext>>(zeroPackingAlloc, numRegressors, 1);
 
 	start = currentDateTime();
 

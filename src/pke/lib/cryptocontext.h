@@ -732,9 +732,6 @@ public:
 		if( plaintext == NULL )
 			throw std::logic_error("null plaintext passed to Encrypt");
 
-		if( Mismatched(privateKey->GetCryptoContext()) )
-			throw std::logic_error("key passed to Encrypt was not generated with this crypto context");
-
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
 
@@ -1262,7 +1259,7 @@ public:
 	DecryptResult DecryptMatrixNumerator(
 		const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const shared_ptr<Matrix<RationalCiphertext<Element>>> ciphertext,
-		Matrix<PackedIntPlaintextEncoding> *numerator) const
+		Matrix<shared_ptr<Plaintext>> *numerator) const
 	{
 
 		// edge case
