@@ -262,7 +262,7 @@ namespace lbcrypto {
 			*/
 			const std::vector<native_int::BigInteger>& GetDCRTPolyInverseTable() const { return m_DCRTPolyInverseTable; }
 
-			const std::vector<native_int::BigInteger>& GetDCRTPolyqDivqiModsiTable() const { return m_DCRTPolyqDivqiModsiTable; }
+			const std::vector<std::vector<native_int::BigInteger>>& GetDCRTPolyqDivqiModsiTable() const { return m_DCRTPolyqDivqiModsiTable; }
 
 			const std::vector<native_int::BigInteger>& GetDCRTPolyqModsiTable() const { return m_DCRTPolyqModsiTable; }
 
@@ -330,7 +330,7 @@ namespace lbcrypto {
 				m_DCRTPolyInverseTable = DCRTPolyInverseTable;
 			}
 
-			void SetDCRTPolyqDivqiModsiTable(const std::vector<native_int::BigInteger> &DCRTPolyqDivqiModsiTable) {
+			void SetDCRTPolyqDivqiModsiTable(const std::vector<std::vector<native_int::BigInteger>> &DCRTPolyqDivqiModsiTable) {
 				m_DCRTPolyqDivqiModsiTable= DCRTPolyqDivqiModsiTable;
 			}
 
@@ -404,7 +404,7 @@ namespace lbcrypto {
 			std::vector<native_int::BigInteger> m_DCRTPolyInverseTable;
 
 			// DCRTPoly - precomputed (q/qi) mod si table
-			std::vector<native_int::BigInteger> m_DCRTPolyqDivqiModsiTable;
+			std::vector<std::vector<native_int::BigInteger>> m_DCRTPolyqDivqiModsiTable;
 
 			// DCRTPoly - precomputed q mod si table
 			std::vector<native_int::BigInteger> m_DCRTPolyqModsiTable;

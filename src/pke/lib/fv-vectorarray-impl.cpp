@@ -251,12 +251,14 @@ bool LPAlgorithmParamsGenFV<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParameters<D
 
 	std::cout << "generated the inverse table" << std::endl;
 
-	std::vector<native_int::BigInteger> qDivqiModsi(size);
-	for( usint vi = 0 ; vi < size; vi++ ) {
-		BigInteger qi = BigInteger(moduli[vi].ConvertToInt());
-		BigInteger si = BigInteger(moduliS[vi].ConvertToInt());
-		BigInteger divBy = modulusQ / qi;
-		qDivqiModsi[vi] = divBy.Mod(si).ConvertToInt();
+	std::vector<std::vector<native_int::BigInteger>> qDivqiModsi(size);
+	for( usint newvIndex = 0 ; newvIndex < size; newvIndex++ ) {
+		BigInteger si = BigInteger(moduliS[newvIndex].ConvertToInt());
+		for( usint vIndex = 0 ; vIndex < size; vIndex++ ) {
+			BigInteger qi = BigInteger(moduli[vIndex].ConvertToInt());
+			BigInteger divBy = modulusQ / qi;
+			qDivqiModsi[newvIndex].push_back(divBy.Mod(si).ConvertToInt());
+		}
 	}
 
 	cryptoParamsFV->SetDCRTPolyqDivqiModsiTable(qDivqiModsi);

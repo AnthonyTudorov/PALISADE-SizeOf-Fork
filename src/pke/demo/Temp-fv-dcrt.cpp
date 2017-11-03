@@ -187,7 +187,7 @@ void SwitchCRT() {
 
 	//Set Crypto Parameters
 	shared_ptr<CryptoContext<DCRTPoly>> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextFV(
-			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 6, 0, OPTIMIZED,7);
+			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 10, 0, OPTIMIZED,11);
 
 	// enable features that you wish to use
 	//cryptoContext->Enable(ENCRYPTION);
@@ -216,7 +216,6 @@ void SwitchCRT() {
 			cryptoParamsFV->GetDCRTPolyqDivqiModsiTable(), cryptoParamsFV->GetDCRTPolyqModsiTable());
 
 	std::cout << "a mod s0 = " << resultA.GetValAtIndex(0).Mod(BigInteger(paramsS->GetParams()[0]->GetModulus().ConvertToInt())) << " modulus " << paramsS->GetParams()[0]->GetModulus() << std::endl;
-
 	std::cout << "b mod s0 = " << b.GetElementAtIndex(0).GetValAtIndex(0) << " modulus = " << b.GetElementAtIndex(0).GetModulus() << std::endl;
 
 	std::cout << "Finished CRT Basis switch" << std::endl;
@@ -227,8 +226,8 @@ void SwitchCRT() {
 
 	std::cout << "Finished interpolation" << std::endl;
 
-	std::cout << "Big Modulus A:\n" << params->GetModulus() << std::endl;
-	std::cout << "Big Modulus B:\n" << paramsS->GetModulus() << std::endl;
+	std::cout << "Big Modulus Q:\n" << params->GetModulus() << std::endl;
+	std::cout << "Big Modulus S:\n" << paramsS->GetModulus() << std::endl;
 	std::cout << "before switch:\n" << resultA.GetValAtIndex(0) << std::endl;
 	std::cout << "after switch:\n" << resultB.GetValAtIndex(0) << std::endl;
 

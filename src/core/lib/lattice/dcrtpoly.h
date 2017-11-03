@@ -681,7 +681,7 @@ public:
 	Poly ScaleAndRound(const typename PolyType::Integer &p, const std::vector<double> &lyam, const std::vector<typename PolyType::Integer> &invTable) const;
 
 	DCRTPolyType SwitchCRTBasis(const shared_ptr<ParmType> params, const std::vector<typename PolyType::Integer> &qInvModqi,
-			const std::vector<typename PolyType::Integer> &qDivqiModsi, const std::vector<typename PolyType::Integer> &qModsi) const;
+			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsi, const std::vector<typename PolyType::Integer> &qModsi) const;
 
 	/**
 	* @brief Convert from Coefficient to CRT or vice versa; calls FFT and inverse FFT.
