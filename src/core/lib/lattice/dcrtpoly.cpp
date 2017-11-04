@@ -1077,7 +1077,6 @@ Poly DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRoundOld(const type
 
 }
 
-
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
 DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::SwitchCRTBasis(
 		const shared_ptr<ParmType> params, const std::vector<typename PolyType::Integer> &qInvModqi,
@@ -1113,7 +1112,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 				}*/
 
 				//computes [xi (q/qi)^{-1}]_qi
-				const typename PolyType::Integer &xInv = xi.ModMulFast(qInvModqi[vIndex],qi);
+				const typename PolyType::Integer &xInv = xi.ModMul(qInvModqi[vIndex],qi);
 
 
 				//if (rIndex == 0)
@@ -1123,7 +1122,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 				//computes [xi (q/qi)^{-1}]_qi / qi to keep track of the number of q-overflows
 				lyam += (double)xInv.ConvertToInt()/(double)qi.ConvertToInt();
 
-				curValue += xInv.ModMulFast(qDivqiModsi[newvIndex][vIndex],si);
+				curValue += xInv.ModMul(qDivqiModsi[newvIndex][vIndex],si);
 
 			}
 
@@ -1134,7 +1133,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 			//	std::cout << "curValue=" << curValue<< std::endl;
 
 			// alpha corresponds to the number of overflows
-			typename PolyType::Integer alpha = std::floor(lyam);
+			typename PolyType::Integer alpha = std::llround(lyam);
 
 			/*if (rIndex == 0)
 				std::cout << "alpha = " << alpha << std::endl;
@@ -1144,7 +1143,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 			*/
 
 			//second round - remove q-overflows
-			ans.m_vectors[newvIndex].SetValAtIndex(rIndex,curValue.ModSubFast(alpha.ModMulFast(qModsi[newvIndex],si),si));
+			ans.m_vectors[newvIndex].SetValAtIndex(rIndex,curValue.ModSub(alpha.ModMul(qModsi[newvIndex],si),si));
 
 			//ans.m_vectors[newvIndex].SetValAtIndex(rIndex,curValue);
 

@@ -284,7 +284,11 @@ void Multiply() {
 
 	b = b + (uint64_t)1976860313128;
 
+	b = b.Negate();
+
 	Poly result = a.CRTInterpolate();
+
+	Poly bPoly = b.CRTInterpolate();
 
 	std::cout << "\n=====STEP 1: Expanding polynomials from Q to Q*S CRT basis=======\n" << std::endl;
 
@@ -300,10 +304,25 @@ void Multiply() {
 
 	Poly resultExpanded = a.CRTInterpolate();
 
+	Poly resultExpandedB = b.CRTInterpolate();
+
 	std::cout << "Big Modulus Q:\n" << params->GetModulus() << std::endl;
 	std::cout << "Big Modulus Q*S:\n" << a.GetParams()->GetModulus() << std::endl;
 	std::cout << "before expansion:\n" << result.GetValAtIndex(0) << std::endl;
 	std::cout << "after expansion:\n" << resultExpanded.GetValAtIndex(0) << std::endl;
+
+	std::cout << "b before expansion - no signed correction: " << bPoly.GetValAtIndex(0) << std::endl;
+
+	if (bPoly.GetValAtIndex(0) > bPoly.GetModulus()>>1)
+		std::cout << "b before expansion: -" << bPoly.GetModulus() - bPoly.GetValAtIndex(0) << std::endl;
+	else
+		std::cout << "b before expansion: " << bPoly.GetValAtIndex(0) << std::endl;
+
+	std::cout << "b after expansion - no signed correction: " << resultExpandedB.GetValAtIndex(0) << std::endl;
+	if (resultExpandedB.GetValAtIndex(0) > resultExpandedB.GetModulus()>>1)
+		std::cout << "b after expansion: -" << resultExpandedB.GetModulus() - resultExpandedB.GetValAtIndex(0) << std::endl;
+	else
+		std::cout << "b after expansion: " << resultExpandedB.GetValAtIndex(0) << std::endl;
 
 	std::cout << "\n=====STEP 2: Polynomial multiplication=======\n" << std::endl;
 
@@ -323,20 +342,29 @@ void Multiply() {
 
 	Poly resultC = c.CRTInterpolate();
 
-	std::cout << "result C: " << resultC.GetValAtIndex(0) << std::endl;
+	if (resultC.GetValAtIndex(0) > resultC.GetModulus()>>1)
+		std::cout << "result C: -" << resultC.GetModulus() - resultC.GetValAtIndex(0) << std::endl;
+	else
+		std::cout << "result C: " << resultC.GetValAtIndex(0) << std::endl;
 
 	DCRTPoly rounded = c.ScaleAndRound(paramsS,cryptoParamsFV->GetDCRTPolyMultIntTable(),cryptoParamsFV->GetDCRTPolyMultFloatTable());
 
 	Poly resultRounded = rounded.CRTInterpolate();
 
-	std::cout << "result: " << resultRounded.GetValAtIndex(0) << std::endl;
+	if (resultRounded.GetValAtIndex(0) > resultRounded.GetModulus()>>1)
+		std::cout << "result: " << resultRounded.GetModulus() - resultRounded.GetValAtIndex(0) << std::endl;
+	else
+		std::cout << "result: " << resultRounded.GetValAtIndex(0) << std::endl;
 
 	DCRTPoly roundedQ = rounded.SwitchCRTBasis(params, cryptoParamsFV->GetDCRTPolySInverseTable(),
 			cryptoParamsFV->GetDCRTPolysDivsiModqiTable(), cryptoParamsFV->GetDCRTPolysModqiTable());
 
 	Poly resultRoundedQ = roundedQ.CRTInterpolate();
 
-	std::cout << "result in Q CRT basis: " << resultRoundedQ.GetValAtIndex(0) << std::endl;
+	if (resultRoundedQ.GetValAtIndex(0) > resultRoundedQ.GetModulus()>>1)
+		std::cout << "result: " << resultRoundedQ.GetModulus() - resultRoundedQ.GetValAtIndex(0) << std::endl;
+	else
+		std::cout << "result: " << resultRoundedQ.GetValAtIndex(0) << std::endl;
 
 }
 
@@ -378,20 +406,32 @@ void MultiplyTwo() {
 
 	typename DCRTPoly::DugType dug;
 
+	//tested dgg up to 4000000 - worked correctly
+	typename DCRTPoly::DggType dgg(400000);
+
+	//typename DCRTPoly::TugType tug;
+
 	//DCRTPoly a(params, Format::COEFFICIENT,true);
 
 	//Generate uninform element
+	//DCRTPoly a(dgg, params, Format::COEFFICIENT);
 	DCRTPoly a(dug, params, Format::COEFFICIENT);
 	//Generate uninform element
-	DCRTPoly b(dug, params, Format::COEFFICIENT);
+	DCRTPoly b(dgg, params, Format::COEFFICIENT);
+	//DCRTPoly b(dug, params, Format::COEFFICIENT);
+	//DCRTPoly b(dug, params, Format::COEFFICIENT);
+
+	//DCRTPoly b(params, Format::COEFFICIENT,true);
+
+	//b = b + 1675879;
 
 	Poly result = a.CRTInterpolate();
+
+	std::cout << "\n=====STEP 1: Expanding polynomials from Q to Q*S CRT basis=======\n" << std::endl;
 
 	Poly aPoly = a.CRTInterpolate();
 
 	Poly bPoly = b.CRTInterpolate();
-
-	std::cout << "\n=====STEP 1: Expanding polynomials from Q to Q*S CRT basis=======\n" << std::endl;
 
 	std::cout << "Starting CRT Expansion" << std::endl;
 
@@ -405,21 +445,42 @@ void MultiplyTwo() {
 
 	Poly resultExpanded = a.CRTInterpolate();
 
+	Poly resultExpandedB = b.CRTInterpolate();
+
+	BigInteger modulusQS = a.GetParams()->GetModulus();
+
 	std::cout << "Big Modulus Q:\n" << params->GetModulus() << std::endl;
 	std::cout << "Big Modulus Q*S:\n" << a.GetParams()->GetModulus() << std::endl;
-	std::cout << "before expansion:\n" << result.GetValAtIndex(0) << std::endl;
-	std::cout << "after expansion:\n" << resultExpanded.GetValAtIndex(0) << std::endl;
+	std::cout << "a before expansion:\n" << result.GetValAtIndex(0) << std::endl;
+	std::cout << "a after expansion:\n" << resultExpanded.GetValAtIndex(0) << std::endl;
+
+	if (bPoly.GetValAtIndex(0) > bPoly.GetModulus()>>1)
+		std::cout << "b before expansion: -" << bPoly.GetModulus() - bPoly.GetValAtIndex(0) << std::endl;
+	else
+		std::cout << "b before expansion: " << bPoly.GetValAtIndex(0) << std::endl;
+
+	if (resultExpandedB.GetValAtIndex(0) > resultExpandedB.GetModulus()>>1)
+		std::cout << "b after expansion: -" << resultExpandedB.GetModulus() - resultExpandedB.GetValAtIndex(0) << std::endl;
+	else
+		std::cout << "b after expansion: " << resultExpandedB.GetValAtIndex(0) << std::endl;
 
 	std::cout << "\n=====STEP 2: Polynomial multiplication=======\n" << std::endl;
 
 	std::cout << "Starting multiplication" << std::endl;
 
 	// Convert from coefficient polynomial representation to evaluation one
+
+	//std::cout << " a format = " <<  a.GetFormat()  << std::endl;
+	//std::cout << " b format = " <<  b.GetFormat()  << std::endl;
 	a.SwitchFormat();
 	b.SwitchFormat();
+	//std::cout << " a format = " <<  a.GetFormat()  << std::endl;
+	//std::cout << " b format = " <<  b.GetFormat()  << std::endl;
 
 	// Polynomial multiplication in Q*S CRT basis
 	DCRTPoly c = a*b;
+
+	//std::cout << " c format = " <<  c.GetFormat()  << std::endl;
 
 	// Put it back in coefficient representation
 	c.SwitchFormat();
@@ -457,21 +518,34 @@ void MultiplyTwo() {
 
 	Poly resultC = c.CRTInterpolate();
 
-	std::cout << "result C: " << resultC.GetValAtIndex(0) << std::endl;
+	if (resultC.GetValAtIndex(0) > resultC.GetModulus()>>1)
+		std::cout << "result C: -" << resultC.GetModulus() - resultC.GetValAtIndex(0) << std::endl;
+	else
+		std::cout << "result C: " << resultC.GetValAtIndex(0) << std::endl;
 
-	std::cout << "result multiprecision C: " << cPoly.GetValAtIndex(0) << std::endl;
+	if (cPoly.GetValAtIndex(0) > cPoly.GetModulus()>>1)
+		std::cout << "result multiprecision C: -" << cPoly.GetModulus()-cPoly.GetValAtIndex(0) << std::endl;
+	else
+		std::cout << "result multiprecision C: " << cPoly.GetValAtIndex(0) << std::endl;
 
 	DCRTPoly rounded = c.ScaleAndRound(paramsS,cryptoParamsFV->GetDCRTPolyMultIntTable(),cryptoParamsFV->GetDCRTPolyMultFloatTable());
 
 	Poly resultRounded = rounded.CRTInterpolate();
 
-	std::cout << "result: " << resultRounded.GetValAtIndex(0) << std::endl;
+	if (resultRounded.GetValAtIndex(0) > resultRounded.GetModulus()>>1)
+		std::cout << "result: " << resultRounded.GetModulus() - resultRounded.GetValAtIndex(0) << std::endl;
+	else
+		std::cout << "result: " << resultRounded.GetValAtIndex(0) << std::endl;
 
 	DCRTPoly roundedQ = rounded.SwitchCRTBasis(params, cryptoParamsFV->GetDCRTPolySInverseTable(),
 			cryptoParamsFV->GetDCRTPolysDivsiModqiTable(), cryptoParamsFV->GetDCRTPolysModqiTable());
 
 	Poly resultRoundedQ = roundedQ.CRTInterpolate();
 
-	std::cout << "result in Q CRT basis: " << resultRoundedQ.GetValAtIndex(0) << std::endl;
+	if (resultRoundedQ.GetValAtIndex(0) > resultRoundedQ.GetModulus()>>1)
+		std::cout << "result: " << resultRoundedQ.GetModulus() - resultRoundedQ.GetValAtIndex(0) << std::endl;
+	else
+		std::cout << "result: " << resultRoundedQ.GetValAtIndex(0) << std::endl;
+
 
 }
