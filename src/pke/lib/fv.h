@@ -262,11 +262,15 @@ namespace lbcrypto {
 			*/
 			const std::vector<native_int::BigInteger>& GetDCRTPolyInverseTable() const { return m_DCRTPolyInverseTable; }
 
+			const std::vector<native_int::BigInteger>& GetDCRTPolyDecryptionIntTable() const { return m_DCRTPolyDecryptionIntTable; }
+
 			const std::vector<std::vector<native_int::BigInteger>>& GetDCRTPolyqDivqiModsiTable() const { return m_DCRTPolyqDivqiModsiTable; }
 
 			const std::vector<native_int::BigInteger>& GetDCRTPolyqModsiTable() const { return m_DCRTPolyqModsiTable; }
 
 			const shared_ptr<ILDCRTParams<BigInteger>> GetDCRTParamsS() const { return m_paramsS; }
+
+			const shared_ptr<ILDCRTParams<BigInteger>> GetDCRTParamsQS() const { return m_paramsQS; }
 
 			const std::vector<double>& GetDCRTPolyMultFloatTable() const { return m_DCRTPolyMultFloatTable; }
 
@@ -340,6 +344,10 @@ namespace lbcrypto {
 				m_DCRTPolyInverseTable = DCRTPolyInverseTable;
 			}
 
+			void SetDCRTPolyDecryptionIntTable(const std::vector<native_int::BigInteger> &DCRTPolyDecryptionIntTable) {
+				m_DCRTPolyDecryptionIntTable = DCRTPolyDecryptionIntTable;
+			}
+
 			void SetDCRTPolyqDivqiModsiTable(const std::vector<std::vector<native_int::BigInteger>> &DCRTPolyqDivqiModsiTable) {
 				m_DCRTPolyqDivqiModsiTable= DCRTPolyqDivqiModsiTable;
 			}
@@ -350,6 +358,10 @@ namespace lbcrypto {
 
 			void SetDCRTParamsS(shared_ptr<ILDCRTParams<BigInteger>> paramsS) {
 				m_paramsS = paramsS;
+			}
+
+			void SetDCRTParamsQS(shared_ptr<ILDCRTParams<BigInteger>> paramsQS) {
+				m_paramsQS = paramsQS;
 			}
 
 			void SetDCRTPolyMultFloatTable(const std::vector<double> &DCRTPolyMultFloatTable) {
@@ -434,6 +446,8 @@ namespace lbcrypto {
 			// DCRTPoly - precomputed (q/qi)^{-1} mod qi table
 			std::vector<native_int::BigInteger> m_DCRTPolyInverseTable;
 
+			std::vector<native_int::BigInteger> m_DCRTPolyDecryptionIntTable;
+
 			// DCRTPoly - precomputed (q/qi) mod si table
 			std::vector<std::vector<native_int::BigInteger>> m_DCRTPolyqDivqiModsiTable;
 
@@ -441,6 +455,8 @@ namespace lbcrypto {
 			std::vector<native_int::BigInteger> m_DCRTPolyqModsiTable;
 
 			shared_ptr<ILDCRTParams<BigInteger>> m_paramsS;
+
+			shared_ptr<ILDCRTParams<BigInteger>> m_paramsQS;
 
 			// DCRTPoly - precomputed Floor[p*S*[(Q*S/vi)^{-1}]_vi/vi] mod si table
 			std::vector<std::vector<native_int::BigInteger>> m_DCRTPolyMultIntTable;

@@ -984,6 +984,60 @@ Poly DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const typenam
 		typename PolyType::Integer curIntSum = 0;
 		for( usint vi = 0; vi < nTowers; vi++ ) {
 			const typename PolyType::Integer &xi = m_vectors[vi].GetValues()[ri];
+			curIntSum += xi.ModMul(qInv[vi],p);
+			curFloatSum += xi.ConvertToInt()*lyam[vi];
+		}
+
+		coefficients[ri] = BigInteger((curIntSum + typename PolyType::Integer(std::llround(curFloatSum))).Mod(p).ConvertToInt());
+	}
+
+	// Setting the root of unity to ONE as the calculation is expensive and not required.
+	Poly polynomialReconstructed( shared_ptr<ILParams>( new ILParams(GetCyclotomicOrder(), plaintextModulus, 1) ) );
+	polynomialReconstructed.SetValues(coefficients,COEFFICIENT);
+
+	return std::move(polynomialReconstructed);
+
+	/*
+	std::cout << "dcrt computation " << std::endl;
+	for (size_t i=0; i<12; i++)
+	{
+		std::cout << coefficients[i] << ", ";
+	}
+	std::cout<<std::endl;
+
+	Poly debugPoly = CRTInterpolate();
+
+	BigInteger delta = debugPoly.GetModulus().DividedBy(BigInteger(p.ConvertToInt()));
+
+	Poly ans = debugPoly.DivideAndRound(delta).Mod(BigInteger(p.ConvertToInt()));
+
+	std::cout << "regular computation " << std::endl;
+	for (size_t i=0; i<12; i++)
+	{
+		std::cout << ans.GetValAtIndex(i) << ", ";
+	}
+	std::cout<<std::endl;
+	*/
+
+}
+
+template<typename ModType, typename IntType, typename VecType, typename ParmType>
+Poly DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRoundOld(const typename PolyType::Integer &p, const std::vector<double> &lyam,
+		const std::vector<typename PolyType::Integer> &qInv) const {
+
+	usint ringDimension = GetRingDimension();
+	usint nTowers = m_vectors.size();
+
+	BigInteger plaintextModulus = BigInteger(p.ConvertToInt());
+
+	// this is the resulting vector of coefficients
+	BigVector coefficients(ringDimension, plaintextModulus);
+
+	for( usint ri = 0; ri < ringDimension; ri++ ) {
+		double curFloatSum = 0.0f;
+		typename PolyType::Integer curIntSum = 0;
+		for( usint vi = 0; vi < nTowers; vi++ ) {
+			const typename PolyType::Integer &xi = m_vectors[vi].GetValues()[ri];
 			const typename PolyType::Integer &qi = m_vectors[vi].GetModulus();
 			//YSP: Optimization: MultiplyAndDivideQuotient and MultiplyAndDivideRemainder can be combined in one call
 			curIntSum += xi.MultiplyAndDivideQuotient(p,qi).ModMulFast(qInv[vi],p);
@@ -1035,10 +1089,11 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 
 	usint ringDimension = GetRingDimension();
 	usint nTowers = m_vectors.size();
+	usint nTowersNew = ans.m_vectors.size();
 
 	for( usint rIndex = 0; rIndex < ringDimension; rIndex++ ) {
 
-		for (usint newvIndex = 0; newvIndex < nTowers; newvIndex ++ ) {
+		for (usint newvIndex = 0; newvIndex < nTowersNew; newvIndex ++ ) {
 
 			double lyam = 0.0;
 			typename PolyType::Integer curValue = 0;
@@ -1105,42 +1160,19 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ExpandCRTBasis(
+void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ExpandCRTBasis(const shared_ptr<ParmType> paramsExpanded,
 		const shared_ptr<ParmType> params, const std::vector<typename PolyType::Integer> &qInvModqi,
 		const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsi, const std::vector<typename PolyType::Integer> &qModsi) {
 
 	DCRTPolyType polyWithSwitchedCRTBasis = SwitchCRTBasis(params,qInvModqi,qDivqiModsi,qModsi);
 
 	size_t size = m_vectors.size();
-	size_t newSize = 2*size;
-	size_t ringDimension = GetRingDimension();
-
-	// The generation of paramsExpanded starts here
-	// This part can be precomputed and stored in the FV context
-
-	vector<typename PolyType::Integer> moduli(newSize);
-	vector<typename PolyType::Integer> roots(newSize);
-
-	// populate moduli for CRT basis Q
-	for (size_t i = 0; i < size; i++ ) {
-		moduli[i] = m_params->GetParams()[i]->GetModulus();
-		roots[i] = m_params->GetParams()[i]->GetRootOfUnity();
-	}
-
-	// populate moduli for CRT basis S
-	for (size_t i = 0; i < size; i++ ) {
-		moduli[size + i] = params->GetParams()[i]->GetModulus();
-		roots[size + i] = params->GetParams()[i]->GetRootOfUnity();
-	}
-
-	shared_ptr<ParmType> paramsExpanded(new ParmType(2 * ringDimension, moduli, roots));
-
-	// The generation of paramsExpanded ends here
+	size_t newSize = polyWithSwitchedCRTBasis.m_vectors.size() + size;
 
 	m_vectors.resize(newSize);
 
 	// populate the towers corresponding to CRT basis S
-	for (size_t i = 0; i < size; i++ ) {
+	for (size_t i = 0; i < polyWithSwitchedCRTBasis.m_vectors.size(); i++ ) {
 		m_vectors[size + i] = polyWithSwitchedCRTBasis.GetElementAtIndex(i);
 	}
 
@@ -1159,7 +1191,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 
 		usint ringDimension = GetRingDimension();
 		size_t size = m_vectors.size();
-		size_t newSize = size/2;
+		size_t newSize = ans.m_vectors.size();
 
 		for( usint rIndex = 0; rIndex < ringDimension; rIndex++ ) {
 

@@ -55,12 +55,14 @@ using namespace lbcrypto;
 void PKE();
 void SwitchCRT();
 void Multiply();
+void MultiplyTwo();
 
 int main() {
 
-	//PKE();
-	//SwitchCRT();
+	PKE();
+	SwitchCRT();
 	Multiply();
+	MultiplyTwo();
 
 	//std::cout << "Please press any key to continue..." << std::endl;
 
@@ -236,7 +238,7 @@ void SwitchCRT() {
 
 void Multiply() {
 
-	std::cout << "\n===========TESTING CRT SWITCH===============: " << std::endl;
+	std::cout << "\n===========TESTING POLYNOMIAL MULTIPLICATION - ONE TERM IS CONSTANT POLYNOMIAL===============: " << std::endl;
 
 	std::cout << "\nThis code demonstrates the use of the FV scheme for basic homomorphic encryption operations. " << std::endl;
 	std::cout << "This code shows how to auto-generate parameters during run-time based on desired plaintext moduli and security levels. " << std::endl;
@@ -268,6 +270,8 @@ void Multiply() {
 
 	const shared_ptr<ILDCRTParams<BigInteger>> paramsS = cryptoParamsFV->GetDCRTParamsS();
 
+	const shared_ptr<ILDCRTParams<BigInteger>> paramsQS = cryptoParamsFV->GetDCRTParamsQS();
+
 	typename DCRTPoly::DugType dug;
 
 	//DCRTPoly a(params, Format::COEFFICIENT,true);
@@ -286,10 +290,10 @@ void Multiply() {
 
 	std::cout << "Starting CRT Expansion" << std::endl;
 
-	a.ExpandCRTBasis(paramsS, cryptoParamsFV->GetDCRTPolyInverseTable(),
+	a.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsFV->GetDCRTPolyInverseTable(),
 			cryptoParamsFV->GetDCRTPolyqDivqiModsiTable(), cryptoParamsFV->GetDCRTPolyqModsiTable());
 
-	b.ExpandCRTBasis(paramsS, cryptoParamsFV->GetDCRTPolyInverseTable(),
+	b.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsFV->GetDCRTPolyInverseTable(),
 			cryptoParamsFV->GetDCRTPolyqDivqiModsiTable(), cryptoParamsFV->GetDCRTPolyqModsiTable());
 
 	std::cout << "Ended CRT Expansion" << std::endl;
@@ -336,3 +340,138 @@ void Multiply() {
 
 }
 
+void MultiplyTwo() {
+
+	std::cout << "\n===========TESTING POLYNOMIAL MULTIPLICATION - TWO RANDOM POLYNOMIALS===============: " << std::endl;
+
+	std::cout << "\nThis code demonstrates the use of the FV scheme for basic homomorphic encryption operations. " << std::endl;
+	std::cout << "This code shows how to auto-generate parameters during run-time based on desired plaintext moduli and security levels. " << std::endl;
+	std::cout << "In this demonstration we use three input plaintext and show how to both add them together and multiply them together. " << std::endl;
+
+	//Generate parameters.
+	//double diff, start, finish;
+
+	int relWindow = 1;
+	usint plaintextModulus = 1<<15;
+	double sigma = 3.2;
+	double rootHermiteFactor = 1.006;
+
+	//Set Crypto Parameters
+	shared_ptr<CryptoContext<DCRTPoly>> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextFV(
+			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 2, 0, OPTIMIZED,3);
+
+	// enable features that you wish to use
+	//cryptoContext->Enable(ENCRYPTION);
+	//cryptoContext->Enable(SHE);
+
+	std::cout << "p = " << cryptoContext->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
+	std::cout << "n = " << cryptoContext->GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
+	std::cout << "log2 q = " << log2(cryptoContext->GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
+
+	const shared_ptr<ILDCRTParams<BigInteger>> params = cryptoContext->GetCryptoParameters()->GetElementParams();
+
+	const shared_ptr<LPCryptoParametersFV<DCRTPoly>> cryptoParamsFV = std::dynamic_pointer_cast<LPCryptoParametersFV<DCRTPoly>>(cryptoContext->GetCryptoParameters());
+
+	const shared_ptr<ILDCRTParams<BigInteger>> paramsS = cryptoParamsFV->GetDCRTParamsS();
+
+	const shared_ptr<ILDCRTParams<BigInteger>> paramsQS = cryptoParamsFV->GetDCRTParamsQS();
+
+	typename DCRTPoly::DugType dug;
+
+	//DCRTPoly a(params, Format::COEFFICIENT,true);
+
+	//Generate uninform element
+	DCRTPoly a(dug, params, Format::COEFFICIENT);
+	//Generate uninform element
+	DCRTPoly b(dug, params, Format::COEFFICIENT);
+
+	Poly result = a.CRTInterpolate();
+
+	Poly aPoly = a.CRTInterpolate();
+
+	Poly bPoly = b.CRTInterpolate();
+
+	std::cout << "\n=====STEP 1: Expanding polynomials from Q to Q*S CRT basis=======\n" << std::endl;
+
+	std::cout << "Starting CRT Expansion" << std::endl;
+
+	a.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsFV->GetDCRTPolyInverseTable(),
+			cryptoParamsFV->GetDCRTPolyqDivqiModsiTable(), cryptoParamsFV->GetDCRTPolyqModsiTable());
+
+	b.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsFV->GetDCRTPolyInverseTable(),
+			cryptoParamsFV->GetDCRTPolyqDivqiModsiTable(), cryptoParamsFV->GetDCRTPolyqModsiTable());
+
+	std::cout << "Ended CRT Expansion" << std::endl;
+
+	Poly resultExpanded = a.CRTInterpolate();
+
+	std::cout << "Big Modulus Q:\n" << params->GetModulus() << std::endl;
+	std::cout << "Big Modulus Q*S:\n" << a.GetParams()->GetModulus() << std::endl;
+	std::cout << "before expansion:\n" << result.GetValAtIndex(0) << std::endl;
+	std::cout << "after expansion:\n" << resultExpanded.GetValAtIndex(0) << std::endl;
+
+	std::cout << "\n=====STEP 2: Polynomial multiplication=======\n" << std::endl;
+
+	std::cout << "Starting multiplication" << std::endl;
+
+	// Convert from coefficient polynomial representation to evaluation one
+	a.SwitchFormat();
+	b.SwitchFormat();
+
+	// Polynomial multiplication in Q*S CRT basis
+	DCRTPoly c = a*b;
+
+	// Put it back in coefficient representation
+	c.SwitchFormat();
+
+	std::cout << "Ended multiplication" << std::endl;
+
+	std::cout << "Starting multiprecision polynomial multiplication" << std::endl;
+
+	BigInteger modulus("1606938044258990275541962092341162602522202993782792836833281");
+	BigInteger root("859703842628303907691187858658134128225754111718143879712783");
+	usint m = 8192;
+
+	shared_ptr<ILParams> paramsPoly(new ILParams(m, modulus, root));
+
+	std::cout << "modulus = " << aPoly.GetModulus() << std::endl;
+
+	aPoly.SwitchModulus(modulus,root);
+
+	std::cout << "modulus after = " << aPoly.GetModulus() << std::endl;
+
+	bPoly.SwitchModulus(modulus,root);
+
+	// Convert from coefficient polynomial representation to evaluation one
+	aPoly.SwitchFormat();
+	bPoly.SwitchFormat();
+
+	// Polynomial multiplication in Q*S CRT basis
+	Poly cPoly = aPoly*bPoly;
+
+	// Put it back in coefficient representation
+	cPoly.SwitchFormat();
+
+	std::cout << "Ended multiprecision multiplication" << std::endl;
+
+
+	Poly resultC = c.CRTInterpolate();
+
+	std::cout << "result C: " << resultC.GetValAtIndex(0) << std::endl;
+
+	std::cout << "result multiprecision C: " << cPoly.GetValAtIndex(0) << std::endl;
+
+	DCRTPoly rounded = c.ScaleAndRound(paramsS,cryptoParamsFV->GetDCRTPolyMultIntTable(),cryptoParamsFV->GetDCRTPolyMultFloatTable());
+
+	Poly resultRounded = rounded.CRTInterpolate();
+
+	std::cout << "result: " << resultRounded.GetValAtIndex(0) << std::endl;
+
+	DCRTPoly roundedQ = rounded.SwitchCRTBasis(params, cryptoParamsFV->GetDCRTPolySInverseTable(),
+			cryptoParamsFV->GetDCRTPolysDivsiModqiTable(), cryptoParamsFV->GetDCRTPolysModqiTable());
+
+	Poly resultRoundedQ = roundedQ.CRTInterpolate();
+
+	std::cout << "result in Q CRT basis: " << resultRoundedQ.GetValAtIndex(0) << std::endl;
+
+}
