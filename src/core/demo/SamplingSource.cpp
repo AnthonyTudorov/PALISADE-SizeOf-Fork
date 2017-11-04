@@ -35,7 +35,10 @@ int main() {
 	double stdBase = 34;
 	double std = (1<<22);
 	int CENTER_COUNT = 1024;
+	//Base samplers used in generic sampler
 	BaseSampler **peikert_samplers/*,**ky_samplers*/;
+	
+	//Random bit generator required by the base samplers
 	BitGenerator* bg = new BitGenerator();
 	DiscreteGaussianGenerator dgg(4);
 	DiscreteGaussianGenerator dggRejection(4);
@@ -46,6 +49,7 @@ int main() {
 
 	std::cout << "Distribution parameter = " << std << std::endl;
 
+	//Initialization of the base samplers 
 	peikert_samplers = new BaseSampler*[CENTER_COUNT];
 	//ky_samplers = new BaseSampler*[CENTER_COUNT];
 
@@ -53,6 +57,7 @@ int main() {
 		std::cout<<"Started creating base samplers"<<std::endl;
 		for(int i=0;i<CENTER_COUNT;i++){
 			double center = ((double)i/(double)CENTER_COUNT);
+			//Base sampler takes the parameters mean of the distribution, standard deviation of distribution, bit generator used for random bits and the type of the sampler
 			peikert_samplers[i]=new BaseSampler((double)center,stdBase,bg,PEIKERT);
 			//ky_samplers[i] = new BaseSampler((double)center,1,bg,KNUTH_YAO);
 		}
@@ -80,11 +85,14 @@ int main() {
 	std::cout << "Sampling " << std::to_string(count) << " integers (Karney): " << (finish - start)/CENTER_COUNT << " ms\n";
 
 	int base = std::log(CENTER_COUNT)/std::log(2);
+	//Initialization for the generic sampler, takes the parameters array of base samplers, standard deviation of the base sampler base=(which is log2(number of cosets or centers)) and smoothing parameter
+	//Make sure that stdBase>= 4 * sqrt(2) * smoothing parameter
 	DiscreteGaussianGeneratorGeneric dgg2(peikert_samplers,stdBase,base,SMOOTHING_PARAMETER);
 	start = currentDateTime();
 	for (int k = 0; k < CENTER_COUNT; k++) {
 		double center = k/(double)CENTER_COUNT;
 		for (size_t i = 0;i < count;i++) {
+			//To generate integer with the generic sampler, parameters are mean of the distribution and the standard deviation of the distribution
 			dgg2.GenerateInteger(center, std); //k/CENTER_COUNT
 		}
 	}
