@@ -56,7 +56,7 @@ TEST_LIB := $(LOADTHREADFLAG) -fopenmp $(NTLLIB) $(GMPLIB) -lgomp
 BUILDDIR := build
 
 #bin directory
-BINDIR := bin
+BINDIR ?= bin
 
 #sources for palisade library
 EXTLIBDIR := $(BINDIR)/lib

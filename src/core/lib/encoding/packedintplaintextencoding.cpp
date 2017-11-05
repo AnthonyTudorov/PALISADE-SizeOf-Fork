@@ -167,15 +167,23 @@ namespace lbcrypto {
 	{
 		native_int::BigInteger modulusNI(modulus.ConvertToInt()); //native int modulus
 
-																						//initialize the CRT coefficients if not initialized
+		//initialize the CRT coefficients if not initialized
+		if (!(m & (m - 1))) { // Check if m is a power of 2
+
+			// make sure it will work before hitting the critical region;
+			// the below code will throw an exception (but if it does in the critical region, yucko)
+			RootOfUnity<native_int::BigInteger>(m, modulusNI);
+
 #pragma omp critical
-		{
-			if (!(m & (m - 1))) { // Check if m is a power of 2
-
+			{
 				SetParams_2n(m, modulusNI);
-
 			}
-			else {
+
+		}
+		else {
+
+#pragma omp critical
+			{
 				// Arbitrary: Bluestein based CRT Arb. So we need the 2mth root of unity
 
 				native_int::BigInteger initRoot = RootOfUnity<native_int::BigInteger>(2 * m, modulusNI);
