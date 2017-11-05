@@ -2014,8 +2014,8 @@ void PartialDecrypt1(const string &paramDir,  const string &contextID, const str
 
 		vector<shared_ptr<Ciphertext<DCRTPoly>>> vecXTX;
 		vector<shared_ptr<Ciphertext<DCRTPoly>>> vecXTY;
-		vector<shared_ptr<Ciphertext<DCRTPoly>>> vecXTXDecrypted;
-		vector<shared_ptr<Ciphertext<DCRTPoly>>> vecXTYDecrypted;
+		vector<vector<shared_ptr<Ciphertext<DCRTPoly>>>> vecXTXDecrypted;
+		vector<vector<shared_ptr<Ciphertext<DCRTPoly>>>> vecXTYDecrypted;
 
 		ConvertMatrixInto2DVector(*xtx, vecXTX);
 		ConvertMatrixInto2DVector(*xty, vecXTY);

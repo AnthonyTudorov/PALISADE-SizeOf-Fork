@@ -37,7 +37,7 @@ CoefPackedEncoding::Encode() {
 		throw std::logic_error("Plaintext modulus must be an even number for signed scalar encoding");
 	}
 
-	this->encodedVector.SetValuesToZero();
+	this->SetElementValuesToZero();
 
 	for( size_t i=0; isSigned ? i < valueSigned.size() : i < value.size(); i++ ) {
 		uint32_t entry = isSigned ? (uint32_t)valueSigned[i] : value[i];
@@ -50,7 +50,7 @@ CoefPackedEncoding::Encode() {
 					" at position " + std::to_string(i) +
 					" that is > plaintext modulus " + std::to_string(mod) );
 
-		this->encodedVector.SetValAtIndex(i, entry);
+		this->SetElementValAtIndex(i, entry);
 	}
 	this->isEncoded = true;
 	return true;
@@ -62,8 +62,8 @@ CoefPackedEncoding::Decode() {
 	uint64_t mod = this->encodingParams->GetPlaintextModulus().ConvertToInt();
 	this->value.clear();
 	this->valueSigned.clear();
-	for( size_t i = 0; i < this->encodedVector.GetLength(); i++ ) {
-		uint64_t val = this->encodedVector.GetValAtIndex(i).ConvertToInt();
+	for( size_t i = 0; i < this->GetElementLength(); i++ ) {
+		uint64_t val = this->GetElementValAtIndex(i).ConvertToInt();
 		if( isSigned ) {
 			if( val >  mod/2)
 				val -= mod;

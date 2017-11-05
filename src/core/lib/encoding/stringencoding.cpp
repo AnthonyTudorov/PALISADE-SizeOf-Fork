@@ -40,13 +40,13 @@ StringEncoding::Encode() {
 		throw std::logic_error("Plaintext modulus must be " + std::to_string(charPtm) + " for string encoding");
 	}
 
-	this->encodedVector.SetValuesToZero();
+	this->SetElementValuesToZero();
 	size_t i = 0;
-	for( ; i<ptx.size() && i<encodedVector.GetLength(); i++ ) {
-		this->encodedVector.SetValAtIndex(i, ptx[i]);
+	for( ; i<ptx.size() && i<GetElementLength(); i++ ) {
+		this->SetElementValAtIndex(i, ptx[i]);
 	}
-	for( ; i<encodedVector.GetLength(); i++ ) {
-		this->encodedVector.SetValAtIndex(i, CHARMARKER);
+	for( ; i<GetElementLength(); i++ ) {
+		this->SetElementValAtIndex(i, CHARMARKER);
 	}
 
 	this->isEncoded = true;
@@ -57,8 +57,8 @@ bool
 StringEncoding::Decode() {
 	int64_t mod = this->encodingParams->GetPlaintextModulus().ConvertToInt();
 	this->ptx.clear();
-	for( size_t i=0; i<encodedVector.GetLength(); i++) {
-		uint32_t ch = (this->encodedVector.GetValAtIndex(i).ConvertToInt() % mod) & 0xff;
+	for( size_t i=0; i<GetElementLength(); i++) {
+		uint32_t ch = (this->GetElementValAtIndex(i).ConvertToInt() % mod) & 0xff;
 		if( ch == CHARMARKER )
 			break;
 		this->ptx += (char)(ch);

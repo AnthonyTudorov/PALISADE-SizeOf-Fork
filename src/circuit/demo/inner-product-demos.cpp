@@ -31,8 +31,7 @@
  */
 
 #include "palisade.h"
-#include "encoding/intplaintextencoding.h"
-#include "encoding/packedintplaintextencoding.h"
+#include "encoding/encodings.h"
 #include "cryptocontextgen.h"
 #include "palisadecircuit.h"
 #include "parsedriver.h"

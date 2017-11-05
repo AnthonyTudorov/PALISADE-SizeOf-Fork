@@ -112,30 +112,10 @@ public:
 	bool Encode();
 
 	/**
-	 * Legacy Encode
-	 * @param modulus
-	 * @param ilVector
-	 * @param start_from
-	 * @param length
-	 * @return
-	 */
-	bool Encode(const BigInteger &modulus, Poly *ilVector, size_t start_from=0, size_t length=0) {
-		return false;
-	}
-
-	/**
 	 * Decode the Poly into the string
 	 * @return true on success
 	 */
 	bool Decode();
-
-	/**
-	 * Interface for the operation of converting from Poly to current plaintext encoding.
-	 *
-	 * @param  modulus - used for encoding.
-	 * @param  *ilVector encoded plaintext - input argument.
-	 */
-	bool Decode(const BigInteger &modulus, Poly *ilVector) { return false; }
 
 	/**
 	 * GetEncodingType

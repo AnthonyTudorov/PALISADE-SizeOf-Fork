@@ -41,7 +41,8 @@ namespace lbcrypto
  * @class PackedIntPlaintextEncoding
  * @brief Type used for representing IntArray types.
  * Provides conversion functions to encode and decode plaintext data as type vector<uint32_t>.
- * This method uses bit packing techniques to enable efficient computing on vectors of integers.
+ * This class uses bit packing techniques to enable efficient computing on vectors of integers.
+ * It is NOT supported for DCRTPoly
  */
 
 class PackedIntPlaintextEncoding : public Plaintext
@@ -54,38 +55,25 @@ public:
 		Plaintext(vp,ep,true) {}
 
 	PackedIntPlaintextEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep) :
-		Plaintext(vp,ep,true) {}
+		Plaintext(vp,ep,true) {
+		throw std::logic_error("DCRTPoly not supported with PackedIntPlaintextEncoding");
+	}
 
 	PackedIntPlaintextEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, vector<uint32_t> coeffs) :
 		Plaintext(vp,ep), value(coeffs) {}
 
 	PackedIntPlaintextEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, vector<uint32_t> coeffs) :
-		Plaintext(vp,ep), value(coeffs) {}
+		Plaintext(vp,ep), value(coeffs) {
+		throw std::logic_error("DCRTPoly not supported with PackedIntPlaintextEncoding");
+	}
 
 	PackedIntPlaintextEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, std::initializer_list<uint32_t> coeffs) :
 		Plaintext(vp,ep), value(coeffs) {}
 
 	PackedIntPlaintextEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, std::initializer_list<uint32_t> coeffs) :
-		Plaintext(vp,ep), value(coeffs) {}
-
-//	/**
-//	 * @brief Constructor method.
-//	 * Constructs a container with as many elements as the range [first,last),
-//	 * with each element emplace-constructed
-//	 * from its corresponding element in that range, in the same order.
-//	 * @param sIter Input iterators to the initial and final positions in a range.
-//	 * The range used is [first,last), which includes all the elements between first
-//	 * and last, including the element pointed by first but not the element pointed by last.
-//	 * The function template argument InputIterator shall be an input iterator type that
-//	 * points to elements of a type from which value_type objects can be constructed.
-//	 * @param eIter Input iterators to the initial and final positions in a range.
-//	 * The range used is [first,last), which includes all the elements between first
-//	 * and last, including the element pointed by first but not the element pointed by last.
-//	 * The function template argument InputIterator shall be an input iterator type that
-//	 * points to elements of a type from which value_type objects can be constructed.
-//	 */
-//	PackedIntPlaintextEncoding(std::vector<uint32_t>::const_iterator sIter, std::vector<uint32_t>::const_iterator eIter)
-//		: Plaintext(shared_ptr<Poly::Params>(0),NULL), std::vector<uint32_t>(std::vector<uint32_t>(sIter, eIter)) {}
+		Plaintext(vp,ep), value(coeffs) {
+		throw std::logic_error("DCRTPoly not supported with PackedIntPlaintextEncoding");
+	}
 
 	/**
 	 * @brief Constructs a container with a copy of each of the elements in rhs, in the same order.
@@ -125,33 +113,7 @@ public:
 
 	bool Decode();
 
-	/** The operation of converting from current plaintext encoding to Poly.
-	*
-	* @param  modulus - used for encoding.
-	* @param  *ilVector encoded plaintext - output argument.
-	* @param  start_from - location to start from.  Defaults to 0.
-	* @param  length - length of data to encode.  Defaults to 0.
-	*/
-	bool Encode(const BigInteger &modulus, Poly *ilVector, size_t start_from = 0, size_t length = 0);
-
 	const vector<uint32_t>&	GetPackedValue() const { return value; }
-
-	/**
-	 * Interface for the operation of converting from Poly to current plaintext encoding.
-	 *
-	 * @param  modulus - used for encoding.
-	 * @param  *ilVector encoded plaintext - input argument.
-	 */
-	bool Decode(const BigInteger &modulus, Poly *ilVector);
-
-	/** The operation of converting from DCRTPoly to current plaintext encoding.
-	*
-	* @param  modulus - used for encoding.
-	* @param  *ilVector encoded plaintext - input argument.
-	*/
-	bool Decode(const BigInteger &modulus, DCRTPoly *ilVector) {
-		throw std::logic_error("Decode: Packed encoding is not currently supported for DCRTPoly");
-	}
 
 	/**
 	 * GetEncodingType

@@ -40,7 +40,7 @@ namespace lbcrypto {
 		if( this->isEncoded ) return true;
 		int64_t mod = this->encodingParams->GetPlaintextModulus().ConvertToInt();
 
-		BigVector temp(this->encodedVector.GetRingDimension(), this->encodedVector.GetModulus());
+		BigVector temp(this->GetElementRingDimension(), this->GetElementModulus());
 
 		size_t i;
 		for( i=0; i < value.size(); i++ ) {
@@ -54,67 +54,25 @@ namespace lbcrypto {
 			temp.SetValAtIndex(i, BigInteger(entry));;
 		}
 
-		for(; i < this->encodedVector.GetRingDimension(); i++ )
+		for(; i < this->GetElementRingDimension(); i++ )
 			temp.SetValAtIndex(i, BigInteger(0));
 		this->isEncoded = true;
 
-		this->encodedVector.SetValues(temp, Format::EVALUATION); //output was in coefficient format
+		auto vec = this->GetElement<Poly>();
 
-		this->Pack(&this->encodedVector, this->encodedVector.GetModulus());//ilVector coefficients are packed and resulting ilVector is in COEFFICIENT form.
+		vec.SetValues(temp, Format::EVALUATION); //output was in coefficient format
 
-		return true;
-	}
+		this->Pack(&vec, this->GetElementModulus());//ilVector coefficients are packed and resulting ilVector is in COEFFICIENT form.
 
-	bool PackedIntPlaintextEncoding::Encode(const BigInteger &modulus, Poly *ilVector, size_t startFrom, size_t length)
-	{
-		size_t padlen = 0;
-		uint64_t mod = modulus.ConvertToInt();
-
-		if (length == 0) length = value.size();
-
-		// length is usually chunk size; if start + length would go past the end of the item, add padding
-		if ((startFrom + length) > value.size()) {
-			padlen = (startFrom + length) - value.size();
-			length = length - padlen;
-		}
-
-		BigVector temp(ilVector->GetRingDimension(), ilVector->GetModulus());
-
-		for (size_t i = 0; i < length; i++) {
-			uint32_t entry = value[i + startFrom];
-			if (entry >= mod)
-				throw std::logic_error("Cannot encode integer at position " + std::to_string(i) + " because it is >= plaintext modulus " + std::to_string(mod));
-			BigInteger Val = BigInteger(entry);
-			temp.SetValAtIndex(i, Val);
-		}
-
-		//BigInteger Num = modulus - BigInteger::ONE;
-		for (size_t i = 0; i<padlen; i++) {
-			temp.SetValAtIndex(i + length, BigInteger(0));
-		}
-
-		ilVector->SetValues(temp, Format::EVALUATION); //output was in coefficient format
-
-		this->Pack(ilVector, modulus);//ilVector coefficients are packed and resulting ilVector is in COEFFICIENT form.
-		return true;
-	}
-
-	bool PackedIntPlaintextEncoding::Decode(const BigInteger &modulus, Poly *ilVector) {
-
-		this->Unpack(ilVector, modulus); //Format is in COEFFICIENT
-
-		for (usint i = 0; i<ilVector->GetValues().GetLength(); i++) {
-			this->value.push_back(ilVector->GetValues().GetValAtIndex(i).ConvertToInt());
-		}
 		return true;
 	}
 
 	bool PackedIntPlaintextEncoding::Decode() {
-		this->Unpack(&this->encodedVector, this->encodedVector.GetModulus());
+		this->Unpack(&this->GetElement<Poly>(), this->GetElementModulus());
 
 		this->value.clear();
-		for (usint i = 0; i<this->encodedVector.GetValues().GetLength(); i++) {
-			this->value.push_back(this->encodedVector.GetValues().GetValAtIndex(i).ConvertToInt());
+		for (usint i = 0; i<this->GetElementLength(); i++) {
+			this->value.push_back(this->GetElementValAtIndex(i).ConvertToInt());
 		}
 		return true;
 	}

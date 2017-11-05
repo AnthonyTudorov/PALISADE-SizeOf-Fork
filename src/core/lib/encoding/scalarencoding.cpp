@@ -45,10 +45,10 @@ ScalarEncoding::Encode() {
 		}
 	}
 
-	this->encodedVector.SetValuesToZero();
+	this->SetElementValuesToZero();
 	if( entry >= mod )
 		throw std::logic_error("Cannot encode integer " + std::to_string(entry) + " that is > plaintext modulus " + std::to_string(mod) );
-	this->encodedVector.SetValAtIndex(0, entry);
+	this->SetElementValAtIndex(0, entry);
 	this->isEncoded = true;
 	return true;
 }
@@ -56,13 +56,13 @@ ScalarEncoding::Encode() {
 bool
 ScalarEncoding::Decode() {
 	if( isSigned ) {
-		this->valueSigned = this->encodedVector.GetValAtIndex(0).ConvertToInt();
+		this->valueSigned = this->GetElementValAtIndex(0).ConvertToInt();
 		int64_t mod = this->encodingParams->GetPlaintextModulus().ConvertToInt();
 		if( this->valueSigned >  mod/2)
 			this->valueSigned -= mod;
 	}
 	else
-		this->value = this->encodedVector.GetValAtIndex(0).ConvertToInt();
+		this->value = this->GetElementValAtIndex(0).ConvertToInt();
 	return true;
 }
 

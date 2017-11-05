@@ -68,20 +68,6 @@ public:
 	 */
 	bool Decode();
 
-	/** Interface for the operation of converting from current plaintext encoding to Poly.
-	*
-	* @param  modulus - used for encoding.
-	* @param  *ilVector encoded plaintext - output argument.
-	*/
-	bool Encode(const BigInteger &modulus, Poly *ilVector, size_t start_from=0, size_t length=0) const;
-
-	/** Interface for the operation of converting from Poly to current plaintext encoding.
-	*
-	* @param  modulus - used for encoding.
-	* @param  *ilVector encoded plaintext - input argument.
-	*/
-	bool Decode(const BigInteger &modulus, Poly *ilVector);
-
 	PlaintextEncodings GetEncodingType() const { return ScalarSigned; }
 
 	size_t GetLength() const { return this->size(); }

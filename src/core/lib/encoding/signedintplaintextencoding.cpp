@@ -74,10 +74,6 @@ bool SignedIntPlaintextEncoding::doEncode(const BigInteger &modulus, Element *il
 	return true;
 }
 
-bool SignedIntPlaintextEncoding::Encode(const BigInteger &modulus, Poly *ilVector, size_t start_from, size_t length) const {
-	return doEncode<BigInteger,BigVector,Poly>(modulus,ilVector,start_from,length);
-}
-
 template <typename IntType, typename VecType, typename Element>
 bool SignedIntPlaintextEncoding::doDecode(const BigInteger &modulus, Element *ilVector) {
 
@@ -89,10 +85,6 @@ bool SignedIntPlaintextEncoding::doDecode(const BigInteger &modulus, Element *il
 		this->push_back( val );
 	}
 	return true;
-}
-
-bool SignedIntPlaintextEncoding::Decode(const BigInteger &modulus, Poly *ilVector) {
-	return doDecode<BigInteger,BigVector,Poly>(modulus,ilVector);
 }
 
 } /* namespace lbcrypto */

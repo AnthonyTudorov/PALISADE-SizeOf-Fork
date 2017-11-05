@@ -59,7 +59,7 @@ void Decrypt(string keyDir,
 shared_ptr<CryptoContext<DCRTPoly>> DeserializeContext(const string& ccFileName);
 shared_ptr<CryptoContext<DCRTPoly>> DeserializeContextWithEvalKeys(const string& ccFileName, const string& emFileName, const string& esFileName);
 void ReadCSVFile(string dataFileName, vector<string>& headers, vector<vector<double> >& dataColumns);
-void EncodeData(const vector<vector<double> >& dataColumns,
+void EncodeData(shared_ptr<CryptoContext<DCRTPoly>> cc, const vector<vector<double> >& dataColumns,
                 Matrix<shared_ptr<Plaintext>>& x,
 				shared_ptr<Plaintext>& y);
 void CRTInterpolate(const std::vector<Matrix<shared_ptr<Plaintext>> >& crtVector,
@@ -358,22 +358,6 @@ void Encrypt(string keyDir,
 	cout<<"Num Regressors: " << numRegressors << endl;
 	cout<<"REGRESSORS: " << REGRESSORS << endl;
 
-    // Transform the data and store in the Packed Encoding format
-
-    std::cout << "Encoding the data...";
-
-    auto zeroAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(); };
-
-    Matrix<shared_ptr<Plaintext>> xP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 1, numRegressors);
-    shared_ptr<Plaintext> yP;
-
-    EncodeData(dataColumns, xP, yP);
-
-    // std::cout << " xp = " << xP(0,0) << std::endl;
-    // std::cout << " yp = " << yP << std::endl;
-
-    std::cout << "Completed" << std::endl;
-
     // Key deserialization is done here
 
     for(size_t k = 0; k < SIZE; k++) {
@@ -413,6 +397,22 @@ void Encrypt(string keyDir,
 	}
 
 	std::cout << "Completed" << std::endl;
+
+    // Transform the data and store in the Packed Encoding format
+
+    std::cout << "Encoding the data...";
+
+    auto zeroAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(); };
+
+    Matrix<shared_ptr<Plaintext>> xP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 1, numRegressors);
+    shared_ptr<Plaintext> yP;
+
+    EncodeData(cc, dataColumns, xP, yP);
+
+    // std::cout << " xp = " << xP(0,0) << std::endl;
+    // std::cout << " yp = " << yP << std::endl;
+
+    std::cout << "Completed" << std::endl;
 
 	// Packing and encryption
 
@@ -1044,33 +1044,41 @@ void ReadCSVFile(string dataFileName, vector<string>& headers, vector<vector<dou
     // std::cout << "Read in data file: " << dataFileName << std::endl;
 }
 
-void EncodeData(const vector<vector<double> >& dataColumns,
+void EncodeData(shared_ptr<CryptoContext<DCRTPoly>> cc,
+		const vector<vector<double> >& dataColumns,
 		Matrix<shared_ptr<Plaintext>>& x,
 		shared_ptr<Plaintext>& y)
 {
+	shared_ptr<Plaintext> ptx;
+	vector<vector<uint32_t>> xmat;
+	vector<uint32_t> yvec;
 
 	// i corresponds to columns
 	for(size_t i = 0; i < dataColumns.size(); i++) {
 		// k corresponds to rows
 		cout<<i<<endl;
 		for(size_t k = 0; k < dataColumns[i].size(); k++) {
+			uint32_t value = dataColumns[i][k];
+
 			switch(i) {
-			case 0: {
-				x(0, i ).push_back(1);
+			case 0:
+				xmat[i].push_back(1);
 				break;
-			}
-			case 1: {
-				y.push_back(dataColumns[i][k]);
+
+			case 1:
+				yvec.push_back(value);
 				break;
-			}
-			default: {
-				uint32_t value = dataColumns[i][k];
-				x(0, i - 1).push_back(value);
+
+			default:
+				xmat[i - 1].push_back(value);
 				break;
-			}
 			}
 		}
 	}
+
+	y = cc->MakePackedPlaintext(yvec);
+	for(size_t i=0; i < dataColumns.size()-1; i++ )
+		x(0,i) = cc->MakePackedPlaintext(xmat[i]);
 
 	// std::cout << x(0, 2) << std::endl;
 	// std::cout << x(0, 7) << std::endl;

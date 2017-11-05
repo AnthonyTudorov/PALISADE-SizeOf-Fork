@@ -84,9 +84,6 @@ UnitTestReEncrypt(shared_ptr<CryptoContext<Element>> cc, bool publicVersion) {
 		intvec.push_back( rand() % ptm );
 	shared_ptr<Plaintext> plaintextInt( new CoefPackedEncoding(cc->GetElementParams(), cc->GetEncodingParams(), intvec) );
 
-	IntPlaintextEncoding ptInt1( intvec );
-	IntPlaintextEncoding ptInt2 = ptInt1;
-
 	////////////////////////////////////////////////////////////
 	//Perform the key generation operations
 	////////////////////////////////////////////////////////////

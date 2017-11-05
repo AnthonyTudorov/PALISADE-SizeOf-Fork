@@ -36,16 +36,16 @@ IntegerEncoding::Encode() {
 	if( mod < 2 )
 		throw std::logic_error("Plaintext modulus must be 2 or more for integer encoding");
 
-	this->encodedVector.SetValuesToZero();
+	this->SetElementValuesToZero();
 
-	if( log2((double)value) > (double)this->encodedVector.GetLength() )
+	if( log2((double)value) > (double)this->GetElementLength() )
 		throw std::logic_error("Plaintext value " + std::to_string(value) + " will not fit in encoding");
 
 	uint64_t val = this->value;
 	size_t i = 0;
 
 	while( val > 0 ) {
-		this->encodedVector.SetValAtIndex(i++, val & 0x01);
+		this->SetElementValAtIndex(i++, val & 0x01);
 		val >>= 1;
 	}
 
@@ -59,9 +59,9 @@ IntegerEncoding::Decode() {
 	uint64_t result = 0;
 	uint64_t powerFactor = 1;
 	uint64_t half(modulus >> 1);
-	for (size_t i = 0; i < this->encodedVector.GetLength(); i++) {
+	for (size_t i = 0; i < this->GetElementLength(); i++) {
 
-		auto val = this->encodedVector.GetValAtIndex(i).ConvertToInt();
+		auto val = this->GetElementValAtIndex(i).ConvertToInt();
 
 		if( val != 0 ) {
 			// deal with unsigned representation

@@ -66,8 +66,10 @@ class Plaintext
 {
 protected:
 	bool								isEncoded;
-	enum { IsPoly, IsDCRTPoly }			typeFlag;
-	shared_ptr<EncodingParams>			encodingParams;
+	enum { IsPoly, IsDCRTPoly }		typeFlag;
+	shared_ptr<EncodingParams>		encodingParams;
+
+private:
 	Poly								encodedVector;
 	DCRTPoly							encodedVectorDCRT;
 
@@ -110,6 +112,30 @@ public:
 	 */
 	template <typename Element>
 	Element& GetElement();
+
+	void SetElementValuesToZero() {
+		typeFlag == IsPoly ? encodedVector.SetValuesToZero() : encodedVectorDCRT.SetValuesToZero();
+	}
+
+	void SetElementValAtIndex(size_t idx, const BigInteger& val ) {
+		typeFlag == IsPoly ? encodedVector.SetValAtIndex(idx,val) : encodedVectorDCRT.SetValAtIndex(idx,val);
+	}
+
+	size_t GetElementLength() const {
+		return typeFlag == IsPoly ? encodedVector.GetLength() : encodedVectorDCRT.GetLength();
+	}
+
+	const BigInteger GetElementValAtIndex(size_t idx) const {
+		return typeFlag == IsPoly ? encodedVector.GetValAtIndex(idx) : encodedVectorDCRT.GetValAtIndex(idx);
+	}
+
+	const usint GetElementRingDimension() const {
+		return typeFlag == IsPoly ? encodedVector.GetRingDimension() : encodedVectorDCRT.GetRingDimension();
+	}
+
+	const BigInteger& GetElementModulus() const {
+		return typeFlag == IsPoly ? encodedVector.GetModulus() : encodedVectorDCRT.GetModulus();
+	}
 
 	/**
 	 * GetEncodedElement encodes, if necessary

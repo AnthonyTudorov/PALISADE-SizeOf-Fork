@@ -170,16 +170,6 @@ bool Matrix<shared_ptr<Plaintext>>::Deserialize(const Serialized& serObj) {
 }
 
 template<>
-bool Matrix<IntPlaintextEncoding>::Serialize(Serialized* serObj) const {
-	return false;
-}
-
-template<>
-bool Matrix<IntPlaintextEncoding>::Deserialize(const Serialized& serObj) {
-	return false;
-}
-
-template<>
 bool Matrix<PackedIntPlaintextEncoding>::Serialize(Serialized* serObj) const {
 	return false;
 }
@@ -217,16 +207,16 @@ ONES_FOR_TYPE(BigInteger)
 ONES_FOR_TYPE(BigVector)
 ONES_FOR_TYPE(Field2n)
 
-template<>
-Matrix<IntPlaintextEncoding>& Matrix<IntPlaintextEncoding>::Ones() {
-	IntPlaintextEncoding One( { 1 } );
-    for (size_t row = 0; row < rows; ++row) {
-        for (size_t col = 0; col < cols; ++col) {
-            *data[row][col] = One;
-        }
-    }
-    return *this;
-}
+//template<>
+//Matrix<shared_ptr<Plaintext>>& Matrix<shared_ptr<Plaintext>>::Ones() {
+//	shared_ptr<Plaintext> One( { 1 } );
+//    for (size_t row = 0; row < rows; ++row) {
+//        for (size_t col = 0; col < cols; ++col) {
+//            *data[row][col] = One;
+//        }
+//    }
+//    return *this;
+//}
 
 #define IDENTITY_FOR_TYPE(T) \
 template<> \
@@ -250,21 +240,21 @@ IDENTITY_FOR_TYPE(BigInteger)
 IDENTITY_FOR_TYPE(BigVector)
 IDENTITY_FOR_TYPE(Field2n)
 
-template<>
-Matrix<IntPlaintextEncoding>& Matrix<IntPlaintextEncoding>::Identity() {
-	IntPlaintextEncoding Zero( { 0 } );
-	IntPlaintextEncoding One( { 1 } );
-    for (size_t row = 0; row < rows; ++row) {
-        for (size_t col = 0; col < cols; ++col) {
-            if (row == col) {
-                *data[row][col] = One;
-            } else {
-                *data[row][col] = Zero;
-            }
-        }
-    }
-    return *this;
-}
+//template<>
+//Matrix<shared_ptr<Plaintext>>& Matrix<shared_ptr<Plaintext>>::Identity() {
+//	shared_ptr<Plaintext> Zero( { 0 } );
+//	shared_ptr<Plaintext> One( { 1 } );
+//    for (size_t row = 0; row < rows; ++row) {
+//        for (size_t col = 0; col < cols; ++col) {
+//            if (row == col) {
+//                *data[row][col] = One;
+//            } else {
+//                *data[row][col] = Zero;
+//            }
+//        }
+//    }
+//    return *this;
+//}
 
 #define GADGET_FOR_TYPE(T) \
 template<> \
@@ -285,7 +275,6 @@ GADGET_FOR_TYPE(Poly)
 GADGET_FOR_TYPE(DCRTPoly)
 GADGET_FOR_TYPE(BigInteger)
 GADGET_FOR_TYPE(BigVector)
-//GADGET_FOR_TYPE(IntPlaintextEncoding)
 GADGET_FOR_TYPE(Field2n)
 
 #define NORM_FOR_TYPE(T) \
