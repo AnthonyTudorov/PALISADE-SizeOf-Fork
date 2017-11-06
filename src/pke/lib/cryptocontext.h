@@ -1063,9 +1063,9 @@ public:
 	* @param privateKey - reference to the decryption key
 	* @param instream - input stream with sequence of serialized ciphertexts
 	* @param outstream - output stream for plaintext
-	* @return
+	* @return total bytes processed
 	*/
-	void DecryptStream(
+	size_t DecryptStream(
 		const shared_ptr<LPPrivateKey<Element>> privateKey,
 		std::istream& instream,
 		std::ostream& outstream)
@@ -1092,24 +1092,24 @@ public:
 				pte[whichArray] = GetPlaintextForDecrypt(ct->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
 				DecryptResult res = GetEncryptionAlgorithm()->Decrypt(privateKey, ct, &pte[whichArray]->GetElement<Poly>());
 				if( !res.isValid )
-					return;
+					return tot;
 				tot += res.messageLength;
 
 				pte[whichArray]->Decode();
 
 				if( !firstTime ) {
-					outstream << *pte[!whichArray];
+					outstream << pte[!whichArray]->GetStringValue();
 				}
 				firstTime = false;
 				whichArray = !whichArray;
 			}
 			else
-				return;
+				return tot;
 		}
 
-		outstream << *pte[!whichArray];
+		outstream << pte[!whichArray]->GetStringValue();
 
-		return;
+		return tot;
 	}
 
 	/**

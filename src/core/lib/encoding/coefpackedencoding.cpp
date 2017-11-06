@@ -34,7 +34,7 @@ CoefPackedEncoding::Encode() {
 	uint64_t mod = this->encodingParams->GetPlaintextModulus().ConvertToInt();
 
 	if( this->isSigned && mod % 2 != 0 ) {
-		throw std::logic_error("Plaintext modulus must be an even number for signed scalar encoding");
+		throw std::logic_error("Plaintext modulus must be an even number for signed CoefPackedEncoding");
 	}
 
 	this->SetElementValuesToZero();

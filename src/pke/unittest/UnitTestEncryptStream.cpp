@@ -58,9 +58,9 @@ public:
 
 TEST_F(UTEncryptStream, Stream_Encryptor_Test)
 {
-	string	base = "Strange women lying in ponds distributing swords is no basis for a system of government";
+	string	base = "Strange women lying in ponds distributing swords is no basis for a system of government!";
 	stringstream		bigSource, mid, bigDest;
-	for( size_t i = 0; i < 10000; i++ )
+	for( size_t i = 0; i < 5000; i++ )
 		bigSource << base;
 
 	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementFV(1024, 256);

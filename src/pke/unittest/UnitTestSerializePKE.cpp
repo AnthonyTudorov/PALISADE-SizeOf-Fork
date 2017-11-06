@@ -225,7 +225,8 @@ TEST_F(UTPKESer, Keys_and_ciphertext) {
 		EXPECT_EQ( *kp.secretKey, *kpnew.secretKey ) << "Secret key mismatch after ser/deser";
 	}
 	DEBUG("step 3");
-	shared_ptr<Plaintext> plaintextShort = cc->MakeCoefPackedPlaintext( { 1,3,5,7,9,2,4,6,8,11 } );
+	vector<uint32_t> vals = { 1,3,5,7,9,2,4,6,8,11 };
+	shared_ptr<Plaintext> plaintextShort = cc->MakeCoefPackedPlaintext( vals );
 	shared_ptr<Ciphertext<Poly>> ciphertext = cc->Encrypt(kp.publicKey, plaintextShort);
 
 	Serialized ser;

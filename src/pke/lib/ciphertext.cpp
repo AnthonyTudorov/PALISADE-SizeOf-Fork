@@ -75,10 +75,6 @@ bool Ciphertext<Element>::Deserialize(const Serialized& serObj) {
 	if( !DeserializeVector<Element>("Elements", this->m_elements[0].GetElementName(), mIter, &this->m_elements) )
 		return false;
 
-	mIter = serObj.FindMember("IsEncrypted");
-	if( mIter == serObj.MemberEnd() )
-		return false;
-
 	return true;
 }
 
