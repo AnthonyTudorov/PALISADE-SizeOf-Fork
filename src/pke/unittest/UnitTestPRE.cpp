@@ -73,10 +73,6 @@ UnitTestReEncrypt(shared_ptr<CryptoContext<Element>> cc, bool publicVersion) {
 	std::generate_n(fullStr.begin(), vecSize, randchar);
 	shared_ptr<Plaintext> plaintextFull( new StringEncoding(cc->GetElementParams(), cc->GetEncodingParams(), fullStr) );
 
-	string longStr(vecSize*2,0);
-	std::generate_n(longStr.begin(), vecSize*2, randchar);
-	shared_ptr<Plaintext> plaintextLong( new StringEncoding(cc->GetElementParams(), cc->GetEncodingParams(), longStr) );
-
 	auto ptm = cc->GetCryptoParameters()->GetPlaintextModulus().ConvertToInt();
 
 	vector<uint32_t> intvec;
@@ -118,11 +114,11 @@ UnitTestReEncrypt(shared_ptr<CryptoContext<Element>> cc, bool publicVersion) {
 	////////////////////////////////////////////////////////////
 
 	shared_ptr<LPEvalKey<Element>> evalKey;
-	if( publicVersion )
+	if( publicVersion ) {
 		evalKey = cc->ReKeyGen(newKp.publicKey, kp.secretKey);
-	else
+	} else {
 		evalKey = cc->ReKeyGen(newKp.secretKey, kp.secretKey);
-
+	}
 
 	shared_ptr<Ciphertext<Element>> ciphertext = cc->Encrypt(kp.publicKey, plaintextShort);
 	shared_ptr<Plaintext> plaintextShortNew;
@@ -136,12 +132,6 @@ UnitTestReEncrypt(shared_ptr<CryptoContext<Element>> cc, bool publicVersion) {
 	result = cc->Decrypt(newKp.secretKey, reCiphertext2, &plaintextFullNew);
 	EXPECT_EQ(plaintextFullNew->GetStringValue(), plaintextFull->GetStringValue()) << "ReEncrypt regular plaintext";
 
-	shared_ptr<Ciphertext<Element>> ciphertext3 = cc->Encrypt(kp.publicKey, plaintextLong);
-	shared_ptr<Plaintext> plaintextLongNew;
-	shared_ptr<Ciphertext<Element>> reCiphertext3 = cc->ReEncrypt(evalKey, ciphertext3);
-	result = cc->Decrypt(newKp.secretKey, reCiphertext3, &plaintextLongNew);
-	EXPECT_EQ(plaintextLongNew->GetStringValue(), plaintextLong->GetStringValue()) << "ReEncrypt long plaintext";
-
 	shared_ptr<Ciphertext<Element>> ciphertext4 = cc->Encrypt(kp.publicKey, plaintextInt);
 	shared_ptr<Plaintext> plaintextIntNew;
 	shared_ptr<Ciphertext<Element>> reCiphertext4 = cc->ReEncrypt(evalKey, ciphertext4);
@@ -149,7 +139,7 @@ UnitTestReEncrypt(shared_ptr<CryptoContext<Element>> cc, bool publicVersion) {
 	EXPECT_EQ(plaintextIntNew->GetCoefPackedValue(), plaintextInt->GetCoefPackedValue()) << "ReEncrypt integer plaintext";
 }
 
-TEST(UTPRE, LTV_Poly_ReEncrypt_pub) {
+TEST_F(UTPRE, LTV_Poly_ReEncrypt_pub) {
 	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementLTV(4096, PTM);
 	UnitTestReEncrypt<Poly>(cc, true);
 }
@@ -180,7 +170,7 @@ TEST_F(UTPRE, Null_DCRTPoly_ReEncrypt_pub) {
 }
 
 TEST_F(UTPRE, BV_Poly_ReEncrypt_pri) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementBV(ORDER, 2);
+	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementBV(ORDER, PTM);
 	UnitTestReEncrypt<Poly>(cc, false);
 }
 

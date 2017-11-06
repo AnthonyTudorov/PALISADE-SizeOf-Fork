@@ -53,8 +53,8 @@ namespace lbcrypto {
 		 *
 		 * @param cc
 		 */
-		Ciphertext(shared_ptr<CryptoContext<Element>> cc, const string& id = "") :
-			CryptoObject<Element>(cc, id), m_depth(1), encodingType(Unknown) {}
+		Ciphertext(shared_ptr<CryptoContext<Element>> cc, const string& id = "", PlaintextEncodings encType = Unknown) :
+			CryptoObject<Element>(cc, id), m_depth(1), encodingType(encType) {}
 
 		/**
 		 * Construct a new ciphertext from the parameters of a given public key
@@ -83,7 +83,7 @@ namespace lbcrypto {
 		}
 
 		shared_ptr<Ciphertext<Element>> CloneEmpty() const {
-			shared_ptr<Ciphertext<Element>> ct( new Ciphertext<Element>(this->GetCryptoContext(), this->GetKeyTag()) );
+			shared_ptr<Ciphertext<Element>> ct( new Ciphertext<Element>(this->GetCryptoContext(), this->GetKeyTag(), this->GetEncodingType()) );
 			return ct;
 		}
 

@@ -420,10 +420,6 @@ UnitTestEncryption(const shared_ptr<CryptoContext<Element>> cc) {
 	std::generate_n(fullStr.begin(), vecSize, randchar);
 	shared_ptr<Plaintext> plaintextFull( new StringEncoding(cc->GetElementParams(), cc->GetEncodingParams(), fullStr) );
 
-	string longStr(vecSize*2,0);
-	std::generate_n(longStr.begin(), vecSize*2, randchar);
-	shared_ptr<Plaintext> plaintextLong( new StringEncoding(cc->GetElementParams(), cc->GetEncodingParams(), longStr) );
-
 	auto ptm = cc->GetCryptoParameters()->GetPlaintextModulus().ConvertToInt();
 
 	vector<uint32_t> intvec;
@@ -468,10 +464,6 @@ UnitTestEncryption(const shared_ptr<CryptoContext<Element>> cc) {
 		cc->Decrypt(kp.secretKey, ciphertext2, &plaintextFullNew);
 		EXPECT_EQ(plaintextFullNew->GetStringValue(), plaintextFull->GetStringValue()) << "Encrypt regular plaintext";
 
-		shared_ptr<Ciphertext<Element>> ciphertext3 = cc->Encrypt(kp.publicKey, plaintextLong);
-		shared_ptr<Plaintext> plaintextLongNew;
-		cc->Decrypt(kp.secretKey, ciphertext3, &plaintextLongNew);
-		EXPECT_EQ(plaintextLongNew->GetStringValue(), plaintextLong->GetStringValue()) << "Encrypt long plaintext";
 	}
 
 	shared_ptr<Ciphertext<Element>> ciphertext4 = cc->Encrypt(kp.publicKey, plaintextInt);

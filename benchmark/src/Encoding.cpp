@@ -43,8 +43,7 @@ using namespace lbcrypto;
 
 static void initializeBytes(int ring, const BigInteger& ptm,
 		string& plaintextShort,
-		string& plaintextFull,
-		string& plaintextLong) {
+		string& plaintextFull) {
 
 	auto randchar = []() -> char {
 		const char charset[] =
@@ -62,10 +61,6 @@ static void initializeBytes(int ring, const BigInteger& ptm,
 	string fullStr(ring,0);
 	std::generate_n(fullStr.begin(), ring, randchar);
 	plaintextFull = fullStr;
-
-	string longStr(ring*2,0);
-	std::generate_n(longStr.begin(), ring*2, randchar);
-	plaintextLong = longStr;
 }
 
 
@@ -73,8 +68,7 @@ static void setup_Encoding(shared_ptr<CryptoContext<Poly>> cc,
 		shared_ptr<Plaintext>& plaintextInt,
 		shared_ptr<Plaintext>& plaintextPacked,
 		shared_ptr<Plaintext>& plaintextShort,
-		shared_ptr<Plaintext>& plaintextFull,
-		shared_ptr<Plaintext>& plaintextLong) {
+		shared_ptr<Plaintext>& plaintextFull) {
 
 	int nel = cc->GetRingDimension();
 	const BigInteger& ptm = cc->GetCryptoParameters()->GetPlaintextModulus();
@@ -87,12 +81,11 @@ static void setup_Encoding(shared_ptr<CryptoContext<Poly>> cc,
 	plaintextInt = cc->MakeCoefPackedPlaintext(intvec);
 	plaintextPacked = cc->MakePackedPlaintext(intvec);
 
-	string ss, fs, ls;
-	initializeBytes(nel, ptm, ss, fs, ls);
+	string ss, fs;
+	initializeBytes(nel, ptm, ss, fs);
 
 	plaintextShort = cc->MakeStringPlaintext(ss);
 	plaintextFull = cc->MakeStringPlaintext(fs);
-	plaintextLong = cc->MakeStringPlaintext(ls);
 }
 
 void BM_encoding_Int(benchmark::State& state) { // benchmark
@@ -101,7 +94,6 @@ void BM_encoding_Int(benchmark::State& state) { // benchmark
 	shared_ptr<Plaintext> plaintextPacked;
 	shared_ptr<Plaintext> plaintextShort;
 	shared_ptr<Plaintext> plaintextFull;
-	shared_ptr<Plaintext> plaintextLong;
 	BigInteger ptm;
 	usint ptmi;
 	size_t chunkSize = 0;
@@ -115,16 +107,12 @@ void BM_encoding_Int(benchmark::State& state) { // benchmark
 		ptm = cc->GetCryptoParameters()->GetPlaintextModulus();
 		ptmi = ptm.ConvertToInt();
 
-		setup_Encoding(cc, plaintextInt, plaintextPacked, plaintextShort, plaintextFull, plaintextLong);
+		setup_Encoding(cc, plaintextInt, plaintextPacked, plaintextShort, plaintextFull);
 		chunkSize = cc->GetRingDimension();
 		state.ResumeTiming();
 	}
 
 	while (state.KeepRunning()) {
-		state.PauseTiming();
-		Poly pt(cc->GetElementParams());
-		state.ResumeTiming();
-
 		plaintextInt->Encode();
 	}
 }
@@ -137,10 +125,8 @@ void BM_encoding_PackedInt(benchmark::State& state) { // benchmark
 	shared_ptr<Plaintext> plaintextPacked;
 	shared_ptr<Plaintext> plaintextShort;
 	shared_ptr<Plaintext> plaintextFull;
-	shared_ptr<Plaintext> plaintextLong;
 	BigInteger ptm;
 	usint ptmi;
-	size_t chunkSize = 0;
 
 	if( state.thread_index == 0 ) {
 		state.PauseTiming();
@@ -152,8 +138,7 @@ void BM_encoding_PackedInt(benchmark::State& state) { // benchmark
 			ptm = cc->GetCryptoParameters()->GetPlaintextModulus();
 			ptmi = ptm.ConvertToInt();
 
-			setup_Encoding(cc, plaintextInt, plaintextPacked, plaintextShort, plaintextFull, plaintextLong);
-			chunkSize = plaintextPacked.GetChunksize(cc->GetCryptoParameters()->GetElementParams()->GetRingDimension(), ptm);
+			setup_Encoding(cc, plaintextInt, plaintextPacked, plaintextShort, plaintextFull);
 		} catch( const std::exception& e ) {
 			state.SkipWithError( e.what() );
 		}
@@ -161,10 +146,6 @@ void BM_encoding_PackedInt(benchmark::State& state) { // benchmark
 	}
 
 	while (state.KeepRunning()) {
-		state.PauseTiming();
-		Poly pt(cc->GetCryptoParameters()->GetElementParams());
-		state.ResumeTiming();
-
 		try {
 			plaintextPacked->Encode();
 		} catch( std::exception& e ) {
@@ -182,7 +163,6 @@ void BM_Encoding_StringShort(benchmark::State& state) { // benchmark
 	shared_ptr<Plaintext> plaintextPacked;
 	shared_ptr<Plaintext> plaintextShort;
 	shared_ptr<Plaintext> plaintextFull;
-	shared_ptr<Plaintext> plaintextLong;
 	BigInteger ptm;
 	usint ptmi;
 	size_t chunkSize = 0;
@@ -198,7 +178,7 @@ void BM_Encoding_StringShort(benchmark::State& state) { // benchmark
 		ptm = cc->GetCryptoParameters()->GetPlaintextModulus();
 		ptmi = ptm.ConvertToInt();
 
-		setup_Encoding(cc, plaintextInt, plaintextPacked, plaintextShort, plaintextFull, plaintextLong);
+		setup_Encoding(cc, plaintextInt, plaintextPacked, plaintextShort, plaintextFull);
 		chunkSize = cc->GetRingDimension();
 
 		if( ptmi != 256 ) {
@@ -210,10 +190,6 @@ void BM_Encoding_StringShort(benchmark::State& state) { // benchmark
 	}
 
 	while (state.KeepRunning()) {
-		state.PauseTiming();
-		Poly pt(cc->GetCryptoParameters()->GetElementParams());
-		state.ResumeTiming();
-
 		plaintextShort->Encode();
 	}
 }
@@ -226,7 +202,6 @@ void BM_Encoding_StringFull(benchmark::State& state) { // benchmark
 	shared_ptr<Plaintext> plaintextPacked;
 	shared_ptr<Plaintext> plaintextShort;
 	shared_ptr<Plaintext> plaintextFull;
-	shared_ptr<Plaintext> plaintextLong;
 	BigInteger ptm;
 	usint ptmi;
 	size_t chunkSize = 0;
@@ -242,7 +217,7 @@ void BM_Encoding_StringFull(benchmark::State& state) { // benchmark
 		ptm = cc->GetCryptoParameters()->GetPlaintextModulus();
 		ptmi = ptm.ConvertToInt();
 
-		setup_Encoding(cc, plaintextInt, plaintextPacked, plaintextShort, plaintextFull, plaintextLong);
+		setup_Encoding(cc, plaintextInt, plaintextPacked, plaintextShort, plaintextFull);
 		chunkSize = cc->GetRingDimension();
 
 		if( ptmi != 256 ) {
@@ -254,59 +229,11 @@ void BM_Encoding_StringFull(benchmark::State& state) { // benchmark
 	}
 
 	while (state.KeepRunning()) {
-		state.PauseTiming();
-		Poly pt(cc->GetCryptoParameters()->GetElementParams());
-		state.ResumeTiming();
-
 		plaintextFull->Encode();
 	}
 }
 
 BENCHMARK_PARMS(BM_Encoding_StringFull)
-
-void BM_Encoding_StringLong(benchmark::State& state) { // benchmark
-	shared_ptr<CryptoContext<Poly>> cc;
-	shared_ptr<Plaintext> plaintextInt;
-	shared_ptr<Plaintext> plaintextPacked;
-	shared_ptr<Plaintext> plaintextShort;
-	shared_ptr<Plaintext> plaintextFull;
-	shared_ptr<Plaintext> plaintextLong;
-	BigInteger ptm;
-	usint ptmi;
-	size_t chunkSize = 0;
-	shared_ptr<Ciphertext<Poly>> ct1, ct2;
-
-	if( state.thread_index == 0 ) {
-		state.PauseTiming();
-		cc = CryptoContextHelper::getNewContext(parms[state.range(0)]);
-
-		cc->Enable(ENCRYPTION);
-		cc->Enable(SHE);
-
-		ptm = cc->GetCryptoParameters()->GetPlaintextModulus();
-		ptmi = ptm.ConvertToInt();
-
-		setup_Encoding(cc, plaintextInt, plaintextPacked, plaintextShort, plaintextFull, plaintextLong);
-		chunkSize = cc->GetRingDimension();
-
-		if( ptmi != 256 ) {
-			string msg = "Cannot encode with a plaintext modulus of " + std::to_string(ptmi);
-			state.SkipWithError(msg.c_str());
-		}
-
-		state.ResumeTiming();
-	}
-
-	while (state.KeepRunning()) {
-		state.PauseTiming();
-		Poly pt(cc->GetCryptoParameters()->GetElementParams());
-		state.ResumeTiming();
-
-		plaintextLong->Encode();
-	}
-}
-
-BENCHMARK_PARMS(BM_Encoding_StringLong)
 
 //execute the benchmarks
 BENCHMARK_MAIN()

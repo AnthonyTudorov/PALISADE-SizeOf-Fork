@@ -74,9 +74,13 @@ TEST_F(UTEvalIP, Test_LTV_EvalInnerProduct) {
 	usint expectedResult = std::inner_product(input1.begin(), input1.end(), input2.begin(), 0);
 	expectedResult %= plainttextMod;
 
-	usint result = ArbLTVInnerProductPackedArray(input1, input2);
+	try {
+		usint result = ArbLTVInnerProductPackedArray(input1, input2);
 
-	EXPECT_EQ(result, expectedResult);
+		EXPECT_EQ(result, expectedResult);
+	} catch( const std::logic_error& e ) {
+		FAIL() << e.what();
+	}
 	
 }
 
@@ -98,9 +102,13 @@ TEST_F(UTEvalIP, Test_BV_EvalInnerProduct) {
 	usint expectedResult = std::inner_product(input1.begin(), input1.end(), input2.begin(), 0);
 	expectedResult %= plainttextMod;
 
-	usint result = ArbBVInnerProductPackedArray(input1, input2);
+	try {
+		usint result = ArbBVInnerProductPackedArray(input1, input2);
 
-	EXPECT_EQ(result, expectedResult);
+		EXPECT_EQ(result, expectedResult);
+	} catch( const std::logic_error& e ) {
+		FAIL() << e.what();
+	}
 
 }
 
@@ -123,9 +131,13 @@ TEST_F(UTEvalIP, Test_FV_EvalInnerProduct) {
 	usint expectedResult = std::inner_product(input1.begin(), input1.end(), input2.begin(), 0);
 	expectedResult %= plainttextMod;
 
-	usint result = ArbFVInnerProductPackedArray(input1, input2);
+	try {
+		usint result = ArbFVInnerProductPackedArray(input1, input2);
 
-	EXPECT_EQ(result, expectedResult);
+		EXPECT_EQ(result, expectedResult);
+	} catch( const std::logic_error& e ) {
+		FAIL() << e.what();
+	}
 }
 
 
