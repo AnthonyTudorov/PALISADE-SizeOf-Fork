@@ -63,24 +63,6 @@ public:
 		else value = coeffs;
 	}
 
-	CoefPackedEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, std::initializer_list<int32_t> coeffs) :
-		Plaintext(vp,ep), valueSigned(coeffs), isSigned(true) {}
-
-	CoefPackedEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, std::initializer_list<int32_t> coeffs) :
-		Plaintext(vp,ep), valueSigned(coeffs), isSigned(true) {}
-
-	CoefPackedEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, std::initializer_list<uint32_t> coeffs, bool isSigned=false) :
-		Plaintext(vp,ep), isSigned(isSigned) {
-		if( isSigned ) valueSigned.insert(valueSigned.begin(), coeffs.begin(),coeffs.end());
-		else value = coeffs;
-	}
-
-	CoefPackedEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, std::initializer_list<uint32_t> coeffs, bool isSigned=false) :
-		Plaintext(vp,ep), isSigned(isSigned) {
-		if( isSigned ) valueSigned.insert(valueSigned.begin(), coeffs.begin(),coeffs.end());
-		else value = coeffs;
-	}
-
 	virtual ~CoefPackedEncoding() {}
 
 	bool IsSigned() const { return isSigned; }
