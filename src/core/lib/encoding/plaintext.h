@@ -68,8 +68,6 @@ protected:
 	bool								isEncoded;
 	enum { IsPoly, IsDCRTPoly }		typeFlag;
 	shared_ptr<EncodingParams>		encodingParams;
-
-private:
 	Poly								encodedVector;
 	DCRTPoly							encodedVectorDCRT;
 
@@ -112,10 +110,6 @@ public:
 	 */
 	template <typename Element>
 	Element& GetElement();
-
-	void SetElementValuesToZero() {
-		typeFlag == IsPoly ? encodedVector.SetValuesToZero() : encodedVectorDCRT.SetValuesToZero();
-	}
 
 	void SetElementValAtIndex(size_t idx, const BigInteger& val ) {
 		typeFlag == IsPoly ? encodedVector.SetValAtIndex(idx,val) : encodedVectorDCRT.SetValAtIndex(idx,val);
@@ -246,16 +240,6 @@ template <>
 inline Poly& Plaintext::GetElement<Poly>() {
 	return encodedVector;
 }
-
-/**
- * GetElement
- * @return the DCRTPolynomial that the element was encoded into
- */
-template <>
-inline DCRTPoly& Plaintext::GetElement<DCRTPoly>() {
-	return encodedVectorDCRT;
-}
-
 
 
 }

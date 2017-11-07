@@ -45,7 +45,7 @@ ScalarEncoding::Encode() {
 		}
 	}
 
-	this->SetElementValuesToZero();
+	this->encodedVector.SetValuesToZero();
 	if( entry >= mod )
 		throw std::logic_error("Cannot encode integer " + std::to_string(entry) + " that is > plaintext modulus " + std::to_string(mod) );
 	this->SetElementValAtIndex(0, entry);

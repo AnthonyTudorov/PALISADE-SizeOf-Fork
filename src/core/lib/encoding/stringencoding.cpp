@@ -40,7 +40,7 @@ StringEncoding::Encode() {
 		throw std::logic_error("Plaintext modulus must be " + std::to_string(charPtm) + " for string encoding");
 	}
 
-	this->SetElementValuesToZero();
+	this->encodedVector.SetValuesToZero();
 	size_t i = 0;
 	for( ; i<ptx.size() && i<GetElementLength(); i++ ) {
 		this->SetElementValAtIndex(i, ptx[i]);

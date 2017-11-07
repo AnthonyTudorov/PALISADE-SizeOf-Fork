@@ -37,7 +37,7 @@ CoefPackedEncoding::Encode() {
 		throw std::logic_error("Plaintext modulus must be an even number for signed CoefPackedEncoding");
 	}
 
-	this->SetElementValuesToZero();
+	this->encodedVector.SetValuesToZero();
 
 	for( size_t i=0; isSigned ? i < valueSigned.size() : i < value.size(); i++ ) {
 		uint32_t entry = isSigned ? (uint32_t)valueSigned[i] : value[i];

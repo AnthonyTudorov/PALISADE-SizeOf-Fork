@@ -969,14 +969,14 @@ namespace lbcrypto {
 			virtual ~LPEncryptionAlgorithm() {}
 
 			/**
-			 * Method for encrypting plaintex using LBC
+			 * Method for encrypting plaintext using LBC
 			 *
 			 * @param &publicKey public key used for encryption.
 			 * @param &plaintext the plaintext input.
 			 * @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 			 * @param *ciphertext ciphertext which results from encryption.
 			 */
-			virtual shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, const Element &plaintext) const = 0;
+			virtual shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, const Poly &plaintext) const = 0;
 
 			/**
 			 * Method for encrypting plaintex using LBC
@@ -986,7 +986,7 @@ namespace lbcrypto {
 			 * @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 			 * @param *ciphertext ciphertext which results from encryption.
 			 */
-			virtual shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey, const Element &plaintext) const = 0;
+			virtual shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey, const Poly &plaintext) const = 0;
 
 			/**
 			 * Method for decrypting plaintext using LBC
@@ -1925,7 +1925,7 @@ namespace lbcrypto {
 		//
 
 		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
-			const Element &plaintext) const {
+			const Poly &plaintext) const {
 				if(this->m_algorithmEncryption) {
 					return this->m_algorithmEncryption->Encrypt(publicKey,plaintext);
 				}
@@ -1935,7 +1935,7 @@ namespace lbcrypto {
 		}
 
 		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
-			const Element &plaintext) const {
+			const Poly &plaintext) const {
 				if(this->m_algorithmEncryption) {
 					return this->m_algorithmEncryption->Encrypt(privateKey,plaintext);
 				}

@@ -249,7 +249,7 @@ namespace lbcrypto {
 		* @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 		* @return ciphertext which results from encryption.
 		*/
-		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, const Element &plaintext) const;
+		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, const Poly &plaintext) const;
 
 		/**
 		* Method for encrypting plaintext using BV Scheme
@@ -259,7 +259,7 @@ namespace lbcrypto {
 		* @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 		* @return ciphertext which results from encryption.
 		*/
-		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey, const Element &plaintext) const;
+		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey, const Poly &plaintext) const;
 
 		/**
 		* Method for decrypting plaintext using BV

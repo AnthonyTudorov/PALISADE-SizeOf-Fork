@@ -36,7 +36,7 @@ IntegerEncoding::Encode() {
 	if( mod < 2 )
 		throw std::logic_error("Plaintext modulus must be 2 or more for integer encoding");
 
-	this->SetElementValuesToZero();
+	this->encodedVector.SetValuesToZero();
 
 	if( log2((double)value) > (double)this->GetElementLength() )
 		throw std::logic_error("Plaintext value " + std::to_string(value) + " will not fit in encoding");

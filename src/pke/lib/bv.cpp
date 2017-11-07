@@ -143,7 +143,7 @@ namespace lbcrypto {
 
 	template <class Element>
 	shared_ptr<Ciphertext<Element>> LPAlgorithmBV<Element>::Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
-		const Element &ptxt) const
+		const Poly &ptxt) const
 	{
 		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(publicKey->GetCryptoParameters());
 
@@ -190,7 +190,7 @@ namespace lbcrypto {
 
 	template <class Element>
 	shared_ptr<Ciphertext<Element>> LPAlgorithmBV<Element>::Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
-		const Element &ptxt) const
+		const Poly &ptxt) const
 	{
 		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(privateKey->GetCryptoParameters());
 
@@ -324,7 +324,7 @@ namespace lbcrypto {
 		const shared_ptr<Plaintext> plaintext) const
 	{
 
-		if (ciphertext->GetElements()[0].GetFormat() == Format::COEFFICIENT || plaintext->GetElement<Element>().GetFormat() == Format::COEFFICIENT) {
+		if (ciphertext->GetElements()[0].GetFormat() == Format::COEFFICIENT || plaintext->GetElement<Poly>().GetFormat() == Format::COEFFICIENT) {
 			throw std::runtime_error("EvalMult cannot multiply in COEFFICIENT domain.");
 		}
 
@@ -332,7 +332,7 @@ namespace lbcrypto {
 
 		const std::vector<Element> &c1 = ciphertext->GetElements();
 
-		const Element &c2 = plaintext->GetElement<Element>();
+		Element c2( plaintext->GetElement<Poly>(), c1[0].GetParams() );
 
 		std::vector<Element> cNew;
 

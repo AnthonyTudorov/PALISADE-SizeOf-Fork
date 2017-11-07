@@ -671,7 +671,7 @@ public:
 			return 0;
 		}
 
-		shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, plaintext->GetElement<Element>());
+		shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, plaintext->GetElement<Poly>());
 
 		if (ciphertext) {
 			ciphertext->SetEncodingType( plaintext->GetEncodingType() );
@@ -698,7 +698,7 @@ public:
 		if( plaintext->Encode() == false )
 			return 0;
 
-		shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(privateKey, plaintext->GetElement<Element>());
+		shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(privateKey, plaintext->GetElement<Poly>());
 
 		if( doTiming ) {
 			timeSamples->push_back( TimingInfo(OpEncryptPriv, currentDateTime() - start) );
@@ -733,7 +733,7 @@ public:
 			{
 				plaintext(row,col)->Encode();
 
-				shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, plaintext(row,col)->GetElement<Element>());
+				shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, plaintext(row,col)->GetElement<Poly>());
 
 				(*cipherResults)(row, col).SetNumerator(ciphertext);
 			}
@@ -784,7 +784,7 @@ public:
 
 			px->Encode();
 
-			shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, px->GetElement<Element>());
+			shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, px->GetElement<Poly>());
 			if (!ciphertext) {
 				break;
 			}
