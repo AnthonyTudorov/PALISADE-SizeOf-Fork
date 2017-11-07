@@ -165,7 +165,7 @@ public:
 	* @param *ciphertext ciphertext which results from encryption.
 	*/
 	shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> pubKey,
-		const Element &ptxt) const {
+		const Poly &ptxt) const {
 		shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(pubKey) );
 
 		// no difference between Encryption and non-Encryption mode for the Null scheme
@@ -183,7 +183,7 @@ public:
 	* @param *ciphertext ciphertext which results from encryption.
 	*/
 	shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPrivateKey<Element>> privKey,
-		const Element &ptxt) const {
+		const Poly &ptxt) const {
 		shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(privKey) );
 
 		// no difference between Encryption and non-Encryption mode for the Null scheme

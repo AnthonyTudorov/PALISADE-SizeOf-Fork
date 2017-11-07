@@ -321,7 +321,7 @@ LPKeyPair<Element> LPAlgorithmFV<Element>::KeyGen(shared_ptr<CryptoContext<Eleme
 
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
-		const Element &ptxt) const
+		const Poly &ptxt) const
 {
 	shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(publicKey) );
 
@@ -329,7 +329,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr
 
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 
-	Element plaintext = ptxt;
+	Element plaintext(ptxt,elementParams);
 	plaintext.SwitchFormat();
 
 	const BigInteger &delta = cryptoParams->GetDelta();
@@ -365,7 +365,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr
 
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
-		const Element &ptxt) const
+		const Poly &ptxt) const
 {
 	shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(privateKey) );
 
@@ -373,7 +373,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr
 
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 
-	Element plaintext = ptxt;
+	Element plaintext(ptxt,elementParams);
 	plaintext.SwitchFormat();
 
 	const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();

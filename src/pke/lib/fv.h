@@ -391,7 +391,7 @@ namespace lbcrypto {
 		* @return ciphertext which results from encryption.
 		*/
 		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
-			const Element &plaintext) const;
+			const Poly &plaintext) const;
 
 		/**
 		* Method for encrypting plaintext using FV.

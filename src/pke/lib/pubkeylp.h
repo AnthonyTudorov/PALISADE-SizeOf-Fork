@@ -1359,7 +1359,7 @@ namespace lbcrypto {
 			shared_ptr<LPPublicKey<Element>> pk(new LPPublicKey<Element>(cc, kID));
 			plaintext->Encode();
 
-			shared_ptr<Ciphertext<Element>> embeddedPlaintext = cc->GetEncryptionAlgorithm()->Encrypt(pk, plaintext->GetElement<Element>());
+			shared_ptr<Ciphertext<Element>> embeddedPlaintext = cc->GetEncryptionAlgorithm()->Encrypt(pk, plaintext->GetElement<Poly>());
 
 			auto ans = EvalAdd(ciphertext, embeddedPlaintext);
 
