@@ -42,15 +42,16 @@ namespace lbcrypto {
 //const double SIGMA = std::sqrt(std::log(2 * N_MAX / DG_ERROR) / M_PI);
 //const int32_t PRECISION = 128;
 //const double TAIL_CUT = std::sqrt(log(2)*2*(double)(PRECISION));
-const int32_t STDDEV_COUNT = 7;
 //const int32_t DDG_DEPTH = 13;
-const int32_t MIN_TREE_DEPTH = 44;
+const int32_t MAX_TREE_DEPTH = 64;
 
 const int32_t PRECISION = 53;
 const int32_t BERNOULLI_FLIPS = 23;
 
 
 BaseSampler::BaseSampler(double mean,double std,BitGenerator* generator,BaseSamplerType type=PEIKERT):b_mean(mean),b_std(std),bg(generator),b_type(type){
+	double acc = 1e-17;
+	fin = (int) ceil(b_std * sqrt(-2 * log(acc)));
 	if(b_type==PEIKERT)
 		Initialize(b_mean);
 	else
@@ -70,21 +71,27 @@ void BaseSampler::GenerateProbMatrix(double stddev, double mean) {
 	if (DDGColumn != nullptr) {
 		delete[] DDGColumn;
 	}
-
-	b_matrixSize = 2 * STDDEV_COUNT * stddev + 1;
+	b_matrixSize = 2 * fin + 1;
 	hammingWeights.resize(64, 0);
 	probMatrix.resize(b_matrixSize);
+	double* probs = new double[b_matrixSize];
+	double S=0;
 	b_std = stddev;
 	b_mean = mean;
-	for (int i = -1 * STDDEV_COUNT * stddev; i <= STDDEV_COUNT * stddev; i++) {
-		double prob = pow(M_E,-pow((i + b_mean) - b_mean, 2) / (2. * stddev * stddev))/ (stddev * sqrt(2. * M_PI));
-		probMatrix[i + STDDEV_COUNT * stddev] = prob * /*(1<<64)*/pow(2, 64);
+	for (int i = -1 * fin; i <= fin; i++) {
+		double prob = pow(M_E,-pow((i - b_mean), 2) / (2. * stddev * stddev));
+		S+=prob;
+		probs[i+fin]=prob;
 	}
 	for (int i = 0; i < b_matrixSize; i++) {
+		probMatrix[i] = probs[i] * (1.0/S) * /*(1<<64)*/pow(2, 64);
+		std::cout.precision(128);
+		std::cout<<i<<" "<<probs[i] * (1.0/S)<<" "<<probMatrix[i]<<std::endl;
 		for (int j = 0; j < 64; j++) {
 			hammingWeights[j] += ((probMatrix[i] >> (63 - j)) & 1);
 		}
 	}
+	delete[] probs;
 	GenerateDDGTree();
 }
 
@@ -152,17 +159,25 @@ void BaseSampler::GenerateDDGTree() {
 	for (int i = 0; i < 64 && firstNonZero == -1; i++)
 		if (hammingWeights[i] != 0)
 			firstNonZero = i;
-
-	uint32_t iNodeCount = 1;
+	endIndex = firstNonZero;
+	int32_t iNodeCount = 1;
 	for (int i = 0; i < firstNonZero; i++) {
 		iNodeCount *= 2;
 	}
+	bool end = false;
 	unsigned int maxNodeCount = iNodeCount;
-	for (int i = firstNonZero; i < firstNonZero + MIN_TREE_DEPTH; i++) {
+	for (int i = firstNonZero; i < MAX_TREE_DEPTH && !end; i++) {
 		iNodeCount *= 2;
-		iNodeCount -= hammingWeights[i];
-		if (iNodeCount >= maxNodeCount)
+		endIndex++;
+		if ((uint32_t)iNodeCount >= maxNodeCount)
 			maxNodeCount = iNodeCount;
+		iNodeCount -= hammingWeights[i];
+		if(iNodeCount<=0){
+			end=true;
+			if(iNodeCount<0){
+				endIndex--;
+			}
+		}
 	}
 
 	int depth = log2(maxNodeCount);
@@ -170,20 +185,22 @@ void BaseSampler::GenerateDDGTree() {
 	DDGTree.resize(size);
 
 	for (unsigned int i = 0; i < size; i++) {
-		DDGTree[i].resize(MIN_TREE_DEPTH, -2);
+		DDGTree[i].resize(endIndex, -2);
 	}
 	iNodeCount = 1;
 	for (int i = 0; i < firstNonZero; i++) {
 		iNodeCount *= 2;
 	}
-	for (int i = firstNonZero; i < firstNonZero + MIN_TREE_DEPTH; i++) {
+
+	for (int i = firstNonZero; i < endIndex; i++) {
 		iNodeCount *= 2;
 		iNodeCount -= hammingWeights[i];
-		for (unsigned int j = 0; j < iNodeCount; j++) {
+		for (unsigned int j = 0; j < (uint32_t)iNodeCount; j++) {
 			DDGTree[j][i - firstNonZero] = -1;
+
 		}
 		uint32_t eNodeCount = 0;
-		for (int j = 0; j < b_matrixSize && eNodeCount != hammingWeights[i];j++) {
+		for (int j =0; j <  b_matrixSize && eNodeCount != hammingWeights[i];j++) {
 			if ((probMatrix[j] >> (63 - i)) & 1) {
 				DDGTree[iNodeCount + eNodeCount][i - firstNonZero] = j;
 				eNodeCount++;
@@ -200,7 +217,7 @@ int64_t BaseSampler::GenerateIntegerKnuthYaoAlt() {
 		uint32_t nodeIndex = 0;
 		int64_t nodeCount = 1;
 		bool error = false;
-		for (int i = 0; i < 64 && !hit && !error; i++) {
+		for (int i = 0; i < MAX_TREE_DEPTH && !hit && !error; i++) {
 
 
 			short bit = bg->Generate();
@@ -210,9 +227,10 @@ int64_t BaseSampler::GenerateIntegerKnuthYaoAlt() {
 				nodeIndex += 1;
 			}
 			if (firstNonZero <= i) {
-				if (i < firstNonZero + MIN_TREE_DEPTH) {
+				if (i < endIndex) {
 					ans = DDGTree[nodeIndex][i - firstNonZero];
 				} else {
+					std::cout<<"Hit active generation"<<std::endl;
 					//std::vector<short> DDGColumn(nodeCount);
 					DDGColumn = new short[nodeCount];
 					nodeCount -= hammingWeights[i];
@@ -231,7 +249,7 @@ int64_t BaseSampler::GenerateIntegerKnuthYaoAlt() {
 				if (ans >= 0) {
 					hit = true;
 				} else {
-					if (ans == -2 || ans == b_matrixSize - 1) {
+					if (ans == -2) {
 						error = true;
 					}
 				}
@@ -243,8 +261,8 @@ int64_t BaseSampler::GenerateIntegerKnuthYaoAlt() {
 		}
 	}
 
-	//int64_t sign=randomBit();
-	return /*sign**/(ans - STDDEV_COUNT * b_std) + b_mean;
+	int64_t sign=bg->Generate()?1:-1;
+	return sign*(ans - fin);
 }
 /*
 int32_t DiscreteGaussianGeneratorGeneric::GenerateInteger(double mean,double stddev) {
@@ -366,17 +384,15 @@ void BaseSampler::Initialize(double mean) {
 
 	m_vals.clear();
 	//weightDiscreteGaussian
-	double acc = 1e-15;
 	double variance = b_std * b_std;
 
-	fin = (int) ceil(b_std * sqrt(-2 * log(acc)));
+
 	//this value of fin (M) corresponds to the limit for double precision
 	// usually the bound of m_std * M is used, whe                                re M = 20 .. 40 - see DG14 for details
 	// M = 20 corresponds to 1e-87
 	//double mr = 20; // see DG14 for details
 	//int fin = (int)ceil(m_std * mr);
 	double cusum = 0.0;
-
 	for (sint x = -1*fin; x <= fin; x++) {
 		cusum = cusum + exp(-(x-mean) * (x-mean)/ (variance * 2));
 	}

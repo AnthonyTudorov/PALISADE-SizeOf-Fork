@@ -179,6 +179,8 @@ private:
 	 */
 	int32_t firstNonZero;
 
+	int32_t endIndex;
+
 
 	std::vector<double> m_vals;
 	/**
