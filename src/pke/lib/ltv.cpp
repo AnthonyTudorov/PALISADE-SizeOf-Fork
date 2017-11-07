@@ -82,7 +82,7 @@ LPKeyPair<Element> LPAlgorithmLTV<Element>::KeyGen(shared_ptr<CryptoContext<Elem
 
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmLTV<Element>::Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
-	const Element &ptxt) const
+	const Poly &ptxt) const
 {
 	const shared_ptr<LPCryptoParametersRLWE<Element>> cryptoParams =
 		std::dynamic_pointer_cast<LPCryptoParametersRLWE<Element>>(publicKey->GetCryptoParameters());
@@ -92,7 +92,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmLTV<Element>::Encrypt(const shared_pt
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 	const BigInteger &p = cryptoParams->GetPlaintextModulus();
 
-	Element plaintext = ptxt;
+	Element plaintext(ptxt);
 	plaintext.SwitchFormat();
 
 	const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();

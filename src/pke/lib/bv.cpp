@@ -155,7 +155,7 @@ namespace lbcrypto {
 
 		typename Element::TugType tug;
 
-		Element plaintext = ptxt;
+		Element plaintext(ptxt);
 		plaintext.SwitchFormat();
 
 		std::vector<Element> cVector;
@@ -202,7 +202,7 @@ namespace lbcrypto {
 
 		typename Element::DugType dug;
 
-		Element plaintext = ptxt;
+		Element plaintext(ptxt);
 		plaintext.SwitchFormat();
 
 		std::vector<Element> cVector;
