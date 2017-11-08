@@ -143,7 +143,7 @@ namespace lbcrypto {
 
 	template <class Element>
 	shared_ptr<Ciphertext<Element>> LPAlgorithmBV<Element>::Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
-		const Poly &ptxt) const
+		Element ptxt) const
 	{
 		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(publicKey->GetCryptoParameters());
 
@@ -155,8 +155,7 @@ namespace lbcrypto {
 
 		typename Element::TugType tug;
 
-		Element plaintext(ptxt,elementParams);
-		plaintext.SwitchFormat();
+		ptxt.SwitchFormat();
 
 		std::vector<Element> cVector;
 
@@ -174,7 +173,7 @@ namespace lbcrypto {
 		Element e0(dgg, elementParams, Format::EVALUATION);
 		Element e1(dgg, elementParams, Format::EVALUATION);
 
-		Element c0(b*v + p*e0 + plaintext);
+		Element c0(b*v + p*e0 + ptxt);
 
 		Element c1(a*v + p*e1);
 
@@ -190,7 +189,7 @@ namespace lbcrypto {
 
 	template <class Element>
 	shared_ptr<Ciphertext<Element>> LPAlgorithmBV<Element>::Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
-		const Poly &ptxt) const
+		Element ptxt) const
 	{
 		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(privateKey->GetCryptoParameters());
 
@@ -202,8 +201,7 @@ namespace lbcrypto {
 
 		typename Element::DugType dug;
 
-		Element plaintext(ptxt,elementParams);
-		plaintext.SwitchFormat();
+		ptxt.SwitchFormat();
 
 		std::vector<Element> cVector;
 
@@ -211,7 +209,7 @@ namespace lbcrypto {
 		const Element &s = privateKey->GetPrivateElement();
 		Element e(dgg, elementParams, Format::EVALUATION);
 
-		Element c0(a*s + p*e + plaintext);
+		Element c0(a*s + p*e + ptxt);
 		Element c1(a);
 
 		cVector.push_back(std::move(c0));

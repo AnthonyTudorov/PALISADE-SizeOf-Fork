@@ -321,7 +321,7 @@ LPKeyPair<Element> LPAlgorithmFV<Element>::KeyGen(shared_ptr<CryptoContext<Eleme
 
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
-		const Poly &ptxt) const
+		Element ptxt) const
 {
 	shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(publicKey) );
 
@@ -329,8 +329,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr
 
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 
-	Element plaintext(ptxt,elementParams);
-	plaintext.SwitchFormat();
+	ptxt.SwitchFormat();
 
 	const BigInteger &delta = cryptoParams->GetDelta();
 
@@ -354,7 +353,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr
 	Element c0(elementParams);
 	Element c1(elementParams);
 
-	c0 = p0*u + e1 + delta*plaintext;
+	c0 = p0*u + e1 + delta*ptxt;
 
 	c1 = p1*u + e2;
 
@@ -365,7 +364,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr
 
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
-		const Poly &ptxt) const
+		Element ptxt) const
 {
 	shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(privateKey) );
 
@@ -373,8 +372,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr
 
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 
-	Element plaintext(ptxt,elementParams);
-	plaintext.SwitchFormat();
+	ptxt.SwitchFormat();
 
 	const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 	typename Element::DugType dug;
@@ -384,7 +382,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr
 	const Element &s = privateKey->GetPrivateElement();
 	Element e(dgg, elementParams, Format::EVALUATION);
 
-	Element c0(a*s + e + delta*plaintext);
+	Element c0(a*s + e + delta*ptxt);
 	Element c1(elementParams, Format::EVALUATION, true);
 	c1 -= a;
 

@@ -90,8 +90,7 @@ public:
 	*/
 	DCRTPolyImpl(const shared_ptr<ParmType> params, Format format = EVALUATION, bool initializeElementToZero = false);
 
-	// FIXME should be private?
-	void FillPolyFromBigVector(const Poly& element, const shared_ptr<ParmType> params);
+	const DCRTPolyType& operator=(const Poly& element);
 
 	/**
 	* @brief Constructor based on discrete Gaussian generator.

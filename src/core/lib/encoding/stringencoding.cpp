@@ -43,10 +43,14 @@ StringEncoding::Encode() {
 	this->encodedVector.SetValuesToZero();
 	size_t i = 0;
 	for( ; i<ptx.size() && i<GetElementLength(); i++ ) {
-		this->SetElementValAtIndex(i, ptx[i]);
+		this->encodedVector.SetValAtIndex(i, ptx[i]);
 	}
 	for( ; i<GetElementLength(); i++ ) {
-		this->SetElementValAtIndex(i, CHARMARKER);
+		this->encodedVector.SetValAtIndex(i, CHARMARKER);
+	}
+
+	if( this->typeFlag == IsDCRTPoly ) {
+		this->encodedVectorDCRT.SetValues(this->encodedVector.GetValues(), this->encodedVector.GetFormat());
 	}
 
 	this->isEncoded = true;

@@ -971,22 +971,22 @@ namespace lbcrypto {
 			/**
 			 * Method for encrypting plaintext using LBC
 			 *
-			 * @param &publicKey public key used for encryption.
-			 * @param &plaintext the plaintext input.
+			 * @param&publicKey public key used for encryption.
+			 * @param plaintext copy of the plaintext element. NOTE a copy is passed! That is NOT an error!
 			 * @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 			 * @param *ciphertext ciphertext which results from encryption.
 			 */
-			virtual shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, const Poly &plaintext) const = 0;
+			virtual shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, Element plaintext) const = 0;
 
 			/**
 			 * Method for encrypting plaintex using LBC
 			 *
-			 * @param &privateKey private key used for encryption.
-			 * @param &plaintext the plaintext input.
+			 * @param privateKey private key used for encryption.
+			 * @param plaintext copy of the plaintext input. NOTE a copy is passed! That is NOT an error!
 			 * @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 			 * @param *ciphertext ciphertext which results from encryption.
 			 */
-			virtual shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey, const Poly &plaintext) const = 0;
+			virtual shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey, Element plaintext) const = 0;
 
 			/**
 			 * Method for decrypting plaintext using LBC
@@ -1359,7 +1359,7 @@ namespace lbcrypto {
 			shared_ptr<LPPublicKey<Element>> pk(new LPPublicKey<Element>(cc, kID));
 			plaintext->Encode();
 
-			shared_ptr<Ciphertext<Element>> embeddedPlaintext = cc->GetEncryptionAlgorithm()->Encrypt(pk, plaintext->GetElement<Poly>());
+			shared_ptr<Ciphertext<Element>> embeddedPlaintext = cc->GetEncryptionAlgorithm()->Encrypt(pk, plaintext->GetElement<Element>());
 
 			auto ans = EvalAdd(ciphertext, embeddedPlaintext);
 
@@ -1925,7 +1925,7 @@ namespace lbcrypto {
 		//
 
 		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
-			const Poly &plaintext) const {
+			const Element &plaintext) const {
 				if(this->m_algorithmEncryption) {
 					return this->m_algorithmEncryption->Encrypt(publicKey,plaintext);
 				}
@@ -1935,7 +1935,7 @@ namespace lbcrypto {
 		}
 
 		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
-			const Poly &plaintext) const {
+			const Element &plaintext) const {
 				if(this->m_algorithmEncryption) {
 					return this->m_algorithmEncryption->Encrypt(privateKey,plaintext);
 				}

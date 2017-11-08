@@ -50,8 +50,13 @@ CoefPackedEncoding::Encode() {
 					" at position " + std::to_string(i) +
 					" that is > plaintext modulus " + std::to_string(mod) );
 
-		this->SetElementValAtIndex(i, entry);
+		this->encodedVector.SetValAtIndex(i, entry);
 	}
+
+	if( this->typeFlag == IsDCRTPoly ) {
+		this->encodedVectorDCRT.SetValues(this->encodedVector.GetValues(), this->encodedVector.GetFormat());
+	}
+
 	this->isEncoded = true;
 	return true;
 }

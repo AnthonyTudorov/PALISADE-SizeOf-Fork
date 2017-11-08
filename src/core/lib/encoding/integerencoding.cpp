@@ -45,8 +45,12 @@ IntegerEncoding::Encode() {
 	size_t i = 0;
 
 	while( val > 0 ) {
-		this->SetElementValAtIndex(i++, val & 0x01);
+		this->encodedVector.SetValAtIndex(i++, val & 0x01);
 		val >>= 1;
+	}
+
+	if( this->typeFlag == IsDCRTPoly ) {
+		this->encodedVectorDCRT.SetValues(this->encodedVector.GetValues(), this->encodedVector.GetFormat());
 	}
 
 	this->isEncoded = true;

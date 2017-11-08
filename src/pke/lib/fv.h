@@ -386,23 +386,23 @@ namespace lbcrypto {
 		* Method for encrypting plaintext using FV.
 		*
 		* @param publicKey public key used for encryption.
-		* @param &plaintext the plaintext input.
+		* @param plaintext the plaintext input.
 		* @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 		* @return ciphertext which results from encryption.
 		*/
 		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
-			const Poly &plaintext) const;
+			Element plaintext) const;
 
 		/**
 		* Method for encrypting plaintext using FV.
 		*
 		* @param privateKey private key used for encryption.
-		* @param &plaintext the plaintext input.
+		* @param plaintext the plaintext input.
 		* @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 		* @return ciphertext which results from encryption.
 		*/
 		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
-			const Poly &plaintext) const;
+			Element plaintext) const;
 
 		/**
 		* Method for decrypting using FV. See the class description for citations on where the algorithms were

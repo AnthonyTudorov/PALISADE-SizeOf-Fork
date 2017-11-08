@@ -33,7 +33,7 @@ namespace lbcrypto {
 
 class ScalarEncoding : public Plaintext {
 	uint32_t		value;
-	int32_t		valueSigned;
+	int32_t			valueSigned;
 	bool			isSigned;
 
 public:
