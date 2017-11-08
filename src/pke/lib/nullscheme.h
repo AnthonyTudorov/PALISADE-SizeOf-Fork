@@ -166,10 +166,13 @@ public:
 	*/
 	shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> pubKey,
 		const Poly &ptxt) const {
+
 		shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(pubKey) );
 
+		Element plaintext(ptxt, pubKey->GetCryptoContext()->GetCryptoParameters()->GetElementParams());
+
 		// no difference between Encryption and non-Encryption mode for the Null scheme
-		ciphertext->SetElement(ptxt);
+		ciphertext->SetElement(plaintext);
 
 		return ciphertext;
 	}
@@ -184,10 +187,13 @@ public:
 	*/
 	shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPrivateKey<Element>> privKey,
 		const Poly &ptxt) const {
+
 		shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(privKey) );
 
+		Element plaintext(ptxt, privKey->GetCryptoContext()->GetCryptoParameters()->GetElementParams());
+
 		// no difference between Encryption and non-Encryption mode for the Null scheme
-		ciphertext->SetElement(ptxt);
+		ciphertext->SetElement(plaintext);
 
 		return ciphertext;
 	}
