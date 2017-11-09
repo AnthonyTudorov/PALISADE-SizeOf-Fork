@@ -1,5 +1,5 @@
 /**
- * @file palisade.h -- PALISADE.
+ * @file exception.h - framework for exceptions in PALISADE
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -24,60 +24,54 @@
  *
  */
 
-#ifndef SRC_LIB_PALISADE_H_
-#define SRC_LIB_PALISADE_H_
 
-#include <initializer_list>
+#ifndef SRC_CORE_LIB_UTILS_EXCEPTION_H_
+#define SRC_CORE_LIB_UTILS_EXCEPTION_H_
 
+#include <exception>
+#include <stdexcept>
 #include <string>
-using std::string;
+#include <iostream>
+#include <sstream>
 
-#include <memory>
-using std::shared_ptr;
+namespace lbcrypto
+{
 
-#include <utility>
-using std::move;
+class palisade_error : public std::runtime_error {
+	std::string filename;
+	int			linenum;
 
-namespace lbcrypto {
+public:
+	palisade_error(const char * what) : std::runtime_error(what), filename(""), linenum(0) {}
 
-template <class Element>
-class CryptoContext;
+	const char* what() const throw() {
+		std::ostringstream cnvt;
 
-template <class Element>
-class CryptoObject;
+		cnvt << filename << ":" << linenum << " " << runtime_error::what();
+
+		return cnvt.str().c_str();
+	}
+};
+
+class config_error : public palisade_error {
+
+};
+
+class math_error : public palisade_error {
+public:
+	math_error(const char * what) : palisade_error(what) {}
+};
+
+class not_implemented_error : public palisade_error {
+
+};
+
+class not_available_error : public palisade_error {
+
+};
+
+
 
 }
 
-#include "math/backend.h"
-#include "math/distrgen.h"
-#include "math/matrix.h"
-
-#include "utils/inttypes.h"
-#include "utils/exception.h"
-
-#include "lattice/elemparams.h"
-#include "lattice/ilparams.h"
-#include "lattice/ildcrtparams.h"
-#include "lattice/ilelement.h"
-#include "lattice/poly.h"
-#include "../../core/lib/lattice/dcrtpoly.h"
-
-#include "encoding/encodingparams.h"
-
-#include "pubkeylp.h"
-
-#include "rlwe.h"
-#include "ltv.h"
-#include "stst.h"
-#include "bv.h"
-#include "fv.h"
-#include "nullscheme.h"
-
-#include "utils/serializable.h"
-
-#include "ciphertext.h"
-#include "rationalciphertext.h"
-
-
-
-#endif /* SRC_LIB_PALISADE_H_ */
+#endif /* SRC_CORE_LIB_UTILS_EXCEPTION_H_ */
