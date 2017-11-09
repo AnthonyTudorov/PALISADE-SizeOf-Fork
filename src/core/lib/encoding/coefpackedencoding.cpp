@@ -54,7 +54,7 @@ CoefPackedEncoding::Encode() {
 	}
 
 	if( this->typeFlag == IsDCRTPoly ) {
-		this->encodedVectorDCRT.SetValues(this->encodedVector.GetValues(), this->encodedVector.GetFormat());
+		this->encodedVectorDCRT = this->encodedVector;
 	}
 
 	this->isEncoded = true;
@@ -67,8 +67,9 @@ CoefPackedEncoding::Decode() {
 	uint64_t mod = this->encodingParams->GetPlaintextModulus().ConvertToInt();
 	this->value.clear();
 	this->valueSigned.clear();
-	for( size_t i = 0; i < this->GetElementLength(); i++ ) {
-		uint64_t val = this->GetElementValAtIndex(i).ConvertToInt();
+
+	for( size_t i = 0; i < this->encodedVector.GetLength(); i++ ) {
+		uint64_t val = this->encodedVector.GetValAtIndex(i).ConvertToInt();
 		if( isSigned ) {
 			if( val >  mod/2)
 				val -= mod;

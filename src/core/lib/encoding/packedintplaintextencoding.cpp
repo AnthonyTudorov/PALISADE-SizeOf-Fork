@@ -69,8 +69,8 @@ namespace lbcrypto {
 		this->Unpack(&this->GetElement<Poly>(), this->GetElementModulus());
 
 		this->value.clear();
-		for (usint i = 0; i<this->GetElementLength(); i++) {
-			this->value.push_back(this->GetElementValAtIndex(i).ConvertToInt());
+		for (usint i = 0; i<this->encodedVector.GetLength(); i++) {
+			this->value.push_back(this->encodedVector.GetValAtIndex(i).ConvertToInt());
 		}
 		return true;
 	}

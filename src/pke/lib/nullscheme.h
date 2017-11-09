@@ -141,7 +141,9 @@ public:
 
 		if( el == 0 ) return false;
 
-		return true;
+		return this->GetPlaintextModulus() == el->GetPlaintextModulus() &&
+					*this->GetElementParams() == *el->GetElementParams() &&
+					*this->GetEncodingParams() == *el->GetEncodingParams();
 	}
 
 };

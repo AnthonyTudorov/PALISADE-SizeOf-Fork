@@ -1312,7 +1312,6 @@ namespace lbcrypto {
 						(*result)(row, col).SetDenominator(determinant.GetNumerator());
 
 			return result;
-
 		}
 
 		/**

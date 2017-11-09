@@ -132,7 +132,7 @@ TEST_F(UTFV, Poly_FV_Eval_Operations) {
 	//this step is needed because there is no marker for padding in the case of shared_ptr<Plaintext>
 	plaintextNew->SetLength(plaintextAdd->GetLength());
 
-	EXPECT_EQ(plaintextAdd, plaintextNew) << "FV.EvalAdd gives incorrect results.\n";
+	EXPECT_EQ(*plaintextAdd, *plaintextNew) << "FV.EvalAdd gives incorrect results.\n";
 
 	////////////////////////////////////////////////////////////
 	//EvalSub Operation
@@ -150,7 +150,7 @@ TEST_F(UTFV, Poly_FV_Eval_Operations) {
 
 	plaintextNewSub->SetLength(plaintextSub->GetLength());
 
-	EXPECT_EQ(plaintextSub, plaintextNewSub) << "FV.EvalSub gives incorrect results.\n";
+	EXPECT_EQ(*plaintextSub, *plaintextNewSub) << "FV.EvalSub gives incorrect results.\n";
 
 
 	////////////////////////////////////////////////////////////
@@ -171,7 +171,7 @@ TEST_F(UTFV, Poly_FV_Eval_Operations) {
 
 	plaintextNewMult->SetLength(plaintextMult->GetLength());
 
-	EXPECT_EQ(plaintextMult, plaintextNewMult) << "FV.EvalMult gives incorrect results.\n";
+	EXPECT_EQ(*plaintextMult, *plaintextNewMult) << "FV.EvalMult gives incorrect results.\n";
 
 }
 

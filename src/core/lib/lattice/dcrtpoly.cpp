@@ -75,6 +75,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::operator=(const Poly &element)
 	}
 
 	size_t vecCount = m_params->GetParams().size();
+	m_vectors.clear();
 	m_vectors.reserve(vecCount);
 
 	// fill up with vectors with the proper moduli

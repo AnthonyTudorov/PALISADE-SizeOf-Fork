@@ -111,14 +111,6 @@ public:
 	template <typename Element>
 	Element& GetElement();
 
-	size_t GetElementLength() const {
-		return typeFlag == IsPoly ? encodedVector.GetLength() : encodedVectorDCRT.GetLength();
-	}
-
-	const BigInteger GetElementValAtIndex(size_t idx) const {
-		return typeFlag == IsPoly ? encodedVector.GetValAtIndex(idx) : encodedVectorDCRT.GetValAtIndex(idx);
-	}
-
 	const usint GetElementRingDimension() const {
 		return typeFlag == IsPoly ? encodedVector.GetRingDimension() : encodedVectorDCRT.GetRingDimension();
 	}

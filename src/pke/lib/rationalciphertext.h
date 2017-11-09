@@ -71,21 +71,6 @@ namespace lbcrypto {
 			m_integerFlag = true;
 		}
 
-//		/**
-//		* Construct a new rational ciphertext from two integer ciphertexts
-//		*
-//		* @param &numerator numerator ciphertext
-//		* @param &denominator denominator ciphertext
-//		*/
-//		RationalCiphertext(const Ciphertext<Element> &numerator, const Ciphertext<Element> &denominator) {
-//			if( numerator.GetCryptoContext() != denominator.GetCryptoContext() )
-//				throw std::logic_error("Numerator and denominator ciphertexts are from different crypto contexts");
-//			this->context = numerator.GetCryptoContext();
-//			m_numerator = std::make_shared<Ciphertext<Element>>(numerator);
-//			m_denominator = std::make_shared<Ciphertext<Element>>(denominator);
-//			m_integerFlag = false;
-//		}
-
 		/**
 		* Construct a new rational ciphertext from two ciphertextpointers
 		*

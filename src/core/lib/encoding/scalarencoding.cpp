@@ -61,13 +61,13 @@ ScalarEncoding::Encode() {
 bool
 ScalarEncoding::Decode() {
 	if( isSigned ) {
-		this->valueSigned = this->GetElementValAtIndex(0).ConvertToInt();
+		this->valueSigned = this->encodedVector.GetValAtIndex(0).ConvertToInt();
 		int64_t mod = this->encodingParams->GetPlaintextModulus().ConvertToInt();
 		if( this->valueSigned >  mod/2)
 			this->valueSigned -= mod;
 	}
 	else
-		this->value = this->GetElementValAtIndex(0).ConvertToInt();
+		this->value = this->encodedVector.GetValAtIndex(0).ConvertToInt();
 	return true;
 }
 

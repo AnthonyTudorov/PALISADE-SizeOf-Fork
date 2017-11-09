@@ -735,6 +735,10 @@ public:
 
 				shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, plaintext(row,col)->GetElement<Element>());
 
+				if (ciphertext) {
+					ciphertext->SetEncodingType( plaintext(row,col)->GetEncodingType() );
+				}
+
 				(*cipherResults)(row, col).SetNumerator(ciphertext);
 			}
 		}
@@ -959,6 +963,8 @@ public:
 
 				if (resultN.isValid == false) return resultN;
 
+				(*numerator)(row,col) = decryptedNumerator;
+
 				(*numerator)(row,col)->Decode();
 
 				shared_ptr<Plaintext> decryptedDenominator = GetPlaintextForDecrypt(ctN->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
@@ -974,6 +980,7 @@ public:
 
 					if (resultD.isValid == false) return resultD;
 
+					(*denominator)(row,col) = decryptedDenominator;
 				}
 
 				(*denominator)(row, col)->Decode();

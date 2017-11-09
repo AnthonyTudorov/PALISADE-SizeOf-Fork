@@ -38,8 +38,8 @@ IntegerEncoding::Encode() {
 
 	this->encodedVector.SetValuesToZero();
 
-	if( log2((double)value) > (double)this->GetElementLength() )
-		throw std::logic_error("Plaintext value " + std::to_string(value) + " will not fit in encoding");
+	if( log2((double)value) > (double)this->encodedVector.GetLength() )
+		throw std::logic_error("Plaintext value " + std::to_string(value) + " will not fit in encoding of length " + std::to_string(this->encodedVector.GetLength()));
 
 	uint64_t val = this->value;
 	size_t i = 0;
@@ -50,7 +50,7 @@ IntegerEncoding::Encode() {
 	}
 
 	if( this->typeFlag == IsDCRTPoly ) {
-		this->encodedVectorDCRT.SetValues(this->encodedVector.GetValues(), this->encodedVector.GetFormat());
+		this->encodedVectorDCRT = this->encodedVector;
 	}
 
 	this->isEncoded = true;
@@ -63,9 +63,9 @@ IntegerEncoding::Decode() {
 	uint64_t result = 0;
 	uint64_t powerFactor = 1;
 	uint64_t half(modulus >> 1);
-	for (size_t i = 0; i < this->GetElementLength(); i++) {
+	for (size_t i = 0; i < this->encodedVector.GetLength(); i++) {
 
-		auto val = this->GetElementValAtIndex(i).ConvertToInt();
+		auto val = this->encodedVector.GetValAtIndex(i).ConvertToInt();
 
 		if( val != 0 ) {
 			// deal with unsigned representation

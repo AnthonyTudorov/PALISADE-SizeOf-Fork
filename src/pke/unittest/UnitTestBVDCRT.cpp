@@ -86,7 +86,7 @@ TEST_F(UTBVDCRT, Poly_bv_DCRT_MODREDUCE) {
 
 	{
 		cc->Decrypt(kp.secretKey, ciphertext, &intArrayNew);
-		EXPECT_EQ(intArray1, intArrayNew) << "Decrypt fails";
+		EXPECT_EQ(*intArray1, *intArrayNew) << "Decrypt fails";
 	}
 
 	ciphertext = cc->ModReduce(ciphertext);

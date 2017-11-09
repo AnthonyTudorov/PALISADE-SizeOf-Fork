@@ -42,15 +42,15 @@ StringEncoding::Encode() {
 
 	this->encodedVector.SetValuesToZero();
 	size_t i = 0;
-	for( ; i<ptx.size() && i<GetElementLength(); i++ ) {
+	for( ; i<ptx.size() && i<this->encodedVector.GetLength(); i++ ) {
 		this->encodedVector.SetValAtIndex(i, ptx[i]);
 	}
-	for( ; i<GetElementLength(); i++ ) {
+	for( ; i<this->encodedVector.GetLength(); i++ ) {
 		this->encodedVector.SetValAtIndex(i, CHARMARKER);
 	}
 
 	if( this->typeFlag == IsDCRTPoly ) {
-		this->encodedVectorDCRT.SetValues(this->encodedVector.GetValues(), this->encodedVector.GetFormat());
+		this->encodedVectorDCRT = this->encodedVector;
 	}
 
 	this->isEncoded = true;
@@ -61,8 +61,8 @@ bool
 StringEncoding::Decode() {
 	int64_t mod = this->encodingParams->GetPlaintextModulus().ConvertToInt();
 	this->ptx.clear();
-	for( size_t i=0; i<GetElementLength(); i++) {
-		uint32_t ch = (this->GetElementValAtIndex(i).ConvertToInt() % mod) & 0xff;
+	for( size_t i=0; i<this->encodedVector.GetLength(); i++) {
+		uint32_t ch = (this->encodedVector.GetValAtIndex(i).ConvertToInt() % mod) & 0xff;
 		if( ch == CHARMARKER )
 			break;
 		this->ptx += (char)(ch);
