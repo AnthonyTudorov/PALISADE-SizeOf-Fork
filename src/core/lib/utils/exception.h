@@ -32,45 +32,49 @@
 #include <stdexcept>
 #include <string>
 #include <iostream>
-#include <sstream>
 
 namespace lbcrypto
 {
 
 class palisade_error : public std::runtime_error {
-	std::string filename;
-	int			linenum;
+	std::string		filename;
+	int				linenum;
+	std::string		message;
 
 public:
-	palisade_error(const char * what) : std::runtime_error(what), filename(""), linenum(0) {}
+	palisade_error(const std::string& file, int line, const std::string& what) : std::runtime_error(what), filename(file), linenum(line) {
+		message = filename + ":" + std::to_string(linenum) + " " + what;
+	}
 
 	const char* what() const throw() {
-		std::ostringstream cnvt;
-
-		cnvt << filename << ":" << linenum << " " << runtime_error::what();
-
-		return cnvt.str().c_str();
+		return message.c_str();
 	}
+
+	const std::string& GetFilename() const { return filename; }
+	const int GetLinenum() const { return linenum; }
 };
 
 class config_error : public palisade_error {
-
+public:
+	config_error(const std::string& file, int line, const std::string& what) : palisade_error(file,line,what) {}
 };
 
 class math_error : public palisade_error {
 public:
-	math_error(const char * what) : palisade_error(what) {}
+	math_error(const std::string& file, int line, const std::string& what) : palisade_error(file,line,what) {}
 };
 
 class not_implemented_error : public palisade_error {
-
+public:
+	not_implemented_error(const std::string& file, int line, const std::string& what) : palisade_error(file,line,what) {}
 };
 
 class not_available_error : public palisade_error {
-
+public:
+	not_available_error(const std::string& file, int line, const std::string& what) : palisade_error(file,line,what) {}
 };
 
-
+#define PALISADE_THROW( exc, expr )	throw exc(__FILE__,__LINE__,expr)
 
 }
 

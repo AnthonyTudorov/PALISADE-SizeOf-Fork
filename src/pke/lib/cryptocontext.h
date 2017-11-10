@@ -1421,7 +1421,7 @@ public:
 	EvalMult(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Ciphertext<Element>> ct2) const
 	{
 		if( ct1 == NULL || ct2 == NULL )
-			throw config_error("Null argument(s) passed to EvalMult");
+			PALISADE_THROW( config_error, "Null argument(s) passed to EvalMult" );
 		if( ct1->GetKeyTag() != ct2->GetKeyTag() )
 			throw std::logic_error("Ciphertexts were not encrypted with same keys, cannot be used by EvalMult");
 		// Since the IDs match we know they're both from the same context; only need to check one
