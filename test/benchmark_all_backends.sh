@@ -16,7 +16,6 @@ do
 	echo Benchmarking MATHBACKEND $i
 	echo "****************************"
 
-
 	for bm in BBIMath BBVMath NbTheory Lattice 
 	do
 		echo $bm:
@@ -32,4 +31,5 @@ do
 	echo "****************************"
 	echo DONE
 	echo "****************************"
+	)
 done

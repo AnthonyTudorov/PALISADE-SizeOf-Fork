@@ -1,4 +1,8 @@
-[ "$1" -eq "force" ] && make clean
+if [ "$1" = "force" ];
+then
+	make clean
+fi
+
 echo "****************************"
 echo Building all backends
 echo "****************************"
@@ -6,9 +10,12 @@ echo "****************************"
 for i in 2 4 6 7
 do
 	echo "****************************"
-	echo Building and testing MATHBACKEND $i
+	echo Building MATHBACKEND $i
 	echo "****************************"
-	[ "$1" -eq "force" ] && touch src/core/lib/math/backend.h
+	if [ "$1" = "force" ];
+	then
+		touch src/core/lib/math/backend.h
+	fi
 	make -j16  BINDIR=bin/backend-$i CPPFLAGS+=-DMATHBACKEND=$i all benchmark >/dev/null 2>&1
 	if [ $? -eq 0 ];
 	then
