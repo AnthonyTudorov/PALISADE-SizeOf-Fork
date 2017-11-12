@@ -57,48 +57,45 @@ usint ArbBVEvalSumPackedArray(std::vector<usint> &clearVector);
 usint ArbBVEvalSumPackedArrayPrime(std::vector<usint> &clearVector);
 usint ArbFVEvalSumPackedArray(std::vector<usint> &clearVector);
 
+void
+EvalSumSetup(std::vector<usint>& input, usint& expectedSum) {
+
+	usint limit = 15;
+	usint plainttextMod = 89;
+
+	random_device rnd_device;
+	mt19937 mersenne_engine(rnd_device());
+	uniform_int_distribution<usint> dist(0, limit);
+
+	auto gen = std::bind(dist, mersenne_engine);
+	generate(input.begin(), input.end()-2, gen);
+
+	expectedSum = std::accumulate(input.begin(), input.end(), 0);
+
+	expectedSum %= plainttextMod;
+}
 
 TEST_F(UTEvalSum, Test_LTV_EvalSum) {
 
 	usint size = 10;
 	std::vector<usint> input(size,0);
-	usint limit = 15;
-	usint plainttextMod = 89;
-
-	random_device rnd_device;
-	mt19937 mersenne_engine(rnd_device());
-	uniform_int_distribution<usint> dist(0, limit);
-
-	auto gen = std::bind(dist, mersenne_engine);
-	generate(input.begin(), input.end()-2, gen);
-
-	usint expectedSum = std::accumulate(input.begin(), input.end(), 0);
-
-	expectedSum %= plainttextMod;
+	usint expectedSum;
 	
+	EvalSumSetup(input,expectedSum);
+
 	usint result = ArbLTVEvalSumPackedArray(input);
 
 	EXPECT_EQ(result, expectedSum);
-	
 }
 
 
 TEST_F(UTEvalSum, Test_BV_EvalSum) {
+
 	usint size = 10;
 	std::vector<usint> input(size,0);
-	usint limit = 15;
-	usint plainttextMod = 89;
+	usint expectedSum;
 
-	random_device rnd_device;
-	mt19937 mersenne_engine(rnd_device());
-	uniform_int_distribution<usint> dist(0, limit);
-
-	auto gen = std::bind(dist, mersenne_engine);
-	generate(input.begin(), input.end()-2, gen);
-
-	usint expectedSum = std::accumulate(input.begin(), input.end(), 0);
-
-	expectedSum %= plainttextMod;
+	EvalSumSetup(input,expectedSum);
 
 	usint result = ArbBVEvalSumPackedArray(input);
 
@@ -106,21 +103,12 @@ TEST_F(UTEvalSum, Test_BV_EvalSum) {
 }
 
 TEST_F(UTEvalSum, Test_BV_EvalSum_Prime_Cyclotomics) {
+
 	usint size = 10;
-	std::vector<usint> input(size, 0);
-	usint limit = 15;
-	usint plainttextMod = 23;
+	std::vector<usint> input(size,0);
+	usint expectedSum;
 
-	random_device rnd_device;
-	mt19937 mersenne_engine(rnd_device());
-	uniform_int_distribution<usint> dist(0, limit);
-
-	auto gen = std::bind(dist, mersenne_engine);
-	generate(input.begin(), input.end() - 2, gen);
-
-	usint expectedSum = std::accumulate(input.begin(), input.end(), 0);
-
-	expectedSum %= plainttextMod;
+	EvalSumSetup(input,expectedSum);
 
 	usint result = ArbBVEvalSumPackedArrayPrime(input);
 
@@ -131,19 +119,9 @@ TEST_F(UTEvalSum, Test_FV_EvalSum) {
 	
 	usint size = 10;
 	std::vector<usint> input(size,0);
-	usint limit = 15;
-	usint plainttextMod = 89;
+	usint expectedSum;
 
-	random_device rnd_device;
-	mt19937 mersenne_engine(rnd_device());
-	uniform_int_distribution<usint> dist(0, limit);
-
-	auto gen = std::bind(dist, mersenne_engine);
-	generate(input.begin(), input.end()-2, gen);
-
-	usint expectedSum = std::accumulate(input.begin(), input.end(), 0);
-
-	expectedSum %= plainttextMod;
+	EvalSumSetup(input,expectedSum);
 
 	usint result = ArbFVEvalSumPackedArray(input);
 
@@ -155,9 +133,6 @@ TEST_F(UTEvalSum, Test_FV_EvalSum) {
 
 usint ArbLTVEvalSumPackedArray(std::vector<usint> &clearVector) {
 
-	PackedIntPlaintextEncoding::Destroy();
-	ChineseRemainderTransformArb<BigInteger, BigVector>::Reset();
-
 	usint m = 22;
 	usint p = 89;
 	BigInteger modulusP(p);
@@ -167,7 +142,6 @@ usint ArbLTVEvalSumPackedArray(std::vector<usint> &clearVector) {
 
 	BigInteger bigmodulus("1361129467683753853853498429727072847489");
 	BigInteger bigroot("574170933302565148884487552139817611806");
-
 
 	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
 	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
