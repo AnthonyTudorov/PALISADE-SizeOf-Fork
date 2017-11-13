@@ -1268,11 +1268,11 @@ public:
 	* @return new ciphertext for ciphertext + plaintext 
 	*/
 	shared_ptr<Ciphertext<Element>>
-		EvalAddPlain(const shared_ptr<Ciphertext<Element>> ciphertext, const shared_ptr<Ciphertext<Element>> plaintext) const
+	EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext, const shared_ptr<Plaintext> plaintext) const
 	{
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
-		auto rv = EvalAdd(ciphertext, plaintext);
+		auto rv = GetEncryptionAlgorithm()->EvalAdd(ciphertext, plaintext);
 		if( doTiming ) {
 			timeSamples->push_back( TimingInfo(OpEvalAddPlain, currentDateTime() - start) );
 		}
@@ -1286,11 +1286,11 @@ public:
 	* @return new ciphertext for ciphertext - plaintext
 	*/
 	shared_ptr<Ciphertext<Element>>
-		EvalSubPlain(const shared_ptr<Ciphertext<Element>> ciphertext, const shared_ptr<Ciphertext<Element>> plaintext) const
+	EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext, const shared_ptr<Plaintext> plaintext) const
 	{
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
-		auto rv = EvalSub(ciphertext, plaintext);
+		auto rv = GetEncryptionAlgorithm()->EvalSub(ciphertext, plaintext);
 		if( doTiming ) {
 			timeSamples->push_back( TimingInfo(OpEvalSubPlain, currentDateTime() - start) );
 		}

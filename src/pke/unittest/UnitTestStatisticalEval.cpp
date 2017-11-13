@@ -188,17 +188,6 @@ TEST_F(UTStatisticalEval, Null_Eval_Lin_Regression_Int) {
 	kp = cc->KeyGen();
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	auto dumpIt = [](const string& label, const Matrix<shared_ptr<Plaintext>>& foo) {
-		cout << label << " " << foo.GetRows() << "," << foo.GetCols() << endl;
-		for( size_t r = 0; r < foo.GetRows(); r++ )
-			for( size_t c = 0; c < foo.GetCols(); c++ ) {
-				cout << r << "," << c << ": ";
-				foo(r,c)->PrintValue(cout);
-				cout << endl;
-			}
-	};
-	dumpIt("xP",xP);
-	dumpIt("yP",yP);
 	////////////////////////////////////////////////////////////
 	//Encryption
 	////////////////////////////////////////////////////////////
@@ -213,21 +202,6 @@ TEST_F(UTStatisticalEval, Null_Eval_Lin_Regression_Int) {
 
 	auto result = cc->EvalLinRegression(x, y);
 
-	auto dumpIt2 = [](const string& label, const shared_ptr<Matrix<RationalCiphertext<Poly>>> foo) {
-		cout << label << " " << foo->GetRows() << "," << foo->GetCols() << endl;
-		for( size_t r = 0; r < foo->GetRows(); r++ )
-			for( size_t c = 0; c < foo->GetCols(); c++ ) {
-				cout << "n " << r << "," << c << ": ";
-				foo->GetData()[r][c]->GetNumerator()->GetElement().PrintValues();
-				cout << endl;
-				if( foo->GetData()[r][c]->GetDenominator() )
-					cout << "d " << r << "," << c << ": " << foo->GetData()[r][c]->GetDenominator()->GetEncodingType() << endl;
-			}
-	};
-	dumpIt2("x",x);
-	dumpIt2("y",y);
-	dumpIt2("result",result);
-
 	////////////////////////////////////////////////////////////
 	//Decryption
 	////////////////////////////////////////////////////////////
@@ -237,9 +211,6 @@ TEST_F(UTStatisticalEval, Null_Eval_Lin_Regression_Int) {
 
 	cc->DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
 
-	dumpIt("decrypted num", numerator);
-	dumpIt("decrypted den", denominator);
-
 	////////////////////////////////////////////////////////////
 	// Correct output
 	////////////////////////////////////////////////////////////
@@ -248,12 +219,7 @@ TEST_F(UTStatisticalEval, Null_Eval_Lin_Regression_Int) {
 	uint32_t numerator2 = 6193600;
 	uint32_t denominatorExpected = 313600;
 
-	cout << numerator1 << endl;
-	cout << (int32_t)numerator1 << endl;
-	cout << numerator(0, 0)->GetIntegerValue() << endl;
-	cout << (int32_t)numerator(0, 0)->GetIntegerValue() << endl;
-
-	EXPECT_EQ(numerator1, numerator(0, 0)->GetIntegerValue()) << "numerator(0,0) mismatch";
+	EXPECT_EQ((int32_t)numerator1, (int32_t)numerator(0, 0)->GetIntegerValue()) << "numerator(0,0) mismatch";
 	EXPECT_EQ(numerator2, numerator(1, 0)->GetIntegerValue()) << "numerator(1,0) mismatch";
 	EXPECT_EQ(denominatorExpected, denominator(0, 0)->GetIntegerValue()) << "denominator(0,0) mismatch";
 	EXPECT_EQ(denominatorExpected, denominator(1, 0)->GetIntegerValue()) << "denominator(1,0) mismatch";
@@ -334,7 +300,7 @@ TEST_F(UTStatisticalEval, FV_Eval_Lin_Regression_Int) {
 	uint32_t numerator2 = 6193600;
 	uint32_t denominatorExpected = 313600;
 
-	EXPECT_EQ(numerator1, numerator(0, 0)->GetIntegerValue());
+	EXPECT_EQ((int32_t)numerator1, (int32_t)numerator(0, 0)->GetIntegerValue());
 	EXPECT_EQ(numerator2, numerator(1, 0)->GetIntegerValue());
 	EXPECT_EQ(denominatorExpected, denominator(0, 0)->GetIntegerValue());
 	EXPECT_EQ(denominatorExpected, denominator(1, 0)->GetIntegerValue());

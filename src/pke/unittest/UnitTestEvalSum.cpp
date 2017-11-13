@@ -72,7 +72,14 @@ EvalSumSetup(std::vector<usint>& input, usint& expectedSum) {
 
 	expectedSum = std::accumulate(input.begin(), input.end(), 0);
 
+	cout << "SETUP" << endl;
+	for( auto v : input )
+		cout << v << " ";
+	cout << endl << expectedSum;
+
 	expectedSum %= plainttextMod;
+	cout << " modded " << expectedSum << endl;
+
 }
 
 TEST_F(UTEvalSum, Test_LTV_EvalSum) {
@@ -87,7 +94,6 @@ TEST_F(UTEvalSum, Test_LTV_EvalSum) {
 
 	EXPECT_EQ(result, expectedSum);
 }
-
 
 TEST_F(UTEvalSum, Test_BV_EvalSum) {
 
@@ -128,8 +134,6 @@ TEST_F(UTEvalSum, Test_FV_EvalSum) {
 	EXPECT_EQ(result, expectedSum);
 
 }
-
-
 
 usint ArbLTVEvalSumPackedArray(std::vector<usint> &clearVector) {
 
@@ -219,8 +223,7 @@ usint ArbBVEvalSumPackedArray(std::vector<usint> &clearVector) {
 
 	shared_ptr<Ciphertext<Poly>> ciphertext;
 
-	std::vector<usint> vectorOfInts = std::move(clearVector);
-	shared_ptr<Plaintext> intArray = cc->MakePackedPlaintext(vectorOfInts);
+	shared_ptr<Plaintext> intArray = cc->MakePackedPlaintext(clearVector);
 
 	cc->EvalSumKeyGen(kp.secretKey);
 
@@ -270,8 +273,7 @@ usint ArbBVEvalSumPackedArrayPrime(std::vector<usint> &clearVector) {
 
 	shared_ptr<Ciphertext<Poly>> ciphertext;
 
-	std::vector<usint> vectorOfInts = std::move(clearVector);
-	shared_ptr<Plaintext> intArray = cc->MakePackedPlaintext(vectorOfInts);
+	shared_ptr<Plaintext> intArray = cc->MakePackedPlaintext(clearVector);
 
 	cc->EvalSumKeyGen(kp.secretKey);
 

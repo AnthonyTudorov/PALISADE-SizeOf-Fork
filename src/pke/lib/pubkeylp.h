@@ -1198,56 +1198,76 @@ namespace lbcrypto {
 		public:
 			virtual ~LPSHEAlgorithm() {}
 
-		/**
-		* Virtual function to define the interface for homomorphic addition of ciphertexts.
-		*
-		* @param &ciphertext1 the input ciphertext.
-		* @param &ciphertext2 the input ciphertext.
-		* @param *newCiphertext the new ciphertext.
-		*/
-		virtual shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext1,
-			const shared_ptr<Ciphertext<Element>> ciphertext2) const = 0;
+			/**
+			* Virtual function to define the interface for homomorphic addition of ciphertexts.
+			*
+			* @param ciphertext1 the input ciphertext.
+			* @param ciphertext2 the input ciphertext.
+			* @return the new ciphertext.
+			*/
+			virtual shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext1,
+				const shared_ptr<Ciphertext<Element>> ciphertext2) const = 0;
 
-		/**
-		* Virtual function to define the interface for homomorphic subtraction of ciphertexts.
-		*
-		* @param &ciphertext1 the input ciphertext.
-		* @param &ciphertext2 the input ciphertext.
-		* @param *newCiphertext the new ciphertext.
-		*/
-		virtual shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext1,
-			const shared_ptr<Ciphertext<Element>> ciphertext2) const = 0;
+			/**
+			* Virtual function to define the interface for homomorphic addition of ciphertexts.
+			*
+			* @param ciphertext the input ciphertext.
+			* @param plaintext the input plaintext.
+			* @return the new ciphertext.
+			*/
+			virtual shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext,
+				const shared_ptr<Plaintext> plaintext) const = 0;
 
-		/**
-		* Virtual function to define the interface for multiplicative homomorphic evaluation of ciphertext.
-		*
-		* @param &ciphertext1 the input ciphertext.
-		* @param &ciphertext2 the input ciphertext.
-		* @param *newCiphertext the new ciphertext.
-		*/
-		virtual shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
-			const shared_ptr<Ciphertext<Element>> ciphertext2) const = 0;
+			/**
+			* Virtual function to define the interface for homomorphic subtraction of ciphertexts.
+			*
+			* @param ciphertext1 the input ciphertext.
+			* @param ciphertext2 the input ciphertext.
+			* @return the new ciphertext.
+			*/
+			virtual shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext1,
+				const shared_ptr<Ciphertext<Element>> ciphertext2) const = 0;
 
-		/**
-		* Virtual function to define the interface for multiplication of ciphertext by plaintext.
-		*
-		* @param &ciphertext the input ciphertext.
-		* @param &plaintext the input plaintext embedded in the cryptocontext.
-		* @param *newCiphertext the new ciphertext.
-		*/
-		virtual shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext,
-			const shared_ptr<Plaintext> plaintext) const = 0;
+			/**
+			 * Virtual function to define the interface for homomorphic subtraction of ciphertexts.
+			 *
+			 * @param ciphertext the input ciphertext.
+			 * @param plaintext the input plaintext.
+			 * @return the new ciphertext.
+			 */
+			virtual shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext,
+					const shared_ptr<Plaintext> plaintext) const = 0;
 
-		/**
-		* Virtual function to define the interface for multiplicative homomorphic evaluation of ciphertext using the evaluation key.
-		*
-		* @param &ciphertext1 first input ciphertext.
-		* @param &ciphertext2 second input ciphertext.
-		* @param &ek is the evaluation key to make the newCiphertext decryptable by the same secret key as that of ciphertext1 and ciphertext2.
-		* @param *newCiphertext the new resulting ciphertext.
-		*/
-		virtual shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
-			const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const = 0;
+			/**
+			 * Virtual function to define the interface for multiplicative homomorphic evaluation of ciphertext.
+			 *
+			 * @param ciphertext1 the input ciphertext.
+			 * @param ciphertext2 the input ciphertext.
+			 * @return the new ciphertext.
+			 */
+			virtual shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
+					const shared_ptr<Ciphertext<Element>> ciphertext2) const = 0;
+
+			/**
+			 * Virtual function to define the interface for multiplication of ciphertext by plaintext.
+			 *
+			 * @param ciphertext the input ciphertext.
+			 * @param plaintext the input plaintext.
+			 * @return the new ciphertext.
+			 */
+			virtual shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext,
+					const shared_ptr<Plaintext> plaintext) const = 0;
+
+			/**
+			 * Virtual function to define the interface for multiplicative homomorphic evaluation of ciphertext using the evaluation key.
+			 *
+			 * @param &ciphertext1 first input ciphertext.
+			 * @param &ciphertext2 second input ciphertext.
+			 * @param &ek is the evaluation key to make the newCiphertext decryptable by the same secret key as that of ciphertext1 and ciphertext2.
+			 * @return the new ciphertext.
+			 */
+			virtual shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
+					const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const = 0;
 
 		/**
 		* Virtual function for evaluating multiplication of a ciphertext list which each multiplication is followed by relinearization operation.
@@ -1355,12 +1375,14 @@ namespace lbcrypto {
 
 			shared_ptr<Plaintext> plaintext = cc->MakePackedPlaintext(randomIntVector);
 
-			shared_ptr<LPPublicKey<Element>> pk(new LPPublicKey<Element>(cc, kID));
+			//shared_ptr<LPPublicKey<Element>> pk(new LPPublicKey<Element>(cc, kID));
+
 			plaintext->Encode();
 
-			shared_ptr<Ciphertext<Element>> embeddedPlaintext = cc->GetEncryptionAlgorithm()->Encrypt(pk, plaintext->GetElement<Element>());
+			// OK this is not actually an encrypted plaintext so...
+			//shared_ptr<Ciphertext<Element>> embeddedPlaintext = cc->GetEncryptionAlgorithm()->Encrypt(pk, plaintext->GetElement<Element>());
 
-			auto ans = EvalAdd(ciphertext, embeddedPlaintext);
+			auto ans = EvalAdd(ciphertext, plaintext);
 
 			return ans;
 		};
@@ -2089,11 +2111,33 @@ namespace lbcrypto {
 			}
 		}
 
+		shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext1,
+			const shared_ptr<Plaintext> plaintext) const {
+
+			if (this->m_algorithmSHE) {
+				auto ct = this->m_algorithmSHE->EvalAdd(ciphertext1, plaintext);
+				return ct;
+			} else {
+				throw std::logic_error("EvalAdd operation has not been enabled");
+			}
+		}
+
 		shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext1,
 			const shared_ptr<Ciphertext<Element>> ciphertext2) const {
 
 			if (this->m_algorithmSHE) {
 				auto ct = this->m_algorithmSHE->EvalSub(ciphertext1, ciphertext2);
+				return ct;
+			} else {
+				throw std::logic_error("EvalSub operation has not been enabled");
+			}
+		}
+
+		shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext1,
+				const shared_ptr<Plaintext> plaintext) const {
+
+			if (this->m_algorithmSHE) {
+				auto ct = this->m_algorithmSHE->EvalSub(ciphertext1, plaintext);
 				return ct;
 			} else {
 				throw std::logic_error("EvalSub operation has not been enabled");
@@ -2134,11 +2178,11 @@ namespace lbcrypto {
 		}
 
 		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
-			const shared_ptr<Plaintext> ciphertext2,
+			const shared_ptr<Plaintext> plaintext,
 			const shared_ptr<LPEvalKey<Element>> evalKey) const {
 
 			if (this->m_algorithmSHE)
-				return this->m_algorithmSHE->EvalMult(ciphertext1, ciphertext2, evalKey);
+				return this->m_algorithmSHE->EvalMult(ciphertext1, plaintext, evalKey);
 			else {
 				throw std::logic_error("EvalMult operation has not been enabled");
 			}

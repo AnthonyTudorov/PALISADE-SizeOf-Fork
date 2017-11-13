@@ -320,6 +320,16 @@ namespace lbcrypto {
 			const shared_ptr<Ciphertext<Element>> ciphertext2) const;
 
 		/**
+		* Function for homomorphic addition of ciphertexts.
+		*
+		* @param ciphertext input ciphertext.
+		* @param plaintext input plaintext.
+		* @return result of homomorphic addition of input ciphertexts.
+		*/
+		shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext,
+			const shared_ptr<Plaintext> plaintext) const;
+
+		/**
 		* Function for homomorphic subtraction of ciphertexts.
 		*
 		* @param ciphertext1 the input ciphertext.
@@ -328,6 +338,16 @@ namespace lbcrypto {
 		*/
 		shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext1, 
 			const shared_ptr<Ciphertext<Element>> ciphertext2) const;
+
+		/**
+		* Function for homomorphic subtraction of ciphertexts.
+		*
+		* @param ciphertext1 the input ciphertext.
+		* @param plaintext the input plaintext.
+		* @return result of homomorphic subtraction of input ciphertexts.
+		*/
+		shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext1,
+				const shared_ptr<Plaintext> plaintext) const;
 
 		/**
 		* Function for homomorphic multiplication of ciphertexts without key switching. 

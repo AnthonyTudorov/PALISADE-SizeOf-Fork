@@ -40,6 +40,10 @@ namespace lbcrypto {
 		if( this->isEncoded ) return true;
 		int64_t mod = this->encodingParams->GetPlaintextModulus().ConvertToInt();
 
+//		std::cout << "ENCODE" << std::endl;
+//		std::cout << *this->encodingParams << std::endl;
+//		std::cout << this->GetElementRingDimension() << " " << this->GetElementModulus() << std::endl;;
+
 		BigVector temp(this->GetElementRingDimension(), this->GetElementModulus());
 
 		size_t i;
@@ -60,14 +64,18 @@ namespace lbcrypto {
 
 		this->GetElement<Poly>().SetValues(temp, Format::EVALUATION); //output was in coefficient format
 
-		this->Pack(&this->GetElement<Poly>(), this->GetElementModulus());//ilVector coefficients are packed and resulting ilVector is in COEFFICIENT form.
+		this->Pack(&this->GetElement<Poly>(), this->encodingParams->GetPlaintextModulus());//ilVector coefficients are packed and resulting ilVector is in COEFFICIENT form.
 
 		return true;
 	}
 
 	bool PackedIntPlaintextEncoding::Decode() {
-		this->Unpack(&this->GetElement<Poly>(), this->GetElementModulus());
+		bool dbg_flag = true;
+		DEBUG("Poly before unpack " << this->GetElement<Poly>());
+		this->Unpack(&this->GetElement<Poly>(), this->encodingParams->GetPlaintextModulus());
+		DEBUG("Poly after  unpack " << this->GetElement<Poly>());
 
+		DEBUG(this->encodedVector.GetLength());
 		this->value.clear();
 		for (usint i = 0; i<this->encodedVector.GetLength(); i++) {
 			this->value.push_back(this->encodedVector.GetValAtIndex(i).ConvertToInt());
@@ -97,7 +105,6 @@ namespace lbcrypto {
 #pragma omp critical
 		try {
 			if (!(m & (m - 1))) { // Check if m is a power of 2
-				RootOfUnity<native_int::BigInteger>(m, modulusNI);
 				SetParams_2n(m, modulusNI);
 			}
 			else {
@@ -240,8 +247,16 @@ namespace lbcrypto {
 
 
 	void PackedIntPlaintextEncoding::Pack(Poly *ring, const BigInteger &modulus) const {
+
+		bool dbg_flag = true;
+
 		usint m = ring->GetCyclotomicOrder();//cyclotomic order
 		native_int::BigInteger modulusNI(modulus.ConvertToInt());//native int modulus
+
+//		std::cout << "Looking to pack using modulus " << modulusNI << std::endl;
+//		for( auto it : this->m_initRoot ) {
+//			std::cout << it.first << " ::: " << it.second << " ... " << this->m_initRoot[modulusNI].GetMSB() << std::endl;
+//		}
 
 		//Do the precomputation if not initialized
 		if (this->m_initRoot[modulusNI].GetMSB() == 0) {
@@ -250,17 +265,23 @@ namespace lbcrypto {
 
 		usint phim = ring->GetRingDimension();
 
+		DEBUG("Pack for order " << m << " phim " << phim << " modulus " << modulusNI);
+
 		//copy values from ring to the vector
 		native_int::BigVector slotValues(phim, modulusNI);
 		for (usint i = 0; i < phim; i++) {
 			slotValues.SetValAtIndex(i, ring->GetValAtIndex(i).ConvertToInt());
 		}
 
+		DEBUG(slotValues);
+
 		// Transform Eval to Coeff
 		if (!(m & (m-1))) { // Check if m is a power of 2
 
+			DEBUG("power of 2");
 			if (m_toCRTPerm[modulusNI].size() > 0)
 			{
+				DEBUG("Permute to CRT");
 				// Permute to CRT Order
 				native_int::BigVector permutedSlots(phim, modulusNI);
 
@@ -271,11 +292,13 @@ namespace lbcrypto {
 			}
 			else
 			{
+				DEBUG("Do not permute to CRT");
 				ChineseRemainderTransformFTT<native_int::BigInteger, native_int::BigVector>::InverseTransform(slotValues, m_initRoot[modulusNI], m, &slotValues);
 			}
 
 		} else { // Arbitrary cyclotomic
 
+			DEBUG("arbitrary");
 			// Permute to CRT Order
 			native_int::BigVector permutedSlots(phim, modulusNI);
 			for (usint i = 0; i < phim; i++) {
@@ -285,6 +308,8 @@ namespace lbcrypto {
 			slotValues = ChineseRemainderTransformArb<native_int::BigInteger, native_int::BigVector>::
 					InverseTransform(permutedSlots, m_initRoot[modulusNI], m_bigModulus[modulusNI], m_bigRoot[modulusNI], m);
 		}
+
+		DEBUG(slotValues);
 
 		//copy values into the slotValuesRing
 		BigVector slotValuesRing(phim, ring->GetModulus());
@@ -297,6 +322,8 @@ namespace lbcrypto {
 
 void PackedIntPlaintextEncoding::Unpack(Poly *ring, const BigInteger &modulus) const {
 
+	bool dbg_flag = true;
+
 		usint m = ring->GetCyclotomicOrder(); // cyclotomic order
 		native_int::BigInteger modulusNI(modulus.ConvertToInt()); //native int modulus
 
@@ -307,17 +334,23 @@ void PackedIntPlaintextEncoding::Unpack(Poly *ring, const BigInteger &modulus) c
 
 		usint phim = ring->GetRingDimension(); //ring dimension
 
+		DEBUG("Unpack for order " << m << " phim " << phim << " modulus " << modulusNI);
+
 		//copy aggregate plaintext values
 		native_int::BigVector packedVector(phim, modulusNI);
 		for (usint i = 0; i < phim; i++) {
 			packedVector.SetValAtIndex(i, native_int::BigInteger(ring->GetValAtIndex(i).ConvertToInt()));
 		}
 
+		DEBUG(packedVector);
+
 		// Transform Coeff to Eval
 		native_int::BigVector permutedSlots(phim, modulusNI);
 		if (!(m & (m-1))) { // Check if m is a power of 2
+			DEBUG("power of 2");
 			ChineseRemainderTransformFTT<native_int::BigInteger, native_int::BigVector>::ForwardTransform(packedVector, m_initRoot[modulusNI], m, &permutedSlots);
 		} else { // Arbitrary cyclotomic
+			DEBUG("arbitrary");
 			permutedSlots = ChineseRemainderTransformArb<native_int::BigInteger, native_int::BigVector>::
 					ForwardTransform(packedVector, m_initRoot[modulusNI], m_bigModulus[modulusNI], m_bigRoot[modulusNI], m);
 		}
@@ -330,6 +363,8 @@ void PackedIntPlaintextEncoding::Unpack(Poly *ring, const BigInteger &modulus) c
 		}
 		else
 			packedVector = permutedSlots;
+
+		DEBUG(packedVector);
 
 		//copy values into the slotValuesRing
 		BigVector packedVectorRing(phim, ring->GetModulus());

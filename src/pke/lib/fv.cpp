@@ -480,6 +480,55 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalAdd(const shared_
 }
 
 template <class Element>
+shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext,
+	const shared_ptr<Plaintext> plaintext) const {
+
+//	if (!(ciphertext1->GetCryptoParameters() == ciphertext2->GetCryptoParameters())) {
+//		std::string errMsg = "LPAlgorithmSHEFV::EvalAdd crypto parameters are not the same";
+//		throw std::runtime_error(errMsg);
+//	}
+
+	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
+
+	const std::vector<Element> &cipherText1Elements = ciphertext->GetElements();
+	Element cipherText2Element( plaintext->GetElement<Poly>(), cipherText1Elements[0].GetParams() );
+
+	size_t cipherTextRElementsSize;
+	size_t cipherTextSmallElementsSize;
+
+	bool isCipherText1Small;
+	if(cipherText1Elements.size() > 1){
+		isCipherText1Small = false;
+		cipherTextRElementsSize = cipherText1Elements.size();
+		cipherTextSmallElementsSize = 1;
+		newCiphertext->SetDepth(ciphertext->GetDepth());
+	}
+	else {
+		isCipherText1Small = true;
+		cipherTextRElementsSize = 1;
+		cipherTextSmallElementsSize = cipherText1Elements.size();
+		newCiphertext->SetDepth(1);
+	}
+
+	std::vector<Element> c(cipherTextRElementsSize);
+
+	for(size_t i=0; i<cipherTextSmallElementsSize; i++)
+		c[i] = cipherText1Elements[i] + cipherText2Element;
+
+	for(size_t i=cipherTextSmallElementsSize; i<cipherTextRElementsSize; i++){
+		if(isCipherText1Small == true)
+			c[i] = cipherText2Element;
+		else
+			c[i] = cipherText1Elements[i];
+	}
+
+	newCiphertext->SetElements(c);
+
+	return newCiphertext;
+
+}
+
+template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext1,
 	const shared_ptr<Ciphertext<Element>> ciphertext2) const {
 
@@ -518,6 +567,55 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalSub(const shared_
 	for(size_t i=cipherTextSmallElementsSize; i<cipherTextRElementsSize; i++){
 		if(isCipherText1Small == true)
 			c[i] = cipherText2Elements[i];
+		else
+			c[i] = cipherText1Elements[i];
+	}
+
+	newCiphertext->SetElements(c);
+
+	return newCiphertext;
+
+}
+
+template <class Element>
+shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext,
+	const shared_ptr<Plaintext> plaintext) const {
+
+//	if (!(ciphertext1->GetCryptoParameters() == ciphertext2->GetCryptoParameters())) {
+//		std::string errMsg = "LPAlgorithmSHEFV::EvalSub crypto parameters are not the same";
+//		throw std::runtime_error(errMsg);
+//	}
+
+	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
+
+	const std::vector<Element> &cipherText1Elements = ciphertext->GetElements();
+	Element cipherText2Element( plaintext->GetElement<Poly>(), cipherText1Elements[0].GetParams() );
+
+	size_t cipherTextRElementsSize;
+	size_t cipherTextSmallElementsSize;
+
+	bool isCipherText1Small;
+	if(cipherText1Elements.size() > 1){
+		isCipherText1Small = false;
+		cipherTextRElementsSize = cipherText1Elements.size();
+		cipherTextSmallElementsSize = 1;
+		newCiphertext->SetDepth(ciphertext->GetDepth());
+	}
+	else {
+		isCipherText1Small = true;
+		cipherTextRElementsSize = 1;
+		cipherTextSmallElementsSize = cipherText1Elements.size();
+		newCiphertext->SetDepth(1);
+	}
+
+	std::vector<Element> c(cipherTextRElementsSize);
+
+	for(size_t i=0; i<cipherTextSmallElementsSize; i++)
+		c[i] = cipherText1Elements[i] - cipherText2Element;
+
+	for(size_t i=cipherTextSmallElementsSize; i<cipherTextRElementsSize; i++){
+		if(isCipherText1Small == true)
+			c[i] = cipherText2Element;
 		else
 			c[i] = cipherText1Elements[i];
 	}
@@ -655,7 +753,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared
 		throw std::runtime_error("LPAlgorithmSHEFV::EvalMult cannot multiply in COEFFICIENT domain.");
 	}
 
-	shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext->GetCryptoContext()));
+	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
 
 	std::vector<Element> cipherText1Elements = ciphertext->GetElements();
 	Element cipherText2Elements = plaintext->GetElement<Element>();
@@ -767,7 +865,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMultAndRelineariz
 	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParamsLWE = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(ek->at(0)->GetCryptoParameters());
 	usint relinWindow = cryptoParamsLWE->GetRelinWindow();
 
-	shared_ptr<Ciphertext<Element>> newCiphertext( new Ciphertext<Element>(ek->at(0)->GetCryptoContext()) );
+	shared_ptr<Ciphertext<Element>> newCiphertext = cipherText->CloneEmpty();
 
 	std::vector<Element> c = cipherText->GetElements();
 

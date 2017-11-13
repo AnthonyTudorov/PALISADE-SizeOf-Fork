@@ -366,8 +366,11 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 	shared_ptr<LPEvalKey<DCRTPoly>> KeySwitchHint = ccSmall->KeySwitchGen(kpSecretSmall, kp1.secretKey);
 
 	// have to perform the operation in the new context
+	// FIXME we really need a ctor or an operator that copies into a new CryptoContext; below is kind of a hack
 	shared_ptr<Ciphertext<DCRTPoly>> cResultSmall( new Ciphertext<DCRTPoly>(ccSmall) );
+	cResultSmall->SetDepth( cResult->GetDepth() );
 	cResultSmall->SetElements( cResult->GetElements() );
+	cResultSmall->SetEncodingType( cResult->GetEncodingType() );
 
 	cResult = ccSmall->KeySwitch(KeySwitchHint, cResultSmall);
 

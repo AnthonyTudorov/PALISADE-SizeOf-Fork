@@ -63,7 +63,7 @@ TEST_F(UTBVDCRT, Poly_bv_DCRT_MODREDUCE) {
 
 	float stdDev = 4;
 
-	shared_ptr<ILDCRTParams<BigInteger>> params = GenerateDCRTParams(m, plaintextModulus, numOfTower, 40);
+	shared_ptr<ILDCRTParams<BigInteger>> params = GenerateDCRTParams(m, plaintextModulus, numOfTower, 48);
 
 	shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBV(params, plaintextModulus, m, stdDev);
 	cc->Enable(ENCRYPTION);
@@ -84,12 +84,10 @@ TEST_F(UTBVDCRT, Poly_bv_DCRT_MODREDUCE) {
 
 	shared_ptr<Ciphertext<DCRTPoly>> ciphertext = cc->Encrypt(kp.publicKey, intArray1);
 
-	{
-		cc->Decrypt(kp.secretKey, ciphertext, &intArrayNew);
-		EXPECT_EQ(*intArray1, *intArrayNew) << "Decrypt fails";
-	}
+	cc->Decrypt(kp.secretKey, ciphertext, &intArrayNew);
+	EXPECT_EQ(intArray1->GetCoefPackedValue(), intArrayNew->GetCoefPackedValue()) << "Decrypt without ModReduce fails";
 
-	ciphertext = cc->ModReduce(ciphertext);
+	shared_ptr<Ciphertext<DCRTPoly>> ciphertextR = cc->ModReduce(ciphertext);
 
 	//drop a tower from the secret key
 	
@@ -97,10 +95,11 @@ TEST_F(UTBVDCRT, Poly_bv_DCRT_MODREDUCE) {
 	skEl.DropLastElement();
 	kp.secretKey->SetPrivateElement(skEl);
 
-	cc->Decrypt(kp.secretKey, ciphertext, &intArrayNew);
-	intArrayNew->SetLength(intArray1->GetLength());
+	shared_ptr<Plaintext> intArrayNew2;
+	cc->Decrypt(kp.secretKey, ciphertextR, &intArrayNew2);
+	intArrayNew2->SetLength(intArray1->GetLength());
 
-	EXPECT_EQ(intArray1->GetCoefPackedValue(), intArrayNew->GetCoefPackedValue()) << "Decrypt after ModReduce fails";;
+	EXPECT_EQ(intArray1->GetCoefPackedValue(), intArrayNew2->GetCoefPackedValue()) << "Decrypt after ModReduce fails";;
 
 }
 #endif

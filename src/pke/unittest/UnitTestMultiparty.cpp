@@ -177,9 +177,6 @@ UnitTestMultiparty(shared_ptr<CryptoContext<Element>> cc, bool publicVersion) {
 
 	plaintextAddNew->SetLength(plaintext1->GetLength());
 
-//	cout << "\n Resulting Added Plaintext with Re-Encryption: \n";
-//	cout << plaintextAddNew << endl;
-
 	////////////////////////////////////////////////////////////
 	//Decryption after Accumulation Operation on Re-Encrypted Data with Multiparty
 	////////////////////////////////////////////////////////////

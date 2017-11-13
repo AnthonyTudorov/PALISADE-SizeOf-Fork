@@ -62,7 +62,6 @@ TEST_F(UTEvalCC, Test_BV_EvalCC) {
 
 	EXPECT_EQ(result, expectedResult);
 
-	
 }
 
 
@@ -72,7 +71,6 @@ TEST_F(UTEvalCC, Test_FV_EvalCC) {
 	usint expectedResult = 11;
 
 	EXPECT_EQ(result, expectedResult);
-
 }
 
 usint BVCrossCorrelation() {
@@ -146,6 +144,10 @@ usint BVCrossCorrelation() {
 	shared_ptr<Plaintext> intArrayNew;
 
 	cc->Decrypt(kp.secretKey, result, &intArrayNew);
+
+	for( auto i : intArrayNew->GetPackedValue() )
+		cout << i << " ";
+	cout << endl;
 
 	return intArrayNew->GetPackedValue()[0];
 }
@@ -236,5 +238,4 @@ usint FVCrossCorrelation() {
 	return intArrayNew->GetPackedValue()[0];
 
 }
-
 

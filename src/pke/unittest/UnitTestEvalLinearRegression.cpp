@@ -70,7 +70,6 @@ TEST_F(UTEvalLR, Test_BV_EvalLR) {
 
 	EXPECT_EQ(result.m_numerator, expectedResult.m_numerator);
 	EXPECT_EQ(result.m_denominator, expectedResult.m_denominator);
-	
 }
 
 TEST_F(UTEvalLR, Test_FV_EvalLR) {
@@ -121,12 +120,12 @@ rationalInt ArbBVLinearRegressionPackedArray() {
 	cc->EvalSumKeyGen(kp.secretKey);
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	auto zeroAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(); };
+	auto zeroAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(cc->MakePackedPlaintext({0,0,0,0,0,0,0,0})); };
 
 	Matrix<shared_ptr<Plaintext>> xP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 1, 2);
 
-	xP(0, 0) = cc->MakePackedPlaintext({ 0, 2, 1, 3,  2,  2, 1, 2 });
-	xP(0, 1) = cc->MakePackedPlaintext({ 1 , 1 , 2 , 1 , 1 , 1, 3 , 2 });
+	xP(0, 0) = cc->MakePackedPlaintext({ 0, 2, 1, 3, 2, 2, 1, 2 });
+	xP(0, 1) = cc->MakePackedPlaintext({ 1, 1, 2, 1, 1, 1, 3, 2 });
 
 	Matrix<shared_ptr<Plaintext>> yP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
 
@@ -219,7 +218,7 @@ rationalInt ArbFVLinearRegressionPackedArray() {
 	cc->EvalSumKeyGen(kp.secretKey);
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	auto zeroAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(); };
+	auto zeroAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(cc->MakePackedPlaintext({0})); };
 
 	Matrix<shared_ptr<Plaintext>> xP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 1, 2);
 

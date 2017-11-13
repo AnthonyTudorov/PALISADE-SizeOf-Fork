@@ -471,6 +471,17 @@ public:
 		const shared_ptr<Ciphertext<Element>> ciphertext2) const;
 
 	/**
+	* Function for evaluation addition on ciphertext.
+	* See the class description for citations on where the algorithms were taken from.
+	*
+	* @param ciphertext The input ciphertext.
+	* @param plaintext The input plaintext.
+	* @return A shared pointer to the ciphertext which is the EvalAdd of the two inputs.
+	*/
+	shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext,
+		const shared_ptr<Plaintext> plaintext) const;
+
+	/**
 	* Function for homomorphic subtraction of ciphertexts.
 	* See the class description for citations on where the algorithms were taken from.
 	*
@@ -480,6 +491,17 @@ public:
 	*/
 	shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext1,
 		const shared_ptr<Ciphertext<Element>> ciphertext2) const;
+
+	/**
+	* Function for homomorphic subtraction of ciphertexts.
+	* See the class description for citations on where the algorithms were taken from.
+	*
+	* @param ciphertext The input ciphertext.
+	* @param plaintext The input plaintext.
+	* @return A shared pointer to the ciphertext which is the EvalAdd of the two inputs.
+	*/
+	shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext,
+			const shared_ptr<Plaintext> plaintext) const;
 
 	/**
 	* Function for evaluating multiplication on ciphertext.

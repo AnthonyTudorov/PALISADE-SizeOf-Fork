@@ -195,6 +195,29 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalAdd(
 }
 
 template <class Element>
+shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalAdd(
+	const shared_ptr<Ciphertext<Element>> ciphertext,
+	const shared_ptr<Plaintext> plaintext) const
+{
+//	if (!(ciphertext1->GetCryptoParameters() == ciphertext2->GetCryptoParameters())) {
+//		std::string errMsg = "EvalAdd crypto parameters are not the same";
+//		throw std::runtime_error(errMsg);
+//	}
+
+	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
+
+	const Element& c1 = ciphertext->GetElement();
+
+	Element c2( plaintext->GetElement<Poly>(), c1.GetParams() );
+
+	Element cResult = c1 + c2;
+
+	newCiphertext->SetElement(cResult);
+
+	return newCiphertext;
+}
+
+template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalSub(
 	const shared_ptr<Ciphertext<Element>> ciphertext1,
 	const shared_ptr<Ciphertext<Element>> ciphertext2) const
@@ -209,6 +232,29 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalSub(
 	const Element& c1 = ciphertext1->GetElement();
 
 	const Element& c2 = ciphertext2->GetElement();
+
+	Element cResult = c1 - c2;
+
+	newCiphertext->SetElement(cResult);
+
+	return newCiphertext;
+}
+
+template <class Element>
+shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalSub(
+	const shared_ptr<Ciphertext<Element>> ciphertext,
+	const shared_ptr<Plaintext> plaintext) const
+{
+//	if (!(ciphertext1->GetCryptoParameters() == ciphertext2->GetCryptoParameters())) {
+//		std::string errMsg = "EvalSub crypto parameters are not the same";
+//		throw std::runtime_error(errMsg);
+//	}
+
+	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
+
+	const Element& c1 = ciphertext->GetElement();
+
+	Element c2( plaintext->GetElement<Poly>(), c1.GetParams() );
 
 	Element cResult = c1 - c2;
 
@@ -268,7 +314,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalMult(
 		throw std::runtime_error("EvalMult cannot multiply in COEFFICIENT domain.");
 	}
 
-	shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(ciphertext->GetCryptoContext()));
+	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
 
 	const Element& c1 = ciphertext->GetElement();
 
@@ -437,7 +483,7 @@ template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::KeySwitchRelin(const shared_ptr<LPEvalKey<Element>>evalKey,
 	const shared_ptr<Ciphertext<Element>> ciphertext) const
 {
-	shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(*ciphertext));
+	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
 
 	const shared_ptr<LPCryptoParametersRLWE<Element>> cryptoParamsLWE =
 		std::dynamic_pointer_cast<LPCryptoParametersRLWE<Element>>(evalKey->GetCryptoParameters());

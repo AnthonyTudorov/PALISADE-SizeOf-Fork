@@ -166,10 +166,14 @@ TEST(UTFVEVALMM, Poly_FV_Eval_Mult_Many_Operations) {
 	shared_ptr<Plaintext> plaintextMulMany;
 	cryptoContext->Decrypt(keyPair.secretKey, ciphertextMul12345, &plaintextMulMany);
 
+	plaintextResult1->SetLength( plaintextMul1->GetLength() );
+	plaintextResult2->SetLength( plaintextMul2->GetLength() );
+	plaintextResult3->SetLength( plaintextMul3->GetLength() );
+
 	EXPECT_EQ(*plaintextMul1, *plaintextResult1) << "FV.EvalMult gives incorrect results.\n";
-	EXPECT_EQ(plaintextMul2, plaintextResult2) << "FV.EvalMult gives incorrect results.\n";
-	EXPECT_EQ(plaintextMul3, plaintextResult3) << "FV.EvalMultAndRelinearize gives incorrect results.\n";
-	EXPECT_EQ(plaintextMulMany, plaintextResult3) << "FV.EvalMultMany gives incorrect results.\n";
+	EXPECT_EQ(*plaintextMul2, *plaintextResult2) << "FV.EvalMult gives incorrect results.\n";
+	EXPECT_EQ(*plaintextMul3, *plaintextResult3) << "FV.EvalMultAndRelinearize gives incorrect results.\n";
+	EXPECT_EQ(*plaintextMulMany, *plaintextResult3) << "FV.EvalMultMany gives incorrect results.\n";
 
 }
 
