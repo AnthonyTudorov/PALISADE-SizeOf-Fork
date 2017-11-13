@@ -271,10 +271,8 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Serialize(Serialized* serObj) con
   return true;
 };
 
-
-
 // Deserialize Operation
-template<class  Element>
+template<typename  Element>
 bool ObfuscatedLWEConjunctionPattern<Element>::Deserialize(const Serialized& serObj){
     bool dbg_flag= true;
 
@@ -349,6 +347,7 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Deserialize(const Serialized& ser
       DEBUG("ObfuscatedLWEConjunctionPattern::Deserialize could not find S_Vec");
       return false;
     }
+#if 0
     //deserialize S_vec
     shared_ptr<std::vector<std::vector<shared_ptr<Matrix<Element>>>>> S_vec (new std::vector<std::vector<shared_ptr<Matrix<Element>>>>());
 
@@ -360,8 +359,8 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Deserialize(const Serialized& ser
 
     DeserializeVectorOfVectorOfPointersToMatrix("R_Vec", Element::GetElementName(), pIt, R_vec);
     this->m_R_vec = R_vec;
-
-    auto zero_alloc = Element::MakeAllocator(this->GetElParams(), EVALUATION);
+#endif
+    auto zero_alloc = Element::MakeAllocator(this->GetParameters(), EVALUATION);
 
     //empty matrix
     shared_ptr<Matrix<Element>> Sl(new Matrix<Element>(zero_alloc, 0, 0));
@@ -369,11 +368,11 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Deserialize(const Serialized& ser
     this->m_Sl = Sl;
     this->m_Rl = Rl;
 
-    DeserializeMatrix("Sl", Element::GetElementName(), pIt, this->m_Sl);
-    DeserializeMatrix("Rl", Element::GetElementName(), pIt, this->m_Rl);
-
-    DeserializeVectorOfMatrix("PK", Element::GetElementName(), pIt, this->m_pk);
+    DeserializeMatrix("Sl", Element::GetElementName(), pIt, *this->m_Sl);
+    DeserializeMatrix("Rl", Element::GetElementName(), pIt, *this->m_Rl);
 #if 0
+    DeserializeVectorOfMatrix("PK", Element::GetElementName(), pIt, &(this->m_pk));
+
     shared_ptr<std::vector<RLWETrapdoorPair<Element>>>   m_ek;
 #endif
     return true;

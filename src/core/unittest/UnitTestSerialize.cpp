@@ -362,9 +362,11 @@ TEST(UTSer,serialize_matrix_bigint){
     std::cout<<jsonstring<<std::endl;
   }
   DEBUG("step 5");
-  
-  Matrix<BigInteger> newmat(BigInteger::Allocator, 0, 0); //empty matrix
- //top level iterator
+
+  have to make a shared pointer to newmatP
+  shared_ptr<Matrix<BigInteger>> newmatP = shared_ptr<Matrix<BigInteger>(new Matrix<BigInteger>(BigInteger::Allocator, 0, 0)); //empty matrix
+
+  //top level iterator
   SerialItem::ConstMemberIterator topIter = serObj.FindMember("TestMatrix");
   DEBUG("step 6");
 
@@ -379,10 +381,10 @@ TEST(UTSer,serialize_matrix_bigint){
   ASSERT_FALSE (mIter == topIter->value.MemberEnd() )<< "Cant find Matrix";
   DEBUG("step 8");
 
-  DeserializeMatrix<BigInteger>("Matrix", "BigIntegerImpl", mIter, &newmat);
+  DeserializeMatrix<BigInteger>("Matrix", "BigIntegerImpl", mIter, newmatP);
 
     
   DEBUG("step 9");
-  EXPECT_EQ( testmat, newmat ) << "Mismatch after ser/deser";
+  EXPECT_EQ( testmat, *newmatP ) << "Mismatch after ser/deser";
 
 }
