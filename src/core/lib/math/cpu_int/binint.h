@@ -757,8 +757,6 @@ namespace cpu_int{
     template<typename uint_type_c,usint BITLENGTH_c>
 	friend std::ostream& operator<<(std::ostream& os, const BigInteger<uint_type_c,BITLENGTH_c> &ptr_obj);
     
-    void PrintValues() const { std::cout << *this; }
-
 	/**
     * Gets the bit at the specified index.
     *

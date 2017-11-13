@@ -461,9 +461,6 @@ namespace NTL{
     */
     void PrintLimbsInHex() const { std::cout<<std::hex<<*this<<std::dec; }
 
-    //TODO: get rid of this insanity
-    void PrintValues() const { std::cout << *this; };
-
   private:
     //adapter kits
     void SetMSB();

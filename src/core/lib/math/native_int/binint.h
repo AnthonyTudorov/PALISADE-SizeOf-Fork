@@ -1048,8 +1048,6 @@ public:
 		return os;
 	}
 
-	void PrintValues() const { std::cout << this->m_value; }
-
 	/**
 	 * Gets the bit at the specified index.
 	 *

@@ -478,9 +478,6 @@ namespace NTL {
       return tmp;
     }
 #endif
- 
-    //Todo: get rid of printvalues everywhere
-    void PrintValues() const { std::cout << *this; }
 
     //JSON FACILITY
     /**

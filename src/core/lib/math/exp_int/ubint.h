@@ -998,9 +998,6 @@ namespace exp_int{
       return os;
     }
 
-	//TODO get rid of all PrintValues
-    void PrintValues() const { std::cout << *this; }
-
  private:
     static inline limb_t base64_to_value(const char &b64);
 
