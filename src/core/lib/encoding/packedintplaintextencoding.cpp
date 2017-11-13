@@ -273,15 +273,14 @@ namespace lbcrypto {
 			slotValues.SetValAtIndex(i, ring->GetValAtIndex(i).ConvertToInt());
 		}
 
+		DEBUG(*ring);
 		DEBUG(slotValues);
 
 		// Transform Eval to Coeff
 		if (!(m & (m-1))) { // Check if m is a power of 2
 
-			DEBUG("power of 2");
 			if (m_toCRTPerm[modulusNI].size() > 0)
 			{
-				DEBUG("Permute to CRT");
 				// Permute to CRT Order
 				native_int::BigVector permutedSlots(phim, modulusNI);
 
@@ -292,25 +291,32 @@ namespace lbcrypto {
 			}
 			else
 			{
-				DEBUG("Do not permute to CRT");
 				ChineseRemainderTransformFTT<native_int::BigInteger, native_int::BigVector>::InverseTransform(slotValues, m_initRoot[modulusNI], m, &slotValues);
 			}
 
 		} else { // Arbitrary cyclotomic
 
-			DEBUG("arbitrary");
+            DEBUG("m_toCRTPerm ");
+            for(auto v : m_toCRTPerm[modulusNI])
+                    std::cerr << v << " ";
+            std::cerr << std::endl;
+
 			// Permute to CRT Order
 			native_int::BigVector permutedSlots(phim, modulusNI);
 			for (usint i = 0; i < phim; i++) {
 				permutedSlots.SetValAtIndex(i, slotValues.GetValAtIndex(m_toCRTPerm[modulusNI][i]));
 			}
 
-			slotValues = ChineseRemainderTransformArb<native_int::BigInteger, native_int::BigVector>::
+            DEBUG("permutedSlots " << permutedSlots);
+            DEBUG("m_initRoot[modulusNI] " << m_initRoot[modulusNI]);
+            DEBUG("m_bigModulus[modulusNI] " << m_bigModulus[modulusNI]);
+            DEBUG("m_bigRoot[modulusNI] " << m_bigRoot[modulusNI]);
+
+            slotValues = ChineseRemainderTransformArb<native_int::BigInteger, native_int::BigVector>::
 					InverseTransform(permutedSlots, m_initRoot[modulusNI], m_bigModulus[modulusNI], m_bigRoot[modulusNI], m);
 		}
 
-		DEBUG(slotValues);
-
+        DEBUG("slotvalues now " << slotValues);
 		//copy values into the slotValuesRing
 		BigVector slotValuesRing(phim, ring->GetModulus());
 		for (usint i = 0; i < phim; i++) {
@@ -318,6 +324,7 @@ namespace lbcrypto {
 		}
 
 		ring->SetValues(slotValuesRing, Format::COEFFICIENT);
+		DEBUG(*ring);
 	}
 
 void PackedIntPlaintextEncoding::Unpack(Poly *ring, const BigInteger &modulus) const {
@@ -347,15 +354,18 @@ void PackedIntPlaintextEncoding::Unpack(Poly *ring, const BigInteger &modulus) c
 		// Transform Coeff to Eval
 		native_int::BigVector permutedSlots(phim, modulusNI);
 		if (!(m & (m-1))) { // Check if m is a power of 2
-			DEBUG("power of 2");
 			ChineseRemainderTransformFTT<native_int::BigInteger, native_int::BigVector>::ForwardTransform(packedVector, m_initRoot[modulusNI], m, &permutedSlots);
 		} else { // Arbitrary cyclotomic
-			DEBUG("arbitrary");
 			permutedSlots = ChineseRemainderTransformArb<native_int::BigInteger, native_int::BigVector>::
 					ForwardTransform(packedVector, m_initRoot[modulusNI], m_bigModulus[modulusNI], m_bigRoot[modulusNI], m);
 		}
 
-		if (m_fromCRTPerm[modulusNI].size() > 0) {
+        DEBUG("m_fromCRTPerm ");
+        for(auto v : m_fromCRTPerm[modulusNI])
+                std::cerr << v << " ";
+        std::cerr << std::endl;
+
+        if (m_fromCRTPerm[modulusNI].size() > 0) {
 			// Permute to automorphism Order
 			for (usint i = 0; i < phim; i++) {
 				packedVector.SetValAtIndex(i, permutedSlots.GetValAtIndex(m_fromCRTPerm[modulusNI][i]));

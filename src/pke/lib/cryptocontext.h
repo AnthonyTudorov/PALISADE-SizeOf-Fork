@@ -700,6 +700,10 @@ public:
 
 		shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(privateKey, plaintext->GetElement<Element>());
 
+		if (ciphertext) {
+			ciphertext->SetEncodingType( plaintext->GetEncodingType() );
+		}
+
 		if( doTiming ) {
 			timeSamples->push_back( TimingInfo(OpEncryptPriv, currentDateTime() - start) );
 		}
@@ -731,7 +735,9 @@ public:
 		{
 			for (size_t col = 0; col < plaintext.GetCols(); col++)
 			{
-				plaintext(row,col)->Encode();
+				std::cout << row << "," << col << " encode" << std::endl;
+				if( plaintext(row,col)->Encode() == false )
+					return 0;
 
 				shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, plaintext(row,col)->GetElement<Element>());
 
@@ -786,7 +792,8 @@ public:
 				padded = true;
 			}
 
-			px->Encode();
+			if( px->Encode() == false )
+				break;
 
 			shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, px->GetElement<Element>());
 			if (!ciphertext) {

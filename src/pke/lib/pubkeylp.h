@@ -1376,7 +1376,7 @@ namespace lbcrypto {
 			shared_ptr<Plaintext> plaintext = cc->MakePackedPlaintext(randomIntVector);
 
 			//shared_ptr<LPPublicKey<Element>> pk(new LPPublicKey<Element>(cc, kID));
-
+std::cout << "encode in AddRandomNoise" << std::endl;
 			plaintext->Encode();
 
 			// OK this is not actually an encrypted plaintext so...
