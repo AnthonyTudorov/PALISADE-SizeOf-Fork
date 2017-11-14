@@ -303,20 +303,12 @@ namespace cpu_int{
     BigInteger&  operator>>=(usshort shift);
 
 //Auxillary Functions
-#if 0
-    /**
-    * Prints the value of the internal limb storage
-    * in decimal format. Used primarily for debugging
-    */
-    void PrintLimbsInDec() const;
-
-    /**
-    * Prints the value of the internal limb storage
-    * in hexadecimal format. Used primarily for debugging
-    */
-    void PrintLimbsInHex() const;
-#endif
     
+    /**
+    * Delivers value of the internal limb storage
+    * Used primarily for debugging
+    * @return STL vector of uint_type    
+    */
     vector<uint_type> GetInternalRepresentation(void) const {
       vector<uint_type> ret;
       size_t ceilInt = ceilIntByUInt(this->m_MSB); //max limb used

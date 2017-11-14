@@ -406,21 +406,16 @@ namespace exp_int{
     ubint&  operator>>=(usint shift);
 
     //Auxillary Functions
-#if 0
+
     /**
-     * Prints the value of the vector of limbs to console in decimal format
-     */
-    void PrintLimbsInDec() const;
-
-   /**
-    * Prints the value of the vector of limbs to console in hex format
+    * Delivers value of the internal limb storage
+    * Used primarily for debugging
+    * @return STL vector of uint_type    
     */
-    void PrintLimbsInHex() const;
-#endif
-
-    vector<limb_t> GetInternalRepresentation(void) const;
-
-
+    vector<limb_t> GetInternalRepresentation(void) const {
+      vector<limb_t> ret = m_value;
+      return ret;
+    }
     
     /**
      * Basic set method for setting the value of a ubint

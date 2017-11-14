@@ -1108,20 +1108,32 @@ TEST(UTBinInt, method_GetBitAtIndex){
 
 
 TEST(UTBinInt, method_GetInternalRepresentation){
-  bool dbg_flag = true;
+  bool dbg_flag = false;
   BigInteger x(1);
 
   x <<=(100); //x has one bit at 128
   x += 2; //x has one bit at 2
 
-  DEBUG("x "<<x);
+  auto x_limbs = x.GetInternalRepresentation();
+
   if (dbg_flag) {
-    auto x_limbs = x.GetInternalRepresentation();
-    
     DEBUG(std::hex <<x.GetInternalRepresentation()<<std::dec); 
-    
     DEBUG(x_limbs);
     DEBUG("x_limbs "<< x_limbs);
+    DEBUG("x "<<x);
   }
 
+  //define what is correct based on math backend selected
+#if MATHBACKEND == 2
+  vector<uint32_t> correct={2,0,0,16};
+#elif MATHBACKEND == 4 && defined(UBINT_32)
+  vector<uint32_t> correct={2,0,0,16};
+#elif MATHBACKEND == 4 && defined(UBINT_32)
+  //this configuration is not supported yet
+#elif MATHBACKEND == 6
+  vector<NTL::ZZ_limb_t> correct={2,68719476736};
+#elif MATHBACKEND ==7
+  native_int::NativeInteger<long unsigned int> correct={2};
+#endif
+  EXPECT_EQ(correct, x_limbs);
 }

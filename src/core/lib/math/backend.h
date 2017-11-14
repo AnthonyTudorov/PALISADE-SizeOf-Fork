@@ -64,8 +64,8 @@
 //uncommented line (and breaking the documentation of the line)
 
 #ifndef MATHBACKEND
-#define MATHBACKEND 2
-//#define MATHBACKEND 4
+//#define MATHBACKEND 2
+#define MATHBACKEND 4
 //#define MATHBACKEND 6
 //#define MATHBACKEND 7
 #endif
@@ -189,7 +189,6 @@ namespace lbcrypto {
 	typedef exp_int::xubint BigInteger;
 	typedef exp_int::xmubintvec BigVector;
 
-	template<typename BigInteger> std::ostream& operator << (std::ostream& os, const std::vector<BigInteger>& v);
 	
 #define MATH_DEFBITS 0
 
@@ -203,8 +202,6 @@ namespace lbcrypto {
 	/** Define the mapping for BigVector */
         typedef NTL::myVecP<NTL::myZZ> BigVector;
 
-	template<typename BigInteger> std::ostream& operator << (std::ostream& os, const std::vector<BigInteger>& v);
-	
 #define MATH_DEFBITS 0
 
 #endif
@@ -214,6 +211,21 @@ namespace lbcrypto {
 	typedef native_int::BigInteger BigInteger;
 	typedef native_int::BigVector BigVector;
 
+#if 0    
+    /**
+    * Prints the value of the internal limb storage
+    * in decimal format. Used primarily for debugging
+    */
+    void PrintLimbsInDec() const;
+
+    /**
+    * Prints the value of the internal limb storage
+    * in hexadecimal format. Used primarily for debugging
+    */
+    void PrintLimbsInHex() const { std::cout<<std::hex<<*this<<std::dec; }
+#endif
+
+	
 	
 #define MATH_DEFBITS MATH_NATIVEBITS
 #endif
@@ -226,6 +238,16 @@ namespace lbcrypto {
 
 	typedef ILParamsImpl<native_int::BigInteger> ILNativeParams;
 
+	template<typename BigInteger> std::ostream& operator << (std::ostream& os, const std::vector<BigInteger>& v ){
+	  os << "[";
+	  for (const auto& itr : v){
+	    os << " " << itr;
+	  }
+	  os << " ]";
+	  return os;
+	};
+
+	
 } // namespace lbcrypto ends
 
 #endif
