@@ -1,4 +1,12 @@
-for i in 2 4 6 7
+
+backends="2 4 6 7"
+
+if [ "$1" != "" ];
+then
+	backends=$1
+fi
+
+for i in $backends
 do
 	ex=bin/backend-$i/unittest/tests
 
