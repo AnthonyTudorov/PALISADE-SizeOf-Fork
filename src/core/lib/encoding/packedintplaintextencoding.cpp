@@ -179,6 +179,7 @@ namespace lbcrypto {
 
 	void PackedIntPlaintextEncoding::SetParams(const BigInteger &modulus, usint m)
 	{
+		bool dbg_flag = true;
 		native_int::BigInteger modulusNI(modulus.ConvertToInt()); //native int modulus
 
 		std::string exception_message;
@@ -192,6 +193,8 @@ namespace lbcrypto {
 			}
 			else {
 				native_int::BigInteger initRoot = RootOfUnity<native_int::BigInteger>(2 * m, modulusNI);
+
+				DEBUG("modulus " << modulus << " m " << m << " initRoot " << initRoot);
 
 				// Arbitrary: Bluestein based CRT Arb. So we need the 2mth root of unity
 
