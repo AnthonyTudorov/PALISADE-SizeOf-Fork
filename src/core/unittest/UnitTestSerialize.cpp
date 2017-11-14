@@ -61,7 +61,7 @@ protected:
 };
 
 TEST(UTSer,cpu_int){
-	bool dbg_flag = true;
+	bool dbg_flag = false;
 	BigInteger small(7);
 	BigInteger medium(1ULL<<27 | 1ULL<<22);
 	BigInteger larger(1ULL<<40 | 1ULL<<22);

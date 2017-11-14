@@ -968,9 +968,6 @@ return result;
     int endValA = ceilIntByUInt(this->m_MSB);
     //array position in B to end substraction
     int endValB = ceilIntByUInt(b.m_MSB);
-
-
-
 	
     DEBUG("a ");
     DEBUGEXP(this->GetInternalRepresentation());
@@ -2934,7 +2931,7 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
   }
 
   template class ubint<expdtype>;
-  #if 1
+
   template std::ostream& operator << <expdtype>(std::ostream& os, const std::vector<expdtype>& v);
-#endif
+
 } // namespace exp_int ends

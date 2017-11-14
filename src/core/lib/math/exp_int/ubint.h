@@ -1272,7 +1272,7 @@ namespace exp_int{
     os << " ]";
     return os;
   };
-  
+
 }//namespace ends
 
 #endif //LBCRYPTO_MATH_EXPINT_UBINT_H

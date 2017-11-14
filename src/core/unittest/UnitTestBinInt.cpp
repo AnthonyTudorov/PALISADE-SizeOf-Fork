@@ -837,6 +837,7 @@ TEST(UTBinInt,mod_arithmetic){
 TEST(UTBinInt,big_modexp){
   //very big modexp. 
   {
+    bool dbg_flag = false;
     TimeVar t;
 
     TIC(t);
@@ -851,7 +852,7 @@ TEST(UTBinInt,big_modexp){
       << "Failure testing very big mod_exp_test";
 
     
-    PROFILELOG("big_modexp time ns "<<TOC_NS(t));
+    DEBUG("big_modexp time ns "<<TOC_NS(t));
   }
 }
 
@@ -1083,7 +1084,7 @@ TEST(UTBinInt,method_getDigitAtIndex) {
 }
 
 TEST(UTBinInt, method_GetBitAtIndex){
-  bool dbg_flag = true;
+  bool dbg_flag = false;
   BigInteger x(1);
 
   x <<=(100); //x has one bit at 100
@@ -1111,17 +1112,16 @@ TEST(UTBinInt, method_GetInternalRepresentation){
   BigInteger x(1);
 
   x <<=(100); //x has one bit at 128
-
   x += 2; //x has one bit at 2
 
   DEBUG("x "<<x);
-  auto x_limbs = x.GetInternalRepresentation();
-  
-
-  DEBUG(std::hex <<x.GetInternalRepresentation()<<std::dec); //TODO
-  std::cerr << x_limbs;
-  std::cerr << x_limbs << std::endl;
-  DEBUG(x_limbs);
-  DEBUG("x_limbs "<< x_limbs);
+  if (dbg_flag) {
+    auto x_limbs = x.GetInternalRepresentation();
+    
+    DEBUG(std::hex <<x.GetInternalRepresentation()<<std::dec); 
+    
+    DEBUG(x_limbs);
+    DEBUG("x_limbs "<< x_limbs);
+  }
 
 }
