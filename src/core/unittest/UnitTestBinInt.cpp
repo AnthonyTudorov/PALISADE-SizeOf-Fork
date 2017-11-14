@@ -1083,7 +1083,7 @@ TEST(UTBinInt,method_getDigitAtIndex) {
 }
 
 TEST(UTBinInt, method_GetBitAtIndex){
-  bool dbg_flag = false;
+  bool dbg_flag = true;
   BigInteger x(1);
 
   x <<=(100); //x has one bit at 100
@@ -1091,7 +1091,8 @@ TEST(UTBinInt, method_GetBitAtIndex){
   x += 2; //x has one bit at 2
 
   DEBUG("x "<<x);
-  //if (dbg_flag) x.PrintLimbsInHex();
+  DEBUG(x.GetInternalRepresentation());
+  DEBUG(std::hex <<x.GetInternalRepresentation()<<std::dec); 
 
   // index is 1 for lsb!
   EXPECT_EQ(sint(x.GetBitAtIndex(1)), 0);  
@@ -1101,5 +1102,26 @@ TEST(UTBinInt, method_GetBitAtIndex){
     EXPECT_EQ(sint(x.GetBitAtIndex(idx)), 0);  
   }
   EXPECT_EQ(sint(x.GetBitAtIndex(101)), 1);  
+
+}
+
+
+TEST(UTBinInt, method_GetInternalRepresentation){
+  bool dbg_flag = true;
+  BigInteger x(1);
+
+  x <<=(100); //x has one bit at 128
+
+  x += 2; //x has one bit at 2
+
+  DEBUG("x "<<x);
+  auto x_limbs = x.GetInternalRepresentation();
+  
+
+  DEBUG(std::hex <<x.GetInternalRepresentation()<<std::dec); //TODO
+  std::cerr << x_limbs;
+  std::cerr << x_limbs << std::endl;
+  DEBUG(x_limbs);
+  DEBUG("x_limbs "<< x_limbs);
 
 }

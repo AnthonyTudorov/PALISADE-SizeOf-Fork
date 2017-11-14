@@ -170,6 +170,16 @@ namespace lbcrypto {
 
 #define MATH_DEFBITS BigIntegerBitLength
 
+	//todo this needs to go somewhere else... I thinik... 
+	template<typename BigInteger> std::ostream& operator << (std::ostream& os, const std::vector<BigInteger>& v ){
+	  os << "[";
+	  for (const auto& itr : v){
+	    os << " " << itr;
+	  }
+	  os << " ]";
+	  return os;
+	};
+	
 #endif
 
 #if MATHBACKEND == 4
@@ -179,6 +189,8 @@ namespace lbcrypto {
 	typedef exp_int::xubint BigInteger;
 	typedef exp_int::xmubintvec BigVector;
 
+	template<typename BigInteger> std::ostream& operator << (std::ostream& os, const std::vector<BigInteger>& v);
+	
 #define MATH_DEFBITS 0
 
 #endif
@@ -191,6 +203,8 @@ namespace lbcrypto {
 	/** Define the mapping for BigVector */
         typedef NTL::myVecP<NTL::myZZ> BigVector;
 
+	template<typename BigInteger> std::ostream& operator << (std::ostream& os, const std::vector<BigInteger>& v);
+	
 #define MATH_DEFBITS 0
 
 #endif
@@ -200,6 +214,7 @@ namespace lbcrypto {
 	typedef native_int::BigInteger BigInteger;
 	typedef native_int::BigVector BigVector;
 
+	
 #define MATH_DEFBITS MATH_NATIVEBITS
 #endif
 

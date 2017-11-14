@@ -406,7 +406,7 @@ namespace exp_int{
     ubint&  operator>>=(usint shift);
 
     //Auxillary Functions
-
+#if 0
     /**
      * Prints the value of the vector of limbs to console in decimal format
      */
@@ -416,7 +416,12 @@ namespace exp_int{
     * Prints the value of the vector of limbs to console in hex format
     */
     void PrintLimbsInHex() const;
+#endif
 
+    vector<limb_t> GetInternalRepresentation(void) const;
+
+
+    
     /**
      * Basic set method for setting the value of a ubint
      *
@@ -446,6 +451,8 @@ namespace exp_int{
      * @return the size
      */
     usint GetNumberOfLimbs()const;
+
+
 
     /**
      * Converts the value to a usint.
@@ -1254,6 +1261,17 @@ namespace exp_int{
   //todo: does this go here?
   template<typename limb_t>
     inline ubint<limb_t> operator/(const ubint<limb_t> &a, const ubint<limb_t> &b) {return a.Div(b);}
+
+  // stream helper function for vector of objects
+  template < typename limb_t >
+    inline std::ostream& operator << (std::ostream& os, const std::vector<limb_t>& v) {
+    os << "[";
+    for (const auto& itr : v){
+      os << " " << itr;
+    }
+    os << " ]";
+    return os;
+  };
   
 }//namespace ends
 

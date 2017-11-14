@@ -61,7 +61,7 @@ protected:
 };
 
 TEST(UTSer,cpu_int){
-	bool dbg_flag = false;
+	bool dbg_flag = true;
 	BigInteger small(7);
 	BigInteger medium(1ULL<<27 | 1ULL<<22);
 	BigInteger larger(1ULL<<40 | 1ULL<<22);
@@ -83,8 +83,8 @@ TEST(UTSer,cpu_int){
 	EXPECT_EQ(larger, deser) << "Larger integer ser/deser fails";
 
 	if (dbg_flag){
-	  larger.PrintLimbsInHex();
-	  deser.PrintLimbsInHex();
+	  DEBUGEXP(larger.GetInternalRepresentation());
+	  DEBUGEXP(deser.GetInternalRepresentation());
 	}
 
 	ser = yooge.Serialize();

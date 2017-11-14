@@ -303,7 +303,7 @@ namespace cpu_int{
     BigInteger&  operator>>=(usshort shift);
 
 //Auxillary Functions
-
+#if 0
     /**
     * Prints the value of the internal limb storage
     * in decimal format. Used primarily for debugging
@@ -315,7 +315,17 @@ namespace cpu_int{
     * in hexadecimal format. Used primarily for debugging
     */
     void PrintLimbsInHex() const;
-
+#endif
+    
+    vector<uint_type> GetInternalRepresentation(void) const {
+      vector<uint_type> ret;
+      size_t ceilInt = ceilIntByUInt(this->m_MSB); //max limb used
+      for(size_t i=m_nSize-1;i>=(size_t)(m_nSize-ceilInt);i--){
+	ret.push_back(m_value[i]);
+      }
+      return ret;
+    }
+ 
     /**
     * Basic set method for setting the value of a big binary integer
     *
@@ -938,6 +948,18 @@ namespace cpu_int{
 		static void add_bitVal(uschar* a,uschar b);
 	};
 
+#if 1
+ // stream helper function for vector of objects
+  template <typename T>
+    inline std::ostream& operator << (std::ostream& os, const std::vector<T>& v) {
+    os << "[";
+    for (const auto& itr : v){
+      os << " " << itr;
+    }
+    os << " ]";
+    return os;
+  };
+#endif
 }//namespace ends
 
 #endif
