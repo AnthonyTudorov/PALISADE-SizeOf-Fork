@@ -124,7 +124,8 @@ void BaseSampler::GenerateProbMatrix(double stddev, double mean) {
  }
 */
 void BaseSampler::GenerateDDGTree(const std::vector<uint64_t> & probMatrix) {
-
+	for(unsigned int i =0;i<probMatrix.size();i++){
+	}
 	firstNonZero = -1;
 	for (int i = 0; i < 64 && firstNonZero == -1; i++)
 		if (hammingWeights[i] != 0)
@@ -148,10 +149,10 @@ void BaseSampler::GenerateDDGTree(const std::vector<uint64_t> & probMatrix) {
 				endIndex--;
 			}
 		}
+
 	}
-	std::cout<<maxNodeCount<<std::endl;
-	int depth = log2(maxNodeCount);
-	uint64_t size = 1 << (depth + 1);
+
+	uint64_t size = /*1 << (depth + 1)*/maxNodeCount;
 	DDGTree.resize(size);
 
 	for (unsigned int i = 0; i < size; i++) {
@@ -161,8 +162,6 @@ void BaseSampler::GenerateDDGTree(const std::vector<uint64_t> & probMatrix) {
 	for (int i = 0; i < firstNonZero; i++) {
 		iNodeCount *= 2;
 	}
-	std::cout<<firstNonZero<<std::endl;
-	std::cout<<endIndex<<std::endl;
 
 	for (int i = firstNonZero; i < endIndex; i++) {
 		iNodeCount *= 2;
@@ -179,15 +178,6 @@ void BaseSampler::GenerateDDGTree(const std::vector<uint64_t> & probMatrix) {
 			}
 		}
 	}
-	std::ofstream outputFile;
-	outputFile.open("ddgtree.txt");
-	for(unsigned int i=0;i<DDGTree.size();i++){
-		for(unsigned int j=0;j<DDGTree[0].size();j++){
-			outputFile<<DDGTree[i][j]<<" ";
-		}
-		outputFile<<std::endl;
-	}
-	outputFile.close();
 }
 
 int64_t BaseSampler::GenerateIntegerKnuthYaoAlt() {
@@ -364,7 +354,6 @@ void DiscreteGaussianGeneratorGeneric::PreCompute(int32_t b, int32_t k,
 void BaseSampler::Initialize(double mean) {
 
 	m_vals.clear();
-	//weightDiscreteGaussian
 	double variance = b_std * b_std;
 
 
@@ -380,7 +369,6 @@ void BaseSampler::Initialize(double mean) {
 
 	b_a = 1 / cusum;
 
-	//fin = (int)ceil(sqrt(-2 * variance * log(acc))); //not needed - same as above
 	double temp;
 
 	for (sint i = -1*fin; i <= fin; i++) {
