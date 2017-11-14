@@ -1,10 +1,10 @@
-for i in 2 #4 6 7
+for i in 2 4 6 7
 do
 	lib=bin/backend-${i}-cov/lib
 	ex=bin/backend-${i}-cov/unittest/tests
 
 	echo "****************************"
-	echo Testing MATHBACKEND $i
+	echo Coverage test MATHBACKEND $i
 	echo "****************************"
 	if [[ -x $ex ]]
 	then
@@ -13,7 +13,7 @@ do
 		export DYLD_LIBRARY_PATH=$lib:$DYLD_LIBRARY_PATH
 		export LD_LIBRARY_PATH=$lib:$LD_LIBRARY_PATH
 		export PATH=$lib:$PATH
-		valgrind --log-file=valgrind-${i}.out $ex -t
+		$ex -t
 		)
 		echo "****************************"
 		echo TEST DONE

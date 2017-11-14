@@ -1,10 +1,13 @@
-###make clean
+if [ "$1" = "force" ];
+then
+	make clean
+fi
 
 echo "****************************"
 echo Building all backends
 echo "****************************"
 
-for i in 2 #4 6 7
+for i in 2 4 6 7
 do
 	BINDIR=bin/backend-${i}-cov
 	echo "****************************"

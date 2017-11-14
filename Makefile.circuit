@@ -75,13 +75,13 @@ allcircuitdemos: $(patsubst $(CIRCUITBINDIR)/demo/%,$(BINDIR)/demo/circuit/%,$(p
 
 $(BINDIR)/demo/circuit/%$(EXESUFFIX): $(CIRCUITBINDIR)/demo/%.o $(CLIBS) $(EXTLIBDIR)/$(PALISADECIRCUITLIB)
 	@mkdir -p $(@D)
-	$(CC) -o $@ $< $(EXTLIB) -lPALISADEcore -lPALISADEpke -lPALISADEtrapdoor -lPALISADEcircuit
+	$(CC) -o $@ $< $(EXTLIB) -lPALISADEcircuit -lPALISADEtrapdoor -lPALISADEpke -lPALISADEcore
 
 #this builds the palisade library out of the objects 
 $(EXTLIBDIR)/$(PALISADECIRCUITLIB): $(CIRCUITOBJECTS) $(CLIBS) 
 	@echo " -- circuit:linking $@ from CIRCUITOBJECTS"
 	@mkdir -p $(EXTLIBDIR)
-	$(LIBCMD) $@ $(CIRCUITOBJECTS) # $(EXTLIB) -lPALISADEcore -lPALISADEpke -lPALISADEtrapdoor -lgomp 
+	$(LIBCMD) $@ $(CIRCUITOBJECTS) 
 
 ### #this builds the individual objects that make up the library .
 .PRECIOUS: $(CIRCUITBINDIR)/%
