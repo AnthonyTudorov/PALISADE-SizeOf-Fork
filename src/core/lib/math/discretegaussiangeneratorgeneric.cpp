@@ -61,6 +61,7 @@ int64_t BaseSampler::GenerateInteger(){
 	if(b_type==PEIKERT)
 		return GenerateIntegerPeikert();
 	else
+		//return GenerateIntegerKnuthYao();
 		return GenerateIntegerKnuthYaoAlt();
 }
 /**
@@ -68,10 +69,11 @@ int64_t BaseSampler::GenerateInteger(){
  */
 void BaseSampler::GenerateProbMatrix(double stddev, double mean) {
 
-	if (DDGColumn != nullptr) {
+	/*if (DDGColumn != nullptr) {
 		delete[] DDGColumn;
-	}
-	b_matrixSize = 2 * fin + 1;
+	}*/
+	std::vector<uint64_t> probMatrix;
+	b_matrixSize = 2*fin + 1;
 	hammingWeights.resize(64, 0);
 	probMatrix.resize(b_matrixSize);
 	double* probs = new double[b_matrixSize];
@@ -85,75 +87,43 @@ void BaseSampler::GenerateProbMatrix(double stddev, double mean) {
 	}
 	for (int i = 0; i < b_matrixSize; i++) {
 		probMatrix[i] = probs[i] * (1.0/S) * /*(1<<64)*/pow(2, 64);
-		std::cout.precision(128);
-		std::cout<<i<<" "<<probs[i] * (1.0/S)<<" "<<probMatrix[i]<<std::endl;
 		for (int j = 0; j < 64; j++) {
 			hammingWeights[j] += ((probMatrix[i] >> (63 - j)) & 1);
 		}
+
 	}
 	delete[] probs;
-	GenerateDDGTree();
+	GenerateDDGTree(probMatrix);
 }
 
 /**
  * Returns a generated integer. Uses Knuth-Yao method defined as Algorithm 1 in http://link.springer.com/chapter/10.1007%2F978-3-662-43414-7_19#page-1
  * Not used at the moment
- int32_t BaseSampler::GenerateIntegerKnuthYao(int tableID) {
- int32_t S = 0;
- bool discard = true;
-
-
- int32_t MAX_ROW = probMatrixSize - 1;
- //The distance
-
- while (discard == true) {
- int32_t d = 0;
- //Whether a terminal node is hit or not
- uint32_t hit = 0;
- //Indicator of column
- short col = 0;
- //bool start = false;
- //To generate random bit a 32 bit integer is generated in every 32 iterations and each single bit is used in order to save cycles
- while (hit == 0 && col <= 63) {
- if (ky_counter % 31 == 0) {
- ky_seed = (PseudoRandomNumberGenerator::GetPRNG())();
- ky_seed = ky_seed << 1;
+ *
+ int64_t BaseSampler::GenerateIntegerKnuthYao() {
+	 short d = 0;
+	 short hit=0;
+	 short col=0;
+	 int64_t S;
+	 while(hit==0){
+		 short r=bg->Generate();
+		 d = 2 * d + 1 - r;
+		 for(int64_t row = b_matrixSize;row>=0;row--){
+			 d = d - ((probMatrix[row]>>(63-col)) & 1);
+			 if(d==-1){
+				 hit = 1;
+				 S = row;
+				 break;
+			 }
+		 }
+		 col++;
+	 }
+	 if(S==b_matrixSize-1)
+		 std::cout<<"ERROR ROW HIT"<<std::endl;
+	 return S-fin;
  }
- uint32_t r = ky_seed >> (32 - ky_counter);
- d = 2 * d + (~r & 1);
- //if (d < hammingWeights[col] || start){
- //start = true;
- for (int32_t row = MAX_ROW;row > -1 && hit == 0;row--) {
- d -= ((probMatrix[tableID][row] >> (63 - col)) & 1);
- if (d == -1) {
- hit = 1;
- //If the terminal node is found on the last row, it means that it hit an error column therefore the sample is discarded
- if (row == MAX_ROW) {
- //std::cout << "Hit error row, discarding sample..." << std::endl;
- }
- else {
- //Result is the row that the terminal node found in
- S = row;
- discard = false;
- }
- }
- }
- //}
- col++;
- ky_counter++;
- }
- }
- if (ky_counter % 31 == 0) {
- ky_seed = (PseudoRandomNumberGenerator::GetPRNG())();
- ky_seed = ky_seed << 1;
- ky_counter = 0;
- }
- int sign = ((ky_seed >> (32 - ky_counter)) & 1) ? 1 : -1;
- ky_counter++;
- return  sign*S + probMean[tableID];
- }
- */
-void BaseSampler::GenerateDDGTree() {
+*/
+void BaseSampler::GenerateDDGTree(const std::vector<uint64_t> & probMatrix) {
 
 	firstNonZero = -1;
 	for (int i = 0; i < 64 && firstNonZero == -1; i++)
@@ -179,18 +149,20 @@ void BaseSampler::GenerateDDGTree() {
 			}
 		}
 	}
-
+	std::cout<<maxNodeCount<<std::endl;
 	int depth = log2(maxNodeCount);
 	uint64_t size = 1 << (depth + 1);
 	DDGTree.resize(size);
 
 	for (unsigned int i = 0; i < size; i++) {
-		DDGTree[i].resize(endIndex, -2);
+		DDGTree[i].resize(endIndex-firstNonZero, -2);
 	}
 	iNodeCount = 1;
 	for (int i = 0; i < firstNonZero; i++) {
 		iNodeCount *= 2;
 	}
+	std::cout<<firstNonZero<<std::endl;
+	std::cout<<endIndex<<std::endl;
 
 	for (int i = firstNonZero; i < endIndex; i++) {
 		iNodeCount *= 2;
@@ -207,6 +179,15 @@ void BaseSampler::GenerateDDGTree() {
 			}
 		}
 	}
+	std::ofstream outputFile;
+	outputFile.open("ddgtree.txt");
+	for(unsigned int i=0;i<DDGTree.size();i++){
+		for(unsigned int j=0;j<DDGTree[0].size();j++){
+			outputFile<<DDGTree[i][j]<<" ";
+		}
+		outputFile<<std::endl;
+	}
+	outputFile.close();
 }
 
 int64_t BaseSampler::GenerateIntegerKnuthYaoAlt() {
@@ -229,7 +210,7 @@ int64_t BaseSampler::GenerateIntegerKnuthYaoAlt() {
 			if (firstNonZero <= i) {
 				if (i < endIndex) {
 					ans = DDGTree[nodeIndex][i - firstNonZero];
-				} else {
+				} /*else {
 					std::cout<<"Hit active generation"<<std::endl;
 					//std::vector<short> DDGColumn(nodeCount);
 					DDGColumn = new short[nodeCount];
@@ -245,7 +226,7 @@ int64_t BaseSampler::GenerateIntegerKnuthYaoAlt() {
 						}
 					}
 					ans = DDGColumn[nodeIndex];
-				}
+				}*/
 				if (ans >= 0) {
 					hit = true;
 				} else {
@@ -254,15 +235,15 @@ int64_t BaseSampler::GenerateIntegerKnuthYaoAlt() {
 					}
 				}
 			}
-			if (DDGColumn != nullptr) {
+			/*if (DDGColumn != nullptr) {
 				delete[] DDGColumn;
 				DDGColumn = nullptr;
-			}
+			}*/
 		}
 	}
 
-	int64_t sign=bg->Generate()?1:-1;
-	return sign*(ans - fin);
+	//int64_t sign=bg->Generate()?1:-1;
+	return /*sign**/(ans - fin);
 }
 /*
 int32_t DiscreteGaussianGeneratorGeneric::GenerateInteger(double mean,double stddev) {

@@ -118,9 +118,9 @@ public:
 	 * @brief Destroyer for the base sampler
 	 */
 	virtual ~BaseSampler(){
-		if (DDGColumn != nullptr) {
+		/*if (DDGColumn != nullptr) {
 			delete[] DDGColumn;
-		}
+		}*/
 	}
 	/*
 	 * @brief Method for generating a random bit from the bit generator within
@@ -154,14 +154,9 @@ private:
 
 	int fin;
 
-	/**
-	 *The probability matrix used in Knuth-Yao sampling
-	 */
-	std::vector<uint64_t> probMatrix;
-
 	std::vector<std::vector<short>> DDGTree;
 
-	short *DDGColumn = nullptr;
+	//short *DDGColumn = nullptr;
 
 	/**
 	 *Array that stores the Hamming Weights of the probability matrix used in Knuth-Yao sampling
@@ -192,8 +187,9 @@ private:
 	usint FindInVector(const std::vector<double> &S, double search) const;
 	/**
 	 * @brief Generates DDG tree used through the sampling in Knuth-Yao
+	 * @param probMatrix The probability matrix used for filling the DDG tree
 	 */
-	void GenerateDDGTree();
+	void GenerateDDGTree(const std::vector<uint64_t> & probMatrix);
 	/**
 	 * @brief Initializes the generator used for Peikert's Inversion method.
 	 * @param mean Mean of the distribution that the sampler will be using
