@@ -29,6 +29,8 @@
 # for making all the palisade components
 ################
 
+TEST_LIB := $(LOADTHREADFLAG) -fopenmp $(NTLLIB) $(GMPLIB) -lgomp
+
 # NOTE select the appropriate set of CPPFLAGS 
 # most code is checked into git with the first line active
 
@@ -37,15 +39,24 @@
 #CPPFLAGS += -Wall -Ofast -w -fopenmp  -g ##undefine for parallel debug operation
 #CPPFLAGS += -Wall -O3 -w  -DNDEBUG  -pg ##undefine for single thread best performance operation with gprof profiling 
 
-
 ##parallel best performance operation with debug
 ##warn everything
 ##no threading or optimization when doing coverage testing
 CPPFLAGS += -g -Wall -Werror
-ifeq ("",${COVERAGE})
-	CPPFLAGS += -O3 -fopenmp $(COMPTHREADFLAG) ##optimize and threads
+
+## handle coverage test options if user set COVERAGE to any value on the command line
+ifdef COVERAGE
+	CPPFLAGS += --coverage -Wno-unknown-pragmas
+	TEST_LIB += --coverage
+	LIBSUFFIX=.a
+	LIBCMD=$(AR) crv
 else
-	CPPFLAGS += -fprofile-arcs -ftest-coverage -Wno-unknown-pragmas
+	CPPFLAGS += -O3 -fopenmp $(COMPTHREADFLAG) ##optimize and threads
+endif
+
+## set backend if user set it on the command line
+ifdef BACKEND
+	CPPFLAGS += -DMATHBACKEND=$(BACKEND)
 endif
 
 #CPPFLAGS += -Wall -O3 -w -fopenmp -m64 -DNDEBUG  ##undefine for parallel best performance operation with no debug
@@ -57,7 +68,6 @@ endif
 #CPPFLAGS += -Wall -w  -m64 -Ofast -flto -march=native -funroll-loops -fopenmp ##undefine for multithread really best performance operation
 
 
-TEST_LIB := $(LOADTHREADFLAG) -fopenmp $(NTLLIB) $(GMPLIB) -lgomp
 
 
 #build directory
@@ -80,8 +90,7 @@ $(objects) : %.o : %.cpp
 NTLINCLUDE := -I third-party/include
 GMPINCLUDE := -I third-party/include
 
-# EXTLIB := -L$(EXTLIBDIR) $(NTLLIB) $(GMPLIB) $(TEST_LIB) -pg #profiling
-EXTLIB := -L$(EXTLIBDIR) $(NTLLIB) $(GMPLIB) $(TEST_LIB) #no profiling
+EXTLIB := -L$(EXTLIBDIR) $(TEST_LIB) #no profiling
 
 INC := -I src/core/lib -I src/pke/lib -I src/trapdoor/lib -I src/circuit/lib -I test $(OMPINCLUDE) $(NTLINCLUDE) $(GMPINCLUDE)
 

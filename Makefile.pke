@@ -62,7 +62,7 @@ $(BINDIR)/demo/pke/%$(EXESUFFIX): $(PKEBINDIR)/demo/%.o $(EXTLIBDIR)/$(PALISADEP
 $(EXTLIBDIR)/$(PALISADEPKELIB): $(PKEOBJECTS) $(EXTLIBDIR)/$(PALISADECORELIB)
 	@echo " -- pke:linking $@ from PKEOBJECTS"
 	@mkdir -p $(EXTLIBDIR)
-	$(CC) $(LIBCMD) -o $@ $(PKEOBJECTS) -L$(EXTLIBDIR) -lPALISADEcore
+	$(LIBCMD) $@ $(PKEOBJECTS) #-L$(EXTLIBDIR) -lPALISADEcore
 
 ### #this builds the individual objects that make up the library .
 .PRECIOUS: $(PKEBINDIR)/%

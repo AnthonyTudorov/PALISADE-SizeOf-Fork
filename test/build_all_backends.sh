@@ -16,7 +16,7 @@ do
 	then
 		touch src/core/lib/math/backend.h
 	fi
-	make -j16  BINDIR=bin/backend-$i CPPFLAGS+=-DMATHBACKEND=$i all benchmark >/dev/null 2>&1
+	make -j16  BINDIR=bin/backend-$i BACKEND=$i all benchmark >/dev/null 2>&1
 	if [ $? -eq 0 ];
 	then
 		echo "****************************"
