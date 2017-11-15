@@ -17,9 +17,9 @@ do
 	then
 		(
 			# set paths for mac or linux or win
-		export DYLD_LIBRARY_PATH=bin/backend-$i/lib:$DYLD_LIBRARY_PATH
-		export LD_LIBRARY_PATH=bin/backend-$i/lib:$LD_LIBRARY_PATH
-		export PATH=bin/backend-$i/lib:$PATH
+		export DYLD_LIBRARY_PATH=bin/backend-$i/lib:third-party/lib:$DYLD_LIBRARY_PATH
+		export LD_LIBRARY_PATH=bin/backend-$i/lib:third-party/lib:$LD_LIBRARY_PATH
+		export PATH=bin/backend-$i/lib:third-party/lib:$PATH
 		$ex -t
 		)
 		echo "****************************"
