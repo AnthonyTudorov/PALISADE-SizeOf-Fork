@@ -77,15 +77,18 @@ void BaseSampler::GenerateProbMatrix(double stddev, double mean) {
 	hammingWeights.resize(64, 0);
 	probMatrix.resize(b_matrixSize);
 	double* probs = new double[b_matrixSize];
-	double S=0;
+	double S=0.0;
 	b_std = stddev;
 	b_mean = mean;
+	double error = 1.0;
 	for (int i = -1 * fin; i <= fin; i++) {
 		double prob = pow(M_E,-pow((i - b_mean), 2) / (2. * stddev * stddev));
 		S+=prob;
 		probs[i+fin]=prob;
 	}
+	probMatrix[b_matrixSize-1]=error*pow(2,64);
 	for (int i = 0; i < b_matrixSize; i++) {
+		error-= probs[i] * (1.0/S);
 		probMatrix[i] = probs[i] * (1.0/S) * /*(1<<64)*/pow(2, 64);
 		for (int j = 0; j < 64; j++) {
 			hammingWeights[j] += ((probMatrix[i] >> (63 - j)) & 1);
@@ -218,7 +221,13 @@ int64_t BaseSampler::GenerateIntegerKnuthYaoAlt() {
 					ans = DDGColumn[nodeIndex];
 				}*/
 				if (ans >= 0) {
-					hit = true;
+					if(ans!=b_matrixSize-1)
+						hit = true;
+					else{
+						error= true;
+						std::cout<<"HIT ERROR ROW"<<std::endl;
+					}
+
 				} else {
 					if (ans == -2) {
 						error = true;
