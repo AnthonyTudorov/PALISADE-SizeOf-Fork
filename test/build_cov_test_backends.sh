@@ -4,8 +4,6 @@ backends="2 4 6 7"
 if [ "$1" != "" ];
 then
 	backends=$1
-else
-	make clean
 fi
 	
 echo "****************************"

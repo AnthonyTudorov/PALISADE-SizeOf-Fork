@@ -59,10 +59,14 @@ $(BINDIR)/demo/pke/%$(EXESUFFIX): $(PKEBINDIR)/demo/%.o $(EXTLIBDIR)/$(PALISADEP
 	$(CC) -o $@ $< $(EXTLIB) -lPALISADEpke -lPALISADEcore $(NTLLIB) $(GMPLIB)
 
 #this builds the palisade library out of the objects 
-$(EXTLIBDIR)/$(PALISADEPKELIB): $(PKEOBJECTS) $(EXTLIBDIR)/$(PALISADECORELIB)
+$(EXTLIBDIR)/$(PALISADEPKELIB): $(PKEOBJECTS) $(EXTLIBDIR)/$(PALISADECORELIB) $(NTLLIB) $(GMPLIB)
 	@echo " -- pke:linking $@ from PKEOBJECTS"
 	@mkdir -p $(EXTLIBDIR)
+ifdef COVERAGE
 	$(LIBCMD) $@ $(PKEOBJECTS) 
+else
+	$(LIBCMD) $@ $(PKEOBJECTS) $(EXTLIB) -lPALISADEcore $(NTLLIB) $(GMPLIB)
+endif
 
 ### #this builds the individual objects that make up the library .
 .PRECIOUS: $(PKEBINDIR)/%
