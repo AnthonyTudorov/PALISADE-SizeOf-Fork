@@ -78,7 +78,7 @@ BMLIB_LIBSRCDIR := google/benchmark-master/include
 #this is is the Include directive for the palisade code being benchmarked
 BM_IFLAG := -Isrc/core/lib -Isrc/pke/lib $(BMLIB_IFLAG) $(NTLINCLUDE) $(GMPINCLUDE)
 
-PLIBS := $(EXTLIBDIR)/$(PALISADEPKELIB) $(EXTLIBDIR)/$(PALISADECORELIB)
+PLIBS := $(EXTLIBDIR)/$(PALISADEPKELIB) $(EXTLIBDIR)/$(PALISADECORELIB) $(NTLLIB) $(GMPLIB)
 
 # this builds executables from objects for benchmarks
 $(BMARK_BIN)/%$(EXESUFFIX): $(BMARK_BUILD)/%.o $(BMLIB_LIB) $(PLIBS)

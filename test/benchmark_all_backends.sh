@@ -8,9 +8,9 @@ do
 	BINDIR=bin/backend-$i
 	BMDIR=$BINDIR/benchmark
 
-	export DYLD_LIBRARY_PATH=bin/backend-$i/lib:$LD_LIBRARY_PATH
-	export LD_LIBRARY_PATH=bin/backend-$i/lib:$LD_LIBRARY_PATH
-	export PATH=bin/backend-$i/lib:$LD_LIBRARY_PATH
+	export DYLD_LIBRARY_PATH=bin/backend-$i/lib:third-party/lib:$LD_LIBRARY_PATH
+	export LD_LIBRARY_PATH=bin/backend-$i/lib:third-party/lib:$LD_LIBRARY_PATH
+	export PATH=bin/backend-$i/lib:third-party/lib:$LD_LIBRARY_PATH
 
 	echo "****************************"
 	echo Benchmarking MATHBACKEND $i

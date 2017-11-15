@@ -567,7 +567,7 @@ namespace NTL {
       std::cerr<<"in operator+(myZZ) Bad CopyModulus"<<std::endl;
 #endif
     }
-    long i;
+    size_t i;
     myZZ bmod(b%m_modulus);
     for (i = 0; i < n; i++)
       //res[i] = (*this)[i]+b%m_modulus;
