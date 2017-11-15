@@ -1,8 +1,15 @@
 smallbmargs="--benchmark_report_aggregates_only=true --benchmark_format=csv"
-largebmargs="--benchmark_report_aggregates_only=true --benchmark_format=csv"
 largebmargs="--benchmark_repetitions=20 --benchmark_report_aggregates_only=true --benchmark_format=csv"
+largebmargs="--benchmark_report_aggregates_only=true --benchmark_format=csv"
 
-for i in 2 4 6 7
+backends="2 4 6 7"
+
+if [ "$1" != "" ];
+then
+	backends=$1
+fi
+
+for i in $backends
 do
 	(
 	BINDIR=bin/backend-$i
