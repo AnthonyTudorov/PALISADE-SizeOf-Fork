@@ -83,8 +83,8 @@ TEST(UTSer,cpu_int){
 	EXPECT_EQ(larger, deser) << "Larger integer ser/deser fails";
 
 	if (dbg_flag){
-	  larger.PrintLimbsInHex();
-	  deser.PrintLimbsInHex();
+	  DEBUGEXP(larger.GetInternalRepresentation());
+	  DEBUGEXP(deser.GetInternalRepresentation());
 	}
 
 	ser = yooge.Serialize();

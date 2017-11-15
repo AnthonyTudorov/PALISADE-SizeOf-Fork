@@ -775,6 +775,7 @@ return result;
 #endif
   }
 
+#if 0  
 
   template<typename limb_t>
   void ubint<limb_t>::PrintLimbsInDec() const{
@@ -805,7 +806,7 @@ return result;
     }
   }
 
-
+#endif
 
   template<typename limb_t>
   usint ubint<limb_t>::GetMSB() const {
@@ -961,24 +962,21 @@ return result;
     ubint result(*this);
 
     DEBUG ("result starts out");
-    if (dbg_flag){
-      result.PrintLimbsInDec();
-    }
+    DEBUGEXP(result.GetInternalRepresentation());
+
     //array position in A to end substraction (a is always larger than b now)
     int endValA = ceilIntByUInt(this->m_MSB);
     //array position in B to end substraction
     int endValB = ceilIntByUInt(b.m_MSB);
-
-    if (dbg_flag){
-      std::cout<<"a "<<std::endl;
-      this->PrintLimbsInHex();
-      this->PrintLimbsInDec();
-      std::cout<<"b "<<std::endl;
-      b.PrintLimbsInHex();
-      b.PrintLimbsInDec();
-      std::cout<<"endValA "<< endValA <<std::endl;
-      std::cout<<"endValB "<< endValB <<std::endl;
-    }
+	
+    DEBUG("a ");
+    DEBUGEXP(this->GetInternalRepresentation());
+    DEBUGEXP(std::hex<<this->GetInternalRepresentation()<<std::dec);
+    DEBUG("b ");
+    DEBUGEXP(b.GetInternalRepresentation());
+    DEBUGEXP(std::hex<<b.GetInternalRepresentation()<<std::dec);
+    DEBUGEXP(endValA);
+    DEBUGEXP(endValB);
 
     for(size_t i=0; i<b.m_value.size(); ++i){
       DEBUG ("limb  "<<i);
@@ -1075,8 +1073,7 @@ return result;
       DEBUG("mibl A:"<<this->ToString() );
       //DEBUG("mibl B:"<<limbb );
       DEBUG("ans.size() now " <<ans.m_value.size());
-      if (dbg_flag)
-	ans.PrintLimbsInDec();
+      DEBUGEXP(ans.GetInternalRepresentation());
 
       usint ix= 0;
       while (ix<i){
@@ -1093,8 +1090,7 @@ return result;
 	tmpans.m_value.push_back((limb_t)temp);
 	ofl = temp>>m_limbBitLength;
 	DEBUG("ans.size() now " <<ans.m_value.size());
-	if (dbg_flag)
-	  tmpans.PrintLimbsInDec();
+	DEBUGEXP(tmpans.GetInternalRepresentation());	
       }
       //check if there is any final overflow
       if(ofl){
@@ -1106,8 +1102,7 @@ return result;
       tmpans.m_state = INITIALIZED;
       tmpans.SetMSB();
       DEBUG("ans.size() final " <<ans.m_value.size());
-      if (dbg_flag)
-	tmpans.PrintLimbsInDec();
+      DEBUGEXP(tmpans.GetInternalRepresentation());	
       DEBUG("mibl ans "<<ans.ToString());
       /////
 
@@ -1290,8 +1285,8 @@ return result;
     DEBUG("mibl A:"<<this->ToString() );
     DEBUG("mibl B:"<<b );
     DEBUG("ans.size() now " <<ans.m_value.size());
-    if (dbg_flag)
-      ans.PrintLimbsInDec();
+    DEBUGEXP(ans.GetInternalRepresentation());	
+
     for(;i<endVal ;++i){
       DEBUG("mullimb i"<<i);
       temp = ((Dlimb_t)m_value[i]*(Dlimb_t)b) + ofl;
@@ -1300,8 +1295,8 @@ return result;
       ans.m_value.push_back((limb_t)temp);
       ofl = temp>>m_limbBitLength;
       DEBUG("ans.size() now " <<ans.m_value.size());
-      if (dbg_flag)
-        ans.PrintLimbsInDec();
+      DEBUGEXP(ans.GetInternalRepresentation());
+    
     }
     //check if there is any final overflow
     if(ofl){
@@ -1313,12 +1308,11 @@ return result;
     ans.m_state = INITIALIZED;
     ans.SetMSB();
     DEBUG("ans.size() final " <<ans.m_value.size());
-    if (dbg_flag)
-      ans.PrintLimbsInDec();
+    DEBUGEXP(ans.GetInternalRepresentation());	
     DEBUG("mibl ans "<<ans.ToString());
 
     return ans;
-  }
+    }
 
   /* q[0], r[0], u[0], and v[0] contain the LEAST significant words.
      (The sequence is in little-endian order).
@@ -1915,7 +1909,7 @@ return result;
     ubint ans(0);
     if (dbg_flag){
       DEBUG("modulus ");
-      modulus.PrintLimbsInDec();
+      DEBUGEXP(modulus.GetInternalRepresentation());	
     }
 
     int f;
@@ -1930,10 +1924,7 @@ return result;
     ans.NormalizeLimbs();
     ans.SetMSB();
     ans.m_state = INITIALIZED;
-    if (dbg_flag){
-      DEBUG("ans");
-      ans.PrintLimbsInDec();
-    }
+    DEBUGEXP(ans.GetInternalRepresentation());	
     return(ans);
 
 #else //radically slow for 64 bit version.
@@ -1973,7 +1964,7 @@ return result;
 	DEBUG("j = "<<j);
       }
     }
-    PrintLimbsInHex();
+    DEBUGEXP(std::hex<<this->GetInternalRepresentation()<<std::dec);	
     result.NormalizeLimbs();
     result.SetMSB();
     return result;
@@ -2202,8 +2193,7 @@ return result;
       DEBUG("mibl A:"<<a.ToString() );
       // DEBUG("mibl B:"<<limbb );
       DEBUG("ans.size() now " <<ans.m_value.size());
-      if (dbg_flag)
-	ans.PrintLimbsInDec();
+      DEBUGEXP(ans.GetInternalRepresentation());	
 
       usint ix= 0;
       while (ix<i){
@@ -2219,8 +2209,8 @@ return result;
 	tmpans.m_value.push_back((limb_t)temp);
 	ofl = temp>>a.m_limbBitLength;
 	DEBUG("ans.size() now " <<ans.m_value.size());
-	if (dbg_flag)
-	  tmpans.PrintLimbsInDec();
+	DEBUGEXP(tmpans.GetInternalRepresentation());	
+	
       }
       //check if there is any final overflow
       if(ofl){
@@ -2232,8 +2222,8 @@ return result;
       tmpans.m_state = INITIALIZED;
       tmpans.SetMSB();
       DEBUG("ans.size() final " <<ans.m_value.size());
-      if (dbg_flag)
-	tmpans.PrintLimbsInDec();
+      DEBUGEXP(tmpans.GetInternalRepresentation());
+	
       DEBUG("mibl ans "<<ans.ToString());
 
       //      ans += (tmpans<<=(i)*a.m_limbitLength);
@@ -2480,13 +2470,11 @@ return result;
       throw std::logic_error("ERROR Compare() against uninitialized bint\n");
 
     DEBUG("comparing this "<< this->ToString());
-    if (dbg_flag)
-      this->PrintLimbsInHex();
-
+    DEBUGEXP(std::hex<<this->GetInternalRepresentation()<<std::dec);	
+    
     DEBUG("a "<<a.ToString());
-    if (dbg_flag)
-      a.PrintLimbsInHex();
-
+    DEBUGEXP(std::hex<<a.GetInternalRepresentation()<<std::dec);
+    
     //check MSBs to get quick answer
     if(this->m_MSB<a.m_MSB)
       return -1;
@@ -2939,10 +2927,11 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
     //dbc commented out  unsupported on some machines
     std::cout << "sizeof uint128_t "<< sizeof (uint128_t) << std::endl;
 #endif
-
-
+ 
   }
 
   template class ubint<expdtype>;
+
+  template std::ostream& operator << <expdtype>(std::ostream& os, const std::vector<expdtype>& v);
 
 } // namespace exp_int ends

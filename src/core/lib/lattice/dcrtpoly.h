@@ -613,11 +613,6 @@ public:
 	void SetValuesToZero();
 
 	/**
-	* @brief Prints values of each tower
-	*/
-	void PrintValues() const;
-
-	/**
 	* @brief Adds "1" to every entry in every tower.
 	*/
 	void AddILElementOne();
@@ -827,7 +822,6 @@ private:
 	// Either Format::EVALUATION (0) or Format::COEFFICIENT (1)
 	Format m_format;
 };
-
 } // namespace lbcrypto ends
 
 namespace lbcrypto

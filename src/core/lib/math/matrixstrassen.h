@@ -449,12 +449,7 @@ namespace lbcrypto {
 				//return *this;
 			}
 
-            /**
-             * Print values of the matrix to the cout stream
-			 *
-             */ 
-            void PrintValues() const; 
-
+	    
             /**
              * Call switch format for each (ring) element
 			 *
@@ -606,11 +601,30 @@ namespace lbcrypto {
 	* @param &os stream
 	* @param &m matrix to be outputted
 	* @return the chained stream
-    */ 
+    */
+    
     template<class Element>
-    inline std::ostream& operator<<(std::ostream& os, const MatrixStrassen<Element>& m);
+       std::ostream& operator<<(std::ostream& os, const MatrixStrassen<Element>& m) {
+      size_t nrows = m.GetRows();
+      size_t ncols = m.GetCols();
 
-	/**
+      os << "[";
+      for (size_t i = 0; i < nrows; ++i) {
+	os << "[";
+	for (size_t j = 0; j < ncols; ++j) {
+	  os << m(i,j);
+	  if (j == (ncols-1)) {
+	    os << "]" << std::endl;
+	  } else {
+	    os << " ";
+	  }
+	}
+      }
+      os << "] " << std::endl;
+      return os;
+    }
+    
+    /**
     * Gives the Choleshky decomposition of the input matrix. 
 	* The assumption is that covariance matrix does not have large coefficients because it is formed by
     * discrete gaussians e and s; this implies int32_t can be used

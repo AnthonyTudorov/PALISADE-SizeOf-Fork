@@ -62,11 +62,10 @@ endif
 #CPPFLAGS += -Wall -O3 -w -fopenmp -m64 -DNDEBUG  ##undefine for parallel best performance operation with no debug
 
 #THE OPTIONS BELOW SHOULD BE USED WITH CARE AS THEY USE A LOT OF AGGRESSIVE OPTIMIZATION OPTIONS
-#CPPFLAGS += -Wall -w  -DNDEBUG -m64 -Ofast -flto -march=native -funroll-loops ##undefine for single thread best performance operation
-#CPPFLAGS += -Wall -w  -DNDEBUG -m64 -Ofast -flto -march=native -funroll-loops -fopenmp ##undefine for multithread really best performance operation
-#CPPFLAGS += -Wall -w  -m64 -Ofast -flto -march=native -funroll-loops -fopenmp -DNDEBUG ##undefine for multithread really best performance operation
-#CPPFLAGS += -Wall -w  -m64 -Ofast -flto -march=native -funroll-loops -fopenmp ##undefine for multithread really best performance operation
-
+#CPPFLAGS += -Wall  Werror -DNDEBUG -m64 -Ofast -flto -march=native -funroll-loops ##undefine for single thread best performance operation
+#CPPFLAGS += -Wall -Werror -DNDEBUG -m64 -Ofast -flto -march=native -funroll-loops -fopenmp ##undefine for multithread really best performance operation
+#CPPFLAGS += -Wall -Werror -m64 -Ofast -flto -march=native -funroll-loops -fopenmp -DNDEBUG ##undefine for multithread really best performance operation
+#CPPFLAGS += -Wall -Werror -m64 -Ofast -flto -march=native -funroll-loops -fopenmp ##undefine for multithread really best performance operation
 
 
 

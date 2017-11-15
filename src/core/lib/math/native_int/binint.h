@@ -264,7 +264,7 @@ public:
 		m_value >>= shift;
 		return *this;
 	}
-
+#if 0
     /**
     * Prints the value of the internal limb storage
     * in hexadecimal format. Used primarily for debugging
@@ -280,6 +280,11 @@ public:
 	 */
 	void PrintValueInDec() const {
 		std::cout << std::dec << m_value << std::endl;
+	}
+#endif
+
+	NativeInteger GetInternalRepresentation() {
+	  return m_value;
 	}
 
 	/**
@@ -1047,8 +1052,6 @@ public:
 		os << ptr_obj.m_value;
 		return os;
 	}
-
-	void PrintValues() const { std::cout << this->m_value; }
 
 	/**
 	 * Gets the bit at the specified index.

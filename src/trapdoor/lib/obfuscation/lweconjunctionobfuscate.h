@@ -229,7 +229,7 @@ namespace lbcrypto {
 			 * @return the S_l matrix.
 			 */
 			shared_ptr<Matrix<Element>>  GetSl() const {
-				//this->m_Sl->PrintValues();
+				//std::cout<< *(this->m_Sl) << std::endl;
 				return this->m_Sl;
 			}
 

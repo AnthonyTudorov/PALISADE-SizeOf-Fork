@@ -303,19 +303,21 @@ namespace cpu_int{
     BigInteger&  operator>>=(usshort shift);
 
 //Auxillary Functions
-
+    
     /**
-    * Prints the value of the internal limb storage
-    * in decimal format. Used primarily for debugging
+    * Delivers value of the internal limb storage
+    * Used primarily for debugging
+    * @return STL vector of uint_type    
     */
-    void PrintLimbsInDec() const;
-
-    /**
-    * Prints the value of the internal limb storage
-    * in hexadecimal format. Used primarily for debugging
-    */
-    void PrintLimbsInHex() const;
-
+    vector<uint_type> GetInternalRepresentation(void) const {
+      vector<uint_type> ret;
+      size_t ceilInt = ceilIntByUInt(this->m_MSB); //max limb used
+      for(size_t i=m_nSize-1;i>=(size_t)(m_nSize-ceilInt);i--){
+	ret.push_back(m_value[i]);
+      }
+      return ret;
+    }
+ 
     /**
     * Basic set method for setting the value of a big binary integer
     *
@@ -757,8 +759,6 @@ namespace cpu_int{
     template<typename uint_type_c,usint BITLENGTH_c>
 	friend std::ostream& operator<<(std::ostream& os, const BigInteger<uint_type_c,BITLENGTH_c> &ptr_obj);
     
-    void PrintValues() const { std::cout << *this; }
-
 	/**
     * Gets the bit at the specified index.
     *
@@ -940,6 +940,18 @@ namespace cpu_int{
 		static void add_bitVal(uschar* a,uschar b);
 	};
 
+#if 1
+ // stream helper function for vector of objects
+  template <typename T>
+    inline std::ostream& operator << (std::ostream& os, const std::vector<T>& v) {
+    os << "[";
+    for (const auto& itr : v){
+      os << " " << itr;
+    }
+    os << " ]";
+    return os;
+  };
+#endif
 }//namespace ends
 
 #endif
