@@ -132,12 +132,12 @@ namespace NTL {
     void clear(myVecP& x); //why isn't this inhereted?
 
     note we need to define lvalve at() for all three below
-    // Note, SetValAtIndex should be deprecated by .at() and []
-    void SetValAtIndex(size_t index, const myT&value);
-    void SetValAtIndex(size_t index, const std::string& str);
+						 
+    void SetValAtIndextochange(size_t index, const myT&value);
+    void SetValAtIndextochange(size_t index, const std::string& str);
 
     //the following may be OBE, resolves to same as SVAI
-    void SetValAtIndexWithoutMod(size_t index, const myT&value);
+    void SetValAtIndexWithoutModtochange(size_t index, const myT&value);
 
     const myZZ at(size_t index) const;
 

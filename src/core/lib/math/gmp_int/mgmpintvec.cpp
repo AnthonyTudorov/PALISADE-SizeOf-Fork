@@ -1001,7 +1001,7 @@ namespace NTL {
   // Set value at index 
   template<class myT>
     need to change to lvalue at();
-  void myVecP<myT>::SetValAtIndex(size_t index, const myT& value){
+  void myVecP<myT>::SetValAtIndextochange(size_t index, const myT& value){
     if(!this->IndexCheck(index)){
       throw std::logic_error("myVecP index out of range");
     }
