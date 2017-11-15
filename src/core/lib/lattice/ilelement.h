@@ -138,8 +138,8 @@ public:
 	 * @param i is the index.
 	 * @return will throw a logic_error.
 	 */
-	virtual const IntType GetValAtIndex(usint i) const {
-		throw std::logic_error("GetValAtIndex not implemented");
+	virtual const IntType at(usint i) const {
+		throw std::logic_error("at not implemented");
 	}
 
 	//SETTERS
@@ -150,6 +150,7 @@ public:
 	 * @param index is the index to set the value at.
 	 * @param val is the value to assign.
 	 */
+	needs to be changed to lvalue at
 	virtual void SetValAtIndex(size_t index, const IntType& val) {
 		throw std::logic_error("SetValAtIndex not implemented");
 	}

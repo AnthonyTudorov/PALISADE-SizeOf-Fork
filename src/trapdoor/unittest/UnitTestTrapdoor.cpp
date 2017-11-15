@@ -499,8 +499,8 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 		pHat->SwitchFormat();
 
 		for (size_t j = 0; j < n; j++) {
-			bbiTrapdoor(j, 0) = (*pHat)(0, 0).GetValues().GetValAtIndex(j);
-			bbiTrapdoor(j+n, 0) = (*pHat)(1, 0).GetValues().GetValAtIndex(j);
+			bbiTrapdoor(j, 0) = (*pHat)(0, 0).GetValues().at(j);
+			bbiTrapdoor(j+n, 0) = (*pHat)(1, 0).GetValues().at(j);
 		}
 
 		pTrapdoor = ConvertToInt32(bbiTrapdoor, modulus);

@@ -200,7 +200,7 @@ namespace exp_int {
     //this->m_data = b.m_data; for some reason this did not work, even though
     //we inheret from ubintvec and it is protected... 
     for(size_t i = 0; i< b.size(); i++){
-      this->m_data[i] = b.GetValAtIndex(i);
+      this->m_data[i] = b.at(i);
     }
 
     m_modulus = ubint_el_t(0);
@@ -217,7 +217,7 @@ namespace exp_int {
     //this->m_data = b.m_data; for some reason this did not work, even though
     //we inheret from ubintvec
     for(size_t i = 0; i< b.size(); i++){
-      this->m_data[i] = b.GetValAtIndex(i);
+      this->m_data[i] = b.at(i);
     }
 
 
@@ -235,7 +235,7 @@ namespace exp_int {
     //this->m_data = b.m_data; for some reason this did not work, even though
     //we inheret from ubintvec
     for(size_t i = 0; i< b.size(); i++){
-      this->m_data[i] = b.GetValAtIndex(i);
+      this->m_data[i] = b.at(i);
 
     }
 
@@ -255,7 +255,7 @@ namespace exp_int {
     //this->m_data = b.m_data; for some reason this did not work, even though
     //we inheret from ubintvec
     for(size_t i = 0; i< b.size(); i++){
-      this->m_data[i] = b.GetValAtIndex(i);
+      this->m_data[i] = b.at(i);
     }
 
     m_modulus = modulus;
@@ -495,18 +495,18 @@ namespace exp_int {
     ubint_el_t oldModulusByTwo(oldModulus>>1);
     ubint_el_t diff ((oldModulus > newModulus) ? (oldModulus-newModulus) : (newModulus - oldModulus));
     for(usint i=0; i< this->GetLength(); i++) {
-      n = this->GetValAtIndex(i);
+      n = this->at(i);
       if(oldModulus < newModulus) {
 	if(n > oldModulusByTwo) {
-	  this->SetValAtIndex(i, n.ModAdd(diff, newModulus));
+	  this->at(i)= n.ModAdd(diff, newModulus);
 	} else {
-	  this->SetValAtIndex(i, n.Mod(newModulus));
+	  this->at(i)= n.Mod(newModulus);
 	}
       } else {
 	if(n > oldModulusByTwo) {
-	  this->SetValAtIndex(i, n.ModSub(diff, newModulus));
+	  this->at(i)= n.ModSub(diff, newModulus);
 	} else {
-	  this->SetValAtIndex(i, n.Mod(newModulus));
+	  this->at(i)= n.Mod(newModulus);
 	}
       }
     }
@@ -538,9 +538,9 @@ namespace exp_int {
 		ubint_el_t halfQ(this->GetModulus() >> 1);
 		for (usint i = 0; i<this->m_data.size(); i++) {
 			ans.m_data[i] = ans.m_data[i].Mod(modulus);
-			if (this->GetValAtIndex(i)>halfQ) {
+			if (this->at(i)>halfQ) {
 				ans.m_data[i] = ans.m_data[i].ModSub(this->GetModulus(), modulus);
-				//ans.SetValAtIndex(i, this->GetValAtIndex(i).ModSub(this->GetModulus(), modulus));
+				//ans.at(i)= this->at(i).ModSub(this->GetModulus(), modulus));
 			}
 			else {
 				ans.m_data[i] = ans.m_data[i].Mod(modulus);
@@ -571,17 +571,17 @@ namespace exp_int {
     mubintvec ans(this->GetLength(),this->GetModulus());
     ubint_el_t halfQ(this->GetModulus() >> 1);
     for (usint i = 0; i<ans.GetLength(); i++) {
-      if (this->GetValAtIndex(i)>halfQ) {
-	if (this->GetValAtIndex(i).Mod(2) == 1)
-	  ans.SetValAtIndex(i, ubint_el_t(0));
+      if (this->at(i)>halfQ) {
+	if (this->at(i).Mod(2) == 1)
+	  ans.at(i)= ubint_el_t(0);
 	else
-	  ans.SetValAtIndex(i, ubint_el_t(1));
+	  ans.at(i)= ubint_el_t(1);
       }
       else {
-	if (this->GetValAtIndex(i).Mod(2) == 1)
-	  ans.SetValAtIndex(i, ubint_el_t(1));
+	if (this->at(i).Mod(2) == 1)
+	  ans.at(i)= ubint_el_t(1);
 	else
-	  ans.SetValAtIndex(i, ubint_el_t(0));
+	  ans.at(i)= ubint_el_t(0);
       }
       
     }
@@ -1043,7 +1043,7 @@ template<class ubint_el_t>
     const char *vp = vIt->value.GetString();
     while( *vp != '\0' ) {
       vp = vectorElem.Deserialize(vp);
-      //this->SetValAtIndex(ePos++, vectorElem);
+      //this->at(ePos++)= vectorElem;
       this->m_data.push_back(vectorElem);
       if( *vp == '|' )
 	vp++;

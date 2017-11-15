@@ -397,13 +397,13 @@ evaladder(shared_ptr<CryptoContext<Poly>> ctx, string cmd, int argc, char *argv[
 	}
 
 	cout << "EvalAdd-ing:" << endl;
-	for( size_t i=0; i<IntVectorLen; i++ ) cout << c1->GetElement().GetValAtIndex(i) << " ";
+	for( size_t i=0; i<IntVectorLen; i++ ) cout << c1->GetElement().at(i) << " ";
 	cout << endl;
-	for( size_t i=0; i<IntVectorLen; i++ ) cout << c2->GetElement().GetValAtIndex(i) << " ";
+	for( size_t i=0; i<IntVectorLen; i++ ) cout << c2->GetElement().at(i) << " ";
 	cout << endl;
 	shared_ptr<Ciphertext<Poly>> cdsum = ctx->EvalAdd(c1, c2);
 	cout << "Result:" << endl;
-	for( size_t i=0; i<IntVectorLen; i++ ) cout << cdsum->GetElement().GetValAtIndex(i) << " ";
+	for( size_t i=0; i<IntVectorLen; i++ ) cout << cdsum->GetElement().at(i) << " ";
 	cout << endl;
 
 	Serialized cSer;
@@ -465,13 +465,13 @@ evalmulter(shared_ptr<CryptoContext<Poly>> ctx, string cmd, int argc, char *argv
 	}
 
 	cout << "EvalMult-ing:" << endl;
-	for( size_t i=0; i<IntVectorLen; i++ ) cout << c1->GetElement().GetValAtIndex(i) << " ";
+	for( size_t i=0; i<IntVectorLen; i++ ) cout << c1->GetElement().at(i) << " ";
 	cout << endl;
-	for( size_t i=0; i<IntVectorLen; i++ ) cout << c2->GetElement().GetValAtIndex(i) << " ";
+	for( size_t i=0; i<IntVectorLen; i++ ) cout << c2->GetElement().at(i) << " ";
 	cout << endl;
 	shared_ptr<Ciphertext<Poly>> cdsum = ctx->EvalMult(c1, c2);
 	cout << "Result:" << endl;
-	for( size_t i=0; i<IntVectorLen; i++ ) cout << cdsum->GetElement().GetValAtIndex(i) << " ";
+	for( size_t i=0; i<IntVectorLen; i++ ) cout << cdsum->GetElement().at(i) << " ";
 	cout << endl;
 
 	Serialized cSer;

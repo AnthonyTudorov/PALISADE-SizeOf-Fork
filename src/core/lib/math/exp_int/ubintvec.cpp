@@ -185,6 +185,7 @@ namespace exp_int {
 
   // Set value at index from ubint
   template<class ubint_el_t>
+needs to be replaced with lvalue at
   void ubintvec<ubint_el_t>::SetValAtIndex(usint index, const ubint_el_t& value){
 
     if(!this->IndexCheck(index)){
@@ -197,6 +198,7 @@ namespace exp_int {
 
   // set value at index from string
   template<class ubint_el_t>
+needs to be replaced with lvalue at
   void ubintvec<ubint_el_t>::SetValAtIndex(usint index, const std::string& str){
     if(!this->IndexCheck(index)){
       throw std::logic_error("ubintvec index out of range");
@@ -207,7 +209,7 @@ namespace exp_int {
   }
 
   template<class ubint_el_t>
-  const ubint_el_t& ubintvec<ubint_el_t>::GetValAtIndex(size_t index) const{
+  const ubint_el_t& ubintvec<ubint_el_t>::at(size_t index) const{
     if(!this->IndexCheck(index)){
       throw std::logic_error("ubintvec index out of range");
     }
@@ -514,10 +516,10 @@ template<class ubint_el_t>
 
     size_t pkVectorLength = GetLength();
     if( pkVectorLength > 0 ) {
-      std::string pkBufferString = GetValAtIndex(0).Serialize();
+      std::string pkBufferString = at(0).Serialize();
       for (size_t i = 1; i < pkVectorLength; i++) {
 	pkBufferString += "|";
-	pkBufferString += GetValAtIndex(i).Serialize();
+	pkBufferString += at(i).Serialize();
       }
       bbvMap.AddMember("VectorValues", pkBufferString, serObj->GetAllocator());
     }
@@ -553,7 +555,7 @@ template<class ubint_el_t>
     const char *vp = vIt->value.GetString();
     while( *vp != '\0' ) {
       vp = vectorElem.Deserialize(vp);
-      //this->SetValAtIndex(ePos++, vectorElem);
+      //this->at(ePos++)= vectorElem;
       this->m_data.push_back(vectorElem);
       if( *vp == '|' )
 	vp++;

@@ -437,23 +437,23 @@ namespace NTL {
 
     DEBUG("Switch modulus diff :"<<diff);
     for(size_t i=0; i< this->size(); i++) {
-      n = this->GetValAtIndex(i);
+      n = this->at(i);
       DEBUG("i,n "<<i<<" "<< n);
       if(oldModulus < newModulus) {
 	if(n > oldModulusByTwo) {
-	  DEBUG("s1 "<<n.ModAdd(diff, newModulus));
-	  this->SetValAtIndexWithoutMod(i, n.ModAdd(diff, newModulus));
+	  DEBUG("s1 "<<n.ModAdd(diff, newModulus);
+	  this->atWithoutMod(i)= n.ModAdd(diff, newModulus));
 	} else {
 	  DEBUG("s2 "<<n.Mod(newModulus));
-	  this->SetValAtIndexWithoutMod(i, n.Mod(newModulus));
+	  this->atWithoutMod(i)= n.Mod(newModulus);
 	}
       } else {
 	if(n > oldModulusByTwo) {
 	  DEBUG("s3 "<<n.ModSub(diff, newModulus));				
-	  this->SetValAtIndexWithoutMod(i, n.ModSub(diff, newModulus));
+	  this->atWithoutMod(i)= n.ModSub(diff, newModulus);
 	} else {
 	  DEBUG("s4 "<<n.Mod(newModulus));
-	  this->SetValAtIndexWithoutMod(i, n.Mod(newModulus));
+	  this->atWithoutMod(i, n.Mod(newModulus);
 	}
       }
     }
@@ -536,17 +536,17 @@ namespace NTL {
     myVecP ans(this->size(),this->GetModulus());
     myZZ halfQ(this->GetModulus() >> 1);
     for (size_t i = 0; i<ans.size(); i++) {
-      if (this->GetValAtIndex(i)>halfQ) {
-	if (this->GetValAtIndex(i).Mod(myZZ::TWO) == myZZ::ONE)
-	  ans.SetValAtIndex(i, myZZ::ZERO);
+      if (this->at(i)>halfQ) {
+	if (this->at(i).Mod(myZZ::TWO) == myZZ::ONE)
+	  ans.at(i)= myZZ::ZERO;
 	else
-	  ans.SetValAtIndex(i, myZZ::ONE);
+	  ans.at(i)= myZZ::ONE;
       }
       else {
-	if (this->GetValAtIndex(i).Mod(myZZ::TWO) == myZZ::ONE)
-	  ans.SetValAtIndex(i, myZZ::ONE);
+	if (this->at(i).Mod(myZZ::TWO) == myZZ::ONE)
+	  ans.at(i)= myZZ::ONE;
 	else
-	  ans.SetValAtIndex(i, myZZ::ZERO);
+	  ans.at(i)= myZZ::ZERO;
       }
       
     }
@@ -819,8 +819,8 @@ namespace NTL {
     if( pkVectorLength > 0 ) {
       std::string pkBufferString = "";
       for (size_t i = 0; i < pkVectorLength; i++) {
-	DEBUG("element "<<i<<" "<<GetValAtIndex(i));
-	std::string tmp = GetValAtIndex(i).Serialize(this->GetModulus());
+	DEBUG("element "<<i<<" "<<at(i));
+	std::string tmp = at(i).Serialize(this->GetModulus());
 	pkBufferString += tmp;
       }
       DEBUG("add VectorValues");
@@ -1000,6 +1000,7 @@ namespace NTL {
   //////////////////////////////////////////////////
   // Set value at index 
   template<class myT>
+    need to change to lvalue at();
   void myVecP<myT>::SetValAtIndex(size_t index, const myT& value){
     if(!this->IndexCheck(index)){
       throw std::logic_error("myVecP index out of range");
@@ -1017,6 +1018,7 @@ namespace NTL {
 
   // set value at index from string
   template<class myT>
+    need to change to lvalue at();
   void myVecP<myT>::SetValAtIndex(size_t index, const std::string& str){
     if(!this->IndexCheck(index)){
       throw std::logic_error("myVecP index out of range");
@@ -1037,6 +1039,7 @@ namespace NTL {
   // < modulus when in the array becauses of the way NTL requires it for its
   // built in modulo arithmetic. I think this may be eliminated soon 
   template<class myT>
+    need to change to lvalue at();
   void myVecP<myT>::SetValAtIndexWithoutMod(size_t index, const myT& value){
     if(!this->IndexCheck(index)){
       throw std::logic_error("myVecP index out of range");
@@ -1049,12 +1052,12 @@ namespace NTL {
 
   //DBC: could not get returning a & to work!!!
   template<class myT>
-  const myZZ myVecP<myT>::GetValAtIndex(size_t index) const{
+  const myZZ myVecP<myT>::at(size_t index) const{
     bool dbg_flag = false;
     if(!this->IndexCheck(index)){
       throw std::logic_error("myVecP index out of range");
     }
-    DEBUG("in GetValAtIndex("<<index<< ") = "<<(*this)[index]);
+    DEBUG("in at("<<index<< ") = "<<(*this)[index]);
     return this->at(index);
   }
 

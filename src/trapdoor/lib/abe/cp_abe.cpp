@@ -357,14 +357,14 @@ namespace lbcrypto {
 		BigInteger dec, threshold = m_q >> 2, qHalf = m_q >> 1;
 		for (usint i = 0; i < m_N; i++)
 		{
-			dec = dtext->GetValAtIndex(i);
+			dec = dtext->at(i);
 
 			if (dec > qHalf)
 				dec = m_q - dec;
 			if (dec > threshold)
-				dtext->SetValAtIndex(i, 1);
+			  dtext->at(i)= 1;
 			else
-				dtext->SetValAtIndex(i, BigInteger(0));
+			  dtext->at(i)= BigInteger(0);
 		}
 	}
 }

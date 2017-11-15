@@ -789,20 +789,21 @@ namespace lbcrypto {
 
 		usint  divisorPtr;
 		for (usint i = 0; i < runs; i++) {
-			IntType divConst(runningDividend.GetValAtIndex(dividendLength - 1));//get the highest degree coeff
+			IntType divConst(runningDividend.at(dividendLength - 1));//get the highest degree coeff
 			divisorPtr = divisorLength - 1;
 			for (usint j = 0; j < dividendLength - i - 1; j++) {
 				if (divisorPtr > j) {
-					runningDividend.SetValAtIndex(dividendLength - 1 - j, mat(divisor.GetValAtIndex(divisorPtr - 1 - j), divConst, runningDividend.GetValAtIndex(dividendLength - 2 - j), modulus, mu));
+					runningDividend.at(dividendLength - 1 - j)=
+						mat(divisor.at(divisorPtr - 1 - j), divConst, runningDividend.at(dividendLength - 2 - j), modulus, mu);
 				}
 				else
-					runningDividend.SetValAtIndex(dividendLength - 1 - j, runningDividend.GetValAtIndex(dividendLength - 2 - j));
+					runningDividend.at(dividendLength - 1 - j)= runningDividend.at(dividendLength - 2 - j);
 
 			}
 		}
 
 		for (usint i = 0, j = runs; i < divisorLength - 1; i++, j++) {
-			result.SetValAtIndex(i, runningDividend.GetValAtIndex(j));
+			result.at(i)= runningDividend.at(j);
 		}
 
 
@@ -931,9 +932,9 @@ namespace lbcrypto {
 		for (usint i = 0; i < a.GetLength(); i++) {
 
 			for (usint j = 0; j < b.GetLength(); j++) {
-				const auto &valResult = result.GetValAtIndex(i + j);
-				const auto &valMult = a.GetValAtIndex(i)*b.GetValAtIndex(j);
-				result.SetValAtIndex(i + j, (valMult + valResult).Mod(modulus));
+				const auto &valResult = result.at(i + j);
+				const auto &valMult = a.at(i)*b.at(j);
+				result.at(i + j)= (valMult + valResult).Mod(modulus);
 			}
 		}
 
@@ -949,10 +950,10 @@ namespace lbcrypto {
 		for (usint i = 0; i < intCP.size(); i++) {
 			auto val = intCP.at(i);
 			if (intCP.at(i) > -1)
-				result.SetValAtIndex(i, IntType(val));
+				result.at(i)= IntType(val);
 			else {
 				val *= -1;
-				result.SetValAtIndex(i, modulus - IntType(val));
+				result.at(i)= modulus - IntType(val);
 			}
 
 		}
@@ -964,13 +965,13 @@ namespace lbcrypto {
 
 	template<typename IntVector, typename IntType>
 	IntType SyntheticRemainder(const IntVector &dividend, const IntType &a, const IntType &modulus) {
-		auto val = dividend.GetValAtIndex(dividend.GetLength() - 1);
+		auto val = dividend.at(dividend.GetLength() - 1);
 
 		//Precompute the Barrett mu parameter
 		IntType mu = ComputeMu<IntType>(modulus);
 
 		for (int i = dividend.GetLength() - 2; i > -1; i--) {
-			val = dividend.GetValAtIndex(i) + a*val;
+			val = dividend.at(i) + a*val;
 			val = val.ModBarrett(modulus, mu);
 		}
 
@@ -981,7 +982,7 @@ namespace lbcrypto {
 	IntVector SyntheticPolyRemainder(const IntVector &dividend, const IntVector &aList, const IntType &modulus) {
 		IntVector result(aList.GetLength(), modulus);
 		for (usint i = 0; i < aList.GetLength(); i++) {
-			result.SetValAtIndex(i, SyntheticRemainder(dividend, aList.GetValAtIndex(i), modulus));
+			result.at(i) = SyntheticRemainder(dividend, aList.at(i), modulus);
 		}
 
 		return result;
@@ -991,9 +992,9 @@ namespace lbcrypto {
 	IntVector PolynomialPower(const IntVector &input, usint power) {
 		usint finalDegree = (input.GetLength() - 1)*power;
 		IntVector finalPoly(finalDegree + 1, input.GetModulus());
-		finalPoly.SetValAtIndex(0, input.GetValAtIndex(0));
+		finalPoly.at(0)= input.at(0);
 		for (usint i = 1; i < input.GetLength(); i++) {
-			finalPoly.SetValAtIndex(i*power, input.GetValAtIndex(i));
+			finalPoly.at(i*power)= input.at(i);
 		}
 		return finalPoly;
 	}
@@ -1006,12 +1007,12 @@ namespace lbcrypto {
 		//Precompute the Barrett mu parameter
 		IntType mu = ComputeMu<IntType>(modulus);
 
-		result.SetValAtIndex(n - 1, dividend.GetValAtIndex(n));
-		auto val(dividend.GetValAtIndex(n));
+		result.at(n - 1)= dividend.at(n);
+		auto val(dividend.at(n));
 		for (int i = n - 1; i > 0; i--) {
-			val = val*a + dividend.GetValAtIndex(i);
+			val = val*a + dividend.at(i);
 			val = val.ModBarrett(modulus, mu);
-			result.SetValAtIndex(i - 1, val);
+			result.at(i - 1)= val;
 		}
 
 		return result;

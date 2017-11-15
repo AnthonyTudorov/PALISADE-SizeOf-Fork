@@ -780,10 +780,10 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 			int	ringdim = c1.GetRingDimension();
 			for (int c1e = 0; c1e<ringdim; c1e++) {
 				typename Element::PolyType::Integer answer, c1val, c2val, prod;
-				c1val = c1.GetValAtIndex(c1e);
+				c1val = c1.at(c1e);
 				if (c1val != 0) {
 					for (int c2e = 0; c2e<ringdim; c2e++) {
-						c2val = c2.GetValAtIndex(c2e);
+						c2val = c2.at(c2e);
 						if (c2val != 0) {
 							prod = c1val * c2val;
 
@@ -791,10 +791,10 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 
 							if (index >= ringdim) {
 								index %= ringdim;
-								cLarger.SetValAtIndex(index, (cLarger.GetValAtIndex(index) + prod) % ptm);
+								cLarger.at(index)= (cLarger.at(index) + prod) % ptm;
 							}
 							else
-								cResult.SetValAtIndex(index, (cResult.GetValAtIndex(index) + prod) % ptm);
+							  cResult.at(index)= (cResult.at(index) + prod) % ptm;
 						}
 					}
 				}
@@ -803,8 +803,8 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 			// fold cLarger back into the answer
 			for (int i = 0; i<ringdim; i++) {
 				typename Element::PolyType::Integer adj;
-				adj = cResult.GetValAtIndex(i) + (ptm - cLarger.GetValAtIndex(i)) % ptm;
-				cResult.SetValAtIndex(i, adj % ptm);
+				adj = cResult.at(i) + (ptm - cLarger.at(i)) % ptm;
+				cResult.at(i)= adj % ptm;
 			}
 
 			return std::move( cResult );

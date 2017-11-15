@@ -57,12 +57,12 @@ namespace lbcrypto {
 			if (entry >= mod)
 				throw std::logic_error("Cannot encode integer at position " + std::to_string(i) + " because it is >= plaintext modulus " + std::to_string(mod));
 			BigInteger Val = BigInteger(entry);
-			temp.SetValAtIndex(i, Val);
+			temp.at(i)= Val;
 		}
 
 		//BigInteger Num = modulus - BigInteger::ONE;
 		for (size_t i = 0; i<padlen; i++) {
-			temp.SetValAtIndex(i + length, BigInteger(0));
+		  temp.at(i + length)= BigInteger(0);
 		}
 
 		ilVector->SetValues(temp, Format::EVALUATION); //output was in coefficient format
@@ -76,7 +76,7 @@ namespace lbcrypto {
 		this->Unpack(ilVector, modulus); //Format is in COEFFICIENT
 
 		for (usint i = 0; i<ilVector->GetValues().GetLength(); i++) {
-			this->push_back(ilVector->GetValues().GetValAtIndex(i).ConvertToInt());
+			this->push_back(ilVector->GetValues().at(i).ConvertToInt());
 		}
 
 	}
@@ -254,7 +254,7 @@ namespace lbcrypto {
 		//copy values from ring to the vector
 		native_int::BigVector slotValues(phim, modulusNI);
 		for (usint i = 0; i < phim; i++) {
-			slotValues.SetValAtIndex(i, ring->GetValAtIndex(i).ConvertToInt());
+		  slotValues.at(i)= ring->at(i).ConvertToInt());
 		}
 
 		// Transform Eval to Coeff
@@ -266,7 +266,7 @@ namespace lbcrypto {
 				native_int::BigVector permutedSlots(phim, modulusNI);
 
 				for (usint i = 0; i < phim; i++) {
-					permutedSlots.SetValAtIndex(i, slotValues.GetValAtIndex(m_toCRTPerm[modulusNI][i]));
+				  permutedSlots.at(i)= slotValues.at(m_toCRTPerm[modulusNI][i]);
 				}
 				ChineseRemainderTransformFTT<native_int::BigInteger, native_int::BigVector>::InverseTransform(permutedSlots, m_initRoot[modulusNI], m, &slotValues);
 			}
@@ -280,7 +280,7 @@ namespace lbcrypto {
 			// Permute to CRT Order
 			native_int::BigVector permutedSlots(phim, modulusNI);
 			for (usint i = 0; i < phim; i++) {
-				permutedSlots.SetValAtIndex(i, slotValues.GetValAtIndex(m_toCRTPerm[modulusNI][i]));
+			  permutedSlots.at(i)= slotValues.at(m_toCRTPerm[modulusNI][i]);
 			}
 
 			slotValues = ChineseRemainderTransformArb<native_int::BigInteger, native_int::BigVector>::
@@ -290,7 +290,7 @@ namespace lbcrypto {
 		//copy values into the slotValuesRing
 		BigVector slotValuesRing(phim, ring->GetModulus());
 		for (usint i = 0; i < phim; i++) {
-			slotValuesRing.SetValAtIndex(i, BigInteger(slotValues.GetValAtIndex(i).ConvertToInt()));
+		  slotValuesRing.at(i)= BigInteger(slotValues.at(i.ConvertToInt()));
 		}
 
 		ring->SetValues(slotValuesRing, Format::COEFFICIENT);
@@ -311,7 +311,7 @@ namespace lbcrypto {
 		//copy aggregate plaintext values
 		native_int::BigVector packedVector(phim, modulusNI);
 		for (usint i = 0; i < phim; i++) {
-			packedVector.SetValAtIndex(i, native_int::BigInteger(ring->GetValAtIndex(i).ConvertToInt()));
+		  packedVector.at(i)= native_int::BigInteger(ring->at(i.ConvertToInt()));
 		}
 
 		// Transform Coeff to Eval
@@ -326,7 +326,7 @@ namespace lbcrypto {
 		if (m_fromCRTPerm[modulusNI].size() > 0) {
 			// Permute to automorphism Order
 			for (usint i = 0; i < phim; i++) {
-				packedVector.SetValAtIndex(i, permutedSlots.GetValAtIndex(m_fromCRTPerm[modulusNI][i]));
+			  packedVector.at(i) = permutedSlots.at(m_fromCRTPerm[modulusNI][i]);
 			}
 		}
 		else
@@ -335,7 +335,7 @@ namespace lbcrypto {
 		//copy values into the slotValuesRing
 		BigVector packedVectorRing(phim, ring->GetModulus());
 		for (usint i = 0; i < phim; i++) {
-			packedVectorRing.SetValAtIndex(i, BigInteger(packedVector.GetValAtIndex(i).ConvertToInt()));
+		  packedVectorRing.at(i)= BigInteger(packedVector.at(i.ConvertToInt()));
 		}
 
 		ring->SetValues(packedVectorRing, Format::COEFFICIENT);

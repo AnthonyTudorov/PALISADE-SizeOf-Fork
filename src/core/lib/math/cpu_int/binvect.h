@@ -59,7 +59,7 @@ public:
 
     static inline BigVectorImpl Single(const IntegerType& val, const IntegerType& modulus) {
         BigVectorImpl vec(1, modulus);
-        vec.SetValAtIndex(0, val);
+        vec.at(0)= val;
         return vec;
     }
 
@@ -159,7 +159,7 @@ public:
         if (this->GetModulus() != b.GetModulus())
         	return false;
         for (size_t i = 0; i < this->GetLength(); ++i) {
-            if (this->GetValAtIndex(i) != b.GetValAtIndex(i)) {
+            if (this->at(i) != b.at(i)) {
                 return false;
             }
         }
@@ -215,6 +215,7 @@ public:
 	 * @param index is the index to set a value at.
 	 * @param value is the int value to set at the index.
 	 */
+	needs to be replaced by lvalue at()
 	void SetValAtIndex(usint index, const IntegerType& value) {
 		if(!this->IndexCheck(index)) {
 			throw std::logic_error("Invalid index input to SetValAtIndex for index "
@@ -232,7 +233,7 @@ public:
 	 * @param value is the int value to set at the index sans intrinsic modulus.
 	 */
 	//TODO: change SetValAtIndex() to always take mod.
-
+	needs to be changed with lvaue atwithout mod
 	void SetValAtIndexWithoutMod(usint index, const IntegerType& value) {
 		if(!this->IndexCheck(index)) {
 			throw std::logic_error("Invalid index input to SetValAtIndex for index "
@@ -248,6 +249,7 @@ public:
 	 * @param index is the index to set a value at.
 	 * @param str is the string representation of the value to set at the index.
 	 */
+	needs to be changedt to lvalue at()
 	void SetValAtIndex(usint index, const std::string& str){
 		if(!this->IndexCheck(index)){
 			throw std::logic_error("Invalid index input to SetValAtIndex for index "
@@ -263,9 +265,9 @@ public:
 	 * @param index is the index from the vector entries.
 	 * @return value at the index.
 	 */
-	const IntegerType& GetValAtIndex(usint index) const {
+	const IntegerType& at(usint index) const {
 		if(!this->IndexCheck(index)){
-			throw std::logic_error("Invalid index input to GetValAtIndex for index "
+			throw std::logic_error("Invalid index input to at for index "
 					+ std::to_string(index) + " for vector of length " + std::to_string(m_length));
 		}
 		return this->m_data[index];

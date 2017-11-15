@@ -43,7 +43,7 @@ VecType BinaryUniformGeneratorImpl<IntType,VecType>::GenerateVector (const usint
 	v.SetModulus(modulus);
 
 	for (usint i = 0; i < size; i++) {
-		v.SetValAtIndex(i, GenerateInteger());
+	  v.at(i)= GenerateInteger();
 	}
 	return v;
 }

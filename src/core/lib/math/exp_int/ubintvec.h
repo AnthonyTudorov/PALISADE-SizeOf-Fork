@@ -154,7 +154,7 @@ namespace exp_int {
           return false;
         }//todo replace with vector equality check.
         for (size_t i = 0; i < this->GetLength(); ++i) {
-          if (this->GetValAtIndex(i) != b.GetValAtIndex(i)) {
+          if (this->at(i) != b.at(i)) {
             return false;
           }
         }
@@ -234,6 +234,7 @@ namespace exp_int {
        * @param index is the index to set a value at.
        * @param value is the value to set at the index.
        */
+      need lvalue at
       void SetValAtIndex(usint index, const ubint_el_t& value);
 
       /**
@@ -242,6 +243,7 @@ namespace exp_int {
        * @param index is the index to set a value at.
        * @param str is the string representation of the value to set at the index.
        */
+      need lvalueat
       void SetValAtIndex(usint index, const std::string& str);
 
       /**
@@ -250,7 +252,7 @@ namespace exp_int {
        * @param index is the index to get a value at.
        * @return is the value at the index. return NULL if invalid index.
        */
-      const ubint_el_t& GetValAtIndex(size_t index) const;
+      const ubint_el_t& at(size_t index) const;
 
 
       /**

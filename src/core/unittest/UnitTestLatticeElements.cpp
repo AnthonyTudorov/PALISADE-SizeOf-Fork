@@ -92,7 +92,7 @@ static void operators_tests(shared_ptr<ParmType> ilparams) {
 				<< "Faiure: Operator!= switchmodulus comparison";
 
 			Element ilv2 = ilvector2n1;
-			ilv2.SetValAtIndex(2, 2);
+			ilv2.at(2)= 2;
 			EXPECT_NE(ilvector2n1, ilv2)
 				<< "Faiure: Operator!= value comparison";
 		} catch (std::exception& e) {
@@ -101,12 +101,12 @@ static void operators_tests(shared_ptr<ParmType> ilparams) {
 	}
 
 #ifdef OUT
-	NOTE GetValAtIndex not supported for dcrtpoly; needs a fix
+	NOTE at not supported for dcrtpoly; needs a fix
 	{//test operator-=
 		Element ilv1 = ilvector2n1;
 		ilv1 -= ilvector2n1;
 		for (usint i = 0; i < m/2; ++i) {
-			EXPECT_EQ(IntType::ZERO, ilv1.GetValAtIndex(i))
+			EXPECT_EQ(IntType::ZERO, ilv1.at(i))
 				<< "Faiure: Operator-= @ index "<<i;
 		}
 	}
@@ -116,8 +116,8 @@ static void operators_tests(shared_ptr<ParmType> ilparams) {
 		ilv1 += ilvector2n1;
 		for (usint i = 0; i < m/2; ++i)
 			{//we expect a+a == 2*a
-			EXPECT_EQ(IntType::TWO * ilvector2n1.GetValAtIndex(i),
-				  ilv1.GetValAtIndex(i))
+			EXPECT_EQ(IntType::TWO * ilvector2n1.at(i),
+				  ilv1.at(i))
 				<< "Faiure: Operator+= @ index "<<i;
 		}
 	}
@@ -143,9 +143,9 @@ static void operators_tests(shared_ptr<ParmType> ilparams) {
 			<< "Failure: GetLength()";
 
 		 for (usint i = 0; i < m/2; ++i) {
-		 	EXPECT_EQ(bbv.GetValAtIndex(i), 
-		 		  ilvector2n.GetValAtIndex(i)) 
-		 		<< " Failure: GetValAtIndex("<<i<< ")";
+		 	EXPECT_EQ(bbv.at(i), 
+		 		  ilvector2n.at(i)) 
+		 		<< " Failure: at("<<i<< ")";
 		 }
 	}
 #endif
@@ -629,10 +629,10 @@ void other_methods() {
 
 		EXPECT_EQ(2U, ilv.GetLength())<<"Failure: Decompose() length";
 
-		EXPECT_EQ(ilv.GetValAtIndex(0), 2)
+		EXPECT_EQ(ilv.at(0), 2)
 			<< "Failure: Decompose(): mismatch between original and decomposed elements at index 0.";
 		
-		EXPECT_EQ(ilv.GetValAtIndex(1), 3) 					<< "Failure: Decompose(): mismatch between original and decomposed elements at index 1.";
+		EXPECT_EQ(ilv.at(1), 3) 					<< "Failure: Decompose(): mismatch between original and decomposed elements at index 1.";
 	}
 
 	DEBUG("5");
@@ -760,10 +760,10 @@ void other_methods() {
 
 		//	   Element ilv(ilparams);
 		//	   VecType bbv(m/2, primeModulus);
-		//    bbv.SetValAtIndex(0, "2");
-		//    bbv.SetValAtIndex(1, "4");
-		//    bbv.SetValAtIndex(2, "3");
-		//    bbv.SetValAtIndex(3, "2");
+		//    bbv.at(0)= "2";
+		//    bbv.at(1)= "4";
+		//    bbv.at(2)= "3";
+		//    bbv.at(3)= "2";
 		//    ilv.SetValues(bbv, Format::COEFFICIENT);
 		//
 		//    Element ilvInverse = ilv.MultiplicativeInverse();
@@ -771,7 +771,7 @@ void other_methods() {
 		//
 		//    for (usint i = 0; i < m/2; ++i)
 		//    {
-		//      EXPECT_EQ(IntType::ONE, ilvProduct.GetValAtIndex(i));
+		//      EXPECT_EQ(IntType::ONE, ilvProduct.at(i));
 		//    }
 
 		Element ilv1(ilparams);
@@ -784,7 +784,7 @@ void other_methods() {
 
 		for (usint i = 0; i < m/2; ++i)
 		{
-			EXPECT_EQ(ilvProduct1.GetValAtIndex(i), 1)
+			EXPECT_EQ(ilvProduct1.at(i), 1)
 				<<"Failure: ilvProduct1.MultiplicativeInverse() @ index "<<i;
 		}
 	}
@@ -1372,9 +1372,9 @@ TEST(UTILDCRT2n, arithmetic_ops_element_2) {
 		{
 			native_int::Poly ilv = ilvaCopy.GetElementAtIndex(i);
 
-			EXPECT_EQ(native_int::BigInteger(0), ilv.GetValAtIndex(1))
+			EXPECT_EQ(native_int::BigInteger(0), ilv.at(1))
 				<<"Failure MakeSparse() index 1";
-			EXPECT_EQ(native_int::BigInteger(0), ilv.GetValAtIndex(3))
+			EXPECT_EQ(native_int::BigInteger(0), ilv.at(3))
 				<<"Failure MakeSparse() index 3";
 		}
 	}
@@ -1415,24 +1415,24 @@ TEST(UTILDCRT2n, arithmetic_ops_element_2) {
 		native_int::Poly ilvectS1 = ilvaS.GetElementAtIndex(1);
 		native_int::Poly ilvectS2 = ilvaS.GetElementAtIndex(2);
 
-		EXPECT_EQ(native_int::BigInteger("80"), ilvectS0.GetValAtIndex(0));
-		EXPECT_EQ(native_int::BigInteger("62"), ilvectS0.GetValAtIndex(1));
-		EXPECT_EQ(native_int::BigInteger("85"), ilvectS0.GetValAtIndex(2));
-		EXPECT_EQ(native_int::BigInteger("79"), ilvectS0.GetValAtIndex(3));
+		EXPECT_EQ(native_int::BigInteger("80"), ilvectS0.at(0));
+		EXPECT_EQ(native_int::BigInteger("62"), ilvectS0.at(1));
+		EXPECT_EQ(native_int::BigInteger("85"), ilvectS0.at(2));
+		EXPECT_EQ(native_int::BigInteger("79"), ilvectS0.at(3));
 		EXPECT_EQ(native_int::BigInteger("113"), ilvectS0.GetModulus());
 		EXPECT_EQ(rootOfUnity2.ConvertToInt(), ilvectS0.GetRootOfUnity().ConvertToInt());
 
-		EXPECT_EQ(native_int::BigInteger("66"), ilvectS1.GetValAtIndex(0));
-		EXPECT_EQ(native_int::BigInteger("16"), ilvectS1.GetValAtIndex(1));
-		EXPECT_EQ(native_int::BigInteger("64"), ilvectS1.GetValAtIndex(2));
-		EXPECT_EQ(native_int::BigInteger("79"), ilvectS1.GetValAtIndex(3));
+		EXPECT_EQ(native_int::BigInteger("66"), ilvectS1.at(0));
+		EXPECT_EQ(native_int::BigInteger("16"), ilvectS1.at(1));
+		EXPECT_EQ(native_int::BigInteger("64"), ilvectS1.at(2));
+		EXPECT_EQ(native_int::BigInteger("79"), ilvectS1.at(3));
 		EXPECT_EQ(native_int::BigInteger("113"), ilvectS1.GetModulus());
 		EXPECT_EQ(rootOfUnity2.ConvertToInt(), ilvectS1.GetRootOfUnity().ConvertToInt());
 
-		EXPECT_EQ(native_int::BigInteger(4), ilvectS2.GetValAtIndex(0));
-		EXPECT_EQ(native_int::BigInteger("44"), ilvectS2.GetValAtIndex(1));
-		EXPECT_EQ(native_int::BigInteger("84"), ilvectS2.GetValAtIndex(2));
-		EXPECT_EQ(native_int::BigInteger("79"), ilvectS2.GetValAtIndex(3));
+		EXPECT_EQ(native_int::BigInteger(4), ilvectS2.at(0));
+		EXPECT_EQ(native_int::BigInteger("44"), ilvectS2.at(1));
+		EXPECT_EQ(native_int::BigInteger("84"), ilvectS2.at(2));
+		EXPECT_EQ(native_int::BigInteger("79"), ilvectS2.at(3));
 		EXPECT_EQ(native_int::BigInteger("113"), ilvectS2.GetModulus());
 		EXPECT_EQ(rootOfUnity2.ConvertToInt(), ilvectS2.GetRootOfUnity().ConvertToInt());
 	}
@@ -1488,7 +1488,7 @@ TEST(UTILDCRT2n, decompose_test) {
 		EXPECT_EQ(ilTowerDecomposed.GetLength(), ilTowerOriginal.GetLength()/2)  << "Failure: DCRTPoly.Decompose(): ilVector2n element "<<i<<" in DCRTPoly is not half the length";
 
 		for(usint j=0; j<ilTowerDecomposed.GetLength(); j++) {
-			EXPECT_EQ(ilTowerDecomposed.GetValAtIndex(j), ilTowerOriginal.GetValAtIndex(2*j)) << "Failure: DCRTPoly.Decompose(): Value mismatch";
+			EXPECT_EQ(ilTowerDecomposed.at(j), ilTowerOriginal.at(2*j)) << "Failure: DCRTPoly.Decompose(): Value mismatch";
 		}
 	}
 
@@ -1519,7 +1519,7 @@ void ensures_mod_operation_during_ops_on_two_Polys() {
 		VecType bbvResult(ilvResult.GetValues());
 
 		for (usint i=0; i<order/2; i++) {
-			EXPECT_EQ(bbvResult.GetValAtIndex(i), (bbv1.GetValAtIndex(i) + bbv2.GetValAtIndex(i)).Mod(primeModulus)) << "Poly + operation returns incorrect results.";
+			EXPECT_EQ(bbvResult.at(i), (bbv1.at(i) + bbv2.at(i)).Mod(primeModulus)) << "Poly + operation returns incorrect results.";
 		}
 	}
 
@@ -1528,7 +1528,7 @@ void ensures_mod_operation_during_ops_on_two_Polys() {
 		VecType bbvResult(ilvResult.GetValues());
 
 		for (usint i=0; i<order/2; i++) {
-			EXPECT_EQ(bbvResult.GetValAtIndex(i), (bbv1.GetValAtIndex(i) * bbv2.GetValAtIndex(i)).Mod(primeModulus)) << "Poly * operation returns incorrect results.";
+			EXPECT_EQ(bbvResult.at(i), (bbv1.at(i) * bbv2.at(i)).Mod(primeModulus)) << "Poly * operation returns incorrect results.";
 		}
 	}
 
@@ -1561,8 +1561,8 @@ TEST(UTILDCRT2n, ensures_mod_operation_during_ops_on_two_DCRTPolys){
 
 		for(usint i=0; i<towersize; i++) {
 			for(usint j=0; j<ildcrtparams->GetRingDimension(); j++) {
-				native_int::BigInteger actualResult(sum.GetElementAtIndex(i).GetValAtIndex(j));
-				native_int::BigInteger expectedResult((op1.GetElementAtIndex(i).GetValAtIndex(j) + op2.GetElementAtIndex(i).GetValAtIndex(j)).Mod(ildcrtparams->GetParams()[i]->GetModulus()));
+				native_int::BigInteger actualResult(sum.GetElementAtIndex(i).at(j));
+				native_int::BigInteger expectedResult((op1.GetElementAtIndex(i).at(j) + op2.GetElementAtIndex(i).at(j)).Mod(ildcrtparams->GetParams()[i]->GetModulus()));
 				EXPECT_EQ(actualResult, expectedResult) << "Failure: DCRTPoly + operation tower "<<i<<" index "<<j;
 			}
 		}
@@ -1573,8 +1573,8 @@ TEST(UTILDCRT2n, ensures_mod_operation_during_ops_on_two_DCRTPolys){
 
 		for(usint i=0; i<towersize; i++) {
 			for(usint j=0; j<ildcrtparams->GetRingDimension(); j++) {
-				native_int::BigInteger actualResult(prod.GetElementAtIndex(i).GetValAtIndex(j));
-				native_int::BigInteger expectedResult((op1.GetElementAtIndex(i).GetValAtIndex(j) * op2.GetElementAtIndex(i).GetValAtIndex(j)).Mod(ildcrtparams->GetParams()[i]->GetModulus()));
+				native_int::BigInteger actualResult(prod.GetElementAtIndex(i).at(j));
+				native_int::BigInteger expectedResult((op1.GetElementAtIndex(i).at(j) * op2.GetElementAtIndex(i).at(j)).Mod(ildcrtparams->GetParams()[i]->GetModulus()));
 				EXPECT_EQ(actualResult, expectedResult)  << "Failure: DCRTPoly * operation tower "<<i<<" index "<<j;
 			}
 		}

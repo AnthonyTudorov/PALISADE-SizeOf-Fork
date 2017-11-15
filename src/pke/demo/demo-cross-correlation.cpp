@@ -298,8 +298,8 @@ void Encrypt() {
 		BigVector randomVectorX = dug.GenerateVector(batchSize);
 		BigVector randomVectorY = dug.GenerateVector(batchSize);
 		for (size_t j = 0; j < batchSize; j++) {
-			x(i, j) = randomVectorX.GetValAtIndex(j).ConvertToInt();
-			y(i, j) = randomVectorY.GetValAtIndex(j).ConvertToInt();
+			x(i, j) = randomVectorX.at(j).ConvertToInt();
+			y(i, j) = randomVectorY.at(j).ConvertToInt();
 		}
 	}
 

@@ -82,7 +82,7 @@ int main() {
 
 	shared_ptr<Poly> plaintext(new Poly(params, EVALUATION, true));
 	for(usint i=0; i<phim; i++){
-		plaintext->SetValAtIndex(i, BigInteger(vectorOfInts2[i]));
+	  plaintext->at(i)= BigInteger(vectorOfInts2[i]);
 	}
 
 	// std::cout << "Input array 1 \n\t" << intArray1 << std::endl;

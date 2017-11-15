@@ -209,16 +209,16 @@ namespace lbcrypto {
 			if (v < 0) {
 				v *= -1;
 #if MATHBACKEND != 6
-				ans.SetValAtIndex(i, modulus - IntType(v));
+				ans.at(i)= modulus - IntType(v);
 #else
-				ans.SetValAtIndexWithoutMod(i, modulus - IntType(v));
+				ans.atWithoutMod(i)= modulus - IntType(v);
 #endif
 			}
 			else {
 #if MATHBACKEND != 6
-				ans.SetValAtIndex(i, IntType(v));
+			  ans.at(i)= IntType(v);
 #else
-				ans.SetValAtIndexWithoutMod(i, IntType(v));
+			  ans.atWithoutMod(i)= IntType(v);
 #endif
 			}
 		}

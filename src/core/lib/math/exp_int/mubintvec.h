@@ -242,7 +242,7 @@ public:
     if (this->m_modulus != b.m_modulus)
       return false;
     for (size_t i = 0; i < this->GetLength(); ++i) {
-      if (this->GetValAtIndex(i) != b.GetValAtIndex(i)) {
+      if (this->at(i) != b.at(i)) {
         return false;
       }
     }
@@ -276,7 +276,7 @@ public:
       return false;
     }      //todo replace with vector equality check.
     for (size_t i = 0; i < this->GetLength(); ++i) {
-      if (this->GetValAtIndex(i) != b.GetValAtIndex(i)) {
+      if (this->at(i) != b.at(i)) {
         return false;
       }
     }

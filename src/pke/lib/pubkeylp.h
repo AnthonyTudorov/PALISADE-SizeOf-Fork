@@ -1341,7 +1341,7 @@ namespace lbcrypto {
 
 			for (usint i = 0; i < n - 1; i++)
 			{
-				randomIntVector[i + 1] = randomVector.GetValAtIndex(i).ConvertToInt();
+				randomIntVector[i + 1] = randomVector.at(i).ConvertToInt();
 			}
 
 			PackedIntPlaintextEncoding plaintext(randomIntVector);

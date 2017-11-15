@@ -86,7 +86,7 @@ doEncode(const BytePlaintextEncoding& item, const BigInteger &modulus, ElementTy
 		size_t exp = mod, Rem = 0;
 		for (size_t j = 0; j<p; j++) {
 			Rem = Num%exp;
-			temp.SetValAtIndex(actualPosP + j, IntType((Rem / (exp / mod))));
+			temp.at(actualPosP + j)= IntType((Rem / (exp / mod)));
 			Num -= Rem;
 			exp *= mod;
 		}
@@ -98,7 +98,7 @@ doEncode(const BytePlaintextEncoding& item, const BigInteger &modulus, ElementTy
 		size_t exp = mod, Rem = 0;
 		for (usint j = 0; j<p; j++) {
 			Rem = Num%exp;
-			temp.SetValAtIndex(actualPos + j, IntType((Rem / (exp / mod))));
+			temp.at(actualPos + j)= IntType((Rem / (exp / mod)));
 			Num -= Rem;
 			exp *= mod;
 		}
@@ -120,7 +120,7 @@ doDecode(BytePlaintextEncoding& item, const IntType &modulus, ElementType *ilVec
 	  usint exp = 1;
 		resultant_char = 0;
 		for (usint j = 0; j<p; j++) {
-			resultant_char += ilVector->GetValues().GetValAtIndex(i + j).ConvertToInt()*exp;
+			resultant_char += ilVector->GetValues().at(i + j).ConvertToInt()*exp;
 			exp *= mod;
 		}
 		item.push_back(resultant_char);

@@ -1017,7 +1017,7 @@ public:
 				if( (*ciphertext)(row,col).GetIntegerFlag() == true ) {
 					decryptedDenominator = decryptedNumerator.CloneParametersOnly();
 					decryptedDenominator.SetValuesToZero();
-					decryptedDenominator.SetValAtIndex(0,1);
+					decryptedDenominator.at(0)=1;
 				}
 				else {
 

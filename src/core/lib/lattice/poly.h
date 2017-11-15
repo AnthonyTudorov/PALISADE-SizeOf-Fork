@@ -359,7 +359,7 @@ public:
 	 *
 	 * @return value at index i.
 	 */
-	const IntType GetValAtIndex(usint i) const;
+	const IntType at(usint i) const;
 
 	//SETTERS
 	/**
@@ -368,8 +368,9 @@ public:
 	 * @param index is the index at which the value is to be set.
 	 * @param val is the value to be set.
 	 */
+	neest to be changed to lvalue at
 	inline void SetValAtIndex(size_t index, std::string val) {
-		m_values->SetValAtIndex(index, IntType(val));
+	  m_values->at(index) = IntType(val);
 	}
 
 	/**
@@ -378,8 +379,9 @@ public:
 	 * @param index is the index at which the value is to be set.
 	 * @param val is the value to be set.
 	 */
+	needs to be changed to lvalue at
 	inline void SetValAtIndex(size_t index, const IntType& val) {
-		m_values->SetValAtIndex(index, val);
+	  m_values->at(index)= val;
 	}
 
 	/**
@@ -387,11 +389,12 @@ public:
 	 * @param index the index to put data at.
 	 * @param val the value to assign.
 	 */
+	needs to be changed to lvalue atwithout mod 
 	inline void SetValAtIndexWithoutMod(size_t index, const IntType& val) {
 #if 1 //MATHBACKEND !=6
-		m_values->SetValAtIndex(index, val);
+	  m_values->at(index)= val;
 #else
-		m_values->SetValAtIndexWithoutMod(index, val);
+	  m_values->atWithoutMod(index)= val;
 #endif
 
 	}

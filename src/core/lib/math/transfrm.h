@@ -80,7 +80,7 @@ namespace lbcrypto {
 		//reverse coefficients (bit reversal)
 		usint msb = GetMSB64(n - 1);
 		for (size_t i = 0; i < n; i++)
-			result->SetValAtIndex(i, element.GetValAtIndex(ReverseBits(i, msb)));
+		  result->at(i)= element.at(ReverseBits(i, msb));
 
 		IntType omegaFactor;
 		IntType product;
@@ -110,13 +110,13 @@ namespace lbcrypto {
 			{
 				for (usint i = 0; i < (usint)(1 << (logm-1)); i++)
 				{
-					const IntType& omega = rootOfUnityTable.GetValAtIndex(indexes[i]);
+					const IntType& omega = rootOfUnityTable.at(indexes[i]);
 
 					usint indexEven = j + i;
 					usint indexOdd = indexEven + (1 << (logm-1));
-					auto oddVal = result->GetValAtIndex(indexOdd);
+					auto oddVal = result->at(indexOdd);
 					auto oddMSB = oddVal.GetMSB();
-					auto evenVal = result->GetValAtIndex(indexEven);
+					auto evenVal = result->at(indexEven);
 
 					if (oddMSB > 0)
 					{
@@ -144,8 +144,8 @@ namespace lbcrypto {
 							butterflyMinus += modulus;
 						butterflyMinus -= omegaFactor;
 
-						result->SetValAtIndex(indexEven, butterflyPlus);
-						result->SetValAtIndex(indexOdd, butterflyMinus);
+						result->at(indexEven)= butterflyPlus;
+						result->at(indexOdd)= butterflyMinus;
 #else
 						(*result)[indexOdd] = (*result)[indexEven].ModSubFast(omegaFactor,modulus);
 						(*result)[indexEven] = (*result)[indexEven].ModAddFast(omegaFactor,modulus);
