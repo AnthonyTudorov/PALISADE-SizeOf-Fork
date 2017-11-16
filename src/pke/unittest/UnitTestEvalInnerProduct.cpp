@@ -57,22 +57,19 @@ usint ArbFVInnerProductPackedArray(std::vector<usint> &input1, std::vector<usint
 
 TEST_F(UTEvalIP, Test_LTV_EvalInnerProduct) {
 
-//	usint size = 10;
-//	std::vector<usint> input1(size, 0);
-//	std::vector<usint> input2(size, 0);
-//	usint limit = 15;
+	usint size = 10;
+	std::vector<usint> input1(size, 0);
+	std::vector<usint> input2(size, 0);
+	usint limit = 15;
 	usint plainttextMod = 89;
 
-//	random_device rnd_device;
-//	mt19937 mersenne_engine(rnd_device());
-//	uniform_int_distribution<usint> dist(0, limit);
-//
-//	auto gen = std::bind(dist, mersenne_engine);
-//	generate(input1.begin(), input1.end() - 2, gen);
-//	generate(input2.begin(), input2.end() - 2, gen);
+	random_device rnd_device;
+	mt19937 mersenne_engine(rnd_device());
+	uniform_int_distribution<usint> dist(0, limit);
 
-	std::vector<usint> input1({1,2,3,4,5,6,7,8,0,0});
-	std::vector<usint> input2({1,2,3,4,5,6,7,8,0,0});
+	auto gen = std::bind(dist, mersenne_engine);
+	generate(input1.begin(), input1.end() - 2, gen);
+	generate(input2.begin(), input2.end() - 2, gen);
 
 	usint expectedResult = std::inner_product(input1.begin(), input1.end(), input2.begin(), 0);
 	expectedResult %= plainttextMod;

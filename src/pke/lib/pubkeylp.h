@@ -1511,6 +1511,9 @@ namespace lbcrypto {
 					g = (g * g) % m;
 				}
 			}
+			std::cout << m << (!(m&(m-1)) ? " 2n " : " arb ") << (publicKey? "pub" : "priv") << " INDEXES :";
+			for( auto &x:indices ) std::cout << x << " ";
+			std::cout << std::endl;
 
 			if (publicKey)
 				// NTRU-based scheme
@@ -1548,7 +1551,9 @@ namespace lbcrypto {
 				usint g = encodingParams->GetPlaintextGenerator();
 				for (int i = 0; i < floor(log2(batchSize)); i++)
 				{
-					newCiphertext = EvalAdd(newCiphertext, EvalAutomorphism(newCiphertext, g, evalKeys));
+					std::cout << "EvalSum arb cyc i=" << i << " g = " << g << std::endl;
+					auto ea = EvalAutomorphism(newCiphertext, g, evalKeys);
+					newCiphertext = EvalAdd(newCiphertext, ea);
 					g = (g * g) % m;
 				}
 			}

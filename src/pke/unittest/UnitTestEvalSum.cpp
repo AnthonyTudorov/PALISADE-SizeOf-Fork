@@ -52,30 +52,32 @@ public:
 };
 
 
-usint ArbLTVEvalSumPackedArray(std::vector<usint> &clearVector);
-usint ArbBVEvalSumPackedArray(std::vector<usint> &clearVector);
-usint ArbBVEvalSumPackedArrayPrime(std::vector<usint> &clearVector);
-usint ArbFVEvalSumPackedArray(std::vector<usint> &clearVector);
+usint ArbLTVEvalSumPackedArray(std::vector<usint> &clearVector, usint p);
+usint ArbBVEvalSumPackedArray(std::vector<usint> &clearVector, usint p);
+usint ArbBVEvalSumPackedArrayPrime(std::vector<usint> &clearVector, usint p);
+usint ArbFVEvalSumPackedArray(std::vector<usint> &clearVector, usint p);
 
 void
-EvalSumSetup(std::vector<usint>& input, usint& expectedSum) {
+EvalSumSetup(std::vector<usint>& input, usint& expectedSum, usint plaintextMod) {
 
-	usint limit = 15;
+//	usint limit = 15;
 	usint plainttextMod = 89;
 
-	random_device rnd_device;
-	mt19937 mersenne_engine(rnd_device());
-	uniform_int_distribution<usint> dist(0, limit);
+//	random_device rnd_device;
+//	mt19937 mersenne_engine(rnd_device());
+//	uniform_int_distribution<usint> dist(0, limit);
 
-	auto gen = std::bind(dist, mersenne_engine);
-	generate(input.begin(), input.end()-2, gen);
+//	auto gen = std::bind(dist, mersenne_engine);
+//	generate(input.begin(), input.end()-2, gen);
+
+	input = {1,2,3,4,5,6,7,8,0,0};
 
 	expectedSum = std::accumulate(input.begin(), input.end(), 0);
 
-	cout << "SETUP" << endl;
-	for( auto v : input )
-		cout << v << " ";
-	cout << endl << expectedSum;
+//	cout << "SETUP" << endl;
+//	for( auto v : input )
+//		cout << v << " ";
+//	cout << endl << expectedSum;
 
 	expectedSum %= plainttextMod;
 	cout << " modded " << expectedSum << endl;
@@ -88,9 +90,9 @@ TEST_F(UTEvalSum, Test_LTV_EvalSum) {
 	std::vector<usint> input(size,0);
 	usint expectedSum;
 	
-	EvalSumSetup(input,expectedSum);
+	EvalSumSetup(input,expectedSum, 89);
 
-	usint result = ArbLTVEvalSumPackedArray(input);
+	usint result = ArbLTVEvalSumPackedArray(input, 89);
 
 	EXPECT_EQ(result, expectedSum);
 }
@@ -101,9 +103,9 @@ TEST_F(UTEvalSum, Test_BV_EvalSum) {
 	std::vector<usint> input(size,0);
 	usint expectedSum;
 
-	EvalSumSetup(input,expectedSum);
+	EvalSumSetup(input,expectedSum, 89);
 
-	usint result = ArbBVEvalSumPackedArray(input);
+	usint result = ArbBVEvalSumPackedArray(input, 89);
 
 	EXPECT_EQ(result, expectedSum);
 }
@@ -114,9 +116,9 @@ TEST_F(UTEvalSum, Test_BV_EvalSum_Prime_Cyclotomics) {
 	std::vector<usint> input(size,0);
 	usint expectedSum;
 
-	EvalSumSetup(input,expectedSum);
+	EvalSumSetup(input,expectedSum, 23);
 
-	usint result = ArbBVEvalSumPackedArrayPrime(input);
+	usint result = ArbBVEvalSumPackedArrayPrime(input, 23);
 
 	EXPECT_EQ(result, expectedSum);
 }
@@ -127,18 +129,17 @@ TEST_F(UTEvalSum, Test_FV_EvalSum) {
 	std::vector<usint> input(size,0);
 	usint expectedSum;
 
-	EvalSumSetup(input,expectedSum);
+	EvalSumSetup(input,expectedSum, 89);
 
-	usint result = ArbFVEvalSumPackedArray(input);
+	usint result = ArbFVEvalSumPackedArray(input, 89);
 
 	EXPECT_EQ(result, expectedSum);
 
 }
 
-usint ArbLTVEvalSumPackedArray(std::vector<usint> &clearVector) {
+usint ArbLTVEvalSumPackedArray(std::vector<usint> &clearVector, usint p) {
 
 	usint m = 22;
-	usint p = 89;
 	BigInteger modulusP(p);
 
 	BigInteger modulusQ("1152921504606847009");
@@ -188,10 +189,9 @@ usint ArbLTVEvalSumPackedArray(std::vector<usint> &clearVector) {
 }
 
 
-usint ArbBVEvalSumPackedArray(std::vector<usint> &clearVector) {
+usint ArbBVEvalSumPackedArray(std::vector<usint> &clearVector, usint p) {
 
 	usint m = 22;
-	usint p = 89;
 	BigInteger modulusP(p);
 	
 	BigInteger modulusQ("955263939794561");
@@ -238,10 +238,9 @@ usint ArbBVEvalSumPackedArray(std::vector<usint> &clearVector) {
 	return intArrayNew->GetPackedValue()[0];
 }
 
-usint ArbBVEvalSumPackedArrayPrime(std::vector<usint> &clearVector) {
+usint ArbBVEvalSumPackedArrayPrime(std::vector<usint> &clearVector, usint p) {
 
 	usint m = 11;
-	usint p = 23;
 	BigInteger modulusP(p);
 
 	BigInteger modulusQ("1125899906842679");
@@ -285,15 +284,18 @@ usint ArbBVEvalSumPackedArrayPrime(std::vector<usint> &clearVector) {
 
 	cc->Decrypt(kp.secretKey, ciphertextSum, &intArrayNew);
 
+	for(auto& x: intArrayNew->GetPackedValue())
+		cout << x << " ";
+	cout << endl;
+
 	return intArrayNew->GetPackedValue()[0];
 }
 
 
 
-usint ArbFVEvalSumPackedArray(std::vector<usint> &clearVector) {
+usint ArbFVEvalSumPackedArray(std::vector<usint> &clearVector, usint p) {
 
 	usint m = 22;
-	usint p = 89;
 	BigInteger modulusP(p);
 
 	BigInteger modulusQ("955263939794561");
