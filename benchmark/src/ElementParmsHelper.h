@@ -43,7 +43,34 @@ parm_16384,
 parm_32768,
 };
 
+shared_ptr<native_int::ILParams> nparm_16 = ElemParamFactory::GenElemParams<native_int::ILParams,native_int::NativeInteger>(M16);
+shared_ptr<native_int::ILParams> nparm_1024 = ElemParamFactory::GenElemParams<native_int::ILParams,native_int::NativeInteger>(M1024);
+shared_ptr<native_int::ILParams> nparm_2048 = ElemParamFactory::GenElemParams<native_int::ILParams,native_int::NativeInteger>(M2048);
+shared_ptr<native_int::ILParams> nparm_4096 = ElemParamFactory::GenElemParams<native_int::ILParams,native_int::NativeInteger>(M4096);
+shared_ptr<native_int::ILParams> nparm_8192 = ElemParamFactory::GenElemParams<native_int::ILParams,native_int::NativeInteger>(M8192);
+shared_ptr<native_int::ILParams> nparm_16384 = ElemParamFactory::GenElemParams<native_int::ILParams,native_int::NativeInteger>(M16384);
+shared_ptr<native_int::ILParams> nparm_32768 = ElemParamFactory::GenElemParams<native_int::ILParams,native_int::NativeInteger>(M32768);
+
+shared_ptr<native_int::ILParams> nparmArray[] = {
+nparm_16,
+nparm_1024,
+nparm_2048,
+nparm_4096,
+nparm_8192,
+nparm_16384,
+nparm_32768,
+};
+
 #define DO_PARM_BENCHMARK(X) \
+BENCHMARK(X)->Unit(benchmark::kMicrosecond)->ArgName("nparm_16")->Arg(0); \
+BENCHMARK(X)->Unit(benchmark::kMicrosecond)->ArgName("nparm_1024")->Arg(1); \
+BENCHMARK(X)->Unit(benchmark::kMicrosecond)->ArgName("nparm_2048")->Arg(2); \
+BENCHMARK(X)->Unit(benchmark::kMicrosecond)->ArgName("nparm_4096")->Arg(3); \
+BENCHMARK(X)->Unit(benchmark::kMicrosecond)->ArgName("nparm_8192")->Arg(4); \
+BENCHMARK(X)->Unit(benchmark::kMicrosecond)->ArgName("nparm_16384")->Arg(5); \
+BENCHMARK(X)->Unit(benchmark::kMicrosecond)->ArgName("nparm_32768")->Arg(6);
+
+#define DO_NATIVEPARM_BENCHMARK(X) \
 BENCHMARK(X)->Unit(benchmark::kMicrosecond)->ArgName("parm_16")->Arg(0); \
 BENCHMARK(X)->Unit(benchmark::kMicrosecond)->ArgName("parm_1024")->Arg(1); \
 BENCHMARK(X)->Unit(benchmark::kMicrosecond)->ArgName("parm_2048")->Arg(2); \

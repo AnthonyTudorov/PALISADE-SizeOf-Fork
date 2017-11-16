@@ -235,14 +235,12 @@ void BM_rekeygen(benchmark::State& state) { // benchmark
 		ChineseRemainderTransformFTT<BigInteger,BigVector>::PreCompute(cc->GetRootOfUnity(),
 				cc->GetCyclotomicOrder(),
 				cc->GetModulus());
-		} catch( std::exception& e ) {
-			state.SkipWithError( e.what() );
+		} catch( ... ) {
 		}
 
 		try {
 			typename Poly::DggType dgg = Poly::DggType(4);			// Create the noise generator
-		} catch( std::exception& e ) {
-			state.SkipWithError( e.what() );
+		} catch( ... ) {
 		}
 
 		state.ResumeTiming();

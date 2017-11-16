@@ -1,6 +1,5 @@
 smallbmargs="--benchmark_report_aggregates_only=true --benchmark_format=csv"
 largebmargs="--benchmark_repetitions=20 --benchmark_report_aggregates_only=true --benchmark_format=csv"
-largebmargs="--benchmark_report_aggregates_only=true --benchmark_format=csv"
 
 backends="2 4 6 7"
 
@@ -23,7 +22,7 @@ do
 	echo Benchmarking MATHBACKEND $i
 	echo "****************************"
 
-	for bm in BBIMath BBVMath NbTheory Lattice 
+	for bm in BBIMath BBINativeMath BBVMath BBVNativeMath NbTheory Lattice LatticeNative
 	do
 		echo $bm:
 		$BMDIR/${bm}* ${smallbmargs} 
