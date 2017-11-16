@@ -288,11 +288,6 @@ namespace lbcrypto {
 
 		} else { // Arbitrary cyclotomic
 
-            DEBUG("m_toCRTPerm ");
-            for(auto v : m_toCRTPerm[modulusNI])
-                    std::cerr << v << " ";
-            std::cerr << std::endl;
-
 			// Permute to CRT Order
 			native_int::BigVector permutedSlots(phim, modulusNI);
 			for (usint i = 0; i < phim; i++) {
@@ -351,11 +346,6 @@ void PackedIntPlaintextEncoding::Unpack(Poly *ring, const BigInteger &modulus) c
 			permutedSlots = ChineseRemainderTransformArb<native_int::BigInteger, native_int::BigVector>::
 					ForwardTransform(packedVector, m_initRoot[modulusNI], m_bigModulus[modulusNI], m_bigRoot[modulusNI], m);
 		}
-
-        DEBUG("m_fromCRTPerm ");
-        for(auto v : m_fromCRTPerm[modulusNI])
-                std::cerr << v << " ";
-        std::cerr << std::endl;
 
         if (m_fromCRTPerm[modulusNI].size() > 0) {
 			// Permute to automorphism Order

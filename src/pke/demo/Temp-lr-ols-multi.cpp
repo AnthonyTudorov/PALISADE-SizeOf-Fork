@@ -126,7 +126,7 @@ void MatrixInverse(const Matrix<native_int::BigInteger> &in, Matrix<double> &out
 void DecodeData(const Matrix<double> &lr, const Matrix<native_int::BigInteger>& XTX, const Matrix<native_int::BigInteger>& XTY, std::vector<double> &result);
 template<typename T> ostream& operator<<(ostream& output, const vector<T>& vector);
 
-void ConvertMatrixInto2DVector(const Matrix<RationalCiphertext<DCRTPoly>> &matrix, vector<shared_ptr<Ciphertext<DCRTPoly>>> &vec);
+void ConvertMatrixInto2DVector(const Matrix<RationalCiphertext<DCRTPoly>> &matrix, vector<vector<shared_ptr<Ciphertext<DCRTPoly>>>> &vec);
 
 void Convert2DVectorIntoMatrix(const vector<vector<shared_ptr<Ciphertext<DCRTPoly>>>> &vec, Matrix<RationalCiphertext<DCRTPoly>> &matrix);
 
@@ -2012,10 +2012,10 @@ void PartialDecrypt1(const string &paramDir,  const string &contextID, const str
 
 		std::cout << "Partial decryption of X^T X and X^T y...";
 
-		vector<shared_ptr<Ciphertext<DCRTPoly>>> vecXTX;
-		vector<shared_ptr<Ciphertext<DCRTPoly>>> vecXTY;
-		vector<vector<shared_ptr<Ciphertext<DCRTPoly>>>> vecXTXDecrypted;
-		vector<vector<shared_ptr<Ciphertext<DCRTPoly>>>> vecXTYDecrypted;
+		vector<vector<shared_ptr<Ciphertext<DCRTPoly>>>> vecXTX;
+		vector<vector<shared_ptr<Ciphertext<DCRTPoly>>>> vecXTY;
+		vector<shared_ptr<Ciphertext<DCRTPoly>>> vecXTXDecrypted;
+		vector<shared_ptr<Ciphertext<DCRTPoly>>> vecXTYDecrypted;
 
 		ConvertMatrixInto2DVector(*xtx, vecXTX);
 		ConvertMatrixInto2DVector(*xty, vecXTY);
@@ -2940,17 +2940,18 @@ shared_ptr<LPPrivateKey<Element>> AddSecretKeys(shared_ptr<LPPrivateKey<Element>
 
 }
 
-void ConvertMatrixInto2DVector(const Matrix<RationalCiphertext<DCRTPoly>> &matrix, std::vector<shared_ptr<Ciphertext<DCRTPoly>>> &vec)
+void ConvertMatrixInto2DVector(const Matrix<RationalCiphertext<DCRTPoly>> &matrix, vector<vector<shared_ptr<Ciphertext<DCRTPoly>>>> &vec)
 {
 
 	vec.clear();
 
 	for (size_t i = 0; i < matrix.GetRows(); i++) {
-		std::vector<shared_ptr<Ciphertext<DCRTPoly>>> temp;
+		vector<shared_ptr<Ciphertext<DCRTPoly>>> temp;
 		for (size_t j = 0; j < matrix.GetCols(); j++)
 		{
-			vec.push_back(matrix(i, j).GetNumerator());
+			temp.push_back(matrix(i, j).GetNumerator());
 		}
+		vec.push_back(temp);
 	}
 
 }

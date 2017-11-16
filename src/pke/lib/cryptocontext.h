@@ -735,7 +735,6 @@ public:
 		{
 			for (size_t col = 0; col < plaintext.GetCols(); col++)
 			{
-				std::cout << row << "," << col << " encode" << std::endl;
 				if( plaintext(row,col)->Encode() == false )
 					return 0;
 
