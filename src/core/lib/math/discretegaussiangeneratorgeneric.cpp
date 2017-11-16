@@ -184,24 +184,22 @@ void BaseSampler::GenerateDDGTree(const std::vector<uint64_t> & probMatrix) {
 }
 
 int64_t BaseSampler::GenerateIntegerKnuthYaoAlt() {
-	int64_t ans = 0;
+	int64_t ans = -1;
 	bool hit = false;
 
 	while (!hit) {
 		uint32_t nodeIndex = 0;
-		int64_t nodeCount = 1;
+		//int64_t nodeCount = 1;
 		bool error = false;
 		for (int i = 0; i < MAX_TREE_DEPTH && !hit && !error; i++) {
-
-
 			short bit = bg->Generate();
 			nodeIndex *= 2;
-			nodeCount *= 2;
+			//nodeCount *= 2;
 			if (bit) {
 				nodeIndex += 1;
 			}
 			if (firstNonZero <= i) {
-				if (i < endIndex) {
+				if (i <= endIndex) {
 					ans = DDGTree[nodeIndex][i - firstNonZero];
 				} /*else {
 					std::cout<<"Hit active generation"<<std::endl;
