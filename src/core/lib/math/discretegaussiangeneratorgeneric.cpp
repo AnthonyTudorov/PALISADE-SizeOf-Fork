@@ -32,8 +32,6 @@
  * WHEN CHOOSING A STANDARD DEVIATION SIGMA_B FOR BASE SAMPLER, MAKE SURE THAT SIGMA_B>+=4*SQRT(2)*N WHERE N IS THE SMOOTHING PARAMETER
  * */
 #include "discretegaussiangeneratorgeneric.h"
-#include "nbtheory.h"
-#include "backend.h"
 
 namespace lbcrypto {
 
@@ -198,8 +196,8 @@ int64_t BaseSampler::GenerateIntegerKnuthYaoAlt() {
 			if (bit) {
 				nodeIndex += 1;
 			}
-			if (firstNonZero <= i) {
-				if (i <= endIndex) {
+			if (firstNonZero <= i){
+				if(i <= endIndex){
 					ans = DDGTree[nodeIndex][i - firstNonZero];
 				} /*else {
 					std::cout<<"Hit active generation"<<std::endl;
@@ -218,15 +216,12 @@ int64_t BaseSampler::GenerateIntegerKnuthYaoAlt() {
 					}
 					ans = DDGColumn[nodeIndex];
 				}*/
-				if (ans >= 0) {
+				if(ans >= 0){
 					if(ans!=b_matrixSize-1)
 						hit = true;
-					else{
+					else
 						error= true;
-						std::cout<<"HIT ERROR ROW"<<std::endl;
-					}
-
-				} else {
+				}else{
 					if (ans == -2) {
 						error = true;
 					}

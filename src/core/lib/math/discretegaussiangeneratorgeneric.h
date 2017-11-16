@@ -59,6 +59,7 @@
 #include <memory>
 
 #include "backend.h"
+#include "nbtheory.h"
 #include "distributiongenerator.h"
 
 namespace lbcrypto {
@@ -86,7 +87,7 @@ public:
 			sequence = sequence << 1;
 			counter = 0;
 		}
-		short bit = (sequence >> (32 - counter)) & 1;
+		short bit = (sequence >> (31 - counter)) & 1;
 		counter++;
 		return bit;
 	}
