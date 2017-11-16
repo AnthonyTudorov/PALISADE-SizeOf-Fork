@@ -331,7 +331,7 @@ namespace lbcrypto {
 	template<typename IntType>
 	IntType RootOfUnity(usint m, const IntType& modulo)
 	{
-		bool dbg_flag = true;
+		bool dbg_flag = false;
 		DEBUG("in Root of unity m :" << m << " modulo " << modulo.ToString());
 		IntType M(m);
 		if ((modulo - 1).Mod(M) != 0) {

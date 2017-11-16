@@ -70,12 +70,9 @@ namespace lbcrypto {
 	}
 
 	bool PackedIntPlaintextEncoding::Decode() {
-		bool dbg_flag = true;
-		DEBUG("Poly before unpack " << this->GetElement<Poly>());
-		this->Unpack(&this->GetElement<Poly>(), this->encodingParams->GetPlaintextModulus());
-		DEBUG("Poly after  unpack " << this->GetElement<Poly>());
 
-		DEBUG(this->encodedVector.GetLength());
+		this->Unpack(&this->GetElement<Poly>(), this->encodingParams->GetPlaintextModulus());
+
 		this->value.clear();
 		for (usint i = 0; i<this->encodedVector.GetLength(); i++) {
 			this->value.push_back(this->encodedVector.GetValAtIndex(i).ConvertToInt());
@@ -179,7 +176,6 @@ namespace lbcrypto {
 
 	void PackedIntPlaintextEncoding::SetParams(const BigInteger &modulus, usint m)
 	{
-		bool dbg_flag = true;
 		native_int::BigInteger modulusNI(modulus.ConvertToInt()); //native int modulus
 
 		std::string exception_message;
@@ -193,8 +189,6 @@ namespace lbcrypto {
 			}
 			else {
 				native_int::BigInteger initRoot = RootOfUnity<native_int::BigInteger>(2 * m, modulusNI);
-
-				DEBUG("modulus " << modulus << " m " << m << " initRoot " << initRoot);
 
 				// Arbitrary: Bluestein based CRT Arb. So we need the 2mth root of unity
 
@@ -251,15 +245,10 @@ namespace lbcrypto {
 
 	void PackedIntPlaintextEncoding::Pack(Poly *ring, const BigInteger &modulus) const {
 
-		bool dbg_flag = true;
+		bool dbg_flag = false;
 
 		usint m = ring->GetCyclotomicOrder();//cyclotomic order
 		native_int::BigInteger modulusNI(modulus.ConvertToInt());//native int modulus
-
-//		std::cout << "Looking to pack using modulus " << modulusNI << std::endl;
-//		for( auto it : this->m_initRoot ) {
-//			std::cout << it.first << " ::: " << it.second << " ... " << this->m_initRoot[modulusNI].GetMSB() << std::endl;
-//		}
 
 		//Do the precomputation if not initialized
 		if (this->m_initRoot[modulusNI].GetMSB() == 0) {
@@ -332,7 +321,7 @@ namespace lbcrypto {
 
 void PackedIntPlaintextEncoding::Unpack(Poly *ring, const BigInteger &modulus) const {
 
-	bool dbg_flag = true;
+	bool dbg_flag = false;
 
 		usint m = ring->GetCyclotomicOrder(); // cyclotomic order
 		native_int::BigInteger modulusNI(modulus.ConvertToInt()); //native int modulus
