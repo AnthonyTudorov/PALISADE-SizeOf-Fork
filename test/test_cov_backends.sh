@@ -23,10 +23,12 @@ do
 		export PATH=$lib:$PATH
 		$ex -t
 
-		gcov -a -f -m -r `find bin/backend-${i}-cov -name '*.gcda'`
-		rm -fr bin/backend-${i}-cov/gcov
-		mkdir bin/backend-${i}-cov/gcov
-		mv *.gcov bin/backend-${i}-cov/gcov
+		##gcov -m -r `find bin/backend-${i}-cov -name '*.gcda'`
+		##rm -fr bin/backend-${i}-cov/gcov
+		##mkdir bin/backend-${i}-cov/gcov
+		##mv *.gcov bin/backend-${i}-cov/gcov
+		lcov --capture --directory bin/backend-${i}-cov -o bin/backend-${i}-cov/coverage.out
+		genhtml -q -o bin/backend-${i}-cov/html bin/backend-${i}-cov/coverage
 		)
 		echo "****************************"
 		echo COVERAGE TEST DONE
