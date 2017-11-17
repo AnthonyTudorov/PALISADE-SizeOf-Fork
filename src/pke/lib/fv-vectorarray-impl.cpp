@@ -480,7 +480,10 @@ DecryptResult LPAlgorithmFV<DCRTPoly>::Decrypt(const shared_ptr<LPPrivateKey<DCR
 	const std::vector<double> &lyamTable = cryptoParams->GetDCRTPolyDecryptionTable();
 	const std::vector<native_int::BigInteger> &invTable = cryptoParams->GetDCRTPolyDecryptionIntTable();
 
-	*plaintext = b.ScaleAndRound(p,lyamTable,invTable);
+	// this is the resulting vector of coefficients;
+	// currently it is required to be a Poly of BigIntegers to be compatible with other API calls in the ryptocontext framework
+
+	*plaintext = Poly(b.ScaleAndRound(p,invTable,lyamTable));
 
 	return DecryptResult(plaintext->GetLength());
 

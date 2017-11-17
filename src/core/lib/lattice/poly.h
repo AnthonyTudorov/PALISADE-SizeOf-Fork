@@ -65,6 +65,7 @@ public:
 	typedef DiscreteUniformGeneratorImpl<IntType,VecType> DugType;
 	typedef TernaryUniformGeneratorImpl<IntType,VecType> TugType;
 	typedef BinaryUniformGeneratorImpl<IntType,VecType> BugType;
+	typedef PolyImpl<native_int::BigInteger,native_int::BigInteger,native_int::BigVector,native_int::ILParams> PolyNative;
 
 	/**
 	 * @brief Return the element name.
@@ -183,6 +184,13 @@ public:
 	 * @param parms ILParams instance that is is passed.
 	 */
 	PolyImpl(const PolyType &element, shared_ptr<ParmType> parms = 0);
+
+	/**
+	 * @brief Copy constructor from a Poly of native integers.
+	 *
+	 * @param &element the copied element.
+	 */
+	PolyImpl(const PolyNative &element);
 
 	/**
 	 * @brief Move constructor.

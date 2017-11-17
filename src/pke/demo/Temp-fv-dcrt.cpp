@@ -61,10 +61,10 @@ void MultiplyThree();
 int main() {
 
 	PKE();
-	SwitchCRT();
-	Multiply();
-	MultiplyTwo();
-	MultiplyThree();
+	//SwitchCRT();
+	//Multiply();
+	//MultiplyTwo();
+	//MultiplyThree();
 
 	//std::cout << "Please press any key to continue..." << std::endl;
 

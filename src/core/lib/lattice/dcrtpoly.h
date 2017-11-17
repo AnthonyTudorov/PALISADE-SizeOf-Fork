@@ -671,16 +671,15 @@ public:
 	Poly CRTInterpolate() const;
 
 	/**
-	* @brief Computes [Round(\sum_i p*x_i*lyam_i)] mod p for fast rounding
+	* @brief Computes Round(p/q*x) mod p as [\sum_i x_i*alpha_i + Round(\sum_i x_i*beta_i)] mod p for fast rounding in RNS
 	*
 	* @param &p 64-bit integer (often corresponds to the plaintext modulus)
-	* @param &lyam a vector of precomputed floating-point numbers between 0 and 1
-	* @param &invTable a vector of precomputed (q/qi^{-1} mod qi
-	* @return the result of computation as a polynomial with native integers as coefficients
+	* @param &alpha a vector of precomputed integer factors mod p - for each q_i
+	* @param &beta a vector of precomputed floating-point factors between 0 and 1 - for each q_i
+	* @return the result of computation as a polynomial with native 64-bit coefficients
 	*/
-	Poly ScaleAndRound(const typename PolyType::Integer &p, const std::vector<double> &lyam, const std::vector<typename PolyType::Integer> &invTable) const;
-
-	Poly ScaleAndRoundOld(const typename PolyType::Integer &p, const std::vector<double> &lyam, const std::vector<typename PolyType::Integer> &invTable) const;
+	PolyType ScaleAndRound(const typename PolyType::Integer &p, const std::vector<typename PolyType::Integer> &alpha,
+			const std::vector<double> &beta) const;
 
 	DCRTPolyType SwitchCRTBasis(const shared_ptr<ParmType> params, const std::vector<typename PolyType::Integer> &qInvModqi,
 			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsi, const std::vector<typename PolyType::Integer> &qModsi) const;
