@@ -134,10 +134,6 @@ $(UNITTESTMAINOBJ): test/include/gtest/Main_TestAll.cpp src/core/lib/math/backen
 
 utall: $(BINDIR)/unittest/tests$(EXESUFFIX)
 
-$(BINDIR)/unittest/tests$(EXESUFFIX): $(UNITTESTMAINOBJ) $(COREUNITOBJECTS) $(EXTLIBDIR)/$(PALISADECORELIB) $(PKEUNITOBJECTS) $(EXTLIBDIR)/$(PALISADEPKELIB) $(TRAPDOORUNITOBJECTS) $(EXTLIBDIR)/$(PALISADETRAPDOORLIB) $(NTLLIB) $(GMPLIB)
-	@mkdir -p $(BINDIR)/unittest
-	$(CC) -o $@ $(UNITTESTMAINOBJ) $(COREUNITOBJECTS) $(PKEUNITOBJECTS) $(TRAPDOORUNITOBJECTS) $(EXTLIB) -lPALISADEtrapdoor -lPALISADEpke -lPALISADEcore $(TEST_LIB) $(NTLLIB) $(GMPLIB)
-
 include Makefile.core
 include Makefile.pke
 include Makefile.trapdoor
@@ -146,3 +142,7 @@ include Makefile.circuit
 include Makefile.wrapper
 include Makefile.benchmark     #builds the benchmark framework
 include Makefile.docs          #populates doxgen documentation
+
+$(BINDIR)/unittest/tests$(EXESUFFIX): $(UNITTESTMAINOBJ) $(COREUNITOBJECTS) $(EXTLIBDIR)/$(PALISADECORELIB) $(PKEUNITOBJECTS) $(EXTLIBDIR)/$(PALISADEPKELIB) $(TRAPDOORUNITOBJECTS) $(EXTLIBDIR)/$(PALISADETRAPDOORLIB) $(NTLLIB) $(GMPLIB)
+	@mkdir -p $(BINDIR)/unittest
+	$(CC) -o $@ $(UNITTESTMAINOBJ) $(COREUNITOBJECTS) $(PKEUNITOBJECTS) $(TRAPDOORUNITOBJECTS) $(EXTLIB) -lPALISADEtrapdoor -lPALISADEpke -lPALISADEcore $(TEST_LIB) $(NTLLIB) $(GMPLIB)
