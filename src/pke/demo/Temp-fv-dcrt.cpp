@@ -60,9 +60,9 @@ void MultiplyThree();
 
 int main() {
 
-	//PKE();
-	//SwitchCRT();
-	//Multiply();
+	PKE();
+	SwitchCRT();
+	Multiply();
 	MultiplyTwo();
 	MultiplyThree();
 
@@ -192,7 +192,7 @@ void SwitchCRT() {
 
 	//Set Crypto Parameters
 	shared_ptr<CryptoContext<DCRTPoly>> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextFV(
-			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 10, 0, OPTIMIZED,11);
+			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 7, 0, OPTIMIZED,8);
 
 	// enable features that you wish to use
 	//cryptoContext->Enable(ENCRYPTION);
@@ -256,7 +256,7 @@ void Multiply() {
 
 	//Set Crypto Parameters
 	shared_ptr<CryptoContext<DCRTPoly>> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextFV(
-			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 6, 0, OPTIMIZED,7);
+			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 5, 0, OPTIMIZED,6);
 
 	// enable features that you wish to use
 	//cryptoContext->Enable(ENCRYPTION);
