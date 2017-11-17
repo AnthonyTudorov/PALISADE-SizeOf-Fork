@@ -172,16 +172,16 @@ PolyImpl<ModType,IntType,VecType,ParmType>::PolyImpl(const TernaryUniformGenerat
 			const PolyNative &rhs) : m_format(rhs.m_format)
 	{
 
-		m_params = shared_ptr<ParmType>(new ParmType(rhs.m_params->GetCyclotomicOrder(),
-				rhs.m_params->GetModulus().ConvertToInt(),rhs.m_params->GetRootOfUnity().ConvertToInt()));
+		m_params = shared_ptr<ParmType>(new ParmType(rhs.GetParams()->GetCyclotomicOrder(),
+				rhs.GetParams()->GetModulus().ConvertToInt(),rhs.GetParams()->GetRootOfUnity().ConvertToInt()));
 
 		VecType temp(m_params->GetCyclotomicOrder() / 2);
 		temp.SetModulus(m_params->GetModulus());
 
 		for (size_t i = 0; i < rhs.GetLength(); i++)
-			temp[i] = (*rhs.m_values)[i].ConvertToInt();
+			temp[i] = (rhs.GetValues())[i].ConvertToInt();
 
-		this->SetValues(std::move(temp), rhs.m_format);
+		this->SetValues(std::move(temp), rhs.GetFormat());
 
 	}
 

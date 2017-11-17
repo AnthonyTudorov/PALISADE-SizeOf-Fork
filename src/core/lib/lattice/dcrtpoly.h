@@ -681,6 +681,15 @@ public:
 	PolyType ScaleAndRound(const typename PolyType::Integer &p, const std::vector<typename PolyType::Integer> &alpha,
 			const std::vector<double> &beta) const;
 
+	/**
+	* @brief Switches from one CRT basis Q = q1*q2*...*qn to another CRT basis S = s1*s2*...*sn
+	*
+	* @param &params parameters for the CRT basis S
+	* @param &qInvModqi a vector of precomputed integer factors (q/qi)^{-1} mod qi for all qi
+	* @param &qDivqiModsi a matrix of precomputed integer factors (q/qi)^{-1} mod si for all si, qi combinations
+	* @param &qModsi a vector of precomputed integer factors q mod si for all si
+	* @return the polynomial in the CRT basis S
+	*/
 	DCRTPolyType SwitchCRTBasis(const shared_ptr<ParmType> params, const std::vector<typename PolyType::Integer> &qInvModqi,
 			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsi, const std::vector<typename PolyType::Integer> &qModsi) const;
 

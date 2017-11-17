@@ -989,7 +989,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const typename Pol
 			const typename PolyType::Integer &xi = m_vectors[vi].GetValues()[ri];
 
 			// We assume that that the value of p is smaller than 64 bits (like 58)
-			// Thus we do not perform additional Mod(p) operations for each value of vi
+			// Thus we do not make additional curIntSum.Mod(p) calls for each value of vi
 			curIntSum += xi.ModMul(alpha[vi],p);
 
 			curFloatSum += xi.ConvertToInt()*beta[vi];
@@ -1007,14 +1007,36 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const typename Pol
 
 }
 
+/*
+ * The goal is to switch the basis of x from Q to S
+ *
+ * Let us write x as
+ * x = \sum_i [xi (q/qi)^{-1}]_qi \times q/qi - alpha*q,
+ * where alpha is a number between 0 and k-1 (assuming we iterate over i \in [0,k-1]).
+ *
+ * Now let us take mod s_i (to go to the S basis).
+ * mod s_i = \sum_i [xi (q/qi)^{-1}]_qi \times q/qi mod s_i - alpha*q mod s_i
+ *
+ * The main problem is that we need to find alpha.
+ * If we know alpha, we can compute x mod s_i (assuming that q mod s_i is precomputed).
+ *
+ * We compute x mod s_i in two steps:
+ * 	(1) find x' mod s_i = \sum_k [xi (q/qi)^{-1}]_qi \times q/qi mod s_i and find alpha when computing this sum;
+ * 	(2) subtract alpha*q mod s_i from x' mod s_i.
+ *
+ * We compute lyam_i =  [xi (q/qi)^{-1}]_qi/qi, which is a floating-point number between 0 and 1, during the summation in step 1.
+ * Then we compute alpha as Round(\sum_i lyam_i).
+ *
+ * Finally, we evaluate (x' - alpha q) mod s_i to get the CRT basis of x with respect to S.
+ *
+ */
+
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
 DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::SwitchCRTBasis(
 		const shared_ptr<ParmType> params, const std::vector<typename PolyType::Integer> &qInvModqi,
 		const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsi, const std::vector<typename PolyType::Integer> &qModsi) const{
 
 	DCRTPolyType ans(params,m_format,true);
-
-	// We should check that the size of both CRT bases is the same
 
 	usint ringDimension = GetRingDimension();
 	usint nTowers = m_vectors.size();
@@ -1034,51 +1056,23 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 				const typename PolyType::Integer &xi = m_vectors[vIndex].GetValues()[rIndex];
 				const typename PolyType::Integer &qi = m_vectors[vIndex].GetModulus();
 
-
-				/*if ((rIndex == 0) && (newvIndex == 0)) {
-					std::cout << "xi = " << xi << std::endl;
-					std::cout << "qi = " << qi << std::endl;
-					std::cout << "si = " << si << std::endl;
-				}*/
-
 				//computes [xi (q/qi)^{-1}]_qi
-				const typename PolyType::Integer &xInv = xi.ModMul(qInvModqi[vIndex],qi);
-
-
-				//if (rIndex == 0)
-				//	std::cout << "xInv=" << xInv << std::endl;
-
+				const typename PolyType::Integer &xInv = xi.ModMulFast(qInvModqi[vIndex],qi);
 
 				//computes [xi (q/qi)^{-1}]_qi / qi to keep track of the number of q-overflows
 				lyam += (double)xInv.ConvertToInt()/(double)qi.ConvertToInt();
 
-				curValue += xInv.ModMul(qDivqiModsi[newvIndex][vIndex],si);
-
+				curValue += xInv.ModMulFast(qDivqiModsi[newvIndex][vIndex],si);
 			}
 
-			// Since we let current value to exceed si to avoid extra modulo reductions, we have apply mod si now
+			// Since we let current value to exceed si to avoid extra modulo reductions, we have to apply mod si now
 			curValue = curValue.Mod(si);
-
-			//if (rIndex == 0)
-			//	std::cout << "curValue=" << curValue<< std::endl;
 
 			// alpha corresponds to the number of overflows
 			typename PolyType::Integer alpha = std::llround(lyam);
 
-			/*if (rIndex == 0)
-				std::cout << "alpha = " << alpha << std::endl;
-
-			if (rIndex == 0)
-				std::cout << "q Mod si = " << qModsi[newvIndex] << std::endl;
-			*/
-
 			//second round - remove q-overflows
-			ans.m_vectors[newvIndex].SetValAtIndex(rIndex,curValue.ModSub(alpha.ModMul(qModsi[newvIndex],si),si));
-
-			//ans.m_vectors[newvIndex].SetValAtIndex(rIndex,curValue);
-
-			/*if (rIndex == 0)
-				std::cout << "value=" << ans.m_vectors[newvIndex].GetValAtIndex(rIndex) << std::endl;*/
+			ans.m_vectors[newvIndex].SetValAtIndex(rIndex,curValue.ModSubFast(alpha.ModMulFast(qModsi[newvIndex],si),si));
 
 		}
 
