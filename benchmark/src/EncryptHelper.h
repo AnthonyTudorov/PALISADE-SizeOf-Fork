@@ -44,7 +44,7 @@ public:
 		for( auto p : lbcrypto::CryptoContextParameterSets )
 			parms.push_back(p.first);
 
-		if( parms.size() != 20 )
+		if( parms.size() != 25 )
 			cout << "WARNING: fix macros in EncryptHelper.h, size should be " << parms.size() << endl;
 	}
 };
