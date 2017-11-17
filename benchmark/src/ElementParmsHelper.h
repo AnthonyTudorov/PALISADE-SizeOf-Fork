@@ -47,9 +47,6 @@ shared_ptr<native_int::ILParams> nparm_16 = ElemParamFactory::GenElemParams<nati
 shared_ptr<native_int::ILParams> nparm_1024 = ElemParamFactory::GenElemParams<native_int::ILParams,native_int::BigInteger>(M1024);
 shared_ptr<native_int::ILParams> nparm_2048 = ElemParamFactory::GenElemParams<native_int::ILParams,native_int::BigInteger>(M2048);
 shared_ptr<native_int::ILParams> nparm_4096 = ElemParamFactory::GenElemParams<native_int::ILParams,native_int::BigInteger>(M4096);
-//shared_ptr<native_int::ILParams> nparm_8192 = ElemParamFactory::GenElemParams<native_int::ILParams,native_int::BigInteger>(M8192);
-//shared_ptr<native_int::ILParams> nparm_16384 = ElemParamFactory::GenElemParams<native_int::ILParams,native_int::BigInteger>(M16384);
-//shared_ptr<native_int::ILParams> nparm_32768 = ElemParamFactory::GenElemParams<native_int::ILParams,native_int::BigInteger>(M32768);
 
 shared_ptr<native_int::ILParams> nparmArray[] = {
 nparm_16,
@@ -74,10 +71,7 @@ BENCHMARK(X)->Unit(benchmark::kMicrosecond)->ArgName("parm_32768")->Arg(6);
 BENCHMARK(X)->Unit(benchmark::kMicrosecond)->ArgName("nparm_16")->Arg(0); \
 BENCHMARK(X)->Unit(benchmark::kMicrosecond)->ArgName("nparm_1024")->Arg(1); \
 BENCHMARK(X)->Unit(benchmark::kMicrosecond)->ArgName("nparm_2048")->Arg(2); \
-BENCHMARK(X)->Unit(benchmark::kMicrosecond)->ArgName("nparm_4096")->Arg(3); \
-//BENCHMARK(X)->Unit(benchmark::kMicrosecond)->ArgName("nparm_8192")->Arg(4); \
-//BENCHMARK(X)->Unit(benchmark::kMicrosecond)->ArgName("nparm_16384")->Arg(5); \
-//BENCHMARK(X)->Unit(benchmark::kMicrosecond)->ArgName("nparm_32768")->Arg(6);
+BENCHMARK(X)->Unit(benchmark::kMicrosecond)->ArgName("nparm_4096")->Arg(3); 
 
 
 #define DO_PARM_BENCHMARK_TEMPLATE(X,Y) \
@@ -93,8 +87,5 @@ BENCHMARK(X)->Unit(benchmark::kMicrosecond)->ArgName("nparm_4096")->Arg(3); \
 		BENCHMARK_TEMPLATE(X,Y)->Unit(benchmark::kMicrosecond)->ArgName("nparm_16")->Arg(0); \
 		BENCHMARK_TEMPLATE(X,Y)->Unit(benchmark::kMicrosecond)->ArgName("nparm_1024")->Arg(1); \
 		BENCHMARK_TEMPLATE(X,Y)->Unit(benchmark::kMicrosecond)->ArgName("nparm_2048")->Arg(2); \
-		BENCHMARK_TEMPLATE(X,Y)->Unit(benchmark::kMicrosecond)->ArgName("nparm_4096")->Arg(3); \
-//		BENCHMARK_TEMPLATE(X,Y)->Unit(benchmark::kMicrosecond)->ArgName("nparm_8192")->Arg(4); \
-//		BENCHMARK_TEMPLATE(X,Y)->Unit(benchmark::kMicrosecond)->ArgName("nparm_16384")->Arg(5); \
-//		BENCHMARK_TEMPLATE(X,Y)->Unit(benchmark::kMicrosecond)->ArgName("nparm_32768")->Arg(6);
+		BENCHMARK_TEMPLATE(X,Y)->Unit(benchmark::kMicrosecond)->ArgName("nparm_4096")->Arg(3); 
 
