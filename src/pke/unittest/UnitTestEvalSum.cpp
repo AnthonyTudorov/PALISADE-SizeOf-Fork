@@ -60,28 +60,18 @@ usint ArbFVEvalSumPackedArray(std::vector<usint> &clearVector, usint p);
 void
 EvalSumSetup(std::vector<usint>& input, usint& expectedSum, usint plaintextMod) {
 
-//	usint limit = 15;
-	usint plainttextMod = 89;
+	usint limit = 15;
 
-//	random_device rnd_device;
-//	mt19937 mersenne_engine(rnd_device());
-//	uniform_int_distribution<usint> dist(0, limit);
+	random_device rnd_device;
+	mt19937 mersenne_engine(rnd_device());
+	uniform_int_distribution<usint> dist(0, limit);
 
-//	auto gen = std::bind(dist, mersenne_engine);
-//	generate(input.begin(), input.end()-2, gen);
-
-	input = {1,2,3,4,5,6,7,8,0,0};
+	auto gen = std::bind(dist, mersenne_engine);
+	generate(input.begin(), input.end()-2, gen);
 
 	expectedSum = std::accumulate(input.begin(), input.end(), 0);
 
-//	cout << "SETUP" << endl;
-//	for( auto v : input )
-//		cout << v << " ";
-//	cout << endl << expectedSum;
-
-	expectedSum %= plainttextMod;
-	cout << " modded " << expectedSum << endl;
-
+	expectedSum %= plaintextMod;
 }
 
 TEST_F(UTEvalSum, Test_LTV_EvalSum) {
@@ -188,7 +178,6 @@ usint ArbLTVEvalSumPackedArray(std::vector<usint> &clearVector, usint p) {
 
 }
 
-
 usint ArbBVEvalSumPackedArray(std::vector<usint> &clearVector, usint p) {
 
 	usint m = 22;
@@ -284,14 +273,8 @@ usint ArbBVEvalSumPackedArrayPrime(std::vector<usint> &clearVector, usint p) {
 
 	cc->Decrypt(kp.secretKey, ciphertextSum, &intArrayNew);
 
-	for(auto& x: intArrayNew->GetPackedValue())
-		cout << x << " ";
-	cout << endl;
-
 	return intArrayNew->GetPackedValue()[0];
 }
-
-
 
 usint ArbFVEvalSumPackedArray(std::vector<usint> &clearVector, usint p) {
 
