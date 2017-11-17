@@ -25,13 +25,13 @@ do
 	for bm in BBIMath BBINativeMath BBVMath BBVNativeMath NbTheory Lattice LatticeNative
 	do
 		echo $bm:
-		$BMDIR/${bm}* ${smallbmargs} 
+		$BMDIR/${bm} ${smallbmargs} 
 	done
 
 	for bm in Encoding Crypto SHE
 	do
 		echo $bm:
-		$BMDIR/${bm}* ${largebmargs} 
+		$BMDIR/${bm} ${largebmargs} 
 	done
 
 	echo "****************************"

@@ -87,7 +87,7 @@ static void BM_BBVNative_Addition(benchmark::State& state) { // benchmark
 	}
 }
 
-DO_NATIVE_PARM_BENCHMARK(BM_BBVNative_Addition)
+DO_NATIVEPARM_BENCHMARK(BM_BBVNative_Addition)
 
 // add
 static void mult_BBVNative(benchmark::State& state) {	// function
@@ -106,7 +106,7 @@ static void BM_BBVNative_Multiplication(benchmark::State& state) { // benchmark
 	}
 }
 
-DO_NATIVE_PARM_BENCHMARK(BM_BBVNative_Multiplication)
+DO_NATIVEPARM_BENCHMARK(BM_BBVNative_Multiplication)
 
 //execute the benchmarks
 BENCHMARK_MAIN()
