@@ -13,11 +13,11 @@ $1 == "******" && $2 == "Begin" && $3 == "Backend" {
 }
 
 $1 == "******" && $2 == "End" {
-	print cmd, "VALUES (PLATFORM",",",backend,",",datestamp,",",$5,",",$3,")"
+	print cmd, "VALUES ('PLATFORM'",",",backend,",'",datestamp,"',",$5,",",$3,");"
 	backend = ""
 }
 
 END {
 	if( backend != "" )
-		print cmd, "VALUES (PLATFORM",",",backend,",",datestamp,"0,0)"
+		print cmd, "VALUES ('PLATFORM'",",",backend,",",datestamp,",0,0);"
 }
