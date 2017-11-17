@@ -51,8 +51,10 @@ class MinimalistPrinter : public EmptyTestEventListener {
 
 public:
 	void OnTestProgramStart(const ::testing::UnitTest& unit_test) {
-		cout << lead << "Begin Test Run" << endl;
-		cout << lead << GetMathBackendParameters() << endl;
+		cout << lead << "Date " <<
+			testing::internal::FormatEpochTimeInMillisAsIso8601(unit_test.start_timestamp()) << endl;
+
+		cout << lead << "Begin " << GetMathBackendParameters() << endl;
 	}
 	void OnTestIterationStart(const ::testing::UnitTest& unit_test, int iteration) {}
 	void OnEnvironmentsSetUpStart(const ::testing::UnitTest& unit_test) {}
@@ -97,8 +99,8 @@ public:
 	void OnTestIterationEnd(const ::testing::UnitTest& unit_test, int iteration) {}
 
 	void OnTestProgramEnd(const ::testing::UnitTest& unit_test)  {
-		cout << lead << "End Test Run of " << unit_test.test_to_run_count() << " cases, "
-			<< unit_test.successful_test_count() << " passed, "
+		cout << lead << "End " << unit_test.test_to_run_count() << " cases "
+			<< unit_test.successful_test_count() << " passed "
 			<< unit_test.failed_test_count() << " failed" << endl;
 	}
 
