@@ -189,8 +189,9 @@ public:
 	 * @brief Copy constructor from a Poly of native integers.
 	 *
 	 * @param &element the copied element.
+	 * @param &format sets the format for the new Poly object
 	 */
-	PolyImpl(const PolyNative &element);
+	PolyImpl(const PolyNative &element, Format format);
 
 	/**
 	 * @brief Move constructor.
