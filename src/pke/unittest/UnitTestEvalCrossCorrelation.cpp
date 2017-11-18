@@ -145,10 +145,6 @@ usint BVCrossCorrelation() {
 
 	cc->Decrypt(kp.secretKey, result, &intArrayNew);
 
-	for( auto i : intArrayNew->GetPackedValue() )
-		cout << i << " ";
-	cout << endl;
-
 	return intArrayNew->GetPackedValue()[0];
 }
 

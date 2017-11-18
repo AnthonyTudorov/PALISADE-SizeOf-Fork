@@ -40,10 +40,6 @@ namespace lbcrypto {
 		if( this->isEncoded ) return true;
 		int64_t mod = this->encodingParams->GetPlaintextModulus().ConvertToInt();
 
-//		std::cout << "ENCODE" << std::endl;
-//		std::cout << *this->encodingParams << std::endl;
-//		std::cout << this->GetElementRingDimension() << " " << this->GetElementModulus() << std::endl;;
-
 		BigVector temp(this->GetElementRingDimension(), this->GetElementModulus());
 
 		size_t i;
