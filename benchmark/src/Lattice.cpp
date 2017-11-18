@@ -132,7 +132,7 @@ static E makeElement(shared_ptr<ILParams> params) {
 
 template <class E>
 static E makeElement(shared_ptr<ILDCRTParams<BigInteger>> p) {
-	shared_ptr<ILParams> params( new ILParams( p->GetCyclotomicOrder(), p->GetModulus(), BigInteger::ONE) );
+	shared_ptr<ILParams> params( new ILParams( p->GetCyclotomicOrder(), p->GetModulus(), 1) );
 	BigVector vec = makeVector(params);
 
 	Poly bigE(params);
