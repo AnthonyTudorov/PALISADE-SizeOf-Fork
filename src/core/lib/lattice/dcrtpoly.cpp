@@ -971,6 +971,7 @@ Poly DCRTPolyImpl<ModType,IntType,VecType,ParmType>::CRTInterpolate() const
 // vectors alpha and beta are precomputed as
 // alpha_i = Floor[(p*[(q/qi)^{-1}]_qi)/qi]_p
 // beta_i = ((p*[(q/qi)^{-1}]_qi)%qi)/qi in (0,1)
+// used in decryption of BFVrns
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
 PolyImpl<native_int::BigInteger,native_int::BigInteger,native_int::BigVector,native_int::ILParams>
@@ -1082,6 +1083,9 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 
 }
 
+// @brief Expands polynomial in CRT basis Q = q1*q2*...*qn to a larger CRT basis Q*S, where S = s1*s2*...*sn;
+// uses SwichCRTBasis as a subroutine
+
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
 void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ExpandCRTBasis(const shared_ptr<ParmType> paramsExpanded,
 		const shared_ptr<ParmType> params, const std::vector<typename PolyType::Integer> &qInvModqi,
@@ -1103,14 +1107,18 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ExpandCRTBasis(const shared
 
 }
 
+// Computes Round(p/Q*x), where x is in the CRT basis Q*S,
+// as [\sum_{i=1}^n alpha_i*x_i + Round(\sum_{i=1}^n beta_i*x_i)]_si,
+// with the result in the Q CRT basis; used in homomorphic multiplication of BFVrns;
+// alpha is a matrix of precomputed integer factors = {Floor[p*S*[(Q*S/vi)^{-1}]_{vi}/vi]}_si; for all combinations of vi, si; where vi is a prime modulus in Q*S
+// beta is a vector of precomputed floating-point factors between 0 and 1 = [p*S*(Q*S/vi)^{-1}]_{vi}/vi; - for each vi
+
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
 DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const shared_ptr<ParmType> params,
-		const std::vector<std::vector<typename PolyType::Integer>> &integerFactors,
-		const std::vector<double> &lyam) const {
+		const std::vector<std::vector<typename PolyType::Integer>> &alpha,
+		const std::vector<double> &beta) const {
 
 		DCRTPolyType ans(params,m_format,true);
-
-		// We should check that the size of both CRT bases is the same
 
 		usint ringDimension = GetRingDimension();
 		size_t size = m_vectors.size();
@@ -1125,14 +1133,12 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 
 				const typename PolyType::Integer &si = params->GetParams()[newvIndex]->GetModulus();
 
-				//first round - compute "fast conversion"
 				for( usint vIndex = 0; vIndex < size; vIndex++ ) {
 					const typename PolyType::Integer &xi = m_vectors[vIndex].GetValues()[rIndex];
-					//const typename PolyType::Integer &qi = m_vectors[vIndex].GetModulus();
 
-					curValue += integerFactors[vIndex][newvIndex].ModMulFast(xi,si);
+					curValue += alpha[vIndex][newvIndex].ModMulFast(xi,si);
 
-					curFloat += lyam[vIndex]*xi.ConvertToInt();
+					curFloat += beta[vIndex]*xi.ConvertToInt();
 
 				}
 
