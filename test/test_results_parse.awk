@@ -19,5 +19,5 @@ $1 == "******" && $2 == "End" {
 
 END {
 	if( backend != "" )
-		print cmd, "VALUES ('PLATFORM'",",",backend,",",datestamp,",0,0);"
+		print cmd, "VALUES ('PLATFORM'",",",backend,",'",datestamp,"',0,0);"
 }
