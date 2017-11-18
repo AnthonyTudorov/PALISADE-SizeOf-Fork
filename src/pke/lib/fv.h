@@ -102,6 +102,7 @@ namespace lbcrypto {
 			 * @param bigModulusArb modulus used in polynomial multiplications in EvalMult (for arbitrary cyclotomics)
 			 * @param bigRootOfUnityArb root of unity for bigModulus (for arbitrary cyclotomics)
 			 * @param depth Depth is the depth of computation supprted which is set to 1 by default.  Use the default setting unless you're using SHE, levelled SHE or FHE operations.
+			 * @param maxDepth is the maximum homomorphic multiplication depth before performing relinearization
 			 */
 			LPCryptoParametersFV(shared_ptr<typename Element::Params> params,
 				const BigInteger &plaintextModulus, 
@@ -149,6 +150,7 @@ namespace lbcrypto {
 			* @param bigModulusArb modulus used in polynomial multiplications in EvalMult (arbitrary cyclotomics)
 			* @param bigRootOfUnityArb root of unity for bigModulus (arbitrary cyclotomics)
 			* @param depth depth which is set to 1.
+			* @param maxDepth is the maximum homomorphic multiplication depth before performing relinearization
 			*/
 			LPCryptoParametersFV(shared_ptr<typename Element::Params> params,
 				shared_ptr<EncodingParams> encodingParams,
@@ -242,47 +244,6 @@ namespace lbcrypto {
 			const BigInteger& GetBigRootOfUnityArb() const { return m_bigRootOfUnityArb; }
 
 			/**
-			* Gets the precomputed table of [(q/qi)^{-1}]_qi / qi
-			*
-			* @return the precomputed table
-			*/
-			const std::vector<double>& GetDCRTPolyDecryptionTable() const { return m_DCRTPolyDecryptionTable; }
-
-			/**
-			* Gets the precomputed table of delta mod qi
-			*
-			* @return the precomputed table
-			*/
-			const std::vector<native_int::BigInteger>& GetDCRTPolyDeltaTable() const { return m_DCRTPolyDeltaTable; }
-
-			/**
-			* Gets the precomputed table of (q/qi)^{-1} mod qi
-			*
-			* @return the precomputed table
-			*/
-			const std::vector<native_int::BigInteger>& GetDCRTPolyInverseTable() const { return m_DCRTPolyInverseTable; }
-
-			const std::vector<native_int::BigInteger>& GetDCRTPolyDecryptionIntTable() const { return m_DCRTPolyDecryptionIntTable; }
-
-			const std::vector<std::vector<native_int::BigInteger>>& GetDCRTPolyqDivqiModsiTable() const { return m_DCRTPolyqDivqiModsiTable; }
-
-			const std::vector<native_int::BigInteger>& GetDCRTPolyqModsiTable() const { return m_DCRTPolyqModsiTable; }
-
-			const shared_ptr<ILDCRTParams<BigInteger>> GetDCRTParamsS() const { return m_paramsS; }
-
-			const shared_ptr<ILDCRTParams<BigInteger>> GetDCRTParamsQS() const { return m_paramsQS; }
-
-			const std::vector<double>& GetDCRTPolyMultFloatTable() const { return m_DCRTPolyMultFloatTable; }
-
-			const std::vector<std::vector<native_int::BigInteger>>& GetDCRTPolyMultIntTable() const { return m_DCRTPolyMultIntTable; }
-
-			const std::vector<native_int::BigInteger>& GetDCRTPolySInverseTable() const { return m_DCRTPolySInverseTable; }
-
-			const std::vector<std::vector<native_int::BigInteger>>& GetDCRTPolysDivsiModqiTable() const { return m_DCRTPolysDivsiModqiTable; }
-
-			const std::vector<native_int::BigInteger>& GetDCRTPolysModqiTable() const { return m_DCRTPolysModqiTable; }
-
-			/**
 			* Sets the value of the delta factor
 			* @param &delta is the delta factor
 			*/
@@ -316,74 +277,6 @@ namespace lbcrypto {
 			* Sets primitive root of unity used for polynomial multiplications in EvalMult (arbitrary cyclotomics)
 			*/
 			void SetBigRootOfUnityArb(const BigInteger &bigRootOfUnityArb) { m_bigRootOfUnityArb = bigRootOfUnityArb; }
-
-			/**
-			* Sets the precomputation table of [(q/qi)^{-1}]_qi / qi
-			*
-			* @param &DCRTPolyDecryptionTable is the precomputed table
-			*/
-			void SetDCRTPolyDecryptionTable(const std::vector<double> &DCRTPolyDecryptionTable) {
-				m_DCRTPolyDecryptionTable = DCRTPolyDecryptionTable;
-			}
-
-			/**
-			* Sets the precomputation table of delta mod qi
-			*
-			* @param &DCRTPolyDeltaTable is the precomputed table
-			*/
-			void SetDCRTPolyDeltaTable(const std::vector<native_int::BigInteger> &DCRTPolyDeltaTable) {
-				m_DCRTPolyDeltaTable = DCRTPolyDeltaTable;
-			}
-
-			/**
-			* Sets the precomputation table of (q/qi)^{-1} mod qi
-			*
-			* @param &DCRTPolyInverseTable is the precomputed table
-			*/
-			void SetDCRTPolyInverseTable(const std::vector<native_int::BigInteger> &DCRTPolyInverseTable) {
-				m_DCRTPolyInverseTable = DCRTPolyInverseTable;
-			}
-
-			void SetDCRTPolyDecryptionIntTable(const std::vector<native_int::BigInteger> &DCRTPolyDecryptionIntTable) {
-				m_DCRTPolyDecryptionIntTable = DCRTPolyDecryptionIntTable;
-			}
-
-			void SetDCRTPolyqDivqiModsiTable(const std::vector<std::vector<native_int::BigInteger>> &DCRTPolyqDivqiModsiTable) {
-				m_DCRTPolyqDivqiModsiTable= DCRTPolyqDivqiModsiTable;
-			}
-
-			void SetDCRTPolyqModsiTable(const std::vector<native_int::BigInteger> &DCRTPolyqModsiTable) {
-				m_DCRTPolyqModsiTable = DCRTPolyqModsiTable;
-			}
-
-			void SetDCRTParamsS(shared_ptr<ILDCRTParams<BigInteger>> paramsS) {
-				m_paramsS = paramsS;
-			}
-
-			void SetDCRTParamsQS(shared_ptr<ILDCRTParams<BigInteger>> paramsQS) {
-				m_paramsQS = paramsQS;
-			}
-
-			void SetDCRTPolyMultFloatTable(const std::vector<double> &DCRTPolyMultFloatTable) {
-				m_DCRTPolyMultFloatTable = DCRTPolyMultFloatTable;
-			}
-
-			void SetDCRTPolyMultIntTable(const std::vector<std::vector<native_int::BigInteger>> &DCRTPolyMultIntTable) {
-				m_DCRTPolyMultIntTable= DCRTPolyMultIntTable;
-			}
-
-			void SetDCRTPolySInverseTable(const std::vector<native_int::BigInteger> &DCRTPolySInverseTable) {
-				m_DCRTPolySInverseTable = DCRTPolySInverseTable;
-			}
-
-			void SetDCRTPolysDivsiModqiTable(const std::vector<std::vector<native_int::BigInteger>> &DCRTPolysDivsiModqiTable) {
-				m_DCRTPolysDivsiModqiTable= DCRTPolysDivsiModqiTable;
-			}
-
-			void SetDCRTPolysModqiTable(const std::vector<native_int::BigInteger> &DCRTPolysModqiTable) {
-				m_DCRTPolysModqiTable = DCRTPolysModqiTable;
-			}
-
 
 			/**
 			* == operator to compare to this instance of LPCryptoParametersFV object. 
@@ -436,42 +329,6 @@ namespace lbcrypto {
 
 			// Primitive root of unity for m_bigModulusArb
 			BigInteger m_bigRootOfUnityArb;
-
-			// DCRTPoly decryption ratios; stores a precomputed table of [(q/qi)^{-1}]_qi / qi
-			std::vector<double> m_DCRTPolyDecryptionTable;
-
-			// DCRTPoly delta table; stores precomputed floor(q/p) mod qi
-			std::vector<native_int::BigInteger> m_DCRTPolyDeltaTable;
-
-			// DCRTPoly - precomputed (q/qi)^{-1} mod qi table
-			std::vector<native_int::BigInteger> m_DCRTPolyInverseTable;
-
-			std::vector<native_int::BigInteger> m_DCRTPolyDecryptionIntTable;
-
-			// DCRTPoly - precomputed (q/qi) mod si table
-			std::vector<std::vector<native_int::BigInteger>> m_DCRTPolyqDivqiModsiTable;
-
-			// DCRTPoly - precomputed q mod si table
-			std::vector<native_int::BigInteger> m_DCRTPolyqModsiTable;
-
-			shared_ptr<ILDCRTParams<BigInteger>> m_paramsS;
-
-			shared_ptr<ILDCRTParams<BigInteger>> m_paramsQS;
-
-			// DCRTPoly - precomputed Floor[p*S*[(Q*S/vi)^{-1}]_vi/vi] mod si table
-			std::vector<std::vector<native_int::BigInteger>> m_DCRTPolyMultIntTable;
-
-			// DCRTPoly - stores a precomputed table of [p*S*(Q*S/vi)^{-1}]_vi / vi
-			std::vector<double> m_DCRTPolyMultFloatTable;
-
-			// DCRTPoly - precomputed (S/si)^{-1} mod si table
-			std::vector<native_int::BigInteger> m_DCRTPolySInverseTable;
-
-			// DCRTPoly - precomputed (S/si) mod qi table
-			std::vector<std::vector<native_int::BigInteger>> m_DCRTPolysDivsiModqiTable;
-
-			// DCRTPoly - precomputed S mod qi table
-			std::vector<native_int::BigInteger> m_DCRTPolysModqiTable;
 	};
 
 	/**
@@ -502,8 +359,10 @@ namespace lbcrypto {
 		* @param evalMultCount number of EvalMults assuming no EvalAdd and KeySwitch operations are performed.
 		* @param keySwitchCount number of KeySwitch operations assuming no EvalAdd and EvalMult operations are performed.
 		*/
-		bool ParamsGen(shared_ptr<LPCryptoParameters<Element>> cryptoParams, int32_t evalAddCount = 0,
+		virtual bool ParamsGen(shared_ptr<LPCryptoParameters<Element>> cryptoParams, int32_t evalAddCount = 0,
 			int32_t evalMultCount = 0, int32_t keySwitchCount = 0) const;
+
+		virtual ~LPAlgorithmParamsGenFV() {}
 
 	};
 
@@ -535,7 +394,7 @@ namespace lbcrypto {
 		* @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 		* @return ciphertext which results from encryption.
 		*/
-		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
+		virtual shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
 			Poly &plaintext, bool doEncryption = true) const;
 
 		/**
@@ -558,7 +417,7 @@ namespace lbcrypto {
 		* @param *plaintext the plaintext output.
 		* @return the decrypted plaintext returned.
 		*/
-		DecryptResult Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
+		virtual DecryptResult Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
 			const shared_ptr<Ciphertext<Element>> ciphertext,
 			Poly *plaintext) const;
 
@@ -570,7 +429,9 @@ namespace lbcrypto {
 		* @param makeSparse set to true if ring reduce by a factor of 2 is to be used.  Generally this should always be false.
 		* @return key pair including the private and public key
 		*/
-		LPKeyPair<Element> KeyGen(shared_ptr<CryptoContext<Element>> cc, bool makeSparse=false);
+		virtual LPKeyPair<Element> KeyGen(shared_ptr<CryptoContext<Element>> cc, bool makeSparse=false);
+
+		virtual ~LPAlgorithmFV() {}
 
 	};
 
