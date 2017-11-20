@@ -214,7 +214,6 @@ inline std::ostream& operator<<(std::ostream& out, const Plaintext& item)
  */
 template <>
 inline Poly& Plaintext::GetElement<Poly>() {
-	//encodedVector.SetFormat(EVALUATION);
 	return encodedVector;
 }
 

@@ -671,6 +671,8 @@ public:
 			return 0;
 		}
 
+		std::cout << "******************" << (plaintext->GetElement<Element>().GetFormat() == EVALUATION ? "EVAL":"COEF") << std::endl;
+
 		shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, plaintext->GetElement<Element>());
 
 		if (ciphertext) {
