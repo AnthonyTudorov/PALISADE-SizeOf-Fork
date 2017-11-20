@@ -44,16 +44,22 @@ namespace lbcrypto {
 const int32_t MAX_TREE_DEPTH = 64;
 
 const int32_t PRECISION = 53;
-const int32_t BERNOULLI_FLIPS = 23;
+const int32_t BERNOULLI_FLIPS = 43;
 
 
 BaseSampler::BaseSampler(double mean,double std,BitGenerator* generator,BaseSamplerType type=PEIKERT):b_mean(mean),b_std(std),bg(generator),b_type(type){
 	double acc = 1e-17;
 	fin = (int) ceil(b_std * sqrt(-2 * log(acc)));
-	if(b_type==PEIKERT)
-		Initialize(b_mean);
+	if(mean>=0)
+		b_mean = std::floor(mean);
 	else
-		GenerateProbMatrix(b_std,b_mean);
+		b_mean = std::ceil(mean);
+
+	mean = mean - b_mean * 1.0;
+	if(b_type==PEIKERT)
+		Initialize(mean);
+	else
+		GenerateProbMatrix(b_std,mean);
 }
 int64_t BaseSampler::GenerateInteger(){
 	if(b_type==PEIKERT)
@@ -75,12 +81,11 @@ void BaseSampler::GenerateProbMatrix(double stddev, double mean) {
 	hammingWeights.resize(64, 0);
 	probMatrix.resize(b_matrixSize);
 	double* probs = new double[b_matrixSize];
-	double S=0.0;
+	double S= 0.0;
 	b_std = stddev;
-	b_mean = mean;
 	double error = 1.0;
 	for (int i = -1 * fin; i <= fin; i++) {
-		double prob = pow(M_E,-pow((i - b_mean), 2) / (2. * stddev * stddev));
+		double prob = pow(M_E,-pow((i - mean), 2) / (2. * stddev * stddev));
 		S+=prob;
 		probs[i+fin]=prob;
 	}
@@ -235,7 +240,7 @@ int64_t BaseSampler::GenerateIntegerKnuthYaoAlt() {
 	}
 
 	//int64_t sign=bg->Generate()?1:-1;
-	return /*sign**/(ans - fin);
+	return /*sign**/(ans - fin + b_mean);
 }
 /*
 int32_t DiscreteGaussianGeneratorGeneric::GenerateInteger(double mean,double stddev) {
@@ -403,7 +408,7 @@ int64_t BaseSampler::GenerateIntegerPeikert() const {
 		val = FindInVector(m_vals,seed);
 		ans = val;
 	}catch (std::runtime_error e) {}
-	return ans - fin;
+	return ans - fin + b_mean;
 }
 
 usint BaseSampler::FindInVector(const std::vector<double> &S, double search) const {

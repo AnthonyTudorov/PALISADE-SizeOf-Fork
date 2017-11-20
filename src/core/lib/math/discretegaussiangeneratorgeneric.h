@@ -137,7 +137,7 @@ private:
 	/**
 	 *Mean of the distribution used
 	 */
-	double b_mean;
+	int64_t b_mean;
 
 	/**
 	 * The standard deviation of the distribution.
