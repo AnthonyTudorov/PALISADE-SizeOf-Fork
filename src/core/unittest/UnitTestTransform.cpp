@@ -93,7 +93,7 @@ TEST(UTTransform, CRT_polynomial_multiplication){
 	expectedResult.at(0)= "94";
 	expectedResult.at(1)= "109";
 	expectedResult.at(2)= "11";
-	expectedResult.at(3)= "18");
+	expectedResult.at(3)= "18";
 
 	EXPECT_EQ(expectedResult, InverseFFTAB);
 

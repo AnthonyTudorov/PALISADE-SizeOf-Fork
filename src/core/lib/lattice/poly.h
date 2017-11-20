@@ -359,7 +359,8 @@ public:
 	 *
 	 * @return value at index i.
 	 */
-	const IntType at(usint i) const;
+	IntType& at(usint i) ;
+	const IntType& at(usint i) const;
 
 	//SETTERS
 	/**
@@ -368,6 +369,7 @@ public:
 	 * @param index is the index at which the value is to be set.
 	 * @param val is the value to be set.
 	 */
+#if 0
 	neest to be changed to lvalue at
 	inline void SetValAtIndex(size_t index, std::string val) {
 	  m_values->at(index) = IntType(val);
@@ -398,7 +400,7 @@ public:
 #endif
 
 	}
-
+#endif
 	// SCALAR OPERATIONS
 
 	/**

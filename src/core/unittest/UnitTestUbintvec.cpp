@@ -112,7 +112,7 @@ TEST(UTubintvec,ctor_access_eq_neq){
   m.at(4)="4624";
 
   //old fashioned way of expect
-  EXPECT_EQ(9868U)=m.at(0).ConvertToUsint())
+  EXPECT_EQ(9868U,m.at(0).ConvertToUsint())
     << "Failure in at(str)";
   EXPECT_EQ(5879U,m.at(1).ConvertToUsint())
 << "Failure in at(str)";
@@ -252,7 +252,7 @@ TEST(UTubintvec,mod){
   m.at(6)="79";
   m.at(7)="346346";
   m.at(8)="325328";
-  m.at(9)="7698798");	
+  m.at(9)="7698798";	
 
   exp_int::xubint q("233");		//calling costructor of exp_int::xubint Class to create object for modulus
   exp_int::xubintvec calculatedResult = m.Mod(q);

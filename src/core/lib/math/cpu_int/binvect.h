@@ -213,17 +213,23 @@ public:
 	 * Sets a value at an index.
 	 *
 	 * @param index is the index to set a value at.
-	 * @param value is the int value to set at the index.
-	 */
-	needs to be replaced by lvalue at()
-	void SetValAtIndex(usint index, const IntegerType& value) {
-		if(!this->IndexCheck(index)) {
-			throw std::logic_error("Invalid index input to SetValAtIndex for index "
-					+ std::to_string(index) + " for vector of length " + std::to_string(m_length));
-		}
+ */
 
-		this->m_data[index] = value;
+
+	IntegerType& at(usint i) {
+	  if(!this->IndexCheck(i)) {
+	    throw std::logic_error("index out of range in BigVector");
+	  }
+	  return this->m_data[i];
+	  }
+
+	const IntegerType& at(usint i) const {
+ 	  if(!this->IndexCheck(i)) {
+	    throw std::logic_error("index out of range in BigVector");
+	  }
+	  return this->m_data[i];
 	}
+#if 0
 
 	/**
 	 * Sets a value at an index. guarrentees that mod is not taken
@@ -234,7 +240,7 @@ public:
 	 */
 	//TODO: change SetValAtIndex() to always take mod.
 	needs to be changed with lvaue atwithout mod
-	void SetValAtIndexWithoutMod(usint index, const IntegerType& value) {
+	void atWithoutMod(usint index, const IntegerType& value) {
 		if(!this->IndexCheck(index)) {
 			throw std::logic_error("Invalid index input to SetValAtIndex for index "
 					+ std::to_string(index) + " for vector of length " + std::to_string(m_length));
@@ -259,6 +265,7 @@ public:
 		this->m_data[index].SetValue(str);
 	}
 
+
 	/**
 	 * Gets a value stored at an index.
 	 *
@@ -272,7 +279,7 @@ public:
 		}
 		return this->m_data[index];
 	}
-
+#endif
 	/**
 	* operators to get a value at an index.
 	* @param idx is the index to get a value at.

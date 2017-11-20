@@ -138,8 +138,11 @@ public:
 	 * @param i is the index.
 	 * @return will throw a logic_error.
 	 */
-	virtual const IntType at(usint i) const {
+	virtual IntType& at(usint i) {
 		throw std::logic_error("at not implemented");
+	}
+	virtual const IntType& at(usint i) const {
+		throw std::logic_error("const at not implemented");
 	}
 
 	//SETTERS
@@ -150,6 +153,7 @@ public:
 	 * @param index is the index to set the value at.
 	 * @param val is the value to assign.
 	 */
+#if 0	
 	needs to be changed to lvalue at
 	virtual void SetValAtIndex(size_t index, const IntType& val) {
 		throw std::logic_error("SetValAtIndex not implemented");
@@ -162,7 +166,10 @@ public:
 	 * @param format is the format/representations.
 	 */
 	virtual void SetValues(const VecType& values, Format format) = 0;
+#endif
 
+
+	
 	// OPERATORS
 	/**
 	 * @brief Unary negation on a lattice

@@ -254,7 +254,7 @@ namespace lbcrypto {
 		//copy values from ring to the vector
 		native_int::BigVector slotValues(phim, modulusNI);
 		for (usint i = 0; i < phim; i++) {
-		  slotValues.at(i)= ring->at(i).ConvertToInt());
+		  slotValues.at(i)= ring->at(i).ConvertToInt();
 		}
 
 		// Transform Eval to Coeff
@@ -290,7 +290,7 @@ namespace lbcrypto {
 		//copy values into the slotValuesRing
 		BigVector slotValuesRing(phim, ring->GetModulus());
 		for (usint i = 0; i < phim; i++) {
-		  slotValuesRing.at(i)= BigInteger(slotValues.at(i.ConvertToInt()));
+		  slotValuesRing.at(i)= BigInteger(slotValues.at(i).ConvertToInt());
 		}
 
 		ring->SetValues(slotValuesRing, Format::COEFFICIENT);
@@ -311,7 +311,7 @@ namespace lbcrypto {
 		//copy aggregate plaintext values
 		native_int::BigVector packedVector(phim, modulusNI);
 		for (usint i = 0; i < phim; i++) {
-		  packedVector.at(i)= native_int::BigInteger(ring->at(i.ConvertToInt()));
+		  packedVector.at(i)= native_int::BigInteger(ring->at(i).ConvertToInt());
 		}
 
 		// Transform Coeff to Eval
@@ -335,7 +335,7 @@ namespace lbcrypto {
 		//copy values into the slotValuesRing
 		BigVector packedVectorRing(phim, ring->GetModulus());
 		for (usint i = 0; i < phim; i++) {
-		  packedVectorRing.at(i)= BigInteger(packedVector.at(i.ConvertToInt()));
+		  packedVectorRing.at(i)= BigInteger(packedVector.at(i).ConvertToInt());
 		}
 
 		ring->SetValues(packedVectorRing, Format::COEFFICIENT);

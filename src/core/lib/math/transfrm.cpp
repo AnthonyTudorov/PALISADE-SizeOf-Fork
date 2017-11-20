@@ -869,7 +869,7 @@ void ChineseRemainderTransform<IntType,VecType>::Reset() {
 					b.at(j)= a.at(j).ModBarrettSub(b.at(j), modulus, mu);
 				}
 				else
-					b.at(j)= modulus.ModBarrettSub(b.at(j), modulus, mu));
+					b.at(j)= modulus.ModBarrettSub(b.at(j), modulus, mu);
 			}
 #endif
 			h = PolyMod(b, q, modulus);

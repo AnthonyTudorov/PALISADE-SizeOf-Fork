@@ -223,6 +223,18 @@ public:
 		return *this;
 	}
 
+#if 0
+	/**
+	 * Assignment operator from string
+	 *
+	 * @param val is the unsigned integer value that is assigned.
+	 * @return the assigned BigInteger ref.
+	 */
+	const NativeInteger& operator=(const char* valstr) {
+	        this->m_value = atol(valstr);
+		return *this;
+	}
+#endif
 	//Shift Operators
 
 	/**

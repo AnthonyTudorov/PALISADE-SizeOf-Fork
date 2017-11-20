@@ -227,7 +227,7 @@ namespace exp_int {
 	}
 	return os;
       };
-
+#if 0
       /**
        * Sets a value at an index.
        * NOTE DEPRECATED BY []
@@ -245,8 +245,16 @@ namespace exp_int {
        */
       need lvalueat
       void SetValAtIndex(usint index, const std::string& str);
-
+#endif
       /**
+       * Gets a value at an index.
+       * NOTE DEPRECATED BY []
+       * @param index is the index to get a value at.
+       * @return is the value at the index. return NULL if invalid index.
+       */
+      ubint_el_t& at(size_t index);
+
+            /**
        * Gets a value at an index.
        * NOTE DEPRECATED BY []
        * @param index is the index to get a value at.

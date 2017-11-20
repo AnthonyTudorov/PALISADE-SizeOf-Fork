@@ -264,9 +264,14 @@ namespace cpu_int{
     * @return the assigned BigInteger ref.
     */
     //TODO: should this be uint_64_t?    
-	inline const BigInteger& operator=(usint val) {
-        *this = intToBigInteger(val);
-        return *this;
+    inline const BigInteger& operator=(usint val) {
+      *this = intToBigInteger(val);
+      return *this;
+    }
+	
+    inline const BigInteger& operator=(std::string strval) {
+      *this = BigInteger(strval);
+      return *this;
     }
 
 	

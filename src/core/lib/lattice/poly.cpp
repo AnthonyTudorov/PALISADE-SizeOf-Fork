@@ -217,9 +217,9 @@ const PolyImpl<ModType,IntType,VecType,ParmType>& PolyImpl<ModType,IntType,VecTy
 
 			for (usint j = 0; j < vectorLength; ++j) { // loops within a tower
 				if (j < len) {
-				  at(j)= IntType(*(rhs.begin() + j));
+				  this->at(j)= IntType(*(rhs.begin() + j));
 			} else {
-				  at(j)= ZERO;
+				  this->at(j)= ZERO;
 				}
 			}
 
@@ -366,9 +366,9 @@ const PolyImpl<ModType,IntType,VecType,ParmType>& PolyImpl<ModType,IntType,VecTy
 
 			for (usint j = 0; j < vectorLength; ++j) { // loops within a tower
 				if (j < len) {
-					at(j)= *(rhs.begin() + j);
+					m_values->at(j)= *(rhs.begin() + j);
 			} else {
-					at(j)= ZERO;
+					m_values->at(j)= ZERO;
 				}
 			}
 
@@ -442,7 +442,15 @@ Format PolyImpl<ModType,IntType,VecType,ParmType>::GetFormat() const
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	const IntType PolyImpl<ModType,IntType,VecType,ParmType>::at(usint i) const
+	IntType& PolyImpl<ModType,IntType,VecType,ParmType>::at(usint i)
+	{
+		if (m_values == 0)
+			throw std::logic_error("No values in PolyImpl");
+		return m_values->at(i);
+	}
+
+	template<typename ModType, typename IntType, typename VecType, typename ParmType>
+	const IntType& PolyImpl<ModType,IntType,VecType,ParmType>::at(usint i) const
 	{
 		if (m_values == 0)
 			throw std::logic_error("No values in PolyImpl");
@@ -500,7 +508,7 @@ void PolyImpl<ModType,IntType,VecType,ParmType>::SetValuesToMax()
 
 	}
 
-	template<typename ModType, typename IntType, typename VecType, typename ParmType>
+        template<typename ModType, typename IntType, typename VecType, typename ParmType>
 PolyImpl<ModType,IntType,VecType,ParmType> PolyImpl<ModType,IntType,VecType,ParmType>::Plus(const IntType &element) const
 {
 		PolyImpl<ModType,IntType,VecType,ParmType> tmp = CloneParametersOnly();

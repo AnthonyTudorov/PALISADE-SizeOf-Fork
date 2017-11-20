@@ -182,7 +182,7 @@ namespace exp_int {
 
   //ACCESSORS
 
-
+#if 0
   // Set value at index from ubint
   template<class ubint_el_t>
 needs to be replaced with lvalue at
@@ -207,11 +207,19 @@ needs to be replaced with lvalue at
       this->m_data.at(index).SetValue(str);
     }
   }
+#endif
+  template<class ubint_el_t>
+  ubint_el_t& ubintvec<ubint_el_t>::at(size_t index) {
+    if(!this->IndexCheck(index)){
+      throw std::logic_error("index out of range");
+    }
+    return this->m_data[index];
+  }
 
   template<class ubint_el_t>
   const ubint_el_t& ubintvec<ubint_el_t>::at(size_t index) const{
     if(!this->IndexCheck(index)){
-      throw std::logic_error("ubintvec index out of range");
+      throw std::logic_error("index out of range");
     }
     return this->m_data[index];
   }
