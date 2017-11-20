@@ -90,9 +90,6 @@ static_assert(cpu_int::DataTypeChecker<integral_dtype>::value,"Data type provide
 #define BigIntegerBitLength 1500 //for documentation on tests
 #endif
 
-#if BigIntegerBitLength > 1500
-#error "BigIntegerBitLength is too large"
-#endif
 #if BigIntegerBitLength < 600
 #error "BigIntegerBitLength is too small"
 #endif
