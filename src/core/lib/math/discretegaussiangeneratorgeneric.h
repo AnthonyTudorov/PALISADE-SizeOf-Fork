@@ -27,7 +27,7 @@
 
 /*This is the header file for the Generic Sampler used for various Discrete Gaussian Sampling applications. This class
  * implements the generic sampler by UCSD discussed in the https://eprint.iacr.org/2017/259.pdf and it is heavily based on
- * Michael's code. Along the sides of the implementation there are also two different "base samplers", which are used for the generic
+ * Michael Walter's code. Along the sides of the implementation there are also two different "base samplers", which are used for the generic
  * sampler or can be used on their own depending on the requirements of needed application.
  *
  * The first base sampler uses Peikert's inversion method, discussed in section 4.1 of https://eprint.iacr.org/2010/088.pdf and
@@ -35,8 +35,7 @@
  * CDF tables around a specific center and the table must be kept during the sampling process. Hence, Peikert's method works best if
  * the DESIRED STANDARD DEVIATION IS SMALL and THE MEAN OF THE DISTRIBUTION IS FIXED, as each new center will require a new set of precomputations.
  *
- * Second base sampler, which is currently in WIP is the Knuth-Yao Sampler discussed in section 5 of https://link.springer.com/content/pdf/10.1007%2Fs00200-014-0218-3.pdf
- * Currently, the sampler does not give a perfect Gaussian Distribution, therefore it is not recommended to use for distribution sensitive applications.
+ * Second base sampler is  the Knuth-Yao Sampler discussed in section 5 of https://link.springer.com/content/pdf/10.1007%2Fs00200-014-0218-3.pdf .
  * Similar to Peikert's, Knuth-Yao precomputes the PDF's of the numbers based on standard deviation and the center, which is used during
  * the sampling process. Therefore like Peikert's method,  Knuth-Yao works best method works best if the DESIRED STANDARD DEVIATION IS SMALL and
  * THE MEAN OF THE DISTRIBUTION IS FIXED, as each new center will require a new set of precomputations, just like Peikert's inversion method.
@@ -47,7 +46,25 @@
  *
  * If a sampler with arbitrary standard deviation and mean suppport is needed, then it is recommended to refer to Karney's sampler in discretegaussiangenerator.cpp
  * which uses Algorithm D from https://arxiv.org/pdf/1303.6257.pdf. Its statistical values pass the Gaussian Distribution tests and can be used for ANY STANDARD DEVIATION
- * AND CENTER WITHOUT PRECOMPUTATION. However, it may be prone to timing attacks.*/
+ * AND CENTER WITHOUT PRECOMPUTATION. However, it may be prone to timing attacks.
+ *
+ * PARAMETER SELECTION FOR GENERIC SAMPLER
+ *
+ * The selection of parameters change the run time/memory usage/precision of the generic sampler. The triple trade off between these parameters
+ * are defined in the equation k = (PRECISION - FLIPS) / LOG_BASE. k denotes the level of precision of the generic sampler. Higher the k
+ * is, higher the precision of the generic sampler but higher the run time. PRECISION denotes the number of decimal bits in the center
+ * of the distribution. Since we are using 'double' for mean, it is fixed to 53 by definition. FLIPS denote the number of Bernoulli flips
+ * used to approximate the bits used in combination of base sampler. Higher the number of flips, higher the number of bits approximated rather than
+ * calculated which means smaller run times. Generic sampler requires a set of base samplers centered around 0/2^b to (2^b-1)/2^b; LOG_BASE denotes
+ * b in this equation. Higher the LOG_BASE is, more base samplers required which requires additional memory; but at the same time smaller run times.
+ *
+ * The base samplers used in generic sampler requires varying centers between 0/2^b and (2^b-1)/(2^b) with the same standard deviation. The standard
+ * deviation required for base samplers must satisfy SIGMA>=4*SQRT(2)*N, where sigma is the standard deviation of the base sampler and N is the smoothing parameter
+ *
+ *
+ *
+ * */
+
 
 #ifndef LBCRYPTO_MATH_DISCRETEGAUSSIANGENERATORGENERIC_H_
 #define LBCRYPTO_MATH_DISCRETEGAUSSIANGENERATORGENERIC_H_
@@ -207,11 +224,6 @@ private:
 	void GenerateProbMatrix(double stddev, double mean);
 	/**
 	 * @ brief Returns a generated integer. Uses Naive Knuth-Yao method
-	 * @ return A random value within the Discrete Gaussian Distribution
-	 */
-	int64_t GenerateIntegerKnuthYaoAlt();
-	/**
-	 * @ brief Returns a generated integer. Uses Knuth-Yao method defined as Algorithm 1 in http://link.springer.com/chapter/10.1007%2F978-3-662-43414-7_19#page-1
 	 * @ return A random value within the Discrete Gaussian Distribution
 	 */
 	int64_t GenerateIntegerKnuthYao();

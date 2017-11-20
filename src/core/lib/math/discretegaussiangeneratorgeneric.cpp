@@ -29,7 +29,7 @@
  * WARNING FOR PARAMETER SELECTION IN GENERIC SAMPLER
  *
  * MAKE SURE THAT PRECISION - BERNOULLI FLIPS IS ALWAYS DIVISIBLE BY LOG_BASE
- * WHEN CHOOSING A STANDARD DEVIATION SIGMA_B FOR BASE SAMPLER, MAKE SURE THAT SIGMA_B>+=4*SQRT(2)*N WHERE N IS THE SMOOTHING PARAMETER
+ * WHEN CHOOSING A STANDARD DEVIATION SIGMA_B FOR BASE SAMPLER, MAKE SURE THAT SIGMA_B>=4*SQRT(2)*N WHERE N IS THE SMOOTHING PARAMETER
  * */
 #include "discretegaussiangeneratorgeneric.h"
 
@@ -44,7 +44,7 @@ namespace lbcrypto {
 const int32_t MAX_TREE_DEPTH = 64;
 
 const int32_t PRECISION = 53;
-const int32_t BERNOULLI_FLIPS = 43;
+const int32_t BERNOULLI_FLIPS = 23;
 
 
 BaseSampler::BaseSampler(double mean,double std,BitGenerator* generator,BaseSamplerType type=PEIKERT):b_mean(mean),b_std(std),bg(generator),b_type(type){
@@ -65,8 +65,7 @@ int64_t BaseSampler::GenerateInteger(){
 	if(b_type==PEIKERT)
 		return GenerateIntegerPeikert();
 	else
-		//return GenerateIntegerKnuthYao();
-		return GenerateIntegerKnuthYaoAlt();
+		return GenerateIntegerKnuthYao();
 }
 /**
  *Generates the probability matrix of given distribution, which is used in Knuth-Yao method
@@ -102,33 +101,7 @@ void BaseSampler::GenerateProbMatrix(double stddev, double mean) {
 	GenerateDDGTree(probMatrix);
 }
 
-/**
- * Returns a generated integer. Uses Knuth-Yao method defined as Algorithm 1 in http://link.springer.com/chapter/10.1007%2F978-3-662-43414-7_19#page-1
- * Not used at the moment
- *
- int64_t BaseSampler::GenerateIntegerKnuthYao() {
-	 short d = 0;
-	 short hit=0;
-	 short col=0;
-	 int64_t S;
-	 while(hit==0){
-		 short r=bg->Generate();
-		 d = 2 * d + 1 - r;
-		 for(int64_t row = b_matrixSize;row>=0;row--){
-			 d = d - ((probMatrix[row]>>(63-col)) & 1);
-			 if(d==-1){
-				 hit = 1;
-				 S = row;
-				 break;
-			 }
-		 }
-		 col++;
-	 }
-	 if(S==b_matrixSize-1)
-		 std::cout<<"ERROR ROW HIT"<<std::endl;
-	 return S-fin;
- }
-*/
+
 void BaseSampler::GenerateDDGTree(const std::vector<uint64_t> & probMatrix) {
 	for(unsigned int i =0;i<probMatrix.size();i++){
 	}
@@ -186,7 +159,7 @@ void BaseSampler::GenerateDDGTree(const std::vector<uint64_t> & probMatrix) {
 	}
 }
 
-int64_t BaseSampler::GenerateIntegerKnuthYaoAlt() {
+int64_t BaseSampler::GenerateIntegerKnuthYao() {
 	int64_t ans = -1;
 	bool hit = false;
 
@@ -204,23 +177,7 @@ int64_t BaseSampler::GenerateIntegerKnuthYaoAlt() {
 			if (firstNonZero <= i){
 				if(i <= endIndex){
 					ans = DDGTree[nodeIndex][i - firstNonZero];
-				} /*else {
-					std::cout<<"Hit active generation"<<std::endl;
-					//std::vector<short> DDGColumn(nodeCount);
-					DDGColumn = new short[nodeCount];
-					nodeCount -= hammingWeights[i];
-					for (int j = 0; j < nodeCount; j++) {
-						DDGColumn[j] = -1;
-					}
-					uint32_t eNodeCount = 0;
-					for (int j = 0;j < b_matrixSize&& eNodeCount != hammingWeights[i]; j++) {
-						if ((probMatrix[j] >> (63 - i)) & 1) {
-							DDGColumn[nodeCount + eNodeCount] = j;
-							eNodeCount++;
-						}
-					}
-					ans = DDGColumn[nodeIndex];
-				}*/
+				}
 				if(ans >= 0){
 					if(ans!=b_matrixSize-1)
 						hit = true;
@@ -232,132 +189,12 @@ int64_t BaseSampler::GenerateIntegerKnuthYaoAlt() {
 					}
 				}
 			}
-			/*if (DDGColumn != nullptr) {
-				delete[] DDGColumn;
-				DDGColumn = nullptr;
-			}*/
 		}
 	}
 
-	//int64_t sign=bg->Generate()?1:-1;
-	return /*sign**/(ans - fin + b_mean);
-}
-/*
-int32_t DiscreteGaussianGeneratorGeneric::GenerateInteger(double mean,double stddev) {
-
-	//Replaced it with a binary search
-
-	if (stddev != m_prev_std) {
-		m_Sample_max = 0;
-		int left = 0, right = (m_Sample_b * m_Sample_k) - 1;
-		while (left <= right) {
-			int mid = (left + right) / 2;
-			if (m_sigma[mid] < stddev) {
-				left = mid + 1;
-			} else {
-				m_Sample_max = mid;
-				right = mid - 1;
-			}
-
-		}
-
-		m_K = std::sqrt((stddev - m_SigmaBar) * (stddev + m_SigmaBar)); // m_sigma[m_Sample_max];
-		m_prev_std = stddev;
-	}
-
-	double x = SampleI(m_Sample_max);
-
-	double c = mean + m_K * x;
-
-	uint64_t k2 = 1 << m_Sample_k;
-	double k2c = k2 * c;
-
-	double alpha = k2c - floor(k2c);
-	std::bernoulli_distribution Beta(alpha);
-
-	double cPrime = floor(k2c) / k2
-			+ Beta(PseudoRandomNumberGenerator::GetPRNG());
-
-	// cPrime is actually rational \in 2^{-k} Z
-	int32_t y = SampleC(cPrime, m_Sample_k);
-	return y;
-}
- */
-/*
-int32_t DiscreteGaussianGeneratorGeneric::SampleI(int32_t i) {
-	if (i == 0) {
-		int32_t x;
-		if (bType == KNUTH_YAO) {
-			x = GenerateIntegerKnuthYaoAlt(0);
-		} else {
-			x = GenerateIntegerPeikert(0);
-		}
-		return x;
-	}
-	int32_t x1 = SampleI(i - 1);
-	int32_t x2 = SampleI(i - 1);
-	int32_t y = m_z[i] * x1 + std::max(1, (m_z[i] - 1)) * x2;
-	return y;
-
-}
- */
-/*
-double DiscreteGaussianGeneratorGeneric::SampleC(double c, int32_t k) {
-	if (k == 0) {
-		return 0;
-	}
-
-	double g;
-	int64_t a = std::abs(
-			((int64_t) (pow(m_Sample_b, (k - 1)) * c)) % m_Sample_b);
-	if (bType == KNUTH_YAO) {
-		g = pow(m_Sample_b, -k + 1) * GenerateIntegerKnuthYaoAlt(a)
-						+ pow(m_Sample_b, (k - 1)) * c;
-	} else {
-
-		g = pow(m_Sample_b, -k + 1) * GenerateIntegerPeikert(a)
-						+ pow(m_Sample_b, (k - 1)) * c;
-	}
-
-	return g + SampleC(c - g, k - 1);
-
+	return (ans - fin + b_mean);
 }
 
-void DiscreteGaussianGeneratorGeneric::PreCompute(int32_t b, int32_t k,
-		double stddev) {
-	m_Sample_b = b;
-	m_Sample_k = k;
-
-	m_z.resize((int) (b * k));
-	m_sigma.resize((int) (b * k));
-
-	m_sigma[0] = stddev;
-	this->SetStd(stddev);
-	if (bType == KNUTH_YAO) {
-		GenerateProbMatrix(stddev, 0, b);
-	} else {
-		Initialize(b);
-	}
-
-	//Smoothing parameter
-	//std::cout << "N = " << sqrt(2)*N << std::endl;
-	//std::cin.get();
-	for (int i = 1; i < b; i++) {
-		m_z[i] = floor(m_sigma[i - 1] / (sqrt(2) * N));
-		m_sigma[i] = sqrt(
-				(m_z[i] * m_z[i] + std::max((m_z[i] - 1) * (m_z[i] - 1), 1))
- * m_sigma[i - 1] * m_sigma[i - 1]);
-	}
-	m_SigmaBar = 0;
-	for (int i = 0; i < m_Sample_k; i++) {
-		m_SigmaBar += pow(m_Sample_b, (-2 * i));
-
-	}
-
-	m_SigmaBar = m_sigma[0] * std::sqrt(m_SigmaBar);
-
-}
- */
 void BaseSampler::Initialize(double mean) {
 
 	m_vals.clear();
