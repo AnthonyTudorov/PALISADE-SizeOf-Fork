@@ -120,18 +120,6 @@ public:
 	}
 
 	/**
-	 * GetEncodedElement encodes, if necessary
-	 * @return the Polynomial that the element was encoded into
-	 */
-	Poly& GetEncodedElement() {
-		if( !IsEncoded() ) {
-			if( !this->Encode() )
-				throw std::logic_error("Encode from within GetEncodedElement failed");
-		}
-		return encodedVector;
-	}
-
-	/**
 	 * Get method to return the length of plaintext
 	 *
 	 * @return the length of the plaintext in terms of the number of bits.
@@ -226,6 +214,7 @@ inline std::ostream& operator<<(std::ostream& out, const Plaintext& item)
  */
 template <>
 inline Poly& Plaintext::GetElement<Poly>() {
+	//encodedVector.SetFormat(EVALUATION);
 	return encodedVector;
 }
 
@@ -235,6 +224,7 @@ inline Poly& Plaintext::GetElement<Poly>() {
  */
 template <>
 inline DCRTPoly& Plaintext::GetElement<DCRTPoly>() {
+	//encodedVectorDCRT.SetFormat(EVALUATION);
 	return encodedVectorDCRT;
 }
 

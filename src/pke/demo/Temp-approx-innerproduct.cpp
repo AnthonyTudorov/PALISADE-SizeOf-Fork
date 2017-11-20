@@ -79,11 +79,6 @@ int main() {
 	shared_ptr<Plaintext> intArray1 = cc->MakePackedPlaintext(vectorOfInts1);
 	shared_ptr<Plaintext> intArray2 = cc->MakePackedPlaintext(vectorOfInts2);
 
-	shared_ptr<Poly> plaintext(new Poly(params, EVALUATION, true));
-	for(usint i=0; i<phim; i++){
-		plaintext->SetValAtIndex(i, BigInteger(vectorOfInts2[i]));
-	}
-
 	// std::cout << "Input array 1 \n\t" << intArray1 << std::endl;
 	// std::cout << "Input array 2 \n\t" << intArray2 << std::endl;
 
@@ -114,7 +109,7 @@ int main() {
 			cc->ResumeTiming();
 		ciphertext_priv = cc->Encrypt(kp.secretKey, intArray1);
 		ciphertext_pub = cc->Encrypt(kp.publicKey, intArray1);
-		intArray2->Encode();
+
 		//ciphertext_plain = cc->Encrypt(kp.publicKey, intArray2, false, false);
 
 		auto ciphertextMult = cc->EvalMult(ciphertext_priv, intArray2);

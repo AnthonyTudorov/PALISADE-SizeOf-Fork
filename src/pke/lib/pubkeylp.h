@@ -1376,7 +1376,7 @@ namespace lbcrypto {
 			shared_ptr<Plaintext> plaintext = cc->MakePackedPlaintext(randomIntVector);
 
 			plaintext->Encode();
-			plaintext->GetElement<Element>().SwitchFormat();
+			plaintext->GetElement<Element>().SetFormat(EVALUATION);
 
 			auto ans = EvalAdd(ciphertext, plaintext);
 

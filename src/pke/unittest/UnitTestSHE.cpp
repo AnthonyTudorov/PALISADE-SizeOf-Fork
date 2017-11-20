@@ -64,68 +64,46 @@ static const usint TOWERS = 3;
 
 template<class Element>
 void UnitTest_Add(shared_ptr<CryptoContext<Element>> cc) {
-	bool dbg_flag = false;
-	DEBUG("1.1");
+
 	std::vector<uint32_t> vectorOfInts1 = { 1,0,3,1,0,1,2,1 };
 	shared_ptr<Plaintext> plaintext1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
-	DEBUG("1.2");
+
 	std::vector<uint32_t> vectorOfInts2 = { 2,1,3,2,2,1,3,0 };
 	shared_ptr<Plaintext> plaintext2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
-	DEBUG("1.3");
+
 	std::vector<uint32_t> vectorOfIntsAdd = { 3,1,6,3,2,2,5,1 };
 	shared_ptr<Plaintext> plaintextAdd = cc->MakeCoefPackedPlaintext(vectorOfIntsAdd);
-	DEBUG("1.4");
+
 	std::vector<uint32_t> vectorOfIntsSub = { 63,63,0,63,62,0,63,1 };
 	shared_ptr<Plaintext> plaintextSub = cc->MakeCoefPackedPlaintext(vectorOfIntsSub);
 
-	{
+	// EVAL ADD
+	LPKeyPair<Element> kp = cc->KeyGen();
+	shared_ptr<Ciphertext<Element>> ciphertext1 = cc->Encrypt(kp.publicKey, plaintext1);
+	shared_ptr<Ciphertext<Element>> ciphertext2 = cc->Encrypt(kp.publicKey, plaintext2);
 
-		DEBUG("2.1");
-		// EVAL ADD
-		shared_ptr<Plaintext> intArray1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
-		DEBUG("2.2");
-		shared_ptr<Plaintext> intArray2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
-		DEBUG("2.3");
-		shared_ptr<Plaintext> intArrayExpected = cc->MakeCoefPackedPlaintext(vectorOfIntsAdd);
+	shared_ptr<Ciphertext<Element>> cResult = cc->EvalAdd(ciphertext1, ciphertext2);
 
-		////////////////////////////////////////////////////////////
-		//Perform the key generation operation.
-		////////////////////////////////////////////////////////////
-		DEBUG("2.4");
-		LPKeyPair<Element> kp = cc->KeyGen();
-		DEBUG("2.5");
-		shared_ptr<Ciphertext<Element>> ciphertext1 =
-				cc->Encrypt(kp.publicKey, intArray1);
-		DEBUG("2.6");
-		shared_ptr<Ciphertext<Element>> ciphertext2 =
-				cc->Encrypt(kp.publicKey, intArray2);
-		DEBUG("2.7");
-		shared_ptr<Ciphertext<Element>> cResult;
-		DEBUG("2.8");
-		cResult = cc->EvalAdd(ciphertext1, ciphertext2);
-		DEBUG("2.9");
-		shared_ptr<Plaintext> results;
+	shared_ptr<Plaintext> results;
+	cc->Decrypt(kp.secretKey, cResult, &results);
 
-		DEBUG("2.a");
-		cc->Decrypt(kp.secretKey, cResult, &results);
+	results->SetLength(plaintextAdd->GetLength());
+	EXPECT_EQ(plaintextAdd->GetCoefPackedValue(), results->GetCoefPackedValue()) << "EvalAdd fails";
 
-		DEBUG("2.b");
-		results->SetLength(intArrayExpected->GetLength());
-		DEBUG("2.c");
-		EXPECT_EQ(intArrayExpected->GetCoefPackedValue(), results->GetCoefPackedValue()) << "EvalAdd fails";
-	}
+	cout << ciphertext1->GetElement().GetFormat() << endl;
+	cout << plaintext2->GetElement<Element>().GetFormat() << endl;
+
+	auto ctMixedMode = cc->EvalAdd(ciphertext1, plaintext2);
+	shared_ptr<Plaintext> mmResult;
+	cc->Decrypt(kp.secretKey, ctMixedMode, &mmResult);
+	mmResult->SetLength(plaintextAdd->GetLength());
+	EXPECT_EQ(plaintextAdd->GetCoefPackedValue(), mmResult->GetCoefPackedValue()) << "EvalAdd Ct and Pt fails";
 }
 
 /// add
 TEST_F(UTSHE, LTV_Poly_Add) {
- bool dbg_flag = false;
-	DEBUG("LTV_Poly_Add");
-	DEBUG("0.1");
 	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementLTV(ORDER, PTM);
-	DEBUG("0.2");
 	UnitTest_Add<Poly>(cc);
-	DEBUG("0.3");
-
 }
 
 TEST_F(UTSHE, LTV_DCRTPoly_Add) {
