@@ -65,6 +65,18 @@ namespace lbcrypto {
 		explicit LWEConjunctionCHCPRFAlgorithm(usint base, usint chunkSize, usint length, usint n);
 
 		/**
+		 * Gets the ring dimension
+		 * @return the ring dimension
+		 */
+		usint GetRingDimension() const;
+
+		/**
+		 * Gets the log of the modulus
+		 * @return the log of the modulus
+		 */
+		usint GetLogModulus() const;
+
+		/**
 		 * Method to generate unconstrained PRF key
 		 *
 		 * @return unconstrained PRF key
@@ -136,7 +148,6 @@ namespace lbcrypto {
 
 		DCRTPoly::DggType m_dgg;
 		DCRTPoly::DggType m_dggLargeSigma;
-		DCRTPoly::DggType m_dggEncoding;
 		DCRTPoly::TugType m_tug;
 
 		shared_ptr<vector<Matrix<Element>>> m_A;

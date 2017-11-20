@@ -41,6 +41,8 @@ int main(int argc, char* argv[]) {
 	TIC(t);
 	LWEConjunctionCHCPRFAlgorithm<DCRTPoly> algorithm(1 << 15, 4, 16, 1024);
 	std::cout << "Parameter Generation: " << TOC(t) << "ms" << std::endl;
+	std::cout << "n = " << algorithm.GetRingDimension() << std::endl;
+	std::cout << "log2 q = " << algorithm.GetLogModulus() << std::endl;
 	TIC(t);
 	auto key = algorithm.KeyGen();
 	std::cout << "Key Generation: " << TOC(t) << "ms" << std::endl;
@@ -48,9 +50,15 @@ int main(int argc, char* argv[]) {
 	auto constrainedKey = algorithm.Constrain(key,  "????????????1011");
 	std::cout << "Constain Key: " << TOC(t) << "ms" << std::endl;
 	TIC(t);
-	std::cout << algorithm.Evaluate(           key, "1011101110111011") << std::endl;
-	std::cout << algorithm.Evaluate(constrainedKey, "1011101110111011") << std::endl;
-	std::cout << algorithm.Evaluate(           key, "1011101110111010") << std::endl;
-	std::cout << algorithm.Evaluate(constrainedKey, "1011101110111010") << std::endl;
-	std::cout << "Evaluation: " << TOC(t) << "ms" << std::endl;
+	const auto value1 = algorithm.Evaluate(           key, "1011101110111011");
+	const auto value2 = algorithm.Evaluate(constrainedKey, "1011101110111011");
+	const auto value3 = algorithm.Evaluate(           key, "1011101110111010");
+	const auto value4 = algorithm.Evaluate(constrainedKey, "1011101110111010");
+	std::cout << value1 << std::endl;
+	std::cout << value2 << std::endl;
+	std::cout << (value1 == value2 ? "Machted (Correct)" : "Did not match (Incorrect)") << std::endl;
+	std::cout << value3 << std::endl;
+	std::cout << value4 << std::endl;
+	std::cout << (value3 == value4 ? "Matched (Incorrect)" : "Did not match (Correct)") << std::endl;
+	std::cout << "Evaluation: 4 * " << TOC(t) / 4 << "ms" << std::endl;
 }

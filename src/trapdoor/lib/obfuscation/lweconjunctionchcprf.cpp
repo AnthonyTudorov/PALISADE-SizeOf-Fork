@@ -48,7 +48,7 @@ LWEConjunctionCHCPRFAlgorithm<Element>::LWEConjunctionCHCPRFAlgorithm(usint base
 
 	double modulus = m_elemParams->GetModulus().ConvertToDouble();
 
-	// Initialize m_dggLargeSigma and m_dggEncoding
+	// Initialize m_dggLargeSigma
 	usint k = floor(log2(modulus-1.0)+1.0);
 	usint m = ceil(k/log2(base)) + 2;
 
@@ -60,13 +60,22 @@ LWEConjunctionCHCPRFAlgorithm<Element>::LWEConjunctionCHCPRFAlgorithm(usint base
 	else
 		m_dggLargeSigma = m_dgg;
 
-	m_dggEncoding = typename Element::DggType(k*sqrt(n)*SIGMA);
-
 	// Generate encoding keys
 	EncodingParamsGen();
 
 };
 
+template <class Element>
+usint LWEConjunctionCHCPRFAlgorithm<Element>::GetRingDimension() const {
+	return m_elemParams->GetRingDimension();
+}
+
+template <class Element>
+usint LWEConjunctionCHCPRFAlgorithm<Element>::GetLogModulus() const {
+	double q = m_elemParams->GetModulus().ConvertToDouble();
+	usint logModulus = floor(log2(q - 1.0) + 1.0);
+	return logModulus;
+}
 
 template <class Element>
 shared_ptr<vector<vector<shared_ptr<Matrix<Element>>>>> LWEConjunctionCHCPRFAlgorithm<Element>::KeyGen() {
@@ -104,11 +113,11 @@ shared_ptr<vector<vector<shared_ptr<Matrix<Element>>>>> LWEConjunctionCHCPRFAlgo
 		std::string chunkTemp = replaceChar(chunk, '0', '1');
 		chunkTemp = replaceChar(chunkTemp, '?', '0');
 		// store the mask as integer for bitwise operations
-		int chunkMask = std::stoi(chunkTemp, nullptr, 2);
+		usint chunkMask = std::stoi(chunkTemp, nullptr, 2);
 
 		// build a chunk target that maps "10??" to "1000" - replacing wilcard character by 0
 		chunkTemp = replaceChar(chunk, '?', '0');
-		int chunkTarget = std::stoi(chunkTemp, nullptr, 2);
+		usint chunkTarget = std::stoi(chunkTemp, nullptr, 2);
 
 		vector<shared_ptr<Matrix<Element>>> S_i;
 
@@ -182,7 +191,7 @@ double LWEConjunctionCHCPRFAlgorithm<Element>::EstimateRingModulus(usint n) {
 	uint32_t base = m_base;
 
 	//Correctness constraint
-	auto qCorrectness = [&](uint32_t n, uint32_t m, uint32_t k) -> double { return  32*Berr*k*sqrt(n)*pow(sqrt(m*n)*beta*SPECTRAL_BOUND(n,m-2,base),length);  };
+	auto qCorrectness = [&](uint32_t n, uint32_t m, uint32_t k) -> double { return  16*Berr*pow(sqrt(m*n)*beta*SPECTRAL_BOUND(n,m-2,base),length);  };
 
 	double qPrev = 1e6;
 	double q = 0;
@@ -273,7 +282,7 @@ shared_ptr<Matrix<Element>> LWEConjunctionCHCPRFAlgorithm<Element>::Encode(usint
 
 	#pragma omp parallel for
 	for(size_t i=0; i<m; i++) {
-		ej(0,i) = Element(m_dggEncoding, elem.GetParams(), COEFFICIENT);
+		ej(0,i) = Element(m_dgg, elem.GetParams(), COEFFICIENT);
 		ej(0,i).SwitchFormat();
 	}
 
