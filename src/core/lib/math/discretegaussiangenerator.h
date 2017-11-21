@@ -32,8 +32,8 @@
  * does not require any form of precomputation. However, it has high rejection rates and is prone to timing attacks. It is not used anywhere in the
  * library at the moment and there for historical reasons.
  *
- * Second sampling method implemented is Karney's method defined in Algorithm D from https://arxiv.org/pdf/1303.6257.pdf, which is an improvement to
- * to the rejection sampling. It also works for arbitrary centers and standard deviations without any precomputation. Its rejection rate is smaller than
+ * Second sampling method implemented is Karney's method defined in Algorithm D from https://arxiv.org/pdf/1303.6257.pdf, which is an improved method
+ * based on rejection sampling. It also works for arbitrary centers and standard deviations without any precomputation. Its rejection rate is smaller than
  * rejection sampling in its naive form but it is still vulnerable to timing attacks.
  *
  *

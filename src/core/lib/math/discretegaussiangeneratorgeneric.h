@@ -41,12 +41,9 @@
  * THE MEAN OF THE DISTRIBUTION IS FIXED, as each new center will require a new set of precomputations, just like Peikert's inversion method.
  *
  * The "generic sampler" on the other hand, works independent from standard deviation of the distribution. It combines an array of previously discussed base samplers
- * centered around 0 to (2^b-1) / 2^b through convolution. The base samplers however, must be precomputed beforehand; but they do not need to be recalculated at
- * any time of the sampling process. It is USABLE FOR ANY STANDARD DEVIATION AND MEAN with only one single precomputation.
- *
- * If a sampler with arbitrary standard deviation and mean suppport is needed, then it is recommended to refer to Karney's sampler in discretegaussiangenerator.cpp
- * which uses Algorithm D from https://arxiv.org/pdf/1303.6257.pdf. Its statistical values pass the Gaussian Distribution tests and can be used for ANY STANDARD DEVIATION
- * AND CENTER WITHOUT PRECOMPUTATION. However, it may be prone to timing attacks.
+ * centered around 0 to (2^b-1) / 2^b through convolution. The tables of base samplers however, must be precomputed beforehand; but they do not need to be recalculated at
+ * any time of the sampling process. It is USABLE FOR ANY STANDARD DEVIATION AND MEAN, just like Karney's method defined in discretegaussiangenerator.h, needs only one single precomputation
+ * and is not prone to timing attacks unlike Karney. Karney's method, however, is faster than the generic sampler.
  *
  * PARAMETER SELECTION FOR GENERIC SAMPLER
  *
@@ -54,7 +51,7 @@
  * are defined in the equation k = (PRECISION - FLIPS) / LOG_BASE. k denotes the level of precision of the generic sampler. Higher the k
  * is, higher the precision of the generic sampler but higher the run time. PRECISION denotes the number of decimal bits in the center
  * of the distribution. Since we are using 'double' for mean, it is fixed to 53 by definition. FLIPS denote the number of Bernoulli flips
- * used to approximate the bits used in combination of base sampler. Higher the number of flips, higher the number of bits approximated rather than
+ * used to approximate the bits used in combination of base sampler. Higher the number of flips, larger the number of bits approximated rather than
  * calculated which means smaller run times. Generic sampler requires a set of base samplers centered around 0/2^b to (2^b-1)/2^b; LOG_BASE denotes
  * b in this equation. Higher the LOG_BASE is, more base samplers required which requires additional memory; but at the same time smaller run times.
  *
