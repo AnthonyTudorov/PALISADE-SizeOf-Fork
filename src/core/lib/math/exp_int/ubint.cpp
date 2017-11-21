@@ -2574,10 +2574,21 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
       throw std::logic_error("ERROR == against uninitialized bint\n");
     return(this->Compare(a)==0);
   }
+  template<typename limb_t>
+  bool ubint<limb_t>::operator==(const usint& a) const{
+    if(this->m_state==GARBAGE)
+      throw std::logic_error("ERROR == against uninitialized bint\n");
+    return(this->Compare(a)==0);
+  }
 
 
   template<typename limb_t>
   bool ubint<limb_t>::operator!=(const ubint& a)const{
+    return(this->Compare(a)!=0);
+  }
+
+  template<typename limb_t>
+  bool ubint<limb_t>::operator!=(const usint& a)const{
     return(this->Compare(a)!=0);
   }
 

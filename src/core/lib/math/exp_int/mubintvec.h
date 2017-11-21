@@ -444,7 +444,7 @@ public:
    */
   
   void atMod(size_t index, const ubint_el_t &value);
-  void atMod(size_t index, const std::string valstr) const;
+  void atMod(size_t index, const std::string &valstr);
   
   /**
    * returns the vector modulus with respect to the input value.

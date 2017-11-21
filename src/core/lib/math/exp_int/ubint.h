@@ -833,6 +833,7 @@ namespace exp_int{
      * @return true if the inputs are equal.
      */
     bool operator==(const ubint& a) const;
+    bool operator==(const usint& a) const;    
 
     /**
      * Test inequality of the inputs.
@@ -841,6 +842,7 @@ namespace exp_int{
      * @return true if the inputs are inequal.
      */
     bool operator!=(const ubint& a) const;
+    bool operator!=(const usint& a) const;
 
     /**
      * Test if first input is great than the second input.

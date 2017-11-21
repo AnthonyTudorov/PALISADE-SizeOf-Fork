@@ -113,7 +113,7 @@ namespace NTL {
     usint len = rhs.size();
     for (size_t i=0;i<size_t(n);i++){ // this loops over each entry
       if(i<len) {
-	(*this)[i] =  myT(*(rhs.begin()+i));  
+	(*this)[i] =  myT(*(rhs.begin()+i))%m_modulus;
       } else {
 	(*this)[i] = myT(0);
       }
@@ -131,7 +131,7 @@ namespace NTL {
     usint len = rhs.size();
     for (size_t i=0;i<size_t(n);i++){ // this loops over each entry
       if(i<len) {
-	(*this)[i] =  myT(*(rhs.begin()+i));  
+	(*this)[i] =  myT(*(rhs.begin()+i))%m_modulus;
       } else {
 	(*this)[i] = myT(0);
       }
