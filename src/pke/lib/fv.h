@@ -61,7 +61,6 @@ namespace lbcrypto {
 			 */
 			LPCryptoParametersFV() : LPCryptoParametersRLWE<Element>() {
 				m_delta = BigInteger(0);
-				m_mode = RLWE;
 				m_bigModulus = BigInteger(0);
 				m_bigRootOfUnity = BigInteger(0);
 				m_bigModulusArb = BigInteger(0);
@@ -74,7 +73,6 @@ namespace lbcrypto {
 			 */
 			LPCryptoParametersFV(const LPCryptoParametersFV &rhs) : LPCryptoParametersRLWE<Element>(rhs) {
 				m_delta = rhs.m_delta;
-				m_mode = rhs.m_mode;
 				m_bigModulus = rhs.m_bigModulus;
 				m_bigRootOfUnity = rhs.m_bigRootOfUnity;
 				m_bigModulusArb = rhs.m_bigModulusArb;
@@ -96,7 +94,7 @@ namespace lbcrypto {
 			 * @param securityLevel Security level as Root Hermite Factor.  We use the Root Hermite Factor representation of the security level to better conform with US ITAR and EAR export regulations.  This is typically represented as /delta in the literature.  Typically a Root Hermite Factor of 1.006 or less provides reasonable security for RLWE crypto schemes, although extra care is need for the LTV scheme because LTV makes an additional security assumption that make it suceptible to subfield lattice attacks.
 			 * @param relinWindow The size of the relinearization window.  This is relevant when using this scheme for proxy re-encryption, and the value is denoted as r in the literature.
 			 * @param delta FV-specific factor that is multiplied by the plaintext polynomial.
-			 * @param mode optimization setting (RLWE vs OPTIMIZED)
+			 * @param mode mode for secret polynomial, defaults to RLWE.
 			 * @param bigModulus modulus used in polynomial multiplications in EvalMult
 			 * @param bigRootOfUnity root of unity for bigModulus
 			 * @param bigModulusArb modulus used in polynomial multiplications in EvalMult (for arbitrary cyclotomics)
@@ -125,9 +123,9 @@ namespace lbcrypto {
 						securityLevel,
 						relinWindow,
 						depth,
-						maxDepth) {
+						maxDepth,
+						mode) {
 						m_delta = delta;
-						m_mode = mode;
 						m_bigModulus = bigModulus;
 						m_bigRootOfUnity = bigRootOfUnity;
 						m_bigModulusArb = bigModulusArb;
@@ -144,7 +142,7 @@ namespace lbcrypto {
 			* @param securityLevel security level (root Hermite factor).
 			* @param relinWindow the size of the relinearization window.
 			* @param delta FV-specific factor that is multiplied by the plaintext polynomial.
-			* @param mode optimization setting (RLWE vs OPTIMIZED)
+			* @param mode mode for secret polynomial, defaults to RLWE.
 			* @param bigModulus modulus used in polynomial multiplications in EvalMult
 			* @param bigRootOfUnity root of unity for bigModulus
 			* @param bigModulusArb modulus used in polynomial multiplications in EvalMult (arbitrary cyclotomics)
@@ -173,9 +171,9 @@ namespace lbcrypto {
 					securityLevel,
 					relinWindow,
 					depth,
-					maxDepth) {
+					maxDepth,
+					mode) {
 				m_delta = delta;
-				m_mode = mode;
 				m_bigModulus = bigModulus;
 				m_bigRootOfUnity = bigRootOfUnity;
 				m_bigModulusArb = bigModulusArb;
@@ -207,13 +205,6 @@ namespace lbcrypto {
 			* @return the delta factor. It is an FV-specific factor that is multiplied by the plaintext polynomial.
 			*/
 			const BigInteger& GetDelta() const { return m_delta; }
-
-			/**
-			* Gets the mode setting: RLWE or OPTIMIZED.
-			*
-			* @return the mode setting.
-			*/
-			MODE GetMode() const { return m_mode; }
 
 			/**
 			* Gets the modulus used for polynomial multiplications in EvalMult
@@ -250,12 +241,6 @@ namespace lbcrypto {
 			void SetDelta(const BigInteger &delta) { m_delta = delta; }
 
 			/**
-			* Configures the mode for generating the secret key polynomial
-			* @param mode is RLWE or OPTIMIZED.  OPTIMIZED is preferred for increased performance.
-			*/
-			void SetMode(MODE mode) { m_mode = mode; }
-
-			/**
 			* Sets the modulus used for polynomial multiplications in EvalMult
 			* 
 			* @param &bigModulus the modulus value.
@@ -289,7 +274,6 @@ namespace lbcrypto {
 				if( el == 0 ) return false;
 
 				if (m_delta != el->m_delta) return false;
-				if (m_mode != el->m_mode) return false;
 				if (m_bigModulus != el->m_bigModulus) return false;
 				if (m_bigRootOfUnity != el->m_bigRootOfUnity) return false;
 				if (m_bigModulusArb != el->m_bigModulusArb) return false;
@@ -302,7 +286,6 @@ namespace lbcrypto {
 				LPCryptoParametersRLWE<Element>::PrintParameters(os);
 
 				os << " delta: " << m_delta <<
-						" mode: " << m_mode <<
 						" bigmodulus: " << m_bigModulus <<
 						" bigrootofunity: " << m_bigRootOfUnity <<
 						" bigmodulusarb: " << m_bigModulusArb <<
@@ -313,10 +296,6 @@ namespace lbcrypto {
 			// factor delta = floor(q/p) that is multipled by the plaintext polynomial 
 			// in FV (most significant bit ranges are used to represent the message)
 			BigInteger m_delta;
-			
-			// specifies whether the keys are generated from discrete 
-			// Gaussian distribution or ternary distribution with the norm of unity
-			MODE m_mode;
 			
 			// larger modulus that is used in polynomial multiplications within EvalMult (before rounding is done)
 			BigInteger m_bigModulus;
@@ -429,7 +408,7 @@ namespace lbcrypto {
 		* @param makeSparse set to true if ring reduce by a factor of 2 is to be used.  Generally this should always be false.
 		* @return key pair including the private and public key
 		*/
-		virtual LPKeyPair<Element> KeyGen(shared_ptr<CryptoContext<Element>> cc, bool makeSparse=false);
+		LPKeyPair<Element> KeyGen(shared_ptr<CryptoContext<Element>> cc, bool makeSparse=false);
 
 		virtual ~LPAlgorithmFV() {}
 

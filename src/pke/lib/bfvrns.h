@@ -61,18 +61,13 @@ namespace lbcrypto {
 			/**
 			 * Default constructor.
 			 */
-			LPCryptoParametersBFVrns() : LPCryptoParametersRLWE<Element>() {
-				m_mode = RLWE;
-			}
+			LPCryptoParametersBFVrns() : LPCryptoParametersRLWE<Element>() {}
 
 			/**
 		 	 * Copy constructor.
 	 		 * @param rhs - source
 			 */
-			LPCryptoParametersBFVrns(const LPCryptoParametersBFVrns &rhs) : LPCryptoParametersRLWE<Element>(rhs) {
-				m_mode = rhs.m_mode;
-			}
-
+			LPCryptoParametersBFVrns(const LPCryptoParametersBFVrns &rhs) : LPCryptoParametersRLWE<Element>(rhs) {}
 			/**
 			 * Constructor that initializes values.  Note that it is possible to set parameters in a way that is overall
 			 * infeasible for actual use.  There are fewer degrees of freedom than parameters provided.  Typically one
@@ -107,9 +102,9 @@ namespace lbcrypto {
 						securityLevel,
 						relinWindow,
 						depth,
-						maxDepth) {
-						m_mode = mode;
-					}
+						maxDepth,
+						mode) {
+			}
 
 			/**
 			* Constructor that initializes values.
@@ -140,8 +135,8 @@ namespace lbcrypto {
 					securityLevel,
 					relinWindow,
 					depth,
-					maxDepth) {
-				m_mode = mode;
+					maxDepth,
+					mode) {
 			}
 
 			/**
@@ -162,13 +157,6 @@ namespace lbcrypto {
 			* @return true on success
 			*/
 			bool Deserialize(const Serialized& serObj);
-
-			/**
-			* Gets the mode setting: RLWE or OPTIMIZED.
-			*
-			* @return the mode setting.
-			*/
-			MODE GetMode() const { return m_mode; }
 
 			/**
 			* Gets the precomputed table of [(q/qi)^{-1}]_qi / qi
@@ -210,12 +198,6 @@ namespace lbcrypto {
 			const std::vector<std::vector<native_int::BigInteger>>& GetDCRTPolysDivsiModqiTable() const { return m_DCRTPolysDivsiModqiTable; }
 
 			const std::vector<native_int::BigInteger>& GetDCRTPolysModqiTable() const { return m_DCRTPolysModqiTable; }
-
-			/**
-			* Configures the mode for generating the secret key polynomial
-			* @param mode is RLWE or OPTIMIZED.  OPTIMIZED is preferred for increased performance.
-			*/
-			void SetMode(MODE mode) { m_mode = mode; }
 
 			/**
 			* Sets the precomputation table of [(q/qi)^{-1}]_qi / qi
@@ -295,20 +277,14 @@ namespace lbcrypto {
 
 				if( el == 0 ) return false;
 
-				if (m_mode != el->m_mode) return false;
-
 				return  LPCryptoParametersRLWE<Element>::operator==(rhs);
 			}
 
 			void PrintParameters(std::ostream& os) const {
 				LPCryptoParametersRLWE<Element>::PrintParameters(os);
-				os << " mode: " << m_mode;
 			}
 
 		private:
-			// specifies whether the keys are generated from discrete 
-			// Gaussian distribution or ternary distribution with the norm of unity
-			MODE m_mode;
 
 			// DCRTPoly decryption ratios; stores a precomputed table of [(q/qi)^{-1}]_qi / qi
 			std::vector<double> m_DCRTPolyDecryptionTable;
@@ -420,15 +396,6 @@ namespace lbcrypto {
 			const shared_ptr<Ciphertext<Element>> ciphertext,
 			Poly *plaintext) const;
 
-		/**
-		* Function to generate public and private keys. See the class description for citations on where the algorithms were
-	 	* taken from.
-		*
-		* @param cc cryptocontext for the keys to be generated.
-		* @param makeSparse set to true if ring reduce by a factor of 2 is to be used.  Generally this should always be false.
-		* @return key pair including the private and public key
-		*/
-		LPKeyPair<Element> KeyGen(shared_ptr<CryptoContext<Element>> cc, bool makeSparse=false);
 
 	};
 

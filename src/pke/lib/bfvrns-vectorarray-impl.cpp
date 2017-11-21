@@ -382,55 +382,6 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 
 }
 
-//makeSparse is not used by this scheme
-template <>
-LPKeyPair<DCRTPoly> LPAlgorithmBFVrns<DCRTPoly>::KeyGen(shared_ptr<CryptoContext<DCRTPoly>> cc, bool makeSparse)
-{
-
-	LPKeyPair<DCRTPoly>	kp( new LPPublicKey<DCRTPoly>(cc), new LPPrivateKey<DCRTPoly>(cc) );
-
-	const shared_ptr<LPCryptoParametersBFVrns<DCRTPoly>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersBFVrns<DCRTPoly>>(cc->GetCryptoParameters());
-
-	const shared_ptr<typename DCRTPoly::Params> elementParams = cryptoParams->GetElementParams();
-
-	const typename DCRTPoly::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
-	typename DCRTPoly::DugType dug;
-	typename DCRTPoly::TugType tug;
-
-	//Generate the element "a" of the public key
-	DCRTPoly a(dug, elementParams, Format::EVALUATION);
-
-	//Generate the secret key
-	DCRTPoly s;
-
-	//Done in two steps not to use a random polynomial from a pre-computed pool
-	//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
-	if (cryptoParams->GetMode() == RLWE) {
-		s = DCRTPoly(dgg, elementParams, Format::COEFFICIENT);
-		s.SwitchFormat();
-	}
-	else {
-		s = DCRTPoly(tug, elementParams, Format::COEFFICIENT);
-		s.SwitchFormat();
-	}
-
-	kp.secretKey->SetPrivateElement(s);
-
-	//Done in two steps not to use a discrete Gaussian polynomial from a pre-computed pool
-	DCRTPoly e(dgg, elementParams, Format::COEFFICIENT);
-	e.SwitchFormat();
-
-	DCRTPoly b(elementParams, Format::EVALUATION, true);
-	b-=e;
-	b-=(a*s);
-
-	kp.publicKey->SetPublicElementAtIndex(0, std::move(b));
-	kp.publicKey->SetPublicElementAtIndex(1, std::move(a));
-
-	return kp;
-}
-
-
 template <>
 shared_ptr<Ciphertext<DCRTPoly>> LPAlgorithmBFVrns<DCRTPoly>::Encrypt(const shared_ptr<LPPublicKey<DCRTPoly>> publicKey,
 		Poly &ptxt, bool doEncryption) const

@@ -65,8 +65,6 @@ bool LPCryptoParametersBFVrns<Element>::Serialize(Serialized* serObj) const {
 	if (this->SerializeRLWE(serObj, cryptoParamsMap) == false)
 		return false;
 
-	cryptoParamsMap.AddMember("mode", std::to_string(m_mode), serObj->GetAllocator());
-
 	serObj->AddMember("LPCryptoParametersBFVrns", cryptoParamsMap.Move(), serObj->GetAllocator());
 	serObj->AddMember("LPCryptoParametersType", "LPCryptoParametersBFVrns", serObj->GetAllocator());
 
@@ -82,12 +80,6 @@ bool LPCryptoParametersBFVrns<Element>::Deserialize(const Serialized& serObj) {
 		return false;
 
 	SerialItem::ConstMemberIterator pIt;
-
-	if ((pIt = mIter->value.FindMember("mode")) == mIter->value.MemberEnd())
-		return false;
-	MODE mode = (MODE)atoi(pIt->value.GetString());
-
-	this->SetMode(mode);
 
 	return true;
 }

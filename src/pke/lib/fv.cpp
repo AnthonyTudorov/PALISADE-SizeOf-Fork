@@ -60,7 +60,6 @@ bool LPCryptoParametersFV<Element>::Serialize(Serialized* serObj) const {
 		return false;
 
 	cryptoParamsMap.AddMember("delta", m_delta.ToString(), serObj->GetAllocator());
-	cryptoParamsMap.AddMember("mode", std::to_string(m_mode), serObj->GetAllocator());
 	cryptoParamsMap.AddMember("bigmodulus", m_bigModulus.ToString(), serObj->GetAllocator());
 	cryptoParamsMap.AddMember("bigrootofunity", m_bigRootOfUnity.ToString(), serObj->GetAllocator());
 	cryptoParamsMap.AddMember("bigmodulusarb", m_bigModulusArb.ToString(), serObj->GetAllocator());
@@ -85,10 +84,6 @@ bool LPCryptoParametersFV<Element>::Deserialize(const Serialized& serObj) {
 		return false;
 	BigInteger delta(pIt->value.GetString());
 
-	if ((pIt = mIter->value.FindMember("mode")) == mIter->value.MemberEnd())
-		return false;
-	MODE mode = (MODE)atoi(pIt->value.GetString());
-
 	if ((pIt = mIter->value.FindMember("bigmodulus")) == mIter->value.MemberEnd())
 		return false;
 	BigInteger bigmodulus(pIt->value.GetString());
@@ -109,7 +104,6 @@ bool LPCryptoParametersFV<Element>::Deserialize(const Serialized& serObj) {
 	this->SetBigRootOfUnity(bigrootofunity);
 	this->SetBigModulusArb(bigmodulusarb);
 	this->SetBigRootOfUnityArb(bigrootofunityarb);
-	this->SetMode(mode);
 	this->SetDelta(delta);
 
 	return true;
@@ -278,7 +272,7 @@ LPKeyPair<Element> LPAlgorithmFV<Element>::KeyGen(shared_ptr<CryptoContext<Eleme
 
 	LPKeyPair<Element>	kp( new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc) );
 
-	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(cc->GetCryptoParameters());
+	const shared_ptr<LPCryptoParametersRLWE<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersRLWE<Element>>(cc->GetCryptoParameters());
 
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 

@@ -1157,7 +1157,8 @@ CryptoContextFactory<T>::genCryptoContextBV(shared_ptr<typename T::Params> ep,
 		1.006, // securityLevel,
 		relinWindow, // Relinearization Window
 		mode, //Mode of noise generation
-		depth) );
+		depth
+) );
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeBV<T>() );
 
@@ -1179,7 +1180,8 @@ CryptoContextFactory<T>::genCryptoContextBV(shared_ptr<typename T::Params> ep,
 		1.006, // securityLevel,
 		relinWindow, // Relinearization Window
 		mode, //Mode of noise generation
-		depth));
+		depth
+));
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeBV<T>());
 

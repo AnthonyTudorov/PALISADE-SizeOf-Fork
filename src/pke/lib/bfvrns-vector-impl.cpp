@@ -55,13 +55,6 @@ DecryptResult LPAlgorithmBFVrns<Poly>::Decrypt(const shared_ptr<LPPrivateKey<Pol
 	throw std::runtime_error(errMsg);
 }
 
-template <>
-LPKeyPair<Poly> LPAlgorithmBFVrns<Poly>::KeyGen(shared_ptr<CryptoContext<Poly>> cc, bool makeSparse)
-{
-	std::string errMsg = "LPAlgorithmBFVrns<Poly>::Keygen is implemented only for DCRTPoly.";
-	throw std::runtime_error(errMsg);
-}
-
 template class LPCryptoParametersBFVrns<Poly>;
 template class LPPublicKeyEncryptionSchemeBFVrns<Poly>;
 template class LPAlgorithmBFVrns<Poly>;
