@@ -446,17 +446,9 @@ TEST(UTBinVect, modadd_vector_result_greater_modulus){
 	BigVector m(5,q);			// calling constructor to create a vector of length 5 and passing value of q
 	BigVector n(5,q);	
 	
-	m.at(0)="9868";
-	m.at(1)="5879";
-	m.at(2)="4554";
-	m.at(3)="2343";
-	m.at(4)="9789";
+	m = {"9868","5879","4554","2343","9789"};
 
-	n.at(0)="4533";
-	n.at(1)="4549";
-	n.at(2)="6756";
-	n.at(3)="1233";
-	n.at(4)="7897";
+	n={"4533", "4549", "6756", "1233", "7897"};
 	
 	DEBUG("m "<<m);
 	DEBUG("m mod"<<m.GetModulus());
@@ -482,24 +474,24 @@ TEST(UTBinVect, modadd_vector_result_greater_modulus){
   	Returns:  (m+n)mod q, and the result is stored in Big Vector a.
 */
 TEST(UTBinVect,method_plus_equals_vector_operation){
+	bool dbg_flag = false;
 	BigInteger q("657");	
 	BigVector m(5,q); // calling constructor to create a vector of length 5 and passing value of q
 	BigVector n(5,q);
 	
-	m.at(0)="9868";
-	m.at(1)="5879";
-	m.at(2)="4554";
-	m.at(3)="2343";
-	m.at(4)="9789";
+	m = {"9868", "5879", "4554", "2343", "9789"};
 
-	n.at(0)="4";
+	n.at(0)="4"; //note at does not allow uses of modulus.
 	n.at(1)="9";
 	n.at(2)="66";
 	n.at(3)="33";
 	n.at(4)="7";
-
+ 
+	DEBUG("m "<<m);
+	DEBUG("n "<<n);
+	
 	m+=n;
-
+	DEBUG("m" <<m);
 	uint64_t expectedResult[5] = {17,632,21,405,598};
 
 	for (usint i=0;i<5;i++){

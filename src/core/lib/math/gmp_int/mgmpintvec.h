@@ -130,7 +130,7 @@ namespace NTL {
     const myVecP& operator=(uint64_t rhs);
 
     void clear(myVecP& x); //why isn't this inhereted?
-
+#if 0
     note we need to define lvalve at() for all three below
 						 
     void SetValAtIndextochange(size_t index, const myT&value);
@@ -138,10 +138,11 @@ namespace NTL {
 
     //the following may be OBE, resolves to same as SVAI
     void SetValAtIndexWithoutModtochange(size_t index, const myT&value);
+#endif
+    const myZZ& at(size_t index) const;
+    myZZ& at(size_t index);
 
-    const myZZ at(size_t index) const;
-
-    /**
+/**
      * Returns a vector of digit at a specific index for all entries
      * for a given number base.
      * TODO: rename this better... what is a digit?

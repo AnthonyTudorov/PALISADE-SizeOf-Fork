@@ -112,7 +112,7 @@ clean: cleancore cleanpke cleantrapdoor cleancircuit cleandocs cleanbenchmark
 
 UNITTESTMAINOBJ := $(BINDIR)/unittest/Main_TestAll.o
 
-$(UNITTESTMAINOBJ): test/include/gtest/Main_TestAll.cpp src/core/lib/math/backend.h
+$(UNITTESTMAINOBJ): test/include/gtest/Main_TestAll.cpp src/core/lib/math/backend.h 
 	@mkdir -p $(BINDIR)/unittest
 	$(CC) -c $(CPPFLAGS) $(INC) -o $@ $<
 

@@ -103,6 +103,11 @@ namespace NTL{
       return *this;
     }
 
+    inline const myZZ& operator=(std::string valstr){
+      *this = myZZ(valstr);
+      return *this;
+    }
+
     static const myZZ ZERO;
     static const myZZ ONE;
     static const myZZ TWO;

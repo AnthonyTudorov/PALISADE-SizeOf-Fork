@@ -208,14 +208,14 @@ namespace lbcrypto {
 			sint v = (result.get())[i];
 			if (v < 0) {
 				v *= -1;
-#if MATHBACKEND != 6
+#if 1 //MATHBACKEND != 6
 				ans.at(i)= modulus - IntType(v);
 #else
 				ans.atWithoutMod(i)= modulus - IntType(v);
 #endif
 			}
 			else {
-#if MATHBACKEND != 6
+#if 1//MATHBACKEND != 6
 			  ans.at(i)= IntType(v);
 #else
 			  ans.atWithoutMod(i)= IntType(v);
