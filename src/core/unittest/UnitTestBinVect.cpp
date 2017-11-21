@@ -112,7 +112,8 @@ TEST(UTBinVect, AtAndSetModulusTest){
 	DEBUG("calculated result"<<m);
 	uint64_t expectedResult[len] = {48,53,7,178,190,120,79,108,60,12};	
 	for (usint i=0;i<len;i++){
-	  EXPECT_EQ (expectedResult[i],calculatedResult[i].ConvertToInt());
+	  EXPECT_EQ (expectedResult[i],calculatedResult[i].ConvertToInt())
+	    << "Mod failed";
 	}
 	BigVector n(len,q);
 	
@@ -130,9 +131,11 @@ TEST(UTBinVect, AtAndSetModulusTest){
 	DEBUG("n"<<n);
 	for (usint i=0;i<len;i++){
 		if (i !=6){ // value at 6 is < q
-		  EXPECT_NE (expectedResult[i],n[i].ConvertToInt());
+		  EXPECT_NE (expectedResult[i],n[i].ConvertToInt())
+		    << "at no mod failed";
 		}else{
-		  EXPECT_EQ (expectedResult[i],n[i].ConvertToInt());
+		  EXPECT_EQ (expectedResult[i],n[i].ConvertToInt())
+		    << "at no mod failed";
 		}
 	}
 
@@ -148,7 +151,8 @@ TEST(UTBinVect, AtAndSetModulusTest){
 	n.atMod(9,"7698798");	
 
 	for (usint i=0;i<len;i++){
-	  EXPECT_EQ (expectedResult[i], n[i].ConvertToInt());
+	  EXPECT_EQ (expectedResult[i], n[i].ConvertToInt())
+	    << "atMod failed";
 	}
 	BigVector l(len,q);
 	//note list assignment does take modulus
@@ -164,7 +168,8 @@ TEST(UTBinVect, AtAndSetModulusTest){
 	     "7698798"};	
 	DEBUG("l"<<l);
 	for (usint i=0;i<len;i++){	
-	  EXPECT_EQ (expectedResult[i], l[i].ConvertToInt());
+	  EXPECT_EQ (expectedResult[i], l[i].ConvertToInt())
+	    << "Mod on list assignment failed";
 	}
 }
 

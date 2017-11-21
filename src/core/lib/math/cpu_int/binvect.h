@@ -472,7 +472,7 @@ private:
 	//m_length stores the length of the vector
 	usint m_length;
 	//m_modulus stores the internal modulus of the vector.
-	IntegerType m_modulus;
+	IntegerType m_modulus = IntegerType::ZERO;
 
 	//function to check if the index is a valid index.
 	bool IndexCheck(usint length) const {
