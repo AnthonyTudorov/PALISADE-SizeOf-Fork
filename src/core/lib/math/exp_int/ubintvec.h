@@ -227,46 +227,19 @@ namespace exp_int {
 	}
 	return os;
       };
-#if 0
       /**
-       * Sets a value at an index.
-       * NOTE DEPRECATED BY []
-       * @param index is the index to set a value at.
-       * @param value is the value to set at the index.
-       */
-      need lvalue at
-      void SetValAtIndex(usint index, const ubint_el_t& value);
-
-      /**
-       * Sets a value at an index.
-       * NOTE DEPRECATED BY []
-       * @param index is the index to set a value at.
-       * @param str is the string representation of the value to set at the index.
-       */
-      need lvalueat
-      void SetValAtIndex(usint index, const std::string& str);
-#endif
-      /**
-       * Gets a value at an index.
-       * NOTE DEPRECATED BY []
-       * @param index is the index to get a value at.
-       * @return is the value at the index. return NULL if invalid index.
+       * indexing with bounds check 
+       * note writing to this->at(i) is done WITHOUT MOD
+       * uses this ->atMod(i,val) to write with MOD
+       * @param index is the index
+       * @return is the value at the index.
        */
       ubint_el_t& at(size_t index);
-
-            /**
-       * Gets a value at an index.
-       * NOTE DEPRECATED BY []
-       * @param index is the index to get a value at.
-       * @return is the value at the index. return NULL if invalid index.
-       */
       const ubint_el_t& at(size_t index) const;
-
-
       /**
        * operators to get a value at an index.
        * @param idx is the index to get a value at.
-       * @return is the value at the index. return NULL if invalid index.
+       * @return is the value at the index. 
        */
       inline ubint_el_t& operator[](std::size_t idx) {return (this->m_data[idx]);}
       inline const ubint_el_t& operator[](std::size_t idx) const {return (this->m_data[idx]);}
@@ -352,15 +325,7 @@ namespace exp_int {
        * @return is the result of the multiplication operation.
        */
       const ubintvec& operator*=(const ubint_el_t &b);
-#if 0
-      /**
-       * Scalar exponentiation.
-       *
-       * @param &b is the scalar to exponentiate at all locations.
-       * @return is the result of the exponentiation operation.
-       */
-      ubintvec Exp(const ubint_el_t &b) const;
-#endif
+
       //vector operations
 
       //component-wise addition

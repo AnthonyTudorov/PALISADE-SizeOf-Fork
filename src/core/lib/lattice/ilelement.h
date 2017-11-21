@@ -153,22 +153,6 @@ public:
 	 * @param index is the index to set the value at.
 	 * @param val is the value to assign.
 	 */
-#if 0	
-	needs to be changed to lvalue at
-	virtual void SetValAtIndex(size_t index, const IntType& val) {
-		throw std::logic_error("SetValAtIndex not implemented");
-	}
-
-	/**
-	 * @brief SetValues allows Element values to be changed; this is used internally by the various operators
-	 *
-	 * @param values are the values to set.
-	 * @param format is the format/representations.
-	 */
-	virtual void SetValues(const VecType& values, Format format) = 0;
-#endif
-
-
 	
 	// OPERATORS
 	/**

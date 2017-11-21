@@ -223,39 +223,6 @@ namespace NTL {
     }
   }
   
-  //Assignment with initializer list of myZZ
-  //if myZZ.size()>rhs.size()
-  // keeps current size, just fills elements from initializer list
-  // otherwise extends lhs and fills to rhs.size().
-  //keeps current modulus
-#if 0 //not sure if we need this...
-  template<class myT>
-  const myVecP<myT>& myVecP<myT>::operator=(std::initializer_list<myT> rhs){
-    bool dbg_flag = false;
-    DEBUG("in op=initializerlist <myT>");
-    size_t len = rhs.size();
-    if (this->size()< len){
-      this->resize(len);
-    };
-
-    for(size_t i=0;i<this->size();i++){ // this loops over each entry
-      if (i<len) {
-#ifdef FORCE_NORMALIZATION
-      if (isModulusSet())
-	(*this)[i] =  myT(*(rhs.begin()+i))%m_modulus;
-      else //must be set directly
-#endif
-	(*this)[i] =  myT(*(rhs.begin()+i));
-      }else{
-	(*this)[i] =  myT(0);
-      }
-    }
-
-    return *this;
-    DEBUG("mubintvec assignment copy CTOR ubint init list size "<<this->size());
-  }
-#endif
-
   //Assignment with initializer list of uint64_ts
   //keeps current modulus
 
@@ -459,31 +426,6 @@ namespace NTL {
     myT n;
     myT oldModulusByTwo(oldModulus>>1);
     myT diff ((oldModulus > newModulus) ? (oldModulus-newModulus) : (newModulus - oldModulus));
-#if 0    
-    DEBUG("Switch modulus diff :"<<diff);
-    for(size_t i=0; i< this->size(); i++) {
-      n = this->at(i);
-      DEBUG("i,n "<<i<<" "<< n);
-      if (oldModulus < newModulus) {
-        if (n > oldModulusByTwo) {
-	  DEBUG("s1 "<<n.ModAdd(diff, newModulus));
-	  this->atWithoutMod(i)= n.ModAdd(diff, newModulus);
-	} else {
-	  DEBUG("s2 "<<n.Mod(newModulus));
-	  this->atWithoutMod(i)= n.Mod(newModulus);
-	}
-      } else {
-	if(n > oldModulusByTwo) {
-	  DEBUG("s3 "<<n.ModSub(diff, newModulus));				
-	  this->atWithoutMod(i)= n.ModSub(diff, newModulus);
-	} else {
-	  DEBUG("s4 "<<n.Mod(newModulus));
-	  this->atWithoutMod(i) = n.Mod(newModulus);
-	}
-      }
-      
-    }
-#else
     DEBUG("Switch modulus diff :"<<diff);
     for(size_t i=0; i< this->size(); i++) {
       n = this->at(i);
@@ -507,8 +449,6 @@ namespace NTL {
       }
       
     }
-
-#endif
     DEBUG("Switch modulus this before set :"<<*this);
     this->SetModulus(newModulus);
     DEBUG("Switch modulus new modulus :"<<this->m_modulus);
@@ -1048,59 +988,38 @@ namespace NTL {
     DEBUG("myvecp::done");
     //todo make modulus explicit.
   }
-#if 0
+
   //////////////////////////////////////////////////
-  // Set value at index 
+  // Set value at index with Mod 
   template<class myT>
 
-  void myVecP<myT>::SetValAtIndextochange(size_t index, const myT& value){
+  void myVecP<myT>::atMod(size_t index, const myT& value){
     if(!this->IndexCheck(index)){
       throw std::logic_error("myVecP index out of range");
     }
     else{
       // must be set modulo
-#ifdef FORCE_NORMALIZATION
       if (isModulusSet())
 	this->at(index) = value%m_modulus;
       else //must be set directly
-#endif
 	this->at(index) = value;
     }
   }
 
-  // set value at index from string
+  // set value at index from string with Mod
   template<class myT>
-  need to change to lvalue at();
-  void myVecP<myT>::SetValAtIndextochange(size_t index, const std::string& str){
+  void myVecP<myT>::atMod(size_t index, const std::string& str){
     if(!this->IndexCheck(index)){
       throw std::logic_error("myVecP index out of range");
     }
     else{
       // must be set modulo
-#ifdef FORCE_NORMALIZATION
       if (isModulusSet())
 	this->at(index) = myT(str)%m_modulus;
       else //must be set directly
-#endif
 	this->at(index) = myT(str);
     }
   }
-
-  //notice that in prior versions of this library, we required all dataelements  to be
-  // < modulus when in the array becauses of the way NTL requires it for its
-  // built in modulo arithmetic. I think this may be eliminated soon 
-  template<class myT>
-  need to change to lvalue at();
-  void myVecP<myT>::SetValAtIndexWithoutMod(size_t index, const myT& value){
-    if(!this->IndexCheck(index)){
-      throw std::logic_error("myVecP index out of range");
-    }
-    else{
-      //std::cout<<"Warning setting value to index without mod() first"<<std::endl;
-      this->at(index) = value;
-    }
-  }
-#endif
 
   template<class myT>
   myZZ& myVecP<myT>::at(size_t index) {
@@ -1112,7 +1031,6 @@ namespace NTL {
     return this->operator[](index);
   }
 
-  //DBC: could not get returning a & to work!!!
   template<class myT>
   const myZZ& myVecP<myT>::at(size_t index) const{
     bool dbg_flag = false;

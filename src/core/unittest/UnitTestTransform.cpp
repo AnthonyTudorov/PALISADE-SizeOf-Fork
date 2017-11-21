@@ -227,13 +227,7 @@ TEST(UTTransform, CRT_polynomial_multiplication_big_ring_prime_cyclotomics) {
 	cCheck = PolyMod(cCheck, cycloPoly, modulus);
 	DEBUG("c "<<c);
 	DEBUG("cCheck "<<cCheck);
-#if 0
-	for (usint i = 0; i < n; i++) {
-		EXPECT_EQ(cCheck.at(i), c.at(i));
-	}
-#else
 	EXPECT_EQ(cCheck, c);
-#endif
 }
 
 

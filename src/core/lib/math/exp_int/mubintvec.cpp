@@ -235,7 +235,7 @@ namespace exp_int {
     //this->m_data = b.m_data; for some reason this did not work, even though
     //we inheret from ubintvec
     for(size_t i = 0; i< b.size(); i++){
-      this->m_data[i] = b.at(i);
+      this->m_data[i] = b[i];
 
     }
 
@@ -255,7 +255,7 @@ namespace exp_int {
     //this->m_data = b.m_data; for some reason this did not work, even though
     //we inheret from ubintvec
     for(size_t i = 0; i< b.size(); i++){
-      this->m_data[i] = b.at(i);
+      this->m_data[i] = b[i];
     }
 
     m_modulus = modulus;
@@ -939,30 +939,6 @@ template<class ubint_el_t>
   //new serialize and deserialise operations
   //todo: not tested just added to satisfy compilier
   //currently using the same map as bigVector, with modulus. 
-#if 0
-  // JSON FACILITY - Serialize Operation
-  template<class ubint_el_t>
-  bool mubintvec<ubint_el_t>::Serialize(lbcrypto::Serialized* serObj) const {
-
-    if( !serObj->IsObject() )
-      return false;
-
-    lbcrypto::SerialItem bbvMap(rapidjson::kObjectType);
-    bbvMap.AddMember("Modulus", this->GetModulus().ToString(), serObj->GetAllocator()); 
-
-    size_t pkVectorLength = this->m_data.size();
-    if( pkVectorLength > 0 ) {
-      std::string pkBufferString = this->m_data.at(0).Serialize();
-      for (size_t i = 1; i < pkVectorLength; i++) {
-	pkBufferString += "|";
-	pkBufferString += this->m_data.at(i).Serialize();
-      }
-      bbvMap.AddMember("VectorValues", pkBufferString, serObj->GetAllocator());
-    }
-    serObj->AddMember("mubintvec", bbvMap, serObj->GetAllocator());
-    return true;
-  }
-#else
  // serialize and deserialise operations
   template<class ubint_el_t>
   bool mubintvec<ubint_el_t>::Serialize(lbcrypto::Serialized* serObj) const {
@@ -1015,43 +991,7 @@ template<class ubint_el_t>
     DEBUG("serialize done");
     return true;
   }
-#endif
 
-#if 0
-  // JSON FACILITY - Deserialize Operation
-  template<class ubint_el_t>
-  bool mubintvec<ubint_el_t>::Deserialize(const lbcrypto::Serialized& serObj) {
-
-    lbcrypto::Serialized::ConstMemberIterator mIter = serObj.FindMember("mubintvec");
-    if( mIter == serObj.MemberEnd() )
-      return false;
-
-    lbcrypto::SerialItem::ConstMemberIterator vIt;
-    if( (vIt = mIter->value.FindMember("Modulus")) == mIter->value.MemberEnd() )
-    return false;
-    ubint_el_t bbiModulus(vIt->value.GetString());
-
-    if( (vIt = mIter->value.FindMember("VectorValues")) == mIter->value.MemberEnd() )
-      return false;
-
-    this->SetModulus(bbiModulus);
-
-    this->m_data.clear();
-
-    ubint_el_t vectorElem;
-    //usint ePos = 0;
-    const char *vp = vIt->value.GetString();
-    while( *vp != '\0' ) {
-      vp = vectorElem.Deserialize(vp);
-      //this->at(ePos++)= vectorElem;
-      this->m_data.push_back(vectorElem);
-      if( *vp == '|' )
-	vp++;
-    }
-
-    return true;
-  }
-#else
   // Deserialize
   template<class ubint_el_t>
   bool mubintvec<ubint_el_t>::Deserialize(const lbcrypto::Serialized& serObj) {
@@ -1130,8 +1070,6 @@ template<class ubint_el_t>
     *this = std::move(newVec);//save the overall vector
     return true;
   }
-
-#endif
 
 } // namespace lbcrypto ends
  

@@ -369,38 +369,6 @@ public:
 	 * @param index is the index at which the value is to be set.
 	 * @param val is the value to be set.
 	 */
-#if 0
-	neest to be changed to lvalue at
-	inline void SetValAtIndex(size_t index, std::string val) {
-	  m_values->at(index) = IntType(val);
-	}
-
-	/**
-	 * @brief Set VecType value to val
-	 *
-	 * @param index is the index at which the value is to be set.
-	 * @param val is the value to be set.
-	 */
-	needs to be changed to lvalue at
-	inline void SetValAtIndex(size_t index, const IntType& val) {
-	  m_values->at(index)= val;
-	}
-
-	/**
-	 * @brief Set the value of the element at a given index to a given value without performing a modulus operation.
-	 * @param index the index to put data at.
-	 * @param val the value to assign.
-	 */
-	needs to be changed to lvalue atwithout mod 
-	inline void SetValAtIndexWithoutMod(size_t index, const IntType& val) {
-#if 1 //MATHBACKEND !=6
-	  m_values->at(index)= val;
-#else
-	  m_values->atWithoutMod(index)= val;
-#endif
-
-	}
-#endif
 	// SCALAR OPERATIONS
 
 	/**

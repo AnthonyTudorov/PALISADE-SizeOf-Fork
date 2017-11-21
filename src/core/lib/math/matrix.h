@@ -185,21 +185,13 @@ namespace lbcrypto {
              */  
             Matrix<Element> ScalarMult(Element const& other) const {
                 Matrix<Element> result(*this);
-            #if 0
-            for (size_t row = 0; row < result.rows; ++row) {
-                    for (size_t col = 0; col < result.cols; ++col) {
-                        *result.data[row][col] = *result.data[row][col] * other;
-                    }
+                #pragma omp parallel for
+		for (size_t col = 0; col < result.cols; ++col) {
+		  for (size_t row = 0; row < result.rows; ++row) {
+		    *result.data[row][col] = *result.data[row][col] * other;
+		  }
                 }
-            #else
-            #pragma omp parallel for
-            for (size_t col = 0; col < result.cols; ++col) {
-            	for (size_t row = 0; row < result.rows; ++row) {
-                        *result.data[row][col] = *result.data[row][col] * other;
-                    }
-                }
-
-            #endif
+		
                 return result;
             }
 
@@ -309,20 +301,13 @@ namespace lbcrypto {
                     throw invalid_argument("Addition operands have incompatible dimensions");
                 }
                 Matrix<Element> result(*this);
-            #if 0
-                for (size_t i = 0; i < rows; ++i) {
-                    for (size_t j = 0; j < cols; ++j) {
-                        *result.data[i][j] += *other.data[i][j];
-                    }
+                #pragma omp parallel for
+		for (size_t j = 0; j < cols; ++j) {
+		  for (size_t i = 0; i < rows; ++i) {
+		    *result.data[i][j] += *other.data[i][j];
+		  }
                 }
-            #else
-            #pragma omp parallel for
-            for (size_t j = 0; j < cols; ++j) {
-            for (size_t i = 0; i < rows; ++i) {
-                        *result.data[i][j] += *other.data[i][j];
-                    }
-                }
-            #endif
+		
                 return result;
             }
 
@@ -356,20 +341,12 @@ namespace lbcrypto {
                     throw invalid_argument("Subtraction operands have incompatible dimensions");
                 }
                 Matrix<Element> result(allocZero, rows, other.cols);
-            #if 0
-                for (size_t i = 0; i < rows; ++i) {
-                    for (size_t j = 0; j < cols; ++j) {
-                        *result.data[i][j] = *data[i][j] - *other.data[i][j];
-                    }
-                }
-            #else
                 #pragma omp parallel for
-            for (size_t j = 0; j < cols; ++j) {
-            	for (size_t i = 0; i < rows; ++i) {
-                        *result.data[i][j] = *data[i][j] - *other.data[i][j];
-                    }
+		for (size_t j = 0; j < cols; ++j) {
+		  for (size_t i = 0; i < rows; ++i) {
+		    *result.data[i][j] = *data[i][j] - *other.data[i][j];
+		  }
                 }
-            #endif
 
                 return result;
             }

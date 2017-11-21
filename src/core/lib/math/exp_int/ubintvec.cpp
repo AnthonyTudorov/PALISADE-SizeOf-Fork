@@ -181,33 +181,6 @@ namespace exp_int {
   }
 
   //ACCESSORS
-
-#if 0
-  // Set value at index from ubint
-  template<class ubint_el_t>
-needs to be replaced with lvalue at
-  void ubintvec<ubint_el_t>::SetValAtIndex(usint index, const ubint_el_t& value){
-
-    if(!this->IndexCheck(index)){
-      throw std::logic_error("ubintvec index out of range");
-    }
-    else{
-      this->m_data.at(index) = value;
-    }
-  }
-
-  // set value at index from string
-  template<class ubint_el_t>
-needs to be replaced with lvalue at
-  void ubintvec<ubint_el_t>::SetValAtIndex(usint index, const std::string& str){
-    if(!this->IndexCheck(index)){
-      throw std::logic_error("ubintvec index out of range");
-    }
-    else{
-      this->m_data.at(index).SetValue(str);
-    }
-  }
-#endif
   template<class ubint_el_t>
   ubint_el_t& ubintvec<ubint_el_t>::at(size_t index) {
     if(!this->IndexCheck(index)){
@@ -223,7 +196,6 @@ needs to be replaced with lvalue at
     }
     return this->m_data[index];
   }
-
 
 
 
@@ -319,16 +291,7 @@ needs to be replaced with lvalue at
     return *this;
 
   }
-#if 0 //not used
-template<class ubint_el_t>
-  ubintvec<ubint_el_t> ubintvec<ubint_el_t>::Exp(const ubint_el_t &b) const{
-    ubintvec ans(*this);
-    for(usint i=0;i<this->m_data.size();i++){
-      ans.m_data[i] = ans.m_data[i].Exp(b);
-    }
-    return ans;
-  }
-#endif
+
   // vector elementwise add
   template<class ubint_el_t>
   ubintvec<ubint_el_t> ubintvec<ubint_el_t>::Add(const ubintvec &b) const{

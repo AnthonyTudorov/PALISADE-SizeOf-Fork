@@ -136,20 +136,12 @@ MatrixStrassen<Element>& MatrixStrassen<Element>::operator+=(MatrixStrassen<Elem
     if (rows != other.rows || cols != other.cols) {
         throw invalid_argument("Addition operands have incompatible dimensions");
     }
-#if 0
-    for (size_t i = 0; i < rows; ++i) {
-        for (size_t j = 0; j < cols; ++j) {
-            data[i][j] += *other.data[i][j];
-        }
-    }
-#else
     #pragma omp parallel for
-for (size_t j = 0; j < cols; ++j) {
-	for (size_t i = 0; i < rows; ++i) {
-            data[i][j] += *other.data[i][j];
-        }
+    for (size_t j = 0; j < cols; ++j) {
+      for (size_t i = 0; i < rows; ++i) {
+	data[i][j] += *other.data[i][j];
+      }
     }
-#endif
     return *this;
 }
 
@@ -158,20 +150,13 @@ inline MatrixStrassen<Element>& MatrixStrassen<Element>::operator-=(MatrixStrass
     if (rows != other.rows || cols != other.cols) {
         throw invalid_argument("Subtraction operands have incompatible dimensions");
     }
-#if 0
-    for (size_t i = 0; i < rows; ++i) {
-        for (size_t j = 0; j < cols; ++j) {
-            *data[i][j] -= *other.data[i][j];
-        }
-    }
-#else
     #pragma omp parallel for
     for (size_t j = 0; j < cols; ++j) {
         for (size_t i = 0; i < rows; ++i) {
             *data[i][j] -= *other.data[i][j];
         }
     }
-#endif
+
     return *this;
 }
 

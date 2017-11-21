@@ -672,21 +672,6 @@ return result;
    */
   template<typename limb_t>
   ubint<limb_t>&  ubint<limb_t>::operator>>=(usint shift){
-#if 0
-    //check for garbage
-    if(m_state==State::GARBAGE)
-      throw std::logic_error("Value not initialized");
-
-    if(this->m_MSB==0 )
-      return *this;
-    else if(this->m_MSB<=shift){
-      *this = ZERO;
-      return *this;
-    } else {
-      *this = *this >> shift;
-      return *this;
-    }
-#else
     bool dbg_flag = false;
 
     //garbage check
@@ -772,7 +757,6 @@ return result;
     this->SetMSB();
     DEBUG("final MSB check "<<this->m_MSB);
     return *this;
-#endif
   }
 
 

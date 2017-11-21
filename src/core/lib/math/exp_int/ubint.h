@@ -162,18 +162,6 @@ namespace exp_int{
   };
 #endif
 
-#if 0
-  /**
-   * @brief Struct for calculating bit width from data type. 
-   * Sets value to the bitwidth of uint_type
-   *
-   * @tparam uint_type native integer data type.
-   */
-  template <typename uint_type>
-  struct UIntBitWidth{
-    const static int value = 8*sizeof(uint_type);
-  };
-#endif
   /**
    * @brief Struct to determine a datatype that is twice as big(bitwise) as utype.
    * sets T as of type void for default case

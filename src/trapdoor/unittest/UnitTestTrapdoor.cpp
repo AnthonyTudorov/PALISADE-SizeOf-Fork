@@ -62,19 +62,6 @@ protected:
 /* TESTING BASIC MATH METHODS AND OPERATORS     */
 /************************************************/
 
-#if 0 //TODO DBC FUNCTION IS UNUSED
-static function<unique_ptr<Poly>()> fastIL2nAlloc() {
-	usint m = 16;
-	BigInteger modulus("67108913");
-	BigInteger rootOfUnity("61564");
-    return Poly::MakeAllocator(
-        ILParams(
-        m, modulus, rootOfUnity),
-        EVALUATION
-        );
-}
-#endif
-
 TEST(UTTrapdoor,randomized_round){
     //  It compiles! ...
     //RandomizeRound(0, 4.3, 1024);

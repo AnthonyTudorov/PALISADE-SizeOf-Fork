@@ -86,10 +86,12 @@ Compares two integer values
 /* 	The method "Mod" operates on Big Vector m, BigInteger q
   	Returns:  m mod q, and the result is stored in Big Vector calculatedResult.
 */
-TEST(UTBinVect, SetModulusTest){
+TEST(UTBinVect, AtAndSetModulusTest){
 	bool dbg_flag = false;
-	BigVector m(10);
-	
+	usint len = 10;
+	BigVector m(len);
+
+	//note at() does not set modulus
 	m.at(0)="987968";
 	m.at(1)="587679";
 	m.at(2)="456454";
@@ -108,22 +110,72 @@ TEST(UTBinVect, SetModulusTest){
 	DEBUG("m"<<m);
 	BigVector calculatedResult = m.Mod(q);
 	DEBUG("calculated result"<<m);
-	uint64_t expectedResult[10] = {48,53,7,178,190,120,79,108,60,12};	// the expected values are stored as one dimensional integer array
+	uint64_t expectedResult[len] = {48,53,7,178,190,120,79,108,60,12};	
+	for (usint i=0;i<len;i++){
+		EXPECT_EQ (expectedResult[i],calculatedResult[i]);
+	}
+	BigVector n(len,q);
+	
+	n.at(0)="987968"; //note at() does not take modulus
+	n.at(1)="587679";
+	n.at(2)="456454";
+	n.at(3)="234343";
+	n.at(4)="769789";
+	n.at(5)="465654";
+	n.at(6)="79";
+	n.at(7)="346346";
+	n.at(8)="325328";
+	n.at(9)="7698798";	
 
-	for (usint i=0;i<5;i++){
-		EXPECT_EQ (expectedResult[i], (calculatedResult.at(i)).ConvertToInt());
+	DEBUG("n"<<n);
+	for (usint i=0;i<len;i++){
+		if (i !=6){ // value at 6 is < q
+			EXPECT_NE (expectedResult[i],n[i]);
+		}else{
+			EXPECT_EQ (expectedResult[i],n[i]);
+		}
 	}
 
+	n.atMod(0,"987968"); //note atMod() does take modulus
+	n.atMod(1,"587679");
+	n.atMod(2,"456454");
+	n.atMod(3,"234343");
+	n.atMod(4,"769789");
+	n.atMod(5,"465654");
+	n.atMod(6,"79");
+	n.atMod(7,"346346");
+	n.atMod(8,"325328");
+	n.atMod(9,"7698798");	
+
+	for (usint i=0;i<len;i++){
+		EXPECT_EQ (expectedResult[i], n[i]);
+	}
+	BigVector l(len,q);
+	//note list assignment does take modulus
+	l = {"987968", 
+	     "587679",
+	     "456454",
+	     "234343",
+	     "769789",
+	     "465654",
+	     "79",
+	     "346346",
+	     "325328",
+	     "7698798"};	
+	DEBUG("l"<<l);
+	for (usint i=0;i<len;i++){	
+		EXPECT_EQ (expectedResult[i], l[i]);
+	}
 }
 
 
 TEST(UTBinVect,NTL_modulus_framework){
 #if MATHBACKEND  == 6 //NTL backend
-
+	
   bool dbg_flag = false;
-
+	
   //code to test that the modulus framwork is ok
-
+  
   NTL::myZZ q1("1234567"); // a bigger number
   NTL::myZZ q2("345"); // a smaller bigger number
 
@@ -211,6 +263,7 @@ TEST(UTBinVect,ModAddBBITestBigModulus){
 	BigVector m(5,q);		// calling constructor to create a vector of length 5 and passing value of q
 	BigInteger n("3");
 
+	//at() is ok since q is biger than values
 	m.at(0)="9868";
 	m.at(1)="5879";
 	m.at(2)="4554";
@@ -238,6 +291,7 @@ TEST(UTBinVect,ModAddBBITestSmallerModulus){
 	BigInteger n("34365");
 
 	DEBUG("m's modulus "<<m.GetModulus());
+	//at() does not apply mod. 
 	m.at(0)="9868";
 	m.at(1)="5879";
 	m.at(2)="4554";

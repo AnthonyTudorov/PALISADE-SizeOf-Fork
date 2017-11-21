@@ -72,16 +72,6 @@ Matrix<Element> Matrix<Element>::Mult(Matrix<Element> const& other) const {
         throw invalid_argument("incompatible matrix multiplication");
     }
     Matrix<Element> result(allocZero, rows, other.cols);
-#if 0
-    for (size_t row = 0; row < result.rows; ++row) {
-        for (size_t col = 0; col < result.cols; ++col) {
-			*result.data[row][col] = 0;
-            for (size_t i = 0; i < cols; ++i) {
-                *result.data[row][col] += *data[row][i] * *other.data[i][col];
-            }
-        }
-    }
-#else
     if (rows  == 1) {
         #pragma omp parallel for
         for (size_t col = 0; col < result.cols; ++col) {
@@ -101,7 +91,6 @@ Matrix<Element> Matrix<Element>::Mult(Matrix<Element> const& other) const {
 		}
 	    }
     }
-#endif
     return result;
 }
 
@@ -110,20 +99,13 @@ Matrix<Element>& Matrix<Element>::operator+=(Matrix<Element> const& other) {
     if (rows != other.rows || cols != other.cols) {
         throw invalid_argument("Addition operands have incompatible dimensions");
     }
-#if 0
-    for (size_t i = 0; i < rows; ++i) {
-        for (size_t j = 0; j < cols; ++j) {
-            data[i][j] += *other.data[i][j];
-        }
-    }
-#else
     #pragma omp parallel for
-for (size_t j = 0; j < cols; ++j) {
+    for (size_t j = 0; j < cols; ++j) {
 	for (size_t i = 0; i < rows; ++i) {
             *data[i][j] += *other.data[i][j];
         }
     }
-#endif
+
     return *this;
 }
 
@@ -132,20 +114,13 @@ Matrix<Element>& Matrix<Element>::operator-=(Matrix<Element> const& other) {
     if (rows != other.rows || cols != other.cols) {
         throw invalid_argument("Subtraction operands have incompatible dimensions");
     }
-#if 0
-    for (size_t i = 0; i < rows; ++i) {
-        for (size_t j = 0; j < cols; ++j) {
-            *data[i][j] -= *other.data[i][j];
-        }
-    }
-#else
     #pragma omp parallel for
     for (size_t j = 0; j < cols; ++j) {
         for (size_t i = 0; i < rows; ++i) {
             *data[i][j] -= *other.data[i][j];
         }
     }
-#endif
+
     return *this;
 }
 

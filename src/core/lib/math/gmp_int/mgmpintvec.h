@@ -130,15 +130,11 @@ namespace NTL {
     const myVecP& operator=(uint64_t rhs);
 
     void clear(myVecP& x); //why isn't this inhereted?
-#if 0
-    note we need to define lvalve at() for all three below
-						 
-    void SetValAtIndextochange(size_t index, const myT&value);
-    void SetValAtIndextochange(size_t index, const std::string& str);
 
-    //the following may be OBE, resolves to same as SVAI
-    void SetValAtIndexWithoutModtochange(size_t index, const myT&value);
-#endif
+    // the following are like writing to this->at(i) but with modulus implied.
+    void atMod(size_t index, const myT&value);
+    void atMod(size_t index, const std::string& str);
+
     const myZZ& at(size_t index) const;
     myZZ& at(size_t index);
 
@@ -457,28 +453,6 @@ namespace NTL {
     
     inline bool operator!=( const myVecP& b) const
     { return !(this->operator==(b)); };
-    
-    /* operators to get a value at an index.
-       * @param idx is the index to get a value at.
-       * @return is the value at the index. return NULL if invalid index.
-       */
-#if 0  //this should be ok from base class Vec
-    inline myT operator[](std::size_t idx) {
-      //myZZ_p tmp((*this)[idx]._ZZ_p__rep);
-      //tmp.SetModulus(this->GetModulus());
-      myT tmp = this->NTL::Vec<ZZ>::operator[](idx);
-      return tmp;
-
-      //here we have the problem we return the element, but it never had it's modulus value set. 
-      //we need to somehow beable to set that modulus. 
-    }
-
-    inline const myT& operator[](std::size_t idx) const {
-	//how do we get this to work for the const???
-      const myT tmp = this->Vec<ZZ>::operator[](idx);
-      return tmp;
-    }
-#endif
  
     //Todo: get rid of printvalues everywhere
     void PrintValues() const { std::cout << *this; }
