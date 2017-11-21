@@ -90,9 +90,6 @@ void UnitTest_Add(shared_ptr<CryptoContext<Element>> cc) {
 	results->SetLength(plaintextAdd->GetLength());
 	EXPECT_EQ(plaintextAdd->GetCoefPackedValue(), results->GetCoefPackedValue()) << "EvalAdd fails";
 
-	cout << ciphertext1->GetElement().GetFormat() << endl;
-	cout << plaintext2->GetElement<Element>().GetFormat() << endl;
-
 	auto ctMixedMode = cc->EvalAdd(ciphertext1, plaintext2);
 	shared_ptr<Plaintext> mmResult;
 	cc->Decrypt(kp.secretKey, ctMixedMode, &mmResult);

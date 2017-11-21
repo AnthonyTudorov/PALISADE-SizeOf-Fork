@@ -208,7 +208,11 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalAdd(
 
 	const Element& c1 = ciphertext->GetElement();
 
+	plaintext->SetFormat(EVALUATION);
 	Element c2( plaintext->GetElement<Poly>(), c1.GetParams() );
+	std::cout
+	<< (c1.GetFormat() == EVALUATION ? "EVAL ":"COEF ")
+	<< (c2.GetFormat() == EVALUATION ? "EVAL ":"COEF ") << std::endl;
 
 	Element cResult = c1 + c2;
 

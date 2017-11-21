@@ -37,10 +37,10 @@ class IntegerEncoding: public Plaintext {
 public:
 	// these two constructors are used inside of Decrypt
 	IntegerEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep) :
-		Plaintext(vp,ep,true), value(0) {}
+		Plaintext(vp,ep), value(0) {}
 
 	IntegerEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep) :
-		Plaintext(vp,ep,true), value(0) {}
+		Plaintext(vp,ep), value(0) {}
 
 	IntegerEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, uint64_t scalar) :
 		Plaintext(vp,ep), value(scalar) {}

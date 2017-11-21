@@ -39,10 +39,10 @@ class ScalarEncoding : public Plaintext {
 public:
 	// these two constructors are used inside of Decrypt
 	ScalarEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, bool isSigned = false) :
-		Plaintext(vp,ep,true), value(0), valueSigned(0), isSigned(isSigned) {}
+		Plaintext(vp,ep), value(0), valueSigned(0), isSigned(isSigned) {}
 
 	ScalarEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, bool isSigned = false) :
-		Plaintext(vp,ep,true), value(0), valueSigned(0), isSigned(isSigned) {}
+		Plaintext(vp,ep), value(0), valueSigned(0), isSigned(isSigned) {}
 
 	ScalarEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, int32_t scalar) :
 		Plaintext(vp,ep), value(0), valueSigned(scalar), isSigned(true) {}

@@ -52,10 +52,10 @@ class PackedIntPlaintextEncoding : public Plaintext
 public:
 	// these two constructors are used inside of Decrypt
 	PackedIntPlaintextEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep) :
-		Plaintext(vp,ep,true) {}
+		Plaintext(vp,ep) {}
 
 	PackedIntPlaintextEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep) :
-		Plaintext(vp,ep,true) {
+		Plaintext(vp,ep) {
 		throw std::logic_error("DCRTPoly not supported with PackedIntPlaintextEncoding");
 	}
 

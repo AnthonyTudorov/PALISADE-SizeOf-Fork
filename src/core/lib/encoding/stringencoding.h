@@ -40,10 +40,10 @@ class StringEncoding: public Plaintext {
 public:
 	// these two constructors are used inside of Decrypt
 	StringEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep) :
-		Plaintext(vp,ep,true) {}
+		Plaintext(vp,ep) {}
 
 	StringEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep) :
-		Plaintext(vp,ep,true) {}
+		Plaintext(vp,ep) {}
 
 	StringEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, string str) :
 		Plaintext(vp,ep), ptx(str) {}

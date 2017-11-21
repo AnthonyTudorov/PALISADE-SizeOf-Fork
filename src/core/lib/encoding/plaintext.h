@@ -105,6 +105,18 @@ public:
 	virtual bool Decode() = 0;
 
 	/**
+	 * SetFormat - allows format to be changed for Plaintext evaluations
+	 *
+	 * @param fmt
+	 */
+	void SetFormat(Format fmt) {
+		if( typeFlag == IsPoly )
+			encodedVector.SetFormat(fmt);
+		else
+			encodedVectorDCRT.SetFormat(fmt);
+	}
+
+	/**
 	 * GetElement
 	 * @return the Polynomial that the element was encoded into
 	 */
@@ -214,6 +226,8 @@ inline std::ostream& operator<<(std::ostream& out, const Plaintext& item)
  */
 template <>
 inline Poly& Plaintext::GetElement<Poly>() {
+//	if( isEncoded )
+//		encodedVector.SetFormat(EVALUATION);
 	return encodedVector;
 }
 
@@ -223,7 +237,8 @@ inline Poly& Plaintext::GetElement<Poly>() {
  */
 template <>
 inline DCRTPoly& Plaintext::GetElement<DCRTPoly>() {
-	//encodedVectorDCRT.SetFormat(EVALUATION);
+//	if( isEncoded )
+//		encodedVectorDCRT.SetFormat(EVALUATION);
 	return encodedVectorDCRT;
 }
 

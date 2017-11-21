@@ -40,10 +40,10 @@ class CoefPackedEncoding: public Plaintext {
 public:
 	// these two constructors are used inside of Decrypt
 	CoefPackedEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, bool isSigned = false) :
-		Plaintext(vp,ep,true), isSigned(isSigned) {}
+		Plaintext(vp,ep), isSigned(isSigned) {}
 
 	CoefPackedEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, bool isSigned = false) :
-		Plaintext(vp,ep,true), isSigned(isSigned) {}
+		Plaintext(vp,ep), isSigned(isSigned) {}
 
 	CoefPackedEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, vector<int32_t> coeffs) :
 		Plaintext(vp,ep), valueSigned(coeffs), isSigned(true) {}
