@@ -319,16 +319,6 @@ inline MatrixStrassen<Element>& MatrixStrassen<Element>::HStack(MatrixStrassen<E
     return *this;
 }
 
-template<class Element>
-void MatrixStrassen<Element>::PrintValues() const {
-    for (size_t col = 0; col < cols; ++col) {
-        for (size_t row = 0; row < rows; ++row) {
-            data[row][col]->PrintValues();
-            std::cout << " ";
-        }
-        std::cout << std::endl;
-    }
-}
 
 template<class Element>
 void MatrixStrassen<Element>::SwitchFormat() {
@@ -471,20 +461,6 @@ MatrixStrassen<BigVector> RotateVecResult(MatrixStrassen<Poly> const& inMat) {
         }
     }
     return result;
-}
-
-template<class Element>
-inline std::ostream& operator<<(std::ostream& os, const MatrixStrassen<Element>& m){
-    os << "[ ";
-    for (size_t row = 0; row < m.GetRows(); ++row) {
-        os << "[ ";
-        for (size_t col = 0; col < m.GetCols(); ++col) {
-            os << *m.GetData()[row][col] << " ";
-        }
-        os << "]\n";
-    }
-    os << " ]\n";
-    return os;
 }
 
 // YSP removed the MatrixStrassen class because it is not defined for all possible data types

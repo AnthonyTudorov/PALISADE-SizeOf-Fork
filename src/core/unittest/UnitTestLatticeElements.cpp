@@ -1272,7 +1272,6 @@ TEST(UTILDCRT2n, arithmetic_ops_element_2) {
 	{
 		DCRTPoly ilvaCopy(ilva);
 		ilvaCopy += ilva1;
-	//TODO: clean up <<"Failure: +=";
 
 		for (usint i = 0; i < ilvaCopy.GetNumOfElements(); ++i)
 		{

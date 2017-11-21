@@ -76,7 +76,7 @@ using namespace lbcrypto;
 
 // test BBI constants
 static void make_BBI_constants(void) {	// function
-	BigInteger one(BigInteger::ONE);
+	BigInteger one(1);
 }
 
 void BM_BBI_constants(benchmark::State& state) { // benchmark

@@ -308,6 +308,19 @@ private:
 	std::ostream& os_;
 };
 
+#if 0
+//helper template to stream vector contents provided T has an stream operator<< 
+template < class T >
+inline std::ostream& operator << (std::ostream& os, const std::vector<T>& v) 
+{
+    os << "[";
+    for (const auto& itr : v){
+      os << " " << *itr;
+    }
+    os << " ]";
+    return os;
+ };
+#endif
 }
 
 #endif

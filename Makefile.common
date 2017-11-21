@@ -29,6 +29,8 @@
 # for making all the palisade components
 ################
 
+TEST_LIB := $(LOADTHREADFLAG) -fopenmp $(GMPLIB) -lgomp
+
 # NOTE select the appropriate set of CPPFLAGS 
 # most code is checked into git with the first line active
 
@@ -37,19 +39,34 @@
 #CPPFLAGS += -Wall -Ofast -w -fopenmp  -g ##undefine for parallel debug operation
 #CPPFLAGS += -Wall -O3 -w  -DNDEBUG  -pg ##undefine for single thread best performance operation with gprof profiling 
 
+##parallel best performance operation with debug
+##warn everything
+##no threading or optimization when doing coverage testing
+CPPFLAGS += -g -Wall -Werror
 
-#main best performance configuration for parallel operation - cross-platform
-CPPFLAGS += -g -Wall -Werror -O3 -fopenmp $(COMPTHREADFLAG) ##undefine for parallel best performance operation with debug
+## handle coverage test options if user set COVERAGE to any value on the command line
+ifdef COVERAGE
+	CPPFLAGS += --coverage -Wno-unknown-pragmas
+	TEST_LIB += --coverage
+	LIBSUFFIX=.a
+	LIBCMD=$(AR) crv
+else
+	CPPFLAGS += -O3 -fopenmp $(COMPTHREADFLAG) ##optimize and threads
+endif
+
+## set backend if user set it on the command line
+ifdef BACKEND
+	CPPFLAGS += -DMATHBACKEND=$(BACKEND)
+endif
+
 #CPPFLAGS += -Wall -O3 -w -fopenmp -m64 -DNDEBUG  ##undefine for parallel best performance operation with no debug
 
 #THE OPTIONS BELOW SHOULD BE USED WITH CARE AS THEY USE A LOT OF AGGRESSIVE OPTIMIZATION OPTIONS
-#CPPFLAGS += -Wall -w  -DNDEBUG -m64 -Ofast -flto -march=native -funroll-loops ##undefine for single thread best performance operation
-#CPPFLAGS += -Wall -w  -DNDEBUG -m64 -Ofast -flto -march=native -funroll-loops -fopenmp ##undefine for multithread really best performance operation
-#CPPFLAGS += -Wall -w  -m64 -Ofast -flto -march=native -funroll-loops -fopenmp -DNDEBUG ##undefine for multithread really best performance operation
-#CPPFLAGS += -Wall -w  -m64 -Ofast -flto -march=native -funroll-loops -fopenmp ##undefine for multithread really best performance operation
+#CPPFLAGS += -Wall  Werror -DNDEBUG -m64 -Ofast -flto -march=native -funroll-loops ##undefine for single thread best performance operation
+#CPPFLAGS += -Wall -Werror -DNDEBUG -m64 -Ofast -flto -march=native -funroll-loops -fopenmp ##undefine for multithread really best performance operation
+#CPPFLAGS += -Wall -Werror -m64 -Ofast -flto -march=native -funroll-loops -fopenmp -DNDEBUG ##undefine for multithread really best performance operation
+#CPPFLAGS += -Wall -Werror -m64 -Ofast -flto -march=native -funroll-loops -fopenmp ##undefine for multithread really best performance operation
 
-
-TEST_LIB := $(LOADTHREADFLAG) -fopenmp $(NTLLIB) $(GMPLIB) -lgomp
 
 
 #build directory
@@ -72,8 +89,7 @@ $(objects) : %.o : %.cpp
 NTLINCLUDE := -I third-party/include
 GMPINCLUDE := -I third-party/include
 
-# EXTLIB := -L$(EXTLIBDIR) $(NTLLIB) $(GMPLIB) $(TEST_LIB) -pg #profiling
-EXTLIB := -L$(EXTLIBDIR) $(NTLLIB) $(GMPLIB) $(TEST_LIB) #no profiling
+EXTLIB := -L$(EXTLIBDIR) $(TEST_LIB) #no profiling
 
 INC := -I src/core/lib -I src/pke/lib -I src/trapdoor/lib -I src/circuit/lib -I test $(OMPINCLUDE) $(NTLINCLUDE) $(GMPINCLUDE)
 
@@ -118,10 +134,6 @@ $(UNITTESTMAINOBJ): test/include/gtest/Main_TestAll.cpp src/core/lib/math/backen
 
 utall: $(BINDIR)/unittest/tests$(EXESUFFIX)
 
-$(BINDIR)/unittest/tests$(EXESUFFIX): $(UNITTESTMAINOBJ) $(COREUNITOBJECTS) $(EXTLIBDIR)/$(PALISADECORELIB) $(PKEUNITOBJECTS) $(EXTLIBDIR)/$(PALISADEPKELIB) $(TRAPDOORUNITOBJECTS) $(EXTLIBDIR)/$(PALISADETRAPDOORLIB) 
-	@mkdir -p $(BINDIR)/unittest
-	$(CC) -o $@ $(UNITTESTMAINOBJ) $(COREUNITOBJECTS) $(PKEUNITOBJECTS) $(TRAPDOORUNITOBJECTS) $(EXTLIB) -lPALISADEtrapdoor -lPALISADEpke -lPALISADEcore $(TEST_LIB) 
-
 include Makefile.core
 include Makefile.pke
 include Makefile.trapdoor
@@ -130,3 +142,7 @@ include Makefile.circuit
 include Makefile.wrapper
 include Makefile.benchmark     #builds the benchmark framework
 include Makefile.docs          #populates doxgen documentation
+
+$(BINDIR)/unittest/tests$(EXESUFFIX): $(UNITTESTMAINOBJ) $(COREUNITOBJECTS) $(EXTLIBDIR)/$(PALISADECORELIB) $(PKEUNITOBJECTS) $(EXTLIBDIR)/$(PALISADEPKELIB) $(TRAPDOORUNITOBJECTS) $(EXTLIBDIR)/$(PALISADETRAPDOORLIB) $(NTLLIB) $(GMPLIB)
+	@mkdir -p $(BINDIR)/unittest
+	$(CC) -o $@ $(UNITTESTMAINOBJ) $(COREUNITOBJECTS) $(PKEUNITOBJECTS) $(TRAPDOORUNITOBJECTS) $(EXTLIB) -lPALISADEtrapdoor -lPALISADEpke -lPALISADEcore $(TEST_LIB) $(NTLLIB) $(GMPLIB)

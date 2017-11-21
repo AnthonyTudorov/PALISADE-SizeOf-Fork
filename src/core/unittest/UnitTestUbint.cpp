@@ -70,8 +70,6 @@ protected:
 /* here are all the methods that need to be tested (or have been
    tested but not removed from this list -- oops)
 
-printLimbsInDec
-printLimbsInHex
 SetValue(str)
 SetValue(&exp_int::xubint)
 

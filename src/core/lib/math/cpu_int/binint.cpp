@@ -462,7 +462,7 @@ BigInteger<uint_type,BITLENGTH>&  BigInteger<uint_type,BITLENGTH>::operator>>=(u
 
 }
 
-
+#if 0
 template<typename uint_type,usint BITLENGTH>
 void BigInteger<uint_type,BITLENGTH>::PrintLimbsInDec() const{
 
@@ -484,7 +484,7 @@ void BigInteger<uint_type,BITLENGTH>::PrintLimbsInHex() const{
 
     std::cout<<std::endl;
 }
-
+#endif
 /*
  * This function is only used for serialization
  *
@@ -1701,7 +1701,6 @@ const std::string BigInteger<uint_type,BITLENGTH>::ToString() const{
 	//initiate to object to be printed
 	//print_obj = new BigInteger<uint_type,BITLENGTH>(*this);
 
-	//print_obj->PrintLimbsInDec();
 
 	//print_VALUE array stores the decimal value in the array
 	uschar *print_VALUE = new uschar[m_numDigitInPrintval];
@@ -2093,8 +2092,6 @@ std::ostream& operator<<(std::ostream& os, const BigInteger<uint_type_c,BITLENGT
 	//initiate to object to be printed
 	print_obj = new BigInteger<uint_type_c,BITLENGTH_c>(ptr_obj);
 
-	//print_obj->PrintLimbsInDec();
-
 	//print_VALUE array stores the decimal value in the array
 	uschar *print_VALUE = new uschar[ptr_obj.m_numDigitInPrintval];
 
@@ -2252,6 +2249,7 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::intToBigInteger
 	return BigInteger(m);
 
 }
-
-
+#if 0
+  template<> std::ostream& operator << <BigInteger<uint_type, BITLENGTH>>(std::ostream& os, const std::vector<BigInteger>& v);
+#endif
 } // namespace cpu_int ends

@@ -229,16 +229,19 @@ void BM_rekeygen(benchmark::State& state) { // benchmark
 		cc = CryptoContextHelper::getNewContext(parms[state.range(0)]);
 		cc->Enable(ENCRYPTION);
 		cc->Enable(PRE);
+		cc->Enable(SHE);
 
 		try {
 		ChineseRemainderTransformFTT<BigInteger,BigVector>::PreCompute(cc->GetRootOfUnity(),
 				cc->GetCyclotomicOrder(),
 				cc->GetModulus());
-		} catch( ... ) {}
+		} catch( ... ) {
+		}
 
 		try {
 			typename Poly::DggType dgg = Poly::DggType(4);			// Create the noise generator
-		} catch( ... ) {}
+		} catch( ... ) {
+		}
 
 		state.ResumeTiming();
 	}

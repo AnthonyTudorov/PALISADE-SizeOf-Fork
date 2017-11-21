@@ -117,14 +117,14 @@ TEST(UTTrapdoor,TrapDoorPairTest){
 
 	RingMat eHat = trapPair.second.m_e;
 	RingMat rHat = trapPair.second.m_r;
-    RingMat eyeKK = RingMat(zero_alloc, k, k).Identity();
+	RingMat eyeKK = RingMat(zero_alloc, k, k).Identity();
 
-	//eHat.PrintValues();
-	//rHat.PrintValues();
-	//eyeKK.PrintValues();
+        //std::cout << eHat <<std::endl;
+	//std::cout << rHat <<std::endl;
+	//std::cout << eyeKK <<std::endl;
 
 	RingMat stackedTrap1 = eHat.VStack(rHat);
-	//stackedTrap2.PrintValues();
+	//std::cout << stackedTrap2 <<std::endl;
 
 	EXPECT_EQ(2U,stackedTrap1.GetRows())
 		<< "Failure testing number of rows";
@@ -179,11 +179,12 @@ TEST(UTTrapdoor,TrapDoorMultTest){
 
 	RingMat eHat = trapPair.second.m_e;
 	RingMat rHat = trapPair.second.m_r;
-    RingMat eyeKK = RingMat(zero_alloc, k, k).Identity();
+	RingMat eyeKK = RingMat(zero_alloc, k, k).Identity();
 
-	//eHat.PrintValues();
-	//rHat.PrintValues();
-	//eyeKK.PrintValues();
+	//std::cout << eHat <<std::endl;
+	//std::cout << rHat <<std::endl;
+	//std::cout << eyeKK <<std::endl;
+
 
 	RingMat stackedTrap1 = eHat.VStack(rHat);
 	RingMat stackedTrap2 = stackedTrap1.VStack(eyeKK);

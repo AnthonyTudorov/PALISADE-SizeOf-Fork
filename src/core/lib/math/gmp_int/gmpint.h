@@ -443,22 +443,20 @@ namespace NTL{
      */
     uschar Get6BitsAtIndex(usint index) const;
 
+    /**
+    * Gets a copy of the  internal limb storage
+    * Used primarily for debugging
+    */
+    vector <ZZ_limb_t> GetInternalRepresentation(void) const {
+      vector<ZZ_limb_t> ret;
+      const ZZ_limb_t *zlp = ZZ_limbs_get(*this);
+
+      for (size_t i = 0; i < (size_t)this->size(); i ++){
+	ret.push_back(zlp[i]);
+      }
+      return ret;
+    }
     
-    /**
-    * Prints the value of the internal limb storage
-    * in decimal format. Used primarily for debugging
-    */
-    void PrintLimbsInDec() const;
-
-    /**
-    * Prints the value of the internal limb storage
-    * in hexadecimal format. Used primarily for debugging
-    */
-    void PrintLimbsInHex() const { std::cout<<std::hex<<*this<<std::dec; }
-
-    //TODO: get rid of this insanity
-    void PrintValues() const { std::cout << *this; };
-
   private:
     //adapter kits
     void SetMSB();

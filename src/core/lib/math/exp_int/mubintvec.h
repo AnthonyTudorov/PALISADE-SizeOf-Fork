@@ -382,7 +382,6 @@ public:
     return os;
   }
 
-  void PrintValues() const { std::cout << *this; }
 
   /**
    * checks the vector modulus state.

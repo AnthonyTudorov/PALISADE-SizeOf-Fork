@@ -385,13 +385,17 @@ public:
 	 * @return
 	 */
 	virtual std::vector<Element> PowersOfBase(usint baseBits) const = 0;
-
+#if 0 //TODO
 	/**
 	 * @brief Test function to prints all values in either coefficient or evaluation format.
 	 * 
 	 */
-	virtual void PrintValues() const = 0;
-	//FIXME: it might be better to overload operator<<
+	virtual  std::ostream& operator<<(std::ostream& os, const Element &element) {
+	  //TODO: would be good to return a string for the Element Name
+	  os<<"stream operator<< not defined for this Element";
+	  return os;
+	}
+#endif
 	
 	/**
 	 * @brief Mod - perform a modulus operation.

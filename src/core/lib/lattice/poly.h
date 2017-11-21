@@ -619,11 +619,6 @@ public:
 	void SwitchFormat();
 
 	/**
-	 * @brief Prints values of the element.
-	 */
-	void PrintValues() const;
-
-	/**
 	 * @brief Make the element values sparse. Sets every index not equal to zero mod the wFactor to zero.
 	 * This is particularly useful for the LTV-based ring reduction operations.
 	 *

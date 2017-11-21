@@ -392,12 +392,12 @@ Matrix<BigVector> RotateVecResult(Matrix<Poly> const& inMat) {
     }
     return result;
 }
-
+#if 0
 template<>
-void Matrix<Poly>::PrintValues() const {
+void Matrix<Poly>::fooprintValues() const {
     for (size_t col = 0; col < cols; ++col) {
         for (size_t row = 0; row < rows; ++row) {
-            data[row][col]->PrintValues();
+            data[row][col]->fooprintValues();
             std::cout << " ";
         }
         std::cout << std::endl;
@@ -405,10 +405,10 @@ void Matrix<Poly>::PrintValues() const {
 }
 
 template<>
-void Matrix<BigInteger>::PrintValues() const {
+void Matrix<BigInteger>::fooprintValues() const {
     for (size_t col = 0; col < cols; ++col) {
         for (size_t row = 0; row < rows; ++row) {
-            data[row][col]->PrintValues();
+            data[row][col]->fooprintValues();
             std::cout << " ";
         }
         std::cout << std::endl;
@@ -416,10 +416,10 @@ void Matrix<BigInteger>::PrintValues() const {
 }
 
 template<>
-void Matrix<BigVector>::PrintValues() const {
+void Matrix<BigVector>::fooprintValues() const {
     for (size_t col = 0; col < cols; ++col) {
         for (size_t row = 0; row < rows; ++row) {
-            data[row][col]->PrintValues();
+            data[row][col]->fooprintValues();
             std::cout << " ";
         }
         std::cout << std::endl;
@@ -427,7 +427,7 @@ void Matrix<BigVector>::PrintValues() const {
 }
 
 template<>
-void Matrix<int>::PrintValues() const {
+void Matrix<int>::fooprintValues() const {
     for (size_t col = 0; col < cols; ++col) {
         for (size_t row = 0; row < rows; ++row) {
             std::cout << *data[row][col];
@@ -436,7 +436,8 @@ void Matrix<int>::PrintValues() const {
         std::cout << std::endl;
     }
 }
-
+#endif
+  
 template<>
 void Matrix<Poly>::SwitchFormat() {
 

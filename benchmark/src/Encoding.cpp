@@ -125,6 +125,7 @@ void BM_encoding_Int(benchmark::State& state) { // benchmark
 	}
 }
 
+#ifdef OUT
 BENCHMARK_PARMS(BM_encoding_Int)
 
 void BM_encoding_PackedInt(benchmark::State& state) { // benchmark
@@ -173,6 +174,7 @@ void BM_encoding_PackedInt(benchmark::State& state) { // benchmark
 }
 
 BENCHMARK_PARMS(BM_encoding_PackedInt)
+#endif
 
 void BM_Encoding_StringShort(benchmark::State& state) { // benchmark
 	shared_ptr<CryptoContext<Poly>> cc;

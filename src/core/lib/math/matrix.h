@@ -467,19 +467,32 @@ namespace lbcrypto {
 
 					return result;
 
-			}
+		}
 
 
             /**
-             * Print values of the matrix to the cout stream
-			 *
+             * Function to stream matrix to outputstream
+	     *
              */ 
-            void PrintValues() const;
+            friend std::ostream& operator<<(std::ostream& os, const Matrix<Element>& item) {
 
-            // this is a hack for Matrix
-            friend std::ostream& operator<<(std::ostream& out, const Matrix<Element>& item) {
-            	item.PrintValues();
-            	return out;
+	      size_t nrows = item.GetRows();
+	      size_t ncols = item.GetCols();
+
+	      os<<"[";
+	      for (size_t i = 0; i < nrows; ++i) {
+		os<<"[";
+		for (size_t j = 0; j < ncols; ++j) {
+		  os<<item(i,j);
+		  if (j == (ncols-1)) {
+		    os << "]" << std::endl;
+		  } else {
+		    os << " ";
+		  }
+		}
+	      }
+	      os<<"] "<<std::endl;
+	      return os;
             }
 
             /**

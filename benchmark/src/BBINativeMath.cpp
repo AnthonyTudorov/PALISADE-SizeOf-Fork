@@ -90,6 +90,8 @@ void BM_BBINative_constants(benchmark::State& state) { // benchmark
 BENCHMARK(BM_BBINative_constants);		// register benchmark
 
 // make variables
+static native_int::BigInteger smalla("10403"), smallb("103");
+static native_int::BigInteger largea("4294967295"), largeb("4294967");
 
 static void make_BBINative_small_variables (void) {	// function
 	native_int::BigInteger a("10403"), b("103");
@@ -108,7 +110,7 @@ BENCHMARK(BM_BBINative_small_variables);		// register benchmark
 
 
 static void make_BBINative_large_variables (void) {	// function
-	native_int::BigInteger a("18446744073709551616"), b("18446744073709551617");
+	native_int::BigInteger a("9446744073709551616"), b("9446744073709551617");
 }
 
 void BM_BBINative_large_variables(benchmark::State& state) { // benchmark
@@ -118,10 +120,6 @@ void BM_BBINative_large_variables(benchmark::State& state) { // benchmark
 }
 
 BENCHMARK(BM_BBINative_large_variables);
-
-static native_int::BigInteger smalla("10403"), smallb("103");
-static native_int::BigInteger largea("18446744073709551616"), largeb("18446744073709551617");
-
 
 // add
 static void add_BBINative(benchmark::State& state) {	// function

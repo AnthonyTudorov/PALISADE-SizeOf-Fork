@@ -818,18 +818,19 @@ void PolyImpl<ModType,IntType,VecType,ParmType>::ArbitrarySwitchFormat()
 		}
 	}
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-void PolyImpl<ModType,IntType,VecType,ParmType>::PrintValues() const
+std::ostream& operator<<(std::ostream &os, const PolyImpl<ModType,IntType,VecType,ParmType> & p)
 {
-		if (m_values != nullptr) {
-			std::cout << *m_values;
-			std::cout << " mod:" << m_values->GetModulus() << std::endl;
+		if (p.m_values != nullptr) {
+		  os << *(p.m_values);
+		  os << " mod:" << (p.m_values)->GetModulus() << std::endl;
 		}
-		if (m_params.get() != nullptr) {
-			std::cout << " rootOfUnity: " << this->GetRootOfUnity() << std::endl;
+		if (p.m_params.get() != nullptr) {
+			os << " rootOfUnity: " << p.GetRootOfUnity() << std::endl;
 	} else {
-			std::cout << " something's odd: null m_params?!" << std::endl;
+			os << " something's odd: null m_params?!" << std::endl;
 		}
-		std::cout << std::endl;
+		os << std::endl;
+		return os;
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>

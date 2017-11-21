@@ -11,7 +11,7 @@ do
 	ex=bin/backend-$i/unittest/tests
 
 	echo "****************************"
-	echo Testing MATHBACKEND $i
+	echo valgrind MATHBACKEND $i
 	echo "****************************"
 	if [[ -x $ex ]]
 	then
@@ -20,10 +20,10 @@ do
 		export DYLD_LIBRARY_PATH=bin/backend-$i/lib:third-party/lib:$DYLD_LIBRARY_PATH
 		export LD_LIBRARY_PATH=bin/backend-$i/lib:third-party/lib:$LD_LIBRARY_PATH
 		export PATH=bin/backend-$i/lib:third-party/lib:$PATH
-		$ex -t
+		valgrind --log-file=valgrind-backend-$i.out $ex -t
 		)
 		echo "****************************"
-		echo TEST DONE
+		echo valgrind DONE
 		echo "****************************"
 	else
 		echo " ******** $ex for MATHBACKEND $i not found"

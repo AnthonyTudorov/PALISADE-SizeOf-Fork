@@ -116,8 +116,8 @@ bool clonetest(Poly &a, Poly &b, string name){
 
   if (a != b){
     cout << name <<" FAILED "<<endl;
-    a.PrintValues();
-    b.PrintValues();
+    cout <<"a:" << a << endl;
+    cout <<"b:" << b << endl;
     return true;
   } else {
     return false;

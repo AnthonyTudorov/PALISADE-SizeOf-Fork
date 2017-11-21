@@ -207,8 +207,6 @@ public:
 	template<class IntegerType_c>
 	friend std::ostream& operator<<(std::ostream& os, const BigVectorImpl<IntegerType_c> &ptr_obj);
 
-	void PrintValues() const { std::cout << *this; }
-
 	/**
 	 * Sets/gets a value at an index.
 	 *
