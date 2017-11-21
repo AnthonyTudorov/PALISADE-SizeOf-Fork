@@ -57,6 +57,54 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 namespace lbcrypto {
 
 template <class Element>
+LPCryptoParametersBFVrns<Element>::LPCryptoParametersBFVrns() : LPCryptoParametersRLWE<Element>() {}
+
+template <class Element>
+LPCryptoParametersBFVrns<Element>::LPCryptoParametersBFVrns(const LPCryptoParametersBFVrns &rhs) : LPCryptoParametersRLWE<Element>(rhs) {}
+
+template <class Element>
+LPCryptoParametersBFVrns<Element>::LPCryptoParametersBFVrns(shared_ptr<typename Element::Params> params,
+		const BigInteger &plaintextModulus,
+		float distributionParameter,
+		float assuranceMeasure,
+		float securityLevel,
+		usint relinWindow,
+		MODE mode,
+		int depth,
+		int maxDepth)
+			: LPCryptoParametersRLWE<Element>(params,
+				shared_ptr<EncodingParams>( new EncodingParams(plaintextModulus) ),
+				distributionParameter,
+				assuranceMeasure,
+				securityLevel,
+				relinWindow,
+				depth,
+				maxDepth,
+				mode) {
+	}
+
+template <class Element>
+LPCryptoParametersBFVrns<Element>::LPCryptoParametersBFVrns(shared_ptr<typename Element::Params> params,
+		shared_ptr<EncodingParams> encodingParams,
+		float distributionParameter,
+		float assuranceMeasure,
+		float securityLevel,
+		usint relinWindow,
+		MODE mode,
+		int depth,
+		int maxDepth)
+		: LPCryptoParametersRLWE<Element>(params,
+			encodingParams,
+			distributionParameter,
+			assuranceMeasure,
+			securityLevel,
+			relinWindow,
+			depth,
+			maxDepth,
+			mode) {
+	}
+
+template <class Element>
 bool LPCryptoParametersBFVrns<Element>::Serialize(Serialized* serObj) const {
 	if (!serObj->IsObject())
 		return false;
@@ -123,6 +171,12 @@ void LPPublicKeyEncryptionSchemeBFVrns<Element>::Enable(PKESchemeFeature feature
 		throw std::logic_error("LEVELEDSHE feature not supported for BFVrns scheme");
 	}
 }
+
+template <class Element>
+LPPublicKeyEncryptionSchemeBFVrns<Element>::LPPublicKeyEncryptionSchemeBFVrns() : LPPublicKeyEncryptionScheme<Element>() {
+			this->m_algorithmParamsGen = new LPAlgorithmParamsGenBFVrns<Element>();
+		}
+
 
 }  // namespace lbcrypto ends
 

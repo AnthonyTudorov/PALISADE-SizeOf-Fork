@@ -29,12 +29,57 @@
 
 namespace lbcrypto {
 
-// Parameter generation for FV-RNS
+template <>
+LPCryptoParametersBFVrns<Poly>::LPCryptoParametersBFVrns(){
+	std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead.";
+	throw std::runtime_error(errMsg);
+}
+
+template <>
+LPCryptoParametersBFVrns<Poly>::LPCryptoParametersBFVrns(const LPCryptoParametersBFVrns &rhs){
+	std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead.";
+	throw std::runtime_error(errMsg);
+}
+
+template <>
+LPCryptoParametersBFVrns<Poly>::LPCryptoParametersBFVrns(shared_ptr<typename Poly::Params> params,
+		const BigInteger &plaintextModulus,
+		float distributionParameter,
+		float assuranceMeasure,
+		float securityLevel,
+		usint relinWindow,
+		MODE mode,
+		int depth,
+		int maxDepth){
+	std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead.";
+	throw std::runtime_error(errMsg);
+}
+
+template <>
+LPCryptoParametersBFVrns<Poly>::LPCryptoParametersBFVrns(shared_ptr<typename Poly::Params> params,
+		shared_ptr<EncodingParams> encodingParams,
+		float distributionParameter,
+		float assuranceMeasure,
+		float securityLevel,
+		usint relinWindow,
+		MODE mode,
+		int depth,
+		int maxDepth){
+	std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead.";
+	throw std::runtime_error(errMsg);
+}
+
+template <>
+LPPublicKeyEncryptionSchemeBFVrns<Poly>::LPPublicKeyEncryptionSchemeBFVrns(){
+	std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead.";
+	throw std::runtime_error(errMsg);
+}
+
 template <>
 bool LPAlgorithmParamsGenBFVrns<Poly>::ParamsGen(shared_ptr<LPCryptoParameters<Poly>> cryptoParams, int32_t evalAddCount,
 	int32_t evalMultCount, int32_t keySwitchCount) const
 {
-	std::string errMsg = "LPAlgorithmParamsGenBFVrns::ParamsGen is implemented only for DCRTPoly.";
+	std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead.";
 	throw std::runtime_error(errMsg);
 }
 
@@ -42,7 +87,7 @@ template <>
 shared_ptr<Ciphertext<Poly>> LPAlgorithmBFVrns<Poly>::Encrypt(const shared_ptr<LPPublicKey<Poly>> publicKey,
 		Poly &ptxt, bool doEncryption) const
 {
-	std::string errMsg = "LPAlgorithmBFVrns<Poly>::Encrypt is implemented only for DCRTPoly.";
+	std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead.";
 	throw std::runtime_error(errMsg);
 }
 
@@ -51,7 +96,7 @@ DecryptResult LPAlgorithmBFVrns<Poly>::Decrypt(const shared_ptr<LPPrivateKey<Pol
 		const shared_ptr<Ciphertext<Poly>> ciphertext,
 		Poly *plaintext) const
 {
-	std::string errMsg = "LPAlgorithmBFVrns<Poly>::Decrypt is implemented only for DCRTPoly.";
+	std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead.";
 	throw std::runtime_error(errMsg);
 }
 

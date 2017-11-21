@@ -61,13 +61,13 @@ namespace lbcrypto {
 			/**
 			 * Default constructor.
 			 */
-			LPCryptoParametersBFVrns() : LPCryptoParametersRLWE<Element>() {}
+			LPCryptoParametersBFVrns();
 
 			/**
 		 	 * Copy constructor.
 	 		 * @param rhs - source
 			 */
-			LPCryptoParametersBFVrns(const LPCryptoParametersBFVrns &rhs) : LPCryptoParametersRLWE<Element>(rhs) {}
+			LPCryptoParametersBFVrns(const LPCryptoParametersBFVrns &rhs);
 			/**
 			 * Constructor that initializes values.  Note that it is possible to set parameters in a way that is overall
 			 * infeasible for actual use.  There are fewer degrees of freedom than parameters provided.  Typically one
@@ -94,17 +94,7 @@ namespace lbcrypto {
 				usint relinWindow,
 				MODE mode = RLWE,
 				int depth = 1,
-				int maxDepth = 2)
-					: LPCryptoParametersRLWE<Element>(params,
-						shared_ptr<EncodingParams>( new EncodingParams(plaintextModulus) ),
-						distributionParameter,
-						assuranceMeasure,
-						securityLevel,
-						relinWindow,
-						depth,
-						maxDepth,
-						mode) {
-			}
+				int maxDepth = 2);
 
 			/**
 			* Constructor that initializes values.
@@ -127,17 +117,7 @@ namespace lbcrypto {
 				usint relinWindow,
 				MODE mode = RLWE,
 				int depth = 1,
-				int maxDepth = 2)
-				: LPCryptoParametersRLWE<Element>(params,
-					encodingParams,
-					distributionParameter,
-					assuranceMeasure,
-					securityLevel,
-					relinWindow,
-					depth,
-					maxDepth,
-					mode) {
-			}
+				int maxDepth = 2);
 
 			/**
 			* Destructor
@@ -468,9 +448,7 @@ namespace lbcrypto {
 	template <class Element>
 	class LPPublicKeyEncryptionSchemeBFVrns : public LPPublicKeyEncryptionScheme<Element> {
 	public:
-		LPPublicKeyEncryptionSchemeBFVrns() : LPPublicKeyEncryptionScheme<Element>() {
-			this->m_algorithmParamsGen = new LPAlgorithmParamsGenBFVrns<Element>();
-		}
+		LPPublicKeyEncryptionSchemeBFVrns();
 
 		bool operator==(const LPPublicKeyEncryptionScheme<Element>& sch) const {
 			if( dynamic_cast<const LPPublicKeyEncryptionSchemeBFVrns<Element> *>(&sch) == 0 )
