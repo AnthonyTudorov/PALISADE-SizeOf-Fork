@@ -124,7 +124,6 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::DCRTPolyImpl(const Poly &element
 	m_params = params;
 
 	*this = element;
-
 }
 
 /* Construct using a tower of vectors.

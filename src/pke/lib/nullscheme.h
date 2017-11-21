@@ -514,10 +514,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 			const shared_ptr<Ciphertext<Element>> ciphertext2) const {
 			shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext1->CloneEmpty();
 
-			const Element& c1 = ciphertext1->GetElement();
-			const Element& c2 = ciphertext2->GetElement();
-
-			Element cResult = c1 + c2;
+			Element cResult = ciphertext1->GetElement() + ciphertext2->GetElement();
 
 			newCiphertext->SetElement(std::move(cResult));
 
@@ -535,10 +532,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 			const shared_ptr<Plaintext> plaintext) const {
 			shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
 
-			const Element& c1 = ciphertext->GetElement();
-			Element c2( plaintext->GetElement<Poly>(), c1.GetParams() );
-
-			Element cResult = c1 + c2;
+			Element cResult = ciphertext->GetElement() + plaintext->GetEncodedElement<Element>();
 
 			newCiphertext->SetElement(std::move(cResult));
 
@@ -556,10 +550,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 			const shared_ptr<Ciphertext<Element>> ciphertext2) const {
 			shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext1->CloneEmpty();
 
-			const Element& c1 = ciphertext1->GetElement();
-			const Element& c2 = ciphertext2->GetElement();
-
-			Element cResult = c1 - c2;
+			Element cResult = ciphertext1->GetElement() - ciphertext2->GetElement();
 
 			newCiphertext->SetElement(std::move(cResult));
 
@@ -577,10 +568,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 			const shared_ptr<Plaintext> plaintext) const {
 			shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
 
-			const Element& c1 = ciphertext->GetElement();
-			Element c2( plaintext->GetElement<Poly>(), c1.GetParams() );
-
-			Element cResult = c1 - c2;
+			Element cResult = ciphertext->GetElement() - plaintext->GetEncodedElement<Element>();
 
 			newCiphertext->SetElement(std::move(cResult));
 

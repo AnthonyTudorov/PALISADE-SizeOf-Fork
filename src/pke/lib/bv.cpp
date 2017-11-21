@@ -274,7 +274,8 @@ namespace lbcrypto {
 
 		const std::vector<Element> &c1 = ciphertext->GetElements();
 
-		Element c2( plaintext->GetElement<Poly>(), c1[0].GetParams() );
+		plaintext->GetEncodedElement<Element>().SetFormat(EVALUATION);
+		const Element& c2 = plaintext->GetEncodedElement<Element>();
 
 		std::vector<Element> cNew;
 
@@ -317,7 +318,8 @@ namespace lbcrypto {
 
 		const std::vector<Element> &c1 = ciphertext->GetElements();
 
-		Element c2( plaintext->GetElement<Poly>(), c1[0].GetParams() );
+		plaintext->GetEncodedElement<Element>().SetFormat(EVALUATION);
+		const Element& c2 = plaintext->GetEncodedElement<Element>();
 
 		std::vector<Element> cNew;
 
@@ -365,16 +367,16 @@ namespace lbcrypto {
 		const shared_ptr<Ciphertext<Element>> ciphertext,
 		const shared_ptr<Plaintext> plaintext) const
 	{
-
-		if (ciphertext->GetElements()[0].GetFormat() == Format::COEFFICIENT || plaintext->GetElement<Poly>().GetFormat() == Format::COEFFICIENT) {
-			throw std::runtime_error("EvalMult cannot multiply in COEFFICIENT domain.");
-		}
-
 		shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
 
 		const std::vector<Element> &c1 = ciphertext->GetElements();
 
-		Element c2( plaintext->GetElement<Poly>(), c1[0].GetParams() );
+		plaintext->GetEncodedElement<Element>().SetFormat(EVALUATION);
+		const Element& c2 = plaintext->GetEncodedElement<Element>();
+
+		if (ciphertext->GetElements()[0].GetFormat() == Format::COEFFICIENT || plaintext->GetElement<Poly>().GetFormat() == Format::COEFFICIENT) {
+			throw std::runtime_error("EvalMult cannot multiply in COEFFICIENT domain.");
+		}
 
 		std::vector<Element> cNew;
 

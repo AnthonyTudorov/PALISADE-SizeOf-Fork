@@ -183,11 +183,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalAdd(
 
 	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext1->CloneEmpty();
 
-	const Element& c1 = ciphertext1->GetElement();
-
-	const Element& c2 = ciphertext2->GetElement();
-
-	Element cResult = c1 + c2;
+	Element cResult = ciphertext1->GetElement() + ciphertext2->GetElement();
 
 	newCiphertext->SetElement(cResult);
 
@@ -206,15 +202,9 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalAdd(
 
 	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
 
-	const Element& c1 = ciphertext->GetElement();
+	plaintext->GetEncodedElement<Element>().SetFormat(EVALUATION);
 
-	plaintext->SetFormat(EVALUATION);
-	Element c2( plaintext->GetElement<Poly>(), c1.GetParams() );
-	std::cout
-	<< (c1.GetFormat() == EVALUATION ? "EVAL ":"COEF ")
-	<< (c2.GetFormat() == EVALUATION ? "EVAL ":"COEF ") << std::endl;
-
-	Element cResult = c1 + c2;
+	Element cResult = ciphertext->GetElement() + plaintext->GetEncodedElement<Element>();
 
 	newCiphertext->SetElement(cResult);
 
@@ -233,11 +223,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalSub(
 
 	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext1->CloneEmpty();
 
-	const Element& c1 = ciphertext1->GetElement();
-
-	const Element& c2 = ciphertext2->GetElement();
-
-	Element cResult = c1 - c2;
+	Element cResult = ciphertext1->GetElement() - ciphertext2->GetElement();
 
 	newCiphertext->SetElement(cResult);
 
@@ -256,11 +242,9 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalSub(
 
 	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
 
-	const Element& c1 = ciphertext->GetElement();
+	plaintext->GetEncodedElement<Element>().SetFormat(EVALUATION);
 
-	Element c2( plaintext->GetElement<Poly>(), c1.GetParams() );
-
-	Element cResult = c1 - c2;
+	Element cResult = ciphertext->GetElement() - plaintext->GetEncodedElement<Element>();
 
 	newCiphertext->SetElement(cResult);
 
@@ -285,11 +269,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalMult(
 
 	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext1->CloneEmpty();
 
-	const Element& c1 = ciphertext1->GetElement();
-
-	const Element& c2 = ciphertext2->GetElement();
-
-	Element cResult = c1 * c2;
+	Element cResult = ciphertext1->GetElement() * ciphertext2->GetElement();
 
 	newCiphertext->SetElement(cResult);
 
@@ -313,18 +293,15 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalMult(
 	const shared_ptr<Ciphertext<Element>> ciphertext,
 	const shared_ptr<Plaintext> plaintext) const
 {
+	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
 
-	if (ciphertext->GetElement().GetFormat() == Format::COEFFICIENT || plaintext->GetElement<Element>().GetFormat() == Format::COEFFICIENT ) {
+	plaintext->GetEncodedElement<Element>().SetFormat(EVALUATION);
+
+	if (ciphertext->GetElement().GetFormat() == Format::COEFFICIENT || plaintext->GetEncodedElement<Element>().GetFormat() == Format::COEFFICIENT ) {
 		throw std::runtime_error("EvalMult cannot multiply in COEFFICIENT domain.");
 	}
 
-	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
-
-	const Element& c1 = ciphertext->GetElement();
-
-	const Element& c2 = plaintext->GetElement<Element>();
-
-	Element cResult = c1 * c2;
+	Element cResult = ciphertext->GetElement() * plaintext->GetEncodedElement<Element>();
 
 	newCiphertext->SetElement(cResult);
 

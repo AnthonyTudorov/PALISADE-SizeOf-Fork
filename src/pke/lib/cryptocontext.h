@@ -667,11 +667,7 @@ public:
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
 
-		if( plaintext->Encode() == false ) {
-			return 0;
-		}
-
-		shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, plaintext->GetElement<Element>());
+		shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, plaintext->GetEncodedElement<Element>());
 
 		if (ciphertext) {
 			ciphertext->SetEncodingType( plaintext->GetEncodingType() );
@@ -695,10 +691,7 @@ public:
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
 
-		if( plaintext->Encode() == false )
-			return 0;
-
-		shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(privateKey, plaintext->GetElement<Element>());
+		shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(privateKey, plaintext->GetEncodedElement<Element>());
 
 		if (ciphertext) {
 			ciphertext->SetEncodingType( plaintext->GetEncodingType() );
@@ -791,10 +784,7 @@ public:
 				padded = true;
 			}
 
-			if( px->Encode() == false )
-				break;
-
-			shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, px->GetElement<Element>());
+			shared_ptr<Ciphertext<Element>> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, px->GetEncodedElement<Element>());
 			if (!ciphertext) {
 				break;
 			}
@@ -1268,7 +1258,7 @@ public:
 	}
 
 	/**
-	* EvalAddPLain - PALISADE EvalAdd method for a ciphertext and plaintext
+	* EvalAdd - PALISADE EvalAdd method for a ciphertext and plaintext
 	* @param ciphertext
 	* @param plaintext
 	* @return new ciphertext for ciphertext + plaintext 

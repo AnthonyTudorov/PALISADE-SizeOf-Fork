@@ -77,7 +77,6 @@ void UnitTest_Add(shared_ptr<CryptoContext<Element>> cc) {
 	std::vector<uint32_t> vectorOfIntsSub = { 63,63,0,63,62,0,63,1 };
 	shared_ptr<Plaintext> plaintextSub = cc->MakeCoefPackedPlaintext(vectorOfIntsSub);
 
-	// EVAL ADD
 	LPKeyPair<Element> kp = cc->KeyGen();
 	shared_ptr<Ciphertext<Element>> ciphertext1 = cc->Encrypt(kp.publicKey, plaintext1);
 	shared_ptr<Ciphertext<Element>> ciphertext2 = cc->Encrypt(kp.publicKey, plaintext2);
@@ -90,11 +89,24 @@ void UnitTest_Add(shared_ptr<CryptoContext<Element>> cc) {
 	results->SetLength(plaintextAdd->GetLength());
 	EXPECT_EQ(plaintextAdd->GetCoefPackedValue(), results->GetCoefPackedValue()) << "EvalAdd fails";
 
-	auto ctMixedMode = cc->EvalAdd(ciphertext1, plaintext2);
-	shared_ptr<Plaintext> mmResult;
-	cc->Decrypt(kp.secretKey, ctMixedMode, &mmResult);
-	mmResult->SetLength(plaintextAdd->GetLength());
-	EXPECT_EQ(plaintextAdd->GetCoefPackedValue(), mmResult->GetCoefPackedValue()) << "EvalAdd Ct and Pt fails";
+	cResult = cc->EvalSub(ciphertext1, ciphertext2);
+
+	cc->Decrypt(kp.secretKey, cResult, &results);
+
+	results->SetLength(plaintextSub->GetLength());
+	EXPECT_EQ(plaintextSub->GetCoefPackedValue(), results->GetCoefPackedValue()) << "EvalSub fails";
+
+	cResult = cc->EvalAdd(ciphertext1, plaintext2);
+
+	cc->Decrypt(kp.secretKey, cResult, &results);
+	results->SetLength(plaintextAdd->GetLength());
+	EXPECT_EQ(plaintextAdd->GetCoefPackedValue(), results->GetCoefPackedValue()) << "EvalAdd Ct and Pt fails";
+
+	cResult = cc->EvalSub(ciphertext1, plaintext2);
+
+	cc->Decrypt(kp.secretKey, cResult, &results);
+	results->SetLength(plaintextSub->GetLength());
+	EXPECT_EQ(plaintextSub->GetCoefPackedValue(), results->GetCoefPackedValue()) << "EvalSub Ct and Pt fails";
 }
 
 /// add
@@ -109,10 +121,7 @@ TEST_F(UTSHE, LTV_DCRTPoly_Add) {
 }
 
 TEST_F(UTSHE, StSt_Poly_Add) {
-        bool dbg_flag = false;
-	DEBUG("in StSt_Poly_Add");
 	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementStSt(ORDER, PTM, 50);
-	DEBUG("cc "<<*cc);
 	UnitTest_Add<Poly>(cc);
 }
 
@@ -142,10 +151,7 @@ TEST_F(UTSHE, BV_DCRTPoly_Add) {
 }
 
 TEST_F(UTSHE, FV_Poly_Add) {
-	bool dbg_flag = false;
-	DEBUG("GenCryptoContextElementFV");
 	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementFV(ORDER, PTM);
-	DEBUG("done");
 	UnitTest_Add<Poly>(cc);
 }
 
@@ -157,8 +163,6 @@ TEST_F(UTSHE, FV_Poly_Add) {
 ///
 template<class Element>
 void UnitTest_Mult(shared_ptr<CryptoContext<Element>> cc) {
-	bool dbg_flag = false;
-  
 	std::vector<uint32_t> vectorOfInts1 = { 1,0,3,1,0,1,2,1 };
 	shared_ptr<Plaintext> plaintext1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
 
@@ -169,53 +173,35 @@ void UnitTest_Mult(shared_ptr<CryptoContext<Element>> cc) {
 	std::vector<uint32_t> vectorOfIntsMultLong = { 2, 1, 9, 7, 12, 12, 16, 12, 19, 12, 7, 7, 7, 3 };
 	std::vector<uint32_t> vectorOfIntsMult = { 47, 53, 2, 0, 5, 9, 16, 12 };
 
-	{
-		// EVAL MULT
-		shared_ptr<Plaintext> intArray1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
+	shared_ptr<Plaintext> intArray1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
 
-		shared_ptr<Plaintext> intArray2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
+	shared_ptr<Plaintext> intArray2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
 
-		shared_ptr<Plaintext> intArrayExpected = cc->MakeCoefPackedPlaintext(cc->GetCyclotomicOrder() == 16 ? vectorOfIntsMult : vectorOfIntsMultLong);
+	shared_ptr<Plaintext> intArrayExpected = cc->MakeCoefPackedPlaintext(cc->GetCyclotomicOrder() == 16 ? vectorOfIntsMult : vectorOfIntsMultLong);
 
-		DEBUG("intArray1 "<<intArray1);
-		DEBUG("intArray2 "<<intArray2);
-		DEBUG("intArrayExpected "<<intArrayExpected);
+	// Initialize the public key containers.
+	LPKeyPair<Element> kp = cc->KeyGen();
 
-		// Initialize the public key containers.
-		LPKeyPair<Element> kp = cc->KeyGen();
+	shared_ptr<Ciphertext<Element>> ciphertext1 = cc->Encrypt(kp.publicKey, intArray1);
 
-		DEBUG("kp.publicKey "<<kp.publicKey);
-		DEBUG("kp.secretKey "<<kp.secretKey);
+	shared_ptr<Ciphertext<Element>> ciphertext2 = cc->Encrypt(kp.publicKey, intArray2);
 
-		shared_ptr<Ciphertext<Element>> ciphertext1 =
-			cc->Encrypt(kp.publicKey, intArray1);
+	cc->EvalMultKeyGen(kp.secretKey);
 
-		shared_ptr<Ciphertext<Element>> ciphertext2 =
-			cc->Encrypt(kp.publicKey, intArray2);
+	shared_ptr<Ciphertext<Element>> cResult = cc->EvalMult(ciphertext1, ciphertext2);
 
-		cc->EvalMultKeyGen(kp.secretKey);
+	shared_ptr<Plaintext> results;
 
-		for (size_t i = 0; i<ciphertext1->GetElements().size(); i++){
-			DEBUG("ciphertext1 "<<i<<" "<<ciphertext1->GetElements().at(i));
-			DEBUG("ciphertext2 "<<i<<" "<<ciphertext2->GetElements().at(i));
+	cc->Decrypt(kp.secretKey, cResult, &results);
 
-		}
-		
-		shared_ptr<Ciphertext<Element>> cResult = cc->EvalMult(ciphertext1, ciphertext2);
+	results->SetLength(intArrayExpected->GetLength());
+	EXPECT_EQ(intArrayExpected->GetCoefPackedValue(), results->GetCoefPackedValue()) << "EvalMult fails";
 
-		for (size_t i = 0; i<cResult->GetElements().size(); i++){
-			DEBUG("cResult "<<i<<" "<<cResult->GetElements().at(i));
-		}
+	cResult = cc->EvalMult(ciphertext1, plaintext2);
 
-		shared_ptr<Plaintext> results;
-
-		cc->Decrypt(kp.secretKey, cResult, &results);
-
-		results->SetLength(intArrayExpected->GetLength());
-		EXPECT_EQ(intArrayExpected->GetCoefPackedValue(), results->GetCoefPackedValue()) << "EvalMult fails";
-
-	}
-
+	cc->Decrypt(kp.secretKey, cResult, &results);
+	results->SetLength(intArrayExpected->GetLength());
+	EXPECT_EQ(intArrayExpected->GetCoefPackedValue(), results->GetCoefPackedValue()) << "EvalMult Ct and Pt fails";
 }
 
 
@@ -224,12 +210,10 @@ TEST_F(UTSHE, LTV_Poly_Mult) {
 	UnitTest_Mult<Poly>(cc);
 }
 
-#if !defined(_MSC_VER)
 TEST_F(UTSHE, LTV_DCRTPoly_Mult) {
 	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayLTV(ORDER, TOWERS, PTM);
 	UnitTest_Mult<DCRTPoly>(cc);
 }
-#endif
 
 //TEST_F(UTSHE, StSt_Poly_Mult) {
 //	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementStSt(ORDER, PTM);
@@ -256,12 +240,10 @@ TEST_F(UTSHE, BV_Poly_Mult) {
 	UnitTest_Mult<Poly>(cc);
 }
 
-#if !defined(_MSC_VER)
 TEST_F(UTSHE, BV_DCRTPoly_Mult) {
 	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayBV(ORDER, TOWERS, PTM);
 	UnitTest_Mult<DCRTPoly>(cc);
 }
-#endif
 
 TEST_F(UTSHE, FV_Poly_Mult) {
 	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementFV(ORDER, PTM);

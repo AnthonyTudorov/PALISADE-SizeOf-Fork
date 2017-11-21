@@ -116,6 +116,13 @@ public:
 			encodedVectorDCRT.SetFormat(fmt);
 	}
 
+	template<typename Element>
+	Element& GetEncodedElement() {
+		if( !isEncoded )
+			this->Encode();
+		return GetElement<Element>();
+	}
+
 	/**
 	 * GetElement
 	 * @return the Polynomial that the element was encoded into
@@ -226,8 +233,6 @@ inline std::ostream& operator<<(std::ostream& out, const Plaintext& item)
  */
 template <>
 inline Poly& Plaintext::GetElement<Poly>() {
-//	if( isEncoded )
-//		encodedVector.SetFormat(EVALUATION);
 	return encodedVector;
 }
 
@@ -237,8 +242,6 @@ inline Poly& Plaintext::GetElement<Poly>() {
  */
 template <>
 inline DCRTPoly& Plaintext::GetElement<DCRTPoly>() {
-//	if( isEncoded )
-//		encodedVectorDCRT.SetFormat(EVALUATION);
 	return encodedVectorDCRT;
 }
 
