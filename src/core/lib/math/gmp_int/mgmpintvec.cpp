@@ -811,8 +811,8 @@ namespace NTL {
     if( pkVectorLength > 0 ) {
       std::string pkBufferString = "";
       for (size_t i = 0; i < pkVectorLength; i++) {
-	DEBUG("element "<<i<<" "<<at(i));
-	std::string tmp = at(i).Serialize(this->GetModulus());
+	DEBUG("element "<<i<<" "<<this->at(i));
+	std::string tmp = this->at(i).Serialize(this->GetModulus());
 	pkBufferString += tmp;
       }
       DEBUG("add VectorValues");

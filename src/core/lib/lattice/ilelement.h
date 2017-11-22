@@ -385,7 +385,7 @@ public:
 	 * @return
 	 */
 	virtual std::vector<Element> PowersOfBase(usint baseBits) const = 0;
-#if 0 //TODO
+#if 0 //TODO should define a virtual member here.
 	/**
 	 * @brief Test function to prints all values in either coefficient or evaluation format.
 	 * 
