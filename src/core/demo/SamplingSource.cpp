@@ -36,7 +36,7 @@ int main() {
 	double std = (1<<22);
 	int CENTER_COUNT = 1024;
 	//Base samplers used in generic sampler
-	BaseSampler **peikert_samplers/*,**ky_samplers*/;
+	BaseSampler **peikert_samplers,**ky_samplers;
 	
 	//Random bit generator required by the base samplers
 	BitGenerator* bg = new BitGenerator();
@@ -51,7 +51,7 @@ int main() {
 
 	//Initialization of the base samplers 
 	peikert_samplers = new BaseSampler*[CENTER_COUNT];
-	//ky_samplers = new BaseSampler*[CENTER_COUNT];
+	ky_samplers = new BaseSampler*[CENTER_COUNT];
 
 		//BaseSampler sampler(mean,std,bg,PEIKERT);
 		std::cout<<"Started creating base samplers"<<std::endl;
@@ -59,7 +59,7 @@ int main() {
 			double center = ((double)i/(double)CENTER_COUNT);
 			//Base sampler takes the parameters mean of the distribution, standard deviation of distribution, bit generator used for random bits and the type of the sampler
 			peikert_samplers[i]=new BaseSampler((double)center,stdBase,bg,PEIKERT);
-			//ky_samplers[i] = new BaseSampler((double)center,1,bg,KNUTH_YAO);
+			ky_samplers[i] = new BaseSampler((double)center,stdBase,bg,KNUTH_YAO);
 		}
 		std::cout<<"Ended creating base samplers, Started sampling"<<std::endl;
 
@@ -100,8 +100,8 @@ int main() {
 	std::cout << "Sampling " << std::to_string(count) << " integers (Generic - Peikert): " << (finish - start)/CENTER_COUNT << " ms\n";
 
 
-	/*
-	DiscreteGaussianGeneratorGeneric dgg3(ky_samplers,1,base,5,60,35);
+
+	DiscreteGaussianGeneratorGeneric dgg3(ky_samplers,stdBase,base,SMOOTHING_PARAMETER);
 	start = currentDateTime();
 	for (int k = 0; k < CENTER_COUNT; k++) {
 		double center = k/(double)CENTER_COUNT;
@@ -112,5 +112,5 @@ int main() {
 	}
 	finish = currentDateTime();
 	std::cout << "Sampling " << std::to_string(count) << " integers (Generic - Knuth Yao): " << (finish - start)/CENTER_COUNT << " ms\n";
-	*/
+
 }

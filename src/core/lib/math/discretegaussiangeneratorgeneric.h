@@ -27,7 +27,7 @@
 
 /*This is the header file for the Generic Sampler used for various Discrete Gaussian Sampling applications. This class
  * implements the generic sampler by UCSD discussed in the https://eprint.iacr.org/2017/259.pdf and it is heavily based on
- * Michael's code. Along the sides of the implementation there are also two different "base samplers", which are used for the generic
+ * Michael Walter's original code. Along the sides of the implementation there are also two different "base samplers", which are used for the generic
  * sampler or can be used on their own depending on the requirements of needed application.
  *
  * The first base sampler uses Peikert's inversion method, discussed in section 4.1 of https://eprint.iacr.org/2010/088.pdf and
@@ -35,19 +35,33 @@
  * CDF tables around a specific center and the table must be kept during the sampling process. Hence, Peikert's method works best if
  * the DESIRED STANDARD DEVIATION IS SMALL and THE MEAN OF THE DISTRIBUTION IS FIXED, as each new center will require a new set of precomputations.
  *
- * Second base sampler, which is currently in WIP is the Knuth-Yao Sampler discussed in section 5 of https://link.springer.com/content/pdf/10.1007%2Fs00200-014-0218-3.pdf
- * Currently, the sampler does not give a perfect Gaussian Distribution, therefore it is not recommended to use for distribution sensitive applications.
+ * Second base sampler is  the Knuth-Yao Sampler discussed in section 5 of https://link.springer.com/content/pdf/10.1007%2Fs00200-014-0218-3.pdf .
  * Similar to Peikert's, Knuth-Yao precomputes the PDF's of the numbers based on standard deviation and the center, which is used during
  * the sampling process. Therefore like Peikert's method,  Knuth-Yao works best method works best if the DESIRED STANDARD DEVIATION IS SMALL and
  * THE MEAN OF THE DISTRIBUTION IS FIXED, as each new center will require a new set of precomputations, just like Peikert's inversion method.
  *
  * The "generic sampler" on the other hand, works independent from standard deviation of the distribution. It combines an array of previously discussed base samplers
- * centered around 0 to (2^b-1) / 2^b through convolution. The base samplers however, must be precomputed beforehand; but they do not need to be recalculated at
- * any time of the sampling process. It is USABLE FOR ANY STANDARD DEVIATION AND MEAN with only one single precomputation.
+ * centered around 0 to (2^b-1) / 2^b through convolution. The tables of base samplers however, must be precomputed beforehand; but they do not need to be recalculated at
+ * any time of the sampling process. It is USABLE FOR ANY STANDARD DEVIATION AND MEAN, just like Karney's method defined in discretegaussiangenerator.h, needs only one single precomputation
+ * and is not prone to timing attacks unlike Karney. Karney's method, however, is faster than the generic sampler.
  *
- * If a sampler with arbitrary standard deviation and mean suppport is needed, then it is recommended to refer to Karney's sampler in discretegaussiangenerator.cpp
- * which uses Algorithm D from https://arxiv.org/pdf/1303.6257.pdf. Its statistical values pass the Gaussian Distribution tests and can be used for ANY STANDARD DEVIATION
- * AND CENTER WITHOUT PRECOMPUTATION. However, it may be prone to timing attacks.*/
+ * PARAMETER SELECTION FOR GENERIC SAMPLER
+ *
+ * The selection of parameters change the run time/memory usage/precision of the generic sampler. The triple trade off between these parameters
+ * are defined in the equation k = (PRECISION - FLIPS) / LOG_BASE. k denotes the level of precision of the generic sampler. Higher the k
+ * is, higher the precision of the generic sampler but higher the run time. PRECISION denotes the number of decimal bits in the center
+ * of the distribution. Since we are using 'double' for mean, it is fixed to 53 by definition. FLIPS denote the number of Bernoulli flips
+ * used to approximate the bits used in combination of base sampler. Higher the number of flips, larger the number of bits approximated rather than
+ * calculated which means smaller run times. Generic sampler requires a set of base samplers centered around 0/2^b to (2^b-1)/2^b; LOG_BASE denotes
+ * b in this equation. Higher the LOG_BASE is, more base samplers required which requires additional memory; but at the same time smaller run times.
+ *
+ * The base samplers used in generic sampler requires varying centers between 0/2^b and (2^b-1)/(2^b) with the same standard deviation. The standard
+ * deviation required for base samplers must satisfy SIGMA>=4*SQRT(2)*N, where sigma is the standard deviation of the base sampler and N is the smoothing parameter
+ *
+ *
+ *
+ * */
+
 
 #ifndef LBCRYPTO_MATH_DISCRETEGAUSSIANGENERATORGENERIC_H_
 #define LBCRYPTO_MATH_DISCRETEGAUSSIANGENERATORGENERIC_H_
@@ -59,6 +73,7 @@
 #include <memory>
 
 #include "backend.h"
+#include "nbtheory.h"
 #include "distributiongenerator.h"
 
 namespace lbcrypto {
@@ -86,7 +101,7 @@ public:
 			sequence = sequence << 1;
 			counter = 0;
 		}
-		short bit = (sequence >> (32 - counter)) & 1;
+		short bit = (sequence >> (31 - counter)) & 1;
 		counter++;
 		return bit;
 	}
@@ -118,9 +133,9 @@ public:
 	 * @brief Destroyer for the base sampler
 	 */
 	virtual ~BaseSampler(){
-		if (DDGColumn != nullptr) {
+		/*if (DDGColumn != nullptr) {
 			delete[] DDGColumn;
-		}
+		}*/
 	}
 	/*
 	 * @brief Method for generating a random bit from the bit generator within
@@ -136,7 +151,7 @@ private:
 	/**
 	 *Mean of the distribution used
 	 */
-	double b_mean;
+	int64_t b_mean;
 
 	/**
 	 * The standard deviation of the distribution.
@@ -154,14 +169,9 @@ private:
 
 	int fin;
 
-	/**
-	 *The probability matrix used in Knuth-Yao sampling
-	 */
-	std::vector<uint64_t> probMatrix;
-
 	std::vector<std::vector<short>> DDGTree;
 
-	short *DDGColumn = nullptr;
+	//short *DDGColumn = nullptr;
 
 	/**
 	 *Array that stores the Hamming Weights of the probability matrix used in Knuth-Yao sampling
@@ -179,6 +189,8 @@ private:
 	 */
 	int32_t firstNonZero;
 
+	int32_t endIndex;
+
 
 	std::vector<double> m_vals;
 	/**
@@ -190,8 +202,9 @@ private:
 	usint FindInVector(const std::vector<double> &S, double search) const;
 	/**
 	 * @brief Generates DDG tree used through the sampling in Knuth-Yao
+	 * @param probMatrix The probability matrix used for filling the DDG tree
 	 */
-	void GenerateDDGTree();
+	void GenerateDDGTree(const std::vector<uint64_t> & probMatrix);
 	/**
 	 * @brief Initializes the generator used for Peikert's Inversion method.
 	 * @param mean Mean of the distribution that the sampler will be using
@@ -208,11 +221,6 @@ private:
 	void GenerateProbMatrix(double stddev, double mean);
 	/**
 	 * @ brief Returns a generated integer. Uses Naive Knuth-Yao method
-	 * @ return A random value within the Discrete Gaussian Distribution
-	 */
-	int64_t GenerateIntegerKnuthYaoAlt();
-	/**
-	 * @ brief Returns a generated integer. Uses Knuth-Yao method defined as Algorithm 1 in http://link.springer.com/chapter/10.1007%2F978-3-662-43414-7_19#page-1
 	 * @ return A random value within the Discrete Gaussian Distribution
 	 */
 	int64_t GenerateIntegerKnuthYao();
