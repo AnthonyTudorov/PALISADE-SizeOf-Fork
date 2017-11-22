@@ -30,16 +30,16 @@
  *
  * First sampling method implemented is the rejection sampling defined in section 4.1 of https://eprint.iacr.org/2007/432.pdf. It is usable for arbitrary centers and standard deviations, and
  * does not require any form of precomputation. However, it has high rejection rates and is prone to timing attacks. It is not used anywhere in the
- * library at the moment and there for historical reasons.
+ * library at the moment and is here for historical reasons.
  *
  * Second sampling method implemented is Karney's method defined in Algorithm D from https://arxiv.org/pdf/1303.6257.pdf, which is an improved method
- * based on rejection sampling. It also works for arbitrary centers and standard deviations without any precomputation. Its rejection rate is smaller than
- * rejection sampling in its naive form but it is still vulnerable to timing attacks.
+ * based on rejection sampling. It also works for arbitrary centers and standard deviations without any precomputation. Its rejection rate is smaller than in
+ * the rejection sampling method but it may still be vulnerable to timing attacks.
  *
  *
  * Final sampling method defined in this class is the Peikert's inversion method discussed in section 4.1 of https://eprint.iacr.org/2010/088.pdf and
  * summarized in section 3.2.2 of https://link.springer.com/content/pdf/10.1007%2Fs00200-014-0218-3.pdf. It requires CDF tables of probabilities centered around
- * single center to be kept, which are pre calculated in constructor. The method is not prone to timing attacks but it is usable for single center, single deviation only.
+ * single center to be kept, which are precalculated in constructor. The method is not prone to timing attacks but it is usable for single center, single deviation only.
  * It should be also noted that the memory requirement grows with the standard deviation, therefore it is advised to use it with smaller deviations.   */
 
 #ifndef LBCRYPTO_MATH_DISCRETEGAUSSIANGENERATOR_H_

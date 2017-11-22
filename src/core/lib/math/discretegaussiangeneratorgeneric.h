@@ -27,7 +27,7 @@
 
 /*This is the header file for the Generic Sampler used for various Discrete Gaussian Sampling applications. This class
  * implements the generic sampler by UCSD discussed in the https://eprint.iacr.org/2017/259.pdf and it is heavily based on
- * Michael Walter's code. Along the sides of the implementation there are also two different "base samplers", which are used for the generic
+ * Michael Walter's original code. Along the sides of the implementation there are also two different "base samplers", which are used for the generic
  * sampler or can be used on their own depending on the requirements of needed application.
  *
  * The first base sampler uses Peikert's inversion method, discussed in section 4.1 of https://eprint.iacr.org/2010/088.pdf and
