@@ -491,7 +491,9 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalAdd(const shared_
 	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
 
 	const std::vector<Element> &cipherText1Elements = ciphertext->GetElements();
-	Element cipherText2Element( plaintext->GetElement<Poly>(), cipherText1Elements[0].GetParams() );
+
+	plaintext->GetEncodedElement<Element>().SetFormat(EVALUATION);
+	const Element& ptElement = plaintext->GetEncodedElement<Element>();
 
 	size_t cipherTextRElementsSize;
 	size_t cipherTextSmallElementsSize;
@@ -512,13 +514,12 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalAdd(const shared_
 
 	std::vector<Element> c(cipherTextRElementsSize);
 
-	for(size_t i=0; i<cipherTextSmallElementsSize; i++)
-		c[i] = cipherText1Elements[i] + cipherText2Element;
+    auto fvParams = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(ciphertext->GetCryptoParameters());
+    auto &delta = fvParams->GetDelta();
 
-	for(size_t i=cipherTextSmallElementsSize; i<cipherTextRElementsSize; i++){
-		if(isCipherText1Small == true)
-			c[i] = cipherText2Element;
-		else
+	c[0] = cipherText1Elements[0] + delta*ptElement;
+
+	for(size_t i=1; i<cipherTextRElementsSize; i++) {
 			c[i] = cipherText1Elements[i];
 	}
 
@@ -589,7 +590,9 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalSub(const shared_
 	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
 
 	const std::vector<Element> &cipherText1Elements = ciphertext->GetElements();
-	Element cipherText2Element( plaintext->GetElement<Poly>(), cipherText1Elements[0].GetParams() );
+
+	plaintext->GetEncodedElement<Element>().SetFormat(EVALUATION);
+	const Element& ptElement = plaintext->GetEncodedElement<Element>();
 
 	size_t cipherTextRElementsSize;
 	size_t cipherTextSmallElementsSize;
@@ -610,13 +613,12 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalSub(const shared_
 
 	std::vector<Element> c(cipherTextRElementsSize);
 
-	for(size_t i=0; i<cipherTextSmallElementsSize; i++)
-		c[i] = cipherText1Elements[i] - cipherText2Element;
+    auto fvParams = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(ciphertext->GetCryptoParameters());
+    auto &delta = fvParams->GetDelta();
 
-	for(size_t i=cipherTextSmallElementsSize; i<cipherTextRElementsSize; i++){
-		if(isCipherText1Small == true)
-			c[i] = cipherText2Element;
-		else
+	c[0] = cipherText1Elements[0] - delta*ptElement;
+
+	for(size_t i=1; i<cipherTextRElementsSize; i++) {
 			c[i] = cipherText1Elements[i];
 	}
 
@@ -749,17 +751,18 @@ template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext,
 	const shared_ptr<Plaintext> plaintext) const {
 
+	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
+
+	std::vector<Element> cipherText1Elements = ciphertext->GetElements();
+	plaintext->GetEncodedElement<Element>().SetFormat(EVALUATION);
+	const Element& ptElement = plaintext->GetEncodedElement<Element>();
+
 	if (ciphertext->GetElements()[0].GetFormat() == Format::COEFFICIENT || plaintext->GetElement<Element>().GetFormat() == Format::COEFFICIENT) {
 		throw std::runtime_error("LPAlgorithmSHEFV::EvalMult cannot multiply in COEFFICIENT domain.");
 	}
 
-	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
-
-	std::vector<Element> cipherText1Elements = ciphertext->GetElements();
-	Element cipherText2Elements = plaintext->GetElement<Element>();
-
-	Element c0 = cipherText1Elements[0] * cipherText2Elements;
-	Element c1 = cipherText1Elements[1] * cipherText2Elements;
+	Element c0 = cipherText1Elements[0] * ptElement;
+	Element c1 = cipherText1Elements[1] * ptElement;
 
 	newCiphertext->SetElements({ c0, c1 });
 

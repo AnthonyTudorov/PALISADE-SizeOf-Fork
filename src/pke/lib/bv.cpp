@@ -281,7 +281,7 @@ namespace lbcrypto {
 
 		cNew.push_back(std::move(c1[0] + c2));
 
-		cNew.push_back(std::move(c1[1] + c2));
+		cNew.push_back(std::move(c1[1]));
 
 		newCiphertext->SetElements(std::move(cNew));
 
@@ -325,7 +325,7 @@ namespace lbcrypto {
 
 		cNew.push_back(std::move(c1[0] - c2));
 
-		cNew.push_back(std::move(c1[1] - c2));
+		cNew.push_back(std::move(c1[1]));
 
 		newCiphertext->SetElements(std::move(cNew));
 
@@ -374,7 +374,7 @@ namespace lbcrypto {
 		plaintext->GetEncodedElement<Element>().SetFormat(EVALUATION);
 		const Element& c2 = plaintext->GetEncodedElement<Element>();
 
-		if (ciphertext->GetElements()[0].GetFormat() == Format::COEFFICIENT || plaintext->GetElement<Poly>().GetFormat() == Format::COEFFICIENT) {
+		if (ciphertext->GetElements()[0].GetFormat() == Format::COEFFICIENT || plaintext->GetEncodedElement<Element>().GetFormat() == Format::COEFFICIENT) {
 			throw std::runtime_error("EvalMult cannot multiply in COEFFICIENT domain.");
 		}
 
@@ -383,6 +383,8 @@ namespace lbcrypto {
 		cNew.push_back(std::move(c1[0] * c2));
 
 		cNew.push_back(std::move(c1[1] * c2));
+
+		//cNew.push_back(std::move(0));
 
 		newCiphertext->SetElements(std::move(cNew));
 

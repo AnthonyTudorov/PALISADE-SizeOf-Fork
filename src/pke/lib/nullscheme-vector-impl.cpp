@@ -51,10 +51,10 @@ template<>
 shared_ptr<Ciphertext<Poly>> LPAlgorithmSHENull<Poly>::EvalMult(const shared_ptr<Ciphertext<Poly>> ciphertext1,
 	const shared_ptr<Plaintext> plaintext) const {
 
-	shared_ptr<Ciphertext<Poly>> newCiphertext(new Ciphertext<Poly>(ciphertext1->GetCryptoContext()));
+	shared_ptr<Ciphertext<Poly>> newCiphertext = ciphertext1->CloneEmpty();
 
 	const Poly& c1 = ciphertext1->GetElement();
-	const Poly& c2 = plaintext->GetElement<Poly>();
+	const Poly& c2 = plaintext->GetEncodedElement<Poly>();
 
 	const BigInteger& ptm = ciphertext1->GetCryptoParameters()->GetPlaintextModulus();
 

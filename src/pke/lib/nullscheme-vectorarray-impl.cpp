@@ -61,10 +61,10 @@ template<>
 shared_ptr<Ciphertext<DCRTPoly>> LPAlgorithmSHENull<DCRTPoly>::EvalMult(const shared_ptr<Ciphertext<DCRTPoly>> ciphertext1,
 	const shared_ptr<Plaintext> plaintext) const {
 
-	shared_ptr<Ciphertext<DCRTPoly>> newCiphertext(new Ciphertext<DCRTPoly>(ciphertext1->GetCryptoContext()));
+	shared_ptr<Ciphertext<DCRTPoly>> newCiphertext = ciphertext1->CloneEmpty();
 
 	const DCRTPoly& c1 = ciphertext1->GetElement();
-	const DCRTPoly c2( plaintext->GetElement<Poly>(), c1.GetParams() );
+	const DCRTPoly& c2 = plaintext->GetEncodedElement<DCRTPoly>();
 
 	const vector<typename DCRTPoly::PolyType>& c1e = c1.GetAllElements();
 	const vector<typename DCRTPoly::PolyType>& c2e = c2.GetAllElements();
