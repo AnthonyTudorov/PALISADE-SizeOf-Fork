@@ -310,12 +310,12 @@ int main(int argc, char *argv[]) {
 	plaintextAddNew->SetLength(plaintext1->GetLength());
 
 	cout << "\n Original Plaintext: \n";
-	cout << plaintext1 << endl;
-	cout << plaintext2 << endl;
-	cout << plaintext3 << endl;
+	cout << *plaintext1 << endl;
+	cout << *plaintext2 << endl;
+	cout << *plaintext3 << endl;
 
 	cout << "\n Resulting Added Plaintext with Re-Encryption: \n";
-	cout << plaintextAddNew << endl;
+	cout << *plaintextAddNew << endl;
 
 	cout << "\n";
 
@@ -360,14 +360,14 @@ int main(int argc, char *argv[]) {
 	//std::cin.get();
 
 	cout << "\n Original Plaintext: \n" << endl;
-	cout << plaintext1 << endl;
-	cout << plaintext2 << endl;
-	cout << plaintext3 << endl;
+	cout << *plaintext1 << endl;
+	cout << *plaintext2 << endl;
+	cout << *plaintext3 << endl;
 
 	plaintextMultipartyNew->SetLength(plaintext1->GetLength());
 
 	cout << "\n Resulting Fused Plaintext with Re-Encryption: \n" << endl;
-	cout << plaintextMultipartyNew << endl;
+	cout << *plaintextMultipartyNew << endl;
 
 	cout << "\n";
 

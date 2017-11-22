@@ -125,7 +125,7 @@ int main() {
 		auto ciphertextResult = cc->EvalInnerProduct(ciphertext_pub, intArray2, batchSize);
 		shared_ptr<Plaintext> intArrayNew;
 		cc->Decrypt(kp.secretKey, ciphertextResult, &intArrayNew);
-		std::cout << "Actual = " << intArrayNew << std::endl;
+		std::cout << "Actual = " << *intArrayNew << std::endl;
 	}
 	cc->StopTiming();
 

@@ -162,7 +162,7 @@ void LTVAutomorphismPackedArray(usint i) {
 	shared_ptr<Plaintext> intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	if (i == 3)
-		std::cout << "Input array\n\t" << intArray << std::endl;
+		std::cout << "Input array\n\t" << *intArray << std::endl;
 
 	auto ciphertext = cc->Encrypt(kp.publicKey, intArray);
 
@@ -176,7 +176,7 @@ void LTVAutomorphismPackedArray(usint i) {
 
 	cc->Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew);
 
-	std::cout << "Automorphed array - at index " << i << " (using only odd coefficients)\n\t" << intArrayNew << std::endl;
+	std::cout << "Automorphed array - at index " << i << " (using only odd coefficients)\n\t" << *intArrayNew << std::endl;
 }
 
 
@@ -203,7 +203,7 @@ void BVAutomorphismPackedArray(usint i) {
 	shared_ptr<Plaintext> intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	if (i == 3)
-		std::cout << "Input array\n\t" << intArray << std::endl;
+		std::cout << "Input array\n\t" << *intArray << std::endl;
 
 	auto ciphertext = cc->Encrypt(kp.publicKey, intArray);
 
@@ -217,7 +217,7 @@ void BVAutomorphismPackedArray(usint i) {
 
 	cc->Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew);
 
-	std::cout << "Automorphed array - at index " << i << " (using only odd coefficients)\n\t" << intArrayNew << std::endl;
+	std::cout << "Automorphed array - at index " << i << " (using only odd coefficients)\n\t" << *intArrayNew << std::endl;
 }
 
 void FVAutomorphismPackedArray(usint i) {
@@ -248,7 +248,7 @@ void FVAutomorphismPackedArray(usint i) {
 	shared_ptr<Plaintext> intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	if (i == 3)
-		std::cout << "Input array\n\t" << intArray << std::endl;
+		std::cout << "Input array\n\t" << *intArray << std::endl;
 
 	auto ciphertext = cc->Encrypt(kp.publicKey, intArray);
 
@@ -262,7 +262,7 @@ void FVAutomorphismPackedArray(usint i) {
 
 	cc->Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew);
 
-	std::cout << "Automorphed array - at index " << i << " (using only odd coefficients)\n\t" << intArrayNew << std::endl;
+	std::cout << "Automorphed array - at index " << i << " (using only odd coefficients)\n\t" << *intArrayNew << std::endl;
 }
 
 void ArbBVAutomorphismPackedArray(usint i) {
@@ -299,7 +299,7 @@ void ArbBVAutomorphismPackedArray(usint i) {
 	shared_ptr<Plaintext> intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	if (i == 3)
-		std::cout << "Input array\n\t" << intArray << std::endl;
+		std::cout << "Input array\n\t" << *intArray << std::endl;
 
 	auto ciphertext = cc->Encrypt(kp.publicKey, intArray);
 
@@ -314,7 +314,7 @@ void ArbBVAutomorphismPackedArray(usint i) {
 
 	cc->Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew);
 
-	std::cout << "Automorphed array - at index " << i << " (using only odd coefficients)\n\t" << intArrayNew << std::endl;
+	std::cout << "Automorphed array - at index " << i << " (using only odd coefficients)\n\t" << *intArrayNew << std::endl;
 }
 
 
@@ -352,7 +352,7 @@ void ArbLTVAutomorphismPackedArray(usint i) {
 	shared_ptr<Plaintext> intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	if (i == 3)
-		std::cout << "Input array\n\t" << intArray << std::endl;
+		std::cout << "Input array\n\t" << *intArray << std::endl;
 
 	auto ciphertext = cc->Encrypt(kp.publicKey, intArray);
 
@@ -367,7 +367,7 @@ void ArbLTVAutomorphismPackedArray(usint i) {
 
 	cc->Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew);
 
-	std::cout << "Automorphed array - at index " << i << " (using only odd coefficients)\n\t" << intArrayNew << std::endl;
+	std::cout << "Automorphed array - at index " << i << " (using only odd coefficients)\n\t" << *intArrayNew << std::endl;
 }
 
 void ArbFVAutomorphismPackedArray(usint i) {
@@ -408,7 +408,7 @@ void ArbFVAutomorphismPackedArray(usint i) {
 	shared_ptr<Plaintext> intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	if (i == 3)
-		std::cout << "Input array\n\t" << intArray << std::endl;
+		std::cout << "Input array\n\t" << *intArray << std::endl;
 
 	auto ciphertext = cc->Encrypt(kp.publicKey, intArray);
 
@@ -423,7 +423,7 @@ void ArbFVAutomorphismPackedArray(usint i) {
 
 	cc->Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew);
 
-	std::cout << "Automorphed array - at index " << i << " (using only odd coefficients)\n\t" << intArrayNew << std::endl;
+	std::cout << "Automorphed array - at index " << i << " (using only odd coefficients)\n\t" << *intArrayNew << std::endl;
 }
 
 
@@ -466,7 +466,7 @@ void ArbNullAutomorphismPackedArray(usint i) {
 	shared_ptr<Plaintext> intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	if (i == 3)
-		std::cout << "Input array\n\t" << intArray << std::endl;
+		std::cout << "Input array\n\t" << *intArray << std::endl;
 
 	auto ciphertext = cc->Encrypt(kp.publicKey, intArray);
 
@@ -481,7 +481,7 @@ void ArbNullAutomorphismPackedArray(usint i) {
 
 	cc->Decrypt(kp.secretKey,  permutedCiphertext, &intArrayNew);
 
-	std::cout << "Automorphed array - at index " << i << " (using only odd coefficients)\n\t" << intArrayNew << std::endl;
+	std::cout << "Automorphed array - at index " << i << " (using only odd coefficients)\n\t" << *intArrayNew << std::endl;
 }
 
 void ArbFVAutomorphismPackedArray2n(usint i) {
@@ -521,7 +521,7 @@ void ArbFVAutomorphismPackedArray2n(usint i) {
 	shared_ptr<Plaintext> intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	if (i == 3)
-		std::cout << "Input array\n\t" << intArray << std::endl;
+		std::cout << "Input array\n\t" << *intArray << std::endl;
 
 	auto ciphertext = cc->Encrypt(kp.publicKey, intArray);
 
@@ -536,6 +536,6 @@ void ArbFVAutomorphismPackedArray2n(usint i) {
 
 	cc->Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew);
 
-	std::cout << "Automorphed array - at index " << i << " (using only odd coefficients)\n\t" << intArrayNew << std::endl;
+	std::cout << "Automorphed array - at index " << i << " (using only odd coefficients)\n\t" << *intArrayNew << std::endl;
 }
 

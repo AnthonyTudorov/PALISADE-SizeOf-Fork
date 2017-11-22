@@ -33,10 +33,8 @@
 
 #include "../lib/lattice/dcrtpoly.h"
 #include "math/backend.h"
-#include "encoding/scalarencoding.h"
-#include "encoding/stringencoding.h"
-#include "encoding/integerencoding.h"
-#include "encoding/coefpackedencoding.h"
+#include "encoding/encodings.h"
+
 #include "utils/inttypes.h"
 #include "utils/utilities.h"
 #include "lattice/elemparamfactory.h"
@@ -104,6 +102,31 @@ TEST_F(UTEncoding,coef_packed_encoding) {
 	se2.Decode();
 	se2.SetLength( valueSigned.size() );
 	EXPECT_EQ( se2.GetCoefPackedSignedValue(), valueSigned ) << "signed negative";
+}
+
+TEST_F(UTEncoding,packed_int_ptxt_encoding) {
+	usint m = 22;
+	usint p = 89;
+	BigInteger modulusP(p);
+	BigInteger modulusQ("955263939794561");
+	BigInteger squareRootOfRoot("941018665059848");
+	BigInteger bigmodulus("80899135611688102162227204937217");
+	BigInteger bigroot("77936753846653065954043047918387");
+
+	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
+	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
+
+	PackedIntPlaintextEncoding::SetParams(modulusP, m);
+
+	shared_ptr<ILParams> lp(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
+	shared_ptr<EncodingParams> ep(new EncodingParams(modulusP,PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP),8));
+
+	std::vector<usint> vectorOfInts1 = { 1,2,3,4,5,6,7,8,0,0 };
+	PackedIntPlaintextEncoding	se(lp, ep, vectorOfInts1);
+	se.Encode();
+	se.Decode();
+	//se.SetLength( vectorOfInts1.size() );
+	EXPECT_EQ( se.GetPackedValue(), vectorOfInts1 ) << "packed int";
 }
 
 TEST_F(UTEncoding,string_encoding) {

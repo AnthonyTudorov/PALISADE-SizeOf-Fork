@@ -201,9 +201,7 @@ public:
 	 * PrintValue is called by operator<<
 	 * @param out
 	 */
-	virtual void PrintValue(std::ostream& out) const {
-		return;
-	}
+	virtual void PrintValue(std::ostream& out) const = 0;
 
 	/**
 	 * Method to convert plaintext modulus to a native data type.

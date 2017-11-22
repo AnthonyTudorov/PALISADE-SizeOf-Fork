@@ -489,38 +489,22 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalAdd(const shared_
 //	}
 
 	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
+	newCiphertext->SetDepth(ciphertext->GetDepth());
 
-	const std::vector<Element> &cipherText1Elements = ciphertext->GetElements();
+	const std::vector<Element> &cipherTextElements = ciphertext->GetElements();
 
 	plaintext->GetEncodedElement<Element>().SetFormat(EVALUATION);
 	const Element& ptElement = plaintext->GetEncodedElement<Element>();
 
-	size_t cipherTextRElementsSize;
-	size_t cipherTextSmallElementsSize;
-
-	bool isCipherText1Small;
-	if(cipherText1Elements.size() > 1){
-		isCipherText1Small = false;
-		cipherTextRElementsSize = cipherText1Elements.size();
-		cipherTextSmallElementsSize = 1;
-		newCiphertext->SetDepth(ciphertext->GetDepth());
-	}
-	else {
-		isCipherText1Small = true;
-		cipherTextRElementsSize = 1;
-		cipherTextSmallElementsSize = cipherText1Elements.size();
-		newCiphertext->SetDepth(1);
-	}
-
-	std::vector<Element> c(cipherTextRElementsSize);
+	std::vector<Element> c(cipherTextElements.size());
 
     auto fvParams = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(ciphertext->GetCryptoParameters());
     auto &delta = fvParams->GetDelta();
 
-	c[0] = cipherText1Elements[0] + delta*ptElement;
+	c[0] = cipherTextElements[0] + delta*ptElement;
 
-	for(size_t i=1; i<cipherTextRElementsSize; i++) {
-			c[i] = cipherText1Elements[i];
+	for(size_t i=1; i<cipherTextElements.size(); i++) {
+			c[i] = cipherTextElements[i];
 	}
 
 	newCiphertext->SetElements(c);
@@ -588,38 +572,22 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalSub(const shared_
 //	}
 
 	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
+	newCiphertext->SetDepth(ciphertext->GetDepth());
 
-	const std::vector<Element> &cipherText1Elements = ciphertext->GetElements();
+	const std::vector<Element> &cipherTextElements = ciphertext->GetElements();
 
 	plaintext->GetEncodedElement<Element>().SetFormat(EVALUATION);
 	const Element& ptElement = plaintext->GetEncodedElement<Element>();
 
-	size_t cipherTextRElementsSize;
-	size_t cipherTextSmallElementsSize;
-
-	bool isCipherText1Small;
-	if(cipherText1Elements.size() > 1){
-		isCipherText1Small = false;
-		cipherTextRElementsSize = cipherText1Elements.size();
-		cipherTextSmallElementsSize = 1;
-		newCiphertext->SetDepth(ciphertext->GetDepth());
-	}
-	else {
-		isCipherText1Small = true;
-		cipherTextRElementsSize = 1;
-		cipherTextSmallElementsSize = cipherText1Elements.size();
-		newCiphertext->SetDepth(1);
-	}
-
-	std::vector<Element> c(cipherTextRElementsSize);
+	std::vector<Element> c(cipherTextElements.size());
 
     auto fvParams = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(ciphertext->GetCryptoParameters());
     auto &delta = fvParams->GetDelta();
 
-	c[0] = cipherText1Elements[0] - delta*ptElement;
+	c[0] = cipherTextElements[0] - delta*ptElement;
 
-	for(size_t i=1; i<cipherTextRElementsSize; i++) {
-			c[i] = cipherText1Elements[i];
+	for(size_t i=1; i<cipherTextElements.size(); i++) {
+			c[i] = cipherTextElements[i];
 	}
 
 	newCiphertext->SetElements(c);
@@ -753,7 +721,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared
 
 	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
 
-	std::vector<Element> cipherText1Elements = ciphertext->GetElements();
+	std::vector<Element> cipherTextElements = ciphertext->GetElements();
 	plaintext->GetEncodedElement<Element>().SetFormat(EVALUATION);
 	const Element& ptElement = plaintext->GetEncodedElement<Element>();
 
@@ -761,8 +729,8 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared
 		throw std::runtime_error("LPAlgorithmSHEFV::EvalMult cannot multiply in COEFFICIENT domain.");
 	}
 
-	Element c0 = cipherText1Elements[0] * ptElement;
-	Element c1 = cipherText1Elements[1] * ptElement;
+	Element c0 = cipherTextElements[0] * ptElement;
+	Element c1 = cipherTextElements[1] * ptElement;
 
 	newCiphertext->SetElements({ c0, c1 });
 

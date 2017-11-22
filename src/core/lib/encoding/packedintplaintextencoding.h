@@ -161,19 +161,11 @@ public:
 	 */
 	static void Destroy();
 
-	/**
-	 * Output stream operator.
-	 *
-	 * @param out - the output stream.
-	 * @param item - the int plaintext to encode with.
-	 * @return an output stream.
-	 */
-	friend std::ostream& operator<<(std::ostream& out, const PackedIntPlaintextEncoding& item) {
+	void PrintValue(std::ostream& out) const {
 		size_t i;
-		for (i = 0; i<item.value.size()-1; i++)
-			out << item.value[i] << ",";
-		out << item.value[i];
-		return out;
+		for (i = 0; i<value.size()-1; i++)
+			out << value[i] << ",";
+		out << value[i];
 	}
 
 private:
