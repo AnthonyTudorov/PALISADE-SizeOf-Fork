@@ -115,7 +115,7 @@ shared_ptr<vector<vector<shared_ptr<Matrix<Element>>>>> LWEConjunctionCHCPRFAlgo
 		// store the mask as integer for bitwise operations
 		usint chunkMask = std::stoi(chunkTemp, nullptr, 2);
 
-		// build a chunk target that maps "10??" to "1000" - replacing wilcard character by 0
+		// build a chunk target that maps "10??" to "1000" - replacing wildcard character by 0
 		chunkTemp = replaceChar(chunk, '?', '0');
 		usint chunkTarget = std::stoi(chunkTemp, nullptr, 2);
 

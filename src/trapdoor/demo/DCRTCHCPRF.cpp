@@ -38,27 +38,44 @@ using namespace lbcrypto;
 int main(int argc, char* argv[]) {
 	TimeVar t;
 
+	double processingTime(0.0);
+
+	std::string pattern ="1?1?10??????1011";
+	std::string input1 = "1011101110111011";
+	std::string input2 = "1011101110111010";
+
 	TIC(t);
 	LWEConjunctionCHCPRFAlgorithm<DCRTPoly> algorithm(1 << 15, 4, 16, 1024);
-	std::cout << "Parameter Generation: " << TOC(t) << "ms" << std::endl;
+	processingTime = TOC(t);
+	std::cout << "Parameter Generation: " << processingTime << "ms" << std::endl;
+
 	std::cout << "n = " << algorithm.GetRingDimension() << std::endl;
 	std::cout << "log2 q = " << algorithm.GetLogModulus() << std::endl;
+
 	TIC(t);
 	auto key = algorithm.KeyGen();
-	std::cout << "Key Generation: " << TOC(t) << "ms" << std::endl;
+	processingTime = TOC(t);
+	std::cout << "Master Secret (Unconstrained) Key Generation: " << processingTime << "ms" << std::endl;
+
 	TIC(t);
-	auto constrainedKey = algorithm.Constrain(key,  "????????????1011");
-	std::cout << "Constain Key: " << TOC(t) << "ms" << std::endl;
+	auto constrainedKey = algorithm.Constrain(key,  pattern);
+	processingTime = TOC(t);
+	std::cout << "Contstrained Key Generation: " << processingTime << "ms" << std::endl;
+
 	TIC(t);
-	const auto value1 = algorithm.Evaluate(           key, "1011101110111011");
-	const auto value2 = algorithm.Evaluate(constrainedKey, "1011101110111011");
-	const auto value3 = algorithm.Evaluate(           key, "1011101110111010");
-	const auto value4 = algorithm.Evaluate(constrainedKey, "1011101110111010");
-	std::cout << value1 << std::endl;
-	std::cout << value2 << std::endl;
-	std::cout << (value1 == value2 ? "Machted (Correct)" : "Did not match (Incorrect)") << std::endl;
-	std::cout << value3 << std::endl;
-	std::cout << value4 << std::endl;
+	const auto value1 = algorithm.Evaluate(           key, input1);
+	const auto value2 = algorithm.Evaluate(constrainedKey, input1);
+	const auto value3 = algorithm.Evaluate(           key, input2);
+	const auto value4 = algorithm.Evaluate(constrainedKey, input2);
+	processingTime = TOC(t);
+	//std::cout << value1 << std::endl;
+	//std::cout << value2 << std::endl;
+	std::cout << "pattern: " << pattern << std::endl;
+	std::cout << "input 1: " << input1 << std::endl;
+	std::cout << (value1 == value2 ? "Matched (Correct)" : "Did not match (Incorrect)") << std::endl;
+	//std::cout << value3 << std::endl;
+	//std::cout << value4 << std::endl;
+	std::cout << "input 2: " << input2 << std::endl;
 	std::cout << (value3 == value4 ? "Matched (Incorrect)" : "Did not match (Correct)") << std::endl;
-	std::cout << "Evaluation: 4 * " << TOC(t) / 4 << "ms" << std::endl;
+	std::cout << "Evaluation: 4 * " << processingTime / 4 << "ms" << std::endl;
 }
