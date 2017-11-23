@@ -381,8 +381,8 @@ void TestDCRTVecDecompose(int32_t base, usint k, usint ringDimension){
 
 	for(usint i = 0; i < results.GetRows(); i++){
 		for(usint j =0; j < results.GetCols(); j++){
-			results(i,j).PrintValues();
-			matrixTobeDecomposed(i,j).PrintValues();
+			std::cout<< results(i,j) <<std::endl;
+			std::cout<< matrixTobeDecomposed(i,j) <<std::endl;
 		}
 	}
 

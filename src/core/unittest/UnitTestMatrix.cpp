@@ -223,12 +223,15 @@ inline void expect_close(double a, double b) {
 }
 
 TEST(UTMatrix, cholesky) {
-	Matrix<int32_t> m([]() { return make_unique<int32_t>(); }, 2, 2);
+        bool dbg_flag = false;
+        Matrix<int32_t> m([]() { return make_unique<int32_t>(); }, 2, 2);
 	m(0, 0) = 20;
 	m(0, 1) = 4;
 	m(1, 0) = 4;
 	m(1, 1) = 10;
+
 	auto c = Cholesky(m);
+	DEBUGEXP(c);
 	EXPECT_LE(fabs(4.47213595 - c(0, 0)), 1e-8);
 	EXPECT_LE(fabs(0 - c(0, 1)), 1e-8);
 	EXPECT_LE(fabs(.89442719 - c(1, 0)), 1e-8);
@@ -238,6 +241,7 @@ TEST(UTMatrix, cholesky) {
 	EXPECT_LE(fabs(m(0, 1) - cc(0, 1)), 1e-8);
 	EXPECT_LE(fabs(m(1, 0) - cc(1, 0)), 1e-8);
 	EXPECT_LE(fabs(m(1, 1) - cc(1, 1)), 1e-8);
+	DEBUGEXP(cc);
 }
 
 TEST(UTMatrix, gadget_vector) {

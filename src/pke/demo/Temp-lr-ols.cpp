@@ -66,7 +66,7 @@ void CRTInterpolate(const std::vector<Matrix<shared_ptr<Plaintext>> >& crtVector
                     Matrix<native_int::BigInteger>& result);
 void MatrixInverse(const Matrix<native_int::BigInteger>& in, Matrix<double>& out, uint32_t numRegressors);
 void DecodeData(const Matrix<double>& lr, const Matrix<native_int::BigInteger>& XTX, const Matrix<native_int::BigInteger>& XTY, std::vector<double>& result);
-template <typename T> ostream& operator<<(ostream& output, const vector<T>& vector);
+//template <typename T> ostream& operator<<(ostream& output, const vector<T>& vector);
 
 // number of primitive prime plaintext moduli in the CRT representation of plaintext
 const size_t SIZE = 2;

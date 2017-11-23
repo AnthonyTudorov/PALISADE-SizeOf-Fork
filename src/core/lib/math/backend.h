@@ -90,9 +90,6 @@ static_assert(cpu_int::DataTypeChecker<integral_dtype>::value,"Data type provide
 #define BigIntegerBitLength 1500 //for documentation on tests
 #endif
 
-#if BigIntegerBitLength > 1500
-#error "BigIntegerBitLength is too large"
-#endif
 #if BigIntegerBitLength < 600
 #error "BigIntegerBitLength is too small"
 #endif
@@ -179,6 +176,7 @@ namespace lbcrypto {
 	typedef exp_int::xubint BigInteger;
 	typedef exp_int::xmubintvec BigVector;
 
+	
 #define MATH_DEFBITS 0
 
 #endif
@@ -200,6 +198,22 @@ namespace lbcrypto {
 	typedef native_int::BigInteger BigInteger;
 	typedef native_int::BigVector BigVector;
 
+#if 0    
+    /**
+    * Prints the value of the internal limb storage
+    * in decimal format. Used primarily for debugging
+    */
+    void PrintLimbsInDec() const;
+
+    /**
+    * Prints the value of the internal limb storage
+    * in hexadecimal format. Used primarily for debugging
+    */
+    void PrintLimbsInHex() const { std::cout<<std::hex<<*this<<std::dec; }
+#endif
+
+	
+	
 #define MATH_DEFBITS MATH_NATIVEBITS
 #endif
 
@@ -211,6 +225,18 @@ namespace lbcrypto {
 
 	typedef ILParamsImpl<native_int::BigInteger> ILNativeParams;
 
+	// template to allow contents of a vector of streamables to tream
+
+	template<typename T> std::ostream& operator << (std::ostream& os, const std::vector<T>& v ){
+	  os << "[";
+	  for (const auto& itr : v){
+	    os << " " << itr;
+	  }
+	  os << " ]";
+	  return os;
+	};
+
+	
 } // namespace lbcrypto ends
 
 #endif

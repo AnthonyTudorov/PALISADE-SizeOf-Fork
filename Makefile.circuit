@@ -73,15 +73,19 @@ $(CIRCUITSRCDIR)/lib/scan.cpp: $(CIRCUITSRCDIR)/lib/scan.l $(CIRCUITSRCDIR)/lib/
 
 allcircuitdemos: $(patsubst $(CIRCUITBINDIR)/demo/%,$(BINDIR)/demo/circuit/%,$(patsubst %.o,%$(EXESUFFIX),$(CIRCUITDEMOOBJECTS)))
 
-$(BINDIR)/demo/circuit/%$(EXESUFFIX): $(CIRCUITBINDIR)/demo/%.o $(CLIBS) $(EXTLIBDIR)/$(PALISADECIRCUITLIB)
+$(BINDIR)/demo/circuit/%$(EXESUFFIX): $(CIRCUITBINDIR)/demo/%.o $(CLIBS) $(EXTLIBDIR)/$(PALISADECIRCUITLIB) $(NTLLIB) $(GMPLIB)
 	@mkdir -p $(@D)
-	$(CC) -o $@ $< $(EXTLIB) -lPALISADEcore -lPALISADEpke -lPALISADEtrapdoor -lPALISADEcircuit
+	$(CC) -o $@ $< $(EXTLIB) -lPALISADEcircuit -lPALISADEtrapdoor -lPALISADEpke -lPALISADEcore $(NTLLIB) $(GMPLIB)
 
 #this builds the palisade library out of the objects 
-$(EXTLIBDIR)/$(PALISADECIRCUITLIB): $(CIRCUITOBJECTS) $(CLIBS) 
+$(EXTLIBDIR)/$(PALISADECIRCUITLIB): $(CIRCUITOBJECTS) $(CLIBS)  $(NTLLIB) $(GMPLIB)
 	@echo " -- circuit:linking $@ from CIRCUITOBJECTS"
 	@mkdir -p $(EXTLIBDIR)
-	$(CC) $(LIBCMD) -o $@ $(CIRCUITOBJECTS) $(EXTLIB) -lPALISADEcore -lPALISADEpke -lPALISADEtrapdoor -lgomp 
+ifdef COVERAGE
+	$(LIBCMD) $@ $(CIRCUITOBJECTS)
+else
+	$(LIBCMD) $@ $(CIRCUITOBJECTS) $(EXTLIB) -lPALISADEtrapdoor -lPALISADEpke -lPALISADEcore $(NTLLIB) $(GMPLIB)
+endif
 
 ### #this builds the individual objects that make up the library .
 .PRECIOUS: $(CIRCUITBINDIR)/%
@@ -104,9 +108,9 @@ cleancircuit:
 	$(RM) -fr $(CIRCUITBINDIR) $(EXTLIBDIR)/$(PALISADECIRCUITLIB) `dirname $(CIRCUIT_TEST_TARGET)` $(BINDIR)/demo/circuit $(CIRCUITSRCDIR)/lib/parse.cpp $(CIRCUITSRCDIR)/lib/scan.cpp $(CIRCUITSRCDIR)/lib/parse.hpp $(wildcard $(CIRCUITSRCDIR)/lib/*.hh)
 
 # this links test executable  from objects in the test build directory
-$(CIRCUIT_TEST_TARGET): $(UNITTESTMAINOBJ) $(CIRCUITUNITOBJECTS) $(CLIBS) $(EXTLIBDIR)/$(PALISADECIRCUITLIB)
+$(CIRCUIT_TEST_TARGET): $(UNITTESTMAINOBJ) $(CIRCUITUNITOBJECTS) $(CLIBS) $(EXTLIBDIR)/$(PALISADECIRCUITLIB) $(NTLLIB) $(GMPLIB)
 	@mkdir -p `dirname $(CIRCUIT_TEST_TARGET)`
-	$(CC) -o $(CIRCUIT_TEST_TARGET) $(UNITTESTMAINOBJ) $(CIRCUITUNITOBJECTS) $(EXTLIB) -lPALISADEcircuit -lPALISADEtrapdoor -lPALISADEpke -lPALISADEcore $(TEST_LIB)
+	$(CC) -o $(CIRCUIT_TEST_TARGET) $(UNITTESTMAINOBJ) $(CIRCUITUNITOBJECTS) $(EXTLIB) -lPALISADEcircuit -lPALISADEtrapdoor -lPALISADEpke -lPALISADEcore $(TEST_LIB) $(NTLLIB) $(GMPLIB)
 
 #used to run tests from make
 .PHONY: testcircuit

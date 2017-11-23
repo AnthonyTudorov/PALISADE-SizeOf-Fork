@@ -732,17 +732,8 @@ template<typename ModType, typename IntType, typename VecType, typename ParmType
   }
 /*OTHER FUNCTIONS*/
 
-template<typename ModType, typename IntType, typename VecType, typename ParmType>
-void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::PrintValues() const
-{
-	std::cout<<"---START PRINT DOUBLE CRT-- WITH SIZE" <<m_vectors.size() << std::endl;
-	for(usint i = 0; i < m_vectors.size(); i++) {
-		std::cout<<"VECTOR " << i << std::endl;
-		m_vectors[i].PrintValues();
-	}
-	std::cout<<"---END PRINT DOUBLE CRT--" << std::endl;
-}
 
+  
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
 void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::AddILElementOne()
 {
@@ -1079,5 +1070,22 @@ bool DCRTPolyImpl<ModType,IntType,VecType,ParmType>::Deserialize(const Serialize
 
 	return ret;
 }
+
+
+ template<typename ModType, typename IntType, typename VecType, typename ParmType>
+   std::ostream& operator<<(std::ostream &os, const DCRTPolyImpl<ModType,IntType,VecType,ParmType> & p)
+
+ //TODO: Standardize this printing so it is like other poly's
+ {
+        os<<"---START PRINT DOUBLE CRT-- WITH SIZE" <<p.m_vectors.size() << std::endl;
+	for(usint i = 0; i < p.m_vectors.size(); i++) {
+		os<<"VECTOR " << i << std::endl;
+		os<<p.m_vectors[i];
+	}
+	os<<"---END PRINT DOUBLE CRT--" << std::endl;
+	return os;
+}
+
+
 
 } // namespace lbcrypto ends

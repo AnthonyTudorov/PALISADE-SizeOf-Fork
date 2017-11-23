@@ -53,6 +53,7 @@ class CryptoObject;
 #include "math/matrix.h"
 
 #include "utils/inttypes.h"
+#include "utils/exception.h"
 
 #include "lattice/elemparams.h"
 #include "lattice/ilparams.h"

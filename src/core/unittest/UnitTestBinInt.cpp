@@ -837,6 +837,7 @@ TEST(UTBinInt,mod_arithmetic){
 TEST(UTBinInt,big_modexp){
   //very big modexp. 
   {
+    bool dbg_flag = false;
     TimeVar t;
 
     TIC(t);
@@ -851,7 +852,7 @@ TEST(UTBinInt,big_modexp){
       << "Failure testing very big mod_exp_test";
 
     
-    PROFILELOG("big_modexp time ns "<<TOC_NS(t));
+    DEBUG("big_modexp time ns "<<TOC_NS(t));
   }
 }
 
@@ -1091,7 +1092,8 @@ TEST(UTBinInt, method_GetBitAtIndex){
   x += 2; //x has one bit at 2
 
   DEBUG("x "<<x);
-  //if (dbg_flag) x.PrintLimbsInHex();
+  DEBUG(x.GetInternalRepresentation());
+  DEBUG(std::hex <<x.GetInternalRepresentation()<<std::dec); 
 
   // index is 1 for lsb!
   EXPECT_EQ(sint(x.GetBitAtIndex(1)), 0);  
@@ -1102,4 +1104,36 @@ TEST(UTBinInt, method_GetBitAtIndex){
   }
   EXPECT_EQ(sint(x.GetBitAtIndex(101)), 1);  
 
+}
+
+
+TEST(UTBinInt, method_GetInternalRepresentation){
+  bool dbg_flag = false;
+  BigInteger x(1);
+
+  x <<=(100); //x has one bit at 128
+  x += 2; //x has one bit at 2
+
+  auto x_limbs = x.GetInternalRepresentation();
+
+  if (dbg_flag) {
+    DEBUG(std::hex <<x.GetInternalRepresentation()<<std::dec); 
+    DEBUG(x_limbs);
+    DEBUG("x_limbs "<< x_limbs);
+    DEBUG("x "<<x);
+  }
+
+  //define what is correct based on math backend selected
+#if MATHBACKEND == 2
+  vector<uint32_t> correct={2,0,0,16};
+#elif MATHBACKEND == 4 && defined(UBINT_32)
+  vector<uint32_t> correct={2,0,0,16};
+#elif MATHBACKEND == 4 && defined(UBINT_32)
+  //this configuration is not supported yet
+#elif MATHBACKEND == 6
+  vector<NTL::ZZ_limb_t> correct={2,68719476736};
+#elif MATHBACKEND ==7
+  native_int::NativeInteger<long unsigned int> correct={2};
+#endif
+  EXPECT_EQ(correct, x_limbs);
 }

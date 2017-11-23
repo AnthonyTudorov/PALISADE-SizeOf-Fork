@@ -408,15 +408,15 @@ namespace exp_int{
     //Auxillary Functions
 
     /**
-     * Prints the value of the vector of limbs to console in decimal format
-     */
-    void PrintLimbsInDec() const;
-
-   /**
-    * Prints the value of the vector of limbs to console in hex format
+    * Delivers value of the internal limb storage
+    * Used primarily for debugging
+    * @return STL vector of uint_type    
     */
-    void PrintLimbsInHex() const;
-
+    vector<limb_t> GetInternalRepresentation(void) const {
+      vector<limb_t> ret = m_value;
+      return ret;
+    }
+    
     /**
      * Basic set method for setting the value of a ubint
      *
@@ -446,6 +446,8 @@ namespace exp_int{
      * @return the size
      */
     usint GetNumberOfLimbs()const;
+
+
 
     /**
      * Converts the value to a usint.
@@ -998,9 +1000,6 @@ namespace exp_int{
       return os;
     }
 
-	//TODO get rid of all PrintValues
-    void PrintValues() const { std::cout << *this; }
-
  private:
     static inline limb_t base64_to_value(const char &b64);
 
@@ -1257,7 +1256,18 @@ namespace exp_int{
   //todo: does this go here?
   template<typename limb_t>
     inline ubint<limb_t> operator/(const ubint<limb_t> &a, const ubint<limb_t> &b) {return a.Div(b);}
-  
+
+  // stream helper function for vector of objects
+  template < typename limb_t >
+    inline std::ostream& operator << (std::ostream& os, const std::vector<limb_t>& v) {
+    os << "[";
+    for (const auto& itr : v){
+      os << " " << itr;
+    }
+    os << " ]";
+    return os;
+  };
+
 }//namespace ends
 
 #endif //LBCRYPTO_MATH_EXPINT_UBINT_H

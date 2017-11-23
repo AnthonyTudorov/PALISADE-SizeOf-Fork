@@ -1,6 +1,7 @@
 # Ignore everything in this directory
 *~
 *.o
+*.gcov
 bin/
 build/
 test/build

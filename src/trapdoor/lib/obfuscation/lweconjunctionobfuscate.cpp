@@ -369,11 +369,12 @@ shared_ptr<Matrix<Element>> LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 
 	  // the following takes approx 250 msec
 		const Matrix<Element> &gaussj = RLWETrapdoorUtility<Element>::GaussSamp(n,k,Ai,Ti,bj(0,i), dgg, dggLargeSigma, base);
-//		gaussj(0, 0).PrintValues();
-//		gaussj(1, 0).PrintValues();
+		//std::cout << gaussj(0, 0) <<std::endl;
+		//std::cout << gaussj(1, 0) <<std::endl;
+
 		// the following takes no time
 		for(size_t j=0; j<m; j++) {
-//			gaussj(j, 0).PrintValues();
+		        //std::cout << gaussj(j, 0) <<std::endl;
 			(*result)(j,i) = gaussj(j,0);
 		}
 
@@ -595,8 +596,8 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 
 	//std::cout << "encode 2 for L ran" << std::endl;
 
-	//Sl.PrintValues();
-	//Rl.PrintValues();
+	//std::cout << Sl << std::endl;
+	//std::cout << Rl << std::endl;
 	obfuscatedPattern->SetMatrices(S_vec,R_vec,Sl,Rl);
 
 	DEBUG("Obf2: "<<TOC(t1) <<" ms");
@@ -677,8 +678,8 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 	S_prod = Pk_vector[0];
 	R_prod = Pk_vector[0];
 
-	//S_prod.PrintValues();
-	//R_prod.PrintValues();
+	//std::cout << S_prod << std::endl;
+	//std::cout << R_prod << std::endl;
 
 	shared_ptr<Matrix<Element>> S_ib;
 	shared_ptr<Matrix<Element>> R_ib;
@@ -698,8 +699,8 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 			S_ib = obfuscatedPattern.GetS(i,testVal);
 			R_ib = obfuscatedPattern.GetR(i,testVal);
 
-			//S_ib->PrintValues();
-			//R_ib->PrintValues();
+			//std::cout << *S_ib << std::endl;
+			//std::cout << *R_ib << std::endl;
 
 			S_prod = S_prod * (*S_ib);
 			R_prod = R_prod * (*R_ib);
@@ -709,23 +710,18 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 		DEBUG("Eval2:#"<< i << ": " <<TOC(t1) <<" ms");
 	}
 	TIC(t1);
-	//std::cout << " S_prod: " << std::endl;
-	//S_prod.PrintValues();
-	//std::cout << " R_prod: " << std::endl;
-	//R_prod.PrintValues();
+	//std::cout << " S_prod: " << S_prod << std::endl;
+	//std::cout << " R_prod: " << R_prod << std::endl;
 
 	shared_ptr<Matrix<Element>> Sl = obfuscatedPattern.GetSl();
 	shared_ptr<Matrix<Element>> Rl = obfuscatedPattern.GetRl();
 
-	//std::cout << " Sl: " << std::endl;
-	//Sl->PrintValues();
-	//std::cout << " Rl: " << std::endl;
-	//Rl->PrintValues();
+	//std::cout << " Sl: " << *Sl << std::endl;
+	//std::cout << " Rl: " << *Rl << std::endl;
 
 	//std::cout << " Cross Product: " << std::endl;
 	Matrix<Element> CrossProd = (S_prod * (*Rl)) - (R_prod * (*Sl));
-	//CrossProd.PrintValues();
-
+	//std::cout << CrossProd << std::endl;
 
 	DEBUG("Eval3: " <<TOC(t1) <<" ms");
 	TIC(t1);
@@ -734,7 +730,7 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 	CrossProd.SwitchFormat();
 	DEBUG("Eval4: " <<TOC(t1) <<" ms");
 	TIC(t1);
-	//CrossProd.PrintValues();
+	//std::cout << CrossProd << std::endl;
 
 	//std::cout << "cross product dimensions: " <<  CrossProd.GetRows() << ", " << CrossProd.GetCols() << std::endl;
 	//std::cout <<  CrossProd << std::endl;
