@@ -217,8 +217,8 @@ void SwitchCRT() {
 
 	std::cout << "Starting CRT Basis switch" << std::endl;
 
-	DCRTPoly b = a.SwitchCRTBasis(paramsS, cryptoParamsBFVrns->GetDCRTPolyInverseTable(),
-			cryptoParamsBFVrns->GetDCRTPolyqDivqiModsiTable(), cryptoParamsBFVrns->GetDCRTPolyqModsiTable());
+	DCRTPoly b = a.SwitchCRTBasis(paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
+			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable());
 
 	std::cout << "a mod s0 = " << resultA.GetValAtIndex(0).Mod(BigInteger(paramsS->GetParams()[0]->GetModulus().ConvertToInt())) << " modulus " << paramsS->GetParams()[0]->GetModulus() << std::endl;
 	std::cout << "b mod s0 = " << b.GetElementAtIndex(0).GetValAtIndex(0) << " modulus = " << b.GetElementAtIndex(0).GetModulus() << std::endl;
@@ -296,11 +296,11 @@ void Multiply() {
 
 	std::cout << "Starting CRT Expansion" << std::endl;
 
-	a.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetDCRTPolyInverseTable(),
-			cryptoParamsBFVrns->GetDCRTPolyqDivqiModsiTable(), cryptoParamsBFVrns->GetDCRTPolyqModsiTable());
+	a.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
+			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable());
 
-	b.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetDCRTPolyInverseTable(),
-			cryptoParamsBFVrns->GetDCRTPolyqDivqiModsiTable(), cryptoParamsBFVrns->GetDCRTPolyqModsiTable());
+	b.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
+			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable());
 
 	std::cout << "Ended CRT Expansion" << std::endl;
 
@@ -349,7 +349,7 @@ void Multiply() {
 	else
 		std::cout << "result C: " << resultC.GetValAtIndex(0) << std::endl;
 
-	DCRTPoly rounded = c.ScaleAndRound(paramsS,cryptoParamsBFVrns->GetDCRTPolyMultIntTable(),cryptoParamsBFVrns->GetDCRTPolyMultFloatTable());
+	DCRTPoly rounded = c.ScaleAndRound(paramsS,cryptoParamsBFVrns->GetCRTMultIntTable(),cryptoParamsBFVrns->GetCRTMultFloatTable());
 
 	Poly resultRounded = rounded.CRTInterpolate();
 
@@ -358,8 +358,8 @@ void Multiply() {
 	else
 		std::cout << "result: " << resultRounded.GetValAtIndex(0) << std::endl;
 
-	DCRTPoly roundedQ = rounded.SwitchCRTBasis(params, cryptoParamsBFVrns->GetDCRTPolySInverseTable(),
-			cryptoParamsBFVrns->GetDCRTPolysDivsiModqiTable(), cryptoParamsBFVrns->GetDCRTPolysModqiTable());
+	DCRTPoly roundedQ = rounded.SwitchCRTBasis(params, cryptoParamsBFVrns->GetCRTSInverseTable(),
+			cryptoParamsBFVrns->GetCRTsDivsiModqiTable(), cryptoParamsBFVrns->GetCRTsModqiTable());
 
 	Poly resultRoundedQ = roundedQ.CRTInterpolate();
 
@@ -437,11 +437,11 @@ void MultiplyTwo() {
 
 	std::cout << "Starting CRT Expansion" << std::endl;
 
-	a.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetDCRTPolyInverseTable(),
-			cryptoParamsBFVrns->GetDCRTPolyqDivqiModsiTable(), cryptoParamsBFVrns->GetDCRTPolyqModsiTable());
+	a.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
+			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable());
 
-	b.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetDCRTPolyInverseTable(),
-			cryptoParamsBFVrns->GetDCRTPolyqDivqiModsiTable(), cryptoParamsBFVrns->GetDCRTPolyqModsiTable());
+	b.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
+			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable());
 
 	std::cout << "Ended CRT Expansion" << std::endl;
 
@@ -538,7 +538,7 @@ void MultiplyTwo() {
 	else
 		std::cout << "result multiprecision C: " << cPoly.GetValAtIndex(0) << std::endl;
 
-	DCRTPoly rounded = c.ScaleAndRound(paramsS,cryptoParamsBFVrns->GetDCRTPolyMultIntTable(),cryptoParamsBFVrns->GetDCRTPolyMultFloatTable());
+	DCRTPoly rounded = c.ScaleAndRound(paramsS,cryptoParamsBFVrns->GetCRTMultIntTable(),cryptoParamsBFVrns->GetCRTMultFloatTable());
 
 	Poly resultRounded = rounded.CRTInterpolate();
 
@@ -547,8 +547,8 @@ void MultiplyTwo() {
 	else
 		std::cout << "result: " << resultRounded.GetValAtIndex(0) << std::endl;
 
-	DCRTPoly roundedQ = rounded.SwitchCRTBasis(params, cryptoParamsBFVrns->GetDCRTPolySInverseTable(),
-			cryptoParamsBFVrns->GetDCRTPolysDivsiModqiTable(), cryptoParamsBFVrns->GetDCRTPolysModqiTable());
+	DCRTPoly roundedQ = rounded.SwitchCRTBasis(params, cryptoParamsBFVrns->GetCRTSInverseTable(),
+			cryptoParamsBFVrns->GetCRTsDivsiModqiTable(), cryptoParamsBFVrns->GetCRTsModqiTable());
 
 	Poly resultRoundedQ = roundedQ.CRTInterpolate();
 
@@ -627,11 +627,11 @@ void MultiplyThree() {
 
 	std::cout << "Starting CRT Expansion" << std::endl;
 
-	a.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetDCRTPolyInverseTable(),
-			cryptoParamsBFVrns->GetDCRTPolyqDivqiModsiTable(), cryptoParamsBFVrns->GetDCRTPolyqModsiTable());
+	a.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
+			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable());
 
-	b.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetDCRTPolyInverseTable(),
-			cryptoParamsBFVrns->GetDCRTPolyqDivqiModsiTable(), cryptoParamsBFVrns->GetDCRTPolyqModsiTable());
+	b.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
+			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable());
 
 	std::cout << "Ended CRT Expansion" << std::endl;
 
@@ -728,7 +728,7 @@ void MultiplyThree() {
 	else
 		std::cout << "result multiprecision C: " << cPoly.GetValAtIndex(0) << std::endl;
 
-	DCRTPoly rounded = c.ScaleAndRound(paramsS,cryptoParamsBFVrns->GetDCRTPolyMultIntTable(),cryptoParamsBFVrns->GetDCRTPolyMultFloatTable());
+	DCRTPoly rounded = c.ScaleAndRound(paramsS,cryptoParamsBFVrns->GetCRTMultIntTable(),cryptoParamsBFVrns->GetCRTMultFloatTable());
 
 	Poly resultRounded = rounded.CRTInterpolate();
 
@@ -737,8 +737,8 @@ void MultiplyThree() {
 	else
 		std::cout << "result: " << resultRounded.GetValAtIndex(0) << std::endl;
 
-	DCRTPoly roundedQ = rounded.SwitchCRTBasis(params, cryptoParamsBFVrns->GetDCRTPolySInverseTable(),
-			cryptoParamsBFVrns->GetDCRTPolysDivsiModqiTable(), cryptoParamsBFVrns->GetDCRTPolysModqiTable());
+	DCRTPoly roundedQ = rounded.SwitchCRTBasis(params, cryptoParamsBFVrns->GetCRTSInverseTable(),
+			cryptoParamsBFVrns->GetCRTsDivsiModqiTable(), cryptoParamsBFVrns->GetCRTsModqiTable());
 
 	Poly resultRoundedQ = roundedQ.CRTInterpolate();
 

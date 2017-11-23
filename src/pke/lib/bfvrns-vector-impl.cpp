@@ -69,6 +69,13 @@ LPCryptoParametersBFVrns<Poly>::LPCryptoParametersBFVrns(shared_ptr<typename Pol
 	throw std::runtime_error(errMsg);
 }
 
+// Parameter generation for FV-RNS
+template <>
+bool LPCryptoParametersBFVrns<Poly>::PrecomputeCRTTables(){
+	std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead.";
+	throw std::runtime_error(errMsg);
+}
+
 template <>
 LPPublicKeyEncryptionSchemeBFVrns<Poly>::LPPublicKeyEncryptionSchemeBFVrns(){
 	std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead.";

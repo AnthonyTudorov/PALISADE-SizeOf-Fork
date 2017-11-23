@@ -44,9 +44,9 @@
 namespace lbcrypto {
 
 	/**
- 	* @brief This is the parameters class for the FV encryption scheme.
+ 	* @brief This is the parameters class for the BFVrns encryption scheme.
  	*
- 	* The FV scheme parameter guidelines are introduced here:
+ 	* The BFV scheme parameter guidelines are introduced here:
  	*   - Junfeng Fan and Frederik Vercauteren. Somewhat Practical Fully Homomorphic Encryption.  Cryptology ePrint Archive, Report 2012/144. (https://eprint.iacr.org/2012/144.pdf)
  	*
  	* We used the optimized parameter selection from the designs here:
@@ -139,113 +139,51 @@ namespace lbcrypto {
 			bool Deserialize(const Serialized& serObj);
 
 			/**
+			* Computes all tables needed for decryption, homomorphic multiplication, and key switching
+			* @return true on success
+			*/
+			bool PrecomputeCRTTables();
+
+			const shared_ptr<ILDCRTParams<BigInteger>> GetDCRTParamsS() const { return m_paramsS; }
+
+			const shared_ptr<ILDCRTParams<BigInteger>> GetDCRTParamsQS() const { return m_paramsQS; }
+
+			/**
 			* Gets the precomputed table of [(q/qi)^{-1}]_qi / qi
 			*
 			* @return the precomputed table
 			*/
-			const std::vector<double>& GetDCRTPolyDecryptionTable() const { return m_DCRTPolyDecryptionTable; }
+			const std::vector<double>& GetCRTDecryptionFloatTable() const { return m_CRTDecryptionFloatTable; }
+
+			const std::vector<native_int::BigInteger>& GetCRTDecryptionIntTable() const { return m_CRTDecryptionIntTable; }
 
 			/**
 			* Gets the precomputed table of delta mod qi
 			*
 			* @return the precomputed table
 			*/
-			const std::vector<native_int::BigInteger>& GetDCRTPolyDeltaTable() const { return m_DCRTPolyDeltaTable; }
+			const std::vector<native_int::BigInteger>& GetCRTDeltaTable() const { return m_CRTDeltaTable; }
 
 			/**
 			* Gets the precomputed table of (q/qi)^{-1} mod qi
 			*
 			* @return the precomputed table
 			*/
-			const std::vector<native_int::BigInteger>& GetDCRTPolyInverseTable() const { return m_DCRTPolyInverseTable; }
+			const std::vector<native_int::BigInteger>& GetCRTInverseTable() const { return m_CRTInverseTable; }
 
-			const std::vector<native_int::BigInteger>& GetDCRTPolyDecryptionIntTable() const { return m_DCRTPolyDecryptionIntTable; }
+			const std::vector<std::vector<native_int::BigInteger>>& GetCRTqDivqiModsiTable() const { return m_CRTqDivqiModsiTable; }
 
-			const std::vector<std::vector<native_int::BigInteger>>& GetDCRTPolyqDivqiModsiTable() const { return m_DCRTPolyqDivqiModsiTable; }
+			const std::vector<native_int::BigInteger>& GetCRTqModsiTable() const { return m_CRTqModsiTable; }
 
-			const std::vector<native_int::BigInteger>& GetDCRTPolyqModsiTable() const { return m_DCRTPolyqModsiTable; }
+			const std::vector<double>& GetCRTMultFloatTable() const { return m_CRTMultFloatTable; }
 
-			const shared_ptr<ILDCRTParams<BigInteger>> GetDCRTParamsS() const { return m_paramsS; }
+			const std::vector<std::vector<native_int::BigInteger>>& GetCRTMultIntTable() const { return m_CRTMultIntTable; }
 
-			const shared_ptr<ILDCRTParams<BigInteger>> GetDCRTParamsQS() const { return m_paramsQS; }
+			const std::vector<native_int::BigInteger>& GetCRTSInverseTable() const { return m_CRTSInverseTable; }
 
-			const std::vector<double>& GetDCRTPolyMultFloatTable() const { return m_DCRTPolyMultFloatTable; }
+			const std::vector<std::vector<native_int::BigInteger>>& GetCRTsDivsiModqiTable() const { return m_CRTsDivsiModqiTable; }
 
-			const std::vector<std::vector<native_int::BigInteger>>& GetDCRTPolyMultIntTable() const { return m_DCRTPolyMultIntTable; }
-
-			const std::vector<native_int::BigInteger>& GetDCRTPolySInverseTable() const { return m_DCRTPolySInverseTable; }
-
-			const std::vector<std::vector<native_int::BigInteger>>& GetDCRTPolysDivsiModqiTable() const { return m_DCRTPolysDivsiModqiTable; }
-
-			const std::vector<native_int::BigInteger>& GetDCRTPolysModqiTable() const { return m_DCRTPolysModqiTable; }
-
-			/**
-			* Sets the precomputation table of [(q/qi)^{-1}]_qi / qi
-			*
-			* @param &DCRTPolyDecryptionTable is the precomputed table
-			*/
-			void SetDCRTPolyDecryptionTable(const std::vector<double> &DCRTPolyDecryptionTable) {
-				m_DCRTPolyDecryptionTable = DCRTPolyDecryptionTable;
-			}
-
-			/**
-			* Sets the precomputation table of delta mod qi
-			*
-			* @param &DCRTPolyDeltaTable is the precomputed table
-			*/
-			void SetDCRTPolyDeltaTable(const std::vector<native_int::BigInteger> &DCRTPolyDeltaTable) {
-				m_DCRTPolyDeltaTable = DCRTPolyDeltaTable;
-			}
-
-			/**
-			* Sets the precomputation table of (q/qi)^{-1} mod qi
-			*
-			* @param &DCRTPolyInverseTable is the precomputed table
-			*/
-			void SetDCRTPolyInverseTable(const std::vector<native_int::BigInteger> &DCRTPolyInverseTable) {
-				m_DCRTPolyInverseTable = DCRTPolyInverseTable;
-			}
-
-			void SetDCRTPolyDecryptionIntTable(const std::vector<native_int::BigInteger> &DCRTPolyDecryptionIntTable) {
-				m_DCRTPolyDecryptionIntTable = DCRTPolyDecryptionIntTable;
-			}
-
-			void SetDCRTPolyqDivqiModsiTable(const std::vector<std::vector<native_int::BigInteger>> &DCRTPolyqDivqiModsiTable) {
-				m_DCRTPolyqDivqiModsiTable= DCRTPolyqDivqiModsiTable;
-			}
-
-			void SetDCRTPolyqModsiTable(const std::vector<native_int::BigInteger> &DCRTPolyqModsiTable) {
-				m_DCRTPolyqModsiTable = DCRTPolyqModsiTable;
-			}
-
-			void SetDCRTParamsS(shared_ptr<ILDCRTParams<BigInteger>> paramsS) {
-				m_paramsS = paramsS;
-			}
-
-			void SetDCRTParamsQS(shared_ptr<ILDCRTParams<BigInteger>> paramsQS) {
-				m_paramsQS = paramsQS;
-			}
-
-			void SetDCRTPolyMultFloatTable(const std::vector<double> &DCRTPolyMultFloatTable) {
-				m_DCRTPolyMultFloatTable = DCRTPolyMultFloatTable;
-			}
-
-			void SetDCRTPolyMultIntTable(const std::vector<std::vector<native_int::BigInteger>> &DCRTPolyMultIntTable) {
-				m_DCRTPolyMultIntTable= DCRTPolyMultIntTable;
-			}
-
-			void SetDCRTPolySInverseTable(const std::vector<native_int::BigInteger> &DCRTPolySInverseTable) {
-				m_DCRTPolySInverseTable = DCRTPolySInverseTable;
-			}
-
-			void SetDCRTPolysDivsiModqiTable(const std::vector<std::vector<native_int::BigInteger>> &DCRTPolysDivsiModqiTable) {
-				m_DCRTPolysDivsiModqiTable= DCRTPolysDivsiModqiTable;
-			}
-
-			void SetDCRTPolysModqiTable(const std::vector<native_int::BigInteger> &DCRTPolysModqiTable) {
-				m_DCRTPolysModqiTable = DCRTPolysModqiTable;
-			}
-
+			const std::vector<native_int::BigInteger>& GetCRTsModqiTable() const { return m_CRTsModqiTable; }
 
 			/**
 			* == operator to compare to this instance of LPCryptoParametersBFVrns object.
@@ -266,41 +204,41 @@ namespace lbcrypto {
 
 		private:
 
-			// DCRTPoly decryption ratios; stores a precomputed table of [(q/qi)^{-1}]_qi / qi
-			std::vector<double> m_DCRTPolyDecryptionTable;
-
-			// DCRTPoly delta table; stores precomputed floor(q/p) mod qi
-			std::vector<native_int::BigInteger> m_DCRTPolyDeltaTable;
-
-			// DCRTPoly - precomputed (q/qi)^{-1} mod qi table
-			std::vector<native_int::BigInteger> m_DCRTPolyInverseTable;
-
-			std::vector<native_int::BigInteger> m_DCRTPolyDecryptionIntTable;
-
-			// DCRTPoly - precomputed (q/qi) mod si table
-			std::vector<std::vector<native_int::BigInteger>> m_DCRTPolyqDivqiModsiTable;
-
-			// DCRTPoly - precomputed q mod si table
-			std::vector<native_int::BigInteger> m_DCRTPolyqModsiTable;
-
 			shared_ptr<ILDCRTParams<BigInteger>> m_paramsS;
 
 			shared_ptr<ILDCRTParams<BigInteger>> m_paramsQS;
 
+			// DCRTPoly decryption ratios; stores a precomputed table of [(q/qi)^{-1}]_qi / qi
+			std::vector<double> m_CRTDecryptionFloatTable;
+
+			std::vector<native_int::BigInteger> m_CRTDecryptionIntTable;
+
+			// DCRTPoly delta table; stores precomputed floor(q/p) mod qi
+			std::vector<native_int::BigInteger> m_CRTDeltaTable;
+
+			// DCRTPoly - precomputed (q/qi)^{-1} mod qi table
+			std::vector<native_int::BigInteger> m_CRTInverseTable;
+
+			// DCRTPoly - precomputed (q/qi) mod si table
+			std::vector<std::vector<native_int::BigInteger>> m_CRTqDivqiModsiTable;
+
+			// DCRTPoly - precomputed q mod si table
+			std::vector<native_int::BigInteger> m_CRTqModsiTable;
+
 			// DCRTPoly - precomputed Floor[p*S*[(Q*S/vi)^{-1}]_vi/vi] mod si table
-			std::vector<std::vector<native_int::BigInteger>> m_DCRTPolyMultIntTable;
+			std::vector<std::vector<native_int::BigInteger>> m_CRTMultIntTable;
 
 			// DCRTPoly - stores a precomputed table of [p*S*(Q*S/vi)^{-1}]_vi / vi
-			std::vector<double> m_DCRTPolyMultFloatTable;
+			std::vector<double> m_CRTMultFloatTable;
 
 			// DCRTPoly - precomputed (S/si)^{-1} mod si table
-			std::vector<native_int::BigInteger> m_DCRTPolySInverseTable;
+			std::vector<native_int::BigInteger> m_CRTSInverseTable;
 
 			// DCRTPoly - precomputed (S/si) mod qi table
-			std::vector<std::vector<native_int::BigInteger>> m_DCRTPolysDivsiModqiTable;
+			std::vector<std::vector<native_int::BigInteger>> m_CRTsDivsiModqiTable;
 
 			// DCRTPoly - precomputed S mod qi table
-			std::vector<native_int::BigInteger> m_DCRTPolysModqiTable;
+			std::vector<native_int::BigInteger> m_CRTsModqiTable;
 
 	};
 

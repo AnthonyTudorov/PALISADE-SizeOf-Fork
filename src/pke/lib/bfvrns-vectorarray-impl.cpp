@@ -31,6 +31,214 @@ namespace lbcrypto {
 
 // Parameter generation for FV-RNS
 template <>
+bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
+
+	// read values for the CRT basis
+
+	size_t size = GetElementParams()->GetParams().size();
+	size_t n = GetElementParams()->GetRingDimension();
+
+	vector<native_int::BigInteger> moduli(size);
+	vector<native_int::BigInteger> roots(size);
+	for (size_t i = 0; i < size; i++){
+		moduli[i] = GetElementParams()->GetParams()[i]->GetModulus();
+		roots[i] = GetElementParams()->GetParams()[i]->GetRootOfUnity();
+	}
+
+	// compute the second set of DCRTPoly parameters
+
+	//std::cout << "starting paramsS generation" << std::endl;
+
+	size_t sizeS = size + 1;
+
+	vector<native_int::BigInteger> moduliS(sizeS);
+	vector<native_int::BigInteger> rootsS(sizeS);
+
+	//std::cout << "modulus = " << moduli[size-1] << std::endl;
+
+	moduliS[0] = NextPrime<native_int::BigInteger>(moduli[size-1], 2 * n);
+	rootsS[0] = RootOfUnity<native_int::BigInteger>(2 * n, moduliS[0]);
+
+	for (size_t i = 1; i < sizeS; i++)
+	{
+		moduliS[i] = NextPrime<native_int::BigInteger>(moduliS[i-1], 2 * n);
+		rootsS[i] = RootOfUnity<native_int::BigInteger>(2 * n, moduliS[i]);
+	}
+
+	m_paramsS = shared_ptr<ILDCRTParams<BigInteger>>(new ILDCRTParams<BigInteger>(2 * n, moduliS, rootsS));
+
+	//std::cout << "finished paramsS generation" << std::endl;
+
+	// store the parameters for the CRT basis Q*S
+
+	vector<native_int::BigInteger> moduliExpanded(size + sizeS);
+	vector<native_int::BigInteger> rootsExpanded(size + sizeS);
+
+	// populate moduli for CRT basis Q
+	for (size_t i = 0; i < size; i++ ) {
+		moduliExpanded[i] = moduli[i];
+		rootsExpanded[i] = roots[i];
+	}
+
+	// populate moduli for CRT basis S
+	for (size_t i = 0; i < sizeS; i++ ) {
+		moduliExpanded[size + i] = moduliS[i];
+		rootsExpanded[size + i] = rootsS[i];
+	}
+
+	m_paramsQS = shared_ptr<ILDCRTParams<BigInteger>>(new ILDCRTParams<BigInteger>(2 * n, moduliExpanded, rootsExpanded));
+
+	//compute the table of floating-point factors for decryption
+
+	std::vector<double> CRTDecryptionFloatTable(size);
+
+	const BigInteger modulusQ = GetElementParams()->GetModulus();
+
+	for (size_t i = 0; i < size; i++){
+		BigInteger qi = BigInteger(moduli[i].ConvertToInt());
+		CRTDecryptionFloatTable[i] = ((modulusQ.DividedBy(qi)).ModInverse(qi) * GetPlaintextModulus()).Mod(qi).ConvertToDouble()/qi.ConvertToDouble();
+	}
+
+	m_CRTDecryptionFloatTable = CRTDecryptionFloatTable;
+
+	//compute the table of integer factors for decryption
+
+	std::vector<native_int::BigInteger> qDecryptionInt(size);
+	for( usint vi = 0 ; vi < size; vi++ ) {
+		BigInteger qi = BigInteger(moduli[vi].ConvertToInt());
+		BigInteger divBy = modulusQ / qi;
+		BigInteger quotient = (divBy.ModInverse(qi))*(GetPlaintextModulus())/qi;
+		qDecryptionInt[vi] = quotient.Mod(GetPlaintextModulus()).ConvertToInt();
+	}
+
+	m_CRTDecryptionIntTable = qDecryptionInt;
+
+	//compute the CRT delta table for encryption
+
+	const BigInteger deltaBig = modulusQ.DividedBy(GetPlaintextModulus());
+
+	std::cout << "deltaBig = " << deltaBig << std::endl;
+
+	std::vector<native_int::BigInteger> CRTDeltaTable(size);
+
+	for (size_t i = 0; i < size; i++){
+		BigInteger qi = BigInteger(moduli[i].ConvertToInt());
+		BigInteger deltaI = deltaBig.Mod(qi);
+		CRTDeltaTable[i] = native_int::BigInteger(deltaI.ConvertToInt());
+	}
+
+	m_CRTDeltaTable = CRTDeltaTable;
+
+	//compute the (q/qi)^{-1} mod qi table
+
+	std::vector<native_int::BigInteger> qInv(size);
+	for( usint vi = 0 ; vi < size; vi++ ) {
+		BigInteger qi = BigInteger(moduli[vi].ConvertToInt());
+		BigInteger divBy = modulusQ / qi;
+		qInv[vi] = divBy.ModInverse(qi).Mod(qi).ConvertToInt();
+	}
+
+	m_CRTInverseTable = qInv;
+
+	//std::cout << "generated the inverse table" << std::endl;
+
+	std::vector<std::vector<native_int::BigInteger>> qDivqiModsi(sizeS);
+	for( usint newvIndex = 0 ; newvIndex < sizeS; newvIndex++ ) {
+		BigInteger si = BigInteger(moduliS[newvIndex].ConvertToInt());
+		for( usint vIndex = 0 ; vIndex < size; vIndex++ ) {
+			BigInteger qi = BigInteger(moduli[vIndex].ConvertToInt());
+			BigInteger divBy = modulusQ / qi;
+			qDivqiModsi[newvIndex].push_back(divBy.Mod(si).ConvertToInt());
+		}
+	}
+
+	m_CRTqDivqiModsiTable = qDivqiModsi;
+
+	//std::cout << "generated the qDivquModsi table" << std::endl;
+
+	std::vector<native_int::BigInteger> qModsi(sizeS);
+	for( usint vi = 0 ; vi < sizeS; vi++ ) {
+		BigInteger si = BigInteger(moduliS[vi].ConvertToInt());
+		qModsi[vi] = modulusQ.Mod(si).ConvertToInt();
+	}
+
+	m_CRTqModsiTable = qModsi;
+
+	//std::cout << "generated the qModsi table" << std::endl;
+
+	std::vector<double> precomputedDCRTMultFloatTable(size + sizeS);
+
+	const BigInteger modulusS = m_paramsS->GetModulus();
+	const BigInteger modulusQS = m_paramsQS->GetModulus();
+
+	const BigInteger &modulusP = GetPlaintextModulus();
+
+	for (size_t i = 0; i < size + sizeS; i++){
+		BigInteger qi = BigInteger(moduliExpanded[i].ConvertToInt());
+		precomputedDCRTMultFloatTable[i] =
+				((modulusQS.DividedBy(qi)).ModInverse(qi)*modulusS*modulusP).Mod(qi).ConvertToDouble()/qi.ConvertToDouble();
+	}
+
+	m_CRTMultFloatTable = precomputedDCRTMultFloatTable;
+
+	//std::cout << "generated the MultFloat table" << std::endl;
+
+	std::vector<std::vector<native_int::BigInteger>> multInt(size+sizeS);
+	for( usint newvIndex = 0 ; newvIndex < sizeS; newvIndex++ ) {
+		BigInteger si = BigInteger(moduliS[newvIndex].ConvertToInt());
+		for( usint vIndex = 0 ; vIndex < size+sizeS; vIndex++ ) {
+			BigInteger qi = BigInteger(moduliExpanded[vIndex].ConvertToInt());
+			BigInteger num = modulusP*modulusS*((modulusQS.DividedBy(qi)).ModInverse(qi));
+			BigInteger divBy = num / qi;
+			multInt[vIndex].push_back(divBy.Mod(si).ConvertToInt());
+		}
+	}
+
+	m_CRTMultIntTable = multInt;
+
+	//std::cout << "generated the MultInt table" << std::endl;
+
+	std::vector<native_int::BigInteger> sInv(sizeS);
+	for( usint vi = 0 ; vi < sizeS; vi++ ) {
+		BigInteger si = BigInteger(moduliS[vi].ConvertToInt());
+		BigInteger divBy = modulusS / si;
+		sInv[vi] = divBy.ModInverse(si).Mod(si).ConvertToInt();
+	}
+
+	m_CRTSInverseTable = sInv;
+
+	//std::cout << "generated the inverse table" << std::endl;
+
+	std::vector<std::vector<native_int::BigInteger>> sDivsiModqi(size);
+	for( usint newvIndex = 0 ; newvIndex < size; newvIndex++ ) {
+		BigInteger qi = BigInteger(moduli[newvIndex].ConvertToInt());
+		for( usint vIndex = 0 ; vIndex < sizeS; vIndex++ ) {
+			BigInteger si = BigInteger(moduliS[vIndex].ConvertToInt());
+			BigInteger divBy = modulusS / si;
+			sDivsiModqi[newvIndex].push_back(divBy.Mod(qi).ConvertToInt());
+		}
+	}
+
+	m_CRTsDivsiModqiTable = sDivsiModqi;
+
+	//std::cout << "generated the sDivsiModqi table" << std::endl;
+
+	std::vector<native_int::BigInteger> sModqi(size);
+	for( usint vi = 0 ; vi < size; vi++ ) {
+		BigInteger qi = BigInteger(moduli[vi].ConvertToInt());
+		sModqi[vi] = modulusS.Mod(qi).ConvertToInt();
+	}
+
+	m_CRTsModqiTable = sModqi;
+
+	//std::cout << "generated the sModqi table" << std::endl;
+
+	return true;
+
+}
+
+// Parameter generation for FV-RNS
+template <>
 bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams, int32_t evalAddCount,
 	int32_t evalMultCount, int32_t keySwitchCount) const
 {
@@ -182,205 +390,16 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 		roots[i] = RootOfUnity<native_int::BigInteger>(2 * n, moduli[i]);
 	}
 
-	//if (size > 1) {
-	//	moduli[size-1] = FirstPrime<native_int::BigInteger>(dcrtBits-1, 2 * n);
-	//	roots[size-1] = RootOfUnity<native_int::BigInteger>(2 * n, moduli[size-1]);
-	//}
-
-	std::vector<double> precomputedDCRTDecryptionTable(size);
-
 	shared_ptr<ILDCRTParams<BigInteger>> params(new ILDCRTParams<BigInteger>(2 * n, moduli, roots));
-
-	// second set of DCRT parameters
-
-	std::cout << "starting paramsS generation" << std::endl;
-
-	size_t sizeS = size + 1;
-
-	vector<native_int::BigInteger> moduliS(sizeS);
-	vector<native_int::BigInteger> rootsS(sizeS);
-
-	moduliS[0] = NextPrime<native_int::BigInteger>(moduli[size-1], 2 * n);
-	rootsS[0] = RootOfUnity<native_int::BigInteger>(2 * n, moduliS[0]);
-
-	for (size_t i = 1; i < sizeS; i++)
-	{
-		moduliS[i] = NextPrime<native_int::BigInteger>(moduliS[i-1], 2 * n);
-		rootsS[i] = RootOfUnity<native_int::BigInteger>(2 * n, moduliS[i]);
-	}
-
-	shared_ptr<ILDCRTParams<BigInteger>> paramsS(new ILDCRTParams<BigInteger>(2 * n, moduliS, rootsS));
-
-	std::cout << "finished paramsS generation" << std::endl;
-
-	const BigInteger modulusQ = params->GetModulus();
-
-	for (size_t i = 0; i < size; i++){
-		BigInteger qi = BigInteger(moduli[i].ConvertToInt());
-		precomputedDCRTDecryptionTable[i] = ((modulusQ.DividedBy(qi)).ModInverse(qi) * cryptoParamsBFVrns->GetPlaintextModulus()).Mod(qi).ConvertToDouble()/qi.ConvertToDouble();
-		//std::cout << precomputedDCRTDecryptionTable[i] << std::endl;
-	}
-
-	cryptoParamsBFVrns->SetDCRTParamsS(paramsS);
-
-	std::cout << "Generated parameters for S" << std::endl;
-
-	cryptoParamsBFVrns->SetDCRTPolyDecryptionTable(precomputedDCRTDecryptionTable);
 
 	cryptoParamsBFVrns->SetElementParams(params);
 
-	const BigInteger deltaBig = params->GetModulus().DividedBy(cryptoParamsBFVrns->GetPlaintextModulus());
+	//std::cout << "Finished parameter generation" << std::endl;
 
-	std::cout << deltaBig << std::endl;
-
-	std::vector<native_int::BigInteger> precomputedDCRTDeltaTable(size);
-
-	for (size_t i = 0; i < size; i++){
-		BigInteger qi = BigInteger(moduli[i].ConvertToInt());
-		BigInteger deltaI = deltaBig.Mod(qi);
-		precomputedDCRTDeltaTable[i] = native_int::BigInteger(deltaI.ConvertToInt());
-		//std::cout << "qi=" << qi << std::endl;
-	}
-
-	cryptoParamsBFVrns->SetDCRTPolyDeltaTable(precomputedDCRTDeltaTable);
-
-	std::vector<native_int::BigInteger> qInv(size);
-	for( usint vi = 0 ; vi < size; vi++ ) {
-		BigInteger qi = BigInteger(moduli[vi].ConvertToInt());
-		BigInteger divBy = modulusQ / qi;
-		qInv[vi] = divBy.ModInverse(qi).Mod(qi).ConvertToInt();
-	}
-
-	cryptoParamsBFVrns->SetDCRTPolyInverseTable(qInv);
-
-	std::cout << "generated the inverse table" << std::endl;
-
-	std::vector<native_int::BigInteger> qDecryptionInt(size);
-	for( usint vi = 0 ; vi < size; vi++ ) {
-		BigInteger qi = BigInteger(moduli[vi].ConvertToInt());
-		BigInteger divBy = modulusQ / qi;
-		BigInteger quotient = (divBy.ModInverse(qi))*(cryptoParamsBFVrns->GetPlaintextModulus())/qi;
-		qDecryptionInt[vi] = quotient.Mod(cryptoParamsBFVrns->GetPlaintextModulus()).ConvertToInt();
-	}
-
-	cryptoParamsBFVrns->SetDCRTPolyDecryptionIntTable(qDecryptionInt);
-
-	std::vector<std::vector<native_int::BigInteger>> qDivqiModsi(sizeS);
-	for( usint newvIndex = 0 ; newvIndex < sizeS; newvIndex++ ) {
-		BigInteger si = BigInteger(moduliS[newvIndex].ConvertToInt());
-		for( usint vIndex = 0 ; vIndex < size; vIndex++ ) {
-			BigInteger qi = BigInteger(moduli[vIndex].ConvertToInt());
-			BigInteger divBy = modulusQ / qi;
-			qDivqiModsi[newvIndex].push_back(divBy.Mod(si).ConvertToInt());
-		}
-	}
-
-	cryptoParamsBFVrns->SetDCRTPolyqDivqiModsiTable(qDivqiModsi);
-
-	std::cout << "generated the qDivquModsi table" << std::endl;
-
-	std::vector<native_int::BigInteger> qModsi(sizeS);
-	for( usint vi = 0 ; vi < sizeS; vi++ ) {
-		BigInteger si = BigInteger(moduliS[vi].ConvertToInt());
-		qModsi[vi] = modulusQ.Mod(si).ConvertToInt();
-	}
-
-	cryptoParamsBFVrns->SetDCRTPolyqModsiTable(qModsi);
-
-	std::cout << "generated the qModsi table" << std::endl;
-
-
-	vector<native_int::BigInteger> moduliExpanded(size + sizeS);
-	vector<native_int::BigInteger> rootsExpanded(size + sizeS);
-
-	// populate moduli for CRT basis Q
-	for (size_t i = 0; i < size; i++ ) {
-		moduliExpanded[i] = moduli[i];
-		rootsExpanded[i] = roots[i];
-	}
-
-	// populate moduli for CRT basis S
-	for (size_t i = 0; i < sizeS; i++ ) {
-		moduliExpanded[size + i] = moduliS[i];
-		rootsExpanded[size + i] = rootsS[i];
-	}
-
-	shared_ptr<ILDCRTParams<BigInteger>> paramsExpanded(new ILDCRTParams<BigInteger>(2 * n, moduliExpanded, rootsExpanded));
-
-	cryptoParamsBFVrns->SetDCRTParamsQS(paramsExpanded);
-
-	std::vector<double> precomputedDCRTMultFloatTable(size + sizeS);
-
-	const BigInteger modulusS = paramsS->GetModulus();
-	const BigInteger modulusQS = paramsExpanded->GetModulus();
-
-	const BigInteger &modulusP = cryptoParamsBFVrns->GetPlaintextModulus();
-
-	for (size_t i = 0; i < size + sizeS; i++){
-		BigInteger qi = BigInteger(moduliExpanded[i].ConvertToInt());
-		precomputedDCRTMultFloatTable[i] =
-				((modulusQS.DividedBy(qi)).ModInverse(qi)*modulusS*modulusP).Mod(qi).ConvertToDouble()/qi.ConvertToDouble();
-		//std::cout << precomputedDCRTDecryptionTable[i] << std::endl;
-	}
-
-	cryptoParamsBFVrns->SetDCRTPolyMultFloatTable(precomputedDCRTMultFloatTable);
-
-	std::cout << "generated the MultFloat table" << std::endl;
-
-	std::vector<std::vector<native_int::BigInteger>> multInt(size+sizeS);
-	for( usint newvIndex = 0 ; newvIndex < sizeS; newvIndex++ ) {
-		BigInteger si = BigInteger(moduliS[newvIndex].ConvertToInt());
-		for( usint vIndex = 0 ; vIndex < size+sizeS; vIndex++ ) {
-			BigInteger qi = BigInteger(moduliExpanded[vIndex].ConvertToInt());
-			BigInteger num = modulusP*modulusS*((modulusQS.DividedBy(qi)).ModInverse(qi));
-			BigInteger divBy = num / qi;
-			multInt[vIndex].push_back(divBy.Mod(si).ConvertToInt());
-		}
-	}
-
-	cryptoParamsBFVrns->SetDCRTPolyMultIntTable(multInt);
-
-	std::cout << "generated the MultInt table" << std::endl;
-
-	std::vector<native_int::BigInteger> sInv(sizeS);
-	for( usint vi = 0 ; vi < sizeS; vi++ ) {
-		BigInteger si = BigInteger(moduliS[vi].ConvertToInt());
-		BigInteger divBy = modulusS / si;
-		sInv[vi] = divBy.ModInverse(si).Mod(si).ConvertToInt();
-	}
-
-	cryptoParamsBFVrns->SetDCRTPolySInverseTable(sInv);
-
-	std::cout << "generated the inverse table" << std::endl;
-
-	std::vector<std::vector<native_int::BigInteger>> sDivsiModqi(size);
-	for( usint newvIndex = 0 ; newvIndex < size; newvIndex++ ) {
-		BigInteger qi = BigInteger(moduli[newvIndex].ConvertToInt());
-		for( usint vIndex = 0 ; vIndex < sizeS; vIndex++ ) {
-			BigInteger si = BigInteger(moduliS[vIndex].ConvertToInt());
-			BigInteger divBy = modulusS / si;
-			sDivsiModqi[newvIndex].push_back(divBy.Mod(qi).ConvertToInt());
-		}
-	}
-
-	cryptoParamsBFVrns->SetDCRTPolysDivsiModqiTable(sDivsiModqi);
-
-	std::cout << "generated the sDivsiModqi table" << std::endl;
-
-	std::vector<native_int::BigInteger> sModqi(size);
-	for( usint vi = 0 ; vi < size; vi++ ) {
-		BigInteger qi = BigInteger(moduli[vi].ConvertToInt());
-		sModqi[vi] = modulusS.Mod(qi).ConvertToInt();
-	}
-
-	cryptoParamsBFVrns->SetDCRTPolysModqiTable(sModqi);
-
-	std::cout << "generated the sModqi table" << std::endl;
-
-
-	return true;
+	return cryptoParamsBFVrns->PrecomputeCRTTables();
 
 }
+
 
 template <>
 shared_ptr<Ciphertext<DCRTPoly>> LPAlgorithmBFVrns<DCRTPoly>::Encrypt(const shared_ptr<LPPublicKey<DCRTPoly>> publicKey,
@@ -397,7 +416,7 @@ shared_ptr<Ciphertext<DCRTPoly>> LPAlgorithmBFVrns<DCRTPoly>::Encrypt(const shar
 
 	if (doEncryption) {
 
-		const std::vector<native_int::BigInteger> &deltaTable = cryptoParams->GetDCRTPolyDeltaTable();
+		const std::vector<native_int::BigInteger> &deltaTable = cryptoParams->GetCRTDeltaTable();
 
 		const typename DCRTPoly::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 		typename DCRTPoly::TugType tug;
@@ -475,8 +494,8 @@ DecryptResult LPAlgorithmBFVrns<DCRTPoly>::Decrypt(const shared_ptr<LPPrivateKey
 	// Converts plaintext modulus to a 64-bit number
 	const native_int::BigInteger &p = cryptoParams->GetPlaintextModulus().ConvertToInt();
 
-	const std::vector<double> &lyamTable = cryptoParams->GetDCRTPolyDecryptionTable();
-	const std::vector<native_int::BigInteger> &invTable = cryptoParams->GetDCRTPolyDecryptionIntTable();
+	const std::vector<double> &lyamTable = cryptoParams->GetCRTDecryptionFloatTable();
+	const std::vector<native_int::BigInteger> &invTable = cryptoParams->GetCRTDecryptionIntTable();
 
 	// this is the resulting vector of coefficients;
 	// currently it is required to be a Poly of BigIntegers to be compatible with other API calls in the ryptocontext framework
