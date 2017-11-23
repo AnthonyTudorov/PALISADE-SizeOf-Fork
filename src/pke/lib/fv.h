@@ -59,25 +59,13 @@ namespace lbcrypto {
 			/**
 			 * Default constructor.
 			 */
-			LPCryptoParametersFV() : LPCryptoParametersRLWE<Element>() {
-				m_delta = BigInteger(0);
-				m_bigModulus = BigInteger(0);
-				m_bigRootOfUnity = BigInteger(0);
-				m_bigModulusArb = BigInteger(0);
-				m_bigRootOfUnityArb = BigInteger(0);
-			}
+			LPCryptoParametersFV();
 
 			/**
 		 	 * Copy constructor.
 	 		 * @param rhs - source
 			 */
-			LPCryptoParametersFV(const LPCryptoParametersFV &rhs) : LPCryptoParametersRLWE<Element>(rhs) {
-				m_delta = rhs.m_delta;
-				m_bigModulus = rhs.m_bigModulus;
-				m_bigRootOfUnity = rhs.m_bigRootOfUnity;
-				m_bigModulusArb = rhs.m_bigModulusArb;
-				m_bigRootOfUnityArb = rhs.m_bigRootOfUnityArb;
-			}
+			LPCryptoParametersFV(const LPCryptoParametersFV &rhs);
 
 			/**
 			 * Constructor that initializes values.  Note that it is possible to set parameters in a way that is overall
@@ -115,22 +103,7 @@ namespace lbcrypto {
 				const BigInteger &bigModulusArb = BigInteger(0),
 				const BigInteger &bigRootOfUnityArb = BigInteger(0),
 				int depth = 1,
-				int maxDepth = 2)
-					: LPCryptoParametersRLWE<Element>(params,
-						shared_ptr<EncodingParams>( new EncodingParams(plaintextModulus) ),
-						distributionParameter,
-						assuranceMeasure,
-						securityLevel,
-						relinWindow,
-						depth,
-						maxDepth,
-						mode) {
-						m_delta = delta;
-						m_bigModulus = bigModulus;
-						m_bigRootOfUnity = bigRootOfUnity;
-						m_bigModulusArb = bigModulusArb;
-						m_bigRootOfUnityArb = bigRootOfUnityArb;
-					}
+				int maxDepth = 2);
 
 			/**
 			* Constructor that initializes values.
@@ -163,22 +136,7 @@ namespace lbcrypto {
 				const BigInteger &bigModulusArb = BigInteger(0),
 				const BigInteger &bigRootOfUnityArb = BigInteger(0),
 				int depth = 1,
-				int maxDepth = 2)
-				: LPCryptoParametersRLWE<Element>(params,
-					encodingParams,
-					distributionParameter,
-					assuranceMeasure,
-					securityLevel,
-					relinWindow,
-					depth,
-					maxDepth,
-					mode) {
-				m_delta = delta;
-				m_bigModulus = bigModulus;
-				m_bigRootOfUnity = bigRootOfUnity;
-				m_bigModulusArb = bigModulusArb;
-				m_bigRootOfUnityArb = bigRootOfUnityArb;
-			}
+				int maxDepth = 2);
 
 			/**
 			* Destructor

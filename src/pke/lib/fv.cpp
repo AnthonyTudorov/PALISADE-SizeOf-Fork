@@ -51,6 +51,86 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 namespace lbcrypto {
 
 template <class Element>
+LPCryptoParametersFV<Element>::LPCryptoParametersFV() : LPCryptoParametersRLWE<Element>() {
+	m_delta = BigInteger(0);
+	m_bigModulus = BigInteger(0);
+	m_bigRootOfUnity = BigInteger(0);
+	m_bigModulusArb = BigInteger(0);
+	m_bigRootOfUnityArb = BigInteger(0);
+}
+
+template <class Element>
+LPCryptoParametersFV<Element>::LPCryptoParametersFV(const LPCryptoParametersFV &rhs) : LPCryptoParametersRLWE<Element>(rhs) {
+	m_delta = rhs.m_delta;
+	m_bigModulus = rhs.m_bigModulus;
+	m_bigRootOfUnity = rhs.m_bigRootOfUnity;
+	m_bigModulusArb = rhs.m_bigModulusArb;
+	m_bigRootOfUnityArb = rhs.m_bigRootOfUnityArb;
+}
+
+template <class Element>
+LPCryptoParametersFV<Element>::LPCryptoParametersFV(shared_ptr<typename Element::Params> params,
+	const BigInteger &plaintextModulus,
+	float distributionParameter,
+	float assuranceMeasure,
+	float securityLevel,
+	usint relinWindow,
+	const BigInteger &delta,
+	MODE mode,
+	const BigInteger &bigModulus ,
+	const BigInteger &bigRootOfUnity,
+	const BigInteger &bigModulusArb,
+	const BigInteger &bigRootOfUnityArb,
+	int depth,
+	int maxDepth)
+		: LPCryptoParametersRLWE<Element>(params,
+			shared_ptr<EncodingParams>( new EncodingParams(plaintextModulus) ),
+			distributionParameter,
+			assuranceMeasure,
+			securityLevel,
+			relinWindow,
+			depth,
+			maxDepth,
+			mode) {
+			m_delta = delta;
+			m_bigModulus = bigModulus;
+			m_bigRootOfUnity = bigRootOfUnity;
+			m_bigModulusArb = bigModulusArb;
+			m_bigRootOfUnityArb = bigRootOfUnityArb;
+		}
+
+template <class Element>
+LPCryptoParametersFV<Element>::LPCryptoParametersFV(shared_ptr<typename Element::Params> params,
+	shared_ptr<EncodingParams> encodingParams,
+	float distributionParameter,
+	float assuranceMeasure,
+	float securityLevel,
+	usint relinWindow,
+	const BigInteger &delta,
+	MODE mode,
+	const BigInteger &bigModulus ,
+	const BigInteger &bigRootOfUnity,
+	const BigInteger &bigModulusArb,
+	const BigInteger &bigRootOfUnityArb,
+	int depth,
+	int maxDepth)
+	: LPCryptoParametersRLWE<Element>(params,
+		encodingParams,
+		distributionParameter,
+		assuranceMeasure,
+		securityLevel,
+		relinWindow,
+		depth,
+		maxDepth,
+		mode) {
+	m_delta = delta;
+	m_bigModulus = bigModulus;
+	m_bigRootOfUnity = bigRootOfUnity;
+	m_bigModulusArb = bigModulusArb;
+	m_bigRootOfUnityArb = bigRootOfUnityArb;
+}
+
+template <class Element>
 bool LPCryptoParametersFV<Element>::Serialize(Serialized* serObj) const {
 	if (!serObj->IsObject())
 		return false;
