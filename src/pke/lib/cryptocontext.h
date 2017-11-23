@@ -79,19 +79,68 @@ private:
 		return !( a == b );
 	}
 
+	/**
+	 * TypeCheck makes sure that an operation between two ciphertexts is permitted
+	 * @param a
+	 * @param b
+	 */
 	void TypeCheck(const shared_ptr<Ciphertext<Element>> a, const shared_ptr<Ciphertext<Element>> b) const {
-		if( a == NULL || b == NULL ) {
-			;
-		}
-		if( a->GetCryptoContext().get() != this ) {
-			;
-		}
-		if( a->GetCryptoContext() != b->GetCryptoContext() ) {
-			;
-		}
-		if( a->GetEncodingType() != b->GetEncodingType() ) {
-			;
-		}
+		if( a == NULL || b == NULL )
+			PALISADE_THROW( type_error, "Null Ciphertext");
+		if( a->GetCryptoContext().get() != this )
+			PALISADE_THROW( type_error, "Ciphertext was not created in this CryptoContext");
+		if( a->GetCryptoContext() != b->GetCryptoContext() )
+			PALISADE_THROW( type_error, "Ciphertexts were not created in the same CryptoContext");
+		if( a->GetKeyTag() != b->GetKeyTag() )
+			PALISADE_THROW( type_error, "Ciphertexts were not encrypted with same keys" );
+		if( a->GetEncodingType() != b->GetEncodingType() )
+			PALISADE_THROW( type_error, "Ciphertext encoding types do not match");
+	}
+
+	/**
+	 * TypeCheck makes sure that an operation between a ciphertext and a plaintext is permitted
+	 * @param a
+	 * @param b
+	 */
+	void TypeCheck(const shared_ptr<Ciphertext<Element>> a, const shared_ptr<Plaintext> b) const {
+		if( a == NULL )
+			PALISADE_THROW( type_error, "Null Ciphertext");
+		if( b == NULL )
+			PALISADE_THROW( type_error, "Null Plaintext");
+		if( a->GetCryptoContext().get() != this )
+			PALISADE_THROW( type_error, "Ciphertext was not created in this CryptoContext");
+		if( a->GetEncodingType() != b->GetEncodingType() )
+			PALISADE_THROW( type_error, "Ciphertext and Plaintext encoding types do not match");
+	}
+
+	/**
+	 * TypeCheck makes sure that an operation between two ciphertexts is permitted
+	 * @param a
+	 * @param b
+	 */
+	void TypeCheck(const RationalCiphertext<Element>& a, const RationalCiphertext<Element>& b) const {
+		if( a.GetCryptoContext().get() != this )
+			PALISADE_THROW( type_error, "Ciphertext was not created in this CryptoContext");
+		if( a.GetCryptoContext() != b.GetCryptoContext() )
+			PALISADE_THROW( type_error, "Ciphertexts were not created in the same CryptoContext");
+		if( a.GetKeyTag() != b.GetKeyTag() )
+			PALISADE_THROW( type_error, "Ciphertexts were not encrypted with same keys" );
+		if( a.GetNumerator()->GetEncodingType() != b.GetNumerator()->GetEncodingType() )
+			PALISADE_THROW( type_error, "Ciphertext encoding types do not match");
+	}
+
+	/**
+	 * TypeCheck makes sure that an operation between a ciphertext and a plaintext is permitted
+	 * @param a
+	 * @param b
+	 */
+	void TypeCheck(const RationalCiphertext<Element>& a, const shared_ptr<Plaintext> b) const {
+		if( b == NULL )
+			PALISADE_THROW( type_error, "Null Plaintext");
+		if( a.GetCryptoContext().get() != this )
+			PALISADE_THROW( type_error, "Ciphertext was not created in this CryptoContext");
+		if( a.GetNumerator()->GetEncodingType() != b->GetEncodingType() )
+			PALISADE_THROW( type_error, "Ciphertext and Plaintext encoding types do not match");
 	}
 
 	bool Mismatched(const shared_ptr<CryptoContext<Element>> a) const {
@@ -344,6 +393,7 @@ public:
 	 */
 	void Enable(usint featureMask) { scheme->Enable(featureMask); }
 
+	// GETTERS
 	/**
 	* Getter for Scheme
 	* @return scheme
@@ -694,6 +744,12 @@ public:
 		return ciphertext;
 	}
 
+	/**
+	 * Encrypt a plaintext using a given private key
+	 * @param privateKey
+	 * @param plaintext
+	 * @return ciphertext (or null on failure)
+	 */
 	shared_ptr<Ciphertext<Element>> Encrypt(
 		const shared_ptr<LPPrivateKey<Element>> privateKey,
 		shared_ptr<Plaintext> plaintext) const
@@ -821,7 +877,13 @@ public:
 		return;
 	}
 
-	// FIXME comments
+	// PLAINTEXT FACTORY METHODS
+	/**
+	 * MakeScalarPlaintext constructs a ScalarEncoding in this context
+	 * @param value
+	 * @param isSigned
+	 * @return plaintext
+	 */
 	shared_ptr<Plaintext> MakeScalarPlaintext(uint32_t value, bool isSigned = false) const {
 		if( isSigned )
 			return shared_ptr<Plaintext>( new ScalarEncoding( this->GetElementParams(), this->GetEncodingParams(), (int32_t)value ) );
@@ -829,39 +891,81 @@ public:
 			return shared_ptr<Plaintext>( new ScalarEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
 	}
 
-	shared_ptr<Plaintext> MakeStringPlaintext(string str) const {
+	/**
+	 * MakeStringPlaintext constructs a StringEncoding in this context
+	 * @param str
+	 * @return plaintext
+	 */
+	shared_ptr<Plaintext> MakeStringPlaintext(const string& str) const {
 		return shared_ptr<Plaintext>( new StringEncoding( this->GetElementParams(), this->GetEncodingParams(), str ) );
 	}
 
+	/**
+	 * MakeIntegerPlaintext constructs an IntegerEncoding in this context
+	 * @param value
+	 * @return plaintext
+	 */
 	shared_ptr<Plaintext> MakeIntegerPlaintext(uint32_t value) const {
 		return shared_ptr<Plaintext>( new IntegerEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
 	}
 
-	shared_ptr<Plaintext> MakeCoefPackedPlaintext(vector<uint32_t> value, bool isSigned = false) const {
+	/**
+	 * MakeCoefPackedPlaintext constructs a CoefPackedEncoding in this context
+	 * @param value
+	 * @param isSigned
+	 * @return plaintext
+	 */
+	shared_ptr<Plaintext> MakeCoefPackedPlaintext(const vector<uint32_t>& value, bool isSigned = false) const {
 		return shared_ptr<Plaintext>( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value, isSigned ) );
 	}
 
-	shared_ptr<Plaintext> MakeCoefPackedPlaintext(vector<int32_t> value) const {
+	/**
+	 * MakeCoefPackedPlaintext constructs a CoefPackedEncoding in this context
+	 * @param value
+	 * @return plaintext
+	 */
+	shared_ptr<Plaintext> MakeCoefPackedPlaintext(const vector<int32_t>& value) const {
 		return shared_ptr<Plaintext>( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
 	}
 
-	shared_ptr<Plaintext> MakeCoefPackedPlaintext(std::initializer_list<uint32_t> value, bool isSigned = false) const {
+	/**
+	 * MakeCoefPackedPlaintext constructs a CoefPackedEncoding in this context
+	 * @param value
+	 * @param isSigned
+	 * @return plaintext
+	 */
+	shared_ptr<Plaintext> MakeCoefPackedPlaintext(const std::initializer_list<uint32_t>& value, bool isSigned = false) const {
 		return shared_ptr<Plaintext>( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value, isSigned ) );
 	}
 
-	shared_ptr<Plaintext> MakeCoefPackedPlaintext(std::initializer_list<int32_t> value) const {
+	/**
+	 * MakeCoefPackedPlaintext constructs a CoefPackedEncoding in this context
+	 * @param value
+	 * @return plaintext
+	 */
+	shared_ptr<Plaintext> MakeCoefPackedPlaintext(const std::initializer_list<int32_t>& value) const {
 		return shared_ptr<Plaintext>( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
 	}
 
-	shared_ptr<Plaintext> MakePackedPlaintext(vector<uint32_t> value) const {
+	/**
+	 * MakePackedPlaintext constructs a PackedIntPlaintextEncoding in this context
+	 * @param value
+	 * @return plaintext
+	 */
+	shared_ptr<Plaintext> MakePackedPlaintext(const vector<uint32_t>& value) const {
 		return shared_ptr<Plaintext>( new PackedIntPlaintextEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
 	}
 
-	shared_ptr<Plaintext> MakePackedPlaintext(std::initializer_list<uint32_t> value) const {
+	/**
+	 * MakePackedPlaintext constructs a PackedIntPlaintextEncoding in this context
+	 * @param value
+	 * @return plaintext
+	 */
+	shared_ptr<Plaintext> MakePackedPlaintext(const std::initializer_list<uint32_t>& value) const {
 		return shared_ptr<Plaintext>( new PackedIntPlaintextEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
 	}
 
-	// FIXME make this private
+private:
 	static shared_ptr<Plaintext>
 	GetPlaintextForDecrypt(PlaintextEncodings pte, shared_ptr<typename Element::Params> vp, shared_ptr<EncodingParams> ep) {
 		shared_ptr<Plaintext> pt;
@@ -896,6 +1000,7 @@ public:
 		return pt;
 	}
 
+public:
 	/**
 	 * Decrypt a single ciphertext into the appropriate plaintext
 	 *
@@ -1205,10 +1310,7 @@ public:
 	shared_ptr<Ciphertext<Element>>
 	EvalAdd(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Ciphertext<Element>> ct2) const
 	{
-		if( ct1 == NULL || ct2 == NULL ||
-				Mismatched(ct1->GetCryptoContext()) ||
-				Mismatched(ct2->GetCryptoContext()) )
-			throw std::logic_error("Information passed to EvalAdd was not generated with this crypto context");
+		TypeCheck(ct1, ct2);
 
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
@@ -1219,10 +1321,16 @@ public:
 		return rv;
 	}
 
+	/**
+	 * EvalAddMatrix - PALISADE EvalAdd method for a pair of matrices of ciphertexts
+	 * @param ct1
+	 * @param ct2
+	 * @return new matrix for ct1 + ct2
+	 */
 	shared_ptr<Matrix<RationalCiphertext<Element>>>
 	EvalAddMatrix(const shared_ptr<Matrix<RationalCiphertext<Element>>> ct1, const shared_ptr<Matrix<RationalCiphertext<Element>>> ct2) const
 	{
-		// tests needed for context
+		TypeCheck((*ct1)(0,0), (*ct2)(0,0)); // FIXME only checking one is OK? is this needed or does the underlying operation check?
 
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
@@ -1243,10 +1351,7 @@ public:
 	shared_ptr<Ciphertext<Element>>
 	EvalSub(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Ciphertext<Element>> ct2) const
 	{
-		if( ct1 == NULL || ct2 == NULL ||
-				Mismatched(ct1->GetCryptoContext()) ||
-				Mismatched(ct2->GetCryptoContext()) )
-			throw std::logic_error("Information passed to EvalSub was not generated with this crypto context");
+		TypeCheck(ct1, ct2);
 
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
@@ -1257,10 +1362,16 @@ public:
 		return rv;
 	}
 
+	/**
+	 * EvalSubMatrix - PALISADE EvalSub method for a pair of matrices of ciphertexts
+	 * @param ct1
+	 * @param ct2
+	 * @return new matrix for ct1 + ct2
+	 */
 	shared_ptr<Matrix<RationalCiphertext<Element>>>
 	EvalSubMatrix(const shared_ptr<Matrix<RationalCiphertext<Element>>> ct1, const shared_ptr<Matrix<RationalCiphertext<Element>>> ct2) const
 	{
-		// FIXME tests needed for context
+		TypeCheck((*ct1)(0,0), (*ct2)(0,0)); // FIXME only checking one is OK? is this needed or does the underlying operation check?
 
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
@@ -1281,6 +1392,8 @@ public:
 	shared_ptr<Ciphertext<Element>>
 	EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext, const shared_ptr<Plaintext> plaintext) const
 	{
+		TypeCheck(ciphertext, plaintext);
+
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
 		auto rv = GetEncryptionAlgorithm()->EvalAdd(ciphertext, plaintext);
@@ -1299,6 +1412,8 @@ public:
 	shared_ptr<Ciphertext<Element>>
 	EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext, const shared_ptr<Plaintext> plaintext) const
 	{
+		TypeCheck(ciphertext, plaintext);
+
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
 		auto rv = GetEncryptionAlgorithm()->EvalSub(ciphertext, plaintext);
@@ -1317,13 +1432,7 @@ public:
 	shared_ptr<Ciphertext<Element>>
 	EvalMult(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Ciphertext<Element>> ct2) const
 	{
-		if( ct1 == NULL || ct2 == NULL )
-			PALISADE_THROW( config_error, "Null argument(s) passed to EvalMult" );
-		if( ct1->GetKeyTag() != ct2->GetKeyTag() )
-			throw std::logic_error("Ciphertexts were not encrypted with same keys, cannot be used by EvalMult");
-		// Since the IDs match we know they're both from the same context; only need to check one
-		if( Mismatched(ct1->GetCryptoContext()) )
-			throw std::logic_error("Ciphertexts passed to EvalMult was not generated with this crypto context");
+		TypeCheck(ct1, ct2);
 
 		auto ek = GetEvalMultKeyVector(ct1->GetKeyTag());
 
@@ -1336,17 +1445,28 @@ public:
 		return rv;
 	}
 
+	/**
+	 * EvalMult - PALISADE EvalMult method for plaintext * ciphertext
+	 * @param pt2
+	 * @param ct1
+	 * @return new ciphertext for ct1 * pt2
+	 */
 	shared_ptr<Ciphertext<Element>>
 	EvalMult(const shared_ptr<Plaintext> pt2, const shared_ptr<Ciphertext<Element>> ct1) const
 	{
 		return EvalMult(ct1, pt2);
 	}
 
+	/**
+	 * EvalMult - PALISADE EvalMult method for plaintext * ciphertext
+	 * @param ct1
+	 * @param pt2
+	 * @return new ciphertext for ct1 * pt2
+	 */
 	shared_ptr<Ciphertext<Element>>
 	EvalMult(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Plaintext> pt2) const
 	{
-		if( ct1 == NULL || pt2 == NULL || Mismatched(ct1->GetCryptoContext()) )
-			throw std::logic_error("Information passed to EvalMult was not generated with this crypto context");
+		TypeCheck(ct1, pt2);
 
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
@@ -1357,16 +1477,16 @@ public:
 		return rv;
 	}
 
+	/**
+	 * EvalMultMatrix - PALISADE EvalMult method for two matrices of ciphertext
+	 * @param ct1
+	 * @param ct2
+	 * @return new matrix for ct1 * ct2
+	 */
 	shared_ptr<Matrix<RationalCiphertext<Element>>>
 	EvalMultMatrix(const shared_ptr<Matrix<RationalCiphertext<Element>>> ct1, const shared_ptr<Matrix<RationalCiphertext<Element>>> ct2) const
 	{
-		if( ct1 == NULL || ct2 == NULL )
-			throw std::logic_error("Null argument(s) passed to EvalMultMatrix");
-		if( (*ct1)(0,0).GetKeyTag() != (*ct2)(0,0).GetKeyTag() )
-			throw std::logic_error("Ciphertexts were not encrypted with same keys, cannot be used by EvalMultMatrix");
-		// Since the IDs match we know they're both from the same context; only need to check one
-		if( Mismatched((*ct1)(0,0).GetCryptoContext()) )
-			throw std::logic_error("Ciphertexts passed to EvalMultMatrix was not generated with this crypto context");
+		TypeCheck((*ct1)(0,0), (*ct2)(0,0)); // FIXME only checking one is OK? is this needed or does the underlying operation check?
 
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
@@ -1406,6 +1526,8 @@ public:
 	shared_ptr<Matrix<RationalCiphertext<Element>>>
 	EvalNegateMatrix(const shared_ptr<Matrix<RationalCiphertext<Element>>> ct) const
 	{
+		if (ct == NULL || Mismatched((*ct)(0,0).GetCryptoContext()) )
+			throw std::logic_error("Information passed to EvalNegateMatrix was not generated with this crypto context");
 
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
@@ -1431,7 +1553,12 @@ public:
 	shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const shared_ptr<LPPublicKey<Element>> publicKey,
 		const shared_ptr<LPPrivateKey<Element>> origPrivateKey, const std::vector<usint> &indexList) const {
 
-		//need to add exception handling
+		if( publicKey == NULL || origPrivateKey == NULL )
+			PALISADE_THROW( type_error, "Null Keys");
+		if( publicKey->GetCryptoContext().get() != this )
+			PALISADE_THROW( type_error, "Key was not created in this CryptoContext");
+		if( publicKey->GetCryptoContext() != origPrivateKey->GetCryptoContext() )
+			PALISADE_THROW( type_error, "Keys were not created in the same CryptoContext");
 
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
@@ -1455,7 +1582,18 @@ public:
 	shared_ptr<Ciphertext<Element>> EvalAutomorphism(const shared_ptr<Ciphertext<Element>> ciphertext, usint i,
 		const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalKeys) const {
 
-		//need to add exception handling
+		auto mf = evalKeys.begin();
+		if( mf == evalKeys.end() )
+			PALISADE_THROW( type_error, "Empty key map");
+		auto tk = mf->second;
+		if( ciphertext == NULL || tk == NULL )
+			PALISADE_THROW( type_error, "Null inputs");
+		if( ciphertext->GetCryptoContext().get() != this )
+			PALISADE_THROW( type_error, "Ciphertext was not created in this CryptoContext");
+		if( ciphertext->GetCryptoContext() != tk->GetCryptoContext() )
+			PALISADE_THROW( type_error, "Items were not created in the same CryptoContext");
+		if( ciphertext->GetKeyTag() != tk->GetKeyTag() )
+			PALISADE_THROW( type_error, "Items were not encrypted with same keys" );
 
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
@@ -1476,7 +1614,10 @@ public:
 	shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const std::vector<usint> &indexList) const {
 
-		//need to add exception handling
+		if( privateKey == NULL )
+			PALISADE_THROW( type_error, "Null input");
+		if( privateKey->GetCryptoContext().get() != this )
+			PALISADE_THROW( type_error, "Key was not created in this CryptoContext");
 
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
@@ -1571,8 +1712,7 @@ public:
 		EvalLinRegression(const shared_ptr<Matrix<RationalCiphertext<Element>>> x,
 			const shared_ptr<Matrix<RationalCiphertext<Element>>> y) const
 	{
-		//if (ct1 == NULL || ct2 == NULL || ct1->GetCryptoContext() != this || ct2->GetCryptoContext() != this)
-		//	throw std::logic_error("Information passed to EvalMult was not generated with this crypto context");
+		TypeCheck((*x)(0,0), (*y)(0,0));
 
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
@@ -1593,6 +1733,7 @@ public:
 		const shared_ptr<LPEvalKey<Element>> keySwitchHint,
 		const shared_ptr<Ciphertext<Element>> ciphertext) const
 	{
+		// FIXME
 		if( keySwitchHint == NULL || Mismatched(keySwitchHint->GetCryptoContext()) )
 			throw std::logic_error("Key passed to KeySwitch was not generated with this crypto context");
 

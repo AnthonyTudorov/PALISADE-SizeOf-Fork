@@ -171,20 +171,20 @@ int main(int argc, char *argv[]) {
 	cout << "Decryption time: " << "\t" << diff << " ms" << endl;
 
 	cout << "\n Original Plaintext: \n";
-	cout << plaintext1 << endl;
-	cout << plaintext2 << endl;
-	cout << plaintext3 << endl;
-	cout << plaintext4 << endl;
-	cout << plaintext5 << endl;
-	cout << plaintext6 << endl;
+	cout << *plaintext1 << endl;
+	cout << *plaintext2 << endl;
+	cout << *plaintext3 << endl;
+	cout << *plaintext4 << endl;
+	cout << *plaintext5 << endl;
+	cout << *plaintext6 << endl;
 
 	cout << "\n Resulting Decryption of Ciphertext: \n";
-	cout << plaintext1Dec << endl;
-	cout << plaintext2Dec << endl;
-	cout << plaintext3Dec << endl;
-	cout << plaintext4Dec << endl;
-	cout << plaintext5Dec << endl;
-	cout << plaintext6Dec << endl;
+	cout << *plaintext1Dec << endl;
+	cout << *plaintext2Dec << endl;
+	cout << *plaintext3Dec << endl;
+	cout << *plaintext4Dec << endl;
+	cout << *plaintext5Dec << endl;
+	cout << *plaintext6Dec << endl;
 
 	cout << "\n";
 
@@ -234,19 +234,19 @@ int main(int argc, char *argv[]) {
 	//std::cin.get();
 
 	cout << "\n Original Plaintext: \n";
-	cout << plaintext1 << endl;
-	cout << plaintext2 << endl;
-	cout << plaintext3 << endl;
-	cout << plaintext4 << endl;
-	cout << plaintext5 << endl;
-	cout << plaintext6 << endl;
+	cout << *plaintext1 << endl;
+	cout << *plaintext2 << endl;
+	cout << *plaintext3 << endl;
+	cout << *plaintext4 << endl;
+	cout << *plaintext5 << endl;
+	cout << *plaintext6 << endl;
 
 	cout << "\n Resulting Plaintext (after polynomial multiplication): \n";
-	cout << plaintextMul1 << endl;
-	cout << plaintextMul2 << endl;
-	cout << plaintextMul3 << endl;
-	cout << plaintextMul4 << endl;
-	cout << plaintextMul5 << endl;
+	cout << *plaintextMul1 << endl;
+	cout << *plaintextMul2 << endl;
+	cout << *plaintextMul3 << endl;
+	cout << *plaintextMul4 << endl;
+	cout << *plaintextMul5 << endl;
 
 	cout << "\n";
 
@@ -283,13 +283,13 @@ int main(int argc, char *argv[]) {
 	diff = finish - start;
 
 	cout << "\n Original Plaintext: \n";
-	cout << plaintextMul1 << endl;
-	cout << plaintextMul4 << endl;
-	cout << plaintextMul5 << endl;
+	cout << *plaintextMul1 << endl;
+	cout << *plaintextMul4 << endl;
+	cout << *plaintextMul5 << endl;
 
 	cout << "\n Resulting Added Plaintext: \n";
-	cout << plaintextAdd1 << endl;
-	cout << plaintextAdd2 << endl;
+	cout << *plaintextAdd1 << endl;
+	cout << *plaintextAdd2 << endl;
 
 	cout << "\n";
 
@@ -311,7 +311,7 @@ int main(int argc, char *argv[]) {
 	shared_ptr<Plaintext> plaintextMul7;
 	cryptoContext->Decrypt(keyPair.secretKey, ciphertextMul1234567, &plaintextMul7);
 
-	cout << plaintextMul7 << endl;
+	cout << *plaintextMul7 << endl;
 
 	std::cout << "Execution Completed." << std::endl;
 

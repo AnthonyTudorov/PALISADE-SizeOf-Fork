@@ -74,6 +74,11 @@ public:
 	not_available_error(const std::string& file, int line, const std::string& what) : palisade_error(file,line,what) {}
 };
 
+class type_error : public palisade_error {
+public:
+	type_error(const std::string& file, int line, const std::string& what) : palisade_error(file,line,what) {}
+};
+
 #define PALISADE_THROW( exc, expr )	throw exc(__FILE__,__LINE__,expr)
 
 }
