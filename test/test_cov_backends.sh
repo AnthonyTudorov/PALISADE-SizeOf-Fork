@@ -28,7 +28,7 @@ do
 		##mkdir bin/backend-${i}-cov/gcov
 		##mv *.gcov bin/backend-${i}-cov/gcov
 		lcov --capture --directory bin/backend-${i}-cov -o bin/backend-${i}-cov/coverage.out
-		genhtml -q -o bin/backend-${i}-cov/html bin/backend-${i}-cov/coverage
+		genhtml -q -o bin/backend-${i}-cov/html bin/backend-${i}-cov/coverage.out
 		)
 		echo "****************************"
 		echo COVERAGE TEST DONE
