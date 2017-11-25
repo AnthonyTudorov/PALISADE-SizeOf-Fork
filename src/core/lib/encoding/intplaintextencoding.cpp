@@ -73,11 +73,11 @@ void IntPlaintextEncoding::doEncode(const BigInteger &modulus, Element *ilVector
 		if( entry >= mod )
 			throw std::logic_error("Cannot encode integer at position " + std::to_string(i) + " because it is >= plaintext modulus " + std::to_string(mod));
 		IntType Val( entry );
-		temp.SetValAtIndex(i, Val);
+		temp.at(i)= Val;
 	}
 
 	for( size_t i=0; i<padlen; i++ ) {
-		temp.SetValAtIndex(i+length, IntType(0));
+	  temp.at(i+length)= IntType(0);
 	}
 
 	ilVector->SetValues(temp,format);
@@ -93,7 +93,7 @@ void IntPlaintextEncoding::doDecode(const BigInteger &modulus, Element *ilVector
 {
 
 	for (usint i = 0; i<ilVector->GetValues().GetLength(); i++) {
-		this->push_back( ilVector->GetValues().GetValAtIndex(i).ConvertToInt() );
+		this->push_back( ilVector->GetValues().at(i).ConvertToInt() );
 	}
 }
 

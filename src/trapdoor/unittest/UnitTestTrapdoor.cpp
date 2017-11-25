@@ -62,19 +62,6 @@ protected:
 /* TESTING BASIC MATH METHODS AND OPERATORS     */
 /************************************************/
 
-#if 0 //TODO DBC FUNCTION IS UNUSED
-static function<unique_ptr<Poly>()> fastIL2nAlloc() {
-	usint m = 16;
-	BigInteger modulus("67108913");
-	BigInteger rootOfUnity("61564");
-    return Poly::MakeAllocator(
-        ILParams(
-        m, modulus, rootOfUnity),
-        EVALUATION
-        );
-}
-#endif
-
 TEST(UTTrapdoor,randomized_round){
     //  It compiles! ...
     //RandomizeRound(0, 4.3, 1024);
@@ -500,8 +487,8 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 		pHat->SwitchFormat();
 
 		for (size_t j = 0; j < n; j++) {
-			bbiTrapdoor(j, 0) = (*pHat)(0, 0).GetValues().GetValAtIndex(j);
-			bbiTrapdoor(j+n, 0) = (*pHat)(1, 0).GetValues().GetValAtIndex(j);
+			bbiTrapdoor(j, 0) = (*pHat)(0, 0).GetValues().at(j);
+			bbiTrapdoor(j+n, 0) = (*pHat)(1, 0).GetValues().at(j);
 		}
 
 		pTrapdoor = ConvertToInt32(bbiTrapdoor, modulus);

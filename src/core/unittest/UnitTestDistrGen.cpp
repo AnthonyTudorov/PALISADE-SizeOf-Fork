@@ -110,7 +110,7 @@ TEST(UTDistrGen, DiscreteUniformGenerator_LONG ) {
     EXPECT_EQ(uniRandVector.GetLength(), size) << "Failure testing vector_uniform_vector_small_modulus wrong length";
     // test content
     for(size_t i=0; i<size; i++) {
-      EXPECT_LT(uniRandVector.GetValAtIndex(i), modulus)
+      EXPECT_LT(uniRandVector.at(i), modulus)
 	<< "Failure testing vector_uniform_vector_small_modulus value greater than modulus at index "<< i;
     }
   }
@@ -128,7 +128,7 @@ TEST(UTDistrGen, DiscreteUniformGenerator_LONG ) {
     EXPECT_EQ(uniRandVector.GetLength(), size) << "Failure testing vector_uniform_vector_large_modulus";
     // test content
     for(size_t i=0; i<size; i++) {
-      EXPECT_LT(uniRandVector.GetValAtIndex(i), modulus) 
+      EXPECT_LT(uniRandVector.at(i), modulus) 
 	<< "Failure testing vector_uniform_vector_large_modulus value greater than modulus at index "<< i;
     }
   }
@@ -166,7 +166,7 @@ TEST(UTDistrGen, DiscreteUniformGenerator_LONG ) {
       for(usint i=0; i<noOfIterations; i++) {
 	sum = mean = BigInteger(0);
 	for(size_t j=i*eachIterationSize; j<(i+1)*eachIterationSize; j++) {
-	  sum += uniRandVector.GetValAtIndex(j);
+	  sum += uniRandVector.at(j);
 	}
 	mean = sum.DividedBy(N);
       }
@@ -197,7 +197,7 @@ void testDiscreteUniformGenerator(BigInteger &modulus, std::string test_name){
     BigInteger length(std::to_string(randBigVector.GetLength()));
 
     for(usint index=0; index<size; index++) {
-      sum += (randBigVector.GetValAtIndex(index)).ConvertToDouble();
+      sum += (randBigVector.at(index)).ConvertToDouble();
     }
 
     double computedMeanInDouble = sum/size;
@@ -215,7 +215,7 @@ void testDiscreteUniformGenerator(BigInteger &modulus, std::string test_name){
     sum=0;
     double temp;
     for(usint index=0; index<size; index++) {
-      temp = (randBigVector.GetValAtIndex(index)).ConvertToDouble() - expectedMeanInDouble;
+      temp = (randBigVector.at(index)).ConvertToDouble() - expectedMeanInDouble;
       temp *= temp;
       sum += temp;
     }
@@ -334,7 +334,7 @@ void testParallelDiscreteUniformGenerator(BigInteger &modulus, std::string test_
   
   
 //     for(usint index=0; index<size; index++) {
-//       sum1 += (randBigVector1.GetValAtIndex(index)).ConvertToDouble();
+//       sum1 += (randBigVector1.at(index)).ConvertToDouble();
 //     }
 //   }
 //   DiscreteUniformGenerator distrUniGen = lbcrypto::DiscreteUniformGenerator(modulus, 12345);
@@ -342,7 +342,7 @@ void testParallelDiscreteUniformGenerator(BigInteger &modulus, std::string test_
 //   double sum2=0;
 
 //   for(usint index=0; index<size; index++) {
-//     sum2 += (randBigVector2.GetValAtIndex(index)).ConvertToDouble();
+//     sum2 += (randBigVector2.at(index)).ConvertToDouble();
 //   }
   
 //   EXPECT_EQ(sum1, sum2) << "Failure, summs are different";
@@ -386,7 +386,7 @@ void testParallelDiscreteUniformGenerator(BigInteger &modulus, std::string test_
     usint sum = 0;
 
     for(usint index=0; index<randBigVector.GetLength(); index++) {
-      sum += randBigVector.GetValAtIndex(index).ConvertToInt();
+      sum += randBigVector.at(index).ConvertToInt();
     }
     //std::cout << "Observed sum is " << sum << std::endl;
     //std::cout << "Length is " << length << std::endl;
@@ -476,7 +476,7 @@ TEST(UTDistrGen, DiscreteGaussianGenerator) {
     double mean = 0, current = 0;
 
     for(usint i=0; i<size; i++) {
-      current = std::stod(dggBigVector.GetValAtIndex(i).ToString());
+      current = std::stod(dggBigVector.at(i).ToString());
       if(current == 0)
 	countOfZero++;
       mean += current;

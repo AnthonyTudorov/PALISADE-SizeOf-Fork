@@ -19,7 +19,7 @@ do
 
 	touch src/core/lib/math/backend.h
 
-	make -j8  BINDIR=$BINDIR BACKEND=$i COVERAGE=yes all >/dev/null 2>&1
+	make -j32  BINDIR=$BINDIR BACKEND=$i COVERAGE=yes all >/dev/null 2>&1
 	if [ $? -eq 0 ];
 	then
 		echo "****************************"

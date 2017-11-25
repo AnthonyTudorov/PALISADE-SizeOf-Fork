@@ -138,8 +138,11 @@ public:
 	 * @param i is the index.
 	 * @return will throw a logic_error.
 	 */
-	virtual const IntType GetValAtIndex(usint i) const {
-		throw std::logic_error("GetValAtIndex not implemented");
+	virtual IntType& at(usint i) {
+		throw std::logic_error("at not implemented");
+	}
+	virtual const IntType& at(usint i) const {
+		throw std::logic_error("const at not implemented");
 	}
 
 	//SETTERS
@@ -150,18 +153,7 @@ public:
 	 * @param index is the index to set the value at.
 	 * @param val is the value to assign.
 	 */
-	virtual void SetValAtIndex(size_t index, const IntType& val) {
-		throw std::logic_error("SetValAtIndex not implemented");
-	}
-
-	/**
-	 * @brief SetValues allows Element values to be changed; this is used internally by the various operators
-	 *
-	 * @param values are the values to set.
-	 * @param format is the format/representations.
-	 */
-	virtual void SetValues(const VecType& values, Format format) = 0;
-
+	
 	// OPERATORS
 	/**
 	 * @brief Unary negation on a lattice
@@ -393,7 +385,7 @@ public:
 	 * @return
 	 */
 	virtual std::vector<Element> PowersOfBase(usint baseBits) const = 0;
-#if 0 //TODO
+#if 0 //TODO should define a virtual member here.
 	/**
 	 * @brief Test function to prints all values in either coefficient or evaluation format.
 	 * 

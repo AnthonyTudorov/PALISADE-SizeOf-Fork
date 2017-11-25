@@ -47,7 +47,7 @@
 #include <NTL/vec_ZZ.h>
 #include <NTL/SmartPtr.h>
 
-//defining this forces modulo when you write to the vector (except with SetValAtIndexWithoutMod)
+//defining this forces modulo when you write to the vector (except with at())
 //this is becuase NTL required inputs to modmath to be < modulus but BU does not
 // play with this and you will see different tests in pke pass and fail.
 //I think this will go away soon
@@ -131,15 +131,12 @@ namespace NTL {
 
     void clear(myVecP& x); //why isn't this inhereted?
 
+    // the following are like writing to this->at(i) but with modulus implied.
+    void atMod(size_t index, const myT&value);
+    void atMod(size_t index, const std::string& str);
 
-    // Note, SetValAtIndex should be deprecated by .at() and []
-    void SetValAtIndex(size_t index, const myT&value);
-    void SetValAtIndex(size_t index, const std::string& str);
-
-    //the following may be OBE, resolves to same as SVAI
-    void SetValAtIndexWithoutMod(size_t index, const myT&value);
-
-    const myZZ GetValAtIndex(size_t index) const;
+    const myZZ& at(size_t index) const;
+    myZZ& at(size_t index);
 
     /**
      * Returns a vector of digit at a specific index for all entries
@@ -457,27 +454,6 @@ namespace NTL {
     inline bool operator!=( const myVecP& b) const
     { return !(this->operator==(b)); };
     
-    /* operators to get a value at an index.
-       * @param idx is the index to get a value at.
-       * @return is the value at the index. return NULL if invalid index.
-       */
-#if 0  //this should be ok from base class Vec
-    inline myT operator[](std::size_t idx) {
-      //myZZ_p tmp((*this)[idx]._ZZ_p__rep);
-      //tmp.SetModulus(this->GetModulus());
-      myT tmp = this->NTL::Vec<ZZ>::operator[](idx);
-      return tmp;
-
-      //here we have the problem we return the element, but it never had it's modulus value set. 
-      //we need to somehow beable to set that modulus. 
-    }
-
-    inline const myT& operator[](std::size_t idx) const {
-	//how do we get this to work for the const???
-      const myT tmp = this->Vec<ZZ>::operator[](idx);
-      return tmp;
-    }
-#endif
 
     //JSON FACILITY
     /**
@@ -556,3 +532,4 @@ namespace NTL {
 } // namespace NTL ends
 
 #endif // LBCRYPTO_MATH_GMPINT_MGMPINTVEC_H
+

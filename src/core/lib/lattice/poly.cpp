@@ -240,9 +240,9 @@ const PolyImpl<ModType,IntType,VecType,ParmType>& PolyImpl<ModType,IntType,VecTy
 
 			for (usint j = 0; j < vectorLength; ++j) { // loops within a tower
 				if (j < len) {
-					SetValAtIndex(j, IntType(*(rhs.begin() + j)));
+				  this->at(j)= IntType(*(rhs.begin() + j));
 			} else {
-					SetValAtIndex(j, ZERO);
+				  this->at(j)= ZERO;
 				}
 			}
 
@@ -278,10 +278,10 @@ const PolyImpl<ModType, IntType, VecType, ParmType>& PolyImpl<ModType, IntType, 
 					tempInteger = *(rhs.begin() + j);
 					tempBI = IntType(tempInteger);
 				}
-				SetValAtIndex(j, tempBI);
+				at(j)= tempBI;
 			}
 			else {
-				SetValAtIndex(j, ZERO);
+				at(j)= ZERO;
 			}
 		}
 
@@ -305,10 +305,10 @@ const PolyImpl<ModType, IntType, VecType, ParmType>& PolyImpl<ModType, IntType, 
 					tempInteger = *(rhs.begin() + j);
 					tempBI = IntType(tempInteger);
 				}
-				temp.SetValAtIndex(j, tempBI);
+				temp.at(j)= tempBI;
 			}
 			else {
-				temp.SetValAtIndex(j, ZERO);
+				temp.at(j)= ZERO;
 			}
 		}
 		this->SetValues(std::move(temp), m_format);
@@ -339,10 +339,10 @@ const PolyImpl<ModType, IntType, VecType, ParmType>& PolyImpl<ModType, IntType, 
 					tempInteger = *(rhs.begin() + j);
 					tempBI = IntType(tempInteger);
 				}
-				SetValAtIndex(j, tempBI);
+				at(j)= tempBI;
 			}
 			else {
-				SetValAtIndex(j, ZERO);
+				at(j)= ZERO;
 			}
 		}
 
@@ -366,10 +366,10 @@ const PolyImpl<ModType, IntType, VecType, ParmType>& PolyImpl<ModType, IntType, 
 					tempInteger = *(rhs.begin() + j);
 					tempBI = IntType(tempInteger);
 				}
-				temp.SetValAtIndex(j, tempBI);
+				temp.at(j)= tempBI;
 			}
 			else {
-				temp.SetValAtIndex(j, ZERO);
+				temp.at(j)= ZERO;
 			}
 		}
 		this->SetValues(std::move(temp), m_format);
@@ -388,9 +388,9 @@ const PolyImpl<ModType,IntType,VecType,ParmType>& PolyImpl<ModType,IntType,VecTy
 
 			for (usint j = 0; j < vectorLength; ++j) { // loops within a tower
 				if (j < len) {
-					SetValAtIndex(j, *(rhs.begin() + j));
+					m_values->at(j)= *(rhs.begin() + j);
 			} else {
-					SetValAtIndex(j, ZERO);
+					m_values->at(j)= ZERO;
 				}
 			}
 
@@ -441,7 +441,7 @@ const PolyImpl<ModType,IntType,VecType,ParmType>& PolyImpl<ModType,IntType,VecTy
 			m_values = make_unique<VecType>(m_params->GetRingDimension(), m_params->GetModulus());
 		}
 		for (size_t i = 0; i < m_values->GetLength(); ++i) {
-			this->SetValAtIndex(i, IntType(val));
+			this->at(i)= IntType(val);
 		}
 		return *this;
 	}
@@ -464,11 +464,19 @@ Format PolyImpl<ModType,IntType,VecType,ParmType>::GetFormat() const
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-	const IntType PolyImpl<ModType,IntType,VecType,ParmType>::GetValAtIndex(usint i) const
+	IntType& PolyImpl<ModType,IntType,VecType,ParmType>::at(usint i)
 	{
 		if (m_values == 0)
 			throw std::logic_error("No values in PolyImpl");
-		return m_values->GetValAtIndex(i);
+		return m_values->at(i);
+	}
+
+	template<typename ModType, typename IntType, typename VecType, typename ParmType>
+	const IntType& PolyImpl<ModType,IntType,VecType,ParmType>::at(usint i) const
+	{
+		if (m_values == 0)
+			throw std::logic_error("No values in PolyImpl");
+		return m_values->at(i);
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
@@ -517,12 +525,12 @@ void PolyImpl<ModType,IntType,VecType,ParmType>::SetValuesToMax()
 		usint size = m_params->GetRingDimension();
 		m_values = make_unique<VecType>(m_params->GetRingDimension(), m_params->GetModulus());
 		for (usint i = 0; i < size; i++) {
-			m_values->SetValAtIndex(i, IntType(max));
+			m_values->at(i)= IntType(max);
 		}
 
 	}
 
-	template<typename ModType, typename IntType, typename VecType, typename ParmType>
+        template<typename ModType, typename IntType, typename VecType, typename ParmType>
 PolyImpl<ModType,IntType,VecType,ParmType> PolyImpl<ModType,IntType,VecType,ParmType>::Plus(const IntType &element) const
 {
 		PolyImpl<ModType,IntType,VecType,ParmType> tmp = CloneParametersOnly();
@@ -656,9 +664,9 @@ void PolyImpl<ModType,IntType,VecType,ParmType>::AddILElementOne()
 {
 		IntType tempValue;
 		for (usint i = 0; i < m_params->GetRingDimension(); i++) {
-			tempValue = GetValues().GetValAtIndex(i) + 1;
+			tempValue = GetValues().at(i) + 1;
 			tempValue = tempValue.Mod(m_params->GetModulus());
-			m_values->SetValAtIndex(i, tempValue);
+			m_values->at(i)= tempValue;
 		}
 	}
 
@@ -687,7 +695,7 @@ PolyImpl<ModType,IntType,VecType,ParmType> PolyImpl<ModType,IntType,VecType,Parm
 		// based on the totient index (between 0 and m - 1)
 		VecType expanded(m, modulus);
 		for (usint i = 0; i < n; i++) {
-			expanded.SetValAtIndex(totientList.at(i), m_values->GetValAtIndex(i));
+			expanded.at(totientList.at(i))= m_values->at(i);
 			}
 
 		for (usint i = 0; i < n; i++) {
@@ -695,7 +703,7 @@ PolyImpl<ModType,IntType,VecType,ParmType> PolyImpl<ModType,IntType,VecType,Parm
 			//determines which power of primitive root unity we should switch to
 			usint idx = totientList.at(i)*k % m;
 
-			result.m_values->SetValAtIndex(i, expanded.GetValAtIndex(idx));
+			result.m_values->at(i)= expanded.at(idx);
 
 		}
 	} else {
@@ -706,7 +714,7 @@ PolyImpl<ModType,IntType,VecType,ParmType> PolyImpl<ModType,IntType,VecType,Parm
 
 			//determines which power of primitive root unity we should switch to
 			usint idx = (j*k) % m;
-			result.m_values->SetValAtIndex((j + 1) / 2 - 1, GetValues().GetValAtIndex((idx + 1) / 2 - 1));
+			result.m_values->at((j + 1) / 2 - 1)= GetValues().at((idx + 1) / 2 - 1);
 
 		}
 
@@ -855,7 +863,7 @@ void PolyImpl<ModType,IntType,VecType,ParmType>::MakeSparse(const uint32_t &wFac
 		if (m_values != 0) {
 			for (usint i = 0; i < m_params->GetRingDimension();i++) {
 				if (i%wFactor != 0) {
-					m_values->SetValAtIndex(i, IntType(0));
+					m_values->at(i)= IntType(0);
 				}
 			}
 		}
@@ -885,7 +893,7 @@ void PolyImpl<ModType,IntType,VecType,ParmType>::Decompose()
 		//Interleaving operation.
 		VecType decomposeValues(GetLength() / 2, GetModulus());
 		for (usint i = 0; i < GetLength(); i = i + 2) {
-			decomposeValues.SetValAtIndex(i / 2, GetValues().GetValAtIndex(i));
+			decomposeValues.at(i / 2)= GetValues().at(i);
 		}
 
 		SetValues(decomposeValues, m_format);
@@ -904,7 +912,7 @@ bool PolyImpl<ModType,IntType,VecType,ParmType>::IsEmpty() const
 bool PolyImpl<ModType,IntType,VecType,ParmType>::InverseExists() const
 {
 		for (usint i = 0; i < GetValues().GetLength(); i++) {
-			if (m_values->GetValAtIndex(i) == 0)
+			if (m_values->at(i) == 0)
 				return false;
 		}
 		return true;
@@ -919,10 +927,10 @@ double PolyImpl<ModType,IntType,VecType,ParmType>::Norm() const
 	const IntType &half = m_params->GetModulus() >> 1;
 
 	for (usint i = 0; i < GetValues().GetLength(); i++) {
-		if (m_values->GetValAtIndex(i) > half) 
-			locVal = q - m_values->GetValAtIndex(i);
+		if (m_values->at(i) > half) 
+			locVal = q - m_values->at(i);
 		else
-			locVal = m_values->GetValAtIndex(i);
+			locVal = m_values->at(i);
 
 		if (locVal > retVal)
 			retVal = locVal;

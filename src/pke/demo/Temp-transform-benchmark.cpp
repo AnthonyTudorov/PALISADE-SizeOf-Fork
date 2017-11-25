@@ -106,7 +106,7 @@ BigVector precomputedTransform(usint logn, const BigInteger& modulus, const BigV
 	BigInteger mu = ComputeMu<BigInteger>(modulus);
 	BigVector element(n, modulus);
 	for (usint i = 0; i<n; i++)
-		element.SetValAtIndex(i, input.GetValAtIndex(i).ModBarrettMul(rootOfUnityTable.GetValAtIndex(i), modulus, mu));
+	  element.at(i)= input.at(i).ModBarrettMul(rootOfUnityTable.at(i), modulus, mu);
 
 	BigVector result(n);
 	result.SetModulus(modulus);
@@ -114,7 +114,7 @@ BigVector precomputedTransform(usint logn, const BigInteger& modulus, const BigV
 	//reverse coefficients (bit reversal)
 	usint msb = GetMSB64(n - 1);
 	for (usint i = 0; i < n; i++)
-		result.SetValAtIndex(i, element.GetValAtIndex(ReverseBits(i, msb)));
+	  result.at(i)= element.at(ReverseBits(i, msb));
 
 	BigInteger omegaFactor;
 	BigInteger product;
@@ -130,13 +130,13 @@ BigVector precomputedTransform(usint logn, const BigInteger& modulus, const BigV
 
 				usint x = (i << (1+logn-logm));
 
-				const BigInteger& omega = rootOfUnityTable.GetValAtIndex(x);
+				const BigInteger& omega = rootOfUnityTable.at(x);
 
 				usint indexEven = j + i;
 				usint indexOdd = j + i + (1 << (logm-1));
-				auto oddVal = result.GetValAtIndex(indexOdd);
+				auto oddVal = result.at(indexOdd);
 				auto oddMSB = oddVal.GetMSB();
-				auto evenVal = result.GetValAtIndex(indexEven);
+				auto evenVal = result.at(indexEven);
 
 				if (oddMSB > 0)
 				{
@@ -156,12 +156,12 @@ BigVector precomputedTransform(usint logn, const BigInteger& modulus, const BigV
 						butterflyMinus += modulus;
 					butterflyMinus -= omegaFactor;
 
-					result.SetValAtIndex(indexEven, butterflyPlus);
-					result.SetValAtIndex(indexOdd, butterflyMinus);
+					result.at(indexEven)= butterflyPlus;
+					result.at(indexOdd)= butterflyMinus;
 
 				}
 				else
-				  //result.SetValAtIndex(indexOdd, result.GetValAtIndex(indexEven));
+				  //result.at(indexOdd)= result.at(indexEven);
 				  result[indexOdd] = result[indexEven];
 
 			}
@@ -177,13 +177,13 @@ BigVector baselineTransform(usint n, const BigInteger& modulus, const BigVector&
 	BigInteger t(1);
 
 	for (usint i = 0; i<n; i++) {
-		rootOfUnityTable.SetValAtIndex(i, t);
+		rootOfUnityTable.at(i)= t;
 		t = t.ModBarrettMul(rootOfUnity, modulus, mu);
 	}
 
 	BigVector element(n, modulus);
 	for (usint i = 0; i<n; i++)
-		element.SetValAtIndex(i, input.GetValAtIndex(i).ModBarrettMul(rootOfUnityTable.GetValAtIndex(i), modulus, mu));
+		element.at(i)= input.at(i).ModBarrettMul(rootOfUnityTable.at(i), modulus, mu);
 
 	BigVector result(n);
 	result.SetModulus(modulus);
@@ -191,7 +191,7 @@ BigVector baselineTransform(usint n, const BigInteger& modulus, const BigVector&
 	//reverse coefficients (bit reversal)
 	usint msb = GetMSB64(n - 1);
 	for (usint i = 0; i < n; i++)
-		result.SetValAtIndex(i, element.GetValAtIndex(ReverseBits(i, msb)));
+		result.at(i)= element.at(ReverseBits(i, msb));
 
 	BigInteger omegaFactor;
 	BigInteger product;
@@ -207,35 +207,35 @@ BigVector baselineTransform(usint n, const BigInteger& modulus, const BigVector&
 
 				usint x = (2 * i*n / m);
 
-				const BigInteger& omega = rootOfUnityTable.GetValAtIndex(x);
+				const BigInteger& omega = rootOfUnityTable.at(x);
 
 				usint indexEven = j + i;
 				usint indexOdd = j + i + m / 2;
 
-				if (result.GetValAtIndex(indexOdd).GetMSB()>0)
+				if (result.at(indexOdd).GetMSB()>0)
 				{
 
-					if (result.GetValAtIndex(indexOdd).GetMSB() == 1)
+					if (result.at(indexOdd).GetMSB() == 1)
 						omegaFactor = omega;
 					else
-						omegaFactor = omega.ModBarrettMul(result.GetValAtIndex(indexOdd), modulus, mu);
+						omegaFactor = omega.ModBarrettMul(result.at(indexOdd), modulus, mu);
 
-					butterflyPlus = result.GetValAtIndex(indexEven);
+					butterflyPlus = result.at(indexEven);
 					butterflyPlus += omegaFactor;
 					if (butterflyPlus >= element.GetModulus())
 						butterflyPlus -= element.GetModulus();
 
-					butterflyMinus = result.GetValAtIndex(indexEven);
-					if (result.GetValAtIndex(indexEven) < omegaFactor)
+					butterflyMinus = result.at(indexEven);
+					if (result.at(indexEven) < omegaFactor)
 						butterflyMinus += element.GetModulus();
 					butterflyMinus -= omegaFactor;
 
-					result.SetValAtIndex(indexEven, butterflyPlus);
-					result.SetValAtIndex(indexOdd, butterflyMinus);
+					result.at(indexEven)= butterflyPlus;
+					result.at(indexOdd)= butterflyMinus;
 
 				}
 				else
-				  //result.SetValAtIndex(indexOdd, result.GetValAtIndex(indexEven));
+				  //result.at(indexOdd)= result.at(indexEven);
 				  result[indexOdd] = result[indexEven];
 
 			}
@@ -271,13 +271,13 @@ int main() {
 
 	BigVector x(phim, modulusQ);
 	for(usint i=0; i<phim; i++){
-		x.SetValAtIndex(i, BigInteger(i));
+		x.at(i)= BigInteger(i);
 	}
 
 	BigVector rootOfUnityTable(phim, modulusQ);
 	BigInteger t(1);
 	for (usint i = 0; i<phim; i++) {
-		rootOfUnityTable.SetValAtIndex(i, t);
+		rootOfUnityTable.at(i)= t;
 		t = t.ModMul(rootOfUnity, modulusQ);
 	}
 
@@ -302,7 +302,7 @@ int main() {
 		BigInteger mu = ComputeMu<BigInteger>(x.GetModulus());
 
 		for (usint i = 0; i<m / 2; i++)
-			InputToFFT.SetValAtIndex(i, x.GetValAtIndex(i).ModBarrettMul(rootOfUnityTable.GetValAtIndex(i*ringDimensionFactor), x.GetModulus(), mu));
+			InputToFFT.at(i)= x.at(i).ModBarrettMul(rootOfUnityTable.at(i*ringDimensionFactor), x.GetModulus(), mu);
 		NumberTheoreticTransform<BigInteger,BigVector>::ForwardTransformIterative(InputToFFT, rootOfUnityTable, m / 2, &X);
 	}
 	stop = currentDateTime();

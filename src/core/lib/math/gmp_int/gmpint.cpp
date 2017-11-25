@@ -82,8 +82,6 @@ namespace NTL {
   };
 
   usint myZZ::GetMSB() const {
-
-
     //note: originally I did not worry about this, and just set the 
     //MSB whenever this was called, but then that violated constness in the 
     // various libraries that used this heavily
@@ -106,8 +104,6 @@ namespace NTL {
     MSB+=tmp;
     m_MSB = MSB;
     return(MSB);
-
-
   }
 
   void myZZ::SetMSB()

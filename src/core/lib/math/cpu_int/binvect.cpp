@@ -66,7 +66,7 @@ BigVectorImpl<IntegerType>::BigVectorImpl(usint length, const IntegerType& modul
 	usint len = rhs.size();
 	for (usint i=0;i<m_length;i++){ // this loops over each entry
 		if(i<len) {
-			m_data[i] =  IntegerType(*(rhs.begin()+i));  
+			m_data[i] =  IntegerType(*(rhs.begin()+i))%m_modulus;  
 		} else {
 			m_data[i] = 0;
 		}
@@ -82,7 +82,7 @@ BigVectorImpl<IntegerType>::BigVectorImpl(usint length, const IntegerType& modul
 	usint len = rhs.size();
 	for(usint i=0;i<m_length;i++){ // this loops over each entry
 		if(i<len) {
-			m_data[i] =  IntegerType(*(rhs.begin()+i));  
+			m_data[i] =  IntegerType(*(rhs.begin()+i))%m_modulus;  
 		} else {
 			m_data[i] = 0;
 		}
@@ -139,7 +139,10 @@ const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::operator=(std::ini
 	usint len = rhs.size();
 	for(usint i=0;i<m_length;i++){ // this loops over each tower
 		if(i<len) {
-			m_data[i] = IntegerType(*(rhs.begin()+i));
+		  if (m_modulus!=IntegerType::ZERO)
+			m_data[i] = IntegerType(*(rhs.begin()+i))%m_modulus;
+		  else
+			m_data[i] = IntegerType(*(rhs.begin()+i));	    
 		} else {
 			m_data[i] = 0;
 		}
@@ -154,6 +157,9 @@ const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::operator=(std::ini
 	usint len = rhs.size();
 	for(usint i=0;i<m_length;i++){ // this loops over each tower
 		if(i<len) {
+		  if (m_modulus!=IntegerType::ZERO)
+			m_data[i] = IntegerType(*(rhs.begin()+i))%m_modulus;
+		  else
 			m_data[i] = IntegerType(*(rhs.begin()+i));
 		} else {
 			m_data[i] = 0;
@@ -224,23 +230,23 @@ void BigVectorImpl<IntegerType>::SwitchModulus(const IntegerType& newModulus) {
 	IntegerType diff ((oldModulus > newModulus) ? (oldModulus-newModulus) : (newModulus - oldModulus));
 	DEBUG("Switch modulus diff :"<<diff);
 	for(usint i=0; i< this->m_length; i++) {
-		n = this->GetValAtIndex(i);
+		n = this->at(i);
 		DEBUG("i,n "<<i<<" "<< n);
 		if(oldModulus < newModulus) {
 			if(n > oldModulusByTwo) {
 			  DEBUG("s1 "<<n.ModAdd(diff, newModulus));
-				this->SetValAtIndex(i, n.ModAdd(diff, newModulus));
+			  this->at(i)= n.ModAdd(diff, newModulus);
 			} else {
 			  DEBUG("s2 "<<n.Mod(newModulus));
-				this->SetValAtIndex(i, n.Mod(newModulus));
+			  this->at(i)= n.Mod(newModulus);
 			}
 		} else {
 			if(n > oldModulusByTwo) {
 			  DEBUG("s3 "<<n.ModSub(diff, newModulus));				
-				this->SetValAtIndex(i, n.ModSub(diff, newModulus));
+			  this->at(i)= n.ModSub(diff, newModulus);
 			} else {
 			  DEBUG("s4 "<<n.Mod(newModulus));
-				this->SetValAtIndex(i, n.Mod(newModulus));
+			  this->at(i)= n.Mod(newModulus);
 			}
 		}
 	}
@@ -281,11 +287,11 @@ BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::Mod(const IntegerType& mo
 		BigVectorImpl ans(this->GetLength(),this->GetModulus());
 		IntegerType halfQ(this->GetModulus() >> 1);
 		for (usint i = 0; i<ans.GetLength(); i++) {
-			if (this->GetValAtIndex(i)>halfQ) {
-				ans.SetValAtIndex(i,this->GetValAtIndex(i).ModSub(this->GetModulus(),modulus));
+			if (this->at(i)>halfQ) {
+			  ans.at(i)=this->at(i).ModSub(this->GetModulus(),modulus);
 			}
 			else {
-				ans.SetValAtIndex(i,this->GetValAtIndex(i).Mod(modulus));
+			  ans.at(i)=this->at(i).Mod(modulus);
 			}
 		}
 		return ans;
@@ -329,11 +335,11 @@ BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::MultiplyAndRound(const In
 	//BigVectorImpl ans(this->GetLength(), this->GetModulus());
 	//IntegerType halfQ(this->GetModulus() >> 1);
 	//for (usint i = 0; i<ans.GetLength(); i++) {
-	//	if (this->GetValAtIndex(i)>halfQ) {
-	//		ans.SetValAtIndex(i, this->GetValAtIndex(i).ModSub(this->GetModulus(), modulus));
+	//	if (this->at(i)>halfQ) {
+	//		ans.at(i)= this->at(i).ModSub(this->GetModulus(), modulus);
 	//	}
 	//	else {
-	//		ans.SetValAtIndex(i, this->GetValAtIndex(i).Mod(modulus));
+	//		ans.at(i)= this->at(i).Mod(modulus);
 	//	}
 	//}
 	//return ans;
@@ -466,17 +472,17 @@ BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModByTwo() const {
 	BigVectorImpl ans(this->GetLength(),this->GetModulus());
 	IntegerType halfQ(this->GetModulus() >> 1);
 	for (usint i = 0; i<ans.GetLength(); i++) {
-		if (this->GetValAtIndex(i)>halfQ) {
-			if (this->GetValAtIndex(i).Mod(2) == 1)
-				ans.SetValAtIndex(i, IntegerType(0));
+		if (this->at(i)>halfQ) {
+			if (this->at(i).Mod(2) == 1)
+			  ans.at(i)= IntegerType(0);
 			else
-				ans.SetValAtIndex(i, 1);
+			  ans.at(i)= 1;
 		}
 		else {
-			if (this->GetValAtIndex(i).Mod(2) == 1)
-				ans.SetValAtIndex(i, 1);
+			if (this->at(i).Mod(2) == 1)
+			  ans.at(i)= 1;
 			else
-				ans.SetValAtIndex(i, IntegerType(0));
+			  ans.at(i)= IntegerType(0);
 		}
 
 	}
@@ -602,7 +608,7 @@ bool BigVectorImpl<IntegerType>::Serialize(lbcrypto::Serialized* serObj) const {
 	if( pkVectorLength > 0 ) {
 		std::string pkBufferString = "";
 		for (size_t i = 0; i < pkVectorLength; i++) {
-			pkBufferString += GetValAtIndex(i).Serialize(this->GetModulus());
+			pkBufferString += at(i).Serialize(this->GetModulus());
 		}
 		bbvMap.AddMember("VectorValues", pkBufferString, serObj->GetAllocator());
 	}

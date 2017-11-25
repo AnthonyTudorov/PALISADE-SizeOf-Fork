@@ -382,18 +382,7 @@ public:
 	NativeInteger Minus(const NativeInteger& b) const {
 		return m_value <= b.m_value ? 0 : m_value - b.m_value;
 	}
-#if 0 //dbc not sure we need this
-	/**
-	 * Multiplication accumulator.
-	 *
-	 * @param &b is the value to multiply of type BigInteger.
-	 * @return result of the muliplyaccumulate operation of type BigInteger.
-	 */
-	const NativeInteger& operator*=(const NativeInteger &b) {
-	        m_value *= b.m_value;
-		return *this;
-	}
-#endif
+
 	/**
 	 * Multiplication operation.
 	 *

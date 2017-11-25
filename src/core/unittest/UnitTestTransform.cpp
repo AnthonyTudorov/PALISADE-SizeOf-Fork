@@ -73,10 +73,10 @@ TEST(UTTransform, CRT_polynomial_multiplication){
 	BigInteger primitiveRootOfUnity = lbcrypto::RootOfUnity(cycloOrder, primeModulus);
 
 	BigVector a(n, primeModulus);
-	a.SetValAtIndex(0, "1");
-	a.SetValAtIndex(1, "2");
-	a.SetValAtIndex(2, "4");
-	a.SetValAtIndex(3, "1");
+	a.at(0)= "1";
+	a.at(1)= "2";
+	a.at(2)= "4";
+	a.at(3)= "1";
 	BigVector b(a);
 
 	BigVector A(cycloOrder/2);
@@ -90,10 +90,10 @@ TEST(UTTransform, CRT_polynomial_multiplication){
 	ChineseRemainderTransformFTT<BigInteger,BigVector>::InverseTransform(AB, primitiveRootOfUnity, cycloOrder, &InverseFFTAB);
 
 	BigVector expectedResult(n, primeModulus);
-	expectedResult.SetValAtIndex(0, "94");
-	expectedResult.SetValAtIndex(1, "109");
-	expectedResult.SetValAtIndex(2, "11");
-	expectedResult.SetValAtIndex(3, "18");
+	expectedResult.at(0)= "94";
+	expectedResult.at(1)= "109";
+	expectedResult.at(2)= "11";
+	expectedResult.at(3)= "18";
 
 	EXPECT_EQ(expectedResult, InverseFFTAB);
 
@@ -142,7 +142,7 @@ TEST(UTTransform, CRT_polynomial_multiplication_small) {
 	cCheck = PolyMod(cCheck, cycloPoly, modulus);
 
 	for (usint i = 0; i < n; i++) {
-		EXPECT_EQ(cCheck.GetValAtIndex(i), c.GetValAtIndex(i));
+		EXPECT_EQ(cCheck.at(i), c.at(i));
 	}
 
 }
@@ -180,7 +180,7 @@ TEST(UTTransform, CRT_polynomial_multiplication_big_ring) {
 	cCheck = PolyMod(cCheck, cycloPoly, modulus);
 
 	for (usint i = 0; i < n; i++) {
-		EXPECT_EQ(cCheck.GetValAtIndex(i), c.GetValAtIndex(i));
+		EXPECT_EQ(cCheck.at(i), c.at(i));
 	}
 
 }
@@ -227,13 +227,7 @@ TEST(UTTransform, CRT_polynomial_multiplication_big_ring_prime_cyclotomics) {
 	cCheck = PolyMod(cCheck, cycloPoly, modulus);
 	DEBUG("c "<<c);
 	DEBUG("cCheck "<<cCheck);
-#if 0
-	for (usint i = 0; i < n; i++) {
-		EXPECT_EQ(cCheck.GetValAtIndex(i), c.GetValAtIndex(i));
-	}
-#else
 	EXPECT_EQ(cCheck, c);
-#endif
 }
 
 
@@ -262,7 +256,7 @@ TEST(UTTransform, CRT_CHECK_small_ring) {
 	auto inputCheck = ChineseRemainderTransformArb<BigInteger, BigVector>::InverseTransform(INPUT, squareRootOfRoot,bigModulus,bigRoot, m);
 
 	for (usint i = 0; i < n; i++) {
-		EXPECT_EQ(input.GetValAtIndex(i), inputCheck.GetValAtIndex(i));
+		EXPECT_EQ(input.at(i), inputCheck.at(i));
 	}
 
 }
@@ -290,7 +284,7 @@ TEST(UTTransform, CRT_CHECK_big_ring) {
 	std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
 	std::uniform_int_distribution<> dis(0, 100); //generates a number in [0,100]
 	for (usint i = 0; i < n; i++) {
-		input.SetValAtIndex(i, BigInteger(dis(gen)));
+	  input.at(i)= BigInteger(dis(gen));
 	}
 	
 	auto output = ChineseRemainderTransformArb<BigInteger, BigVector>::ForwardTransform(input, squareRootOfRoot,bigModulus,bigRoot, m);
@@ -298,7 +292,7 @@ TEST(UTTransform, CRT_CHECK_big_ring) {
 	auto recOut = ChineseRemainderTransformArb<BigInteger, BigVector>::InverseTransform(output, squareRootOfRoot,bigModulus,bigRoot, m);
 
 	for (usint i = 0; i < n; i++) {
-		EXPECT_EQ(input.GetValAtIndex(i), recOut.GetValAtIndex(i));
+		EXPECT_EQ(input.at(i), recOut.at(i));
 	}
 
 }
@@ -326,7 +320,7 @@ TEST(UTTransform, CRT_CHECK_small_ring_precomputed) {
 	auto inputCheck = ChineseRemainderTransformArb<BigInteger, BigVector>::InverseTransform(INPUT, squareRootOfRoot, nttmodulus,nttroot, m);
 
 	for (usint i = 0; i < n; i++) {
-		EXPECT_EQ(input.GetValAtIndex(i), inputCheck.GetValAtIndex(i));
+		EXPECT_EQ(input.at(i), inputCheck.at(i));
 	}
 
 }
@@ -357,7 +351,7 @@ TEST(UTTransform, CRT_CHECK_very_big_ring_precomputed) {
 	auto inputCheck = ChineseRemainderTransformArb<BigInteger, BigVector>::InverseTransform(INPUT, squareRootOfRoot, nttmodulus, nttroot, m);
 	DEBUG("6");
 	for (usint i = 0; i < n; i++) {
-		EXPECT_EQ(input.GetValAtIndex(i), inputCheck.GetValAtIndex(i));
+		EXPECT_EQ(input.at(i), inputCheck.at(i));
 	}
 
 }

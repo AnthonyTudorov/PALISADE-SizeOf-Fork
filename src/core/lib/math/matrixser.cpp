@@ -345,7 +345,7 @@ Matrix<BigInteger> Rotate(Matrix<Poly> const& inMat) {
             for (size_t rotRow = 0; rotRow < n; ++rotRow) {
                 for (size_t rotCol = 0; rotCol < n; ++rotCol) {
                     result(row*n + rotRow, col*n + rotCol) =
-                        mat(row, col).GetValues().GetValAtIndex(
+                        mat(row, col).GetValues().at(
                             (rotRow - rotCol + n) % n
                             );
                     //  negate (mod q) upper-right triangle to account for
@@ -379,11 +379,9 @@ Matrix<BigVector> RotateVecResult(Matrix<Poly> const& inMat) {
             for (size_t rotRow = 0; rotRow < n; ++rotRow) {
                 for (size_t rotCol = 0; rotCol < n; ++rotCol) {
                     BigVector& elem = result(row*n + rotRow, col*n + rotCol);
-                    elem.SetValAtIndex(0,
-                        mat(row, col).GetValues().GetValAtIndex(
-                            (rotRow - rotCol + n) % n
-                            ));
-                    //  negate (mod q) upper-right triangle to account for
+                    elem.at(0)=
+		      mat(row, col).GetValues().at((rotRow - rotCol + n) % n);
+		    //  negate (mod q) upper-right triangle to account for
                     //  (mod x^n + 1)
                     if (rotRow < rotCol) {
                         result(row*n + rotRow, col*n + rotCol) = zero.ModSub(elem);
@@ -589,7 +587,7 @@ Matrix<int32_t> ConvertToInt32(const Matrix<BigVector> &input, const BigInteger&
     Matrix<int32_t> result([](){ return make_unique<int32_t>(); }, rows, cols);
     for (size_t i = 0; i < rows; ++i) {
         for (size_t j = 0; j < cols; ++j) {
-            const BigInteger& elem = input(i,j).GetValAtIndex(0);
+            const BigInteger& elem = input(i,j).at(0);
             if (elem > negativeThreshold) {
                 result(i,j) = -1*(modulus - elem).ConvertToInt();
             } else {

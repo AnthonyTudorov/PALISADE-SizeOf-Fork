@@ -116,10 +116,7 @@ TEST(UTubint,string_conversions_msb){
     <<"Failure Convert 1 limb to float";
   EXPECT_EQ(163841.0, q1.ConvertToDouble())
     <<"Failure Convert 1 limb to double";
-#if 0
-  EXPECT_EQ(163841.0L, q1.ConvertToLongDouble())
-    <<"Failure Convert 1 limb to longdouble";
-#endif
+
   //test GetMSB() for 1 limb
   usint msb = q1.GetMSB();
 
@@ -160,32 +157,12 @@ TEST(UTubint,string_conversions_msb){
   EXPECT_NE(testd, (double)q2.ConvertToFloat())
     <<"Failure Convert 2 limb to float loss of precision";    
 
-#if 0
-  long double testld = 4057816419532801.0L;
-  //cout << "sizeoflongdouble "<< sizeof(long double) << endl;  
-  //cout << "testld "<< testld << endl;
-  EXPECT_EQ(testld, q2.ConvertToLongDouble())
-    <<"Failure Convert 2 limb to long double";
-#endif
 
   //test GetMSB()
   msb = q2.GetMSB();
   //DEBUG("q2 msb "<<msb);
   EXPECT_EQ(msb, 52U)<<  "Failure testing 2 limb msb test ";
 
-#if 0 //this 'feature' was removed to match BBI operation.
-  bool thrown = false;
-  try {
-    //test the ctor()
-
-    exp_int::xubint b;
-    usint bout = b.ConvertToUsint(); //should thrown since b is not initialised.
-  } catch (...) {
-    thrown = true;
-  }
-  EXPECT_TRUE(thrown) 
-    << "Failure testing ConvertToUsint() throw on uninitialed exp_int::xubint";
-#endif
 }
 TEST(UTubint,ctor){    
 
@@ -1315,8 +1292,6 @@ TEST(UTubint, misc_functions){
   exp_int::xubint expectedResult("100633769475");
   EXPECT_EQ(expectedResult, b)
     << "Failure testing BinaryToUbint()";
-#else
-  cout<<"No BinaryStringToUbint()"<<endl;
 #endif
 
 }

@@ -261,7 +261,7 @@ TEST(UTMatrix, rotate_vec_result) {
     Matrix<Poly> n = Matrix<Poly>(fastIL2nAlloc(), 1, 2).Ones();
     const Poly::Integer& modulus = n(0,0).GetModulus();
     n.SetFormat(COEFFICIENT);
-	n(0,0).SetValAtIndex(2, 1);
+    n(0,0).at(2)= 1;
     Matrix<Poly::Vector> R = RotateVecResult(n);
 	EXPECT_EQ(8U, R.GetRows());
 	EXPECT_EQ(16U, R.GetCols());
@@ -282,7 +282,7 @@ TEST(UTMatrix, rotate) {
     Matrix<Poly> n = Matrix<Poly>(fastIL2nAlloc(), 1, 2).Ones();
 
     n.SetFormat(COEFFICIENT);
-	n(0,0).SetValAtIndex(2, 1);
+    n(0,0).at(2)= 1;
     Matrix<Poly::Integer> R = Rotate(n);
 	EXPECT_EQ(8U, R.GetRows());
 	EXPECT_EQ(16U, R.GetCols());

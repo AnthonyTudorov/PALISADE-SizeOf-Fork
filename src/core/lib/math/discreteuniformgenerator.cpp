@@ -122,8 +122,8 @@ VecType DiscreteUniformGeneratorImpl<IntType,VecType>::GenerateVector(const usin
 	VecType v(size,m_modulus);
 
 	for (usint i = 0; i < size; i++) {
-	IntType temp(this->GenerateInteger());
-		v.SetValAtIndex(i, temp);
+	  IntType temp(this->GenerateInteger());
+	  v.at(i)= temp;
 	}
 
 	return v;

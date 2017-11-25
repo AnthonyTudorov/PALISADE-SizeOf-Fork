@@ -247,15 +247,15 @@ TEST(UTNTT, decomposeMult_double_crt) {
 	DEBUG("resultsEval ix 0: "<<resultsEval.GetElementAtIndex(0).GetValues());
 	DEBUG("resultsEval ix 1: "<<resultsEval.GetElementAtIndex(1).GetValues());
 
-	EXPECT_EQ(resultsEval.GetElementAtIndex(0).GetValAtIndex(0), 0);
-	EXPECT_EQ(resultsEval.GetElementAtIndex(0).GetValAtIndex(1), 0);
-	EXPECT_EQ(resultsEval.GetElementAtIndex(0).GetValAtIndex(2), native_int::BigInteger("17728"));
-	EXPECT_EQ(resultsEval.GetElementAtIndex(0).GetValAtIndex(3), 0);
+	EXPECT_EQ(resultsEval.GetElementAtIndex(0).at(0), 0);
+	EXPECT_EQ(resultsEval.GetElementAtIndex(0).at(1), 0);
+	EXPECT_EQ(resultsEval.GetElementAtIndex(0).at(2), native_int::BigInteger("17728"));
+	EXPECT_EQ(resultsEval.GetElementAtIndex(0).at(3), 0);
 
-	EXPECT_EQ(resultsEval.GetElementAtIndex(1).GetValAtIndex(0), 0);
-	EXPECT_EQ(resultsEval.GetElementAtIndex(1).GetValAtIndex(1), 0);
-	EXPECT_EQ(resultsEval.GetElementAtIndex(1).GetValAtIndex(2), native_int::BigInteger("17760"));
-	EXPECT_EQ(resultsEval.GetElementAtIndex(1).GetValAtIndex(3), 0);
+	EXPECT_EQ(resultsEval.GetElementAtIndex(1).at(0), 0);
+	EXPECT_EQ(resultsEval.GetElementAtIndex(1).at(1), 0);
+	EXPECT_EQ(resultsEval.GetElementAtIndex(1).at(2), native_int::BigInteger("17760"));
+	EXPECT_EQ(resultsEval.GetElementAtIndex(1).at(3), 0);
 }
 
 TEST(UTNTT, decomposeMult_single_crt) {
@@ -301,9 +301,9 @@ TEST(UTNTT, decomposeMult_single_crt) {
 	DEBUG("resultsEval.coef "<<resultsEval.GetValues());
 	DEBUG("resultsEval.modulus"<< resultsEval.GetModulus());
 
-	EXPECT_EQ(resultsEval.GetValAtIndex(0), 0);
-	EXPECT_EQ(resultsEval.GetValAtIndex(1), 0);
-	EXPECT_EQ(resultsEval.GetValAtIndex(2), BigInteger("17728"));
-	EXPECT_EQ(resultsEval.GetValAtIndex(3), 0);
+	EXPECT_EQ(resultsEval.at(0), 0);
+	EXPECT_EQ(resultsEval.at(1), 0);
+	EXPECT_EQ(resultsEval.at(2), BigInteger("17728"));
+	EXPECT_EQ(resultsEval.at(3), 0);
 
 }

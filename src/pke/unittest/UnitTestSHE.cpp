@@ -465,7 +465,7 @@ TEST_F(UTSHE, sparsekeygen_single_crt_encrypt_decrypt) {
 	privateElement.SwitchFormat();
 
 	for (usint i = 1; i < privateElement.GetLength(); i += 2) {
-		EXPECT_EQ(BigInteger(0), privateElement.GetValAtIndex(i));
+		EXPECT_EQ(BigInteger(0), privateElement.at(i));
 	}
 }
 

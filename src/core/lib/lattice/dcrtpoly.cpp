@@ -93,10 +93,10 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FillPolyFromBigVector(const
 		for( usint v = 0; v < vecCount; v++ ) {
 
 #if 1//MATHBACKEND ==6 //wait till backend 6 works
-			IntType tmp = element.GetValAtIndex(p) % bigmods[v];
-			m_vectors[v].SetValAtIndex(p, tmp.ConvertToInt());
+			IntType tmp = element.at(p) % bigmods[v];
+			m_vectors[v].at(p)= tmp.ConvertToInt();
 #else
-			m_vectors[v].SetValAtIndex(p, PolyType::Integer((element.GetValAtIndex(p) % bigmods[v]).ConvertToInt()));
+			m_vectors[v].at(p)= PolyType::Integer((element.at(p) % bigmods[v]).ConvertToInt());
 #endif
 		}
 	}
@@ -174,7 +174,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::DCRTPolyImpl(const DggType& dgg,
 			else {
 				entry = k;
 			}
-			ilDggValues.SetValAtIndex(j,entry);
+			ilDggValues.at(j)=entry;
 		}
 
 		PolyType ilvector(dcrtParams->GetParams()[i]);
@@ -239,7 +239,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::DCRTPolyImpl(const TugType& tug,
 			else {
 				entry = k;
 			}
-			ilTugValues.SetValAtIndex(j,entry);
+			ilTugValues.at(j)=entry;
 		}
 
 		PolyType ilvector(dcrtParams->GetParams()[i]);
@@ -556,9 +556,9 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>& DCRTPolyImpl<ModType,IntType,Vec
 		for(usint i = 0; i < m_vectors.size(); ++i) { // this loops over each tower
 			for(usint j = 0; j < vectorLength; ++j) { // loops within a tower
 				if(j<len) {
-					this->m_vectors[i].SetValAtIndex(j, *(rhs.begin()+j));
+				  this->m_vectors[i].at(j)= *(rhs.begin()+j);
 				} else {
-					this->m_vectors[i].SetValAtIndex(j, ZERO);
+				  this->m_vectors[i].at(j)= ZERO;
 				}
 			}
 		}

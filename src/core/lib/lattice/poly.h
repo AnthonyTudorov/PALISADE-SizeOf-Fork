@@ -368,7 +368,8 @@ public:
 	 *
 	 * @return value at index i.
 	 */
-	const IntType GetValAtIndex(usint i) const;
+	IntType& at(usint i) ;
+	const IntType& at(usint i) const;
 
 	//SETTERS
 	/**
@@ -377,34 +378,6 @@ public:
 	 * @param index is the index at which the value is to be set.
 	 * @param val is the value to be set.
 	 */
-	inline void SetValAtIndex(size_t index, std::string val) {
-		m_values->SetValAtIndex(index, IntType(val));
-	}
-
-	/**
-	 * @brief Set VecType value to val
-	 *
-	 * @param index is the index at which the value is to be set.
-	 * @param val is the value to be set.
-	 */
-	inline void SetValAtIndex(size_t index, const IntType& val) {
-		m_values->SetValAtIndex(index, val);
-	}
-
-	/**
-	 * @brief Set the value of the element at a given index to a given value without performing a modulus operation.
-	 * @param index the index to put data at.
-	 * @param val the value to assign.
-	 */
-	inline void SetValAtIndexWithoutMod(size_t index, const IntType& val) {
-#if 1 //MATHBACKEND !=6
-		m_values->SetValAtIndex(index, val);
-#else
-		m_values->SetValAtIndexWithoutMod(index, val);
-#endif
-
-	}
-
 	// SCALAR OPERATIONS
 
 	/**
