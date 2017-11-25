@@ -1047,20 +1047,24 @@ public:
 	DecryptResult DecryptMatrix(
 		const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const shared_ptr<Matrix<RationalCiphertext<Element>>> ciphertext,
-		Matrix<shared_ptr<Plaintext>> *numerator,
-		Matrix<shared_ptr<Plaintext>> *denominator) const
+		shared_ptr<Matrix<shared_ptr<Plaintext>>> *numerator,
+		shared_ptr<Matrix<shared_ptr<Plaintext>>> *denominator) const
 	{
 
 		// edge case
 		if ((ciphertext->GetCols()== 0) && (ciphertext->GetRows() == 0))
 			return DecryptResult();
 
-		if ((ciphertext->GetCols() != numerator->GetCols())|| (ciphertext->GetRows() != numerator->GetRows()) ||
-			(ciphertext->GetCols() != denominator->GetCols()) || (ciphertext->GetRows() != denominator->GetRows()))
-			throw std::runtime_error("Ciphertext and plaintext matrices have different dimensions");
-
 		if (privateKey == NULL || Mismatched(privateKey->GetCryptoContext()))
 			throw std::runtime_error("Information passed to DecryptMatrix was not generated with this crypto context");
+
+		const shared_ptr<Ciphertext<Element>> ctN = (*ciphertext)(0, 0).GetNumerator();
+
+		// need to build matrices for the result
+		shared_ptr<Plaintext> ptx = GetPlaintextForDecrypt(ctN->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
+		auto zeroPackingAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(ptx); };
+		*numerator = shared_ptr<Matrix<shared_ptr<Plaintext>>>( new Matrix<shared_ptr<Plaintext>>(zeroPackingAlloc, ciphertext->GetRows(), ciphertext->GetCols()) );
+		*denominator = shared_ptr<Matrix<shared_ptr<Plaintext>>>( new Matrix<shared_ptr<Plaintext>>(zeroPackingAlloc, ciphertext->GetRows(), ciphertext->GetCols()) );
 
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
@@ -1079,9 +1083,9 @@ public:
 
 				if (resultN.isValid == false) return resultN;
 
-				(*numerator)(row,col) = decryptedNumerator;
+				(**numerator)(row,col) = decryptedNumerator;
 
-				(*numerator)(row,col)->Decode();
+				(**numerator)(row,col)->Decode();
 
 				shared_ptr<Plaintext> decryptedDenominator = GetPlaintextForDecrypt(ctN->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
 				if( (*ciphertext)(row,col).GetIntegerFlag() == true ) {
@@ -1096,10 +1100,10 @@ public:
 
 					if (resultD.isValid == false) return resultD;
 
-					(*denominator)(row,col) = decryptedDenominator;
+					(**denominator)(row,col) = decryptedDenominator;
 				}
 
-				(*denominator)(row, col)->Decode();
+				(**denominator)(row, col)->Decode();
 
 			}
 		}
@@ -1107,7 +1111,7 @@ public:
 		if( doTiming ) {
 			timeSamples->push_back( TimingInfo(OpDecryptMatrixPlain, currentDateTime() - start) );
 		}
-		return DecryptResult((*numerator)(numerator->GetRows()-1,numerator->GetCols()-1)->GetLength());
+		return DecryptResult((**numerator)((*numerator)->GetRows()-1,(*numerator)->GetCols()-1)->GetLength());
 
 	}
 
@@ -1121,15 +1125,11 @@ public:
 	DecryptResult DecryptMatrixNumerator(
 		const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const shared_ptr<Matrix<RationalCiphertext<Element>>> ciphertext,
-		Matrix<shared_ptr<Plaintext>> *numerator) const
+		shared_ptr<Matrix<shared_ptr<Plaintext>>> *numerator) const
 	{
-
 		// edge case
 		if ((ciphertext->GetCols() == 0) && (ciphertext->GetRows() == 0))
 			return DecryptResult();
-
-		if ((ciphertext->GetCols() != numerator->GetCols()) || (ciphertext->GetRows() != numerator->GetRows()))
-			throw std::runtime_error("Ciphertext and plaintext matrices have different dimensions");
 
 		if (privateKey == NULL || Mismatched(privateKey->GetCryptoContext()))
 			throw std::runtime_error("Information passed to DecryptMatrix was not generated with this crypto context");
@@ -1137,21 +1137,24 @@ public:
 		double start = 0;
 		if (doTiming) start = currentDateTime();
 
-
 		//force all precomputations to take place in advance
 		if( Mismatched((*ciphertext)(0, 0).GetCryptoContext()) )
 			throw std::runtime_error("A ciphertext passed to DecryptMatrix was not generated with this crypto context");
 
 		const shared_ptr<Ciphertext<Element>> ctN = (*ciphertext)(0, 0).GetNumerator();
 
-		// determine which type of plaintext that you need to decrypt into
+		// need to build a numerator matrix for the result
+		shared_ptr<Plaintext> ptx = GetPlaintextForDecrypt(ctN->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
+		auto zeroPackingAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(ptx); };
+		*numerator = shared_ptr<Matrix<shared_ptr<Plaintext>>>( new Matrix<shared_ptr<Plaintext>>(zeroPackingAlloc, ciphertext->GetRows(), ciphertext->GetCols()) );
+
 		shared_ptr<Plaintext> decryptedNumerator = GetPlaintextForDecrypt(ctN->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
 		DecryptResult resultN = GetEncryptionAlgorithm()->Decrypt(privateKey, ctN, &decryptedNumerator->GetElement<Poly>());
 
 		if (resultN.isValid == false) return resultN;
 
-		(*numerator)(0, 0)->Decode();
-
+		(**numerator)(0, 0) = decryptedNumerator;
+		(**numerator)(0, 0)->Decode();
 
 		for (size_t row = 0; row < ciphertext->GetRows(); row++)
 		{
@@ -1168,7 +1171,8 @@ public:
 					shared_ptr<Plaintext> decryptedNumerator = GetPlaintextForDecrypt(ctN->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
 					GetEncryptionAlgorithm()->Decrypt(privateKey, ctN, &decryptedNumerator->GetElement<Poly>());
 
-					(*numerator)(row, col)->Decode();
+					(**numerator)(row, col) = decryptedNumerator;
+					(**numerator)(row, col)->Decode();
 				}
 
 			}
@@ -1177,7 +1181,7 @@ public:
 		if (doTiming) {
 			timeSamples->push_back(TimingInfo(OpDecryptMatrixPacked, currentDateTime() - start));
 		}
-		return DecryptResult((*numerator)(numerator->GetRows() - 1, numerator->GetCols() - 1)->GetLength());
+		return DecryptResult((**numerator)((*numerator)->GetRows() - 1, (*numerator)->GetCols() - 1)->GetLength());
 
 	}
 

@@ -377,7 +377,7 @@ void Encrypt() {
 
 		std::cout << "Encoding the data...";
 
-		auto zeroAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(); };
+		auto zeroAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(cc->MakePackedPlaintext({0})); };
 
 		Matrix<shared_ptr<Plaintext>> xP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, VECTORS, 1);
 		Matrix<shared_ptr<Plaintext>> yP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, VECTORS, 1);

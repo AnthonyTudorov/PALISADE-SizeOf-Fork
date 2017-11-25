@@ -79,8 +79,8 @@ void CircuitObject<Element>::DecryptAndPrint(shared_ptr<CryptoContext<Element>> 
 
 	case MATRIX_RAT:
 	{
-		Matrix<shared_ptr<Plaintext>> numerator([](){return make_unique<shared_ptr<Plaintext>>();},GetIntMatValue()->GetRows(),GetIntMatValue()->GetCols());
-		Matrix<shared_ptr<Plaintext>> denominator([](){return make_unique<shared_ptr<Plaintext>>();},GetIntMatValue()->GetRows(),GetIntMatValue()->GetCols());
+		shared_ptr<Matrix<shared_ptr<Plaintext>>> numerator;
+		shared_ptr<Matrix<shared_ptr<Plaintext>>> denominator;
 		cc->DecryptMatrix(key, GetIntMatValue(), &numerator, &denominator);
 
 		size_t r, c, i;
@@ -89,12 +89,12 @@ void CircuitObject<Element>::DecryptAndPrint(shared_ptr<CryptoContext<Element>> 
 			for( c=0; c < GetIntMatValue()->GetCols(); c++ ) {
 				out << "Col " << c << ": ([";
 				for( i=0; i < n && i < cc->GetRingDimension(); i++ ) {
-					out << numerator(r,c)->GetCoefPackedValue()[i] << " ";
+					out << (*numerator)(r,c)->GetCoefPackedValue()[i] << " ";
 				}
 				out << (( i == n ) ? "..." : "");
 				out << "]/[";
 				for( i=0; i < n && i < cc->GetRingDimension(); i++ ) {
-					out << denominator(r,c)->GetCoefPackedValue()[i] << " ";
+					out << (*denominator)(r,c)->GetCoefPackedValue()[i] << " ";
 				}
 				out << (( i == n ) ? "..." : "");
 				out << "])  ";

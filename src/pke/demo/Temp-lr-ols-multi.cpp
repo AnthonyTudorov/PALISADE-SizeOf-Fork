@@ -121,7 +121,7 @@ void TestLR(const string &paramDir,  const string &contextID, const string &keyD
 shared_ptr<CryptoContext<DCRTPoly>> DeserializeContext(const string& ccFileName);
 void ReadCSVFile(string dataFileName,  vector<string>& headers, vector<vector<double> >& dataColumns);
 void EncodeData(shared_ptr<CryptoContext<DCRTPoly>> cc, const std::vector<string> &headers, const vector<vector<double>>& dataColumns, Matrix<shared_ptr<Plaintext>> &x, shared_ptr<Plaintext> &y);
-void CRTInterpolate(const std::vector<Matrix<shared_ptr<Plaintext>>> &crtVector, Matrix<native_int::BigInteger> &result);
+void CRTInterpolate(const vector<shared_ptr<Matrix<shared_ptr<Plaintext>>>> &crtVector, Matrix<native_int::BigInteger> &result);
 void MatrixInverse(const Matrix<native_int::BigInteger> &in, Matrix<double> &out);
 void DecodeData(const Matrix<double> &lr, const Matrix<native_int::BigInteger>& XTX, const Matrix<native_int::BigInteger>& XTY, std::vector<double> &result);
 //template<typename T> ostream& operator<<(ostream& output, const vector<T>& vector);
@@ -1209,7 +1209,7 @@ void Encrypt(const string &paramDir,  const string &contextID, const string &key
 
 		std::cout << "Number of regressors: " << regressors << std::endl;
 
-		auto zeroAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(); };
+		auto zeroAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(cc->MakeCoefPackedPlaintext({0})); };
 
 		Matrix<shared_ptr<Plaintext>> xP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 1, regressors);
 		shared_ptr<Plaintext> yP;
@@ -1659,8 +1659,8 @@ void ComputeMultiparty(const string &paramDir,  const string &contextID, const s
 
 void TestLR(const string &paramDir,  const string &contextID, const string &keyDir1, const string &jointKeyId, const string &ctxtDir, const string &ctxId) {
 
-	std::vector<Matrix<shared_ptr<Plaintext>>> xTxCRT;
-	std::vector<Matrix<shared_ptr<Plaintext>>> xTyCRT;
+	vector<shared_ptr<Matrix<shared_ptr<Plaintext>>>> xTxCRT;
+	vector<shared_ptr<Matrix<shared_ptr<Plaintext>>>> xTyCRT;
 
 	for (size_t k = 0; k < SIZE; k++) {
 
@@ -1751,9 +1751,10 @@ void TestLR(const string &paramDir,  const string &contextID, const string &keyD
 
 		std::cout << "Decrypting matrix X^T X...";
 
-		auto zeroPackingAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(); };
+		auto zeroPackingAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(cc->MakeCoefPackedPlaintext({0})); };
 
-		Matrix<shared_ptr<Plaintext>> numeratorXTX = Matrix<shared_ptr<Plaintext>>(zeroPackingAlloc, xtx->GetRows(), xtx->GetCols());
+
+		shared_ptr<Matrix<shared_ptr<Plaintext>>> numeratorXTX;
 
 		double start, finish;
 
@@ -1799,7 +1800,7 @@ void TestLR(const string &paramDir,  const string &contextID, const string &keyD
 
 		std::cout << "Decrypting matrix X^T y...";
 
-		Matrix<shared_ptr<Plaintext>> numeratorXTY = Matrix<shared_ptr<Plaintext>>(zeroPackingAlloc, xty->GetRows(), 1);
+		shared_ptr<Matrix<shared_ptr<Plaintext>>> numeratorXTY;
 
 		start = currentDateTime();
 
@@ -2019,7 +2020,7 @@ void PartialDecrypt1(const string &paramDir,  const string &contextID, const str
 
 		ConvertMatrixInto2DVector(*xtx, vecXTX);
 		ConvertMatrixInto2DVector(*xty, vecXTY);
-
+std::cout << vecXTX.size() << "," << vecXTY.size() << endl; // FIXME
 		for (size_t i = 0; i < vecXTX.size(); i++) {
 			vecXTXDecrypted.push_back(cc->MultipartyDecryptLead(skA, vecXTX[i]));
 			vecXTYDecrypted.push_back(cc->MultipartyDecryptLead(skA, vecXTY[i]));
@@ -2260,8 +2261,8 @@ void FuseDecode(const string &paramDir, const string &contextID,
     myfile.close();
 	
 		
-	std::vector<Matrix<shared_ptr<Plaintext>>> xTxCRT;
-	std::vector<Matrix<shared_ptr<Plaintext>>> xTyCRT;
+	vector<shared_ptr<Matrix<shared_ptr<Plaintext>>>> xTxCRT;
+	vector<shared_ptr<Matrix<shared_ptr<Plaintext>>>> xTyCRT;
 
 	for (size_t k = 0; k < SIZE; k++) {
 
@@ -2375,10 +2376,10 @@ void FuseDecode(const string &paramDir, const string &contextID,
 
 		std::cout << "Fusion of partial decryptions of X^T X and X^T y...";
 
-		auto zeroAllocPlain = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(); };
+		auto zeroAllocPlain = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(cc->MakeCoefPackedPlaintext({0})); };
 
-		Matrix<shared_ptr<Plaintext>> xtxPlain = Matrix<shared_ptr<Plaintext>>(zeroAllocPlain, xtx1->GetRows(),xtx1->GetCols());
-		Matrix<shared_ptr<Plaintext>> xtyPlain = Matrix<shared_ptr<Plaintext>>(zeroAllocPlain, xty1->GetRows(), xty1->GetCols());
+		shared_ptr<Matrix<shared_ptr<Plaintext>>> xtxPlain(new Matrix<shared_ptr<Plaintext>>(zeroAllocPlain, xtx1->GetRows(),xtx1->GetCols()));
+		shared_ptr<Matrix<shared_ptr<Plaintext>>> xtyPlain(new Matrix<shared_ptr<Plaintext>>(zeroAllocPlain, xty1->GetRows(),xty1->GetCols()));
 
 		for (size_t i = 0; i < xtx1->GetRows(); i++) {
 			for (size_t j = 0; j < xtx1->GetCols(); j++) {
@@ -2390,7 +2391,7 @@ void FuseDecode(const string &paramDir, const string &contextID,
 				shared_ptr<Plaintext> tempxtx;
 				cc->MultipartyDecryptFusion(partialCiphertextVecXTX, &tempxtx);
 
-				xtxPlain(i, j) = tempxtx;
+				(*xtxPlain)(i, j) = tempxtx;
 			}
 
 		}
@@ -2404,7 +2405,7 @@ void FuseDecode(const string &paramDir, const string &contextID,
 				shared_ptr<Plaintext> tempxty;
 				cc->MultipartyDecryptFusion(partialCiphertextVecXTY, &tempxty);
 
-				xtyPlain(i, 0) = tempxty;
+				(*xtyPlain)(i, 0) = tempxty;
 
 		}
 
@@ -2609,9 +2610,10 @@ void EncodeData(shared_ptr<CryptoContext<DCRTPoly>> cc, const std::vector<string
 
 		}
 
-		x(0, i-counter) = cc->MakeCoefPackedPlaintext(xInts);
-		xInts.clear();
-
+		if( xInts.size() ) {
+			x(0, i-counter) = cc->MakeCoefPackedPlaintext(xInts);
+			xInts.clear();
+		}
 	}
 
 	y = cc->MakeCoefPackedPlaintext(yInts);
@@ -2621,9 +2623,9 @@ void EncodeData(shared_ptr<CryptoContext<DCRTPoly>> cc, const std::vector<string
 
 }
 
-void CRTInterpolate(const std::vector<Matrix<shared_ptr<Plaintext>>> &crtVector, Matrix<native_int::BigInteger> &result) {
+void CRTInterpolate(const vector<shared_ptr<Matrix<shared_ptr<Plaintext>>>> &crtVector, Matrix<native_int::BigInteger> &result) {
 
-	result.SetSize(crtVector[0].GetRows(), crtVector[0].GetCols());
+	result.SetSize(crtVector[0]->GetRows(), crtVector[0]->GetCols());
 
      	std::vector<native_int::BigInteger> q = { 40961, 59393 };
 
@@ -2642,7 +2644,7 @@ void CRTInterpolate(const std::vector<Matrix<shared_ptr<Plaintext>>> &crtVector,
 		{
 			native_int::BigInteger value = 0;
 			for (size_t i = 0; i < crtVector.size(); i++) {
-				value += ((native_int::BigInteger(crtVector[i](k,j)->GetPackedValue()[0])*qInverse[i]).Mod(q[i])*Q/q[i]).Mod(Q);
+				value += ((native_int::BigInteger((*crtVector[i])(k,j)->GetPackedValue()[0])*qInverse[i]).Mod(q[i])*Q/q[i]).Mod(Q);
 			}
 			result(k, j) = value.Mod(Q);
 		}
@@ -2951,6 +2953,7 @@ void ConvertMatrixInto2DVector(const Matrix<RationalCiphertext<DCRTPoly>> &matri
 {
 
 	vec.clear();
+	cout << "convert r,c " << matrix.GetRows() << "," << matrix.GetCols() << endl;
 
 	for (size_t i = 0; i < matrix.GetRows(); i++) {
 		for (size_t j = 0; j < matrix.GetCols(); j++)
@@ -2958,6 +2961,7 @@ void ConvertMatrixInto2DVector(const Matrix<RationalCiphertext<DCRTPoly>> &matri
 			vec.push_back(matrix(i, j).GetNumerator());
 		}
 	}
+	cout << "returning vector of size " << vec.size() << endl;
 
 }
 

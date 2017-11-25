@@ -55,25 +55,19 @@ public:
 		Plaintext(vp,ep) {}
 
 	PackedIntPlaintextEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep) :
-		Plaintext(vp,ep) {
-		throw std::logic_error("DCRTPoly not supported with PackedIntPlaintextEncoding");
-	}
+		Plaintext(vp,ep) {}
 
 	PackedIntPlaintextEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, vector<uint32_t> coeffs) :
 		Plaintext(vp,ep), value(coeffs) {}
 
 	PackedIntPlaintextEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, vector<uint32_t> coeffs) :
-		Plaintext(vp,ep), value(coeffs) {
-		throw std::logic_error("DCRTPoly not supported with PackedIntPlaintextEncoding");
-	}
+		Plaintext(vp,ep), value(coeffs) {}
 
 	PackedIntPlaintextEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, std::initializer_list<uint32_t> coeffs) :
 		Plaintext(vp,ep), value(coeffs) {}
 
 	PackedIntPlaintextEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, std::initializer_list<uint32_t> coeffs) :
-		Plaintext(vp,ep), value(coeffs) {
-		throw std::logic_error("DCRTPoly not supported with PackedIntPlaintextEncoding");
-	}
+		Plaintext(vp,ep), value(coeffs) {}
 
 	/**
 	 * @brief Constructs a container with a copy of each of the elements in rhs, in the same order.

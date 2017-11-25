@@ -119,14 +119,14 @@ main(int argc, char *argv[])
 		PalisadeCircuit<Poly>	cir(cc, driver.graph);
 
 		// construct matrix for first vector
-		Matrix<shared_ptr<Plaintext>> scalarMatrix1([](){return make_unique<shared_ptr<Plaintext>>();},
+		Matrix<shared_ptr<Plaintext>> scalarMatrix1([cc](){return make_unique<shared_ptr<Plaintext>>(cc->MakeCoefPackedPlaintext({0}));},
 				1,vectorOfInts.size());
 		for( size_t c=0; c<vectorOfInts.size(); c++ ) {
 			scalarMatrix1(0,c) = cc->MakeCoefPackedPlaintext({ vectorOfInts[c] });
 		}
 
 		// construct matrix for second vector
-		Matrix<shared_ptr<Plaintext>> scalarMatrix2([](){return make_unique<shared_ptr<Plaintext>>();},
+		Matrix<shared_ptr<Plaintext>> scalarMatrix2([cc](){return make_unique<shared_ptr<Plaintext>>(cc->MakeCoefPackedPlaintext({0}));},
 				vectorOfInts.size(), 1);
 		for( size_t r=0; r<vectorOfInts.size(); r++ ) {
 			scalarMatrix2(r,0) = cc->MakeCoefPackedPlaintext({ vectorOfInts[r] });
@@ -149,11 +149,11 @@ main(int argc, char *argv[])
 
 		for( auto& out : outputs ) {
 			auto m = out.second.GetIntMatValue();
-			Matrix<shared_ptr<Plaintext>> numerator([](){return make_unique<shared_ptr<Plaintext>>();},m->GetRows(),m->GetCols());
-			Matrix<shared_ptr<Plaintext>> denominator([](){return make_unique<shared_ptr<Plaintext>>();},m->GetRows(),m->GetCols());
+			shared_ptr<Matrix<shared_ptr<Plaintext>>> numerator;
+			shared_ptr<Matrix<shared_ptr<Plaintext>>> denominator;
 			cc->DecryptMatrix(kp.secretKey, m, &numerator, &denominator);
 
-			cout << "INNER PRODUCT IS: " << numerator(0,0)->GetCoefPackedValue()[0] << endl;
+			cout << "INNER PRODUCT IS: " << (*numerator)(0,0)->GetCoefPackedValue()[0] << endl;
 		}
 
 		cout << "Timing, using circuit eval of " << times[0].operation << ", is " << times[0].timeval << "ms" << endl;
@@ -198,7 +198,7 @@ main(int argc, char *argv[])
 		PalisadeCircuit<Poly>	cir(cc, driver.graph);
 
 		// construct bit matrix for first vector
-		Matrix<shared_ptr<Plaintext>> bitMatrix1([](){return make_unique<shared_ptr<Plaintext>>();},
+		Matrix<shared_ptr<Plaintext>> bitMatrix1([cc](){return make_unique<shared_ptr<Plaintext>>(cc->MakeIntegerPlaintext(0));},
 				1,vectorOfInts.size());
 		for( size_t c=0; c<vectorOfInts.size(); c++ ) {
 			bitMatrix1(0,c) = cc->MakeIntegerPlaintext(vectorOfInts[c]);
@@ -206,7 +206,7 @@ main(int argc, char *argv[])
 		}
 
 		// construct bit matrix for second vector
-		Matrix<shared_ptr<Plaintext>> bitMatrix2([](){return make_unique<shared_ptr<Plaintext>>();},
+		Matrix<shared_ptr<Plaintext>> bitMatrix2([cc](){return make_unique<shared_ptr<Plaintext>>(cc->MakeIntegerPlaintext(0));},
 				vectorOfInts.size(), 1);
 		for( size_t r=0; r<vectorOfInts.size(); r++ ) {
 			bitMatrix2(r,0) = cc->MakeIntegerPlaintext(vectorOfInts[r]);
@@ -230,11 +230,11 @@ main(int argc, char *argv[])
 
 		for( auto& out : outputs ) {
 			auto m = out.second.GetIntMatValue();
-			Matrix<shared_ptr<Plaintext>> numerator([](){return make_unique<shared_ptr<Plaintext>>();},m->GetRows(),m->GetCols());
-			Matrix<shared_ptr<Plaintext>> denominator([](){return make_unique<shared_ptr<Plaintext>>();},m->GetRows(),m->GetCols());
+			shared_ptr<Matrix<shared_ptr<Plaintext>>> numerator;
+			shared_ptr<Matrix<shared_ptr<Plaintext>>> denominator;
 			cc->DecryptMatrix(kp.secretKey, m, &numerator, &denominator);
 
-			cout << "INNER PRODUCT IS: " << numerator(0,0)->GetIntegerValue() << endl;
+			cout << "INNER PRODUCT IS: " << (*numerator)(0,0)->GetIntegerValue() << endl;
 		}
 
 		cout << "Timing, using circuit eval of " << times[0].operation << ", is " << times[0].timeval << "ms" << endl;

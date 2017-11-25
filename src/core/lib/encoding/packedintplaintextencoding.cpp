@@ -62,6 +62,11 @@ namespace lbcrypto {
 
 		this->Pack(&this->GetElement<Poly>(), this->encodingParams->GetPlaintextModulus());//ilVector coefficients are packed and resulting ilVector is in COEFFICIENT form.
 
+		if( this->typeFlag == IsDCRTPoly ) {
+			this->encodedVectorDCRT = this->encodedVector;
+		}
+
+
 		return true;
 	}
 

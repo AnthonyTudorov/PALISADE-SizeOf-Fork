@@ -120,7 +120,7 @@ rationalInt ArbBVLinearRegressionPackedArray() {
 	cc->EvalSumKeyGen(kp.secretKey);
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	auto zeroAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(cc->MakePackedPlaintext({0,0,0,0,0,0,0,0})); };
+	auto zeroAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(cc->MakePackedPlaintext({0})); };
 
 	Matrix<shared_ptr<Plaintext>> xP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 1, 2);
 
@@ -149,12 +149,12 @@ rationalInt ArbBVLinearRegressionPackedArray() {
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	Matrix<shared_ptr<Plaintext>> numerator = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
-	Matrix<shared_ptr<Plaintext>> denominator = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
+	shared_ptr<Matrix<shared_ptr<Plaintext>>> numerator;
+	shared_ptr<Matrix<shared_ptr<Plaintext>>> denominator;
 
 	cc->DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
 
-	rationalInt output(numerator(0, 0)->GetPackedValue()[0], denominator(0, 0)->GetPackedValue()[0]);
+	rationalInt output((*numerator)(0, 0)->GetPackedValue()[0], (*denominator)(0, 0)->GetPackedValue()[0]);
 
 	return output;
 
@@ -247,12 +247,12 @@ rationalInt ArbFVLinearRegressionPackedArray() {
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	Matrix<shared_ptr<Plaintext>> numerator = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
-	Matrix<shared_ptr<Plaintext>> denominator = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
+	shared_ptr<Matrix<shared_ptr<Plaintext>>> numerator;
+	shared_ptr<Matrix<shared_ptr<Plaintext>>> denominator;
 
 	cc->DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
 
-	rationalInt output(numerator(0, 0)->GetPackedValue()[0], denominator(0, 0)->GetPackedValue()[0]);
+	rationalInt output((*numerator)(0, 0)->GetPackedValue()[0], (*denominator)(0, 0)->GetPackedValue()[0]);
 
 	return output;
 }

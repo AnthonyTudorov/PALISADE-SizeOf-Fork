@@ -61,8 +61,8 @@ shared_ptr<CryptoContext<DCRTPoly>> DeserializeContextWithEvalKeys(const string&
 void ReadCSVFile(string dataFileName, vector<string>& headers, vector<vector<double> >& dataColumns);
 void EncodeData(shared_ptr<CryptoContext<DCRTPoly>> cc, const vector<vector<double> >& dataColumns,
                 Matrix<shared_ptr<Plaintext>>& x,
-				shared_ptr<Plaintext>& y);
-void CRTInterpolate(const std::vector<Matrix<shared_ptr<Plaintext>> >& crtVector,
+				shared_ptr<Plaintext>* y);
+void CRTInterpolate(const vector<shared_ptr<Matrix<shared_ptr<Plaintext>>>>& crtVector,
                     Matrix<native_int::BigInteger>& result);
 void MatrixInverse(const Matrix<native_int::BigInteger>& in, Matrix<double>& out, uint32_t numRegressors);
 void DecodeData(const Matrix<double>& lr, const Matrix<native_int::BigInteger>& XTX, const Matrix<native_int::BigInteger>& XTY, std::vector<double>& result);
@@ -402,12 +402,12 @@ void Encrypt(string keyDir,
 
     std::cout << "Encoding the data...";
 
-    auto zeroAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(); };
+	auto zeroAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(cc->MakePackedPlaintext({0})); };
 
     Matrix<shared_ptr<Plaintext>> xP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 1, numRegressors);
     shared_ptr<Plaintext> yP;
 
-    EncodeData(cc, dataColumns, xP, yP);
+    EncodeData(cc, dataColumns, xP, &yP);
 
     // std::cout << " xp = " << xP(0,0) << std::endl;
     // std::cout << " yp = " << yP << std::endl;
@@ -709,8 +709,8 @@ void Decrypt(string keyDir,
 	cout<<"Num Regressors: " << numRegressors << endl;
 	cout<<"REGRESSORS: " << REGRESSORS << endl;
 	
-    std::vector<Matrix<shared_ptr<Plaintext>> > xTxCRT;
-    std::vector<Matrix<shared_ptr<Plaintext>> > xTyCRT;
+    vector<shared_ptr<Matrix<shared_ptr<Plaintext>>>> xTxCRT;
+    vector<shared_ptr<Matrix<shared_ptr<Plaintext>>>> xTyCRT;
 
     for(size_t k = 0; k < SIZE; k++) {
 
@@ -775,10 +775,9 @@ void Decrypt(string keyDir,
 
 	std::cout << "Decrypting matrix X^T X...";
 
-	auto zeroPackingAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(); };
+	auto zeroPackingAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(cc->MakePackedPlaintext({0})); };
 
-	Matrix<shared_ptr<Plaintext>> numeratorXTX =
-	    Matrix<shared_ptr<Plaintext>>(zeroPackingAlloc, numRegressors, numRegressors);
+	shared_ptr<Matrix<shared_ptr<Plaintext>>> numeratorXTX;
 
 	double start, finish;
 
@@ -825,8 +824,7 @@ void Decrypt(string keyDir,
 
 	std::cout << "Decrypting matrix X^T y...";
 
-	Matrix<shared_ptr<Plaintext>> numeratorXTY =
-	    Matrix<shared_ptr<Plaintext>>(zeroPackingAlloc, numRegressors, 1);
+	shared_ptr<Matrix<shared_ptr<Plaintext>>> numeratorXTY;
 
 	start = currentDateTime();
 
@@ -853,7 +851,7 @@ void Decrypt(string keyDir,
 
     std::cout << "\nCLEARTEXT OPERATIONS\n" << std::endl;
 
-    std::cout << "CRT Interpolation to transform to large plainext modulus...";
+    std::cout << "CRT Interpolation to transform to large plaintext modulus...";
 
     shared_ptr<Matrix<native_int::BigInteger> > XTX(new Matrix<native_int::BigInteger>(zeroAlloc64));
     shared_ptr<Matrix<native_int::BigInteger> > XTY(new Matrix<native_int::BigInteger>(zeroAlloc64));
@@ -1047,36 +1045,36 @@ void ReadCSVFile(string dataFileName, vector<string>& headers, vector<vector<dou
 void EncodeData(shared_ptr<CryptoContext<DCRTPoly>> cc,
 		const vector<vector<double> >& dataColumns,
 		Matrix<shared_ptr<Plaintext>>& x,
-		shared_ptr<Plaintext>& y)
+		shared_ptr<Plaintext>* y)
 {
 	shared_ptr<Plaintext> ptx;
 	vector<vector<uint32_t>> xmat;
 	vector<uint32_t> yvec;
 
+	for(size_t i = 0; i < dataColumns.size(); i++)
+		xmat.push_back({});
+
 	// i corresponds to columns
 	for(size_t i = 0; i < dataColumns.size(); i++) {
 		// k corresponds to rows
-		cout<<i<<endl;
 		for(size_t k = 0; k < dataColumns[i].size(); k++) {
-			uint32_t value = dataColumns[i][k];
-
 			switch(i) {
 			case 0:
 				xmat[i].push_back(1);
 				break;
 
 			case 1:
-				yvec.push_back(value);
+				yvec.push_back(dataColumns[i][k]);
 				break;
 
 			default:
-				xmat[i - 1].push_back(value);
+				xmat[i - 1].push_back(dataColumns[i][k]);
 				break;
 			}
 		}
 	}
 
-	y = cc->MakePackedPlaintext(yvec);
+	*y = cc->MakePackedPlaintext(yvec);
 	for(size_t i=0; i < dataColumns.size()-1; i++ )
 		x(0,i) = cc->MakePackedPlaintext(xmat[i]);
 
@@ -1084,11 +1082,11 @@ void EncodeData(shared_ptr<CryptoContext<DCRTPoly>> cc,
 	// std::cout << x(0, 7) << std::endl;
 }
 
-void CRTInterpolate(const std::vector<Matrix<shared_ptr<Plaintext>> >& crtVector,
+void CRTInterpolate(const vector<shared_ptr<Matrix<shared_ptr<Plaintext>>>>& crtVector,
 		Matrix<native_int::BigInteger>& result)
 {
 
-	result.SetSize(crtVector[0].GetRows(), crtVector[0].GetCols());
+	result.SetSize(crtVector[0]->GetRows(), crtVector[0]->GetCols());
 
 	std::vector<native_int::BigInteger> q = { 40961, 59393 };
 
@@ -1107,7 +1105,7 @@ void CRTInterpolate(const std::vector<Matrix<shared_ptr<Plaintext>> >& crtVector
 			native_int::BigInteger value = 0;
 			for(size_t i = 0; i < crtVector.size(); i++) {
 				// std::cout << crtVector[i](k,j)[0] <<std::endl;
-				value += ((native_int::BigInteger(crtVector[i](k, j)->GetIntegerValue()) * qInverse[i]).Mod(q[i]) * Q / q[i]).Mod(Q);
+				value += ((native_int::BigInteger((*crtVector[i])(k, j)->GetPackedValue()[0]) * qInverse[i]).Mod(q[i]) * Q / q[i]).Mod(Q);
 			}
 			result(k, j) = value.Mod(Q);
 		}

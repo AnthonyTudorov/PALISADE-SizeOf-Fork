@@ -66,8 +66,8 @@ class Plaintext
 {
 protected:
 	bool								isEncoded;
-	enum { IsPoly, IsDCRTPoly }			typeFlag;
-	shared_ptr<EncodingParams>			encodingParams;
+	enum { IsPoly, IsDCRTPoly }		typeFlag;
+	shared_ptr<EncodingParams>		encodingParams;
 	Poly								encodedVector;
 	DCRTPoly							encodedVectorDCRT;
 
@@ -81,8 +81,8 @@ public:
 	virtual ~Plaintext() {}
 
 	/**
-	 * GetEncodingTyoe
-	 * @return Encoding type used by the class
+	 * GetEncodingType
+	 * @return Encoding type used by this plaintext
 	 */
 	virtual PlaintextEncodings GetEncodingType() const = 0;
 
@@ -91,6 +91,12 @@ public:
 	 * @return true when encoding is done
 	 */
 	bool IsEncoded() const { return isEncoded; }
+
+	/**
+	 * GetEncodingParams
+	 * @return Encoding params used with this plaintext
+	 */
+	const shared_ptr<EncodingParams> GetEncodingParams() const { return encodingParams; }
 
 	/**
 	 * Encode the plaintext into a polynomial
@@ -224,6 +230,16 @@ inline std::ostream& operator<<(std::ostream& out, const Plaintext& item)
 	item.PrintValue(out);
 	return out;
 }
+
+inline std::ostream& operator<<(std::ostream& out, const shared_ptr<Plaintext> item)
+{
+	item->PrintValue(out);
+	return out;
+}
+
+inline bool operator==(const shared_ptr<Plaintext> p1, const shared_ptr<Plaintext> p2) { return *p1 == *p2;}
+
+inline bool operator!=(const shared_ptr<Plaintext> p1, const shared_ptr<Plaintext> p2) { return *p1 != *p2;}
 
 /**
  * GetElement

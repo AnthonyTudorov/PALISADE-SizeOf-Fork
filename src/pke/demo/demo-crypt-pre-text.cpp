@@ -132,6 +132,11 @@ int main(int argc, char *argv[])
 	cc->Enable(SHE);
 	cc->Enable(PRE);
 
+	if( cc->GetEncodingParams()->GetPlaintextModulus() != 256 ) {
+		cout << "This program requires a parameter set with a plaintext modulus of 256, sorry!" << endl;
+		return 1;
+	}
+
 	// The largest possible plaintext is the size of the ring
 	size_t ptsize = cc->GetRingDimension();
 
@@ -266,6 +271,18 @@ int main(int argc, char *argv[])
 
 	if( plaintext != plaintextNew2 ) {
 		cout << "Mismatch on decryption of PRE ciphertext" << endl;
+		if( plaintext->GetEncodingType() != plaintextNew2->GetEncodingType() )
+			cout << "encoding" << endl;
+
+		if( plaintext->GetEncodingParams() != plaintextNew2->GetEncodingParams() )
+			cout << "params" << endl;
+
+		if( plaintext->GetLength() != plaintextNew2->GetLength() )
+			cout << "len" << endl;
+
+		for( size_t i=0; i<plaintext->GetLength(); i++ )
+			if( plaintext->GetStringValue().at(i) != plaintextNew2->GetStringValue().at(i) )
+				cout << "mismatch at " << i << endl;
 		return 1;
 	}
 

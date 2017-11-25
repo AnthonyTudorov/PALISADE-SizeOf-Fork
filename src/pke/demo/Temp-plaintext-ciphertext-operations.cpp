@@ -333,7 +333,7 @@ void BVEvalMultPlain() {
 	//Set the parameters
 
 	usint m = 22;
-	usint p = 16787;
+	usint p = 89;//16787;
 
 	BigInteger modulusP(p);
 

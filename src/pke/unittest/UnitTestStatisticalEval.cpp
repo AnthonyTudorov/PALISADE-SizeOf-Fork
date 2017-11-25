@@ -73,7 +73,7 @@ TEST_F(UTStatisticalEval, Null_Eval_Lin_Regression) {
 
 	// Set the plaintext matrices
 
-	auto zeroAlloc = [=]() { return make_unique<shared_ptr<Plaintext>>(); };
+	auto zeroAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(cc->MakeCoefPackedPlaintext({0})); };
 
 	Matrix<shared_ptr<Plaintext>> xP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 2);
 
@@ -122,8 +122,8 @@ TEST_F(UTStatisticalEval, Null_Eval_Lin_Regression) {
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	Matrix<shared_ptr<Plaintext>> numerator = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
-	Matrix<shared_ptr<Plaintext>> denominator = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
+	shared_ptr<Matrix<shared_ptr<Plaintext>>> numerator;
+	shared_ptr<Matrix<shared_ptr<Plaintext>>> denominator;
 
 	cc->DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
 
@@ -138,10 +138,10 @@ TEST_F(UTStatisticalEval, Null_Eval_Lin_Regression) {
 	std::vector<uint32_t> denominatorExpected = { 0, 0, 4, 4, 5, 10, 5, 12, 12, 10, 12, 6, 8, 4, 5, 2, 1, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-	EXPECT_EQ(numerator1, numerator(0, 0)->GetCoefPackedValue());
-	EXPECT_EQ(numerator2, numerator(1, 0)->GetCoefPackedValue());
-	EXPECT_EQ(denominatorExpected, denominator(0, 0)->GetCoefPackedValue());
-	EXPECT_EQ(denominatorExpected, denominator(1, 0)->GetCoefPackedValue());
+	EXPECT_EQ(numerator1, (*numerator)(0, 0)->GetCoefPackedValue());
+	EXPECT_EQ(numerator2, (*numerator)(1, 0)->GetCoefPackedValue());
+	EXPECT_EQ(denominatorExpected, (*denominator)(0, 0)->GetCoefPackedValue());
+	EXPECT_EQ(denominatorExpected, (*denominator)(1, 0)->GetCoefPackedValue());
 
 }
 
@@ -206,8 +206,8 @@ TEST_F(UTStatisticalEval, Null_Eval_Lin_Regression_Int) {
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	Matrix<shared_ptr<Plaintext>> numerator = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
-	Matrix<shared_ptr<Plaintext>> denominator = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
+	shared_ptr<Matrix<shared_ptr<Plaintext>>> numerator;
+	shared_ptr<Matrix<shared_ptr<Plaintext>>> denominator;
 
 	cc->DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
 
@@ -219,10 +219,10 @@ TEST_F(UTStatisticalEval, Null_Eval_Lin_Regression_Int) {
 	uint32_t numerator2 = 6193600;
 	uint32_t denominatorExpected = 313600;
 
-	EXPECT_EQ((int32_t)numerator1, (int32_t)numerator(0, 0)->GetIntegerValue()) << "numerator(0,0) mismatch";
-	EXPECT_EQ(numerator2, numerator(1, 0)->GetIntegerValue()) << "numerator(1,0) mismatch";
-	EXPECT_EQ(denominatorExpected, denominator(0, 0)->GetIntegerValue()) << "denominator(0,0) mismatch";
-	EXPECT_EQ(denominatorExpected, denominator(1, 0)->GetIntegerValue()) << "denominator(1,0) mismatch";
+	EXPECT_EQ((int32_t)numerator1, (int32_t)(*numerator)(0, 0)->GetIntegerValue()) << "numerator(0,0) mismatch";
+	EXPECT_EQ(numerator2, (*numerator)(1, 0)->GetIntegerValue()) << "numerator(1,0) mismatch";
+	EXPECT_EQ(denominatorExpected, (*denominator)(0, 0)->GetIntegerValue()) << "denominator(0,0) mismatch";
+	EXPECT_EQ(denominatorExpected, (*denominator)(1, 0)->GetIntegerValue()) << "denominator(1,0) mismatch";
 
 }
 
@@ -287,8 +287,8 @@ TEST_F(UTStatisticalEval, FV_Eval_Lin_Regression_Int) {
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	Matrix<shared_ptr<Plaintext>> numerator = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
-	Matrix<shared_ptr<Plaintext>> denominator = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
+	shared_ptr<Matrix<shared_ptr<Plaintext>>> numerator;
+	shared_ptr<Matrix<shared_ptr<Plaintext>>> denominator;
 
 	cc->DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
 
@@ -300,10 +300,10 @@ TEST_F(UTStatisticalEval, FV_Eval_Lin_Regression_Int) {
 	uint32_t numerator2 = 6193600;
 	uint32_t denominatorExpected = 313600;
 
-	EXPECT_EQ((int32_t)numerator1, (int32_t)numerator(0, 0)->GetIntegerValue());
-	EXPECT_EQ(numerator2, numerator(1, 0)->GetIntegerValue());
-	EXPECT_EQ(denominatorExpected, denominator(0, 0)->GetIntegerValue());
-	EXPECT_EQ(denominatorExpected, denominator(1, 0)->GetIntegerValue());
+	EXPECT_EQ((int32_t)numerator1, (int32_t)(*numerator)(0, 0)->GetIntegerValue());
+	EXPECT_EQ(numerator2, (*numerator)(1, 0)->GetIntegerValue());
+	EXPECT_EQ(denominatorExpected, (*denominator)(0, 0)->GetIntegerValue());
+	EXPECT_EQ(denominatorExpected, (*denominator)(1, 0)->GetIntegerValue());
 
 }
 
