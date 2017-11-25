@@ -144,45 +144,95 @@ namespace lbcrypto {
 			*/
 			bool PrecomputeCRTTables();
 
+			/**
+			* Gets Auxiliary CRT basis S=s1*s2*..sn used in homomorphic multiplication
+			*
+			* @return the precomputed CRT basis
+			*/
 			const shared_ptr<ILDCRTParams<BigInteger>> GetDCRTParamsS() const { return m_paramsS; }
 
+			/**
+			* Auxiliary expanded CRT basis Q*S = v1*v2*...*vn used in homomorphic multiplication
+			*
+			* @return the precomputed CRT basis
+			*/
 			const shared_ptr<ILDCRTParams<BigInteger>> GetDCRTParamsQS() const { return m_paramsQS; }
 
 			/**
-			* Gets the precomputed table of [(q/qi)^{-1}]_qi / qi
+			* Gets the precomputed table of ((p*[(Q/qi)^{-1}]_qi)%qi)/qi
 			*
 			* @return the precomputed table
 			*/
 			const std::vector<double>& GetCRTDecryptionFloatTable() const { return m_CRTDecryptionFloatTable; }
 
+			/**
+			* Gets the precomputed table of floor[(p*[(Q/qi)^{-1}]_qi)/qi]_p
+			*
+			* @return the precomputed table
+			*/
 			const std::vector<native_int::BigInteger>& GetCRTDecryptionIntTable() const { return m_CRTDecryptionIntTable; }
 
 			/**
-			* Gets the precomputed table of delta mod qi
+			* Gets the precomputed table of floor(Q/p) mod qi
 			*
 			* @return the precomputed table
 			*/
 			const std::vector<native_int::BigInteger>& GetCRTDeltaTable() const { return m_CRTDeltaTable; }
 
 			/**
-			* Gets the precomputed table of (q/qi)^{-1} mod qi
+			* Gets the precomputed table of (Q/qi)^{-1} mod qi
 			*
 			* @return the precomputed table
 			*/
 			const std::vector<native_int::BigInteger>& GetCRTInverseTable() const { return m_CRTInverseTable; }
 
+			/**
+			* Gets the precomputed table of (Q/qi) mod si
+			*
+			* @return the precomputed table
+			*/
 			const std::vector<std::vector<native_int::BigInteger>>& GetCRTqDivqiModsiTable() const { return m_CRTqDivqiModsiTable; }
 
+			/**
+			* Gets the precomputed table of Q mod si
+			*
+			* @return the precomputed table
+			*/
 			const std::vector<native_int::BigInteger>& GetCRTqModsiTable() const { return m_CRTqModsiTable; }
 
+			/**
+			* Gets the precomputed table of [p*S*(Q*S/vi)^{-1}]_vi / vi
+			*
+			* @return the precomputed table
+			*/
 			const std::vector<double>& GetCRTMultFloatTable() const { return m_CRTMultFloatTable; }
 
+			/**
+			* Gets the precomputed table of floor[p*S*[(Q*S/vi)^{-1}]_vi/vi] mod si
+			*
+			* @return the precomputed table
+			*/
 			const std::vector<std::vector<native_int::BigInteger>>& GetCRTMultIntTable() const { return m_CRTMultIntTable; }
 
+			/**
+			* Gets the precomputed table of (S/si)^{-1} mod si
+			*
+			* @return the precomputed table
+			*/
 			const std::vector<native_int::BigInteger>& GetCRTSInverseTable() const { return m_CRTSInverseTable; }
 
+			/**
+			* Gets the precomputed table of (S/si) mod qi table
+			*
+			* @return the precomputed table
+			*/
 			const std::vector<std::vector<native_int::BigInteger>>& GetCRTsDivsiModqiTable() const { return m_CRTsDivsiModqiTable; }
 
+			/**
+			* Gets the precomputed table of S mod qi table
+			*
+			* @return the precomputed table
+			*/
 			const std::vector<native_int::BigInteger>& GetCRTsModqiTable() const { return m_CRTsModqiTable; }
 
 			/**
@@ -204,40 +254,43 @@ namespace lbcrypto {
 
 		private:
 
+			// Auxiliary CRT basis S=s1*s2*..sn used in homomorphic multiplication
 			shared_ptr<ILDCRTParams<BigInteger>> m_paramsS;
 
+			// Auxiliary expanded CRT basis Q*S = v1*v2*...*vn used in homomorphic multiplication
 			shared_ptr<ILDCRTParams<BigInteger>> m_paramsQS;
 
-			// DCRTPoly decryption ratios; stores a precomputed table of [(q/qi)^{-1}]_qi / qi
+			// Stores a precomputed table of ((p*[(Q/qi)^{-1}]_qi)%qi)/qi
 			std::vector<double> m_CRTDecryptionFloatTable;
 
+			// Stores a precomputed table of floor[(p*[(Q/qi)^{-1}]_qi)/qi]_p
 			std::vector<native_int::BigInteger> m_CRTDecryptionIntTable;
 
-			// DCRTPoly delta table; stores precomputed floor(q/p) mod qi
+			// Stores a precomputed table of floor(Q/p) mod qi
 			std::vector<native_int::BigInteger> m_CRTDeltaTable;
 
-			// DCRTPoly - precomputed (q/qi)^{-1} mod qi table
+			// Stores a precomputed table of (Q/qi)^{-1} mod qi
 			std::vector<native_int::BigInteger> m_CRTInverseTable;
 
-			// DCRTPoly - precomputed (q/qi) mod si table
+			// Stores a precomputed table of (Q/qi) mod si
 			std::vector<std::vector<native_int::BigInteger>> m_CRTqDivqiModsiTable;
 
-			// DCRTPoly - precomputed q mod si table
+			// Stores a precomputed table of Q mod si
 			std::vector<native_int::BigInteger> m_CRTqModsiTable;
 
-			// DCRTPoly - precomputed Floor[p*S*[(Q*S/vi)^{-1}]_vi/vi] mod si table
+			// Stores a precomputed table of floor[p*S*[(Q*S/vi)^{-1}]_vi/vi] mod si
 			std::vector<std::vector<native_int::BigInteger>> m_CRTMultIntTable;
 
-			// DCRTPoly - stores a precomputed table of [p*S*(Q*S/vi)^{-1}]_vi / vi
+			// Stores a precomputed table of [p*S*(Q*S/vi)^{-1}]_vi / vi
 			std::vector<double> m_CRTMultFloatTable;
 
-			// DCRTPoly - precomputed (S/si)^{-1} mod si table
+			// Stores a precomputed table of (S/si)^{-1} mod si
 			std::vector<native_int::BigInteger> m_CRTSInverseTable;
 
-			// DCRTPoly - precomputed (S/si) mod qi table
+			// Stores a precomputed table of (S/si) mod qi table
 			std::vector<std::vector<native_int::BigInteger>> m_CRTsDivsiModqiTable;
 
-			// DCRTPoly - precomputed S mod qi table
+			// Stores a precomputed table of S mod qi table
 			std::vector<native_int::BigInteger> m_CRTsModqiTable;
 
 	};

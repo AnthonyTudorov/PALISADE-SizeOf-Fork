@@ -29,7 +29,7 @@
 
 namespace lbcrypto {
 
-// Parameter generation for FV-RNS
+// Precomputation of CRT tables encryption, decryption, and homomorphic multiplication
 template <>
 bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 
@@ -45,16 +45,12 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 		roots[i] = GetElementParams()->GetParams()[i]->GetRootOfUnity();
 	}
 
-	// compute the second set of DCRTPoly parameters
-
-	//std::cout << "starting paramsS generation" << std::endl;
+	// computes the auxiliary CRT basis S=s1*s2*..sn used in homomorphic multiplication
 
 	size_t sizeS = size + 1;
 
 	vector<native_int::BigInteger> moduliS(sizeS);
 	vector<native_int::BigInteger> rootsS(sizeS);
-
-	//std::cout << "modulus = " << moduli[size-1] << std::endl;
 
 	moduliS[0] = NextPrime<native_int::BigInteger>(moduli[size-1], 2 * n);
 	rootsS[0] = RootOfUnity<native_int::BigInteger>(2 * n, moduliS[0]);
@@ -67,9 +63,7 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 
 	m_paramsS = shared_ptr<ILDCRTParams<BigInteger>>(new ILDCRTParams<BigInteger>(2 * n, moduliS, rootsS));
 
-	//std::cout << "finished paramsS generation" << std::endl;
-
-	// store the parameters for the CRT basis Q*S
+	// stores the parameters for the auxiliary expanded CRT basis Q*S = v1*v2*...*vn used in homomorphic multiplication
 
 	vector<native_int::BigInteger> moduliExpanded(size + sizeS);
 	vector<native_int::BigInteger> rootsExpanded(size + sizeS);
@@ -88,7 +82,7 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 
 	m_paramsQS = shared_ptr<ILDCRTParams<BigInteger>>(new ILDCRTParams<BigInteger>(2 * n, moduliExpanded, rootsExpanded));
 
-	//compute the table of floating-point factors for decryption
+	//compute the table of floating-point factors ((p*[(Q/qi)^{-1}]_qi)%qi)/qi - used in decryption
 
 	std::vector<double> CRTDecryptionFloatTable(size);
 
@@ -101,7 +95,7 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 
 	m_CRTDecryptionFloatTable = CRTDecryptionFloatTable;
 
-	//compute the table of integer factors for decryption
+	//compute the table of integer factors floor[(p*[(Q/qi)^{-1}]_qi)/qi]_p - used in decryption
 
 	std::vector<native_int::BigInteger> qDecryptionInt(size);
 	for( usint vi = 0 ; vi < size; vi++ ) {
@@ -113,7 +107,7 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 
 	m_CRTDecryptionIntTable = qDecryptionInt;
 
-	//compute the CRT delta table for encryption
+	//compute the CRT delta table floor(Q/p) mod qi - used for encryption
 
 	const BigInteger deltaBig = modulusQ.DividedBy(GetPlaintextModulus());
 
@@ -129,7 +123,7 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 
 	m_CRTDeltaTable = CRTDeltaTable;
 
-	//compute the (q/qi)^{-1} mod qi table
+	//compute the (Q/qi)^{-1} mod qi table - used for homomorphic multiplication
 
 	std::vector<native_int::BigInteger> qInv(size);
 	for( usint vi = 0 ; vi < size; vi++ ) {
@@ -140,7 +134,7 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 
 	m_CRTInverseTable = qInv;
 
-	//std::cout << "generated the inverse table" << std::endl;
+	// compute the (Q/qi) mod si table - used for homomorphic multiplication
 
 	std::vector<std::vector<native_int::BigInteger>> qDivqiModsi(sizeS);
 	for( usint newvIndex = 0 ; newvIndex < sizeS; newvIndex++ ) {
@@ -154,7 +148,7 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 
 	m_CRTqDivqiModsiTable = qDivqiModsi;
 
-	//std::cout << "generated the qDivquModsi table" << std::endl;
+	// compute the Q mod si table - used for homomorphic multiplication
 
 	std::vector<native_int::BigInteger> qModsi(sizeS);
 	for( usint vi = 0 ; vi < sizeS; vi++ ) {
@@ -164,7 +158,7 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 
 	m_CRTqModsiTable = qModsi;
 
-	//std::cout << "generated the qModsi table" << std::endl;
+	// compute the [p*S*(Q*S/vi)^{-1}]_vi / vi table - used for homomorphic multiplication
 
 	std::vector<double> precomputedDCRTMultFloatTable(size + sizeS);
 
@@ -181,7 +175,7 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 
 	m_CRTMultFloatTable = precomputedDCRTMultFloatTable;
 
-	//std::cout << "generated the MultFloat table" << std::endl;
+	// compute the floor[p*S*[(Q*S/vi)^{-1}]_vi/vi] mod si table - used for homomorphic multiplication
 
 	std::vector<std::vector<native_int::BigInteger>> multInt(size+sizeS);
 	for( usint newvIndex = 0 ; newvIndex < sizeS; newvIndex++ ) {
@@ -196,7 +190,7 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 
 	m_CRTMultIntTable = multInt;
 
-	//std::cout << "generated the MultInt table" << std::endl;
+	// compute the (S/si)^{-1} mod si table - used for homomorphic multiplication
 
 	std::vector<native_int::BigInteger> sInv(sizeS);
 	for( usint vi = 0 ; vi < sizeS; vi++ ) {
@@ -207,7 +201,7 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 
 	m_CRTSInverseTable = sInv;
 
-	//std::cout << "generated the inverse table" << std::endl;
+	// compute (S/si) mod qi table - used for homomorphic multiplication
 
 	std::vector<std::vector<native_int::BigInteger>> sDivsiModqi(size);
 	for( usint newvIndex = 0 ; newvIndex < size; newvIndex++ ) {
@@ -221,7 +215,7 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 
 	m_CRTsDivsiModqiTable = sDivsiModqi;
 
-	//std::cout << "generated the sDivsiModqi table" << std::endl;
+	// compute S mod qi table - used for homomorphic multiplication
 
 	std::vector<native_int::BigInteger> sModqi(size);
 	for( usint vi = 0 ; vi < size; vi++ ) {
@@ -230,8 +224,6 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 	}
 
 	m_CRTsModqiTable = sModqi;
-
-	//std::cout << "generated the sModqi table" << std::endl;
 
 	return true;
 
@@ -393,8 +385,6 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 	shared_ptr<ILDCRTParams<BigInteger>> params(new ILDCRTParams<BigInteger>(2 * n, moduli, roots));
 
 	cryptoParamsBFVrns->SetElementParams(params);
-
-	//std::cout << "Finished parameter generation" << std::endl;
 
 	return cryptoParamsBFVrns->PrecomputeCRTTables();
 

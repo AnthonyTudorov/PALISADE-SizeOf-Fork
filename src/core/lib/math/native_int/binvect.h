@@ -1,5 +1,5 @@
 /**
- * @file binvect.h This file contains the vector manipulation functionality.
+ * @file binvect.h This file contains the vector manipulation functionality for native integers.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -45,7 +45,7 @@ namespace native_int {
 
 
 /**
- * @brief The class for representing vectors of big binary integers.
+ * @brief The class for representing vectors of native integers.
  */
 	//JSON FACILITY INHERITANCE
 	template <class IntegerType>
@@ -66,14 +66,14 @@ public:
 	/**
 	 * Basic constructor for specifying the length of the vector.
 	 *
-	 * @param length is the length of the big binary vector, in terms of the number of entries.	  	  
+	 * @param length is the length of the native vector, in terms of the number of entries.
 	 */
 	BigVectorImpl(usint length);
 
 	/**
 	 * Basic constructor for specifying the length of the vector and the modulus.
 	 *
-	 * @param length is the length of the big binary vector, in terms of the number of entries.	
+	 * @param length is the length of the native vector, in terms of the number of entries.
 	 * @param modulus is the modulus of the ring.
 	 */
 	BigVectorImpl(usint length, const IntegerType& modulus);
@@ -82,7 +82,7 @@ public:
 	 * Basic constructor for specifying the length of the vector
 	 * the modulus and an initializer list.
 	 *
-	 * @param length is the length of the big binary vector, in terms of the number of entries.	
+	 * @param length is the length of the native vector, in terms of the number of entries.
 	 * @param modulus is the modulus of the ring.
 	 * @param rhs is an initializer list of usint
 	 */
@@ -92,7 +92,7 @@ public:
 	 * Basic constructor for specifying the length of the vector
 	 * the modulus and an initializer list.
 	 *
-	 * @param length is the length of the big binary vector, in terms of the number of entries.	
+	 * @param length is the length of the native vector, in terms of the number of entries.
 	 * @param modulus is the modulus of the ring.
 	 * @param rhs is an initializer list of strings
 	 */
@@ -103,21 +103,21 @@ public:
 	/**
 	 * Basic constructor for copying a vector
 	 *
-	 * @param bigVector is the big binary vector to be copied.  	  
+	 * @param bigVector is the native vector to be copied.
 	 */
 	BigVectorImpl(const BigVectorImpl& bigVector);
 
 	/**
 	 * Basic move constructor for moving a vector
 	 *
-	 * @param &&bigVector is the big binary vector to be moved.  	  
+	 * @param &&bigVector is the native vector to be moved.
 	 */
 	BigVectorImpl(BigVectorImpl &&bigVector);//move copy constructor
 
 	/**
 	* Assignment operator to assign value from rhs
 	*
-	* @param &rhs is the big binary vector to be assigned from.
+	* @param &rhs is the native vector to be assigned from.
 	* @return Assigned BigVectorImpl.	  
 	*/
 	const BigVectorImpl& operator=(const BigVectorImpl &rhs);
@@ -125,7 +125,7 @@ public:
 	/**
 	* Move assignment operator
 	*
-	* @param &&rhs is the big binary vector to be moved.
+	* @param &&rhs is the native vector to be moved.
 	* @return moved BigVectorImpl object  
 	*/
 	BigVectorImpl&  operator=(BigVectorImpl &&rhs);
@@ -346,7 +346,7 @@ public:
 	BigVectorImpl ModSub(const IntegerType &b) const;
 
 	/**
-	 * Scalar modular multiplication. Generalized Barrett modulo reduction algorithm. 
+	 * Scalar modular multiplication.
 	 * See the comments in the cpp files for details of the implementation.
 	 *
 	 * @param &b is the scalar to multiply at all locations.
