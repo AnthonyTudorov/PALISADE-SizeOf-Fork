@@ -145,13 +145,14 @@ typedef NTL::myZZ ubint;
 #endif
 
 ////////// for native int
-#include "native_int/binint.h"
+#include "native_int/binint.cpp"
+#include "native_int/binvect.cpp"
 #include <initializer_list>
 #define MATH_NATIVEBITS	64
 
 namespace native_int {
 typedef NativeInteger<uint64_t> BigInteger;
-typedef cpu_int::BigVectorImpl<NativeInteger<uint64_t>> BigVector;
+typedef BigVectorImpl<NativeInteger<uint64_t>> BigVector;
 }
 
 /**

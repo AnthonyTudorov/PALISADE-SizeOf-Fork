@@ -167,6 +167,29 @@ PolyImpl<ModType,IntType,VecType,ParmType>::PolyImpl(const TernaryUniformGenerat
 		}
 	}
 
+	template<typename ModType, typename IntType, typename VecType, typename ParmType>
+	PolyImpl<ModType,IntType,VecType,ParmType>::PolyImpl(
+			const PolyNative &rhs, Format format)
+	{
+
+		m_format = rhs.GetFormat();
+
+		m_params = shared_ptr<ParmType>(new ParmType(rhs.GetParams()->GetCyclotomicOrder(),
+				rhs.GetParams()->GetModulus().ConvertToInt(),rhs.GetParams()->GetRootOfUnity().ConvertToInt()));
+
+		VecType temp(m_params->GetCyclotomicOrder() / 2);
+		temp.SetModulus(m_params->GetModulus());
+
+		for (size_t i = 0; i < rhs.GetLength(); i++)
+			temp[i] = (rhs.GetValues())[i].ConvertToInt();
+
+		this->SetValues(std::move(temp), rhs.GetFormat());
+
+		if (format != rhs.GetFormat())
+			SwitchFormat();
+
+	}
+
 	//this is the move
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 PolyImpl<ModType,IntType,VecType,ParmType>::PolyImpl(PolyImpl &&element, shared_ptr<ParmType>) : m_format(element.m_format), m_params(element.m_params)
@@ -354,7 +377,6 @@ const PolyImpl<ModType, IntType, VecType, ParmType>& PolyImpl<ModType, IntType, 
 	m_format = COEFFICIENT;
 	return *this;
 }
-
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 const PolyImpl<ModType,IntType,VecType,ParmType>& PolyImpl<ModType,IntType,VecType,ParmType>::operator=(std::initializer_list<std::string> rhs)

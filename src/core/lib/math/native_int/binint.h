@@ -1,8 +1,5 @@
 /**
- * @file binint.h This file contains the main class for big integers: BigInteger. Big integers are represented
- * as arrays of native usigned integers. The native integer type is supplied as a template parameter.
- * Currently implementations based on uint8_t, uint16_t, and uint32_t are supported. The second template parameter
- * is the maximum bitwidth for the big integer.
+ * @file binint.h This file contains the main class for native integers.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -27,10 +24,8 @@
  *
  */
  /*
- * This file contains the main class for big integers: NativeInteger. Big integers are represented
- * as arrays of native usigned integers. The native integer type is supplied as a template parameter.
- * Currently implementations based on uint8_t, uint16_t, and uint32_t are supported. The second template parameter
- * is the maximum bitwidth for the big integer.
+ * This file contains the main class for native integers.
+ * It implements the same methods as other mathematical backends.
  */
 
 #ifndef LBCRYPTO_MATH_NATIVE_BININT_H
@@ -204,7 +199,7 @@ public:
 	/**
 	 * Assignment operator
 	 *
-	 * @param &rhs is the big binary integer to be assigned from.
+	 * @param &rhs is the integer to be assigned from.
 	 * @return assigned BigInteger ref.
 	 */
 	const NativeInteger&  operator=(const NativeInteger &&rhs) {
@@ -226,7 +221,7 @@ public:
 	//Shift Operators
 
 	/**
-	 * Left shift operator of big binary integer
+	 * Left shift operator
 	 * @param shift is the amount to shift of type usshort.
 	 * @return the object of type NativeInteger
 	 */
@@ -246,7 +241,7 @@ public:
 	}
 
 	/**
-	 * Right shift operator of big binary integer
+	 * Right shift operator
 	 * @param shift is the amount to shift of type usshort.
 	 * @return the object of type NativeInteger
 	 */
@@ -288,16 +283,16 @@ public:
 	}
 
 	/**
-	 * Basic set method for setting the value of a big binary integer
+	 * Basic set method for setting the value of an integer
 	 *
-	 * @param str is the string representation of the big binary integer to be copied.
+	 * @param str is the string representation of the integer to be copied.
 	 */
 	void SetValue(const std::string& str) {
 		AssignVal(str);
 	}
 
 	/**
-	 * Basic set method for setting the value of a big binary integer
+	 * Basic set method for setting the value of an integer
 	 *
 	 * @param a is the big binary integer representation of the big binary integer to be assigned.
 	 */
@@ -331,7 +326,7 @@ public:
 		return m_value;
 	}
 
-	//Arithemetic Operations
+	//Arithmetic Operations
 
 	/**
 	 * Addition operation.
@@ -448,8 +443,7 @@ public:
 
 	/**
 	 * returns the modulus with respect to the input value.
-	 * Implements generalized Barrett modular reduction algorithm. Uses one precomputed value of mu.
-	 * See the cpp file for details of the implementation.
+	 * Included here for compatibility with backend 2.
 	 *
 	 * @param modulus is the modulus to perform.
 	 * @param mu is the Barrett value.
@@ -461,8 +455,7 @@ public:
 
 	/**
 	* returns the modulus with respect to the input value - In place version.
-	* Implements generalized Barrett modular reduction algorithm. Uses one precomputed value of mu.
-	* See the cpp file for details of the implementation.
+	* Included here for compatibility with backend 2.
 	*
 	* @param modulus is the modulus to perform.
 	* @param mu is the Barrett value.
@@ -475,8 +468,7 @@ public:
 
 	/**
 	 * returns the modulus with respect to the input value.
-	 * Implements generalized Barrett modular reduction algorithm. Uses an array of precomputed values \mu.
-	 * See the cpp file for details of the implementation.
+	 * Included here for compatibility with backend 2.
 	 *
 	 * @param modulus is the modulus to perform operations with.
 	 * @param mu_arr is an array of the Barrett values of length BARRETT_LEVELS.
@@ -572,7 +564,13 @@ public:
 		return (uint_type)modsum;
 	}
 
-
+	/**
+	 * Fast scalar modular addition. Minimizes the number of modulo reduction operations.
+	 *
+	 * @param &b is the scalar to add.
+	 * @param modulus is the modulus to perform operations with.
+	 * @return result of the modulus addition operation.
+	 */
 	inline NativeInteger ModAddFast(const NativeInteger& b, const NativeInteger& modulus) const {
 		Duint_type modsum = (Duint_type)m_value;
 		modsum += b.m_value;
@@ -582,10 +580,10 @@ public:
 		return (uint_type)modsum;
 	}
 
-	
 
 	/**
 	 * Modular addition where Barrett modulo reduction is used.
+	 * Included here for compatibility with backend 2.
 	 *
 	 * @param &b is the scalar to add.
 	 * @param modulus is the modulus to perform operations with.
@@ -598,6 +596,7 @@ public:
 
 	/**
 	 * Modular addition where Barrett modulo reduction is used.
+	 * Included here for compatibility with backend 2.
 	 *
 	 * @param &b is the scalar to add.
 	 * @param modulus is the modulus to perform operations with.
@@ -636,7 +635,14 @@ public:
 			return (av + mod) - bv;
 		}
 	}
-	//ModSubFast assumes b < modulus
+
+	/**
+	 * Fast scalar modular subtraction. ModSubFast assumes b < modulus.
+	 *
+	 * @param &b is the scalar to subtract.
+	 * @param modulus is the modulus to perform operations with.
+	 * @return result of the modulus subtraction operation.
+	 */
 	inline NativeInteger ModSubFast(const NativeInteger& b, const NativeInteger& modulus) const {
 		uint_type av = m_value;
 		uint_type bv = b.m_value;
@@ -654,6 +660,7 @@ public:
 
 	/**
 	 * Scalar modular subtraction where Barrett modular reduction is used.
+	 * Included here for compatibility with backend 2.
 	 *
 	 * @param &b is the scalar to subtract.
 	 * @param modulus is the modulus to perform operations with.
@@ -666,6 +673,7 @@ public:
 
 	/**
 	 * Scalar modular subtraction where Barrett modular reduction is used.
+	 * Included here for compatibility with backend 2.
 	 *
 	 * @param b is the scalar to subtract.
 	 * @param modulus is the modulus to perform operations with.
@@ -709,9 +717,7 @@ public:
 
 	/**
 	 * Scalar modular multiplication where Barrett modular reduction is used.
-	 * Implements generalized Barrett modular reduction algorithm (no interleaving between multiplication and modulo).
-	 * Uses one precomputed value \mu.
-	 * See the cpp file for details of the implementation.
+	 * Included here for compatibility with backend 2.
 	 *
 	 * @param b is the scalar to multiply.
 	 * @param modulus is the modulus to perform operations with.
@@ -724,10 +730,7 @@ public:
 
 	/**
 	* Scalar modular multiplication where Barrett modular reduction is used - In-place version
-	* Only used inside BigVector - it assumes that both multiplicands are already smaller than the modulus
-	* Implements generalized Barrett modular reduction algorithm (no interleaving between multiplication and modulo).
-	* Uses one precomputed value \mu.
-	* See the cpp file for details of the implementation.
+	* Included here for compatibility with backend 2.
 	*
 	* @param b is the scalar to multiply.
 	* @param modulus is the modulus to perform operations with.
@@ -741,6 +744,7 @@ public:
 
 	/**
 	 * Scalar modular multiplication where Barrett modular reduction is used.
+	 * Included here for compatibility with backend 2.
 	 *
 	 * @param &b is the scalar to multiply.
 	 * @param modulus is the modulus to perform operations with.
@@ -900,10 +904,10 @@ public:
 	}
 
 	/**
-	 * Exponentiation of a BigInteger x. Returns x^p
+	 * Exponentiation. Returns x^p
 	 *
 	 * @param p the exponent.
-	 * @return the big binary integer x^p.
+	 * @return the integer x^p.
 	 */
 	NativeInteger Exp(usint p) const {
 		if (p == 0) return 1;
@@ -915,7 +919,7 @@ public:
 	}
 
 	/**
-	 * Multiply and Rounding operation on a BigInteger x. Returns [x*p/q] where [] is the rounding operation.
+	 * Multiply and Rounding operation. Returns [x*p/q] where [] is the rounding operation.
 	 *
 	 * @param p is the numerator to be multiplied.
 	 * @param q is the denominator to be divided.
@@ -924,6 +928,34 @@ public:
 	NativeInteger MultiplyAndRound(const NativeInteger &p, const NativeInteger &q) const {
 		NativeInteger ans = m_value*p.m_value;
 		return ans.DivideAndRound(q);
+	}
+
+	/**
+	 * Computes the quotient of x*p/q, where x,p,q are all uint_type numbers, x is the current value; uses Duint_type arithmetic
+	 *
+	 * @param p is the multiplicand
+	 * @param q is the divisor
+	 * @return the quotient
+	 */
+	NativeInteger MultiplyAndDivideQuotient(const NativeInteger &p, const NativeInteger &q) const {
+		Duint_type xD = m_value;
+		Duint_type pD = p.m_value;
+		Duint_type qD = q.m_value;
+		return (uint_type)(xD*pD/qD);
+	}
+
+	/**
+	 * Computes the remainder of x*p/q, where x,p,q are all uint_type numbers, x is the current value; uses Duint_type arithmetic
+	 *
+	 * @param p is the multiplicand
+	 * @param q is the divisor
+	 * @return the remainder
+	 */
+	NativeInteger MultiplyAndDivideRemainder(const NativeInteger &p, const NativeInteger &q) const {
+		Duint_type xD = m_value;
+		Duint_type pD = p.m_value;
+		Duint_type qD = q.m_value;
+		return (uint_type)((xD*pD)%qD);
 	}
 
 	/**
@@ -1171,26 +1203,6 @@ private:
 
 	//variable to store the maximum value of the integral data type.
 	static const uint_type m_uintMax = std::numeric_limits<uint_type>::max();
-
-	//variable to store the log(base 2) of the number of bits in the integral data type.
-	static const uschar m_logUintBitLength = LogDtype<uint_type>::value;
-
-	/**
-	 * function to return the ceiling of the number divided by the number of bits in the integral data type.
-	 * @param Number is the number to be divided.
-	 * @return the ceiling of Number/(bits in the integral data type)
-	 */
-	static uint_type ceilIntByUInt(const uint_type Number) {
-		//mask to perform bitwise AND
-		static uint_type mask = m_uintBitLength-1;
-
-		if((Number&mask)!=0)
-			return (Number>>m_logUintBitLength)+1;
-		else if(!Number)
-			return 1;
-		else
-			return Number>>m_logUintBitLength;
-	}
 
 	// Duint_type has double the bits in the integral data type.
 	typedef typename DoubleDataType<uint_type>::T Duint_type;

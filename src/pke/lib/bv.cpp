@@ -52,6 +52,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 namespace lbcrypto {
 
+
 	template <class Element>
 	bool LPCryptoParametersBV<Element>::Serialize(Serialized* serObj) const {
 		if (!serObj->IsObject())
@@ -60,7 +61,6 @@ namespace lbcrypto {
 		SerialItem cryptoParamsMap(rapidjson::kObjectType);
 		if (this->SerializeRLWE(serObj, cryptoParamsMap) == false)
 			return false;
-		cryptoParamsMap.AddMember("mode", std::to_string(m_mode), serObj->GetAllocator());
 
 		serObj->AddMember("LPCryptoParametersBV", cryptoParamsMap.Move(), serObj->GetAllocator());
 		serObj->AddMember("LPCryptoParametersType", "LPCryptoParametersBV", serObj->GetAllocator());
@@ -78,17 +78,9 @@ namespace lbcrypto {
 			return false;
 		}
 
-		SerialItem::ConstMemberIterator pIt;
-
-		if ((pIt = mIter->value.FindMember("mode")) == serObj.MemberEnd()) {
-			return false;
-		}
-		MODE mode = (MODE)atoi(pIt->value.GetString());
-
-		this->SetMode(mode);
-
 		return true;
 	}
+
 
 	//makeSparse is not used by this scheme
 	template <class Element>

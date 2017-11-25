@@ -28,8 +28,66 @@
 #include "fv.cpp"
 
 namespace lbcrypto {
+
+template <>
+LPCryptoParametersFV<DCRTPoly>::LPCryptoParametersFV() {
+	std::string errMsg = "FV does not support DCRTPoly. Use Poly instead.";
+	throw std::runtime_error(errMsg);
+}
+
+template <>
+LPCryptoParametersFV<DCRTPoly>::LPCryptoParametersFV(const LPCryptoParametersFV &rhs) {
+	std::string errMsg = "FV does not support DCRTPoly. Use Poly instead.";
+	throw std::runtime_error(errMsg);
+}
+
+template <>
+LPCryptoParametersFV<DCRTPoly>::LPCryptoParametersFV(shared_ptr<typename DCRTPoly::Params> params,
+	const BigInteger &plaintextModulus,
+	float distributionParameter,
+	float assuranceMeasure,
+	float securityLevel,
+	usint relinWindow,
+	const BigInteger &delta,
+	MODE mode,
+	const BigInteger &bigModulus ,
+	const BigInteger &bigRootOfUnity,
+	const BigInteger &bigModulusArb,
+	const BigInteger &bigRootOfUnityArb,
+	int depth,
+	int maxDepth) {
+		std::string errMsg = "FV does not support DCRTPoly. Use Poly instead.";
+		throw std::runtime_error(errMsg);
+}
+
+template <>
+LPCryptoParametersFV<DCRTPoly>::LPCryptoParametersFV(shared_ptr<typename DCRTPoly::Params> params,
+	shared_ptr<EncodingParams> encodingParams,
+	float distributionParameter,
+	float assuranceMeasure,
+	float securityLevel,
+	usint relinWindow,
+	const BigInteger &delta,
+	MODE mode,
+	const BigInteger &bigModulus ,
+	const BigInteger &bigRootOfUnity,
+	const BigInteger &bigModulusArb,
+	const BigInteger &bigRootOfUnityArb,
+	int depth,
+	int maxDepth)	{
+		std::string errMsg = "FV does not support DCRTPoly. Use Poly instead.";
+		throw std::runtime_error(errMsg);
+	}
+
+template <>
+LPPublicKeyEncryptionSchemeFV<DCRTPoly>::LPPublicKeyEncryptionSchemeFV(){
+		std::string errMsg = "FV does not support DCRTPoly. Use Poly instead.";
+		throw std::runtime_error(errMsg);
+	}
+
 template class LPCryptoParametersFV<DCRTPoly>;
 template class LPPublicKeyEncryptionSchemeFV<DCRTPoly>;
 template class LPAlgorithmFV<DCRTPoly>;
 template class LPAlgorithmParamsGenFV<DCRTPoly>;
+
 }

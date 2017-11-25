@@ -694,6 +694,18 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
+DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::Times(
+		const std::vector<native_int::BigInteger> &element) const
+{
+	DCRTPolyImpl<ModType,IntType,VecType,ParmType> tmp(*this);
+
+	for (usint i = 0; i < m_vectors.size(); i++) {
+		tmp.m_vectors[i] = tmp.m_vectors[i] * element[i]; // (element % IntType((*m_params)[i]->GetModulus().ConvertToInt())).ConvertToInt();
+	}
+	return std::move(tmp);
+}
+
+template<typename ModType, typename IntType, typename VecType, typename ParmType>
 DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::MultiplyAndRound(const IntType &p, const IntType &q) const
 {
 	std::string errMsg = "Operation not implemented yet";
@@ -953,6 +965,196 @@ Poly DCRTPolyImpl<ModType,IntType,VecType,ParmType>::CRTInterpolate() const
 	DEBUG("answer: " << polynomialReconstructed);
 
 	return std::move( polynomialReconstructed );
+}
+
+// Computes Round(p/q*x) mod p as [\sum_i x_i*alpha_i + Round(\sum_i x_i*beta_i)] mod p for fast rounding in RNS
+// vectors alpha and beta are precomputed as
+// alpha_i = Floor[(p*[(q/qi)^{-1}]_qi)/qi]_p
+// beta_i = ((p*[(q/qi)^{-1}]_qi)%qi)/qi in (0,1)
+// used in decryption of BFVrns
+
+template<typename ModType, typename IntType, typename VecType, typename ParmType>
+PolyImpl<native_int::BigInteger,native_int::BigInteger,native_int::BigVector,native_int::ILParams>
+DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const typename PolyType::Integer &p,
+		const std::vector<typename PolyType::Integer> &alpha, const std::vector<double> &beta) const {
+
+	usint ringDimension = GetRingDimension();
+	usint nTowers = m_vectors.size();
+
+	typename PolyType::Vector coefficients(ringDimension, p);
+
+	for( usint ri = 0; ri < ringDimension; ri++ ) {
+		double curFloatSum = 0.0f;
+		typename PolyType::Integer curIntSum = 0;
+		for( usint vi = 0; vi < nTowers; vi++ ) {
+			const typename PolyType::Integer &xi = m_vectors[vi].GetValues()[ri];
+
+			// We assume that that the value of p is smaller than 64 bits (like 58)
+			// Thus we do not make additional curIntSum.Mod(p) calls for each value of vi
+			curIntSum += xi.ModMul(alpha[vi],p);
+
+			curFloatSum += xi.ConvertToInt()*beta[vi];
+		}
+
+		coefficients[ri] = (curIntSum + typename PolyType::Integer(std::llround(curFloatSum))).Mod(p);
+	}
+
+	// Setting the root of unity to ONE as the calculation is expensive
+	// It is assumed that no polynomial multiplications in evaluation representation are performed after this
+	PolyType result( shared_ptr<typename PolyType::Params>( new typename PolyType::Params(GetCyclotomicOrder(), p, 1) ) );
+	result.SetValues(coefficients,COEFFICIENT);
+
+	return std::move(result);
+
+}
+
+/*
+ * The goal is to switch the basis of x from Q to S
+ *
+ * Let us write x as
+ * x = \sum_i [xi (q/qi)^{-1}]_qi \times q/qi - alpha*q,
+ * where alpha is a number between 0 and k-1 (assuming we iterate over i \in [0,k-1]).
+ *
+ * Now let us take mod s_i (to go to the S basis).
+ * mod s_i = \sum_i [xi (q/qi)^{-1}]_qi \times q/qi mod s_i - alpha*q mod s_i
+ *
+ * The main problem is that we need to find alpha.
+ * If we know alpha, we can compute x mod s_i (assuming that q mod s_i is precomputed).
+ *
+ * We compute x mod s_i in two steps:
+ * 	(1) find x' mod s_i = \sum_k [xi (q/qi)^{-1}]_qi \times q/qi mod s_i and find alpha when computing this sum;
+ * 	(2) subtract alpha*q mod s_i from x' mod s_i.
+ *
+ * We compute lyam_i =  [xi (q/qi)^{-1}]_qi/qi, which is a floating-point number between 0 and 1, during the summation in step 1.
+ * Then we compute alpha as Round(\sum_i lyam_i).
+ *
+ * Finally, we evaluate (x' - alpha q) mod s_i to get the CRT basis of x with respect to S.
+ *
+ */
+
+template<typename ModType, typename IntType, typename VecType, typename ParmType>
+DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::SwitchCRTBasis(
+		const shared_ptr<ParmType> params, const std::vector<typename PolyType::Integer> &qInvModqi,
+		const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsi, const std::vector<typename PolyType::Integer> &qModsi) const{
+
+	DCRTPolyType ans(params,m_format,true);
+
+	usint ringDimension = GetRingDimension();
+	usint nTowers = m_vectors.size();
+	usint nTowersNew = ans.m_vectors.size();
+
+	for( usint rIndex = 0; rIndex < ringDimension; rIndex++ ) {
+
+		for (usint newvIndex = 0; newvIndex < nTowersNew; newvIndex ++ ) {
+
+			double lyam = 0.0;
+			typename PolyType::Integer curValue = 0;
+
+			const typename PolyType::Integer &si = ans.m_vectors[newvIndex].GetModulus();
+
+			//first round - compute "fast conversion"
+			for( usint vIndex = 0; vIndex < nTowers; vIndex++ ) {
+				const typename PolyType::Integer &xi = m_vectors[vIndex].GetValues()[rIndex];
+				const typename PolyType::Integer &qi = m_vectors[vIndex].GetModulus();
+
+				//computes [xi (q/qi)^{-1}]_qi
+				const typename PolyType::Integer &xInv = xi.ModMulFast(qInvModqi[vIndex],qi);
+
+				//computes [xi (q/qi)^{-1}]_qi / qi to keep track of the number of q-overflows
+				lyam += (double)xInv.ConvertToInt()/(double)qi.ConvertToInt();
+
+				curValue += xInv.ModMulFast(qDivqiModsi[newvIndex][vIndex],si);
+			}
+
+			// Since we let current value to exceed si to avoid extra modulo reductions, we have to apply mod si now
+			curValue = curValue.Mod(si);
+
+			// alpha corresponds to the number of overflows
+			typename PolyType::Integer alpha = std::llround(lyam);
+
+			//second round - remove q-overflows
+			ans.m_vectors[newvIndex].SetValAtIndex(rIndex,curValue.ModSubFast(alpha.ModMulFast(qModsi[newvIndex],si),si));
+
+		}
+
+	}
+
+	return std::move(ans);
+
+}
+
+// @brief Expands polynomial in CRT basis Q = q1*q2*...*qn to a larger CRT basis Q*S, where S = s1*s2*...*sn;
+// uses SwichCRTBasis as a subroutine
+
+template<typename ModType, typename IntType, typename VecType, typename ParmType>
+void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ExpandCRTBasis(const shared_ptr<ParmType> paramsExpanded,
+		const shared_ptr<ParmType> params, const std::vector<typename PolyType::Integer> &qInvModqi,
+		const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsi, const std::vector<typename PolyType::Integer> &qModsi) {
+
+	DCRTPolyType polyWithSwitchedCRTBasis = SwitchCRTBasis(params,qInvModqi,qDivqiModsi,qModsi);
+
+	size_t size = m_vectors.size();
+	size_t newSize = polyWithSwitchedCRTBasis.m_vectors.size() + size;
+
+	m_vectors.resize(newSize);
+
+	// populate the towers corresponding to CRT basis S
+	for (size_t i = 0; i < polyWithSwitchedCRTBasis.m_vectors.size(); i++ ) {
+		m_vectors[size + i] = polyWithSwitchedCRTBasis.GetElementAtIndex(i);
+	}
+
+	m_params = paramsExpanded;
+
+}
+
+// Computes Round(p/Q*x), where x is in the CRT basis Q*S,
+// as [\sum_{i=1}^n alpha_i*x_i + Round(\sum_{i=1}^n beta_i*x_i)]_si,
+// with the result in the Q CRT basis; used in homomorphic multiplication of BFVrns;
+// alpha is a matrix of precomputed integer factors = {Floor[p*S*[(Q*S/vi)^{-1}]_{vi}/vi]}_si; for all combinations of vi, si; where vi is a prime modulus in Q*S
+// beta is a vector of precomputed floating-point factors between 0 and 1 = [p*S*(Q*S/vi)^{-1}]_{vi}/vi; - for each vi
+
+template<typename ModType, typename IntType, typename VecType, typename ParmType>
+DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const shared_ptr<ParmType> params,
+		const std::vector<std::vector<typename PolyType::Integer>> &alpha,
+		const std::vector<double> &beta) const {
+
+		DCRTPolyType ans(params,m_format,true);
+
+		usint ringDimension = GetRingDimension();
+		size_t size = m_vectors.size();
+		size_t newSize = ans.m_vectors.size();
+
+		for( usint rIndex = 0; rIndex < ringDimension; rIndex++ ) {
+
+			for (usint newvIndex = 0; newvIndex < newSize; newvIndex ++ ) {
+
+				double curFloat = 0.0;
+				typename PolyType::Integer curValue = 0;
+
+				const typename PolyType::Integer &si = params->GetParams()[newvIndex]->GetModulus();
+
+				for( usint vIndex = 0; vIndex < size; vIndex++ ) {
+					const typename PolyType::Integer &xi = m_vectors[vIndex].GetValues()[rIndex];
+
+					curValue += alpha[vIndex][newvIndex].ModMulFast(xi,si);
+
+					curFloat += beta[vIndex]*xi.ConvertToInt();
+
+				}
+
+				// Since we let current value to exceed si to avoid extra modulo reductions, we have apply mod si now
+				curValue = curValue.Mod(si);
+
+				typename PolyType::Integer rounded = std::llround(curFloat);
+
+				ans.m_vectors[newvIndex].SetValAtIndex(rIndex,curValue.ModAddFast(rounded.Mod(si),si));
+
+			}
+
+		}
+
+		return std::move(ans);
+
 }
 
 /*Switch format calls IlVector2n's switchformat*/
