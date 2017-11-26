@@ -163,7 +163,7 @@ std::string LWEConjunctionCHCPRFAlgorithm<Element>::Evaluate(const shared_ptr<ve
 		poly = poly.DivideAndRound(q);
 
 		for (size_t j = 0; j < poly.GetLength(); j++) {
-			output << poly.GetValAtIndex(j);
+			output << poly.at(j);
 		}
 	}
 

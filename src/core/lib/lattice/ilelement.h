@@ -145,15 +145,6 @@ public:
 		throw std::logic_error("const at not implemented");
 	}
 
-	//SETTERS
-	/**
-	 * @brief SetValAtIndex
-	 * This is only implemented for some derived classes, so the default implementation throws an exception.
-	 *
-	 * @param index is the index to set the value at.
-	 * @param val is the value to assign.
-	 */
-	
 	// OPERATORS
 	/**
 	 * @brief Unary negation on a lattice

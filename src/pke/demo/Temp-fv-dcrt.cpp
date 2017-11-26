@@ -220,8 +220,8 @@ void SwitchCRT() {
 	DCRTPoly b = a.SwitchCRTBasis(paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
 			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable());
 
-	std::cout << "a mod s0 = " << resultA.GetValAtIndex(0).Mod(BigInteger(paramsS->GetParams()[0]->GetModulus().ConvertToInt())) << " modulus " << paramsS->GetParams()[0]->GetModulus() << std::endl;
-	std::cout << "b mod s0 = " << b.GetElementAtIndex(0).GetValAtIndex(0) << " modulus = " << b.GetElementAtIndex(0).GetModulus() << std::endl;
+	std::cout << "a mod s0 = " << resultA.at(0).Mod(BigInteger(paramsS->GetParams()[0]->GetModulus().ConvertToInt())) << " modulus " << paramsS->GetParams()[0]->GetModulus() << std::endl;
+	std::cout << "b mod s0 = " << b.GetElementAtIndex(0).at(0) << " modulus = " << b.GetElementAtIndex(0).GetModulus() << std::endl;
 
 	std::cout << "Finished CRT Basis switch" << std::endl;
 
@@ -233,8 +233,8 @@ void SwitchCRT() {
 
 	std::cout << "Big Modulus Q:\n" << params->GetModulus() << std::endl;
 	std::cout << "Big Modulus S:\n" << paramsS->GetModulus() << std::endl;
-	std::cout << "before switch:\n" << resultA.GetValAtIndex(0) << std::endl;
-	std::cout << "after switch:\n" << resultB.GetValAtIndex(0) << std::endl;
+	std::cout << "before switch:\n" << resultA.at(0) << std::endl;
+	std::cout << "after switch:\n" << resultB.at(0) << std::endl;
 
 }
 
@@ -310,21 +310,21 @@ void Multiply() {
 
 	std::cout << "Big Modulus Q:\n" << params->GetModulus() << std::endl;
 	std::cout << "Big Modulus Q*S:\n" << a.GetParams()->GetModulus() << std::endl;
-	std::cout << "before expansion:\n" << result.GetValAtIndex(0) << std::endl;
-	std::cout << "after expansion:\n" << resultExpanded.GetValAtIndex(0) << std::endl;
+	std::cout << "before expansion:\n" << result.at(0) << std::endl;
+	std::cout << "after expansion:\n" << resultExpanded.at(0) << std::endl;
 
-	std::cout << "b before expansion - no signed correction: " << bPoly.GetValAtIndex(0) << std::endl;
+	std::cout << "b before expansion - no signed correction: " << bPoly.at(0) << std::endl;
 
-	if (bPoly.GetValAtIndex(0) > bPoly.GetModulus()>>1)
-		std::cout << "b before expansion: -" << bPoly.GetModulus() - bPoly.GetValAtIndex(0) << std::endl;
+	if (bPoly.at(0) > bPoly.GetModulus()>>1)
+		std::cout << "b before expansion: -" << bPoly.GetModulus() - bPoly.at(0) << std::endl;
 	else
-		std::cout << "b before expansion: " << bPoly.GetValAtIndex(0) << std::endl;
+		std::cout << "b before expansion: " << bPoly.at(0) << std::endl;
 
-	std::cout << "b after expansion - no signed correction: " << resultExpandedB.GetValAtIndex(0) << std::endl;
-	if (resultExpandedB.GetValAtIndex(0) > resultExpandedB.GetModulus()>>1)
-		std::cout << "b after expansion: -" << resultExpandedB.GetModulus() - resultExpandedB.GetValAtIndex(0) << std::endl;
+	std::cout << "b after expansion - no signed correction: " << resultExpandedB.at(0) << std::endl;
+	if (resultExpandedB.at(0) > resultExpandedB.GetModulus()>>1)
+		std::cout << "b after expansion: -" << resultExpandedB.GetModulus() - resultExpandedB.at(0) << std::endl;
 	else
-		std::cout << "b after expansion: " << resultExpandedB.GetValAtIndex(0) << std::endl;
+		std::cout << "b after expansion: " << resultExpandedB.at(0) << std::endl;
 
 	std::cout << "\n=====STEP 2: Polynomial multiplication=======\n" << std::endl;
 
@@ -344,29 +344,29 @@ void Multiply() {
 
 	Poly resultC = c.CRTInterpolate();
 
-	if (resultC.GetValAtIndex(0) > resultC.GetModulus()>>1)
-		std::cout << "result C: -" << resultC.GetModulus() - resultC.GetValAtIndex(0) << std::endl;
+	if (resultC.at(0) > resultC.GetModulus()>>1)
+		std::cout << "result C: -" << resultC.GetModulus() - resultC.at(0) << std::endl;
 	else
-		std::cout << "result C: " << resultC.GetValAtIndex(0) << std::endl;
+		std::cout << "result C: " << resultC.at(0) << std::endl;
 
 	DCRTPoly rounded = c.ScaleAndRound(paramsS,cryptoParamsBFVrns->GetCRTMultIntTable(),cryptoParamsBFVrns->GetCRTMultFloatTable());
 
 	Poly resultRounded = rounded.CRTInterpolate();
 
-	if (resultRounded.GetValAtIndex(0) > resultRounded.GetModulus()>>1)
-		std::cout << "result: " << resultRounded.GetModulus() - resultRounded.GetValAtIndex(0) << std::endl;
+	if (resultRounded.at(0) > resultRounded.GetModulus()>>1)
+		std::cout << "result: " << resultRounded.GetModulus() - resultRounded.at(0) << std::endl;
 	else
-		std::cout << "result: " << resultRounded.GetValAtIndex(0) << std::endl;
+		std::cout << "result: " << resultRounded.at(0) << std::endl;
 
 	DCRTPoly roundedQ = rounded.SwitchCRTBasis(params, cryptoParamsBFVrns->GetCRTSInverseTable(),
 			cryptoParamsBFVrns->GetCRTsDivsiModqiTable(), cryptoParamsBFVrns->GetCRTsModqiTable());
 
 	Poly resultRoundedQ = roundedQ.CRTInterpolate();
 
-	if (resultRoundedQ.GetValAtIndex(0) > resultRoundedQ.GetModulus()>>1)
-		std::cout << "result: " << resultRoundedQ.GetModulus() - resultRoundedQ.GetValAtIndex(0) << std::endl;
+	if (resultRoundedQ.at(0) > resultRoundedQ.GetModulus()>>1)
+		std::cout << "result: " << resultRoundedQ.GetModulus() - resultRoundedQ.at(0) << std::endl;
 	else
-		std::cout << "result: " << resultRoundedQ.GetValAtIndex(0) << std::endl;
+		std::cout << "result: " << resultRoundedQ.at(0) << std::endl;
 
 }
 
@@ -454,25 +454,25 @@ void MultiplyTwo() {
 	std::cout << "Big Modulus Q:\n" << params->GetModulus() << std::endl;
 	std::cout << "Big Modulus Q*S:\n" << a.GetParams()->GetModulus() << std::endl;
 
-	if (result.GetValAtIndex(0) > result.GetModulus()>>1)
-		std::cout << "a before expansion: -" << result.GetModulus() - result.GetValAtIndex(0) << std::endl;
+	if (result.at(0) > result.GetModulus()>>1)
+		std::cout << "a before expansion: -" << result.GetModulus() - result.at(0) << std::endl;
 	else
-		std::cout << "a before expansion: " << result.GetValAtIndex(0) << std::endl;
+		std::cout << "a before expansion: " << result.at(0) << std::endl;
 
-	if (resultExpanded.GetValAtIndex(0) > resultExpanded.GetModulus()>>1)
-		std::cout << "a after expansion: -" << resultExpanded.GetModulus() - resultExpanded.GetValAtIndex(0) << std::endl;
+	if (resultExpanded.at(0) > resultExpanded.GetModulus()>>1)
+		std::cout << "a after expansion: -" << resultExpanded.GetModulus() - resultExpanded.at(0) << std::endl;
 	else
-		std::cout << "a after expansion: " << resultExpanded.GetValAtIndex(0) << std::endl;
+		std::cout << "a after expansion: " << resultExpanded.at(0) << std::endl;
 
-	if (bPoly.GetValAtIndex(0) > bPoly.GetModulus()>>1)
-		std::cout << "b before expansion: -" << bPoly.GetModulus() - bPoly.GetValAtIndex(0) << std::endl;
+	if (bPoly.at(0) > bPoly.GetModulus()>>1)
+		std::cout << "b before expansion: -" << bPoly.GetModulus() - bPoly.at(0) << std::endl;
 	else
-		std::cout << "b before expansion: " << bPoly.GetValAtIndex(0) << std::endl;
+		std::cout << "b before expansion: " << bPoly.at(0) << std::endl;
 
-	if (resultExpandedB.GetValAtIndex(0) > resultExpandedB.GetModulus()>>1)
-		std::cout << "b after expansion: -" << resultExpandedB.GetModulus() - resultExpandedB.GetValAtIndex(0) << std::endl;
+	if (resultExpandedB.at(0) > resultExpandedB.GetModulus()>>1)
+		std::cout << "b after expansion: -" << resultExpandedB.GetModulus() - resultExpandedB.at(0) << std::endl;
 	else
-		std::cout << "b after expansion: " << resultExpandedB.GetValAtIndex(0) << std::endl;
+		std::cout << "b after expansion: " << resultExpandedB.at(0) << std::endl;
 
 	std::cout << "\n=====STEP 2: Polynomial multiplication=======\n" << std::endl;
 
@@ -528,34 +528,34 @@ void MultiplyTwo() {
 
 	Poly resultC = c.CRTInterpolate();
 
-	if (resultC.GetValAtIndex(0) > resultC.GetModulus()>>1)
-		std::cout << "result C: -" << resultC.GetModulus() - resultC.GetValAtIndex(0) << std::endl;
+	if (resultC.at(0) > resultC.GetModulus()>>1)
+		std::cout << "result C: -" << resultC.GetModulus() - resultC.at(0) << std::endl;
 	else
-		std::cout << "result C: " << resultC.GetValAtIndex(0) << std::endl;
+		std::cout << "result C: " << resultC.at(0) << std::endl;
 
-	if (cPoly.GetValAtIndex(0) > cPoly.GetModulus()>>1)
-		std::cout << "result multiprecision C: -" << cPoly.GetModulus()-cPoly.GetValAtIndex(0) << std::endl;
+	if (cPoly.at(0) > cPoly.GetModulus()>>1)
+		std::cout << "result multiprecision C: -" << cPoly.GetModulus()-cPoly.at(0) << std::endl;
 	else
-		std::cout << "result multiprecision C: " << cPoly.GetValAtIndex(0) << std::endl;
+		std::cout << "result multiprecision C: " << cPoly.at(0) << std::endl;
 
 	DCRTPoly rounded = c.ScaleAndRound(paramsS,cryptoParamsBFVrns->GetCRTMultIntTable(),cryptoParamsBFVrns->GetCRTMultFloatTable());
 
 	Poly resultRounded = rounded.CRTInterpolate();
 
-	if (resultRounded.GetValAtIndex(0) > resultRounded.GetModulus()>>1)
-		std::cout << "result: " << resultRounded.GetModulus() - resultRounded.GetValAtIndex(0) << std::endl;
+	if (resultRounded.at(0) > resultRounded.GetModulus()>>1)
+		std::cout << "result: " << resultRounded.GetModulus() - resultRounded.at(0) << std::endl;
 	else
-		std::cout << "result: " << resultRounded.GetValAtIndex(0) << std::endl;
+		std::cout << "result: " << resultRounded.at(0) << std::endl;
 
 	DCRTPoly roundedQ = rounded.SwitchCRTBasis(params, cryptoParamsBFVrns->GetCRTSInverseTable(),
 			cryptoParamsBFVrns->GetCRTsDivsiModqiTable(), cryptoParamsBFVrns->GetCRTsModqiTable());
 
 	Poly resultRoundedQ = roundedQ.CRTInterpolate();
 
-	if (resultRoundedQ.GetValAtIndex(0) > resultRoundedQ.GetModulus()>>1)
-		std::cout << "result: " << resultRoundedQ.GetModulus() - resultRoundedQ.GetValAtIndex(0) << std::endl;
+	if (resultRoundedQ.at(0) > resultRoundedQ.GetModulus()>>1)
+		std::cout << "result: " << resultRoundedQ.GetModulus() - resultRoundedQ.at(0) << std::endl;
 	else
-		std::cout << "result: " << resultRoundedQ.GetValAtIndex(0) << std::endl;
+		std::cout << "result: " << resultRoundedQ.at(0) << std::endl;
 
 
 }
@@ -644,25 +644,25 @@ void MultiplyThree() {
 	std::cout << "Big Modulus Q:\n" << params->GetModulus() << std::endl;
 	std::cout << "Big Modulus Q*S:\n" << a.GetParams()->GetModulus() << std::endl;
 
-	if (result.GetValAtIndex(0) > result.GetModulus()>>1)
-		std::cout << "a before expansion: -" << result.GetModulus() - result.GetValAtIndex(0) << std::endl;
+	if (result.at(0) > result.GetModulus()>>1)
+		std::cout << "a before expansion: -" << result.GetModulus() - result.at(0) << std::endl;
 	else
-		std::cout << "a before expansion: " << result.GetValAtIndex(0) << std::endl;
+		std::cout << "a before expansion: " << result.at(0) << std::endl;
 
-	if (resultExpanded.GetValAtIndex(0) > resultExpanded.GetModulus()>>1)
-		std::cout << "a after expansion: -" << resultExpanded.GetModulus() - resultExpanded.GetValAtIndex(0) << std::endl;
+	if (resultExpanded.at(0) > resultExpanded.GetModulus()>>1)
+		std::cout << "a after expansion: -" << resultExpanded.GetModulus() - resultExpanded.at(0) << std::endl;
 	else
-		std::cout << "a after expansion: " << resultExpanded.GetValAtIndex(0) << std::endl;
+		std::cout << "a after expansion: " << resultExpanded.at(0) << std::endl;
 
-	if (bPoly.GetValAtIndex(0) > bPoly.GetModulus()>>1)
-		std::cout << "b before expansion: -" << bPoly.GetModulus() - bPoly.GetValAtIndex(0) << std::endl;
+	if (bPoly.at(0) > bPoly.GetModulus()>>1)
+		std::cout << "b before expansion: -" << bPoly.GetModulus() - bPoly.at(0) << std::endl;
 	else
-		std::cout << "b before expansion: " << bPoly.GetValAtIndex(0) << std::endl;
+		std::cout << "b before expansion: " << bPoly.at(0) << std::endl;
 
-	if (resultExpandedB.GetValAtIndex(0) > resultExpandedB.GetModulus()>>1)
-		std::cout << "b after expansion: -" << resultExpandedB.GetModulus() - resultExpandedB.GetValAtIndex(0) << std::endl;
+	if (resultExpandedB.at(0) > resultExpandedB.GetModulus()>>1)
+		std::cout << "b after expansion: -" << resultExpandedB.GetModulus() - resultExpandedB.at(0) << std::endl;
 	else
-		std::cout << "b after expansion: " << resultExpandedB.GetValAtIndex(0) << std::endl;
+		std::cout << "b after expansion: " << resultExpandedB.at(0) << std::endl;
 
 	std::cout << "\n=====STEP 2: Polynomial multiplication=======\n" << std::endl;
 
@@ -718,34 +718,34 @@ void MultiplyThree() {
 
 	Poly resultC = c.CRTInterpolate();
 
-	if (resultC.GetValAtIndex(0) > resultC.GetModulus()>>1)
-		std::cout << "result C: -" << resultC.GetModulus() - resultC.GetValAtIndex(0) << std::endl;
+	if (resultC.at(0) > resultC.GetModulus()>>1)
+		std::cout << "result C: -" << resultC.GetModulus() - resultC.at(0) << std::endl;
 	else
-		std::cout << "result C: " << resultC.GetValAtIndex(0) << std::endl;
+		std::cout << "result C: " << resultC.at(0) << std::endl;
 
-	if (cPoly.GetValAtIndex(0) > cPoly.GetModulus()>>1)
-		std::cout << "result multiprecision C: -" << cPoly.GetModulus()-cPoly.GetValAtIndex(0) << std::endl;
+	if (cPoly.at(0) > cPoly.GetModulus()>>1)
+		std::cout << "result multiprecision C: -" << cPoly.GetModulus()-cPoly.at(0) << std::endl;
 	else
-		std::cout << "result multiprecision C: " << cPoly.GetValAtIndex(0) << std::endl;
+		std::cout << "result multiprecision C: " << cPoly.at(0) << std::endl;
 
 	DCRTPoly rounded = c.ScaleAndRound(paramsS,cryptoParamsBFVrns->GetCRTMultIntTable(),cryptoParamsBFVrns->GetCRTMultFloatTable());
 
 	Poly resultRounded = rounded.CRTInterpolate();
 
-	if (resultRounded.GetValAtIndex(0) > resultRounded.GetModulus()>>1)
-		std::cout << "result: " << resultRounded.GetModulus() - resultRounded.GetValAtIndex(0) << std::endl;
+	if (resultRounded.at(0) > resultRounded.GetModulus()>>1)
+		std::cout << "result: " << resultRounded.GetModulus() - resultRounded.at(0) << std::endl;
 	else
-		std::cout << "result: " << resultRounded.GetValAtIndex(0) << std::endl;
+		std::cout << "result: " << resultRounded.at(0) << std::endl;
 
 	DCRTPoly roundedQ = rounded.SwitchCRTBasis(params, cryptoParamsBFVrns->GetCRTSInverseTable(),
 			cryptoParamsBFVrns->GetCRTsDivsiModqiTable(), cryptoParamsBFVrns->GetCRTsModqiTable());
 
 	Poly resultRoundedQ = roundedQ.CRTInterpolate();
 
-	if (resultRoundedQ.GetValAtIndex(0) > resultRoundedQ.GetModulus()>>1)
-		std::cout << "result: " << resultRoundedQ.GetModulus() - resultRoundedQ.GetValAtIndex(0) << std::endl;
+	if (resultRoundedQ.at(0) > resultRoundedQ.GetModulus()>>1)
+		std::cout << "result: " << resultRoundedQ.GetModulus() - resultRoundedQ.at(0) << std::endl;
 	else
-		std::cout << "result: " << resultRoundedQ.GetValAtIndex(0) << std::endl;
+		std::cout << "result: " << resultRoundedQ.at(0) << std::endl;
 
 
 }

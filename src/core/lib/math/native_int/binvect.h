@@ -59,7 +59,7 @@ public:
 
     static inline BigVectorImpl Single(const IntegerType& val, const IntegerType& modulus) {
         BigVectorImpl vec(1, modulus);
-        vec.SetValAtIndex(0, val);
+        vec.at(0) = val;
         return vec;
     }
 
@@ -159,7 +159,7 @@ public:
         if (this->GetModulus() != b.GetModulus())
         	return false;
         for (size_t i = 0; i < this->GetLength(); ++i) {
-            if (this->GetValAtIndex(i) != b.GetValAtIndex(i)) {
+            if (this->at(i) != b.at(i)) {
                 return false;
             }
         }
@@ -207,75 +207,42 @@ public:
 	template<class IntegerType_c>
 	friend std::ostream& operator<<(std::ostream& os, const BigVectorImpl<IntegerType_c> &ptr_obj);
 
-	void PrintValues() const { std::cout << *this; }
+	IntegerType& at(usint i) {
+	  if(!this->IndexCheck(i)) {
+	    throw std::logic_error("index out of range in NativeVector");
+	  }
+	  return this->m_data[i];
+	  }
 
-	/**
-	 * Sets a value at an index.
-	 *
-	 * @param index is the index to set a value at.
-	 * @param value is the int value to set at the index.
-	 */
-	void SetValAtIndex(usint index, const IntegerType& value) {
-		if(!this->IndexCheck(index)) {
-			throw std::logic_error("Invalid index input to SetValAtIndex for index "
-					+ std::to_string(index) + " for vector of length " + std::to_string(m_length));
-		}
+	const IntegerType& at(usint i) const {
+ 	  if(!this->IndexCheck(i)) {
+	    throw std::logic_error("index out of range in NativeVector");
+	  }
+	  return this->m_data[i];
+	}
 
-		this->m_data[index] = value;
+	void atMod(usint i, const IntegerType &val) {
+	  if(!this->IndexCheck(i)) {
+	    throw std::logic_error("index out of range in NativeVector");
+	  }
+	  this->m_data[i]=val%m_modulus;
+	  return;
+	}
+
+	void atMod(usint i, const std::string& val) const {
+ 	  if(!this->IndexCheck(i)) {
+	    throw std::logic_error("index out of range in NativeVector");
+	  }
+	  IntegerType tmp(val);
+	  this->m_data[i]=tmp%m_modulus;
+	  return;
 	}
 
 	/**
-	 * Sets a value at an index. guarrentees that mod is not taken
-	 * some backends have automatic mod of this class.
-	 *
-	 * @param index is the index to set a value at.
-	 * @param value is the int value to set at the index sans intrinsic modulus.
+	 * operators to get a value at an index.
+	 * @param idx is the index to get a value at.
+	 * @return is the value at the index. return NULL if invalid index.
 	 */
-	//TODO: change SetValAtIndex() to always take mod.
-
-	void SetValAtIndexWithoutMod(usint index, const IntegerType& value) {
-		if(!this->IndexCheck(index)) {
-			throw std::logic_error("Invalid index input to SetValAtIndex for index "
-					+ std::to_string(index) + " for vector of length " + std::to_string(m_length));
-		}
-
-		this->m_data[index] = value;
-	}
-
-	/**
-	 * Sets a value at an index.
-	 *
-	 * @param index is the index to set a value at.
-	 * @param str is the string representation of the value to set at the index.
-	 */
-	void SetValAtIndex(usint index, const std::string& str){
-		if(!this->IndexCheck(index)){
-			throw std::logic_error("Invalid index input to SetValAtIndex for index "
-					+ std::to_string(index) + " for vector of length " + std::to_string(m_length));
-		}
-
-		this->m_data[index].SetValue(str);
-	}
-
-	/**
-	 * Gets a value stored at an index.
-	 *
-	 * @param index is the index from the vector entries.
-	 * @return value at the index.
-	 */
-	const IntegerType& GetValAtIndex(usint index) const {
-		if(!this->IndexCheck(index)){
-			throw std::logic_error("Invalid index input to GetValAtIndex for index "
-					+ std::to_string(index) + " for vector of length " + std::to_string(m_length));
-		}
-		return this->m_data[index];
-	}
-
-	/**
-	* operators to get a value at an index.
-	* @param idx is the index to get a value at.
-	* @return is the value at the index. return NULL if invalid index.
-	*/
 	inline IntegerType& operator[](std::size_t idx) { return (this->m_data[idx]); }
 	inline const IntegerType& operator[](std::size_t idx) const { return (this->m_data[idx]); }
 

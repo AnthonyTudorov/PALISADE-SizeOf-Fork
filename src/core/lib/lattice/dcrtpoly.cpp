@@ -1073,7 +1073,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 			typename PolyType::Integer alpha = std::llround(lyam);
 
 			//second round - remove q-overflows
-			ans.m_vectors[newvIndex].SetValAtIndex(rIndex,curValue.ModSubFast(alpha.ModMulFast(qModsi[newvIndex],si),si));
+			ans.m_vectors[newvIndex].at(rIndex) = curValue.ModSubFast(alpha.ModMulFast(qModsi[newvIndex],si),si);
 
 		}
 
@@ -1147,7 +1147,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 
 				typename PolyType::Integer rounded = std::llround(curFloat);
 
-				ans.m_vectors[newvIndex].SetValAtIndex(rIndex,curValue.ModAddFast(rounded.Mod(si),si));
+				ans.m_vectors[newvIndex].at(rIndex) = curValue.ModAddFast(rounded.Mod(si),si);
 
 			}
 

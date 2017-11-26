@@ -110,7 +110,7 @@ TEST(UTBinVect, AtAndSetModulusTest){
 	DEBUG("m"<<m);
 	BigVector calculatedResult = m.Mod(q);
 	DEBUG("calculated result"<<m);
-	uint64_t expectedResult[len] = {48,53,7,178,190,120,79,108,60,12};	
+	uint64_t expectedResult[] = {48,53,7,178,190,120,79,108,60,12};
 	for (usint i=0;i<len;i++){
 	  EXPECT_EQ (expectedResult[i],calculatedResult[i].ConvertToInt())
 	    << "Mod failed";
