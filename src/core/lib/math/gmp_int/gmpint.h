@@ -103,6 +103,11 @@ namespace NTL{
       return *this;
     }
 
+    inline const myZZ& operator=(std::string valstr){
+      *this = myZZ(valstr);
+      return *this;
+    }
+
     static const myZZ ZERO;
     static const myZZ ONE;
     static const myZZ TWO;
@@ -360,16 +365,6 @@ namespace NTL{
     inline const myZZ& operator>>=(long n) {return *this=RightShift(*this, n);};
     inline const myZZ& operator<<=(long n) {return *this=LeftShift(*this, n);};
 
-#if 0
-    // comparison operators to myZZ_p
-    inline long operator<(const myZZ_p& b) const; 
-    inline long operator>(const myZZ_p& b) const;  
-    inline long operator<=(const myZZ_p& b) const; 
-    inline long operator>=( const myZZ_p& b) const; 
-    inline long operator==(const myZZ_p& b) const; 
-    inline long operator!=(const myZZ_p& b) const; 
-#endif
-   
     //big integer stream output
     friend std::ostream& operator<<(std::ostream& os, const myZZ&ptr_obj);
 

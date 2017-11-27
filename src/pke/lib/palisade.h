@@ -71,6 +71,7 @@ class CryptoObject;
 #include "stst.h"
 #include "bv.h"
 #include "fv.h"
+#include "bfvrns.h"
 #include "nullscheme.h"
 
 #include "utils/serializable.h"

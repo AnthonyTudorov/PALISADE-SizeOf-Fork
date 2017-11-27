@@ -24,17 +24,17 @@
  *
  */
 /*
-	This code provides basic arithmetic functionality.
+	This code provides basic arithmetic functionality for vectors of native integers.
 
 */
 
 #include "../../utils/serializable.h"
-#include "../cpu_int/binvect.h"
+#include "binvect.h"
 #include "../nbtheory.h"
 #include "../../utils/debug.h"
 
 
-namespace cpu_int {
+namespace native_int {
 
 //CTORS
 template<class IntegerType>
@@ -66,9 +66,9 @@ BigVectorImpl<IntegerType>::BigVectorImpl(usint length, const IntegerType& modul
 	usint len = rhs.size();
 	for (usint i=0;i<m_length;i++){ // this loops over each entry
 		if(i<len) {
-			m_data[i] =  IntegerType(*(rhs.begin()+i))%m_modulus;  
+			m_data[i] =  IntegerType(*(rhs.begin()+i));  
 		} else {
-			m_data[i] = 0;
+			m_data[i] = IntegerType::ZERO;
 		}
 	}
 
@@ -82,9 +82,9 @@ BigVectorImpl<IntegerType>::BigVectorImpl(usint length, const IntegerType& modul
 	usint len = rhs.size();
 	for(usint i=0;i<m_length;i++){ // this loops over each entry
 		if(i<len) {
-			m_data[i] =  IntegerType(*(rhs.begin()+i))%m_modulus;  
+			m_data[i] =  IntegerType(*(rhs.begin()+i));  
 		} else {
-			m_data[i] = 0;
+			m_data[i] = IntegerType::ZERO;
 		}
 	}
 }
@@ -139,10 +139,7 @@ const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::operator=(std::ini
 	usint len = rhs.size();
 	for(usint i=0;i<m_length;i++){ // this loops over each tower
 		if(i<len) {
-		  if (m_modulus!=IntegerType::ZERO)
-			m_data[i] = IntegerType(*(rhs.begin()+i))%m_modulus;
-		  else
-			m_data[i] = IntegerType(*(rhs.begin()+i));	    
+			m_data[i] = IntegerType(*(rhs.begin()+i));
 		} else {
 			m_data[i] = 0;
 		}
@@ -157,9 +154,6 @@ const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::operator=(std::ini
 	usint len = rhs.size();
 	for(usint i=0;i<m_length;i++){ // this loops over each tower
 		if(i<len) {
-		  if (m_modulus!=IntegerType::ZERO)
-			m_data[i] = IntegerType(*(rhs.begin()+i))%m_modulus;
-		  else
 			m_data[i] = IntegerType(*(rhs.begin()+i));
 		} else {
 			m_data[i] = 0;
@@ -235,18 +229,18 @@ void BigVectorImpl<IntegerType>::SwitchModulus(const IntegerType& newModulus) {
 		if(oldModulus < newModulus) {
 			if(n > oldModulusByTwo) {
 			  DEBUG("s1 "<<n.ModAdd(diff, newModulus));
-			  this->at(i)= n.ModAdd(diff, newModulus);
+				this->at(i) =n.ModAdd(diff, newModulus);
 			} else {
 			  DEBUG("s2 "<<n.Mod(newModulus));
-			  this->at(i)= n.Mod(newModulus);
+				this->at(i) =n.Mod(newModulus);
 			}
 		} else {
 			if(n > oldModulusByTwo) {
 			  DEBUG("s3 "<<n.ModSub(diff, newModulus));				
-			  this->at(i)= n.ModSub(diff, newModulus);
+				this->at(i) =n.ModSub(diff, newModulus);
 			} else {
 			  DEBUG("s4 "<<n.Mod(newModulus));
-			  this->at(i)= n.Mod(newModulus);
+				this->at(i) =n.Mod(newModulus);
 			}
 		}
 	}
@@ -257,18 +251,18 @@ void BigVectorImpl<IntegerType>::SwitchModulus(const IntegerType& newModulus) {
 
 }
 
-//template<class IntegerType>
-//const IntegerType& BigVectorImpl<IntegerType>::GetModulus() const{
-//
-//	return this->m_modulus;
-//
-//}
-//
-//
-//template<class IntegerType>
-//usint BigVectorImpl<IntegerType>::GetLength() const{
-//	return this->m_length;
-//}
+template<class IntegerType>
+const IntegerType& BigVectorImpl<IntegerType>::GetModulus() const{
+
+	return this->m_modulus;
+
+}
+
+
+template<class IntegerType>
+usint BigVectorImpl<IntegerType>::GetLength() const{
+	return this->m_length;
+}
 
 template<class IntegerType>
 BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::Mod(const IntegerType& modulus) const{
@@ -288,10 +282,10 @@ BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::Mod(const IntegerType& mo
 		IntegerType halfQ(this->GetModulus() >> 1);
 		for (usint i = 0; i<ans.GetLength(); i++) {
 			if (this->at(i)>halfQ) {
-			  ans.at(i)=this->at(i).ModSub(this->GetModulus(),modulus);
+				ans.at(i) = this->at(i).ModSub(this->GetModulus(),modulus);
 			}
 			else {
-			  ans.at(i)=this->at(i).Mod(modulus);
+				ans.at(i) = this->at(i).Mod(modulus);
 			}
 		}
 		return ans;
@@ -336,10 +330,10 @@ BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::MultiplyAndRound(const In
 	//IntegerType halfQ(this->GetModulus() >> 1);
 	//for (usint i = 0; i<ans.GetLength(); i++) {
 	//	if (this->at(i)>halfQ) {
-	//		ans.at(i)= this->at(i).ModSub(this->GetModulus(), modulus);
+	//		ans.at(i) =this->at(i).ModSub(this->GetModulus(), modulus));
 	//	}
 	//	else {
-	//		ans.at(i)= this->at(i).Mod(modulus);
+	//		ans.at(i) =this->at(i).Mod(modulus));
 	//	}
 	//}
 	//return ans;
@@ -366,31 +360,7 @@ BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::DivideAndRound(const Inte
 	return ans;
 }
 
-/*
-Source: http://homes.esat.kuleuven.be/~fvercaut/papers/bar_mont.pdf
-@article{knezevicspeeding,
-  title={Speeding Up Barrett and Montgomery Modular Multiplications},
-  author={Knezevic, Miroslav and Vercauteren, Frederik and Verbauwhede, Ingrid}
-}
-We use the Generalized Barrett modular reduction algorithm described in Algorithm 2 of the Source. The algorithm was originally 
-proposed in J.-F. Dhem. Modified version of the Barrett algorithm. Technical report, 1994 and described in more detail 
-in the PhD thesis of the author published at
-http://users.belgacom.net/dhem/these/these_public.pdf (Section 2.2.4).
-We take \alpha equal to n + 3. So in our case, \mu = 2^(n + \alpha) = 2^(2*n + 3).
-Generally speaking, the value of \alpha should be \ge \gamma + 1, where \gamma + n is the number of digits in the dividend.
-We use the upper bound of dividend assuming that none of the dividends will be larger than 2^(2*n + 3).
 
-Potential improvements:
-1. When working with MATHBACKEND = 1, we tried to compute an evenly distributed array of \mu (the number is approximately equal
-to the number BARRET_LEVELS) but that did not give any performance improvement. So using one pre-computed value of 
-\mu was the most efficient option at the time.
-2. We also tried "Interleaved digit-serial modular multiplication with generalized Barrett reduction" Algorithm 3 in the Source but it 
-was slower with MATHBACKEND = 1.
-3. Our implementation makes the modulo operation essentially equivalent to two multiplications. If sparse moduli are selected, it can be replaced
-with a single multiplication. The interleaved version of modular multiplication for this case is listed in Algorithm 6 of the source. 
-This algorithm would most like give the biggest improvement but it sets constraints on moduli.
-
-*/
 template<class IntegerType>
 BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModMul(const IntegerType &b) const{
 	//std::cout<< "Printing Modulus: "<< m_modulus<< std::endl;
@@ -401,9 +371,7 @@ BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModMul(const IntegerType 
 	IntegerType mu = lbcrypto::ComputeMu<IntegerType>(m_modulus);
 
 	for(usint i=0;i<this->m_length;i++){
-		//std::cout<< "before data: "<< ans.m_data[i]<< std::endl;
 		ans.m_data[i].ModBarrettMulInPlace(b,this->m_modulus,mu);
-		//std::cout<< "after data: "<< ans.m_data[i]<< std::endl;
 	}
 
 	return ans;
@@ -474,15 +442,15 @@ BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModByTwo() const {
 	for (usint i = 0; i<ans.GetLength(); i++) {
 		if (this->at(i)>halfQ) {
 			if (this->at(i).Mod(2) == 1)
-			  ans.at(i)= IntegerType(0);
+				ans.at(i) =IntegerType(0);
 			else
-			  ans.at(i)= 1;
+				ans.at(i) =1;
 		}
 		else {
 			if (this->at(i).Mod(2) == 1)
-			  ans.at(i)= 1;
+				ans.at(i) =1;
 			else
-			  ans.at(i)= IntegerType(0);
+				ans.at(i) =IntegerType(0);
 		}
 
 	}
@@ -517,31 +485,6 @@ const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::operator-=(const B
 
 }
 
-/*
-Source: http://homes.esat.kuleuven.be/~fvercaut/papers/bar_mont.pdf
-@article{knezevicspeeding,
-  title={Speeding Up Barrett and Montgomery Modular Multiplications},
-  author={Knezevic, Miroslav and Vercauteren, Frederik and Verbauwhede, Ingrid}
-}
-We use the Generalized Barrett modular reduction algorithm described in Algorithm 2 of the Source. The algorithm was originally 
-proposed in J.-F. Dhem. Modified version of the Barrett algorithm. Technical report, 1994 and described in more detail 
-in the PhD thesis of the author published at
-http://users.belgacom.net/dhem/these/these_public.pdf (Section 2.2.4).
-We take \alpha equal to n + 3. So in our case, \mu = 2^(n + \alpha) = 2^(2*n + 3).
-Generally speaking, the value of \alpha should be \ge \gamma + 1, where \gamma + n is the number of digits in the dividend.
-We use the upper bound of dividend assuming that none of the dividends will be larger than 2^(2*n + 3).
-
-Potential improvements:
-1. When working with MATHBACKEND = 1, we tried to compute an evenly distributed array of \mu (the number is approximately equal
-to the number BARRET_LEVELS) but that did not give any performance improvement. So using one pre-computed value of 
-\mu was the most efficient option at the time.
-2. We also tried "Interleaved digit-serial modular multiplication with generalized Barrett reduction" Algorithm 3 in the Source but it 
-was slower with MATHBACKEND = 1.
-3. Our implementation makes the modulo operation essentially equivalent to two multiplications. If sparse moduli are selected, it can be replaced
-with a single multiplication. The interleaved version of modular multiplication for this case is listed in Algorithm 6 of the source. 
-This algorithm would most like give the biggest improvement but it sets constraints on moduli.
-
-*/
 template<class IntegerType>
 BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModMul(const BigVectorImpl &b) const{
 
@@ -555,7 +498,6 @@ BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModMul(const BigVectorImp
 	IntegerType mu = lbcrypto::ComputeMu<IntegerType>(this->GetModulus());
 
 	for(usint i=0;i<ans.m_length;i++){
-		//ans.m_data[i] = ans.m_data[i].ModMul(b.m_data[i],this->m_modulus);
 		ans.m_data[i].ModBarrettMulInPlace(b.m_data[i],this->m_modulus,mu);
 	}
 	return ans;

@@ -59,27 +59,13 @@ namespace lbcrypto {
 			/**
 			 * Default constructor.
 			 */
-			LPCryptoParametersFV() : LPCryptoParametersRLWE<Element>() {
-				m_delta = BigInteger(0);
-				m_mode = RLWE;
-				m_bigModulus = BigInteger(0);
-				m_bigRootOfUnity = BigInteger(0);
-				m_bigModulusArb = BigInteger(0);
-				m_bigRootOfUnityArb = BigInteger(0);
-			}
+			LPCryptoParametersFV();
 
 			/**
 		 	 * Copy constructor.
 	 		 * @param rhs - source
 			 */
-			LPCryptoParametersFV(const LPCryptoParametersFV &rhs) : LPCryptoParametersRLWE<Element>(rhs) {
-				m_delta = rhs.m_delta;
-				m_mode = rhs.m_mode;
-				m_bigModulus = rhs.m_bigModulus;
-				m_bigRootOfUnity = rhs.m_bigRootOfUnity;
-				m_bigModulusArb = rhs.m_bigModulusArb;
-				m_bigRootOfUnityArb = rhs.m_bigRootOfUnityArb;
-			}
+			LPCryptoParametersFV(const LPCryptoParametersFV &rhs);
 
 			/**
 			 * Constructor that initializes values.  Note that it is possible to set parameters in a way that is overall
@@ -96,12 +82,13 @@ namespace lbcrypto {
 			 * @param securityLevel Security level as Root Hermite Factor.  We use the Root Hermite Factor representation of the security level to better conform with US ITAR and EAR export regulations.  This is typically represented as /delta in the literature.  Typically a Root Hermite Factor of 1.006 or less provides reasonable security for RLWE crypto schemes, although extra care is need for the LTV scheme because LTV makes an additional security assumption that make it suceptible to subfield lattice attacks.
 			 * @param relinWindow The size of the relinearization window.  This is relevant when using this scheme for proxy re-encryption, and the value is denoted as r in the literature.
 			 * @param delta FV-specific factor that is multiplied by the plaintext polynomial.
-			 * @param mode optimization setting (RLWE vs OPTIMIZED)
+			 * @param mode mode for secret polynomial, defaults to RLWE.
 			 * @param bigModulus modulus used in polynomial multiplications in EvalMult
 			 * @param bigRootOfUnity root of unity for bigModulus
 			 * @param bigModulusArb modulus used in polynomial multiplications in EvalMult (for arbitrary cyclotomics)
 			 * @param bigRootOfUnityArb root of unity for bigModulus (for arbitrary cyclotomics)
 			 * @param depth Depth is the depth of computation supprted which is set to 1 by default.  Use the default setting unless you're using SHE, levelled SHE or FHE operations.
+			 * @param maxDepth is the maximum homomorphic multiplication depth before performing relinearization
 			 */
 			LPCryptoParametersFV(shared_ptr<typename Element::Params> params,
 				const BigInteger &plaintextModulus, 
@@ -116,22 +103,7 @@ namespace lbcrypto {
 				const BigInteger &bigModulusArb = BigInteger(0),
 				const BigInteger &bigRootOfUnityArb = BigInteger(0),
 				int depth = 1,
-				int maxDepth = 2)
-					: LPCryptoParametersRLWE<Element>(params,
-						shared_ptr<EncodingParams>( new EncodingParams(plaintextModulus) ),
-						distributionParameter,
-						assuranceMeasure,
-						securityLevel,
-						relinWindow,
-						depth,
-						maxDepth) {
-						m_delta = delta;
-						m_mode = mode;
-						m_bigModulus = bigModulus;
-						m_bigRootOfUnity = bigRootOfUnity;
-						m_bigModulusArb = bigModulusArb;
-						m_bigRootOfUnityArb = bigRootOfUnityArb;
-					}
+				int maxDepth = 2);
 
 			/**
 			* Constructor that initializes values.
@@ -143,12 +115,13 @@ namespace lbcrypto {
 			* @param securityLevel security level (root Hermite factor).
 			* @param relinWindow the size of the relinearization window.
 			* @param delta FV-specific factor that is multiplied by the plaintext polynomial.
-			* @param mode optimization setting (RLWE vs OPTIMIZED)
+			* @param mode mode for secret polynomial, defaults to RLWE.
 			* @param bigModulus modulus used in polynomial multiplications in EvalMult
 			* @param bigRootOfUnity root of unity for bigModulus
 			* @param bigModulusArb modulus used in polynomial multiplications in EvalMult (arbitrary cyclotomics)
 			* @param bigRootOfUnityArb root of unity for bigModulus (arbitrary cyclotomics)
 			* @param depth depth which is set to 1.
+			* @param maxDepth is the maximum homomorphic multiplication depth before performing relinearization
 			*/
 			LPCryptoParametersFV(shared_ptr<typename Element::Params> params,
 				shared_ptr<EncodingParams> encodingParams,
@@ -163,22 +136,7 @@ namespace lbcrypto {
 				const BigInteger &bigModulusArb = BigInteger(0),
 				const BigInteger &bigRootOfUnityArb = BigInteger(0),
 				int depth = 1,
-				int maxDepth = 2)
-				: LPCryptoParametersRLWE<Element>(params,
-					encodingParams,
-					distributionParameter,
-					assuranceMeasure,
-					securityLevel,
-					relinWindow,
-					depth,
-					maxDepth) {
-				m_delta = delta;
-				m_mode = mode;
-				m_bigModulus = bigModulus;
-				m_bigRootOfUnity = bigRootOfUnity;
-				m_bigModulusArb = bigModulusArb;
-				m_bigRootOfUnityArb = bigRootOfUnityArb;
-			}
+				int maxDepth = 2);
 
 			/**
 			* Destructor
@@ -205,13 +163,6 @@ namespace lbcrypto {
 			* @return the delta factor. It is an FV-specific factor that is multiplied by the plaintext polynomial.
 			*/
 			const BigInteger& GetDelta() const { return m_delta; }
-
-			/**
-			* Gets the mode setting: RLWE or OPTIMIZED.
-			*
-			* @return the mode setting.
-			*/
-			MODE GetMode() const { return m_mode; }
 
 			/**
 			* Gets the modulus used for polynomial multiplications in EvalMult
@@ -248,12 +199,6 @@ namespace lbcrypto {
 			void SetDelta(const BigInteger &delta) { m_delta = delta; }
 
 			/**
-			* Configures the mode for generating the secret key polynomial
-			* @param mode is RLWE or OPTIMIZED.  OPTIMIZED is preferred for increased performance.
-			*/
-			void SetMode(MODE mode) { m_mode = mode; }
-
-			/**
 			* Sets the modulus used for polynomial multiplications in EvalMult
 			* 
 			* @param &bigModulus the modulus value.
@@ -287,7 +232,6 @@ namespace lbcrypto {
 				if( el == 0 ) return false;
 
 				if (m_delta != el->m_delta) return false;
-				if (m_mode != el->m_mode) return false;
 				if (m_bigModulus != el->m_bigModulus) return false;
 				if (m_bigRootOfUnity != el->m_bigRootOfUnity) return false;
 				if (m_bigModulusArb != el->m_bigModulusArb) return false;
@@ -300,7 +244,6 @@ namespace lbcrypto {
 				LPCryptoParametersRLWE<Element>::PrintParameters(os);
 
 				os << " delta: " << m_delta <<
-						" mode: " << m_mode <<
 						" bigmodulus: " << m_bigModulus <<
 						" bigrootofunity: " << m_bigRootOfUnity <<
 						" bigmodulusarb: " << m_bigModulusArb <<
@@ -311,10 +254,6 @@ namespace lbcrypto {
 			// factor delta = floor(q/p) that is multipled by the plaintext polynomial 
 			// in FV (most significant bit ranges are used to represent the message)
 			BigInteger m_delta;
-			
-			// specifies whether the keys are generated from discrete 
-			// Gaussian distribution or ternary distribution with the norm of unity
-			MODE m_mode;
 			
 			// larger modulus that is used in polynomial multiplications within EvalMult (before rounding is done)
 			BigInteger m_bigModulus;
@@ -357,8 +296,10 @@ namespace lbcrypto {
 		* @param evalMultCount number of EvalMults assuming no EvalAdd and KeySwitch operations are performed.
 		* @param keySwitchCount number of KeySwitch operations assuming no EvalAdd and EvalMult operations are performed.
 		*/
-		bool ParamsGen(shared_ptr<LPCryptoParameters<Element>> cryptoParams, int32_t evalAddCount = 0,
+		virtual bool ParamsGen(shared_ptr<LPCryptoParameters<Element>> cryptoParams, int32_t evalAddCount = 0,
 			int32_t evalMultCount = 0, int32_t keySwitchCount = 0) const;
+
+		virtual ~LPAlgorithmParamsGenFV() {}
 
 	};
 
@@ -390,7 +331,7 @@ namespace lbcrypto {
 		* @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 		* @return ciphertext which results from encryption.
 		*/
-		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
+		virtual shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
 			Element plaintext) const;
 
 		/**
@@ -413,7 +354,7 @@ namespace lbcrypto {
 		* @param *plaintext the plaintext output.
 		* @return the decrypted plaintext returned.
 		*/
-		DecryptResult Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
+		virtual DecryptResult Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
 			const shared_ptr<Ciphertext<Element>> ciphertext,
 			Poly *plaintext) const;
 
@@ -426,6 +367,8 @@ namespace lbcrypto {
 		* @return key pair including the private and public key
 		*/
 		LPKeyPair<Element> KeyGen(shared_ptr<CryptoContext<Element>> cc, bool makeSparse=false);
+
+		virtual ~LPAlgorithmFV() {}
 
 	};
 

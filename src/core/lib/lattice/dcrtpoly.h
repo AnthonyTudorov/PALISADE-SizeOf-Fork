@@ -507,6 +507,14 @@ public:
 	DCRTPolyType Times(const IntType &element) const;
 
 	/**
+	* @brief Scalar multiplication by an integer represented in CRT Basis.
+	*
+	* @param &element is the element to multiply entry-wise.
+	* @return is the return value of the times operation.
+	*/
+	DCRTPolyType Times(const std::vector<native_int::BigInteger> &element) const;
+
+	/**
 	* @brief Scalar multiplication followed by division and rounding operation - operation on all entries.
 	*
 	* @param &p is the element to multiply entry-wise.
@@ -655,11 +663,63 @@ public:
 
 	/**
 	* @brief Interpolates the DCRTPoly to an Poly based on the Chinese Remainder Transform Interpolation.
-	* and then returns an DCRTPoly with that single element
+	* and then returns a Poly with that single element
 	*
-	* @return the interpolated ring element embeded into DCRTPoly.
+	* @return the interpolated ring element as a Poly object.
 	*/
 	Poly CRTInterpolate() const;
+
+	/**
+	* @brief Computes Round(p/q*x) mod p as [\sum_i x_i*alpha_i + Round(\sum_i x_i*beta_i)] mod p for fast rounding in RNS;
+	* used in the decryption of BFVrns
+	*
+	* @param &p 64-bit integer (often corresponds to the plaintext modulus)
+	* @param &alpha a vector of precomputed integer factors mod p - for each q_i
+	* @param &beta a vector of precomputed floating-point factors between 0 and 1 - for each q_i
+	* @return the result of computation as a polynomial with native 64-bit coefficients
+	*/
+	PolyType ScaleAndRound(const typename PolyType::Integer &p, const std::vector<typename PolyType::Integer> &alpha,
+			const std::vector<double> &beta) const;
+
+	/**
+	* @brief Switches polynomial from one CRT basis Q = q1*q2*...*qn to another CRT basis S = s1*s2*...*sn
+	*
+	* @param &params parameters for the CRT basis S
+	* @param &qInvModqi a vector of precomputed integer factors (q/qi)^{-1} mod qi for all qi
+	* @param &qDivqiModsi a matrix of precomputed integer factors (q/qi)^{-1} mod si for all si, qi combinations
+	* @param &qModsi a vector of precomputed integer factors q mod si for all si
+	* @return the polynomial in the CRT basis S
+	*/
+	DCRTPolyType SwitchCRTBasis(const shared_ptr<ParmType> params, const std::vector<typename PolyType::Integer> &qInvModqi,
+			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsi, const std::vector<typename PolyType::Integer> &qModsi) const;
+
+	/**
+	* @brief Expands polynomial in CRT basis Q = q1*q2*...*qn to a larger CRT basis Q*S, where S = s1*s2*...*sn;
+	* uses SwtichCRTBasis as a subroutine
+	*
+	* @param &paramsQS parameters for the expanded CRT basis Q*S
+	* @param &params parameters for the CRT basis S
+	* @param &qInvModqi a vector of precomputed integer factors (q/qi)^{-1} mod qi for all qi
+	* @param &qDivqiModsi a matrix of precomputed integer factors (q/qi)^{-1} mod si for all si, qi combinations
+	* @param &qModsi a vector of precomputed integer factors q mod si for all si
+	* @return the polynomial in the CRT basis Q*S
+	*/
+	void ExpandCRTBasis(const shared_ptr<ParmType> paramsQS, const shared_ptr<ParmType> params, const std::vector<typename PolyType::Integer> &qInvModqi,
+			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsi, const std::vector<typename PolyType::Integer> &qModsi);
+
+	/**
+	* @brief Computes Round(p/Q*x), where x is in the CRT basis Q*S,
+	* as [\sum_{i=1}^n alpha_i*x_i + Round(\sum_{i=1}^n beta_i*x_i)]_si,
+	* with the result in the Q CRT basis; used in homomorphic multiplication of BFVrns
+	*
+	* @param &params parameters for the CRT basis Q
+	* @param &alpha a matrix of precomputed integer factors = {Floor[p*S*[(Q*S/vi)^{-1}]_{vi}/vi]}_si; for all combinations of vi, si; where vi is a prime modulus in Q*S
+	* @param &beta a vector of precomputed floating-point factors between 0 and 1 = [p*S*(Q*S/vi)^{-1}]_{vi}/vi; - for each vi
+	* @return the result of computation as a polynomial in the CRT basis Q
+	*/
+	DCRTPolyType ScaleAndRound(const shared_ptr<ParmType> params,
+			const std::vector<std::vector<typename PolyType::Integer>> &alpha,
+			const std::vector<double> &beta) const;
 
 	/**
 	* @brief Convert from Coefficient to CRT or vice versa; calls FFT and inverse FFT.

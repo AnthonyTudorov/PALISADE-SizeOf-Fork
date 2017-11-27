@@ -51,17 +51,17 @@
  */
 namespace lbcrypto {
 
-	/**
+/**
 	 * @brief Crypto parameters class for RLWE-based schemes.
 	 * The basic scheme is described here:
 	 *   -  Brakerski Z., Vaikuntanathan V. (2011) Fully Homomorphic Encryption from Ring-LWE and Security for Key Dependent Messages. In: Rogaway P. (eds) Advances in Cryptology – CRYPTO 2011. CRYPTO 2011. Lecture Notes in Computer Science, vol 6841. Springer, Berlin, Heidelberg
 	 *      (http://www.wisdom.weizmann.ac.il/~zvikab/localpapers/IdealHom.pdf) or alternative Internet source: (http://dx.doi.org/10.1007/978-3-642-22792-9_29).
-	 * 
+	 *
 	 * We use advances from the BGV scheme for levelled homomorphic capabilities from here:
 	 *   - Brakerski Z., Gentry C., Halevi S. (2013) Packed Ciphertexts in LWE-Based Homomorphic Encryption. In: Kurosawa K., Hanaoka G. (eds) Public-Key Cryptography – PKC 2013. Lecture Notes in Computer Science, vol 7778. Springer, Berlin, Heidelberg
 	 *     (https://eprint.iacr.org/2011/277.pdf).
 	 *
-	 * Implementation design details that we use in our implementation are discussed here: 
+	 * Implementation design details that we use in our implementation are discussed here:
 	 *   - Gentry C., Halevi S., Smart N.P. (2012) Homomorphic Evaluation of the AES Circuit. In: Safavi-Naini R., Canetti R. (eds) Advances in Cryptology – CRYPTO 2012. Lecture Notes in Computer Science, vol 7417. Springer, Berlin, Heidelberg
 	 *     ( https://eprint.iacr.org/2012/099.pdf)
 	 *
@@ -70,29 +70,25 @@ namespace lbcrypto {
 	template <class Element>
 	class LPCryptoParametersBV : public LPCryptoParametersRLWE<Element> {
 		public:
-			
+
 			/**
 			 * Default Constructor.
 			 */
-			LPCryptoParametersBV() : LPCryptoParametersRLWE<Element>() {
-				m_mode = RLWE;
-			}
+			LPCryptoParametersBV() : LPCryptoParametersRLWE<Element>() {}
 
 			/**
 			 * Copy constructor.
 			 *
 	 		 * @param rhs - source
 			 */
-			LPCryptoParametersBV(const LPCryptoParametersBV &rhs) : LPCryptoParametersRLWE<Element>(rhs) {
-				m_mode = rhs.m_mode;
-			}
+			LPCryptoParametersBV(const LPCryptoParametersBV &rhs) : LPCryptoParametersRLWE<Element>(rhs) {}
 
 			/**
 			 * Constructor that initializes values.  Note that it is possible to set parameters in a way that is overall
 			 * infeasible for actual use.  There are fewer degrees of freedom than parameters provided.  Typically one
-			 * chooses the basic noise, assurance and security parameters as the typical community-accepted values, 
-			 * then chooses the plaintext modulus and depth as needed.  The element parameters should then be choosen 
-			 * to provide correctness and security.  In some cases we would need to operate over already 
+			 * chooses the basic noise, assurance and security parameters as the typical community-accepted values,
+			 * then chooses the plaintext modulus and depth as needed.  The element parameters should then be choosen
+			 * to provide correctness and security.  In some cases we would need to operate over already
 			 * encrypted/provided ciphertext and the depth needs to be pre-computed for initial settings.
 			 *
 			 * @param &params element parameters.
@@ -106,10 +102,10 @@ namespace lbcrypto {
 			 */
 			LPCryptoParametersBV(
 				shared_ptr<typename Element::Params> params,
-				const BigInteger &plaintextModulus, 
-				float distributionParameter, 
-				float assuranceMeasure, 
-				float securityLevel, 
+				const BigInteger &plaintextModulus,
+				float distributionParameter,
+				float assuranceMeasure,
+				float securityLevel,
 				usint relinWindow,
 				MODE mode,
 				int depth = 1)
@@ -120,8 +116,8 @@ namespace lbcrypto {
 						assuranceMeasure,
 						securityLevel,
 						relinWindow,
-						depth) {
-				m_mode = mode;
+						depth,
+						mode) {
 			}
 
 			/**
@@ -152,15 +148,15 @@ namespace lbcrypto {
 					assuranceMeasure,
 					securityLevel,
 					relinWindow,
-					depth) {
-				m_mode = mode;
+					depth,
+					mode) {
 			}
 
 			/**
 			* Destructor.
 			*/
 			virtual ~LPCryptoParametersBV() {}
-			
+
 			/**
 			* Serialize the object into a Serialized
 			* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
@@ -176,18 +172,6 @@ namespace lbcrypto {
 			bool Deserialize(const Serialized& serObj);
 
 			/**
-			* Gets the mode setting: RLWE or OPTIMIZED.
-			*
-			* @return the mode setting.
-			*/
-			MODE GetMode() const { return m_mode; }
-
-			/**
-			* Configures the mode for generating the secret key polynomial
-			*/
-			void SetMode(MODE mode) { m_mode = mode; }
-
-			/**
 			* == operator to compare to this instance of LPCryptoParametersBV object.
 			*
 			* @param &rhs LPCryptoParameters to check equality against.
@@ -197,21 +181,12 @@ namespace lbcrypto {
 
 				if (el == 0) return false;
 
-				if (m_mode != el->m_mode) return false;
-
 				return  LPCryptoParametersRLWE<Element>::operator==(rhs);
 			}
 
 			void PrintParameters(std::ostream& os) const {
 				LPCryptoParametersRLWE<Element>::PrintParameters(os);
-
-				os << " mode: " << m_mode;
 			}
-
-	private:
-		// specifies whether the keys are generated from discrete 
-		// Gaussian distribution or ternary distribution with the norm of unity
-		MODE m_mode;
 
 	};
 

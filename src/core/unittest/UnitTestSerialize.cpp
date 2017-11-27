@@ -132,7 +132,7 @@ TEST(UTSer,vector_of_cpu_int){
 
 	for( int i=0; i<vecsize; i++ ) {
 		ranval = dug.GenerateInteger();
-		testvec.SetValAtIndex(i, ranval);
+		testvec.at(i)= ranval;
 	}
 
 	DEBUG("step 4");
@@ -157,7 +157,7 @@ TEST(UTSer,vector_of_native_int){
 
 	for( int i=0; i<vecsize; i++ ) {
 		ranval = dug.GenerateInteger();
-		testvec.SetValAtIndex(i, ranval);
+		testvec.at(i)= ranval;
 	}
 
 	Serialized	ser;

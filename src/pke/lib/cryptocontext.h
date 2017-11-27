@@ -1094,7 +1094,7 @@ public:
 				shared_ptr<Plaintext> decryptedDenominator = GetPlaintextForDecrypt(ctN->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
 				if( (*ciphertext)(row,col).GetIntegerFlag() == true ) {
 					decryptedDenominator->GetElement<Poly>().SetValuesToZero();
-					decryptedDenominator->GetElement<Poly>().SetValAtIndex(0,1);
+					decryptedDenominator.at(0)=1;
 				}
 				else {
 
@@ -2155,6 +2155,32 @@ public:
 	* @return new context
 	*/
 	static shared_ptr<CryptoContext<Element>> genCryptoContextFV(
+		shared_ptr<EncodingParams> encodingParams, float securityLevel, usint relinWindow, float dist,
+		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED, int maxDepth = 2);
+
+	/**
+	* construct a PALISADE CryptoContext for the BFVrns Scheme using the scheme's ParamsGen methods
+	* @param plaintextModulus
+	* @param securityLevel
+	* @param numAdds
+	* @param numMults
+	* @param numKeyswitches
+	* @return new context
+	*/
+	static shared_ptr<CryptoContext<Element>> genCryptoContextBFVrns(
+		const usint plaintextModulus, float securityLevel, usint relinWindow, float dist,
+		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED, int maxDepth = 2);
+
+	/**
+	* construct a PALISADE CryptoContext for the BFVrns Scheme using the scheme's ParamsGen methods
+	* @param encodingParams
+	* @param securityLevel
+	* @param numAdds
+	* @param numMults
+	* @param numKeyswitches
+	* @return new context
+	*/
+	static shared_ptr<CryptoContext<Element>> genCryptoContextBFVrns(
 		shared_ptr<EncodingParams> encodingParams, float securityLevel, usint relinWindow, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED, int maxDepth = 2);
 

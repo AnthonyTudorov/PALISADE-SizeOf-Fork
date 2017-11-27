@@ -63,7 +63,7 @@ namespace lbcrypto {
 			}
 
 			for(usint i=0; i<ringDimesion; i++) {
-				auto coeff_i = tB.GetValAtIndex(i);
+				auto coeff_i = tB.at(i);
 				int j = 0;
 				int flip = 0;
 				while(coeff_i > big0) {
@@ -89,7 +89,7 @@ namespace lbcrypto {
 #else //if MATHBACKEND == 2
 						coeff_i = coeff_i+bigBase;    // math backend 2
 #endif
-						(*psi)(j, ii).SetValAtIndex(i, q-BigInteger(digit_i));
+						(*psi)(j, ii).at(i)= q-BigInteger(digit_i);
 					}
 					else if(digit_i == (base>>1)) {
 						if (flip == 0) {
@@ -98,14 +98,14 @@ namespace lbcrypto {
 #else //if MATHBACKEND == 2
 							coeff_i = coeff_i+bigBase;    // math backend 2
 #endif
-							(*psi)(j, ii).SetValAtIndex(i, q-BigInteger(digit_i));
+							(*psi)(j, ii).at(i)= q-BigInteger(digit_i);
 						}
 						else
-							(*psi)(j, ii).SetValAtIndex(i, BigInteger(digit_i));
+						  (*psi)(j, ii).at(i)= BigInteger(digit_i);
 						flip = flip ^ 1;
 					}
 					else
-						(*psi)(j, ii).SetValAtIndex(i, BigInteger(digit_i));
+					  (*psi)(j, ii).at(i)= BigInteger(digit_i);
 
 					coeff_i = coeff_i.DividedBy(bigBase);
 					j++;
@@ -875,15 +875,15 @@ template <class Element, class Element2>
 
 		for (usint i = 0; i < m_N; i++)
 		{
-			dec = dtext->GetValAtIndex(i);
+			dec = dtext->at(i);
 
 			if (dec > qHalf)
 				dec = m_q - dec;
 
 			if (dec > threshold)
-				dtext->SetValAtIndex(i, BigInteger(1));
+			  dtext->at(i)= BigInteger(1);
 			else
-				dtext->SetValAtIndex(i, BigInteger(0));
+			  dtext->at(i)= BigInteger(0);
 		}
 
 	}

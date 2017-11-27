@@ -136,20 +136,12 @@ MatrixStrassen<Element>& MatrixStrassen<Element>::operator+=(MatrixStrassen<Elem
     if (rows != other.rows || cols != other.cols) {
         throw invalid_argument("Addition operands have incompatible dimensions");
     }
-#if 0
-    for (size_t i = 0; i < rows; ++i) {
-        for (size_t j = 0; j < cols; ++j) {
-            data[i][j] += *other.data[i][j];
-        }
-    }
-#else
     #pragma omp parallel for
-for (size_t j = 0; j < cols; ++j) {
-	for (size_t i = 0; i < rows; ++i) {
-            data[i][j] += *other.data[i][j];
-        }
+    for (size_t j = 0; j < cols; ++j) {
+      for (size_t i = 0; i < rows; ++i) {
+	data[i][j] += *other.data[i][j];
+      }
     }
-#endif
     return *this;
 }
 
@@ -158,20 +150,13 @@ inline MatrixStrassen<Element>& MatrixStrassen<Element>::operator-=(MatrixStrass
     if (rows != other.rows || cols != other.cols) {
         throw invalid_argument("Subtraction operands have incompatible dimensions");
     }
-#if 0
-    for (size_t i = 0; i < rows; ++i) {
-        for (size_t j = 0; j < cols; ++j) {
-            *data[i][j] -= *other.data[i][j];
-        }
-    }
-#else
     #pragma omp parallel for
     for (size_t j = 0; j < cols; ++j) {
         for (size_t i = 0; i < rows; ++i) {
             *data[i][j] -= *other.data[i][j];
         }
     }
-#endif
+
     return *this;
 }
 
@@ -428,7 +413,7 @@ inline MatrixStrassen<BigInteger> Rotate(MatrixStrassen<Poly> const& inMat) {
             for (size_t rotRow = 0; rotRow < n; ++rotRow) {
                 for (size_t rotCol = 0; rotCol < n; ++rotCol) {
                     result(row*n + rotRow, col*n + rotCol) =
-                        mat(row, col).GetValues().GetValAtIndex(
+                        mat(row, col).GetValues().at(
                             (rotRow - rotCol + n) % n
                             );
                     //  negate (mod q) upper-right triangle to account for
@@ -462,10 +447,10 @@ MatrixStrassen<BigVector> RotateVecResult(MatrixStrassen<Poly> const& inMat) {
             for (size_t rotRow = 0; rotRow < n; ++rotRow) {
                 for (size_t rotCol = 0; rotCol < n; ++rotCol) {
                     BigVector& elem = result(row*n + rotRow, col*n + rotCol);
-                    elem.SetValAtIndex(0,
-                        mat(row, col).GetValues().GetValAtIndex(
+                    elem.at(0)=
+                        mat(row, col).GetValues().at(
                             (rotRow - rotCol + n) % n
-                            ));
+                            );
                     //  negate (mod q) upper-right triangle to account for
                     //  (mod x^n + 1)
                     if (rotRow < rotCol) {
@@ -545,7 +530,7 @@ MatrixStrassen<int32_t> ConvertToInt32(const MatrixStrassen<BigVector> &input, c
     MatrixStrassen<int32_t> result([](){ return make_unique<int32_t>(); }, rows, cols);
     for (size_t i = 0; i < rows; ++i) {
         for (size_t j = 0; j < cols; ++j) {
-            const BigInteger& elem = input(i,j).GetValAtIndex(0);
+            const BigInteger& elem = input(i,j).at(0);
             if (elem > negativeThreshold) {
                 result(i,j) = -1*(modulus - elem).ConvertToInt();
             } else {
@@ -581,7 +566,7 @@ MatrixStrassen<Poly> SplitInt32IntoPolyElements(MatrixStrassen<int32_t> const& o
 				tempInteger = other(row*n + i,0);
 				tempBBI = BigInteger(tempInteger);
 			}
-            tempBBV.SetValAtIndex(i,tempBBI);
+			tempBBV.at(i)=tempBBI;
         }
 
 		result(row,0).SetValues(tempBBV,COEFFICIENT);
@@ -618,7 +603,7 @@ MatrixStrassen<Poly> SplitInt32AltIntoPolyElements(MatrixStrassen<int32_t> const
 				tempBBI = BigInteger(tempInteger);
 			}
 
-			tempBBV.SetValAtIndex(i,tempBBI);
+			tempBBV.at(i)=tempBBI;
         }
 
 		result(row,0).SetValues(tempBBV,COEFFICIENT);

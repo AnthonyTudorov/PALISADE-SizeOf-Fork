@@ -77,7 +77,7 @@ namespace lbcrypto {
 #pragma omp parallel for
 		for (size_t j = 0; j < u.GetLength(); j++)
 		{
-			typename Element::Integer v(u.GetValAtIndex(j));
+			typename Element::Integer v(u.at(j));
 
 			vector<int32_t> p(k);
 
@@ -153,7 +153,7 @@ namespace lbcrypto {
 #pragma omp parallel for
 		for (size_t j = 0; j < u.GetLength(); j++)
 		{
-			typename Element::Integer v(u.GetValAtIndex(j));
+			typename Element::Integer v(u.at(j));
 
 			vector<double> p(k);
 

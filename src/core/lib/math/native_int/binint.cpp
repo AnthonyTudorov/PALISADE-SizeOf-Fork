@@ -1,8 +1,5 @@
 /**
- * @file binint.cpp This file contains the main class for big integers: BigInteger. Big integers are represented
- * as arrays of native usigned integers. The native integer type is supplied as a template parameter.
- * Currently implementations based on uint8_t, uint16_t, and uint32_t are supported. The second template parameter
- * is the maximum bitwidth for the big integer.
+ * @file binint.cpp This file contains the main class for native integers.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)

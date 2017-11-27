@@ -124,7 +124,6 @@ void EncodeData(shared_ptr<CryptoContext<DCRTPoly>> cc, const std::vector<string
 void CRTInterpolate(const vector<shared_ptr<Matrix<shared_ptr<Plaintext>>>> &crtVector, Matrix<native_int::BigInteger> &result);
 void MatrixInverse(const Matrix<native_int::BigInteger> &in, Matrix<double> &out);
 void DecodeData(const Matrix<double> &lr, const Matrix<native_int::BigInteger>& XTX, const Matrix<native_int::BigInteger>& XTY, std::vector<double> &result);
-//template<typename T> ostream& operator<<(ostream& output, const vector<T>& vector);
 
 void ConvertMatrixInto2DVector(const Matrix<RationalCiphertext<DCRTPoly>> &matrix, vector<vector<shared_ptr<Ciphertext<DCRTPoly>>>> &vec);
 
@@ -2699,24 +2698,7 @@ void DecodeData(const Matrix<double> &lr, const Matrix<native_int::BigInteger>& 
 	result[0] -= result[k] * (xMean);
 	}
 }
-#if 0
-template<typename T> ostream& operator<<(ostream& output, const vector<T>& vector) {
 
-	output << "[";
-
-	for (unsigned int i = 0; i < vector.size(); i++) {
-
-		if (i > 0) {
-			output << ", ";
-		}
-
-		output << vector[i];
-	}
-
-	output << "]";
-	return output;
-}
-#endif
 template <class Element>
 shared_ptr<LPEvalKey<Element>> AddEvalKeys(shared_ptr<LPEvalKey<Element>> evalKey1, shared_ptr<LPEvalKey<Element>> evalKey2)
 {

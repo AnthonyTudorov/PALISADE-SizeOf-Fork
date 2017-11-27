@@ -63,11 +63,11 @@ bool SignedIntPlaintextEncoding::doEncode(const BigInteger &modulus, Element *il
 		if( entry >= mod )
 			throw std::logic_error("Cannot encode integer " + std::to_string(entry) + " at position " + std::to_string(i) + " because it is out of range of +/- plaintext modulus/2 " + std::to_string(mod));
 		IntType Val( entry );
-		temp.SetValAtIndex(i, Val);
+		temp.at(i)= Val;
 	}
 
 	for( size_t i=0; i<padlen; i++ ) {
-		temp.SetValAtIndex(i+length, IntType(0));
+	  temp.at(i+length)= IntType(0);
 	}
 
 	ilVector->SetValues(temp,format);
@@ -80,7 +80,7 @@ bool SignedIntPlaintextEncoding::doDecode(const BigInteger &modulus, Element *il
 	uint64_t mod = modulus.ConvertToInt();
 	int64_t lim = mod/2;
 	for (usint i = 0; i<ilVector->GetValues().GetLength(); i++) {
-		int32_t val = ilVector->GetValues().GetValAtIndex(i).ConvertToInt();
+		int32_t val = ilVector->GetValues().at(i).ConvertToInt();
 		if( val > lim ) val -= mod;
 		this->push_back( val );
 	}

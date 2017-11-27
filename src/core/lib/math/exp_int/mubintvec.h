@@ -242,7 +242,7 @@ public:
     if (this->m_modulus != b.m_modulus)
       return false;
     for (size_t i = 0; i < this->GetLength(); ++i) {
-      if (this->GetValAtIndex(i) != b.GetValAtIndex(i)) {
+      if (this->at(i) != b.at(i)) {
         return false;
       }
     }
@@ -276,7 +276,7 @@ public:
       return false;
     }      //todo replace with vector equality check.
     for (size_t i = 0; i < this->GetLength(); ++i) {
-      if (this->GetValAtIndex(i) != b.GetValAtIndex(i)) {
+      if (this->at(i) != b.at(i)) {
         return false;
       }
     }
@@ -435,6 +435,16 @@ public:
 
   //METHODS
 
+  /**
+   * write to index with bounds check and with MOD
+   * @param index is the index to write to
+   * @param value is value to write, using vector's mod
+   * @return is the value at the index.
+   */
+  
+  void atMod(size_t index, const ubint_el_t &value);
+  void atMod(size_t index, const std::string &valstr);
+  
   /**
    * returns the vector modulus with respect to the input value.
    *

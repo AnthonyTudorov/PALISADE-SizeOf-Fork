@@ -23,12 +23,9 @@ do
 		export PATH=$lib:$PATH
 		$ex -t
 
-		##gcov -m -r `find bin/backend-${i}-cov -name '*.gcda'`
-		##rm -fr bin/backend-${i}-cov/gcov
-		##mkdir bin/backend-${i}-cov/gcov
-		##mv *.gcov bin/backend-${i}-cov/gcov
-		lcov --capture --directory bin/backend-${i}-cov -o bin/backend-${i}-cov/coverage.out
-		genhtml -q -o bin/backend-${i}-cov/html bin/backend-${i}-cov/coverage
+		lcov -q --capture --directory bin/backend-${i}-cov -o bin/backend-${i}-cov/coverage.full.out
+		lcov -q --remove bin/backend-${i}-cov/coverage.full.out '/usr/include/*' '/opt/local/*' '*rapidjson*' '*/test/include/gtest/*' -o bin/backend-${i}-cov/coverage.out
+		genhtml -q -o bin/backend-${i}-cov/html bin/backend-${i}-cov/coverage.out
 		)
 		echo "****************************"
 		echo COVERAGE TEST DONE
@@ -37,3 +34,5 @@ do
 		echo " ******** $ex for MATHBACKEND $i not found"
 	fi
 done
+
+genhtml -q -o bin/cov bin/backend-*-cov/coverage.out

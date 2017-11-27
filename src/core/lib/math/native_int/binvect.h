@@ -1,5 +1,5 @@
 /**
- * @file binvect.h This file contains the vector manipulation functionality.
+ * @file binvect.h This file contains the vector manipulation functionality for native integers.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -27,8 +27,8 @@
  * This file contains the vector manipulation functionality.
  */
 
-#ifndef LBCRYPTO_MATH_CPUINT_BINVECT_H
-#define LBCRYPTO_MATH_CPUINT_BINVECT_H
+#ifndef LBCRYPTO_MATH_NATIVE_BINVECT_H
+#define LBCRYPTO_MATH_NATIVE_BINVECT_H
 
 #include <iostream>
 
@@ -37,15 +37,15 @@
  #include <initializer_list>
 
 /**
- * @namespace cpu8bit
- * The namespace of cpu8bit
+ * @namespace native_int
+ * The namespace of native_int
  */
-namespace cpu_int {
+namespace native_int {
 	
 
 
 /**
- * @brief The class for representing vectors of big binary integers.
+ * @brief The class for representing vectors of native integers.
  */
 	//JSON FACILITY INHERITANCE
 	template <class IntegerType>
@@ -59,21 +59,21 @@ public:
 
     static inline BigVectorImpl Single(const IntegerType& val, const IntegerType& modulus) {
         BigVectorImpl vec(1, modulus);
-        vec.at(0)= val;
+        vec.at(0) = val;
         return vec;
     }
 
 	/**
 	 * Basic constructor for specifying the length of the vector.
 	 *
-	 * @param length is the length of the big binary vector, in terms of the number of entries.	  	  
+	 * @param length is the length of the native vector, in terms of the number of entries.
 	 */
 	BigVectorImpl(usint length);
 
 	/**
 	 * Basic constructor for specifying the length of the vector and the modulus.
 	 *
-	 * @param length is the length of the big binary vector, in terms of the number of entries.	
+	 * @param length is the length of the native vector, in terms of the number of entries.
 	 * @param modulus is the modulus of the ring.
 	 */
 	BigVectorImpl(usint length, const IntegerType& modulus);
@@ -82,7 +82,7 @@ public:
 	 * Basic constructor for specifying the length of the vector
 	 * the modulus and an initializer list.
 	 *
-	 * @param length is the length of the big binary vector, in terms of the number of entries.	
+	 * @param length is the length of the native vector, in terms of the number of entries.
 	 * @param modulus is the modulus of the ring.
 	 * @param rhs is an initializer list of usint
 	 */
@@ -92,7 +92,7 @@ public:
 	 * Basic constructor for specifying the length of the vector
 	 * the modulus and an initializer list.
 	 *
-	 * @param length is the length of the big binary vector, in terms of the number of entries.	
+	 * @param length is the length of the native vector, in terms of the number of entries.
 	 * @param modulus is the modulus of the ring.
 	 * @param rhs is an initializer list of strings
 	 */
@@ -103,21 +103,21 @@ public:
 	/**
 	 * Basic constructor for copying a vector
 	 *
-	 * @param bigVector is the big binary vector to be copied.  	  
+	 * @param bigVector is the native vector to be copied.
 	 */
 	BigVectorImpl(const BigVectorImpl& bigVector);
 
 	/**
 	 * Basic move constructor for moving a vector
 	 *
-	 * @param &&bigVector is the big binary vector to be moved.  	  
+	 * @param &&bigVector is the native vector to be moved.
 	 */
 	BigVectorImpl(BigVectorImpl &&bigVector);//move copy constructor
 
 	/**
 	* Assignment operator to assign value from rhs
 	*
-	* @param &rhs is the big binary vector to be assigned from.
+	* @param &rhs is the native vector to be assigned from.
 	* @return Assigned BigVectorImpl.	  
 	*/
 	const BigVectorImpl& operator=(const BigVectorImpl &rhs);
@@ -125,7 +125,7 @@ public:
 	/**
 	* Move assignment operator
 	*
-	* @param &&rhs is the big binary vector to be moved.
+	* @param &&rhs is the native vector to be moved.
 	* @return moved BigVectorImpl object  
 	*/
 	BigVectorImpl&  operator=(BigVectorImpl &&rhs);
@@ -207,29 +207,23 @@ public:
 	template<class IntegerType_c>
 	friend std::ostream& operator<<(std::ostream& os, const BigVectorImpl<IntegerType_c> &ptr_obj);
 
-	/**
-	 * Sets/gets a value at an index.
-	 *
-	 * @param index is the index to set a value at.
- */
-
 	IntegerType& at(usint i) {
 	  if(!this->IndexCheck(i)) {
-	    throw std::logic_error("index out of range in BigVector");
+	    throw std::logic_error("index out of range in NativeVector");
 	  }
 	  return this->m_data[i];
 	  }
 
 	const IntegerType& at(usint i) const {
  	  if(!this->IndexCheck(i)) {
-	    throw std::logic_error("index out of range in BigVector");
+	    throw std::logic_error("index out of range in NativeVector");
 	  }
 	  return this->m_data[i];
 	}
 
 	void atMod(usint i, const IntegerType &val) {
 	  if(!this->IndexCheck(i)) {
-	    throw std::logic_error("index out of range in BigVector");
+	    throw std::logic_error("index out of range in NativeVector");
 	  }
 	  this->m_data[i]=val%m_modulus;
 	  return;
@@ -237,18 +231,18 @@ public:
 
 	void atMod(usint i, const std::string& val) const {
  	  if(!this->IndexCheck(i)) {
-	    throw std::logic_error("index out of range in BigVector");
+	    throw std::logic_error("index out of range in NativeVector");
 	  }
 	  IntegerType tmp(val);
 	  this->m_data[i]=tmp%m_modulus;
 	  return;
 	}
-	
-/**
-	* operators to get a value at an index.
-	* @param idx is the index to get a value at.
-	* @return is the value at the index. return NULL if invalid index.
-	*/
+
+	/**
+	 * operators to get a value at an index.
+	 * @param idx is the index to get a value at.
+	 * @return is the value at the index. return NULL if invalid index.
+	 */
 	inline IntegerType& operator[](std::size_t idx) { return (this->m_data[idx]); }
 	inline const IntegerType& operator[](std::size_t idx) const { return (this->m_data[idx]); }
 
@@ -272,14 +266,14 @@ public:
 	 *
 	 * @return the vector modulus.
 	 */
-	const IntegerType& GetModulus() const { return this->m_modulus; }
+	const IntegerType& GetModulus() const;
 
 	/**
 	 * Gets the vector length.
 	 *
 	 * @return vector length.
 	 */
-	usint GetLength() const { return this->m_length; }
+	usint GetLength() const;
 	
 	//METHODS
 
@@ -319,7 +313,7 @@ public:
 	BigVectorImpl ModSub(const IntegerType &b) const;
 
 	/**
-	 * Scalar modular multiplication. Generalized Barrett modulo reduction algorithm. 
+	 * Scalar modular multiplication.
 	 * See the comments in the cpp files for details of the implementation.
 	 *
 	 * @param &b is the scalar to multiply at all locations.
@@ -470,7 +464,7 @@ private:
 	//m_length stores the length of the vector
 	usint m_length;
 	//m_modulus stores the internal modulus of the vector.
-	IntegerType m_modulus = IntegerType::ZERO;
+	IntegerType m_modulus;
 
 	//function to check if the index is a valid index.
 	bool IndexCheck(usint length) const {

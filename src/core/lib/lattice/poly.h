@@ -65,6 +65,7 @@ public:
 	typedef DiscreteUniformGeneratorImpl<IntType,VecType> DugType;
 	typedef TernaryUniformGeneratorImpl<IntType,VecType> TugType;
 	typedef BinaryUniformGeneratorImpl<IntType,VecType> BugType;
+	typedef PolyImpl<native_int::BigInteger,native_int::BigInteger,native_int::BigVector,native_int::ILParams> PolyNative;
 
 	/**
 	 * @brief Return the element name.
@@ -183,6 +184,14 @@ public:
 	 * @param parms ILParams instance that is is passed.
 	 */
 	PolyImpl(const PolyType &element, shared_ptr<ParmType> parms = 0);
+
+	/**
+	 * @brief Copy constructor from a Poly of native integers.
+	 *
+	 * @param &element the copied element.
+	 * @param &format sets the format for the new Poly object
+	 */
+	PolyImpl(const PolyNative &element, Format format);
 
 	/**
 	 * @brief Move constructor.
@@ -359,7 +368,8 @@ public:
 	 *
 	 * @return value at index i.
 	 */
-	const IntType GetValAtIndex(usint i) const;
+	IntType& at(usint i) ;
+	const IntType& at(usint i) const;
 
 	//SETTERS
 	/**
@@ -368,34 +378,6 @@ public:
 	 * @param index is the index at which the value is to be set.
 	 * @param val is the value to be set.
 	 */
-	inline void SetValAtIndex(size_t index, std::string val) {
-		m_values->SetValAtIndex(index, IntType(val));
-	}
-
-	/**
-	 * @brief Set VecType value to val
-	 *
-	 * @param index is the index at which the value is to be set.
-	 * @param val is the value to be set.
-	 */
-	inline void SetValAtIndex(size_t index, const IntType& val) {
-		m_values->SetValAtIndex(index, val);
-	}
-
-	/**
-	 * @brief Set the value of the element at a given index to a given value without performing a modulus operation.
-	 * @param index the index to put data at.
-	 * @param val the value to assign.
-	 */
-	inline void SetValAtIndexWithoutMod(size_t index, const IntType& val) {
-#if 1 //MATHBACKEND !=6
-		m_values->SetValAtIndex(index, val);
-#else
-		m_values->SetValAtIndexWithoutMod(index, val);
-#endif
-
-	}
-
 	// SCALAR OPERATIONS
 
 	/**
