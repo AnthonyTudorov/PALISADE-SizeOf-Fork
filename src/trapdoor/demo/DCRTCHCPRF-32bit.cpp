@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
 	std::string input2 = "10111011101110101011101110111010";
 
 	TIC(t);
-	LWEConjunctionCHCPRFAlgorithm<DCRTPoly> algorithm(1 << 15, 8, 32, 1024);
+	LWEConjunctionCHCPRFAlgorithm<DCRTPoly> algorithm(1 << 20, 8, 32, 1024);
 	processingTime = TOC(t);
 	std::cout << "Parameter Generation: " << processingTime << "ms" << std::endl;
 
