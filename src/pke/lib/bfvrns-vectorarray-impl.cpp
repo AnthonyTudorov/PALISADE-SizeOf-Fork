@@ -402,12 +402,15 @@ shared_ptr<Ciphertext<DCRTPoly>> LPAlgorithmBFVrns<DCRTPoly>::Encrypt(const shar
 	const shared_ptr<typename DCRTPoly::Params> elementParams = cryptoParams->GetElementParams();
 
 	ptxt.SwitchFormat();
-
+/*
 	const std::vector<native_int::BigInteger> &dTable = cryptoParams->GetCRTDeltaTable();
 	Poly dTable2(elementParams, EVALUATION, true);
 	for( size_t i=0; i<dTable.size(); i++ )
 		dTable2.at(i) = Poly::Integer(dTable.at(i).ConvertToInt());
 	DCRTPoly deltaTable( dTable2, elementParams );
+*/
+
+	const std::vector<native_int::BigInteger> &deltaTable = cryptoParams->GetCRTDeltaTable();
 
 	const typename DCRTPoly::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 	typename DCRTPoly::TugType tug;
@@ -429,7 +432,7 @@ shared_ptr<Ciphertext<DCRTPoly>> LPAlgorithmBFVrns<DCRTPoly>::Encrypt(const shar
 	DCRTPoly c0(elementParams);
 	DCRTPoly c1(elementParams);
 
-	c0 = p0*u + e1 + deltaTable*ptxt;
+	c0 = p0*u + e1 + ptxt.Times(deltaTable);
 
 	c1 = p1*u + e2;
 
