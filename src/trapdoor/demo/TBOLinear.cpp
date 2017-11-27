@@ -57,6 +57,7 @@ int main(int argc, char* argv[]) {
 	std::cout << "\nn = " << algorithm.GetSecurityParameter() << std::endl;
 	std::cout << "log2 q = " << algorithm.GetLogModulus() << std::endl;
 	std::cout << "weight norm = " << algorithm.GetWeightNorm() << std::endl;
+	std::cout << "input data norm = " << pmax << std::endl;
 	std::cout << "plaintext modulus = " << algorithm.GetPlaintextModulus() << std::endl;
 	std::cout << "linear system dimension = " << algorithm.GetDimension() << std::endl;
 
@@ -65,8 +66,8 @@ int main(int argc, char* argv[]) {
 	processingTime = TOC(t);
 	std::cout << "\nKey generation time: " << processingTime << "ms" << std::endl;
 
-	std::cout << "secretkeys(0,0) = " << (*keys.m_secretKey)(0,0) << std::endl;
-	std::cout << "secretkeys(1,1) = " << (*keys.m_secretKey)(1,1) << std::endl;
+	//std::cout << "secretkeys(0,0) = " << (*keys.m_secretKey)(0,0) << std::endl;
+	//std::cout << "secretkeys(1,1) = " << (*keys.m_secretKey)(1,1) << std::endl;
 
 	DiscreteUniformGeneratorImpl<NativeInteger,native_int::BigVector> dug;
 	dug.SetModulus(16);
@@ -79,8 +80,8 @@ int main(int argc, char* argv[]) {
 	processingTime = TOC(t);
 	std::cout << "\nToken generation time: " << processingTime << "ms" << std::endl;
 
-	std::cout << "Token row dimension = " << token->GetRows() << std::endl;
-	std::cout << "Token column dimension = " << token->GetCols() << std::endl;
+	//std::cout << "Token row dimension = " << token->GetRows() << std::endl;
+	//std::cout << "Token column dimension = " << token->GetCols() << std::endl;
 
 	DiscreteUniformGeneratorImpl<NativeInteger,native_int::BigVector> dugWeights;
 	dugWeights.SetModulus(algorithm.GetWeightNorm());
@@ -91,18 +92,23 @@ int main(int argc, char* argv[]) {
 	TIC(t);
 	NativeMatrixPtr ciphertext = algorithm.Encrypt(keys,weights);
 	processingTime = TOC(t);
-	std::cout << "\nEncryption time: " << processingTime << "ms" << std::endl;
+	std::cout << "\nEncryption time: " << processingTime << "ms" << std::endl;\
 
-	TIC(t);
+	//Generate parameters.
+	double start, finish;
+
+	start = currentDateTime();
 	NativeInteger result = algorithm.Evaluate(input,ciphertext,keys.m_publicKey,token);
-	processingTime = TOC(t);
+	finish = currentDateTime();
+	processingTime = finish - start;
 	std::cout << "\nEvaluation time: " << processingTime << "ms" << std::endl;
 
 	std::cout << "result (encrypted computation) = " << result << std::endl;
 
-	TIC(t);
+	start = currentDateTime();
 	NativeInteger resultClear = algorithm.EvaluateClear(input,weights);
-	processingTime = TOC(t);
+	finish = currentDateTime();
+	processingTime = finish - start;
 	std::cout << "\nEvaluation time (in clear): " << processingTime << "ms" << std::endl;
 
 	std::cout << "result (plaintext computation) = " << resultClear << std::endl;
