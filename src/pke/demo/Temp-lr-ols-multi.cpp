@@ -126,9 +126,9 @@ void MatrixInverse(const Matrix<native_int::BigInteger> &in, Matrix<double> &out
 void DecodeData(const Matrix<double> &lr, const Matrix<native_int::BigInteger>& XTX, const Matrix<native_int::BigInteger>& XTY, std::vector<double> &result);
 //template<typename T> ostream& operator<<(ostream& output, const vector<T>& vector);
 
-void ConvertMatrixInto2DVector(const Matrix<RationalCiphertext<DCRTPoly>> &matrix, vector<shared_ptr<Ciphertext<DCRTPoly>>> &vec);
+void ConvertMatrixInto2DVector(const Matrix<RationalCiphertext<DCRTPoly>> &matrix, vector<vector<shared_ptr<Ciphertext<DCRTPoly>>>> &vec);
 
-void Convert2DVectorIntoMatrix(const vector<shared_ptr<Ciphertext<DCRTPoly>>> &vec, Matrix<RationalCiphertext<DCRTPoly>> &matrix);
+void Convert2DVectorIntoMatrix(const vector<vector<shared_ptr<Ciphertext<DCRTPoly>>>> &vec, Matrix<RationalCiphertext<DCRTPoly>> &matrix);
 
 template <class Element>
 shared_ptr<LPEvalKey<Element>> MultiKeySwitchGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey, const shared_ptr<LPPrivateKey<Element>> newPrivateKey,
@@ -2013,14 +2013,14 @@ void PartialDecrypt1(const string &paramDir,  const string &contextID, const str
 
 		std::cout << "Partial decryption of X^T X and X^T y...";
 
-		vector<shared_ptr<Ciphertext<DCRTPoly>>> vecXTX;
-		vector<shared_ptr<Ciphertext<DCRTPoly>>> vecXTY;
-		vector<shared_ptr<Ciphertext<DCRTPoly>>> vecXTXDecrypted;
-		vector<shared_ptr<Ciphertext<DCRTPoly>>> vecXTYDecrypted;
+		vector<vector<shared_ptr<Ciphertext<DCRTPoly>>>> vecXTX;
+		vector<vector<shared_ptr<Ciphertext<DCRTPoly>>>> vecXTY;
+		vector<vector<shared_ptr<Ciphertext<DCRTPoly>>>> vecXTXDecrypted;
+		vector<vector<shared_ptr<Ciphertext<DCRTPoly>>>> vecXTYDecrypted;
 
 		ConvertMatrixInto2DVector(*xtx, vecXTX);
 		ConvertMatrixInto2DVector(*xty, vecXTY);
-std::cout << vecXTX.size() << "," << vecXTY.size() << endl; // FIXME
+
 		for (size_t i = 0; i < vecXTX.size(); i++) {
 			vecXTXDecrypted.push_back(cc->MultipartyDecryptLead(skA, vecXTX[i]));
 			vecXTYDecrypted.push_back(cc->MultipartyDecryptLead(skA, vecXTY[i]));
@@ -2167,10 +2167,10 @@ void PartialDecrypt2(const string &paramDir,  const string &contextID, const str
 
 		std::cout << "Partial decryption of X^T X and X^T y...";
 
-		vector<shared_ptr<Ciphertext<DCRTPoly>>> vecXTX;
-		vector<shared_ptr<Ciphertext<DCRTPoly>>> vecXTY;
-		vector<shared_ptr<Ciphertext<DCRTPoly>>> vecXTXDecrypted;
-		vector<shared_ptr<Ciphertext<DCRTPoly>>> vecXTYDecrypted;
+		vector<vector<shared_ptr<Ciphertext<DCRTPoly>>>> vecXTX;
+		vector<vector<shared_ptr<Ciphertext<DCRTPoly>>>> vecXTY;
+		vector<vector<shared_ptr<Ciphertext<DCRTPoly>>>> vecXTXDecrypted;
+		vector<vector<shared_ptr<Ciphertext<DCRTPoly>>>> vecXTYDecrypted;
 
 		ConvertMatrixInto2DVector(*xtx, vecXTX);
 		ConvertMatrixInto2DVector(*xty, vecXTY);
@@ -2424,7 +2424,7 @@ void FuseDecode(const string &paramDir, const string &contextID,
 
 	std::cout << "\nCLEARTEXT OPERATIONS\n" << std::endl;
 
-	std::cout << "CRT Interpolation to transform to large plainext modulus...";
+	std::cout << "CRT Interpolation to transform to large plaintext modulus...";
 
 	shared_ptr<Matrix<native_int::BigInteger>> XTX(new Matrix<native_int::BigInteger>(zeroAlloc64));
 	shared_ptr<Matrix<native_int::BigInteger>> XTY(new Matrix<native_int::BigInteger>(zeroAlloc64));
@@ -2644,7 +2644,7 @@ void CRTInterpolate(const vector<shared_ptr<Matrix<shared_ptr<Plaintext>>>> &crt
 		{
 			native_int::BigInteger value = 0;
 			for (size_t i = 0; i < crtVector.size(); i++) {
-				value += ((native_int::BigInteger((*crtVector[i])(k,j)->GetPackedValue()[0])*qInverse[i]).Mod(q[i])*Q/q[i]).Mod(Q);
+				value += ((native_int::BigInteger((*crtVector[i])(k,j)->GetCoefPackedValue()[0])*qInverse[i]).Mod(q[i])*Q/q[i]).Mod(Q);
 			}
 			result(k, j) = value.Mod(Q);
 		}
@@ -2949,30 +2949,28 @@ shared_ptr<LPPrivateKey<Element>> AddSecretKeys(shared_ptr<LPPrivateKey<Element>
 
 }
 
-void ConvertMatrixInto2DVector(const Matrix<RationalCiphertext<DCRTPoly>> &matrix, vector<shared_ptr<Ciphertext<DCRTPoly>>> &vec)
+void ConvertMatrixInto2DVector(const Matrix<RationalCiphertext<DCRTPoly>> &matrix, vector<vector<shared_ptr<Ciphertext<DCRTPoly>>>> &vec)
 {
-
 	vec.clear();
-	cout << "convert r,c " << matrix.GetRows() << "," << matrix.GetCols() << endl;
 
 	for (size_t i = 0; i < matrix.GetRows(); i++) {
+        std::vector<shared_ptr<Ciphertext<DCRTPoly>>> temp;
 		for (size_t j = 0; j < matrix.GetCols(); j++)
 		{
-			vec.push_back(matrix(i, j).GetNumerator());
+			temp.push_back(matrix(i, j).GetNumerator());
 		}
+        vec.push_back(temp);
 	}
-	cout << "returning vector of size " << vec.size() << endl;
-
 }
 
-void Convert2DVectorIntoMatrix(const vector<shared_ptr<Ciphertext<DCRTPoly>>> &vector, Matrix<RationalCiphertext<DCRTPoly>> &matrix) {
+void Convert2DVectorIntoMatrix(const vector<vector<shared_ptr<Ciphertext<DCRTPoly>>>> &vector, Matrix<RationalCiphertext<DCRTPoly>> &matrix) {
 
-	matrix.SetSize(vector.size(), 1);
+	matrix.SetSize(vector.size(), vector[0].size());
 
 	for (size_t i = 0; i < vector.size(); i++) {
-		for (size_t j = 0; j < 1; j++)
+		for (size_t j = 0; j < vector[0].size(); j++)
 		{
-			matrix(i, j).SetNumerator(vector[i]);
+			matrix(i, j).SetNumerator(vector[i][j]);
 		}
 	}
 

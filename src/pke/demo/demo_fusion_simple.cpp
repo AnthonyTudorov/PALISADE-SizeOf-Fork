@@ -330,11 +330,6 @@ int main(int argc, char *argv[]) {
 	Poly partialPlaintext1;
 	Poly partialPlaintext2;
 	Poly partialPlaintext3;
-	//shared_ptr<Plaintext> plaintextAddNewFinal;
-
-	shared_ptr<Ciphertext<Poly>> ciphertextPartial1;
-	shared_ptr<Ciphertext<Poly>> ciphertextPartial2;
-	shared_ptr<Ciphertext<Poly>> ciphertextPartial3;
 
 	shared_ptr<Plaintext> plaintextMultipartyNew;
 
@@ -343,14 +338,14 @@ int main(int argc, char *argv[]) {
 
 	start = currentDateTime();
 
-	ciphertextPartial1 = cc->MultipartyDecryptLead(kp1.secretKey, ciphertextAddVectNew);
-	ciphertextPartial2 = cc->MultipartyDecryptMain(kp2.secretKey, ciphertextAddVectNew);
-	ciphertextPartial3 = cc->MultipartyDecryptMain(kp3.secretKey, ciphertextAddVectNew);
+	auto ciphertextPartial1 = cc->MultipartyDecryptLead(kp1.secretKey, {ciphertextAddVectNew});
+	auto ciphertextPartial2 = cc->MultipartyDecryptMain(kp2.secretKey, {ciphertextAddVectNew});
+	auto ciphertextPartial3 = cc->MultipartyDecryptMain(kp3.secretKey, {ciphertextAddVectNew});
 
 	vector<shared_ptr<Ciphertext<Poly>>> partialCiphertextVec;
-	partialCiphertextVec.push_back(ciphertextPartial1);
-	partialCiphertextVec.push_back(ciphertextPartial2);
-	partialCiphertextVec.push_back(ciphertextPartial3);
+	partialCiphertextVec.push_back(ciphertextPartial1[0]);
+	partialCiphertextVec.push_back(ciphertextPartial2[0]);
+	partialCiphertextVec.push_back(ciphertextPartial3[0]);
 
 	cc->MultipartyDecryptFusion(partialCiphertextVec, &plaintextMultipartyNew);
 

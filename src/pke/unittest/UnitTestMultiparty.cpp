@@ -189,23 +189,19 @@ UnitTestMultiparty(shared_ptr<CryptoContext<Element>> cc, bool publicVersion) {
 	Poly partialPlaintext2;
 	Poly partialPlaintext3;
 
-	shared_ptr<Ciphertext<Poly>> ciphertextPartial1;
-	shared_ptr<Ciphertext<Poly>> ciphertextPartial2;
-	shared_ptr<Ciphertext<Poly>> ciphertextPartial3;
-
 	shared_ptr<Plaintext> plaintextMultipartyNew;
 
 	const shared_ptr<LPCryptoParameters<Poly>> cryptoParams = kp1.secretKey->GetCryptoParameters();
 	const shared_ptr<typename Poly::Params> elementParams = cryptoParams->GetElementParams();
 
-	ciphertextPartial1 = cc->MultipartyDecryptLead(kp1.secretKey, ciphertextAddNew);
-	ciphertextPartial2 = cc->MultipartyDecryptMain(kp2.secretKey, ciphertextAddNew);
-	ciphertextPartial3 = cc->MultipartyDecryptMain(kp3.secretKey, ciphertextAddNew);
+	auto ciphertextPartial1 = cc->MultipartyDecryptLead(kp1.secretKey, {ciphertextAddNew});
+	auto ciphertextPartial2 = cc->MultipartyDecryptMain(kp2.secretKey, {ciphertextAddNew});
+	auto ciphertextPartial3 = cc->MultipartyDecryptMain(kp3.secretKey, {ciphertextAddNew});
 
 	vector<shared_ptr<Ciphertext<Poly>>> partialCiphertextVec;
-	partialCiphertextVec.push_back(ciphertextPartial1);
-	partialCiphertextVec.push_back(ciphertextPartial2);
-	partialCiphertextVec.push_back(ciphertextPartial3);
+	partialCiphertextVec.push_back(ciphertextPartial1[0]);
+	partialCiphertextVec.push_back(ciphertextPartial2[0]);
+	partialCiphertextVec.push_back(ciphertextPartial3[0]);
 
 	cc->MultipartyDecryptFusion(partialCiphertextVec, &plaintextMultipartyNew);
 
