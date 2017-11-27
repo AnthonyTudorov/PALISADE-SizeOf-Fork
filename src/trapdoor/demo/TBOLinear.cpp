@@ -44,13 +44,13 @@ int main(int argc, char* argv[]) {
 
 	double processingTime(0.0);
 
-	usint N = 100;
+	usint N = 1000;
 	usint n = 2048;
-	usint wmax = 256;
-	usint p = 1024;
+	usint wmax = 4;
+	usint pmax = 16;
 
 	TIC(t);
-	LWETBOLinearSecret algorithm(N, n, wmax, p);
+	LWETBOLinearSecret algorithm(N, n, wmax, pmax);
 	processingTime = TOC(t);
 	std::cout << "Parameter Generation: " << processingTime << "ms" << std::endl;
 
@@ -69,7 +69,7 @@ int main(int argc, char* argv[]) {
 	std::cout << "secretkeys(1,1) = " << (*keys.m_secretKey)(1,1) << std::endl;
 
 	DiscreteUniformGeneratorImpl<NativeInteger,native_int::BigVector> dug;
-	dug.SetModulus(algorithm.GetPlaintextModulus());
+	dug.SetModulus(16);
 
 	NativeMatrixPtr input(new  NativeMatrix([&]() {
 		return make_unique<NativeInteger>(dug.GenerateInteger()); }, algorithm.GetDimension(),1));
@@ -99,8 +99,6 @@ int main(int argc, char* argv[]) {
 	std::cout << "\nEvaluation time: " << processingTime << "ms" << std::endl;
 
 	std::cout << "result (encrypted computation) = " << result << std::endl;
-
-	std::cout << "Getting ready to evaluate in clear" << std::endl;
 
 	TIC(t);
 	NativeInteger resultClear = algorithm.EvaluateClear(input,weights);

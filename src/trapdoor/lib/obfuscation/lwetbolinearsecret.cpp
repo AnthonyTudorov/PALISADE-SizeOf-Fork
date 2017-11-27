@@ -37,7 +37,7 @@ usint LWETBOLinearSecret::GetLogModulus() const {
 	return logModulus;
 }
 
-LWETBOLinearSecret::LWETBOLinearSecret(usint N, usint n, usint wmax, usint p) : m_N(N), m_n(n), m_wmax(wmax), m_p(p) {
+LWETBOLinearSecret::LWETBOLinearSecret(usint N, usint n, usint wmax, usint pmax) : m_N(N), m_n(n), m_wmax(wmax), m_pmax(pmax) {
 
 	double q = EstimateModulus();
 
@@ -58,10 +58,10 @@ double LWETBOLinearSecret::EstimateModulus() {
 	//Bound of the Gaussian error
 	double Berr = sigma*sqrt(alpha);
 
-	//Correctness constraint
-	auto qCorrectness = [&](uint32_t N, uint32_t wmax, uint32_t p, uint32_t n) -> double { return  4*N*wmax*p*Berr;  };
+	m_p = m_N*m_wmax*m_pmax;
 
-	return qCorrectness(m_N,m_wmax,m_p,m_n);
+	//Correctness constraint
+	return 4*m_N*m_wmax*m_p*Berr;
 
 };
 
@@ -109,7 +109,7 @@ shared_ptr<Matrix<native_int::BigInteger>> LWETBOLinearSecret::Encrypt(const LWE
 			(*ciphertext)(Ni,0) = (*ciphertext)(Ni,0).ModAdd((*keyPair.m_secretKey)(ni,Ni).ModMul((*keyPair.m_publicKey)(0,ni),m_modulus),m_modulus);
 		}
 
-		(*ciphertext)(Ni,0) = (*ciphertext)(Ni,0).ModAdd(m_wmax*m_dgg.GenerateInt(),m_modulus);
+		(*ciphertext)(Ni,0) = (*ciphertext)(Ni,0).ModAdd(NativeInteger(m_p)*m_dgg.GenerateInteger(m_modulus),m_modulus);
 
 		(*ciphertext)(Ni,0) = (*ciphertext)(Ni,0).ModAdd((*weights)(Ni,0),m_modulus);
 
@@ -127,10 +127,17 @@ native_int::BigInteger LWETBOLinearSecret::Evaluate(const NativeMatrixPtr input,
 	for (size_t Ni = 0; Ni < m_N; Ni++)
 		result = result.ModAdd((*input)(Ni,0).ModMul((*ciphertext)(Ni,0),m_modulus),m_modulus);
 
-	for (size_t ni = 0; ni < m_N; ni++)
+	for (size_t ni = 0; ni < m_n; ni++)
 		result = result.ModSub((*publicKey)(0,ni).ModMul((*token)(ni,0),m_modulus),m_modulus);
 
-	return result.Mod(m_wmax);
+	NativeInteger halfQ(m_modulus >> 1);
+
+	if (result>halfQ)
+		result=result.ModSub(m_modulus,m_p);
+	else
+		result=result.Mod(m_p);
+
+	return result.Mod(m_p);
 
 }
 
@@ -139,9 +146,9 @@ native_int::BigInteger LWETBOLinearSecret::EvaluateClear(const NativeMatrixPtr i
 	NativeInteger result;
 
 	for (size_t Ni = 0; Ni < m_N; Ni++)
-		result = result.ModAdd((*input)(Ni,0).ModMul((*weights)(Ni,0),m_modulus),m_modulus);
+		result += (*input)(Ni,0)*(*weights)(Ni,0);
 
-	return result.Mod(m_wmax);
+	return result;
 
 }
 

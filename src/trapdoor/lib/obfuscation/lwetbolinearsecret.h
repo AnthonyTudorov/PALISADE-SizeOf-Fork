@@ -65,7 +65,7 @@ namespace lbcrypto {
 		 * @param wmax weight modulus
 		 * @param p infinity norm of input data
 		 */
-		explicit LWETBOLinearSecret(usint N, usint n, usint wmax, usint p);
+		explicit LWETBOLinearSecret(usint N, usint n, usint wmax, usint pmax);
 
 		/**
 		 * Gets the LWE security parameter
@@ -104,10 +104,11 @@ namespace lbcrypto {
 		usint m_n;
 		usint m_wmax;
 		usint m_p;
+		usint m_pmax;
 
 		NativeInteger m_modulus;
 
-		DiscreteGaussianGenerator m_dgg;
+		DiscreteGaussianGeneratorImpl<NativeInteger,native_int::BigVector> m_dgg;
 
 		/**
 		 * Method to estimed the modulus
