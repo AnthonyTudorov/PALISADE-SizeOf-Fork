@@ -38,7 +38,7 @@
 #include "palisade.h"
 #include "cryptocontexthelper.h"
 #include "cryptocontextgen.h"
-#include "encoding/byteplaintextencoding.h"
+#include "encoding/encodings.h"
 #include "utils/debug.h"
 #include "utils/serializablehelper.h"
 
@@ -113,33 +113,33 @@ int main(int argc, char *argv[]) {
 	std::vector<uint32_t> vectorOfInts5 = {2,0,0,0,0,0,0,0,0,0,0,0};
 	std::vector<uint32_t> vectorOfInts6 = {1,0,0,0,0,0,0,0,0,0,0,0};
 
-	IntPlaintextEncoding plaintext1(vectorOfInts1);
-	IntPlaintextEncoding plaintext2(vectorOfInts2);
-	IntPlaintextEncoding plaintext3(vectorOfInts3);
-	IntPlaintextEncoding plaintext4(vectorOfInts4);
-	IntPlaintextEncoding plaintext5(vectorOfInts5);
-	IntPlaintextEncoding plaintext6(vectorOfInts6);
+	shared_ptr<Plaintext> plaintext1 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts1);
+	shared_ptr<Plaintext> plaintext2 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts2);
+	shared_ptr<Plaintext> plaintext3 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts3);
+	shared_ptr<Plaintext> plaintext4 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts4);
+	shared_ptr<Plaintext> plaintext5 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts5);
+	shared_ptr<Plaintext> plaintext6 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts6);
 
 	////////////////////////////////////////////////////////////
 	// Encryption
 	////////////////////////////////////////////////////////////
 
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext1;
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext2;
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext3;
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext4;
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext5;
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext6;
+	shared_ptr<Ciphertext<Poly>> ciphertext1;
+	shared_ptr<Ciphertext<Poly>> ciphertext2;
+	shared_ptr<Ciphertext<Poly>> ciphertext3;
+	shared_ptr<Ciphertext<Poly>> ciphertext4;
+	shared_ptr<Ciphertext<Poly>> ciphertext5;
+	shared_ptr<Ciphertext<Poly>> ciphertext6;
 
 	start = currentDateTime();
 
-	ciphertext1 = cryptoContext->Encrypt(keyPair.publicKey, plaintext1, true);
-	ciphertext2 = cryptoContext->Encrypt(keyPair.publicKey, plaintext2, true);
-	ciphertext3 = cryptoContext->Encrypt(keyPair.publicKey, plaintext3, true);
-	ciphertext4 = cryptoContext->Encrypt(keyPair.publicKey, plaintext4, true);
-	ciphertext5 = cryptoContext->Encrypt(keyPair.publicKey, plaintext5, true);
-	ciphertext6 = cryptoContext->Encrypt(keyPair.publicKey, plaintext6, true);
+	ciphertext1 = cryptoContext->Encrypt(keyPair.publicKey, plaintext1);
+	ciphertext2 = cryptoContext->Encrypt(keyPair.publicKey, plaintext2);
+	ciphertext3 = cryptoContext->Encrypt(keyPair.publicKey, plaintext3);
+	ciphertext4 = cryptoContext->Encrypt(keyPair.publicKey, plaintext4);
+	ciphertext5 = cryptoContext->Encrypt(keyPair.publicKey, plaintext5);
+	ciphertext6 = cryptoContext->Encrypt(keyPair.publicKey, plaintext6);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -149,51 +149,42 @@ int main(int argc, char *argv[]) {
 	//Decryption of Ciphertext
 	////////////////////////////////////////////////////////////
 
-	IntPlaintextEncoding plaintext1Dec;
-	IntPlaintextEncoding plaintext2Dec;
-	IntPlaintextEncoding plaintext3Dec;
-	IntPlaintextEncoding plaintext4Dec;
-	IntPlaintextEncoding plaintext5Dec;
-	IntPlaintextEncoding plaintext6Dec;
+	shared_ptr<Plaintext> plaintext1Dec;
+	shared_ptr<Plaintext> plaintext2Dec;
+	shared_ptr<Plaintext> plaintext3Dec;
+	shared_ptr<Plaintext> plaintext4Dec;
+	shared_ptr<Plaintext> plaintext5Dec;
+	shared_ptr<Plaintext> plaintext6Dec;
 
 	start = currentDateTime();
 
-	cryptoContext->Decrypt(keyPair.secretKey, ciphertext1, &plaintext1Dec, true);
-	cryptoContext->Decrypt(keyPair.secretKey, ciphertext2, &plaintext2Dec, true);
-	cryptoContext->Decrypt(keyPair.secretKey, ciphertext3, &plaintext3Dec, true);
-	cryptoContext->Decrypt(keyPair.secretKey, ciphertext4, &plaintext4Dec, true);
-	cryptoContext->Decrypt(keyPair.secretKey, ciphertext5, &plaintext5Dec, true);
-	cryptoContext->Decrypt(keyPair.secretKey, ciphertext6, &plaintext6Dec, true);
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertext1, &plaintext1Dec);
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertext2, &plaintext2Dec);
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertext3, &plaintext3Dec);
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertext4, &plaintext4Dec);
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertext5, &plaintext5Dec);
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertext6, &plaintext6Dec);
 
 
 	finish = currentDateTime();
 	diff = finish - start;
 	cout << "Decryption time: " << "\t" << diff << " ms" << endl;
 
-	//std::cin.get();
-
-	plaintext1Dec.resize(plaintext1.size());
-	plaintext2Dec.resize(plaintext1.size());
-	plaintext3Dec.resize(plaintext1.size());
-	plaintext4Dec.resize(plaintext1.size());
-	plaintext5Dec.resize(plaintext1.size());
-	plaintext6Dec.resize(plaintext1.size());
-
 	cout << "\n Original Plaintext: \n";
-	cout << plaintext1 << endl;
-	cout << plaintext2 << endl;
-	cout << plaintext3 << endl;
-	cout << plaintext4 << endl;
-	cout << plaintext5 << endl;
-	cout << plaintext6 << endl;
+	cout << *plaintext1 << endl;
+	cout << *plaintext2 << endl;
+	cout << *plaintext3 << endl;
+	cout << *plaintext4 << endl;
+	cout << *plaintext5 << endl;
+	cout << *plaintext6 << endl;
 
 	cout << "\n Resulting Decryption of Ciphertext: \n";
-	cout << plaintext1Dec << endl;
-	cout << plaintext2Dec << endl;
-	cout << plaintext3Dec << endl;
-	cout << plaintext4Dec << endl;
-	cout << plaintext5Dec << endl;
-	cout << plaintext6Dec << endl;
+	cout << *plaintext1Dec << endl;
+	cout << *plaintext2Dec << endl;
+	cout << *plaintext3Dec << endl;
+	cout << *plaintext4Dec << endl;
+	cout << *plaintext5Dec << endl;
+	cout << *plaintext6Dec << endl;
 
 	cout << "\n";
 
@@ -207,25 +198,13 @@ int main(int argc, char *argv[]) {
 	shared_ptr<Ciphertext<Poly>> ciphertextMul12345;
 	shared_ptr<Ciphertext<Poly>> ciphertextMul123456;
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertextMulVect1;
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertextMulVect2;
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertextMulVect3;
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertextMulVect4;
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertextMulVect5;
-
 	start = currentDateTime();
 	//Perform consecutive multiplications and do a keyswtiching at the end.
-	ciphertextMul12     = cryptoContext->GetEncryptionAlgorithm()->EvalMult(ciphertext1[0],ciphertext2[0]);
-	ciphertextMul123    = cryptoContext->GetEncryptionAlgorithm()->EvalMult(ciphertextMul12, ciphertext3[0]);
-	ciphertextMul1234   = cryptoContext->GetEncryptionAlgorithm()->EvalMult(ciphertextMul123, ciphertext4[0]);
-	ciphertextMul12345  = cryptoContext->GetEncryptionAlgorithm()->EvalMult(ciphertextMul1234, ciphertext5[0]);
-	ciphertextMul123456 = cryptoContext->GetEncryptionAlgorithm()->EvalMultAndRelinearize(ciphertextMul12345, ciphertext6[0], evalKeys);
-
-	ciphertextMulVect1.push_back(ciphertextMul12);
-	ciphertextMulVect2.push_back(ciphertextMul123);
-	ciphertextMulVect3.push_back(ciphertextMul1234);
-	ciphertextMulVect4.push_back(ciphertextMul12345);
-	ciphertextMulVect5.push_back(ciphertextMul123456);
+	ciphertextMul12     = cryptoContext->GetEncryptionAlgorithm()->EvalMult(ciphertext1,ciphertext2);
+	ciphertextMul123    = cryptoContext->GetEncryptionAlgorithm()->EvalMult(ciphertextMul12, ciphertext3);
+	ciphertextMul1234   = cryptoContext->GetEncryptionAlgorithm()->EvalMult(ciphertextMul123, ciphertext4);
+	ciphertextMul12345  = cryptoContext->GetEncryptionAlgorithm()->EvalMult(ciphertextMul1234, ciphertext5);
+	ciphertextMul123456 = cryptoContext->GetEncryptionAlgorithm()->EvalMultAndRelinearize(ciphertextMul12345, ciphertext6, evalKeys);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -235,45 +214,39 @@ int main(int argc, char *argv[]) {
 	//Decryption after Accumulation Operation on Re-Encrypted Data
 	////////////////////////////////////////////////////////////
 
-	IntPlaintextEncoding plaintextMul1;
-	IntPlaintextEncoding plaintextMul2;
-	IntPlaintextEncoding plaintextMul3;
-	IntPlaintextEncoding plaintextMul4;
-	IntPlaintextEncoding plaintextMul5;
+	shared_ptr<Plaintext> plaintextMul1;
+	shared_ptr<Plaintext> plaintextMul2;
+	shared_ptr<Plaintext> plaintextMul3;
+	shared_ptr<Plaintext> plaintextMul4;
+	shared_ptr<Plaintext> plaintextMul5;
 
 	start = currentDateTime();
 
-	cryptoContext->Decrypt(keyPair.secretKey, ciphertextMulVect1, &plaintextMul1, true);
-	cryptoContext->Decrypt(keyPair.secretKey, ciphertextMulVect2, &plaintextMul2, true);
-	cryptoContext->Decrypt(keyPair.secretKey, ciphertextMulVect3, &plaintextMul3, true);
-	cryptoContext->Decrypt(keyPair.secretKey, ciphertextMulVect4, &plaintextMul4, true);
-	cryptoContext->Decrypt(keyPair.secretKey, ciphertextMulVect5, &plaintextMul5, true);
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertextMul12, &plaintextMul1);
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertextMul123, &plaintextMul2);
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertextMul1234, &plaintextMul3);
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertextMul12345, &plaintextMul4);
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertextMul123456, &plaintextMul5);
 
 	finish = currentDateTime();
 	diff = finish - start;
 
 	//std::cin.get();
 
-	plaintextMul1.resize(plaintext1.size());
-	plaintextMul2.resize(plaintext1.size());
-	plaintextMul3.resize(plaintext1.size());
-	plaintextMul4.resize(plaintext1.size());
-	plaintextMul5.resize(plaintext1.size());
-
 	cout << "\n Original Plaintext: \n";
-	cout << plaintext1 << endl;
-	cout << plaintext2 << endl;
-	cout << plaintext3 << endl;
-	cout << plaintext4 << endl;
-	cout << plaintext5 << endl;
-	cout << plaintext6 << endl;
+	cout << *plaintext1 << endl;
+	cout << *plaintext2 << endl;
+	cout << *plaintext3 << endl;
+	cout << *plaintext4 << endl;
+	cout << *plaintext5 << endl;
+	cout << *plaintext6 << endl;
 
 	cout << "\n Resulting Plaintext (after polynomial multiplication): \n";
-	cout << plaintextMul1 << endl;
-	cout << plaintextMul2 << endl;
-	cout << plaintextMul3 << endl;
-	cout << plaintextMul4 << endl;
-	cout << plaintextMul5 << endl;
+	cout << *plaintextMul1 << endl;
+	cout << *plaintextMul2 << endl;
+	cout << *plaintextMul3 << endl;
+	cout << *plaintextMul4 << endl;
+	cout << *plaintextMul5 << endl;
 
 	cout << "\n";
 
@@ -284,16 +257,10 @@ int main(int argc, char *argv[]) {
 	shared_ptr<Ciphertext<Poly>> ciphertextAdd12;
 	shared_ptr<Ciphertext<Poly>> ciphertextAdd123;
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertextAddVect1;
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertextAddVect2;
-
 	start = currentDateTime();
 
 	ciphertextAdd12 = cryptoContext->EvalAdd(ciphertextMul12, ciphertextMul12345);
 	ciphertextAdd123 = cryptoContext->EvalAdd(ciphertextAdd12, ciphertextMul123);
-
-	ciphertextAddVect1.push_back(ciphertextAdd12);
-	ciphertextAddVect2.push_back(ciphertextAdd123);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -304,30 +271,25 @@ int main(int argc, char *argv[]) {
 	//Decryption after Accumulation Operation
 	////////////////////////////////////////////////////////////
 
-	IntPlaintextEncoding plaintextAdd1;
-	IntPlaintextEncoding plaintextAdd2;
+	shared_ptr<Plaintext> plaintextAdd1;
+	shared_ptr<Plaintext> plaintextAdd2;
 
 	start = currentDateTime();
 
-	cryptoContext->Decrypt(keyPair.secretKey, ciphertextAddVect1, &plaintextAdd1, true);
-	cryptoContext->Decrypt(keyPair.secretKey, ciphertextAddVect2, &plaintextAdd2, true);
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertextAdd12, &plaintextAdd1);
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertextAdd123, &plaintextAdd2);
 
 	finish = currentDateTime();
 	diff = finish - start;
 
-	//std::cin.get();
-
-	plaintextAdd1.resize(plaintext1.size());
-	plaintextAdd2.resize(plaintext1.size());
-
 	cout << "\n Original Plaintext: \n";
-	cout << plaintextMul1 << endl;
-	cout << plaintextMul4 << endl;
-	cout << plaintextMul5 << endl;
+	cout << *plaintextMul1 << endl;
+	cout << *plaintextMul4 << endl;
+	cout << *plaintextMul5 << endl;
 
 	cout << "\n Resulting Added Plaintext: \n";
-	cout << plaintextAdd1 << endl;
-	cout << plaintextAdd2 << endl;
+	cout << *plaintextAdd1 << endl;
+	cout << *plaintextAdd2 << endl;
 
 	cout << "\n";
 
@@ -336,24 +298,20 @@ int main(int argc, char *argv[]) {
 	// Done
 	////////////////////////////////////////////////////////////
 	shared_ptr<Ciphertext<Poly>> ciphertextMul1234567;
-	shared_ptr<vector<shared_ptr<Ciphertext<Poly>>>> cipherTextList(new vector<shared_ptr<Ciphertext<Poly>>>);
+	vector<shared_ptr<Ciphertext<Poly>>> cipherTextList;
 
-	cipherTextList->push_back(ciphertext1[0]);
-	cipherTextList->push_back(ciphertext2[0]);
-	cipherTextList->push_back(ciphertext3[0]);
-	cipherTextList->push_back(ciphertext4[0]);
-	cipherTextList->push_back(ciphertext5[0]);
+	cipherTextList.push_back(ciphertext1);
+	cipherTextList.push_back(ciphertext2);
+	cipherTextList.push_back(ciphertext3);
+	cipherTextList.push_back(ciphertext4);
+	cipherTextList.push_back(ciphertext5);
 
 	ciphertextMul1234567 = cryptoContext->GetEncryptionAlgorithm()->EvalMultMany(cipherTextList, evalKeys);
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertextMulVect8;
-	ciphertextMulVect8.push_back(ciphertextMul1234567);
+	shared_ptr<Plaintext> plaintextMul7;
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertextMul1234567, &plaintextMul7);
 
-	IntPlaintextEncoding plaintextMul7;
-	cryptoContext->Decrypt(keyPair.secretKey, ciphertextMulVect8, &plaintextMul7, true);
-	plaintextMul7.resize(plaintext1.size());
-
-	cout << plaintextMul7 << endl;
+	cout << *plaintextMul7 << endl;
 
 	std::cout << "Execution Completed." << std::endl;
 

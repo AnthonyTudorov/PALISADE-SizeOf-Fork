@@ -36,8 +36,8 @@ bool Ciphertext<Element>::Serialize(Serialized* serObj) const {
 		return false;
 
 	serObj->AddMember("Object", "Ciphertext", serObj->GetAllocator());
-	serObj->AddMember("IsEncrypted", m_isEncrypted ? std::to_string(1) : std::to_string(0), serObj->GetAllocator());
 	serObj->AddMember("Depth", std::to_string(m_depth), serObj->GetAllocator());
+	serObj->AddMember("EncodingType", std::to_string(this->encodingType), serObj->GetAllocator());
 	SerializeVector("Elements", Element::GetElementName(), this->m_elements, serObj);
 
 	return true;
@@ -58,15 +58,15 @@ bool Ciphertext<Element>::Deserialize(const Serialized& serObj) {
 	if( mIter == serObj.MemberEnd() || string(mIter->value.GetString()) != "Ciphertext" )
 		return false;
 
-	mIter = serObj.FindMember("IsEncrypted");
-	if( mIter == serObj.MemberEnd() )
-		return false;
-	m_isEncrypted = mIter->value.GetString() == string("1") ? true : false;
-
 	mIter = serObj.FindMember("Depth");
 	if( mIter == serObj.MemberEnd() )
 		return false;
 	m_depth = std::stoul(mIter->value.GetString());
+
+	mIter = serObj.FindMember("EncodingType");
+	if( mIter == serObj.MemberEnd() )
+		return false;
+	this->encodingType = (PlaintextEncodings)std::stoi(mIter->value.GetString());
 
 	mIter = serObj.FindMember("Elements");
 	if( mIter == serObj.MemberEnd() )
@@ -75,11 +75,6 @@ bool Ciphertext<Element>::Deserialize(const Serialized& serObj) {
 	if( !DeserializeVector<Element>("Elements", this->m_elements[0].GetElementName(), mIter, &this->m_elements) )
 		return false;
 
-	mIter = serObj.FindMember("IsEncrypted");
-	if( mIter == serObj.MemberEnd() )
-		return false;
-
-	this->m_isEncrypted = (std::stoi(mIter->value.GetString()) == 1) ? true : false;
 	return true;
 }
 

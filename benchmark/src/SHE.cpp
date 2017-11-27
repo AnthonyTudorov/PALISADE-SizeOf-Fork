@@ -34,7 +34,7 @@
 
 #include "cryptocontexthelper.h"
 
-#include "encoding/byteplaintextencoding.h"
+#include "encoding/encodings.h"
 
 #include "EncryptHelper.h"
 
@@ -57,13 +57,11 @@ static bool setup_SHE(shared_ptr<CryptoContext<Poly>> cc, shared_ptr<Ciphertext<
 
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	IntPlaintextEncoding p1( makeVector(nel, ptmi) );
-	IntPlaintextEncoding p2( makeVector(nel, ptmi) );
+	shared_ptr<Plaintext> p1 = cc->MakeCoefPackedPlaintext( makeVector(nel, ptmi) );
+	shared_ptr<Plaintext> p2 = cc->MakeCoefPackedPlaintext( makeVector(nel, ptmi) );
 
-	vector<shared_ptr<Ciphertext<Poly>>> ct1V = cc->Encrypt(kp.publicKey, p1, false);
-	vector<shared_ptr<Ciphertext<Poly>>> ct2V = cc->Encrypt(kp.publicKey, p2, false);
-	ct1 = ct1V[0];
-	ct2 = ct2V[0];
+	ct1 = cc->Encrypt(kp.publicKey, p1);
+	ct2 = cc->Encrypt(kp.publicKey, p2);
 
 	try {
 		cc->EvalMultKeyGen(kp.secretKey);

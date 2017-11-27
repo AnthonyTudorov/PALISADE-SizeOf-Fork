@@ -37,7 +37,7 @@
 namespace lbcrypto {
 
 template <typename IntType, typename VecType, typename Element>
-void SignedIntPlaintextEncoding::doEncode(const BigInteger &modulus, Element *ilVector, size_t startFrom, size_t length) const
+bool SignedIntPlaintextEncoding::doEncode(const BigInteger &modulus, Element *ilVector, size_t startFrom, size_t length) const
 {
 	size_t padlen = 0;
 	int64_t mod = modulus.ConvertToInt();
@@ -71,14 +71,11 @@ void SignedIntPlaintextEncoding::doEncode(const BigInteger &modulus, Element *il
 	}
 
 	ilVector->SetValues(temp,format);
-}
-
-void SignedIntPlaintextEncoding::Encode(const BigInteger &modulus, Poly *ilVector, size_t start_from, size_t length) const {
-	doEncode<BigInteger,BigVector,Poly>(modulus,ilVector,start_from,length);
+	return true;
 }
 
 template <typename IntType, typename VecType, typename Element>
-void SignedIntPlaintextEncoding::doDecode(const BigInteger &modulus, Element *ilVector) {
+bool SignedIntPlaintextEncoding::doDecode(const BigInteger &modulus, Element *ilVector) {
 
 	uint64_t mod = modulus.ConvertToInt();
 	int64_t lim = mod/2;
@@ -87,16 +84,7 @@ void SignedIntPlaintextEncoding::doDecode(const BigInteger &modulus, Element *il
 		if( val > lim ) val -= mod;
 		this->push_back( val );
 	}
-}
-
-void SignedIntPlaintextEncoding::Decode(const BigInteger &modulus, Poly *ilVector) {
-	doDecode<BigInteger,BigVector,Poly>(modulus,ilVector);
-}
-
-size_t
-SignedIntPlaintextEncoding::GetChunksize(const usint ring, const BigInteger&) const
-{
-	return ring;
+	return true;
 }
 
 } /* namespace lbcrypto */

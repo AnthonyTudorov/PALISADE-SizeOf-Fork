@@ -27,7 +27,7 @@
 #include "include/gtest/gtest.h"
 #include "signature/lwesign.h"
 #include "signature/lwesign.cpp"
-#include "encoding/byteplaintextencoding.h"
+#include "encoding/encodings.h"
 
 using namespace lbcrypto;
 
@@ -69,7 +69,7 @@ TEST(UTSignatureGPV,simple_sign_verify) {
   DEBUG("Step 9");
 	Signature<Matrix<Poly>> signature;
   DEBUG("Step 10");
-	BytePlaintextEncoding text("Since hashing is integrated now");
+	string text("Since hashing is integrated now");
   DEBUG("Step 11");
 
 	scheme.Sign(s_k, text, &signature);
@@ -106,7 +106,7 @@ TEST(UTSignatureGPV, simple_sign_verify_two_phase) {
 	DEBUG("Step 9");
 	Signature<Matrix<Poly>> signature;
 	DEBUG("Step 10");
-	BytePlaintextEncoding text("Since hashing is integrated now");
+	string text("Since hashing is integrated now");
 	DEBUG("Step 11");
 
 	shared_ptr<Matrix<Poly>> pVector = scheme.SampleOffline(s_k);
@@ -135,8 +135,8 @@ TEST(UTSignatureGPV, sign_verify_multiple_texts) {
 	scheme.KeyGen(&s_k, &v_k);
 
 	Signature<Matrix<Poly>> signature, signature2;
-	BytePlaintextEncoding text("We can use arbitrary sized texts");
-	BytePlaintextEncoding text2("Which looks cool");
+	string text("We can use arbitrary sized texts");
+	string text2("Which looks cool");
 
 
 
@@ -171,7 +171,7 @@ TEST(UTSignatureGPV, sign_verify_multiple_keys) {
 	scheme.KeyGen(&s_k2, &v_k2);
 
 	Signature<Matrix<Poly>> signature, signature2;
-	BytePlaintextEncoding text("But there are still issues to fix");
+	string text("But there are still issues to fix");
 
 	scheme.Sign(s_k, text, &signature);
 	scheme.Sign(s_k2, text, &signature2);

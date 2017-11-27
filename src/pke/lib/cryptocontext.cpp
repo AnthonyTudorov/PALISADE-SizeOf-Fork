@@ -562,6 +562,24 @@ shared_ptr<Ciphertext<Element>> CryptoContext<Element>::EvalInnerProduct(const s
 }
 
 template <typename Element>
+shared_ptr<Ciphertext<Element>> CryptoContext<Element>::EvalInnerProduct(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Plaintext> ct2, usint batchSize) const {
+
+	if( ct1 == NULL || ct2 == NULL || Mismatched(ct1->GetCryptoContext()) )
+		throw std::logic_error("Information passed to EvalAdd was not generated with this crypto context");
+
+	auto evalSumKeys = CryptoContext<Element>::GetEvalSumKeyMap(ct1->GetKeyTag());
+	auto ek = GetEvalMultKeyVector(ct1->GetKeyTag());
+
+	double start = 0;
+	if( doTiming ) start = currentDateTime();
+	auto rv = GetEncryptionAlgorithm()->EvalInnerProduct(ct1, ct2, batchSize, evalSumKeys, ek[0]);
+	if( doTiming ) {
+		timeSamples->push_back( TimingInfo(OpEvalInnerProduct, currentDateTime() - start) );
+	}
+	return rv;
+}
+
+template <typename Element>
 shared_ptr<Ciphertext<Element>>
 CryptoContext<Element>::EvalCrossCorrelation(const shared_ptr<Matrix<RationalCiphertext<Element>>> x,
 		const shared_ptr<Matrix<RationalCiphertext<Element>>> y, usint batchSize,

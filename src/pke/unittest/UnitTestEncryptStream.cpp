@@ -1,5 +1,5 @@
 /*
-* @file nullscheme-vector-impl.cpp - null scheme vector array implementation
+ * @file UnitTestEncryptStream
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -24,48 +24,50 @@
  *
  */
 
-#include "cryptocontext.h"
-#include "nullscheme.h"
+#include "include/gtest/gtest.h"
+#include <iostream>
+#include <sstream>
+#include <vector>
 
-namespace lbcrypto {
+#include "../lib/cryptocontext.h"
 
-template<>
-shared_ptr<Ciphertext<Poly>> LPAlgorithmSHENull<Poly>::EvalMult(const shared_ptr<Ciphertext<Poly>> ciphertext1,
-	const shared_ptr<Ciphertext<Poly>> ciphertext2) const {
+#include "encoding/encodings.h"
 
-	shared_ptr<Ciphertext<Poly>> newCiphertext = ciphertext1->CloneEmpty();
+#include "utils/debug.h"
 
-	const Poly& c1 = ciphertext1->GetElement();
-	const Poly& c2 = ciphertext2->GetElement();
+#include "cryptocontextgen.h"
+#include "lattice/elemparamfactory.h"
 
-	const BigInteger& ptm = ciphertext1->GetCryptoParameters()->GetPlaintextModulus();
+using namespace std;
+using namespace lbcrypto;
 
-	Poly cResult = ElementNullSchemeMultiply(c1, c2, ptm);
 
-	newCiphertext->SetElement(cResult);
 
-	return newCiphertext;
-}
+class UTEncryptStream : public ::testing::Test {
 
-template<>
-shared_ptr<Ciphertext<Poly>> LPAlgorithmSHENull<Poly>::EvalMult(const shared_ptr<Ciphertext<Poly>> ciphertext1,
-	const shared_ptr<Plaintext> plaintext) const {
+public:
+	UTEncryptStream() {}
 
-	shared_ptr<Ciphertext<Poly>> newCiphertext = ciphertext1->CloneEmpty();
+	virtual void SetUp() {
+	}
 
-	const Poly& c1 = ciphertext1->GetElement();
-	const Poly& c2 = plaintext->GetEncodedElement<Poly>();
+	virtual void TearDown() {
 
-	const BigInteger& ptm = ciphertext1->GetCryptoParameters()->GetPlaintextModulus();
+	}
+};
 
-	Poly cResult = ElementNullSchemeMultiply(c1, c2, ptm);
+TEST_F(UTEncryptStream, Stream_Encryptor_Test)
+{
+	string	base = "Strange women lying in ponds distributing swords is no basis for a system of government!";
+	stringstream		bigSource, mid, bigDest;
+	for( size_t i = 0; i < 5000; i++ )
+		bigSource << base;
 
-	newCiphertext->SetElement(cResult);
+	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementFV(1024, 256);
+	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	return newCiphertext;
-}
+	cc->EncryptStream(kp.publicKey, bigSource, mid);
+	cc->DecryptStream(kp.secretKey, mid, bigDest);
 
-template class LPCryptoParametersNull<Poly>;
-template class LPPublicKeyEncryptionSchemeNull<Poly>;
-template class LPAlgorithmNull<Poly>;
+	EXPECT_EQ(bigSource.str(), bigDest.str());
 }

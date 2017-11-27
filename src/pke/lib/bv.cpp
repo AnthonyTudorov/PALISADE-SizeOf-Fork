@@ -135,9 +135,8 @@ namespace lbcrypto {
 
 	template <class Element>
 	shared_ptr<Ciphertext<Element>> LPAlgorithmBV<Element>::Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
-		Poly &ptxt, bool doEncryption) const
+		Element ptxt) const
 	{
-
 		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(publicKey->GetCryptoParameters());
 
 		shared_ptr<Ciphertext<Element>> ciphertext(new Ciphertext<Element>(publicKey));
@@ -148,60 +147,41 @@ namespace lbcrypto {
 
 		typename Element::TugType tug;
 
-		Element plaintext(ptxt, elementParams);
-
-		plaintext.SwitchFormat();
+		ptxt.SwitchFormat();
 
 		std::vector<Element> cVector;
 
-		if (doEncryption) {
+		const Element &a = publicKey->GetPublicElements().at(0);
+		const Element &b = publicKey->GetPublicElements().at(1);
 
-			const Element &a = publicKey->GetPublicElements().at(0);
-			const Element &b = publicKey->GetPublicElements().at(1);
+		Element v;
 
-			Element v;
-
-			//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
-			if (cryptoParams->GetMode() == RLWE)
-				v = Element(dgg, elementParams, Format::EVALUATION);
-			else
-				v = Element(tug, elementParams, Format::EVALUATION);
-
-			Element e0(dgg, elementParams, Format::EVALUATION);
-			Element e1(dgg, elementParams, Format::EVALUATION);
-
-			Element c0(b*v + p*e0 + plaintext);
-
-			Element c1(a*v + p*e1);
-
-			cVector.push_back(std::move(c0));
-
-			cVector.push_back(std::move(c1));
-
-			ciphertext->SetElements(std::move(cVector));
-
-		}
+		//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
+		if (cryptoParams->GetMode() == RLWE)
+			v = Element(dgg, elementParams, Format::EVALUATION);
 		else
-		{
+			v = Element(tug, elementParams, Format::EVALUATION);
 
-			Element c0(plaintext);
+		Element e0(dgg, elementParams, Format::EVALUATION);
+		Element e1(dgg, elementParams, Format::EVALUATION);
 
-			Element c1(elementParams,Format::EVALUATION,true);
+		Element c0(b*v + p*e0 + ptxt);
 
-			cVector.push_back(std::move(c0));
+		Element c1(a*v + p*e1);
 
-			cVector.push_back(std::move(c1));
+		cVector.push_back(std::move(c0));
 
-			ciphertext->SetElements(std::move(cVector));
+		cVector.push_back(std::move(c1));
 
-		}
+		ciphertext->SetElements(std::move(cVector));
+
 
 		return ciphertext;
 	}
 
 	template <class Element>
 	shared_ptr<Ciphertext<Element>> LPAlgorithmBV<Element>::Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
-		Poly &ptxt, bool doEncryption) const
+		Element ptxt) const
 	{
 		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(privateKey->GetCryptoParameters());
 
@@ -213,40 +193,21 @@ namespace lbcrypto {
 
 		typename Element::DugType dug;
 
-		Element plaintext(ptxt, elementParams);
-
-		plaintext.SwitchFormat();
+		ptxt.SwitchFormat();
 
 		std::vector<Element> cVector;
 
-		if (doEncryption) {
-			Element a(dug, elementParams, Format::EVALUATION);
-			const Element &s = privateKey->GetPrivateElement();
-			Element e(dgg, elementParams, Format::EVALUATION);
+		Element a(dug, elementParams, Format::EVALUATION);
+		const Element &s = privateKey->GetPrivateElement();
+		Element e(dgg, elementParams, Format::EVALUATION);
 
-			Element c0(a*s + p*e + plaintext);
-			Element c1(a);
+		Element c0(a*s + p*e + ptxt);
+		Element c1(a);
 
-			cVector.push_back(std::move(c0));
-			cVector.push_back(std::move(c1));
+		cVector.push_back(std::move(c0));
+		cVector.push_back(std::move(c1));
 
-			ciphertext->SetElements(std::move(cVector));
-
-		}
-		else
-		{
-
-			Element c0(plaintext);
-
-			Element c1(elementParams,Format::EVALUATION,true);
-
-			cVector.push_back(std::move(c0));
-
-			cVector.push_back(std::move(c1));
-
-			ciphertext->SetElements(std::move(cVector));
-
-		}
+		ciphertext->SetElements(std::move(cVector));
 
 		return ciphertext;
 	}
@@ -297,6 +258,30 @@ namespace lbcrypto {
 	}
 
 	template <class Element>
+	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::EvalAdd(
+		const shared_ptr<Ciphertext<Element>> ciphertext,
+		const shared_ptr<Plaintext> plaintext) const
+	{
+		shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
+
+		const std::vector<Element> &c1 = ciphertext->GetElements();
+
+		plaintext->GetEncodedElement<Element>().SetFormat(EVALUATION);
+		const Element& c2 = plaintext->GetEncodedElement<Element>();
+
+		std::vector<Element> cNew;
+
+		cNew.push_back(std::move(c1[0] + c2));
+
+		cNew.push_back(std::move(c1[1]));
+
+		newCiphertext->SetElements(std::move(cNew));
+
+		return newCiphertext;
+
+	}
+
+	template <class Element>
 	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext1,
 		const shared_ptr<Ciphertext<Element>> ciphertext2) const {
 
@@ -311,6 +296,28 @@ namespace lbcrypto {
 		cNew.push_back(std::move(c1[0] - c2[0]));
 
 		cNew.push_back(std::move(c1[1] - c2[1]));
+
+		newCiphertext->SetElements(std::move(cNew));
+
+		return newCiphertext;
+	}
+
+	template <class Element>
+	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext,
+		const shared_ptr<Plaintext> plaintext) const {
+
+		shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
+
+		const std::vector<Element> &c1 = ciphertext->GetElements();
+
+		plaintext->GetEncodedElement<Element>().SetFormat(EVALUATION);
+		const Element& c2 = plaintext->GetEncodedElement<Element>();
+
+		std::vector<Element> cNew;
+
+		cNew.push_back(std::move(c1[0] - c2));
+
+		cNew.push_back(std::move(c1[1]));
 
 		newCiphertext->SetElements(std::move(cNew));
 
@@ -348,26 +355,28 @@ namespace lbcrypto {
 	}
 
 	template <class Element>
-	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::EvalMultPlain(
+	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::EvalMult(
 		const shared_ptr<Ciphertext<Element>> ciphertext,
-		const shared_ptr<Ciphertext<Element>> plaintext) const
+		const shared_ptr<Plaintext> plaintext) const
 	{
-
-		if (ciphertext->GetElements()[0].GetFormat() == Format::COEFFICIENT || plaintext->GetElements()[0].GetFormat() == Format::COEFFICIENT) {
-			throw std::runtime_error("EvalMult cannot multiply in COEFFICIENT domain.");
-		}
-
 		shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
 
 		const std::vector<Element> &c1 = ciphertext->GetElements();
 
-		const std::vector<Element> &c2 = plaintext->GetElements();
+		plaintext->GetEncodedElement<Element>().SetFormat(EVALUATION);
+		const Element& c2 = plaintext->GetEncodedElement<Element>();
+
+		if (ciphertext->GetElements()[0].GetFormat() == Format::COEFFICIENT || plaintext->GetEncodedElement<Element>().GetFormat() == Format::COEFFICIENT) {
+			throw std::runtime_error("EvalMult cannot multiply in COEFFICIENT domain.");
+		}
 
 		std::vector<Element> cNew;
 
-		cNew.push_back(std::move(c1[0] * c2[0]));
+		cNew.push_back(std::move(c1[0] * c2));
 
-		cNew.push_back(std::move(c1[1] * c2[0]));
+		cNew.push_back(std::move(c1[1] * c2));
+
+		//cNew.push_back(std::move(0));
 
 		newCiphertext->SetElements(std::move(cNew));
 
@@ -381,6 +390,16 @@ namespace lbcrypto {
 		const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const {
 
 		shared_ptr<Ciphertext<Element>> newCiphertext = this->EvalMult(ciphertext1, ciphertext2);
+
+		return this->KeySwitch(ek, newCiphertext);
+
+	}
+
+	template <class Element>
+	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
+		const shared_ptr<Plaintext> plaintext, const shared_ptr<LPEvalKey<Element>> ek) const {
+
+		shared_ptr<Ciphertext<Element>> newCiphertext = this->EvalMult(ciphertext1, plaintext);
 
 		return this->KeySwitch(ek, newCiphertext);
 
@@ -457,7 +476,7 @@ namespace lbcrypto {
 	template <class Element>
 	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::KeySwitch(const shared_ptr<LPEvalKey<Element>> keySwitchHint, const shared_ptr<Ciphertext<Element>> cipherText) const {
 
-		shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(*cipherText));
+		shared_ptr<Ciphertext<Element>> newCiphertext = cipherText->CloneEmpty();
 
 		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParamsLWE = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(keySwitchHint->GetCryptoParameters());
 
@@ -524,7 +543,7 @@ namespace lbcrypto {
 		const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalKeys) const
 	{
 
-		shared_ptr<Ciphertext<Element>> permutedCiphertext(new Ciphertext<Element>(*ciphertext));
+		shared_ptr<Ciphertext<Element>> permutedCiphertext = ciphertext->CloneEmpty();
 
 		const std::vector<Element> &c = ciphertext->GetElements();
 
@@ -577,8 +596,7 @@ namespace lbcrypto {
 	shared_ptr<LPEvalKey<Element>> LPAlgorithmPREBV<Element>::ReKeyGen(const shared_ptr<LPPrivateKey<Element>> newSK,
 		const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const
 	{
-		return origPrivateKey->GetCryptoContext()->GetEncryptionAlgorithm()->KeySwitchGen(origPrivateKey,
-			newSK);
+		return origPrivateKey->GetCryptoContext()->GetEncryptionAlgorithm()->KeySwitchGen(origPrivateKey, newSK);
 	}
 
 	//Function for re-encypting ciphertext using the arrays generated by ReKeyGen
@@ -593,7 +611,7 @@ namespace lbcrypto {
 	template <class Element>
 	shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmBV<Element>::ModReduce(shared_ptr<Ciphertext<Element>> cipherText) const {
 
-		shared_ptr<Ciphertext<Element>> newcipherText(new Ciphertext<Element>(*cipherText));
+		shared_ptr<Ciphertext<Element>> newCiphertext = cipherText->CloneEmpty();
 
 		std::vector<Element> cipherTextElements(cipherText->GetElements());
 
@@ -603,9 +621,9 @@ namespace lbcrypto {
 			cipherTextElement.ModReduce(plaintextModulus); // this is being done at the lattice layer. The ciphertext is mod reduced.
 		}
 
-		newcipherText->SetElements(cipherTextElements);
+		newCiphertext->SetElements(cipherTextElements);
 
-		return newcipherText;
+		return newCiphertext;
 	}
 
 

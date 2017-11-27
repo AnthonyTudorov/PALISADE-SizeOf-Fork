@@ -33,8 +33,6 @@ using namespace std;
 #include "cryptocontexthelper.h"
 
 #include "utils/serializablehelper.h"
-#include "encoding/byteplaintextencoding.h"
-#include "encoding/intplaintextencoding.h"
 
 using namespace lbcrypto;
 
@@ -141,18 +139,13 @@ decrypter(shared_ptr<CryptoContext<Poly>> ctx, string cmd, int argc, char *argv[
 			return;
 		}
 
-		vector<shared_ptr<Ciphertext<Poly>>> ciphertext( { ct } );
-
 		// Decrypt and write out the integers
-		IntPlaintextEncoding iPlaintext;
+		shared_ptr<Plaintext> iPlaintext;
 
 		// now decrypt iPlaintext
-		ctx->Decrypt(sk, ciphertext, &iPlaintext, false);
+		ctx->Decrypt(sk, ct, &iPlaintext);
 
-		for( size_t i=0; i<IntVectorLen; i++ ) {
-			outF << iPlaintext.at(i) << ' ';
-		}
-		outF << endl;
+		outF << iPlaintext << endl;
 	}
 
 	inCt.close();
@@ -207,9 +200,7 @@ encrypter(shared_ptr<CryptoContext<Poly>> ctx, string cmd, int argc, char *argv[
 	else {
 		ctSer.close();
 
-		// pull in file full of integers and do the encryption
-		IntPlaintextEncoding iPlaintext;
-
+		vector<uint32_t> intVector;
 		for( size_t i=0; i<IntVectorLen; i++ ) {
 			int val;
 
@@ -218,36 +209,27 @@ encrypter(shared_ptr<CryptoContext<Poly>> ctx, string cmd, int argc, char *argv[
 				break;
 			}
 
-			iPlaintext.push_back(val);
+			intVector.push_back(val);
 		}
+
+		// pull in file full of integers and do the encryption
+		shared_ptr<Plaintext> iPlaintext = ctx->MakeCoefPackedPlaintext(intVector);
 
 		// now encrypt iPlaintext
-		std::vector<shared_ptr<Ciphertext<Poly>>> ciphertext = ctx->Encrypt(pk, iPlaintext, false);
+		shared_ptr<Ciphertext<Poly>> ciphertext = ctx->Encrypt(pk, iPlaintext);
 
-		// FIXME: this works iff size == 1
-		if( ciphertext.size() != 1 ) {
-			cerr << ciphertext.size() << " is the wrong # of ciphertexts!!!" << endl;
-			return;
-		}
-
-		for( size_t i=0; i<ciphertext.size(); i++ ) {
-			Serialized cSer;
-			if( ciphertext[i]->Serialize(&cSer) ) {
-				if( !SerializableHelper::WriteSerializationToFile(cSer, ciphertextname) ) {
-					cerr << "Error writing serialization of ciphertext to " + ciphertextname << endl;
-					return;
-				}
-			}
-			else {
-				cerr << "Error serializing ciphertext" << endl;
+		Serialized cSer;
+		if( ciphertext->Serialize(&cSer) ) {
+			if( !SerializableHelper::WriteSerializationToFile(cSer, ciphertextname) ) {
+				cerr << "Error writing serialization of ciphertext to " + ciphertextname << endl;
 				return;
 			}
 		}
+		else {
+			cerr << "Error serializing ciphertext" << endl;
+			return;
+		}
 	}
-
-//	if( !er.isValid ) {
-//		cerr << "failed to encrypt" << endl;
-//	}
 
 	inf.close();
 	ctSer.close();

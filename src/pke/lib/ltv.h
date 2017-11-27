@@ -248,11 +248,11 @@ public:
 	 * taken from.
 	 *
 	 * @param publicKey The encryption key.
-	 * @param plaintext Plaintext to be encrypted.
+	 * @param plaintext copy of Plaintext to be encrypted.
 	 * @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 	 * @return A shared pointer to the encrypted Ciphertext.
 	 */
-	shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, Poly &plaintext, bool doEncryption = true) const;
+	shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, Element plaintext) const;
 
 	/**
 	 * Encrypt method for the LTV Scheme.  See the class description for citations on where the algorithms were
@@ -263,7 +263,7 @@ public:
 	 * @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 	 * @return A shared pointer to the encrypted Ciphertext.
 	 */
-	shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey, Poly &plaintext, bool doEncryption = true) const;
+	shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey, Element plaintext) const;
 
 	/**
 	 * Decrypt method for the LTV Scheme.  See the class description for citations on where the algorithms were
@@ -471,6 +471,17 @@ public:
 		const shared_ptr<Ciphertext<Element>> ciphertext2) const;
 
 	/**
+	* Function for evaluation addition on ciphertext.
+	* See the class description for citations on where the algorithms were taken from.
+	*
+	* @param ciphertext The input ciphertext.
+	* @param plaintext The input plaintext.
+	* @return A shared pointer to the ciphertext which is the EvalAdd of the two inputs.
+	*/
+	shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext,
+		const shared_ptr<Plaintext> plaintext) const;
+
+	/**
 	* Function for homomorphic subtraction of ciphertexts.
 	* See the class description for citations on where the algorithms were taken from.
 	*
@@ -480,6 +491,17 @@ public:
 	*/
 	shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext1,
 		const shared_ptr<Ciphertext<Element>> ciphertext2) const;
+
+	/**
+	* Function for homomorphic subtraction of ciphertexts.
+	* See the class description for citations on where the algorithms were taken from.
+	*
+	* @param ciphertext The input ciphertext.
+	* @param plaintext The input plaintext.
+	* @return A shared pointer to the ciphertext which is the EvalAdd of the two inputs.
+	*/
+	shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext,
+			const shared_ptr<Plaintext> plaintext) const;
 
 	/**
 	* Function for evaluating multiplication on ciphertext.
@@ -498,12 +520,10 @@ public:
 	*
 	* @param ciphertext Input ciphertext.
 	* @param plaintext input plaintext.
-	* @return A shared pointer to the ciphertext which is the EvalMultPlain of the two inputs.
+	* @return A shared pointer to the ciphertext which is the EvalMult of the two inputs.
 	*/
-	shared_ptr<Ciphertext<Element>> EvalMultPlain(const shared_ptr<Ciphertext<Element>> ciphertext,
-		const shared_ptr<Ciphertext<Element>> plaintext) const {
-		return EvalMult(ciphertext, plaintext);
-	}
+	shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext,
+		const shared_ptr<Plaintext> plaintext) const;
 
 
 	/**
@@ -542,10 +562,24 @@ public:
 	* @param evalKey is the evaluation keys input.
 	* @return A shared pointer to the ciphertext which is the result of the multiplication.
 	*/
-	shared_ptr<Ciphertext<Element>> EvalMultMany(const shared_ptr<vector<shared_ptr<Ciphertext<Element>>>> cipherTextList, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> evalKeys) const {
+	shared_ptr<Ciphertext<Element>> EvalMultMany(const vector<shared_ptr<Ciphertext<Element>>>& cipherTextList, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> evalKeys) const {
 		std::string errMsg = "LPAlgorithmLTV::EvalMultMany is not implemented for the LTV Scheme.";
 		throw std::runtime_error(errMsg);
 	}
+
+	/**
+	* Function for evaluating multiplication on ciphertext, but with a key switch performed after the
+	* EvalMult using the Evaluation Key input.
+	* See the class description for citations on where the algorithms were taken from.
+	*
+	* @param ciphertext1 The first input ciphertext.
+	* @param ciphertext2 The second input ciphertext.
+	* @param evalKey The evaluation key input.
+	* @return A shared pointer to the ciphertext which is the EvalMult of the two inputs.
+	*/
+	shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
+		const shared_ptr<Plaintext> ciphertext2,
+		const shared_ptr<LPEvalKey<Element>> evalKey) const;
 
 	/**
 	* Function for homomorphic negation of ciphertexts.

@@ -23,12 +23,14 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
+
 #ifndef LBCRYPTO_UTILS_PLAINTEXT_H
 #define LBCRYPTO_UTILS_PLAINTEXT_H
 
 #include <vector>
 #include <initializer_list>
 #include <iostream>
+#include "encodingparams.h"
 #include "../utils/inttypes.h"
 #include "../math/backend.h"
 #include "../lattice/elemparams.h"
@@ -39,6 +41,18 @@
 
 namespace lbcrypto
 {
+
+enum PlaintextEncodings {
+	Unknown,
+	Scalar,
+	ScalarSigned,
+	Integer,
+	CoefPacked,
+	CoefPackedSigned,
+	Packed,
+	String,
+};
+
 /**
  * @class Plaintext
  * @brief This class represents plaintext in the Palisade library.
@@ -50,43 +64,85 @@ namespace lbcrypto
  */
 class Plaintext
 {
+protected:
+	bool								isEncoded;
+	enum { IsPoly, IsDCRTPoly }		typeFlag;
+	shared_ptr<EncodingParams>		encodingParams;
+	Poly								encodedVector;
+	DCRTPoly							encodedVectorDCRT;
+
 public:
+	Plaintext(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, bool isEncoded = false) :
+		isEncoded(isEncoded), typeFlag(IsPoly), encodingParams(ep), encodedVector(vp,COEFFICIENT) {}
+
+	Plaintext(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, bool isEncoded = false) :
+		isEncoded(isEncoded), typeFlag(IsDCRTPoly), encodingParams(ep), encodedVector(vp,COEFFICIENT), encodedVectorDCRT(vp,COEFFICIENT) {}
+
 	virtual ~Plaintext() {}
 
 	/**
-	 * Interface for the operation of converting from current plaintext encoding to Poly.
-	 *
-	 * @param  modulus - used for encoding.
-	 * @param  *ilVector encoded plaintext - output argument.
-	 * @param  start_from - location to start from.  Defaults to 0.
-	 * @param  length - length of data to encode.  Defaults to 0.
+	 * GetEncodingType
+	 * @return Encoding type used by this plaintext
 	 */
-	virtual void Encode(const BigInteger &modulus, Poly *ilVector, size_t start_from=0, size_t length=0) const = 0;
+	virtual PlaintextEncodings GetEncodingType() const = 0;
 
 	/**
-	 * Interface for the operation of converting from Poly to current plaintext encoding.
-	 *
-	 * @param  modulus - used for encoding.
-	 * @param  *ilVector encoded plaintext - input argument.
+	 * IsEncoded
+	 * @return true when encoding is done
 	 */
-	virtual void Decode(const BigInteger &modulus, Poly *ilVector) = 0;
+	bool IsEncoded() const { return isEncoded; }
 
 	/**
-	 * Interface for the operation of stripping away unneeded trailing zeros to pad out a short plaintext until one with entries
-	 * for all dimensions.
-	 *
-	 * @param  &modulus - used for encoding.
+	 * GetEncodingParams
+	 * @return Encoding params used with this plaintext
 	 */
-	virtual void Unpad(const BigInteger &modulus) = 0;
+	const shared_ptr<EncodingParams> GetEncodingParams() const { return encodingParams; }
 
 	/**
-	 * Getter for the ChunkSize data.
-	 *
-	 * @param  ring - the ring dimension.
-	 * @param  ptm - the plaintext modulus.
-	 * @return ring - the chunk size.
+	 * Encode the plaintext into a polynomial
+	 * @return true on success
 	 */
-	virtual size_t GetChunksize(const usint ring, const BigInteger& ptm) const = 0;
+	virtual bool Encode() = 0;
+
+	/**
+	 * Decode the polynomial into the plaintext
+	 * @return
+	 */
+	virtual bool Decode() = 0;
+
+	/**
+	 * SetFormat - allows format to be changed for Plaintext evaluations
+	 *
+	 * @param fmt
+	 */
+	void SetFormat(Format fmt) {
+		if( typeFlag == IsPoly )
+			encodedVector.SetFormat(fmt);
+		else
+			encodedVectorDCRT.SetFormat(fmt);
+	}
+
+	template<typename Element>
+	Element& GetEncodedElement() {
+		if( !isEncoded )
+			this->Encode();
+		return GetElement<Element>();
+	}
+
+	/**
+	 * GetElement
+	 * @return the Polynomial that the element was encoded into
+	 */
+	template <typename Element>
+	Element& GetElement();
+
+	const usint GetElementRingDimension() const {
+		return typeFlag == IsPoly ? encodedVector.GetRingDimension() : encodedVectorDCRT.GetRingDimension();
+	}
+
+	const BigInteger& GetElementModulus() const {
+		return typeFlag == IsPoly ? encodedVector.GetModulus() : encodedVectorDCRT.GetModulus();
+	}
 
 	/**
 	 * Get method to return the length of plaintext
@@ -96,7 +152,22 @@ public:
 	virtual size_t GetLength() const = 0;
 
 	/**
-	 * Method to compare two plaintext to test for equivalence.  This method does not test that the plaintext are of the same type.
+	 * resize the plaintext; only works for plaintexts that support a resizable vector (coefpacked)
+	 * @param newSize
+	 */
+	virtual void SetLength(size_t newSize) { throw std::logic_error("resize not supported"); }
+
+	virtual const std::string&		GetStringValue() const { throw std::logic_error("not a string"); }
+	virtual const uint64_t&			GetIntegerValue() const { throw std::logic_error("not an integer"); }
+	virtual const uint32_t&			GetScalarValue() const { throw std::logic_error("not a scalar"); }
+	virtual const int32_t&			GetScalarSignedValue() const { throw std::logic_error("not a signed scalar"); }
+	virtual const vector<uint32_t>&	GetCoefPackedValue() const { throw std::logic_error("not a packed coefficient vector"); }
+	virtual const vector<int32_t>&	GetCoefPackedSignedValue() const { throw std::logic_error("not a signed packed coefficient vector"); }
+	virtual const vector<uint32_t>&	GetPackedValue() const { throw std::logic_error("not a packed coefficient vector"); }
+
+	/**
+	 * Method to compare two plaintext to test for equivalence.
+	 * This method is called by operator==
 	 *
 	 * @param other - the other plaintext to compare to.
 	 * @return whether the two plaintext are equivalent.
@@ -104,7 +175,7 @@ public:
 	virtual bool CompareTo(const Plaintext& other) const = 0;
 
 	/**
-	 * Method to compare two plaintext to test for euality to.  This method makes sure the plaintext are of the same type.
+	 * operator== for plaintexts.  This method makes sure the plaintexts are of the same type.
 	 *
 	 * @param other - the other plaintext to compare to.
 	 * @return whether the two plaintext are the same.
@@ -113,8 +184,30 @@ public:
 		if( typeid(this) != typeid(&other) )
 			return false;
 
+		if( this->typeFlag != other.typeFlag )
+			return false;
+
+		if( this->encodingParams != other.encodingParams )
+			return false;
+
 		return CompareTo(other);
 	}
+
+	bool operator!=(const Plaintext& other) const { return !(*this == other); }
+
+	/**
+	 * operator<< for ostream integration - calls PrintValue
+	 * @param out
+	 * @param item
+	 * @return
+	 */
+	friend std::ostream& operator<<(std::ostream& out, const Plaintext& item);
+
+	/**
+	 * PrintValue is called by operator<<
+	 * @param out
+	 */
+	virtual void PrintValue(std::ostream& out) const = 0;
 
 	/**
 	 * Method to convert plaintext modulus to a native data type.
@@ -131,6 +224,40 @@ public:
 		return native_int::BigInteger( ptm.ConvertToInt() );
 	}
 };
+
+inline std::ostream& operator<<(std::ostream& out, const Plaintext& item)
+{
+	item.PrintValue(out);
+	return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, const shared_ptr<Plaintext> item)
+{
+	item->PrintValue(out);
+	return out;
+}
+
+inline bool operator==(const shared_ptr<Plaintext> p1, const shared_ptr<Plaintext> p2) { return *p1 == *p2;}
+
+inline bool operator!=(const shared_ptr<Plaintext> p1, const shared_ptr<Plaintext> p2) { return *p1 != *p2;}
+
+/**
+ * GetElement
+ * @return the Polynomial that the element was encoded into
+ */
+template <>
+inline Poly& Plaintext::GetElement<Poly>() {
+	return encodedVector;
+}
+
+/**
+ * GetElement
+ * @return the DCRTPolynomial that the element was encoded into
+ */
+template <>
+inline DCRTPoly& Plaintext::GetElement<DCRTPoly>() {
+	return encodedVectorDCRT;
+}
 
 }
 

@@ -36,8 +36,7 @@ FV RNS testing programs
 
 #include "cryptocontexthelper.h"
 
-#include "encoding/byteplaintextencoding.h"
-#include "encoding/packedintplaintextencoding.h"
+#include "encoding/encodings.h"
 
 #include "utils/debug.h"
 #include <random>
@@ -128,18 +127,15 @@ void PKE() {
 	////////////////////////////////////////////////////////////
 
 	std::vector<uint32_t> vectorOfInts = {1<<28,(1<<28)-1,1<<30,202,301,302,1<<30,402,501,502,601,602};
-	IntPlaintextEncoding plaintext(vectorOfInts);
+	shared_ptr<Plaintext> plaintext = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts);
 
 	////////////////////////////////////////////////////////////
 	// Encryption
 	////////////////////////////////////////////////////////////
 
-
-	vector<shared_ptr<Ciphertext<DCRTPoly>>> ciphertext;
-
 	start = currentDateTime();
 
-	ciphertext = cryptoContext->Encrypt(keyPair.publicKey, plaintext, true);
+	auto ciphertext = cryptoContext->Encrypt(keyPair.publicKey, plaintext);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -149,11 +145,11 @@ void PKE() {
 	//Decryption of Ciphertext
 	////////////////////////////////////////////////////////////
 
-	IntPlaintextEncoding plaintextDec;
+	shared_ptr<Plaintext> plaintextDec;
 
 	start = currentDateTime();
 
-	cryptoContext->Decrypt(keyPair.secretKey, ciphertext, &plaintextDec, true);
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertext, &plaintextDec);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -161,7 +157,7 @@ void PKE() {
 
 	//std::cin.get();
 
-	plaintextDec.resize(plaintext.size());
+	plaintextDec->SetLength(plaintext->GetLength());
 
 	cout << "\n Original Plaintext: \n";
 	cout << plaintext << endl;

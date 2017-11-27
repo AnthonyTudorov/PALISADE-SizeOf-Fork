@@ -1,5 +1,5 @@
-/*
-* @file nullscheme-vector-impl.cpp - null scheme vector array implementation
+/**
+ * @file encodings.h - all supported encodings of plaintext objects in Palisade.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -24,48 +24,17 @@
  *
  */
 
-#include "cryptocontext.h"
-#include "nullscheme.h"
 
-namespace lbcrypto {
+#ifndef SRC_CORE_LIB_ENCODING_ENCODINGS_H_
+#define SRC_CORE_LIB_ENCODING_ENCODINGS_H_
 
-template<>
-shared_ptr<Ciphertext<Poly>> LPAlgorithmSHENull<Poly>::EvalMult(const shared_ptr<Ciphertext<Poly>> ciphertext1,
-	const shared_ptr<Ciphertext<Poly>> ciphertext2) const {
+#include "encoding/plaintext.h"
+#include "encoding/encodingparams.h"
+#include "encoding/coefpackedencoding.h"
+#include "encoding/integerencoding.h"
+#include "encoding/packedintplaintextencoding.h"
+#include "encoding/scalarencoding.h"
+#include "encoding/stringencoding.h"
 
-	shared_ptr<Ciphertext<Poly>> newCiphertext = ciphertext1->CloneEmpty();
 
-	const Poly& c1 = ciphertext1->GetElement();
-	const Poly& c2 = ciphertext2->GetElement();
-
-	const BigInteger& ptm = ciphertext1->GetCryptoParameters()->GetPlaintextModulus();
-
-	Poly cResult = ElementNullSchemeMultiply(c1, c2, ptm);
-
-	newCiphertext->SetElement(cResult);
-
-	return newCiphertext;
-}
-
-template<>
-shared_ptr<Ciphertext<Poly>> LPAlgorithmSHENull<Poly>::EvalMult(const shared_ptr<Ciphertext<Poly>> ciphertext1,
-	const shared_ptr<Plaintext> plaintext) const {
-
-	shared_ptr<Ciphertext<Poly>> newCiphertext = ciphertext1->CloneEmpty();
-
-	const Poly& c1 = ciphertext1->GetElement();
-	const Poly& c2 = plaintext->GetEncodedElement<Poly>();
-
-	const BigInteger& ptm = ciphertext1->GetCryptoParameters()->GetPlaintextModulus();
-
-	Poly cResult = ElementNullSchemeMultiply(c1, c2, ptm);
-
-	newCiphertext->SetElement(cResult);
-
-	return newCiphertext;
-}
-
-template class LPCryptoParametersNull<Poly>;
-template class LPPublicKeyEncryptionSchemeNull<Poly>;
-template class LPAlgorithmNull<Poly>;
-}
+#endif /* SRC_CORE_LIB_ENCODING_ENCODINGS_H_ */

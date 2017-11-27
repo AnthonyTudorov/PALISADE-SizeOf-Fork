@@ -36,7 +36,7 @@
 #define _SRC_LIB_CRYPTO_SIGNATURE_LWESIGN_H
 
 #include "../sampling/trapdoor.h"
-#include "encoding/byteplaintextencoding.h"
+#include "encoding/stringencoding.h"
 
 namespace lbcrypto {
 
@@ -86,6 +86,8 @@ namespace lbcrypto {
 	template <class Element>
 	class LPSignKey {
 	public:
+		virtual ~LPSignKey() {}
+
 		/**
 		*Method for getting the element in key
 		*
@@ -107,6 +109,8 @@ namespace lbcrypto {
 	template <class Element>
 	class LPVerificationKey {
 	public:
+		virtual ~LPVerificationKey() {}
+
 		/**
 		* Method for getting the element in key
 		*
@@ -187,7 +191,8 @@ namespace lbcrypto {
 		/**
 		*Default constructor
 		*/
-		LPSignatureParameters() {}
+		LPSignatureParameters() : m_base(0), m_k(0) {}
+
 		/**
 		*Constructor
 		*@param params Parameters used in Element construction
@@ -355,7 +360,7 @@ namespace lbcrypto {
 		/**
 		* Default constructor
 		*/
-		LPSignatureSchemeGPVGM() {}
+		LPSignatureSchemeGPVGM() : seed(0) {}
 
 		/**
 		*Method for signing given text
@@ -363,7 +368,7 @@ namespace lbcrypto {
 		*@param plainText encoding of the text to be signed
 		*@param signatureText signature generated after the signing process - output of the function
 		*/
-		void Sign(LPSignKeyGPVGM<Element> &signKey, const BytePlaintextEncoding &plainText,
+		void Sign(LPSignKeyGPVGM<Element> &signKey, const string &plainText,
 			Signature<Matrix<Element>>*signatureText);
 
 		/**
@@ -380,7 +385,7 @@ namespace lbcrypto {
 		*@param plainText encoding of the text to be signed
 		*@param signatureText signature generated after the signing process - output of the function
 		*/
-		void SignOnline(LPSignKeyGPVGM<Element> &signKey, const shared_ptr<Matrix<Element>> parturbationVector, const BytePlaintextEncoding &plainText,
+		void SignOnline(LPSignKeyGPVGM<Element> &signKey, const shared_ptr<Matrix<Element>> parturbationVector, const string &plainText,
 			Signature<Matrix<Element>>*signatureText);
 
 		/**
@@ -393,7 +398,7 @@ namespace lbcrypto {
 		*/
 		bool Verify(LPVerificationKeyGPVGM<Element> &verificationKey,
 			const Signature<Matrix<Element>> &signatureText,
-			const BytePlaintextEncoding & plainText);
+			const string& plainText);
 
 		/**
 		*

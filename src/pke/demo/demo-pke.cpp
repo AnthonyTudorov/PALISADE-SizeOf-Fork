@@ -38,7 +38,6 @@
 #include "palisade.h"
 #include "cryptocontexthelper.h"
 #include "cryptocontextgen.h"
-#include "encoding/byteplaintextencoding.h"
 #include "utils/debug.h"
 #include "utils/serializablehelper.h"
 
@@ -78,8 +77,6 @@ int main(int argc, char *argv[]) {
 
 	cout << "Param generation time: " << "\t" << diff << " ms" << endl;
 
-	//cryptoContext<Poly> cryptoContext = GencryptoContextElementLTV(ORDER, PTM);
-
 	//Turn on features
 	cryptoContext->Enable(ENCRYPTION);
 
@@ -87,9 +84,6 @@ int main(int argc, char *argv[]) {
 	std::cout << "n = " << cryptoContext->GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
 	std::cout << "log2 q = " << log2(cryptoContext->GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
 
-	//std::cout << "Press any key to continue." << std::endl;
-	//std::cin.get();
-	
 	// Initialize Public Key Containers
 	LPKeyPair<Poly> keyPair;
 	
@@ -117,18 +111,18 @@ int main(int argc, char *argv[]) {
 	////////////////////////////////////////////////////////////
 
 	std::vector<uint32_t> vectorOfInts = {1,1,1,0,1,1,0,1,0,0,0,0};
-	IntPlaintextEncoding plaintext(vectorOfInts);
+	shared_ptr<Plaintext> plaintext = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts);
 
 	////////////////////////////////////////////////////////////
 	// Encryption
 	////////////////////////////////////////////////////////////
 
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext;
+	shared_ptr<Ciphertext<Poly>> ciphertext;
 
 	start = currentDateTime();
 
-	ciphertext = cryptoContext->Encrypt(keyPair.publicKey, plaintext, true);
+	ciphertext = cryptoContext->Encrypt(keyPair.publicKey, plaintext);
 	
 	finish = currentDateTime();
 	diff = finish - start;
@@ -138,28 +132,28 @@ int main(int argc, char *argv[]) {
 	//Decryption of Ciphertext
 	////////////////////////////////////////////////////////////
 
-	IntPlaintextEncoding plaintextDec;
+	shared_ptr<Plaintext> plaintextDec;
 
 	start = currentDateTime();
 
-	cryptoContext->Decrypt(keyPair.secretKey, ciphertext, &plaintextDec, true);
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertext, &plaintextDec);
 
 	finish = currentDateTime();
 	diff = finish - start;
 	cout << "Decryption time: " << "\t" << diff << " ms" << endl;
 
-	//std::cin.get();
+	plaintextDec->SetLength(plaintext->GetLength());
 
-	plaintextDec.resize(plaintext.size());
+	if( *plaintext != *plaintextDec )
+		cout << "Decryption failed!" << endl;
 
 	cout << "\n Original Plaintext: \n";
-	cout << plaintext << endl;
+	cout << *plaintext << endl;
 
 	cout << "\n Resulting Decryption of Ciphertext: \n";
-	cout << plaintextDec << endl;
+	cout << *plaintextDec << endl;
 
 	cout << "\n";
-
 
 	////////////////////////////////////////////////////////////
 	// Done

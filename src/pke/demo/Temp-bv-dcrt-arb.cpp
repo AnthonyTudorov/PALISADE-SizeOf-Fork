@@ -47,7 +47,6 @@ We configured parameters (namely the ring dimension and ciphertext modulus) to p
 
 #include "cryptocontexthelper.h"
 
-#include "encoding/byteplaintextencoding.h"
 #include "encoding/packedintplaintextencoding.h"
 
 #include "utils/debug.h"
@@ -166,44 +165,25 @@ void ArbBVAutomorphismPackedArray(usint i) {
 	// Initialize the public key containers.
 	LPKeyPair<DCRTPoly> kp = cc->KeyGen();
 
-	vector<shared_ptr<Ciphertext<DCRTPoly>>> ciphertext;
-
-	//std::vector<usint> vectorOfInts = { 0,1,0,2,0,3,0,4,0,5 };
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10 };
-	PackedIntPlaintextEncoding intArray(vectorOfInts);
-	//IntPlaintextEncoding intArray(vectorOfInts);
+	shared_ptr<Plaintext> intArray = cc->MakePackedPlaintext(vectorOfInts);
 
-	ciphertext = cc->Encrypt(kp.publicKey, intArray, false);
+	auto ciphertext = cc->Encrypt(kp.publicKey, intArray);
 
 	std::vector<usint> indexList = GetTotientList(m);
 	indexList.erase(indexList.begin());
 
 	auto evalKeys = cc->EvalAutomorphismKeyGen(kp.secretKey, indexList);
 
-	//cc->EvalMultKeyGen(kp.secretKey);
+	auto p1 = cc->EvalAutomorphism(ciphertext, i, *evalKeys);
 
-	vector<shared_ptr<Ciphertext<DCRTPoly>>> permutedCiphertext;
+	shared_ptr<Plaintext> intArrayNew;
 
-	shared_ptr<Ciphertext<DCRTPoly>> p1;
-
-	//p1 = cc->EvalMult(ciphertext[0],ciphertext2[0]);
-
-	p1 = cc->EvalAutomorphism(ciphertext[0], i, *evalKeys);
-
-	permutedCiphertext.push_back(p1);
-
-	PackedIntPlaintextEncoding intArrayNew;
-	//IntPlaintextEncoding intArrayNew;
-
-	cc->Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew, false);
+	cc->Decrypt(kp.secretKey, p1, &intArrayNew);
 	
-	//cc->Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
-
 	std::cout << "Input array\n\t" << intArray << std::endl;
 
 	std::cout << "Automorphed array - at index " << i << " (using only odd coefficients)\n\t" << intArrayNew << std::endl;
-
-	//std::cout << intArrayNew << std::endl;
 
 }
 
@@ -281,54 +261,32 @@ void EvalMult() {
 	// Initialize the public key containers.
 	LPKeyPair<DCRTPoly> kp = cc->KeyGen();
 
-	vector<shared_ptr<Ciphertext<DCRTPoly>>> ciphertext;
-
-	//std::vector<usint> vectorOfInts = { 0,1,0,2,0,3,0,4,0,5 };
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10 };
-	PackedIntPlaintextEncoding intArray(vectorOfInts);
-	//IntPlaintextEncoding intArray(vectorOfInts);
+	shared_ptr<Plaintext> intArray = cc->MakePackedPlaintext(vectorOfInts);
 
-	ciphertext = cc->Encrypt(kp.publicKey, intArray, false);
-
-	vector<shared_ptr<Ciphertext<DCRTPoly>>> ciphertext2;
+	auto ciphertext = cc->Encrypt(kp.publicKey, intArray);
 
 	std::vector<usint> vectorOfInts2 = { 2,3,4,4,5,6,7,8,9,101 };
-	PackedIntPlaintextEncoding intArray2(vectorOfInts2);
+	shared_ptr<Plaintext> intArray2 = cc->MakePackedPlaintext(vectorOfInts2);
 
-	ciphertext2 = cc->Encrypt(kp.publicKey, intArray2, false);
+	auto ciphertext2 = cc->Encrypt(kp.publicKey, intArray2);
 
 	std::vector<usint> indexList = GetTotientList(m);
 	indexList.erase(indexList.begin());
 
-	//auto evalKeys = cc->EvalAutomorphismKeyGen(kp.secretKey, indexList);
-
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	vector<shared_ptr<Ciphertext<DCRTPoly>>> permutedCiphertext;
+	auto p1 = cc->EvalMult(ciphertext, ciphertext2);
 
-	shared_ptr<Ciphertext<DCRTPoly>> p1;
+	shared_ptr<Plaintext> intArrayNew;
 
-	p1 = cc->EvalMult(ciphertext[0], ciphertext2[0]);
-
-	//p1 = cc->EvalAutomorphism(ciphertext[0], i, *evalKeys);
-
-	permutedCiphertext.push_back(p1);
-
-	PackedIntPlaintextEncoding intArrayNew;
-	//IntPlaintextEncoding intArrayNew;
-
-	cc->Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew, false);
-
-	//cc->Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
+	cc->Decrypt(kp.secretKey, p1, &intArrayNew);
 
 	std::cout << "Input array\n\t" << intArray << std::endl;
 
 	std::cout << "Input array 2\n\t" << intArray2 << std::endl;
 
 	std::cout << "SIMD product\n\t" << intArrayNew << std::endl;
-
-	//std::cout << intArrayNew << std::endl;
-
 }
 
 void ArbNullAutomorphismPackedArray(usint i) {
@@ -401,45 +359,25 @@ void ArbNullAutomorphismPackedArray(usint i) {
 	// Initialize the public key containers.
 	LPKeyPair<DCRTPoly> kp = cc->KeyGen();
 
-	vector<shared_ptr<Ciphertext<DCRTPoly>>> ciphertext;
-
-	//std::vector<usint> vectorOfInts = { 0,1,0,2,0,3,0,4,0,5 };
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10 };
-	PackedIntPlaintextEncoding intArray(vectorOfInts);
-	//IntPlaintextEncoding intArray(vectorOfInts);
+	shared_ptr<Plaintext> intArray = cc->MakePackedPlaintext(vectorOfInts);
 
-	ciphertext = cc->Encrypt(kp.publicKey, intArray, false);
+	auto ciphertext = cc->Encrypt(kp.publicKey, intArray);
 
 	std::vector<usint> indexList = GetTotientList(m);
 	indexList.erase(indexList.begin());
 
 	auto evalKeys = cc->EvalAutomorphismKeyGen(kp.secretKey, indexList);
 
-	//cc->EvalMultKeyGen(kp.secretKey);
+	auto p1 = cc->EvalAutomorphism(ciphertext, i, *evalKeys);
 
-	vector<shared_ptr<Ciphertext<DCRTPoly>>> permutedCiphertext;
+	shared_ptr<Plaintext> intArrayNew;
 
-	shared_ptr<Ciphertext<DCRTPoly>> p1;
-
-	//p1 = cc->EvalMult(ciphertext[0],ciphertext2[0]);
-
-	p1 = cc->EvalAutomorphism(ciphertext[0], i, *evalKeys);
-
-	permutedCiphertext.push_back(p1);
-
-	PackedIntPlaintextEncoding intArrayNew;
-	//IntPlaintextEncoding intArrayNew;
-
-	cc->Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew, false);
-
-	//cc->Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
+	cc->Decrypt(kp.secretKey, p1, &intArrayNew);
 
 	std::cout << "Input array\n\t" << intArray << std::endl;
 
 	std::cout << "Automorphed array - at index " << i << " (using only odd coefficients)\n\t" << intArrayNew << std::endl;
-
-	//std::cout << intArrayNew << std::endl;
-
 }
 
 void ArbBVInnerProductPackedArray() {
@@ -509,37 +447,30 @@ void ArbBVInnerProductPackedArray() {
 	// Initialize the public key containers.
 	LPKeyPair<DCRTPoly> kp = cc->KeyGen();
 
-	vector<shared_ptr<Ciphertext<DCRTPoly>>> ciphertext1;
-	vector<shared_ptr<Ciphertext<DCRTPoly>>> ciphertext2;
-
 	std::vector<usint> vectorOfInts1 = { 1,2,3,4,5,6,7,8,0,0 };
-	PackedIntPlaintextEncoding intArray1(vectorOfInts1);
+	shared_ptr<Plaintext> intArray1 = cc->MakePackedPlaintext(vectorOfInts1);
 
 	std::cout << "Input array 1 \n\t" << intArray1 << std::endl;
 
 
 	std::vector<usint> vectorOfInts2 = { 1,2,3,2,1,2,1,2,0,0 };
-	PackedIntPlaintextEncoding intArray2(vectorOfInts2);
+	shared_ptr<Plaintext> intArray2 = cc->MakePackedPlaintext(vectorOfInts2);
 
 	std::cout << "Input array 2 \n\t" << intArray2 << std::endl;
 
 	cc->EvalSumKeyGen(kp.secretKey);
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	ciphertext1 = cc->Encrypt(kp.publicKey, intArray1, false);
-	ciphertext2 = cc->Encrypt(kp.publicKey, intArray2, false);
+	auto ciphertext1 = cc->Encrypt(kp.publicKey, intArray1);
+	auto ciphertext2 = cc->Encrypt(kp.publicKey, intArray2);
 
-	auto result = cc->EvalInnerProduct(ciphertext1[0], ciphertext2[0], batchSize);
+	auto result = cc->EvalInnerProduct(ciphertext1, ciphertext2, batchSize);
 
-	vector<shared_ptr<Ciphertext<DCRTPoly>>> ciphertextSum;
+	shared_ptr<Plaintext> intArrayNew;
 
-	ciphertextSum.push_back(result);
+	cc->Decrypt(kp.secretKey, result, &intArrayNew);
 
-	PackedIntPlaintextEncoding intArrayNew;
-
-	cc->Decrypt(kp.secretKey, ciphertextSum, &intArrayNew, false);
-
-	std::cout << "Sum = " << intArrayNew[0] << std::endl;
+	std::cout << "Sum = " << intArrayNew->GetPackedValue()[0] << std::endl;
 
 	std::cout << "All components (other slots randomized) = " << intArrayNew << std::endl;
 

@@ -18,8 +18,7 @@ bin/demo/pke/Temp-lr-ols decrypt demoData ccLR keyFileLinReg demoData lr-data-re
 
 #include "cryptocontexthelper.h"
 
-#include "encoding/byteplaintextencoding.h"
-#include "encoding/packedintplaintextencoding.h"
+#include "encoding/encodings.h"
 
 #include "utils/debug.h"
 #include <random>
@@ -60,10 +59,10 @@ void Decrypt(string keyDir,
 shared_ptr<CryptoContext<DCRTPoly>> DeserializeContext(const string& ccFileName);
 shared_ptr<CryptoContext<DCRTPoly>> DeserializeContextWithEvalKeys(const string& ccFileName, const string& emFileName, const string& esFileName);
 void ReadCSVFile(string dataFileName, vector<string>& headers, vector<vector<double> >& dataColumns);
-void EncodeData(const vector<vector<double> >& dataColumns,
-                Matrix<PackedIntPlaintextEncoding>& x,
-                PackedIntPlaintextEncoding& y);
-void CRTInterpolate(const std::vector<Matrix<PackedIntPlaintextEncoding> >& crtVector,
+void EncodeData(shared_ptr<CryptoContext<DCRTPoly>> cc, const vector<vector<double> >& dataColumns,
+                Matrix<shared_ptr<Plaintext>>& x,
+				shared_ptr<Plaintext>* y);
+void CRTInterpolate(const vector<shared_ptr<Matrix<shared_ptr<Plaintext>>>>& crtVector,
                     Matrix<native_int::BigInteger>& result);
 void MatrixInverse(const Matrix<native_int::BigInteger>& in, Matrix<double>& out, uint32_t numRegressors);
 void DecodeData(const Matrix<double>& lr, const Matrix<native_int::BigInteger>& XTX, const Matrix<native_int::BigInteger>& XTY, std::vector<double>& result);
@@ -358,22 +357,6 @@ void Encrypt(string keyDir,
 	cout<<"Num Regressors: " << numRegressors << endl;
 	cout<<"REGRESSORS: " << REGRESSORS << endl;
 
-    // Transform the data and store in the Packed Encoding format
-
-    std::cout << "Encoding the data...";
-
-    auto zeroAlloc = [=]() { return lbcrypto::make_unique<PackedIntPlaintextEncoding>(); };
-
-    Matrix<PackedIntPlaintextEncoding> xP = Matrix<PackedIntPlaintextEncoding>(zeroAlloc, 1, numRegressors);
-    PackedIntPlaintextEncoding yP;
-
-    EncodeData(dataColumns, xP, yP);
-
-    // std::cout << " xp = " << xP(0,0) << std::endl;
-    // std::cout << " yp = " << yP << std::endl;
-
-    std::cout << "Completed" << std::endl;
-
     // Key deserialization is done here
 
     for(size_t k = 0; k < SIZE; k++) {
@@ -414,6 +397,22 @@ void Encrypt(string keyDir,
 
 	std::cout << "Completed" << std::endl;
 
+    // Transform the data and store in the Packed Encoding format
+
+    std::cout << "Encoding the data...";
+
+	auto zeroAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(cc->MakePackedPlaintext({0})); };
+
+    Matrix<shared_ptr<Plaintext>> xP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 1, numRegressors);
+    shared_ptr<Plaintext> yP;
+
+    EncodeData(cc, dataColumns, xP, &yP);
+
+    // std::cout << " xp = " << xP(0,0) << std::endl;
+    // std::cout << " yp = " << yP << std::endl;
+
+    std::cout << "Completed" << std::endl;
+
 	// Packing and encryption
 
 	std::cout << "Batching/encrypting X...";
@@ -424,7 +423,7 @@ void Encrypt(string keyDir,
 
 	std::cout << "Batching/encrypting y...";
 
-	std::vector<shared_ptr<Ciphertext<DCRTPoly> > > yC = cc->Encrypt(pk, yP);
+	shared_ptr<Ciphertext<DCRTPoly>> yC = cc->Encrypt(pk, yP);
 
 	std::cout << "Completed" << std::endl;
 
@@ -450,7 +449,7 @@ void Encrypt(string keyDir,
 
 	std::cout << "Serializing y...";
 
-	if(yC[0]->Serialize(&ctxtSer)) {
+	if(yC->Serialize(&ctxtSer)) {
 	    if(!SerializableHelper::WriteSerializationToFile(ctxtSer, ciphertextDataDir+"/"+ciphertextDataFileName+"-ciphertext-y-" + std::to_string(k) + ".txt")) {
 		cerr << "Error writing serialization of ciphertext y to "
 		     << ciphertextDataDir+"/"+ciphertextDataFileName+"-ciphertext-y-" + std::to_string(k) + ".txt" << endl;
@@ -709,8 +708,8 @@ void Decrypt(string keyDir,
 	cout<<"Num Regressors: " << numRegressors << endl;
 	cout<<"REGRESSORS: " << REGRESSORS << endl;
 	
-    std::vector<Matrix<PackedIntPlaintextEncoding> > xTxCRT;
-    std::vector<Matrix<PackedIntPlaintextEncoding> > xTyCRT;
+    vector<shared_ptr<Matrix<shared_ptr<Plaintext>>>> xTxCRT;
+    vector<shared_ptr<Matrix<shared_ptr<Plaintext>>>> xTyCRT;
 
     for(size_t k = 0; k < SIZE; k++) {
 
@@ -775,10 +774,9 @@ void Decrypt(string keyDir,
 
 	std::cout << "Decrypting matrix X^T X...";
 
-	auto zeroPackingAlloc = [=]() { return lbcrypto::make_unique<PackedIntPlaintextEncoding>(); };
+	auto zeroPackingAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(cc->MakePackedPlaintext({0})); };
 
-	Matrix<PackedIntPlaintextEncoding> numeratorXTX =
-	    Matrix<PackedIntPlaintextEncoding>(zeroPackingAlloc, numRegressors, numRegressors);
+	shared_ptr<Matrix<shared_ptr<Plaintext>>> numeratorXTX;
 
 	double start, finish;
 
@@ -825,8 +823,7 @@ void Decrypt(string keyDir,
 
 	std::cout << "Decrypting matrix X^T y...";
 
-	Matrix<PackedIntPlaintextEncoding> numeratorXTY =
-	    Matrix<PackedIntPlaintextEncoding>(zeroPackingAlloc, numRegressors, 1);
+	shared_ptr<Matrix<shared_ptr<Plaintext>>> numeratorXTY;
 
 	start = currentDateTime();
 
@@ -853,7 +850,7 @@ void Decrypt(string keyDir,
 
     std::cout << "\nCLEARTEXT OPERATIONS\n" << std::endl;
 
-    std::cout << "CRT Interpolation to transform to large plainext modulus...";
+    std::cout << "CRT Interpolation to transform to large plaintext modulus...";
 
     shared_ptr<Matrix<native_int::BigInteger> > XTX(new Matrix<native_int::BigInteger>(zeroAlloc64));
     shared_ptr<Matrix<native_int::BigInteger> > XTY(new Matrix<native_int::BigInteger>(zeroAlloc64));
@@ -1044,66 +1041,74 @@ void ReadCSVFile(string dataFileName, vector<string>& headers, vector<vector<dou
     // std::cout << "Read in data file: " << dataFileName << std::endl;
 }
 
-void EncodeData(const vector<vector<double> >& dataColumns,
-                Matrix<PackedIntPlaintextEncoding>& x,
-                PackedIntPlaintextEncoding& y)
+void EncodeData(shared_ptr<CryptoContext<DCRTPoly>> cc,
+		const vector<vector<double> >& dataColumns,
+		Matrix<shared_ptr<Plaintext>>& x,
+		shared_ptr<Plaintext>* y)
 {
+	shared_ptr<Plaintext> ptx;
+	vector<vector<uint32_t>> xmat;
+	vector<uint32_t> yvec;
 
-    // i corresponds to columns
-    for(size_t i = 0; i < dataColumns.size(); i++) {
-	// k corresponds to rows
-	cout<<i<<endl;
-	for(size_t k = 0; k < dataColumns[i].size(); k++) {
-	    switch(i) {
-	    case 0: {
-		x(0, i ).push_back(1);
-		break;
-	    }
-	    case 1: {
-		y.push_back(dataColumns[i][k]);
-		break;
-	    }
-	    default: {
-		uint32_t value = dataColumns[i][k];
-		x(0, i - 1).push_back(value);
-		break;
-	    }
-	    }
+	for(size_t i = 0; i < dataColumns.size(); i++)
+		xmat.push_back({});
+
+	// i corresponds to columns
+	for(size_t i = 0; i < dataColumns.size(); i++) {
+		// k corresponds to rows
+		for(size_t k = 0; k < dataColumns[i].size(); k++) {
+			switch(i) {
+			case 0:
+				xmat[i].push_back(1);
+				break;
+
+			case 1:
+				yvec.push_back(dataColumns[i][k]);
+				break;
+
+			default:
+				xmat[i - 1].push_back(dataColumns[i][k]);
+				break;
+			}
+		}
 	}
-    }
 
-    // std::cout << x(0, 2) << std::endl;
-    // std::cout << x(0, 7) << std::endl;
+	*y = cc->MakePackedPlaintext(yvec);
+	for(size_t i=0; i < dataColumns.size()-1; i++ )
+		x(0,i) = cc->MakePackedPlaintext(xmat[i]);
+
+	// std::cout << x(0, 2) << std::endl;
+	// std::cout << x(0, 7) << std::endl;
 }
 
-void CRTInterpolate(const std::vector<Matrix<PackedIntPlaintextEncoding> >& crtVector,
-                    Matrix<native_int::BigInteger>& result)
+void CRTInterpolate(const vector<shared_ptr<Matrix<shared_ptr<Plaintext>>>>& crtVector,
+		Matrix<native_int::BigInteger>& result)
 {
 
-    result.SetSize(crtVector[0].GetRows(), crtVector[0].GetCols());
+	result.SetSize(crtVector[0]->GetRows(), crtVector[0]->GetCols());
 
-    std::vector<native_int::BigInteger> q = { 40961, 59393 };
+	std::vector<native_int::BigInteger> q = { 40961, 59393 };
 
-    native_int::BigInteger Q(2432796673);
+	native_int::BigInteger Q(2432796673);
 
-    std::vector<native_int::BigInteger> qInverse;
+	std::vector<native_int::BigInteger> qInverse;
 
-    for(size_t i = 0; i < crtVector.size(); i++) {
+	for(size_t i = 0; i < crtVector.size(); i++) {
 
-	qInverse.push_back((Q / q[i]).ModInverse(q[i]));
-	// std::cout << qInverse[i];
-    }
-
-    for(size_t k = 0; k < result.GetRows(); k++) {
-	for(size_t j = 0; j < result.GetCols(); j++) {
-	    native_int::BigInteger value = 0;
-	    for(size_t i = 0; i < crtVector.size(); i++) {
-		// std::cout << crtVector[i](k,j)[0] <<std::endl;
-		value += ((native_int::BigInteger(crtVector[i](k, j)[0]) * qInverse[i]).Mod(q[i]) * Q / q[i]).Mod(Q);
-	    }
-	    result(k, j) = value.Mod(Q);
+		qInverse.push_back((Q / q[i]).ModInverse(q[i]));
+		// std::cout << qInverse[i];
 	}
-    }
+
+	for(size_t k = 0; k < result.GetRows(); k++) {
+		for(size_t j = 0; j < result.GetCols(); j++) {
+			native_int::BigInteger value = 0;
+			for(size_t i = 0; i < crtVector.size(); i++) {
+				// std::cout << crtVector[i](k,j)[0] <<std::endl;
+				value += ((native_int::BigInteger((*crtVector[i])(k, j)->GetPackedValue()[0]) * qInverse[i]).Mod(q[i]) * Q / q[i]).Mod(Q);
+			}
+			result(k, j) = value.Mod(Q);
+		}
+	}
 }
 
 void MatrixInverse(const Matrix<native_int::BigInteger>& in, Matrix<double>& out, uint32_t numRegressors)

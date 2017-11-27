@@ -225,24 +225,23 @@ TEST_F(UTPKESer, Keys_and_ciphertext) {
 		EXPECT_EQ( *kp.secretKey, *kpnew.secretKey ) << "Secret key mismatch after ser/deser";
 	}
 	DEBUG("step 3");
-	IntPlaintextEncoding plaintextShort = { 1,3,5,7,9,2,4,6,8,11 };
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext = cc->Encrypt(kp.publicKey, plaintextShort, true);
+	vector<uint32_t> vals = { 1,3,5,7,9,2,4,6,8,11 };
+	shared_ptr<Plaintext> plaintextShort = cc->MakeCoefPackedPlaintext( vals );
+	shared_ptr<Ciphertext<Poly>> ciphertext = cc->Encrypt(kp.publicKey, plaintextShort);
 
 	Serialized ser;
 	ser.SetObject();
-	ASSERT_TRUE( ciphertext[0]->Serialize(&ser) ) << "Ciphertext serialize failed";
+	ASSERT_TRUE( ciphertext->Serialize(&ser) ) << "Ciphertext serialize failed";
 	DEBUG("step 4");
 	shared_ptr<Ciphertext<Poly>> newC;
 	ASSERT_TRUE( (newC = cc->deserializeCiphertext(ser)) ) << "Ciphertext deserialization failed";
 
-	EXPECT_EQ( *ciphertext[0], *newC ) << "Ciphertext mismatch";
+	EXPECT_EQ( *ciphertext, *newC ) << "Ciphertext mismatch";
 
 	DEBUG("step 5");
-	ciphertext[0] = newC;
-	IntPlaintextEncoding plaintextShortNew;
-	cc->Decrypt(kp.secretKey, ciphertext, &plaintextShortNew, true);
-	plaintextShortNew.resize( plaintextShort.size() );
-	EXPECT_EQ(plaintextShortNew, plaintextShort) << "Decrypted deserialize failed";
+	shared_ptr<Plaintext> plaintextShortNew;
+	cc->Decrypt(kp.secretKey, newC, &plaintextShortNew);
+	EXPECT_EQ(*plaintextShortNew, *plaintextShort) << "Decrypted deserialize failed";
 
 	DEBUG("step 6");
 	LPKeyPair<Poly> kp2 = cc->KeyGen();

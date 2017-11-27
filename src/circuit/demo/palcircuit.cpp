@@ -292,27 +292,29 @@ main(int argc, char *argv[])
 		cc->Enable(SHE);
 		cc->Enable(LEVELEDSHE);
 
-		IntPlaintextEncoding ints[] = { { 7 }, { 3 } };
+		shared_ptr<Plaintext> ints[] = {
+				cc->MakeCoefPackedPlaintext({ 7 }),
+				cc->MakeCoefPackedPlaintext({ 3 })
+		};
 
 		LPKeyPair<DCRTPoly> kp = cc->KeyGen();
 		cc->EvalMultKeyGen(kp.secretKey);
 
-		vector< vector<shared_ptr<Ciphertext<DCRTPoly>>> > intVecs;
+		vector<shared_ptr<Ciphertext<DCRTPoly>>> intVecs;
 		for( size_t i = 0; i < sizeof(ints)/sizeof(ints[0]); i++ )
 			intVecs.push_back( cc->Encrypt(kp.publicKey, ints[i]) );
 
-		vector< vector<shared_ptr<Ciphertext<DCRTPoly>>> > cipherVecs;
+		vector<shared_ptr<Ciphertext<DCRTPoly>>> cipherVecs;
 		for( usint d = 0; d < 4; d++ )
 			for( usint i=1; i<10; i++ ){
-				IntPlaintextEncoding ie( {i} );
-				cipherVecs.push_back( cc->Encrypt(kp.publicKey, ie) );
+				cipherVecs.push_back( cc->Encrypt(kp.publicKey, cc->MakeCoefPackedPlaintext({i})) );
 			}
 
-		Matrix<IntPlaintextEncoding> mat([](){return make_unique<IntPlaintextEncoding>();},mdim,mdim);
+		Matrix<shared_ptr<Plaintext>> mat([cc](){return make_unique<shared_ptr<Plaintext>>(cc->MakePackedPlaintext({0}));},mdim,mdim);
 		usint mi=1;
 		for(usint r=0; r<mat.GetRows(); r++)
 			for(usint c=0; c<mat.GetCols(); c++) {
-				mat(r,c) = { mi++, 0, 0, 0 };
+				mat(r,c) = cc->MakePackedPlaintext({ mi++, 0, 0, 0 });
 			}
 
 		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> emat = cc->EncryptMatrix(kp.publicKey, mat);
@@ -330,13 +332,13 @@ main(int argc, char *argv[])
 			case INT:
 				if( curInt == maxInt )
 					throw std::logic_error("out of ints");
-				inputs[i] = intVecs[curInt++][0];
+				inputs[i] = intVecs[curInt++];
 				break;
 
 			case VECTOR_INT:
 				if( curVec == maxVec )
 					throw std::logic_error("out of vecs");
-				inputs[i] = cipherVecs[curVec++][0];
+				inputs[i] = cipherVecs[curVec++];
 				break;
 
 			case MATRIX_RAT:
@@ -348,7 +350,7 @@ main(int argc, char *argv[])
 							cout << "Col " << c << ": [";
 							size_t i;
 							for( i=0; i < maxprint && i < cc->GetRingDimension(); i++ )
-								cout << mat(r,c)[i] << " ";
+								cout << mat(r,c)->GetPackedValue()[i] << " ";
 							cout << (( i == maxprint ) ? "..." : "");
 							cout << "] ";
 						}

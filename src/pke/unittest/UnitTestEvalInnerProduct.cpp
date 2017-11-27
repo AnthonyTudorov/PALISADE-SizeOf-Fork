@@ -32,9 +32,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "../lib/cryptocontext.h"
 
-#include "encoding/byteplaintextencoding.h"
-#include "encoding/intplaintextencoding.h"
-#include "encoding/packedintplaintextencoding.h"
+#include "encoding/encodings.h"
 
 #include "utils/debug.h"
 
@@ -76,9 +74,13 @@ TEST_F(UTEvalIP, Test_LTV_EvalInnerProduct) {
 	usint expectedResult = std::inner_product(input1.begin(), input1.end(), input2.begin(), 0);
 	expectedResult %= plainttextMod;
 
-	usint result = ArbLTVInnerProductPackedArray(input1, input2);
+	try {
+		usint result = ArbLTVInnerProductPackedArray(input1, input2);
 
-	EXPECT_EQ(result, expectedResult);
+		EXPECT_EQ(result, expectedResult);
+	} catch( const std::logic_error& e ) {
+		FAIL() << e.what();
+	}
 	
 }
 
@@ -100,9 +102,13 @@ TEST_F(UTEvalIP, Test_BV_EvalInnerProduct) {
 	usint expectedResult = std::inner_product(input1.begin(), input1.end(), input2.begin(), 0);
 	expectedResult %= plainttextMod;
 
-	usint result = ArbBVInnerProductPackedArray(input1, input2);
+	try {
+		usint result = ArbBVInnerProductPackedArray(input1, input2);
 
-	EXPECT_EQ(result, expectedResult);
+		EXPECT_EQ(result, expectedResult);
+	} catch( const std::logic_error& e ) {
+		FAIL() << e.what();
+	}
 
 }
 
@@ -125,9 +131,13 @@ TEST_F(UTEvalIP, Test_FV_EvalInnerProduct) {
 	usint expectedResult = std::inner_product(input1.begin(), input1.end(), input2.begin(), 0);
 	expectedResult %= plainttextMod;
 
-	usint result = ArbFVInnerProductPackedArray(input1, input2);
+	try {
+		usint result = ArbFVInnerProductPackedArray(input1, input2);
 
-	EXPECT_EQ(result, expectedResult);
+		EXPECT_EQ(result, expectedResult);
+	} catch( const std::logic_error& e ) {
+		FAIL() << e.what();
+	}
 }
 
 
@@ -165,33 +175,28 @@ usint ArbLTVInnerProductPackedArray(std::vector<usint> &input1, std::vector<usin
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext1;
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext2;
+	shared_ptr<Ciphertext<Poly>> ciphertext1;
+	shared_ptr<Ciphertext<Poly>> ciphertext2;
 
 	std::vector<usint> vectorOfInts1 = std::move(input1);
-	PackedIntPlaintextEncoding intArray1(vectorOfInts1);
-
-
 	std::vector<usint> vectorOfInts2 = std::move(input2);
-	PackedIntPlaintextEncoding intArray2(vectorOfInts2);
+
+	shared_ptr<Plaintext> intArray1 = cc->MakePackedPlaintext(vectorOfInts1);
+	shared_ptr<Plaintext> intArray2 = cc->MakePackedPlaintext(vectorOfInts2);
 
 	cc->EvalSumKeyGen(kp.secretKey, kp.publicKey);
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	ciphertext1 = cc->Encrypt(kp.publicKey, intArray1, false);
-	ciphertext2 = cc->Encrypt(kp.publicKey, intArray2, false);
+	ciphertext1 = cc->Encrypt(kp.publicKey, intArray1);
+	ciphertext2 = cc->Encrypt(kp.publicKey, intArray2);
 
-	auto result = cc->EvalInnerProduct(ciphertext1[0], ciphertext2[0], batchSize);
+	auto result = cc->EvalInnerProduct(ciphertext1, ciphertext2, batchSize);
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertextSum;
+	shared_ptr<Plaintext> intArrayNew;
 
-	ciphertextSum.push_back(result);
+	cc->Decrypt(kp.secretKey, result, &intArrayNew);
 
-	PackedIntPlaintextEncoding intArrayNew;
-
-	cc->Decrypt(kp.secretKey, ciphertextSum, &intArrayNew, false);
-
-	return intArrayNew[0];
+	return intArrayNew->GetPackedValue()[0];
 
 }
 
@@ -229,33 +234,28 @@ usint ArbBVInnerProductPackedArray(std::vector<usint> &input1, std::vector<usint
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext1;
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext2;
+	shared_ptr<Ciphertext<Poly>> ciphertext1;
+	shared_ptr<Ciphertext<Poly>> ciphertext2;
 
 	std::vector<usint> vectorOfInts1 = std::move(input1);
-	PackedIntPlaintextEncoding intArray1(vectorOfInts1);
-
-
 	std::vector<usint> vectorOfInts2 = std::move(input2);
-	PackedIntPlaintextEncoding intArray2(vectorOfInts2);
+
+	shared_ptr<Plaintext> intArray1 = cc->MakePackedPlaintext(vectorOfInts1);
+	shared_ptr<Plaintext> intArray2 = cc->MakePackedPlaintext(vectorOfInts2);
 
 	cc->EvalSumKeyGen(kp.secretKey);
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	ciphertext1 = cc->Encrypt(kp.publicKey, intArray1, false);
-	ciphertext2 = cc->Encrypt(kp.publicKey, intArray2, false);
+	ciphertext1 = cc->Encrypt(kp.publicKey, intArray1);
+	ciphertext2 = cc->Encrypt(kp.publicKey, intArray2);
 
-	auto result = cc->EvalInnerProduct(ciphertext1[0], ciphertext2[0], batchSize);
+	auto result = cc->EvalInnerProduct(ciphertext1, ciphertext2, batchSize);
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertextSum;
+	shared_ptr<Plaintext> intArrayNew;
 
-	ciphertextSum.push_back(result);
+	cc->Decrypt(kp.secretKey, result, &intArrayNew);
 
-	PackedIntPlaintextEncoding intArrayNew;
-
-	cc->Decrypt(kp.secretKey, ciphertextSum, &intArrayNew, false);
-
-	return intArrayNew[0];
+	return intArrayNew->GetPackedValue()[0];
 
 }
 
@@ -303,33 +303,28 @@ usint ArbFVInnerProductPackedArray(std::vector<usint> &input1, std::vector<usint
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext1;
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext2;
+	shared_ptr<Ciphertext<Poly>> ciphertext1;
+	shared_ptr<Ciphertext<Poly>> ciphertext2;
 
 	std::vector<usint> vectorOfInts1 = std::move(input1);
-	PackedIntPlaintextEncoding intArray1(vectorOfInts1);
-
-
 	std::vector<usint> vectorOfInts2 = std::move(input2);
-	PackedIntPlaintextEncoding intArray2(vectorOfInts2);
+
+	shared_ptr<Plaintext> intArray1 = cc->MakePackedPlaintext(vectorOfInts1);
+	shared_ptr<Plaintext> intArray2 = cc->MakePackedPlaintext(vectorOfInts2);
 
 	cc->EvalSumKeyGen(kp.secretKey);
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	ciphertext1 = cc->Encrypt(kp.publicKey, intArray1, false);
-	ciphertext2 = cc->Encrypt(kp.publicKey, intArray2, false);
+	ciphertext1 = cc->Encrypt(kp.publicKey, intArray1);
+	ciphertext2 = cc->Encrypt(kp.publicKey, intArray2);
 
-	auto result = cc->EvalInnerProduct(ciphertext1[0], ciphertext2[0], batchSize);
+	auto result = cc->EvalInnerProduct(ciphertext1, ciphertext2, batchSize);
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertextSum;
+	shared_ptr<Plaintext> intArrayNew;
 
-	ciphertextSum.push_back(result);
+	cc->Decrypt(kp.secretKey, result, &intArrayNew);
 
-	PackedIntPlaintextEncoding intArrayNew;
-
-	cc->Decrypt(kp.secretKey, ciphertextSum, &intArrayNew, false);
-
-	return intArrayNew[0];
+	return intArrayNew->GetPackedValue()[0];
 
 }
 

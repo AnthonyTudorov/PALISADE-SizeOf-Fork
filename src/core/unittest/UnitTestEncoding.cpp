@@ -33,9 +33,11 @@
 
 #include "../lib/lattice/dcrtpoly.h"
 #include "math/backend.h"
-#include "encoding/intplaintextencoding.h"
+#include "encoding/encodings.h"
+
 #include "utils/inttypes.h"
 #include "utils/utilities.h"
+#include "lattice/elemparamfactory.h"
 
 using namespace std;
 using namespace lbcrypto;
@@ -52,27 +54,121 @@ protected:
   }
 };
 
-TEST_F(UTEncoding,binary_polynomial){
-	BigInteger b(1);
-	b = (b << 70) + 1;
-	IntPlaintextEncoding small(9);
-	IntPlaintextEncoding medium( ((uint64_t)1<<33) + (uint64_t)1);
-	IntPlaintextEncoding large(b);
+TEST_F(UTEncoding,scalar_encoding) {
+	usint value = 47;
+	int	valueSigned = -47;
+	usint m = 8;
+	Poly::Integer primeModulus("73");
+	Poly::Integer primitiveRootOfUnity("22");
 
-	EXPECT_EQ( small[0], 1U );
-	EXPECT_EQ( small[1], 0U );
-	EXPECT_EQ( small[2], 0U );
-	EXPECT_EQ( small[3], 1U );
+	shared_ptr<ILParams> lp =
+			ElemParamFactory::GenElemParams<ILParams,BigInteger>(m);
+	shared_ptr<EncodingParams> ep( new EncodingParams(128) );
+	ScalarEncoding	se(lp, ep, value);
+	se.Encode();
+	EXPECT_EQ( se.GetElement<Poly>().at(0), value );
+	EXPECT_EQ( se.GetElement<Poly>().at(1), 0 );
 
-	EXPECT_EQ( medium[0], 1U );
-	EXPECT_EQ( medium[33], 1U);
-	for( size_t ii=1; ii<33; ii++ )
-		EXPECT_EQ( medium[ii], 0U);
+	se.Decode();
+	EXPECT_EQ( se.GetScalarValue(), value ) << "unsigned";
 
-	EXPECT_EQ( large[0], 1U );
-	EXPECT_EQ( large[70], 1U );
-	for( size_t ii=1; ii<70; ii++ )
-		EXPECT_EQ( large[ii], 0U);
+	ScalarEncoding	se2(lp, ep, valueSigned);
+	se2.Encode();
+	se2.Decode();
+	EXPECT_EQ( se2.GetScalarSignedValue(), valueSigned ) << "signed negative";
+
+	ScalarEncoding	se3(lp, ep, (int32_t)value);
+	se3.Encode();
+	se3.Decode();
+	EXPECT_EQ( se3.GetScalarSignedValue(), (int32_t)value ) << "signed positive";
+}
+
+TEST_F(UTEncoding,coef_packed_encoding) {
+	vector<uint32_t> value = {32, 17, 8};
+	vector<int32_t>	valueSigned = { -32, 22, -101, 6 };
+	usint m = 8;
+
+	shared_ptr<ILParams> lp =
+			ElemParamFactory::GenElemParams<ILParams,BigInteger>(m);
+	shared_ptr<EncodingParams> ep( new EncodingParams(256) );
+	CoefPackedEncoding	se(lp, ep, value);
+	se.Encode();
+	se.Decode();
+	se.SetLength( value.size() );
+	EXPECT_EQ( se.GetCoefPackedValue(), value ) << "unsigned";
+
+	CoefPackedEncoding	se2(lp, ep, valueSigned);
+	se2.Encode();
+	se2.Decode();
+	se2.SetLength( valueSigned.size() );
+	EXPECT_EQ( se2.GetCoefPackedSignedValue(), valueSigned ) << "signed negative";
+}
+
+TEST_F(UTEncoding,packed_int_ptxt_encoding) {
+	usint m = 22;
+	usint p = 89;
+	BigInteger modulusP(p);
+	BigInteger modulusQ("955263939794561");
+	BigInteger squareRootOfRoot("941018665059848");
+	BigInteger bigmodulus("80899135611688102162227204937217");
+	BigInteger bigroot("77936753846653065954043047918387");
+
+	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
+	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
+
+	PackedIntPlaintextEncoding::SetParams(modulusP, m);
+
+	shared_ptr<ILParams> lp(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
+	shared_ptr<EncodingParams> ep(new EncodingParams(modulusP,PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP),8));
+
+	std::vector<usint> vectorOfInts1 = { 1,2,3,4,5,6,7,8,0,0 };
+	PackedIntPlaintextEncoding	se(lp, ep, vectorOfInts1);
+	se.Encode();
+	se.Decode();
+	//se.SetLength( vectorOfInts1.size() );
+	EXPECT_EQ( se.GetPackedValue(), vectorOfInts1 ) << "packed int";
+}
+
+TEST_F(UTEncoding,string_encoding) {
+	string value = "Hello, world!";
+	usint m = 64;
+
+	shared_ptr<ILParams> lp =
+			ElemParamFactory::GenElemParams<ILParams,BigInteger>(m);
+	shared_ptr<EncodingParams> ep( new EncodingParams(256) );
+	StringEncoding	se(lp, ep, value);
+	se.Encode();
+	se.Decode();
+	EXPECT_EQ( se.GetStringValue(), value ) << "string encode/decode";
+
+	// truncate!
+	shared_ptr<ILParams> lp2 =
+			ElemParamFactory::GenElemParams<ILParams,BigInteger>(4);
+	shared_ptr<EncodingParams> ep2( new EncodingParams(256) );
+	StringEncoding	se2(lp2, ep2, value);
+	se2.Encode();
+	se2.Decode();
+	EXPECT_EQ( se2.GetStringValue(), value.substr(0, lp2->GetRingDimension()) ) << "string truncate encode/decode";
+}
+
+TEST_F(UTEncoding,integer_encoding){
+	uint64_t	m = 64;
+	shared_ptr<ILParams> lp =
+			ElemParamFactory::GenElemParams<ILParams,BigInteger>(m);
+	shared_ptr<EncodingParams> ep( new EncodingParams(64) );
+
+	uint64_t mv = ((uint64_t)1<<33) + (uint64_t)1;
+
+	IntegerEncoding small(lp, ep, 9U);
+	IntegerEncoding medium(lp, ep, mv);
+	small.Encode();
+	medium.Encode();
+	small.Decode();
+	medium.Decode();
+
+	EXPECT_EQ( small.GetIntegerValue(), 9U ) << "small";
+
+	EXPECT_EQ( medium.GetIntegerValue(), mv ) << "medium";
 }
 
 

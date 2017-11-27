@@ -50,8 +50,7 @@ bin/demo/pke/Temp-lr-ols-multi fusedecode demoData ccLRMulti demoData A demoData
 
 #include "cryptocontexthelper.h"
 
-#include "encoding/byteplaintextencoding.h"
-#include "encoding/packedintplaintextencoding.h"
+#include "encoding/encodings.h"
 
 #include "utils/debug.h"
 #include <random>
@@ -121,8 +120,8 @@ void TestLR(const string &paramDir,  const string &contextID, const string &keyD
 
 shared_ptr<CryptoContext<DCRTPoly>> DeserializeContext(const string& ccFileName);
 void ReadCSVFile(string dataFileName,  vector<string>& headers, vector<vector<double> >& dataColumns);
-void EncodeData(const std::vector<string> &headers, const vector<vector<double>>& dataColumns, Matrix<PackedIntPlaintextEncoding> &x, PackedIntPlaintextEncoding &y);
-void CRTInterpolate(const std::vector<Matrix<PackedIntPlaintextEncoding>> &crtVector, Matrix<native_int::BigInteger> &result);
+void EncodeData(shared_ptr<CryptoContext<DCRTPoly>> cc, const std::vector<string> &headers, const vector<vector<double>>& dataColumns, Matrix<shared_ptr<Plaintext>> &x, shared_ptr<Plaintext> &y);
+void CRTInterpolate(const vector<shared_ptr<Matrix<shared_ptr<Plaintext>>>> &crtVector, Matrix<native_int::BigInteger> &result);
 void MatrixInverse(const Matrix<native_int::BigInteger> &in, Matrix<double> &out);
 void DecodeData(const Matrix<double> &lr, const Matrix<native_int::BigInteger>& XTX, const Matrix<native_int::BigInteger>& XTY, std::vector<double> &result);
 
@@ -1080,14 +1079,14 @@ void TestEvalKeys(const string &paramDir,  const string &contextID, const string
 		std::cout << "Encrypting some test data...";
 
 		std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8,0,0 };
-		PackedIntPlaintextEncoding intArray(vectorOfInts);
+		shared_ptr<Plaintext> intArray = cc->MakeCoefPackedPlaintext(vectorOfInts);
 
 		std::vector<usint> vectorOfInts2 = { 3,2,3,1,5,6,7,8,0,0 };
-		PackedIntPlaintextEncoding intArray2(vectorOfInts2);
+		shared_ptr<Plaintext> intArray2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
 
-		auto ciphertext1 = cc->Encrypt(pk, intArray, false);
+		auto ciphertext1 = cc->Encrypt(pk, intArray);
 
-		auto ciphertext2 = cc->Encrypt(pk, intArray2, false);
+		auto ciphertext2 = cc->Encrypt(pk, intArray2);
 
 		std::cout << "Completed" << std::endl;
 
@@ -1099,55 +1098,47 @@ void TestEvalKeys(const string &paramDir,  const string &contextID, const string
 
 		auto skSum = AddSecretKeys(skA, skB);
 
-		PackedIntPlaintextEncoding intArrayNew;
+		shared_ptr<Plaintext> intArrayNew;
 
-		cc->Decrypt(skSum, ciphertext1, &intArrayNew, false);
+		cc->Decrypt(skSum, ciphertext1, &intArrayNew);
 
 		std::cout << "Completed" << std::endl;
 
-		std::cout << "Decrypted array = " << intArrayNew << std::endl;
+		std::cout << "Decrypted array = " << intArrayNew->GetCoefPackedSignedValue() << std::endl;
 
 		std::cout << "Computing product of input arrays...";
-
-		vector<shared_ptr<Ciphertext<DCRTPoly>>> ciphertextResult;
 		
-		auto ciphertextMult = cc->EvalMult(ciphertext1.at(0), ciphertext2.at(0));
-		ciphertextResult.insert(ciphertextResult.begin(), ciphertextMult);
-		PackedIntPlaintextEncoding intArrayMult;
+		auto ciphertextMult = cc->EvalMult(ciphertext1, ciphertext2);
+
+		shared_ptr<Plaintext> intArrayMult;
 
 		std::cout << "Completed" << std::endl;
 
 		std::cout << "Decrypting the result...";
 
-		cc->Decrypt(skSum, ciphertextResult, &intArrayMult, false);
+		cc->Decrypt(skSum, ciphertextMult, &intArrayMult);
 
 		std::cout << "Completed" << std::endl;
 
 		std::cout << "Decrypted result = " << intArrayMult << std::endl;
 
-
 		std::cout << "Computing automorphism of input array 1...";
-
-		vector<shared_ptr<Ciphertext<DCRTPoly>>> permutedCiphertext;
 
 		shared_ptr<Ciphertext<DCRTPoly>> p1;
 
-		p1 = cc->EvalAutomorphism(ciphertext1[0], 5, evalKeys);
+		p1 = cc->EvalAutomorphism(ciphertext1, 5, evalKeys);
 
 		std::cout << "Completed" << std::endl;
-
-		permutedCiphertext.push_back(p1);
 
 		std::cout << "Decrypting the result...";
 
-		PackedIntPlaintextEncoding intArrayAuto;
+		shared_ptr<Plaintext> intArrayAuto;
 
-		cc->Decrypt(skSum, permutedCiphertext, &intArrayAuto, false);
-		//cc.Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
+		cc->Decrypt(skSum, p1, &intArrayAuto);
 
 		std::cout << "Completed" << std::endl;
 
-		std::cout << "Decrypted permuted array - at index " << encodingParams->GetPlaintextGenerator() << "\n" << intArrayAuto << std::endl;
+		std::cout << "Decrypted permuted array - at index " << encodingParams->GetPlaintextGenerator() << "\n" << intArrayAuto->GetCoefPackedValue() << std::endl;
 
 
 	}
@@ -1199,22 +1190,6 @@ void Encrypt(const string &paramDir,  const string &contextID, const string &key
 		 */
 	}
 
-	std::cout << "Number of regressors: " << regressors << std::endl;
-
-	auto zeroAlloc = [=]() { return lbcrypto::make_unique<PackedIntPlaintextEncoding>(); };
-
-	Matrix<PackedIntPlaintextEncoding> xP = Matrix<PackedIntPlaintextEncoding>(zeroAlloc, 1, regressors);
-	PackedIntPlaintextEncoding yP;
-
-	EncodeData(headers,dataColumns, xP, yP);
-
-
-	//std::cout << " xp = " << xP(0,0) << std::endl;
-	//std::cout << " yp = " << yP << std::endl;
-
-	std::cout << "Completed" << std::endl;
-
-
 	for (size_t k = 0; k < SIZE; k++) {
 
 		std::cout << "\nENCRYPTING DATA p #" << std::to_string(k + 1) << "\n" << std::endl;
@@ -1230,6 +1205,22 @@ void Encrypt(const string &paramDir,  const string &contextID, const string &key
 		const shared_ptr<ILDCRTParams<BigInteger>> elementParams = cryptoParams->GetElementParams();
 		usint m = elementParams->GetCyclotomicOrder();
 		PackedIntPlaintextEncoding::SetParams(m, encodingParams);
+
+		std::cout << "Number of regressors: " << regressors << std::endl;
+
+		auto zeroAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(cc->MakeCoefPackedPlaintext({0})); };
+
+		Matrix<shared_ptr<Plaintext>> xP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 1, regressors);
+		shared_ptr<Plaintext> yP;
+
+		EncodeData(cc, headers, dataColumns, xP, yP);
+
+
+		//std::cout << " xp = " << xP(0,0) << std::endl;
+		//std::cout << " yp = " << yP << std::endl;
+
+		std::cout << "Completed" << std::endl;
+
 
 		// Deserialize the joint public key
 
@@ -1282,12 +1273,12 @@ void Encrypt(const string &paramDir,  const string &contextID, const string &key
 			std::cout << "Completed" << std::endl;
 		}
 
-		if (yP.size() > 0)
+		if (yP->GetLength() > 0)
 		{
 
 			std::cout << "Batching/encrypting y...";
 
-			std::vector<shared_ptr<Ciphertext<DCRTPoly>>> yC = cc->Encrypt(pk, yP);
+			shared_ptr<Ciphertext<DCRTPoly>> yC = cc->Encrypt(pk, yP);
 
 			std::cout << "Completed" << std::endl;
 
@@ -1296,7 +1287,7 @@ void Encrypt(const string &paramDir,  const string &contextID, const string &key
 
 			std::cout << "Serializing y...";
 
-			if (yC[0]->Serialize(&ctxtSer)) {
+			if (yC->Serialize(&ctxtSer)) {
 				if (!SerializableHelper::WriteSerializationToFile(ctxtSer, ctxtDir + "/" + "ciphertext-y-" + ctxId + "-" + std::to_string(k) + ".txt")) {
 					cerr << "Error writing serialization of ciphertext y to " << ctxtDir + "/" + "ciphertext-y-" + ctxId + "-" + std::to_string(k) + ".txt" << endl;
 					return;
@@ -1667,8 +1658,8 @@ void ComputeMultiparty(const string &paramDir,  const string &contextID, const s
 
 void TestLR(const string &paramDir,  const string &contextID, const string &keyDir1, const string &jointKeyId, const string &ctxtDir, const string &ctxId) {
 
-	std::vector<Matrix<PackedIntPlaintextEncoding>> xTxCRT;
-	std::vector<Matrix<PackedIntPlaintextEncoding>> xTyCRT;
+	vector<shared_ptr<Matrix<shared_ptr<Plaintext>>>> xTxCRT;
+	vector<shared_ptr<Matrix<shared_ptr<Plaintext>>>> xTyCRT;
 
 	for (size_t k = 0; k < SIZE; k++) {
 
@@ -1759,9 +1750,10 @@ void TestLR(const string &paramDir,  const string &contextID, const string &keyD
 
 		std::cout << "Decrypting matrix X^T X...";
 
-		auto zeroPackingAlloc = [=]() { return lbcrypto::make_unique<PackedIntPlaintextEncoding>(); };
+		auto zeroPackingAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(cc->MakeCoefPackedPlaintext({0})); };
 
-		Matrix<PackedIntPlaintextEncoding> numeratorXTX = Matrix<PackedIntPlaintextEncoding>(zeroPackingAlloc, xtx->GetRows(), xtx->GetCols());
+
+		shared_ptr<Matrix<shared_ptr<Plaintext>>> numeratorXTX;
 
 		double start, finish;
 
@@ -1807,7 +1799,7 @@ void TestLR(const string &paramDir,  const string &contextID, const string &keyD
 
 		std::cout << "Decrypting matrix X^T y...";
 
-		Matrix<PackedIntPlaintextEncoding> numeratorXTY = Matrix<PackedIntPlaintextEncoding>(zeroPackingAlloc, xty->GetRows(), 1);
+		shared_ptr<Matrix<shared_ptr<Plaintext>>> numeratorXTY;
 
 		start = currentDateTime();
 
@@ -2268,8 +2260,8 @@ void FuseDecode(const string &paramDir, const string &contextID,
     myfile.close();
 	
 		
-	std::vector<Matrix<PackedIntPlaintextEncoding>> xTxCRT;
-	std::vector<Matrix<PackedIntPlaintextEncoding>> xTyCRT;
+	vector<shared_ptr<Matrix<shared_ptr<Plaintext>>>> xTxCRT;
+	vector<shared_ptr<Matrix<shared_ptr<Plaintext>>>> xTyCRT;
 
 	for (size_t k = 0; k < SIZE; k++) {
 
@@ -2383,36 +2375,36 @@ void FuseDecode(const string &paramDir, const string &contextID,
 
 		std::cout << "Fusion of partial decryptions of X^T X and X^T y...";
 
-		auto zeroAllocPlain = [=]() { return lbcrypto::make_unique<PackedIntPlaintextEncoding>(); };
+		auto zeroAllocPlain = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(cc->MakeCoefPackedPlaintext({0})); };
 
-		Matrix<PackedIntPlaintextEncoding> xtxPlain = Matrix<PackedIntPlaintextEncoding>(zeroAllocPlain, xtx1->GetRows(),xtx1->GetCols());
-		Matrix<PackedIntPlaintextEncoding> xtyPlain = Matrix<PackedIntPlaintextEncoding>(zeroAllocPlain, xty1->GetRows(), xty1->GetCols());
+		shared_ptr<Matrix<shared_ptr<Plaintext>>> xtxPlain(new Matrix<shared_ptr<Plaintext>>(zeroAllocPlain, xtx1->GetRows(),xtx1->GetCols()));
+		shared_ptr<Matrix<shared_ptr<Plaintext>>> xtyPlain(new Matrix<shared_ptr<Plaintext>>(zeroAllocPlain, xty1->GetRows(),xty1->GetCols()));
 
 		for (size_t i = 0; i < xtx1->GetRows(); i++) {
 			for (size_t j = 0; j < xtx1->GetCols(); j++) {
 
-				vector<vector<shared_ptr<Ciphertext<DCRTPoly>>>> partialCiphertextVecXTX;
-				partialCiphertextVecXTX.push_back({ (*xtx1)(i,j).GetNumerator() });
-				partialCiphertextVecXTX.push_back({ (*xtx2)(i,j).GetNumerator() });
+				vector<shared_ptr<Ciphertext<DCRTPoly>>> partialCiphertextVecXTX;
+				partialCiphertextVecXTX.push_back( (*xtx1)(i,j).GetNumerator() );
+				partialCiphertextVecXTX.push_back( (*xtx2)(i,j).GetNumerator() );
 
-				PackedIntPlaintextEncoding tempxtx;
+				shared_ptr<Plaintext> tempxtx;
 				cc->MultipartyDecryptFusion(partialCiphertextVecXTX, &tempxtx);
 
-				xtxPlain(i, j) = tempxtx;
+				(*xtxPlain)(i, j) = tempxtx;
 			}
 
 		}
 
 		for (size_t i = 0; i < xty1->GetRows(); i++) {
 
-				vector<vector<shared_ptr<Ciphertext<DCRTPoly>>>> partialCiphertextVecXTY;
-				partialCiphertextVecXTY.push_back({ (*xty1)(i,0).GetNumerator() });
-				partialCiphertextVecXTY.push_back({ (*xty2)(i,0).GetNumerator() });
+				vector<shared_ptr<Ciphertext<DCRTPoly>>> partialCiphertextVecXTY;
+				partialCiphertextVecXTY.push_back( (*xty1)(i,0).GetNumerator() );
+				partialCiphertextVecXTY.push_back( (*xty2)(i,0).GetNumerator() );
 
-				PackedIntPlaintextEncoding tempxty;
+				shared_ptr<Plaintext> tempxty;
 				cc->MultipartyDecryptFusion(partialCiphertextVecXTY, &tempxty);
 
-				xtyPlain(i, 0) = tempxty;
+				(*xtyPlain)(i, 0) = tempxty;
 
 		}
 
@@ -2431,7 +2423,7 @@ void FuseDecode(const string &paramDir, const string &contextID,
 
 	std::cout << "\nCLEARTEXT OPERATIONS\n" << std::endl;
 
-	std::cout << "CRT Interpolation to transform to large plainext modulus...";
+	std::cout << "CRT Interpolation to transform to large plaintext modulus...";
 
 	shared_ptr<Matrix<native_int::BigInteger>> XTX(new Matrix<native_int::BigInteger>(zeroAlloc64));
 	shared_ptr<Matrix<native_int::BigInteger>> XTY(new Matrix<native_int::BigInteger>(zeroAlloc64));
@@ -2582,10 +2574,13 @@ void ReadCSVFile(string dataFileName, vector<string>& headers, vector<vector<dou
 	//std::cout << "Read in data file: " << dataFileName << std::endl;
 }
 
-void EncodeData(const std::vector<string> &headers, const vector<vector<double>>& dataColumns, Matrix<PackedIntPlaintextEncoding> &x, PackedIntPlaintextEncoding &y) {
+void EncodeData(shared_ptr<CryptoContext<DCRTPoly>> cc, const std::vector<string> &headers, const vector<vector<double>>& dataColumns,
+		Matrix<shared_ptr<Plaintext>> &x, shared_ptr<Plaintext> &y) {
 
 	//counter on non-regressors
 	size_t counter = 0;
+	vector<uint32_t> yInts;
+	vector<uint32_t> xInts;
 
 	// i corresponds to columns
 	for (size_t i = 0; i < dataColumns.size(); i++)
@@ -2601,29 +2596,35 @@ void EncodeData(const std::vector<string> &headers, const vector<vector<double>>
 		for (size_t k = 0; k < dataColumns[i].size(); k++)
 		{
 			if (headers[i] == "fieldY") {
-				y.push_back(std::round( (dataColumns[i][k])));
-				x(0, i - counter).push_back(1);				
+				yInts.push_back(std::round( (dataColumns[i][k])));
+				xInts.push_back(1);
 			}
 			else if (headers[i] == "id")
 				continue;
 			else
 			{
 				uint32_t value = dataColumns[i][k];
-				x(0, i - counter).push_back(value);
+				xInts.push_back(value);
 			}
 
 		}
 
+		if( xInts.size() ) {
+			x(0, i-counter) = cc->MakeCoefPackedPlaintext(xInts);
+			xInts.clear();
+		}
 	}
+
+	y = cc->MakeCoefPackedPlaintext(yInts);
 
 	//std::cout << x(0, 2) << std::endl;
 	//std::cout << x(0, 7) << std::endl;
 
 }
 
-void CRTInterpolate(const std::vector<Matrix<PackedIntPlaintextEncoding>> &crtVector, Matrix<native_int::BigInteger> &result) {
+void CRTInterpolate(const vector<shared_ptr<Matrix<shared_ptr<Plaintext>>>> &crtVector, Matrix<native_int::BigInteger> &result) {
 
-	result.SetSize(crtVector[0].GetRows(), crtVector[0].GetCols());
+	result.SetSize(crtVector[0]->GetRows(), crtVector[0]->GetCols());
 
      	std::vector<native_int::BigInteger> q = { 40961, 59393 };
 
@@ -2634,7 +2635,6 @@ void CRTInterpolate(const std::vector<Matrix<PackedIntPlaintextEncoding>> &crtVe
 	for (size_t i = 0; i < crtVector.size(); i++) {
 
 		qInverse.push_back((Q/q[i]).ModInverse(q[i]));
-//std::cout << qInverse[i];
 	}
 
 	for (size_t k = 0; k < result.GetRows(); k++)
@@ -2643,8 +2643,7 @@ void CRTInterpolate(const std::vector<Matrix<PackedIntPlaintextEncoding>> &crtVe
 		{
 			native_int::BigInteger value = 0;
 			for (size_t i = 0; i < crtVector.size(); i++) {
-//std::cout << crtVector[i](k,j)[0] <<std::endl;
-				value += ((native_int::BigInteger(crtVector[i](k,j)[0])*qInverse[i]).Mod(q[i])*Q/q[i]).Mod(Q);
+				value += ((native_int::BigInteger((*crtVector[i])(k,j)->GetCoefPackedValue()[0])*qInverse[i]).Mod(q[i])*Q/q[i]).Mod(Q);
 			}
 			result(k, j) = value.Mod(Q);
 		}
@@ -2932,20 +2931,18 @@ shared_ptr<LPPrivateKey<Element>> AddSecretKeys(shared_ptr<LPPrivateKey<Element>
 
 }
 
-void ConvertMatrixInto2DVector(const Matrix<RationalCiphertext<DCRTPoly>> &matrix, std::vector<std::vector<shared_ptr<Ciphertext<DCRTPoly>>>> &vec)
+void ConvertMatrixInto2DVector(const Matrix<RationalCiphertext<DCRTPoly>> &matrix, vector<vector<shared_ptr<Ciphertext<DCRTPoly>>>> &vec)
 {
-
 	vec.clear();
 
 	for (size_t i = 0; i < matrix.GetRows(); i++) {
-		std::vector<shared_ptr<Ciphertext<DCRTPoly>>> temp;
+        std::vector<shared_ptr<Ciphertext<DCRTPoly>>> temp;
 		for (size_t j = 0; j < matrix.GetCols(); j++)
 		{
 			temp.push_back(matrix(i, j).GetNumerator());
 		}
-		vec.push_back(temp);
+        vec.push_back(temp);
 	}
-
 }
 
 void Convert2DVectorIntoMatrix(const vector<vector<shared_ptr<Ciphertext<DCRTPoly>>>> &vector, Matrix<RationalCiphertext<DCRTPoly>> &matrix) {

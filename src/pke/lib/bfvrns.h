@@ -352,7 +352,7 @@ namespace lbcrypto {
 		* @return ciphertext which results from encryption.
 		*/
 		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
-			Poly &plaintext, bool doEncryption = true) const;
+			Element plaintext) const;
 
 		/**
 		* Method for decrypting using BFVrns. See the class description for citations on where the algorithms were

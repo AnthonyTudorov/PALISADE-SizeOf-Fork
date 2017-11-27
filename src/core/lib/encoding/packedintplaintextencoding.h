@@ -41,47 +41,53 @@ namespace lbcrypto
  * @class PackedIntPlaintextEncoding
  * @brief Type used for representing IntArray types.
  * Provides conversion functions to encode and decode plaintext data as type vector<uint32_t>.
- * This method uses bit packing techniques to enable efficient computing on vectors of integers.
+ * This class uses bit packing techniques to enable efficient computing on vectors of integers.
+ * It is NOT supported for DCRTPoly
  */
-class PackedIntPlaintextEncoding : public Plaintext, public std::vector<uint32_t>
+
+class PackedIntPlaintextEncoding : public Plaintext
 {
+	vector<uint32_t>		value;
 
 public:
-	/**
-	 * @brief Constructor method.
-	 * Constructs a container with as many elements as the range [first,last),
-	 * with each element emplace-constructed
-	 * from its corresponding element in that range, in the same order.
-	 * @param sIter Input iterators to the initial and final positions in a range.
-	 * The range used is [first,last), which includes all the elements between first
-	 * and last, including the element pointed by first but not the element pointed by last.
-	 * The function template argument InputIterator shall be an input iterator type that
-	 * points to elements of a type from which value_type objects can be constructed.
-	 * @param eIter Input iterators to the initial and final positions in a range.
-	 * The range used is [first,last), which includes all the elements between first
-	 * and last, including the element pointed by first but not the element pointed by last.
-	 * The function template argument InputIterator shall be an input iterator type that
-	 * points to elements of a type from which value_type objects can be constructed.
-	 */
-	PackedIntPlaintextEncoding(std::vector<uint32_t>::const_iterator sIter, std::vector<uint32_t>::const_iterator eIter)
-		: std::vector<uint32_t>(std::vector<uint32_t>(sIter, eIter)) {}
+	// these two constructors are used inside of Decrypt
+	PackedIntPlaintextEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep) :
+		Plaintext(vp,ep) {}
+
+	PackedIntPlaintextEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep) :
+		Plaintext(vp,ep) {}
+
+	PackedIntPlaintextEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, vector<uint32_t> coeffs) :
+		Plaintext(vp,ep), value(coeffs) {}
+
+	PackedIntPlaintextEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, vector<uint32_t> coeffs) :
+		Plaintext(vp,ep), value(coeffs) {}
+
+	PackedIntPlaintextEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, std::initializer_list<uint32_t> coeffs) :
+		Plaintext(vp,ep), value(coeffs) {}
+
+	PackedIntPlaintextEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, std::initializer_list<uint32_t> coeffs) :
+		Plaintext(vp,ep), value(coeffs) {}
 
 	/**
 	 * @brief Constructs a container with a copy of each of the elements in rhs, in the same order.
 	 * @param rhs - The input object to copy.
 	 */
-	PackedIntPlaintextEncoding(const std::vector<uint32_t> &rhs) : std::vector<uint32_t>(rhs) {}
+	PackedIntPlaintextEncoding(const std::vector<uint32_t> &rhs)
+		: Plaintext(shared_ptr<Poly::Params>(0),NULL), value(rhs) {}
 
 	/**
 	 * @brief Constructs a container with a copy of each of the elements in il, in the same order.
 	 * @param arr the list to copy.
 	 */
-	PackedIntPlaintextEncoding(std::initializer_list<uint32_t> arr) : std::vector<uint32_t>(arr) {}
+	PackedIntPlaintextEncoding(std::initializer_list<uint32_t> arr)
+		: Plaintext(shared_ptr<Poly::Params>(0),NULL), value(arr) {}
 
 	/**
 	 * @brief Default empty constructor with empty uninitialized data elements.
 	 */
-	PackedIntPlaintextEncoding() : std::vector<uint32_t>() {}
+	PackedIntPlaintextEncoding()
+		: Plaintext(shared_ptr<Poly::Params>(0),NULL), value() {}
 
 	/**
 	 * @brief Method to return the initial root.
@@ -97,60 +103,17 @@ public:
 		return m_automorphismGenerator[modulusNI];
 	}
 
-	/** The operation of converting from current plaintext encoding to Poly.
-	*
-	* @param  modulus - used for encoding.
-	* @param  *ilVector encoded plaintext - output argument.
-	* @param  start_from - location to start from.  Defaults to 0.
-	* @param  length - length of data to encode.  Defaults to 0.
-	*/
-	void Encode(const BigInteger &modulus, Poly *ilVector, size_t start_from = 0, size_t length = 0) const;
+	bool Encode();
+
+	bool Decode();
+
+	const vector<uint32_t>&	GetPackedValue() const { return value; }
 
 	/**
-	 * Interface for the operation of converting from current plaintext encoding to Poly.
-	 *
-	 * @param  modulus - used for encoding.
-	 * @param  *ilVector encoded plaintext - output argument.
-	 * @param  start_from - location to start from.  Defaults to 0.
-	 * @param  length - length of data to encode.  Defaults to 0.
-	*/
-	void Encode(const BigInteger &modulus, DCRTPoly *ilVector, size_t start_from = 0, size_t length = 0) const {
-		throw std::logic_error("Encode: Packed encoding is not currently supported for DCRTPoly");
-	};
-
-	/**
-	 * Interface for the operation of converting from Poly to current plaintext encoding.
-	 *
-	 * @param  modulus - used for encoding.
-	 * @param  *ilVector encoded plaintext - input argument.
+	 * GetEncodingType
+	 * @return this is a Packed encoding
 	 */
-	void Decode(const BigInteger &modulus, Poly *ilVector);
-
-	/** The operation of converting from DCRTPoly to current plaintext encoding.
-	*
-	* @param  modulus - used for encoding.
-	* @param  *ilVector encoded plaintext - input argument.
-	*/
-	void Decode(const BigInteger &modulus, DCRTPoly *ilVector) {
-		throw std::logic_error("Decode: Packed encoding is not currently supported for DCRTPoly");
-	}
-
-	/**
-	 * Interface for the operation of stripping away unneeded trailing zeros to pad out a short plaintext until one with entries
-	 * for all dimensions.
-	 *
-	 * @param  &modulus - used for encoding.
-	 */
-	void Unpad(const BigInteger &modulus) {} // a null op; no padding in int
-
-	/**
-	 * Getter for the ChunkSize data.
-	 *
-	 * @param  ring - the ring dimension.
-	 * @param  ptm - the plaintext modulus.
-	 * @return ring - the chunk size.
-	 */
-	virtual size_t GetChunksize(const usint ring, const BigInteger& ptm) const;
+	PlaintextEncodings GetEncodingType() const { return Packed; }
 
 	/**
 	 * Get method to return the length of plaintext
@@ -158,7 +121,7 @@ public:
 	 * @return the length of the plaintext in terms of the number of bits.
 	 */
 	size_t GetLength() const {
-		return this->size();
+		return value.size();
 	}
 
 	/**
@@ -192,19 +155,11 @@ public:
 	 */
 	static void Destroy();
 
-	/**
-	 * Output stream operator.
-	 *
-	 * @param out - the output stream.
-	 * @param item - the int plaintext to encode with.
-	 * @return an output stream.
-	 */
-	friend std::ostream& operator<<(std::ostream& out, const PackedIntPlaintextEncoding& item) {
+	void PrintValue(std::ostream& out) const {
 		size_t i;
-		for (i = 0; i<item.size()-1; i++)
-			out << item.at(i) << ",";
-		out << item.at(i);
-		return out;
+		for (i = 0; i<value.size()-1; i++)
+			out << value[i] << ",";
+		out << value[i];
 	}
 
 private:

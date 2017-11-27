@@ -210,36 +210,39 @@ namespace lbcrypto {
 		Input: BigInteger q which is a prime.
 		Output: A generator of prime q
 	*/
-	template<typename IntType>
-	static IntType FindGenerator(const IntType& q)
-	{
-		bool dbg_flag = false;
-		std::set<IntType> primeFactors;
-		DEBUG("calling PrimeFactorize");
+    template<typename IntType>
+    static IntType FindGenerator(const IntType& q)
+    {
+            bool dbg_flag = false;
+            std::set<IntType> primeFactors;
+            DEBUG("FindGenerator(" << q << "),calling PrimeFactorize");
 
-		IntType qm1 = q - 1;
-		IntType qm2 = q - 2;
-		PrimeFactorize<IntType>(qm1, primeFactors);
-		DEBUG("done");
-		bool generatorFound = false;
-		IntType gen;
-		while (!generatorFound) {
-			usint count = 0;
-			DEBUG("count " << count);
-			//gen = RNG(qm2).ModAdd(IntType::ONE, q); //modadd note needed
-			gen = RNG(qm2) + 1;
+            IntType qm1 = q - 1;
+            IntType qm2 = q - 2;
+            PrimeFactorize<IntType>(qm1, primeFactors);
+            DEBUG("prime factors of " << qm1);
+            for( auto& v : primeFactors ) DEBUG(v << " ");
 
-			for (auto it = primeFactors.begin(); it != primeFactors.end(); ++it) {
-				DEBUG("in set");
-				DEBUG("divide " << qm1 << " by " << *it);
+            bool generatorFound = false;
+            IntType gen;
+            while (!generatorFound) {
+                    usint count = 0;
 
-				if (gen.ModExp(qm1 / (*it), q) == 1) break;
-				else count++;
-			}
-			if (count == primeFactors.size()) generatorFound = true;
-		}
-		return gen;
-	}
+                    //gen = RNG(qm2).ModAdd(IntType::ONE, q); //modadd note needed
+                    gen = RNG(qm2) + 1;
+                    DEBUG("generator " << gen);
+                    DEBUG("cycling thru prime factors");
+
+                    for (auto it = primeFactors.begin(); it != primeFactors.end(); ++it) {
+                            DEBUG(qm1 << " / " << *it << " " << gen.ModExp(qm1 / (*it), q));
+
+                            if (gen.ModExp(qm1 / (*it), q) == 1) break;
+                            else count++;
+                    }
+                    if (count == primeFactors.size()) generatorFound = true;
+            }
+            return gen;
+    }
 
 	/*
 	A helper function for arbitrary cyclotomics. This finds a generator for any composite q (cyclic group).

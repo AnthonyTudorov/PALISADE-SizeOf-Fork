@@ -62,7 +62,7 @@ class CryptoObject;
 #include "lattice/poly.h"
 #include "../../core/lib/lattice/dcrtpoly.h"
 
-#include "encoding/encodingparams.h"
+#include "encoding/encodings.h"
 
 #include "pubkeylp.h"
 

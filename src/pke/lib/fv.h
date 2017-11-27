@@ -327,23 +327,23 @@ namespace lbcrypto {
 		* Method for encrypting plaintext using FV.
 		*
 		* @param publicKey public key used for encryption.
-		* @param &plaintext the plaintext input.
+		* @param plaintext the plaintext input.
 		* @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 		* @return ciphertext which results from encryption.
 		*/
 		virtual shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
-			Poly &plaintext, bool doEncryption = true) const;
+			Element plaintext) const;
 
 		/**
 		* Method for encrypting plaintext using FV.
 		*
 		* @param privateKey private key used for encryption.
-		* @param &plaintext the plaintext input.
+		* @param plaintext the plaintext input.
 		* @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 		* @return ciphertext which results from encryption.
 		*/
 		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
-			Poly &plaintext, bool doEncryption = true) const;
+			Element plaintext) const;
 
 		/**
 		* Method for decrypting using FV. See the class description for citations on where the algorithms were
@@ -400,7 +400,17 @@ namespace lbcrypto {
 		* @return new ciphertext.
 		*/
 		shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ct1, 
-			const shared_ptr<Ciphertext<Element>> ct) const;
+			const shared_ptr<Ciphertext<Element>> ct2) const;
+
+		/**
+		* Function for homomorphic addition of ciphertext and plaintext.
+		*
+		* @param ct1 input ciphertext.
+		* @param pt  input ciphertext.
+		* @return new ciphertext.
+		*/
+		shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ct,
+			const shared_ptr<Plaintext> pt) const;
 
 		/**
 		* Function for homomorphic subtraction of ciphertexts.
@@ -410,7 +420,17 @@ namespace lbcrypto {
 		* @return new ciphertext.
 		*/
 		shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ct1, 
-			const shared_ptr<Ciphertext<Element>> ct) const;
+			const shared_ptr<Ciphertext<Element>> ct2) const;
+
+		/**
+		* Function for homomorphic subtraction of ciphertext ans plaintext.
+		*
+		* @param ct input ciphertext.
+		* @param pt input ciphertext.
+		* @return new ciphertext.
+		*/
+		shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ct1,
+			const shared_ptr<Plaintext> pt) const;
 
 		/**
 		* Function for homomorphic evaluation of ciphertexts.
@@ -431,8 +451,8 @@ namespace lbcrypto {
 		* @param plaintext input plaintext embedded in the cryptocontext.
 		* @return result of the multiplication.
 		*/
-		shared_ptr<Ciphertext<Element>> EvalMultPlain(const shared_ptr<Ciphertext<Element>> ciphertext,
-			const shared_ptr<Ciphertext<Element>> plaintext) const;
+		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext,
+			const shared_ptr<Plaintext> plaintext) const;
 
 		/**
 		* Function for evaluating multiplication on ciphertext followed by key switching operation.
@@ -448,6 +468,20 @@ namespace lbcrypto {
 			const shared_ptr<Ciphertext<Element>> ct, const shared_ptr<LPEvalKey<Element>> ek) const;
 
 		/**
+		* Function for evaluating multiplication on ciphertext followed by relinearization operation.
+		* Currently it assumes that the input arguments have total depth smaller than the supported depth. Otherwise, it throws an error.
+		* Currently it assumes that the input arguments are fresh ciphertexts (of depth 1). Support for the input ciphertexts of higher depths will be added later.
+		*
+		* @param ct1 first input ciphertext.
+		* @param ct2 second input ciphertext.
+		* @param ek is the evaluation key to make the newCiphertext
+		*  decryptable by the same secret key as that of ciphertext1 and ciphertext2.
+		* @param *newCiphertext the new resulting ciphertext.
+		*/
+		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ct1,
+			const shared_ptr<Plaintext> ct, const shared_ptr<LPEvalKey<Element>> ek) const;
+
+		/**
 		* Function for evaluating multiplication on ciphertext followed by relinearization operation. It computes the
 		* multiplication in a binary tree manner. Also, it reduces the number of elements in the ciphertext to two after each multiplication.
 		* Currently it assumes that the consecutive two input arguments have total depth smaller than the supported depth. Otherwise, it throws an error.
@@ -457,7 +491,7 @@ namespace lbcrypto {
 		*  decryptable by the same secret key as that of ciphertext list.
 		* @param *newCiphertext the new resulting ciphertext.
 		*/
-		shared_ptr<Ciphertext<Element>> EvalMultMany(const shared_ptr<vector<shared_ptr<Ciphertext<Element>>>> cipherTextList, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> evalKeys) const;
+		shared_ptr<Ciphertext<Element>> EvalMultMany(const vector<shared_ptr<Ciphertext<Element>>>& cipherTextList, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> evalKeys) const;
 
 		/**
 		* Function for evaluating multiplication on ciphertext followed by relinearization operation.

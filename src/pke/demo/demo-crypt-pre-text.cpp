@@ -48,8 +48,6 @@
 
 #include "cryptocontexthelper.h"
 
-#include "encoding/byteplaintextencoding.h"
-
 #include "cryptocontextparametersets.h"
 
 #include "utils/debug.h"
@@ -134,15 +132,17 @@ int main(int argc, char *argv[])
 	cc->Enable(SHE);
 	cc->Enable(PRE);
 
-	// Plaintext in this case is a BytePlaintextEncoding
-	BytePlaintextEncoding plaintext;
+	if( cc->GetEncodingParams()->GetPlaintextModulus() != 256 ) {
+		cout << "This program requires a parameter set with a plaintext modulus of 256, sorry!" << endl;
+		return 1;
+	}
 
-	// The plaintext is broken up into chunks of size chunksize
-	size_t chunksize = plaintext.GetChunksize(cc->GetRingDimension(), cc->GetCryptoParameters()->GetPlaintextModulus());
+	// The largest possible plaintext is the size of the ring
+	size_t ptsize = cc->GetRingDimension();
 
-	if( beVerbose ) cout << "Encryption will be in chunks of size " << chunksize << endl;
+	if( beVerbose ) cout << "Plaintext will be of size " << ptsize << endl;
 
-	// generate a random string of length chunksize
+	// generate a random string of length ptsize
 	auto randchar = []() -> char {
 		const char charset[] =
 				"0123456789"
@@ -152,12 +152,11 @@ int main(int argc, char *argv[])
 		return charset[ rand() % max_index ];
 	};
 
-	string rchars(chunksize,0);
-	std::generate_n(rchars.begin(), chunksize, randchar);
-
+	string rchars(ptsize,0);
+	std::generate_n(rchars.begin(), ptsize, randchar);
 
 	// create a plaintext object from that string
-	plaintext = rchars;
+	shared_ptr<Plaintext> plaintext = cc->MakeStringPlaintext(rchars);
 
 	////////////////////////////////////////////////////////////
 	//Perform the key generation operation.
@@ -180,23 +179,23 @@ int main(int argc, char *argv[])
 	// in the resulting table
 	////////////////////////////////////////////////////////////
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext;
+	shared_ptr<Ciphertext<Poly>> ciphertext;
 
 	if( beVerbose ) cout << "Running encryption" << endl;
 
 	// we tell Encrypt not to pad this entry by using false for the third parameter;
 	// if we said true instead, padding would be added on Encrypt and removed on Decrypt
-	ciphertext = cc->Encrypt(kp.publicKey, plaintext, false);
+	ciphertext = cc->Encrypt(kp.publicKey, plaintext);
 
 	////////////////////////////////////////////////////////////
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	BytePlaintextEncoding plaintextNew;
+	shared_ptr<Plaintext> plaintextNew;
 
 	if( beVerbose ) cout << "Running decryption" << std::endl;
 
-	DecryptResult result = cc->Decrypt(kp.secretKey,ciphertext,&plaintextNew,false);
+	DecryptResult result = cc->Decrypt(kp.secretKey,ciphertext,&plaintextNew);
 
 	if (!result.isValid) {
 		cout << "Decryption failed" << endl;
@@ -251,21 +250,19 @@ int main(int argc, char *argv[])
 	//Perform the proxy re-encryption operation.
 	////////////////////////////////////////////////////////////
 
-	vector<shared_ptr<Ciphertext<Poly>>> newCiphertext;
-
 	if( beVerbose ) cout << "Running re-encryption" << endl;
 
-	newCiphertext = cc->ReEncrypt(evalKey, ciphertext);
+	auto newCiphertext = cc->ReEncrypt(evalKey, ciphertext);
 
 	////////////////////////////////////////////////////////////
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	BytePlaintextEncoding plaintextNew2;
+	shared_ptr<Plaintext> plaintextNew2;
 
 	if( beVerbose ) cout << "Running decryption of re-encrypted cipher" << endl;
 
-	DecryptResult result1 = cc->Decrypt(newKp.secretKey,newCiphertext,&plaintextNew2,false);
+	DecryptResult result1 = cc->Decrypt(newKp.secretKey,newCiphertext,&plaintextNew2);
 
 	if (!result1.isValid) {
 		std::cout<<"Decryption failed!"<<std::endl;
@@ -274,6 +271,18 @@ int main(int argc, char *argv[])
 
 	if( plaintext != plaintextNew2 ) {
 		cout << "Mismatch on decryption of PRE ciphertext" << endl;
+		if( plaintext->GetEncodingType() != plaintextNew2->GetEncodingType() )
+			cout << "encoding" << endl;
+
+		if( plaintext->GetEncodingParams() != plaintextNew2->GetEncodingParams() )
+			cout << "params" << endl;
+
+		if( plaintext->GetLength() != plaintextNew2->GetLength() )
+			cout << "len" << endl;
+
+		for( size_t i=0; i<plaintext->GetLength(); i++ )
+			if( plaintext->GetStringValue().at(i) != plaintextNew2->GetStringValue().at(i) )
+				cout << "mismatch at " << i << endl;
 		return 1;
 	}
 

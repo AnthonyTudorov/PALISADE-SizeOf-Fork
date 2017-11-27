@@ -24,7 +24,6 @@
  *
  */
 
- //#include "../crypto/cryptocontext.h"
 #include "packedintplaintextencoding.h"
 
 namespace lbcrypto {
@@ -37,54 +36,49 @@ namespace lbcrypto {
 	std::map<native_int::BigInteger, std::vector<usint>> PackedIntPlaintextEncoding::m_toCRTPerm;
 	std::map<native_int::BigInteger, std::vector<usint>> PackedIntPlaintextEncoding::m_fromCRTPerm;
 
-	void PackedIntPlaintextEncoding::Encode(const BigInteger &modulus, Poly *ilVector, size_t startFrom, size_t length) const
-	{
-		size_t padlen = 0;
-		uint64_t mod = modulus.ConvertToInt();
+	bool PackedIntPlaintextEncoding::Encode() {
+		if( this->isEncoded ) return true;
+		int64_t mod = this->encodingParams->GetPlaintextModulus().ConvertToInt();
 
-		if (length == 0) length = this->size();
+		BigVector temp(this->GetElementRingDimension(), this->GetElementModulus());
 
-		// length is usually chunk size; if start + length would go past the end of the item, add padding
-		if ((startFrom + length) > this->size()) {
-			padlen = (startFrom + length) - this->size();
-			length = length - padlen;
+		size_t i;
+		for( i=0; i < value.size(); i++ ) {
+			uint32_t entry = value[i];
+
+			if( entry >= mod )
+				throw std::logic_error("Cannot encode integer " + std::to_string(entry) +
+						" at position " + std::to_string(i) +
+						" that is > plaintext modulus " + std::to_string(mod) );
+
+			temp.at(i) = BigInteger(entry);
 		}
 
-		BigVector temp(ilVector->GetRingDimension(), ilVector->GetModulus());
+		for(; i < this->GetElementRingDimension(); i++ )
+			temp.at(i) = BigInteger(0);
+		this->isEncoded = true;
 
-		for (size_t i = 0; i < length; i++) {
-			uint32_t entry = this->at(i + startFrom);
-			if (entry >= mod)
-				throw std::logic_error("Cannot encode integer at position " + std::to_string(i) + " because it is >= plaintext modulus " + std::to_string(mod));
-			BigInteger Val = BigInteger(entry);
-			temp.at(i)= Val;
+		this->GetElement<Poly>().SetValues(temp, Format::EVALUATION); //output was in coefficient format
+
+		this->Pack(&this->GetElement<Poly>(), this->encodingParams->GetPlaintextModulus());//ilVector coefficients are packed and resulting ilVector is in COEFFICIENT form.
+
+		if( this->typeFlag == IsDCRTPoly ) {
+			this->encodedVectorDCRT = this->encodedVector;
 		}
 
-		//BigInteger Num = modulus - BigInteger::ONE;
-		for (size_t i = 0; i<padlen; i++) {
-		  temp.at(i + length)= BigInteger(0);
-		}
 
-		ilVector->SetValues(temp, Format::EVALUATION); //output was in coefficient format
-
-		this->Pack(ilVector, modulus);//ilVector coefficients are packed and resulting ilVector is in COEFFICIENT form.
-
+		return true;
 	}
 
-	void PackedIntPlaintextEncoding::Decode(const BigInteger &modulus, Poly *ilVector) {
+	bool PackedIntPlaintextEncoding::Decode() {
 
-		this->Unpack(ilVector, modulus); //Format is in COEFFICIENT
+		this->Unpack(&this->GetElement<Poly>(), this->encodingParams->GetPlaintextModulus());
 
-		for (usint i = 0; i<ilVector->GetValues().GetLength(); i++) {
-			this->push_back(ilVector->GetValues().at(i).ConvertToInt());
+		this->value.clear();
+		for (usint i = 0; i<this->encodedVector.GetLength(); i++) {
+			this->value.push_back(this->encodedVector.at(i).ConvertToInt());
 		}
-
-	}
-
-
-	size_t PackedIntPlaintextEncoding::GetChunksize(const usint ring, const BigInteger& ptm) const
-	{
-		return ring;
+		return true;
 	}
 
 	void PackedIntPlaintextEncoding::Destroy()
@@ -98,78 +92,86 @@ namespace lbcrypto {
 		m_fromCRTPerm.clear();
 	}
 
+	// FIXME: can these two SetParams methods be collapsed into one??
 	void PackedIntPlaintextEncoding::SetParams(usint m, shared_ptr<EncodingParams> params)
 	{
 		native_int::BigInteger modulusNI(params->GetPlaintextModulus().ConvertToInt()); //native int modulus
+		std::string exception_message;
+		bool hadEx = false;
 
 		//initialize the CRT coefficients if not initialized
 #pragma omp critical
-{
-		if (!(m & (m-1))){ // Check if m is a power of 2
-
-			SetParams_2n(m, params);
-
-		} else {
-
-			// Arbitrary: Bluestein based CRT Arb. So we need the 2mth root of unity
-			if (params->GetPlaintextRootOfUnity() == 0) {
-				native_int::BigInteger initRoot = RootOfUnity<native_int::BigInteger>(2 * m, modulusNI);
-				m_initRoot[modulusNI] = initRoot;
-				params->SetPlaintextRootOfUnity(m_initRoot[modulusNI].ConvertToInt());
+		try {
+			if (!(m & (m - 1))) { // Check if m is a power of 2
+				SetParams_2n(m, modulusNI);
 			}
-			else
-				m_initRoot[modulusNI] = params->GetPlaintextRootOfUnity().ConvertToInt();
-
-			// Find a compatible big-modulus and root of unity for CRTArb
-			if (params->GetPlaintextBigModulus() == 0) {
-				usint nttDim = pow(2, ceil(log2(2 * m - 1)));
-				if ((modulusNI.ConvertToInt() - 1) % nttDim == 0) {
-					m_bigModulus[modulusNI] = modulusNI;
+			else {
+				// Arbitrary: Bluestein based CRT Arb. So we need the 2mth root of unity
+				if (params->GetPlaintextRootOfUnity() == 0) {
+					native_int::BigInteger initRoot = RootOfUnity<native_int::BigInteger>(2 * m, modulusNI);
+					m_initRoot[modulusNI] = initRoot;
+					params->SetPlaintextRootOfUnity(m_initRoot[modulusNI].ConvertToInt());
 				}
-				else {
-					usint bigModulusSize = ceil(log2(2 * m - 1)) + 2 * modulusNI.GetMSB() + 1;
-					m_bigModulus[modulusNI] = FirstPrime<native_int::BigInteger>(bigModulusSize, nttDim);
+				else
+					m_initRoot[modulusNI] = params->GetPlaintextRootOfUnity().ConvertToInt();
+
+				// Find a compatible big-modulus and root of unity for CRTArb
+				if (params->GetPlaintextBigModulus() == 0) {
+					usint nttDim = pow(2, ceil(log2(2 * m - 1)));
+					if ((modulusNI.ConvertToInt() - 1) % nttDim == 0) {
+						m_bigModulus[modulusNI] = modulusNI;
+					}
+					else {
+						usint bigModulusSize = ceil(log2(2 * m - 1)) + 2 * modulusNI.GetMSB() + 1;
+						m_bigModulus[modulusNI] = FirstPrime<native_int::BigInteger>(bigModulusSize, nttDim);
+					}
+					m_bigRoot[modulusNI] = RootOfUnity<native_int::BigInteger>(nttDim, m_bigModulus[modulusNI]);
+					params->SetPlaintextBigModulus(m_bigModulus[modulusNI].ConvertToInt());
+					params->SetPlaintextBigRootOfUnity(m_bigRoot[modulusNI].ConvertToInt());
 				}
-				m_bigRoot[modulusNI] = RootOfUnity<native_int::BigInteger>(nttDim, m_bigModulus[modulusNI]);
-				params->SetPlaintextBigModulus(m_bigModulus[modulusNI].ConvertToInt());
-				params->SetPlaintextBigRootOfUnity(m_bigRoot[modulusNI].ConvertToInt());
-			}
-			else
-			{
-				m_bigModulus[modulusNI] = params->GetPlaintextBigModulus().ConvertToInt();
-				m_bigRoot[modulusNI] = params->GetPlaintextBigRootOfUnity().ConvertToInt();
-			}
+				else
+				{
+					m_bigModulus[modulusNI] = params->GetPlaintextBigModulus().ConvertToInt();
+					m_bigRoot[modulusNI] = params->GetPlaintextBigRootOfUnity().ConvertToInt();
+				}
 
-			// Find a generator for the automorphism group
-			if (params->GetPlaintextGenerator() == 0) {
-				native_int::BigInteger M(m); // Hackish typecast
-				native_int::BigInteger automorphismGenerator = FindGeneratorCyclic<native_int::BigInteger>(M);
-				m_automorphismGenerator[modulusNI] = automorphismGenerator.ConvertToInt();
-				params->SetPlaintextGenerator(m_automorphismGenerator[modulusNI]);
-			}
-			else
-				m_automorphismGenerator[modulusNI] = params->GetPlaintextGenerator();
+				// Find a generator for the automorphism group
+				if (params->GetPlaintextGenerator() == 0) {
+					native_int::BigInteger M(m); // Hackish typecast
+					native_int::BigInteger automorphismGenerator = FindGeneratorCyclic<native_int::BigInteger>(M);
+					m_automorphismGenerator[modulusNI] = automorphismGenerator.ConvertToInt();
+					params->SetPlaintextGenerator(m_automorphismGenerator[modulusNI]);
+				}
+				else
+					m_automorphismGenerator[modulusNI] = params->GetPlaintextGenerator();
 
-			// Create the permutations that interchange the automorphism and crt ordering
-			usint phim = GetTotient(m);
-			auto tList = GetTotientList(m);
-			auto tIdx = std::vector<usint>(m, -1);
-			for(usint i=0; i<phim; i++){
-				tIdx[tList[i]] = i;
-			}
+				// Create the permutations that interchange the automorphism and crt ordering
+				usint phim = GetTotient(m);
+				auto tList = GetTotientList(m);
+				auto tIdx = std::vector<usint>(m, -1);
+				for(usint i=0; i<phim; i++){
+					tIdx[tList[i]] = i;
+				}
 
-			m_toCRTPerm[modulusNI] = std::vector<usint>(phim);
-			m_fromCRTPerm[modulusNI] = std::vector<usint>(phim);
+				m_toCRTPerm[modulusNI] = std::vector<usint>(phim);
+				m_fromCRTPerm[modulusNI] = std::vector<usint>(phim);
 
-			usint curr_index = 1;
-			for (usint i=0; i<phim; i++){
-				m_toCRTPerm[modulusNI][tIdx[curr_index]] = i;
-				m_fromCRTPerm[modulusNI][i] = tIdx[curr_index];
+				usint curr_index = 1;
+				for (usint i=0; i<phim; i++){
+					m_toCRTPerm[modulusNI][tIdx[curr_index]] = i;
+					m_fromCRTPerm[modulusNI][i] = tIdx[curr_index];
 
-				curr_index = curr_index*m_automorphismGenerator[modulusNI] % m;
+					curr_index = curr_index*m_automorphismGenerator[modulusNI] % m;
+				}
 			}
 		}
-	}
+		catch( std::exception& e ) {
+			exception_message = e.what();
+			hadEx = true;
+		}
+
+		if( hadEx )
+			throw std::logic_error(exception_message);
 
 	}
 
@@ -177,26 +179,20 @@ namespace lbcrypto {
 	{
 		native_int::BigInteger modulusNI(modulus.ConvertToInt()); //native int modulus
 
+		std::string exception_message;
+		bool hadEx = false;
+
 		//initialize the CRT coefficients if not initialized
-		if (!(m & (m - 1))) { // Check if m is a power of 2
-
-			// make sure it will work before hitting the critical region;
-			// the below code will throw an exception (but if it does in the critical region, yucko)
-			RootOfUnity<native_int::BigInteger>(m, modulusNI);
-
 #pragma omp critical
-			{
+		try {
+			if (!(m & (m - 1))) { // Check if m is a power of 2
 				SetParams_2n(m, modulusNI);
 			}
+			else {
+				native_int::BigInteger initRoot = RootOfUnity<native_int::BigInteger>(2 * m, modulusNI);
 
-		}
-		else {
-
-#pragma omp critical
-			{
 				// Arbitrary: Bluestein based CRT Arb. So we need the 2mth root of unity
 
-				native_int::BigInteger initRoot = RootOfUnity<native_int::BigInteger>(2 * m, modulusNI);
 				m_initRoot[modulusNI] = initRoot;
 
 				// Find a compatible big-modulus and root of unity for CRTArb
@@ -208,7 +204,9 @@ namespace lbcrypto {
 					usint bigModulusSize = ceil(log2(2 * m - 1)) + 2 * modulusNI.GetMSB() + 1;
 					m_bigModulus[modulusNI] = FirstPrime<native_int::BigInteger>(bigModulusSize, nttDim);
 				}
-				m_bigRoot[modulusNI] = RootOfUnity<native_int::BigInteger>(nttDim, m_bigModulus[modulusNI]);
+
+				auto ri = RootOfUnity<native_int::BigInteger>(nttDim, m_bigModulus[modulusNI]);
+				m_bigRoot[modulusNI] = ri;
 
 
 				// Find a generator for the automorphism group
@@ -236,11 +234,20 @@ namespace lbcrypto {
 				}
 			}
 		}
+		catch( std::exception& e ) {
+			exception_message = e.what();
+			hadEx = true;
+		}
 
+		if( hadEx )
+			throw std::logic_error(exception_message);
 	}
 
 
 	void PackedIntPlaintextEncoding::Pack(Poly *ring, const BigInteger &modulus) const {
+
+		bool dbg_flag = false;
+
 		usint m = ring->GetCyclotomicOrder();//cyclotomic order
 		native_int::BigInteger modulusNI(modulus.ConvertToInt());//native int modulus
 
@@ -251,11 +258,16 @@ namespace lbcrypto {
 
 		usint phim = ring->GetRingDimension();
 
+		DEBUG("Pack for order " << m << " phim " << phim << " modulus " << modulusNI);
+
 		//copy values from ring to the vector
 		native_int::BigVector slotValues(phim, modulusNI);
 		for (usint i = 0; i < phim; i++) {
 		  slotValues.at(i)= ring->at(i).ConvertToInt();
 		}
+
+		DEBUG(*ring);
+		DEBUG(slotValues);
 
 		// Transform Eval to Coeff
 		if (!(m & (m-1))) { // Check if m is a power of 2
@@ -283,10 +295,16 @@ namespace lbcrypto {
 			  permutedSlots.at(i)= slotValues.at(m_toCRTPerm[modulusNI][i]);
 			}
 
-			slotValues = ChineseRemainderTransformArb<native_int::BigInteger, native_int::BigVector>::
+            DEBUG("permutedSlots " << permutedSlots);
+            DEBUG("m_initRoot[modulusNI] " << m_initRoot[modulusNI]);
+            DEBUG("m_bigModulus[modulusNI] " << m_bigModulus[modulusNI]);
+            DEBUG("m_bigRoot[modulusNI] " << m_bigRoot[modulusNI]);
+
+            slotValues = ChineseRemainderTransformArb<native_int::BigInteger, native_int::BigVector>::
 					InverseTransform(permutedSlots, m_initRoot[modulusNI], m_bigModulus[modulusNI], m_bigRoot[modulusNI], m);
 		}
 
+        DEBUG("slotvalues now " << slotValues);
 		//copy values into the slotValuesRing
 		BigVector slotValuesRing(phim, ring->GetModulus());
 		for (usint i = 0; i < phim; i++) {
@@ -294,9 +312,12 @@ namespace lbcrypto {
 		}
 
 		ring->SetValues(slotValuesRing, Format::COEFFICIENT);
+		DEBUG(*ring);
 	}
 
-	void PackedIntPlaintextEncoding::Unpack(Poly *ring, const BigInteger &modulus) const {
+void PackedIntPlaintextEncoding::Unpack(Poly *ring, const BigInteger &modulus) const {
+
+	bool dbg_flag = false;
 
 		usint m = ring->GetCyclotomicOrder(); // cyclotomic order
 		native_int::BigInteger modulusNI(modulus.ConvertToInt()); //native int modulus
@@ -308,11 +329,15 @@ namespace lbcrypto {
 
 		usint phim = ring->GetRingDimension(); //ring dimension
 
+		DEBUG("Unpack for order " << m << " phim " << phim << " modulus " << modulusNI);
+
 		//copy aggregate plaintext values
 		native_int::BigVector packedVector(phim, modulusNI);
 		for (usint i = 0; i < phim; i++) {
 		  packedVector.at(i)= native_int::BigInteger(ring->at(i).ConvertToInt());
 		}
+
+		DEBUG(packedVector);
 
 		// Transform Coeff to Eval
 		native_int::BigVector permutedSlots(phim, modulusNI);
@@ -323,7 +348,7 @@ namespace lbcrypto {
 					ForwardTransform(packedVector, m_initRoot[modulusNI], m_bigModulus[modulusNI], m_bigRoot[modulusNI], m);
 		}
 
-		if (m_fromCRTPerm[modulusNI].size() > 0) {
+        if (m_fromCRTPerm[modulusNI].size() > 0) {
 			// Permute to automorphism Order
 			for (usint i = 0; i < phim; i++) {
 			  packedVector.at(i) = permutedSlots.at(m_fromCRTPerm[modulusNI][i]);
@@ -331,6 +356,8 @@ namespace lbcrypto {
 		}
 		else
 			packedVector = permutedSlots;
+
+		DEBUG(packedVector);
 
 		//copy values into the slotValuesRing
 		BigVector packedVectorRing(phim, ring->GetModulus());

@@ -102,6 +102,28 @@ public:
 		cout << lead << "End " << unit_test.test_to_run_count() << " cases "
 			<< unit_test.successful_test_count() << " passed "
 			<< unit_test.failed_test_count() << " failed" << endl;
+
+		  const int failed_test_count = unit_test.failed_test_count();
+		  if (failed_test_count == 0) {
+		    return;
+		  }
+
+		  for (int i = 0; i < unit_test.total_test_case_count(); ++i) {
+		    const TestCase& test_case = *unit_test.GetTestCase(i);
+		    if (!test_case.should_run() || (test_case.failed_test_count() == 0)) {
+		      continue;
+		    }
+		    for (int j = 0; j < test_case.total_test_count(); ++j) {
+		      const TestInfo& test_info = *test_case.GetTestInfo(j);
+		      if (!test_info.should_run() || test_info.result()->Passed()) {
+		        continue;
+		      }
+		      internal::ColoredPrintf(internal::COLOR_RED, "[  FAILED  ] ");
+		      printf("%s.%s", test_case.name(), test_info.name());
+		      internal::PrintFullTestCommentIfPresent(test_info);
+		      printf("\n");
+		    }
+		  }
 	}
 
 

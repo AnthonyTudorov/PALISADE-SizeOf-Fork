@@ -30,12 +30,9 @@
 
 #include "../lib/cryptocontext.h"
 
-#include "encoding/byteplaintextencoding.h"
-#include "encoding/intplaintextencoding.h"
+#include "encoding/encodings.h"
 
 #include "utils/debug.h"
-
-#include "cryptolayertests.h"
 
 using namespace std;
 using namespace lbcrypto;
@@ -92,29 +89,28 @@ TEST(UTFVEVALMM, Poly_FV_Eval_Mult_Many_Operations) {
 	std::vector<uint32_t> vectorOfInts6 = {30,24,18,12,6,0,30,24,18,12,6,0};
 	std::vector<uint32_t> vectorOfInts7 = {120,96,72,48,24,0,120,96,72,48,24,0};
 
-	IntPlaintextEncoding plaintext1(vectorOfInts1);
-	IntPlaintextEncoding plaintext2(vectorOfInts2);
-	IntPlaintextEncoding plaintext3(vectorOfInts3);
-	IntPlaintextEncoding plaintext4(vectorOfInts4);
+	shared_ptr<Plaintext> plaintext1 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts1);
+	shared_ptr<Plaintext> plaintext2 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts2);
+	shared_ptr<Plaintext> plaintext3 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts3);
+	shared_ptr<Plaintext> plaintext4 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts4);
 
-	IntPlaintextEncoding plaintextResult1(vectorOfInts5);
-	IntPlaintextEncoding plaintextResult2(vectorOfInts6);
-	IntPlaintextEncoding plaintextResult3(vectorOfInts7);
+	shared_ptr<Plaintext> plaintextResult1 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts5);
+	shared_ptr<Plaintext> plaintextResult2 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts6);
+	shared_ptr<Plaintext> plaintextResult3 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts7);
 
-
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext1;
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext2;
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext3;
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext4;
+	shared_ptr<Ciphertext<Poly>> ciphertext1;
+	shared_ptr<Ciphertext<Poly>> ciphertext2;
+	shared_ptr<Ciphertext<Poly>> ciphertext3;
+	shared_ptr<Ciphertext<Poly>> ciphertext4;
 
 	////////////////////////////////////////////////////////////
 	//Encryption
 	////////////////////////////////////////////////////////////
 
-	ciphertext1 = cryptoContext->Encrypt(keyPair.publicKey, plaintext1, true);
-	ciphertext2 = cryptoContext->Encrypt(keyPair.publicKey, plaintext2, true);
-	ciphertext3 = cryptoContext->Encrypt(keyPair.publicKey, plaintext3, true);
-	ciphertext4 = cryptoContext->Encrypt(keyPair.publicKey, plaintext4, true);
+	ciphertext1 = cryptoContext->Encrypt(keyPair.publicKey, plaintext1);
+	ciphertext2 = cryptoContext->Encrypt(keyPair.publicKey, plaintext2);
+	ciphertext3 = cryptoContext->Encrypt(keyPair.publicKey, plaintext3);
+	ciphertext4 = cryptoContext->Encrypt(keyPair.publicKey, plaintext4);
 
 	////////////////////////////////////////////////////////////
 	//EvalMult Operation
@@ -124,48 +120,38 @@ TEST(UTFVEVALMM, Poly_FV_Eval_Mult_Many_Operations) {
 	shared_ptr<Ciphertext<Poly>> ciphertextMul123;
 	shared_ptr<Ciphertext<Poly>> ciphertextMul1234;
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertextMulVect1;
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertextMulVect2;
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertextMulVect3;
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertextMulVect4;
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertextMulVect5;
+	shared_ptr<Ciphertext<Poly>> ciphertextMulVect3;
+	shared_ptr<Ciphertext<Poly>> ciphertextMulVect4;
+	shared_ptr<Ciphertext<Poly>> ciphertextMulVect5;
 
 	//Perform consecutive multiplications and do a keyswtiching at the end.
-	ciphertextMul12     = cryptoContext->GetEncryptionAlgorithm()->EvalMult(ciphertext1[0],ciphertext2[0]);
-	ciphertextMul123    = cryptoContext->GetEncryptionAlgorithm()->EvalMult(ciphertextMul12, ciphertext3[0]);
-	ciphertextMul1234   = cryptoContext->GetEncryptionAlgorithm()->EvalMultAndRelinearize(ciphertextMul123, ciphertext4[0], evalKeys);
-
-	ciphertextMulVect1.push_back(ciphertextMul12);
-	ciphertextMulVect2.push_back(ciphertextMul123);
-	ciphertextMulVect3.push_back(ciphertextMul1234);
+	ciphertextMul12     = cryptoContext->GetEncryptionAlgorithm()->EvalMult(ciphertext1,ciphertext2);
+	ciphertextMul123    = cryptoContext->GetEncryptionAlgorithm()->EvalMult(ciphertextMul12, ciphertext3);
+	ciphertextMul1234   = cryptoContext->GetEncryptionAlgorithm()->EvalMultAndRelinearize(ciphertextMul123, ciphertext4, evalKeys);
 
 	////////////////////////////////////////////////////////////
 	//Decryption of multiplicative results with and without keyswtiching (depends on the level)
 	////////////////////////////////////////////////////////////
 
-	IntPlaintextEncoding plaintextMul1;
-	IntPlaintextEncoding plaintextMul2;
-	IntPlaintextEncoding plaintextMul3;
+	shared_ptr<Plaintext> plaintextMul1;
+	shared_ptr<Plaintext> plaintextMul2;
+	shared_ptr<Plaintext> plaintextMul3;
 
-	cryptoContext->Decrypt(keyPair.secretKey, ciphertextMulVect1, &plaintextMul1, true);
-	cryptoContext->Decrypt(keyPair.secretKey, ciphertextMulVect2, &plaintextMul2, true);
-	cryptoContext->Decrypt(keyPair.secretKey, ciphertextMulVect3, &plaintextMul3, true);
-
-	plaintextMul1.resize(plaintext1.size());
-	plaintextMul2.resize(plaintext1.size());
-	plaintextMul3.resize(plaintext1.size());
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertextMul12, &plaintextMul1);
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertextMul123, &plaintextMul2);
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertextMul1234, &plaintextMul3);
 
 	////////////////////////////////////////////////////////////
 	//Prepare EvalMultMany
 	////////////////////////////////////////////////////////////
 
 	shared_ptr<Ciphertext<Poly>> ciphertextMul12345;
-	shared_ptr<vector<shared_ptr<Ciphertext<Poly>>>> cipherTextList(new vector<shared_ptr<Ciphertext<Poly>>>);
+	vector<shared_ptr<Ciphertext<Poly>>> cipherTextList;
 
-	cipherTextList->push_back(ciphertext1[0]);
-	cipherTextList->push_back(ciphertext2[0]);
-	cipherTextList->push_back(ciphertext3[0]);
-	cipherTextList->push_back(ciphertext4[0]);
+	cipherTextList.push_back(ciphertext1);
+	cipherTextList.push_back(ciphertext2);
+	cipherTextList.push_back(ciphertext3);
+	cipherTextList.push_back(ciphertext4);
 
 	////////////////////////////////////////////////////////////
 	//Compute EvalMultMany
@@ -173,22 +159,21 @@ TEST(UTFVEVALMM, Poly_FV_Eval_Mult_Many_Operations) {
 
 	ciphertextMul12345 = cryptoContext->GetEncryptionAlgorithm()->EvalMultMany(cipherTextList, evalKeys);
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertextMulVectMany;
-	ciphertextMulVectMany.push_back(ciphertextMul12345);
-
 	////////////////////////////////////////////////////////////
 	//Decrypt EvalMultMany
 	////////////////////////////////////////////////////////////
 
-	IntPlaintextEncoding plaintextMulMany;
-	cryptoContext->Decrypt(keyPair.secretKey, ciphertextMulVectMany, &plaintextMulMany, true);
-	plaintextMulMany.resize(plaintext1.size());
+	shared_ptr<Plaintext> plaintextMulMany;
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertextMul12345, &plaintextMulMany);
 
+	plaintextResult1->SetLength( plaintextMul1->GetLength() );
+	plaintextResult2->SetLength( plaintextMul2->GetLength() );
+	plaintextResult3->SetLength( plaintextMul3->GetLength() );
 
-	EXPECT_EQ(plaintextMul1, plaintextResult1) << "FV.EvalMult gives incorrect results.\n";
-	EXPECT_EQ(plaintextMul2, plaintextResult2) << "FV.EvalMult gives incorrect results.\n";
-	EXPECT_EQ(plaintextMul3, plaintextResult3) << "FV.EvalMultAndRelinearize gives incorrect results.\n";
-	EXPECT_EQ(plaintextMulMany, plaintextResult3) << "FV.EvalMultMany gives incorrect results.\n";
+	EXPECT_EQ(*plaintextMul1, *plaintextResult1) << "FV.EvalMult gives incorrect results.\n";
+	EXPECT_EQ(*plaintextMul2, *plaintextResult2) << "FV.EvalMult gives incorrect results.\n";
+	EXPECT_EQ(*plaintextMul3, *plaintextResult3) << "FV.EvalMultAndRelinearize gives incorrect results.\n";
+	EXPECT_EQ(*plaintextMulMany, *plaintextResult3) << "FV.EvalMultMany gives incorrect results.\n";
 
 }
 

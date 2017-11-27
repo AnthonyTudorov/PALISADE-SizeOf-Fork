@@ -82,7 +82,7 @@ LPKeyPair<Element> LPAlgorithmLTV<Element>::KeyGen(shared_ptr<CryptoContext<Elem
 
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmLTV<Element>::Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
-	Poly &ptxt, bool doEncryption) const
+	Element ptxt) const
 {
 	const shared_ptr<LPCryptoParametersRLWE<Element>> cryptoParams =
 		std::dynamic_pointer_cast<LPCryptoParametersRLWE<Element>>(publicKey->GetCryptoParameters());
@@ -92,38 +92,28 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmLTV<Element>::Encrypt(const shared_pt
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 	const BigInteger &p = cryptoParams->GetPlaintextModulus();
 
-	Element plaintext(ptxt, elementParams);
-	plaintext.SwitchFormat();
+	ptxt.SwitchFormat();
 
-	if (doEncryption)
-	{
+	const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 
-		const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
+	const Element &h = publicKey->GetPublicElements().at(0);
 
-		const Element &h = publicKey->GetPublicElements().at(0);
+	Element s(dgg, elementParams);
 
-		Element s(dgg, elementParams);
+	Element e(dgg, elementParams);
 
-		Element e(dgg, elementParams);
+	Element c(elementParams);
 
-		Element c(elementParams);
+	c = h*s + p*e + ptxt;
 
-		c = h*s + p*e + plaintext;
-
-		ciphertext->SetElement(c);
-
-	}
-	else
-	{
-		ciphertext->SetElement(plaintext);
-	}
+	ciphertext->SetElement(c);
 
 	return ciphertext;
 }
 
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmLTV<Element>::Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
-	Poly &ptxt, bool doEncryption) const
+	Element ptxt) const
 {
 	const shared_ptr<LPCryptoParametersRLWE<Element>> cryptoParams =
 		std::dynamic_pointer_cast<LPCryptoParametersRLWE<Element>>(privateKey->GetCryptoParameters());
@@ -133,34 +123,24 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmLTV<Element>::Encrypt(const shared_pt
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 	const BigInteger &p = cryptoParams->GetPlaintextModulus();
 
-	Element plaintext(ptxt, elementParams);
-	plaintext.SwitchFormat();
+	ptxt.SwitchFormat();
 
-	if (doEncryption)
-	{
+	const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 
-		const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
+	// Placeholder implementation that is mostly correct
+	Element g(dgg, elementParams, Format::COEFFICIENT);
+	g.SwitchFormat();
+	const Element h = p*g*privateKey->GetPrivateElement().MultiplicativeInverse();
 
-		// Placeholder implementation that is mostly correct
-		Element g(dgg, elementParams, Format::COEFFICIENT);
-		g.SwitchFormat();
-		const Element h = p*g*privateKey->GetPrivateElement().MultiplicativeInverse();
+	Element s(dgg, elementParams);
 
-		Element s(dgg, elementParams);
+	Element e(dgg, elementParams);
 
-		Element e(dgg, elementParams);
+	Element c(elementParams);
 
-		Element c(elementParams);
+	c = h*s + p*e + ptxt;
 
-		c = h*s + p*e + plaintext;
-
-		ciphertext->SetElement(c);
-
-	}
-	else
-	{
-		ciphertext->SetElement(plaintext);
-	}
+	ciphertext->SetElement(c);
 
 	return ciphertext;
 }
@@ -203,11 +183,28 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalAdd(
 
 	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext1->CloneEmpty();
 
-	const Element& c1 = ciphertext1->GetElement();
+	Element cResult = ciphertext1->GetElement() + ciphertext2->GetElement();
 
-	const Element& c2 = ciphertext2->GetElement();
+	newCiphertext->SetElement(cResult);
 
-	Element cResult = c1 + c2;
+	return newCiphertext;
+}
+
+template <class Element>
+shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalAdd(
+	const shared_ptr<Ciphertext<Element>> ciphertext,
+	const shared_ptr<Plaintext> plaintext) const
+{
+//	if (!(ciphertext1->GetCryptoParameters() == ciphertext2->GetCryptoParameters())) {
+//		std::string errMsg = "EvalAdd crypto parameters are not the same";
+//		throw std::runtime_error(errMsg);
+//	}
+
+	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
+
+	plaintext->GetEncodedElement<Element>().SetFormat(EVALUATION);
+
+	Element cResult = ciphertext->GetElement() + plaintext->GetEncodedElement<Element>();
 
 	newCiphertext->SetElement(cResult);
 
@@ -226,11 +223,28 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalSub(
 
 	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext1->CloneEmpty();
 
-	const Element& c1 = ciphertext1->GetElement();
+	Element cResult = ciphertext1->GetElement() - ciphertext2->GetElement();
 
-	const Element& c2 = ciphertext2->GetElement();
+	newCiphertext->SetElement(cResult);
 
-	Element cResult = c1 - c2;
+	return newCiphertext;
+}
+
+template <class Element>
+shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalSub(
+	const shared_ptr<Ciphertext<Element>> ciphertext,
+	const shared_ptr<Plaintext> plaintext) const
+{
+//	if (!(ciphertext1->GetCryptoParameters() == ciphertext2->GetCryptoParameters())) {
+//		std::string errMsg = "EvalSub crypto parameters are not the same";
+//		throw std::runtime_error(errMsg);
+//	}
+
+	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
+
+	plaintext->GetEncodedElement<Element>().SetFormat(EVALUATION);
+
+	Element cResult = ciphertext->GetElement() - plaintext->GetEncodedElement<Element>();
 
 	newCiphertext->SetElement(cResult);
 
@@ -255,11 +269,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalMult(
 
 	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext1->CloneEmpty();
 
-	const Element& c1 = ciphertext1->GetElement();
-
-	const Element& c2 = ciphertext2->GetElement();
-
-	Element cResult = c1 * c2;
+	Element cResult = ciphertext1->GetElement() * ciphertext2->GetElement();
 
 	newCiphertext->SetElement(cResult);
 
@@ -274,6 +284,41 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalMult(const share
 	shared_ptr<Ciphertext<Element>> newCiphertext = EvalMult(ciphertext1, ciphertext2);
 
 	newCiphertext = KeySwitch(ek, newCiphertext);
+
+	return newCiphertext;
+}
+
+template <class Element>
+shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalMult(
+	const shared_ptr<Ciphertext<Element>> ciphertext,
+	const shared_ptr<Plaintext> plaintext) const
+{
+	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
+
+	plaintext->GetEncodedElement<Element>().SetFormat(EVALUATION);
+
+	if (ciphertext->GetElement().GetFormat() == Format::COEFFICIENT || plaintext->GetEncodedElement<Element>().GetFormat() == Format::COEFFICIENT ) {
+		throw std::runtime_error("EvalMult cannot multiply in COEFFICIENT domain.");
+	}
+
+	Element cResult = ciphertext->GetElement() * plaintext->GetEncodedElement<Element>();
+
+	newCiphertext->SetElement(cResult);
+
+	return newCiphertext;
+}
+
+// Homomorphic multiplication of ciphertexts with key switching
+template <class Element>
+shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
+	const shared_ptr<Plaintext> plaintext, const shared_ptr<LPEvalKey<Element>> ek) const {
+
+	const shared_ptr<LPPublicKeyEncryptionSchemeLTV<Element>> scheme =
+			std::dynamic_pointer_cast<LPPublicKeyEncryptionSchemeLTV<Element>>(ciphertext1->GetCryptoContext()->GetEncryptionAlgorithm());
+
+	shared_ptr<Ciphertext<Element>> newCiphertext = scheme->EvalMult(ciphertext1, plaintext);
+
+	newCiphertext = scheme->KeySwitch(ek,newCiphertext);
 
 	return newCiphertext;
 }
@@ -419,7 +464,7 @@ template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::KeySwitchRelin(const shared_ptr<LPEvalKey<Element>>evalKey,
 	const shared_ptr<Ciphertext<Element>> ciphertext) const
 {
-	shared_ptr<Ciphertext<Element>> newCiphertext(new Ciphertext<Element>(*ciphertext));
+	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
 
 	const shared_ptr<LPCryptoParametersRLWE<Element>> cryptoParamsLWE =
 		std::dynamic_pointer_cast<LPCryptoParametersRLWE<Element>>(evalKey->GetCryptoParameters());

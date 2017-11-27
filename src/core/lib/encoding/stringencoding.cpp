@@ -1,5 +1,5 @@
-/*
-* @file nullscheme-vector-impl.cpp - null scheme vector array implementation
+/**
+ * @file stringencoding.h Represents and defines string-encoded plaintext objects in Palisade.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -24,48 +24,50 @@
  *
  */
 
-#include "cryptocontext.h"
-#include "nullscheme.h"
+#include "stringencoding.h"
 
 namespace lbcrypto {
 
-template<>
-shared_ptr<Ciphertext<Poly>> LPAlgorithmSHENull<Poly>::EvalMult(const shared_ptr<Ciphertext<Poly>> ciphertext1,
-	const shared_ptr<Ciphertext<Poly>> ciphertext2) const {
+static const size_t		charPtm = (1<<8);
+static const uint32_t	CHARMARKER = (1<<7);
 
-	shared_ptr<Ciphertext<Poly>> newCiphertext = ciphertext1->CloneEmpty();
+bool
+StringEncoding::Encode() {
+	if( this->isEncoded ) return true;
+	int64_t mod = this->encodingParams->GetPlaintextModulus().ConvertToInt();
 
-	const Poly& c1 = ciphertext1->GetElement();
-	const Poly& c2 = ciphertext2->GetElement();
+	if( mod != 256 ) {
+		throw std::logic_error("Plaintext modulus must be " + std::to_string(charPtm) + " for string encoding");
+	}
 
-	const BigInteger& ptm = ciphertext1->GetCryptoParameters()->GetPlaintextModulus();
+	this->encodedVector.SetValuesToZero();
+	size_t i = 0;
+	for( ; i<ptx.size() && i<this->encodedVector.GetLength(); i++ ) {
+		this->encodedVector.at(i) = ptx[i];
+	}
+	for( ; i<this->encodedVector.GetLength(); i++ ) {
+		this->encodedVector.at(i) = CHARMARKER;
+	}
 
-	Poly cResult = ElementNullSchemeMultiply(c1, c2, ptm);
+	if( this->typeFlag == IsDCRTPoly ) {
+		this->encodedVectorDCRT = this->encodedVector;
+	}
 
-	newCiphertext->SetElement(cResult);
-
-	return newCiphertext;
+	this->isEncoded = true;
+	return true;
 }
 
-template<>
-shared_ptr<Ciphertext<Poly>> LPAlgorithmSHENull<Poly>::EvalMult(const shared_ptr<Ciphertext<Poly>> ciphertext1,
-	const shared_ptr<Plaintext> plaintext) const {
-
-	shared_ptr<Ciphertext<Poly>> newCiphertext = ciphertext1->CloneEmpty();
-
-	const Poly& c1 = ciphertext1->GetElement();
-	const Poly& c2 = plaintext->GetEncodedElement<Poly>();
-
-	const BigInteger& ptm = ciphertext1->GetCryptoParameters()->GetPlaintextModulus();
-
-	Poly cResult = ElementNullSchemeMultiply(c1, c2, ptm);
-
-	newCiphertext->SetElement(cResult);
-
-	return newCiphertext;
+bool
+StringEncoding::Decode() {
+	int64_t mod = this->encodingParams->GetPlaintextModulus().ConvertToInt();
+	this->ptx.clear();
+	for( size_t i=0; i<this->encodedVector.GetLength(); i++) {
+		uint32_t ch = (this->encodedVector.at(i).ConvertToInt() % mod) & 0xff;
+		if( ch == CHARMARKER )
+			break;
+		this->ptx += (char)(ch);
+	}
+	return true;
 }
 
-template class LPCryptoParametersNull<Poly>;
-template class LPPublicKeyEncryptionSchemeNull<Poly>;
-template class LPAlgorithmNull<Poly>;
-}
+} /* namespace lbcrypto */

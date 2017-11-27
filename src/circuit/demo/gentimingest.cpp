@@ -97,12 +97,15 @@ main(int argc, char *argv[])
 	}
 	in.close();
 
-	// set up to encrypt some thingz
+	// set up to encrypt some things
 	auto ptm = cc->GetCryptoParameters()->GetPlaintextModulus().ConvertToInt();
-	IntPlaintextEncoding inputs[NumInputs];
+	shared_ptr<Plaintext> inputs[NumInputs];
 	for( size_t i=0; i<NumInputs; i++ ) {
+		vector<int> vec;
+		vec.clear();
 		for( size_t n=0; n<cc->GetRingDimension(); n++ )
-			inputs[i].push_back( rand() % ptm );
+			vec.push_back( rand() % ptm );
+		inputs[i] = cc->MakeCoefPackedPlaintext(vec);
 	}
 
 	vector<TimingInfo>	times;
@@ -113,11 +116,13 @@ main(int argc, char *argv[])
 			operations.count(OpEncrypt) ||
 			operations.count(OpDecrypt) ) {
 		cc->ResumeTiming();
-		for( int reps=0; reps < MaxIterations; reps++ ) {
-			LPKeyPair<DCRTPoly> kp = cc->KeyGen();
-			auto crypt = cc->Encrypt(kp.publicKey, inputs[0]);
-			IntPlaintextEncoding decrypted;
-			cc->Decrypt(kp.secretKey, crypt, &decrypted);
+		for( int nInputs=0; nInputs<NumInputs; nInputs++ ) {
+			for( int reps=0; reps < MaxIterations; reps++ ) {
+				LPKeyPair<DCRTPoly> kp = cc->KeyGen();
+				auto crypt = cc->Encrypt(kp.publicKey, inputs[nInputs]);
+				shared_ptr<Plaintext> decrypted;
+				cc->Decrypt(kp.secretKey, crypt, &decrypted);
+			}
 		}
 		cc->StopTiming();
 	}
@@ -129,7 +134,7 @@ main(int argc, char *argv[])
 		if( ek ) cc->EvalMultKeyGen(kp.secretKey); \
 		cc->ResumeTiming(); \
 		for (int reps = 0; reps < MaxIterations; reps++) { \
-			cc->opfunc(crypt0[0], crypt1[0]); \
+			cc->opfunc(crypt0, crypt1); \
 		} \
 		cc->StopTiming();
 
@@ -150,7 +155,7 @@ main(int argc, char *argv[])
 		auto crypt0 = cc->Encrypt(kp.publicKey, inputs[0]); \
 		cc->ResumeTiming(); \
 		for (int reps = 0; reps < MaxIterations; reps++) { \
-			cc->opfunc(crypt0[0]); \
+			cc->opfunc(crypt0); \
 		} \
 		cc->StopTiming();
 

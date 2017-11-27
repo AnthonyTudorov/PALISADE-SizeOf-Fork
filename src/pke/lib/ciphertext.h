@@ -46,15 +46,15 @@ namespace lbcrypto {
 		/**
 		* Default constructor
 		*/
-		Ciphertext() : CryptoObject<Element>(), m_isEncrypted(true), m_depth(1) {}
+		Ciphertext() : CryptoObject<Element>(), m_depth(1), encodingType(Unknown) {}
 
 		/**
 		 * Construct a new ciphertext in the given context
 		 *
 		 * @param cc
 		 */
-		Ciphertext(shared_ptr<CryptoContext<Element>> cc, const string& id = "") :
-			CryptoObject<Element>(cc, id), m_isEncrypted(true), m_depth(1) {}
+		Ciphertext(shared_ptr<CryptoContext<Element>> cc, const string& id = "", PlaintextEncodings encType = Unknown) :
+			CryptoObject<Element>(cc, id), m_depth(1), encodingType(encType) {}
 
 		/**
 		 * Construct a new ciphertext from the parameters of a given public key
@@ -62,15 +62,15 @@ namespace lbcrypto {
 		 * @param k key whose CryptoObject parameters will get cloned
 		 */
 		Ciphertext(const shared_ptr<LPKey<Element>> k) :
-			CryptoObject<Element>(k->GetCryptoContext(), k->GetKeyTag()), m_isEncrypted(true), m_depth(1) {}
+			CryptoObject<Element>(k->GetCryptoContext(), k->GetKeyTag()), m_depth(1), encodingType(Unknown)  {}
 
 		/**
 		* Copy constructor
 		*/
 		Ciphertext(const Ciphertext<Element> &ciphertext) : CryptoObject<Element>(ciphertext) {
 			m_elements = ciphertext.m_elements;
-			m_isEncrypted = ciphertext.m_isEncrypted;
 			m_depth = ciphertext.m_depth;
+			encodingType = ciphertext.encodingType;
 		}
 
 		/**
@@ -78,12 +78,12 @@ namespace lbcrypto {
 		*/
 		Ciphertext(Ciphertext<Element> &&ciphertext) : CryptoObject<Element>(ciphertext) {
 			m_elements = std::move(ciphertext.m_elements);
-			m_isEncrypted = std::move(ciphertext.m_isEncrypted);
 			m_depth = std::move(ciphertext.m_depth);
+			encodingType = std::move(ciphertext.encodingType);
 		}
 
 		shared_ptr<Ciphertext<Element>> CloneEmpty() const {
-			shared_ptr<Ciphertext<Element>> ct( new Ciphertext<Element>(this->GetCryptoContext(), this->GetKeyTag()) );
+			shared_ptr<Ciphertext<Element>> ct( new Ciphertext<Element>(this->GetCryptoContext(), this->GetKeyTag(), this->GetEncodingType()) );
 			return ct;
 		}
 
@@ -91,6 +91,18 @@ namespace lbcrypto {
 		* Destructor
 		*/
 		virtual ~Ciphertext() {}
+
+		/**
+		 * GetEncodingType
+		 * @return how the Plaintext that this Ciphertext was created from was encoded
+		 */
+		PlaintextEncodings GetEncodingType() const { return encodingType; }
+
+		/**
+		 * SetEncodingType - after Encrypt, remember the Ciphertext's encoding type
+		 * @param et
+		 */
+		void SetEncodingType(PlaintextEncodings et) { encodingType = et; }
 
 		/**
 		* Assignment Operator.
@@ -103,6 +115,7 @@ namespace lbcrypto {
 				CryptoObject<Element>::operator=(rhs);
 				this->m_elements = rhs.m_elements;
 				this->m_depth = rhs.m_depth;
+				this->encodingType = rhs.encodingType;
 			}
 
 			return *this;
@@ -117,19 +130,12 @@ namespace lbcrypto {
 		Ciphertext<Element>& operator=(Ciphertext<Element> &&rhs) {
 			if (this != &rhs) {
 				CryptoObject<Element>::operator=(rhs);
-				m_elements = std::move(rhs.m_elements);
-				m_depth = std::move(rhs.m_depth);
+				this->m_elements = std::move(rhs.m_elements);
+				this->m_depth = std::move(rhs.m_depth);
+				this->encodingType = std::move(rhs.encodingType);
 			}
 
 			return *this;
-		}
-
-		const bool GetIsEncrypted() const {
-			return m_isEncrypted;
-		}
-
-		void SetIsEncrypted(bool isEncrypted) {
-			m_isEncrypted = isEncrypted;
 		}
 
 		/**
@@ -214,7 +220,7 @@ namespace lbcrypto {
 			if( !CryptoObject<Element>::operator==(rhs) )
 				return false;
 
-			if( this->m_depth != rhs.m_depth || this->m_isEncrypted != rhs.m_isEncrypted )
+			if( this->m_depth != rhs.m_depth )
 				return false;
 
 			const std::vector<Element> &lhsE = this->GetElements();
@@ -333,9 +339,8 @@ namespace lbcrypto {
 		//BigInteger m_norm;
 
 		std::vector<Element> m_elements;		/*!< vector of ring elements for this Ciphertext */
-		bool m_isEncrypted;
 		size_t m_depth; // holds the multiplicative depth of the ciphertext.
-
+		PlaintextEncodings	encodingType;	/*!< how was this Ciphertext encoded? */
 	};
 
 	/**

@@ -31,7 +31,6 @@
 #include "palisade.h"
 #include "cryptocontexthelper.h"
 #include "utils/debug.h"
-#include "encoding/byteplaintextencoding.h"
 #include "encoding/packedintplaintextencoding.h"
 #include "math/nbtheory.h"
 
@@ -110,37 +109,29 @@ void ArbBVInnerProductPackedArray() {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext1;
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext2;
-
 	std::vector<usint> vectorOfInts1 = { 1,2,3,4,5,6,7,8,0,0 };
-	PackedIntPlaintextEncoding intArray1(vectorOfInts1);
+	shared_ptr<Plaintext> intArray1 = cc->MakePackedPlaintext(vectorOfInts1);
 
 	std::cout << "Input array 1 \n\t" << intArray1 << std::endl;
 
-
 	std::vector<usint> vectorOfInts2 = { 1,2,3,2,1,2,1,2,0,0 };
-	PackedIntPlaintextEncoding intArray2(vectorOfInts2);
+	shared_ptr<Plaintext> intArray2 = cc->MakePackedPlaintext(vectorOfInts2);
 
 	std::cout << "Input array 2 \n\t" << intArray2 << std::endl;
 
 	cc->EvalSumKeyGen(kp.secretKey);
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	ciphertext1 = cc->Encrypt(kp.publicKey, intArray1, false);
-	ciphertext2 = cc->Encrypt(kp.publicKey, intArray2, false);
+	auto ciphertext1 = cc->Encrypt(kp.publicKey, intArray1);
+	auto ciphertext2 = cc->Encrypt(kp.publicKey, intArray2);
 
-	auto result = cc->EvalInnerProduct(ciphertext1[0], ciphertext2[0], batchSize);
+	auto result = cc->EvalInnerProduct(ciphertext1, ciphertext2, batchSize);
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertextSum;
+	shared_ptr<Plaintext> intArrayNew;
 
-	ciphertextSum.push_back(result);
+	cc->Decrypt(kp.secretKey, result, &intArrayNew);
 
-	PackedIntPlaintextEncoding intArrayNew;
-
-	cc->Decrypt(kp.secretKey, ciphertextSum, &intArrayNew, false);
-
-	std::cout << "Sum = " << intArrayNew[0] << std::endl;
+	std::cout << "Sum = " << intArrayNew->GetPackedValue()[0] << std::endl;
 
 	std::cout << "All components (other slots randomized) = " << intArrayNew << std::endl;
 
@@ -188,37 +179,30 @@ void ArbLTVInnerProductPackedArray() {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext1;
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext2;
-
 	std::vector<usint> vectorOfInts1 = { 1,2,3,4,5,6,7,8,0,0 };
-	PackedIntPlaintextEncoding intArray1(vectorOfInts1);
+	shared_ptr<Plaintext> intArray1 = cc->MakePackedPlaintext(vectorOfInts1);
 
 	std::cout << "Input array 1 \n\t" << intArray1 << std::endl;
 
 
 	std::vector<usint> vectorOfInts2 = { 1,2,3,2,1,2,1,2,0,0 };
-	PackedIntPlaintextEncoding intArray2(vectorOfInts2);
+	shared_ptr<Plaintext> intArray2 = cc->MakePackedPlaintext(vectorOfInts2);
 
 	std::cout << "Input array 2 \n\t" << intArray2 << std::endl;
 
 	cc->EvalSumKeyGen(kp.secretKey,kp.publicKey);
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	ciphertext1 = cc->Encrypt(kp.publicKey, intArray1, false);
-	ciphertext2 = cc->Encrypt(kp.publicKey, intArray2, false);
+	auto ciphertext1 = cc->Encrypt(kp.publicKey, intArray1);
+	auto ciphertext2 = cc->Encrypt(kp.publicKey, intArray2);
 
-	auto result = cc->EvalInnerProduct(ciphertext1[0], ciphertext2[0], batchSize);
+	auto result = cc->EvalInnerProduct(ciphertext1, ciphertext2, batchSize);
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertextSum;
+	shared_ptr<Plaintext> intArrayNew;
 
-	ciphertextSum.push_back(result);
+	cc->Decrypt(kp.secretKey, result, &intArrayNew);
 
-	PackedIntPlaintextEncoding intArrayNew;
-
-	cc->Decrypt(kp.secretKey, ciphertextSum, &intArrayNew, false);
-
-	std::cout << "Sum = " << intArrayNew[0] << std::endl;
+	std::cout << "Sum = " << intArrayNew->GetPackedValue()[0] << std::endl;
 
 	std::cout << "All components (other slots randomized) = " << intArrayNew << std::endl;
 
@@ -279,37 +263,30 @@ void ArbFVInnerProductPackedArray() {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext1;
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext2;
-
 	std::vector<usint> vectorOfInts1 = { 1,2,3,4,5,6,7,8,0,0 };
-	PackedIntPlaintextEncoding intArray1(vectorOfInts1);
+	shared_ptr<Plaintext> intArray1 = cc->MakePackedPlaintext(vectorOfInts1);
 
 	std::cout << "Input array 1 \n\t" << intArray1 << std::endl;
 
 
 	std::vector<usint> vectorOfInts2 = { 1,2,3,2,1,2,1,2,0,0 };
-	PackedIntPlaintextEncoding intArray2(vectorOfInts2);
+	shared_ptr<Plaintext> intArray2 = cc->MakePackedPlaintext(vectorOfInts2);
 
 	std::cout << "Input array 2 \n\t" << intArray2 << std::endl;
 
 	cc->EvalSumKeyGen(kp.secretKey);
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	ciphertext1 = cc->Encrypt(kp.publicKey, intArray1, false);
-	ciphertext2 = cc->Encrypt(kp.publicKey, intArray2, false);
+	auto ciphertext1 = cc->Encrypt(kp.publicKey, intArray1);
+	auto ciphertext2 = cc->Encrypt(kp.publicKey, intArray2);
 
-	auto result = cc->EvalInnerProduct(ciphertext1[0], ciphertext2[0], batchSize);
+	auto result = cc->EvalInnerProduct(ciphertext1, ciphertext2, batchSize);
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertextSum;
+	shared_ptr<Plaintext> intArrayNew;
 
-	ciphertextSum.push_back(result);
+	cc->Decrypt(kp.secretKey, result, &intArrayNew);
 
-	PackedIntPlaintextEncoding intArrayNew;
-
-	cc->Decrypt(kp.secretKey, ciphertextSum, &intArrayNew, false);
-
-	std::cout << "Sum = " << intArrayNew[0] << std::endl;
+	std::cout << "Sum = " << intArrayNew->GetPackedValue()[0] << std::endl;
 
 	std::cout << "All components (other slots randomized) = " << intArrayNew << std::endl;
 
@@ -369,32 +346,29 @@ void ArbFVEvalMultPackedArray() {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext1;
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext2;
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertextResult;
-
 	std::vector<usint> vectorOfInts1 = { 1,2,3,4,5,6,7,8,9,10 };
-	PackedIntPlaintextEncoding intArray1(vectorOfInts1);
+	shared_ptr<Plaintext> intArray1 = cc->MakePackedPlaintext(vectorOfInts1);
 
 	std::vector<usint> vectorOfInts2 = { 10,9,8,7,6,5,4,3,2,1 };
-	PackedIntPlaintextEncoding intArray2(vectorOfInts2);
+	shared_ptr<Plaintext> intArray2 = cc->MakePackedPlaintext(vectorOfInts2);
 
 	std::vector<usint> vectorOfIntsMult;
 	std::transform(vectorOfInts1.begin(), vectorOfInts1.end(), vectorOfInts2.begin(), std::back_inserter(vectorOfIntsMult), std::multiplies<usint>());
+	shared_ptr<Plaintext> intArrayMult = cc->MakePackedPlaintext(vectorOfIntsMult);
 
-	ciphertext1 = cc->Encrypt(kp.publicKey, intArray1, false);
-	ciphertext2 = cc->Encrypt(kp.publicKey, intArray2, false);
+	auto ciphertext1 = cc->Encrypt(kp.publicKey, intArray1);
+	auto ciphertext2 = cc->Encrypt(kp.publicKey, intArray2);
 
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	auto ciphertextMult = cc->EvalMult(ciphertext1.at(0), ciphertext2.at(0));
-	ciphertextResult.insert(ciphertextResult.begin(), ciphertextMult);
-	PackedIntPlaintextEncoding intArrayNew;
+	auto ciphertextMult = cc->EvalMult(ciphertext1, ciphertext2);
 
-	cc->Decrypt(kp.secretKey, ciphertextResult, &intArrayNew, false);
+	shared_ptr<Plaintext> intArrayNew;
+
+	cc->Decrypt(kp.secretKey, ciphertextMult, &intArrayNew);
 
 	std::cout << "Actual = " << intArrayNew << std::endl;
 
-	std::cout << "Expected = " << PackedIntPlaintextEncoding(vectorOfIntsMult) << std::endl;
+	std::cout << "Expected = " << intArrayMult << std::endl;
 
 }

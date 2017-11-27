@@ -32,9 +32,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "../lib/cryptocontext.h"
 
-#include "encoding/byteplaintextencoding.h"
-#include "encoding/intplaintextencoding.h"
-#include "encoding/packedintplaintextencoding.h"
+#include "encoding/encodings.h"
 
 #include "utils/debug.h"
 
@@ -72,7 +70,6 @@ TEST_F(UTEvalLR, Test_BV_EvalLR) {
 
 	EXPECT_EQ(result.m_numerator, expectedResult.m_numerator);
 	EXPECT_EQ(result.m_denominator, expectedResult.m_denominator);
-	
 }
 
 TEST_F(UTEvalLR, Test_FV_EvalLR) {
@@ -123,16 +120,16 @@ rationalInt ArbBVLinearRegressionPackedArray() {
 	cc->EvalSumKeyGen(kp.secretKey);
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	auto zeroAlloc = [=]() { return lbcrypto::make_unique<PackedIntPlaintextEncoding>(); };
+	auto zeroAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(cc->MakePackedPlaintext({0})); };
 
-	Matrix<PackedIntPlaintextEncoding> xP = Matrix<PackedIntPlaintextEncoding>(zeroAlloc, 1, 2);
+	Matrix<shared_ptr<Plaintext>> xP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 1, 2);
 
-	xP(0, 0) = { 0, 2, 1, 3,  2,  2, 1, 2 };
-	xP(0, 1) = { 1 , 1 , 2 , 1 , 1 , 1, 3 , 2 };
+	xP(0, 0) = cc->MakePackedPlaintext({ 0, 2, 1, 3, 2, 2, 1, 2 });
+	xP(0, 1) = cc->MakePackedPlaintext({ 1, 1, 2, 1, 1, 1, 3, 2 });
 
-	Matrix<PackedIntPlaintextEncoding> yP = Matrix<PackedIntPlaintextEncoding>(zeroAlloc, 2, 1);
+	Matrix<shared_ptr<Plaintext>> yP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
 
-	yP(0, 0) = { 0, 1, 2, 6, 1, 2, 3, 4 };
+	yP(0, 0) = cc->MakePackedPlaintext({ 0, 1, 2, 6, 1, 2, 3, 4 });
 	
 	////////////////////////////////////////////////////////////
 	//Encryption
@@ -152,12 +149,12 @@ rationalInt ArbBVLinearRegressionPackedArray() {
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	Matrix<PackedIntPlaintextEncoding> numerator = Matrix<PackedIntPlaintextEncoding>(zeroAlloc, 2, 1);
-	Matrix<PackedIntPlaintextEncoding> denominator = Matrix<PackedIntPlaintextEncoding>(zeroAlloc, 2, 1);
+	shared_ptr<Matrix<shared_ptr<Plaintext>>> numerator;
+	shared_ptr<Matrix<shared_ptr<Plaintext>>> denominator;
 
 	cc->DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
 
-	rationalInt output(numerator(0, 0)[0], denominator(0, 0)[0]);
+	rationalInt output((*numerator)(0, 0)->GetPackedValue()[0], (*denominator)(0, 0)->GetPackedValue()[0]);
 
 	return output;
 
@@ -221,16 +218,16 @@ rationalInt ArbFVLinearRegressionPackedArray() {
 	cc->EvalSumKeyGen(kp.secretKey);
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	auto zeroAlloc = [=]() { return lbcrypto::make_unique<PackedIntPlaintextEncoding>(); };
+	auto zeroAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(cc->MakePackedPlaintext({0})); };
 
-	Matrix<PackedIntPlaintextEncoding> xP = Matrix<PackedIntPlaintextEncoding>(zeroAlloc, 1, 2);
+	Matrix<shared_ptr<Plaintext>> xP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 1, 2);
 
-	xP(0, 0) = { 0, 2, 1, 3,  2,  2, 1, 2 };
-	xP(0, 1) = { 1 , 1 , 2 , 1 , 1 , 1, 3 , 2 };
+	xP(0, 0) = cc->MakePackedPlaintext({ 0, 2, 1, 3, 2, 2, 1, 2 });
+	xP(0, 1) = cc->MakePackedPlaintext({ 1, 1, 2, 1, 1, 1, 3, 2 });
 
-	Matrix<PackedIntPlaintextEncoding> yP = Matrix<PackedIntPlaintextEncoding>(zeroAlloc, 2, 1);
+	Matrix<shared_ptr<Plaintext>> yP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
 
-	yP(0, 0) = { 0, 1, 2, 6, 1, 2, 3, 4 };
+	yP(0, 0) = cc->MakePackedPlaintext({ 0, 1, 2, 6, 1, 2, 3, 4 });
 
 	////////////////////////////////////////////////////////////
 	//Encryption
@@ -250,12 +247,12 @@ rationalInt ArbFVLinearRegressionPackedArray() {
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	Matrix<PackedIntPlaintextEncoding> numerator = Matrix<PackedIntPlaintextEncoding>(zeroAlloc, 2, 1);
-	Matrix<PackedIntPlaintextEncoding> denominator = Matrix<PackedIntPlaintextEncoding>(zeroAlloc, 2, 1);
+	shared_ptr<Matrix<shared_ptr<Plaintext>>> numerator;
+	shared_ptr<Matrix<shared_ptr<Plaintext>>> denominator;
 
 	cc->DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
 
-	rationalInt output(numerator(0, 0)[0], denominator(0, 0)[0]);
+	rationalInt output((*numerator)(0, 0)->GetPackedValue()[0], (*denominator)(0, 0)->GetPackedValue()[0]);
 
 	return output;
 }

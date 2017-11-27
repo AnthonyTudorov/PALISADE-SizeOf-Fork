@@ -141,7 +141,9 @@ public:
 
 		if( el == 0 ) return false;
 
-		return true;
+		return this->GetPlaintextModulus() == el->GetPlaintextModulus() &&
+					*this->GetElementParams() == *el->GetElementParams() &&
+					*this->GetEncodingParams() == *el->GetEncodingParams();
 	}
 
 };
@@ -154,6 +156,8 @@ public:
 	 */
 	LPAlgorithmNull() {}
 
+	virtual ~LPAlgorithmNull() {}
+
 	/**
 	* Method for encrypting plaintext using Null
 	*
@@ -163,13 +167,12 @@ public:
 	* @param *ciphertext ciphertext which results from encryption.
 	*/
 	shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> pubKey,
-		Poly &ptxt, bool doEncryption = true) const {
+		Element ptxt) const {
+
 		shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(pubKey) );
 
-		Element plaintext(ptxt, pubKey->GetCryptoContext()->GetCryptoParameters()->GetElementParams());
-
 		// no difference between Encryption and non-Encryption mode for the Null scheme
-		ciphertext->SetElement(plaintext);
+		ciphertext->SetElement(ptxt);
 
 		return ciphertext;
 	}
@@ -183,13 +186,12 @@ public:
 	* @param *ciphertext ciphertext which results from encryption.
 	*/
 	shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPrivateKey<Element>> privKey,
-		Poly &ptxt, bool doEncryption = true) const {
+		Element ptxt) const {
+
 		shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(privKey) );
 
-		Element plaintext(ptxt, privKey->GetCryptoContext()->GetCryptoParameters()->GetElementParams());
-
 		// no difference between Encryption and non-Encryption mode for the Null scheme
-		ciphertext->SetElement(plaintext);
+		ciphertext->SetElement(ptxt);
 
 		return ciphertext;
 	}
@@ -379,11 +381,11 @@ public:
 	shared_ptr<Ciphertext<Element>> MultipartyDecryptMain(const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const shared_ptr<Ciphertext<Element>> ciphertext) const {
 
-		shared_ptr<Ciphertext<Element>> ciphertext_out( new Ciphertext<Element>(privateKey) );
+		shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
 		Element plaintext(ciphertext->GetElement());
-		ciphertext_out->SetElement(plaintext);
+		newCiphertext->SetElement(plaintext);
 
-		return ciphertext_out;
+		return newCiphertext;
 	}
 
 		/**
@@ -395,11 +397,11 @@ public:
 	shared_ptr<Ciphertext<Element>> MultipartyDecryptLead(const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const shared_ptr<Ciphertext<Element>> ciphertext) const {
 
-		shared_ptr<Ciphertext<Element>> ciphertext_out( new Ciphertext<Element>(privateKey) );
+		shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
 		Element plaintext(ciphertext->GetElement());
-		ciphertext_out->SetElement(plaintext);
+		newCiphertext->SetElement(plaintext);
 
-		return ciphertext_out;
+		return newCiphertext;
 	}
 
 		/**
@@ -504,61 +506,122 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		/**
 		* Function for evaluation addition on ciphertext.
 		*
-		* @param &ciphertext1 first input ciphertext.
-		* @param &ciphertext2 second input ciphertext.
-		* @param *newCiphertext the new resulting ciphertext.
+		* @param ciphertext1 first input ciphertext.
+		* @param ciphertext2 second input ciphertext.
+		* @return the new resulting ciphertext.
 		*/
-
 		shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext1,
 			const shared_ptr<Ciphertext<Element>> ciphertext2) const {
 			shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext1->CloneEmpty();
 
-			const Element& c1 = ciphertext1->GetElement();
-			const Element& c2 = ciphertext2->GetElement();
-
-			Element cResult = c1 + c2;
+			Element cResult = ciphertext1->GetElement() + ciphertext2->GetElement();
 
 			newCiphertext->SetElement(std::move(cResult));
 
 			return newCiphertext;
 		}
 
+		/**
+		* Function for evaluation addition on ciphertext and plaintext
+		*
+		* @param ciphertext1 input ciphertext.
+		* @param plaintext input ciphertext.
+		* @return the new resulting ciphertext.
+		*/
+		shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext,
+			const shared_ptr<Plaintext> plaintext) const {
+			shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
 
+			Element cResult = ciphertext->GetElement() + plaintext->GetEncodedElement<Element>();
+
+			newCiphertext->SetElement(std::move(cResult));
+
+			return newCiphertext;
+		}
+
+		/**
+		* Function for evaluation subtraction on ciphertext.
+		*
+		* @param ciphertext1 first input ciphertext.
+		* @param ciphertext2 second input ciphertext.
+		* @return the new resulting ciphertext.
+		*/
 		shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext1,
 			const shared_ptr<Ciphertext<Element>> ciphertext2) const {
 			shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext1->CloneEmpty();
 
-			const Element& c1 = ciphertext1->GetElement();
-			const Element& c2 = ciphertext2->GetElement();
-
-			Element cResult = c1 - c2;
+			Element cResult = ciphertext1->GetElement() - ciphertext2->GetElement();
 
 			newCiphertext->SetElement(std::move(cResult));
 
 			return newCiphertext;
 		}
 
+		/**
+		* Function for evaluation addition on ciphertext and plaintext
+		*
+		* @param ciphertext1 input ciphertext.
+		* @param plaintext input ciphertext.
+		* @return the new resulting ciphertext.
+		*/
+		shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext,
+			const shared_ptr<Plaintext> plaintext) const {
+			shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
+
+			Element cResult = ciphertext->GetElement() - plaintext->GetEncodedElement<Element>();
+
+			newCiphertext->SetElement(std::move(cResult));
+
+			return newCiphertext;
+		}
 
 		/**
 		 * Function for evaluating multiplication on ciphertext.
 		 *
-		 * @param &ciphertext1 first input ciphertext.
-		 * @param &ciphertext2 second input ciphertext.
-		 * @param *newCiphertext the new resulting ciphertext.
+		 * @param ciphertext1 first input ciphertext.
+		 * @param ciphertext2 second input ciphertext.
+		 * @return the new resulting ciphertext.
 		 */
 		shared_ptr<Ciphertext<Poly>> EvalMult(const shared_ptr<Ciphertext<Poly>> ciphertext1,
 			const shared_ptr<Ciphertext<Poly>> ciphertext2) const;
 
+		/**
+		* Function for evaluating multiplication of ciphertext by plaintext
+		*
+		* @param ciphertext input ciphertext.
+		* @param plaintext input plaintext embedded in cryptocontext.
+		* @return the new resulting ciphertext.
+		*/
+		shared_ptr<Ciphertext<Poly>> EvalMult(const shared_ptr<Ciphertext<Poly>> ciphertext1,
+			const shared_ptr<Plaintext> plaintext) const;
+
+		/**
+		 * Function for evaluating multiplication on ciphertext.
+		 *
+		 * @param ciphertext1 first input ciphertext.
+		 * @param ciphertext2 second input ciphertext.
+		 * @return the new resulting ciphertext.
+		 */
 		shared_ptr<Ciphertext<DCRTPoly>> EvalMult(const shared_ptr<Ciphertext<DCRTPoly>> ciphertext1,
 			const shared_ptr<Ciphertext<DCRTPoly>> ciphertext2) const;
 
 		/**
+		* Function for evaluating multiplication of ciphertext by plaintext
+		*
+		* @param ciphertext input ciphertext.
+		* @param plaintext input plaintext embedded in cryptocontext.
+		* @return the new resulting ciphertext.
+		*/
+		shared_ptr<Ciphertext<DCRTPoly>> EvalMult(const shared_ptr<Ciphertext<DCRTPoly>> ciphertext,
+			const shared_ptr<Plaintext> plaintext) const;
+
+		/**
 		 * Function for evaluating multiplication on ciphertext followed by key switching operation.
 		 *
-		 * @param &ciphertext1 first input ciphertext.
-		 * @param &ciphertext2 second input ciphertext.
-		 * @param &ek is the evaluation key to make the newCiphertext decryptable by the same secret key as that of ciphertext1 and ciphertext2.
-		 * @param *newCiphertext the new resulting ciphertext.
+		 * @param ciphertext1 first input ciphertext.
+		 * @param ciphertext2 second input ciphertext.
+		 * @param ek is the evaluation key to make the newCiphertext decryptable by the same secret key as that of the operands
+		 * @return the new resulting ciphertext.
 		 */
 		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
 				const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const {
@@ -567,16 +630,17 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		}
 
 		/**
-		* Function for evaluating multiplication of ciphertext by plaintext
-		*
-		* @param &ciphertext input ciphertext.
-		* @param &plaintext input plaintext embedded in cryptocontext.
-		* @param *newCiphertext the new resulting ciphertext.
-		*/
-		shared_ptr<Ciphertext<Element>> EvalMultPlain(const shared_ptr<Ciphertext<Element>> ciphertext,
-			const shared_ptr<Ciphertext<Element>> plaintext) const {
+		 * Function for evaluating multiplication on ciphertext followed by key switching operation.
+		 *
+		 * @param ciphertext1 first input ciphertext.
+		 * @param plaintext second input plaintext.
+		 * @param ek is the evaluation key to make the newCiphertext decryptable by the same secret key as that of the operands.
+		 * @return the new resulting ciphertext.
+		 */
+		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
+				const shared_ptr<Plaintext> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const {
 
-			return EvalMult(ciphertext, plaintext);
+			return EvalMult(ciphertext1, ciphertext2);
 		}
 
 		/**
@@ -601,7 +665,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		* @param evalKeys is the evaluation key list input.
 		* @return A shared pointer to the ciphertext which is the result of the multiplication.
 		*/
-		shared_ptr<Ciphertext<Element>> EvalMultMany(const shared_ptr<vector<shared_ptr<Ciphertext<Element>>>> cipherTextList, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> evalKeys) const {
+		shared_ptr<Ciphertext<Element>> EvalMultMany(const vector<shared_ptr<Ciphertext<Element>>>& cipherTextList, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> evalKeys) const {
 			std::string errMsg = "LPAlgorithmNULL::EvalMultMany is not implemented for the NULL Scheme.";
 			throw std::runtime_error(errMsg);
 		}

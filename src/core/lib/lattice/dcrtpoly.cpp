@@ -66,19 +66,21 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::DCRTPolyImpl(const DCRTPolyImpl 
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FillPolyFromBigVector(const Poly &element, const shared_ptr<ParmType> params)
+const DCRTPolyImpl<ModType,IntType,VecType,ParmType>&
+DCRTPolyImpl<ModType,IntType,VecType,ParmType>::operator=(const Poly &element)
 {
 
-	if( element.GetModulus() > params->GetModulus() ) {
+	if( element.GetModulus() > m_params->GetModulus() ) {
 		throw std::logic_error("Modulus of element passed to constructor is bigger that DCRT big modulus");
 	}
 
-	size_t vecCount = params->GetParams().size();
+	size_t vecCount = m_params->GetParams().size();
+	m_vectors.clear();
 	m_vectors.reserve(vecCount);
 
 	// fill up with vectors with the proper moduli
 	for(usint i = 0; i < vecCount; i++ ) {
-		PolyType newvec(params->GetParams()[i], m_format, true);
+		PolyType newvec(m_params->GetParams()[i], m_format, true);
 		m_vectors.push_back( std::move(newvec) );
 	}
 
@@ -86,7 +88,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FillPolyFromBigVector(const
 	std::vector<ModType> bigmods;
 	bigmods.reserve(vecCount);
 	for( usint i = 0; i < vecCount; i++ )
-		bigmods.push_back( ModType(params->GetParams()[i]->GetModulus().ConvertToInt()) );
+		bigmods.push_back( ModType(m_params->GetParams()[i]->GetModulus().ConvertToInt()) );
 
 	// copy each coefficient mod the new modulus
 	for(usint p = 0; p < element.GetLength(); p++ ) {
@@ -100,6 +102,8 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FillPolyFromBigVector(const
 #endif
 		}
 	}
+
+	return *this;
 }
 
 /* Construct from a single Poly. The format is derived from the passed in Poly.*/
@@ -110,7 +114,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::DCRTPolyImpl(const Poly &element
 	try {
 		format = element.GetFormat();
 	} catch (const std::exception& e) {
-		throw std::logic_error("There is an issue with the format of Polys passed to the constructor of DCRTPolyImpl");
+		throw std::logic_error("There is an issue with the format of the Poly passed to the constructor of DCRTPolyImpl");
 	}
 
 	if( element.GetCyclotomicOrder() != params->GetCyclotomicOrder() )
@@ -119,8 +123,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::DCRTPolyImpl(const Poly &element
 	m_format = format;
 	m_params = params;
 
-	FillPolyFromBigVector(element, params);
-
+	*this = element;
 }
 
 /* Construct using a tower of vectors.
@@ -283,7 +286,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 	Poly element( parm );
 	element.SetValues( randVec, m_format );
 
-	res.FillPolyFromBigVector(element, m_params);
+	res = element;
 
 	return std::move(res);
 }

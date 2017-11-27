@@ -1,5 +1,5 @@
-/*
-* @file nullscheme-vector-impl.cpp - null scheme vector array implementation
+/**
+ * @file scalarencoding.cpp Represents and defines scalar-encoded plaintext objects in Palisade.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -24,48 +24,51 @@
  *
  */
 
-#include "cryptocontext.h"
-#include "nullscheme.h"
+#include "scalarencoding.h"
 
 namespace lbcrypto {
 
-template<>
-shared_ptr<Ciphertext<Poly>> LPAlgorithmSHENull<Poly>::EvalMult(const shared_ptr<Ciphertext<Poly>> ciphertext1,
-	const shared_ptr<Ciphertext<Poly>> ciphertext2) const {
+bool
+ScalarEncoding::Encode() {
+	if( this->isEncoded ) return true;
+	uint64_t mod = this->encodingParams->GetPlaintextModulus().ConvertToInt();
+	uint32_t entry = value;
 
-	shared_ptr<Ciphertext<Poly>> newCiphertext = ciphertext1->CloneEmpty();
+	if( this->isSigned ) {
+		if( mod % 2 != 0 ) {
+			throw std::logic_error("Plaintext modulus must be an even number for signed ScalarEncoding");
+		}
 
-	const Poly& c1 = ciphertext1->GetElement();
-	const Poly& c2 = ciphertext2->GetElement();
+		entry = valueSigned;
+		if( valueSigned < 0 ) {
+			entry = (int32_t)mod + valueSigned;
+		}
+	}
 
-	const BigInteger& ptm = ciphertext1->GetCryptoParameters()->GetPlaintextModulus();
+	this->encodedVector.SetValuesToZero();
+	if( entry >= mod )
+		throw std::logic_error("Cannot encode integer " + std::to_string(entry) + " that is > plaintext modulus " + std::to_string(mod) );
+	this->encodedVector.at(0) = entry;
 
-	Poly cResult = ElementNullSchemeMultiply(c1, c2, ptm);
+	if( this->typeFlag == IsDCRTPoly ) {
+		this->encodedVectorDCRT = this->encodedVector;
+	}
 
-	newCiphertext->SetElement(cResult);
-
-	return newCiphertext;
+	this->isEncoded = true;
+	return true;
 }
 
-template<>
-shared_ptr<Ciphertext<Poly>> LPAlgorithmSHENull<Poly>::EvalMult(const shared_ptr<Ciphertext<Poly>> ciphertext1,
-	const shared_ptr<Plaintext> plaintext) const {
-
-	shared_ptr<Ciphertext<Poly>> newCiphertext = ciphertext1->CloneEmpty();
-
-	const Poly& c1 = ciphertext1->GetElement();
-	const Poly& c2 = plaintext->GetEncodedElement<Poly>();
-
-	const BigInteger& ptm = ciphertext1->GetCryptoParameters()->GetPlaintextModulus();
-
-	Poly cResult = ElementNullSchemeMultiply(c1, c2, ptm);
-
-	newCiphertext->SetElement(cResult);
-
-	return newCiphertext;
+bool
+ScalarEncoding::Decode() {
+	if( isSigned ) {
+		this->valueSigned = this->encodedVector.at(0).ConvertToInt();
+		int64_t mod = this->encodingParams->GetPlaintextModulus().ConvertToInt();
+		if( this->valueSigned >  mod/2)
+			this->valueSigned -= mod;
+	}
+	else
+		this->value = this->encodedVector.at(0).ConvertToInt();
+	return true;
 }
 
-template class LPCryptoParametersNull<Poly>;
-template class LPPublicKeyEncryptionSchemeNull<Poly>;
-template class LPAlgorithmNull<Poly>;
-}
+} /* namespace lbcrypto */

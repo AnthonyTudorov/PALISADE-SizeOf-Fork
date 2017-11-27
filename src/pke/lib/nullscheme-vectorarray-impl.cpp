@@ -57,6 +57,34 @@ shared_ptr<Ciphertext<DCRTPoly>> LPAlgorithmSHENull<DCRTPoly>::EvalMult(const sh
 	return newCiphertext;
 }
 
+template<>
+shared_ptr<Ciphertext<DCRTPoly>> LPAlgorithmSHENull<DCRTPoly>::EvalMult(const shared_ptr<Ciphertext<DCRTPoly>> ciphertext1,
+	const shared_ptr<Plaintext> plaintext) const {
+
+	shared_ptr<Ciphertext<DCRTPoly>> newCiphertext = ciphertext1->CloneEmpty();
+
+	const DCRTPoly& c1 = ciphertext1->GetElement();
+	const DCRTPoly& c2 = plaintext->GetEncodedElement<DCRTPoly>();
+
+	const vector<typename DCRTPoly::PolyType>& c1e = c1.GetAllElements();
+	const vector<typename DCRTPoly::PolyType>& c2e = c2.GetAllElements();
+
+	const BigInteger& ptm = ciphertext1->GetCryptoParameters()->GetPlaintextModulus();
+
+	vector<typename DCRTPoly::PolyType> mResults;
+
+	for( size_t i = 0; i < c1.GetNumOfElements(); i++ ) {
+		typename DCRTPoly::PolyType v = ElementNullSchemeMultiply(c1e.at(i), c2e.at(i), ptm);
+		mResults.push_back(v);
+	}
+
+	DCRTPoly	cResult(mResults);
+
+	newCiphertext->SetElement(cResult);
+
+	return newCiphertext;
+}
+
 template class LPCryptoParametersNull<DCRTPoly>;
 template class LPPublicKeyEncryptionSchemeNull<DCRTPoly>;
 template class LPAlgorithmNull<DCRTPoly>;

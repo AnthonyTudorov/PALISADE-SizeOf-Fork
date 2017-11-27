@@ -395,7 +395,7 @@ LPKeyPair<Element> LPAlgorithmFV<Element>::KeyGen(shared_ptr<CryptoContext<Eleme
 
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
-		Poly &ptxt, bool doEncryption) const
+		Element ptxt) const
 {
 	shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(publicKey) );
 
@@ -403,57 +403,42 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr
 
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 
-	Element plaintext(ptxt, elementParams);
-	plaintext.SwitchFormat();
+	ptxt.SwitchFormat();
 
-	if (doEncryption) {
-		const BigInteger &delta = cryptoParams->GetDelta();
+	const BigInteger &delta = cryptoParams->GetDelta();
 
-		const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
-		typename Element::TugType tug;
+	const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
+	typename Element::TugType tug;
 
-		const Element &p0 = publicKey->GetPublicElements().at(0);
-		const Element &p1 = publicKey->GetPublicElements().at(1);
+	const Element &p0 = publicKey->GetPublicElements().at(0);
+	const Element &p1 = publicKey->GetPublicElements().at(1);
 
-		Element u;
+	Element u;
 
-		//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
-		if (cryptoParams->GetMode() == RLWE)
-			u = Element(dgg, elementParams, Format::EVALUATION);
-		else
-			u = Element(tug, elementParams, Format::EVALUATION);
-
-		Element e1(dgg, elementParams, Format::EVALUATION);
-		Element e2(dgg, elementParams, Format::EVALUATION);
-
-		Element c0(elementParams);
-		Element c1(elementParams);
-
-		c0 = p0*u + e1 + delta*plaintext;
-
-		c1 = p1*u + e2;
-
-		ciphertext->SetElements({ c0, c1 });
-		ciphertext->SetIsEncrypted(true);
-
-	}
+	//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
+	if (cryptoParams->GetMode() == RLWE)
+		u = Element(dgg, elementParams, Format::EVALUATION);
 	else
-	{
+		u = Element(tug, elementParams, Format::EVALUATION);
 
-		Element c0(plaintext);
-		Element c1(elementParams, Format::EVALUATION, true);
+	Element e1(dgg, elementParams, Format::EVALUATION);
+	Element e2(dgg, elementParams, Format::EVALUATION);
 
-		ciphertext->SetElements({ c0, c1 });
-		ciphertext->SetIsEncrypted(false);
+	Element c0(elementParams);
+	Element c1(elementParams);
 
-	}
+	c0 = p0*u + e1 + delta*ptxt;
+
+	c1 = p1*u + e2;
+
+	ciphertext->SetElements({ c0, c1 });
 
 	return ciphertext;
 }
 
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
-		Poly &ptxt, bool doEncryption) const
+		Element ptxt) const
 {
 	shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(privateKey) );
 
@@ -461,36 +446,21 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmFV<Element>::Encrypt(const shared_ptr
 
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 
-	Element plaintext(ptxt, elementParams);
-	plaintext.SwitchFormat();
+	ptxt.SwitchFormat();
 
-	if (doEncryption) {
-		const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
-		typename Element::DugType dug;
-		const BigInteger &delta = cryptoParams->GetDelta();
+	const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
+	typename Element::DugType dug;
+	const BigInteger &delta = cryptoParams->GetDelta();
 
-		Element a(dug, elementParams, Format::EVALUATION);
-		const Element &s = privateKey->GetPrivateElement();
-		Element e(dgg, elementParams, Format::EVALUATION);
+	Element a(dug, elementParams, Format::EVALUATION);
+	const Element &s = privateKey->GetPrivateElement();
+	Element e(dgg, elementParams, Format::EVALUATION);
 
-		Element c0(a*s + e + delta*plaintext);
-		Element c1(elementParams, Format::EVALUATION, true);
-		c1 -= a;
+	Element c0(a*s + e + delta*ptxt);
+	Element c1(elementParams, Format::EVALUATION, true);
+	c1 -= a;
 
-		ciphertext->SetElements({ c0, c1 });
-		ciphertext->SetIsEncrypted(true);
-
-	}
-	else
-	{
-
-		Element c0(plaintext);
-		Element c1(elementParams, Format::EVALUATION, true);
-
-		ciphertext->SetElements({ c0, c1 });
-		ciphertext->SetIsEncrypted(false);
-
-	}
+	ciphertext->SetElements({ c0, c1 });
 
 	return ciphertext;
 }
@@ -567,26 +537,43 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalAdd(const shared_
 
 	std::vector<Element> c(cipherTextRElementsSize);
 
-	if(ciphertext2->GetIsEncrypted()){
+	for(size_t i=0; i<cipherTextSmallElementsSize; i++)
+		c[i] = cipherText1Elements[i] + cipherText2Elements[i];
 
-		for(size_t i=0; i<cipherTextSmallElementsSize; i++)
-			c[i] = cipherText1Elements[i] + cipherText2Elements[i];
-
-		for(size_t i=cipherTextSmallElementsSize; i<cipherTextRElementsSize; i++){
-			if(isCipherText1Small == true)
-				c[i] = cipherText2Elements[i];
-			else
-				c[i] = cipherText1Elements[i];
-		}
-	}
-	else {
-		auto fvParams = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(ciphertext1->GetCryptoParameters());
-		auto &delta = fvParams->GetDelta();
-
-		c[0] = cipherText1Elements[0] + delta*cipherText2Elements[0];
-		for(size_t i=0; i<cipherTextRElementsSize; i++)
+	for(size_t i=cipherTextSmallElementsSize; i<cipherTextRElementsSize; i++){
+		if(isCipherText1Small == true)
+			c[i] = cipherText2Elements[i];
+		else
 			c[i] = cipherText1Elements[i];
+	}
 
+	newCiphertext->SetElements(c);
+
+	return newCiphertext;
+
+}
+
+template <class Element>
+shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext,
+	const shared_ptr<Plaintext> plaintext) const {
+
+	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
+	newCiphertext->SetDepth(ciphertext->GetDepth());
+
+	const std::vector<Element> &cipherTextElements = ciphertext->GetElements();
+
+	plaintext->GetEncodedElement<Element>().SetFormat(EVALUATION);
+	const Element& ptElement = plaintext->GetEncodedElement<Element>();
+
+	std::vector<Element> c(cipherTextElements.size());
+
+    auto fvParams = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(ciphertext->GetCryptoParameters());
+    auto &delta = fvParams->GetDelta();
+
+	c[0] = cipherTextElements[0] + delta*ptElement;
+
+	for(size_t i=1; i<cipherTextElements.size(); i++) {
+			c[i] = cipherTextElements[i];
 	}
 
 	newCiphertext->SetElements(c);
@@ -628,26 +615,48 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalSub(const shared_
 
 	std::vector<Element> c(cipherTextRElementsSize);
 
-	if(ciphertext2->GetIsEncrypted()){
+	for(size_t i=0; i<cipherTextSmallElementsSize; i++)
+		c[i] = cipherText1Elements[i] - cipherText2Elements[i];
 
-		for(size_t i=0; i<cipherTextSmallElementsSize; i++)
-			c[i] = cipherText1Elements[i] - cipherText2Elements[i];
-
-		for(size_t i=cipherTextSmallElementsSize; i<cipherTextRElementsSize; i++){
-			if(isCipherText1Small == true)
-				c[i] = cipherText2Elements[i];
-			else
-				c[i] = cipherText1Elements[i];
-		}
-	}
-	else {
-		auto fvParams = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(ciphertext1->GetCryptoParameters());
-		auto &delta = fvParams->GetDelta();
-
-		c[0] = cipherText1Elements[0] - delta*cipherText2Elements[0];
-		for(size_t i=0; i<cipherTextRElementsSize; i++)
+	for(size_t i=cipherTextSmallElementsSize; i<cipherTextRElementsSize; i++){
+		if(isCipherText1Small == true)
+			c[i] = cipherText2Elements[i];
+		else
 			c[i] = cipherText1Elements[i];
+	}
 
+	newCiphertext->SetElements(c);
+
+	return newCiphertext;
+
+}
+
+template <class Element>
+shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext,
+	const shared_ptr<Plaintext> plaintext) const {
+
+//	if (!(ciphertext1->GetCryptoParameters() == ciphertext2->GetCryptoParameters())) {
+//		std::string errMsg = "LPAlgorithmSHEFV::EvalSub crypto parameters are not the same";
+//		throw std::runtime_error(errMsg);
+//	}
+
+	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
+	newCiphertext->SetDepth(ciphertext->GetDepth());
+
+	const std::vector<Element> &cipherTextElements = ciphertext->GetElements();
+
+	plaintext->GetEncodedElement<Element>().SetFormat(EVALUATION);
+	const Element& ptElement = plaintext->GetEncodedElement<Element>();
+
+	std::vector<Element> c(cipherTextElements.size());
+
+    auto fvParams = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(ciphertext->GetCryptoParameters());
+    auto &delta = fvParams->GetDelta();
+
+	c[0] = cipherTextElements[0] - delta*ptElement;
+
+	for(size_t i=1; i<cipherTextElements.size(); i++) {
+			c[i] = cipherTextElements[i];
 	}
 
 	newCiphertext->SetElements(c);
@@ -776,47 +785,44 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared
 }
 
 template <class Element>
-shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMultPlain(const shared_ptr<Ciphertext<Element>> ciphertext,
-	const shared_ptr<Ciphertext<Element>> plaintext) const {
-
-	if (ciphertext->GetElements()[0].GetFormat() == Format::COEFFICIENT || plaintext->GetElements()[0].GetFormat() == Format::COEFFICIENT) {
-		throw std::runtime_error("LPAlgorithmSHEFV::EvalMult cannot multiply in COEFFICIENT domain.");
-	}
-
-	if (!(ciphertext->GetCryptoParameters() == plaintext->GetCryptoParameters())) {
-		throw std::runtime_error("LPAlgorithmSHEFV::EvalMult crypto parameters are not the same");
-	}
+shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext,
+	const shared_ptr<Plaintext> plaintext) const {
 
 	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
 
-	std::vector<Element> cipherText1Elements = ciphertext->GetElements();
-	std::vector<Element> cipherText2Elements = plaintext->GetElements();
+	std::vector<Element> cipherTextElements = ciphertext->GetElements();
+	plaintext->GetEncodedElement<Element>().SetFormat(EVALUATION);
+	const Element& ptElement = plaintext->GetEncodedElement<Element>();
 
-	Element c0 = cipherText1Elements[0] * cipherText2Elements[0];
-	Element c1 = cipherText1Elements[1] * cipherText2Elements[0];
+	if (ciphertext->GetElements()[0].GetFormat() == Format::COEFFICIENT || plaintext->GetElement<Element>().GetFormat() == Format::COEFFICIENT) {
+		throw std::runtime_error("LPAlgorithmSHEFV::EvalMult cannot multiply in COEFFICIENT domain.");
+	}
 
-	newCiphertext->SetElements({ c0, c1});
+	Element c0 = cipherTextElements[0] * ptElement;
+	Element c1 = cipherTextElements[1] * ptElement;
+
+	newCiphertext->SetElements({ c0, c1 });
 
 	return newCiphertext;
 
 }
 
 template <class Element>
-shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMultMany(const shared_ptr<vector<shared_ptr<Ciphertext<Element>>>> cipherTextList, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> evalKeys) const {
+shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMultMany(const vector<shared_ptr<Ciphertext<Element>>>& cipherTextList, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> evalKeys) const {
 
-	shared_ptr<vector<shared_ptr<Ciphertext<Element>>>> cipherTextListTemp(new vector<shared_ptr<Ciphertext<Element>>>);
-	cipherTextListTemp->resize(cipherTextList->size()*2-1);
-	for(size_t i=0; i<cipherTextList->size(); i++){
-		cipherTextListTemp->at(i) = cipherTextList->at(i);
+	vector<shared_ptr<Ciphertext<Element>>> cipherTextListTemp;
+	cipherTextListTemp.resize(cipherTextList.size()*2-1);
+	for(size_t i=0; i<cipherTextList.size(); i++){
+		cipherTextListTemp.at(i) = cipherTextList.at(i);
 	}
 
-	size_t resultIndex = cipherTextList->size();
-	for(size_t i=0; i<cipherTextListTemp->size()-1; i=i+2){
-		cipherTextListTemp->at(resultIndex) = (this->EvalMultAndRelinearize(cipherTextListTemp->at(i), cipherTextListTemp->at(i+1), evalKeys));
+	size_t resultIndex = cipherTextList.size();
+	for(size_t i=0; i<cipherTextListTemp.size()-1; i=i+2){
+		cipherTextListTemp.at(resultIndex) = (this->EvalMultAndRelinearize(cipherTextListTemp.at(i), cipherTextListTemp.at(i+1), evalKeys));
 		resultIndex++;
 	}
 
-	return cipherTextListTemp->at(cipherTextListTemp->size()-1);
+	return cipherTextListTemp.at(cipherTextListTemp.size()-1);
 
 }
 
@@ -878,10 +884,6 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared
 	const shared_ptr<Ciphertext<Element>> ciphertext2,
 	const shared_ptr<LPEvalKey<Element>> ek) const {
 
-	if(!ciphertext2->GetIsEncrypted()) {
-		return EvalMultPlain(ciphertext1, ciphertext2);
-	}
-
 	shared_ptr<Ciphertext<Element>> newCiphertext = this->EvalMult(ciphertext1, ciphertext2);
 
 	return this->KeySwitch(ek, newCiphertext);
@@ -893,16 +895,17 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMultAndRelineariz
 	const shared_ptr<Ciphertext<Element>> ciphertext2,
 	const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> ek) const {
 
-	if(!ciphertext2->GetIsEncrypted()) {
-		return EvalMultPlain(ciphertext1, ciphertext2);
-	}
+	// FIXME add a plaintext method for this
+//	if(!ciphertext2->GetIsEncrypted()) {
+//		return EvalMultPlain(ciphertext1, ciphertext2);
+//	}
 	//Perform a multiplication
 	shared_ptr<Ciphertext<Element>> cipherText = this->EvalMult(ciphertext1, ciphertext2);
 
 	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParamsLWE = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(ek->at(0)->GetCryptoParameters());
 	usint relinWindow = cryptoParamsLWE->GetRelinWindow();
 
-	shared_ptr<Ciphertext<Element>> newCiphertext( new Ciphertext<Element>(ek->at(0)->GetCryptoContext()) );
+	shared_ptr<Ciphertext<Element>> newCiphertext = cipherText->CloneEmpty();
 
 	std::vector<Element> c = cipherText->GetElements();
 
@@ -932,6 +935,16 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMultAndRelineariz
 	newCiphertext->SetElements({ ct0, ct1 });
 
 	return newCiphertext;
+}
+
+template <class Element>
+shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
+	const shared_ptr<Plaintext> plaintext,
+	const shared_ptr<LPEvalKey<Element>> ek) const {
+
+	shared_ptr<Ciphertext<Element>> newCiphertext = this->EvalMult(ciphertext1, plaintext);
+
+	return this->KeySwitch(ek, newCiphertext);
 
 }
 

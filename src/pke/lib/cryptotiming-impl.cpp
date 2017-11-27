@@ -81,7 +81,7 @@ static struct FeatureMap FeatureMap[] = {
 	{ OpEvalAutomorphismKeyGen, "EvalAutomorphismKeyGen", SHE },
 	{ OpEvalAutomorphismI, "EvalAutomorphism(I,K)", SHE },
 	{ OpEvalAutomorphismK, "EvalAutomorphism(K)", SHE },
-	{ OpEvalMultPlain, "EvalMultPlain", SHE },
+	{ OpEvalMultPlain, "EvalMult", SHE },
 	{ OpLinRegression, "LinRegression", SHE },
 	{ OpKeySwitch, "KeySwitch", SHE },
 	{ OpKeySwitchGen, "KeySwitchGen", SHE },
