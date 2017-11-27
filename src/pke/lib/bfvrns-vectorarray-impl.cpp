@@ -393,7 +393,7 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 
 template <>
 shared_ptr<Ciphertext<DCRTPoly>> LPAlgorithmBFVrns<DCRTPoly>::Encrypt(const shared_ptr<LPPublicKey<DCRTPoly>> publicKey,
-		Poly &ptxt, bool doEncryption) const
+		DCRTPoly ptxt) const
 {
 	shared_ptr<Ciphertext<DCRTPoly>> ciphertext( new Ciphertext<DCRTPoly>(publicKey) );
 
@@ -401,51 +401,39 @@ shared_ptr<Ciphertext<DCRTPoly>> LPAlgorithmBFVrns<DCRTPoly>::Encrypt(const shar
 
 	const shared_ptr<typename DCRTPoly::Params> elementParams = cryptoParams->GetElementParams();
 
-	DCRTPoly plaintext(ptxt, elementParams);
-	plaintext.SwitchFormat();
+	ptxt.SwitchFormat();
 
-	if (doEncryption) {
+	const std::vector<native_int::BigInteger> &dTable = cryptoParams->GetCRTDeltaTable();
+	Poly dTable2(elementParams, EVALUATION, true);
+	for( size_t i=0; i<dTable.size(); i++ )
+		dTable2.at(i) = Poly::Integer(dTable.at(i).ConvertToInt());
+	DCRTPoly deltaTable( dTable2, elementParams );
 
-		const std::vector<native_int::BigInteger> &deltaTable = cryptoParams->GetCRTDeltaTable();
+	const typename DCRTPoly::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
+	typename DCRTPoly::TugType tug;
 
-		const typename DCRTPoly::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
-		typename DCRTPoly::TugType tug;
+	const DCRTPoly &p0 = publicKey->GetPublicElements().at(0);
+	const DCRTPoly &p1 = publicKey->GetPublicElements().at(1);
 
-		const DCRTPoly &p0 = publicKey->GetPublicElements().at(0);
-		const DCRTPoly &p1 = publicKey->GetPublicElements().at(1);
+	DCRTPoly u;
 
-		DCRTPoly u;
-
-		//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
-		if (cryptoParams->GetMode() == RLWE)
-			u = DCRTPoly(dgg, elementParams, Format::EVALUATION);
-		else
-			u = DCRTPoly(tug, elementParams, Format::EVALUATION);
-
-		DCRTPoly e1(dgg, elementParams, Format::EVALUATION);
-		DCRTPoly e2(dgg, elementParams, Format::EVALUATION);
-
-		DCRTPoly c0(elementParams);
-		DCRTPoly c1(elementParams);
-
-		c0 = p0*u + e1 + plaintext.Times(deltaTable);
-
-		c1 = p1*u + e2;
-
-		ciphertext->SetElements({ c0, c1 });
-		ciphertext->SetIsEncrypted(true);
-
-	}
+	//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
+	if (cryptoParams->GetMode() == RLWE)
+		u = DCRTPoly(dgg, elementParams, Format::EVALUATION);
 	else
-	{
+		u = DCRTPoly(tug, elementParams, Format::EVALUATION);
 
-		DCRTPoly c0(plaintext);
-		DCRTPoly c1(elementParams, Format::EVALUATION, true);
+	DCRTPoly e1(dgg, elementParams, Format::EVALUATION);
+	DCRTPoly e2(dgg, elementParams, Format::EVALUATION);
 
-		ciphertext->SetElements({ c0, c1 });
-		ciphertext->SetIsEncrypted(false);
+	DCRTPoly c0(elementParams);
+	DCRTPoly c1(elementParams);
 
-	}
+	c0 = p0*u + e1 + deltaTable*ptxt;
+
+	c1 = p1*u + e2;
+
+	ciphertext->SetElements({ c0, c1 });
 
 	return ciphertext;
 }

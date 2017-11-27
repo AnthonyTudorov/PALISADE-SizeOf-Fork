@@ -45,7 +45,7 @@ IntegerEncoding::Encode() {
 	size_t i = 0;
 
 	while( val > 0 ) {
-		this->encodedVector.SetValAtIndex(i++, val & 0x01);
+		this->encodedVector.at(i++) = val & 0x01;
 		val >>= 1;
 	}
 
@@ -65,7 +65,7 @@ IntegerEncoding::Decode() {
 	uint64_t half(modulus >> 1);
 	for (size_t i = 0; i < this->encodedVector.GetLength(); i++) {
 
-		auto val = this->encodedVector.GetValAtIndex(i).ConvertToInt();
+		auto val = this->encodedVector.at(i).ConvertToInt();
 
 		if( val != 0 ) {
 			// deal with unsigned representation

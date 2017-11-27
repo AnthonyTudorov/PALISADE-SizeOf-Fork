@@ -76,7 +76,7 @@ namespace lbcrypto {
 
 		this->value.clear();
 		for (usint i = 0; i<this->encodedVector.GetLength(); i++) {
-			this->value.push_back(this->encodedVector.GetValAtIndex(i).ConvertToInt());
+			this->value.push_back(this->encodedVector.at(i).ConvertToInt());
 		}
 		return true;
 	}

@@ -48,7 +48,7 @@ ScalarEncoding::Encode() {
 	this->encodedVector.SetValuesToZero();
 	if( entry >= mod )
 		throw std::logic_error("Cannot encode integer " + std::to_string(entry) + " that is > plaintext modulus " + std::to_string(mod) );
-	this->encodedVector.SetValAtIndex(0, entry);
+	this->encodedVector.at(0) = entry;
 
 	if( this->typeFlag == IsDCRTPoly ) {
 		this->encodedVectorDCRT = this->encodedVector;
@@ -61,13 +61,13 @@ ScalarEncoding::Encode() {
 bool
 ScalarEncoding::Decode() {
 	if( isSigned ) {
-		this->valueSigned = this->encodedVector.GetValAtIndex(0).ConvertToInt();
+		this->valueSigned = this->encodedVector.at(0).ConvertToInt();
 		int64_t mod = this->encodingParams->GetPlaintextModulus().ConvertToInt();
 		if( this->valueSigned >  mod/2)
 			this->valueSigned -= mod;
 	}
 	else
-		this->value = this->encodedVector.GetValAtIndex(0).ConvertToInt();
+		this->value = this->encodedVector.at(0).ConvertToInt();
 	return true;
 }
 

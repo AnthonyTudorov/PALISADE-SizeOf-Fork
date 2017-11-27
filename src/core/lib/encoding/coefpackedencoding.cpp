@@ -50,7 +50,7 @@ CoefPackedEncoding::Encode() {
 					" at position " + std::to_string(i) +
 					" that is > plaintext modulus " + std::to_string(mod) );
 
-		this->encodedVector.SetValAtIndex(i, entry);
+		this->encodedVector.at(i) = entry;
 	}
 
 	if( this->typeFlag == IsDCRTPoly ) {
@@ -69,7 +69,7 @@ CoefPackedEncoding::Decode() {
 	this->valueSigned.clear();
 
 	for( size_t i = 0; i < this->encodedVector.GetLength(); i++ ) {
-		uint64_t val = this->encodedVector.GetValAtIndex(i).ConvertToInt();
+		uint64_t val = this->encodedVector.at(i).ConvertToInt();
 		if( isSigned ) {
 			if( val >  mod/2)
 				val -= mod;

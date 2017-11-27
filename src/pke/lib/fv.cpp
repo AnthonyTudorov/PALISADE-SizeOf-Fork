@@ -557,11 +557,6 @@ template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext,
 	const shared_ptr<Plaintext> plaintext) const {
 
-//	if (!(ciphertext1->GetCryptoParameters() == ciphertext2->GetCryptoParameters())) {
-//		std::string errMsg = "LPAlgorithmSHEFV::EvalAdd crypto parameters are not the same";
-//		throw std::runtime_error(errMsg);
-//	}
-
 	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
 	newCiphertext->SetDepth(ciphertext->GetDepth());
 

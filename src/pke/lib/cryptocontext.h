@@ -1094,7 +1094,7 @@ public:
 				shared_ptr<Plaintext> decryptedDenominator = GetPlaintextForDecrypt(ctN->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
 				if( (*ciphertext)(row,col).GetIntegerFlag() == true ) {
 					decryptedDenominator->GetElement<Poly>().SetValuesToZero();
-					decryptedDenominator.at(0)=1;
+					decryptedDenominator->GetElement<Poly>().at(0) = 1;
 				}
 				else {
 
