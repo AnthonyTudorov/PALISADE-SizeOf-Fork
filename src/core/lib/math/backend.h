@@ -28,6 +28,11 @@
 #ifndef LBCRYPTO_MATH_BACKEND_H
 #define LBCRYPTO_MATH_BACKEND_H
  
+// use of MS VC is not permitted because of various incompatibilities
+#ifdef _MSC_VER
+#error "MSVC COMPILER IS NOT SUPPORTED"
+#endif
+
 /*! Define the underlying default math implementation being used by defining MATHBACKEND */
 
 // Each math backend is defined in its own namespace, and can be used at any time by referencing
