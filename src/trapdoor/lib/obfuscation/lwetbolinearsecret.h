@@ -58,7 +58,7 @@ namespace lbcrypto {
 		/**
 		 * Constructor
 		 *
-		 * @param N the dimension of linear system
+		 * @param N the dimension
 		 * @param n LWE security parameter
 		 * @param wmax infinity norm of the weights vector
 		 * @param pmax infinity norm of input data vector
@@ -96,7 +96,7 @@ namespace lbcrypto {
 		NativeInteger GetModulus() const {return m_modulus;}
 
 		/**
-		 * Gets the dimension N of the linear function
+		 * Gets the dimension N
 		 * @return the dimension N
 		 */
 		usint GetDimension() const {return m_N;}
@@ -148,7 +148,7 @@ namespace lbcrypto {
 
 	private:
 
-		// Dimension of the linear function
+		// Dimension - size of weight/data vectors
 		usint m_N;
 
 		// LWE security parameter

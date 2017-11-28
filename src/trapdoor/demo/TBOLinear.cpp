@@ -59,7 +59,7 @@ int main(int argc, char* argv[]) {
 	std::cout << "weight norm = " << algorithm.GetWeightNorm() << std::endl;
 	std::cout << "input data norm = " << pmax << std::endl;
 	std::cout << "plaintext modulus = " << algorithm.GetPlaintextModulus() << std::endl;
-	std::cout << "linear system dimension = " << algorithm.GetDimension() << std::endl;
+	std::cout << "Dimension of weight/data vectors = " << algorithm.GetDimension() << std::endl;
 
 	TIC(t);
 	LWETBOKeys keys = algorithm.KeyGen();
