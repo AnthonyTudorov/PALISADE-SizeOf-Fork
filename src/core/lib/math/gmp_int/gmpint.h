@@ -40,6 +40,7 @@
 #include <stdexcept>
 #include <functional>
 #include <memory>
+#include <exception>
 #include "../../utils/inttypes.h"
 #include "../../utils/memory.h"
 
@@ -281,7 +282,29 @@ namespace NTL{
     void ModBarrettInPlace(const myZZ& modulus, const myZZ& mu) { *this%=modulus;};
 
     inline    myZZ ModBarrett(const myZZ& modulus, const myZZ mu_arr[BARRETT_LEVELS+1]) const  {return *this%modulus;};
-    inline myZZ ModInverse(const myZZ& modulus) const {return InvMod(*this%modulus, modulus);};
+    inline myZZ ModInverse(const myZZ& modulus) const {
+      bool dbg_flag = false;
+      DEBUGEXP(modulus);
+
+      //Error if modulus is ZERO
+      if(modulus==ZERO){
+	//std::cout<<"ZERO HAS NO INVERSE\n";
+	//system("pause");
+	throw std::logic_error("ZERO HAS NO INVERSE");
+      }
+      myZZ tmp(myZZ::ZERO);
+      try {
+	tmp = InvMod(*this%modulus, modulus);
+      } catch (InvModErrorObject &e) {
+	std::cout<< e.what() << std::endl;
+	std::cout << "a : "<<e.get_a()<< "n :"<< e.get_n()<<std::endl;
+	std::cout <<"ModInverse exception"<<std::endl;
+	std::cout <<"this"<< *this<<std::endl;
+	std::cout <<"modulus"<< modulus<<std::endl;
+
+      }
+      return tmp;
+    };
     inline myZZ ModAdd(const myZZ& b, const myZZ& modulus) const {return myZZ(AddMod(*this%modulus, b%modulus, modulus));};
     //Fast version does not check for modulus bounds.
     inline myZZ ModAddFast(const myZZ& b, const myZZ& modulus) const {return AddMod(*this, b, modulus);};
