@@ -38,13 +38,6 @@
 #include <time.h>
 #include <sstream>
 
-
-
-#if MATHBACKEND == 6
-//note these NTL speedups only work with MATH BACKEND 6
-#define NTL_SPEEDUP
-#endif
-
 namespace lbcrypto {
 
 
@@ -69,7 +62,6 @@ namespace lbcrypto {
 
 	template std::vector<usint> GetTotientList(const usint &n);
 
-#if MATHBACKEND != 7
 	template native_int::BigInteger RootOfUnity<native_int::BigInteger>(usint m, const native_int::BigInteger& modulo);
 	template std::vector<native_int::BigInteger> RootsOfUnity(usint m, const std::vector<native_int::BigInteger> moduli);
 	template native_int::BigInteger GreatestCommonDivisor(const native_int::BigInteger& a, const native_int::BigInteger& b);
@@ -89,10 +81,6 @@ namespace lbcrypto {
 	template bool IsGenerator(const native_int::BigInteger& g, const native_int::BigInteger& modulo);
 
 	template native_int::BigInteger ComputeMu(const native_int::BigInteger& q);
-
-
-#endif
-
 
 	/*
 		Generates a random number between 0 and n.
@@ -167,16 +155,16 @@ namespace lbcrypto {
 
 		return result;
 	}
-#ifdef NTL_SPEEDUP
+
 	//native NTL version
-	static NTL::myZZ RNG(const NTL::myZZ& modulus)
+	NTL::myZZ RNG(const NTL::myZZ& modulus)
 	{
 		bool dbg_flag = false;
 		DEBUG("in NTL RNG");
 		return RandomBnd(modulus);
 
 	}
-#endif
+
 	/*
 		A witness function used for the Miller-Rabin Primality test.
 		Inputs: a is a randomly generated witness between 2 and p-1,
@@ -453,7 +441,6 @@ namespace lbcrypto {
 		return m_a;
 	}
 
-#ifdef NTL_SPEEDUP
 	//define an NTL native implementation 
 	NTL::myZZ GreatestCommonDivisor(const NTL::myZZ& a, const NTL::myZZ& b)
 	{
@@ -461,7 +448,6 @@ namespace lbcrypto {
 		DEBUG("NTL::GCD a " << a << " b " << b);
 		return GCD(a, b);
 	}
-#endif
 
 	/*
 	  The Miller-Rabin Primality Test
@@ -500,7 +486,6 @@ namespace lbcrypto {
 	}
 
 
-#ifdef NTL_SPEEDUP
 	//NTL native version
 	bool MillerRabinPrimalityTest(const NTL::myZZ& p, const usint niter)
 	{
@@ -514,7 +499,6 @@ namespace lbcrypto {
 
 		return (bool)ProbPrime(p, niter); //TODO: check to see if niter >maxint
 	}
-#endif
 
 	/*
 		The Pollard Rho factorization of a number n.
@@ -535,14 +519,11 @@ namespace lbcrypto {
 		if (n.Mod(2) == 0)
 			return IntType(2);
 
-#ifdef NTL_SPEEDUP
-	IntType mu(1);
-#else
 		//Precompute the Barrett mu parameter
 		IntType mu = ComputeMu<IntType>(n);
-#endif
+
 		do {
-#ifdef NTL_SPEEDUP
+#if MATHBACKEND == 6
 			x = (x*x + c).ModBarrett(n,mu);
 			xx = (xx*xx + c).ModBarrett(n,mu);
 			xx = (xx*xx + c).ModBarrett(n,mu);
@@ -569,7 +550,7 @@ namespace lbcrypto {
 	{
 		bool dbg_flag = false;
 		DEBUG("PrimeFactorize " << n);
-#if 1 
+
 		// primeFactors.clear();
 		DEBUG("In PrimeFactorize n " << n);
 		DEBUG("set size " << primeFactors.size());
@@ -594,64 +575,6 @@ namespace lbcrypto {
 
 		DEBUG("calling PF reduced n " << n);
 		PrimeFactorize(n, primeFactors);
-#else
-		//do not take a recursive approach -- therein lies memory issues.
-		//do it iteratively.
-		//howevere this may be way slower!!!!
-
-		IntType n(nin); //because nin is const!
-		//first check if prime
-		if (nin == IntType::ONE) return;
-		if (MillerRabinPrimalityTest(nin)) {
-			DEBUG("Miller true");
-			primeFactors.insert(nin);
-			return;
-		}
-		while (n%IntType::TWO == IntType::ZERO) {
-			primeFactors.insert(IntType::TWO); //note may have to only insert one. 
-			DEBUG(IntType::TWO);
-			n >>= 1; //n = n/2;
-		}
-		// n must be odd at this point.  So we can skip 
-		// one element (Note i = i +2)
-
-		IntType stopval = n; //should be sqrt(n) 
-
-		usint nbits = n.GetMSB();
-		nbits /= 2;
-		stopval = IntType::ONE << nbits;
-		for (IntType i = IntType::THREE; i <= stopval; i += IntType::TWO) {
-
-			if (MillerRabinPrimalityTest(nin)) {
-				DEBUG("Miller true");
-				primeFactors.insert(nin);
-				return;
-			}
-
-			// While i divides n, print i and divide n
-			//note we can use a remdiv() function
-			while (n%i == IntType::ZERO) {
-				primeFactors.insert(i);
-				DEBUG(i);
-				n /= i;
-			}
-		}
-
-		// This condition is to handle the case when n 
-		// is a prime number greater than 2
-		if (n > IntType::TWO) {
-			primeFactors.insert(n);
-			DEBUG(n);
-		}
-		DEBUG("returning primeFactors ");
-		for (auto it = primeFactors.begin(); it != primeFactors.end(); ++it)
-			DEBUG(*it);
-
-		return;
-
-#endif
-
-
 	}
 
 	template<typename IntType>
@@ -1024,7 +947,7 @@ namespace lbcrypto {
 	template<typename IntType>
 	IntType ComputeMu(const IntType& q)
 	{
-#if MATHBACKEND == 4 || MATHBACKEND == 7 || defined(NTL_SPEEDUP)
+#if MATHBACKEND == 4 || MATHBACKEND == 6
 		return IntType(1);
 #else
 		//Precompute the Barrett mu parameter

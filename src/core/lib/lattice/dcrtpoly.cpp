@@ -94,12 +94,8 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::operator=(const Poly &element)
 	for(usint p = 0; p < element.GetLength(); p++ ) {
 		for( usint v = 0; v < vecCount; v++ ) {
 
-#if 1//MATHBACKEND ==6 //wait till backend 6 works
 			IntType tmp = element.at(p) % bigmods[v];
 			m_vectors[v].at(p)= tmp.ConvertToInt();
-#else
-			m_vectors[v].at(p)= PolyType::Integer((element.at(p) % bigmods[v]).ConvertToInt());
-#endif
 		}
 	}
 
@@ -330,7 +326,6 @@ std::vector<DCRTPolyImpl<ModType,IntType,VecType,ParmType>> DCRTPolyImpl<ModType
 {
 	bool dbg_flag = false;
 	DEBUG("...::BaseDecompose" );
-	// baseBits is the same for MATHBACKEND=2 and 6
 	DEBUG("baseBits=" << baseBits );
 
 	Poly v( CRTInterpolate() );
@@ -339,7 +334,6 @@ std::vector<DCRTPolyImpl<ModType,IntType,VecType,ParmType>> DCRTPolyImpl<ModType
 
 	std::vector<Poly> bdV = v.BaseDecompose(baseBits, false);
 
-	// bdV is all zeros for MATHBACKEND=6, it is a mix of 1's and 0's for MATHBACKEND=2
 	DEBUG("<bdV>" );
 	for( auto i : bdV )
 		DEBUG(i );
@@ -355,7 +349,6 @@ std::vector<DCRTPolyImpl<ModType,IntType,VecType,ParmType>> DCRTPolyImpl<ModType
 		result.push_back( std::move(dv) );
 	}
 
-	// result is all zeroes for MATHBACKEND=6, but not for MATHBACKEND=2
 	DEBUG("<BaseDecompose.result>" );
 	for( auto i : result )
 		DEBUG(i );

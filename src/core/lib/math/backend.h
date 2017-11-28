@@ -131,8 +131,6 @@ typedef ubintvec<xubint> xubintvec;
 typedef mubintvec<xubint> xmubintvec;
 }
 
-#if MATHBACKEND == 6
-////////// for gmp int
 #include "gmp_int/gmpint.h" //experimental gmp unsigned big ints
 //#include "gmp_int/mgmpint.h" //experimental gmp modulo unsigned big ints
 //#include "gmp_int/gmpintvec.h" //vectors of such
@@ -142,7 +140,6 @@ namespace gmp_int {
 typedef NTL::myZZ ubint;
 
 }
-#endif
 
 ////////// for native int
 #include "native_int/binint.cpp"
@@ -166,8 +163,6 @@ namespace lbcrypto {
 	typedef cpu_int::BigInteger<integral_dtype,BigIntegerBitLength> BigInteger;
 	typedef cpu_int::BigVectorImpl<BigInteger> BigVector;
 
-#define MATH_DEFBITS BigIntegerBitLength
-
 #endif
 
 #if MATHBACKEND == 4
@@ -176,9 +171,6 @@ namespace lbcrypto {
 	#endif
 	typedef exp_int::xubint BigInteger;
 	typedef exp_int::xmubintvec BigVector;
-
-	
-#define MATH_DEFBITS 0
 
 #endif
 
@@ -190,16 +182,6 @@ namespace lbcrypto {
 	/** Define the mapping for BigVector */
         typedef NTL::myVecP<NTL::myZZ> BigVector;
 
-#define MATH_DEFBITS 0
-
-#endif
-
-#if MATHBACKEND == 7
-
-	typedef native_int::BigInteger BigInteger;
-	typedef native_int::BigVector BigVector;
-	
-#define MATH_DEFBITS MATH_NATIVEBITS
 #endif
 
 	template<typename IntType> class ILParamsImpl;

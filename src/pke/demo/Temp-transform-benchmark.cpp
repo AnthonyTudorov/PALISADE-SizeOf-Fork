@@ -248,11 +248,6 @@ BigVector baselineTransform(usint n, const BigInteger& modulus, const BigVector&
 
 int main() {
 
-#if MATHBACKEND == 6
-  	std::cout << "\n===========FV TESTS (INNER-PRODUCT-ARBITRARY)===============: " << std::endl;
-	std::cout << "\n=======Not operational for MATHBACKEND 6 at this time=======: " << std::endl;
-	return 0;
-#else
 	std::cout << "\n===========FV TESTS (INNER-PRODUCT-ARBITRARY)===============: " << std::endl;
 
 	//------------------ Setup Parameters ------------------
@@ -353,5 +348,4 @@ int main() {
 	std::cout << "]" << std::endl;
 
 	return 0;
-#endif //#ifdef MATHBACKEND == 6
 }

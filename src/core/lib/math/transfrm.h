@@ -69,7 +69,7 @@ namespace lbcrypto {
 		auto modulus = element.GetModulus();
 
 		//Precompute the Barrett mu parameter
-#if !defined(NTL_SPEEDUP)
+#if MATHBACKEND != 6
 		IntType mu = ComputeMu<IntType>(modulus);
 #endif
 
@@ -116,7 +116,6 @@ namespace lbcrypto {
 					usint indexOdd = indexEven + (1 << (logm-1));
 					auto oddVal = result->at(indexOdd);
 					auto oddMSB = oddVal.GetMSB();
-					auto evenVal = result->at(indexEven);
 
 					if (oddMSB > 0)
 					{
@@ -124,7 +123,7 @@ namespace lbcrypto {
 							omegaFactor = omega;
 						else
 						{
-#if !defined(NTL_SPEEDUP)
+#if MATHBACKEND != 6
 							omegaFactor = omega.ModBarrettMul(oddVal,modulus,mu);
 #else
 							omegaFactor = omega.ModMulFast(oddVal,modulus);
@@ -132,15 +131,15 @@ namespace lbcrypto {
 							//DEBUG("omegaFactor "<<omegaFactor);
 						}
 
-#if !defined(NTL_SPEEDUP)
+#if MATHBACKEND != 6
 
-						butterflyPlus = evenVal;
+						butterflyPlus = result->at(indexEven);
 						butterflyPlus += omegaFactor;
 						if (butterflyPlus >= modulus)
 							butterflyPlus -= modulus;
 
-						butterflyMinus = evenVal;
-						if (evenVal < omegaFactor)
+						butterflyMinus = result->at(indexEven);
+						if (result->at(indexEven) < omegaFactor)
 							butterflyMinus += modulus;
 						butterflyMinus -= omegaFactor;
 

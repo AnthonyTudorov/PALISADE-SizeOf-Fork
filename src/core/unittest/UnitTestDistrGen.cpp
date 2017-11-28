@@ -89,7 +89,7 @@ TEST(UTDistrGen, DiscreteUniformGenerator_LONG ) {
   }
 
   // TEST CASE TO GENERATE A UNIFORM BIG BINARY INTEGER WITH LARGE MODULUS
-  if( MATH_DEFBITS > 64 ) {
+  {
     BigInteger modulus("10402635286389262637365363");
     Poly::DugType dug = Poly::DugType();
     dug.SetModulus(modulus);
@@ -117,7 +117,7 @@ TEST(UTDistrGen, DiscreteUniformGenerator_LONG ) {
   
   //TEST CASE TO GENERATE A UNIFORM BIG BINARY VECTOR WITH LARGE MODULUS
   
-  if( MATH_DEFBITS > 64 ) {
+  {
     BigInteger modulus("10402635286389262637365363");
     Poly::DugType dug = Poly::DugType();
     dug.SetModulus(modulus);
@@ -143,7 +143,8 @@ TEST(UTDistrGen, DiscreteUniformGenerator_LONG ) {
     BigInteger large_modulus("100019");
     testDiscreteUniformGenerator(large_modulus, "large_modulus");
   }
-  if( MATH_DEFBITS > 64 ) {
+
+  {
     // TEST CASE ON FIRST AND SECOND CENTRAL MOMENTS HUGE MODULUS
     BigInteger huge_modulus("10402635286389262637365363");
     testDiscreteUniformGenerator(huge_modulus, "huge_modulus");
@@ -151,7 +152,7 @@ TEST(UTDistrGen, DiscreteUniformGenerator_LONG ) {
 
   //TEST CASE TO RECREATE OVERFLOW ISSUE CAUSED WHEN CALCULATING MEAN OF BBI's
   //Issue#73
-  if( MATH_DEFBITS > 64 ) {
+  {
     int caught_error = 0;
     try {
       BigInteger modulus("10402635286389262637365363"); //10402635286389262637365363
@@ -240,7 +241,7 @@ TEST(UTDistrGen, ParallelDiscreteUniformGenerator_LONG ) {
   BigInteger large_modulus("100019");// test large modulus
   testParallelDiscreteUniformGenerator(large_modulus, "large_modulus");
 
-  if( MATH_DEFBITS > 64 ) {
+  {
 	  BigInteger huge_modulus("10402635286389262637365363");
 	  testParallelDiscreteUniformGenerator(huge_modulus, "huge_modulus");
   }

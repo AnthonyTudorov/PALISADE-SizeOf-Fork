@@ -1128,12 +1128,10 @@ TEST(UTBinInt, method_GetInternalRepresentation){
   vector<uint32_t> correct={2,0,0,16};
 #elif MATHBACKEND == 4 && defined(UBINT_32)
   vector<uint32_t> correct={2,0,0,16};
-#elif MATHBACKEND == 4 && defined(UBINT_32)
+#elif MATHBACKEND == 4 && defined(UBINT_64)
   //this configuration is not supported yet
 #elif MATHBACKEND == 6
   vector<NTL::ZZ_limb_t> correct={2,68719476736};
-#elif MATHBACKEND ==7
-  native_int::NativeInteger<long unsigned int> correct={2};
 #endif
   EXPECT_EQ(correct, x_limbs);
 }

@@ -1139,11 +1139,8 @@ void ChineseRemainderTransform<IntType,VecType>::Reset() {
 	template class ChineseRemainderTransformArb<BigInteger, BigVector>;
 	template class BluesteinFFT<BigInteger, BigVector>;
 
-#if MATHBACKEND != 7
 	template class ChineseRemainderTransformFTT<native_int::BigInteger,native_int::BigVector>;
 	template class NumberTheoreticTransform<native_int::BigInteger,native_int::BigVector>;
 	template class ChineseRemainderTransformArb<native_int::BigInteger, native_int::BigVector>;
 	template class BluesteinFFT<native_int::BigInteger, native_int::BigVector>;
-#endif
-
 }//namespace ends here
