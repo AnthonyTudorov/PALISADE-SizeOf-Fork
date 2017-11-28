@@ -1,5 +1,5 @@
 
-backends="2 4 6 7"
+backends="2 4 6"
 
 if [ "$1" != "" ];
 then
@@ -17,6 +17,14 @@ do
 	echo "****************************"
 	echo Building MATHBACKEND $i
 	echo "****************************"
+
+	if [ "$i" = "6" ] ;
+	then
+		echo "****************************"
+		echo Building NTL
+		echo "****************************"
+		make -f Makefile.ntl >/dev/null 2>&1
+	fi
 
 	touch src/core/lib/math/backend.h
 

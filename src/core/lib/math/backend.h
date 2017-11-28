@@ -61,10 +61,6 @@
 //		This uses gmp_int:: definition as default
 // 		GMP 6.1.2 / NTL 10.3.0 backend
 
-// MATHBACKEND 7
-// 		This uses native_int:: as the default
-// This backend provides a maximum size of 64 bits
-
 //To select backend, please UNCOMMENT the appropriate line rather than changing the number on the
 //uncommented line (and breaking the documentation of the line)
 
@@ -72,10 +68,9 @@
 #define MATHBACKEND 2
 //#define MATHBACKEND 4
 //#define MATHBACKEND 6
-//#define MATHBACKEND 7
 #endif
 
-#if MATHBACKEND != 2 && MATHBACKEND != 4 && MATHBACKEND != 6 && MATHBACKEND != 7
+#if MATHBACKEND != 2 && MATHBACKEND != 4 && MATHBACKEND != 6
 #error "MATHBACKEND value is not valid"
 #endif
 
@@ -203,22 +198,6 @@ namespace lbcrypto {
 
 	typedef native_int::BigInteger BigInteger;
 	typedef native_int::BigVector BigVector;
-
-#if 0    
-    /**
-    * Prints the value of the internal limb storage
-    * in decimal format. Used primarily for debugging
-    */
-    void PrintLimbsInDec() const;
-
-    /**
-    * Prints the value of the internal limb storage
-    * in hexadecimal format. Used primarily for debugging
-    */
-    void PrintLimbsInHex() const { std::cout<<std::hex<<*this<<std::dec; }
-#endif
-
-	
 	
 #define MATH_DEFBITS MATH_NATIVEBITS
 #endif
@@ -231,7 +210,7 @@ namespace lbcrypto {
 
 	typedef ILParamsImpl<native_int::BigInteger> ILNativeParams;
 
-	// template to allow contents of a vector of streamables to tream
+	// template to allow contents of a vector of streamables to stream
 
 	template<typename T> std::ostream& operator << (std::ostream& os, const std::vector<T>& v ){
 	  os << "[";
