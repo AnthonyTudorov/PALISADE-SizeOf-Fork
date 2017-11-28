@@ -62,12 +62,26 @@ int main(int argc, char* argv[]) {
 	std::cout << "linear system dimension = " << algorithm.GetDimension() << std::endl;
 
 	TIC(t);
-	LWETBOKeyPair keys = algorithm.KeyGen();
+	LWETBOKeys keys = algorithm.KeyGen();
 	processingTime = TOC(t);
 	std::cout << "\nKey generation time: " << processingTime << "ms" << std::endl;
 
 	//std::cout << "secretkeys(0,0) = " << (*keys.m_secretKey)(0,0) << std::endl;
 	//std::cout << "secretkeys(1,1) = " << (*keys.m_secretKey)(1,1) << std::endl;
+
+	//std::cout << "Token row dimension = " << token->GetRows() << std::endl;
+	//std::cout << "Token column dimension = " << token->GetCols() << std::endl;
+
+	DiscreteUniformGeneratorImpl<NativeInteger,native_int::BigVector> dugWeights;
+	dugWeights.SetModulus(algorithm.GetWeightNorm());
+
+	NativeMatrixPtr weights(new  NativeMatrix([&]() {
+		return make_unique<NativeInteger>(dugWeights.GenerateInteger()); }, algorithm.GetDimension(),1));
+
+	TIC(t);
+	NativeMatrixPtr ciphertext = algorithm.Obfuscate(keys,weights);
+	processingTime = TOC(t);
+	std::cout << "\nObfuscation time: " << processingTime << "ms" << std::endl;\
 
 	DiscreteUniformGeneratorImpl<NativeInteger,native_int::BigVector> dug;
 	dug.SetModulus(16);
@@ -80,25 +94,11 @@ int main(int argc, char* argv[]) {
 	processingTime = TOC(t);
 	std::cout << "\nToken generation time: " << processingTime << "ms" << std::endl;
 
-	//std::cout << "Token row dimension = " << token->GetRows() << std::endl;
-	//std::cout << "Token column dimension = " << token->GetCols() << std::endl;
-
-	DiscreteUniformGeneratorImpl<NativeInteger,native_int::BigVector> dugWeights;
-	dugWeights.SetModulus(algorithm.GetWeightNorm());
-
-	NativeMatrixPtr weights(new  NativeMatrix([&]() {
-		return make_unique<NativeInteger>(dugWeights.GenerateInteger()); }, algorithm.GetDimension(),1));
-
-	TIC(t);
-	NativeMatrixPtr ciphertext = algorithm.Encrypt(keys,weights);
-	processingTime = TOC(t);
-	std::cout << "\nEncryption time: " << processingTime << "ms" << std::endl;\
-
 	//Generate parameters.
 	double start, finish;
 
 	start = currentDateTime();
-	NativeInteger result = algorithm.Evaluate(input,ciphertext,keys.m_publicKey,token);
+	NativeInteger result = algorithm.Evaluate(input,ciphertext,keys.m_publicRandomVector,token);
 	finish = currentDateTime();
 	processingTime = finish - start;
 	std::cout << "\nEvaluation time: " << processingTime << "ms" << std::endl;

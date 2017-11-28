@@ -40,9 +40,9 @@
  */
 namespace lbcrypto {
 
-	struct LWETBOKeyPair{
+	struct LWETBOKeys{
 		shared_ptr<Matrix<native_int::BigInteger>> m_secretKey;
-		shared_ptr<Matrix<native_int::BigInteger>> m_publicKey;
+		shared_ptr<Matrix<native_int::BigInteger>> m_publicRandomVector;
 	};
 
 	/**
@@ -55,15 +55,13 @@ namespace lbcrypto {
 		typedef shared_ptr<Matrix<NativeInteger>> NativeMatrixPtr;
 		typedef Matrix<NativeInteger> NativeMatrix;
 
-		//typedef shared_ptr<vector<vector<shared_ptr<Matrix<Element>>>>> KeyType;
-
 		/**
 		 * Constructor
 		 *
 		 * @param N the dimension of linear system
 		 * @param n LWE security parameter
-		 * @param wmax weight modulus
-		 * @param p infinity norm of input data
+		 * @param wmax infinity norm of the weights vector
+		 * @param pmax infinity norm of input data vector
 		 */
 		explicit LWETBOLinearSecret(usint N, usint n, usint wmax, usint pmax);
 
@@ -79,39 +77,100 @@ namespace lbcrypto {
 		 */
 		usint GetLogModulus() const;
 
+		/**
+		 * Gets the weight infinity norm
+		 * @return the weight norm
+		 */
 		usint GetWeightNorm() const {return m_wmax;}
 
-		usint GetPlaintextModulus() const {return m_p;}
+		/**
+		 * Gets the "plaintext" modulus p used by the LWE scheme
+		 * @return p
+		 */
+		uint64_t GetPlaintextModulus() const {return m_p;}
 
+		/**
+		 * Gets "ciphertext" modulus for the LWE problem
+		 * @return the ciphertext modulus q
+		 */
 		NativeInteger GetModulus() const {return m_modulus;}
 
+		/**
+		 * Gets the dimension N of the linear function
+		 * @return the dimension N
+		 */
 		usint GetDimension() const {return m_N;}
 
-		LWETBOKeyPair KeyGen() const;
+		/**
+		 * Generate N random secret vectors Z_q^n and public random vector a
+		 * @return the secret keys and public random vector
+		 */
+		LWETBOKeys KeyGen() const;
 
+		/**
+		 * Generate token t = \Sum{w_i s_i} \in Z_q^n
+		 *
+		 * @param keys secret keys
+		 * @param input input data vector
+		 * @return the token
+		 */
 		NativeMatrixPtr TokenGen(const NativeMatrixPtr keys, const NativeMatrixPtr input) const;
 
-		NativeMatrixPtr Encrypt(const LWETBOKeyPair &keyPair, const NativeMatrixPtr weights) const;
+		/**
+		 * Generates an encryption of weights (obfuscated program)
+		 *
+		 * @param keyPair secret keys + public random vector
+		 * @param weigts the weights vector
+		 * @return the obfuscated program
+		 */
+		NativeMatrixPtr Obfuscate(const LWETBOKeys &keyPair, const NativeMatrixPtr weights) const;
 
+		/**
+		 * Evaluates \Sum{w_i x_i} using obfuscated program
+		 *
+		 * @param input input data vector
+		 * @param ciphertext obfuscated program
+		 * @param publicRandomVector public random vector
+		 * @param token the token for the input data vector
+		 * @return the result of the summation
+		 */
 		NativeInteger Evaluate(const NativeMatrixPtr input, const NativeMatrixPtr ciphertext,
-				const NativeMatrixPtr publicKey, const NativeMatrixPtr token) const;
+				const NativeMatrixPtr publicRandomVector, const NativeMatrixPtr token) const;
 
+		/**
+		 * Evaluates \Sum{w_i x_i} using cleartext program
+		 *
+		 * @param input input data vector
+		 * @param weigts the weights vector
+		 * @return the result of the summation
+		 */
 		NativeInteger EvaluateClear(const NativeMatrixPtr input, const NativeMatrixPtr weights) const;
 
 	private:
 
+		// Dimension of the linear function
 		usint m_N;
+
+		// LWE security parameter
 		usint m_n;
+
+		// Infinity norm for the weight vector
 		usint m_wmax;
-		usint m_p;
+
+		// Plaintext modulus p
+		uint64_t m_p;
+
+		// Infinity norm for the input data vector
 		usint m_pmax;
 
+		// LWE "ciphertext" modulus q
 		NativeInteger m_modulus;
 
+		// Discrete Gaussian distribution for generating the noise in the LWE encryption
 		DiscreteGaussianGeneratorImpl<NativeInteger,native_int::BigVector> m_dgg;
 
 		/**
-		 * Method to estimed the modulus
+		 * Method to estimate the modulus
 		 * Used as a subroutine by constructor
 		 *
 		 * @return estimated value q of modulus

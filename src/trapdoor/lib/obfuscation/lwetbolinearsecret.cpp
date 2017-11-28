@@ -65,7 +65,7 @@ double LWETBOLinearSecret::EstimateModulus() {
 
 };
 
-LWETBOKeyPair LWETBOLinearSecret::KeyGen() const
+LWETBOKeys LWETBOLinearSecret::KeyGen() const
 {
 
 	DiscreteUniformGeneratorImpl<NativeInteger,native_int::BigVector> dug;
@@ -74,13 +74,13 @@ LWETBOKeyPair LWETBOLinearSecret::KeyGen() const
 	// discrete uniform generator is used to generate the secret keys
 	NativeMatrixPtr secretKey(new Matrix<NativeInteger>([&]() { return make_unique<NativeInteger>(dug.GenerateInteger()); }, m_n,m_N));
 
-	NativeMatrixPtr publicKey(new Matrix<NativeInteger>([&]() { return make_unique<NativeInteger>(dug.GenerateInteger()); }, 1,m_n));
+	NativeMatrixPtr publicRandomVector(new Matrix<NativeInteger>([&]() { return make_unique<NativeInteger>(dug.GenerateInteger()); }, 1,m_n));
 
-	LWETBOKeyPair keyPair;
-	keyPair.m_secretKey = secretKey;
-	keyPair.m_publicKey = publicKey;
+	LWETBOKeys keys;
+	keys.m_secretKey = secretKey;
+	keys.m_publicRandomVector = publicRandomVector;
 
-	return keyPair;
+	return keys;
 
 }
 
@@ -97,7 +97,7 @@ shared_ptr<Matrix<native_int::BigInteger>> LWETBOLinearSecret::TokenGen(const Na
 
 }
 
-shared_ptr<Matrix<native_int::BigInteger>> LWETBOLinearSecret::Encrypt(const LWETBOKeyPair &keyPair, const NativeMatrixPtr weights) const
+shared_ptr<Matrix<native_int::BigInteger>> LWETBOLinearSecret::Obfuscate(const LWETBOKeys &keyPair, const NativeMatrixPtr weights) const
 {
 
 	NativeMatrixPtr ciphertext(new Matrix<NativeInteger>([&]() { return make_unique<NativeInteger>(); }, m_N,1));
@@ -106,7 +106,7 @@ shared_ptr<Matrix<native_int::BigInteger>> LWETBOLinearSecret::Encrypt(const LWE
 	{
 
 		for (size_t ni = 0; ni < keyPair.m_secretKey->GetRows(); ni++){
-			(*ciphertext)(Ni,0) = (*ciphertext)(Ni,0).ModAdd((*keyPair.m_secretKey)(ni,Ni).ModMul((*keyPair.m_publicKey)(0,ni),m_modulus),m_modulus);
+			(*ciphertext)(Ni,0) = (*ciphertext)(Ni,0).ModAdd((*keyPair.m_secretKey)(ni,Ni).ModMul((*keyPair.m_publicRandomVector)(0,ni),m_modulus),m_modulus);
 		}
 
 		(*ciphertext)(Ni,0) = (*ciphertext)(Ni,0).ModAdd(NativeInteger(m_p)*m_dgg.GenerateInteger(m_modulus),m_modulus);
