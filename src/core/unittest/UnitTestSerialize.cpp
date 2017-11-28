@@ -96,12 +96,12 @@ TEST(UTSer,cpu_int){
 }
 
 TEST(UTSer,native_int){
-	native_int::BigInteger small(7);
-	native_int::BigInteger medium(1ULL<<27 | 1ULL<<22);
-	native_int::BigInteger larger(1ULL<<40 | 1ULL<<22);
+	NativeInteger small(7);
+	NativeInteger medium(1ULL<<27 | 1ULL<<22);
+	NativeInteger larger(1ULL<<40 | 1ULL<<22);
 
 	string ser;
-	native_int::BigInteger deser;
+	NativeInteger deser;
 
 	ser = small.Serialize();
 	deser.Deserialize(ser.c_str());
@@ -166,11 +166,11 @@ TEST(UTSer,vector_of_cpu_int){
 
 TEST(UTSer,vector_of_native_int){
 	const int vecsize = 100;
-	const native_int::BigInteger mod((uint64_t)1<<40);
-	native_int::BigVector	testvec(vecsize, mod);
-	native_int::Poly::DugType	dug;
+	const NativeInteger mod((uint64_t)1<<40);
+	NativeVector	testvec(vecsize, mod);
+	NativePoly::DugType	dug;
 	dug.SetModulus(mod);
-	native_int::BigInteger ranval;
+	NativeInteger ranval;
 
 	for( int i=0; i<vecsize; i++ ) {
 		ranval = dug.GenerateInteger();
@@ -181,7 +181,7 @@ TEST(UTSer,vector_of_native_int){
 	ser.SetObject();
 	ASSERT_TRUE( testvec.Serialize(&ser) ) << "Serialization failed";
 
-	native_int::BigVector newvec;
+	NativeVector newvec;
 	ASSERT_TRUE( newvec.Deserialize(ser) ) << "Deserialization failed";
 
 	EXPECT_EQ( testvec, newvec ) << "Mismatch after ser/deser";

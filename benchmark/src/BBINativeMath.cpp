@@ -76,7 +76,7 @@ using namespace lbcrypto;
 
 // test BBI constants
 static void make_BBINative_constants(void) {	// function
-	native_int::BigInteger one(1);
+	NativeInteger one(1);
 }
 
 void BM_BBINative_constants(benchmark::State& state) { // benchmark
@@ -90,11 +90,11 @@ void BM_BBINative_constants(benchmark::State& state) { // benchmark
 BENCHMARK(BM_BBINative_constants);		// register benchmark
 
 // make variables
-static native_int::BigInteger smalla("10403"), smallb("103");
-static native_int::BigInteger largea("4294967295"), largeb("4294967");
+static NativeInteger smalla("10403"), smallb("103");
+static NativeInteger largea("4294967295"), largeb("4294967");
 
 static void make_BBINative_small_variables (void) {	// function
-	native_int::BigInteger a("10403"), b("103");
+	NativeInteger a("10403"), b("103");
 }
 
 
@@ -110,7 +110,7 @@ BENCHMARK(BM_BBINative_small_variables);		// register benchmark
 
 
 static void make_BBINative_large_variables (void) {	// function
-	native_int::BigInteger a("9446744073709551616"), b("9446744073709551617");
+	NativeInteger a("9446744073709551616"), b("9446744073709551617");
 }
 
 void BM_BBINative_large_variables(benchmark::State& state) { // benchmark
@@ -124,11 +124,11 @@ BENCHMARK(BM_BBINative_large_variables);
 // add
 static void add_BBINative(benchmark::State& state) {	// function
 	state.PauseTiming();
-	native_int::BigInteger& a = state.range(0) == 0 ? smalla : largea;
-	native_int::BigInteger& b = state.range(0) == 0 ? smallb : largeb;
+	NativeInteger& a = state.range(0) == 0 ? smalla : largea;
+	NativeInteger& b = state.range(0) == 0 ? smallb : largeb;
 	state.ResumeTiming();
 
-	native_int::BigInteger c1 = a+b;
+	NativeInteger c1 = a+b;
 }
 
 static void BM_BBINative_Addition(benchmark::State& state) { // benchmark
@@ -144,11 +144,11 @@ BENCHMARK(BM_BBINative_Addition)->ArgName("Large")->Arg(1);
 // add
 static void mult_BBINative(benchmark::State& state) {	// function
 	state.PauseTiming();
-	native_int::BigInteger& a = state.range(0) == 0 ? smalla : largea;
-	native_int::BigInteger& b = state.range(0) == 0 ? smallb : largeb;
+	NativeInteger& a = state.range(0) == 0 ? smalla : largea;
+	NativeInteger& b = state.range(0) == 0 ? smallb : largeb;
 	state.ResumeTiming();
 
-	native_int::BigInteger c1 = a*b;
+	NativeInteger c1 = a*b;
 }
 
 static void BM_BBINative_Multiplication(benchmark::State& state) { // benchmark

@@ -170,35 +170,35 @@ namespace lbcrypto {
 			*
 			* @return the precomputed table
 			*/
-			const std::vector<native_int::BigInteger>& GetCRTDecryptionIntTable() const { return m_CRTDecryptionIntTable; }
+			const std::vector<NativeInteger>& GetCRTDecryptionIntTable() const { return m_CRTDecryptionIntTable; }
 
 			/**
 			* Gets the precomputed table of floor(Q/p) mod qi
 			*
 			* @return the precomputed table
 			*/
-			const std::vector<native_int::BigInteger>& GetCRTDeltaTable() const { return m_CRTDeltaTable; }
+			const std::vector<NativeInteger>& GetCRTDeltaTable() const { return m_CRTDeltaTable; }
 
 			/**
 			* Gets the precomputed table of (Q/qi)^{-1} mod qi
 			*
 			* @return the precomputed table
 			*/
-			const std::vector<native_int::BigInteger>& GetCRTInverseTable() const { return m_CRTInverseTable; }
+			const std::vector<NativeInteger>& GetCRTInverseTable() const { return m_CRTInverseTable; }
 
 			/**
 			* Gets the precomputed table of (Q/qi) mod si
 			*
 			* @return the precomputed table
 			*/
-			const std::vector<std::vector<native_int::BigInteger>>& GetCRTqDivqiModsiTable() const { return m_CRTqDivqiModsiTable; }
+			const std::vector<std::vector<NativeInteger>>& GetCRTqDivqiModsiTable() const { return m_CRTqDivqiModsiTable; }
 
 			/**
 			* Gets the precomputed table of Q mod si
 			*
 			* @return the precomputed table
 			*/
-			const std::vector<native_int::BigInteger>& GetCRTqModsiTable() const { return m_CRTqModsiTable; }
+			const std::vector<NativeInteger>& GetCRTqModsiTable() const { return m_CRTqModsiTable; }
 
 			/**
 			* Gets the precomputed table of [p*S*(Q*S/vi)^{-1}]_vi / vi
@@ -212,28 +212,28 @@ namespace lbcrypto {
 			*
 			* @return the precomputed table
 			*/
-			const std::vector<std::vector<native_int::BigInteger>>& GetCRTMultIntTable() const { return m_CRTMultIntTable; }
+			const std::vector<std::vector<NativeInteger>>& GetCRTMultIntTable() const { return m_CRTMultIntTable; }
 
 			/**
 			* Gets the precomputed table of (S/si)^{-1} mod si
 			*
 			* @return the precomputed table
 			*/
-			const std::vector<native_int::BigInteger>& GetCRTSInverseTable() const { return m_CRTSInverseTable; }
+			const std::vector<NativeInteger>& GetCRTSInverseTable() const { return m_CRTSInverseTable; }
 
 			/**
 			* Gets the precomputed table of (S/si) mod qi table
 			*
 			* @return the precomputed table
 			*/
-			const std::vector<std::vector<native_int::BigInteger>>& GetCRTsDivsiModqiTable() const { return m_CRTsDivsiModqiTable; }
+			const std::vector<std::vector<NativeInteger>>& GetCRTsDivsiModqiTable() const { return m_CRTsDivsiModqiTable; }
 
 			/**
 			* Gets the precomputed table of S mod qi table
 			*
 			* @return the precomputed table
 			*/
-			const std::vector<native_int::BigInteger>& GetCRTsModqiTable() const { return m_CRTsModqiTable; }
+			const std::vector<NativeInteger>& GetCRTsModqiTable() const { return m_CRTsModqiTable; }
 
 			/**
 			* == operator to compare to this instance of LPCryptoParametersBFVrns object.
@@ -264,34 +264,34 @@ namespace lbcrypto {
 			std::vector<double> m_CRTDecryptionFloatTable;
 
 			// Stores a precomputed table of floor[(p*[(Q/qi)^{-1}]_qi)/qi]_p
-			std::vector<native_int::BigInteger> m_CRTDecryptionIntTable;
+			std::vector<NativeInteger> m_CRTDecryptionIntTable;
 
 			// Stores a precomputed table of floor(Q/p) mod qi
-			std::vector<native_int::BigInteger> m_CRTDeltaTable;
+			std::vector<NativeInteger> m_CRTDeltaTable;
 
 			// Stores a precomputed table of (Q/qi)^{-1} mod qi
-			std::vector<native_int::BigInteger> m_CRTInverseTable;
+			std::vector<NativeInteger> m_CRTInverseTable;
 
 			// Stores a precomputed table of (Q/qi) mod si
-			std::vector<std::vector<native_int::BigInteger>> m_CRTqDivqiModsiTable;
+			std::vector<std::vector<NativeInteger>> m_CRTqDivqiModsiTable;
 
 			// Stores a precomputed table of Q mod si
-			std::vector<native_int::BigInteger> m_CRTqModsiTable;
+			std::vector<NativeInteger> m_CRTqModsiTable;
 
 			// Stores a precomputed table of floor[p*S*[(Q*S/vi)^{-1}]_vi/vi] mod si
-			std::vector<std::vector<native_int::BigInteger>> m_CRTMultIntTable;
+			std::vector<std::vector<NativeInteger>> m_CRTMultIntTable;
 
 			// Stores a precomputed table of [p*S*(Q*S/vi)^{-1}]_vi / vi
 			std::vector<double> m_CRTMultFloatTable;
 
 			// Stores a precomputed table of (S/si)^{-1} mod si
-			std::vector<native_int::BigInteger> m_CRTSInverseTable;
+			std::vector<NativeInteger> m_CRTSInverseTable;
 
 			// Stores a precomputed table of (S/si) mod qi table
-			std::vector<std::vector<native_int::BigInteger>> m_CRTsDivsiModqiTable;
+			std::vector<std::vector<NativeInteger>> m_CRTsDivsiModqiTable;
 
 			// Stores a precomputed table of S mod qi table
-			std::vector<native_int::BigInteger> m_CRTsModqiTable;
+			std::vector<NativeInteger> m_CRTsModqiTable;
 
 	};
 

@@ -95,12 +95,12 @@ bool Matrix<BigInteger>::Deserialize(const Serialized& serObj) {
 }
 
 template<>
-bool Matrix<native_int::BigInteger>::Serialize(Serialized* serObj) const {
+bool Matrix<NativeInteger>::Serialize(Serialized* serObj) const {
 	return false;
 }
 
 template<>
-bool Matrix<native_int::BigInteger>::Deserialize(const Serialized& serObj) {
+bool Matrix<NativeInteger>::Deserialize(const Serialized& serObj) {
 	return false;
 }
 

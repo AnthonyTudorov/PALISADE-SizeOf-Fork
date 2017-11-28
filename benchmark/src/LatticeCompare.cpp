@@ -60,8 +60,8 @@
 using namespace std;
 using namespace lbcrypto;
 
-typedef native_int::BigInteger nativeInt;
-typedef native_int::BigVector nativeVec;
+typedef NativeInteger nativeInt;
+typedef NativeVector nativeVec;
 typedef native_int::ILParams nativeParams;
 
 //typedef cpu_int::BigInteger<uint32_t,64>  smallInt32_64;

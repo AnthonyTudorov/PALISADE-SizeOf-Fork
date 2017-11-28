@@ -56,21 +56,21 @@ shared_ptr<typename DCRTPoly::Params> LWEConjunctionObfuscationAlgorithm<DCRTPol
 	size_t dcrtBits = 60;
 	size_t size = ceil((floor(log2(q - 1.0)) + 2.0) / (double)dcrtBits);
 
-	vector<native_int::BigInteger> moduli(size);
-	vector<native_int::BigInteger> roots(size);
+	vector<NativeInteger> moduli(size);
+	vector<NativeInteger> roots(size);
 
-	moduli[0] = FirstPrime<native_int::BigInteger>(dcrtBits, 2 * n);
-	roots[0] = RootOfUnity<native_int::BigInteger>(2 * n, moduli[0]);
+	moduli[0] = FirstPrime<NativeInteger>(dcrtBits, 2 * n);
+	roots[0] = RootOfUnity<NativeInteger>(2 * n, moduli[0]);
 
 	for (size_t i = 1; i < size - 1; i++)
 	{
-		moduli[i] = NextPrime<native_int::BigInteger>(moduli[i-1], 2 * n);
-		roots[i] = RootOfUnity<native_int::BigInteger>(2 * n, moduli[i]);
+		moduli[i] = NextPrime<NativeInteger>(moduli[i-1], 2 * n);
+		roots[i] = RootOfUnity<NativeInteger>(2 * n, moduli[i]);
 	}
 
 	if (size > 1) {
-		moduli[size-1] = FirstPrime<native_int::BigInteger>(dcrtBits-1, 2 * n);
-		roots[size-1] = RootOfUnity<native_int::BigInteger>(2 * n, moduli[size-1]);
+		moduli[size-1] = FirstPrime<NativeInteger>(dcrtBits-1, 2 * n);
+		roots[size-1] = RootOfUnity<NativeInteger>(2 * n, moduli[size-1]);
 	}
 
 	shared_ptr<ILDCRTParams<BigInteger>> params(new ILDCRTParams<BigInteger>(2 * n, moduli, roots));

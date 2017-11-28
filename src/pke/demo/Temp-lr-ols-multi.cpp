@@ -120,10 +120,11 @@ void TestLR(const string &paramDir,  const string &contextID, const string &keyD
 
 shared_ptr<CryptoContext<DCRTPoly>> DeserializeContext(const string& ccFileName);
 void ReadCSVFile(string dataFileName,  vector<string>& headers, vector<vector<double> >& dataColumns);
+<<<<<<< 415742edd0535b5c5ad61973e19d4a4f831701a1
 void EncodeData(shared_ptr<CryptoContext<DCRTPoly>> cc, const std::vector<string> &headers, const vector<vector<double>>& dataColumns, Matrix<Plaintext> &x, Plaintext &y);
-void CRTInterpolate(const vector<shared_ptr<Matrix<Plaintext>>> &crtVector, Matrix<native_int::BigInteger> &result);
-void MatrixInverse(const Matrix<native_int::BigInteger> &in, Matrix<double> &out);
-void DecodeData(const Matrix<double> &lr, const Matrix<native_int::BigInteger>& XTX, const Matrix<native_int::BigInteger>& XTY, std::vector<double> &result);
+void CRTInterpolate(const vector<shared_ptr<Matrix<Plaintext>>> &crtVector, Matrix<NativeInteger> &result);
+void MatrixInverse(const Matrix<NativeInteger> &in, Matrix<double> &out);
+void DecodeData(const Matrix<double> &lr, const Matrix<NativeInteger>& XTX, const Matrix<NativeInteger>& XTY, std::vector<double> &result);
 
 void ConvertMatrixInto2DVector(const Matrix<RationalCiphertext<DCRTPoly>> &matrix, vector<vector<shared_ptr<Ciphertext<DCRTPoly>>>> &vec);
 
@@ -355,10 +356,10 @@ void ParamGen(string &paramDir, const string &contextID) {
 
 		// populate the towers for the small modulus
 
-		vector<native_int::BigInteger> init_moduli(init_size);
-		vector<native_int::BigInteger> init_rootsOfUnity(init_size);
+		vector<NativeInteger> init_moduli(init_size);
+		vector<NativeInteger> init_rootsOfUnity(init_size);
 
-		native_int::BigInteger q = FirstPrime<native_int::BigInteger>(dcrtBits, m);
+		NativeInteger q = FirstPrime<NativeInteger>(dcrtBits, m);
 		init_moduli[0] = q;
 		init_rootsOfUnity[0] = RootOfUnity(m, init_moduli[0]);
 
@@ -1820,7 +1821,7 @@ void TestLR(const string &paramDir,  const string &contextID, const string &keyD
 
 	}
 
-	auto zeroAlloc64 = [=]() { return lbcrypto::make_unique<native_int::BigInteger>(); };
+	auto zeroAlloc64 = [=]() { return lbcrypto::make_unique<NativeInteger>(); };
 
 	// Convert back to large plaintext modulus
 
@@ -1828,8 +1829,8 @@ void TestLR(const string &paramDir,  const string &contextID, const string &keyD
 
 	std::cout << "CRT Interpolation to transform to large plainext modulus...";
 
-	shared_ptr<Matrix<native_int::BigInteger>> XTX(new Matrix<native_int::BigInteger>(zeroAlloc64));
-	shared_ptr<Matrix<native_int::BigInteger>> XTY(new Matrix<native_int::BigInteger>(zeroAlloc64));
+	shared_ptr<Matrix<NativeInteger>> XTX(new Matrix<NativeInteger>(zeroAlloc64));
+	shared_ptr<Matrix<NativeInteger>> XTY(new Matrix<NativeInteger>(zeroAlloc64));
 
 	CRTInterpolate(xTxCRT, *XTX);
 	CRTInterpolate(xTyCRT, *XTY);
@@ -2417,7 +2418,7 @@ void FuseDecode(const string &paramDir, const string &contextID,
 		
 	}
 
-	auto zeroAlloc64 = [=]() { return lbcrypto::make_unique<native_int::BigInteger>(); };
+	auto zeroAlloc64 = [=]() { return lbcrypto::make_unique<NativeInteger>(); };
 
 	// Convert back to large plaintext modulus
 
@@ -2425,8 +2426,8 @@ void FuseDecode(const string &paramDir, const string &contextID,
 
 	std::cout << "CRT Interpolation to transform to large plaintext modulus...";
 
-	shared_ptr<Matrix<native_int::BigInteger>> XTX(new Matrix<native_int::BigInteger>(zeroAlloc64));
-	shared_ptr<Matrix<native_int::BigInteger>> XTY(new Matrix<native_int::BigInteger>(zeroAlloc64));
+	shared_ptr<Matrix<NativeInteger>> XTX(new Matrix<NativeInteger>(zeroAlloc64));
+	shared_ptr<Matrix<NativeInteger>> XTY(new Matrix<NativeInteger>(zeroAlloc64));
 
 	CRTInterpolate(xTxCRT, *XTX);
 	CRTInterpolate(xTyCRT, *XTY);
@@ -2622,15 +2623,15 @@ void EncodeData(shared_ptr<CryptoContext<DCRTPoly>> cc, const std::vector<string
 
 }
 
-void CRTInterpolate(const vector<shared_ptr<Matrix<Plaintext>>> &crtVector, Matrix<native_int::BigInteger> &result) {
+void CRTInterpolate(const vector<shared_ptr<Matrix<Plaintext>>> &crtVector, Matrix<NativeInteger> &result) {
 
 	result.SetSize(crtVector[0]->GetRows(), crtVector[0]->GetCols());
 
-     	std::vector<native_int::BigInteger> q = { 40961, 59393 };
+     	std::vector<NativeInteger> q = { 40961, 59393 };
 
-    	native_int::BigInteger Q(2432796673);
+    	NativeInteger Q(2432796673);
 
-	std::vector<native_int::BigInteger> qInverse;
+	std::vector<NativeInteger> qInverse;
 
 	for (size_t i = 0; i < crtVector.size(); i++) {
 
@@ -2641,9 +2642,9 @@ void CRTInterpolate(const vector<shared_ptr<Matrix<Plaintext>>> &crtVector, Matr
 	{
 		for (size_t j = 0; j < result.GetCols(); j++)
 		{
-			native_int::BigInteger value = 0;
+			NativeInteger value = 0;
 			for (size_t i = 0; i < crtVector.size(); i++) {
-				value += ((native_int::BigInteger((*crtVector[i])(k,j)->GetCoefPackedValue()[0])*qInverse[i]).Mod(q[i])*Q/q[i]).Mod(Q);
+				value += ((NativeInteger((*crtVector[i])(k,j)->GetCoefPackedValue()[0])*qInverse[i]).Mod(q[i])*Q/q[i]).Mod(Q);
 			}
 			result(k, j) = value.Mod(Q);
 		}
@@ -2651,7 +2652,7 @@ void CRTInterpolate(const vector<shared_ptr<Matrix<Plaintext>>> &crtVector, Matr
 
 }
 
-void MatrixInverse(const Matrix<native_int::BigInteger> &in, Matrix<double> &out)
+void MatrixInverse(const Matrix<NativeInteger> &in, Matrix<double> &out)
 {
 	matrix <double> M(in.GetRows(), in.GetCols());
 
@@ -2671,7 +2672,7 @@ void MatrixInverse(const Matrix<native_int::BigInteger> &in, Matrix<double> &out
 
 }
 
-void DecodeData(const Matrix<double> &lr, const Matrix<native_int::BigInteger>& XTX, const Matrix<native_int::BigInteger>& XTY, std::vector<double> &result)
+void DecodeData(const Matrix<double> &lr, const Matrix<NativeInteger>& XTX, const Matrix<NativeInteger>& XTY, std::vector<double> &result)
 {	
 	//constant term
 	/*

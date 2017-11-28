@@ -71,11 +71,11 @@ template class PolyImpl<BigInteger,BigInteger,BigVector,ILParams>;
 
 namespace lbcrypto
 {
-template class DiscreteGaussianGeneratorImpl<native_int::BigInteger,native_int::BigVector>;
-template class BinaryUniformGeneratorImpl<native_int::BigInteger,native_int::BigVector>;
-template class TernaryUniformGeneratorImpl<native_int::BigInteger,native_int::BigVector>;
-template class DiscreteUniformGeneratorImpl<native_int::BigInteger,native_int::BigVector>;
+template class DiscreteGaussianGeneratorImpl<NativeInteger,NativeVector>;
+template class BinaryUniformGeneratorImpl<NativeInteger,NativeVector>;
+template class TernaryUniformGeneratorImpl<NativeInteger,NativeVector>;
+template class DiscreteUniformGeneratorImpl<NativeInteger,NativeVector>;
 
-template class PolyImpl<native_int::BigInteger,native_int::BigInteger,native_int::BigVector,ILNativeParams>;
-template class ILParamsImpl<native_int::BigInteger>;
+template class PolyImpl<NativeInteger,NativeInteger,NativeVector,ILNativeParams>;
+template class ILParamsImpl<NativeInteger>;
 }

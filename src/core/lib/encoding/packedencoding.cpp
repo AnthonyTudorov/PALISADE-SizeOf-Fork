@@ -28,13 +28,13 @@
 
 namespace lbcrypto {
 
-	std::map<native_int::BigInteger, native_int::BigInteger> PackedEncoding::m_initRoot;
-	std::map<native_int::BigInteger, native_int::BigInteger> PackedEncoding::m_bigModulus;
-	std::map<native_int::BigInteger, native_int::BigInteger> PackedEncoding::m_bigRoot;
+	std::map<NativeInteger, NativeInteger> PackedEncoding::m_initRoot;
+	std::map<NativeInteger, NativeInteger> PackedEncoding::m_bigModulus;
+	std::map<NativeInteger, NativeInteger> PackedEncoding::m_bigRoot;
 
-	std::map<native_int::BigInteger, usint> PackedEncoding::m_automorphismGenerator;
-	std::map<native_int::BigInteger, std::vector<usint>> PackedEncoding::m_toCRTPerm;
-	std::map<native_int::BigInteger, std::vector<usint>> PackedEncoding::m_fromCRTPerm;
+	std::map<NativeInteger, usint> PackedEncoding::m_automorphismGenerator;
+	std::map<NativeInteger, std::vector<usint>> PackedEncoding::m_toCRTPerm;
+	std::map<NativeInteger, std::vector<usint>> PackedEncoding::m_fromCRTPerm;
 
 	bool PackedEncoding::Encode() {
 		if( this->isEncoded ) return true;
@@ -95,7 +95,7 @@ namespace lbcrypto {
 	// FIXME: can these two SetParams methods be collapsed into one??
 	void PackedEncoding::SetParams(usint m, shared_ptr<EncodingParams> params)
 	{
-		native_int::BigInteger modulusNI(params->GetPlaintextModulus().ConvertToInt()); //native int modulus
+		NativeInteger modulusNI(params->GetPlaintextModulus().ConvertToInt()); //native int modulus
 		std::string exception_message;
 		bool hadEx = false;
 
@@ -108,7 +108,7 @@ namespace lbcrypto {
 			else {
 				// Arbitrary: Bluestein based CRT Arb. So we need the 2mth root of unity
 				if (params->GetPlaintextRootOfUnity() == 0) {
-					native_int::BigInteger initRoot = RootOfUnity<native_int::BigInteger>(2 * m, modulusNI);
+					NativeInteger initRoot = RootOfUnity<NativeInteger>(2 * m, modulusNI);
 					m_initRoot[modulusNI] = initRoot;
 					params->SetPlaintextRootOfUnity(m_initRoot[modulusNI].ConvertToInt());
 				}
@@ -123,9 +123,9 @@ namespace lbcrypto {
 					}
 					else {
 						usint bigModulusSize = ceil(log2(2 * m - 1)) + 2 * modulusNI.GetMSB() + 1;
-						m_bigModulus[modulusNI] = FirstPrime<native_int::BigInteger>(bigModulusSize, nttDim);
+						m_bigModulus[modulusNI] = FirstPrime<NativeInteger>(bigModulusSize, nttDim);
 					}
-					m_bigRoot[modulusNI] = RootOfUnity<native_int::BigInteger>(nttDim, m_bigModulus[modulusNI]);
+					m_bigRoot[modulusNI] = RootOfUnity<NativeInteger>(nttDim, m_bigModulus[modulusNI]);
 					params->SetPlaintextBigModulus(m_bigModulus[modulusNI].ConvertToInt());
 					params->SetPlaintextBigRootOfUnity(m_bigRoot[modulusNI].ConvertToInt());
 				}
@@ -137,8 +137,8 @@ namespace lbcrypto {
 
 				// Find a generator for the automorphism group
 				if (params->GetPlaintextGenerator() == 0) {
-					native_int::BigInteger M(m); // Hackish typecast
-					native_int::BigInteger automorphismGenerator = FindGeneratorCyclic<native_int::BigInteger>(M);
+					NativeInteger M(m); // Hackish typecast
+					NativeInteger automorphismGenerator = FindGeneratorCyclic<NativeInteger>(M);
 					m_automorphismGenerator[modulusNI] = automorphismGenerator.ConvertToInt();
 					params->SetPlaintextGenerator(m_automorphismGenerator[modulusNI]);
 				}
@@ -177,7 +177,7 @@ namespace lbcrypto {
 
 	void PackedEncoding::SetParams(const BigInteger &modulus, usint m)
 	{
-		native_int::BigInteger modulusNI(modulus.ConvertToInt()); //native int modulus
+		NativeInteger modulusNI(modulus.ConvertToInt()); //native int modulus
 
 		std::string exception_message;
 		bool hadEx = false;
@@ -189,7 +189,7 @@ namespace lbcrypto {
 				SetParams_2n(m, modulusNI);
 			}
 			else {
-				native_int::BigInteger initRoot = RootOfUnity<native_int::BigInteger>(2 * m, modulusNI);
+				NativeInteger initRoot = RootOfUnity<NativeInteger>(2 * m, modulusNI);
 
 				// Arbitrary: Bluestein based CRT Arb. So we need the 2mth root of unity
 
@@ -202,16 +202,16 @@ namespace lbcrypto {
 				}
 				else {
 					usint bigModulusSize = ceil(log2(2 * m - 1)) + 2 * modulusNI.GetMSB() + 1;
-					m_bigModulus[modulusNI] = FirstPrime<native_int::BigInteger>(bigModulusSize, nttDim);
+					m_bigModulus[modulusNI] = FirstPrime<NativeInteger>(bigModulusSize, nttDim);
 				}
 
-				auto ri = RootOfUnity<native_int::BigInteger>(nttDim, m_bigModulus[modulusNI]);
+				auto ri = RootOfUnity<NativeInteger>(nttDim, m_bigModulus[modulusNI]);
 				m_bigRoot[modulusNI] = ri;
 
 
 				// Find a generator for the automorphism group
-				native_int::BigInteger M(m); // Hackish typecast
-				native_int::BigInteger automorphismGenerator = FindGeneratorCyclic<native_int::BigInteger>(M);
+				NativeInteger M(m); // Hackish typecast
+				NativeInteger automorphismGenerator = FindGeneratorCyclic<NativeInteger>(M);
 				m_automorphismGenerator[modulusNI] = automorphismGenerator.ConvertToInt();
 
 				// Create the permutations that interchange the automorphism and crt ordering
@@ -249,7 +249,7 @@ namespace lbcrypto {
 		bool dbg_flag = false;
 
 		usint m = ring->GetCyclotomicOrder();//cyclotomic order
-		native_int::BigInteger modulusNI(modulus.ConvertToInt());//native int modulus
+		NativeInteger modulusNI(modulus.ConvertToInt());//native int modulus
 
 		//Do the precomputation if not initialized
 		if (this->m_initRoot[modulusNI].GetMSB() == 0) {
@@ -261,7 +261,7 @@ namespace lbcrypto {
 		DEBUG("Pack for order " << m << " phim " << phim << " modulus " << modulusNI);
 
 		//copy values from ring to the vector
-		native_int::BigVector slotValues(phim, modulusNI);
+		NativeVector slotValues(phim, modulusNI);
 		for (usint i = 0; i < phim; i++) {
 		  slotValues.at(i)= ring->at(i).ConvertToInt();
 		}
@@ -275,22 +275,22 @@ namespace lbcrypto {
 			if (m_toCRTPerm[modulusNI].size() > 0)
 			{
 				// Permute to CRT Order
-				native_int::BigVector permutedSlots(phim, modulusNI);
+				NativeVector permutedSlots(phim, modulusNI);
 
 				for (usint i = 0; i < phim; i++) {
 				  permutedSlots.at(i)= slotValues.at(m_toCRTPerm[modulusNI][i]);
 				}
-				ChineseRemainderTransformFTT<native_int::BigInteger, native_int::BigVector>::InverseTransform(permutedSlots, m_initRoot[modulusNI], m, &slotValues);
+				ChineseRemainderTransformFTT<NativeInteger, NativeVector>::InverseTransform(permutedSlots, m_initRoot[modulusNI], m, &slotValues);
 			}
 			else
 			{
-				ChineseRemainderTransformFTT<native_int::BigInteger, native_int::BigVector>::InverseTransform(slotValues, m_initRoot[modulusNI], m, &slotValues);
+				ChineseRemainderTransformFTT<NativeInteger, NativeVector>::InverseTransform(slotValues, m_initRoot[modulusNI], m, &slotValues);
 			}
 
 		} else { // Arbitrary cyclotomic
 
 			// Permute to CRT Order
-			native_int::BigVector permutedSlots(phim, modulusNI);
+			NativeVector permutedSlots(phim, modulusNI);
 			for (usint i = 0; i < phim; i++) {
 			  permutedSlots.at(i)= slotValues.at(m_toCRTPerm[modulusNI][i]);
 			}
@@ -300,7 +300,7 @@ namespace lbcrypto {
             DEBUG("m_bigModulus[modulusNI] " << m_bigModulus[modulusNI]);
             DEBUG("m_bigRoot[modulusNI] " << m_bigRoot[modulusNI]);
 
-            slotValues = ChineseRemainderTransformArb<native_int::BigInteger, native_int::BigVector>::
+            slotValues = ChineseRemainderTransformArb<NativeInteger, NativeVector>::
 					InverseTransform(permutedSlots, m_initRoot[modulusNI], m_bigModulus[modulusNI], m_bigRoot[modulusNI], m);
 		}
 
@@ -320,7 +320,7 @@ void PackedEncoding::Unpack(Poly *ring, const BigInteger &modulus) const {
 	bool dbg_flag = false;
 
 		usint m = ring->GetCyclotomicOrder(); // cyclotomic order
-		native_int::BigInteger modulusNI(modulus.ConvertToInt()); //native int modulus
+		NativeInteger modulusNI(modulus.ConvertToInt()); //native int modulus
 
 		//Do the precomputation if not initialized
 		if (this->m_initRoot[modulusNI].GetMSB() == 0) {
@@ -332,19 +332,19 @@ void PackedEncoding::Unpack(Poly *ring, const BigInteger &modulus) const {
 		DEBUG("Unpack for order " << m << " phim " << phim << " modulus " << modulusNI);
 
 		//copy aggregate plaintext values
-		native_int::BigVector packedVector(phim, modulusNI);
+		NativeVector packedVector(phim, modulusNI);
 		for (usint i = 0; i < phim; i++) {
-		  packedVector.at(i)= native_int::BigInteger(ring->at(i).ConvertToInt());
+		  packedVector.at(i)= NativeInteger(ring->at(i).ConvertToInt());
 		}
 
 		DEBUG(packedVector);
 
 		// Transform Coeff to Eval
-		native_int::BigVector permutedSlots(phim, modulusNI);
+		NativeVector permutedSlots(phim, modulusNI);
 		if (!(m & (m-1))) { // Check if m is a power of 2
-			ChineseRemainderTransformFTT<native_int::BigInteger, native_int::BigVector>::ForwardTransform(packedVector, m_initRoot[modulusNI], m, &permutedSlots);
+			ChineseRemainderTransformFTT<NativeInteger, NativeVector>::ForwardTransform(packedVector, m_initRoot[modulusNI], m, &permutedSlots);
 		} else { // Arbitrary cyclotomic
-			permutedSlots = ChineseRemainderTransformArb<native_int::BigInteger, native_int::BigVector>::
+			permutedSlots = ChineseRemainderTransformArb<NativeInteger, NativeVector>::
 					ForwardTransform(packedVector, m_initRoot[modulusNI], m_bigModulus[modulusNI], m_bigRoot[modulusNI], m);
 		}
 

@@ -58,7 +58,7 @@ public:
 	static const usint test = 1;
 };
 
-void testDCRTPolyConstructorNegative(std::vector<native_int::Poly> &towers);
+void testDCRTPolyConstructorNegative(std::vector<NativePoly> &towers);
 
 /*-TESTING METHODS OF LATTICE ELEMENTS    ----------------*/
 
@@ -165,11 +165,11 @@ TEST(UTPoly, ops_tests) {
 
 TEST(UTILNativeVector2n, ops_tests) {
 	usint m = 8;
-	native_int::BigInteger primeModulus("73");
-	native_int::BigInteger primitiveRootOfUnity("22");
+	NativeInteger primeModulus("73");
+	NativeInteger primitiveRootOfUnity("22");
 
-	operators_tests<native_int::BigInteger, native_int::BigVector, native_int::ILParams, native_int::Poly>(
-			ElemParamFactory::GenElemParams<native_int::ILParams,native_int::BigInteger>(m) );
+	operators_tests<NativeInteger, NativeVector, ILNativeParams, NativePoly>(
+			ElemParamFactory::GenElemParams<ILNativeParams,NativeInteger>(m) );
 }
 
 TEST(UTILDCRT2n, ops_tests) {
@@ -262,7 +262,7 @@ TEST(UTPoly, rounding_operations) {
 }
 
 TEST(UTILNativeVector2n, rounding_operations) {
-	rounding_operations<native_int::BigInteger, native_int::BigVector, native_int::ILParams, native_int::Poly>();
+	rounding_operations<NativeInteger, NativeVector, ILNativeParams, NativePoly>();
 }
 
 //TEST(UTILDCRT2n, rounding_operations) {
@@ -317,7 +317,7 @@ TEST(UTPoly, setters_tests) {
 }
 
 TEST(UTILNativeVector2n, setters_tests) {
-	setters_tests<native_int::BigInteger, native_int::BigVector, native_int::ILParams, native_int::Poly>();
+	setters_tests<NativeInteger, NativeVector, ILNativeParams, NativePoly>();
 }
 
 //template for binary_ops()
@@ -412,7 +412,7 @@ TEST(UTPoly, binary_ops) {
 }
 
 TEST(UTILNativeVector2n, binary_ops) {
-	binary_ops<native_int::BigInteger, native_int::BigVector, native_int::ILParams, native_int::Poly>();
+	binary_ops<NativeInteger, NativeVector, ILNativeParams, NativePoly>();
 }
 
 //TEST(UTILDCRT2n, binary_ops) {
@@ -467,7 +467,7 @@ TEST(UTPoly, clone_ops) {
 }
 
 TEST(UTILNativeVector2n, clone_ops) {
-	clone_ops<native_int::BigInteger, native_int::BigVector, native_int::ILParams, native_int::Poly>();
+	clone_ops<NativeInteger, NativeVector, ILNativeParams, NativePoly>();
 }
 
 //TEST(UTILDCRT2n, clone_ops) {
@@ -552,7 +552,7 @@ TEST(UTPoly, arithmetic_ops_element) {
 }
 
 TEST(UTILNativeVector2n, arithmetic_ops_element) {
-	arithmetic_ops_element<native_int::BigInteger, native_int::BigVector, native_int::ILParams, native_int::Poly>();
+	arithmetic_ops_element<NativeInteger, NativeVector, ILNativeParams, NativePoly>();
 }
 
 //TEST(UTILDCRT2n, arithmetic_ops_element) {
@@ -820,7 +820,7 @@ TEST(UTPoly, other_methods) {
 }
 
 TEST(UTILNativeVector2n, other_methods) {
-	other_methods<native_int::BigInteger, native_int::BigVector, native_int::ILParams, native_int::Poly>();
+	other_methods<NativeInteger, NativeVector, ILNativeParams, NativePoly>();
 }
 
 //TEST(UTILDCRT2n, other_methods) {
@@ -841,7 +841,7 @@ TEST(UTPoly, cyclotomicOrder_test) {
 }
 
 TEST(UTILNativeVector2n, cyclotomicOrder_test) {
-	cyclotomicOrder_test<native_int::BigInteger, native_int::BigVector, native_int::ILParams, native_int::Poly>();
+	cyclotomicOrder_test<NativeInteger, NativeVector, ILNativeParams, NativePoly>();
 }
 
 TEST(UTILDCRT2n, cyclotomicOrder_test) {
@@ -855,10 +855,10 @@ TEST(UTILDCRT2n, constructors_test) {
 	usint m = 8;
 	usint towersize = 3;
 
-	std::vector<native_int::BigInteger> moduli(towersize);
-	moduli = {native_int::BigInteger("8353"), native_int::BigInteger("8369"), native_int::BigInteger("8513")};
-	std::vector<native_int::BigInteger> rootsOfUnity(towersize);
-	rootsOfUnity = {native_int::BigInteger("8163"), native_int::BigInteger("6677"), native_int::BigInteger("156")};
+	std::vector<NativeInteger> moduli(towersize);
+	moduli = {NativeInteger("8353"), NativeInteger("8369"), NativeInteger("8513")};
+	std::vector<NativeInteger> rootsOfUnity(towersize);
+	rootsOfUnity = {NativeInteger("8163"), NativeInteger("6677"), NativeInteger("156")};
 
 	BigInteger modulus(1);
 	for (usint i = 0; i < towersize; ++i)
@@ -866,24 +866,24 @@ TEST(UTILDCRT2n, constructors_test) {
 		modulus = modulus * BigInteger(moduli[i].ConvertToInt());
 	}
 
-	shared_ptr<native_int::ILParams> ilparams0( new native_int::ILParams(m, moduli[0], rootsOfUnity[0]) );
-	shared_ptr<native_int::ILParams> ilparams1( new native_int::ILParams(m, moduli[1], rootsOfUnity[1]) );
-	shared_ptr<native_int::ILParams> ilparams2( new native_int::ILParams(m, moduli[2], rootsOfUnity[2]) );
+	shared_ptr<ILNativeParams> ilparams0( new ILNativeParams(m, moduli[0], rootsOfUnity[0]) );
+	shared_ptr<ILNativeParams> ilparams1( new ILNativeParams(m, moduli[1], rootsOfUnity[1]) );
+	shared_ptr<ILNativeParams> ilparams2( new ILNativeParams(m, moduli[2], rootsOfUnity[2]) );
 
-	native_int::Poly ilv0(ilparams0);
-	native_int::BigVector bbv0(m/2, moduli[0]);
+	NativePoly ilv0(ilparams0);
+	NativeVector bbv0(m/2, moduli[0]);
 	bbv0 = {"2","4","3","2"};
 	ilv0.SetValues(bbv0, Format::EVALUATION);
 
-	native_int::Poly ilv1(ilv0);
+	NativePoly ilv1(ilv0);
 	ilv1.SwitchModulus(moduli[1], rootsOfUnity[1]);
 
-	native_int::Poly ilv2(ilv0);
+	NativePoly ilv2(ilv0);
 	ilv2.SwitchModulus(moduli[2], rootsOfUnity[2]);
 
 	shared_ptr<ILDCRTParams<BigInteger>> ildcrtparams( new ILDCRTParams<BigInteger>(m, moduli, rootsOfUnity) );
 
-	std::vector<native_int::Poly> ilvector2nVector;
+	std::vector<NativePoly> ilvector2nVector;
 	ilvector2nVector.push_back(ilv0);
 	ilvector2nVector.push_back(ilv1);
 	ilvector2nVector.push_back(ilv2);
@@ -920,9 +920,9 @@ TEST(UTILDCRT2n, constructors_test) {
 			<<"Failure: ctor ilva.GetNumOfElements()";
 
 		DEBUG("2.1");
-		std::vector<native_int::Poly> ilvector2nVectorInconsistent(towersize);
-		shared_ptr<native_int::ILParams> ilparamsNegativeTestCase( new native_int::ILParams(128, native_int::BigInteger("1231"), native_int::BigInteger("213")) );
-		native_int::Poly ilvNegative(ilparamsNegativeTestCase);
+		std::vector<NativePoly> ilvector2nVectorInconsistent(towersize);
+		shared_ptr<ILNativeParams> ilparamsNegativeTestCase( new ILNativeParams(128, NativeInteger("1231"), NativeInteger("213")) );
+		NativePoly ilvNegative(ilparamsNegativeTestCase);
 		ilvector2nVectorInconsistent[0] = ilvNegative;
 		ilvector2nVectorInconsistent[1] = ilv1;
 		ilvector2nVectorInconsistent[2] = ilv2;
@@ -993,7 +993,7 @@ TEST(UTILDCRT2n, constructors_test) {
 		DCRTPoly ilva(dgg, ildcrtparams);
 		DCRTPoly ilvaClone(ilva.CloneParametersOnly());
 
-		std::vector<native_int::Poly> towersInClone = ilvaClone.GetAllElements();
+		std::vector<NativePoly> towersInClone = ilvaClone.GetAllElements();
 
 		EXPECT_EQ(Format::EVALUATION, ilva.GetFormat());
 		EXPECT_EQ(modulus, ilva.GetModulus());
@@ -1045,7 +1045,7 @@ TEST(UTPoly, signed_mod_tests) {
 }
 
 TEST(UTILNativeVector2n, signed_mod_tests) {
-	signed_mod_tests<native_int::BigInteger, native_int::BigVector, native_int::ILParams, native_int::Poly>();
+	signed_mod_tests<NativeInteger, NativeVector, ILNativeParams, NativePoly>();
 }
 
 //TEST(UTILDCRT2n, signed_mod_tests) {
@@ -1094,7 +1094,7 @@ TEST(UTPoly, transposition_test) {
 }
 
 TEST(UTILNativeVector2n, transposition_test) {
-	transposition_test<native_int::BigInteger, native_int::BigVector, native_int::ILParams, native_int::Poly>();
+	transposition_test<NativeInteger, NativeVector, ILNativeParams, NativePoly>();
 }
 
 // DCRTPoly Only
@@ -1102,16 +1102,16 @@ TEST(UTILDCRT2n, getters_and_operators) {
 	usint m = 8;
 	usint towersize = 3;
 
-	std::vector<native_int::BigInteger> moduli(towersize);
-	moduli = {native_int::BigInteger("8353"),
-		  native_int::BigInteger("8369"),
- 		  native_int::BigInteger("8513")};
+	std::vector<NativeInteger> moduli(towersize);
+	moduli = {NativeInteger("8353"),
+		  NativeInteger("8369"),
+ 		  NativeInteger("8513")};
 
-	std::vector<native_int::BigInteger> rootsOfUnity(towersize);
+	std::vector<NativeInteger> rootsOfUnity(towersize);
 
-	rootsOfUnity = {native_int::BigInteger("8163"), 
-			native_int::BigInteger("6677"), 
-			native_int::BigInteger("156")};
+	rootsOfUnity = {NativeInteger("8163"), 
+			NativeInteger("6677"), 
+			NativeInteger("156")};
 
 	BigInteger modulus(1);
 	for (usint i = 0; i < towersize; ++i)
@@ -1119,24 +1119,24 @@ TEST(UTILDCRT2n, getters_and_operators) {
 		modulus = modulus * BigInteger(moduli[i].ConvertToInt());
 	}
 
-	shared_ptr<native_int::ILParams> ilparams0( new native_int::ILParams(m, moduli[0], rootsOfUnity[0]) );
-	shared_ptr<native_int::ILParams> ilparams1( new native_int::ILParams(m, moduli[1], rootsOfUnity[1]) );
-	shared_ptr<native_int::ILParams> ilparams2( new native_int::ILParams(m, moduli[2], rootsOfUnity[2]) );
+	shared_ptr<ILNativeParams> ilparams0( new ILNativeParams(m, moduli[0], rootsOfUnity[0]) );
+	shared_ptr<ILNativeParams> ilparams1( new ILNativeParams(m, moduli[1], rootsOfUnity[1]) );
+	shared_ptr<ILNativeParams> ilparams2( new ILNativeParams(m, moduli[2], rootsOfUnity[2]) );
 
-	native_int::Poly ilv0(ilparams0);
-	native_int::BigVector bbv0(ilparams0->GetRingDimension(), moduli[0]);
+	NativePoly ilv0(ilparams0);
+	NativeVector bbv0(ilparams0->GetRingDimension(), moduli[0]);
 	bbv0 = {"2","4","3","2"};
 	ilv0.SetValues(bbv0, Format::EVALUATION);
 
-	native_int::Poly ilv1(ilv0);
+	NativePoly ilv1(ilv0);
 	ilv1.SwitchModulus(moduli[1], rootsOfUnity[1]);
 
-	native_int::Poly ilv2(ilv0);
+	NativePoly ilv2(ilv0);
 	ilv2.SwitchModulus(moduli[2], rootsOfUnity[2]);
 
 	shared_ptr<ILDCRTParams<BigInteger>> ildcrtparams( new ILDCRTParams<BigInteger>(m, moduli, rootsOfUnity) );
 
-	std::vector<native_int::Poly> ilvector2nVector(towersize);
+	std::vector<NativePoly> ilvector2nVector(towersize);
 
 	ilvector2nVector = {ilv0, ilv1, ilv2};	
 	{
@@ -1171,18 +1171,18 @@ TEST(UTILDCRT2n, getters_and_operators) {
 	}
 
 	{
-		native_int::Poly ilvect0(ilparams0);
-		native_int::BigVector bbv1(m/2, moduli[0]);
+		NativePoly ilvect0(ilparams0);
+		NativeVector bbv1(m/2, moduli[0]);
 		bbv1 = {"2","1","3","2"};
 		ilvect0.SetValues(bbv1, Format::EVALUATION);
 
-		native_int::Poly ilvect1(ilvect0);
+		NativePoly ilvect1(ilvect0);
 		ilvect1.SwitchModulus(moduli[1], rootsOfUnity[1]);
 
-		native_int::Poly ilvect2(ilvect0);
+		NativePoly ilvect2(ilvect0);
 		ilvect2.SwitchModulus(moduli[2], rootsOfUnity[2]);
 
-		std::vector<native_int::Poly> ilvector2nVector1(towersize);
+		std::vector<NativePoly> ilvector2nVector1(towersize);
 		ilvector2nVector1 = {ilvect0, ilvect1, ilvect2};
 
 		DCRTPoly ilva1(ilvector2nVector1);
@@ -1196,17 +1196,17 @@ TEST(UTILDCRT2n, arithmetic_ops_element_2) {
 	usint m = 8;
 	usint towersize = 3;
 
-	std::vector<native_int::BigInteger> moduli(towersize);
+	std::vector<NativeInteger> moduli(towersize);
 	moduli = {
-		native_int::BigInteger("8353"), 
-		native_int::BigInteger("8369"), 
-		native_int::BigInteger("8513")
+		NativeInteger("8353"), 
+		NativeInteger("8369"), 
+		NativeInteger("8513")
 	};
-	std::vector<native_int::BigInteger> rootsOfUnity(towersize);
+	std::vector<NativeInteger> rootsOfUnity(towersize);
 	rootsOfUnity = {
-		native_int::BigInteger("8163"), 
-		native_int::BigInteger("6677"), 
-		native_int::BigInteger("156")};
+		NativeInteger("8163"), 
+		NativeInteger("6677"), 
+		NativeInteger("156")};
 
 	BigInteger modulus(1);
 	for (usint i = 0; i < towersize; ++i)
@@ -1214,42 +1214,42 @@ TEST(UTILDCRT2n, arithmetic_ops_element_2) {
 		modulus = modulus * BigInteger(moduli[i].ConvertToInt());
 	}
 
-	shared_ptr<native_int::ILParams> ilparams0( new native_int::ILParams(m, moduli[0], rootsOfUnity[0]) );
-	shared_ptr<native_int::ILParams> ilparams1( new native_int::ILParams(m, moduli[1], rootsOfUnity[1]) );
-	shared_ptr<native_int::ILParams> ilparams2( new native_int::ILParams(m, moduli[2], rootsOfUnity[2]) );
+	shared_ptr<ILNativeParams> ilparams0( new ILNativeParams(m, moduli[0], rootsOfUnity[0]) );
+	shared_ptr<ILNativeParams> ilparams1( new ILNativeParams(m, moduli[1], rootsOfUnity[1]) );
+	shared_ptr<ILNativeParams> ilparams2( new ILNativeParams(m, moduli[2], rootsOfUnity[2]) );
 
-	native_int::Poly ilv0(ilparams0);
-	native_int::BigVector bbv0(m/2, moduli[0]);
+	NativePoly ilv0(ilparams0);
+	NativeVector bbv0(m/2, moduli[0]);
 	bbv0 = {"2","4","3","2"};
 	ilv0.SetValues(bbv0, Format::EVALUATION);
 
-	native_int::Poly ilv1(ilv0);
+	NativePoly ilv1(ilv0);
 	ilv1.SwitchModulus(moduli[1], rootsOfUnity[1]);
 
-	native_int::Poly ilv2(ilv0);
+	NativePoly ilv2(ilv0);
 	ilv2.SwitchModulus(moduli[2], rootsOfUnity[2]);
 
 	shared_ptr<ILDCRTParams<BigInteger>> ildcrtparams( new ILDCRTParams<BigInteger>(m, moduli, rootsOfUnity) );
 
-	std::vector<native_int::Poly> ilvector2nVector(towersize);
+	std::vector<NativePoly> ilvector2nVector(towersize);
 	ilvector2nVector[0] = ilv0;
 	ilvector2nVector[1] = ilv1;
 	ilvector2nVector[2] = ilv2;
 
 	DCRTPoly ilva(ilvector2nVector);
 
-	native_int::Poly ilvect0(ilparams0);
-	native_int::BigVector bbv1(m/2, moduli[0]);
+	NativePoly ilvect0(ilparams0);
+	NativeVector bbv1(m/2, moduli[0]);
 	bbv1 = {"2","1","2","0"};
 	ilvect0.SetValues(bbv1, Format::EVALUATION);
 
-	native_int::Poly ilvect1(ilvect0);
+	NativePoly ilvect1(ilvect0);
 	ilvect1.SwitchModulus(moduli[1], rootsOfUnity[1]);
 
-	native_int::Poly ilvect2(ilvect0);
+	NativePoly ilvect2(ilvect0);
 	ilvect2.SwitchModulus(moduli[2], rootsOfUnity[2]);
 
-	std::vector<native_int::Poly> ilvector2nVector1(towersize);
+	std::vector<NativePoly> ilvector2nVector1(towersize);
 	ilvector2nVector1[0] = ilvect0;
 	ilvector2nVector1[1] = ilvect1;
 	ilvector2nVector1[2] = ilvect2;
@@ -1262,8 +1262,8 @@ TEST(UTILDCRT2n, arithmetic_ops_element_2) {
 
 		for (usint i = 0; i < ilvaCopy.GetNumOfElements(); ++i)
 		{
-			native_int::Poly ilv = ilvaCopy.GetElementAtIndex(i);
-			native_int::BigVector expected (4, ilv.GetModulus());
+			NativePoly ilv = ilvaCopy.GetElementAtIndex(i);
+			NativeVector expected (4, ilv.GetModulus());
 			expected = {"4","5","5","2"};
 			EXPECT_EQ(expected, ilv.GetValues()) <<"Failure: Plus()";
 		}
@@ -1275,8 +1275,8 @@ TEST(UTILDCRT2n, arithmetic_ops_element_2) {
 
 		for (usint i = 0; i < ilvaCopy.GetNumOfElements(); ++i)
 		{
-			native_int::Poly ilv = ilvaCopy.GetElementAtIndex(i);
-			native_int::BigVector expected (4, ilv.GetModulus());
+			NativePoly ilv = ilvaCopy.GetElementAtIndex(i);
+			NativeVector expected (4, ilv.GetModulus());
 			expected = {"4","5","5","2"};
 			EXPECT_EQ(expected, ilv.GetValues()) <<"Failure: +=";
 		}
@@ -1285,8 +1285,8 @@ TEST(UTILDCRT2n, arithmetic_ops_element_2) {
 		DCRTPoly ilvaCopy(ilva.Minus(ilva1));
 		for (usint i = 0; i < ilvaCopy.GetNumOfElements(); ++i)
 		{
-			native_int::Poly ilv = ilvaCopy.GetElementAtIndex(i);
-			native_int::BigVector expected (4, ilv.GetModulus());
+			NativePoly ilv = ilvaCopy.GetElementAtIndex(i);
+			NativeVector expected (4, ilv.GetModulus());
 			expected = {"0","3","1","2"};
 			EXPECT_EQ(expected, ilv.GetValues()) <<"Failure: Minus";
 		}
@@ -1296,8 +1296,8 @@ TEST(UTILDCRT2n, arithmetic_ops_element_2) {
 		ilvaResult -= ilva1;
 		for (usint i = 0; i < ilvaResult.GetNumOfElements(); ++i)
 		{
-			native_int::Poly ilv = ilvaResult.GetElementAtIndex(i);
-			native_int::BigVector expected (4, ilv.GetModulus());
+			NativePoly ilv = ilvaResult.GetElementAtIndex(i);
+			NativeVector expected (4, ilv.GetModulus());
 			expected = {"0","3","1","2"};
 			EXPECT_EQ(expected, ilv.GetValues()) <<"Failure: -=";
 		}
@@ -1306,8 +1306,8 @@ TEST(UTILDCRT2n, arithmetic_ops_element_2) {
 		DCRTPoly ilvaResult(ilva.Times(ilva1));
 		for (usint i = 0; i < ilvaResult.GetNumOfElements(); ++i)
 		{
-			native_int::Poly ilv = ilvaResult.GetElementAtIndex(i);
-			native_int::BigVector expected (4, ilv.GetModulus());
+			NativePoly ilv = ilvaResult.GetElementAtIndex(i);
+			NativeVector expected (4, ilv.GetModulus());
 			expected = {"4","4","6","0"};
 			EXPECT_EQ(expected, ilv.GetValues()) <<"Failure: Times()";
 		}
@@ -1318,8 +1318,8 @@ TEST(UTILDCRT2n, arithmetic_ops_element_2) {
 
 		for (usint i = 0; i < ilvaCopy.GetNumOfElements(); ++i)
 		{
-			native_int::Poly ilv = ilvaCopy.GetElementAtIndex(i);
-			native_int::BigVector expected (4, ilv.GetModulus());
+			NativePoly ilv = ilvaCopy.GetElementAtIndex(i);
+			NativeVector expected (4, ilv.GetModulus());
 			expected = {"3","5","4","3"};
 			EXPECT_EQ(expected, ilv.GetValues()) <<"Failure: AddILElementOne";
 		}
@@ -1328,35 +1328,35 @@ TEST(UTILDCRT2n, arithmetic_ops_element_2) {
 	{
 		DCRTPoly ilvaInv(ilva.MultiplicativeInverse());
 
-		native_int::Poly ilvectInv0 = ilvaInv.GetElementAtIndex(0);
-		//TODO: SHOULD BE ABLE TO SAY native_int::Poly ilvectInv0 = ilvaInv[0];
-		native_int::Poly ilvectInv1 = ilvaInv.GetElementAtIndex(1);
-		native_int::Poly ilvectInv2 = ilvaInv.GetElementAtIndex(2);
-		native_int::BigVector expected0 (4, ilvectInv0.GetModulus());
+		NativePoly ilvectInv0 = ilvaInv.GetElementAtIndex(0);
+		//TODO: SHOULD BE ABLE TO SAY NativePoly ilvectInv0 = ilvaInv[0];
+		NativePoly ilvectInv1 = ilvaInv.GetElementAtIndex(1);
+		NativePoly ilvectInv2 = ilvaInv.GetElementAtIndex(2);
+		NativeVector expected0 (4, ilvectInv0.GetModulus());
 		expected0 = {"4177","6265","5569","4177"};
 		EXPECT_EQ(expected0, ilvectInv0.GetValues())
 		  <<"Failure: ilvectInv0 MultiplicativeInverse()";
-		EXPECT_EQ(native_int::BigInteger("8353"), ilvectInv0.GetModulus())
+		EXPECT_EQ(NativeInteger("8353"), ilvectInv0.GetModulus())
 		  <<"Failure: ilvectInv0 MultiplicativeInverse() modulus";
-		EXPECT_EQ(native_int::BigInteger("8163"), ilvectInv0.GetRootOfUnity())
+		EXPECT_EQ(NativeInteger("8163"), ilvectInv0.GetRootOfUnity())
 		  <<"Failure: ilvectInv0 MultiplicativeInverse() rootOfUnity";
 
-		native_int::BigVector expected1 (4, ilvectInv1.GetModulus());
+		NativeVector expected1 (4, ilvectInv1.GetModulus());
 		expected1 = {"4185","6277","2790","4185"};
 		EXPECT_EQ(expected1, ilvectInv1.GetValues())
 		  <<"Failure: ilvectInv1 MultiplicativeInverse()";
-		EXPECT_EQ(native_int::BigInteger("8369"), ilvectInv1.GetModulus())
+		EXPECT_EQ(NativeInteger("8369"), ilvectInv1.GetModulus())
 		  <<"Failure: ilvectInv1 MultiplicativeInverse() modulus";
-		EXPECT_EQ(native_int::BigInteger("6677"), ilvectInv1.GetRootOfUnity())
+		EXPECT_EQ(NativeInteger("6677"), ilvectInv1.GetRootOfUnity())
 		  <<"Failure: ilvectInv1 MultiplicativeInverse() rootOfUnity";
 
-		native_int::BigVector expected2 (4, ilvectInv2.GetModulus());
+		NativeVector expected2 (4, ilvectInv2.GetModulus());
 		expected2 = {"4257","6385","2838","4257"};
 		EXPECT_EQ(expected2, ilvectInv2.GetValues())
 		  <<"Failure: ilvectInv2 MultiplicativeInverse()";
-		EXPECT_EQ(native_int::BigInteger("8513"), ilvectInv2.GetModulus())
+		EXPECT_EQ(NativeInteger("8513"), ilvectInv2.GetModulus())
 		  <<"Failure: ilvectInv2 MultiplicativeInverse() modulus";
-		EXPECT_EQ(native_int::BigInteger("156"), ilvectInv2.GetRootOfUnity())
+		EXPECT_EQ(NativeInteger("156"), ilvectInv2.GetRootOfUnity())
 		  <<"Failure: ilvectInv2 MultiplicativeInverse() rootOfUnity";
 		EXPECT_THROW(ilva1.MultiplicativeInverse(), std::logic_error)      
 			<<"Failure: throw MultiplicativeInverse()";
@@ -1369,11 +1369,11 @@ TEST(UTILDCRT2n, arithmetic_ops_element_2) {
 
 		for (usint i = 0; i < ilvaCopy.GetNumOfElements(); ++i)
 		{
-			native_int::Poly ilv = ilvaCopy.GetElementAtIndex(i);
+			NativePoly ilv = ilvaCopy.GetElementAtIndex(i);
 
-			EXPECT_EQ(native_int::BigInteger(0), ilv.at(1))
+			EXPECT_EQ(NativeInteger(0), ilv.at(1))
 				<<"Failure MakeSparse() index 1";
-			EXPECT_EQ(native_int::BigInteger(0), ilv.at(3))
+			EXPECT_EQ(NativeInteger(0), ilv.at(3))
 				<<"Failure MakeSparse() index 3";
 		}
 	}
@@ -1386,20 +1386,20 @@ TEST(UTILDCRT2n, arithmetic_ops_element_2) {
 	// this case is NOT used because SwitchModulus is not really defined for an DCRTPoly, so...
 	if( false )
 	{
-		native_int::Poly ilvS0(ilparams0);
-		native_int::BigVector bbvS0(m/2, moduli[0]);
+		NativePoly ilvS0(ilparams0);
+		NativeVector bbvS0(m/2, moduli[0]);
 		bbvS0 = {"23462","467986","33863","2113"};
 		ilvS0.SetValues(bbvS0, Format::EVALUATION);
 		std::cout << ilvS0.GetValues() << std::endl;
 
-		native_int::Poly ilvS1(ilvS0);
-		native_int::Poly ilvS2(ilvS0);
+		NativePoly ilvS1(ilvS0);
+		NativePoly ilvS2(ilvS0);
 
 		ilvS0.SwitchModulus(moduli[0], rootsOfUnity[0]);
 		ilvS1.SwitchModulus(moduli[1], rootsOfUnity[1]);
 		ilvS2.SwitchModulus(moduli[2], rootsOfUnity[2]);
 
-		std::vector<native_int::Poly> ilvector2nVectorS(towersize);
+		std::vector<NativePoly> ilvector2nVectorS(towersize);
 		ilvector2nVectorS[0] = ilvS0;
 		ilvector2nVectorS[1] = ilvS1;
 		ilvector2nVectorS[2] = ilvS2;
@@ -1410,29 +1410,29 @@ TEST(UTILDCRT2n, arithmetic_ops_element_2) {
 
 		ilvaS.SwitchModulus(modulus2, rootOfUnity2);
 
-		native_int::Poly ilvectS0 = ilvaS.GetElementAtIndex(0);
-		native_int::Poly ilvectS1 = ilvaS.GetElementAtIndex(1);
-		native_int::Poly ilvectS2 = ilvaS.GetElementAtIndex(2);
+		NativePoly ilvectS0 = ilvaS.GetElementAtIndex(0);
+		NativePoly ilvectS1 = ilvaS.GetElementAtIndex(1);
+		NativePoly ilvectS2 = ilvaS.GetElementAtIndex(2);
 
-		EXPECT_EQ(native_int::BigInteger("80"), ilvectS0.at(0));
-		EXPECT_EQ(native_int::BigInteger("62"), ilvectS0.at(1));
-		EXPECT_EQ(native_int::BigInteger("85"), ilvectS0.at(2));
-		EXPECT_EQ(native_int::BigInteger("79"), ilvectS0.at(3));
-		EXPECT_EQ(native_int::BigInteger("113"), ilvectS0.GetModulus());
+		EXPECT_EQ(NativeInteger("80"), ilvectS0.at(0));
+		EXPECT_EQ(NativeInteger("62"), ilvectS0.at(1));
+		EXPECT_EQ(NativeInteger("85"), ilvectS0.at(2));
+		EXPECT_EQ(NativeInteger("79"), ilvectS0.at(3));
+		EXPECT_EQ(NativeInteger("113"), ilvectS0.GetModulus());
 		EXPECT_EQ(rootOfUnity2.ConvertToInt(), ilvectS0.GetRootOfUnity().ConvertToInt());
 
-		EXPECT_EQ(native_int::BigInteger("66"), ilvectS1.at(0));
-		EXPECT_EQ(native_int::BigInteger("16"), ilvectS1.at(1));
-		EXPECT_EQ(native_int::BigInteger("64"), ilvectS1.at(2));
-		EXPECT_EQ(native_int::BigInteger("79"), ilvectS1.at(3));
-		EXPECT_EQ(native_int::BigInteger("113"), ilvectS1.GetModulus());
+		EXPECT_EQ(NativeInteger("66"), ilvectS1.at(0));
+		EXPECT_EQ(NativeInteger("16"), ilvectS1.at(1));
+		EXPECT_EQ(NativeInteger("64"), ilvectS1.at(2));
+		EXPECT_EQ(NativeInteger("79"), ilvectS1.at(3));
+		EXPECT_EQ(NativeInteger("113"), ilvectS1.GetModulus());
 		EXPECT_EQ(rootOfUnity2.ConvertToInt(), ilvectS1.GetRootOfUnity().ConvertToInt());
 
-		EXPECT_EQ(native_int::BigInteger(4), ilvectS2.at(0));
-		EXPECT_EQ(native_int::BigInteger("44"), ilvectS2.at(1));
-		EXPECT_EQ(native_int::BigInteger("84"), ilvectS2.at(2));
-		EXPECT_EQ(native_int::BigInteger("79"), ilvectS2.at(3));
-		EXPECT_EQ(native_int::BigInteger("113"), ilvectS2.GetModulus());
+		EXPECT_EQ(NativeInteger(4), ilvectS2.at(0));
+		EXPECT_EQ(NativeInteger("44"), ilvectS2.at(1));
+		EXPECT_EQ(NativeInteger("84"), ilvectS2.at(2));
+		EXPECT_EQ(NativeInteger("79"), ilvectS2.at(3));
+		EXPECT_EQ(NativeInteger("113"), ilvectS2.GetModulus());
 		EXPECT_EQ(rootOfUnity2.ConvertToInt(), ilvectS2.GetRootOfUnity().ConvertToInt());
 	}
 
@@ -1444,8 +1444,8 @@ TEST(UTILDCRT2n, arithmetic_ops_element_2) {
 
 		for (usint i = 0; i < ilvaCopy.GetNumOfElements(); ++i)
 		{
-			native_int::Poly ilv = ilvaCopy.GetElementAtIndex(i);
-			native_int::BigVector expected (4, ilv.GetModulus());
+			NativePoly ilv = ilvaCopy.GetElementAtIndex(i);
+			NativeVector expected (4, ilv.GetModulus());
 			expected = {"2","4","3","2"};
 			EXPECT_EQ(expected, ilv.GetValues())
 				<<"Failure: ilv.SwitchModulusAtIndex";
@@ -1481,8 +1481,8 @@ TEST(UTILDCRT2n, decompose_test) {
 	EXPECT_EQ(DCRTPolyOriginal.GetNumOfElements(), DCRTPolyFirst.GetNumOfElements()) << "Failure DCRTPoly.Decompose(): Mismatch in the number of towers";
 
 	for(usint i=0; i<DCRTPolyFirst.GetNumOfElements(); i++) {
-		native_int::Poly ilTowerOriginal(DCRTPolyOriginal.GetElementAtIndex(i));
-		native_int::Poly ilTowerDecomposed(DCRTPolyFirst.GetElementAtIndex(i));
+		NativePoly ilTowerOriginal(DCRTPolyOriginal.GetElementAtIndex(i));
+		NativePoly ilTowerDecomposed(DCRTPolyFirst.GetElementAtIndex(i));
 
 		EXPECT_EQ(ilTowerDecomposed.GetLength(), ilTowerOriginal.GetLength()/2)  << "Failure: DCRTPoly.Decompose(): ilVector2n element "<<i<<" in DCRTPoly is not half the length";
 
@@ -1538,7 +1538,7 @@ TEST(UTPoly, ensures_mod_operation_during_ops_on_two_Polys) {
 }
 
 TEST(UTILNativeVector2n, ensures_mod_operation_during_ops_on_two_Polys) {
-	ensures_mod_operation_during_ops_on_two_Polys<native_int::BigInteger, native_int::BigVector, native_int::ILParams, native_int::Poly>();
+	ensures_mod_operation_during_ops_on_two_Polys<NativeInteger, NativeVector, ILNativeParams, NativePoly>();
 }
 
 TEST(UTILDCRT2n, ensures_mod_operation_during_ops_on_two_DCRTPolys){
@@ -1560,8 +1560,8 @@ TEST(UTILDCRT2n, ensures_mod_operation_during_ops_on_two_DCRTPolys){
 
 		for(usint i=0; i<towersize; i++) {
 			for(usint j=0; j<ildcrtparams->GetRingDimension(); j++) {
-				native_int::BigInteger actualResult(sum.GetElementAtIndex(i).at(j));
-				native_int::BigInteger expectedResult((op1.GetElementAtIndex(i).at(j) + op2.GetElementAtIndex(i).at(j)).Mod(ildcrtparams->GetParams()[i]->GetModulus()));
+				NativeInteger actualResult(sum.GetElementAtIndex(i).at(j));
+				NativeInteger expectedResult((op1.GetElementAtIndex(i).at(j) + op2.GetElementAtIndex(i).at(j)).Mod(ildcrtparams->GetParams()[i]->GetModulus()));
 				EXPECT_EQ(actualResult, expectedResult) << "Failure: DCRTPoly + operation tower "<<i<<" index "<<j;
 			}
 		}
@@ -1572,8 +1572,8 @@ TEST(UTILDCRT2n, ensures_mod_operation_during_ops_on_two_DCRTPolys){
 
 		for(usint i=0; i<towersize; i++) {
 			for(usint j=0; j<ildcrtparams->GetRingDimension(); j++) {
-				native_int::BigInteger actualResult(prod.GetElementAtIndex(i).at(j));
-				native_int::BigInteger expectedResult((op1.GetElementAtIndex(i).at(j) * op2.GetElementAtIndex(i).at(j)).Mod(ildcrtparams->GetParams()[i]->GetModulus()));
+				NativeInteger actualResult(prod.GetElementAtIndex(i).at(j));
+				NativeInteger expectedResult((op1.GetElementAtIndex(i).at(j) * op2.GetElementAtIndex(i).at(j)).Mod(ildcrtparams->GetParams()[i]->GetModulus()));
 				EXPECT_EQ(actualResult, expectedResult)  << "Failure: DCRTPoly * operation tower "<<i<<" index "<<j;
 			}
 		}
@@ -1581,6 +1581,6 @@ TEST(UTILDCRT2n, ensures_mod_operation_during_ops_on_two_DCRTPolys){
 
 }
 
-void testDCRTPolyConstructorNegative(std::vector<native_int::Poly> &towers) {
+void testDCRTPolyConstructorNegative(std::vector<NativePoly> &towers) {
 	DCRTPoly expectException(towers);
 }

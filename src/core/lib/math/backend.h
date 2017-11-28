@@ -147,10 +147,8 @@ typedef NTL::myZZ ubint;
 #include <initializer_list>
 #define MATH_NATIVEBITS	64
 
-namespace native_int {
-typedef NativeInteger<uint64_t> BigInteger;
-typedef BigVectorImpl<NativeInteger<uint64_t>> BigVector;
-}
+typedef native_int::NativeInteger<uint64_t>			NativeInteger;
+typedef native_int::BigVectorImpl<NativeInteger>	NativeVector;
 
 /**
  * @namespace lbcrypto
@@ -190,7 +188,7 @@ namespace lbcrypto {
 	typedef ILParamsImpl<BigInteger> ILParams;
 	typedef PolyImpl<BigInteger, BigInteger, BigVector, ILParams> Poly;
 
-	typedef ILParamsImpl<native_int::BigInteger> ILNativeParams;
+	typedef ILParamsImpl<NativeInteger> ILNativeParams;
 
 	// template to allow contents of a vector of streamables to stream
 

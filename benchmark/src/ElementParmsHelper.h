@@ -43,10 +43,10 @@ parm_16384,
 parm_32768,
 };
 
-shared_ptr<native_int::ILParams> nparm_16 = ElemParamFactory::GenElemParams<native_int::ILParams,native_int::BigInteger>(M16);
-shared_ptr<native_int::ILParams> nparm_1024 = ElemParamFactory::GenElemParams<native_int::ILParams,native_int::BigInteger>(M1024);
-shared_ptr<native_int::ILParams> nparm_2048 = ElemParamFactory::GenElemParams<native_int::ILParams,native_int::BigInteger>(M2048);
-shared_ptr<native_int::ILParams> nparm_4096 = ElemParamFactory::GenElemParams<native_int::ILParams,native_int::BigInteger>(M4096);
+shared_ptr<native_int::ILParams> nparm_16 = ElemParamFactory::GenElemParams<native_int::ILParams,NativeInteger>(M16);
+shared_ptr<native_int::ILParams> nparm_1024 = ElemParamFactory::GenElemParams<native_int::ILParams,NativeInteger>(M1024);
+shared_ptr<native_int::ILParams> nparm_2048 = ElemParamFactory::GenElemParams<native_int::ILParams,NativeInteger>(M2048);
+shared_ptr<native_int::ILParams> nparm_4096 = ElemParamFactory::GenElemParams<native_int::ILParams,NativeInteger>(M4096);
 
 shared_ptr<native_int::ILParams> nparmArray[] = {
 nparm_16,

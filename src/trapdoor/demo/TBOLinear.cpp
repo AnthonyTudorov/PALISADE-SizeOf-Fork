@@ -72,7 +72,7 @@ int main(int argc, char* argv[]) {
 	//std::cout << "Token row dimension = " << token->GetRows() << std::endl;
 	//std::cout << "Token column dimension = " << token->GetCols() << std::endl;
 
-	DiscreteUniformGeneratorImpl<NativeInteger,native_int::BigVector> dugWeights;
+	DiscreteUniformGeneratorImpl<NativeInteger,NativeVector> dugWeights;
 	dugWeights.SetModulus(algorithm.GetWeightNorm());
 
 	NativeMatrixPtr weights(new  NativeMatrix([&]() {
@@ -83,7 +83,7 @@ int main(int argc, char* argv[]) {
 	processingTime = TOC(t);
 	std::cout << "\nObfuscation time: " << processingTime << "ms" << std::endl;\
 
-	DiscreteUniformGeneratorImpl<NativeInteger,native_int::BigVector> dug;
+	DiscreteUniformGeneratorImpl<NativeInteger,NativeVector> dug;
 	dug.SetModulus(16);
 
 	NativeMatrixPtr input(new  NativeMatrix([&]() {

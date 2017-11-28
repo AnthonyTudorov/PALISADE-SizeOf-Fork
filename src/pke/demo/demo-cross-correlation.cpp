@@ -52,7 +52,7 @@ void Encrypt();
 void Compute();
 void Decrypt();
 shared_ptr<CryptoContext<DCRTPoly>> DeserializeContext(const string& ccFileName);
-native_int::BigInteger CRTInterpolate(const std::vector<Plaintext> &crtVector);
+NativeInteger CRTInterpolate(const std::vector<Plaintext> &crtVector);
 template<typename T> ostream& operator<<(ostream& output, const vector<T>& vector);
 
 // number of primitive prime plaintext moduli in the CRT representation of plaintext
@@ -131,10 +131,10 @@ void KeyGen()
 
 		// populate the towers for the small modulus
 
-		vector<native_int::BigInteger> init_moduli(init_size);
-		vector<native_int::BigInteger> init_rootsOfUnity(init_size);
+		vector<NativeInteger> init_moduli(init_size);
+		vector<NativeInteger> init_rootsOfUnity(init_size);
 
-		native_int::BigInteger q = FirstPrime<native_int::BigInteger>(dcrtBits, mArb);
+		NativeInteger q = FirstPrime<NativeInteger>(dcrtBits, mArb);
 		init_moduli[0] = q;
 		init_rootsOfUnity[0] = RootOfUnity(mArb, init_moduli[0]);
 
@@ -146,10 +146,10 @@ void KeyGen()
 
 		// populate the towers for the big modulus
 
-		vector<native_int::BigInteger> init_moduli_NTT(init_size);
-		vector<native_int::BigInteger> init_rootsOfUnity_NTT(init_size);
+		vector<NativeInteger> init_moduli_NTT(init_size);
+		vector<NativeInteger> init_rootsOfUnity_NTT(init_size);
 
-		q = FirstPrime<native_int::BigInteger>(dcrtBitsBig, mNTT);
+		q = FirstPrime<NativeInteger>(dcrtBitsBig, mNTT);
 		init_moduli_NTT[0] = q;
 		init_rootsOfUnity_NTT[0] = RootOfUnity(mNTT, init_moduli_NTT[0]);
 
@@ -687,7 +687,7 @@ void Decrypt() {
 
 	std::cout << "CRT Interpolation to transform to large plainext modulus...";
 
-	native_int::BigInteger result = CRTInterpolate(crossCorr);
+	NativeInteger result = CRTInterpolate(crossCorr);
 
 	std::cout << "Completed" << std::endl;
 
@@ -733,19 +733,19 @@ shared_ptr<CryptoContext<DCRTPoly>> DeserializeContext(const string& ccFileName,
 	return cc;
 }
 
-native_int::BigInteger CRTInterpolate(const std::vector<Plaintext> &crtVector) {
+NativeInteger CRTInterpolate(const std::vector<Plaintext> &crtVector) {
 
-	native_int::BigInteger result(0);
+	NativeInteger result(0);
 
-	std::vector<native_int::BigInteger> q = { 3623,3779,3803,3863 };
+	std::vector<NativeInteger> q = { 3623,3779,3803,3863 };
 
-	native_int::BigInteger Q(1);
+	NativeInteger Q(1);
 
 	for (size_t i = 0; i < crtVector.size(); i++) {
 		Q = Q*q[i];
 	}
 
-	std::vector<native_int::BigInteger> qInverse;
+	std::vector<NativeInteger> qInverse;
 
 	for (size_t i = 0; i < crtVector.size(); i++) {
 
@@ -754,7 +754,7 @@ native_int::BigInteger CRTInterpolate(const std::vector<Plaintext> &crtVector) {
 	}
 
 	for (size_t i = 0; i < crtVector.size(); i++) {
-		result += ((native_int::BigInteger(crtVector[i]->GetPackedValue()[0])*qInverse[i]).Mod(q[i])*Q / q[i]).Mod(Q);
+		result += ((NativeInteger(crtVector[i]->GetPackedValue()[0])*qInverse[i]).Mod(q[i])*Q / q[i]).Mod(Q);
 	}
 	
 	return result.Mod(Q);

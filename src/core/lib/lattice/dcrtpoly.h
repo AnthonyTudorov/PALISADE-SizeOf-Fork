@@ -61,13 +61,13 @@ public:
 	typedef VecType Vector;
 
 	typedef DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyType;
-	typedef DiscreteGaussianGeneratorImpl<native_int::BigInteger,native_int::BigVector> DggType;
-	typedef DiscreteUniformGeneratorImpl<native_int::BigInteger,native_int::BigVector> DugType;
-	typedef TernaryUniformGeneratorImpl<native_int::BigInteger,native_int::BigVector> TugType;
-	typedef BinaryUniformGeneratorImpl<native_int::BigInteger,native_int::BigVector> BugType;
+	typedef DiscreteGaussianGeneratorImpl<NativeInteger,NativeVector> DggType;
+	typedef DiscreteUniformGeneratorImpl<NativeInteger,NativeVector> DugType;
+	typedef TernaryUniformGeneratorImpl<NativeInteger,NativeVector> TugType;
+	typedef BinaryUniformGeneratorImpl<NativeInteger,NativeVector> BugType;
 
 	// this class contains an array of these:
-	typedef PolyImpl<native_int::BigInteger,native_int::BigInteger,native_int::BigVector,native_int::ILParams> PolyType;
+	typedef PolyImpl<NativeInteger,NativeInteger,NativeVector,ILNativeParams> PolyType;
 	typedef PolyImpl<ModType,IntType,VecType,ILParams> PolyLargeType;
 
 	static const std::string GetElementName() {
@@ -512,7 +512,7 @@ public:
 	* @param &element is the element to multiply entry-wise.
 	* @return is the return value of the times operation.
 	*/
-	DCRTPolyType Times(const std::vector<native_int::BigInteger> &element) const;
+	DCRTPolyType Times(const std::vector<NativeInteger> &element) const;
 
 	/**
 	* @brief Scalar multiplication followed by division and rounding operation - operation on all entries.

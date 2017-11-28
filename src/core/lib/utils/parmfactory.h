@@ -55,12 +55,12 @@ inline shared_ptr<ILDCRTParams<BigInteger>> GenerateDCRTParams(usint m, usint pt
 	if( numOfTower == 0 )
 		throw std::logic_error("Can't make parms with numOfTower == 0 ");
 
-	std::vector<native_int::BigInteger> moduli(numOfTower);
-	std::vector<native_int::BigInteger> rootsOfUnity(numOfTower);
+	std::vector<NativeInteger> moduli(numOfTower);
+	std::vector<NativeInteger> rootsOfUnity(numOfTower);
 
-	native_int::BigInteger ptmI( ptm );
+	NativeInteger ptmI( ptm );
 
-	native_int::BigInteger q = FirstPrime<native_int::BigInteger>(pbits, m);
+	NativeInteger q = FirstPrime<NativeInteger>(pbits, m);
 	BigInteger modulus(1);
 
 	usint j = 0;

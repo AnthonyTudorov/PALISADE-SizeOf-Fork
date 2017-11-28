@@ -60,7 +60,7 @@ Field2n::Field2n(const DCRTPoly & DCRTelement)
 		// Also it is assumed that the prime moduli are large enough (60 bits or more) - so the CRT interpolation is not needed
 		// this approach is much faster than BigInteger::ConvertToDouble
 		typename DCRTPoly::PolyType element = DCRTelement.GetElementAtIndex(0);
-		native_int::BigInteger negativeThreshold(element.GetModulus() / 2);
+		NativeInteger negativeThreshold(element.GetModulus() / 2);
 		for (size_t i = 0; i < element.GetLength(); i++) {
 			if (element.at(i) > negativeThreshold)
 				this->push_back((double)(int64_t)(-1 * (element.GetModulus() - element.at(i)).ConvertToInt()));

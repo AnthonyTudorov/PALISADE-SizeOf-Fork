@@ -218,13 +218,13 @@ public:
 	 * @param ptm - the plaintext modulus.
 	 * @return the plaintext modulus in native type.
 	 */
-	native_int::BigInteger ConvertToNativeModulus(const BigInteger& ptm) {
+	NativeInteger ConvertToNativeModulus(const BigInteger& ptm) {
 		static BigInteger largestNative( ~((uint64_t)0) );
 
 		if( ptm > largestNative )
 			throw std::logic_error("plaintext modulus of " + ptm.ToString() + " is too big to convert to a native_int integer");
 
-		return native_int::BigInteger( ptm.ConvertToInt() );
+		return NativeInteger( ptm.ConvertToInt() );
 	}
 };
 

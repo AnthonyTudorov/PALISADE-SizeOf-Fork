@@ -62,25 +62,25 @@ namespace lbcrypto {
 
 	template std::vector<usint> GetTotientList(const usint &n);
 
-	template native_int::BigInteger RootOfUnity<native_int::BigInteger>(usint m, const native_int::BigInteger& modulo);
-	template std::vector<native_int::BigInteger> RootsOfUnity(usint m, const std::vector<native_int::BigInteger> moduli);
-	template native_int::BigInteger GreatestCommonDivisor(const native_int::BigInteger& a, const native_int::BigInteger& b);
-	template bool MillerRabinPrimalityTest(const native_int::BigInteger& p, const usint niter);
-	template const native_int::BigInteger PollardRhoFactorization(const native_int::BigInteger &n);
-	template void PrimeFactorize(native_int::BigInteger n, std::set<native_int::BigInteger> &primeFactors);
-	template native_int::BigInteger FirstPrime(usint nBits, usint m);
-	template native_int::BigInteger NextPrime(const native_int::BigInteger &q, usint cyclotomicOrder);
-	template native_int::BigVector PolyMod(const native_int::BigVector &dividend, const native_int::BigVector &divisor, const native_int::BigInteger &modulus);
-	template native_int::BigVector PolynomialMultiplication(const native_int::BigVector &a, const native_int::BigVector &b);
-	template native_int::BigVector GetCyclotomicPolynomial(usint m, const native_int::BigInteger &modulus);
-	template native_int::BigInteger SyntheticRemainder(const native_int::BigVector &dividend, const native_int::BigInteger &a, const native_int::BigInteger &modulus);
-	template native_int::BigVector SyntheticPolyRemainder(const native_int::BigVector &dividend, const native_int::BigVector &aList, const native_int::BigInteger &modulus);
-	template native_int::BigVector PolynomialPower<native_int::BigVector, native_int::BigInteger>(const native_int::BigVector &input, usint power);
-	template native_int::BigVector SyntheticPolynomialDivision(const native_int::BigVector &dividend, const native_int::BigInteger &a, const native_int::BigInteger &modulus);
-	template native_int::BigInteger FindGeneratorCyclic(const native_int::BigInteger& modulo);
-	template bool IsGenerator(const native_int::BigInteger& g, const native_int::BigInteger& modulo);
+	template NativeInteger RootOfUnity<NativeInteger>(usint m, const NativeInteger& modulo);
+	template std::vector<NativeInteger> RootsOfUnity(usint m, const std::vector<NativeInteger> moduli);
+	template NativeInteger GreatestCommonDivisor(const NativeInteger& a, const NativeInteger& b);
+	template bool MillerRabinPrimalityTest(const NativeInteger& p, const usint niter);
+	template const NativeInteger PollardRhoFactorization(const NativeInteger &n);
+	template void PrimeFactorize(NativeInteger n, std::set<NativeInteger> &primeFactors);
+	template NativeInteger FirstPrime(usint nBits, usint m);
+	template NativeInteger NextPrime(const NativeInteger &q, usint cyclotomicOrder);
+	template NativeVector PolyMod(const NativeVector &dividend, const NativeVector &divisor, const NativeInteger &modulus);
+	template NativeVector PolynomialMultiplication(const NativeVector &a, const NativeVector &b);
+	template NativeVector GetCyclotomicPolynomial(usint m, const NativeInteger &modulus);
+	template NativeInteger SyntheticRemainder(const NativeVector &dividend, const NativeInteger &a, const NativeInteger &modulus);
+	template NativeVector SyntheticPolyRemainder(const NativeVector &dividend, const NativeVector &aList, const NativeInteger &modulus);
+	template NativeVector PolynomialPower<NativeVector, NativeInteger>(const NativeVector &input, usint power);
+	template NativeVector SyntheticPolynomialDivision(const NativeVector &dividend, const NativeInteger &a, const NativeInteger &modulus);
+	template NativeInteger FindGeneratorCyclic(const NativeInteger& modulo);
+	template bool IsGenerator(const NativeInteger& g, const NativeInteger& modulo);
 
-	template native_int::BigInteger ComputeMu(const native_int::BigInteger& q);
+	template NativeInteger ComputeMu(const NativeInteger& q);
 
 	/*
 		Generates a random number between 0 and n.
@@ -664,12 +664,12 @@ namespace lbcrypto {
 
 	uint64_t GetTotient(const uint64_t n) {
 
-		std::set<native_int::BigInteger> factors;
-		native_int::BigInteger enn(n);
+		std::set<NativeInteger> factors;
+		NativeInteger enn(n);
 		PrimeFactorize(enn, factors);
 
-		native_int::BigInteger primeProd(1);
-		native_int::BigInteger numerator(1);
+		NativeInteger primeProd(1);
+		NativeInteger numerator(1);
 		for (auto &r : factors) {
 			numerator = numerator * (r - 1);
 			primeProd = primeProd * r;

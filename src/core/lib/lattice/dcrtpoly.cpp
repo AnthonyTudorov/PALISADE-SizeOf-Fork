@@ -129,7 +129,7 @@ template<typename ModType, typename IntType, typename VecType, typename ParmType
 DCRTPolyImpl<ModType,IntType,VecType,ParmType>::DCRTPolyImpl(const std::vector<PolyType> &towers)
 {
 	usint cyclotomicOrder = towers.at(0).GetCyclotomicOrder();
-	std::vector<std::shared_ptr<native_int::ILParams>> parms;
+	std::vector<std::shared_ptr<ILNativeParams>> parms;
 	for (usint i = 0; i < towers.size(); i++) {
 		if ( towers[i].GetCyclotomicOrder() != cyclotomicOrder ) {
 			throw std::logic_error("Polys provided to constructor must have the same ring dimension");
@@ -159,7 +159,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::DCRTPolyImpl(const DggType& dgg,
 
 	for(usint i = 0; i < vecSize; i++) {
 
-		native_int::BigVector ilDggValues(dcrtParams->GetRingDimension(), dcrtParams->GetParams()[i]->GetModulus());
+		NativeVector ilDggValues(dcrtParams->GetRingDimension(), dcrtParams->GetParams()[i]->GetModulus());
 
 		for(usint j = 0; j < dcrtParams->GetRingDimension(); j++) {
 			uint64_t	entry;
@@ -198,7 +198,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::DCRTPolyImpl(DugType& dug, const
 	for (usint i = 0; i < numberOfTowers; i++) {
 
 		dug.SetModulus(dcrtParams->GetParams()[i]->GetModulus());
-		native_int::BigVector vals(dug.GenerateVector(dcrtParams->GetRingDimension()));
+		NativeVector vals(dug.GenerateVector(dcrtParams->GetRingDimension()));
 		PolyType ilvector(dcrtParams->GetParams()[i]);
 
 		ilvector.SetValues(vals, Format::COEFFICIENT); // the random values are set in coefficient format
@@ -224,7 +224,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::DCRTPolyImpl(const TugType& tug,
 
 	for (usint i = 0; i < numberOfTowers; i++) {
 
-		native_int::BigVector ilTugValues(dcrtParams->GetRingDimension(), dcrtParams->GetParams()[i]->GetModulus());
+		NativeVector ilTugValues(dcrtParams->GetRingDimension(), dcrtParams->GetParams()[i]->GetModulus());
 
 		for(usint j = 0; j < dcrtParams->GetRingDimension(); j++) {
 			uint64_t	entry;
@@ -560,7 +560,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>& DCRTPolyImpl<ModType,IntType,Vec
 		}
 	} else {
 		for(usint i=0; i<m_vectors.size(); i++) {
-			native_int::BigVector temp(m_params->GetRingDimension());
+			NativeVector temp(m_params->GetRingDimension());
 			temp.SetModulus(m_vectors.at(i).GetModulus());
 			temp = rhs;
 			m_vectors.at(i).SetValues(std::move(temp),m_format);
@@ -581,7 +581,7 @@ DCRTPolyImpl<ModType, IntType, VecType, ParmType>& DCRTPolyImpl<ModType, IntType
 	}
 	else {
 		for (usint i = 0; i<m_vectors.size(); i++) {
-			native_int::BigVector temp(m_params->GetRingDimension());
+			NativeVector temp(m_params->GetRingDimension());
 			temp.SetModulus(m_vectors.at(i).GetModulus());
 			temp = val;
 			m_vectors.at(i).SetValues(std::move(temp), m_format);
@@ -602,7 +602,7 @@ DCRTPolyImpl<ModType, IntType, VecType, ParmType>& DCRTPolyImpl<ModType, IntType
 	}
 	else {
 		for (usint i = 0; i<m_vectors.size(); i++) {
-			native_int::BigVector temp(m_params->GetRingDimension());
+			NativeVector temp(m_params->GetRingDimension());
 			temp.SetModulus(m_vectors.at(i).GetModulus());
 			m_vectors.at(i).SetValues(std::move(temp), m_format);
 			m_vectors[i] = val;
@@ -625,7 +625,7 @@ DCRTPolyImpl<ModType, IntType, VecType, ParmType>& DCRTPolyImpl<ModType, IntType
 	}
 	else {
 		for (usint i = 0; i<m_vectors.size(); i++) {
-			native_int::BigVector temp(m_params->GetRingDimension());
+			NativeVector temp(m_params->GetRingDimension());
 			temp.SetModulus(m_vectors.at(i).GetModulus());
 			m_vectors.at(i).SetValues(std::move(temp), m_format);
 			m_vectors[i] = val;
@@ -691,7 +691,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
 DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::Times(
-		const std::vector<native_int::BigInteger> &element) const
+		const std::vector<NativeInteger> &element) const
 {
 	DCRTPolyImpl<ModType,IntType,VecType,ParmType> tmp(*this);
 
@@ -773,7 +773,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::Decompose()
 	}
 
 	// the individual vectors parms have changed, so change the DCRT parms
-	std::vector<std::shared_ptr<native_int::ILParams>> vparms(m_vectors.size());
+	std::vector<std::shared_ptr<ILNativeParams>> vparms(m_vectors.size());
 	for( size_t i = 0; i < m_vectors.size(); i++)
 		vparms[i] = m_vectors[i].GetParams();
 	m_params.reset( new ParmType(vparms[0]->GetCyclotomicOrder(), vparms) );
@@ -970,7 +970,7 @@ Poly DCRTPolyImpl<ModType,IntType,VecType,ParmType>::CRTInterpolate() const
 // used in decryption of BFVrns
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-PolyImpl<native_int::BigInteger,native_int::BigInteger,native_int::BigVector,native_int::ILParams>
+PolyImpl<NativeInteger,NativeInteger,NativeVector,ILNativeParams>
 DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const typename PolyType::Integer &p,
 		const std::vector<typename PolyType::Integer> &alpha, const std::vector<double> &beta) const {
 
