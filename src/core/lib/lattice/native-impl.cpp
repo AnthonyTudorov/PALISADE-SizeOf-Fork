@@ -66,18 +66,9 @@ template class DiscreteUniformGeneratorImpl<BigInteger,BigVector>;
 namespace lbcrypto
 {
 template class ILParamsImpl<BigInteger>;
-
 template class PolyImpl<BigInteger,BigInteger,BigVector,ILParams>;
-
-//template<>
-//PolyImpl<native_int::BigInteger,native_int::BigInteger,native_int::BigVector,native_int::ILParams>::PolyImpl(const shared_ptr<ILDCRTParams> params, Format format, bool initializeElementToZero) : m_values(nullptr), m_format(format) {
-//	throw std::logic_error("cannot use this constructor with a native vector");
-//}
-
 }
 
-// FIXME the MATH_BACKEND check is a hack and needs to go away
-#if MATHBACKEND != 7
 namespace lbcrypto
 {
 template class DiscreteGaussianGeneratorImpl<native_int::BigInteger,native_int::BigVector>;
@@ -88,4 +79,3 @@ template class DiscreteUniformGeneratorImpl<native_int::BigInteger,native_int::B
 template class PolyImpl<native_int::BigInteger,native_int::BigInteger,native_int::BigVector,ILNativeParams>;
 template class ILParamsImpl<native_int::BigInteger>;
 }
-#endif

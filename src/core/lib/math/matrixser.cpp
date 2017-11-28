@@ -94,8 +94,6 @@ bool Matrix<BigInteger>::Deserialize(const Serialized& serObj) {
 	return false;
 }
 
-#if MATHBACKEND != 7
-
 template<>
 bool Matrix<native_int::BigInteger>::Serialize(Serialized* serObj) const {
 	return false;
@@ -623,5 +621,3 @@ Matrix<int32_t> ConvertToInt32(const Matrix<BigVector> &input, const BigInteger&
 }
 
 }
-
-#endif

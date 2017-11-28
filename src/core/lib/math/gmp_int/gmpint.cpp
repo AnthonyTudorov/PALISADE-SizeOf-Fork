@@ -42,7 +42,7 @@
 #include <fstream>
 #include <sstream>
 #include "../backend.h"
-#if MATHBACKEND == 6
+
 #include "gmpint.h"
 
 namespace NTL {
@@ -509,5 +509,3 @@ namespace NTL {
   }
 
 } // namespace NTL ends
-
-#endif

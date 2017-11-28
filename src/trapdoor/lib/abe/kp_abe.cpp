@@ -84,20 +84,12 @@ namespace lbcrypto {
 
 					if (digit_i > (base>>1)) {
 						digit_i = base-digit_i;
-#if MATHBACKEND == 7
-						coeff_i = coeff_i+base;    // math backend 7
-#else //if MATHBACKEND == 2
 						coeff_i = coeff_i+bigBase;    // math backend 2
-#endif
 						(*psi)(j, ii).at(i)= q-BigInteger(digit_i);
 					}
 					else if(digit_i == (base>>1)) {
 						if (flip == 0) {
-#if MATHBACKEND == 7
-							coeff_i = coeff_i+base;  // math backend 7
-#else //if MATHBACKEND == 2
 							coeff_i = coeff_i+bigBase;    // math backend 2
-#endif
 							(*psi)(j, ii).at(i)= q-BigInteger(digit_i);
 						}
 						else
