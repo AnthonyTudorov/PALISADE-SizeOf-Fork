@@ -62,7 +62,7 @@ using namespace lbcrypto;
 
 typedef NativeInteger nativeInt;
 typedef NativeVector nativeVec;
-typedef native_int::ILParams nativeParams;
+typedef ILNativeParams nativeParams;
 
 //typedef cpu_int::BigInteger<uint32_t,64>  smallInt32_64;
 ////template class cpu_int::BigInteger<uint32_t,64>;
