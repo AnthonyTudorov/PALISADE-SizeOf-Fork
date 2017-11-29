@@ -30,7 +30,6 @@
 #include "include/gtest/gtest.h"
 #include <iostream>
 
-#include "../lib/lattice/dcrtpoly.h"
 #include "math/backend.h"
 #include "math/nbtheory.h"
 #include "math/distrgen.h"
@@ -39,6 +38,7 @@
 #include "lattice/ildcrtparams.h"
 #include "lattice/ilelement.h"
 #include "lattice/poly.h"
+#include "lattice/dcrtpoly.h"
 #include "utils/inttypes.h"
 #include "utils/utilities.h"
 #include "utils/parmfactory.h"

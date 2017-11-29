@@ -142,13 +142,13 @@ typedef NTL::myZZ ubint;
 }
 
 ////////// for native int
-#include "native_int/binint.cpp"
-#include "native_int/binvect.cpp"
+#include "native_int/binint.h"
+#include "native_int/binvect.h"
 #include <initializer_list>
 #define MATH_NATIVEBITS	64
 
 typedef native_int::NativeInteger<uint64_t>			NativeInteger;
-typedef native_int::BigVectorImpl<NativeInteger>	NativeVector;
+typedef native_int::BigVectorImpl<NativeInteger>		NativeVector;
 
 /**
  * @namespace lbcrypto
@@ -164,9 +164,9 @@ namespace lbcrypto {
 #endif
 
 #if MATHBACKEND == 4
-        #ifdef UBINT_64
-	  #error MATHBACKEND 4 with UBINT_64 currently does not work do not use.
-	#endif
+#ifdef UBINT_64
+	#error MATHBACKEND 4 with UBINT_64 currently does not work do not use.
+#endif
 	typedef exp_int::xubint BigInteger;
 	typedef exp_int::xmubintvec BigVector;
 
@@ -178,7 +178,7 @@ namespace lbcrypto {
 	typedef NTL::myZZ BigInteger;
 	
 	/** Define the mapping for BigVector */
-        typedef NTL::myVecP<NTL::myZZ> BigVector;
+	typedef NTL::myVecP<NTL::myZZ> BigVector;
 
 #endif
 
@@ -186,9 +186,10 @@ namespace lbcrypto {
 	template<typename ModType, typename IntType, typename VecType, typename ParmType> class PolyImpl;
 
 	typedef ILParamsImpl<BigInteger> ILParams;
-	typedef PolyImpl<BigInteger, BigInteger, BigVector, ILParams> Poly;
-
 	typedef ILParamsImpl<NativeInteger> ILNativeParams;
+
+	typedef PolyImpl<BigInteger, BigInteger, BigVector, ILParams> Poly;
+	typedef PolyImpl<NativeInteger, NativeInteger, NativeVector, ILNativeParams> NativePoly;
 
 	// template to allow contents of a vector of streamables to stream
 

@@ -28,13 +28,11 @@
 #include <iostream>
 #include <vector>
 
-//#include "../lib/cryptocontext.h"
+#include "../lib/math/backend.h"
 #include "../lib/abe/cp_abe.h"
 #include "../lib/abe/kp_abe.h"
 #include "../lib/abe/kp_abe.cpp"
 #include "../lib/abe/ibe.h"
-
-//#include "lattice/elemparamfactory.h"
 
 using namespace std;
 using namespace lbcrypto;

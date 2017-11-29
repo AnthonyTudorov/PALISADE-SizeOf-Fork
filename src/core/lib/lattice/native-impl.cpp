@@ -25,6 +25,8 @@
  */
 
 #include "../math/backend.h"
+#include "../math/native_int/binint.cpp"
+#include "../math/native_int/binvect.cpp"
 #include "../math/discretegaussiangenerator.cpp"
 #include "../math/discreteuniformgenerator.cpp"
 #include "../math/binaryuniformgenerator.cpp"
@@ -44,16 +46,13 @@ template<> unique_ptr<NativeInteger<uint64_t>> NativeInteger<uint64_t>::Allocato
 	return lbcrypto::make_unique<NativeInteger<uint64_t>>();
 };
 
+template class BigVectorImpl<NativeInteger<uint64_t>>;
+
 }
 
 #include "elemparams.cpp"
 #include "ilparams.cpp"
 #include "poly.cpp"
-
-namespace cpu_int
-{
-template class BigVectorImpl<native_int::NativeInteger<uint64_t>>;
-}
 
 namespace lbcrypto
 {
