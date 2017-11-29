@@ -57,8 +57,8 @@ static bool setup_SHE(shared_ptr<CryptoContext<Poly>> cc, shared_ptr<Ciphertext<
 
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	shared_ptr<Plaintext> p1 = cc->MakeCoefPackedPlaintext( makeVector(nel, ptmi) );
-	shared_ptr<Plaintext> p2 = cc->MakeCoefPackedPlaintext( makeVector(nel, ptmi) );
+	Plaintext p1 = cc->MakeCoefPackedPlaintext( makeVector(nel, ptmi) );
+	Plaintext p2 = cc->MakeCoefPackedPlaintext( makeVector(nel, ptmi) );
 
 	ct1 = cc->Encrypt(kp.publicKey, p1);
 	ct2 = cc->Encrypt(kp.publicKey, p2);

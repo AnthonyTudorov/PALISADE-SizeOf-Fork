@@ -157,7 +157,7 @@ void EncryptionSchemeSimulation(usint count){
 	ChineseRemainderTransformFTT<BigInteger,BigVector>::PreCompute(rootOfUnity, m, modulus);
 
 	//prepare the plaintext
-	shared_ptr<Plaintext> plaintext;
+	Plaintext plaintext;
 	ifstream txt("n_sample.txt");
 	std::string all;
 	txt >> all;
@@ -193,7 +193,7 @@ void EncryptionSchemeSimulation(usint count){
 
 		ciphertext = cc->Encrypt(kp.publicKey, plaintext);
 
-		shared_ptr<Plaintext> plaintextNew;
+		Plaintext plaintextNew;
 
 		DecryptResult result = cc->Decrypt(kp.secretKey, ciphertext, &plaintextNew);
 
@@ -303,7 +303,7 @@ void PRESimulation(usint count, usint dataset){
 	ChineseRemainderTransformFTT<BigInteger,BigVector>::PreCompute(rootOfUnity, m, modulus);
 
 	// prepare the plaintext
-	shared_ptr<Plaintext> plaintext;
+	Plaintext plaintext;
 	ifstream txt("n_sample.txt");
 	std::string all;
 	txt >> all;
@@ -354,7 +354,7 @@ void PRESimulation(usint count, usint dataset){
 
 	//all expensive operations are moved outside the loop
 
-	shared_ptr<Plaintext> arrPlaintext[NUMBER_OF_RUNS];
+	Plaintext arrPlaintext[NUMBER_OF_RUNS];
 	shared_ptr<Ciphertext<Poly>> arrCiphertext[NUMBER_OF_RUNS];
 
 	for (usint j = 0; j < count; j++){
@@ -376,7 +376,7 @@ void PRESimulation(usint count, usint dataset){
 
 	usint errorcounter = 0;
 
-	shared_ptr<Plaintext> plaintextNew[NUMBER_OF_RUNS];
+	Plaintext plaintextNew[NUMBER_OF_RUNS];
 
 	//decryption loop
 

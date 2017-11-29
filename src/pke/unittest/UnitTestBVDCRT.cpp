@@ -75,8 +75,8 @@ TEST_F(UTBVDCRT, Poly_bv_DCRT_MODREDUCE) {
 
 	std::vector<usint> vectorOfInts1 = { 4,1,2,3 };
 
-	shared_ptr<Plaintext> intArray1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
-	shared_ptr<Plaintext> intArrayNew;
+	Plaintext intArray1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
+	Plaintext intArrayNew;
 
 	////////////////////////////////////////////////////////////
 	//Encryption
@@ -95,7 +95,7 @@ TEST_F(UTBVDCRT, Poly_bv_DCRT_MODREDUCE) {
 	skEl.DropLastElement();
 	kp.secretKey->SetPrivateElement(skEl);
 
-	shared_ptr<Plaintext> intArrayNew2;
+	Plaintext intArrayNew2;
 	cc->Decrypt(kp.secretKey, ciphertextR, &intArrayNew2);
 	intArrayNew2->SetLength(intArray1->GetLength());
 

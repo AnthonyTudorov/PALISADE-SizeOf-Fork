@@ -47,7 +47,7 @@ We configured parameters (namely the ring dimension and ciphertext modulus) to p
 
 #include "cryptocontexthelper.h"
 
-#include "encoding/packedintplaintextencoding.h"
+#include "encoding/encodings.h"
 
 #include "utils/debug.h"
 #include <random>
@@ -188,7 +188,7 @@ void ArbBVAutomorphismPackedArray(usint i) {
 	LPKeyPair<DCRTPoly> kp = cc->KeyGen();
 
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10 };
-	shared_ptr<Plaintext> intArray = cc->MakePackedPlaintext(vectorOfInts);
+	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	auto ciphertext = cc->Encrypt(kp.publicKey, intArray);
 
@@ -199,7 +199,7 @@ void ArbBVAutomorphismPackedArray(usint i) {
 
 	auto permutedCiphertext = cc->EvalAutomorphism(ciphertext, i, *evalKeys);
 
-	shared_ptr<Plaintext> intArrayNew;
+	Plaintext intArrayNew;
 
 	cc->Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew);
 	
@@ -283,12 +283,12 @@ void EvalMult() {
 	LPKeyPair<DCRTPoly> kp = cc->KeyGen();
 
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10 };
-	shared_ptr<Plaintext> intArray = cc->MakePackedPlaintext(vectorOfInts);
+	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	auto ciphertext = cc->Encrypt(kp.publicKey, intArray);
 
 	std::vector<usint> vectorOfInts2 = { 2,3,4,4,5,6,7,8,9,101 };
-	shared_ptr<Plaintext> intArray2 = cc->MakePackedPlaintext(vectorOfInts2);
+	Plaintext intArray2 = cc->MakePackedPlaintext(vectorOfInts2);
 
 	auto ciphertext2 = cc->Encrypt(kp.publicKey, intArray2);
 
@@ -299,7 +299,7 @@ void EvalMult() {
 
 	auto permutedCiphertext = cc->EvalMult(ciphertext, ciphertext2);
 
-	shared_ptr<Plaintext> intArrayNew;
+	Plaintext intArrayNew;
 
 	cc->Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew);
 
@@ -381,7 +381,7 @@ void ArbNullAutomorphismPackedArray(usint i) {
 	LPKeyPair<DCRTPoly> kp = cc->KeyGen();
 
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10 };
-	shared_ptr<Plaintext> intArray = cc->MakePackedPlaintext(vectorOfInts);
+	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	auto ciphertext = cc->Encrypt(kp.publicKey, intArray);
 
@@ -392,7 +392,7 @@ void ArbNullAutomorphismPackedArray(usint i) {
 
 	auto permutedCiphertext = cc->EvalAutomorphism(ciphertext, i, *evalKeys);
 
-	shared_ptr<Plaintext> intArrayNew;
+	Plaintext intArrayNew;
 
 	cc->Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew);
 
@@ -456,9 +456,9 @@ void ArbBVInnerProductPackedArray() {
 
 	BigInteger modulusP(p);
 
-	PackedIntPlaintextEncoding::SetParams(modulusP, m);
+	PackedEncoding::SetParams(modulusP, m);
 
-	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP), batchSize));
+	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedEncoding::GetAutomorphismGenerator(modulusP), batchSize));
 
 	shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBV(paramsDCRT, encodingParams, 8, stdDev);
 
@@ -469,12 +469,12 @@ void ArbBVInnerProductPackedArray() {
 	LPKeyPair<DCRTPoly> kp = cc->KeyGen();
 
 	std::vector<usint> vectorOfInts1 = { 1,2,3,4,5,6,7,8,0,0 };
-	shared_ptr<Plaintext> intArray1 = cc->MakePackedPlaintext(vectorOfInts1);
+	Plaintext intArray1 = cc->MakePackedPlaintext(vectorOfInts1);
 
 	std::cout << "Input array 1 \n\t" << intArray1 << std::endl;
 
 	std::vector<usint> vectorOfInts2 = { 1,2,3,2,1,2,1,2,0,0 };
-	shared_ptr<Plaintext> intArray2 = cc->MakePackedPlaintext(vectorOfInts2);
+	Plaintext intArray2 = cc->MakePackedPlaintext(vectorOfInts2);
 
 	std::cout << "Input array 2 \n\t" << intArray2 << std::endl;
 
@@ -486,7 +486,7 @@ void ArbBVInnerProductPackedArray() {
 
 	auto ciphertextSum = cc->EvalInnerProduct(ciphertext1, ciphertext2, batchSize);
 
-	shared_ptr<Plaintext> intArrayNew;
+	Plaintext intArrayNew;
 
 	cc->Decrypt(kp.secretKey, ciphertextSum, &intArrayNew);
 

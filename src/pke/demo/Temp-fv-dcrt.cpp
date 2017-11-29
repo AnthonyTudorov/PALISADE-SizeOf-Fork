@@ -127,7 +127,7 @@ void PKE() {
 	////////////////////////////////////////////////////////////
 
 	std::vector<uint32_t> vectorOfInts = {1<<28,(1<<28)-1,1<<30,202,301,302,1<<30,402,501,502,601,602};
-	shared_ptr<Plaintext> plaintext = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts);
+	Plaintext plaintext = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts);
 
 	////////////////////////////////////////////////////////////
 	// Encryption
@@ -145,7 +145,7 @@ void PKE() {
 	//Decryption of Ciphertext
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Plaintext> plaintextDec;
+	Plaintext plaintextDec;
 
 	start = currentDateTime();
 

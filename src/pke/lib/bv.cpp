@@ -260,7 +260,7 @@ namespace lbcrypto {
 	template <class Element>
 	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::EvalAdd(
 		const shared_ptr<Ciphertext<Element>> ciphertext,
-		const shared_ptr<Plaintext> plaintext) const
+		const Plaintext plaintext) const
 	{
 		shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
 
@@ -304,7 +304,7 @@ namespace lbcrypto {
 
 	template <class Element>
 	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext,
-		const shared_ptr<Plaintext> plaintext) const {
+		const Plaintext plaintext) const {
 
 		shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
 
@@ -357,7 +357,7 @@ namespace lbcrypto {
 	template <class Element>
 	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::EvalMult(
 		const shared_ptr<Ciphertext<Element>> ciphertext,
-		const shared_ptr<Plaintext> plaintext) const
+		const Plaintext plaintext) const
 	{
 		shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
 
@@ -397,7 +397,7 @@ namespace lbcrypto {
 
 	template <class Element>
 	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
-		const shared_ptr<Plaintext> plaintext, const shared_ptr<LPEvalKey<Element>> ek) const {
+		const Plaintext plaintext, const shared_ptr<LPEvalKey<Element>> ek) const {
 
 		shared_ptr<Ciphertext<Element>> newCiphertext = this->EvalMult(ciphertext1, plaintext);
 

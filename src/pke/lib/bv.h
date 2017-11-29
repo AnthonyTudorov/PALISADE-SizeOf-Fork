@@ -302,7 +302,7 @@ namespace lbcrypto {
 		* @return result of homomorphic addition of input ciphertexts.
 		*/
 		shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext,
-			const shared_ptr<Plaintext> plaintext) const;
+			const Plaintext plaintext) const;
 
 		/**
 		* Function for homomorphic subtraction of ciphertexts.
@@ -322,7 +322,7 @@ namespace lbcrypto {
 		* @return result of homomorphic subtraction of input ciphertexts.
 		*/
 		shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext1,
-				const shared_ptr<Plaintext> plaintext) const;
+				const Plaintext plaintext) const;
 
 		/**
 		* Function for homomorphic multiplication of ciphertexts without key switching. 
@@ -343,7 +343,7 @@ namespace lbcrypto {
 		* @return result of the multiplication.
 		*/
 		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext,
-			const shared_ptr<Plaintext> plaintext) const;
+			const Plaintext plaintext) const;
 
 		/**
 		* Function for homomorphic multiplication of ciphertexts followed by key switching operation.
@@ -394,7 +394,7 @@ namespace lbcrypto {
 		* @return result of homomorphic multiplication of input ciphertexts.
 		*/
 		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
-			const shared_ptr<Plaintext> plaintext,
+			const Plaintext plaintext,
 			const shared_ptr<LPEvalKey<Element>> ek) const;
 
 		/**

@@ -555,7 +555,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalAdd(const shared_
 
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext,
-	const shared_ptr<Plaintext> plaintext) const {
+	const Plaintext plaintext) const {
 
 	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
 	newCiphertext->SetDepth(ciphertext->GetDepth());
@@ -633,7 +633,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalSub(const shared_
 
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext,
-	const shared_ptr<Plaintext> plaintext) const {
+	const Plaintext plaintext) const {
 
 //	if (!(ciphertext1->GetCryptoParameters() == ciphertext2->GetCryptoParameters())) {
 //		std::string errMsg = "LPAlgorithmSHEFV::EvalSub crypto parameters are not the same";
@@ -786,7 +786,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared
 
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext,
-	const shared_ptr<Plaintext> plaintext) const {
+	const Plaintext plaintext) const {
 
 	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
 
@@ -939,7 +939,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMultAndRelineariz
 
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmSHEFV<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
-	const shared_ptr<Plaintext> plaintext,
+	const Plaintext plaintext,
 	const shared_ptr<LPEvalKey<Element>> ek) const {
 
 	shared_ptr<Ciphertext<Element>> newCiphertext = this->EvalMult(ciphertext1, plaintext);

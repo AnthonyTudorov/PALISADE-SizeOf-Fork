@@ -54,7 +54,7 @@ protected:
 static shared_ptr<CryptoContext<Poly>> GenerateTestCryptoContext(const string& parmsetName) {
 	BigInteger modulusP(256);
 	shared_ptr<CryptoContext<Poly>> cc = CryptoContextHelper::getNewContext(parmsetName,
-			shared_ptr<EncodingParams>(new EncodingParams(modulusP,PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP),8)));
+			shared_ptr<EncodingParams>(new EncodingParams(modulusP,PackedEncoding::GetAutomorphismGenerator(modulusP),8)));
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 	return cc;
@@ -181,7 +181,7 @@ TEST_F(UTPKESer, Keys_and_ciphertext) {
     	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
     	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
-    	PackedIntPlaintextEncoding::SetParams(modulusP, m);
+    	PackedEncoding::SetParams(modulusP, m);
 
     	float stdDev = 4;
 
@@ -189,7 +189,7 @@ TEST_F(UTPKESer, Keys_and_ciphertext) {
 
     	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
 
-    	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP,PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP),batchSize));
+    	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP,PackedEncoding::GetAutomorphismGenerator(modulusP),batchSize));
 
     	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, encodingParams, 8, stdDev, OPTIMIZED);
 
@@ -226,7 +226,7 @@ TEST_F(UTPKESer, Keys_and_ciphertext) {
 	}
 	DEBUG("step 3");
 	vector<uint32_t> vals = { 1,3,5,7,9,2,4,6,8,11 };
-	shared_ptr<Plaintext> plaintextShort = cc->MakeCoefPackedPlaintext( vals );
+	Plaintext plaintextShort = cc->MakeCoefPackedPlaintext( vals );
 	shared_ptr<Ciphertext<Poly>> ciphertext = cc->Encrypt(kp.publicKey, plaintextShort);
 
 	Serialized ser;
@@ -239,7 +239,7 @@ TEST_F(UTPKESer, Keys_and_ciphertext) {
 	EXPECT_EQ( *ciphertext, *newC ) << "Ciphertext mismatch";
 
 	DEBUG("step 5");
-	shared_ptr<Plaintext> plaintextShortNew;
+	Plaintext plaintextShortNew;
 	cc->Decrypt(kp.secretKey, newC, &plaintextShortNew);
 	EXPECT_EQ(*plaintextShortNew, *plaintextShort) << "Decrypted deserialize failed";
 

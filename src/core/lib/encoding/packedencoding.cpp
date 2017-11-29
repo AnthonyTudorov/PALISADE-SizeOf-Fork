@@ -1,5 +1,5 @@
 /*
- * @file packedintplaintextencoding.cpp Represents and defines plaintext encodings in Palisade with bit packing capabilities.
+ * @file packedencoding.cpp Represents and defines plaintext encodings in Palisade with bit packing capabilities.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -24,19 +24,19 @@
  *
  */
 
-#include "packedintplaintextencoding.h"
+#include "packedencoding.h"
 
 namespace lbcrypto {
 
-	std::map<native_int::BigInteger, native_int::BigInteger> PackedIntPlaintextEncoding::m_initRoot;
-	std::map<native_int::BigInteger, native_int::BigInteger> PackedIntPlaintextEncoding::m_bigModulus;
-	std::map<native_int::BigInteger, native_int::BigInteger> PackedIntPlaintextEncoding::m_bigRoot;
+	std::map<native_int::BigInteger, native_int::BigInteger> PackedEncoding::m_initRoot;
+	std::map<native_int::BigInteger, native_int::BigInteger> PackedEncoding::m_bigModulus;
+	std::map<native_int::BigInteger, native_int::BigInteger> PackedEncoding::m_bigRoot;
 
-	std::map<native_int::BigInteger, usint> PackedIntPlaintextEncoding::m_automorphismGenerator;
-	std::map<native_int::BigInteger, std::vector<usint>> PackedIntPlaintextEncoding::m_toCRTPerm;
-	std::map<native_int::BigInteger, std::vector<usint>> PackedIntPlaintextEncoding::m_fromCRTPerm;
+	std::map<native_int::BigInteger, usint> PackedEncoding::m_automorphismGenerator;
+	std::map<native_int::BigInteger, std::vector<usint>> PackedEncoding::m_toCRTPerm;
+	std::map<native_int::BigInteger, std::vector<usint>> PackedEncoding::m_fromCRTPerm;
 
-	bool PackedIntPlaintextEncoding::Encode() {
+	bool PackedEncoding::Encode() {
 		if( this->isEncoded ) return true;
 		int64_t mod = this->encodingParams->GetPlaintextModulus().ConvertToInt();
 
@@ -70,7 +70,7 @@ namespace lbcrypto {
 		return true;
 	}
 
-	bool PackedIntPlaintextEncoding::Decode() {
+	bool PackedEncoding::Decode() {
 
 		this->Unpack(&this->GetElement<Poly>(), this->encodingParams->GetPlaintextModulus());
 
@@ -81,7 +81,7 @@ namespace lbcrypto {
 		return true;
 	}
 
-	void PackedIntPlaintextEncoding::Destroy()
+	void PackedEncoding::Destroy()
 	{
 		m_initRoot.clear();
 		m_bigModulus.clear();
@@ -93,7 +93,7 @@ namespace lbcrypto {
 	}
 
 	// FIXME: can these two SetParams methods be collapsed into one??
-	void PackedIntPlaintextEncoding::SetParams(usint m, shared_ptr<EncodingParams> params)
+	void PackedEncoding::SetParams(usint m, shared_ptr<EncodingParams> params)
 	{
 		native_int::BigInteger modulusNI(params->GetPlaintextModulus().ConvertToInt()); //native int modulus
 		std::string exception_message;
@@ -175,7 +175,7 @@ namespace lbcrypto {
 
 	}
 
-	void PackedIntPlaintextEncoding::SetParams(const BigInteger &modulus, usint m)
+	void PackedEncoding::SetParams(const BigInteger &modulus, usint m)
 	{
 		native_int::BigInteger modulusNI(modulus.ConvertToInt()); //native int modulus
 
@@ -244,7 +244,7 @@ namespace lbcrypto {
 	}
 
 
-	void PackedIntPlaintextEncoding::Pack(Poly *ring, const BigInteger &modulus) const {
+	void PackedEncoding::Pack(Poly *ring, const BigInteger &modulus) const {
 
 		bool dbg_flag = false;
 
@@ -315,7 +315,7 @@ namespace lbcrypto {
 		DEBUG(*ring);
 	}
 
-void PackedIntPlaintextEncoding::Unpack(Poly *ring, const BigInteger &modulus) const {
+void PackedEncoding::Unpack(Poly *ring, const BigInteger &modulus) const {
 
 	bool dbg_flag = false;
 

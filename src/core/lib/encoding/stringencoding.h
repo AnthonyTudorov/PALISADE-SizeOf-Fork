@@ -33,29 +33,29 @@ using namespace std;
 
 namespace lbcrypto {
 
-class StringEncoding: public Plaintext {
+class StringEncoding: public PlaintextImpl {
 	string	ptx;
 	//enum EncodingType { CHAR7bit } encoding = CHAR7bit;
 
 public:
 	// these two constructors are used inside of Decrypt
 	StringEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep) :
-		Plaintext(vp,ep) {}
+		PlaintextImpl(vp,ep) {}
 
 	StringEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep) :
-		Plaintext(vp,ep) {}
+		PlaintextImpl(vp,ep) {}
 
 	StringEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, string str) :
-		Plaintext(vp,ep), ptx(str) {}
+		PlaintextImpl(vp,ep), ptx(str) {}
 
 	StringEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, string str) :
-		Plaintext(vp,ep), ptx(str) {}
+		PlaintextImpl(vp,ep), ptx(str) {}
 
 	StringEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, vector<uint8_t> vec) :
-		Plaintext(vp,ep), ptx(vec.begin(),vec.end()) {}
+		PlaintextImpl(vp,ep), ptx(vec.begin(),vec.end()) {}
 
 	StringEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, vector<uint8_t> vec) :
-		Plaintext(vp,ep), ptx(vec.begin(),vec.end()) {}
+		PlaintextImpl(vp,ep), ptx(vec.begin(),vec.end()) {}
 
 	// TODO provide wide-character version (for unicode); right now this class only
 	// supports strings of 7-bit ASCII characters
@@ -101,7 +101,7 @@ public:
 	 * @param other - the other plaintext to compare to.
 	 * @return whether the two plaintext are equivalent.
 	 */
-	bool CompareTo(const Plaintext& other) const {
+	bool CompareTo(const PlaintextImpl& other) const {
 		const StringEncoding& oth = dynamic_cast<const StringEncoding&>(other);
 		return oth.ptx == this->ptx;
 	}

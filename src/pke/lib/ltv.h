@@ -479,7 +479,7 @@ public:
 	* @return A shared pointer to the ciphertext which is the EvalAdd of the two inputs.
 	*/
 	shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext,
-		const shared_ptr<Plaintext> plaintext) const;
+		const Plaintext plaintext) const;
 
 	/**
 	* Function for homomorphic subtraction of ciphertexts.
@@ -501,7 +501,7 @@ public:
 	* @return A shared pointer to the ciphertext which is the EvalAdd of the two inputs.
 	*/
 	shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext,
-			const shared_ptr<Plaintext> plaintext) const;
+			const Plaintext plaintext) const;
 
 	/**
 	* Function for evaluating multiplication on ciphertext.
@@ -523,7 +523,7 @@ public:
 	* @return A shared pointer to the ciphertext which is the EvalMult of the two inputs.
 	*/
 	shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext,
-		const shared_ptr<Plaintext> plaintext) const;
+		const Plaintext plaintext) const;
 
 
 	/**
@@ -578,7 +578,7 @@ public:
 	* @return A shared pointer to the ciphertext which is the EvalMult of the two inputs.
 	*/
 	shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
-		const shared_ptr<Plaintext> ciphertext2,
+		const Plaintext ciphertext2,
 		const shared_ptr<LPEvalKey<Element>> evalKey) const;
 
 	/**

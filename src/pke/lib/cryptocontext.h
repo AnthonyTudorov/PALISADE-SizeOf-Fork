@@ -102,7 +102,7 @@ private:
 	 * @param a
 	 * @param b
 	 */
-	void TypeCheck(const shared_ptr<Ciphertext<Element>> a, const shared_ptr<Plaintext> b) const {
+	void TypeCheck(const shared_ptr<Ciphertext<Element>> a, const Plaintext b) const {
 		if( a == NULL )
 			PALISADE_THROW( type_error, "Null Ciphertext");
 		if( b == NULL )
@@ -134,7 +134,7 @@ private:
 	 * @param a
 	 * @param b
 	 */
-	void TypeCheck(const RationalCiphertext<Element>& a, const shared_ptr<Plaintext> b) const {
+	void TypeCheck(const RationalCiphertext<Element>& a, const Plaintext b) const {
 		if( b == NULL )
 			PALISADE_THROW( type_error, "Null Plaintext");
 		if( a.GetCryptoContext().get() != this )
@@ -571,7 +571,7 @@ public:
 	*/
 	DecryptResult MultipartyDecryptFusion(
 		const vector<shared_ptr<Ciphertext<Element>>>& partialCiphertextVec,
-		shared_ptr<Plaintext> *plaintext) const
+		Plaintext *plaintext) const
 	{
 
 		DecryptResult result;
@@ -592,7 +592,7 @@ public:
 		}
 
 		// determine which type of plaintext that you need to decrypt into
-		shared_ptr<Plaintext> decrypted = GetPlaintextForDecrypt(partialCiphertextVec[0]->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
+		Plaintext decrypted = GetPlaintextForDecrypt(partialCiphertextVec[0]->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
 
 		result = GetEncryptionAlgorithm()->MultipartyDecryptFusion(partialCiphertextVec, &decrypted->GetElement<Poly>());
 
@@ -722,7 +722,7 @@ public:
 	 */
 	shared_ptr<Ciphertext<Element>> Encrypt(
 			const shared_ptr<LPPublicKey<Element>> publicKey,
-			shared_ptr<Plaintext> plaintext)
+			Plaintext plaintext)
 	{
 		if( publicKey == NULL )
 			throw std::logic_error("null key passed to Encrypt");
@@ -756,7 +756,7 @@ public:
 	 */
 	shared_ptr<Ciphertext<Element>> Encrypt(
 		const shared_ptr<LPPrivateKey<Element>> privateKey,
-		shared_ptr<Plaintext> plaintext) const
+		Plaintext plaintext) const
 	{
 		if( privateKey == NULL || Mismatched(privateKey->GetCryptoContext()) )
 			throw std::logic_error("key passed to Encrypt was not generated with this crypto context");
@@ -787,7 +787,7 @@ public:
 	*/
 	shared_ptr<Matrix<RationalCiphertext<Element>>> EncryptMatrix(
 		const shared_ptr<LPPublicKey<Element>> publicKey,
-		Matrix<shared_ptr<Plaintext>> &plaintext)
+		Matrix<Plaintext> &plaintext)
 	{
 		if (publicKey == NULL || Mismatched(publicKey->GetCryptoContext()))
 			throw std::logic_error("key passed to EncryptMatrix was not generated with this crypto context");
@@ -842,7 +842,7 @@ public:
 			throw std::logic_error("key passed to EncryptStream was not generated with this crypto context");
 
 		bool padded = false;
-		shared_ptr<Plaintext> px;
+		Plaintext px;
 		size_t chunkSize = this->GetRingDimension();
 		char *ptxt = new char[chunkSize];
 
@@ -888,11 +888,11 @@ public:
 	 * @param isSigned
 	 * @return plaintext
 	 */
-	shared_ptr<Plaintext> MakeScalarPlaintext(uint32_t value, bool isSigned = false) const {
+	Plaintext MakeScalarPlaintext(uint32_t value, bool isSigned = false) const {
 		if( isSigned )
-			return shared_ptr<Plaintext>( new ScalarEncoding( this->GetElementParams(), this->GetEncodingParams(), (int32_t)value ) );
+			return Plaintext( new ScalarEncoding( this->GetElementParams(), this->GetEncodingParams(), (int32_t)value ) );
 		else
-			return shared_ptr<Plaintext>( new ScalarEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
+			return Plaintext( new ScalarEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
 	}
 
 	/**
@@ -900,8 +900,8 @@ public:
 	 * @param str
 	 * @return plaintext
 	 */
-	shared_ptr<Plaintext> MakeStringPlaintext(const string& str) const {
-		return shared_ptr<Plaintext>( new StringEncoding( this->GetElementParams(), this->GetEncodingParams(), str ) );
+	Plaintext MakeStringPlaintext(const string& str) const {
+		return Plaintext( new StringEncoding( this->GetElementParams(), this->GetEncodingParams(), str ) );
 	}
 
 	/**
@@ -909,8 +909,8 @@ public:
 	 * @param value
 	 * @return plaintext
 	 */
-	shared_ptr<Plaintext> MakeIntegerPlaintext(uint32_t value) const {
-		return shared_ptr<Plaintext>( new IntegerEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
+	Plaintext MakeIntegerPlaintext(uint32_t value) const {
+		return Plaintext( new IntegerEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
 	}
 
 	/**
@@ -919,8 +919,8 @@ public:
 	 * @param isSigned
 	 * @return plaintext
 	 */
-	shared_ptr<Plaintext> MakeCoefPackedPlaintext(const vector<uint32_t>& value, bool isSigned = false) const {
-		return shared_ptr<Plaintext>( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value, isSigned ) );
+	Plaintext MakeCoefPackedPlaintext(const vector<uint32_t>& value, bool isSigned = false) const {
+		return Plaintext( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value, isSigned ) );
 	}
 
 	/**
@@ -928,8 +928,8 @@ public:
 	 * @param value
 	 * @return plaintext
 	 */
-	shared_ptr<Plaintext> MakeCoefPackedPlaintext(const vector<int32_t>& value) const {
-		return shared_ptr<Plaintext>( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
+	Plaintext MakeCoefPackedPlaintext(const vector<int32_t>& value) const {
+		return Plaintext( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
 	}
 
 	/**
@@ -938,8 +938,8 @@ public:
 	 * @param isSigned
 	 * @return plaintext
 	 */
-	shared_ptr<Plaintext> MakeCoefPackedPlaintext(const std::initializer_list<uint32_t>& value, bool isSigned = false) const {
-		return shared_ptr<Plaintext>( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value, isSigned ) );
+	Plaintext MakeCoefPackedPlaintext(const std::initializer_list<uint32_t>& value, bool isSigned = false) const {
+		return Plaintext( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value, isSigned ) );
 	}
 
 	/**
@@ -947,32 +947,32 @@ public:
 	 * @param value
 	 * @return plaintext
 	 */
-	shared_ptr<Plaintext> MakeCoefPackedPlaintext(const std::initializer_list<int32_t>& value) const {
-		return shared_ptr<Plaintext>( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
+	Plaintext MakeCoefPackedPlaintext(const std::initializer_list<int32_t>& value) const {
+		return Plaintext( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
 	}
 
 	/**
-	 * MakePackedPlaintext constructs a PackedIntPlaintextEncoding in this context
+	 * MakePackedPlaintext constructs a PackedEncoding in this context
 	 * @param value
 	 * @return plaintext
 	 */
-	shared_ptr<Plaintext> MakePackedPlaintext(const vector<uint32_t>& value) const {
-		return shared_ptr<Plaintext>( new PackedIntPlaintextEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
+	Plaintext MakePackedPlaintext(const vector<uint32_t>& value) const {
+		return Plaintext( new PackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
 	}
 
 	/**
-	 * MakePackedPlaintext constructs a PackedIntPlaintextEncoding in this context
+	 * MakePackedPlaintext constructs a PackedEncoding in this context
 	 * @param value
 	 * @return plaintext
 	 */
-	shared_ptr<Plaintext> MakePackedPlaintext(const std::initializer_list<uint32_t>& value) const {
-		return shared_ptr<Plaintext>( new PackedIntPlaintextEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
+	Plaintext MakePackedPlaintext(const std::initializer_list<uint32_t>& value) const {
+		return Plaintext( new PackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
 	}
 
 private:
-	static shared_ptr<Plaintext>
+	static Plaintext
 	GetPlaintextForDecrypt(PlaintextEncodings pte, shared_ptr<typename Element::Params> vp, shared_ptr<EncodingParams> ep) {
-		shared_ptr<Plaintext> pt;
+		Plaintext pt;
 
 		switch(pte) {
 		case Unknown:
@@ -994,7 +994,7 @@ private:
 			pt.reset( new CoefPackedEncoding(vp,ep,true) );
 			break;
 		case Packed:
-			pt.reset( new PackedIntPlaintextEncoding(vp,ep) );
+			pt.reset( new PackedEncoding(vp,ep) );
 			break;
 		case String:
 			pt.reset( new StringEncoding(vp,ep) );
@@ -1016,7 +1016,7 @@ public:
 	DecryptResult Decrypt(
 			const shared_ptr<LPPrivateKey<Element>> privateKey,
 			const shared_ptr<Ciphertext<Element>> ciphertext,
-			shared_ptr<Plaintext>* plaintext)
+			Plaintext* plaintext)
 	{
 		if( privateKey == NULL || Mismatched(privateKey->GetCryptoContext()) )
 			throw std::logic_error("Information passed to Decrypt was not generated with this crypto context");
@@ -1025,7 +1025,7 @@ public:
 		if( doTiming ) start = currentDateTime();
 
 		// determine which type of plaintext that you need to decrypt into
-		shared_ptr<Plaintext> decrypted = GetPlaintextForDecrypt(ciphertext->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
+		Plaintext decrypted = GetPlaintextForDecrypt(ciphertext->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
 
 		DecryptResult result = GetEncryptionAlgorithm()->Decrypt(privateKey, ciphertext, &decrypted->GetElement<Poly>());
 
@@ -1051,8 +1051,8 @@ public:
 	DecryptResult DecryptMatrix(
 		const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const shared_ptr<Matrix<RationalCiphertext<Element>>> ciphertext,
-		shared_ptr<Matrix<shared_ptr<Plaintext>>> *numerator,
-		shared_ptr<Matrix<shared_ptr<Plaintext>>> *denominator) const
+		shared_ptr<Matrix<Plaintext>> *numerator,
+		shared_ptr<Matrix<Plaintext>> *denominator) const
 	{
 
 		// edge case
@@ -1065,10 +1065,10 @@ public:
 		const shared_ptr<Ciphertext<Element>> ctN = (*ciphertext)(0, 0).GetNumerator();
 
 		// need to build matrices for the result
-		shared_ptr<Plaintext> ptx = GetPlaintextForDecrypt(ctN->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
-		auto zeroPackingAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(ptx); };
-		*numerator = shared_ptr<Matrix<shared_ptr<Plaintext>>>( new Matrix<shared_ptr<Plaintext>>(zeroPackingAlloc, ciphertext->GetRows(), ciphertext->GetCols()) );
-		*denominator = shared_ptr<Matrix<shared_ptr<Plaintext>>>( new Matrix<shared_ptr<Plaintext>>(zeroPackingAlloc, ciphertext->GetRows(), ciphertext->GetCols()) );
+		Plaintext ptx = GetPlaintextForDecrypt(ctN->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
+		auto zeroPackingAlloc = [=]() { return lbcrypto::make_unique<Plaintext>(ptx); };
+		*numerator = shared_ptr<Matrix<Plaintext>>( new Matrix<Plaintext>(zeroPackingAlloc, ciphertext->GetRows(), ciphertext->GetCols()) );
+		*denominator = shared_ptr<Matrix<Plaintext>>( new Matrix<Plaintext>(zeroPackingAlloc, ciphertext->GetRows(), ciphertext->GetCols()) );
 
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
@@ -1082,7 +1082,7 @@ public:
 				const shared_ptr<Ciphertext<Element>> ctN = (*ciphertext)(row, col).GetNumerator();
 
 				// determine which type of plaintext that you need to decrypt into
-				shared_ptr<Plaintext> decryptedNumerator = GetPlaintextForDecrypt(ctN->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
+				Plaintext decryptedNumerator = GetPlaintextForDecrypt(ctN->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
 				DecryptResult resultN = GetEncryptionAlgorithm()->Decrypt(privateKey, ctN, &decryptedNumerator->GetElement<Poly>());
 
 				if (resultN.isValid == false) return resultN;
@@ -1091,7 +1091,7 @@ public:
 
 				(**numerator)(row,col)->Decode();
 
-				shared_ptr<Plaintext> decryptedDenominator = GetPlaintextForDecrypt(ctN->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
+				Plaintext decryptedDenominator = GetPlaintextForDecrypt(ctN->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
 				if( (*ciphertext)(row,col).GetIntegerFlag() == true ) {
 					decryptedDenominator->GetElement<Poly>().SetValuesToZero();
 					decryptedDenominator->GetElement<Poly>().at(0) = 1;
@@ -1129,7 +1129,7 @@ public:
 	DecryptResult DecryptMatrixNumerator(
 		const shared_ptr<LPPrivateKey<Element>> privateKey,
 		const shared_ptr<Matrix<RationalCiphertext<Element>>> ciphertext,
-		shared_ptr<Matrix<shared_ptr<Plaintext>>> *numerator) const
+		shared_ptr<Matrix<Plaintext>> *numerator) const
 	{
 		// edge case
 		if ((ciphertext->GetCols() == 0) && (ciphertext->GetRows() == 0))
@@ -1148,11 +1148,11 @@ public:
 		const shared_ptr<Ciphertext<Element>> ctN = (*ciphertext)(0, 0).GetNumerator();
 
 		// need to build a numerator matrix for the result
-		shared_ptr<Plaintext> ptx = GetPlaintextForDecrypt(ctN->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
-		auto zeroPackingAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(ptx); };
-		*numerator = shared_ptr<Matrix<shared_ptr<Plaintext>>>( new Matrix<shared_ptr<Plaintext>>(zeroPackingAlloc, ciphertext->GetRows(), ciphertext->GetCols()) );
+		Plaintext ptx = GetPlaintextForDecrypt(ctN->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
+		auto zeroPackingAlloc = [=]() { return lbcrypto::make_unique<Plaintext>(ptx); };
+		*numerator = shared_ptr<Matrix<Plaintext>>( new Matrix<Plaintext>(zeroPackingAlloc, ciphertext->GetRows(), ciphertext->GetCols()) );
 
-		shared_ptr<Plaintext> decryptedNumerator = GetPlaintextForDecrypt(ctN->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
+		Plaintext decryptedNumerator = GetPlaintextForDecrypt(ctN->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
 		DecryptResult resultN = GetEncryptionAlgorithm()->Decrypt(privateKey, ctN, &decryptedNumerator->GetElement<Poly>());
 
 		if (resultN.isValid == false) return resultN;
@@ -1172,7 +1172,7 @@ public:
 
 					const shared_ptr<Ciphertext<Element>> ctN = (*ciphertext)(row, col).GetNumerator();
 
-					shared_ptr<Plaintext> decryptedNumerator = GetPlaintextForDecrypt(ctN->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
+					Plaintext decryptedNumerator = GetPlaintextForDecrypt(ctN->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
 					GetEncryptionAlgorithm()->Decrypt(privateKey, ctN, &decryptedNumerator->GetElement<Poly>());
 
 					(**numerator)(row, col) = decryptedNumerator;
@@ -1210,7 +1210,7 @@ public:
 		size_t tot = 0;
 
 		bool firstTime = true;
-		shared_ptr<Plaintext> pte[2];
+		Plaintext pte[2];
 		bool whichArray = false;
 
 		while( SerializableHelper::StreamToSerialization(instream, &serObj) ) {
@@ -1398,7 +1398,7 @@ public:
 	* @return new ciphertext for ciphertext + plaintext 
 	*/
 	shared_ptr<Ciphertext<Element>>
-	EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext, const shared_ptr<Plaintext> plaintext) const
+	EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext, const Plaintext plaintext) const
 	{
 		TypeCheck(ciphertext, plaintext);
 
@@ -1418,7 +1418,7 @@ public:
 	* @return new ciphertext for ciphertext - plaintext
 	*/
 	shared_ptr<Ciphertext<Element>>
-	EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext, const shared_ptr<Plaintext> plaintext) const
+	EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext, const Plaintext plaintext) const
 	{
 		TypeCheck(ciphertext, plaintext);
 
@@ -1460,7 +1460,7 @@ public:
 	 * @return new ciphertext for ct1 * pt2
 	 */
 	shared_ptr<Ciphertext<Element>>
-	EvalMult(const shared_ptr<Plaintext> pt2, const shared_ptr<Ciphertext<Element>> ct1) const
+	EvalMult(const Plaintext pt2, const shared_ptr<Ciphertext<Element>> ct1) const
 	{
 		return EvalMult(ct1, pt2);
 	}
@@ -1472,7 +1472,7 @@ public:
 	 * @return new ciphertext for ct1 * pt2
 	 */
 	shared_ptr<Ciphertext<Element>>
-	EvalMult(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Plaintext> pt2) const
+	EvalMult(const shared_ptr<Ciphertext<Element>> ct1, const Plaintext pt2) const
 	{
 		TypeCheck(ct1, pt2);
 
@@ -1682,7 +1682,7 @@ public:
 	* @param batchSize size of the batch to be summed up
 	* @return resulting ciphertext
 	*/
-	shared_ptr<Ciphertext<Element>> EvalInnerProduct(const shared_ptr<Ciphertext<Element>> ciphertext1, const shared_ptr<Plaintext> ciphertext2, usint batchSize) const;
+	shared_ptr<Ciphertext<Element>> EvalInnerProduct(const shared_ptr<Ciphertext<Element>> ciphertext1, const Plaintext ciphertext2, usint batchSize) const;
 
 	/**
 	* EvalCrossCorrelation - Computes the sliding sum of inner products (known as

@@ -84,7 +84,7 @@ keymaker(shared_ptr<CryptoContext<Poly>> ctx, string keyname)
 
 
 void
-encrypter(shared_ptr<CryptoContext<Poly>> ctx, shared_ptr<Plaintext> iPlaintext, string pubkeyname, string ciphertextname)
+encrypter(shared_ptr<CryptoContext<Poly>> ctx, Plaintext iPlaintext, string pubkeyname, string ciphertextname)
 {
 
 	ofstream ctSer(DATAFOLDER + "/" + ciphertextname, ios::binary);
@@ -127,10 +127,10 @@ encrypter(shared_ptr<CryptoContext<Poly>> ctx, shared_ptr<Plaintext> iPlaintext,
 }
 
 
-shared_ptr<Plaintext>
+Plaintext
 decrypter(shared_ptr<CryptoContext<Poly>> ctx, string ciphertextname, string prikeyname)
 {
-	shared_ptr<Plaintext> iPlaintext;
+	Plaintext iPlaintext;
 
 	Serialized	kser;
 	if( SerializableHelper::ReadSerializationFromFile(DATAFOLDER + "/" + prikeyname, &kser) == false ) {
@@ -208,9 +208,9 @@ int main(int argc, char *argv[])
 	keymaker(cryptoContext, keyFileName);
 
 	std::vector<uint32_t> vectorOfInts1 = {3,1,4,2,1,1,0,1,0,0,0,0};
-	shared_ptr<Plaintext> plaintext1 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts1);
+	Plaintext plaintext1 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts1);
 	std::vector<uint32_t> vectorOfInts2 = {1,1,1,0,1,1,0,1,0,0,0,0};
-	shared_ptr<Plaintext> plaintext2 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts2);
+	Plaintext plaintext2 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts2);
 
 	string ciphertextFileName1 = "ciphertext1.txt";
 	string ciphertextFileName2 = "ciphertext2.txt";
@@ -218,8 +218,8 @@ int main(int argc, char *argv[])
 	encrypter(cryptoContext, plaintext1, keyFileNamePublic, ciphertextFileName1);
 	encrypter(cryptoContext, plaintext2, keyFileNamePublic, ciphertextFileName2);
 	
-	shared_ptr<Plaintext> plaintext1_dec;
-	shared_ptr<Plaintext> plaintext2_dec;
+	Plaintext plaintext1_dec;
+	Plaintext plaintext2_dec;
 
 	plaintext1_dec = decrypter(cryptoContext, ciphertextFileName1, keyFileNamePrivate);
 	plaintext2_dec = decrypter(cryptoContext, ciphertextFileName2, keyFileNamePrivate);

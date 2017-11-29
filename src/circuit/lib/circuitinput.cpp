@@ -67,7 +67,7 @@ void CircuitObject<Element>::DecryptAndPrint(shared_ptr<CryptoContext<Element>> 
 	switch( this->t ) {
 	case VECTOR_INT:
 	{
-		shared_ptr<Plaintext> result;
+		Plaintext result;
 		cc->Decrypt(key, GetIntVecValue(), &result);
 
 		size_t i;
@@ -79,8 +79,8 @@ void CircuitObject<Element>::DecryptAndPrint(shared_ptr<CryptoContext<Element>> 
 
 	case MATRIX_RAT:
 	{
-		shared_ptr<Matrix<shared_ptr<Plaintext>>> numerator;
-		shared_ptr<Matrix<shared_ptr<Plaintext>>> denominator;
+		shared_ptr<Matrix<Plaintext>> numerator;
+		shared_ptr<Matrix<Plaintext>> denominator;
 		cc->DecryptMatrix(key, GetIntMatValue(), &numerator, &denominator);
 
 		size_t r, c, i;

@@ -31,7 +31,7 @@
 
 namespace lbcrypto {
 
-class ScalarEncoding : public Plaintext {
+class ScalarEncoding : public PlaintextImpl {
 	uint32_t		value;
 	int32_t			valueSigned;
 	bool			isSigned;
@@ -39,22 +39,22 @@ class ScalarEncoding : public Plaintext {
 public:
 	// these two constructors are used inside of Decrypt
 	ScalarEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, bool isSigned = false) :
-		Plaintext(vp,ep), value(0), valueSigned(0), isSigned(isSigned) {}
+		PlaintextImpl(vp,ep), value(0), valueSigned(0), isSigned(isSigned) {}
 
 	ScalarEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, bool isSigned = false) :
-		Plaintext(vp,ep), value(0), valueSigned(0), isSigned(isSigned) {}
+		PlaintextImpl(vp,ep), value(0), valueSigned(0), isSigned(isSigned) {}
 
 	ScalarEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, int32_t scalar) :
-		Plaintext(vp,ep), value(0), valueSigned(scalar), isSigned(true) {}
+		PlaintextImpl(vp,ep), value(0), valueSigned(scalar), isSigned(true) {}
 
 	ScalarEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, uint32_t scalar) :
-		Plaintext(vp,ep), value(scalar), valueSigned(0), isSigned(false) {}
+		PlaintextImpl(vp,ep), value(scalar), valueSigned(0), isSigned(false) {}
 
 	ScalarEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, int32_t scalar) :
-		Plaintext(vp,ep), value(0), valueSigned(scalar), isSigned(true) {}
+		PlaintextImpl(vp,ep), value(0), valueSigned(scalar), isSigned(true) {}
 
 	ScalarEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, uint32_t scalar) :
-		Plaintext(vp,ep), value(scalar), valueSigned(0), isSigned(false) {}
+		PlaintextImpl(vp,ep), value(scalar), valueSigned(0), isSigned(false) {}
 
 	virtual ~ScalarEncoding() {}
 
@@ -112,7 +112,7 @@ public:
 	 * @param other - the other plaintext to compare to.
 	 * @return whether the two plaintext are equivalent.
 	 */
-	bool CompareTo(const Plaintext& other) const {
+	bool CompareTo(const PlaintextImpl& other) const {
 		const ScalarEncoding& oth = dynamic_cast<const ScalarEncoding&>(other);
 		return oth.value == this->value && oth.isSigned == this->isSigned;
 	}

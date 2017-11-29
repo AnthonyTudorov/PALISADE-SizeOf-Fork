@@ -260,7 +260,7 @@ int main() {
 	usint phim = 1024;
 	usint p = 1964033; // we choose s.t. 2m|p-1 to leverage CRTArb
 	BigInteger modulusP(p);
-	PackedIntPlaintextEncoding::SetParams(modulusP, m);
+	PackedEncoding::SetParams(modulusP, m);
 
 	BigInteger modulusQ("9223372036589678593");
 	BigInteger rootOfUnity("5356268145311420142");

@@ -67,18 +67,18 @@ UnitTestReEncrypt(shared_ptr<CryptoContext<Element>> cc, bool publicVersion) {
 
 	string shortStr(vecSize/2,0);
 	std::generate_n(shortStr.begin(), vecSize/2, randchar);
-	shared_ptr<Plaintext> plaintextShort( new StringEncoding(cc->GetElementParams(), cc->GetEncodingParams(), shortStr) );
+	Plaintext plaintextShort( new StringEncoding(cc->GetElementParams(), cc->GetEncodingParams(), shortStr) );
 
 	string fullStr(vecSize,0);
 	std::generate_n(fullStr.begin(), vecSize, randchar);
-	shared_ptr<Plaintext> plaintextFull( new StringEncoding(cc->GetElementParams(), cc->GetEncodingParams(), fullStr) );
+	Plaintext plaintextFull( new StringEncoding(cc->GetElementParams(), cc->GetEncodingParams(), fullStr) );
 
 	auto ptm = cc->GetCryptoParameters()->GetPlaintextModulus().ConvertToInt();
 
 	vector<uint32_t> intvec;
 	for( size_t ii=0; ii<vecSize; ii++)
 		intvec.push_back( rand() % ptm );
-	shared_ptr<Plaintext> plaintextInt( new CoefPackedEncoding(cc->GetElementParams(), cc->GetEncodingParams(), intvec) );
+	Plaintext plaintextInt( new CoefPackedEncoding(cc->GetElementParams(), cc->GetEncodingParams(), intvec) );
 
 	////////////////////////////////////////////////////////////
 	//Perform the key generation operations
@@ -121,19 +121,19 @@ UnitTestReEncrypt(shared_ptr<CryptoContext<Element>> cc, bool publicVersion) {
 	}
 
 	shared_ptr<Ciphertext<Element>> ciphertext = cc->Encrypt(kp.publicKey, plaintextShort);
-	shared_ptr<Plaintext> plaintextShortNew;
+	Plaintext plaintextShortNew;
 	shared_ptr<Ciphertext<Element>> reCiphertext = cc->ReEncrypt(evalKey, ciphertext);
 	DecryptResult result = cc->Decrypt(newKp.secretKey, reCiphertext, &plaintextShortNew);
 	EXPECT_EQ(plaintextShortNew->GetStringValue(), plaintextShort->GetStringValue()) << "ReEncrypt short plaintext with padding";
 
 	shared_ptr<Ciphertext<Element>> ciphertext2 = cc->Encrypt(kp.publicKey, plaintextFull);
-	shared_ptr<Plaintext> plaintextFullNew;
+	Plaintext plaintextFullNew;
 	shared_ptr<Ciphertext<Element>> reCiphertext2 = cc->ReEncrypt(evalKey, ciphertext2);
 	result = cc->Decrypt(newKp.secretKey, reCiphertext2, &plaintextFullNew);
 	EXPECT_EQ(plaintextFullNew->GetStringValue(), plaintextFull->GetStringValue()) << "ReEncrypt regular plaintext";
 
 	shared_ptr<Ciphertext<Element>> ciphertext4 = cc->Encrypt(kp.publicKey, plaintextInt);
-	shared_ptr<Plaintext> plaintextIntNew;
+	Plaintext plaintextIntNew;
 	shared_ptr<Ciphertext<Element>> reCiphertext4 = cc->ReEncrypt(evalKey, ciphertext4);
 	result = cc->Decrypt(newKp.secretKey, reCiphertext4, &plaintextIntNew);
 	EXPECT_EQ(plaintextIntNew->GetCoefPackedValue(), plaintextInt->GetCoefPackedValue()) << "ReEncrypt integer plaintext";

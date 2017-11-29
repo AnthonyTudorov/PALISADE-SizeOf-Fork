@@ -67,7 +67,7 @@ bool CheckAutomorphism(const std::vector<usint> &perm,const std::vector<usint> &
 
 TEST_F(UTAUTOMORPHISM, Test_LTV_Automorphism_PowerOf2) {
 	
-	PackedIntPlaintextEncoding::Destroy();
+	PackedEncoding::Destroy();
 	
 	std::vector<usint> initVector = { 1,2,3,4,5,6,7,8 }; 
 	
@@ -80,7 +80,7 @@ TEST_F(UTAUTOMORPHISM, Test_LTV_Automorphism_PowerOf2) {
 
 
 TEST_F(UTAUTOMORPHISM, Test_BV_Automorphism_PowerOf2) {
-	PackedIntPlaintextEncoding::Destroy();
+	PackedEncoding::Destroy();
 	
 	std::vector<usint> initVector = { 1,2,3,4,5,6,7,8 };
 
@@ -92,7 +92,7 @@ TEST_F(UTAUTOMORPHISM, Test_BV_Automorphism_PowerOf2) {
 }
 
 TEST_F(UTAUTOMORPHISM, Test_FV_Automorphism_PowerOf2) {
-	PackedIntPlaintextEncoding::Destroy();
+	PackedEncoding::Destroy();
 
 	std::vector<usint> initVector = { 1,2,3,4,5,6,7,8 };
 
@@ -105,7 +105,7 @@ TEST_F(UTAUTOMORPHISM, Test_FV_Automorphism_PowerOf2) {
 
 TEST_F(UTAUTOMORPHISM, Test_LTV_Automorphism_Arb) {
 	
-	PackedIntPlaintextEncoding::Destroy();
+	PackedEncoding::Destroy();
 
 	usint m = 22;
 
@@ -121,7 +121,7 @@ TEST_F(UTAUTOMORPHISM, Test_LTV_Automorphism_Arb) {
 }
 
 TEST_F(UTAUTOMORPHISM, Test_BV_Automorphism_Arb) {
-	PackedIntPlaintextEncoding::Destroy();
+	PackedEncoding::Destroy();
 
 	usint m = 22;
 
@@ -171,7 +171,7 @@ std::vector<usint> ArbLTVAutomorphismPackedArray(usint i) {
 	shared_ptr<Ciphertext<Poly>> ciphertext;
 
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10 };
-	shared_ptr<Plaintext> intArray = cc->MakePackedPlaintext(vectorOfInts);
+	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	ciphertext = cc->Encrypt(kp.publicKey, intArray);
 
@@ -184,7 +184,7 @@ std::vector<usint> ArbLTVAutomorphismPackedArray(usint i) {
 
 	p1 = cc->EvalAutomorphism(ciphertext, i, *evalKeys);
 
-	shared_ptr<Plaintext> intArrayNew;
+	Plaintext intArrayNew;
 
 	cc->Decrypt(kp.secretKey, p1, &intArrayNew);
 	
@@ -224,7 +224,7 @@ std::vector<usint> ArbBVAutomorphismPackedArray(usint i) {
 	shared_ptr<Ciphertext<Poly>> ciphertext;
 
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10 };
-	shared_ptr<Plaintext> intArray = cc->MakePackedPlaintext(vectorOfInts);
+	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	ciphertext = cc->Encrypt(kp.publicKey, intArray);
 
@@ -237,7 +237,7 @@ std::vector<usint> ArbBVAutomorphismPackedArray(usint i) {
 
 	p1 = cc->EvalAutomorphism(ciphertext, i, *evalKeys);
 
-	shared_ptr<Plaintext> intArrayNew;
+	Plaintext intArrayNew;
 
 	cc->Decrypt(kp.secretKey, p1, &intArrayNew);
 
@@ -266,7 +266,7 @@ std::vector<usint> LTVAutomorphismPackedArray(usint i) {
 	shared_ptr<Ciphertext<Poly>> ciphertext;
 
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8 };
-	shared_ptr<Plaintext> intArray = cc->MakePackedPlaintext(vectorOfInts);
+	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	ciphertext = cc->Encrypt(kp.publicKey, intArray);
 
@@ -278,7 +278,7 @@ std::vector<usint> LTVAutomorphismPackedArray(usint i) {
 
 	p1 = cc->EvalAutomorphism(ciphertext, i, *evalKeys);
 
-	shared_ptr<Plaintext> intArrayNew;
+	Plaintext intArrayNew;
 
 	cc->Decrypt(kp.secretKey, p1, &intArrayNew);
 
@@ -308,7 +308,7 @@ std::vector<usint> BVAutomorphismPackedArray(usint i) {
 	shared_ptr<Ciphertext<Poly>> ciphertext;
 
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8 };
-	shared_ptr<Plaintext> intArray = cc->MakePackedPlaintext(vectorOfInts);
+	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	ciphertext = cc->Encrypt(kp.publicKey, intArray);
 
@@ -320,7 +320,7 @@ std::vector<usint> BVAutomorphismPackedArray(usint i) {
 
 	p1 = cc->EvalAutomorphism(ciphertext, i, *evalKeys);
 
-	shared_ptr<Plaintext> intArrayNew;
+	Plaintext intArrayNew;
 
 	cc->Decrypt(kp.secretKey, p1, &intArrayNew);
 
@@ -355,7 +355,7 @@ std::vector<usint> FVAutomorphismPackedArray(usint i) {
 	shared_ptr<Ciphertext<Poly>> ciphertext;
 
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8 };
-	shared_ptr<Plaintext> intArray = cc->MakePackedPlaintext(vectorOfInts);
+	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	ciphertext = cc->Encrypt(kp.publicKey, intArray);
 
@@ -367,7 +367,7 @@ std::vector<usint> FVAutomorphismPackedArray(usint i) {
 
 	p1 = cc->EvalAutomorphism(ciphertext, i, *evalKeys);
 
-	shared_ptr<Plaintext> intArrayNew;
+	Plaintext intArrayNew;
 
 	cc->Decrypt(kp.secretKey, p1, &intArrayNew);
 

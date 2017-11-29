@@ -193,7 +193,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalAdd(
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalAdd(
 	const shared_ptr<Ciphertext<Element>> ciphertext,
-	const shared_ptr<Plaintext> plaintext) const
+	const Plaintext plaintext) const
 {
 //	if (!(ciphertext1->GetCryptoParameters() == ciphertext2->GetCryptoParameters())) {
 //		std::string errMsg = "EvalAdd crypto parameters are not the same";
@@ -233,7 +233,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalSub(
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalSub(
 	const shared_ptr<Ciphertext<Element>> ciphertext,
-	const shared_ptr<Plaintext> plaintext) const
+	const Plaintext plaintext) const
 {
 //	if (!(ciphertext1->GetCryptoParameters() == ciphertext2->GetCryptoParameters())) {
 //		std::string errMsg = "EvalSub crypto parameters are not the same";
@@ -291,7 +291,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalMult(const share
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalMult(
 	const shared_ptr<Ciphertext<Element>> ciphertext,
-	const shared_ptr<Plaintext> plaintext) const
+	const Plaintext plaintext) const
 {
 	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
 
@@ -311,7 +311,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalMult(
 // Homomorphic multiplication of ciphertexts with key switching
 template <class Element>
 shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
-	const shared_ptr<Plaintext> plaintext, const shared_ptr<LPEvalKey<Element>> ek) const {
+	const Plaintext plaintext, const shared_ptr<LPEvalKey<Element>> ek) const {
 
 	const shared_ptr<LPPublicKeyEncryptionSchemeLTV<Element>> scheme =
 			std::dynamic_pointer_cast<LPPublicKeyEncryptionSchemeLTV<Element>>(ciphertext1->GetCryptoContext()->GetEncryptionAlgorithm());

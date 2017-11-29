@@ -529,7 +529,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		* @return the new resulting ciphertext.
 		*/
 		shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext,
-			const shared_ptr<Plaintext> plaintext) const {
+			const Plaintext plaintext) const {
 			shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
 
 			Element cResult = ciphertext->GetElement() + plaintext->GetEncodedElement<Element>();
@@ -565,7 +565,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		* @return the new resulting ciphertext.
 		*/
 		shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext,
-			const shared_ptr<Plaintext> plaintext) const {
+			const Plaintext plaintext) const {
 			shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
 
 			Element cResult = ciphertext->GetElement() - plaintext->GetEncodedElement<Element>();
@@ -593,7 +593,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		* @return the new resulting ciphertext.
 		*/
 		shared_ptr<Ciphertext<Poly>> EvalMult(const shared_ptr<Ciphertext<Poly>> ciphertext1,
-			const shared_ptr<Plaintext> plaintext) const;
+			const Plaintext plaintext) const;
 
 		/**
 		 * Function for evaluating multiplication on ciphertext.
@@ -613,7 +613,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		* @return the new resulting ciphertext.
 		*/
 		shared_ptr<Ciphertext<DCRTPoly>> EvalMult(const shared_ptr<Ciphertext<DCRTPoly>> ciphertext,
-			const shared_ptr<Plaintext> plaintext) const;
+			const Plaintext plaintext) const;
 
 		/**
 		 * Function for evaluating multiplication on ciphertext followed by key switching operation.
@@ -638,7 +638,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		 * @return the new resulting ciphertext.
 		 */
 		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
-				const shared_ptr<Plaintext> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const {
+				const Plaintext ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const {
 
 			return EvalMult(ciphertext1, ciphertext2);
 		}

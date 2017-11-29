@@ -140,7 +140,7 @@ decrypter(shared_ptr<CryptoContext<Poly>> ctx, string cmd, int argc, char *argv[
 		}
 
 		// Decrypt and write out the integers
-		shared_ptr<Plaintext> iPlaintext;
+		Plaintext iPlaintext;
 
 		// now decrypt iPlaintext
 		ctx->Decrypt(sk, ct, &iPlaintext);
@@ -213,7 +213,7 @@ encrypter(shared_ptr<CryptoContext<Poly>> ctx, string cmd, int argc, char *argv[
 		}
 
 		// pull in file full of integers and do the encryption
-		shared_ptr<Plaintext> iPlaintext = ctx->MakeCoefPackedPlaintext(intVector);
+		Plaintext iPlaintext = ctx->MakeCoefPackedPlaintext(intVector);
 
 		// now encrypt iPlaintext
 		shared_ptr<Ciphertext<Poly>> ciphertext = ctx->Encrypt(pk, iPlaintext);

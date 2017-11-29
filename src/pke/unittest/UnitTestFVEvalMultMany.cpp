@@ -89,14 +89,14 @@ TEST(UTFVEVALMM, Poly_FV_Eval_Mult_Many_Operations) {
 	std::vector<uint32_t> vectorOfInts6 = {30,24,18,12,6,0,30,24,18,12,6,0};
 	std::vector<uint32_t> vectorOfInts7 = {120,96,72,48,24,0,120,96,72,48,24,0};
 
-	shared_ptr<Plaintext> plaintext1 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts1);
-	shared_ptr<Plaintext> plaintext2 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts2);
-	shared_ptr<Plaintext> plaintext3 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts3);
-	shared_ptr<Plaintext> plaintext4 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts4);
+	Plaintext plaintext1 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts1);
+	Plaintext plaintext2 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts2);
+	Plaintext plaintext3 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts3);
+	Plaintext plaintext4 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts4);
 
-	shared_ptr<Plaintext> plaintextResult1 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts5);
-	shared_ptr<Plaintext> plaintextResult2 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts6);
-	shared_ptr<Plaintext> plaintextResult3 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts7);
+	Plaintext plaintextResult1 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts5);
+	Plaintext plaintextResult2 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts6);
+	Plaintext plaintextResult3 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts7);
 
 	shared_ptr<Ciphertext<Poly>> ciphertext1;
 	shared_ptr<Ciphertext<Poly>> ciphertext2;
@@ -133,9 +133,9 @@ TEST(UTFVEVALMM, Poly_FV_Eval_Mult_Many_Operations) {
 	//Decryption of multiplicative results with and without keyswtiching (depends on the level)
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Plaintext> plaintextMul1;
-	shared_ptr<Plaintext> plaintextMul2;
-	shared_ptr<Plaintext> plaintextMul3;
+	Plaintext plaintextMul1;
+	Plaintext plaintextMul2;
+	Plaintext plaintextMul3;
 
 	cryptoContext->Decrypt(keyPair.secretKey, ciphertextMul12, &plaintextMul1);
 	cryptoContext->Decrypt(keyPair.secretKey, ciphertextMul123, &plaintextMul2);
@@ -163,7 +163,7 @@ TEST(UTFVEVALMM, Poly_FV_Eval_Mult_Many_Operations) {
 	//Decrypt EvalMultMany
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Plaintext> plaintextMulMany;
+	Plaintext plaintextMulMany;
 	cryptoContext->Decrypt(keyPair.secretKey, ciphertextMul12345, &plaintextMulMany);
 
 	plaintextResult1->SetLength( plaintextMul1->GetLength() );

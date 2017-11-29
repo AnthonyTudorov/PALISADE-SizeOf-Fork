@@ -66,16 +66,16 @@ template<class Element>
 void UnitTest_Add(shared_ptr<CryptoContext<Element>> cc) {
 
 	std::vector<uint32_t> vectorOfInts1 = { 1,0,3,1,0,1,2,1 };
-	shared_ptr<Plaintext> plaintext1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
+	Plaintext plaintext1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
 
 	std::vector<uint32_t> vectorOfInts2 = { 2,1,3,2,2,1,3,0 };
-	shared_ptr<Plaintext> plaintext2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
+	Plaintext plaintext2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
 
 	std::vector<uint32_t> vectorOfIntsAdd = { 3,1,6,3,2,2,5,1 };
-	shared_ptr<Plaintext> plaintextAdd = cc->MakeCoefPackedPlaintext(vectorOfIntsAdd);
+	Plaintext plaintextAdd = cc->MakeCoefPackedPlaintext(vectorOfIntsAdd);
 
 	std::vector<uint32_t> vectorOfIntsSub = { 63,63,0,63,62,0,63,1 };
-	shared_ptr<Plaintext> plaintextSub = cc->MakeCoefPackedPlaintext(vectorOfIntsSub);
+	Plaintext plaintextSub = cc->MakeCoefPackedPlaintext(vectorOfIntsSub);
 
 	LPKeyPair<Element> kp = cc->KeyGen();
 	shared_ptr<Ciphertext<Element>> ciphertext1 = cc->Encrypt(kp.publicKey, plaintext1);
@@ -83,7 +83,7 @@ void UnitTest_Add(shared_ptr<CryptoContext<Element>> cc) {
 
 	shared_ptr<Ciphertext<Element>> cResult = cc->EvalAdd(ciphertext1, ciphertext2);
 
-	shared_ptr<Plaintext> results;
+	Plaintext results;
 	cc->Decrypt(kp.secretKey, cResult, &results);
 
 	results->SetLength(plaintextAdd->GetLength());
@@ -164,20 +164,20 @@ TEST_F(UTSHE, FV_Poly_Add) {
 template<class Element>
 void UnitTest_Mult(shared_ptr<CryptoContext<Element>> cc) {
 	std::vector<uint32_t> vectorOfInts1 = { 1,0,3,1,0,1,2,1 };
-	shared_ptr<Plaintext> plaintext1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
+	Plaintext plaintext1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
 
 	std::vector<uint32_t> vectorOfInts2 = { 2,1,3,2,2,1,3,0 };
-	shared_ptr<Plaintext> plaintext2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
+	Plaintext plaintext2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
 
 	// For cyclotomic order != 16, the expected result is the convolution of vectorOfInt21 and vectorOfInts2
 	std::vector<uint32_t> vectorOfIntsMultLong = { 2, 1, 9, 7, 12, 12, 16, 12, 19, 12, 7, 7, 7, 3 };
 	std::vector<uint32_t> vectorOfIntsMult = { 47, 53, 2, 0, 5, 9, 16, 12 };
 
-	shared_ptr<Plaintext> intArray1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
+	Plaintext intArray1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
 
-	shared_ptr<Plaintext> intArray2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
+	Plaintext intArray2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
 
-	shared_ptr<Plaintext> intArrayExpected = cc->MakeCoefPackedPlaintext(cc->GetCyclotomicOrder() == 16 ? vectorOfIntsMult : vectorOfIntsMultLong);
+	Plaintext intArrayExpected = cc->MakeCoefPackedPlaintext(cc->GetCyclotomicOrder() == 16 ? vectorOfIntsMult : vectorOfIntsMultLong);
 
 	// Initialize the public key containers.
 	LPKeyPair<Element> kp = cc->KeyGen();
@@ -190,7 +190,7 @@ void UnitTest_Mult(shared_ptr<CryptoContext<Element>> cc) {
 
 	shared_ptr<Ciphertext<Element>> cResult = cc->EvalMult(ciphertext1, ciphertext2);
 
-	shared_ptr<Plaintext> results;
+	Plaintext results;
 
 	cc->Decrypt(kp.secretKey, cResult, &results);
 
@@ -263,7 +263,7 @@ TEST_F(UTSHE, keyswitch_sparse_key_SingleCRT_byteplaintext) {
 
 	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementLTV(m, plaintextModulus, 50);
 
-	shared_ptr<Plaintext> plaintext = cc->MakeStringPlaintext("I am good, what are you?! 32 ch");
+	Plaintext plaintext = cc->MakeStringPlaintext("I am good, what are you?! 32 ch");
 
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
@@ -275,7 +275,7 @@ TEST_F(UTSHE, keyswitch_sparse_key_SingleCRT_byteplaintext) {
 
 	shared_ptr<Ciphertext<Poly>> newCt = cc->KeySwitch(keySwitchHint, ciphertext);
 
-	shared_ptr<Plaintext> plaintextNew;
+	Plaintext plaintextNew;
 
 	cc->Decrypt(kp2.secretKey, newCt, &plaintextNew);
 
@@ -307,7 +307,7 @@ TEST_F(UTSHE, keyswitch_sparse_key_SingleCRT_intArray) {
 	shared_ptr<Ciphertext<Poly>> ciphertext;
 
 	std::vector<usint> vectorOfInts = { 1,1,1,1,1,1,1,1 };
-	shared_ptr<Plaintext> intArray = cc->MakeCoefPackedPlaintext(vectorOfInts);
+	Plaintext intArray = cc->MakeCoefPackedPlaintext(vectorOfInts);
 
 	ciphertext = cc->Encrypt(kp.publicKey, intArray);
 
@@ -318,11 +318,11 @@ TEST_F(UTSHE, keyswitch_sparse_key_SingleCRT_intArray) {
 
 	shared_ptr<Ciphertext<Poly>> newCt = cc->KeySwitch(keySwitchHint, ciphertext);
 
-	shared_ptr<Plaintext> intArrayNew;
+	Plaintext intArrayNew;
 
 	cc->Decrypt(kp2.secretKey, newCt, &intArrayNew);
 
-	//this step is needed because there is no marker for padding in the case of shared_ptr<Plaintext>
+	//this step is needed because there is no marker for padding in the case of Plaintext
 	intArrayNew->SetLength(intArray->GetLength());
 
 	EXPECT_EQ(intArray->GetCoefPackedValue(), intArrayNew->GetCoefPackedValue());
@@ -340,7 +340,7 @@ TEST_F(UTSHE, keyswitch_SingleCRT) {
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 
-	shared_ptr<Plaintext> plaintext = cc->MakeStringPlaintext("I am good, what are you?! 32 ch");
+	Plaintext plaintext = cc->MakeStringPlaintext("I am good, what are you?! 32 ch");
 
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
@@ -354,7 +354,7 @@ TEST_F(UTSHE, keyswitch_SingleCRT) {
 
 	shared_ptr<Ciphertext<Poly>> newCt = cc->KeySwitch(keySwitchHint, ciphertext);
 
-	shared_ptr<Plaintext> plaintextNew;
+	Plaintext plaintextNew;
 
 	cc->Decrypt(kp2.secretKey, newCt, &plaintextNew);
 
@@ -374,14 +374,14 @@ TEST_F(UTSHE, sparsekeygen_single_crt_encrypt_decrypt) {
 	cc->Enable(LEVELEDSHE);
 	cc->Enable(SHE);
 
-	shared_ptr<Plaintext> plaintext = cc->MakeStringPlaintext("I am good, what are you?! 32 ch");
+	Plaintext plaintext = cc->MakeStringPlaintext("I am good, what are you?! 32 ch");
 
 	LPKeyPair<Poly> kp = cc->SparseKeyGen();
 
 	shared_ptr<Ciphertext<Poly>> ciphertext =
 			cc->Encrypt(kp.publicKey, plaintext);
 
-	shared_ptr<Plaintext> plaintextNew;
+	Plaintext plaintextNew;
 
 	cc->Decrypt(kp.secretKey, ciphertext, &plaintextNew);
 
@@ -408,7 +408,7 @@ TEST_F(UTSHE, keyswitch_ModReduce_DCRT) {
 
 	shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextLTV(params, plaintextmodulus, relinWindow, stdDev);
 
-	shared_ptr<Plaintext> plaintext = cc->MakeStringPlaintext("I am good, what are you?! 32 ch");
+	Plaintext plaintext = cc->MakeStringPlaintext("I am good, what are you?! 32 ch");
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(LEVELEDSHE);
@@ -426,7 +426,7 @@ TEST_F(UTSHE, keyswitch_ModReduce_DCRT) {
 
 	shared_ptr<Ciphertext<DCRTPoly>> newCt = cc->KeySwitch(keySwitchHint, ciphertext);
 
-	shared_ptr<Plaintext> plaintextNewKeySwitch;
+	Plaintext plaintextNewKeySwitch;
 
 	cc->Decrypt(kp2.secretKey, newCt, &plaintextNewKeySwitch);
 
@@ -440,7 +440,7 @@ TEST_F(UTSHE, keyswitch_ModReduce_DCRT) {
 	sk2PrivateElement.DropLastElement();
 	kp2.secretKey->SetPrivateElement(sk2PrivateElement);
 
-	shared_ptr<Plaintext> plaintextNewModReduce;
+	Plaintext plaintextNewModReduce;
 
 	cc->Decrypt(kp2.secretKey, newCt, &plaintextNewModReduce);
 	
@@ -462,7 +462,7 @@ TEST_F(UTSHE, ringreduce_single_crt) {
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
 	std::vector<usint> vectorOfInts = { 1,1,1,1,1,1,1,1 };
-	shared_ptr<Plaintext> intArray = cc->MakeCoefPackedPlaintext(vectorOfInts);
+	Plaintext intArray = cc->MakeCoefPackedPlaintext(vectorOfInts);
 
 	shared_ptr<Ciphertext<Poly>> ciphertext = cc->Encrypt(kp.publicKey, intArray);
 
@@ -473,7 +473,7 @@ TEST_F(UTSHE, ringreduce_single_crt) {
 
 	shared_ptr<Ciphertext<Poly>> newCt = cc->KeySwitch(keySwitchHint, ciphertext);
 
-	shared_ptr<Plaintext> intArrayNew;
+	Plaintext intArrayNew;
 
 	cc->Decrypt(kp2.secretKey, newCt, &intArrayNew);
 
@@ -486,7 +486,7 @@ TEST_F(UTSHE, ringreduce_single_crt) {
 
 	kp2.secretKey->SetPrivateElement(skSparseElement);
 
-	shared_ptr<Plaintext> intArrayNewRR;
+	Plaintext intArrayNewRR;
 
 	cc->Decrypt(kp2.secretKey, ciphertext, &intArrayNewRR);
 
@@ -515,7 +515,7 @@ TEST_F(UTSHE, ringreduce_double_crt) {
 	shared_ptr<Ciphertext<DCRTPoly>> ciphertext;
 
 	std::vector<usint> vectorOfInts = { 1,1,1,1,1,1,1,1 };
-	shared_ptr<Plaintext> intArray = cc->MakeCoefPackedPlaintext(vectorOfInts);
+	Plaintext intArray = cc->MakeCoefPackedPlaintext(vectorOfInts);
 
 	ciphertext = cc->Encrypt(kp.publicKey, intArray);
 
@@ -525,7 +525,7 @@ TEST_F(UTSHE, ringreduce_double_crt) {
 
 	shared_ptr<Ciphertext<DCRTPoly>> newCiphertext = cc->KeySwitch(keySwitchHint, ciphertext);
 
-	shared_ptr<Plaintext> intArrayNew;
+	Plaintext intArrayNew;
 
 	cc->Decrypt(kp2.secretKey, newCiphertext, &intArrayNew);
 
@@ -538,7 +538,7 @@ TEST_F(UTSHE, ringreduce_double_crt) {
 
 	kp2.secretKey->SetPrivateElement(skSparseElement);
 
-	shared_ptr<Plaintext> intArrayNewRR;
+	Plaintext intArrayNewRR;
 
 	cc->Decrypt(kp2.secretKey, ciphertext, &intArrayNewRR);
 

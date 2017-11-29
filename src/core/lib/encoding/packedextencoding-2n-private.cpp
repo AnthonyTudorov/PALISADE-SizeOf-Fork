@@ -1,5 +1,5 @@
 /*
-* @file packedintplaintextencoding.cpp Represents and defines plaintext encodings in Palisade with bit packing capabilities.
+* @file packedencoding.cpp Represents and defines plaintext encodings in Palisade with bit packing capabilities.
 * @author  TPOC: palisade@njit.edu
 *
 * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -24,11 +24,11 @@
 *
 */
 
-#include "packedintplaintextencoding.h"
+#include "packedencoding.h"
 
 namespace lbcrypto {
 
-	void PackedIntPlaintextEncoding::SetParams_2n(usint m, const native_int::BigInteger &modulusNI) {
+	void PackedEncoding::SetParams_2n(usint m, const native_int::BigInteger &modulusNI) {
 
 		// Power of two: m/2-point FTT. So we need the mth root of unity
 		m_initRoot[modulusNI] = RootOfUnity<native_int::BigInteger>(m, modulusNI);
@@ -57,7 +57,7 @@ namespace lbcrypto {
 
 	}
 
-	void PackedIntPlaintextEncoding::SetParams_2n(usint m, shared_ptr<EncodingParams> params) {
+	void PackedEncoding::SetParams_2n(usint m, shared_ptr<EncodingParams> params) {
 
 		native_int::BigInteger modulusNI(params->GetPlaintextModulus().ConvertToInt()); //native int modulus
 		

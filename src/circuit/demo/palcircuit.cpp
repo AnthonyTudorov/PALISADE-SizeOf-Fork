@@ -292,7 +292,7 @@ main(int argc, char *argv[])
 		cc->Enable(SHE);
 		cc->Enable(LEVELEDSHE);
 
-		shared_ptr<Plaintext> ints[] = {
+		Plaintext ints[] = {
 				cc->MakeCoefPackedPlaintext({ 7 }),
 				cc->MakeCoefPackedPlaintext({ 3 })
 		};
@@ -310,7 +310,7 @@ main(int argc, char *argv[])
 				cipherVecs.push_back( cc->Encrypt(kp.publicKey, cc->MakeCoefPackedPlaintext({i})) );
 			}
 
-		Matrix<shared_ptr<Plaintext>> mat([cc](){return make_unique<shared_ptr<Plaintext>>(cc->MakePackedPlaintext({0}));},mdim,mdim);
+		Matrix<Plaintext> mat([cc](){return make_unique<Plaintext>(cc->MakePackedPlaintext({0}));},mdim,mdim);
 		usint mi=1;
 		for(usint r=0; r<mat.GetRows(); r++)
 			for(usint c=0; c<mat.GetCols(); c++) {

@@ -223,12 +223,12 @@ int main(int argc, char *argv[]) {
 	std::vector<uint32_t> vectorOfInts2 = {1,0,0,1,1,0,0,0,0,0,0,0};
 	std::vector<uint32_t> vectorOfInts3 = {1,1,1,1,0,0,0,0,0,0,0,0};
 
-	shared_ptr<Plaintext> plaintext1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
-	shared_ptr<Plaintext> plaintext2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
-	shared_ptr<Plaintext> plaintext3 = cc->MakeCoefPackedPlaintext(vectorOfInts3);
+	Plaintext plaintext1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
+	Plaintext plaintext2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
+	Plaintext plaintext3 = cc->MakeCoefPackedPlaintext(vectorOfInts3);
 
 	//std::vector<uint32_t> vectorOfIntsAdd = { 2, 1, 1, 3, 0, 0, 0, 0, 3, 0, 3, 3, 3, 3 };
-	//shared_ptr<Plaintext> plaintextAdd(vectorOfIntsAdd);
+	//Plaintext plaintextAdd(vectorOfIntsAdd);
 
 	////////////////////////////////////////////////////////////
 	// Encryption
@@ -296,7 +296,7 @@ int main(int argc, char *argv[]) {
 	//Decryption after Accumulation Operation on Re-Encrypted Data
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Plaintext> plaintextAddNew;
+	Plaintext plaintextAddNew;
 
 	start = currentDateTime();
 
@@ -323,15 +323,15 @@ int main(int argc, char *argv[]) {
 	//Decryption after Accumulation Operation on Re-Encrypted Data with Multiparty
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Plaintext> plaintextAddNew1;
-	shared_ptr<Plaintext> plaintextAddNew2;
-	shared_ptr<Plaintext> plaintextAddNew3;
+	Plaintext plaintextAddNew1;
+	Plaintext plaintextAddNew2;
+	Plaintext plaintextAddNew3;
 
 	Poly partialPlaintext1;
 	Poly partialPlaintext2;
 	Poly partialPlaintext3;
 
-	shared_ptr<Plaintext> plaintextMultipartyNew;
+	Plaintext plaintextMultipartyNew;
 
 	const shared_ptr<LPCryptoParameters<Poly>> cryptoParams = kp1.secretKey->GetCryptoParameters();
 	const shared_ptr<typename Poly::Params> elementParams = cryptoParams->GetElementParams();

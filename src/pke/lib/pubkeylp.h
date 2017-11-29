@@ -1216,7 +1216,7 @@ namespace lbcrypto {
 			* @return the new ciphertext.
 			*/
 			virtual shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext,
-				const shared_ptr<Plaintext> plaintext) const = 0;
+				const Plaintext plaintext) const = 0;
 
 			/**
 			* Virtual function to define the interface for homomorphic subtraction of ciphertexts.
@@ -1236,7 +1236,7 @@ namespace lbcrypto {
 			 * @return the new ciphertext.
 			 */
 			virtual shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext,
-					const shared_ptr<Plaintext> plaintext) const = 0;
+					const Plaintext plaintext) const = 0;
 
 			/**
 			 * Virtual function to define the interface for multiplicative homomorphic evaluation of ciphertext.
@@ -1256,7 +1256,7 @@ namespace lbcrypto {
 			 * @return the new ciphertext.
 			 */
 			virtual shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext,
-					const shared_ptr<Plaintext> plaintext) const = 0;
+					const Plaintext plaintext) const = 0;
 
 			/**
 			 * Virtual function to define the interface for multiplicative homomorphic evaluation of ciphertext using the evaluation key.
@@ -1300,7 +1300,7 @@ namespace lbcrypto {
 		* @param *newCiphertext the new resulting ciphertext.
 		*/
 		virtual shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
-			const shared_ptr<Plaintext> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const = 0;
+			const Plaintext ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const = 0;
 
 		/**
 		* EvalLinRegression - Computes the parameter vector for linear regression using the least squares method
@@ -1373,7 +1373,7 @@ namespace lbcrypto {
 				randomIntVector[i + 1] = randomVector.at(i).ConvertToInt();
 			}
 
-			shared_ptr<Plaintext> plaintext = cc->MakePackedPlaintext(randomIntVector);
+			Plaintext plaintext = cc->MakePackedPlaintext(randomIntVector);
 
 			plaintext->Encode();
 			plaintext->GetElement<Element>().SetFormat(EVALUATION);
@@ -1594,7 +1594,7 @@ namespace lbcrypto {
 		* @return resulting ciphertext
 		*/
 		shared_ptr<Ciphertext<Element>> EvalInnerProduct(const shared_ptr<Ciphertext<Element>> ciphertext1,
-			const shared_ptr<Plaintext> ciphertext2, usint batchSize,
+			const Plaintext ciphertext2, usint batchSize,
 			const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalSumKeys,
 			const shared_ptr<LPEvalKey<Element>> evalMultKey) const {
 
@@ -2109,7 +2109,7 @@ namespace lbcrypto {
 		}
 
 		shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext1,
-			const shared_ptr<Plaintext> plaintext) const {
+			const Plaintext plaintext) const {
 
 			if (this->m_algorithmSHE) {
 				auto ct = this->m_algorithmSHE->EvalAdd(ciphertext1, plaintext);
@@ -2131,7 +2131,7 @@ namespace lbcrypto {
 		}
 
 		shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext1,
-				const shared_ptr<Plaintext> plaintext) const {
+				const Plaintext plaintext) const {
 
 			if (this->m_algorithmSHE) {
 				auto ct = this->m_algorithmSHE->EvalSub(ciphertext1, plaintext);
@@ -2153,7 +2153,7 @@ namespace lbcrypto {
 		}
 
 		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext,
-			const shared_ptr<Plaintext> plaintext) const {
+			const Plaintext plaintext) const {
 
 			if (this->m_algorithmSHE)
 				return this->m_algorithmSHE->EvalMult(ciphertext, plaintext);
@@ -2175,7 +2175,7 @@ namespace lbcrypto {
 		}
 
 		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
-			const shared_ptr<Plaintext> plaintext,
+			const Plaintext plaintext,
 			const shared_ptr<LPEvalKey<Element>> evalKey) const {
 
 			if (this->m_algorithmSHE)
@@ -2280,7 +2280,7 @@ namespace lbcrypto {
 		}
 
 		shared_ptr<Ciphertext<Element>> EvalInnerProduct(const shared_ptr<Ciphertext<Element>> ciphertext1,
-			const shared_ptr<Plaintext> ciphertext2, usint batchSize,
+			const Plaintext ciphertext2, usint batchSize,
 			const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalSumKeys,
 			const shared_ptr<LPEvalKey<Element>> evalMultKey) const {
 
