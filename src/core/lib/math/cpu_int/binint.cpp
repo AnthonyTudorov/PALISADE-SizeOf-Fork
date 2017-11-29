@@ -28,7 +28,7 @@ Description:
 	This class provides a class for big integers.
 */
 
-#include "binint.h"
+#include "../backend.h"
 #include "../../utils/debug.h"
 
 #if defined(_MSC_VER)
@@ -2239,7 +2239,7 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::intToBigInteger
 	return BigInteger(m);
 
 }
-#if 0
-  template<> std::ostream& operator << <BigInteger<uint_type, BITLENGTH>>(std::ostream& os, const std::vector<BigInteger>& v);
-#endif
+
+template class BigInteger<integral_dtype,BigIntegerBitLength>;
+
 } // namespace cpu_int ends

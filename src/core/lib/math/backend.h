@@ -27,6 +27,9 @@
 
 #ifndef LBCRYPTO_MATH_BACKEND_H
 #define LBCRYPTO_MATH_BACKEND_H
+
+#include "utils/inttypes.h"
+
  
 // use of MS VC is not permitted because of various incompatibilities
 #ifdef _MSC_VER
@@ -75,10 +78,7 @@
 #endif
 
 ////////// cpu_int code
-#include "cpu_int/binint.cpp"
-#include "cpu_int/binvect.cpp"
 typedef uint32_t integral_dtype;
-static_assert(cpu_int::DataTypeChecker<integral_dtype>::value,"Data type provided is not supported in BigInteger");
 
 	/** Define the mapping for BigInteger
 	    1500 is the maximum bit width supported by BigIntegeregers, large enough for most use cases
@@ -99,6 +99,10 @@ inline const std::string& GetMathBackendParameters() {
 			(MATHBACKEND == 2 ? " internal int size " + std::to_string(sizeof(integral_dtype)*8) + " BitLength " + std::to_string(BigIntegerBitLength) : "");
 	return id;
 }
+
+#include "cpu_int/binint.h"
+#include "cpu_int/binvect.h"
+static_assert(cpu_int::DataTypeChecker<integral_dtype>::value,"Data type provided is not supported in BigInteger");
 
 ////////// for exp_int, decide if you want 32 bit or 64 bit underlying integers in the implementation
 #define UBINT_32
@@ -145,10 +149,9 @@ typedef NTL::myZZ ubint;
 #include "native_int/binint.h"
 #include "native_int/binvect.h"
 #include <initializer_list>
-#define MATH_NATIVEBITS	64
 
 typedef native_int::NativeInteger<uint64_t>			NativeInteger;
-typedef native_int::BigVectorImpl<NativeInteger>		NativeVector;
+typedef native_int::BigVectorImpl<NativeInteger>	NativeVector;
 
 /**
  * @namespace lbcrypto

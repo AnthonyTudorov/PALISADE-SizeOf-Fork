@@ -28,8 +28,9 @@
 
 */
 
+#include "../backend.h"
 #include "../../utils/serializable.h"
-#include "binvect.h"
+#include "../native_int/binvect.h"
 #include "../nbtheory.h"
 #include "../../utils/debug.h"
 
@@ -592,5 +593,7 @@ bool BigVectorImpl<IntegerType>::Deserialize(const lbcrypto::Serialized& serObj)
 
 	return true;
 }
+
+template class BigVectorImpl<NativeInteger<uint64_t>>;
 
 } // namespace lbcrypto ends

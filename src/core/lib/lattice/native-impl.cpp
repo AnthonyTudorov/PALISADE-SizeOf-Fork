@@ -32,24 +32,6 @@
 #include "../math/binaryuniformgenerator.cpp"
 #include "../math/ternaryuniformgenerator.cpp"
 
-namespace native_int
-{
-template class NativeInteger<uint64_t>;
-template<> const NativeInteger<uint64_t> NativeInteger<uint64_t>::ZERO = (0);
-template<> const NativeInteger<uint64_t> NativeInteger<uint64_t>::ONE = (1);
-template<> const NativeInteger<uint64_t> NativeInteger<uint64_t>::TWO = (2);
-template<> const NativeInteger<uint64_t> NativeInteger<uint64_t>::THREE = (3);
-template<> const NativeInteger<uint64_t> NativeInteger<uint64_t>::FOUR = (4);
-template<> const NativeInteger<uint64_t> NativeInteger<uint64_t>::FIVE = (5);
-
-template<> unique_ptr<NativeInteger<uint64_t>> NativeInteger<uint64_t>::Allocator() {
-	return lbcrypto::make_unique<NativeInteger<uint64_t>>();
-};
-
-template class BigVectorImpl<NativeInteger<uint64_t>>;
-
-}
-
 #include "elemparams.cpp"
 #include "ilparams.cpp"
 #include "poly.cpp"

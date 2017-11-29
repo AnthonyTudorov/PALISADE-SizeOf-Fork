@@ -24,6 +24,9 @@
  *
  */
 
+#include "../math/backend.h"
+#include "../math/cpu_int/binint.cpp"
+#include "../math/cpu_int/binvect.cpp"
 #include "elemparams.cpp"
 #include "ildcrtparams.cpp"
 #include "../encoding/encodingparams.cpp"
@@ -40,7 +43,6 @@ namespace lbcrypto
 {
 
 template class ElemParams<NativeInteger>;
-template class ILParamsImpl<NativeInteger>;
 template class ILDCRTParams<BigInteger>;
 template class EncodingParamsImpl<BigInteger>;
 template class DCRTPolyImpl<BigInteger, BigInteger, BigVector, ILDCRTParams<BigInteger>>;

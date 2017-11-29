@@ -64,14 +64,6 @@ typedef NativeInteger nativeInt;
 typedef NativeVector nativeVec;
 typedef ILNativeParams nativeParams;
 
-//typedef cpu_int::BigInteger<uint32_t,64>  smallInt32_64;
-////template class cpu_int::BigInteger<uint32_t,64>;
-//template class cpu_int::BigVectorImpl<smallInt32_64>;
-//
-//typedef cpu_int::BigInteger<uint32_t,128>  smallInt32_128;
-////template class cpu_int::BigInteger<uint32_t,128>;
-//template class cpu_int::BigVectorImpl<smallInt32_128>;
-
 map<int,map<int,string>> primes;
 map<int,map<int,string>> roots;
 

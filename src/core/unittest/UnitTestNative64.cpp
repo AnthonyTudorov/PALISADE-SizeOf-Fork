@@ -65,8 +65,6 @@ protected:
 /* TESTING BASIC MATH METHODS AND OPERATORS     */
 /************************************************/
 TEST(UTNative64Int,basic_math){
-	if( MATH_NATIVEBITS == 0 )
-		SUCCEED();
 
   /************************************************/
   /* TESTING METHOD PLUS FOR ALL CONDITIONS       */
