@@ -40,6 +40,7 @@
 
 #include "../../utils/inttypes.h"
 #include "../../utils/serializable.h"
+#include "../../utils/exception.h"
 #include <initializer_list>
 #include "gmpint.h"
 
@@ -336,7 +337,7 @@ namespace NTL {
       bool dbg_flag = false;
       DEBUG("SetModulus(const uint64_t& "<<value<<")");
       if (value == 0) {
-	throw std::logic_error("SetModulus(uint64_t) cannot be zero");
+	PALISADE_THROW(lbcrypto::palisade_error, "SetModulus(uint64_t) cannot be zero");
       }
       this->m_modulus= myZZ(value);
       this->m_modulus_state = INITIALIZED;
@@ -350,7 +351,7 @@ namespace NTL {
       bool dbg_flag = false;
       DEBUG("SetModulus(const myZZ& "<<value<<")");
       if (value == myZZ::ZERO) {
-	throw std::logic_error("SetModulus(myZZ) cannot be zero");
+	PALISADE_THROW( lbcrypto::palisade_error, "SetModulus(myZZ) cannot be zero");
       }
       this->m_modulus= value;
       DEBUG("this->modulus = "<<this->m_modulus);
@@ -365,7 +366,7 @@ namespace NTL {
       DEBUG("SetModulus(const string& "<<value<<")");
       this->m_modulus = myZZ(value);
       if (this->m_modulus == myZZ::ZERO) {
-	throw std::logic_error("SetModulus(string) cannot be zero");
+	PALISADE_THROW( lbcrypto::palisade_error, "SetModulus(string) cannot be zero");
       }
       this->m_modulus_state = INITIALIZED;
       DEBUG("this->modulus = "<<this->m_modulus);
@@ -378,7 +379,7 @@ namespace NTL {
       DEBUG("SetModulus(const myVecP& "<<value<<")");
       this->m_modulus = value.GetModulus();
       if (this->m_modulus == myZZ::ZERO) {
-	throw std::logic_error("SetModulus(myVecP) cannot be zero");
+	PALISADE_THROW( lbcrypto::palisade_error, "SetModulus(myVecP) cannot be zero");
       }
       this->m_modulus_state = INITIALIZED;
       DEBUG("this->modulus = "<<this->m_modulus);
@@ -492,11 +493,11 @@ namespace NTL {
     //use when argument to function is myVecP
     inline void ArgCheckVector(const myVecP &b, std::string fname) const {
       if(this->m_modulus!=b.m_modulus) {
-	throw std::logic_error(fname+" modulus vector modulus vector op of different moduli");
+	PALISADE_THROW( lbcrypto::palisade_error, fname+" modulus vector modulus vector op of different moduli");
       }else if (!isModulusSet()) {
-	throw std::logic_error(fname+" modulus vector modulus vector op GARBAGE  moduli");
+	PALISADE_THROW( lbcrypto::palisade_error, fname+" modulus vector modulus vector op GARBAGE  moduli");
       }else if(this->size()!=b.size()){
-	throw std::logic_error(fname +" vectors of different lengths");
+	PALISADE_THROW( lbcrypto::palisade_error,  fname+" vectors of different lengths");
       }
       
       //ZZ_p::init(this->m_modulus); //set global modulus to this 

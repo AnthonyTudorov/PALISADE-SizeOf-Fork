@@ -117,7 +117,7 @@ TEST(UTSer,native_int){
 }
 
 TEST(UTSer,vector_of_cpu_int){
-	bool dbg_flag = false;
+	bool dbg_flag = true;
 	const int vecsize = 100;
 
 	DEBUG("step 0");

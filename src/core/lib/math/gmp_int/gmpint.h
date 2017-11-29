@@ -41,6 +41,7 @@
 #include <functional>
 #include <memory>
 #include <exception>
+#include "../../utils/exception.h"
 #include "../../utils/inttypes.h"
 #include "../../utils/memory.h"
 
@@ -290,18 +291,19 @@ namespace NTL{
       if(modulus==ZERO){
 	//std::cout<<"ZERO HAS NO INVERSE\n";
 	//system("pause");
-	throw std::logic_error("ZERO HAS NO INVERSE");
+	PALISADE_THROW(lbcrypto::math_error, "zero has no inverse");
       }
       myZZ tmp(myZZ::ZERO);
       try {
 	tmp = InvMod(*this%modulus, modulus);
-      } catch (InvModErrorObject &e) {
-	std::cout<< e.what() << std::endl;
-	std::cout << "a : "<<e.get_a()<< "n :"<< e.get_n()<<std::endl;
-	std::cout <<"ModInverse exception"<<std::endl;
-	std::cout <<"this"<< *this<<std::endl;
-	std::cout <<"modulus"<< modulus<<std::endl;
+      } catch (InvModErrorObject &e) { //note this code requires NTL Excptions coto be turned on. TODO: provide alternative when that is off.
+	//std::cout<< e.what() << std::endl;
 
+	std::stringstream errmsg;
+	errmsg <<"ModInverse exception "
+		  <<" this: "<< *this<<	" modulus: "<< modulus
+		  << "GCD("<<e.get_a()<< ","<< e.get_n()<<"!=1"<<std::endl;
+	PALISADE_THROW (lbcrypto::math_error, errmsg.str());
       }
       return tmp;
     };
