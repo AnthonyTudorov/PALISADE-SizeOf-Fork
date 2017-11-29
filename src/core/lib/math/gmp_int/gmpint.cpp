@@ -308,9 +308,14 @@ namespace NTL {
     DEBUG("in myZZ::ConvertToInt() this.size() "<<this->size());
     DEBUG("in myZZ::ConvertToInt() this "<<*this);
 
-    long result = conv<long>(*this);
+    std::stringstream s; //slower
+    s <<*this;
+    //uint64_t result = s.str().stoull();
+    uint64_t result;
+    s>>result;
 
-    if (this->GetMSB() >= 64) {
+    if ((this->GetMSB() >= (sizeof(uint64_t)*8)) ||
+	(this->GetMSB() >= NTL_ZZ_NBITS)) {
       std::cerr<<"Warning myZZ::ConvertToInt() Loss of precision. "<<std::endl;
       std::cerr<<"input  "<< *this<<std::endl;			
       std::cerr<<"result  "<< result<<std::endl;			
