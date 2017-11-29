@@ -172,7 +172,7 @@ void BM_LATTICE_vector(benchmark::State& state) { // benchmark
 
 DO_PARM_BENCHMARK_TEMPLATE(BM_LATTICE_vector,Poly)
 
-// add
+// plus
 template <class E>
 static void add_LATTICE(benchmark::State& state, shared_ptr<typename E::Params> params) {
 	state.PauseTiming();
@@ -218,6 +218,52 @@ BENCHMARK(BM_add_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("Poly/sce
 BENCHMARK(BM_add_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("DCRTPoly/scenario")->Args({1,0});
 BENCHMARK(BM_add_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("DCRTPoly/scenario")->Args({1,1});
 
+// plus=
+template <class E>
+static void addeq_LATTICE(benchmark::State& state, shared_ptr<typename E::Params> params) {
+	state.PauseTiming();
+	E			a = makeElement<E>(params);
+	E			b = makeElement<E>(params);
+	state.ResumeTiming();
+
+	a += b;
+}
+
+template <class E>
+static void BM_addeq_LATTICE(benchmark::State& state) { // benchmark
+	if( state.thread_index == 0 ) {
+		;
+	}
+
+	while (state.KeepRunning()) {
+		addeq_LATTICE<E>(state, parmArray[state.range(0)]);
+	}
+}
+
+DO_PARM_BENCHMARK_TEMPLATE(BM_addeq_LATTICE,Poly)
+
+void BM_addeq_LATTICEARRAY(benchmark::State& state) { // benchmark
+	if( state.thread_index == 0 ) {
+		;
+	}
+
+	if( state.range(0) == 0 ) {
+		while (state.KeepRunning()) {
+			vectors[state.range(1)][0] += vectors[state.range(1)][1];
+		}
+	}
+	else {
+		while (state.KeepRunning()) {
+			avectors[state.range(1)][0] += avectors[state.range(1)][1];
+		}
+	}
+}
+
+BENCHMARK(BM_addeq_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("Poly/scenario")->Args({0,0});
+BENCHMARK(BM_addeq_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("Poly/scenario")->Args({0,1});
+BENCHMARK(BM_addeq_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("DCRTPoly/scenario")->Args({1,0});
+BENCHMARK(BM_addeq_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("DCRTPoly/scenario")->Args({1,1});
+
 template <class E>
 static void mult_LATTICE(benchmark::State& state, shared_ptr<typename E::Params>& params) {	// function
 	state.PauseTiming();
@@ -262,6 +308,51 @@ BENCHMARK(BM_mult_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("Poly/sc
 BENCHMARK(BM_mult_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("Poly/scenario")->Args({0,1});
 BENCHMARK(BM_mult_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("DCRTPoly/scenario")->Args({1,0});
 BENCHMARK(BM_mult_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("DCRTPoly/scenario")->Args({1,1});
+
+template <class E>
+static void multeq_LATTICE(benchmark::State& state, shared_ptr<typename E::Params>& params) {	// function
+	state.PauseTiming();
+	E			a = makeElement<E>(params);
+	E			b = makeElement<E>(params);
+	state.ResumeTiming();
+
+	a *= b;
+}
+
+template <class E>
+static void BM_multeq_LATTICE(benchmark::State& state) { // benchmark
+	if( state.thread_index == 0 ) {
+		;
+	}
+
+	while (state.KeepRunning()) {
+		multeq_LATTICE<E>(state, parmArray[state.range(0)]);
+	}
+}
+
+DO_PARM_BENCHMARK_TEMPLATE(BM_mult_LATTICE,Poly)
+
+void BM_multeq_LATTICEARRAY(benchmark::State& state) { // benchmark
+	if( state.thread_index == 0 ) {
+		;
+	}
+
+	if( state.range(0) == 0 ) {
+		while (state.KeepRunning()) {
+			vectors[state.range(1)][0] *= vectors[state.range(1)][1];
+		}
+	}
+	else {
+		while (state.KeepRunning()) {
+			avectors[state.range(1)][0] *= avectors[state.range(1)][1];
+		}
+	}
+}
+
+BENCHMARK(BM_multeq_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("Poly/scenario")->Args({0,0});
+BENCHMARK(BM_multeq_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("Poly/scenario")->Args({0,1});
+BENCHMARK(BM_multeq_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("DCRTPoly/scenario")->Args({1,0});
+BENCHMARK(BM_multeq_LATTICEARRAY)->Unit(benchmark::kMicrosecond)->ArgName("DCRTPoly/scenario")->Args({1,1});
 
 template <class E>
 static void switchformat_LATTICE(benchmark::State& state, shared_ptr<typename E::Params>& params) {
