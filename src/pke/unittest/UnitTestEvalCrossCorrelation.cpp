@@ -88,7 +88,7 @@ usint BVCrossCorrelation() {
 	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
 	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
-	PackedIntPlaintextEncoding::SetParams(modulusP, m);
+	PackedEncoding::SetParams(modulusP, m);
 
 	float stdDev = 4;
 
@@ -96,7 +96,7 @@ usint BVCrossCorrelation() {
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
 
-	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP), batchSize));
+	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedEncoding::GetAutomorphismGenerator(modulusP), batchSize));
 
 	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, encodingParams, 8, stdDev);
 
@@ -110,14 +110,14 @@ usint BVCrossCorrelation() {
 	cc->EvalSumKeyGen(kp.secretKey);
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	auto zeroAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(cc->MakePackedPlaintext({0})); };
+	auto zeroAlloc = [=]() { return lbcrypto::make_unique<Plaintext>(cc->MakePackedPlaintext({0})); };
 
-	Matrix<shared_ptr<Plaintext>> x = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
+	Matrix<Plaintext> x = Matrix<Plaintext>(zeroAlloc, 2, 1);
 
 	x(0, 0) = cc->MakePackedPlaintext({ 0, 1, 1, 1, 0, 1, 1, 1 });
 	x(1, 0) = cc->MakePackedPlaintext({ 1, 0, 1, 1, 0, 1, 1, 0 });
 
-	Matrix<shared_ptr<Plaintext>> y = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
+	Matrix<Plaintext> y = Matrix<Plaintext>(zeroAlloc, 2, 1);
 
 	y(0, 0) = cc->MakePackedPlaintext({ 0, 1, 1, 1, 0, 1, 1, 1 });
 	y(1, 0) = cc->MakePackedPlaintext({ 1, 0, 1, 1, 0, 1, 1, 0 });
@@ -141,7 +141,7 @@ usint BVCrossCorrelation() {
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Plaintext> intArrayNew;
+	Plaintext intArrayNew;
 
 	cc->Decrypt(kp.secretKey, result, &intArrayNew);
 
@@ -175,11 +175,11 @@ usint FVCrossCorrelation() {
 
 	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPolyBig, bigEvalMultModulus);
 
-	PackedIntPlaintextEncoding::SetParams(modulusP, m);
+	PackedEncoding::SetParams(modulusP, m);
 
 	usint batchSize = 8;
 
-	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP), batchSize));
+	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedEncoding::GetAutomorphismGenerator(modulusP), batchSize));
 
 	BigInteger delta(modulusQ.DividedBy(modulusP));
 
@@ -196,14 +196,14 @@ usint FVCrossCorrelation() {
 	cc->EvalSumKeyGen(kp.secretKey);
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	auto zeroAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(cc->MakePackedPlaintext({0})); };
+	auto zeroAlloc = [=]() { return lbcrypto::make_unique<Plaintext>(cc->MakePackedPlaintext({0})); };
 
-	Matrix<shared_ptr<Plaintext>> x = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
+	Matrix<Plaintext> x = Matrix<Plaintext>(zeroAlloc, 2, 1);
 
 	x(0, 0) = cc->MakePackedPlaintext({ 0, 1, 1, 1, 0, 1, 1, 1 });
 	x(1, 0) = cc->MakePackedPlaintext({ 1, 0, 1, 1, 0, 1, 1, 0 });
 
-	Matrix<shared_ptr<Plaintext>> y = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
+	Matrix<Plaintext> y = Matrix<Plaintext>(zeroAlloc, 2, 1);
 
 	y(0, 0) = cc->MakePackedPlaintext({ 0, 1, 1, 1, 0, 1, 1, 1 });
 	y(1, 0) = cc->MakePackedPlaintext({ 1, 0, 1, 1, 0, 1, 1, 0 });
@@ -227,7 +227,7 @@ usint FVCrossCorrelation() {
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Plaintext> intArrayNew;
+	Plaintext intArrayNew;
 
 	cc->Decrypt(kp.secretKey, result, &intArrayNew);
 

@@ -31,22 +31,22 @@
 
 namespace lbcrypto {
 
-class IntegerEncoding: public Plaintext {
+class IntegerEncoding: public PlaintextImpl {
 	uint64_t		value;
 
 public:
 	// these two constructors are used inside of Decrypt
 	IntegerEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep) :
-		Plaintext(vp,ep), value(0) {}
+		PlaintextImpl(vp,ep), value(0) {}
 
 	IntegerEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep) :
-		Plaintext(vp,ep), value(0) {}
+		PlaintextImpl(vp,ep), value(0) {}
 
 	IntegerEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, uint64_t scalar) :
-		Plaintext(vp,ep), value(scalar) {}
+		PlaintextImpl(vp,ep), value(scalar) {}
 
 	IntegerEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, uint64_t scalar) :
-		Plaintext(vp,ep), value(scalar) {}
+		PlaintextImpl(vp,ep), value(scalar) {}
 
 	virtual ~IntegerEncoding() {}
 
@@ -88,7 +88,7 @@ public:
 	 * @param other - the other plaintext to compare to.
 	 * @return whether the two plaintext are equivalent.
 	 */
-	bool CompareTo(const Plaintext& other) const {
+	bool CompareTo(const PlaintextImpl& other) const {
 		const IntegerEncoding& oth = dynamic_cast<const IntegerEncoding&>(other);
 		return oth.value == this->value;
 	}

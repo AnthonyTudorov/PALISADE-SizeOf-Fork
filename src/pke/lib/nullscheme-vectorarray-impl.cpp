@@ -59,7 +59,7 @@ shared_ptr<Ciphertext<DCRTPoly>> LPAlgorithmSHENull<DCRTPoly>::EvalMult(const sh
 
 template<>
 shared_ptr<Ciphertext<DCRTPoly>> LPAlgorithmSHENull<DCRTPoly>::EvalMult(const shared_ptr<Ciphertext<DCRTPoly>> ciphertext1,
-	const shared_ptr<Plaintext> plaintext) const {
+	const Plaintext plaintext) const {
 
 	shared_ptr<Ciphertext<DCRTPoly>> newCiphertext = ciphertext1->CloneEmpty();
 

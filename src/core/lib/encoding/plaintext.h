@@ -53,32 +53,35 @@ enum PlaintextEncodings {
 	String,
 };
 
+class PlaintextImpl;
+typedef shared_ptr<PlaintextImpl> Plaintext;
+
 /**
- * @class Plaintext
+ * @class PlaintextImpl
  * @brief This class represents plaintext in the Palisade library.
  *
- * Plaintext is primarily intended to be
+ * PlaintextImpl is primarily intended to be
  * used as a container and in conjunction with specific encodings which inherit from this class
  * which depend on the application the plaintext is used with.  It provides virtual methods for encoding
  * and decoding of data.
  */
-class Plaintext
+class PlaintextImpl
 {
 protected:
 	bool								isEncoded;
-	enum { IsPoly, IsDCRTPoly }		typeFlag;
-	shared_ptr<EncodingParams>		encodingParams;
+	enum { IsPoly, IsDCRTPoly }			typeFlag;
+	shared_ptr<EncodingParams>			encodingParams;
 	Poly								encodedVector;
 	DCRTPoly							encodedVectorDCRT;
 
 public:
-	Plaintext(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, bool isEncoded = false) :
+	PlaintextImpl(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, bool isEncoded = false) :
 		isEncoded(isEncoded), typeFlag(IsPoly), encodingParams(ep), encodedVector(vp,COEFFICIENT) {}
 
-	Plaintext(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, bool isEncoded = false) :
+	PlaintextImpl(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, bool isEncoded = false) :
 		isEncoded(isEncoded), typeFlag(IsDCRTPoly), encodingParams(ep), encodedVector(vp,COEFFICIENT), encodedVectorDCRT(vp,COEFFICIENT) {}
 
-	virtual ~Plaintext() {}
+	virtual ~PlaintextImpl() {}
 
 	/**
 	 * GetEncodingType
@@ -111,7 +114,7 @@ public:
 	virtual bool Decode() = 0;
 
 	/**
-	 * SetFormat - allows format to be changed for Plaintext evaluations
+	 * SetFormat - allows format to be changed for PlaintextImpl evaluations
 	 *
 	 * @param fmt
 	 */
@@ -172,7 +175,7 @@ public:
 	 * @param other - the other plaintext to compare to.
 	 * @return whether the two plaintext are equivalent.
 	 */
-	virtual bool CompareTo(const Plaintext& other) const = 0;
+	virtual bool CompareTo(const PlaintextImpl& other) const = 0;
 
 	/**
 	 * operator== for plaintexts.  This method makes sure the plaintexts are of the same type.
@@ -180,7 +183,7 @@ public:
 	 * @param other - the other plaintext to compare to.
 	 * @return whether the two plaintext are the same.
 	 */
-	bool operator==(const Plaintext& other) const {
+	bool operator==(const PlaintextImpl& other) const {
 		if( typeid(this) != typeid(&other) )
 			return false;
 
@@ -193,7 +196,7 @@ public:
 		return CompareTo(other);
 	}
 
-	bool operator!=(const Plaintext& other) const { return !(*this == other); }
+	bool operator!=(const PlaintextImpl& other) const { return !(*this == other); }
 
 	/**
 	 * operator<< for ostream integration - calls PrintValue
@@ -201,7 +204,7 @@ public:
 	 * @param item
 	 * @return
 	 */
-	friend std::ostream& operator<<(std::ostream& out, const Plaintext& item);
+	friend std::ostream& operator<<(std::ostream& out, const PlaintextImpl& item);
 
 	/**
 	 * PrintValue is called by operator<<
@@ -225,28 +228,28 @@ public:
 	}
 };
 
-inline std::ostream& operator<<(std::ostream& out, const Plaintext& item)
+inline std::ostream& operator<<(std::ostream& out, const PlaintextImpl& item)
 {
 	item.PrintValue(out);
 	return out;
 }
 
-inline std::ostream& operator<<(std::ostream& out, const shared_ptr<Plaintext> item)
+inline std::ostream& operator<<(std::ostream& out, const Plaintext item)
 {
 	item->PrintValue(out);
 	return out;
 }
 
-inline bool operator==(const shared_ptr<Plaintext> p1, const shared_ptr<Plaintext> p2) { return *p1 == *p2;}
+inline bool operator==(const Plaintext p1, const Plaintext p2) { return *p1 == *p2;}
 
-inline bool operator!=(const shared_ptr<Plaintext> p1, const shared_ptr<Plaintext> p2) { return *p1 != *p2;}
+inline bool operator!=(const Plaintext p1, const Plaintext p2) { return *p1 != *p2;}
 
 /**
  * GetElement
  * @return the Polynomial that the element was encoded into
  */
 template <>
-inline Poly& Plaintext::GetElement<Poly>() {
+inline Poly& PlaintextImpl::GetElement<Poly>() {
 	return encodedVector;
 }
 
@@ -255,7 +258,7 @@ inline Poly& Plaintext::GetElement<Poly>() {
  * @return the DCRTPolynomial that the element was encoded into
  */
 template <>
-inline DCRTPoly& Plaintext::GetElement<DCRTPoly>() {
+inline DCRTPoly& PlaintextImpl::GetElement<DCRTPoly>() {
 	return encodedVectorDCRT;
 }
 

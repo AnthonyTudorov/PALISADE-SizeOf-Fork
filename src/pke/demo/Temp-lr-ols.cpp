@@ -60,9 +60,9 @@ shared_ptr<CryptoContext<DCRTPoly>> DeserializeContext(const string& ccFileName)
 shared_ptr<CryptoContext<DCRTPoly>> DeserializeContextWithEvalKeys(const string& ccFileName, const string& emFileName, const string& esFileName);
 void ReadCSVFile(string dataFileName, vector<string>& headers, vector<vector<double> >& dataColumns);
 void EncodeData(shared_ptr<CryptoContext<DCRTPoly>> cc, const vector<vector<double> >& dataColumns,
-                Matrix<shared_ptr<Plaintext>>& x,
-				shared_ptr<Plaintext>* y);
-void CRTInterpolate(const vector<shared_ptr<Matrix<shared_ptr<Plaintext>>>>& crtVector,
+                Matrix<Plaintext>& x,
+				Plaintext* y);
+void CRTInterpolate(const vector<shared_ptr<Matrix<Plaintext>>>& crtVector,
                     Matrix<native_int::BigInteger>& result);
 void MatrixInverse(const Matrix<native_int::BigInteger>& in, Matrix<double>& out, uint32_t numRegressors);
 void DecodeData(const Matrix<double>& lr, const Matrix<native_int::BigInteger>& XTX, const Matrix<native_int::BigInteger>& XTY, std::vector<double>& result);
@@ -140,7 +140,7 @@ int main(int argc, char* argv[])
 	}
 // cin.get();
 
-PackedIntPlaintextEncoding::Destroy();
+PackedEncoding::Destroy();
 
 return 0;
 }
@@ -201,7 +201,7 @@ void KeyGen(string keyDir, string contextID, string keyfileName)
 
 	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP));
 
-	PackedIntPlaintextEncoding::SetParams(m, encodingParams);
+	PackedEncoding::SetParams(m, encodingParams);
 	encodingParams->SetBatchSize(batchSize);
 
 	float stdDev = 4;
@@ -374,7 +374,7 @@ void Encrypt(string keyDir,
 	shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
 	const shared_ptr<ILDCRTParams<BigInteger>> elementParams = cryptoParams->GetElementParams();
 	usint m = elementParams->GetCyclotomicOrder();
-	PackedIntPlaintextEncoding::SetParams(m, encodingParams);
+	PackedEncoding::SetParams(m, encodingParams);
 
 	// std::cout << "plaintext modulus = " << cc.GetCryptoParameters()->GetPlaintextModulus() << std::endl;
 
@@ -401,10 +401,10 @@ void Encrypt(string keyDir,
 
     std::cout << "Encoding the data...";
 
-	auto zeroAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(cc->MakePackedPlaintext({0})); };
+	auto zeroAlloc = [=]() { return lbcrypto::make_unique<Plaintext>(cc->MakePackedPlaintext({0})); };
 
-    Matrix<shared_ptr<Plaintext>> xP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 1, numRegressors);
-    shared_ptr<Plaintext> yP;
+    Matrix<Plaintext> xP = Matrix<Plaintext>(zeroAlloc, 1, numRegressors);
+    Plaintext yP;
 
     EncodeData(cc, dataColumns, xP, &yP);
 
@@ -526,7 +526,7 @@ void Compute(string keyDir,
 	shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
 	const shared_ptr<ILDCRTParams<BigInteger>> elementParams = cryptoParams->GetElementParams();
 	usint m = elementParams->GetCyclotomicOrder();
-	PackedIntPlaintextEncoding::SetParams(m, encodingParams);
+	PackedEncoding::SetParams(m, encodingParams);
 
 	// Deserialize X
 
@@ -708,8 +708,8 @@ void Decrypt(string keyDir,
 	cout<<"Num Regressors: " << numRegressors << endl;
 	cout<<"REGRESSORS: " << REGRESSORS << endl;
 	
-    vector<shared_ptr<Matrix<shared_ptr<Plaintext>>>> xTxCRT;
-    vector<shared_ptr<Matrix<shared_ptr<Plaintext>>>> xTyCRT;
+    vector<shared_ptr<Matrix<Plaintext>>> xTxCRT;
+    vector<shared_ptr<Matrix<Plaintext>>> xTyCRT;
 
     for(size_t k = 0; k < SIZE; k++) {
 
@@ -726,7 +726,7 @@ void Decrypt(string keyDir,
 	shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
 	const shared_ptr<ILDCRTParams<BigInteger>> elementParams = cryptoParams->GetElementParams();
 	usint m = elementParams->GetCyclotomicOrder();
-	PackedIntPlaintextEncoding::SetParams(m, encodingParams);
+	PackedEncoding::SetParams(m, encodingParams);
 
 	// Deserialize the private key
 
@@ -774,9 +774,9 @@ void Decrypt(string keyDir,
 
 	std::cout << "Decrypting matrix X^T X...";
 
-	auto zeroPackingAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(cc->MakePackedPlaintext({0})); };
+	auto zeroPackingAlloc = [=]() { return lbcrypto::make_unique<Plaintext>(cc->MakePackedPlaintext({0})); };
 
-	shared_ptr<Matrix<shared_ptr<Plaintext>>> numeratorXTX;
+	shared_ptr<Matrix<Plaintext>> numeratorXTX;
 
 	double start, finish;
 
@@ -823,7 +823,7 @@ void Decrypt(string keyDir,
 
 	std::cout << "Decrypting matrix X^T y...";
 
-	shared_ptr<Matrix<shared_ptr<Plaintext>>> numeratorXTY;
+	shared_ptr<Matrix<Plaintext>> numeratorXTY;
 
 	start = currentDateTime();
 
@@ -1043,10 +1043,10 @@ void ReadCSVFile(string dataFileName, vector<string>& headers, vector<vector<dou
 
 void EncodeData(shared_ptr<CryptoContext<DCRTPoly>> cc,
 		const vector<vector<double> >& dataColumns,
-		Matrix<shared_ptr<Plaintext>>& x,
-		shared_ptr<Plaintext>* y)
+		Matrix<Plaintext>& x,
+		Plaintext* y)
 {
-	shared_ptr<Plaintext> ptx;
+	Plaintext ptx;
 	vector<vector<uint32_t>> xmat;
 	vector<uint32_t> yvec;
 
@@ -1081,7 +1081,7 @@ void EncodeData(shared_ptr<CryptoContext<DCRTPoly>> cc,
 	// std::cout << x(0, 7) << std::endl;
 }
 
-void CRTInterpolate(const vector<shared_ptr<Matrix<shared_ptr<Plaintext>>>>& crtVector,
+void CRTInterpolate(const vector<shared_ptr<Matrix<Plaintext>>>& crtVector,
 		Matrix<native_int::BigInteger>& result)
 {
 

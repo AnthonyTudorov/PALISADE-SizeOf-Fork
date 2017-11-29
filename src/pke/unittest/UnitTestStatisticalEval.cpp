@@ -73,9 +73,9 @@ TEST_F(UTStatisticalEval, Null_Eval_Lin_Regression) {
 
 	// Set the plaintext matrices
 
-	auto zeroAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(cc->MakeCoefPackedPlaintext({0})); };
+	auto zeroAlloc = [=]() { return lbcrypto::make_unique<Plaintext>(cc->MakeCoefPackedPlaintext({0})); };
 
-	Matrix<shared_ptr<Plaintext>> xP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 2);
+	Matrix<Plaintext> xP = Matrix<Plaintext>(zeroAlloc, 2, 2);
 
 	std::vector<uint32_t> vectorOfInts1 = { 1,0,1,1,0,1,0,1 };
 	xP(0, 0) = cc->MakeCoefPackedPlaintext(vectorOfInts1);
@@ -89,7 +89,7 @@ TEST_F(UTStatisticalEval, Null_Eval_Lin_Regression) {
 	std::vector<uint32_t> vectorOfInts4 = { 1,0,0,1,0,1,1,0 };
 	xP(1, 1) = cc->MakeCoefPackedPlaintext(vectorOfInts4);
 
-	Matrix<shared_ptr<Plaintext>> yP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
+	Matrix<Plaintext> yP = Matrix<Plaintext>(zeroAlloc, 2, 1);
 
 	std::vector<uint32_t> vectorOfInts5 = { 1,1,1,0,0,1,0,1 };
 	yP(0, 0) = cc->MakeCoefPackedPlaintext(vectorOfInts5);
@@ -122,8 +122,8 @@ TEST_F(UTStatisticalEval, Null_Eval_Lin_Regression) {
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Matrix<shared_ptr<Plaintext>>> numerator;
-	shared_ptr<Matrix<shared_ptr<Plaintext>>> denominator;
+	shared_ptr<Matrix<Plaintext>> numerator;
+	shared_ptr<Matrix<Plaintext>> denominator;
 
 	cc->DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
 
@@ -167,16 +167,16 @@ TEST_F(UTStatisticalEval, Null_Eval_Lin_Regression_Int) {
 
 	// Set the plaintext matrices
 
-	auto zeroAlloc = [=]() { return make_unique<shared_ptr<Plaintext>>(); };
+	auto zeroAlloc = [=]() { return make_unique<Plaintext>(); };
 
-	Matrix<shared_ptr<Plaintext>> xP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 2);
+	Matrix<Plaintext> xP = Matrix<Plaintext>(zeroAlloc, 2, 2);
 
 	xP(0, 0) = cc->MakeIntegerPlaintext(173);
 	xP(0, 1) = cc->MakeIntegerPlaintext(107);
 	xP(1, 0) = cc->MakeIntegerPlaintext(175);
 	xP(1, 1) = cc->MakeIntegerPlaintext(105);
 
-	Matrix<shared_ptr<Plaintext>> yP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
+	Matrix<Plaintext> yP = Matrix<Plaintext>(zeroAlloc, 2, 1);
 
 	yP(0, 0) = cc->MakeIntegerPlaintext(167);
 	yP(1, 0) = cc->MakeIntegerPlaintext(105);
@@ -206,8 +206,8 @@ TEST_F(UTStatisticalEval, Null_Eval_Lin_Regression_Int) {
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Matrix<shared_ptr<Plaintext>>> numerator;
-	shared_ptr<Matrix<shared_ptr<Plaintext>>> denominator;
+	shared_ptr<Matrix<Plaintext>> numerator;
+	shared_ptr<Matrix<Plaintext>> denominator;
 
 	cc->DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
 
@@ -247,16 +247,16 @@ TEST_F(UTStatisticalEval, FV_Eval_Lin_Regression_Int) {
 
 	// Set the plaintext matrices
 
-	auto zeroAlloc = [=]() { return make_unique<shared_ptr<Plaintext>>(); };
+	auto zeroAlloc = [=]() { return make_unique<Plaintext>(); };
 
-	Matrix<shared_ptr<Plaintext>> xP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 2);
+	Matrix<Plaintext> xP = Matrix<Plaintext>(zeroAlloc, 2, 2);
 
 	xP(0, 0) = cc->MakeIntegerPlaintext(173);
 	xP(0, 1) = cc->MakeIntegerPlaintext(107);
 	xP(1, 0) = cc->MakeIntegerPlaintext(175);
 	xP(1, 1) = cc->MakeIntegerPlaintext(105);
 
-	Matrix<shared_ptr<Plaintext>> yP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
+	Matrix<Plaintext> yP = Matrix<Plaintext>(zeroAlloc, 2, 1);
 
 	yP(0, 0) = cc->MakeIntegerPlaintext(167);
 	yP(1, 0) = cc->MakeIntegerPlaintext(105);
@@ -287,8 +287,8 @@ TEST_F(UTStatisticalEval, FV_Eval_Lin_Regression_Int) {
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Matrix<shared_ptr<Plaintext>>> numerator;
-	shared_ptr<Matrix<shared_ptr<Plaintext>>> denominator;
+	shared_ptr<Matrix<Plaintext>> numerator;
+	shared_ptr<Matrix<Plaintext>> denominator;
 
 	cc->DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
 

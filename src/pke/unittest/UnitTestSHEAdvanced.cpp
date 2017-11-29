@@ -79,10 +79,10 @@ TEST_F(UTSHEAdvanced, test_eval_mult_single_crt) {
 	LPKeyPair<Poly> kp;
 
 	std::vector<usint> vectorOfInts1 = { 2 };
-	shared_ptr<Plaintext> intArray1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
+	Plaintext intArray1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
 
 	std::vector<usint> vectorOfInts2 = { 3 };
-	shared_ptr<Plaintext> intArray2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
+	Plaintext intArray2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
 
 	kp = cc->KeyGen();
 	cc->EvalMultKeyGen(kp.secretKey);
@@ -102,7 +102,7 @@ TEST_F(UTSHEAdvanced, test_eval_mult_single_crt) {
 
 	cResult = cc->KeySwitch(keySwitchHint2, cResult);
 
-	shared_ptr<Plaintext> results;
+	Plaintext results;
 
 	cc->Decrypt(newKp.secretKey, cResult, &results);
 
@@ -150,10 +150,10 @@ TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 
 	//Generating new cryptoparameters for when modulus reduction is done. - not used?
 	std::vector<usint> vectorOfInts1 = { 2, 4 };
-	shared_ptr<Plaintext> intArray1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
+	Plaintext intArray1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
 
 	std::vector<usint> vectorOfInts2 = { 3, 3 };
-	shared_ptr<Plaintext> intArray2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
+	Plaintext intArray2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
 
 	kp = cc->KeyGen();
 	cc->EvalMultKeyGen(kp.secretKey);
@@ -172,7 +172,7 @@ TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 
 	cResult = cc->KeySwitch(keySwitchHint2, cResult);
 
-	shared_ptr<Plaintext> results;
+	Plaintext results;
 
 	cc->Decrypt(newKp.secretKey, cResult, &results);
 
@@ -201,11 +201,11 @@ TEST_F(UTSHEAdvanced, test_eval_add_single_crt) {
 
 	DEBUG("Filling 1");
 	std::vector<usint> vectorOfInts1 = { 2, 3, 1, 4 };
-	shared_ptr<Plaintext> intArray1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
+	Plaintext intArray1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
 
 	DEBUG("Filling 2");
 	std::vector<usint> vectorOfInts2 = { 3, 6, 3, 1 };
-	shared_ptr<Plaintext> intArray2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
+	Plaintext intArray2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
 
 	DEBUG("getting pairs");
 	kp = cc->KeyGen();
@@ -225,7 +225,7 @@ TEST_F(UTSHEAdvanced, test_eval_add_single_crt) {
 	DEBUG("after");
 
 	shared_ptr<Ciphertext<Poly>> ciphertextResults({ cResult });
-	shared_ptr<Plaintext> results;
+	Plaintext results;
 
 	cc->Decrypt(kp.secretKey, ciphertextResults, &results);
 
@@ -274,10 +274,10 @@ TEST_F(UTSHEAdvanced, test_eval_add_double_crt) {
 	cc->Enable(LEVELEDSHE);
 
 	std::vector<usint> vectorOfInts1 = { 2, 4, 8, 5 };
-	shared_ptr<Plaintext> intArray1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
+	Plaintext intArray1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
 
 	std::vector<usint> vectorOfInts2 = { 3, 3, 4, 1 };
-	shared_ptr<Plaintext> intArray2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
+	Plaintext intArray2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
 
 	//Generate the secret key for the initial ciphertext:
 	LPKeyPair<DCRTPoly> kp = cc->KeyGen();
@@ -294,7 +294,7 @@ TEST_F(UTSHEAdvanced, test_eval_add_double_crt) {
 
 
 	shared_ptr<Ciphertext<DCRTPoly>> ciphertextResults({ cResult });
-	shared_ptr<Plaintext> results;
+	Plaintext results;
 
 	cc->Decrypt(kp.secretKey, ciphertextResults, &results);
 
@@ -339,10 +339,10 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 	cc->EvalMultKeyGen(kp.secretKey);
 
 	std::vector<usint> firstElement = { 8, 5, 4 };
-	shared_ptr<Plaintext> firstElementEncoding = cc->MakeCoefPackedPlaintext(firstElement);
+	Plaintext firstElementEncoding = cc->MakeCoefPackedPlaintext(firstElement);
 
 	std::vector<usint> secondElement = { 7, 4, 2 };
-	shared_ptr<Plaintext> secondElementEncoding = cc->MakeCoefPackedPlaintext(secondElement);
+	Plaintext secondElementEncoding = cc->MakeCoefPackedPlaintext(secondElement);
 
 	shared_ptr<Ciphertext<DCRTPoly>> ciphertextElementOne;
 	shared_ptr<Ciphertext<DCRTPoly>> ciphertextElementTwo;
@@ -374,7 +374,7 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 
 	cResult = ccSmall->KeySwitch(KeySwitchHint, cResultSmall);
 
-	shared_ptr<Plaintext> results;
+	Plaintext results;
 
 	ccSmall->Decrypt(kp1.secretKey, cResult, &results);
 

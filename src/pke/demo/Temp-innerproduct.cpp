@@ -46,7 +46,7 @@ We configured parameters (namely the ring dimension and ciphertext modulus) to p
 
 #include "cryptocontexthelper.h"
 
-#include "encoding/packedintplaintextencoding.h"
+#include "encoding/encodings.h"
 
 #include "utils/debug.h"
 #include <random>
@@ -108,7 +108,7 @@ void ArbBVInnerProductPackedArray() {
 	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
 	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
-	PackedIntPlaintextEncoding::SetParams(modulusP, m);
+	PackedEncoding::SetParams(modulusP, m);
 
 	float stdDev = 4;
 
@@ -116,7 +116,7 @@ void ArbBVInnerProductPackedArray() {
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
 
-	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP,PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP),batchSize));
+	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP,PackedEncoding::GetAutomorphismGenerator(modulusP),batchSize));
 
 	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, encodingParams, 8, stdDev);
 
@@ -127,12 +127,12 @@ void ArbBVInnerProductPackedArray() {
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
 	std::vector<usint> vectorOfInts1 = { 1,2,3,4,5,6,7,8,0,0 };
-	shared_ptr<Plaintext> intArray1 = cc->MakePackedPlaintext(vectorOfInts1);
+	Plaintext intArray1 = cc->MakePackedPlaintext(vectorOfInts1);
 
 	std::cout << "Input array 1 \n\t" << intArray1 << std::endl;
 
 	std::vector<usint> vectorOfInts2 = { 1,2,3,2,1,2,1,2,0,0 };
-	shared_ptr<Plaintext> intArray2 = cc->MakePackedPlaintext(vectorOfInts2);
+	Plaintext intArray2 = cc->MakePackedPlaintext(vectorOfInts2);
 
 	std::cout << "Input array 2 \n\t" << intArray2 << std::endl;
 
@@ -144,7 +144,7 @@ void ArbBVInnerProductPackedArray() {
 
 	auto result = cc->EvalInnerProduct(ciphertext1, ciphertext2, batchSize);
 
-	shared_ptr<Plaintext> intArrayNew;
+	Plaintext intArrayNew;
 
 	cc->Decrypt(kp.secretKey, result, &intArrayNew);
 
@@ -178,7 +178,7 @@ void ArbLTVInnerProductPackedArray() {
 	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
 	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
-	PackedIntPlaintextEncoding::SetParams(modulusP, m);
+	PackedEncoding::SetParams(modulusP, m);
 
 	float stdDev = 4;
 
@@ -186,7 +186,7 @@ void ArbLTVInnerProductPackedArray() {
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
 
-	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP), batchSize));
+	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedEncoding::GetAutomorphismGenerator(modulusP), batchSize));
 
 	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(params, encodingParams, 16, stdDev);
 
@@ -197,12 +197,12 @@ void ArbLTVInnerProductPackedArray() {
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
 	std::vector<usint> vectorOfInts1 = { 1,2,3,4,5,6,7,8,0,0 };
-	shared_ptr<Plaintext> intArray1 = cc->MakePackedPlaintext(vectorOfInts1);
+	Plaintext intArray1 = cc->MakePackedPlaintext(vectorOfInts1);
 
 	std::cout << "Input array 1 \n\t" << intArray1 << std::endl;
 
 	std::vector<usint> vectorOfInts2 = { 1,2,3,2,1,2,1,2,0,0 };
-	shared_ptr<Plaintext> intArray2 = cc->MakePackedPlaintext(vectorOfInts2);
+	Plaintext intArray2 = cc->MakePackedPlaintext(vectorOfInts2);
 
 	std::cout << "Input array 2 \n\t" << intArray2 << std::endl;
 
@@ -214,7 +214,7 @@ void ArbLTVInnerProductPackedArray() {
 
 	auto result = cc->EvalInnerProduct(ciphertext1, ciphertext2, batchSize);
 
-	shared_ptr<Plaintext> intArrayNew;
+	Plaintext intArrayNew;
 
 	cc->Decrypt(kp.secretKey, result, &intArrayNew);
 
@@ -252,11 +252,11 @@ void ArbFVInnerProductPackedArray() {
 	//ChineseRemainderTransformArb<BigInteger, BigVector>::PreCompute(m, modulusQ);
 	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPolyBig, bigEvalMultModulus);
 
-	PackedIntPlaintextEncoding::SetParams(modulusP, m);
+	PackedEncoding::SetParams(modulusP, m);
 
 	usint batchSize = 8;
 
-	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP), batchSize));
+	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedEncoding::GetAutomorphismGenerator(modulusP), batchSize));
 
 	BigInteger delta(modulusQ.DividedBy(modulusP));
 
@@ -280,12 +280,12 @@ void ArbFVInnerProductPackedArray() {
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
 	std::vector<usint> vectorOfInts1 = { 1,2,3,4,5,6,7,8,0,0 };
-	shared_ptr<Plaintext> intArray1 = cc->MakePackedPlaintext(vectorOfInts1);
+	Plaintext intArray1 = cc->MakePackedPlaintext(vectorOfInts1);
 
 	std::cout << "Input array 1 \n\t" << intArray1 << std::endl;
 
 	std::vector<usint> vectorOfInts2 = { 1,2,3,2,1,2,1,2,0,0 };
-	shared_ptr<Plaintext> intArray2 = cc->MakePackedPlaintext(vectorOfInts2);
+	Plaintext intArray2 = cc->MakePackedPlaintext(vectorOfInts2);
 
 	std::cout << "Input array 2 \n\t" << intArray2 << std::endl;
 
@@ -297,7 +297,7 @@ void ArbFVInnerProductPackedArray() {
 
 	auto result = cc->EvalInnerProduct(ciphertext1, ciphertext2, batchSize);
 
-	shared_ptr<Plaintext> intArrayNew;
+	Plaintext intArrayNew;
 
 	cc->Decrypt(kp.secretKey, result, &intArrayNew);
 
@@ -310,7 +310,7 @@ void ArbFVInnerProductPackedArray() {
 
 void ArbFVEvalMultPackedArray() {
 
-	PackedIntPlaintextEncoding::Destroy();
+	PackedEncoding::Destroy();
 
 	usint m = 22;
 	usint p = 89; // we choose s.t. 2m|p-1 to leverage CRTArb
@@ -337,11 +337,11 @@ void ArbFVEvalMultPackedArray() {
 	//ChineseRemainderTransformArb<BigInteger, BigVector>::PreCompute(m, modulusQ);
 	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPolyBig, bigEvalMultModulus);
 
-	PackedIntPlaintextEncoding::SetParams(modulusP, m);
+	PackedEncoding::SetParams(modulusP, m);
 
 	usint batchSize = 8;
 
-	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP), batchSize));
+	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedEncoding::GetAutomorphismGenerator(modulusP), batchSize));
 
 	BigInteger delta(modulusQ.DividedBy(modulusP));
 
@@ -362,14 +362,14 @@ void ArbFVEvalMultPackedArray() {
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
 	std::vector<usint> vectorOfInts1 = { 1,2,3,4,5,6,7,8,9,10 };
-	shared_ptr<Plaintext> intArray1 = cc->MakePackedPlaintext(vectorOfInts1);
+	Plaintext intArray1 = cc->MakePackedPlaintext(vectorOfInts1);
 
 	std::vector<usint> vectorOfInts2 = { 10,9,8,7,6,5,4,3,2,1 };
-	shared_ptr<Plaintext> intArray2 = cc->MakePackedPlaintext(vectorOfInts2);
+	Plaintext intArray2 = cc->MakePackedPlaintext(vectorOfInts2);
 
 	std::vector<usint> vectorOfIntsMult;
 	std::transform(vectorOfInts1.begin(), vectorOfInts1.end(), vectorOfInts2.begin(), std::back_inserter(vectorOfIntsMult), std::multiplies<usint>());
-	shared_ptr<Plaintext> intArrayMult = cc->MakePackedPlaintext(vectorOfIntsMult);
+	Plaintext intArrayMult = cc->MakePackedPlaintext(vectorOfIntsMult);
 
 	auto ciphertext1 = cc->Encrypt(kp.publicKey, intArray1);
 	auto ciphertext2 = cc->Encrypt(kp.publicKey, intArray2);
@@ -378,7 +378,7 @@ void ArbFVEvalMultPackedArray() {
 
 	auto ciphertextMult = cc->EvalMult(ciphertext1, ciphertext2);
 
-	shared_ptr<Plaintext> intArrayNew;
+	Plaintext intArrayNew;
 
 	cc->Decrypt(kp.secretKey, ciphertextMult, &intArrayNew);
 

@@ -99,7 +99,7 @@ main(int argc, char *argv[])
 
 	// set up to encrypt some things
 	auto ptm = cc->GetCryptoParameters()->GetPlaintextModulus().ConvertToInt();
-	shared_ptr<Plaintext> inputs[NumInputs];
+	Plaintext inputs[NumInputs];
 	for( size_t i=0; i<NumInputs; i++ ) {
 		vector<int> vec;
 		vec.clear();
@@ -120,7 +120,7 @@ main(int argc, char *argv[])
 			for( int reps=0; reps < MaxIterations; reps++ ) {
 				LPKeyPair<DCRTPoly> kp = cc->KeyGen();
 				auto crypt = cc->Encrypt(kp.publicKey, inputs[nInputs]);
-				shared_ptr<Plaintext> decrypted;
+				Plaintext decrypted;
 				cc->Decrypt(kp.secretKey, crypt, &decrypted);
 			}
 		}

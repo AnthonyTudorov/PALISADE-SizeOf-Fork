@@ -562,7 +562,7 @@ shared_ptr<Ciphertext<Element>> CryptoContext<Element>::EvalInnerProduct(const s
 }
 
 template <typename Element>
-shared_ptr<Ciphertext<Element>> CryptoContext<Element>::EvalInnerProduct(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Plaintext> ct2, usint batchSize) const {
+shared_ptr<Ciphertext<Element>> CryptoContext<Element>::EvalInnerProduct(const shared_ptr<Ciphertext<Element>> ct1, const Plaintext ct2, usint batchSize) const {
 
 	if( ct1 == NULL || ct2 == NULL || Mismatched(ct1->GetCryptoContext()) )
 		throw std::logic_error("Information passed to EvalAdd was not generated with this crypto context");

@@ -47,7 +47,7 @@ We configured parameters (namely the ring dimension and ciphertext modulus) to p
 
 #include "cryptocontexthelper.h"
 
-#include "encoding/packedintplaintextencoding.h"
+#include "encoding/encodings.h"
 
 #include "utils/debug.h"
 #include <random>
@@ -80,46 +80,46 @@ int main() {
 
 	std::cout << "\n===========LTV TESTS (EVALAUTOMORPHISM)===============: " << std::endl;
 
-	PackedIntPlaintextEncoding::Destroy();
+	PackedEncoding::Destroy();
 	for (usint index = 3; index < 16; index = index + 2)
 		LTVAutomorphismPackedArray(index);
 
 	std::cout << "\n===========LTV TESTS (EVALAUTOMORPHISM-ARBITRARY)===============: " << std::endl;
 
-	PackedIntPlaintextEncoding::Destroy();
+	PackedEncoding::Destroy();
 	for (usint index = 1; index < 10; index++) {
 		ArbLTVAutomorphismPackedArray(totientList[index]);
 	}
 
 	std::cout << "\n===========BV TESTS (EVALAUTOMORPHISM)===============: " << std::endl;
 
-	PackedIntPlaintextEncoding::Destroy();
+	PackedEncoding::Destroy();
 	for (usint index = 3; index < 16; index = index + 2)
 		BVAutomorphismPackedArray(index);
 
 	std::cout << "\n===========BV TESTS (EVALAUTOMORPHISM-ARBITRARY)===============: " << std::endl;
 
-	PackedIntPlaintextEncoding::Destroy();
+	PackedEncoding::Destroy();
 	for (usint index = 1; index < 10; index++) {
 		ArbBVAutomorphismPackedArray(totientList[index]);
 	}
 
 	std::cout << "\n==============FV TESTS (EVALAUTOMORPHISM)================: " << std::endl;
 
-	PackedIntPlaintextEncoding::Destroy();
+	PackedEncoding::Destroy();
 	for (usint index = 3; index < 16; index = index + 2)
 		FVAutomorphismPackedArray(index);
 
 	std::cout << "\n===========FV TESTS (EVALAUTOMORPHISM-ARBITRARY)===============: " << std::endl;
 
-	PackedIntPlaintextEncoding::Destroy();
+	PackedEncoding::Destroy();
 	for (usint index = 1; index < 10; index++) {
 		ArbFVAutomorphismPackedArray(totientList[index]);
 	}
 
 	std::cout << "\n===========FV TESTS (EVALAUTOMORPHISM-POWER-OF-TWO)===============: " << std::endl;
 
-	PackedIntPlaintextEncoding::Destroy();
+	PackedEncoding::Destroy();
 	usint m2n = 32;
 	std::vector<usint> totientList2n = GetTotientList(m2n);
 
@@ -129,7 +129,7 @@ int main() {
 
 	std::cout << "\n===========NULL TESTS (EVALAUTOMORPHISM-ARBITRARY)===============: " << std::endl;
 
-	PackedIntPlaintextEncoding::Destroy();
+	PackedEncoding::Destroy();
 	for (usint index = 1; index < 10; index++) {
 		ArbNullAutomorphismPackedArray(totientList[index]);
 	}
@@ -159,7 +159,7 @@ void LTVAutomorphismPackedArray(usint i) {
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8 };
-	shared_ptr<Plaintext> intArray = cc->MakePackedPlaintext(vectorOfInts);
+	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	if (i == 3)
 		std::cout << "Input array\n\t" << *intArray << std::endl;
@@ -172,7 +172,7 @@ void LTVAutomorphismPackedArray(usint i) {
 
 	auto permutedCiphertext = cc->EvalAutomorphism(ciphertext, i, *evalKeys);
 
-	shared_ptr<Plaintext> intArrayNew;
+	Plaintext intArrayNew;
 
 	cc->Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew);
 
@@ -200,7 +200,7 @@ void BVAutomorphismPackedArray(usint i) {
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8 };
-	shared_ptr<Plaintext> intArray = cc->MakePackedPlaintext(vectorOfInts);
+	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	if (i == 3)
 		std::cout << "Input array\n\t" << *intArray << std::endl;
@@ -213,7 +213,7 @@ void BVAutomorphismPackedArray(usint i) {
 
 	auto permutedCiphertext = cc->EvalAutomorphism(ciphertext, i, *evalKeys);
 
-	shared_ptr<Plaintext> intArrayNew;
+	Plaintext intArrayNew;
 
 	cc->Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew);
 
@@ -245,7 +245,7 @@ void FVAutomorphismPackedArray(usint i) {
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8 };
-	shared_ptr<Plaintext> intArray = cc->MakePackedPlaintext(vectorOfInts);
+	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	if (i == 3)
 		std::cout << "Input array\n\t" << *intArray << std::endl;
@@ -258,7 +258,7 @@ void FVAutomorphismPackedArray(usint i) {
 
 	auto permutedCiphertext = cc->EvalAutomorphism(ciphertext, i, *evalKeys);
 
-	shared_ptr<Plaintext> intArrayNew;
+	Plaintext intArrayNew;
 
 	cc->Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew);
 
@@ -296,7 +296,7 @@ void ArbBVAutomorphismPackedArray(usint i) {
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10 };
-	shared_ptr<Plaintext> intArray = cc->MakePackedPlaintext(vectorOfInts);
+	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	if (i == 3)
 		std::cout << "Input array\n\t" << *intArray << std::endl;
@@ -310,7 +310,7 @@ void ArbBVAutomorphismPackedArray(usint i) {
 
 	auto permutedCiphertext = cc->EvalAutomorphism(ciphertext, i, *evalKeys);
 
-	shared_ptr<Plaintext> intArrayNew;
+	Plaintext intArrayNew;
 
 	cc->Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew);
 
@@ -349,7 +349,7 @@ void ArbLTVAutomorphismPackedArray(usint i) {
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10 };
-	shared_ptr<Plaintext> intArray = cc->MakePackedPlaintext(vectorOfInts);
+	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	if (i == 3)
 		std::cout << "Input array\n\t" << *intArray << std::endl;
@@ -363,7 +363,7 @@ void ArbLTVAutomorphismPackedArray(usint i) {
 
 	auto permutedCiphertext = cc->EvalAutomorphism(ciphertext, i, *evalKeys);
 
-	shared_ptr<Plaintext> intArrayNew;
+	Plaintext intArrayNew;
 
 	cc->Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew);
 
@@ -405,7 +405,7 @@ void ArbFVAutomorphismPackedArray(usint i) {
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8, 9, 10};
-	shared_ptr<Plaintext> intArray = cc->MakePackedPlaintext(vectorOfInts);
+	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	if (i == 3)
 		std::cout << "Input array\n\t" << *intArray << std::endl;
@@ -419,7 +419,7 @@ void ArbFVAutomorphismPackedArray(usint i) {
 
 	auto permutedCiphertext = cc->EvalAutomorphism(ciphertext, i, *evalKeys);
 
-	shared_ptr<Plaintext> intArrayNew;
+	Plaintext intArrayNew;
 
 	cc->Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew);
 
@@ -447,11 +447,11 @@ void ArbNullAutomorphismPackedArray(usint i) {
 
 	usint batchSize = 8;
 
-	PackedIntPlaintextEncoding::SetParams(modulusP, m);
+	PackedEncoding::SetParams(modulusP, m);
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
 
-	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP), batchSize));
+	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedEncoding::GetAutomorphismGenerator(modulusP), batchSize));
 
 	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextNull(
 		params, encodingParams);
@@ -463,7 +463,7 @@ void ArbNullAutomorphismPackedArray(usint i) {
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8, 9, 10 };
-	shared_ptr<Plaintext> intArray = cc->MakePackedPlaintext(vectorOfInts);
+	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	if (i == 3)
 		std::cout << "Input array\n\t" << *intArray << std::endl;
@@ -477,7 +477,7 @@ void ArbNullAutomorphismPackedArray(usint i) {
 
 	auto permutedCiphertext = cc->EvalAutomorphism(ciphertext, i, *evalKeys);
 
-	shared_ptr<Plaintext> intArrayNew;
+	Plaintext intArrayNew;
 
 	cc->Decrypt(kp.secretKey,  permutedCiphertext, &intArrayNew);
 
@@ -491,10 +491,10 @@ void ArbFVAutomorphismPackedArray2n(usint i) {
 	//usint phim = 1024;
 	usint p = 193; // we choose s.t. 2m|p-1 to leverage CRTArb
 	BigInteger modulusP(p);
-	PackedIntPlaintextEncoding::SetParams(modulusP, m);
+	PackedEncoding::SetParams(modulusP, m);
 
 	usint batchSize = 16;
-	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP), batchSize));
+	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedEncoding::GetAutomorphismGenerator(modulusP), batchSize));
 
 	BigInteger modulusQ("4809848800078200833");
 	BigInteger rootOfUnity("1512511313188104877");
@@ -518,7 +518,7 @@ void ArbFVAutomorphismPackedArray2n(usint i) {
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8, 9, 10, 11, 12, 13, 14, 15, 16};
-	shared_ptr<Plaintext> intArray = cc->MakePackedPlaintext(vectorOfInts);
+	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	if (i == 3)
 		std::cout << "Input array\n\t" << *intArray << std::endl;
@@ -532,7 +532,7 @@ void ArbFVAutomorphismPackedArray2n(usint i) {
 
 	auto permutedCiphertext = cc->EvalAutomorphism(ciphertext, i, *evalKeys);
 
-	shared_ptr<Plaintext> intArrayNew;
+	Plaintext intArrayNew;
 
 	cc->Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew);
 

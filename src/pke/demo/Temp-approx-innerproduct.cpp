@@ -22,7 +22,7 @@ Copyright (c) 2017, Massachusetts Institute of Technology (MIT)
 
 #include "cryptocontexthelper.h"
 
-#include "encoding/packedintplaintextencoding.h"
+#include "encoding/encodings.h"
 
 #include "utils/debug.h"
 #include <random>
@@ -43,10 +43,10 @@ int main() {
 	usint phim = 1024;
 	usint p = 1093633; // we choose s.t. 2m|p-1 to leverage CRTArb
 	BigInteger modulusP(p);
-	PackedIntPlaintextEncoding::SetParams(modulusP, m);
+	PackedEncoding::SetParams(modulusP, m);
 
 	usint batchSize = 1024;
-	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP), batchSize));
+	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedEncoding::GetAutomorphismGenerator(modulusP), batchSize));
 
 	BigInteger modulusQ("4809848800078200833");
 	BigInteger rootOfUnity("2595390732297411718");
@@ -76,8 +76,8 @@ int main() {
 		vectorOfInts1[i] = i % 8;
 	}
 
-	shared_ptr<Plaintext> intArray1 = cc->MakePackedPlaintext(vectorOfInts1);
-	shared_ptr<Plaintext> intArray2 = cc->MakePackedPlaintext(vectorOfInts2);
+	Plaintext intArray1 = cc->MakePackedPlaintext(vectorOfInts1);
+	Plaintext intArray2 = cc->MakePackedPlaintext(vectorOfInts2);
 
 	// std::cout << "Input array 1 \n\t" << intArray1 << std::endl;
 	// std::cout << "Input array 2 \n\t" << intArray2 << std::endl;
@@ -123,7 +123,7 @@ int main() {
 		// auto ciphertextFin = cc->GetEncryptionAlgorithm()->AddRandomNoise(ciphertextInnerProd);
 
 		auto ciphertextResult = cc->EvalInnerProduct(ciphertext_pub, intArray2, batchSize);
-		shared_ptr<Plaintext> intArrayNew;
+		Plaintext intArrayNew;
 		cc->Decrypt(kp.secretKey, ciphertextResult, &intArrayNew);
 		std::cout << "Actual = " << *intArrayNew << std::endl;
 	}

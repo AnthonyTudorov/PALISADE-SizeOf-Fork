@@ -32,33 +32,33 @@
 
 namespace lbcrypto {
 
-class CoefPackedEncoding: public Plaintext {
-	vector<uint32_t>		value;
+class CoefPackedEncoding: public PlaintextImpl {
+	vector<uint32_t>	value;
 	vector<int32_t>		valueSigned;
-	bool					isSigned;
+	bool				isSigned;
 
 public:
 	// these two constructors are used inside of Decrypt
 	CoefPackedEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, bool isSigned = false) :
-		Plaintext(vp,ep), isSigned(isSigned) {}
+		PlaintextImpl(vp,ep), isSigned(isSigned) {}
 
 	CoefPackedEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, bool isSigned = false) :
-		Plaintext(vp,ep), isSigned(isSigned) {}
+		PlaintextImpl(vp,ep), isSigned(isSigned) {}
 
 	CoefPackedEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, vector<int32_t> coeffs) :
-		Plaintext(vp,ep), valueSigned(coeffs), isSigned(true) {}
+		PlaintextImpl(vp,ep), valueSigned(coeffs), isSigned(true) {}
 
 	CoefPackedEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, vector<int32_t> coeffs) :
-		Plaintext(vp,ep), valueSigned(coeffs), isSigned(true) {}
+		PlaintextImpl(vp,ep), valueSigned(coeffs), isSigned(true) {}
 
 	CoefPackedEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, vector<uint32_t> coeffs, bool isSigned=false) :
-		Plaintext(vp,ep), isSigned(isSigned) {
+		PlaintextImpl(vp,ep), isSigned(isSigned) {
 		if( isSigned ) valueSigned.insert(valueSigned.begin(), coeffs.begin(),coeffs.end());
 		else value = coeffs;
 	}
 
 	CoefPackedEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, vector<uint32_t> coeffs, bool isSigned=false) :
-		Plaintext(vp,ep), isSigned(isSigned) {
+		PlaintextImpl(vp,ep), isSigned(isSigned) {
 		if( isSigned ) valueSigned.insert(valueSigned.begin(), coeffs.begin(),coeffs.end());
 		else value = coeffs;
 	}
@@ -130,7 +130,7 @@ public:
 	 * @param other - the other plaintext to compare to.
 	 * @return whether the two plaintext are equivalent.
 	 */
-	bool CompareTo(const Plaintext& other) const {
+	bool CompareTo(const PlaintextImpl& other) const {
 		const CoefPackedEncoding& oth = dynamic_cast<const CoefPackedEncoding&>(other);
 		return oth.value == this->value && oth.isSigned == this->isSigned;
 	}

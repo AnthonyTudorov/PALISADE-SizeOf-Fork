@@ -41,7 +41,7 @@ using namespace std;
 using namespace lbcrypto;
 
 void BM_encoding_Scalar(benchmark::State& state) {
-	shared_ptr<Plaintext> plaintext;
+	Plaintext plaintext;
 
 	if( state.thread_index == 0 ) {
 		state.PauseTiming();
@@ -66,7 +66,7 @@ BENCHMARK(BM_encoding_Scalar);
 
 void BM_encoding_Integer(benchmark::State& state) { // benchmark
 	shared_ptr<CryptoContext<Poly>> cc;
-	shared_ptr<Plaintext> plaintext;
+	Plaintext plaintext;
 
 	if( state.thread_index == 0 ) {
 		state.PauseTiming();
@@ -89,7 +89,7 @@ void BM_encoding_Integer(benchmark::State& state) { // benchmark
 BENCHMARK(BM_encoding_Integer);
 
 void BM_encoding_CoefPacked(benchmark::State& state) {
-	shared_ptr<Plaintext> plaintext;
+	Plaintext plaintext;
 
 	if( state.thread_index == 0 ) {
 		state.PauseTiming();
@@ -117,7 +117,7 @@ void BM_encoding_CoefPacked(benchmark::State& state) {
 BENCHMARK(BM_encoding_CoefPacked);
 
 void BM_encoding_PackedIntPlaintext(benchmark::State& state) {
-	shared_ptr<Plaintext> plaintext;
+	Plaintext plaintext;
 	shared_ptr<ILParams> lp;
 	shared_ptr<EncodingParams> ep;
 
@@ -138,13 +138,13 @@ void BM_encoding_PackedIntPlaintext(benchmark::State& state) {
 		ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 		lp.reset(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
-		ep.reset(new EncodingParams(modulusP,PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP),8));
+		ep.reset(new EncodingParams(modulusP,PackedEncoding::GetAutomorphismGenerator(modulusP),8));
 		state.ResumeTiming();
 	}
 
 	while (state.KeepRunning()) {
 		state.PauseTiming();
-		plaintext.reset( new PackedIntPlaintextEncoding(lp,ep,vectorOfInts1) );
+		plaintext.reset( new PackedEncoding(lp,ep,vectorOfInts1) );
 		state.ResumeTiming();
 
 		plaintext->Encode();
@@ -154,7 +154,7 @@ void BM_encoding_PackedIntPlaintext(benchmark::State& state) {
 BENCHMARK(BM_encoding_PackedIntPlaintext);
 
 void BM_encoding_PackedIntPlaintext_SetParams(benchmark::State& state) {
-	shared_ptr<Plaintext> plaintext;
+	Plaintext plaintext;
 	shared_ptr<ILParams> lp;
 	shared_ptr<EncodingParams> ep;
 
@@ -177,15 +177,15 @@ void BM_encoding_PackedIntPlaintext_SetParams(benchmark::State& state) {
 
 
 		lp.reset(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
-		ep.reset(new EncodingParams(modulusP,PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP),8));
+		ep.reset(new EncodingParams(modulusP,PackedEncoding::GetAutomorphismGenerator(modulusP),8));
 		state.ResumeTiming();
 	}
 
 	while (state.KeepRunning()) {
-		PackedIntPlaintextEncoding::SetParams(modulusP, m);
+		PackedEncoding::SetParams(modulusP, m);
 
 		state.PauseTiming();
-		PackedIntPlaintextEncoding::Destroy();
+		PackedEncoding::Destroy();
 		state.ResumeTiming();
 	}
 }
@@ -195,7 +195,7 @@ BENCHMARK(BM_encoding_PackedIntPlaintext_SetParams);
 
 void BM_Encoding_String(benchmark::State& state) { // benchmark
 	shared_ptr<CryptoContext<Poly>> cc;
-	shared_ptr<Plaintext> plaintext;
+	Plaintext plaintext;
 
 	if( state.thread_index == 0 ) {
 		state.PauseTiming();

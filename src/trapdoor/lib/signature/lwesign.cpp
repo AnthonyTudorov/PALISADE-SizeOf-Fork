@@ -87,7 +87,7 @@ namespace lbcrypto {
 		//Encode the text into a vector so it can be used in signing process. TODO: Adding some kind of digestion algorithm
 		vector<uint8_t> digest;
 		HashUtil::Hash(plainText, SHA_256, digest);
-		shared_ptr<Plaintext> hashedText( new StringEncoding(signKey.GetSignatureParameters().GetILParams(), ep, digest) );
+		Plaintext hashedText( new StringEncoding(signKey.GetSignatureParameters().GetILParams(), ep, digest) );
 
 		hashedText->Encode();
 
@@ -141,7 +141,7 @@ namespace lbcrypto {
 
 		//Encode the text into a vector so it can be used in signing process. TODO: Adding some kind of digestion algorithm
 		vector<uint8_t> digest;
-		shared_ptr<Plaintext> hashedText;
+		Plaintext hashedText;
 		HashUtil::Hash(plainText, SHA_256, digest);
 
 		if( plainText.size() <= n ) {
@@ -179,7 +179,7 @@ namespace lbcrypto {
 
 		//Encode the text into a vector so it can be used in signing process. TODO: Adding some kind of digestion algorithm
 		vector<uint8_t> digest;
-		shared_ptr<Plaintext> hashedText;
+		Plaintext hashedText;
 		HashUtil::Hash(plainText, SHA_256, digest);
 
 		if( plainText.size() <= n ) {

@@ -80,19 +80,19 @@ TEST_F(UTFV, Poly_FV_Eval_Operations) {
 	LPKeyPair<Poly> kp;
 
 	std::vector<uint32_t> vectorOfInts1 = { 1,0,3,1,0,1,2,1 };
-	shared_ptr<Plaintext> plaintext1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
+	Plaintext plaintext1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
 
 	std::vector<uint32_t> vectorOfInts2 = { 2,1,3,2,2,1,3,0 };
-	shared_ptr<Plaintext> plaintext2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
+	Plaintext plaintext2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
 
 	std::vector<uint32_t> vectorOfIntsAdd = { 3,1,6,3,2,2,5,1 };
-	shared_ptr<Plaintext> plaintextAdd = cc->MakeCoefPackedPlaintext(vectorOfIntsAdd);
+	Plaintext plaintextAdd = cc->MakeCoefPackedPlaintext(vectorOfIntsAdd);
 
 	std::vector<uint32_t> vectorOfIntsSub = { 63,63,0,63,62,0,63,1 };
-	shared_ptr<Plaintext> plaintextSub = cc->MakeCoefPackedPlaintext(vectorOfIntsSub);
+	Plaintext plaintextSub = cc->MakeCoefPackedPlaintext(vectorOfIntsSub);
 
 	std::vector<uint32_t> vectorOfIntsMult = { 2, 1, 9, 7, 12, 12, 16, 12, 19, 12, 7, 7, 7, 3 };
-	shared_ptr<Plaintext> plaintextMult = cc->MakeCoefPackedPlaintext(vectorOfIntsMult);
+	Plaintext plaintextMult = cc->MakeCoefPackedPlaintext(vectorOfIntsMult);
 
 	////////////////////////////////////////////////////////////
 	//Perform the key generation operation.
@@ -121,7 +121,7 @@ TEST_F(UTFV, Poly_FV_Eval_Operations) {
 
 	shared_ptr<Ciphertext<Poly>> ciphertextAdd = cc->EvalAdd(ciphertext1, ciphertext2);
 
-	shared_ptr<Plaintext> plaintextNew;
+	Plaintext plaintextNew;
 
 	////////////////////////////////////////////////////////////
 	//Decryption after EvalAdd Operation
@@ -129,7 +129,7 @@ TEST_F(UTFV, Poly_FV_Eval_Operations) {
 
 	DecryptResult result = cc->Decrypt(kp.secretKey, ciphertextAdd, &plaintextNew);
 
-	//this step is needed because there is no marker for padding in the case of shared_ptr<Plaintext>
+	//this step is needed because there is no marker for padding in the case of Plaintext
 	plaintextNew->SetLength(plaintextAdd->GetLength());
 
 	EXPECT_EQ(*plaintextAdd, *plaintextNew) << "FV.EvalAdd gives incorrect results.\n";
@@ -140,7 +140,7 @@ TEST_F(UTFV, Poly_FV_Eval_Operations) {
 
 	shared_ptr<Ciphertext<Poly>> ciphertextSub = cc->EvalSub(ciphertext1, ciphertext2);
 
-	shared_ptr<Plaintext> plaintextNewSub;
+	Plaintext plaintextNewSub;
 
 	////////////////////////////////////////////////////////////
 	//Decryption after EvalAdd Operation
@@ -161,7 +161,7 @@ TEST_F(UTFV, Poly_FV_Eval_Operations) {
 
 	shared_ptr<Ciphertext<Poly>> ciphertextMult = cc->EvalMult(ciphertext1, ciphertext2);
 
-	shared_ptr<Plaintext> plaintextNewMult;
+	Plaintext plaintextNewMult;
 
 	////////////////////////////////////////////////////////////
 	//Decryption after EvalMult Operation
@@ -191,13 +191,13 @@ TEST_F(UTFV, Poly_FV_ParamsGen_EvalMul) {
 	LPKeyPair<Poly> kp;
 
 	std::vector<uint32_t> vectorOfInts1 = { 1,0,3,1,0,1,2,1 };
-	shared_ptr<Plaintext> plaintext1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
+	Plaintext plaintext1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
 
 	std::vector<uint32_t> vectorOfInts2 = { 2,1,3,2,2,1,3,0 };
-	shared_ptr<Plaintext> plaintext2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
+	Plaintext plaintext2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
 
 	std::vector<uint32_t> vectorOfIntsMult = { 2, 1, 1, 3, 0, 0, 0, 0, 3, 0, 3, 3, 3, 3 };
-	shared_ptr<Plaintext> plaintextMult = cc->MakeCoefPackedPlaintext(vectorOfIntsMult);
+	Plaintext plaintextMult = cc->MakeCoefPackedPlaintext(vectorOfIntsMult);
 
 	////////////////////////////////////////////////////////////
 	//Perform the key generation operation.
@@ -228,7 +228,7 @@ TEST_F(UTFV, Poly_FV_ParamsGen_EvalMul) {
 
 	shared_ptr<Ciphertext<Poly>> ciphertextMult = cc->EvalMult(ciphertext1, ciphertext2);
 
-	shared_ptr<Plaintext> plaintextNewMult;
+	Plaintext plaintextNewMult;
 
 	////////////////////////////////////////////////////////////
 	//Decryption after EvalMult Operation
@@ -258,19 +258,19 @@ TEST_F(UTFV, Poly_FV_Optimized_Eval_Operations) {
 	LPKeyPair<Poly> kp;
 
 	std::vector<uint32_t> vectorOfInts1 = { 1,0,3,1,0,1,2,1 };
-	shared_ptr<Plaintext> plaintext1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
+	Plaintext plaintext1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
 
 	std::vector<uint32_t> vectorOfInts2 = { 2,1,3,2,2,1,3,0 };
-	shared_ptr<Plaintext> plaintext2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
+	Plaintext plaintext2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
 
 	std::vector<uint32_t> vectorOfIntsAdd = { 3,1,6,3,2,2,5,1 };
-	shared_ptr<Plaintext> plaintextAdd = cc->MakeCoefPackedPlaintext(vectorOfIntsAdd);
+	Plaintext plaintextAdd = cc->MakeCoefPackedPlaintext(vectorOfIntsAdd);
 
 	std::vector<uint32_t> vectorOfIntsSub = { 63,63,0,63,62,0,63,1 };
-	shared_ptr<Plaintext> plaintextSub = cc->MakeCoefPackedPlaintext(vectorOfIntsSub);
+	Plaintext plaintextSub = cc->MakeCoefPackedPlaintext(vectorOfIntsSub);
 
 	std::vector<uint32_t> vectorOfIntsMult = { 2, 1, 9, 7, 12, 12, 16, 12, 19, 12, 7, 7, 7, 3 };
-	shared_ptr<Plaintext> plaintextMult = cc->MakeCoefPackedPlaintext(vectorOfIntsMult);
+	Plaintext plaintextMult = cc->MakeCoefPackedPlaintext(vectorOfIntsMult);
 
 	////////////////////////////////////////////////////////////
 	//Perform the key generation operation.
@@ -299,7 +299,7 @@ TEST_F(UTFV, Poly_FV_Optimized_Eval_Operations) {
 
 	shared_ptr<Ciphertext<Poly>> ciphertextAdd = cc->EvalAdd(ciphertext1, ciphertext2);
 
-	shared_ptr<Plaintext> plaintextNew;
+	Plaintext plaintextNew;
 
 	////////////////////////////////////////////////////////////
 	//Decryption after EvalAdd Operation
@@ -317,7 +317,7 @@ TEST_F(UTFV, Poly_FV_Optimized_Eval_Operations) {
 
 	shared_ptr<Ciphertext<Poly>> ciphertextSub = cc->EvalSub(ciphertext1, ciphertext2);
 
-	shared_ptr<Plaintext> plaintextNewSub;
+	Plaintext plaintextNewSub;
 
 	////////////////////////////////////////////////////////////
 	//Decryption after EvalAdd Operation
@@ -338,7 +338,7 @@ TEST_F(UTFV, Poly_FV_Optimized_Eval_Operations) {
 
 	shared_ptr<Ciphertext<Poly>> ciphertextMult = cc->EvalMult(ciphertext1, ciphertext2);
 
-	shared_ptr<Plaintext> plaintextNewMult;
+	Plaintext plaintextNewMult;
 
 	////////////////////////////////////////////////////////////
 	//Decryption after EvalMult Operation

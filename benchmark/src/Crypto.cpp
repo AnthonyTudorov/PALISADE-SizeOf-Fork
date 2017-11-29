@@ -89,7 +89,7 @@ void BM_encrypt(benchmark::State& state) { // benchmark
 	shared_ptr<CryptoContext<Poly>> cc;
 	LPKeyPair<Poly> kp;
 	shared_ptr<Ciphertext<Poly>> ciphertext;
-	shared_ptr<Plaintext> plaintext;
+	Plaintext plaintext;
 
 	auto randchar = []() -> char {
 		const char charset[] =
@@ -145,8 +145,8 @@ void BM_decrypt(benchmark::State& state) { // benchmark
 	shared_ptr<CryptoContext<Poly>> cc;
 	LPKeyPair<Poly> kp;
 	shared_ptr<Ciphertext<Poly>> ciphertext;
-	shared_ptr<Plaintext> plaintext;
-	shared_ptr<Plaintext> plaintextNew;
+	Plaintext plaintext;
+	Plaintext plaintextNew;
 
 	auto randchar = []() -> char {
 		const char charset[] =
@@ -248,8 +248,8 @@ void BM_reencrypt(benchmark::State& state) { // benchmark
 	LPKeyPair<Poly> kp;
 	shared_ptr<Ciphertext<Poly>> ciphertext;
 	shared_ptr<Ciphertext<Poly>> reciphertext;
-	shared_ptr<Plaintext> plaintext;
-	shared_ptr<Plaintext> plaintextNew;
+	Plaintext plaintext;
+	Plaintext plaintextNew;
 
 	auto randchar = []() -> char {
 		const char charset[] =

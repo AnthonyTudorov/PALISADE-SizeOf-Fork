@@ -33,7 +33,7 @@
 
 #include "cryptocontexthelper.h"
 
-#include "encoding/packedintplaintextencoding.h"
+#include "encoding/encodings.h"
 
 #include "utils/debug.h"
 #include <random>
@@ -52,7 +52,7 @@ void Encrypt();
 void Compute();
 void Decrypt();
 shared_ptr<CryptoContext<DCRTPoly>> DeserializeContext(const string& ccFileName);
-native_int::BigInteger CRTInterpolate(const std::vector<shared_ptr<Plaintext>> &crtVector);
+native_int::BigInteger CRTInterpolate(const std::vector<Plaintext> &crtVector);
 template<typename T> ostream& operator<<(ostream& output, const vector<T>& vector);
 
 // number of primitive prime plaintext moduli in the CRT representation of plaintext
@@ -87,7 +87,7 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
-	PackedIntPlaintextEncoding::Destroy();
+	PackedEncoding::Destroy();
 
 	return 0;
 }
@@ -163,7 +163,7 @@ void KeyGen()
 
 		shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP));
 
-		PackedIntPlaintextEncoding::SetParams(m, encodingParams);
+		PackedEncoding::SetParams(m, encodingParams);
 		encodingParams->SetBatchSize(batchSize);
 
 		float stdDev = 4;
@@ -352,7 +352,7 @@ void Encrypt() {
 		
 		usint m = elementParams->GetCyclotomicOrder();
 
-		PackedIntPlaintextEncoding::SetParams(m, encodingParams);
+		PackedEncoding::SetParams(m, encodingParams);
 
 		//std::cout << "plaintext modulus = " << cc->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
 
@@ -377,10 +377,10 @@ void Encrypt() {
 
 		std::cout << "Encoding the data...";
 
-		auto zeroAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(cc->MakePackedPlaintext({0})); };
+		auto zeroAlloc = [=]() { return lbcrypto::make_unique<Plaintext>(cc->MakePackedPlaintext({0})); };
 
-		Matrix<shared_ptr<Plaintext>> xP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, VECTORS, 1);
-		Matrix<shared_ptr<Plaintext>> yP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, VECTORS, 1);
+		Matrix<Plaintext> xP = Matrix<Plaintext>(zeroAlloc, VECTORS, 1);
+		Matrix<Plaintext> yP = Matrix<Plaintext>(zeroAlloc, VECTORS, 1);
 
 		for (size_t i = 0; i < VECTORS; i++)
 		{
@@ -491,7 +491,7 @@ void Compute() {
 		
 		usint m = elementParams->GetCyclotomicOrder();
 
-		PackedIntPlaintextEncoding::SetParams(m, encodingParams);
+		PackedEncoding::SetParams(m, encodingParams);
 
 		usint batchSize = encodingParams->GetBatchSize();
 
@@ -583,7 +583,7 @@ void Compute() {
 
 void Decrypt() {
 
-	std::vector<shared_ptr<Plaintext>> crossCorr;
+	std::vector<Plaintext> crossCorr;
 
 	for (size_t k = 0; k < SIZE; k++) {
 
@@ -624,7 +624,7 @@ void Decrypt() {
 		
 		usint m = elementParams->GetCyclotomicOrder();
 
-		PackedIntPlaintextEncoding::SetParams(m, encodingParams);
+		PackedEncoding::SetParams(m, encodingParams);
 
 		// Deserialize the private key
 
@@ -671,7 +671,7 @@ void Decrypt() {
 
 		std::cout << "Decrypting cross-correlation...";
 
-		shared_ptr<Plaintext> ccResult;
+		Plaintext ccResult;
 
 		cc->Decrypt(sk, c, &ccResult);
 
@@ -733,7 +733,7 @@ shared_ptr<CryptoContext<DCRTPoly>> DeserializeContext(const string& ccFileName,
 	return cc;
 }
 
-native_int::BigInteger CRTInterpolate(const std::vector<shared_ptr<Plaintext>> &crtVector) {
+native_int::BigInteger CRTInterpolate(const std::vector<Plaintext> &crtVector) {
 
 	native_int::BigInteger result(0);
 

@@ -160,22 +160,22 @@ bool MatrixStrassen<Poly>::Deserialize(const Serialized& serObj) {
 }
 
 template<>
-bool Matrix<shared_ptr<Plaintext>>::Serialize(Serialized* serObj) const {
+bool Matrix<Plaintext>::Serialize(Serialized* serObj) const {
 	return false;
 }
 
 template<>
-bool Matrix<shared_ptr<Plaintext>>::Deserialize(const Serialized& serObj) {
+bool Matrix<Plaintext>::Deserialize(const Serialized& serObj) {
 	return false;
 }
 
 template<>
-bool Matrix<PackedIntPlaintextEncoding>::Serialize(Serialized* serObj) const {
+bool Matrix<PackedEncoding>::Serialize(Serialized* serObj) const {
 	return false;
 }
 
 template<>
-bool Matrix<PackedIntPlaintextEncoding>::Deserialize(const Serialized& serObj) {
+bool Matrix<PackedEncoding>::Deserialize(const Serialized& serObj) {
 	return false;
 }
 
@@ -208,8 +208,8 @@ ONES_FOR_TYPE(BigVector)
 ONES_FOR_TYPE(Field2n)
 
 //template<>
-//Matrix<shared_ptr<Plaintext>>& Matrix<shared_ptr<Plaintext>>::Ones() {
-//	shared_ptr<Plaintext> One( { 1 } );
+//Matrix<Plaintext>& Matrix<Plaintext>::Ones() {
+//	Plaintext One( { 1 } );
 //    for (size_t row = 0; row < rows; ++row) {
 //        for (size_t col = 0; col < cols; ++col) {
 //            *data[row][col] = One;
@@ -241,9 +241,9 @@ IDENTITY_FOR_TYPE(BigVector)
 IDENTITY_FOR_TYPE(Field2n)
 
 //template<>
-//Matrix<shared_ptr<Plaintext>>& Matrix<shared_ptr<Plaintext>>::Identity() {
-//	shared_ptr<Plaintext> Zero( { 0 } );
-//	shared_ptr<Plaintext> One( { 1 } );
+//Matrix<Plaintext>& Matrix<Plaintext>::Identity() {
+//	Plaintext Zero( { 0 } );
+//	Plaintext One( { 1 } );
 //    for (size_t row = 0; row < rows; ++row) {
 //        for (size_t col = 0; col < cols; ++col) {
 //            if (row == col) {

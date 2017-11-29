@@ -119,14 +119,14 @@ main(int argc, char *argv[])
 		PalisadeCircuit<Poly>	cir(cc, driver.graph);
 
 		// construct matrix for first vector
-		Matrix<shared_ptr<Plaintext>> scalarMatrix1([cc](){return make_unique<shared_ptr<Plaintext>>(cc->MakeCoefPackedPlaintext({0}));},
+		Matrix<Plaintext> scalarMatrix1([cc](){return make_unique<Plaintext>(cc->MakeCoefPackedPlaintext({0}));},
 				1,vectorOfInts.size());
 		for( size_t c=0; c<vectorOfInts.size(); c++ ) {
 			scalarMatrix1(0,c) = cc->MakeCoefPackedPlaintext({ vectorOfInts[c] });
 		}
 
 		// construct matrix for second vector
-		Matrix<shared_ptr<Plaintext>> scalarMatrix2([cc](){return make_unique<shared_ptr<Plaintext>>(cc->MakeCoefPackedPlaintext({0}));},
+		Matrix<Plaintext> scalarMatrix2([cc](){return make_unique<Plaintext>(cc->MakeCoefPackedPlaintext({0}));},
 				vectorOfInts.size(), 1);
 		for( size_t r=0; r<vectorOfInts.size(); r++ ) {
 			scalarMatrix2(r,0) = cc->MakeCoefPackedPlaintext({ vectorOfInts[r] });
@@ -149,8 +149,8 @@ main(int argc, char *argv[])
 
 		for( auto& out : outputs ) {
 			auto m = out.second.GetIntMatValue();
-			shared_ptr<Matrix<shared_ptr<Plaintext>>> numerator;
-			shared_ptr<Matrix<shared_ptr<Plaintext>>> denominator;
+			shared_ptr<Matrix<Plaintext>> numerator;
+			shared_ptr<Matrix<Plaintext>> denominator;
 			cc->DecryptMatrix(kp.secretKey, m, &numerator, &denominator);
 
 			cout << "INNER PRODUCT IS: " << (*numerator)(0,0)->GetCoefPackedValue()[0] << endl;
@@ -198,7 +198,7 @@ main(int argc, char *argv[])
 		PalisadeCircuit<Poly>	cir(cc, driver.graph);
 
 		// construct bit matrix for first vector
-		Matrix<shared_ptr<Plaintext>> bitMatrix1([cc](){return make_unique<shared_ptr<Plaintext>>(cc->MakeIntegerPlaintext(0));},
+		Matrix<Plaintext> bitMatrix1([cc](){return make_unique<Plaintext>(cc->MakeIntegerPlaintext(0));},
 				1,vectorOfInts.size());
 		for( size_t c=0; c<vectorOfInts.size(); c++ ) {
 			bitMatrix1(0,c) = cc->MakeIntegerPlaintext(vectorOfInts[c]);
@@ -206,7 +206,7 @@ main(int argc, char *argv[])
 		}
 
 		// construct bit matrix for second vector
-		Matrix<shared_ptr<Plaintext>> bitMatrix2([cc](){return make_unique<shared_ptr<Plaintext>>(cc->MakeIntegerPlaintext(0));},
+		Matrix<Plaintext> bitMatrix2([cc](){return make_unique<Plaintext>(cc->MakeIntegerPlaintext(0));},
 				vectorOfInts.size(), 1);
 		for( size_t r=0; r<vectorOfInts.size(); r++ ) {
 			bitMatrix2(r,0) = cc->MakeIntegerPlaintext(vectorOfInts[r]);
@@ -230,8 +230,8 @@ main(int argc, char *argv[])
 
 		for( auto& out : outputs ) {
 			auto m = out.second.GetIntMatValue();
-			shared_ptr<Matrix<shared_ptr<Plaintext>>> numerator;
-			shared_ptr<Matrix<shared_ptr<Plaintext>>> denominator;
+			shared_ptr<Matrix<Plaintext>> numerator;
+			shared_ptr<Matrix<Plaintext>> denominator;
 			cc->DecryptMatrix(kp.secretKey, m, &numerator, &denominator);
 
 			cout << "INNER PRODUCT IS: " << (*numerator)(0,0)->GetIntegerValue() << endl;
@@ -255,11 +255,11 @@ main(int argc, char *argv[])
 		BigInteger bigModulus("10889035741470030830827987437816582848513");
 		BigInteger bigRootUnity("5879632101734955395039618227388702592012");
 
-		PackedIntPlaintextEncoding::SetParams(ptm, m);
+		PackedEncoding::SetParams(ptm, m);
 
 		shared_ptr<ILParams> params( new ILParams(m, modulus, rootUnity, bigModulus, bigRootUnity) );
 
-		shared_ptr<EncodingParams> encodingParams(new EncodingParams(ptm,PackedIntPlaintextEncoding::GetAutomorphismGenerator(ptm),batchSize));
+		shared_ptr<EncodingParams> encodingParams(new EncodingParams(ptm,PackedEncoding::GetAutomorphismGenerator(ptm),batchSize));
 
 		shared_ptr<LPCryptoParametersBV<Poly>> cparams( new LPCryptoParametersBV<Poly>(
 				params,
@@ -281,8 +281,8 @@ main(int argc, char *argv[])
 		cc->EvalMultKeyGen(kp.secretKey);
 		cc->EvalSumKeyGen(kp.secretKey);
 
-		shared_ptr<Plaintext> packedArray1 = cc->MakePackedPlaintext(vectorOfInts);
-		shared_ptr<Plaintext> packedArray2 = cc->MakePackedPlaintext(vectorOfInts);
+		Plaintext packedArray1 = cc->MakePackedPlaintext(vectorOfInts);
+		Plaintext packedArray2 = cc->MakePackedPlaintext(vectorOfInts);
 
 		auto A = cc->Encrypt(kp.publicKey, packedArray1);
 		auto B = cc->Encrypt(kp.publicKey, packedArray2);
@@ -294,7 +294,7 @@ main(int argc, char *argv[])
 
 		cc->StopTiming();
 
-		shared_ptr<Plaintext> intArrayNew;
+		Plaintext intArrayNew;
 		cc->Decrypt(kp.secretKey, result, &intArrayNew);
 
 		cc->StopTiming();

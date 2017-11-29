@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
 	////////////////////////////////////////////////////////////
 
 	std::vector<uint32_t> vectorOfInts = {1,0,1,1,1,1,0,1,1,1,0,1};
-	shared_ptr<Plaintext> plaintext = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts);
+	Plaintext plaintext = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts);
 
 	////////////////////////////////////////////////////////////
 	// Encryption
@@ -140,7 +140,7 @@ int main(int argc, char *argv[])
 	//Decryption of Ciphertext
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Plaintext> plaintextDec1;
+	Plaintext plaintextDec1;
 
 	start = currentDateTime();
 
@@ -229,7 +229,7 @@ int main(int argc, char *argv[])
 	//Decryption of Ciphertext
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Plaintext> plaintextDec2;
+	Plaintext plaintextDec2;
 
 	start = currentDateTime();
 

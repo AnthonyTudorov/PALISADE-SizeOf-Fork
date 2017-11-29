@@ -109,9 +109,9 @@ int main(int argc, char *argv[]) {
 	std::vector<uint32_t> vectorOfInts1 = {3,2,1,3,2,1,0,0,0,0,0,0};
 	std::vector<uint32_t> vectorOfInts2 = {2,0,0,0,0,0,0,0,0,0,0,0};
 	std::vector<uint32_t> vectorOfInts3 = {1,0,0,0,0,0,0,0,0,0,0,0};
-	shared_ptr<Plaintext> plaintext1 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts1);
-	shared_ptr<Plaintext> plaintext2 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts2);
-	shared_ptr<Plaintext> plaintext3 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts3);
+	Plaintext plaintext1 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts1);
+	Plaintext plaintext2 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts2);
+	Plaintext plaintext3 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts3);
 
 	////////////////////////////////////////////////////////////
 	// Encryption
@@ -131,9 +131,9 @@ int main(int argc, char *argv[]) {
 	//Decryption of Ciphertext
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Plaintext> plaintext1Dec;
-	shared_ptr<Plaintext> plaintext2Dec;
-	shared_ptr<Plaintext> plaintext3Dec;
+	Plaintext plaintext1Dec;
+	Plaintext plaintext2Dec;
+	Plaintext plaintext3Dec;
 
 	start = currentDateTime();
 
@@ -181,7 +181,7 @@ int main(int argc, char *argv[]) {
 	//Decryption after Accumulation Operation
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Plaintext> plaintextAdd;
+	Plaintext plaintextAdd;
 
 	start = currentDateTime();
 
@@ -222,7 +222,7 @@ int main(int argc, char *argv[]) {
 	//Decryption after Accumulation Operation on Re-Encrypted Data
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Plaintext> plaintextMul;
+	Plaintext plaintextMul;
 
 	start = currentDateTime();
 

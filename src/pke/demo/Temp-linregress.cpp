@@ -46,7 +46,7 @@ We configured parameters (namely the ring dimension and ciphertext modulus) to p
 
 #include "cryptocontexthelper.h"
 
-#include "encoding/packedintplaintextencoding.h"
+#include "encoding/encodings.h"
 
 #include "utils/debug.h"
 #include <random>
@@ -82,7 +82,7 @@ int main() {
 
 void ArbBVLinearRegressionPackedArray() {
 
-	PackedIntPlaintextEncoding::Destroy();
+	PackedEncoding::Destroy();
 
 	usint m = 22;
 	//usint p = 524591;
@@ -106,7 +106,7 @@ void ArbBVLinearRegressionPackedArray() {
 	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
 	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
-	PackedIntPlaintextEncoding::SetParams(modulusP, m);
+	PackedEncoding::SetParams(modulusP, m);
 
 	float stdDev = 4;
 
@@ -114,7 +114,7 @@ void ArbBVLinearRegressionPackedArray() {
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
 
-	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP,PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP),batchSize));
+	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP,PackedEncoding::GetAutomorphismGenerator(modulusP),batchSize));
 
 	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, encodingParams, 8, stdDev, OPTIMIZED);
 
@@ -130,9 +130,9 @@ void ArbBVLinearRegressionPackedArray() {
 	cc->EvalSumKeyGen(kp.secretKey);
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	auto zeroAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(cc->MakePackedPlaintext({0})); };
+	auto zeroAlloc = [=]() { return lbcrypto::make_unique<Plaintext>(cc->MakePackedPlaintext({0})); };
 
-	Matrix<shared_ptr<Plaintext>> xP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 1, 2);
+	Matrix<Plaintext> xP = Matrix<Plaintext>(zeroAlloc, 1, 2);
 
 	xP(0, 0) = cc->MakePackedPlaintext({ 0, 2, 1, 3,  2,  2, 1, 2 });
 	xP(0, 1) = cc->MakePackedPlaintext({ 1 , 1 , 2 , 1 , 1 , 1, 3 , 2 });
@@ -140,7 +140,7 @@ void ArbBVLinearRegressionPackedArray() {
 	std::cout << "Input array X0 \n\t" << xP(0, 0) << std::endl;
 	std::cout << "Input array X1 \n\t" << xP(0, 1) << std::endl;
 
-	Matrix<shared_ptr<Plaintext>> yP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
+	Matrix<Plaintext> yP = Matrix<Plaintext>(zeroAlloc, 2, 1);
 
 	yP(0, 0) = cc->MakePackedPlaintext({ 0, 1, 2, 6, 1, 2, 3, 4});
 	std::cout << "Input array Y \n\t" << yP(0, 0) << std::endl;
@@ -167,8 +167,8 @@ void ArbBVLinearRegressionPackedArray() {
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Matrix<shared_ptr<Plaintext>>> numerator;
-	shared_ptr<Matrix<shared_ptr<Plaintext>>> denominator;
+	shared_ptr<Matrix<Plaintext>> numerator;
+	shared_ptr<Matrix<Plaintext>> denominator;
 
 	cc->DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
 
@@ -206,11 +206,11 @@ void ArbFVInnerProductPackedArray() {
 	//ChineseRemainderTransformArb<BigInteger, BigVector>::PreCompute(m, modulusQ);
 	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPolyBig, bigEvalMultModulus);
 
-	PackedIntPlaintextEncoding::SetParams(modulusP, m);
+	PackedEncoding::SetParams(modulusP, m);
 
 	usint batchSize = 8;
 
-	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP), batchSize));
+	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedEncoding::GetAutomorphismGenerator(modulusP), batchSize));
 
 	BigInteger delta(modulusQ.DividedBy(modulusP));
 
@@ -236,9 +236,9 @@ void ArbFVInnerProductPackedArray() {
 	cc->EvalSumKeyGen(kp.secretKey);
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	auto zeroAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(cc->MakePackedPlaintext({0})); };
+	auto zeroAlloc = [=]() { return lbcrypto::make_unique<Plaintext>(cc->MakePackedPlaintext({0})); };
 
-	Matrix<shared_ptr<Plaintext>> xP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 1, 2);
+	Matrix<Plaintext> xP = Matrix<Plaintext>(zeroAlloc, 1, 2);
 
 	xP(0, 0) = cc->MakePackedPlaintext({ 0, 2, 1, 3, 2, 2, 1, 2 });
 	xP(0, 1) = cc->MakePackedPlaintext({ 1, 1, 2, 1, 1, 1, 3, 2 });
@@ -246,7 +246,7 @@ void ArbFVInnerProductPackedArray() {
 	std::cout << "Input array X0 \n\t" << xP(0, 0) << std::endl;
 	std::cout << "Input array X1 \n\t" << xP(0, 1) << std::endl;
 
-	Matrix<shared_ptr<Plaintext>> yP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
+	Matrix<Plaintext> yP = Matrix<Plaintext>(zeroAlloc, 2, 1);
 
 	yP(0, 0) = cc->MakePackedPlaintext({ 0, 1, 2, 6, 1, 2, 3, 4 });
 	std::cout << "Input array Y \n\t" << yP(0, 0) << std::endl;
@@ -273,8 +273,8 @@ void ArbFVInnerProductPackedArray() {
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Matrix<shared_ptr<Plaintext>>> numerator;
-	shared_ptr<Matrix<shared_ptr<Plaintext>>> denominator;
+	shared_ptr<Matrix<Plaintext>> numerator;
+	shared_ptr<Matrix<Plaintext>> denominator;
 
 	cc->DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
 

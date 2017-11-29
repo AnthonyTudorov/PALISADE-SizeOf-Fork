@@ -410,7 +410,7 @@ namespace lbcrypto {
 		* @return new ciphertext.
 		*/
 		shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ct,
-			const shared_ptr<Plaintext> pt) const;
+			const Plaintext pt) const;
 
 		/**
 		* Function for homomorphic subtraction of ciphertexts.
@@ -430,7 +430,7 @@ namespace lbcrypto {
 		* @return new ciphertext.
 		*/
 		shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ct1,
-			const shared_ptr<Plaintext> pt) const;
+			const Plaintext pt) const;
 
 		/**
 		* Function for homomorphic evaluation of ciphertexts.
@@ -452,7 +452,7 @@ namespace lbcrypto {
 		* @return result of the multiplication.
 		*/
 		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext,
-			const shared_ptr<Plaintext> plaintext) const;
+			const Plaintext plaintext) const;
 
 		/**
 		* Function for evaluating multiplication on ciphertext followed by key switching operation.
@@ -479,7 +479,7 @@ namespace lbcrypto {
 		* @param *newCiphertext the new resulting ciphertext.
 		*/
 		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ct1,
-			const shared_ptr<Plaintext> ct, const shared_ptr<LPEvalKey<Element>> ek) const;
+			const Plaintext ct, const shared_ptr<LPEvalKey<Element>> ek) const;
 
 		/**
 		* Function for evaluating multiplication on ciphertext followed by relinearization operation. It computes the

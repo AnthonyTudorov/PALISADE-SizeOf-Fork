@@ -156,7 +156,7 @@ int main(int argc, char *argv[])
 	std::generate_n(rchars.begin(), ptsize, randchar);
 
 	// create a plaintext object from that string
-	shared_ptr<Plaintext> plaintext = cc->MakeStringPlaintext(rchars);
+	Plaintext plaintext = cc->MakeStringPlaintext(rchars);
 
 	////////////////////////////////////////////////////////////
 	//Perform the key generation operation.
@@ -191,7 +191,7 @@ int main(int argc, char *argv[])
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Plaintext> plaintextNew;
+	Plaintext plaintextNew;
 
 	if( beVerbose ) cout << "Running decryption" << std::endl;
 
@@ -258,7 +258,7 @@ int main(int argc, char *argv[])
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Plaintext> plaintextNew2;
+	Plaintext plaintextNew2;
 
 	if( beVerbose ) cout << "Running decryption of re-encrypted cipher" << endl;
 

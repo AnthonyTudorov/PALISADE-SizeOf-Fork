@@ -84,7 +84,7 @@ TEST_F(UTEvalLR, Test_FV_EvalLR) {
 
 rationalInt ArbBVLinearRegressionPackedArray() {
 
-	PackedIntPlaintextEncoding::Destroy();
+	PackedEncoding::Destroy();
 
 	usint m = 22;
 	usint p = 2333;
@@ -98,7 +98,7 @@ rationalInt ArbBVLinearRegressionPackedArray() {
 	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
 	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
-	PackedIntPlaintextEncoding::SetParams(modulusP, m);
+	PackedEncoding::SetParams(modulusP, m);
 
 	float stdDev = 4;
 
@@ -106,7 +106,7 @@ rationalInt ArbBVLinearRegressionPackedArray() {
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
 
-	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP), batchSize));
+	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedEncoding::GetAutomorphismGenerator(modulusP), batchSize));
 
 	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, encodingParams, 8, stdDev, OPTIMIZED);
 
@@ -120,14 +120,14 @@ rationalInt ArbBVLinearRegressionPackedArray() {
 	cc->EvalSumKeyGen(kp.secretKey);
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	auto zeroAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(cc->MakePackedPlaintext({0})); };
+	auto zeroAlloc = [=]() { return lbcrypto::make_unique<Plaintext>(cc->MakePackedPlaintext({0})); };
 
-	Matrix<shared_ptr<Plaintext>> xP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 1, 2);
+	Matrix<Plaintext> xP = Matrix<Plaintext>(zeroAlloc, 1, 2);
 
 	xP(0, 0) = cc->MakePackedPlaintext({ 0, 2, 1, 3, 2, 2, 1, 2 });
 	xP(0, 1) = cc->MakePackedPlaintext({ 1, 1, 2, 1, 1, 1, 3, 2 });
 
-	Matrix<shared_ptr<Plaintext>> yP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
+	Matrix<Plaintext> yP = Matrix<Plaintext>(zeroAlloc, 2, 1);
 
 	yP(0, 0) = cc->MakePackedPlaintext({ 0, 1, 2, 6, 1, 2, 3, 4 });
 	
@@ -149,8 +149,8 @@ rationalInt ArbBVLinearRegressionPackedArray() {
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Matrix<shared_ptr<Plaintext>>> numerator;
-	shared_ptr<Matrix<shared_ptr<Plaintext>>> denominator;
+	shared_ptr<Matrix<Plaintext>> numerator;
+	shared_ptr<Matrix<Plaintext>> denominator;
 
 	cc->DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
 
@@ -190,11 +190,11 @@ rationalInt ArbFVLinearRegressionPackedArray() {
 	auto cycloPolyBig = GetCyclotomicPolynomial<BigVector, BigInteger>(m, bigEvalMultModulus);
 	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPolyBig, bigEvalMultModulus);
 
-	PackedIntPlaintextEncoding::SetParams(modulusP, m);
+	PackedEncoding::SetParams(modulusP, m);
 
 	usint batchSize = 8;
 
-	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP), batchSize));
+	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedEncoding::GetAutomorphismGenerator(modulusP), batchSize));
 
 	BigInteger delta(modulusQ.DividedBy(modulusP));
 
@@ -218,14 +218,14 @@ rationalInt ArbFVLinearRegressionPackedArray() {
 	cc->EvalSumKeyGen(kp.secretKey);
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	auto zeroAlloc = [=]() { return lbcrypto::make_unique<shared_ptr<Plaintext>>(cc->MakePackedPlaintext({0})); };
+	auto zeroAlloc = [=]() { return lbcrypto::make_unique<Plaintext>(cc->MakePackedPlaintext({0})); };
 
-	Matrix<shared_ptr<Plaintext>> xP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 1, 2);
+	Matrix<Plaintext> xP = Matrix<Plaintext>(zeroAlloc, 1, 2);
 
 	xP(0, 0) = cc->MakePackedPlaintext({ 0, 2, 1, 3, 2, 2, 1, 2 });
 	xP(0, 1) = cc->MakePackedPlaintext({ 1, 1, 2, 1, 1, 1, 3, 2 });
 
-	Matrix<shared_ptr<Plaintext>> yP = Matrix<shared_ptr<Plaintext>>(zeroAlloc, 2, 1);
+	Matrix<Plaintext> yP = Matrix<Plaintext>(zeroAlloc, 2, 1);
 
 	yP(0, 0) = cc->MakePackedPlaintext({ 0, 1, 2, 6, 1, 2, 3, 4 });
 
@@ -247,8 +247,8 @@ rationalInt ArbFVLinearRegressionPackedArray() {
 	//Decryption
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Matrix<shared_ptr<Plaintext>>> numerator;
-	shared_ptr<Matrix<shared_ptr<Plaintext>>> denominator;
+	shared_ptr<Matrix<Plaintext>> numerator;
+	shared_ptr<Matrix<Plaintext>> denominator;
 
 	cc->DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
 

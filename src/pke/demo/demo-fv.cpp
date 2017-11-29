@@ -113,12 +113,12 @@ int main(int argc, char *argv[]) {
 	std::vector<uint32_t> vectorOfInts5 = {2,0,0,0,0,0,0,0,0,0,0,0};
 	std::vector<uint32_t> vectorOfInts6 = {1,0,0,0,0,0,0,0,0,0,0,0};
 
-	shared_ptr<Plaintext> plaintext1 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts1);
-	shared_ptr<Plaintext> plaintext2 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts2);
-	shared_ptr<Plaintext> plaintext3 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts3);
-	shared_ptr<Plaintext> plaintext4 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts4);
-	shared_ptr<Plaintext> plaintext5 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts5);
-	shared_ptr<Plaintext> plaintext6 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts6);
+	Plaintext plaintext1 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts1);
+	Plaintext plaintext2 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts2);
+	Plaintext plaintext3 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts3);
+	Plaintext plaintext4 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts4);
+	Plaintext plaintext5 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts5);
+	Plaintext plaintext6 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts6);
 
 	////////////////////////////////////////////////////////////
 	// Encryption
@@ -149,12 +149,12 @@ int main(int argc, char *argv[]) {
 	//Decryption of Ciphertext
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Plaintext> plaintext1Dec;
-	shared_ptr<Plaintext> plaintext2Dec;
-	shared_ptr<Plaintext> plaintext3Dec;
-	shared_ptr<Plaintext> plaintext4Dec;
-	shared_ptr<Plaintext> plaintext5Dec;
-	shared_ptr<Plaintext> plaintext6Dec;
+	Plaintext plaintext1Dec;
+	Plaintext plaintext2Dec;
+	Plaintext plaintext3Dec;
+	Plaintext plaintext4Dec;
+	Plaintext plaintext5Dec;
+	Plaintext plaintext6Dec;
 
 	start = currentDateTime();
 
@@ -214,11 +214,11 @@ int main(int argc, char *argv[]) {
 	//Decryption after Accumulation Operation on Re-Encrypted Data
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Plaintext> plaintextMul1;
-	shared_ptr<Plaintext> plaintextMul2;
-	shared_ptr<Plaintext> plaintextMul3;
-	shared_ptr<Plaintext> plaintextMul4;
-	shared_ptr<Plaintext> plaintextMul5;
+	Plaintext plaintextMul1;
+	Plaintext plaintextMul2;
+	Plaintext plaintextMul3;
+	Plaintext plaintextMul4;
+	Plaintext plaintextMul5;
 
 	start = currentDateTime();
 
@@ -271,8 +271,8 @@ int main(int argc, char *argv[]) {
 	//Decryption after Accumulation Operation
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Plaintext> plaintextAdd1;
-	shared_ptr<Plaintext> plaintextAdd2;
+	Plaintext plaintextAdd1;
+	Plaintext plaintextAdd2;
 
 	start = currentDateTime();
 
@@ -308,7 +308,7 @@ int main(int argc, char *argv[]) {
 
 	ciphertextMul1234567 = cryptoContext->GetEncryptionAlgorithm()->EvalMultMany(cipherTextList, evalKeys);
 
-	shared_ptr<Plaintext> plaintextMul7;
+	Plaintext plaintextMul7;
 	cryptoContext->Decrypt(keyPair.secretKey, ciphertextMul1234567, &plaintextMul7);
 
 	cout << *plaintextMul7 << endl;

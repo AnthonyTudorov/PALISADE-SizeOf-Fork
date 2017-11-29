@@ -46,7 +46,7 @@ We configured parameters (namely the ring dimension and ciphertext modulus) to p
 
 #include "cryptocontexthelper.h"
 
-#include "encoding/packedintplaintextencoding.h"
+#include "encoding/encodings.h"
 
 #include "utils/debug.h"
 #include <random>
@@ -125,9 +125,9 @@ void LTVPlaintextPKE() {
 
 	usint batchSize = 8;
 
-	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP), batchSize));
+	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedEncoding::GetAutomorphismGenerator(modulusP), batchSize));
 
-	PackedIntPlaintextEncoding::SetParams(modulusP, m);
+	PackedEncoding::SetParams(modulusP, m);
 
 	//Create the context
 
@@ -140,14 +140,14 @@ void LTVPlaintextPKE() {
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10 };
-	shared_ptr<Plaintext> intArray = cc->MakePackedPlaintext(vectorOfInts);
+	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	std::cout << "Input array\n\t" << intArray << std::endl;
 
 	// it's not a Ciphertext, so we don't encrypt it
 //	ciphertext = cc->Encrypt(kp.publicKey, intArray, false, false);
 //
-//	PackedIntPlaintextEncoding intArrayNew;
+//	PackedEncoding intArrayNew;
 //
 //	cc->Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
 //
@@ -179,9 +179,9 @@ void BVPlaintextPKE() {
 
 	usint batchSize = 8;
 
-	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP), batchSize));
+	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedEncoding::GetAutomorphismGenerator(modulusP), batchSize));
 
-	PackedIntPlaintextEncoding::SetParams(modulusP, m);
+	PackedEncoding::SetParams(modulusP, m);
 
 	//Create the context
 
@@ -196,13 +196,13 @@ void BVPlaintextPKE() {
 	vector<shared_ptr<Ciphertext<Poly>>> ciphertext;
 
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10 };
-	PackedIntPlaintextEncoding intArray(vectorOfInts);
+	PackedEncoding intArray(vectorOfInts);
 
 	std::cout << "Input array\n\t" << intArray << std::endl;
 
 	ciphertext = cc->Encrypt(kp.publicKey, intArray, false, false);
 
-	PackedIntPlaintextEncoding intArrayNew;
+	PackedEncoding intArrayNew;
 
 	cc->Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
 
@@ -235,9 +235,9 @@ void FVPlaintextPKE() {
 
 	usint batchSize = 8;
 
-	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP), batchSize));
+	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedEncoding::GetAutomorphismGenerator(modulusP), batchSize));
 
-	PackedIntPlaintextEncoding::SetParams(modulusP, m);
+	PackedEncoding::SetParams(modulusP, m);
 
 	//Create the context
 
@@ -254,13 +254,13 @@ void FVPlaintextPKE() {
 	vector<shared_ptr<Ciphertext<Poly>>> ciphertext;
 
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10 };
-	PackedIntPlaintextEncoding intArray(vectorOfInts);
+	PackedEncoding intArray(vectorOfInts);
 
 	std::cout << "Input array\n\t" << intArray << std::endl;
 
 	ciphertext = cc->Encrypt(kp.publicKey, intArray, false, false);
 
-	PackedIntPlaintextEncoding intArrayNew;
+	PackedEncoding intArrayNew;
 
 	cc->Decrypt(kp.secretKey, ciphertext, &intArrayNew, false);
 
@@ -292,9 +292,9 @@ void LTVEvalMultPlain() {
 
 	usint batchSize = 8;
 
-	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP), batchSize));
+	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedEncoding::GetAutomorphismGenerator(modulusP), batchSize));
 
-	PackedIntPlaintextEncoding::SetParams(modulusP, m);
+	PackedEncoding::SetParams(modulusP, m);
 
 	//Create the context
 
@@ -307,12 +307,12 @@ void LTVEvalMultPlain() {
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
 	std::vector<usint> vectorOfInts1 = { 1,2,3,4,5,6,7,8,9,10 };
-	shared_ptr<Plaintext> intArray1 = cc->MakePackedPlaintext(vectorOfInts1);
+	Plaintext intArray1 = cc->MakePackedPlaintext(vectorOfInts1);
 
 	std::cout << "Input array 1\n\t" << intArray1 << std::endl;
 
 	std::vector<usint> vectorOfInts2 = { 1,2,3,2,2,1,2,2,3,4 };
-	shared_ptr<Plaintext> intArray2 = cc->MakePackedPlaintext(vectorOfInts2);
+	Plaintext intArray2 = cc->MakePackedPlaintext(vectorOfInts2);
 
 	std::cout << "Input array 2\n\t" << intArray2 << std::endl;
 
@@ -320,7 +320,7 @@ void LTVEvalMultPlain() {
 
 	auto ciphertextMult = cc->EvalMult(ciphertext1, intArray2);
 
-	shared_ptr<Plaintext> intArrayNew;
+	Plaintext intArrayNew;
 
 	cc->Decrypt(kp.secretKey, ciphertextMult, &intArrayNew);
 
@@ -352,9 +352,9 @@ void BVEvalMultPlain() {
 
 	usint batchSize = 8;
 
-	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP), batchSize));
+	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedEncoding::GetAutomorphismGenerator(modulusP), batchSize));
 
-	PackedIntPlaintextEncoding::SetParams(modulusP, m);
+	PackedEncoding::SetParams(modulusP, m);
 
 	//Create the context
 
@@ -367,12 +367,12 @@ void BVEvalMultPlain() {
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
 	std::vector<usint> vectorOfInts1 = { 1,2,3,4,5,6,7,8,9,10 };
-	shared_ptr<Plaintext> intArray1 = cc->MakePackedPlaintext(vectorOfInts1);
+	Plaintext intArray1 = cc->MakePackedPlaintext(vectorOfInts1);
 
 	std::cout << "Input array 1\n\t" << intArray1 << std::endl;
 
 	std::vector<usint> vectorOfInts2 = { 1,2,3,2,2,1,2,2,3,4 };
-	shared_ptr<Plaintext> intArray2 = cc->MakePackedPlaintext(vectorOfInts2);
+	Plaintext intArray2 = cc->MakePackedPlaintext(vectorOfInts2);
 
 	std::cout << "Input array 2\n\t" << intArray2 << std::endl;
 
@@ -380,7 +380,7 @@ void BVEvalMultPlain() {
 
 	auto ciphertextMult = cc->EvalMult(ciphertext1, intArray2);
 
-	shared_ptr<Plaintext> intArrayNew;
+	Plaintext intArrayNew;
 
 	cc->Decrypt(kp.secretKey, ciphertextMult, &intArrayNew);
 
@@ -417,11 +417,11 @@ void FVEvalMultPlain() {
 	//ChineseRemainderTransformArb<BigInteger, BigVector>::PreCompute(m, modulusQ);
 	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPolyBig, bigEvalMultModulus);
 
-	PackedIntPlaintextEncoding::SetParams(modulusP, m);
+	PackedEncoding::SetParams(modulusP, m);
 
 	usint batchSize = 8;
 
-	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedIntPlaintextEncoding::GetAutomorphismGenerator(modulusP), batchSize));
+	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedEncoding::GetAutomorphismGenerator(modulusP), batchSize));
 
 	BigInteger delta(modulusQ.DividedBy(modulusP));
 
@@ -444,12 +444,12 @@ void FVEvalMultPlain() {
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
 	std::vector<usint> vectorOfInts1 = { 1,2,3,4,5,6,7,8,9,10 };
-	shared_ptr<Plaintext> intArray1 = cc->MakePackedPlaintext(vectorOfInts1);
+	Plaintext intArray1 = cc->MakePackedPlaintext(vectorOfInts1);
 
 	std::cout << "Input array 1\n\t" << intArray1 << std::endl;
 
 	std::vector<usint> vectorOfInts2 = { 1,2,3,2,2,1,2,2,3,4 };
-	shared_ptr<Plaintext> intArray2 = cc->MakePackedPlaintext(vectorOfInts2);
+	Plaintext intArray2 = cc->MakePackedPlaintext(vectorOfInts2);
 
 	std::cout << "Input array 2\n\t" << intArray2 << std::endl;
 
@@ -457,7 +457,7 @@ void FVEvalMultPlain() {
 
 	auto ciphertextMult = cc->EvalMult(ciphertext1, intArray2);
 
-	shared_ptr<Plaintext> intArrayNew;
+	Plaintext intArrayNew;
 
 	cc->Decrypt(kp.secretKey, ciphertextMult, &intArrayNew);
 

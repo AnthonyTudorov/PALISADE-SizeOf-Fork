@@ -1,5 +1,5 @@
 /**
- * @file packedintplaintextencoding.h Represents and defines plaintext encodings in Palisade with bit packing capabilities.
+ * @file packedencoding.h Represents and defines plaintext encodings in Palisade with bit packing capabilities.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -23,8 +23,8 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#ifndef LBCRYPTO_UTILS_PACKED_INTPLAINTEXTENCODING_H
-#define LBCRYPTO_UTILS_PACKED_INTPLAINTEXTENCODING_H
+#ifndef LBCRYPTO_UTILS_PACKEDEXTENCODING_H
+#define LBCRYPTO_UTILS_PACKEDEXTENCODING_H
 
 #include "inttypes.h"
 #include <vector>
@@ -38,56 +38,56 @@ namespace lbcrypto
 {
 
 /**
- * @class PackedIntPlaintextEncoding
+ * @class PackedEncoding
  * @brief Type used for representing IntArray types.
  * Provides conversion functions to encode and decode plaintext data as type vector<uint32_t>.
  * This class uses bit packing techniques to enable efficient computing on vectors of integers.
  * It is NOT supported for DCRTPoly
  */
 
-class PackedIntPlaintextEncoding : public Plaintext
+class PackedEncoding : public PlaintextImpl
 {
 	vector<uint32_t>		value;
 
 public:
 	// these two constructors are used inside of Decrypt
-	PackedIntPlaintextEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep) :
-		Plaintext(vp,ep) {}
+	PackedEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep) :
+		PlaintextImpl(vp,ep) {}
 
-	PackedIntPlaintextEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep) :
-		Plaintext(vp,ep) {}
+	PackedEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep) :
+		PlaintextImpl(vp,ep) {}
 
-	PackedIntPlaintextEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, vector<uint32_t> coeffs) :
-		Plaintext(vp,ep), value(coeffs) {}
+	PackedEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, vector<uint32_t> coeffs) :
+		PlaintextImpl(vp,ep), value(coeffs) {}
 
-	PackedIntPlaintextEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, vector<uint32_t> coeffs) :
-		Plaintext(vp,ep), value(coeffs) {}
+	PackedEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, vector<uint32_t> coeffs) :
+		PlaintextImpl(vp,ep), value(coeffs) {}
 
-	PackedIntPlaintextEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, std::initializer_list<uint32_t> coeffs) :
-		Plaintext(vp,ep), value(coeffs) {}
+	PackedEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, std::initializer_list<uint32_t> coeffs) :
+		PlaintextImpl(vp,ep), value(coeffs) {}
 
-	PackedIntPlaintextEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, std::initializer_list<uint32_t> coeffs) :
-		Plaintext(vp,ep), value(coeffs) {}
+	PackedEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, std::initializer_list<uint32_t> coeffs) :
+		PlaintextImpl(vp,ep), value(coeffs) {}
 
 	/**
 	 * @brief Constructs a container with a copy of each of the elements in rhs, in the same order.
 	 * @param rhs - The input object to copy.
 	 */
-	PackedIntPlaintextEncoding(const std::vector<uint32_t> &rhs)
-		: Plaintext(shared_ptr<Poly::Params>(0),NULL), value(rhs) {}
+	PackedEncoding(const std::vector<uint32_t> &rhs)
+		: PlaintextImpl(shared_ptr<Poly::Params>(0),NULL), value(rhs) {}
 
 	/**
 	 * @brief Constructs a container with a copy of each of the elements in il, in the same order.
 	 * @param arr the list to copy.
 	 */
-	PackedIntPlaintextEncoding(std::initializer_list<uint32_t> arr)
-		: Plaintext(shared_ptr<Poly::Params>(0),NULL), value(arr) {}
+	PackedEncoding(std::initializer_list<uint32_t> arr)
+		: PlaintextImpl(shared_ptr<Poly::Params>(0),NULL), value(arr) {}
 
 	/**
 	 * @brief Default empty constructor with empty uninitialized data elements.
 	 */
-	PackedIntPlaintextEncoding()
-		: Plaintext(shared_ptr<Poly::Params>(0),NULL), value() {}
+	PackedEncoding()
+		: PlaintextImpl(shared_ptr<Poly::Params>(0),NULL), value() {}
 
 	/**
 	 * @brief Method to return the initial root.
@@ -144,7 +144,7 @@ public:
 	 * @param other - the other plaintext to compare to.
 	 * @return whether the two plaintext are equivalent.
 	 */
-	bool CompareTo(const Plaintext& other) const {
+	bool CompareTo(const PlaintextImpl& other) const {
 		const std::vector<uint32_t>& lv = dynamic_cast<const std::vector<uint32_t>&>(*this);
 		const std::vector<uint32_t>& rv = dynamic_cast<const std::vector<uint32_t>&>(other);
 		return lv == rv;
