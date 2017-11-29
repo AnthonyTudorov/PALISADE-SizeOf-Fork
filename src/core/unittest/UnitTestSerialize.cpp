@@ -121,7 +121,24 @@ TEST(UTSer,vector_of_cpu_int){
 	const int vecsize = 100;
 
 	DEBUG("step 0");
-	const BigInteger mod((uint64_t)1<<40);
+	BigInteger mod((uint64_t)1<<40);
+	// ///const BigInteger mod((uint64_t)1<<40);
+	// uint64_t foo = ((uint64_t)1<<40);
+	// BigInteger mod;
+	// mod = BigInteger(foo);
+	// DEBUG(sizeof(long));
+	// DEBUG(sizeof(uint64_t));
+	
+	// NTL::ZZ ick(foo);
+	// DEBUGEXP(foo);
+	// DEBUGEXP(mod);
+	// DEBUGEXP(mod.GetInternalRepresentation());
+
+	// DEBUGEXP(ick);
+	// mod = "9223372036854775808";
+	// DEBUGEXP(mod.GetInternalRepresentation());	
+	
+
 	DEBUG("step 1");
 	BigVector	testvec(vecsize, mod);
 	DEBUG("step 2");

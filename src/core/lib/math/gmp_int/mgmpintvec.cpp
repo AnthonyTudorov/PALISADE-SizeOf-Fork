@@ -594,7 +594,7 @@ namespace NTL {
 	myVecP<myT> myVecP<myT>::ModAddAtIndex(size_t i, const myZZ &b) const{
       if(i > this->size()-1) {
       std::string errMsg = "myVecP::ModAddAtIndex. Index is out of range. i = " + std::to_string(i);
-      throw std::runtime_error(errMsg);
+      PALISADE_THROW(lbcrypto::palisade_error, errMsg);
     }
       myVecP ans(*this); //copy vector
       ModulusCheck("myVecP::ModAddAtIndex");
@@ -995,7 +995,7 @@ namespace NTL {
 
   void myVecP<myT>::atMod(size_t index, const myT& value){
     if(!this->IndexCheck(index)){
-      throw std::logic_error("myVecP index out of range");
+      PALISADE_THROW(lbcrypto::palisade_error, "myVecP index out of range");
     }
     else{
       // must be set modulo
@@ -1010,7 +1010,7 @@ namespace NTL {
   template<class myT>
   void myVecP<myT>::atMod(size_t index, const std::string& str){
     if(!this->IndexCheck(index)){
-      throw std::logic_error("myVecP index out of range");
+      PALISADE_THROW(lbcrypto::palisade_error, "myVecP index out of range");
     }
     else{
       // must be set modulo
@@ -1025,7 +1025,7 @@ namespace NTL {
   myZZ& myVecP<myT>::at(size_t index) {
     bool dbg_flag = false;
     if(!this->IndexCheck(index)){
-      throw std::logic_error("myVecP index out of range");
+      PALISADE_THROW(lbcrypto::palisade_error, "myVecP index out of range");
     }
     DEBUG("in at("<<index<< ") = "<<(*this)[index]);
     return this->operator[](index);
@@ -1035,7 +1035,7 @@ namespace NTL {
   const myZZ& myVecP<myT>::at(size_t index) const{
     bool dbg_flag = false;
     if(!this->IndexCheck(index)){
-      throw std::logic_error("myVecP index out of range");
+      PALISADE_THROW(lbcrypto::palisade_error, "myVecP index out of range");
     }
     DEBUG("in at("<<index<< ") = "<<(*this)[index]);
     return this->operator[](index);
