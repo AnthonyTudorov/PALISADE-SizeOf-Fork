@@ -50,7 +50,6 @@ namespace NTL {
   // constant log2 of limb bitlength
   const usint myZZ::m_log2LimbBitLength = Log2<NTL_ZZ_NBITS>::value;
 
-
   const myZZ myZZ::ZERO=myZZ(0L);
   const myZZ myZZ::ONE=myZZ(1);
   const myZZ myZZ::TWO=myZZ(2);
@@ -60,7 +59,21 @@ namespace NTL {
 
   myZZ::myZZ():ZZ() {SetMSB();}
 
-  myZZ::myZZ(uint64_t a): ZZ(a) {SetMSB();}
+  myZZ::myZZ(uint64_t d): ZZ(0) {
+
+    bool dbg_flag = false;
+    static_assert(NTL_ZZ_NBITS != sizeof(uint64_t) , "can't compile gmpint on this architecture");
+    
+    DEBUGEXP(NTL_ZZ_NBITS);
+    DEBUGEXP(sizeof(ZZ_limb_t));
+    DEBUGEXP(NTL_BITS_PER_LONG);
+    if (d==0)
+      return;
+    DEBUGEXP(sizeof(ZZ_limb_t));
+    const ZZ_limb_t d1(d);
+    ZZ_limbs_set(*this, &d1, 1);
+    SetMSB();
+  }
   myZZ::myZZ(const std::string &s): ZZ(conv<ZZ>(s.c_str())) {SetMSB();}
   myZZ::myZZ(const NTL::ZZ &a): ZZ(a) {SetMSB();}
   myZZ::myZZ(NTL::ZZ &&a) : ZZ() {this->swap(a);SetMSB();}
