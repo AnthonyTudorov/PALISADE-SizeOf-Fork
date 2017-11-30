@@ -1271,8 +1271,8 @@ TEST(UTDCRTPoly, arithmetic_ops_element_2) {
 
 		for (usint i = 0; i < ilvaCopy.GetNumOfElements(); ++i)
 		{
-			native_int::Poly ilv = ilvaCopy.GetElementAtIndex(i);
-			native_int::BigVector expected (4, ilv.GetModulus());
+			NativePoly ilv = ilvaCopy.GetElementAtIndex(i);
+			NativeVector expected (4, ilv.GetModulus());
 			expected = {"4","5","5","2"};
 			EXPECT_EQ(expected, ilv.GetValues()) <<"Failure: +";
 		}
