@@ -64,7 +64,7 @@ protected:
 /************************************************/
 /* TESTING BASIC MATH METHODS AND OPERATORS     */
 /************************************************/
-TEST(UTNative64Int,basic_math){
+TEST(UTNativeInteger,basic_math){
 
   /************************************************/
   /* TESTING METHOD PLUS FOR ALL CONDITIONS       */
@@ -76,8 +76,7 @@ TEST(UTNative64Int,basic_math){
 
   NativeInteger calculatedResult;
   uint64_t expectedResult;
-  // TEST CASE WHEN FIRST NUMBER IS GREATER THAN SECOND NUMBER AND MSB
-  // HAS NO OVERFLOW
+  // TEST CASE WHEN FIRST NUMBER IS GREATER THAN SECOND NUMBER, NO OVERFLOW
   {
     NativeInteger a("203450");
     NativeInteger b("2034");
@@ -86,10 +85,13 @@ TEST(UTNative64Int,basic_math){
     expectedResult = 205484;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
-      << "Failure testing plus_a_greater_than_b";
+    	<< "Failure testing Plus a_>_b";
+
+    calculatedResult = a + b;
+    EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
+    	<< "Failure testing + a_>_b";
   }
-  // TEST CASE WHEN FIRST NUMBER IS LESS THAN SECOND NUMBER AND MSB
-  // HAS NO OVERFLOW
+  // TEST CASE WHEN FIRST NUMBER IS LESS THAN SECOND NUMBER, NO OVERFLOW
   {
     NativeInteger a("2034");
     NativeInteger b("203450");
@@ -99,31 +101,22 @@ TEST(UTNative64Int,basic_math){
     expectedResult = 205484;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
-      << "Failure testing plus_a_less_than_b";
+    	<< "Failure testing Plus a_<_b";
+
+    calculatedResult = a + b;
+    EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
+    	<< "Failure testing + a_<_b";
   }
-  // TEST CASE WHEN MSB OF THE RESULT HAS BIT-OVERFLOW TO THE NEXT
-  // BYTE
+  // TEST CASE with overflow
   {
-    NativeInteger a("768900");
-    NativeInteger b("16523408");
+    NativeInteger a(((uint64_t)1)<<63);
+    NativeInteger b(a);
 
-    calculatedResult = a.Plus(b);
-    expectedResult = 17292308;
+    EXPECT_THROW(a.Plus(b), lbcrypto::math_error)
+    	<< "Failure testing Plus with overflow";
 
-    EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
-      << "Failure testing overflow_to_next_byte";
-  }
-  // TEST CASE WHEN MSB OF THE RESULT HAS BIT-OVERFLOW IN THE SAME
-  // BYTE
-  {
-    NativeInteger a("35");
-    NativeInteger b("1015");
-
-    calculatedResult = a.Plus(b);
-    expectedResult = 1050;
-
-    EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
-      << "Failure testing plus_no_overflow_to_next_byte";
+    EXPECT_THROW((a+b), lbcrypto::math_error)
+    	<< "Failure testing + with overflow";
   }
 
   /************************************************/
@@ -427,7 +420,7 @@ TEST(UTNative64Int,basic_math){
   }*/
 }
 
-TEST(UTNative64Int,basic_compare){
+TEST(UTNativeInteger,basic_compare){
 
   /************************************************/
   /* TESTING BASIC COMPARATOR METHODS AND OPERATORS */
@@ -484,7 +477,7 @@ TEST(UTNative64Int,basic_compare){
   }
 }
 
-TEST(UTNative64Int,mod_operations){
+TEST(UTNativeInteger,mod_operations){
 
   /************************************************/
   /* TESTING METHOD MOD FOR ALL CONDITIONS        */
@@ -561,7 +554,7 @@ TEST(UTNative64Int,mod_operations){
 
   // TEST CASE WHEN THE NUMBER IS LESS THAN MOD			//NOT GIVING PROPER OUTPUT AS OF NOW
 
-  /*TEST(UTNative64Int_METHOD_MOD_BARRETT,NUMBER_LESS_THAN_MOD){
+  /*TEST(UTNativeInteger_METHOD_MOD_BARRETT,NUMBER_LESS_THAN_MOD){
 
     NativeInteger a("9587");
     NativeInteger b("3591");
@@ -575,7 +568,7 @@ TEST(UTNative64Int,mod_operations){
     //EXPECT_EQ(27,calculatedResult.ConvertToInt());
     }
   */
-TEST(UTNative64Int,mod_inverse){
+TEST(UTNativeInteger,mod_inverse){
   /*************************************************/
   /* TESTING METHOD MOD INVERSE FOR ALL CONDITIONS */
   /*************************************************/
@@ -669,7 +662,7 @@ TEST(UTNative64Int,mod_inverse){
 }
 
 
-TEST(UTNative64Int,mod_arithmetic){
+TEST(UTNativeInteger,mod_arithmetic){
   NativeInteger calculatedResult;
   uint64_t expectedResult;
   /************************************************/
@@ -892,7 +885,7 @@ TEST(UTNative64Int,mod_arithmetic){
 #endif
 }
 
-TEST(UTNative64Int,shift){
+TEST(UTNativeInteger,shift){
 
   /****************************/
   /* TESTING SHIFT OPERATORS  */
@@ -1064,7 +1057,7 @@ TEST(UTNative64Int,shift){
 /* TESTING METHOD  BitStringToBigInteger */
 /****************************************/
 
-TEST(UTNative64Int,method_binary_string_to_big_binary_integer){
+TEST(UTNativeInteger,method_binary_string_to_big_binary_integer){
 	//TEST CASE FOR STATIC METHOD BitStringToBigInteger in NativeInteger
 
 	string binaryString = "1011101101110001111010111011000000011";
@@ -1079,7 +1072,7 @@ TEST(UTNative64Int,method_binary_string_to_big_binary_integer){
 /****************************************/
 /* TESTING METHOD  EXP                  */
 /****************************************/
-TEST(UTNative64Int,method_exponentiation_without_modulus){
+TEST(UTNativeInteger,method_exponentiation_without_modulus){
 
   NativeInteger x("56");
   NativeInteger result = x.Exp(10);
@@ -1089,7 +1082,7 @@ TEST(UTNative64Int,method_exponentiation_without_modulus){
     << "Failure testing exp";
 }
 
-TEST(UTNative64Int,method_ConvertToDouble) {
+TEST(UTNativeInteger,method_ConvertToDouble) {
   NativeInteger x("104037585658683683");
   double xInDouble = 104037585658683683;
 

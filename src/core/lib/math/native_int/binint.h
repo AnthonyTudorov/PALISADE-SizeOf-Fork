@@ -48,6 +48,7 @@
 #include "../../utils/inttypes.h"
 #include "../../utils/memory.h"
 #include "../../utils/palisadebase64.h"
+#include "../../utils/exception.h"
 #include "../nbtheory.h"
 
 namespace native_int {
@@ -304,7 +305,7 @@ public:
 	NativeInteger Plus(const NativeInteger& b) const {
 		uint_type newv = m_value + b.m_value;
 		if( newv < m_value || newv < b.m_value ) {
-			throw std::logic_error("Overflow");
+			PALISADE_THROW( lbcrypto::math_error, "Overflow");
 		}
 		return newv;
 	}
@@ -533,6 +534,21 @@ public:
 		modsum += b.m_value;
 		modsum %= modulus.m_value;
 		return (uint_type)modsum;
+	}
+
+	/**
+	 * Scalar modular addition.
+	 *
+	 * @param &b is the scalar to add.
+	 * @param modulus is the modulus to perform operations with.
+	 * @return result of the modulus addition operation.
+	 */
+	const NativeInteger& ModAddEq(const NativeInteger& b, const NativeInteger& modulus) {
+		Duint_type modsum = (Duint_type)m_value;
+		modsum += b.m_value;
+		modsum %= modulus.m_value;
+		this->m_value = (uint_type)modsum;
+		return *this;
 	}
 
 	/**

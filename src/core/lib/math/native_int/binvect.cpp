@@ -304,6 +304,15 @@ BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModAdd(const IntegerType 
 }
 
 template<class IntegerType>
+const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::ModAddEq(const IntegerType &b) {
+	BigVectorImpl ans(*this);
+	for(usint i=0;i<this->m_length;i++){
+		this->m_data[i].ModAddEq(b, this->m_modulus);
+	}
+	return *this;
+}
+
+template<class IntegerType>
 BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModSub(const IntegerType &b) const{
 	BigVectorImpl ans(*this);
 
@@ -401,6 +410,20 @@ BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModAdd(const BigVectorImp
 		ans.m_data[i] = ans.m_data[i].ModAdd(b.m_data[i],this->m_modulus);
 	}
 	return ans;
+
+}
+
+template<class IntegerType>
+const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::ModAddEq(const BigVectorImpl &b) {
+
+	if((this->m_length!=b.m_length) || this->m_modulus!=b.m_modulus ){
+        throw std::logic_error("ModAdd called on BigVectorImpl's with different parameters.");
+	}
+
+	for(usint i=0;i<this->m_length;i++){
+		this->m_data[i].ModAddEq(b.m_data[i],this->m_modulus);
+	}
+	return *this;
 
 }
 
