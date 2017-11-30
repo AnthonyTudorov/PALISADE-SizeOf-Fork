@@ -107,6 +107,27 @@ namespace lbcrypto {
 		T operator+(const T& b) const { return this->Plus(b); }
 		const T& operator+=(const T& b) { return this->PlusEq(b); }
 
+		//// MULTIPLICATION
+
+		/**
+		 * Multiplication operation.
+		 *
+		 * @param b is the value to multiply with.
+		 * @return is the result of the multiplication operation.
+		 */
+		virtual T Times(const T& b) const = 0;
+
+		/**
+		 * Multiplication operation.
+		 *
+		 * @param b is the value to multiply with.
+		 * @return is the result of the multiplication operation.
+		 */
+		virtual const T& TimesEq(const T& b) = 0;
+
+		T operator*(const T& b) const { return this->Times(b); }
+		const T& operator*=(const T& b) { return this->TimesEq(b); }
+
 #if 0
 		/**
 		 * Subtraction operation.
@@ -116,13 +137,6 @@ namespace lbcrypto {
 		 */
 		virtual T Minus(const T& b) const = 0;
 
-		///**
-		// * Multiplication operation.
-		// *
-		// * @param b is the value to multiply with.
-		// * @return is the result of the multiplication operation.
-		// */
-		virtual T Times(const T& b) const = 0;
 
 		///**
 		// * Division operation.
@@ -623,6 +637,43 @@ public:
 		T operator+(const T &b) const { return this->ModAdd(b); }
 		const T& operator+=(const T &b) { return this->ModAddEq(b); }
 
+		/**
+		 * Scalar modular multiplication.
+		 *
+		 * @param &b is the scalar to multiply at all locations.
+		 * @return is the result of the modulus multiplication operation.
+		 */
+		virtual T ModMul(const I &b) const = 0;
+
+		/**
+		 * Scalar modular multiplication.
+		 *
+		 * @param &b is the scalar to multiply at all locations.
+		 * @return is the result of the modulus multiplication operation.
+		 */
+		virtual const T& ModMulEq(const I &b) = 0;
+
+		/**
+		 * Vector modulus multiplication.
+		 *
+		 * @param &b is the vector to multiply.
+		 * @return is the result of the modulus multiplication operation.
+		 */
+		virtual T ModMul(const T &b) const = 0;
+
+		/**
+		 * Vector modulus multiplication.
+		 *
+		 * @param &b is the vector to multiply.
+		 * @return is the result of the modulus multiplication operation.
+		 */
+		virtual const T& ModMulEq(const T &b) = 0;
+
+		T operator*(const I &b) const { return this->ModMul(b); }
+		const T& operator*=(const I &b) { return this->ModMulEq(b); }
+		T operator*(const T &b) const { return this->ModMul(b); }
+		const T& operator*=(const T &b) { return this->ModMulEq(b); }
+
 #if 0
 		/**
 		 * Vector Modulus operator.
@@ -642,15 +693,6 @@ public:
 		 * @return a new vector which is the result of the modulus substraction operation.
 		 */
 		T ModSub(const T::BVInt &b) const;
-
-		/**
-		 * Scalar modular multiplication.
-		 * See the comments in the cpp files for details of the implementation.
-		 *
-		 * @param &b is the scalar to multiply at all locations.
-		 * @return is the result of the modulus multiplication operation.
-		 */
-		T ModMul(const T::BVInt &b) const;
 
 		/**
 		 * Scalar modulus exponentiation.
@@ -712,14 +754,6 @@ public:
 		T ModSub(const T &b) const;
 
 		//component-wise multiplication
-
-		/**
-		 * Vector modulus multiplication.
-		 *
-		 * @param &b is the vector to multiply.
-		 * @return is the result of the modulus multiplication operation.
-		 */
-		T ModMul(const T &b) const;
 
 		/**
 		 * Vector multiplication without applying the modulus operation.

@@ -346,6 +346,15 @@ public:
 	BigVectorImpl ModMul(const IntegerType &b) const;
 
 	/**
+	 * Scalar modular multiplication.
+	 * See the comments in the cpp files for details of the implementation.
+	 *
+	 * @param &b is the scalar to multiply at all locations.
+	 * @return is the result of the modulus multiplication operation.
+	 */
+	const BigVectorImpl& ModMulEq(const IntegerType &b);
+
+	/**
 	 * Scalar modulus exponentiation.
 	 *
 	 * @param &b is the scalar to exponentiate at all locations.
@@ -353,7 +362,6 @@ public:
 	 */
 	BigVectorImpl ModExp(const IntegerType &b) const;
 	
-
 	/**
 	 * Modulus inverse.
 	 *
@@ -361,17 +369,17 @@ public:
 	 */
 	BigVectorImpl ModInverse() const;
 
-	/**
-	 * Modulus scalar multiplication assignment.
-	 *
-	 * @param &a is the input vector to multiply.
-	 * @param &i is the input integer to multiply at all entries.
-	 * @return a new vector which is the result of the modulus multiplication operation.
-	 */
-	BigVectorImpl &operator*=(const IntegerType &i) {
-	    *this=this->ModMul(i);
-	    return *this;
-	  }
+//	/**
+//	 * Modulus scalar multiplication assignment.
+//	 *
+//	 * @param &a is the input vector to multiply.
+//	 * @param &i is the input integer to multiply at all entries.
+//	 * @return a new vector which is the result of the modulus multiplication operation.
+//	 */
+//	const BigVectorImpl &operator*=(const IntegerType &i) {
+//	    *this=this->ModMul(i);
+//	    return *this;
+//	  }
 
 	//Vector Operations
 
@@ -399,13 +407,13 @@ public:
 	*/
 	BigVectorImpl ModByTwo() const;
 
-	/**
-	 * Vector Self Modulus Addition.
-	 *
-	 * @param &b is the vector to add.
-	 * @return a reference to the result of the modulus addition operation.
-	 */
-	const BigVectorImpl& operator+=(const BigVectorImpl &b);
+//	/**
+//	 * Vector Self Modulus Addition.
+//	 *
+//	 * @param &b is the vector to add.
+//	 * @return a reference to the result of the modulus addition operation.
+//	 */
+//	const BigVectorImpl& operator+=(const BigVectorImpl &b);
 
 
 	/**
@@ -435,6 +443,14 @@ public:
 	 * @return is the result of the modulus multiplication operation.
 	 */
 	BigVectorImpl ModMul(const BigVectorImpl &b) const;
+
+	/**
+	 * Vector modulus multiplication.
+	 *
+	 * @param &b is the vector to multiply.
+	 * @return is the result of the modulus multiplication operation.
+	 */
+	const BigVectorImpl& ModMulEq(const BigVectorImpl &b);
 
 	/**
 	 * Vector multiplication without applying the modulus operation.

@@ -1252,9 +1252,9 @@ TEST(UTDCRTPoly, arithmetic_ops_element_2) {
 
 	DCRTPoly ilva1(ilvector2nVector1);
 
+	// Plus method
 	{
 		DCRTPoly ilvaCopy(ilva.Plus(ilva1));
-		// ilvaCopy = ilvaCopy + ilva1;
 
 		for (usint i = 0; i < ilvaCopy.GetNumOfElements(); ++i)
 		{
@@ -1265,6 +1265,20 @@ TEST(UTDCRTPoly, arithmetic_ops_element_2) {
 		}
 	}
 
+	// operator+ (which is ModAdd)
+	{
+		DCRTPoly ilvaCopy(ilva + ilva1);
+
+		for (usint i = 0; i < ilvaCopy.GetNumOfElements(); ++i)
+		{
+			native_int::Poly ilv = ilvaCopy.GetElementAtIndex(i);
+			native_int::BigVector expected (4, ilv.GetModulus());
+			expected = {"4","5","5","2"};
+			EXPECT_EQ(expected, ilv.GetValues()) <<"Failure: +";
+		}
+	}
+
+	// += (which is ModAddEq)
 	{
 		DCRTPoly ilvaCopy(ilva);
 		ilvaCopy += ilva1;
@@ -1277,6 +1291,7 @@ TEST(UTDCRTPoly, arithmetic_ops_element_2) {
 			EXPECT_EQ(expected, ilv.GetValues()) <<"Failure: +=";
 		}
 	}
+
 	{
 		DCRTPoly ilvaCopy(ilva.Minus(ilva1));
 		for (usint i = 0; i < ilvaCopy.GetNumOfElements(); ++i)
