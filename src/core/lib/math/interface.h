@@ -28,6 +28,8 @@
 #ifndef LBCRYPTO_MATH_INTERFACE_H
 #define LBCRYPTO_MATH_INTERFACE_H
 
+#include "utils/inttypes.h"
+
 namespace lbcrypto {
 
 	template<typename T>
@@ -66,9 +68,7 @@ namespace lbcrypto {
 
 		virtual ~BigIntegerInterface() {}
 
-		//METHODS
-
-		////regular arithmethic operations
+		//// ADDITION
 
 		/**
 		 * + operation.
@@ -85,6 +85,24 @@ namespace lbcrypto {
 		 * @return reference the result of the addition
 		 */
 		virtual const T& PlusEq(const T& b) = 0;
+
+		/**
+		 * Scalar modulus addition.
+		 *
+		 * @param &b is the scalar to add.
+		 * @param modulus is the modulus to perform operations with.
+		 * @return is the result of the modulus addition operation.
+		 */
+		virtual T ModAdd(const T& b, const T& modulus) const = 0;
+
+		/**
+		 * Scalar modulus addition.
+		 *
+		 * @param &b is the scalar to add.
+		 * @param modulus is the modulus to perform operations with.
+		 * @return is the result of the modulus addition operation.
+		 */
+		virtual const T& ModAddEq(const T& b, const T& modulus) = 0;
 
 		T operator+(const T& b) const { return this->Plus(b); }
 		const T& operator+=(const T& b) { return this->PlusEq(b); }
@@ -140,15 +158,6 @@ namespace lbcrypto {
 		 * @return is the result of the modulus inverse operation.
 		 */
 		virtual T ModInverse(const T& modulus) const = 0;
-
-		/**
-		 * Scalar modulus addition.
-		 *
-		 * @param &b is the scalar to add.
-		 * @param modulus is the modulus to perform operations with.
-		 * @return is the result of the modulus addition operation.
-		 */
-		virtual T ModAdd(const T& b, const T& modulus) const = 0;
 
 		/**
 		 * Scalar modulus subtraction.
