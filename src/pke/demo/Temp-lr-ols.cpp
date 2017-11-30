@@ -60,7 +60,6 @@ shared_ptr<CryptoContext<DCRTPoly>> DeserializeContext(const string& ccFileName)
 shared_ptr<CryptoContext<DCRTPoly>> DeserializeContextWithEvalKeys(const string& ccFileName, const string& emFileName, const string& esFileName);
 void ReadCSVFile(string dataFileName, vector<string>& headers, vector<vector<double> >& dataColumns);
 void EncodeData(shared_ptr<CryptoContext<DCRTPoly>> cc, const vector<vector<double> >& dataColumns,
-<<<<<<< 415742edd0535b5c5ad61973e19d4a4f831701a1
                 Matrix<Plaintext>& x,
 				Plaintext* y);
 void CRTInterpolate(const vector<shared_ptr<Matrix<Plaintext>>>& crtVector,

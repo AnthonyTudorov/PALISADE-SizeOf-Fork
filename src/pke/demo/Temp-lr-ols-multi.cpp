@@ -120,7 +120,6 @@ void TestLR(const string &paramDir,  const string &contextID, const string &keyD
 
 shared_ptr<CryptoContext<DCRTPoly>> DeserializeContext(const string& ccFileName);
 void ReadCSVFile(string dataFileName,  vector<string>& headers, vector<vector<double> >& dataColumns);
-<<<<<<< 415742edd0535b5c5ad61973e19d4a4f831701a1
 void EncodeData(shared_ptr<CryptoContext<DCRTPoly>> cc, const std::vector<string> &headers, const vector<vector<double>>& dataColumns, Matrix<Plaintext> &x, Plaintext &y);
 void CRTInterpolate(const vector<shared_ptr<Matrix<Plaintext>>> &crtVector, Matrix<NativeInteger> &result);
 void MatrixInverse(const Matrix<NativeInteger> &in, Matrix<double> &out);
