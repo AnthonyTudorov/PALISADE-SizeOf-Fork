@@ -376,7 +376,7 @@ public:
 	 *
 	 * @return value at index i.
 	 */
-	IntType& operator[](usint i) ;
+	IntType& operator[](usint i);
 	const IntType& operator[](usint i) const;
 
 	//SETTERS
