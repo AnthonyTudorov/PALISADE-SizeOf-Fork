@@ -320,26 +320,26 @@ public:
 		uint_type oldv = m_value;
 		m_value += b.m_value;
 		if( m_value < oldv ) {
-			throw std::logic_error("Overflow");
+			PALISADE_THROW( lbcrypto::math_error, "Overflow");
 		}
 		return *this;
 	}
 
-
-	/**
-	 * Addition accumulator.
-	 *
-	 * @param &b is the value to add of type BigInteger.
-	 * @return result of the addition operation of type BigInteger.
-	 */
-	const NativeInteger& operator+=(const NativeInteger &b) {
-		uint_type oldv = m_value;
-		m_value += b.m_value;
-		if( m_value < oldv ) {
-			throw std::logic_error("Overflow");
-		}
-		return *this;
-	}
+//FIXME needed??
+//	/**
+//	 * Addition accumulator.
+//	 *
+//	 * @param &b is the value to add of type BigInteger.
+//	 * @return result of the addition operation of type BigInteger.
+//	 */
+//	const NativeInteger& operator+=(const NativeInteger &b) {
+//		uint_type oldv = m_value;
+//		m_value += b.m_value;
+//		if( m_value < oldv ) {
+//			PALISADE_THROW( lbcrypto::math_error, "Overflow");
+//		}
+//		return *this;
+//	}
 
 
 	/**
@@ -375,8 +375,22 @@ public:
 	NativeInteger Times(const NativeInteger& b) const {
 		uint_type prod = m_value * b.m_value;
 		if( prod > 0 && (prod < m_value || prod < b.m_value) )
-			throw std::logic_error("native_int overflow in multiply");
+			PALISADE_THROW( lbcrypto::math_error, "Overflow");
 		return prod;
+	}
+
+	/**
+	 * Multiplication operation.
+	 *
+	 * @param b of type BigInteger is the value to multiply with.
+	 * @return result of the multiplication operation.
+	 */
+	const NativeInteger& TimesEq(const NativeInteger& b) {
+		uint_type oldval = m_value;
+		m_value *= b.m_value;
+		if( m_value < oldval )
+			PALISADE_THROW( lbcrypto::math_error, "Overflow");
+		return *this;
 	}
 
 	/**
@@ -387,7 +401,7 @@ public:
 	 */
 	NativeInteger DividedBy(const NativeInteger& b) const {
 		if( b.m_value == 0 )
-			throw std::logic_error("Native64 integer divide by zero");
+			PALISADE_THROW( lbcrypto::math_error, "Divide by zero");
 		return this->m_value / b.m_value;
 	}
 	/**
@@ -563,7 +577,7 @@ public:
 		modsum += b.m_value;
 		modsum %= modulus.m_value;
 		if( modsum > m_uintMax )
-			throw std::logic_error("Overflow in ModAddFast");
+			PALISADE_THROW( lbcrypto::math_error, "Overflow");
 		return (uint_type)modsum;
 	}
 
@@ -954,7 +968,7 @@ public:
 	NativeInteger DivideAndRound(const NativeInteger &q) const {
 
 		if( q == 0 )
-			throw std::logic_error("native_int divide by zero");
+			PALISADE_THROW( lbcrypto::math_error, "Divide by zero");
 
 		uint_type ans = m_value/q.m_value;
 		uint_type rem = m_value%q.m_value;
@@ -1018,13 +1032,13 @@ public:
 	//overloaded binary operators based on integer arithmetic and comparison functions
 	NativeInteger operator-() const { return NativeInteger(0).Minus(*this); }
 
-	/**
-	 * Addition operation.
-	 *
-	 * @param a is the value to add.
-	 * @return is the result of the addition operation.
-	 */
-	NativeInteger operator+(const NativeInteger &a) const {return this->Plus(a);}
+//	/**
+//	 * Addition operation.
+//	 *
+//	 * @param a is the value to add.
+//	 * @return is the result of the addition operation.
+//	 */
+//	NativeInteger operator+(const NativeInteger &a) const {return this->Plus(a);}
 
 	/**
 	 * Subtraction operation.
@@ -1034,13 +1048,13 @@ public:
 	 */
 	NativeInteger operator-(const NativeInteger &a) const {return this->Minus(a);}
 
-	/**
-	 * Multiplication operation.
-	 *
-	 * @param a is the value to multiply with.
-	 * @return is the result of the multiplication operation.
-	 */
-	inline NativeInteger operator*(const NativeInteger &a) const {return this->Times(a);}
+//	/**
+//	 * Multiplication operation.
+//	 *
+//	 * @param a is the value to multiply with.
+//	 * @return is the result of the multiplication operation.
+//	 */
+//	inline NativeInteger operator*(const NativeInteger &a) const {return this->Times(a);}
 
 	/**
 	 * Modulo operation. Classical modular reduction algorithm is used.

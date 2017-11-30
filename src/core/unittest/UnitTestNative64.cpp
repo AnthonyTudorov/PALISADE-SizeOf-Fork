@@ -123,11 +123,6 @@ TEST(UTNativeInteger,basic_math){
   /* TESTING OPERATOR += FOR ALL CONDITIONS       */
   /************************************************/
 
-  // The operator "+=(Plus Equals)" does addition of two Big
-  // Integers a,b Calculates a+b, and stores result in a ConvertToInt
-  // converts NativeInteger a to integer
-
-
   // TEST CASE WHEN FIRST NUMBER IS GREATER THAN SECOND NUMBER AND MSB
   // HAS NO OVERFLOW
   {
@@ -152,30 +147,15 @@ TEST(UTNativeInteger,basic_math){
     EXPECT_EQ(expectedResult, a.ConvertToInt())
       << "Falure testing plus_equals_a_less_than_b";
   }
-  // TEST CASE WHEN MSB OF THE RESULT HAS BIT-OVERFLOW TO THE NEXT
-  // BYTE
+  // TEST CASE WITH OVERFLOW
   {
-    NativeInteger a("768900");
-    NativeInteger b("16523408");
+    NativeInteger a(((uint64_t)1)<<63);
+    NativeInteger b(a);
 
-    a+=b;
-    expectedResult = 17292308;
-
-    EXPECT_EQ(expectedResult,a.ConvertToInt())
-      << "Falure testing plus_equals_overflow_to_next_byte";
+    EXPECT_THROW((a+=b), lbcrypto::math_error)
+      << "Falure testing plus_equals_overflow";
   }
-  // TEST CASE WHEN MSB OF THE RESULT HAS BIT-OVERFLOW IN THE SAME
-  // BYTE
-  {
-    NativeInteger a("35");
-    NativeInteger b("1015");
 
-    a+=b;
-    expectedResult = 1050;
-
-    EXPECT_EQ(expectedResult,a.ConvertToInt())
-      << "Falure testing plus_equals_no_overflow_to_next_byte";
-  }
   /************************************************/
   /* TESTING METHOD MINUS FOR ALL CONDITIONS      */
   /************************************************/
