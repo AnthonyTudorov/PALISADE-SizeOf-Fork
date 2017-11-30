@@ -70,8 +70,8 @@ DO_NATIVEPARM_BENCHMARK(BM_BBVNative_Addition)
 // +=
 static void addeq_BBVNative(benchmark::State& state) {
 	state.PauseTiming();
-	native_int::BigVector a = makeNativeVector(nparmArray[state.range(0)]);
-	native_int::BigVector b = makeNativeVector(nparmArray[state.range(0)]);
+	NativeVector a = makeNativeVector(nparmArray[state.range(0)]);
+	NativeVector b = makeNativeVector(nparmArray[state.range(0)]);
 	state.ResumeTiming();
 
 	a += b;
@@ -108,8 +108,8 @@ DO_NATIVEPARM_BENCHMARK(BM_BBVNative_Multiplication)
 // *=
 static void multeq_BBVNative(benchmark::State& state) {	// function
 	state.PauseTiming();
-	native_int::BigVector a = makeNativeVector(nparmArray[state.range(0)]);
-	native_int::BigVector b = makeNativeVector(nparmArray[state.range(0)]);
+	NativeVector a = makeNativeVector(nparmArray[state.range(0)]);
+	NativeVector b = makeNativeVector(nparmArray[state.range(0)]);
 	state.ResumeTiming();
 
 	a *= b;

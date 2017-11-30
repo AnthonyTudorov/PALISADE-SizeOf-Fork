@@ -54,7 +54,7 @@ using namespace lbcrypto;
 
 // test BBI constants
 static void make_NativeInt_constants(void) {	// function
-	native_int::BigInteger one(1);
+	NativeInteger one(1);
 }
 
 void BM_NativeInt_constants(benchmark::State& state) { // benchmark
@@ -72,7 +72,7 @@ static NativeInteger smalla("10403"), smallb("103");
 static NativeInteger largea("4294967295"), largeb("4294967");
 
 static void make_NativeInt_small_variables (void) {	// function
-	native_int::BigInteger a("10403"), b("103");
+	NativeInteger a("10403"), b("103");
 }
 
 
@@ -88,7 +88,7 @@ BENCHMARK(BM_NativeInt_small_variables);		// register benchmark
 
 
 static void make_NativeInt_large_variables (void) {	// function
-	native_int::BigInteger a("9446744073709551616"), b("9446744073709551617");
+	NativeInteger a("9446744073709551616"), b("9446744073709551617");
 }
 
 void BM_NativeInt_large_variables(benchmark::State& state) { // benchmark
@@ -142,8 +142,8 @@ BENCHMARK(BM_NativeInt_Addeq)->ArgName("Large")->Arg(1);
 // mult
 static void mult_NativeInt(benchmark::State& state) {	// function
 	state.PauseTiming();
-	native_int::BigInteger& a = state.range(0) == 0 ? smalla : largea;
-	native_int::BigInteger& b = state.range(0) == 0 ? smallb : largeb;
+	NativeInteger& a = state.range(0) == 0 ? smalla : largea;
+	NativeInteger& b = state.range(0) == 0 ? smallb : largeb;
 	state.ResumeTiming();
 
 	a = a*b;
@@ -162,8 +162,8 @@ BENCHMARK(BM_NativeInt_Mult)->ArgName("Large")->Arg(1);
 // *=
 static void multeq_NativeInt(benchmark::State& state) {	// function
 	state.PauseTiming();
-	native_int::BigInteger& a = state.range(0) == 0 ? smalla : largea;
-	native_int::BigInteger& b = state.range(0) == 0 ? smallb : largeb;
+	NativeInteger& a = state.range(0) == 0 ? smalla : largea;
+	NativeInteger& b = state.range(0) == 0 ? smallb : largeb;
 	state.ResumeTiming();
 
 	a *= b;
