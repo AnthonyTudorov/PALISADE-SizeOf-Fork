@@ -31,10 +31,11 @@
 #define LBCRYPTO_MATH_NATIVE_BINVECT_H
 
 #include <iostream>
+#include <initializer_list>
 
+#include "../interface.h"
 #include "../../utils/serializable.h"
 #include "../../utils/inttypes.h"
- #include <initializer_list>
 
 /**
  * @namespace native_int
@@ -47,11 +48,13 @@ namespace native_int {
 /**
  * @brief The class for representing vectors of native integers.
  */
-	//JSON FACILITY INHERITANCE
-	template <class IntegerType>
-	class BigVectorImpl : public lbcrypto::Serializable
+
+template <class IntegerType>
+class BigVectorImpl : public lbcrypto::BigVectorInterface<BigVectorImpl<IntegerType>,IntegerType>, public lbcrypto::Serializable
 {
 public:
+	typedef IntegerType BVInt;
+
 	/**
 	 * Basic constructor.	  	  
 	 */
@@ -313,6 +316,14 @@ public:
 	BigVectorImpl ModAdd(const IntegerType &b) const;	
 
 	/**
+	 * Scalar modulus addition.
+	 *
+	 * After addition modulus operation is performed with the current vector modulus.
+	 * @return a new vector which is the result of the modulus addition operation.
+	 */
+	const BigVectorImpl& ModAddEq(const IntegerType &b);
+
+	/**
 	 * Scalar modulus subtraction.
 	 * After substraction modulus operation is performed with the current vector modulus.
 	 * @param &b is the scalar to subtract from all locations.
@@ -336,7 +347,6 @@ public:
 	 * @return a new vector which is the result of the modulus exponentiation operation.
 	 */
 	BigVectorImpl ModExp(const IntegerType &b) const;
-	//BigVectorImpl& ScalarExp(const BigInteger &a) const;
 	
 
 	/**
@@ -368,6 +378,14 @@ public:
 	 * @return a new vector which is the result of the modulus addition operation.
 	 */
 	BigVectorImpl ModAdd(const BigVectorImpl &b) const;
+
+	/**
+	 * vector modulus addition.
+	 *
+	 * @param &b is the vector to add at all locations.
+	 * @return a new vector which is the result of the modulus addition operation.
+	 */
+	const BigVectorImpl& ModAddEq(const BigVectorImpl &b);
 
 	/**
 	* Perform a modulus by 2 operation.  Returns the least significant bit.

@@ -30,54 +30,19 @@
 
 namespace lbcrypto {
 
-	template<typename BigInteger>
+	template<typename T>
 	class BigIntegerInterface
 	{
 	public:
 
-		//Constructors - cannot be added to the Interface directly
-
-		/**
-		 * Basic constructor.	  	  
-		 */
-		// BigInteger() = 0;
-
-		/**
-		 * Basic constructor for initializing big binary integer from an unsigned integer.
-		 *
-		 * @param init is the initial integer.	  	  
-		 */
-		// explicit BigInteger(usint init);
-
-		/**
-		 * Basic constructor for specifying the integer.
-		 *
-		 * @param str is the initial integer represented as a string.	  	  
-		 */
-		// explicit BigInteger(const std::string& str);
-
-		/**
-		 * Basic constructor for copying a big binary integer
-		 *
-		 * @param bigInteger is the big binary integer to be copied.  	  
-		 */
-		// explicit BigInteger(const BigInteger& bigInteger);
-
-		/**
-		 * Basic constructor for move copying a big binary integer
-		 *
-		 * @param &&bigInteger is the big binary integer to be copied.  	  
-		 */
-		// BigInteger(BigInteger &&bigInteger);//move copy constructor
-
-
+#if 0
 		/**
 		 * ???
 		 *
 		 * @param &rhs is the big binary integer to test equality with.  
 		 * @return the return value.	  
 		 */
-		virtual BigInteger& operator=(const BigInteger &rhs) = 0;
+		virtual T& operator=(const T &rhs) = 0;
 
 		/**
 		 * ???
@@ -85,41 +50,53 @@ namespace lbcrypto {
 		 * @param &&rhs is the big binary integer to test equality with.  
 		 * @return the return value.	  
 		 */
-		virtual BigInteger&  operator=(BigInteger &&rhs) = 0;
-
-		/**
-		 * Destructor.	  
-		 */
-		// ~BigInteger();
+		virtual T&  operator=(T &&rhs) = 0;
+#endif
 
 		//ACCESSORS
 
+#if 0
 		/**
 		 * Basic set method for setting the value of a big binary integer
 		 *
 		 * @param str is the string representation of the big binary integer to be copied.  	  
 		 */
 		virtual void SetValue(const std::string& str) = 0;
+#endif
+
+		virtual ~BigIntegerInterface() {}
 
 		//METHODS
 
-		////regular aritmethic operations
+		////regular arithmethic operations
 
 		/**
-		 * Addition operation.
+		 * + operation.
 		 *
 		 * @param b is the value to add.
-		 * @return is the result of the addition operation.
+		 * @return result of the addition
 		 */
-		virtual BigInteger Plus(const BigInteger& b) const = 0;
+		virtual T Plus(const T& b) const = 0;
 
-		///**
-		// * Subtraction operation.
-		// *
-		// * @param b is the value to subtract.
-		// * @return is the result of the subtraction operation.
-		// */
-		virtual BigInteger Minus(const BigInteger& b) const = 0;
+		/**
+		 * += operation.
+		 *
+		 * @param b is the value to add.
+		 * @return reference the result of the addition
+		 */
+		virtual const T& PlusEq(const T& b) = 0;
+
+		T operator+(const T& b) const { return this->Plus(b); }
+		const T& operator+=(const T& b) { return this->PlusEq(b); }
+
+#if 0
+		/**
+		 * Subtraction operation.
+		 *
+		 * @param b is the value to subtract.
+		 * @return is the result of the subtraction operation.
+		 */
+		virtual T Minus(const T& b) const = 0;
 
 		///**
 		// * Multiplication operation.
@@ -127,7 +104,7 @@ namespace lbcrypto {
 		// * @param b is the value to multiply with.
 		// * @return is the result of the multiplication operation.
 		// */
-		virtual BigInteger Times(const BigInteger& b) const = 0;
+		virtual T Times(const T& b) const = 0;
 
 		///**
 		// * Division operation.
@@ -135,7 +112,7 @@ namespace lbcrypto {
 		// * @param b is the value to divide by.
 		// * @return is the result of the division operation.
 		// */
-		virtual BigInteger DividedBy(const BigInteger& b) const = 0;
+		virtual T DividedBy(const T& b) const = 0;
 
 		//modular arithmetic operations
 
@@ -145,9 +122,7 @@ namespace lbcrypto {
 		 * @param modulus is the modulus to perform.
 		 * @return is the result of the modulus operation.
 		 */
-		virtual BigInteger Mod(const BigInteger& modulus) const = 0;
-
-		//Barrett modular reduction algorithm - used in NTT
+		virtual T Mod(const T& modulus) const = 0;
 
 		/**
 		 * returns the Barret modulus with respect to the input modulus and the Barrett value.
@@ -156,7 +131,7 @@ namespace lbcrypto {
 		 * @param mu is the Barrett value.
 		 * @return is the result of the modulus operation.
 		 */
-		virtual BigInteger ModBarrett(const BigInteger& modulus, const BigInteger& mu) const = 0;
+		virtual T ModBarrett(const T& modulus, const T& mu) const = 0;
 
 		/**
 		 * returns the modulus inverse with respect to the input value.
@@ -164,7 +139,7 @@ namespace lbcrypto {
 		 * @param modulus is the modulus to perform.
 		 * @return is the result of the modulus inverse operation.
 		 */
-		virtual BigInteger ModInverse(const BigInteger& modulus) const = 0;
+		virtual T ModInverse(const T& modulus) const = 0;
 
 		/**
 		 * Scalar modulus addition.
@@ -173,7 +148,7 @@ namespace lbcrypto {
 		 * @param modulus is the modulus to perform operations with.
 		 * @return is the result of the modulus addition operation.
 		 */
-		virtual BigInteger ModAdd(const BigInteger& b, const BigInteger& modulus) const = 0;
+		virtual T ModAdd(const T& b, const T& modulus) const = 0;
 
 		/**
 		 * Scalar modulus subtraction.
@@ -182,7 +157,7 @@ namespace lbcrypto {
 		 * @param modulus is the modulus to perform operations with.
 		 * @return is the result of the modulus subtraction operation.
 		 */
-		virtual BigInteger ModSub(const BigInteger& b, const BigInteger& modulus) const = 0;
+		virtual T ModSub(const T& b, const T& modulus) const = 0;
 
 		/**
 		 * Scalar modulus multiplication.
@@ -191,7 +166,7 @@ namespace lbcrypto {
 		 * @param modulus is the modulus to perform operations with.
 		 * @return is the result of the modulus multiplication operation.
 		 */
-		virtual BigInteger ModMul(const BigInteger& b, const BigInteger& modulus) const = 0;
+		virtual T ModMul(const T& b, const T& modulus) const = 0;
 
 		/**
 		 * Scalar Barrett modulus multiplication.
@@ -201,7 +176,7 @@ namespace lbcrypto {
 		 * @param mu is the Barrett value.
 		 * @return is the result of the modulus multiplication operation.
 		 */
-		virtual BigInteger ModBarrettMul(const BigInteger& b, const BigInteger& modulus,const BigInteger& mu) const = 0;
+		virtual T ModBarrettMul(const T& b, const T& modulus,const T& mu) const = 0;
 
 		/**
 		 * Scalar modulus exponentiation.
@@ -210,15 +185,7 @@ namespace lbcrypto {
 		 * @param modulus is the modulus to perform operations with.
 		 * @return is the result of the modulus exponentiation operation.
 		 */
-		virtual BigInteger ModExp(const BigInteger& b, const BigInteger& modulus) const = 0;
-
-		/**
-		 * Addition accumulator.
-		 *
-		 * @param &b is the value to add.
-		 * @return is the result of the addition operation.
-		 */
-		virtual const BigInteger& operator+=(const BigInteger &b) = 0;
+		virtual T ModExp(const T& b, const T& modulus) const = 0;
 
 		/**
 		 * Subtraction accumulator.
@@ -226,7 +193,7 @@ namespace lbcrypto {
 		 * @param &b is the value to subtract.
 		 * @return is the result of the subtraction operation.
 		 */
-		virtual const BigInteger& operator-=(const BigInteger &b) = 0;
+		virtual const T& operator-=(const T &b) = 0;
 
 		////bit shifting operators
 
@@ -236,7 +203,7 @@ namespace lbcrypto {
 		 * @param shift is the amount to shift.
 		 * @return the result of the shift.	  
 		 */
-		virtual BigInteger  operator<<(usshort shift) const = 0;
+		virtual T  operator<<(usshort shift) const = 0;
 
 		/**
 		 * Right shift operator and creates a new variable as output.
@@ -244,7 +211,7 @@ namespace lbcrypto {
 		 * @param shift is the amount to shift.
 		 * @return the result of the shift.	  
 		 */
-		virtual BigInteger  operator>>(usshort shift) const = 0;
+		virtual T  operator>>(usshort shift) const = 0;
 
 		/**
 		 * Left shift operator uses in-place algorithm and operates on the same variable. It is used to reduce the copy constructor call.
@@ -252,7 +219,7 @@ namespace lbcrypto {
 		 * @param shift is the amount to shift.
 		 * @return the result of the shift.	  
 		 */
-		virtual const BigInteger& operator<<=(usshort shift) = 0;
+		virtual const T& operator<<=(usshort shift) = 0;
 
 		/**
 		 * Right shift operator uses in-place algorithm and operates on the same variable. It is used to reduce the copy constructor call.
@@ -260,7 +227,7 @@ namespace lbcrypto {
 		 * @param shift is the amount to shift.
 		 * @return the result of the shift.	  
 		 */
-		virtual const BigInteger& operator>>=(usshort shift) = 0;
+		virtual const T& operator>>=(usshort shift) = 0;
 
 		//virtual friend methods are not allowed in abstract classes
 		//input/output operators
@@ -271,13 +238,13 @@ namespace lbcrypto {
 		 * @param &ptr_obj ???.
 		 * @return the return value.	  
 		 */
-		//virtual friend std::ostream& operator<<(std::ostream& os, const BigInteger &ptr_obj);
+		//virtual friend std::ostream& operator<<(std::ostream& os, const T &ptr_obj);
 
 		/**
-		 * Stores the value of this BigInteger in a string object and returns it.
+		 * Stores the value of this T in a string object and returns it.
 		 * Added by Arnab Deb Gupta <ad479@njit.edu> on 9/21/15.
 		 *
-		 * @return the value of this BigInteger as a string.
+		 * @return the value of this T as a string.
 		 */
 		virtual std::string ToString() const = 0;
 
@@ -314,29 +281,29 @@ namespace lbcrypto {
 
 		//static methods cannot be added to the interface
 		/**
-		 * Convert a value from an int to a BigInteger.
+		 * Convert a value from an int to a T.
 		 *
 		 * @param the value to convert from.
 		 * @return the int represented as a big binary int.	  
 		 */
-		//static BigInteger intToBigIntegereger(usint m);
+		//static T intToBigIntegereger(usint m);
 
 		////constant definations
 
 		/**
 		 * Constant zero.	  
 		 */
-		//const static BigInteger ZERO;
+		//const static T ZERO;
 
 		/**
 		 * Constant one.	  
 		 */
-		//const static BigInteger ONE;
+		//const static T ONE;
 
 		/**
 		 * Constant two.	  
 		 */
-		//const static BigInteger TWO;
+		//const static T TWO;
 
 		/**
 		 * Test equality of the inputs.
@@ -345,7 +312,7 @@ namespace lbcrypto {
 		 * @param b second value to test.
 		 * @return true if the inputs are equal.	  
 		 */
-		//friend bool operator==(const BigInteger& a, const BigInteger& b);
+		//friend bool operator==(const T& a, const T& b);
 
 		/**
 		 * Test inequality of the inputs.
@@ -354,7 +321,7 @@ namespace lbcrypto {
 		 * @param b second value to test.
 		 * @return true if the inputs are inequal.	  
 		 */
-		//friend bool operator!=(const BigInteger& a, const BigInteger& b);
+		//friend bool operator!=(const T& a, const T& b);
 
 		/**
 		 * Test if first input is great than the second input.
@@ -363,7 +330,7 @@ namespace lbcrypto {
 		 * @param b second value to test.
 		 * @return true if the first inputs is greater.
 		 */
-		//friend bool operator> (const BigInteger& a, const BigInteger& b);
+		//friend bool operator> (const T& a, const T& b);
 
 		/**
 		 * Test if first input is great than or equal to the second input.
@@ -372,7 +339,7 @@ namespace lbcrypto {
 		 * @param b second value to test.
 		 * @return true if the first inputs is greater than or equal to the second input.
 		 */
-		//friend bool operator>=(const BigInteger& a, const BigInteger& b);
+		//friend bool operator>=(const T& a, const T& b);
 
 		/**
 		 * Test if first input is less than the second input.
@@ -381,7 +348,7 @@ namespace lbcrypto {
 		 * @param b second value to test.
 		 * @return true if the first inputs is lesser.
 		 */
-		//friend bool operator< (const BigInteger& a, const BigInteger& b);
+		//friend bool operator< (const T& a, const T& b);
 
 		/**
 		 * Test if first input is less than or equal to the second input.
@@ -390,10 +357,11 @@ namespace lbcrypto {
 		 * @param b second value to test.
 		 * @return true if the first inputs is less than or equal to the second input.
 		 */
-		//friend bool operator<=(const BigInteger& a, const BigInteger& b);
-
+		//friend bool operator<=(const T& a, const T& b);
+#endif
 	}; 
 
+#if 0
 	//overloaded binary operators based on integer arithmetic and comparison functions
 	/**
 		* Addition operation.
@@ -430,10 +398,362 @@ namespace lbcrypto {
 		* @return is the result of the division operation.
 	*/
 	//inline BigIntegeregerInterface operator/(const BigIntegeregerInterface &a, const BigIntegeregerInterface &b) {return a.DividedBy(b);}
+#endif
+
+	template<typename T, typename I>
+	class BigVectorInterface{
+public:
+		virtual ~BigVectorInterface() {}
+
+#if 0
+		/**
+		* Assignment operator to assign value from rhs
+		*
+		* @param &rhs is the native vector to be assigned from.
+		* @return Assigned T.
+		*/
+		const T& operator=(const T &rhs);
+
+		/**
+		* Move assignment operator
+		*
+		* @param &&rhs is the native vector to be moved.
+		* @return moved T object
+		*/
+		T&  operator=(T &&rhs);
+
+		//todo replace <sint> with <usint>
+		/**
+		* Initializer list for T.
+		*
+		* @param &&rhs is the list of integers to be assigned to the BBV.
+		* @return T object
+		*/
+		const T& operator=(std::initializer_list<sint> rhs);
+
+		/**
+		* Initializer list for T.
+		*
+		* @param &&rhs is the list of strings containing integers to be assigned to the BBV.
+		* @return T object
+		*/
+		const T& operator=(std::initializer_list<std::string> rhs);
+#endif
+
+#if 0
+		/**
+		* Equals to operator, checks if two T obj are equal or not.
+		*
+		* @param b is vector to be compared.
+		* @return true if equal and false otherwise.
+		*/
+		inline bool operator==(const T &b) const {
+	        if (this->GetLength() != b.GetLength())
+	            return false;
+	        if (this->GetModulus() != b.GetModulus())
+	        	return false;
+	        for (size_t i = 0; i < this->GetLength(); ++i) {
+	            if (this->at(i) != b.at(i)) {
+	                return false;
+	            }
+	        }
+	        return true;
+	    }
+
+	    /**
+		* Assignment operator to assign value val to first entry, 0 for the rest of entries.
+		*
+		* @param val is the value to be assigned at the first entry.
+		* @return Assigned T.
+		*/
+	    inline const T& operator=(usint val) {
+	        this->m_data[0] = val;
+	        for (size_t i = 1; i < GetLength(); ++i) {
+	            this->m_data[i] = 0;
+	        }
+	        return *this;
+	    }
+
+	    /**
+		* Inequality operator, checks if two T obj are equal or not.
+		*
+		* @param b is vector to be compared.
+		* @return false  if not equal and false otherwise.
+		*/
+	    inline bool operator!=(const T &b) const {
+	        return !(*this == b);
+	    }
+#endif
+		//ACCESSORS
+
+#if 0
+		/**
+		* ostream operator to output vector values to console
+		*
+		* @param os is the std ostream object.
+		* @param &ptr_obj is the T object to be printed.
+		* @return std ostream object which captures the vector values.
+		*/
+		template<class IntegerType_c>
+		friend std::ostream& operator<<(std::ostream& os, const T<IntegerType_c> &ptr_obj);
+
+		T::BVInt& at(usint i) {
+		  if(!this->IndexCheck(i)) {
+		    throw std::logic_error("index out of range in NativeVector");
+		  }
+		  return this->m_data[i];
+		  }
+
+		const T::BVInt& at(usint i) const {
+	 	  if(!this->IndexCheck(i)) {
+		    throw std::logic_error("index out of range in NativeVector");
+		  }
+		  return this->m_data[i];
+		}
+
+		void atMod(usint i, const T::BVInt &val) {
+		  if(!this->IndexCheck(i)) {
+		    throw std::logic_error("index out of range in NativeVector");
+		  }
+		  this->m_data[i]=val%m_modulus;
+		  return;
+		}
+
+		void atMod(usint i, const std::string& val) const {
+	 	  if(!this->IndexCheck(i)) {
+		    throw std::logic_error("index out of range in NativeVector");
+		  }
+		  T::BVInt tmp(val);
+		  this->m_data[i]=tmp%m_modulus;
+		  return;
+		}
+
+		/**
+		 * operators to get a value at an index.
+		 * @param idx is the index to get a value at.
+		 * @return is the value at the index. return NULL if invalid index.
+		 */
+		inline T::BVInt& operator[](std::size_t idx) { return (this->m_data[idx]); }
+		inline const T::BVInt& operator[](std::size_t idx) const { return (this->m_data[idx]); }
+#endif
+
+#if 0
+		/**
+		 * Sets the vector modulus.
+		 *
+		 * @param value is the value to set.
+		 * @param value is the modulus value to set.
+		 */
+		void SetModulus(const T::BVInt& value);
+
+		/**
+		 * Sets the vector modulus and changes the values to match the new modulus.
+		 *
+		 * @param value is the value to set.
+		 */
+		void SwitchModulus(const T::BVInt& value);
+
+		/**
+		 * Gets the vector modulus.
+		 *
+		 * @return the vector modulus.
+		 */
+		const T::BVInt& GetModulus() const;
+
+		/**
+		 * Gets the vector length.
+		 *
+		 * @return vector length.
+		 */
+		usint GetLength() const;
+#endif
+
+		/**
+		 * Scalar modulus addition.
+		 *
+		 * After addition modulus operation is performed with the current vector modulus.
+		 * @return a new vector which is the result of the modulus addition operation.
+		 */
+		virtual T ModAdd(const I &b) const = 0;
+
+		/**
+		 * Scalar modulus addition.
+		 *
+		 * After addition modulus operation is performed with the current vector modulus.
+		 * @return a new vector which is the result of the modulus addition operation.
+		 */
+		virtual const T& ModAddEq(const I &b) = 0;
+
+		/**
+		 * Scalar modulus addition at a particular index.
+		 *
+		 * @param &b is the scalar to add.
+		 * @param i is the index of the entry to add.
+		 * @return is the result of the modulus addition operation.
+		 */
+		virtual T ModAddAtIndex(usint i, const I &b) const = 0;
+
+		/**
+		 * vector modulus addition.
+		 *
+		 * @param &b is the vector to add at all locations.
+		 * @return a new vector which is the result of the modulus addition operation.
+		 */
+		virtual T ModAdd(const T &b) const = 0;
+
+		/**
+		 * vector modulus addition.
+		 *
+		 * @param &b is the vector to add at all locations.
+		 * @return a new vector which is the result of the modulus addition operation.
+		 */
+		virtual const T& ModAddEq(const T &b) = 0;
+
+		T operator+(const I &b) const { return this->ModAdd(b); }
+		const T& operator+=(const I &b) { return this->ModAddEq(b); }
+		T operator+(const T &b) const { return this->ModAdd(b); }
+		const T& operator+=(const T &b) { return this->ModAddEq(b); }
+
+#if 0
+		/**
+		 * Vector Modulus operator.
+		 *
+		 * @param modulus is the modulus to perform on the current vector entries.
+		 * @return a new vector after the modulus operation on current vector.
+		 */
+		T Mod(const T::BVInt& modulus) const;
+
+		//scalar operations
 
 
-	class BigVectorInterface{}; //will be defined later; all methods will be pure virtual
-	class BigMatrixInterface{}; //will be defined later; all methods will be pure virtual
+		/**
+		 * Scalar modulus subtraction.
+		 * After substraction modulus operation is performed with the current vector modulus.
+		 * @param &b is the scalar to subtract from all locations.
+		 * @return a new vector which is the result of the modulus substraction operation.
+		 */
+		T ModSub(const T::BVInt &b) const;
+
+		/**
+		 * Scalar modular multiplication.
+		 * See the comments in the cpp files for details of the implementation.
+		 *
+		 * @param &b is the scalar to multiply at all locations.
+		 * @return is the result of the modulus multiplication operation.
+		 */
+		T ModMul(const T::BVInt &b) const;
+
+		/**
+		 * Scalar modulus exponentiation.
+		 *
+		 * @param &b is the scalar to exponentiate at all locations.
+		 * @return a new vector which is the result of the modulus exponentiation operation.
+		 */
+		T ModExp(const T::BVInt &b) const;
+		//T& ScalarExp(const BigInteger &a) const;
+
+
+		/**
+		 * Modulus inverse.
+		 *
+		 * @return a new vector which is the result of the modulus inverse operation.
+		 */
+		T ModInverse() const;
+
+		/**
+		 * Modulus scalar multiplication assignment.
+		 *
+		 * @param &a is the input vector to multiply.
+		 * @param &i is the input integer to multiply at all entries.
+		 * @return a new vector which is the result of the modulus multiplication operation.
+		 */
+		T &operator*=(const T::BVInt &i) {
+		    *this=this->ModMul(i);
+		    return *this;
+		  }
+
+		//Vector Operations
+
+		/**
+		* Perform a modulus by 2 operation.  Returns the least significant bit.
+		*
+		* @return a new vector which is the return value of the modulus by 2, also the least significant bit.
+		*/
+		T ModByTwo() const;
+
+#endif
+
+#if 0
+		/**
+	 	 * Vector Self Modulus Substraction.
+	 	 *
+		 * @param &b is the vector to substract.
+		 * @return a reference to the result of the modulus substraction operation.
+		 */
+		const T& operator-=(const T &b);
+
+		//component-wise subtraction
+
+		/**
+		 * Vector Modulus subtraction.
+		 *
+		 * @param &b is the vector to subtract.
+		 * @return a new vector which is the result of the modulus subtraction operation.
+		 */
+		T ModSub(const T &b) const;
+
+		//component-wise multiplication
+
+		/**
+		 * Vector modulus multiplication.
+		 *
+		 * @param &b is the vector to multiply.
+		 * @return is the result of the modulus multiplication operation.
+		 */
+		T ModMul(const T &b) const;
+
+		/**
+		 * Vector multiplication without applying the modulus operation.
+		 *
+		 * @param &b is the vector to multiply.
+		 * @return is the result of the multiplication operation.
+		 */
+		T MultWithOutMod(const T &b) const;
+
+		/**
+		* Multiply and Rounding operation on a BigInteger x. Returns [x*p/q] where [] is the rounding operation.
+		*
+		* @param p is the numerator to be multiplied.
+		* @param q is the denominator to be divided.
+		* @return the result of multiply and round.
+		*/
+		T MultiplyAndRound(const T::BVInt &p, const T::BVInt &q) const;
+
+		/**
+		* Divide and Rounding operation on a BigInteger x. Returns [x/q] where [] is the rounding operation.
+		*
+		* @param q is the denominator to be divided.
+		* @return the result of divide and round.
+		*/
+		T DivideAndRound(const T::BVInt &q) const;
+
+		//matrix operations
+
+		//matrix product - used in FFT and IFFT; new_vector = A*this_vector
+
+		/**
+		 * Returns a vector of digits at a specific index for all entries for a given number base.
+		 *
+		 * @param index is the index to return the digit from in all entries.
+		 * @param base is the base to use for the operation.
+		 * @return is the resulting vector.
+		 */
+		T GetDigitAtIndexForBase(usint index, usint base) const;
+#endif
+	};
+
+	// TODO
+	class BigMatrixInterface{};
 
 } // namespace lbcrypto ends
 

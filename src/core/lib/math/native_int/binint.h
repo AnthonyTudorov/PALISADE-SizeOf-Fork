@@ -44,6 +44,7 @@
 #include <functional>
 #include <cstdlib>
 #include <memory>
+#include "../interface.h"
 #include "../../utils/inttypes.h"
 #include "../../utils/memory.h"
 #include "../../utils/palisadebase64.h"
@@ -54,17 +55,6 @@ namespace native_int {
 /**The following structs are needed for initialization of NativeInteger at the preprocessing stage.
  *The structs compute certain values using template metaprogramming approach and mostly follow recursion to calculate value(s).
  */
-
-#ifdef _MSC_VER
-	// NOTE large 64 bit numbers will overflow in Visual Studio until they implement an __int128
-	// generate a runtime message that only gets printed one time
-#pragma message ("Operations on native_int integers may overflow and not be detected in this version of Visual Studio")
-
-class UsageMessage {
-public:
-	UsageMessage();
-};
-#endif
 
 /**
  * @brief  Struct to find log value of N.
@@ -135,12 +125,7 @@ struct DoubleDataType<uint32_t>{
 */
 template<>
 struct DoubleDataType<uint64_t>{
-#ifdef _MSC_VER
-	// NOTE large 64 bit numbers will overflow in Visual Studio until they implement an __int128
-	typedef uint64_t T;
-#else
 	typedef unsigned __int128 T;
-#endif
 };
 
 const double LOG2_10 = 3.32192809;	//!< @brief A pre-computed constant of Log base 2 of 10.
@@ -153,7 +138,7 @@ const usint BARRETT_LEVELS = 8;		//!< @brief The number of levels (precomputed v
  * @tparam BITLENGTH maximum bitdwidth supported for big integers
  */
 template<typename uint_type>
-class NativeInteger
+class NativeInteger : public lbcrypto::BigIntegerInterface<NativeInteger<uint_type>>
 {
 
 public:
@@ -322,6 +307,21 @@ public:
 			throw std::logic_error("Overflow");
 		}
 		return newv;
+	}
+
+	/**
+	 * Addition operation.
+	 *
+	 * @param b is the value to add of type BigInteger.
+	 * @return result of the addition operation of type BigInteger.
+	 */
+	const NativeInteger& PlusEq(const NativeInteger& b) {
+		uint_type oldv = m_value;
+		m_value += b.m_value;
+		if( m_value < oldv ) {
+			throw std::logic_error("Overflow");
+		}
+		return *this;
 	}
 
 
