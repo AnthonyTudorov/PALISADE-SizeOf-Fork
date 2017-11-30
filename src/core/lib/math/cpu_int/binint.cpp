@@ -28,7 +28,7 @@ Description:
 	This class provides a class for big integers.
 */
 
-#include "binint.h"
+#include "../backend.h"
 #include "../../utils/debug.h"
 
 #if defined(_MSC_VER)
@@ -1508,12 +1508,7 @@ We use the upper bound of dividend assuming that none of the dividends will be l
 Multiplication and modulo reduction are NOT INTERLEAVED.
 
 Potential improvements:
-1. When working with MATHBACKEND = 1, we tried to compute an evenly distributed array of \mu (the number is approximately equal
-to the number BARRET_LEVELS) but that did not give any performance improvement. So using one pre-computed value of 
-\mu was the most efficient option at the time.
-2. We also tried "Interleaved digit-serial modular multiplication with generalized Barrett reduction" Algorithm 3 in the Source but it 
-was slower with MATHBACKEND = 1.
-3. Our implementation makes the modulo operation essentially equivalent to two multiplications. If sparse moduli are selected, it can be replaced
+Our implementation makes the modulo operation essentially equivalent to two multiplications. If sparse moduli are selected, it can be replaced
 with a single multiplication. The interleaved version of modular multiplication for this case is listed in Algorithm 6 of the source. 
 This algorithm would most like give the biggest improvement but it sets constraints on moduli.
 
@@ -1557,12 +1552,7 @@ We use the upper bound of dividend assuming that none of the dividends will be l
 Multiplication and modulo reduction are NOT INTERLEAVED.
 
 Potential improvements:
-1. When working with MATHBACKEND = 1, we tried to compute an evenly distributed array of \mu (the number is approximately equal
-to the number BARRET_LEVELS) but that did not give any performance improvement. So using one pre-computed value of
-\mu was the most efficient option at the time.
-2. We also tried "Interleaved digit-serial modular multiplication with generalized Barrett reduction" Algorithm 3 in the Source but it
-was slower with MATHBACKEND = 1.
-3. Our implementation makes the modulo operation essentially equivalent to two multiplications. If sparse moduli are selected, it can be replaced
+Our implementation makes the modulo operation essentially equivalent to two multiplications. If sparse moduli are selected, it can be replaced
 with a single multiplication. The interleaved version of modular multiplication for this case is listed in Algorithm 6 of the source.
 This algorithm would most like give the biggest improvement but it sets constraints on moduli.
 
@@ -2249,7 +2239,7 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::intToBigInteger
 	return BigInteger(m);
 
 }
-#if 0
-  template<> std::ostream& operator << <BigInteger<uint_type, BITLENGTH>>(std::ostream& os, const std::vector<BigInteger>& v);
-#endif
+
+template class BigInteger<integral_dtype,BigIntegerBitLength>;
+
 } // namespace cpu_int ends

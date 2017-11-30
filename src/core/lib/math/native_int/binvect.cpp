@@ -28,8 +28,9 @@
 
 */
 
+#include "../backend.h"
 #include "../../utils/serializable.h"
-#include "binvect.h"
+#include "../native_int/binvect.h"
 #include "../nbtheory.h"
 #include "../../utils/debug.h"
 
@@ -187,16 +188,6 @@ BigVectorImpl<IntegerType>::~BigVectorImpl(){
 }
 
 //ACCESSORS
-template<class IntegerType_c>
-std::ostream& operator<<(std::ostream& os, const BigVectorImpl<IntegerType_c> &ptr_obj){
-        auto len = ptr_obj.m_length;
-        os<<"[";
-	for(usint i=0;i<len;i++){
-	  os<< ptr_obj.m_data[i];
-	  os << ((i == (len-1))?"]":" ");
-	}
-	return os;
-}
 
 template<class IntegerType>
 void BigVectorImpl<IntegerType>::SetModulus(const IntegerType& value){
@@ -602,5 +593,7 @@ bool BigVectorImpl<IntegerType>::Deserialize(const lbcrypto::Serialized& serObj)
 
 	return true;
 }
+
+template class BigVectorImpl<NativeInteger<uint64_t>>;
 
 } // namespace lbcrypto ends

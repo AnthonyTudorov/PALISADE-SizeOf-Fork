@@ -175,7 +175,6 @@ TEST(UTBinVect, AtAndSetModulusTest){
 
 
 TEST(UTBinVect,NTL_modulus_framework){
-#if MATHBACKEND  == 6 //NTL backend
 	
   bool dbg_flag = false;
 	
@@ -219,9 +218,6 @@ TEST(UTBinVect,NTL_modulus_framework){
   for (size_t i = 0; i < m.size(); i++){
     EXPECT_NE(m_modulus_2[i],m[i]) << "Failure in NTL ["<<i<<"]";
   }
-
- 
-#endif
 }
 
 TEST(UTBinVect, CTOR_Test){

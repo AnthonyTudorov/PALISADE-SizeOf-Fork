@@ -40,8 +40,8 @@ inline BigVector makeVector(shared_ptr<T> p) {
 	return dug.GenerateVector(p->GetCyclotomicOrder()/2);
 }
 
-inline native_int::BigVector makeNativeVector(shared_ptr<native_int::ILParams> p) {
-	native_int::Poly::DugType dug;
+inline NativeVector makeNativeVector(shared_ptr<ILNativeParams> p) {
+	NativePoly::DugType dug;
 	dug.SetModulus(p->GetModulus().ConvertToInt());
 
 	return dug.GenerateVector(p->GetRingDimension());

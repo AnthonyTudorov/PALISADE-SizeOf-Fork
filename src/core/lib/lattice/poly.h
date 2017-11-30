@@ -65,7 +65,7 @@ public:
 	typedef DiscreteUniformGeneratorImpl<IntType,VecType> DugType;
 	typedef TernaryUniformGeneratorImpl<IntType,VecType> TugType;
 	typedef BinaryUniformGeneratorImpl<IntType,VecType> BugType;
-	typedef PolyImpl<native_int::BigInteger,native_int::BigInteger,native_int::BigVector,native_int::ILParams> PolyNative;
+	typedef PolyImpl<NativeInteger,NativeInteger,NativeVector,ILNativeParams> PolyNative;
 
 	/**
 	 * @brief Return the element name.
@@ -824,19 +824,12 @@ private:
 
 } //namespace lbcrypto ends
 
-
-namespace native_int
-{
-
-typedef lbcrypto::PolyImpl<native_int::BigInteger, native_int::BigInteger, native_int::BigVector, native_int::ILParams> Poly;
-
-}
-
 namespace lbcrypto
 {
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType> class PolyImpl;
 typedef PolyImpl<BigInteger, BigInteger, BigVector, ILParams> Poly;
+typedef PolyImpl<NativeInteger, NativeInteger, NativeVector, ILNativeParams> NativePoly;
 
 }
 

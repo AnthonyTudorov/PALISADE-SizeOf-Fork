@@ -28,13 +28,11 @@
 #include <iostream>
 #include <vector>
 
-//#include "../lib/cryptocontext.h"
+#include "../lib/math/backend.h"
 #include "../lib/abe/cp_abe.h"
 #include "../lib/abe/kp_abe.h"
 #include "../lib/abe/kp_abe.cpp"
 #include "../lib/abe/ibe.h"
-
-//#include "lattice/elemparamfactory.h"
 
 using namespace std;
 using namespace lbcrypto;
@@ -501,18 +499,18 @@ void UnitTestPolyVecDecomp(int32_t base, usint k, usint ringDimension){
 
 	usint n = ringDimension*2;   // cyclotomic order
 
-	native_int::BigInteger q = native_int::BigInteger(1) << (k-1);
-	q = lbcrypto::FirstPrime<native_int::BigInteger>(k,n);
-	native_int::BigInteger rootOfUnity(RootOfUnity<native_int::BigInteger>(n, q));
+	NativeInteger q = NativeInteger(1) << (k-1);
+	q = lbcrypto::FirstPrime<NativeInteger>(k,n);
+	NativeInteger rootOfUnity(RootOfUnity<NativeInteger>(n, q));
 
-	native_int::BigInteger nextQ = native_int::BigInteger(1) << (k-1);
-	nextQ = lbcrypto::NextPrime<native_int::BigInteger>(q, n);
-	native_int::BigInteger nextRootOfUnity(RootOfUnity<native_int::BigInteger>(n, nextQ));
+	NativeInteger nextQ = NativeInteger(1) << (k-1);
+	nextQ = lbcrypto::NextPrime<NativeInteger>(q, n);
+	NativeInteger nextRootOfUnity(RootOfUnity<NativeInteger>(n, nextQ));
 
 	usint m = k + k +2;
 
-	std::vector<native_int::BigInteger> moduli;
-	std::vector<native_int::BigInteger> roots_Of_Unity;
+	std::vector<NativeInteger> moduli;
+	std::vector<NativeInteger> roots_Of_Unity;
 	moduli.reserve(2);
 	roots_Of_Unity.reserve(2);
 
@@ -588,25 +586,25 @@ void UnitTestKPABEANDGateDCRT(int32_t base, usint ringDimension){
 
 	usint n = ringDimension * 2;   // cyclotomic order
 	usint ell = 4; // No of attributes
-	native_int::BigInteger q("2101249");
+	NativeInteger q("2101249");
 
-	native_int::BigInteger rootOfUnity(RootOfUnity(n, q));
+	NativeInteger rootOfUnity(RootOfUnity(n, q));
 
 	double val = q.ConvertToDouble();
 	double logTwo = log(val - 1.0) / log(base) + 1.0;
 	size_t k_ = (usint)floor(logTwo) + 1; //  (+1) is For NAF
 
-	native_int::BigInteger nextQ("2236417");
+	NativeInteger nextQ("2236417");
 
-	native_int::BigInteger nextRootOfUnity(RootOfUnity<native_int::BigInteger>(n, nextQ));
+	NativeInteger nextRootOfUnity(RootOfUnity<NativeInteger>(n, nextQ));
 
-	native_int::BigInteger nextQ2("2277377");
-	native_int::BigInteger nextRootOfUnity2(RootOfUnity<native_int::BigInteger>(n, nextQ2));
+	NativeInteger nextQ2("2277377");
+	NativeInteger nextRootOfUnity2(RootOfUnity<NativeInteger>(n, nextQ2));
 
 	usint m = 3 *  k_ + 2;
 
-	std::vector<native_int::BigInteger> moduli;
-	std::vector<native_int::BigInteger> roots_Of_Unity;
+	std::vector<NativeInteger> moduli;
+	std::vector<NativeInteger> roots_Of_Unity;
 	moduli.reserve(3);
 	roots_Of_Unity.reserve(3);
 
@@ -697,25 +695,25 @@ void UnitTestKPABEANDGateDCRT(int32_t base, usint ringDimension){
 void UnitTesKPABENANDGATEDCRT(int32_t base, usint ringDimension){
 	usint n = ringDimension * 2;   // cyclotomic order
 	usint ell = 4; // No of attributes
-	native_int::BigInteger q("2101249");
+	NativeInteger q("2101249");
 
-	native_int::BigInteger rootOfUnity(RootOfUnity(n, q));
+	NativeInteger rootOfUnity(RootOfUnity(n, q));
 
 	double val = q.ConvertToDouble();
 	double logTwo = log(val - 1.0) / log(base) + 1.0;
 	size_t k_ = (usint)floor(logTwo) + 1; //  (+1) is For NAF
 
-	native_int::BigInteger nextQ("2236417");
+	NativeInteger nextQ("2236417");
 
-	native_int::BigInteger nextRootOfUnity(RootOfUnity<native_int::BigInteger>(n, nextQ));
+	NativeInteger nextRootOfUnity(RootOfUnity<NativeInteger>(n, nextQ));
 
-	native_int::BigInteger nextQ2("2277377");
-	native_int::BigInteger nextRootOfUnity2(RootOfUnity<native_int::BigInteger>(n, nextQ2));
+	NativeInteger nextQ2("2277377");
+	NativeInteger nextRootOfUnity2(RootOfUnity<NativeInteger>(n, nextQ2));
 
 	usint m = 3 *  k_ + 2;
 
-	std::vector<native_int::BigInteger> moduli;
-	std::vector<native_int::BigInteger> roots_Of_Unity;
+	std::vector<NativeInteger> moduli;
+	std::vector<NativeInteger> roots_Of_Unity;
 	moduli.reserve(3);
 	roots_Of_Unity.reserve(3);
 

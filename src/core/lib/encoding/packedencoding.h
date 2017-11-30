@@ -94,12 +94,12 @@ public:
 	 * @param modulus the initial root.
 	 */
 	static BigInteger GetInitRoot(const BigInteger &modulus) {
-		native_int::BigInteger modulusNI(modulus.ConvertToInt());
+		NativeInteger modulusNI(modulus.ConvertToInt());
 		return BigInteger(modulusNI.ConvertToInt());
 	}
 
 	static usint GetAutomorphismGenerator(const BigInteger &modulus) {
-		native_int::BigInteger modulusNI(modulus.ConvertToInt());
+		NativeInteger modulusNI(modulus.ConvertToInt());
 		return m_automorphismGenerator[modulusNI];
 	}
 
@@ -164,17 +164,17 @@ public:
 
 private:
 	//initial root of unity for plaintext space
-	static std::map<native_int::BigInteger, native_int::BigInteger> m_initRoot;
+	static std::map<NativeInteger, NativeInteger> m_initRoot;
 	//modulus and root of unity to be used for Arbitrary CRT
-	static std::map<native_int::BigInteger, native_int::BigInteger> m_bigModulus;
-	static std::map<native_int::BigInteger, native_int::BigInteger> m_bigRoot;
+	static std::map<NativeInteger, NativeInteger> m_bigModulus;
+	static std::map<NativeInteger, NativeInteger> m_bigRoot;
 
 	//stores the list of primitive roots used in packing.
-	static std::map<native_int::BigInteger, usint> m_automorphismGenerator;
-	static std::map<native_int::BigInteger, std::vector<usint>> m_toCRTPerm;
-	static std::map<native_int::BigInteger, std::vector<usint>> m_fromCRTPerm;
+	static std::map<NativeInteger, usint> m_automorphismGenerator;
+	static std::map<NativeInteger, std::vector<usint>> m_toCRTPerm;
+	static std::map<NativeInteger, std::vector<usint>> m_fromCRTPerm;
 
-	static void SetParams_2n(usint m, const native_int::BigInteger &modulus);
+	static void SetParams_2n(usint m, const NativeInteger &modulus);
 	static void SetParams_2n(usint m, shared_ptr<EncodingParams> params);
 
 	/**

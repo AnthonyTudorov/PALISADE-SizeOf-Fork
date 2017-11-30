@@ -716,7 +716,7 @@ namespace cpu_int{
     * @param a is the value to add.
     * @return is the result of the addition operation.
     */
-    inline BigInteger operator+(const BigInteger &a) const {return this->Plus(a);}
+    BigInteger operator+(const BigInteger &a) const {return this->Plus(a);}
 
     /**
     * Subtraction operation.
@@ -724,7 +724,7 @@ namespace cpu_int{
     * @param a is the value to subtract.
     * @return is the result of the subtraction operation.
     */
-    inline BigInteger operator-(const BigInteger &a) const {return this->Minus(a);}
+    BigInteger operator-(const BigInteger &a) const {return this->Minus(a);}
 
     /**
     * Multiplication operation.
@@ -732,7 +732,7 @@ namespace cpu_int{
     * @param a is the value to multiply with.
     * @return is the result of the multiplication operation.
     */
-	inline BigInteger operator*(const BigInteger &a) const;
+	BigInteger operator*(const BigInteger &a) const;
 
     /**
     * Modulo operation. Classical modular reduction algorithm is used.
@@ -740,7 +740,7 @@ namespace cpu_int{
     * @param a is the value to Mod.
     * @return is the result of the modulus operation.
     */
-    inline BigInteger operator%(const BigInteger &a) const {return this->Mod(a);}
+    BigInteger operator%(const BigInteger &a) const {return this->Mod(a);}
 
 	/**
 	 * Division operation.
@@ -749,10 +749,10 @@ namespace cpu_int{
 	 * @param b is the value to divide by.
 	 * @return is the result of the integral part after division operation.
 	 */
-	inline BigInteger operator/ (const BigInteger &a) const {return this->DividedBy(a);}
+	BigInteger operator/ (const BigInteger &a) const {return this->DividedBy(a);}
 
 
-	inline BigInteger operator/=(const BigInteger &a); 
+	BigInteger operator/=(const BigInteger &a);
 
 	/**
 	 * Console output operation.
@@ -830,7 +830,7 @@ namespace cpu_int{
     /**
      *  Set this int to 1.
      */
-	inline void SetIdentity() { *this = BigInteger::ONE; };
+	void SetIdentity() { *this = BigInteger::ONE; };
 
 	/**
 	* A zero allocator that is called by the Matrix class. It is used to initialize a Matrix of BigInteger objects.
@@ -945,18 +945,6 @@ namespace cpu_int{
 		static void add_bitVal(uschar* a,uschar b);
 	};
 
-#if 1
- // stream helper function for vector of objects
-  template <typename T>
-    inline std::ostream& operator << (std::ostream& os, const std::vector<T>& v) {
-    os << "[";
-    for (const auto& itr : v){
-      os << " " << itr;
-    }
-    os << " ]";
-    return os;
-  };
-#endif
 }//namespace ends
 
 #endif

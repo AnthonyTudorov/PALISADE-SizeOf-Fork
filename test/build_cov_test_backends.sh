@@ -1,5 +1,5 @@
 
-backends="2 4 6 7"
+backends="2 4 6"
 
 if [ "$1" != "" ];
 then

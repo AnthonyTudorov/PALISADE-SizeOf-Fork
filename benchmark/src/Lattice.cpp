@@ -83,11 +83,11 @@ static const usint smbits = 28;
 static shared_ptr<ILDCRTParams<BigInteger>> generate_DCRT_parms(int s) {
 	usint nTowers = Scenarios[s].bits/smbits;
 
-	vector<native_int::BigInteger> moduli(nTowers);
-	vector<native_int::BigInteger> rootsOfUnity(nTowers);
+	vector<NativeInteger> moduli(nTowers);
+	vector<NativeInteger> rootsOfUnity(nTowers);
 
-	native_int::BigInteger q = FirstPrime<native_int::BigInteger>(smbits, Scenarios[s].m);
-	native_int::BigInteger temp;
+	NativeInteger q = FirstPrime<NativeInteger>(smbits, Scenarios[s].m);
+	NativeInteger temp;
 	BigInteger modulus(1);
 
 	for(usint i=0; i < nTowers; i++){

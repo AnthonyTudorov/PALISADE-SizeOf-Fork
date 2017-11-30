@@ -274,11 +274,9 @@ void PRESimulation(usint count, usint dataset){
 
 	ofstream fout;
 
-	#if MATHBACKEND == 2
 		fout.open("singlepreperformance_m_" + std::to_string(data[i].m) + "_d_" + std::to_string(data[i].depth) + 
 			"_r_" + std::to_string(data[i].relinWindow) + "_len_" + std::to_string(data[i].bitLength) + 
 			 ".txt");
-	#endif
 
 	//POPULATE THE PARAMETERS AND PERFORM PRE-COMPUTATIONS
 	//prepare the parameters

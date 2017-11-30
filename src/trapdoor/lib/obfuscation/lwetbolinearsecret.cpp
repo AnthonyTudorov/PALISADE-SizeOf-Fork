@@ -68,7 +68,7 @@ double LWETBOLinearSecret::EstimateModulus() {
 LWETBOKeys LWETBOLinearSecret::KeyGen() const
 {
 
-	DiscreteUniformGeneratorImpl<NativeInteger,native_int::BigVector> dug;
+	DiscreteUniformGeneratorImpl<NativeInteger,NativeVector> dug;
 	dug.SetModulus(m_modulus);
 
 	// discrete uniform generator is used to generate the secret keys
@@ -84,7 +84,7 @@ LWETBOKeys LWETBOLinearSecret::KeyGen() const
 
 }
 
-shared_ptr<Matrix<native_int::BigInteger>> LWETBOLinearSecret::TokenGen(const NativeMatrixPtr keys, const NativeMatrixPtr input) const
+shared_ptr<Matrix<NativeInteger>> LWETBOLinearSecret::TokenGen(const NativeMatrixPtr keys, const NativeMatrixPtr input) const
 {
 
 	NativeMatrixPtr token(new Matrix<NativeInteger>([&]() { return make_unique<NativeInteger>(); }, m_n,1));
@@ -97,7 +97,7 @@ shared_ptr<Matrix<native_int::BigInteger>> LWETBOLinearSecret::TokenGen(const Na
 
 }
 
-shared_ptr<Matrix<native_int::BigInteger>> LWETBOLinearSecret::Obfuscate(const LWETBOKeys &keyPair, const NativeMatrixPtr weights) const
+shared_ptr<Matrix<NativeInteger>> LWETBOLinearSecret::Obfuscate(const LWETBOKeys &keyPair, const NativeMatrixPtr weights) const
 {
 
 	NativeMatrixPtr ciphertext(new Matrix<NativeInteger>([&]() { return make_unique<NativeInteger>(); }, m_N,1));
@@ -119,7 +119,7 @@ shared_ptr<Matrix<native_int::BigInteger>> LWETBOLinearSecret::Obfuscate(const L
 
 }
 
-native_int::BigInteger LWETBOLinearSecret::Evaluate(const NativeMatrixPtr input, const NativeMatrixPtr ciphertext,
+NativeInteger LWETBOLinearSecret::Evaluate(const NativeMatrixPtr input, const NativeMatrixPtr ciphertext,
 		const NativeMatrixPtr publicKey, const NativeMatrixPtr token) const{
 
 	NativeInteger result;
@@ -141,7 +141,7 @@ native_int::BigInteger LWETBOLinearSecret::Evaluate(const NativeMatrixPtr input,
 
 }
 
-native_int::BigInteger LWETBOLinearSecret::EvaluateClear(const NativeMatrixPtr input, const NativeMatrixPtr weights) const{
+NativeInteger LWETBOLinearSecret::EvaluateClear(const NativeMatrixPtr input, const NativeMatrixPtr weights) const{
 
 	NativeInteger result;
 

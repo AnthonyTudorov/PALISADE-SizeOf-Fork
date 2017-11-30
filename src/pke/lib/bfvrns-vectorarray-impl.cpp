@@ -38,8 +38,8 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 	size_t size = GetElementParams()->GetParams().size();
 	size_t n = GetElementParams()->GetRingDimension();
 
-	vector<native_int::BigInteger> moduli(size);
-	vector<native_int::BigInteger> roots(size);
+	vector<NativeInteger> moduli(size);
+	vector<NativeInteger> roots(size);
 	for (size_t i = 0; i < size; i++){
 		moduli[i] = GetElementParams()->GetParams()[i]->GetModulus();
 		roots[i] = GetElementParams()->GetParams()[i]->GetRootOfUnity();
@@ -49,24 +49,24 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 
 	size_t sizeS = size + 1;
 
-	vector<native_int::BigInteger> moduliS(sizeS);
-	vector<native_int::BigInteger> rootsS(sizeS);
+	vector<NativeInteger> moduliS(sizeS);
+	vector<NativeInteger> rootsS(sizeS);
 
-	moduliS[0] = NextPrime<native_int::BigInteger>(moduli[size-1], 2 * n);
-	rootsS[0] = RootOfUnity<native_int::BigInteger>(2 * n, moduliS[0]);
+	moduliS[0] = NextPrime<NativeInteger>(moduli[size-1], 2 * n);
+	rootsS[0] = RootOfUnity<NativeInteger>(2 * n, moduliS[0]);
 
 	for (size_t i = 1; i < sizeS; i++)
 	{
-		moduliS[i] = NextPrime<native_int::BigInteger>(moduliS[i-1], 2 * n);
-		rootsS[i] = RootOfUnity<native_int::BigInteger>(2 * n, moduliS[i]);
+		moduliS[i] = NextPrime<NativeInteger>(moduliS[i-1], 2 * n);
+		rootsS[i] = RootOfUnity<NativeInteger>(2 * n, moduliS[i]);
 	}
 
 	m_paramsS = shared_ptr<ILDCRTParams<BigInteger>>(new ILDCRTParams<BigInteger>(2 * n, moduliS, rootsS));
 
 	// stores the parameters for the auxiliary expanded CRT basis Q*S = v1*v2*...*vn used in homomorphic multiplication
 
-	vector<native_int::BigInteger> moduliExpanded(size + sizeS);
-	vector<native_int::BigInteger> rootsExpanded(size + sizeS);
+	vector<NativeInteger> moduliExpanded(size + sizeS);
+	vector<NativeInteger> rootsExpanded(size + sizeS);
 
 	// populate moduli for CRT basis Q
 	for (size_t i = 0; i < size; i++ ) {
@@ -97,7 +97,7 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 
 	//compute the table of integer factors floor[(p*[(Q/qi)^{-1}]_qi)/qi]_p - used in decryption
 
-	std::vector<native_int::BigInteger> qDecryptionInt(size);
+	std::vector<NativeInteger> qDecryptionInt(size);
 	for( usint vi = 0 ; vi < size; vi++ ) {
 		BigInteger qi = BigInteger(moduli[vi].ConvertToInt());
 		BigInteger divBy = modulusQ / qi;
@@ -113,19 +113,19 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 
 	std::cout << "deltaBig = " << deltaBig << std::endl;
 
-	std::vector<native_int::BigInteger> CRTDeltaTable(size);
+	std::vector<NativeInteger> CRTDeltaTable(size);
 
 	for (size_t i = 0; i < size; i++){
 		BigInteger qi = BigInteger(moduli[i].ConvertToInt());
 		BigInteger deltaI = deltaBig.Mod(qi);
-		CRTDeltaTable[i] = native_int::BigInteger(deltaI.ConvertToInt());
+		CRTDeltaTable[i] = NativeInteger(deltaI.ConvertToInt());
 	}
 
 	m_CRTDeltaTable = CRTDeltaTable;
 
 	//compute the (Q/qi)^{-1} mod qi table - used for homomorphic multiplication
 
-	std::vector<native_int::BigInteger> qInv(size);
+	std::vector<NativeInteger> qInv(size);
 	for( usint vi = 0 ; vi < size; vi++ ) {
 		BigInteger qi = BigInteger(moduli[vi].ConvertToInt());
 		BigInteger divBy = modulusQ / qi;
@@ -136,7 +136,7 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 
 	// compute the (Q/qi) mod si table - used for homomorphic multiplication
 
-	std::vector<std::vector<native_int::BigInteger>> qDivqiModsi(sizeS);
+	std::vector<std::vector<NativeInteger>> qDivqiModsi(sizeS);
 	for( usint newvIndex = 0 ; newvIndex < sizeS; newvIndex++ ) {
 		BigInteger si = BigInteger(moduliS[newvIndex].ConvertToInt());
 		for( usint vIndex = 0 ; vIndex < size; vIndex++ ) {
@@ -150,7 +150,7 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 
 	// compute the Q mod si table - used for homomorphic multiplication
 
-	std::vector<native_int::BigInteger> qModsi(sizeS);
+	std::vector<NativeInteger> qModsi(sizeS);
 	for( usint vi = 0 ; vi < sizeS; vi++ ) {
 		BigInteger si = BigInteger(moduliS[vi].ConvertToInt());
 		qModsi[vi] = modulusQ.Mod(si).ConvertToInt();
@@ -177,7 +177,7 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 
 	// compute the floor[p*S*[(Q*S/vi)^{-1}]_vi/vi] mod si table - used for homomorphic multiplication
 
-	std::vector<std::vector<native_int::BigInteger>> multInt(size+sizeS);
+	std::vector<std::vector<NativeInteger>> multInt(size+sizeS);
 	for( usint newvIndex = 0 ; newvIndex < sizeS; newvIndex++ ) {
 		BigInteger si = BigInteger(moduliS[newvIndex].ConvertToInt());
 		for( usint vIndex = 0 ; vIndex < size+sizeS; vIndex++ ) {
@@ -192,7 +192,7 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 
 	// compute the (S/si)^{-1} mod si table - used for homomorphic multiplication
 
-	std::vector<native_int::BigInteger> sInv(sizeS);
+	std::vector<NativeInteger> sInv(sizeS);
 	for( usint vi = 0 ; vi < sizeS; vi++ ) {
 		BigInteger si = BigInteger(moduliS[vi].ConvertToInt());
 		BigInteger divBy = modulusS / si;
@@ -203,7 +203,7 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 
 	// compute (S/si) mod qi table - used for homomorphic multiplication
 
-	std::vector<std::vector<native_int::BigInteger>> sDivsiModqi(size);
+	std::vector<std::vector<NativeInteger>> sDivsiModqi(size);
 	for( usint newvIndex = 0 ; newvIndex < size; newvIndex++ ) {
 		BigInteger qi = BigInteger(moduli[newvIndex].ConvertToInt());
 		for( usint vIndex = 0 ; vIndex < sizeS; vIndex++ ) {
@@ -217,7 +217,7 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 
 	// compute S mod qi table - used for homomorphic multiplication
 
-	std::vector<native_int::BigInteger> sModqi(size);
+	std::vector<NativeInteger> sModqi(size);
 	for( usint vi = 0 ; vi < size; vi++ ) {
 		BigInteger qi = BigInteger(moduli[vi].ConvertToInt());
 		sModqi[vi] = modulusS.Mod(qi).ConvertToInt();
@@ -370,16 +370,16 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 	size_t dcrtBits = 45;
 	size_t size = ceil((floor(log2(q - 1.0)) + 2.0) / (double)dcrtBits);
 
-	vector<native_int::BigInteger> moduli(size);
-	vector<native_int::BigInteger> roots(size);
+	vector<NativeInteger> moduli(size);
+	vector<NativeInteger> roots(size);
 
-	moduli[0] = FirstPrime<native_int::BigInteger>(dcrtBits, 2 * n);
-	roots[0] = RootOfUnity<native_int::BigInteger>(2 * n, moduli[0]);
+	moduli[0] = FirstPrime<NativeInteger>(dcrtBits, 2 * n);
+	roots[0] = RootOfUnity<NativeInteger>(2 * n, moduli[0]);
 
 	for (size_t i = 1; i < size; i++)
 	{
-		moduli[i] = NextPrime<native_int::BigInteger>(moduli[i-1], 2 * n);
-		roots[i] = RootOfUnity<native_int::BigInteger>(2 * n, moduli[i]);
+		moduli[i] = NextPrime<NativeInteger>(moduli[i-1], 2 * n);
+		roots[i] = RootOfUnity<NativeInteger>(2 * n, moduli[i]);
 	}
 
 	shared_ptr<ILDCRTParams<BigInteger>> params(new ILDCRTParams<BigInteger>(2 * n, moduli, roots));
@@ -403,14 +403,14 @@ shared_ptr<Ciphertext<DCRTPoly>> LPAlgorithmBFVrns<DCRTPoly>::Encrypt(const shar
 
 	ptxt.SwitchFormat();
 /*
-	const std::vector<native_int::BigInteger> &dTable = cryptoParams->GetCRTDeltaTable();
+	const std::vector<NativeInteger> &dTable = cryptoParams->GetCRTDeltaTable();
 	Poly dTable2(elementParams, EVALUATION, true);
 	for( size_t i=0; i<dTable.size(); i++ )
 		dTable2.at(i) = Poly::Integer(dTable.at(i).ConvertToInt());
 	DCRTPoly deltaTable( dTable2, elementParams );
 */
 
-	const std::vector<native_int::BigInteger> &deltaTable = cryptoParams->GetCRTDeltaTable();
+	const std::vector<NativeInteger> &deltaTable = cryptoParams->GetCRTDeltaTable();
 
 	const typename DCRTPoly::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 	typename DCRTPoly::TugType tug;
@@ -473,10 +473,10 @@ DecryptResult LPAlgorithmBFVrns<DCRTPoly>::Decrypt(const shared_ptr<LPPrivateKey
 	b.SwitchFormat();
 
 	// Converts plaintext modulus to a 64-bit number
-	const native_int::BigInteger &p = cryptoParams->GetPlaintextModulus().ConvertToInt();
+	const NativeInteger &p = cryptoParams->GetPlaintextModulus().ConvertToInt();
 
 	const std::vector<double> &lyamTable = cryptoParams->GetCRTDecryptionFloatTable();
-	const std::vector<native_int::BigInteger> &invTable = cryptoParams->GetCRTDecryptionIntTable();
+	const std::vector<NativeInteger> &invTable = cryptoParams->GetCRTDecryptionIntTable();
 
 	// this is the resulting vector of coefficients;
 	// currently it is required to be a Poly of BigIntegers to be compatible with other API calls in the ryptocontext framework

@@ -51,8 +51,8 @@
 using namespace std;
 using namespace lbcrypto;
 
-typedef ILParamsImpl<native_int::BigInteger> ILNativeParams;
-typedef PolyImpl< native_int::BigInteger, native_int::BigInteger, native_int::BigVector, ILNativeParams > PolyNative2n;
+typedef ILParamsImpl<NativeInteger> ILNativeParams;
+typedef PolyImpl< NativeInteger, NativeInteger, NativeVector, ILNativeParams > PolyNative2n;
 
 template <class E>
 static void make_NATIVELATTICE_empty(shared_ptr<ILParams>& params) {
@@ -82,7 +82,7 @@ static E makeElement(benchmark::State& state, shared_ptr<ILParams> params) {
 			new ILNativeParams(params->GetCyclotomicOrder(),
 					params->GetModulus().ConvertToInt(),
 					params->GetRootOfUnity().ConvertToInt()) );
-	native_int::BigVector vec = makeNativeVector(nparams);
+	NativeVector vec = makeNativeVector(nparams);
 	E			elem(nparams);
 	elem.SetValues(vec, elem.GetFormat());
 	return std::move(elem);

@@ -41,8 +41,8 @@
 namespace lbcrypto {
 
 	struct LWETBOKeys{
-		shared_ptr<Matrix<native_int::BigInteger>> m_secretKey;
-		shared_ptr<Matrix<native_int::BigInteger>> m_publicRandomVector;
+		shared_ptr<Matrix<NativeInteger>> m_secretKey;
+		shared_ptr<Matrix<NativeInteger>> m_publicRandomVector;
 	};
 
 	/**
@@ -51,7 +51,7 @@ namespace lbcrypto {
 	class LWETBOLinearSecret {
 	public:
 
-		typedef native_int::BigInteger NativeInteger;
+		typedef NativeInteger NativeInteger;
 		typedef shared_ptr<Matrix<NativeInteger>> NativeMatrixPtr;
 		typedef Matrix<NativeInteger> NativeMatrix;
 
@@ -167,7 +167,7 @@ namespace lbcrypto {
 		NativeInteger m_modulus;
 
 		// Discrete Gaussian distribution for generating the noise in the LWE encryption
-		DiscreteGaussianGeneratorImpl<NativeInteger,native_int::BigVector> m_dgg;
+		DiscreteGaussianGeneratorImpl<NativeInteger,NativeVector> m_dgg;
 
 		/**
 		 * Method to estimate the modulus

@@ -57,7 +57,7 @@ bool LPAlgorithmParamsGenLTV<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParameters<
 	double rpow5 = pow(r,5);
 	double wpow5 = pow(w,5);
 
-	vector<native_int::BigInteger> qvals;
+	vector<NativeInteger> qvals;
 
 	usint n = 512; // to start
 	for(;;) {
@@ -66,15 +66,15 @@ bool LPAlgorithmParamsGenLTV<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParameters<
 
 		double rootn = sqrt(n);
 		double qboundD = 4 * p * r * rootn * w;
-		native_int::BigInteger qbound(qboundD);
+		NativeInteger qbound(qboundD);
 		double q2boundD = 4 * psquared * rpow5 * pow(rootn, 3) * wpow5;
-		native_int::BigInteger q2bound(q2boundD);
+		NativeInteger q2bound(q2boundD);
 
-		native_int::BigInteger q = FirstPrime<native_int::BigInteger>(static_cast<usint>(ceil(log2(qboundD))),n);
+		NativeInteger q = FirstPrime<NativeInteger>(static_cast<usint>(ceil(log2(qboundD))),n);
 		while( q < qbound )
 			q = NextPrime(q, n);
 
-		native_int::BigInteger q2 = FirstPrime<native_int::BigInteger>(static_cast<usint>(ceil(log2(q2boundD))), n);
+		NativeInteger q2 = FirstPrime<NativeInteger>(static_cast<usint>(ceil(log2(q2boundD))), n);
 		while( q2 < q2bound )
 			q2 = NextPrime(q2, n);
 
@@ -100,7 +100,7 @@ bool LPAlgorithmParamsGenLTV<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParameters<
 		n *= 2;
 	}
 
-	vector<native_int::BigInteger> roots;
+	vector<NativeInteger> roots;
 
 	for( const auto& qv : qvals )
 		roots.push_back( RootOfUnity(n, qv) );
