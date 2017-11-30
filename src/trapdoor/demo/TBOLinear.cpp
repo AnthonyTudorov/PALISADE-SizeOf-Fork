@@ -37,7 +37,6 @@ using namespace lbcrypto;
 
 typedef typename LWETBOLinearSecret::NativeMatrixPtr NativeMatrixPtr;
 typedef typename LWETBOLinearSecret::NativeMatrix NativeMatrix;
-typedef typename LWETBOLinearSecret::NativeInteger NativeInteger;
 
 int main(int argc, char* argv[]) {
 	TimeVar t;

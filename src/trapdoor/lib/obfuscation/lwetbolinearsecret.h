@@ -51,7 +51,6 @@ namespace lbcrypto {
 	class LWETBOLinearSecret {
 	public:
 
-		typedef NativeInteger NativeInteger;
 		typedef shared_ptr<Matrix<NativeInteger>> NativeMatrixPtr;
 		typedef Matrix<NativeInteger> NativeMatrix;
 
