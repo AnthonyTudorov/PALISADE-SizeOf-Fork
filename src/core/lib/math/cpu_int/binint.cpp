@@ -627,58 +627,54 @@ const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::PlusEq(c
 	if( this->m_MSB == 0 )
 		return *this = b;
 
-	//two operands A and B for addition, A is the greater one, B is the smaller one
-    const BigInteger* A = NULL;
-	const BigInteger* B = NULL;
-
-	// FIXME
-	//Assignment of pointers, A assigned the higher value and B assigned the lower value
-	if(*this>b){
-		A = this; B = &b;
-	}
-	else {A = &b; B = this;}
-
-	BigInteger result;
-
 	//overflow variable
 	Duint_type ofl=0;
-	//position from A to start addition
-	uint_type ceilIntA = ceilIntByUInt(A->m_MSB);
-	//position from B to start addition
-	uint_type ceilIntB = ceilIntByUInt(B->m_MSB);
+	uint_type firstLoopCeil, secondLoopCeil;
 	size_t i;//counter
 
-	for(i=m_nSize-1;i>=m_nSize-ceilIntB;i--){
-		ofl =(Duint_type)A->m_value[i]+ (Duint_type)B->m_value[i]+ofl;//sum of the two int and the carry over
-		result.m_value[i] = (uint_type)ofl;
+	const BigInteger* larger = NULL;
+	if( *this>b ) {
+		larger = this;
+		firstLoopCeil = ceilIntByUInt(b.m_MSB);
+		secondLoopCeil = ceilIntByUInt(this->m_MSB);
+	}
+	else {
+		larger = &b;
+		firstLoopCeil = ceilIntByUInt(this->m_MSB);
+		secondLoopCeil = ceilIntByUInt(b.m_MSB);
+	}
+
+	for( i=m_nSize-1; i>=m_nSize-firstLoopCeil; i-- ) {
+		ofl =(Duint_type)this->m_value[i]+ (Duint_type)b.m_value[i]+ofl;//sum of the two int and the carry over
+		this->m_value[i] = (uint_type)ofl;
 		ofl>>=m_uintBitLength;//current overflow
 	}
 
-	if(ofl){
-		for(;i>=m_nSize-ceilIntA;i--){
-			ofl = (Duint_type)A->m_value[i]+ofl;//sum of the two int and the carry over
-			result.m_value[i] = (uint_type)ofl;
+	if( ofl ) {
+		for(;i>=m_nSize-secondLoopCeil;i--){
+			ofl = (Duint_type)larger->m_value[i]+ofl;//sum of the two int and the carry over
+			this->m_value[i] = (uint_type)ofl;
 			ofl>>=m_uintBitLength;//current overflow
 		}
 
 		if(ofl){//in the end if overflow is set it indicates MSB is one greater than the one we started with
-			result.m_value[m_nSize-ceilIntA-1] = 1;
-			result.m_MSB = A->m_MSB + 1;
+			this->m_value[m_nSize-secondLoopCeil-1] = 1;
+			this->m_MSB = larger->m_MSB + 1;
 		}
 		else{
-			result.m_MSB = (m_nSize - i - 2)*m_uintBitLength;
-			result.m_MSB += GetMSBUint_type(result.m_value[++i]);
+			this->m_MSB = (m_nSize - i - 2)*m_uintBitLength;
+			this->m_MSB += GetMSBUint_type(this->m_value[++i]);
 		}
 	}
 	else{
-		for(;i>=m_nSize-ceilIntA;i--){
-			result.m_value[i] = A->m_value[i];
+		for(;i>=m_nSize-secondLoopCeil;i--){
+			this->m_value[i] = larger->m_value[i];
 		}
-		result.m_MSB =  (m_nSize - i - 2)*m_uintBitLength;
-		result.m_MSB += GetMSBUint_type(result.m_value[++i]);
+		this->m_MSB =  (m_nSize - i - 2)*m_uintBitLength;
+		this->m_MSB += GetMSBUint_type(this->m_value[++i]);
 	}
 
-	return *this = result;
+	return *this;
 }
 
 /* Minus operation:
