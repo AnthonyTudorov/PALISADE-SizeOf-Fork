@@ -34,7 +34,9 @@
 
 #include "../../utils/serializable.h"
 #include "../../utils/inttypes.h"
- #include <initializer_list>
+#include "../cpu_int/binint.h"
+
+#include <initializer_list>
 
 /**
  * @namespace cpu8bit
@@ -47,9 +49,9 @@ namespace cpu_int {
 /**
  * @brief The class for representing vectors of big binary integers.
  */
-	//JSON FACILITY INHERITANCE
-	template <class IntegerType>
-	class BigVectorImpl : public lbcrypto::Serializable
+
+template <class IntegerType>
+class BigVectorImpl : public lbcrypto::Serializable
 {
 public:
 	/**
@@ -64,19 +66,12 @@ public:
     }
 
 	/**
-	 * Basic constructor for specifying the length of the vector.
-	 *
-	 * @param length is the length of the big binary vector, in terms of the number of entries.	  	  
-	 */
-	BigVectorImpl(usint length);
-
-	/**
 	 * Basic constructor for specifying the length of the vector and the modulus.
 	 *
 	 * @param length is the length of the big binary vector, in terms of the number of entries.	
 	 * @param modulus is the modulus of the ring.
 	 */
-	BigVectorImpl(usint length, const IntegerType& modulus);
+	BigVectorImpl(usint length, const IntegerType& modulus = 0);
 
 	/**
 	 * Basic constructor for specifying the length of the vector
@@ -487,6 +482,8 @@ private:
 		return true;
 	}
 };
+
+extern template class BigVectorImpl<BigInteger<integral_dtype,BigIntegerBitLength>>;
 
 template<typename IntegerType>
 inline BigVectorImpl<IntegerType> operator-(const BigVectorImpl<IntegerType> &a) { return BigVectorImpl<IntegerType>(0) - a; }

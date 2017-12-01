@@ -31,7 +31,6 @@
 #include <iostream>
 #define _USE_MATH_DEFINES
 #include "math/backend.h"
-#if 1
 #include "utils/inttypes.h"
 #include "math/nbtheory.h"
 #include "lattice/elemparams.h"
@@ -42,8 +41,6 @@
 #include "lattice/poly.h"
 #include "../../src/core/lib/lattice/dcrtpoly.h"
 #include "utils/utilities.h"
-#endif
-
 
 using namespace std;
 using namespace lbcrypto;
@@ -106,7 +103,7 @@ static void add_NativeInt(benchmark::State& state) {	// function
 	NativeInteger& b = state.range(0) == 0 ? smallb : largeb;
 	state.ResumeTiming();
 
-	a = a+b;
+	NativeInteger c = a+b;
 }
 
 static void BM_NativeInt_Addition(benchmark::State& state) { // benchmark
@@ -122,8 +119,8 @@ BENCHMARK(BM_NativeInt_Addition)->ArgName("Large")->Arg(1);
 // +=
 static void addeq_NativeInt(benchmark::State& state) {	// function
 	state.PauseTiming();
-	NativeInteger& a = state.range(0) == 0 ? smalla : largea;
-	NativeInteger& b = state.range(0) == 0 ? smallb : largeb;
+	NativeInteger a = state.range(0) == 0 ? smalla : largea;
+	NativeInteger b = state.range(0) == 0 ? smallb : largeb;
 	state.ResumeTiming();
 
 	a += b;
@@ -146,7 +143,7 @@ static void mult_NativeInt(benchmark::State& state) {	// function
 	NativeInteger& b = state.range(0) == 0 ? smallb : largeb;
 	state.ResumeTiming();
 
-	a = a*b;
+	NativeInteger c = a*b;
 }
 
 static void BM_NativeInt_Mult(benchmark::State& state) { // benchmark
@@ -162,8 +159,8 @@ BENCHMARK(BM_NativeInt_Mult)->ArgName("Large")->Arg(1);
 // *=
 static void multeq_NativeInt(benchmark::State& state) {	// function
 	state.PauseTiming();
-	NativeInteger& a = state.range(0) == 0 ? smalla : largea;
-	NativeInteger& b = state.range(0) == 0 ? smallb : largeb;
+	NativeInteger a = state.range(0) == 0 ? smalla : largea;
+	NativeInteger b = state.range(0) == 0 ? smallb : largeb;
 	state.ResumeTiming();
 
 	a *= b;

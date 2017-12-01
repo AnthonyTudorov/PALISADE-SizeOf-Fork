@@ -780,7 +780,7 @@ namespace cpu_int{
 	 * @return is the ostream object.
 	 */
     template<typename uint_type_c,usint BITLENGTH_c>
-	friend std::ostream& operator<<(std::ostream& os, const BigInteger<uint_type_c,BITLENGTH_c> &ptr_obj) {
+    friend std::ostream& operator<<(std::ostream& os, const BigInteger<uint_type_c,BITLENGTH_c>& ptr_obj){
 
     	//create reference for the object to be printed
     	BigInteger<uint_type_c,BITLENGTH_c> *print_obj;
@@ -822,7 +822,7 @@ namespace cpu_int{
     	return os;
     }
 
-	/**
+   /**
     * Gets the bit at the specified index.
     *
     * @param index is the index of the bit to get.
@@ -1002,6 +1002,8 @@ namespace cpu_int{
 		*/
 		static void add_bitVal(uschar* a,uschar b);
 	};
+
+	extern template class BigInteger<integral_dtype,BigIntegerBitLength>;
 
 }//namespace ends
 
