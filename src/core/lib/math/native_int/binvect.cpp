@@ -69,7 +69,7 @@ BigVectorImpl<IntegerType>::BigVectorImpl(usint length, const IntegerType& modul
 		if(i<len) {
 			m_data[i] = IntegerType(*(rhs.begin()+i));  
 		} else {
-			m_data[i] = 0;
+			m_data[i] = IntegerType(0);
 		}
 	}
 
@@ -85,7 +85,7 @@ BigVectorImpl<IntegerType>::BigVectorImpl(usint length, const IntegerType& modul
 		if(i<len) {
 			m_data[i] = IntegerType(*(rhs.begin()+i));  
 		} else {
-			m_data[i] = 0;
+			m_data[i] = IntegerType(0);
 		}
 	}
 }

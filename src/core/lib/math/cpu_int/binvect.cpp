@@ -41,15 +41,8 @@ namespace cpu_int {
 template<class IntegerType>
 BigVectorImpl<IntegerType>::BigVectorImpl(){
 	this->m_length = 0;
-	//this->m_modulus;
+	this->m_modulus = 0;
 	m_data = NULL;
-}
-
-template<class IntegerType>
-BigVectorImpl<IntegerType>::BigVectorImpl(usint length){
-	this->m_length = length;
-	//this->m_modulus;
-	this->m_data = new IntegerType[m_length] ();
 }
 
 template<class IntegerType>
