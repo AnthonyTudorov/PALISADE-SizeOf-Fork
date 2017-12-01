@@ -615,6 +615,72 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::Plus(const BigI
 	return result;
 }
 
+/* Addition operation:
+*  Algorithm used is usual school book sum and carry-over, expect for that radix is 2^m_bitLength.
+*/
+template<typename uint_type,usint BITLENGTH>
+const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::PlusEq(const BigInteger& b) {
+
+	// edge cases of adding 0 or adding to 0
+	if( b.m_MSB == 0 )
+		return *this;
+	if( this->m_MSB == 0 )
+		return *this = b;
+
+	//two operands A and B for addition, A is the greater one, B is the smaller one
+    const BigInteger* A = NULL;
+	const BigInteger* B = NULL;
+
+	// FIXME
+	//Assignment of pointers, A assigned the higher value and B assigned the lower value
+	if(*this>b){
+		A = this; B = &b;
+	}
+	else {A = &b; B = this;}
+
+	BigInteger result;
+
+	//overflow variable
+	Duint_type ofl=0;
+	//position from A to start addition
+	uint_type ceilIntA = ceilIntByUInt(A->m_MSB);
+	//position from B to start addition
+	uint_type ceilIntB = ceilIntByUInt(B->m_MSB);
+	size_t i;//counter
+
+	for(i=m_nSize-1;i>=m_nSize-ceilIntB;i--){
+		ofl =(Duint_type)A->m_value[i]+ (Duint_type)B->m_value[i]+ofl;//sum of the two int and the carry over
+		result.m_value[i] = (uint_type)ofl;
+		ofl>>=m_uintBitLength;//current overflow
+	}
+
+	if(ofl){
+		for(;i>=m_nSize-ceilIntA;i--){
+			ofl = (Duint_type)A->m_value[i]+ofl;//sum of the two int and the carry over
+			result.m_value[i] = (uint_type)ofl;
+			ofl>>=m_uintBitLength;//current overflow
+		}
+
+		if(ofl){//in the end if overflow is set it indicates MSB is one greater than the one we started with
+			result.m_value[m_nSize-ceilIntA-1] = 1;
+			result.m_MSB = A->m_MSB + 1;
+		}
+		else{
+			result.m_MSB = (m_nSize - i - 2)*m_uintBitLength;
+			result.m_MSB += GetMSBUint_type(result.m_value[++i]);
+		}
+	}
+	else{
+		for(;i>=m_nSize-ceilIntA;i--){
+			result.m_value[i] = A->m_value[i];
+		}
+		result.m_MSB =  (m_nSize - i - 2)*m_uintBitLength;
+		result.m_MSB += GetMSBUint_type(result.m_value[++i]);
+	}
+
+	return *this = result;
+}
+
 /* Minus operation:
 *  Algorithm used is usual school book borrow and subtract, except for that radix is 2^m_bitLength.
 */
@@ -671,25 +737,24 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::Minus(const Big
 *  Algorithm used is usual school book shift and add after multiplication, except for that radix is 2^m_bitLength.
 */
 template<typename uint_type,usint BITLENGTH>
-void BigInteger<uint_type, BITLENGTH>::Times(const BigInteger& b, BigInteger *ans) const {
+BigInteger<uint_type,BITLENGTH> BigInteger<uint_type, BITLENGTH>::Times(const BigInteger& b) const {
 
-	//BigInteger ans;
+	BigInteger ans;
 
 	//if one of them is zero
 	if (b.m_MSB == 0 || this->m_MSB == 0) {
-		*ans = ZERO;
-		return;
-		//return ans;
+		ans = ZERO;
+		return ans;
 	}
 
 	//check for trivial conditions
 	if (b.m_MSB == 1) {
-		*ans = *this;
-		return;
+		ans = *this;
+		return ans;
 	}
 	if (this->m_MSB == 1) {
-		*ans = b;
-		return;
+		ans = b;
+		return ans;
 	}
 	
 	//position of B in the array where the multiplication should start
@@ -699,73 +764,105 @@ void BigInteger<uint_type, BITLENGTH>::Times(const BigInteger& b, BigInteger *an
 	BigInteger temp;
 	for(size_t i= m_nSize-1;i>= m_nSize-ceilInt;i--){
 		this->MulIntegerByCharInPlace(b.m_value[i], &temp);
-		*ans += temp<<=( m_nSize-1-i)*m_uintBitLength;
+		ans += temp<<=( m_nSize-1-i)*m_uintBitLength;
 	}
 
-	return;
-
-	//return ans;
+	return ans;
 }
 
-
+/* Times operation:
+*  Algorithm used is usual school book shift and add after multiplication, except for that radix is 2^m_bitLength.
+*/
 template<typename uint_type,usint BITLENGTH>
-const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::operator+=(const BigInteger &b){
-	const BigInteger* A = NULL;//two operands A and B for addition, A is the greater one, B is the smaller one
-	const BigInteger* B = NULL;
+const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type, BITLENGTH>::TimesEq(const BigInteger& b) {
 
-	//check for trivial cases
-	if(b.m_MSB==0){
+	//if one of them is zero
+	if (b.m_MSB == 0 || this->m_MSB == 0) {
+		*this = ZERO;
 		return *this;
 	}
 
-	//assigning pointers, A is assigned higher value and B the lower one
-	if(this->m_MSB > b.m_MSB){
-	//if(*this>b){
-		A = this; B = &b;
+	//check for trivial conditions
+	if (b.m_MSB == 1) {
+		return *this;
 	}
-	else {A = &b; B = this;}
-	//overflow variable
-	Duint_type ofl=0;
-	//position in the array of A to start addition 
-	uint_type ceilIntA = ceilIntByUInt(A->m_MSB);
-	//position in the array of B to start addition
-	uint_type ceilIntB = ceilIntByUInt(B->m_MSB);
-
-	//counter
-	int i;
-        // DTS: watch sign/unsign compare!!!!
-	for(i=m_nSize-1;i>=(int)(m_nSize-ceilIntB);i--){
-		ofl =(Duint_type)A->m_value[i]+ (Duint_type)B->m_value[i]+ofl;//sum of the two apint and the carry over
-		this->m_value[i] = (uint_type)ofl;
-		ofl>>=m_uintBitLength;//current overflow
+	if (this->m_MSB == 1) {
+		*this = b;
+		return *this;
 	}
 
-	if(ofl){
-		for(;i>=(int)(m_nSize-ceilIntA);i--){
-			ofl = (Duint_type)A->m_value[i]+ofl;//sum of the two int and the carry over
-			this->m_value[i] = (uint_type)ofl;
-			ofl>>=m_uintBitLength;//current overflow
-		}
-
-		if(ofl){//in the end if overflow is set it indicates MSB is one greater than the one we started with
-			this->m_value[m_nSize-ceilIntA-1] = 1;
-			this->m_MSB = A->m_MSB + 1;
-		}
-		else{
-			this->m_MSB = (m_nSize - i - 2)*m_uintBitLength;
-			this->m_MSB += GetMSBUint_type(this->m_value[++i]);
-		}
+	//position of B in the array where the multiplication should start
+	uint_type ceilInt = ceilIntByUInt(b.m_MSB);
+	//Multiplication is done by getting a uint_type from b and multiplying it with *this
+	//after multiplication the result is shifted and added to the final answer
+	BigInteger temp;
+	for(size_t i= m_nSize-1;i>= m_nSize-ceilInt;i--){
+		this->MulIntegerByCharInPlace(b.m_value[i], &temp);
+		*this += temp<<=( m_nSize-1-i)*m_uintBitLength;
 	}
-	else{
-		for(;i>=(int)(m_nSize-ceilIntA);i--) {
-			this->m_value[i] = A->m_value[i];
-		}
-		this->m_MSB = (m_nSize-i-2)*m_uintBitLength;
-		this->m_MSB += GetMSBUint_type(this->m_value[++i]);
-	}	
 
 	return *this;
 }
+
+
+//template<typename uint_type,usint BITLENGTH>
+//const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::operator+=(const BigInteger &b){
+//	const BigInteger* A = NULL;//two operands A and B for addition, A is the greater one, B is the smaller one
+//	const BigInteger* B = NULL;
+//
+//	//check for trivial cases
+//	if(b.m_MSB==0){
+//		return *this;
+//	}
+//
+//	//assigning pointers, A is assigned higher value and B the lower one
+//	if(this->m_MSB > b.m_MSB){
+//	//if(*this>b){
+//		A = this; B = &b;
+//	}
+//	else {A = &b; B = this;}
+//	//overflow variable
+//	Duint_type ofl=0;
+//	//position in the array of A to start addition
+//	uint_type ceilIntA = ceilIntByUInt(A->m_MSB);
+//	//position in the array of B to start addition
+//	uint_type ceilIntB = ceilIntByUInt(B->m_MSB);
+//
+//	//counter
+//	int i;
+//        // DTS: watch sign/unsign compare!!!!
+//	for(i=m_nSize-1;i>=(int)(m_nSize-ceilIntB);i--){
+//		ofl =(Duint_type)A->m_value[i]+ (Duint_type)B->m_value[i]+ofl;//sum of the two apint and the carry over
+//		this->m_value[i] = (uint_type)ofl;
+//		ofl>>=m_uintBitLength;//current overflow
+//	}
+//
+//	if(ofl){
+//		for(;i>=(int)(m_nSize-ceilIntA);i--){
+//			ofl = (Duint_type)A->m_value[i]+ofl;//sum of the two int and the carry over
+//			this->m_value[i] = (uint_type)ofl;
+//			ofl>>=m_uintBitLength;//current overflow
+//		}
+//
+//		if(ofl){//in the end if overflow is set it indicates MSB is one greater than the one we started with
+//			this->m_value[m_nSize-ceilIntA-1] = 1;
+//			this->m_MSB = A->m_MSB + 1;
+//		}
+//		else{
+//			this->m_MSB = (m_nSize - i - 2)*m_uintBitLength;
+//			this->m_MSB += GetMSBUint_type(this->m_value[++i]);
+//		}
+//	}
+//	else{
+//		for(;i>=(int)(m_nSize-ceilIntA);i--) {
+//			this->m_value[i] = A->m_value[i];
+//		}
+//		this->m_MSB = (m_nSize-i-2)*m_uintBitLength;
+//		this->m_MSB += GetMSBUint_type(this->m_value[++i]);
+//	}
+//
+//	return *this;
+//}
 
 template<typename uint_type,usint BITLENGTH>
 const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::operator-=(const BigInteger &b){
@@ -810,10 +907,7 @@ const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::operator
 
 template<typename uint_type, usint BITLENGTH>
 BigInteger<uint_type, BITLENGTH> BigInteger<uint_type, BITLENGTH>::operator*(const BigInteger &a) const{
-// the use of pointer variable for result in Times reduces the number of BigInteger instantiations (by one)
-	BigInteger result;
-	this->Times(a, &result);
-	return result;
+	return this->Times(a);
 }
 
 /* Times operation:
@@ -1358,6 +1452,12 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModInverse(cons
 template<typename uint_type,usint BITLENGTH>
 BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModAdd(const BigInteger& b, const BigInteger& modulus) const{
 	return this->Plus(b).Mod(modulus);
+}
+
+// FIXME mod in place
+template<typename uint_type,usint BITLENGTH>
+const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::ModAddEq(const BigInteger& b, const BigInteger& modulus) {
+	return *this = this->PlusEq(b).Mod(modulus);
 }
 
 //Optimized Mod Addition using ModBarrett

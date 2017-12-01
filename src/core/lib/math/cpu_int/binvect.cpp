@@ -283,6 +283,14 @@ BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModAdd(const IntegerType 
 }
 
 template<class IntegerType>
+const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::ModAddEq(const IntegerType &b) {
+	for(usint i=0;i<this->m_length;i++){
+		this->m_data[i].ModAddEq(b, this->m_modulus);
+	}
+	return *this;
+}
+
+template<class IntegerType>
 BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModSub(const IntegerType &b) const{
 	BigVectorImpl ans(*this);
 
@@ -364,7 +372,18 @@ BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModMul(const IntegerType 
 	return ans;
 }
 
+template<class IntegerType>
+const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::ModMulEq(const IntegerType &b) {
 
+	//Precompute the Barrett mu parameter
+	IntegerType mu = lbcrypto::ComputeMu<IntegerType>(m_modulus);
+
+	for(usint i=0;i<this->m_length;i++){
+		this->m_data[i].ModBarrettMulInPlace(b,this->m_modulus,mu);
+	}
+
+	return *this;
+}
 
 template<class IntegerType>
 BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModExp(const IntegerType &b) const{
@@ -399,6 +418,20 @@ BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModAdd(const BigVectorImp
 		ans.m_data[i] = ans.m_data[i].ModAdd(b.m_data[i],this->m_modulus);
 	}
 	return ans;
+
+}
+
+template<class IntegerType>
+const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::ModAddEq(const BigVectorImpl &b) {
+
+	if((this->m_length!=b.m_length) || this->m_modulus!=b.m_modulus ){
+        throw std::logic_error("ModAddEq called on BigVectorImpl's with different parameters.");
+	}
+
+	for(usint i=0;i<this->m_length;i++){
+		this->m_data[i].ModAddEq(b.m_data[i],this->m_modulus);
+	}
+	return *this;
 
 }
 
@@ -441,19 +474,19 @@ BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModByTwo() const {
 	return ans;
 }
 
-template<class IntegerType>
-const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::operator+=(const BigVectorImpl &b) {
-
-	if((this->m_length!=b.m_length) || this->m_modulus!=b.m_modulus ){
-        throw std::logic_error("operator+= called on BigVectorImpl's with different parameters.");
-	}
-
-	for(usint i=0;i<this->m_length;i++){
-		this->m_data[i] = this->m_data[i].ModAdd(b.m_data[i],this->m_modulus);
-	}
-	return *this;
-
-}
+//template<class IntegerType>
+//const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::operator+=(const BigVectorImpl &b) {
+//
+//	if((this->m_length!=b.m_length) || this->m_modulus!=b.m_modulus ){
+//        throw std::logic_error("operator+= called on BigVectorImpl's with different parameters.");
+//	}
+//
+//	for(usint i=0;i<this->m_length;i++){
+//		this->m_data[i] = this->m_data[i].ModAdd(b.m_data[i],this->m_modulus);
+//	}
+//	return *this;
+//
+//}
 
 template<class IntegerType>
 const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::operator-=(const BigVectorImpl &b) {
@@ -502,10 +535,25 @@ BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModMul(const BigVectorImp
 	IntegerType mu = lbcrypto::ComputeMu<IntegerType>(this->GetModulus());
 
 	for(usint i=0;i<ans.m_length;i++){
-		//ans.m_data[i] = ans.m_data[i].ModMul(b.m_data[i],this->m_modulus);
 		ans.m_data[i].ModBarrettMulInPlace(b.m_data[i],this->m_modulus,mu);
 	}
 	return ans;
+}
+
+template<class IntegerType>
+const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::ModMulEq(const BigVectorImpl &b) {
+
+	if((this->m_length!=b.m_length) || this->m_modulus!=b.m_modulus ){
+        throw std::logic_error("ModMul called on BigVectorImpl's with different parameters.");
+	}
+
+	//Precompute the Barrett mu parameter
+	IntegerType mu = lbcrypto::ComputeMu<IntegerType>(this->GetModulus());
+
+	for(usint i=0;i<this->m_length;i++){
+		this->m_data[i].ModBarrettMulInPlace(b.m_data[i],this->m_modulus,mu);
+	}
+	return *this;
 }
 
 template<class IntegerType>

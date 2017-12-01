@@ -24,9 +24,10 @@
  */
 /*
   This code benchmarks functions of the math directory  of the PALISADE lattice encryption library.
-
-*/
+ */
 #include "benchmark/benchmark_api.h"
+
+
 
 #include <iostream>
 #define _USE_MATH_DEFINES
@@ -42,87 +43,87 @@
 #include "../../src/core/lib/lattice/dcrtpoly.h"
 #include "utils/utilities.h"
 
-#include "BBVhelper.h"
+#include "vechelper.h"
 #include "ElementParmsHelper.h"
 
 using namespace std;
 using namespace lbcrypto;
 
 // add
-static void add_BBVNative(benchmark::State& state) {
+static void add_BigVec(benchmark::State& state) {
 	state.PauseTiming();
-	NativeVector a = makeNativeVector(nparmArray[state.range(0)]);
-	NativeVector b = makeNativeVector(nparmArray[state.range(0)]);
+	BigVector a = makeVector(parmArray[state.range(0)]);
+	BigVector b = makeVector(parmArray[state.range(0)]);
 	state.ResumeTiming();
 
-	a = a+b;
+	BigVector c1 = a+b;
 }
 
-static void BM_BBVNative_Addition(benchmark::State& state) { // benchmark
+static void BM_BigVec_Addition(benchmark::State& state) { // benchmark
 
 	while (state.KeepRunning()) {
-		add_BBVNative(state);
+		add_BigVec(state);
 	}
 }
 
-DO_NATIVEPARM_BENCHMARK(BM_BBVNative_Addition)
+DO_PARM_BENCHMARK(BM_BigVec_Addition)
 
 // +=
-static void addeq_BBVNative(benchmark::State& state) {
+static void addeq_BigVec(benchmark::State& state) {
 	state.PauseTiming();
-	NativeVector a = makeNativeVector(nparmArray[state.range(0)]);
-	NativeVector b = makeNativeVector(nparmArray[state.range(0)]);
+	BigVector a = makeVector(parmArray[state.range(0)]);
+	BigVector b = makeVector(parmArray[state.range(0)]);
 	state.ResumeTiming();
 
 	a += b;
 }
 
-static void BM_BBVNative_AddEq(benchmark::State& state) { // benchmark
+static void BM_BigVec_Addeq(benchmark::State& state) { // benchmark
 
 	while (state.KeepRunning()) {
-		addeq_BBVNative(state);
+		addeq_BigVec(state);
 	}
 }
 
-DO_NATIVEPARM_BENCHMARK(BM_BBVNative_AddEq)
+DO_PARM_BENCHMARK(BM_BigVec_Addeq)
 
 // mult
-static void mult_BBVNative(benchmark::State& state) {	// function
+static void mult_BigVec(benchmark::State& state) {	// function
 	state.PauseTiming();
-	NativeVector a = makeNativeVector(nparmArray[state.range(0)]);
-	NativeVector b = makeNativeVector(nparmArray[state.range(0)]);
+	BigVector a = makeVector(parmArray[state.range(0)]);
+	BigVector b = makeVector(parmArray[state.range(0)]);
 	state.ResumeTiming();
 
-	a = a*b;
+	BigVector c1 = a*b;
 }
 
-static void BM_BBVNative_Multiplication(benchmark::State& state) { // benchmark
+static void BM_BigVec_Multiplication(benchmark::State& state) { // benchmark
 
 	while (state.KeepRunning()) {
-		mult_BBVNative(state);
+		mult_BigVec(state);
 	}
 }
 
-DO_NATIVEPARM_BENCHMARK(BM_BBVNative_Multiplication)
+DO_PARM_BENCHMARK(BM_BigVec_Multiplication)
 
-// *=
-static void multeq_BBVNative(benchmark::State& state) {	// function
+// mult
+static void multeq_BigVec(benchmark::State& state) {	// function
 	state.PauseTiming();
-	NativeVector a = makeNativeVector(nparmArray[state.range(0)]);
-	NativeVector b = makeNativeVector(nparmArray[state.range(0)]);
+	BigVector a = makeVector(parmArray[state.range(0)]);
+	BigVector b = makeVector(parmArray[state.range(0)]);
 	state.ResumeTiming();
 
 	a *= b;
 }
 
-static void BM_BBVNative_MultEq(benchmark::State& state) { // benchmark
+static void BM_BigVec_Multeq(benchmark::State& state) { // benchmark
 
 	while (state.KeepRunning()) {
-		multeq_BBVNative(state);
+		multeq_BigVec(state);
 	}
 }
 
-DO_NATIVEPARM_BENCHMARK(BM_BBVNative_MultEq)
+DO_PARM_BENCHMARK(BM_BigVec_Multeq)
 
 //execute the benchmarks
 BENCHMARK_MAIN()
