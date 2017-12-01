@@ -24,8 +24,8 @@
  *
  */
 
-#ifndef _BBVHELPER_H_
-#define _BBVHELPER_H_
+#ifndef _VECHELPER_H_
+#define _VECHELPER_H_
 
 #include <utility>
 #define _USE_MATH_DEFINES

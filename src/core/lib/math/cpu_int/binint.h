@@ -189,9 +189,6 @@ namespace cpu_int{
 		typedef uint64_t T;
 	};
 
-//this is to support the multiprecision backend running over uint64_t limbs
-//__uint128_t is not supported by VC++
-#if !defined(_MSC_VER)
     /**
     * @brief Struct to determine a datatype that is twice as big(bitwise) as utype.
     * sets T as of type unsigned integer 128 bit if integral datatype is 64bit
@@ -200,8 +197,6 @@ namespace cpu_int{
 	struct DoubleDataType<uint64_t>{
 		typedef __uint128_t T;
 	};
-#endif
-
 
 
     const double LOG2_10 = 3.32192809;	//!< @brief A pre-computed constant of Log base 2 of 10.
@@ -214,7 +209,7 @@ namespace cpu_int{
 	 * @tparam BITLENGTH maximum bitdwidth supported for big integers
 	 */
 	template<typename uint_type,usint BITLENGTH>
-	class BigInteger
+	class BigInteger : public lbcrypto::BigIntegerInterface<BigInteger<uint_type,BITLENGTH>>
 	{
 
 	public:
@@ -378,14 +373,22 @@ namespace cpu_int{
     */
     BigInteger Plus(const BigInteger& b) const;
 
-		
     /**
-    * Addition accumulator.
+    * Addition operation.
     *
-    * @param &b is the value to add of type BigInteger.
+    * @param b is the value to add of type BigInteger.
     * @return result of the addition operation of type BigInteger.
     */
-    const BigInteger& operator+=(const BigInteger &b);
+    const BigInteger& PlusEq(const BigInteger& b);
+
+
+//    /**
+//    * Addition accumulator.
+//    *
+//    * @param &b is the value to add of type BigInteger.
+//    * @return result of the addition operation of type BigInteger.
+//    */
+//    const BigInteger& operator+=(const BigInteger &b);
 
 		
     /**
@@ -411,7 +414,16 @@ namespace cpu_int{
 	* @param *ans - stores the result
     * @return result of the multiplication operation.
     */
-    void Times(const BigInteger& b, BigInteger *ans) const;
+    BigInteger Times(const BigInteger& b) const;
+
+    /**
+    * Multiplication operation. Pointer is used to minimize the number of BigInteger instantiations.
+    *
+    * @param b of type BigInteger is the value to multiply with.
+	* @param *ans - stores the result
+    * @return result of the multiplication operation.
+    */
+    const BigInteger& TimesEq(const BigInteger& b);
 
     /**
     * Division operation.
@@ -480,6 +492,15 @@ namespace cpu_int{
     * @return result of the modulus addition operation.
     */
     BigInteger ModAdd(const BigInteger& b, const BigInteger& modulus) const;
+
+    /**
+    * Scalar modular addition.
+    *
+    * @param &b is the scalar to add.
+    * @param modulus is the modulus to perform operations with.
+    * @return result of the modulus addition operation.
+    */
+    const BigInteger& ModAddEq(const BigInteger& b, const BigInteger& modulus);
 
     /**
     * Modular addition where Barrett modulo reduction is used.

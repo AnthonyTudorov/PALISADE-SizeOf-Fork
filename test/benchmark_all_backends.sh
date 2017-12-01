@@ -22,7 +22,7 @@ do
 	echo Benchmarking MATHBACKEND $i
 	echo "****************************"
 
-	for bm in BBIMath BBINativeMath BBVMath BBVNativeMath NbTheory Lattice LatticeNative
+	for bm in BigIntegerMath NativeIntegerMath BigVectorMath NativeVectorMath NbTheory Lattice LatticeNative
 	do
 		echo $bm:
 		$BMDIR/${bm} ${smallbmargs} 

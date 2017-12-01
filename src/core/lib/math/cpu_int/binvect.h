@@ -51,7 +51,7 @@ namespace cpu_int {
  */
 
 template <class IntegerType>
-class BigVectorImpl : public lbcrypto::Serializable
+class BigVectorImpl : public lbcrypto::BigVectorInterface<BigVectorImpl<IntegerType>,IntegerType>, lbcrypto::Serializable
 {
 public:
 	/**
@@ -314,6 +314,14 @@ public:
 	BigVectorImpl ModAdd(const IntegerType &b) const;	
 
 	/**
+	 * Scalar modulus addition.
+	 *
+	 * After addition modulus operation is performed with the current vector modulus.
+	 * @return a new vector which is the result of the modulus addition operation.
+	 */
+	const BigVectorImpl& ModAddEq(const IntegerType &b);
+
+	/**
 	 * Scalar modulus subtraction.
 	 * After substraction modulus operation is performed with the current vector modulus.
 	 * @param &b is the scalar to subtract from all locations.
@@ -329,6 +337,15 @@ public:
 	 * @return is the result of the modulus multiplication operation.
 	 */
 	BigVectorImpl ModMul(const IntegerType &b) const;
+
+	/**
+	 * Scalar modular multiplication. Generalized Barrett modulo reduction algorithm.
+	 * See the comments in the cpp files for details of the implementation.
+	 *
+	 * @param &b is the scalar to multiply at all locations.
+	 * @return is the result of the modulus multiplication operation.
+	 */
+	const BigVectorImpl& ModMulEq(const IntegerType &b);
 
 	/**
 	 * Scalar modulus exponentiation.
@@ -347,17 +364,17 @@ public:
 	 */
 	BigVectorImpl ModInverse() const;
 
-	/**
-	 * Modulus scalar multiplication assignment.
-	 *
-	 * @param &a is the input vector to multiply.
-	 * @param &i is the input integer to multiply at all entries.
-	 * @return a new vector which is the result of the modulus multiplication operation.
-	 */
-	BigVectorImpl &operator*=(const IntegerType &i) {
-	    *this=this->ModMul(i);
-	    return *this;
-	  }
+//	/**
+//	 * Modulus scalar multiplication assignment.
+//	 *
+//	 * @param &a is the input vector to multiply.
+//	 * @param &i is the input integer to multiply at all entries.
+//	 * @return a new vector which is the result of the modulus multiplication operation.
+//	 */
+//	BigVectorImpl &operator*=(const IntegerType &i) {
+//	    *this=this->ModMul(i);
+//	    return *this;
+//	  }
 
 	//Vector Operations
 
@@ -371,19 +388,27 @@ public:
 	BigVectorImpl ModAdd(const BigVectorImpl &b) const;
 
 	/**
+	 * vector modulus addition.
+	 *
+	 * @param &b is the vector to add at all locations.
+	 * @return a new vector which is the result of the modulus addition operation.
+	 */
+	const BigVectorImpl& ModAddEq(const BigVectorImpl &b);
+
+	/**
 	* Perform a modulus by 2 operation.  Returns the least significant bit.
 	*
 	* @return a new vector which is the return value of the modulus by 2, also the least significant bit.
 	*/
 	BigVectorImpl ModByTwo() const;
 
-	/**
-	 * Vector Self Modulus Addition.
-	 *
-	 * @param &b is the vector to add.
-	 * @return a reference to the result of the modulus addition operation.
-	 */
-	const BigVectorImpl& operator+=(const BigVectorImpl &b);
+//	/**
+//	 * Vector Self Modulus Addition.
+//	 *
+//	 * @param &b is the vector to add.
+//	 * @return a reference to the result of the modulus addition operation.
+//	 */
+//	const BigVectorImpl& operator+=(const BigVectorImpl &b);
 
 
 	/**
@@ -413,6 +438,14 @@ public:
 	 * @return is the result of the modulus multiplication operation.
 	 */
 	BigVectorImpl ModMul(const BigVectorImpl &b) const;
+
+	/**
+	 * Vector modulus multiplication.
+	 *
+	 * @param &b is the vector to multiply.
+	 * @return is the result of the modulus multiplication operation.
+	 */
+	const BigVectorImpl& ModMulEq(const BigVectorImpl &b);
 
 	/**
 	 * Vector multiplication without applying the modulus operation.
