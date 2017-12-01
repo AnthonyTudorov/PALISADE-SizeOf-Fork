@@ -256,7 +256,7 @@ TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
 }
 
 TEST(UTTrapdoor, TrapDoorGaussGqSampTestBase1024) {
-	bool dbg_flag = false;
+	bool dbg_flag = true;
 	DEBUG("start tests");
 	
 	usint m = 1024;
@@ -319,6 +319,7 @@ TEST(UTTrapdoor, TrapDoorGaussGqSampTestBase1024) {
 	Matrix<Poly> z = SplitInt32AltIntoElements<Poly>(zHatBBI, n, params);
 	z.SwitchFormat();
 
+	DEBUG("5");
 	Poly uEst;
 	uEst = (Matrix<Poly>(zero_alloc, 1, k).GadgetVector(base)*z)(0, 0);
 	uEst.SwitchFormat();
