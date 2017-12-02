@@ -52,6 +52,8 @@ using namespace lbcrypto;
 
 //Poly tests
 void PKE();
+void SHETestCoeff();
+void SHETestPacked();
 void SwitchCRT();
 void Multiply();
 void MultiplyTwo();
@@ -59,11 +61,13 @@ void MultiplyThree();
 
 int main() {
 
-	PKE();
-	SwitchCRT();
-	Multiply();
-	MultiplyTwo();
-	MultiplyThree();
+	//PKE();
+	SHETestCoeff();
+	SHETestPacked();
+	//SwitchCRT();
+	//Multiply();
+	//MultiplyTwo();
+	//MultiplyThree();
 
 	//std::cout << "Please press any key to continue..." << std::endl;
 
@@ -167,6 +171,277 @@ void PKE() {
 
 	cout << "\n";
 
+
+}
+
+void SHETestCoeff() {
+
+	std::cout << "\n===========TESTING SHE - ADDITION, SUBTRACTION, NEGATION - COEFFICIENT ENCODING===============: " << std::endl;
+
+	std::cout << "\nThis code demonstrates the use of the FV scheme for basic homomorphic encryption operations. " << std::endl;
+	std::cout << "This code shows how to auto-generate parameters during run-time based on desired plaintext moduli and security levels. " << std::endl;
+	std::cout << "In this demonstration we use three input plaintext and show how to both add them together and multiply them together. " << std::endl;
+
+	//Generate parameters.
+	double diff, start, finish;
+
+	int relWindow = 1;
+	usint plaintextModulus = 1<<31;
+	double sigma = 3.2;
+	double rootHermiteFactor = 1.006;
+
+	//Set Crypto Parameters
+	shared_ptr<CryptoContext<DCRTPoly>> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
+			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 6, 0, OPTIMIZED,7);
+
+	// enable features that you wish to use
+	cryptoContext->Enable(ENCRYPTION);
+	cryptoContext->Enable(SHE);
+
+	std::cout << "p = " << cryptoContext->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
+	std::cout << "n = " << cryptoContext->GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
+	std::cout << "log2 q = " << log2(cryptoContext->GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
+
+	// Initialize Public Key Containers
+	LPKeyPair<DCRTPoly> keyPair;
+
+	////////////////////////////////////////////////////////////
+	// Perform Key Generation Operation
+	////////////////////////////////////////////////////////////
+
+	std::cout << "Running key generation (used for source data)..." << std::endl;
+
+	start = currentDateTime();
+
+	keyPair = cryptoContext->KeyGen();
+
+	finish = currentDateTime();
+	diff = finish - start;
+	cout << "Key generation time: " << "\t" << diff << " ms" << endl;
+
+	if( !keyPair.good() ) {
+		std::cout << "Key generation failed!" << std::endl;
+		exit(1);
+	}
+
+	////////////////////////////////////////////////////////////
+	// Encode source data
+	////////////////////////////////////////////////////////////
+
+	std::vector<uint32_t> vectorOfInts1 = {1,2,3,4,5,6,7,8,9,10,11,12};
+	Plaintext plaintext1 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts1);
+
+	std::vector<uint32_t> vectorOfInts2 = {1,2,3,4,5,6,7,8,9,10,11,12};
+	Plaintext plaintext2 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts2);
+
+	////////////////////////////////////////////////////////////
+	// Encryption
+	////////////////////////////////////////////////////////////
+
+	start = currentDateTime();
+
+	auto ciphertext1 = cryptoContext->Encrypt(keyPair.publicKey, plaintext1);
+
+	finish = currentDateTime();
+	diff = finish - start;
+	cout << "Encryption time: " << "\t" << diff << " ms" << endl;
+
+	auto ciphertext2 = cryptoContext->Encrypt(keyPair.publicKey, plaintext2);
+
+	// Addition
+
+	auto ciphertextSum = cryptoContext->EvalAdd(ciphertext1,ciphertext2);
+
+	auto ciphertextSub = cryptoContext->EvalSub(ciphertext1,ciphertext2);
+
+	auto ciphertextNeg = cryptoContext->EvalNegate(ciphertext1);
+
+
+	////////////////////////////////////////////////////////////
+	//Decryption of Ciphertext
+	////////////////////////////////////////////////////////////
+
+	Plaintext plaintextDec;
+
+	start = currentDateTime();
+
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertextSum, &plaintextDec);
+
+	finish = currentDateTime();
+	diff = finish - start;
+	cout << "Decryption time: " << "\t" << diff << " ms" << endl;
+
+	//std::cin.get();
+
+	Plaintext plaintextDecSub;
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertextSub, &plaintextDecSub);
+	plaintextDecSub->SetLength(plaintext1->GetLength());
+
+	Plaintext plaintextDecNeg;
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertextNeg, &plaintextDecNeg);
+	plaintextDecNeg->SetLength(plaintext1->GetLength());
+
+	plaintextDec->SetLength(plaintext1->GetLength());
+
+	cout << "\n Original Plaintext #1: \n";
+	cout << plaintext1 << endl;
+
+	cout << "\n Original Plaintext #2: \n";
+	cout << plaintext2 << endl;
+
+	cout << "\n Resulting Decryption of the Sum: \n";
+	cout << plaintextDec << endl;
+
+	cout << "\n Resulting Decryption of the Subtraction: \n";
+	cout << plaintextDecSub << endl;
+
+	cout << "\n Resulting Decryption of the Negation: \n";
+	cout << plaintextDecNeg << endl;
+
+	cout << "\n";
+
+
+}
+
+void SHETestPacked() {
+
+	std::cout << "\n===========TESTING SHE - ADDITION, SUBTRACTION, NEGATION - PACKED ENCODING===============: " << std::endl;
+
+	std::cout << "\nThis code demonstrates the use of the FV scheme for basic homomorphic encryption operations. " << std::endl;
+	std::cout << "This code shows how to auto-generate parameters during run-time based on desired plaintext moduli and security levels. " << std::endl;
+	std::cout << "In this demonstration we use three input plaintext and show how to both add them together and multiply them together. " << std::endl;
+
+	//Generate parameters.
+	double diff, start, finish;
+
+	int relWindow = 1;
+	usint plaintextModulus = 536903681;
+	double sigma = 3.2;
+	double rootHermiteFactor = 1.006;
+
+	//Set Crypto Parameters
+	shared_ptr<CryptoContext<DCRTPoly>> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
+			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 6, 0, OPTIMIZED,7);
+
+	// enable features that you wish to use
+	cryptoContext->Enable(ENCRYPTION);
+	cryptoContext->Enable(SHE);
+
+	std::cout << "p = " << cryptoContext->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
+	std::cout << "n = " << cryptoContext->GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
+	std::cout << "log2 q = " << log2(cryptoContext->GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
+
+	// Initialize Public Key Containers
+	LPKeyPair<DCRTPoly> keyPair;
+
+	////////////////////////////////////////////////////////////
+	// Perform Key Generation Operation
+	////////////////////////////////////////////////////////////
+
+	std::cout << "Running key generation (used for source data)..." << std::endl;
+
+	start = currentDateTime();
+
+	keyPair = cryptoContext->KeyGen();
+
+	finish = currentDateTime();
+	diff = finish - start;
+	cout << "Key generation time: " << "\t" << diff << " ms" << endl;
+
+	if( !keyPair.good() ) {
+		std::cout << "Key generation failed!" << std::endl;
+		exit(1);
+	}
+
+	////////////////////////////////////////////////////////////
+	// Encode source data
+	////////////////////////////////////////////////////////////
+
+	std::vector<uint32_t> vectorOfInts1 = {1,2,3,4,5,6,7,8,9,10,11,12};
+	Plaintext plaintext1 = cryptoContext->MakePackedPlaintext(vectorOfInts1);
+
+	std::vector<uint32_t> vectorOfInts2 = {1,2,3,4,5,6,7,8,9,10,11,12};
+	Plaintext plaintext2 = cryptoContext->MakePackedPlaintext(vectorOfInts2);
+
+	////////////////////////////////////////////////////////////
+	// Encryption
+	////////////////////////////////////////////////////////////
+
+	start = currentDateTime();
+
+	auto ciphertext1 = cryptoContext->Encrypt(keyPair.publicKey, plaintext1);
+
+	finish = currentDateTime();
+	diff = finish - start;
+	cout << "Encryption time: " << "\t" << diff << " ms" << endl;
+
+	auto ciphertext2 = cryptoContext->Encrypt(keyPair.publicKey, plaintext2);
+
+	// Operations
+
+	auto ciphertextSum = cryptoContext->EvalAdd(ciphertext1,ciphertext2);
+
+	auto ciphertextSub = cryptoContext->EvalSub(ciphertext1,ciphertext2);
+
+	auto ciphertextNeg = cryptoContext->EvalNegate(ciphertext1);
+
+	start = currentDateTime();
+
+	auto ciphertextMul = cryptoContext->EvalMultNoRelin(ciphertext1,ciphertext2);
+
+	finish = currentDateTime();
+	diff = finish - start;
+	cout << "Homomorphic multiplication time: " << "\t" << diff << " ms" << endl;
+
+	////////////////////////////////////////////////////////////
+	//Decryption of Ciphertext
+	////////////////////////////////////////////////////////////
+
+	Plaintext plaintextDec;
+
+	start = currentDateTime();
+
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertextSum, &plaintextDec);
+
+	finish = currentDateTime();
+	diff = finish - start;
+	cout << "Decryption time: " << "\t" << diff << " ms" << endl;
+
+	//std::cin.get();
+
+	plaintextDec->SetLength(plaintext1->GetLength());
+
+	Plaintext plaintextDecSub;
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertextSub, &plaintextDecSub);
+	plaintextDecSub->SetLength(plaintext1->GetLength());
+
+	Plaintext plaintextDecNeg;
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertextNeg, &plaintextDecNeg);
+	plaintextDecNeg->SetLength(plaintext1->GetLength());
+
+	Plaintext plaintextDecMul;
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertextMul, &plaintextDecMul);
+	plaintextDecMul->SetLength(plaintext1->GetLength());
+
+	cout << "\n Original Plaintext #1: \n";
+	cout << plaintext1 << endl;
+
+	cout << "\n Original Plaintext #2: \n";
+	cout << plaintext2 << endl;
+
+	cout << "\n Resulting Decryption of the Sum: \n";
+	cout << plaintextDec << endl;
+
+	cout << "\n Resulting Decryption of the Subtraction: \n";
+	cout << plaintextDecSub << endl;
+
+	cout << "\n Resulting Decryption of the Negation: \n";
+	cout << plaintextDecNeg << endl;
+
+	cout << "\n Resulting Decryption of the Multiplication: \n";
+	cout << plaintextDecMul << endl;
+
+	cout << "\n";
 
 }
 

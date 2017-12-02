@@ -384,6 +384,18 @@ namespace lbcrypto {
 		 */
 		LPAlgorithmSHEBFVrns() {}
 
+		/**
+		* Function for homomorphic evaluation of ciphertexts.
+		* The multiplication is supported for a fixed level without keyswitching requirement (default level=2).
+		* If the total depth of the ciphertexts exceeds the supported level, it throws an error.
+		*
+		* @param ciphertext1 first input ciphertext.
+		* @param ciphertext2 second input ciphertext.
+		* @return resulting EvalMult ciphertext.
+		*/
+		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ct1,
+			const shared_ptr<Ciphertext<Element>> ct2) const;
+
 
 	};
 
