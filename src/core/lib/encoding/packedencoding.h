@@ -139,6 +139,14 @@ public:
 	static void SetParams(const BigInteger &modulus, usint m);
 
 	/**
+	 * SetLength of the plaintext to the given size
+	 * @param siz
+	 */
+	void SetLength(size_t siz) {
+			value.resize(siz);
+	}
+
+	/**
 	 * Method to compare two plaintext to test for equivalence.  This method does not test that the plaintext are of the same type.
 	 *
 	 * @param other - the other plaintext to compare to.

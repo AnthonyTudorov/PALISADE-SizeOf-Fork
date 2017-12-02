@@ -487,10 +487,117 @@ DecryptResult LPAlgorithmBFVrns<DCRTPoly>::Decrypt(const shared_ptr<LPPrivateKey
 
 }
 
+template <>
+shared_ptr<Ciphertext<DCRTPoly>> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalMult(const shared_ptr<Ciphertext<DCRTPoly>> ciphertext1,
+	const shared_ptr<Ciphertext<DCRTPoly>> ciphertext2) const {
+
+	bool isCiphertext1FormatCoeff = false;
+	bool isCiphertext2FormatCoeff = false;
+
+	if(ciphertext1->GetElements()[0].GetFormat() == Format::COEFFICIENT)
+			isCiphertext1FormatCoeff = true;
+
+	if(ciphertext2->GetElements()[0].GetFormat() == Format::COEFFICIENT)
+			isCiphertext2FormatCoeff = true;
+
+	if (!(ciphertext1->GetCryptoParameters() == ciphertext2->GetCryptoParameters())) {
+		std::string errMsg = "LPAlgorithmSHEBFVrns::EvalMult crypto parameters are not the same";
+		throw std::runtime_error(errMsg);
+	}
+
+	shared_ptr<Ciphertext<DCRTPoly>> newCiphertext = ciphertext1->CloneEmpty();
+
+	const shared_ptr<LPCryptoParametersBFVrns<DCRTPoly>> cryptoParamsBFVrns =
+			std::dynamic_pointer_cast<LPCryptoParametersBFVrns<DCRTPoly>>(ciphertext1->GetCryptoContext()->GetCryptoParameters());
+	//Check if the multiplication supports the depth
+	if ( (ciphertext1->GetDepth() + ciphertext2->GetDepth()) > cryptoParamsBFVrns->GetMaxDepth() ) {
+			std::string errMsg = "LPAlgorithmSHEBFVrns::EvalMult multiplicative depth is not supported";
+			throw std::runtime_error(errMsg);
+	}
+
+	//Get the ciphertext elements
+	std::vector<DCRTPoly> cipherText1Elements = ciphertext1->GetElements();
+	std::vector<DCRTPoly> cipherText2Elements = ciphertext2->GetElements();
+
+	size_t cipherText1ElementsSize = cipherText1Elements.size();
+	size_t cipherText2ElementsSize = cipherText2Elements.size();
+	size_t cipherTextRElementsSize = cipherText1ElementsSize + cipherText2ElementsSize - 1;
+
+	//converts the ciphertext elements to coefficient format
+
+	std::vector<DCRTPoly> c(cipherTextRElementsSize);
+
+	if(isCiphertext1FormatCoeff != true)
+		for(size_t i=0; i<cipherText1ElementsSize; i++)
+			cipherText1Elements[i].SwitchFormat();
+
+	if(isCiphertext2FormatCoeff != true)
+		for(size_t i=0; i<cipherText2ElementsSize; i++)
+			cipherText2Elements[i].SwitchFormat();
+
+	const shared_ptr<typename DCRTPoly::Params> elementParams = cryptoParamsBFVrns->GetElementParams();
+	const shared_ptr<ILDCRTParams<BigInteger>> paramsS = cryptoParamsBFVrns->GetDCRTParamsS();
+	const shared_ptr<ILDCRTParams<BigInteger>> paramsQS = cryptoParamsBFVrns->GetDCRTParamsQS();
+
+	// Expands the CRT basis to Q*S
+
+	for(size_t i=0; i<cipherText1ElementsSize; i++)
+		cipherText1Elements[i].ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
+				cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable());
+
+	for(size_t i=0; i<cipherText2ElementsSize; i++)
+		cipherText2Elements[i].ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
+				cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable());
+
+	//converts the ciphertext elements back to evaluation representation
+
+	for(size_t i=0; i<cipherText1ElementsSize; i++)
+		cipherText1Elements[i].SwitchFormat();
+
+	for(size_t i=0; i<cipherText2ElementsSize; i++)
+		cipherText2Elements[i].SwitchFormat();
+
+	// Performs the multiplication itself
+
+	bool *isFirstAdd = new bool[cipherTextRElementsSize];
+	std::fill_n(isFirstAdd, cipherTextRElementsSize, true);
+
+	for(size_t i=0; i<cipherText1ElementsSize; i++){
+		for(size_t j=0; j<cipherText2ElementsSize; j++){
+
+			if(isFirstAdd[i+j] == true){
+				c[i+j] = cipherText1Elements[i] * cipherText2Elements[j];
+				isFirstAdd[i+j] = false;
+			}
+			else{
+				c[i+j] += cipherText1Elements[i] * cipherText2Elements[j];
+			}
+		}
+	}
+
+	delete []isFirstAdd;
+
+	for(size_t i=0; i<cipherTextRElementsSize; i++){
+		//converts to coefficient representation before rounding
+		c[i].SwitchFormat();
+		// Performs the scaling by p/q followed by rounding; the result is in the CRT basis S
+		c[i] = c[i].ScaleAndRound(paramsS,cryptoParamsBFVrns->GetCRTMultIntTable(),cryptoParamsBFVrns->GetCRTMultFloatTable());
+		// Converts from the CRT basis S to Q
+		c[i] = c[i].SwitchCRTBasis(elementParams, cryptoParamsBFVrns->GetCRTSInverseTable(),
+					cryptoParamsBFVrns->GetCRTsDivsiModqiTable(), cryptoParamsBFVrns->GetCRTsModqiTable());
+	}
+
+	newCiphertext->SetElements(c);
+	newCiphertext->SetDepth((ciphertext1->GetDepth() + ciphertext2->GetDepth()));
+
+	return newCiphertext;
+
+}
 
 template class LPCryptoParametersBFVrns<DCRTPoly>;
 template class LPPublicKeyEncryptionSchemeBFVrns<DCRTPoly>;
 template class LPAlgorithmBFVrns<DCRTPoly>;
+template class LPAlgorithmSHEBFVrns<DCRTPoly>;
 template class LPAlgorithmParamsGenBFVrns<DCRTPoly>;
 
 }

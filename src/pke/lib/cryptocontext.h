@@ -1432,7 +1432,7 @@ public:
 	}
 
 	/**
-	 * EvalMult - PALISADE EvalMult method for a pair of ciphertexts
+	 * EvalMult - PALISADE EvalMult method for a pair of ciphertexts - with key switching
 	 * @param ct1
 	 * @param ct2
 	 * @return new ciphertext for ct1 * ct2
@@ -1447,6 +1447,26 @@ public:
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
 		auto rv = GetEncryptionAlgorithm()->EvalMult(ct1, ct2, ek[0]);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalMult, currentDateTime() - start) );
+		}
+		return rv;
+	}
+
+	/**
+	 * EvalMult - PALISADE EvalMult method for a pair of ciphertexts - no key switching (relinearization)
+	 * @param ct1
+	 * @param ct2
+	 * @return new ciphertext for ct1 * ct2
+	 */
+	shared_ptr<Ciphertext<Element>>
+	EvalMultNoRelin(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Ciphertext<Element>> ct2) const
+	{
+		TypeCheck(ct1, ct2);
+
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto rv = GetEncryptionAlgorithm()->EvalMult(ct1, ct2);
 		if( doTiming ) {
 			timeSamples->push_back( TimingInfo(OpEvalMult, currentDateTime() - start) );
 		}
