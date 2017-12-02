@@ -80,7 +80,7 @@ void PKE() {
 
 	std::cout << "\n===========TESTING PKE===============: " << std::endl;
 
-	std::cout << "\nThis code demonstrates the use of the FV scheme for basic homomorphic encryption operations. " << std::endl;
+	std::cout << "\nThis code demonstrates the use of the BFV-RNS scheme for basic homomorphic encryption operations. " << std::endl;
 	std::cout << "This code shows how to auto-generate parameters during run-time based on desired plaintext moduli and security levels. " << std::endl;
 	std::cout << "In this demonstration we use three input plaintext and show how to both add them together and multiply them together. " << std::endl;
 
@@ -178,7 +178,7 @@ void SHETestCoeff() {
 
 	std::cout << "\n===========TESTING SHE - ADDITION, SUBTRACTION, NEGATION - COEFFICIENT ENCODING===============: " << std::endl;
 
-	std::cout << "\nThis code demonstrates the use of the FV scheme for basic homomorphic encryption operations. " << std::endl;
+	std::cout << "\nThis code demonstrates the use of the BFV-RNS scheme for basic homomorphic encryption operations. " << std::endl;
 	std::cout << "This code shows how to auto-generate parameters during run-time based on desired plaintext moduli and security levels. " << std::endl;
 	std::cout << "In this demonstration we use three input plaintext and show how to both add them together and multiply them together. " << std::endl;
 
@@ -307,7 +307,7 @@ void SHETestPacked() {
 
 	std::cout << "\n===========TESTING SHE - ADDITION, SUBTRACTION, NEGATION - PACKED ENCODING===============: " << std::endl;
 
-	std::cout << "\nThis code demonstrates the use of the FV scheme for basic homomorphic encryption operations. " << std::endl;
+	std::cout << "\nThis code demonstrates the use of the BFV-RNS scheme for basic homomorphic encryption operations. " << std::endl;
 	std::cout << "This code shows how to auto-generate parameters during run-time based on desired plaintext moduli and security levels. " << std::endl;
 	std::cout << "In this demonstration we use three input plaintext and show how to both add them together and multiply them together. " << std::endl;
 
@@ -391,7 +391,16 @@ void SHETestPacked() {
 
 	finish = currentDateTime();
 	diff = finish - start;
-	cout << "Homomorphic multiplication time: " << "\t" << diff << " ms" << endl;
+	cout << "Homomorphic multiplication time - #1: " << "\t" << diff << " ms" << endl;
+
+
+	start = currentDateTime();
+
+	auto ciphertextCube = cryptoContext->EvalMultNoRelin(ciphertextMul,ciphertext1);
+
+	finish = currentDateTime();
+	diff = finish - start;
+	cout << "Homomorphic multiplication time - #2: " << "\t" << diff << " ms" << endl;
 
 	////////////////////////////////////////////////////////////
 	//Decryption of Ciphertext
@@ -423,6 +432,10 @@ void SHETestPacked() {
 	cryptoContext->Decrypt(keyPair.secretKey, ciphertextMul, &plaintextDecMul);
 	plaintextDecMul->SetLength(plaintext1->GetLength());
 
+	Plaintext plaintextDecCube;
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertextCube, &plaintextDecCube);
+	plaintextDecCube->SetLength(plaintext1->GetLength());
+
 	cout << "\n Original Plaintext #1: \n";
 	cout << plaintext1 << endl;
 
@@ -441,6 +454,9 @@ void SHETestPacked() {
 	cout << "\n Resulting Decryption of the Multiplication: \n";
 	cout << plaintextDecMul << endl;
 
+	cout << "\n Resulting Decryption of the computing the Cube: \n";
+	cout << plaintextDecCube << endl;
+
 	cout << "\n";
 
 }
@@ -449,7 +465,7 @@ void SwitchCRT() {
 
 	std::cout << "\n===========TESTING CRT SWITCH===============: " << std::endl;
 
-	std::cout << "\nThis code demonstrates the use of the FV scheme for basic homomorphic encryption operations. " << std::endl;
+	std::cout << "\nThis code demonstrates the use of the BFV-RNS scheme for basic homomorphic encryption operations. " << std::endl;
 	std::cout << "This code shows how to auto-generate parameters during run-time based on desired plaintext moduli and security levels. " << std::endl;
 	std::cout << "In this demonstration we use three input plaintext and show how to both add them together and multiply them together. " << std::endl;
 
@@ -513,7 +529,7 @@ void Multiply() {
 
 	std::cout << "\n===========TESTING POLYNOMIAL MULTIPLICATION - ONE TERM IS CONSTANT POLYNOMIAL===============: " << std::endl;
 
-	std::cout << "\nThis code demonstrates the use of the FV scheme for basic homomorphic encryption operations. " << std::endl;
+	std::cout << "\nThis code demonstrates the use of the BFV-RNS scheme for basic homomorphic encryption operations. " << std::endl;
 	std::cout << "This code shows how to auto-generate parameters during run-time based on desired plaintext moduli and security levels. " << std::endl;
 	std::cout << "In this demonstration we use three input plaintext and show how to both add them together and multiply them together. " << std::endl;
 
@@ -645,7 +661,7 @@ void MultiplyTwo() {
 
 	std::cout << "\n===========TESTING POLYNOMIAL MULTIPLICATION - UNIFORM AND GAUSSIAN RANDOM POLYNOMIALS===============: " << std::endl;
 
-	std::cout << "\nThis code demonstrates the use of the FV scheme for basic homomorphic encryption operations. " << std::endl;
+	std::cout << "\nThis code demonstrates the use of the BFV-RNS scheme for basic homomorphic encryption operations. " << std::endl;
 	std::cout << "This code shows how to auto-generate parameters during run-time based on desired plaintext moduli and security levels. " << std::endl;
 	std::cout << "In this demonstration we use three input plaintext and show how to both add them together and multiply them together. " << std::endl;
 
@@ -835,7 +851,7 @@ void MultiplyThree() {
 
 	std::cout << "\n===========TESTING POLYNOMIAL MULTIPLICATION - TWO UNFORM RANDOM POLYNOMIALS===============: " << std::endl;
 
-	std::cout << "\nThis code demonstrates the use of the FV scheme for basic homomorphic encryption operations. " << std::endl;
+	std::cout << "\nThis code demonstrates the use of the BFV-RNS scheme for basic homomorphic encryption operations. " << std::endl;
 	std::cout << "This code shows how to auto-generate parameters during run-time based on desired plaintext moduli and security levels. " << std::endl;
 	std::cout << "In this demonstration we use three input plaintext and show how to both add them together and multiply them together. " << std::endl;
 
