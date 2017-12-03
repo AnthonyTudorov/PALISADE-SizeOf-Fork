@@ -88,7 +88,7 @@ void CryptoContext<Element>::ClearEvalMultKeys(const string& id) {
  * @param cc
  */
 template <typename Element>
-void CryptoContext<Element>::ClearEvalMultKeys(const shared_ptr<CryptoContext> cc) {
+void CryptoContext<Element>::ClearEvalMultKeys(const CryptoContext> cc) {
 	for( auto it = evalMultKeyMap.begin(); it != evalMultKeyMap.end(); ) {
 		if( it->second[0]->GetCryptoContext() == cc ) {
 			it = evalMultKeyMap.erase(it);
@@ -160,7 +160,7 @@ void CryptoContext<Element>::ClearEvalSumKeys(const string& id) {
  * @param cc
  */
 template <typename Element>
-void CryptoContext<Element>::ClearEvalSumKeys(const shared_ptr<CryptoContext> cc) {
+void CryptoContext<Element>::ClearEvalSumKeys(const CryptoContext> cc) {
 	for( auto it = evalSumKeyMap.begin(); it != evalSumKeyMap.end(); ) {
 		if( it->second->begin()->second->GetCryptoContext() == cc ) {
 			it = evalSumKeyMap.erase(it);
@@ -222,7 +222,7 @@ bool CryptoContext<Element>::SerializeEvalMultKey(Serialized* serObj, const stri
  * method will serialize the context only once
  */
 template <typename Element>
-bool CryptoContext<Element>::SerializeEvalMultKey(Serialized* serObj, const shared_ptr<CryptoContext> cc) {
+bool CryptoContext<Element>::SerializeEvalMultKey(Serialized* serObj, const CryptoContext> cc) {
 
 	serObj->SetObject();
 	cc->Serialize(serObj);
@@ -267,7 +267,7 @@ bool CryptoContext<Element>::DeserializeEvalMultKey(const Serialized& ser) {
 	for( int keysets = 0; keysets < cCount; keysets++ ) {
 
 		// get the crypto context for this keyset
-		shared_ptr<CryptoContext<Element>> cc;
+		CryptoContext<Element> cc;
 		Serialized *serPtr;
 		Serialized oneSer;
 		if( singleton ) {
@@ -400,7 +400,7 @@ bool CryptoContext<Element>::SerializeEvalSumKey(Serialized* serObj, const strin
  * method will serialize the context only once
  */
 template <typename Element>
-bool CryptoContext<Element>::SerializeEvalSumKey(Serialized* serObj, const shared_ptr<CryptoContext> cc) {
+bool CryptoContext<Element>::SerializeEvalSumKey(Serialized* serObj, const CryptoContext> cc) {
 
 	serObj->SetObject();
 	cc->Serialize(serObj);
@@ -445,7 +445,7 @@ bool CryptoContext<Element>::DeserializeEvalSumKey(const Serialized& ser) {
 	for( int keysets = 0; keysets < cCount; keysets++ ) {
 
 		// get the crypto context for this keyset
-		shared_ptr<CryptoContext<Element>> cc;
+		CryptoContext<Element> cc;
 		Serialized *serPtr;
 		Serialized oneSer;
 		if( singleton ) {
@@ -657,7 +657,7 @@ template <typename Element>
 bool CryptoObject<Element>::DeserializeCryptoObject(const Serialized& serObj, bool includeContext) {
 
 	if( includeContext ) {
-		shared_ptr<CryptoContext<Element>> cc = CryptoContextFactory<Element>::DeserializeAndCreateContext(serObj);
+		CryptoContext<Element> cc = CryptoContextFactory<Element>::DeserializeAndCreateContext(serObj);
 		if( cc == 0 )
 			return false;
 	}
@@ -718,7 +718,7 @@ static shared_ptr<LPPublicKeyEncryptionScheme<Element>> GetSchemeObject(string& 
 }
 
 template <typename Element>
-vector<shared_ptr<CryptoContext<Element>>>	CryptoContextFactory<Element>::AllContexts;
+vector<CryptoContext<Element>>	CryptoContextFactory<Element>::AllContexts;
 
 template <typename Element>
 void
@@ -733,7 +733,7 @@ CryptoContextFactory<Element>::GetContextCount() {
 }
 
 template <typename Element>
-shared_ptr<CryptoContext<Element>>
+CryptoContext<Element>
 CryptoContextFactory<Element>::GetSingleContext() {
 	if( GetContextCount() == 1 )
 		return AllContexts[0];
@@ -741,12 +741,12 @@ CryptoContextFactory<Element>::GetSingleContext() {
 }
 
 template <typename Element>
-shared_ptr<CryptoContext<Element>>
+CryptoContext<Element>
 CryptoContextFactory<Element>::GetContext(
 		shared_ptr<LPCryptoParameters<Element>> params,
 		shared_ptr<LPPublicKeyEncryptionScheme<Element>> scheme) {
 
-	for( shared_ptr<CryptoContext<Element>> cc : AllContexts ) {
+	for( CryptoContext<Element> cc : AllContexts ) {
 		if( *cc->GetEncryptionAlgorithm().get() == *scheme.get() &&
 				*cc->GetCryptoParameters().get() == *params.get()
 		) {
@@ -754,16 +754,16 @@ CryptoContextFactory<Element>::GetContext(
 		}
 	}
 
-	shared_ptr<CryptoContext<Element>> cc(new CryptoContext<Element>(params,scheme));
+	CryptoContext<Element> cc(new CryptoContext<Element>(params,scheme));
 	AllContexts.push_back(cc);
 	return cc;
 }
 
 template <typename Element>
-shared_ptr<CryptoContext<Element>>
+CryptoContext<Element>
 CryptoContextFactory<Element>::GetContextForPointer(
 		CryptoContext<Element>* cc) {
-	for( shared_ptr<CryptoContext<Element>> ctx : AllContexts ) {
+	for( CryptoContext<Element> ctx : AllContexts ) {
 		if( ctx.get() == cc )
 			return ctx;
 	}
@@ -777,7 +777,7 @@ CryptoContextFactory<Element>::GetContextForPointer(
 * @return new context
 */
 template <typename Element>
-shared_ptr<CryptoContext<Element>>
+CryptoContext<Element>
 CryptoContextFactory<Element>::DeserializeAndCreateContext(const Serialized& serObj) {
 
 	Serialized::ConstMemberIterator mIter = serObj.FindMember("CryptoContext");
@@ -822,7 +822,7 @@ CryptoContextFactory<Element>::DeserializeAndCreateContext(const Serialized& ser
 
 	shared_ptr<LPPublicKeyEncryptionScheme<Element>> scheme = GetSchemeObject<Element>(parmName);
 
-	shared_ptr<CryptoContext<Element>> cc =
+	CryptoContext<Element> cc =
 			CryptoContextFactory<Element>::GetContext(cp, scheme);
 
 	Serialized::ConstMemberIterator sIter = mIter->value.FindMember("Schemes");
@@ -837,7 +837,7 @@ CryptoContextFactory<Element>::DeserializeAndCreateContext(const Serialized& ser
 // factory methods for the different schemes
 
 template <typename T>
-shared_ptr<CryptoContext<T>>
+CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextLTV(shared_ptr<typename T::Params> ep,
 		const usint plaintextmodulus,
 		usint relinWindow, float stDev, int depth, int assuranceMeasure, float securityLevel)
@@ -857,7 +857,7 @@ CryptoContextFactory<T>::genCryptoContextLTV(shared_ptr<typename T::Params> ep,
 }
 
 template <typename T>
-shared_ptr<CryptoContext<T>>
+CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextLTV(shared_ptr<typename T::Params> ep,
 	shared_ptr<EncodingParams> encodingParams,
 	usint relinWindow, float stDev, int depth, int assuranceMeasure, float securityLevel)
@@ -878,7 +878,7 @@ CryptoContextFactory<T>::genCryptoContextLTV(shared_ptr<typename T::Params> ep,
 
 
 template <typename T>
-shared_ptr<CryptoContext<T>>
+CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextLTV(
 		const usint plaintextModulus, float securityLevel, usint relinWindow, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches)
@@ -913,7 +913,7 @@ CryptoContextFactory<T>::genCryptoContextLTV(
 }
 
 template <typename T>
-shared_ptr<CryptoContext<T>>
+CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextLTV(
 	shared_ptr<EncodingParams> encodingParams, float securityLevel, usint relinWindow, float dist,
 	unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches)
@@ -950,7 +950,7 @@ CryptoContextFactory<T>::genCryptoContextLTV(
 }
 
 template <typename T>
-shared_ptr<CryptoContext<T>>
+CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextFV(shared_ptr<typename T::Params> ep,
 		const usint plaintextmodulus,
 		usint relinWindow, float stDev, const std::string& delta,
@@ -979,7 +979,7 @@ CryptoContextFactory<T>::genCryptoContextFV(shared_ptr<typename T::Params> ep,
 }
 
 template <typename T>
-shared_ptr<CryptoContext<T>>
+CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextFV(shared_ptr<typename T::Params> ep,
 	shared_ptr<EncodingParams> encodingParams,
 	usint relinWindow, float stDev, const std::string& delta,
@@ -1008,7 +1008,7 @@ CryptoContextFactory<T>::genCryptoContextFV(shared_ptr<typename T::Params> ep,
 }
 
 template <typename T>
-shared_ptr<CryptoContext<T>>
+CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextFV(
 		const usint plaintextModulus, float securityLevel, usint relinWindow, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode, int maxDepth)
@@ -1048,7 +1048,7 @@ CryptoContextFactory<T>::genCryptoContextFV(
 }
 
 template <typename T>
-shared_ptr<CryptoContext<T>>
+CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextFV(
 	shared_ptr<EncodingParams> encodingParams, float securityLevel, usint relinWindow, float dist,
 	unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode, int maxDepth)
@@ -1089,7 +1089,7 @@ CryptoContextFactory<T>::genCryptoContextFV(
 }
 
 template <typename T>
-shared_ptr<CryptoContext<T>>
+CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextBFVrns(
 		const usint plaintextModulus, float securityLevel, usint relinWindow, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode, int maxDepth)
@@ -1124,7 +1124,7 @@ CryptoContextFactory<T>::genCryptoContextBFVrns(
 }
 
 template <typename T>
-shared_ptr<CryptoContext<T>>
+CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextBFVrns(
 	shared_ptr<EncodingParams> encodingParams, float securityLevel, usint relinWindow, float dist,
 	unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode, int maxDepth)
@@ -1161,7 +1161,7 @@ CryptoContextFactory<T>::genCryptoContextBFVrns(
 
 
 template <typename T>
-shared_ptr<CryptoContext<T>>
+CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextBV(shared_ptr<typename T::Params> ep,
 		const usint plaintextmodulus,
 		usint relinWindow, float stDev,
@@ -1184,7 +1184,7 @@ CryptoContextFactory<T>::genCryptoContextBV(shared_ptr<typename T::Params> ep,
 }
 
 template <typename T>
-shared_ptr<CryptoContext<T>>
+CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextBV(shared_ptr<typename T::Params> ep,
 	shared_ptr<EncodingParams> encodingParams,
 	usint relinWindow, float stDev,
@@ -1208,7 +1208,7 @@ CryptoContextFactory<T>::genCryptoContextBV(shared_ptr<typename T::Params> ep,
 
 
 template <typename T>
-shared_ptr<CryptoContext<T>>
+CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextStehleSteinfeld(shared_ptr<typename T::Params> ep,
 		const usint plaintextmodulus,
 		usint relinWindow, float stDev, float stDevStSt, int depth, int assuranceMeasure, float securityLevel)
@@ -1229,7 +1229,7 @@ CryptoContextFactory<T>::genCryptoContextStehleSteinfeld(shared_ptr<typename T::
 }
 
 template <typename T>
-shared_ptr<CryptoContext<T>>
+CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextStehleSteinfeld(shared_ptr<typename T::Params> ep,
 	shared_ptr<EncodingParams> encodingParams,
 	usint relinWindow, float stDev, float stDevStSt, int depth, int assuranceMeasure, float securityLevel)
@@ -1250,7 +1250,7 @@ CryptoContextFactory<T>::genCryptoContextStehleSteinfeld(shared_ptr<typename T::
 }
 
 template <typename T>
-shared_ptr<CryptoContext<T>>
+CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextNull(shared_ptr<typename T::Params> ep,
 		const usint ptModulus)
 {
@@ -1261,7 +1261,7 @@ CryptoContextFactory<T>::genCryptoContextNull(shared_ptr<typename T::Params> ep,
 }
 
 template <typename T>
-shared_ptr<CryptoContext<T>>
+CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextNull(shared_ptr<typename T::Params> ep,
 	shared_ptr<EncodingParams> encodingParams)
 {
@@ -1279,7 +1279,7 @@ template <typename T>
 shared_ptr<LPPublicKey<T>>
 CryptoContext<T>::deserializePublicKey(const Serialized& serObj)
 {
-	shared_ptr<CryptoContext<T>> cc = CryptoContextFactory<T>::DeserializeAndCreateContext(serObj);
+	CryptoContext<T> cc = CryptoContextFactory<T>::DeserializeAndCreateContext(serObj);
 	if( cc == 0 )
 		return 0;
 
@@ -1295,7 +1295,7 @@ template <typename T>
 shared_ptr<LPPrivateKey<T>>
 CryptoContext<T>::deserializeSecretKey(const Serialized& serObj)
 {
-	shared_ptr<CryptoContext<T>> cc = CryptoContextFactory<T>::DeserializeAndCreateContext(serObj);
+	CryptoContext<T> cc = CryptoContextFactory<T>::DeserializeAndCreateContext(serObj);
 	if( cc == 0 )
 		return 0;
 
@@ -1311,7 +1311,7 @@ template <typename T>
 shared_ptr<Ciphertext<T>>
 CryptoContext<T>::deserializeCiphertext(const Serialized& serObj)
 {
-	shared_ptr<CryptoContext<T>> cc = CryptoContextFactory<T>::DeserializeAndCreateContext(serObj);
+	CryptoContext<T> cc = CryptoContextFactory<T>::DeserializeAndCreateContext(serObj);
 	if( cc == 0 )
 		return 0;
 
@@ -1327,7 +1327,7 @@ template <typename T>
 shared_ptr<LPEvalKey<T>>
 CryptoContext<T>::deserializeEvalKey(const Serialized& serObj)
 {
-	shared_ptr<CryptoContext<T>> cc = CryptoContextFactory<T>::DeserializeAndCreateContext(serObj);
+	CryptoContext<T> cc = CryptoContextFactory<T>::DeserializeAndCreateContext(serObj);
 	if( cc == 0 )
 		return 0;
 
@@ -1336,7 +1336,7 @@ CryptoContext<T>::deserializeEvalKey(const Serialized& serObj)
 
 template <typename T>
 shared_ptr<LPEvalKey<T>>
-CryptoContext<T>::deserializeEvalKeyInContext(const Serialized& serObj, shared_ptr<CryptoContext<T>> cc)
+CryptoContext<T>::deserializeEvalKeyInContext(const Serialized& serObj, CryptoContext<T> cc)
 {
 	Serialized::ConstMemberIterator nIt = serObj.FindMember("Object");
 	if( nIt == serObj.MemberEnd() )
