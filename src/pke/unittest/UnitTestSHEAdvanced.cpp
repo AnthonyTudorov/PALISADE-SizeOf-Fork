@@ -70,7 +70,7 @@ TEST_F(UTSHEAdvanced, test_eval_mult_single_crt) {
 
 	shared_ptr<Poly::Params> parms = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(m, 50);
 
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(parms, 5 + 4, relin, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(parms, 5 + 4, relin, stdDev);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 	cc->Enable(LEVELEDSHE);
@@ -140,7 +140,7 @@ TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 	usint relWindow = 1;
 
 	// Fixme use the ParameterSelection version of genCryptoContext
-	shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextLTV(params, plaintextModulus, relWindow, init_stdDev, init_size - 1, 6, 1.006);
+	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextLTV(params, plaintextModulus, relWindow, init_stdDev, init_size - 1, 6, 1.006);
 	cc->Enable(SHE);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(LEVELEDSHE);
@@ -190,7 +190,7 @@ TEST_F(UTSHEAdvanced, test_eval_add_single_crt) {
 
 	shared_ptr<Poly::Params> parms = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(m);
 
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(parms, 8, 1, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(parms, 8, 1, stdDev);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
@@ -268,7 +268,7 @@ TEST_F(UTSHEAdvanced, test_eval_add_double_crt) {
 	usint relWindow = 1;
 
 	// Fixme use the ParameterSelection version of genCryptoContext
-	shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextLTV(params, plaintextModulus, relWindow, init_stdDev, init_size - 1, 6, 1.006);
+	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextLTV(params, plaintextModulus, relWindow, init_stdDev, init_size - 1, 6, 1.006);
 	cc->Enable(SHE);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(LEVELEDSHE);
@@ -322,12 +322,12 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 
 	usint relWindow = 4;
 
-	shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextLTV(params, 5+4, relWindow, init_stdDev, init_size - 1, 6, 1.006);
+	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextLTV(params, 5+4, relWindow, init_stdDev, init_size - 1, 6, 1.006);
 	cc->Enable(SHE);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(LEVELEDSHE);
 
-	shared_ptr<CryptoContext<DCRTPoly>> ccSmall = CryptoContextFactory<DCRTPoly>::genCryptoContextLTV(paramsSmall, ptm, relWindow, init_stdDev, init_size - 1);
+	CryptoContext<DCRTPoly> ccSmall = CryptoContextFactory<DCRTPoly>::genCryptoContextLTV(paramsSmall, ptm, relWindow, init_stdDev, init_size - 1);
 	ccSmall->Enable(SHE);
 	ccSmall->Enable(ENCRYPTION);
 	ccSmall->Enable(LEVELEDSHE);

@@ -58,7 +58,7 @@ int main() {
 
 	usint relinWindow = 21;
 	float stdDev = 4;
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextFV(
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextFV(
 			params, encodingParams, relinWindow, stdDev, delta.ToString(), OPTIMIZED,
 			EvalMultModulus.ToString(), EvalMultRootOfUnity.ToString(), 0, 9, 1.006
 		);

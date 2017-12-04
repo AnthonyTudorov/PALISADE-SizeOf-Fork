@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
 
 	start = currentDateTime();
 
-	shared_ptr<CryptoContext<Poly>> cryptoContext = CryptoContextHelper::getNewContext(input);
+	CryptoContext<Poly> cryptoContext = CryptoContextHelper::getNewContext(input);
 	if( !cryptoContext ) {
 		cout << "Error on " << input << endl;
 		return 0;

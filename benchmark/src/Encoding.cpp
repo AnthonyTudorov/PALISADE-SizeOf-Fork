@@ -65,7 +65,7 @@ BENCHMARK(BM_encoding_Scalar);
 
 
 void BM_encoding_Integer(benchmark::State& state) { // benchmark
-	shared_ptr<CryptoContext<Poly>> cc;
+	CryptoContext<Poly> cc;
 	Plaintext plaintext;
 
 	if( state.thread_index == 0 ) {
@@ -194,7 +194,7 @@ BENCHMARK(BM_encoding_PackedIntPlaintext_SetParams);
 
 
 void BM_Encoding_String(benchmark::State& state) { // benchmark
-	shared_ptr<CryptoContext<Poly>> cc;
+	CryptoContext<Poly> cc;
 	Plaintext plaintext;
 
 	if( state.thread_index == 0 ) {

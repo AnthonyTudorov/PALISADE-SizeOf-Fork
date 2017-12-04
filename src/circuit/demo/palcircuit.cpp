@@ -87,9 +87,9 @@ main(int argc, char *argv[])
 	const usint mdim = 3;
 	const usint maxprint = 10;
 
-	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayNull(m, 5, ptm, 20);
+	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayNull(m, 5, ptm, 20);
 	//CryptoContext<Poly> cc = GenCryptoContextElementNull(m, ptm);
-	//shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayLTV(m, 5, ptm, 20);
+	//CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayLTV(m, 5, ptm, 20);
 	//CryptoContext<Poly> cc = GenCryptoContextElementLTV(m, ptm);
 
 	bool debug_parse = false;

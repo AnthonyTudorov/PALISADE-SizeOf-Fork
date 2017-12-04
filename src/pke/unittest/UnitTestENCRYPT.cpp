@@ -51,7 +51,7 @@ public:
 
 template <typename Element>
 void
-UnitTestNewEncryptionScalar(const shared_ptr<CryptoContext<Element>> cc) {
+UnitTestNewEncryptionScalar(const CryptoContext<Element> cc) {
 	uint32_t		value = 29;
 	Plaintext plaintext = cc->MakeScalarPlaintext(value);
 
@@ -83,45 +83,45 @@ UnitTestNewEncryptionScalar(const shared_ptr<CryptoContext<Element>> cc) {
 }
 
 TEST(UTENCRYPT, LTV_Poly_Encrypt_Decrypt_Scalar) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementLTV(8, 64);
+	CryptoContext<Poly> cc = GenCryptoContextElementLTV(8, 64);
 	UnitTestNewEncryptionScalar<Poly>(cc);
 }
 
 TEST(UTENCRYPT, Null_Poly_Encrypt_Decrypt_Scalar) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementNull(8, 64);
+	CryptoContext<Poly> cc = GenCryptoContextElementNull(8, 64);
 	UnitTestNewEncryptionScalar<Poly>(cc);
 }
 TEST(UTENCRYPT, StSt_Poly_Encrypt_Decrypt_Scalar) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementStSt(8, 64);
+	CryptoContext<Poly> cc = GenCryptoContextElementStSt(8, 64);
 	UnitTestNewEncryptionScalar<Poly>(cc);
 }
 
 TEST(UTENCRYPT, BV_Poly_Encrypt_Decrypt_Scalar) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementBV(8, 64);
+	CryptoContext<Poly> cc = GenCryptoContextElementBV(8, 64);
 	UnitTestNewEncryptionScalar<Poly>(cc);
 }
 
 TEST(UTENCRYPT, FV_Poly_Encrypt_Decrypt_Scalar) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementFV(8, 64);
+	CryptoContext<Poly> cc = GenCryptoContextElementFV(8, 64);
 	UnitTestNewEncryptionScalar<Poly>(cc);
 }
 
 TEST(UTENCRYPT, LTV_DCRT_Encrypt_Decrypt_Scalar) {
-	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayLTV(8, 3, 64);
+	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayLTV(8, 3, 64);
 	UnitTestNewEncryptionScalar<DCRTPoly>(cc);
 }
 
 TEST(UTENCRYPT, Null_DCRT_Encrypt_Decrypt_Scalar) {
-	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayNull(8, 3, 64);
+	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayNull(8, 3, 64);
 	UnitTestNewEncryptionScalar<DCRTPoly>(cc);
 }
 TEST(UTENCRYPT, StSt_DCRT_Encrypt_Decrypt_Scalar) {
-	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayStSt(8, 3, 64);
+	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayStSt(8, 3, 64);
 	UnitTestNewEncryptionScalar<DCRTPoly>(cc);
 }
 
 TEST(UTENCRYPT, BV_DCRT_Encrypt_Decrypt_Scalar) {
-	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayBV(8, 3, 64);
+	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayBV(8, 3, 64);
 	UnitTestNewEncryptionScalar<DCRTPoly>(cc);
 }
 
@@ -130,14 +130,14 @@ TEST(UTENCRYPT, FV_DCRT_Encrypt_Decrypt_Scalar) {
 	SUCCEED();
 	return;
 	if( 0 ) {
-		shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayFV(8, 3, 64);
+		CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayFV(8, 3, 64);
 		UnitTestNewEncryptionScalar<DCRTPoly>(cc);
 	}
 }
 
 template <typename Element>
 void
-UnitTestNewEncryptionInteger(const shared_ptr<CryptoContext<Element>> cc) {
+UnitTestNewEncryptionInteger(const CryptoContext<Element> cc) {
 	uint64_t		value = 256*256*256;
 	Plaintext plaintext = cc->MakeIntegerPlaintext(value);
 
@@ -164,45 +164,45 @@ UnitTestNewEncryptionInteger(const shared_ptr<CryptoContext<Element>> cc) {
 }
 
 TEST(UTENCRYPT, LTV_Poly_Encrypt_Decrypt_Integer) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementLTV(2048, 64);
+	CryptoContext<Poly> cc = GenCryptoContextElementLTV(2048, 64);
 	UnitTestNewEncryptionInteger<Poly>(cc);
 }
 
 TEST(UTENCRYPT, Null_Poly_Encrypt_Decrypt_Integer) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementNull(128, 64);
+	CryptoContext<Poly> cc = GenCryptoContextElementNull(128, 64);
 	UnitTestNewEncryptionInteger<Poly>(cc);
 }
 TEST(UTENCRYPT, StSt_Poly_Encrypt_Decrypt_Integer) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementStSt(4096, 64);
+	CryptoContext<Poly> cc = GenCryptoContextElementStSt(4096, 64);
 	UnitTestNewEncryptionInteger<Poly>(cc);
 }
 
 TEST(UTENCRYPT, BV_Poly_Encrypt_Decrypt_Integer) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementBV(128, 64);
+	CryptoContext<Poly> cc = GenCryptoContextElementBV(128, 64);
 	UnitTestNewEncryptionInteger<Poly>(cc);
 }
 
 TEST(UTENCRYPT, FV_Poly_Encrypt_Decrypt_Integer) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementFV(128, 64);
+	CryptoContext<Poly> cc = GenCryptoContextElementFV(128, 64);
 	UnitTestNewEncryptionInteger<Poly>(cc);
 }
 
 TEST(UTENCRYPT, LTV_DCRT_Encrypt_Decrypt_Integer) {
-	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayLTV(128, 3, 64);
+	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayLTV(128, 3, 64);
 	UnitTestNewEncryptionInteger<DCRTPoly>(cc);
 }
 
 TEST(UTENCRYPT, Null_DCRT_Encrypt_Decrypt_Integer) {
-	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayNull(128, 3, 64);
+	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayNull(128, 3, 64);
 	UnitTestNewEncryptionInteger<DCRTPoly>(cc);
 }
 TEST(UTENCRYPT, StSt_DCRT_Encrypt_Decrypt_Integer) {
-	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayStSt(128, 3, 64);
+	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayStSt(128, 3, 64);
 	UnitTestNewEncryptionInteger<DCRTPoly>(cc);
 }
 
 TEST(UTENCRYPT, BV_DCRT_Encrypt_Decrypt_Integer) {
-	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayBV(128, 3, 64);
+	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayBV(128, 3, 64);
 	UnitTestNewEncryptionInteger<DCRTPoly>(cc);
 }
 
@@ -211,14 +211,14 @@ TEST(UTENCRYPT, FV_DCRT_Encrypt_Decrypt_Integer) {
 	SUCCEED();
 	return;
 	if( 0 ) {
-		shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayFV(128, 3, 64);
+		CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayFV(128, 3, 64);
 		UnitTestNewEncryptionInteger<DCRTPoly>(cc);
 	}
 }
 
 template <typename Element>
 void
-UnitTestNewEncryptionString(const shared_ptr<CryptoContext<Element>> cc) {
+UnitTestNewEncryptionString(const CryptoContext<Element> cc) {
 	string		value = "You keep using that word. I do not think it means what you think it means";
 	Plaintext plaintext = cc->MakeStringPlaintext(value);
 
@@ -245,45 +245,45 @@ UnitTestNewEncryptionString(const shared_ptr<CryptoContext<Element>> cc) {
 }
 
 TEST(UTENCRYPT, LTV_Poly_Encrypt_Decrypt_String) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementLTV(2048, 256);
+	CryptoContext<Poly> cc = GenCryptoContextElementLTV(2048, 256);
 	UnitTestNewEncryptionString<Poly>(cc);
 }
 
 TEST(UTENCRYPT, Null_Poly_Encrypt_Decrypt_String) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementNull(512, 256);
+	CryptoContext<Poly> cc = GenCryptoContextElementNull(512, 256);
 	UnitTestNewEncryptionString<Poly>(cc);
 }
 TEST(UTENCRYPT, StSt_Poly_Encrypt_Decrypt_String) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementStSt(4096, 256);
+	CryptoContext<Poly> cc = GenCryptoContextElementStSt(4096, 256);
 	UnitTestNewEncryptionString<Poly>(cc);
 }
 
 TEST(UTENCRYPT, BV_Poly_Encrypt_Decrypt_String) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementBV(2048, 256);
+	CryptoContext<Poly> cc = GenCryptoContextElementBV(2048, 256);
 	UnitTestNewEncryptionString<Poly>(cc);
 }
 
 TEST(UTENCRYPT, FV_Poly_Encrypt_Decrypt_String) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementFV(512, 256);
+	CryptoContext<Poly> cc = GenCryptoContextElementFV(512, 256);
 	UnitTestNewEncryptionString<Poly>(cc);
 }
 
 TEST(UTENCRYPT, LTV_DCRT_Encrypt_Decrypt_String) {
-	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayLTV(512, 3, 256);
+	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayLTV(512, 3, 256);
 	UnitTestNewEncryptionString<DCRTPoly>(cc);
 }
 
 TEST(UTENCRYPT, Null_DCRT_Encrypt_Decrypt_String) {
-	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayNull(512, 3, 256);
+	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayNull(512, 3, 256);
 	UnitTestNewEncryptionString<DCRTPoly>(cc);
 }
 TEST(UTENCRYPT, StSt_DCRT_Encrypt_Decrypt_String) {
-	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayStSt(512, 3, 256);
+	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayStSt(512, 3, 256);
 	UnitTestNewEncryptionString<DCRTPoly>(cc);
 }
 
 TEST(UTENCRYPT, BV_DCRT_Encrypt_Decrypt_String) {
-	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayBV(512, 3, 256);
+	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayBV(512, 3, 256);
 	UnitTestNewEncryptionString<DCRTPoly>(cc);
 }
 
@@ -292,14 +292,14 @@ TEST(UTENCRYPT, FV_DCRT_Encrypt_Decrypt_String) {
 	SUCCEED();
 	return;
 	if( 0 ) {
-		shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayFV(512, 3, 256);
+		CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayFV(512, 3, 256);
 		UnitTestNewEncryptionString<DCRTPoly>(cc);
 	}
 }
 
 template <typename Element>
 void
-UnitTestNewEncryptionCoefPacked(const shared_ptr<CryptoContext<Element>> cc) {
+UnitTestNewEncryptionCoefPacked(const CryptoContext<Element> cc) {
 
 	size_t intSize = cc->GetRingDimension();
 	auto ptm = cc->GetCryptoParameters()->GetPlaintextModulus().ConvertToInt();
@@ -345,45 +345,45 @@ UnitTestNewEncryptionCoefPacked(const shared_ptr<CryptoContext<Element>> cc) {
 }
 
 TEST(UTENCRYPT, LTV_Poly_Encrypt_Decrypt_CoefPacked) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementLTV(2048, 256);
+	CryptoContext<Poly> cc = GenCryptoContextElementLTV(2048, 256);
 	UnitTestNewEncryptionCoefPacked<Poly>(cc);
 }
 
 TEST(UTENCRYPT, Null_Poly_Encrypt_Decrypt_CoefPacked) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementNull(512, 256);
+	CryptoContext<Poly> cc = GenCryptoContextElementNull(512, 256);
 	UnitTestNewEncryptionCoefPacked<Poly>(cc);
 }
 TEST(UTENCRYPT, StSt_Poly_Encrypt_Decrypt_CoefPacked) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementStSt(4096, 256);
+	CryptoContext<Poly> cc = GenCryptoContextElementStSt(4096, 256);
 	UnitTestNewEncryptionCoefPacked<Poly>(cc);
 }
 
 TEST(UTENCRYPT, BV_Poly_Encrypt_Decrypt_CoefPacked) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementBV(2048, 256);
+	CryptoContext<Poly> cc = GenCryptoContextElementBV(2048, 256);
 	UnitTestNewEncryptionCoefPacked<Poly>(cc);
 }
 
 TEST(UTENCRYPT, FV_Poly_Encrypt_Decrypt_CoefPacked) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementFV(512, 256);
+	CryptoContext<Poly> cc = GenCryptoContextElementFV(512, 256);
 	UnitTestNewEncryptionCoefPacked<Poly>(cc);
 }
 
 TEST(UTENCRYPT, LTV_DCRT_Encrypt_Decrypt_CoefPacked) {
-	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayLTV(512, 3, 256);
+	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayLTV(512, 3, 256);
 	UnitTestNewEncryptionCoefPacked<DCRTPoly>(cc);
 }
 
 TEST(UTENCRYPT, Null_DCRT_Encrypt_Decrypt_CoefPacked) {
-	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayNull(512, 3, 256);
+	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayNull(512, 3, 256);
 	UnitTestNewEncryptionCoefPacked<DCRTPoly>(cc);
 }
 TEST(UTENCRYPT, StSt_DCRT_Encrypt_Decrypt_CoefPacked) {
-	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayStSt(512, 3, 256);
+	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayStSt(512, 3, 256);
 	UnitTestNewEncryptionCoefPacked<DCRTPoly>(cc);
 }
 
 TEST(UTENCRYPT, BV_DCRT_Encrypt_Decrypt_CoefPacked) {
-	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayBV(512, 3, 256);
+	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayBV(512, 3, 256);
 	UnitTestNewEncryptionCoefPacked<DCRTPoly>(cc);
 }
 
@@ -392,7 +392,7 @@ TEST(UTENCRYPT, FV_DCRT_Encrypt_Decrypt_CoefPacked) {
 	SUCCEED();
 	return;
 	if( 0 ) {
-		shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayFV(512, 3, 256);
+		CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayFV(512, 3, 256);
 		UnitTestNewEncryptionCoefPacked<DCRTPoly>(cc);
 	}
 }
@@ -400,7 +400,7 @@ TEST(UTENCRYPT, FV_DCRT_Encrypt_Decrypt_CoefPacked) {
 // FIXME below is probably obsolete
 template <typename Element>
 void
-UnitTestEncryption(const shared_ptr<CryptoContext<Element>> cc) {
+UnitTestEncryption(const CryptoContext<Element> cc) {
 	size_t vecSize = cc->GetRingDimension();
 
 	auto randchar = []() -> char {
@@ -478,45 +478,45 @@ UnitTestEncryption(const shared_ptr<CryptoContext<Element>> cc) {
 }
 
 TEST(UTENCRYPT, LTV_Poly_Encrypt_Decrypt_Byte) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementLTV(2048, 256);
+	CryptoContext<Poly> cc = GenCryptoContextElementLTV(2048, 256);
 	UnitTestEncryption<Poly>(cc);
 }
 
 TEST(UTENCRYPT, Null_Poly_Encrypt_Decrypt_Byte) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementNull(512, 256);
+	CryptoContext<Poly> cc = GenCryptoContextElementNull(512, 256);
 	UnitTestEncryption<Poly>(cc);
 }
 TEST(UTENCRYPT, StSt_Poly_Encrypt_Decrypt_Byte) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementStSt(4096, 256);
+	CryptoContext<Poly> cc = GenCryptoContextElementStSt(4096, 256);
 	UnitTestEncryption<Poly>(cc);
 }
 
 TEST(UTENCRYPT, BV_Poly_Encrypt_Decrypt_Byte) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementBV(2048, 256);
+	CryptoContext<Poly> cc = GenCryptoContextElementBV(2048, 256);
 	UnitTestEncryption<Poly>(cc);
 }
 
 TEST(UTENCRYPT, FV_Poly_Encrypt_Decrypt_Byte) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementFV(512, 256);
+	CryptoContext<Poly> cc = GenCryptoContextElementFV(512, 256);
 	UnitTestEncryption<Poly>(cc);
 }
 
 TEST(UTENCRYPT, LTV_DCRT_Encrypt_Decrypt_Byte) {
-	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayLTV(128, 3, 256);
+	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayLTV(128, 3, 256);
 	UnitTestEncryption<DCRTPoly>(cc);
 }
 
 TEST(UTENCRYPT, Null_DCRT_Encrypt_Decrypt_Byte) {
-	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayNull(128, 3, 256);
+	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayNull(128, 3, 256);
 	UnitTestEncryption<DCRTPoly>(cc);
 }
 TEST(UTENCRYPT, StSt_DCRT_Encrypt_Decrypt_Byte) {
-	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayStSt(128, 3, 256);
+	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayStSt(128, 3, 256);
 	UnitTestEncryption<DCRTPoly>(cc);
 }
 
 TEST(UTENCRYPT, BV_DCRT_Encrypt_Decrypt_Byte) {
-	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayBV(128, 3, 256);
+	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayBV(128, 3, 256);
 	UnitTestEncryption<DCRTPoly>(cc);
 }
 
@@ -525,7 +525,7 @@ TEST(UTENCRYPT, FV_DCRT_Encrypt_Decrypt_Byte) {
 	SUCCEED();
 	return;
 	if( 0 ) {
-		shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayFV(128, 3, 256);
+		CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayFV(128, 3, 256);
 		UnitTestEncryption<DCRTPoly>(cc);
 	}
 }

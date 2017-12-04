@@ -51,7 +51,7 @@ void KeyGen();
 void Encrypt();
 void Compute();
 void Decrypt();
-shared_ptr<CryptoContext<DCRTPoly>> DeserializeContext(const string& ccFileName);
+CryptoContext<DCRTPoly> DeserializeContext(const string& ccFileName);
 NativeInteger CRTInterpolate(const std::vector<Plaintext> &crtVector);
 template<typename T> ostream& operator<<(ostream& output, const vector<T>& vector);
 
@@ -168,7 +168,7 @@ void KeyGen()
 
 		float stdDev = 4;
 
-		shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBV(paramsDCRT, encodingParams, 24, stdDev);
+		CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBV(paramsDCRT, encodingParams, 24, stdDev);
 
 		cc->Enable(ENCRYPTION);
 		cc->Enable(SHE);
@@ -342,7 +342,7 @@ void Encrypt() {
 			return;
 		}
 
-		shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(ccSer);
+		CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(ccSer);
 		cc->DeserializeEvalMultKey(ccEmk);
 		cc->DeserializeEvalSumKey(ccEsk);
 
@@ -481,7 +481,7 @@ void Compute() {
 			return;
 		}
 
-		shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(ccSer);
+		CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(ccSer);
 		cc->DeserializeEvalMultKey(ccEmk);
 		cc->DeserializeEvalSumKey(ccEsk);
 
@@ -614,7 +614,7 @@ void Decrypt() {
 			return;
 		}
 
-		shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(ccSer);
+		CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(ccSer);
 		cc->DeserializeEvalMultKey(ccEmk);
 		cc->DeserializeEvalSumKey(ccEsk);
 
@@ -695,7 +695,7 @@ void Decrypt() {
 
 }
 
-shared_ptr<CryptoContext<DCRTPoly>> DeserializeContext(const string& ccFileName, const string& emFileName, const string& esFileName)
+CryptoContext<DCRTPoly> DeserializeContext(const string& ccFileName, const string& emFileName, const string& esFileName)
 {
 
 	std::cout << "Deserializing the crypto context...";
@@ -716,7 +716,7 @@ shared_ptr<CryptoContext<DCRTPoly>> DeserializeContext(const string& ccFileName,
 		return 0;
 	}
 
-	shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(ccSer);
+	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(ccSer);
 
 	if( cc->DeserializeEvalMultKey(emSer) == false ) {
 		cerr << "Could not deserialize the eval mult key file" << endl;

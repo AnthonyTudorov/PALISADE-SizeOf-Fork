@@ -78,7 +78,7 @@ int main(int argc, char *argv[]) {
 
 	start = currentDateTime();
 
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextHelper::getNewContext(input);
+	CryptoContext<Poly> cc = CryptoContextHelper::getNewContext(input);
 	if( !cc ) {
 		cout << "Error on " << input << endl;
 		return 0;
@@ -89,7 +89,7 @@ int main(int argc, char *argv[]) {
 
 	cout << "Param generation time: " << "\t" << diff << " ms" << endl;
 
-	//shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementLTV(ORDER, PTM);
+	//CryptoContext<Poly> cc = GenCryptoContextElementLTV(ORDER, PTM);
 
 	//Turn on features
 	cc->Enable(ENCRYPTION);

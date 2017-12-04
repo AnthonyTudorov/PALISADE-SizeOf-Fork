@@ -71,7 +71,7 @@ public:
 	 * @param parmsetname name of parameter set to use
 	 * @return newly constructed CryptoContext, or null on failure
 	 */
-	static shared_ptr<CryptoContext<Poly>> getNewContext(const string& parmsetname, shared_ptr<EncodingParams> p = 0);
+	static CryptoContext<Poly> getNewContext(const string& parmsetname, shared_ptr<EncodingParams> p = 0);
 
 	/**
 	 * Generate a DCRT CryptoContext for a given parameter set name
@@ -81,7 +81,7 @@ public:
 	 * @param primeBits - bit width of the primes in the towers
 	 * @return newly constructed CryptoContext, or null on failure
 	 */
-	static shared_ptr<CryptoContext<DCRTPoly>> getNewDCRTContext(const string& parmsetname, usint numTowers, usint primeBits);
+	static CryptoContext<DCRTPoly> getNewDCRTContext(const string& parmsetname, usint numTowers, usint primeBits);
 };
 
 }

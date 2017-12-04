@@ -93,7 +93,7 @@ void PKE() {
 	double rootHermiteFactor = 1.006;
 
 	//Set Crypto Parameters
-	shared_ptr<CryptoContext<DCRTPoly>> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
+	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
 			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 6, 0, OPTIMIZED,7);
 
 	// enable features that you wish to use
@@ -191,7 +191,7 @@ void SHETestCoeff() {
 	double rootHermiteFactor = 1.006;
 
 	//Set Crypto Parameters
-	shared_ptr<CryptoContext<DCRTPoly>> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
+	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
 			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 6, 0, OPTIMIZED,7);
 
 	// enable features that you wish to use
@@ -320,7 +320,7 @@ void SHETestPacked() {
 	double rootHermiteFactor = 1.006;
 
 	//Set Crypto Parameters
-	shared_ptr<CryptoContext<DCRTPoly>> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
+	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
 			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 6, 0, OPTIMIZED,7);
 
 	// enable features that you wish to use
@@ -478,7 +478,7 @@ void SwitchCRT() {
 	double rootHermiteFactor = 1.006;
 
 	//Set Crypto Parameters
-	shared_ptr<CryptoContext<DCRTPoly>> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
+	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
 			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 7, 0, OPTIMIZED,8);
 
 	// enable features that you wish to use
@@ -542,7 +542,7 @@ void Multiply() {
 	double rootHermiteFactor = 1.006;
 
 	//Set Crypto Parameters
-	shared_ptr<CryptoContext<DCRTPoly>> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
+	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
 			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 5, 0, OPTIMIZED,6);
 
 	// enable features that you wish to use
@@ -674,7 +674,7 @@ void MultiplyTwo() {
 	double rootHermiteFactor = 1.006;
 
 	//Set Crypto Parameters
-	shared_ptr<CryptoContext<DCRTPoly>> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
+	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
 			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 2, 0, OPTIMIZED,3);
 
 	// enable features that you wish to use
@@ -864,7 +864,7 @@ void MultiplyThree() {
 	double rootHermiteFactor = 1.006;
 
 	//Set Crypto Parameters
-	shared_ptr<CryptoContext<DCRTPoly>> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
+	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
 			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 2, 0, OPTIMIZED,3);
 
 	// enable features that you wish to use

@@ -116,7 +116,7 @@ namespace lbcrypto {
 	template <class Element>
 	class LPKey : public CryptoObject<Element>, public Serializable {
 	public:
-		LPKey(shared_ptr<CryptoContext<Element>> cc, const string& id = "") : CryptoObject<Element>(cc, id) {}
+		LPKey(CryptoContext<Element> cc, const string& id = "") : CryptoObject<Element>(cc, id) {}
 
 		LPKey(shared_ptr<CryptoObject<Element>> co) : CryptoObject<Element>(co) {}
 
@@ -136,7 +136,7 @@ namespace lbcrypto {
 			*
 			* @param &cryptoParams is the reference to cryptoParams
 			*/
-			LPPublicKey(shared_ptr<CryptoContext<Element>> cc, const string& id = "") : LPKey<Element>(cc, id) {}
+			LPPublicKey(CryptoContext<Element> cc, const string& id = "") : LPKey<Element>(cc, id) {}
 
 			/**
 			* Copy constructor
@@ -272,7 +272,7 @@ namespace lbcrypto {
 		* @param &cryptoParams is the reference to cryptoParams
 		*/
 
-		LPEvalKey(shared_ptr<CryptoContext<Element>> cc) : LPKey<Element>(cc) {}
+		LPEvalKey(CryptoContext<Element> cc) : LPKey<Element>(cc) {}
 
 		virtual ~LPEvalKey() {}
 
@@ -396,7 +396,7 @@ namespace lbcrypto {
 		*
 		* @param &cryptoParams is the reference to cryptoParams
 		*/
-		LPEvalKeyRelin(shared_ptr<CryptoContext<Element>> cc) : LPEvalKey<Element>(cc) {}
+		LPEvalKeyRelin(CryptoContext<Element> cc) : LPEvalKey<Element>(cc) {}
 
 		virtual ~LPEvalKeyRelin() {}
 
@@ -558,7 +558,7 @@ namespace lbcrypto {
 		* @param &cryptoParams is the reference to cryptoParams
 		*/
 
-		LPEvalKeyNTRURelin(shared_ptr<CryptoContext<Element>> cc) : LPEvalKey<Element>(cc) {}
+		LPEvalKeyNTRURelin(CryptoContext<Element> cc) : LPEvalKey<Element>(cc) {}
 
 		virtual ~LPEvalKeyNTRURelin() {}
 
@@ -690,7 +690,7 @@ namespace lbcrypto {
 		* @param &cryptoParams is the reference to cryptoParams
 		*/
 
-		LPEvalKeyNTRU(shared_ptr<CryptoContext<Element>> cc) : LPEvalKey<Element>(cc) {}
+		LPEvalKeyNTRU(CryptoContext<Element> cc) : LPEvalKey<Element>(cc) {}
 
 		virtual ~LPEvalKeyNTRU() {}
 
@@ -823,7 +823,7 @@ namespace lbcrypto {
 		* Construct in context
 		*/
 
-		LPPrivateKey(shared_ptr<CryptoContext<Element>> cc) : LPKey<Element>(cc, GenerateUniqueKeyID()) {}
+		LPPrivateKey(CryptoContext<Element> cc) : LPKey<Element>(cc, GenerateUniqueKeyID()) {}
 
 		/**
 		* Copy constructor
@@ -1007,7 +1007,7 @@ namespace lbcrypto {
 			 * @param &privateKey private key used for decryption.
 			 * @return function ran correctly.
 			 */
-			virtual LPKeyPair<Element> KeyGen(shared_ptr<CryptoContext<Element>> cc, bool makeSparse=false) = 0;
+			virtual LPKeyPair<Element> KeyGen(CryptoContext<Element> cc, bool makeSparse=false) = 0;
 
 	};
 
@@ -1142,7 +1142,7 @@ namespace lbcrypto {
 			* @param makeSparse set to true if ring reduce by a factor of 2 is to be used.
 			* @return key pair including the private and public key
 			*/
-			virtual LPKeyPair<Element> MultipartyKeyGen(shared_ptr<CryptoContext<Element>> cc,
+			virtual LPKeyPair<Element> MultipartyKeyGen(CryptoContext<Element> cc,
 				const shared_ptr<LPPublicKey<Element>> pk1,
 				bool makeSparse=false) = 0;
 
@@ -1154,7 +1154,7 @@ namespace lbcrypto {
 			* @param makeSparse set to true if ring reduce by a factor of 2 is to be used.
 			* @return key pair including the private and public key
 			*/
-			virtual LPKeyPair<Element> MultipartyKeyGen(shared_ptr<CryptoContext<Element>> cc,
+			virtual LPKeyPair<Element> MultipartyKeyGen(CryptoContext<Element> cc,
 				const vector<shared_ptr<LPPrivateKey<Element>>>& secretKeys,
 				bool makeSparse=false) = 0;
 
@@ -1971,7 +1971,7 @@ namespace lbcrypto {
 				}
 		}
 
-		LPKeyPair<Element> KeyGen(shared_ptr<CryptoContext<Element>> cc, bool makeSparse) {
+		LPKeyPair<Element> KeyGen(CryptoContext<Element> cc, bool makeSparse) {
 				if(this->m_algorithmEncryption) {
 					auto kp = this->m_algorithmEncryption->KeyGen(cc, makeSparse);
 					kp.publicKey->SetKeyTag( kp.secretKey->GetKeyTag() );
@@ -2025,7 +2025,7 @@ namespace lbcrypto {
 
 		// Wrapper for Multiparty Key Gen
 		// FIXME check key ID for multiparty
-		LPKeyPair<Element> MultipartyKeyGen(shared_ptr<CryptoContext<Element>> cc,
+		LPKeyPair<Element> MultipartyKeyGen(CryptoContext<Element> cc,
 				const shared_ptr<LPPublicKey<Element>> pk1,
 				bool makeSparse) {
 			if(this->m_algorithmMultiparty) {
@@ -2039,7 +2039,7 @@ namespace lbcrypto {
 
 		// Wrapper for Multiparty Key Gen
 		// FIXME key IDs for multiparty
-		LPKeyPair<Element> MultipartyKeyGen(shared_ptr<CryptoContext<Element>> cc,
+		LPKeyPair<Element> MultipartyKeyGen(CryptoContext<Element> cc,
 			const vector<shared_ptr<LPPrivateKey<Element>>>& secretKeys,
 			bool makeSparse) {
 				if(this->m_algorithmMultiparty) {

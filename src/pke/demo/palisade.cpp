@@ -41,10 +41,10 @@ usint	IntVectorLen = 10; // default value
 
 void usage(const string& cmd, const string& msg = "");
 
-typedef void (*cmdparser)(shared_ptr<CryptoContext<Poly>> ctx, string cmd, int argc, char *argv[]);
+typedef void (*cmdparser)(CryptoContext<Poly> ctx, string cmd, int argc, char *argv[]);
 
 void
-reencrypter(shared_ptr<CryptoContext<Poly>> ctx, string cmd, int argc, char *argv[]) {
+reencrypter(CryptoContext<Poly> ctx, string cmd, int argc, char *argv[]) {
 	if( argc != 3 ) {
 		usage(cmd, "missing arguments");
 		return;
@@ -87,7 +87,7 @@ reencrypter(shared_ptr<CryptoContext<Poly>> ctx, string cmd, int argc, char *arg
 }
 
 void
-decrypter(shared_ptr<CryptoContext<Poly>> ctx, string cmd, int argc, char *argv[]) {
+decrypter(CryptoContext<Poly> ctx, string cmd, int argc, char *argv[]) {
 	if( argc != 3 ) {
 		usage(cmd, "missing arguments");
 		return;
@@ -155,7 +155,7 @@ decrypter(shared_ptr<CryptoContext<Poly>> ctx, string cmd, int argc, char *argv[
 }
 
 void
-encrypter(shared_ptr<CryptoContext<Poly>> ctx, string cmd, int argc, char *argv[]) {
+encrypter(CryptoContext<Poly> ctx, string cmd, int argc, char *argv[]) {
 	if( argc != 3 ) {
 		usage(cmd, "missing arguments");
 		return;
@@ -237,7 +237,7 @@ encrypter(shared_ptr<CryptoContext<Poly>> ctx, string cmd, int argc, char *argv[
 }
 
 void
-rekeymaker(shared_ptr<CryptoContext<Poly>> ctx, string cmd, int argc, char *argv[]) {
+rekeymaker(CryptoContext<Poly> ctx, string cmd, int argc, char *argv[]) {
 	if( argc != 3 ) {
 		usage(cmd, "missing arguments");
 		return;
@@ -297,7 +297,7 @@ rekeymaker(shared_ptr<CryptoContext<Poly>> ctx, string cmd, int argc, char *argv
 }
 
 void
-keymaker(shared_ptr<CryptoContext<Poly>> ctx, string cmd, int argc, char *argv[]) {
+keymaker(CryptoContext<Poly> ctx, string cmd, int argc, char *argv[]) {
 	if( argc != 1 ) {
 		usage(cmd, "missing keyname");
 		return;
@@ -340,7 +340,7 @@ keymaker(shared_ptr<CryptoContext<Poly>> ctx, string cmd, int argc, char *argv[]
 }
 
 void
-evaladder(shared_ptr<CryptoContext<Poly>> ctx, string cmd, int argc, char *argv[]) {
+evaladder(CryptoContext<Poly> ctx, string cmd, int argc, char *argv[]) {
 	if( argc != 3 ) {
 		usage(cmd, "missing arguments");
 		return;
@@ -408,7 +408,7 @@ evaladder(shared_ptr<CryptoContext<Poly>> ctx, string cmd, int argc, char *argv[
 }
 
 void
-evalmulter(shared_ptr<CryptoContext<Poly>> ctx, string cmd, int argc, char *argv[]) {
+evalmulter(CryptoContext<Poly> ctx, string cmd, int argc, char *argv[]) {
 	if( argc != 3 ) {
 		usage(cmd, "missing arguments");
 		return;
@@ -530,7 +530,7 @@ main( int argc, char *argv[] )
 		return 0;
 	}
 
-	shared_ptr<CryptoContext<Poly>> ctx;
+	CryptoContext<Poly> ctx;
 
 	int cmdidx = 1;
 	while( cmdidx < argc ) {

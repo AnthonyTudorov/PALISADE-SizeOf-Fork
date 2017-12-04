@@ -63,7 +63,7 @@ static const usint PTM = 64;
 static const usint TOWERS = 3;
 
 template<class Element>
-void UnitTest_Add(shared_ptr<CryptoContext<Element>> cc) {
+void UnitTest_Add(CryptoContext<Element> cc) {
 
 	std::vector<uint32_t> vectorOfInts1 = { 1,0,3,1,0,1,2,1 };
 	Plaintext plaintext1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
@@ -111,58 +111,58 @@ void UnitTest_Add(shared_ptr<CryptoContext<Element>> cc) {
 
 /// add
 TEST_F(UTSHE, LTV_Poly_Add) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementLTV(ORDER, PTM);
+	CryptoContext<Poly> cc = GenCryptoContextElementLTV(ORDER, PTM);
 	UnitTest_Add<Poly>(cc);
 }
 
 TEST_F(UTSHE, LTV_DCRTPoly_Add) {
-	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayLTV(ORDER, TOWERS, PTM, 30);
+	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayLTV(ORDER, TOWERS, PTM, 30);
 	UnitTest_Add<DCRTPoly>(cc);
 }
 
 TEST_F(UTSHE, StSt_Poly_Add) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementStSt(ORDER, PTM, 50);
+	CryptoContext<Poly> cc = GenCryptoContextElementStSt(ORDER, PTM, 50);
 	UnitTest_Add<Poly>(cc);
 }
 
 TEST_F(UTSHE, StSt_DCRTPoly_Add) {
-	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayStSt(ORDER, TOWERS, PTM, 30);
+	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayStSt(ORDER, TOWERS, PTM, 30);
 	UnitTest_Add<DCRTPoly>(cc);
 }
 
 TEST_F(UTSHE, Null_Poly_Add) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementNull(ORDER, PTM);
+	CryptoContext<Poly> cc = GenCryptoContextElementNull(ORDER, PTM);
 	UnitTest_Add<Poly>(cc);
 }
 
 TEST_F(UTSHE, Null_DCRTPoly_Add) {
-	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayNull(ORDER, TOWERS, PTM, 30);
+	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayNull(ORDER, TOWERS, PTM, 30);
 	UnitTest_Add<DCRTPoly>(cc);
 }
 
 TEST_F(UTSHE, BV_Poly_Add) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementBV(ORDER, PTM);
+	CryptoContext<Poly> cc = GenCryptoContextElementBV(ORDER, PTM);
 	UnitTest_Add<Poly>(cc);
 }
 
 TEST_F(UTSHE, BV_DCRTPoly_Add) {
-	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayBV(ORDER, TOWERS, PTM, 30);
+	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayBV(ORDER, TOWERS, PTM, 30);
 	UnitTest_Add<DCRTPoly>(cc);
 }
 
 TEST_F(UTSHE, FV_Poly_Add) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementFV(ORDER, PTM);
+	CryptoContext<Poly> cc = GenCryptoContextElementFV(ORDER, PTM);
 	UnitTest_Add<Poly>(cc);
 }
 
 //TEST_F(UTSHE, FV_DCRTPoly_Add) {
-//	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayFV(ORDER, TOWERS, PTM);
+//	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayFV(ORDER, TOWERS, PTM);
 //	UnitTest_Add<DCRTPoly>(cc);
 //}
 
 ///
 template<class Element>
-void UnitTest_Mult(shared_ptr<CryptoContext<Element>> cc) {
+void UnitTest_Mult(CryptoContext<Element> cc) {
 	std::vector<uint32_t> vectorOfInts1 = { 1,0,3,1,0,1,2,1 };
 	Plaintext plaintext1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
 
@@ -206,52 +206,52 @@ void UnitTest_Mult(shared_ptr<CryptoContext<Element>> cc) {
 
 
 TEST_F(UTSHE, LTV_Poly_Mult) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementLTV(ORDER, PTM, 50);
+	CryptoContext<Poly> cc = GenCryptoContextElementLTV(ORDER, PTM, 50);
 	UnitTest_Mult<Poly>(cc);
 }
 
 TEST_F(UTSHE, LTV_DCRTPoly_Mult) {
-	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayLTV(ORDER, TOWERS, PTM);
+	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayLTV(ORDER, TOWERS, PTM);
 	UnitTest_Mult<DCRTPoly>(cc);
 }
 
 //TEST_F(UTSHE, StSt_Poly_Mult) {
-//	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementStSt(ORDER, PTM);
+//	CryptoContext<Poly> cc = GenCryptoContextElementStSt(ORDER, PTM);
 //	UnitTest_Mult<Poly>(cc);
 //}
 //
 //TEST_F(UTSHE, StSt_DCRTPoly_Mult) {
-//	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayStSt(ORDER, TOWERS, PTM);
+//	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayStSt(ORDER, TOWERS, PTM);
 //	UnitTest_Mult<DCRTPoly>(cc);
 //}
 
 TEST_F(UTSHE, Null_Poly_Mult) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementNull(ORDER, PTM);
+	CryptoContext<Poly> cc = GenCryptoContextElementNull(ORDER, PTM);
 	UnitTest_Mult<Poly>(cc);
 }
 
 TEST_F(UTSHE, Null_DCRTPoly_Mult) {
-	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayNull(ORDER, TOWERS, PTM, 30);
+	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayNull(ORDER, TOWERS, PTM, 30);
 	UnitTest_Mult<DCRTPoly>(cc);
 }
 
 TEST_F(UTSHE, BV_Poly_Mult) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementBV(ORDER, PTM);
+	CryptoContext<Poly> cc = GenCryptoContextElementBV(ORDER, PTM);
 	UnitTest_Mult<Poly>(cc);
 }
 
 TEST_F(UTSHE, BV_DCRTPoly_Mult) {
-	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayBV(ORDER, TOWERS, PTM);
+	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayBV(ORDER, TOWERS, PTM);
 	UnitTest_Mult<DCRTPoly>(cc);
 }
 
 TEST_F(UTSHE, FV_Poly_Mult) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementFV(ORDER, PTM);
+	CryptoContext<Poly> cc = GenCryptoContextElementFV(ORDER, PTM);
 	UnitTest_Mult<Poly>(cc);
 }
 
 //TEST_F(UTSHE, FV_DCRTPoly_Mult) {
-//	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayFV(ORDER, TOWERS, PTM);
+//	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayFV(ORDER, TOWERS, PTM);
 //	UnitTest_Mult<DCRTPoly>(cc);
 //}
 
@@ -261,7 +261,7 @@ TEST_F(UTSHE, keyswitch_sparse_key_SingleCRT_byteplaintext) {
 	usint m = 512;
 	usint plaintextModulus = 256;
 
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementLTV(m, plaintextModulus, 50);
+	CryptoContext<Poly> cc = GenCryptoContextElementLTV(m, plaintextModulus, 50);
 
 	Plaintext plaintext = cc->MakeStringPlaintext("I am good, what are you?! 32 ch");
 
@@ -297,7 +297,7 @@ TEST_F(UTSHE, keyswitch_sparse_key_SingleCRT_intArray) {
 	BigInteger rootOfUnity(RootOfUnity(m, q));
 	shared_ptr<Poly::Params> params( new Poly::Params(m, q, rootOfUnity) );
 
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(params, ptm, 1, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(params, ptm, 1, stdDev);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(LEVELEDSHE);
 	cc->Enable(SHE);
@@ -336,7 +336,7 @@ TEST_F(UTSHE, keyswitch_SingleCRT) {
 
 	shared_ptr<Poly::Params> params = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(m, 50);
 
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(params, 256, 1, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(params, 256, 1, stdDev);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 
@@ -369,7 +369,7 @@ TEST_F(UTSHE, sparsekeygen_single_crt_encrypt_decrypt) {
 
 	shared_ptr<Poly::Params> params = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(m);
 
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(params, 256, 1, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(params, 256, 1, stdDev);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(LEVELEDSHE);
 	cc->Enable(SHE);
@@ -406,7 +406,7 @@ TEST_F(UTSHE, keyswitch_ModReduce_DCRT) {
 
 	shared_ptr<ILDCRTParams<BigInteger>> params = GenerateDCRTParams( m, plaintextmodulus, size, 30 );
 
-	shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextLTV(params, plaintextmodulus, relinWindow, stdDev);
+	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextLTV(params, plaintextmodulus, relinWindow, stdDev);
 
 	Plaintext plaintext = cc->MakeStringPlaintext("I am good, what are you?! 32 ch");
 
@@ -454,7 +454,7 @@ TEST_F(UTSHE, ringreduce_single_crt) {
 
 	shared_ptr<Poly::Params> params = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(m);
 
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(params, 2, 1, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(params, 2, 1, stdDev);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(LEVELEDSHE);
 	cc->Enable(SHE);
@@ -505,7 +505,7 @@ TEST_F(UTSHE, ringreduce_double_crt) {
 
 	shared_ptr<ILDCRTParams<BigInteger>> params = GenerateDCRTParams( m, plaintextmodulus, size, 30 );
 
-	shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextLTV(params, plaintextmodulus, relinWindow, stdDev);
+	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextLTV(params, plaintextmodulus, relinWindow, stdDev);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(LEVELEDSHE);
 	cc->Enable(SHE);

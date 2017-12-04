@@ -70,7 +70,7 @@ TEST_F(UTFV, Poly_FV_Eval_Operations) {
 
 	//Set crypto parametes
 	BigInteger delta(modulus.DividedBy(plaintextModulus));
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextFV(parms,
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextFV(parms,
 			64, 1, stdDev, delta.ToString(), RLWE, bigModulus.ToString(),
 			bigRootOfUnity.ToString(), 0, 9, 1.006);
 	cc->Enable(ENCRYPTION);
@@ -183,7 +183,7 @@ TEST_F(UTFV, Poly_FV_ParamsGen_EvalMul) {
 	float stdDev = 4;
 
 	//Set crypto parametes
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextFV(plaintextModulus, 1.006, relWindow, stdDev, 0, 2, 0, RLWE);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextFV(plaintextModulus, 1.006, relWindow, stdDev, 0, 2, 0, RLWE);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 
@@ -250,7 +250,7 @@ TEST_F(UTFV, Poly_FV_Optimized_Eval_Operations) {
 	float stdDev = 4;
 
 	//Set crypto parameters
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextFV(plaintextModulus, 1.006, relWindow, stdDev, 0, 1, 0);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextFV(plaintextModulus, 1.006, relWindow, stdDev, 0, 1, 0);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 

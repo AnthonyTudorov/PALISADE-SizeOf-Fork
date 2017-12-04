@@ -55,7 +55,7 @@ TEST(UTFVEVALMM, Poly_FV_Eval_Mult_Many_Operations) {
 	double rootHermiteFactor = 1.03;
 
 	//Set Crypto Parameters
-	shared_ptr<CryptoContext<Poly>> cryptoContext = CryptoContextFactory<Poly>::genCryptoContextFV(
+	CryptoContext<Poly> cryptoContext = CryptoContextFactory<Poly>::genCryptoContextFV(
 			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 3, 0, OPTIMIZED, 4);
 
 	cryptoContext->Enable(ENCRYPTION);

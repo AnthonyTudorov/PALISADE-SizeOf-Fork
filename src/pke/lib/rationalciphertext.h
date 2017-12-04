@@ -54,7 +54,7 @@ namespace lbcrypto {
 		 *
 		 * @param cc
 		 */
-		RationalCiphertext(shared_ptr<CryptoContext<Element>> cc, bool integerFlag = false) : CryptoObject<Element>(cc) {
+		RationalCiphertext(CryptoContext<Element> cc, bool integerFlag = false) : CryptoObject<Element>(cc) {
 			m_numerator = std::make_shared<Ciphertext<Element>>(cc);
 			if (!integerFlag)
 				m_denominator = std::make_shared<Ciphertext<Element>>(cc);

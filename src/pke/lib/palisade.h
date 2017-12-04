@@ -40,11 +40,11 @@ using std::move;
 
 namespace lbcrypto {
 
-template <class Element>
-class CryptoContext;
+template<typename Element>
+class CryptoContextImpl;
 
-template <class Element>
-class CryptoObject;
+template<typename Element>
+using CryptoContext = shared_ptr<CryptoContextImpl<Element>>;
 
 }
 

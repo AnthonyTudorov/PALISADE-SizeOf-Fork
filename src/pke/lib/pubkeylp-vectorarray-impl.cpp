@@ -29,7 +29,7 @@
 #include "pubkeylp-2n-private.cpp"
 
 namespace lbcrypto {
-extern template class CryptoContext<DCRTPoly>;
+extern template class CryptoContextImpl<DCRTPoly>;
 
 template class LPPublicKey<DCRTPoly>;
 template class LPPrivateKey<DCRTPoly>;

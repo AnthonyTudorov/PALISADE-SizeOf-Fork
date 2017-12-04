@@ -44,7 +44,7 @@
 namespace lbcrypto {
 
 template <class Element>
-LPKeyPair<Element> LPAlgorithmLTV<Element>::KeyGen(shared_ptr<CryptoContext<Element>> cc, bool makeSparse)
+LPKeyPair<Element> LPAlgorithmLTV<Element>::KeyGen(CryptoContext<Element> cc, bool makeSparse)
 {
 	LPKeyPair<Element>	kp(new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc));
 

@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
 
 	if( beVerbose ) cout << "Initializing crypto system" << endl;
 
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextHelper::getNewContext(parmSetName);
+	CryptoContext<Poly> cc = CryptoContextHelper::getNewContext(parmSetName);
 
 	// enable features that you wish to use
 	cc->Enable(ENCRYPTION);

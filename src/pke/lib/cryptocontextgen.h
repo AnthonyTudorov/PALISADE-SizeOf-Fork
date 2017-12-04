@@ -37,9 +37,9 @@ using namespace lbcrypto;
 
 static const usint PrimeBits = 50;
 
-inline shared_ptr<CryptoContext<Poly>> GenCryptoContextElementNull(usint ORDER, usint ptm) {
+inline CryptoContext<Poly> GenCryptoContextElementNull(usint ORDER, usint ptm) {
 	shared_ptr<Poly::Params> p( new Poly::Params(ORDER, Poly::Integer(ptm), 1) );
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextNull(p, ptm);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextNull(p, ptm);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(PRE);
 	cc->Enable(SHE);
@@ -47,10 +47,10 @@ inline shared_ptr<CryptoContext<Poly>> GenCryptoContextElementNull(usint ORDER, 
 	return cc;
 }
 
-inline shared_ptr<CryptoContext<DCRTPoly>> GenCryptoContextElementArrayNull(usint ORDER, usint ntowers, usint ptm, usint bits=PrimeBits) {
+inline CryptoContext<DCRTPoly> GenCryptoContextElementArrayNull(usint ORDER, usint ntowers, usint ptm, usint bits=PrimeBits) {
 	shared_ptr<DCRTPoly::Params> p = GenerateDCRTParams(ORDER, ptm, ntowers, bits);
 
-	shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextNull(p, ptm);
+	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextNull(p, ptm);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(PRE);
 	cc->Enable(SHE);
@@ -58,10 +58,10 @@ inline shared_ptr<CryptoContext<DCRTPoly>> GenCryptoContextElementArrayNull(usin
 	return cc;
 }
 
-inline shared_ptr<CryptoContext<Poly>> GenCryptoContextElementLTV(usint ORDER, usint ptm) {
+inline CryptoContext<Poly> GenCryptoContextElementLTV(usint ORDER, usint ptm) {
 	shared_ptr<Poly::Params> p = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(ORDER);
 
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(p, ptm, 1, 4);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(p, ptm, 1, 4);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(PRE);
 	cc->Enable(SHE);
@@ -69,10 +69,10 @@ inline shared_ptr<CryptoContext<Poly>> GenCryptoContextElementLTV(usint ORDER, u
 	return cc;
 }
 
-inline shared_ptr<CryptoContext<Poly>> GenCryptoContextElementLTV(usint ORDER, usint ptm, usint bits) {
+inline CryptoContext<Poly> GenCryptoContextElementLTV(usint ORDER, usint ptm, usint bits) {
 	shared_ptr<Poly::Params> p = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(ORDER, bits);
 
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(p, ptm, 1, 4);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(p, ptm, 1, 4);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(PRE);
 	cc->Enable(SHE);
@@ -80,10 +80,10 @@ inline shared_ptr<CryptoContext<Poly>> GenCryptoContextElementLTV(usint ORDER, u
 	return cc;
 }
 
-inline shared_ptr<CryptoContext<DCRTPoly>> GenCryptoContextElementArrayLTV(usint ORDER, usint ntowers, usint ptm, usint bits=PrimeBits) {
+inline CryptoContext<DCRTPoly> GenCryptoContextElementArrayLTV(usint ORDER, usint ntowers, usint ptm, usint bits=PrimeBits) {
 	shared_ptr<DCRTPoly::Params> p = GenerateDCRTParams(ORDER, ptm, ntowers, bits);
 
-	shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextLTV(p, ptm, 1, 4, ntowers);
+	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextLTV(p, ptm, 1, 4, ntowers);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(PRE);
 	cc->Enable(SHE);
@@ -91,11 +91,11 @@ inline shared_ptr<CryptoContext<DCRTPoly>> GenCryptoContextElementArrayLTV(usint
 	return cc;
 }
 
-inline shared_ptr<CryptoContext<Poly>> GenCryptoContextElementStSt(usint ORDER, usint ptm) {
+inline CryptoContext<Poly> GenCryptoContextElementStSt(usint ORDER, usint ptm) {
 
 	shared_ptr<Poly::Params> p = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(ORDER);
 
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextStehleSteinfeld(p, ptm, 1, 4, 41411.5);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextStehleSteinfeld(p, ptm, 1, 4, 41411.5);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(PRE);
 	cc->Enable(SHE);
@@ -103,14 +103,14 @@ inline shared_ptr<CryptoContext<Poly>> GenCryptoContextElementStSt(usint ORDER, 
 	return cc;
 }
 
-inline shared_ptr<CryptoContext<Poly>> GenCryptoContextElementStSt(usint ORDER, usint ptm, usint bits) {
+inline CryptoContext<Poly> GenCryptoContextElementStSt(usint ORDER, usint ptm, usint bits) {
         bool dbg_flag = false;
 	DEBUG("in GenCryptoContextElementStSt");
 
 	shared_ptr<Poly::Params> p = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(ORDER, bits);
 	DEBUG("p "<<p);
 
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextStehleSteinfeld(p, ptm, 1, 4, 41411.5);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextStehleSteinfeld(p, ptm, 1, 4, 41411.5);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(PRE);
 	cc->Enable(SHE);
@@ -118,10 +118,10 @@ inline shared_ptr<CryptoContext<Poly>> GenCryptoContextElementStSt(usint ORDER, 
 	return cc;
 }
 
-inline shared_ptr<CryptoContext<DCRTPoly>> GenCryptoContextElementArrayStSt(usint ORDER, usint ntowers, usint ptm, usint bits=PrimeBits) {
+inline CryptoContext<DCRTPoly> GenCryptoContextElementArrayStSt(usint ORDER, usint ntowers, usint ptm, usint bits=PrimeBits) {
 	shared_ptr<DCRTPoly::Params> p = GenerateDCRTParams(ORDER, ptm, ntowers, bits);
 
-	shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextStehleSteinfeld(p, ptm, 1, 4, 41411.5, ntowers);
+	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextStehleSteinfeld(p, ptm, 1, 4, 41411.5, ntowers);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(PRE);
 	cc->Enable(SHE);
@@ -129,10 +129,10 @@ inline shared_ptr<CryptoContext<DCRTPoly>> GenCryptoContextElementArrayStSt(usin
 	return cc;
 }
 
-inline shared_ptr<CryptoContext<Poly>> GenCryptoContextElementBV(usint ORDER, usint ptm, usint bits=PrimeBits) {
+inline CryptoContext<Poly> GenCryptoContextElementBV(usint ORDER, usint ptm, usint bits=PrimeBits) {
 	shared_ptr<Poly::Params> p = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(ORDER);
 
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextBV(p, ptm, 1, 4);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(p, ptm, 1, 4);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(PRE);
 	cc->Enable(SHE);
@@ -140,10 +140,10 @@ inline shared_ptr<CryptoContext<Poly>> GenCryptoContextElementBV(usint ORDER, us
 	return cc;
 }
 
-inline shared_ptr<CryptoContext<DCRTPoly>> GenCryptoContextElementArrayBV(usint ORDER, usint ntowers, usint ptm, usint bits=PrimeBits) {
+inline CryptoContext<DCRTPoly> GenCryptoContextElementArrayBV(usint ORDER, usint ntowers, usint ptm, usint bits=PrimeBits) {
 	shared_ptr<DCRTPoly::Params> p = GenerateDCRTParams(ORDER, ptm, ntowers, bits);
 
-	shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBV(p, ptm, 1, 3, RLWE, ntowers);
+	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBV(p, ptm, 1, 3, RLWE, ntowers);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(PRE);
 	cc->Enable(SHE);
@@ -152,17 +152,17 @@ inline shared_ptr<CryptoContext<DCRTPoly>> GenCryptoContextElementArrayBV(usint 
 }
 
 
-inline shared_ptr<CryptoContext<Poly>> GenCryptoContextElementFV(usint ORDER, usint ptm, usint bits=PrimeBits) {
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextFV(ptm, 1.006, 1, 4, 0, 2, 0);
+inline CryptoContext<Poly> GenCryptoContextElementFV(usint ORDER, usint ptm, usint bits=PrimeBits) {
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextFV(ptm, 1.006, 1, 4, 0, 2, 0);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(PRE);
 	cc->Enable(SHE);
 	return cc;
 }
 
-inline shared_ptr<CryptoContext<DCRTPoly>> GenCryptoContextElementArrayFV(usint ORDER, usint ntowers, usint ptm, usint bits=PrimeBits) {
+inline CryptoContext<DCRTPoly> GenCryptoContextElementArrayFV(usint ORDER, usint ntowers, usint ptm, usint bits=PrimeBits) {
 
-	shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextFV(ptm, 1.006, 1, 4, 0, 2, 0);
+	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextFV(ptm, 1.006, 1, 4, 0, 2, 0);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(PRE);
 	cc->Enable(SHE);

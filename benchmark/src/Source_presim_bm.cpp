@@ -149,7 +149,7 @@ void EncryptionSchemeSimulation(usint count){
 	//Set crypto parameters
 	shared_ptr<Poly::Params> parms( new Poly::Params(m, modulus, rootOfUnity) );
 
-	shared_ptr<CryptoContext<Poly>> cc =  CryptoContextFactory<Poly>::genCryptoContextLTV(parms, ptModulus, relWindow, stdDev);
+	CryptoContext<Poly> cc =  CryptoContextFactory<Poly>::genCryptoContextLTV(parms, ptModulus, relWindow, stdDev);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(PRE);
 
@@ -293,7 +293,7 @@ void PRESimulation(usint count, usint dataset){
 	//Set crypto parameters
 	shared_ptr<Poly::Params> parms( new Poly::Params(m, modulus, rootOfUnity) );
 
-	shared_ptr<CryptoContext<Poly>> cc =  CryptoContextFactory<Poly>::genCryptoContextLTV(parms, ptModulus, relWindow, stdDev);
+	CryptoContext<Poly> cc =  CryptoContextFactory<Poly>::genCryptoContextLTV(parms, ptModulus, relWindow, stdDev);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(PRE);
 

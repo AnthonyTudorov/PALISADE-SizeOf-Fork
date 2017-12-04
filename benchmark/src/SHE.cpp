@@ -50,7 +50,7 @@ static std::vector<uint32_t> makeVector(int siz, int ptmi) {
 	return elem;
 }
 
-static bool setup_SHE(shared_ptr<CryptoContext<Poly>> cc, shared_ptr<Ciphertext<Poly>>& ct1, shared_ptr<Ciphertext<Poly>>& ct2) {
+static bool setup_SHE(CryptoContext<Poly> cc, shared_ptr<Ciphertext<Poly>>& ct1, shared_ptr<Ciphertext<Poly>>& ct2) {
 	int nel = cc->GetCyclotomicOrder()/2;
 	const BigInteger& ptm = cc->GetCryptoParameters()->GetPlaintextModulus();
 	uint32_t ptmi = ptm.ConvertToInt();
@@ -73,7 +73,7 @@ static bool setup_SHE(shared_ptr<CryptoContext<Poly>> cc, shared_ptr<Ciphertext<
 }
 
 void BM_evalAdd_SHE(benchmark::State& state) { // benchmark
-	shared_ptr<CryptoContext<Poly>> cc;
+	CryptoContext<Poly> cc;
 	shared_ptr<Ciphertext<Poly>> ct1, ct2;
 
 	if( state.thread_index == 0 ) {
@@ -94,7 +94,7 @@ void BM_evalAdd_SHE(benchmark::State& state) { // benchmark
 BENCHMARK_PARMS(BM_evalAdd_SHE)
 
 void BM_evalMult_SHE(benchmark::State& state) { // benchmark
-	shared_ptr<CryptoContext<Poly>> cc;
+	CryptoContext<Poly> cc;
 	shared_ptr<Ciphertext<Poly>> ct1, ct2;
 
 	if( state.thread_index == 0 ) {
@@ -117,7 +117,7 @@ void BM_evalMult_SHE(benchmark::State& state) { // benchmark
 BENCHMARK_PARMS(BM_evalMult_SHE)
 
 void BM_baseDecompose_SHE(benchmark::State& state) { // benchmark
-	shared_ptr<CryptoContext<Poly>> cc;
+	CryptoContext<Poly> cc;
 	shared_ptr<Ciphertext<Poly>> ct1, ct2;
 
 	if( state.thread_index == 0 ) {

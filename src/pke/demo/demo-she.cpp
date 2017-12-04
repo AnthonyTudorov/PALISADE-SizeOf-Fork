@@ -65,7 +65,7 @@ int main(int argc, char *argv[]) {
 	double rootHermiteFactor = 1.006;	
 
 	//Set Crypto Parameters	
-	shared_ptr<CryptoContext<Poly>> cryptoContext = CryptoContextFactory<Poly>::genCryptoContextFV(
+	CryptoContext<Poly> cryptoContext = CryptoContextFactory<Poly>::genCryptoContextFV(
 			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 2, 0);
 
 	// enable features that you wish to use

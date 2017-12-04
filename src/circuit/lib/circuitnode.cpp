@@ -36,7 +36,7 @@
 namespace lbcrypto {
 
 template<typename Element>
-shared_ptr<CryptoContext<Element>> CircuitGraphWithValues<Element>::_graph_cc;
+CryptoContext<Element> CircuitGraphWithValues<Element>::_graph_cc;
 
 template<typename Element>
 shared_ptr<LPPrivateKey<Element>> CircuitGraphWithValues<Element>::_graph_key;
@@ -143,7 +143,7 @@ void EvalAddNode::simeval(CircuitGraph& g, vector<CircuitSimulation>& ops) {
 }
 
 template<typename Element>
-Value<Element> EvalAddNodeWithValue<Element>::eval(shared_ptr<CryptoContext<Element>> cc, CircuitGraphWithValues<Element>& cg) {
+Value<Element> EvalAddNodeWithValue<Element>::eval(CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg) {
 	if( this->value.GetType() != UNKNOWN )
 		return this->value;
 
@@ -213,7 +213,7 @@ void EvalSubNode::simeval(CircuitGraph& g, vector<CircuitSimulation>& ops) {
 }
 
 template<typename Element>
-Value<Element> EvalSubNodeWithValue<Element>::eval(shared_ptr<CryptoContext<Element>> cc, CircuitGraphWithValues<Element>& cg) {
+Value<Element> EvalSubNodeWithValue<Element>::eval(CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg) {
 	if( this->value.GetType() != UNKNOWN )
 		return this->value;
 
@@ -290,7 +290,7 @@ void EvalNegNode::simeval(CircuitGraph& g, vector<CircuitSimulation>& ops) {
 }
 
 template<typename Element>
-Value<Element> EvalNegNodeWithValue<Element>::eval(shared_ptr<CryptoContext<Element>> cc, CircuitGraphWithValues<Element>& cg) {
+Value<Element> EvalNegNodeWithValue<Element>::eval(CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg) {
 	if( this->value.GetType() != UNKNOWN )
 		return this->value;
 
@@ -333,7 +333,7 @@ void EvalMultNode::simeval(CircuitGraph& g, vector<CircuitSimulation>& ops) {
 }
 
 template<typename Element>
-Value<Element> EvalMultNodeWithValue<Element>::eval(shared_ptr<CryptoContext<Element>> cc, CircuitGraphWithValues<Element>& cg) {
+Value<Element> EvalMultNodeWithValue<Element>::eval(CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg) {
 	if( this->value.GetType() != UNKNOWN )
 		return this->value;
 
@@ -381,7 +381,7 @@ void ModReduceNode::simeval(CircuitGraph& g, vector<CircuitSimulation>& ops) {
 }
 
 template<typename Element>
-Value<Element> ModReduceNodeWithValue<Element>::eval(shared_ptr<CryptoContext<Element>> cc, CircuitGraphWithValues<Element>& cg) {
+Value<Element> ModReduceNodeWithValue<Element>::eval(CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg) {
 	if( this->value.GetType() != UNKNOWN )
 		return this->value;
 

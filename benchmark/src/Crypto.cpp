@@ -57,7 +57,7 @@ using namespace lbcrypto;
 #include "EncryptHelper.h"
 
 void BM_keygen(benchmark::State& state) { // benchmark
-	shared_ptr<CryptoContext<Poly>> cc;
+	CryptoContext<Poly> cc;
 
 	if( state.thread_index == 0 ) {
 		state.PauseTiming();
@@ -86,7 +86,7 @@ void BM_keygen(benchmark::State& state) { // benchmark
 BENCHMARK_PARMS(BM_keygen)
 
 void BM_encrypt(benchmark::State& state) { // benchmark
-	shared_ptr<CryptoContext<Poly>> cc;
+	CryptoContext<Poly> cc;
 	LPKeyPair<Poly> kp;
 	shared_ptr<Ciphertext<Poly>> ciphertext;
 	Plaintext plaintext;
@@ -142,7 +142,7 @@ void BM_encrypt(benchmark::State& state) { // benchmark
 BENCHMARK_PARMS(BM_encrypt)
 
 void BM_decrypt(benchmark::State& state) { // benchmark
-	shared_ptr<CryptoContext<Poly>> cc;
+	CryptoContext<Poly> cc;
 	LPKeyPair<Poly> kp;
 	shared_ptr<Ciphertext<Poly>> ciphertext;
 	Plaintext plaintext;
@@ -200,7 +200,7 @@ void BM_decrypt(benchmark::State& state) { // benchmark
 BENCHMARK_PARMS(BM_decrypt)
 
 void BM_rekeygen(benchmark::State& state) { // benchmark
-	shared_ptr<CryptoContext<Poly>> cc;
+	CryptoContext<Poly> cc;
 	LPKeyPair<Poly> kp;
 
 	if( state.thread_index == 0 ) {
@@ -244,7 +244,7 @@ void BM_rekeygen(benchmark::State& state) { // benchmark
 BENCHMARK_PARMS(BM_rekeygen)
 
 void BM_reencrypt(benchmark::State& state) { // benchmark
-	shared_ptr<CryptoContext<Poly>> cc;
+	CryptoContext<Poly> cc;
 	LPKeyPair<Poly> kp;
 	shared_ptr<Ciphertext<Poly>> ciphertext;
 	shared_ptr<Ciphertext<Poly>> reciphertext;

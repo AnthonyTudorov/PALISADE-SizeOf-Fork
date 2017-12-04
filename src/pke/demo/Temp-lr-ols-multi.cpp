@@ -118,9 +118,9 @@ void TestEvalKeys(const string &paramDir,  const string &contextID, const string
 
 void TestLR(const string &paramDir,  const string &contextID, const string &keyDir1, const string &JointKeyId, const string &ctxtDir, const string &ctxId);
 
-shared_ptr<CryptoContext<DCRTPoly>> DeserializeContext(const string& ccFileName);
+CryptoContext<DCRTPoly> DeserializeContext(const string& ccFileName);
 void ReadCSVFile(string dataFileName,  vector<string>& headers, vector<vector<double> >& dataColumns);
-void EncodeData(shared_ptr<CryptoContext<DCRTPoly>> cc, const std::vector<string> &headers, const vector<vector<double>>& dataColumns, Matrix<Plaintext> &x, Plaintext &y);
+void EncodeData(CryptoContext<DCRTPoly> cc, const std::vector<string> &headers, const vector<vector<double>>& dataColumns, Matrix<Plaintext> &x, Plaintext &y);
 void CRTInterpolate(const vector<shared_ptr<Matrix<Plaintext>>> &crtVector, Matrix<NativeInteger> &result);
 void MatrixInverse(const Matrix<NativeInteger> &in, Matrix<double> &out);
 void DecodeData(const Matrix<double> &lr, const Matrix<NativeInteger>& XTX, const Matrix<NativeInteger>& XTY, std::vector<double> &result);
@@ -377,7 +377,7 @@ void ParamGen(string &paramDir, const string &contextID) {
 
 		float stdDev = 4;
 
-		shared_ptr<CryptoContext<DCRTPoly>> cc =
+		CryptoContext<DCRTPoly> cc =
 			CryptoContextFactory<DCRTPoly>::genCryptoContextBV(paramsDCRT, encodingParams, 30, stdDev);
 
 		cc->Enable(ENCRYPTION);
@@ -417,7 +417,7 @@ void KeyGen1(const string &paramDir,  const string &contextID, const string &key
 
 		// Deserialize the crypto context
 
-		shared_ptr<CryptoContext<DCRTPoly>> cc = DeserializeContext(paramDir + "/" + ccFileName);
+		CryptoContext<DCRTPoly> cc = DeserializeContext(paramDir + "/" + ccFileName);
 
 		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
 		shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
@@ -548,7 +548,7 @@ void KeyGen2(const string &paramDir,  const string &contextID, const string &key
 
 		// Deserialize the crypto context
 
-		shared_ptr<CryptoContext<DCRTPoly>> cc = DeserializeContext(paramDir + "/" + ccFileName);
+		CryptoContext<DCRTPoly> cc = DeserializeContext(paramDir + "/" + ccFileName);
 
 		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
 		shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
@@ -820,7 +820,7 @@ void KeyGen3(const string &paramDir,  const string &contextID, const string &key
 
 		// Deserialize the crypto context
 
-		shared_ptr<CryptoContext<DCRTPoly>> cc = DeserializeContext(paramDir + "/" + ccFileName);
+		CryptoContext<DCRTPoly> cc = DeserializeContext(paramDir + "/" + ccFileName);
 
 		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
 		shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
@@ -940,7 +940,7 @@ void TestEvalKeys(const string &paramDir,  const string &contextID, const string
 
 		// Deserialize the crypto context
 
-		shared_ptr<CryptoContext<DCRTPoly>> cc = DeserializeContext(paramDir + "/" + ccFileName);
+		CryptoContext<DCRTPoly> cc = DeserializeContext(paramDir + "/" + ccFileName);
 
 		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
 		shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
@@ -1198,7 +1198,7 @@ void Encrypt(const string &paramDir,  const string &contextID, const string &key
 
 		// Deserialize the crypto context
 
-		shared_ptr<CryptoContext<DCRTPoly>> cc = DeserializeContext(paramDir + "/" + ccFileName);
+		CryptoContext<DCRTPoly> cc = DeserializeContext(paramDir + "/" + ccFileName);
 
 		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
 		shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
@@ -1370,7 +1370,7 @@ void ComputeMultiparty(const string &paramDir,  const string &contextID, const s
 
 		// Deserialize the crypto context
 
-		shared_ptr<CryptoContext<DCRTPoly>> cc = DeserializeContext(paramDir + "/" + ccFileName);
+		CryptoContext<DCRTPoly> cc = DeserializeContext(paramDir + "/" + ccFileName);
 
 		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
 		shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
@@ -1669,7 +1669,7 @@ void TestLR(const string &paramDir,  const string &contextID, const string &keyD
 
 		// Deserialize the crypto context
 
-		shared_ptr<CryptoContext<DCRTPoly>> cc = DeserializeContext(paramDir + "/" + ccFileName);
+		CryptoContext<DCRTPoly> cc = DeserializeContext(paramDir + "/" + ccFileName);
 
 		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
 		shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
@@ -1935,7 +1935,7 @@ void PartialDecrypt1(const string &paramDir,  const string &contextID, const str
 
 		// Deserialize the crypto context
 
-		shared_ptr<CryptoContext<DCRTPoly>> cc = DeserializeContext(paramDir + "/" + ccFileName);
+		CryptoContext<DCRTPoly> cc = DeserializeContext(paramDir + "/" + ccFileName);
 
 		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
 		shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
@@ -2089,7 +2089,7 @@ void PartialDecrypt2(const string &paramDir,  const string &contextID, const str
 
 		// Deserialize the crypto context
 
-		shared_ptr<CryptoContext<DCRTPoly>> cc = DeserializeContext(paramDir + "/" + ccFileName);
+		CryptoContext<DCRTPoly> cc = DeserializeContext(paramDir + "/" + ccFileName);
 
 		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
 		shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
@@ -2271,7 +2271,7 @@ void FuseDecode(const string &paramDir, const string &contextID,
 
 		// Deserialize the crypto context
 
-		shared_ptr<CryptoContext<DCRTPoly>> cc = DeserializeContext(paramDir + "/" + ccFileName);
+		CryptoContext<DCRTPoly> cc = DeserializeContext(paramDir + "/" + ccFileName);
 
 		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
 		shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
@@ -2507,7 +2507,7 @@ void FuseDecode(const string &paramDir, const string &contextID,
 }
 
 
-shared_ptr<CryptoContext<DCRTPoly>> DeserializeContext(const string& ccFileName)
+CryptoContext<DCRTPoly> DeserializeContext(const string& ccFileName)
 {
 
 	std::cout << "Deserializing the crypto context...";
@@ -2518,7 +2518,7 @@ shared_ptr<CryptoContext<DCRTPoly>> DeserializeContext(const string& ccFileName)
 		return 0;
 	}
 
-	shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(ccSer);
+	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(ccSer);
 
 	std::cout << "Completed" << std::endl;
 
@@ -2574,7 +2574,7 @@ void ReadCSVFile(string dataFileName, vector<string>& headers, vector<vector<dou
 	//std::cout << "Read in data file: " << dataFileName << std::endl;
 }
 
-void EncodeData(shared_ptr<CryptoContext<DCRTPoly>> cc, const std::vector<string> &headers, const vector<vector<double>>& dataColumns,
+void EncodeData(CryptoContext<DCRTPoly> cc, const std::vector<string> &headers, const vector<vector<double>>& dataColumns,
 		Matrix<Plaintext> &x, Plaintext &y) {
 
 	//counter on non-regressors

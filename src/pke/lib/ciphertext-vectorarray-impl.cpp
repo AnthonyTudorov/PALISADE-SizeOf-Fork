@@ -30,7 +30,7 @@
 #include "ciphertext.cpp"
 
 namespace lbcrypto {
-extern template class CryptoContext<DCRTPoly>;
+extern template class CryptoContextImpl<DCRTPoly>;
 
 template class Ciphertext<DCRTPoly>;
 }

@@ -92,7 +92,7 @@ TEST_F(UTLTVBATCHING, Poly_Encrypt_Decrypt) {
 	std::vector<usint> vectorOfInts1 = { 1,2,3,4 };
 
 	shared_ptr<Poly::Params> ep( new Poly::Params(m, modulus, rootOfUnity) );
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextBV(ep, 17, 8, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(ep, 17, 8, stdDev);
 
 	cc->Enable(ENCRYPTION);
 
@@ -152,7 +152,7 @@ TEST_F(UTLTVBATCHING, Poly_EVALADD) {
 	std::vector<usint> vectorOfIntsExpected = { 5,5,5,5 };
 
 	shared_ptr<Poly::Params> ep( new Poly::Params(m, modulus, rootOfUnity) );
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextBV(ep, 17, 8, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(ep, 17, 8, stdDev);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 
@@ -212,7 +212,7 @@ TEST_F(UTLTVBATCHING, Poly_EVALMULT) {
 
 	shared_ptr<Poly::Params> parms( new Poly::Params(m, q, rootOfUnity) );
 
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(parms, ptMod,
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(parms, ptMod,
 		relin, stdDev);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
@@ -272,7 +272,7 @@ TEST_F(UTLTVBATCHING, Poly_Encrypt_Decrypt_Arb) {
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, rootOfUnity, bigmodulus, bigroot));
 
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, p, 8, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, p, 8, stdDev);
 	cc->Enable(ENCRYPTION);
 
 	// Initialize the public key containers.
@@ -307,7 +307,7 @@ TEST_F(UTLTVBATCHING, Poly_EVALADD_Arb) {
 	float stdDev = 4;
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, rootOfUnity, bigmodulus, bigroot));
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, p, 8, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, p, 8, stdDev);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
@@ -357,7 +357,7 @@ TEST_F(UTBVBATCHING, Poly_EVALMULT_Arb) {
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, rootOfUnity, bigmodulus, bigroot));
 
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, p, 1, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, p, 1, stdDev);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 
@@ -424,7 +424,7 @@ TEST_F(UTFVBATCHING, Poly_EVALMULT_Arb) {
 
 	BigInteger delta(modulusQ.DividedBy(modulusP));
 
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextFV(params, encodingParams, 1, stdDev,delta.ToString(),OPTIMIZED,
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextFV(params, encodingParams, 1, stdDev,delta.ToString(),OPTIMIZED,
 		bigEvalMultModulus.ToString(), bigEvalMultRootOfUnity.ToString(),1,9,1.006, bigEvalMultModulusAlt.ToString(), bigEvalMultRootOfUnityAlt.ToString());
 	
 	cc->Enable(ENCRYPTION);

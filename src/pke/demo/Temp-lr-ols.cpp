@@ -56,10 +56,10 @@ void Decrypt(string keyDir,
              string ciphertextResultFileName,
              string plaintextResultDir,
              string plaintextResultFileName);
-shared_ptr<CryptoContext<DCRTPoly>> DeserializeContext(const string& ccFileName);
-shared_ptr<CryptoContext<DCRTPoly>> DeserializeContextWithEvalKeys(const string& ccFileName, const string& emFileName, const string& esFileName);
+CryptoContext<DCRTPoly> DeserializeContext(const string& ccFileName);
+CryptoContext<DCRTPoly> DeserializeContextWithEvalKeys(const string& ccFileName, const string& emFileName, const string& esFileName);
 void ReadCSVFile(string dataFileName, vector<string>& headers, vector<vector<double> >& dataColumns);
-void EncodeData(shared_ptr<CryptoContext<DCRTPoly>> cc, const vector<vector<double> >& dataColumns,
+void EncodeData(CryptoContext<DCRTPoly> cc, const vector<vector<double> >& dataColumns,
                 Matrix<Plaintext>& x,
 				Plaintext* y);
 void CRTInterpolate(const vector<shared_ptr<Matrix<Plaintext>>>& crtVector,
@@ -206,7 +206,7 @@ void KeyGen(string keyDir, string contextID, string keyfileName)
 
 	float stdDev = 4;
 
-	shared_ptr<CryptoContext<DCRTPoly>> cc =
+	CryptoContext<DCRTPoly> cc =
 	    CryptoContextFactory<DCRTPoly>::genCryptoContextBV(paramsDCRT, encodingParams, 30, stdDev);
 
 	cc->Enable(ENCRYPTION);
@@ -368,7 +368,7 @@ void Encrypt(string keyDir,
 
 	// Deserialize the crypto context
 
-	shared_ptr<CryptoContext<DCRTPoly>> cc = DeserializeContext(ccFileName);
+	CryptoContext<DCRTPoly> cc = DeserializeContext(ccFileName);
 
 	const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
 	shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
@@ -520,7 +520,7 @@ void Compute(string keyDir,
 
 	// Deserialize the crypto context
 
-	shared_ptr<CryptoContext<DCRTPoly>> cc = DeserializeContextWithEvalKeys(ccFileName, emFileName, esFileName);
+	CryptoContext<DCRTPoly> cc = DeserializeContextWithEvalKeys(ccFileName, emFileName, esFileName);
 
 	const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
 	shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
@@ -720,7 +720,7 @@ void Decrypt(string keyDir,
 
 	// Deserialize the crypto context
 
-	shared_ptr<CryptoContext<DCRTPoly>> cc = DeserializeContext(ccFileName);
+	CryptoContext<DCRTPoly> cc = DeserializeContext(ccFileName);
 
 	const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
 	shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
@@ -935,7 +935,7 @@ void Decrypt(string keyDir,
 	
 }
 
-shared_ptr<CryptoContext<DCRTPoly>> DeserializeContext(const string& ccFileName)
+CryptoContext<DCRTPoly> DeserializeContext(const string& ccFileName)
 {
 
 	std::cout << "Deserializing the crypto context...";
@@ -946,14 +946,14 @@ shared_ptr<CryptoContext<DCRTPoly>> DeserializeContext(const string& ccFileName)
 		return 0;
 	}
 
-	shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(ccSer);
+	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(ccSer);
 
 	std::cout << "Completed" << std::endl;
 
 	return cc;
 }
 
-shared_ptr<CryptoContext<DCRTPoly>> DeserializeContextWithEvalKeys(const string& ccFileName, const string& emFileName, const string& esFileName)
+CryptoContext<DCRTPoly> DeserializeContextWithEvalKeys(const string& ccFileName, const string& emFileName, const string& esFileName)
 {
 
 	std::cout << "Deserializing the crypto context...";
@@ -974,7 +974,7 @@ shared_ptr<CryptoContext<DCRTPoly>> DeserializeContextWithEvalKeys(const string&
 		return 0;
 	}
 
-	shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(ccSer);
+	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(ccSer);
 
 	if( cc->DeserializeEvalMultKey(emSer) == false ) {
 		cerr << "Could not deserialize the eval mult key file" << endl;
@@ -1041,7 +1041,7 @@ void ReadCSVFile(string dataFileName, vector<string>& headers, vector<vector<dou
     // std::cout << "Read in data file: " << dataFileName << std::endl;
 }
 
-void EncodeData(shared_ptr<CryptoContext<DCRTPoly>> cc,
+void EncodeData(CryptoContext<DCRTPoly> cc,
 		const vector<vector<double> >& dataColumns,
 		Matrix<Plaintext>& x,
 		Plaintext* y)

@@ -47,7 +47,7 @@ using namespace lbcrypto;
 const std::string DATAFOLDER = "demoData";
 
 void
-keymaker(shared_ptr<CryptoContext<Poly>> ctx, string keyname)
+keymaker(CryptoContext<Poly> ctx, string keyname)
 {
 
 	// Initialize the public key containers.
@@ -84,7 +84,7 @@ keymaker(shared_ptr<CryptoContext<Poly>> ctx, string keyname)
 
 
 void
-encrypter(shared_ptr<CryptoContext<Poly>> ctx, Plaintext iPlaintext, string pubkeyname, string ciphertextname)
+encrypter(CryptoContext<Poly> ctx, Plaintext iPlaintext, string pubkeyname, string ciphertextname)
 {
 
 	ofstream ctSer(DATAFOLDER + "/" + ciphertextname, ios::binary);
@@ -128,7 +128,7 @@ encrypter(shared_ptr<CryptoContext<Poly>> ctx, Plaintext iPlaintext, string pubk
 
 
 Plaintext
-decrypter(shared_ptr<CryptoContext<Poly>> ctx, string ciphertextname, string prikeyname)
+decrypter(CryptoContext<Poly> ctx, string ciphertextname, string prikeyname)
 {
 	Plaintext iPlaintext;
 
@@ -190,7 +190,7 @@ int main(int argc, char *argv[])
 	double rootHermiteFactor = 1.006;
 
 	//Set Crypto Parameters
-	shared_ptr<CryptoContext<Poly>> cryptoContext = CryptoContextFactory<Poly>::genCryptoContextFV(
+	CryptoContext<Poly> cryptoContext = CryptoContextFactory<Poly>::genCryptoContextFV(
 	            plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 1, 0);
 
 	// enable features that you wish to use

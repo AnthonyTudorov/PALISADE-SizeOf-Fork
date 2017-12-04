@@ -65,7 +65,7 @@ TEST_F(UTBVDCRT, Poly_bv_DCRT_MODREDUCE) {
 
 	shared_ptr<ILDCRTParams<BigInteger>> params = GenerateDCRTParams(m, plaintextModulus, numOfTower, 48);
 
-	shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBV(params, plaintextModulus, m, stdDev);
+	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBV(params, plaintextModulus, m, stdDev);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 	cc->Enable(LEVELEDSHE);

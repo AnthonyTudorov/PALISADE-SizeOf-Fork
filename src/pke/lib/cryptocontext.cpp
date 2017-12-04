@@ -31,13 +31,13 @@
 namespace lbcrypto {
 
 template <typename Element>
-std::map<string,std::vector<shared_ptr<LPEvalKey<Element>>>>	CryptoContext<Element>::evalMultKeyMap;
+std::map<string,std::vector<shared_ptr<LPEvalKey<Element>>>>					CryptoContextImpl<Element>::evalMultKeyMap;
 
 template <typename Element>
-std::map<string,shared_ptr<std::map<usint,shared_ptr<LPEvalKey<Element>>>>>	CryptoContext<Element>::evalSumKeyMap;
+std::map<string,shared_ptr<std::map<usint,shared_ptr<LPEvalKey<Element>>>>>	CryptoContextImpl<Element>::evalSumKeyMap;
 
 template <typename Element>
-void CryptoContext<Element>::EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> key) {
+void CryptoContextImpl<Element>::EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> key) {
 
 	if( key == NULL || Mismatched(key->GetCryptoContext()) )
 		throw std::logic_error("Key passed to EvalMultKeyGen were not generated with this crypto context");
@@ -55,7 +55,7 @@ void CryptoContext<Element>::EvalMultKeyGen(const shared_ptr<LPPrivateKey<Elemen
 }
 
 template <typename Element>
-const vector<shared_ptr<LPEvalKey<Element>>>& CryptoContext<Element>::GetEvalMultKeyVector(const string& keyID) {
+const vector<shared_ptr<LPEvalKey<Element>>>& CryptoContextImpl<Element>::GetEvalMultKeyVector(const string& keyID) {
 	auto ekv = evalMultKeyMap.find(keyID);
 	if( ekv == evalMultKeyMap.end() )
 		throw std::logic_error("You need to use EvalMultKeyGen so that you have an EvalMultKey available for this ID");
@@ -63,12 +63,12 @@ const vector<shared_ptr<LPEvalKey<Element>>>& CryptoContext<Element>::GetEvalMul
 }
 
 template <typename Element>
-const std::map<string,std::vector<shared_ptr<LPEvalKey<Element>>>>& CryptoContext<Element>::GetAllEvalMultKeys() {
+const std::map<string,std::vector<shared_ptr<LPEvalKey<Element>>>>& CryptoContextImpl<Element>::GetAllEvalMultKeys() {
 	return evalMultKeyMap;
 }
 
 template <typename Element>
-void CryptoContext<Element>::ClearEvalMultKeys() {
+void CryptoContextImpl<Element>::ClearEvalMultKeys() {
 	evalMultKeyMap.clear();
 }
 
@@ -77,7 +77,7 @@ void CryptoContext<Element>::ClearEvalMultKeys() {
  * @param id
  */
 template <typename Element>
-void CryptoContext<Element>::ClearEvalMultKeys(const string& id) {
+void CryptoContextImpl<Element>::ClearEvalMultKeys(const string& id) {
 	auto kd = evalMultKeyMap.find(id);
 	if( kd != evalMultKeyMap.end() )
 		evalMultKeyMap.erase(kd);
@@ -88,7 +88,7 @@ void CryptoContext<Element>::ClearEvalMultKeys(const string& id) {
  * @param cc
  */
 template <typename Element>
-void CryptoContext<Element>::ClearEvalMultKeys(const CryptoContext> cc) {
+void CryptoContextImpl<Element>::ClearEvalMultKeys(const CryptoContext<Element> cc) {
 	for( auto it = evalMultKeyMap.begin(); it != evalMultKeyMap.end(); ) {
 		if( it->second[0]->GetCryptoContext() == cc ) {
 			it = evalMultKeyMap.erase(it);
@@ -99,12 +99,12 @@ void CryptoContext<Element>::ClearEvalMultKeys(const CryptoContext> cc) {
 }
 
 template <typename Element>
-void CryptoContext<Element>::InsertEvalMultKey(const std::vector<shared_ptr<LPEvalKey<Element>>>& vectorToInsert) {
+void CryptoContextImpl<Element>::InsertEvalMultKey(const std::vector<shared_ptr<LPEvalKey<Element>>>& vectorToInsert) {
 	evalMultKeyMap[ vectorToInsert[0]->GetKeyTag() ] = vectorToInsert;
 }
 
 template <typename Element>
-void CryptoContext<Element>::EvalSumKeyGen(
+void CryptoContextImpl<Element>::EvalSumKeyGen(
 	const shared_ptr<LPPrivateKey<Element>> privateKey,
 	const shared_ptr<LPPublicKey<Element>> publicKey) {
 
@@ -127,7 +127,7 @@ void CryptoContext<Element>::EvalSumKeyGen(
 }
 
 template <typename Element>
-const std::map<usint, shared_ptr<LPEvalKey<Element>>>& CryptoContext<Element>::GetEvalSumKeyMap(const string& keyID) {
+const std::map<usint, shared_ptr<LPEvalKey<Element>>>& CryptoContextImpl<Element>::GetEvalSumKeyMap(const string& keyID) {
 	auto ekv = evalSumKeyMap.find(keyID);
 	if( ekv == evalSumKeyMap.end() )
 		throw std::logic_error("You need to use EvalSumKeyGen so that you have EvalSumKeys available for this ID");
@@ -135,12 +135,12 @@ const std::map<usint, shared_ptr<LPEvalKey<Element>>>& CryptoContext<Element>::G
 }
 
 template <typename Element>
-const std::map<string,shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>>>& CryptoContext<Element>::GetAllEvalSumKeys() {
+const std::map<string,shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>>>& CryptoContextImpl<Element>::GetAllEvalSumKeys() {
 	return evalSumKeyMap;
 }
 
 template <typename Element>
-void CryptoContext<Element>::ClearEvalSumKeys() {
+void CryptoContextImpl<Element>::ClearEvalSumKeys() {
 	evalSumKeyMap.clear();
 }
 
@@ -149,7 +149,7 @@ void CryptoContext<Element>::ClearEvalSumKeys() {
  * @param id
  */
 template <typename Element>
-void CryptoContext<Element>::ClearEvalSumKeys(const string& id) {
+void CryptoContextImpl<Element>::ClearEvalSumKeys(const string& id) {
 	auto kd = evalSumKeyMap.find(id);
 	if( kd != evalSumKeyMap.end() )
 		evalSumKeyMap.erase(kd);
@@ -160,7 +160,7 @@ void CryptoContext<Element>::ClearEvalSumKeys(const string& id) {
  * @param cc
  */
 template <typename Element>
-void CryptoContext<Element>::ClearEvalSumKeys(const CryptoContext> cc) {
+void CryptoContextImpl<Element>::ClearEvalSumKeys(const CryptoContext<Element> cc) {
 	for( auto it = evalSumKeyMap.begin(); it != evalSumKeyMap.end(); ) {
 		if( it->second->begin()->second->GetCryptoContext() == cc ) {
 			it = evalSumKeyMap.erase(it);
@@ -171,7 +171,7 @@ void CryptoContext<Element>::ClearEvalSumKeys(const CryptoContext> cc) {
 }
 
 template <typename Element>
-void CryptoContext<Element>::InsertEvalSumKey(const shared_ptr<std::map<usint,shared_ptr<LPEvalKey<Element>>>> mapToInsert) {
+void CryptoContextImpl<Element>::InsertEvalSumKey(const shared_ptr<std::map<usint,shared_ptr<LPEvalKey<Element>>>> mapToInsert) {
 	// find the tag
 	auto onekey = mapToInsert->begin();
 	evalSumKeyMap[ onekey->second->GetKeyTag() ] = mapToInsert;
@@ -182,7 +182,7 @@ void CryptoContext<Element>::InsertEvalSumKey(const shared_ptr<std::map<usint,sh
  * method will serialize each CryptoContext only once
  */
 template <typename Element>
-bool CryptoContext<Element>::SerializeEvalMultKey(Serialized* serObj) {
+bool CryptoContextImpl<Element>::SerializeEvalMultKey(Serialized* serObj) {
 	serObj->SetObject();
 	serObj->AddMember("Object", "EvalMultKeys", serObj->GetAllocator());
 	serObj->AddMember("Count", std::to_string(CryptoContextFactory<Element>::GetContextCount()), serObj->GetAllocator());
@@ -191,7 +191,7 @@ bool CryptoContext<Element>::SerializeEvalMultKey(Serialized* serObj) {
 
 	for( auto& cc : CryptoContextFactory<Element>::GetAllContexts() ) {
 		Serialized cSer(rapidjson::kObjectType, &serObj->GetAllocator());
-		if( CryptoContext<Element>::SerializeEvalMultKey(&cSer, cc) ) {
+		if( CryptoContextImpl<Element>::SerializeEvalMultKey(&cSer, cc) ) {
 			serObj->AddMember(SerialItem(std::to_string(sCount), serObj->GetAllocator()), cSer.Move(), serObj->GetAllocator());
 		}
 		++sCount;
@@ -204,7 +204,7 @@ bool CryptoContext<Element>::SerializeEvalMultKey(Serialized* serObj) {
  * method will serialize entire key AND cryptocontext
  */
 template <typename Element>
-bool CryptoContext<Element>::SerializeEvalMultKey(Serialized* serObj, const string& id) {
+bool CryptoContextImpl<Element>::SerializeEvalMultKey(Serialized* serObj, const string& id) {
 	auto k = evalMultKeyMap.find(id);
 
 	if( k == evalMultKeyMap.end() )
@@ -222,7 +222,7 @@ bool CryptoContext<Element>::SerializeEvalMultKey(Serialized* serObj, const stri
  * method will serialize the context only once
  */
 template <typename Element>
-bool CryptoContext<Element>::SerializeEvalMultKey(Serialized* serObj, const CryptoContext> cc) {
+bool CryptoContextImpl<Element>::SerializeEvalMultKey(Serialized* serObj, const CryptoContext<Element> cc) {
 
 	serObj->SetObject();
 	cc->Serialize(serObj);
@@ -236,7 +236,7 @@ bool CryptoContext<Element>::SerializeEvalMultKey(Serialized* serObj, const Cryp
 }
 
 template <typename Element>
-bool CryptoContext<Element>::DeserializeEvalMultKey(const Serialized& ser) {
+bool CryptoContextImpl<Element>::DeserializeEvalMultKey(const Serialized& ser) {
 	Serialized serObj;
 	serObj.CopyFrom(ser, serObj.GetAllocator()); // copy, because we will destroy it
 
@@ -342,7 +342,7 @@ bool CryptoContext<Element>::DeserializeEvalMultKey(const Serialized& ser) {
 					t++;
 				}
 
-				kp = CryptoContext<Element>::deserializeEvalKeyInContext(kser,cc);
+				kp = CryptoContextImpl<Element>::deserializeEvalKeyInContext(kser,cc);
 				evalMultKeys.push_back(kp);
 			}
 
@@ -360,7 +360,7 @@ bool CryptoContext<Element>::DeserializeEvalMultKey(const Serialized& ser) {
  * method will serialize each CryptoContext only once
  */
 template <typename Element>
-bool CryptoContext<Element>::SerializeEvalSumKey(Serialized* serObj) {
+bool CryptoContextImpl<Element>::SerializeEvalSumKey(Serialized* serObj) {
 	serObj->SetObject();
 	serObj->AddMember("Object", "EvalSumKeys", serObj->GetAllocator());
 	serObj->AddMember("Count", std::to_string(CryptoContextFactory<Element>::GetContextCount()), serObj->GetAllocator());
@@ -369,7 +369,7 @@ bool CryptoContext<Element>::SerializeEvalSumKey(Serialized* serObj) {
 
 	for( auto& cc : CryptoContextFactory<Element>::GetAllContexts() ) {
 		Serialized cSer(rapidjson::kObjectType, &serObj->GetAllocator());
-		if( CryptoContext<Element>::SerializeEvalSumKey(&cSer, cc) ) {
+		if( CryptoContextImpl<Element>::SerializeEvalSumKey(&cSer, cc) ) {
 			serObj->AddMember(SerialItem(std::to_string(sCount), serObj->GetAllocator()), cSer.Move(), serObj->GetAllocator());
 		}
 		++sCount;
@@ -382,7 +382,7 @@ bool CryptoContext<Element>::SerializeEvalSumKey(Serialized* serObj) {
  * method will serialize entire key AND cryptocontext
  */
 template <typename Element>
-bool CryptoContext<Element>::SerializeEvalSumKey(Serialized* serObj, const string& id) {
+bool CryptoContextImpl<Element>::SerializeEvalSumKey(Serialized* serObj, const string& id) {
 	auto k = evalSumKeyMap.find(id);
 
 	if( k == evalSumKeyMap.end() )
@@ -400,7 +400,7 @@ bool CryptoContext<Element>::SerializeEvalSumKey(Serialized* serObj, const strin
  * method will serialize the context only once
  */
 template <typename Element>
-bool CryptoContext<Element>::SerializeEvalSumKey(Serialized* serObj, const CryptoContext> cc) {
+bool CryptoContextImpl<Element>::SerializeEvalSumKey(Serialized* serObj, const CryptoContext<Element> cc) {
 
 	serObj->SetObject();
 	cc->Serialize(serObj);
@@ -414,7 +414,7 @@ bool CryptoContext<Element>::SerializeEvalSumKey(Serialized* serObj, const Crypt
 }
 
 template <typename Element>
-bool CryptoContext<Element>::DeserializeEvalSumKey(const Serialized& ser) {
+bool CryptoContextImpl<Element>::DeserializeEvalSumKey(const Serialized& ser) {
 	Serialized serObj;
 	serObj.CopyFrom(ser, serObj.GetAllocator()); // copy, because we will destroy it
 
@@ -527,12 +527,12 @@ bool CryptoContext<Element>::DeserializeEvalSumKey(const Serialized& ser) {
 
 
 template <typename Element>
-shared_ptr<Ciphertext<Element>> CryptoContext<Element>::EvalSum(const shared_ptr<Ciphertext<Element>> ciphertext, usint batchSize) const {
+shared_ptr<Ciphertext<Element>> CryptoContextImpl<Element>::EvalSum(const shared_ptr<Ciphertext<Element>> ciphertext, usint batchSize) const {
 
 	if( ciphertext == NULL || Mismatched(ciphertext->GetCryptoContext()) )
 		throw std::logic_error("Information passed to EvalAdd was not generated with this crypto context");
 
-	auto evalSumKeys = CryptoContext<Element>::GetEvalSumKeyMap(ciphertext->GetKeyTag());
+	auto evalSumKeys = CryptoContextImpl<Element>::GetEvalSumKeyMap(ciphertext->GetKeyTag());
 	double start = 0;
 	if( doTiming ) start = currentDateTime();
 	auto rv = GetEncryptionAlgorithm()->EvalSum(ciphertext, batchSize, evalSumKeys);
@@ -543,13 +543,13 @@ shared_ptr<Ciphertext<Element>> CryptoContext<Element>::EvalSum(const shared_ptr
 }
 
 template <typename Element>
-shared_ptr<Ciphertext<Element>> CryptoContext<Element>::EvalInnerProduct(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Ciphertext<Element>> ct2, usint batchSize) const {
+shared_ptr<Ciphertext<Element>> CryptoContextImpl<Element>::EvalInnerProduct(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Ciphertext<Element>> ct2, usint batchSize) const {
 
 	if( ct1 == NULL || ct2 == NULL || ct1->GetKeyTag() != ct2->GetKeyTag() ||
 			Mismatched(ct1->GetCryptoContext()) )
 		throw std::logic_error("Information passed to EvalInnerProduct was not generated with this crypto context");
 
-	auto evalSumKeys = CryptoContext<Element>::GetEvalSumKeyMap(ct1->GetKeyTag());
+	auto evalSumKeys = CryptoContextImpl<Element>::GetEvalSumKeyMap(ct1->GetKeyTag());
 	auto ek = GetEvalMultKeyVector(ct1->GetKeyTag());
 
 	double start = 0;
@@ -562,12 +562,12 @@ shared_ptr<Ciphertext<Element>> CryptoContext<Element>::EvalInnerProduct(const s
 }
 
 template <typename Element>
-shared_ptr<Ciphertext<Element>> CryptoContext<Element>::EvalInnerProduct(const shared_ptr<Ciphertext<Element>> ct1, const Plaintext ct2, usint batchSize) const {
+shared_ptr<Ciphertext<Element>> CryptoContextImpl<Element>::EvalInnerProduct(const shared_ptr<Ciphertext<Element>> ct1, const Plaintext ct2, usint batchSize) const {
 
 	if( ct1 == NULL || ct2 == NULL || Mismatched(ct1->GetCryptoContext()) )
 		throw std::logic_error("Information passed to EvalAdd was not generated with this crypto context");
 
-	auto evalSumKeys = CryptoContext<Element>::GetEvalSumKeyMap(ct1->GetKeyTag());
+	auto evalSumKeys = CryptoContextImpl<Element>::GetEvalSumKeyMap(ct1->GetKeyTag());
 	auto ek = GetEvalMultKeyVector(ct1->GetKeyTag());
 
 	double start = 0;
@@ -581,13 +581,13 @@ shared_ptr<Ciphertext<Element>> CryptoContext<Element>::EvalInnerProduct(const s
 
 template <typename Element>
 shared_ptr<Ciphertext<Element>>
-CryptoContext<Element>::EvalCrossCorrelation(const shared_ptr<Matrix<RationalCiphertext<Element>>> x,
+CryptoContextImpl<Element>::EvalCrossCorrelation(const shared_ptr<Matrix<RationalCiphertext<Element>>> x,
 		const shared_ptr<Matrix<RationalCiphertext<Element>>> y, usint batchSize,
 		usint indexStart, usint length) const {
 
 	//need to add exception handling
 
-	auto evalSumKeys = CryptoContext<Element>::GetEvalSumKeyMap((*x)(0,0).GetNumerator()->GetKeyTag());
+	auto evalSumKeys = CryptoContextImpl<Element>::GetEvalSumKeyMap((*x)(0,0).GetNumerator()->GetKeyTag());
 	auto ek = GetEvalMultKeyVector((*x)(0,0).GetNumerator()->GetKeyTag());
 
 	double start = 0;
@@ -601,12 +601,12 @@ CryptoContext<Element>::EvalCrossCorrelation(const shared_ptr<Matrix<RationalCip
 
 template <typename Element>
 shared_ptr<Matrix<RationalCiphertext<Element>>>
-CryptoContext<Element>::EvalLinRegressBatched(const shared_ptr<Matrix<RationalCiphertext<Element>>> x,
+CryptoContextImpl<Element>::EvalLinRegressBatched(const shared_ptr<Matrix<RationalCiphertext<Element>>> x,
 		const shared_ptr<Matrix<RationalCiphertext<Element>>> y, usint batchSize) const
 {
 	//need to add exception handling
 
-	auto evalSumKeys = CryptoContext<Element>::GetEvalSumKeyMap((*x)(0,0).GetNumerator()->GetKeyTag());
+	auto evalSumKeys = CryptoContextImpl<Element>::GetEvalSumKeyMap((*x)(0,0).GetNumerator()->GetKeyTag());
 	auto ek = GetEvalMultKeyVector((*x)(0,0).GetNumerator()->GetKeyTag());
 
 	double start = 0;
@@ -618,9 +618,9 @@ CryptoContext<Element>::EvalLinRegressBatched(const shared_ptr<Matrix<RationalCi
 	return rv;
 }
 
-template <typename T>
+template <typename Element>
 bool
-CryptoContext<T>::Serialize(Serialized* serObj) const
+CryptoContextImpl<Element>::Serialize(Serialized* serObj) const
 {
 	if( ! serObj->IsObject() )
 		serObj->SetObject();
@@ -754,7 +754,7 @@ CryptoContextFactory<Element>::GetContext(
 		}
 	}
 
-	CryptoContext<Element> cc(new CryptoContext<Element>(params,scheme));
+	CryptoContext<Element> cc(new CryptoContextImpl<Element>(params,scheme));
 	AllContexts.push_back(cc);
 	return cc;
 }
@@ -762,7 +762,7 @@ CryptoContextFactory<Element>::GetContext(
 template <typename Element>
 CryptoContext<Element>
 CryptoContextFactory<Element>::GetContextForPointer(
-		CryptoContext<Element>* cc) {
+		CryptoContextImpl<Element>* cc) {
 	for( CryptoContext<Element> ctx : AllContexts ) {
 		if( ctx.get() == cc )
 			return ctx;
@@ -1277,7 +1277,7 @@ CryptoContextFactory<T>::genCryptoContextNull(shared_ptr<typename T::Params> ep,
 
 template <typename T>
 shared_ptr<LPPublicKey<T>>
-CryptoContext<T>::deserializePublicKey(const Serialized& serObj)
+CryptoContextImpl<T>::deserializePublicKey(const Serialized& serObj)
 {
 	CryptoContext<T> cc = CryptoContextFactory<T>::DeserializeAndCreateContext(serObj);
 	if( cc == 0 )
@@ -1293,7 +1293,7 @@ CryptoContext<T>::deserializePublicKey(const Serialized& serObj)
 
 template <typename T>
 shared_ptr<LPPrivateKey<T>>
-CryptoContext<T>::deserializeSecretKey(const Serialized& serObj)
+CryptoContextImpl<T>::deserializeSecretKey(const Serialized& serObj)
 {
 	CryptoContext<T> cc = CryptoContextFactory<T>::DeserializeAndCreateContext(serObj);
 	if( cc == 0 )
@@ -1309,7 +1309,7 @@ CryptoContext<T>::deserializeSecretKey(const Serialized& serObj)
 
 template <typename T>
 shared_ptr<Ciphertext<T>>
-CryptoContext<T>::deserializeCiphertext(const Serialized& serObj)
+CryptoContextImpl<T>::deserializeCiphertext(const Serialized& serObj)
 {
 	CryptoContext<T> cc = CryptoContextFactory<T>::DeserializeAndCreateContext(serObj);
 	if( cc == 0 )
@@ -1325,18 +1325,18 @@ CryptoContext<T>::deserializeCiphertext(const Serialized& serObj)
 
 template <typename T>
 shared_ptr<LPEvalKey<T>>
-CryptoContext<T>::deserializeEvalKey(const Serialized& serObj)
+CryptoContextImpl<T>::deserializeEvalKey(const Serialized& serObj)
 {
 	CryptoContext<T> cc = CryptoContextFactory<T>::DeserializeAndCreateContext(serObj);
 	if( cc == 0 )
 		return 0;
 
-	return CryptoContext<T>::deserializeEvalKeyInContext(serObj, cc);
+	return CryptoContextImpl<T>::deserializeEvalKeyInContext(serObj, cc);
 }
 
 template <typename T>
 shared_ptr<LPEvalKey<T>>
-CryptoContext<T>::deserializeEvalKeyInContext(const Serialized& serObj, CryptoContext<T> cc)
+CryptoContextImpl<T>::deserializeEvalKeyInContext(const Serialized& serObj, CryptoContext<T> cc)
 {
 	Serialized::ConstMemberIterator nIt = serObj.FindMember("Object");
 	if( nIt == serObj.MemberEnd() )

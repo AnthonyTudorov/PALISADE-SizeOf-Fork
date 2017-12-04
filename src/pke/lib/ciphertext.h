@@ -53,7 +53,7 @@ namespace lbcrypto {
 		 *
 		 * @param cc
 		 */
-		Ciphertext(shared_ptr<CryptoContext<Element>> cc, const string& id = "", PlaintextEncodings encType = Unknown) :
+		Ciphertext(CryptoContext<Element> cc, const string& id = "", PlaintextEncodings encType = Unknown) :
 			CryptoObject<Element>(cc, id), m_depth(1), encodingType(encType) {}
 
 		/**
