@@ -193,7 +193,7 @@ void BVPlaintextPKE() {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext;
+	vector<Ciphertext<Poly>> ciphertext;
 
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10 };
 	PackedEncoding intArray(vectorOfInts);
@@ -251,7 +251,7 @@ void FVPlaintextPKE() {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext;
+	vector<Ciphertext<Poly>> ciphertext;
 
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10 };
 	PackedEncoding intArray(vectorOfInts);

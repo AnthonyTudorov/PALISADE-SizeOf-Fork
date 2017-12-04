@@ -547,7 +547,7 @@ void Compute() {
 
 		start = currentDateTime();
 
-		shared_ptr<Ciphertext<DCRTPoly>> result = cc->EvalCrossCorrelation(x,y,batchSize);
+		Ciphertext<DCRTPoly> result = cc->EvalCrossCorrelation(x,y,batchSize);
 
 		finish = currentDateTime();
 
@@ -658,7 +658,7 @@ void Decrypt() {
 		}
 
 
-		shared_ptr<Ciphertext<DCRTPoly>> c((new Ciphertext<DCRTPoly>(cc)));
+		Ciphertext<DCRTPoly> c((new CiphertextImpl<DCRTPoly>(cc)));
 
 		if (!c->Deserialize(cSer)) {
 			cerr << "Could not deserialize ciphertext" << endl;

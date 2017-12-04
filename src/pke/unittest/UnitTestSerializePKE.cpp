@@ -227,13 +227,13 @@ TEST_F(UTPKESer, Keys_and_ciphertext) {
 	DEBUG("step 3");
 	vector<uint32_t> vals = { 1,3,5,7,9,2,4,6,8,11 };
 	Plaintext plaintextShort = cc->MakeCoefPackedPlaintext( vals );
-	shared_ptr<Ciphertext<Poly>> ciphertext = cc->Encrypt(kp.publicKey, plaintextShort);
+	Ciphertext<Poly> ciphertext = cc->Encrypt(kp.publicKey, plaintextShort);
 
 	Serialized ser;
 	ser.SetObject();
 	ASSERT_TRUE( ciphertext->Serialize(&ser) ) << "Ciphertext serialize failed";
 	DEBUG("step 4");
-	shared_ptr<Ciphertext<Poly>> newC;
+	Ciphertext<Poly> newC;
 	ASSERT_TRUE( (newC = cc->deserializeCiphertext(ser)) ) << "Ciphertext deserialization failed";
 
 	EXPECT_EQ( *ciphertext, *newC ) << "Ciphertext mismatch";

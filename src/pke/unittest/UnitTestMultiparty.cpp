@@ -137,9 +137,9 @@ UnitTestMultiparty(CryptoContext<Element> cc, bool publicVersion) {
 	// Encryption
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Ciphertext<Poly>> ciphertext1;
-	shared_ptr<Ciphertext<Poly>> ciphertext2;
-	shared_ptr<Ciphertext<Poly>> ciphertext3;
+	Ciphertext<Poly> ciphertext1;
+	Ciphertext<Poly> ciphertext2;
+	Ciphertext<Poly> ciphertext3;
 
 	ciphertext1 = cc->Encrypt(kp1.publicKey, plaintext1);
 	ciphertext2 = cc->Encrypt(kp2.publicKey, plaintext2);
@@ -149,9 +149,9 @@ UnitTestMultiparty(CryptoContext<Element> cc, bool publicVersion) {
 	// Re-Encryption
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Ciphertext<Poly>> ciphertext1New;
-	shared_ptr<Ciphertext<Poly>> ciphertext2New;
-	shared_ptr<Ciphertext<Poly>> ciphertext3New;
+	Ciphertext<Poly> ciphertext1New;
+	Ciphertext<Poly> ciphertext2New;
+	Ciphertext<Poly> ciphertext3New;
 
 	ciphertext1New = cc->ReEncrypt(evalKey1, ciphertext1);
 	ciphertext2New = cc->ReEncrypt(evalKey2, ciphertext2);
@@ -161,8 +161,8 @@ UnitTestMultiparty(CryptoContext<Element> cc, bool publicVersion) {
 	// EvalAdd Operation on Re-Encrypted Data
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Ciphertext<Poly>> ciphertextAddNew12;
-	shared_ptr<Ciphertext<Poly>> ciphertextAddNew;
+	Ciphertext<Poly> ciphertextAddNew12;
+	Ciphertext<Poly> ciphertextAddNew;
 
 	ciphertextAddNew12 = cc->EvalAdd(ciphertext1New,ciphertext2New);
 	ciphertextAddNew = cc->EvalAdd(ciphertextAddNew12,ciphertext3New);
@@ -198,7 +198,7 @@ UnitTestMultiparty(CryptoContext<Element> cc, bool publicVersion) {
 	auto ciphertextPartial2 = cc->MultipartyDecryptMain(kp2.secretKey, {ciphertextAddNew});
 	auto ciphertextPartial3 = cc->MultipartyDecryptMain(kp3.secretKey, {ciphertextAddNew});
 
-	vector<shared_ptr<Ciphertext<Poly>>> partialCiphertextVec;
+	vector<Ciphertext<Poly>> partialCiphertextVec;
 	partialCiphertextVec.push_back(ciphertextPartial1[0]);
 	partialCiphertextVec.push_back(ciphertextPartial2[0]);
 	partialCiphertextVec.push_back(ciphertextPartial3[0]);

@@ -78,7 +78,7 @@ class CircuitObject {
 	wire_type	t;
 	BigInteger	ival;
 	BigInteger	dval;
-	shared_ptr<Ciphertext<Element>> ct;
+	Ciphertext<Element> ct;
 	shared_ptr<RationalCiphertext<Element>> rct;
 	shared_ptr<Matrix<Ciphertext<Element>>> mct;
 	shared_ptr<Matrix<RationalCiphertext<Element>>> mrct;
@@ -87,7 +87,7 @@ public:
 	CircuitObject() : t(UNKNOWN) {}
 	CircuitObject(const BigInteger& ival) : t(INT), ival(ival) {}
 	CircuitObject(const BigInteger& ival, const BigInteger& dval) : t(RATIONAL), ival(ival), dval(dval) {}
-	CircuitObject(const shared_ptr<Ciphertext<Element>> ct) : t(VECTOR_INT), ct(ct) {}
+	CircuitObject(const Ciphertext<Element> ct) : t(VECTOR_INT), ct(ct) {}
 	CircuitObject(const shared_ptr<RationalCiphertext<Element>> rct) : t(VECTOR_RAT), rct(rct) {}
 	CircuitObject(const shared_ptr<Matrix<Ciphertext<Element>>> mct) : t(MATRIX_INT), mct(mct) {}
 	CircuitObject(const shared_ptr<Matrix<RationalCiphertext<Element>>> mrct) : t(MATRIX_RAT), mrct(mrct) {}
@@ -100,7 +100,7 @@ public:
 		mrct.reset();
 		this->t = t;
 	}
-	shared_ptr<Ciphertext<Element>> GetIntVecValue() const { return ct; }
+	Ciphertext<Element> GetIntVecValue() const { return ct; }
 	shared_ptr<Matrix<RationalCiphertext<Element>>> GetIntMatValue() const { return mrct; }
 
 	void DecryptAndPrint(CryptoContext<Element> cc, shared_ptr<LPPrivateKey<Element>> key, std::ostream& out) const;

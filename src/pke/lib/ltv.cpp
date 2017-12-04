@@ -81,13 +81,13 @@ LPKeyPair<Element> LPAlgorithmLTV<Element>::KeyGen(CryptoContext<Element> cc, bo
 }
 
 template <class Element>
-shared_ptr<Ciphertext<Element>> LPAlgorithmLTV<Element>::Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
+Ciphertext<Element> LPAlgorithmLTV<Element>::Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
 	Element ptxt) const
 {
 	const shared_ptr<LPCryptoParametersRLWE<Element>> cryptoParams =
 		std::dynamic_pointer_cast<LPCryptoParametersRLWE<Element>>(publicKey->GetCryptoParameters());
 
-	shared_ptr<Ciphertext<Element>> ciphertext(new Ciphertext<Element>(publicKey));
+	Ciphertext<Element> ciphertext(new CiphertextImpl<Element>(publicKey));
 
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 	const BigInteger &p = cryptoParams->GetPlaintextModulus();
@@ -112,13 +112,13 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmLTV<Element>::Encrypt(const shared_pt
 }
 
 template <class Element>
-shared_ptr<Ciphertext<Element>> LPAlgorithmLTV<Element>::Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
+Ciphertext<Element> LPAlgorithmLTV<Element>::Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
 	Element ptxt) const
 {
 	const shared_ptr<LPCryptoParametersRLWE<Element>> cryptoParams =
 		std::dynamic_pointer_cast<LPCryptoParametersRLWE<Element>>(privateKey->GetCryptoParameters());
 
-	shared_ptr<Ciphertext<Element>> ciphertext(new Ciphertext<Element>(privateKey));
+	Ciphertext<Element> ciphertext(new CiphertextImpl<Element>(privateKey));
 
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 	const BigInteger &p = cryptoParams->GetPlaintextModulus();
@@ -147,7 +147,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmLTV<Element>::Encrypt(const shared_pt
 
 template <class Element>
 DecryptResult LPAlgorithmLTV<Element>::Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
-	const shared_ptr<Ciphertext<Element>> ciphertext,
+	const Ciphertext<Element> ciphertext,
 	Poly *plaintext) const
 {
 
@@ -172,16 +172,16 @@ DecryptResult LPAlgorithmLTV<Element>::Decrypt(const shared_ptr<LPPrivateKey<Ele
 }
 
 template <class Element>
-shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalAdd(
-	const shared_ptr<Ciphertext<Element>> ciphertext1,
-	const shared_ptr<Ciphertext<Element>> ciphertext2) const
+Ciphertext<Element> LPAlgorithmSHELTV<Element>::EvalAdd(
+	const Ciphertext<Element> ciphertext1,
+	const Ciphertext<Element> ciphertext2) const
 {
 	if (!(ciphertext1->GetCryptoParameters() == ciphertext2->GetCryptoParameters())) {
 		std::string errMsg = "EvalAdd crypto parameters are not the same";
 		throw std::runtime_error(errMsg);
 	}
 
-	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext1->CloneEmpty();
+	Ciphertext<Element> newCiphertext = ciphertext1->CloneEmpty();
 
 	Element cResult = ciphertext1->GetElement() + ciphertext2->GetElement();
 
@@ -191,8 +191,8 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalAdd(
 }
 
 template <class Element>
-shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalAdd(
-	const shared_ptr<Ciphertext<Element>> ciphertext,
+Ciphertext<Element> LPAlgorithmSHELTV<Element>::EvalAdd(
+	const Ciphertext<Element> ciphertext,
 	const Plaintext plaintext) const
 {
 //	if (!(ciphertext1->GetCryptoParameters() == ciphertext2->GetCryptoParameters())) {
@@ -200,7 +200,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalAdd(
 //		throw std::runtime_error(errMsg);
 //	}
 
-	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
+	Ciphertext<Element> newCiphertext = ciphertext->CloneEmpty();
 
 	plaintext->GetEncodedElement<Element>().SetFormat(EVALUATION);
 
@@ -212,16 +212,16 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalAdd(
 }
 
 template <class Element>
-shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalSub(
-	const shared_ptr<Ciphertext<Element>> ciphertext1,
-	const shared_ptr<Ciphertext<Element>> ciphertext2) const
+Ciphertext<Element> LPAlgorithmSHELTV<Element>::EvalSub(
+	const Ciphertext<Element> ciphertext1,
+	const Ciphertext<Element> ciphertext2) const
 {
 	if (!(ciphertext1->GetCryptoParameters() == ciphertext2->GetCryptoParameters())) {
 		std::string errMsg = "EvalSub crypto parameters are not the same";
 		throw std::runtime_error(errMsg);
 	}
 
-	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext1->CloneEmpty();
+	Ciphertext<Element> newCiphertext = ciphertext1->CloneEmpty();
 
 	Element cResult = ciphertext1->GetElement() - ciphertext2->GetElement();
 
@@ -231,8 +231,8 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalSub(
 }
 
 template <class Element>
-shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalSub(
-	const shared_ptr<Ciphertext<Element>> ciphertext,
+Ciphertext<Element> LPAlgorithmSHELTV<Element>::EvalSub(
+	const Ciphertext<Element> ciphertext,
 	const Plaintext plaintext) const
 {
 //	if (!(ciphertext1->GetCryptoParameters() == ciphertext2->GetCryptoParameters())) {
@@ -240,7 +240,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalSub(
 //		throw std::runtime_error(errMsg);
 //	}
 
-	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
+	Ciphertext<Element> newCiphertext = ciphertext->CloneEmpty();
 
 	plaintext->GetEncodedElement<Element>().SetFormat(EVALUATION);
 
@@ -253,9 +253,9 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalSub(
 
 // Homomorphic multiplication of ciphertexts without key switching
 template <class Element>
-shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalMult(
-	const shared_ptr<Ciphertext<Element>> ciphertext1,
-	const shared_ptr<Ciphertext<Element>> ciphertext2) const
+Ciphertext<Element> LPAlgorithmSHELTV<Element>::EvalMult(
+	const Ciphertext<Element> ciphertext1,
+	const Ciphertext<Element> ciphertext2) const
 {
 
 	if (ciphertext1->GetElement().GetFormat() == Format::COEFFICIENT || ciphertext2->GetElement().GetFormat() == Format::COEFFICIENT) {
@@ -267,7 +267,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalMult(
 		throw std::runtime_error(errMsg);
 	}
 
-	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext1->CloneEmpty();
+	Ciphertext<Element> newCiphertext = ciphertext1->CloneEmpty();
 
 	Element cResult = ciphertext1->GetElement() * ciphertext2->GetElement();
 
@@ -278,10 +278,10 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalMult(
 
 // Homomorphic multiplication of ciphertexts with key switching
 template <class Element>
-shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
-	const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const {
+Ciphertext<Element> LPAlgorithmSHELTV<Element>::EvalMult(const Ciphertext<Element> ciphertext1,
+	const Ciphertext<Element> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const {
 
-	shared_ptr<Ciphertext<Element>> newCiphertext = EvalMult(ciphertext1, ciphertext2);
+	Ciphertext<Element> newCiphertext = EvalMult(ciphertext1, ciphertext2);
 
 	newCiphertext = KeySwitch(ek, newCiphertext);
 
@@ -289,11 +289,11 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalMult(const share
 }
 
 template <class Element>
-shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalMult(
-	const shared_ptr<Ciphertext<Element>> ciphertext,
+Ciphertext<Element> LPAlgorithmSHELTV<Element>::EvalMult(
+	const Ciphertext<Element> ciphertext,
 	const Plaintext plaintext) const
 {
-	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
+	Ciphertext<Element> newCiphertext = ciphertext->CloneEmpty();
 
 	plaintext->GetEncodedElement<Element>().SetFormat(EVALUATION);
 
@@ -310,13 +310,13 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalMult(
 
 // Homomorphic multiplication of ciphertexts with key switching
 template <class Element>
-shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
+Ciphertext<Element> LPAlgorithmSHELTV<Element>::EvalMult(const Ciphertext<Element> ciphertext1,
 	const Plaintext plaintext, const shared_ptr<LPEvalKey<Element>> ek) const {
 
 	const shared_ptr<LPPublicKeyEncryptionSchemeLTV<Element>> scheme =
 			std::dynamic_pointer_cast<LPPublicKeyEncryptionSchemeLTV<Element>>(ciphertext1->GetCryptoContext()->GetEncryptionAlgorithm());
 
-	shared_ptr<Ciphertext<Element>> newCiphertext = scheme->EvalMult(ciphertext1, plaintext);
+	Ciphertext<Element> newCiphertext = scheme->EvalMult(ciphertext1, plaintext);
 
 	newCiphertext = scheme->KeySwitch(ek,newCiphertext);
 
@@ -324,9 +324,9 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalMult(const share
 }
 
 template <class Element>
-shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalNegate(const shared_ptr<Ciphertext<Element>> ciphertext) const {
+Ciphertext<Element> LPAlgorithmSHELTV<Element>::EvalNegate(const Ciphertext<Element> ciphertext) const {
 
-	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
+	Ciphertext<Element> newCiphertext = ciphertext->CloneEmpty();
 
 	const Element& c1 = ciphertext->GetElement();
 
@@ -389,14 +389,14 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmSHELTV<Element>::KeySwitchGen(
 * private key A, is now decryptable by private key B (and not A).
 */
 template<class Element>
-shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::KeySwitch(
+Ciphertext<Element> LPAlgorithmSHELTV<Element>::KeySwitch(
 	const shared_ptr<LPEvalKey<Element>> keySwitchHint,
-	const shared_ptr<Ciphertext<Element>> cipherText) const {
+	const Ciphertext<Element> cipherText) const {
 
 	//Get the EvalKeyNTRU to perform key swich, also verfies if proper EvalKey is instantiated.
 	const shared_ptr<LPEvalKeyNTRU<Element>> keyHint = std::dynamic_pointer_cast<LPEvalKeyNTRU<Element>>(keySwitchHint);
 
-	shared_ptr<Ciphertext<Element>> newCiphertext = cipherText->CloneEmpty();
+	Ciphertext<Element> newCiphertext = cipherText->CloneEmpty();
 
 	Element newCipherTextElement = cipherText->GetElement() * keyHint->GetA();
 
@@ -461,10 +461,10 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmSHELTV<Element>::KeySwitchRelinGen(con
 
 //Function for re-encypting ciphertext using the array generated by KeySwitchRelinGen
 template <class Element>
-shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::KeySwitchRelin(const shared_ptr<LPEvalKey<Element>>evalKey,
-	const shared_ptr<Ciphertext<Element>> ciphertext) const
+Ciphertext<Element> LPAlgorithmSHELTV<Element>::KeySwitchRelin(const shared_ptr<LPEvalKey<Element>>evalKey,
+	const Ciphertext<Element> ciphertext) const
 {
-	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
+	Ciphertext<Element> newCiphertext = ciphertext->CloneEmpty();
 
 	const shared_ptr<LPCryptoParametersRLWE<Element>> cryptoParamsLWE =
 		std::dynamic_pointer_cast<LPCryptoParametersRLWE<Element>>(evalKey->GetCryptoParameters());
@@ -490,11 +490,11 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::KeySwitchRelin(const
 }
 
 template <class Element>
-shared_ptr<Ciphertext<Element>> LPAlgorithmSHELTV<Element>::EvalAutomorphism(const shared_ptr<Ciphertext<Element>> ciphertext, usint i,
+Ciphertext<Element> LPAlgorithmSHELTV<Element>::EvalAutomorphism(const Ciphertext<Element> ciphertext, usint i,
 	const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalKeys) const
 {
 
-	shared_ptr<Ciphertext<Element>> permutedCiphertext(new Ciphertext<Element>(*ciphertext));
+	Ciphertext<Element> permutedCiphertext(new CiphertextImpl<Element>(*ciphertext));
 
 	permutedCiphertext->SetElement(ciphertext->GetElement().AutomorphismTransform(i));
 
@@ -543,8 +543,8 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmPRELTV<Element>::ReKeyGen(const shared
 
 //Function for re-encypting ciphertext using the array generated by ReKeyGen
 template <class Element>
-shared_ptr<Ciphertext<Element>> LPAlgorithmPRELTV<Element>::ReEncrypt(const shared_ptr<LPEvalKey<Element>> evalKey,
-	const shared_ptr<Ciphertext<Element>> ciphertext) const
+Ciphertext<Element> LPAlgorithmPRELTV<Element>::ReEncrypt(const shared_ptr<LPEvalKey<Element>> evalKey,
+	const Ciphertext<Element> ciphertext) const
 {
 	return ciphertext->GetCryptoContext()->GetEncryptionAlgorithm()->KeySwitchRelin(evalKey, ciphertext);
 }
@@ -559,9 +559,9 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmPRELTV<Element>::ReEncrypt(const shar
 * ModReduce is written for DCRTPoly and it drops the last tower while updating the necessary parameters.
 */
 template<class Element> inline
-shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmLTV<Element>::ModReduce(shared_ptr<Ciphertext<Element>> cipherText) const {
+Ciphertext<Element> LPLeveledSHEAlgorithmLTV<Element>::ModReduce(Ciphertext<Element> cipherText) const {
 
-	shared_ptr<Ciphertext<Element>> newCiphertext = cipherText->CloneEmpty();
+	Ciphertext<Element> newCiphertext = cipherText->CloneEmpty();
 
 	Element cipherTextElement(cipherText->GetElement());
 
@@ -584,11 +584,11 @@ shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmLTV<Element>::ModReduce(sha
 *
 */
 template<class Element>
-shared_ptr<Ciphertext<Element>>
-LPLeveledSHEAlgorithmLTV<Element>::RingReduce(shared_ptr<Ciphertext<Element>> cipherText, const shared_ptr<LPEvalKey<Element>> keySwitchHint) const {
+Ciphertext<Element>
+LPLeveledSHEAlgorithmLTV<Element>::RingReduce(Ciphertext<Element> cipherText, const shared_ptr<LPEvalKey<Element>> keySwitchHint) const {
 
 	//KeySwitching to a cipherText that can be decrypted by a sparse key.
-	shared_ptr<Ciphertext<Element>> newcipherText = cipherText->GetCryptoContext()->KeySwitch(keySwitchHint, cipherText);
+	Ciphertext<Element> newcipherText = cipherText->GetCryptoContext()->KeySwitch(keySwitchHint, cipherText);
 
 	//Once the keyswitching of the ciphertext has been done, based on the algorithm in the referenced paper, the ciphertext needs to be decomposed.
 	Element keySwitchedCipherTextElement(newcipherText->GetElement());
@@ -610,21 +610,21 @@ LPLeveledSHEAlgorithmLTV<Element>::RingReduce(shared_ptr<Ciphertext<Element>> ci
 }
 
 template<class Element>
-shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmLTV<Element>::ComposedEvalMult(
-	const shared_ptr<Ciphertext<Element>> cipherText1,
-	const shared_ptr<Ciphertext<Element>> cipherText2,
+Ciphertext<Element> LPLeveledSHEAlgorithmLTV<Element>::ComposedEvalMult(
+	const Ciphertext<Element> cipherText1,
+	const Ciphertext<Element> cipherText2,
 	const shared_ptr<LPEvalKey<Element>> ek) const {
 
-	shared_ptr<Ciphertext<Element>> prod = cipherText1->GetCryptoContext()->GetEncryptionAlgorithm()->EvalMult(cipherText1, cipherText2, ek);
+	Ciphertext<Element> prod = cipherText1->GetCryptoContext()->GetEncryptionAlgorithm()->EvalMult(cipherText1, cipherText2, ek);
 
 	return this->ModReduce(prod);
 }
 
 template<class Element>
-shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmLTV<Element>::LevelReduce(const shared_ptr<Ciphertext<Element>> cipherText1,
+Ciphertext<Element> LPLeveledSHEAlgorithmLTV<Element>::LevelReduce(const Ciphertext<Element> cipherText1,
 	const shared_ptr<LPEvalKey<Element>> linearKeySwitchHint) const {
 
-	shared_ptr<Ciphertext<Element>> cipherTextResult = cipherText1->GetCryptoContext()->GetEncryptionAlgorithm()->KeySwitch(linearKeySwitchHint, cipherText1);
+	Ciphertext<Element> cipherTextResult = cipherText1->GetCryptoContext()->GetEncryptionAlgorithm()->KeySwitch(linearKeySwitchHint, cipherText1);
 
 	return this->ModReduce(cipherTextResult);
 }

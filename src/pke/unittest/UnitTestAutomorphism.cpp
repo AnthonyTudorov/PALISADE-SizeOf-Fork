@@ -168,7 +168,7 @@ std::vector<usint> ArbLTVAutomorphismPackedArray(usint i) {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	shared_ptr<Ciphertext<Poly>> ciphertext;
+	Ciphertext<Poly> ciphertext;
 
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10 };
 	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
@@ -180,7 +180,7 @@ std::vector<usint> ArbLTVAutomorphismPackedArray(usint i) {
 
 	auto evalKeys = cc->EvalAutomorphismKeyGen(kp.publicKey, kp.secretKey, indexList);
 
-	shared_ptr<Ciphertext<Poly>> p1;
+	Ciphertext<Poly> p1;
 
 	p1 = cc->EvalAutomorphism(ciphertext, i, *evalKeys);
 
@@ -221,7 +221,7 @@ std::vector<usint> ArbBVAutomorphismPackedArray(usint i) {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	shared_ptr<Ciphertext<Poly>> ciphertext;
+	Ciphertext<Poly> ciphertext;
 
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10 };
 	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
@@ -233,7 +233,7 @@ std::vector<usint> ArbBVAutomorphismPackedArray(usint i) {
 
 	auto evalKeys = cc->EvalAutomorphismKeyGen(kp.secretKey, indexList);
 
-	shared_ptr<Ciphertext<Poly>> p1;
+	Ciphertext<Poly> p1;
 
 	p1 = cc->EvalAutomorphism(ciphertext, i, *evalKeys);
 
@@ -263,7 +263,7 @@ std::vector<usint> LTVAutomorphismPackedArray(usint i) {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	shared_ptr<Ciphertext<Poly>> ciphertext;
+	Ciphertext<Poly> ciphertext;
 
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8 };
 	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
@@ -274,7 +274,7 @@ std::vector<usint> LTVAutomorphismPackedArray(usint i) {
 
 	auto evalKeys = cc->EvalAutomorphismKeyGen(kp.publicKey, kp.secretKey, indexList);
 
-	shared_ptr<Ciphertext<Poly>> p1;
+	Ciphertext<Poly> p1;
 
 	p1 = cc->EvalAutomorphism(ciphertext, i, *evalKeys);
 
@@ -305,7 +305,7 @@ std::vector<usint> BVAutomorphismPackedArray(usint i) {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	shared_ptr<Ciphertext<Poly>> ciphertext;
+	Ciphertext<Poly> ciphertext;
 
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8 };
 	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
@@ -316,7 +316,7 @@ std::vector<usint> BVAutomorphismPackedArray(usint i) {
 
 	auto evalKeys = cc->EvalAutomorphismKeyGen(kp.secretKey, indexList);
 
-	shared_ptr<Ciphertext<Poly>> p1;
+	Ciphertext<Poly> p1;
 
 	p1 = cc->EvalAutomorphism(ciphertext, i, *evalKeys);
 
@@ -352,7 +352,7 @@ std::vector<usint> FVAutomorphismPackedArray(usint i) {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	shared_ptr<Ciphertext<Poly>> ciphertext;
+	Ciphertext<Poly> ciphertext;
 
 	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8 };
 	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
@@ -363,7 +363,7 @@ std::vector<usint> FVAutomorphismPackedArray(usint i) {
 
 	auto evalKeys = cc->EvalAutomorphismKeyGen(kp.secretKey, indexList);
 
-	shared_ptr<Ciphertext<Poly>> p1;
+	Ciphertext<Poly> p1;
 
 	p1 = cc->EvalAutomorphism(ciphertext, i, *evalKeys);
 

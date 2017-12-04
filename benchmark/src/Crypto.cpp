@@ -88,7 +88,7 @@ BENCHMARK_PARMS(BM_keygen)
 void BM_encrypt(benchmark::State& state) { // benchmark
 	CryptoContext<Poly> cc;
 	LPKeyPair<Poly> kp;
-	shared_ptr<Ciphertext<Poly>> ciphertext;
+	Ciphertext<Poly> ciphertext;
 	Plaintext plaintext;
 
 	auto randchar = []() -> char {
@@ -144,7 +144,7 @@ BENCHMARK_PARMS(BM_encrypt)
 void BM_decrypt(benchmark::State& state) { // benchmark
 	CryptoContext<Poly> cc;
 	LPKeyPair<Poly> kp;
-	shared_ptr<Ciphertext<Poly>> ciphertext;
+	Ciphertext<Poly> ciphertext;
 	Plaintext plaintext;
 	Plaintext plaintextNew;
 
@@ -246,8 +246,8 @@ BENCHMARK_PARMS(BM_rekeygen)
 void BM_reencrypt(benchmark::State& state) { // benchmark
 	CryptoContext<Poly> cc;
 	LPKeyPair<Poly> kp;
-	shared_ptr<Ciphertext<Poly>> ciphertext;
-	shared_ptr<Ciphertext<Poly>> reciphertext;
+	Ciphertext<Poly> ciphertext;
+	Ciphertext<Poly> reciphertext;
 	Plaintext plaintext;
 	Plaintext plaintextNew;
 

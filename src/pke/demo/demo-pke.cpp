@@ -118,7 +118,7 @@ int main(int argc, char *argv[]) {
 	////////////////////////////////////////////////////////////
 
 
-	shared_ptr<Ciphertext<Poly>> ciphertext;
+	Ciphertext<Poly> ciphertext;
 
 	start = currentDateTime();
 

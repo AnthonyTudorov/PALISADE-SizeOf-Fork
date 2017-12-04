@@ -252,7 +252,7 @@ public:
 	 * @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 	 * @return A shared pointer to the encrypted Ciphertext.
 	 */
-	shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, Element plaintext) const;
+	Ciphertext<Element> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, Element plaintext) const;
 
 	/**
 	 * Encrypt method for the LTV Scheme.  See the class description for citations on where the algorithms were
@@ -263,7 +263,7 @@ public:
 	 * @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 	 * @return A shared pointer to the encrypted Ciphertext.
 	 */
-	shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey, Element plaintext) const;
+	Ciphertext<Element> Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey, Element plaintext) const;
 
 	/**
 	 * Decrypt method for the LTV Scheme.  See the class description for citations on where the algorithms were
@@ -275,7 +275,7 @@ public:
 	 * @return DecryptResult indicating success or failure and number of bytes decrypted.
 	 */
 	DecryptResult Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
-		const shared_ptr<Ciphertext<Element>> ciphertext,
+		const Ciphertext<Element> ciphertext,
 		Poly *plaintext) const;
 
 	/**
@@ -348,8 +348,8 @@ public:
 	* @param ciphertext the input ciphertext.
 	* @return A shared pointer to the resulting ciphertext.
 	*/
-	shared_ptr<Ciphertext<Element>> ReEncrypt(const shared_ptr<LPEvalKey<Element>> evalKey,
-		const shared_ptr<Ciphertext<Element>> ciphertext) const;
+	Ciphertext<Element> ReEncrypt(const shared_ptr<LPEvalKey<Element>> evalKey,
+		const Ciphertext<Element> ciphertext) const;
 	
 };
 
@@ -401,8 +401,8 @@ public:
 		 * @param privateKey private key used for decryption.
 		 * @param ciphertext ciphertext id decrypted.
 		 */
-	shared_ptr<Ciphertext<Element>> MultipartyDecryptMain(const shared_ptr<LPPrivateKey<Element>> privateKey,
-		const shared_ptr<Ciphertext<Element>> ciphertext) const {
+	Ciphertext<Element> MultipartyDecryptMain(const shared_ptr<LPPrivateKey<Element>> privateKey,
+		const Ciphertext<Element> ciphertext) const {
 		std::string errMsg = "LPAlgorithmPRELTV::MultipartyDecryptMain is not implemented for the LTV Scheme.";
 		throw std::runtime_error(errMsg);
 	}
@@ -414,8 +414,8 @@ public:
 		 * @param *plaintext the plaintext output.
 		 * @return the decoding result.
 		 */
-	shared_ptr<Ciphertext<Element>> MultipartyDecryptLead(const shared_ptr<LPPrivateKey<Element>> privateKey,
-		const shared_ptr<Ciphertext<Element>> ciphertext) const {
+	Ciphertext<Element> MultipartyDecryptLead(const shared_ptr<LPPrivateKey<Element>> privateKey,
+		const Ciphertext<Element> ciphertext) const {
 		std::string errMsg = "LPAlgorithmPRELTV::MultipartyDecryptLead is not implemented for the LTV Scheme.";
 		throw std::runtime_error(errMsg);
 	}
@@ -429,7 +429,7 @@ public:
 	* @param *plaintext the plaintext output.
 	* @return the success/fail result
 	*/
-	DecryptResult MultipartyDecryptFusion(const vector<shared_ptr<Ciphertext<Element>>>& ciphertextVec,
+	DecryptResult MultipartyDecryptFusion(const vector<Ciphertext<Element>>& ciphertextVec,
 		Poly *plaintext) const {
 		std::string errMsg = "LPAlgorithmPREBV::MultipartyDecrypt is not implemented for the LTV Scheme.";
 		throw std::runtime_error(errMsg);
@@ -467,8 +467,8 @@ public:
 	* @param ciphertext2 The second input ciphertext.
 	* @return A shared pointer to the ciphertext which is the EvalAdd of the two inputs.
 	*/
-	shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext1,
-		const shared_ptr<Ciphertext<Element>> ciphertext2) const;
+	Ciphertext<Element> EvalAdd(const Ciphertext<Element> ciphertext1,
+		const Ciphertext<Element> ciphertext2) const;
 
 	/**
 	* Function for evaluation addition on ciphertext.
@@ -478,7 +478,7 @@ public:
 	* @param plaintext The input plaintext.
 	* @return A shared pointer to the ciphertext which is the EvalAdd of the two inputs.
 	*/
-	shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext,
+	Ciphertext<Element> EvalAdd(const Ciphertext<Element> ciphertext,
 		const Plaintext plaintext) const;
 
 	/**
@@ -489,8 +489,8 @@ public:
 	* @param ciphertext2 The second input ciphertext.
 	* @return A shared pointer to the ciphertext which is the EvalAdd of the two inputs.
 	*/
-	shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext1,
-		const shared_ptr<Ciphertext<Element>> ciphertext2) const;
+	Ciphertext<Element> EvalSub(const Ciphertext<Element> ciphertext1,
+		const Ciphertext<Element> ciphertext2) const;
 
 	/**
 	* Function for homomorphic subtraction of ciphertexts.
@@ -500,7 +500,7 @@ public:
 	* @param plaintext The input plaintext.
 	* @return A shared pointer to the ciphertext which is the EvalAdd of the two inputs.
 	*/
-	shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext,
+	Ciphertext<Element> EvalSub(const Ciphertext<Element> ciphertext,
 			const Plaintext plaintext) const;
 
 	/**
@@ -511,8 +511,8 @@ public:
 	* @param ciphertext2 The second input ciphertext.
 	* @return A shared pointer to the ciphertext which is the EvalMult of the two inputs.
 	*/
-	shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
-		const shared_ptr<Ciphertext<Element>> ciphertext2) const;
+	Ciphertext<Element> EvalMult(const Ciphertext<Element> ciphertext1,
+		const Ciphertext<Element> ciphertext2) const;
 
 	/**
 	* Function for multiplying a ciphertext by plaintext.
@@ -522,7 +522,7 @@ public:
 	* @param plaintext input plaintext.
 	* @return A shared pointer to the ciphertext which is the EvalMult of the two inputs.
 	*/
-	shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext,
+	Ciphertext<Element> EvalMult(const Ciphertext<Element> ciphertext,
 		const Plaintext plaintext) const;
 
 
@@ -536,8 +536,8 @@ public:
 	* @param evalKey The evaluation key input.
 	* @return A shared pointer to the ciphertext which is the EvalMult of the two inputs.
 	*/
-	shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
-		const shared_ptr<Ciphertext<Element>> ciphertext2,
+	Ciphertext<Element> EvalMult(const Ciphertext<Element> ciphertext1,
+		const Ciphertext<Element> ciphertext2,
 		const shared_ptr<LPEvalKey<Element>> evalKey) const;
 
 	/**
@@ -548,8 +548,8 @@ public:
 	* @param ek is the evaluation keys input.
 	* @return A shared pointer to the ciphertext which is the EvalMult of the two inputs.
 	*/
-	shared_ptr<Ciphertext<Element>> EvalMultAndRelinearize(const shared_ptr<Ciphertext<Element>> ciphertext1,
-		const shared_ptr<Ciphertext<Element>> ciphertext2,
+	Ciphertext<Element> EvalMultAndRelinearize(const Ciphertext<Element> ciphertext1,
+		const Ciphertext<Element> ciphertext2,
 		const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> ek) const {
 		std::string errMsg = "LPAlgorithmLTV::EvalMultAndRelinearize is not implemented for the LTV Scheme.";
 		throw std::runtime_error(errMsg);
@@ -562,7 +562,7 @@ public:
 	* @param evalKey is the evaluation keys input.
 	* @return A shared pointer to the ciphertext which is the result of the multiplication.
 	*/
-	shared_ptr<Ciphertext<Element>> EvalMultMany(const vector<shared_ptr<Ciphertext<Element>>>& cipherTextList, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> evalKeys) const {
+	Ciphertext<Element> EvalMultMany(const vector<Ciphertext<Element>>& cipherTextList, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> evalKeys) const {
 		std::string errMsg = "LPAlgorithmLTV::EvalMultMany is not implemented for the LTV Scheme.";
 		throw std::runtime_error(errMsg);
 	}
@@ -577,7 +577,7 @@ public:
 	* @param evalKey The evaluation key input.
 	* @return A shared pointer to the ciphertext which is the EvalMult of the two inputs.
 	*/
-	shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
+	Ciphertext<Element> EvalMult(const Ciphertext<Element> ciphertext1,
 		const Plaintext ciphertext2,
 		const shared_ptr<LPEvalKey<Element>> evalKey) const;
 
@@ -590,7 +590,7 @@ public:
 	* @param ct The input ciphertext.
 	* @return A shared pointer to a new ciphertext which is the negation of the input.
 	*/
-	shared_ptr<Ciphertext<Element>> EvalNegate(const shared_ptr<Ciphertext<Element>> ct) const;
+	Ciphertext<Element> EvalNegate(const Ciphertext<Element> ct) const;
 													 
 	/**
 	* Method for generating a Key Switch Hint.
@@ -618,9 +618,9 @@ public:
 	* @param cipherText Original ciphertext to perform switching on.
 	* @result A shared pointer to the resulting ciphertext.
 	*/
-	shared_ptr<Ciphertext<Element>> KeySwitch(
+	Ciphertext<Element> KeySwitch(
 		const shared_ptr<LPEvalKey<Element>> keySwitchHint,
-		const shared_ptr<Ciphertext<Element>> cipherText) const;
+		const Ciphertext<Element> cipherText) const;
 
 	/**
 	* Method for KeySwitching based on RLWE relinearization.
@@ -639,8 +639,8 @@ public:
 	* @param ciphertext the input ciphertext.
 	* @return the resulting Ciphertext
 	*/
-	shared_ptr<Ciphertext<Element>> KeySwitchRelin(const shared_ptr<LPEvalKey<Element>> evalKey,
-		const shared_ptr<Ciphertext<Element>> ciphertext) const;
+	Ciphertext<Element> KeySwitchRelin(const shared_ptr<LPEvalKey<Element>> evalKey,
+		const Ciphertext<Element> ciphertext) const;
 
 	/**
 	* Function to generate key switch hint on a ciphertext of depth 2.
@@ -674,7 +674,7 @@ public:
 	* @param &evalKeys - reference to the map of evaluation keys generated by EvalAutomorphismKeyGen.
 	* @return resulting ciphertext
 	*/
-	shared_ptr<Ciphertext<Element>> EvalAutomorphism(const shared_ptr<Ciphertext<Element>> ciphertext, usint i,
+	Ciphertext<Element> EvalAutomorphism(const Ciphertext<Element> ciphertext, usint i,
 		const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalKeys) const;
 
 
@@ -733,7 +733,7 @@ public:
 	* @param cipherText Ciphertext to perform and apply modreduce on.
 	* @return resulting modreduced ciphertext
 	*/
-	shared_ptr<Ciphertext<Element>> ModReduce(shared_ptr<Ciphertext<Element>> cipherText) const;
+	Ciphertext<Element> ModReduce(Ciphertext<Element> cipherText) const;
 
 	/**
 	* Method for RingReducing CipherText and the Private Key used for encryption.
@@ -742,7 +742,7 @@ public:
 	* @param keySwitchHint is the keyswitchhint from the ciphertext's private key to a sparse key
 	* @return resulting RingReduced ciphertext
 	*/
-	shared_ptr<Ciphertext<Element>> RingReduce(shared_ptr<Ciphertext<Element>> cipherText, const shared_ptr<LPEvalKey<Element>> keySwitchHint) const;
+	Ciphertext<Element> RingReduce(Ciphertext<Element> cipherText, const shared_ptr<LPEvalKey<Element>> keySwitchHint) const;
 
 	/**
 	* Method for ComposedEvalMult.  This method performs an EvalMult on two input ciphertext, then a
@@ -754,9 +754,9 @@ public:
 	* @param quadKeySwitchHint The resultant quadratic secret key after multiplication to the secret key of the particular level.
 	* @return The resulting ciphertext that can be decrypted with the secret key of the particular level.
 	*/
-	shared_ptr<Ciphertext<Element>> ComposedEvalMult(
-		const shared_ptr<Ciphertext<Element>> cipherText1,
-		const shared_ptr<Ciphertext<Element>> cipherText2,
+	Ciphertext<Element> ComposedEvalMult(
+		const Ciphertext<Element> cipherText1,
+		const Ciphertext<Element> cipherText2,
 		const shared_ptr<LPEvalKey<Element>> quadKeySwitchHint) const;
 
 	/**
@@ -767,7 +767,7 @@ public:
 	* @param linearKeySwitchHint is the linear key switch hint to perform the key switch operation.
 	* @return the resulting ciphertext.
 	*/
-	shared_ptr<Ciphertext<Element>> LevelReduce(const shared_ptr<Ciphertext<Element>> cipherText1,
+	Ciphertext<Element> LevelReduce(const Ciphertext<Element> cipherText1,
 		const shared_ptr<LPEvalKey<Element>> linearKeySwitchHint) const;
 
 	/**

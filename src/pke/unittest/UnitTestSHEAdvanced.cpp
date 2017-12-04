@@ -87,13 +87,13 @@ TEST_F(UTSHEAdvanced, test_eval_mult_single_crt) {
 	kp = cc->KeyGen();
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	shared_ptr<Ciphertext<Poly>> ciphertext1;
-	shared_ptr<Ciphertext<Poly>> ciphertext2;
+	Ciphertext<Poly> ciphertext1;
+	Ciphertext<Poly> ciphertext2;
 
 	ciphertext1 = cc->Encrypt(kp.publicKey, intArray1);
 	ciphertext2 = cc->Encrypt(kp.publicKey, intArray2);
 
-	shared_ptr<Ciphertext<Poly>> cResult =
+	Ciphertext<Poly> cResult =
 		cc->EvalMult(ciphertext1, ciphertext2);
 
 	LPKeyPair<Poly> newKp = cc->KeyGen();
@@ -158,13 +158,13 @@ TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 	kp = cc->KeyGen();
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	shared_ptr<Ciphertext<DCRTPoly>> ciphertext1;
-	shared_ptr<Ciphertext<DCRTPoly>> ciphertext2;
+	Ciphertext<DCRTPoly> ciphertext1;
+	Ciphertext<DCRTPoly> ciphertext2;
 
 	ciphertext1 = cc->Encrypt(kp.publicKey, intArray1);
 	ciphertext2 = cc->Encrypt(kp.publicKey, intArray2);
 
-	std::shared_ptr<Ciphertext<DCRTPoly>> cResult = cc->EvalMult(ciphertext1, ciphertext2);
+	std::Ciphertext<DCRTPoly> cResult = cc->EvalMult(ciphertext1, ciphertext2);
 
 	LPKeyPair<DCRTPoly> newKp = cc->KeyGen();
 
@@ -211,20 +211,20 @@ TEST_F(UTSHEAdvanced, test_eval_add_single_crt) {
 	kp = cc->KeyGen();
 
 	DEBUG("got pairs");
-	shared_ptr<Ciphertext<Poly>> ciphertext1;
-	shared_ptr<Ciphertext<Poly>> ciphertext2;
+	Ciphertext<Poly> ciphertext1;
+	Ciphertext<Poly> ciphertext2;
 
 	ciphertext1 = cc->Encrypt(kp.publicKey, intArray1);
 	DEBUG("after crypt 1");
 	ciphertext2 = cc->Encrypt(kp.publicKey, intArray2);
 	DEBUG("after crypt 2");
 
-	shared_ptr<Ciphertext<Poly>> cResult;
+	Ciphertext<Poly> cResult;
 	DEBUG("before EA");
 	cResult = cc->EvalAdd(ciphertext1, ciphertext2);
 	DEBUG("after");
 
-	shared_ptr<Ciphertext<Poly>> ciphertextResults({ cResult });
+	Ciphertext<Poly> ciphertextResults({ cResult });
 	Plaintext results;
 
 	cc->Decrypt(kp.secretKey, ciphertextResults, &results);
@@ -282,18 +282,18 @@ TEST_F(UTSHEAdvanced, test_eval_add_double_crt) {
 	//Generate the secret key for the initial ciphertext:
 	LPKeyPair<DCRTPoly> kp = cc->KeyGen();
 
-	shared_ptr<Ciphertext<DCRTPoly>> ciphertext1;
-	shared_ptr<Ciphertext<DCRTPoly>> ciphertext2;
+	Ciphertext<DCRTPoly> ciphertext1;
+	Ciphertext<DCRTPoly> ciphertext2;
 
 	ciphertext1 = cc->Encrypt(kp.publicKey, intArray1);
 	ciphertext2 = cc->Encrypt(kp.publicKey, intArray2);
 
-	shared_ptr<Ciphertext<DCRTPoly>> cResult;
+	Ciphertext<DCRTPoly> cResult;
 
 	cResult = cc->EvalAdd(ciphertext1, ciphertext2);
 
 
-	shared_ptr<Ciphertext<DCRTPoly>> ciphertextResults({ cResult });
+	Ciphertext<DCRTPoly> ciphertextResults({ cResult });
 	Plaintext results;
 
 	cc->Decrypt(kp.secretKey, ciphertextResults, &results);
@@ -344,13 +344,13 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 	std::vector<usint> secondElement = { 7, 4, 2 };
 	Plaintext secondElementEncoding = cc->MakeCoefPackedPlaintext(secondElement);
 
-	shared_ptr<Ciphertext<DCRTPoly>> ciphertextElementOne;
-	shared_ptr<Ciphertext<DCRTPoly>> ciphertextElementTwo;
+	Ciphertext<DCRTPoly> ciphertextElementOne;
+	Ciphertext<DCRTPoly> ciphertextElementTwo;
 
 	ciphertextElementOne = cc->Encrypt(kp.publicKey, firstElementEncoding);
 	ciphertextElementTwo = cc->Encrypt(kp.publicKey, secondElementEncoding);
 
-	shared_ptr<Ciphertext<DCRTPoly>> cResult = cc->ComposedEvalMult(ciphertextElementOne, ciphertextElementTwo);
+	Ciphertext<DCRTPoly> cResult = cc->ComposedEvalMult(ciphertextElementOne, ciphertextElementTwo);
 
 	// ok let's try making the secret keys both have one less tower
 	// because ComposedEvalMult performs a ModReduce
@@ -367,7 +367,7 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 
 	// have to perform the operation in the new context
 	// FIXME we really need a ctor or an operator that copies into a new CryptoContext; below is kind of a hack
-	shared_ptr<Ciphertext<DCRTPoly>> cResultSmall( new Ciphertext<DCRTPoly>(ccSmall) );
+	Ciphertext<DCRTPoly> cResultSmall( new CiphertextImpl<DCRTPoly>(ccSmall) );
 	cResultSmall->SetDepth( cResult->GetDepth() );
 	cResultSmall->SetElements( cResult->GetElements() );
 	cResultSmall->SetEncodingType( cResult->GetEncodingType() );

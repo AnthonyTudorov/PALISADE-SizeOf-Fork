@@ -392,10 +392,10 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 
 
 template <>
-shared_ptr<Ciphertext<DCRTPoly>> LPAlgorithmBFVrns<DCRTPoly>::Encrypt(const shared_ptr<LPPublicKey<DCRTPoly>> publicKey,
+Ciphertext<DCRTPoly> LPAlgorithmBFVrns<DCRTPoly>::Encrypt(const shared_ptr<LPPublicKey<DCRTPoly>> publicKey,
 		DCRTPoly ptxt) const
 {
-	shared_ptr<Ciphertext<DCRTPoly>> ciphertext( new Ciphertext<DCRTPoly>(publicKey) );
+	Ciphertext<DCRTPoly> ciphertext( new CiphertextImpl<DCRTPoly>(publicKey) );
 
 	const shared_ptr<LPCryptoParametersBFVrns<DCRTPoly>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersBFVrns<DCRTPoly>>(publicKey->GetCryptoParameters());
 
@@ -443,7 +443,7 @@ shared_ptr<Ciphertext<DCRTPoly>> LPAlgorithmBFVrns<DCRTPoly>::Encrypt(const shar
 
 template <>
 DecryptResult LPAlgorithmBFVrns<DCRTPoly>::Decrypt(const shared_ptr<LPPrivateKey<DCRTPoly>> privateKey,
-		const shared_ptr<Ciphertext<DCRTPoly>> ciphertext,
+		const Ciphertext<DCRTPoly> ciphertext,
 		Poly *plaintext) const
 {
 	const shared_ptr<LPCryptoParametersBFVrns<DCRTPoly>> cryptoParams =
@@ -488,8 +488,8 @@ DecryptResult LPAlgorithmBFVrns<DCRTPoly>::Decrypt(const shared_ptr<LPPrivateKey
 }
 
 template <>
-shared_ptr<Ciphertext<DCRTPoly>> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalMult(const shared_ptr<Ciphertext<DCRTPoly>> ciphertext1,
-	const shared_ptr<Ciphertext<DCRTPoly>> ciphertext2) const {
+Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalMult(const Ciphertext<DCRTPoly> ciphertext1,
+	const Ciphertext<DCRTPoly> ciphertext2) const {
 
 	bool isCiphertext1FormatCoeff = false;
 	bool isCiphertext2FormatCoeff = false;
@@ -505,7 +505,7 @@ shared_ptr<Ciphertext<DCRTPoly>> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalMult(const 
 		throw std::runtime_error(errMsg);
 	}
 
-	shared_ptr<Ciphertext<DCRTPoly>> newCiphertext = ciphertext1->CloneEmpty();
+	Ciphertext<DCRTPoly> newCiphertext = ciphertext1->CloneEmpty();
 
 	const shared_ptr<LPCryptoParametersBFVrns<DCRTPoly>> cryptoParamsBFVrns =
 			std::dynamic_pointer_cast<LPCryptoParametersBFVrns<DCRTPoly>>(ciphertext1->GetCryptoContext()->GetCryptoParameters());

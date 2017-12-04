@@ -159,7 +159,7 @@ usint ArbLTVEvalSumPackedArray(std::vector<usint> &clearVector, usint p) {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	shared_ptr<Ciphertext<Poly>> ciphertext;
+	Ciphertext<Poly> ciphertext;
 
 	std::vector<usint> vectorOfInts = std::move(clearVector);
 	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
@@ -210,7 +210,7 @@ usint ArbBVEvalSumPackedArray(std::vector<usint> &clearVector, usint p) {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	shared_ptr<Ciphertext<Poly>> ciphertext;
+	Ciphertext<Poly> ciphertext;
 
 	Plaintext intArray = cc->MakePackedPlaintext(clearVector);
 
@@ -259,7 +259,7 @@ usint ArbBVEvalSumPackedArrayPrime(std::vector<usint> &clearVector, usint p) {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	shared_ptr<Ciphertext<Poly>> ciphertext;
+	Ciphertext<Poly> ciphertext;
 
 	Plaintext intArray = cc->MakePackedPlaintext(clearVector);
 
@@ -310,7 +310,7 @@ usint ArbFVEvalSumPackedArray(std::vector<usint> &clearVector, usint p) {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	shared_ptr<Ciphertext<Poly>> ciphertext;
+	Ciphertext<Poly> ciphertext;
 
 	std::vector<usint> vectorOfInts = std::move(clearVector);
 	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);

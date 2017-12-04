@@ -85,9 +85,9 @@ int main() {
 	cc->EvalSumKeyGen(kp.secretKey);
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	shared_ptr<Ciphertext<Poly>> ciphertext_pub;
-	shared_ptr<Ciphertext<Poly>> ciphertext_priv;
-	shared_ptr<Ciphertext<Poly>> ciphertext_plain;
+	Ciphertext<Poly> ciphertext_pub;
+	Ciphertext<Poly> ciphertext_priv;
+	Ciphertext<Poly> ciphertext_plain;
 
 	vector<TimingInfo>	times;
 	cc->StartTiming(&times);

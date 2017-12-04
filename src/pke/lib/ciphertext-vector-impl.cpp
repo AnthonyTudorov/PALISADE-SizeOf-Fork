@@ -31,6 +31,6 @@
 namespace lbcrypto {
 extern template class CryptoContextImpl<Poly>;
 
-template class Ciphertext<Poly>;
+template class CiphertextImpl<Poly>;
 }
 

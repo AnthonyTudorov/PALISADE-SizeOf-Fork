@@ -274,7 +274,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PalisadeCrypto_encrypt
 
 	string totalSer = "";
 
-	vector<shared_ptr<Ciphertext<Poly>>> ciphertext = cp->ctx.Encrypt(cp->publicKey, ptxt, true);
+	vector<Ciphertext<Poly>> ciphertext = cp->ctx.Encrypt(cp->publicKey, ptxt, true);
 
 	for( int i=0; i<ciphertext.size(); i++ ) {
 		Serialized txtS;
@@ -317,8 +317,8 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PalisadeCrypto_reEncrypt
 
 	if( cp->evalKey == 0 ) return 0;
 
-	shared_ptr<Ciphertext<Poly>> ciphertext;
-	vector<shared_ptr<Ciphertext<Poly>>> cipherVec;
+	Ciphertext<Poly> ciphertext;
+	vector<Ciphertext<Poly>> cipherVec;
 
 	string chunkStr;
 	string result = "";
@@ -342,7 +342,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PalisadeCrypto_reEncrypt
 		cipherVec.push_back(ciphertext);
 	} while( encBytes > 0 );
 
-	vector<shared_ptr<Ciphertext<Poly>>> newCiphertext = cp->ctx.ReEncrypt(cp->evalKey,cipherVec);
+	vector<Ciphertext<Poly>> newCiphertext = cp->ctx.ReEncrypt(cp->evalKey,cipherVec);
 
 	for( int i=0; i<newCiphertext.size(); i++ ) {
 
@@ -388,8 +388,8 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PalisadeCrypto_decrypt
 
 	if( cp->secretKey == 0 ) return 0;
 
-	shared_ptr<Ciphertext<Poly>> ciphertext;
-	vector<shared_ptr<Ciphertext<Poly>>> cipherVec;
+	Ciphertext<Poly> ciphertext;
+	vector<Ciphertext<Poly>> cipherVec;
 	BytePlaintextEncoding plaintext;
 
 	string chunkStr;

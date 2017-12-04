@@ -98,10 +98,10 @@ TEST(UTFVEVALMM, Poly_FV_Eval_Mult_Many_Operations) {
 	Plaintext plaintextResult2 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts6);
 	Plaintext plaintextResult3 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts7);
 
-	shared_ptr<Ciphertext<Poly>> ciphertext1;
-	shared_ptr<Ciphertext<Poly>> ciphertext2;
-	shared_ptr<Ciphertext<Poly>> ciphertext3;
-	shared_ptr<Ciphertext<Poly>> ciphertext4;
+	Ciphertext<Poly> ciphertext1;
+	Ciphertext<Poly> ciphertext2;
+	Ciphertext<Poly> ciphertext3;
+	Ciphertext<Poly> ciphertext4;
 
 	////////////////////////////////////////////////////////////
 	//Encryption
@@ -116,13 +116,13 @@ TEST(UTFVEVALMM, Poly_FV_Eval_Mult_Many_Operations) {
 	//EvalMult Operation
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Ciphertext<Poly>> ciphertextMul12;
-	shared_ptr<Ciphertext<Poly>> ciphertextMul123;
-	shared_ptr<Ciphertext<Poly>> ciphertextMul1234;
+	Ciphertext<Poly> ciphertextMul12;
+	Ciphertext<Poly> ciphertextMul123;
+	Ciphertext<Poly> ciphertextMul1234;
 
-	shared_ptr<Ciphertext<Poly>> ciphertextMulVect3;
-	shared_ptr<Ciphertext<Poly>> ciphertextMulVect4;
-	shared_ptr<Ciphertext<Poly>> ciphertextMulVect5;
+	Ciphertext<Poly> ciphertextMulVect3;
+	Ciphertext<Poly> ciphertextMulVect4;
+	Ciphertext<Poly> ciphertextMulVect5;
 
 	//Perform consecutive multiplications and do a keyswtiching at the end.
 	ciphertextMul12     = cryptoContext->GetEncryptionAlgorithm()->EvalMult(ciphertext1,ciphertext2);
@@ -145,8 +145,8 @@ TEST(UTFVEVALMM, Poly_FV_Eval_Mult_Many_Operations) {
 	//Prepare EvalMultMany
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Ciphertext<Poly>> ciphertextMul12345;
-	vector<shared_ptr<Ciphertext<Poly>>> cipherTextList;
+	Ciphertext<Poly> ciphertextMul12345;
+	vector<Ciphertext<Poly>> cipherTextList;
 
 	cipherTextList.push_back(ciphertext1);
 	cipherTextList.push_back(ciphertext2);

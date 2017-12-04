@@ -29,7 +29,7 @@
 namespace lbcrypto {
 
 template <typename Element>
-bool Ciphertext<Element>::Serialize(Serialized* serObj) const {
+bool CiphertextImpl<Element>::Serialize(Serialized* serObj) const {
 	serObj->SetObject();
 
 	if( !this->SerializeCryptoObject(serObj) )
@@ -44,7 +44,7 @@ bool Ciphertext<Element>::Serialize(Serialized* serObj) const {
 }
 
 template <typename Element>
-bool Ciphertext<Element>::Deserialize(const Serialized& serObj) {
+bool CiphertextImpl<Element>::Deserialize(const Serialized& serObj) {
 
 	// deserialization must be done in a crypto context; the context must be initialized before deserializing the elements
 	if( !this->GetCryptoContext() )

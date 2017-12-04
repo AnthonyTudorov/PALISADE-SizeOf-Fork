@@ -331,7 +331,7 @@ namespace lbcrypto {
 		* @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 		* @return ciphertext which results from encryption.
 		*/
-		virtual shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
+		virtual Ciphertext<Element> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
 			Element plaintext) const;
 
 		/**
@@ -342,7 +342,7 @@ namespace lbcrypto {
 		* @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 		* @return ciphertext which results from encryption.
 		*/
-		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
+		Ciphertext<Element> Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
 			Element plaintext) const;
 
 		/**
@@ -355,7 +355,7 @@ namespace lbcrypto {
 		* @return the decrypted plaintext returned.
 		*/
 		virtual DecryptResult Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
-			const shared_ptr<Ciphertext<Element>> ciphertext,
+			const Ciphertext<Element> ciphertext,
 			Poly *plaintext) const;
 
 		/**
@@ -399,8 +399,8 @@ namespace lbcrypto {
 		* @param ct2 second input ciphertext.
 		* @return new ciphertext.
 		*/
-		shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ct1, 
-			const shared_ptr<Ciphertext<Element>> ct2) const;
+		Ciphertext<Element> EvalAdd(const Ciphertext<Element> ct1, 
+			const Ciphertext<Element> ct2) const;
 
 		/**
 		* Function for homomorphic addition of ciphertext and plaintext.
@@ -409,7 +409,7 @@ namespace lbcrypto {
 		* @param pt  input ciphertext.
 		* @return new ciphertext.
 		*/
-		shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ct,
+		Ciphertext<Element> EvalAdd(const Ciphertext<Element> ct,
 			const Plaintext pt) const;
 
 		/**
@@ -419,8 +419,8 @@ namespace lbcrypto {
 		* @param ct2 second input ciphertext.
 		* @return new ciphertext.
 		*/
-		shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ct1, 
-			const shared_ptr<Ciphertext<Element>> ct2) const;
+		Ciphertext<Element> EvalSub(const Ciphertext<Element> ct1, 
+			const Ciphertext<Element> ct2) const;
 
 		/**
 		* Function for homomorphic subtraction of ciphertext ans plaintext.
@@ -429,7 +429,7 @@ namespace lbcrypto {
 		* @param pt input ciphertext.
 		* @return new ciphertext.
 		*/
-		shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ct1,
+		Ciphertext<Element> EvalSub(const Ciphertext<Element> ct1,
 			const Plaintext pt) const;
 
 		/**
@@ -441,8 +441,8 @@ namespace lbcrypto {
 		* @param ciphertext2 second input ciphertext.
 		* @return resulting EvalMult ciphertext.
 		*/
-		virtual shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ct1,
-			const shared_ptr<Ciphertext<Element>> ct2) const;
+		virtual Ciphertext<Element> EvalMult(const Ciphertext<Element> ct1,
+			const Ciphertext<Element> ct2) const;
 
 		/**
 		* Function for multiplying ciphertext by plaintext.
@@ -451,7 +451,7 @@ namespace lbcrypto {
 		* @param plaintext input plaintext embedded in the cryptocontext.
 		* @return result of the multiplication.
 		*/
-		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext,
+		Ciphertext<Element> EvalMult(const Ciphertext<Element> ciphertext,
 			const Plaintext plaintext) const;
 
 		/**
@@ -464,8 +464,8 @@ namespace lbcrypto {
 		*  decryptable by the same secret key as that of ciphertext1 and ciphertext2.
 		* @param *newCiphertext the new resulting ciphertext.
 		*/
-		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ct1,
-			const shared_ptr<Ciphertext<Element>> ct, const shared_ptr<LPEvalKey<Element>> ek) const;
+		Ciphertext<Element> EvalMult(const Ciphertext<Element> ct1,
+			const Ciphertext<Element> ct, const shared_ptr<LPEvalKey<Element>> ek) const;
 
 		/**
 		* Function for evaluating multiplication on ciphertext followed by relinearization operation.
@@ -478,7 +478,7 @@ namespace lbcrypto {
 		*  decryptable by the same secret key as that of ciphertext1 and ciphertext2.
 		* @param *newCiphertext the new resulting ciphertext.
 		*/
-		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ct1,
+		Ciphertext<Element> EvalMult(const Ciphertext<Element> ct1,
 			const Plaintext ct, const shared_ptr<LPEvalKey<Element>> ek) const;
 
 		/**
@@ -491,7 +491,7 @@ namespace lbcrypto {
 		*  decryptable by the same secret key as that of ciphertext list.
 		* @param *newCiphertext the new resulting ciphertext.
 		*/
-		shared_ptr<Ciphertext<Element>> EvalMultMany(const vector<shared_ptr<Ciphertext<Element>>>& cipherTextList, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> evalKeys) const;
+		Ciphertext<Element> EvalMultMany(const vector<Ciphertext<Element>>& cipherTextList, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> evalKeys) const;
 
 		/**
 		* Function for evaluating multiplication on ciphertext followed by relinearization operation.
@@ -503,8 +503,8 @@ namespace lbcrypto {
 		*  decryptable by the same secret key as that of ciphertext1 and ciphertext2.
 		* @param *newCiphertext the new resulting ciphertext.
 		*/
-		shared_ptr<Ciphertext<Element>> EvalMultAndRelinearize(const shared_ptr<Ciphertext<Element>> ct1,
-			const shared_ptr<Ciphertext<Element>> ct, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> ek) const;
+		Ciphertext<Element> EvalMultAndRelinearize(const Ciphertext<Element> ct1,
+			const Ciphertext<Element> ct, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> ek) const;
 
 		/**
 		* Function for homomorphic negation of ciphertexts.
@@ -512,7 +512,7 @@ namespace lbcrypto {
 		* @param ct first input ciphertext.
 		* @return new ciphertext.
 		*/
-		shared_ptr<Ciphertext<Element>> EvalNegate(const shared_ptr<Ciphertext<Element>> ct) const;
+		Ciphertext<Element> EvalNegate(const Ciphertext<Element> ct) const;
 
 		/**
 		* Method for generating a KeySwitchHint using RLWE relinearization
@@ -531,8 +531,8 @@ namespace lbcrypto {
 		* @param &cipherText Original ciphertext to perform switching on.
 		* @return new ciphertext
 		*/
-		shared_ptr<Ciphertext<Element>> KeySwitch(const shared_ptr<LPEvalKey<Element>> keySwitchHint,
-			const shared_ptr<Ciphertext<Element>> cipherText) const;
+		Ciphertext<Element> KeySwitch(const shared_ptr<LPEvalKey<Element>> keySwitchHint,
+			const Ciphertext<Element> cipherText) const;
 
 		/**
 		* Method for KeySwitching based on RLWE relinearization and NTRU key generation.
@@ -556,8 +556,8 @@ namespace lbcrypto {
 		* @param ciphertext the input ciphertext.
 		* @return the resulting Ciphertext
 		*/
-		shared_ptr<Ciphertext<Element>> KeySwitchRelin(const shared_ptr<LPEvalKey<Element>> evalKey,
-			const shared_ptr<Ciphertext<Element>> ciphertext) const {
+		Ciphertext<Element> KeySwitchRelin(const shared_ptr<LPEvalKey<Element>> evalKey,
+			const Ciphertext<Element> ciphertext) const {
 			std::string errMsg = "LPAlgorithmSHEFV:KeySwitchRelin is not needed for this scheme as relinearization is the default technique and no NTRU key generation is used.";
 			throw std::runtime_error(errMsg);
 		}
@@ -590,7 +590,7 @@ namespace lbcrypto {
 		* @param &evalKeys - reference to the map of evaluation keys generated by EvalAutomorphismKeyGen.
 		* @return resulting ciphertext
 		*/
-		shared_ptr<Ciphertext<Element>> EvalAutomorphism(const shared_ptr<Ciphertext<Element>> ciphertext, usint i,
+		Ciphertext<Element> EvalAutomorphism(const Ciphertext<Element> ciphertext, usint i,
 			const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalKeys) const;
 
 		/**
@@ -665,8 +665,8 @@ namespace lbcrypto {
 		* @param ciphertext the input ciphertext.
 		* @return resulting ciphertext after the re-encryption operation.
 		*/
-		shared_ptr<Ciphertext<Element>> ReEncrypt(const shared_ptr<LPEvalKey<Element>> evalKey,
-			const shared_ptr<Ciphertext<Element>> ciphertext) const;
+		Ciphertext<Element> ReEncrypt(const shared_ptr<LPEvalKey<Element>> evalKey,
+			const Ciphertext<Element> ciphertext) const;
 
 	};
 
@@ -726,8 +726,8 @@ namespace lbcrypto {
 		 * @param privateKey private key used for decryption.
 		 * @param ciphertext ciphertext id decrypted.
 		 */
-		shared_ptr<Ciphertext<Element>> MultipartyDecryptMain(const shared_ptr<LPPrivateKey<Element>> privateKey,
-			const shared_ptr<Ciphertext<Element>> ciphertext) const;
+		Ciphertext<Element> MultipartyDecryptMain(const shared_ptr<LPPrivateKey<Element>> privateKey,
+			const Ciphertext<Element> ciphertext) const;
 
 		/**
 		 * Method for decryption operation run by the lead decryption client for multiparty homomorphic encryption
@@ -735,8 +735,8 @@ namespace lbcrypto {
 		 * @param privateKey private key used for decryption.
 		 * @param ciphertext ciphertext id decrypted.
 		 */
-		shared_ptr<Ciphertext<Element>> MultipartyDecryptLead(const shared_ptr<LPPrivateKey<Element>> privateKey,
-			const shared_ptr<Ciphertext<Element>> ciphertext) const;
+		Ciphertext<Element> MultipartyDecryptLead(const shared_ptr<LPPrivateKey<Element>> privateKey,
+			const Ciphertext<Element> ciphertext) const;
 
 		/**
 		 * Method for fusing the partially decrypted ciphertext.
@@ -745,7 +745,7 @@ namespace lbcrypto {
 		 * @param *plaintext the plaintext output.
 		 * @return the decoding result.
 		 */
-		DecryptResult MultipartyDecryptFusion(const vector<shared_ptr<Ciphertext<Element>>>& ciphertextVec,
+		DecryptResult MultipartyDecryptFusion(const vector<Ciphertext<Element>>& ciphertextVec,
 			Poly *plaintext) const;
 
 	};

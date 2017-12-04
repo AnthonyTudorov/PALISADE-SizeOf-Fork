@@ -175,8 +175,8 @@ usint ArbLTVInnerProductPackedArray(std::vector<usint> &input1, std::vector<usin
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	shared_ptr<Ciphertext<Poly>> ciphertext1;
-	shared_ptr<Ciphertext<Poly>> ciphertext2;
+	Ciphertext<Poly> ciphertext1;
+	Ciphertext<Poly> ciphertext2;
 
 	std::vector<usint> vectorOfInts1 = std::move(input1);
 	std::vector<usint> vectorOfInts2 = std::move(input2);
@@ -234,8 +234,8 @@ usint ArbBVInnerProductPackedArray(std::vector<usint> &input1, std::vector<usint
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	shared_ptr<Ciphertext<Poly>> ciphertext1;
-	shared_ptr<Ciphertext<Poly>> ciphertext2;
+	Ciphertext<Poly> ciphertext1;
+	Ciphertext<Poly> ciphertext2;
 
 	std::vector<usint> vectorOfInts1 = std::move(input1);
 	std::vector<usint> vectorOfInts2 = std::move(input2);
@@ -303,8 +303,8 @@ usint ArbFVInnerProductPackedArray(std::vector<usint> &input1, std::vector<usint
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	shared_ptr<Ciphertext<Poly>> ciphertext1;
-	shared_ptr<Ciphertext<Poly>> ciphertext2;
+	Ciphertext<Poly> ciphertext1;
+	Ciphertext<Poly> ciphertext2;
 
 	std::vector<usint> vectorOfInts1 = std::move(input1);
 	std::vector<usint> vectorOfInts2 = std::move(input2);

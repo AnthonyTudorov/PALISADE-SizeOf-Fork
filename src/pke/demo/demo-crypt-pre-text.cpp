@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
 	// in the resulting table
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Ciphertext<Poly>> ciphertext;
+	Ciphertext<Poly> ciphertext;
 
 	if( beVerbose ) cout << "Running encryption" << endl;
 

@@ -46,6 +46,12 @@ class CryptoContextImpl;
 template<typename Element>
 using CryptoContext = shared_ptr<CryptoContextImpl<Element>>;
 
+template<typename Element>
+class CiphertextImpl;
+
+template<typename Element>
+using Ciphertext = shared_ptr<CiphertextImpl<Element>>;
+
 }
 
 #include "math/backend.h"

@@ -157,7 +157,7 @@ decrypter(CryptoContext<Poly> ctx, string ciphertextname, string prikeyname)
 	}
 
 	// Initialize the public key containers.
-	shared_ptr<Ciphertext<Poly>> ct = ctx->deserializeCiphertext(kser);
+	Ciphertext<Poly> ct = ctx->deserializeCiphertext(kser);
 	if( ct == NULL ) {
 		cerr << "Could not deserialize ciphertext" << endl;
 		return iPlaintext;

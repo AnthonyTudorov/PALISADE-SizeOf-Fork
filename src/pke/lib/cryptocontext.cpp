@@ -527,7 +527,7 @@ bool CryptoContextImpl<Element>::DeserializeEvalSumKey(const Serialized& ser) {
 
 
 template <typename Element>
-shared_ptr<Ciphertext<Element>> CryptoContextImpl<Element>::EvalSum(const shared_ptr<Ciphertext<Element>> ciphertext, usint batchSize) const {
+Ciphertext<Element> CryptoContextImpl<Element>::EvalSum(const Ciphertext<Element> ciphertext, usint batchSize) const {
 
 	if( ciphertext == NULL || Mismatched(ciphertext->GetCryptoContext()) )
 		throw std::logic_error("Information passed to EvalAdd was not generated with this crypto context");
@@ -543,7 +543,7 @@ shared_ptr<Ciphertext<Element>> CryptoContextImpl<Element>::EvalSum(const shared
 }
 
 template <typename Element>
-shared_ptr<Ciphertext<Element>> CryptoContextImpl<Element>::EvalInnerProduct(const shared_ptr<Ciphertext<Element>> ct1, const shared_ptr<Ciphertext<Element>> ct2, usint batchSize) const {
+Ciphertext<Element> CryptoContextImpl<Element>::EvalInnerProduct(const Ciphertext<Element> ct1, const Ciphertext<Element> ct2, usint batchSize) const {
 
 	if( ct1 == NULL || ct2 == NULL || ct1->GetKeyTag() != ct2->GetKeyTag() ||
 			Mismatched(ct1->GetCryptoContext()) )
@@ -562,7 +562,7 @@ shared_ptr<Ciphertext<Element>> CryptoContextImpl<Element>::EvalInnerProduct(con
 }
 
 template <typename Element>
-shared_ptr<Ciphertext<Element>> CryptoContextImpl<Element>::EvalInnerProduct(const shared_ptr<Ciphertext<Element>> ct1, const Plaintext ct2, usint batchSize) const {
+Ciphertext<Element> CryptoContextImpl<Element>::EvalInnerProduct(const Ciphertext<Element> ct1, const Plaintext ct2, usint batchSize) const {
 
 	if( ct1 == NULL || ct2 == NULL || Mismatched(ct1->GetCryptoContext()) )
 		throw std::logic_error("Information passed to EvalAdd was not generated with this crypto context");
@@ -580,7 +580,7 @@ shared_ptr<Ciphertext<Element>> CryptoContextImpl<Element>::EvalInnerProduct(con
 }
 
 template <typename Element>
-shared_ptr<Ciphertext<Element>>
+Ciphertext<Element>
 CryptoContextImpl<Element>::EvalCrossCorrelation(const shared_ptr<Matrix<RationalCiphertext<Element>>> x,
 		const shared_ptr<Matrix<RationalCiphertext<Element>>> y, usint batchSize,
 		usint indexStart, usint length) const {
@@ -1308,19 +1308,19 @@ CryptoContextImpl<T>::deserializeSecretKey(const Serialized& serObj)
 }
 
 template <typename T>
-shared_ptr<Ciphertext<T>>
+Ciphertext<T>
 CryptoContextImpl<T>::deserializeCiphertext(const Serialized& serObj)
 {
 	CryptoContext<T> cc = CryptoContextFactory<T>::DeserializeAndCreateContext(serObj);
 	if( cc == 0 )
 		return 0;
 
-	shared_ptr<Ciphertext<T>> ctxt( new Ciphertext<T>( cc ) );
+	Ciphertext<T> ctxt( new CiphertextImpl<T>( cc ) );
 
 	if( ctxt->Deserialize(serObj) )
 		return ctxt;
 
-	return shared_ptr<Ciphertext<T>>();
+	return 0;//shared_ptr<Ciphertext<T>>();
 }
 
 template <typename T>

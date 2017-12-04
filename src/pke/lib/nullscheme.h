@@ -166,10 +166,10 @@ public:
 	* @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 	* @param *ciphertext ciphertext which results from encryption.
 	*/
-	shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> pubKey,
+	Ciphertext<Element> Encrypt(const shared_ptr<LPPublicKey<Element>> pubKey,
 		Element ptxt) const {
 
-		shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(pubKey) );
+		Ciphertext<Element> ciphertext( new CiphertextImpl<Element>(pubKey) );
 
 		// no difference between Encryption and non-Encryption mode for the Null scheme
 		ciphertext->SetElement(ptxt);
@@ -185,10 +185,10 @@ public:
 	* @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 	* @param *ciphertext ciphertext which results from encryption.
 	*/
-	shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPrivateKey<Element>> privKey,
+	Ciphertext<Element> Encrypt(const shared_ptr<LPPrivateKey<Element>> privKey,
 		Element ptxt) const {
 
-		shared_ptr<Ciphertext<Element>> ciphertext( new Ciphertext<Element>(privKey) );
+		Ciphertext<Element> ciphertext( new CiphertextImpl<Element>(privKey) );
 
 		// no difference between Encryption and non-Encryption mode for the Null scheme
 		ciphertext->SetElement(ptxt);
@@ -205,7 +205,7 @@ public:
 	* @return the decrypted plaintext returned.
 	*/
 	DecryptResult Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
-		const shared_ptr<Ciphertext<Element>> ciphertext,
+		const Ciphertext<Element> ciphertext,
 		Poly *plaintext) const {
 		Element b = ciphertext->GetElement();
 		Poly interpolatedElement = b.CRTInterpolate();
@@ -299,9 +299,9 @@ public:
 	* @param &ciphertext the input ciphertext.
 	* @param *newCiphertext the new ciphertext.
 	*/
-	shared_ptr<Ciphertext<Element>> ReEncrypt(const shared_ptr<LPEvalKey<Element>> evalKey,
-		const shared_ptr<Ciphertext<Element>> ciphertext) const {
-		shared_ptr<Ciphertext<Element>> newCiphertext( new Ciphertext<Element>(*ciphertext) );
+	Ciphertext<Element> ReEncrypt(const shared_ptr<LPEvalKey<Element>> evalKey,
+		const Ciphertext<Element> ciphertext) const {
+		Ciphertext<Element> newCiphertext( new CiphertextImpl<Element>(*ciphertext) );
 		return newCiphertext;
 	}
 
@@ -378,10 +378,10 @@ public:
 		 * @param privateKey private key used for decryption.
 		 * @param ciphertext ciphertext id decrypted.
 		 */
-	shared_ptr<Ciphertext<Element>> MultipartyDecryptMain(const shared_ptr<LPPrivateKey<Element>> privateKey,
-		const shared_ptr<Ciphertext<Element>> ciphertext) const {
+	Ciphertext<Element> MultipartyDecryptMain(const shared_ptr<LPPrivateKey<Element>> privateKey,
+		const Ciphertext<Element> ciphertext) const {
 
-		shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
+		Ciphertext<Element> newCiphertext = ciphertext->CloneEmpty();
 		Element plaintext(ciphertext->GetElement());
 		newCiphertext->SetElement(plaintext);
 
@@ -394,10 +394,10 @@ public:
 		 * @param privateKey private key used for decryption.
 		 * @param ciphertext ciphertext id decrypted.
 		 */
-	shared_ptr<Ciphertext<Element>> MultipartyDecryptLead(const shared_ptr<LPPrivateKey<Element>> privateKey,
-		const shared_ptr<Ciphertext<Element>> ciphertext) const {
+	Ciphertext<Element> MultipartyDecryptLead(const shared_ptr<LPPrivateKey<Element>> privateKey,
+		const Ciphertext<Element> ciphertext) const {
 
-		shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
+		Ciphertext<Element> newCiphertext = ciphertext->CloneEmpty();
 		Element plaintext(ciphertext->GetElement());
 		newCiphertext->SetElement(plaintext);
 
@@ -411,7 +411,7 @@ public:
 		 * @param *plaintext the plaintext output.
 		 * @return the decoding result.
 		 */
-	DecryptResult MultipartyDecryptFusion(const vector<shared_ptr<Ciphertext<Element>>>& ciphertextVec,
+	DecryptResult MultipartyDecryptFusion(const vector<Ciphertext<Element>>& ciphertextVec,
 		Poly *plaintext) const {
 		Element b = ciphertextVec[0]->GetElement();
 		Poly interpolatedElement = b.CRTInterpolate();
@@ -438,8 +438,8 @@ class LPLeveledSHEAlgorithmNull : public LPLeveledSHEAlgorithm<Element> {
 		 *
 		 * @param *cipherText Ciphertext to perform and apply modreduce on.
 		 */
-		shared_ptr<Ciphertext<Element>> ModReduce(shared_ptr<Ciphertext<Element>> cipherText) const {
-			shared_ptr<Ciphertext<Element>> newcipherText(new Ciphertext<Element>(*cipherText));
+		Ciphertext<Element> ModReduce(Ciphertext<Element> cipherText) const {
+			Ciphertext<Element> newcipherText(new CiphertextImpl<Element>(*cipherText));
 
 			return newcipherText;
 		}
@@ -449,7 +449,7 @@ class LPLeveledSHEAlgorithmNull : public LPLeveledSHEAlgorithm<Element> {
 		 * @param *cipherText Ciphertext to perform and apply ringreduce on.
 		 * @param *keySwitchHint is the keyswitchhint from the ciphertext's private key to a sparse key
 		 */
-		shared_ptr<Ciphertext<Element>> RingReduce(shared_ptr<Ciphertext<Element>> cipherText, const shared_ptr<LPEvalKey<Element>> keySwitchHint) const {
+		Ciphertext<Element> RingReduce(Ciphertext<Element> cipherText, const shared_ptr<LPEvalKey<Element>> keySwitchHint) const {
 			throw std::logic_error("RingReduce not implemented for Null");
 		}
 
@@ -461,11 +461,11 @@ class LPLeveledSHEAlgorithmNull : public LPLeveledSHEAlgorithm<Element> {
 		* @param &quadKeySwitchHint is for resultant quadratic secret key after multiplication to the secret key of the particular level.
 		* @param &cipherTextResult is the resulting ciphertext that can be decrypted with the secret key of the particular level.
 		*/
-		shared_ptr<Ciphertext<Element>> ComposedEvalMult(
-				const shared_ptr<Ciphertext<Element>> cipherText1,
-				const shared_ptr<Ciphertext<Element>> cipherText2,
+		Ciphertext<Element> ComposedEvalMult(
+				const Ciphertext<Element> cipherText1,
+				const Ciphertext<Element> cipherText2,
 				const shared_ptr<LPEvalKey<Element>> quadKeySwitchHint) const {
-			shared_ptr<Ciphertext<Element>> prod = cipherText1->GetCryptoContext()->GetEncryptionAlgorithm()->EvalMult(cipherText1, cipherText2, quadKeySwitchHint);
+			Ciphertext<Element> prod = cipherText1->GetCryptoContext()->GetEncryptionAlgorithm()->EvalMult(cipherText1, cipherText2, quadKeySwitchHint);
 
 			return this->ModReduce(prod);
 		}
@@ -477,7 +477,7 @@ class LPLeveledSHEAlgorithmNull : public LPLeveledSHEAlgorithm<Element> {
 		* @param &linearKeySwitchHint is the linear key switch hint to perform the key switch operation.
 		* @param &cipherTextResult is the resulting ciphertext.
 		*/
-		shared_ptr<Ciphertext<Element>> LevelReduce(const shared_ptr<Ciphertext<Element>> cipherText1,
+		Ciphertext<Element> LevelReduce(const Ciphertext<Element> cipherText1,
 				const shared_ptr<LPEvalKey<Element>> linearKeySwitchHint) const {
 			throw std::logic_error("LevelReduce not implemented for Null");
 		}
@@ -510,9 +510,9 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		* @param ciphertext2 second input ciphertext.
 		* @return the new resulting ciphertext.
 		*/
-		shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext1,
-			const shared_ptr<Ciphertext<Element>> ciphertext2) const {
-			shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext1->CloneEmpty();
+		Ciphertext<Element> EvalAdd(const Ciphertext<Element> ciphertext1,
+			const Ciphertext<Element> ciphertext2) const {
+			Ciphertext<Element> newCiphertext = ciphertext1->CloneEmpty();
 
 			Element cResult = ciphertext1->GetElement() + ciphertext2->GetElement();
 
@@ -528,9 +528,9 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		* @param plaintext input ciphertext.
 		* @return the new resulting ciphertext.
 		*/
-		shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ciphertext,
+		Ciphertext<Element> EvalAdd(const Ciphertext<Element> ciphertext,
 			const Plaintext plaintext) const {
-			shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
+			Ciphertext<Element> newCiphertext = ciphertext->CloneEmpty();
 
 			Element cResult = ciphertext->GetElement() + plaintext->GetEncodedElement<Element>();
 
@@ -546,9 +546,9 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		* @param ciphertext2 second input ciphertext.
 		* @return the new resulting ciphertext.
 		*/
-		shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext1,
-			const shared_ptr<Ciphertext<Element>> ciphertext2) const {
-			shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext1->CloneEmpty();
+		Ciphertext<Element> EvalSub(const Ciphertext<Element> ciphertext1,
+			const Ciphertext<Element> ciphertext2) const {
+			Ciphertext<Element> newCiphertext = ciphertext1->CloneEmpty();
 
 			Element cResult = ciphertext1->GetElement() - ciphertext2->GetElement();
 
@@ -564,9 +564,9 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		* @param plaintext input ciphertext.
 		* @return the new resulting ciphertext.
 		*/
-		shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext,
+		Ciphertext<Element> EvalSub(const Ciphertext<Element> ciphertext,
 			const Plaintext plaintext) const {
-			shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
+			Ciphertext<Element> newCiphertext = ciphertext->CloneEmpty();
 
 			Element cResult = ciphertext->GetElement() - plaintext->GetEncodedElement<Element>();
 
@@ -582,8 +582,8 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		 * @param ciphertext2 second input ciphertext.
 		 * @return the new resulting ciphertext.
 		 */
-		shared_ptr<Ciphertext<Poly>> EvalMult(const shared_ptr<Ciphertext<Poly>> ciphertext1,
-			const shared_ptr<Ciphertext<Poly>> ciphertext2) const;
+		Ciphertext<Poly> EvalMult(const Ciphertext<Poly> ciphertext1,
+			const Ciphertext<Poly> ciphertext2) const;
 
 		/**
 		* Function for evaluating multiplication of ciphertext by plaintext
@@ -592,7 +592,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		* @param plaintext input plaintext embedded in cryptocontext.
 		* @return the new resulting ciphertext.
 		*/
-		shared_ptr<Ciphertext<Poly>> EvalMult(const shared_ptr<Ciphertext<Poly>> ciphertext1,
+		Ciphertext<Poly> EvalMult(const Ciphertext<Poly> ciphertext1,
 			const Plaintext plaintext) const;
 
 		/**
@@ -602,8 +602,8 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		 * @param ciphertext2 second input ciphertext.
 		 * @return the new resulting ciphertext.
 		 */
-		shared_ptr<Ciphertext<DCRTPoly>> EvalMult(const shared_ptr<Ciphertext<DCRTPoly>> ciphertext1,
-			const shared_ptr<Ciphertext<DCRTPoly>> ciphertext2) const;
+		Ciphertext<DCRTPoly> EvalMult(const Ciphertext<DCRTPoly> ciphertext1,
+			const Ciphertext<DCRTPoly> ciphertext2) const;
 
 		/**
 		* Function for evaluating multiplication of ciphertext by plaintext
@@ -612,7 +612,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		* @param plaintext input plaintext embedded in cryptocontext.
 		* @return the new resulting ciphertext.
 		*/
-		shared_ptr<Ciphertext<DCRTPoly>> EvalMult(const shared_ptr<Ciphertext<DCRTPoly>> ciphertext,
+		Ciphertext<DCRTPoly> EvalMult(const Ciphertext<DCRTPoly> ciphertext,
 			const Plaintext plaintext) const;
 
 		/**
@@ -623,8 +623,8 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		 * @param ek is the evaluation key to make the newCiphertext decryptable by the same secret key as that of the operands
 		 * @return the new resulting ciphertext.
 		 */
-		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
-				const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const {
+		Ciphertext<Element> EvalMult(const Ciphertext<Element> ciphertext1,
+				const Ciphertext<Element> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const {
 
 			return EvalMult(ciphertext1, ciphertext2);
 		}
@@ -637,7 +637,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		 * @param ek is the evaluation key to make the newCiphertext decryptable by the same secret key as that of the operands.
 		 * @return the new resulting ciphertext.
 		 */
-		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
+		Ciphertext<Element> EvalMult(const Ciphertext<Element> ciphertext1,
 				const Plaintext ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const {
 
 			return EvalMult(ciphertext1, ciphertext2);
@@ -651,8 +651,8 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		* @param evalKey The evaluation key input.
 		* @return A shared pointer to the ciphertext which is the EvalMult of the two inputs.
 		*/
-		shared_ptr<Ciphertext<Element>> EvalMultAndRelinearize(const shared_ptr<Ciphertext<Element>> ciphertext1,
-			const shared_ptr<Ciphertext<Element>> ciphertext2,
+		Ciphertext<Element> EvalMultAndRelinearize(const Ciphertext<Element> ciphertext1,
+			const Ciphertext<Element> ciphertext2,
 			const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> evalKey) const {
 			std::string errMsg = "LPAlgorithmNULL::EvalMultAndRelinearize is not implemented for the NULL Scheme.";
 			throw std::runtime_error(errMsg);
@@ -665,7 +665,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		* @param evalKeys is the evaluation key list input.
 		* @return A shared pointer to the ciphertext which is the result of the multiplication.
 		*/
-		shared_ptr<Ciphertext<Element>> EvalMultMany(const vector<shared_ptr<Ciphertext<Element>>>& cipherTextList, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> evalKeys) const {
+		Ciphertext<Element> EvalMultMany(const vector<Ciphertext<Element>>& cipherTextList, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> evalKeys) const {
 			std::string errMsg = "LPAlgorithmNULL::EvalMultMany is not implemented for the NULL Scheme.";
 			throw std::runtime_error(errMsg);
 		}
@@ -677,8 +677,8 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		* @param *newCiphertext the new resulting ciphertext.
 		*/
 
-		shared_ptr<Ciphertext<Element>> EvalNegate(const shared_ptr<Ciphertext<Element>> ciphertext) const {
-			shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
+		Ciphertext<Element> EvalNegate(const Ciphertext<Element> ciphertext) const {
+			Ciphertext<Element> newCiphertext = ciphertext->CloneEmpty();
 
 			const Element& c1 = ciphertext->GetElement();
 
@@ -708,10 +708,10 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		* @param &ciphertext the input ciphertext.
 		* @param *newCiphertext the new ciphertext.
 		*/
-		shared_ptr<Ciphertext<Element>> KeySwitch(
+		Ciphertext<Element> KeySwitch(
 			const shared_ptr<LPEvalKey<Element>> keySwitchHint,
-			const shared_ptr<Ciphertext<Element>> cipherText) const {
-			shared_ptr<Ciphertext<Element>> newCiphertext = cipherText->CloneEmpty();
+			const Ciphertext<Element> cipherText) const {
+			Ciphertext<Element> newCiphertext = cipherText->CloneEmpty();
 			return newCiphertext;
 		}
 
@@ -734,9 +734,9 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		* @param ciphertext the input ciphertext.
 		* @return the resulting Ciphertext
 		*/
-		shared_ptr<Ciphertext<Element>> KeySwitchRelin(const shared_ptr<LPEvalKey<Element>> evalKey,
-			const shared_ptr<Ciphertext<Element>> ciphertext) const {
-			shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
+		Ciphertext<Element> KeySwitchRelin(const shared_ptr<LPEvalKey<Element>> evalKey,
+			const Ciphertext<Element> ciphertext) const {
+			Ciphertext<Element> newCiphertext = ciphertext->CloneEmpty();
 			return newCiphertext;
 		}
 
@@ -778,10 +778,10 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		* @param &evalKeys - reference to the map of evaluation keys generated by EvalAutomorphismKeyGen.
 		* @return resulting ciphertext
 		*/
-		shared_ptr<Ciphertext<Element>> EvalAutomorphism(const shared_ptr<Ciphertext<Element>> ciphertext, usint i,
+		Ciphertext<Element> EvalAutomorphism(const Ciphertext<Element> ciphertext, usint i,
 			const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalKeys) const {
 
-			shared_ptr<Ciphertext<Element>> permutedCiphertext(new Ciphertext<Element>(*ciphertext));
+			Ciphertext<Element> permutedCiphertext(new CiphertextImpl<Element>(*ciphertext));
 
 			Element temp = ciphertext->GetElement();
 

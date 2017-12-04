@@ -423,7 +423,7 @@ void Encrypt(string keyDir,
 
 	std::cout << "Batching/encrypting y...";
 
-	shared_ptr<Ciphertext<DCRTPoly>> yC = cc->Encrypt(pk, yP);
+	Ciphertext<DCRTPoly> yC = cc->Encrypt(pk, yP);
 
 	std::cout << "Completed" << std::endl;
 
@@ -563,7 +563,7 @@ void Compute(string keyDir,
 	    return;
 	}
 
-	shared_ptr<Ciphertext<DCRTPoly> > y(new Ciphertext<DCRTPoly>(cc));
+	shared_ptr<Ciphertext<DCRTPoly> > y(new CiphertextImpl<DCRTPoly>(cc));
 
 	if(!y->Deserialize(ySer)) {
 	    cerr << "Could not deserialize ciphertext y" << endl;

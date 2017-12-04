@@ -30,10 +30,10 @@
 namespace lbcrypto {
 
 template<>
-shared_ptr<Ciphertext<Poly>> LPAlgorithmSHENull<Poly>::EvalMult(const shared_ptr<Ciphertext<Poly>> ciphertext1,
-	const shared_ptr<Ciphertext<Poly>> ciphertext2) const {
+Ciphertext<Poly> LPAlgorithmSHENull<Poly>::EvalMult(const Ciphertext<Poly> ciphertext1,
+	const Ciphertext<Poly> ciphertext2) const {
 
-	shared_ptr<Ciphertext<Poly>> newCiphertext = ciphertext1->CloneEmpty();
+	Ciphertext<Poly> newCiphertext = ciphertext1->CloneEmpty();
 
 	const Poly& c1 = ciphertext1->GetElement();
 	const Poly& c2 = ciphertext2->GetElement();
@@ -48,10 +48,10 @@ shared_ptr<Ciphertext<Poly>> LPAlgorithmSHENull<Poly>::EvalMult(const shared_ptr
 }
 
 template<>
-shared_ptr<Ciphertext<Poly>> LPAlgorithmSHENull<Poly>::EvalMult(const shared_ptr<Ciphertext<Poly>> ciphertext1,
+Ciphertext<Poly> LPAlgorithmSHENull<Poly>::EvalMult(const Ciphertext<Poly> ciphertext1,
 	const Plaintext plaintext) const {
 
-	shared_ptr<Ciphertext<Poly>> newCiphertext = ciphertext1->CloneEmpty();
+	Ciphertext<Poly> newCiphertext = ciphertext1->CloneEmpty();
 
 	const Poly& c1 = ciphertext1->GetElement();
 	const Poly& c2 = plaintext->GetEncodedElement<Poly>();

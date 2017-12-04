@@ -110,7 +110,7 @@ TEST_F(UTLTVBATCHING, Poly_Encrypt_Decrypt) {
 	////////////////////////////////////////////////////////////
 	//Encryption
 	////////////////////////////////////////////////////////////
-	shared_ptr<Ciphertext<Poly>> ciphertext;
+	Ciphertext<Poly> ciphertext;
 
 	ciphertext = cc->Encrypt(kp.publicKey, intArray1);
 
@@ -171,15 +171,15 @@ TEST_F(UTLTVBATCHING, Poly_EVALADD) {
 	////////////////////////////////////////////////////////////
 	//Encryption
 	////////////////////////////////////////////////////////////
-	shared_ptr<Ciphertext<Poly>> ciphertext1 = cc->Encrypt(kp.publicKey, intArray1);
+	Ciphertext<Poly> ciphertext1 = cc->Encrypt(kp.publicKey, intArray1);
 
-	shared_ptr<Ciphertext<Poly>> ciphertext2 = cc->Encrypt(kp.publicKey, intArray2);
+	Ciphertext<Poly> ciphertext2 = cc->Encrypt(kp.publicKey, intArray2);
 
 
 	////////////////////////////////////////////////////////////
 	//EvalAdd Operation
 	////////////////////////////////////////////////////////////
-	shared_ptr<Ciphertext<Poly>> ciphertextResult = cc->EvalAdd(ciphertext1, ciphertext2);
+	Ciphertext<Poly> ciphertextResult = cc->EvalAdd(ciphertext1, ciphertext2);
 
 	////////////////////////////////////////////////////////////
 	//Decryption
@@ -232,12 +232,12 @@ TEST_F(UTLTVBATCHING, Poly_EVALMULT) {
 
 	kp = cc->KeyGen();
 
-	shared_ptr<Ciphertext<Poly>> ciphertext1 = cc->Encrypt(kp.publicKey, intArray1);
-	shared_ptr<Ciphertext<Poly>> ciphertext2 = cc->Encrypt(kp.publicKey, intArray2);
+	Ciphertext<Poly> ciphertext1 = cc->Encrypt(kp.publicKey, intArray1);
+	Ciphertext<Poly> ciphertext2 = cc->Encrypt(kp.publicKey, intArray2);
 
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	shared_ptr<Ciphertext<Poly>> ciphertextResults = cc->EvalMult(ciphertext1, ciphertext2);
+	Ciphertext<Poly> ciphertextResults = cc->EvalMult(ciphertext1, ciphertext2);
 	
 	Plaintext results;
 
@@ -281,7 +281,7 @@ TEST_F(UTLTVBATCHING, Poly_Encrypt_Decrypt_Arb) {
 	std::vector<usint> vectorOfInts = { 1,1,1,5,1,4,1,6,1,7 };
 	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
 
-	shared_ptr<Ciphertext<Poly>> ciphertext = cc->Encrypt(kp.publicKey, intArray);
+	Ciphertext<Poly> ciphertext = cc->Encrypt(kp.publicKey, intArray);
 
 	Plaintext intArrayNew;
 
@@ -315,8 +315,8 @@ TEST_F(UTLTVBATCHING, Poly_EVALADD_Arb) {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	shared_ptr<Ciphertext<Poly>> ciphertext1;
-	shared_ptr<Ciphertext<Poly>> ciphertext2;
+	Ciphertext<Poly> ciphertext1;
+	Ciphertext<Poly> ciphertext2;
 
 	std::vector<usint> vectorOfInts1 = { 1,2,3,4,5,6,7,8,9,10 };
 	std::vector<usint> vectorOfInts2 = { 10,9,8,7,6,5,4,3,2,1 };
@@ -364,8 +364,8 @@ TEST_F(UTBVBATCHING, Poly_EVALMULT_Arb) {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	shared_ptr<Ciphertext<Poly>> ciphertext1;
-	shared_ptr<Ciphertext<Poly>> ciphertext2;
+	Ciphertext<Poly> ciphertext1;
+	Ciphertext<Poly> ciphertext2;
 
 	std::vector<usint> vectorOfInts1 = { 1,2,3,4,5,6,7,8,9,10 };
 	std::vector<usint> vectorOfInts2 = { 10,9,8,7,6,5,4,3,2,1 };
@@ -433,8 +433,8 @@ TEST_F(UTFVBATCHING, Poly_EVALMULT_Arb) {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	shared_ptr<Ciphertext<Poly>> ciphertext1;
-	shared_ptr<Ciphertext<Poly>> ciphertext2;
+	Ciphertext<Poly> ciphertext1;
+	Ciphertext<Poly> ciphertext2;
 
 	std::vector<usint> vectorOfInts1 = { 1,2,3,4,5,6,7,8,9,10 };
 	std::vector<usint> vectorOfInts2 = { 10,9,8,7,6,5,4,3,2,1 };

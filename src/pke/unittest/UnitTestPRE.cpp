@@ -120,21 +120,21 @@ UnitTestReEncrypt(CryptoContext<Element> cc, bool publicVersion) {
 		evalKey = cc->ReKeyGen(newKp.secretKey, kp.secretKey);
 	}
 
-	shared_ptr<Ciphertext<Element>> ciphertext = cc->Encrypt(kp.publicKey, plaintextShort);
+	Ciphertext<Element> ciphertext = cc->Encrypt(kp.publicKey, plaintextShort);
 	Plaintext plaintextShortNew;
-	shared_ptr<Ciphertext<Element>> reCiphertext = cc->ReEncrypt(evalKey, ciphertext);
+	Ciphertext<Element> reCiphertext = cc->ReEncrypt(evalKey, ciphertext);
 	DecryptResult result = cc->Decrypt(newKp.secretKey, reCiphertext, &plaintextShortNew);
 	EXPECT_EQ(plaintextShortNew->GetStringValue(), plaintextShort->GetStringValue()) << "ReEncrypt short plaintext with padding";
 
-	shared_ptr<Ciphertext<Element>> ciphertext2 = cc->Encrypt(kp.publicKey, plaintextFull);
+	Ciphertext<Element> ciphertext2 = cc->Encrypt(kp.publicKey, plaintextFull);
 	Plaintext plaintextFullNew;
-	shared_ptr<Ciphertext<Element>> reCiphertext2 = cc->ReEncrypt(evalKey, ciphertext2);
+	Ciphertext<Element> reCiphertext2 = cc->ReEncrypt(evalKey, ciphertext2);
 	result = cc->Decrypt(newKp.secretKey, reCiphertext2, &plaintextFullNew);
 	EXPECT_EQ(plaintextFullNew->GetStringValue(), plaintextFull->GetStringValue()) << "ReEncrypt regular plaintext";
 
-	shared_ptr<Ciphertext<Element>> ciphertext4 = cc->Encrypt(kp.publicKey, plaintextInt);
+	Ciphertext<Element> ciphertext4 = cc->Encrypt(kp.publicKey, plaintextInt);
 	Plaintext plaintextIntNew;
-	shared_ptr<Ciphertext<Element>> reCiphertext4 = cc->ReEncrypt(evalKey, ciphertext4);
+	Ciphertext<Element> reCiphertext4 = cc->ReEncrypt(evalKey, ciphertext4);
 	result = cc->Decrypt(newKp.secretKey, reCiphertext4, &plaintextIntNew);
 	EXPECT_EQ(plaintextIntNew->GetCoefPackedValue(), plaintextInt->GetCoefPackedValue()) << "ReEncrypt integer plaintext";
 }

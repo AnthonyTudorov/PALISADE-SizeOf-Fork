@@ -82,12 +82,12 @@ TEST_F(UTBVDCRT, Poly_bv_DCRT_MODREDUCE) {
 	//Encryption
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Ciphertext<DCRTPoly>> ciphertext = cc->Encrypt(kp.publicKey, intArray1);
+	Ciphertext<DCRTPoly> ciphertext = cc->Encrypt(kp.publicKey, intArray1);
 
 	cc->Decrypt(kp.secretKey, ciphertext, &intArrayNew);
 	EXPECT_EQ(intArray1->GetCoefPackedValue(), intArrayNew->GetCoefPackedValue()) << "Decrypt without ModReduce fails";
 
-	shared_ptr<Ciphertext<DCRTPoly>> ciphertextR = cc->ModReduce(ciphertext);
+	Ciphertext<DCRTPoly> ciphertextR = cc->ModReduce(ciphertext);
 
 	//drop a tower from the secret key
 	

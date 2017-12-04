@@ -109,8 +109,8 @@ TEST_F(UTFV, Poly_FV_Eval_Operations) {
 	//Encryption
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Ciphertext<Poly>> ciphertext1;
-	shared_ptr<Ciphertext<Poly>> ciphertext2;
+	Ciphertext<Poly> ciphertext1;
+	Ciphertext<Poly> ciphertext2;
 
 	ciphertext1 = cc->Encrypt(kp.publicKey, plaintext1);
 	ciphertext2 = cc->Encrypt(kp.publicKey, plaintext2);
@@ -119,7 +119,7 @@ TEST_F(UTFV, Poly_FV_Eval_Operations) {
 	//EvalAdd Operation
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Ciphertext<Poly>> ciphertextAdd = cc->EvalAdd(ciphertext1, ciphertext2);
+	Ciphertext<Poly> ciphertextAdd = cc->EvalAdd(ciphertext1, ciphertext2);
 
 	Plaintext plaintextNew;
 
@@ -138,7 +138,7 @@ TEST_F(UTFV, Poly_FV_Eval_Operations) {
 	//EvalSub Operation
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Ciphertext<Poly>> ciphertextSub = cc->EvalSub(ciphertext1, ciphertext2);
+	Ciphertext<Poly> ciphertextSub = cc->EvalSub(ciphertext1, ciphertext2);
 
 	Plaintext plaintextNewSub;
 
@@ -159,7 +159,7 @@ TEST_F(UTFV, Poly_FV_Eval_Operations) {
 
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	shared_ptr<Ciphertext<Poly>> ciphertextMult = cc->EvalMult(ciphertext1, ciphertext2);
+	Ciphertext<Poly> ciphertextMult = cc->EvalMult(ciphertext1, ciphertext2);
 
 	Plaintext plaintextNewMult;
 
@@ -214,8 +214,8 @@ TEST_F(UTFV, Poly_FV_ParamsGen_EvalMul) {
 	//Encryption
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Ciphertext<Poly>> ciphertext1;
-	shared_ptr<Ciphertext<Poly>> ciphertext2;
+	Ciphertext<Poly> ciphertext1;
+	Ciphertext<Poly> ciphertext2;
 
 	ciphertext1 = cc->Encrypt(kp.publicKey, plaintext1);
 	ciphertext2 = cc->Encrypt(kp.publicKey, plaintext2);
@@ -226,7 +226,7 @@ TEST_F(UTFV, Poly_FV_ParamsGen_EvalMul) {
 
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	shared_ptr<Ciphertext<Poly>> ciphertextMult = cc->EvalMult(ciphertext1, ciphertext2);
+	Ciphertext<Poly> ciphertextMult = cc->EvalMult(ciphertext1, ciphertext2);
 
 	Plaintext plaintextNewMult;
 
@@ -287,8 +287,8 @@ TEST_F(UTFV, Poly_FV_Optimized_Eval_Operations) {
 	//Encryption
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Ciphertext<Poly>> ciphertext1;
-	shared_ptr<Ciphertext<Poly>> ciphertext2;
+	Ciphertext<Poly> ciphertext1;
+	Ciphertext<Poly> ciphertext2;
 
 	ciphertext1 = cc->Encrypt(kp.publicKey, plaintext1);
 	ciphertext2 = cc->Encrypt(kp.publicKey, plaintext2);
@@ -297,7 +297,7 @@ TEST_F(UTFV, Poly_FV_Optimized_Eval_Operations) {
 	//EvalAdd Operation
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Ciphertext<Poly>> ciphertextAdd = cc->EvalAdd(ciphertext1, ciphertext2);
+	Ciphertext<Poly> ciphertextAdd = cc->EvalAdd(ciphertext1, ciphertext2);
 
 	Plaintext plaintextNew;
 
@@ -315,7 +315,7 @@ TEST_F(UTFV, Poly_FV_Optimized_Eval_Operations) {
 	//EvalSub Operation
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Ciphertext<Poly>> ciphertextSub = cc->EvalSub(ciphertext1, ciphertext2);
+	Ciphertext<Poly> ciphertextSub = cc->EvalSub(ciphertext1, ciphertext2);
 
 	Plaintext plaintextNewSub;
 
@@ -336,7 +336,7 @@ TEST_F(UTFV, Poly_FV_Optimized_Eval_Operations) {
 
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	shared_ptr<Ciphertext<Poly>> ciphertextMult = cc->EvalMult(ciphertext1, ciphertext2);
+	Ciphertext<Poly> ciphertextMult = cc->EvalMult(ciphertext1, ciphertext2);
 
 	Plaintext plaintextNewMult;
 
