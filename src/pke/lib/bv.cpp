@@ -87,7 +87,7 @@ namespace lbcrypto {
 	LPKeyPair<Element> LPAlgorithmBV<Element>::KeyGen(CryptoContext<Element> cc, bool makeSparse)
 	{
 
-		LPKeyPair<Element>	kp(new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc));
+		LPKeyPair<Element>	kp(new LPPublicKeyImpl<Element>(cc), new LPPrivateKey<Element>(cc));
 
 		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersBV<Element>>(cc->GetCryptoParameters());
 
@@ -134,7 +134,7 @@ namespace lbcrypto {
 	}
 
 	template <class Element>
-	Ciphertext<Element> LPAlgorithmBV<Element>::Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
+	Ciphertext<Element> LPAlgorithmBV<Element>::Encrypt(const LPPublicKey<Element> publicKey,
 		Element ptxt) const
 	{
 		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(publicKey->GetCryptoParameters());
@@ -634,7 +634,7 @@ namespace lbcrypto {
 		bool makeSparse)
 	{
 
-		LPKeyPair<Element>	kp(new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc));
+		LPKeyPair<Element>	kp(new LPPublicKeyImpl<Element>(cc), new LPPrivateKey<Element>(cc));
 		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersBV<Element>>(cc->GetCryptoParameters());
 		const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 		const typename Element::Integer &p = cryptoParams->GetPlaintextModulus();
@@ -673,11 +673,11 @@ namespace lbcrypto {
 //makeSparse is not used by this scheme
 template <class Element>
 LPKeyPair<Element> LPAlgorithmMultipartyBV<Element>::MultipartyKeyGen(CryptoContext<Element> cc,
-		const shared_ptr<LPPublicKey<Element>> pk1, bool makeSparse)
+		const LPPublicKey<Element> pk1, bool makeSparse)
 	{
 
 
-		LPKeyPair<Element>	kp(new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc));
+		LPKeyPair<Element>	kp(new LPPublicKeyImpl<Element>(cc), new LPPrivateKey<Element>(cc));
 		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersBV<Element>>(cc->GetCryptoParameters());
 		const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 		const typename Element::Integer &p = cryptoParams->GetPlaintextModulus();

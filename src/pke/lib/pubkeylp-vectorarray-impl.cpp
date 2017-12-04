@@ -31,7 +31,7 @@
 namespace lbcrypto {
 extern template class CryptoContextImpl<DCRTPoly>;
 
-template class LPPublicKey<DCRTPoly>;
+template class LPPublicKeyImpl<DCRTPoly>;
 template class LPPrivateKey<DCRTPoly>;
 template class LPEvalKeyRelin<DCRTPoly>;
 template class LPEvalKeyNTRU<DCRTPoly>;

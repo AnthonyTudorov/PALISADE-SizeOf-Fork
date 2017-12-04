@@ -91,7 +91,7 @@ bool LPAlgorithmParamsGenBFVrns<Poly>::ParamsGen(shared_ptr<LPCryptoParameters<P
 }
 
 template <>
-Ciphertext<Poly> LPAlgorithmBFVrns<Poly>::Encrypt(const shared_ptr<LPPublicKey<Poly>> publicKey,
+Ciphertext<Poly> LPAlgorithmBFVrns<Poly>::Encrypt(const LPPublicKey<Poly> publicKey,
 		Poly ptxt) const
 {
 	std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead.";

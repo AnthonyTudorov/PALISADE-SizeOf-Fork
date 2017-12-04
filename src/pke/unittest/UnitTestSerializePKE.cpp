@@ -102,7 +102,7 @@ void UnitTestContext(CryptoContext<T> cc) {
 
 	Serialized serK;
 	ASSERT_TRUE( kp.publicKey->Serialize(&serK) ) << "Key serialization failed";
-	shared_ptr<LPPublicKey<T>> newPub = cc->deserializePublicKey(serK);
+	LPPublicKey<T> newPub = cc->deserializePublicKey(serK);
 	ASSERT_TRUE( newPub ) << "Key deserialize failed";
 
 	EXPECT_EQ( *kp.publicKey, *newPub ) << "Key mismatch";
@@ -110,7 +110,7 @@ void UnitTestContext(CryptoContext<T> cc) {
 	CryptoContext<T> newccFromkey = CryptoContextFactory<T>::DeserializeAndCreateContext(serK);
 	ASSERT_TRUE( newccFromkey ) << "Deserialization from key failed";
 
-	shared_ptr<LPPublicKey<T>> finalPub = newccFromkey->deserializePublicKey(serK);
+	LPPublicKey<T> finalPub = newccFromkey->deserializePublicKey(serK);
 	ASSERT_TRUE( finalPub ) << "Key deserialize in new ctx failed";
 	EXPECT_EQ( *newPub, *finalPub ) << "Key mismatch from new ctx";
 }

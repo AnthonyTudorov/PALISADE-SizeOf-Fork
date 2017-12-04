@@ -351,7 +351,7 @@ namespace lbcrypto {
 		* @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 		* @return ciphertext which results from encryption.
 		*/
-		Ciphertext<Element> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
+		Ciphertext<Element> Encrypt(const LPPublicKey<Element> publicKey,
 			Element plaintext) const;
 
 		/**

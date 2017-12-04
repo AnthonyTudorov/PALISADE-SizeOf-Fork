@@ -252,7 +252,7 @@ public:
 	 * @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 	 * @return A shared pointer to the encrypted Ciphertext.
 	 */
-	Ciphertext<Element> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, Element plaintext) const;
+	Ciphertext<Element> Encrypt(const LPPublicKey<Element> publicKey, Element plaintext) const;
 
 	/**
 	 * Encrypt method for the LTV Scheme.  See the class description for citations on where the algorithms were
@@ -337,7 +337,7 @@ public:
 	* @param origPrivateKey original private key used for decryption.
 	* @return evalKey the evaluation key for switching the ciphertext to be decryptable by new private key.
 	*/
-	shared_ptr<LPEvalKey<Element>> ReKeyGen(const shared_ptr<LPPublicKey<Element>> newKey,
+	shared_ptr<LPEvalKey<Element>> ReKeyGen(const LPPublicKey<Element> newKey,
 		const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const;
 
 	/**
@@ -376,7 +376,7 @@ public:
 		* @return key pair including the private and public key
 		*/
 	LPKeyPair<Element> MultipartyKeyGen(CryptoContext<Element> cc,
-		const shared_ptr<LPPublicKey<Element>> pk1,
+		const LPPublicKey<Element> pk1,
 		bool makeSparse=false) {
 		std::string errMsg = "LPAlgorithmPRELTV::MultipartyKeyGen using the new secret key is not implemented for the LTV Scheme.";
 		throw std::runtime_error(errMsg);
@@ -629,7 +629,7 @@ public:
 	* @param &newPublicKey encryption key for the new ciphertext.
 	* @param origPrivateKey original private key used for decryption.
 	*/
-	shared_ptr<LPEvalKey<Element>> KeySwitchRelinGen(const shared_ptr<LPPublicKey<Element>> newPublicKey,
+	shared_ptr<LPEvalKey<Element>> KeySwitchRelinGen(const LPPublicKey<Element> newPublicKey,
 		const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const;
 
 	/**
@@ -699,7 +699,7 @@ public:
 	* @param indexList list of automorphism indices to be computed
 	* @return returns the evaluation keys
 	*/
-	shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const shared_ptr<LPPublicKey<Element>> publicKey,
+	shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const LPPublicKey<Element> publicKey,
 		const shared_ptr<LPPrivateKey<Element>> privateKey, const std::vector<usint> &indexList) const;
 
 };

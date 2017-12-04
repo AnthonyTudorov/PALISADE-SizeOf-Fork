@@ -331,7 +331,7 @@ namespace lbcrypto {
 		* @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 		* @return ciphertext which results from encryption.
 		*/
-		virtual Ciphertext<Element> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
+		virtual Ciphertext<Element> Encrypt(const LPPublicKey<Element> publicKey,
 			Element plaintext) const;
 
 		/**
@@ -542,7 +542,7 @@ namespace lbcrypto {
 		* @param &newPublicKey encryption key for the new ciphertext.
 		* @param origPrivateKey original private key used for decryption.
 		*/
-		shared_ptr<LPEvalKey<Element>> KeySwitchRelinGen(const shared_ptr<LPPublicKey<Element>> newPublicKey,
+		shared_ptr<LPEvalKey<Element>> KeySwitchRelinGen(const LPPublicKey<Element> newPublicKey,
 			const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const {
 			std::string errMsg = "LPAlgorithmSHEFV:KeySwitchRelinGen is not needed for this scheme as relinearization is the default technique and no NTRU key generation is used.";
 			throw std::runtime_error(errMsg);
@@ -611,7 +611,7 @@ namespace lbcrypto {
 		* @param indexList list of automorphism indices to be computed
 		* @return returns the evaluation keys
 		*/
-		shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const shared_ptr<LPPublicKey<Element>> publicKey,
+		shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const LPPublicKey<Element> publicKey,
 			const shared_ptr<LPPrivateKey<Element>> privateKey, const std::vector<usint> &indexList) const {
 			std::string errMsg = "LPAlgorithmSHEFV::EvalAutomorphismKeyGen is not implemented for FV SHE Scheme.";
 			throw std::runtime_error(errMsg);
@@ -652,7 +652,7 @@ namespace lbcrypto {
 		* @param origPrivateKey original private key used for decryption.
 		* @return evalKey the evaluation key for switching the ciphertext to be decryptable by new private key.
 		*/
-		shared_ptr<LPEvalKey<Element>> ReKeyGen(const shared_ptr<LPPublicKey<Element>> newKey,
+		shared_ptr<LPEvalKey<Element>> ReKeyGen(const LPPublicKey<Element> newKey,
 			const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const {
 			std::string errMsg = "LPAlgorithmPREFV::ReKeyGen using a public key of the new secret key is not implemented for the BV Scheme.";
 			throw std::runtime_error(errMsg);
@@ -705,7 +705,7 @@ namespace lbcrypto {
 		* @return key pair including the private and public key
 		*/
 		LPKeyPair<Element> MultipartyKeyGen(CryptoContext<Element> cc,
-				const shared_ptr<LPPublicKey<Element>> pk1,
+				const LPPublicKey<Element> pk1,
 				bool makeSparse=false);
 
 		/**

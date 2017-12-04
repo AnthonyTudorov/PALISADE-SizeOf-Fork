@@ -566,7 +566,7 @@ void KeyGen2(const string &paramDir,  const string &contextID, const string &key
 			return;
 		}
 
-		shared_ptr<LPPublicKey<DCRTPoly>> pk = cc->deserializePublicKey(pkSer);
+		LPPublicKey<DCRTPoly> pk = cc->deserializePublicKey(pkSer);
 
 		if (!pk) {
 			cerr << "Could not deserialize public key of A" << endl;
@@ -958,7 +958,7 @@ void TestEvalKeys(const string &paramDir,  const string &contextID, const string
 			return;
 		}
 
-		shared_ptr<LPPublicKey<DCRTPoly>> pk = cc->deserializePublicKey(pkSer);
+		LPPublicKey<DCRTPoly> pk = cc->deserializePublicKey(pkSer);
 
 		if (!pk) {
 			cerr << "Could not deserialize joint public key" << endl;
@@ -1232,7 +1232,7 @@ void Encrypt(const string &paramDir,  const string &contextID, const string &key
 			return;
 		}
 
-		shared_ptr<LPPublicKey<DCRTPoly>> pk = cc->deserializePublicKey(pkSer);
+		LPPublicKey<DCRTPoly> pk = cc->deserializePublicKey(pkSer);
 
 		if (!pk) {
 			cerr << "Could not deserialize joint public key" << endl;

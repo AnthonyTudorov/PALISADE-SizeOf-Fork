@@ -178,7 +178,7 @@ encrypter(CryptoContext<Poly> ctx, string cmd, int argc, char *argv[]) {
 	}
 
 	// Initialize the public key containers.
-	shared_ptr<LPPublicKey<Poly>> pk = ctx->deserializePublicKey(kser);
+	LPPublicKey<Poly> pk = ctx->deserializePublicKey(kser);
 
 	if( !pk ) {
 		cerr << "Could not deserialize public key" << endl;
@@ -254,7 +254,7 @@ rekeymaker(CryptoContext<Poly> ctx, string cmd, int argc, char *argv[]) {
 	}
 
 	// Initialize the public key containers.
-	shared_ptr<LPPublicKey<Poly>> pk = ctx->deserializePublicKey(kser);
+	LPPublicKey<Poly> pk = ctx->deserializePublicKey(kser);
 
 	Serialized	kser2;
 	if( SerializableHelper::ReadSerializationFromFile(privname, &kser2) == false ) {

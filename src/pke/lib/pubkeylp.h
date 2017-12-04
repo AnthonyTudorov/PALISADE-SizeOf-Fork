@@ -126,12 +126,18 @@ namespace lbcrypto {
 		virtual ~LPKey() {}
 	};
 
+	template<typename Element>
+	class LPPublicKeyImpl;
+
+	template<typename Element>
+	using LPPublicKey = shared_ptr<LPPublicKeyImpl<Element>>;
+
 	/**
 	 * @brief Concrete class for LP public keys
 	 * @tparam Element a ring element.
 	 */
 	template <typename Element>
-	class LPPublicKey : public LPKey<Element> {
+	class LPPublicKeyImpl : public LPKey<Element> {
 		public:
 
 			/**
@@ -139,32 +145,32 @@ namespace lbcrypto {
 			*
 			* @param &cryptoParams is the reference to cryptoParams
 			*/
-			LPPublicKey(CryptoContext<Element> cc, const string& id = "") : LPKey<Element>(cc, id) {}
+			LPPublicKeyImpl(CryptoContext<Element> cc, const string& id = "") : LPKey<Element>(cc, id) {}
 
 			/**
 			* Copy constructor
 			*
-			*@param &rhs LPPublicKey to copy from
+			*@param &rhs LPPublicKeyImpl to copy from
 			*/
-			explicit LPPublicKey(const LPPublicKey<Element> &rhs) : LPKey<Element>(rhs.GetCryptoContext(), rhs.GetKeyTag()) {
+			explicit LPPublicKeyImpl(const LPPublicKeyImpl<Element> &rhs) : LPKey<Element>(rhs.GetCryptoContext(), rhs.GetKeyTag()) {
 				m_h = rhs.m_h;
 			}
 
 			/**
 			* Move constructor
 			*
-			*@param &rhs LPPublicKey to move from
+			*@param &rhs LPPublicKeyImpl to move from
 			*/
-			explicit LPPublicKey(LPPublicKey<Element> &&rhs) : LPKey<Element>(rhs.GetCryptoContext(), rhs.GetKeyTag()) {
+			explicit LPPublicKeyImpl(LPPublicKeyImpl<Element> &&rhs) : LPKey<Element>(rhs.GetCryptoContext(), rhs.GetKeyTag()) {
 				m_h = std::move(rhs.m_h);
 			}
 
 			/**
 			* Assignment Operator.
 			*
-			* @param &rhs LPPublicKey to copy from
+			* @param &rhs LPPublicKeyImpl to copy from
 			*/
-			const LPPublicKey<Element>& operator=(const LPPublicKey<Element> &rhs) {
+			const LPPublicKeyImpl<Element>& operator=(const LPPublicKeyImpl<Element> &rhs) {
 				this->context = rhs.context;
 				this->m_h = rhs.m_h;
 				return *this;
@@ -173,9 +179,9 @@ namespace lbcrypto {
 			/**
 			* Move Assignment Operator.
 			*
-			* @param &rhs LPPublicKey to copy from
+			* @param &rhs LPPublicKeyImpl to copy from
 			*/
-			const LPPublicKey<Element>& operator=(LPPublicKey<Element> &&rhs) {
+			const LPPublicKeyImpl<Element>& operator=(LPPublicKeyImpl<Element> &&rhs) {
 				this->context = rhs.context;
 				rhs.context = 0;
 				m_h = std::move(rhs.m_h);
@@ -241,7 +247,7 @@ namespace lbcrypto {
 			*/
 			bool Deserialize(const Serialized &serObj);
 
-			bool operator==(const LPPublicKey& other) const {
+			bool operator==(const LPPublicKeyImpl& other) const {
 				if( !CryptoObject<Element>::operator ==(other) )
 					return false;
 
@@ -255,7 +261,7 @@ namespace lbcrypto {
 				return true;
 			}
 
-			bool operator!=(const LPPublicKey& other) const { return ! (*this == other); }
+			bool operator!=(const LPPublicKeyImpl& other) const { return ! (*this == other); }
 
 	private:
 		std::vector<Element> m_h;
@@ -931,10 +937,10 @@ namespace lbcrypto {
 	template <class Element>
 	class LPKeyPair {
 	public:
-		shared_ptr<LPPublicKey<Element>>	publicKey;
+		LPPublicKey<Element>	publicKey;
 		shared_ptr<LPPrivateKey<Element>>	secretKey;
 
-		LPKeyPair(LPPublicKey<Element>* a=0, LPPrivateKey<Element>* b=0): publicKey(a), secretKey(b) {}
+		LPKeyPair(LPPublicKeyImpl<Element>* a=0, LPPrivateKey<Element>* b=0): publicKey(a), secretKey(b) {}
 
 		bool good() { return publicKey && secretKey; }
 		
@@ -979,7 +985,7 @@ namespace lbcrypto {
 			 * @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 			 * @param *ciphertext ciphertext which results from encryption.
 			 */
-			virtual Ciphertext<Element> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey, Element plaintext) const = 0;
+			virtual Ciphertext<Element> Encrypt(const LPPublicKey<Element> publicKey, Element plaintext) const = 0;
 
 			/**
 			 * Method for encrypting plaintex using LBC
@@ -1102,7 +1108,7 @@ namespace lbcrypto {
 			* @param *evalKey the evaluation key.
 			* @return the re-encryption key.
 			*/
-			virtual shared_ptr<LPEvalKey<Element>> ReKeyGen(const shared_ptr<LPPublicKey<Element>> newKey,
+			virtual shared_ptr<LPEvalKey<Element>> ReKeyGen(const LPPublicKey<Element> newKey,
 				const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const = 0;
 						
 			/**
@@ -1146,7 +1152,7 @@ namespace lbcrypto {
 			* @return key pair including the private and public key
 			*/
 			virtual LPKeyPair<Element> MultipartyKeyGen(CryptoContext<Element> cc,
-				const shared_ptr<LPPublicKey<Element>> pk1,
+				const LPPublicKey<Element> pk1,
 				bool makeSparse=false) = 0;
 
 			/**
@@ -1414,7 +1420,7 @@ namespace lbcrypto {
 		* @param &newPublicKey encryption key for the new ciphertext.
 		* @param origPrivateKey original private key used for decryption.
 		*/
-		virtual shared_ptr<LPEvalKey<Element>> KeySwitchRelinGen(const shared_ptr<LPPublicKey<Element>> newPublicKey,
+		virtual shared_ptr<LPEvalKey<Element>> KeySwitchRelinGen(const LPPublicKey<Element> newPublicKey,
 			const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const = 0;
 
 		/**
@@ -1455,7 +1461,7 @@ namespace lbcrypto {
 		 * @param indexList list of automorphism indices to be computed
 		 * @return returns the evaluation keys
 		 */
-		virtual shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const shared_ptr<LPPublicKey<Element>> publicKey,
+		virtual shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const LPPublicKey<Element> publicKey,
 			const shared_ptr<LPPrivateKey<Element>> origPrivateKey,
 			const std::vector<usint> &indexList) const = 0;
 
@@ -1488,7 +1494,7 @@ namespace lbcrypto {
 		* @return returns the evaluation keys
 		*/
 		shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalSumKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey,
-			const shared_ptr<LPPublicKey<Element>> publicKey) const
+			const LPPublicKey<Element> publicKey) const
 		{
 
 			const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
@@ -1945,7 +1951,7 @@ namespace lbcrypto {
 		// the three functions below are wrappers for things in LPEncryptionAlgorithm (ENCRYPT)
 		//
 
-		Ciphertext<Element> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
+		Ciphertext<Element> Encrypt(const LPPublicKey<Element> publicKey,
 			const Element &plaintext) const {
 				if(this->m_algorithmEncryption) {
 					return this->m_algorithmEncryption->Encrypt(publicKey,plaintext);
@@ -1989,7 +1995,7 @@ namespace lbcrypto {
 		// the three functions below are wrappers for things in LPPREAlgorithm (PRE)
 		//
 
-		shared_ptr<LPEvalKey<Element>> ReKeyGen(const shared_ptr<LPPublicKey<Element>> newKey,
+		shared_ptr<LPEvalKey<Element>> ReKeyGen(const LPPublicKey<Element> newKey,
 				const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const {
 			if(this->m_algorithmPRE) {
 				auto rk = this->m_algorithmPRE->ReKeyGen(newKey,origPrivateKey);
@@ -2029,7 +2035,7 @@ namespace lbcrypto {
 		// Wrapper for Multiparty Key Gen
 		// FIXME check key ID for multiparty
 		LPKeyPair<Element> MultipartyKeyGen(CryptoContext<Element> cc,
-				const shared_ptr<LPPublicKey<Element>> pk1,
+				const LPPublicKey<Element> pk1,
 				bool makeSparse) {
 			if(this->m_algorithmMultiparty) {
 				auto k = this->m_algorithmMultiparty->MultipartyKeyGen(cc, pk1, makeSparse);
@@ -2208,7 +2214,7 @@ namespace lbcrypto {
 			}
 		}
 
-		shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const shared_ptr<LPPublicKey<Element>> publicKey,
+		shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const LPPublicKey<Element> publicKey,
 			const shared_ptr<LPPrivateKey<Element>> origPrivateKey,
 			const std::vector<usint> &indexList) const {
 
@@ -2245,7 +2251,7 @@ namespace lbcrypto {
 
 		shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalSumKeyGen(
 			const shared_ptr<LPPrivateKey<Element>> privateKey,
-			const shared_ptr<LPPublicKey<Element>> publicKey) const {
+			const LPPublicKey<Element> publicKey) const {
 
 			if (this->m_algorithmSHE) {
 				auto km = this->m_algorithmSHE->EvalSumKeyGen(privateKey,publicKey);
@@ -2376,7 +2382,7 @@ namespace lbcrypto {
 			}
 		}
 
-		shared_ptr<LPEvalKey<Element>> KeySwitchRelinGen(const shared_ptr<LPPublicKey<Element>> newKey, const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const {
+		shared_ptr<LPEvalKey<Element>> KeySwitchRelinGen(const LPPublicKey<Element> newKey, const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const {
 			if (this->m_algorithmSHE) {
 				auto kp = this->m_algorithmSHE->KeySwitchRelinGen(newKey, origPrivateKey);
 				kp->SetKeyTag( newKey->GetKeyTag() );

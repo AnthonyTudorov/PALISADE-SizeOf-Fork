@@ -28,7 +28,7 @@
  * This code provides support for the Stehle-Steinfeld cryptoscheme.
  *
  * Our Stehle-Steinfeld scheme implementation is described here:
- *   - Cristian Borcea, Arnab “Bobby” Deb Gupta, Yuriy Polyakov, Kurt Rohloff, Gerard Ryan, PICADOR: End-to-end encrypted Publish–Subscribe information distribution with proxy re-encryption, Future Generation Computer Systems, Volume 71, June 2017, Pages 177-191. http://dx.doi.org/10.1016/j.future.2016.10.013
+ *   - Cristian Borcea, Arnab "Bobby" Deb Gupta, Yuriy Polyakov, Kurt Rohloff, Gerard Ryan, PICADOR: End-to-end encrypted Publish–Subscribe information distribution with proxy re-encryption, Future Generation Computer Systems, Volume 71, June 2017, Pages 177-191. http://dx.doi.org/10.1016/j.future.2016.10.013
  *
  * This scheme is based on the subfield lattice attack immunity condition proposed in the Conclusions section here:
  *   - Albrecht, Martin, Shi Bai, and Léo Ducas. "A subfield lattice attack on overstretched NTRU assumptions." Annual Cryptology Conference. Springer Berlin Heidelberg, 2016.
@@ -59,7 +59,7 @@ namespace lbcrypto {
  * @brief This is the parameters class for the Stehle-Stenfeld encryption scheme.
  *
  *  Parameters for this scheme are defined here:
- *   - Cristian Borcea, Arnab “Bobby” Deb Gupta, Yuriy Polyakov, Kurt Rohloff, Gerard Ryan, PICADOR: End-to-end encrypted Publish–Subscribe information distribution with proxy re-encryption, Future Generation Computer Systems, Volume 71, June 2017, Pages 177-191. http://dx.doi.org/10.1016/j.future.2016.10.013
+ *   - Cristian Borcea, Arnab "Bobby" Deb Gupta, Yuriy Polyakov, Kurt Rohloff, Gerard Ryan, PICADOR: End-to-end encrypted Publish–Subscribe information distribution with proxy re-encryption, Future Generation Computer Systems, Volume 71, June 2017, Pages 177-191. http://dx.doi.org/10.1016/j.future.2016.10.013
  *
  * @tparam Element a ring element type.
  */
@@ -254,7 +254,7 @@ private:
  * @brief This is the algorithms class for the basic public key encrypt, decrypt and key generation methods for the Stehle-Stenfeld scheme encryption scheme.  
  *
  * Our Stehle-Steinfeld scheme implementation is described here:
- *   - Cristian Borcea, Arnab “Bobby” Deb Gupta, Yuriy Polyakov, Kurt Rohloff, Gerard Ryan, PICADOR: End-to-end encrypted Publish–Subscribe information distribution with proxy re-encryption, Future Generation Computer Systems, Volume 71, June 2017, Pages 177-191. http://dx.doi.org/10.1016/j.future.2016.10.013
+ *   - Cristian Borcea, Arnab "Bobby" Deb Gupta, Yuriy Polyakov, Kurt Rohloff, Gerard Ryan, PICADOR: End-to-end encrypted Publish–Subscribe information distribution with proxy re-encryption, Future Generation Computer Systems, Volume 71, June 2017, Pages 177-191. http://dx.doi.org/10.1016/j.future.2016.10.013
  *
  * This scheme is based on the subfield lattice attack immunity condition proposed in the Conclusions section here:
  *   - Albrecht, Martin, Shi Bai, and Léo Ducas. "A subfield lattice attack on overstretched NTRU assumptions." Annual Cryptology Conference. Springer Berlin Heidelberg, 2016.
@@ -283,7 +283,7 @@ public:
 	 */
 	LPKeyPair<Element> KeyGen(CryptoContext<Element> cc, bool makeSparse=false) { 		//makeSparse is not used
 
-		LPKeyPair<Element>	kp(new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc));
+		LPKeyPair<Element>	kp(new LPPublicKeyImpl<Element>(cc), new LPPrivateKey<Element>(cc));
 
 		const shared_ptr<LPCryptoParametersStehleSteinfeld<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersStehleSteinfeld<Element>>(cc->GetCryptoParameters());
 
@@ -390,7 +390,7 @@ public:
 	/**
 	* Generate automophism keys for a given private key.  Thess methods are not currently supported.
 	*/
-	shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const shared_ptr<LPPublicKey<Element>> publicKey,
+	shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const LPPublicKey<Element> publicKey,
 		const shared_ptr<LPPrivateKey<Element>> origPrivateKey, const std::vector<usint> &indexList) const {
 		throw std::runtime_error("LPAlgorithmSHELTV::EvalAutomorphismKeyGen is not implemented for Stehle-Steinfeld SHE Scheme.");
 	}
@@ -410,7 +410,7 @@ public:
 * @brief This is the algorithms class for to enable deatures for the Stehle-Stenfeld scheme encryption scheme.  
  *
  * Our Stehle-Steinfeld scheme implementation is described here:
- *   - Cristian Borcea, Arnab “Bobby” Deb Gupta, Yuriy Polyakov, Kurt Rohloff, Gerard Ryan, PICADOR: End-to-end encrypted Publish–Subscribe information distribution with proxy re-encryption, Future Generation Computer Systems, Volume 71, June 2017, Pages 177-191. http://dx.doi.org/10.1016/j.future.2016.10.013
+ *   - Cristian Borcea, Arnab "Bobby" Deb Gupta, Yuriy Polyakov, Kurt Rohloff, Gerard Ryan, PICADOR: End-to-end encrypted Publish–Subscribe information distribution with proxy re-encryption, Future Generation Computer Systems, Volume 71, June 2017, Pages 177-191. http://dx.doi.org/10.1016/j.future.2016.10.013
  *
  * This scheme is based on the subfield lattice attack immunity condition proposed in the Conclusions section here:
  *   - Albrecht, Martin, Shi Bai, and Léo Ducas. "A subfield lattice attack on overstretched NTRU assumptions." Annual Cryptology Conference. Springer Berlin Heidelberg, 2016.

@@ -350,7 +350,7 @@ template <class Element>
 LPKeyPair<Element> LPAlgorithmFV<Element>::KeyGen(CryptoContext<Element> cc, bool makeSparse)
 {
 
-	LPKeyPair<Element>	kp( new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc) );
+	LPKeyPair<Element>	kp( new LPPublicKeyImpl<Element>(cc), new LPPrivateKey<Element>(cc) );
 
 	const shared_ptr<LPCryptoParametersRLWE<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersRLWE<Element>>(cc->GetCryptoParameters());
 
@@ -394,7 +394,7 @@ LPKeyPair<Element> LPAlgorithmFV<Element>::KeyGen(CryptoContext<Element> cc, boo
 }
 
 template <class Element>
-Ciphertext<Element> LPAlgorithmFV<Element>::Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
+Ciphertext<Element> LPAlgorithmFV<Element>::Encrypt(const LPPublicKey<Element> publicKey,
 		Element ptxt) const
 {
 	Ciphertext<Element> ciphertext( new CiphertextImpl<Element>(publicKey) );
@@ -1109,7 +1109,7 @@ LPKeyPair<Element> LPAlgorithmMultipartyFV<Element>::MultipartyKeyGen(CryptoCont
 {
 
 
-	LPKeyPair<Element>	kp( new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc) );
+	LPKeyPair<Element>	kp( new LPPublicKeyImpl<Element>(cc), new LPPrivateKey<Element>(cc) );
 
 	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(cc->GetCryptoParameters());
 
@@ -1154,10 +1154,10 @@ LPKeyPair<Element> LPAlgorithmMultipartyFV<Element>::MultipartyKeyGen(CryptoCont
 //makeSparse is not used by this scheme
 template <class Element>
 LPKeyPair<Element> LPAlgorithmMultipartyFV<Element>::MultipartyKeyGen(CryptoContext<Element> cc,
-		const shared_ptr<LPPublicKey<Element>> pk1, bool makeSparse)
+		const LPPublicKey<Element> pk1, bool makeSparse)
 {
 
-	LPKeyPair<Element>	kp( new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc) );
+	LPKeyPair<Element>	kp( new LPPublicKeyImpl<Element>(cc), new LPPrivateKey<Element>(cc) );
 
 	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(cc->GetCryptoParameters());
 

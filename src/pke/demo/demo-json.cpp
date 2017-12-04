@@ -100,7 +100,7 @@ encrypter(CryptoContext<Poly> ctx, Plaintext iPlaintext, string pubkeyname, stri
 	}
 
 	// Initialize the public key containers.
-	shared_ptr<LPPublicKey<Poly>> pk = ctx->deserializePublicKey(kser);
+	LPPublicKey<Poly> pk = ctx->deserializePublicKey(kser);
 
 	if( !pk ) {
 		cerr << "Could not deserialize public key" << endl;

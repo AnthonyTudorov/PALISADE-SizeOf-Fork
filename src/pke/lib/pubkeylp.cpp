@@ -30,7 +30,7 @@
 namespace lbcrypto {
 
 template<typename Element>
-bool LPPublicKey<Element>::Serialize(Serialized *serObj) const {
+bool LPPublicKeyImpl<Element>::Serialize(Serialized *serObj) const {
 	serObj->SetObject();
 
 	if( !this->SerializeCryptoObject(serObj) )
@@ -43,7 +43,7 @@ bool LPPublicKey<Element>::Serialize(Serialized *serObj) const {
 }
 
 template<typename Element>
-bool LPPublicKey<Element>::Deserialize(const Serialized &serObj) {
+bool LPPublicKeyImpl<Element>::Deserialize(const Serialized &serObj) {
 
 	// deserialization must be done in a crypto context; the context must be initialized before deserializing the elements
 	if( !this->GetCryptoContext() )

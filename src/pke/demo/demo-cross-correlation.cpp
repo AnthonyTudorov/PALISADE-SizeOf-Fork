@@ -366,7 +366,7 @@ void Encrypt() {
 			return;
 		}
 
-		shared_ptr<LPPublicKey<DCRTPoly>> pk = cc->deserializePublicKey(pkSer);
+		LPPublicKey<DCRTPoly> pk = cc->deserializePublicKey(pkSer);
 
 		if (!pk) {
 			cerr << "Could not deserialize public key" << endl;

@@ -392,7 +392,7 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 
 
 template <>
-Ciphertext<DCRTPoly> LPAlgorithmBFVrns<DCRTPoly>::Encrypt(const shared_ptr<LPPublicKey<DCRTPoly>> publicKey,
+Ciphertext<DCRTPoly> LPAlgorithmBFVrns<DCRTPoly>::Encrypt(const LPPublicKey<DCRTPoly> publicKey,
 		DCRTPoly ptxt) const
 {
 	Ciphertext<DCRTPoly> ciphertext( new CiphertextImpl<DCRTPoly>(publicKey) );

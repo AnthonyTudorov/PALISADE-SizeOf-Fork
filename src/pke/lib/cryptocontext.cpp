@@ -106,7 +106,7 @@ void CryptoContextImpl<Element>::InsertEvalMultKey(const std::vector<shared_ptr<
 template <typename Element>
 void CryptoContextImpl<Element>::EvalSumKeyGen(
 	const shared_ptr<LPPrivateKey<Element>> privateKey,
-	const shared_ptr<LPPublicKey<Element>> publicKey) {
+	const LPPublicKey<Element> publicKey) {
 
 	if( privateKey == NULL || Mismatched(privateKey->GetCryptoContext()) ) {
 		throw std::logic_error("Private key passed to EvalSumKeyGen were not generated with this crypto context");
@@ -1276,19 +1276,19 @@ CryptoContextFactory<T>::genCryptoContextNull(shared_ptr<typename T::Params> ep,
 // ... or from another context with identical parameters
 
 template <typename T>
-shared_ptr<LPPublicKey<T>>
+LPPublicKey<T>
 CryptoContextImpl<T>::deserializePublicKey(const Serialized& serObj)
 {
 	CryptoContext<T> cc = CryptoContextFactory<T>::DeserializeAndCreateContext(serObj);
 	if( cc == 0 )
 		return 0;
 
-	shared_ptr<LPPublicKey<T>> key( new LPPublicKey<T>(cc) );
+	LPPublicKey<T> key( new LPPublicKeyImpl<T>(cc) );
 
 	if( key->Deserialize(serObj) )
 		return key;
 
-	return shared_ptr<LPPublicKey<T>>();
+	return 0;
 }
 
 template <typename T>

@@ -487,7 +487,7 @@ public:
 	* @return a public/secret key pair
 	*/
 	LPKeyPair<Element> MultipartyKeyGen(
-		const shared_ptr<LPPublicKey<Element>> pk) {
+		const LPPublicKey<Element> pk) {
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
 		auto r = GetEncryptionAlgorithm()->MultipartyKeyGen(CryptoContextFactory<Element>::GetContextForPointer(this), pk, false);
@@ -651,7 +651,7 @@ public:
 	* @return new evaluation key
 	*/
 	shared_ptr<LPEvalKey<Element>> ReKeyGen(
-		const shared_ptr<LPPublicKey<Element>> newKey,
+		const LPPublicKey<Element> newKey,
 		const shared_ptr<LPPrivateKey<Element>> oldKey) const {
 
 		if( newKey == NULL || oldKey == NULL ||
@@ -742,7 +742,7 @@ public:
 	 * @return ciphertext (or null on failure)
 	 */
 	Ciphertext<Element> Encrypt(
-			const shared_ptr<LPPublicKey<Element>> publicKey,
+			const LPPublicKey<Element> publicKey,
 			Plaintext plaintext)
 	{
 		if( publicKey == NULL )
@@ -807,7 +807,7 @@ public:
 	* @return a vector of pointers to Ciphertexts created by encrypting the plaintext
 	*/
 	shared_ptr<Matrix<RationalCiphertext<Element>>> EncryptMatrix(
-		const shared_ptr<LPPublicKey<Element>> publicKey,
+		const LPPublicKey<Element> publicKey,
 		Matrix<Plaintext> &plaintext)
 	{
 		if (publicKey == NULL || Mismatched(publicKey->GetCryptoContext()))
@@ -853,7 +853,7 @@ public:
 	* @return
 	*/
 	void EncryptStream(
-		const shared_ptr<LPPublicKey<Element>> publicKey,
+		const LPPublicKey<Element> publicKey,
 		std::istream& instream,
 		std::ostream& outstream) const
 	{
@@ -1599,7 +1599,7 @@ public:
 	* @param indexList list of automorphism indices to be computed
 	* @return returns the evaluation keys; index 0 of the vector corresponds to plaintext index 2, index 1 to plaintex index 3, etc.
 	*/
-	shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const shared_ptr<LPPublicKey<Element>> publicKey,
+	shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const LPPublicKey<Element> publicKey,
 		const shared_ptr<LPPrivateKey<Element>> origPrivateKey, const std::vector<usint> &indexList) const {
 
 		if( publicKey == NULL || origPrivateKey == NULL )
@@ -1685,7 +1685,7 @@ public:
 	*/
 	void EvalSumKeyGen(
 		const shared_ptr<LPPrivateKey<Element>> privateKey, 
-		const shared_ptr<LPPublicKey<Element>> publicKey = nullptr);
+		const LPPublicKey<Element> publicKey = nullptr);
 
 	/**
 	 * GetEvalSumKey  returns the map
@@ -1940,7 +1940,7 @@ public:
 	* @param serObj
 	* @return deserialized object
 	*/
-	static shared_ptr<LPPublicKey<Element>>	deserializePublicKey(const Serialized& serObj);
+	static LPPublicKey<Element>	deserializePublicKey(const Serialized& serObj);
 
 	/**
 	* Deserialize into a Private Key

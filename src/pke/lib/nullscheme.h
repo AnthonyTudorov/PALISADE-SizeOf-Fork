@@ -166,7 +166,7 @@ public:
 	* @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 	* @param *ciphertext ciphertext which results from encryption.
 	*/
-	Ciphertext<Element> Encrypt(const shared_ptr<LPPublicKey<Element>> pubKey,
+	Ciphertext<Element> Encrypt(const LPPublicKey<Element> pubKey,
 		Element ptxt) const {
 
 		Ciphertext<Element> ciphertext( new CiphertextImpl<Element>(pubKey) );
@@ -221,7 +221,7 @@ public:
 	* @return function ran correctly.
 	*/
 	LPKeyPair<Element> KeyGen(CryptoContext<Element> cc, bool makeSparse=false) {
-		LPKeyPair<Element>	kp( new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc) );
+		LPKeyPair<Element>	kp( new LPPublicKeyImpl<Element>(cc), new LPPrivateKey<Element>(cc) );
 
 		Element a(cc->GetCryptoParameters()->GetElementParams(), Format::COEFFICIENT, true);
 		kp.secretKey->SetPrivateElement(a);
@@ -255,7 +255,7 @@ public:
 	* @param &ddg discrete Gaussian generator.
 	* @param *evalKey the evaluation key.
 	*/
-	shared_ptr<LPEvalKey<Element>> ReKeyGen(const shared_ptr<LPPublicKey<Element>> newPrivateKey,
+	shared_ptr<LPEvalKey<Element>> ReKeyGen(const LPPublicKey<Element> newPrivateKey,
 		const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const {
 		// create a new ReKey of the proper type, in this context
 		shared_ptr<LPEvalKeyNTRURelin<Element>> EK( new LPEvalKeyNTRURelin<Element>(newPrivateKey->GetCryptoContext()) );
@@ -339,9 +339,9 @@ public:
 		* @return key pair including the private and public key
 		*/
 	LPKeyPair<Element> MultipartyKeyGen(CryptoContext<Element> cc,
-		const shared_ptr<LPPublicKey<Element>> pk1,
+		const LPPublicKey<Element> pk1,
 		bool makeSparse=false) {
-		LPKeyPair<Element>	kp( new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc) );
+		LPKeyPair<Element>	kp( new LPPublicKeyImpl<Element>(cc), new LPPrivateKey<Element>(cc) );
 
 		Element a(cc->GetCryptoParameters()->GetElementParams(), Format::COEFFICIENT, true);
 		kp.secretKey->SetPrivateElement(a);
@@ -362,7 +362,7 @@ public:
 	LPKeyPair<Element> MultipartyKeyGen(CryptoContext<Element> cc,
 		const vector<shared_ptr<LPPrivateKey<Element>>>& secretKeys,
 		bool makeSparse=false) {
-		LPKeyPair<Element>	kp( new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc) );
+		LPKeyPair<Element>	kp( new LPPublicKeyImpl<Element>(cc), new LPPrivateKey<Element>(cc) );
 
 		Element a(cc->GetCryptoParameters()->GetElementParams(), Format::COEFFICIENT, true);
 		kp.secretKey->SetPrivateElement(a);
@@ -722,7 +722,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		* @param &newPublicKey encryption key for the new ciphertext.
 		* @param origPrivateKey original private key used for decryption.
 		*/
-		shared_ptr<LPEvalKey<Element>> KeySwitchRelinGen(const shared_ptr<LPPublicKey<Element>> newPublicKey,
+		shared_ptr<LPEvalKey<Element>> KeySwitchRelinGen(const LPPublicKey<Element> newPublicKey,
 			const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const {
 			return shared_ptr<LPEvalKey<Element>>( new LPEvalKeyNTRURelin<Element>(origPrivateKey->GetCryptoContext()));
 		}
@@ -807,7 +807,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		* @return returns the evaluation keys
 		*/
 
-		shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const shared_ptr<LPPublicKey<Element>> publicKey,
+		shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const LPPublicKey<Element> publicKey,
 				const shared_ptr<LPPrivateKey<Element>> origPrivateKey, const std::vector<usint> &indexList) const {
 
 			shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> evalKeys(new std::map<usint, shared_ptr<LPEvalKey<Element>>>());
