@@ -140,7 +140,7 @@ const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::operator=(std::ini
 	usint len = rhs.size();
 	for(usint i=0;i<m_length;i++){ // this loops over each tower
 		if(i<len) {
-		  if (m_modulus!=IntegerType::ZERO)
+		  if (m_modulus!=0)
 			m_data[i] = IntegerType(*(rhs.begin()+i))%m_modulus;
 		  else
 			m_data[i] = IntegerType(*(rhs.begin()+i));	    
@@ -158,7 +158,7 @@ const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::operator=(std::ini
 	usint len = rhs.size();
 	for(usint i=0;i<m_length;i++){ // this loops over each tower
 		if(i<len) {
-		  if (m_modulus!=IntegerType::ZERO)
+		  if (m_modulus!=0)
 			m_data[i] = IntegerType(*(rhs.begin()+i))%m_modulus;
 		  else
 			m_data[i] = IntegerType(*(rhs.begin()+i));

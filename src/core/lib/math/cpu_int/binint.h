@@ -589,8 +589,8 @@ namespace cpu_int{
     */
     const std::string ToString() const;		
 
-    const std::string Serialize(const BigInteger& mod = BigInteger::ZERO) const;
-    const char * Deserialize(const char * str, const BigInteger& mod = BigInteger::ZERO);
+    const std::string Serialize(const BigInteger& mod = 0) const;
+    const char * Deserialize(const char * str, const BigInteger& mod = 0);
     static const std::string IntegerTypeName() { return "BBI"; }
 
 
@@ -762,8 +762,50 @@ namespace cpu_int{
 	 * @return is the ostream object.
 	 */
     template<typename uint_type_c,usint BITLENGTH_c>
-	friend std::ostream& operator<<(std::ostream& os, const BigInteger<uint_type_c,BITLENGTH_c> &ptr_obj);
-    
+	friend std::ostream& operator<<(std::ostream& os, const BigInteger<uint_type_c,BITLENGTH_c> &ptr_obj) {
+
+    	//create reference for the object to be printed
+    	BigInteger<uint_type_c,BITLENGTH_c> *print_obj;
+
+    	usint counter;
+
+    	//initiate to object to be printed
+    	print_obj = new BigInteger<uint_type_c,BITLENGTH_c>(ptr_obj);
+
+    	//print_VALUE array stores the decimal value in the array
+    	uschar *print_VALUE = new uschar[ptr_obj.m_numDigitInPrintval];
+
+    	//reset to zero
+    	for(size_t i=0;i<ptr_obj.m_numDigitInPrintval;i++)
+    		*(print_VALUE+i)=0;
+
+    	//starts the conversion from base r to decimal value
+    	for(size_t i=print_obj->m_MSB;i>0;i--){
+
+    		//print_VALUE = print_VALUE*2
+    		BigInteger<uint_type_c,BITLENGTH_c>::double_bitVal(print_VALUE);
+    		//adds the bit value to the print_VALUE
+    		BigInteger<uint_type_c,BITLENGTH_c>::add_bitVal(print_VALUE,print_obj->GetBitAtIndex(i));
+
+    	}
+
+    	//find the first occurrance of non-zero value in print_VALUE
+    	for(counter=0;counter<ptr_obj.m_numDigitInPrintval-1;counter++){
+    		if((sint)print_VALUE[counter]!=0)break;
+    	}
+
+    	//start inserting values into the ostream object
+    	for(;counter<ptr_obj.m_numDigitInPrintval;counter++){
+    		os<<(int)print_VALUE[counter];
+    	}
+
+    	delete [] print_VALUE;
+    	//deallocate the memory since values are inserted into the ostream object
+    	delete print_obj;
+    	return os;
+    }
+
+
 	/**
     * Gets the bit at the specified index.
     *

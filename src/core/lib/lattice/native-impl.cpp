@@ -25,7 +25,7 @@
  */
 
 #include "../math/backend.h"
-#include "../math/native_int/binint.cpp"
+#include "../math/native_int/binint.h"
 #include "../math/native_int/binvect.cpp"
 #include "../math/discretegaussiangenerator.cpp"
 #include "../math/discreteuniformgenerator.cpp"

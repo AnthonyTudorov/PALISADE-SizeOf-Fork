@@ -67,9 +67,9 @@ BigVectorImpl<IntegerType>::BigVectorImpl(usint length, const IntegerType& modul
 	usint len = rhs.size();
 	for (usint i=0;i<m_length;i++){ // this loops over each entry
 		if(i<len) {
-			m_data[i] =  IntegerType(*(rhs.begin()+i));  
+			m_data[i] = IntegerType(*(rhs.begin()+i));  
 		} else {
-			m_data[i] = IntegerType::ZERO;
+			m_data[i] = 0;
 		}
 	}
 
@@ -83,9 +83,9 @@ BigVectorImpl<IntegerType>::BigVectorImpl(usint length, const IntegerType& modul
 	usint len = rhs.size();
 	for(usint i=0;i<m_length;i++){ // this loops over each entry
 		if(i<len) {
-			m_data[i] =  IntegerType(*(rhs.begin()+i));  
+			m_data[i] = IntegerType(*(rhs.begin()+i));  
 		} else {
-			m_data[i] = IntegerType::ZERO;
+			m_data[i] = 0;
 		}
 	}
 }
