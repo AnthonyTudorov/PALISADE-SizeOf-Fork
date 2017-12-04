@@ -91,9 +91,9 @@ namespace lbcrypto {
 		RationalCiphertext(const RationalCiphertext<Element> &ciphertext)
 			: CryptoObject<Element>(ciphertext.GetNumerator()->GetCryptoContext(), ciphertext.GetNumerator()->GetKeyTag()) {
 			this->context = ciphertext.context;
-			m_numerator = Ciphertext<Element>(new Ciphertext<Element>(ciphertext.m_numerator));
+			m_numerator = Ciphertext<Element>(new CiphertextImpl<Element>(ciphertext.m_numerator));
 			if (ciphertext.m_denominator != nullptr)
-				m_denominator = Ciphertext<Element>(new Ciphertext<Element>(ciphertext.m_denominator));
+				m_denominator = Ciphertext<Element>(new CiphertextImpl<Element>(ciphertext.m_denominator));
 			m_integerFlag = ciphertext.m_integerFlag;
 		}
 

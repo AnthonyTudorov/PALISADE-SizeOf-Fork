@@ -164,7 +164,7 @@ TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 	ciphertext1 = cc->Encrypt(kp.publicKey, intArray1);
 	ciphertext2 = cc->Encrypt(kp.publicKey, intArray2);
 
-	std::Ciphertext<DCRTPoly> cResult = cc->EvalMult(ciphertext1, ciphertext2);
+	Ciphertext<DCRTPoly> cResult = cc->EvalMult(ciphertext1, ciphertext2);
 
 	LPKeyPair<DCRTPoly> newKp = cc->KeyGen();
 

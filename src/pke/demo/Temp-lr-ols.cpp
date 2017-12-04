@@ -563,7 +563,7 @@ void Compute(string keyDir,
 	    return;
 	}
 
-	shared_ptr<Ciphertext<DCRTPoly> > y(new CiphertextImpl<DCRTPoly>(cc));
+	Ciphertext<DCRTPoly> y(new CiphertextImpl<DCRTPoly>(cc));
 
 	if(!y->Deserialize(ySer)) {
 	    cerr << "Could not deserialize ciphertext y" << endl;
@@ -584,15 +584,15 @@ void Compute(string keyDir,
 	start = currentDateTime();
 
 	// forces all inner-product precomputations to take place sequentially
-	const shared_ptr<Ciphertext<DCRTPoly> > x0 = (*x)(0, 0).GetNumerator();
+	const Ciphertext<DCRTPoly> x0 = (*x)(0, 0).GetNumerator();
 	(*xTx)(0, 0).SetNumerator(cc->EvalInnerProduct(x0, x0, encodingParams->GetBatchSize()));
 
 	for(size_t i = 0; i < numRegressors; i++) {
 #pragma omp parallel for
 	    for(size_t k = i; k < numRegressors; k++) {
 		if(i + k > 0) {
-		    const shared_ptr<Ciphertext<DCRTPoly> > xi = (*x)(0, i).GetNumerator();
-		    const shared_ptr<Ciphertext<DCRTPoly> > xk = (*x)(0, k).GetNumerator();
+		    const Ciphertext<DCRTPoly> xi = (*x)(0, i).GetNumerator();
+		    const Ciphertext<DCRTPoly> xk = (*x)(0, k).GetNumerator();
 		    (*xTx)(i, k).SetNumerator(cc->EvalInnerProduct(xi, xk, encodingParams->GetBatchSize()));
 		    if(i != k)
 			(*xTx)(k, i).SetNumerator((*xTx)(i, k).GetNumerator());
@@ -618,7 +618,7 @@ void Compute(string keyDir,
 
 #pragma omp parallel for
 	for(size_t i = 0; i < numRegressors; i++) {
-	    const shared_ptr<Ciphertext<DCRTPoly> > xi = (*x)(0, i).GetNumerator();
+	    const Ciphertext<DCRTPoly> xi = (*x)(0, i).GetNumerator();
 	    (*xTy)(i, 0).SetNumerator(cc->EvalInnerProduct(xi, y, encodingParams->GetBatchSize()));
 	}
 

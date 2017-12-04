@@ -260,95 +260,96 @@ using Ciphertext = shared_ptr<CiphertextImpl<Element>>;
 			return ! (*this == rhs);
 		}
 
-		CiphertextImpl<Element> operator+(const CiphertextImpl<Element> &other) const {
-			Ciphertext<Element> a(new CiphertextImpl<Element>(*this));
-			Ciphertext<Element> b(new CiphertextImpl<Element>(other));
-			return *this->GetCryptoContext()->EvalAdd(a, b);
-		}
+		// FIXME is this used??
+//		CiphertextImpl<Element> operator+(const CiphertextImpl<Element> &other) const {
+//			Ciphertext<Element> a(new CiphertextImpl<Element>(*this));
+//			Ciphertext<Element> b(new CiphertextImpl<Element>(other));
+//			return *this->GetCryptoContext()->EvalAdd(a, b);
+//		}
+//
+//		/**
+//		* Performs an addition operation and returns the result.
+//		*
+//		* @param &other is the ciphertext to add with.
+//		* @return the result of the addition.
+//		*/
+//		const CiphertextImpl<Element>& operator+=(const CiphertextImpl<Element> &other) {
+//			Ciphertext<Element> b(new CiphertextImpl<Element>(other));
+//			// ciphertext object has no data yet, i.e., it is zero-initialized
+//			if (m_elements.size() == 0)
+//			{
+//				m_elements = other.m_elements;
+//			}
+//			else
+//			{
+//				Ciphertext<Element> a(new CiphertextImpl<Element>(*this));
+//				*this = *(this->GetCryptoContext()->EvalAdd(a, b));
+//			}
+//			return *this;
+//		}
 
-		/**
-		* Performs an addition operation and returns the result.
-		*
-		* @param &other is the ciphertext to add with.
-		* @return the result of the addition.
-		*/
-		const CiphertextImpl<Element>& operator+=(const CiphertextImpl<Element> &other) {
-			Ciphertext<Element> b(new CiphertextImpl<Element>(other));
-			// ciphertext object has no data yet, i.e., it is zero-initialized
-			if (m_elements.size() == 0)
-			{
-				m_elements = other.m_elements;
-			}
-			else
-			{
-				Ciphertext<Element> a(new CiphertextImpl<Element>(*this));
-				*this = *(this->GetCryptoContext()->EvalAdd(a, b));
-			}
-			return *this;
-		}
+//		CiphertextImpl<Element> operator-(const CiphertextImpl<Element> &other) const {
+//			Ciphertext<Element> a(new CiphertextImpl<Element>(*this));
+//			Ciphertext<Element> b(new CiphertextImpl<Element>(other));
+//			return *this->GetCryptoContext()->EvalSub(a, b);
+//		}
+//
+//		const CiphertextImpl<Element>& operator-=(const Ciphertext<Element>& other) {
+//			// ciphertext object has no data yet, i.e., it is zero-initialized
+//			if (m_elements.size() == 0)
+//			{
+//				m_elements = other->m_elements;
+//			}
+//			else
+//			{
+//				Ciphertext<Element> a(new CiphertextImpl<Element>(*this));
+//				*this = *(this->GetCryptoContext()->EvalSub(a, other));
+//			}
+//			return *this;
+//		}
 
-		CiphertextImpl<Element> operator-(const CiphertextImpl<Element> &other) const {
-			Ciphertext<Element> a(new CiphertextImpl<Element>(*this));
-			Ciphertext<Element> b(new CiphertextImpl<Element>(other));
-			return *this->GetCryptoContext()->EvalSub(a, b);
-		}
+//		/**
+//		* Unary negation operator.
+//		*
+//		* @param &other is the ciphertext to add with.
+//		* @return the result of the addition.
+//		*/
+//		const CiphertextImpl<Element> operator-() {
+//			if (m_elements.size() == 0)
+//				throw std::logic_error("No elements in the ciphertext to be negated");
+//			else
+//			{
+//				Ciphertext<Element> a(new CiphertextImpl<Element>(*this));
+//				return *(this->GetCryptoContext()->EvalNegate(a));
+//			}
+//		}
 
-		const CiphertextImpl<Element>& operator-=(const Ciphertext<Element>& other) {
-			// ciphertext object has no data yet, i.e., it is zero-initialized
-			if (m_elements.size() == 0)
-			{
-				m_elements = other->m_elements;
-			}
-			else
-			{
-				Ciphertext<Element> a(new CiphertextImpl<Element>(*this));
-				*this = *(this->GetCryptoContext()->EvalSub(a, other));
-			}
-			return *this;
-		}
-
-		/**
-		* Unary negation operator.
-		*
-		* @param &other is the ciphertext to add with.
-		* @return the result of the addition.
-		*/
-		const CiphertextImpl<Element> operator-() {
-			if (m_elements.size() == 0)
-				throw std::logic_error("No elements in the ciphertext to be negated");
-			else
-			{
-				Ciphertext<Element> a(new CiphertextImpl<Element>(*this));
-				return *(this->GetCryptoContext()->EvalNegate(a));
-			}
-		}
-
-		CiphertextImpl<Element> operator*(const CiphertextImpl<Element> &other) const {
-			Ciphertext<Element> a(new CiphertextImpl<Element>(*this));
-			Ciphertext<Element> b(new CiphertextImpl<Element>(other));
-			return *this->GetCryptoContext()->EvalMult(a, b);
-		}
-
-		/**
-		* Performs an addition operation and returns the result.
-		*
-		* @param &other is the ciphertext to add with.
-		* @return the result of the addition.
-		*/
-		const CiphertextImpl<Element>& operator*=(const CiphertextImpl<Element> &other) {
-			Ciphertext<Element> b(new CiphertextImpl<Element>(other));
-			// ciphertext object has no data yet, i.e., it is zero-initialized
-			if (m_elements.size() == 0)
-			{
-				m_elements = other.m_elements;
-			}
-			else
-			{
-				shared_ptr<CiphertextImpl<Element>> a(new CiphertextImpl<Element>(*this));
-				*this = *(this->GetCryptoContext()->EvalMult(a, b));
-			}
-			return *this;
-		}
+//		CiphertextImpl<Element> operator*(const CiphertextImpl<Element> &other) const {
+//			Ciphertext<Element> a(new CiphertextImpl<Element>(*this));
+//			Ciphertext<Element> b(new CiphertextImpl<Element>(other));
+//			return *this->GetCryptoContext()->EvalMult(a, b);
+//		}
+//
+//		/**
+//		* Performs an addition operation and returns the result.
+//		*
+//		* @param &other is the ciphertext to add with.
+//		* @return the result of the addition.
+//		*/
+//		const CiphertextImpl<Element>& operator*=(const CiphertextImpl<Element> &other) {
+//			Ciphertext<Element> b(new CiphertextImpl<Element>(other));
+//			// ciphertext object has no data yet, i.e., it is zero-initialized
+//			if (m_elements.size() == 0)
+//			{
+//				m_elements = other.m_elements;
+//			}
+//			else
+//			{
+//				shared_ptr<CiphertextImpl<Element>> a(new CiphertextImpl<Element>(*this));
+//				*this = *(this->GetCryptoContext()->EvalMult(a, b));
+//			}
+//			return *this;
+//		}
 
 	private:
 
@@ -370,10 +371,28 @@ using Ciphertext = shared_ptr<CiphertextImpl<Element>>;
 	* @return The result of addition.
 	*/
 	template <class Element>
-	Ciphertext<Element> operator+(const Ciphertext<Element> &a, const Ciphertext<Element> &b) {
-		Ciphertext<Element> aPtr(new CiphertextImpl<Element>(a));
-		Ciphertext<Element> bPtr(new CiphertextImpl<Element>(b));
-		return *a.GetCryptoContext()->EvalAdd(aPtr,bPtr);
+	Ciphertext<Element> operator+(const Ciphertext<Element> a, const Ciphertext<Element> b) {
+		return a->GetCryptoContext()->EvalAdd(a,b);
+	}
+
+	/**
+	 * += for ciphertexts
+	 * FIXME to make this more efficient
+	 */
+	template <class Element>
+	const Ciphertext<Element>& operator+=(Ciphertext<Element> a, const Ciphertext<Element> b) {
+		return a = a->GetCryptoContext()->EvalAdd(a, b);
+	}
+
+	/**
+	* Unary negation operator.
+	*
+	* @param &other is the ciphertext to add with.
+	* @return the result of the addition.
+	*/
+	template <class Element>
+	Ciphertext<Element> operator-(Ciphertext<Element> a) {
+		return a = a->GetCryptoContext()->EvalNegate(a);
 	}
 
 	/**
@@ -386,11 +405,19 @@ using Ciphertext = shared_ptr<CiphertextImpl<Element>>;
 	* @return The result of subtraction.
 	*/
 	template <class Element>
-	Ciphertext<Element> operator-(const Ciphertext<Element> &a, const Ciphertext<Element> &b) {
-		Ciphertext<Element> aPtr(new CiphertextImpl<Element>(a));
-		Ciphertext<Element> bPtr(new CiphertextImpl<Element>(b));
-		return *a.GetCryptoContext()->EvalSub(aPtr, bPtr);
+	Ciphertext<Element> operator-(const Ciphertext<Element> a, const Ciphertext<Element> b) {
+		return a->GetCryptoContext()->EvalSub(a, b);
 	}
+
+	/**
+	 * -= for ciphertexts
+	 * FIXME to make this more efficient
+	 */
+	template <class Element>
+	const Ciphertext<Element>& operator-=(Ciphertext<Element> a, const Ciphertext<Element> b) {
+		return a = a->GetCryptoContext()->EvalSub(a, b);
+	}
+
 	/**
 	* Multiplication operator overload.  Performs EvalMult.
 	*
@@ -401,10 +428,18 @@ using Ciphertext = shared_ptr<CiphertextImpl<Element>>;
 	* @return The result of multiplication.
 	*/
 	template <class Element>
-	Ciphertext<Element> operator*(const Ciphertext<Element> &a, const Ciphertext<Element> &b) {
-		Ciphertext<Element> aPtr(new CiphertextImpl<Element>(a));
-		Ciphertext<Element> bPtr(new CiphertextImpl<Element>(b));
-		return *a.GetCryptoContext()->EvalMult(aPtr, bPtr);
+	Ciphertext<Element> operator*(const Ciphertext<Element> a, const Ciphertext<Element> b) {
+		return a->GetCryptoContext()->EvalMult(a, b);
 	}
+
+	/**
+	 * *= for ciphertexts
+	 * FIXME to make this more efficient
+	 */
+	template <class Element>
+	const Ciphertext<Element>& operator*=(Ciphertext<Element> a, const Ciphertext<Element> b) {
+		return a = a->GetCryptoContext()->EvalMult(a, b);
+	}
+
 } // namespace lbcrypto ends
 #endif

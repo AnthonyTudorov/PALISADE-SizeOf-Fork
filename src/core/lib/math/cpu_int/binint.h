@@ -587,7 +587,47 @@ namespace cpu_int{
     *
     * @return value of this BigInteger in base 10 represented as a string.
     */
-    const std::string ToString() const;		
+    const std::string ToString() const {
+
+    	//this string object will store this BigInteger's value
+    	std::string bbiString;
+
+    	usint counter;
+
+    	//print_VALUE array stores the decimal value in the array
+    	uschar *print_VALUE = new uschar[m_numDigitInPrintval];
+
+    	//reset to zero
+    	for(size_t i=0;i<m_numDigitInPrintval;i++)
+    		*(print_VALUE+i)=0;
+
+    	//starts the conversion from base r to decimal value
+    	for(size_t i=this->m_MSB;i>0;i--){
+
+    		//print_VALUE = print_VALUE*2
+    		BigInteger<uint_type,BITLENGTH>::double_bitVal(print_VALUE);
+
+    		//adds the bit value to the print_VALUE
+    		BigInteger<uint_type,BITLENGTH>::add_bitVal(print_VALUE,this->GetBitAtIndex(i));
+
+    	}
+
+    	//find the first occurence of non-zero value in print_VALUE
+    	for(counter=0;counter<m_numDigitInPrintval-1;counter++){
+    		if((sint)print_VALUE[counter]!=0)break;
+    	}
+
+    	//append this BigInteger's digits to this method's returned string object
+    	for (; counter < m_numDigitInPrintval; counter++) {
+    		bbiString += std::to_string(print_VALUE[counter]);
+    	}
+
+    	delete [] print_VALUE;
+
+    	return bbiString;
+    }
+
+
 
     const std::string Serialize(const BigInteger& mod = 0) const;
     const char * Deserialize(const char * str, const BigInteger& mod = 0);
