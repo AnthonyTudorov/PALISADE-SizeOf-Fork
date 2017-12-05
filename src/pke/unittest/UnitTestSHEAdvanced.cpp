@@ -315,7 +315,7 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 
 	usint ptm = 9;
 
-	shared_ptr<ILDCRTParams<BigInteger>> params = GenerateDCRTParams( init_m, ptm, init_size, dcrtBits );
+	shared_ptr<ILDCRTParams<BigInteger>> params = GenerateDCRTParams( init_m, init_size, dcrtBits );
 
 	shared_ptr<ILDCRTParams<BigInteger>> paramsSmall( new ILDCRTParams<BigInteger>( *params ) );
 	paramsSmall->PopLastParam();

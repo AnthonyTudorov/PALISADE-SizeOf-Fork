@@ -69,14 +69,18 @@ class PlaintextImpl
 {
 protected:
 	bool								isEncoded;
-	enum { IsPoly, IsDCRTPoly }			typeFlag;
+	enum { IsPoly, IsDCRTPoly, IsNativePoly }			typeFlag;
 	shared_ptr<EncodingParams>			encodingParams;
 	Poly								encodedVector;
+	NativePoly							encodedNativeVector;
 	DCRTPoly							encodedVectorDCRT;
 
 public:
 	PlaintextImpl(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, bool isEncoded = false) :
 		isEncoded(isEncoded), typeFlag(IsPoly), encodingParams(ep), encodedVector(vp,COEFFICIENT) {}
+
+	PlaintextImpl(shared_ptr<NativePoly::Params> vp, shared_ptr<EncodingParams> ep, bool isEncoded = false) :
+		isEncoded(isEncoded), typeFlag(IsPoly), encodingParams(ep), encodedNativeVector(vp,COEFFICIENT) {}
 
 	PlaintextImpl(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, bool isEncoded = false) :
 		isEncoded(isEncoded), typeFlag(IsDCRTPoly), encodingParams(ep), encodedVector(vp,COEFFICIENT), encodedVectorDCRT(vp,COEFFICIENT) {}
@@ -251,6 +255,15 @@ inline bool operator!=(const Plaintext p1, const Plaintext p2) { return *p1 != *
 template <>
 inline Poly& PlaintextImpl::GetElement<Poly>() {
 	return encodedVector;
+}
+
+/**
+ * GetElement
+ * @return the NativePolynomial that the element was encoded into
+ */
+template <>
+inline NativePoly& PlaintextImpl::GetElement<NativePoly>() {
+	return encodedNativeVector;
 }
 
 /**

@@ -36,17 +36,33 @@ IntegerEncoding::Encode() {
 	if( mod < 2 )
 		throw std::logic_error("Plaintext modulus must be 2 or more for integer encoding");
 
-	this->encodedVector.SetValuesToZero();
+	if( this->typeFlag == IsNativePoly ) {
+		this->encodedNativeVector.SetValuesToZero();
 
-	if( log2((double)value) > (double)this->encodedVector.GetLength() )
-		throw std::logic_error("Plaintext value " + std::to_string(value) + " will not fit in encoding of length " + std::to_string(this->encodedVector.GetLength()));
+		if( log2((double)value) > (double)this->encodedNativeVector.GetLength() )
+			throw std::logic_error("Plaintext value " + std::to_string(value) + " will not fit in encoding of length " + std::to_string(this->encodedVector.GetLength()));
 
-	uint64_t val = this->value;
-	size_t i = 0;
+		uint64_t val = this->value;
+		size_t i = 0;
 
-	while( val > 0 ) {
-		this->encodedVector.at(i++) = val & 0x01;
-		val >>= 1;
+		while( val > 0 ) {
+			this->encodedNativeVector[i++] = val & 0x01;
+			val >>= 1;
+		}
+	}
+	else {
+		this->encodedVector.SetValuesToZero();
+
+		if( log2((double)value) > (double)this->encodedVector.GetLength() )
+			throw std::logic_error("Plaintext value " + std::to_string(value) + " will not fit in encoding of length " + std::to_string(this->encodedVector.GetLength()));
+
+		uint64_t val = this->value;
+		size_t i = 0;
+
+		while( val > 0 ) {
+			this->encodedVector[i++] = val & 0x01;
+			val >>= 1;
+		}
 	}
 
 	if( this->typeFlag == IsDCRTPoly ) {
@@ -63,20 +79,40 @@ IntegerEncoding::Decode() {
 	uint64_t result = 0;
 	uint64_t powerFactor = 1;
 	uint64_t half(modulus >> 1);
-	for (size_t i = 0; i < this->encodedVector.GetLength(); i++) {
 
-		auto val = this->encodedVector.at(i).ConvertToInt();
+	if( this->typeFlag == IsNativePoly ) {
+		for (size_t i = 0; i < this->encodedNativeVector.GetLength(); i++) {
 
-		if( val != 0 ) {
-			// deal with unsigned representation
-			if (val < half)
-				result += powerFactor * val;
-			else
-				result -= powerFactor * (modulus - val);
+			auto val = this->encodedNativeVector[i].ConvertToInt();
+
+			if( val != 0 ) {
+				// deal with unsigned representation
+				if (val < half)
+					result += powerFactor * val;
+				else
+					result -= powerFactor * (modulus - val);
+			}
+
+			// multiply the power factor by 2
+			powerFactor <<= 1;
 		}
+	}
+	else {
+		for (size_t i = 0; i < this->encodedVector.GetLength(); i++) {
 
-		// multiply the power factor by 2
-		powerFactor <<= 1;
+			auto val = this->encodedVector[i].ConvertToInt();
+
+			if( val != 0 ) {
+				// deal with unsigned representation
+				if (val < half)
+					result += powerFactor * val;
+				else
+					result -= powerFactor * (modulus - val);
+			}
+
+			// multiply the power factor by 2
+			powerFactor <<= 1;
+		}
 	}
 	value = result;
 	return true;

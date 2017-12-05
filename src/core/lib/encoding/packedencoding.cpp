@@ -40,27 +40,52 @@ namespace lbcrypto {
 		if( this->isEncoded ) return true;
 		int64_t mod = this->encodingParams->GetPlaintextModulus().ConvertToInt();
 
-		BigVector temp(this->GetElementRingDimension(), this->GetElementModulus());
+		if( this->typeFlag == IsNativePoly ) {
+			NativeVector temp(this->GetElementRingDimension(), this->GetElementModulus().ConvertToInt());
 
-		size_t i;
-		for( i=0; i < value.size(); i++ ) {
-			uint32_t entry = value[i];
+			size_t i;
+			for( i=0; i < value.size(); i++ ) {
+				uint32_t entry = value[i];
 
-			if( entry >= mod )
-				throw std::logic_error("Cannot encode integer " + std::to_string(entry) +
-						" at position " + std::to_string(i) +
-						" that is > plaintext modulus " + std::to_string(mod) );
+				if( entry >= mod )
+					throw std::logic_error("Cannot encode integer " + std::to_string(entry) +
+							" at position " + std::to_string(i) +
+							" that is > plaintext modulus " + std::to_string(mod) );
 
-			temp.at(i) = BigInteger(entry);
+				temp[i] = NativeInteger(entry);
+			}
+
+			for(; i < this->GetElementRingDimension(); i++ )
+				temp[i] = NativeInteger(0);
+			this->isEncoded = true;
+
+			this->GetElement<NativePoly>().SetValues(temp, Format::EVALUATION); //output was in coefficient format
+
+			this->Pack(&this->GetElement<NativePoly>(), this->encodingParams->GetPlaintextModulus());//ilVector coefficients are packed and resulting ilVector is in COEFFICIENT form.
 		}
+		else {
+			BigVector temp(this->GetElementRingDimension(), this->GetElementModulus());
 
-		for(; i < this->GetElementRingDimension(); i++ )
-			temp.at(i) = BigInteger(0);
-		this->isEncoded = true;
+			size_t i;
+			for( i=0; i < value.size(); i++ ) {
+				uint32_t entry = value[i];
 
-		this->GetElement<Poly>().SetValues(temp, Format::EVALUATION); //output was in coefficient format
+				if( entry >= mod )
+					throw std::logic_error("Cannot encode integer " + std::to_string(entry) +
+							" at position " + std::to_string(i) +
+							" that is > plaintext modulus " + std::to_string(mod) );
 
-		this->Pack(&this->GetElement<Poly>(), this->encodingParams->GetPlaintextModulus());//ilVector coefficients are packed and resulting ilVector is in COEFFICIENT form.
+				temp[i] = BigInteger(entry);
+			}
+
+			for(; i < this->GetElementRingDimension(); i++ )
+				temp[i] = BigInteger(0);
+			this->isEncoded = true;
+
+			this->GetElement<Poly>().SetValues(temp, Format::EVALUATION); //output was in coefficient format
+
+			this->Pack(&this->GetElement<Poly>(), this->encodingParams->GetPlaintextModulus());//ilVector coefficients are packed and resulting ilVector is in COEFFICIENT form.
+		}
 
 		if( this->typeFlag == IsDCRTPoly ) {
 			this->encodedVectorDCRT = this->encodedVector;
@@ -72,12 +97,23 @@ namespace lbcrypto {
 
 	bool PackedEncoding::Decode() {
 
-		this->Unpack(&this->GetElement<Poly>(), this->encodingParams->GetPlaintextModulus());
+		if( this->typeFlag == IsNativePoly ) {
+			this->Unpack(&this->GetElement<NativePoly>(), this->encodingParams->GetPlaintextModulus());
 
-		this->value.clear();
-		for (usint i = 0; i<this->encodedVector.GetLength(); i++) {
-			this->value.push_back(this->encodedVector.at(i).ConvertToInt());
+			this->value.clear();
+			for (usint i = 0; i<this->encodedNativeVector.GetLength(); i++) {
+				this->value.push_back(this->encodedNativeVector[i].ConvertToInt());
+			}
 		}
+		else {
+			this->Unpack(&this->GetElement<Poly>(), this->encodingParams->GetPlaintextModulus());
+
+			this->value.clear();
+			for (usint i = 0; i<this->encodedVector.GetLength(); i++) {
+				this->value.push_back(this->encodedVector[i].ConvertToInt());
+			}
+		}
+
 		return true;
 	}
 
@@ -243,8 +279,8 @@ namespace lbcrypto {
 			throw std::logic_error(exception_message);
 	}
 
-
-	void PackedEncoding::Pack(Poly *ring, const BigInteger &modulus) const {
+	template<typename P>
+	void PackedEncoding::Pack(P *ring, const BigInteger &modulus) const {
 
 		bool dbg_flag = false;
 
@@ -263,7 +299,7 @@ namespace lbcrypto {
 		//copy values from ring to the vector
 		NativeVector slotValues(phim, modulusNI);
 		for (usint i = 0; i < phim; i++) {
-		  slotValues.at(i)= ring->at(i).ConvertToInt();
+		  slotValues[i] = (*ring)[i].ConvertToInt();
 		}
 
 		DEBUG(*ring);
@@ -278,7 +314,7 @@ namespace lbcrypto {
 				NativeVector permutedSlots(phim, modulusNI);
 
 				for (usint i = 0; i < phim; i++) {
-				  permutedSlots.at(i)= slotValues.at(m_toCRTPerm[modulusNI][i]);
+				  permutedSlots[i] = slotValues[m_toCRTPerm[modulusNI][i]];
 				}
 				ChineseRemainderTransformFTT<NativeInteger, NativeVector>::InverseTransform(permutedSlots, m_initRoot[modulusNI], m, &slotValues);
 			}
@@ -292,7 +328,7 @@ namespace lbcrypto {
 			// Permute to CRT Order
 			NativeVector permutedSlots(phim, modulusNI);
 			for (usint i = 0; i < phim; i++) {
-			  permutedSlots.at(i)= slotValues.at(m_toCRTPerm[modulusNI][i]);
+			  permutedSlots[i] = slotValues[m_toCRTPerm[modulusNI][i]];
 			}
 
             DEBUG("permutedSlots " << permutedSlots);
@@ -306,16 +342,17 @@ namespace lbcrypto {
 
         DEBUG("slotvalues now " << slotValues);
 		//copy values into the slotValuesRing
-		BigVector slotValuesRing(phim, ring->GetModulus());
+		typename P::Vector slotValuesRing(phim, ring->GetModulus());
 		for (usint i = 0; i < phim; i++) {
-		  slotValuesRing.at(i)= BigInteger(slotValues.at(i).ConvertToInt());
+		  slotValuesRing[i] = typename P::Integer(slotValues[i].ConvertToInt());
 		}
 
 		ring->SetValues(slotValuesRing, Format::COEFFICIENT);
 		DEBUG(*ring);
 	}
 
-void PackedEncoding::Unpack(Poly *ring, const BigInteger &modulus) const {
+	template<typename P>
+	void PackedEncoding::Unpack(P *ring, const BigInteger &modulus) const {
 
 	bool dbg_flag = false;
 
@@ -334,7 +371,7 @@ void PackedEncoding::Unpack(Poly *ring, const BigInteger &modulus) const {
 		//copy aggregate plaintext values
 		NativeVector packedVector(phim, modulusNI);
 		for (usint i = 0; i < phim; i++) {
-		  packedVector.at(i)= NativeInteger(ring->at(i).ConvertToInt());
+		  packedVector[i] = NativeInteger((*ring)[i].ConvertToInt());
 		}
 
 		DEBUG(packedVector);
@@ -351,7 +388,7 @@ void PackedEncoding::Unpack(Poly *ring, const BigInteger &modulus) const {
         if (m_fromCRTPerm[modulusNI].size() > 0) {
 			// Permute to automorphism Order
 			for (usint i = 0; i < phim; i++) {
-			  packedVector.at(i) = permutedSlots.at(m_fromCRTPerm[modulusNI][i]);
+			  packedVector[i] = permutedSlots[m_fromCRTPerm[modulusNI][i]];
 			}
 		}
 		else
@@ -360,9 +397,9 @@ void PackedEncoding::Unpack(Poly *ring, const BigInteger &modulus) const {
 		DEBUG(packedVector);
 
 		//copy values into the slotValuesRing
-		BigVector packedVectorRing(phim, ring->GetModulus());
+		typename P::Vector packedVectorRing(phim, ring->GetModulus());
 		for (usint i = 0; i < phim; i++) {
-		  packedVectorRing.at(i)= BigInteger(packedVector.at(i).ConvertToInt());
+		  packedVectorRing[i] = typename P::Integer(packedVector[i].ConvertToInt());
 		}
 
 		ring->SetValues(packedVectorRing, Format::COEFFICIENT);

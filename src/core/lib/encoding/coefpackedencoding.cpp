@@ -37,20 +37,39 @@ CoefPackedEncoding::Encode() {
 		throw std::logic_error("Plaintext modulus must be an even number for signed CoefPackedEncoding");
 	}
 
-	this->encodedVector.SetValuesToZero();
+	if( this->typeFlag == IsNativePoly ) {
+		this->encodedNativeVector.SetValuesToZero();
 
-	for( size_t i=0; isSigned ? i < valueSigned.size() : i < value.size(); i++ ) {
-		uint32_t entry = isSigned ? (uint32_t)valueSigned[i] : value[i];
-		if( isSigned && valueSigned[i] < 0 ) {
-			entry = mod + entry;
+		for( size_t i=0; isSigned ? i < valueSigned.size() : i < value.size(); i++ ) {
+			uint32_t entry = isSigned ? (uint32_t)valueSigned[i] : value[i];
+			if( isSigned && valueSigned[i] < 0 ) {
+				entry = mod + entry;
+			}
+
+			if( entry >= mod )
+				throw std::logic_error("Cannot encode integer " + std::to_string(entry) +
+						" at position " + std::to_string(i) +
+						" that is > plaintext modulus " + std::to_string(mod) );
+
+			this->encodedNativeVector[i] = entry;
 		}
+	}
+	else {
+		this->encodedVector.SetValuesToZero();
 
-		if( entry >= mod )
-			throw std::logic_error("Cannot encode integer " + std::to_string(entry) +
-					" at position " + std::to_string(i) +
-					" that is > plaintext modulus " + std::to_string(mod) );
+		for( size_t i=0; isSigned ? i < valueSigned.size() : i < value.size(); i++ ) {
+			uint32_t entry = isSigned ? (uint32_t)valueSigned[i] : value[i];
+			if( isSigned && valueSigned[i] < 0 ) {
+				entry = mod + entry;
+			}
 
-		this->encodedVector.at(i) = entry;
+			if( entry >= mod )
+				throw std::logic_error("Cannot encode integer " + std::to_string(entry) +
+						" at position " + std::to_string(i) +
+						" that is > plaintext modulus " + std::to_string(mod) );
+
+			this->encodedVector[i] = entry;
+		}
 	}
 
 	if( this->typeFlag == IsDCRTPoly ) {
@@ -68,15 +87,29 @@ CoefPackedEncoding::Decode() {
 	this->value.clear();
 	this->valueSigned.clear();
 
-	for( size_t i = 0; i < this->encodedVector.GetLength(); i++ ) {
-		uint64_t val = this->encodedVector.at(i).ConvertToInt();
-		if( isSigned ) {
-			if( val >  mod/2)
-				val -= mod;
-			this->valueSigned.push_back(val);
+	if( this->typeFlag == IsNativePoly ) {
+		for( size_t i = 0; i < this->encodedNativeVector.GetLength(); i++ ) {
+			uint64_t val = this->encodedNativeVector[i].ConvertToInt();
+			if( isSigned ) {
+				if( val >  mod/2)
+					val -= mod;
+				this->valueSigned.push_back(val);
+			}
+			else
+				this->value.push_back(val);
 		}
-		else
-			this->value.push_back(val);
+	}
+	else {
+		for( size_t i = 0; i < this->encodedVector.GetLength(); i++ ) {
+			uint64_t val = this->encodedVector[i].ConvertToInt();
+			if( isSigned ) {
+				if( val >  mod/2)
+					val -= mod;
+				this->valueSigned.push_back(val);
+			}
+			else
+				this->value.push_back(val);
+		}
 	}
 	return true;
 }

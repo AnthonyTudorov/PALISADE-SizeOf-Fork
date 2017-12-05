@@ -39,10 +39,16 @@ public:
 	IntegerEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep) :
 		PlaintextImpl(vp,ep), value(0) {}
 
+	IntegerEncoding(shared_ptr<NativePoly::Params> vp, shared_ptr<EncodingParams> ep) :
+		PlaintextImpl(vp,ep), value(0) {}
+
 	IntegerEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep) :
 		PlaintextImpl(vp,ep), value(0) {}
 
 	IntegerEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, uint64_t scalar) :
+		PlaintextImpl(vp,ep), value(scalar) {}
+
+	IntegerEncoding(shared_ptr<NativePoly::Params> vp, shared_ptr<EncodingParams> ep, uint64_t scalar) :
 		PlaintextImpl(vp,ep), value(scalar) {}
 
 	IntegerEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, uint64_t scalar) :

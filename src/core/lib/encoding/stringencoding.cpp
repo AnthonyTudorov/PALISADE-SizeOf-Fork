@@ -40,13 +40,25 @@ StringEncoding::Encode() {
 		throw std::logic_error("Plaintext modulus must be " + std::to_string(charPtm) + " for string encoding");
 	}
 
-	this->encodedVector.SetValuesToZero();
-	size_t i = 0;
-	for( ; i<ptx.size() && i<this->encodedVector.GetLength(); i++ ) {
-		this->encodedVector.at(i) = ptx[i];
+	if( this->typeFlag == IsNativePoly ) {
+		this->encodedNativeVector.SetValuesToZero();
+		size_t i = 0;
+		for( ; i<ptx.size() && i<this->encodedNativeVector.GetLength(); i++ ) {
+			this->encodedNativeVector[i] = ptx[i];
+		}
+		for( ; i<this->encodedNativeVector.GetLength(); i++ ) {
+			this->encodedNativeVector[i] = CHARMARKER;
+		}
 	}
-	for( ; i<this->encodedVector.GetLength(); i++ ) {
-		this->encodedVector.at(i) = CHARMARKER;
+	else {
+		this->encodedVector.SetValuesToZero();
+		size_t i = 0;
+		for( ; i<ptx.size() && i<this->encodedVector.GetLength(); i++ ) {
+			this->encodedVector[i] = ptx[i];
+		}
+		for( ; i<this->encodedVector.GetLength(); i++ ) {
+			this->encodedVector[i] = CHARMARKER;
+		}
 	}
 
 	if( this->typeFlag == IsDCRTPoly ) {
@@ -61,11 +73,21 @@ bool
 StringEncoding::Decode() {
 	int64_t mod = this->encodingParams->GetPlaintextModulus().ConvertToInt();
 	this->ptx.clear();
-	for( size_t i=0; i<this->encodedVector.GetLength(); i++) {
-		uint32_t ch = (this->encodedVector.at(i).ConvertToInt() % mod) & 0xff;
-		if( ch == CHARMARKER )
-			break;
-		this->ptx += (char)(ch);
+	if( this->typeFlag == IsNativePoly ) {
+		for( size_t i=0; i<this->encodedNativeVector.GetLength(); i++) {
+			uint32_t ch = (this->encodedNativeVector[i].ConvertToInt() % mod) & 0xff;
+			if( ch == CHARMARKER )
+				break;
+			this->ptx += (char)(ch);
+		}
+	}
+	else {
+		for( size_t i=0; i<this->encodedVector.GetLength(); i++) {
+			uint32_t ch = (this->encodedVector[i].ConvertToInt() % mod) & 0xff;
+			if( ch == CHARMARKER )
+				break;
+			this->ptx += (char)(ch);
+		}
 	}
 	return true;
 }

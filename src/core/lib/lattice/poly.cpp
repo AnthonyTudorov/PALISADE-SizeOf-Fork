@@ -480,6 +480,18 @@ Format PolyImpl<ModType,IntType,VecType,ParmType>::GetFormat() const
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
+	IntType& PolyImpl<ModType,IntType,VecType,ParmType>::operator[](usint i)
+	{
+		return (*m_values)[i];
+	}
+
+	template<typename ModType, typename IntType, typename VecType, typename ParmType>
+	const IntType& PolyImpl<ModType,IntType,VecType,ParmType>::operator[](usint i) const
+	{
+		return (*m_values)[i];
+	}
+
+	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 usint PolyImpl<ModType,IntType,VecType,ParmType>::GetLength() const
 {
 		if (m_values == 0)

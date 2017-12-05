@@ -26,6 +26,7 @@
 #include "include/gtest/gtest.h"
 #include <iostream>
 #include <vector>
+#include <list>
 
 #include "palisade.h"
 #include "cryptocontextparametersets.h"
@@ -42,12 +43,59 @@ protected:
 	void SetUp() {}
 
 	void TearDown() {
+		CryptoContextFactory<NativePoly>::ReleaseAllContexts();
 		CryptoContextFactory<Poly>::ReleaseAllContexts();
 		CryptoContextFactory<DCRTPoly>::ReleaseAllContexts();
 	}
 
 public:
 };
+
+template <typename Element>
+class Encrypt : public ::testing::Test {
+public:
+	virtual ~Encrypt() {}
+	typedef std::list<Element> List;
+	static Element shared_;
+	Element value_;
+};
+
+typedef ::testing::Types<Poly, DCRTPoly, NativePoly> EncryptElementTypes;
+TYPED_TEST_CASE(Encrypt, EncryptElementTypes);
+
+TYPED_TEST(Encrypt, LTV_Encrypt_Decrypt_Scalar) {
+	//TypeParam t = this->value_;
+	CryptoContext<TypeParam> cc = GenCryptoContextLTV<TypeParam>(8, 64);
+
+	uint32_t		value = 29;
+	Plaintext plaintext = cc->MakeScalarPlaintext(value);
+
+	////////////////////////////////////////////////////////////
+	//Perform the key generation operation.
+	////////////////////////////////////////////////////////////
+
+	// Initialize the key containers.
+	auto kp = cc->KeyGen();
+
+	if (!kp.good()) {
+		std::cout << "Key generation failed!" << std::endl;
+		exit(1);
+	}
+
+	////////////////////////////////////////////////////////////
+	//Encrypt and decrypt
+	////////////////////////////////////////////////////////////
+
+	auto ciphertext = cc->Encrypt(kp.publicKey, plaintext);
+	Plaintext plaintextNew;
+	cc->Decrypt(kp.secretKey, ciphertext, &plaintextNew);
+	EXPECT_EQ(*plaintext, *plaintextNew) << "unsigned";
+
+	Plaintext plaintext2 = cc->MakeScalarPlaintext(-value, true);
+	ciphertext = cc->Encrypt(kp.publicKey, plaintext2);
+	cc->Decrypt(kp.secretKey, ciphertext, &plaintextNew);
+	EXPECT_EQ(*plaintext2, *plaintextNew) << "signed";
+}
 
 template <typename Element>
 void

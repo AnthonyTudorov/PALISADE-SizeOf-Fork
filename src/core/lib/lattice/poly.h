@@ -362,7 +362,6 @@ public:
 		return m_params->GetRootOfUnity();
 	}
 
-
 	/**
 	 * @brief Get value of element at index i.
 	 *
@@ -370,6 +369,14 @@ public:
 	 */
 	IntType& at(usint i) ;
 	const IntType& at(usint i) const;
+
+	/**
+	 * @brief Get value of element at index i.
+	 *
+	 * @return value at index i.
+	 */
+	IntType& operator[](usint i) ;
+	const IntType& operator[](usint i) const;
 
 	//SETTERS
 	/**

@@ -54,16 +54,25 @@ public:
 	PackedEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep) :
 		PlaintextImpl(vp,ep) {}
 
+	PackedEncoding(shared_ptr<NativePoly::Params> vp, shared_ptr<EncodingParams> ep) :
+		PlaintextImpl(vp,ep) {}
+
 	PackedEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep) :
 		PlaintextImpl(vp,ep) {}
 
 	PackedEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, vector<uint32_t> coeffs) :
 		PlaintextImpl(vp,ep), value(coeffs) {}
 
+	PackedEncoding(shared_ptr<NativePoly::Params> vp, shared_ptr<EncodingParams> ep, vector<uint32_t> coeffs) :
+		PlaintextImpl(vp,ep), value(coeffs) {}
+
 	PackedEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, vector<uint32_t> coeffs) :
 		PlaintextImpl(vp,ep), value(coeffs) {}
 
 	PackedEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, std::initializer_list<uint32_t> coeffs) :
+		PlaintextImpl(vp,ep), value(coeffs) {}
+
+	PackedEncoding(shared_ptr<NativePoly::Params> vp, shared_ptr<EncodingParams> ep, std::initializer_list<uint32_t> coeffs) :
 		PlaintextImpl(vp,ep), value(coeffs) {}
 
 	PackedEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, std::initializer_list<uint32_t> coeffs) :
@@ -191,7 +200,8 @@ private:
 	* @param ring is the element containing slot values.
 	* @param modulus is the plaintext modulus used for packing.
 	*/
-	void Pack(Poly *ring, const BigInteger &modulus) const;
+	template<typename P>
+	void Pack(P *ring, const BigInteger &modulus) const;
 
 	/**
 	* @brief Unpacks the data from aggregated plaintext to slot values.
@@ -199,7 +209,8 @@ private:
 	* @param ring is the input polynomial ring in aggregate plaintext.
 	* @param modulus is the plaintext modulus used in packing operation.
 	*/
-	void Unpack(Poly *ring, const BigInteger &modulus) const;
+	template<typename P>
+	void Unpack(P *ring, const BigInteger &modulus) const;
 
 };
 

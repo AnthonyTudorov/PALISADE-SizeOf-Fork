@@ -38,8 +38,11 @@ class StringEncoding: public PlaintextImpl {
 	//enum EncodingType { CHAR7bit } encoding = CHAR7bit;
 
 public:
-	// these two constructors are used inside of Decrypt
+	// these three constructors are used inside of Decrypt
 	StringEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep) :
+		PlaintextImpl(vp,ep) {}
+
+	StringEncoding(shared_ptr<NativePoly::Params> vp, shared_ptr<EncodingParams> ep) :
 		PlaintextImpl(vp,ep) {}
 
 	StringEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep) :
@@ -48,10 +51,16 @@ public:
 	StringEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, string str) :
 		PlaintextImpl(vp,ep), ptx(str) {}
 
+	StringEncoding(shared_ptr<NativePoly::Params> vp, shared_ptr<EncodingParams> ep, string str) :
+		PlaintextImpl(vp,ep), ptx(str) {}
+
 	StringEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, string str) :
 		PlaintextImpl(vp,ep), ptx(str) {}
 
 	StringEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, vector<uint8_t> vec) :
+		PlaintextImpl(vp,ep), ptx(vec.begin(),vec.end()) {}
+
+	StringEncoding(shared_ptr<NativePoly::Params> vp, shared_ptr<EncodingParams> ep, vector<uint8_t> vec) :
 		PlaintextImpl(vp,ep), ptx(vec.begin(),vec.end()) {}
 
 	StringEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, vector<uint8_t> vec) :

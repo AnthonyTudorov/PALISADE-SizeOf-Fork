@@ -50,15 +50,13 @@ using namespace lbcrypto;
  * @param pbits - number of bits in the prime, to start with
  * @return
  */
-inline shared_ptr<ILDCRTParams<BigInteger>> GenerateDCRTParams(usint m, usint ptm, usint numOfTower, usint pbits) {
+inline shared_ptr<ILDCRTParams<BigInteger>> GenerateDCRTParams(usint m, usint numOfTower, usint pbits) {
 
 	if( numOfTower == 0 )
 		throw std::logic_error("Can't make parms with numOfTower == 0 ");
 
 	std::vector<NativeInteger> moduli(numOfTower);
 	std::vector<NativeInteger> rootsOfUnity(numOfTower);
-
-	NativeInteger ptmI( ptm );
 
 	NativeInteger q = FirstPrime<NativeInteger>(pbits, m);
 	BigInteger modulus(1);
