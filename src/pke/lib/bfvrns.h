@@ -187,6 +187,13 @@ namespace lbcrypto {
 			const std::vector<NativeInteger>& GetCRTInverseTable() const { return m_CRTInverseTable; }
 
 			/**
+			* Gets the precomputed table of (Q/qi) mod qi
+			*
+			* @return the precomputed table
+			*/
+			const std::vector<NativeInteger>& GetCRTqDivqiTable() const { return m_CRTqDivqiTable; }
+
+			/**
 			* Gets the precomputed table of (Q/qi) mod si
 			*
 			* @return the precomputed table
@@ -271,6 +278,9 @@ namespace lbcrypto {
 
 			// Stores a precomputed table of (Q/qi)^{-1} mod qi
 			std::vector<NativeInteger> m_CRTInverseTable;
+
+			// Stores a precomputed table of (Q/qi) mod qi
+			std::vector<NativeInteger> m_CRTqDivqiTable;
 
 			// Stores a precomputed table of (Q/qi) mod si
 			std::vector<std::vector<NativeInteger>> m_CRTqDivqiModsiTable;
@@ -395,6 +405,26 @@ namespace lbcrypto {
 		*/
 		Ciphertext<Element> EvalMult(const Ciphertext<Element> ct1,
 			const Ciphertext<Element> ct2) const;
+
+		/**
+		* Method for generating a KeySwitchHint using RLWE relinearization
+		*
+		* @param originalPrivateKey Original private key used for encryption.
+		* @param newPrivateKey New private key to generate the keyswitch hint.
+		* @return resulting keySwitchHint.
+		*/
+		shared_ptr<LPEvalKey<Element>> KeySwitchGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
+			const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const;
+
+		/**
+		* Method for key switching based on a KeySwitchHint using RLWE relinearization
+		*
+		* @param keySwitchHint Hint required to perform the ciphertext switching.
+		* @param &cipherText Original ciphertext to perform switching on.
+		* @return new ciphertext
+		*/
+		shared_ptr<Ciphertext<Element>> KeySwitch(const shared_ptr<LPEvalKey<Element>> keySwitchHint,
+			const shared_ptr<Ciphertext<Element>> cipherText) const;
 
 
 	};

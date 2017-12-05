@@ -358,6 +358,34 @@ std::vector<DCRTPolyImpl<ModType,IntType,VecType,ParmType>> DCRTPolyImpl<ModType
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
+std::vector<DCRTPolyImpl<ModType,IntType,VecType,ParmType>> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::CRTDecompose(
+		const std::vector<NativeInteger> &qDivqiInverse) const
+{
+
+	std::vector<DCRTPolyType> result;
+
+	DCRTPolyType input = this->Clone();
+
+	if (input.GetFormat() == EVALUATION)
+		input.SwitchFormat();
+
+	for( usint i=0; i<m_vectors.size(); i++ ) {
+
+		DCRTPolyType currentDCRTPoly = input.CloneEmpty();
+		PolyType currentPoly = input.m_vectors[i]*qDivqiInverse[i];
+
+		for ( usint k=0; k<m_vectors.size(); k++ )
+			currentDCRTPoly.m_vectors[i] = currentPoly.Mod((*input.GetParams())[i]->GetModulus());
+
+		currentDCRTPoly.SwitchFormat();
+
+		result.push_back( std::move(currentDCRTPoly) );
+	}
+
+	return std::move(result);
+}
+
+template<typename ModType, typename IntType, typename VecType, typename ParmType>
 std::vector<DCRTPolyImpl<ModType,IntType,VecType,ParmType>> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::PowersOfBase(usint baseBits) const
 {
 	bool dbg_flag = false;

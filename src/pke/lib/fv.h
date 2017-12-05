@@ -521,7 +521,7 @@ namespace lbcrypto {
 		* @param newPrivateKey New private key to generate the keyswitch hint.
 		* @return resulting keySwitchHint.
 		*/
-		LPEvalKey<Element> KeySwitchGen(const LPPrivateKey<Element> originalPrivateKey,
+		virtual LPEvalKey<Element> KeySwitchGen(const LPPrivateKey<Element> originalPrivateKey,
 			const LPPrivateKey<Element> newPrivateKey) const;
 
 		/**
@@ -531,7 +531,7 @@ namespace lbcrypto {
 		* @param &cipherText Original ciphertext to perform switching on.
 		* @return new ciphertext
 		*/
-		Ciphertext<Element> KeySwitch(const LPEvalKey<Element> keySwitchHint,
+		virtual Ciphertext<Element> KeySwitch(const LPEvalKey<Element> keySwitchHint,
 			const Ciphertext<Element> cipherText) const;
 
 		/**

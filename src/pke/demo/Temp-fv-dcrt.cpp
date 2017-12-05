@@ -300,7 +300,6 @@ void SHETestCoeff() {
 
 	cout << "\n";
 
-
 }
 
 void SHETestPacked() {
@@ -458,6 +457,27 @@ void SHETestPacked() {
 	cout << plaintextDecCube << endl;
 
 	cout << "\n";
+
+	start = currentDateTime();
+	cryptoContext->EvalMultKeyGen(keyPair.secretKey);
+	finish = currentDateTime();
+	diff = finish - start;
+	cout << "EvalMult key generation time: " << "\t" << diff << " ms" << endl;
+
+	start = currentDateTime();
+
+	auto ciphertextRelin = cryptoContext->EvalMult(ciphertext1,ciphertext2);
+
+	finish = currentDateTime();
+	diff = finish - start;
+	cout << "Homomorphic multiplication time - with relinearization: " << "\t" << diff << " ms" << endl;
+
+	Plaintext plaintextDecRelin;
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertextRelin, &plaintextDecRelin);
+	plaintextDecRelin->SetLength(plaintext1->GetLength());
+
+	cout << "\n Resulting Decryption of the Multiplication with Relinearization: \n";
+	cout << plaintextDecRelin << endl;
 
 }
 

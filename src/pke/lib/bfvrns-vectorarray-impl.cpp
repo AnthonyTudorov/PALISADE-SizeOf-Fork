@@ -123,7 +123,7 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 
 	m_CRTDeltaTable = CRTDeltaTable;
 
-	//compute the (Q/qi)^{-1} mod qi table - used for homomorphic multiplication
+	//compute the (Q/qi)^{-1} mod qi table - used for homomorphic multiplication and key switching
 
 	std::vector<NativeInteger> qInv(size);
 	for( usint vi = 0 ; vi < size; vi++ ) {
@@ -133,6 +133,17 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 	}
 
 	m_CRTInverseTable = qInv;
+
+	//compute the (Q/qi) mod qi table - used for key switching
+
+	std::vector<NativeInteger> qDivqi(size);
+	for( usint vi = 0 ; vi < size; vi++ ) {
+		BigInteger qi = BigInteger(moduli[vi].ConvertToInt());
+		BigInteger divBy = modulusQ / qi;
+		qDivqi[vi] = divBy.Mod(qi).ConvertToInt();
+	}
+
+	m_CRTqDivqiTable = qDivqi;
 
 	// compute the (Q/qi) mod si table - used for homomorphic multiplication
 
@@ -567,6 +578,9 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalMult(const Ciphertext<D
 
 	//converts the ciphertext elements back to evaluation representation
 
+	// we can copy all q elements if they were originally available in the evaluation representation
+	// this will speed up this SwitchFormat() operation by a factor of 2
+
 	TIC(t);
 
 	for(size_t i=0; i<cipherText1ElementsSize; i++)
@@ -623,6 +637,106 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalMult(const Ciphertext<D
 
 	return newCiphertext;
 
+}
+
+template <>
+shared_ptr<LPEvalKey<DCRTPoly>> LPAlgorithmSHEBFVrns<DCRTPoly>::KeySwitchGen(const shared_ptr<LPPrivateKey<DCRTPoly>> originalPrivateKey,
+	const shared_ptr<LPPrivateKey<DCRTPoly>> newPrivateKey) const {
+
+	shared_ptr<LPEvalKeyRelin<DCRTPoly>> ek(new LPEvalKeyRelin<DCRTPoly>(newPrivateKey->GetCryptoContext()));
+
+	const shared_ptr<LPCryptoParametersBFVrns<DCRTPoly>> cryptoParamsLWE =
+			std::dynamic_pointer_cast<LPCryptoParametersBFVrns<DCRTPoly>>(newPrivateKey->GetCryptoParameters());
+	const shared_ptr<typename DCRTPoly::Params> elementParams = cryptoParamsLWE->GetElementParams();
+	const DCRTPoly &s = newPrivateKey->GetPrivateElement();
+
+	const typename DCRTPoly::DggType &dgg = cryptoParamsLWE->GetDiscreteGaussianGenerator();
+	typename DCRTPoly::DugType dug;
+
+	const DCRTPoly &oldKey = originalPrivateKey->GetPrivateElement();
+
+	const std::vector<NativeInteger> &qDivqiTable = cryptoParamsLWE->GetCRTqDivqiTable();
+
+	// computes all [oldKey q/qi]_qi
+	DCRTPoly oldKeyqDivqi = oldKey.Times(qDivqiTable);
+
+	//std::vector<DCRTPoly> evalKeyElements(originalPrivateKey->GetPrivateElement().PowersOfBase(relinWindow));
+	std::vector<DCRTPoly> evalKeyElements;
+	std::vector<DCRTPoly> evalKeyElementsGenerated;
+
+	for (usint i = 0; i < (evalKeyElements.size()); i++)
+	{
+		// Generate a_i vectors
+		DCRTPoly a(dug, elementParams, Format::EVALUATION);
+		evalKeyElementsGenerated.push_back(a);
+
+		// Creates an element with all zeroes
+		DCRTPoly filtered = oldKeyqDivqi.CloneEmpty();
+		// Sets [oldKey q/qi]_qi
+		filtered.SetElementAtIndex(i,oldKeyqDivqi.GetElementAtIndex(i));
+
+		// Generate a_i * s + e - PowerOfBase(s^2)
+		DCRTPoly e(dgg, elementParams, Format::EVALUATION);
+		evalKeyElements.push_back(filtered - (a*s + e));
+	}
+
+	ek->SetAVector(std::move(evalKeyElements));
+	ek->SetBVector(std::move(evalKeyElementsGenerated));
+
+	return ek;
+
+}
+
+template <>
+shared_ptr<Ciphertext<DCRTPoly>> LPAlgorithmSHEBFVrns<DCRTPoly>::KeySwitch(const shared_ptr<LPEvalKey<DCRTPoly>> ek,
+	const shared_ptr<Ciphertext<DCRTPoly>> cipherText) const
+{
+
+	shared_ptr<Ciphertext<DCRTPoly>> newCiphertext = cipherText->CloneEmpty();
+
+	const shared_ptr<LPCryptoParametersBFVrns<DCRTPoly>> cryptoParamsLWE = std::dynamic_pointer_cast<LPCryptoParametersBFVrns<DCRTPoly>>(ek->GetCryptoParameters());
+
+	shared_ptr<LPEvalKeyRelin<DCRTPoly>> evalKey = std::static_pointer_cast<LPEvalKeyRelin<DCRTPoly>>(ek);
+
+	const std::vector<DCRTPoly> &c = cipherText->GetElements();
+
+	const std::vector<DCRTPoly> &b = evalKey->GetAVector();
+	const std::vector<DCRTPoly> &a = evalKey->GetBVector();
+
+	std::vector<DCRTPoly> digitsC2;
+
+	DCRTPoly ct0(c[0]);
+
+	//in the case of EvalMult, c[0] is initially in coefficient format and needs to be switched to evaluation format
+	if (c.size() > 2)
+		ct0.SwitchFormat();
+
+	DCRTPoly ct1;
+
+	if (c.size() == 2) //case of PRE or automorphism
+	{
+		digitsC2 = c[1].CRTDecompose(cryptoParamsLWE->GetCRTInverseTable());
+		ct1 = digitsC2[0] * a[0];
+	}
+	else //case of EvalMult
+	{
+		digitsC2 = c[2].CRTDecompose(cryptoParamsLWE->GetCRTInverseTable());
+		ct1 = c[1];
+		//Convert ct1 to evaluation representation
+		ct1.SwitchFormat();
+		ct1 += digitsC2[0] * a[0];
+	}
+
+	ct0 += digitsC2[0] * b[0];
+
+	for (usint i = 1; i < digitsC2.size(); ++i)
+	{
+		ct0 += digitsC2[i] * b[i];
+		ct1 += digitsC2[i] * a[i];
+	}
+
+	newCiphertext->SetElements({ ct0, ct1 });
+	return newCiphertext;
 }
 
 template class LPCryptoParametersBFVrns<DCRTPoly>;

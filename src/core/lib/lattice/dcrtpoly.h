@@ -342,6 +342,13 @@ public:
 	 */
 	std::vector<DCRTPolyType> PowersOfBase(usint baseBits) const ;
 
+	/**
+	 * CRT basis decomposition of c as [c qi/q]_qi
+	 *
+	 * @param &qDivqiInverse precomputed table of [qi_q]_qi
+	 * @return is the pointer where the resulting vector is stored
+	 */
+	std::vector<DCRTPolyType> CRTDecompose(const std::vector<NativeInteger> &qDivqiInverse) const;
 
 	//VECTOR OPERATIONS
 
@@ -612,6 +619,15 @@ public:
 	*/
 	void SetValues(const VecType &values, Format format) {
 		throw std::logic_error("SetValues not implemented on DCRTPoly");
+	}
+
+	/**
+	* @brief Sets element at index
+	*
+	* @param index where the element should be set
+	*/
+	void SetElementAtIndex(usint index,const PolyType &element){
+		m_vectors[index] = element;
 	}
 
 	/**

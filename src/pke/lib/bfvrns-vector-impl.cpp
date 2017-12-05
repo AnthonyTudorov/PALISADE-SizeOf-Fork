@@ -114,6 +114,20 @@ Ciphertext<Poly> LPAlgorithmSHEBFVrns<Poly>::EvalMult(const Ciphertext<Poly> cip
 	throw std::runtime_error(errMsg);
 }
 
+template <>
+shared_ptr<LPEvalKey<Poly>> LPAlgorithmSHEBFVrns<Poly>::KeySwitchGen(const shared_ptr<LPPrivateKey<Poly>> originalPrivateKey,
+	const shared_ptr<LPPrivateKey<Poly>> newPrivateKey) const {
+	std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead.";
+	throw std::runtime_error(errMsg);
+}
+
+template <>
+shared_ptr<Ciphertext<Poly>> LPAlgorithmSHEBFVrns<Poly>::KeySwitch(const shared_ptr<LPEvalKey<Poly>> keySwitchHint,
+	const shared_ptr<Ciphertext<Poly>> cipherText) const{
+	std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead.";
+	throw std::runtime_error(errMsg);
+}
+
 template class LPCryptoParametersBFVrns<Poly>;
 template class LPPublicKeyEncryptionSchemeBFVrns<Poly>;
 template class LPAlgorithmBFVrns<Poly>;
