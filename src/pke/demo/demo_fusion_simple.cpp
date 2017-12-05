@@ -112,9 +112,9 @@ int main(int argc, char *argv[]) {
 
 	LPKeyPair<Poly> kpMultiparty;
 
-	shared_ptr<LPEvalKey<Poly>> evalKey1;
-	shared_ptr<LPEvalKey<Poly>> evalKey2;
-	shared_ptr<LPEvalKey<Poly>> evalKey3;
+	LPEvalKey<Poly> evalKey1;
+	LPEvalKey<Poly> evalKey2;
+	LPEvalKey<Poly> evalKey3;
 	
 	////////////////////////////////////////////////////////////
 	// Perform Key Generation Operation

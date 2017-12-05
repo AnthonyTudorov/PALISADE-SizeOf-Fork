@@ -465,7 +465,7 @@ namespace lbcrypto {
 		* @param *newCiphertext the new resulting ciphertext.
 		*/
 		Ciphertext<Element> EvalMult(const Ciphertext<Element> ct1,
-			const Ciphertext<Element> ct, const shared_ptr<LPEvalKey<Element>> ek) const;
+			const Ciphertext<Element> ct, const LPEvalKey<Element> ek) const;
 
 		/**
 		* Function for evaluating multiplication on ciphertext followed by relinearization operation.
@@ -479,7 +479,7 @@ namespace lbcrypto {
 		* @param *newCiphertext the new resulting ciphertext.
 		*/
 		Ciphertext<Element> EvalMult(const Ciphertext<Element> ct1,
-			const Plaintext ct, const shared_ptr<LPEvalKey<Element>> ek) const;
+			const Plaintext ct, const LPEvalKey<Element> ek) const;
 
 		/**
 		* Function for evaluating multiplication on ciphertext followed by relinearization operation. It computes the
@@ -491,7 +491,7 @@ namespace lbcrypto {
 		*  decryptable by the same secret key as that of ciphertext list.
 		* @param *newCiphertext the new resulting ciphertext.
 		*/
-		Ciphertext<Element> EvalMultMany(const vector<Ciphertext<Element>>& cipherTextList, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> evalKeys) const;
+		Ciphertext<Element> EvalMultMany(const vector<Ciphertext<Element>>& cipherTextList, const shared_ptr<vector<LPEvalKey<Element>>> evalKeys) const;
 
 		/**
 		* Function for evaluating multiplication on ciphertext followed by relinearization operation.
@@ -504,7 +504,7 @@ namespace lbcrypto {
 		* @param *newCiphertext the new resulting ciphertext.
 		*/
 		Ciphertext<Element> EvalMultAndRelinearize(const Ciphertext<Element> ct1,
-			const Ciphertext<Element> ct, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> ek) const;
+			const Ciphertext<Element> ct, const shared_ptr<vector<LPEvalKey<Element>>> ek) const;
 
 		/**
 		* Function for homomorphic negation of ciphertexts.
@@ -521,7 +521,7 @@ namespace lbcrypto {
 		* @param newPrivateKey New private key to generate the keyswitch hint.
 		* @return resulting keySwitchHint.
 		*/
-		shared_ptr<LPEvalKey<Element>> KeySwitchGen(const LPPrivateKey<Element> originalPrivateKey,
+		LPEvalKey<Element> KeySwitchGen(const LPPrivateKey<Element> originalPrivateKey,
 			const LPPrivateKey<Element> newPrivateKey) const;
 
 		/**
@@ -531,7 +531,7 @@ namespace lbcrypto {
 		* @param &cipherText Original ciphertext to perform switching on.
 		* @return new ciphertext
 		*/
-		Ciphertext<Element> KeySwitch(const shared_ptr<LPEvalKey<Element>> keySwitchHint,
+		Ciphertext<Element> KeySwitch(const LPEvalKey<Element> keySwitchHint,
 			const Ciphertext<Element> cipherText) const;
 
 		/**
@@ -542,7 +542,7 @@ namespace lbcrypto {
 		* @param &newPublicKey encryption key for the new ciphertext.
 		* @param origPrivateKey original private key used for decryption.
 		*/
-		shared_ptr<LPEvalKey<Element>> KeySwitchRelinGen(const LPPublicKey<Element> newPublicKey,
+		LPEvalKey<Element> KeySwitchRelinGen(const LPPublicKey<Element> newPublicKey,
 			const LPPrivateKey<Element> origPrivateKey) const {
 			std::string errMsg = "LPAlgorithmSHEFV:KeySwitchRelinGen is not needed for this scheme as relinearization is the default technique and no NTRU key generation is used.";
 			throw std::runtime_error(errMsg);
@@ -556,7 +556,7 @@ namespace lbcrypto {
 		* @param ciphertext the input ciphertext.
 		* @return the resulting Ciphertext
 		*/
-		Ciphertext<Element> KeySwitchRelin(const shared_ptr<LPEvalKey<Element>> evalKey,
+		Ciphertext<Element> KeySwitchRelin(const LPEvalKey<Element> evalKey,
 			const Ciphertext<Element> ciphertext) const {
 			std::string errMsg = "LPAlgorithmSHEFV:KeySwitchRelin is not needed for this scheme as relinearization is the default technique and no NTRU key generation is used.";
 			throw std::runtime_error(errMsg);
@@ -568,7 +568,7 @@ namespace lbcrypto {
 		* @param k1 private key.
 		* @return evaluation key.
 		*/
-		shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(
+		LPEvalKey<Element> EvalMultKeyGen(
 					const LPPrivateKey<Element> k1) const;
 
 		/**
@@ -579,7 +579,7 @@ namespace lbcrypto {
 		* @param k1 private key.
 		* @return evaluation key.
 		*/
-		shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> EvalMultKeysGen(
+		shared_ptr<vector<LPEvalKey<Element>>> EvalMultKeysGen(
 					const LPPrivateKey<Element> k1) const;
 
 		/**
@@ -591,7 +591,7 @@ namespace lbcrypto {
 		* @return resulting ciphertext
 		*/
 		Ciphertext<Element> EvalAutomorphism(const Ciphertext<Element> ciphertext, usint i,
-			const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalKeys) const;
+			const std::map<usint, LPEvalKey<Element>> &evalKeys) const;
 
 		/**
 		* Generate automophism keys for a given private key; Uses the private key for encryption
@@ -600,7 +600,7 @@ namespace lbcrypto {
 		* @param indexList list of automorphism indices to be computed
 		* @return returns the evaluation keys
 		*/
-		shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const LPPrivateKey<Element> privateKey,
+		shared_ptr<std::map<usint, LPEvalKey<Element>>> EvalAutomorphismKeyGen(const LPPrivateKey<Element> privateKey,
 			const std::vector<usint> &indexList) const;
 
 		/**
@@ -611,7 +611,7 @@ namespace lbcrypto {
 		* @param indexList list of automorphism indices to be computed
 		* @return returns the evaluation keys
 		*/
-		shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const LPPublicKey<Element> publicKey,
+		shared_ptr<std::map<usint, LPEvalKey<Element>>> EvalAutomorphismKeyGen(const LPPublicKey<Element> publicKey,
 			const LPPrivateKey<Element> privateKey, const std::vector<usint> &indexList) const {
 			std::string errMsg = "LPAlgorithmSHEFV::EvalAutomorphismKeyGen is not implemented for FV SHE Scheme.";
 			throw std::runtime_error(errMsg);
@@ -641,7 +641,7 @@ namespace lbcrypto {
 		* @param origPrivateKey original private key used for decryption.
 		* @return evalKey the evaluation key for switching the ciphertext to be decryptable by new private key.
 		*/
-		shared_ptr<LPEvalKey<Element>> ReKeyGen(const LPPrivateKey<Element> newKey,
+		LPEvalKey<Element> ReKeyGen(const LPPrivateKey<Element> newKey,
 			const LPPrivateKey<Element> origPrivateKey) const;
 
 		/**
@@ -652,7 +652,7 @@ namespace lbcrypto {
 		* @param origPrivateKey original private key used for decryption.
 		* @return evalKey the evaluation key for switching the ciphertext to be decryptable by new private key.
 		*/
-		shared_ptr<LPEvalKey<Element>> ReKeyGen(const LPPublicKey<Element> newKey,
+		LPEvalKey<Element> ReKeyGen(const LPPublicKey<Element> newKey,
 			const LPPrivateKey<Element> origPrivateKey) const {
 			std::string errMsg = "LPAlgorithmPREFV::ReKeyGen using a public key of the new secret key is not implemented for the BV Scheme.";
 			throw std::runtime_error(errMsg);
@@ -665,7 +665,7 @@ namespace lbcrypto {
 		* @param ciphertext the input ciphertext.
 		* @return resulting ciphertext after the re-encryption operation.
 		*/
-		Ciphertext<Element> ReEncrypt(const shared_ptr<LPEvalKey<Element>> evalKey,
+		Ciphertext<Element> ReEncrypt(const LPEvalKey<Element> evalKey,
 			const Ciphertext<Element> ciphertext) const;
 
 	};

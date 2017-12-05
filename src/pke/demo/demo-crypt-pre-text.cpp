@@ -235,7 +235,7 @@ int main(int argc, char *argv[])
 
 	if( beVerbose ) cout << "Generating proxy re-encryption key" << endl;
 
-	shared_ptr<LPEvalKey<Poly>> evalKey;
+	LPEvalKey<Poly> evalKey;
 	try {
 		if (flagBV)
 			evalKey = cc->ReKeyGen(newKp.secretKey, kp.secretKey);

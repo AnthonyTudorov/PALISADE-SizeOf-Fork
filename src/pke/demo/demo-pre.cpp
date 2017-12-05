@@ -200,7 +200,7 @@ int main(int argc, char *argv[])
 
 	std::cout <<"\n"<< "Generating proxy re-encryption key..." << std::endl;
 
-	shared_ptr<LPEvalKey<Poly>> reencryptionKey12;
+	LPEvalKey<Poly> reencryptionKey12;
 
 	start = currentDateTime();
 

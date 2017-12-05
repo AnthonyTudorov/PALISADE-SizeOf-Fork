@@ -98,7 +98,7 @@ TEST_F(UTSHEAdvanced, test_eval_mult_single_crt) {
 
 	LPKeyPair<Poly> newKp = cc->KeyGen();
 
-	shared_ptr<LPEvalKey<Poly>> keySwitchHint2 = cc->KeySwitchGen(kp.secretKey, newKp.secretKey);
+	LPEvalKey<Poly> keySwitchHint2 = cc->KeySwitchGen(kp.secretKey, newKp.secretKey);
 
 	cResult = cc->KeySwitch(keySwitchHint2, cResult);
 
@@ -168,7 +168,7 @@ TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 
 	LPKeyPair<DCRTPoly> newKp = cc->KeyGen();
 
-	shared_ptr<LPEvalKey<DCRTPoly>> keySwitchHint2 = cc->KeySwitchGen(kp.secretKey, newKp.secretKey);
+	LPEvalKey<DCRTPoly> keySwitchHint2 = cc->KeySwitchGen(kp.secretKey, newKp.secretKey);
 
 	cResult = cc->KeySwitch(keySwitchHint2, cResult);
 
@@ -363,7 +363,7 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 	kpSecretSmall->SetPrivateElement(tempPrivateElement);
 	LPKeyPair<DCRTPoly> kp1 = ccSmall->KeyGen();
 
-	shared_ptr<LPEvalKey<DCRTPoly>> KeySwitchHint = ccSmall->KeySwitchGen(kpSecretSmall, kp1.secretKey);
+	LPEvalKey<DCRTPoly> KeySwitchHint = ccSmall->KeySwitchGen(kpSecretSmall, kp1.secretKey);
 
 	// have to perform the operation in the new context
 	// FIXME we really need a ctor or an operator that copies into a new CryptoContext; below is kind of a hack

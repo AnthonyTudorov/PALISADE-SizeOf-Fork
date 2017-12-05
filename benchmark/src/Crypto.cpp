@@ -231,7 +231,7 @@ void BM_rekeygen(benchmark::State& state) { // benchmark
 		LPKeyPair<Poly> kp2 = cc->KeyGen();
 		state.ResumeTiming();
 
-		shared_ptr<LPEvalKey<Poly>> evalKey;
+		LPEvalKey<Poly> evalKey;
 
 		try {
 			evalKey = cc->ReKeyGen(kp2.publicKey, kp.secretKey);
@@ -290,7 +290,7 @@ void BM_reencrypt(benchmark::State& state) { // benchmark
 		state.ResumeTiming();
 	}
 
-	shared_ptr<LPEvalKey<Poly>> evalKey;
+	LPEvalKey<Poly> evalKey;
 
 	while (state.KeepRunning()) {
 		state.PauseTiming();

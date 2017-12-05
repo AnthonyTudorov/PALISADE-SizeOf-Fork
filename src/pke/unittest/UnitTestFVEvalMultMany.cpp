@@ -74,7 +74,7 @@ TEST(UTFVEVALMM, Poly_FV_Eval_Mult_Many_Operations) {
 	}
 
 	//Create evaluation key vector to be used in keyswitching
-	shared_ptr<vector<shared_ptr<LPEvalKey<Poly>>>> evalKeys = cryptoContext->GetEncryptionAlgorithm()->EvalMultKeysGen(keyPair.secretKey);
+	shared_ptr<vector<LPEvalKey<Poly>>> evalKeys = cryptoContext->GetEncryptionAlgorithm()->EvalMultKeysGen(keyPair.secretKey);
 
 	////////////////////////////////////////////////////////////
 	//Plaintext

@@ -255,10 +255,10 @@ public:
 	* @param &ddg discrete Gaussian generator.
 	* @param *evalKey the evaluation key.
 	*/
-	shared_ptr<LPEvalKey<Element>> ReKeyGen(const LPPublicKey<Element> newPrivateKey,
+	LPEvalKey<Element> ReKeyGen(const LPPublicKey<Element> newPrivateKey,
 		const LPPrivateKey<Element> origPrivateKey) const {
 		// create a new ReKey of the proper type, in this context
-		shared_ptr<LPEvalKeyNTRURelin<Element>> EK( new LPEvalKeyNTRURelin<Element>(newPrivateKey->GetCryptoContext()) );
+		LPEvalKeyNTRURelin<Element> EK(new LPEvalKeyNTRURelinImpl<Element>(newPrivateKey->GetCryptoContext()) );
 
 		Element a(newPrivateKey->GetCryptoContext()->GetCryptoParameters()->GetElementParams(), Format::COEFFICIENT, true);
 		vector<Element> evalKeyElements;
@@ -278,10 +278,10 @@ public:
 	* @param &ddg discrete Gaussian generator.
 	* @param *evalKey the evaluation key.
 	*/
-	shared_ptr<LPEvalKey<Element>> ReKeyGen(const LPPrivateKey<Element> newPrivateKey,
+	LPEvalKey<Element> ReKeyGen(const LPPrivateKey<Element> newPrivateKey,
 		const LPPrivateKey<Element> origPrivateKey) const {
 		// create a new ReKey of the proper type, in this context
-		shared_ptr<LPEvalKeyNTRURelin<Element>> EK(new LPEvalKeyNTRURelin<Element>(newPrivateKey->GetCryptoContext()));
+		LPEvalKeyNTRURelin<Element> EK(new LPEvalKeyNTRURelinImpl<Element>(newPrivateKey->GetCryptoContext()));
 
 		Element a(newPrivateKey->GetCryptoContext()->GetCryptoParameters()->GetElementParams(), Format::COEFFICIENT, true);
 		vector<Element> evalKeyElements;
@@ -299,7 +299,7 @@ public:
 	* @param &ciphertext the input ciphertext.
 	* @param *newCiphertext the new ciphertext.
 	*/
-	Ciphertext<Element> ReEncrypt(const shared_ptr<LPEvalKey<Element>> evalKey,
+	Ciphertext<Element> ReEncrypt(const LPEvalKey<Element> evalKey,
 		const Ciphertext<Element> ciphertext) const {
 		Ciphertext<Element> newCiphertext( new CiphertextImpl<Element>(*ciphertext) );
 		return newCiphertext;
@@ -449,7 +449,7 @@ class LPLeveledSHEAlgorithmNull : public LPLeveledSHEAlgorithm<Element> {
 		 * @param *cipherText Ciphertext to perform and apply ringreduce on.
 		 * @param *keySwitchHint is the keyswitchhint from the ciphertext's private key to a sparse key
 		 */
-		Ciphertext<Element> RingReduce(Ciphertext<Element> cipherText, const shared_ptr<LPEvalKey<Element>> keySwitchHint) const {
+		Ciphertext<Element> RingReduce(Ciphertext<Element> cipherText, const LPEvalKey<Element> keySwitchHint) const {
 			throw std::logic_error("RingReduce not implemented for Null");
 		}
 
@@ -464,7 +464,7 @@ class LPLeveledSHEAlgorithmNull : public LPLeveledSHEAlgorithm<Element> {
 		Ciphertext<Element> ComposedEvalMult(
 				const Ciphertext<Element> cipherText1,
 				const Ciphertext<Element> cipherText2,
-				const shared_ptr<LPEvalKey<Element>> quadKeySwitchHint) const {
+				const LPEvalKey<Element> quadKeySwitchHint) const {
 			Ciphertext<Element> prod = cipherText1->GetCryptoContext()->GetEncryptionAlgorithm()->EvalMult(cipherText1, cipherText2, quadKeySwitchHint);
 
 			return this->ModReduce(prod);
@@ -478,7 +478,7 @@ class LPLeveledSHEAlgorithmNull : public LPLeveledSHEAlgorithm<Element> {
 		* @param &cipherTextResult is the resulting ciphertext.
 		*/
 		Ciphertext<Element> LevelReduce(const Ciphertext<Element> cipherText1,
-				const shared_ptr<LPEvalKey<Element>> linearKeySwitchHint) const {
+				const LPEvalKey<Element> linearKeySwitchHint) const {
 			throw std::logic_error("LevelReduce not implemented for Null");
 		}
 
@@ -624,7 +624,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		 * @return the new resulting ciphertext.
 		 */
 		Ciphertext<Element> EvalMult(const Ciphertext<Element> ciphertext1,
-				const Ciphertext<Element> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const {
+				const Ciphertext<Element> ciphertext2, const LPEvalKey<Element> ek) const {
 
 			return EvalMult(ciphertext1, ciphertext2);
 		}
@@ -638,7 +638,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		 * @return the new resulting ciphertext.
 		 */
 		Ciphertext<Element> EvalMult(const Ciphertext<Element> ciphertext1,
-				const Plaintext ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const {
+				const Plaintext ciphertext2, const LPEvalKey<Element> ek) const {
 
 			return EvalMult(ciphertext1, ciphertext2);
 		}
@@ -653,7 +653,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		*/
 		Ciphertext<Element> EvalMultAndRelinearize(const Ciphertext<Element> ciphertext1,
 			const Ciphertext<Element> ciphertext2,
-			const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> evalKey) const {
+			const shared_ptr<vector<LPEvalKey<Element>>> evalKey) const {
 			std::string errMsg = "LPAlgorithmNULL::EvalMultAndRelinearize is not implemented for the NULL Scheme.";
 			throw std::runtime_error(errMsg);
 		}
@@ -665,7 +665,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		* @param evalKeys is the evaluation key list input.
 		* @return A shared pointer to the ciphertext which is the result of the multiplication.
 		*/
-		Ciphertext<Element> EvalMultMany(const vector<Ciphertext<Element>>& cipherTextList, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> evalKeys) const {
+		Ciphertext<Element> EvalMultMany(const vector<Ciphertext<Element>>& cipherTextList, const shared_ptr<vector<LPEvalKey<Element>>> evalKeys) const {
 			std::string errMsg = "LPAlgorithmNULL::EvalMultMany is not implemented for the NULL Scheme.";
 			throw std::runtime_error(errMsg);
 		}
@@ -697,8 +697,8 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		* @param &newPrivateKey New private key to generate the keyswitch hint.
 		* @param *keySwitchHint is where the resulting keySwitchHint will be placed.
 		*/
-		shared_ptr<LPEvalKey<Element>> KeySwitchGen(const LPPrivateKey<Element> originalPrivateKey, const LPPrivateKey<Element> newPrivateKey) const {
-			return shared_ptr<LPEvalKey<Element>>( new LPEvalKeyNTRURelin<Element>(originalPrivateKey->GetCryptoContext()));
+		LPEvalKey<Element> KeySwitchGen(const LPPrivateKey<Element> originalPrivateKey, const LPPrivateKey<Element> newPrivateKey) const {
+			return LPEvalKey<Element>( new LPEvalKeyNTRURelinImpl<Element>(originalPrivateKey->GetCryptoContext()));
 		}
 
 		/**
@@ -709,7 +709,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		* @param *newCiphertext the new ciphertext.
 		*/
 		Ciphertext<Element> KeySwitch(
-			const shared_ptr<LPEvalKey<Element>> keySwitchHint,
+			const LPEvalKey<Element> keySwitchHint,
 			const Ciphertext<Element> cipherText) const {
 			Ciphertext<Element> newCiphertext = cipherText->CloneEmpty();
 			return newCiphertext;
@@ -722,9 +722,9 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		* @param &newPublicKey encryption key for the new ciphertext.
 		* @param origPrivateKey original private key used for decryption.
 		*/
-		shared_ptr<LPEvalKey<Element>> KeySwitchRelinGen(const LPPublicKey<Element> newPublicKey,
+		LPEvalKey<Element> KeySwitchRelinGen(const LPPublicKey<Element> newPublicKey,
 			const LPPrivateKey<Element> origPrivateKey) const {
-			return shared_ptr<LPEvalKey<Element>>( new LPEvalKeyNTRURelin<Element>(origPrivateKey->GetCryptoContext()));
+			return LPEvalKey<Element>( new LPEvalKeyNTRURelinImpl<Element>(origPrivateKey->GetCryptoContext()));
 		}
 
 		/**
@@ -734,7 +734,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		* @param ciphertext the input ciphertext.
 		* @return the resulting Ciphertext
 		*/
-		Ciphertext<Element> KeySwitchRelin(const shared_ptr<LPEvalKey<Element>> evalKey,
+		Ciphertext<Element> KeySwitchRelin(const LPEvalKey<Element> evalKey,
 			const Ciphertext<Element> ciphertext) const {
 			Ciphertext<Element> newCiphertext = ciphertext->CloneEmpty();
 			return newCiphertext;
@@ -746,8 +746,8 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		 * @param &newPrivateKey private key for the new ciphertext.
 		 * @param *keySwitchHint the key switch hint.
 		 */
-		shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(const LPPrivateKey<Element> originalPrivateKey) const {
-			shared_ptr<LPEvalKey<Element>> EK( new LPEvalKeyNTRURelin<Element>(originalPrivateKey->GetCryptoContext()) );
+		LPEvalKey<Element> EvalMultKeyGen(const LPPrivateKey<Element> originalPrivateKey) const {
+			LPEvalKey<Element> EK( new LPEvalKeyNTRURelinImpl<Element>(originalPrivateKey->GetCryptoContext()) );
 
 			Element a(originalPrivateKey->GetCryptoContext()->GetCryptoParameters()->GetElementParams(), Format::COEFFICIENT, true);
 			vector<Element> evalKeyElements;
@@ -765,7 +765,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		* @param &newPrivateKey private key for the new ciphertext.
 		* @param *keySwitchHint the key switch hint list.
 		*/
-		shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> EvalMultKeysGen(const LPPrivateKey<Element> originalPrivateKey) const {
+		shared_ptr<vector<LPEvalKey<Element>>> EvalMultKeysGen(const LPPrivateKey<Element> originalPrivateKey) const {
 				std::string errMsg = "LPAlgorithmSHENULL::EvalMultKeysGen is not implemented for NULL SHE Scheme.";
 				throw std::runtime_error(errMsg);
 			}
@@ -779,7 +779,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		* @return resulting ciphertext
 		*/
 		Ciphertext<Element> EvalAutomorphism(const Ciphertext<Element> ciphertext, usint i,
-			const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalKeys) const {
+			const std::map<usint, LPEvalKey<Element>> &evalKeys) const {
 
 			Ciphertext<Element> permutedCiphertext(new CiphertextImpl<Element>(*ciphertext));
 
@@ -807,10 +807,10 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		* @return returns the evaluation keys
 		*/
 
-		shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const LPPublicKey<Element> publicKey,
+		shared_ptr<std::map<usint, LPEvalKey<Element>>> EvalAutomorphismKeyGen(const LPPublicKey<Element> publicKey,
 				const LPPrivateKey<Element> origPrivateKey, const std::vector<usint> &indexList) const {
 
-			shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> evalKeys(new std::map<usint, shared_ptr<LPEvalKey<Element>>>());
+			shared_ptr<std::map<usint, LPEvalKey<Element>>> evalKeys(new std::map<usint, LPEvalKey<Element>>());
 
 			for( auto& i : indexList ) {
 				(*evalKeys)[i] = this->KeySwitchGen(origPrivateKey, origPrivateKey);
@@ -819,10 +819,10 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 			return evalKeys;
 		}
 
-		shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const LPPrivateKey<Element> privateKey,
+		shared_ptr<std::map<usint, LPEvalKey<Element>>> EvalAutomorphismKeyGen(const LPPrivateKey<Element> privateKey,
 				const std::vector<usint> &indexList) const {
 
-			shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> evalKeys(new std::map<usint, shared_ptr<LPEvalKey<Element>>>());
+			shared_ptr<std::map<usint, LPEvalKey<Element>>> evalKeys(new std::map<usint, LPEvalKey<Element>>());
 
 			for( auto& i : indexList ) {
 				(*evalKeys)[i] = this->KeySwitchGen(privateKey, privateKey);

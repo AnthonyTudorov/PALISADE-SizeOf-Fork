@@ -48,7 +48,7 @@ namespace lbcrypto {
 	}
 
 	template<typename Element>
-	Ciphertext<Element> LPSHEAlgorithm<Element>::EvalSum_2n(usint batchSize, usint m, const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalKeys,
+	Ciphertext<Element> LPSHEAlgorithm<Element>::EvalSum_2n(usint batchSize, usint m, const std::map<usint, LPEvalKey<Element>> &evalKeys,
 		const Ciphertext<Element> ciphertext) const {
 
 		Ciphertext<Element> newCiphertext(new CiphertextImpl<Element>(*ciphertext));

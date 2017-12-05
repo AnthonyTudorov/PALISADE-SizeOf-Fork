@@ -317,7 +317,7 @@ void PRESimulation(usint count, usint dataset){
 
 	std::vector<LPPublicKey<Poly>> publicKeys;
 	std::vector<LPPrivateKey<Poly>> privateKeys;
-	std::vector<shared_ptr<LPEvalKey<Poly>>> evalKeys;
+	std::vector<LPEvalKey<Poly>> evalKeys;
 
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp;
@@ -336,7 +336,7 @@ void PRESimulation(usint count, usint dataset){
 
 	for (usint d = 0; d < depth; d++){
 
-		shared_ptr<LPEvalKey<Poly>> evalKey;
+		LPEvalKey<Poly> evalKey;
 
 		LPKeyPair<Poly> newKp = cc->KeyGen();
 

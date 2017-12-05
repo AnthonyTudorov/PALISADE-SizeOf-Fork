@@ -271,7 +271,7 @@ TEST_F(UTSHE, keyswitch_sparse_key_SingleCRT_byteplaintext) {
 
 	LPKeyPair<Poly> kp2 = cc->SparseKeyGen();
 
-	shared_ptr<LPEvalKey<Poly>> keySwitchHint = cc->KeySwitchGen(kp.secretKey, kp2.secretKey);
+	LPEvalKey<Poly> keySwitchHint = cc->KeySwitchGen(kp.secretKey, kp2.secretKey);
 
 	Ciphertext<Poly> newCt = cc->KeySwitch(keySwitchHint, ciphertext);
 
@@ -313,7 +313,7 @@ TEST_F(UTSHE, keyswitch_sparse_key_SingleCRT_intArray) {
 
 	LPKeyPair<Poly> kp2 = cc->SparseKeyGen();
 
-	shared_ptr<LPEvalKey<Poly>> keySwitchHint;
+	LPEvalKey<Poly> keySwitchHint;
 	keySwitchHint = cc->KeySwitchGen(kp.secretKey, kp2.secretKey);
 
 	Ciphertext<Poly> newCt = cc->KeySwitch(keySwitchHint, ciphertext);
@@ -349,7 +349,7 @@ TEST_F(UTSHE, keyswitch_SingleCRT) {
 
 	LPKeyPair<Poly> kp2 = cc->KeyGen();
 
-	shared_ptr<LPEvalKey<Poly>> keySwitchHint;
+	LPEvalKey<Poly> keySwitchHint;
 	keySwitchHint = cc->KeySwitchGen(kp.secretKey, kp2.secretKey);
 
 	Ciphertext<Poly> newCt = cc->KeySwitch(keySwitchHint, ciphertext);
@@ -421,7 +421,7 @@ TEST_F(UTSHE, keyswitch_ModReduce_DCRT) {
 
 	LPKeyPair<DCRTPoly> kp2 = cc->KeyGen();
 
-	shared_ptr<LPEvalKey<DCRTPoly>> keySwitchHint;
+	LPEvalKey<DCRTPoly> keySwitchHint;
 	keySwitchHint = cc->KeySwitchGen(kp.secretKey, kp2.secretKey);
 
 	Ciphertext<DCRTPoly> newCt = cc->KeySwitch(keySwitchHint, ciphertext);
@@ -468,7 +468,7 @@ TEST_F(UTSHE, ringreduce_single_crt) {
 
 	LPKeyPair<Poly> kp2 = cc->SparseKeyGen();
 
-	shared_ptr<LPEvalKey<Poly>> keySwitchHint;
+	LPEvalKey<Poly> keySwitchHint;
 	keySwitchHint = cc->KeySwitchGen(kp.secretKey, kp2.secretKey);
 
 	Ciphertext<Poly> newCt = cc->KeySwitch(keySwitchHint, ciphertext);
@@ -521,7 +521,7 @@ TEST_F(UTSHE, ringreduce_double_crt) {
 
 	LPKeyPair<DCRTPoly> kp2 = cc->SparseKeyGen();
 
-	shared_ptr<LPEvalKey<DCRTPoly>> keySwitchHint = cc->KeySwitchGen(kp.secretKey, kp2.secretKey);
+	LPEvalKey<DCRTPoly> keySwitchHint = cc->KeySwitchGen(kp.secretKey, kp2.secretKey);
 
 	Ciphertext<DCRTPoly> newCiphertext = cc->KeySwitch(keySwitchHint, ciphertext);
 

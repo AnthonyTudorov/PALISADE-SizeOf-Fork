@@ -60,7 +60,7 @@ reencrypter(CryptoContext<Poly> ctx, string cmd, int argc, char *argv[]) {
 		return;
 	}
 
-	shared_ptr<LPEvalKey<Poly>> evalKey = ctx->deserializeEvalKey(kser);
+	LPEvalKey<Poly> evalKey = ctx->deserializeEvalKey(kser);
 	if( evalKey == NULL ) {
 		cerr << "Could not deserialize re encryption key" << endl;
 		return;
@@ -274,7 +274,7 @@ rekeymaker(CryptoContext<Poly> ctx, string cmd, int argc, char *argv[]) {
 		return;
 	}
 
-	shared_ptr<LPEvalKey<Poly>> evalKey = ctx->ReKeyGen(pk, sk);
+	LPEvalKey<Poly> evalKey = ctx->ReKeyGen(pk, sk);
 
 	if( evalKey ) {
 		Serialized evalK;

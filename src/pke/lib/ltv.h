@@ -323,7 +323,7 @@ public:
 	* @param origPrivateKey original private key used for decryption.
 	* @return evalKey the evaluation key for switching the ciphertext to be decryptable by new private key.
 	*/
-	shared_ptr<LPEvalKey<Element>> ReKeyGen(const LPPrivateKey<Element> newKey,
+	LPEvalKey<Element> ReKeyGen(const LPPrivateKey<Element> newKey,
 		const LPPrivateKey<Element> origPrivateKey) const {
 		std::string errMsg = "LPAlgorithmPRELTV::ReKeyGen using the new secret key is not implemented for the LTV Scheme.";
 		throw std::runtime_error(errMsg);
@@ -337,7 +337,7 @@ public:
 	* @param origPrivateKey original private key used for decryption.
 	* @return evalKey the evaluation key for switching the ciphertext to be decryptable by new private key.
 	*/
-	shared_ptr<LPEvalKey<Element>> ReKeyGen(const LPPublicKey<Element> newKey,
+	LPEvalKey<Element> ReKeyGen(const LPPublicKey<Element> newKey,
 		const LPPrivateKey<Element> origPrivateKey) const;
 
 	/**
@@ -348,7 +348,7 @@ public:
 	* @param ciphertext the input ciphertext.
 	* @return A shared pointer to the resulting ciphertext.
 	*/
-	Ciphertext<Element> ReEncrypt(const shared_ptr<LPEvalKey<Element>> evalKey,
+	Ciphertext<Element> ReEncrypt(const LPEvalKey<Element> evalKey,
 		const Ciphertext<Element> ciphertext) const;
 	
 };
@@ -538,7 +538,7 @@ public:
 	*/
 	Ciphertext<Element> EvalMult(const Ciphertext<Element> ciphertext1,
 		const Ciphertext<Element> ciphertext2,
-		const shared_ptr<LPEvalKey<Element>> evalKey) const;
+		const LPEvalKey<Element> evalKey) const;
 
 	/**
 	* Unimplemented function to support  a multiplication with depth larger than 2 for the LTV scheme.
@@ -550,7 +550,7 @@ public:
 	*/
 	Ciphertext<Element> EvalMultAndRelinearize(const Ciphertext<Element> ciphertext1,
 		const Ciphertext<Element> ciphertext2,
-		const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> ek) const {
+		const shared_ptr<vector<LPEvalKey<Element>>> ek) const {
 		std::string errMsg = "LPAlgorithmLTV::EvalMultAndRelinearize is not implemented for the LTV Scheme.";
 		throw std::runtime_error(errMsg);
 	}
@@ -562,7 +562,7 @@ public:
 	* @param evalKey is the evaluation keys input.
 	* @return A shared pointer to the ciphertext which is the result of the multiplication.
 	*/
-	Ciphertext<Element> EvalMultMany(const vector<Ciphertext<Element>>& cipherTextList, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> evalKeys) const {
+	Ciphertext<Element> EvalMultMany(const vector<Ciphertext<Element>>& cipherTextList, const shared_ptr<vector<LPEvalKey<Element>>> evalKeys) const {
 		std::string errMsg = "LPAlgorithmLTV::EvalMultMany is not implemented for the LTV Scheme.";
 		throw std::runtime_error(errMsg);
 	}
@@ -579,7 +579,7 @@ public:
 	*/
 	Ciphertext<Element> EvalMult(const Ciphertext<Element> ciphertext1,
 		const Plaintext ciphertext2,
-		const shared_ptr<LPEvalKey<Element>> evalKey) const;
+		const LPEvalKey<Element> evalKey) const;
 
 	/**
 	* Function for homomorphic negation of ciphertexts.
@@ -603,7 +603,7 @@ public:
 	* @param &k2 New private key to generate the keyswitch hint.
 	* @result A shared point to the resulting key switch hint.
 	*/
-	shared_ptr<LPEvalKey<Element>> KeySwitchGen(
+	LPEvalKey<Element> KeySwitchGen(
 		const LPPrivateKey<Element> k1,
 		const LPPrivateKey<Element> k2) const;
 
@@ -619,7 +619,7 @@ public:
 	* @result A shared pointer to the resulting ciphertext.
 	*/
 	Ciphertext<Element> KeySwitch(
-		const shared_ptr<LPEvalKey<Element>> keySwitchHint,
+		const LPEvalKey<Element> keySwitchHint,
 		const Ciphertext<Element> cipherText) const;
 
 	/**
@@ -629,7 +629,7 @@ public:
 	* @param &newPublicKey encryption key for the new ciphertext.
 	* @param origPrivateKey original private key used for decryption.
 	*/
-	shared_ptr<LPEvalKey<Element>> KeySwitchRelinGen(const LPPublicKey<Element> newPublicKey,
+	LPEvalKey<Element> KeySwitchRelinGen(const LPPublicKey<Element> newPublicKey,
 		const LPPrivateKey<Element> origPrivateKey) const;
 
 	/**
@@ -639,7 +639,7 @@ public:
 	* @param ciphertext the input ciphertext.
 	* @return the resulting Ciphertext
 	*/
-	Ciphertext<Element> KeySwitchRelin(const shared_ptr<LPEvalKey<Element>> evalKey,
+	Ciphertext<Element> KeySwitchRelin(const LPEvalKey<Element> evalKey,
 		const Ciphertext<Element> ciphertext) const;
 
 	/**
@@ -651,7 +651,7 @@ public:
 	* @param originalPrivateKey private key to start from.
 	* @return resulting evalkeyswitch hint
 	*/
-	shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(const LPPrivateKey<Element> originalPrivateKey) const;
+	LPEvalKey<Element> EvalMultKeyGen(const LPPrivateKey<Element> originalPrivateKey) const;
 
 	/**
 	* Function to generate key switch hint on a ciphertext of depth more than 2.
@@ -661,7 +661,7 @@ public:
 	* @param originalPrivateKey private key to start from.
 	* @return resulting evalkeyswitch hint
 	*/
-	shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> EvalMultKeysGen(const LPPrivateKey<Element> originalPrivateKey) const {
+	shared_ptr<vector<LPEvalKey<Element>>> EvalMultKeysGen(const LPPrivateKey<Element> originalPrivateKey) const {
 		std::string errMsg = "LPAlgorithmSHELTV::EvalMultKeysGen is not implemented for LTV SHE Scheme.";
 		throw std::runtime_error(errMsg);
 	}
@@ -675,7 +675,7 @@ public:
 	* @return resulting ciphertext
 	*/
 	Ciphertext<Element> EvalAutomorphism(const Ciphertext<Element> ciphertext, usint i,
-		const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalKeys) const;
+		const std::map<usint, LPEvalKey<Element>> &evalKeys) const;
 
 
 	/**
@@ -685,7 +685,7 @@ public:
 	* @param indexList list of automorphism indices to be computed
 	* @return returns the evaluation keys
 	*/
-	shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const LPPrivateKey<Element> privateKey,
+	shared_ptr<std::map<usint, LPEvalKey<Element>>> EvalAutomorphismKeyGen(const LPPrivateKey<Element> privateKey,
 		const std::vector<usint> &indexList) const {
 		std::string errMsg = "LPAlgorithmSHELTV::EvalAutomorphismKeyGen is not implemented for LTV SHE Scheme.";
 		throw std::runtime_error(errMsg);
@@ -699,7 +699,7 @@ public:
 	* @param indexList list of automorphism indices to be computed
 	* @return returns the evaluation keys
 	*/
-	shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const LPPublicKey<Element> publicKey,
+	shared_ptr<std::map<usint, LPEvalKey<Element>>> EvalAutomorphismKeyGen(const LPPublicKey<Element> publicKey,
 		const LPPrivateKey<Element> privateKey, const std::vector<usint> &indexList) const;
 
 };
@@ -742,7 +742,7 @@ public:
 	* @param keySwitchHint is the keyswitchhint from the ciphertext's private key to a sparse key
 	* @return resulting RingReduced ciphertext
 	*/
-	Ciphertext<Element> RingReduce(Ciphertext<Element> cipherText, const shared_ptr<LPEvalKey<Element>> keySwitchHint) const;
+	Ciphertext<Element> RingReduce(Ciphertext<Element> cipherText, const LPEvalKey<Element> keySwitchHint) const;
 
 	/**
 	* Method for ComposedEvalMult.  This method performs an EvalMult on two input ciphertext, then a
@@ -757,7 +757,7 @@ public:
 	Ciphertext<Element> ComposedEvalMult(
 		const Ciphertext<Element> cipherText1,
 		const Ciphertext<Element> cipherText2,
-		const shared_ptr<LPEvalKey<Element>> quadKeySwitchHint) const;
+		const LPEvalKey<Element> quadKeySwitchHint) const;
 
 	/**
 	* Method for Level Reduction from sk -> sk1. 
@@ -768,7 +768,7 @@ public:
 	* @return the resulting ciphertext.
 	*/
 	Ciphertext<Element> LevelReduce(const Ciphertext<Element> cipherText1,
-		const shared_ptr<LPEvalKey<Element>> linearKeySwitchHint) const;
+		const LPEvalKey<Element> linearKeySwitchHint) const;
 
 	/**
 	* Function that determines if security requirements are met if ring dimension is reduced by half.

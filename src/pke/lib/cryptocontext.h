@@ -64,8 +64,8 @@ private:
 	shared_ptr<LPCryptoParameters<Element>>				params;			/*!< crypto parameters used for this context */
 	shared_ptr<LPPublicKeyEncryptionScheme<Element>>		scheme;			/*!< algorithm used; accesses all crypto methods */
 
-	static std::map<string,std::vector<shared_ptr<LPEvalKey<Element>>>>					evalMultKeyMap;	/*!< cached evalmult keys, by secret key UID */
-	static std::map<string,shared_ptr<std::map<usint,shared_ptr<LPEvalKey<Element>>>>>	evalSumKeyMap;	/*!< cached evalsum keys, by secret key UID */
+	static std::map<string,std::vector<LPEvalKey<Element>>>					evalMultKeyMap;	/*!< cached evalmult keys, by secret key UID */
+	static std::map<string,shared_ptr<std::map<usint,LPEvalKey<Element>>>>	evalSumKeyMap;	/*!< cached evalsum keys, by secret key UID */
 
 	bool doTiming;
 	vector<TimingInfo>* timeSamples;
@@ -336,7 +336,7 @@ public:
 	 * InsertEvalMultKey - add the given vector of keys to the map, replacing the existing vector if there
 	 * @param vectorToInsert
 	 */
-	static void InsertEvalMultKey(const std::vector<shared_ptr<LPEvalKey<Element>>>& vectorToInsert);
+	static void InsertEvalMultKey(const std::vector<LPEvalKey<Element>>& vectorToInsert);
 
 	/**
 	 * SerializeEvalSumKey for all EvalSum keys
@@ -398,7 +398,7 @@ public:
 	 * InsertEvalSumKey - add the given map of keys to the map, replacing the existing map if there
 	 * @param mapToInsert
 	 */
-	static void InsertEvalSumKey(const shared_ptr<std::map<usint,shared_ptr<LPEvalKey<Element>>>> mapToInsert);
+	static void InsertEvalSumKey(const shared_ptr<std::map<usint,LPEvalKey<Element>>> mapToInsert);
 
 
 	// TURN FEATURES ON
@@ -650,7 +650,7 @@ public:
 	* @param oldKey (private)
 	* @return new evaluation key
 	*/
-	shared_ptr<LPEvalKey<Element>> ReKeyGen(
+	LPEvalKey<Element> ReKeyGen(
 		const LPPublicKey<Element> newKey,
 		const LPPrivateKey<Element> oldKey) const {
 
@@ -674,7 +674,7 @@ public:
 	* @param oldKey (private)
 	* @return new evaluation key
 	*/
-	shared_ptr<LPEvalKey<Element>> ReKeyGen(
+	LPEvalKey<Element> ReKeyGen(
 		const LPPrivateKey<Element> newKey,
 		const LPPrivateKey<Element> oldKey) const {
 
@@ -704,13 +704,13 @@ public:
 	 * @param keyID
 	 * @return key vector from ID
 	 */
-	static const vector<shared_ptr<LPEvalKey<Element>>>& GetEvalMultKeyVector(const string& keyID);
+	static const vector<LPEvalKey<Element>>& GetEvalMultKeyVector(const string& keyID);
 
 	/**
 	 * GetEvalMultKeys
 	 * @return map of all the keys
 	 */
-	static const std::map<string,std::vector<shared_ptr<LPEvalKey<Element>>>>& GetAllEvalMultKeys();
+	static const std::map<string,std::vector<LPEvalKey<Element>>>& GetAllEvalMultKeys();
 
 	/**
 	* KeySwitchGen creates a key that can be used with the PALISADE KeySwitch operation
@@ -718,7 +718,7 @@ public:
 	* @param key2
 	* @return new evaluation key
 	*/
-	shared_ptr<LPEvalKey<Element>> KeySwitchGen(
+	LPEvalKey<Element> KeySwitchGen(
 		const LPPrivateKey<Element> key1, const LPPrivateKey<Element> key2) const {
 
 		if( key1 == NULL || key2 == NULL ||
@@ -1271,7 +1271,7 @@ public:
 	* @return vector of shared pointers to re-encrypted ciphertexts
 	*/
 	Ciphertext<Element> ReEncrypt(
-		shared_ptr<LPEvalKey<Element>> evalKey,
+		LPEvalKey<Element> evalKey,
 		Ciphertext<Element> ciphertext) const
 	{
 		if( evalKey == NULL || Mismatched(evalKey->GetCryptoContext()) )
@@ -1299,7 +1299,7 @@ public:
 	* @param outstream - output stream with sequence of serialized re-encrypted ciphertext
 	*/
 	void ReEncryptStream(
-		const shared_ptr<LPEvalKey<Element>> evalKey,
+		const LPEvalKey<Element> evalKey,
 		std::istream& instream,
 		std::ostream& outstream)
 	{
@@ -1599,7 +1599,7 @@ public:
 	* @param indexList list of automorphism indices to be computed
 	* @return returns the evaluation keys; index 0 of the vector corresponds to plaintext index 2, index 1 to plaintex index 3, etc.
 	*/
-	shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const LPPublicKey<Element> publicKey,
+	shared_ptr<std::map<usint, LPEvalKey<Element>>> EvalAutomorphismKeyGen(const LPPublicKey<Element> publicKey,
 		const LPPrivateKey<Element> origPrivateKey, const std::vector<usint> &indexList) const {
 
 		if( publicKey == NULL || origPrivateKey == NULL )
@@ -1629,7 +1629,7 @@ public:
 	* @return resulting ciphertext
 	*/
 	Ciphertext<Element> EvalAutomorphism(const Ciphertext<Element> ciphertext, usint i,
-		const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalKeys) const {
+		const std::map<usint, LPEvalKey<Element>> &evalKeys) const {
 
 		auto mf = evalKeys.begin();
 		if( mf == evalKeys.end() )
@@ -1660,7 +1660,7 @@ public:
 	* @param indexList list of automorphism indices to be computed
 	* @return returns the evaluation keys
 	*/
-	shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const LPPrivateKey<Element> privateKey,
+	shared_ptr<std::map<usint, LPEvalKey<Element>>> EvalAutomorphismKeyGen(const LPPrivateKey<Element> privateKey,
 		const std::vector<usint> &indexList) const {
 
 		if( privateKey == NULL )
@@ -1692,9 +1692,9 @@ public:
 	 *
 	 * @return the EvalSum key map
 	 */
-	static const std::map<usint, shared_ptr<LPEvalKey<Element>>>& GetEvalSumKeyMap(const string& id);
+	static const std::map<usint, LPEvalKey<Element>>& GetEvalSumKeyMap(const string& id);
 
-	static const std::map<string,shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>>>& GetAllEvalSumKeys();
+	static const std::map<string,shared_ptr<std::map<usint, LPEvalKey<Element>>>>& GetAllEvalSumKeys();
 
 	/**
 	* Function for evaluating a sum of all components
@@ -1779,7 +1779,7 @@ public:
 	* @return new CiphertextImpl after applying key switch
 	*/
 	Ciphertext<Element> KeySwitch(
-		const shared_ptr<LPEvalKey<Element>> keySwitchHint,
+		const LPEvalKey<Element> keySwitchHint,
 		const Ciphertext<Element> ciphertext) const
 	{
 		// FIXME
@@ -1861,7 +1861,7 @@ public:
 	* @return vector of level reduced ciphertext
 	*/
 	Ciphertext<Element> LevelReduce(const Ciphertext<Element> cipherText1,
-		const shared_ptr<LPEvalKeyNTRU<Element>> linearKeySwitchHint) const {
+		const LPEvalKeyNTRU<Element> linearKeySwitchHint) const {
 
 		if( cipherText1 == NULL || linearKeySwitchHint == NULL ||
 				Mismatched(cipherText1->GetCryptoContext()) ||
@@ -1887,7 +1887,7 @@ public:
 
 	Ciphertext<Element> RingReduce(
 		Ciphertext<Element> ciphertext,
-		const shared_ptr<LPEvalKey<Element>> keySwitchHint) const
+		const LPEvalKey<Element> keySwitchHint) const
 	{
 		if( keySwitchHint == NULL ||
 				Mismatched(keySwitchHint->GetCryptoContext()) )
@@ -1961,14 +1961,14 @@ public:
 	* @param serObj
 	* @return deserialized object
 	*/
-	static shared_ptr<LPEvalKey<Element>>		deserializeEvalKey(const Serialized& serObj);
+	static LPEvalKey<Element>		deserializeEvalKey(const Serialized& serObj);
 
 	/**
 	* Deserialize into an Eval Key
 	* @param serObj
 	* @return deserialized object
 	*/
-	static shared_ptr<LPEvalKey<Element>>		deserializeEvalKeyInContext(const Serialized& serObj, CryptoContext<Element> cc);
+	static LPEvalKey<Element>		deserializeEvalKeyInContext(const Serialized& serObj, CryptoContext<Element> cc);
 };
 
 /**

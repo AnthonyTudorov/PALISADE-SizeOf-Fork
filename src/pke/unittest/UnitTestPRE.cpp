@@ -113,7 +113,7 @@ UnitTestReEncrypt(CryptoContext<Element> cc, bool publicVersion) {
 	// This generates the keys which are used to perform the key switching.
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<LPEvalKey<Element>> evalKey;
+	LPEvalKey<Element> evalKey;
 	if( publicVersion ) {
 		evalKey = cc->ReKeyGen(newKp.publicKey, kp.secretKey);
 	} else {

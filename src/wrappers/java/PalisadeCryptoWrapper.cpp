@@ -29,7 +29,7 @@ public:
 	string									errorMessage;
 	shared_ptr<LPPublicKey<Poly>>		publicKey;
 	shared_ptr<LPPrivateKey<Poly>>	secretKey;
-	shared_ptr<LPEvalKey<Poly>>		evalKey;
+	LPEvalKey<Poly>		evalKey;
 
 	JavaPalisadeCrypto(const CryptoContext<Poly>& ctx) : ctx(ctx), errorMessage("") {}
 };
@@ -226,7 +226,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PalisadeCrypto_generatePalisadeEv
 		return 0;
 	}
 
-	shared_ptr<LPEvalKey<Poly>> evalKey = cp->ctx.ReKeyGen(pk, sk);
+	LPEvalKey<Poly> evalKey = cp->ctx.ReKeyGen(pk, sk);
 	if( evalKey == NULL ) {
 		cp->errorMessage = "ReKeyGen failed in generateEvalKey";
 		return 0;

@@ -339,7 +339,7 @@ public:
 	* @param originalPrivateKey private key to start from when key switching.
 	* @return resulting evalkeyswitch hint
 	*/
-	shared_ptr<LPEvalKey<Element>> EvalMultKeyGen(const LPPrivateKey<Element> originalPrivateKey) const {
+	LPEvalKey<Element> EvalMultKeyGen(const LPPrivateKey<Element> originalPrivateKey) const {
 		std::string errMsg = "LPAlgorithmStSt::EvalMultKeyGen is not implemented for the Stehle-Steinfeld Scheme.";
 		throw std::runtime_error(errMsg);
 	}
@@ -350,7 +350,7 @@ public:
 	* @param originalPrivateKey private key to start from when key switching.
 	* @return resulting evalkeyswitch hint
 	*/
-	shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> EvalMultKeysGen(const LPPrivateKey<Element> originalPrivateKey) const {
+	shared_ptr<vector<LPEvalKey<Element>>> EvalMultKeysGen(const LPPrivateKey<Element> originalPrivateKey) const {
 		std::string errMsg = "LPAlgorithmStSt::EvalMultKeysGen is not implemented for the Stehle-Steinfeld Scheme.";
 		throw std::runtime_error(errMsg);
 	}
@@ -365,7 +365,7 @@ public:
 	*/
 	Ciphertext<Element> EvalMultAndRelinearize(const Ciphertext<Element> ciphertext1,
 		const Ciphertext<Element> ciphertext2,
-		const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> ek) const {
+		const shared_ptr<vector<LPEvalKey<Element>>> ek) const {
 		std::string errMsg = "LPAlgorithmStSt::EvalMultAndRelinearize is not implemented for the Stehle-Steinfeld Scheme.";
 		throw std::runtime_error(errMsg);
 	}
@@ -379,7 +379,7 @@ public:
 	* @param &k2 New private key to generate the keyswitch hint.
 	* @result A shared point to the resulting key switch hint.
 	*/
-	shared_ptr<LPEvalKey<Element>> KeySwitchGen(
+	LPEvalKey<Element> KeySwitchGen(
 		const LPPrivateKey<Element> k1,
 		const LPPrivateKey<Element> k2) const {
 		std::string errMsg = "LPAlgorithmStSt::KeySwitchGen is not implemented for the Stehle-Steinfeld Scheme.";
@@ -390,12 +390,12 @@ public:
 	/**
 	* Generate automophism keys for a given private key.  Thess methods are not currently supported.
 	*/
-	shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const LPPublicKey<Element> publicKey,
+	shared_ptr<std::map<usint, LPEvalKey<Element>>> EvalAutomorphismKeyGen(const LPPublicKey<Element> publicKey,
 		const LPPrivateKey<Element> origPrivateKey, const std::vector<usint> &indexList) const {
 		throw std::runtime_error("LPAlgorithmSHELTV::EvalAutomorphismKeyGen is not implemented for Stehle-Steinfeld SHE Scheme.");
 	}
 
-	shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const LPPrivateKey<Element> privateKey,
+	shared_ptr<std::map<usint, LPEvalKey<Element>>> EvalAutomorphismKeyGen(const LPPrivateKey<Element> privateKey,
 		const std::vector<usint> &indexList) const {
 		throw std::runtime_error("LPAlgorithmSHELTV::EvalAutomorphismKeyGen is not implemented for Stehle-Steinfeld SHE Scheme.");
 	}
