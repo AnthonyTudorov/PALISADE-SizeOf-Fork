@@ -359,7 +359,7 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 	tempPrivateElement.DropLastElement();
 	kp.secretKey->SetPrivateElement(tempPrivateElement);
 
-	shared_ptr<LPPrivateKey<DCRTPoly>> kpSecretSmall( new LPPrivateKey<DCRTPoly>(ccSmall) );
+	LPPrivateKey<DCRTPoly> kpSecretSmall( new LPPrivateKeyImpl<DCRTPoly>(ccSmall) );
 	kpSecretSmall->SetPrivateElement(tempPrivateElement);
 	LPKeyPair<DCRTPoly> kp1 = ccSmall->KeyGen();
 

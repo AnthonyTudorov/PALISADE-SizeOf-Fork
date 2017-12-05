@@ -103,7 +103,7 @@ public:
 	Ciphertext<Element> GetIntVecValue() const { return ct; }
 	shared_ptr<Matrix<RationalCiphertext<Element>>> GetIntMatValue() const { return mrct; }
 
-	void DecryptAndPrint(CryptoContext<Element> cc, shared_ptr<LPPrivateKey<Element>> key, std::ostream& out) const;
+	void DecryptAndPrint(CryptoContext<Element> cc, LPPrivateKey<Element> key, std::ostream& out) const;
 };
 
 }

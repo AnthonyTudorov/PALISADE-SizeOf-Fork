@@ -163,7 +163,7 @@ public:
 
 	// these two statics are used by operator<< as a hack to display values
 	static CryptoContext<Element>	_graph_cc;
-	static shared_ptr<LPPrivateKey<Element>>	_graph_key;
+	static LPPrivateKey<Element>	_graph_key;
 
 	const vector<usint>& getInputs() const { return g.getInputs(); }
 	const set<usint>& getOutputs() const { return g.getOutputs(); }
@@ -183,7 +183,7 @@ public:
 	const vector<wire_type> GetInputTypes();
 
 	void DisplayGraph(ostream* f) const;
-	void DisplayDecryptedGraph(ostream* f, CryptoContext<Element> cc, shared_ptr<LPPrivateKey<Element>> k) const;
+	void DisplayDecryptedGraph(ostream* f, CryptoContext<Element> cc, LPPrivateKey<Element> k) const;
 
 	void ClearVisited() {
 		for( auto node : allNodes )
@@ -210,7 +210,7 @@ public:
 	 * @param cc - CryptoContext in use
 	 * @param k - private key for decryption
 	 */
-	void SetStreamKey(CryptoContext<Element> cc, shared_ptr<LPPrivateKey<Element>> k) const;
+	void SetStreamKey(CryptoContext<Element> cc, LPPrivateKey<Element> k) const;
 };
 
 }

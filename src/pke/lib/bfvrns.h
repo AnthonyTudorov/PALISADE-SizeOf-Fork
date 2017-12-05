@@ -363,7 +363,7 @@ namespace lbcrypto {
 		* @param *plaintext the plaintext output.
 		* @return the decrypted plaintext returned.
 		*/
-		DecryptResult Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
+		DecryptResult Decrypt(const LPPrivateKey<Element> privateKey,
 			const Ciphertext<Element> ciphertext,
 			Poly *plaintext) const;
 

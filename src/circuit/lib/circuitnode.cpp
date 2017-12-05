@@ -39,7 +39,7 @@ template<typename Element>
 CryptoContext<Element> CircuitGraphWithValues<Element>::_graph_cc;
 
 template<typename Element>
-shared_ptr<LPPrivateKey<Element>> CircuitGraphWithValues<Element>::_graph_key;
+LPPrivateKey<Element> CircuitGraphWithValues<Element>::_graph_key;
 
 ostream& operator<<(ostream& out, const CircuitNode& n)
 {

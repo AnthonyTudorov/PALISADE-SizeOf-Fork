@@ -103,7 +103,7 @@ decrypter(CryptoContext<Poly> ctx, string cmd, int argc, char *argv[]) {
 		return;
 	}
 
-	shared_ptr<LPPrivateKey<Poly>> sk = ctx->deserializeSecretKey(kser);
+	LPPrivateKey<Poly> sk = ctx->deserializeSecretKey(kser);
 	if( !sk ) {
 		cerr << "Could not decrypt private key" << endl;
 		return;
@@ -262,7 +262,7 @@ rekeymaker(CryptoContext<Poly> ctx, string cmd, int argc, char *argv[]) {
 		return;
 	}
 
-	shared_ptr<LPPrivateKey<Poly>> sk = ctx->deserializeSecretKey(kser2);
+	LPPrivateKey<Poly> sk = ctx->deserializeSecretKey(kser2);
 
 	if( !pk ) {
 		cerr << "Could not deserialize public key" << endl;

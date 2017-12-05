@@ -46,7 +46,7 @@ namespace lbcrypto {
 template <class Element>
 LPKeyPair<Element> LPAlgorithmLTV<Element>::KeyGen(CryptoContext<Element> cc, bool makeSparse)
 {
-	LPKeyPair<Element>	kp(new LPPublicKeyImpl<Element>(cc), new LPPrivateKey<Element>(cc));
+	LPKeyPair<Element>	kp(new LPPublicKeyImpl<Element>(cc), new LPPrivateKeyImpl<Element>(cc));
 
 	const shared_ptr<LPCryptoParametersLTV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersLTV<Element>>(cc->GetCryptoParameters());
 
@@ -112,7 +112,7 @@ Ciphertext<Element> LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> 
 }
 
 template <class Element>
-Ciphertext<Element> LPAlgorithmLTV<Element>::Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
+Ciphertext<Element> LPAlgorithmLTV<Element>::Encrypt(const LPPrivateKey<Element> privateKey,
 	Element ptxt) const
 {
 	const shared_ptr<LPCryptoParametersRLWE<Element>> cryptoParams =
@@ -146,7 +146,7 @@ Ciphertext<Element> LPAlgorithmLTV<Element>::Encrypt(const shared_ptr<LPPrivateK
 }
 
 template <class Element>
-DecryptResult LPAlgorithmLTV<Element>::Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
+DecryptResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> privateKey,
 	const Ciphertext<Element> ciphertext,
 	Poly *plaintext) const
 {
@@ -348,8 +348,8 @@ Ciphertext<Element> LPAlgorithmSHELTV<Element>::EvalNegate(const Ciphertext<Elem
 */
 template<class Element>
 shared_ptr<LPEvalKey<Element>> LPAlgorithmSHELTV<Element>::KeySwitchGen(
-	const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
-	const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
+	const LPPrivateKey<Element> originalPrivateKey,
+	const LPPrivateKey<Element> newPrivateKey) const {
 
 	shared_ptr<LPEvalKey<Element>> keySwitchHint(new LPEvalKeyNTRU<Element>(originalPrivateKey->GetCryptoContext()));
 
@@ -408,12 +408,12 @@ Ciphertext<Element> LPAlgorithmSHELTV<Element>::KeySwitch(
 
 //Function to generate an evaluation key for homomorphic evaluation (for depth 2)
 template <class Element>
-shared_ptr<LPEvalKey<Element>> LPAlgorithmSHELTV<Element>::EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const
+shared_ptr<LPEvalKey<Element>> LPAlgorithmSHELTV<Element>::EvalMultKeyGen(const LPPrivateKey<Element> originalPrivateKey) const
 {
 
 	const Element& f = originalPrivateKey->GetPrivateElement();
 
-	shared_ptr<LPPrivateKey<Element>> quadraticPrivateKey(new LPPrivateKey<Element>(originalPrivateKey->GetCryptoContext()));
+	LPPrivateKey<Element> quadraticPrivateKey(new LPPrivateKeyImpl<Element>(originalPrivateKey->GetCryptoContext()));
 	quadraticPrivateKey->SetPrivateElement(std::move(f*f));
 
 	return KeySwitchGen(quadraticPrivateKey,originalPrivateKey);
@@ -423,7 +423,7 @@ shared_ptr<LPEvalKey<Element>> LPAlgorithmSHELTV<Element>::EvalMultKeyGen(const 
 //Function to generate 1..log(q) encryptions for each bit of the original private key
 template <class Element>
 shared_ptr<LPEvalKey<Element>> LPAlgorithmSHELTV<Element>::KeySwitchRelinGen(const LPPublicKey<Element> newPublicKey,
-	const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const
+	const LPPrivateKey<Element> origPrivateKey) const
 {
 
 	// create a new EvalKey of the proper type, in this context
@@ -504,13 +504,13 @@ Ciphertext<Element> LPAlgorithmSHELTV<Element>::EvalAutomorphism(const Ciphertex
 
 template <class Element>
 shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> LPAlgorithmSHELTV<Element>::EvalAutomorphismKeyGen(const LPPublicKey<Element> publicKey,
-	const shared_ptr<LPPrivateKey<Element>> origPrivateKey, const::std::vector<usint> &indexList) const
+	const LPPrivateKey<Element> origPrivateKey, const::std::vector<usint> &indexList) const
 {
 	const Element &privateKeyElement = origPrivateKey->GetPrivateElement();
 
 	usint n = privateKeyElement.GetRingDimension();
 
-	shared_ptr<LPPrivateKey<Element>> tempPrivateKey(new LPPrivateKey<Element>(origPrivateKey->GetCryptoContext()));
+	LPPrivateKey<Element> tempPrivateKey(new LPPrivateKeyImpl<Element>(origPrivateKey->GetCryptoContext()));
 
 	shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> evalKeys(new std::map<usint, shared_ptr<LPEvalKey<Element>>>());
 
@@ -536,7 +536,7 @@ shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> LPAlgorithmSHELTV<El
 //Function to generate 1..log(q) encryptions for each bit of the original private key
 template <class Element>
 shared_ptr<LPEvalKey<Element>> LPAlgorithmPRELTV<Element>::ReKeyGen(const LPPublicKey<Element> newPK,
-	const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const
+	const LPPrivateKey<Element> origPrivateKey) const
 {
 	return origPrivateKey->GetCryptoContext()->GetEncryptionAlgorithm()->KeySwitchRelinGen(newPK, origPrivateKey);
 }

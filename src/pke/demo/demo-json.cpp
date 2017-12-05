@@ -138,7 +138,7 @@ decrypter(CryptoContext<Poly> ctx, string ciphertextname, string prikeyname)
 		return iPlaintext;
 	}
 
-	shared_ptr<LPPrivateKey<Poly>> sk = ctx->deserializeSecretKey(kser);
+	LPPrivateKey<Poly> sk = ctx->deserializeSecretKey(kser);
 	if( !sk ) {
 		cerr << "Could not deserialize private key" << endl;
 		return iPlaintext;

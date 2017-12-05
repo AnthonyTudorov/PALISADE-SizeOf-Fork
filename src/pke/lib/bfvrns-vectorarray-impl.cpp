@@ -442,7 +442,7 @@ Ciphertext<DCRTPoly> LPAlgorithmBFVrns<DCRTPoly>::Encrypt(const LPPublicKey<DCRT
 }
 
 template <>
-DecryptResult LPAlgorithmBFVrns<DCRTPoly>::Decrypt(const shared_ptr<LPPrivateKey<DCRTPoly>> privateKey,
+DecryptResult LPAlgorithmBFVrns<DCRTPoly>::Decrypt(const LPPrivateKey<DCRTPoly> privateKey,
 		const Ciphertext<DCRTPoly> ciphertext,
 		Poly *plaintext) const
 {

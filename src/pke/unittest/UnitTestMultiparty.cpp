@@ -95,7 +95,7 @@ UnitTestMultiparty(CryptoContext<Element> cc, bool publicVersion) {
 	// This generates the keys which should be able to decrypt the ciphertext after the re-encryption operation.
 	////////////////////////////////////////////////////////////
 
-	vector<shared_ptr<LPPrivateKey<Poly>>> secretKeys;
+	vector<LPPrivateKey<Poly>> secretKeys;
 	secretKeys.push_back(kp1.secretKey);
 	secretKeys.push_back(kp2.secretKey);
 	secretKeys.push_back(kp3.secretKey);

@@ -158,7 +158,7 @@ int main(int argc, char *argv[]) {
 	start = currentDateTime();
 
 
-	vector<shared_ptr<LPPrivateKey<Poly>>> secretKeys;
+	vector<LPPrivateKey<Poly>> secretKeys;
 	secretKeys.push_back(kp1.secretKey);
 	secretKeys.push_back(kp2.secretKey);
 	secretKeys.push_back(kp3.secretKey);

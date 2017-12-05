@@ -316,7 +316,7 @@ void PRESimulation(usint count, usint dataset){
 	//LWE-NTRU encryption/pre-encryption algorithm instance
 
 	std::vector<LPPublicKey<Poly>> publicKeys;
-	std::vector<shared_ptr<LPPrivateKey<Poly>>> privateKeys;
+	std::vector<LPPrivateKey<Poly>> privateKeys;
 	std::vector<shared_ptr<LPEvalKey<Poly>>> evalKeys;
 
 	// Initialize the public key containers.

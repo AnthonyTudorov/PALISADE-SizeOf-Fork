@@ -99,7 +99,7 @@ Ciphertext<Poly> LPAlgorithmBFVrns<Poly>::Encrypt(const LPPublicKey<Poly> public
 }
 
 template <>
-DecryptResult LPAlgorithmBFVrns<Poly>::Decrypt(const shared_ptr<LPPrivateKey<Poly>> privateKey,
+DecryptResult LPAlgorithmBFVrns<Poly>::Decrypt(const LPPrivateKey<Poly> privateKey,
 		const Ciphertext<Poly> ciphertext,
 		Poly *plaintext) const
 {

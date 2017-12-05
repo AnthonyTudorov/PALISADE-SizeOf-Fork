@@ -237,7 +237,7 @@ bool LPEvalKeyNTRURelin<Element>::Deserialize(const Serialized &serObj) {
 }
 
 template<typename Element>
-bool LPPrivateKey<Element>::Serialize(Serialized *serObj) const {
+bool LPPrivateKeyImpl<Element>::Serialize(Serialized *serObj) const {
 	serObj->SetObject();
 
 	if( !this->SerializeCryptoObject(serObj) )
@@ -248,7 +248,7 @@ bool LPPrivateKey<Element>::Serialize(Serialized *serObj) const {
 }
 
 template<typename Element>
-bool LPPrivateKey<Element>::Deserialize(const Serialized &serObj) {
+bool LPPrivateKeyImpl<Element>::Deserialize(const Serialized &serObj) {
 	// deserialization must be done in a crypto context; the context must be initialized before deserializing the elements
 	if( !this->GetCryptoContext() )
 		return false;

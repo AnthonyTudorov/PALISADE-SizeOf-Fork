@@ -60,7 +60,7 @@ std::ostream& operator<<(std::ostream& out, const CircuitObject<Element>& obj)
 }
 
 template<typename Element>
-void CircuitObject<Element>::DecryptAndPrint(CryptoContext<Element> cc, shared_ptr<LPPrivateKey<Element>> key, std::ostream& out) const
+void CircuitObject<Element>::DecryptAndPrint(CryptoContext<Element> cc, LPPrivateKey<Element> key, std::ostream& out) const
 {
 	const size_t n = 10;
 

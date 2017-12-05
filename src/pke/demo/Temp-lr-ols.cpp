@@ -738,7 +738,7 @@ void Decrypt(string keyDir,
 	    return;
 	}
 
-	shared_ptr<LPPrivateKey<DCRTPoly> > sk = cc->deserializeSecretKey(skSer);
+	LPPrivateKey<DCRTPoly> sk = cc->deserializeSecretKey(skSer);
 
 	if(!sk) {
 	    cerr << "Could not deserialize private key" << endl;

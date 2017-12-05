@@ -37,7 +37,7 @@ template <typename Element>
 std::map<string,shared_ptr<std::map<usint,shared_ptr<LPEvalKey<Element>>>>>	CryptoContextImpl<Element>::evalSumKeyMap;
 
 template <typename Element>
-void CryptoContextImpl<Element>::EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> key) {
+void CryptoContextImpl<Element>::EvalMultKeyGen(const LPPrivateKey<Element> key) {
 
 	if( key == NULL || Mismatched(key->GetCryptoContext()) )
 		throw std::logic_error("Key passed to EvalMultKeyGen were not generated with this crypto context");
@@ -105,7 +105,7 @@ void CryptoContextImpl<Element>::InsertEvalMultKey(const std::vector<shared_ptr<
 
 template <typename Element>
 void CryptoContextImpl<Element>::EvalSumKeyGen(
-	const shared_ptr<LPPrivateKey<Element>> privateKey,
+	const LPPrivateKey<Element> privateKey,
 	const LPPublicKey<Element> publicKey) {
 
 	if( privateKey == NULL || Mismatched(privateKey->GetCryptoContext()) ) {
@@ -1292,19 +1292,19 @@ CryptoContextImpl<T>::deserializePublicKey(const Serialized& serObj)
 }
 
 template <typename T>
-shared_ptr<LPPrivateKey<T>>
+LPPrivateKey<T>
 CryptoContextImpl<T>::deserializeSecretKey(const Serialized& serObj)
 {
 	CryptoContext<T> cc = CryptoContextFactory<T>::DeserializeAndCreateContext(serObj);
 	if( cc == 0 )
 		return 0;
 
-	shared_ptr<LPPrivateKey<T>> key( new LPPrivateKey<T>(cc) );
+	LPPrivateKey<T> key( new LPPrivateKeyImpl<T>(cc) );
 
 	if( key->Deserialize(serObj) )
 		return key;
 
-	return shared_ptr<LPPrivateKey<T>>();
+	return 0;
 }
 
 template <typename T>

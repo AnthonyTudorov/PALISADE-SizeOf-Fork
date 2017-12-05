@@ -130,23 +130,23 @@ void ConvertMatrixInto2DVector(const Matrix<RationalCiphertext<DCRTPoly>> &matri
 void Convert2DVectorIntoMatrix(const vector<vector<Ciphertext<DCRTPoly>>> &vec, Matrix<RationalCiphertext<DCRTPoly>> &matrix);
 
 template <class Element>
-shared_ptr<LPEvalKey<Element>> MultiKeySwitchGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey, const shared_ptr<LPPrivateKey<Element>> newPrivateKey,
+shared_ptr<LPEvalKey<Element>> MultiKeySwitchGen(const LPPrivateKey<Element> originalPrivateKey, const LPPrivateKey<Element> newPrivateKey,
 	const shared_ptr<LPEvalKey<DCRTPoly>> ek);
 
 template <class Element>
-shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> MultiEvalAutomorphismKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey,
+shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> MultiEvalAutomorphismKeyGen(const LPPrivateKey<Element> privateKey,
 	const shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> eAuto,
 	const std::vector<usint> &indexList);
 
 template <class Element>
-shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> MultiEvalSumKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey,
+shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> MultiEvalSumKeyGen(const LPPrivateKey<Element> privateKey,
 	const shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> eSum);
 
 template <class Element>
 shared_ptr<LPEvalKey<Element>> AddEvalKeys(shared_ptr<LPEvalKey<Element>> a, shared_ptr<LPEvalKey<Element>> b);
 
 template <class Element>
-shared_ptr<LPEvalKey<Element>> MultiplyEvalKey(shared_ptr<LPEvalKey<Element>> evalKey, shared_ptr<LPPrivateKey<Element>> sk);
+shared_ptr<LPEvalKey<Element>> MultiplyEvalKey(shared_ptr<LPEvalKey<Element>> evalKey, LPPrivateKey<Element> sk);
 
 template <class Element>
 shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> AddEvalSumKeys(const shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> es1,
@@ -156,7 +156,7 @@ template <class Element>
 shared_ptr<LPEvalKey<Element>> AddEvalMultKeys(shared_ptr<LPEvalKey<Element>> evalKey1, shared_ptr<LPEvalKey<Element>> evalKey2);
 
 template <class Element>
-shared_ptr<LPPrivateKey<Element>> AddSecretKeys(shared_ptr<LPPrivateKey<Element>> a, shared_ptr<LPPrivateKey<Element>> b);
+LPPrivateKey<Element> AddSecretKeys(LPPrivateKey<Element> a, LPPrivateKey<Element> b);
 
 // number of primitive prime plaintext moduli in the CRT representation of plaintext
 const size_t SIZE = 2;
@@ -857,7 +857,7 @@ void KeyGen3(const string &paramDir,  const string &contextID, const string &key
 			return;
 		}
 
-		shared_ptr<LPPrivateKey<DCRTPoly>> sk = cc->deserializeSecretKey(skSer);
+		LPPrivateKey<DCRTPoly> sk = cc->deserializeSecretKey(skSer);
 
 		if (!sk) {
 			cerr << "Could not deserialize private key" << endl;
@@ -1046,7 +1046,7 @@ void TestEvalKeys(const string &paramDir,  const string &contextID, const string
 			return;
 		}
 
-		shared_ptr<LPPrivateKey<DCRTPoly>> skA = cc->deserializeSecretKey(skSerA);
+		LPPrivateKey<DCRTPoly> skA = cc->deserializeSecretKey(skSerA);
 
 		if (!skA) {
 			cerr << "Could not deserialize private key" << endl;
@@ -1065,7 +1065,7 @@ void TestEvalKeys(const string &paramDir,  const string &contextID, const string
 			return;
 		}
 
-		shared_ptr<LPPrivateKey<DCRTPoly>> skB = cc->deserializeSecretKey(skSerB);
+		LPPrivateKey<DCRTPoly> skB = cc->deserializeSecretKey(skSerB);
 
 		if (!skB) {
 			cerr << "Could not deserialize private key" << endl;
@@ -1687,7 +1687,7 @@ void TestLR(const string &paramDir,  const string &contextID, const string &keyD
 			return;
 		}
 
-		shared_ptr<LPPrivateKey<DCRTPoly>> skA = cc->deserializeSecretKey(skSerA);
+		LPPrivateKey<DCRTPoly> skA = cc->deserializeSecretKey(skSerA);
 
 		if (!skA) {
 			cerr << "Could not deserialize private key" << endl;
@@ -1706,7 +1706,7 @@ void TestLR(const string &paramDir,  const string &contextID, const string &keyD
 			return;
 		}
 
-		shared_ptr<LPPrivateKey<DCRTPoly>> skB = cc->deserializeSecretKey(skSerB);
+		LPPrivateKey<DCRTPoly> skB = cc->deserializeSecretKey(skSerB);
 
 		if (!skB) {
 			cerr << "Could not deserialize private key" << endl;
@@ -1953,7 +1953,7 @@ void PartialDecrypt1(const string &paramDir,  const string &contextID, const str
 			return;
 		}
 
-		shared_ptr<LPPrivateKey<DCRTPoly>> skA = cc->deserializeSecretKey(skSerA);
+		LPPrivateKey<DCRTPoly> skA = cc->deserializeSecretKey(skSerA);
 
 		if (!skA) {
 			cerr << "Could not deserialize private key" << endl;
@@ -2107,7 +2107,7 @@ void PartialDecrypt2(const string &paramDir,  const string &contextID, const str
 			return;
 		}
 
-		shared_ptr<LPPrivateKey<DCRTPoly>> skB = cc->deserializeSecretKey(skSer);
+		LPPrivateKey<DCRTPoly> skB = cc->deserializeSecretKey(skSer);
 
 		if (!skB) {
 			cerr << "Could not deserialize private key" << endl;
@@ -2753,7 +2753,7 @@ shared_ptr<LPEvalKey<Element>> AddEvalMultKeys(shared_ptr<LPEvalKey<Element>> ev
 }
 
 template <class Element>
-shared_ptr<LPEvalKey<Element>> MultiplyEvalKey(shared_ptr<LPEvalKey<Element>> evalKey, shared_ptr<LPPrivateKey<Element>> sk)
+shared_ptr<LPEvalKey<Element>> MultiplyEvalKey(shared_ptr<LPEvalKey<Element>> evalKey, LPPrivateKey<Element> sk)
 {
 	const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersBV<Element>>(evalKey->GetCryptoContext()->GetCryptoParameters());
 	const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
@@ -2792,7 +2792,7 @@ shared_ptr<LPEvalKey<Element>> MultiplyEvalKey(shared_ptr<LPEvalKey<Element>> ev
 }
 
 template <class Element>
-shared_ptr<LPEvalKey<Element>> MultiKeySwitchGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey, const shared_ptr<LPPrivateKey<Element>> newPrivateKey, 
+shared_ptr<LPEvalKey<Element>> MultiKeySwitchGen(const LPPrivateKey<Element> originalPrivateKey, const LPPrivateKey<Element> newPrivateKey, 
 		const shared_ptr<LPEvalKey<DCRTPoly>> ek) {
 
 	const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(originalPrivateKey->GetCryptoParameters());
@@ -2843,7 +2843,7 @@ shared_ptr<LPEvalKey<Element>> MultiKeySwitchGen(const shared_ptr<LPPrivateKey<E
 }
 
 template <class Element>
-shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> MultiEvalAutomorphismKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey,
+shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> MultiEvalAutomorphismKeyGen(const LPPrivateKey<Element> privateKey,
 	const shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> eAuto,
 	const std::vector<usint> &indexList)
 {
@@ -2852,7 +2852,7 @@ shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> MultiEvalAutomorphis
 
 	usint n = privateKeyElement.GetRingDimension();
 
-	shared_ptr<LPPrivateKey<Element>> tempPrivateKey(new LPPrivateKey<Element>(privateKey->GetCryptoContext()));
+	LPPrivateKey<Element> tempPrivateKey(new LPPrivateKeyImpl<Element>(privateKey->GetCryptoContext()));
 
 	shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> evalKeys(new std::map<usint, shared_ptr<LPEvalKey<Element>>>());
 
@@ -2877,7 +2877,7 @@ shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> MultiEvalAutomorphis
 }
 
 template <class Element>
-shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> MultiEvalSumKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey,
+shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> MultiEvalSumKeyGen(const LPPrivateKey<Element> privateKey,
 	const shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> eSum)
 {
 
@@ -2921,9 +2921,9 @@ shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> AddEvalSumKeys(const
 }
 
 template <class Element>
-shared_ptr<LPPrivateKey<Element>> AddSecretKeys(shared_ptr<LPPrivateKey<Element>> a, shared_ptr<LPPrivateKey<Element>> b) {
+LPPrivateKey<Element> AddSecretKeys(LPPrivateKey<Element> a, LPPrivateKey<Element> b) {
 
-	shared_ptr<LPPrivateKey<Element>> sum(new LPPrivateKey<Element>(a->GetCryptoContext()));
+	LPPrivateKey<Element> sum(new LPPrivateKeyImpl<Element>(a->GetCryptoContext()));
 
 	sum->SetPrivateElement(a->GetPrivateElement() + b->GetPrivateElement());
 

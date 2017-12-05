@@ -503,7 +503,7 @@ public:
 	* @return a public/secret key pair
 	*/
 	LPKeyPair<Element> MultipartyKeyGen(
-		const vector<shared_ptr<LPPrivateKey<Element>>>& secretKeys) {
+		const vector<LPPrivateKey<Element>>& secretKeys) {
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
 		auto r =  GetEncryptionAlgorithm()->MultipartyKeyGen(CryptoContextFactory<Element>::GetContextForPointer(this), secretKeys, false);
@@ -522,7 +522,7 @@ public:
 	* @return vector of partially decrypted ciphertexts
 	*/
 	vector<Ciphertext<Element>> MultipartyDecryptLead(
-		const shared_ptr<LPPrivateKey<Element>> privateKey,
+		const LPPrivateKey<Element> privateKey,
 		const vector<Ciphertext<Element>>& ciphertext) const
 	{
 		if( privateKey == NULL || Mismatched(privateKey->GetCryptoContext()) )
@@ -556,7 +556,7 @@ public:
 	* @return vector of partially decrypted ciphertexts
 	*/
 	vector<Ciphertext<Element>> MultipartyDecryptMain(
-		const shared_ptr<LPPrivateKey<Element>> privateKey,
+		const LPPrivateKey<Element> privateKey,
 		const vector<Ciphertext<Element>>& ciphertext) const
 	{
 		if( privateKey == NULL || Mismatched(privateKey->GetCryptoContext()) )
@@ -652,7 +652,7 @@ public:
 	*/
 	shared_ptr<LPEvalKey<Element>> ReKeyGen(
 		const LPPublicKey<Element> newKey,
-		const shared_ptr<LPPrivateKey<Element>> oldKey) const {
+		const LPPrivateKey<Element> oldKey) const {
 
 		if( newKey == NULL || oldKey == NULL ||
 				Mismatched(newKey->GetCryptoContext()) ||
@@ -675,8 +675,8 @@ public:
 	* @return new evaluation key
 	*/
 	shared_ptr<LPEvalKey<Element>> ReKeyGen(
-		const shared_ptr<LPPrivateKey<Element>> newKey,
-		const shared_ptr<LPPrivateKey<Element>> oldKey) const {
+		const LPPrivateKey<Element> newKey,
+		const LPPrivateKey<Element> oldKey) const {
 
 		if (newKey == NULL || oldKey == NULL ||
 				Mismatched(newKey->GetCryptoContext()) ||
@@ -697,7 +697,7 @@ public:
 	* @param key
 	* @return new evaluation key
 	*/
-	void EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> key);
+	void EvalMultKeyGen(const LPPrivateKey<Element> key);
 
 	/**
 	 * GetEvalMultKeyVector fetches the eval mult keys for a given KeyID
@@ -719,7 +719,7 @@ public:
 	* @return new evaluation key
 	*/
 	shared_ptr<LPEvalKey<Element>> KeySwitchGen(
-		const shared_ptr<LPPrivateKey<Element>> key1, const shared_ptr<LPPrivateKey<Element>> key2) const {
+		const LPPrivateKey<Element> key1, const LPPrivateKey<Element> key2) const {
 
 		if( key1 == NULL || key2 == NULL ||
 				Mismatched(key1->GetCryptoContext()) ||
@@ -776,7 +776,7 @@ public:
 	 * @return ciphertext (or null on failure)
 	 */
 	Ciphertext<Element> Encrypt(
-		const shared_ptr<LPPrivateKey<Element>> privateKey,
+		const LPPrivateKey<Element> privateKey,
 		Plaintext plaintext) const
 	{
 		if( privateKey == NULL || Mismatched(privateKey->GetCryptoContext()) )
@@ -1035,7 +1035,7 @@ public:
 	 * @return
 	 */
 	DecryptResult Decrypt(
-			const shared_ptr<LPPrivateKey<Element>> privateKey,
+			const LPPrivateKey<Element> privateKey,
 			const Ciphertext<Element> ciphertext,
 			Plaintext* plaintext)
 	{
@@ -1070,7 +1070,7 @@ public:
 	* @return size of plaintext
 	*/
 	DecryptResult DecryptMatrix(
-		const shared_ptr<LPPrivateKey<Element>> privateKey,
+		const LPPrivateKey<Element> privateKey,
 		const shared_ptr<Matrix<RationalCiphertext<Element>>> ciphertext,
 		shared_ptr<Matrix<Plaintext>> *numerator,
 		shared_ptr<Matrix<Plaintext>> *denominator) const
@@ -1148,7 +1148,7 @@ public:
 	* @return size of plaintext
 	*/
 	DecryptResult DecryptMatrixNumerator(
-		const shared_ptr<LPPrivateKey<Element>> privateKey,
+		const LPPrivateKey<Element> privateKey,
 		const shared_ptr<Matrix<RationalCiphertext<Element>>> ciphertext,
 		shared_ptr<Matrix<Plaintext>> *numerator) const
 	{
@@ -1218,7 +1218,7 @@ public:
 	* @return total bytes processed
 	*/
 	size_t DecryptStream(
-		const shared_ptr<LPPrivateKey<Element>> privateKey,
+		const LPPrivateKey<Element> privateKey,
 		std::istream& instream,
 		std::ostream& outstream)
 	{
@@ -1600,7 +1600,7 @@ public:
 	* @return returns the evaluation keys; index 0 of the vector corresponds to plaintext index 2, index 1 to plaintex index 3, etc.
 	*/
 	shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const LPPublicKey<Element> publicKey,
-		const shared_ptr<LPPrivateKey<Element>> origPrivateKey, const std::vector<usint> &indexList) const {
+		const LPPrivateKey<Element> origPrivateKey, const std::vector<usint> &indexList) const {
 
 		if( publicKey == NULL || origPrivateKey == NULL )
 			PALISADE_THROW( type_error, "Null Keys");
@@ -1660,7 +1660,7 @@ public:
 	* @param indexList list of automorphism indices to be computed
 	* @return returns the evaluation keys
 	*/
-	shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey,
+	shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> EvalAutomorphismKeyGen(const LPPrivateKey<Element> privateKey,
 		const std::vector<usint> &indexList) const {
 
 		if( privateKey == NULL )
@@ -1684,7 +1684,7 @@ public:
 	* @param publicKey public key (used in NTRU schemes).
 	*/
 	void EvalSumKeyGen(
-		const shared_ptr<LPPrivateKey<Element>> privateKey, 
+		const LPPrivateKey<Element> privateKey, 
 		const LPPublicKey<Element> publicKey = nullptr);
 
 	/**
@@ -1947,7 +1947,7 @@ public:
 	* @param serObj
 	* @return deserialized object
 	*/
-	static shared_ptr<LPPrivateKey<Element>>	deserializeSecretKey(const Serialized& serObj);
+	static LPPrivateKey<Element>	deserializeSecretKey(const Serialized& serObj);
 
 	/**
 	* Deserialize into a Ciphertext
