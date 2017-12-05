@@ -664,14 +664,14 @@ shared_ptr<LPEvalKey<DCRTPoly>> LPAlgorithmSHEBFVrns<DCRTPoly>::KeySwitchGen(con
 	std::vector<DCRTPoly> evalKeyElements;
 	std::vector<DCRTPoly> evalKeyElementsGenerated;
 
-	for (usint i = 0; i < (evalKeyElements.size()); i++)
+	for (usint i = 0; i < qDivqiTable.size(); i++)
 	{
 		// Generate a_i vectors
 		DCRTPoly a(dug, elementParams, Format::EVALUATION);
 		evalKeyElementsGenerated.push_back(a);
 
 		// Creates an element with all zeroes
-		DCRTPoly filtered = oldKeyqDivqi.CloneEmpty();
+		DCRTPoly filtered(elementParams,EVALUATION,true);
 		// Sets [oldKey q/qi]_qi
 		filtered.SetElementAtIndex(i,oldKeyqDivqi.GetElementAtIndex(i));
 
@@ -691,6 +691,13 @@ template <>
 shared_ptr<Ciphertext<DCRTPoly>> LPAlgorithmSHEBFVrns<DCRTPoly>::KeySwitch(const shared_ptr<LPEvalKey<DCRTPoly>> ek,
 	const shared_ptr<Ciphertext<DCRTPoly>> cipherText) const
 {
+
+	#define PROFILE  //define this to enable PROFILELOG and TIC/TOC
+
+	double processingTime(0.0);
+	TimeVar t;
+
+	TIC(t);
 
 	shared_ptr<Ciphertext<DCRTPoly>> newCiphertext = cipherText->CloneEmpty();
 
@@ -725,6 +732,7 @@ shared_ptr<Ciphertext<DCRTPoly>> LPAlgorithmSHEBFVrns<DCRTPoly>::KeySwitch(const
 		//Convert ct1 to evaluation representation
 		ct1.SwitchFormat();
 		ct1 += digitsC2[0] * a[0];
+
 	}
 
 	ct0 += digitsC2[0] * b[0];
@@ -736,6 +744,10 @@ shared_ptr<Ciphertext<DCRTPoly>> LPAlgorithmSHEBFVrns<DCRTPoly>::KeySwitch(const
 	}
 
 	newCiphertext->SetElements({ ct0, ct1 });
+
+	processingTime = TOC(t);
+	std::cout << "Key switching runtime: " << processingTime << "ms" << std::endl;
+
 	return newCiphertext;
 }
 

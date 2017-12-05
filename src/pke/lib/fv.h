@@ -503,7 +503,7 @@ namespace lbcrypto {
 		*  decryptable by the same secret key as that of ciphertext1 and ciphertext2.
 		* @param *newCiphertext the new resulting ciphertext.
 		*/
-		Ciphertext<Element> EvalMultAndRelinearize(const Ciphertext<Element> ct1,
+		virtual Ciphertext<Element> EvalMultAndRelinearize(const Ciphertext<Element> ct1,
 			const Ciphertext<Element> ct, const shared_ptr<vector<LPEvalKey<Element>>> ek) const;
 
 		/**

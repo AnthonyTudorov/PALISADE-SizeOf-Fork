@@ -62,7 +62,7 @@ void MultiplyThree();
 int main() {
 
 	//PKE();
-	SHETestCoeff();
+	//SHETestCoeff();
 	SHETestPacked();
 	//SwitchCRT();
 	//Multiply();
@@ -478,6 +478,29 @@ void SHETestPacked() {
 
 	cout << "\n Resulting Decryption of the Multiplication with Relinearization: \n";
 	cout << plaintextDecRelin << endl;
+
+	cout << "\n";
+
+	start = currentDateTime();
+
+	auto evalKeys = cryptoContext->EvalAutomorphismKeyGen(keyPair.secretKey,{5,25});
+
+	finish = currentDateTime();
+	diff = finish - start;
+	cout << "Automorphism key gen time: " << "\t" << diff << " ms" << endl;
+
+	start = currentDateTime();
+
+	auto ciphertextRotated = cryptoContext->EvalAutomorphism(ciphertext1, 5, *evalKeys);
+
+	finish = currentDateTime();
+	diff = finish - start;
+	cout << "Automorphism time: " << "\t" << diff << " ms" << endl;
+
+	Plaintext plaintextDecRotated;
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertextRotated, &plaintextDecRotated);
+	plaintextDecRotated->SetLength(plaintext1->GetLength());
+	cout << plaintextDecRotated << endl;
 
 }
 

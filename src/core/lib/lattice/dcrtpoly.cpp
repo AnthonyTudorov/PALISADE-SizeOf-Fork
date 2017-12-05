@@ -371,11 +371,15 @@ std::vector<DCRTPolyImpl<ModType,IntType,VecType,ParmType>> DCRTPolyImpl<ModType
 
 	for( usint i=0; i<m_vectors.size(); i++ ) {
 
-		DCRTPolyType currentDCRTPoly = input.CloneEmpty();
+		DCRTPolyType currentDCRTPoly = input.Clone();
 		PolyType currentPoly = input.m_vectors[i]*qDivqiInverse[i];
 
-		for ( usint k=0; k<m_vectors.size(); k++ )
-			currentDCRTPoly.m_vectors[i] = currentPoly.Mod((*input.GetParams())[i]->GetModulus());
+		for ( usint k=0; k<m_vectors.size(); k++ ){
+			PolyType temp(currentPoly);
+			if (i!=k)
+				temp.SwitchModulus(input.m_vectors[k].GetModulus(),input.m_vectors[k].GetRootOfUnity());
+			currentDCRTPoly.m_vectors[k] = temp;
+		}
 
 		currentDCRTPoly.SwitchFormat();
 
