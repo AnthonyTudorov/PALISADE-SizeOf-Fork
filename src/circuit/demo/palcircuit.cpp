@@ -87,9 +87,9 @@ main(int argc, char *argv[])
 	const usint mdim = 3;
 	const usint maxprint = 10;
 
-	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayNull(m, 5, ptm, 20);
+	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayNull(m, 5, ptm, 20);
 	//CryptoContext<Poly> cc = GenCryptoContextElementNull(m, ptm);
-	//shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayLTV(m, 5, ptm, 20);
+	//CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayLTV(m, 5, ptm, 20);
 	//CryptoContext<Poly> cc = GenCryptoContextElementLTV(m, ptm);
 
 	bool debug_parse = false;
@@ -300,11 +300,11 @@ main(int argc, char *argv[])
 		LPKeyPair<DCRTPoly> kp = cc->KeyGen();
 		cc->EvalMultKeyGen(kp.secretKey);
 
-		vector<shared_ptr<Ciphertext<DCRTPoly>>> intVecs;
+		vector<Ciphertext<DCRTPoly>> intVecs;
 		for( size_t i = 0; i < sizeof(ints)/sizeof(ints[0]); i++ )
 			intVecs.push_back( cc->Encrypt(kp.publicKey, ints[i]) );
 
-		vector<shared_ptr<Ciphertext<DCRTPoly>>> cipherVecs;
+		vector<Ciphertext<DCRTPoly>> cipherVecs;
 		for( usint d = 0; d < 4; d++ )
 			for( usint i=1; i<10; i++ ){
 				cipherVecs.push_back( cc->Encrypt(kp.publicKey, cc->MakeCoefPackedPlaintext({i})) );

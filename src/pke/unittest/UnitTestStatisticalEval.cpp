@@ -63,7 +63,7 @@ TEST_F(UTStatisticalEval, Null_Eval_Lin_Regression) {
 	typename Poly::Integer rootOfUnity("268585022");
 
 	shared_ptr<Poly::Params> ep( new Poly::Params(m, modulus, rootOfUnity) );
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextNull(ep, plaintextModulus);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextNull(ep, plaintextModulus);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
@@ -158,7 +158,7 @@ TEST_F(UTStatisticalEval, Null_Eval_Lin_Regression_Int) {
 	typename Poly::Integer rootOfUnity("268585022");
 
 	shared_ptr<Poly::Params> ep( new Poly::Params(m, modulus, rootOfUnity) );
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextNull(ep, plaintextModulus);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextNull(ep, plaintextModulus);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 
@@ -238,7 +238,7 @@ TEST_F(UTStatisticalEval, FV_Eval_Lin_Regression_Int) {
 	float stdDev = 4;
 
 	//Set crypto parametes
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextFV(plaintextModulus, 1.06, relWindow, stdDev, 0, 4, 0);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextFV(plaintextModulus, 1.06, relWindow, stdDev, 0, 4, 0);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 

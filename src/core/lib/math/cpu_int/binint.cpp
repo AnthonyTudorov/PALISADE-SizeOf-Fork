@@ -1677,58 +1677,6 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModExp(const Bi
 
 }
 
-template<typename uint_type,usint BITLENGTH>
-const std::string BigInteger<uint_type,BITLENGTH>::ToString() const{
-
-	//this string object will store this BigInteger's value
-	std::string bbiString;
-
-	//create reference for the object to be printed
-	//BigInteger<uint_type,BITLENGTH> *print_obj;
-
-	usint counter;
-
-	//initiate to object to be printed
-	//print_obj = new BigInteger<uint_type,BITLENGTH>(*this);
-
-
-	//print_VALUE array stores the decimal value in the array
-	uschar *print_VALUE = new uschar[m_numDigitInPrintval];
-
-	//reset to zero
-	for(size_t i=0;i<m_numDigitInPrintval;i++)
-		*(print_VALUE+i)=0;
-
-	//starts the conversion from base r to decimal value
-	for(size_t i=this->m_MSB;i>0;i--){
-
-		//print_VALUE = print_VALUE*2
-		BigInteger<uint_type,BITLENGTH>::double_bitVal(print_VALUE);	
-
-		//adds the bit value to the print_VALUE
-		BigInteger<uint_type,BITLENGTH>::add_bitVal(print_VALUE,this->GetBitAtIndex(i));
-
-
-	}
-
-	//find the first occurence of non-zero value in print_VALUE
-	for(counter=0;counter<m_numDigitInPrintval-1;counter++){
-		if((sint)print_VALUE[counter]!=0)break;							
-	}
-
-	//append this BigInteger's digits to this method's returned string object
-	for (; counter < m_numDigitInPrintval; counter++) {
-		bbiString += std::to_string(print_VALUE[counter]);
-	}
-
-	delete [] print_VALUE;
-	//deallocate the memory since values are inserted into the ostream object
-	//delete print_obj;
-
-	return bbiString;
-
-}
-
 //Compares the current object with the BigInteger a.
 //Uses MSB comparision to output requisite value.
 template<typename uint_type,usint BITLENGTH>

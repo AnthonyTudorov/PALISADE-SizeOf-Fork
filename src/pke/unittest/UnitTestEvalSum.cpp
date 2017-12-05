@@ -151,7 +151,7 @@ usint ArbLTVEvalSumPackedArray(std::vector<usint> &clearVector, usint p) {
 
 	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedEncoding::GetAutomorphismGenerator(modulusP), batchSize));
 
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(params, encodingParams, 16, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(params, encodingParams, 16, stdDev);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
@@ -159,7 +159,7 @@ usint ArbLTVEvalSumPackedArray(std::vector<usint> &clearVector, usint p) {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	shared_ptr<Ciphertext<Poly>> ciphertext;
+	Ciphertext<Poly> ciphertext;
 
 	std::vector<usint> vectorOfInts = std::move(clearVector);
 	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
@@ -202,7 +202,7 @@ usint ArbBVEvalSumPackedArray(std::vector<usint> &clearVector, usint p) {
 
 	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedEncoding::GetAutomorphismGenerator(modulusP), batchSize));
 
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, encodingParams, 8, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, encodingParams, 8, stdDev);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
@@ -210,7 +210,7 @@ usint ArbBVEvalSumPackedArray(std::vector<usint> &clearVector, usint p) {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	shared_ptr<Ciphertext<Poly>> ciphertext;
+	Ciphertext<Poly> ciphertext;
 
 	Plaintext intArray = cc->MakePackedPlaintext(clearVector);
 
@@ -251,7 +251,7 @@ usint ArbBVEvalSumPackedArrayPrime(std::vector<usint> &clearVector, usint p) {
 
 	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedEncoding::GetAutomorphismGenerator(modulusP), batchSize));
 
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, encodingParams, 8, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, encodingParams, 8, stdDev);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
@@ -259,7 +259,7 @@ usint ArbBVEvalSumPackedArrayPrime(std::vector<usint> &clearVector, usint p) {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	shared_ptr<Ciphertext<Poly>> ciphertext;
+	Ciphertext<Poly> ciphertext;
 
 	Plaintext intArray = cc->MakePackedPlaintext(clearVector);
 
@@ -302,7 +302,7 @@ usint ArbFVEvalSumPackedArray(std::vector<usint> &clearVector, usint p) {
 
 	BigInteger delta(modulusQ.DividedBy(modulusP));
 
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextFV(params, encodingParams, 8, stdDev, delta.ToString());
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextFV(params, encodingParams, 8, stdDev, delta.ToString());
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
@@ -310,7 +310,7 @@ usint ArbFVEvalSumPackedArray(std::vector<usint> &clearVector, usint p) {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	shared_ptr<Ciphertext<Poly>> ciphertext;
+	Ciphertext<Poly> ciphertext;
 
 	std::vector<usint> vectorOfInts = std::move(clearVector);
 	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);

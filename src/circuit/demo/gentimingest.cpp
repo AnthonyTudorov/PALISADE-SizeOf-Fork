@@ -72,7 +72,7 @@ main(int argc, char *argv[])
 		return 1;
 	}
 
-	shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(serObj);
+	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(serObj);
 
 	if( cc == 0 ) {
 		cout << "Unable to deserialize CryptoContext" << endl;

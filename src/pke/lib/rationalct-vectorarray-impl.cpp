@@ -29,7 +29,7 @@
 #include "rationalciphertext.cpp"
 
 namespace lbcrypto {
-extern template class CryptoContext<DCRTPoly>;
+extern template class CryptoContextImpl<DCRTPoly>;
 
 template class RationalCiphertext<DCRTPoly>;
 }

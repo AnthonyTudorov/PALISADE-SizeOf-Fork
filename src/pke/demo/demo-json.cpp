@@ -47,7 +47,7 @@ using namespace lbcrypto;
 const std::string DATAFOLDER = "demoData";
 
 void
-keymaker(shared_ptr<CryptoContext<Poly>> ctx, string keyname)
+keymaker(CryptoContext<Poly> ctx, string keyname)
 {
 
 	// Initialize the public key containers.
@@ -84,7 +84,7 @@ keymaker(shared_ptr<CryptoContext<Poly>> ctx, string keyname)
 
 
 void
-encrypter(shared_ptr<CryptoContext<Poly>> ctx, Plaintext iPlaintext, string pubkeyname, string ciphertextname)
+encrypter(CryptoContext<Poly> ctx, Plaintext iPlaintext, string pubkeyname, string ciphertextname)
 {
 
 	ofstream ctSer(DATAFOLDER + "/" + ciphertextname, ios::binary);
@@ -100,7 +100,7 @@ encrypter(shared_ptr<CryptoContext<Poly>> ctx, Plaintext iPlaintext, string pubk
 	}
 
 	// Initialize the public key containers.
-	shared_ptr<LPPublicKey<Poly>> pk = ctx->deserializePublicKey(kser);
+	LPPublicKey<Poly> pk = ctx->deserializePublicKey(kser);
 
 	if( !pk ) {
 		cerr << "Could not deserialize public key" << endl;
@@ -128,7 +128,7 @@ encrypter(shared_ptr<CryptoContext<Poly>> ctx, Plaintext iPlaintext, string pubk
 
 
 Plaintext
-decrypter(shared_ptr<CryptoContext<Poly>> ctx, string ciphertextname, string prikeyname)
+decrypter(CryptoContext<Poly> ctx, string ciphertextname, string prikeyname)
 {
 	Plaintext iPlaintext;
 
@@ -138,7 +138,7 @@ decrypter(shared_ptr<CryptoContext<Poly>> ctx, string ciphertextname, string pri
 		return iPlaintext;
 	}
 
-	shared_ptr<LPPrivateKey<Poly>> sk = ctx->deserializeSecretKey(kser);
+	LPPrivateKey<Poly> sk = ctx->deserializeSecretKey(kser);
 	if( !sk ) {
 		cerr << "Could not deserialize private key" << endl;
 		return iPlaintext;
@@ -157,7 +157,7 @@ decrypter(shared_ptr<CryptoContext<Poly>> ctx, string ciphertextname, string pri
 	}
 
 	// Initialize the public key containers.
-	shared_ptr<Ciphertext<Poly>> ct = ctx->deserializeCiphertext(kser);
+	Ciphertext<Poly> ct = ctx->deserializeCiphertext(kser);
 	if( ct == NULL ) {
 		cerr << "Could not deserialize ciphertext" << endl;
 		return iPlaintext;
@@ -190,7 +190,7 @@ int main(int argc, char *argv[])
 	double rootHermiteFactor = 1.006;
 
 	//Set Crypto Parameters
-	shared_ptr<CryptoContext<Poly>> cryptoContext = CryptoContextFactory<Poly>::genCryptoContextFV(
+	CryptoContext<Poly> cryptoContext = CryptoContextFactory<Poly>::genCryptoContextFV(
 	            plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 1, 0);
 
 	// enable features that you wish to use

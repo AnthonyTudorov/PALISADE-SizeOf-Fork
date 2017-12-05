@@ -92,7 +92,7 @@ TEST_F(UTLTVBATCHING, Poly_Encrypt_Decrypt) {
 	std::vector<usint> vectorOfInts1 = { 1,2,3,4 };
 
 	shared_ptr<Poly::Params> ep( new Poly::Params(m, modulus, rootOfUnity) );
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextBV(ep, 17, 8, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(ep, 17, 8, stdDev);
 
 	cc->Enable(ENCRYPTION);
 
@@ -110,7 +110,7 @@ TEST_F(UTLTVBATCHING, Poly_Encrypt_Decrypt) {
 	////////////////////////////////////////////////////////////
 	//Encryption
 	////////////////////////////////////////////////////////////
-	shared_ptr<Ciphertext<Poly>> ciphertext;
+	Ciphertext<Poly> ciphertext;
 
 	ciphertext = cc->Encrypt(kp.publicKey, intArray1);
 
@@ -152,7 +152,7 @@ TEST_F(UTLTVBATCHING, Poly_EVALADD) {
 	std::vector<usint> vectorOfIntsExpected = { 5,5,5,5 };
 
 	shared_ptr<Poly::Params> ep( new Poly::Params(m, modulus, rootOfUnity) );
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextBV(ep, 17, 8, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(ep, 17, 8, stdDev);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 
@@ -171,15 +171,15 @@ TEST_F(UTLTVBATCHING, Poly_EVALADD) {
 	////////////////////////////////////////////////////////////
 	//Encryption
 	////////////////////////////////////////////////////////////
-	shared_ptr<Ciphertext<Poly>> ciphertext1 = cc->Encrypt(kp.publicKey, intArray1);
+	Ciphertext<Poly> ciphertext1 = cc->Encrypt(kp.publicKey, intArray1);
 
-	shared_ptr<Ciphertext<Poly>> ciphertext2 = cc->Encrypt(kp.publicKey, intArray2);
+	Ciphertext<Poly> ciphertext2 = cc->Encrypt(kp.publicKey, intArray2);
 
 
 	////////////////////////////////////////////////////////////
 	//EvalAdd Operation
 	////////////////////////////////////////////////////////////
-	shared_ptr<Ciphertext<Poly>> ciphertextResult = cc->EvalAdd(ciphertext1, ciphertext2);
+	Ciphertext<Poly> ciphertextResult = cc->EvalAdd(ciphertext1, ciphertext2);
 
 	////////////////////////////////////////////////////////////
 	//Decryption
@@ -212,7 +212,7 @@ TEST_F(UTLTVBATCHING, Poly_EVALMULT) {
 
 	shared_ptr<Poly::Params> parms( new Poly::Params(m, q, rootOfUnity) );
 
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(parms, ptMod,
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(parms, ptMod,
 		relin, stdDev);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
@@ -232,12 +232,12 @@ TEST_F(UTLTVBATCHING, Poly_EVALMULT) {
 
 	kp = cc->KeyGen();
 
-	shared_ptr<Ciphertext<Poly>> ciphertext1 = cc->Encrypt(kp.publicKey, intArray1);
-	shared_ptr<Ciphertext<Poly>> ciphertext2 = cc->Encrypt(kp.publicKey, intArray2);
+	Ciphertext<Poly> ciphertext1 = cc->Encrypt(kp.publicKey, intArray1);
+	Ciphertext<Poly> ciphertext2 = cc->Encrypt(kp.publicKey, intArray2);
 
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	shared_ptr<Ciphertext<Poly>> ciphertextResults = cc->EvalMult(ciphertext1, ciphertext2);
+	Ciphertext<Poly> ciphertextResults = cc->EvalMult(ciphertext1, ciphertext2);
 	
 	Plaintext results;
 
@@ -272,7 +272,7 @@ TEST_F(UTLTVBATCHING, Poly_Encrypt_Decrypt_Arb) {
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, rootOfUnity, bigmodulus, bigroot));
 
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, p, 8, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, p, 8, stdDev);
 	cc->Enable(ENCRYPTION);
 
 	// Initialize the public key containers.
@@ -281,7 +281,7 @@ TEST_F(UTLTVBATCHING, Poly_Encrypt_Decrypt_Arb) {
 	std::vector<usint> vectorOfInts = { 1,1,1,5,1,4,1,6,1,7 };
 	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
 
-	shared_ptr<Ciphertext<Poly>> ciphertext = cc->Encrypt(kp.publicKey, intArray);
+	Ciphertext<Poly> ciphertext = cc->Encrypt(kp.publicKey, intArray);
 
 	Plaintext intArrayNew;
 
@@ -307,7 +307,7 @@ TEST_F(UTLTVBATCHING, Poly_EVALADD_Arb) {
 	float stdDev = 4;
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, rootOfUnity, bigmodulus, bigroot));
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, p, 8, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, p, 8, stdDev);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
@@ -315,8 +315,8 @@ TEST_F(UTLTVBATCHING, Poly_EVALADD_Arb) {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	shared_ptr<Ciphertext<Poly>> ciphertext1;
-	shared_ptr<Ciphertext<Poly>> ciphertext2;
+	Ciphertext<Poly> ciphertext1;
+	Ciphertext<Poly> ciphertext2;
 
 	std::vector<usint> vectorOfInts1 = { 1,2,3,4,5,6,7,8,9,10 };
 	std::vector<usint> vectorOfInts2 = { 10,9,8,7,6,5,4,3,2,1 };
@@ -357,15 +357,15 @@ TEST_F(UTBVBATCHING, Poly_EVALMULT_Arb) {
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, rootOfUnity, bigmodulus, bigroot));
 
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, p, 1, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, p, 1, stdDev);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	shared_ptr<Ciphertext<Poly>> ciphertext1;
-	shared_ptr<Ciphertext<Poly>> ciphertext2;
+	Ciphertext<Poly> ciphertext1;
+	Ciphertext<Poly> ciphertext2;
 
 	std::vector<usint> vectorOfInts1 = { 1,2,3,4,5,6,7,8,9,10 };
 	std::vector<usint> vectorOfInts2 = { 10,9,8,7,6,5,4,3,2,1 };
@@ -424,7 +424,7 @@ TEST_F(UTFVBATCHING, Poly_EVALMULT_Arb) {
 
 	BigInteger delta(modulusQ.DividedBy(modulusP));
 
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextFV(params, encodingParams, 1, stdDev,delta.ToString(),OPTIMIZED,
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextFV(params, encodingParams, 1, stdDev,delta.ToString(),OPTIMIZED,
 		bigEvalMultModulus.ToString(), bigEvalMultRootOfUnity.ToString(),1,9,1.006, bigEvalMultModulusAlt.ToString(), bigEvalMultRootOfUnityAlt.ToString());
 	
 	cc->Enable(ENCRYPTION);
@@ -433,8 +433,8 @@ TEST_F(UTFVBATCHING, Poly_EVALMULT_Arb) {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	shared_ptr<Ciphertext<Poly>> ciphertext1;
-	shared_ptr<Ciphertext<Poly>> ciphertext2;
+	Ciphertext<Poly> ciphertext1;
+	Ciphertext<Poly> ciphertext2;
 
 	std::vector<usint> vectorOfInts1 = { 1,2,3,4,5,6,7,8,9,10 };
 	std::vector<usint> vectorOfInts2 = { 10,9,8,7,6,5,4,3,2,1 };

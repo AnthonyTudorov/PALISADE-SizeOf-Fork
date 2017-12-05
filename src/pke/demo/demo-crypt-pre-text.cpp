@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
 
 	if( beVerbose ) cout << "Initializing crypto system" << endl;
 
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextHelper::getNewContext(parmSetName);
+	CryptoContext<Poly> cc = CryptoContextHelper::getNewContext(parmSetName);
 
 	// enable features that you wish to use
 	cc->Enable(ENCRYPTION);
@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
 	// in the resulting table
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Ciphertext<Poly>> ciphertext;
+	Ciphertext<Poly> ciphertext;
 
 	if( beVerbose ) cout << "Running encryption" << endl;
 
@@ -235,7 +235,7 @@ int main(int argc, char *argv[])
 
 	if( beVerbose ) cout << "Generating proxy re-encryption key" << endl;
 
-	shared_ptr<LPEvalKey<Poly>> evalKey;
+	LPEvalKey<Poly> evalKey;
 	try {
 		if (flagBV)
 			evalKey = cc->ReKeyGen(newKp.secretKey, kp.secretKey);

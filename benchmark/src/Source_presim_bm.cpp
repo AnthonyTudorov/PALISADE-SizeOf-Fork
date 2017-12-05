@@ -149,7 +149,7 @@ void EncryptionSchemeSimulation(usint count){
 	//Set crypto parameters
 	shared_ptr<Poly::Params> parms( new Poly::Params(m, modulus, rootOfUnity) );
 
-	shared_ptr<CryptoContext<Poly>> cc =  CryptoContextFactory<Poly>::genCryptoContextLTV(parms, ptModulus, relWindow, stdDev);
+	CryptoContext<Poly> cc =  CryptoContextFactory<Poly>::genCryptoContextLTV(parms, ptModulus, relWindow, stdDev);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(PRE);
 
@@ -189,7 +189,7 @@ void EncryptionSchemeSimulation(usint count){
 			exit(1);
 		}
 
-		shared_ptr<Ciphertext<Poly>> ciphertext;
+		Ciphertext<Poly> ciphertext;
 
 		ciphertext = cc->Encrypt(kp.publicKey, plaintext);
 
@@ -293,7 +293,7 @@ void PRESimulation(usint count, usint dataset){
 	//Set crypto parameters
 	shared_ptr<Poly::Params> parms( new Poly::Params(m, modulus, rootOfUnity) );
 
-	shared_ptr<CryptoContext<Poly>> cc =  CryptoContextFactory<Poly>::genCryptoContextLTV(parms, ptModulus, relWindow, stdDev);
+	CryptoContext<Poly> cc =  CryptoContextFactory<Poly>::genCryptoContextLTV(parms, ptModulus, relWindow, stdDev);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(PRE);
 
@@ -315,9 +315,9 @@ void PRESimulation(usint count, usint dataset){
 
 	//LWE-NTRU encryption/pre-encryption algorithm instance
 
-	std::vector<shared_ptr<LPPublicKey<Poly>>> publicKeys;
-	std::vector<shared_ptr<LPPrivateKey<Poly>>> privateKeys;
-	std::vector<shared_ptr<LPEvalKey<Poly>>> evalKeys;
+	std::vector<LPPublicKey<Poly>> publicKeys;
+	std::vector<LPPrivateKey<Poly>> privateKeys;
+	std::vector<LPEvalKey<Poly>> evalKeys;
 
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp;
@@ -336,7 +336,7 @@ void PRESimulation(usint count, usint dataset){
 
 	for (usint d = 0; d < depth; d++){
 
-		shared_ptr<LPEvalKey<Poly>> evalKey;
+		LPEvalKey<Poly> evalKey;
 
 		LPKeyPair<Poly> newKp = cc->KeyGen();
 
@@ -353,7 +353,7 @@ void PRESimulation(usint count, usint dataset){
 	//all expensive operations are moved outside the loop
 
 	Plaintext arrPlaintext[NUMBER_OF_RUNS];
-	shared_ptr<Ciphertext<Poly>> arrCiphertext[NUMBER_OF_RUNS];
+	Ciphertext<Poly> arrCiphertext[NUMBER_OF_RUNS];
 
 	for (usint j = 0; j < count; j++){
 		arrPlaintext[j] = cc->MakeStringPlaintext( all.substr(j*(n / 8), n / 8) );
@@ -401,7 +401,7 @@ void PRESimulation(usint count, usint dataset){
 	cout << "Number of decryption errors: " << "\t" << errorcounter << endl;
 	fout << "Number of decryption errors: " << "\t" << errorcounter << endl;
 
-	shared_ptr<Ciphertext<Poly>> arrCiphertextNew[NUMBER_OF_RUNS];
+	Ciphertext<Poly> arrCiphertextNew[NUMBER_OF_RUNS];
 
 	//computing re-encryption time
 

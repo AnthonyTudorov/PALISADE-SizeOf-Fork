@@ -108,7 +108,7 @@ main(int argc, char *argv[])
 
 		shared_ptr<LPPublicKeyEncryptionScheme<Poly>> scheme( new LPPublicKeyEncryptionSchemeBV<Poly>() );
 
-		shared_ptr<CryptoContext<Poly>> cc = shared_ptr<CryptoContext<Poly>>( new CryptoContext<Poly>(cparams, scheme) );
+		CryptoContext<Poly> cc = CryptoContext<Poly>( new CryptoContextImpl<Poly>(cparams, scheme) );
 		cc->Enable(ENCRYPTION);
 		cc->Enable(SHE);
 
@@ -187,7 +187,7 @@ main(int argc, char *argv[])
 
 		shared_ptr<LPPublicKeyEncryptionScheme<Poly>> scheme( new LPPublicKeyEncryptionSchemeBV<Poly>() );
 
-		shared_ptr<CryptoContext<Poly>> cc = shared_ptr<CryptoContext<Poly>>( new CryptoContext<Poly>(cparams, scheme) );
+		CryptoContext<Poly> cc = CryptoContext<Poly>( new CryptoContextImpl<Poly>(cparams, scheme) );
 		cc->Enable(ENCRYPTION);
 		cc->Enable(SHE);
 
@@ -273,7 +273,7 @@ main(int argc, char *argv[])
 
 		shared_ptr<LPPublicKeyEncryptionScheme<Poly>> scheme( new LPPublicKeyEncryptionSchemeBV<Poly>() );
 
-		shared_ptr<CryptoContext<Poly>> cc = shared_ptr<CryptoContext<Poly>>( new CryptoContext<Poly>(cparams, scheme) );
+		CryptoContext<Poly> cc = CryptoContext<Poly>( new CryptoContextImpl<Poly>(cparams, scheme) );
 		cc->Enable(ENCRYPTION);
 		cc->Enable(SHE);
 

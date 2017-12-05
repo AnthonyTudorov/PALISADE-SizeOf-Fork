@@ -30,7 +30,7 @@
 namespace lbcrypto {
 
 template<typename Element>
-bool LPPublicKey<Element>::Serialize(Serialized *serObj) const {
+bool LPPublicKeyImpl<Element>::Serialize(Serialized *serObj) const {
 	serObj->SetObject();
 
 	if( !this->SerializeCryptoObject(serObj) )
@@ -43,7 +43,7 @@ bool LPPublicKey<Element>::Serialize(Serialized *serObj) const {
 }
 
 template<typename Element>
-bool LPPublicKey<Element>::Deserialize(const Serialized &serObj) {
+bool LPPublicKeyImpl<Element>::Deserialize(const Serialized &serObj) {
 
 	// deserialization must be done in a crypto context; the context must be initialized before deserializing the elements
 	if( !this->GetCryptoContext() )
@@ -69,7 +69,7 @@ bool LPPublicKey<Element>::Deserialize(const Serialized &serObj) {
 }
 
 template<typename Element>
-static bool EvalKeyRelinSerializer(const LPEvalKeyRelin<Element> *item, Serialized *serObj, bool doContext) {
+static bool EvalKeyRelinSerializer(const LPEvalKeyRelinImpl<Element> *item, Serialized *serObj, bool doContext) {
 	serObj->SetObject();
 
 	if( !item->SerializeCryptoObject(serObj, doContext) )
@@ -83,17 +83,17 @@ static bool EvalKeyRelinSerializer(const LPEvalKeyRelin<Element> *item, Serializ
 }
 
 template<typename Element>
-bool LPEvalKeyRelin<Element>::Serialize(Serialized *serObj) const {
+bool LPEvalKeyRelinImpl<Element>::Serialize(Serialized *serObj) const {
 	return EvalKeyRelinSerializer<Element>(this, serObj, true);
 }
 
 template<typename Element>
-bool LPEvalKeyRelin<Element>::SerializeWithoutContext(Serialized *serObj) const {
+bool LPEvalKeyRelinImpl<Element>::SerializeWithoutContext(Serialized *serObj) const {
 	return EvalKeyRelinSerializer<Element>(this, serObj, false);
 }
 
 template<typename Element>
-bool LPEvalKeyRelin<Element>::Deserialize(const Serialized &serObj) {
+bool LPEvalKeyRelinImpl<Element>::Deserialize(const Serialized &serObj) {
 
 	// deserialization must be done in a crypto context; the context must be initialized before deserializing the elements
 	if( !this->GetCryptoContext() )
@@ -132,7 +132,7 @@ bool LPEvalKeyRelin<Element>::Deserialize(const Serialized &serObj) {
 }
 
 template<typename Element>
-static bool EvalKeyNTRUSerializer(const LPEvalKeyNTRU<Element> *item, Serialized *serObj, bool doContext) {
+static bool EvalKeyNTRUSerializer(const LPEvalKeyNTRUImpl<Element> *item, Serialized *serObj, bool doContext) {
 	serObj->SetObject();
 
 	if( !item->SerializeCryptoObject(serObj, doContext) )
@@ -150,17 +150,17 @@ static bool EvalKeyNTRUSerializer(const LPEvalKeyNTRU<Element> *item, Serialized
 }
 
 template<typename Element>
-bool LPEvalKeyNTRU<Element>::Serialize(Serialized *serObj) const {
+bool LPEvalKeyNTRUImpl<Element>::Serialize(Serialized *serObj) const {
 	return EvalKeyNTRUSerializer<Element>(this, serObj, true);
 }
 
 template<typename Element>
-bool LPEvalKeyNTRU<Element>::SerializeWithoutContext(Serialized *serObj) const {
+bool LPEvalKeyNTRUImpl<Element>::SerializeWithoutContext(Serialized *serObj) const {
 	return EvalKeyNTRUSerializer<Element>(this, serObj, false);
 }
 
 template<typename Element>
-bool LPEvalKeyNTRU<Element>::Deserialize(const Serialized &serObj) {
+bool LPEvalKeyNTRUImpl<Element>::Deserialize(const Serialized &serObj) {
 	// deserialization must be done in a crypto context; the context must be initialized before deserializing the elements
 	if( !this->GetCryptoContext() )
 		return false;
@@ -185,7 +185,7 @@ bool LPEvalKeyNTRU<Element>::Deserialize(const Serialized &serObj) {
 }
 
 template<typename Element>
-static bool EvalKeyNTRURelinSerializer(const LPEvalKeyNTRURelin<Element> *item, Serialized *serObj, bool doContext) {
+static bool EvalKeyNTRURelinSerializer(const LPEvalKeyNTRURelinImpl<Element> *item, Serialized *serObj, bool doContext) {
 	serObj->SetObject();
 
 	if( !item->SerializeCryptoObject(serObj, doContext) )
@@ -198,17 +198,17 @@ static bool EvalKeyNTRURelinSerializer(const LPEvalKeyNTRURelin<Element> *item, 
 }
 
 template<typename Element>
-bool LPEvalKeyNTRURelin<Element>::Serialize(Serialized *serObj) const {
+bool LPEvalKeyNTRURelinImpl<Element>::Serialize(Serialized *serObj) const {
 	return EvalKeyNTRURelinSerializer<Element>(this, serObj, true);
 }
 
 template<typename Element>
-bool LPEvalKeyNTRURelin<Element>::SerializeWithoutContext(Serialized *serObj) const {
+bool LPEvalKeyNTRURelinImpl<Element>::SerializeWithoutContext(Serialized *serObj) const {
 	return EvalKeyNTRURelinSerializer<Element>(this, serObj, false);
 }
 
 template<typename Element>
-bool LPEvalKeyNTRURelin<Element>::Deserialize(const Serialized &serObj) {
+bool LPEvalKeyNTRURelinImpl<Element>::Deserialize(const Serialized &serObj) {
 	// deserialization must be done in a crypto context; the context must be initialized before deserializing the elements
 	if( !this->GetCryptoContext() )
 		return false;
@@ -237,7 +237,7 @@ bool LPEvalKeyNTRURelin<Element>::Deserialize(const Serialized &serObj) {
 }
 
 template<typename Element>
-bool LPPrivateKey<Element>::Serialize(Serialized *serObj) const {
+bool LPPrivateKeyImpl<Element>::Serialize(Serialized *serObj) const {
 	serObj->SetObject();
 
 	if( !this->SerializeCryptoObject(serObj) )
@@ -248,7 +248,7 @@ bool LPPrivateKey<Element>::Serialize(Serialized *serObj) const {
 }
 
 template<typename Element>
-bool LPPrivateKey<Element>::Deserialize(const Serialized &serObj) {
+bool LPPrivateKeyImpl<Element>::Deserialize(const Serialized &serObj) {
 	// deserialization must be done in a crypto context; the context must be initialized before deserializing the elements
 	if( !this->GetCryptoContext() )
 		return false;

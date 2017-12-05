@@ -351,7 +351,7 @@ namespace lbcrypto {
 		* @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 		* @return ciphertext which results from encryption.
 		*/
-		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
+		Ciphertext<Element> Encrypt(const LPPublicKey<Element> publicKey,
 			Element plaintext) const;
 
 		/**
@@ -363,8 +363,8 @@ namespace lbcrypto {
 		* @param *plaintext the plaintext output.
 		* @return the decrypted plaintext returned.
 		*/
-		DecryptResult Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
-			const shared_ptr<Ciphertext<Element>> ciphertext,
+		DecryptResult Decrypt(const LPPrivateKey<Element> privateKey,
+			const Ciphertext<Element> ciphertext,
 			Poly *plaintext) const;
 
 
@@ -393,8 +393,8 @@ namespace lbcrypto {
 		* @param ciphertext2 second input ciphertext.
 		* @return resulting EvalMult ciphertext.
 		*/
-		shared_ptr<Ciphertext<Element>> EvalMult(const shared_ptr<Ciphertext<Element>> ct1,
-			const shared_ptr<Ciphertext<Element>> ct2) const;
+		Ciphertext<Element> EvalMult(const Ciphertext<Element> ct1,
+			const Ciphertext<Element> ct2) const;
 
 
 	};

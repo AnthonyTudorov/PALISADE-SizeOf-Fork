@@ -84,10 +84,10 @@ namespace lbcrypto {
 
 	//makeSparse is not used by this scheme
 	template <class Element>
-	LPKeyPair<Element> LPAlgorithmBV<Element>::KeyGen(shared_ptr<CryptoContext<Element>> cc, bool makeSparse)
+	LPKeyPair<Element> LPAlgorithmBV<Element>::KeyGen(CryptoContext<Element> cc, bool makeSparse)
 	{
 
-		LPKeyPair<Element>	kp(new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc));
+		LPKeyPair<Element>	kp(new LPPublicKeyImpl<Element>(cc), new LPPrivateKeyImpl<Element>(cc));
 
 		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersBV<Element>>(cc->GetCryptoParameters());
 
@@ -134,12 +134,12 @@ namespace lbcrypto {
 	}
 
 	template <class Element>
-	shared_ptr<Ciphertext<Element>> LPAlgorithmBV<Element>::Encrypt(const shared_ptr<LPPublicKey<Element>> publicKey,
+	Ciphertext<Element> LPAlgorithmBV<Element>::Encrypt(const LPPublicKey<Element> publicKey,
 		Element ptxt) const
 	{
 		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(publicKey->GetCryptoParameters());
 
-		shared_ptr<Ciphertext<Element>> ciphertext(new Ciphertext<Element>(publicKey));
+		Ciphertext<Element> ciphertext(new CiphertextImpl<Element>(publicKey));
 
 		const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 		const typename Element::Integer &p = cryptoParams->GetPlaintextModulus();
@@ -180,12 +180,12 @@ namespace lbcrypto {
 	}
 
 	template <class Element>
-	shared_ptr<Ciphertext<Element>> LPAlgorithmBV<Element>::Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
+	Ciphertext<Element> LPAlgorithmBV<Element>::Encrypt(const LPPrivateKey<Element> privateKey,
 		Element ptxt) const
 	{
 		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(privateKey->GetCryptoParameters());
 
-		shared_ptr<Ciphertext<Element>> ciphertext(new Ciphertext<Element>(privateKey));
+		Ciphertext<Element> ciphertext(new CiphertextImpl<Element>(privateKey));
 
 		const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 		const typename Element::Integer &p = cryptoParams->GetPlaintextModulus();
@@ -213,8 +213,8 @@ namespace lbcrypto {
 	}
 
 	template <class Element>
-	DecryptResult LPAlgorithmBV<Element>::Decrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
-		const shared_ptr<Ciphertext<Element>> ciphertext,
+	DecryptResult LPAlgorithmBV<Element>::Decrypt(const LPPrivateKey<Element> privateKey,
+		const Ciphertext<Element> ciphertext,
 		Poly *plaintext) const
 	{
 		const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
@@ -235,11 +235,11 @@ namespace lbcrypto {
 	}
 
 	template <class Element>
-	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::EvalAdd(
-		const shared_ptr<Ciphertext<Element>> ciphertext1,
-		const shared_ptr<Ciphertext<Element>> ciphertext2) const
+	Ciphertext<Element> LPAlgorithmSHEBV<Element>::EvalAdd(
+		const Ciphertext<Element> ciphertext1,
+		const Ciphertext<Element> ciphertext2) const
 	{
-		shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext1->CloneEmpty();
+		Ciphertext<Element> newCiphertext = ciphertext1->CloneEmpty();
 
 		const std::vector<Element> &c1 = ciphertext1->GetElements();
 
@@ -258,11 +258,11 @@ namespace lbcrypto {
 	}
 
 	template <class Element>
-	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::EvalAdd(
-		const shared_ptr<Ciphertext<Element>> ciphertext,
+	Ciphertext<Element> LPAlgorithmSHEBV<Element>::EvalAdd(
+		const Ciphertext<Element> ciphertext,
 		const Plaintext plaintext) const
 	{
-		shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
+		Ciphertext<Element> newCiphertext = ciphertext->CloneEmpty();
 
 		const std::vector<Element> &c1 = ciphertext->GetElements();
 
@@ -282,10 +282,10 @@ namespace lbcrypto {
 	}
 
 	template <class Element>
-	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext1,
-		const shared_ptr<Ciphertext<Element>> ciphertext2) const {
+	Ciphertext<Element> LPAlgorithmSHEBV<Element>::EvalSub(const Ciphertext<Element> ciphertext1,
+		const Ciphertext<Element> ciphertext2) const {
 
-		shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext1->CloneEmpty();
+		Ciphertext<Element> newCiphertext = ciphertext1->CloneEmpty();
 
 		const std::vector<Element> &c1 = ciphertext1->GetElements();
 
@@ -303,10 +303,10 @@ namespace lbcrypto {
 	}
 
 	template <class Element>
-	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::EvalSub(const shared_ptr<Ciphertext<Element>> ciphertext,
+	Ciphertext<Element> LPAlgorithmSHEBV<Element>::EvalSub(const Ciphertext<Element> ciphertext,
 		const Plaintext plaintext) const {
 
-		shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
+		Ciphertext<Element> newCiphertext = ciphertext->CloneEmpty();
 
 		const std::vector<Element> &c1 = ciphertext->GetElements();
 
@@ -325,16 +325,16 @@ namespace lbcrypto {
 	}
 
 	template <class Element>
-	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::EvalMult(
-		const shared_ptr<Ciphertext<Element>> ciphertext1,
-		const shared_ptr<Ciphertext<Element>> ciphertext2) const
+	Ciphertext<Element> LPAlgorithmSHEBV<Element>::EvalMult(
+		const Ciphertext<Element> ciphertext1,
+		const Ciphertext<Element> ciphertext2) const
 	{
 
 		if (ciphertext1->GetElements()[0].GetFormat() == Format::COEFFICIENT || ciphertext2->GetElements()[0].GetFormat() == Format::COEFFICIENT) {
 			throw std::runtime_error("EvalMult cannot multiply in COEFFICIENT domain.");
 		}
 
-		shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext1->CloneEmpty();
+		Ciphertext<Element> newCiphertext = ciphertext1->CloneEmpty();
 
 		const std::vector<Element> &c1 = ciphertext1->GetElements();
 
@@ -355,11 +355,11 @@ namespace lbcrypto {
 	}
 
 	template <class Element>
-	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::EvalMult(
-		const shared_ptr<Ciphertext<Element>> ciphertext,
+	Ciphertext<Element> LPAlgorithmSHEBV<Element>::EvalMult(
+		const Ciphertext<Element> ciphertext,
 		const Plaintext plaintext) const
 	{
-		shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
+		Ciphertext<Element> newCiphertext = ciphertext->CloneEmpty();
 
 		const std::vector<Element> &c1 = ciphertext->GetElements();
 
@@ -386,29 +386,29 @@ namespace lbcrypto {
 
 
 	template <class Element>
-	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
-		const shared_ptr<Ciphertext<Element>> ciphertext2, const shared_ptr<LPEvalKey<Element>> ek) const {
+	Ciphertext<Element> LPAlgorithmSHEBV<Element>::EvalMult(const Ciphertext<Element> ciphertext1,
+		const Ciphertext<Element> ciphertext2, const LPEvalKey<Element> ek) const {
 
-		shared_ptr<Ciphertext<Element>> newCiphertext = this->EvalMult(ciphertext1, ciphertext2);
-
-		return this->KeySwitch(ek, newCiphertext);
-
-	}
-
-	template <class Element>
-	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::EvalMult(const shared_ptr<Ciphertext<Element>> ciphertext1,
-		const Plaintext plaintext, const shared_ptr<LPEvalKey<Element>> ek) const {
-
-		shared_ptr<Ciphertext<Element>> newCiphertext = this->EvalMult(ciphertext1, plaintext);
+		Ciphertext<Element> newCiphertext = this->EvalMult(ciphertext1, ciphertext2);
 
 		return this->KeySwitch(ek, newCiphertext);
 
 	}
 
 	template <class Element>
-	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::EvalNegate(const shared_ptr<Ciphertext<Element>> ciphertext) const {
+	Ciphertext<Element> LPAlgorithmSHEBV<Element>::EvalMult(const Ciphertext<Element> ciphertext1,
+		const Plaintext plaintext, const LPEvalKey<Element> ek) const {
 
-		shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
+		Ciphertext<Element> newCiphertext = this->EvalMult(ciphertext1, plaintext);
+
+		return this->KeySwitch(ek, newCiphertext);
+
+	}
+
+	template <class Element>
+	Ciphertext<Element> LPAlgorithmSHEBV<Element>::EvalNegate(const Ciphertext<Element> ciphertext) const {
+
+		Ciphertext<Element> newCiphertext = ciphertext->CloneEmpty();
 
 		const std::vector<Element> &cipherTextElements = ciphertext->GetElements();
 
@@ -421,7 +421,7 @@ namespace lbcrypto {
 
 
 	template <class Element>
-	shared_ptr<LPEvalKey<Element>> LPAlgorithmSHEBV<Element>::KeySwitchGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey, const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const {
+	LPEvalKey<Element> LPAlgorithmSHEBV<Element>::KeySwitchGen(const LPPrivateKey<Element> originalPrivateKey, const LPPrivateKey<Element> newPrivateKey) const {
 
 		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(originalPrivateKey->GetCryptoParameters());
 
@@ -429,7 +429,7 @@ namespace lbcrypto {
 
 		const BigInteger &p = cryptoParams->GetPlaintextModulus();
 
-		shared_ptr<LPEvalKey<Element>> keySwitchHintRelin(new LPEvalKeyRelin<Element>(originalPrivateKey->GetCryptoContext()));
+		LPEvalKey<Element> keySwitchHintRelin(new LPEvalKeyRelinImpl<Element>(originalPrivateKey->GetCryptoContext()));
 
 		//Getting a reference to the polynomials of new private key.
 		const Element &sNew = newPrivateKey->GetPrivateElement();
@@ -474,13 +474,13 @@ namespace lbcrypto {
 	}
 
 	template <class Element>
-	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::KeySwitch(const shared_ptr<LPEvalKey<Element>> keySwitchHint, const shared_ptr<Ciphertext<Element>> cipherText) const {
+	Ciphertext<Element> LPAlgorithmSHEBV<Element>::KeySwitch(const LPEvalKey<Element> keySwitchHint, const Ciphertext<Element> cipherText) const {
 
-		shared_ptr<Ciphertext<Element>> newCiphertext = cipherText->CloneEmpty();
+		Ciphertext<Element> newCiphertext = cipherText->CloneEmpty();
 
 		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParamsLWE = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(keySwitchHint->GetCryptoParameters());
 
-		const shared_ptr<LPEvalKeyRelin<Element>> evalKey = std::static_pointer_cast<LPEvalKeyRelin<Element>>(keySwitchHint);
+		const LPEvalKeyRelin<Element> evalKey = std::static_pointer_cast<LPEvalKeyRelinImpl<Element>>(keySwitchHint);
 
 		const std::vector<Element> &a = evalKey->GetAVector();
 		const std::vector<Element> &b = evalKey->GetBVector();
@@ -525,10 +525,10 @@ namespace lbcrypto {
 	}
 
 	template <class Element>
-	shared_ptr<LPEvalKey<Element>> LPAlgorithmSHEBV<Element>::EvalMultKeyGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey) const
+	LPEvalKey<Element> LPAlgorithmSHEBV<Element>::EvalMultKeyGen(const LPPrivateKey<Element> originalPrivateKey) const
 	{
 
-		shared_ptr<LPPrivateKey<Element>> originalPrivateKeySquared = std::shared_ptr<LPPrivateKey<Element>>(new LPPrivateKey<Element>(originalPrivateKey->GetCryptoContext()));
+		LPPrivateKey<Element> originalPrivateKeySquared = LPPrivateKey<Element>(new LPPrivateKeyImpl<Element>(originalPrivateKey->GetCryptoContext()));
 
 		Element sSquare(originalPrivateKey->GetPrivateElement()*originalPrivateKey->GetPrivateElement());
 
@@ -539,11 +539,11 @@ namespace lbcrypto {
 	}
 
 	template <class Element>
-	shared_ptr<Ciphertext<Element>> LPAlgorithmSHEBV<Element>::EvalAutomorphism(const shared_ptr<Ciphertext<Element>> ciphertext, usint i,
-		const std::map<usint, shared_ptr<LPEvalKey<Element>>> &evalKeys) const
+	Ciphertext<Element> LPAlgorithmSHEBV<Element>::EvalAutomorphism(const Ciphertext<Element> ciphertext, usint i,
+		const std::map<usint, LPEvalKey<Element>> &evalKeys) const
 	{
 
-		shared_ptr<Ciphertext<Element>> permutedCiphertext = ciphertext->CloneEmpty();
+		Ciphertext<Element> permutedCiphertext = ciphertext->CloneEmpty();
 
 		const std::vector<Element> &c = ciphertext->GetElements();
 
@@ -560,7 +560,7 @@ namespace lbcrypto {
 	}
 
 	template <class Element>
-	shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> LPAlgorithmSHEBV<Element>::EvalAutomorphismKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey,
+	shared_ptr<std::map<usint, LPEvalKey<Element>>> LPAlgorithmSHEBV<Element>::EvalAutomorphismKeyGen(const LPPrivateKey<Element> privateKey,
 		const std::vector<usint> &indexList) const
 	{
 
@@ -568,9 +568,9 @@ namespace lbcrypto {
 
 		usint n = privateKeyElement.GetRingDimension();
 
-		shared_ptr<LPPrivateKey<Element>> tempPrivateKey(new LPPrivateKey<Element>(privateKey->GetCryptoContext()));
+		LPPrivateKey<Element> tempPrivateKey(new LPPrivateKeyImpl<Element>(privateKey->GetCryptoContext()));
 
-		shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> evalKeys(new std::map<usint, shared_ptr<LPEvalKey<Element>>>());
+		shared_ptr<std::map<usint, LPEvalKey<Element>>> evalKeys(new std::map<usint, LPEvalKey<Element>>());
 
 		if (indexList.size() > n - 1)
 			throw std::runtime_error("size exceeds the ring dimension");
@@ -593,25 +593,25 @@ namespace lbcrypto {
 	}
 
 	template <class Element>
-	shared_ptr<LPEvalKey<Element>> LPAlgorithmPREBV<Element>::ReKeyGen(const shared_ptr<LPPrivateKey<Element>> newSK,
-		const shared_ptr<LPPrivateKey<Element>> origPrivateKey) const
+	LPEvalKey<Element> LPAlgorithmPREBV<Element>::ReKeyGen(const LPPrivateKey<Element> newSK,
+		const LPPrivateKey<Element> origPrivateKey) const
 	{
 		return origPrivateKey->GetCryptoContext()->GetEncryptionAlgorithm()->KeySwitchGen(origPrivateKey, newSK);
 	}
 
 	//Function for re-encypting ciphertext using the arrays generated by ReKeyGen
 	template <class Element>
-	shared_ptr<Ciphertext<Element>> LPAlgorithmPREBV<Element>::ReEncrypt(const shared_ptr<LPEvalKey<Element>> EK,
-		const shared_ptr<Ciphertext<Element>> ciphertext) const
+	Ciphertext<Element> LPAlgorithmPREBV<Element>::ReEncrypt(const LPEvalKey<Element> EK,
+		const Ciphertext<Element> ciphertext) const
 	{
 		return ciphertext->GetCryptoContext()->GetEncryptionAlgorithm()->KeySwitch(EK, ciphertext);
 
 	}
 
 	template <class Element>
-	shared_ptr<Ciphertext<Element>> LPLeveledSHEAlgorithmBV<Element>::ModReduce(shared_ptr<Ciphertext<Element>> cipherText) const {
+	Ciphertext<Element> LPLeveledSHEAlgorithmBV<Element>::ModReduce(Ciphertext<Element> cipherText) const {
 
-		shared_ptr<Ciphertext<Element>> newCiphertext = cipherText->CloneEmpty();
+		Ciphertext<Element> newCiphertext = cipherText->CloneEmpty();
 
 		std::vector<Element> cipherTextElements(cipherText->GetElements());
 
@@ -629,12 +629,12 @@ namespace lbcrypto {
 
 	//makeSparse is not used by this scheme
 	template <class Element>
-	LPKeyPair<Element> LPAlgorithmMultipartyBV<Element>::MultipartyKeyGen(shared_ptr<CryptoContext<Element>> cc,
-		const vector<shared_ptr<LPPrivateKey<Element>>>& secretKeys,
+	LPKeyPair<Element> LPAlgorithmMultipartyBV<Element>::MultipartyKeyGen(CryptoContext<Element> cc,
+		const vector<LPPrivateKey<Element>>& secretKeys,
 		bool makeSparse)
 	{
 
-		LPKeyPair<Element>	kp(new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc));
+		LPKeyPair<Element>	kp(new LPPublicKeyImpl<Element>(cc), new LPPrivateKeyImpl<Element>(cc));
 		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersBV<Element>>(cc->GetCryptoParameters());
 		const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 		const typename Element::Integer &p = cryptoParams->GetPlaintextModulus();
@@ -650,7 +650,7 @@ namespace lbcrypto {
 		//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
 		size_t numKeys = secretKeys.size();
 		for( size_t i = 0; i < numKeys; i++ ) {
-			shared_ptr<LPPrivateKey<Element>> sk1 = secretKeys[i];
+			LPPrivateKey<Element> sk1 = secretKeys[i];
 			Element s1 = sk1->GetPrivateElement();
 			s += s1;
 		}
@@ -672,12 +672,12 @@ namespace lbcrypto {
 
 //makeSparse is not used by this scheme
 template <class Element>
-LPKeyPair<Element> LPAlgorithmMultipartyBV<Element>::MultipartyKeyGen(shared_ptr<CryptoContext<Element>> cc,
-		const shared_ptr<LPPublicKey<Element>> pk1, bool makeSparse)
+LPKeyPair<Element> LPAlgorithmMultipartyBV<Element>::MultipartyKeyGen(CryptoContext<Element> cc,
+		const LPPublicKey<Element> pk1, bool makeSparse)
 	{
 
 
-		LPKeyPair<Element>	kp(new LPPublicKey<Element>(cc), new LPPrivateKey<Element>(cc));
+		LPKeyPair<Element>	kp(new LPPublicKeyImpl<Element>(cc), new LPPrivateKeyImpl<Element>(cc));
 		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersBV<Element>>(cc->GetCryptoParameters());
 		const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 		const typename Element::Integer &p = cryptoParams->GetPlaintextModulus();
@@ -716,8 +716,8 @@ LPKeyPair<Element> LPAlgorithmMultipartyBV<Element>::MultipartyKeyGen(shared_ptr
 	}
 
 template <class Element>
-shared_ptr<Ciphertext<Element>> LPAlgorithmMultipartyBV<Element>::MultipartyDecryptLead(const shared_ptr<LPPrivateKey<Element>> privateKey,
-		const shared_ptr<Ciphertext<Element>> ciphertext) const
+Ciphertext<Element> LPAlgorithmMultipartyBV<Element>::MultipartyDecryptLead(const LPPrivateKey<Element> privateKey,
+		const Ciphertext<Element> ciphertext) const
 {
 
 		const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
@@ -726,15 +726,15 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmMultipartyBV<Element>::MultipartyDecr
 
 		Element b = c[0] - s*c[1];
 
-		shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
+		Ciphertext<Element> newCiphertext = ciphertext->CloneEmpty();
 		newCiphertext->SetElements({ b });
 
 		return newCiphertext;
 }
 
 template <class Element>
-shared_ptr<Ciphertext<Element>> LPAlgorithmMultipartyBV<Element>::MultipartyDecryptMain(const shared_ptr<LPPrivateKey<Element>> privateKey,
-		const shared_ptr<Ciphertext<Element>> ciphertext) const
+Ciphertext<Element> LPAlgorithmMultipartyBV<Element>::MultipartyDecryptMain(const LPPrivateKey<Element> privateKey,
+		const Ciphertext<Element> ciphertext) const
 {
 	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
 	const std::vector<Element> &c = ciphertext->GetElements();
@@ -743,7 +743,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmMultipartyBV<Element>::MultipartyDecr
 
 	Element b = s*c[1];
 
-	shared_ptr<Ciphertext<Element>> newCiphertext = ciphertext->CloneEmpty();
+	Ciphertext<Element> newCiphertext = ciphertext->CloneEmpty();
 	newCiphertext->SetElements({ b });
 
 	return newCiphertext;
@@ -751,7 +751,7 @@ shared_ptr<Ciphertext<Element>> LPAlgorithmMultipartyBV<Element>::MultipartyDecr
 
 
 template <class Element>
-DecryptResult LPAlgorithmMultipartyBV<Element>::MultipartyDecryptFusion(const vector<shared_ptr<Ciphertext<Element>>>& ciphertextVec,
+DecryptResult LPAlgorithmMultipartyBV<Element>::MultipartyDecryptFusion(const vector<Ciphertext<Element>>& ciphertextVec,
 		Poly *plaintext) const
 {
 

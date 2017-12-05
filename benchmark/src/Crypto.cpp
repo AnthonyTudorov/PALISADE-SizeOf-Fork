@@ -57,7 +57,7 @@ using namespace lbcrypto;
 #include "EncryptHelper.h"
 
 void BM_keygen(benchmark::State& state) { // benchmark
-	shared_ptr<CryptoContext<Poly>> cc;
+	CryptoContext<Poly> cc;
 
 	if( state.thread_index == 0 ) {
 		state.PauseTiming();
@@ -86,9 +86,9 @@ void BM_keygen(benchmark::State& state) { // benchmark
 BENCHMARK_PARMS(BM_keygen)
 
 void BM_encrypt(benchmark::State& state) { // benchmark
-	shared_ptr<CryptoContext<Poly>> cc;
+	CryptoContext<Poly> cc;
 	LPKeyPair<Poly> kp;
-	shared_ptr<Ciphertext<Poly>> ciphertext;
+	Ciphertext<Poly> ciphertext;
 	Plaintext plaintext;
 
 	auto randchar = []() -> char {
@@ -142,9 +142,9 @@ void BM_encrypt(benchmark::State& state) { // benchmark
 BENCHMARK_PARMS(BM_encrypt)
 
 void BM_decrypt(benchmark::State& state) { // benchmark
-	shared_ptr<CryptoContext<Poly>> cc;
+	CryptoContext<Poly> cc;
 	LPKeyPair<Poly> kp;
-	shared_ptr<Ciphertext<Poly>> ciphertext;
+	Ciphertext<Poly> ciphertext;
 	Plaintext plaintext;
 	Plaintext plaintextNew;
 
@@ -200,7 +200,7 @@ void BM_decrypt(benchmark::State& state) { // benchmark
 BENCHMARK_PARMS(BM_decrypt)
 
 void BM_rekeygen(benchmark::State& state) { // benchmark
-	shared_ptr<CryptoContext<Poly>> cc;
+	CryptoContext<Poly> cc;
 	LPKeyPair<Poly> kp;
 
 	if( state.thread_index == 0 ) {
@@ -231,7 +231,7 @@ void BM_rekeygen(benchmark::State& state) { // benchmark
 		LPKeyPair<Poly> kp2 = cc->KeyGen();
 		state.ResumeTiming();
 
-		shared_ptr<LPEvalKey<Poly>> evalKey;
+		LPEvalKey<Poly> evalKey;
 
 		try {
 			evalKey = cc->ReKeyGen(kp2.publicKey, kp.secretKey);
@@ -244,10 +244,10 @@ void BM_rekeygen(benchmark::State& state) { // benchmark
 BENCHMARK_PARMS(BM_rekeygen)
 
 void BM_reencrypt(benchmark::State& state) { // benchmark
-	shared_ptr<CryptoContext<Poly>> cc;
+	CryptoContext<Poly> cc;
 	LPKeyPair<Poly> kp;
-	shared_ptr<Ciphertext<Poly>> ciphertext;
-	shared_ptr<Ciphertext<Poly>> reciphertext;
+	Ciphertext<Poly> ciphertext;
+	Ciphertext<Poly> reciphertext;
 	Plaintext plaintext;
 	Plaintext plaintextNew;
 
@@ -290,7 +290,7 @@ void BM_reencrypt(benchmark::State& state) { // benchmark
 		state.ResumeTiming();
 	}
 
-	shared_ptr<LPEvalKey<Poly>> evalKey;
+	LPEvalKey<Poly> evalKey;
 
 	while (state.KeepRunning()) {
 		state.PauseTiming();

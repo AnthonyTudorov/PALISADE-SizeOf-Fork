@@ -58,7 +58,7 @@ int main() {
 
 	usint relinWindow = 21;
 	float stdDev = 4;
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextFV(
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextFV(
 			params, encodingParams, relinWindow, stdDev, delta.ToString(), OPTIMIZED,
 			EvalMultModulus.ToString(), EvalMultRootOfUnity.ToString(), 0, 9, 1.006
 		);
@@ -85,9 +85,9 @@ int main() {
 	cc->EvalSumKeyGen(kp.secretKey);
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	shared_ptr<Ciphertext<Poly>> ciphertext_pub;
-	shared_ptr<Ciphertext<Poly>> ciphertext_priv;
-	shared_ptr<Ciphertext<Poly>> ciphertext_plain;
+	Ciphertext<Poly> ciphertext_pub;
+	Ciphertext<Poly> ciphertext_priv;
+	Ciphertext<Poly> ciphertext_plain;
 
 	vector<TimingInfo>	times;
 	cc->StartTiming(&times);

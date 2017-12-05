@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
 	double rootHermiteFactor = 1.006;
 
 	//Set Crypto Parameters
-	shared_ptr<CryptoContext<Poly>> cryptoContext = CryptoContextFactory<Poly>::genCryptoContextFV(
+	CryptoContext<Poly> cryptoContext = CryptoContextFactory<Poly>::genCryptoContextFV(
 			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 5, 0, OPTIMIZED, 6);
 
 	// enable features that you wish to use
@@ -91,7 +91,7 @@ int main(int argc, char *argv[]) {
 	keyPair = cryptoContext->KeyGen();
 
 	//Create evaluation key vector to be used in keyswitching
-	shared_ptr<vector<shared_ptr<LPEvalKey<Poly>>>> evalKeys = cryptoContext->GetEncryptionAlgorithm()->EvalMultKeysGen(keyPair.secretKey);
+	shared_ptr<vector<LPEvalKey<Poly>>> evalKeys = cryptoContext->GetEncryptionAlgorithm()->EvalMultKeysGen(keyPair.secretKey);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -125,12 +125,12 @@ int main(int argc, char *argv[]) {
 	////////////////////////////////////////////////////////////
 
 
-	shared_ptr<Ciphertext<Poly>> ciphertext1;
-	shared_ptr<Ciphertext<Poly>> ciphertext2;
-	shared_ptr<Ciphertext<Poly>> ciphertext3;
-	shared_ptr<Ciphertext<Poly>> ciphertext4;
-	shared_ptr<Ciphertext<Poly>> ciphertext5;
-	shared_ptr<Ciphertext<Poly>> ciphertext6;
+	Ciphertext<Poly> ciphertext1;
+	Ciphertext<Poly> ciphertext2;
+	Ciphertext<Poly> ciphertext3;
+	Ciphertext<Poly> ciphertext4;
+	Ciphertext<Poly> ciphertext5;
+	Ciphertext<Poly> ciphertext6;
 
 	start = currentDateTime();
 
@@ -192,11 +192,11 @@ int main(int argc, char *argv[]) {
 	// EvalMult Operation
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Ciphertext<Poly>> ciphertextMul12;
-	shared_ptr<Ciphertext<Poly>> ciphertextMul123;
-	shared_ptr<Ciphertext<Poly>> ciphertextMul1234;
-	shared_ptr<Ciphertext<Poly>> ciphertextMul12345;
-	shared_ptr<Ciphertext<Poly>> ciphertextMul123456;
+	Ciphertext<Poly> ciphertextMul12;
+	Ciphertext<Poly> ciphertextMul123;
+	Ciphertext<Poly> ciphertextMul1234;
+	Ciphertext<Poly> ciphertextMul12345;
+	Ciphertext<Poly> ciphertextMul123456;
 
 	start = currentDateTime();
 	//Perform consecutive multiplications and do a keyswtiching at the end.
@@ -254,8 +254,8 @@ int main(int argc, char *argv[]) {
 	// EvalAdd Operation
 	////////////////////////////////////////////////////////////
 
-	shared_ptr<Ciphertext<Poly>> ciphertextAdd12;
-	shared_ptr<Ciphertext<Poly>> ciphertextAdd123;
+	Ciphertext<Poly> ciphertextAdd12;
+	Ciphertext<Poly> ciphertextAdd123;
 
 	start = currentDateTime();
 
@@ -297,8 +297,8 @@ int main(int argc, char *argv[]) {
 	////////////////////////////////////////////////////////////
 	// Done
 	////////////////////////////////////////////////////////////
-	shared_ptr<Ciphertext<Poly>> ciphertextMul1234567;
-	vector<shared_ptr<Ciphertext<Poly>>> cipherTextList;
+	Ciphertext<Poly> ciphertextMul1234567;
+	vector<Ciphertext<Poly>> cipherTextList;
 
 	cipherTextList.push_back(ciphertext1);
 	cipherTextList.push_back(ciphertext2);

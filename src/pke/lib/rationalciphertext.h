@@ -54,10 +54,10 @@ namespace lbcrypto {
 		 *
 		 * @param cc
 		 */
-		RationalCiphertext(shared_ptr<CryptoContext<Element>> cc, bool integerFlag = false) : CryptoObject<Element>(cc) {
-			m_numerator = std::make_shared<Ciphertext<Element>>(cc);
+		RationalCiphertext(CryptoContext<Element> cc, bool integerFlag = false) : CryptoObject<Element>(cc) {
+			m_numerator = Ciphertext<Element>(new CiphertextImpl<Element>(cc));
 			if (!integerFlag)
-				m_denominator = std::make_shared<Ciphertext<Element>>(cc);
+				m_denominator = Ciphertext<Element>(new CiphertextImpl<Element>(cc));
 			m_integerFlag = integerFlag;
 		}
 
@@ -66,7 +66,7 @@ namespace lbcrypto {
 		*
 		* @param cc
 		*/
-		RationalCiphertext(shared_ptr<Ciphertext<Element>> &numerator) : CryptoObject<Element>(numerator->GetCryptoContext(), numerator->GetKeyTag()) {
+		RationalCiphertext(Ciphertext<Element> &numerator) : CryptoObject<Element>(numerator->GetCryptoContext(), numerator->GetKeyTag()) {
 			m_numerator = numerator;
 			m_integerFlag = true;
 		}
@@ -77,7 +77,7 @@ namespace lbcrypto {
 		* @param &numerator numerator ciphertext
 		* @param &denominator denominator ciphertext
 		*/
-		RationalCiphertext(const shared_ptr<Ciphertext<Element>> numerator, const shared_ptr<Ciphertext<Element>> denominator)
+		RationalCiphertext(const Ciphertext<Element> numerator, const Ciphertext<Element> denominator)
 			: CryptoObject<Element>(numerator->GetCryptoContext(), numerator->GetKeyTag()) {
 			if( numerator->GetCryptoContext() != denominator->GetCryptoContext() )
 				throw std::logic_error("Numerator and denominator ciphertexts are from different crypto contexts");
@@ -91,9 +91,9 @@ namespace lbcrypto {
 		RationalCiphertext(const RationalCiphertext<Element> &ciphertext)
 			: CryptoObject<Element>(ciphertext.GetNumerator()->GetCryptoContext(), ciphertext.GetNumerator()->GetKeyTag()) {
 			this->context = ciphertext.context;
-			m_numerator = std::make_shared<Ciphertext<Element>>(*ciphertext.m_numerator);
+			m_numerator = Ciphertext<Element>(new CiphertextImpl<Element>(ciphertext.m_numerator));
 			if (ciphertext.m_denominator != nullptr)
-				m_denominator = std::make_shared<Ciphertext<Element>>(*ciphertext.m_denominator);
+				m_denominator = Ciphertext<Element>(new CiphertextImpl<Element>(ciphertext.m_denominator));
 			m_integerFlag = ciphertext.m_integerFlag;
 		}
 
@@ -163,13 +163,13 @@ namespace lbcrypto {
 		 * GetNumerator - get the numerator ciphertext element
 		 * @return the numerator
 		 */
-		const shared_ptr<Ciphertext<Element>> GetNumerator() const { return m_numerator; }
+		const Ciphertext<Element> GetNumerator() const { return m_numerator; }
 
 		/**
 		* GetDenominator - get the denominator ciphertext element
 		* @return the denominator
 		*/
-		const shared_ptr<Ciphertext<Element>> GetDenominator() const { return m_denominator; }
+		const Ciphertext<Element> GetDenominator() const { return m_denominator; }
 
 		/**
 		* GetIntegerFlag - gets the value of the Integer flag
@@ -181,7 +181,7 @@ namespace lbcrypto {
 		* Sets the numerator element
 		* @param &element ciphertext element.
 		*/
-		void SetNumerator(shared_ptr<Ciphertext<Element>> element) {
+		void SetNumerator(Ciphertext<Element> element) {
 			m_numerator = element;
 		}
 
@@ -189,7 +189,7 @@ namespace lbcrypto {
 		* Sets the denominator element
 		* @param &element ciphertext element.
 		*/
-		void SetDenominator(shared_ptr<Ciphertext<Element>> element) {
+		void SetDenominator(Ciphertext<Element> element) {
 			m_denominator = element;
 			m_integerFlag = false;
 		}
@@ -268,8 +268,8 @@ namespace lbcrypto {
 
 	private:
 
-		shared_ptr<Ciphertext<Element>> m_numerator;
-		shared_ptr<Ciphertext<Element>> m_denominator;
+		Ciphertext<Element> m_numerator;
+		Ciphertext<Element> m_denominator;
 
 		// if m_integerFlag is set to true, the denominator is ignored
 		bool m_integerFlag;

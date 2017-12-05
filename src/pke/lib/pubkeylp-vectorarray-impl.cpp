@@ -29,13 +29,13 @@
 #include "pubkeylp-2n-private.cpp"
 
 namespace lbcrypto {
-extern template class CryptoContext<DCRTPoly>;
+extern template class CryptoContextImpl<DCRTPoly>;
 
-template class LPPublicKey<DCRTPoly>;
-template class LPPrivateKey<DCRTPoly>;
-template class LPEvalKeyRelin<DCRTPoly>;
-template class LPEvalKeyNTRU<DCRTPoly>;
-template class LPEvalKeyNTRURelin<DCRTPoly>;
+template class LPPublicKeyImpl<DCRTPoly>;
+template class LPPrivateKeyImpl<DCRTPoly>;
+template class LPEvalKeyRelinImpl<DCRTPoly>;
+template class LPEvalKeyNTRUImpl<DCRTPoly>;
+template class LPEvalKeyNTRURelinImpl<DCRTPoly>;
 template class LPSHEAlgorithm<DCRTPoly>;
 }
 

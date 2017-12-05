@@ -63,7 +63,7 @@ static const usint PTM = 64;
 static const usint TOWERS = 3;
 
 template<class Element>
-void UnitTest_Add(shared_ptr<CryptoContext<Element>> cc) {
+void UnitTest_Add(CryptoContext<Element> cc) {
 
 	std::vector<uint32_t> vectorOfInts1 = { 1,0,3,1,0,1,2,1 };
 	Plaintext plaintext1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
@@ -78,10 +78,10 @@ void UnitTest_Add(shared_ptr<CryptoContext<Element>> cc) {
 	Plaintext plaintextSub = cc->MakeCoefPackedPlaintext(vectorOfIntsSub);
 
 	LPKeyPair<Element> kp = cc->KeyGen();
-	shared_ptr<Ciphertext<Element>> ciphertext1 = cc->Encrypt(kp.publicKey, plaintext1);
-	shared_ptr<Ciphertext<Element>> ciphertext2 = cc->Encrypt(kp.publicKey, plaintext2);
+	Ciphertext<Element> ciphertext1 = cc->Encrypt(kp.publicKey, plaintext1);
+	Ciphertext<Element> ciphertext2 = cc->Encrypt(kp.publicKey, plaintext2);
 
-	shared_ptr<Ciphertext<Element>> cResult = cc->EvalAdd(ciphertext1, ciphertext2);
+	Ciphertext<Element> cResult = cc->EvalAdd(ciphertext1, ciphertext2);
 
 	Plaintext results;
 	cc->Decrypt(kp.secretKey, cResult, &results);
@@ -111,58 +111,58 @@ void UnitTest_Add(shared_ptr<CryptoContext<Element>> cc) {
 
 /// add
 TEST_F(UTSHE, LTV_Poly_Add) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementLTV(ORDER, PTM);
+	CryptoContext<Poly> cc = GenCryptoContextElementLTV(ORDER, PTM);
 	UnitTest_Add<Poly>(cc);
 }
 
 TEST_F(UTSHE, LTV_DCRTPoly_Add) {
-	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayLTV(ORDER, TOWERS, PTM, 30);
+	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayLTV(ORDER, TOWERS, PTM, 30);
 	UnitTest_Add<DCRTPoly>(cc);
 }
 
 TEST_F(UTSHE, StSt_Poly_Add) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementStSt(ORDER, PTM, 50);
+	CryptoContext<Poly> cc = GenCryptoContextElementStSt(ORDER, PTM, 50);
 	UnitTest_Add<Poly>(cc);
 }
 
 TEST_F(UTSHE, StSt_DCRTPoly_Add) {
-	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayStSt(ORDER, TOWERS, PTM, 30);
+	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayStSt(ORDER, TOWERS, PTM, 30);
 	UnitTest_Add<DCRTPoly>(cc);
 }
 
 TEST_F(UTSHE, Null_Poly_Add) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementNull(ORDER, PTM);
+	CryptoContext<Poly> cc = GenCryptoContextElementNull(ORDER, PTM);
 	UnitTest_Add<Poly>(cc);
 }
 
 TEST_F(UTSHE, Null_DCRTPoly_Add) {
-	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayNull(ORDER, TOWERS, PTM, 30);
+	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayNull(ORDER, TOWERS, PTM, 30);
 	UnitTest_Add<DCRTPoly>(cc);
 }
 
 TEST_F(UTSHE, BV_Poly_Add) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementBV(ORDER, PTM);
+	CryptoContext<Poly> cc = GenCryptoContextElementBV(ORDER, PTM);
 	UnitTest_Add<Poly>(cc);
 }
 
 TEST_F(UTSHE, BV_DCRTPoly_Add) {
-	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayBV(ORDER, TOWERS, PTM, 30);
+	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayBV(ORDER, TOWERS, PTM, 30);
 	UnitTest_Add<DCRTPoly>(cc);
 }
 
 TEST_F(UTSHE, FV_Poly_Add) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementFV(ORDER, PTM);
+	CryptoContext<Poly> cc = GenCryptoContextElementFV(ORDER, PTM);
 	UnitTest_Add<Poly>(cc);
 }
 
 //TEST_F(UTSHE, FV_DCRTPoly_Add) {
-//	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayFV(ORDER, TOWERS, PTM);
+//	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayFV(ORDER, TOWERS, PTM);
 //	UnitTest_Add<DCRTPoly>(cc);
 //}
 
 ///
 template<class Element>
-void UnitTest_Mult(shared_ptr<CryptoContext<Element>> cc) {
+void UnitTest_Mult(CryptoContext<Element> cc) {
 	std::vector<uint32_t> vectorOfInts1 = { 1,0,3,1,0,1,2,1 };
 	Plaintext plaintext1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
 
@@ -182,13 +182,13 @@ void UnitTest_Mult(shared_ptr<CryptoContext<Element>> cc) {
 	// Initialize the public key containers.
 	LPKeyPair<Element> kp = cc->KeyGen();
 
-	shared_ptr<Ciphertext<Element>> ciphertext1 = cc->Encrypt(kp.publicKey, intArray1);
+	Ciphertext<Element> ciphertext1 = cc->Encrypt(kp.publicKey, intArray1);
 
-	shared_ptr<Ciphertext<Element>> ciphertext2 = cc->Encrypt(kp.publicKey, intArray2);
+	Ciphertext<Element> ciphertext2 = cc->Encrypt(kp.publicKey, intArray2);
 
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	shared_ptr<Ciphertext<Element>> cResult = cc->EvalMult(ciphertext1, ciphertext2);
+	Ciphertext<Element> cResult = cc->EvalMult(ciphertext1, ciphertext2);
 
 	Plaintext results;
 
@@ -206,52 +206,52 @@ void UnitTest_Mult(shared_ptr<CryptoContext<Element>> cc) {
 
 
 TEST_F(UTSHE, LTV_Poly_Mult) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementLTV(ORDER, PTM, 50);
+	CryptoContext<Poly> cc = GenCryptoContextElementLTV(ORDER, PTM, 50);
 	UnitTest_Mult<Poly>(cc);
 }
 
 TEST_F(UTSHE, LTV_DCRTPoly_Mult) {
-	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayLTV(ORDER, TOWERS, PTM);
+	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayLTV(ORDER, TOWERS, PTM);
 	UnitTest_Mult<DCRTPoly>(cc);
 }
 
 //TEST_F(UTSHE, StSt_Poly_Mult) {
-//	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementStSt(ORDER, PTM);
+//	CryptoContext<Poly> cc = GenCryptoContextElementStSt(ORDER, PTM);
 //	UnitTest_Mult<Poly>(cc);
 //}
 //
 //TEST_F(UTSHE, StSt_DCRTPoly_Mult) {
-//	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayStSt(ORDER, TOWERS, PTM);
+//	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayStSt(ORDER, TOWERS, PTM);
 //	UnitTest_Mult<DCRTPoly>(cc);
 //}
 
 TEST_F(UTSHE, Null_Poly_Mult) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementNull(ORDER, PTM);
+	CryptoContext<Poly> cc = GenCryptoContextElementNull(ORDER, PTM);
 	UnitTest_Mult<Poly>(cc);
 }
 
 TEST_F(UTSHE, Null_DCRTPoly_Mult) {
-	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayNull(ORDER, TOWERS, PTM, 30);
+	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayNull(ORDER, TOWERS, PTM, 30);
 	UnitTest_Mult<DCRTPoly>(cc);
 }
 
 TEST_F(UTSHE, BV_Poly_Mult) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementBV(ORDER, PTM);
+	CryptoContext<Poly> cc = GenCryptoContextElementBV(ORDER, PTM);
 	UnitTest_Mult<Poly>(cc);
 }
 
 TEST_F(UTSHE, BV_DCRTPoly_Mult) {
-	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayBV(ORDER, TOWERS, PTM);
+	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayBV(ORDER, TOWERS, PTM);
 	UnitTest_Mult<DCRTPoly>(cc);
 }
 
 TEST_F(UTSHE, FV_Poly_Mult) {
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementFV(ORDER, PTM);
+	CryptoContext<Poly> cc = GenCryptoContextElementFV(ORDER, PTM);
 	UnitTest_Mult<Poly>(cc);
 }
 
 //TEST_F(UTSHE, FV_DCRTPoly_Mult) {
-//	shared_ptr<CryptoContext<DCRTPoly>> cc = GenCryptoContextElementArrayFV(ORDER, TOWERS, PTM);
+//	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayFV(ORDER, TOWERS, PTM);
 //	UnitTest_Mult<DCRTPoly>(cc);
 //}
 
@@ -261,19 +261,19 @@ TEST_F(UTSHE, keyswitch_sparse_key_SingleCRT_byteplaintext) {
 	usint m = 512;
 	usint plaintextModulus = 256;
 
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementLTV(m, plaintextModulus, 50);
+	CryptoContext<Poly> cc = GenCryptoContextElementLTV(m, plaintextModulus, 50);
 
 	Plaintext plaintext = cc->MakeStringPlaintext("I am good, what are you?! 32 ch");
 
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	shared_ptr<Ciphertext<Poly>> ciphertext = cc->Encrypt(kp.publicKey, plaintext);
+	Ciphertext<Poly> ciphertext = cc->Encrypt(kp.publicKey, plaintext);
 
 	LPKeyPair<Poly> kp2 = cc->SparseKeyGen();
 
-	shared_ptr<LPEvalKey<Poly>> keySwitchHint = cc->KeySwitchGen(kp.secretKey, kp2.secretKey);
+	LPEvalKey<Poly> keySwitchHint = cc->KeySwitchGen(kp.secretKey, kp2.secretKey);
 
-	shared_ptr<Ciphertext<Poly>> newCt = cc->KeySwitch(keySwitchHint, ciphertext);
+	Ciphertext<Poly> newCt = cc->KeySwitch(keySwitchHint, ciphertext);
 
 	Plaintext plaintextNew;
 
@@ -297,14 +297,14 @@ TEST_F(UTSHE, keyswitch_sparse_key_SingleCRT_intArray) {
 	BigInteger rootOfUnity(RootOfUnity(m, q));
 	shared_ptr<Poly::Params> params( new Poly::Params(m, q, rootOfUnity) );
 
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(params, ptm, 1, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(params, ptm, 1, stdDev);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(LEVELEDSHE);
 	cc->Enable(SHE);
 
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	shared_ptr<Ciphertext<Poly>> ciphertext;
+	Ciphertext<Poly> ciphertext;
 
 	std::vector<usint> vectorOfInts = { 1,1,1,1,1,1,1,1 };
 	Plaintext intArray = cc->MakeCoefPackedPlaintext(vectorOfInts);
@@ -313,10 +313,10 @@ TEST_F(UTSHE, keyswitch_sparse_key_SingleCRT_intArray) {
 
 	LPKeyPair<Poly> kp2 = cc->SparseKeyGen();
 
-	shared_ptr<LPEvalKey<Poly>> keySwitchHint;
+	LPEvalKey<Poly> keySwitchHint;
 	keySwitchHint = cc->KeySwitchGen(kp.secretKey, kp2.secretKey);
 
-	shared_ptr<Ciphertext<Poly>> newCt = cc->KeySwitch(keySwitchHint, ciphertext);
+	Ciphertext<Poly> newCt = cc->KeySwitch(keySwitchHint, ciphertext);
 
 	Plaintext intArrayNew;
 
@@ -336,7 +336,7 @@ TEST_F(UTSHE, keyswitch_SingleCRT) {
 
 	shared_ptr<Poly::Params> params = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(m, 50);
 
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(params, 256, 1, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(params, 256, 1, stdDev);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 
@@ -344,15 +344,15 @@ TEST_F(UTSHE, keyswitch_SingleCRT) {
 
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	shared_ptr<Ciphertext<Poly>> ciphertext =
+	Ciphertext<Poly> ciphertext =
 			cc->Encrypt(kp.publicKey, plaintext);
 
 	LPKeyPair<Poly> kp2 = cc->KeyGen();
 
-	shared_ptr<LPEvalKey<Poly>> keySwitchHint;
+	LPEvalKey<Poly> keySwitchHint;
 	keySwitchHint = cc->KeySwitchGen(kp.secretKey, kp2.secretKey);
 
-	shared_ptr<Ciphertext<Poly>> newCt = cc->KeySwitch(keySwitchHint, ciphertext);
+	Ciphertext<Poly> newCt = cc->KeySwitch(keySwitchHint, ciphertext);
 
 	Plaintext plaintextNew;
 
@@ -369,7 +369,7 @@ TEST_F(UTSHE, sparsekeygen_single_crt_encrypt_decrypt) {
 
 	shared_ptr<Poly::Params> params = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(m);
 
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(params, 256, 1, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(params, 256, 1, stdDev);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(LEVELEDSHE);
 	cc->Enable(SHE);
@@ -378,7 +378,7 @@ TEST_F(UTSHE, sparsekeygen_single_crt_encrypt_decrypt) {
 
 	LPKeyPair<Poly> kp = cc->SparseKeyGen();
 
-	shared_ptr<Ciphertext<Poly>> ciphertext =
+	Ciphertext<Poly> ciphertext =
 			cc->Encrypt(kp.publicKey, plaintext);
 
 	Plaintext plaintextNew;
@@ -406,7 +406,7 @@ TEST_F(UTSHE, keyswitch_ModReduce_DCRT) {
 
 	shared_ptr<ILDCRTParams<BigInteger>> params = GenerateDCRTParams( m, plaintextmodulus, size, 30 );
 
-	shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextLTV(params, plaintextmodulus, relinWindow, stdDev);
+	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextLTV(params, plaintextmodulus, relinWindow, stdDev);
 
 	Plaintext plaintext = cc->MakeStringPlaintext("I am good, what are you?! 32 ch");
 
@@ -416,15 +416,15 @@ TEST_F(UTSHE, keyswitch_ModReduce_DCRT) {
 
 	LPKeyPair<DCRTPoly> kp = cc->KeyGen();
 
-	shared_ptr<Ciphertext<DCRTPoly>> ciphertext =
+	Ciphertext<DCRTPoly> ciphertext =
 			cc->Encrypt(kp.publicKey, plaintext);
 
 	LPKeyPair<DCRTPoly> kp2 = cc->KeyGen();
 
-	shared_ptr<LPEvalKey<DCRTPoly>> keySwitchHint;
+	LPEvalKey<DCRTPoly> keySwitchHint;
 	keySwitchHint = cc->KeySwitchGen(kp.secretKey, kp2.secretKey);
 
-	shared_ptr<Ciphertext<DCRTPoly>> newCt = cc->KeySwitch(keySwitchHint, ciphertext);
+	Ciphertext<DCRTPoly> newCt = cc->KeySwitch(keySwitchHint, ciphertext);
 
 	Plaintext plaintextNewKeySwitch;
 
@@ -454,7 +454,7 @@ TEST_F(UTSHE, ringreduce_single_crt) {
 
 	shared_ptr<Poly::Params> params = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(m);
 
-	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(params, 2, 1, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(params, 2, 1, stdDev);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(LEVELEDSHE);
 	cc->Enable(SHE);
@@ -464,14 +464,14 @@ TEST_F(UTSHE, ringreduce_single_crt) {
 	std::vector<usint> vectorOfInts = { 1,1,1,1,1,1,1,1 };
 	Plaintext intArray = cc->MakeCoefPackedPlaintext(vectorOfInts);
 
-	shared_ptr<Ciphertext<Poly>> ciphertext = cc->Encrypt(kp.publicKey, intArray);
+	Ciphertext<Poly> ciphertext = cc->Encrypt(kp.publicKey, intArray);
 
 	LPKeyPair<Poly> kp2 = cc->SparseKeyGen();
 
-	shared_ptr<LPEvalKey<Poly>> keySwitchHint;
+	LPEvalKey<Poly> keySwitchHint;
 	keySwitchHint = cc->KeySwitchGen(kp.secretKey, kp2.secretKey);
 
-	shared_ptr<Ciphertext<Poly>> newCt = cc->KeySwitch(keySwitchHint, ciphertext);
+	Ciphertext<Poly> newCt = cc->KeySwitch(keySwitchHint, ciphertext);
 
 	Plaintext intArrayNew;
 
@@ -505,14 +505,14 @@ TEST_F(UTSHE, ringreduce_double_crt) {
 
 	shared_ptr<ILDCRTParams<BigInteger>> params = GenerateDCRTParams( m, plaintextmodulus, size, 30 );
 
-	shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextLTV(params, plaintextmodulus, relinWindow, stdDev);
+	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextLTV(params, plaintextmodulus, relinWindow, stdDev);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(LEVELEDSHE);
 	cc->Enable(SHE);
 
 	LPKeyPair<DCRTPoly> kp = cc->KeyGen();
 
-	shared_ptr<Ciphertext<DCRTPoly>> ciphertext;
+	Ciphertext<DCRTPoly> ciphertext;
 
 	std::vector<usint> vectorOfInts = { 1,1,1,1,1,1,1,1 };
 	Plaintext intArray = cc->MakeCoefPackedPlaintext(vectorOfInts);
@@ -521,9 +521,9 @@ TEST_F(UTSHE, ringreduce_double_crt) {
 
 	LPKeyPair<DCRTPoly> kp2 = cc->SparseKeyGen();
 
-	shared_ptr<LPEvalKey<DCRTPoly>> keySwitchHint = cc->KeySwitchGen(kp.secretKey, kp2.secretKey);
+	LPEvalKey<DCRTPoly> keySwitchHint = cc->KeySwitchGen(kp.secretKey, kp2.secretKey);
 
-	shared_ptr<Ciphertext<DCRTPoly>> newCiphertext = cc->KeySwitch(keySwitchHint, ciphertext);
+	Ciphertext<DCRTPoly> newCiphertext = cc->KeySwitch(keySwitchHint, ciphertext);
 
 	Plaintext intArrayNew;
 

@@ -118,45 +118,45 @@ void TestEvalKeys(const string &paramDir,  const string &contextID, const string
 
 void TestLR(const string &paramDir,  const string &contextID, const string &keyDir1, const string &JointKeyId, const string &ctxtDir, const string &ctxId);
 
-shared_ptr<CryptoContext<DCRTPoly>> DeserializeContext(const string& ccFileName);
+CryptoContext<DCRTPoly> DeserializeContext(const string& ccFileName);
 void ReadCSVFile(string dataFileName,  vector<string>& headers, vector<vector<double> >& dataColumns);
-void EncodeData(shared_ptr<CryptoContext<DCRTPoly>> cc, const std::vector<string> &headers, const vector<vector<double>>& dataColumns, Matrix<Plaintext> &x, Plaintext &y);
+void EncodeData(CryptoContext<DCRTPoly> cc, const std::vector<string> &headers, const vector<vector<double>>& dataColumns, Matrix<Plaintext> &x, Plaintext &y);
 void CRTInterpolate(const vector<shared_ptr<Matrix<Plaintext>>> &crtVector, Matrix<NativeInteger> &result);
 void MatrixInverse(const Matrix<NativeInteger> &in, Matrix<double> &out);
 void DecodeData(const Matrix<double> &lr, const Matrix<NativeInteger>& XTX, const Matrix<NativeInteger>& XTY, std::vector<double> &result);
 
-void ConvertMatrixInto2DVector(const Matrix<RationalCiphertext<DCRTPoly>> &matrix, vector<vector<shared_ptr<Ciphertext<DCRTPoly>>>> &vec);
+void ConvertMatrixInto2DVector(const Matrix<RationalCiphertext<DCRTPoly>> &matrix, vector<vector<Ciphertext<DCRTPoly>>> &vec);
 
-void Convert2DVectorIntoMatrix(const vector<vector<shared_ptr<Ciphertext<DCRTPoly>>>> &vec, Matrix<RationalCiphertext<DCRTPoly>> &matrix);
-
-template <class Element>
-shared_ptr<LPEvalKey<Element>> MultiKeySwitchGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey, const shared_ptr<LPPrivateKey<Element>> newPrivateKey,
-	const shared_ptr<LPEvalKey<DCRTPoly>> ek);
+void Convert2DVectorIntoMatrix(const vector<vector<Ciphertext<DCRTPoly>>> &vec, Matrix<RationalCiphertext<DCRTPoly>> &matrix);
 
 template <class Element>
-shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> MultiEvalAutomorphismKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey,
-	const shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> eAuto,
+LPEvalKey<Element> MultiKeySwitchGen(const LPPrivateKey<Element> originalPrivateKey, const LPPrivateKey<Element> newPrivateKey,
+	const LPEvalKey<DCRTPoly> ek);
+
+template <class Element>
+shared_ptr<std::map<usint, LPEvalKey<Element>>> MultiEvalAutomorphismKeyGen(const LPPrivateKey<Element> privateKey,
+	const shared_ptr<std::map<usint, LPEvalKey<Element>>> eAuto,
 	const std::vector<usint> &indexList);
 
 template <class Element>
-shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> MultiEvalSumKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey,
-	const shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> eSum);
+shared_ptr<std::map<usint, LPEvalKey<Element>>> MultiEvalSumKeyGen(const LPPrivateKey<Element> privateKey,
+	const shared_ptr<std::map<usint, LPEvalKey<Element>>> eSum);
 
 template <class Element>
-shared_ptr<LPEvalKey<Element>> AddEvalKeys(shared_ptr<LPEvalKey<Element>> a, shared_ptr<LPEvalKey<Element>> b);
+LPEvalKey<Element> AddEvalKeys(LPEvalKey<Element> a, LPEvalKey<Element> b);
 
 template <class Element>
-shared_ptr<LPEvalKey<Element>> MultiplyEvalKey(shared_ptr<LPEvalKey<Element>> evalKey, shared_ptr<LPPrivateKey<Element>> sk);
+LPEvalKey<Element> MultiplyEvalKey(LPEvalKey<Element> evalKey, LPPrivateKey<Element> sk);
 
 template <class Element>
-shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> AddEvalSumKeys(const shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> es1,
-	const shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> es2);
+shared_ptr<std::map<usint, LPEvalKey<Element>>> AddEvalSumKeys(const shared_ptr<std::map<usint, LPEvalKey<Element>>> es1,
+	const shared_ptr<std::map<usint, LPEvalKey<Element>>> es2);
 
 template <class Element>
-shared_ptr<LPEvalKey<Element>> AddEvalMultKeys(shared_ptr<LPEvalKey<Element>> evalKey1, shared_ptr<LPEvalKey<Element>> evalKey2);
+LPEvalKey<Element> AddEvalMultKeys(LPEvalKey<Element> evalKey1, LPEvalKey<Element> evalKey2);
 
 template <class Element>
-shared_ptr<LPPrivateKey<Element>> AddSecretKeys(shared_ptr<LPPrivateKey<Element>> a, shared_ptr<LPPrivateKey<Element>> b);
+LPPrivateKey<Element> AddSecretKeys(LPPrivateKey<Element> a, LPPrivateKey<Element> b);
 
 // number of primitive prime plaintext moduli in the CRT representation of plaintext
 const size_t SIZE = 2;
@@ -377,7 +377,7 @@ void ParamGen(string &paramDir, const string &contextID) {
 
 		float stdDev = 4;
 
-		shared_ptr<CryptoContext<DCRTPoly>> cc =
+		CryptoContext<DCRTPoly> cc =
 			CryptoContextFactory<DCRTPoly>::genCryptoContextBV(paramsDCRT, encodingParams, 30, stdDev);
 
 		cc->Enable(ENCRYPTION);
@@ -417,7 +417,7 @@ void KeyGen1(const string &paramDir,  const string &contextID, const string &key
 
 		// Deserialize the crypto context
 
-		shared_ptr<CryptoContext<DCRTPoly>> cc = DeserializeContext(paramDir + "/" + ccFileName);
+		CryptoContext<DCRTPoly> cc = DeserializeContext(paramDir + "/" + ccFileName);
 
 		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
 		shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
@@ -509,7 +509,7 @@ void KeyGen1(const string &paramDir,  const string &contextID, const string &key
 
 		std::cout << "Serializing summation evaluation keys...";
 
-		for (std::map<usint, shared_ptr<LPEvalKey<DCRTPoly>>>::iterator it = evalSumKeys.begin(); it != evalSumKeys.end(); ++it)
+		for (std::map<usint, LPEvalKey<DCRTPoly>>::iterator it = evalSumKeys.begin(); it != evalSumKeys.end(); ++it)
 		{
 			if (it->second) {
 				Serialized evalKey;
@@ -548,7 +548,7 @@ void KeyGen2(const string &paramDir,  const string &contextID, const string &key
 
 		// Deserialize the crypto context
 
-		shared_ptr<CryptoContext<DCRTPoly>> cc = DeserializeContext(paramDir + "/" + ccFileName);
+		CryptoContext<DCRTPoly> cc = DeserializeContext(paramDir + "/" + ccFileName);
 
 		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
 		shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
@@ -566,7 +566,7 @@ void KeyGen2(const string &paramDir,  const string &contextID, const string &key
 			return;
 		}
 
-		shared_ptr<LPPublicKey<DCRTPoly>> pk = cc->deserializePublicKey(pkSer);
+		LPPublicKey<DCRTPoly> pk = cc->deserializePublicKey(pkSer);
 
 		if (!pk) {
 			cerr << "Could not deserialize public key of A" << endl;
@@ -631,7 +631,7 @@ void KeyGen2(const string &paramDir,  const string &contextID, const string &key
 			return;
 		}
 
-		shared_ptr<LPEvalKey<DCRTPoly>> em = cc->deserializeEvalKey(emSer);
+		LPEvalKey<DCRTPoly> em = cc->deserializeEvalKey(emSer);
 
 		if (!em) {
 			cerr << "Could not deserialize multiplication evaluation key" << endl;
@@ -732,7 +732,7 @@ void KeyGen2(const string &paramDir,  const string &contextID, const string &key
 		usint g = 5;
 		//usint m = elementParams->GetCyclotomicOrder();
 
-		shared_ptr<std::map<usint, shared_ptr<LPEvalKey<DCRTPoly>>>> evalSumKeysA(new std::map<usint, shared_ptr<LPEvalKey<DCRTPoly>>>());
+		shared_ptr<std::map<usint, LPEvalKey<DCRTPoly>>> evalSumKeysA(new std::map<usint, LPEvalKey<DCRTPoly>>());
 
 		for (int i = 0; i < floor(log2(batchSize)); i++)
 		{
@@ -747,7 +747,7 @@ void KeyGen2(const string &paramDir,  const string &contextID, const string &key
 				return;
 			}
 
-			shared_ptr<LPEvalKey<DCRTPoly>> es = cc->deserializeEvalKey(esSer);
+			LPEvalKey<DCRTPoly> es = cc->deserializeEvalKey(esSer);
 
 			if (!es) {
 				cerr << "Could not deserialize summation evaluation key at index " << g << endl;
@@ -779,7 +779,7 @@ void KeyGen2(const string &paramDir,  const string &contextID, const string &key
 
 		std::cout << "Serializing joint summation evaluation keys...";
 
-		for (std::map<usint, shared_ptr<LPEvalKey<DCRTPoly>>>::iterator it = evalSumKeysJoin->begin(); it != evalSumKeysJoin->end(); ++it)
+		for (std::map<usint, LPEvalKey<DCRTPoly>>::iterator it = evalSumKeysJoin->begin(); it != evalSumKeysJoin->end(); ++it)
 		{
 			if (it->second) {
 				Serialized evalKey;
@@ -820,7 +820,7 @@ void KeyGen3(const string &paramDir,  const string &contextID, const string &key
 
 		// Deserialize the crypto context
 
-		shared_ptr<CryptoContext<DCRTPoly>> cc = DeserializeContext(paramDir + "/" + ccFileName);
+		CryptoContext<DCRTPoly> cc = DeserializeContext(paramDir + "/" + ccFileName);
 
 		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
 		shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
@@ -838,7 +838,7 @@ void KeyGen3(const string &paramDir,  const string &contextID, const string &key
 			return;
 		}
 
-		shared_ptr<LPEvalKey<DCRTPoly>> em = cc->deserializeEvalKey(emSer);
+		LPEvalKey<DCRTPoly> em = cc->deserializeEvalKey(emSer);
 
 		if (!em) {
 			cerr << "Could not deserialize multiplication evaluation key" << endl;
@@ -857,7 +857,7 @@ void KeyGen3(const string &paramDir,  const string &contextID, const string &key
 			return;
 		}
 
-		shared_ptr<LPPrivateKey<DCRTPoly>> sk = cc->deserializeSecretKey(skSer);
+		LPPrivateKey<DCRTPoly> sk = cc->deserializeSecretKey(skSer);
 
 		if (!sk) {
 			cerr << "Could not deserialize private key" << endl;
@@ -884,7 +884,7 @@ void KeyGen3(const string &paramDir,  const string &contextID, const string &key
 			return;
 		}
 
-		shared_ptr<LPEvalKey<DCRTPoly>> emBAB = cc->deserializeEvalKey(emBABSer);
+		LPEvalKey<DCRTPoly> emBAB = cc->deserializeEvalKey(emBABSer);
 
 		if (!emBAB) {
 			cerr << "Could not deserialize multiplication evaluation key" << endl;
@@ -940,7 +940,7 @@ void TestEvalKeys(const string &paramDir,  const string &contextID, const string
 
 		// Deserialize the crypto context
 
-		shared_ptr<CryptoContext<DCRTPoly>> cc = DeserializeContext(paramDir + "/" + ccFileName);
+		CryptoContext<DCRTPoly> cc = DeserializeContext(paramDir + "/" + ccFileName);
 
 		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
 		shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
@@ -958,7 +958,7 @@ void TestEvalKeys(const string &paramDir,  const string &contextID, const string
 			return;
 		}
 
-		shared_ptr<LPPublicKey<DCRTPoly>> pk = cc->deserializePublicKey(pkSer);
+		LPPublicKey<DCRTPoly> pk = cc->deserializePublicKey(pkSer);
 
 		if (!pk) {
 			cerr << "Could not deserialize joint public key" << endl;
@@ -977,14 +977,14 @@ void TestEvalKeys(const string &paramDir,  const string &contextID, const string
 			return;
 		}
 
-		shared_ptr<LPEvalKey<DCRTPoly>> em = cc->deserializeEvalKey(emSer);
+		LPEvalKey<DCRTPoly> em = cc->deserializeEvalKey(emSer);
 
 		if (!em) {
 			cerr << "Could not deserialize multiplication evaluation key" << endl;
 			return;
 		}
 
-		vector<shared_ptr<LPEvalKey<DCRTPoly>>> evalMultKeys;
+		vector<LPEvalKey<DCRTPoly>> evalMultKeys;
 		evalMultKeys.push_back(em);
 
 		cc->InsertEvalMultKey(evalMultKeys);
@@ -995,7 +995,7 @@ void TestEvalKeys(const string &paramDir,  const string &contextID, const string
 
 		std::cout << "Deserializing the summation evaluation keys...";
 
-		std::map<usint, shared_ptr<LPEvalKey<DCRTPoly>>>	evalSumKeys;
+		std::map<usint, LPEvalKey<DCRTPoly>>	evalSumKeys;
 
 		//const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc.GetCryptoParameters();
 		//const shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
@@ -1005,7 +1005,7 @@ void TestEvalKeys(const string &paramDir,  const string &contextID, const string
 		usint g = 5;
 		//usint m = elementParams->GetCyclotomicOrder();
 
-		std::map<usint, shared_ptr<LPEvalKey<DCRTPoly>>> evalKeys;
+		std::map<usint, LPEvalKey<DCRTPoly>> evalKeys;
 
 		for (int i = 0; i < floor(log2(batchSize)); i++)
 		{
@@ -1020,7 +1020,7 @@ void TestEvalKeys(const string &paramDir,  const string &contextID, const string
 				return;
 			}
 
-			shared_ptr<LPEvalKey<DCRTPoly>> es = cc->deserializeEvalKey(esSer);
+			LPEvalKey<DCRTPoly> es = cc->deserializeEvalKey(esSer);
 
 			if (!es) {
 				cerr << "Could not deserialize summation evaluation key at index " << g << endl;
@@ -1032,7 +1032,7 @@ void TestEvalKeys(const string &paramDir,  const string &contextID, const string
 			g = (g * g) % m;
 		}
 
-		cc->InsertEvalSumKey(shared_ptr<std::map<usint, shared_ptr<LPEvalKey<DCRTPoly>>>>(new std::map<usint, shared_ptr<LPEvalKey<DCRTPoly>>>(evalKeys)));
+		cc->InsertEvalSumKey(shared_ptr<std::map<usint, LPEvalKey<DCRTPoly>>>(new std::map<usint, LPEvalKey<DCRTPoly>>(evalKeys)));
 
 		std::cout << "Completed" << std::endl;
 
@@ -1046,7 +1046,7 @@ void TestEvalKeys(const string &paramDir,  const string &contextID, const string
 			return;
 		}
 
-		shared_ptr<LPPrivateKey<DCRTPoly>> skA = cc->deserializeSecretKey(skSerA);
+		LPPrivateKey<DCRTPoly> skA = cc->deserializeSecretKey(skSerA);
 
 		if (!skA) {
 			cerr << "Could not deserialize private key" << endl;
@@ -1065,7 +1065,7 @@ void TestEvalKeys(const string &paramDir,  const string &contextID, const string
 			return;
 		}
 
-		shared_ptr<LPPrivateKey<DCRTPoly>> skB = cc->deserializeSecretKey(skSerB);
+		LPPrivateKey<DCRTPoly> skB = cc->deserializeSecretKey(skSerB);
 
 		if (!skB) {
 			cerr << "Could not deserialize private key" << endl;
@@ -1124,7 +1124,7 @@ void TestEvalKeys(const string &paramDir,  const string &contextID, const string
 
 		std::cout << "Computing automorphism of input array 1...";
 
-		shared_ptr<Ciphertext<DCRTPoly>> p1;
+		Ciphertext<DCRTPoly> p1;
 
 		p1 = cc->EvalAutomorphism(ciphertext1, 5, evalKeys);
 
@@ -1198,7 +1198,7 @@ void Encrypt(const string &paramDir,  const string &contextID, const string &key
 
 		// Deserialize the crypto context
 
-		shared_ptr<CryptoContext<DCRTPoly>> cc = DeserializeContext(paramDir + "/" + ccFileName);
+		CryptoContext<DCRTPoly> cc = DeserializeContext(paramDir + "/" + ccFileName);
 
 		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
 		shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
@@ -1232,7 +1232,7 @@ void Encrypt(const string &paramDir,  const string &contextID, const string &key
 			return;
 		}
 
-		shared_ptr<LPPublicKey<DCRTPoly>> pk = cc->deserializePublicKey(pkSer);
+		LPPublicKey<DCRTPoly> pk = cc->deserializePublicKey(pkSer);
 
 		if (!pk) {
 			cerr << "Could not deserialize joint public key" << endl;
@@ -1278,7 +1278,7 @@ void Encrypt(const string &paramDir,  const string &contextID, const string &key
 
 			std::cout << "Batching/encrypting y...";
 
-			shared_ptr<Ciphertext<DCRTPoly>> yC = cc->Encrypt(pk, yP);
+			Ciphertext<DCRTPoly> yC = cc->Encrypt(pk, yP);
 
 			std::cout << "Completed" << std::endl;
 
@@ -1370,7 +1370,7 @@ void ComputeMultiparty(const string &paramDir,  const string &contextID, const s
 
 		// Deserialize the crypto context
 
-		shared_ptr<CryptoContext<DCRTPoly>> cc = DeserializeContext(paramDir + "/" + ccFileName);
+		CryptoContext<DCRTPoly> cc = DeserializeContext(paramDir + "/" + ccFileName);
 
 		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
 		shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
@@ -1388,14 +1388,14 @@ void ComputeMultiparty(const string &paramDir,  const string &contextID, const s
 			return;
 		}
 
-		shared_ptr<LPEvalKey<DCRTPoly>> em = cc->deserializeEvalKey(emSer);
+		LPEvalKey<DCRTPoly> em = cc->deserializeEvalKey(emSer);
 
 		if (!em) {
 			cerr << "Could not deserialize multiplication evaluation key" << endl;
 			return;
 		}
 
-		std::vector<shared_ptr<LPEvalKey<DCRTPoly>>> evalMultKeys;
+		std::vector<LPEvalKey<DCRTPoly>> evalMultKeys;
 		evalMultKeys.push_back(em);
 
 		cc->InsertEvalMultKey(evalMultKeys);
@@ -1406,7 +1406,7 @@ void ComputeMultiparty(const string &paramDir,  const string &contextID, const s
 
 		std::cout << "Deserializing the summation evaluation keys...";
 
-		std::map<usint, shared_ptr<LPEvalKey<DCRTPoly>>>	evalSumKeys;
+		std::map<usint, LPEvalKey<DCRTPoly>>	evalSumKeys;
 
 		//const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc.GetCryptoParameters();
 		//const shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
@@ -1416,7 +1416,7 @@ void ComputeMultiparty(const string &paramDir,  const string &contextID, const s
 		usint g = 5;
 		//usint m = elementParams->GetCyclotomicOrder();
 
-		std::map<usint, shared_ptr<LPEvalKey<DCRTPoly>>> evalKeys;
+		std::map<usint, LPEvalKey<DCRTPoly>> evalKeys;
 
 		for (int i = 0; i < floor(log2(batchSize)); i++)
 		{
@@ -1431,7 +1431,7 @@ void ComputeMultiparty(const string &paramDir,  const string &contextID, const s
 				return;
 			}
 
-			shared_ptr<LPEvalKey<DCRTPoly>> es = cc->deserializeEvalKey(esSer);
+			LPEvalKey<DCRTPoly> es = cc->deserializeEvalKey(esSer);
 
 			if (!es) {
 				cerr << "Could not deserialize summation evaluation key at index " << g << endl;
@@ -1443,7 +1443,7 @@ void ComputeMultiparty(const string &paramDir,  const string &contextID, const s
 			g = (g * g) % m;
 		}
 
-		cc->InsertEvalSumKey(shared_ptr<std::map<usint, shared_ptr<LPEvalKey<DCRTPoly>>>>(new std::map<usint, shared_ptr<LPEvalKey<DCRTPoly>>>(evalKeys)));
+		cc->InsertEvalSumKey(shared_ptr<std::map<usint, LPEvalKey<DCRTPoly>>>(new std::map<usint, LPEvalKey<DCRTPoly>>(evalKeys)));
 
 		std::cout << "Completed" << std::endl;
 
@@ -1473,7 +1473,7 @@ void ComputeMultiparty(const string &paramDir,  const string &contextID, const s
 
 		// Deserialize y for A
 
-		shared_ptr<Ciphertext<DCRTPoly>> y(new Ciphertext<DCRTPoly>(cc));
+		Ciphertext<DCRTPoly> y(new CiphertextImpl<DCRTPoly>(cc));
 
 		string yFileName = ctxt1Dir + "/" + "ciphertext-y-" + ctx1Id + "-" + std::to_string(k) + ".txt";
 
@@ -1565,7 +1565,7 @@ void ComputeMultiparty(const string &paramDir,  const string &contextID, const s
 		start = currentDateTime();
 
 		//forces all inner-product precomputations to take place sequentially
-		const shared_ptr<Ciphertext<DCRTPoly>> x0 = (*x)(0, 0).GetNumerator();
+		const Ciphertext<DCRTPoly> x0 = (*x)(0, 0).GetNumerator();
 		(*xTx)(0, 0).SetNumerator(cc->EvalInnerProduct(x0, x0, encodingParams->GetBatchSize()));
 
 		for (size_t i = 0; i < x->GetCols(); i++)
@@ -1575,8 +1575,8 @@ void ComputeMultiparty(const string &paramDir,  const string &contextID, const s
 			{
 				if (i + k > 0)
 				{
-					const shared_ptr<Ciphertext<DCRTPoly>> xi = (*x)(0, i).GetNumerator();
-					const shared_ptr<Ciphertext<DCRTPoly>> xk = (*x)(0, k).GetNumerator();
+					const Ciphertext<DCRTPoly> xi = (*x)(0, i).GetNumerator();
+					const Ciphertext<DCRTPoly> xk = (*x)(0, k).GetNumerator();
 					(*xTx)(i, k).SetNumerator(cc->EvalInnerProduct(xi, xk, encodingParams->GetBatchSize()));
 					if (i != k)
 						(*xTx)(k, i).SetNumerator((*xTx)(i, k).GetNumerator());
@@ -1601,7 +1601,7 @@ void ComputeMultiparty(const string &paramDir,  const string &contextID, const s
 #pragma omp parallel for
 		for (size_t i = 0; i < x->GetCols(); i++)
 		{
-			const shared_ptr<Ciphertext<DCRTPoly>> xi = (*x)(0, i).GetNumerator();
+			const Ciphertext<DCRTPoly> xi = (*x)(0, i).GetNumerator();
 			(*xTy)(i, 0).SetNumerator(cc->EvalInnerProduct(xi, y, encodingParams->GetBatchSize()));
 		}
 
@@ -1669,7 +1669,7 @@ void TestLR(const string &paramDir,  const string &contextID, const string &keyD
 
 		// Deserialize the crypto context
 
-		shared_ptr<CryptoContext<DCRTPoly>> cc = DeserializeContext(paramDir + "/" + ccFileName);
+		CryptoContext<DCRTPoly> cc = DeserializeContext(paramDir + "/" + ccFileName);
 
 		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
 		shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
@@ -1687,7 +1687,7 @@ void TestLR(const string &paramDir,  const string &contextID, const string &keyD
 			return;
 		}
 
-		shared_ptr<LPPrivateKey<DCRTPoly>> skA = cc->deserializeSecretKey(skSerA);
+		LPPrivateKey<DCRTPoly> skA = cc->deserializeSecretKey(skSerA);
 
 		if (!skA) {
 			cerr << "Could not deserialize private key" << endl;
@@ -1706,7 +1706,7 @@ void TestLR(const string &paramDir,  const string &contextID, const string &keyD
 			return;
 		}
 
-		shared_ptr<LPPrivateKey<DCRTPoly>> skB = cc->deserializeSecretKey(skSerB);
+		LPPrivateKey<DCRTPoly> skB = cc->deserializeSecretKey(skSerB);
 
 		if (!skB) {
 			cerr << "Could not deserialize private key" << endl;
@@ -1935,7 +1935,7 @@ void PartialDecrypt1(const string &paramDir,  const string &contextID, const str
 
 		// Deserialize the crypto context
 
-		shared_ptr<CryptoContext<DCRTPoly>> cc = DeserializeContext(paramDir + "/" + ccFileName);
+		CryptoContext<DCRTPoly> cc = DeserializeContext(paramDir + "/" + ccFileName);
 
 		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
 		shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
@@ -1953,7 +1953,7 @@ void PartialDecrypt1(const string &paramDir,  const string &contextID, const str
 			return;
 		}
 
-		shared_ptr<LPPrivateKey<DCRTPoly>> skA = cc->deserializeSecretKey(skSerA);
+		LPPrivateKey<DCRTPoly> skA = cc->deserializeSecretKey(skSerA);
 
 		if (!skA) {
 			cerr << "Could not deserialize private key" << endl;
@@ -2012,10 +2012,10 @@ void PartialDecrypt1(const string &paramDir,  const string &contextID, const str
 
 		std::cout << "Partial decryption of X^T X and X^T y...";
 
-		vector<vector<shared_ptr<Ciphertext<DCRTPoly>>>> vecXTX;
-		vector<vector<shared_ptr<Ciphertext<DCRTPoly>>>> vecXTY;
-		vector<vector<shared_ptr<Ciphertext<DCRTPoly>>>> vecXTXDecrypted;
-		vector<vector<shared_ptr<Ciphertext<DCRTPoly>>>> vecXTYDecrypted;
+		vector<vector<Ciphertext<DCRTPoly>>> vecXTX;
+		vector<vector<Ciphertext<DCRTPoly>>> vecXTY;
+		vector<vector<Ciphertext<DCRTPoly>>> vecXTXDecrypted;
+		vector<vector<Ciphertext<DCRTPoly>>> vecXTYDecrypted;
 
 		ConvertMatrixInto2DVector(*xtx, vecXTX);
 		ConvertMatrixInto2DVector(*xty, vecXTY);
@@ -2089,7 +2089,7 @@ void PartialDecrypt2(const string &paramDir,  const string &contextID, const str
 
 		// Deserialize the crypto context
 
-		shared_ptr<CryptoContext<DCRTPoly>> cc = DeserializeContext(paramDir + "/" + ccFileName);
+		CryptoContext<DCRTPoly> cc = DeserializeContext(paramDir + "/" + ccFileName);
 
 		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
 		shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
@@ -2107,7 +2107,7 @@ void PartialDecrypt2(const string &paramDir,  const string &contextID, const str
 			return;
 		}
 
-		shared_ptr<LPPrivateKey<DCRTPoly>> skB = cc->deserializeSecretKey(skSer);
+		LPPrivateKey<DCRTPoly> skB = cc->deserializeSecretKey(skSer);
 
 		if (!skB) {
 			cerr << "Could not deserialize private key" << endl;
@@ -2166,10 +2166,10 @@ void PartialDecrypt2(const string &paramDir,  const string &contextID, const str
 
 		std::cout << "Partial decryption of X^T X and X^T y...";
 
-		vector<vector<shared_ptr<Ciphertext<DCRTPoly>>>> vecXTX;
-		vector<vector<shared_ptr<Ciphertext<DCRTPoly>>>> vecXTY;
-		vector<vector<shared_ptr<Ciphertext<DCRTPoly>>>> vecXTXDecrypted;
-		vector<vector<shared_ptr<Ciphertext<DCRTPoly>>>> vecXTYDecrypted;
+		vector<vector<Ciphertext<DCRTPoly>>> vecXTX;
+		vector<vector<Ciphertext<DCRTPoly>>> vecXTY;
+		vector<vector<Ciphertext<DCRTPoly>>> vecXTXDecrypted;
+		vector<vector<Ciphertext<DCRTPoly>>> vecXTYDecrypted;
 
 		ConvertMatrixInto2DVector(*xtx, vecXTX);
 		ConvertMatrixInto2DVector(*xty, vecXTY);
@@ -2271,7 +2271,7 @@ void FuseDecode(const string &paramDir, const string &contextID,
 
 		// Deserialize the crypto context
 
-		shared_ptr<CryptoContext<DCRTPoly>> cc = DeserializeContext(paramDir + "/" + ccFileName);
+		CryptoContext<DCRTPoly> cc = DeserializeContext(paramDir + "/" + ccFileName);
 
 		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
 		shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
@@ -2383,7 +2383,7 @@ void FuseDecode(const string &paramDir, const string &contextID,
 		for (size_t i = 0; i < xtx1->GetRows(); i++) {
 			for (size_t j = 0; j < xtx1->GetCols(); j++) {
 
-				vector<shared_ptr<Ciphertext<DCRTPoly>>> partialCiphertextVecXTX;
+				vector<Ciphertext<DCRTPoly>> partialCiphertextVecXTX;
 				partialCiphertextVecXTX.push_back( (*xtx1)(i,j).GetNumerator() );
 				partialCiphertextVecXTX.push_back( (*xtx2)(i,j).GetNumerator() );
 
@@ -2397,7 +2397,7 @@ void FuseDecode(const string &paramDir, const string &contextID,
 
 		for (size_t i = 0; i < xty1->GetRows(); i++) {
 
-				vector<shared_ptr<Ciphertext<DCRTPoly>>> partialCiphertextVecXTY;
+				vector<Ciphertext<DCRTPoly>> partialCiphertextVecXTY;
 				partialCiphertextVecXTY.push_back( (*xty1)(i,0).GetNumerator() );
 				partialCiphertextVecXTY.push_back( (*xty2)(i,0).GetNumerator() );
 
@@ -2507,7 +2507,7 @@ void FuseDecode(const string &paramDir, const string &contextID,
 }
 
 
-shared_ptr<CryptoContext<DCRTPoly>> DeserializeContext(const string& ccFileName)
+CryptoContext<DCRTPoly> DeserializeContext(const string& ccFileName)
 {
 
 	std::cout << "Deserializing the crypto context...";
@@ -2518,7 +2518,7 @@ shared_ptr<CryptoContext<DCRTPoly>> DeserializeContext(const string& ccFileName)
 		return 0;
 	}
 
-	shared_ptr<CryptoContext<DCRTPoly>> cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(ccSer);
+	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(ccSer);
 
 	std::cout << "Completed" << std::endl;
 
@@ -2574,7 +2574,7 @@ void ReadCSVFile(string dataFileName, vector<string>& headers, vector<vector<dou
 	//std::cout << "Read in data file: " << dataFileName << std::endl;
 }
 
-void EncodeData(shared_ptr<CryptoContext<DCRTPoly>> cc, const std::vector<string> &headers, const vector<vector<double>>& dataColumns,
+void EncodeData(CryptoContext<DCRTPoly> cc, const std::vector<string> &headers, const vector<vector<double>>& dataColumns,
 		Matrix<Plaintext> &x, Plaintext &y) {
 
 	//counter on non-regressors
@@ -2700,9 +2700,9 @@ void DecodeData(const Matrix<double> &lr, const Matrix<NativeInteger>& XTX, cons
 }
 
 template <class Element>
-shared_ptr<LPEvalKey<Element>> AddEvalKeys(shared_ptr<LPEvalKey<Element>> evalKey1, shared_ptr<LPEvalKey<Element>> evalKey2)
+LPEvalKey<Element> AddEvalKeys(LPEvalKey<Element> evalKey1, LPEvalKey<Element> evalKey2)
 {
-	shared_ptr<LPEvalKey<Element>> evalKeySum(new LPEvalKeyRelin<Element>(evalKey1->GetCryptoContext()));
+	LPEvalKey<Element> evalKeySum(new LPEvalKeyRelinImpl<Element>(evalKey1->GetCryptoContext()));
 
 	const std::vector<Element> &a = evalKey1->GetAVector();
 
@@ -2725,9 +2725,9 @@ shared_ptr<LPEvalKey<Element>> AddEvalKeys(shared_ptr<LPEvalKey<Element>> evalKe
 }
 
 template <class Element>
-shared_ptr<LPEvalKey<Element>> AddEvalMultKeys(shared_ptr<LPEvalKey<Element>> evalKey1, shared_ptr<LPEvalKey<Element>> evalKey2)
+LPEvalKey<Element> AddEvalMultKeys(LPEvalKey<Element> evalKey1, LPEvalKey<Element> evalKey2)
 {
-	shared_ptr<LPEvalKey<Element>> evalKeySum(new LPEvalKeyRelin<Element>(evalKey1->GetCryptoContext()));
+	LPEvalKey<Element> evalKeySum(new LPEvalKeyRelinImpl<Element>(evalKey1->GetCryptoContext()));
 
 	const std::vector<Element> &a1 = evalKey1->GetAVector();
 	const std::vector<Element> &a2 = evalKey2->GetAVector();
@@ -2753,7 +2753,7 @@ shared_ptr<LPEvalKey<Element>> AddEvalMultKeys(shared_ptr<LPEvalKey<Element>> ev
 }
 
 template <class Element>
-shared_ptr<LPEvalKey<Element>> MultiplyEvalKey(shared_ptr<LPEvalKey<Element>> evalKey, shared_ptr<LPPrivateKey<Element>> sk)
+LPEvalKey<Element> MultiplyEvalKey(LPEvalKey<Element> evalKey, LPPrivateKey<Element> sk)
 {
 	const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersBV<Element>>(evalKey->GetCryptoContext()->GetCryptoParameters());
 	const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
@@ -2761,7 +2761,7 @@ shared_ptr<LPEvalKey<Element>> MultiplyEvalKey(shared_ptr<LPEvalKey<Element>> ev
 
 	const BigInteger &p = cryptoParams->GetPlaintextModulus();
 
-	shared_ptr<LPEvalKey<Element>> evalKeyResult(new LPEvalKeyRelin<Element>(evalKey->GetCryptoContext()));
+	LPEvalKey<Element> evalKeyResult(new LPEvalKeyRelinImpl<Element>(evalKey->GetCryptoContext()));
 
 	const std::vector<Element> &a0 = evalKey->GetAVector();
 	const std::vector<Element> &b0 = evalKey->GetBVector();
@@ -2792,8 +2792,8 @@ shared_ptr<LPEvalKey<Element>> MultiplyEvalKey(shared_ptr<LPEvalKey<Element>> ev
 }
 
 template <class Element>
-shared_ptr<LPEvalKey<Element>> MultiKeySwitchGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey, const shared_ptr<LPPrivateKey<Element>> newPrivateKey, 
-		const shared_ptr<LPEvalKey<DCRTPoly>> ek) {
+LPEvalKey<Element> MultiKeySwitchGen(const LPPrivateKey<Element> originalPrivateKey, const LPPrivateKey<Element> newPrivateKey, 
+		const LPEvalKey<DCRTPoly> ek) {
 
 	const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(originalPrivateKey->GetCryptoParameters());
 
@@ -2801,7 +2801,7 @@ shared_ptr<LPEvalKey<Element>> MultiKeySwitchGen(const shared_ptr<LPPrivateKey<E
 
 	const BigInteger &p = cryptoParams->GetPlaintextModulus();
 
-	shared_ptr<LPEvalKey<Element>> keySwitchHintRelin(new LPEvalKeyRelin<Element>(originalPrivateKey->GetCryptoContext()));
+	LPEvalKey<Element> keySwitchHintRelin(new LPEvalKeyRelinImpl<Element>(originalPrivateKey->GetCryptoContext()));
 
 	//Getting a reference to the polynomials of new private key.
 	const Element &sNew = newPrivateKey->GetPrivateElement();
@@ -2843,8 +2843,8 @@ shared_ptr<LPEvalKey<Element>> MultiKeySwitchGen(const shared_ptr<LPPrivateKey<E
 }
 
 template <class Element>
-shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> MultiEvalAutomorphismKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey,
-	const shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> eAuto,
+shared_ptr<std::map<usint, LPEvalKey<Element>>> MultiEvalAutomorphismKeyGen(const LPPrivateKey<Element> privateKey,
+	const shared_ptr<std::map<usint, LPEvalKey<Element>>> eAuto,
 	const std::vector<usint> &indexList)
 {
 
@@ -2852,9 +2852,9 @@ shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> MultiEvalAutomorphis
 
 	usint n = privateKeyElement.GetRingDimension();
 
-	shared_ptr<LPPrivateKey<Element>> tempPrivateKey(new LPPrivateKey<Element>(privateKey->GetCryptoContext()));
+	LPPrivateKey<Element> tempPrivateKey(new LPPrivateKeyImpl<Element>(privateKey->GetCryptoContext()));
 
-	shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> evalKeys(new std::map<usint, shared_ptr<LPEvalKey<Element>>>());
+	shared_ptr<std::map<usint, LPEvalKey<Element>>> evalKeys(new std::map<usint, LPEvalKey<Element>>());
 
 	if (indexList.size() > n - 1)
 		throw std::runtime_error("size exceeds the ring dimension");
@@ -2877,8 +2877,8 @@ shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> MultiEvalAutomorphis
 }
 
 template <class Element>
-shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> MultiEvalSumKeyGen(const shared_ptr<LPPrivateKey<Element>> privateKey,
-	const shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> eSum)
+shared_ptr<std::map<usint, LPEvalKey<Element>>> MultiEvalSumKeyGen(const LPPrivateKey<Element> privateKey,
+	const shared_ptr<std::map<usint, LPEvalKey<Element>>> eSum)
 {
 
 	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
@@ -2906,13 +2906,13 @@ shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> MultiEvalSumKeyGen(c
 }
 
 template <class Element>
-shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> AddEvalSumKeys(const shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> es1,
-	const shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> es2)
+shared_ptr<std::map<usint, LPEvalKey<Element>>> AddEvalSumKeys(const shared_ptr<std::map<usint, LPEvalKey<Element>>> es1,
+	const shared_ptr<std::map<usint, LPEvalKey<Element>>> es2)
 {
 
-	shared_ptr<std::map<usint, shared_ptr<LPEvalKey<DCRTPoly>>>> evalSumKeys(new std::map<usint, shared_ptr<LPEvalKey<DCRTPoly>>>());
+	shared_ptr<std::map<usint, LPEvalKey<DCRTPoly>>> evalSumKeys(new std::map<usint, LPEvalKey<DCRTPoly>>());
 
-	for (std::map<usint, shared_ptr<LPEvalKey<DCRTPoly>>>::iterator it = es1->begin(); it != es1->end(); ++it)
+	for (std::map<usint, LPEvalKey<DCRTPoly>>::iterator it = es1->begin(); it != es1->end(); ++it)
 	{
 		(*evalSumKeys)[it->first] = AddEvalKeys(it->second, es2->find(it->first)->second);
 	}
@@ -2921,9 +2921,9 @@ shared_ptr<std::map<usint, shared_ptr<LPEvalKey<Element>>>> AddEvalSumKeys(const
 }
 
 template <class Element>
-shared_ptr<LPPrivateKey<Element>> AddSecretKeys(shared_ptr<LPPrivateKey<Element>> a, shared_ptr<LPPrivateKey<Element>> b) {
+LPPrivateKey<Element> AddSecretKeys(LPPrivateKey<Element> a, LPPrivateKey<Element> b) {
 
-	shared_ptr<LPPrivateKey<Element>> sum(new LPPrivateKey<Element>(a->GetCryptoContext()));
+	LPPrivateKey<Element> sum(new LPPrivateKeyImpl<Element>(a->GetCryptoContext()));
 
 	sum->SetPrivateElement(a->GetPrivateElement() + b->GetPrivateElement());
 
@@ -2931,12 +2931,12 @@ shared_ptr<LPPrivateKey<Element>> AddSecretKeys(shared_ptr<LPPrivateKey<Element>
 
 }
 
-void ConvertMatrixInto2DVector(const Matrix<RationalCiphertext<DCRTPoly>> &matrix, vector<vector<shared_ptr<Ciphertext<DCRTPoly>>>> &vec)
+void ConvertMatrixInto2DVector(const Matrix<RationalCiphertext<DCRTPoly>> &matrix, vector<vector<Ciphertext<DCRTPoly>>> &vec)
 {
 	vec.clear();
 
 	for (size_t i = 0; i < matrix.GetRows(); i++) {
-        std::vector<shared_ptr<Ciphertext<DCRTPoly>>> temp;
+        std::vector<Ciphertext<DCRTPoly>> temp;
 		for (size_t j = 0; j < matrix.GetCols(); j++)
 		{
 			temp.push_back(matrix(i, j).GetNumerator());
@@ -2945,7 +2945,7 @@ void ConvertMatrixInto2DVector(const Matrix<RationalCiphertext<DCRTPoly>> &matri
 	}
 }
 
-void Convert2DVectorIntoMatrix(const vector<vector<shared_ptr<Ciphertext<DCRTPoly>>>> &vector, Matrix<RationalCiphertext<DCRTPoly>> &matrix) {
+void Convert2DVectorIntoMatrix(const vector<vector<Ciphertext<DCRTPoly>>> &vector, Matrix<RationalCiphertext<DCRTPoly>> &matrix) {
 
 	matrix.SetSize(vector.size(), vector[0].size());
 

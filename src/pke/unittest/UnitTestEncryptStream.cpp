@@ -63,7 +63,7 @@ TEST_F(UTEncryptStream, Stream_Encryptor_Test)
 	for( size_t i = 0; i < 5000; i++ )
 		bigSource << base;
 
-	shared_ptr<CryptoContext<Poly>> cc = GenCryptoContextElementFV(1024, 256);
+	CryptoContext<Poly> cc = GenCryptoContextElementFV(1024, 256);
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
 	cc->EncryptStream(kp.publicKey, bigSource, mid);

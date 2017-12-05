@@ -28,6 +28,6 @@
 
 namespace lbcrypto {
 template class CryptoContextFactory<Poly>;
-template class CryptoContext<Poly>;
+template class CryptoContextImpl<Poly>;
 template class CryptoObject<Poly>;
 }
