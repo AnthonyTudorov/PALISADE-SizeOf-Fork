@@ -751,6 +751,48 @@ shared_ptr<Ciphertext<DCRTPoly>> LPAlgorithmSHEBFVrns<DCRTPoly>::KeySwitch(const
 	return newCiphertext;
 }
 
+template <>
+shared_ptr<Ciphertext<DCRTPoly>> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalMultAndRelinearize(const shared_ptr<Ciphertext<DCRTPoly>> ciphertext1,
+	const shared_ptr<Ciphertext<DCRTPoly>> ciphertext2, const shared_ptr<vector<shared_ptr<LPEvalKey<DCRTPoly>>>> ek) const{
+
+	shared_ptr<Ciphertext<DCRTPoly>> cipherText = this->EvalMult(ciphertext1, ciphertext2);
+
+	const shared_ptr<LPCryptoParametersBFVrns<DCRTPoly>> cryptoParamsLWE =
+			std::dynamic_pointer_cast<LPCryptoParametersBFVrns<DCRTPoly>>(ek->at(0)->GetCryptoParameters());
+
+	shared_ptr<Ciphertext<DCRTPoly>> newCiphertext = cipherText->CloneEmpty();
+
+	std::vector<DCRTPoly> c = cipherText->GetElements();
+
+	if(c[0].GetFormat() == Format::COEFFICIENT)
+		for(size_t i=0; i<c.size(); i++)
+			c[i].SwitchFormat();
+
+	DCRTPoly ct0(c[0]);
+	DCRTPoly ct1(c[1]);
+	// Perform a keyswitching operation to result of the multiplication. It does it until it reaches to 2 elements.
+	//TODO: Maybe we can change the number of keyswitching and terminate early. For instance; perform keyswitching until 4 elements left.
+	for(size_t j = 0; j<=cipherText->GetDepth()-2; j++){
+		size_t index = cipherText->GetDepth()-2-j;
+		shared_ptr<LPEvalKeyRelin<DCRTPoly>> evalKey = std::static_pointer_cast<LPEvalKeyRelin<DCRTPoly>>(ek->at(index));
+
+		const std::vector<DCRTPoly> &b = evalKey->GetAVector();
+		const std::vector<DCRTPoly> &a = evalKey->GetBVector();
+
+		std::vector<DCRTPoly> digitsC2 = c[index+2].CRTDecompose(cryptoParamsLWE->GetCRTInverseTable());
+
+		for (usint i = 0; i < digitsC2.size(); ++i){
+			ct0 += digitsC2[i] * b[i];
+			ct1 += digitsC2[i] * a[i];
+		}
+	}
+
+	newCiphertext->SetElements({ ct0, ct1 });
+
+	return newCiphertext;
+
+}
+
 template class LPCryptoParametersBFVrns<DCRTPoly>;
 template class LPPublicKeyEncryptionSchemeBFVrns<DCRTPoly>;
 template class LPAlgorithmBFVrns<DCRTPoly>;

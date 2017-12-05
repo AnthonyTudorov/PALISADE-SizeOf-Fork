@@ -426,6 +426,19 @@ namespace lbcrypto {
 		shared_ptr<Ciphertext<Element>> KeySwitch(const shared_ptr<LPEvalKey<Element>> keySwitchHint,
 			const shared_ptr<Ciphertext<Element>> cipherText) const;
 
+		/**
+		* Function for evaluating multiplication on ciphertext followed by relinearization operation.
+		* Currently it assumes that the input arguments have total depth smaller than the supported depth. Otherwise, it throws an error.
+		*
+		* @param ct1 first input ciphertext.
+		* @param ct2 second input ciphertext.
+		* @param ek is the evaluation key to make the newCiphertext
+		*  decryptable by the same secret key as that of ciphertext1 and ciphertext2.
+		* @return new ciphertext
+		*/
+		shared_ptr<Ciphertext<Element>> EvalMultAndRelinearize(const shared_ptr<Ciphertext<Element>> ct1,
+			const shared_ptr<Ciphertext<Element>> ct, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> ek) const;
+
 
 	};
 

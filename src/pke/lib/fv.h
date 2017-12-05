@@ -462,7 +462,7 @@ namespace lbcrypto {
 		* @param ct2 second input ciphertext.
 		* @param ek is the evaluation key to make the newCiphertext 
 		*  decryptable by the same secret key as that of ciphertext1 and ciphertext2.
-		* @param *newCiphertext the new resulting ciphertext.
+		* @return new ciphertext
 		*/
 		Ciphertext<Element> EvalMult(const Ciphertext<Element> ct1,
 			const Ciphertext<Element> ct, const LPEvalKey<Element> ek) const;
@@ -476,7 +476,7 @@ namespace lbcrypto {
 		* @param ct2 second input ciphertext.
 		* @param ek is the evaluation key to make the newCiphertext
 		*  decryptable by the same secret key as that of ciphertext1 and ciphertext2.
-		* @param *newCiphertext the new resulting ciphertext.
+		* @return new ciphertext
 		*/
 		Ciphertext<Element> EvalMult(const Ciphertext<Element> ct1,
 			const Plaintext ct, const LPEvalKey<Element> ek) const;
@@ -489,7 +489,7 @@ namespace lbcrypto {
 		* @param cipherTextList  is the ciphertext list.
 		* @param evalKeys is the evaluation key to make the newCiphertext
 		*  decryptable by the same secret key as that of ciphertext list.
-		* @param *newCiphertext the new resulting ciphertext.
+		* @return new ciphertext.
 		*/
 		Ciphertext<Element> EvalMultMany(const vector<Ciphertext<Element>>& cipherTextList, const shared_ptr<vector<LPEvalKey<Element>>> evalKeys) const;
 
@@ -501,7 +501,7 @@ namespace lbcrypto {
 		* @param ct2 second input ciphertext.
 		* @param ek is the evaluation key to make the newCiphertext
 		*  decryptable by the same secret key as that of ciphertext1 and ciphertext2.
-		* @param *newCiphertext the new resulting ciphertext.
+		* @return new ciphertext
 		*/
 		virtual Ciphertext<Element> EvalMultAndRelinearize(const Ciphertext<Element> ct1,
 			const Ciphertext<Element> ct, const shared_ptr<vector<LPEvalKey<Element>>> ek) const;

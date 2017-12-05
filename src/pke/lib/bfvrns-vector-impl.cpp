@@ -128,6 +128,13 @@ shared_ptr<Ciphertext<Poly>> LPAlgorithmSHEBFVrns<Poly>::KeySwitch(const shared_
 	throw std::runtime_error(errMsg);
 }
 
+template <>
+shared_ptr<Ciphertext<Poly>> LPAlgorithmSHEBFVrns<Poly>::EvalMultAndRelinearize(const shared_ptr<Ciphertext<Poly>> ct1,
+	const shared_ptr<Ciphertext<Poly>> ct, const shared_ptr<vector<shared_ptr<LPEvalKey<Poly>>>> ek) const{
+	std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead.";
+	throw std::runtime_error(errMsg);
+}
+
 template class LPCryptoParametersBFVrns<Poly>;
 template class LPPublicKeyEncryptionSchemeBFVrns<Poly>;
 template class LPAlgorithmBFVrns<Poly>;
