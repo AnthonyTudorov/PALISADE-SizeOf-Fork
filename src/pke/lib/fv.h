@@ -335,15 +335,14 @@ namespace lbcrypto {
 			Element plaintext) const;
 
 		/**
-		* Method for encrypting plaintext using FV.
+		* Method for encrypting plaintext with private key using FV.
 		*
 		* @param privateKey private key used for encryption.
 		* @param plaintext the plaintext input.
 		* @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 		* @return ciphertext which results from encryption.
 		*/
-		Ciphertext<Element> Encrypt(const LPPrivateKey<Element> privateKey,
-			Element plaintext) const;
+		virtual Ciphertext<Element> Encrypt(const LPPrivateKey<Element> privateKey,
 
 		/**
 		* Method for decrypting using FV. See the class description for citations on where the algorithms were

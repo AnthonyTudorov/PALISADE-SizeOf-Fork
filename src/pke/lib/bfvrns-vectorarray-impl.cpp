@@ -498,6 +498,37 @@ DecryptResult LPAlgorithmBFVrns<DCRTPoly>::Decrypt(const LPPrivateKey<DCRTPoly> 
 
 }
 
+
+shared_ptr<Ciphertext<DCRTPoly>> LPAlgorithmBFVrns<DCRTPoly>::Encrypt(const shared_ptr<LPPrivateKey<DCRTPoly>> privateKey,
+		DCRTPoly ptxt) const
+{
+	shared_ptr<Ciphertext<DCRTPoly>> ciphertext( new Ciphertext<DCRTPoly>(privateKey) );
+
+	const shared_ptr<LPCryptoParametersBFVrns<DCRTPoly>> cryptoParams =
+			std::dynamic_pointer_cast<LPCryptoParametersBFVrns<DCRTPoly>>(privateKey->GetCryptoParameters());
+
+	const shared_ptr<typename DCRTPoly::Params> elementParams = cryptoParams->GetElementParams();
+
+	ptxt.SwitchFormat();
+
+	const typename DCRTPoly::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
+	typename DCRTPoly::DugType dug;
+
+	const std::vector<NativeInteger> &deltaTable = cryptoParams->GetCRTDeltaTable();
+
+	DCRTPoly a(dug, elementParams, Format::EVALUATION);
+	const DCRTPoly &s = privateKey->GetPrivateElement();
+	DCRTPoly e(dgg, elementParams, Format::EVALUATION);
+
+	DCRTPoly c0(a*s + e + ptxt.Times(deltaTable));
+	DCRTPoly c1(elementParams, Format::EVALUATION, true);
+	c1 -= a;
+
+	ciphertext->SetElements({ c0, c1 });
+
+	return ciphertext;
+}
+
 shared_ptr<Ciphertext<DCRTPoly>> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalAdd(const shared_ptr<Ciphertext<DCRTPoly>> ciphertext,
 	const Plaintext plaintext) const{
 

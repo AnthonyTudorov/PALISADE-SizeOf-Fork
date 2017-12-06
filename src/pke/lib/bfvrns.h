@@ -365,6 +365,17 @@ namespace lbcrypto {
 			Element plaintext) const;
 
 		/**
+		* Method for encrypting plaintext with private key using BFVrns.
+		*
+		* @param privateKey private key used for encryption.
+		* @param plaintext the plaintext input.
+		* @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
+		* @return ciphertext which results from encryption.
+		*/
+		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
+			Element plaintext) const;
+
+		/**
 		* Method for decrypting using BFVrns. See the class description for citations on where the algorithms were
 	 	* taken from.
 		*
