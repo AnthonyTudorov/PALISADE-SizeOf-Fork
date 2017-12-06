@@ -62,7 +62,7 @@ void MultiplyThree();
 
 int main() {
 
-	//PKE();
+	PKE();
 	SHETestCoeff();
 	SHETestPacked();
 	SHETestPackedInnerProduct();
@@ -89,14 +89,13 @@ void PKE() {
 	//Generate parameters.
 	double diff, start, finish;
 
-	int relWindow = 1;
 	usint plaintextModulus = 1<<31;
 	double sigma = 3.2;
 	double rootHermiteFactor = 1.006;
 
 	//Set Crypto Parameters
 	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
-			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 6, 0, OPTIMIZED,7);
+			plaintextModulus, rootHermiteFactor, sigma, 0, 6, 0, OPTIMIZED,7);
 
 	// enable features that you wish to use
 	cryptoContext->Enable(ENCRYPTION);
@@ -187,14 +186,13 @@ void SHETestCoeff() {
 	//Generate parameters.
 	double diff, start, finish;
 
-	int relWindow = 1;
 	usint plaintextModulus = 1<<31;
 	double sigma = 3.2;
 	double rootHermiteFactor = 1.006;
 
 	//Set Crypto Parameters
 	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
-			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 6, 0, OPTIMIZED,7);
+			plaintextModulus, rootHermiteFactor, sigma, 0, 6, 0, OPTIMIZED,7);
 
 	// enable features that you wish to use
 	cryptoContext->Enable(ENCRYPTION);
@@ -315,14 +313,13 @@ void SHETestPacked() {
 	//Generate parameters.
 	double diff, start, finish;
 
-	int relWindow = 1;
 	usint plaintextModulus = 536903681;
 	double sigma = 3.2;
 	double rootHermiteFactor = 1.006;
 
 	//Set Crypto Parameters
 	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
-			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 6, 0, OPTIMIZED,7);
+			plaintextModulus, rootHermiteFactor, sigma, 0, 6, 0, OPTIMIZED,7);
 
 	// enable features that you wish to use
 	cryptoContext->Enable(ENCRYPTION);
@@ -517,7 +514,6 @@ void SHETestPackedInnerProduct() {
 	//Generate parameters.
 	double diff, start, finish;
 
-	int relWindow = 1;
 	usint plaintextModulus = 268460033;
 	double sigma = 3.2;
 	double rootHermiteFactor = 1.006;
@@ -529,7 +525,7 @@ void SHETestPackedInnerProduct() {
 
 	//Set Crypto Parameters
 	shared_ptr<CryptoContext<DCRTPoly>> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
-			encodingParams, rootHermiteFactor, relWindow, sigma, 0, 2, 0, OPTIMIZED,3);
+			encodingParams, rootHermiteFactor, sigma, 0, 2, 0, OPTIMIZED,3);
 
 	// enable features that you wish to use
 	cryptoContext->Enable(ENCRYPTION);
@@ -636,14 +632,13 @@ void SwitchCRT() {
 	//Generate parameters.
 	//double diff, start, finish;
 
-	int relWindow = 1;
 	usint plaintextModulus = 1<<31;
 	double sigma = 3.2;
 	double rootHermiteFactor = 1.006;
 
 	//Set Crypto Parameters
 	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
-			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 7, 0, OPTIMIZED,8);
+			plaintextModulus, rootHermiteFactor, sigma, 0, 7, 0, OPTIMIZED,8);
 
 	// enable features that you wish to use
 	//cryptoContext->Enable(ENCRYPTION);
@@ -700,14 +695,13 @@ void Multiply() {
 	//Generate parameters.
 	//double diff, start, finish;
 
-	int relWindow = 1;
 	usint plaintextModulus = 1<<31;
 	double sigma = 3.2;
 	double rootHermiteFactor = 1.006;
 
 	//Set Crypto Parameters
 	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
-			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 5, 0, OPTIMIZED,6);
+			plaintextModulus, rootHermiteFactor, sigma, 0, 5, 0, OPTIMIZED,6);
 
 	// enable features that you wish to use
 	//cryptoContext->Enable(ENCRYPTION);
@@ -836,14 +830,13 @@ void MultiplyTwo() {
 	//Generate parameters.
 	//double diff, start, finish;
 
-	int relWindow = 1;
 	usint plaintextModulus = 1<<15;
 	double sigma = 3.2;
 	double rootHermiteFactor = 1.006;
 
 	//Set Crypto Parameters
 	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
-			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 2, 0, OPTIMIZED,3);
+			plaintextModulus, rootHermiteFactor, sigma, 0, 2, 0, OPTIMIZED,3);
 
 	// enable features that you wish to use
 	//cryptoContext->Enable(ENCRYPTION);
@@ -1030,14 +1023,13 @@ void MultiplyThree() {
 	//Generate parameters.
 	//double diff, start, finish;
 
-	int relWindow = 1;
 	usint plaintextModulus = 1<<15;
 	double sigma = 3.2;
 	double rootHermiteFactor = 1.006;
 
 	//Set Crypto Parameters
 	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
-			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 2, 0, OPTIMIZED,3);
+			plaintextModulus, rootHermiteFactor, sigma, 0, 2, 0, OPTIMIZED,3);
 
 	// enable features that you wish to use
 	//cryptoContext->Enable(ENCRYPTION);

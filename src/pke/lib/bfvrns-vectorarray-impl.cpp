@@ -255,7 +255,9 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 	double alpha = cryptoParamsBFVrns->GetAssuranceMeasure();
 	double hermiteFactor = cryptoParamsBFVrns->GetSecurityLevel();
 	double p = cryptoParamsBFVrns->GetPlaintextModulus().ConvertToDouble();
-	uint32_t r = cryptoParamsBFVrns->GetRelinWindow();
+
+	//bits per prime modulus
+	size_t dcrtBits = 45;
 
 	//Bound of the Gaussian error polynomial
 	double Berr = sigma*sqrt(alpha);
@@ -302,10 +304,10 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 	else if ((evalMultCount == 0) && (keySwitchCount > 0) && (evalAddCount == 0)) {
 
 		//base for relinearization
-		double w = pow(2, r);
+		double w = pow(2, dcrtBits);
 
 		//Correctness constraint
-		auto qFV = [&](uint32_t n, double qPrev) -> double { return p*(2*(Vnorm(n) + keySwitchCount*delta(n)*(floor(log2(qPrev) / r) + 1)*w*Berr) + p);  };
+		auto qFV = [&](uint32_t n, double qPrev) -> double { return p*(2*(Vnorm(n) + keySwitchCount*delta(n)*(floor(log2(qPrev) / dcrtBits) + 1)*w*Berr) + p);  };
 
 		//initial values
 		double qPrev = 1e6;
@@ -338,7 +340,7 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 	{
 
 		//base for relinearization
-		double w = pow(2, r);
+		double w = pow(2, dcrtBits);
 
 		//function used in the EvalMult constraint
 		auto epsilon1 = [&](uint32_t n) -> double { return 4 / (delta(n)*Bkey);  };
@@ -347,7 +349,7 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 		auto C1 = [&](uint32_t n) -> double { return (1 + epsilon1(n))*delta(n)*delta(n)*p*Bkey;  };
 
 		//function used in the EvalMult constraint
-		auto C2 = [&](uint32_t n, double qPrev) -> double { return delta(n)*delta(n)*Bkey*(Bkey + p*p) + delta(n)*(floor(log2(qPrev) / r) + 1)*w*Berr;  };
+		auto C2 = [&](uint32_t n, double qPrev) -> double { return delta(n)*delta(n)*Bkey*(Bkey + p*p) + delta(n)*(floor(log2(qPrev) / dcrtBits) + 1)*w*Berr;  };
 
 		//main correctness constraint
 		auto qFV = [&](uint32_t n, double qPrev) -> double { return p*(2 * (pow(C1(n), evalMultCount)*Vnorm(n) + evalMultCount*pow(C1(n), evalMultCount - 1)*C2(n, qPrev)) + p);  };
@@ -378,7 +380,6 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 
 	}
 
-	size_t dcrtBits = 45;
 	size_t size = ceil((floor(log2(q - 1.0)) + 2.0) / (double)dcrtBits);
 
 	vector<NativeInteger> moduli(size);
