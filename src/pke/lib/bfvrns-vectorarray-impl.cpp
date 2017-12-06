@@ -111,7 +111,7 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 
 	const BigInteger deltaBig = modulusQ.DividedBy(GetPlaintextModulus());
 
-	std::cout << "deltaBig = " << deltaBig << std::endl;
+	//std::cout << "deltaBig = " << deltaBig << std::endl;
 
 	std::vector<NativeInteger> CRTDeltaTable(size);
 
@@ -594,11 +594,6 @@ template <>
 Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalMult(const Ciphertext<DCRTPoly> ciphertext1,
 	const Ciphertext<DCRTPoly> ciphertext2) const {
 
-	#define PROFILE  //define this to enable PROFILELOG and TIC/TOC
-
-	double processingTime(0.0);
-	TimeVar t;
-
 	if (!(ciphertext1->GetCryptoParameters() == ciphertext2->GetCryptoParameters())) {
 		std::string errMsg = "LPAlgorithmSHEBFVrns::EvalMult crypto parameters are not the same";
 		throw std::runtime_error(errMsg);
@@ -630,7 +625,6 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalMult(const Ciphertext<D
 
 	// Expands the CRT basis to Q*S; Outputs the polynomials in EVALUATION representation
 
-	TIC(t);
 
 	for(size_t i=0; i<cipherText1ElementsSize; i++)
 		cipherText1Elements[i].ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
@@ -640,13 +634,7 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalMult(const Ciphertext<D
 		cipherText2Elements[i].ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
 				cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable());
 
-
-	processingTime = TOC(t);
-	std::cout << "Expand the basis: " << processingTime << "ms" << std::endl;
-
 	// Performs the multiplication itself
-
-	TIC(t);
 
 	bool *isFirstAdd = new bool[cipherTextRElementsSize];
 	std::fill_n(isFirstAdd, cipherTextRElementsSize, true);
@@ -666,11 +654,6 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalMult(const Ciphertext<D
 
 	delete []isFirstAdd;
 
-	processingTime = TOC(t);
-	std::cout << "Multiplication: " << processingTime << "ms" << std::endl;
-
-	TIC(t);
-
 	for(size_t i=0; i<cipherTextRElementsSize; i++){
 		//converts to coefficient representation before rounding
 		c[i].SwitchFormat();
@@ -680,9 +663,6 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalMult(const Ciphertext<D
 		c[i] = c[i].SwitchCRTBasis(elementParams, cryptoParamsBFVrns->GetCRTSInverseTable(),
 					cryptoParamsBFVrns->GetCRTsDivsiModqiTable(), cryptoParamsBFVrns->GetCRTsModqiTable());
 	}
-
-	processingTime = TOC(t);
-	std::cout << "Scale and round operation: " << processingTime << "ms" << std::endl;
 
 	newCiphertext->SetElements(c);
 	newCiphertext->SetDepth((ciphertext1->GetDepth() + ciphertext2->GetDepth()));
@@ -744,13 +724,6 @@ shared_ptr<Ciphertext<DCRTPoly>> LPAlgorithmSHEBFVrns<DCRTPoly>::KeySwitch(const
 	const shared_ptr<Ciphertext<DCRTPoly>> cipherText) const
 {
 
-	#define PROFILE  //define this to enable PROFILELOG and TIC/TOC
-
-	double processingTime(0.0);
-	TimeVar t;
-
-	TIC(t);
-
 	shared_ptr<Ciphertext<DCRTPoly>> newCiphertext = cipherText->CloneEmpty();
 
 	const shared_ptr<LPCryptoParametersBFVrns<DCRTPoly>> cryptoParamsLWE = std::dynamic_pointer_cast<LPCryptoParametersBFVrns<DCRTPoly>>(ek->GetCryptoParameters());
@@ -796,9 +769,6 @@ shared_ptr<Ciphertext<DCRTPoly>> LPAlgorithmSHEBFVrns<DCRTPoly>::KeySwitch(const
 	}
 
 	newCiphertext->SetElements({ ct0, ct1 });
-
-	processingTime = TOC(t);
-	std::cout << "Key switching runtime: " << processingTime << "ms" << std::endl;
 
 	return newCiphertext;
 }

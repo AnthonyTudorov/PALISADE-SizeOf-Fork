@@ -1065,13 +1065,6 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 		const shared_ptr<ParmType> params, const std::vector<typename PolyType::Integer> &qInvModqi,
 		const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsi, const std::vector<typename PolyType::Integer> &qModsi) const{
 
-	#define PROFILE  //define this to enable PROFILELOG and TIC/TOC
-
-	double processingTime(0.0);
-	TimeVar t;
-
-	TIC(t);
-
 	DCRTPolyType ans(params,m_format,true);
 
 	usint ringDimension = GetRingDimension();
@@ -1113,9 +1106,6 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 		}
 
 	}
-
-	processingTime = TOC(t);
-	std::cout << "Switch CRT Basis: " << processingTime << "ms" << std::endl;
 
 	return std::move(ans);
 
@@ -1178,13 +1168,6 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 		const std::vector<std::vector<typename PolyType::Integer>> &alpha,
 		const std::vector<double> &beta) const {
 
-		#define PROFILE  //define this to enable PROFILELOG and TIC/TOC
-
-		double processingTime(0.0);
-		TimeVar t;
-
-		TIC(t);
-
 		DCRTPolyType ans(params,m_format,true);
 
 		usint ringDimension = GetRingDimension();
@@ -1219,9 +1202,6 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 			}
 
 		}
-
-		processingTime = TOC(t);
-		std::cout << "Scale and round operation: " << processingTime << "ms" << std::endl;
 
 		return std::move(ans);
 
