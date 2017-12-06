@@ -108,8 +108,22 @@ DecryptResult LPAlgorithmBFVrns<Poly>::Decrypt(const LPPrivateKey<Poly> privateK
 }
 
 template <>
+
 Ciphertext<Poly> LPAlgorithmSHEBFVrns<Poly>::EvalMult(const Ciphertext<Poly> ciphertext1,
 	const Ciphertext<Poly> ciphertext2) const {
+	std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead.";
+	throw std::runtime_error(errMsg);
+}
+
+shared_ptr<Ciphertext<Poly>> LPAlgorithmSHEBFVrns<Poly>::EvalAdd(const shared_ptr<Ciphertext<Poly>> ct,
+	const Plaintext pt) const{
+	std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead.";
+	throw std::runtime_error(errMsg);
+}
+
+template <>
+shared_ptr<Ciphertext<Poly>> LPAlgorithmSHEBFVrns<Poly>::EvalSub(const shared_ptr<Ciphertext<Poly>> ct,
+	const Plaintext pt) const{
 	std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead.";
 	throw std::runtime_error(errMsg);
 }

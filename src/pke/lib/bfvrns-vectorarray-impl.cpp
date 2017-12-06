@@ -498,6 +498,66 @@ DecryptResult LPAlgorithmBFVrns<DCRTPoly>::Decrypt(const LPPrivateKey<DCRTPoly> 
 
 }
 
+shared_ptr<Ciphertext<DCRTPoly>> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalAdd(const shared_ptr<Ciphertext<DCRTPoly>> ciphertext,
+	const Plaintext plaintext) const{
+
+	shared_ptr<Ciphertext<DCRTPoly>> newCiphertext = ciphertext->CloneEmpty();
+	newCiphertext->SetDepth(ciphertext->GetDepth());
+
+	const std::vector<DCRTPoly> &cipherTextElements = ciphertext->GetElements();
+
+	plaintext->GetEncodedElement<DCRTPoly>().SetFormat(EVALUATION);
+	const DCRTPoly& ptElement = plaintext->GetEncodedElement<DCRTPoly>();
+
+	std::vector<DCRTPoly> c(cipherTextElements.size());
+
+	const shared_ptr<LPCryptoParametersBFVrns<DCRTPoly>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersBFVrns<DCRTPoly>>(ciphertext->GetCryptoParameters());
+
+    const std::vector<NativeInteger> &deltaTable = cryptoParams->GetCRTDeltaTable();
+
+	c[0] = cipherTextElements[0] + ptElement.Times(deltaTable);
+
+	for(size_t i=1; i<cipherTextElements.size(); i++) {
+			c[i] = cipherTextElements[i];
+	}
+
+	newCiphertext->SetElements(c);
+
+	return newCiphertext;
+
+}
+
+template <>
+shared_ptr<Ciphertext<DCRTPoly>> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalSub(const shared_ptr<Ciphertext<DCRTPoly>> ciphertext,
+	const Plaintext plaintext) const{
+
+	shared_ptr<Ciphertext<DCRTPoly>> newCiphertext = ciphertext->CloneEmpty();
+	newCiphertext->SetDepth(ciphertext->GetDepth());
+
+	const std::vector<DCRTPoly> &cipherTextElements = ciphertext->GetElements();
+
+	plaintext->GetEncodedElement<DCRTPoly>().SetFormat(EVALUATION);
+	const DCRTPoly& ptElement = plaintext->GetEncodedElement<DCRTPoly>();
+
+	std::vector<DCRTPoly> c(cipherTextElements.size());
+
+	const shared_ptr<LPCryptoParametersBFVrns<DCRTPoly>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersBFVrns<DCRTPoly>>(ciphertext->GetCryptoParameters());
+
+    const std::vector<NativeInteger> &deltaTable = cryptoParams->GetCRTDeltaTable();
+
+	c[0] = cipherTextElements[0] - ptElement.Times(deltaTable);
+
+	for(size_t i=1; i<cipherTextElements.size(); i++) {
+			c[i] = cipherTextElements[i];
+	}
+
+	newCiphertext->SetElements(c);
+
+	return newCiphertext;
+
+}
+
+
 template <>
 Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalMult(const Ciphertext<DCRTPoly> ciphertext1,
 	const Ciphertext<DCRTPoly> ciphertext2) const {

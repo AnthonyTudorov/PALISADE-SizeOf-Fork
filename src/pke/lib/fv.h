@@ -409,8 +409,7 @@ namespace lbcrypto {
 		* @param pt  input ciphertext.
 		* @return new ciphertext.
 		*/
-		Ciphertext<Element> EvalAdd(const Ciphertext<Element> ct,
-			const Plaintext pt) const;
+		virtual Ciphertext<Element> EvalAdd(const Ciphertext<Element> ct,
 
 		/**
 		* Function for homomorphic subtraction of ciphertexts.
@@ -429,8 +428,7 @@ namespace lbcrypto {
 		* @param pt input ciphertext.
 		* @return new ciphertext.
 		*/
-		Ciphertext<Element> EvalSub(const Ciphertext<Element> ct1,
-			const Plaintext pt) const;
+		virtual Ciphertext<Element> EvalSub(const Ciphertext<Element> ct1,
 
 		/**
 		* Function for homomorphic evaluation of ciphertexts.
