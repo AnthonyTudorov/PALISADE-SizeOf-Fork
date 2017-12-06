@@ -499,11 +499,11 @@ DecryptResult LPAlgorithmBFVrns<DCRTPoly>::Decrypt(const LPPrivateKey<DCRTPoly> 
 
 }
 
-
-shared_ptr<Ciphertext<DCRTPoly>> LPAlgorithmBFVrns<DCRTPoly>::Encrypt(const shared_ptr<LPPrivateKey<DCRTPoly>> privateKey,
+template <>
+Ciphertext<DCRTPoly> LPAlgorithmBFVrns<DCRTPoly>::Encrypt(const LPPrivateKey<DCRTPoly> privateKey,
 		DCRTPoly ptxt) const
 {
-	shared_ptr<Ciphertext<DCRTPoly>> ciphertext( new Ciphertext<DCRTPoly>(privateKey) );
+	Ciphertext<DCRTPoly> ciphertext( new CiphertextImpl<DCRTPoly>(privateKey) );
 
 	const shared_ptr<LPCryptoParametersBFVrns<DCRTPoly>> cryptoParams =
 			std::dynamic_pointer_cast<LPCryptoParametersBFVrns<DCRTPoly>>(privateKey->GetCryptoParameters());
@@ -530,10 +530,11 @@ shared_ptr<Ciphertext<DCRTPoly>> LPAlgorithmBFVrns<DCRTPoly>::Encrypt(const shar
 	return ciphertext;
 }
 
-shared_ptr<Ciphertext<DCRTPoly>> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalAdd(const shared_ptr<Ciphertext<DCRTPoly>> ciphertext,
+template <>
+Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalAdd(const Ciphertext<DCRTPoly> ciphertext,
 	const Plaintext plaintext) const{
 
-	shared_ptr<Ciphertext<DCRTPoly>> newCiphertext = ciphertext->CloneEmpty();
+	Ciphertext<DCRTPoly> newCiphertext = ciphertext->CloneEmpty();
 	newCiphertext->SetDepth(ciphertext->GetDepth());
 
 	const std::vector<DCRTPoly> &cipherTextElements = ciphertext->GetElements();
@@ -560,10 +561,10 @@ shared_ptr<Ciphertext<DCRTPoly>> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalAdd(const s
 }
 
 template <>
-shared_ptr<Ciphertext<DCRTPoly>> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalSub(const shared_ptr<Ciphertext<DCRTPoly>> ciphertext,
+Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalSub(const Ciphertext<DCRTPoly> ciphertext,
 	const Plaintext plaintext) const{
 
-	shared_ptr<Ciphertext<DCRTPoly>> newCiphertext = ciphertext->CloneEmpty();
+	Ciphertext<DCRTPoly> newCiphertext = ciphertext->CloneEmpty();
 	newCiphertext->SetDepth(ciphertext->GetDepth());
 
 	const std::vector<DCRTPoly> &cipherTextElements = ciphertext->GetElements();
@@ -672,10 +673,10 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalMult(const Ciphertext<D
 }
 
 template <>
-shared_ptr<LPEvalKey<DCRTPoly>> LPAlgorithmSHEBFVrns<DCRTPoly>::KeySwitchGen(const shared_ptr<LPPrivateKey<DCRTPoly>> originalPrivateKey,
-	const shared_ptr<LPPrivateKey<DCRTPoly>> newPrivateKey) const {
+LPEvalKey<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::KeySwitchGen(const LPPrivateKey<DCRTPoly> originalPrivateKey,
+	const LPPrivateKey<DCRTPoly> newPrivateKey) const {
 
-	shared_ptr<LPEvalKeyRelin<DCRTPoly>> ek(new LPEvalKeyRelin<DCRTPoly>(newPrivateKey->GetCryptoContext()));
+	LPEvalKeyRelin<DCRTPoly> ek(new LPEvalKeyRelinImpl<DCRTPoly>(newPrivateKey->GetCryptoContext()));
 
 	const shared_ptr<LPCryptoParametersBFVrns<DCRTPoly>> cryptoParamsLWE =
 			std::dynamic_pointer_cast<LPCryptoParametersBFVrns<DCRTPoly>>(newPrivateKey->GetCryptoParameters());
@@ -720,15 +721,15 @@ shared_ptr<LPEvalKey<DCRTPoly>> LPAlgorithmSHEBFVrns<DCRTPoly>::KeySwitchGen(con
 }
 
 template <>
-shared_ptr<Ciphertext<DCRTPoly>> LPAlgorithmSHEBFVrns<DCRTPoly>::KeySwitch(const shared_ptr<LPEvalKey<DCRTPoly>> ek,
-	const shared_ptr<Ciphertext<DCRTPoly>> cipherText) const
+Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::KeySwitch(const LPEvalKey<DCRTPoly> ek,
+	const Ciphertext<DCRTPoly> cipherText) const
 {
 
-	shared_ptr<Ciphertext<DCRTPoly>> newCiphertext = cipherText->CloneEmpty();
+	Ciphertext<DCRTPoly> newCiphertext = cipherText->CloneEmpty();
 
 	const shared_ptr<LPCryptoParametersBFVrns<DCRTPoly>> cryptoParamsLWE = std::dynamic_pointer_cast<LPCryptoParametersBFVrns<DCRTPoly>>(ek->GetCryptoParameters());
 
-	shared_ptr<LPEvalKeyRelin<DCRTPoly>> evalKey = std::static_pointer_cast<LPEvalKeyRelin<DCRTPoly>>(ek);
+	LPEvalKeyRelin<DCRTPoly> evalKey = std::static_pointer_cast<LPEvalKeyRelinImpl<DCRTPoly>>(ek);
 
 	const std::vector<DCRTPoly> &c = cipherText->GetElements();
 
@@ -774,15 +775,15 @@ shared_ptr<Ciphertext<DCRTPoly>> LPAlgorithmSHEBFVrns<DCRTPoly>::KeySwitch(const
 }
 
 template <>
-shared_ptr<Ciphertext<DCRTPoly>> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalMultAndRelinearize(const shared_ptr<Ciphertext<DCRTPoly>> ciphertext1,
-	const shared_ptr<Ciphertext<DCRTPoly>> ciphertext2, const shared_ptr<vector<shared_ptr<LPEvalKey<DCRTPoly>>>> ek) const{
+Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalMultAndRelinearize(const Ciphertext<DCRTPoly> ciphertext1,
+	const Ciphertext<DCRTPoly> ciphertext2, const shared_ptr<vector<LPEvalKey<DCRTPoly>>> ek) const{
 
-	shared_ptr<Ciphertext<DCRTPoly>> cipherText = this->EvalMult(ciphertext1, ciphertext2);
+	Ciphertext<DCRTPoly> cipherText = this->EvalMult(ciphertext1, ciphertext2);
 
 	const shared_ptr<LPCryptoParametersBFVrns<DCRTPoly>> cryptoParamsLWE =
 			std::dynamic_pointer_cast<LPCryptoParametersBFVrns<DCRTPoly>>(ek->at(0)->GetCryptoParameters());
 
-	shared_ptr<Ciphertext<DCRTPoly>> newCiphertext = cipherText->CloneEmpty();
+	Ciphertext<DCRTPoly> newCiphertext = cipherText->CloneEmpty();
 
 	std::vector<DCRTPoly> c = cipherText->GetElements();
 
@@ -796,7 +797,7 @@ shared_ptr<Ciphertext<DCRTPoly>> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalMultAndReli
 	//TODO: Maybe we can change the number of keyswitching and terminate early. For instance; perform keyswitching until 4 elements left.
 	for(size_t j = 0; j<=cipherText->GetDepth()-2; j++){
 		size_t index = cipherText->GetDepth()-2-j;
-		shared_ptr<LPEvalKeyRelin<DCRTPoly>> evalKey = std::static_pointer_cast<LPEvalKeyRelin<DCRTPoly>>(ek->at(index));
+		LPEvalKeyRelin<DCRTPoly> evalKey = std::static_pointer_cast<LPEvalKeyRelinImpl<DCRTPoly>>(ek->at(index));
 
 		const std::vector<DCRTPoly> &b = evalKey->GetAVector();
 		const std::vector<DCRTPoly> &a = evalKey->GetBVector();

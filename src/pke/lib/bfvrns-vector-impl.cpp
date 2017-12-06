@@ -108,7 +108,7 @@ DecryptResult LPAlgorithmBFVrns<Poly>::Decrypt(const LPPrivateKey<Poly> privateK
 }
 
 template <>
-shared_ptr<Ciphertext<Poly>> LPAlgorithmBFVrns<Poly>::Encrypt(const shared_ptr<LPPrivateKey<Poly>> privateKey,
+Ciphertext<Poly> LPAlgorithmBFVrns<Poly>::Encrypt(const LPPrivateKey<Poly> privateKey,
 		Poly ptxt) const
 {
 	std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead.";
@@ -122,36 +122,37 @@ Ciphertext<Poly> LPAlgorithmSHEBFVrns<Poly>::EvalMult(const Ciphertext<Poly> cip
 	throw std::runtime_error(errMsg);
 }
 
-shared_ptr<Ciphertext<Poly>> LPAlgorithmSHEBFVrns<Poly>::EvalAdd(const shared_ptr<Ciphertext<Poly>> ct,
+template <>
+Ciphertext<Poly> LPAlgorithmSHEBFVrns<Poly>::EvalAdd(const Ciphertext<Poly> ct,
 	const Plaintext pt) const{
 	std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead.";
 	throw std::runtime_error(errMsg);
 }
 
 template <>
-shared_ptr<Ciphertext<Poly>> LPAlgorithmSHEBFVrns<Poly>::EvalSub(const shared_ptr<Ciphertext<Poly>> ct,
+Ciphertext<Poly> LPAlgorithmSHEBFVrns<Poly>::EvalSub(const Ciphertext<Poly> ct,
 	const Plaintext pt) const{
 	std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead.";
 	throw std::runtime_error(errMsg);
 }
 
 template <>
-shared_ptr<LPEvalKey<Poly>> LPAlgorithmSHEBFVrns<Poly>::KeySwitchGen(const shared_ptr<LPPrivateKey<Poly>> originalPrivateKey,
-	const shared_ptr<LPPrivateKey<Poly>> newPrivateKey) const {
+LPEvalKey<Poly> LPAlgorithmSHEBFVrns<Poly>::KeySwitchGen(const LPPrivateKey<Poly> originalPrivateKey,
+	const LPPrivateKey<Poly> newPrivateKey) const {
 	std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead.";
 	throw std::runtime_error(errMsg);
 }
 
 template <>
-shared_ptr<Ciphertext<Poly>> LPAlgorithmSHEBFVrns<Poly>::KeySwitch(const shared_ptr<LPEvalKey<Poly>> keySwitchHint,
-	const shared_ptr<Ciphertext<Poly>> cipherText) const{
+Ciphertext<Poly> LPAlgorithmSHEBFVrns<Poly>::KeySwitch(const LPEvalKey<Poly> keySwitchHint,
+	const Ciphertext<Poly> cipherText) const{
 	std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead.";
 	throw std::runtime_error(errMsg);
 }
 
 template <>
-shared_ptr<Ciphertext<Poly>> LPAlgorithmSHEBFVrns<Poly>::EvalMultAndRelinearize(const shared_ptr<Ciphertext<Poly>> ct1,
-	const shared_ptr<Ciphertext<Poly>> ct, const shared_ptr<vector<shared_ptr<LPEvalKey<Poly>>>> ek) const{
+Ciphertext<Poly> LPAlgorithmSHEBFVrns<Poly>::EvalMultAndRelinearize(const Ciphertext<Poly> ct1,
+	const Ciphertext<Poly> ct, const shared_ptr<vector<LPEvalKey<Poly>>> ek) const{
 	std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead.";
 	throw std::runtime_error(errMsg);
 }

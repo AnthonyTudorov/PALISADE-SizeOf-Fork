@@ -524,7 +524,7 @@ void SHETestPackedInnerProduct() {
 	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP,PackedEncoding::GetAutomorphismGenerator(modulusP),batchSize));
 
 	//Set Crypto Parameters
-	shared_ptr<CryptoContext<DCRTPoly>> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
+	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
 			encodingParams, rootHermiteFactor, sigma, 0, 2, 0, OPTIMIZED,3);
 
 	// enable features that you wish to use

@@ -372,7 +372,7 @@ namespace lbcrypto {
 		* @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 		* @return ciphertext which results from encryption.
 		*/
-		shared_ptr<Ciphertext<Element>> Encrypt(const shared_ptr<LPPrivateKey<Element>> privateKey,
+		Ciphertext<Element> Encrypt(const LPPrivateKey<Element> privateKey,
 			Element plaintext) const;
 
 		/**
@@ -412,7 +412,7 @@ namespace lbcrypto {
 		* @param pt  input ciphertext.
 		* @return new ciphertext.
 		*/
-		shared_ptr<Ciphertext<Element>> EvalAdd(const shared_ptr<Ciphertext<Element>> ct,
+		Ciphertext<Element> EvalAdd(const Ciphertext<Element> ct,
 			const Plaintext pt) const;
 
 		/**
@@ -422,7 +422,7 @@ namespace lbcrypto {
 		* @param pt input ciphertext.
 		* @return new ciphertext.
 		*/
-		shared_ptr<Ciphertext<Element>> EvalSub(const shared_ptr<Ciphertext<Element>> ct1,
+		Ciphertext<Element> EvalSub(const Ciphertext<Element> ct1,
 			const Plaintext pt) const;
 
 		/**
@@ -444,8 +444,8 @@ namespace lbcrypto {
 		* @param newPrivateKey New private key to generate the keyswitch hint.
 		* @return resulting keySwitchHint.
 		*/
-		shared_ptr<LPEvalKey<Element>> KeySwitchGen(const shared_ptr<LPPrivateKey<Element>> originalPrivateKey,
-			const shared_ptr<LPPrivateKey<Element>> newPrivateKey) const;
+		LPEvalKey<Element> KeySwitchGen(const LPPrivateKey<Element> originalPrivateKey,
+			const LPPrivateKey<Element> newPrivateKey) const;
 
 		/**
 		* Method for key switching based on a KeySwitchHint using RLWE relinearization
@@ -454,8 +454,8 @@ namespace lbcrypto {
 		* @param &cipherText Original ciphertext to perform switching on.
 		* @return new ciphertext
 		*/
-		shared_ptr<Ciphertext<Element>> KeySwitch(const shared_ptr<LPEvalKey<Element>> keySwitchHint,
-			const shared_ptr<Ciphertext<Element>> cipherText) const;
+		Ciphertext<Element> KeySwitch(const LPEvalKey<Element> keySwitchHint,
+			const Ciphertext<Element> cipherText) const;
 
 		/**
 		* Function for evaluating multiplication on ciphertext followed by relinearization operation.
@@ -467,8 +467,8 @@ namespace lbcrypto {
 		*  decryptable by the same secret key as that of ciphertext1 and ciphertext2.
 		* @return new ciphertext
 		*/
-		shared_ptr<Ciphertext<Element>> EvalMultAndRelinearize(const shared_ptr<Ciphertext<Element>> ct1,
-			const shared_ptr<Ciphertext<Element>> ct, const shared_ptr<vector<shared_ptr<LPEvalKey<Element>>>> ek) const;
+		Ciphertext<Element> EvalMultAndRelinearize(const Ciphertext<Element> ct1,
+			const Ciphertext<Element> ct, const shared_ptr<vector<LPEvalKey<Element>>> ek) const;
 
 
 	};
