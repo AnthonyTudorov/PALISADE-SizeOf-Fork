@@ -598,15 +598,6 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalMult(const Ciphertext<D
 	double processingTime(0.0);
 	TimeVar t;
 
-	bool isCiphertext1FormatCoeff = false;
-	bool isCiphertext2FormatCoeff = false;
-
-	if(ciphertext1->GetElements()[0].GetFormat() == Format::COEFFICIENT)
-			isCiphertext1FormatCoeff = true;
-
-	if(ciphertext2->GetElements()[0].GetFormat() == Format::COEFFICIENT)
-			isCiphertext2FormatCoeff = true;
-
 	if (!(ciphertext1->GetCryptoParameters() == ciphertext2->GetCryptoParameters())) {
 		std::string errMsg = "LPAlgorithmSHEBFVrns::EvalMult crypto parameters are not the same";
 		throw std::runtime_error(errMsg);
@@ -630,28 +621,13 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalMult(const Ciphertext<D
 	size_t cipherText2ElementsSize = cipherText2Elements.size();
 	size_t cipherTextRElementsSize = cipherText1ElementsSize + cipherText2ElementsSize - 1;
 
-	//converts the ciphertext elements to coefficient format
-
 	std::vector<DCRTPoly> c(cipherTextRElementsSize);
-
-	TIC(t);
-
-	if(isCiphertext1FormatCoeff != true)
-		for(size_t i=0; i<cipherText1ElementsSize; i++)
-			cipherText1Elements[i].SwitchFormat();
-
-	if(isCiphertext2FormatCoeff != true)
-		for(size_t i=0; i<cipherText2ElementsSize; i++)
-			cipherText2Elements[i].SwitchFormat();
-
-	processingTime = TOC(t);
-	std::cout << "NTT #1: " << processingTime << "ms" << std::endl;
 
 	const shared_ptr<typename DCRTPoly::Params> elementParams = cryptoParamsBFVrns->GetElementParams();
 	const shared_ptr<ILDCRTParams<BigInteger>> paramsS = cryptoParamsBFVrns->GetDCRTParamsS();
 	const shared_ptr<ILDCRTParams<BigInteger>> paramsQS = cryptoParamsBFVrns->GetDCRTParamsQS();
 
-	// Expands the CRT basis to Q*S
+	// Expands the CRT basis to Q*S; Outputs the polynomials in EVALUATION representation
 
 	TIC(t);
 
@@ -666,22 +642,6 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalMult(const Ciphertext<D
 
 	processingTime = TOC(t);
 	std::cout << "Expand the basis: " << processingTime << "ms" << std::endl;
-
-	//converts the ciphertext elements back to evaluation representation
-
-	// we can copy all q elements if they were originally available in the evaluation representation
-	// this will speed up this SwitchFormat() operation by a factor of 2
-
-	TIC(t);
-
-	for(size_t i=0; i<cipherText1ElementsSize; i++)
-		cipherText1Elements[i].SwitchFormat();
-
-	for(size_t i=0; i<cipherText2ElementsSize; i++)
-		cipherText2Elements[i].SwitchFormat();
-
-	processingTime = TOC(t);
-	std::cout << "NTT #2: " << processingTime << "ms" << std::endl;
 
 	// Performs the multiplication itself
 

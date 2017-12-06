@@ -1122,12 +1122,20 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 }
 
 // @brief Expands polynomial in CRT basis Q = q1*q2*...*qn to a larger CRT basis Q*S, where S = s1*s2*...*sn;
-// uses SwichCRTBasis as a subroutine
+// uses SwichCRTBasis as a subroutine; Outputs the resulting polynomial in EVALUATION representation
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
 void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ExpandCRTBasis(const shared_ptr<ParmType> paramsExpanded,
 		const shared_ptr<ParmType> params, const std::vector<typename PolyType::Integer> &qInvModqi,
 		const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsi, const std::vector<typename PolyType::Integer> &qModsi) {
+
+	std::vector<PolyType> polyInNTT;
+
+	// if the input polynomial is in evaluation representation, store it for later use to reduce the number of NTTs
+	if (this->GetFormat() == EVALUATION) {
+		polyInNTT = m_vectors;
+		this->SwitchFormat();
+	}
 
 	DCRTPolyType polyWithSwitchedCRTBasis = SwitchCRTBasis(params,qInvModqi,qDivqiModsi,qModsi);
 
@@ -1136,10 +1144,24 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ExpandCRTBasis(const shared
 
 	m_vectors.resize(newSize);
 
-	// populate the towers corresponding to CRT basis S
+	// populate the towers corresponding to CRT basis S and convert them to evaluation representation
 	for (size_t i = 0; i < polyWithSwitchedCRTBasis.m_vectors.size(); i++ ) {
 		m_vectors[size + i] = polyWithSwitchedCRTBasis.GetElementAtIndex(i);
+		m_vectors[size + i].SwitchFormat();
 	}
+
+	if (polyInNTT.size() > 0) // if the input polynomial was in evaluation representation, use the towers for Q from it
+	{
+		for (size_t i = 0; i < size; i++ )
+			m_vectors[i] = polyInNTT[i];
+	}
+	else
+	{ // else call NTT for the towers for Q
+		for (size_t i = 0; i <size; i++ )
+			m_vectors[i].SwitchFormat();
+	}
+
+	m_format = EVALUATION;
 
 	m_params = paramsExpanded;
 

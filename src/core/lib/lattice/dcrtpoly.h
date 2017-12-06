@@ -711,7 +711,7 @@ public:
 
 	/**
 	* @brief Expands polynomial in CRT basis Q = q1*q2*...*qn to a larger CRT basis Q*S, where S = s1*s2*...*sn;
-	* uses SwtichCRTBasis as a subroutine
+	* uses SwtichCRTBasis as a subroutine; the result is in evaluation representation
 	*
 	* @param &paramsQS parameters for the expanded CRT basis Q*S
 	* @param &params parameters for the CRT basis S
